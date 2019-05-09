@@ -1,0 +1,26 @@
+import { Value2D } from "././Value2D";
+import { WebGL } from "../../../WebGL"
+	import { Shader2D } from "../Shader2D"
+	import { ShaderDefines2D } from "../ShaderDefines2D"
+	
+	export class TextureSV extends Value2D
+	{
+		 u_colorMatrix:any[];
+		 strength : number = 0;
+		 blurInfo:any[] = null;
+		 colorMat : Float32Array = null;
+		 colorAlpha : Float32Array = null;
+		constructor(subID:number=0){
+			super(ShaderDefines2D.TEXTURE2D, subID);
+			this._attribLocation = ['posuv', 0, 'attribColor', 1, 'attribFlags', 2];// , 'clipDir', 3, 'clipRect', 4];
+		}
+		
+		/*override*/  clear():void
+		{
+			this.texture = null;
+			this.shader = null;
+			this.defines._value=this.subID + (WebGL.shaderHighPrecision?ShaderDefines2D.SHADERDEFINE_FSHIGHPRECISION:0);
+			//defines.setValue(0);
+		}
+	}
+

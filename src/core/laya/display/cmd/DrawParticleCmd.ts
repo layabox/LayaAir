@@ -1,0 +1,42 @@
+import { Point } from "../../maths/Point"
+	import { Context } from "../../resource/Context"
+	import { Texture } from "../../resource/Texture"
+	import { Pool } from "../../utils/Pool"
+	import { Matrix } from "../../maths/Matrix"
+	
+	/**
+	 * 绘制粒子
+	 * @private
+	 */
+	export class DrawParticleCmd {
+		 static ID:string = "DrawParticleCmd";
+		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		private _templ:any;
+		
+		/**@private */
+		 static create(_temp:any):DrawParticleCmd {
+			var cmd:DrawParticleCmd = Pool.getItemByClass("DrawParticleCmd", DrawParticleCmd);
+			cmd._templ = _temp;
+			return cmd;
+		}
+		
+		/**
+		 * 回收到对象池
+		 */
+		 recover():void {
+			this._templ = null;
+			Pool.recover("DrawParticleCmd", this);
+		}
+		
+		/**@private */
+		 run(context:Context, gx:number, gy:number):void {
+			//这个只有webgl在用
+			context.drawParticle(gx, gy, this._templ);
+		}
+		
+		/**@private */
+		 get cmdID():string {
+			return DrawParticleCmd.ID;
+		}
+	}
+
