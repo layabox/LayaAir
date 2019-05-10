@@ -60,9 +60,9 @@ import { Event } from "../events/Event"
 		/**@private */
 		private static _isActive:boolean = true;
 		/**@private */
-		 static _soundClass:Object;
+		 static _soundClass:new()=>any;
 		/**@private */
-		 static _musicClass:Object;
+		 static _musicClass:new()=>any;
 		/**@private */
 		private static _lastSoundUsedTimeDic:any = { };
 		/**@private */
@@ -319,7 +319,7 @@ import { Event } from "../events/Event"
 		 * @param startTime		声音播放起始时间。
 		 * @return SoundChannel对象，通过此对象可以对声音进行控制，以及获取声音信息。
 		 */
-		 static playSound(url:string, loops:number = 1, complete:Handler = null, soundClass:Object = null, startTime:number = 0):SoundChannel {
+		 static playSound(url:string, loops:number = 1, complete:Handler = null, soundClass:new()=>any = null, startTime:number = 0):SoundChannel {
 			if (!SoundManager._isActive || !url) return null;
 			if (SoundManager._muted) return null;
 			SoundManager._recoverWebAudio();

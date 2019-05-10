@@ -1,4 +1,4 @@
-import { ISubmit } from "././ISubmit";
+import { SubmitBase } from "././SubmitBase";
 import { Matrix } from "../../maths/Matrix"
 	import { Context } from "../../resource/Context"
 	import { ShaderDefines2D } from "../shader/d2/ShaderDefines2D"
@@ -6,12 +6,15 @@ import { Matrix } from "../../maths/Matrix"
 	import { CONST3D2D } from "../utils/CONST3D2D"
 	import { Mesh2D } from "../utils/Mesh2D"
 	import { RenderState2D } from "../utils/RenderState2D"
-import { Submit } from "./Submit";
 	
 	/**
 	 * cache as normal 模式下的生成的canvas的渲染。
 	 */
-	export class SubmitCanvas extends Submit {
+	
+	export class SubmitCanvas extends SubmitBase {
+		 _matrix:Matrix = new Matrix();		// 用来计算当前的世界矩阵
+		 canv:Context;
+		 _matrix4:any[] = CONST3D2D.defaultMatrix4.concat();
 		
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		 static create(canvas:any, alpha:number, filters:any[]):SubmitCanvas {
@@ -26,12 +29,8 @@ import { Submit } from "./Submit";
 			return o;
 		}
 		
-		 _matrix:Matrix = new Matrix();		// 用来计算当前的世界矩阵
-		 canv:Context;
-		 _matrix4:any[] = CONST3D2D.defaultMatrix4.concat();
-		
 		constructor(){
-			super(Submit.TYPE_2D);
+			super(SubmitBase.TYPE_2D);
 			this.shaderValue = new Value2D(0, 0);
 		}
 		
@@ -75,8 +74,7 @@ import { Submit } from "./Submit";
 		}
 		
 		 /*override*/ releaseRender():void {
-			if( (--this._ref) <1)
-			{
+			if( (--this._ref) <1){
 				var cache:any = SubmitCanvas.POOL;
 				//_vb = null;
 				this._mesh = null;
@@ -84,18 +82,10 @@ import { Submit } from "./Submit";
 			}
 		}
 		
-		//TODO:coverage
-		 /*override*/ clone(context:Context,mesh:Mesh2D,pos:number):ISubmit
-		{
-			return null;
-		}
-		
-		//TODO:coverage
 		 /*override*/ getRenderType():number {
-			return Submit.TYPE_CANVAS;
+			return SubmitBase.TYPE_CANVAS;
 		}
 		
-		public static POOL:any =[];/*[STATIC SAFE]*/ ;
+		 static POOL:any =[];/*[STATIC SAFE]*/ ;
 	}
-{(SubmitCanvas.POOL as any)._length = 0}
-
+{SubmitCanvas.POOL._length = 0}

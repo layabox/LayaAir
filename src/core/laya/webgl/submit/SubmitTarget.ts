@@ -2,36 +2,32 @@ import { ISubmit } from "././ISubmit";
 import { SubmitKey } from "././SubmitKey";
 import { ColorFilter } from "../../filters/ColorFilter"
 	import { Context } from "../../resource/Context"
+	import { RenderTexture2D } from "../../resource/RenderTexture2D"
 	import { Stat } from "../../utils/Stat"
 	import { WebGL } from "../WebGL"
 	import { WebGLContext } from "../WebGLContext"
 	import { BlendMode } from "../canvas/BlendMode"
-	import { RenderTexture2D } from "../../resource/RenderTexture2D"
 	import { TextureSV } from "../shader/d2/value/TextureSV"
 	import { Value2D } from "../shader/d2/value/Value2D"
 	import { CONST3D2D } from "../utils/CONST3D2D"
 	import { Mesh2D } from "../utils/Mesh2D"
 
-	export class SubmitTarget implements ISubmit
-	{
+
+	export class SubmitTarget implements ISubmit{
 		 _mesh:Mesh2D;			//代替 _vb,_ib
 		 _startIdx : number;
 		 _numEle : number;		
-		
 		 shaderValue:Value2D;
 		 blendType:number = 0;
 		 _ref:number=1;
 		 _key:SubmitKey=new SubmitKey();
-		
-		//public var proName:String;
-		//public var  scope:SubmitCMDScope;
 		 srcRT:RenderTexture2D;
+		
 		constructor(){
 		}
 		
 		 static POOL:any =[];
-		 renderSubmit():number
-		{
+		 renderSubmit():number{
 			var gl:WebGLContext= WebGL.mainContext;
 			this._mesh.useMesh(gl);
 			
@@ -47,8 +43,7 @@ import { ColorFilter } from "../../filters/ColorFilter"
 			return 1;
 		}
 		
-		 blend():void
-		{
+		 blend():void{
 			if (BlendMode.activeBlendFunction !== BlendMode.fns[this.blendType])
 			{
 				var gl:WebGLContext= WebGL.mainContext;
@@ -58,30 +53,18 @@ import { ColorFilter } from "../../filters/ColorFilter"
 			}
 		}
 		
-		//TODO:coverage
-		 getRenderType():number
-		{
+		 getRenderType():number{
 			return 0;
 		}
 		
-		 releaseRender():void
-		{
-			if ( (--this._ref) < 1)
-			{
+		 releaseRender():void{
+			if ( (--this._ref) < 1){
 				var pool:any = SubmitTarget.POOL;
 				pool[pool._length++] = this;
 			}
 		}
 		
-		//TODO:coverage
-		 reUse(context:Context, pos:number):number
-		{
-			this._startIdx = pos;
-			this._ref++;
-			return pos;
-		}
-		 static create(context:Context, mesh:Mesh2D,sv:Value2D,rt:RenderTexture2D):SubmitTarget
-		{
+		 static create(context:Context, mesh:Mesh2D,sv:Value2D,rt:RenderTexture2D):SubmitTarget{
 			var o:SubmitTarget = SubmitTarget.POOL._length?SubmitTarget.POOL[--SubmitTarget.POOL._length]:new SubmitTarget();
 			o._mesh = mesh;
 			o.srcRT=rt;
@@ -105,4 +88,5 @@ import { ColorFilter } from "../../filters/ColorFilter"
 {
 			SubmitTarget.POOL._length=0;
 		}
+		
 		

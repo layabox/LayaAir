@@ -2,6 +2,7 @@ import { Sprite } from "../../display/Sprite"
 	import { Matrix } from "../../maths/Matrix"
 	import { Context } from "../../resource/Context"
 	import { Submit } from "../submit/Submit"
+	import { SubmitBase } from "../submit/SubmitBase"
 	import { Mesh2D } from "../utils/Mesh2D"
 	import { MeshQuadTexture } from "../utils/MeshQuadTexture"
 	import { MeshTexture } from "../utils/MeshTexture"
@@ -78,7 +79,7 @@ import { Sprite } from "../../display/Sprite"
 			this.meshlist.push(this._triangleMesh);
 			
 			// 打断合并
-			this.context._curSubmit = Submit.RENDERBASE;
+			this.context._curSubmit = SubmitBase.RENDERBASE;
 			// 接管context中的一些值
 			this._oldMesh = this.context._mesh;
 			this._oldPathMesh = this.context._pathMesh;
@@ -125,7 +126,7 @@ import { Sprite } from "../../display/Sprite"
 			this.context.meshlist = this._oldMeshList;
 			
 			// 打断合并
-			this.context._curSubmit = Submit.RENDERBASE;
+			this.context._curSubmit = SubmitBase.RENDERBASE;
 			// 恢复matrix
 			//context._curMat = oldMatrix;
 			this.context._curMat.tx = this.oldTx;
@@ -147,10 +148,10 @@ import { Sprite } from "../../display/Sprite"
 		}
 		
 		 flushsubmit():void {
-			var curSubmit:Submit = Submit.RENDERBASE;
+			var curSubmit:SubmitBase = SubmitBase.RENDERBASE;
 			this.submits.forEach(function(subm:Submit):void { 
-				if (subm == Submit.RENDERBASE) return;
-				Submit.preRender = curSubmit;
+				if (subm == SubmitBase.RENDERBASE) return;
+				SubmitBase.preRender = curSubmit;
 				curSubmit = subm;
 				subm.renderSubmit();
 			} );

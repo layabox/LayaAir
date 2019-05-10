@@ -51,7 +51,7 @@ import { Utils } from "././Utils";
 		/**
 		 * 返回类的唯一标识
 		 */
-		private static _getClassSign(cla:Object):string {
+		private static _getClassSign(cla:new()=>any):string {
 			var className:string = cla["__className"] || cla["_$gid"];
 			if (!className) {
 				cla["_$gid"] = className = Utils.getGID() + "";

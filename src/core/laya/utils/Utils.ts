@@ -1,4 +1,3 @@
-import { XmlDom } from "./../../../jsc/XmlDom";
 import { RunDriver } from "././RunDriver";
 import { Browser } from "././Browser";
 import { Laya } from "./../../Laya";
@@ -62,7 +61,7 @@ import { Sprite } from "../display/Sprite"
 		 * @param value 需要解析的字符串。
 		 * @return js原生的XML对象。
 		 */
-		 static parseXMLFromString:Function = function(value:string):XmlDom {
+		 static parseXMLFromString:Function = function(value:string):XMLDocument {
 			var rst:any;
 			value = value.replace(/>\s+</g, '><');
 			rst=(new DOMParser()).parseFromString(value,'text/xml');

@@ -1,6 +1,7 @@
 import { ISaveData } from "././ISaveData";
 import { Context } from "../../../resource/Context"
 	import { Submit } from "../../submit/Submit"
+	import { SubmitBase } from "../../submit/SubmitBase"
 	
 	export class SaveBase implements ISaveData {
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
@@ -71,7 +72,7 @@ import { Context } from "../../../resource/Context"
 		 restore(context:Context):void {
 			this._dataObj[this._valueName] = this._value;
 			SaveBase.POOL[SaveBase.POOL._length++] = this;
-			this._newSubmit && (context._curSubmit = Submit.RENDERBASE);
+			this._newSubmit && (context._curSubmit = SubmitBase.RENDERBASE);
 		}
 		
 		 static save(context:Context, type:number, dataObj:any, newSubmit:boolean):void {

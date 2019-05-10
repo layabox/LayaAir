@@ -61,7 +61,7 @@ import { Event } from "../events/Event"
 		/**
 		 * 用来发送和接收数据的 <code>Byte</code> 类。
 		 */
-		private _byteClass:Object;
+		private _byteClass:new()=>any;
 		/**
 		 * <p>子协议名称。子协议名称字符串，或由多个子协议名称字符串构成的数组。必须在调用 connect 或者 connectByUrl 之前进行赋值，否则无效。</p>
 		 * <p>指定后，只有当服务器选择了其中的某个子协议，连接才能建立成功，否则建立失败，派发 Event.ERROR 事件。</p>
@@ -113,7 +113,7 @@ import { Event } from "../events/Event"
 		 * @param protocols	子协议名称。子协议名称字符串，或由多个子协议名称字符串构成的数组
 		 * @see laya.utils.Byte
 		 */
-		constructor(host:string = null, port:number = 0, byteClass:Object = null, protocols:any[] = null){
+		constructor(host:string = null, port:number = 0, byteClass:new()=>any = null, protocols:any[] = null){
 			super();
 this._byteClass = byteClass ? byteClass : Byte;
 			this.protocols = protocols;

@@ -3,5 +3,4 @@ import { Context } from "../../resource/Context"
 		renderSubmit():number;
 		getRenderType():number;
 		releaseRender():void;
-		reUse(context:Context, pos:number):number;
 	}

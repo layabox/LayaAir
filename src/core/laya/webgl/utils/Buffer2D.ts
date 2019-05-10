@@ -213,6 +213,33 @@ import { Buffer } from "./Buffer";
 			this._checkArrayUse();
 		}
 		
+		//TODO:coverage
+		 appendEx(data:any,type:new()=>any):void {
+			this._upload = true;
+			var byteLen:number, n:any;
+			byteLen = data.byteLength;
+			this._resizeBuffer(this._byteLength + byteLen, true);
+			n = new type(this._buffer, this._byteLength);
+			n.set(data, 0);
+			this._byteLength += byteLen;
+			this._checkArrayUse();
+		}
+		
+		//TODO:coverage
+		 appendEx2(data:any,type:new()=>any,dataLen:number,perDataLen:number=1):void {
+			this._upload = true;
+			var byteLen:number, n:any;
+			byteLen =dataLen*perDataLen;
+			this._resizeBuffer(this._byteLength + byteLen, true);
+			n = new type(this._buffer, this._byteLength);
+			var i:number;
+			for (i = 0; i < dataLen;i++ )
+			{
+				n[i] = data[i];
+			}
+			this._byteLength += byteLen;
+			this._checkArrayUse();
+		}
 		
 		
 		//TODO:coverage

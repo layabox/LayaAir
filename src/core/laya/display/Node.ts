@@ -934,7 +934,7 @@ this.createGLBuffer();
 		 * @param	type 组件类型。
 		 * @return	组件。
 		 */
-		 addComponent(type:Object):any {
+		 addComponent(type:new()=>any):any {
 			var comp:Component = Pool.createByClass(type);
 			comp._destroyed = false;
 			if (comp.isSingleton && this.getComponent(type))

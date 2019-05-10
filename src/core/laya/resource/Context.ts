@@ -28,6 +28,7 @@ import { Sprite } from "../display/Sprite"
 	import { SaveTransform } from "../webgl/canvas/save/SaveTransform"
 	import { SaveTranslate } from "../webgl/canvas/save/SaveTranslate"
 	import { BaseTexture } from "./BaseTexture"
+	import { SubmitBase } from "../webgl/submit/SubmitBase"
 	import { CharRenderInfo } from "../webgl/text/CharRenderInfo"
 	import { RenderTexture2D } from "./RenderTexture2D"
 	import { Texture2D } from "./Texture2D"
@@ -73,7 +74,7 @@ import { Sprite } from "../display/Sprite"
 		 static _MAXSIZE:number = 99999999;
 		private static _MAXVERTNUM:number = 65535;
 		
-		 static MAXCLIPRECT:Rectangle = /*[STATIC SAFE]*/ new Rectangle(0,0, Context._MAXSIZE, Context._MAXSIZE);
+		 static MAXCLIPRECT:Rectangle = null;
 		
 		 static _COUNT:number = 0;
 			
@@ -89,6 +90,7 @@ import { Sprite } from "../display/Sprite"
 		private _drawTriUseAbsMatrix:boolean = false;	//drawTriange函数的矩阵是全局的，不用再乘以当前矩阵了。这是一个补丁。
 		
 		 static __init__():void {
+			Context.MAXCLIPRECT=  new Rectangle(0,0, Context._MAXSIZE, Context._MAXSIZE);
 			ContextParams.DEFAULT = new ContextParams();
 			WebGLCacheAsNormalCanvas;
 		}
@@ -560,9 +562,9 @@ import { Sprite } from "../display/Sprite"
 			
 			this._clipRect = Context.MAXCLIPRECT;
 			
-			this._curSubmit = Submit.RENDERBASE;
-			Submit.RENDERBASE._ref = 0xFFFFFF;
-			Submit.RENDERBASE._numEle = 0;
+			this._curSubmit = SubmitBase.RENDERBASE;
+			SubmitBase.RENDERBASE._ref = 0xFFFFFF;
+			SubmitBase.RENDERBASE._numEle = 0;
 			
 			this._shader2D.fillStyle = this._shader2D.strokeStyle = DrawStyle.DEFAULT;
 			
@@ -698,7 +700,7 @@ import { Sprite } from "../display/Sprite"
 		 set globalCompositeOperation(value:string) {
 			var n:any = BlendMode.TOINT[value];
 			
-			n == null || (this._nBlendType === n) || (SaveBase.save(this, SaveBase.TYPE_GLOBALCOMPOSITEOPERATION, this, true), this._curSubmit = Submit.RENDERBASE, this._nBlendType = n /*, _shader2D.ALPHA = 1*/);
+			n == null || (this._nBlendType === n) || (SaveBase.save(this, SaveBase.TYPE_GLOBALCOMPOSITEOPERATION, this, true), this._curSubmit = SubmitBase.RENDERBASE, this._nBlendType = n /*, _shader2D.ALPHA = 1*/);
 		}
 		
 		 get globalCompositeOperation():string {
@@ -758,7 +760,7 @@ import { Sprite } from "../display/Sprite"
 			}
 			if (lastBlend != this._nBlendType) {
 				//阻止合并
-				this._curSubmit = Submit.RENDERBASE;
+				this._curSubmit = SubmitBase.RENDERBASE;
 			}
 		}
 		
@@ -863,7 +865,7 @@ import { Sprite } from "../display/Sprite"
 		
 		private _fillRect(x:number, y:number, width:number, height:number, rgba:number):void {
 			var submit:Submit = this._curSubmit;
-			var sameKey:boolean = submit  && (submit._key.submitType === Submit.KEY_DRAWTEXTURE && submit._key.blendShader === this._nBlendType);
+			var sameKey:boolean = submit  && (submit._key.submitType === SubmitBase.KEY_DRAWTEXTURE && submit._key.blendShader === this._nBlendType);
 			if ( this._mesh.vertNum + 4 > Context._MAXVERTNUM) {
 				this._mesh = MeshQuadTexture.getAMesh(this.isMain);//创建新的mesh  TODO 如果_mesh不是常见格式，这里就不能这么做了。以后把_mesh单独表示成常用模式 
 				this.meshlist.push(this._mesh);
@@ -883,9 +885,9 @@ import { Sprite } from "../display/Sprite"
 					this._copyClipInfo(submit, this._globalClipMatrix);
 					submit.shaderValue.textureHost = this._lastTex;
 					//这里有一个问题。例如 clip1, drawTex(tex1), clip2, fillRect, drawTex(tex2)	会被分成3个submit，
-					//submit._key.copyFrom2(_submitKey, Submit.KEY_DRAWTEXTURE, (_lastTex && _lastTex.bitmap)?_lastTex.bitmap.id: -1);
+					//submit._key.copyFrom2(_submitKey, SubmitBase.KEY_DRAWTEXTURE, (_lastTex && _lastTex.bitmap)?_lastTex.bitmap.id: -1);
 					submit._key.other = (this._lastTex && this._lastTex.bitmap)?this._lastTex.bitmap.id: -1
-					submit._renderType = Submit.TYPE_TEXTURE;
+					submit._renderType = SubmitBase.TYPE_TEXTURE;
 				}				
 				this._curSubmit._numEle += 6;
 				this._mesh.indexNum += 6;
@@ -992,7 +994,7 @@ import { Sprite } from "../display/Sprite"
 				this._submits[this._submits._length++] = submit;
 				this._copyClipInfo(submit, this._globalClipMatrix);
 				submit.shaderValue.textureHost = texture;
-				submit._renderType = Submit.TYPE_TEXTURE;
+				submit._renderType = SubmitBase.TYPE_TEXTURE;
 				this._curSubmit._numEle += 6;
 				this._mesh.indexNum += 6;
 				this._mesh.vertNum += 4;
@@ -1009,7 +1011,7 @@ import { Sprite } from "../display/Sprite"
 			SaveBase.save(this, SaveBase.TYPE_COLORFILTER, this, true);
 			//_shader2D.filters = value;
 			this._colorFiler = filter;
-			this._curSubmit = Submit.RENDERBASE;
+			this._curSubmit = SubmitBase.RENDERBASE;
 			//_reCalculateBlendShader();
 		}
 		
@@ -1076,10 +1078,10 @@ import { Sprite } from "../display/Sprite"
 			submit = SubmitTexture.create(this, this._mesh, Value2D.create(ShaderDefines2D.TEXTURE2D, 0));
 			this._submits[this._submits._length++] = submit;
 			submit.shaderValue.textureHost = tex;
-			//submit._key.copyFrom2(_submitKey, Submit.KEY_DRAWTEXTURE, imgid);
+			//submit._key.copyFrom2(_submitKey, SubmitBase.KEY_DRAWTEXTURE, imgid);
 			submit._key.other = imgid;
 			//submit._key.alpha = shader.ALPHA;
-			submit._renderType = Submit.TYPE_TEXTURE;
+			submit._renderType = SubmitBase.TYPE_TEXTURE;
 			this._curSubmit = submit;
 			
 			//shader.ALPHA = alphaBack;
@@ -1117,7 +1119,7 @@ import { Sprite } from "../display/Sprite"
 			submit.clipInfoID = this._clipInfoID;
 		}
 		*/
-		 _copyClipInfo(submit:Submit, clipInfo:Matrix):void {
+		 _copyClipInfo(submit:SubmitBase, clipInfo:Matrix):void {
 			var cm:any[] = submit.shaderValue.clipMatDir;
 			cm[0] = clipInfo.a; cm[1] = clipInfo.b; cm[2] = clipInfo.c; cm[3] = clipInfo.d; 
 			var cmp:any[] = submit.shaderValue.clipMatPos;
@@ -1130,7 +1132,7 @@ import { Sprite } from "../display/Sprite"
 		}
 				
 		
-		private isSameClipInfo(submit:Submit):boolean {
+		private isSameClipInfo(submit:SubmitBase):boolean {
 			return (submit.clipInfoID === this._clipInfoID);
 			/*
 			var cd:Array = submit.shaderValue.clipDir;
@@ -1148,7 +1150,7 @@ import { Sprite } from "../display/Sprite"
 		 * @param	minVertNum
 		 */
 		 _useNewTex2DSubmit(tex:Texture, minVertNum:number):void {
-			//var sameKey:Boolean = tex.bitmap.id >= 0 && preKey.submitType === Submit.KEY_DRAWTEXTURE && preKey.other === tex.bitmap.id ;
+			//var sameKey:Boolean = tex.bitmap.id >= 0 && preKey.submitType === SubmitBase.KEY_DRAWTEXTURE && preKey.other === tex.bitmap.id ;
 			
 			if (this._mesh.vertNum + minVertNum > Context._MAXVERTNUM) {
 				this._mesh = MeshQuadTexture.getAMesh(this.isMain);//创建新的mesh  TODO 如果_mesh不是常见格式，这里就不能这么做了。以后把_mesh单独表示成常用模式 
@@ -1210,7 +1212,7 @@ import { Sprite } from "../display/Sprite"
 			uv = uv || tex._uv
 			//为了优化，如果上次是画三角形，并且贴图相同，会认为他们是一组的，把这个也转成三角形，以便合并。
 			//因为好多动画是drawTexture和drawTriangle混用的
-			if ( preKey.submitType === Submit.KEY_TRIANGLES && preKey.other === imgid) {
+			if ( preKey.submitType === SubmitBase.KEY_TRIANGLES && preKey.other === imgid) {
 				var tv:Float32Array = this._drawTexToDrawTri_Vert;
 				tv[0] = x; tv[1] = y; tv[2] = x + width, tv[3] = y, tv[4] = x + width, tv[5] = y + height, tv[6] = x, tv[7] = y + height;
 				this._drawTriUseAbsMatrix = true;
@@ -1252,7 +1254,7 @@ import { Sprite } from "../display/Sprite"
 
 			this._drawCount++;
 			
-			var sameKey:boolean = imgid >= 0 && preKey.submitType === Submit.KEY_DRAWTEXTURE && preKey.other === imgid ;
+			var sameKey:boolean = imgid >= 0 && preKey.submitType === SubmitBase.KEY_DRAWTEXTURE && preKey.other === imgid ;
 			
 			//clipinfo
 			sameKey && (sameKey =sameKey&& this.isSameClipInfo(submit));
@@ -1429,7 +1431,7 @@ import { Sprite } from "../display/Sprite"
 		 * 例如切换rt的时候
 		 */
 		 breakNextMerge():void {
-			this._curSubmit = Submit.RENDERBASE;			
+			this._curSubmit = SubmitBase.RENDERBASE;			
 		}
 		
 		//TODO:coverage
@@ -1530,11 +1532,11 @@ import { Sprite } from "../display/Sprite"
 			if(context._submits._length>0)
 				target.clear(0, 0, 0, 0);			
 			
-			context._curSubmit = Submit.RENDERBASE;
+			context._curSubmit = SubmitBase.RENDERBASE;
 			context.flush();
 			context.clear();
 			target.restore();
-			context._curSubmit = Submit.RENDERBASE;
+			context._curSubmit = SubmitBase.RENDERBASE;
 			//context._canvas
 			BaseShader.activeShader = null;
 			RenderState2D.worldAlpha = preAlpha;
@@ -1552,7 +1554,7 @@ import { Sprite } from "../display/Sprite"
 				//生成渲染结果到src._targets上
 				/*
 				this._submits[this._submits._length++] = SubmitCanvas.create(src, 0, null);
-				_curSubmit = Submit.RENDERBASE;
+				_curSubmit = SubmitBase.RENDERBASE;
 				//画出src._targets
 				//drawTexture(src._targets.target.getTexture(), x, y, width, height, 0, 0);
 				*/
@@ -1563,11 +1565,11 @@ import { Sprite } from "../display/Sprite"
 				}
 				//在这之前就已经渲染出结果了。
 				this._drawRenderTexture(src._targets, x, y, width, height, null, 1.0, RenderTexture2D.flipyuv);
-				this._curSubmit = Submit.RENDERBASE;
+				this._curSubmit = SubmitBase.RENDERBASE;
 				/*
 				this._submits[this._submits._length++] = SubmitCanvas.create(src, 0, null);
 				//src._targets.flush(src);
-				_curSubmit = Submit.RENDERBASE;
+				_curSubmit = SubmitBase.RENDERBASE;
 				//src._targets.drawTo(this, x, y, width, height);
 				//drawTexture(src._targets.target.getTexture(), x, y, width, height, 0, 0);
 				_drawRenderTexture(src._targets, x, y, width, height,null,1.0, RenderTexture.flipyuv);
@@ -1594,7 +1596,7 @@ import { Sprite } from "../display/Sprite"
 				
 				Matrix.mul(canv.invMat, mat,  mat);
 
-				this._curSubmit = Submit.RENDERBASE;
+				this._curSubmit = SubmitBase.RENDERBASE;
 			}
 		}
 		
@@ -1619,11 +1621,11 @@ import { Sprite } from "../display/Sprite"
 				this._mesh.vertNum += 4;
 				this._submits[this._submits._length++] = submit;
 				//暂时drawTarget不合并
-				this._curSubmit = Submit.RENDERBASE
+				this._curSubmit = SubmitBase.RENDERBASE
 				return true;
 			}
 			//暂时drawTarget不合并
-			this._curSubmit = Submit.RENDERBASE
+			this._curSubmit = SubmitBase.RENDERBASE
 			return false;			
 		}
 		
@@ -1646,12 +1648,12 @@ import { Sprite } from "../display/Sprite"
 				oldColorFilter = this._colorFiler;
 				//这个不用save，直接修改就行
 				this._colorFiler = color;
-				this._curSubmit = Submit.RENDERBASE;
+				this._curSubmit = SubmitBase.RENDERBASE;
 				needRestorFilter = oldColorFilter!=color;
 			}
 			var webGLImg:Bitmap = (<Bitmap>tex.bitmap );
 			var preKey:SubmitKey = this._curSubmit._key;
-			var sameKey:boolean = preKey.submitType === Submit.KEY_TRIANGLES && preKey.other === webGLImg.id && preKey.blendShader== this._nBlendType;
+			var sameKey:boolean = preKey.submitType === SubmitBase.KEY_TRIANGLES && preKey.other === webGLImg.id && preKey.blendShader== this._nBlendType;
 			
 			//var rgba:int = mixRGBandAlpha(0xffffffff);
 			//rgba = _mixRGBandAlpha(rgba, alpha);	这个函数有问题，不能连续调用，输出作为输入
@@ -1664,8 +1666,8 @@ import { Sprite } from "../display/Sprite"
 				//添加一个新的submit
 				var submit:SubmitTexture = this._curSubmit = SubmitTexture.create(this, triMesh, Value2D.create(ShaderDefines2D.TEXTURE2D, 0));
 				submit.shaderValue.textureHost = tex;
-				submit._renderType = Submit.TYPE_TEXTURE;
-				submit._key.submitType = Submit.KEY_TRIANGLES;
+				submit._renderType = SubmitBase.TYPE_TEXTURE;
+				submit._key.submitType = SubmitBase.KEY_TRIANGLES;
 				submit._key.other = webGLImg.id;
 				this._copyClipInfo(submit, this._globalClipMatrix);				
 				this._submits[this._submits._length++] = submit;
@@ -1688,7 +1690,7 @@ import { Sprite } from "../display/Sprite"
 			
 			if (needRestorFilter) {
 				this._colorFiler = oldColorFilter;
-				this._curSubmit = Submit.RENDERBASE;
+				this._curSubmit = SubmitBase.RENDERBASE;
 			}	
 			//return true;
 		}
@@ -1835,15 +1837,15 @@ import { Sprite } from "../display/Sprite"
 			var renderList:any[] = this._submits;
 			var ret:number = ((<any>renderList ))._length;
 			end < 0 && (end = ((<any>renderList ))._length);			
-			var submit:Submit=Submit.RENDERBASE;
+			var submit:Submit=SubmitBase.RENDERBASE;
 			while (start < end) {
 				this._renderNextSubmitIndex = start + 1;
-				if (renderList[start] === Submit.RENDERBASE) 
+				if (renderList[start] === SubmitBase.RENDERBASE) 
 				{
 					start++;
 					continue;
 				}
-				Submit.preRender = submit;
+				SubmitBase.preRender = submit;
 				submit = renderList[start];
 				//只有submitscissor才会返回多个
 				start += submit.renderSubmit();
@@ -1858,7 +1860,7 @@ import { Sprite } from "../display/Sprite"
 			SkinMeshBuffer.instance && SkinMeshBuffer.getInstance().reset();
 			
 			//Stat.mesh2DNum += meshlist.length;
-			this._curSubmit = Submit.RENDERBASE;
+			this._curSubmit = SubmitBase.RENDERBASE;
 			
 			for (var i:number= 0, sz:number= this.meshlist.length; i < sz; i++) {
 				var curm:Mesh2D = this.meshlist[i];
@@ -1916,7 +1918,7 @@ import { Sprite } from "../display/Sprite"
 			var m:Matrix = this._curMat;
 			var tPath:Path = this._getPath();
 			var submit:Submit = this._curSubmit;
-			var sameKey:boolean = (submit._key.submitType === Submit.KEY_VG && submit._key.blendShader === this._nBlendType);
+			var sameKey:boolean = (submit._key.submitType === SubmitBase.KEY_VG && submit._key.blendShader === this._nBlendType);
 			sameKey && (sameKey=sameKey&&this.isSameClipInfo(submit));
 			if (!sameKey) {
 				this._curSubmit = this.addVGSubmit(this._pathMesh);
@@ -1999,7 +2001,7 @@ import { Sprite } from "../display/Sprite"
 			var submit:Submit = Submit.createShape(this, mesh, 0, Value2D.create(ShaderDefines2D.PRIMITIVE, 0));
 			//submit._key.clear();
 			//submit._key.blendShader = _submitKey.blendShader;	//TODO 这个在哪里赋值的啊
-			submit._key.submitType = Submit.KEY_VG;
+			submit._key.submitType = SubmitBase.KEY_VG;
 			this._submits[this._submits._length++] = submit;
 			this._copyClipInfo(submit, this._globalClipMatrix);
 			return submit;
@@ -2010,7 +2012,7 @@ import { Sprite } from "../display/Sprite"
 				var rgba:number = this.mixRGBandAlpha(this.strokeStyle._color.numColor);
 				var tPath:Path = this._getPath();
 				var submit:Submit = this._curSubmit;
-				var sameKey:boolean = (submit._key.submitType === Submit.KEY_VG && submit._key.blendShader === this._nBlendType);
+				var sameKey:boolean = (submit._key.submitType === SubmitBase.KEY_VG && submit._key.blendShader === this._nBlendType);
 				sameKey && (sameKey =sameKey&& this.isSameClipInfo(submit));
 				
 				if (!sameKey) {

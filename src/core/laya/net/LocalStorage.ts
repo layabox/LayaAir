@@ -4,7 +4,7 @@
 	export class LocalStorage {
 		
 		//基础类
-		 static _baseClass:Object;
+		 static _baseClass:new()=>any;
 		
 		/**
 		 *  数据列表。

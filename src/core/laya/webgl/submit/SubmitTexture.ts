@@ -1,9 +1,7 @@
+import { SubmitBase } from "././SubmitBase";
 import { TYPE_2D } from "./TYPE_2D";
-import { ISubmit } from "././ISubmit";
 import { SubmitKey } from "././SubmitKey";
 import { ColorFilter } from "../../filters/ColorFilter"
-	import { Filter } from "../../filters/Filter"
-	import { Bitmap } from "../../resource/Bitmap"
 	import { Context } from "../../resource/Context"
 	import { Texture } from "../../resource/Texture"
 	import { Stat } from "../../utils/Stat"
@@ -16,12 +14,9 @@ import { ColorFilter } from "../../filters/ColorFilter"
 	import { TextureSV } from "../shader/d2/value/TextureSV"
 	import { Value2D } from "../shader/d2/value/Value2D"
 	import { CONST3D2D } from "../utils/CONST3D2D"
-	import { IndexBuffer2D } from "../utils/IndexBuffer2D"
 	import { Mesh2D } from "../utils/Mesh2D"
-	import { VertexBuffer2D } from "../utils/VertexBuffer2D"
-	
-	export class SubmitTexture extends Submit
-	{
+
+	export class SubmitTexture extends SubmitBase{
 		private static _poolSize:number = 0;
 		private static POOL:any[] = [];
 		
@@ -29,17 +24,8 @@ import { ColorFilter } from "../../filters/ColorFilter"
 			super(renderType);
 		}
 		
-		 /*override*/ clone(context:Context, mesh:Mesh2D, pos:number):ISubmit
-		{
-			var o:SubmitTexture = SubmitTexture._poolSize ? SubmitTexture.POOL[--SubmitTexture._poolSize] : new SubmitTexture();
-			this._cloneInit(o, context, mesh, pos);
-			return o;
-		}
-		
-		 /*override*/ releaseRender():void
-		{
-			if ((--this._ref) < 1)
-			{
+		 /*override*/ releaseRender():void{
+			if ((--this._ref) < 1){
 				SubmitTexture.POOL[SubmitTexture._poolSize++] = this;
 				this.shaderValue.release();
 				//_vb = null;
@@ -48,8 +34,7 @@ import { ColorFilter } from "../../filters/ColorFilter"
 			}
 		}
 		
-		 /*override*/ renderSubmit():number
-		{
+		 /*override*/ renderSubmit():number{
 			if (this._numEle === 0)
 				return 1;
 			
@@ -63,10 +48,10 @@ import { ColorFilter } from "../../filters/ColorFilter"
 
 			this._mesh.useMesh(gl);	
 			//如果shader参数都相同，只要提交texture就行了
-			var lastSubmit:SubmitTexture = (<SubmitTexture>Submit.preRender );
-			var prekey:SubmitKey = ((<Submit>Submit.preRender ))._key;
+			var lastSubmit:SubmitTexture = (<SubmitTexture>SubmitBase.preRender );
+			var prekey:SubmitKey = ((<SubmitBase>SubmitBase.preRender ))._key;
 			if (this._key.blendShader === 0 && (	this._key.submitType === prekey.submitType && this._key.blendShader === prekey.blendShader) && BaseShader.activeShader &&
-					((<Submit>Submit.preRender )).clipInfoID == this.clipInfoID &&
+					((<SubmitBase>SubmitBase.preRender )).clipInfoID == this.clipInfoID &&
 					lastSubmit.shaderValue.defines._value === this.shaderValue.defines._value && //shader define要相同. 
 					(this.shaderValue.defines._value & ShaderDefines2D.NOOPTMASK)==0 //只有基本类型的shader走这个，像blur，glow，filltexture等都不要这样优化
 					) {
@@ -95,12 +80,11 @@ import { ColorFilter } from "../../filters/ColorFilter"
 		/*
 		   create方法只传对submit设置的值
 		 */
-		 static create(context:Context, mesh:Mesh2D, sv:Value2D):SubmitTexture
-		{
-			var o:SubmitTexture = SubmitTexture._poolSize ? SubmitTexture.POOL[--SubmitTexture._poolSize] : new SubmitTexture(Submit.TYPE_TEXTURE);
+		 static create(context:Context, mesh:Mesh2D, sv:Value2D):SubmitTexture{
+			var o:SubmitTexture = SubmitTexture._poolSize ? SubmitTexture.POOL[--SubmitTexture._poolSize] : new SubmitTexture(SubmitBase.TYPE_TEXTURE);
 			o._mesh = mesh;
 			o._key.clear();
-			o._key.submitType = Submit.KEY_DRAWTEXTURE;
+			o._key.submitType = SubmitBase.KEY_DRAWTEXTURE;
 			o._ref = 1;
 			o._startIdx = mesh.indexNum * CONST3D2D.BYTES_PIDX;
 			o._numEle = 0;

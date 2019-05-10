@@ -13,6 +13,7 @@ import { LayaGL } from "../layagl/LayaGL"
 	import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D"
 	import { Value2D } from "../webgl/shader/d2/value/Value2D"
 	import { Submit } from "../webgl/submit/Submit"
+	import { SubmitBase } from "../webgl/submit/SubmitBase"
 	import { Buffer2D } from "../webgl/utils/Buffer2D"
 	
 	/**
@@ -101,7 +102,7 @@ import { LayaGL } from "../layagl/LayaGL"
 				canvas.size(w, h);	//在ctx之后调用。
 				WebGLContext.__init__(gl);
 				Context.__init__();
-				Submit.__init__();
+				SubmitBase.__init__();
 				
 				var ctx:Context = new Context();
 				ctx.isMain = true;

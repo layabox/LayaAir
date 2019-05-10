@@ -58,7 +58,7 @@ import { Graphics } from "../display/Graphics"
 		 * @param	className 类名(比如laya.display.Sprite)或者注册的别名(比如Sprite)。
 		 * @return 类对象
 		 */
-		 static getClass(className:string):new()=>any {
+		 static getClass(className:string):any {
 			var classObject:any = ClassUtils._classMap[className] || className;
 			if (classObject instanceof String) return (Laya["__classmap"][classObject] || Laya[className]);
 			return classObject;
