@@ -1,5 +1,4 @@
 import { SubmitBase } from "././SubmitBase";
-import { TYPE_2D } from "./TYPE_2D";
 import { SubmitKey } from "././SubmitKey";
 import { ColorFilter } from "../../filters/ColorFilter"
 	import { Context } from "../../resource/Context"
@@ -19,8 +18,7 @@ import { ColorFilter } from "../../filters/ColorFilter"
 	export class SubmitTexture extends SubmitBase{
 		private static _poolSize:number = 0;
 		private static POOL:any[] = [];
-		
-		constructor(renderType:number = TYPE_2D){
+		constructor(renderType:number = SubmitBase.TYPE_2D){
 			super(renderType);
 		}
 		

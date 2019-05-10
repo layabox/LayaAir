@@ -1207,7 +1207,7 @@ import { Sprite } from "../display/Sprite"
 		 * @param	uv
 		 * @return
 		 */
-		 _inner_drawTexture(tex:Texture, imgid:number, x:number, y:number, width:number, height:number, m:Matrix, uv:any[], alpha:number, lastRender:boolean):boolean {
+		 _inner_drawTexture(tex:Texture, imgid:number, x:number, y:number, width:number, height:number, m:Matrix, uv:ArrayLike<number>, alpha:number, lastRender:boolean):boolean {
 			var preKey:SubmitKey = this._curSubmit._key;
 			uv = uv || tex._uv
 			//为了优化，如果上次是画三角形，并且贴图相同，会认为他们是一组的，把这个也转成三角形，以便合并。
@@ -2493,7 +2493,7 @@ import { Sprite } from "../display/Sprite"
 			tx += gx;
 			ty += gy;
 			
-			var uv:any[] = tex.uv, w:number = tex.bitmap.width, h:number = tex.bitmap.height;
+			var uv = tex.uv, w:number = tex.bitmap.width, h:number = tex.bitmap.height;
 			
 			var top:number = sizeGrid[0];
 			var left:number = sizeGrid[3];

@@ -68,7 +68,7 @@ import { WebGL } from "../WebGL"
 		 * @param	clip   ox,oy,xx,xy,yx,yy
 		 * @param 	useTex 是否使用贴图。false的话是给fillRect用的
 		 */
-		 addQuad(pos:any[], uv:any[], color:number, useTex:boolean):void {
+		 addQuad(pos:any[], uv:ArrayLike<number>, color:number, useTex:boolean):void {
 			var vb:VertexBuffer2D = this._vb;
 			var vpos:number = (vb._byteLength >> 2);	//float数组的下标
 			//x,y,u,v,rgba

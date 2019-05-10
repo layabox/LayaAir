@@ -614,7 +614,7 @@ import { Prefab } from "../components/Prefab"
 				var res:any = Loader.loadedMap[url];
 				if (res) {
 					delete Loader.loadedMap[url];
-					if (res instanceof Texture && res.bitmap) Texture(res).destroy();
+					if (res instanceof Texture && res.bitmap) (<Texture>res).destroy();
 					
 				}
 			}

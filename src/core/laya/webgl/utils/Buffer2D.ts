@@ -214,7 +214,7 @@ import { Buffer } from "./Buffer";
 		}
 		
 		//TODO:coverage
-		 appendEx(data:any,type:new()=>any):void {
+		 appendEx(data:any,type:new(buf,len)=>any):void {
 			this._upload = true;
 			var byteLen:number, n:any;
 			byteLen = data.byteLength;
@@ -226,7 +226,7 @@ import { Buffer } from "./Buffer";
 		}
 		
 		//TODO:coverage
-		 appendEx2(data:any,type:new()=>any,dataLen:number,perDataLen:number=1):void {
+		 appendEx2(data:any,type:new(buff,len)=>any,dataLen:number,perDataLen:number=1):void {
 			this._upload = true;
 			var byteLen:number, n:any;
 			byteLen =dataLen*perDataLen;

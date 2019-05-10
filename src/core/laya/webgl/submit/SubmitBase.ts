@@ -35,7 +35,7 @@ import { Context } from "../../resource/Context"
 		 static KEY_VG:number = 3;
 		 static KEY_TRIANGLES:number = 4;
 		
-		 static RENDERBASE:Submit;
+		 static RENDERBASE:SubmitBase;
 		 static ID:number = 1;
 		 static preRender:ISubmit=null;	//上一个submit，主要用来比较key,以减少uniform的重复提交。
 
@@ -57,7 +57,7 @@ import { Context } from "../../resource/Context"
 		 shaderValue:Value2D=null;
 		
 		 static __init__():void {
-			var s:Submit = SubmitBase.RENDERBASE = new Submit(-1);
+			var s:SubmitBase = SubmitBase.RENDERBASE = new SubmitBase(-1);
 			s.shaderValue = new Value2D(0, 0);
 			s.shaderValue.ALPHA = 1;
 			s._ref = 0xFFFFFFFF;

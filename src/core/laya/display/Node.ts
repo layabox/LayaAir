@@ -7,6 +7,7 @@ import { Const } from "../Const"
 	import { Pool } from "../utils/Pool"
 	import { Stat } from "../utils/Stat"
 	import { Timer } from "../utils/Timer"
+import { Sprite } from "./Sprite";
 	
 	/**
 	 * 添加到父对象后调度。
@@ -172,7 +173,7 @@ this.createGLBuffer();
 				}
 			}
 		}
-		
+        
 		/**
 		 * 添加子节点。
 		 * @param	node 节点对象
