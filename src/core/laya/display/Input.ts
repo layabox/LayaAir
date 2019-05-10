@@ -407,11 +407,11 @@ this._width = 100;
 			this._text = null;
 			this._content = this.nativeInput.value;
 			if (!this._content) {
-				super.text = this._prompt;
-				super.color = this._promptColor;
+				super.set_text(this._prompt);
+				super.set_color( this._promptColor);
 			} else {
-				super.text = this._content;
-				super.color = this._originColor;
+				super.set_text( this._content);
+				super.set_color( this._originColor);
 			}
 			
 			Laya.stage.off(Event.KEY_DOWN, this, this._onKeyDown);
@@ -436,7 +436,7 @@ this._width = 100;
 		
 		/**@inheritDoc */
 		/*override*/  set text(value:string) {
-			super.color = this._originColor;
+			super.set_color( this._originColor);
 			
 			value += '';
 			
@@ -451,10 +451,10 @@ this._width = 100;
 				this._content = value;
 				
 				if (value)
-					super.text = value;
+					super.set_text(value);
 				else {
-					super.text = this._prompt;
-					super.color = this.promptColor;
+					super.set_text( this._prompt);
+					super.set_color( this.promptColor);
 				}
 			}
 		}
@@ -481,13 +481,13 @@ this._width = 100;
 			if (this._focus)
 				this.nativeInput.setColor(value);
 			
-			super.color = this._content ? value : this._promptColor;
+			super.set_color( this._content ? value : this._promptColor);
 			this._originColor = value;
 		}
 		
 		/**@inheritDoc */
 		/*override*/  set bgColor(value:string) {
-			super.bgColor = value;
+			super.set_bgColor(value);
 			if(Render.isConchApp)
 				this.nativeInput.setBgColor(value);
 		}
@@ -551,14 +551,14 @@ this._width = 100;
 		
 		 set prompt(value:string) {
 			if (!this._text && value)
-				super.color = this._promptColor;
+				super.set_color(this._promptColor);
 			
 			this.promptColor = this._promptColor;
 			
 			if (this._text)
-				super.text = (this._text == this._prompt) ? value : this._text;
+				super.set_text((this._text == this._prompt) ? value : this._text);
 			else
-				super.text = value;
+				super.set_text(value);
 			
 			this._prompt = Text.langPacks && Text.langPacks[value] ? Text.langPacks[value] : value;
 		}
@@ -572,7 +572,7 @@ this._width = 100;
 		
 		 set promptColor(value:string) {
 			this._promptColor = value;
-			if (!this._content) super.color = value;
+			if (!this._content) super.set_color(value);
 		}
 		
 		/**

@@ -19,7 +19,7 @@ import { MathUtil } from "../maths/MathUtil"
 	export class FrameAnimation extends AnimationBase {
 		
 		/**@private */
-		private static _sortIndexFun:Function;
+		private static _sortIndexFun:(a:any,b:any)=>number;
 		
 		/**@private id对象表*/
 		 _targetDic:any;

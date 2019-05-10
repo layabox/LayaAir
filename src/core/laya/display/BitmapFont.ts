@@ -1,5 +1,4 @@
 import { Laya } from "./../../Laya";
-import { XmlDom } from "./../../../jsc/XmlDom";
 import { Sprite } from "././Sprite";
 import { Rectangle } from "../maths/Rectangle"
 	import { Loader } from "../net/Loader"
@@ -58,7 +57,7 @@ import { Rectangle } from "../maths/Rectangle"
 		 * @param	xml			字体文件XML。
 		 * @param	texture		字体的纹理。
 		 */
-		 parseFont(xml:XmlDom, texture:Texture):void {
+		 parseFont(xml:XMLDocument, texture:Texture):void {
 			if (xml == null || texture == null) return;
 			this._texture = texture;
 			var tX:number = 0;
@@ -75,8 +74,7 @@ import { Rectangle } from "../maths/Rectangle"
 			var tPaddingArray:any[] = tPadding.split(",");
 			this._padding = [parseInt(tPaddingArray[0]), parseInt(tPaddingArray[1]), parseInt(tPaddingArray[2]), parseInt(tPaddingArray[3])];
 			
-			var chars:any[];
-			chars = xml.getElementsByTagName("char");
+			var chars = xml.getElementsByTagName("char");
 			var i:number = 0;
 			for (i = 0; i < chars.length; i++) {
 				var tAttribute:any = chars[i];
@@ -92,7 +90,7 @@ import { Rectangle } from "../maths/Rectangle"
 				region.width = parseInt(tAttribute.getAttributeNode("width").nodeValue);
 				region.height = parseInt(tAttribute.getAttributeNode("height").nodeValue);
 				
-				var tTexture:Texture = Texture.create(((<Texture2D>texture )), region.x, region.y, region.width, region.height, xOffset, yOffset);
+				var tTexture:Texture = Texture.create(texture , region.x, region.y, region.width, region.height, xOffset, yOffset);
 				this._maxWidth = Math.max(this._maxWidth, xAdvance + this.letterSpacing);
 				this._fontCharDic[tId] = tTexture;
 				this._fontWidthMap[tId] = xAdvance;
@@ -104,7 +102,7 @@ import { Rectangle } from "../maths/Rectangle"
 		 * @param	xml			字体文件XML。
 		 * @param	texture		字体的纹理。
 		 */
-		 parseFont2(xml:XmlDom, texture:Texture):void {
+		 parseFont2(xml:XMLDocument, texture:Texture):void {
 			if (xml == null || texture == null) return;
 			this._texture = texture;
 			var tX:number = 0;
@@ -117,10 +115,10 @@ import { Rectangle } from "../maths/Rectangle"
 			var tPaddingArray:any[] = tPadding.split(",");
 			this._padding = [parseInt(tPaddingArray[0]), parseInt(tPaddingArray[1]), parseInt(tPaddingArray[2]), parseInt(tPaddingArray[3])];
 			
-			var chars:any[] = xml.getElementsByTagName("char");
+			var chars = xml.getElementsByTagName("char");
 			var i:number = 0;
 			for (i = 0; i < chars.length; i++) {
-				var tAttribute:any[] = chars[i].attributes;
+				var tAttribute = chars[i].attributes;
 				var tId:number = parseInt(tAttribute["id"].nodeValue);
 				
 				var xOffset:number = parseInt(tAttribute["xoffset"].nodeValue) / tScale;
@@ -134,7 +132,7 @@ import { Rectangle } from "../maths/Rectangle"
 				region.width = parseInt(tAttribute["width"].nodeValue);
 				region.height = parseInt(tAttribute["height"].nodeValue);
 				
-				var tTexture:Texture = Texture.create(((<Texture2D>texture )), region.x, region.y, region.width, region.height, xOffset, yOffset);
+				var tTexture:Texture = Texture.create(texture, region.x, region.y, region.width, region.height, xOffset, yOffset);
 				this._maxWidth = Math.max(this._maxWidth, xAdvance + this.letterSpacing);
 				this._fontCharDic[tId] = tTexture;
 				this._fontWidthMap[tId] = xAdvance;

@@ -25,6 +25,7 @@ import { AlphaCmd } from "./cmd/AlphaCmd"
 	import { Texture } from "../resource/Texture"
 	import { Pool } from "../utils/Pool"
 	import { Utils } from "../utils/Utils"
+import { Graphics } from "./Graphics";
 	
 	/**
 	 * @private
@@ -51,7 +52,7 @@ import { AlphaCmd } from "./cmd/AlphaCmd"
 		/**@private */
 		private _cacheBoundsType:boolean = false;
 		/**@private */
-		 _graphics:Graphics;
+         _graphics:Graphics;
 		
 		/**
 		 * 销毁

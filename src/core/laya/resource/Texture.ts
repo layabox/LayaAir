@@ -22,11 +22,11 @@ import { Event } from "../events/Event"
 	export class Texture extends EventDispatcher {
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		/**@private 默认 UV 信息。*/
-		 static DEF_UV:any[] = /*[STATIC SAFE]*/ new Float32Array([0, 0, 1.0, 0, 1.0, 1.0, 0, 1.0]);
+		 static DEF_UV = /*[STATIC SAFE]*/ new Float32Array([0, 0, 1.0, 0, 1.0, 1.0, 0, 1.0]);
 		/**@private */
-		 static NO_UV:any[] = /*[STATIC SAFE]*/ new Float32Array([0, 0, 0, 0, 0, 0, 0, 0]);
+		 static NO_UV = /*[STATIC SAFE]*/ new Float32Array([0, 0, 0, 0, 0, 0, 0, 0]);
 		/**@private 反转 UV 信息。*/
-		 static INV_UV:any[] = /*[STATIC SAFE]*/ new Float32Array([0, 1, 1.0, 1, 1.0, 0.0, 0, 0.0]);
+		 static INV_UV = /*[STATIC SAFE]*/ new Float32Array([0, 1, 1.0, 1, 1.0, 0.0, 0, 0.0]);
 		/**@private */
 		private static _rect1:Rectangle = /*[STATIC SAFE]*/ new Rectangle();
 		/**@private */
@@ -39,7 +39,7 @@ import { Event } from "../events/Event"
 		/**@private */
 		private _bitmap:Texture2D;
 		/**@private */
-		private _uv:any[];
+		private _uv:ArrayLike<number>;
 		/**@private */
 		private _referenceCount:number = 0;
 		/** @private [NATIVE]*/
@@ -93,7 +93,7 @@ import { Event } from "../events/Event"
 		 * @param	sourceHeight 原始高度，包括被裁剪的透明区域（可选）。
 		 * @return  <code>Texture</code> 对象。
 		 */
-		 static create(source:Texture2D, x:number, y:number, width:number, height:number, offsetX:number = 0, offsetY:number = 0, sourceWidth:number = 0, sourceHeight:number = 0):Texture {
+		 static create(source:Texture2D|Texture, x:number, y:number, width:number, height:number, offsetX:number = 0, offsetY:number = 0, sourceWidth:number = 0, sourceHeight:number = 0):Texture {
 			return Texture._create(source, x, y, width, height, offsetX, offsetY, sourceWidth, sourceHeight);
 		}
 		
@@ -112,10 +112,10 @@ import { Event } from "../events/Event"
 		 * @param	outTexture 返回的Texture对象。
 		 * @return  <code>Texture</code> 对象。
 		 */
-		 static _create(source:Texture2D, x:number, y:number, width:number, height:number, offsetX:number = 0, offsetY:number = 0, sourceWidth:number = 0, sourceHeight:number = 0, outTexture:Texture = null):Texture {
+		 static _create(source:Texture2D|Texture, x:number, y:number, width:number, height:number, offsetX:number = 0, offsetY:number = 0, sourceWidth:number = 0, sourceHeight:number = 0, outTexture:Texture = null):Texture {
 			var btex:boolean = source instanceof Texture;
-			var uv:any[] = btex ? ((<Texture>source )).uv : Texture.DEF_UV;
-			var bitmap:Texture2D = btex ? ((<Texture>source )).bitmap : source;
+			var uv = btex ? ((<Texture>source )).uv : Texture.DEF_UV;
+			var bitmap:Texture2D = btex ? ((<Texture>source )).bitmap : source as Texture2D;
 			
 			if (bitmap.width && (x + width) > bitmap.width)
 				width = bitmap.width - x;
@@ -139,7 +139,7 @@ import { Event } from "../events/Event"
 			y *= dheight;
 			width *= dwidth;
 			height *= dheight;
-			
+            
 			var u1:number = tex.uv[0], v1:number = tex.uv[1], u2:number = tex.uv[4], v2:number = tex.uv[5];
 			var inAltasUVWidth:number = (u2 - u1), inAltasUVHeight:number = (v2 - v1);
 			var oriUV:any[] = Texture.moveUV(uv[0], uv[1], [x, y, x + width, y, x + width, y + height, x, y + height]);
@@ -188,11 +188,11 @@ import { Event } from "../events/Event"
 		}
 		
 		
-		 get uv():any[] {
+		 get uv():ArrayLike<number> {
 			return this._uv;
 		}
 		
-		 set uv(value:any[]) {
+		 set uv(value:ArrayLike<number>) {
 			this.uvrect[0] = Math.min(value[0], value[2], value[4], value[6]);
 			this.uvrect[1] = Math.min(value[1], value[3], value[5], value[7]);
 			this.uvrect[2] = Math.max(value[0], value[2], value[4], value[6]) - this.uvrect[0];
@@ -257,7 +257,7 @@ import { Event } from "../events/Event"
 		 * @param	bitmap 位图资源。
 		 * @param	uv UV 数据信息。
 		 */
-		constructor(bitmap:Texture2D = null, uv:any[] = null, sourceWidth:number = 0, sourceHeight:number = 0){
+		constructor(bitmap:Texture2D = null, uv:ArrayLike<number> = null, sourceWidth:number = 0, sourceHeight:number = 0){
 			super();
 this.setTo(bitmap, uv, sourceWidth, sourceHeight);
 		}
@@ -319,7 +319,7 @@ this.setTo(bitmap, uv, sourceWidth, sourceHeight);
 		 * @param	bitmap 位图资源
 		 * @param	uv UV数据信息
 		 */
-		 setTo(bitmap:Texture2D = null, uv:any[] = null, sourceWidth:number = 0, sourceHeight:number = 0):void {
+		 setTo(bitmap:Texture2D|Texture = null, uv:ArrayLike<number> = null, sourceWidth:number = 0, sourceHeight:number = 0):void {
 			this.bitmap = bitmap;
 			this.sourceWidth = sourceWidth;
 			this.sourceHeight = sourceHeight;

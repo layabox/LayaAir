@@ -1,6 +1,5 @@
 import { Filter } from "././Filter";
 import { IFilter } from "././IFilter";
-import { COLOR } from "./COLOR";
 import { ColorUtils } from "../utils/ColorUtils"
 	import { RunDriver } from "../utils/RunDriver"
 	
@@ -89,7 +88,7 @@ if (!mat) mat = this._copyMatrix(ColorFilter.IDENTITY_MATRIX);
 		
 		/**@private */
 		/*override*/  get type():number {
-			return COLOR;
+            return Filter.COLOR;
 		}
 		
 		/**

@@ -3,8 +3,9 @@ import { SoundManager } from "../media/SoundManager"
 	import { LocalStorage } from "../net/LocalStorage"
 	import { Render } from "../renders/Render"
 	import { Context } from "../resource/Context"
-	import { HTMLCanvas } from "../resource/HTMLCanvas"
-	
+    import { HTMLCanvas } from "../resource/HTMLCanvas"
+    
+    
 	/**
 	 * <code>Browser</code> 是浏览器代理类。封装浏览器及原生 js 提供的一些功能。
 	 */
@@ -113,7 +114,7 @@ import { SoundManager } from "../media/SoundManager"
 			}
 			
 			//小米小游戏
-			if(getApp instanceof Function){
+			if((window as any).getApp instanceof Function){
 				if (!Laya["KGMiniAdapter"]) {
 					console.error("请先添加小米小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?nav=zh-ts-5-0-0");
 					//TODO 教程要改
@@ -166,7 +167,7 @@ import { SoundManager } from "../media/SoundManager"
 			}
 			
 			//处理兼容性			
-			Browser.onMobile = window.isConchApp ? true : u.indexOf("Mobile") > -1;
+			Browser.onMobile = (window as any).isConchApp ? true : u.indexOf("Mobile") > -1;
 			Browser.onIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
 			Browser.onIPhone = u.indexOf("iPhone") > -1;
 			Browser.onMac = /*[STATIC SAFE]*/ u.indexOf("Mac OS X") > -1;

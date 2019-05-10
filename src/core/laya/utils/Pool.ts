@@ -63,7 +63,7 @@ import { Utils } from "././Utils";
 		 * 根据类名回收类的实例
 		 * @param	instance 类的具体实例
 		 */
-		 static createByClass(cls:Object):any {
+		 static createByClass(cls:new()=>any):any {
 			return Pool.getItemByClass(Pool._getClassSign(cls), cls);
 		}
 		
@@ -74,7 +74,7 @@ import { Utils } from "././Utils";
 		 * @param cls 用于创建该类型对象的类。
 		 * @return 此类型标识的一个对象。
 		 */
-		 static getItemByClass(sign:string, cls:Object):any {
+		 static getItemByClass(sign:string, cls:new()=>any):any {
 			if (!Pool._poolDic[sign]) return new cls();
 			
 			var pool:any[] = Pool.getPoolBySign(sign);

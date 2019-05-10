@@ -2,7 +2,8 @@ import { CommandEncoder } from "././CommandEncoder";
 import { Context } from "../resource/Context"
 	import { Texture } from "../resource/Texture"
 	import { Stat } from "../utils/Stat"
-	
+import { LayaGL } from "./LayaGL";
+    
 	/**
 	 * @private
 	 * 普通命令执行器

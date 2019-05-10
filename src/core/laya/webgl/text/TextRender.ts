@@ -1,7 +1,6 @@
 import { TextAtlas } from "././TextAtlas";
 import { TextTexture } from "././TextTexture";
 import { Laya } from "./../../../Laya";
-import { ImageData } from "./../../../../jsc/ImageData";
 import { Sprite } from "../../display/Sprite"
 	import { Event } from "../../events/Event"
 	import { Matrix } from "../../maths/Matrix"
@@ -165,7 +164,7 @@ import { Sprite } from "../../display/Sprite"
 			return str.substring(start, i);
 		}
 		
-		 filltext(ctx:Context, data:string, x:number, y:number, fontStr:string, color:string, strokeColor:string, lineWidth:number, textAlign:string, underLine:number = 0):void {
+		 filltext(ctx:Context, data:string|WordText, x:number, y:number, fontStr:string, color:string, strokeColor:string, lineWidth:number, textAlign:string, underLine:number = 0):void {
 			if (data.length <= 0)
 				return;
 			//以后保存到wordtext中
@@ -190,7 +189,7 @@ import { Sprite } from "../../display/Sprite"
 			this._fast_filltext(ctx, null, data, x, y, font, color, strokeColor, lineWidth, 0, 0);
 		}		
 		
-		 _fast_filltext(ctx:Context, data:WordText, htmlchars:HTMLChar[], x:number, y:number, font:FontInfo, color:string, strokeColor:string, lineWidth:number, textAlign:number, underLine:number = 0):void {
+		 _fast_filltext(ctx:Context, data:string|WordText, htmlchars:HTMLChar[], x:number, y:number, font:FontInfo, color:string, strokeColor:string, lineWidth:number, textAlign:number, underLine:number = 0):void {
 			if (data && data.length < 1) return;
 			if (htmlchars && htmlchars.length < 1) return;
 			if (lineWidth < 0) lineWidth = 0;
@@ -753,7 +752,7 @@ import { Sprite } from "../../display/Sprite"
 			// native 返回的是 textBitmap。 data直接是ArrayBuffer 
 			if (Render.isConchApp) {
 				//bmpdt.data.buffer = bmpdt.data;
-				bmpdt.data =  new Uint8ClampedArray(bmpdt.data);
+				(bmpdt as any).data =  new Uint8ClampedArray(bmpdt.data);
 			}
 			this.bmpData32 = new Uint32Array(bmpdt.data.buffer);
 			//测量宽度是 tmpRI.width
@@ -761,7 +760,7 @@ import { Sprite } from "../../display/Sprite"
 			bmpdt = this.charRender.getCharBmp('有', fontstr, 0, 'red', null, TextRender.tmpRI, oriy, oriy, marginr, marginb);// '有'比'国'大
 			if (Render.isConchApp) {
 				//bmpdt.data.buffer = bmpdt.data;
-				bmpdt.data = new Uint8ClampedArray(bmpdt.data);
+				(bmpdt as any).data = new Uint8ClampedArray(bmpdt.data);
 			}
 			this.bmpData32 = new Uint32Array(bmpdt.data.buffer);
 			// 国字的宽度就用系统测量的，不再用像素检测
@@ -860,7 +859,7 @@ import { Sprite } from "../../display/Sprite"
 		}
 		
 		/////// native ///////
-		 filltext_native(ctx:Context, data:string, htmlchars:HTMLChar[], x:number, y:number, fontStr:string, color:string, strokeColor:string, lineWidth:number, textAlign:string, underLine:number = 0):void {
+		 filltext_native(ctx:Context, data:string|WordText, htmlchars:HTMLChar[], x:number, y:number, fontStr:string, color:string, strokeColor:string, lineWidth:number, textAlign:string, underLine:number = 0):void {
 			if (data && data.length <= 0) return;
 			if (htmlchars && htmlchars.length < 1) return;			
 			

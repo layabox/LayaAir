@@ -466,6 +466,14 @@ import { Const } from "../Const"
 			}
 		}		
 		
+		// for ts
+		 set_width(v:number):void {
+			this.width = v;
+		}
+		 get_width():number {
+			return this.width;
+		}
+		
 		/**
 		 * <p>显示对象的高度，单位为像素，默认为0。</p>
 		 * <p>此高度用于鼠标碰撞检测，并不影响显示对象图像大小。需要对显示对象的图像进行缩放，请使用scale、scaleX、scaleY。</p>
@@ -485,6 +493,14 @@ import { Const } from "../Const"
 				this._setTranformChange();
 				//repaint();
 			}
+		}
+		
+		// for ts
+		 set_height(v:number):void {
+			this.height = v;
+		}
+		 get_height():number {
+			return this.height;
 		}
 		
 		/**

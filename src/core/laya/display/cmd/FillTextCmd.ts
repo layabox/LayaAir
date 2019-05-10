@@ -13,7 +13,7 @@ import { Render } from "../../renders/Render"
 		 static ID:string = "FillText";
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		
-		private _text:string;
+		private _text:string|WordText;
 		/**@private */
 		 _textIsWorldText:boolean = false;
 		/**
@@ -34,7 +34,7 @@ import { Render } from "../../renders/Render"
 		private _nTexAlign:number = 0;
 		
 		/**@private */
-		 static create(text:string, x:number, y:number, font:string, color:string, textAlign:string):FillTextCmd {
+		 static create(text:string|WordText, x:number, y:number, font:string, color:string, textAlign:string):FillTextCmd {
 			var cmd:FillTextCmd = Pool.getItemByClass("FillTextCmd", FillTextCmd);
 			cmd.text = text;
 			cmd._textIsWorldText = text instanceof WordText;
@@ -75,11 +75,11 @@ import { Render } from "../../renders/Render"
 		/**
 		 * 在画布上输出的文本。
 		 */
-		 get text():string {
+		 get text():string|WordText {
 			return this._text;
 		}
 		
-		 set text(value:string) {
+		 set text(value:string|WordText) {
 			//TODO 问题。 怎么通知native
 			this._text = value;
 			this._textIsWorldText = value instanceof WordText;

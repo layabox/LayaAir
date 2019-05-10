@@ -1,7 +1,7 @@
-import { VertexArrayObject } from "././VertexArrayObject";
 import { Render } from "../renders/Render"
 	import { Browser } from "../utils/Browser"
 	import { Buffer } from "./utils/Buffer"
+import { WebGL } from "./WebGL";
 	
 	export class WebGLContext
 	{
@@ -363,12 +363,11 @@ import { Render } from "../renders/Render"
 		 static __init__(gl:WebGLContext):void {
 			WebGLContext._checkExtensions(gl);
 			if (!WebGL._isWebGL2 && !Render.isConchApp) {
-				VertexArrayObject;//强制引用
-				if (window._setupVertexArrayObject){//兼容VAO
+				if ((window as any)._setupVertexArrayObject){//兼容VAO
 					if (WebGLContext._forceSupportVAOPlatform())
-						window._forceSetupVertexArrayObject(gl);
+						(window as any)._forceSetupVertexArrayObject(gl);
 					else
-						window._setupVertexArrayObject(gl);	
+						(window as any)._setupVertexArrayObject(gl);	
 				}
 				var ext:any = (((<any>gl )).rawgl || gl).getExtension("OES_vertex_array_object");	//gl.rawgl是为了个能兼容glinspector调试
 				if (ext) {

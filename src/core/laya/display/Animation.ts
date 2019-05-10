@@ -370,10 +370,10 @@ this._setControlNode(this);
 		 * @param	name		动画模板在动画模版缓存池中的key。如果不为空，则以此为key缓存动画模板，否则不缓存。
 		 * @return	动画模板。
 		 */
-		 static createFrames(url:any, name:string):any[] {
+		 static createFrames(url:string|string[], name:string):any[] {
 			var arr:any[];
 			if (url instanceof String) {
-				var atlas:any[] = Loader.getAtlas(url);
+				var atlas:any[] = Loader.getAtlas(<string>url);
 				if (atlas && atlas.length) {
 					arr = [];
 					for (var i:number = 0, n:number = atlas.length; i < n; i++) {

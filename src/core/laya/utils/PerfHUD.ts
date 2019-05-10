@@ -4,7 +4,7 @@ import { Sprite } from "../display/Sprite"
 	import { Context } from "../resource/Context"
 	export class PerfHUD extends Sprite {
 		private static _lastTm:number = 0;	//perf Data
-		private static _now:number = 0;
+		private static _now:()=>number=null;
 		private datas:any[] = [];
 		 static DATANUM:number = 300;
 		

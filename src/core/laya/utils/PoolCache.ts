@@ -1,5 +1,6 @@
 import { CacheManger } from "././CacheManger";
 import { Utils } from "././Utils";
+import { Pool } from "./Pool";
 /**
 	 * @private
 	 * 基于个数的对象缓存管理器
@@ -31,7 +32,7 @@ import { Utils } from "././Utils";
 		 *
 		 */
 		 tryDispose(force:boolean):void {
-			var list:any[];
+            var list:any[];
 			list = Pool.getPoolBySign(this.sign);
 			if (list.length > this.maxCount) {
 				list.splice(this.maxCount, list.length - this.maxCount);

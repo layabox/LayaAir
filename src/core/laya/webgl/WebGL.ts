@@ -108,8 +108,7 @@ import { Sprite } from "../display/Sprite"
 				if (Render.supportWebGLPlusRendering) {
 					((<any>LayaGLRunner )).uploadShaderUniforms = LayaGLRunner.uploadShaderUniformsForNative;
 					//替换buffer的函数
-					CommandEncoder = window.GLCommandEncoder;
-					LayaGL = window.LayaGLContext;
+
 				}
 				var stage:any = Stage;
 				stage.prototype.render = stage.prototype.renderToNative;
@@ -142,7 +141,7 @@ import { Sprite } from "../display/Sprite"
 				ctx._targets.restore();
 				return canv;
 			}
-			RenderTexture2D.prototype._uv = RenderTexture2D.flipyuv;
+			//RenderTexture2D.prototype._uv = RenderTexture2D.flipyuv;
 			Object["defineProperty"](RenderTexture2D.prototype, "uv", {
 					"get":function():any {
 						return this._uv;

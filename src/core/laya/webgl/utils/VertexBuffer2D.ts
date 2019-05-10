@@ -3,7 +3,8 @@ import { Render } from "../../renders/Render"
 	import { LayaGL } from "../../layagl/LayaGL"
 	import { WebGL } from "../WebGL"
 	import { WebGLContext } from "../WebGLContext"
-	
+import { Buffer } from "./Buffer";
+
 	export class VertexBuffer2D extends Buffer2D {
 		 static create:Function = function(vertexStride:number, bufferUsage:number = 0x88e8/* WebGLContext.DYNAMIC_DRAW*/):VertexBuffer2D {
 			return new VertexBuffer2D(vertexStride, bufferUsage);

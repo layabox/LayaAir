@@ -9,7 +9,7 @@ import { BaseTexture } from "./BaseTexture"
 	
 	export class WebGLRTMgr{
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
-		static private dict:any= {};		//key=h*10000+w
+		private static dict:any= {};		//key=h*10000+w
 		/**
 		 * 获得一个renderTarget
 		 * 暂时先按照严格大小判断。

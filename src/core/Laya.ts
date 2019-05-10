@@ -90,7 +90,7 @@
 			URL.rootPath = URL._basePath = Laya._getUrlPath();
 			Laya.render = new Render(0, 0);
 			Laya.stage.size(width, height);
-			window.stage = Laya.stage;
+			(window as any).stage = Laya.stage;
 			RenderSprite.__init__();
 			KeyBoardManager.__init__();
 			MouseManager.instance.__init__(Laya.stage, Render.canvas);

@@ -1,5 +1,4 @@
 import { CharRenderInfo } from "././CharRenderInfo";
-import { ImageData } from "./../../../../jsc/ImageData";
 import { ICharRender } from "./ICharRender"
 	import { ColorUtils } from "../../utils/ColorUtils"
 	export class CharRender_Native extends ICharRender{
@@ -11,15 +10,15 @@ import { ICharRender } from "./ICharRender"
 		
 		//TODO:coverage
 		 /*override*/ getWidth(font:string, str:string):number {
-			if (!window.conchTextCanvas) return 0;
+			if (!(window as any).conchTextCanvas) return 0;
 			//TODO 先取消判断，保证字体信息一致
 			//if (lastFont != font) { 
-				window.conchTextCanvas.font	= font;
+				(window as any).conchTextCanvas.font	= font;
 				this.lastFont = font;
 				//console.log('use font ' + font);
 			//}					
 			//getTextBitmapData
-			return window.conchTextCanvas.measureText(str).width;
+			return (window as any).conchTextCanvas.measureText(str).width;
 		}
 		
 		 /*override*/ scale(sx:number, sy:number):void {
@@ -36,15 +35,15 @@ import { ICharRender } from "./ICharRender"
 		 /*override*/ getCharBmp( char:string, font:string, lineWidth:number, colStr:string, strokeColStr:string, size:CharRenderInfo, 
 				margin_left:number, margin_top:number, margin_right:number, margin_bottom:number, rect:any[]=null):ImageData {
 
-			if (!window.conchTextCanvas) return null;
+			if (!(window as any).conchTextCanvas) return null;
 			//window.conchTextCanvas.getTextBitmapData();
 			
 			//TODO 先取消判断，保证字体信息一致
 			//if(lastFont!=font){
-				window.conchTextCanvas.font	= font;
+				(window as any).conchTextCanvas.font	= font;
 				this.lastFont = font;
 			//}						
-			var w:number = size.width = window.conchTextCanvas.measureText(char).width;
+			var w:number = size.width = (window as any).conchTextCanvas.measureText(char).width;
 			var h:number = size.height ;
 			w += (margin_left + margin_right);
 			h += (margin_top + margin_bottom);
@@ -52,7 +51,7 @@ import { ICharRender } from "./ICharRender"
 			var nStrokeColor:number = c1.numColor;
 			var c2:ColorUtils = ColorUtils.create(colStr);
 			var nTextColor:number = c2.numColor;
-			var textInfo:any = window.conchTextCanvas.getTextBitmapData(char, nTextColor, lineWidth>2?2:lineWidth, nStrokeColor);
+			var textInfo:any = (window as any).conchTextCanvas.getTextBitmapData(char, nTextColor, lineWidth>2?2:lineWidth, nStrokeColor);
 			//window.Laya.LayaGL.instance.texSubImage2D(1,2,0,0,textInfo.width,textInfo.height,0,0,textInfo.bitmapData);
 			//var ret = new ImageData();
 			size.bmpWidth = textInfo.width;

@@ -6,11 +6,11 @@ import { Matrix } from "../../maths/Matrix"
 	import { CONST3D2D } from "../utils/CONST3D2D"
 	import { Mesh2D } from "../utils/Mesh2D"
 	import { RenderState2D } from "../utils/RenderState2D"
+import { Submit } from "./Submit";
 	
 	/**
 	 * cache as normal 模式下的生成的canvas的渲染。
 	 */
-	
 	export class SubmitCanvas extends Submit {
 		
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
@@ -95,7 +95,7 @@ import { Matrix } from "../../maths/Matrix"
 			return Submit.TYPE_CANVAS;
 		}
 		
-		private static POOL:any =[];/*[STATIC SAFE]*/ ;
+		public static POOL:any =[];/*[STATIC SAFE]*/ ;
 	}
-{SubmitCanvas.POOL._length = 0}
+{(SubmitCanvas.POOL as any)._length = 0}
 

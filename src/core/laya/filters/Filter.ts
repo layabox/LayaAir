@@ -12,6 +12,7 @@ import { Sprite } from "../display/Sprite"
 	import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D"
 	import { Value2D } from "../webgl/shader/d2/value/Value2D"
 	import { SubmitCMD } from "../webgl/submit/SubmitCMD"
+import { ColorFilter } from "./ColorFilter";
 
 	/**
 	 * <code>Filter</code> 是滤镜基类。
@@ -121,7 +122,7 @@ import { Sprite } from "../display/Sprite"
 							//GlowFilterGLRender.render(source, context, b.width, b.height, fil as GlowFilter);
 							fil._glRender && fil._glRender.render(source, context, b.width, b.height, fil);
 							break;
-						case Filter.COLOR: 
+                        case Filter.COLOR: 
 							webglctx.setColorFilter((<ColorFilter>fil ));
 							webglctx.drawTarget(source, 0, 0, b.width, b.height, Matrix.EMPTY.identity(), Value2D.create(ShaderDefines2D.TEXTURE2D, 0));
 							webglctx.setColorFilter(null);

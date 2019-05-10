@@ -3,7 +3,8 @@ import { LayaGL } from "../../layagl/LayaGL"
 	import { WebGLContext } from "../WebGLContext"
 	import { BaseShader } from "../shader/BaseShader"
 	import { Shader } from "../shader/Shader"
-	
+import { Buffer } from "./Buffer";
+    
 	export class Buffer2D extends Buffer {
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		 static FLOAT32:number = 4;
@@ -212,33 +213,6 @@ import { LayaGL } from "../../layagl/LayaGL"
 			this._checkArrayUse();
 		}
 		
-		//TODO:coverage
-		 appendEx(data:any,type:Object):void {
-			this._upload = true;
-			var byteLen:number, n:any;
-			byteLen = data.byteLength;
-			this._resizeBuffer(this._byteLength + byteLen, true);
-			n = new type(this._buffer, this._byteLength);
-			n.set(data, 0);
-			this._byteLength += byteLen;
-			this._checkArrayUse();
-		}
-		
-		//TODO:coverage
-		 appendEx2(data:any,type:Object,dataLen:number,perDataLen:number=1):void {
-			this._upload = true;
-			var byteLen:number, n:any;
-			byteLen =dataLen*perDataLen;
-			this._resizeBuffer(this._byteLength + byteLen, true);
-			n = new type(this._buffer, this._byteLength);
-			var i:number;
-			for (i = 0; i < dataLen;i++ )
-			{
-				n[i] = data[i];
-			}
-			this._byteLength += byteLen;
-			this._checkArrayUse();
-		}
 		
 		
 		//TODO:coverage

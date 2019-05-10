@@ -1,5 +1,4 @@
 import { CharRenderInfo } from "././CharRenderInfo";
-import { ImageData } from "./../../../../jsc/ImageData";
 export class ICharRender {
 		 getWidth(font:string, str:string):number{return 0; }
 		

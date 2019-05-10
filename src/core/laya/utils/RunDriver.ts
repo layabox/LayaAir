@@ -77,7 +77,7 @@ import { Sprite } from "../display/Sprite"
 			//画到2d画布上
 			var canv:HTMLCanvas = new HTMLCanvas(true);
 			canv.size(canvasWidth, canvasHeight);
-			var ctx2d:Context = canv.getContext('2d');
+			var ctx2d:CanvasRenderingContext2D =<CanvasRenderingContext2D>(canv.getContext('2d') as any);
 			ctx2d.putImageData(imgdata, 0, 0);;
 			return canv;
 		}
@@ -96,8 +96,8 @@ import { Sprite } from "../display/Sprite"
 			RenderSprite.renders[_renderType]._fun(sprite, ctx, offsetX, offsetY);
 			ctx.flush();
 			ctx._targets.end();
-			ctx._targets.restore();
-			var rtex:Texture = new Texture( ((<Texture2D>ctx._targets )),Texture.INV_UV);
+            ctx._targets.restore();
+			var rtex:Texture = new Texture( ((<Texture2D>(ctx._targets as any) )),Texture.INV_UV);
 			ctx.destroy(true);// 保留 _targets
 			return rtex;
 		}

@@ -44,7 +44,7 @@ import { Utils } from "./Utils"
 			if (value instanceof String) {
 				if (((<string>value )).indexOf("rgba(")>=0||((<string>value )).indexOf("rgb(")>=0)
 				{
-					var tStr:string = value;
+					var tStr:string = <string>value;
 					var beginI:number, endI:number;
 					beginI = tStr.indexOf("(");
 					endI = tStr.indexOf(")");
@@ -67,7 +67,7 @@ import { Utils } from "./Utils"
 						color= ((this.arrColor[0] * 256 + this.arrColor[1]) * 256 + this.arrColor[2]);
 					}
 					
-					this.strColor = value;
+					this.strColor = <string>value;
 				}else
 				{
 					this.strColor = value;

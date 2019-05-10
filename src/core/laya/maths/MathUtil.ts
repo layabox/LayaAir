@@ -135,7 +135,7 @@
 		 * @param	forceNum 如果值为true，则将排序的元素转为数字进行比较。
 		 * @return 排序函数。
 		 */
-		 static sortByKey(key:string, bigFirst:boolean = false, forceNum:boolean = true):Function {
+		 static sortByKey(key:string, bigFirst:boolean = false, forceNum:boolean = true):(a:any,b:any)=>number {
 			var _sortFun:Function;
 			if (bigFirst) {
 				_sortFun = forceNum ? MathUtil.sortNumBigFirst : MathUtil.sortBigFirst;

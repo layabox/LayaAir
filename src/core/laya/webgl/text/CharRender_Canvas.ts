@@ -1,4 +1,3 @@
-import { ImageData } from "./../../../../jsc/ImageData";
 import { CharRenderInfo } from "./CharRenderInfo"
 	import { ICharRender } from "./ICharRender"
 	export class CharRender_Canvas extends ICharRender {

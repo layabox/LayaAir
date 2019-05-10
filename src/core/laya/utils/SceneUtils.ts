@@ -166,10 +166,10 @@ import { Const } from "../Const"
 			
 			var props:any = uiView.props;
 			for (var prop  in props) {
-				var value:string = props[prop];
+				var value:any = props[prop];
 				if (value instanceof String && (value.indexOf("@node:") >= 0 || value.indexOf("@Prefab:") >= 0)) {
 					if (initTool) {
-						initTool.addNodeRef(comp, prop, value);
+						initTool.addNodeRef(comp, prop, <string>value);
 					}
 				} else
 					SceneUtils.setCompValue(comp, prop, value, view, dataMap);
@@ -198,7 +198,7 @@ import { Const } from "../Const"
 		 * @param value 属性值。
 		 * @param view 组件所在的视图实例，用来注册var全局变量，如果值为空则不注册。
 		 */
-		private static setCompValue(comp:any, prop:string, value:string, view:any = null, dataMap:any[] = null):void {
+		private static setCompValue(comp:any, prop:string, value:any, view:any = null, dataMap:any[] = null):void {
 			//处理数据绑定
 			if (value instanceof String && value.indexOf("${") > -1) {
 				SceneUtils._sheet || (SceneUtils._sheet = ClassUtils.getClass("laya.data.Table"));
@@ -259,7 +259,7 @@ import { Const } from "../Const"
 				}
 			}
 			var runtime:string = (json.props && json.props.runtime) || json.type;
-			var compClass:Object = ClassUtils.getClass(runtime);
+			var compClass = ClassUtils.getClass(runtime);
 			if (!compClass) throw "Can not find class " + runtime;
 			if (json.type === "Script" && compClass.prototype._doAwake) {
 				var comp:any = Pool.createByClass(compClass);
@@ -282,8 +282,6 @@ import { Prefab } from "../components/Prefab"
 import { Scene } from "../display/Scene"
 import { Loader } from "../net/Loader"
 import { Handler } from "./Handler"
-
-import { SceneUtils } from "./SceneUtils"
 
 /**
  * @private 场景辅助类

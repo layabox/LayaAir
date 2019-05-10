@@ -3,7 +3,7 @@ export class ShaderDefinesBase {
 		
 		 _value:number = 0;
 		
-		private _name2int:any;
+		private _name2int:{[id:string]:number};
 		private _int2name:any[];
 		private _int2nameMap:any[];
 		
@@ -15,8 +15,11 @@ export class ShaderDefinesBase {
 		
 		//TODO:coverage
 		 add(value:any):number {
-			if (value instanceof String) value = this._name2int[value];
-			this._value |= value;
+			if (value instanceof String) {
+                this._value |= this._name2int[<string>value];
+            }else{
+                this._value |= value;
+            }
 			return this._value;
 		}
 		
@@ -27,8 +30,11 @@ export class ShaderDefinesBase {
 		
 		//TODO:coverage
 		 remove(value:any):number {
-			if (value instanceof String) value = this._name2int[value];
-			this._value &= (~value);
+			if (value instanceof String){
+                this._value &= ~(this._name2int[<string>value]);
+            }else{
+                this._value &= (~value);
+            }
 			return this._value;
 		}
 		

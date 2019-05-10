@@ -1,5 +1,4 @@
 import { TextRender } from "././TextRender";
-import { ImageData } from "./../../../../jsc/ImageData";
 import { Laya } from "./../../../Laya";
 import { TextAtlas } from "././TextAtlas";
 import { LayaGL } from "../../layagl/LayaGL"

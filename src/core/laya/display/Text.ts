@@ -271,7 +271,7 @@ this._style = TextStyle.EMPTY;
 		
 		/*override*/  set width(value:number) {
 			if (value != this._width) {
-				super.width = value;
+				super.set_width(value);
 				this.isChanged = true;
 				if (this.borderColor) {
 					this._setBorderStyleColor(0, 0, this.width, this.height, this.borderColor, 1);
@@ -296,7 +296,7 @@ this._style = TextStyle.EMPTY;
 		
 		/*override*/  set height(value:number) {
 			if (value != this._height) {
-				super.height = value;
+				super.set_height(value);
 				this.isChanged = true;
 				if (this.borderColor) {
 					this._setBorderStyleColor(0, 0, this.width, this.height, this.borderColor, 1);
@@ -323,6 +323,14 @@ this._style = TextStyle.EMPTY;
 		/** 当前文本的内容字符串。*/
 		 get text():string {
 			return this._text || "";
+		}
+		
+		// 为了转ts。ts不支持super.get set
+		 get_text():string{
+			return this._text || "";
+		}
+		 set_text(v:string):void {
+			this.text = v;
 		}
 		
 		 set text(value:string) {
@@ -431,6 +439,14 @@ this._style = TextStyle.EMPTY;
 					this.isChanged = true;
 				}
 			}
+		}
+		
+		// for转ts。 ts不支持 super.get/set
+		 get_color():string {
+			return this._color;
+		}
+		 set_color(v:string):void {
+			this.color = v;
 		}
 		
 		/**
@@ -547,6 +563,14 @@ this._style = TextStyle.EMPTY;
 			this._setBgStyleColor(0, 0, this.width, this.height, value);
 			this._setRenderType(this._renderType);			
 			this.isChanged = true;
+		}
+		
+		// fot ts
+		 set_bgColor(v:string):void {
+			this.bgColor = v;
+		}
+		 get_bgColor():string {
+			return this.bgColor;
 		}
 		
 		/**
