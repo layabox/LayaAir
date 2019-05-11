@@ -9,6 +9,7 @@ import { Event } from "../events/Event"
 	import { Browser } from "../utils/Browser"
 	import { Handler } from "../utils/Handler"
 	import { Utils } from "../utils/Utils"
+import { Sound } from "./Sound";
 	
 	/**
 	 * <code>SoundManager</code> 是一个声音管理类。提供了对背景音乐、音效的播放控制方法。
@@ -257,7 +258,7 @@ import { Event } from "../events/Event"
 					if (SoundManager._musicChannel&&!SoundManager._musicChannel.isStopped)
 					{
 						if (Render.isConchApp) {
-							if (SoundManager._musicChannel._audio) SoundManager._musicChannel._audio.muted = true;;
+							if ((SoundManager._musicChannel as any)._audio) (SoundManager._musicChannel as any)._audio.muted = true;;
 						}
 						else {
 							SoundManager._musicChannel.pause();
@@ -278,7 +279,7 @@ import { Event } from "../events/Event"
 					if (SoundManager._musicChannel)
 					{
 						if (Render.isConchApp) {
-							if(SoundManager._musicChannel._audio) SoundManager._musicChannel._audio.muted = false;;
+							if((SoundManager._musicChannel as any)._audio) (SoundManager._musicChannel as any)._audio.muted = false;;
 						}
 						else {
 							SoundManager._musicChannel.resume();
@@ -330,7 +331,7 @@ import { Event } from "../events/Event"
 				if (Render.isConchApp) {
 					var ext:string = Utils.getFileExtension(url);
 					if (ext != "wav" && ext != "ogg") {
-						this.alert("The sound only supports wav or ogg format,for optimal performance reason,please refer to the official website document.");
+						alert("The sound only supports wav or ogg format,for optimal performance reason,please refer to the official website document.");
 						return null;
 					}
 				}

@@ -19,7 +19,7 @@ import { Matrix } from "../../../maths/Matrix"
 			var no:any = SaveTranslate.POOL;
 			var o:SaveTranslate = no._length > 0 ? no[--no._length] : (new SaveTranslate());
 			context._curMat.copyTo(o._mat);
-			var _save:any[] = context._save;
+			var _save:any = context._save;
 			_save[_save._length++] = o;
 		}
 	

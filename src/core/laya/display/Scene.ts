@@ -324,7 +324,7 @@ this._setBit(Const.NOT_READY, true);
 		 static closeAll():void {
 			var root:Sprite = Scene.root;
 			for (var i:number = 0, n:number = root.numChildren; i < n; i++) {
-				var scene:Scene = (<Scene>root.getChildAt(0) );
+				var scene:Node = (root.getChildAt(0) );
 				if (scene instanceof Scene) scene.close();
 				else scene.removeSelf();
 			}

@@ -37,9 +37,9 @@ import { Event } from "../events/Event"
 		/**@private */
 		private _destroyed:boolean = false;
 		/**@private */
-		private _bitmap:Texture2D;
+		private _bitmap:Texture2D|Texture;
 		/**@private */
-		private _uv:ArrayLike<number>;
+		public _uv:ArrayLike<number>;
 		/**@private */
 		private _referenceCount:number = 0;
 		/** @private [NATIVE]*/
@@ -115,7 +115,7 @@ import { Event } from "../events/Event"
 		 static _create(source:Texture2D|Texture, x:number, y:number, width:number, height:number, offsetX:number = 0, offsetY:number = 0, sourceWidth:number = 0, sourceHeight:number = 0, outTexture:Texture = null):Texture {
 			var btex:boolean = source instanceof Texture;
 			var uv = btex ? ((<Texture>source )).uv : Texture.DEF_UV;
-			var bitmap:Texture2D = btex ? ((<Texture>source )).bitmap : source as Texture2D;
+			var bitmap:Texture2D|Texture = btex ? ((<Texture>source )).bitmap : source as Texture2D;
 			
 			if (bitmap.width && (x + width) > bitmap.width)
 				width = bitmap.width - x;
@@ -148,7 +148,7 @@ import { Event } from "../events/Event"
 					u2 - (1 - oriUV[4]) * inAltasUVWidth, v2 - (1 - oriUV[5]) * inAltasUVHeight, 
 					u1 + oriUV[6] * inAltasUVWidth, v2 - (1 - oriUV[7]) * inAltasUVHeight]);
 			
-			var bitmapScale:number = ((<Texture>bitmap )).scaleRate;
+			var bitmapScale:number = ((<Texture>(bitmap as any) )).scaleRate;
 			if (bitmapScale && bitmapScale != 1) {
 				tex.sourceWidth /= bitmapScale;
 				tex.sourceHeight /= bitmapScale;
@@ -181,7 +181,7 @@ import { Event } from "../events/Event"
 			var rect:Rectangle = Rectangle.TEMP.setTo(x - texture.offsetX, y - texture.offsetY, width, height);
 			var result:Rectangle = rect.intersection(Texture._rect1.setTo(0, 0, texture.width, texture.height), Texture._rect2);
 			if (result)
-				var tex:Texture = Texture.create(((<Texture2D>texture )), result.x, result.y, result.width, result.height, result.x - rect.x, result.y - rect.y, width, height);
+				var tex:Texture = Texture.create(((<Texture2D>(texture as any) )), result.x, result.y, result.width, result.height, result.x - rect.x, result.y - rect.y, width, height);
 			else
 				return null;
 			return tex;
@@ -230,7 +230,7 @@ import { Event } from "../events/Event"
 		 * 获取位图。
 		 * @return 位图。
 		 */
-		 get bitmap():Texture2D {
+		 get bitmap():Texture2D|Texture {
 			return this._bitmap;
 		}
 		
@@ -238,7 +238,7 @@ import { Event } from "../events/Event"
 		 * 设置位图。
 		 * @param 位图。
 		 */
-		 set bitmap(value:Texture2D) {
+		 set bitmap(value:Texture2D|Texture) {
 			this._bitmap && this._bitmap._removeReference(this._referenceCount);
 			this._bitmap = value;
 			value && (value._addReference(this._referenceCount));
@@ -257,7 +257,7 @@ import { Event } from "../events/Event"
 		 * @param	bitmap 位图资源。
 		 * @param	uv UV 数据信息。
 		 */
-		constructor(bitmap:Texture2D = null, uv:ArrayLike<number> = null, sourceWidth:number = 0, sourceHeight:number = 0){
+		constructor(bitmap:Texture2D|Texture = null, uv:ArrayLike<number> = null, sourceWidth:number = 0, sourceHeight:number = 0){
 			super();
 this.setTo(bitmap, uv, sourceWidth, sourceHeight);
 		}
@@ -345,7 +345,7 @@ this.setTo(bitmap, uv, sourceWidth, sourceHeight);
 		
 		 getTexturePixels ( x:number, y:number, width:number, height:number):Uint8Array {
 			var st:number, dst:number,i:number;
-			var tex2d:Texture2D = this.bitmap;
+			var tex2d:Texture2D|Texture = this.bitmap;
 			var texw:number = tex2d.width;
 			var texh:number = tex2d.height;
 			if (x + width > texw) width -= (x + width) - texw;
@@ -355,7 +355,7 @@ this.setTo(bitmap, uv, sourceWidth, sourceHeight);
 			var wstride:number = width * 4;
 			var pix:Uint8Array = null;
 			try {
-				pix = tex2d.getPixels();
+				pix = (tex2d as Texture2D).getPixels();
 			}catch (e) {
 			}
 			if (pix) {
@@ -456,10 +456,10 @@ this.setTo(bitmap, uv, sourceWidth, sourceHeight);
 		 destroy(force:boolean=false):void {
 			if (!this._destroyed) {
 				this._destroyed = true;
-				var bit:Bitmap= this._bitmap;
+				var bit= this._bitmap;
 				if (bit) {
 					bit._removeReference(this._referenceCount);
-					if (bit.referenceCount=== 0||force)
+					if ((bit as any).referenceCount=== 0||force)
 						bit.destroy();
 					bit = null;
 				}

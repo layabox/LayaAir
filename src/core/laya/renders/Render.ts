@@ -142,7 +142,7 @@ import { LayaGL } from "../layagl/LayaGL"
 		}
 	}
 {
-			Render.isConchApp = (window.conch != null);
+			Render.isConchApp = ((window as any).conch != null);
 			if (Render.isConchApp)  {
 				Render.supportWebGLPlusCulling = true;
 				Render.supportWebGLPlusAnimation = true;

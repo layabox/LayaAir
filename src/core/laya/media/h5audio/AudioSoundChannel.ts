@@ -1,5 +1,5 @@
 import { Laya } from "./../../../Laya";
-import { Event } from "../../events/Event"
+import { Event as LayaEvent } from "../../events/Event"
 	import { SoundChannel } from "../SoundChannel"
 	import { SoundManager } from "../SoundManager"
 	import { Render } from "../../renders/Render"
@@ -16,26 +16,26 @@ import { Event } from "../../events/Event"
 		/**
 		 * 播放用的audio标签
 		 */
-		private _audio:Audio = null;
-		private _onEnd:Function;
-		private _resumePlay:Function;
+		private _audio:HTMLAudioElement = null;
+		private _onEnd:(evt:Event)=>void;
+		private _resumePlay:(evt:Event)=>void;
 		
-		constructor(audio:Audio){
+		constructor(audio:HTMLAudioElement){
 			super();
-			this._onEnd = Utils.bind(this.__onEnd, this);
-			this._resumePlay = Utils.bind(this.__resumePlay, this);
-			audio.addEventListener("ended", this._onEnd);
+			this._onEnd = this.__onEnd.bind(this);
+			this._resumePlay = this.__resumePlay.bind(this);
+			audio.addEventListener("ended", this._onEnd );
 			this._audio = audio;
 		}
 		
-		private __onEnd():void {
+		private __onEnd( evt: Event):void {
 			if (this.loops == 1) {
 				if (this.completeHandler) {
 					Laya.systemTimer.once(10, this, this.__runComplete, [this.completeHandler], false);
 					this.completeHandler = null;
 				}
 				this.stop();
-				this.event(Event.COMPLETE);
+				this.event(LayaEvent.COMPLETE);
 				return;
 			}
 			if (this.loops > 0) {
@@ -46,7 +46,7 @@ import { Event } from "../../events/Event"
 		}
 		
 		private __resumePlay():void {		
-			if (this._audio) this._audio.removeEventListener("canplay", this._resumePlay);
+			if (this._audio) this._audio.removeEventListener("canplay", this._resumePlay as any);
 			if (this.isStopped) return;
 			try {
 				this._audio.currentTime = this.startTime;
@@ -54,7 +54,7 @@ import { Event } from "../../events/Event"
 				this._audio.play();
 			} catch (e) {
 				//this.audio.play();
-				this.event(Event.ERROR);
+				this.event(LayaEvent.ERROR);
 			}
 		}
 		
@@ -67,7 +67,7 @@ import { Event } from "../../events/Event"
 				this._audio.playbackRate = SoundManager.playbackRate;
 				this._audio.currentTime = this.startTime;
 			} catch (e) {
-				this._audio.addEventListener("canplay", this._resumePlay);
+				this._audio.addEventListener("canplay", this._resumePlay as any);
 				return;
 			}
 			SoundManager.addChannel(this);
@@ -112,19 +112,13 @@ import { Event } from "../../events/Event"
 			if ("pause" in this._audio)
 			//理论上应该全部使用stop，但是不知为什么，使用pause，为了安全我只修改在加速器模式下再调用一次stop
 			if ( Render.isConchApp ){
-				this._audio.stop();
+				(this._audio as any).stop();
 			}
 			this._audio.pause();
-			this._audio.removeEventListener("ended", this._onEnd);
+			this._audio.removeEventListener("ended", this._onEnd as EventListener);
 			this._audio.removeEventListener("canplay", this._resumePlay);
 			//ie下使用对象池可能会导致后面的声音播放不出来
-			if (!Browser.onIE)
-			{
-				if (this._audio!=AudioSound._musicAudio)
-				{
-					Pool.recover("audio:" + this.url, this._audio);
-				}
-			}		
+		
 			Browser.removeElement(this._audio);
 			this._audio = null;
 		

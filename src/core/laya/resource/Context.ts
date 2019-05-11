@@ -154,7 +154,7 @@ import { Sprite } from "../display/Sprite"
 		 _drawRect(x:number, y:number, width:number, height:number, style:any):void {
 			Stat.renderBatches++;
 			style && (this.fillStyle = style);
-			this.fillRect(x, y,width,height);
+			this.fillRect(x, y,width,height,null);
 		}
 		
 		///**@private */
@@ -886,7 +886,7 @@ import { Sprite } from "../display/Sprite"
 					submit.shaderValue.textureHost = this._lastTex;
 					//这里有一个问题。例如 clip1, drawTex(tex1), clip2, fillRect, drawTex(tex2)	会被分成3个submit，
 					//submit._key.copyFrom2(_submitKey, SubmitBase.KEY_DRAWTEXTURE, (_lastTex && _lastTex.bitmap)?_lastTex.bitmap.id: -1);
-					submit._key.other = (this._lastTex && this._lastTex.bitmap)?this._lastTex.bitmap.id: -1
+					submit._key.other = (this._lastTex && this._lastTex.bitmap)?(this._lastTex.bitmap as Texture2D).id: -1
 					submit._renderType = SubmitBase.TYPE_TEXTURE;
 				}				
 				this._curSubmit._numEle += 6;
@@ -1029,7 +1029,7 @@ import { Sprite } from "../display/Sprite"
 			//TODO 还没实现
 			var n:number = pos.length / 2;
 			var ipos:number = 0;
-			var bmpid:number = tex.bitmap.id;
+			var bmpid:number = (tex.bitmap as Texture2D).id;
 			for (var i:number = 0; i < n; i++) {
 				this._inner_drawTexture(tex, bmpid, pos[ipos++]+tx, pos[ipos++]+ty,0,0,null,null, 1.0,false);
 			}
@@ -1098,11 +1098,11 @@ import { Sprite } from "../display/Sprite"
 				return false;
 			}
 			
-			return this._inner_drawTexture(tex, tex.bitmap.id, x, y, width, height, m, uv, alpha,false);
+			return this._inner_drawTexture(tex, (tex.bitmap as Texture2D).id, x, y, width, height, m, uv, alpha,false);
 		}
 		
 		 _drawRenderTexture(tex:RenderTexture2D, x:number, y:number, width:number, height:number, m:Matrix, alpha:number, uv:any[]):boolean {
-			return this._inner_drawTexture((<Texture>tex ), -1, x, y, width, height, m, uv, 1.0,false);
+			return this._inner_drawTexture((<Texture>(tex as any) ), -1, x, y, width, height, m, uv, 1.0,false);
 		}
 		
 		//TODO:coverage
@@ -1575,7 +1575,7 @@ import { Sprite } from "../display/Sprite"
 				_drawRenderTexture(src._targets, x, y, width, height,null,1.0, RenderTexture.flipyuv);
 				*/
 			} else {
-				var canv:WebGLCacheAsNormalCanvas = (<WebGLCacheAsNormalCanvas>canvas );
+				var canv:WebGLCacheAsNormalCanvas = (<WebGLCacheAsNormalCanvas>(canvas as any) );
 				if (canv.touches) {
 					((<any[]>canv.touches )).forEach(function(v:CharRenderInfo):void { v.touch(); } );
 				}
@@ -1600,7 +1600,7 @@ import { Sprite } from "../display/Sprite"
 			}
 		}
 		
-		 drawTarget(rt:RenderTexture2D, x:number, y:number, width:number, height:number, m:Matrix, shaderValue:Value2D, uv:any[] = null, blend:number = -1):boolean {
+		 drawTarget(rt:RenderTexture2D, x:number, y:number, width:number, height:number, m:Matrix, shaderValue:Value2D, uv:ArrayLike<number> = null, blend:number = -1):boolean {
 			this._drawCount++;
 			var rgba:number = 0xffffffff;
 			if (this._mesh.vertNum + 4 > Context._MAXVERTNUM) {
@@ -1615,7 +1615,7 @@ import { Sprite } from "../display/Sprite"
 				//if (GlUtils.fillRectImgVb( _mesh._vb, _clipRect, x, y, width , height , uv || Texture.DEF_UV, m || _curMat, rgba, this)) {
 				var submit:SubmitTarget = this._curSubmit = SubmitTarget.create(this,this._mesh,shaderValue, rt);
 				submit.blendType = (blend == -1)?this._nBlendType:blend;
-				this._copyClipInfo((<Submit>submit ), this._globalClipMatrix);
+				this._copyClipInfo((<SubmitBase>(submit as any) ), this._globalClipMatrix);
 				submit._numEle = 6;
 				this._mesh.indexNum += 6;
 				this._mesh.vertNum += 4;
@@ -2436,7 +2436,7 @@ import { Sprite } from "../display/Sprite"
 		 * @param	y
 		 * @param	w
 		 */
-		private _fillTexture_h(tex:Texture, imgid:number, uv:any[],oriw:number, orih:number, x:number, y:number, w:number):void {
+		private _fillTexture_h(tex:Texture, imgid:number, uv:ArrayLike<number>,oriw:number, orih:number, x:number, y:number, w:number):void {
 			var stx:number = x;
 			var num:number = Math.floor( w / oriw);
 			var left:number = w % oriw;
@@ -2466,7 +2466,7 @@ import { Sprite } from "../display/Sprite"
 		 * @param	y
 		 * @param	h
 		 */
-		private _fillTexture_v(tex:Texture, imgid:number, uv:any[],oriw:number, orih:number, x:number, y:number, h:number):void {
+		private _fillTexture_v(tex:Texture, imgid:number, uv:ArrayLike<number>,oriw:number, orih:number, x:number, y:number, h:number):void {
 			var sty:number = y;
 			var num:number = Math.floor( h / orih);
 			var left:number = h % orih;
@@ -2522,9 +2522,9 @@ import { Sprite } from "../display/Sprite"
 				this.clipRect(0+tx, 0+ty, clipWidth, height);
 			}
 			
-			var imgid:number = tex.bitmap.id;
+			var imgid:number = (tex.bitmap as Texture2D).id;
 			var mat:Matrix = this._curMat;
-			var tuv:any[] = this._tempUV;
+			var tuv = this._tempUV;
 			// 整图的uv
 			// 一定是方的，所以uv只要左上右下就行
 			var uvl:number = uv[0];

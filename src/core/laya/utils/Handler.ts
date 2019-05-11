@@ -7,7 +7,7 @@
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		
 		/**@private handler对象池*/
-		private static _pool:any[] = [];
+		protected static _pool:any[] = [];
 		/**@private */
 		private static _gid:number = 1;
 		

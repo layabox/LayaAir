@@ -19,23 +19,23 @@ import { Event } from "../../events/Event"
 		/**
 		 * 声音URL
 		 */
-		 url:string;
+         url:string;
 		/**
 		 * 播放用的audio标签
 		 */
-		 audio:Audio;
+		 audio:HTMLAudioElement;
 		/**
 		 * 是否已加载完成
 		 */
 		 loaded:boolean = false;
 		/**@private */
-		 static _musicAudio:Audio;
+		 static _musicAudio:HTMLAudioElement;
 		/**
 		 * 释放声音
 		 *
 		 */
 		 dispose():void {
-			var ad:Audio = AudioSound._audioCache[this.url];
+			var ad:HTMLAudioElement = AudioSound._audioCache[this.url];
 			Pool.clearBySign("audio:" + this.url);
 			if (ad) {
 				if (!Render.isConchApp) {
@@ -49,7 +49,7 @@ import { Event } from "../../events/Event"
 		 static _initMusicAudio():void
 		{
 			if (AudioSound._musicAudio) return;
-			if (!AudioSound._musicAudio) AudioSound._musicAudio = (<Audio>Browser.createElement("audio") );
+			if (!AudioSound._musicAudio) AudioSound._musicAudio = (<HTMLAudioElement>Browser.createElement("audio") );
 			if (!Render.isConchApp) {
 				Browser.document.addEventListener("mousedown", AudioSound._makeMusicOK);
 			}
@@ -78,7 +78,7 @@ import { Event } from "../../events/Event"
 		 load(url:string):void {
 			url = URL.formatURL(url);
 			this.url = url;
-			var ad:Audio;
+			var ad:HTMLAudioElement;
 			if (url == SoundManager._bgMusic)
 			{
 				AudioSound._initMusicAudio();
@@ -103,7 +103,7 @@ import { Event } from "../../events/Event"
 					ad = AudioSound._musicAudio;
 				}else
 				{
-					ad = (<Audio>Browser.createElement("audio") );		
+					ad = (<HTMLAudioElement>Browser.createElement("audio") );		
 				}
 				AudioSound._audioCache[url] = ad;
 				ad.src = url;		
@@ -148,7 +148,7 @@ import { Event } from "../../events/Event"
 		 play(startTime:number = 0, loops:number = 0):SoundChannel {
 			//trace("playAudioSound");
 			if (!this.url) return null;
-			var ad:Audio;
+			var ad:HTMLAudioElement;
 			if (this.url == SoundManager._bgMusic)
 			{
 				ad = AudioSound._musicAudio;
@@ -158,13 +158,13 @@ import { Event } from "../../events/Event"
 			}
 			
 			if (!ad) return null;
-			var tAd:Audio;
+			var tAd:HTMLAudioElement;
 
 			tAd = Pool.getItem("audio:" + this.url);
 			
 			if ( Render.isConchApp ){
 				if ( !tAd ){
-					tAd = (<Audio>Browser.createElement("audio") );
+					tAd = (<HTMLAudioElement>Browser.createElement("audio") );
 					tAd.src = this.url;
 				}
 			}
@@ -176,7 +176,7 @@ import { Event } from "../../events/Event"
 					tAd.src = this.url;
 				}else
 				{
-					tAd = tAd ? tAd : ad.cloneNode(true);
+					tAd = tAd ? tAd : ad.cloneNode(true) as HTMLAudioElement;
 				}			
 			}
 			var channel:AudioSoundChannel = new AudioSoundChannel(tAd);
@@ -192,7 +192,7 @@ import { Event } from "../../events/Event"
 		 * 获取总时间。
 		 */
 		 get duration():number {
-			var ad:Audio;
+			var ad:HTMLAudioElement;
 			ad = AudioSound._audioCache[this.url];
 			if (!ad)
 				return 0;

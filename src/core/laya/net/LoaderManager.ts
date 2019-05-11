@@ -1,6 +1,5 @@
 import { Laya } from "./../../Laya";
 import { AtlasInfoManager } from "././AtlasInfoManager";
-import { Scene3D } from "../d3/core/scene/Scene3D"
 	import { Event } from "../events/Event"
 	import { EventDispatcher } from "../events/EventDispatcher"
 	import { Loader } from "./Loader"

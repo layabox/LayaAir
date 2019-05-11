@@ -3,6 +3,8 @@ import { Bitmap } from "../../../resource/Bitmap"
 	import { DrawStyle } from "../../canvas/DrawStyle"
 	import { Shader } from "../Shader"
 
+    import texture_vs from './files/texture.vs.glsl'
+    
 	export class Shader2D
 	{
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
@@ -22,16 +24,16 @@ import { Bitmap } from "../../../resource/Bitmap"
 		
 		 static __init__():void {
 			var vs:string, ps:string;
-			vs = this.__INCLUDESTR__("files/texture.vs");
-			ps = this.__INCLUDESTR__("files/texture.ps");
+			vs = __INCLUDESTR__("files/texture.vs");
+			ps = __INCLUDESTR__("files/texture.ps");
 			Shader.preCompile2D(0, ShaderDefines2D.TEXTURE2D, vs, ps, null);
 			
-			vs = this.__INCLUDESTR__("files/primitive.vs");
-			ps = this.__INCLUDESTR__("files/primitive.ps");
+			vs = __INCLUDESTR__("files/primitive.vs");
+			ps = __INCLUDESTR__("files/primitive.ps");
 			Shader.preCompile2D(0, ShaderDefines2D.PRIMITIVE, vs, ps, null);
 			
-			vs = this.__INCLUDESTR__("skinAnishader/skinShader.vs");
-			ps = this.__INCLUDESTR__("skinAnishader/skinShader.ps");
+			vs = __INCLUDESTR__("skinAnishader/skinShader.vs");
+			ps = __INCLUDESTR__("skinAnishader/skinShader.ps");
 			Shader.preCompile2D(0, ShaderDefines2D.SKINMESH, vs, ps, null);
 		}
 	}

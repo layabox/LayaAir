@@ -60,7 +60,7 @@ import { Context } from "../../../../resource/Context"
 		 ref:number = 1;
 		protected _attribLocation:any[];	//[name,location,name,location...] 由继承类赋值。这个最终会传给对应的shader
 		
-		private _inClassCache:any[];
+		private _inClassCache:any;
 		private _cacheID:number = 0;
 		 clipMatDir:any[] = [Context._MAXSIZE, 0, 0, Context._MAXSIZE];
 		 clipMatPos:any[] = [0, 0];
@@ -171,7 +171,7 @@ import { Context } from "../../../../resource/Context"
 		
 		 static create(mainType:number,subType:number):Value2D
 		{
-			var types:any[] = Value2D._cache[mainType|subType];
+			var types:any = Value2D._cache[mainType|subType];
 			if (types._length)
 				return types[--types._length];
 			else

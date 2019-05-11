@@ -31,10 +31,10 @@ import { EventDispatcher } from "../events/EventDispatcher"
 		
 		constructor(){
 			super();
-this.worker = new Worker(WorkerLoader.workerPath);
+            this.worker = new Worker(WorkerLoader.workerPath);
 			this.worker.onmessage = function(evt:any):void {
 				//接收worker传过来的数据函数
-				this.workerMessage(evt.data);
+				(this as any as WorkerLoader).workerMessage(evt.data);
 			}
 		}
 		
@@ -142,7 +142,7 @@ this.worker = new Worker(WorkerLoader.workerPath);
 		 * @param	url 资源地址。
 		 */
 		protected _loadImage(url:string):void {
-			var _this:Loader = (<Loader>this );
+			var _this:Loader = (<Loader>(this as any) );
 			if (!this._useWorkerLoader || !WorkerLoader._enable) {
 				WorkerLoader._preLoadFun.call(_this, url);
 				return;

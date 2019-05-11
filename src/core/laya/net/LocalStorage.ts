@@ -3,9 +3,8 @@
 	 */
 	export class LocalStorage {
 		
-		//基础类
-		 static _baseClass:new()=>any;
-		
+        //基础类
+         static _baseClass: typeof Storage;
 		/**
 		 *  数据列表。
 		 */
@@ -19,7 +18,8 @@
 			if (!LocalStorage._baseClass) {
 				LocalStorage._baseClass = Storage;
 				Storage.init();
-			}
+            }
+            Storage.items;
 			LocalStorage.items = LocalStorage._baseClass.items;
 			LocalStorage.support = LocalStorage._baseClass.support;
 			return LocalStorage.support;
@@ -103,7 +103,7 @@ class Storage {
 		try {
 			Storage.support && Storage.items.setItem(key, value);
 		} catch (e) {
-			console.warn("set localStorage failed", this.e);
+			console.warn("set localStorage failed", e);
 		}
 	}
 	
@@ -125,7 +125,7 @@ class Storage {
 		try {
 			Storage.support && Storage.items.setItem(key, JSON.stringify(value));
 		} catch (e) {
-			console.warn("set localStorage failed", this.e);
+			console.warn("set localStorage failed", e);
 		}
 	}
 	

@@ -4,9 +4,8 @@ import { Const } from "../Const"
 	import { Component } from "../components/Component"
 	import { FrameAnimation } from "../display/FrameAnimation"
 	import { Node } from "../display/Node"
-	import { ClassUtils } from "./ClassUtils"
-	import { WeakObject } from "./WeakObject"
-	
+    import { ClassUtils } from "./ClassUtils"
+    import {WeakObject} from './WeakObject'
 	/**
 	 * @private 场景辅助类
 	 */

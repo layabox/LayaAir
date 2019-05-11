@@ -41,7 +41,7 @@ import { Utils } from "./Utils"
 			}
 			var i:number, len:number;
 			var color:number;
-			if (value instanceof String) {
+			if (typeof(value)=='string') {
 				if (((<string>value )).indexOf("rgba(")>=0||((<string>value )).indexOf("rgb(")>=0)
 				{
 					var tStr:string = <string>value;

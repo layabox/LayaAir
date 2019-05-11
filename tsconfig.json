@@ -1,11 +1,10 @@
 {
     "compilerOptions": {
-        "target": "es5",
+        "target": "es6",
         "module": "esnext",
-        "outDir": "bin"
+        "outDir": "bin",
     },
     "include": [
-        "extdef.d.ts",
         "src/debug/Main1.ts"
     ]
 }

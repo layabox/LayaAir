@@ -1709,7 +1709,7 @@ import { Const } from "../Const"
 		
 		 set texture(value:Texture) {
 			if (value instanceof String) {
-				this.loadImage((<string>value ));
+				this.loadImage((<string>(value as any) ));
 			}else if (this._texture != value) {				
 				this._texture && this._texture._removeReference();
 				this._texture = value;
@@ -1738,7 +1738,7 @@ import { Const } from "../Const"
 		 set viewport(value:Rectangle) {
 			if (value instanceof String) {
 				var recArr:any[];
-				recArr = ((<string>value )).split(",");
+				recArr = ((<string>(value as any) )).split(",");
 				if (recArr.length > 3) {				
 					value = new Rectangle(parseFloat(recArr[0]),parseFloat(recArr[1]),parseFloat(recArr[2]),parseFloat(recArr[3]));
 				}

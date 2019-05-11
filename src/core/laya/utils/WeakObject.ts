@@ -51,13 +51,13 @@ import { Utils } from "././Utils";
 			if (WeakObject.supportWeakMap) {
 				var objKey:any = key;
 				if (key instanceof String || key instanceof Number) {
-					objKey = WeakObject._keys[key];
-					if (!objKey) objKey = WeakObject._keys[key] = {k: key};
+					objKey = WeakObject._keys[key as any];
+					if (!objKey) objKey = WeakObject._keys[key as any] = {k: key};
 				}
 				this._obj.set(objKey, value);
 			} else {
 				if (key instanceof String || key instanceof Number) {
-					this._obj[key] = value;
+					this._obj[key as any] = value;
 				} else {
 					key.$_GID || (key.$_GID = Utils.getGID());
 					this._obj[key.$_GID] = value;
@@ -72,11 +72,11 @@ import { Utils } from "././Utils";
 		 get(key:any):any {
 			if (key == null) return null;
 			if (WeakObject.supportWeakMap) {
-				var objKey:any = (key instanceof String || key instanceof Number) ? WeakObject._keys[key] : key;
+				var objKey:any = (key instanceof String || key instanceof Number) ? WeakObject._keys[key as any] : key;
 				if (!objKey) return null;
 				return this._obj.get(objKey);
 			} else {
-				if (key instanceof String || key instanceof Number) return this._obj[key];
+				if (key instanceof String || key instanceof Number) return this._obj[key as any];
 				return this._obj[key.$_GID];
 			}
 		}
@@ -88,11 +88,11 @@ import { Utils } from "././Utils";
 		 del(key:any):void {
 			if (key == null) return;
 			if (WeakObject.supportWeakMap) {
-				var objKey:any = (key instanceof String || key instanceof Number) ? WeakObject._keys[key] : key;
+				var objKey:any = (key instanceof String || key instanceof Number) ? WeakObject._keys[key as any] : key;
 				if (!objKey) return;
 				this._obj.delete(objKey);
 			} else {
-				if (key instanceof String || key instanceof Number) delete this._obj[key];
+				if (key instanceof String || key instanceof Number) delete this._obj[key as any];
 				else delete this._obj[this._obj.$_GID];
 			}
 		}
@@ -104,10 +104,10 @@ import { Utils } from "././Utils";
 		 has(key:any):boolean {
 			if (key == null) return false;
 			if (WeakObject.supportWeakMap) {
-				var objKey:any = (key instanceof String || key instanceof Number) ? WeakObject._keys[key] : key;
+				var objKey:any = (key instanceof String || key instanceof Number) ? WeakObject._keys[key as any] : key;
 				return this._obj.has(objKey);
 			} else {
-				if (key instanceof String || key instanceof Number) return this._obj[key] != null;
+				if (key instanceof String || key instanceof Number) return this._obj[key as any] != null;
 				return this._obj[this._obj.$_GID] != null;
 			}
 		}

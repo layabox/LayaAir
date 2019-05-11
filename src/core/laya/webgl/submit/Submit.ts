@@ -1,6 +1,4 @@
 import { SubmitBase } from "././SubmitBase";
-import { TYPE_2D } from "./TYPE_2D";
-import { RENDERBASE } from "./RENDERBASE";
 import { Context } from "../../resource/Context"
 	import { Texture } from "../../resource/Texture"
 	import { Stat } from "../../utils/Stat"
@@ -15,8 +13,8 @@ import { Context } from "../../resource/Context"
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		protected static _poolSize:number = 0;
 		protected static POOL:any[] =[];
-		
-		constructor(renderType:number = TYPE_2D){
+        
+		constructor(renderType:number = SubmitBase.TYPE_2D){
 			super(renderType);
 		}
 		
@@ -52,7 +50,7 @@ import { Context } from "../../resource/Context"
 		}
 	
 		 /*override*/ releaseRender():void {
-			if (RENDERBASE == this)
+			if (SubmitBase.RENDERBASE == this)
 				return;
 				
 			if( (--this._ref) <1){

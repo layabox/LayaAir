@@ -170,7 +170,6 @@ import { Const } from "../Const"
 		/**场景类，引擎中只有一个stage实例，此实例可以通过Laya.stage访问。*/
 		constructor(){
 			super();
-this.transform = this._createTransform();
 			//重置默认值，请不要修改
 			this.mouseEnabled = true;
 			this.hitTestPrior = true;
@@ -442,7 +441,7 @@ this.transform = this._createTransform();
 			mat.tx = this._formatData(mat.tx);
 			mat.ty = this._formatData(mat.ty);
 			
-			this.transform = this.transform;
+			//this.transform = this.transform;
 			canvasStyle.transformOrigin = canvasStyle.webkitTransformOrigin = canvasStyle.msTransformOrigin = canvasStyle.mozTransformOrigin = canvasStyle.oTransformOrigin = "0px 0px 0px";
 			canvasStyle.transform = canvasStyle.webkitTransform = canvasStyle.msTransform = canvasStyle.mozTransform = canvasStyle.oTransform = "matrix(" + mat.toString() + ")";
 			//修正用户自行设置的偏移
@@ -744,7 +743,7 @@ this.transform = this._createTransform();
 			if (!Render.isConchApp) {
 				return this._frameRate;
 			} else {
-				return this._frameRateNative;
+				return (this as any)._frameRateNative;
 			}
 		}
 		
@@ -752,21 +751,22 @@ this.transform = this._createTransform();
 			if (!Render.isConchApp) {
 				this._frameRate = value;
 			} else {
+                var c:any = (window as any).conch;
 				switch (value) {
 				case Stage.FRAME_FAST: 
-					window.conch.config.setLimitFPS(60);
+					c.config.setLimitFPS(60);
 					break;
 				case Stage.FRAME_MOUSE: 
-					window.conch.config.setMouseFrame(2000);
+					c.config.setMouseFrame(2000);
 					break;
 				case Stage.FRAME_SLOW: 
-					window.conch.config.setSlowFrame(true);
+					c.config.setSlowFrame(true);
 					break;
 				case Stage.FRAME_SLEEP: 
-					window.conch.config.setLimitFPS(1);
+					c.config.setLimitFPS(1);
 					break;
 				}
-				this._frameRateNative=value;
+				(this as any)._frameRateNative=value;
 			}
 		}
 		
@@ -813,14 +813,14 @@ this.transform = this._createTransform();
 		
 		/**@private */
 		 add3DUI(uibase:Sprite):void {
-			var uiroot:Sprite = uibase.rootView;
+			var uiroot:Sprite = (uibase as any).rootView;
 			if (this._3dUI.indexOf(uiroot) >= 0) return;
 			this._3dUI.push(uiroot);
 		}
 		
 		/**@private */
 		 remove3DUI(uibase:Sprite):boolean {
-			var uiroot:Sprite = uibase.rootView;
+			var uiroot:Sprite = (uibase as any).rootView;
 			var p:number = this._3dUI.indexOf(uiroot);
 			if (p >= 0) {
 				this._3dUI.splice(p, 1);

@@ -13,7 +13,6 @@
 	import { CacheManger } from "./laya/utils/CacheManger"
 	import { RunDriver } from "./laya/utils/RunDriver"
 	import { Timer } from "./laya/utils/Timer"
-	import { WeakObject } from "./laya/utils/WeakObject"
 	import { WebGL } from "./laya/webgl/WebGL"
 	
 	/**
@@ -73,7 +72,6 @@
 			Laya.timer = new Timer(false);
 			
 			Laya.loader = new LoaderManager();
-			WeakObject.__init__();
 			WebGL.inner_enable();
 			for (var i:number = 0, n:number = plugins.length; i < n; i++) {
 				if (plugins[i] && plugins[i].enable) {

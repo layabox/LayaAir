@@ -29,7 +29,7 @@ import { Matrix } from "../../../maths/Matrix"
 			var o:SaveTransform = no._length > 0 ? no[--no._length] : (new SaveTransform());
 			o._savematrix = context._curMat;
 			context._curMat = context._curMat.copyTo(o._matrix);
-			var _save:any[] = context._save;
+			var _save:any = context._save;
 			_save[_save._length++] = o;
 		}	
 	}

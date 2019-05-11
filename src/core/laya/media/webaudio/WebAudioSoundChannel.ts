@@ -4,6 +4,7 @@ import { Event } from "../../events/Event"
 	import { SoundManager } from "../SoundManager"
 	import { Browser } from "../../utils/Browser"
 	import { Utils } from "../../utils/Utils"
+import { WebAudioSound } from "./WebAudioSound";
 	
 	/**
 	 * @private

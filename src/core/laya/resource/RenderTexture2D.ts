@@ -275,7 +275,7 @@ import { LayaGL } from "../layagl/LayaGL"
 		 * @return 像素数据。
 		 */
 		 getData(x:number, y:number, width:number, height:number):Uint8Array {
-			if (Render.isConchApp && conchConfig.threadMode == 2) {
+			if (Render.isConchApp && (window as any).conchConfig.threadMode == 2) {
 				throw "native 2 thread mode use getDataAsync";
 			}
 			var gl:WebGLContext = LayaGL.instance;

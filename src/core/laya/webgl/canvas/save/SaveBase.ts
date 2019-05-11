@@ -83,7 +83,7 @@ import { Context } from "../../../resource/Context"
 				o._value = dataObj[o._valueName = SaveBase._namemap[type]];
 				o._dataObj = dataObj;
 				o._newSubmit = newSubmit;
-				var _save:any[] = context._save;
+				var _save:any = context._save;
 				_save[_save._length++] = o;
 			}
 		}

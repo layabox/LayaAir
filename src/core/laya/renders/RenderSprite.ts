@@ -27,6 +27,7 @@ import { Const } from "../Const"
 	import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D"
 	import { Value2D } from "../webgl/shader/d2/value/Value2D"
 	import { SubmitCMD } from "../webgl/submit/SubmitCMD"
+import { WebGLCacheAsNormalCanvas } from "../webgl/canvas/WebGLCacheAsNormalCanvas";
 	
 	/**
 	 * @private
@@ -435,9 +436,9 @@ import { Const } from "../Const"
 			
 			var tCacheType:string = _cacheStyle.cacheAs;
 			var scaleInfo:Point = _cacheStyle._calculateCacheRect(sprite, tCacheType, 0, 0);
-			
+            
 			if (!canvas) {
-				canvas = _cacheStyle.canvas = new Laya.WebGLCacheAsNormalCanvas(context, sprite);
+				canvas = _cacheStyle.canvas = ((new WebGLCacheAsNormalCanvas(context, sprite) as any) as HTMLCanvas);
 			}
 			var tx:Context = canvas.context;
 			
@@ -511,7 +512,7 @@ import { Const } from "../Const"
 					ctx.addRenderObject(SubmitCMD.create(["mask"],RenderSprite.setBlendMode,this));
 					
 					var shaderValue:Value2D = Value2D.create(ShaderDefines2D.TEXTURE2D, 0);
-					var uv:any[] = Texture.INV_UV;
+					var uv = Texture.INV_UV;
 					//这个地方代码不要删除，为了解决在iphone6-plus上的诡异问题
 					//renderTarget + StencilBuffer + renderTargetSize < 32 就会变得超级卡
 					//所以增加的限制。王亚伟

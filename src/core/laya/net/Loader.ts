@@ -425,7 +425,7 @@ import { Prefab } from "../components/Prefab"
 					var pics:any[] = this._data.pics;
 					var atlasURL:string = URL.formatURL(this._url);
 					var map:any[] = Loader.atlasMap[atlasURL] || (Loader.atlasMap[atlasURL] = []);
-					map.dir = directory;
+					(map as any).dir = directory;
 					var scaleRate:number = 1;
 					if (this._data.meta && this._data.meta.scale && this._data.meta.scale != 1) {
 						scaleRate = parseFloat(this._data.meta.scale);

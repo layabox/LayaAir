@@ -290,9 +290,9 @@ import { Sprite } from "../../display/Sprite"
 						if (ri.isSpace) {	// 空格什么都不做
 						} else {
 							//分组保存
-							var add:any[] = sameTexData[ri.tex.id];
+							var add = sameTexData[ri.tex.id];
 							if (!add) {
-								var o1:any = { texgen:((<TextTexture>ri.tex )).genID, tex:ri.tex, words:[] };	// 根据genid来减少是否释放的判断量
+								var o1 = { texgen:((<TextTexture>ri.tex )).genID, tex:ri.tex, words:[] };	// 根据genid来减少是否释放的判断量
 								sameTexData[ri.tex.id] = o1;
 								add = o1.words;
 							}else {
@@ -352,10 +352,12 @@ import { Sprite } from "../../display/Sprite"
 					//ctx._drawTextureM(ri.tex.texture as Texture, startx +riSaved.x -ri.orix / fontScaleX , starty + riSaved.y -ri.oriy / fontScaleY , riSaved.w, riSaved.h, null, 1.0, ri.uv);
 					if (Render.isConchApp) {
 						ctx._drawTextureM((<Texture>tex.texture ), startx +riSaved.x -ri.orix , starty + riSaved.y -ri.oriy, riSaved.w, riSaved.h, null, 1.0, ri.uv);
-					}else
-						ctx._inner_drawTexture((<Texture>tex.texture ), ((<Texture>tex.texture )).bitmap.id,
+					}else{
+                        let t = tex as TextTexture;
+						ctx._inner_drawTexture( t.texture, t.id,
 						startx +riSaved.x -ri.orix , starty + riSaved.y -ri.oriy, riSaved.w, riSaved.h, 
-						mat, ri.uv, 1.0, isLastRender);
+                        mat, ri.uv, 1.0, isLastRender);
+                    }
 						
 					if (((<any>ctx )).touches) {
 						((<any>ctx )).touches.push(ri);

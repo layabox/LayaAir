@@ -61,7 +61,7 @@ import { Matrix } from "../../../maths/Matrix"
 			context._clipRect.clone(o._clipRect);
 			o._clipInfoID = context._clipInfoID;
 			o.incache=context._clipInCache;
-			var _save:any[] = context._save;
+			var _save:any = context._save;
 			_save[_save._length++] = o;
 		}
 	}

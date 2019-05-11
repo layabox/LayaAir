@@ -533,7 +533,7 @@ this._style = TextStyle.EMPTY;
 			if (value instanceof String)
 			{
 				var arr:any[];
-				arr = ((<string>value )).split(",");
+				arr = ((<string>(value as any) )).split(",");
 				var i:number, len:number;
 				len = arr.length;
 				while (arr.length < 4)
@@ -638,8 +638,8 @@ this._style = TextStyle.EMPTY;
 		protected _isPassWordMode():boolean
 		{
 			var style:TextStyle = (<TextStyle>this._style );
-			var password:boolean = style.asPassword;
-			if (("prompt" in this) && this['prompt'] == this._text)
+            var password:boolean = style.asPassword;
+			if (("prompt" in (this as any)) && this['prompt'] == this._text)
 				password = false;
 			return password;
 		}
@@ -738,7 +738,7 @@ this._style = TextStyle.EMPTY;
 			
 			var password:boolean = style.asPassword;
 			// 输入框的prompt始终显示明文
-			if (("prompt" in this) && this['prompt'] == this._text)
+			if (("prompt" in (this as any)) && this['prompt'] == this._text)
 				password = false;
 			
 			var x:number = 0, y:number = 0;
@@ -830,7 +830,7 @@ this._style = TextStyle.EMPTY;
 			}
 			
 			if (Render.isConchApp) {
-				window.conchTextCanvas.font=this._getContextFont();;
+				(window as any).conchTextCanvas.font=this._getContextFont();;
 			}else{
 				Browser.context.font = this._getContextFont();
 			}
@@ -910,7 +910,7 @@ this._style = TextStyle.EMPTY;
 			} else {
 				var measureResult:any = null;
 				if (Render.isConchApp) {
-					measureResult = window.conchTextCanvas.measureText(this._testWord);
+					measureResult = (window as any).conchTextCanvas.measureText(Text._testWord);
 				}else {
 					measureResult = Browser.context.measureText(Text._testWord);					
 				}
@@ -940,12 +940,9 @@ this._style = TextStyle.EMPTY;
 		 * @param	wordWrapWidth 文本的显示宽度。
 		 */
 		protected _parseLine(line:string, wordWrapWidth:number):void {
-			var ctx:Context = Browser.context;
-			
 			var lines:any[] = this._lines;
 			
 			var maybeIndex:number = 0;
-			var execResult:any[];
 			var charsWidth:number;
 			var wordWidth:number;
 			var startIndex:number;
@@ -976,7 +973,7 @@ this._style = TextStyle.EMPTY;
 						var newLine:string = line.substring(startIndex, j);
 						if (newLine.charCodeAt(newLine.length - 1) < 255) {
 							//按照英文单词字边界截取 因此将会无视中文
-							execResult = /(?:\w|-)+$/.exec(newLine);
+							let execResult = /(?:\w|-)+$/.exec(newLine);
 							if (execResult) {
 								j = execResult.index + startIndex;
 								//此行只够容纳这一个单词 强制换行
@@ -1024,7 +1021,7 @@ this._style = TextStyle.EMPTY;
 			if (bitmapFont) return bitmapFont.getTextWidth(text);
 			else {
 				if (Render.isConchApp) {
-					return window.conchTextCanvas.measureText(text).width;;
+					return (window as any).conchTextCanvas.measureText(text).width;;
 				}
 				else return Browser.context.measureText(text).width;
 			}

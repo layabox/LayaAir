@@ -47,7 +47,7 @@ import { ColorFilter } from "../../filters/ColorFilter"
 			this._data = null;
 		}
 		
-		 add(ctx:Context,tex:Texture,imgid:number,pos:any[], uv:any[], color:number):void
+		 add(ctx:Context,tex:Texture,imgid:number,pos:any[], uv:ArrayLike<number>, color:number):void
 		{
 			if (this._ndata > 0 && (this._tex != tex || this._imgId != imgid || 
 				(this._clipid>=0 && this._clipid!=ctx._clipInfoID) ))

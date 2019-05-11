@@ -147,7 +147,7 @@ import { Event } from "../events/Event"
 				}
 			} catch (e) {
 				flag = false;
-				this.error(this.e.message);
+				this.error(e.message);
 			}
 			flag && this.event(Event.COMPLETE, this._data instanceof Array ? [this._data] : this._data);
 		}

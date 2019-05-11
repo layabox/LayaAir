@@ -111,7 +111,7 @@ import { Sprite } from "../../display/Sprite"
 				this.context._charSubmitCache.enable(true, this.context);
 			}
 			// copy submit
-			var parsubmits:any[] = this.context._submits;
+			var parsubmits:any = this.context._submits;
 			this.submitEndPos = parsubmits._length;
 			var num:number = this.submitEndPos - this.submitStartPos;
 			for (var i:number = 0; i < num; i++) {

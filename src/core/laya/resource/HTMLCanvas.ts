@@ -150,13 +150,14 @@ if(createCanvas )	//webgl模式下不建立。除非强制指，例如绘制文�
 		 toBase64(type:string, encoderOptions:number):string {
 			if (this._source) {
 				if (Render.isConchApp) {
-					if (conchConfig.threadMode == 2) {
+                    var win:any = window as any;
+					if (win.conchConfig.threadMode == 2) {
 						throw "native 2 thread mode use toBase64Async";
 					}
 					var width:number = this._ctx._targets.sourceWidth;
 					var height:number = this._ctx._targets.sourceHeight;
 					var data:any = this._ctx._targets.getData(0, 0, width, height);
-					return conchToBase64FlipY ? conchToBase64FlipY(type, encoderOptions, data.buffer, width, height) : conchToBase64(type, encoderOptions, data.buffer, width, height);
+					return win.conchToBase64FlipY ? win.conchToBase64FlipY(type, encoderOptions, data.buffer, width, height) : win.conchToBase64(type, encoderOptions, data.buffer, width, height);
 				}
 				else {
 					return this._source.toDataURL(type, encoderOptions);
@@ -169,7 +170,8 @@ if(createCanvas )	//webgl模式下不建立。除非强制指，例如绘制文�
 			var width:number = this._ctx._targets.sourceWidth;
 			var height:number = this._ctx._targets.sourceHeight;
 			this._ctx._targets.getDataAsync(0, 0, width, height, function(data:Uint8Array):void {
-				var base64 = conchToBase64FlipY ? conchToBase64FlipY(type, encoderOptions, data.buffer, width, height) : conchToBase64(type, encoderOptions, data.buffer, width, height);
+                let win = window as any;
+				var base64 = win.conchToBase64FlipY ? win.conchToBase64FlipY(type, encoderOptions, data.buffer, width, height) : win.conchToBase64(type, encoderOptions, data.buffer, width, height);
 				callBack(base64);
 			});	
 		}

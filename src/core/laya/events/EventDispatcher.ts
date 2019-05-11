@@ -199,7 +199,7 @@ import { Handler } from "../utils/Handler"
 class EventHandler extends Handler {
 	
 	/**@private handler对象池*/
-	private static _pool:any[] = [];
+	protected static _pool:any[] = [];
 	
 	constructor(caller:any, method:Function, args:any[], once:boolean){
 		super(caller, method, args, once);
@@ -225,4 +225,4 @@ class EventHandler extends Handler {
 		return new EventHandler(caller, method, args, once);
 	}
 }
-
+
