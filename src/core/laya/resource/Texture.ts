@@ -1,14 +1,12 @@
 import { Texture2D } from "././Texture2D";
-import { Laya } from "./../../Laya";
 import { Context } from "././Context";
 import { Bitmap } from "././Bitmap";
 import { Event } from "../events/Event"
 	import { EventDispatcher } from "../events/EventDispatcher"
 	import { Rectangle } from "../maths/Rectangle"
 	import { Render } from "../renders/Render"
-	import { Browser } from "../utils/Browser"
 	import { Handler } from "../utils/Handler"
-	import { RunDriver } from "../utils/RunDriver"
+import { LoaderManager } from "../net/LoaderManager";
 	
 	/**
 	 * 资源加载完成后调度。
@@ -20,6 +18,8 @@ import { Event } from "../events/Event"
 	 * <code>Texture</code> 是一个纹理处理类。
 	 */
 	export class Texture extends EventDispatcher {
+        /**@private */
+        static gLoader:LoaderManager = null;
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		/**@private 默认 UV 信息。*/
 		 static DEF_UV = /*[STATIC SAFE]*/ new Float32Array([0, 0, 1.0, 0, 1.0, 1.0, 0, 1.0]);
@@ -340,7 +340,7 @@ this.setTo(bitmap, uv, sourceWidth, sourceHeight);
 		 */
 		 load(url:string, complete:Handler = null):void {
 			if (!this._destroyed)
-				Laya.loader.load(url, Handler.create(this, this._onLoaded, [complete]), null, "htmlimage", 1, false, null, true);
+				Texture.gLoader.load(url, Handler.create(this, this._onLoaded, [complete]), null, "htmlimage", 1, false, null, true);
 		}
 		
 		 getTexturePixels ( x:number, y:number, width:number, height:number):Uint8Array {
@@ -434,7 +434,7 @@ this.setTo(bitmap, uv, sourceWidth, sourceHeight);
 		 recoverBitmap(onok:Function=null):void {
 			var url:string=this._bitmap.url;
 			if (!this._destroyed && (!this._bitmap || this._bitmap.destroyed) && url){
-				Laya.loader.load(url, Handler.create(this, function(bit:any):void{
+				Texture.gLoader.load(url, Handler.create(this, function(bit:any):void{
 					this.bitmap = bit;
 					onok && onok();
 				}), null, "htmlimage", 1, false, null, true);	
@@ -463,8 +463,8 @@ this.setTo(bitmap, uv, sourceWidth, sourceHeight);
 						bit.destroy();
 					bit = null;
 				}
-				if (this.url && this === Laya.loader.getRes(this.url))
-					Laya.loader.clearRes(this.url);
+				if (this.url && this === Texture.gLoader.getRes(this.url))
+					Texture.gLoader.clearRes(this.url);
 			}
 		}
 	}

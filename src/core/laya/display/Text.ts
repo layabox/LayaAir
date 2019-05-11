@@ -1,6 +1,5 @@
 import { Sprite } from "././Sprite";
 import { BitmapFont } from "././BitmapFont";
-import { Laya } from "./../../Laya";
 import { SpriteConst } from "././SpriteConst";
 import { Graphics } from "././Graphics";
 import { SpriteStyle } from "./css/SpriteStyle"
@@ -12,6 +11,7 @@ import { SpriteStyle } from "./css/SpriteStyle"
 	import { Context } from "../resource/Context"
 	import { Browser } from "../utils/Browser"
 	import { WordText } from "../utils/WordText"
+import { Timer } from "../utils/Timer";
 	
 	/**
 	 * 文本内容发生改变后调度。
@@ -106,6 +106,9 @@ import { SpriteStyle } from "./css/SpriteStyle"
 	 * }
 	 */
 	export class Text extends Sprite {
+        /**@private */
+        static gSysTimer:Timer=null;
+
 		/**visible不进行任何裁切。*/
 		 static VISIBLE:string = "visible";
 		/**scroll 不显示文本域外的字符像素，并且支持 scroll 接口。*/
@@ -308,7 +311,7 @@ this._style = TextStyle.EMPTY;
 		 * 表示文本的宽度，以像素为单位。
 		 */
 		 get textWidth():number {
-			this._isChanged && Laya.systemTimer.runCallLater(this, this.typeset);
+			this._isChanged && Text.gSysTimer.runCallLater(this, this.typeset);
 			return this._textWidth;
 		}
 		
@@ -316,7 +319,7 @@ this._style = TextStyle.EMPTY;
 		 * 表示文本的高度，以像素为单位。
 		 */
 		 get textHeight():number {
-			this._isChanged && Laya.systemTimer.runCallLater(this, this.typeset);
+			this._isChanged && Text.gSysTimer.runCallLater(this, this.typeset);
 			return this._textHeight;
 		}
 		
@@ -621,7 +624,7 @@ this._style = TextStyle.EMPTY;
 		protected set isChanged(value:boolean) {
 			if (this._isChanged !== value) {
 				this._isChanged = value;
-				value && Laya.systemTimer.callLater(this, this.typeset);
+				value && Text.gSysTimer.callLater(this, this.typeset);
 			}
 		}
 		
@@ -1052,7 +1055,7 @@ this._style = TextStyle.EMPTY;
 		 * @return Point 字符在本类实例的父坐标系下的坐标。如果out参数不为空，则将结果赋值给指定的Point对象，否则创建一个新的Point对象返回。建议使用Point.TEMP作为out参数，可以省去Point对象创建和垃圾回收的开销，尤其是在需要频繁执行的逻辑中，比如帧循环和MOUSE_MOVE事件回调函数里面。
 		 */
 		 getCharPoint(charIndex:number, out:Point = null):Point {
-			this._isChanged && Laya.systemTimer.runCallLater(this, this.typeset);
+			this._isChanged && Text.gSysTimer.runCallLater(this, this.typeset);
 			var len:number = 0, lines:any[] = this._lines, startIndex:number = 0;
 			for (var i:number = 0, n:number = lines.length; i < n; i++) {
 				len += lines[i].length;

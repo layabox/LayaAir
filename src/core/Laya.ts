@@ -14,6 +14,9 @@
 	import { RunDriver } from "./laya/utils/RunDriver"
 	import { Timer } from "./laya/utils/Timer"
 	import { WebGL } from "./laya/webgl/WebGL"
+import { Node } from "./laya/display/Node";
+import { Text } from "./laya/display/Text";
+import { Event } from "./laya/events/Event";
 	
 	/**
 	 * <code>Laya</code> 是全局对象的引用入口集。
@@ -88,7 +91,14 @@
 			URL.rootPath = URL._basePath = Laya._getUrlPath();
 			Laya.render = new Render(0, 0);
 			Laya.stage.size(width, height);
-			(window as any).stage = Laya.stage;
+            (window as any).stage = Laya.stage;
+
+            // 给其他对象赋全局值
+			Node.gTimer = Laya.timer;
+            Node.gStage = Laya.stage;
+            Text.gSysTimer = Laya.systemTimer;
+            Event.gStage=Laya.stage;
+            
 			RenderSprite.__init__();
 			KeyBoardManager.__init__();
 			MouseManager.instance.__init__(Laya.stage, Render.canvas);

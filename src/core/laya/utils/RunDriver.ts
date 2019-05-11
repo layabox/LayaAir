@@ -1,4 +1,3 @@
-import { Laya } from "./../../Laya";
 import { Browser } from "././Browser";
 import { Config } from "./../../Config";
 import { ColorUtils } from "././ColorUtils";
@@ -21,7 +20,7 @@ import { Sprite } from "../display/Sprite"
 		//TODO:coverage
 		 static createShaderCondition:Function = function(conditionScript:string):Function {
 			var fn:string = "(function() {return " + conditionScript + ";})";
-			return Laya._runScript(fn);//生成条件判断函数
+			return (window as any).Laya._runScript(fn);//生成条件判断函数
 		}
 		private static hanzi:RegExp = new RegExp("^[\u4E00-\u9FA5]$");
 		private static fontMap:any[] = [];
@@ -116,7 +115,7 @@ import { Sprite } from "../display/Sprite"
 			RenderState2D.worldScissorTest && WebGL.mainContext.disable(WebGLContext.SCISSOR_TEST);
 			var ctx:Context = Render.context;
 			//兼容浏览器
-			var c:any[] = (ctx._submits._length == 0 || Config.preserveDrawingBuffer) ? ColorUtils.create(value).arrColor : Laya.stage._wgColor;
+			var c:any[] = (ctx._submits._length == 0 || Config.preserveDrawingBuffer) ? ColorUtils.create(value).arrColor : (window as any).Laya.stage._wgColor;
 			if (c) 
 				ctx.clearBG(c[0], c[1], c[2], c[3]);
 			else

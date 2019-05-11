@@ -1,4 +1,3 @@
-import { RunDriver } from "././RunDriver";
 import { Browser } from "././Browser";
 import { Laya } from "./../../Laya";
 import { Sprite } from "../display/Sprite"
@@ -161,16 +160,6 @@ import { Sprite } from "../display/Sprite"
 			var rst:Function = fun;
 			rst=fun.bind(scope);;
 			return rst;
-		}
-		
-		/**
-		 * 测量文本在指定样式下的宽度、高度信息。
-		 * @param	txt 文本内容。
-		 * @param	font 文本字体样式。
-		 * @return 文本的宽高信息对象。如：{width:xxx,height:xxx}
-		 */
-		 static measureText(txt:string, font:string):any {
-			return RunDriver.measureText(txt, font);
 		}
 		
 		/**

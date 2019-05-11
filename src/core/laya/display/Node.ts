@@ -1,5 +1,4 @@
 import { Stage } from "././Stage";
-import { Laya } from "./../../Laya";
 import { Const } from "../Const"
 	import { Component } from "../components/Component"
 	import { Event } from "../events/Event"
@@ -34,6 +33,10 @@ import { Sprite } from "./Sprite";
 	 *  <code>Node</code> 类是可放在显示列表中的所有对象的基类。该显示列表管理 Laya 运行时中显示的所有对象。使用 Node 类排列显示列表中的显示对象。Node 对象可以有子显示对象。
 	 */
 	export class Node extends EventDispatcher {
+		/**@private */
+		static gTimer:Timer = null;			// 全局的timer
+		static gStage:Node = null;
+
 		/**@private */
 		protected static ARRAY_EMPTY:any[] = [];
 		/**@private */
@@ -452,7 +455,7 @@ this.createGLBuffer();
 		private _updateDisplayedInstage():void {
 			var ele:Node;
 			ele = this;
-			var stage:Stage = Laya.stage;
+			var stage = Node.gStage;
 			var displayedInStage:boolean = false;
 			while (ele) {
 				if (ele._getBit(Const.DISPLAY)) {
@@ -523,7 +526,7 @@ this.createGLBuffer();
 		 * @param	jumpFrame 时钟是否跳帧。基于时间的循环回调，单位时间间隔内，如能执行多次回调，出于性能考虑，引擎默认只执行一次，设置jumpFrame=true后，则回调会连续执行多次
 		 */
 		 timerLoop(delay:number, caller:any, method:Function, args:any[] = null, coverBefore:boolean = true, jumpFrame:boolean = false):void {
-			var timer:Timer = this.scene ? this.scene.timer : Laya.timer;
+			var timer:Timer = this.scene ? this.scene.timer : Node.gTimer;
 			timer.loop(delay, caller, method, args, coverBefore, jumpFrame);
 		}
 		
@@ -536,7 +539,7 @@ this.createGLBuffer();
 		 * @param	coverBefore	（可选）是否覆盖之前的延迟执行，默认为true。
 		 */
 		 timerOnce(delay:number, caller:any, method:Function, args:any[] = null, coverBefore:boolean = true):void {
-			var timer:Timer = this.scene ? this.scene.timer : Laya.timer;
+			var timer:Timer = this.scene ? this.scene.timer : Node.gTimer;
 			timer._create(false, false, delay, caller, method, args, coverBefore);
 		}
 		
@@ -549,7 +552,7 @@ this.createGLBuffer();
 		 * @param	coverBefore	（可选）是否覆盖之前的延迟执行，默认为true。
 		 */
 		 frameLoop(delay:number, caller:any, method:Function, args:any[] = null, coverBefore:boolean = true):void {
-			var timer:Timer = this.scene ? this.scene.timer : Laya.timer;
+			var timer:Timer = this.scene ? this.scene.timer : Node.gTimer;
 			timer._create(true, true, delay, caller, method, args, coverBefore);
 		}
 		
@@ -562,7 +565,7 @@ this.createGLBuffer();
 		 * @param	coverBefore	（可选）是否覆盖之前的延迟执行，默认为true
 		 */
 		 frameOnce(delay:number, caller:any, method:Function, args:any[] = null, coverBefore:boolean = true):void {
-			var timer:Timer = this.scene ? this.scene.timer : Laya.timer;
+			var timer:Timer = this.scene ? this.scene.timer : Node.gTimer;
 			timer._create(true, false, delay, caller, method, args, coverBefore);
 		}
 		
@@ -572,7 +575,7 @@ this.createGLBuffer();
 		 * @param	method 结束时的回调方法。
 		 */
 		 clearTimer(caller:any, method:Function):void {
-			var timer:Timer = this.scene ? this.scene.timer : Laya.timer;
+			var timer:Timer = this.scene ? this.scene.timer : Node.gTimer;
 			timer.clear(caller, method);
 		}
 		
@@ -585,7 +588,7 @@ this.createGLBuffer();
 		 * @see #runCallLater()
 		 */
 		 callLater(method:Function, args:any[] = null):void {
-			var timer:Timer = this.scene ? this.scene.timer : Laya.timer;
+			var timer:Timer = this.scene ? this.scene.timer : Node.gTimer;
 			timer.callLater(this, method, args);
 		}
 		
@@ -595,7 +598,7 @@ this.createGLBuffer();
 		 * @see #callLater()
 		 */
 		 runCallLater(method:Function):void {
-			var timer:Timer = this.scene ? this.scene.timer : Laya.timer;
+			var timer:Timer = this.scene ? this.scene.timer : Node.gTimer;
 			timer.runCallLater(this, method);
 		}
 		
@@ -984,7 +987,7 @@ this.createGLBuffer();
 		 * 获取timer
 		 */
 		 get timer():Timer {
-			return this.scene ? this.scene.timer : Laya.timer;
+			return this.scene ? this.scene.timer : Node.gTimer;
 		}
 	}
 
