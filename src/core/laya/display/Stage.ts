@@ -441,7 +441,7 @@ import { Const } from "../Const"
 			mat.tx = this._formatData(mat.tx);
 			mat.ty = this._formatData(mat.ty);
 			
-			//this.transform = this.transform;
+			super.transform = this.transform;
 			canvasStyle.transformOrigin = canvasStyle.webkitTransformOrigin = canvasStyle.msTransformOrigin = canvasStyle.mozTransformOrigin = canvasStyle.oTransformOrigin = "0px 0px 0px";
 			canvasStyle.transform = canvasStyle.webkitTransform = canvasStyle.msTransform = canvasStyle.mozTransform = canvasStyle.oTransform = "matrix(" + mat.toString() + ")";
 			//修正用户自行设置的偏移
