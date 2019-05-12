@@ -1,36 +1,17 @@
 import { WebGLContext } from "././WebGLContext";
 import { Sprite } from "../display/Sprite"
-	import { Stage } from "../display/Stage"
-	import { ColorFilter } from "../filters/ColorFilter"
-	import { Filter } from "../filters/Filter"
-	import { CommandEncoder } from "../layagl/CommandEncoder"
 	import { LayaGL } from "../layagl/LayaGL"
 	import { LayaGLRunner } from "../layagl/LayaGLRunner"
-	import { Matrix } from "../maths/Matrix"
-	import { Point } from "../maths/Point"
-	import { Rectangle } from "../maths/Rectangle"
 	import { Render } from "../renders/Render"
 	import { RenderSprite } from "../renders/RenderSprite"
-	import { Bitmap } from "../resource/Bitmap"
 	import { Context } from "../resource/Context"
 	import { HTMLCanvas } from "../resource/HTMLCanvas"
 	import { Texture } from "../resource/Texture"
-	import { System } from "../system/System"
 	import { Browser } from "../utils/Browser"
 	import { ColorUtils } from "../utils/ColorUtils"
 	import { RunDriver } from "../utils/RunDriver"
-	import { BlendMode } from "./canvas/BlendMode"
-	import { BaseTexture } from "../resource/BaseTexture"
 	import { RenderTexture2D } from "../resource/RenderTexture2D"
-	import { Texture2D } from "../resource/Texture2D"
-	import { WebGLRTMgr } from "../resource/WebGLRTMgr"
-	import { Shader2D } from "./shader/d2/Shader2D"
-	import { ShaderDefines2D } from "./shader/d2/ShaderDefines2D"
-	import { Value2D } from "./shader/d2/value/Value2D"
 	import { Shader } from "./shader/Shader"
-	import { Submit } from "./submit/Submit"
-	import { SubmitCMD } from "./submit/SubmitCMD"
-	import { Buffer2D } from "./utils/Buffer2D"
 	import { RenderState2D } from "./utils/RenderState2D"
 	
 	/**
@@ -110,8 +91,6 @@ import { Sprite } from "../display/Sprite"
 					//替换buffer的函数
 
 				}
-				var stage:any = Stage;
-				stage.prototype.render = stage.prototype.renderToNative;
 			}
 			RunDriver.clear = function(color:string):void {
 				Context.set2DRenderConfig();//渲染2D前要还原2D状态,否则可能受3D影响

@@ -1,6 +1,5 @@
 import { Render } from "../renders/Render"
 	import { Browser } from "../utils/Browser"
-	import { Buffer } from "./utils/Buffer"
 import { WebGL } from "./WebGL";
 	
 	export class WebGLContext

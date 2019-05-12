@@ -623,6 +623,11 @@ import { Const } from "../Const"
 		
 		/**@inheritDoc */
 		/*override*/  render(context:Context, x:number, y:number):void {
+			if((window as any).conch){
+				this.renderToNative(context,x,y);
+				return;
+			}
+			
 			//临时
 			Stage._dbgSprite.graphics.clear();
 			

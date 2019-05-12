@@ -14,6 +14,7 @@
     "rollup-plugin-terser": "^4.0.4"
   },
   "devDependencies": {
+    "rollup": "^1.11.3",
     "rollup-plugin-typescript": "^1.0.1",
     "rollup-plugin-typescript2": "^0.21.0",
     "ts-loader": "^6.0.0",
