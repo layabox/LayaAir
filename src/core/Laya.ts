@@ -16,6 +16,8 @@
 import { Node } from "./laya/display/Node";
 import { Text } from "./laya/display/Text";
 import { Event } from "./laya/events/Event";
+import { WeakObject } from "./laya/utils/WeakObject";
+import { Texture } from "./laya/resource/Texture";
 	
 	/**
 	 * <code>Laya</code> 是全局对象的引用入口集。
@@ -64,6 +66,18 @@ import { Event } from "./laya/events/Event";
 			Laya._isinit = true;
 			ArrayBuffer.prototype.slice || (ArrayBuffer.prototype.slice = Laya._arrayBufferSlice);
 			
+			//初始化引擎库
+			var libs:any[] =(window as any)._layalibs;
+			if (libs) {
+				libs.sort(function(a:any, b:any):number {
+					return a.i - b.i;
+				});
+				for (var j:number = 0; j < libs.length; j++) {
+					libs[j].f(window, window.document, Laya);
+				}
+			}
+			
+			Browser.gLaya = Laya;
 			Browser.__init__();
 			
 			Laya.systemTimer = new Timer(false);
@@ -72,8 +86,9 @@ import { Event } from "./laya/events/Event";
 			Laya.updateTimer = new Timer(false);
 			Laya.lateTimer = new Timer(false);
 			Laya.timer = new Timer(false);
-			
+            
 			Laya.loader = new LoaderManager();
+			WeakObject.__init__();
 			WebGL.inner_enable();
 			for (var i:number = 0, n:number = plugins.length; i < n; i++) {
 				if (plugins[i] && plugins[i].enable) {
@@ -87,17 +102,19 @@ import { Event } from "./laya/events/Event";
 			
 			CacheManger.beginCheck();
 			Laya._currentStage = Laya.stage = new Stage();
+			Browser.gStage = Laya.stage;
 			URL.rootPath = URL._basePath = Laya._getUrlPath();
 			Laya.render = new Render(0, 0);
 			Laya.stage.size(width, height);
-            (window as any).stage = Laya.stage;
-
-            // 给其他对象赋全局值
+			((<any>window )).stage = Laya.stage;
+			
+			// 给其他对象赋全局值
 			Node.gTimer = Laya.timer;
-            Node.gStage = Laya.stage;
-            Text.gSysTimer = Laya.systemTimer;
-            Event.gStage=Laya.stage;
-            
+			Node.gStage = Laya.stage;
+			Text.gSysTimer = Laya.systemTimer;
+			Event.gStage = Laya.stage;
+			Texture.gLoader = Laya.loader;
+			
 			RenderSprite.__init__();
 			KeyBoardManager.__init__();
 			MouseManager.instance.__init__(Laya.stage, Render.canvas);

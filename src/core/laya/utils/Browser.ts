@@ -1,4 +1,3 @@
-import { Laya } from "./../../Laya";
 import { SoundManager } from "../media/SoundManager"
 	import { LocalStorage } from "../net/LocalStorage"
 	import { Render } from "../renders/Render"
@@ -11,6 +10,11 @@ import { SoundManager } from "../media/SoundManager"
 	 */
 	export class Browser {
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		/** @private */
+		 static gLaya:any= null;
+		/** @private */
+		 static gStage:any= null;
+		
 		/** 浏览器代理信息。*/
 		 static userAgent:string;
 		/** 表示是否在移动设备，包括IOS和安卓等设备内。*/
@@ -72,8 +76,6 @@ import { SoundManager } from "../media/SoundManager"
 		private static _container:any;
 		/** @private */
 		private static _pixelRatio:number = -1;
-		/** @private */
-		 static _supportWebGL:boolean = false;
 		
 		/**@private */
 		 static __init__():any {
@@ -82,54 +84,43 @@ import { SoundManager } from "../media/SoundManager"
 			var doc:any = Browser._document = win.document;
 			var u:string = Browser.userAgent = win.navigator.userAgent;
 			
-			//初始化引擎库
-			var libs:any[] = win._layalibs;
-			if (libs) {
-				libs.sort(function(a:any, b:any):number {
-					return a.i - b.i;
-				});
-				for (var j:number = 0; j < libs.length; j++) {
-					libs[j].f(win, doc, Laya);
-				}
-			}
-			
 			//微信小游戏
 			if (u.indexOf("MiniGame") > -1 && Browser.window.hasOwnProperty("wx")) {
-				if (!Laya["MiniAdpter"]) {
+				if (!Browser.gLaya["MiniAdpter"]) {
 					console.error("请先添加小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?nav=zh-ts-5-0-0");
 						//TODO 教程要改
 				} else {
-					Laya["MiniAdpter"].enable();
+					Browser.gLaya["MiniAdpter"].enable();
 				}
 			}
 			
 			//百度小游戏
 			if (u.indexOf("SwanGame") > -1) {
-				if (!Laya["BMiniAdapter"]) {
+				if (!Browser.gLaya["BMiniAdapter"]) {
 					console.error("请先添加百度小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?nav=zh-ts-5-0-0");
 						//TODO 教程要改
 				} else {
-					Laya["BMiniAdapter"].enable();
+					Browser.gLaya["BMiniAdapter"].enable();
 				}
 			}
 			
 			//小米小游戏
 			if((window as any).getApp instanceof Function){
-				if (!Laya["KGMiniAdapter"]) {
+				if (!Browser.gLaya["KGMiniAdapter"]) {
 					console.error("请先添加小米小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?nav=zh-ts-5-0-0");
 					//TODO 教程要改
 				} else {
-					Laya["KGMiniAdapter"].enable();
+					Browser.gLaya["KGMiniAdapter"].enable();
 				}
 			}
 			
 			//OPPO小游戏
 			if (u.indexOf('OPPO') > -1 && u.indexOf('MiniGame') > -1) {
-				if (!Laya["QGMiniAdapter"]) {
+				if (!Browser.gLaya["QGMiniAdapter"]) {
 					console.error("请先添加OPPO小游戏适配库");
 					//TODO 教程要改
 				} else {
-					Laya["QGMiniAdapter"].enable();
+					Browser.gLaya["QGMiniAdapter"].enable();
 				}
 			}
 			
@@ -205,23 +196,6 @@ import { SoundManager } from "../media/SoundManager"
 			//创建离线画布
 			Browser.canvas = new HTMLCanvas(true);
 			Browser.context = Browser.canvas.getContext('2d');
-			
-			//测试是否支持webgl
-			var tmpCanv:any = new HTMLCanvas(true);
-			if(Browser.onQGMiniGame)
-				tmpCanv = Render._mainCanvas;//xiaosong add
-			var names:any[] = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
-			var gl:any = null;
-			for (i = 0; i < names.length; i++) {
-				try {
-					gl = tmpCanv.source.getContext(names[i]);
-				} catch (e) {
-				}
-				if (gl) {
-					Browser._supportWebGL = true;
-					break;
-				}
-			}
 			return win;
 		}
 		
@@ -281,13 +255,13 @@ import { SoundManager } from "../media/SoundManager"
 		/** 浏览器窗口物理宽度。考虑了设备像素比。*/
 		 static get width():number {
 			Browser.__init__();
-			return ((Laya.stage && Laya.stage.canvasRotation) ? Browser.clientHeight : Browser.clientWidth) * Browser.pixelRatio;
+			return ((Browser.gStage && Browser.gStage.canvasRotation) ? Browser.clientHeight : Browser.clientWidth) * Browser.pixelRatio;
 		}
 		
 		/** 浏览器窗口物理高度。考虑了设备像素比。*/
 		 static get height():number {
 			Browser.__init__();
-			return ((Laya.stage && Laya.stage.canvasRotation) ? Browser.clientWidth : Browser.clientHeight) * Browser.pixelRatio;
+			return ((Browser.gStage && Browser.gStage.canvasRotation) ? Browser.clientWidth : Browser.clientHeight) * Browser.pixelRatio;
 		}
 		
 		/** 获得设备像素比。*/

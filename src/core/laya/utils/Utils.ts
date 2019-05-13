@@ -1,4 +1,3 @@
-import { Browser } from "././Browser";
 import { Laya } from "./../../Laya";
 import { Sprite } from "../display/Sprite"
 	import { Stage } from "../display/Stage"
@@ -207,7 +206,7 @@ import { Sprite } from "../display/Sprite"
 		 * @return	返回解析后的数字。
 		 */
 		 static parseInt(str:string, radix:number = 0):number {
-			var result:any = Browser.window.parseInt(str, radix);
+			var result:any = parseInt(str, radix);
 			if (isNaN(result)) return 0;
 			return result;
 		}
@@ -380,7 +379,7 @@ import { Sprite } from "../display/Sprite"
 		 * @return	参数值
 		 */
 		 static getQueryString(name:string):string {
-			if (Browser.onMiniGame) return null;
+			//if (Browser.onMiniGame) return null;
 			if(!window.location || !window.location.search)
 				return null;
 			var reg:RegExp = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
