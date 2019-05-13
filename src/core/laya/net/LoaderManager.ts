@@ -120,29 +120,29 @@ for (var i:number = 0; i < this._maxPriority; i++) this._resInfos[i] = [];
 				}
 				for (i = 0; i < itemCount; i++) {
 					item = items[i];
-					var progressHandler:Handler = progress ? Handler.create(null, onProgress, [item], false) : null;
-					var completeHandler:Handler = (progress || complete) ? Handler.create(null, onComplete, [item]) : null;
+					var progressHandler:Handler = progress ? Handler.create(null, function (item:any, value:number):void {
+                            item.progress = value;
+                            var num:number = 0;
+                            for (var j:number = 0; j < itemCount; j++) {
+                                var item1:any = items[j];
+                                num += item1.progress;
+                            }
+                            var v:number = num / itemCount;
+                            progress2.runWith(v);
+                    }, [item], false) : null;
+					var completeHandler:Handler = (progress || complete) ? Handler.create(null,	function (item:any, content:any = null):void {
+                            loadedCount++;
+                            item.progress = 1;
+                            content || (allScuess=false);//资源加载失败
+                            if (loadedCount === itemCount && complete) {
+                                complete.runWith(allScuess);
+                            }
+                    }, [item]) : null;
 					this._createOne(item.url, mainResou, completeHandler, progressHandler, item.type || type, item.constructParams || constructParams, item.propertyParams || propertyParams, item.priority || priority, cache);
 				}
-				function onComplete(item:any, content:any = null):void {
-					loadedCount++;
-					item.progress = 1;
-					content || (allScuess=false);//资源加载失败
-					if (loadedCount === itemCount && complete) {
-						complete.runWith(allScuess);
-					}
-				}
+
 				
-				function onProgress(item:any, value:number):void {
-					item.progress = value;
-					var num:number = 0;
-					for (var j:number = 0; j < itemCount; j++) {
-						var item1:any = items[j];
-						num += item1.progress;
-					}
-					var v:number = num / itemCount;
-					progress2.runWith(v);
-				}
+				
 			} else {
 				this._createOne(url, mainResou, complete, progress, type, constructParams, propertyParams, priority, cache);
 			}
@@ -166,8 +166,7 @@ for (var i:number = 0; i < this._maxPriority; i++) this._resInfos[i] = [];
 					this.load(url, complete, progress, type, priority, cache);
 					return;
 				}
-				this._createLoad(url, Handler.create(null, onLoaded), progress, type, constructParams, propertyParams, priority, cache, true);
-				function onLoaded(createRes:ICreateResource):void {//加载失败createRes为空
+				this._createLoad(url, Handler.create(null, function (createRes:ICreateResource):void {//加载失败createRes为空
 					if (createRes) {
 						if (!mainResou && createRes instanceof Resource)
 							((<Resource>createRes ))._addReference();
@@ -175,7 +174,8 @@ for (var i:number = 0; i < this._maxPriority; i++) this._resInfos[i] = [];
 					}
 					complete && complete.runWith(createRes);
 					Laya.loader.event(url);
-				};
+				}), progress, type, constructParams, propertyParams, priority, cache, true);
+				
 			} else {
 				if (!mainResou && item instanceof Resource)
 					item._addReference();

@@ -143,15 +143,15 @@ this._setBit(Const.NOT_READY, true);
 		
 		/**@inheritDoc */
 		/*override*/  set scaleX(value:number) {
-			if (super.scaleX == value) return;
-			super.scaleX = value;
+			if (super.get_scaleX() == value) return;
+			super.set_scaleX(value);
 			this.event(Event.RESIZE);
 		}
 		
 		/**@inheritDoc */
 		/*override*/  set scaleY(value:number) {
-			if (super.scaleY == value) return;
-			super.scaleY = value;
+			if (super.get_scaleY() == value) return;
+			super.set_scaleY(value);
 			this.event(Event.RESIZE);
 		}
 		
@@ -170,8 +170,8 @@ this._setBit(Const.NOT_READY, true);
 		
 		/**@inheritDoc */
 		/*override*/  set width(value:number) {
-			if (super.width == value) return;
-			super.width = value;
+			if (super.get_width() == value) return;
+			super.set_width(value);
 			this.callLater(this._sizeChanged);
 		}
 		
@@ -190,8 +190,8 @@ this._setBit(Const.NOT_READY, true);
 		
 		/**@inheritDoc */
 		/*override*/  set height(value:number) {
-			if (super.height == value) return;
-			super.height = value;
+			if (super.get_height() == value) return;
+			super.set_height(value);
 			this.callLater(this._sizeChanged);
 		}
 		
@@ -207,12 +207,12 @@ this._setBit(Const.NOT_READY, true);
 			if (!Scene._root) {
 				Scene._root = (<Sprite>Laya.stage.addChild(new Sprite()) );
 				Scene._root.name = "root";
-				Laya.stage.on("resize", null, resize);
-				function resize():void {
+				Laya.stage.on("resize", null, function():void{
 					Scene._root.size(Laya.stage.width, Laya.stage.height);
 					Scene._root.event(Event.RESIZE);
-				}
-				resize();
+                });
+                Scene._root.size(Laya.stage.width, Laya.stage.height);
+                Scene._root.event(Event.RESIZE);
 			}
 			return Scene._root;
 		}

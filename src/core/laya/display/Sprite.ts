@@ -448,27 +448,27 @@ import { Const } from "../Const"
 		 * <p>可以通过getbounds获取显示对象图像的实际宽度。</p>
 		 */
 		 get width():number {
-			if (!this.autoSize) return this._width || (this.texture?this.texture.width:0);
-			if (this.texture) return this.texture.width;
-			if (!this._graphics && this._children.length === 0) return 0;
-			return this.getSelfBounds().width;
+			return this.get_width();
 		}
 		
 		 set width(value:number) {
+			this.set_width(value);
+		}		
+		
+		// for ts
+		 set_width(value:number):void {
 			if (this._width !== value) {
 				this._width = value;
 				this._setWidth(this.texture, value);	
 				this._setTranformChange();
 				//repaint();
 			}
-		}		
-		
-		// for ts
-		 set_width(v:number):void {
-			this.width = v;
 		}
 		 get_width():number {
-			return this.width;
+			if (!this.autoSize) return this._width || (this.texture?this.texture.width:0);
+			if (this.texture) return this.texture.width;
+			if (!this._graphics && this._children.length === 0) return 0;
+			return this.getSelfBounds().width;
 		}
 		
 		/**
@@ -477,13 +477,15 @@ import { Const } from "../Const"
 		 * <p>可以通过getbounds获取显示对象图像的实际高度。</p>
 		 */
 		 get height():number {
-			if (!this.autoSize) return this._height || (this.texture?this.texture.height:0);
-			if (this.texture) return this.texture.height;
-			if (!this._graphics && this._children.length === 0) return 0;
-			return this.getSelfBounds().height;
+			return this.get_height();
 		}
 		
 		 set height(value:number) {
+			this.set_height(value);
+		}
+		
+		// for ts
+		 set_height(value:number):void {
 			if (this._height !== value) {
 				this._height = value;
                 this._setHeight(this.texture, value);
@@ -491,13 +493,11 @@ import { Const } from "../Const"
 				//repaint();
 			}
 		}
-		
-		// for ts
-		 set_height(v:number):void {
-			this.height = v;
-		}
 		 get_height():number {
-			return this.height;
+			if (!this.autoSize) return this._height || (this.texture?this.texture.height:0);
+			if (this.texture) return this.texture.height;
+			if (!this._graphics && this._children.length === 0) return 0;
+			return this.getSelfBounds().height;
 		}
 		
 		/**
@@ -680,11 +680,7 @@ import { Const } from "../Const"
 		}
 		
 		 set scaleX(value:number) {
-			var style:SpriteStyle = this.getStyle();
-			if (style.scaleX !== value) {
-				this._setScaleX(value);
-				this._setTranformChange();
-			}
+			this.set_scaleX(value);
 		}
 		
 		/**@private */
@@ -698,16 +694,35 @@ import { Const } from "../Const"
 		}
 		
 		 set scaleY(value:number) {
+			this.set_scaleY(value);
+		}
+		
+		/**@private */
+		 _setScaleY(value:number):void {
+			this._style.scaleY = value;
+		}
+		
+		
+		 set_scaleX(value:number):void {
+			var style:SpriteStyle = this.getStyle();
+			if (style.scaleX !== value) {
+				this._setScaleX(value);
+				this._setTranformChange();
+			}
+		}
+		 get_scaleX():number {
+			return this._style.scaleX;			
+		}
+		
+		 set_scaleY(value:number):void {
 			var style:SpriteStyle = this.getStyle();
 			if (style.scaleY !== value) {
 				this._setScaleY(value);
 				this._setTranformChange();
 			}
 		}
-		
-		/**@private */
-		 _setScaleY(value:number):void {
-			this._style.scaleY = value;
+		 get_scaleY():number {
+			return this._style.scaleY;			
 		}
 		
 		/**旋转角度，默认值为0。以角度为单位。*/
@@ -814,6 +829,14 @@ import { Const } from "../Const"
 		}
 		
 		 set transform(value:Matrix) {
+			this.set_transform(value);
+		}
+		
+		 get_transform():Matrix {
+			return this._tfChanged ? this._adjustTransform() : this._transform;
+		}
+		
+		 set_transform(value:Matrix):void {
 			this._tfChanged = false;
 			var m:Matrix = this._transform || (this._transform = this._createTransform());
 			value.copyTo(m);
@@ -910,10 +933,18 @@ import { Const } from "../Const"
 		
 		/**表示是否可见，默认为true。如果设置不可见，节点将不被渲染。*/
 		 get visible():boolean {
-			return this._visible;
+			return this.get_visible();
 		}
 		
 		 set visible(value:boolean) {
+			this.set_visible(value);
+		}
+		
+		 get_visible():boolean {
+			return this._visible;
+		}
+		
+		 set_visible(value:boolean):void {
 			if (this._visible !== value) {
 				this._visible = value;
 				this.parentRepaint(SpriteConst.REPAINT_ALL);
@@ -1706,7 +1737,7 @@ import { Const } from "../Const"
 		
 		 set texture(value:Texture) {
 			if (value instanceof String) {
-				this.loadImage((<string>(value as any) ));
+				this.loadImage((<string>((<any>value ) ) ));
 			}else if (this._texture != value) {				
 				this._texture && this._texture._removeReference();
 				this._texture = value;
@@ -1735,7 +1766,7 @@ import { Const } from "../Const"
 		 set viewport(value:Rectangle) {
 			if (value instanceof String) {
 				var recArr:any[];
-				recArr = ((<string>(value as any) )).split(",");
+				recArr = ((<string>((<any>value )) )).split(",");
 				if (recArr.length > 3) {				
 					value = new Rectangle(parseFloat(recArr[0]),parseFloat(recArr[1]),parseFloat(recArr[2]),parseFloat(recArr[3]));
 				}

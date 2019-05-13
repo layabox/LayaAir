@@ -331,11 +331,7 @@ this._style = TextStyle.EMPTY;
 		 get_text():string{
 			return this._text || "";
 		}
-		 set_text(v:string):void {
-			this.text = v;
-		}
-		
-		 set text(value:string) {
+		 set_text(value:string):void {
 			if (this._text !== value) {
 				this.lang(value + "");
 				this.isChanged = true;
@@ -344,6 +340,10 @@ this._style = TextStyle.EMPTY;
 					this._setBorderStyleColor(0, 0, this.width, this.height, this.borderColor, 1);
 				}
 			}
+		}
+		
+		 set text(value:string) {
+			this.set_text(value);
 		}
 		
 		/**
@@ -432,6 +432,14 @@ this._style = TextStyle.EMPTY;
 		}
 		
 		 set color(value:string) {
+			this.set_color(value);
+		}
+		
+		// for转ts。 ts不支持 super.get/set
+		 get_color():string {
+			return this._color;
+		}
+		 set_color(value:string):void {
 			if (this._color != value) {
 				this._color = value;
 				//如果仅仅更新颜色，无需重新排版
@@ -441,14 +449,6 @@ this._style = TextStyle.EMPTY;
 					this.isChanged = true;
 				}
 			}
-		}
-		
-		// for转ts。 ts不支持 super.get/set
-		 get_color():string {
-			return this._color;
-		}
-		 set_color(v:string):void {
-			this.color = v;
 		}
 		
 		/**
@@ -560,19 +560,19 @@ this._style = TextStyle.EMPTY;
 		}
 		
 		 set bgColor(value:string) {
+			this.set_bgColor(value);
+		}
+		
+		// fot ts
+		 set_bgColor(value:string):void {
 			this._getTextStyle().bgColor = value;
 			this._renderType |= SpriteConst.STYLE;
 			this._setBgStyleColor(0, 0, this.width, this.height, value);
 			this._setRenderType(this._renderType);			
 			this.isChanged = true;
 		}
-		
-		// fot ts
-		 set_bgColor(v:string):void {
-			this.bgColor = v;
-		}
 		 get_bgColor():string {
-			return this.bgColor;
+			return ((<TextStyle>this._style )).bgColor;
 		}
 		
 		/**
@@ -975,7 +975,7 @@ this._style = TextStyle.EMPTY;
 						var newLine:string = line.substring(startIndex, j);
 						if (newLine.charCodeAt(newLine.length - 1) < 255) {
 							//按照英文单词字边界截取 因此将会无视中文
-							let execResult = /(?:\w|-)+$/.exec(newLine);
+							var execResult = /(?:\w|-)+$/.exec(newLine);
 							if (execResult) {
 								j = execResult.index + startIndex;
 								//此行只够容纳这一个单词 强制换行

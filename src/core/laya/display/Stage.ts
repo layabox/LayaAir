@@ -170,6 +170,7 @@ import { Const } from "../Const"
 		/**场景类，引擎中只有一个stage实例，此实例可以通过Laya.stage访问。*/
 		constructor(){
 			super();
+super.set_transform( this._createTransform()); 
 			//重置默认值，请不要修改
 			this.mouseEnabled = true;
 			this.hitTestPrior = true;
@@ -263,14 +264,14 @@ import { Const } from "../Const"
 		/**@inheritDoc */
 		/*override*/  set width(value:number) {
 			this.designWidth = value;
-			super.width = value;
+			super.set_width(value);
 			Laya.systemTimer.callLater(this, this._changeCanvasSize);
 		}
 		
 		/**@inheritDoc */
 		/*override*/  set height(value:number) {
 			this.designHeight = value;
-			super.height = value;
+			super.set_height(value);
 			Laya.systemTimer.callLater(this, this._changeCanvasSize);
 		}
 		
@@ -441,7 +442,7 @@ import { Const } from "../Const"
 			mat.tx = this._formatData(mat.tx);
 			mat.ty = this._formatData(mat.ty);
 			
-			super.transform = this.transform;
+			super.set_transform (this.transform);
 			canvasStyle.transformOrigin = canvasStyle.webkitTransformOrigin = canvasStyle.msTransformOrigin = canvasStyle.mozTransformOrigin = canvasStyle.oTransformOrigin = "0px 0px 0px";
 			canvasStyle.transform = canvasStyle.webkitTransform = canvasStyle.msTransform = canvasStyle.mozTransform = canvasStyle.oTransform = "matrix(" + mat.toString() + ")";
 			//修正用户自行设置的偏移
@@ -615,7 +616,7 @@ import { Const } from "../Const"
 		/**@inheritDoc */
 		/*override*/  set visible(value:boolean) {
 			if (this.visible !== value) {
-				super.visible = value;
+				super.set_visible(value);
 				var style:any = Render._mainCanvas.source.style;
 				style.visibility = value ? "visible" : "hidden";
 			}
@@ -623,7 +624,7 @@ import { Const } from "../Const"
 		
 		/**@inheritDoc */
 		/*override*/  render(context:Context, x:number, y:number):void {
-			if((window as any).conch){
+			if(((<any>window )).conch){
 				this.renderToNative(context,x,y);
 				return;
 			}
@@ -748,7 +749,7 @@ import { Const } from "../Const"
 			if (!Render.isConchApp) {
 				return this._frameRate;
 			} else {
-				return (this as any)._frameRateNative;
+				return ((<any>this ))._frameRateNative;
 			}
 		}
 		
@@ -756,7 +757,7 @@ import { Const } from "../Const"
 			if (!Render.isConchApp) {
 				this._frameRate = value;
 			} else {
-                var c:any = (window as any).conch;
+				var c:any = ((<any>window )).conch;
 				switch (value) {
 				case Stage.FRAME_FAST: 
 					c.config.setLimitFPS(60);
@@ -771,7 +772,7 @@ import { Const } from "../Const"
 					c.config.setLimitFPS(1);
 					break;
 				}
-				(this as any)._frameRateNative=value;
+				((<any>this ))._frameRateNative=value;
 			}
 		}
 		
@@ -818,14 +819,14 @@ import { Const } from "../Const"
 		
 		/**@private */
 		 add3DUI(uibase:Sprite):void {
-			var uiroot:Sprite = (uibase as any).rootView;
+			var uiroot:Sprite = ((<any>uibase )).rootView;
 			if (this._3dUI.indexOf(uiroot) >= 0) return;
 			this._3dUI.push(uiroot);
 		}
 		
 		/**@private */
 		 remove3DUI(uibase:Sprite):boolean {
-			var uiroot:Sprite = (uibase as any).rootView;
+			var uiroot:Sprite = ((<any>uibase )).rootView;
 			var p:number = this._3dUI.indexOf(uiroot);
 			if (p >= 0) {
 				this._3dUI.splice(p, 1);
