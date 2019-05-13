@@ -1,4 +1,3 @@
-import { Browser } from "../../utils/Browser"
 	import { ShaderCompile } from "./ShaderCompile"
 	
 	export class ShaderNode {

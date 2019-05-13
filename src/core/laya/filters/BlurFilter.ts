@@ -1,10 +1,5 @@
 import { Filter } from "././Filter";
 import { BlurFilterGLRender } from "././BlurFilterGLRender";
-import { BLUR } from "./BLUR";
-import { Sprite } from "../display/Sprite"
-	import { Render } from "../renders/Render"
-	import { RunDriver } from "../utils/RunDriver"
-	
 	/**
 	 * 模糊滤镜
 	 */
@@ -30,7 +25,7 @@ this.strength = strength;
 		 * 当前滤镜的类型
 		 */
 		/*override*/  get type():number {
-			return BLUR;
+			return Filter.BLUR;
 		}
 		
 		 getStrenth_sig2_2sig2_native():Float32Array

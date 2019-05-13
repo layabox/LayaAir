@@ -8,7 +8,6 @@
 	import { URL } from "./laya/net/URL"
 	import { Render } from "./laya/renders/Render"
 	import { RenderSprite } from "./laya/renders/RenderSprite"
-	import { Context } from "./laya/resource/Context"
 	import { Browser } from "./laya/utils/Browser"
 	import { CacheManger } from "./laya/utils/CacheManger"
 	import { RunDriver } from "./laya/utils/RunDriver"

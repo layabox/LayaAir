@@ -1,5 +1,4 @@
 import { Matrix } from "../../maths/Matrix"
-	import { Rectangle } from "../../maths/Rectangle"
 	import { ShaderDefines2D } from "../shader/d2/ShaderDefines2D"
 	
 	export class RenderState2D {

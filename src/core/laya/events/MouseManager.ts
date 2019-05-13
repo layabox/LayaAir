@@ -8,7 +8,6 @@ import { Input } from "../display/Input"
 	import { Point } from "../maths/Point"
 	import { Rectangle } from "../maths/Rectangle"
 	import { Browser } from "../utils/Browser"
-	import { HitArea } from "../utils/HitArea"
 	
 	/**
 	 * <p><code>MouseManager</code> 是鼠标、触摸交互管理器。</p>

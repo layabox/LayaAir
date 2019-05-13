@@ -1,4 +1,3 @@
-import { Matrix } from "../../maths/Matrix"
 	export class BasePoly {
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		private static tempData:any[] = new Array(256);

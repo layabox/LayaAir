@@ -1,9 +1,7 @@
 import { VertexBuffer2D } from "././VertexBuffer2D";
 import { IndexBuffer2D } from "././IndexBuffer2D";
 import { Config } from "./../../../Config";
-import { Stat } from "../../utils/Stat"
 	import { BufferState2D } from "../BufferState2D"
-	import { WebGL } from "../WebGL"
 	import { WebGLContext } from "../WebGLContext"
 
 	/**

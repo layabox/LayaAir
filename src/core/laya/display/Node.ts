@@ -1,4 +1,3 @@
-import { Stage } from "././Stage";
 import { Const } from "../Const"
 	import { Component } from "../components/Component"
 	import { Event } from "../events/Event"

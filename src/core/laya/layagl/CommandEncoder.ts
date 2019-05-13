@@ -1,10 +1,4 @@
-import { Matrix } from "../maths/Matrix"
-	import { Point } from "../maths/Point"
-	import { Render } from "../renders/Render"
-	import { LayaGL } from "./LayaGL"
-	import { Texture } from "../resource/Texture"
-	import { ColorUtils } from "../utils/ColorUtils"
-	
+
 	/**
 	 * @private
 	 * CommandEncoder

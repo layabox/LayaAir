@@ -1,5 +1,4 @@
 import { Laya } from "./../../Laya";
-import { Render } from "../renders/Render"
 	
 	/**
 	 * @private

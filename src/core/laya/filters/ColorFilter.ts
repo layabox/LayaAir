@@ -1,7 +1,6 @@
 import { Filter } from "././Filter";
 import { IFilter } from "././IFilter";
 import { ColorUtils } from "../utils/ColorUtils"
-	import { RunDriver } from "../utils/RunDriver"
 	
 	/**
 	 * <p><code>ColorFilter</code> 是颜色滤镜。使用 ColorFilter 类可以将 4 x 5 矩阵转换应用于输入图像上的每个像素的 RGBA 颜色和 Alpha 值，以生成具有一组新的 RGBA 颜色和 Alpha 值的结果。该类允许饱和度更改、色相旋转、亮度转 Alpha 以及各种其他效果。您可以将滤镜应用于任何显示对象（即，从 Sprite 类继承的对象）。</p>

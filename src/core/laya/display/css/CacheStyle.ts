@@ -1,10 +1,8 @@
 import { Sprite } from "../Sprite"
 	import { Point } from "../../maths/Point"
 	import { Rectangle } from "../../maths/Rectangle"
-	import { Render } from "../../renders/Render"
 	import { Context } from "../../resource/Context"
 	import { HTMLCanvas } from "../../resource/HTMLCanvas"
-	import { Browser } from "../../utils/Browser"
 	import { Pool } from "../../utils/Pool"
 	
 	/**

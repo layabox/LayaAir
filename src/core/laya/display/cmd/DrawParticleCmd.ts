@@ -1,8 +1,5 @@
-import { Point } from "../../maths/Point"
 	import { Context } from "../../resource/Context"
-	import { Texture } from "../../resource/Texture"
 	import { Pool } from "../../utils/Pool"
-	import { Matrix } from "../../maths/Matrix"
 	
 	/**
 	 * 绘制粒子

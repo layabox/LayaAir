@@ -2,14 +2,12 @@ import { TextAtlas } from "././TextAtlas";
 import { TextTexture } from "././TextTexture";
 import { Laya } from "./../../../Laya";
 import { Sprite } from "../../display/Sprite"
-	import { Event } from "../../events/Event"
 	import { Matrix } from "../../maths/Matrix"
 	import { Point } from "../../maths/Point"
 	import { Render } from "../../renders/Render"
 	import { Context } from "../../resource/Context"
 	import { Texture } from "../../resource/Texture"
 	import { Browser } from "../../utils/Browser"
-	import { ColorUtils } from "../../utils/ColorUtils"
 	import { FontInfo } from "../../utils/FontInfo"
 	import { HTMLChar } from "../../utils/HTMLChar"
 	import { Stat } from "../../utils/Stat"

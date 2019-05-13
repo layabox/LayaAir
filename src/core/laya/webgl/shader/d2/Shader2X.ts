@@ -1,4 +1,3 @@
-import { Render } from "../../../renders/Render"
 	import { Shader } from "../Shader"
 	import { ShaderValue } from "../ShaderValue"
 	

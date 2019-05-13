@@ -1,6 +1,5 @@
 import { Mesh2D } from "././Mesh2D";
 import { Context } from "../../resource/Context"
-	import { WebGL } from "../WebGL"
 	import { WebGLContext } from "../WebGLContext"
 
 	/**

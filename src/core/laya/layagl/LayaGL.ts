@@ -1,16 +1,5 @@
 import { CommandEncoder } from "././CommandEncoder";
-import { Text } from "../display/Text"
-	import { DrawImageCmd } from "../display/cmd/DrawImageCmd"
-	import { FillTextCmd } from "../display/cmd/FillTextCmd"
-	import { RestoreCmd } from "../display/cmd/RestoreCmd"
-	import { RotateCmd } from "../display/cmd/RotateCmd"
-	import { SaveCmd } from "../display/cmd/SaveCmd"
-	import { ScaleCmd } from "../display/cmd/ScaleCmd"
-	import { TransformCmd } from "../display/cmd/TransformCmd"
-	import { TranslateCmd } from "../display/cmd/TranslateCmd"
-	import { Matrix } from "../maths/Matrix"
-	import { Texture } from "../resource/Texture"
-	import { WebGLContext } from "../webgl/WebGLContext"
+
 	/**
 	 * @private
 	 * 封装GL命令

@@ -2,7 +2,6 @@ import { LayaGL } from "../../layagl/LayaGL"
 	import { Stat } from "../../utils/Stat"
 	import { WebGLContext } from "../WebGLContext"
 	import { BaseShader } from "../shader/BaseShader"
-	import { Shader } from "../shader/Shader"
 import { Buffer } from "./Buffer";
     
 	export class Buffer2D extends Buffer {

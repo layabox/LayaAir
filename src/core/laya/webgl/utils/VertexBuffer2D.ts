@@ -1,7 +1,5 @@
 import { Buffer2D } from "././Buffer2D";
-import { Render } from "../../renders/Render"
 	import { LayaGL } from "../../layagl/LayaGL"
-	import { WebGL } from "../WebGL"
 	import { WebGLContext } from "../WebGLContext"
 import { Buffer } from "./Buffer";
 

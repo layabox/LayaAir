@@ -2,10 +2,8 @@ import { Laya } from "./../../Laya";
 import { Sprite } from "../display/Sprite"
 	import { SpriteConst } from "../display/SpriteConst"
 	import { Stage } from "../display/Stage"
-	import { Render } from "../renders/Render"
 	import { RenderSprite } from "../renders/RenderSprite"
 	import { Context } from "../resource/Context"
-	import { Stat } from "../utils/Stat"
 	/**
 	 * ...
 	 * @author ww

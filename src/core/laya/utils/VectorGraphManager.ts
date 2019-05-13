@@ -1,4 +1,3 @@
-import { Render } from "../renders/Render"
 	import { CacheManger } from "./CacheManger"
 	import { Utils } from "./Utils"
 	

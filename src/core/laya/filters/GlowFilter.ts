@@ -1,10 +1,7 @@
 import { Filter } from "././Filter";
 import { GlowFilterGLRender } from "././GlowFilterGLRender";
-import { GLOW } from "./GLOW";
-import { Sprite } from "../display/Sprite"
-	import { Render } from "../renders/Render"
 	import { ColorUtils } from "../utils/ColorUtils"
-	import { RunDriver } from "../utils/RunDriver"
+import { BlurFilter } from "./BlurFilter";
 	
 	/**
 	 *  发光滤镜(也可以当成阴影滤使用）
@@ -45,7 +42,7 @@ this._color = new ColorUtils(color);
 		 * 滤镜类型
 		 */
 		/*override*/  get type():number {
-			return GLOW;
+			return BlurFilter.GLOW;
 		}
 		
 		/**@private */

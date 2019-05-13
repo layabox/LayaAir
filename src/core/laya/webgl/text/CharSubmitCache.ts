@@ -5,7 +5,6 @@ import { ColorFilter } from "../../filters/ColorFilter"
 	import { Stat } from "../../utils/Stat"
 	import { ShaderDefines2D } from "../shader/d2/ShaderDefines2D"
 	import { Value2D } from "../shader/d2/value/Value2D"
-	import { Submit } from "../submit/Submit"
 	import { SubmitTexture } from "../submit/SubmitTexture"
 	import { MeshQuadTexture } from "../utils/MeshQuadTexture"
 	/**

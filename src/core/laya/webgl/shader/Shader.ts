@@ -1,12 +1,9 @@
 import { BaseShader } from "././BaseShader";
 import { ShaderValue } from "././ShaderValue";
-import { Render } from "../../renders/Render"
-	import { Resource } from "../../resource/Resource"
 	import { Stat } from "../../utils/Stat"
 	import { StringKey } from "../../utils/StringKey"
 	import { WebGL } from "../WebGL"
 	import { WebGLContext } from "../WebGLContext"
-	import { Buffer } from "../utils/Buffer"
 	import { ShaderCompile } from "../utils/ShaderCompile"
 	
 	export class Shader extends BaseShader {

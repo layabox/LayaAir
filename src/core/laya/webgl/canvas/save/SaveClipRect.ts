@@ -3,7 +3,6 @@ import { SaveBase } from "././SaveBase";
 import { Matrix } from "../../../maths/Matrix"
 	import { Rectangle } from "../../../maths/Rectangle"
 	import { Context } from "../../../resource/Context"
-	import { Submit } from "../../submit/Submit"
 	
 	export class SaveClipRect implements ISaveData {
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/

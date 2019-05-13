@@ -3,7 +3,6 @@ import { Sprite } from "././Sprite";
 import { Rectangle } from "../maths/Rectangle"
 	import { Loader } from "../net/Loader"
 	import { Texture } from "../resource/Texture"
-	import { Texture2D } from "../resource/Texture2D"
 	import { Handler } from "../utils/Handler"
 	
 	/**

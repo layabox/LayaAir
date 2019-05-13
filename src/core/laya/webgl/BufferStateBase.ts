@@ -1,5 +1,4 @@
 import { LayaGL } from "../layagl/LayaGL"
-	import { Stat } from "../utils/Stat"
 	import { Buffer } from "./utils/Buffer"
 	
 	/**

@@ -4,7 +4,6 @@ import { Matrix } from "../../maths/Matrix"
 	import { ShaderDefines2D } from "../shader/d2/ShaderDefines2D"
 	import { Value2D } from "../shader/d2/value/Value2D"
 	import { CONST3D2D } from "../utils/CONST3D2D"
-	import { Mesh2D } from "../utils/Mesh2D"
 	import { RenderState2D } from "../utils/RenderState2D"
 	
 	/**

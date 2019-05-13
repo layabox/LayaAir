@@ -1,7 +1,5 @@
 import { BaseTexture } from "./BaseTexture"
 	import { RenderTexture2D } from "./RenderTexture2D"
-	import { WebGL } from "../webgl/WebGL"
-	import { WebGLContext } from "../webgl/WebGLContext"
 	
 	/**
 	 * WebGLRTMgr 管理WebGLRenderTarget的创建和回收

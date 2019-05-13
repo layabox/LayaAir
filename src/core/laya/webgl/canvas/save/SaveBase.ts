@@ -1,6 +1,5 @@
 import { ISaveData } from "././ISaveData";
 import { Context } from "../../../resource/Context"
-	import { Submit } from "../../submit/Submit"
 	import { SubmitBase } from "../../submit/SubmitBase"
 	
 	export class SaveBase implements ISaveData {

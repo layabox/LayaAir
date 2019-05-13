@@ -1,4 +1,3 @@
-import { Stage } from "../../display/Stage"
 	import { Stat } from "../../utils/Stat"
 	/**
 	 * TODO如果占用内存较大,这个结构有很多成员可以临时计算

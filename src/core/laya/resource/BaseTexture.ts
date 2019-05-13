@@ -1,9 +1,6 @@
 import { LayaGL } from "../layagl/LayaGL"
-	import { Render } from "../renders/Render"
 	import { Bitmap } from "./Bitmap"
-	import { Resource } from "./Resource"
 	import { Browser } from "../utils/Browser"
-	import { WebGL } from "../webgl/WebGL"
 	import { WebGLContext } from "../webgl/WebGLContext"
 	
 	/**

@@ -4,8 +4,6 @@ import { Event as LayaEvent } from "../../events/Event"
 	import { SoundManager } from "../SoundManager"
 	import { Render } from "../../renders/Render"
 	import { Browser } from "../../utils/Browser"
-	import { Pool } from "../../utils/Pool"
-	import { Utils } from "../../utils/Utils"
 	
 	/**
 	 * @private

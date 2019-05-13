@@ -1,13 +1,6 @@
 import { ISubmit } from "././ISubmit";
 import { SubmitKey } from "././SubmitKey";
-import { Context } from "../../resource/Context"
-	import { Texture } from "../../resource/Texture"
-	import { Stat } from "../../utils/Stat"
-	import { WebGL } from "../WebGL"
-	import { WebGLContext } from "../WebGLContext"
-	import { BlendMode } from "../canvas/BlendMode"
 	import { Value2D } from "../shader/d2/value/Value2D"
-	import { CONST3D2D } from "../utils/CONST3D2D"
 	import { Mesh2D } from "../utils/Mesh2D"
 	
 	export class SubmitBase implements ISubmit {

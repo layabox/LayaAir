@@ -1,6 +1,5 @@
 import { ColorFilter } from "../../filters/ColorFilter"
 	import { Matrix } from "../../maths/Matrix"
-	import { Render } from "../../renders/Render"
 	import { Context } from "../../resource/Context"
 	import { Texture } from "../../resource/Texture"
 	import { Pool } from "../../utils/Pool"

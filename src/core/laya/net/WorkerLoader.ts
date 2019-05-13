@@ -1,9 +1,7 @@
 import { Loader } from "././Loader";
 import { URL } from "././URL";
 import { EventDispatcher } from "../events/EventDispatcher"
-	import { Render } from "../renders/Render"
 	import { HTMLCanvas } from "../resource/HTMLCanvas"
-	import { Browser } from "../utils/Browser"
 	import { Texture2D } from "../resource/Texture2D"
 	
 	/**

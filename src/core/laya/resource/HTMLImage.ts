@@ -1,8 +1,6 @@
 import { Bitmap } from "././Bitmap";
 import { Texture2D } from "././Texture2D";
 import { BaseTexture } from "././BaseTexture";
-import { URL } from "../net/URL"
-	import { Browser } from "../utils/Browser"
 	
 	/**
 	 * @private

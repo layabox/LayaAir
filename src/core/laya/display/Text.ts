@@ -8,7 +8,6 @@ import { SpriteStyle } from "./css/SpriteStyle"
 	import { Point } from "../maths/Point"
 	import { Rectangle } from "../maths/Rectangle"
 	import { Render } from "../renders/Render"
-	import { Context } from "../resource/Context"
 	import { Browser } from "../utils/Browser"
 	import { WordText } from "../utils/WordText"
 import { Timer } from "../utils/Timer";

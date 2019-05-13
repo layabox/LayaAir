@@ -1,4 +1,3 @@
-import { Point } from "../../maths/Point"
 	import { Context } from "../../resource/Context"
 	import { Pool } from "../../utils/Pool"
 	/**

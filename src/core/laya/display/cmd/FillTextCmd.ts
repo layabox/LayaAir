@@ -1,5 +1,4 @@
 import { Laya } from "./../../../Laya";
-import { Render } from "../../renders/Render"
 	import { Context } from "../../resource/Context"
 	import { ColorUtils } from "../../utils/ColorUtils"
 	import { FontInfo } from "../../utils/FontInfo"

@@ -1,5 +1,3 @@
-import { Loader } from "../net/Loader"
-	import { Handler } from "../utils/Handler"
 	import { SceneUtils } from "../utils/SceneUtils"
 	
 	/**

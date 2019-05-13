@@ -1,6 +1,4 @@
-import { BasePoly } from "../shapes/BasePoly"
-	import { Mesh2D } from "../utils/Mesh2D"
-	
+
 	export class Path {
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		//public var _rect:Rectangle;
