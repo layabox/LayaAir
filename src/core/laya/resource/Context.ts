@@ -1,6 +1,5 @@
 import { HTMLCanvas } from "././HTMLCanvas";
 import { Texture } from "././Texture";
-import { Laya } from "./../../Laya";
 import { Bitmap } from "././Bitmap";
 import { Sprite } from "../display/Sprite"
 	import { ColorFilter } from "../filters/ColorFilter"
@@ -13,7 +12,7 @@ import { Sprite } from "../display/Sprite"
 	import { ColorUtils } from "../utils/ColorUtils"
 	import { FontInfo } from "../utils/FontInfo"
 	import { HTMLChar } from "../utils/HTMLChar"
-	import { Stat } from "../utils/Stat"
+	import { StatData } from "../utils/StatData"
 	import { WordText } from "../utils/WordText"
 	import { WebGL } from "../webgl/WebGL"
 	import { WebGLContext } from "../webgl/WebGLContext"
@@ -56,6 +55,7 @@ import { Sprite } from "../display/Sprite"
 	import { MeshVG } from "../webgl/utils/MeshVG"
 	import { RenderState2D } from "../webgl/utils/RenderState2D"
 	import { VertexBuffer2D } from "../webgl/utils/VertexBuffer2D"
+import { Timer } from "../utils/Timer";
 	
 	/**
 	 * @private
@@ -63,6 +63,7 @@ import { Sprite } from "../display/Sprite"
 	 */
 	export class Context {
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		 static gSysTimer:Timer = null;
 		 _canvas:HTMLCanvas;
 		 static ENUM_TEXTALIGN_DEFAULT:number = 0;
 		 static ENUM_TEXTALIGN_CENTER:number = 1;
@@ -152,7 +153,7 @@ import { Sprite } from "../display/Sprite"
 		/**@private */
 		//TODO:coverage
 		 _drawRect(x:number, y:number, width:number, height:number, style:any):void {
-			Stat.renderBatches++;
+			StatData.renderBatches++;
 			style && (this.fillStyle = style);
 			this.fillRect(x, y,width,height,null);
 		}
@@ -277,7 +278,7 @@ import { Sprite } from "../display/Sprite"
 		/**Math.PI*2的结果缓存 */
 		 static PI2:number =/*[STATIC SAFE]*/ 2 * Math.PI;
 		 _drawCircle(x:number, y:number, radius:number, fillColor:any, lineColor:any, lineWidth:number, vid:number):void {
-			Stat.renderBatches++;
+			StatData.renderBatches++;
 			this.beginPath(true);
 			this.arc(x, y, radius, 0, Context.PI2);
 			this.closePath();
@@ -916,7 +917,7 @@ import { Sprite } from "../display/Sprite"
 			//test
 			
 			if (!texture._getSource()){
-				this.sprite && Laya.systemTimer.callLater(this, this._repaintSprite);
+				this.sprite && Context.gSysTimer.callLater(this, this._repaintSprite);
 				return;
 			}
 			this._fillTexture(texture,texture.width,texture.height, texture.uvrect,x,y,width,height,type,offset.x,offset.y);
@@ -1022,7 +1023,7 @@ import { Sprite } from "../display/Sprite"
 		 drawTextures(tex:Texture, pos:any[],tx:number, ty:number):void {
 			if (!tex._getSource()) //source内调用tex.active();
 			{
-				this.sprite && Laya.systemTimer.callLater(this, this._repaintSprite);
+				this.sprite && Context.gSysTimer.callLater(this, this._repaintSprite);
 				return;
 			}
 			
@@ -1632,7 +1633,7 @@ import { Sprite } from "../display/Sprite"
 		 drawTriangles(tex:Texture, x:number, y:number, vertices:Float32Array, uvs:Float32Array, indices:Uint16Array, matrix:Matrix, alpha:number, color:ColorFilter, blendMode:string):void {
 			if (!tex._getSource()){ //source内调用tex.active();
 				if (this.sprite) {
-					Laya.systemTimer.callLater(this, this._repaintSprite);
+					Context.gSysTimer.callLater(this, this._repaintSprite);
 				}
 				return ;
 			}

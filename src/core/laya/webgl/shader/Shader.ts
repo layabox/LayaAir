@@ -1,6 +1,6 @@
 import { BaseShader } from "././BaseShader";
 import { ShaderValue } from "././ShaderValue";
-	import { Stat } from "../../utils/Stat"
+	import { StatData } from "../../utils/StatData"
 	import { StringKey } from "../../utils/StringKey"
 	import { WebGL } from "../WebGL"
 	import { WebGLContext } from "../WebGLContext"
@@ -545,7 +545,7 @@ import { ShaderValue } from "././ShaderValue";
 						one.fun.call(this, one, value);*/
 			}
 			
-			Stat.shaderCall += shaderCall;
+			StatData.shaderCall += shaderCall;
 		}
 		
 		/**
@@ -571,7 +571,7 @@ import { ShaderValue } from "././ShaderValue";
 					shaderCall += one.fun.call(this, one, value);
 				}
 			}
-			Stat.shaderCall += shaderCall;
+			StatData.shaderCall += shaderCall;
 		}
 		
 		/**

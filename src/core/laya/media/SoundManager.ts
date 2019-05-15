@@ -5,12 +5,10 @@ import { Event } from "../events/Event"
 	import { WebAudioSound } from "./webaudio/WebAudioSound"
 	import { Loader } from "../net/Loader"
 	import { URL } from "../net/URL"
-	import { Render } from "../renders/Render"
-	import { Browser } from "../utils/Browser"
 	import { Handler } from "../utils/Handler"
+	import { PlatformInfo } from "../utils/PlatformInfo"
 	import { Utils } from "../utils/Utils"
 import { Sound } from "./Sound";
-	
 	/**
 	 * <code>SoundManager</code> 是一个声音管理类。提供了对背景音乐、音效的播放控制方法。
 	 * 引擎默认有两套声音方案：WebAudio和H5Audio
@@ -71,7 +69,7 @@ import { Sound } from "./Sound";
 		
 		/**@private */
 		 static __init__():boolean {
-			var win:any = Browser.window;
+			var win:any = PlatformInfo.window;
 			var supportWebAudio:boolean = win["AudioContext"] || win["webkitAudioContext"] || win["mozAudioContext"] ? true : false;
 			if (supportWebAudio) WebAudioSound.initWebAudio();
 			SoundManager._soundClass = supportWebAudio?WebAudioSound:AudioSound;
@@ -111,7 +109,7 @@ import { Sound } from "./Sound";
 		/**@private */
 		 static disposeSoundLater(url:string):void
 		{
-			SoundManager._lastSoundUsedTimeDic[url] = Browser.now();
+			SoundManager._lastSoundUsedTimeDic[url] = PlatformInfo.now();
 			if (!SoundManager._isCheckingDispose)
 			{
 				SoundManager._isCheckingDispose = true;
@@ -123,7 +121,7 @@ import { Sound } from "./Sound";
 		private static _checkDisposeSound():void
 		{
 			var key:string;
-			var tTime:number = Browser.now();
+			var tTime:number = PlatformInfo.now();
 			var hasCheck:boolean = false;
 			for (key in SoundManager._lastSoundUsedTimeDic)
 			{
@@ -257,7 +255,7 @@ import { Sound } from "./Sound";
 				{
 					if (SoundManager._musicChannel&&!SoundManager._musicChannel.isStopped)
 					{
-						if (Render.isConchApp) {
+						if (PlatformInfo.onLayaRuntime) {
 							if ((SoundManager._musicChannel as any)._audio) (SoundManager._musicChannel as any)._audio.muted = true;;
 						}
 						else {
@@ -278,7 +276,7 @@ import { Sound } from "./Sound";
 				if (SoundManager._bgMusic) {
 					if (SoundManager._musicChannel)
 					{
-						if (Render.isConchApp) {
+						if (PlatformInfo.onLayaRuntime) {
 							if((SoundManager._musicChannel as any)._audio) (SoundManager._musicChannel as any)._audio.muted = false;;
 						}
 						else {
@@ -328,7 +326,7 @@ import { Sound } from "./Sound";
 			if (url == SoundManager._bgMusic) {
 				if (SoundManager._musicMuted) return null;
 			} else {
-				if (Render.isConchApp) {
+				if (PlatformInfo.onLayaRuntime) {
 					var ext:string = Utils.getFileExtension(url);
 					if (ext != "wav" && ext != "ogg") {
 						alert("The sound only supports wav or ogg format,for optimal performance reason,please refer to the official website document.");
@@ -338,7 +336,7 @@ import { Sound } from "./Sound";
 				if (SoundManager._soundMuted) return null;
 			}
 			var tSound:Sound;
-			if (!Browser.onMiniGame)
+			if (!PlatformInfo.onMiniGame)
 			{
 				tSound= Laya.loader.getRes(url);
 			}
@@ -346,7 +344,7 @@ import { Sound } from "./Sound";
 			if (!tSound) {
 				tSound = new soundClass();
 				tSound.load(url);
-				if (!Browser.onMiniGame)
+				if (!PlatformInfo.onMiniGame)
 				{
 					Loader.cacheRes(url, tSound);
 				}	

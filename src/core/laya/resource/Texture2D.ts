@@ -1,6 +1,6 @@
-import { Laya } from "./../../Laya";
 import { LayaGL } from "../layagl/LayaGL"
 	import { Loader } from "../net/Loader"
+	import { LoaderManager } from "../net/LoaderManager"
 	import { Render } from "../renders/Render"
 	import { BaseTexture } from "./BaseTexture"
 	import { HTMLCanvas } from "./HTMLCanvas"
@@ -12,6 +12,8 @@ import { LayaGL } from "../layagl/LayaGL"
 	 * <code>Texture2D</code> 类用于生成2D纹理。
 	 */
 	export class Texture2D extends BaseTexture {
+		/**@private */
+		 static gLoader:LoaderManager= null;
 		/**纯灰色纹理。*/
 		 static grayTexture:Texture2D=null;
 		/**纯白色纹理。*/
@@ -81,7 +83,7 @@ import { LayaGL } from "../layagl/LayaGL"
 		 * @param complete 完成回掉。
 		 */
 		 static load(url:string, complete:Handler):void {
-			Laya.loader.create(url, complete, null, Loader.TEXTURE2D);
+			Texture2D.gLoader.create(url, complete, null, Loader.TEXTURE2D);
 		}
 		
 		/** @private */

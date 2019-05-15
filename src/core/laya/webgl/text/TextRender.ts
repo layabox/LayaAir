@@ -10,7 +10,7 @@ import { Sprite } from "../../display/Sprite"
 	import { Browser } from "../../utils/Browser"
 	import { FontInfo } from "../../utils/FontInfo"
 	import { HTMLChar } from "../../utils/HTMLChar"
-	import { Stat } from "../../utils/Stat"
+	import { StatData } from "../../utils/StatData"
 	import { WordText } from "../../utils/WordText"
 	import { CharRenderInfo } from "./CharRenderInfo"
 	import { CharRender_Canvas } from "./CharRender_Canvas"
@@ -529,7 +529,7 @@ import { Sprite } from "../../display/Sprite"
 			var destroyDt:number = TextRender.destroyAtlasDt;	
 			var totalUsedRate:number = 0;	// 总使用率
 			var totalUsedRateAtlas:number = 0;
-			var curloop:number = Stat.loopCount;
+			var curloop:number = StatData.loopCount;
 			
 			//var minUsedRateID:int = -1;
 			//var minUsedRate:Number = 1;
@@ -800,21 +800,21 @@ import { Sprite } from "../../display/Sprite"
 			var totalUsedRateAtlas:number = 0;
 			this.textAtlases.forEach(function(a:TextAtlas):void { 
 				var id:number = a.texture.id;
-				var dt:number = Stat.loopCount - a.texture.lastTouchTm
+				var dt:number = StatData.loopCount - a.texture.lastTouchTm
 				var dtstr:string = dt > 0?('' + dt + '帧以前'):'当前帧';
 				totalUsedRate+= a.texture.curUsedCovRate;
 				totalUsedRateAtlas += a.texture.curUsedCovRateAtlas;
 				console.log('--图集(id:' + id + ',当前使用率:'+(a.texture.curUsedCovRate*1000|0)+'‰','当前图集使用率:',(a.texture.curUsedCovRateAtlas*100|0)+'%','图集使用率:',(a.usedRate*100|0),'%, 使用于:'+dtstr+')--:');
 				for (var k  in a.charMaps) {
 					var ri:CharRenderInfo = a.charMaps[k];
-					console.log('     off:',ri.orix,ri.oriy,' bmp宽高:', ri.bmpWidth, ri.bmpHeight, '无效:', ri.deleted, 'touchdt:', (Stat.loopCount-ri.touchTick), '位置:', ri.uv[0] * TextRender.atlasWidth | 0, ri.uv[1] * TextRender.atlasWidth | 0,
+					console.log('     off:',ri.orix,ri.oriy,' bmp宽高:', ri.bmpWidth, ri.bmpHeight, '无效:', ri.deleted, 'touchdt:', (StatData.loopCount-ri.touchTick), '位置:', ri.uv[0] * TextRender.atlasWidth | 0, ri.uv[1] * TextRender.atlasWidth | 0,
 					'字符:',ri.char, 'key:', k );
 					num++;
 				}
 			} );
 			console.log('独立贴图文字('+this.isoTextures.length+'个):');
 			this.isoTextures.forEach(function(tex:TextTexture):void { 
-				console.log('    size:',tex._texW,tex._texH, 'touch间隔:',(Stat.loopCount-tex.lastTouchTm), 'char:', tex.ri.char);
+				console.log('    size:',tex._texW,tex._texH, 'touch间隔:',(StatData.loopCount-tex.lastTouchTm), 'char:', tex.ri.char);
 			} );
 			console.log('总缓存:', num, '总使用率:',totalUsedRate,'总当前图集使用率:',totalUsedRateAtlas);
 			

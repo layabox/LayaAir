@@ -4,7 +4,6 @@ import { LayaGL } from "../layagl/LayaGL"
 	import { Context } from "../resource/Context"
 	import { HTMLCanvas } from "../resource/HTMLCanvas"
 	import { System } from "../system/System"
-	import { Browser } from "../utils/Browser"
 	import { WebGL } from "../webgl/WebGL"
 	import { WebGLContext } from "../webgl/WebGLContext"
 	import { BlendMode } from "../webgl/canvas/BlendMode"
@@ -37,27 +36,22 @@ import { LayaGL } from "../layagl/LayaGL"
 		 * @param	width 游戏窗口宽度。
 		 * @param	height	游戏窗口高度。
 		 */
-		constructor(width:number, height:number){
+		constructor(width:number, height:number, mainCanv:HTMLCanvas){
+			Render._mainCanvas = mainCanv;
 			//创建主画布。改到Browser中了，因为为了runtime，主画布必须是第一个
 			Render._mainCanvas.source.id = "layaCanvas";
 			Render._mainCanvas.source.width = width;
 			Render._mainCanvas.source.height = height;
 			if (Render.isConchApp)
 			{
-				Browser.document.body.appendChild(Render._mainCanvas.source);
+				document.body.appendChild(Render._mainCanvas.source);
 			}
-			else
-			{
-				if(!Browser.onKGMiniGame)
-				{
-					Browser.container.appendChild(Render._mainCanvas.source);//xiaosong add
-				}
-			}
+			
 			this.initRender(Render._mainCanvas, width, height);
-			Browser.window.requestAnimationFrame(loop);
+			window.requestAnimationFrame(loop);
 			function loop(stamp:number):void {
 				Laya.stage._loop();
-				Browser.window.requestAnimationFrame(loop);
+				window.requestAnimationFrame(loop);
 			}
 			Laya.stage.on("visibilitychange", this, this._onVisibilitychange);
 		}
@@ -68,9 +62,9 @@ import { LayaGL } from "../layagl/LayaGL"
 		/**@private */
 		private _onVisibilitychange():void {
 			if (!Laya.stage.isVisibility) {
-				this._timeId = Browser.window.setInterval(this._enterFrame, 1000);
+				this._timeId = window.setInterval(this._enterFrame, 1000);
 			} else if (this._timeId != 0) {
-				Browser.window.clearInterval(this._timeId);
+				window.clearInterval(this._timeId);
 			}
 		}
 		

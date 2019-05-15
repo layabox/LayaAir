@@ -1,4 +1,3 @@
-import { Laya } from "./../../Laya";
 import { Sprite } from "../display/Sprite"
 	import { Stage } from "../display/Stage"
 	import { Matrix } from "../maths/Matrix"
@@ -10,6 +9,8 @@ import { Sprite } from "../display/Sprite"
 	 * <code>Utils</code> 是工具类。
 	 */
 	export class Utils {
+		/**@private */
+		 static gStage:Stage = null;
 		/**@private */
 		private static _gid:number = 1;
 		/**@private */
@@ -229,7 +230,7 @@ import { Sprite } from "../display/Sprite"
 		 * @return
 		 */
 		 static getTransformRelativeToWindow(coordinateSpace:Sprite, x:number, y:number):any {
-			var stage:Stage = Laya.stage;
+			var stage:Stage = Utils.gStage;
 			
 			// coordinateSpace的全局缩放、坐标
 			var globalTransform:Rectangle = Utils.getGlobalPosAndScale(coordinateSpace);
@@ -240,11 +241,11 @@ import { Sprite } from "../display/Sprite"
 			var canvasTop:number = canvasMatrix.ty;
 			
 			// 把矩阵转回0度，得到正确的画布缩放比
-			canvasMatrix.rotate(-Math.PI / 180 * Laya.stage.canvasDegree);
+			canvasMatrix.rotate(-Math.PI / 180 * stage.canvasDegree);
 			// 组合画布缩放和舞台适配缩放
-			canvasMatrix.scale(Laya.stage.clientScaleX, Laya.stage.clientScaleY);
+			canvasMatrix.scale(stage.clientScaleX, stage.clientScaleY);
 			// 画布是否处于正常角度的垂直角度，-90或90度
-			var perpendicular:boolean = (Laya.stage.canvasDegree % 180 != 0);
+			var perpendicular:boolean = (stage.canvasDegree % 180 != 0);
 			var tx:number, ty:number;
 			
 			if (perpendicular) {
@@ -257,7 +258,7 @@ import { Sprite } from "../display/Sprite"
 				ty *= canvasMatrix.a;
 				
 				// 设置了screenMode = horizontal
-				if (Laya.stage.canvasDegree == 90) {
+				if (stage.canvasDegree == 90) {
 					// 在浏览器窗口上的坐标
 					// 此时画布的left是视觉上的right，画布的left是视觉上的top
 					tx = canvasLeft - tx;
@@ -287,7 +288,7 @@ import { Sprite } from "../display/Sprite"
 			}
 			
 			// Safari兼容
-			ty += Laya.stage['_safariOffsetY'];
+			ty += stage['_safariOffsetY'];
 			
 			// 组合画布缩放和舞台适配缩放以及显示对象缩放，得到DOM原因的缩放因子
 			var domScaleX:number, domScaleY:number;
@@ -321,7 +322,7 @@ import { Sprite } from "../display/Sprite"
 			var transform:any = Utils.getTransformRelativeToWindow(coordinateSpace, x, y);
 			
 			// 设置dom样式
-			dom.style.transform = dom.style.webkitTransform = "scale(" + transform.scaleX + "," + transform.scaleY + ") rotate(" + (Laya.stage.canvasDegree) + "deg)";
+			dom.style.transform = dom.style.webkitTransform = "scale(" + transform.scaleX + "," + transform.scaleY + ") rotate(" + (Utils.gStage.canvasDegree) + "deg)";
 			dom.style.width = width + 'px';
 			dom.style.height = height + 'px';
 			dom.style.left = transform.x + 'px';

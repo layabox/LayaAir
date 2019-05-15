@@ -13,7 +13,8 @@ const resolveFile = function(filePath) {
   
 
 export default {
-	input: './src/debug/Main1.ts',
+    input: './src/debug/Main1.ts',
+    //input: './src/debug/test/test.ts',
 	output: {
 		file: 'bin/bundle.js',
 		format: 'iife', // immediately-invoked function expression — suitable for <script> tags

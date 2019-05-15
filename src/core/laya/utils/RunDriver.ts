@@ -1,16 +1,11 @@
 import { Browser } from "././Browser";
-import { Config } from "./../../Config";
-import { ColorUtils } from "././ColorUtils";
 import { Sprite } from "../display/Sprite"
-	import { Render } from "../renders/Render"
 	import { RenderSprite } from "../renders/RenderSprite"
 	import { Context } from "../resource/Context"
 	import { HTMLCanvas } from "../resource/HTMLCanvas"
 	import { Texture } from "../resource/Texture"
 	import { Texture2D } from "../resource/Texture2D"
 	import { WebGL } from "../webgl/WebGL"
-	import { WebGLContext } from "../webgl/WebGLContext"
-	import { RenderState2D } from "../webgl/utils/RenderState2D"
 
 	
 	/**
@@ -107,22 +102,6 @@ import { Sprite } from "../display/Sprite"
 		 static changeWebGLSize:Function = /*[STATIC SAFE]*/ function(w:number, h:number):void {
 			WebGL.onStageResize(w, h);
 		}
-		
-		/** @private */
-		 static clear:Function = function(value:string):void {
-			//修改需要同步到上面的native实现中
-			Context.set2DRenderConfig();//渲染2D前要还原2D状态,否则可能受3D影响
-			RenderState2D.worldScissorTest && WebGL.mainContext.disable(WebGLContext.SCISSOR_TEST);
-			var ctx:Context = Render.context;
-			//兼容浏览器
-			var c:any[] = (ctx._submits._length == 0 || Config.preserveDrawingBuffer) ? ColorUtils.create(value).arrColor : (window as any).Laya.stage._wgColor;
-			if (c) 
-				ctx.clearBG(c[0], c[1], c[2], c[3]);
-			else
-				ctx.clearBG(0, 0, 0, 0);
-			RenderState2D.clear();
-		};
-		
 		
 		 static  enableNative:Function;
 	}

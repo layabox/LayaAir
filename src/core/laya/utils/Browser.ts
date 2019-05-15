@@ -1,8 +1,8 @@
 import { SoundManager } from "../media/SoundManager"
 	import { LocalStorage } from "../net/LocalStorage"
-	import { Render } from "../renders/Render"
 	import { Context } from "../resource/Context"
     import { HTMLCanvas } from "../resource/HTMLCanvas"
+import { PlatformInfo } from "./PlatformInfo";
     
     
 	/**
@@ -77,10 +77,13 @@ import { SoundManager } from "../media/SoundManager"
 		/** @private */
 		private static _pixelRatio:number = -1;
 		
+		/** @private */
+		 static mainCanvas:HTMLCanvas = null;
+		
 		/**@private */
 		 static __init__():any {
 			if (Browser._window) return Browser._window;
-			var win:any = Browser._window = window;
+			var win:any = Browser._window = PlatformInfo.window = window;
 			var doc:any = Browser._document = win.document;
 			var u:string = Browser.userAgent = win.navigator.userAgent;
 			
@@ -158,40 +161,47 @@ import { SoundManager } from "../media/SoundManager"
 			}
 			
 			//处理兼容性			
-			Browser.onMobile = (window as any).isConchApp ? true : u.indexOf("Mobile") > -1;
-			Browser.onIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
-			Browser.onIPhone = u.indexOf("iPhone") > -1;
-			Browser.onMac = /*[STATIC SAFE]*/ u.indexOf("Mac OS X") > -1;
-			Browser.onIPad = u.indexOf("iPad") > -1;
-			Browser.onAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1;
-			Browser.onWP = u.indexOf("Windows Phone") > -1;
-			Browser.onQQBrowser = u.indexOf("QQBrowser") > -1;
-			Browser.onMQQBrowser = u.indexOf("MQQBrowser") > -1 || (u.indexOf("Mobile") > -1 && u.indexOf("QQ") > -1);
-			Browser.onIE = !!win.ActiveXObject || "ActiveXObject" in win;
-			Browser.onWeiXin = u.indexOf('MicroMessenger') > -1;
-			Browser.onSafari = /*[STATIC SAFE]*/ u.indexOf("Safari") > -1;
-			Browser.onPC = !Browser.onMobile;
-			Browser.onMiniGame = /*[STATIC SAFE]*/ u.indexOf('MiniGame') > -1;
-			Browser.onBDMiniGame = /*[STATIC SAFE]*/ u.indexOf('SwanGame') > -1;
+			Browser.onMobile = PlatformInfo.onMobile = (window as any).isConchApp ? true : u.indexOf("Mobile") > -1;
+			Browser.onIOS = PlatformInfo.onIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
+			Browser.onIPhone = PlatformInfo.onIPhone = u.indexOf("iPhone") > -1;
+			Browser.onMac = PlatformInfo.onMac = /*[STATIC SAFE]*/ u.indexOf("Mac OS X") > -1;
+			Browser.onIPad = PlatformInfo.onIPad = u.indexOf("iPad") > -1;
+			Browser.onAndroid = PlatformInfo.onAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1;
+			Browser.onWP = PlatformInfo.onWP = u.indexOf("Windows Phone") > -1;
+			Browser.onQQBrowser = PlatformInfo.onQQBrowser = u.indexOf("QQBrowser") > -1;
+			Browser.onMQQBrowser = PlatformInfo.onMQQBrowser = u.indexOf("MQQBrowser") > -1 || (u.indexOf("Mobile") > -1 && u.indexOf("QQ") > -1);
+			Browser.onIE = PlatformInfo.onIE = !!win.ActiveXObject || "ActiveXObject" in win;
+			Browser.onWeiXin = PlatformInfo.onWeiXin = u.indexOf('MicroMessenger') > -1;
+			Browser.onSafari = PlatformInfo.onSafari =/*[STATIC SAFE]*/ u.indexOf("Safari") > -1;
+			Browser.onPC = PlatformInfo.onPC = !Browser.onMobile;
+			Browser.onMiniGame = PlatformInfo.onMiniGame = /*[STATIC SAFE]*/ u.indexOf('MiniGame') > -1;
+			Browser.onBDMiniGame = PlatformInfo.onBDMiniGame = /*[STATIC SAFE]*/ u.indexOf('SwanGame') > -1;
 			if(u.indexOf('OPPO') > -1 && u.indexOf('MiniGame') > -1)
 			{
 				Browser.onQGMiniGame = true;//OPPO环境判断
 				Browser.onMiniGame = false;
 			}	
-			Browser.onLimixiu = /*[STATIC SAFE]*/ u.indexOf('limixiu') > -1;
+			Browser.onLimixiu = PlatformInfo.onLimixiu = /*[STATIC SAFE]*/ u.indexOf('limixiu') > -1;
 			//小米运行环境判断
-			Browser.onKGMiniGame = /*[STATIC SAFE]*/ u.indexOf('QuickGame') > -1;//小米环境判断
+			Browser.onKGMiniGame = PlatformInfo.onKGMiniGame = /*[STATIC SAFE]*/ u.indexOf('QuickGame') > -1;//小米环境判断
 			//处理LocalStorage兼容
-			Browser.supportLocalStorage = LocalStorage.__init__();
+			Browser.supportLocalStorage = PlatformInfo.supportLocalStorage = LocalStorage.__init__();
 			//处理声音兼容性
-			Browser.supportWebAudio = SoundManager.__init__();
+			Browser.supportWebAudio = PlatformInfo.supportWebAudio = SoundManager.__init__();
+			
+			PlatformInfo.onLayaRuntime = (window as any).conch;
 			
 			//这个其实在Render中感觉更合理，但是runtime要求第一个canvas是主画布，所以必须在下面的那个离线画布之前
-			Render._mainCanvas = new HTMLCanvas(true);
-			var style:any = Render._mainCanvas.source.style;
+			var mainCanv:HTMLCanvas = Browser.mainCanvas = new HTMLCanvas(true);
+			//Render._mainCanvas = mainCanv;
+			var style:any = mainCanv.source.style;
 			style.position = 'absolute';
 			style.top = style.left = "0px";
 			style.background = "#000000";
+			
+			if(!Browser.onKGMiniGame){
+				Browser.container.appendChild(mainCanv.source);//xiaosong add
+			}			
 			
 			//创建离线画布
 			Browser.canvas = new HTMLCanvas(true);

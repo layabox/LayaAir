@@ -3,9 +3,9 @@ import { Const } from "../Const"
 	import { Event } from "../events/Event"
 	import { EventDispatcher } from "../events/EventDispatcher"
 	import { Pool } from "../utils/Pool"
-	import { Stat } from "../utils/Stat"
 	import { Timer } from "../utils/Timer"
 import { Sprite } from "./Sprite";
+import { StatData } from "../utils/StatData";
 	
 	/**
 	 * 添加到父对象后调度。
@@ -664,14 +664,14 @@ this.createGLBuffer();
 		 * @private
 		 */
 		protected _onActive():void {
-			Stat.spriteCount++;
+			StatData.spriteCount++;
 		}
 		
 		/**
 		 * @private
 		 */
 		protected _onInActive():void {
-			Stat.spriteCount--;
+			StatData.spriteCount--;
 		}
 		
 		/**

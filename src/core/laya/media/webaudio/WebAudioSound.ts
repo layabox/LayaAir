@@ -4,7 +4,6 @@ import { Event } from "../../events/Event"
 	import { SoundChannel } from "../SoundChannel"
 	import { SoundManager } from "../SoundManager"
 	import { URL } from "../../net/URL"
-	import { Browser } from "../../utils/Browser"
 	
 	/**
 	 * @private
@@ -12,19 +11,17 @@ import { Event } from "../../events/Event"
 	 */
 	export class WebAudioSound extends EventDispatcher {
 		
-		 static window:any = Browser.window;
-		
 		private static _dataCache:any = {};
 		
 		/**
 		 * 是否支持web audio api
 		 */
-		 static webAudioEnabled:boolean = WebAudioSound.window["AudioContext"] || WebAudioSound.window["webkitAudioContext"] || WebAudioSound.window["mozAudioContext"];
+		 static webAudioEnabled:boolean = window["AudioContext"] || window["webkitAudioContext"] || window["mozAudioContext"];
 		
 		/**
 		 * 播放设备
 		 */
-		 static ctx:any = WebAudioSound.webAudioEnabled ? new (WebAudioSound.window["AudioContext"] || WebAudioSound.window["webkitAudioContext"] || WebAudioSound.window["mozAudioContext"])() : undefined;
+		 static ctx:any = WebAudioSound.webAudioEnabled ? new (window["AudioContext"] || window["webkitAudioContext"] || window["mozAudioContext"])() : undefined;
 		
 		/**
 		 * 当前要解码的声音文件列表
@@ -141,9 +138,9 @@ import { Event } from "../../events/Event"
 			}
 			WebAudioSound._playEmptySound();
 			if (WebAudioSound.ctx.state == "running") {
-				Browser.document.removeEventListener("mousedown", WebAudioSound._unlock, true);
-				Browser.document.removeEventListener("touchend", WebAudioSound._unlock, true);
-				Browser.document.removeEventListener("touchstart", WebAudioSound._unlock, true);
+				window.document.removeEventListener("mousedown", WebAudioSound._unlock, true);
+				window.document.removeEventListener("touchend", WebAudioSound._unlock, true);
+				window.document.removeEventListener("touchstart", WebAudioSound._unlock, true);
 				WebAudioSound._unlocked = true;
 			}
 		}
@@ -152,9 +149,9 @@ import { Event } from "../../events/Event"
 		 static initWebAudio():void {
 			if (WebAudioSound.ctx.state != "running") {
 				WebAudioSound._unlock(); // When played inside of a touch event, this will enable audio on iOS immediately.
-				Browser.document.addEventListener("mousedown", WebAudioSound._unlock, true);
-				Browser.document.addEventListener("touchend", WebAudioSound._unlock, true);
-				Browser.document.addEventListener("touchstart", WebAudioSound._unlock, true);
+				window.document.addEventListener("mousedown", WebAudioSound._unlock, true);
+				window.document.addEventListener("touchend", WebAudioSound._unlock, true);
+				window.document.addEventListener("touchstart", WebAudioSound._unlock, true);
 			}
 		}
 		
@@ -180,7 +177,7 @@ import { Event } from "../../events/Event"
 			}
 			WebAudioSound.__loadingSound[url] = true;
 			
-			var request:any = new Browser.window.XMLHttpRequest();
+			var request:any = new XMLHttpRequest();
 			request.open("GET", url, true);
 			request.responseType = "arraybuffer";
 			request.onload = function():void {

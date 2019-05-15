@@ -8,6 +8,7 @@
 	import { URL } from "./laya/net/URL"
 	import { Render } from "./laya/renders/Render"
 	import { RenderSprite } from "./laya/renders/RenderSprite"
+	import { Texture2D } from "./laya/resource/Texture2D"
 	import { Browser } from "./laya/utils/Browser"
 	import { CacheManger } from "./laya/utils/CacheManger"
 	import { RunDriver } from "./laya/utils/RunDriver"
@@ -18,6 +19,16 @@ import { Text } from "./laya/display/Text";
 import { Event } from "./laya/events/Event";
 import { WeakObject } from "./laya/utils/WeakObject";
 import { Texture } from "./laya/resource/Texture";
+import { HTMLCanvas } from "./laya/resource/HTMLCanvas";
+import { RenderTexture2D } from "./laya/resource/RenderTexture2D";
+import { LayaGLRunner } from "./laya/layagl/LayaGLRunner";
+import { WebGLContext } from "./laya/webgl/WebGLContext";
+import { Shader } from "./laya/webgl/shader/Shader";
+import { RenderState2D } from "./laya/webgl/utils/RenderState2D";
+import { Context } from "./laya/resource/Context";
+import { ColorUtils } from "./laya/utils/ColorUtils";
+import { LayaGL } from "./laya/layagl/LayaGL";
+import { Utils } from "./laya/utils/Utils";
 	
 	/**
 	 * <code>Laya</code> 是全局对象的引用入口集。
@@ -86,8 +97,12 @@ import { Texture } from "./laya/resource/Texture";
 			Laya.updateTimer = new Timer(false);
 			Laya.lateTimer = new Timer(false);
 			Laya.timer = new Timer(false);
-            
+			
 			Laya.loader = new LoaderManager();
+			Texture2D.gLoader =  Laya.loader;
+			Context.gSysTimer = Laya.systemTimer;
+			Input.gSysTimer = Laya.systemTimer;
+			
 			WeakObject.__init__();
 			WebGL.inner_enable();
 			for (var i:number = 0, n:number = plugins.length; i < n; i++) {
@@ -95,16 +110,17 @@ import { Texture } from "./laya/resource/Texture";
 					plugins[i].enable();
 				}
 			}
-			
 			if (Render.isConchApp) {
-				RunDriver.enableNative();
+				Laya.enableNative();
 			}
 			
 			CacheManger.beginCheck();
 			Laya._currentStage = Laya.stage = new Stage();
 			Browser.gStage = Laya.stage;
-			URL.rootPath = URL._basePath = Laya._getUrlPath();
-			Laya.render = new Render(0, 0);
+			Utils.gStage = Laya.stage;
+			Input.gStage = Laya.stage;
+			URL.rootPath = URL._basePath = URL._getUrlPath();
+			Laya.render = new Render(0, 0, Browser.mainCanvas);
 			Laya.stage.size(width, height);
 			((<any>window )).stage = Laya.stage;
 			
@@ -121,15 +137,6 @@ import { Texture } from "./laya/resource/Texture";
 			Input.__init__();
 			SoundManager.autoStopMusic = true;
 			return Render.canvas;
-		}
-		
-		/**@private */
-		 static _getUrlPath():string {
-			var location:any = Browser.window.location;
-			var pathName:string = location.pathname;
-			// 索引为2的字符如果是':'就是windows file协议
-			pathName = pathName.charAt(2) == ':' ? pathName.substring(1) : pathName;
-			return URL.getPath(location.protocol == "file:" ? pathName : location.protocol + "//" + location.host + location.pathname);
 		}
 		
 		/**@private */
@@ -180,5 +187,83 @@ import { Texture } from "./laya/resource/Texture";
 				Laya["DebugPanel"].enable();
 			}
 		}
+		
+		private static isNativeRender_enable:boolean = false;
+		/**@private */
+		private static enableNative():void {
+			if (Laya.isNativeRender_enable)
+				return;
+			Laya.isNativeRender_enable = true;
+
+			WebGLContext.__init_native();
+			Shader.prototype.uploadTexture2D = function(value:any):void {
+				var CTX:any = WebGLContext;
+				CTX.bindTexture(WebGL.mainContext, CTX.TEXTURE_2D, value);
+			}
+			RenderState2D.width = Browser.window.innerWidth;
+			RenderState2D.height = Browser.window.innerHeight;
+			RunDriver.measureText = function(txt:string, font:string):any {
+				window["conchTextCanvas"].font = font;
+				return window["conchTextCanvas"].measureText(txt);
+			}
+			
+			Stage.clear = function(color:string):void {
+				Context.set2DRenderConfig();//渲染2D前要还原2D状态,否则可能受3D影响
+				var c:any[] = ColorUtils.create(color).arrColor;
+				var gl:any = LayaGL.instance;
+				if (c) gl.clearColor(c[0], c[1], c[2], c[3]);
+				gl.clear(WebGLContext.COLOR_BUFFER_BIT | WebGLContext.DEPTH_BUFFER_BIT | WebGLContext.STENCIL_BUFFER_BIT);
+				RenderState2D.clear();
+			}
+			RunDriver.drawToCanvas = RunDriver.drawToTexture =  function(sprite:Sprite, _renderType:number, canvasWidth:number, canvasHeight:number, offsetX:number, offsetY:number):any {
+				offsetX -= sprite.x;
+				offsetY -= sprite.y;
+				offsetX |= 0;
+				offsetY |= 0;
+				canvasWidth |= 0;
+				canvasHeight |= 0;
+				
+				var canv:HTMLCanvas = new HTMLCanvas(false);
+				var ctx:Context = canv.getContext('2d');
+				canv.size(canvasWidth, canvasHeight);
+				
+				ctx.asBitmap = true;
+				ctx._targets.start();
+				RenderSprite.renders[_renderType]._fun(sprite, ctx, offsetX, offsetY);
+				ctx.flush();
+				ctx._targets.end();
+				ctx._targets.restore();
+				return canv;
+            }
+			//RenderTexture2D.prototype._uv = RenderTexture2D.flipyuv;
+			Object["defineProperty"](RenderTexture2D.prototype, "uv", {
+					"get":function():any {
+						return this._uv;
+					},
+					"set":function(v:any):void {
+							this._uv = v;
+					}
+				}
+			);
+			HTMLCanvas.prototype.getTexture = function():Texture {
+				if (!this._texture) {
+					this._texture = this.context._targets;
+					this._texture.uv = RenderTexture2D.flipyuv;
+					this._texture.bitmap = this._texture;
+				}
+				return this._texture;
+			}	
+			
+			if (Render.supportWebGLPlusRendering) {
+				((<any>LayaGLRunner )).uploadShaderUniforms = LayaGLRunner.uploadShaderUniformsForNative;
+                //替换buffer的函数
+				(window as any).CommandEncoder = (window as any).GLCommandEncoder ;
+				(window as any).LayaGL = (window as any).LayaGLContext;
+			}
+			
+		}		
 	}
+
+
+
 

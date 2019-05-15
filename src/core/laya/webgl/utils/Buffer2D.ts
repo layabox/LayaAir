@@ -1,5 +1,5 @@
 import { LayaGL } from "../../layagl/LayaGL"
-	import { Stat } from "../../utils/Stat"
+	import { StatData } from "../../utils/StatData"
 	import { WebGLContext } from "../WebGLContext"
 	import { BaseShader } from "../shader/BaseShader"
 import { Buffer } from "./Buffer";
@@ -56,7 +56,7 @@ import { Buffer } from "./Buffer";
 		
 		protected _bufferData():void {
 			this._maxsize = Math.max(this._maxsize, this._byteLength);
-			if (Stat.loopCount % 30 == 0) {//每30帧缩小一下buffer	。TODO 这个有问题。不知道_maxsize和_byteLength是怎么维护的，这里会导致重新分配64字节
+			if (StatData.loopCount % 30 == 0) {//每30帧缩小一下buffer	。TODO 这个有问题。不知道_maxsize和_byteLength是怎么维护的，这里会导致重新分配64字节
 				if (this._buffer.byteLength > (this._maxsize + 64)) {
 					//_setGPUMemory(_buffer.byteLength);
 					this._buffer = this._buffer.slice(0, this._maxsize + 64);
@@ -77,7 +77,7 @@ import { Buffer } from "./Buffer";
 		//TODO:coverage
 		protected _bufferSubData(offset:number = 0, dataStart:number = 0, dataLength:number = 0):void {
 			this._maxsize = Math.max(this._maxsize, this._byteLength);
-			if (Stat.loopCount % 30 == 0) {
+			if (StatData.loopCount % 30 == 0) {
 				if (this._buffer.byteLength > (this._maxsize + 64)) {
 					//_setGPUMemory(_buffer.byteLength);
 					this._buffer = this._buffer.slice(0, this._maxsize + 64);

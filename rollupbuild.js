@@ -6,6 +6,7 @@ const path = require('path')
 
 const inputOptions = {
     input: './src/debug/Main1.ts',
+    //input: './src/debug/test/test.ts',
 	plugins:[
         typescript({
             abortOnError:false

@@ -1,5 +1,4 @@
 	import { CacheManger } from "./CacheManger"
-	import { Utils } from "./Utils"
 	
 	/**
 	 * @private
@@ -18,7 +17,7 @@
 		private _freeIdArray:any[] = [];
 		
 		constructor(){
-			CacheManger.regCacheByFunction(Utils.bind(this.startDispose, this), Utils.bind(this.getCacheList, this));
+			CacheManger.regCacheByFunction(this.startDispose.bind(this), this.getCacheList.bind(this));
 		}
 		
 		 static getInstance():VectorGraphManager {

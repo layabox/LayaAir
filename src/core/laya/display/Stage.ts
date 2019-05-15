@@ -18,6 +18,10 @@ import { Const } from "../Const"
 	import { RunDriver } from "../utils/RunDriver"
 	import { Stat } from "../utils/Stat"
 	import { VectorGraphManager } from "../utils/VectorGraphManager"
+import { RenderState2D } from "../webgl/utils/RenderState2D";
+import { WebGL } from "../webgl/WebGL";
+import { WebGLContext } from "../webgl/WebGLContext";
+import { StatData } from "../utils/StatData";
 	
 	/**
 	 * stage大小经过重新调整时进行调度。
@@ -622,6 +626,22 @@ super.set_transform( this._createTransform());
 			}
 		}
 		
+		/** @private */
+		 static clear:Function = function(value:string):void {
+			//修改需要同步到上面的native实现中
+			Context.set2DRenderConfig();//渲染2D前要还原2D状态,否则可能受3D影响
+			RenderState2D.worldScissorTest && WebGL.mainContext.disable(WebGLContext.SCISSOR_TEST);
+			var ctx:Context = Render.context;
+			//兼容浏览器
+			var c:any[] = (ctx._submits._length == 0 || Config.preserveDrawingBuffer) ? ColorUtils.create(value).arrColor : ((<any>window )).Laya.stage._wgColor;
+			if (c) 
+				ctx.clearBG(c[0], c[1], c[2], c[3]);
+			else
+				ctx.clearBG(0, 0, 0, 0);
+			RenderState2D.clear();
+		};
+		
+		
 		/**@inheritDoc */
 		/*override*/  render(context:Context, x:number, y:number):void {
 			if(((<any>window )).conch){
@@ -641,7 +661,7 @@ super.set_transform( this._createTransform());
 					this._renderCount++;
 					if (this._renderCount % 5 === 0) {
 						CallLater.I._update();
-						Stat.loopCount++;
+						StatData.loopCount++;
 						this._updateTimers();
 					}
 					return;
@@ -654,11 +674,11 @@ super.set_transform( this._createTransform());
 			var isFastMode:boolean = (frameMode !== Stage.FRAME_SLOW);
 			var isDoubleLoop:boolean = (this._renderCount % 2 === 0);
 			
-			Stat.renderSlow = !isFastMode;
+			StatData.renderSlow = !isFastMode;
 			
 			if (isFastMode || isDoubleLoop) {
 				CallLater.I._update();
-				Stat.loopCount++;
+				StatData.loopCount++;
 				
 				if ( this.renderingEnabled) {
 					for (var i:number = 0, n:number = this._scene3Ds.length; i < n;i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
@@ -673,7 +693,7 @@ super.set_transform( this._createTransform());
 			
 			if (isFastMode || !isDoubleLoop) {
 				if (this.renderingEnabled) {
-					RunDriver.clear(this._bgColor);
+					Stage.clear(this._bgColor);
 					context.flush();
 					VectorGraphManager.instance && VectorGraphManager.getInstance().endDispose();
 				}
@@ -705,7 +725,7 @@ super.set_transform( this._createTransform());
 			}
 			//commit submit
 			if (this.renderingEnabled) {
-				RunDriver.clear(this._bgColor);
+				Stage.clear(this._bgColor);
 				context.flush();
 				VectorGraphManager.instance && VectorGraphManager.getInstance().endDispose();
 			}

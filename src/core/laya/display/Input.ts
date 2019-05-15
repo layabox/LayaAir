@@ -1,10 +1,11 @@
 import { Text } from "././Text";
-import { Laya } from "./../../Laya";
 import { Event } from "../events/Event"
 	import { Matrix } from "../maths/Matrix"
 	import { Render } from "../renders/Render"
 	import { Browser } from "../utils/Browser"
 	import { Utils } from "../utils/Utils"
+import { Stage } from "./Stage";
+import { Timer } from "../utils/Timer";
 	
 	/**
 	 * 用户输入一个或多个文本字符时后调度。
@@ -72,6 +73,9 @@ import { Event } from "../events/Event"
 		 static TYPE_SEARCH:string = "search";
 		
 		/**@private */
+		 static gStage:Stage = null;
+		 static gSysTime:Timer = null;
+		/**@private */
 		protected static input:any;
 		/**@private */
 		protected static area:any;
@@ -132,7 +136,7 @@ this._width = 100;
 			if (Browser.onMobile)
 			{
 				var isTrue:boolean = false;
-				if(Browser.onMiniGame || Browser.onBDMiniGame)
+				if(Browser.onMiniGame || Browser.onBDMiniGame || Browser.onQGMiniGame || Browser.onKGMiniGame)
 				{
 					isTrue = true;
 				}
@@ -268,7 +272,7 @@ this._width = 100;
 				inputElement.setSize(inputWid, inputHei);
 				inputElement.setPos(transform.x, transform.y);
 			} else {
-				Input.inputContainer.style.transform = Input.inputContainer.style.webkitTransform = "scale(" + transform.scaleX + "," + transform.scaleY + ") rotate(" + (Laya.stage.canvasDegree) + "deg)";
+				Input.inputContainer.style.transform = Input.inputContainer.style.webkitTransform = "scale(" + transform.scaleX + "," + transform.scaleY + ") rotate(" + (Input.gStage.canvasDegree) + "deg)";
 				inputElement.style.width = inputWid + 'px';
 				inputElement.style.height = inputHei + 'px';
 				Input.inputContainer.style.left = transform.x + 'px';
@@ -350,16 +354,16 @@ this._width = 100;
 			input.value = this._content;
 			input.placeholder = this._prompt;
 			
-			Laya.stage.off(Event.KEY_DOWN, this, this._onKeyDown);
-			Laya.stage.on(Event.KEY_DOWN, this, this._onKeyDown);
-			Laya.stage.focus = this;
+			Input.gStage.off(Event.KEY_DOWN, this, this._onKeyDown);
+			Input.gStage.on(Event.KEY_DOWN, this, this._onKeyDown);
+			Input.gStage.focus = this;
 			this.event(Event.FOCUS);
 			
 			// PC端直接调用focus进入焦点。
 			if (Browser.onPC) input.focus();
 			
 			// PC浏览器隐藏文字
-			if(!Browser.onMiniGame && !Browser.onBDMiniGame)
+			if(!Browser.onMiniGame && !Browser.onBDMiniGame && !Browser.onQGMiniGame && !Browser.onKGMiniGame)
 			{
 				var temp:string = this._text;
 				this._text = null;
@@ -382,7 +386,7 @@ this._width = 100;
 			// 输入框重定位。
 			this._syncInputTransform();
 			if (!Render.isConchApp && Browser.onPC)
-				Laya.systemTimer.frameLoop(1, this, this._syncInputTransform);
+				Input.gSysTimer.frameLoop(1, this, this._syncInputTransform);
 		}
 		
 		// 设置DOM输入框提示符颜色。
@@ -414,13 +418,13 @@ this._width = 100;
 				super.set_color( this._originColor);
 			}
 			
-			Laya.stage.off(Event.KEY_DOWN, this, this._onKeyDown);
-			Laya.stage.focus = null;
+			Input.gStage.off(Event.KEY_DOWN, this, this._onKeyDown);
+			Input.gStage.focus = null;
 			this.event(Event.BLUR);
 			this.event(Event.CHANGE);
 			if (Render.isConchApp) this.nativeInput.blur();
 			// 只有PC会注册此事件。
-			Browser.onPC && Laya.systemTimer.clear(this, this._syncInputTransform);
+			Browser.onPC && Input.gSysTimer.clear(this, this._syncInputTransform);
 		}
 		
 		/**@private */

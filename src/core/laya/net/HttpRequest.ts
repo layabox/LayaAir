@@ -1,8 +1,6 @@
 import { URL } from "././URL";
 import { Event } from "../events/Event"
 	import { EventDispatcher } from "../events/EventDispatcher"
-	import { Render } from "../renders/Render"
-	import { Browser } from "../utils/Browser"
 	import { Utils } from "../utils/Utils"
 	
 	/**
@@ -27,7 +25,7 @@ import { Event } from "../events/Event"
 	 */
 	export class HttpRequest extends EventDispatcher {
 		/**@private */
-		protected _http:any = new Browser.window.XMLHttpRequest();
+		protected _http:any = new XMLHttpRequest();
 		/**@private */
 		protected _responseType:string;
 		/**@private */
@@ -56,7 +54,7 @@ import { Event } from "../events/Event"
 				for (var i:number = 0; i < headers.length; i++) {
 					http.setRequestHeader(headers[i++], headers[i]);
 				}
-			} else if (!Render.isConchApp) {
+			} else if (!((window as any).conch)) {
 				if (!data || data instanceof String) http.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 				else http.setRequestHeader("Content-Type", "application/json");
 			}
