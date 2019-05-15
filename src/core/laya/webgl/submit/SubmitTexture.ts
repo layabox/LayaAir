@@ -42,7 +42,7 @@ import { ColorFilter } from "../../filters/ColorFilter"
 				if (!source) return 1;
 			}
 			
-			var gl:WebGLContext = WebGL.mainContext;
+			var gl:WebGLContext = WebGLContext.mainContext;
 
 			this._mesh.useMesh(gl);	
 			//如果shader参数都相同，只要提交texture就行了

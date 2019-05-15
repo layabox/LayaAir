@@ -1,5 +1,3 @@
-import { Laya } from "./../../Laya";
-	
 	/**
 	 * @private
 	 */
@@ -11,16 +9,9 @@ import { Laya } from "./../../Laya";
 		 */
 		//TODO:coverage
 		 static changeDefinition(name:string, classObj:any):void {
-			Laya[name] = classObj;
-			var str:string = name + "=classObj";
-			Laya._runScript(str);
-		}
-		
-		/**
-		 * @private
-		 * 初始化。
-		 */
-		 static __init__():void {
+			(window as any).Laya[name] = classObj;
+            var str:string = name + "=classObj";
+            window['eval'](str);
 		}
 	}
 

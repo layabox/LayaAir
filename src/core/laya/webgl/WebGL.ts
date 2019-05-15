@@ -1,24 +1,10 @@
-import { WebGLContext } from "././WebGLContext";
-import { Sprite } from "../display/Sprite"
-	import { LayaGL } from "../layagl/LayaGL"
-	import { LayaGLRunner } from "../layagl/LayaGLRunner"
-	import { Render } from "../renders/Render"
-	import { RenderSprite } from "../renders/RenderSprite"
-	import { Context } from "../resource/Context"
-	import { HTMLCanvas } from "../resource/HTMLCanvas"
-	import { Texture } from "../resource/Texture"
-	import { Browser } from "../utils/Browser"
-	import { ColorUtils } from "../utils/ColorUtils"
-	import { RunDriver } from "../utils/RunDriver"
-	import { RenderTexture2D } from "../resource/RenderTexture2D"
-	import { Shader } from "./shader/Shader"
 	import { RenderState2D } from "./utils/RenderState2D"
+import { WebGLContext } from "./WebGLContext";
 	
 	/**
 	 * @private
 	 */
 	export class WebGL {
-		 static mainContext:WebGLContext;
 		 static shaderHighPrecision:boolean;
 		 static _isWebGL2:boolean = false;
 		 static isNativeRender_enable:boolean = false;
@@ -82,8 +68,8 @@ import { Sprite } from "../display/Sprite"
 		}
 		
 		 static onStageResize(width:number, height:number):void {
-			if (WebGL.mainContext == null) return;
-			WebGL.mainContext.viewport(0, 0, width, height);
+			if (WebGLContext.mainContext == null) return;
+			WebGLContext.mainContext.viewport(0, 0, width, height);
 			RenderState2D.width = width;
 			RenderState2D.height = height;
 		}

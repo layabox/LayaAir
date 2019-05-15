@@ -2,6 +2,7 @@ import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 import { terser } from 'rollup-plugin-terser';
 import typescript from 'rollup-plugin-typescript2';
+import glsl from 'rollup-plugin-glsl';
 const path = require('path')
 // `npm run build` -> `production` is true
 // `npm run dev` -> `production` is false
@@ -22,10 +23,18 @@ export default {
         name:'laya'
 	},
 	plugins: [
+        glsl({
+			// By default, everything gets included
+			include: 'lib/**/*.glsl',
+			// Undefined by default
+			exclude: ['**/index.html'],
+			// Source maps are on by default
+			sourceMap: false
+		}),        
         typescript({
             abortOnError:false
         }),
-		//resolve(), // tells Rollup how to find date-fns in node_modules
+		resolve(), // tells Rollup how to find date-fns in node_modules
 		commonjs(), // converts date-fns to ES modules
 		//production && terser() // minify, but only in production
 	]

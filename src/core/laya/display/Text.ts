@@ -7,8 +7,6 @@ import { SpriteStyle } from "./css/SpriteStyle"
 	import { Event } from "../events/Event"
 	import { Point } from "../maths/Point"
 	import { Rectangle } from "../maths/Rectangle"
-	import { Render } from "../renders/Render"
-	import { Browser } from "../utils/Browser"
 	import { WordText } from "../utils/WordText"
 import { Timer } from "../utils/Timer";
 	
@@ -104,9 +102,19 @@ import { Timer } from "../utils/Timer";
 	 *     }
 	 * }
 	 */
+
+     interface IBrowser{
+        onIPhone:boolean;
+        onLayaRuntime:boolean;
+        context:CanvasRenderingContext2D;
+        width:number;
+     }
+
 	export class Text extends Sprite {
         /**@private */
         static gSysTimer:Timer=null;
+        /**@private */
+        static gBrowser:IBrowser=null;
 
 		/**visible不进行任何裁切。*/
 		 static VISIBLE:string = "visible";
@@ -631,7 +639,7 @@ this._style = TextStyle.EMPTY;
 		 * @private
 		 */
 		protected _getContextFont():string {
-			return (this.italic ? "italic " : "") + (this.bold ? "bold " : "") + this.fontSize + "px " + (Browser.onIPhone ? (Text.fontFamilyMap[this.font] || this.font) : this.font);
+			return (this.italic ? "italic " : "") + (this.bold ? "bold " : "") + this.fontSize + "px " + (Text.gBrowser.onIPhone ? (Text.fontFamilyMap[this.font] || this.font) : this.font);
 		}
 		
 		/**
@@ -680,7 +688,7 @@ this._style = TextStyle.EMPTY;
 			graphics.clear(true);
 			
 			var ctxFont:string = this._getContextFont();
-			Browser.context.font = ctxFont;
+			Text.gBrowser.context.font = ctxFont;
 			
 			//处理垂直对齐
 			var startX:number = padding[3];
@@ -831,10 +839,10 @@ this._style = TextStyle.EMPTY;
 				return;
 			}
 			
-			if (Render.isConchApp) {
+			if (Text.gBrowser.onLayaRuntime) {
 				(window as any).conchTextCanvas.font=this._getContextFont();;
 			}else{
-				Browser.context.font = this._getContextFont();
+				Text.gBrowser.context.font = this._getContextFont();
 			}
 			
 			this._lines.length = 0;
@@ -911,10 +919,10 @@ this._style = TextStyle.EMPTY;
 				this._charSize.height = bitmapFont.getMaxHeight();
 			} else {
 				var measureResult:any = null;
-				if (Render.isConchApp) {
+				if (Text.gBrowser.onLayaRuntime) {
 					measureResult = (window as any).conchTextCanvas.measureText(Text._testWord);
 				}else {
-					measureResult = Browser.context.measureText(Text._testWord);					
+					measureResult = Text.gBrowser.context.measureText(Text._testWord);					
 				}
 				if (!measureResult) measureResult = {width:100 };
 				this._charSize.width = measureResult.width;
@@ -1022,10 +1030,10 @@ this._style = TextStyle.EMPTY;
 			var bitmapFont:BitmapFont = ((<TextStyle>this._style )).currBitmapFont;
 			if (bitmapFont) return bitmapFont.getTextWidth(text);
 			else {
-				if (Render.isConchApp) {
+				if (Text.gBrowser.onLayaRuntime) {
 					return (window as any).conchTextCanvas.measureText(text).width;;
 				}
-				else return Browser.context.measureText(text).width;
+				else return Text.gBrowser.context.measureText(text).width;
 			}
 		}
 		
@@ -1041,7 +1049,7 @@ this._style = TextStyle.EMPTY;
 			else w = this._width;
 			
 			if (w <= 0) {
-				w = this.wordWrap ? 100 : Browser.width;
+				w = this.wordWrap ? 100 : Text.gBrowser.width;
 			}
 			w <= 0 && (w = 100);
 			return w - p[3] - p[1];
@@ -1066,7 +1074,7 @@ this._style = TextStyle.EMPTY;
 			}
 			//计算字符的宽度
 			var ctxFont:string = (this.italic ? "italic " : "") + (this.bold ? "bold " : "") + this.fontSize + "px " + this.font;
-			Browser.context.font = ctxFont;
+			Text.gBrowser.context.font = ctxFont;
 			var width:number = this._getTextWidth(this._text.substring(startIndex, charIndex));
 			var point:Point = out || new Point();
 			return point.setTo(this._startX + width - (this._clipPoint ? this._clipPoint.x : 0), this._startY + line * (this._charSize.height + this.leading) - (this._clipPoint ? this._clipPoint.y : 0));

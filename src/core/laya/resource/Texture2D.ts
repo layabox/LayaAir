@@ -1,19 +1,34 @@
 import { LayaGL } from "../layagl/LayaGL"
-	import { Loader } from "../net/Loader"
-	import { LoaderManager } from "../net/LoaderManager"
-	import { Render } from "../renders/Render"
 	import { BaseTexture } from "./BaseTexture"
 	import { HTMLCanvas } from "./HTMLCanvas"
-	import { Browser } from "../utils/Browser"
 	import { Handler } from "../utils/Handler"
-	import { WebGLContext } from "../webgl/WebGLContext"
+    import { WebGLContext } from "../webgl/WebGLContext"
+    
+    interface ILoaderManager{
+        create(url:any, complete?:Handler, progress?:Handler, type?:string , constructParams?:any[], propertyParams?:any, priority?:number, cache?:boolean):void;
+    }
+
+    interface ILoaderType{
+        TEXTURE2D:string;
+    }
+
+    interface IBrowser{
+        canvas:HTMLCanvas;
+        context:CanvasRenderingContext2D;
+        onLayaRuntime:boolean;
+    }
 	
 	/**
 	 * <code>Texture2D</code> 类用于生成2D纹理。
 	 */
 	export class Texture2D extends BaseTexture {
 		/**@private */
-		 static gLoader:LoaderManager= null;
+         static gLoaderMgr:ILoaderManager= null;
+         /**@private */
+         static gLoaderType:ILoaderType=null;
+         /**@private */
+         static gBrowser:IBrowser=null;
+
 		/**纯灰色纹理。*/
 		 static grayTexture:Texture2D=null;
 		/**纯白色纹理。*/
@@ -83,9 +98,8 @@ import { LayaGL } from "../layagl/LayaGL"
 		 * @param complete 完成回掉。
 		 */
 		 static load(url:string, complete:Handler):void {
-			Texture2D.gLoader.create(url, complete, null, Loader.TEXTURE2D);
+			Texture2D.gLoaderMgr.create(url, complete, null, Texture2D.gLoaderType.TEXTURE2D);
 		}
-		
 		/** @private */
 		private _canRead:boolean;
 		/** @private */
@@ -382,7 +396,7 @@ import { LayaGL } from "../layagl/LayaGL"
 			WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
 			var glFormat:number = this._getGLFormat();
 			
-			if (Render.isConchApp) {//[NATIVE]临时
+			if (Texture2D.gBrowser.onLayaRuntime) {//[NATIVE]临时
 				if (source instanceof HTMLCanvas) {
 					//todo premultiply alpha
 					gl.texImage2D(this._glTextureType, 0, WebGLContext.RGBA, WebGLContext.RGBA, WebGLContext.UNSIGNED_BYTE, source);
@@ -404,13 +418,13 @@ import { LayaGL } from "../layagl/LayaGL"
 			}
 			
 			if (this._canRead) {//TODO:是否所有图源都可以
-				if (Render.isConchApp) {
+				if (Texture2D.gBrowser.onLayaRuntime) {
 					this._pixels = new Uint8Array(source._nativeObj.getImageData(0, 0, width, height));//TODO:如果为RGB,会错误
 				} else {
-					Browser.canvas.size(width, height);
-					Browser.canvas.clear();
-					Browser.context.drawImage(source, 0, 0, width, height);
-					this._pixels = new Uint8Array(Browser.context.getImageData(0, 0, width, height).data.buffer);//TODO:如果为RGB,会错误
+					Texture2D.gBrowser.canvas.size(width, height);
+					Texture2D.gBrowser.canvas.clear();
+					Texture2D.gBrowser.context.drawImage(source, 0, 0, width, height);
+					this._pixels = new Uint8Array(Texture2D.gBrowser.context.getImageData(0, 0, width, height).data.buffer);//TODO:如果为RGB,会错误
 				}
 			}
 			this._readyed = true;

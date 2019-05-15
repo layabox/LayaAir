@@ -1,12 +1,23 @@
 import { Texture2D } from "././Texture2D";
-import { Context } from "././Context";
 import { Event } from "../events/Event"
 	import { EventDispatcher } from "../events/EventDispatcher"
 	import { Rectangle } from "../maths/Rectangle"
-	import { Render } from "../renders/Render"
 	import { Handler } from "../utils/Handler"
 import { LoaderManager } from "../net/LoaderManager";
-	
+    
+    declare class IContext{
+        size(width:number,height:number):void;
+        asBitmap:boolean;
+        _drawTextureM(tex:Texture, x:number, y:number, width:number, height:number, m:any, alpha:number, uv:any[]):boolean;
+        _targets:any;
+        flush():void;
+        destroy():void;
+    }
+
+    interface ICtx{
+        new():IContext;
+    }
+
 	/**
 	 * 资源加载完成后调度。
 	 * @eventType Event.READY
@@ -17,6 +28,8 @@ import { LoaderManager } from "../net/LoaderManager";
 	 * <code>Texture</code> 是一个纹理处理类。
 	 */
 	export class Texture extends EventDispatcher {
+        /**@private */
+        static gContext:ICtx=null;
         /**@private */
         static gLoader:LoaderManager = null;
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
@@ -373,8 +386,8 @@ this.setTo(bitmap, uv, sourceWidth, sourceHeight);
 				return ret;
 			}
 			
-			// 如果无法直接获取，只能先渲染出来
-			var ctx:Context = new Context();
+            // 如果无法直接获取，只能先渲染出来
+			var ctx = new Texture.gContext();
 			ctx.size(width, height);
 			ctx.asBitmap = true;
 			var uv:any[] = null;
@@ -420,7 +433,7 @@ this.setTo(bitmap, uv, sourceWidth, sourceHeight);
 		 * @return  返回像素点集合
 		 */
 		 getPixels(x:number, y:number, width:number, height:number):Uint8Array {
-			if (Render.isConchApp) {
+			if ((window as any).conch) {
 				return this._nativeObj.getImageData(x, y, width, height);
 			} else {
 				return this.getTexturePixels( x, y, width, height);

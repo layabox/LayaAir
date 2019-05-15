@@ -1,9 +1,8 @@
-import { Laya } from "./../../Laya";
 import { Config } from "./../../Config";
 import { LayaGL } from "../layagl/LayaGL"
 	import { Context } from "../resource/Context"
 	import { HTMLCanvas } from "../resource/HTMLCanvas"
-	import { System } from "../system/System"
+	import { PlatformInfo } from "../utils/PlatformInfo"
 	import { WebGL } from "../webgl/WebGL"
 	import { WebGLContext } from "../webgl/WebGLContext"
 	import { BlendMode } from "../webgl/canvas/BlendMode"
@@ -12,6 +11,7 @@ import { LayaGL } from "../layagl/LayaGL"
 	import { Value2D } from "../webgl/shader/d2/value/Value2D"
 	import { SubmitBase } from "../webgl/submit/SubmitBase"
 	import { Buffer2D } from "../webgl/utils/Buffer2D"
+import { Stage } from "../display/Stage";
 	
 	/**
 	 * @private
@@ -22,7 +22,9 @@ import { LayaGL } from "../layagl/LayaGL"
 		 static _context:Context;
 		/** @private 主画布。canvas和webgl渲染都用这个画布*/
 		 static _mainCanvas:HTMLCanvas;
-		
+        /** @private */
+        static gStage:Stage=null;
+         
 		 static supportWebGLPlusCulling:boolean = false;
 		 static supportWebGLPlusAnimation:boolean = false;
 		 static supportWebGLPlusRendering:boolean = false;
@@ -50,10 +52,10 @@ import { LayaGL } from "../layagl/LayaGL"
 			this.initRender(Render._mainCanvas, width, height);
 			window.requestAnimationFrame(loop);
 			function loop(stamp:number):void {
-				Laya.stage._loop();
+				Render.gStage._loop();
 				window.requestAnimationFrame(loop);
 			}
-			Laya.stage.on("visibilitychange", this, this._onVisibilitychange);
+			Render.gStage.on("visibilitychange", this, this._onVisibilitychange);
 		}
 		
 		/**@private */
@@ -61,7 +63,7 @@ import { LayaGL } from "../layagl/LayaGL"
 		
 		/**@private */
 		private _onVisibilitychange():void {
-			if (!Laya.stage.isVisibility) {
+			if (!Render.gStage.isVisibility) {
 				this._timeId = window.setInterval(this._enterFrame, 1000);
 			} else if (this._timeId != 0) {
 				window.clearInterval(this._timeId);
@@ -81,14 +83,14 @@ import { LayaGL } from "../layagl/LayaGL"
 						} catch (e) {
 						}
 						if (gl) {
-							(names[i] === 'webgl2') && (WebGL._isWebGL2 = true);
+							(names[i] === 'webgl2') && (WebGL._isWebGL2 = true,PlatformInfo.isWebGL2Render=true);
 							new LayaGL();
 							return gl;
 						}
 					}
 					return null;
 				}
-				var gl:WebGLContext = LayaGL.instance = WebGL.mainContext = getWebGLContext(Render._mainCanvas.source);
+				var gl:WebGLContext = LayaGL.instance = WebGLContext.mainContext = getWebGLContext(Render._mainCanvas.source);
 				if (!gl)
 					return false;
 				canvas.size(w, h);	//在ctx之后调用。
@@ -109,7 +111,6 @@ import { LayaGL } from "../layagl/LayaGL"
 				}
 				//TODO 现在有个问题是 gl.deleteTexture并没有走WebGLContex封装的
 				LayaGL.instance = gl;
-				System.__init__();
 				ShaderDefines2D.__init__();
 				Value2D.__init__();
 				Shader2D.__init__();
@@ -120,7 +121,7 @@ import { LayaGL } from "../layagl/LayaGL"
 		
 		/**@private */
 		private _enterFrame(e:any = null):void {
-			Laya.stage._loop();
+			Render.gStage._loop();
 		}
 		
 		/** 目前使用的渲染器。*/
@@ -139,6 +140,7 @@ import { LayaGL } from "../layagl/LayaGL"
 				Render.supportWebGLPlusCulling = true;
 				Render.supportWebGLPlusAnimation = true;
 				Render.supportWebGLPlusRendering = true;
+				PlatformInfo.supportWebGLPlusRendering = true;
 			}
 		}
 		

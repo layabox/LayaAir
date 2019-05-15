@@ -2,7 +2,6 @@ import { SubmitBase } from "././SubmitBase";
 import { Context } from "../../resource/Context"
 	import { Texture } from "../../resource/Texture"
 	import { StatData } from "../../utils/StatData"
-	import { WebGL } from "../WebGL"
 	import { WebGLContext } from "../WebGLContext"
 	import { BlendMode } from "../canvas/BlendMode"
 	import { Value2D } from "../shader/d2/value/Value2D"
@@ -29,7 +28,7 @@ import { Context } from "../../resource/Context"
 				this.shaderValue.texture = source;
 			}
 			
-			var gl:WebGLContext = WebGL.mainContext;
+			var gl:WebGLContext = WebGLContext.mainContext;
 			this._mesh.useMesh(gl);
 			//_ib._bind_upload() || _ib._bind();
 			//_vb._bind_upload() || _vb._bind();

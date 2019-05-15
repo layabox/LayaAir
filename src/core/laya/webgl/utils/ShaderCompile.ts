@@ -1,6 +1,5 @@
 import { ShaderNode } from "././ShaderNode";
 import { InlcudeFile } from "././InlcudeFile";
-import { Browser } from "../../utils/Browser"
 	import { WebGLContext } from "../WebGLContext"
 	import { Shader } from "../shader/Shader"
 	
@@ -167,12 +166,12 @@ import { Browser } from "../../utils/Browser"
 			}
 			
 			//先要去掉注释,还没有完成
-			var startTime:number = Browser.now();
+			var startTime:number = Date.now();
 			this._VS = _compile(vs);
 			this._PS = _compile(ps);
 			this._nameMap = nameMap;
-			if ((Browser.now() - startTime) > 2)
-				console.log("ShaderCompile use time:" + (Browser.now() - startTime) + "  size:" + vs.length + "/" + ps.length);
+			if ((Date.now() - startTime) > 2)
+				console.log("ShaderCompile use time:" + (Date.now() - startTime) + "  size:" + vs.length + "/" + ps.length);
 		}
 		
 		 static _splitToWordExps3:RegExp = new RegExp("[ \\t=\\+\\-*/&%!<>!%\(\),;\\|]", "g");

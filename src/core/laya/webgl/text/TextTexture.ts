@@ -4,7 +4,6 @@ import { TextAtlas } from "././TextAtlas";
 import { LayaGL } from "../../layagl/LayaGL"
 	import { Render } from "../../renders/Render"
 	import { Resource } from "../../resource/Resource"
-	import { WebGL } from "../WebGL"
 	import { WebGLContext } from "../WebGLContext"
 	import { CharRenderInfo } from "./CharRenderInfo"
 	export class TextTexture  extends Resource {
@@ -36,7 +35,7 @@ import { LayaGL } from "../../layagl/LayaGL"
 		 recreateResource():void {
 			if (this._source)
 				return;
-			var gl:WebGLContext = Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGL.mainContext;
+			var gl:WebGLContext = Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
 			var glTex:any = this._source = gl.createTexture();
 			this.bitmap._glTexture = glTex;
 			
@@ -70,7 +69,7 @@ import { LayaGL } from "../../layagl/LayaGL"
 				return this.addCharCanvas(data , x, y, uv);
 			}
 			!this._source && this.recreateResource();
-			var gl:WebGLContext = Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGL.mainContext;
+			var gl:WebGLContext = Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
 			WebGLContext.bindTexture(gl, WebGLContext.TEXTURE_2D, this._source);
 			!Render.isConchApp && gl.pixelStorei( WebGLContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 			var dt:any = data.data;
@@ -109,7 +108,7 @@ import { LayaGL } from "../../layagl/LayaGL"
 		 */
 		 addCharCanvas(canv:any, x:number, y:number,uv:any[]=null):any[] {
 			!this._source && this.recreateResource();
-			var gl:WebGLContext = Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGL.mainContext;
+			var gl:WebGLContext = Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
 			WebGLContext.bindTexture(gl, WebGLContext.TEXTURE_2D, this._source);
 			!Render.isConchApp && gl.pixelStorei( WebGLContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 			gl.texSubImage2D(WebGLContext.TEXTURE_2D, 0, x, y, WebGLContext.RGBA, WebGLContext.UNSIGNED_BYTE, canv);
@@ -142,7 +141,7 @@ import { LayaGL } from "../../layagl/LayaGL"
 		 */
 		 fillWhite():void {
 			!this._source && this.recreateResource();
-			var gl:WebGLContext = Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGL.mainContext;
+			var gl:WebGLContext = Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
 			var dt:Uint8Array = new Uint8Array(this._texW * this._texH * 4);
 			((<any>dt )).fill(0xff);
 			gl.texSubImage2D(WebGLContext.TEXTURE_2D, 0, 0, 0, this._texW, this._texH, WebGLContext.RGBA, WebGLContext.UNSIGNED_BYTE, dt);
@@ -178,7 +177,7 @@ import { LayaGL } from "../../layagl/LayaGL"
 		/*override*/  destroy():void {		
 			//console.log('destroy TextTexture');
 			this.__destroyed = true;
-			var gl:WebGLContext = Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGL.mainContext;
+			var gl:WebGLContext = Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
 			this._source && gl.deleteTexture(this._source);
 			this._source = null;
 		}		

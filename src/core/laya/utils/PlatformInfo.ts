@@ -51,7 +51,8 @@
 		/** 表示是否支持LocalStorage*/
 		 static supportLocalStorage:boolean;
 		/** 是否支持webgl2 */
-		 static supportWebGL2:boolean;
+		 static isWebGL2Render:boolean;
+		 static supportWebGLPlusRendering:boolean;
 		/** 是否支持WebXR */
 		/** 是否支持WebGPU*/
 		/** 是否支持Wasm */

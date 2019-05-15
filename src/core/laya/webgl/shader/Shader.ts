@@ -139,9 +139,9 @@ import { ShaderValue } from "././ShaderValue";
 		
 		//TODO:coverage
 		/*override*/ protected _disposeResource():void {
-			WebGL.mainContext.deleteShader(this._vshader);
-			WebGL.mainContext.deleteShader(this._pshader);
-			WebGL.mainContext.deleteProgram(this._program);
+			WebGLContext.mainContext.deleteShader(this._vshader);
+			WebGLContext.mainContext.deleteShader(this._pshader);
+			WebGLContext.mainContext.deleteProgram(this._program);
 			this._vshader = this._pshader = this._program = null;
 			this._params = null;
 			this._paramsMap = {};
@@ -164,7 +164,7 @@ import { ShaderValue } from "././ShaderValue";
 			var result:any;
 			if (this.customCompile)
 				result =ShaderCompile.preGetParams(this._vs, this._ps);
-			var gl:WebGLContext = WebGL.mainContext;
+			var gl:WebGLContext = WebGLContext.mainContext;
 			this._program = gl.createProgram();
 			this._vshader = Shader._createShader(gl, this._vs, WebGLContext.VERTEX_SHADER);
 			this._pshader = Shader._createShader(gl, this._ps, WebGLContext.FRAGMENT_SHADER);
@@ -288,7 +288,7 @@ import { ShaderValue } from "././ShaderValue";
 		private _uniform1f(one:any, value:any):number {
 			var uploadedValue:any[] = one.uploadedValue;
 			if (uploadedValue[0] !== value) {
-				WebGL.mainContext.uniform1f(one.location, uploadedValue[0] = value);
+				WebGLContext.mainContext.uniform1f(one.location, uploadedValue[0] = value);
 				return 1;
 			}
 			return 0;
@@ -299,7 +299,7 @@ import { ShaderValue } from "././ShaderValue";
 			if (value.length < 4) {
 				var uploadedValue:any[] = one.uploadedValue;
 				if (uploadedValue[0] !== value[0] || uploadedValue[1] !== value[1] || uploadedValue[2] !== value[2] || uploadedValue[3] !== value[3]) {
-					WebGL.mainContext.uniform1fv(one.location, value);
+					WebGLContext.mainContext.uniform1fv(one.location, value);
 					uploadedValue[0] = value[0];
 					uploadedValue[1] = value[1];
 					uploadedValue[2] = value[2];
@@ -308,7 +308,7 @@ import { ShaderValue } from "././ShaderValue";
 				}
 				return 0;
 			} else {
-				WebGL.mainContext.uniform1fv(one.location, value);
+				WebGLContext.mainContext.uniform1fv(one.location, value);
 				return 1;
 			}
 		}
@@ -316,7 +316,7 @@ import { ShaderValue } from "././ShaderValue";
 		private _uniform_vec2(one:any, value:any):number {
 			var uploadedValue:any[] = one.uploadedValue;
 			if (uploadedValue[0] !== value[0] || uploadedValue[1] !== value[1]) {
-				WebGL.mainContext.uniform2f(one.location, uploadedValue[0] = value[0], uploadedValue[1] = value[1]);
+				WebGLContext.mainContext.uniform2f(one.location, uploadedValue[0] = value[0], uploadedValue[1] = value[1]);
 				return 1;
 			}
 			return 0;
@@ -327,7 +327,7 @@ import { ShaderValue } from "././ShaderValue";
 			if (value.length < 2) {
 				var uploadedValue:any[] = one.uploadedValue;
 				if (uploadedValue[0] !== value[0] || uploadedValue[1] !== value[1] || uploadedValue[2] !== value[2] || uploadedValue[3] !== value[3]) {
-					WebGL.mainContext.uniform2fv(one.location, value);
+					WebGLContext.mainContext.uniform2fv(one.location, value);
 					uploadedValue[0] = value[0];
 					uploadedValue[1] = value[1];
 					uploadedValue[2] = value[2];
@@ -336,7 +336,7 @@ import { ShaderValue } from "././ShaderValue";
 				}
 				return 0;
 			} else {
-				WebGL.mainContext.uniform2fv(one.location, value);
+				WebGLContext.mainContext.uniform2fv(one.location, value);
 				return 1;
 			}
 		}
@@ -345,7 +345,7 @@ import { ShaderValue } from "././ShaderValue";
 		private _uniform_vec3(one:any, value:any):number {
 			var uploadedValue:any[] = one.uploadedValue;
 			if (uploadedValue[0] !== value[0] || uploadedValue[1] !== value[1] || uploadedValue[2] !== value[2]) {
-				WebGL.mainContext.uniform3f(one.location, uploadedValue[0] = value[0], uploadedValue[1] = value[1], uploadedValue[2] = value[2]);
+				WebGLContext.mainContext.uniform3f(one.location, uploadedValue[0] = value[0], uploadedValue[1] = value[1], uploadedValue[2] = value[2]);
 				return 1;
 			}
 			return 0;
@@ -353,14 +353,14 @@ import { ShaderValue } from "././ShaderValue";
 		
 		//TODO:coverage
 		private _uniform_vec3v(one:any, value:any):number {
-			WebGL.mainContext.uniform3fv(one.location, value);
+			WebGLContext.mainContext.uniform3fv(one.location, value);
 			return 1;
 		}
 		
 		private _uniform_vec4(one:any, value:any):number {
 			var uploadedValue:any[] = one.uploadedValue;
 			if (uploadedValue[0] !== value[0] || uploadedValue[1] !== value[1] || uploadedValue[2] !== value[2] || uploadedValue[3] !== value[3]) {
-				WebGL.mainContext.uniform4f(one.location, uploadedValue[0] = value[0], uploadedValue[1] = value[1], uploadedValue[2] = value[2], uploadedValue[3] = value[3]);
+				WebGLContext.mainContext.uniform4f(one.location, uploadedValue[0] = value[0], uploadedValue[1] = value[1], uploadedValue[2] = value[2], uploadedValue[3] = value[3]);
 				return 1;
 			}
 			return 0;
@@ -368,24 +368,24 @@ import { ShaderValue } from "././ShaderValue";
 		
 		//TODO:coverage
 		private _uniform_vec4v(one:any, value:any):number {
-			WebGL.mainContext.uniform4fv(one.location, value);
+			WebGLContext.mainContext.uniform4fv(one.location, value);
 			return 1;
 		}
 		
 		//TODO:coverage
 		private _uniformMatrix2fv(one:any, value:any):number {
-			WebGL.mainContext.uniformMatrix2fv(one.location, false, value);
+			WebGLContext.mainContext.uniformMatrix2fv(one.location, false, value);
 			return 1;
 		}
 				
 		//TODO:coverage
 		private _uniformMatrix3fv(one:any, value:any):number {
-			WebGL.mainContext.uniformMatrix3fv(one.location, false, value);
+			WebGLContext.mainContext.uniformMatrix3fv(one.location, false, value);
 			return 1;
 		}
 		
 		private _uniformMatrix4fv(one:any, value:any):number {
-			WebGL.mainContext.uniformMatrix4fv(one.location, false, value);
+			WebGLContext.mainContext.uniformMatrix4fv(one.location, false, value);
 			return 1;
 		}
 		
@@ -393,7 +393,7 @@ import { ShaderValue } from "././ShaderValue";
 		private _uniform1i(one:any, value:any):number {
 			var uploadedValue:any[] = one.uploadedValue;
 			if (uploadedValue[0] !== value) {
-				WebGL.mainContext.uniform1i(one.location, uploadedValue[0] = value);
+				WebGLContext.mainContext.uniform1i(one.location, uploadedValue[0] = value);
 				return 1;
 			}
 			return 0;
@@ -401,7 +401,7 @@ import { ShaderValue } from "././ShaderValue";
 		
 		//TODO:coverage
 		private _uniform1iv(one:any, value:any):number {
-			WebGL.mainContext.uniform1iv(one.location, value);
+			WebGLContext.mainContext.uniform1iv(one.location, value);
 			return 1;
 		}
 		
@@ -409,7 +409,7 @@ import { ShaderValue } from "././ShaderValue";
 		private _uniform_ivec2(one:any, value:any):number {
 			var uploadedValue:any[] = one.uploadedValue;
 			if (uploadedValue[0] !== value[0] || uploadedValue[1] !== value[1]) {
-				WebGL.mainContext.uniform2i(one.location, uploadedValue[0] = value[0], uploadedValue[1] = value[1]);
+				WebGLContext.mainContext.uniform2i(one.location, uploadedValue[0] = value[0], uploadedValue[1] = value[1]);
 				return 1;
 			}
 			return 0;
@@ -417,7 +417,7 @@ import { ShaderValue } from "././ShaderValue";
 		
 		//TODO:coverage
 		private _uniform_ivec2v(one:any, value:any):number {
-			WebGL.mainContext.uniform2iv(one.location, value);
+			WebGLContext.mainContext.uniform2iv(one.location, value);
 			return 1;
 		}
 		
@@ -425,14 +425,14 @@ import { ShaderValue } from "././ShaderValue";
 		private _uniform_vec3i(one:any, value:any):number {
 			var uploadedValue:any[] = one.uploadedValue;
 			if (uploadedValue[0] !== value[0] || uploadedValue[1] !== value[1] || uploadedValue[2] !== value[2]) {
-				WebGL.mainContext.uniform3i(one.location, uploadedValue[0] = value[0], uploadedValue[1] = value[1], uploadedValue[2] = value[2]);
+				WebGLContext.mainContext.uniform3i(one.location, uploadedValue[0] = value[0], uploadedValue[1] = value[1], uploadedValue[2] = value[2]);
 				return 1;
 			}
 			return 0;
 		}
 		
 		private _uniform_vec3vi(one:any, value:any):number {
-			WebGL.mainContext.uniform3iv(one.location, value);
+			WebGLContext.mainContext.uniform3iv(one.location, value);
 			return 1;
 		}
 		
@@ -440,7 +440,7 @@ import { ShaderValue } from "././ShaderValue";
 		private _uniform_vec4i(one:any, value:any):number {
 			var uploadedValue:any[] = one.uploadedValue;
 			if (uploadedValue[0] !== value[0] || uploadedValue[1] !== value[1] || uploadedValue[2] !== value[2] || uploadedValue[3] !== value[3]) {
-				WebGL.mainContext.uniform4i(one.location, uploadedValue[0] = value[0], uploadedValue[1] = value[1], uploadedValue[2] = value[2], uploadedValue[3] = value[3]);
+				WebGLContext.mainContext.uniform4i(one.location, uploadedValue[0] = value[0], uploadedValue[1] = value[1], uploadedValue[2] = value[2], uploadedValue[3] = value[3]);
 				return 1;
 			}
 			return 0;
@@ -448,12 +448,12 @@ import { ShaderValue } from "././ShaderValue";
 		
 		//TODO:coverage
 		private _uniform_vec4vi(one:any, value:any):number {
-			WebGL.mainContext.uniform4iv(one.location, value);
+			WebGLContext.mainContext.uniform4iv(one.location, value);
 			return 1;
 		}
 		
 		private _uniform_sampler2D(one:any, value:any):number {//TODO:TEXTURTE ARRAY
-			var gl:WebGLContext = WebGL.mainContext;
+			var gl:WebGLContext = WebGLContext.mainContext;
 			var uploadedValue:any[] = one.uploadedValue;
 			if (uploadedValue[0] == null) {
 				uploadedValue[0] = this._curActTexIndex;
@@ -471,7 +471,7 @@ import { ShaderValue } from "././ShaderValue";
 		
 		//TODO:coverage
 		private _uniform_samplerCube(one:any, value:any):number {//TODO:TEXTURTECUBE ARRAY
-			var gl:WebGLContext = WebGL.mainContext;
+			var gl:WebGLContext = WebGLContext.mainContext;
 			var uploadedValue:any[] = one.uploadedValue;
 			if (uploadedValue[0] == null) {
 				uploadedValue[0] = this._curActTexIndex;
@@ -496,20 +496,20 @@ import { ShaderValue } from "././ShaderValue";
 		//TODO:coverage
 		 uploadOne(name:string, value:any):void {
 			//activeResource();
-			WebGLContext.useProgram(WebGL.mainContext, this._program);
+			WebGLContext.useProgram(WebGLContext.mainContext, this._program);
 			var one:any = this._paramsMap[name];
 			one.fun.call(this, one, value);
 		}
 		
 		 uploadTexture2D(value:any):void {
 			//这个可能执行频率非常高，所以这里能省就省点
-			//Stat.shaderCall++;
-			//var gl:WebGLContext = WebGL.mainContext;
+			//StatData.shaderCall++;
+			//var gl:WebGLContext = WebGLContext.mainContext;
 			//WebGLContext.activeTexture(gl,WebGLContext.TEXTURE0);	2d必须是active0
 			var CTX:any = WebGLContext;
 			
 			if( CTX._activeTextures[0]!==value){
-				CTX.bindTexture(WebGL.mainContext, CTX.TEXTURE_2D, value);
+				CTX.bindTexture(WebGLContext.mainContext, CTX.TEXTURE_2D, value);
 				CTX._activeTextures[0] = value;
 			}
 		}
@@ -521,7 +521,7 @@ import { ShaderValue } from "././ShaderValue";
 		 upload(shaderValue:ShaderValue, params:any[] = null):void {
 			BaseShader.activeShader = BaseShader.bindShader = this;
 			//recreateResource();
-			var gl:WebGLContext = WebGL.mainContext;
+			var gl:WebGLContext = WebGLContext.mainContext;
 			WebGLContext.useProgram(gl,this._program);
 			
 			if (this._reCompile) {
@@ -557,7 +557,7 @@ import { ShaderValue } from "././ShaderValue";
 			BaseShader.activeShader = this;
 			BaseShader.bindShader = this;
 			//activeResource();
-			WebGLContext.useProgram(WebGL.mainContext, this._program);
+			WebGLContext.useProgram(WebGLContext.mainContext, this._program);
 			var params:any = this._params, value:any;
 			var one:any, shaderCall:number = 0;
 			for (var i:number = length - 2; i >= 0; i -= 2) {

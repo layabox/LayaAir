@@ -1,4 +1,3 @@
-import { WebGL } from "../../../WebGL"
 	import { WebGLContext } from "../../../WebGLContext"
 	import { IndexBuffer2D } from "../../../utils/IndexBuffer2D"
 	import { VertexBuffer2D } from "../../../utils/VertexBuffer2D"
@@ -12,7 +11,7 @@ import { WebGL } from "../../../WebGL"
 		
 		//TODO:coverage
 		constructor(){
-			var gl:WebGLContext = WebGL.mainContext;
+			var gl:WebGLContext = WebGLContext.mainContext;
 			this.ib = IndexBuffer2D.create(WebGLContext.DYNAMIC_DRAW);
 			this.vb = VertexBuffer2D.create(8);
 		}

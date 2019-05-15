@@ -28,7 +28,7 @@ import { ColorFilter } from "../../filters/ColorFilter"
 		
 		 static POOL:any =[];
 		 renderSubmit():number{
-			var gl:WebGLContext= WebGL.mainContext;
+			var gl:WebGLContext= WebGLContext.mainContext;
 			this._mesh.useMesh(gl);
 			
 			var target:RenderTexture2D = this.srcRT;
@@ -38,7 +38,7 @@ import { ColorFilter } from "../../filters/ColorFilter"
 				this.blend();
 				StatData.renderBatches++;
 				StatData.trianglesFaces += this._numEle/3;
-				WebGL.mainContext.drawElements(WebGLContext.TRIANGLES, this._numEle, WebGLContext.UNSIGNED_SHORT, this._startIdx);
+				WebGLContext.mainContext.drawElements(WebGLContext.TRIANGLES, this._numEle, WebGLContext.UNSIGNED_SHORT, this._startIdx);
 			}
 			return 1;
 		}
@@ -46,7 +46,7 @@ import { ColorFilter } from "../../filters/ColorFilter"
 		 blend():void{
 			if (BlendMode.activeBlendFunction !== BlendMode.fns[this.blendType])
 			{
-				var gl:WebGLContext= WebGL.mainContext;
+				var gl:WebGLContext= WebGLContext.mainContext;
 				gl.enable( WebGLContext.BLEND );
 				BlendMode.fns[this.blendType]( gl);
 				BlendMode.activeBlendFunction = BlendMode.fns[this.blendType];

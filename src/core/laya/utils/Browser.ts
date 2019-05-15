@@ -57,6 +57,9 @@ import { PlatformInfo } from "./PlatformInfo";
 		 static onFirefox:boolean;//TODO:求补充
 		/** @private */
 		 static onEdge:boolean;//TODO:求补充
+		/** @private */
+		 static onLayaRuntime:boolean;
+		
 		
 		/** 表示是否支持WebAudio*/
 		 static supportWebAudio:boolean;
@@ -66,7 +69,7 @@ import { PlatformInfo } from "./PlatformInfo";
 		/** 全局离线画布（非主画布）。主要用来测量字体、获取image数据。*/
 		 static canvas:HTMLCanvas;
 		/** 全局离线画布上绘图的环境（非主画布）。 */
-		 static context:Context;
+		 static context:CanvasRenderingContext2D;
 		
 		/** @private */
 		private static _window:any;
@@ -176,6 +179,7 @@ import { PlatformInfo } from "./PlatformInfo";
 			Browser.onPC = PlatformInfo.onPC = !Browser.onMobile;
 			Browser.onMiniGame = PlatformInfo.onMiniGame = /*[STATIC SAFE]*/ u.indexOf('MiniGame') > -1;
 			Browser.onBDMiniGame = PlatformInfo.onBDMiniGame = /*[STATIC SAFE]*/ u.indexOf('SwanGame') > -1;
+			Browser.onLayaRuntime = PlatformInfo.onLayaRuntime = ! !((<any>Browser.window ) ).conch;
 			if(u.indexOf('OPPO') > -1 && u.indexOf('MiniGame') > -1)
 			{
 				Browser.onQGMiniGame = true;//OPPO环境判断
@@ -205,7 +209,7 @@ import { PlatformInfo } from "./PlatformInfo";
 			
 			//创建离线画布
 			Browser.canvas = new HTMLCanvas(true);
-			Browser.context = Browser.canvas.getContext('2d');
+			Browser.context = <CanvasRenderingContext2D>(Browser.canvas.getContext('2d') as any);
 			return win;
 		}
 		

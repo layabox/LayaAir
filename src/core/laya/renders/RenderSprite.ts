@@ -538,7 +538,7 @@ import { WebGLCacheAsNormalCanvas } from "../webgl/canvas/WebGLCacheAsNormalCanv
 		}
 		
 		 static setBlendMode(blendMode:string):void {
-			var gl : WebGLContext = WebGL.mainContext;
+			var gl : WebGLContext = WebGLContext.mainContext;
 			BlendMode.targetFns[BlendMode.TOINT[blendMode]](gl);
 		}		
 		

@@ -1,14 +1,20 @@
 import { ICreateResource } from "././ICreateResource";
 import { IDestroy } from "././IDestroy";
 import { EventDispatcher } from "../events/EventDispatcher"
-	import { Loader } from "../net/Loader"
 	import { URL } from "../net/URL"
-	
+    
+    interface ILoader{
+        getRes(url:string):Resource;
+        loadedMap:Object;
+    }
+    
 	/**
 	 * @private
 	 * <code>Resource</code> 资源存取类。
 	 */
 	export class Resource extends EventDispatcher implements ICreateResource, IDestroy {
+		/** @private */
+		 static gLoader:ILoader = null;
 		/** @private */
 		private static _uniqueIDCounter:number = 0;
 		/** @private */
@@ -260,8 +266,8 @@ this._id = ++Resource._uniqueIDCounter;
 					(resList.length === 0) && (delete Resource._urlResourcesMap[this._url]);
 				}
 				
-				var resou:Resource = Loader.getRes(this._url);
-				(resou == this) && (delete Loader.loadedMap[this._url]);
+				var resou:Resource = Resource.gLoader.getRes(this._url);
+				(resou == this) && (delete Resource.gLoader.loadedMap[this._url]);
 			}
 		}
 	}

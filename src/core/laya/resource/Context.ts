@@ -8,13 +8,11 @@ import { Sprite } from "../display/Sprite"
 	import { Matrix } from "../maths/Matrix"
 	import { Point } from "../maths/Point"
 	import { Rectangle } from "../maths/Rectangle"
-	import { Render } from "../renders/Render"
 	import { ColorUtils } from "../utils/ColorUtils"
 	import { FontInfo } from "../utils/FontInfo"
 	import { HTMLChar } from "../utils/HTMLChar"
 	import { StatData } from "../utils/StatData"
 	import { WordText } from "../utils/WordText"
-	import { WebGL } from "../webgl/WebGL"
 	import { WebGLContext } from "../webgl/WebGLContext"
 	import { BlendMode } from "../webgl/canvas/BlendMode"
 	import { DrawStyle } from "../webgl/canvas/DrawStyle"
@@ -455,7 +453,7 @@ import { Timer } from "../utils/Timer";
 		}
 		
 		 clearBG(r:number, g:number, b:number, a:number):void {
-			var gl:WebGLContext = WebGL.mainContext;
+			var gl:WebGLContext = WebGLContext.mainContext;
 			gl.clearColor(r, g, b, a);
 			gl.clear(WebGLContext.COLOR_BUFFER_BIT);
 		}
@@ -599,8 +597,8 @@ import { Timer } from "../utils/Timer";
 				}
 				//如果是主画布，要记录窗口大小
 				//如果不是 TODO
-				if ( Render._context==this) {
-					WebGL.mainContext.viewport(0, 0, w, h);
+				if ( this.isMain) {
+					WebGLContext.mainContext.viewport(0, 0, w, h);
 					RenderState2D.width = w;
 					RenderState2D.height = h;
 				}
@@ -1509,7 +1507,7 @@ import { Timer } from "../utils/Timer";
 			//var preworldClipRect:Rectangle = RenderState2D.worldClipRect;
 			//裁剪不用考虑，现在是在context内部自己维护，不会乱窜
 			RenderState2D.worldScissorTest = false;
-			WebGL.mainContext.disable(WebGLContext.SCISSOR_TEST);
+			WebGLContext.mainContext.disable(WebGLContext.SCISSOR_TEST);
 			
 			var preAlpha:number = RenderState2D.worldAlpha;
 			var preMatrix4:any[] = RenderState2D.worldMatrix4;
@@ -1834,7 +1832,7 @@ import { Timer } from "../utils/Timer";
 		 submitElement(start:number, end:number):number {
 			//_ib._bind_upload() || _ib._bind();
 			//_vb._bind_upload() || _vb._bind();
-			var mainCtx:boolean = Render._context === this;
+			var mainCtx:boolean =  this.isMain;
 			var renderList:any[] = this._submits;
 			var ret:number = ((<any>renderList ))._length;
 			end < 0 && (end = ((<any>renderList ))._length);			
@@ -1876,7 +1874,7 @@ import { Timer } from "../utils/Timer";
 			
 			this._flushCnt++;
 			//charbook gc
-			if (this._flushCnt % 60 == 0 && Render._context == this) {
+			if (this._flushCnt % 60 == 0 && this.isMain) {
 				if (TextRender.textRenderInst) {
 					TextRender.textRenderInst.GC();
 				}

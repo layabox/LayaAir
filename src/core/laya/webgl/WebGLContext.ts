@@ -1,6 +1,4 @@
-import { Render } from "../renders/Render"
-	import { Browser } from "../utils/Browser"
-import { WebGL } from "./WebGL";
+import { PlatformInfo } from "../utils/PlatformInfo";
 	
 	export class WebGLContext
 	{
@@ -303,6 +301,9 @@ import { WebGL } from "./WebGL";
 		 static BROWSER_DEFAULT_WEBGL:number = 0x9244;
 		
 		/**@private */
+		 static mainContext:WebGLContext = null;
+		
+		/**@private */
 		private static _extentionVendorPrefixes:any[] = ["", "WEBKIT_", "MOZ_"];
 		
 		/**@private */
@@ -352,7 +353,7 @@ import { WebGL } from "./WebGL";
 		 * @private
 		 */
 		private  static _forceSupportVAOPlatform():boolean{
-			return (Browser.onMiniGame && Browser.onIOS) || Browser.onBDMiniGame || Browser.onQGMiniGame;
+			return (PlatformInfo.onMiniGame && PlatformInfo.onIOS) || PlatformInfo.onBDMiniGame || PlatformInfo.onQGMiniGame;
 		}
 		
 		
@@ -361,7 +362,7 @@ import { WebGL } from "./WebGL";
 		 */
 		 static __init__(gl:WebGLContext):void {
 			WebGLContext._checkExtensions(gl);
-			if (!WebGL._isWebGL2 && !Render.isConchApp) {
+			if (!PlatformInfo.isWebGL2Render && ! PlatformInfo.onLayaRuntime) {
 				if ((window as any)._setupVertexArrayObject){//兼容VAO
 					if (WebGLContext._forceSupportVAOPlatform())
 						(window as any)._forceSetupVertexArrayObject(gl);
@@ -413,7 +414,7 @@ import { WebGL } from "./WebGL";
 		 */
 		 static __init_native():void
 		{
-			if (!Render.supportWebGLPlusRendering) return;
+			if (!PlatformInfo.supportWebGLPlusRendering) return;
 			var webGLContext:any= WebGLContext;
 			webGLContext.activeTexture = webGLContext.activeTextureForNative;
 			webGLContext.bindTexture = webGLContext.bindTextureForNative;

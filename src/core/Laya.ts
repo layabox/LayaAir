@@ -29,6 +29,8 @@ import { Context } from "./laya/resource/Context";
 import { ColorUtils } from "./laya/utils/ColorUtils";
 import { LayaGL } from "./laya/layagl/LayaGL";
 import { Utils } from "./laya/utils/Utils";
+import { Loader } from "./laya/net/Loader";
+import { Resource } from "./laya/resource/Resource";
 	
 	/**
 	 * <code>Laya</code> 是全局对象的引用入口集。
@@ -99,9 +101,12 @@ import { Utils } from "./laya/utils/Utils";
 			Laya.timer = new Timer(false);
 			
 			Laya.loader = new LoaderManager();
-			Texture2D.gLoader =  Laya.loader;
+			Texture2D.gLoaderMgr =  Laya.loader;
+			Texture2D.gLoaderType = Loader;
+			Texture2D.gBrowser = Browser;
 			Context.gSysTimer = Laya.systemTimer;
 			Input.gSysTimer = Laya.systemTimer;
+			Resource.gLoader = Loader;
 			
 			WeakObject.__init__();
 			WebGL.inner_enable();
@@ -119,7 +124,8 @@ import { Utils } from "./laya/utils/Utils";
 			Browser.gStage = Laya.stage;
 			Utils.gStage = Laya.stage;
 			Input.gStage = Laya.stage;
-			URL.rootPath = URL._basePath = URL._getUrlPath();
+            URL.rootPath = URL._basePath = URL._getUrlPath();
+            Render.gStage = Laya.stage;
 			Laya.render = new Render(0, 0, Browser.mainCanvas);
 			Laya.stage.size(width, height);
 			((<any>window )).stage = Laya.stage;
@@ -128,8 +134,10 @@ import { Utils } from "./laya/utils/Utils";
 			Node.gTimer = Laya.timer;
 			Node.gStage = Laya.stage;
 			Text.gSysTimer = Laya.systemTimer;
+			Text.gBrowser = Browser;
 			Event.gStage = Laya.stage;
-			Texture.gLoader = Laya.loader;
+            Texture.gLoader = Laya.loader;
+            Texture.gContext =  Context;
 			
 			RenderSprite.__init__();
 			KeyBoardManager.__init__();
@@ -198,7 +206,7 @@ import { Utils } from "./laya/utils/Utils";
 			WebGLContext.__init_native();
 			Shader.prototype.uploadTexture2D = function(value:any):void {
 				var CTX:any = WebGLContext;
-				CTX.bindTexture(WebGL.mainContext, CTX.TEXTURE_2D, value);
+				CTX.bindTexture(WebGLContext.mainContext, CTX.TEXTURE_2D, value);
 			}
 			RenderState2D.width = Browser.window.innerWidth;
 			RenderState2D.height = Browser.window.innerHeight;
