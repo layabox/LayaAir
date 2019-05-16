@@ -1,6 +1,5 @@
 import { LayaGL } from "../layagl/LayaGL"
 	import { BaseTexture } from "./BaseTexture"
-	import { HTMLCanvas } from "./HTMLCanvas"
 	import { Handler } from "../utils/Handler"
     import { WebGLContext } from "../webgl/WebGLContext"
     
@@ -13,7 +12,7 @@ import { LayaGL } from "../layagl/LayaGL"
     }
 
     interface IBrowser{
-        canvas:HTMLCanvas;
+        //canvas:HTMLCanvas;
         context:CanvasRenderingContext2D;
         onLayaRuntime:boolean;
     }
@@ -396,15 +395,11 @@ import { LayaGL } from "../layagl/LayaGL"
 			WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
 			var glFormat:number = this._getGLFormat();
 			
-			if (Texture2D.gBrowser.onLayaRuntime) {//[NATIVE]临时
-				if (source instanceof HTMLCanvas) {
-					//todo premultiply alpha
+            if (Texture2D.gBrowser.onLayaRuntime) {//[NATIVE]临时
+                if(source.setPremultiplyAlpha){
+                    source.setPremultiplyAlpha(premultiplyAlpha);
+                }
 					gl.texImage2D(this._glTextureType, 0, WebGLContext.RGBA, WebGLContext.RGBA, WebGLContext.UNSIGNED_BYTE, source);
-				}
-				else {
-					source.setPremultiplyAlpha(premultiplyAlpha);
-					gl.texImage2D(this._glTextureType, 0, WebGLContext.RGBA, WebGLContext.RGBA, WebGLContext.UNSIGNED_BYTE, source);
-				}
 			} else {
 				(premultiplyAlpha) && (gl.pixelStorei(WebGLContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true));
 				gl.texImage2D(this._glTextureType, 0, glFormat, glFormat, WebGLContext.UNSIGNED_BYTE, source);
@@ -421,9 +416,10 @@ import { LayaGL } from "../layagl/LayaGL"
 				if (Texture2D.gBrowser.onLayaRuntime) {
 					this._pixels = new Uint8Array(source._nativeObj.getImageData(0, 0, width, height));//TODO:如果为RGB,会错误
 				} else {
-					Texture2D.gBrowser.canvas.size(width, height);
-					Texture2D.gBrowser.canvas.clear();
-					Texture2D.gBrowser.context.drawImage(source, 0, 0, width, height);
+                    var b:any = Texture2D.gBrowser;
+					b.canvas.size(width, height);
+					b.canvas.clear();
+					b.context.drawImage(source, 0, 0, width, height);
 					this._pixels = new Uint8Array(Texture2D.gBrowser.context.getImageData(0, 0, width, height).data.buffer);//TODO:如果为RGB,会错误
 				}
 			}

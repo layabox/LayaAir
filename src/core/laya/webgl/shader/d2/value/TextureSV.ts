@@ -21,5 +21,7 @@ import { WebGL } from "../../../WebGL"
 			this.defines._value=this.subID + (WebGL.shaderHighPrecision?ShaderDefines2D.SHADERDEFINE_FSHIGHPRECISION:0);
 			//defines.setValue(0);
 		}
-	}
+    }
 
+    Value2D._initone(ShaderDefines2D.TEXTURE2D, TextureSV);
+    Value2D._initone(ShaderDefines2D.TEXTURE2D | ShaderDefines2D.FILTERGLOW, TextureSV);

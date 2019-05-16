@@ -1,7 +1,7 @@
 import { SubmitBase } from "././SubmitBase";
 import { Context } from "../../resource/Context"
 	import { Texture } from "../../resource/Texture"
-	import { StatData } from "../../utils/StatData"
+	import { Stat } from "../../utils/Stat"
 	import { WebGLContext } from "../WebGLContext"
 	import { BlendMode } from "../canvas/BlendMode"
 	import { Value2D } from "../shader/d2/value/Value2D"
@@ -42,8 +42,8 @@ import { Context } from "../../resource/Context"
 			}
 			gl.drawElements(WebGLContext.TRIANGLES, this._numEle, WebGLContext.UNSIGNED_SHORT, this._startIdx);
 			
-			StatData.renderBatches++;
-			StatData.trianglesFaces += this._numEle / 3;
+			Stat.renderBatches++;
+			Stat.trianglesFaces += this._numEle / 3;
 			
 			return 1;
 		}

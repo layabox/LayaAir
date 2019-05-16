@@ -31,6 +31,9 @@ import { LayaGL } from "./laya/layagl/LayaGL";
 import { Utils } from "./laya/utils/Utils";
 import { Loader } from "./laya/net/Loader";
 import { Resource } from "./laya/resource/Resource";
+import { TTFLoader } from "./laya/net/TTFLoader";
+import { PlatformInfo } from "./laya/utils/PlatformInfo";
+import { LocalStorage } from "./laya/net/LocalStorage";
 	
 	/**
 	 * <code>Laya</code> 是全局对象的引用入口集。
@@ -91,7 +94,10 @@ import { Resource } from "./laya/resource/Resource";
 			}
 			
 			Browser.gLaya = Laya;
-			Browser.__init__();
+            Browser.__init__();
+
+            PlatformInfo.supportWebAudio = Browser.supportWebAudio = SoundManager.__init__();;
+			Browser.supportLocalStorage = PlatformInfo.supportLocalStorage = LocalStorage.__init__();
 			
 			Laya.systemTimer = new Timer(false);
 			Laya.startTimer = new Timer(false);
@@ -107,7 +113,8 @@ import { Resource } from "./laya/resource/Resource";
 			Context.gSysTimer = Laya.systemTimer;
 			Input.gSysTimer = Laya.systemTimer;
 			Resource.gLoader = Loader;
-			
+            TTFLoader.gSysTimer = Laya.systemTimer;
+            
 			WeakObject.__init__();
 			WebGL.inner_enable();
 			for (var i:number = 0, n:number = plugins.length; i < n; i++) {
@@ -138,7 +145,8 @@ import { Resource } from "./laya/resource/Resource";
 			Event.gStage = Laya.stage;
             Texture.gLoader = Laya.loader;
             Texture.gContext =  Context;
-			
+            Input.gMainCanvas=Render.canvas;
+            
 			RenderSprite.__init__();
 			KeyBoardManager.__init__();
 			MouseManager.instance.__init__(Laya.stage, Render.canvas);

@@ -1,12 +1,22 @@
-import { TextRender } from "././TextRender";
-import { Laya } from "./../../../Laya";
 import { TextAtlas } from "././TextAtlas";
 import { LayaGL } from "../../layagl/LayaGL"
-	import { Render } from "../../renders/Render"
+	import { RenderInfo } from "../../renders/RenderInfo"
 	import { Resource } from "../../resource/Resource"
 	import { WebGLContext } from "../WebGLContext"
-	import { CharRenderInfo } from "./CharRenderInfo"
+    import { CharRenderInfo } from "./CharRenderInfo"
+import { PlatformInfo } from "../../utils/PlatformInfo";
+    
+    interface ITextRender{
+        atlasWidth:number;
+        checkCleanTextureDt:number;
+        debugUV:boolean;
+        isWan1Wan:boolean;
+        destroyUnusedTextureDt:number;
+    }
+
 	export class TextTexture  extends Resource {
+        static gTextRender:ITextRender = null;
+
 		private static pool:any[] = new Array(10);		// 回收用
 		private static poolLen:number = 0;
 		private static cleanTm:number = 0;
@@ -26,16 +36,16 @@ import { LayaGL } from "../../layagl/LayaGL"
 		
 		constructor(textureW:number, textureH:number){
 			super();
-			this._texW = textureW || TextRender.atlasWidth;
-			this._texH = textureH || TextRender.atlasWidth;
+			this._texW = textureW || TextTexture.gTextRender.atlasWidth;
+			this._texH = textureH || TextTexture.gTextRender.atlasWidth;
 			this.bitmap.id = this.id;
 			this.lock = true;//防止被资源管理清除
 		}
 		
 		 recreateResource():void {
 			if (this._source)
-				return;
-			var gl:WebGLContext = Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
+                return;
+			var gl:WebGLContext = PlatformInfo.onLayaRuntime?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
 			var glTex:any = this._source = gl.createTexture();
 			this.bitmap._glTexture = glTex;
 			
@@ -50,7 +60,7 @@ import { LayaGL } from "../../layagl/LayaGL"
 			gl.texParameteri(WebGLContext.TEXTURE_2D, WebGLContext.TEXTURE_WRAP_T, WebGLContext.CLAMP_TO_EDGE);
 			
 			//TODO 预乘alpha
-			if (TextRender.debugUV) {
+			if (TextTexture.gTextRender.debugUV) {
 				this.fillWhite();
 			}
 		}
@@ -64,24 +74,24 @@ import { LayaGL } from "../../layagl/LayaGL"
 		 * @return uv数组  如果uv不为空就返回传入的uv，否则new一个数组
 		 */
 		 addChar(data:ImageData, x:number, y:number, uv:any[] = null):any[] {
-			//if (!Render.isConchApp &&  !__JS__('(data instanceof ImageData)')) {
-			if( TextRender.isWan1Wan){
+			//if (!PlatformInfo.onLayaRuntime &&  !__JS__('(data instanceof ImageData)')) {
+			if( TextTexture.gTextRender.isWan1Wan){
 				return this.addCharCanvas(data , x, y, uv);
 			}
 			!this._source && this.recreateResource();
-			var gl:WebGLContext = Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
+			var gl:WebGLContext = PlatformInfo.onLayaRuntime?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
 			WebGLContext.bindTexture(gl, WebGLContext.TEXTURE_2D, this._source);
-			!Render.isConchApp && gl.pixelStorei( WebGLContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+			!PlatformInfo.onLayaRuntime && gl.pixelStorei( WebGLContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 			var dt:any = data.data;
 			if ( data.data instanceof Uint8ClampedArray ) 
 				dt = new Uint8Array(dt.buffer);
 			gl.texSubImage2D(WebGLContext.TEXTURE_2D, 0, x, y, data.width, data.height, WebGLContext.RGBA, WebGLContext.UNSIGNED_BYTE, dt);
-			!Render.isConchApp && gl.pixelStorei( WebGLContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+			!PlatformInfo.onLayaRuntime && gl.pixelStorei( WebGLContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
 			var u0:number;
 			var v0:number;
 			var u1:number;
 			var v1:number;
-			if(Render.isConchApp){
+			if(PlatformInfo.onLayaRuntime){
 				u0 = x / this._texW;	// +1 表示内缩一下，反正文字总是有留白。否则会受到旁边的一个像素的影响
 				v0 = y / this._texH;
 				u1 = (x + data.width) / this._texW;	// 注意是-1,不是-2
@@ -108,16 +118,16 @@ import { LayaGL } from "../../layagl/LayaGL"
 		 */
 		 addCharCanvas(canv:any, x:number, y:number,uv:any[]=null):any[] {
 			!this._source && this.recreateResource();
-			var gl:WebGLContext = Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
+			var gl:WebGLContext = PlatformInfo.onLayaRuntime?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
 			WebGLContext.bindTexture(gl, WebGLContext.TEXTURE_2D, this._source);
-			!Render.isConchApp && gl.pixelStorei( WebGLContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+			!PlatformInfo.onLayaRuntime && gl.pixelStorei( WebGLContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 			gl.texSubImage2D(WebGLContext.TEXTURE_2D, 0, x, y, WebGLContext.RGBA, WebGLContext.UNSIGNED_BYTE, canv);
-			!Render.isConchApp && gl.pixelStorei( WebGLContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+			!PlatformInfo.onLayaRuntime && gl.pixelStorei( WebGLContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
 			var u0:number;
 			var v0:number;
 			var u1:number;
 			var v1:number;
-			if(Render.isConchApp){
+			if(PlatformInfo.onLayaRuntime){
 				u0 = x / this._texW;		// +1 表示内缩一下，反正文字总是有留白。否则会受到旁边的一个像素的影响
 				v0 = y / this._texH;
 				u1 = (x + canv.width) / this._texW;
@@ -141,7 +151,7 @@ import { LayaGL } from "../../layagl/LayaGL"
 		 */
 		 fillWhite():void {
 			!this._source && this.recreateResource();
-			var gl:WebGLContext = Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
+			var gl:WebGLContext = PlatformInfo.onLayaRuntime?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
 			var dt:Uint8Array = new Uint8Array(this._texW * this._texH * 4);
 			((<any>dt )).fill(0xff);
 			gl.texSubImage2D(WebGLContext.TEXTURE_2D, 0, 0, 0, this._texW, this._texH, WebGLContext.RGBA, WebGLContext.UNSIGNED_BYTE, dt);
@@ -149,7 +159,7 @@ import { LayaGL } from "../../layagl/LayaGL"
 		
 		 discard():void {
 			// 非标准大小不回收。
-			if (this._texW != TextRender.atlasWidth || this._texH != TextRender.atlasWidth) {
+			if (this._texW != TextTexture.gTextRender.atlasWidth || this._texH != TextTexture.gTextRender.atlasWidth) {
 				this.destroy();
 				return;
 			}
@@ -157,12 +167,13 @@ import { LayaGL } from "../../layagl/LayaGL"
 			if (TextTexture.poolLen >= TextTexture.pool.length) {
 				TextTexture.pool = TextTexture.pool.concat(new Array(10));
 			}
-			this._discardTm = Laya.stage.getFrameTm();
+			
+			this._discardTm =  RenderInfo.loopStTm;
 			TextTexture.pool[TextTexture.poolLen++] = this;
 		}
 		
 		 static getTextTexture(w:number, h:number):TextTexture {
-			if ( w != TextRender.atlasWidth || w != TextRender.atlasWidth )
+			if ( w != TextTexture.gTextRender.atlasWidth || w != TextTexture.gTextRender.atlasWidth )
 				return new TextTexture(w, h);
 			// 否则从回收池中取
 			if (TextTexture.poolLen > 0) {
@@ -177,7 +188,7 @@ import { LayaGL } from "../../layagl/LayaGL"
 		/*override*/  destroy():void {		
 			//console.log('destroy TextTexture');
 			this.__destroyed = true;
-			var gl:WebGLContext = Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
+			var gl:WebGLContext = PlatformInfo.onLayaRuntime?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
 			this._source && gl.deleteTexture(this._source);
 			this._source = null;
 		}		
@@ -187,12 +198,12 @@ import { LayaGL } from "../../layagl/LayaGL"
 		 * 为了简单，只有发生 getAPage 或者 discardPage的时候才检测是否需要清理
 		 */
 		 static clean():void {
-			var curtm:number = Laya.stage.getFrameTm();
+			var curtm:number = RenderInfo.loopStTm;// Laya.stage.getFrameTm();
 			if (TextTexture.cleanTm === 0) TextTexture.cleanTm = curtm;
-			if (curtm - TextTexture.cleanTm >= TextRender.checkCleanTextureDt) {	//每10秒看看pool中的贴图有没有很老的可以删除的
+			if (curtm - TextTexture.cleanTm >= TextTexture.gTextRender.checkCleanTextureDt) {	//每10秒看看pool中的贴图有没有很老的可以删除的
 				for (var i:number = 0; i < TextTexture.poolLen; i++) {
 					var p:TextTexture = TextTexture.pool[i];
-					if (curtm - p._discardTm >= TextRender.destroyUnusedTextureDt) {//超过20秒没用的删掉
+					if (curtm - p._discardTm >= TextTexture.gTextRender.destroyUnusedTextureDt) {//超过20秒没用的删掉
 						p.destroy();					//真正删除贴图
 						TextTexture.pool[i] = TextTexture.pool[TextTexture.poolLen - 1];
 						TextTexture.poolLen--;
@@ -209,7 +220,7 @@ import { LayaGL } from "../../layagl/LayaGL"
 				this.curUsedCovRateAtlas = 0;
 				this.lastTouchTm = curloop;
 			}
-			var texw2:number = TextRender.atlasWidth * TextRender.atlasWidth;
+			var texw2:number = TextTexture.gTextRender.atlasWidth * TextTexture.gTextRender.atlasWidth;
 			var gridw2:number = TextAtlas.atlasGridW * TextAtlas.atlasGridW;
 			this.curUsedCovRate+= (ri.bmpWidth * ri.bmpHeight) / texw2;
 			this.curUsedCovRateAtlas += ( Math.ceil(ri.bmpWidth / TextAtlas.atlasGridW ) * Math.ceil(ri.bmpHeight / TextAtlas.atlasGridW)) / (texw2 / gridw2);

@@ -1,10 +1,12 @@
-import { Laya } from "./../../../Laya";
-	import { Context } from "../../resource/Context"
 	import { ColorUtils } from "../../utils/ColorUtils"
 	import { FontInfo } from "../../utils/FontInfo"
 	import { Pool } from "../../utils/Pool"
 	import { WordText } from "../../utils/WordText"
-	
+    
+    interface IContext{
+        _fast_filltext(data:WordText, x:number, y:number, fontObj:any, color:string, strokeColor:string, lineWidth:number, textAlign:number, underLine:number ):void ;
+        drawText(text:any, x:number, y:number, font:string, color:string, textAlign:string):void;
+    }
 	/**
 	 * 绘制文字
 	 */
@@ -54,10 +56,8 @@ import { Laya } from "./../../../Laya";
 		}
 		
 		/**@private */
-		 run(context:Context, gx:number, gy:number):void {
-			if(Laya.stage.isGlobalRepaint()){
-				this._textIsWorldText && ((<WordText>this._text )).cleanCache();
-			}
+		 run(context:IContext, gx:number, gy:number):void {
+
 			
 			if (this._textIsWorldText ) {
 				context._fast_filltext(((<WordText>this._text )), this.x + gx, this.y + gy, this._fontObj, this._color, null, 0, this._nTexAlign, 0);
@@ -122,13 +122,13 @@ import { Laya } from "./../../../Laya";
 			this._textAlign = value;
 			switch (value) {
 			case 'center': 
-				this._nTexAlign = Context.ENUM_TEXTALIGN_CENTER;
+				this._nTexAlign = 0;
 				break;
 			case 'right': 
-				this._nTexAlign = Context.ENUM_TEXTALIGN_RIGHT;
+				this._nTexAlign = 1;
 				break;
 			default: 
-				this._nTexAlign = Context.ENUM_TEXTALIGN_DEFAULT;
+				this._nTexAlign = 2;
 			}
 			this._textIsWorldText && ((<WordText>this._text )).cleanCache();
 		}

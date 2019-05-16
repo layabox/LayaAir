@@ -1,7 +1,4 @@
-import { SoundManager } from "../media/SoundManager"
-	import { LocalStorage } from "../net/LocalStorage"
-	import { Context } from "../resource/Context"
-    import { HTMLCanvas } from "../resource/HTMLCanvas"
+import { HTMLCanvas } from "../resource/HTMLCanvas"
 import { PlatformInfo } from "./PlatformInfo";
     
     
@@ -188,10 +185,6 @@ import { PlatformInfo } from "./PlatformInfo";
 			Browser.onLimixiu = PlatformInfo.onLimixiu = /*[STATIC SAFE]*/ u.indexOf('limixiu') > -1;
 			//小米运行环境判断
 			Browser.onKGMiniGame = PlatformInfo.onKGMiniGame = /*[STATIC SAFE]*/ u.indexOf('QuickGame') > -1;//小米环境判断
-			//处理LocalStorage兼容
-			Browser.supportLocalStorage = PlatformInfo.supportLocalStorage = LocalStorage.__init__();
-			//处理声音兼容性
-			Browser.supportWebAudio = PlatformInfo.supportWebAudio = SoundManager.__init__();
 			
 			PlatformInfo.onLayaRuntime = (window as any).conch;
 			

@@ -1,7 +1,6 @@
 import { Sprite } from "././Sprite";
 import { GraphicsBounds } from "././GraphicsBounds";
 import { SpriteConst } from "././SpriteConst";
-import { Text } from "././Text";
 import { AlphaCmd } from "./cmd/AlphaCmd"
 	import { ClipRectCmd } from "./cmd/ClipRectCmd"
 	import { Draw9GridTexture } from "./cmd/Draw9GridTexture"
@@ -364,8 +363,9 @@ import { AlphaCmd } from "./cmd/AlphaCmd"
 		 */
 		 clipRect(x:number, y:number, width:number, height:number):ClipRectCmd {
 			return this._saveToCmd(Render._context.clipRect, ClipRectCmd.create.call(this, x, y, width, height));
-		}
-		
+        }
+        
+        deffont = 'Arial';
 		/**
 		 * 在画布上绘制文本。
 		 * @param text 在画布上输出的文本。
@@ -376,7 +376,7 @@ import { AlphaCmd } from "./cmd/AlphaCmd"
 		 * @param textAlign 文本对齐方式，可选值："left"，"center"，"right"。
 		 */
 		 fillText(text:string, x:number, y:number, font:string, color:string, textAlign:string):FillTextCmd {
-			return this._saveToCmd(Render._context.fillText, FillTextCmd.create.call(this, text, x, y, font || Text.defaultFontStr(), color, textAlign));
+			return this._saveToCmd(Render._context.fillText, FillTextCmd.create.call(this, text, x, y, font || this.deffont, color, textAlign));
 		}
 		
 		/**
@@ -391,17 +391,17 @@ import { AlphaCmd } from "./cmd/AlphaCmd"
 		 * @param textAlign		文本对齐方式，可选值："left"，"center"，"right"。
 		 */
 		 fillBorderText(text:string, x:number, y:number, font:string, fillColor:string, borderColor:string, lineWidth:number, textAlign:string):FillBorderTextCmd {
-			return this._saveToCmd(Render._context.fillBorderText, FillBorderTextCmd.create.call(this, text, x, y, font || Text.defaultFontStr(), fillColor, borderColor, lineWidth, textAlign));
+			return this._saveToCmd(Render._context.fillBorderText, FillBorderTextCmd.create.call(this, text, x, y, font || this.deffont, fillColor, borderColor, lineWidth, textAlign));
 		}
 		
 		/*** @private */
 		 fillWords(words:any[], x:number, y:number, font:string, color:string):FillWordsCmd {
-			return this._saveToCmd(Render._context.fillWords, FillWordsCmd.create.call(this, words, x, y, font || Text.defaultFontStr(), color));
+			return this._saveToCmd(Render._context.fillWords, FillWordsCmd.create.call(this, words, x, y, font || this.deffont, color));
 		}
 		
 		/*** @private */
 		 fillBorderWords(words:any[], x:number, y:number, font:string, fillColor:string, borderColor:string, lineWidth:number):FillBorderWordsCmd {
-			return this._saveToCmd(Render._context.fillBorderWords, FillBorderWordsCmd.create.call(this, words, x, y, font || Text.defaultFontStr(), fillColor, borderColor, lineWidth));
+			return this._saveToCmd(Render._context.fillBorderWords, FillBorderWordsCmd.create.call(this, words, x, y, font || this.deffont, fillColor, borderColor, lineWidth));
 		}
 		
 		/**
@@ -415,7 +415,7 @@ import { AlphaCmd } from "./cmd/AlphaCmd"
 		 * @param textAlign	文本对齐方式，可选值："left"，"center"，"right"。
 		 */
 		 strokeText(text:string, x:number, y:number, font:string, color:string, lineWidth:number, textAlign:string):StrokeTextCmd {
-			return this._saveToCmd(Render._context.fillBorderText, StrokeTextCmd.create.call(this, text, x, y, font || Text.defaultFontStr(), null, color, lineWidth, textAlign));
+			return this._saveToCmd(Render._context.fillBorderText, StrokeTextCmd.create.call(this, text, x, y, font || this.deffont, null, color, lineWidth, textAlign));
 		}
 		
 		/**

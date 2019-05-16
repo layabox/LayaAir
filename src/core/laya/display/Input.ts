@@ -1,11 +1,10 @@
 import { Text } from "././Text";
 import { Event } from "../events/Event"
 	import { Matrix } from "../maths/Matrix"
-	import { Render } from "../renders/Render"
-	import { Browser } from "../utils/Browser"
 	import { Utils } from "../utils/Utils"
 import { Stage } from "./Stage";
 import { Timer } from "../utils/Timer";
+import { PlatformInfo } from "../utils/PlatformInfo";
 	
 	/**
 	 * 用户输入一个或多个文本字符时后调度。
@@ -38,6 +37,9 @@ import { Timer } from "../utils/Timer";
 	 * <p>Input 类封装了原生的文本输入框，由于不同浏览器的差异，会导致此对象的默认文本的位置与用户点击输入时的文本的位置有少许的偏差。</p>
 	 */
 	export class Input extends Text {
+        /**@private */
+        static gMainCanvas:HTMLCanvasElement=null;
+
 		/** 常规文本域。*/
 		static  TYPE_TEXT:string = "text";
 		/** password 类型用于密码域输入。*/
@@ -109,7 +111,7 @@ import { Timer } from "../utils/Timer";
 		private _content:string = '';
 		
 		/**@private */
-		 static IOS_IFRAME:boolean = (Browser.onIOS && Browser.window.top != Browser.window.self);
+		 static IOS_IFRAME:boolean = (PlatformInfo.onIOS && PlatformInfo.window.top != PlatformInfo.window.self);
 		private static inputHeight:number = 45;
 		
 		/**表示是否处于输入状态。*/
@@ -133,14 +135,14 @@ this._width = 100;
 			Input._createInputElement();
 			
 			// 移动端通过画布的touchend调用focus
-			if (Browser.onMobile)
+			if (PlatformInfo.onMobile)
 			{
 				var isTrue:boolean = false;
-				if(Browser.onMiniGame || Browser.onBDMiniGame || Browser.onQGMiniGame || Browser.onKGMiniGame)
+				if(PlatformInfo.onMiniGame || PlatformInfo.onBDMiniGame || PlatformInfo.onQGMiniGame || PlatformInfo.onKGMiniGame)
 				{
 					isTrue = true;
 				}
-				Render.canvas.addEventListener(Input.IOS_IFRAME ?( isTrue ? "touchend" : "click") : "touchend", Input._popupInputMethod);
+				this.gMainCanvas.addEventListener(Input.IOS_IFRAME ?( isTrue ? "touchend" : "click") : "touchend", Input._popupInputMethod);
 			}
 		}
 		
@@ -156,10 +158,10 @@ this._width = 100;
 		}
 		
 		private static _createInputElement():void {
-			Input._initInput(Input.area = Browser.createElement("textarea"));
-			Input._initInput(Input.input = Browser.createElement("input"));
+			Input._initInput(Input.area = document.createElement("textarea"));
+			Input._initInput(Input.input = document.createElement("input"));
 			
-			Input.inputContainer = Browser.createElement("div");
+			Input.inputContainer = document.createElement("div");
 			Input.inputContainer.style.position = "absolute";
 			Input.inputContainer.style.zIndex = 1E5;
 			Browser.container.appendChild(Input.inputContainer);
@@ -267,7 +269,7 @@ this._width = 100;
 			var transform:any = Utils.getTransformRelativeToWindow(this, this.padding[3], this.padding[0]);
 			var inputWid:number = this._width - this.padding[1] - this.padding[3];
 			var inputHei:number = this._height - this.padding[0] - this.padding[2];
-			if (Render.isConchApp) {
+			if (PlatformInfo.onLayaRuntime) {
 				inputElement.setScale(transform.scaleX, transform.scaleY);
 				inputElement.setSize(inputWid, inputHei);
 				inputElement.setPos(transform.x, transform.y);
@@ -310,10 +312,10 @@ this._width = 100;
 				} else {
 					input.target = null;
 					this._focusOut();
-					Browser.document.body.scrollTop = 0;
+					document.body.scrollTop = 0;
 					input.blur();
 					
-					if (Render.isConchApp) input.setPos(-10000, -10000);
+					if (PlatformInfo.onLayaRuntime) input.setPos(-10000, -10000);
 					else if (Input.inputContainer.contains(input)) Input.inputContainer.removeChild(input);
 				}
 			}
@@ -342,7 +344,7 @@ this._width = 100;
 			this._setPromptColor();
 			
 			input.readOnly = !this._editable;
-			if (Render.isConchApp) {
+			if (PlatformInfo.onLayaRuntime) {
 				input.setType(this._type);
 				input.setForbidEdit(!this._editable);
 			}
@@ -360,10 +362,10 @@ this._width = 100;
 			this.event(Event.FOCUS);
 			
 			// PC端直接调用focus进入焦点。
-			if (Browser.onPC) input.focus();
+			if (PlatformInfo.onPC) input.focus();
 			
 			// PC浏览器隐藏文字
-			if(!Browser.onMiniGame && !Browser.onBDMiniGame && !Browser.onQGMiniGame && !Browser.onKGMiniGame)
+			if(!PlatformInfo.onMiniGame && !PlatformInfo.onBDMiniGame && !PlatformInfo.onQGMiniGame && !PlatformInfo.onKGMiniGame)
 			{
 				var temp:string = this._text;
 				this._text = null;
@@ -373,8 +375,8 @@ this._width = 100;
 			// PC同步输入框外观。
 			input.setColor(this._originColor);
 			input.setFontSize(this.fontSize);
-			input.setFontFace(Browser.onIPhone ? (Text.fontFamilyMap[this.font] || this.font) : this.font);
-			if (Render.isConchApp) {
+			input.setFontFace(PlatformInfo.onIPhone ? (Text.fontFamilyMap[this.font] || this.font) : this.font);
+			if (PlatformInfo.onLayaRuntime) {
 				input.setMultiAble && input.setMultiAble(this._multiline);
 			}
 			cssStyle.lineHeight = (this.leading + this.fontSize) + "px";
@@ -385,18 +387,18 @@ this._width = 100;
 			
 			// 输入框重定位。
 			this._syncInputTransform();
-			if (!Render.isConchApp && Browser.onPC)
+			if (!PlatformInfo.onLayaRuntime && PlatformInfo.onPC)
 				Input.gSysTimer.frameLoop(1, this, this._syncInputTransform);
 		}
 		
 		// 设置DOM输入框提示符颜色。
 		private _setPromptColor():void {
 			// 创建style标签
-			Input.promptStyleDOM = Browser.getElementById("promptStyle");
+			Input.promptStyleDOM = document.getElementById("promptStyle");
 			if (!Input.promptStyleDOM) {
-				Input.promptStyleDOM = Browser.createElement("style");
+				Input.promptStyleDOM = document.createElement("style");
 				Input.promptStyleDOM.setAttribute("id", "promptStyle");
-				Browser.document.head.appendChild(Input.promptStyleDOM);
+				document.head.appendChild(Input.promptStyleDOM);
 			}
 			
 			// 设置style标签
@@ -422,16 +424,16 @@ this._width = 100;
 			Input.gStage.focus = null;
 			this.event(Event.BLUR);
 			this.event(Event.CHANGE);
-			if (Render.isConchApp) this.nativeInput.blur();
+			if (PlatformInfo.onLayaRuntime) this.nativeInput.blur();
 			// 只有PC会注册此事件。
-			Browser.onPC && Input.gSysTimer.clear(this, this._syncInputTransform);
+			PlatformInfo.onPC && Input.gSysTimer.clear(this, this._syncInputTransform);
 		}
 		
 		/**@private */
 		private _onKeyDown(e:any):void {
 			if (e.keyCode === 13) {
 				// 移动平台单行输入状态下点击回车收回输入法。 
-				if (Browser.onMobile && !this._multiline)
+				if (PlatformInfo.onMobile && !this._multiline)
 					this.focus = false;
 				
 				this.event(Event.ENTER);
@@ -492,7 +494,7 @@ this._width = 100;
 		/**@inheritDoc */
 		/*override*/  set bgColor(value:string) {
 			super.set_bgColor(value);
-			if(Render.isConchApp)
+			if(PlatformInfo.onLayaRuntime)
 				this.nativeInput.setBgColor(value);
 		}
 
@@ -523,7 +525,7 @@ this._width = 100;
 		 */
 		 set editable(value:boolean) {
 			this._editable = value;
-			if (Render.isConchApp) {
+			if (PlatformInfo.onLayaRuntime) {
 				Input.input.setForbidEdit(!value);
 			}
 		}

@@ -1,16 +1,16 @@
 import { HttpRequest } from "././HttpRequest";
 import { Loader } from "././Loader";
-import { Laya } from "./../../Laya";
 import { Event } from "../events/Event"
-	import { Render } from "../renders/Render"
-	import { Browser } from "../utils/Browser"
 	import { Handler } from "../utils/Handler"
-	import { RunDriver } from "../utils/RunDriver"
+	//import { RunDriver } from "../utils/RunDriver"
+import { PlatformInfo } from "../utils/PlatformInfo";
+import { Timer } from "../utils/Timer";
 	
 	/**
 	 * @private
 	 */
 	export class TTFLoader {
+        static gSysTimer:Timer=null;
 		private static _testString:string = "LayaTTFFont";
 		 fontName:string;
 		 complete:Handler;
@@ -25,12 +25,12 @@ import { Event } from "../events/Event"
 		 load(fontPath:string):void {
 			this._url = fontPath;
 			var tArr:any[] = fontPath.split(".ttf")[0].split("/");
-			this.fontName = tArr[tArr.length - 1];
-			if (Render.isConchApp)
+            this.fontName = tArr[tArr.length - 1];
+			if (PlatformInfo.onLayaRuntime)
 			{
 				this._loadConch();
 			}else
-			if (Browser.window.FontFace) {
+			if ((window as any).FontFace) {
 				this._loadWithFontFace()
 			}
 			else {
@@ -50,7 +50,7 @@ import { Event } from "../events/Event"
 		//TODO:coverage
 		private _onHttpLoaded(data:any = null):void
 		{
-			Browser.window["conchTextCanvas"].setFontFaceFromBuffer(this.fontName, data);
+			window["conchTextCanvas"].setFontFaceFromBuffer(this.fontName, data);
 			this._clearHttp();
 			this._complete();
 		}
@@ -79,8 +79,8 @@ import { Event } from "../events/Event"
 		
 		//TODO:coverage
 		private _complete():void {
-			Laya.systemTimer.clear(this, this._complete);
-			Laya.systemTimer.clear(this, this._checkComplete);
+			TTFLoader.gSysTimer.clear(this, this._complete);
+			TTFLoader.gSysTimer.clear(this, this._checkComplete);
 			if (this._div && this._div.parentNode) {
 				
 				this._div.parentNode.removeChild(this._div);
@@ -102,8 +102,8 @@ import { Event } from "../events/Event"
 		//TODO:coverage
 		private _loadWithFontFace():void {
 				
-			var fontFace:any = new Browser.window.FontFace(this.fontName, "url('" + this._url + "')");
-			Browser.window.document.fonts.add(fontFace);
+			var fontFace:any = new (window as any).FontFace(this.fontName, "url('" + this._url + "')");
+			(document as any).fonts.add(fontFace);
 			var self:TTFLoader = this;
 			fontFace.loaded.then((function():void {
 					self._complete()
@@ -115,31 +115,31 @@ import { Event } from "../events/Event"
 		
 		//TODO:coverage
 		private _createDiv():void {
-			this._div = Browser.createElement("div");
+			this._div = document.createElement("div");
 			this._div.innerHTML = "laya";
 			var _style:any = this._div.style;
 			_style.fontFamily = this.fontName;
 			_style.position = "absolute";
 			_style.left = "-100px";
 			_style.top = "-100px";
-			Browser.document.body.appendChild(this._div);
+			document.body.appendChild(this._div);
 		}
 		
 		//TODO:coverage
 		private _loadWithCSS():void {
 			
-			var fontStyle:any = Browser.createElement("style");
+			var fontStyle:any = document.createElement("style");
 			fontStyle.type = "text/css";
-			Browser.document.body.appendChild(fontStyle);
+			document.body.appendChild(fontStyle);
 			fontStyle.textContent = "@font-face { font-family:'" + this.fontName + "'; src:url('" + this._url + "');}";	
 			this._fontTxt = "40px " + this.fontName;
 			this._txtWidth = RunDriver.measureText(TTFLoader._testString, this._fontTxt).width;
 			
 			var self:TTFLoader = this;
 			fontStyle.onload = function():void {
-				Laya.systemTimer.once(10000, self, this._complete);
+				TTFLoader.gSysTimer.once(10000, self, this._complete);
 			};
-			Laya.systemTimer.loop(20, this, this._checkComplete);
+			TTFLoader.gSysTimer.loop(20, this, this._checkComplete);
 			
 			this._createDiv();
 		

@@ -1,10 +1,10 @@
 import { Texture2D } from "././Texture2D";
 import { LayaGL } from "../layagl/LayaGL"
-	import { Render } from "../renders/Render"
 	import { BaseTexture } from "./BaseTexture"
 	import { WebGLContext } from "../webgl/WebGLContext"
 	import { BaseShader } from "../webgl/shader/BaseShader"
 	import { RenderState2D } from "../webgl/utils/RenderState2D"
+import { PlatformInfo } from "../utils/PlatformInfo";
 	
 	/**
 	 * <code>RenderTexture</code> 类用于创建渲染目标。
@@ -275,7 +275,7 @@ import { LayaGL } from "../layagl/LayaGL"
 		 * @return 像素数据。
 		 */
 		 getData(x:number, y:number, width:number, height:number):Uint8Array {
-			if (Render.isConchApp && (window as any).conchConfig.threadMode == 2) {
+			if (PlatformInfo.onLayaRuntime && (window as any).conchConfig.threadMode == 2) {
 				throw "native 2 thread mode use getDataAsync";
 			}
 			var gl:WebGLContext = LayaGL.instance;

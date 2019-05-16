@@ -10,17 +10,17 @@ import { Const } from "../Const"
 	import { Matrix } from "../maths/Matrix"
 	import { Point } from "../maths/Point"
 	import { Render } from "../renders/Render"
+	import { RenderInfo } from "../renders/RenderInfo"
 	import { Context } from "../resource/Context"
 	import { HTMLCanvas } from "../resource/HTMLCanvas"
 	import { Browser } from "../utils/Browser"
 	import { CallLater } from "../utils/CallLater"
 	import { ColorUtils } from "../utils/ColorUtils"
 	import { RunDriver } from "../utils/RunDriver"
-	import { Stat } from "../utils/Stat"
 	import { VectorGraphManager } from "../utils/VectorGraphManager"
 import { RenderState2D } from "../webgl/utils/RenderState2D";
 import { WebGLContext } from "../webgl/WebGLContext";
-import { StatData } from "../utils/StatData";
+import { Stat } from "../utils/Stat";
 	
 	/**
 	 * stage大小经过重新调整时进行调度。
@@ -660,12 +660,14 @@ super.set_transform( this._createTransform());
 					this._renderCount++;
 					if (this._renderCount % 5 === 0) {
 						CallLater.I._update();
-						StatData.loopCount++;
+						Stat.loopCount++;
+						RenderInfo.loopCount = Stat.loopCount;
 						this._updateTimers();
 					}
 					return;
 				}
 				this._frameStartTime = Browser.now();
+				RenderInfo.loopStTm = this._frameStartTime;
 			}
 			
 			this._renderCount++;
@@ -673,18 +675,19 @@ super.set_transform( this._createTransform());
 			var isFastMode:boolean = (frameMode !== Stage.FRAME_SLOW);
 			var isDoubleLoop:boolean = (this._renderCount % 2 === 0);
 			
-			StatData.renderSlow = !isFastMode;
+			Stat.renderSlow = !isFastMode;
 			
 			if (isFastMode || isDoubleLoop) {
 				CallLater.I._update();
-				StatData.loopCount++;
+				Stat.loopCount++;
+				RenderInfo.loopCount = Stat.loopCount;
 				
 				if ( this.renderingEnabled) {
 					for (var i:number = 0, n:number = this._scene3Ds.length; i < n;i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
 						this._scene3Ds[i]._update();
 					context.clear();
 					super.render(context, x, y);
-					Stat._show && Stat._sp && Stat._sp.render(context, x, y);
+					Stat._StatRender.renderNotCanvas(context, x, y);
 				}
 			}
 			
@@ -706,6 +709,7 @@ super.set_transform( this._createTransform());
 				if (this._renderCount % 5 === 0) {
 					CallLater.I._update();
 					Stat.loopCount++;
+					RenderInfo.loopCount = Stat.loopCount;
 					this._updateTimers();
 				}
 				return;
@@ -713,14 +717,15 @@ super.set_transform( this._createTransform());
 			//update
 			CallLater.I._update();
 			Stat.loopCount++;
+			RenderInfo.loopCount = Stat.loopCount;
 			
 			//render
 			if (this.renderingEnabled) {
 				for (var i:number = 0, n:number = this._scene3Ds.length; i < n;i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
 					this._scene3Ds[i]._update();
 				context.clear();
-				super.render(context, x, y);
-				Stat._show && Stat._sp && Stat._sp.render(context, x, y);
+                super.render(context, x, y);
+                Stat._StatRender.renderNotCanvas(context,x,y);
 			}
 			//commit submit
 			if (this.renderingEnabled) {

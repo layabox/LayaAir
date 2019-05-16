@@ -1,4 +1,4 @@
-	import { StatData } from "../../utils/StatData"
+import { RenderInfo } from "../../renders/RenderInfo"
 	/**
 	 * TODO如果占用内存较大,这个结构有很多成员可以临时计算
 	 */
@@ -17,7 +17,7 @@
 		 touchTick:number = 0;		//
 		 isSpace:boolean = false;		//是否是空格，如果是空格，则只有width有效
 		 touch():void {
-			var curLoop:number = StatData.loopCount;
+			var curLoop:number = RenderInfo.loopCount;
 			if (this.touchTick != curLoop) {// 这个保证每帧只调用一次
 				this.tex.touchRect(this, curLoop);
 			}

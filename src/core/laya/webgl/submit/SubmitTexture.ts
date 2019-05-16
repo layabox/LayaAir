@@ -3,8 +3,7 @@ import { SubmitKey } from "././SubmitKey";
 import { ColorFilter } from "../../filters/ColorFilter"
 	import { Context } from "../../resource/Context"
 	import { Texture } from "../../resource/Texture"
-	import { StatData } from "../../utils/StatData"
-	import { WebGL } from "../WebGL"
+	import { Stat } from "../../utils/Stat"
 	import { WebGLContext } from "../WebGLContext"
 	import { BlendMode } from "../canvas/BlendMode"
 	import { BaseShader } from "../shader/BaseShader"
@@ -69,8 +68,8 @@ import { ColorFilter } from "../../filters/ColorFilter"
 			
 			gl.drawElements(WebGLContext.TRIANGLES, this._numEle, WebGLContext.UNSIGNED_SHORT, this._startIdx);
 			
-			StatData.renderBatches++;
-			StatData.trianglesFaces += this._numEle / 3;
+			Stat.renderBatches++;
+			Stat.trianglesFaces += this._numEle / 3;
 			
 			return 1;
 		}

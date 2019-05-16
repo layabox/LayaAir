@@ -53,6 +53,9 @@
 		/** 是否支持webgl2 */
 		 static isWebGL2Render:boolean;
 		 static supportWebGLPlusRendering:boolean;
+         /** 是否支持高精度shader */
+		 static shaderHighPrecision:boolean;    
+		
 		/** 是否支持WebXR */
 		/** 是否支持WebGPU*/
 		/** 是否支持Wasm */

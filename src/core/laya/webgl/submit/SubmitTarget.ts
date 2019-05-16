@@ -3,8 +3,7 @@ import { SubmitKey } from "././SubmitKey";
 import { ColorFilter } from "../../filters/ColorFilter"
 	import { Context } from "../../resource/Context"
 	import { RenderTexture2D } from "../../resource/RenderTexture2D"
-	import { StatData } from "../../utils/StatData"
-	import { WebGL } from "../WebGL"
+	import { Stat } from "../../utils/Stat"
 	import { WebGLContext } from "../WebGLContext"
 	import { BlendMode } from "../canvas/BlendMode"
 	import { TextureSV } from "../shader/d2/value/TextureSV"
@@ -36,8 +35,8 @@ import { ColorFilter } from "../../filters/ColorFilter"
 				this.shaderValue.texture = target._getSource();
 				this.shaderValue.upload();
 				this.blend();
-				StatData.renderBatches++;
-				StatData.trianglesFaces += this._numEle/3;
+				Stat.renderBatches++;
+				Stat.trianglesFaces += this._numEle/3;
 				WebGLContext.mainContext.drawElements(WebGLContext.TRIANGLES, this._numEle, WebGLContext.UNSIGNED_SHORT, this._startIdx);
 			}
 			return 1;

@@ -1,9 +1,7 @@
 import { Bitmap } from "././Bitmap";
 import { Texture } from "././Texture";
-import { Context } from "././Context";
 import { Texture2D } from "././Texture2D";
-import { Render } from "../renders/Render"
-	import { Browser } from "../utils/Browser"
+import { PlatformInfo } from "../utils/PlatformInfo";
 	
 	/**
 	 * <code>HTMLCanvas</code> 是 Html Canvas 的代理类，封装了 Canvas 的属性和方法。
@@ -31,7 +29,7 @@ import { Render } from "../renders/Render"
 		constructor(createCanvas:boolean = false){
 			super();
 if(createCanvas )	//webgl模式下不建立。除非强制指，例如绘制文字部分
-				this._source = Browser.createElement("canvas");
+				this._source = document.createElement("canvas");
 			else {
 				this._source = this;
 			}
@@ -74,7 +72,7 @@ if(createCanvas )	//webgl模式下不建立。除非强制指，例如绘制文�
 			if ( this._source==this ) {	//是webgl并且不是真的画布。如果是真的画布，可能真的想要2d context
 				this._ctx =  new Context();
 			}else {
-				this._ctx = this._source.getContext(Render.isConchApp?'layagl':'2d');
+				this._ctx = this._source.getContext(PlatformInfo.onLayaRuntime?'layagl':'2d');
 			}
 			this._ctx._canvas = this;
 			//if(!Browser.onLimixiu) _ctx.size = function(w:Number, h:Number):void {};	这个是干什么的，会导致ctx的size不好使
@@ -149,7 +147,7 @@ if(createCanvas )	//webgl模式下不建立。除非强制指，例如绘制文�
 		 */
 		 toBase64(type:string, encoderOptions:number):string {
 			if (this._source) {
-				if (Render.isConchApp) {
+				if (PlatformInfo.onLayaRuntime) {
                     var win:any = window as any;
 					if (win.conchConfig.threadMode == 2) {
 						throw "native 2 thread mode use toBase64Async";

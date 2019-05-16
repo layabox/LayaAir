@@ -1,21 +1,24 @@
 import { TextAtlas } from "././TextAtlas";
 import { TextTexture } from "././TextTexture";
-import { Laya } from "./../../../Laya";
 import { Sprite } from "../../display/Sprite"
 	import { Matrix } from "../../maths/Matrix"
 	import { Point } from "../../maths/Point"
-	import { Render } from "../../renders/Render"
+	import { RenderInfo } from "../../renders/RenderInfo"
 	import { Context } from "../../resource/Context"
 	import { Texture } from "../../resource/Texture"
-	import { Browser } from "../../utils/Browser"
 	import { FontInfo } from "../../utils/FontInfo"
 	import { HTMLChar } from "../../utils/HTMLChar"
-	import { StatData } from "../../utils/StatData"
 	import { WordText } from "../../utils/WordText"
 	import { CharRenderInfo } from "./CharRenderInfo"
 	import { CharRender_Canvas } from "./CharRender_Canvas"
 	import { CharRender_Native } from "./CharRender_Native"
 	import { ICharRender } from "./ICharRender"
+import { PlatformInfo } from "../../utils/PlatformInfo";
+import {TextConst} from "../../display/TextConst"
+
+    interface ILaya{
+
+    }
 	export class TextRender {
 		//config
 		 static useOldCharBook:boolean = false;
@@ -79,17 +82,18 @@ import { Sprite } from "../../display/Sprite"
 		
 		constructor() {
 			var bugIOS:boolean = false;//是否是有bug的ios版本
-			//在微信下有时候不显示文字，所以采用canvas模式，现在测试微信好像都好了，所以去掉了。
-			var miniadp:any = Laya['MiniAdpter'];
+            //在微信下有时候不显示文字，所以采用canvas模式，现在测试微信好像都好了，所以去掉了。
+            var win:any= window;
+			var miniadp:any = win.Laya && win.Laya['MiniAdpter'];
 			if ( miniadp && miniadp.systemInfo && miniadp.systemInfo.system) {
 				bugIOS = miniadp.systemInfo.system.toLowerCase() === 'ios 10.1.1';
-			}
-			if (Browser.onMiniGame /*&& !Browser.onAndroid*/ && !bugIOS ) TextRender.isWan1Wan = true; //android 微信下 字边缘发黑，所以不用getImageData了
-			if (Browser.onLimixiu) TextRender.isWan1Wan = true;
+            }
+			if (PlatformInfo.onMiniGame /*&& !Browser.onAndroid*/ && !bugIOS ) TextRender.isWan1Wan = true; //android 微信下 字边缘发黑，所以不用getImageData了
+			if (PlatformInfo.onLimixiu) TextRender.isWan1Wan = true;
 			//isWan1Wan = true;
-			this.charRender = Render.isConchApp ? (new CharRender_Native()) : (new CharRender_Canvas(TextRender.atlasWidth,TextRender.atlasWidth,TextRender.scaleFontWithCtx,!TextRender.isWan1Wan,false));			
+			this.charRender = PlatformInfo.onLayaRuntime ? (new CharRender_Native()) : (new CharRender_Canvas(TextRender.atlasWidth,TextRender.atlasWidth,TextRender.scaleFontWithCtx,!TextRender.isWan1Wan,false));			
 			TextRender.textRenderInst = this;
-			Laya['textRender'] = this;
+			//Laya['textRender'] = this;
 			TextRender.atlasWidth2 = TextRender.atlasWidth * TextRender.atlasWidth;
 			//TEST
 			//forceSplitRender = true;
@@ -161,7 +165,6 @@ import { Sprite } from "../../display/Sprite"
 			this._curStrPos = i;
 			return str.substring(start, i);
 		}
-		
 		 filltext(ctx:Context, data:string|WordText, x:number, y:number, fontStr:string, color:string, strokeColor:string, lineWidth:number, textAlign:string, underLine:number = 0):void {
 			if (data.length <= 0)
 				return;
@@ -170,11 +173,11 @@ import { Sprite } from "../../display/Sprite"
 			
 			var nTextAlign:number = 0;
 			switch (textAlign) {
-			case 'center': 
-				nTextAlign = Context.ENUM_TEXTALIGN_CENTER;
+            case 'center': 
+				nTextAlign = TextConst.ENUM_TEXTALIGN_CENTER;
 				break;
 			case 'right': 
-				nTextAlign = Context.ENUM_TEXTALIGN_RIGHT;
+				nTextAlign = TextConst.ENUM_TEXTALIGN_RIGHT;
 				break;
 			}
 			this._fast_filltext(ctx, (<WordText>data ), null, x, y, font, color, strokeColor, lineWidth, nTextAlign, underLine);
@@ -193,10 +196,10 @@ import { Sprite } from "../../display/Sprite"
 			if (lineWidth < 0) lineWidth = 0;
 			this.setFont(font);
 			this.fontScaleX = this.fontScaleY = 1.0;
-			if (!Render.isConchApp && TextRender.scaleFontWithCtx) {
+			if (!PlatformInfo.onLayaRuntime && TextRender.scaleFontWithCtx) {
 				var sx:number = 1;
 				var sy:number = 1;
-				if (Render.isConchApp) {
+				if (PlatformInfo.onLayaRuntime) {
 					sx = ctx._curMat.getScaleX();
 					sy = ctx._curMat.getScaleY();
 				}else{
@@ -237,10 +240,10 @@ import { Sprite } from "../../display/Sprite"
 			
 			//水平对齐方式
 			switch (textAlign) {
-			case Context.ENUM_TEXTALIGN_CENTER: 
+			case TextConst.ENUM_TEXTALIGN_CENTER: 
 				x -= strWidth / 2;
 				break;
-			case Context.ENUM_TEXTALIGN_RIGHT: 
+			case TextConst.ENUM_TEXTALIGN_RIGHT: 
 				x -= strWidth;
 				break;
 			}
@@ -297,7 +300,7 @@ import { Sprite } from "../../display/Sprite"
 								add = add.words;
 							}
 							//不能直接修改ri.bmpWidth, 否则会累积缩放，所以把缩放保存到独立的变量中
-							if (Render.isConchApp){
+							if (PlatformInfo.onLayaRuntime){
 								add.push( { ri: ri, x: stx, y: sty, w: ri.bmpWidth / this.fontScaleX, h: ri.bmpHeight / this.fontScaleY } );
 							}else{
 								add.push( { ri: ri, x: stx+1/this.fontScaleX, y: sty, w: (ri.bmpWidth-2) / this.fontScaleX, h: (ri.bmpHeight-1) / this.fontScaleY } );	// 为了避免边缘像素采样错误，内缩一个像素
@@ -311,7 +314,7 @@ import { Sprite } from "../../display/Sprite"
 					var isotex:boolean = TextRender.noAtlas || strWidth*this.fontScaleX > TextRender.atlasWidth;	// 独立贴图还是大图集
 					ri = this.getCharRenderInfo(str, font, color, strokeColor, lineWidth, isotex);
 					// 整句渲染，则只有一个贴图
-					if (Render.isConchApp){
+					if (PlatformInfo.onLayaRuntime){
 						sameTexData[0] = {texgen:((<TextTexture>ri.tex )).genID, tex:ri.tex, words:[{ ri: ri, x: 0, y: 0, w: ri.bmpWidth / this.fontScaleX, h: ri.bmpHeight / this.fontScaleY }]};
 					}else{
 						sameTexData[0] = {texgen:((<TextTexture>ri.tex )).genID, tex:ri.tex, words:[{ ri: ri, x: 1/this.fontScaleX, y: 0/this.fontScaleY, w: (ri.bmpWidth-2) / this.fontScaleX, h: (ri.bmpHeight-1) / this.fontScaleY }]}; // 为了避免边缘像素采样错误，内缩一个像素
@@ -348,7 +351,7 @@ import { Sprite } from "../../display/Sprite"
 					ri.touch();
 					ctx.drawTexAlign = true;
 					//ctx._drawTextureM(ri.tex.texture as Texture, startx +riSaved.x -ri.orix / fontScaleX , starty + riSaved.y -ri.oriy / fontScaleY , riSaved.w, riSaved.h, null, 1.0, ri.uv);
-					if (Render.isConchApp) {
+					if (PlatformInfo.onLayaRuntime) {
 						ctx._drawTextureM((<Texture>tex.texture ), startx +riSaved.x -ri.orix , starty + riSaved.y -ri.oriy, riSaved.w, riSaved.h, null, 1.0, ri.uv);
 					}else{
                         let t = tex as TextTexture;
@@ -529,7 +532,7 @@ import { Sprite } from "../../display/Sprite"
 			var destroyDt:number = TextRender.destroyAtlasDt;	
 			var totalUsedRate:number = 0;	// 总使用率
 			var totalUsedRateAtlas:number = 0;
-			var curloop:number = StatData.loopCount;
+			var curloop:number = RenderInfo.loopCount;
 			
 			//var minUsedRateID:int = -1;
 			//var minUsedRate:Number = 1;
@@ -750,7 +753,7 @@ import { Sprite } from "../../display/Sprite"
 			TextRender.tmpRI.height = TextRender.standardFontSize;
 			var bmpdt:ImageData = this.charRender.getCharBmp('g', fontstr, 0, 'red', null, TextRender.tmpRI, orix, oriy, marginr, marginb);
 			// native 返回的是 textBitmap。 data直接是ArrayBuffer 
-			if (Render.isConchApp) {
+			if (PlatformInfo.onLayaRuntime) {
 				//bmpdt.data.buffer = bmpdt.data;
 				(bmpdt as any).data =  new Uint8ClampedArray(bmpdt.data);
 			}
@@ -758,7 +761,7 @@ import { Sprite } from "../../display/Sprite"
 			//测量宽度是 tmpRI.width
 			this.updateBbx(bmpdt, TextRender.pixelBBX, false);
 			bmpdt = this.charRender.getCharBmp('有', fontstr, 0, 'red', null, TextRender.tmpRI, oriy, oriy, marginr, marginb);// '有'比'国'大
-			if (Render.isConchApp) {
+			if (PlatformInfo.onLayaRuntime) {
 				//bmpdt.data.buffer = bmpdt.data;
 				(bmpdt as any).data = new Uint8ClampedArray(bmpdt.data);
 			}
@@ -768,7 +771,7 @@ import { Sprite } from "../../display/Sprite"
 				TextRender.pixelBBX[2] = orix+TextRender.tmpRI.width;
 			this.updateBbx(bmpdt, TextRender.pixelBBX,false);//TODO 改成 true
 			// 原点在 16,16
-			if (Render.isConchApp) {
+			if (PlatformInfo.onLayaRuntime) {
 				//runtime 的接口好像有问题，不认orix，oriy
 				orix = 0;
 				oriy = 0;
@@ -800,21 +803,21 @@ import { Sprite } from "../../display/Sprite"
 			var totalUsedRateAtlas:number = 0;
 			this.textAtlases.forEach(function(a:TextAtlas):void { 
 				var id:number = a.texture.id;
-				var dt:number = StatData.loopCount - a.texture.lastTouchTm
+				var dt:number = RenderInfo.loopCount - a.texture.lastTouchTm
 				var dtstr:string = dt > 0?('' + dt + '帧以前'):'当前帧';
 				totalUsedRate+= a.texture.curUsedCovRate;
 				totalUsedRateAtlas += a.texture.curUsedCovRateAtlas;
 				console.log('--图集(id:' + id + ',当前使用率:'+(a.texture.curUsedCovRate*1000|0)+'‰','当前图集使用率:',(a.texture.curUsedCovRateAtlas*100|0)+'%','图集使用率:',(a.usedRate*100|0),'%, 使用于:'+dtstr+')--:');
 				for (var k  in a.charMaps) {
 					var ri:CharRenderInfo = a.charMaps[k];
-					console.log('     off:',ri.orix,ri.oriy,' bmp宽高:', ri.bmpWidth, ri.bmpHeight, '无效:', ri.deleted, 'touchdt:', (StatData.loopCount-ri.touchTick), '位置:', ri.uv[0] * TextRender.atlasWidth | 0, ri.uv[1] * TextRender.atlasWidth | 0,
+					console.log('     off:',ri.orix,ri.oriy,' bmp宽高:', ri.bmpWidth, ri.bmpHeight, '无效:', ri.deleted, 'touchdt:', (RenderInfo.loopCount-ri.touchTick), '位置:', ri.uv[0] * TextRender.atlasWidth | 0, ri.uv[1] * TextRender.atlasWidth | 0,
 					'字符:',ri.char, 'key:', k );
 					num++;
 				}
 			} );
 			console.log('独立贴图文字('+this.isoTextures.length+'个):');
 			this.isoTextures.forEach(function(tex:TextTexture):void { 
-				console.log('    size:',tex._texW,tex._texH, 'touch间隔:',(StatData.loopCount-tex.lastTouchTm), 'char:', tex.ri.char);
+				console.log('    size:',tex._texW,tex._texH, 'touch间隔:',(RenderInfo.loopCount-tex.lastTouchTm), 'char:', tex.ri.char);
 			} );
 			console.log('总缓存:', num, '总使用率:',totalUsedRate,'总当前图集使用率:',totalUsedRateAtlas);
 			
@@ -854,7 +857,7 @@ import { Sprite } from "../../display/Sprite"
 			sp.graphics.drawRect(0, 0, w, h, bgcolor);
 			sp.graphics.drawTexture((<Texture>texture ), 0, 0, w, h);
 			sp.pos(x, y);
-			Laya.stage.addChild(sp);
+			(window as any).Laya.stage.addChild(sp);
 			return sp;
 		}
 		
@@ -868,14 +871,14 @@ import { Sprite } from "../../display/Sprite"
 			var nTextAlign:number = 0;
 			switch (textAlign) {
 			case 'center': 
-				nTextAlign = Context.ENUM_TEXTALIGN_CENTER;
+				nTextAlign = TextConst.ENUM_TEXTALIGN_CENTER;
 				break;
 			case 'right': 
-				nTextAlign = Context.ENUM_TEXTALIGN_RIGHT;
+				nTextAlign = TextConst.ENUM_TEXTALIGN_RIGHT;
 				break;
 			}
 			return this._fast_filltext(ctx, (<WordText>data ), htmlchars, x, y, font, color, strokeColor, lineWidth, nTextAlign, underLine);
 		}
 	}
 
-	
+	TextTexture.gTextRender=TextRender;

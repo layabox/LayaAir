@@ -1,8 +1,7 @@
 import { BaseShader } from "././BaseShader";
 import { ShaderValue } from "././ShaderValue";
-	import { StatData } from "../../utils/StatData"
+	import { Stat } from "../../utils/Stat"
 	import { StringKey } from "../../utils/StringKey"
-	import { WebGL } from "../WebGL"
 	import { WebGLContext } from "../WebGLContext"
 	import { ShaderCompile } from "../utils/ShaderCompile"
 	
@@ -503,7 +502,7 @@ import { ShaderValue } from "././ShaderValue";
 		
 		 uploadTexture2D(value:any):void {
 			//这个可能执行频率非常高，所以这里能省就省点
-			//StatData.shaderCall++;
+			//Stat.shaderCall++;
 			//var gl:WebGLContext = WebGLContext.mainContext;
 			//WebGLContext.activeTexture(gl,WebGLContext.TEXTURE0);	2d必须是active0
 			var CTX:any = WebGLContext;
@@ -545,7 +544,7 @@ import { ShaderValue } from "././ShaderValue";
 						one.fun.call(this, one, value);*/
 			}
 			
-			StatData.shaderCall += shaderCall;
+			Stat.shaderCall += shaderCall;
 		}
 		
 		/**
@@ -571,7 +570,7 @@ import { ShaderValue } from "././ShaderValue";
 					shaderCall += one.fun.call(this, one, value);
 				}
 			}
-			StatData.shaderCall += shaderCall;
+			Stat.shaderCall += shaderCall;
 		}
 		
 		/**

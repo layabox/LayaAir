@@ -14,8 +14,7 @@ import { Const } from "../Const"
 	import { Context } from "../resource/Context"
 	import { HTMLCanvas } from "../resource/HTMLCanvas"
 	import { Texture } from "../resource/Texture"
-	import { StatData } from "../utils/StatData"
-	import { WebGL } from "../webgl/WebGL"
+	import { Stat } from "../utils/Stat"
 	import { WebGLContext } from "../webgl/WebGLContext"
 	import { BlendMode } from "../webgl/canvas/BlendMode"
 	import { RenderTexture2D } from "../resource/RenderTexture2D"
@@ -316,7 +315,7 @@ import { WebGLCacheAsNormalCanvas } from "../webgl/canvas/WebGLCacheAsNormalCanv
 				_next._fun.call(_next, sprite, context, x, y);
 				return;
 			}
-			_cacheStyle.cacheAs === 'bitmap' ? (StatData.canvasBitmap++) : (StatData.canvasNormal++);
+			_cacheStyle.cacheAs === 'bitmap' ? (Stat.canvasBitmap++) : (Stat.canvasNormal++);
 			
 			//检查保存的文字是否失效了
 			var cacheNeedRebuild:boolean = false;
@@ -421,7 +420,7 @@ import { WebGLCacheAsNormalCanvas } from "../webgl/canvas/WebGLCacheAsNormalCanv
 			}
 			
 			if (_cacheStyle.staticCache) _cacheStyle.reCache = false;
-			StatData.canvasReCache++;
+			Stat.canvasReCache++;
 		}
 		
 		 _canvas_webgl_normal_repaint(sprite:Sprite, context:Context):void {
@@ -443,7 +442,7 @@ import { WebGLCacheAsNormalCanvas } from "../webgl/canvas/WebGLCacheAsNormalCanv
 			_next._fun.call(_next, sprite, tx, sprite.pivotX, sprite.pivotY);	// 由于后面的渲染会减去pivot，而cacheas normal并不希望这样，只希望创建一个原始的图像。所以在这里补偿。
 			sprite._applyFilters();
 			
-			StatData.canvasReCache++;
+			Stat.canvasReCache++;
 			canvas['endRec']();
 			
 			//context.drawCanvas(canvas, x , y , 1, 1); // 这种情况下宽高没用

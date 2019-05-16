@@ -2,11 +2,11 @@ import { ColorFilter } from "../../filters/ColorFilter"
 	import { Matrix } from "../../maths/Matrix"
 	import { Context } from "../../resource/Context"
 	import { Texture } from "../../resource/Texture"
-	import { StatData } from "../../utils/StatData"
 	import { ShaderDefines2D } from "../shader/d2/ShaderDefines2D"
 	import { Value2D } from "../shader/d2/value/Value2D"
 	import { SubmitTexture } from "../submit/SubmitTexture"
 	import { MeshQuadTexture } from "../utils/MeshQuadTexture"
+import { RenderInfo } from "../../renders/RenderInfo";
 	/**
 	 * ...
 	 * @author laoxie
@@ -112,7 +112,7 @@ import { ColorFilter } from "../../filters/ColorFilter"
 			ctx._drawCount += n;
 			this._ndata = 0;
 			
-			if (StatData.loopCount % 100 == 0)
+			if (RenderInfo.loopCount % 100 == 0)
 				this._data.length = 0;
 		}
 		

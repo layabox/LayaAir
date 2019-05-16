@@ -1,4 +1,3 @@
-import { HTMLCanvas } from "././HTMLCanvas";
 import { Texture } from "././Texture";
 import { Bitmap } from "././Bitmap";
 import { Sprite } from "../display/Sprite"
@@ -11,7 +10,7 @@ import { Sprite } from "../display/Sprite"
 	import { ColorUtils } from "../utils/ColorUtils"
 	import { FontInfo } from "../utils/FontInfo"
 	import { HTMLChar } from "../utils/HTMLChar"
-	import { StatData } from "../utils/StatData"
+	import { Stat } from "../utils/Stat"
 	import { WordText } from "../utils/WordText"
 	import { WebGLContext } from "../webgl/WebGLContext"
 	import { BlendMode } from "../webgl/canvas/BlendMode"
@@ -63,9 +62,7 @@ import { Timer } from "../utils/Timer";
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		 static gSysTimer:Timer = null;
 		 _canvas:HTMLCanvas;
-		 static ENUM_TEXTALIGN_DEFAULT:number = 0;
-		 static ENUM_TEXTALIGN_CENTER:number = 1;
-		 static ENUM_TEXTALIGN_RIGHT:number = 2;
+
 		
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		 static _SUBMITVBSIZE:number = 32000;
@@ -151,7 +148,7 @@ import { Timer } from "../utils/Timer";
 		/**@private */
 		//TODO:coverage
 		 _drawRect(x:number, y:number, width:number, height:number, style:any):void {
-			StatData.renderBatches++;
+			Stat.renderBatches++;
 			style && (this.fillStyle = style);
 			this.fillRect(x, y,width,height,null);
 		}
@@ -276,7 +273,7 @@ import { Timer } from "../utils/Timer";
 		/**Math.PI*2的结果缓存 */
 		 static PI2:number =/*[STATIC SAFE]*/ 2 * Math.PI;
 		 _drawCircle(x:number, y:number, radius:number, fillColor:any, lineColor:any, lineWidth:number, vid:number):void {
-			StatData.renderBatches++;
+			Stat.renderBatches++;
 			this.beginPath(true);
 			this.arc(x, y, radius, 0, Context.PI2);
 			this.closePath();

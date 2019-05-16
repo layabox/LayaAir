@@ -1,15 +1,11 @@
-import { PrimitiveSV } from "././PrimitiveSV";
-import { TextureSV } from "././TextureSV";
-import { Context } from "../../../../resource/Context"
 	import { Texture } from "../../../../resource/Texture"
-	import { WebGL } from "../../../WebGL"
-	import { SkinSV } from "../skinAnishader/SkinSV"
 	import { Shader } from "../../Shader"
 	import { ShaderValue } from "../../ShaderValue"
 	import { Shader2D } from "../Shader2D"
 	import { Shader2X } from "../Shader2X"
 	import { ShaderDefines2D } from "../ShaderDefines2D"
 	import { RenderState2D } from "../../../utils/RenderState2D"
+import { PlatformInfo } from "../../../../utils/PlatformInfo";
 
 	export class Value2D{
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
@@ -19,19 +15,14 @@ import { Context } from "../../../../resource/Context"
 		
 		 static TEMPMAT4_ARRAY:any[]=/*[STATIC SAFE]*/ [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 
-		private static _initone(type:number, classT:any):void
+		public static _initone(type:number, classT:any):void
 		{
 			Value2D._typeClass[type] = classT;
 			Value2D._cache[type] = [];
 			Value2D._cache[type]._length = 0;
 		}
 		
-		 static __init__():void
-		{
-			Value2D._initone(ShaderDefines2D.PRIMITIVE, PrimitiveSV);
-			Value2D._initone(ShaderDefines2D.SKINMESH, SkinSV);
-			Value2D._initone(ShaderDefines2D.TEXTURE2D, TextureSV);
-			Value2D._initone(ShaderDefines2D.TEXTURE2D | ShaderDefines2D.FILTERGLOW, TextureSV);
+		 static __init__():void{
 		}
 		
 		 defines:ShaderDefines2D = new ShaderDefines2D();
@@ -61,7 +52,7 @@ import { Context } from "../../../../resource/Context"
 		
 		private _inClassCache:any;
 		private _cacheID:number = 0;
-		 clipMatDir:any[] = [Context._MAXSIZE, 0, 0, Context._MAXSIZE];
+		 clipMatDir:any[] = [99999999, 0, 0, 99999999];
 		 clipMatPos:any[] = [0, 0];
 		 clipOff:any[] = [0,0];			// 裁剪是否需要加上偏移，cacheas normal用
 		//public var clipDir:Array = [Context._MAXSIZE, 0, 0, Context._MAXSIZE];		//裁剪信息
@@ -150,7 +141,7 @@ import { Context } from "../../../../resource/Context"
 		
 		 clear():void
 		{
-			this.defines._value=this.subID + (WebGL.shaderHighPrecision?ShaderDefines2D.SHADERDEFINE_FSHIGHPRECISION:0);
+			this.defines._value=this.subID + (PlatformInfo.shaderHighPrecision?ShaderDefines2D.SHADERDEFINE_FSHIGHPRECISION:0);
 			this.clipOff[0] = 0;
 		}
 		

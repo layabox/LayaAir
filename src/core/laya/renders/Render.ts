@@ -106,7 +106,7 @@ import { Stage } from "../display/Stage";
 				WebGL.shaderHighPrecision = false;
 				try {//某些浏览器中未实现此函数，使用try catch增强兼容性。
 					var precisionFormat:any = gl.getShaderPrecisionFormat(WebGLContext.FRAGMENT_SHADER, WebGLContext.HIGH_FLOAT);
-					precisionFormat.precision ? WebGL.shaderHighPrecision = true : WebGL.shaderHighPrecision = false;
+					precisionFormat.precision ? (WebGL.shaderHighPrecision = PlatformInfo.shaderHighPrecision= true) : WebGL.shaderHighPrecision = false;
 				} catch (e) {
 				}
 				//TODO 现在有个问题是 gl.deleteTexture并没有走WebGLContex封装的

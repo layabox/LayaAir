@@ -2,9 +2,8 @@ import { ShaderDefines2D } from "././ShaderDefines2D";
 	import { DrawStyle } from "../../canvas/DrawStyle"
 	import { Shader } from "../Shader"
 
-    var texture_vs =require( './files/texture.vs.glsl');
+    import texture_vs from  './files/texture.vs.glsl';
 
-    
 	export class Shader2D
 	{
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
