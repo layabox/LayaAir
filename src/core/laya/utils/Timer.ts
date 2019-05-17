@@ -1,12 +1,12 @@
-import { Browser } from "././Browser";
-import { Laya } from "./../../Laya";
-import { Utils } from "././Utils";
+import { UtilsBase as Utils } from "././UtilsBase";
 import { CallLater } from "././CallLater";
 /**
 	 * <code>Timer</code> 是时钟管理类。它是一个单例，不要手动实例化此类，应该通过 Laya.timer 访问。
 	 */
 	export class Timer {
-		
+        /**@private */
+        static gSysTimer:Timer = null;
+
 		/**@private */
 		private static _pool:any[] = [];
 		/**@private */
@@ -15,14 +15,14 @@ import { CallLater } from "././CallLater";
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		/** 时针缩放。*/
 		 scale:number = 1;
-		/** 当前帧开始的时间。*/
-		 currTimer:number = Browser.now();
+        /** 当前帧开始的时间。*/
+		 currTimer:number = Date.now(); 
 		/** 当前的帧数。*/
 		 currFrame:number = 0;
 		/**@private 两帧之间的时间间隔,单位毫秒。*/
 		 _delta:number = 0;
 		/**@private */
-		 _lastTimer:number = Browser.now();
+		 _lastTimer:number = Date.now();
 		/**@private */
 		private _map:any[] = [];
 		/**@private */
@@ -36,7 +36,7 @@ import { CallLater } from "././CallLater";
 		 * 创建 <code>Timer</code> 类的一个实例。
 		 */
 		constructor(autoActive:boolean = true){
-			autoActive && Laya.systemTimer && Laya.systemTimer.frameLoop(1, this, this._update);
+			autoActive && Timer.gSysTimer && Timer.gSysTimer.frameLoop(1, this, this._update);
 		}
 		
 		/**两帧之间的时间间隔,单位毫秒。*/
@@ -50,11 +50,11 @@ import { CallLater } from "././CallLater";
 		 */
 		 _update():void {
 			if (this.scale <= 0) {
-				this._lastTimer = Browser.now();
+				this._lastTimer = Date.now();
 				return;
 			}
 			var frame:number = this.currFrame = this.currFrame + this.scale;
-			var now:number = Browser.now();
+			var now:number = Date.now();
 			this._delta = (now - this._lastTimer) * this.scale;
 			var timer:number = this.currTimer = this.currTimer + this._delta;
 			this._lastTimer = now;
@@ -131,7 +131,7 @@ import { CallLater } from "././CallLater";
 					handler.caller = caller;
 					handler.method = method;
 					handler.args = args;
-					handler.exeTime = delay + (useFrame ? this.currFrame : this.currTimer + Browser.now() - this._lastTimer);
+					handler.exeTime = delay + (useFrame ? this.currFrame : this.currTimer + Date.now() - this._lastTimer);
 					return handler;
 				}
 			}
@@ -144,7 +144,7 @@ import { CallLater } from "././CallLater";
 			handler.caller = caller;
 			handler.method = method;
 			handler.args = args;
-			handler.exeTime = delay + (useFrame ? this.currFrame : this.currTimer + Browser.now() - this._lastTimer);
+			handler.exeTime = delay + (useFrame ? this.currFrame : this.currTimer + Date.now() - this._lastTimer);
 			
 			//索引handler
 			this._indexHandler(handler);

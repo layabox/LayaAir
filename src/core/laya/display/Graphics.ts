@@ -32,13 +32,16 @@ import { AlphaCmd } from "./cmd/AlphaCmd"
 	import { Matrix } from "../maths/Matrix"
 	import { Point } from "../maths/Point"
 	import { Rectangle } from "../maths/Rectangle"
-	import { Loader } from "../net/Loader"
 	import { Render } from "../renders/Render"
 	import { Context } from "../resource/Context"
 	import { Texture } from "../resource/Texture"
 	import { Utils } from "../utils/Utils"
 	import { VectorGraphManager } from "../utils/VectorGraphManager"
-	
+
+    interface ILoader{
+        getRes(url:string):any;
+        cacheRes(url:string, data:any):void;
+    }
 	/**
 	 * <code>Graphics</code> 类用于创建绘图显示对象。Graphics可以同时绘制多个位图或者矢量图，还可以结合save，restore，transform，scale，rotate，translate，alpha等指令对绘图效果进行变化。
 	 * Graphics以命令流方式存储，可以通过cmds属性访问所有命令流。Graphics是比Sprite更轻量级的对象，合理使用能提高应用性能(比如把大量的节点绘图改为一个节点的Graphics命令集合，能减少大量节点创建消耗)。
@@ -46,7 +49,9 @@ import { AlphaCmd } from "./cmd/AlphaCmd"
 	 */
 	export class Graphics {
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
-		
+        /**@private */
+        static gLoader:ILoader=null;
+
 		/**@private */
 		 _sp:Sprite=null;
 		/**@private */
@@ -559,11 +564,11 @@ import { AlphaCmd } from "./cmd/AlphaCmd"
 		 * @param complete	（可选）加载完成回调。
 		 */
 		 loadImage(url:string, x:number = 0, y:number = 0, width:number = 0, height:number = 0, complete:Function = null):void {
-			var tex:Texture = Loader.getRes(url);
+			var tex:Texture = Graphics.gLoader.getRes(url);
 			if (!tex) {
 				tex = new Texture();
 				tex.load(url);
-				Loader.cacheRes(url, tex);
+				Graphics.gLoader.cacheRes(url, tex);
 				tex.once(Event.READY, this, this.drawImage, [tex, x, y, width, height]);
 			} else {
 				if (!tex.getIsReady()) {

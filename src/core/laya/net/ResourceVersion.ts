@@ -1,4 +1,3 @@
-import { Laya } from "./../../Laya";
 import { Loader } from "././Loader";
 import { URL } from "././URL";
 import { Handler } from "../utils/Handler"
@@ -26,7 +25,7 @@ import { Handler } from "../utils/Handler"
 		 */
 		 static enable(manifestFile:string, callback:Handler, type:number = 2):void {
 			ResourceVersion.type = type;
-			Laya.loader.load(manifestFile, Handler.create(null, ResourceVersion.onManifestLoaded, [callback]), null, Loader.JSON);
+			(window as any).Laya.loader.load(manifestFile, Handler.create(null, ResourceVersion.onManifestLoaded, [callback]), null, Loader.JSON);//TODO TS
 			URL.customFormat = ResourceVersion.addVersionPrefix;
 		}
 		

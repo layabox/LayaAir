@@ -79,10 +79,10 @@ import { Sprite } from "../Sprite"
 			if (!this.canvas)
 			{
 				this.canvas = Pool.getItem("CacheCanvas") || new HTMLCanvas(false);
-				var tx:Context = this.canvas.context;
+				var tx:Context = this.canvas.context as Context;
 				if (!tx)
 				{
-					tx=this.canvas.getContext('2d');	//如果是webGL的话，这个会返回WebGLContext2D
+					tx=this.canvas.getContext('2d') as Context;	//如果是webGL的话，这个会返回WebGLContext2D
 				}			
 			}
 		}

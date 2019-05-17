@@ -1,6 +1,5 @@
 import { Event } from "././Event";
 import { TouchManager } from "././TouchManager";
-import { Laya } from "./../../Laya";
 import { Input } from "../display/Input"
 	import { Sprite } from "../display/Sprite"
 	import { Stage } from "../display/Stage"
@@ -20,7 +19,7 @@ import { Input } from "../display/Input"
 		/**
 		 * MouseManager 单例引用。
 		 */
-		 static instance:MouseManager = new MouseManager();
+         static instance:MouseManager = new MouseManager();
 		
 		/**是否开启鼠标检测，默认为true*/
 		 static enabled:boolean = true;
@@ -184,10 +183,11 @@ import { Input } from "../display/Input"
 		}
 		
 		private onMouseDown(ele:any):void {
-			if (Input.isInputting && Laya.stage.focus && Laya.stage.focus["focus"] && !Laya.stage.focus.contains(this._target)) {
+            var gStage:Stage = (window as any).Laya.stage;
+			if (Input.isInputting && gStage.focus && gStage.focus["focus"] && !gStage.focus.contains(this._target)) {
 				// 从UI Input组件中取得Input引用
 				// _tf 是TextInput的属性
-				var pre_input:any = Laya.stage.focus['_tf'] || Laya.stage.focus;
+				var pre_input:any = gStage.focus['_tf'] || gStage.focus;
 				var new_input:Input = ele['_tf'] || ele;
 				
 				// 新的焦点是Input的情况下，不需要blur；
@@ -450,14 +450,15 @@ import { Input } from "../display/Input"
 		 * @param	exlusive  是否是独占模式
 		 */
 		 setCapture(sp:Sprite, exclusive:boolean = false):void {
+             var gStage:Stage = (window as any).Laya.stage;
 			this._captureSp = sp;
 			this._captureExlusiveMode = exclusive;
 			this._captureChain.length = 0;
 			this._captureChain.push(sp);
 			var cursp:Sprite = sp;
 			while (true) {
-				if (cursp == Laya.stage) break;
-				if (cursp == Laya.stage._curUIBase) break;
+				if (cursp == gStage) break;
+				if (cursp == gStage._curUIBase) break;
 				cursp = (<Sprite>cursp.parent );
 				if (!cursp) break;
 				this._captureChain.splice(0, 0, cursp);
@@ -470,3 +471,4 @@ import { Input } from "../display/Input"
 		}
 	}
 
+Sprite.gMouseMgr=MouseManager.instance;

@@ -1,12 +1,23 @@
 import { Component } from "././Component";
-import { Laya } from "./../../Laya";
 import { Event } from "../events/Event"
+import { Timer } from "../utils/Timer";
+import { Stage } from "../display/Stage";
 	
 	/**
 	 * <code>Script</code> 类用于创建脚本的父类，该类为抽象类，不允许实例。
 	 * 组件的生命周期
 	 */
 	export class Script extends Component {
+        /**@private */
+        static gStartTimer:Timer = null;
+        /**@private */
+        static gUpdateTimer:Timer=null;
+        /**@private */
+        static gLateTimer:Timer=null;
+        
+        /**@private */
+        static gStage:Stage = null;
+
 		/**
 		 * @inheritDoc
 		 */
@@ -20,7 +31,7 @@ import { Event } from "../events/Event"
 		/*override*/ protected _onAwake():void {
 			this.onAwake();
 			if (this.onStart !== Script.prototype.onStart) {
-				Laya.startTimer.callLater(this, this.onStart);
+				Script.gStartTimer.callLater(this, this.onStart);
 			}
 		}
 		
@@ -49,16 +60,16 @@ import { Event } from "../events/Event"
 				this.owner.on(Event.CLICK, this, this.onClick);
 			}
 			if (this.onStageMouseDown !== proto.onStageMouseDown) {
-				Laya.stage.on(Event.MOUSE_DOWN, this, this.onStageMouseDown);
+				Script.gStage.on(Event.MOUSE_DOWN, this, this.onStageMouseDown);
 			}
 			if (this.onStageMouseUp !== proto.onStageMouseUp) {
-				Laya.stage.on(Event.MOUSE_UP, this, this.onStageMouseUp);
+				Script.gStage.on(Event.MOUSE_UP, this, this.onStageMouseUp);
 			}
 			if (this.onStageClick !== proto.onStageClick) {
-				Laya.stage.on(Event.CLICK, this, this.onStageClick);
+				Script.gStage.on(Event.CLICK, this, this.onStageClick);
 			}
 			if (this.onStageMouseMove !== proto.onStageMouseMove) {
-				Laya.stage.on(Event.MOUSE_MOVE, this, this.onStageMouseMove);
+				Script.gStage.on(Event.MOUSE_MOVE, this, this.onStageMouseMove);
 			}
 			if (this.onDoubleClick !== proto.onDoubleClick) {
 				this.owner.on(Event.DOUBLE_CLICK, this, this.onDoubleClick);
@@ -76,22 +87,22 @@ import { Event } from "../events/Event"
 				this.owner.on(Event.MOUSE_OUT, this, this.onMouseOut);
 			}
 			if (this.onKeyDown !== proto.onKeyDown) {
-				Laya.stage.on(Event.KEY_DOWN, this, this.onKeyDown);
+				Script.gStage.on(Event.KEY_DOWN, this, this.onKeyDown);
 			}
 			if (this.onKeyPress !== proto.onKeyPress) {
-				Laya.stage.on(Event.KEY_PRESS, this, this.onKeyPress);
+				Script.gStage.on(Event.KEY_PRESS, this, this.onKeyPress);
 			}
 			if (this.onKeyUp !== proto.onKeyUp) {
-				Laya.stage.on(Event.KEY_UP, this, this.onKeyUp);
+				Script.gStage.on(Event.KEY_UP, this, this.onKeyUp);
 			}
 			if (this.onUpdate !== proto.onUpdate) {
-				Laya.updateTimer.frameLoop(1, this, this.onUpdate);
+				Script.gUpdateTimer.frameLoop(1, this, this.onUpdate);
 			}
 			if (this.onLateUpdate !== proto.onLateUpdate) {
-				Laya.lateTimer.frameLoop(1, this, this.onLateUpdate);
+				Script.gLateTimer.frameLoop(1, this, this.onLateUpdate);
 			}
 			if (this.onPreRender !== proto.onPreRender) {
-				Laya.lateTimer.frameLoop(1, this, this.onPreRender);
+				Script.gLateTimer.frameLoop(1, this, this.onPreRender);
 			}
 		}
 		
@@ -100,10 +111,10 @@ import { Event } from "../events/Event"
 		 */
 		/*override*/ protected _onDisable():void {
 			this.owner.offAllCaller(this);
-			Laya.stage.offAllCaller(this);
-			Laya.startTimer.clearAll(this);
-			Laya.updateTimer.clearAll(this);
-			Laya.lateTimer.clearAll(this);
+			Script.gStage.offAllCaller(this);
+			Script.gStartTimer.clearAll(this);
+			Script.gUpdateTimer.clearAll(this);
+			Script.gLateTimer.clearAll(this);
 		}
 		
 		/**

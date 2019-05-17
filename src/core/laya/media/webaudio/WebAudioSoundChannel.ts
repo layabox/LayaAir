@@ -1,4 +1,3 @@
-import { Laya } from "./../../../Laya";
 import { Event } from "../../events/Event"
 	import { SoundChannel } from "../SoundChannel"
 	import { SoundManager } from "../SoundManager"
@@ -102,7 +101,7 @@ import { WebAudioSound } from "./WebAudioSound";
 			if (this.loops == 1) {
 				
 				if (this.completeHandler) {
-					Laya.timer.once(10, this, this.__runComplete, [this.completeHandler], false);
+					(window as any).Laya.timer.once(10, this, this.__runComplete, [this.completeHandler], false); //TODO TS
 					this.completeHandler = null;
 				}
 				this.stop();

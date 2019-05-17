@@ -43,12 +43,12 @@ import { IStatRender } from "././IStatRender";
 		 static gpuMemory:number;
 		 static cpuMemory:number;
 		
-		private static _fpsStr:string;
-		private static _canvasStr:string;
-		private static _spriteStr:string;
-		private static _fpsData:any[] = [];
-		private static _timer:number = 0;
-		private static _count:number = 0;
+		public static _fpsStr:string;
+		public static _canvasStr:string;
+		public static _spriteStr:string;
+		public static _fpsData:any[] = [];
+		public static _timer:number = 0;
+		public static _count:number = 0;
 		
 		/**@private*/
 		 static _StatRender:IStatRender = null;

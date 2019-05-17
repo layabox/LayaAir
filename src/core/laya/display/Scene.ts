@@ -1,4 +1,3 @@
-import { Laya } from "./../../Laya";
 import { Node } from "././Node";
 import { Const } from "../Const"
 	import { Sprite } from "./Sprite"
@@ -10,6 +9,8 @@ import { Const } from "../Const"
 	import { Handler } from "../utils/Handler"
 	import { SceneUtils } from "../utils/SceneUtils"
 	import { Timer } from "../utils/Timer"
+import { Stage } from "./Stage";
+import { LoaderManager } from "../net/LoaderManager";
 	
 	/**
 	 * 场景类，负责场景创建，加载，销毁等功能
@@ -57,12 +58,13 @@ this._setBit(Const.NOT_READY, true);
 		 * @param path 场景地址。
 		 */
 		 loadScene(path:string):void {
+             var gLoader:LoaderManager = (window as any).Laya.loader;
 			var url:string = path.indexOf(".") > -1 ? path : path + ".scene";
-			var view:any = Laya.loader.getRes(url);
+			var view:any = gLoader.getRes(url);
 			if (view) {
 				this.createView(view);
 			} else {
-				Laya.loader.resetProgress();
+				gLoader.resetProgress();
 				var loader:SceneLoader = new SceneLoader();
 				loader.on(Event.COMPLETE, this, this._onSceneLoaded, [url]);
 				loader.load(url);
@@ -204,14 +206,15 @@ this._setBit(Const.NOT_READY, true);
 		
 		/**获取场景根容器*/
 		 static get root():Sprite {
+            var gStage:Stage = (window as any).Laya.stage;
 			if (!Scene._root) {
-				Scene._root = (<Sprite>Laya.stage.addChild(new Sprite()) );
+				Scene._root = (<Sprite>gStage.addChild(new Sprite()) );
 				Scene._root.name = "root";
-				Laya.stage.on("resize", null, function():void{
-					Scene._root.size(Laya.stage.width, Laya.stage.height);
+				gStage.on("resize", null, function():void{
+					Scene._root.size(gStage.width, gStage.height);
 					Scene._root.event(Event.RESIZE);
                 });
-                Scene._root.size(Laya.stage.width, Laya.stage.height);
+                Scene._root.size(gStage.width, gStage.height);
                 Scene._root.event(Event.RESIZE);
 			}
 			return Scene._root;
@@ -219,7 +222,7 @@ this._setBit(Const.NOT_READY, true);
 		
 		/**场景时钟*/
 		/*override*/  get timer():Timer {
-			return this._timer || Laya.timer;
+			return this._timer || (window as any).Laya.timer;
 		}
 		
 		 set timer(value:Timer) {
@@ -233,7 +236,7 @@ this._setBit(Const.NOT_READY, true);
 		 * @param	progress	加载进度回调（可选）
 		 */
 		 static load(url:string, complete:Handler = null, progress:Handler = null):void {
-			Laya.loader.resetProgress();
+			(window as any).Laya.loader.resetProgress();
 			var loader:SceneLoader = new SceneLoader();
 			loader.on(Event.PROGRESS, null, onProgress);
 			loader.once(Event.COMPLETE, null, create);
@@ -372,15 +375,17 @@ this._setBit(Const.NOT_READY, true);
 		 * @param	delay 延迟打开时间，默认500毫秒
 		 */
 		 static showLoadingPage(param:any = null, delay:number = 500):void {
+             var gSysTimer:Timer = (window as any).Laya.systemTimer;
 			if (Scene._loadPage) {
-				Laya.systemTimer.clear(null, Scene._showLoading);
-				Laya.systemTimer.clear(null, Scene._hideLoading);
-				Laya.systemTimer.once(delay, null, Scene._showLoading, [param], false);
+				gSysTimer.clear(null, Scene._showLoading);
+				gSysTimer.clear(null, Scene._hideLoading);
+				gSysTimer.once(delay, null, Scene._showLoading, [param], false);
 			}
 		}
 		
 		private static _showLoading(param:any):void {
-			Laya.stage.addChild(Scene._loadPage);
+            var gStage:Stage = (window as any).Laya.stage;
+			gStage.addChild(Scene._loadPage);
 			Scene._loadPage.onOpened(param);
 		}
 		
@@ -394,9 +399,10 @@ this._setBit(Const.NOT_READY, true);
 		 */
 		 static hideLoadingPage(delay:number = 500):void {
 			if (Scene._loadPage) {
-				Laya.systemTimer.clear(null, Scene._showLoading);
-				Laya.systemTimer.clear(null, Scene._hideLoading);
-				Laya.systemTimer.once(delay, null, Scene._hideLoading);
+                var gSysTimer:Timer = (window as any).Laya.systemTimer;
+				gSysTimer.clear(null, Scene._showLoading);
+				gSysTimer.clear(null, Scene._hideLoading);
+				gSysTimer.once(delay, null, Scene._hideLoading);
 			}
 		}
 	}

@@ -1,5 +1,3 @@
-import { Laya } from "./../../Laya";
-import { Browser } from "././Browser";
 /**
 	 * @private
 	 * 对象缓存统一管理类
@@ -72,7 +70,7 @@ import { Browser } from "././Browser";
 		 *
 		 */
 		 static beginCheck(waitTime:number = 15000):void {
-			Laya.systemTimer.loop(waitTime, null, CacheManger._checkLoop);
+			(window as any).Laya.systemTimer.loop(waitTime, null, CacheManger._checkLoop);// TODO TS
 		}
 		
 		/**
@@ -81,7 +79,7 @@ import { Browser } from "././Browser";
 		 */
 		//TODO:coverage
 		 static stopCheck():void {
-			Laya.systemTimer.clear(null, CacheManger._checkLoop);
+			(window as any).Laya.systemTimer.clear(null, CacheManger._checkLoop); //TODO TS
 		}
 		
 		/**
@@ -91,7 +89,7 @@ import { Browser } from "././Browser";
 		private static _checkLoop():void {
 			var cacheList:any[] = CacheManger._cacheList;
 			if (cacheList.length < 1) return;
-			var tTime:number = Browser.now();
+			var tTime:number = Date.now();
 			var count:number;
 			var len:number;
 			len = count = cacheList.length;
@@ -99,7 +97,7 @@ import { Browser } from "././Browser";
 				CacheManger._index++;
 				CacheManger._index = CacheManger._index % len;
 				cacheList[CacheManger._index].tryDispose(false);
-				if (Browser.now() - tTime > CacheManger.loopTimeLimit) break;
+				if (Date.now() - tTime > CacheManger.loopTimeLimit) break;
 				count--;
 			}
 		}

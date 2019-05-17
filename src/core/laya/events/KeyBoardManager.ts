@@ -1,6 +1,6 @@
 import { Event } from "././Event";
-import { Laya } from "./../../Laya";
 import { Browser } from "../utils/Browser"
+import { Stage } from "../display/Stage";
 	
 	/**
 	 * <p><code>KeyBoardManager</code> 是键盘事件管理类。该类从浏览器中接收键盘事件，并派发该事件。</p>
@@ -37,8 +37,9 @@ import { Browser } from "../utils/Browser"
 			//判断同时按下的键
 			if (type === "keydown") KeyBoardManager._pressKeys[KeyBoardManager._event.keyCode] = true;
 			else if (type === "keyup") KeyBoardManager._pressKeys[KeyBoardManager._event.keyCode] = null;
-			
-			var target:any = (Laya.stage.focus && (Laya.stage.focus.event != null) && Laya.stage.focus.displayedInStage) ? Laya.stage.focus : Laya.stage;
+            
+            var gStage:Stage = (window as any).Laya.stage;
+			var target:any = (gStage.focus && (gStage.focus.event != null) && gStage.focus.displayedInStage) ? gStage.focus :gStage;
 			var ct:any = target;
 			while (ct) {
 				ct.event(type, KeyBoardManager._event.setTo(type, ct, target));

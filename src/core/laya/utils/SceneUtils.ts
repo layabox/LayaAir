@@ -1,4 +1,3 @@
-import { Laya } from "./../../Laya";
 import { Pool } from "././Pool";
 import { Const } from "../Const"
 	import { Component } from "../components/Component"
@@ -29,7 +28,7 @@ import { Const } from "../Const"
 				var temp:string = "\"" + value + "\"";
 				temp = temp.replace(/^"\${|}"$/g, "").replace(/\${/g, "\"+").replace(/}/g, "+\"");
 				var str:string = "(function(data){if(data==null)return;with(data){try{\nreturn " + temp + "\n}catch(e){}}})";
-				fun = Laya._runScript(str);
+				fun = (window as any).Laya._runScript(str);
 				SceneUtils._funMap.set(value, fun);
 			}
 			return fun;
@@ -101,11 +100,11 @@ import { Const } from "../Const"
 		 static createComp(uiView:any, comp:any = null, view:any = null, dataMap:any[] = null, initTool:InitTool = null):any {
 			if (uiView.type == "Scene3D"||uiView.type == "Sprite3D"){
 				var outBatchSprits:any[] = [];
-				var scene3D:any =  Laya["Utils3D"]._createSceneByJsonForMaker(uiView, outBatchSprits, initTool);
+				var scene3D:any =  (window as any).Laya["Utils3D"]._createSceneByJsonForMaker(uiView, outBatchSprits, initTool);
 				if (uiView.type == "Sprite3D")
-					Laya["StaticBatchManager"].combine(scene3D, outBatchSprits);
+                    (window as any).Laya["StaticBatchManager"].combine(scene3D, outBatchSprits);
 				else
-					Laya["StaticBatchManager"].combine(null, outBatchSprits);
+                    (window as any).Laya["StaticBatchManager"].combine(null, outBatchSprits);
 				return scene3D;
 			}
 			
@@ -281,6 +280,7 @@ import { Prefab } from "../components/Prefab"
 import { Scene } from "../display/Scene"
 import { Loader } from "../net/Loader"
 import { Handler } from "./Handler"
+import { LoaderManager } from "../net/LoaderManager";
 
 /**
  * @private 场景辅助类
@@ -436,7 +436,7 @@ class InitTool {
 		if (!this._loadList || this._loadList.length < 1) {
 			this.finish();
 		} else {
-			Laya.loader.load(this._loadList, Handler.create(this, this.finish));
+			((window as any).Laya.loader as LoaderManager).load(this._loadList, Handler.create(this, this.finish));
 		}
 	}
 }

@@ -1,4 +1,3 @@
-import { Laya } from "./../../Laya";
 import { Sprite } from "../display/Sprite"
 	import { SpriteConst } from "../display/SpriteConst"
 	import { Stage } from "../display/Stage"
@@ -92,7 +91,7 @@ import { Sprite } from "../display/Sprite"
 		 _stageRender(context:Context, x:number, y:number):void
 		{
 			QuickTestTool._countStart();
-			QuickTestTool._PreStageRender.call(Laya.stage, context, x, y);
+			QuickTestTool._PreStageRender.call((window as any).Laya.stage, context, x, y);//TODO TS
 			QuickTestTool._countEnd();
 		}
 		private static _countDic:any = { };

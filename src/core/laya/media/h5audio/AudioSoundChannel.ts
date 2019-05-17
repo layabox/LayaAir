@@ -1,4 +1,3 @@
-import { Laya } from "./../../../Laya";
 import { Event as LayaEvent } from "../../events/Event"
 	import { SoundChannel } from "../SoundChannel"
 	import { SoundManager } from "../SoundManager"
@@ -29,7 +28,7 @@ import { Event as LayaEvent } from "../../events/Event"
 		private __onEnd( evt: Event):void {
 			if (this.loops == 1) {
 				if (this.completeHandler) {
-					Laya.systemTimer.once(10, this, this.__runComplete, [this.completeHandler], false);
+					(window as any).Laya.systemTimer.once(10, this, this.__runComplete, [this.completeHandler], false); //TODO TS
 					this.completeHandler = null;
 				}
 				this.stop();

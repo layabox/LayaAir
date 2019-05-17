@@ -7,6 +7,7 @@ import { Sprite } from "../display/Sprite"
 	import { Context } from "../resource/Context"
 	import { HTMLCanvas } from "../resource/HTMLCanvas"
 	import { Resource } from "../resource/Resource"
+import { Stat } from "./Stat";
 	/**
 	 * 显示Stat的结果。由于stat会引入很多的循环引用，所以把显示部分拆开
 	 * @author laya
@@ -31,7 +32,8 @@ import { Sprite } from "../display/Sprite"
 		private _vx:number;
 		private _width:number;
 		private _height:number = 100;
-		private _view:any[] = [];
+        private _view:any[] = [];
+        
 
 		/**
 		 * 显示性能统计信息。
@@ -80,7 +82,7 @@ import { Sprite } from "../display/Sprite"
 			if (!this._canvas) {
 				this._canvas = new HTMLCanvas(true);
 				this._canvas.size(this._width, this._height);
-				this._ctx = this._canvas.getContext('2d');
+				this._ctx = this._canvas.getContext('2d') as Context;
 				this._ctx.textBaseline = "top";
 				this._ctx.font = StatUI._fontSize + "px Arial";
 				

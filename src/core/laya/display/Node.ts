@@ -4,7 +4,7 @@ import { Const } from "../Const"
 	import { EventDispatcher } from "../events/EventDispatcher"
 	import { Pool } from "../utils/Pool"
 	import { Timer } from "../utils/Timer"
-import { Sprite } from "./Sprite";
+
 import { Stat } from "../utils/Stat";
 	
 	/**
@@ -47,7 +47,11 @@ import { Stat } from "../utils/Stat";
 		 _extUIChild:any[] = Node.ARRAY_EMPTY;
 		
 		/**@private 父节点对象*/
-		 _parent:Node = null;
+         _parent:Node = null;
+         
+  		/**@private z排序，数值越大越靠前。*/
+		 _zOrder:number = 0;
+
 		
 		/**节点名称。*/
 		 name:string = "";
@@ -183,7 +187,7 @@ this.createGLBuffer();
 		 */
 		 addChild(node:Node):Node {
 			if (!node || this.destroyed || node === this) return node;
-			if (((<Sprite>node ))._zOrder) this._setBit(Const.HAS_ZORDER, true);
+			if (node ._zOrder) this._setBit(Const.HAS_ZORDER, true);
 			if (node._parent === this) {
 				var index:number = this.getChildIndex(node);
 				if (index !== this._children.length - 1) {
@@ -240,7 +244,7 @@ this.createGLBuffer();
 		 */
 		 addChildAt(node:Node, index:number):Node {
 			if (!node || this.destroyed || node === this) return node;
-			if (((<Sprite>node ))._zOrder) this._setBit(Const.HAS_ZORDER, true);
+			if (node._zOrder) this._setBit(Const.HAS_ZORDER, true);
 			if (index >= 0 && index <= this._children.length) {
 				if (node._parent === this) {
 					var oldIndex:number = this.getChildIndex(node);

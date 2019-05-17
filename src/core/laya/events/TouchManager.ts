@@ -1,5 +1,4 @@
 import { Event } from "././Event";
-import { Laya } from "./../../Laya";
 import { Node } from "../display/Node"
 	import { Sprite } from "../display/Sprite"
 	import { Browser } from "../utils/Browser"
@@ -262,7 +261,7 @@ import { Node } from "../display/Node"
 			if (this.preOvers.length > 0 && this.preOvers[0].tar) {
 				return this.getEles(this.preOvers[0].tar, null, TouchManager._tEleArr);
 			}
-			TouchManager._tEleArr.push(Laya.stage);
+			TouchManager._tEleArr.push( (window as any).Laya.stage);    // TODO TS
 			return TouchManager._tEleArr;
 		}
 		

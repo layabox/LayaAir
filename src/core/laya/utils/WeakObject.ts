@@ -1,5 +1,4 @@
 import { Browser } from "././Browser";
-import { Laya } from "./../../Laya";
 import { Utils } from "././Utils";
 /**
 	 * 封装弱引用WeakMap
@@ -24,7 +23,7 @@ import { Utils } from "././Utils";
 		 static __init__():void {
 			WeakObject.supportWeakMap = Browser.window.WeakMap != null;
 			//如果不支持，10分钟回收一次
-			if (!WeakObject.supportWeakMap) Laya.systemTimer.loop(WeakObject.delInterval, null, WeakObject.clearCache);
+			if (!WeakObject.supportWeakMap) (window as any).Laya.systemTimer.loop(WeakObject.delInterval, null, WeakObject.clearCache);
 		}
 		
 		/**清理缓存，回收内存*/

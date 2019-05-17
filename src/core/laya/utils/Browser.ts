@@ -1,4 +1,4 @@
-import { HTMLCanvas } from "../resource/HTMLCanvas"
+//import { HTMLCanvas } from "../resource/HTMLCanvas"
 import { PlatformInfo } from "./PlatformInfo";
     
     
@@ -64,9 +64,9 @@ import { PlatformInfo } from "./PlatformInfo";
 		 static supportLocalStorage:boolean;
 		
 		/** 全局离线画布（非主画布）。主要用来测量字体、获取image数据。*/
-		 static canvas:HTMLCanvas;
+		 static canvas:any;
 		/** 全局离线画布上绘图的环境（非主画布）。 */
-		 static context:CanvasRenderingContext2D;
+         static context:CanvasRenderingContext2D;
 		
 		/** @private */
 		private static _window:any;
@@ -78,8 +78,27 @@ import { PlatformInfo } from "./PlatformInfo";
 		private static _pixelRatio:number = -1;
 		
 		/** @private */
-		 static mainCanvas:HTMLCanvas = null;
-		
+		 static mainCanvas:any = null;
+        
+         /**@private */
+         private static hanzi:RegExp = new RegExp("^[\u4E00-\u9FA5]$");
+         /**@private */
+         private static fontMap:any[] = [];
+         /**@private */
+        static measureText:Function = function(txt:string, font:string):any {
+             var isChinese:boolean = Browser.hanzi.test(txt);
+             if (isChinese && Browser.fontMap[font]) {
+                 return Browser.fontMap[font];
+             }
+             
+             var ctx:any = Browser.context;
+             ctx.font = font;
+             
+             var r:any = ctx.measureText(txt);
+             if (isChinese) Browser.fontMap[font] = r;
+             return r;
+         }         
+         
 		/**@private */
 		 static __init__():any {
 			if (Browser._window) return Browser._window;
@@ -188,21 +207,7 @@ import { PlatformInfo } from "./PlatformInfo";
 			
 			PlatformInfo.onLayaRuntime = (window as any).conch;
 			
-			//这个其实在Render中感觉更合理，但是runtime要求第一个canvas是主画布，所以必须在下面的那个离线画布之前
-			var mainCanv:HTMLCanvas = Browser.mainCanvas = new HTMLCanvas(true);
-			//Render._mainCanvas = mainCanv;
-			var style:any = mainCanv.source.style;
-			style.position = 'absolute';
-			style.top = style.left = "0px";
-			style.background = "#000000";
 			
-			if(!Browser.onKGMiniGame){
-				Browser.container.appendChild(mainCanv.source);//xiaosong add
-			}			
-			
-			//创建离线画布
-			Browser.canvas = new HTMLCanvas(true);
-			Browser.context = <CanvasRenderingContext2D>(Browser.canvas.getContext('2d') as any);
 			return win;
 		}
 		

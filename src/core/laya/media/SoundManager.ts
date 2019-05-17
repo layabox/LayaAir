@@ -1,5 +1,4 @@
 import { SoundChannel } from "././SoundChannel";
-import { Laya } from "./../../Laya";
 import { Event } from "../events/Event"
 	import { AudioSound } from "./h5audio/AudioSound"
 	import { WebAudioSound } from "./webaudio/WebAudioSound"
@@ -9,6 +8,9 @@ import { Event } from "../events/Event"
 	import { PlatformInfo } from "../utils/PlatformInfo"
 	import { Utils } from "../utils/Utils"
 import { Sound } from "./Sound";
+import { Stage } from "../display/Stage";
+import { LoaderManager } from "../net/LoaderManager";
+import { Timer } from "../utils/Timer";
 	/**
 	 * <code>SoundManager</code> 是一个声音管理类。提供了对背景音乐、音效的播放控制方法。
 	 * 引擎默认有两套声音方案：WebAudio和H5Audio
@@ -19,7 +21,13 @@ import { Sound } from "./Sound";
 	 */
 	export class SoundManager {
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
-		
+        /**@private */
+        static gStage:Stage=null;
+        /**@private */
+        static gTimer:Timer=null;
+        /**@private */
+        static gLoader:LoaderManager=null;
+
 		/**
 		 * 背景音乐音量。
 		 * @default 1
@@ -113,7 +121,7 @@ import { Sound } from "./Sound";
 			if (!SoundManager._isCheckingDispose)
 			{
 				SoundManager._isCheckingDispose = true;
-				Laya.timer.loop(5000, null, SoundManager._checkDisposeSound);
+				SoundManager.gTimer.loop(5000, null, SoundManager._checkDisposeSound);
 			}
 		}
 		
@@ -137,7 +145,7 @@ import { Sound } from "./Sound";
 			if (!hasCheck)
 			{
 				SoundManager._isCheckingDispose = false;
-				Laya.timer.clear(null, SoundManager._checkDisposeSound);
+				SoundManager.gTimer.clear(null, SoundManager._checkDisposeSound);
 			}
 		}
 		
@@ -159,14 +167,14 @@ import { Sound } from "./Sound";
 		 *
 		 */
 		 static set autoStopMusic(v:boolean) {
-			Laya.stage.off(Event.BLUR, null, SoundManager._stageOnBlur);
-			Laya.stage.off(Event.FOCUS, null, SoundManager._stageOnFocus);
-			Laya.stage.off(Event.VISIBILITY_CHANGE, null, SoundManager._visibilityChange);
+			SoundManager.gStage.off(Event.BLUR, null, SoundManager._stageOnBlur);
+			SoundManager.gStage.off(Event.FOCUS, null, SoundManager._stageOnFocus);
+			SoundManager.gStage.off(Event.VISIBILITY_CHANGE, null, SoundManager._visibilityChange);
 			SoundManager._autoStopMusic = v;
 			if (v) {
-				Laya.stage.on(Event.BLUR, null, SoundManager._stageOnBlur);
-				Laya.stage.on(Event.FOCUS, null, SoundManager._stageOnFocus);
-				Laya.stage.on(Event.VISIBILITY_CHANGE, null, SoundManager._visibilityChange);
+				SoundManager.gStage.on(Event.BLUR, null, SoundManager._stageOnBlur);
+				SoundManager.gStage.on(Event.FOCUS, null, SoundManager._stageOnFocus);
+				SoundManager.gStage.on(Event.VISIBILITY_CHANGE, null, SoundManager._visibilityChange);
 			}
 		}
 		
@@ -178,7 +186,7 @@ import { Sound } from "./Sound";
 		}
 		
 		private static _visibilityChange():void {
-			if (Laya.stage.isVisibility) {
+			if (SoundManager.gStage.isVisibility) {
 				SoundManager._stageOnFocus();
 			} else {
 				SoundManager._stageOnBlur();
@@ -196,7 +204,7 @@ import { Sound } from "./Sound";
 				
 			}	
 			SoundManager.stopAllSound();
-			Laya.stage.once(Event.MOUSE_DOWN, null, SoundManager._stageOnFocus);
+			SoundManager.gStage.once(Event.MOUSE_DOWN, null, SoundManager._stageOnFocus);
 		}
 		
 		private static _recoverWebAudio():void
@@ -208,7 +216,7 @@ import { Sound } from "./Sound";
 		private static _stageOnFocus():void {
 			SoundManager._isActive = true;
 			SoundManager._recoverWebAudio();
-			Laya.stage.off(Event.MOUSE_DOWN, null, SoundManager._stageOnFocus);
+			SoundManager.gStage.off(Event.MOUSE_DOWN, null, SoundManager._stageOnFocus);
 			if (SoundManager._blurPaused) {
 				if (SoundManager._musicChannel && SoundManager._musicChannel.isStopped)
 				{
@@ -338,7 +346,7 @@ import { Sound } from "./Sound";
 			var tSound:Sound;
 			if (!PlatformInfo.onMiniGame)
 			{
-				tSound= Laya.loader.getRes(url);
+				tSound= SoundManager.gLoader.getRes(url);
 			}
 			if (!soundClass) soundClass = SoundManager._soundClass;
 			if (!tSound) {
@@ -363,7 +371,7 @@ import { Sound } from "./Sound";
 		 * @param url	声音播放地址。
 		 */
 		 static destroySound(url:string):void {
-			var tSound:Sound = Laya.loader.getRes(url);
+			var tSound:Sound = SoundManager.gLoader.getRes(url);
 			if (tSound) {
 				Loader.clearRes(url);
 				tSound.dispose();

@@ -1,4 +1,4 @@
-import { Utils } from "././Utils";
+import { UtilsBase as Utils } from "././UtilsBase";
 import { Timer } from "././Timer";
 /**
 	 * @private

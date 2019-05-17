@@ -2,12 +2,16 @@ import { Bitmap } from "././Bitmap";
 import { Texture } from "././Texture";
 import { Texture2D } from "././Texture2D";
 import { PlatformInfo } from "../utils/PlatformInfo";
-	
+import { ContextBase } from "./ContextBase";
+
+
 	/**
 	 * <code>HTMLCanvas</code> 是 Html Canvas 的代理类，封装了 Canvas 的属性和方法。
 	 */
 	export class HTMLCanvas extends Bitmap {
-		
+        /**@private */
+        static gContext:typeof ContextBase;
+        
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		private _ctx:any;
 		 _source:any;
@@ -28,7 +32,7 @@ import { PlatformInfo } from "../utils/PlatformInfo";
 		 */
 		constructor(createCanvas:boolean = false){
 			super();
-if(createCanvas )	//webgl模式下不建立。除非强制指，例如绘制文字部分
+            if(createCanvas )	//webgl模式下不建立。除非强制指，例如绘制文字部分
 				this._source = document.createElement("canvas");
 			else {
 				this._source = this;
@@ -67,10 +71,10 @@ if(createCanvas )	//webgl模式下不建立。除非强制指，例如绘制文�
 		/**
 		 * Canvas 渲染上下文。
 		 */
-		 get context():Context {
+		 get context():ContextBase {
 			if (this._ctx) return this._ctx;
 			if ( this._source==this ) {	//是webgl并且不是真的画布。如果是真的画布，可能真的想要2d context
-				this._ctx =  new Context();
+				this._ctx =  HTMLCanvas.gContext.CreatContext();
 			}else {
 				this._ctx = this._source.getContext(PlatformInfo.onLayaRuntime?'layagl':'2d');
 			}
@@ -84,7 +88,7 @@ if(createCanvas )	//webgl模式下不建立。除非强制指，例如绘制文�
 		 * 设置 Canvas 渲染上下文。是webgl用来替换_ctx用的
 		 * @param	context Canvas 渲染上下文。
 		 */
-		 _setContext(context:Context):void {
+		 _setContext(context:ContextBase):void {
 			this._ctx = context;
 		}
 		
@@ -94,7 +98,7 @@ if(createCanvas )	//webgl模式下不建立。除非强制指，例如绘制文�
 		 * @param	other
 		 * @return  Canvas 渲染上下文 Context 对象。
 		 */
-		 getContext(contextID:string, other:any = null):Context {
+		 getContext(contextID:string, other:any = null):ContextBase {
 			return this.context;
 		}
 		

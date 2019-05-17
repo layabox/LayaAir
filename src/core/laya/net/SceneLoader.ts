@@ -1,5 +1,4 @@
 import { Loader } from "././Loader";
-import { Laya } from "./../../Laya";
 import { AtlasInfoManager } from "././AtlasInfoManager";
 import { LoaderManager } from "././LoaderManager";
 import { Prefab } from "../components/Prefab"
@@ -86,18 +85,19 @@ this._completeHandler = new Handler(this, this.onOneLoadComplete);
 		}
 		
 		private loadOne(url:any,is3D:boolean=false):void {
+            var gLoader:LoaderManager = (window as any).Laya.loader;
 			this._curUrl = url;
 			var type:string = Utils.getFileExtension(this._curUrl);
 			if (is3D)
 			{
-				Laya.loader.create(url, this._completeHandler);
+				gLoader.create(url, this._completeHandler);
 			}else
 			if (SceneLoader.LoadableExtensions[type]) {
-				Laya.loader.load(url, this._completeHandler, null, SceneLoader.LoadableExtensions[type]);
+				gLoader.load(url, this._completeHandler, null, SceneLoader.LoadableExtensions[type]);
 			} else if (url != AtlasInfoManager.getFileLoadPath(url) || SceneLoader.No3dLoadTypes[type] || !LoaderManager.createMap[type]) {
-				Laya.loader.load(url, this._completeHandler);
+				gLoader.load(url, this._completeHandler);
 			} else {
-				Laya.loader.create(url, this._completeHandler);
+				gLoader.create(url, this._completeHandler);
 			}
 		}
 		

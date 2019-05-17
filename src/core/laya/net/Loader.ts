@@ -2,10 +2,8 @@ import { HttpRequest } from "././HttpRequest";
 import { URL } from "././URL";
 import { WorkerLoader } from "././WorkerLoader";
 import { TTFLoader } from "././TTFLoader";
-import { Laya } from "./../../Laya";
 import { Prefab } from "../components/Prefab"
 	import { BitmapFont } from "../display/BitmapFont"
-	import { Text } from "../display/Text"
 	import { Event } from "../events/Event"
 	import { EventDispatcher } from "../events/EventDispatcher"
 	import { Sound } from "../media/Sound"
@@ -17,6 +15,7 @@ import { Prefab } from "../components/Prefab"
 	import { Byte } from "../utils/Byte"
 	import { Handler } from "../utils/Handler"
 	import { Utils } from "../utils/Utils"
+import { Timer } from "../utils/Timer";
 	
 	/**
 	 * 加载进度发生改变时调度。
@@ -38,6 +37,9 @@ import { Prefab } from "../components/Prefab"
 	 * <code>Loader</code> 类可用来加载文本、JSON、XML、二进制、图像等资源。
 	 */
 	export class Loader extends EventDispatcher {
+        /**@private */
+        static gSysTimer:Timer = null;
+        
 		/**文本类型，加载完成后返回文本。*/
 		 static TEXT:string = "text";
 		/**JSON 类型，加载完成后返回json数据。*/
@@ -549,7 +551,7 @@ import { Prefab } from "../components/Prefab"
 				Loader._startIndex++;
 				if (Browser.now() - startTimer > Loader.maxTimeOut) {
 					console.warn("loader callback cost a long time:" + (Browser.now() - startTimer) + " url=" + Loader._loaders[Loader._startIndex - 1].url);
-					Laya.systemTimer.frameOnce(1, null, Loader.checkNext);
+					Loader.gSysTimer.frameOnce(1, null, Loader.checkNext);
 					return;
 				}
 			}

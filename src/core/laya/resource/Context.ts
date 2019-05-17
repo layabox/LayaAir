@@ -53,12 +53,15 @@ import { Sprite } from "../display/Sprite"
 	import { RenderState2D } from "../webgl/utils/RenderState2D"
 	import { VertexBuffer2D } from "../webgl/utils/VertexBuffer2D"
 import { Timer } from "../utils/Timer";
-	
+import { HTMLCanvas } from "./HTMLCanvas";
+    
+    import {ContextBase} from './ContextBase'
+
 	/**
 	 * @private
 	 * Context扩展类
 	 */
-	export class Context {
+	export class Context  extends ContextBase{
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		 static gSysTimer:Timer = null;
 		 _canvas:HTMLCanvas;
@@ -89,7 +92,11 @@ import { Timer } from "../utils/Timer";
 			Context.MAXCLIPRECT=  new Rectangle(0,0, Context._MAXSIZE, Context._MAXSIZE);
 			ContextParams.DEFAULT = new ContextParams();
 			WebGLCacheAsNormalCanvas;
-		}
+        }
+        
+        static CreatContext():ContextBase{
+            return new Context();
+        }
 		
 		/**@private */
 		 drawImage(... args):void {
@@ -436,6 +443,7 @@ import { Timer } from "../utils/Timer";
 		 isMain:boolean = false;				// 是否是主context
 
 		constructor(){
+            super();
 			Context._contextcount++;
 			
 			//_ib = IndexBuffer2D.QuadrangleIB;
@@ -1544,7 +1552,7 @@ import { Timer } from "../utils/Timer";
 		
 		 drawCanvas(canvas:HTMLCanvas, x:number, y:number, width:number, height:number):void {
 			if (!canvas) return;
-			var src:Context = canvas.context;
+			var src:Context = canvas.context as Context;
 			var submit:ISubmit;
 			if (src._targets) {
 				//生成渲染结果到src._targets上
@@ -2648,3 +2656,5 @@ class ContextParams {
 		return this === ContextParams.DEFAULT ? new ContextParams() : this;
 	}
 }
+
+HTMLCanvas.gContext=Context;

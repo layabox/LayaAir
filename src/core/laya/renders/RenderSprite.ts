@@ -1,4 +1,3 @@
-import { Laya } from "./../../Laya";
 import { Const } from "../Const"
 	import { Graphics } from "../display/Graphics"
 	import { Sprite } from "../display/Sprite"
@@ -337,7 +336,7 @@ import { WebGLCacheAsNormalCanvas } from "../webgl/canvas/WebGLCacheAsNormalCanv
 				cacheNeedRebuild =  canv.isCacheValid && !canv.isCacheValid();
 			}
 			
-			if (sprite._needRepaint() || (!_cacheStyle.canvas) || textNeedRestore ||cacheNeedRebuild || Laya.stage.isGlobalRepaint()) {
+			if (sprite._needRepaint() || (!_cacheStyle.canvas) || textNeedRestore ||cacheNeedRebuild || (window as any).Laya.stage.isGlobalRepaint()) {
 				if (_cacheStyle.cacheAs === 'normal') {
 					if( context._targets){// 如果有target说明父节点已经是一个cacheas bitmap了，就不再走cacheas normal的流程了
 						_next._fun.call(_next, sprite, context, x, y);
@@ -392,7 +391,7 @@ import { WebGLCacheAsNormalCanvas } from "../webgl/canvas/WebGLCacheAsNormalCanv
 				_cacheStyle.createContext();
 				canvas = _cacheStyle.canvas;
 			}
-			tx = canvas.context;
+			tx = canvas.context as Context;
 			
 			//WebGL用
 			tx.sprite = sprite;
@@ -435,7 +434,7 @@ import { WebGLCacheAsNormalCanvas } from "../webgl/canvas/WebGLCacheAsNormalCanv
 			if (!canvas) {
 				canvas = _cacheStyle.canvas = ((new WebGLCacheAsNormalCanvas(context, sprite) as any) as HTMLCanvas);
 			}
-			var tx:Context = canvas.context;
+			var tx:Context = canvas.context as Context;
 			
 			
 			canvas['startRec']();

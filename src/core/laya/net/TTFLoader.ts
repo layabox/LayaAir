@@ -5,6 +5,7 @@ import { Event } from "../events/Event"
 	//import { RunDriver } from "../utils/RunDriver"
 import { PlatformInfo } from "../utils/PlatformInfo";
 import { Timer } from "../utils/Timer";
+import { Browser } from "../utils/Browser";
 	
 	/**
 	 * @private
@@ -94,7 +95,7 @@ import { Timer } from "../utils/Timer";
 		
 		//TODO:coverage
 		private _checkComplete():void {
-			if (RunDriver.measureText(TTFLoader._testString, this._fontTxt).width != this._txtWidth) {
+			if (Browser.measureText(TTFLoader._testString, this._fontTxt).width != this._txtWidth) {
 				this._complete();
 			}
 		}
@@ -133,7 +134,7 @@ import { Timer } from "../utils/Timer";
 			document.body.appendChild(fontStyle);
 			fontStyle.textContent = "@font-face { font-family:'" + this.fontName + "'; src:url('" + this._url + "');}";	
 			this._fontTxt = "40px " + this.fontName;
-			this._txtWidth = RunDriver.measureText(TTFLoader._testString, this._fontTxt).width;
+			this._txtWidth = Browser.measureText(TTFLoader._testString, this._fontTxt).width;
 			
 			var self:TTFLoader = this;
 			fontStyle.onload = function():void {

@@ -1,11 +1,9 @@
-import { Laya } from "./../../Laya";
 import { Handler } from "././Handler";
 import { HitArea } from "././HitArea";
 import { Graphics } from "../display/Graphics"
 	import { Node } from "../display/Node"
 	import { Scene } from "../display/Scene"
 	import { Sprite } from "../display/Sprite"
-	import { Text } from "../display/Text"
 	import { Matrix } from "../maths/Matrix"
 	import { Loader } from "../net/Loader"
 	
@@ -59,8 +57,9 @@ import { Graphics } from "../display/Graphics"
 		 * @return 类对象
 		 */
 		 static getClass(className:string):any {
-			var classObject:any = ClassUtils._classMap[className] || className;
-			if (classObject instanceof String) return (Laya["__classmap"][classObject] || Laya[className]);
+            var classObject:any = ClassUtils._classMap[className] || className;
+            var glaya:any = (window as any).Laya
+			if (classObject instanceof String) return (glaya["__classmap"][classObject as string] || glaya[className]);
 			return classObject;
 		}
 		

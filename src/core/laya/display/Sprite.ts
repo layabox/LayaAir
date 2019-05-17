@@ -1,7 +1,6 @@
 import { Node } from "././Node";
 import { SpriteConst } from "././SpriteConst";
 import { Graphics } from "././Graphics";
-import { Laya } from "./../../Laya";
 import { Stage } from "././Stage";
 import { Const } from "../Const"
 	import { BoundsStyle } from "./css/BoundsStyle"
@@ -9,22 +8,27 @@ import { Const } from "../Const"
 	import { SpriteStyle } from "./css/SpriteStyle"
 	import { Event } from "../events/Event"
 	import { EventDispatcher } from "../events/EventDispatcher"
-	import { MouseManager } from "../events/MouseManager"
 	import { ColorFilter } from "../filters/ColorFilter"
 	import { Filter } from "../filters/Filter"
 	import { GrahamScan } from "../maths/GrahamScan"
 	import { Matrix } from "../maths/Matrix"
 	import { Point } from "../maths/Point"
 	import { Rectangle } from "../maths/Rectangle"
-	import { Loader } from "../net/Loader"
 	import { RenderSprite } from "../renders/RenderSprite"
 	import { Context } from "../resource/Context"
 	import { HTMLCanvas } from "../resource/HTMLCanvas"
 	import { Texture } from "../resource/Texture"
 	import { Dragging } from "../utils/Dragging"
 	import { Handler } from "../utils/Handler"
-	import { RunDriver } from "../utils/RunDriver"
 	import { Utils } from "../utils/Utils"
+import { Texture2D } from "../resource/Texture2D";
+import { Timer } from "../utils/Timer";
+
+interface IMouseManager{
+    setCapture(sp:Sprite, exclusive?:boolean):void ;
+    releaseCapture():void;
+}
+
 	
 	/**在显示对象上按下后调度。
 	 * @eventType Event.MOUSE_DOWN
@@ -205,6 +209,13 @@ import { Const } from "../Const"
 	 * }
 	 */
 	export class Sprite extends Node {
+        /**@private */
+        static gStage:Stage=null;
+        /**@private */
+        static gSysTimer:Timer = null;
+        /**@private */
+        static gMouseMgr:IMouseManager=null;
+
 		/**@private */
 		 _x:number = 0;
 		/**@private */
@@ -217,8 +228,6 @@ import { Const } from "../Const"
 		 _visible:boolean = true;
 		/**@private 鼠标状态，0:auto,1:mouseEnabled=false,2:mouseEnabled=true。*/
 		 _mouseState:number = 0;		
-		/**@private z排序，数值越大越靠前。*/
-		 _zOrder:number = 0;
 		/**@private */
 		 _renderType:number = 0;
 		/**@private */
@@ -1196,11 +1205,84 @@ import { Const } from "../Const"
 		 */
 		 drawToCanvas(canvasWidth:number, canvasHeight:number, offsetX:number, offsetY:number):HTMLCanvas {
 			//console.log('drawToCanvas is deprecated, please use drawToTexture');
-			return RunDriver.drawToCanvas(this, this._renderType, canvasWidth, canvasHeight, offsetX, offsetY);
+			return Sprite.drawToCanvas(this, this._renderType, canvasWidth, canvasHeight, offsetX, offsetY);
 		}
-		
+        
+        /**
+         * 绘制到一个Texture对象
+         * @param canvasWidth 
+         * @param canvasHeight 
+         * @param offsetX 
+         * @param offsetY 
+         */
 		 drawToTexture(canvasWidth:number, canvasHeight:number, offsetX:number, offsetY:number):Texture {
-			return RunDriver.drawToTexture(this, this._renderType, canvasWidth, canvasHeight, offsetX, offsetY);
+			return Sprite.drawToTexture(this, this._renderType, canvasWidth, canvasHeight, offsetX, offsetY);
+        }
+        
+		/**
+		 * @private
+		 * 绘制到画布。
+		 */
+        static drawToCanvas:Function =/*[STATIC SAFE]*/ function(sprite:Sprite, _renderType:number, canvasWidth:number, canvasHeight:number, offsetX:number, offsetY:number):HTMLCanvas {
+			offsetX -= sprite.x;
+			offsetY -= sprite.y;
+			offsetX |= 0;
+			offsetY |= 0;
+			canvasWidth |= 0;
+			canvasHeight |= 0;
+			var ctx:Context = new Context();
+			ctx.size(canvasWidth, canvasHeight);
+			ctx.asBitmap = true;
+			ctx._targets.start();
+			RenderSprite.renders[_renderType]._fun(sprite, ctx, offsetX, offsetY);
+			ctx.flush();
+			ctx._targets.end();
+			ctx._targets.restore();
+			var dt:Uint8Array = ctx._targets.getData(0, 0, canvasWidth, canvasHeight);
+			ctx.destroy();
+			var imgdata:any = new ImageData(canvasWidth,canvasHeight);;	//创建空的imagedata。因为下面要翻转，所以不直接设置内容
+			//翻转getData的结果。
+			var lineLen:number = canvasWidth * 4;
+			var temp:Uint8Array = new Uint8Array(lineLen);
+			var dst:Uint8Array = imgdata.data;
+			var y:number = canvasHeight - 1;
+			var off:number = y * lineLen;
+			var srcoff:number = 0;
+			for (; y >= 0; y--) {
+				dst.set(dt.subarray(srcoff, srcoff + lineLen), off);
+				off -= lineLen;
+				srcoff += lineLen;
+			}
+			//imgdata.data.set(dt);
+			//画到2d画布上
+			var canv:HTMLCanvas = new HTMLCanvas(true);
+			canv.size(canvasWidth, canvasHeight);
+			var ctx2d:CanvasRenderingContext2D =<CanvasRenderingContext2D>(canv.getContext('2d') as any);
+			ctx2d.putImageData(imgdata, 0, 0);;
+			return canv;
+		}
+        
+        /**
+         * @private
+         */
+		static drawToTexture=function(sprite:Sprite, _renderType:number, canvasWidth:number, canvasHeight:number, offsetX:number, offsetY:number):Texture {
+			offsetX -= sprite.x;
+			offsetY -= sprite.y;
+			offsetX |= 0;
+			offsetY |= 0;
+			canvasWidth |= 0;
+			canvasHeight |= 0;
+			var ctx:Context = new Context();
+			ctx.size(canvasWidth, canvasHeight);
+			ctx.asBitmap = true;
+			ctx._targets.start();
+			RenderSprite.renders[_renderType]._fun(sprite, ctx, offsetX, offsetY);
+			ctx.flush();
+			ctx._targets.end();
+            ctx._targets.restore();
+			var rtex:Texture = new Texture( ((<Texture2D>(ctx._targets as any) )),Texture.INV_UV);
+			ctx.destroy(true);// 保留 _targets
+			return rtex;
 		}
 		
 		/**
@@ -1297,7 +1379,7 @@ import { Const } from "../Const"
 				point = new Point(point.x, point.y);
 			}
 			var ele:Sprite = this;
-			globalNode =globalNode || Laya.stage;
+			globalNode =globalNode || Sprite.gStage;
 			while (ele && !ele.destroyed) {
 				if (ele == globalNode) break;
 				point = ele.toParentPoint(point);
@@ -1321,7 +1403,7 @@ import { Const } from "../Const"
 			}
 			var ele:Sprite = this;
 			var list:any[] = [];
-			globalNode =globalNode || Laya.stage;
+			globalNode =globalNode || Sprite.gStage;
 			while (ele && !ele.destroyed) {
 				if (ele == globalNode) break;
 				list.push(ele);
@@ -1469,11 +1551,11 @@ import { Const } from "../Const"
 				this.texture = null;
 				loaded();
 			}else{
-				var tex:Texture = Loader.getRes(url);
+				var tex:Texture = (window as any).Laya.Loader.getRes(url);//TODO TS
 				if (!tex) {
 					tex = new Texture();
 					tex.load(url);
-					Loader.cacheRes(url, tex);
+					(window as any).Laya.Loader.cacheRes(url, tex); //TODO
 				}
 				this.texture = tex;
 				if (!tex.getIsReady()) tex.once(Event.READY, null, loaded);
@@ -1523,7 +1605,7 @@ import { Const } from "../Const"
 			if (this._children.length) this._renderType |= SpriteConst.CHILDS;
 			else this._renderType &= ~SpriteConst.CHILDS;
 			this._setRenderType(this._renderType);
-			if (child && this._getBit(Const.HAS_ZORDER)) Laya.systemTimer.callLater(this, this.updateZOrder);
+			if (child && this._getBit(Const.HAS_ZORDER)) Sprite.gSysTimer.callLater(this, this.updateZOrder);
 			this.repaint(SpriteConst.REPAINT_ALL);
 		}
 		
@@ -1538,7 +1620,7 @@ import { Const } from "../Const"
 		
 		/**对舞台 <code>stage</code> 的引用。*/
 		 get stage():Stage {
-			return Laya.stage;
+			return Sprite.gStage;
 		}
 		
 		/**
@@ -1647,7 +1729,7 @@ import { Const } from "../Const"
 		
 		/**获得相对于本对象上的鼠标坐标信息。*/
 		 getMousePoint():Point {
-			return this.globalToLocal(Point.TEMP.setTo(Laya.stage.mouseX, Laya.stage.mouseY));
+			return this.globalToLocal(Point.TEMP.setTo(Sprite.gStage.mouseX, Sprite.gStage.mouseY));
 		}
 		
 		/**
@@ -1657,7 +1739,7 @@ import { Const } from "../Const"
 			var scale:number = 1;
 			var ele:Sprite = this;
 			while (ele) {
-				if (ele === Laya.stage) break;
+				if (ele === Sprite.gStage) break;
 				scale *= ele.scaleX;
 				ele = (<Sprite>ele.parent );
 			}
@@ -1671,7 +1753,7 @@ import { Const } from "../Const"
 			var angle:number = 0;
 			var ele:Sprite = this;
 			while (ele) {
-				if (ele === Laya.stage) break;
+				if (ele === Sprite.gStage) break;
 				angle += ele.rotation;
 				ele = (<Sprite>ele.parent );
 			}
@@ -1685,7 +1767,7 @@ import { Const } from "../Const"
 			var scale:number = 1;
 			var ele:Sprite = this;
 			while (ele) {
-				if (ele === Laya.stage) break;
+				if (ele === Sprite.gStage) break;
 				scale *= ele.scaleY;
 				ele = (<Sprite>ele.parent );
 			}
@@ -1716,7 +1798,7 @@ import { Const } from "../Const"
 				this._zOrder = value;
 				if (this._parent) {
 					value && this._parent._setBit(Const.HAS_ZORDER, true);
-					Laya.systemTimer.callLater(this._parent, this.updateZOrder);
+					Sprite.gSysTimer.callLater(this._parent, this.updateZOrder);
 				}
 			}
 		}
@@ -1798,12 +1880,12 @@ import { Const } from "../Const"
 		
 		/**@private */
 		 captureMouseEvent(exclusive:boolean):void {
-			MouseManager.instance.setCapture(this,exclusive);
+			Sprite.gMouseMgr.setCapture(this,exclusive);
 		}
 		
 		/**@private */
 		 releaseMouseEvent():void {
-			MouseManager.instance.releaseCapture();
+			Sprite.gMouseMgr.releaseCapture();
 		}
 		
 		 set drawCallOptimize(value:boolean)

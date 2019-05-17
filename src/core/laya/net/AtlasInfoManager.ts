@@ -1,6 +1,6 @@
-import { Laya } from "./../../Laya";
 import { Loader } from "././Loader";
 import { Handler } from "../utils/Handler"
+import { LoaderManager } from "./LoaderManager";
 	
 	/**
 	 * @private
@@ -10,7 +10,8 @@ import { Handler } from "../utils/Handler"
 		private static _fileLoadDic:any = {};
 		
 		 static enable(infoFile:string, callback:Handler = null):void {
-			Laya.loader.load(infoFile, Handler.create(null, AtlasInfoManager._onInfoLoaded, [callback]), null, Loader.JSON);
+             var gLoader:LoaderManager = (window as any).Laya.loader;
+			gLoader.load(infoFile, Handler.create(null, AtlasInfoManager._onInfoLoaded, [callback]), null, Loader.JSON);
 		}
 		
 		/**@private */

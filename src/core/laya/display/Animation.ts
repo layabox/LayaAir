@@ -1,5 +1,4 @@
 import { AnimationBase } from "././AnimationBase";
-import { Laya } from "./../../Laya";
 import { Graphics } from "././Graphics";
 import { Loader } from "../net/Loader"
 	import { GraphicAnimation } from "../utils/GraphicAnimation"
@@ -274,7 +273,7 @@ this._setControlNode(this);
 					}
 				}
 				if (Loader.getAtlas(url)) onLoaded(url);
-				else Laya.loader.load(url, Handler.create(null, onLoaded, [url]), null, Loader.ATLAS);
+				else (window as any).Laya.loader.load(url, Handler.create(null, onLoaded, [url]), null, Loader.ATLAS);// TODO TS
 			}
 			return this;
 		}
@@ -297,7 +296,7 @@ this._setControlNode(this);
 				if (!atlas || Loader.getAtlas(atlas)) {
 					this._loadAnimationData(url, loaded, atlas);
 				} else {
-					Laya.loader.load(atlas, Handler.create(this, this._loadAnimationData, [url, loaded, atlas]), null, Loader.ATLAS)
+					(window as any).Laya.loader.load(atlas, Handler.create(this, this._loadAnimationData, [url, loaded, atlas]), null, Loader.ATLAS)
 				}
 			} else {
 				_this._setFramesFromCache(this._actionName, true);
@@ -359,7 +358,7 @@ this._setControlNode(this);
 				Loader.clearRes(url);
 			}
 			if (Loader.getRes(url)) onLoaded(url);
-			else Laya.loader.load(url, Handler.create(null, onLoaded, [url]), null, Loader.JSON);
+			else (window as any).Laya.loader.load(url, Handler.create(null, onLoaded, [url]), null, Loader.JSON);//TODO TS
 			
 			
 		}

@@ -2,13 +2,15 @@ import { Handler } from "././Handler";
 import { Pool } from "././Pool";
 import { Browser } from "././Browser";
 import { Utils } from "././Utils";
-import { Laya } from "./../../Laya";
+import { Timer } from "./Timer";
 /**
 	 * <code>Tween</code>  是一个缓动类。使用此类能够实现对目标对象属性的渐变。
 	 */
 	export class Tween {
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
-		
+        /**@private */
+        static gTimer:Timer=null;
+
 		/**@private */
 		private static tweenMap:any[] = [];
 		/**@private */
@@ -130,7 +132,7 @@ import { Laya } from "./../../Laya";
 				if (delay <= 0) this.firstStart(target, props, isTo);
 				else {
 					this._delayParam = [target, props, isTo];
-					Laya.timer.once(delay, this, this.firstStart, this._delayParam);
+					Tween.gTimer.once(delay, this, this.firstStart, this._delayParam);
 				}
 			} else {
 				this._initProps(target, props, isTo);
@@ -161,7 +163,7 @@ import { Laya } from "./../../Laya";
 		}
 		
 		private _beginLoop():void {
-			Laya.timer.frameLoop(1, this, this._doEase);
+			Tween.gTimer.frameLoop(1, this, this._doEase);
 		}
 		
 		/**执行缓动**/
@@ -203,7 +205,7 @@ import { Laya } from "./../../Laya";
 			if (!this._target) return;
 			
 			//立即执行初始化
-			Laya.timer.runTimer(this, this.firstStart);
+			Tween.gTimer.runTimer(this, this.firstStart);
 			
 			//缓存当前属性
 			var target:any = this._target;
@@ -231,9 +233,9 @@ import { Laya } from "./../../Laya";
 		 * 暂停缓动，可以通过resume或restart重新开始。
 		 */
 		 pause():void {
-			Laya.timer.clear(this, this._beginLoop);
-			Laya.timer.clear(this, this._doEase);
-			Laya.timer.clear(this, this.firstStart);
+			Tween.gTimer.clear(this, this._beginLoop);
+			Tween.gTimer.clear(this, this._doEase);
+			Tween.gTimer.clear(this, this.firstStart);
 			var time:number = Browser.now();
 			var dTime:number;
 			dTime = time - this._startTimer - this._delay;
@@ -293,7 +295,7 @@ import { Laya } from "./../../Laya";
 		 */
 		 _clear():void {
 			this.pause();
-			Laya.timer.clear(this, this.firstStart);
+			Tween.gTimer.clear(this, this.firstStart);
 			this._complete = null;
 			this._target = null;
 			this._ease = null;
@@ -332,7 +334,7 @@ import { Laya } from "./../../Laya";
 			this._usedTimer = 0;
 			this._startTimer = Browser.now();
 			if (this._delayParam) {
-				Laya.timer.once(this._delay, this, this.firstStart, this._delayParam);
+				Tween.gTimer.once(this._delay, this, this.firstStart, this._delayParam);
 				return;
 			}
 			var props:any[] = this._props;
@@ -340,7 +342,7 @@ import { Laya } from "./../../Laya";
 				var prop:any[] = props[i];
 				this._target[prop[0]] = prop[1];
 			}
-			Laya.timer.once(this._delay, this, this._beginLoop);
+			Tween.gTimer.once(this._delay, this, this._beginLoop);
 		}
 		
 		/**
@@ -351,7 +353,7 @@ import { Laya } from "./../../Laya";
 			this._startTimer = Browser.now() - this._usedTimer - this._delay;
 			if (this._delayParam) {
 				if (this._usedTimer < 0) {
-					Laya.timer.once(-this._usedTimer, this, this.firstStart, this._delayParam);
+					Tween.gTimer.once(-this._usedTimer, this, this.firstStart, this._delayParam);
 				} else {
 					this.firstStart.apply(this, this._delayParam);
 				}

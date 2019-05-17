@@ -5,6 +5,7 @@ import { Event } from "../events/Event"
 import { Stage } from "./Stage";
 import { Timer } from "../utils/Timer";
 import { PlatformInfo } from "../utils/PlatformInfo";
+import { Browser } from "../utils/Browser";
 	
 	/**
 	 * 用户输入一个或多个文本字符时后调度。

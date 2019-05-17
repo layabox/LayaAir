@@ -11,7 +11,6 @@
 	import { Texture2D } from "./laya/resource/Texture2D"
 	import { Browser } from "./laya/utils/Browser"
 	import { CacheManger } from "./laya/utils/CacheManger"
-	import { RunDriver } from "./laya/utils/RunDriver"
 	import { Timer } from "./laya/utils/Timer"
 	import { WebGL } from "./laya/webgl/WebGL"
 import { Node } from "./laya/display/Node";
@@ -34,6 +33,10 @@ import { Resource } from "./laya/resource/Resource";
 import { TTFLoader } from "./laya/net/TTFLoader";
 import { PlatformInfo } from "./laya/utils/PlatformInfo";
 import { LocalStorage } from "./laya/net/LocalStorage";
+import { Graphics } from "./laya/display/Graphics";
+import { Tween } from "./laya/utils/Tween";
+import { Dragging } from "./laya/utils/Dragging";
+import { Script } from "./laya/components/Script";
 	
 	/**
 	 * <code>Laya</code> 是全局对象的引用入口集。
@@ -95,26 +98,54 @@ import { LocalStorage } from "./laya/net/LocalStorage";
 			
 			Browser.gLaya = Laya;
             Browser.__init__();
+            // 创建主画布
+			//这个其实在Render中感觉更合理，但是runtime要求第一个canvas是主画布，所以必须在下面的那个离线画布之前
+			var mainCanv:HTMLCanvas = Browser.mainCanvas = new HTMLCanvas(true);
+			//Render._mainCanvas = mainCanv;
+			var style:any = mainCanv.source.style;
+			style.position = 'absolute';
+			style.top = style.left = "0px";
+			style.background = "#000000";
+			
+			if(!Browser.onKGMiniGame){
+				Browser.container.appendChild(mainCanv.source);//xiaosong add
+			}			
+
+            // 创建离屏画布
+			//创建离线画布
+			Browser.canvas = new HTMLCanvas(true);
+			Browser.context = <CanvasRenderingContext2D>(Browser.canvas.getContext('2d') as any);
+
 
             PlatformInfo.supportWebAudio = Browser.supportWebAudio = SoundManager.__init__();;
 			Browser.supportLocalStorage = PlatformInfo.supportLocalStorage = LocalStorage.__init__();
 			
-			Laya.systemTimer = new Timer(false);
+            Laya.systemTimer = new Timer(false);
+            Timer.gSysTimer=Laya.systemTimer;
 			Laya.startTimer = new Timer(false);
 			Laya.physicsTimer = new Timer(false);
 			Laya.updateTimer = new Timer(false);
 			Laya.lateTimer = new Timer(false);
-			Laya.timer = new Timer(false);
+            Laya.timer = new Timer(false);
+            
+            Script.gStartTimer = Laya.startTimer;
+            Script.gUpdateTimer = Laya.updateTimer;
+            Script.gLateTimer = Laya.lateTimer;
 			
-			Laya.loader = new LoaderManager();
+            Laya.loader = new LoaderManager();
+            LoaderManager.gLoader=Laya.loader;
 			Texture2D.gLoaderMgr =  Laya.loader;
-			Texture2D.gLoaderType = Loader;
+            Texture2D.gLoaderType = Loader;
+            Graphics.gLoader = Loader;
 			Texture2D.gBrowser = Browser;
 			Context.gSysTimer = Laya.systemTimer;
 			Input.gSysTimer = Laya.systemTimer;
 			Resource.gLoader = Loader;
             TTFLoader.gSysTimer = Laya.systemTimer;
+            LoaderManager.gSysTimer=Laya.systemTimer;
             
+            Tween.gTimer = Laya.timer;
+
 			WeakObject.__init__();
 			WebGL.inner_enable();
 			for (var i:number = 0, n:number = plugins.length; i < n; i++) {
@@ -135,7 +166,17 @@ import { LocalStorage } from "./laya/net/LocalStorage";
             Render.gStage = Laya.stage;
 			Laya.render = new Render(0, 0, Browser.mainCanvas);
 			Laya.stage.size(width, height);
-			((<any>window )).stage = Laya.stage;
+            ((<any>window )).stage = Laya.stage;
+
+            SoundManager.gLoader=Laya.loader;
+            SoundManager.gTimer=Laya.timer;
+            SoundManager.gStage=Laya.stage;
+
+            Dragging.gStage = Laya.stage;
+            Dragging.gSysTimer=Laya.systemTimer;
+
+            Stage.gStage = Laya.stage;
+            Stage.gSysTimer=Laya.systemTimer;
 			
 			// 给其他对象赋全局值
 			Node.gTimer = Laya.timer;
@@ -146,7 +187,8 @@ import { LocalStorage } from "./laya/net/LocalStorage";
             Texture.gLoader = Laya.loader;
             Texture.gContext =  Context;
             Input.gMainCanvas=Render.canvas;
-            
+            Loader.gSysTimer = Laya.systemTimer;
+
 			RenderSprite.__init__();
 			KeyBoardManager.__init__();
 			MouseManager.instance.__init__(Laya.stage, Render.canvas);
@@ -218,7 +260,7 @@ import { LocalStorage } from "./laya/net/LocalStorage";
 			}
 			RenderState2D.width = Browser.window.innerWidth;
 			RenderState2D.height = Browser.window.innerHeight;
-			RunDriver.measureText = function(txt:string, font:string):any {
+			Browser.measureText = function(txt:string, font:string):any {
 				window["conchTextCanvas"].font = font;
 				return window["conchTextCanvas"].measureText(txt);
 			}
@@ -231,7 +273,7 @@ import { LocalStorage } from "./laya/net/LocalStorage";
 				gl.clear(WebGLContext.COLOR_BUFFER_BIT | WebGLContext.DEPTH_BUFFER_BIT | WebGLContext.STENCIL_BUFFER_BIT);
 				RenderState2D.clear();
 			}
-			RunDriver.drawToCanvas = RunDriver.drawToTexture =  function(sprite:Sprite, _renderType:number, canvasWidth:number, canvasHeight:number, offsetX:number, offsetY:number):any {
+			Sprite.drawToCanvas = Sprite.drawToTexture =  function(sprite:Sprite, _renderType:number, canvasWidth:number, canvasHeight:number, offsetX:number, offsetY:number):any {
 				offsetX -= sprite.x;
 				offsetY -= sprite.y;
 				offsetX |= 0;
@@ -240,7 +282,7 @@ import { LocalStorage } from "./laya/net/LocalStorage";
 				canvasHeight |= 0;
 				
 				var canv:HTMLCanvas = new HTMLCanvas(false);
-				var ctx:Context = canv.getContext('2d');
+				var ctx:Context = canv.getContext('2d') as Context;
 				canv.size(canvasWidth, canvasHeight);
 				
 				ctx.asBitmap = true;
