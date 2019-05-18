@@ -1,5 +1,7 @@
 import { Browser } from "././Browser";
 import { Utils } from "././Utils";
+
+var supportWeakMap = !!WeakMap;
 /**
 	 * 封装弱引用WeakMap
 	 * 如果支持WeakMap，则使用WeakMap，如果不支持，则用Object代替
@@ -7,7 +9,7 @@ import { Utils } from "././Utils";
 	 */
 	export class WeakObject {
 		/**是否支持WeakMap*/
-		 static supportWeakMap:boolean;
+		 static supportWeakMap=supportWeakMap;
 		/**如果不支持WeakMap，则多少时间清理一次缓存，默认10分钟清理一次*/
 		 static delInterval:number = 10 * 60 * 1000;
 		/**全局WeakObject单例*/
@@ -21,7 +23,7 @@ import { Utils } from "././Utils";
 		
 		/**@private */
 		 static __init__():void {
-			WeakObject.supportWeakMap = Browser.window.WeakMap != null;
+			//WeakObject.supportWeakMap = Browser.window.WeakMap != null;
 			//如果不支持，10分钟回收一次
 			if (!WeakObject.supportWeakMap) (window as any).Laya.systemTimer.loop(WeakObject.delInterval, null, WeakObject.clearCache);
 		}
@@ -112,3 +114,4 @@ import { Utils } from "././Utils";
 		}
 	}
 
+//WeakObject.__init__();

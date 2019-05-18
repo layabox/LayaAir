@@ -2,8 +2,10 @@ import { HttpRequest } from "././HttpRequest";
 import { URL } from "././URL";
 import { WorkerLoader } from "././WorkerLoader";
 import { TTFLoader } from "././TTFLoader";
+import { BitmapFont } from "./../display/BitmapFont";
+//import { Laya } from "./../../Laya";
 import { Prefab } from "../components/Prefab"
-	import { BitmapFont } from "../display/BitmapFont"
+	import { Text } from "../display/Text"
 	import { Event } from "../events/Event"
 	import { EventDispatcher } from "../events/EventDispatcher"
 	import { Sound } from "../media/Sound"
@@ -15,7 +17,6 @@ import { Prefab } from "../components/Prefab"
 	import { Byte } from "../utils/Byte"
 	import { Handler } from "../utils/Handler"
 	import { Utils } from "../utils/Utils"
-import { Timer } from "../utils/Timer";
 	
 	/**
 	 * 加载进度发生改变时调度。
@@ -37,9 +38,6 @@ import { Timer } from "../utils/Timer";
 	 * <code>Loader</code> 类可用来加载文本、JSON、XML、二进制、图像等资源。
 	 */
 	export class Loader extends EventDispatcher {
-        /**@private */
-        static gSysTimer:Timer = null;
-        
 		/**文本类型，加载完成后返回文本。*/
 		 static TEXT:string = "text";
 		/**JSON 类型，加载完成后返回json数据。*/
@@ -84,7 +82,7 @@ import { Timer } from "../utils/Timer";
 		 static TERRAINRES:string = "TERRAIN";
 		
 		/**文件后缀和类型对应表。*/
-		 static typeMap:any = /*[STATIC SAFE]*/ {"ttf": "ttf", "png": "image", "jpg": "image", "jpeg": "image", "ktx": "image", "pvr": "image", "txt": "text", "json": "json", "prefab": "prefab", "xml": "xml", "als": "atlas", "atlas": "atlas", "mp3": "sound", "ogg": "sound", "wav": "sound", "part": "json", "fnt": "font", "plf": "plf","plfb":"plfb", "scene": "json", "ani": "json", "sk": "arraybuffer"};
+		 static typeMap:any = /*[STATIC SAFE]*/ {"ttf": "ttf", "png": "image", "jpg": "image", "jpeg": "image", "ktx": "image", "pvr": "image", "txt": "text", "json": "json", "prefab": "prefab", "xml": "xml", "als": "atlas", "atlas": "atlas", "mp3": "sound", "ogg": "sound", "wav": "sound", "part": "json", "fnt": "font", "plf": "plf", "plfb": "plfb", "scene": "json", "ani": "json", "sk": "arraybuffer"};
 		/**资源解析函数对应表，用来扩展更多类型的资源加载解析。*/
 		 static parserMap:any = /*[STATIC SAFE]*/ {};
 		/**每帧加载完成回调使用的最大超时时间，如果超时，则下帧再处理，防止帧卡顿。*/
@@ -105,6 +103,18 @@ import { Timer } from "../utils/Timer";
 		protected static _isWorking:boolean = false;
 		/**@private */
 		protected static _startIndex:number = 0;
+		
+		/**
+		 * 获取指定资源地址的数据类型。
+		 * @param	url 资源地址。
+		 * @return 数据类型。
+		 */
+		 static getTypeFromUrl(url:string):string {
+			var type:string = Utils.getFileExtension(url);
+			if (type) return Loader.typeMap[type];
+			console.warn("Not recognize the resources suffix", url);
+			return "text";
+		}
 		
 		/**@private 加载后的数据对象，只读*/
 		 _data:any;
@@ -150,14 +160,16 @@ import { Timer } from "../utils/Timer";
 			this._cache = cache;
 			this._useWorkerLoader = useWorkerLoader;
 			this._data = null;
-			if (useWorkerLoader) WorkerLoader.enableWorkerLoader();
+			if (useWorkerLoader)
+				WorkerLoader.enableWorkerLoader();
 			if (!ignoreCache && Loader.loadedMap[url]) {
 				this._data = Loader.loadedMap[url];
 				this.event(Event.PROGRESS, 1);
 				this.event(Event.COMPLETE, this._data);
 				return;
 			}
-			if (group) Loader.setGroup(url, group);
+			if (group)
+				Loader.setGroup(url, group);
 			//如果自定义了解析器，则自己解析，自定义解析不派发complete事件，但会派发loaded事件，手动调用endLoad方法再派发complete事件
 			if (Loader.parserMap[type] != null) {
 				this._customParse = true;
@@ -166,51 +178,83 @@ import { Timer } from "../utils/Timer";
 				return;
 			}
 			
-			//htmlimage和nativeimage为内部类型
-			if (type === Loader.IMAGE || type === "htmlimage" || type === "nativeimage") return this._loadImage(url);
-			if (type === Loader.SOUND) return this._loadSound(url);
-			if (type === Loader.TTF) return this._loadTTF(url);
-			
-			var contentType:string;
 			switch (type) {
+			case Loader.IMAGE: 
+			case "htmlimage": //内部类型
+			case "nativeimage": //内部类型
+				this._loadImage(url);
+				break;
+			case Loader.SOUND: 
+				this._loadSound(url);
+				break;
+			case Loader.TTF: 
+				this._loadTTF(url);
+				break;
 			case Loader.ATLAS: 
 			case Loader.PREFAB: 
 			case Loader.PLF: 
-				contentType = Loader.JSON;
+				this._loadHttpRequestWhat(url, Loader.JSON);
 				break;
 			case Loader.FONT: 
-				contentType = Loader.XML;
+				this._loadHttpRequestWhat(url, Loader.XML);
 				break;
-			case Loader.PLFB:
-				contentType = Loader.BUFFER;
+			case Loader.PLFB: 
+				this._loadHttpRequestWhat(url, Loader.BUFFER);
 				break;
 			default: 
-				contentType = type;
-			}
-			
-			if (Loader.preLoadedMap[url]) {
-				this.onLoaded(Loader.preLoadedMap[url]);
-			} else {
-				if (!this._http) {
-					this._http = new HttpRequest();
-					this._http.on(Event.PROGRESS, this, this.onProgress);
-					this._http.on(Event.ERROR, this, this.onError);
-					this._http.on(Event.COMPLETE, this, this.onLoaded);
-				}
-				this._http.send(url, null, "get", contentType);
+				this._loadHttpRequestWhat(url, type);
 			}
 		}
 		
 		/**
-		 * 获取指定资源地址的数据类型。
-		 * @param	url 资源地址。
-		 * @return 数据类型。
+		 * @private
+		 * onload、onprocess、onerror必须写在本类
 		 */
-		 static getTypeFromUrl(url:string):string {
-			var type:string = Utils.getFileExtension(url);
-			if (type) return Loader.typeMap[type];
-			console.warn("Not recognize the resources suffix", url);
-			return "text";
+		private _loadHttpRequest(url:string, contentType:string, onLoadCaller:any, onLoad:Function, onProcessCaller:any, onProcess:Function, onErrorCaller:any, onError:Function):void {
+			if (!this._http)
+				this._http = new HttpRequest();
+			this._http.on(Event.PROGRESS, onProcessCaller, onProcess);
+			this._http.on(Event.COMPLETE, onLoadCaller, onLoad);
+			this._http.on(Event.ERROR, onErrorCaller, onError);
+			this._http.send(url, null, "get", contentType);
+		}
+		
+		/**
+		 * @private
+		 */
+		private _loadHtmlImage(url:string, onLoadCaller:any, onLoad:Function, onErrorCaller:any, onError:Function):void {
+			var image:any;
+			function clear():void {
+				var img:any = image;
+				img.onload = null;
+				img.onerror = null;
+				delete Loader._imgCache[url];
+			}
+			var onerror:Function = function():void {
+				clear();
+				onError.call(onErrorCaller);
+			}
+			
+			var onload:Function = function():void {
+				clear();
+				onLoad.call(onLoadCaller, image);
+			};
+			image = new Browser.window.Image();
+			image.crossOrigin = "";
+			image.onload = onload;
+			image.onerror = onerror;
+			image.src = url;
+			Loader._imgCache[url] = image;//增加引用，防止垃圾回收
+		}
+		
+		/**
+		 * @private
+		 */
+		protected _loadHttpRequestWhat(url:string, contentType:string):void {
+			if (Loader.preLoadedMap[url])
+				this.onLoaded(Loader.preLoadedMap[url]);
+			else
+				this._loadHttpRequest(url, contentType, this, this.onLoaded, this, this.onProgress, this, this.onError);
 		}
 		
 		/**
@@ -227,83 +271,50 @@ import { Timer } from "../utils/Timer";
 		
 		/**
 		 * @private
-		 * 加载图片资源。
-		 * @param	url 资源地址。
 		 */
 		protected _loadImage(url:string):void {
-			url = URL.formatURL(url);
 			var _this:Loader = this;
-			var image:any;
-			function clear():void {
-				var img:any = image;
-				if (img) {
-					img.onload = null;
-					img.onerror = null;
-					delete Loader._imgCache[url];
-				}
-			}
-			
-			var onerror:Function = function():void {
-				clear();
+			url = URL.formatURL(url);
+			var onLoaded:Function;
+			var onError:Function = function():void {
 				_this.event(Event.ERROR, "Load image failed");
 			}
 			if (this._type === "nativeimage") {
-				var onload:Function = function():void {
-					clear();
+				onLoaded = function(image:any):void {
 					_this.onLoaded(image);
-				};
-				image = new Browser.window.Image();
-				image.crossOrigin = "";
-				image.onload = onload;
-				image.onerror = onerror;
-				image.src = url;
-				//增加引用，防止垃圾回收
-				Loader._imgCache[url] = image;
+				}
+				this._loadHtmlImage(url, this, onLoaded, this, onError);
 			} else {
 				var ext:string = Utils.getFileExtension(url);
 				if (ext === "ktx" || ext === "pvr") {
-					onload = function(imageData:ArrayBuffer):void {
+					onLoaded = function(image:any):void {
 						var format:number;
 						switch (ext) {
 						case "ktx": 
-							format = /*BaseTexture.FORMAT_ETC1RGB*/5;
+							format = /*BaseTexture.FORMAT_ETC1RGB*/ 5;
 							break;
 						case "pvr": 
-							format = /*BaseTexture.FORMAT_PVRTCRGBA_4BPPV*/12;
+							format = /*BaseTexture.FORMAT_PVRTCRGBA_4BPPV*/ 12;
 							break;
 						}
-						image = new Texture2D(0, 0,format, false, false);
+						image = new Texture2D(0, 0, format, false, false);
 						image.wrapModeU = BaseTexture.WARPMODE_CLAMP;
 						image.wrapModeV = BaseTexture.WARPMODE_CLAMP;
-						image.setCompressData(imageData);
+						image.setCompressData(this.imageData);
 						image._setCreateURL(url);
-						clear();
 						_this.onLoaded(image);
 					};
-					var tempHttp:HttpRequest;
-					//if (!_http) {
-						tempHttp = new HttpRequest();
-						tempHttp.on(Event.ERROR, null, onerror);
-						tempHttp.on(Event.COMPLETE, null, onload);
-					//}
-					tempHttp.send(url, null, "get", Loader.BUFFER);
+					this._loadHttpRequest(url, Loader.BUFFER, this, onLoaded, null, null, this, onError);
 				} else {
-					var imageSource:any = new Browser.window.Image();
-					onload = function():void {
-						var tex:Texture2D=  new Texture2D(imageSource.width, imageSource.height, 1, false, false);
+					onLoaded = function(image:any):void {
+						var tex:Texture2D = new Texture2D(image.width, image.height, 1, false, false);
 						tex.wrapModeU = BaseTexture.WARPMODE_CLAMP;
 						tex.wrapModeV = BaseTexture.WARPMODE_CLAMP;
-						tex.loadImageSource(imageSource, true);
+						tex.loadImageSource(image, true);
 						tex._setCreateURL(url);
-						clear();
-						_this.onLoaded(tex);
-					};
-					imageSource.crossOrigin = "";
-					imageSource.onload = onload;
-					imageSource.onerror = onerror;
-					imageSource.src = url;
-					//image = imageSource;
-					Loader._imgCache[url] = imageSource;//增加引用，防止垃圾回收
+						_this.onLoaded(this.finalImage);
+					}
+					this._loadHtmlImage(url, this, onLoaded, this, onError);
 				}
 			}
 		}
@@ -352,12 +363,10 @@ import { Timer } from "../utils/Timer";
 		 */
 		protected onLoaded(data:any = null):void {
 			var type:string = this._type;
-			if (type == Loader.PLFB)
-			{
+			if (type == Loader.PLFB) {
 				this.parsePLFBData(data);
 				this.complete(data);
-			}else
-			if (type == Loader.PLF) {
+			} else if (type == Loader.PLF) {
 				this.parsePLFData(data);
 				this.complete(data);
 			} else if (type === Loader.IMAGE) {
@@ -380,23 +389,19 @@ import { Timer } from "../utils/Timer";
 							var folderPath:string = idx >= 0 ? this._url.substr(0, idx + 1) : "";
 							var changeType:string;
 							
-							if (Browser.onAndroid && data.meta.compressTextureAndroid)
-							{
+							if (Browser.onAndroid && data.meta.compressTextureAndroid) {
 								changeType = ".ktx";
 							}
-							if (Browser.onIOS && data.meta.compressTextureIOS)
-							{
+							if (Browser.onIOS && data.meta.compressTextureIOS) {
 								changeType = ".pvr";
 							}
 							//idx = _url.indexOf("?");
 							//var ver:String;
 							//ver = idx >= 0 ? _url.substr(idx) : "";
 							for (var i:number = 0, len:number = toloadPics.length; i < len; i++) {
-								if (changeType)
-								{
-									toloadPics[i] = folderPath + toloadPics[i].replace(".png",changeType);
-								}else
-								{
+								if (changeType) {
+									toloadPics[i] = folderPath + toloadPics[i].replace(".png", changeType);
+								} else {
 									toloadPics[i] = folderPath + toloadPics[i];
 								}
 								
@@ -426,7 +431,7 @@ import { Timer } from "../utils/Timer";
 					var pics:any[] = this._data.pics;
 					var atlasURL:string = URL.formatURL(this._url);
 					var map:any[] = Loader.atlasMap[atlasURL] || (Loader.atlasMap[atlasURL] = []);
-					(map as any).dir = directory;
+					((<any>map )).dir = directory;
 					var scaleRate:number = 1;
 					if (this._data.meta && this._data.meta.scale && this._data.meta.scale != 1) {
 						scaleRate = parseFloat(this._data.meta.scale);
@@ -502,20 +507,17 @@ import { Timer } from "../utils/Timer";
 			}
 		}
 		
-		private parsePLFBData(plfData:ArrayBuffer):void
-		{
-			 var byte:Byte;
-			 byte = new Byte(plfData);
-			 var i:number, len:number;
-			 len = byte.getInt32();
-			 for (i = 0; i < len; i++)
-			 {
-				 this.parseOnePLFBFile(byte);
-			 }
+		private parsePLFBData(plfData:ArrayBuffer):void {
+			var byte:Byte;
+			byte = new Byte(plfData);
+			var i:number, len:number;
+			len = byte.getInt32();
+			for (i = 0; i < len; i++) {
+				this.parseOnePLFBFile(byte);
+			}
 		}
 		
-		private parseOnePLFBFile(byte:Byte):void
-		{
+		private parseOnePLFBFile(byte:Byte):void {
 			var fileLen:number;
 			var fileName:string;
 			var fileData:ArrayBuffer;
@@ -523,7 +525,7 @@ import { Timer } from "../utils/Timer";
 			fileLen = byte.getInt32();
 			fileData = byte.readArrayBuffer(fileLen);
 			Loader.preLoadedMap[URL.formatURL(fileName)] = fileData;
-			
+		
 		}
 		
 		/**
@@ -551,7 +553,7 @@ import { Timer } from "../utils/Timer";
 				Loader._startIndex++;
 				if (Browser.now() - startTimer > Loader.maxTimeOut) {
 					console.warn("loader callback cost a long time:" + (Browser.now() - startTimer) + " url=" + Loader._loaders[Loader._startIndex - 1].url);
-					Loader.gSysTimer.frameOnce(1, null, Loader.checkNext);
+					(window as any).Laya.systemTimer.frameOnce(1, null, Loader.checkNext);
 					return;
 				}
 			}
@@ -615,7 +617,7 @@ import { Timer } from "../utils/Timer";
 				var res:any = Loader.loadedMap[url];
 				if (res) {
 					delete Loader.loadedMap[url];
-					if (res instanceof Texture && res.bitmap) (<Texture>res).destroy();
+					if (res instanceof Texture && res.bitmap) ((<Texture>res )).destroy();
 					
 				}
 			}
@@ -632,9 +634,19 @@ import { Timer } from "../utils/Timer";
 			url = URL.formatURL(url);
 			//删除图集
 			var arr:any[] = Loader.getAtlas(url);
-			var res:any = (arr && arr.length > 0) ? Loader.getRes(arr[0]) : Loader.getRes(url);
-			if (res instanceof Texture)
-				res.disposeBitmap();
+			if (arr && arr.length > 0) {
+				arr.forEach(function(t:string):void {
+					var tex:any = Loader.getRes(t);
+					if (tex instanceof Texture) {
+						((<Texture>tex )).disposeBitmap();
+					}
+				});
+			} else {
+				var t:any = Loader.getRes(url);
+				if (t instanceof Texture) {
+					((<Texture>t )).disposeBitmap();
+				}
+			}
 		}
 		
 		/**

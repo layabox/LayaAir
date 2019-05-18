@@ -18,7 +18,6 @@ import { Const } from "../Const"
 	import { Context } from "../resource/Context"
 	import { HTMLCanvas } from "../resource/HTMLCanvas"
 	import { Texture } from "../resource/Texture"
-	import { Dragging } from "../utils/Dragging"
 	import { Handler } from "../utils/Handler"
 	import { Utils } from "../utils/Utils"
 import { Texture2D } from "../resource/Texture2D";

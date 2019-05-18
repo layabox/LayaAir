@@ -1,6 +1,6 @@
 import { Event } from "././Event";
 import { Node } from "../display/Node"
-	import { Sprite } from "../display/Sprite"
+	//import { Sprite } from "../display/Sprite"
 	import { Browser } from "../utils/Browser"
 	import { Pool } from "../utils/Pool"
 	
@@ -147,9 +147,8 @@ import { Node } from "../display/Node"
 			this._event._stoped = false;
 			var _target:any;
 			_target = eles[0];
-			var tE:Sprite;
 			for (i = 0; i < len; i++) {
-				tE = eles[i];
+				var tE = eles[i];
 				if (tE.destroyed) return;
 				tE.event(type, this._event.setTo(type, tE, _target));
 				if (this._event._stoped)

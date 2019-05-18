@@ -187,7 +187,7 @@ import { Script } from "./laya/components/Script";
             Texture.gLoader = Laya.loader;
             Texture.gContext =  Context;
             Input.gMainCanvas=Render.canvas;
-            Loader.gSysTimer = Laya.systemTimer;
+            //Loader.gSysTimer = Laya.systemTimer;
 
 			RenderSprite.__init__();
 			KeyBoardManager.__init__();
@@ -323,5 +323,5 @@ import { Script } from "./laya/components/Script";
 	}
 
 
-
+(window as any).Laya=Laya;
 

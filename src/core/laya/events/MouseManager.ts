@@ -2,12 +2,38 @@ import { Event } from "././Event";
 import { TouchManager } from "././TouchManager";
 import { Input } from "../display/Input"
 	import { Sprite } from "../display/Sprite"
-	import { Stage } from "../display/Stage"
-	import { Matrix } from "../maths/Matrix"
 	import { Point } from "../maths/Point"
 	import { Rectangle } from "../maths/Rectangle"
 	import { Browser } from "../utils/Browser"
-	
+import { Matrix } from "../maths/Matrix";
+import { Node } from "../display/Node";
+import { Stage } from "../display/Stage";
+
+    declare class ISprite{
+        parent:ISprite;
+        fromParentPoint(pt:Point):void;
+        _style:any;
+        hitTestPrior:boolean;
+        mouseThrough:boolean;
+        _children:ISprite[];
+        destroyed:boolean;
+        _mouseState:number;
+        _extUIChild:ISprite[];
+        _visible:boolean;
+        scrollRect:Rectangle;
+        width:number;
+        height:number;
+        getGraphicBounds():Rectangle;
+    }
+
+    declare class  IStage extends ISprite {
+        _canvasTransform:Matrix;
+        focus:Node;
+        _3dUI:ISprite[];
+        _curUIBase:ISprite;
+        event(type:string,data?:any):void;
+    }
+
 	/**
 	 * <p><code>MouseManager</code> 是鼠标、触摸交互管理器。</p>
 	 * <p>鼠标事件流包括捕获阶段、目标阶段、冒泡阶段。<br/>
@@ -49,7 +75,6 @@ import { Input } from "../display/Input"
 		/** @private 在发送事件的过程中，是否发送给了_captureSp */
 		private _hitCaputreSp:boolean = false; 
 		
-		private _matrix:Matrix = new Matrix();
 		private _point:Point = new Point();
 		private _rect:Rectangle = new Rectangle();
 		private _target:any;
@@ -183,7 +208,7 @@ import { Input } from "../display/Input"
 		}
 		
 		private onMouseDown(ele:any):void {
-            var gStage:Stage = (window as any).Laya.stage;
+            var gStage =this._stage;// :Stage = (window as any).Laya.stage;
 			if (Input.isInputting && gStage.focus && gStage.focus["focus"] && !gStage.focus.contains(this._target)) {
 				// 从UI Input组件中取得Input引用
 				// _tf 是TextInput的属性
@@ -226,7 +251,7 @@ import { Input } from "../display/Input"
 					return false;
 				}
 				for (var i:number = sp._children.length - 1; i > -1; i--) {
-					var child:Sprite = sp._children[i];
+					var child = sp._children[i];
 					//只有接受交互事件的，才进行处理
 					if (!child.destroyed && child._mouseState > 1 && child._visible) {
 						if (this.check(child, mouseX, mouseY, callBack)) return true;
@@ -234,7 +259,7 @@ import { Input } from "../display/Input"
 				}
 				// 检查逻辑子对象
 				for (i = sp._extUIChild.length - 1; i >= 0; i--) {
-					var c:Sprite = sp._extUIChild[i];
+					var c = sp._extUIChild[i];
 					if (!c.destroyed && c._mouseState > 1 && c._visible) {
 						if (this.check(c, mouseX, mouseY, callBack)) return true;
 					}
@@ -299,11 +324,11 @@ import { Input } from "../display/Input"
 		 * @return
 		 */
 		 check3DUI(mousex:number, mousey:number, callback:Function):boolean {
-			var uis:Sprite[] = this._stage._3dUI;
+			var uis = this._stage._3dUI;
 			var i:number = 0;
 			var ret:boolean = false;
 			for (; i < uis.length; i++) {
-				var curui:Sprite = uis[i];
+				var curui = uis[i];
 				this._stage._curUIBase = curui;
 				if(!curui.destroyed && curui._mouseState > 1 && curui._visible){
 					ret = ret || this.check(curui, this.mouseX, this.mouseY, callback);
@@ -450,7 +475,7 @@ import { Input } from "../display/Input"
 		 * @param	exlusive  是否是独占模式
 		 */
 		 setCapture(sp:Sprite, exclusive:boolean = false):void {
-             var gStage:Stage = (window as any).Laya.stage;
+             var gStage = this._stage;// :Stage = (window as any).Laya.stage;
 			this._captureSp = sp;
 			this._captureExlusiveMode = exclusive;
 			this._captureChain.length = 0;
@@ -459,7 +484,7 @@ import { Input } from "../display/Input"
 			while (true) {
 				if (cursp == gStage) break;
 				if (cursp == gStage._curUIBase) break;
-				cursp = (<Sprite>cursp.parent );
+				cursp = cursp.parent as Sprite;
 				if (!cursp) break;
 				this._captureChain.splice(0, 0, cursp);
 			}
