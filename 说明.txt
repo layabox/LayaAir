@@ -1,0 +1,16 @@
+
+rollup打包
+    rollup -c
+
+webpack 打包
+    webpack
+    现在glsl不是针对webpack配置的
+
+parcel打包
+    parcel build -d ./bin -o bundle.js src/debug/main1.ts
+
+browserify 打包
+
+pax 打包
+
+最后代码最好看的是 rollup打包

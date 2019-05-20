@@ -16,23 +16,26 @@ const resolveFile = function(filePath) {
 export default {
     input: './src/debug/Main1.ts',
     //input: './src/debug/test/test.ts',
+    treeshake: false,
 	output: {
 		file: 'bin/bundle.js',
 		format: 'iife', // immediately-invoked function expression — suitable for <script> tags
-        sourcemap: true,
-        name:'laya'
+        sourcemap: false,
+        name:'laya',
+        //indent: false
 	},
 	plugins: [
         typescript({
-            abortOnError:false
+            //abortOnError:false
+            check: false
         }),
         glsl({
 			// By default, everything gets included
 			include: './**/*.glsl',
 			sourceMap: false
 		}),        
-		resolve(), // tells Rollup how to find date-fns in node_modules
-		commonjs(), // converts date-fns to ES modules
+		//resolve(), // tells Rollup how to find date-fns in node_modules
+		//commonjs(), // converts date-fns to ES modules
 		//production && terser() // minify, but only in production
 	]
 };
