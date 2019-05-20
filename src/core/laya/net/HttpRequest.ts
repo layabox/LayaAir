@@ -54,7 +54,7 @@ import { Event } from "../events/Event"
 				for (var i:number = 0; i < headers.length; i++) {
 					http.setRequestHeader(headers[i++], headers[i]);
 				}
-			} else if (!((window as any).conch)) {
+			} else if (!(((<any>window )).conch)) {
 				if (!data || data instanceof String) http.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 				else http.setRequestHeader("Content-Type", "application/json");
 			}

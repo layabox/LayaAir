@@ -1517,7 +1517,7 @@ interface IMouseManager{
 		}
 		
 		/** @private */
-		private _onDisplay():void {
+		protected _onDisplay():void {
 			if (this._mouseState !== 1) {
 				var ele:Sprite = this;
 				ele = (<Sprite>ele.parent );

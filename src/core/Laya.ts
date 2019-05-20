@@ -44,6 +44,7 @@ import { ShaderDefines2D } from "./laya/webgl/shader/d2/ShaderDefines2D";
 import { TextureSV } from "./laya/webgl/shader/d2/value/TextureSV";
 import { PrimitiveSV } from "./laya/webgl/shader/d2/value/PrimitiveSV";
 import { SkinSV } from "./laya/webgl/shader/d2/skinAnishader/SkinSV";
+import { TextRender } from "./laya/webgl/text/TextRender";
 
 	
 	/**
@@ -341,4 +342,20 @@ import { SkinSV } from "./laya/webgl/shader/d2/skinAnishader/SkinSV";
 
 
 (window as any).Laya=Laya;
+
+function regClassToEngine(cls:any){
+    if(cls.name){
+        Laya[cls.name] = cls;
+    }
+}
+
+regClassToEngine(TextRender);
+regClassToEngine(Stage);
+regClassToEngine(Render);
+regClassToEngine(Browser);
+regClassToEngine(Sprite);
+regClassToEngine(Node);
+regClassToEngine(Context);
+regClassToEngine(WebGL);
+
 

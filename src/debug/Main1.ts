@@ -14,7 +14,6 @@ function testDrawRect(){
     Laya.stage.addChild(sp);
     sp.graphics.drawRect(0,0,100,100,'red');
 }
-
 function drawText(){
     var t1 = new Text();
     t1.fontSize=30;

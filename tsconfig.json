@@ -5,6 +5,7 @@
         "outDir": "bin"
     },
     "include": [
-        "src/debug/Main1.ts"
+        //"src/debug/Main1.ts"
+        "src/debug/LayaUISample.ts"
     ]
 }

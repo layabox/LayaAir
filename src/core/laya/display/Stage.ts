@@ -276,6 +276,10 @@ super.set_transform( this._createTransform());
 			Stage.gSysTimer.callLater(this, this._changeCanvasSize);
 		}
 		
+		/*override*/  get width():number {
+			return super.get_width();
+		}
+		
 		/**@inheritDoc */
 		/*override*/  set height(value:number) {
 			this.designHeight = value;
@@ -283,6 +287,13 @@ super.set_transform( this._createTransform());
 			Stage.gSysTimer.callLater(this, this._changeCanvasSize);
 		}
 		
+		/*override*/  get height():number {
+			return super.get_height();
+		}
+		
+		/*override*/  set transform(value:Matrix) {
+			super.set_transform(value);
+		}
 		/**@inheritDoc */
 		/*override*/  get transform():Matrix {
 			if (this._tfChanged) this._adjustTransform();

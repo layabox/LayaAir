@@ -14,7 +14,8 @@ const resolveFile = function(filePath) {
   
 
 export default {
-    input: './src/debug/Main1.ts',
+    //input: './src/debug/PerformanceTest_Maggots.ts',
+    input: './src/debug/LayaUISample.ts',
     //input: './src/debug/test/test.ts',
     treeshake: false,
 	output: {
