@@ -287,7 +287,7 @@ import { Prefab } from "../components/Prefab"
 			} else {
 				var ext:string = Utils.getFileExtension(url);
 				if (ext === "ktx" || ext === "pvr") {
-					onLoaded = function(image:any):void {
+					onLoaded = function(imageData:any):void {
 						var format:number;
 						switch (ext) {
 						case "ktx": 
@@ -297,12 +297,12 @@ import { Prefab } from "../components/Prefab"
 							format = /*BaseTexture.FORMAT_PVRTCRGBA_4BPPV*/ 12;
 							break;
 						}
-						image = new Texture2D(0, 0, format, false, false);
-						image.wrapModeU = BaseTexture.WARPMODE_CLAMP;
-						image.wrapModeV = BaseTexture.WARPMODE_CLAMP;
-						image.setCompressData(this.imageData);
-						image._setCreateURL(url);
-						_this.onLoaded(image);
+						var tex:Texture2D = new Texture2D(0, 0, format, false, false);
+						tex.wrapModeU = BaseTexture.WARPMODE_CLAMP;
+						tex.wrapModeV = BaseTexture.WARPMODE_CLAMP;
+						tex.setCompressData(imageData);
+						tex._setCreateURL(url);
+						_this.onLoaded(tex);
 					};
 					this._loadHttpRequest(url, Loader.BUFFER, this, onLoaded, null, null, this, onError);
 				} else {
@@ -312,7 +312,7 @@ import { Prefab } from "../components/Prefab"
 						tex.wrapModeV = BaseTexture.WARPMODE_CLAMP;
 						tex.loadImageSource(image, true);
 						tex._setCreateURL(url);
-						_this.onLoaded(this.finalImage);
+						_this.onLoaded(tex);
 					}
 					this._loadHtmlImage(url, this, onLoaded, this, onError);
 				}
