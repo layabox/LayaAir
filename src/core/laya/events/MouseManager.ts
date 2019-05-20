@@ -101,14 +101,14 @@ import { Stage } from "../display/Stage";
 				if (MouseManager.enabled) {
 					if(!Browser.onIE) e.preventDefault();
 					_this.mouseDownTime = Browser.now();
-					this.runEvent(e);
+					_this.runEvent(e);
 				}
 			});
 			canvas.addEventListener('mouseup', function(e:any):void {
 				if (MouseManager.enabled) {
 					e.preventDefault();
 					_this.mouseDownTime = -Browser.now();
-					this.runEvent(e);
+					_this.runEvent(e);
 				}
 			}, true);
 			canvas.addEventListener('mousemove', function(e:any):void {
@@ -117,20 +117,20 @@ import { Stage } from "../display/Stage";
 					var now:number = Browser.now();
 					if (now - _this._lastMoveTimer < 10) return;
 					_this._lastMoveTimer = now;
-					this.runEvent(e);
+					_this.runEvent(e);
 				}
 			}, true);
 			canvas.addEventListener("mouseout", function(e:any):void {
-				if (MouseManager.enabled) this.runEvent(e);
+				if (MouseManager.enabled) _this.runEvent(e);
 			})
 			canvas.addEventListener("mouseover", function(e:any):void {
-				if (MouseManager.enabled) this.runEvent(e);
+				if (MouseManager.enabled) _this.runEvent(e);
 			})
 			canvas.addEventListener("touchstart", function(e:any):void {
 				if (MouseManager.enabled) {
 					if (!MouseManager._isFirstTouch&&!Input.isInputting) e.preventDefault();
 					_this.mouseDownTime = Browser.now();
-					this.runEvent(e);
+					_this.runEvent(e);
 				}
 			});
 			canvas.addEventListener("touchend", function(e:any):void {
@@ -138,30 +138,30 @@ import { Stage } from "../display/Stage";
 					if (!MouseManager._isFirstTouch&&!Input.isInputting) e.preventDefault();
 					MouseManager._isFirstTouch = false;
 					_this.mouseDownTime = -Browser.now();
-					this.runEvent(e);
+					_this.runEvent(e);
 				}else {
-					this._curTouchID = NaN;
+					_this._curTouchID = NaN;
 				}
 			}, true);
 			canvas.addEventListener("touchmove", function(e:any):void {
 				if (MouseManager.enabled) {
 					e.preventDefault();
-					this.runEvent(e);
+					_this.runEvent(e);
 				}
 			}, true);
 			canvas.addEventListener("touchcancel", function(e:any):void {
 				if (MouseManager.enabled) {
 					e.preventDefault();
-					this.runEvent(e);
+					_this.runEvent(e);
 				}else {
-					this._curTouchID = NaN;
+					_this._curTouchID = NaN;
 				}
 			}, true);
 			canvas.addEventListener('mousewheel', function(e:any):void {
-				if (MouseManager.enabled) this.runEvent(e);
+				if (MouseManager.enabled) _this.runEvent(e);
 			});
 			canvas.addEventListener('DOMMouseScroll', function(e:any):void {
-				if (MouseManager.enabled) this.runEvent(e);
+				if (MouseManager.enabled) _this.runEvent(e);
 			});
 		}
 		private _tTouchID:number;

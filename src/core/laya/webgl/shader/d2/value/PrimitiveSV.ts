@@ -8,4 +8,3 @@ export class PrimitiveSV extends Value2D{
     }
 }
 
-Value2D._initone(ShaderDefines2D.PRIMITIVE, PrimitiveSV);

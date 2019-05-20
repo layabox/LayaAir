@@ -37,6 +37,14 @@ import { Graphics } from "./laya/display/Graphics";
 import { Tween } from "./laya/utils/Tween";
 import { Dragging } from "./laya/utils/Dragging";
 import { Script } from "./laya/components/Script";
+import { Stat } from "./laya/utils/Stat";
+import { StatUI } from "./laya/utils/StatUI";
+import { Value2D } from "./laya/webgl/shader/d2/value/Value2D";
+import { ShaderDefines2D } from "./laya/webgl/shader/d2/ShaderDefines2D";
+import { TextureSV } from "./laya/webgl/shader/d2/value/TextureSV";
+import { PrimitiveSV } from "./laya/webgl/shader/d2/value/PrimitiveSV";
+import { SkinSV } from "./laya/webgl/shader/d2/skinAnishader/SkinSV";
+
 	
 	/**
 	 * <code>Laya</code> 是全局对象的引用入口集。
@@ -158,7 +166,10 @@ import { Script } from "./laya/components/Script";
 			}
 			
 			CacheManger.beginCheck();
-			Laya._currentStage = Laya.stage = new Stage();
+            Laya._currentStage = Laya.stage = new Stage();
+            Stage.gStage = Laya.stage;
+            Stage.gSysTimer=Laya.systemTimer;
+            
 			Browser.gStage = Laya.stage;
 			Utils.gStage = Laya.stage;
 			Input.gStage = Laya.stage;
@@ -175,8 +186,6 @@ import { Script } from "./laya/components/Script";
             Dragging.gStage = Laya.stage;
             Dragging.gSysTimer=Laya.systemTimer;
 
-            Stage.gStage = Laya.stage;
-            Stage.gSysTimer=Laya.systemTimer;
 			
 			// 给其他对象赋全局值
 			Node.gTimer = Laya.timer;
@@ -193,7 +202,15 @@ import { Script } from "./laya/components/Script";
 			KeyBoardManager.__init__();
 			MouseManager.instance.__init__(Laya.stage, Render.canvas);
 			Input.__init__();
-			SoundManager.autoStopMusic = true;
+            SoundManager.autoStopMusic = true;
+            Stat._StatRender = new StatUI();
+
+            Value2D._initone(ShaderDefines2D.TEXTURE2D, TextureSV);
+            Value2D._initone(ShaderDefines2D.TEXTURE2D | ShaderDefines2D.FILTERGLOW, TextureSV);
+            Value2D._initone(ShaderDefines2D.PRIMITIVE, PrimitiveSV);
+            Value2D._initone(ShaderDefines2D.SKINMESH, SkinSV);    
+
+        
 			return Render.canvas;
 		}
 		

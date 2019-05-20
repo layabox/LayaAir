@@ -23,5 +23,6 @@ import { WebGL } from "../../../WebGL"
 		}
     }
 
-    Value2D._initone(ShaderDefines2D.TEXTURE2D, TextureSV);
-    Value2D._initone(ShaderDefines2D.TEXTURE2D | ShaderDefines2D.FILTERGLOW, TextureSV);
+    // 放在这里容易导致这个文件被排除
+    //Value2D._initone(ShaderDefines2D.TEXTURE2D, TextureSV);
+    //Value2D._initone(ShaderDefines2D.TEXTURE2D | ShaderDefines2D.FILTERGLOW, TextureSV);

@@ -19,5 +19,4 @@ import { ShaderDefines2D } from "../ShaderDefines2D"
 	
 	}
 
-    Value2D._initone(ShaderDefines2D.SKINMESH, SkinSV);    
 

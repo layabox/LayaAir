@@ -3,6 +3,11 @@ import { ShaderDefines2D } from "././ShaderDefines2D";
 	import { Shader } from "../Shader"
 
     import texture_vs from  './files/texture.vs.glsl';
+    import texture_ps from  './files/texture.ps.glsl';
+    import prime_vs from './files/primitive.vs.glsl';
+    import prime_ps from './files/primitive.ps.glsl';
+    import skin_vs from './skinAnishader/skinShader.vs.glsl';
+    import skin_ps from './skinAnishader/skinShader.ps.glsl';
 
 	export class Shader2D
 	{
@@ -22,18 +27,9 @@ import { ShaderDefines2D } from "././ShaderDefines2D";
 		}
 		
 		 static __init__():void {
-			var vs:string, ps:string;
-			vs = require("./files/texture.vs.glsl");
-			ps = require("./files/texture.ps.glsl");
-			Shader.preCompile2D(0, ShaderDefines2D.TEXTURE2D, vs, ps, null);
-			
-			vs = require("./files/primitive.vs.glsl");
-			ps = require("./files/primitive.ps.glsl");
-			Shader.preCompile2D(0, ShaderDefines2D.PRIMITIVE, vs, ps, null);
-			
-			vs = require("./skinAnishader/skinShader.vs.glsl");
-			ps = require("./skinAnishader/skinShader.ps.glsl");
-			Shader.preCompile2D(0, ShaderDefines2D.SKINMESH, vs, ps, null);
+			Shader.preCompile2D(0, ShaderDefines2D.TEXTURE2D, texture_vs, texture_ps, null);
+			Shader.preCompile2D(0, ShaderDefines2D.PRIMITIVE, prime_vs, prime_ps, null);
+			Shader.preCompile2D(0, ShaderDefines2D.SKINMESH, skin_vs, skin_ps, null);
 		}
 	}
 
