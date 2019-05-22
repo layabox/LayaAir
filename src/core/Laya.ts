@@ -94,17 +94,6 @@ import { TextRender } from "./laya/webgl/text/TextRender";
 			Laya._isinit = true;
 			ArrayBuffer.prototype.slice || (ArrayBuffer.prototype.slice = Laya._arrayBufferSlice);
 			
-			//初始化引擎库
-			var libs:any[] =(window as any)._layalibs;
-			if (libs) {
-				libs.sort(function(a:any, b:any):number {
-					return a.i - b.i;
-				});
-				for (var j:number = 0; j < libs.length; j++) {
-					libs[j].f(window, window.document, Laya);
-				}
-			}
-			
 			Browser.gLaya = Laya;
             Browser.__init__();
             // 创建主画布
@@ -339,6 +328,18 @@ import { TextRender } from "./laya/webgl/text/TextRender";
 			
 		}		
 	}
+
+//初始化引擎库
+var libs:any[] =(window as any)._layalibs;
+if (libs) {
+    libs.sort(function(a:any, b:any):number {
+        return a.i - b.i;
+    });
+    for (var j:number = 0; j < libs.length; j++) {
+        libs[j].f(window, window.document, Laya);
+    }
+}
+
 
 
 (window as any).Laya=Laya;

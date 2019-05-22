@@ -1,6 +1,6 @@
 import { P } from "./p";
 export class V{
-    testv(){
-        console.log(P);
+    testv(p?:P){
+        console.log(p);
     }
 }

@@ -6,6 +6,7 @@ import { Const } from "../Const"
 	import { Timer } from "../utils/Timer"
 
 import { Stat } from "../utils/Stat";
+import { ClassUtils } from "../utils/ClassUtils";
 	
 	/**
 	 * 添加到父对象后调度。
@@ -994,3 +995,4 @@ this.createGLBuffer();
 		}
 	}
 
+ClassUtils.regClass('Node',Node);

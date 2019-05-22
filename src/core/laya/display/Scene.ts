@@ -407,3 +407,4 @@ this._setBit(Const.NOT_READY, true);
 		}
 	}
 
+ClassUtils.regClass('Scene', Scene)
