@@ -111,7 +111,7 @@ import { Button } from "./Button"
 		/*override*/  set dataSource(value:any) {
 			this._dataSource = value;
 			if (value instanceof Boolean) this.selected = value as boolean;
-			else if (value instanceof String) this.selected = value === "true";
+			else if (typeof(value)=='string') this.selected = value === "true";
 			else super.dataSource = value;
 		}
 	}

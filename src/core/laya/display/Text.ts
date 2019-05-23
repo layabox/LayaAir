@@ -541,7 +541,7 @@ this._style = TextStyle.EMPTY;
 		}
 		
 		 set padding(value:any[]) {
-			if (value instanceof String)
+			if (typeof(value)=='string')
 			{
 				var arr:any[];
 				arr = ((<string>(value as any) )).split(",");

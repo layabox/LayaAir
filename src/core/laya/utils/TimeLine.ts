@@ -298,7 +298,7 @@ import { Event } from "../events/Event"
 					}
 				}
 			}
-			if (timeOrLabel instanceof String) {
+			if ( typeof(timeOrLabel)=='string') {
 				this.gotoLabel(timeOrLabel);
 			} else {
 				this.gotoTime(timeOrLabel);

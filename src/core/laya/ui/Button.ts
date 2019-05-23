@@ -345,7 +345,7 @@ this.skin = skin;
 		}
 		
 		 set stateNum(value:number) {
-			if ((value as any) instanceof String)
+			if (typeof(value as any)=='string')
 			{
 				value = parseInt(value as any);
 			}
@@ -658,7 +658,7 @@ this.skin = skin;
 		/**@inheritDoc */
 		/*override*/  set dataSource(value:any) {
 			this._dataSource = value;
-			if (value instanceof Number || value instanceof String) this.label = value + "";
+			if (typeof(value)=='number' || typeof(value)=='string') this.label = value + "";
 			else super.dataSource = value;
 		}
 		

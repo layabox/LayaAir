@@ -34,7 +34,7 @@ import { ColorUtils } from "../../utils/ColorUtils"
 		}
 		
 		 equal(value:any):boolean {
-			if (value instanceof String) return this._color.strColor === (<string>value );
+			if ( typeof(value)=='string' ) return this._color.strColor === (<string>value );
 			if (value instanceof ColorUtils) return this._color.numColor === ((<ColorUtils>value )).numColor;
 			return false;
 		}

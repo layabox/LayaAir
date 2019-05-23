@@ -431,7 +431,7 @@ this.skin = skin;
 		/**@inheritDoc */
 		/*override*/  set dataSource(value:any) {
 			this._dataSource = value;
-			if (value instanceof Number || value instanceof String) this.value = Number(value);
+			if (typeof(value)=='number' || typeof(value)=='string') this.value = Number(value);
 			else super.dataSource = value;
 		}
 		

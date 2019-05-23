@@ -68,7 +68,7 @@ this._setBitUp(Const.DISPLAY);
 		 play(start:any = 0, loop:boolean = true, name:string = ""):void {
 			this._isPlaying = true;
 			this._actionName = name;
-			this.index = (start instanceof String) ? this._getFrameByLabel(<string>start) : start;
+			this.index = (typeof(start)=='string') ? this._getFrameByLabel(<string>start) : start;
 			this.loop = loop;
 			this._isReverse = this.wrapMode === AnimationBase.WRAP_REVERSE;
 			if (this.index == 0 && this._isReverse)
@@ -228,7 +228,7 @@ this._setBitUp(Const.DISPLAY);
 		 * @param	position 帧索引或帧标签
 		 */
 		 gotoAndStop(position:any):void {
-			this.index = (position instanceof String) ? this._getFrameByLabel(<string>position) : position;
+			this.index = (typeof(position)=='string') ? this._getFrameByLabel(<string>position) : position;
 			this.stop();
 		}
 		

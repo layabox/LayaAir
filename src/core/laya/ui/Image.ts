@@ -225,7 +225,7 @@ this.skin = skin;
 		/**@inheritDoc */
 		/*override*/  set dataSource(value:any) {
 			this._dataSource = value;
-			if (value instanceof String) this.skin = value as string;
+			if (typeof(value)=='string') this.skin = value as string;
 			else super.dataSource = value;
 		}
 	}

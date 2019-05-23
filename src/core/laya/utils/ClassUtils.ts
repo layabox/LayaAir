@@ -57,7 +57,7 @@ import { ILaya } from "../../ILaya";
 		 static getClass(className:string):any {
             var classObject:any = ClassUtils._classMap[className] || className;
             var glaya:any = (window as any).Laya
-			if (classObject instanceof String) return (glaya["__classmap"][classObject as string] || glaya[className]);
+			if (typeof(classObject)=='string') return (glaya["__classmap"][classObject as string] || glaya[className]);
 			return classObject;
 		}
 		
@@ -107,7 +107,7 @@ import { ILaya } from "../../ILaya";
 		 * @return	生成的节点。
 		 */
 		 static createByJson(json:any, node:any = null, root:Node = null, customHandler:Handler = null, instanceHandler:Handler = null):any {
-			if (json instanceof String) json = JSON.parse((<string>json ));
+			if (typeof(json)=='string') json = JSON.parse((<string>json ));
 			var props:any = json.props;
 			
 			if (!node) {

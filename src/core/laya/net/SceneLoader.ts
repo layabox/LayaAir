@@ -74,7 +74,7 @@ this._completeHandler = new Handler(this, this.onOneLoadComplete);
 				}
 				var tItem:any;
 				tItem = this._toLoadList.pop();
-				if (tItem instanceof String)
+				if (typeof(tItem)=='string')
 				{
 					this.loadOne(tItem);
 				}else

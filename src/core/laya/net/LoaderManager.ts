@@ -117,7 +117,7 @@ for (var i:number = 0; i < this._maxPriority; i++) this._resInfos[i] = [];
 				
 				for (var i:number = 0; i < itemCount; i++) {
 					var item:any = items[i];
-					if (item instanceof String)
+					if (typeof(item)=='string')
 						item = items[i] = {url: item};
 					item.progress = 0;
 				}
@@ -497,7 +497,7 @@ for (var i:number = 0; i < this._maxPriority; i++) this._resInfos[i] = [];
 			var success:boolean = true;
 			for (var i:number = 0; i < itemCount; i++) {
 				var item:any = arr[i];
-				if (item instanceof String) item = {url: item, type: type, size: 1, priority: priority};
+				if (typeof(item)=='string') item = {url: item, type: type, size: 1, priority: priority};
 				if (!item.size) item.size = 1;
 				item.progress = 0;
 				totalSize += item.size;

@@ -484,7 +484,7 @@ this._clipX = clipX;
 		/**@inheritDoc */
 		/*override*/  set dataSource(value:any) {
 			this._dataSource = value;
-			if (value instanceof Number || value instanceof String) this.index = parseInt(value as string);
+			if (typeof(value)=='number' || typeof(value)=='string') this.index = parseInt(value as string);
 			else super.dataSource = value;
 		}
 		

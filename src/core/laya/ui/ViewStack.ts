@@ -137,7 +137,7 @@ import { Node } from "../display/Node"
 		/**@inheritDoc */
 		/*override*/  set dataSource(value:any) {
 			this._dataSource = value;
-			if (value instanceof Number || value instanceof String) {
+			if (typeof(value)=='number' || typeof(value)=='string') {
 				this.selectedIndex = parseInt(value as string);
 			} else {
 				for (var prop  in this._dataSource) {

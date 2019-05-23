@@ -903,7 +903,7 @@ import { Node } from "../display/Node"
 		/**@inheritDoc */
 		/*override*/  set dataSource(value:any) {
 			this._dataSource = value;
-			if (value instanceof Number || value instanceof String) this.selectedIndex = parseInt(value as string);
+			if ( typeof(value) == 'number' || typeof(value)=='string') this.selectedIndex = parseInt(value as string);
 			else if (value instanceof Array) this.array = (<any[]>value )
 			else super.dataSource = value;
 		}

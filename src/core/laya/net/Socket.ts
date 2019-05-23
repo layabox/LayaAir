@@ -225,7 +225,7 @@ this._byteClass = byteClass ? byteClass : Byte;
 			this._input.pos = this._addInputPosition;
 			
 			if (data) {
-				if (data instanceof String) {
+				if (typeof(data)=='string') {
 					this._input.writeUTFBytes(data);
 				} else {
 					this._input.writeArrayBuffer(data);

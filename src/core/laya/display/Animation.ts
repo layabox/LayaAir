@@ -371,7 +371,7 @@ this._setControlNode(this);
 		 */
 		 static createFrames(url:string|string[], name:string):any[] {
 			var arr:any[];
-			if (url instanceof String) {
+			if (typeof(url)=='string') {
 				var atlas:any[] = Loader.getAtlas(<string>url);
 				if (atlas && atlas.length) {
 					arr = [];

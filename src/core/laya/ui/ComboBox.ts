@@ -541,7 +541,7 @@ this.skin = skin;
 		/**@inheritDoc */
 		/*override*/  set dataSource(value:any) {
 			this._dataSource = value;
-			if (value instanceof Number || value instanceof String) this.selectedIndex = parseInt(value as string);
+			if (typeof(value)=='number' || typeof(value)=='string') this.selectedIndex = parseInt(value as string);
 			else if (value instanceof Array) this.labels = ((<any[]>value )).join(",");
 			else super.dataSource = value;
 		}

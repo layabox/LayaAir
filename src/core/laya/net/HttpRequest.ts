@@ -55,7 +55,7 @@ import { Event } from "../events/Event"
 					http.setRequestHeader(headers[i++], headers[i]);
 				}
 			} else if (!(((<any>window )).conch)) {
-				if (!data || data instanceof String) http.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+				if (!data || typeof(data)=='string') http.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 				else http.setRequestHeader("Content-Type", "application/json");
 			}
 			http.responseType = responseType !== "arraybuffer" ? "text" : "arraybuffer";

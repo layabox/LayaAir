@@ -153,7 +153,7 @@ import { Timer } from "./Timer";
 		private _initProps(target:any, props:any, isTo:boolean):void {
 			//初始化属性
 			for (var p  in props) {
-				if (target[p] instanceof Number) {
+				if (typeof(target[p])=='number') {
 					var start:number = isTo ? target[p] : props[p];
 					var end:number = isTo ? props[p] : target[p];
 					this._props.push([p, start, end - start]);

@@ -165,7 +165,7 @@ import { Const } from "../Const"
 			var props:any = uiView.props;
 			for (var prop  in props) {
 				var value:any = props[prop];
-				if (value instanceof String && (value.indexOf("@node:") >= 0 || value.indexOf("@Prefab:") >= 0)) {
+				if (typeof(value)=='string' && (value.indexOf("@node:") >= 0 || value.indexOf("@Prefab:") >= 0)) {
 					if (initTool) {
 						initTool.addNodeRef(comp, prop, <string>value);
 					}
@@ -198,7 +198,7 @@ import { Const } from "../Const"
 		 */
 		private static setCompValue(comp:any, prop:string, value:any, view:any = null, dataMap:any[] = null):void {
 			//处理数据绑定
-			if (value instanceof String && value.indexOf("${") > -1) {
+			if (typeof(value)=='string' && value.indexOf("${") > -1) {
 				SceneUtils._sheet || (SceneUtils._sheet = ILaya.ClassUtils.getClass("laya.data.Table"));
 				if (!SceneUtils._sheet) {
 					console.warn("Can not find class Sheet");

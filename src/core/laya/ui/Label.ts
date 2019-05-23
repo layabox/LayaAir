@@ -382,7 +382,7 @@ this.text = text;
 		/**@inheritDoc */
 		/*override*/  set dataSource(value:any) {
 			this._dataSource = value;
-			if (value instanceof Number || value instanceof String) this.text = value + "";
+			if (typeof(value) =='number' || typeof(value)=='string') this.text = value + "";
 			else super.dataSource = value;
 		}
 		

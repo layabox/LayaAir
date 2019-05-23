@@ -50,7 +50,7 @@ import { Graphics } from "../display/Graphics"
 		 * @private
 		 */
 		private _showTip(tip:any):void {
-			if (tip instanceof String) {
+			if (typeof(tip)=='string') {
 				var text:string = String(tip);
 				if (Boolean(text)) {
 					this._defaultTipHandler(text);

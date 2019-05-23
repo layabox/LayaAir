@@ -1819,7 +1819,7 @@ interface IMouseManager{
 		}
 		
 		 set texture(value:Texture) {
-			if (value instanceof String) {
+			if (typeof(value)=='string') {
 				this.loadImage((<string>((<any>value ) ) ));
 			}else if (this._texture != value) {				
 				this._texture && this._texture._removeReference();
@@ -1847,7 +1847,7 @@ interface IMouseManager{
 		}
 		
 		 set viewport(value:Rectangle) {
-			if (value instanceof String) {
+			if (typeof(value)=='string') {
 				var recArr:any[];
 				recArr = ((<string>((<any>value )) )).split(",");
 				if (recArr.length > 3) {				
