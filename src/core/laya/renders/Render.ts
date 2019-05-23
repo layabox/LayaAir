@@ -2,7 +2,6 @@ import { Config } from "./../../Config";
 import { LayaGL } from "../layagl/LayaGL"
 	import { Context } from "../resource/Context"
 	import { HTMLCanvas } from "../resource/HTMLCanvas"
-	import { PlatformInfo } from "../utils/PlatformInfo"
 	import { WebGL } from "../webgl/WebGL"
 	import { WebGLContext } from "../webgl/WebGLContext"
 	import { BlendMode } from "../webgl/canvas/BlendMode"
@@ -83,7 +82,7 @@ import { Stage } from "../display/Stage";
 						} catch (e) {
 						}
 						if (gl) {
-							(names[i] === 'webgl2') && (WebGL._isWebGL2 = true,PlatformInfo.isWebGL2Render=true);
+							(names[i] === 'webgl2') && (WebGL._isWebGL2 = true);
 							new LayaGL();
 							return gl;
 						}
@@ -106,7 +105,7 @@ import { Stage } from "../display/Stage";
 				WebGL.shaderHighPrecision = false;
 				try {//某些浏览器中未实现此函数，使用try catch增强兼容性。
 					var precisionFormat:any = gl.getShaderPrecisionFormat(WebGLContext.FRAGMENT_SHADER, WebGLContext.HIGH_FLOAT);
-					precisionFormat.precision ? (WebGL.shaderHighPrecision = PlatformInfo.shaderHighPrecision= true) : WebGL.shaderHighPrecision = false;
+					precisionFormat.precision ? (WebGL.shaderHighPrecision =true) : WebGL.shaderHighPrecision = false;
 				} catch (e) {
 				}
 				//TODO 现在有个问题是 gl.deleteTexture并没有走WebGLContex封装的
@@ -140,7 +139,6 @@ import { Stage } from "../display/Stage";
 				Render.supportWebGLPlusCulling = true;
 				Render.supportWebGLPlusAnimation = true;
 				Render.supportWebGLPlusRendering = true;
-				PlatformInfo.supportWebGLPlusRendering = true;
 			}
 		}
 		

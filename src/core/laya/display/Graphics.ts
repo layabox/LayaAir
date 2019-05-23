@@ -39,10 +39,6 @@ import { AlphaCmd } from "./cmd/AlphaCmd"
 	import { VectorGraphManager } from "../utils/VectorGraphManager"
 import { ILaya } from "../../ILaya";
 
-    interface ILoader{
-        getRes(url:string):any;
-        cacheRes(url:string, data:any):void;
-    }
 	/**
 	 * <code>Graphics</code> 类用于创建绘图显示对象。Graphics可以同时绘制多个位图或者矢量图，还可以结合save，restore，transform，scale，rotate，translate，alpha等指令对绘图效果进行变化。
 	 * Graphics以命令流方式存储，可以通过cmds属性访问所有命令流。Graphics是比Sprite更轻量级的对象，合理使用能提高应用性能(比如把大量的节点绘图改为一个节点的Graphics命令集合，能减少大量节点创建消耗)。
@@ -50,9 +46,7 @@ import { ILaya } from "../../ILaya";
 	 */
 	export class Graphics {
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
-        /**@private */
-        static gLoader:ILoader=null;
-
+		
 		/**@private */
 		 _sp:Sprite=null;
 		/**@private */
@@ -150,7 +144,7 @@ import { ILaya } from "../../ILaya";
 		/**@private */
 		private _initGraphicBounds():void {
 			if (!this._graphicBounds) {
-				this._graphicBounds = ILaya.GraphicsBounds.create();
+				this._graphicBounds = GraphicsBounds.create();
 				this._graphicBounds._graphics = this;
 			}
 		}
@@ -369,9 +363,8 @@ import { ILaya } from "../../ILaya";
 		 */
 		 clipRect(x:number, y:number, width:number, height:number):ClipRectCmd {
 			return this._saveToCmd(Render._context.clipRect, ClipRectCmd.create.call(this, x, y, width, height));
-        }
-        
-        deffont = 'Arial';
+		}
+		
 		/**
 		 * 在画布上绘制文本。
 		 * @param text 在画布上输出的文本。
@@ -382,7 +375,7 @@ import { ILaya } from "../../ILaya";
 		 * @param textAlign 文本对齐方式，可选值："left"，"center"，"right"。
 		 */
 		 fillText(text:string, x:number, y:number, font:string, color:string, textAlign:string):FillTextCmd {
-			return this._saveToCmd(Render._context.fillText, FillTextCmd.create.call(this, text, x, y, font || this.deffont, color, textAlign));
+			return this._saveToCmd(Render._context.fillText, FillTextCmd.create.call(this, text, x, y, font || ILaya.Text.defaultFontStr(), color, textAlign));
 		}
 		
 		/**
@@ -397,17 +390,17 @@ import { ILaya } from "../../ILaya";
 		 * @param textAlign		文本对齐方式，可选值："left"，"center"，"right"。
 		 */
 		 fillBorderText(text:string, x:number, y:number, font:string, fillColor:string, borderColor:string, lineWidth:number, textAlign:string):FillBorderTextCmd {
-			return this._saveToCmd(Render._context.fillBorderText, FillBorderTextCmd.create.call(this, text, x, y, font || this.deffont, fillColor, borderColor, lineWidth, textAlign));
+			return this._saveToCmd(Render._context.fillBorderText, FillBorderTextCmd.create.call(this, text, x, y, font || ILaya.Text.defaultFontStr(), fillColor, borderColor, lineWidth, textAlign));
 		}
 		
 		/*** @private */
 		 fillWords(words:any[], x:number, y:number, font:string, color:string):FillWordsCmd {
-			return this._saveToCmd(Render._context.fillWords, FillWordsCmd.create.call(this, words, x, y, font || this.deffont, color));
+			return this._saveToCmd(Render._context.fillWords, FillWordsCmd.create.call(this, words, x, y, font || ILaya.Text.defaultFontStr(), color));
 		}
 		
 		/*** @private */
 		 fillBorderWords(words:any[], x:number, y:number, font:string, fillColor:string, borderColor:string, lineWidth:number):FillBorderWordsCmd {
-			return this._saveToCmd(Render._context.fillBorderWords, FillBorderWordsCmd.create.call(this, words, x, y, font || this.deffont, fillColor, borderColor, lineWidth));
+			return this._saveToCmd(Render._context.fillBorderWords, FillBorderWordsCmd.create.call(this, words, x, y, font || ILaya.Text.defaultFontStr(), fillColor, borderColor, lineWidth));
 		}
 		
 		/**
@@ -421,7 +414,7 @@ import { ILaya } from "../../ILaya";
 		 * @param textAlign	文本对齐方式，可选值："left"，"center"，"right"。
 		 */
 		 strokeText(text:string, x:number, y:number, font:string, color:string, lineWidth:number, textAlign:string):StrokeTextCmd {
-			return this._saveToCmd(Render._context.fillBorderText, StrokeTextCmd.create.call(this, text, x, y, font || this.deffont, null, color, lineWidth, textAlign));
+			return this._saveToCmd(Render._context.fillBorderText, StrokeTextCmd.create.call(this, text, x, y, font || ILaya.Text.defaultFontStr(), null, color, lineWidth, textAlign));
 		}
 		
 		/**
@@ -565,11 +558,11 @@ import { ILaya } from "../../ILaya";
 		 * @param complete	（可选）加载完成回调。
 		 */
 		 loadImage(url:string, x:number = 0, y:number = 0, width:number = 0, height:number = 0, complete:Function = null):void {
-			var tex:Texture = Graphics.gLoader.getRes(url);
+			var tex:Texture = ILaya.Loader.getRes(url);
 			if (!tex) {
 				tex = new Texture();
 				tex.load(url);
-				Graphics.gLoader.cacheRes(url, tex);
+				ILaya.Loader.cacheRes(url, tex);
 				tex.once(Event.READY, this, this.drawImage, [tex, x, y, width, height]);
 			} else {
 				if (!tex.getIsReady()) {

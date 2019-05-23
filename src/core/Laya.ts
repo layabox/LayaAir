@@ -31,7 +31,6 @@ import { Utils } from "./laya/utils/Utils";
 import { Loader } from "./laya/net/Loader";
 import { Resource } from "./laya/resource/Resource";
 import { TTFLoader } from "./laya/net/TTFLoader";
-import { PlatformInfo } from "./laya/utils/PlatformInfo";
 import { LocalStorage } from "./laya/net/LocalStorage";
 import { Graphics } from "./laya/display/Graphics";
 import { Tween } from "./laya/utils/Tween";
@@ -50,6 +49,7 @@ import { GraphicsBounds } from "./laya/display/GraphicsBounds";
 import { WebAudioSound } from "./laya/media/webaudio/WebAudioSound";
 import { ShaderCompile } from "./laya/webgl/utils/ShaderCompile";
 import { ClassUtils } from "./laya/utils/ClassUtils";
+import { SceneUtils } from "./laya/utils/SceneUtils";
 
 	
 	/**
@@ -97,9 +97,28 @@ import { ClassUtils } from "./laya/utils/ClassUtils";
 		 static init(width:number, height:number, ... plugins):any {
 			if (Laya._isinit) return;
 			Laya._isinit = true;
-			ArrayBuffer.prototype.slice || (ArrayBuffer.prototype.slice = Laya._arrayBufferSlice);
+            ArrayBuffer.prototype.slice || (ArrayBuffer.prototype.slice = Laya._arrayBufferSlice);
+            
+            ILaya.Timer=Timer;
+            ILaya.Dragging=Dragging;
+            ILaya.GraphicsBounds = GraphicsBounds;
+            ILaya.Sprite = Sprite;
+            ILaya.TextRender=TextRender;
+            ILaya.Loader=Loader;
+            ILaya.TTFLoader = TTFLoader;
+            ILaya.WebAudioSound  = WebAudioSound;
+            ILaya.SoundManager = SoundManager;
+            ILaya.ShaderCompile = ShaderCompile;
+            ILaya.ClassUtils = ClassUtils;
+            ILaya.SceneUtils = SceneUtils;
+            ILaya.Context = Context;
+            ILaya.Render = Render;
+            ILaya.MouseManager = MouseManager;
+            ILaya.Text = Text; 
+            ILaya.Browser = Browser;
+            ILaya.WebGL = WebGL;
+
 			
-			Browser.gLaya = Laya;
             Browser.__init__();
             // 创建主画布
 			//这个其实在Render中感觉更合理，但是runtime要求第一个canvas是主画布，所以必须在下面的那个离线画布之前
@@ -120,21 +139,9 @@ import { ClassUtils } from "./laya/utils/ClassUtils";
 			Browser.context = <CanvasRenderingContext2D>(Browser.canvas.getContext('2d') as any);
 
 
-            PlatformInfo.supportWebAudio = Browser.supportWebAudio = SoundManager.__init__();;
-			Browser.supportLocalStorage = PlatformInfo.supportLocalStorage = LocalStorage.__init__();
+            Browser.supportWebAudio = SoundManager.__init__();;
+			Browser.supportLocalStorage = LocalStorage.__init__();
             
-            ILaya.Timer=Timer;
-            ILaya.Dragging=Dragging;
-            ILaya.GraphicsBounds = GraphicsBounds;
-            ILaya.Sprite = Sprite;
-            ILaya.TextRender=TextRender;
-            ILaya.Loader=Loader;
-            ILaya.TTFLoader = TTFLoader;
-            ILaya.WebAudioSound  = WebAudioSound;
-            ILaya.SoundManager = SoundManager;
-            ILaya.ShaderCompile = ShaderCompile;
-            ILaya.ClassUtils = ClassUtils;
-
             //temp TODO 以后分包
 
             Laya.systemTimer = new Timer(false);
@@ -145,23 +152,25 @@ import { ClassUtils } from "./laya/utils/ClassUtils";
 			Laya.lateTimer = new Timer(false);
             Laya.timer = new Timer(false);
 
+            ILaya.startTimer=Laya.startTimer;
+            ILaya.lateTimer = Laya.lateTimer;
+            ILaya.updateTimer = Laya.updateTimer;
             ILaya.systemTimer=Laya.systemTimer;
+            ILaya.timer = Laya.timer;
+            ILaya.physicsTimer = Laya.physicsTimer;
             
-            Script.gStartTimer = Laya.startTimer;
-            Script.gUpdateTimer = Laya.updateTimer;
-            Script.gLateTimer = Laya.lateTimer;
-			
             Laya.loader = new LoaderManager();
             LoaderManager.gLoader=Laya.loader;
 			Texture2D.gLoaderMgr =  Laya.loader;
             Texture2D.gLoaderType = Loader;
-            Graphics.gLoader = Loader;
 			Texture2D.gBrowser = Browser;
 			Context.gSysTimer = Laya.systemTimer;
-			Input.gSysTimer = Laya.systemTimer;
 			Resource.gLoader = Loader;
             TTFLoader.gSysTimer = Laya.systemTimer;
             LoaderManager.gSysTimer=Laya.systemTimer;
+
+            ILaya.Laya=Laya;
+            ILaya.loader = Laya.loader;
             
             Tween.gTimer = Laya.timer;
 
@@ -178,12 +187,10 @@ import { ClassUtils } from "./laya/utils/ClassUtils";
 			
 			CacheManger.beginCheck();
             Laya._currentStage = Laya.stage = new Stage();
-            Stage.gStage = Laya.stage;
-            Stage.gSysTimer=Laya.systemTimer;
+
+            ILaya.stage = Laya.stage;
             
-			Browser.gStage = Laya.stage;
 			Utils.gStage = Laya.stage;
-			Input.gStage = Laya.stage;
             URL.rootPath = URL._basePath = URL._getUrlPath();
             Render.gStage = Laya.stage;
 			Laya.render = new Render(0, 0, Browser.mainCanvas);
@@ -199,14 +206,9 @@ import { ClassUtils } from "./laya/utils/ClassUtils";
 
 			
 			// 给其他对象赋全局值
-			Node.gTimer = Laya.timer;
-			Node.gStage = Laya.stage;
-			Text.gSysTimer = Laya.systemTimer;
-			Text.gBrowser = Browser;
 			Event.gStage = Laya.stage;
             Texture.gLoader = Laya.loader;
             Texture.gContext =  Context;
-            Input.gMainCanvas=Render.canvas;
             //Loader.gSysTimer = Laya.systemTimer;
 
 			RenderSprite.__init__();

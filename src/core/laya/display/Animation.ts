@@ -4,7 +4,8 @@ import { Loader } from "../net/Loader"
 	import { GraphicAnimation } from "../utils/GraphicAnimation"
 	import { Handler } from "../utils/Handler"
 	import { Utils } from "../utils/Utils"
-	
+import { ILaya } from "../../ILaya";
+
 	/**
 	 * 动画播放完毕后调度。
 	 * @eventType Event.COMPLETE
@@ -271,9 +272,9 @@ this._setControlNode(this);
 						_this.frames = Animation.framesMap[cacheName] ? Animation.framesMap[cacheName] : Animation.createFrames(url, cacheName);
 						if (loaded) loaded.run();
 					}
-				}
-				if (Loader.getAtlas(url)) onLoaded(url);
-				else (window as any).Laya.loader.load(url, Handler.create(null, onLoaded, [url]), null, Loader.ATLAS);// TODO TS
+                }
+                if (Loader.getAtlas(url)) onLoaded(url);
+				else ILaya.loader.load(url, Handler.create(null, onLoaded, [url]), null, Loader.ATLAS);
 			}
 			return this;
 		}
@@ -296,7 +297,7 @@ this._setControlNode(this);
 				if (!atlas || Loader.getAtlas(atlas)) {
 					this._loadAnimationData(url, loaded, atlas);
 				} else {
-					(window as any).Laya.loader.load(atlas, Handler.create(this, this._loadAnimationData, [url, loaded, atlas]), null, Loader.ATLAS)
+					ILaya.loader.load(atlas, Handler.create(this, this._loadAnimationData, [url, loaded, atlas]), null, Loader.ATLAS)
 				}
 			} else {
 				_this._setFramesFromCache(this._actionName, true);
@@ -358,7 +359,7 @@ this._setControlNode(this);
 				Loader.clearRes(url);
 			}
 			if (Loader.getRes(url)) onLoaded(url);
-			else (window as any).Laya.loader.load(url, Handler.create(null, onLoaded, [url]), null, Loader.JSON);//TODO TS
+			else ILaya.loader.load(url, Handler.create(null, onLoaded, [url]), null, Loader.JSON);
 			
 			
 		}

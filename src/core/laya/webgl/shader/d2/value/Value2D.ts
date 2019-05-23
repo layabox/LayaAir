@@ -5,7 +5,7 @@
 	import { Shader2X } from "../Shader2X"
 	import { ShaderDefines2D } from "../ShaderDefines2D"
 	import { RenderState2D } from "../../../utils/RenderState2D"
-import { PlatformInfo } from "../../../../utils/PlatformInfo";
+import { ILaya } from "../../../../../ILaya";
 
 	export class Value2D{
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
@@ -141,7 +141,7 @@ import { PlatformInfo } from "../../../../utils/PlatformInfo";
 		
 		 clear():void
 		{
-			this.defines._value=this.subID + (PlatformInfo.shaderHighPrecision?ShaderDefines2D.SHADERDEFINE_FSHIGHPRECISION:0);
+			this.defines._value=this.subID + (ILaya.WebGL.shaderHighPrecision?ShaderDefines2D.SHADERDEFINE_FSHIGHPRECISION:0);
 			this.clipOff[0] = 0;
 		}
 		

@@ -2,15 +2,11 @@ import { Node } from "././Node";
 import { Const } from "../Const"
 	import { Sprite } from "./Sprite"
 	import { Event } from "../events/Event"
-	//import { Loader } from "../net/Loader"
 	import { SceneLoader } from "../net/SceneLoader"
 	import { Resource } from "../resource/Resource"
-	//import { ClassUtils } from "../utils/ClassUtils"
 	import { Handler } from "../utils/Handler"
 	import { SceneUtils } from "../utils/SceneUtils"
 	import { Timer } from "../utils/Timer"
-import { Stage } from "./Stage";
-import { LoaderManager } from "../net/LoaderManager";
 import { ILaya } from "../../ILaya";
 	
 	/**
@@ -59,13 +55,12 @@ this._setBit(Const.NOT_READY, true);
 		 * @param path 场景地址。
 		 */
 		 loadScene(path:string):void {
-             var gLoader:LoaderManager = (window as any).Laya.loader;
-			var url:string = path.indexOf(".") > -1 ? path : path + ".scene";
-			var view:any = gLoader.getRes(url);
+            var url:string = path.indexOf(".") > -1 ? path : path + ".scene";
+			var view:any = ILaya.loader.getRes(url);
 			if (view) {
 				this.createView(view);
 			} else {
-				gLoader.resetProgress();
+				ILaya.loader.resetProgress();
 				var loader:SceneLoader = new SceneLoader();
 				loader.on(Event.COMPLETE, this, this._onSceneLoaded, [url]);
 				loader.load(url);
@@ -207,23 +202,22 @@ this._setBit(Const.NOT_READY, true);
 		
 		/**获取场景根容器*/
 		 static get root():Sprite {
-            var gStage:Stage = (window as any).Laya.stage;
 			if (!Scene._root) {
-				Scene._root = (<Sprite>gStage.addChild(new Sprite()) );
+				Scene._root = (<Sprite>ILaya.stage.addChild(new Sprite()) );
 				Scene._root.name = "root";
-				gStage.on("resize", null, function():void{
-					Scene._root.size(gStage.width, gStage.height);
+				ILaya.stage.on("resize", null, resize);
+				function resize():void {
+					Scene._root.size(ILaya.stage.width, ILaya.stage.height);
 					Scene._root.event(Event.RESIZE);
-                });
-                Scene._root.size(gStage.width, gStage.height);
-                Scene._root.event(Event.RESIZE);
+				}
+				resize();
 			}
 			return Scene._root;
 		}
 		
 		/**场景时钟*/
 		/*override*/  get timer():Timer {
-			return this._timer || (window as any).Laya.timer;
+			return this._timer || ILaya.timer;
 		}
 		
 		 set timer(value:Timer) {
@@ -237,7 +231,7 @@ this._setBit(Const.NOT_READY, true);
 		 * @param	progress	加载进度回调（可选）
 		 */
 		 static load(url:string, complete:Handler = null, progress:Handler = null):void {
-			(window as any).Laya.loader.resetProgress();
+			ILaya.loader.resetProgress();
 			var loader:SceneLoader = new SceneLoader();
 			loader.on(Event.PROGRESS, null, onProgress);
 			loader.once(Event.COMPLETE, null, create);
@@ -253,7 +247,7 @@ this._setBit(Const.NOT_READY, true);
 				var obj:any = ILaya.Loader.getRes(url);
 				if (!obj) throw "Can not find scene:" + url;
 				if (!obj.props) throw "Scene data is error:" + url;
-                var runtime:string = obj.props.runtime ? obj.props.runtime : obj.type;
+				var runtime:string = obj.props.runtime ? obj.props.runtime : obj.type;
 				var clas:any = ILaya.ClassUtils.getClass(runtime);
 				if (obj.props.renderType == "instance") {
 					var scene:Scene = clas.instance || (clas.instance = new clas());
@@ -328,7 +322,7 @@ this._setBit(Const.NOT_READY, true);
 		 static closeAll():void {
 			var root:Sprite = Scene.root;
 			for (var i:number = 0, n:number = root.numChildren; i < n; i++) {
-				var scene:Node = (root.getChildAt(0) );
+				var scene:Node = root.getChildAt(0);
 				if (scene instanceof Scene) scene.close();
 				else scene.removeSelf();
 			}
@@ -376,17 +370,15 @@ this._setBit(Const.NOT_READY, true);
 		 * @param	delay 延迟打开时间，默认500毫秒
 		 */
 		 static showLoadingPage(param:any = null, delay:number = 500):void {
-             var gSysTimer:Timer = (window as any).Laya.systemTimer;
 			if (Scene._loadPage) {
-				gSysTimer.clear(null, Scene._showLoading);
-				gSysTimer.clear(null, Scene._hideLoading);
-				gSysTimer.once(delay, null, Scene._showLoading, [param], false);
+				ILaya.systemTimer.clear(null, Scene._showLoading);
+				ILaya.systemTimer.clear(null, Scene._hideLoading);
+				ILaya.systemTimer.once(delay, null, Scene._showLoading, [param], false);
 			}
 		}
 		
 		private static _showLoading(param:any):void {
-            var gStage:Stage = (window as any).Laya.stage;
-			gStage.addChild(Scene._loadPage);
+			ILaya.stage.addChild(Scene._loadPage);
 			Scene._loadPage.onOpened(param);
 		}
 		
@@ -400,10 +392,9 @@ this._setBit(Const.NOT_READY, true);
 		 */
 		 static hideLoadingPage(delay:number = 500):void {
 			if (Scene._loadPage) {
-                var gSysTimer:Timer = (window as any).Laya.systemTimer;
-				gSysTimer.clear(null, Scene._showLoading);
-				gSysTimer.clear(null, Scene._hideLoading);
-				gSysTimer.once(delay, null, Scene._hideLoading);
+				ILaya.systemTimer.clear(null, Scene._showLoading);
+				ILaya.systemTimer.clear(null, Scene._hideLoading);
+				ILaya.systemTimer.once(delay, null, Scene._hideLoading);
 			}
 		}
 	}

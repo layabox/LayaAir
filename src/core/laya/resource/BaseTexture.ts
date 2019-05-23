@@ -1,7 +1,7 @@
 import { LayaGL } from "../layagl/LayaGL"
 	import { Bitmap } from "./Bitmap"
 	import { WebGLContext } from "../webgl/WebGLContext"
-import { PlatformInfo } from "../utils/PlatformInfo";
+import { ILaya } from "../../ILaya";
 	
 	/**
 	 * <code>BaseTexture</code> 纹理的父类，抽象类，不允许实例。
@@ -310,7 +310,7 @@ this._wrapModeU = BaseTexture.WARPMODE_REPEAT;
 		 */
 		protected _setAnisotropy(value:number):void {
 			var anisotropic:any = WebGLContext._extTextureFilterAnisotropic;
-			if (anisotropic && !PlatformInfo.onLimixiu) {
+			if (anisotropic && !ILaya.Browser.onLimixiu) {
 				value = Math.max(value, 1);
 				var gl:WebGLContext = LayaGL.instance;
 				WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);

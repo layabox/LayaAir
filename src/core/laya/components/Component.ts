@@ -141,22 +141,6 @@ import { Node } from "../display/Node"
 		}
 		
 		/**
-		 * 被添加到Scene后调用，无论Scene是否在舞台上，可根据需要重写此方法
-		 * @private
-		 */
-		protected _onEnableInScene():void {
-			//override it.
-		}
-		
-		/**
-		 * 从Scene移除后调用，无论Scene是否在舞台上，可根据需要重写此方法
-		 * @private
-		 */
-		protected _onDisableInScene():void {
-			//override it.
-		}
-		
-		/**
 		 * 被销毁时调用，可根据需要重写此方法
 		 * @private
 		 */
@@ -203,14 +187,6 @@ import { Node } from "../display/Node"
 		}
 		
 		/**
-		 * @private
-		 */
-		 _setActiveInScene(value:boolean):void {
-			if (value) this._onEnableInScene();
-			else this._onDisableInScene();
-		}
-		
-		/**
 		 * 销毁组件
 		 */
 		 destroy():void {
@@ -221,11 +197,10 @@ import { Node } from "../display/Node"
 		 * @private
 		 */
 		 _destroy():void {
-			if (this.owner.activeInHierarchy && this._enabled){
+			if (this.owner.activeInHierarchy && this._enabled) {
 				this._setActive(false);
 				(this._isScript()) && (((<any>this )).onDisable());
 			}
-			this.owner._scene && this._setActiveInScene(false);
 			this._onDestroy();
 			this._destroyed = true;
 			if (this.onReset !== Component.prototype.onReset) {

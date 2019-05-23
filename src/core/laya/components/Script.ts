@@ -2,22 +2,13 @@ import { Component } from "././Component";
 import { Event } from "../events/Event"
 import { Timer } from "../utils/Timer";
 import { Stage } from "../display/Stage";
+import { ILaya } from "../../ILaya";
 	
 	/**
 	 * <code>Script</code> 类用于创建脚本的父类，该类为抽象类，不允许实例。
 	 * 组件的生命周期
 	 */
 	export class Script extends Component {
-        /**@private */
-        static gStartTimer:Timer = null;
-        /**@private */
-        static gUpdateTimer:Timer=null;
-        /**@private */
-        static gLateTimer:Timer=null;
-        
-        /**@private */
-        static gStage:Stage = null;
-
 		/**
 		 * @inheritDoc
 		 */
@@ -31,7 +22,7 @@ import { Stage } from "../display/Stage";
 		/*override*/ protected _onAwake():void {
 			this.onAwake();
 			if (this.onStart !== Script.prototype.onStart) {
-				Script.gStartTimer.callLater(this, this.onStart);
+				ILaya.startTimer.callLater(this, this.onStart);
 			}
 		}
 		
@@ -60,16 +51,16 @@ import { Stage } from "../display/Stage";
 				this.owner.on(Event.CLICK, this, this.onClick);
 			}
 			if (this.onStageMouseDown !== proto.onStageMouseDown) {
-				Script.gStage.on(Event.MOUSE_DOWN, this, this.onStageMouseDown);
+				ILaya.stage.on(Event.MOUSE_DOWN, this, this.onStageMouseDown);
 			}
 			if (this.onStageMouseUp !== proto.onStageMouseUp) {
-				Script.gStage.on(Event.MOUSE_UP, this, this.onStageMouseUp);
+				ILaya.stage.on(Event.MOUSE_UP, this, this.onStageMouseUp);
 			}
 			if (this.onStageClick !== proto.onStageClick) {
-				Script.gStage.on(Event.CLICK, this, this.onStageClick);
+				ILaya.stage.on(Event.CLICK, this, this.onStageClick);
 			}
 			if (this.onStageMouseMove !== proto.onStageMouseMove) {
-				Script.gStage.on(Event.MOUSE_MOVE, this, this.onStageMouseMove);
+				ILaya.stage.on(Event.MOUSE_MOVE, this, this.onStageMouseMove);
 			}
 			if (this.onDoubleClick !== proto.onDoubleClick) {
 				this.owner.on(Event.DOUBLE_CLICK, this, this.onDoubleClick);
@@ -87,22 +78,22 @@ import { Stage } from "../display/Stage";
 				this.owner.on(Event.MOUSE_OUT, this, this.onMouseOut);
 			}
 			if (this.onKeyDown !== proto.onKeyDown) {
-				Script.gStage.on(Event.KEY_DOWN, this, this.onKeyDown);
+				ILaya.stage.on(Event.KEY_DOWN, this, this.onKeyDown);
 			}
 			if (this.onKeyPress !== proto.onKeyPress) {
-				Script.gStage.on(Event.KEY_PRESS, this, this.onKeyPress);
+				ILaya.stage.on(Event.KEY_PRESS, this, this.onKeyPress);
 			}
 			if (this.onKeyUp !== proto.onKeyUp) {
-				Script.gStage.on(Event.KEY_UP, this, this.onKeyUp);
+				ILaya.stage.on(Event.KEY_UP, this, this.onKeyUp);
 			}
 			if (this.onUpdate !== proto.onUpdate) {
-				Script.gUpdateTimer.frameLoop(1, this, this.onUpdate);
+				ILaya.updateTimer.frameLoop(1, this, this.onUpdate);
 			}
 			if (this.onLateUpdate !== proto.onLateUpdate) {
-				Script.gLateTimer.frameLoop(1, this, this.onLateUpdate);
+				ILaya.lateTimer.frameLoop(1, this, this.onLateUpdate);
 			}
 			if (this.onPreRender !== proto.onPreRender) {
-				Script.gLateTimer.frameLoop(1, this, this.onPreRender);
+				ILaya.lateTimer.frameLoop(1, this, this.onPreRender);
 			}
 		}
 		
@@ -111,10 +102,10 @@ import { Stage } from "../display/Stage";
 		 */
 		/*override*/ protected _onDisable():void {
 			this.owner.offAllCaller(this);
-			Script.gStage.offAllCaller(this);
-			Script.gStartTimer.clearAll(this);
-			Script.gUpdateTimer.clearAll(this);
-			Script.gLateTimer.clearAll(this);
+			ILaya.stage.offAllCaller(this);
+			ILaya.startTimer.clearAll(this);
+			ILaya.updateTimer.clearAll(this);
+			ILaya.lateTimer.clearAll(this);
 		}
 		
 		/**

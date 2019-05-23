@@ -22,7 +22,7 @@ import { ClassUtils } from "../utils/ClassUtils"
 		/**@private */
 		private _aniKeys:any[];
 		/**@private */
-		private _effectClass:Object;
+		private _effectClass:new()=>any;
 		
 		/**
 		 * 本实例的目标对象。通过本实例控制目标对象的属性变化。

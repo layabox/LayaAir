@@ -5,7 +5,6 @@ import { Event } from "../events/Event"
 	//import { Loader } from "../net/Loader"
 	import { URL } from "../net/URL"
 	import { Handler } from "../utils/Handler"
-	import { PlatformInfo } from "../utils/PlatformInfo"
 	import { Utils } from "../utils/Utils"
 import { Sound } from "./Sound";
 import { Stage } from "../display/Stage";
@@ -78,7 +77,8 @@ import { ILaya } from "../../ILaya";
 		
 		/**@private */
 		 static __init__():boolean {
-			var win:any = PlatformInfo.window;
+
+			var win:any = ILaya.Browser.window;
 			var supportWebAudio:boolean = win["AudioContext"] || win["webkitAudioContext"] || win["mozAudioContext"] ? true : false;
 			if (supportWebAudio) WebAudioSound.initWebAudio();
 			SoundManager._soundClass = supportWebAudio?WebAudioSound:AudioSound;
@@ -118,7 +118,7 @@ import { ILaya } from "../../ILaya";
 		/**@private */
 		 static disposeSoundLater(url:string):void
 		{
-			SoundManager._lastSoundUsedTimeDic[url] = PlatformInfo.now();
+			SoundManager._lastSoundUsedTimeDic[url] = ILaya.Browser.now();
 			if (!SoundManager._isCheckingDispose)
 			{
 				SoundManager._isCheckingDispose = true;
@@ -130,7 +130,7 @@ import { ILaya } from "../../ILaya";
 		private static _checkDisposeSound():void
 		{
 			var key:string;
-			var tTime:number = PlatformInfo.now();
+			var tTime:number = ILaya.Browser.now();
 			var hasCheck:boolean = false;
 			for (key in SoundManager._lastSoundUsedTimeDic)
 			{
@@ -264,7 +264,7 @@ import { ILaya } from "../../ILaya";
 				{
 					if (SoundManager._musicChannel&&!SoundManager._musicChannel.isStopped)
 					{
-						if (PlatformInfo.onLayaRuntime) {
+						if (ILaya.Render.isConchApp) {
 							if ((SoundManager._musicChannel as any)._audio) (SoundManager._musicChannel as any)._audio.muted = true;;
 						}
 						else {
@@ -285,7 +285,7 @@ import { ILaya } from "../../ILaya";
 				if (SoundManager._bgMusic) {
 					if (SoundManager._musicChannel)
 					{
-						if (PlatformInfo.onLayaRuntime) {
+						if (ILaya.Render.isConchApp) {
 							if((SoundManager._musicChannel as any)._audio) (SoundManager._musicChannel as any)._audio.muted = false;;
 						}
 						else {
@@ -335,7 +335,7 @@ import { ILaya } from "../../ILaya";
 			if (url == SoundManager._bgMusic) {
 				if (SoundManager._musicMuted) return null;
 			} else {
-				if (PlatformInfo.onLayaRuntime) {
+				if (ILaya.Render.isConchApp) {
 					var ext:string = Utils.getFileExtension(url);
 					if (ext != "wav" && ext != "ogg") {
 						alert("The sound only supports wav or ogg format,for optimal performance reason,please refer to the official website document.");
@@ -345,7 +345,7 @@ import { ILaya } from "../../ILaya";
 				if (SoundManager._soundMuted) return null;
 			}
 			var tSound:Sound;
-			if (!PlatformInfo.onMiniGame)
+			if (!ILaya.Browser.onMiniGame)
 			{
 				tSound= SoundManager.gLoader.getRes(url);
 			}
@@ -353,7 +353,7 @@ import { ILaya } from "../../ILaya";
 			if (!tSound) {
 				tSound = new soundClass();
 				tSound.load(url);
-				if (!PlatformInfo.onMiniGame)
+				if (!ILaya.Browser.onMiniGame)
 				{
 					ILaya.Loader.cacheRes(url, tSound);
 				}	

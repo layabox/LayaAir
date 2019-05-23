@@ -54,18 +54,18 @@ import { Sprite } from "../display/Sprite"
 	import { VertexBuffer2D } from "../webgl/utils/VertexBuffer2D"
 import { Timer } from "../utils/Timer";
 import { HTMLCanvas } from "./HTMLCanvas";
-    
-    import {ContextBase} from './ContextBase'
 
 	/**
 	 * @private
 	 * Context扩展类
 	 */
-	export class Context  extends ContextBase{
+	export class Context {
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		 static gSysTimer:Timer = null;
 		 _canvas:HTMLCanvas;
-
+		 static ENUM_TEXTALIGN_DEFAULT:number = 0;
+		 static ENUM_TEXTALIGN_CENTER:number = 1;
+		 static ENUM_TEXTALIGN_RIGHT:number = 2;
 		
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		 static _SUBMITVBSIZE:number = 32000;
@@ -92,11 +92,7 @@ import { HTMLCanvas } from "./HTMLCanvas";
 			Context.MAXCLIPRECT=  new Rectangle(0,0, Context._MAXSIZE, Context._MAXSIZE);
 			ContextParams.DEFAULT = new ContextParams();
 			WebGLCacheAsNormalCanvas;
-        }
-        
-        static CreatContext():ContextBase{
-            return new Context();
-        }
+		}
 		
 		/**@private */
 		 drawImage(... args):void {
@@ -424,7 +420,7 @@ import { HTMLCanvas } from "./HTMLCanvas";
 		 */
 		 sprite:Sprite=null;	
 		
-		private static _textRender:TextRender = new TextRender();
+		private static _textRender:TextRender = null;// new TextRender();
 		
 		 _italicDeg:number = 0;//文字的倾斜角度
 		 _lastTex:Texture = null; //上次使用的texture。主要是给fillrect用，假装自己也是一个drawtexture
@@ -443,9 +439,8 @@ import { HTMLCanvas } from "./HTMLCanvas";
 		 isMain:boolean = false;				// 是否是主context
 
 		constructor(){
-            super();
 			Context._contextcount++;
-			
+            Context._textRender= Context._textRender || new TextRender();
 			//_ib = IndexBuffer2D.QuadrangleIB;
 			if (!this.defTexture) {
 				var defTex2d:Texture2D = new Texture2D(2,2);
@@ -2656,5 +2651,3 @@ class ContextParams {
 		return this === ContextParams.DEFAULT ? new ContextParams() : this;
 	}
 }
-
-HTMLCanvas.gContext=Context;

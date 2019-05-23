@@ -1,12 +1,10 @@
+	import { Context } from "../../resource/Context"
 	import { ColorUtils } from "../../utils/ColorUtils"
 	import { FontInfo } from "../../utils/FontInfo"
 	import { Pool } from "../../utils/Pool"
 	import { WordText } from "../../utils/WordText"
+import { ILaya } from "../../../ILaya";
     
-    interface IContext{
-        _fast_filltext(data:WordText, x:number, y:number, fontObj:any, color:string, strokeColor:string, lineWidth:number, textAlign:number, underLine:number ):void ;
-        drawText(text:any, x:number, y:number, font:string, color:string, textAlign:string):void;
-    }
 	/**
 	 * 绘制文字
 	 */
@@ -56,8 +54,10 @@
 		}
 		
 		/**@private */
-		 run(context:IContext, gx:number, gy:number):void {
-
+		 run(context:Context, gx:number, gy:number):void {
+			if(ILaya.stage.isGlobalRepaint()){
+				this._textIsWorldText && ((<WordText>this._text )).cleanCache();
+			}
 			
 			if (this._textIsWorldText ) {
 				context._fast_filltext(((<WordText>this._text )), this.x + gx, this.y + gy, this._fontObj, this._color, null, 0, this._nTexAlign, 0);
@@ -122,13 +122,13 @@
 			this._textAlign = value;
 			switch (value) {
 			case 'center': 
-				this._nTexAlign = 0;
+				this._nTexAlign = ILaya.Context.ENUM_TEXTALIGN_CENTER;
 				break;
 			case 'right': 
-				this._nTexAlign = 1;
+				this._nTexAlign = ILaya.Context.ENUM_TEXTALIGN_RIGHT;
 				break;
 			default: 
-				this._nTexAlign = 2;
+				this._nTexAlign = ILaya.Context.ENUM_TEXTALIGN_DEFAULT;
 			}
 			this._textIsWorldText && ((<WordText>this._text )).cleanCache();
 		}

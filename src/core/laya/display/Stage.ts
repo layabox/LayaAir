@@ -21,6 +21,7 @@ import { RenderState2D } from "../webgl/utils/RenderState2D";
 import { WebGLContext } from "../webgl/WebGLContext";
 import { Stat } from "../utils/Stat";
 import { Timer } from "../utils/Timer";
+import { ILaya } from "../../ILaya";
 	
 	/**
 	 * stage大小经过重新调整时进行调度。
@@ -59,11 +60,6 @@ import { Timer } from "../utils/Timer";
 	 * <p>Stage提供不同的帧率模式，帧率越高，渲染压力越大，越费电，合理使用帧率甚至动态更改帧率有利于改进手机耗电。</p>
 	 */
 	export class Stage extends Sprite {
-        /**@private */
-        static gStage:Stage=null;
-        /**@private */
-        static gSysTimer:Timer=null;
-        
 		/**应用保持设计宽高不变，不缩放不变形，stage的宽高等于设计宽高。*/
 		 static SCALE_NOSCALE:string = "noscale";
 		/**应用根据屏幕大小铺满全屏，非等比缩放会变形，stage的宽高等于设计宽高。*/
@@ -273,7 +269,7 @@ super.set_transform( this._createTransform());
 		/*override*/  set width(value:number) {
 			this.designWidth = value;
 			super.set_width(value);
-			Stage.gSysTimer.callLater(this, this._changeCanvasSize);
+			ILaya.systemTimer.callLater(this, this._changeCanvasSize);
 		}
 		
 		/*override*/  get width():number {
@@ -284,7 +280,7 @@ super.set_transform( this._createTransform());
 		/*override*/  set height(value:number) {
 			this.designHeight = value;
 			super.set_height(value);
-			Stage.gSysTimer.callLater(this, this._changeCanvasSize);
+			ILaya.systemTimer.callLater(this, this._changeCanvasSize);
 		}
 		
 		/*override*/  get height():number {
@@ -498,7 +494,7 @@ super.set_transform( this._createTransform());
 		
 		 set scaleMode(value:string) {
 			this._scaleMode = value;
-			Stage.gSysTimer.callLater(this, this._changeCanvasSize);
+			ILaya.systemTimer.callLater(this, this._changeCanvasSize);
 		}
 		
 		/**
@@ -515,7 +511,7 @@ super.set_transform( this._createTransform());
 		
 		 set alignH(value:string) {
 			this._alignH = value;
-			Stage.gSysTimer.callLater(this, this._changeCanvasSize);
+			ILaya.systemTimer.callLater(this, this._changeCanvasSize);
 		}
 		
 		/**
@@ -532,7 +528,7 @@ super.set_transform( this._createTransform());
 		
 		 set alignV(value:string) {
 			this._alignV = value;
-			Stage.gSysTimer.callLater(this, this._changeCanvasSize);
+			ILaya.systemTimer.callLater(this, this._changeCanvasSize);
 		}
 		
 		/**舞台的背景颜色，默认为黑色，null为透明。*/
@@ -740,8 +736,8 @@ super.set_transform( this._createTransform());
 				for (var i:number = 0, n:number = this._scene3Ds.length; i < n;i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
 					this._scene3Ds[i]._update();
 				context.clear();
-                super.render(context, x, y);
-                Stat._StatRender.renderNotCanvas(context,x,y);
+				super.render(context, x, y);
+				Stat._StatRender.renderNotCanvas(context, x, y);
 			}
 			//commit submit
 			if (this.renderingEnabled) {
@@ -753,13 +749,12 @@ super.set_transform( this._createTransform());
 		}
 		
 		private _updateTimers():void {
-            var Laya:any = (window as any).Laya;
-			Stage.gSysTimer._update();
-			Laya.startTimer._update();
-			Laya.physicsTimer._update();
-			Laya.updateTimer._update();
-			Laya.lateTimer._update();
-			Laya.timer._update();
+			ILaya.systemTimer._update();
+			ILaya.startTimer._update();
+			ILaya.physicsTimer._update();
+			ILaya.updateTimer._update();
+			ILaya.lateTimer._update();
+			ILaya.timer._update();
 		}
 		
 		/**
@@ -833,7 +828,7 @@ super.set_transform( this._createTransform());
 		
 		/**@private */
 		private _fullScreenChanged():void {
-			Stage.gStage.event(Event.FULL_SCREEN_CHANGE);
+			ILaya.stage.event(Event.FULL_SCREEN_CHANGE);
 		}
 		
 		/**退出全屏模式*/

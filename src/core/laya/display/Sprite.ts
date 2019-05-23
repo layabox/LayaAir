@@ -25,11 +25,6 @@ import { Timer } from "../utils/Timer";
 import { Dragging } from "../utils/Dragging";
 import { ILaya } from "../../ILaya";
 
-interface IMouseManager{
-    setCapture(sp:Sprite, exclusive?:boolean):void ;
-    releaseCapture():void;
-}
-
 	
 	/**在显示对象上按下后调度。
 	 * @eventType Event.MOUSE_DOWN
@@ -210,13 +205,6 @@ interface IMouseManager{
 	 * }
 	 */
 	export class Sprite extends Node {
-        /**@private */
-        static gStage:Stage=null;
-        /**@private */
-        static gSysTimer:Timer = null;
-        /**@private */
-        static gMouseMgr:IMouseManager=null;
-
 		/**@private */
 		 _x:number = 0;
 		/**@private */
@@ -229,6 +217,8 @@ interface IMouseManager{
 		 _visible:boolean = true;
 		/**@private 鼠标状态，0:auto,1:mouseEnabled=false,2:mouseEnabled=true。*/
 		 _mouseState:number = 0;		
+		/**@private z排序，数值越大越靠前。*/
+		 _zOrder:number = 0;
 		/**@private */
 		 _renderType:number = 0;
 		/**@private */
@@ -1224,7 +1214,7 @@ interface IMouseManager{
 		 * @private
 		 * 绘制到画布。
 		 */
-        static drawToCanvas:Function =/*[STATIC SAFE]*/ function(sprite:Sprite, _renderType:number, canvasWidth:number, canvasHeight:number, offsetX:number, offsetY:number):HTMLCanvas {
+		 static drawToCanvas:Function =/*[STATIC SAFE]*/ function(sprite:Sprite, _renderType:number, canvasWidth:number, canvasHeight:number, offsetX:number, offsetY:number):HTMLCanvas {
 			offsetX -= sprite.x;
 			offsetY -= sprite.y;
 			offsetX |= 0;
@@ -1262,11 +1252,12 @@ interface IMouseManager{
 			ctx2d.putImageData(imgdata, 0, 0);;
 			return canv;
 		}
-        
-        /**
-         * @private
-         */
-		static drawToTexture=function(sprite:Sprite, _renderType:number, canvasWidth:number, canvasHeight:number, offsetX:number, offsetY:number):Texture {
+		
+		/**
+		 * @private 
+		 * 
+		 */
+		 static drawToTexture=function(sprite:Sprite, _renderType:number, canvasWidth:number, canvasHeight:number, offsetX:number, offsetY:number):Texture {
 			offsetX -= sprite.x;
 			offsetY -= sprite.y;
 			offsetX |= 0;
@@ -1380,7 +1371,7 @@ interface IMouseManager{
 				point = new Point(point.x, point.y);
 			}
 			var ele:Sprite = this;
-			globalNode =globalNode || Sprite.gStage;
+			globalNode =globalNode || ILaya.stage;
 			while (ele && !ele.destroyed) {
 				if (ele == globalNode) break;
 				point = ele.toParentPoint(point);
@@ -1404,7 +1395,7 @@ interface IMouseManager{
 			}
 			var ele:Sprite = this;
 			var list:any[] = [];
-			globalNode =globalNode || Sprite.gStage;
+			globalNode =globalNode || ILaya.stage;
 			while (ele && !ele.destroyed) {
 				if (ele == globalNode) break;
 				list.push(ele);
@@ -1548,15 +1539,15 @@ interface IMouseManager{
 		 * @return	返回精灵对象本身。
 		 */
 		 loadImage(url:string, complete:Handler = null):Sprite {
-			if (url == null){
+			if (!url){
 				this.texture = null;
 				loaded();
 			}else{
-				var tex:Texture = (window as any).Laya.Loader.getRes(url);//TODO TS
+				var tex:Texture = ILaya.Loader.getRes(url);
 				if (!tex) {
 					tex = new Texture();
 					tex.load(url);
-					(window as any).Laya.Loader.cacheRes(url, tex); //TODO
+					ILaya.Loader.cacheRes(url, tex);
 				}
 				this.texture = tex;
 				if (!tex.getIsReady()) tex.once(Event.READY, null, loaded);
@@ -1606,7 +1597,7 @@ interface IMouseManager{
 			if (this._children.length) this._renderType |= SpriteConst.CHILDS;
 			else this._renderType &= ~SpriteConst.CHILDS;
 			this._setRenderType(this._renderType);
-			if (child && this._getBit(Const.HAS_ZORDER)) Sprite.gSysTimer.callLater(this, this.updateZOrder);
+			if (child && this._getBit(Const.HAS_ZORDER)) ILaya.systemTimer.callLater(this, this.updateZOrder);
 			this.repaint(SpriteConst.REPAINT_ALL);
 		}
 		
@@ -1621,7 +1612,7 @@ interface IMouseManager{
 		
 		/**对舞台 <code>stage</code> 的引用。*/
 		 get stage():Stage {
-			return Sprite.gStage;
+			return ILaya.stage;
 		}
 		
 		/**
@@ -1730,7 +1721,7 @@ interface IMouseManager{
 		
 		/**获得相对于本对象上的鼠标坐标信息。*/
 		 getMousePoint():Point {
-			return this.globalToLocal(Point.TEMP.setTo(Sprite.gStage.mouseX, Sprite.gStage.mouseY));
+			return this.globalToLocal(Point.TEMP.setTo(ILaya.stage.mouseX, ILaya.stage.mouseY));
 		}
 		
 		/**
@@ -1740,7 +1731,7 @@ interface IMouseManager{
 			var scale:number = 1;
 			var ele:Sprite = this;
 			while (ele) {
-				if (ele === Sprite.gStage) break;
+				if (ele === ILaya.stage) break;
 				scale *= ele.scaleX;
 				ele = (<Sprite>ele.parent );
 			}
@@ -1754,7 +1745,7 @@ interface IMouseManager{
 			var angle:number = 0;
 			var ele:Sprite = this;
 			while (ele) {
-				if (ele === Sprite.gStage) break;
+				if (ele === ILaya.stage) break;
 				angle += ele.rotation;
 				ele = (<Sprite>ele.parent );
 			}
@@ -1768,7 +1759,7 @@ interface IMouseManager{
 			var scale:number = 1;
 			var ele:Sprite = this;
 			while (ele) {
-				if (ele === Sprite.gStage) break;
+				if (ele === ILaya.stage) break;
 				scale *= ele.scaleY;
 				ele = (<Sprite>ele.parent );
 			}
@@ -1799,7 +1790,7 @@ interface IMouseManager{
 				this._zOrder = value;
 				if (this._parent) {
 					value && this._parent._setBit(Const.HAS_ZORDER, true);
-					Sprite.gSysTimer.callLater(this._parent, this.updateZOrder);
+					ILaya.systemTimer.callLater(this._parent, this.updateZOrder);
 				}
 			}
 		}
@@ -1881,12 +1872,12 @@ interface IMouseManager{
 		
 		/**@private */
 		 captureMouseEvent(exclusive:boolean):void {
-			Sprite.gMouseMgr.setCapture(this,exclusive);
+			ILaya.MouseManager.instance.setCapture(this,exclusive);
 		}
 		
 		/**@private */
 		 releaseMouseEvent():void {
-			Sprite.gMouseMgr.releaseCapture();
+			ILaya.MouseManager.instance.releaseCapture();
 		}
 		
 		 set drawCallOptimize(value:boolean)

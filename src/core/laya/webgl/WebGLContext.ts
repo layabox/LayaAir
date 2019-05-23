@@ -1,5 +1,6 @@
-import { PlatformInfo } from "../utils/PlatformInfo";
-	
+import { ILaya } from "../../ILaya";
+import { Browser } from "../utils/Browser";
+
 	export class WebGLContext
 	{
 		 static DEPTH_BUFFER_BIT:number = 0x00000100;
@@ -353,7 +354,8 @@ import { PlatformInfo } from "../utils/PlatformInfo";
 		 * @private
 		 */
 		private  static _forceSupportVAOPlatform():boolean{
-			return (PlatformInfo.onMiniGame && PlatformInfo.onIOS) || PlatformInfo.onBDMiniGame || PlatformInfo.onQGMiniGame;
+            var Browser = ILaya.Browser;
+			return (Browser.onMiniGame && Browser.onIOS) || Browser.onBDMiniGame || Browser.onQGMiniGame;
 		}
 		
 		
@@ -362,7 +364,7 @@ import { PlatformInfo } from "../utils/PlatformInfo";
 		 */
 		 static __init__(gl:WebGLContext):void {
 			WebGLContext._checkExtensions(gl);
-			if (!PlatformInfo.isWebGL2Render && ! PlatformInfo.onLayaRuntime) {
+			if (!ILaya.WebGL._isWebGL2 && ! ILaya.Render.isConchApp) {
 				if ((window as any)._setupVertexArrayObject){//兼容VAO
 					if (WebGLContext._forceSupportVAOPlatform())
 						(window as any)._forceSetupVertexArrayObject(gl);
@@ -414,7 +416,7 @@ import { PlatformInfo } from "../utils/PlatformInfo";
 		 */
 		 static __init_native():void
 		{
-			if (!PlatformInfo.supportWebGLPlusRendering) return;
+			if (!ILaya.Render.supportWebGLPlusRendering) return;
 			var webGLContext:any= WebGLContext;
 			webGLContext.activeTexture = webGLContext.activeTextureForNative;
 			webGLContext.bindTexture = webGLContext.bindTextureForNative;

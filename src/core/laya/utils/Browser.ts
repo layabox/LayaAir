@@ -1,5 +1,6 @@
 //import { HTMLCanvas } from "../resource/HTMLCanvas"
-import { PlatformInfo } from "./PlatformInfo";
+import { HTMLCanvas } from "../resource/HTMLCanvas";
+import { ILaya } from "../../ILaya";
     
     
 	/**
@@ -7,11 +8,6 @@ import { PlatformInfo } from "./PlatformInfo";
 	 */
 	export class Browser {
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
-		/** @private */
-		 static gLaya:any= null;
-		/** @private */
-		 static gStage:any= null;
-		
 		/** 浏览器代理信息。*/
 		 static userAgent:string;
 		/** 表示是否在移动设备，包括IOS和安卓等设备内。*/
@@ -49,6 +45,8 @@ import { PlatformInfo } from "./PlatformInfo";
 		/** @private */
 		 static onQGMiniGame:boolean;
 		/** @private */
+		 static onVVMiniGame:boolean;
+		/** @private */
 		 static onLimixiu:boolean;
 		/** @private */
 		 static onFirefox:boolean;//TODO:求补充
@@ -64,7 +62,7 @@ import { PlatformInfo } from "./PlatformInfo";
 		 static supportLocalStorage:boolean;
 		
 		/** 全局离线画布（非主画布）。主要用来测量字体、获取image数据。*/
-		 static canvas:any;
+		 static canvas:HTMLCanvas;
 		/** 全局离线画布上绘图的环境（非主画布）。 */
          static context:CanvasRenderingContext2D;
 		
@@ -101,48 +99,59 @@ import { PlatformInfo } from "./PlatformInfo";
          
 		/**@private */
 		 static __init__():any {
+             var Laya:any = ILaya.Laya;
 			if (Browser._window) return Browser._window;
-			var win:any = Browser._window = PlatformInfo.window = window;
+			var win:any = Browser._window = window;
 			var doc:any = Browser._document = win.document;
 			var u:string = Browser.userAgent = win.navigator.userAgent;
 			
 			//微信小游戏
 			if (u.indexOf("MiniGame") > -1 && Browser.window.hasOwnProperty("wx")) {
-				if (!Browser.gLaya["MiniAdpter"]) {
+				if (!Laya["MiniAdpter"]) {
 					console.error("请先添加小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?nav=zh-ts-5-0-0");
 						//TODO 教程要改
 				} else {
-					Browser.gLaya["MiniAdpter"].enable();
+					Laya["MiniAdpter"].enable();
 				}
 			}
 			
 			//百度小游戏
 			if (u.indexOf("SwanGame") > -1) {
-				if (!Browser.gLaya["BMiniAdapter"]) {
+				if (!Laya["BMiniAdapter"]) {
 					console.error("请先添加百度小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?nav=zh-ts-5-0-0");
 						//TODO 教程要改
 				} else {
-					Browser.gLaya["BMiniAdapter"].enable();
+					Laya["BMiniAdapter"].enable();
 				}
 			}
 			
 			//小米小游戏
 			if((window as any).getApp instanceof Function){
-				if (!Browser.gLaya["KGMiniAdapter"]) {
+				if (!Laya["KGMiniAdapter"]) {
 					console.error("请先添加小米小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?nav=zh-ts-5-0-0");
 					//TODO 教程要改
 				} else {
-					Browser.gLaya["KGMiniAdapter"].enable();
+					Laya["KGMiniAdapter"].enable();
 				}
 			}
 			
 			//OPPO小游戏
 			if (u.indexOf('OPPO') > -1 && u.indexOf('MiniGame') > -1) {
-				if (!Browser.gLaya["QGMiniAdapter"]) {
+				if (!Laya["QGMiniAdapter"]) {
 					console.error("请先添加OPPO小游戏适配库");
 					//TODO 教程要改
 				} else {
-					Browser.gLaya["QGMiniAdapter"].enable();
+					Laya["QGMiniAdapter"].enable();
+				}
+			}
+			
+			//VIVO小游戏
+			if (u.indexOf('VVGame') > -1) {
+				if (!Laya["VVMiniAdapter"]) {
+					console.error("请先添加VIVO小游戏适配库");
+					//TODO 教程要改
+				} else {
+					Laya["VVMiniAdapter"].enable();
 				}
 			}
 			
@@ -180,33 +189,31 @@ import { PlatformInfo } from "./PlatformInfo";
 			}
 			
 			//处理兼容性			
-			Browser.onMobile = PlatformInfo.onMobile = (window as any).isConchApp ? true : u.indexOf("Mobile") > -1;
-			Browser.onIOS = PlatformInfo.onIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
-			Browser.onIPhone = PlatformInfo.onIPhone = u.indexOf("iPhone") > -1;
-			Browser.onMac = PlatformInfo.onMac = /*[STATIC SAFE]*/ u.indexOf("Mac OS X") > -1;
-			Browser.onIPad = PlatformInfo.onIPad = u.indexOf("iPad") > -1;
-			Browser.onAndroid = PlatformInfo.onAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1;
-			Browser.onWP = PlatformInfo.onWP = u.indexOf("Windows Phone") > -1;
-			Browser.onQQBrowser = PlatformInfo.onQQBrowser = u.indexOf("QQBrowser") > -1;
-			Browser.onMQQBrowser = PlatformInfo.onMQQBrowser = u.indexOf("MQQBrowser") > -1 || (u.indexOf("Mobile") > -1 && u.indexOf("QQ") > -1);
-			Browser.onIE = PlatformInfo.onIE = !!win.ActiveXObject || "ActiveXObject" in win;
-			Browser.onWeiXin = PlatformInfo.onWeiXin = u.indexOf('MicroMessenger') > -1;
-			Browser.onSafari = PlatformInfo.onSafari =/*[STATIC SAFE]*/ u.indexOf("Safari") > -1;
-			Browser.onPC = PlatformInfo.onPC = !Browser.onMobile;
-			Browser.onMiniGame = PlatformInfo.onMiniGame = /*[STATIC SAFE]*/ u.indexOf('MiniGame') > -1;
-			Browser.onBDMiniGame = PlatformInfo.onBDMiniGame = /*[STATIC SAFE]*/ u.indexOf('SwanGame') > -1;
-			Browser.onLayaRuntime = PlatformInfo.onLayaRuntime = ! !((<any>Browser.window ) ).conch;
+			Browser.onMobile = (window as any).isConchApp ? true : u.indexOf("Mobile") > -1;
+			Browser.onIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
+			Browser.onIPhone = u.indexOf("iPhone") > -1;
+			Browser.onMac = /*[STATIC SAFE]*/ u.indexOf("Mac OS X") > -1;
+			Browser.onIPad = u.indexOf("iPad") > -1;
+			Browser.onAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1;
+			Browser.onWP = u.indexOf("Windows Phone") > -1;
+			Browser.onQQBrowser = u.indexOf("QQBrowser") > -1;
+			Browser.onMQQBrowser = u.indexOf("MQQBrowser") > -1 || (u.indexOf("Mobile") > -1 && u.indexOf("QQ") > -1);
+			Browser.onIE = !!win.ActiveXObject || "ActiveXObject" in win;
+			Browser.onWeiXin = u.indexOf('MicroMessenger') > -1;
+			Browser.onSafari = /*[STATIC SAFE]*/ u.indexOf("Safari") > -1;
+			Browser.onPC = !Browser.onMobile;
+			Browser.onMiniGame = /*[STATIC SAFE]*/ u.indexOf('MiniGame') > -1;
+			Browser.onBDMiniGame = /*[STATIC SAFE]*/ u.indexOf('SwanGame') > -1;
+			Browser.onLayaRuntime = ! !((<any>Browser.window ) ).conch;
 			if(u.indexOf('OPPO') > -1 && u.indexOf('MiniGame') > -1)
 			{
 				Browser.onQGMiniGame = true;//OPPO环境判断
 				Browser.onMiniGame = false;
 			}	
-			Browser.onLimixiu = PlatformInfo.onLimixiu = /*[STATIC SAFE]*/ u.indexOf('limixiu') > -1;
+			Browser.onLimixiu = /*[STATIC SAFE]*/ u.indexOf('limixiu') > -1;
+			Browser.onVVMiniGame = /*[STATIC SAFE]*/ u.indexOf('VVGame') > -1;//vivo
 			//小米运行环境判断
-			Browser.onKGMiniGame = PlatformInfo.onKGMiniGame = /*[STATIC SAFE]*/ u.indexOf('QuickGame') > -1;//小米环境判断
-			
-			PlatformInfo.onLayaRuntime = (window as any).conch;
-			
+			Browser.onKGMiniGame = /*[STATIC SAFE]*/ u.indexOf('QuickGame') > -1;//小米环境判断
 			
 			return win;
 		}
@@ -267,13 +274,13 @@ import { PlatformInfo } from "./PlatformInfo";
 		/** 浏览器窗口物理宽度。考虑了设备像素比。*/
 		 static get width():number {
 			Browser.__init__();
-			return ((Browser.gStage && Browser.gStage.canvasRotation) ? Browser.clientHeight : Browser.clientWidth) * Browser.pixelRatio;
+			return ((ILaya.stage && ILaya.stage.canvasRotation) ? Browser.clientHeight : Browser.clientWidth) * Browser.pixelRatio;
 		}
 		
 		/** 浏览器窗口物理高度。考虑了设备像素比。*/
 		 static get height():number {
 			Browser.__init__();
-			return ((Browser.gStage && Browser.gStage.canvasRotation) ? Browser.clientWidth : Browser.clientHeight) * Browser.pixelRatio;
+			return ((ILaya.stage && ILaya.stage.canvasRotation) ? Browser.clientWidth : Browser.clientHeight) * Browser.pixelRatio;
 		}
 		
 		/** 获得设备像素比。*/

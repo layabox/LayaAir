@@ -1,9 +1,7 @@
 import { Sprite } from "././Sprite";
 import { Rectangle } from "../maths/Rectangle"
-//	import { Loader } from "../net/Loader"
 	import { Texture } from "../resource/Texture"
 	import { Handler } from "../utils/Handler"
-import { LoaderManager } from "../net/LoaderManager";
 import { ILaya } from "../../ILaya";
 	/**
 	 * <code>BitmapFont</code> 是位图字体类，用于定义位图字体信息。
@@ -39,9 +37,8 @@ import { ILaya } from "../../ILaya";
 			if (!path || path.indexOf(".fnt") === -1) {
 				console.error('Bitmap font configuration information must be a ".fnt" file');
 				return;
-            }
-            var gLoader:LoaderManager=(window as any).Laya.loader;
-			gLoader.load([{url: path, type: ILaya.Loader.XML}, {url: path.replace(".fnt", ".png"), type: ILaya.Loader.IMAGE}], Handler.create(this, this._onLoaded));
+			}
+			ILaya.loader.load([{url: path, type: ILaya.Loader.XML}, {url: path.replace(".fnt", ".png"), type: ILaya.Loader.IMAGE}], Handler.create(this, this._onLoaded));
 		}
 		
 		/**

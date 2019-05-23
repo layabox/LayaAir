@@ -4,7 +4,6 @@ import { LayaGL } from "../../layagl/LayaGL"
 	import { Resource } from "../../resource/Resource"
 	import { WebGLContext } from "../WebGLContext"
     import { CharRenderInfo } from "./CharRenderInfo"
-import { PlatformInfo } from "../../utils/PlatformInfo";
 import { ILaya } from "../../../ILaya";
     
     interface ITextRender{
@@ -46,7 +45,7 @@ import { ILaya } from "../../../ILaya";
 		 recreateResource():void {
 			if (this._source)
                 return;
-			var gl:WebGLContext = PlatformInfo.onLayaRuntime?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
+			var gl:WebGLContext = ILaya.Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
 			var glTex:any = this._source = gl.createTexture();
 			this.bitmap._glTexture = glTex;
 			
@@ -75,24 +74,24 @@ import { ILaya } from "../../../ILaya";
 		 * @return uv数组  如果uv不为空就返回传入的uv，否则new一个数组
 		 */
 		 addChar(data:ImageData, x:number, y:number, uv:any[] = null):any[] {
-			//if (!PlatformInfo.onLayaRuntime &&  !__JS__('(data instanceof ImageData)')) {
+			//if (!ILaya.Render.isConchApp &&  !__JS__('(data instanceof ImageData)')) {
 			if( TextTexture.gTextRender.isWan1Wan){
 				return this.addCharCanvas(data , x, y, uv);
 			}
 			!this._source && this.recreateResource();
-			var gl:WebGLContext = PlatformInfo.onLayaRuntime?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
+			var gl:WebGLContext = ILaya.Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
 			WebGLContext.bindTexture(gl, WebGLContext.TEXTURE_2D, this._source);
-			!PlatformInfo.onLayaRuntime && gl.pixelStorei( WebGLContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+			!ILaya.Render.isConchApp && gl.pixelStorei( WebGLContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 			var dt:any = data.data;
 			if ( data.data instanceof Uint8ClampedArray ) 
 				dt = new Uint8Array(dt.buffer);
 			gl.texSubImage2D(WebGLContext.TEXTURE_2D, 0, x, y, data.width, data.height, WebGLContext.RGBA, WebGLContext.UNSIGNED_BYTE, dt);
-			!PlatformInfo.onLayaRuntime && gl.pixelStorei( WebGLContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+			!ILaya.Render.isConchApp && gl.pixelStorei( WebGLContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
 			var u0:number;
 			var v0:number;
 			var u1:number;
 			var v1:number;
-			if(PlatformInfo.onLayaRuntime){
+			if(ILaya.Render.isConchApp){
 				u0 = x / this._texW;	// +1 表示内缩一下，反正文字总是有留白。否则会受到旁边的一个像素的影响
 				v0 = y / this._texH;
 				u1 = (x + data.width) / this._texW;	// 注意是-1,不是-2
@@ -119,16 +118,16 @@ import { ILaya } from "../../../ILaya";
 		 */
 		 addCharCanvas(canv:any, x:number, y:number,uv:any[]=null):any[] {
 			!this._source && this.recreateResource();
-			var gl:WebGLContext = PlatformInfo.onLayaRuntime?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
+			var gl:WebGLContext = ILaya.Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
 			WebGLContext.bindTexture(gl, WebGLContext.TEXTURE_2D, this._source);
-			!PlatformInfo.onLayaRuntime && gl.pixelStorei( WebGLContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+			!ILaya.Render.isConchApp && gl.pixelStorei( WebGLContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 			gl.texSubImage2D(WebGLContext.TEXTURE_2D, 0, x, y, WebGLContext.RGBA, WebGLContext.UNSIGNED_BYTE, canv);
-			!PlatformInfo.onLayaRuntime && gl.pixelStorei( WebGLContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+			!ILaya.Render.isConchApp && gl.pixelStorei( WebGLContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
 			var u0:number;
 			var v0:number;
 			var u1:number;
 			var v1:number;
-			if(PlatformInfo.onLayaRuntime){
+			if(ILaya.Render.isConchApp){
 				u0 = x / this._texW;		// +1 表示内缩一下，反正文字总是有留白。否则会受到旁边的一个像素的影响
 				v0 = y / this._texH;
 				u1 = (x + canv.width) / this._texW;
@@ -152,7 +151,7 @@ import { ILaya } from "../../../ILaya";
 		 */
 		 fillWhite():void {
 			!this._source && this.recreateResource();
-			var gl:WebGLContext = PlatformInfo.onLayaRuntime?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
+			var gl:WebGLContext = ILaya.Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
 			var dt:Uint8Array = new Uint8Array(this._texW * this._texH * 4);
 			((<any>dt )).fill(0xff);
 			gl.texSubImage2D(WebGLContext.TEXTURE_2D, 0, 0, 0, this._texW, this._texH, WebGLContext.RGBA, WebGLContext.UNSIGNED_BYTE, dt);
@@ -189,7 +188,7 @@ import { ILaya } from "../../../ILaya";
 		/*override*/  destroy():void {		
 			//console.log('destroy TextTexture');
 			this.__destroyed = true;
-			var gl:WebGLContext = PlatformInfo.onLayaRuntime?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
+			var gl:WebGLContext = ILaya.Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
 			this._source && gl.deleteTexture(this._source);
 			this._source = null;
 		}		

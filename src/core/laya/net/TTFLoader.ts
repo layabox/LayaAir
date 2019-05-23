@@ -3,9 +3,9 @@ import { Loader } from "././Loader";
 import { Event } from "../events/Event"
 	import { Handler } from "../utils/Handler"
 	//import { RunDriver } from "../utils/RunDriver"
-import { PlatformInfo } from "../utils/PlatformInfo";
 import { Timer } from "../utils/Timer";
 import { Browser } from "../utils/Browser";
+import { ILaya } from "../../ILaya";
 	
 	/**
 	 * @private
@@ -27,7 +27,7 @@ import { Browser } from "../utils/Browser";
 			this._url = fontPath;
 			var tArr:any[] = fontPath.split(".ttf")[0].split("/");
             this.fontName = tArr[tArr.length - 1];
-			if (PlatformInfo.onLayaRuntime)
+			if (ILaya.Render.isConchApp)
 			{
 				this._loadConch();
 			}else

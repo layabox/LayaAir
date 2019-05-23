@@ -13,8 +13,6 @@ import { Sprite } from "../../display/Sprite"
 	import { CharRender_Canvas } from "./CharRender_Canvas"
 	import { CharRender_Native } from "./CharRender_Native"
 	import { ICharRender } from "./ICharRender"
-import { PlatformInfo } from "../../utils/PlatformInfo";
-import {TextConst} from "../../display/TextConst"
 import { ILaya } from "../../../ILaya";
 
 	export class TextRender {
@@ -88,10 +86,10 @@ import { ILaya } from "../../../ILaya";
 			if ( miniadp && miniadp.systemInfo && miniadp.systemInfo.system) {
 				bugIOS = miniadp.systemInfo.system.toLowerCase() === 'ios 10.1.1';
             }
-			if (PlatformInfo.onMiniGame /*&& !Browser.onAndroid*/ && !bugIOS ) TextRender.isWan1Wan = true; //android 微信下 字边缘发黑，所以不用getImageData了
-			if (PlatformInfo.onLimixiu) TextRender.isWan1Wan = true;
+			if (ILaya.Browser.onMiniGame /*&& !Browser.onAndroid*/ && !bugIOS ) TextRender.isWan1Wan = true; //android 微信下 字边缘发黑，所以不用getImageData了
+			if (ILaya.Browser.onLimixiu) TextRender.isWan1Wan = true;
 			//isWan1Wan = true;
-			this.charRender = PlatformInfo.onLayaRuntime ? (new CharRender_Native()) : (new CharRender_Canvas(TextRender.atlasWidth,TextRender.atlasWidth,TextRender.scaleFontWithCtx,!TextRender.isWan1Wan,false));			
+			this.charRender = ILaya.Render.isConchApp ? (new CharRender_Native()) : (new CharRender_Canvas(TextRender.atlasWidth,TextRender.atlasWidth,TextRender.scaleFontWithCtx,!TextRender.isWan1Wan,false));			
 			TextRender.textRenderInst = this;
 			//Laya['textRender'] = this;
 			TextRender.atlasWidth2 = TextRender.atlasWidth * TextRender.atlasWidth;
@@ -174,10 +172,10 @@ import { ILaya } from "../../../ILaya";
 			var nTextAlign:number = 0;
 			switch (textAlign) {
             case 'center': 
-				nTextAlign = TextConst.ENUM_TEXTALIGN_CENTER;
+				nTextAlign = ILaya.Context.ENUM_TEXTALIGN_CENTER;
 				break;
 			case 'right': 
-				nTextAlign = TextConst.ENUM_TEXTALIGN_RIGHT;
+				nTextAlign = ILaya.Context.ENUM_TEXTALIGN_RIGHT;
 				break;
 			}
 			this._fast_filltext(ctx, (<WordText>data ), null, x, y, font, color, strokeColor, lineWidth, nTextAlign, underLine);
@@ -196,10 +194,10 @@ import { ILaya } from "../../../ILaya";
 			if (lineWidth < 0) lineWidth = 0;
 			this.setFont(font);
 			this.fontScaleX = this.fontScaleY = 1.0;
-			if (!PlatformInfo.onLayaRuntime && TextRender.scaleFontWithCtx) {
+			if (!ILaya.Render.isConchApp && TextRender.scaleFontWithCtx) {
 				var sx:number = 1;
 				var sy:number = 1;
-				if (PlatformInfo.onLayaRuntime) {
+				if (ILaya.Render.isConchApp) {
 					sx = ctx._curMat.getScaleX();
 					sy = ctx._curMat.getScaleY();
 				}else{
@@ -240,10 +238,10 @@ import { ILaya } from "../../../ILaya";
 			
 			//水平对齐方式
 			switch (textAlign) {
-			case TextConst.ENUM_TEXTALIGN_CENTER: 
+			case ILaya.Context.ENUM_TEXTALIGN_CENTER: 
 				x -= strWidth / 2;
 				break;
-			case TextConst.ENUM_TEXTALIGN_RIGHT: 
+			case ILaya.Context.ENUM_TEXTALIGN_RIGHT: 
 				x -= strWidth;
 				break;
 			}
@@ -300,7 +298,7 @@ import { ILaya } from "../../../ILaya";
 								add = add.words;
 							}
 							//不能直接修改ri.bmpWidth, 否则会累积缩放，所以把缩放保存到独立的变量中
-							if (PlatformInfo.onLayaRuntime){
+							if (ILaya.Render.isConchApp){
 								add.push( { ri: ri, x: stx, y: sty, w: ri.bmpWidth / this.fontScaleX, h: ri.bmpHeight / this.fontScaleY } );
 							}else{
 								add.push( { ri: ri, x: stx+1/this.fontScaleX, y: sty, w: (ri.bmpWidth-2) / this.fontScaleX, h: (ri.bmpHeight-1) / this.fontScaleY } );	// 为了避免边缘像素采样错误，内缩一个像素
@@ -314,7 +312,7 @@ import { ILaya } from "../../../ILaya";
 					var isotex:boolean = TextRender.noAtlas || strWidth*this.fontScaleX > TextRender.atlasWidth;	// 独立贴图还是大图集
 					ri = this.getCharRenderInfo(str, font, color, strokeColor, lineWidth, isotex);
 					// 整句渲染，则只有一个贴图
-					if (PlatformInfo.onLayaRuntime){
+					if (ILaya.Render.isConchApp){
 						sameTexData[0] = {texgen:((<TextTexture>ri.tex )).genID, tex:ri.tex, words:[{ ri: ri, x: 0, y: 0, w: ri.bmpWidth / this.fontScaleX, h: ri.bmpHeight / this.fontScaleY }]};
 					}else{
 						sameTexData[0] = {texgen:((<TextTexture>ri.tex )).genID, tex:ri.tex, words:[{ ri: ri, x: 1/this.fontScaleX, y: 0/this.fontScaleY, w: (ri.bmpWidth-2) / this.fontScaleX, h: (ri.bmpHeight-1) / this.fontScaleY }]}; // 为了避免边缘像素采样错误，内缩一个像素
@@ -351,7 +349,7 @@ import { ILaya } from "../../../ILaya";
 					ri.touch();
 					ctx.drawTexAlign = true;
 					//ctx._drawTextureM(ri.tex.texture as Texture, startx +riSaved.x -ri.orix / fontScaleX , starty + riSaved.y -ri.oriy / fontScaleY , riSaved.w, riSaved.h, null, 1.0, ri.uv);
-					if (PlatformInfo.onLayaRuntime) {
+					if (ILaya.Render.isConchApp) {
 						ctx._drawTextureM((<Texture>tex.texture ), startx +riSaved.x -ri.orix , starty + riSaved.y -ri.oriy, riSaved.w, riSaved.h, null, 1.0, ri.uv);
 					}else{
                         let t = tex as TextTexture;
@@ -753,7 +751,7 @@ import { ILaya } from "../../../ILaya";
 			TextRender.tmpRI.height = TextRender.standardFontSize;
 			var bmpdt:ImageData = this.charRender.getCharBmp('g', fontstr, 0, 'red', null, TextRender.tmpRI, orix, oriy, marginr, marginb);
 			// native 返回的是 textBitmap。 data直接是ArrayBuffer 
-			if (PlatformInfo.onLayaRuntime) {
+			if (ILaya.Render.isConchApp) {
 				//bmpdt.data.buffer = bmpdt.data;
 				(bmpdt as any).data =  new Uint8ClampedArray(bmpdt.data);
 			}
@@ -761,7 +759,7 @@ import { ILaya } from "../../../ILaya";
 			//测量宽度是 tmpRI.width
 			this.updateBbx(bmpdt, TextRender.pixelBBX, false);
 			bmpdt = this.charRender.getCharBmp('有', fontstr, 0, 'red', null, TextRender.tmpRI, oriy, oriy, marginr, marginb);// '有'比'国'大
-			if (PlatformInfo.onLayaRuntime) {
+			if (ILaya.Render.isConchApp) {
 				//bmpdt.data.buffer = bmpdt.data;
 				(bmpdt as any).data = new Uint8ClampedArray(bmpdt.data);
 			}
@@ -771,7 +769,7 @@ import { ILaya } from "../../../ILaya";
 				TextRender.pixelBBX[2] = orix+TextRender.tmpRI.width;
 			this.updateBbx(bmpdt, TextRender.pixelBBX,false);//TODO 改成 true
 			// 原点在 16,16
-			if (PlatformInfo.onLayaRuntime) {
+			if (ILaya.Render.isConchApp) {
 				//runtime 的接口好像有问题，不认orix，oriy
 				orix = 0;
 				oriy = 0;
@@ -870,10 +868,10 @@ import { ILaya } from "../../../ILaya";
 			var nTextAlign:number = 0;
 			switch (textAlign) {
 			case 'center': 
-				nTextAlign = TextConst.ENUM_TEXTALIGN_CENTER;
+				nTextAlign = ILaya.Context.ENUM_TEXTALIGN_CENTER;
 				break;
 			case 'right': 
-				nTextAlign = TextConst.ENUM_TEXTALIGN_RIGHT;
+				nTextAlign = ILaya.Context.ENUM_TEXTALIGN_RIGHT;
 				break;
 			}
 			return this._fast_filltext(ctx, (<WordText>data ), htmlchars, x, y, font, color, strokeColor, lineWidth, nTextAlign, underLine);

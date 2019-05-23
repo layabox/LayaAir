@@ -3,10 +3,10 @@ import { Const } from "../Const"
 	import { Event } from "../events/Event"
 	import { EventDispatcher } from "../events/EventDispatcher"
 	import { Pool } from "../utils/Pool"
+	import { Stat } from "../utils/Stat"
 	import { Timer } from "../utils/Timer"
-
-import { Stat } from "../utils/Stat";
-//import { ClassUtils } from "../utils/ClassUtils";
+import { Sprite } from "./Sprite";
+import { ILaya } from "../../ILaya";
 	
 	/**
 	 * 添加到父对象后调度。
@@ -34,10 +34,6 @@ import { Stat } from "../utils/Stat";
 	 */
 	export class Node extends EventDispatcher {
 		/**@private */
-		static gTimer:Timer = null;			// 全局的timer
-		static gStage:Node = null;
-
-		/**@private */
 		protected static ARRAY_EMPTY:any[] = [];
 		/**@private */
 		private _bits:number = 0;
@@ -48,11 +44,7 @@ import { Stat } from "../utils/Stat";
 		 _extUIChild:any[] = Node.ARRAY_EMPTY;
 		
 		/**@private 父节点对象*/
-         _parent:Node = null;
-         
-  		/**@private z排序，数值越大越靠前。*/
-		 _zOrder:number = 0;
-
+		 _parent:Node = null;
 		
 		/**节点名称。*/
 		 name:string = "";
@@ -180,7 +172,7 @@ this.createGLBuffer();
 				}
 			}
 		}
-        
+		
 		/**
 		 * 添加子节点。
 		 * @param	node 节点对象
@@ -188,7 +180,7 @@ this.createGLBuffer();
 		 */
 		 addChild(node:Node):Node {
 			if (!node || this.destroyed || node === this) return node;
-			if (node ._zOrder) this._setBit(Const.HAS_ZORDER, true);
+			if ((<Sprite>node)._zOrder) this._setBit(Const.HAS_ZORDER, true);
 			if (node._parent === this) {
 				var index:number = this.getChildIndex(node);
 				if (index !== this._children.length - 1) {
@@ -245,7 +237,7 @@ this.createGLBuffer();
 		 */
 		 addChildAt(node:Node, index:number):Node {
 			if (!node || this.destroyed || node === this) return node;
-			if (node._zOrder) this._setBit(Const.HAS_ZORDER, true);
+			if (((<Sprite>node ))._zOrder) this._setBit(Const.HAS_ZORDER, true);
 			if (index >= 0 && index <= this._children.length) {
 				if (node._parent === this) {
 					var oldIndex:number = this.getChildIndex(node);
@@ -458,8 +450,8 @@ this.createGLBuffer();
 		/**@private */
 		private _updateDisplayedInstage():void {
 			var ele:Node;
-			ele = this;
-			var stage = Node.gStage;
+            ele = this;
+			var stage:Node = ILaya.stage;
 			var displayedInStage:boolean = false;
 			while (ele) {
 				if (ele._getBit(Const.DISPLAY)) {
@@ -530,7 +522,7 @@ this.createGLBuffer();
 		 * @param	jumpFrame 时钟是否跳帧。基于时间的循环回调，单位时间间隔内，如能执行多次回调，出于性能考虑，引擎默认只执行一次，设置jumpFrame=true后，则回调会连续执行多次
 		 */
 		 timerLoop(delay:number, caller:any, method:Function, args:any[] = null, coverBefore:boolean = true, jumpFrame:boolean = false):void {
-			var timer:Timer = this.scene ? this.scene.timer : Node.gTimer;
+			var timer:Timer = this.scene ? this.scene.timer : ILaya.timer;
 			timer.loop(delay, caller, method, args, coverBefore, jumpFrame);
 		}
 		
@@ -543,7 +535,7 @@ this.createGLBuffer();
 		 * @param	coverBefore	（可选）是否覆盖之前的延迟执行，默认为true。
 		 */
 		 timerOnce(delay:number, caller:any, method:Function, args:any[] = null, coverBefore:boolean = true):void {
-			var timer:Timer = this.scene ? this.scene.timer : Node.gTimer;
+			var timer:Timer = this.scene ? this.scene.timer : ILaya.timer;
 			timer._create(false, false, delay, caller, method, args, coverBefore);
 		}
 		
@@ -556,7 +548,7 @@ this.createGLBuffer();
 		 * @param	coverBefore	（可选）是否覆盖之前的延迟执行，默认为true。
 		 */
 		 frameLoop(delay:number, caller:any, method:Function, args:any[] = null, coverBefore:boolean = true):void {
-			var timer:Timer = this.scene ? this.scene.timer : Node.gTimer;
+			var timer:Timer = this.scene ? this.scene.timer : ILaya.timer;
 			timer._create(true, true, delay, caller, method, args, coverBefore);
 		}
 		
@@ -569,7 +561,7 @@ this.createGLBuffer();
 		 * @param	coverBefore	（可选）是否覆盖之前的延迟执行，默认为true
 		 */
 		 frameOnce(delay:number, caller:any, method:Function, args:any[] = null, coverBefore:boolean = true):void {
-			var timer:Timer = this.scene ? this.scene.timer : Node.gTimer;
+			var timer:Timer = this.scene ? this.scene.timer : ILaya.timer;
 			timer._create(true, false, delay, caller, method, args, coverBefore);
 		}
 		
@@ -579,7 +571,7 @@ this.createGLBuffer();
 		 * @param	method 结束时的回调方法。
 		 */
 		 clearTimer(caller:any, method:Function):void {
-			var timer:Timer = this.scene ? this.scene.timer : Node.gTimer;
+			var timer:Timer = this.scene ? this.scene.timer : ILaya.timer;
 			timer.clear(caller, method);
 		}
 		
@@ -592,7 +584,7 @@ this.createGLBuffer();
 		 * @see #runCallLater()
 		 */
 		 callLater(method:Function, args:any[] = null):void {
-			var timer:Timer = this.scene ? this.scene.timer : Node.gTimer;
+			var timer:Timer = this.scene ? this.scene.timer : ILaya.timer;
 			timer.callLater(this, method, args);
 		}
 		
@@ -602,7 +594,7 @@ this.createGLBuffer();
 		 * @see #callLater()
 		 */
 		 runCallLater(method:Function):void {
-			var timer:Timer = this.scene ? this.scene.timer : Node.gTimer;
+			var timer:Timer = this.scene ? this.scene.timer : ILaya.timer;
 			timer.runCallLater(this, method);
 		}
 		
@@ -696,7 +688,7 @@ this.createGLBuffer();
 		/**
 		 * @private
 		 */
-		 _parse(data:any,spriteMap:any):void {
+		 _parse(data:any, spriteMap:any):void {
 			//override it.
 		}
 		
@@ -706,12 +698,8 @@ this.createGLBuffer();
 		 _setBelongScene(scene:Node):void {
 			if (!this._scene) {
 				this._scene = scene;
-				if (this._components) {
-					for (var i:number = 0, n:number = this._components.length; i < n; i++)
-						this._components[i]._setActiveInScene(true);
-				}
 				this._onActiveInScene();
-				for (i = 0, n = this._children.length; i < n; i++)
+				for (var i:number = 0, n:number = this._children.length; i < n; i++)
 					this._children[i]._setBelongScene(scene);
 			}
 		}
@@ -722,12 +710,8 @@ this.createGLBuffer();
 		 _setUnBelongScene():void {
 			if (this._scene !== this) {//移除节点本身是scene不继续派发
 				this._onInActiveInScene();
-				if (this._components) {
-					for (var i:number = 0, n:number = this._components.length; i < n; i++)
-						this._components[i]._setActiveInScene(false);
-				}
 				this._scene = null;
-				for (i = 0, n = this._children.length; i < n; i++)
+				for (var i:number = 0, n:number = this._children.length; i < n; i++)
 					this._children[i]._setUnBelongScene();
 			}
 		}
@@ -868,7 +852,7 @@ this.createGLBuffer();
 		 * @private
 		 */
 		 _addComponentInstance(comp:Component):void {
-			this._components =this._components||[];
+			this._components = this._components || [];
 			this._components.push(comp);
 			
 			comp.owner = this;
@@ -877,7 +861,6 @@ this.createGLBuffer();
 				comp._setActive(true);
 				(comp._isScript() && comp._enabled) && (((<any>comp )).onEnable());
 			}
-			this._scene && comp._setActiveInScene(true);
 		}
 		
 		/**
@@ -913,7 +896,7 @@ this.createGLBuffer();
 		 * @private 克隆。
 		 * @param	destObject 克隆源。
 		 */
-		 _cloneTo(destObject:any,srcRoot:Node,dstRoot:Node):void {
+		 _cloneTo(destObject:any, srcRoot:Node, dstRoot:Node):void {
 			var destNode:Node = (<Node>destObject );
 			if (this._components) {
 				for (var i:number = 0, n:number = this._components.length; i < n; i++) {
@@ -978,7 +961,7 @@ this.createGLBuffer();
 				for (var i:number = 0, n:number = this._components.length; i < n; i++) {
 					var comp:Component = this._components[i];
 					if (comp instanceof clas) {
-						arr =arr||[];
+						arr = arr || [];
 						arr.push(comp);
 					}
 				}
@@ -991,7 +974,7 @@ this.createGLBuffer();
 		 * 获取timer
 		 */
 		 get timer():Timer {
-			return this.scene ? this.scene.timer : Node.gTimer;
+			return this.scene ? this.scene.timer : ILaya.timer;
 		}
 	}
 

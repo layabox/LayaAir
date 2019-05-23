@@ -2,11 +2,7 @@ import { Text } from "././Text";
 import { Event } from "../events/Event"
 	import { Matrix } from "../maths/Matrix"
 	import { Utils } from "../utils/Utils"
-import { Stage } from "./Stage";
-import { Timer } from "../utils/Timer";
-import { PlatformInfo } from "../utils/PlatformInfo";
-import { Browser } from "../utils/Browser";
-	
+import { ILaya } from "../../ILaya";
 	/**
 	 * 用户输入一个或多个文本字符时后调度。
 	 * @eventType Event.INPUT
@@ -38,9 +34,6 @@ import { Browser } from "../utils/Browser";
 	 * <p>Input 类封装了原生的文本输入框，由于不同浏览器的差异，会导致此对象的默认文本的位置与用户点击输入时的文本的位置有少许的偏差。</p>
 	 */
 	export class Input extends Text {
-        /**@private */
-        static gMainCanvas:HTMLCanvasElement=null;
-
 		/** 常规文本域。*/
 		static  TYPE_TEXT:string = "text";
 		/** password 类型用于密码域输入。*/
@@ -76,9 +69,6 @@ import { Browser } from "../utils/Browser";
 		 static TYPE_SEARCH:string = "search";
 		
 		/**@private */
-		 static gStage:Stage = null;
-		 static gSysTime:Timer = null;
-		/**@private */
 		protected static input:any;
 		/**@private */
 		protected static area:any;
@@ -112,7 +102,7 @@ import { Browser } from "../utils/Browser";
 		private _content:string = '';
 		
 		/**@private */
-		 static IOS_IFRAME:boolean = (PlatformInfo.onIOS && PlatformInfo.window.top != PlatformInfo.window.self);
+		 static IOS_IFRAME:boolean = false; 
 		private static inputHeight:number = 45;
 		
 		/**表示是否处于输入状态。*/
@@ -120,7 +110,8 @@ import { Browser } from "../utils/Browser";
 		
 		/**创建一个新的 <code>Input</code> 类实例。*/
 		constructor(){
-			super();
+            super();
+            Input.IOS_IFRAME = (ILaya.Browser.onIOS && ILaya.Browser.window.top != ILaya.Browser.window.self);
 this._width = 100;
 			this._height = 20;
 			
@@ -136,14 +127,14 @@ this._width = 100;
 			Input._createInputElement();
 			
 			// 移动端通过画布的touchend调用focus
-			if (PlatformInfo.onMobile)
+			if (ILaya.Browser.onMobile)
 			{
 				var isTrue:boolean = false;
-				if(PlatformInfo.onMiniGame || PlatformInfo.onBDMiniGame || PlatformInfo.onQGMiniGame || PlatformInfo.onKGMiniGame)
+				if(ILaya.Browser.onMiniGame || ILaya.Browser.onBDMiniGame || ILaya.Browser.onQGMiniGame || ILaya.Browser.onKGMiniGame || ILaya.Browser.onVVMiniGame)
 				{
 					isTrue = true;
 				}
-				this.gMainCanvas.addEventListener(Input.IOS_IFRAME ?( isTrue ? "touchend" : "click") : "touchend", Input._popupInputMethod);
+				ILaya.Render.canvas.addEventListener(Input.IOS_IFRAME ?( isTrue ? "touchend" : "click") : "touchend", Input._popupInputMethod);
 			}
 		}
 		
@@ -159,13 +150,13 @@ this._width = 100;
 		}
 		
 		private static _createInputElement():void {
-			Input._initInput(Input.area = document.createElement("textarea"));
-			Input._initInput(Input.input = document.createElement("input"));
+			Input._initInput(Input.area = ILaya.Browser.createElement("textarea"));
+			Input._initInput(Input.input = ILaya.Browser.createElement("input"));
 			
-			Input.inputContainer = document.createElement("div");
+			Input.inputContainer = ILaya.Browser.createElement("div");
 			Input.inputContainer.style.position = "absolute";
 			Input.inputContainer.style.zIndex = 1E5;
-			Browser.container.appendChild(Input.inputContainer);
+			ILaya.Browser.container.appendChild(Input.inputContainer);
 			Input.inputContainer.setPos = function(x:number, y:number):void {
 				Input.inputContainer.style.left = x + 'px';
 				Input.inputContainer.style.top = y + 'px';
@@ -270,12 +261,12 @@ this._width = 100;
 			var transform:any = Utils.getTransformRelativeToWindow(this, this.padding[3], this.padding[0]);
 			var inputWid:number = this._width - this.padding[1] - this.padding[3];
 			var inputHei:number = this._height - this.padding[0] - this.padding[2];
-			if (PlatformInfo.onLayaRuntime) {
+			if (ILaya.Render.isConchApp) {
 				inputElement.setScale(transform.scaleX, transform.scaleY);
 				inputElement.setSize(inputWid, inputHei);
 				inputElement.setPos(transform.x, transform.y);
 			} else {
-				Input.inputContainer.style.transform = Input.inputContainer.style.webkitTransform = "scale(" + transform.scaleX + "," + transform.scaleY + ") rotate(" + (Input.gStage.canvasDegree) + "deg)";
+				Input.inputContainer.style.transform = Input.inputContainer.style.webkitTransform = "scale(" + transform.scaleX + "," + transform.scaleY + ") rotate(" + (ILaya.stage.canvasDegree) + "deg)";
 				inputElement.style.width = inputWid + 'px';
 				inputElement.style.height = inputHei + 'px';
 				Input.inputContainer.style.left = transform.x + 'px';
@@ -313,10 +304,10 @@ this._width = 100;
 				} else {
 					input.target = null;
 					this._focusOut();
-					document.body.scrollTop = 0;
+					ILaya.Browser.document.body.scrollTop = 0;
 					input.blur();
 					
-					if (PlatformInfo.onLayaRuntime) input.setPos(-10000, -10000);
+					if (ILaya.Render.isConchApp) input.setPos(-10000, -10000);
 					else if (Input.inputContainer.contains(input)) Input.inputContainer.removeChild(input);
 				}
 			}
@@ -345,7 +336,7 @@ this._width = 100;
 			this._setPromptColor();
 			
 			input.readOnly = !this._editable;
-			if (PlatformInfo.onLayaRuntime) {
+			if (ILaya.Render.isConchApp) {
 				input.setType(this._type);
 				input.setForbidEdit(!this._editable);
 			}
@@ -357,16 +348,16 @@ this._width = 100;
 			input.value = this._content;
 			input.placeholder = this._prompt;
 			
-			Input.gStage.off(Event.KEY_DOWN, this, this._onKeyDown);
-			Input.gStage.on(Event.KEY_DOWN, this, this._onKeyDown);
-			Input.gStage.focus = this;
+			ILaya.stage.off(Event.KEY_DOWN, this, this._onKeyDown);
+			ILaya.stage.on(Event.KEY_DOWN, this, this._onKeyDown);
+			ILaya.stage.focus = this;
 			this.event(Event.FOCUS);
 			
 			// PC端直接调用focus进入焦点。
-			if (PlatformInfo.onPC) input.focus();
+			if (ILaya.Browser.onPC) input.focus();
 			
 			// PC浏览器隐藏文字
-			if(!PlatformInfo.onMiniGame && !PlatformInfo.onBDMiniGame && !PlatformInfo.onQGMiniGame && !PlatformInfo.onKGMiniGame)
+			if(!ILaya.Browser.onMiniGame && !ILaya.Browser.onBDMiniGame && !ILaya.Browser.onQGMiniGame && !ILaya.Browser.onKGMiniGame && !ILaya.Browser.onVVMiniGame)
 			{
 				var temp:string = this._text;
 				this._text = null;
@@ -376,8 +367,8 @@ this._width = 100;
 			// PC同步输入框外观。
 			input.setColor(this._originColor);
 			input.setFontSize(this.fontSize);
-			input.setFontFace(PlatformInfo.onIPhone ? (Text.fontFamilyMap[this.font] || this.font) : this.font);
-			if (PlatformInfo.onLayaRuntime) {
+			input.setFontFace(ILaya.Browser.onIPhone ? (Text.fontFamilyMap[this.font] || this.font) : this.font);
+			if (ILaya.Render.isConchApp) {
 				input.setMultiAble && input.setMultiAble(this._multiline);
 			}
 			cssStyle.lineHeight = (this.leading + this.fontSize) + "px";
@@ -388,18 +379,18 @@ this._width = 100;
 			
 			// 输入框重定位。
 			this._syncInputTransform();
-			if (!PlatformInfo.onLayaRuntime && PlatformInfo.onPC)
-				Input.gSysTimer.frameLoop(1, this, this._syncInputTransform);
+			if (!ILaya.Render.isConchApp && ILaya.Browser.onPC)
+				ILaya.systemTimer.frameLoop(1, this, this._syncInputTransform);
 		}
 		
 		// 设置DOM输入框提示符颜色。
 		private _setPromptColor():void {
 			// 创建style标签
-			Input.promptStyleDOM = document.getElementById("promptStyle");
+			Input.promptStyleDOM = ILaya.Browser.getElementById("promptStyle");
 			if (!Input.promptStyleDOM) {
-				Input.promptStyleDOM = document.createElement("style");
+				Input.promptStyleDOM = ILaya.Browser.createElement("style");
 				Input.promptStyleDOM.setAttribute("id", "promptStyle");
-				document.head.appendChild(Input.promptStyleDOM);
+				ILaya.Browser.document.head.appendChild(Input.promptStyleDOM);
 			}
 			
 			// 设置style标签
@@ -421,20 +412,20 @@ this._width = 100;
 				super.set_color( this._originColor);
 			}
 			
-			Input.gStage.off(Event.KEY_DOWN, this, this._onKeyDown);
-			Input.gStage.focus = null;
+			ILaya.stage.off(Event.KEY_DOWN, this, this._onKeyDown);
+			ILaya.stage.focus = null;
 			this.event(Event.BLUR);
 			this.event(Event.CHANGE);
-			if (PlatformInfo.onLayaRuntime) this.nativeInput.blur();
+			if (ILaya.Render.isConchApp) this.nativeInput.blur();
 			// 只有PC会注册此事件。
-			PlatformInfo.onPC && Input.gSysTimer.clear(this, this._syncInputTransform);
+			ILaya.Browser.onPC && ILaya.systemTimer.clear(this, this._syncInputTransform);
 		}
 		
 		/**@private */
 		private _onKeyDown(e:any):void {
 			if (e.keyCode === 13) {
 				// 移动平台单行输入状态下点击回车收回输入法。 
-				if (PlatformInfo.onMobile && !this._multiline)
+				if (ILaya.Browser.onMobile && !this._multiline)
 					this.focus = false;
 				
 				this.event(Event.ENTER);
@@ -460,7 +451,7 @@ this._width = 100;
 				if (value)
 					super.set_text(value);
 				else {
-					super.set_text( this._prompt);
+					super.set_text(this._prompt);
 					super.set_color( this.promptColor);
 				}
 			}
@@ -494,8 +485,8 @@ this._width = 100;
 		
 		/**@inheritDoc */
 		/*override*/  set bgColor(value:string) {
-			super.set_bgColor(value);
-			if(PlatformInfo.onLayaRuntime)
+			super.set_bgColor( value);
+			if(ILaya.Render.isConchApp)
 				this.nativeInput.setBgColor(value);
 		}
 
@@ -526,7 +517,7 @@ this._width = 100;
 		 */
 		 set editable(value:boolean) {
 			this._editable = value;
-			if (PlatformInfo.onLayaRuntime) {
+			if (ILaya.Render.isConchApp) {
 				Input.input.setForbidEdit(!value);
 			}
 		}
@@ -558,14 +549,14 @@ this._width = 100;
 		
 		 set prompt(value:string) {
 			if (!this._text && value)
-				super.set_color(this._promptColor);
+				super.set_color( this._promptColor);
 			
 			this.promptColor = this._promptColor;
 			
 			if (this._text)
-				super.set_text((this._text == this._prompt) ? value : this._text);
+				super.set_text( (this._text == this._prompt) ? value : this._text);
 			else
-				super.set_text(value);
+				super.set_text( value);
 			
 			this._prompt = Text.langPacks && Text.langPacks[value] ? Text.langPacks[value] : value;
 		}

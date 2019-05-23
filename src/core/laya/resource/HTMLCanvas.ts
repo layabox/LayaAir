@@ -1,17 +1,14 @@
 import { Bitmap } from "././Bitmap";
 import { Texture } from "././Texture";
 import { Texture2D } from "././Texture2D";
-import { PlatformInfo } from "../utils/PlatformInfo";
-import { ContextBase } from "./ContextBase";
+import { Context } from "./Context";
+import { ILaya } from "../../ILaya";
 
 
 	/**
 	 * <code>HTMLCanvas</code> 是 Html Canvas 的代理类，封装了 Canvas 的属性和方法。
 	 */
 	export class HTMLCanvas extends Bitmap {
-        /**@private */
-        static gContext:typeof ContextBase;
-        
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		private _ctx:any;
 		 _source:any;
@@ -58,7 +55,7 @@ import { ContextBase } from "./ContextBase";
 		/*override*/  destroy():void {
 			super.destroy();
 			this._setCPUMemory(0);
-			this._ctx && this._ctx.destroy();
+			this._ctx && this._ctx.destroy && this._ctx.destroy();
 			this._ctx = null;
 		}
 		
@@ -71,12 +68,12 @@ import { ContextBase } from "./ContextBase";
 		/**
 		 * Canvas 渲染上下文。
 		 */
-		 get context():ContextBase {
+		 get context():Context {
 			if (this._ctx) return this._ctx;
 			if ( this._source==this ) {	//是webgl并且不是真的画布。如果是真的画布，可能真的想要2d context
-				this._ctx =  HTMLCanvas.gContext.CreatContext();
+				this._ctx =  new ILaya.Context();
 			}else {
-				this._ctx = this._source.getContext(PlatformInfo.onLayaRuntime?'layagl':'2d');
+				this._ctx = this._source.getContext(ILaya.Render.isConchApp?'layagl':'2d');
 			}
 			this._ctx._canvas = this;
 			//if(!Browser.onLimixiu) _ctx.size = function(w:Number, h:Number):void {};	这个是干什么的，会导致ctx的size不好使
@@ -88,7 +85,7 @@ import { ContextBase } from "./ContextBase";
 		 * 设置 Canvas 渲染上下文。是webgl用来替换_ctx用的
 		 * @param	context Canvas 渲染上下文。
 		 */
-		 _setContext(context:ContextBase):void {
+		 _setContext(context:Context):void {
 			this._ctx = context;
 		}
 		
@@ -98,7 +95,7 @@ import { ContextBase } from "./ContextBase";
 		 * @param	other
 		 * @return  Canvas 渲染上下文 Context 对象。
 		 */
-		 getContext(contextID:string, other:any = null):ContextBase {
+		 getContext(contextID:string, other:any = null):Context {
 			return this.context;
 		}
 		
@@ -151,7 +148,7 @@ import { ContextBase } from "./ContextBase";
 		 */
 		 toBase64(type:string, encoderOptions:number):string {
 			if (this._source) {
-				if (PlatformInfo.onLayaRuntime) {
+				if (ILaya.Render.isConchApp) {
                     var win:any = window as any;
 					if (win.conchConfig.threadMode == 2) {
 						throw "native 2 thread mode use toBase64Async";

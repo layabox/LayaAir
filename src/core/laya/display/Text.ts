@@ -9,6 +9,7 @@ import { SpriteStyle } from "./css/SpriteStyle"
 	import { Rectangle } from "../maths/Rectangle"
 	import { WordText } from "../utils/WordText"
 import { Timer } from "../utils/Timer";
+import { ILaya } from "../../ILaya";
 //import { ClassUtils } from "../utils/ClassUtils";
 	
 	/**
@@ -103,19 +104,7 @@ import { Timer } from "../utils/Timer";
 	 *     }
 	 * }
 	 */
-
-     interface IBrowser{
-        onIPhone:boolean;
-        onLayaRuntime:boolean;
-        context:CanvasRenderingContext2D;
-        width:number;
-     }
-
 	export class Text extends Sprite {
-        /**@private */
-        static gSysTimer:Timer=null;
-        /**@private */
-        static gBrowser:IBrowser=null;
 
 		/**visible不进行任何裁切。*/
 		 static VISIBLE:string = "visible";
@@ -319,7 +308,7 @@ this._style = TextStyle.EMPTY;
 		 * 表示文本的宽度，以像素为单位。
 		 */
 		 get textWidth():number {
-			this._isChanged && Text.gSysTimer.runCallLater(this, this.typeset);
+			this._isChanged && ILaya.systemTimer.runCallLater(this, this.typeset);
 			return this._textWidth;
 		}
 		
@@ -327,7 +316,7 @@ this._style = TextStyle.EMPTY;
 		 * 表示文本的高度，以像素为单位。
 		 */
 		 get textHeight():number {
-			this._isChanged && Text.gSysTimer.runCallLater(this, this.typeset);
+			this._isChanged && ILaya.systemTimer.runCallLater(this, this.typeset);
 			return this._textHeight;
 		}
 		
@@ -632,7 +621,7 @@ this._style = TextStyle.EMPTY;
 		protected set isChanged(value:boolean) {
 			if (this._isChanged !== value) {
 				this._isChanged = value;
-				value && Text.gSysTimer.callLater(this, this.typeset);
+				value && ILaya.systemTimer.callLater(this, this.typeset);
 			}
 		}
 		
@@ -640,7 +629,7 @@ this._style = TextStyle.EMPTY;
 		 * @private
 		 */
 		protected _getContextFont():string {
-			return (this.italic ? "italic " : "") + (this.bold ? "bold " : "") + this.fontSize + "px " + (Text.gBrowser.onIPhone ? (Text.fontFamilyMap[this.font] || this.font) : this.font);
+			return (this.italic ? "italic " : "") + (this.bold ? "bold " : "") + this.fontSize + "px " + (ILaya.Browser.onIPhone ? (Text.fontFamilyMap[this.font] || this.font) : this.font);
 		}
 		
 		/**
@@ -689,7 +678,7 @@ this._style = TextStyle.EMPTY;
 			graphics.clear(true);
 			
 			var ctxFont:string = this._getContextFont();
-			Text.gBrowser.context.font = ctxFont;
+			ILaya.Browser.context.font = ctxFont;
 			
 			//处理垂直对齐
 			var startX:number = padding[3];
@@ -840,10 +829,10 @@ this._style = TextStyle.EMPTY;
 				return;
 			}
 			
-			if (Text.gBrowser.onLayaRuntime) {
+			if (ILaya.Browser.onLayaRuntime) {
 				(window as any).conchTextCanvas.font=this._getContextFont();;
 			}else{
-				Text.gBrowser.context.font = this._getContextFont();
+				ILaya.Browser.context.font = this._getContextFont();
 			}
 			
 			this._lines.length = 0;
@@ -920,10 +909,10 @@ this._style = TextStyle.EMPTY;
 				this._charSize.height = bitmapFont.getMaxHeight();
 			} else {
 				var measureResult:any = null;
-				if (Text.gBrowser.onLayaRuntime) {
+				if (ILaya.Browser.onLayaRuntime) {
 					measureResult = (window as any).conchTextCanvas.measureText(Text._testWord);
 				}else {
-					measureResult = Text.gBrowser.context.measureText(Text._testWord);					
+					measureResult = ILaya.Browser.context.measureText(Text._testWord);					
 				}
 				if (!measureResult) measureResult = {width:100 };
 				this._charSize.width = measureResult.width;
@@ -1031,10 +1020,10 @@ this._style = TextStyle.EMPTY;
 			var bitmapFont:BitmapFont = ((<TextStyle>this._style )).currBitmapFont;
 			if (bitmapFont) return bitmapFont.getTextWidth(text);
 			else {
-				if (Text.gBrowser.onLayaRuntime) {
+				if (ILaya.Browser.onLayaRuntime) {
 					return (window as any).conchTextCanvas.measureText(text).width;;
 				}
-				else return Text.gBrowser.context.measureText(text).width;
+				else return ILaya.Browser.context.measureText(text).width;
 			}
 		}
 		
@@ -1050,7 +1039,7 @@ this._style = TextStyle.EMPTY;
 			else w = this._width;
 			
 			if (w <= 0) {
-				w = this.wordWrap ? 100 : Text.gBrowser.width;
+				w = this.wordWrap ? 100 : ILaya.Browser.width;
 			}
 			w <= 0 && (w = 100);
 			return w - p[3] - p[1];
@@ -1063,7 +1052,7 @@ this._style = TextStyle.EMPTY;
 		 * @return Point 字符在本类实例的父坐标系下的坐标。如果out参数不为空，则将结果赋值给指定的Point对象，否则创建一个新的Point对象返回。建议使用Point.TEMP作为out参数，可以省去Point对象创建和垃圾回收的开销，尤其是在需要频繁执行的逻辑中，比如帧循环和MOUSE_MOVE事件回调函数里面。
 		 */
 		 getCharPoint(charIndex:number, out:Point = null):Point {
-			this._isChanged && Text.gSysTimer.runCallLater(this, this.typeset);
+			this._isChanged && ILaya.systemTimer.runCallLater(this, this.typeset);
 			var len:number = 0, lines:any[] = this._lines, startIndex:number = 0;
 			for (var i:number = 0, n:number = lines.length; i < n; i++) {
 				len += lines[i].length;
@@ -1075,7 +1064,7 @@ this._style = TextStyle.EMPTY;
 			}
 			//计算字符的宽度
 			var ctxFont:string = (this.italic ? "italic " : "") + (this.bold ? "bold " : "") + this.fontSize + "px " + this.font;
-			Text.gBrowser.context.font = ctxFont;
+			ILaya.Browser.context.font = ctxFont;
 			var width:number = this._getTextWidth(this._text.substring(startIndex, charIndex));
 			var point:Point = out || new Point();
 			return point.setTo(this._startX + width - (this._clipPoint ? this._clipPoint.x : 0), this._startY + line * (this._charSize.height + this.leading) - (this._clipPoint ? this._clipPoint.y : 0));
