@@ -213,8 +213,12 @@ import { TTFLoader } from "./TTFLoader";
 		 * onload、onprocess、onerror必须写在本类
 		 */
 		private _loadHttpRequest(url:string, contentType:string, onLoadCaller:any, onLoad:Function, onProcessCaller:any, onProcess:Function, onErrorCaller:any, onError:Function):void {
-			if (!this._http)
-				this._http = new HttpRequest();
+			if (Browser.onVVMiniGame) {
+				this._http = new HttpRequest();//临时修复vivo复用xmlhttprequest的bug
+			} else {
+				if (!this._http)
+					this._http = new HttpRequest();
+			}
 			this._http.on(Event.PROGRESS, onProcessCaller, onProcess);
 			this._http.on(Event.COMPLETE, onLoadCaller, onLoad);
 			this._http.on(Event.ERROR, onErrorCaller, onError);
@@ -555,7 +559,7 @@ import { TTFLoader } from "./TTFLoader";
 				Loader._startIndex++;
 				if (Browser.now() - startTimer > Loader.maxTimeOut) {
 					console.warn("loader callback cost a long time:" + (Browser.now() - startTimer) + " url=" + Loader._loaders[Loader._startIndex - 1].url);
-					(window as any).Laya.systemTimer.frameOnce(1, null, Loader.checkNext);
+					ILaya.systemTimer.frameOnce(1, null, Loader.checkNext);
 					return;
 				}
 			}

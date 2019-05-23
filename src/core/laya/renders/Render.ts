@@ -1,3 +1,4 @@
+import { ILaya } from "./../../ILaya";
 import { Config } from "./../../Config";
 import { LayaGL } from "../layagl/LayaGL"
 	import { Context } from "../resource/Context"
@@ -10,7 +11,6 @@ import { LayaGL } from "../layagl/LayaGL"
 	import { Value2D } from "../webgl/shader/d2/value/Value2D"
 	import { SubmitBase } from "../webgl/submit/SubmitBase"
 	import { Buffer2D } from "../webgl/utils/Buffer2D"
-import { Stage } from "../display/Stage";
 	
 	/**
 	 * @private
@@ -21,9 +21,7 @@ import { Stage } from "../display/Stage";
 		 static _context:Context;
 		/** @private 主画布。canvas和webgl渲染都用这个画布*/
 		 static _mainCanvas:HTMLCanvas;
-        /** @private */
-        static gStage:Stage=null;
-         
+		
 		 static supportWebGLPlusCulling:boolean = false;
 		 static supportWebGLPlusAnimation:boolean = false;
 		 static supportWebGLPlusRendering:boolean = false;
@@ -51,10 +49,10 @@ import { Stage } from "../display/Stage";
 			this.initRender(Render._mainCanvas, width, height);
 			window.requestAnimationFrame(loop);
 			function loop(stamp:number):void {
-				Render.gStage._loop();
+				ILaya.stage._loop();
 				window.requestAnimationFrame(loop);
 			}
-			Render.gStage.on("visibilitychange", this, this._onVisibilitychange);
+			ILaya.stage.on("visibilitychange", this, this._onVisibilitychange);
 		}
 		
 		/**@private */
@@ -62,7 +60,7 @@ import { Stage } from "../display/Stage";
 		
 		/**@private */
 		private _onVisibilitychange():void {
-			if (!Render.gStage.isVisibility) {
+			if (!ILaya.stage.isVisibility) {
 				this._timeId = window.setInterval(this._enterFrame, 1000);
 			} else if (this._timeId != 0) {
 				window.clearInterval(this._timeId);
@@ -120,7 +118,7 @@ import { Stage } from "../display/Stage";
 		
 		/**@private */
 		private _enterFrame(e:any = null):void {
-			Render.gStage._loop();
+			ILaya.stage._loop();
 		}
 		
 		/** 目前使用的渲染器。*/

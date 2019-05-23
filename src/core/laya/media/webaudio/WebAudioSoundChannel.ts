@@ -102,7 +102,7 @@ import { ILaya } from "../../../ILaya";
 			if (this.loops == 1) {
 				
 				if (this.completeHandler) {
-					(window as any).Laya.timer.once(10, this, this.__runComplete, [this.completeHandler], false); //TODO TS
+					ILaya.timer.once(10, this, this.__runComplete, [this.completeHandler], false);
 					this.completeHandler = null;
 				}
 				this.stop();

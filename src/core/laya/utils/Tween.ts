@@ -2,15 +2,13 @@ import { Handler } from "././Handler";
 import { Pool } from "././Pool";
 import { Browser } from "././Browser";
 import { Utils } from "././Utils";
-import { Timer } from "./Timer";
+import { ILaya } from "./../../ILaya";
 /**
 	 * <code>Tween</code>  是一个缓动类。使用此类能够实现对目标对象属性的渐变。
 	 */
 	export class Tween {
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
-        /**@private */
-        static gTimer:Timer=null;
-
+		
 		/**@private */
 		private static tweenMap:any[] = [];
 		/**@private */
@@ -132,7 +130,7 @@ import { Timer } from "./Timer";
 				if (delay <= 0) this.firstStart(target, props, isTo);
 				else {
 					this._delayParam = [target, props, isTo];
-					Tween.gTimer.once(delay, this, this.firstStart, this._delayParam);
+					ILaya.timer.once(delay, this, this.firstStart, this._delayParam);
 				}
 			} else {
 				this._initProps(target, props, isTo);
@@ -163,7 +161,7 @@ import { Timer } from "./Timer";
 		}
 		
 		private _beginLoop():void {
-			Tween.gTimer.frameLoop(1, this, this._doEase);
+			ILaya.timer.frameLoop(1, this, this._doEase);
 		}
 		
 		/**执行缓动**/
@@ -205,7 +203,7 @@ import { Timer } from "./Timer";
 			if (!this._target) return;
 			
 			//立即执行初始化
-			Tween.gTimer.runTimer(this, this.firstStart);
+			ILaya.timer.runTimer(this, this.firstStart);
 			
 			//缓存当前属性
 			var target:any = this._target;
@@ -233,9 +231,9 @@ import { Timer } from "./Timer";
 		 * 暂停缓动，可以通过resume或restart重新开始。
 		 */
 		 pause():void {
-			Tween.gTimer.clear(this, this._beginLoop);
-			Tween.gTimer.clear(this, this._doEase);
-			Tween.gTimer.clear(this, this.firstStart);
+			ILaya.timer.clear(this, this._beginLoop);
+			ILaya.timer.clear(this, this._doEase);
+			ILaya.timer.clear(this, this.firstStart);
 			var time:number = Browser.now();
 			var dTime:number;
 			dTime = time - this._startTimer - this._delay;
@@ -295,7 +293,7 @@ import { Timer } from "./Timer";
 		 */
 		 _clear():void {
 			this.pause();
-			Tween.gTimer.clear(this, this.firstStart);
+			ILaya.timer.clear(this, this.firstStart);
 			this._complete = null;
 			this._target = null;
 			this._ease = null;
@@ -334,7 +332,7 @@ import { Timer } from "./Timer";
 			this._usedTimer = 0;
 			this._startTimer = Browser.now();
 			if (this._delayParam) {
-				Tween.gTimer.once(this._delay, this, this.firstStart, this._delayParam);
+				ILaya.timer.once(this._delay, this, this.firstStart, this._delayParam);
 				return;
 			}
 			var props:any[] = this._props;
@@ -342,7 +340,7 @@ import { Timer } from "./Timer";
 				var prop:any[] = props[i];
 				this._target[prop[0]] = prop[1];
 			}
-			Tween.gTimer.once(this._delay, this, this._beginLoop);
+			ILaya.timer.once(this._delay, this, this._beginLoop);
 		}
 		
 		/**
@@ -353,7 +351,7 @@ import { Timer } from "./Timer";
 			this._startTimer = Browser.now() - this._usedTimer - this._delay;
 			if (this._delayParam) {
 				if (this._usedTimer < 0) {
-					Tween.gTimer.once(-this._usedTimer, this, this.firstStart, this._delayParam);
+					ILaya.timer.once(-this._usedTimer, this, this.firstStart, this._delayParam);
 				} else {
 					this.firstStart.apply(this, this._delayParam);
 				}

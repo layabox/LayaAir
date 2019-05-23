@@ -8,6 +8,7 @@ import { AtlasInfoManager } from "././AtlasInfoManager";
 	import { Handler } from "../utils/Handler"
 	import { Utils } from "../utils/Utils"
 import { Timer } from "../utils/Timer";
+import { ILaya } from "../../ILaya";
 	
 	/**
 	 * 所有资源加载完成时调度。
@@ -32,11 +33,6 @@ import { Timer } from "../utils/Timer";
 	 * @see laya.net.Loader
 	 */
 	export class LoaderManager extends EventDispatcher {
-        /**@private */
-        static gLoader:LoaderManager=null;
-        /**@private */
-        static gSysTimer:Timer= null;
-
 		/**@private */
 		private static _resMap:any = {};
 		/**@private */
@@ -169,16 +165,15 @@ for (var i:number = 0; i < this._maxPriority; i++) this._resInfos[i] = [];
 					this.load(url, complete, progress, type, priority, cache);
 					return;
 				}
-				this._createLoad(url, Handler.create(null, function (createRes:ICreateResource):void {//加载失败createRes为空
+				this._createLoad(url, Handler.create(null, function(createRes:ICreateResource):void{//加载失败createRes为空
 					if (createRes) {
 						if (!mainResou && createRes instanceof Resource)
 							((<Resource>createRes ))._addReference();
 						createRes._setCreateURL(url);
 					}
 					complete && complete.runWith(createRes);
-					LoaderManager.gLoader.event(url);
+					ILaya.loader.event(url);
 				}), progress, type, constructParams, propertyParams, priority, cache, true);
-				
 			} else {
 				if (!mainResou && item instanceof Resource)
 					item._addReference();
@@ -206,7 +201,7 @@ for (var i:number = 0; i < this._maxPriority; i++) this._resInfos[i] = [];
 			var content:any = Loader.getRes(url);
 			if (!ignoreCache && content != null) {
 				//增加延迟回掉，防止快速回掉导致执行顺序错误
-				LoaderManager.gSysTimer.frameOnce(1, null, function():void {
+				ILaya.systemTimer.frameOnce(1, null, function():void {
 					progress && progress.runWith(1);
 					complete && complete.runWith(content instanceof Array?[content]:content);
 					//判断是否全部加载，如果是则抛出complete事件
@@ -265,7 +260,7 @@ for (var i:number = 0; i < this._maxPriority; i++) this._resInfos[i] = [];
 			var content:any = Loader.getRes(url);
 			if (content != null) {
 				//增加延迟回掉
-				LoaderManager.gSysTimer.frameOnce(1, null, function():void {
+				ILaya.systemTimer.frameOnce(1, null, function():void {
 					progress && progress.runWith(1);
 					complete && complete.runWith(content);
 					//判断是否全部加载，如果是则抛出complete事件
@@ -348,7 +343,7 @@ for (var i:number = 0; i < this._maxPriority; i++) this._resInfos[i] = [];
 				if (errorCount < this.retryNum) {
 					console.warn("[warn]Retry to load:", url);
 					this._failRes[url] = errorCount + 1;
-					LoaderManager.gSysTimer.once(this.retryDelay, this, this._addReTry, [resInfo], false);
+					ILaya.systemTimer.once(this.retryDelay, this, this._addReTry, [resInfo], false);
 					return;
 				} else {
 					Loader.clearRes(url);//使用create加载失败需要清除资源
@@ -537,6 +532,25 @@ for (var i:number = 0; i < this._maxPriority; i++) this._resInfos[i] = [];
 		 */
 		//TODO:TESTs
 		 decodeBitmaps(urls:any[]):void {
+			var i:number, len:number = urls.length;
+			var ctx:any;
+			//ctx = Browser.context;
+			ctx = ILaya.Render._context;
+			//经测试需要画到主画布上才能只解码一次
+			//当前用法下webgl模式会报错
+			for (i = 0; i < len; i++) {
+				var atlas:any[];
+				atlas = Loader.getAtlas(urls[i]);
+				if (atlas) {
+					this._decodeTexture(atlas[0], ctx);
+				} else {
+					var tex:Texture;
+					tex = this.getRes(urls[i]);
+					if (tex && tex instanceof Texture) {
+						this._decodeTexture(tex, ctx);
+					}
+				}
+			}
 		}
 		
 		private _decodeTexture(tex:Texture, ctx:any):void {

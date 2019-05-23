@@ -1,14 +1,12 @@
 import { Sprite } from "../display/Sprite"
 	import { Stage } from "../display/Stage"
 	import { Point } from "../maths/Point"
+import { ILaya } from "../../ILaya";
 	
 	/**
 	 * <code>Event</code> 是事件类型的集合。一般当发生事件时，<code>Event</code> 对象将作为参数传递给事件侦听器。
 	 */
 	export class Event {
-        /**@private */
-        static gStage:Stage = null;
-
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		/** 一个空的 Event 对象。用于事件派发中转使用。*/
 		 static EMPTY:Event =/*[STATIC SAFE]*/ new Event();
@@ -180,7 +178,7 @@ import { Sprite } from "../display/Sprite"
 			if (!this.nativeEvent) return null;
 			var arr:any[] = this.nativeEvent.touches;
 			if (arr) {
-				var stage:Stage = Event.gStage;
+				var stage:Stage = ILaya.stage;
 				for (var i:number = 0, n:number = arr.length; i < n; i++) {
 					var e:any = arr[i];
 					var point:Point = Point.TEMP;
@@ -233,12 +231,12 @@ import { Sprite } from "../display/Sprite"
 		
 		/**鼠标在 Stage 上的 X 轴坐标*/
 		 get stageX():number {
-			return Event.gStage.mouseX;
+			return ILaya.stage.mouseX;
 		}
 		
 		/**鼠标在 Stage 上的 Y 轴坐标*/
 		 get stageY():number {
-			return Event.gStage.mouseY;
+			return ILaya.stage.mouseY;
 		}
 	}
 

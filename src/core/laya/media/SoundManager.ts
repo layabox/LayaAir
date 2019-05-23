@@ -21,13 +21,7 @@ import { ILaya } from "../../ILaya";
 	 */
 	export class SoundManager {
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
-        /**@private */
-        static gStage:Stage=null;
-        /**@private */
-        static gTimer:Timer=null;
-        /**@private */
-        static gLoader:LoaderManager=null;
-
+		
 		/**
 		 * 背景音乐音量。
 		 * @default 1
@@ -122,7 +116,7 @@ import { ILaya } from "../../ILaya";
 			if (!SoundManager._isCheckingDispose)
 			{
 				SoundManager._isCheckingDispose = true;
-				SoundManager.gTimer.loop(5000, null, SoundManager._checkDisposeSound);
+				ILaya.timer.loop(5000, null, SoundManager._checkDisposeSound);
 			}
 		}
 		
@@ -146,7 +140,7 @@ import { ILaya } from "../../ILaya";
 			if (!hasCheck)
 			{
 				SoundManager._isCheckingDispose = false;
-				SoundManager.gTimer.clear(null, SoundManager._checkDisposeSound);
+				ILaya.timer.clear(null, SoundManager._checkDisposeSound);
 			}
 		}
 		
@@ -168,14 +162,14 @@ import { ILaya } from "../../ILaya";
 		 *
 		 */
 		 static set autoStopMusic(v:boolean) {
-			SoundManager.gStage.off(Event.BLUR, null, SoundManager._stageOnBlur);
-			SoundManager.gStage.off(Event.FOCUS, null, SoundManager._stageOnFocus);
-			SoundManager.gStage.off(Event.VISIBILITY_CHANGE, null, SoundManager._visibilityChange);
+			ILaya.stage.off(Event.BLUR, null, SoundManager._stageOnBlur);
+			ILaya.stage.off(Event.FOCUS, null, SoundManager._stageOnFocus);
+			ILaya.stage.off(Event.VISIBILITY_CHANGE, null, SoundManager._visibilityChange);
 			SoundManager._autoStopMusic = v;
 			if (v) {
-				SoundManager.gStage.on(Event.BLUR, null, SoundManager._stageOnBlur);
-				SoundManager.gStage.on(Event.FOCUS, null, SoundManager._stageOnFocus);
-				SoundManager.gStage.on(Event.VISIBILITY_CHANGE, null, SoundManager._visibilityChange);
+				ILaya.stage.on(Event.BLUR, null, SoundManager._stageOnBlur);
+				ILaya.stage.on(Event.FOCUS, null, SoundManager._stageOnFocus);
+				ILaya.stage.on(Event.VISIBILITY_CHANGE, null, SoundManager._visibilityChange);
 			}
 		}
 		
@@ -187,7 +181,7 @@ import { ILaya } from "../../ILaya";
 		}
 		
 		private static _visibilityChange():void {
-			if (SoundManager.gStage.isVisibility) {
+			if (ILaya.stage.isVisibility) {
 				SoundManager._stageOnFocus();
 			} else {
 				SoundManager._stageOnBlur();
@@ -205,7 +199,7 @@ import { ILaya } from "../../ILaya";
 				
 			}	
 			SoundManager.stopAllSound();
-			SoundManager.gStage.once(Event.MOUSE_DOWN, null, SoundManager._stageOnFocus);
+			ILaya.stage.once(Event.MOUSE_DOWN, null, SoundManager._stageOnFocus);
 		}
 		
 		private static _recoverWebAudio():void
@@ -217,7 +211,7 @@ import { ILaya } from "../../ILaya";
 		private static _stageOnFocus():void {
 			SoundManager._isActive = true;
 			SoundManager._recoverWebAudio();
-			SoundManager.gStage.off(Event.MOUSE_DOWN, null, SoundManager._stageOnFocus);
+			ILaya.stage.off(Event.MOUSE_DOWN, null, SoundManager._stageOnFocus);
 			if (SoundManager._blurPaused) {
 				if (SoundManager._musicChannel && SoundManager._musicChannel.isStopped)
 				{
@@ -347,7 +341,7 @@ import { ILaya } from "../../ILaya";
 			var tSound:Sound;
 			if (!ILaya.Browser.onMiniGame)
 			{
-				tSound= SoundManager.gLoader.getRes(url);
+				tSound= ILaya.loader.getRes(url);
 			}
 			if (!soundClass) soundClass = SoundManager._soundClass;
 			if (!tSound) {
@@ -372,7 +366,7 @@ import { ILaya } from "../../ILaya";
 		 * @param url	声音播放地址。
 		 */
 		 static destroySound(url:string):void {
-			var tSound:Sound = SoundManager.gLoader.getRes(url);
+			var tSound:Sound = ILaya.loader.getRes(url);
 			if (tSound) {
 				ILaya.Loader.clearRes(url);
 				tSound.dispose();

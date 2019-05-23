@@ -11,7 +11,6 @@ import { ILaya } from "../../ILaya";
 	 * @private
 	 */
 	export class TTFLoader {
-        static gSysTimer:Timer=null;
 		private static _testString:string = "LayaTTFFont";
 		 fontName:string;
 		 complete:Handler;
@@ -80,8 +79,8 @@ import { ILaya } from "../../ILaya";
 		
 		//TODO:coverage
 		private _complete():void {
-			TTFLoader.gSysTimer.clear(this, this._complete);
-			TTFLoader.gSysTimer.clear(this, this._checkComplete);
+			ILaya.systemTimer.clear(this, this._complete);
+			ILaya.systemTimer.clear(this, this._checkComplete);
 			if (this._div && this._div.parentNode) {
 				
 				this._div.parentNode.removeChild(this._div);
@@ -95,7 +94,7 @@ import { ILaya } from "../../ILaya";
 		
 		//TODO:coverage
 		private _checkComplete():void {
-			if (Browser.measureText(TTFLoader._testString, this._fontTxt).width != this._txtWidth) {
+			if (ILaya.Browser.measureText(TTFLoader._testString, this._fontTxt).width != this._txtWidth) {
 				this._complete();
 			}
 		}
@@ -134,13 +133,13 @@ import { ILaya } from "../../ILaya";
 			document.body.appendChild(fontStyle);
 			fontStyle.textContent = "@font-face { font-family:'" + this.fontName + "'; src:url('" + this._url + "');}";	
 			this._fontTxt = "40px " + this.fontName;
-			this._txtWidth = Browser.measureText(TTFLoader._testString, this._fontTxt).width;
+			this._txtWidth = ILaya.Browser.measureText(TTFLoader._testString, this._fontTxt).width;
 			
 			var self:TTFLoader = this;
 			fontStyle.onload = function():void {
-				TTFLoader.gSysTimer.once(10000, self, this._complete);
+				ILaya.systemTimer.once(10000, self, this._complete);
 			};
-			TTFLoader.gSysTimer.loop(20, this, this._checkComplete);
+			ILaya.systemTimer.loop(20, this, this._checkComplete);
 			
 			this._createDiv();
 		

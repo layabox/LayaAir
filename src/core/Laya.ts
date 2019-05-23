@@ -50,6 +50,8 @@ import { WebAudioSound } from "./laya/media/webaudio/WebAudioSound";
 import { ShaderCompile } from "./laya/webgl/utils/ShaderCompile";
 import { ClassUtils } from "./laya/utils/ClassUtils";
 import { SceneUtils } from "./laya/utils/SceneUtils";
+import { AudioSound } from "./laya/media/h5audio/AudioSound";
+import { Pool } from "./laya/utils/Pool";
 
 	
 	/**
@@ -117,6 +119,8 @@ import { SceneUtils } from "./laya/utils/SceneUtils";
             ILaya.Text = Text; 
             ILaya.Browser = Browser;
             ILaya.WebGL = WebGL;
+            ILaya.AudioSound = AudioSound;
+            ILaya.Pool = Pool;
 
 			
             Browser.__init__();
@@ -160,19 +164,9 @@ import { SceneUtils } from "./laya/utils/SceneUtils";
             ILaya.physicsTimer = Laya.physicsTimer;
             
             Laya.loader = new LoaderManager();
-            LoaderManager.gLoader=Laya.loader;
-			Texture2D.gLoaderMgr =  Laya.loader;
-            Texture2D.gLoaderType = Loader;
-			Texture2D.gBrowser = Browser;
-			Context.gSysTimer = Laya.systemTimer;
-			Resource.gLoader = Loader;
-            TTFLoader.gSysTimer = Laya.systemTimer;
-            LoaderManager.gSysTimer=Laya.systemTimer;
 
             ILaya.Laya=Laya;
             ILaya.loader = Laya.loader;
-            
-            Tween.gTimer = Laya.timer;
 
 			WeakObject.__init__();
 			WebGL.inner_enable();
@@ -192,24 +186,9 @@ import { SceneUtils } from "./laya/utils/SceneUtils";
             
 			Utils.gStage = Laya.stage;
             URL.rootPath = URL._basePath = URL._getUrlPath();
-            Render.gStage = Laya.stage;
 			Laya.render = new Render(0, 0, Browser.mainCanvas);
 			Laya.stage.size(width, height);
             ((<any>window )).stage = Laya.stage;
-
-            SoundManager.gLoader=Laya.loader;
-            SoundManager.gTimer=Laya.timer;
-            SoundManager.gStage=Laya.stage;
-
-            Dragging.gStage = Laya.stage;
-            Dragging.gSysTimer=Laya.systemTimer;
-
-			
-			// 给其他对象赋全局值
-			Event.gStage = Laya.stage;
-            Texture.gLoader = Laya.loader;
-            Texture.gContext =  Context;
-            //Loader.gSysTimer = Laya.systemTimer;
 
 			RenderSprite.__init__();
 			KeyBoardManager.__init__();

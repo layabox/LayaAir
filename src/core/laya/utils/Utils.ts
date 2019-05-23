@@ -4,6 +4,7 @@ import { Sprite } from "../display/Sprite"
 	import { Point } from "../maths/Point"
 	import { Rectangle } from "../maths/Rectangle"
 	import { Texture } from "../resource/Texture"
+import { ILaya } from "../../ILaya";
 	
 	/**
 	 * <code>Utils</code> 是工具类。
@@ -380,7 +381,7 @@ import { Sprite } from "../display/Sprite"
 		 * @return	参数值
 		 */
 		 static getQueryString(name:string):string {
-			//if (Browser.onMiniGame) return null;
+			if (ILaya.Browser.onMiniGame) return null;
 			if(!window.location || !window.location.search)
 				return null;
 			var reg:RegExp = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");

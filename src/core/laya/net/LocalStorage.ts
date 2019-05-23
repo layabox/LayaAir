@@ -18,8 +18,7 @@
 			if (!LocalStorage._baseClass) {
 				LocalStorage._baseClass = Storage;
 				Storage.init();
-            }
-            Storage.items;
+			}
 			LocalStorage.items = LocalStorage._baseClass.items;
 			LocalStorage.support = LocalStorage._baseClass.support;
 			return LocalStorage.support;

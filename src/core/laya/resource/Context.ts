@@ -54,6 +54,7 @@ import { Sprite } from "../display/Sprite"
 	import { VertexBuffer2D } from "../webgl/utils/VertexBuffer2D"
 import { Timer } from "../utils/Timer";
 import { HTMLCanvas } from "./HTMLCanvas";
+import { ILaya } from "../../ILaya";
 
 	/**
 	 * @private
@@ -61,7 +62,6 @@ import { HTMLCanvas } from "./HTMLCanvas";
 	 */
 	export class Context {
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
-		 static gSysTimer:Timer = null;
 		 _canvas:HTMLCanvas;
 		 static ENUM_TEXTALIGN_DEFAULT:number = 0;
 		 static ENUM_TEXTALIGN_CENTER:number = 1;
@@ -915,7 +915,7 @@ import { HTMLCanvas } from "./HTMLCanvas";
 			//test
 			
 			if (!texture._getSource()){
-				this.sprite && Context.gSysTimer.callLater(this, this._repaintSprite);
+				this.sprite && ILaya.systemTimer.callLater(this, this._repaintSprite);
 				return;
 			}
 			this._fillTexture(texture,texture.width,texture.height, texture.uvrect,x,y,width,height,type,offset.x,offset.y);
@@ -1021,7 +1021,7 @@ import { HTMLCanvas } from "./HTMLCanvas";
 		 drawTextures(tex:Texture, pos:any[],tx:number, ty:number):void {
 			if (!tex._getSource()) //source内调用tex.active();
 			{
-				this.sprite && Context.gSysTimer.callLater(this, this._repaintSprite);
+				this.sprite && ILaya.systemTimer.callLater(this, this._repaintSprite);
 				return;
 			}
 			
@@ -1631,7 +1631,7 @@ import { HTMLCanvas } from "./HTMLCanvas";
 		 drawTriangles(tex:Texture, x:number, y:number, vertices:Float32Array, uvs:Float32Array, indices:Uint16Array, matrix:Matrix, alpha:number, color:ColorFilter, blendMode:string):void {
 			if (!tex._getSource()){ //source内调用tex.active();
 				if (this.sprite) {
-					Context.gSysTimer.callLater(this, this._repaintSprite);
+					ILaya.systemTimer.callLater(this, this._repaintSprite);
 				}
 				return ;
 			}

@@ -3,6 +3,7 @@ import { Node } from "../display/Node"
 	//import { Sprite } from "../display/Sprite"
 	import { Browser } from "../utils/Browser"
 	import { Pool } from "../utils/Pool"
+import { ILaya } from "../../ILaya";
 	
 	/**
 	 * @private
@@ -260,7 +261,7 @@ import { Node } from "../display/Node"
 			if (this.preOvers.length > 0 && this.preOvers[0].tar) {
 				return this.getEles(this.preOvers[0].tar, null, TouchManager._tEleArr);
 			}
-			TouchManager._tEleArr.push( (window as any).Laya.stage);    // TODO TS
+			TouchManager._tEleArr.push(ILaya.stage);
 			return TouchManager._tEleArr;
 		}
 		

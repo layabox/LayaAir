@@ -1,3 +1,4 @@
+import { ILaya } from "./../../ILaya";
 /**
 	 * @private
 	 * 对象缓存统一管理类
@@ -70,7 +71,7 @@
 		 *
 		 */
 		 static beginCheck(waitTime:number = 15000):void {
-			(window as any).Laya.systemTimer.loop(waitTime, null, CacheManger._checkLoop);// TODO TS
+			ILaya.systemTimer.loop(waitTime, null, CacheManger._checkLoop);
 		}
 		
 		/**
@@ -79,7 +80,7 @@
 		 */
 		//TODO:coverage
 		 static stopCheck():void {
-			(window as any).Laya.systemTimer.clear(null, CacheManger._checkLoop); //TODO TS
+			ILaya.systemTimer.clear(null, CacheManger._checkLoop);
 		}
 		
 		/**
@@ -89,7 +90,7 @@
 		private static _checkLoop():void {
 			var cacheList:any[] = CacheManger._cacheList;
 			if (cacheList.length < 1) return;
-			var tTime:number = Date.now();
+			var tTime:number = ILaya.Browser.now();
 			var count:number;
 			var len:number;
 			len = count = cacheList.length;
@@ -97,7 +98,7 @@
 				CacheManger._index++;
 				CacheManger._index = CacheManger._index % len;
 				cacheList[CacheManger._index].tryDispose(false);
-				if (Date.now() - tTime > CacheManger.loopTimeLimit) break;
+				if (ILaya.Browser.now() - tTime > CacheManger.loopTimeLimit) break;
 				count--;
 			}
 		}

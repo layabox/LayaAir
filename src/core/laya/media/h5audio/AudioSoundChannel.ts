@@ -29,7 +29,7 @@ import { ILaya } from "../../../ILaya";
 		private __onEnd( evt: Event):void {
 			if (this.loops == 1) {
 				if (this.completeHandler) {
-					(window as any).Laya.systemTimer.once(10, this, this.__runComplete, [this.completeHandler], false); //TODO TS
+					ILaya.systemTimer.once(10, this, this.__runComplete, [this.completeHandler], false);
 					this.completeHandler = null;
 				}
 				this.stop();
@@ -116,7 +116,13 @@ import { ILaya } from "../../../ILaya";
 			this._audio.removeEventListener("ended", this._onEnd as EventListener);
 			this._audio.removeEventListener("canplay", this._resumePlay);
 			//ie下使用对象池可能会导致后面的声音播放不出来
-		
+			if (!ILaya.Browser.onIE)
+			{
+				if (this._audio!=ILaya.AudioSound._musicAudio)
+				{
+					ILaya.Pool.recover("audio:" + this.url, this._audio);
+				}
+			}		
 			Browser.removeElement(this._audio);
 			this._audio = null;
 		

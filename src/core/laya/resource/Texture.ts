@@ -4,20 +4,7 @@ import { Event } from "../events/Event"
 	import { Rectangle } from "../maths/Rectangle"
 	import { Handler } from "../utils/Handler"
 import { LoaderManager } from "../net/LoaderManager";
-    
-    declare class IContext{
-        size(width:number,height:number):void;
-        asBitmap:boolean;
-        _drawTextureM(tex:Texture, x:number, y:number, width:number, height:number, m:any, alpha:number, uv:any[]):boolean;
-        _targets:any;
-        flush():void;
-        destroy():void;
-    }
-
-    interface ICtx{
-        new():IContext;
-    }
-
+import { ILaya } from "../../ILaya";
 	/**
 	 * 资源加载完成后调度。
 	 * @eventType Event.READY
@@ -28,10 +15,6 @@ import { LoaderManager } from "../net/LoaderManager";
 	 * <code>Texture</code> 是一个纹理处理类。
 	 */
 	export class Texture extends EventDispatcher {
-        /**@private */
-        static gContext:ICtx=null;
-        /**@private */
-        static gLoader:LoaderManager = null;
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		/**@private 默认 UV 信息。*/
 		 static DEF_UV = /*[STATIC SAFE]*/ new Float32Array([0, 0, 1.0, 0, 1.0, 1.0, 0, 1.0]);
@@ -351,8 +334,8 @@ this.setTo(bitmap, uv, sourceWidth, sourceHeight);
 		 * @param	complete 加载完成回调
 		 */
 		 load(url:string, complete:Handler = null):void {
-			if (!this._destroyed)
-				Texture.gLoader.load(url, Handler.create(this, this._onLoaded, [complete]), null, "htmlimage", 1, false, null, true);
+            if (!this._destroyed)
+                ILaya.loader.load(url, Handler.create(this, this._onLoaded, [complete]), null, "htmlimage", 1, false, null, true);
 		}
 		
 		 getTexturePixels ( x:number, y:number, width:number, height:number):Uint8Array {
@@ -387,7 +370,7 @@ this.setTo(bitmap, uv, sourceWidth, sourceHeight);
 			}
 			
             // 如果无法直接获取，只能先渲染出来
-			var ctx = new Texture.gContext();
+			var ctx = new  ILaya.Context();
 			ctx.size(width, height);
 			ctx.asBitmap = true;
 			var uv:any[] = null;
@@ -446,7 +429,7 @@ this.setTo(bitmap, uv, sourceWidth, sourceHeight);
 		 recoverBitmap(onok:Function=null):void {
 			var url:string=this._bitmap.url;
 			if (!this._destroyed && (!this._bitmap || this._bitmap.destroyed) && url){
-				Texture.gLoader.load(url, Handler.create(this, function(bit:any):void{
+				ILaya.loader.load(url, Handler.create(this, function(bit:any):void{
 					this.bitmap = bit;
 					onok && onok();
 				}), null, "htmlimage", 1, false, null, true);	
@@ -475,8 +458,8 @@ this.setTo(bitmap, uv, sourceWidth, sourceHeight);
 						bit.destroy();
 					bit = null;
 				}
-				if (this.url && this === Texture.gLoader.getRes(this.url))
-					Texture.gLoader.clearRes(this.url);
+				if (this.url && this === ILaya.loader.getRes(this.url))
+					ILaya.loader.clearRes(this.url);
 			}
 		}
 	}

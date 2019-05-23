@@ -20,6 +20,8 @@ import { MouseManager } from "./laya/events/MouseManager";
 import { Text } from "./laya/display/Text";
 import { Browser } from "./laya/utils/Browser";
 import { WebGL } from "./laya/webgl/WebGL";
+import { AudioSound } from "./laya/media/h5audio/AudioSound";
+import { Pool } from "./laya/utils/Pool";
 
 /**
  * 使用全局类的时候，避免引用其他模块
@@ -45,6 +47,7 @@ import { WebGL } from "./laya/webgl/WebGL";
      static TTFLoader:typeof TTFLoader = null;
      static SoundManager:typeof SoundManager=null;
      static WebAudioSound:typeof WebAudioSound=null;
+     static AudioSound:typeof AudioSound = null;
      static ShaderCompile: typeof ShaderCompile=null;
      static ClassUtils:typeof ClassUtils=null;
      static SceneUtils:typeof SceneUtils=null;
@@ -54,5 +57,6 @@ import { WebGL } from "./laya/webgl/WebGL";
      static Text:typeof Text = null;
      static Browser:typeof Browser = null;
      static WebGL:typeof WebGL = null;
+     static Pool:typeof Pool=null;
  }
  

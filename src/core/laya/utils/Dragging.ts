@@ -1,4 +1,5 @@
 import { Tween } from "././Tween";
+import { ILaya } from "./../../ILaya";
 import { Ease } from "././Ease";
 import { Handler } from "././Handler";
 	import { Event } from "../events/Event"
@@ -15,11 +16,7 @@ import { Sprite } from "../display/Sprite";
 	 */
 	export class Dragging {
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
-        /**@private */
-        static gStage:Stage = null;
-        /**@private */
-        static gSysTimer:Timer = null;
-
+		
 		/** 被拖动的对象。*/
 		 target:Sprite;
 		/** 缓动衰减系数。*/
@@ -81,18 +78,18 @@ import { Sprite } from "../display/Sprite";
 			this._lastX = this._parent.mouseX;
 			this._lastY = this._parent.mouseY;
 			
-			Dragging.gStage.on(Event.MOUSE_UP, this, this.onStageMouseUp);
-			Dragging.gStage.on(Event.MOUSE_OUT, this, this.onStageMouseUp);
-			//Dragging.gStage.on(Event.MOUSE_MOVE, this, onStageMouseMove);
-			Dragging.gSysTimer.frameLoop(1, this, this.loop);
+			ILaya.stage.on(Event.MOUSE_UP, this, this.onStageMouseUp);
+			ILaya.stage.on(Event.MOUSE_OUT, this, this.onStageMouseUp);
+			//Laya.stage.on(Event.MOUSE_MOVE, this, onStageMouseMove);
+			ILaya.systemTimer.frameLoop(1, this, this.loop);
 		}
 		
 		/**
 		 * 清除计时器。
 		 */
 		private clearTimer():void {
-			Dragging.gSysTimer.clear(this, this.loop);
-			Dragging.gSysTimer.clear(this, this.tweenMove);
+			ILaya.systemTimer.clear(this, this.loop);
+			ILaya.systemTimer.clear(this, this.tweenMove);
 			if (this._tween) {
 				this._tween.recover();
 				this._tween = null;
@@ -105,8 +102,8 @@ import { Sprite } from "../display/Sprite";
 		 stop():void {
 			if (this._dragging) {
 				MouseManager.instance.disableMouseEvent = false;
-				Dragging.gStage.off(Event.MOUSE_UP, this, this.onStageMouseUp);
-				Dragging.gStage.off(Event.MOUSE_OUT, this, this.onStageMouseUp);
+				ILaya.stage.off(Event.MOUSE_UP, this, this.onStageMouseUp);
+				ILaya.stage.off(Event.MOUSE_OUT, this, this.onStageMouseUp);
 				this._dragging = false;
 				this.target && this.area && this.backToArea();
 				this.clear();
@@ -124,7 +121,7 @@ import { Sprite } from "../display/Sprite";
 			var offsetY:number = mouseY - this._lastY;
 			
 			if (this._clickOnly) {
-				if (Math.abs(offsetX * Dragging.gStage._canvasTransform.getScaleX()) > 1 || Math.abs(offsetY * Dragging.gStage._canvasTransform.getScaleY()) > 1) {
+				if (Math.abs(offsetX * ILaya.stage._canvasTransform.getScaleX()) > 1 || Math.abs(offsetY * ILaya.stage._canvasTransform.getScaleY()) > 1) {
 					this._clickOnly = false;
 					this._offsets || (this._offsets = []);
 					this._offsets.length = 0;
@@ -189,10 +186,10 @@ import { Sprite } from "../display/Sprite";
 		 */
 		private onStageMouseUp(e:Event):void {
 			MouseManager.instance.disableMouseEvent = false;
-			Dragging.gStage.off(Event.MOUSE_UP, this, this.onStageMouseUp);
-			Dragging.gStage.off(Event.MOUSE_OUT, this, this.onStageMouseUp);
-			//Dragging.gStage.off(Event.MOUSE_MOVE, this, onStageMouseMove);
-			Dragging.gSysTimer.clear(this, this.loop);
+			ILaya.stage.off(Event.MOUSE_UP, this, this.onStageMouseUp);
+			ILaya.stage.off(Event.MOUSE_OUT, this, this.onStageMouseUp);
+			//Laya.stage.off(Event.MOUSE_MOVE, this, onStageMouseMove);
+			ILaya.systemTimer.clear(this, this.loop);
 			
 			if (this._clickOnly || !this.target) return;
 			//target.mouseEnabled = true;
@@ -217,7 +214,7 @@ import { Sprite } from "../display/Sprite";
 				
 				if (Math.abs(this._offsetX) > this.maxOffset) this._offsetX = this._offsetX > 0 ? this.maxOffset : -this.maxOffset;
 				if (Math.abs(this._offsetY) > this.maxOffset) this._offsetY = this._offsetY > 0 ? this.maxOffset : -this.maxOffset;
-				Dragging.gSysTimer.frameLoop(1, this, this.tweenMove);
+				ILaya.systemTimer.frameLoop(1, this, this.tweenMove);
 			} else if (this.elasticDistance > 0) {
 				this.checkElastic();
 			} else {
@@ -262,7 +259,7 @@ import { Sprite } from "../display/Sprite";
 			this.target.event(Event.DRAG_MOVE, this.data);
 			
 			if ((Math.abs(this._offsetX) < 1 && Math.abs(this._offsetY) < 1) || this._elasticRateX < 0.5 || this._elasticRateY < 0.5) {
-				Dragging.gSysTimer.clear(this, this.tweenMove);
+				ILaya.systemTimer.clear(this, this.tweenMove);
 				if (this.elasticDistance > 0) this.checkElastic();
 				else this.clear();
 			}

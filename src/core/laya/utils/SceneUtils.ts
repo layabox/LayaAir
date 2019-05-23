@@ -100,11 +100,11 @@ import { Const } from "../Const"
 		 static createComp(uiView:any, comp:any = null, view:any = null, dataMap:any[] = null, initTool:InitTool = null):any {
 			if (uiView.type == "Scene3D"||uiView.type == "Sprite3D"){
 				var outBatchSprits:any[] = [];
-				var scene3D:any =  (window as any).Laya["Utils3D"]._createSceneByJsonForMaker(uiView, outBatchSprits, initTool);
+				var scene3D:any =  ILaya.Laya["Utils3D"]._createSceneByJsonForMaker(uiView, outBatchSprits, initTool);
 				if (uiView.type == "Sprite3D")
-                    (window as any).Laya["StaticBatchManager"].combine(scene3D, outBatchSprits);
+					ILaya.Laya["StaticBatchManager"].combine(scene3D, outBatchSprits);
 				else
-                    (window as any).Laya["StaticBatchManager"].combine(null, outBatchSprits);
+					ILaya.Laya["StaticBatchManager"].combine(null, outBatchSprits);
 				return scene3D;
 			}
 			
@@ -437,7 +437,7 @@ class InitTool {
 		if (!this._loadList || this._loadList.length < 1) {
 			this.finish();
 		} else {
-			((window as any).Laya.loader as LoaderManager).load(this._loadList, Handler.create(this, this.finish));
+			ILaya.loader.load(this._loadList, Handler.create(this, this.finish));
 		}
 	}
 }

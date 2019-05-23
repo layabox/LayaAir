@@ -1,6 +1,5 @@
 import { Event } from "././Event";
-import { Browser } from "../utils/Browser"
-import { Stage } from "../display/Stage";
+import { ILaya } from "../../ILaya";
 	
 	/**
 	 * <p><code>KeyBoardManager</code> 是键盘事件管理类。该类从浏览器中接收键盘事件，并派发该事件。</p>
@@ -24,7 +23,7 @@ import { Stage } from "../display/Stage";
 		}
 		
 		private static _addEvent(type:string):void {
-			Browser.document.addEventListener(type, function(e:any):void {
+			ILaya.Browser.document.addEventListener(type, function(e:any):void {
 				KeyBoardManager._dispatch(e, type);
 			}, true);
 		}
@@ -37,9 +36,8 @@ import { Stage } from "../display/Stage";
 			//判断同时按下的键
 			if (type === "keydown") KeyBoardManager._pressKeys[KeyBoardManager._event.keyCode] = true;
 			else if (type === "keyup") KeyBoardManager._pressKeys[KeyBoardManager._event.keyCode] = null;
-            
-            var gStage:Stage = (window as any).Laya.stage;
-			var target:any = (gStage.focus && (gStage.focus.event != null) && gStage.focus.displayedInStage) ? gStage.focus :gStage;
+			
+			var target:any = (ILaya.stage.focus && (ILaya.stage.focus.event != null) && ILaya.stage.focus.displayedInStage) ? ILaya.stage.focus : ILaya.stage;
 			var ct:any = target;
 			while (ct) {
 				ct.event(type, KeyBoardManager._event.setTo(type, ct, target));
