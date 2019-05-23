@@ -1,7 +1,7 @@
 import { HttpRequest } from "././HttpRequest";
 import { URL } from "././URL";
-import { WorkerLoader } from "././WorkerLoader";
-import { TTFLoader } from "././TTFLoader";
+//import { WorkerLoader } from "././WorkerLoader";
+//import { TTFLoader } from "././TTFLoader";
 import { BitmapFont } from "./../display/BitmapFont";
 //import { Laya } from "./../../Laya";
 import { Prefab } from "../components/Prefab"
@@ -17,6 +17,8 @@ import { Prefab } from "../components/Prefab"
 	import { Byte } from "../utils/Byte"
 	import { Handler } from "../utils/Handler"
 	import { Utils } from "../utils/Utils"
+import { ILaya } from "../../ILaya";
+import { TTFLoader } from "./TTFLoader";
 	
 	/**
 	 * 加载进度发生改变时调度。
@@ -159,9 +161,9 @@ import { Prefab } from "../components/Prefab"
 			this._type = type || (type = Loader.getTypeFromUrl(this._url));
 			this._cache = cache;
 			this._useWorkerLoader = useWorkerLoader;
-			this._data = null;
+            this._data = null;
 			if (useWorkerLoader)
-				WorkerLoader.enableWorkerLoader();
+				ILaya.WorkerLoader.enableWorkerLoader();
 			if (!ignoreCache && Loader.loadedMap[url]) {
 				this._data = Loader.loadedMap[url];
 				this.event(Event.PROGRESS, 1);
@@ -263,8 +265,8 @@ import { Prefab } from "../components/Prefab"
 		 * @param	url 资源地址。
 		 */
 		protected _loadTTF(url:string):void {
-			url = URL.formatURL(url);
-			var ttfLoader:TTFLoader = new TTFLoader();
+            url = URL.formatURL(url);
+			var ttfLoader:TTFLoader = new ILaya.TTFLoader();
 			ttfLoader.complete = Handler.create(this, this.onLoaded);
 			ttfLoader.load(url);
 		}

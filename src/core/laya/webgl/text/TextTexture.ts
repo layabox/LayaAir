@@ -1,10 +1,11 @@
-import { TextAtlas } from "././TextAtlas";
+//import { TextAtlas } from "././TextAtlas";
 import { LayaGL } from "../../layagl/LayaGL"
 	import { RenderInfo } from "../../renders/RenderInfo"
 	import { Resource } from "../../resource/Resource"
 	import { WebGLContext } from "../WebGLContext"
     import { CharRenderInfo } from "./CharRenderInfo"
 import { PlatformInfo } from "../../utils/PlatformInfo";
+import { ILaya } from "../../../ILaya";
     
     interface ITextRender{
         atlasWidth:number;
@@ -221,9 +222,9 @@ import { PlatformInfo } from "../../utils/PlatformInfo";
 				this.lastTouchTm = curloop;
 			}
 			var texw2:number = TextTexture.gTextRender.atlasWidth * TextTexture.gTextRender.atlasWidth;
-			var gridw2:number = TextAtlas.atlasGridW * TextAtlas.atlasGridW;
+			var gridw2:number = ILaya.TextAtlas.atlasGridW * ILaya.TextAtlas.atlasGridW;
 			this.curUsedCovRate+= (ri.bmpWidth * ri.bmpHeight) / texw2;
-			this.curUsedCovRateAtlas += ( Math.ceil(ri.bmpWidth / TextAtlas.atlasGridW ) * Math.ceil(ri.bmpHeight / TextAtlas.atlasGridW)) / (texw2 / gridw2);
+			this.curUsedCovRateAtlas += ( Math.ceil(ri.bmpWidth / ILaya.TextAtlas.atlasGridW ) * Math.ceil(ri.bmpHeight / ILaya.TextAtlas.atlasGridW)) / (texw2 / gridw2);
 		}
 		
 		// 为了与当前的文字渲染兼容的补丁

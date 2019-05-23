@@ -1,4 +1,6 @@
-	import { ShaderCompile } from "./ShaderCompile"
+import { ILaya } from "../../../ILaya";
+
+//	import { ShaderCompile } from "./ShaderCompile"
 	
 	export class ShaderNode {
 		private static __id:number = 1;
@@ -44,8 +46,8 @@
 			if (this.childs.length < 1 && !this.text) return out;
 			var outIndex:number = out.length;
 			if (this.condition) {
-				var ifdef:boolean = !!this.condition.call(def);
-				this.conditionType === ShaderCompile.IFDEF_ELSE && (ifdef = !ifdef);
+                var ifdef:boolean = !!this.condition.call(def);
+				this.conditionType === ILaya.ShaderCompile.IFDEF_ELSE && (ifdef = !ifdef);
 				if (!ifdef) return out;
 			}
 			

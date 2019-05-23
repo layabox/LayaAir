@@ -3,7 +3,7 @@ import { Const } from "../Const"
 	import { Component } from "../components/Component"
 	import { FrameAnimation } from "../display/FrameAnimation"
 	import { Node } from "../display/Node"
-    import { ClassUtils } from "./ClassUtils"
+    //import { ClassUtils } from "./ClassUtils"
     import {WeakObject} from './WeakObject'
 	/**
 	 * @private 场景辅助类
@@ -126,10 +126,10 @@ import { Const } from "../Const"
 						//如果list的itemRender
 						comp["itemRender"] = node;
 					} else if (node.type == "Graphic") {
-						//绘制矢量图
-						ClassUtils._addGraphicsToSprite(node, comp);
-					} else if (ClassUtils._isDrawType(node.type)) {
-						ClassUtils._addGraphicToSprite(node, comp, true);
+                        //绘制矢量图
+						ILaya.ClassUtils._addGraphicsToSprite(node, comp);
+					} else if (ILaya.ClassUtils._isDrawType(node.type)) {
+						ILaya.ClassUtils._addGraphicToSprite(node, comp, true);
 					} else {
 						if (isList) {
 							//收集数据绑定信息
@@ -199,7 +199,7 @@ import { Const } from "../Const"
 		private static setCompValue(comp:any, prop:string, value:any, view:any = null, dataMap:any[] = null):void {
 			//处理数据绑定
 			if (value instanceof String && value.indexOf("${") > -1) {
-				SceneUtils._sheet || (SceneUtils._sheet = ClassUtils.getClass("laya.data.Table"));
+				SceneUtils._sheet || (SceneUtils._sheet = ILaya.ClassUtils.getClass("laya.data.Table"));
 				if (!SceneUtils._sheet) {
 					console.warn("Can not find class Sheet");
 					return;
@@ -257,7 +257,7 @@ import { Const } from "../Const"
 				}
 			}
 			var runtime:string = (json.props && json.props.runtime) || json.type;
-			var compClass:new()=>any = ClassUtils.getClass(runtime);
+			var compClass:new()=>any = ILaya.ClassUtils.getClass(runtime);
 			if (!compClass) throw "Can not find class " + runtime;
 			if (json.type === "Script" && compClass.prototype._doAwake) {
 				var comp:any = Pool.createByClass(compClass);
@@ -281,6 +281,7 @@ import { Scene } from "../display/Scene"
 import { Loader } from "../net/Loader"
 import { Handler } from "./Handler"
 import { LoaderManager } from "../net/LoaderManager";
+import { ILaya } from "../../ILaya";
 
 /**
  * @private 场景辅助类

@@ -37,6 +37,7 @@ import { AlphaCmd } from "./cmd/AlphaCmd"
 	import { Texture } from "../resource/Texture"
 	import { Utils } from "../utils/Utils"
 	import { VectorGraphManager } from "../utils/VectorGraphManager"
+import { ILaya } from "../../ILaya";
 
     interface ILoader{
         getRes(url:string):any;
@@ -149,7 +150,7 @@ import { AlphaCmd } from "./cmd/AlphaCmd"
 		/**@private */
 		private _initGraphicBounds():void {
 			if (!this._graphicBounds) {
-				this._graphicBounds = GraphicsBounds.create();
+				this._graphicBounds = ILaya.GraphicsBounds.create();
 				this._graphicBounds._graphics = this;
 			}
 		}

@@ -14,7 +14,7 @@ import { Animation } from "../display/Animation"
 	import { RadioGroup } from "./RadioGroup"
 	import { Tab } from "./Tab"
 	import { UIComponent } from "./UIComponent"
-	import { ClassUtils } from "../utils/ClassUtils"
+	//import { ClassUtils } from "../utils/ClassUtils"
 import { ViewStack } from "./ViewStack";
 import { TextArea } from "./TextArea";
 import { ColorPicker } from "./ColorPicker";
@@ -28,13 +28,14 @@ import { Panel } from "./Panel";
 import { ScrollBar } from "./ScrollBar";
 import { Slider } from "./Slider";
 import { TextInput } from "./TextInput";
-import { Dialog } from "./Dialog";
+//import { Dialog } from "./Dialog";
 import { VScrollBar } from "./VScrollBar";
 import { VSlider } from "./VSlider";
 import { Tree } from "./Tree";
 import { HBox } from "./HBox";
 import { VBox } from "./VBox";
 import { FontClip } from "./FontClip";
+import { ILaya } from "../../ILaya";
     
     
 	/**
@@ -67,7 +68,7 @@ import { FontClip } from "./FontClip";
 		 * @param compClass 组件类对象。
 		 */
 		 static regComponent(key:string, compClass:new()=>any):void {
-			ClassUtils.regClass(key, compClass);
+			ILaya.ClassUtils.regClass(key, compClass);
 		}
 		
 		/**
@@ -78,7 +79,7 @@ import { FontClip } from "./FontClip";
 		 * @param compClass UI视图类对应的逻辑处理类。
 		 */
 		 static regViewRuntime(key:string, compClass:new()=>any):void {
-			ClassUtils.regClass(key, compClass);
+			ILaya.ClassUtils.regClass(key, compClass);
 		}
 		
 		/**
@@ -246,8 +247,3 @@ import { FontClip } from "./FontClip";
 		}
 	}
 
-
-    //注册UI类名称映射
-    ClassUtils.regShortClassName([ViewStack, Button, TextArea, ColorPicker, Box, ScaleBox,CheckBox, Clip, ComboBox, UIComponent, 
-        HScrollBar, HSlider, Image, Label, List, Panel, ProgressBar, Radio, RadioGroup, ScrollBar, Slider, Tab, TextInput, View, Dialog, 
-        VScrollBar, VSlider, Tree, HBox, VBox, Sprite, Animation, Text, FontClip]);		

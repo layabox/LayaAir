@@ -1,6 +1,6 @@
 import { IStatRender } from "././IStatRender";
 import { Browser } from "././Browser";
-import { Laya } from "./../../Laya";
+//import { Laya } from "./../../Laya";
 import { Sprite } from "../display/Sprite"
 	import { Text } from "../display/Text"
 	import { Render } from "../renders/Render"
@@ -8,6 +8,7 @@ import { Sprite } from "../display/Sprite"
 	import { HTMLCanvas } from "../resource/HTMLCanvas"
 	import { Resource } from "../resource/Resource"
 import { Stat } from "./Stat";
+import { ILaya } from "../../ILaya";
 	/**
 	 * 显示Stat的结果。由于stat会引入很多的循环引用，所以把显示部分拆开
 	 * @author laya
@@ -140,7 +141,7 @@ import { Stat } from "./Stat";
 		
 		/**激活性能统计*/
 		 enable():void {
-			Laya.systemTimer.frameLoop(1, this, this.loop);
+			ILaya.systemTimer.frameLoop(1, this, this.loop);
 		}
 		
 		/**
@@ -148,7 +149,7 @@ import { Stat } from "./Stat";
 		 */
 		 hide():void {
 			this._show = false;
-			Laya.systemTimer.clear(this, this.loop);
+			ILaya.systemTimer.clear(this, this.loop);
 			if (this._canvas) {
 				Browser.removeElement(this._canvas.source);
 			}

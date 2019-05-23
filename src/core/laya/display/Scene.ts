@@ -2,15 +2,16 @@ import { Node } from "././Node";
 import { Const } from "../Const"
 	import { Sprite } from "./Sprite"
 	import { Event } from "../events/Event"
-	import { Loader } from "../net/Loader"
+	//import { Loader } from "../net/Loader"
 	import { SceneLoader } from "../net/SceneLoader"
 	import { Resource } from "../resource/Resource"
-	import { ClassUtils } from "../utils/ClassUtils"
+	//import { ClassUtils } from "../utils/ClassUtils"
 	import { Handler } from "../utils/Handler"
 	import { SceneUtils } from "../utils/SceneUtils"
 	import { Timer } from "../utils/Timer"
 import { Stage } from "./Stage";
 import { LoaderManager } from "../net/LoaderManager";
+import { ILaya } from "../../ILaya";
 	
 	/**
 	 * 场景类，负责场景创建，加载，销毁等功能
@@ -73,7 +74,7 @@ this._setBit(Const.NOT_READY, true);
 		}
 		
 		private _onSceneLoaded(url:string):void {
-			this.createView(Loader.getRes(url));
+			this.createView(ILaya.Loader.getRes(url));
 		}
 		
 		/**
@@ -249,11 +250,11 @@ this._setBit(Const.NOT_READY, true);
 			
 			function create():void {
 				loader.off(Event.PROGRESS, null, onProgress);
-				var obj:any = Loader.getRes(url);
+				var obj:any = ILaya.Loader.getRes(url);
 				if (!obj) throw "Can not find scene:" + url;
 				if (!obj.props) throw "Scene data is error:" + url;
-				var runtime:string = obj.props.runtime ? obj.props.runtime : obj.type;
-				var clas:any = ClassUtils.getClass(runtime);
+                var runtime:string = obj.props.runtime ? obj.props.runtime : obj.type;
+				var clas:any = ILaya.ClassUtils.getClass(runtime);
 				if (obj.props.renderType == "instance") {
 					var scene:Scene = clas.instance || (clas.instance = new clas());
 				} else {
@@ -407,4 +408,3 @@ this._setBit(Const.NOT_READY, true);
 		}
 	}
 
-ClassUtils.regClass('Scene', Scene)

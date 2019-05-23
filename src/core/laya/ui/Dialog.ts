@@ -9,6 +9,7 @@ import { Sprite } from "../display/Sprite"
 	import { Rectangle } from "../maths/Rectangle"
 	import { Handler } from "../utils/Handler"
 	import { Tween } from "../utils/Tween"
+import { IUI } from "./IUI";
 	
 	/**
 	 * <code>Dialog</code> 组件是一个弹出对话框，实现对话框弹出，拖动，模式窗口功能。
@@ -162,7 +163,7 @@ import { Sprite } from "../display/Sprite"
 		/**对话框管理容器，所有的对话框都在该容器内，并且受管理器管理，可以自定义自己的管理器，来更改窗口管理的流程。
 		 * 任意对话框打开和关闭，都会触发管理类的open和close事件*/
 		 static get manager():DialogManager {
-			return Dialog._manager =Dialog._manager|| new DialogManager();
+			return Dialog._manager =Dialog._manager|| new IUI.DialogManager();
 		}
 		
 		 static set manager(value:DialogManager) {

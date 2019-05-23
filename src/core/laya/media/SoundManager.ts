@@ -2,7 +2,7 @@ import { SoundChannel } from "././SoundChannel";
 import { Event } from "../events/Event"
 	import { AudioSound } from "./h5audio/AudioSound"
 	import { WebAudioSound } from "./webaudio/WebAudioSound"
-	import { Loader } from "../net/Loader"
+	//import { Loader } from "../net/Loader"
 	import { URL } from "../net/URL"
 	import { Handler } from "../utils/Handler"
 	import { PlatformInfo } from "../utils/PlatformInfo"
@@ -11,6 +11,7 @@ import { Sound } from "./Sound";
 import { Stage } from "../display/Stage";
 import { LoaderManager } from "../net/LoaderManager";
 import { Timer } from "../utils/Timer";
+import { ILaya } from "../../ILaya";
 	/**
 	 * <code>SoundManager</code> 是一个声音管理类。提供了对背景音乐、音效的播放控制方法。
 	 * 引擎默认有两套声音方案：WebAudio和H5Audio
@@ -354,7 +355,7 @@ import { Timer } from "../utils/Timer";
 				tSound.load(url);
 				if (!PlatformInfo.onMiniGame)
 				{
-					Loader.cacheRes(url, tSound);
+					ILaya.Loader.cacheRes(url, tSound);
 				}	
 			}
 			var channel:SoundChannel;
@@ -373,7 +374,7 @@ import { Timer } from "../utils/Timer";
 		 static destroySound(url:string):void {
 			var tSound:Sound = SoundManager.gLoader.getRes(url);
 			if (tSound) {
-				Loader.clearRes(url);
+				ILaya.Loader.clearRes(url);
 				tSound.dispose();
 			}
 		}

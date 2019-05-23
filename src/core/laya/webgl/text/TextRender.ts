@@ -15,10 +15,8 @@ import { Sprite } from "../../display/Sprite"
 	import { ICharRender } from "./ICharRender"
 import { PlatformInfo } from "../../utils/PlatformInfo";
 import {TextConst} from "../../display/TextConst"
+import { ILaya } from "../../../ILaya";
 
-    interface ILaya{
-
-    }
 	export class TextRender {
 		//config
 		 static useOldCharBook:boolean = false;
@@ -81,6 +79,8 @@ import {TextConst} from "../../display/TextConst"
 		 static simClean:boolean = false;				// 测试用。强制清理占用低的图集
 		
 		constructor() {
+            ILaya.TextAtlas=TextAtlas;
+            
 			var bugIOS:boolean = false;//是否是有bug的ios版本
             //在微信下有时候不显示文字，所以采用canvas模式，现在测试微信好像都好了，所以去掉了。
             var win:any= window;
@@ -829,8 +829,7 @@ import {TextConst} from "../../display/TextConst"
 				console.log('没有这个图集');
 				return null;
 			}
-			
-			var sp:Sprite = new Sprite();
+			var sp:Sprite = new ILaya.Sprite();
 			var texttex:TextTexture = this.textAtlases[n].texture;
 			var texture:any = { 
 				width:TextRender.atlasWidth,

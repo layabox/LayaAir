@@ -9,7 +9,7 @@ import { SpriteStyle } from "./css/SpriteStyle"
 	import { Rectangle } from "../maths/Rectangle"
 	import { WordText } from "../utils/WordText"
 import { Timer } from "../utils/Timer";
-import { ClassUtils } from "../utils/ClassUtils";
+//import { ClassUtils } from "../utils/ClassUtils";
 	
 	/**
 	 * 文本内容发生改变后调度。
@@ -1175,4 +1175,3 @@ this._style = TextStyle.EMPTY;
 	}
 
 
-ClassUtils.regClass('Text',Text);

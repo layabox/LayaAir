@@ -1,6 +1,10 @@
 import { Matrix } from "../maths/Matrix"
 import { Handler } from "./Handler";
-	
+import { Sprite } from "../display/Sprite";
+import { Node } from "../display/Node";
+import { Scene } from "../display/Scene"
+import { Graphics } from "../display/Graphics";
+import { ILaya } from "../../ILaya";
 	/**
 	 * <code>ClassUtils</code> 是一个类工具类。
 	 */
@@ -10,7 +14,7 @@ import { Handler } from "./Handler";
 		/**@private */
 		private static _temParam:any[] = [];
 		/**@private */
-		private static _classMap:any = /*[STATIC SAFE]*/ {'Sprite': Sprite, 'Scene': Scene, 'Text': Text, 'Animation': 'laya.display.Animation', 'Skeleton': 'laya.ani.bone.Skeleton', 'Particle2D': 'laya.particle.Particle2D', 'div': 'laya.html.dom.HTMLDivParser', 'p': 'laya.html.dom.HTMLElement', 'img': 'laya.html.dom.HTMLImageElement', 'span': 'laya.html.dom.HTMLElement', 'br': 'laya.html.dom.HTMLBrElement', 'style': 'laya.html.dom.HTMLStyleElement', 'font': 'laya.html.dom.HTMLElement', 'a': 'laya.html.dom.HTMLElement', '#text': 'laya.html.dom.HTMLElement', 'link': 'laya.html.dom.HTMLLinkElement'}
+		private static _classMap:any = /*[STATIC SAFE]*/ {'Sprite': Sprite, 'Node':Node, 'Scene': Scene, 'Text': Text, 'Animation': 'laya.display.Animation', 'Skeleton': 'laya.ani.bone.Skeleton', 'Particle2D': 'laya.particle.Particle2D', 'div': 'laya.html.dom.HTMLDivParser', 'p': 'laya.html.dom.HTMLElement', 'img': 'laya.html.dom.HTMLImageElement', 'span': 'laya.html.dom.HTMLElement', 'br': 'laya.html.dom.HTMLBrElement', 'style': 'laya.html.dom.HTMLStyleElement', 'font': 'laya.html.dom.HTMLElement', 'a': 'laya.html.dom.HTMLElement', '#text': 'laya.html.dom.HTMLElement', 'link': 'laya.html.dom.HTMLLinkElement'}
 		/**@private */
 		private static _tM:Matrix;
 		/**@private */
@@ -280,7 +284,7 @@ import { Handler } from "./Handler";
 		 * @private
 		 */
 		private static _adptTextureData(params:any[]):any[] {
-			params[0] = Loader.getRes(params[0]);
+			params[0] = ILaya.Loader.getRes(params[0]);
 			return params;
 		}
 		

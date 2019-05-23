@@ -45,6 +45,11 @@ import { TextureSV } from "./laya/webgl/shader/d2/value/TextureSV";
 import { PrimitiveSV } from "./laya/webgl/shader/d2/value/PrimitiveSV";
 import { SkinSV } from "./laya/webgl/shader/d2/skinAnishader/SkinSV";
 import { TextRender } from "./laya/webgl/text/TextRender";
+import { ILaya } from "./ILaya";
+import { GraphicsBounds } from "./laya/display/GraphicsBounds";
+import { WebAudioSound } from "./laya/media/webaudio/WebAudioSound";
+import { ShaderCompile } from "./laya/webgl/utils/ShaderCompile";
+import { ClassUtils } from "./laya/utils/ClassUtils";
 
 	
 	/**
@@ -117,7 +122,21 @@ import { TextRender } from "./laya/webgl/text/TextRender";
 
             PlatformInfo.supportWebAudio = Browser.supportWebAudio = SoundManager.__init__();;
 			Browser.supportLocalStorage = PlatformInfo.supportLocalStorage = LocalStorage.__init__();
-			
+            
+            ILaya.Timer=Timer;
+            ILaya.Dragging=Dragging;
+            ILaya.GraphicsBounds = GraphicsBounds;
+            ILaya.Sprite = Sprite;
+            ILaya.TextRender=TextRender;
+            ILaya.Loader=Loader;
+            ILaya.TTFLoader = TTFLoader;
+            ILaya.WebAudioSound  = WebAudioSound;
+            ILaya.SoundManager = SoundManager;
+            ILaya.ShaderCompile = ShaderCompile;
+            ILaya.ClassUtils = ClassUtils;
+
+            //temp TODO 以后分包
+
             Laya.systemTimer = new Timer(false);
             Timer.gSysTimer=Laya.systemTimer;
 			Laya.startTimer = new Timer(false);
@@ -125,6 +144,8 @@ import { TextRender } from "./laya/webgl/text/TextRender";
 			Laya.updateTimer = new Timer(false);
 			Laya.lateTimer = new Timer(false);
             Laya.timer = new Timer(false);
+
+            ILaya.systemTimer=Laya.systemTimer;
             
             Script.gStartTimer = Laya.startTimer;
             Script.gUpdateTimer = Laya.updateTimer;

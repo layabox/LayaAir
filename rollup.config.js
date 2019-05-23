@@ -156,32 +156,33 @@ function glconstants() {
 
     // 返回一个对象，对象有 transform(code,id) 函数。code是源码，id是文件名
 	return {
-
 		transform( code, id ) {
-
 			code = code.replace( /_?gl\.([A-Z0-9_]+)/g, function ( match, p1 ) {
-
 				if ( p1 in constants ) return constants[ p1 ];
 				console.log( '* Unhandled GL Constant:', p1 );
 				return match;
-
 			} );
-
 			return {
 				code: code,
 				map: { mappings: '' }
 			};
-
 		}
-
 	};
+}
 
+function testPlug(){
+    return {
+        transform( code, id ) {
+            console.log(id,'\n',code);
+        }
+    }
 }
 
 export default {
     //input: './src/debug/PerformanceTest_Maggots.ts',
     input: './src/debug/LayaUISample.ts',
     //input: './src/debug/test/test.ts',
+    //input:'./src/debug/Main1.ts',
     treeshake: false,
 	output: {
 		file: 'bin/bundle.js',
@@ -195,6 +196,7 @@ export default {
             //abortOnError:false
             check: false
         }),
+        //testPlug(),
         glsl({
 			// By default, everything gets included
 			include: './**/*.glsl',

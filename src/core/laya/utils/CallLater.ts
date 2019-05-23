@@ -1,5 +1,6 @@
 import { UtilsBase as Utils } from "././UtilsBase";
-import { Timer } from "././Timer";
+import { ILaya } from "../../ILaya";
+//import { Timer } from "././Timer";
 /**
 	 * @private
 	 */
@@ -36,8 +37,8 @@ import { Timer } from "././Timer";
 		
 		/** @private */
 		private _getHandler(caller:any, method:any):LaterHandler {
-			var cid:number = caller ? caller.$_GID || (caller.$_GID = Utils.getGID()) : 0;
-			var mid:number = method.$_TID || (method.$_TID = (Timer._mid++) * 100000);
+            var cid:number = caller ? caller.$_GID || (caller.$_GID = Utils.getGID()) : 0;
+			var mid:number = method.$_TID || (method.$_TID = (ILaya.Timer._mid++) * 100000);
 			return this._map[cid + mid];
 		}
 		

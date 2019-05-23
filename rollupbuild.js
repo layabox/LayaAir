@@ -10,7 +10,8 @@ const inputOptions = {
 	plugins:[
         typescript({
             abortOnError:false
-        })
+        }),
+        testPlug()
 		//resolve(), // tells Rollup how to find date-fns in node_modules
 		//commonjs(), // converts date-fns to ES modules
     ]
@@ -21,6 +22,14 @@ const outputOptions = {
     sourcemap: true,
     name:'laya'
 };
+
+function testPlug(){
+    return {
+        transform( code, id ) {
+            console.log(id,'\n',code);
+        }
+    }
+}
 
 async function build() {
     debugger;

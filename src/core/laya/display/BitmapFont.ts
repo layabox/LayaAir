@@ -1,10 +1,10 @@
 import { Sprite } from "././Sprite";
 import { Rectangle } from "../maths/Rectangle"
-	import { Loader } from "../net/Loader"
+//	import { Loader } from "../net/Loader"
 	import { Texture } from "../resource/Texture"
 	import { Handler } from "../utils/Handler"
 import { LoaderManager } from "../net/LoaderManager";
-	
+import { ILaya } from "../../ILaya";
 	/**
 	 * <code>BitmapFont</code> 是位图字体类，用于定义位图字体信息。
 	 * 字体制作及使用方法，请参考文章
@@ -41,14 +41,14 @@ import { LoaderManager } from "../net/LoaderManager";
 				return;
             }
             var gLoader:LoaderManager=(window as any).Laya.loader;
-			gLoader.load([{url: path, type: Loader.XML}, {url: path.replace(".fnt", ".png"), type: Loader.IMAGE}], Handler.create(this, this._onLoaded));
+			gLoader.load([{url: path, type: ILaya.Loader.XML}, {url: path.replace(".fnt", ".png"), type: ILaya.Loader.IMAGE}], Handler.create(this, this._onLoaded));
 		}
 		
 		/**
 		 * @private
 		 */
 		private _onLoaded():void {
-			this.parseFont(Loader.getRes(this._path), Loader.getRes(this._path.replace(".fnt", ".png")));
+			this.parseFont(ILaya.Loader.getRes(this._path), ILaya.Loader.getRes(this._path.replace(".fnt", ".png")));
 			this._complete && this._complete.run();
 		}
 		

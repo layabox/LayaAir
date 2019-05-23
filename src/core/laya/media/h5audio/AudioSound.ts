@@ -2,11 +2,12 @@ import { AudioSoundChannel } from "././AudioSoundChannel";
 import { Event } from "../../events/Event"
 	import { EventDispatcher } from "../../events/EventDispatcher"
 	import { SoundChannel } from "../SoundChannel"
-	import { SoundManager } from "../SoundManager"
+	//import { SoundManager } from "../SoundManager"
 	import { URL } from "../../net/URL"
 	import { Render } from "../../renders/Render"
 	import { Browser } from "../../utils/Browser"
 	import { Pool } from "../../utils/Pool"
+import { ILaya } from "../../../ILaya";
 	
 	/**
 	 * @private
@@ -78,8 +79,8 @@ import { Event } from "../../events/Event"
 		 load(url:string):void {
 			url = URL.formatURL(url);
 			this.url = url;
-			var ad:HTMLAudioElement;
-			if (url == SoundManager._bgMusic)
+            var ad:HTMLAudioElement;
+			if (url == ILaya.SoundManager._bgMusic)
 			{
 				AudioSound._initMusicAudio();
 				ad = AudioSound._musicAudio;
@@ -97,7 +98,7 @@ import { Event } from "../../events/Event"
 				return;
 			}
 			if (!ad) {
-				if (url == SoundManager._bgMusic)
+				if (url == ILaya.SoundManager._bgMusic)
 				{
 					AudioSound._initMusicAudio();
 					ad = AudioSound._musicAudio;
@@ -149,7 +150,7 @@ import { Event } from "../../events/Event"
 			//trace("playAudioSound");
 			if (!this.url) return null;
 			var ad:HTMLAudioElement;
-			if (this.url == SoundManager._bgMusic)
+			if (this.url == ILaya.SoundManager._bgMusic)
 			{
 				ad = AudioSound._musicAudio;
 			}else
@@ -169,7 +170,7 @@ import { Event } from "../../events/Event"
 				}
 			}
 			else {
-				if (this.url == SoundManager._bgMusic)
+				if (this.url == ILaya.SoundManager._bgMusic)
 				{
 					AudioSound._initMusicAudio();
 					tAd = AudioSound._musicAudio;		
@@ -184,7 +185,7 @@ import { Event } from "../../events/Event"
 			channel.loops = loops;
 			channel.startTime = startTime;
 			channel.play();
-			SoundManager.addChannel(channel);
+			ILaya.SoundManager.addChannel(channel);
 			return channel;
 		}
 		

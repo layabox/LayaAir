@@ -3,6 +3,7 @@ import { ShaderValue } from "././ShaderValue";
 	import { Stat } from "../../utils/Stat"
 	import { StringKey } from "../../utils/StringKey"
 	import { WebGLContext } from "../WebGLContext"
+import { ILaya } from "../../../ILaya";
 	import { ShaderCompile } from "../utils/ShaderCompile"
 	
 	export class Shader extends BaseShader {
@@ -67,7 +68,7 @@ import { ShaderValue } from "././ShaderValue";
 		}
 		
 		 static addInclude(fileName:string, txt:string):void {
-			ShaderCompile.addInclude(fileName, txt);
+			ILaya.ShaderCompile.addInclude(fileName, txt);
 		}
 		
 		/**
@@ -79,7 +80,7 @@ import { ShaderValue } from "././ShaderValue";
 		//TODO:coverage
 		 static preCompile(nameID:number, vs:string, ps:string, nameMap:any):void {
 			var id:number = Shader.SHADERNAME2ID * nameID;
-			Shader._preCompileShader[id] = new ShaderCompile(vs, ps, nameMap);
+			Shader._preCompileShader[id] = new ILaya.ShaderCompile(vs, ps, nameMap);
 		}
 		
 		/**
@@ -90,7 +91,7 @@ import { ShaderValue } from "././ShaderValue";
 		 */
 		 static preCompile2D(nameID:number, mainID:number, vs:string, ps:string, nameMap:any):void {
 			var id:number = Shader.SHADERNAME2ID * nameID + mainID;
-			Shader._preCompileShader[id] = new ShaderCompile(vs, ps, nameMap);
+			Shader._preCompileShader[id] = new ILaya.ShaderCompile(vs, ps, nameMap);
 		}
 		
 		private customCompile:boolean = false;
@@ -162,7 +163,7 @@ import { ShaderValue } from "././ShaderValue";
 			
 			var result:any;
 			if (this.customCompile)
-				result =ShaderCompile.preGetParams(this._vs, this._ps);
+				result =ILaya.ShaderCompile.preGetParams(this._vs, this._ps);
 			var gl:WebGLContext = WebGLContext.mainContext;
 			this._program = gl.createProgram();
 			this._vshader = Shader._createShader(gl, this._vs, WebGLContext.VERTEX_SHADER);

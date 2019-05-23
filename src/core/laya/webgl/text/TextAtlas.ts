@@ -3,6 +3,7 @@ import { TextTexture } from "././TextTexture";
 import { TextRender } from "././TextRender";
 import { Point } from "../../maths/Point"
 	import { CharRenderInfo } from "./CharRenderInfo"
+import { ILaya } from "../../../ILaya";
 	/**
 	 *  文字贴图的大图集。
 	 */
@@ -16,7 +17,7 @@ import { Point } from "../../maths/Point"
 		 static atlasGridW:number = 16;
 		
 		constructor() {
-			this.texHeight = this.texWidth = TextRender.atlasWidth;
+			this.texHeight = this.texWidth = ILaya.TextRender.atlasWidth;
 			this.texture = TextTexture.getTextTexture( this.texWidth, this.texHeight);
 			if (this.texWidth / TextAtlas.atlasGridW > 256) {
 				TextAtlas.atlasGridW = Math.ceil( this.texWidth / 256);

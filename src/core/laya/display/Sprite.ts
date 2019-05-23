@@ -22,6 +22,8 @@ import { Const } from "../Const"
 	import { Utils } from "../utils/Utils"
 import { Texture2D } from "../resource/Texture2D";
 import { Timer } from "../utils/Timer";
+import { Dragging } from "../utils/Dragging";
+import { ILaya } from "../../ILaya";
 
 interface IMouseManager{
     setCapture(sp:Sprite, exclusive?:boolean):void ;
@@ -1688,7 +1690,7 @@ interface IMouseManager{
 		 * @param ratio				（可选）惯性阻尼系数，影响惯性力度和时长。
 		 */
 		 startDrag(area:Rectangle = null, hasInertia:boolean = false, elasticDistance:number = 0, elasticBackTime:number = 300, data:any = null, disableMouseEvent:boolean = false, ratio:number = 0.92):void {
-			this._style.dragging || (this.getStyle().dragging = new Dragging());
+			this._style.dragging || (this.getStyle().dragging = new ILaya.Dragging());
 			this._style.dragging.start(this, area, hasInertia, elasticDistance, elasticBackTime, data, disableMouseEvent, ratio);
 		}
 		

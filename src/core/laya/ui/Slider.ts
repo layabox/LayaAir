@@ -31,7 +31,7 @@ import { Event } from "../events/Event"
 	export class Slider extends UIComponent {
 		
 		/** @private 获取对 <code>Slider</code> 组件所包含的 <code>Label</code> 组件的引用。*/
-		 static label:Label = new Label();
+		 static label:Label = null;// new Label(); 静态的可能还没有初始化
 		
 		/**
 		 * 数据变化处理器。
@@ -83,7 +83,10 @@ import { Event } from "../events/Event"
 		 * @param skin 皮肤。
 		 */
 		constructor(skin:string = null) {
-			super();
+            super();
+            if(!Slider.label){
+                Slider.label=new Label();
+            }
 this.skin = skin;
 		}
 		

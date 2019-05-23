@@ -1,8 +1,9 @@
 import { Event as LayaEvent } from "../../events/Event"
 	import { SoundChannel } from "../SoundChannel"
-	import { SoundManager } from "../SoundManager"
+	//import { SoundManager } from "../SoundManager"
 	import { Render } from "../../renders/Render"
 	import { Browser } from "../../utils/Browser"
+import { ILaya } from "../../../ILaya";
 	
 	/**
 	 * @private
@@ -61,13 +62,13 @@ import { Event as LayaEvent } from "../../events/Event"
 		/*override*/  play():void {
 			this.isStopped = false;
 			try {
-				this._audio.playbackRate = SoundManager.playbackRate;
+				this._audio.playbackRate = ILaya.SoundManager.playbackRate;
 				this._audio.currentTime = this.startTime;
 			} catch (e) {
 				this._audio.addEventListener("canplay", this._resumePlay as any);
 				return;
 			}
-			SoundManager.addChannel(this);
+			ILaya.SoundManager.addChannel(this);
 			Browser.container.appendChild(this._audio);
 			if("play" in this._audio)
 			this._audio.play();
@@ -102,7 +103,7 @@ import { Event as LayaEvent } from "../../events/Event"
 			//trace("stop and remove event");
 			super.stop();
 			this.isStopped = true;
-			SoundManager.removeChannel(this);
+			ILaya.SoundManager.removeChannel(this);
 			this.completeHandler = null;
 			if (!this._audio)
 				return;
@@ -124,7 +125,7 @@ import { Event as LayaEvent } from "../../events/Event"
 		/*override*/  pause():void 
 		{
 			this.isStopped = true;
-			SoundManager.removeChannel(this);
+			ILaya.SoundManager.removeChannel(this);
 			if("pause" in this._audio)
 			this._audio.pause();
 		}
@@ -134,7 +135,7 @@ import { Event as LayaEvent } from "../../events/Event"
 			if (!this._audio)
 				return;
 			this.isStopped = false;
-			SoundManager.addChannel(this);
+			ILaya.SoundManager.addChannel(this);
 			if("play" in this._audio)
 			this._audio.play();
 		}

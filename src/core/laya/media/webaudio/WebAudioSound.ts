@@ -2,8 +2,9 @@ import { WebAudioSoundChannel } from "././WebAudioSoundChannel";
 import { Event } from "../../events/Event"
 	import { EventDispatcher } from "../../events/EventDispatcher"
 	import { SoundChannel } from "../SoundChannel"
-	import { SoundManager } from "../SoundManager"
+	//import { SoundManager } from "../SoundManager"
 	import { URL } from "../../net/URL"
+import { ILaya } from "../../../ILaya";
 	
 	/**
 	 * @private
@@ -256,8 +257,8 @@ import { Event } from "../../events/Event"
 			channel.loops = loops;
 			channel["audioBuffer"] = this.audioBuffer;
 			channel.startTime = startTime;
-			channel.play();
-			SoundManager.addChannel(channel);
+            channel.play();
+			ILaya.SoundManager.addChannel(channel);
 			return channel;
 		}
 		

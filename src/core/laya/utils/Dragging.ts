@@ -5,29 +5,10 @@ import { Handler } from "././Handler";
 	import { MouseManager } from "../events/MouseManager"
 	import { Point } from "../maths/Point"
 	import { Rectangle } from "../maths/Rectangle"
-//import { Stage } from "../display/Stage";
+import { Stage } from "../display/Stage";
 import { Timer } from "./Timer";
-import { Matrix } from "../maths/Matrix";
+import { Sprite } from "../display/Sprite";
 
-    // 抽象的sprite即可
-    interface ISprite{
-        parent:ISprite;
-        _x:number;
-        _y:number;
-        x:number;
-        y:number;
-        mouseX:number;
-        mouseY:number;
-        getMousePoint():Point;
-        event(type:string, data:any):void;
-    }
-
-    interface IStage{
-        on(type:string, caller:any, listener:Function, args?:any[]):void;
-        off(type:string, caller:any, listener:Function, onceOnly?:boolean ):void;
-        _canvasTransform:Matrix;
-    }
-	
 	/**
 	 * @private
 	 * <code>Dragging</code> 类是触摸滑动控件。
@@ -35,12 +16,12 @@ import { Matrix } from "../maths/Matrix";
 	export class Dragging {
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
         /**@private */
-        static gStage:IStage = null;
+        static gStage:Stage = null;
         /**@private */
         static gSysTimer:Timer = null;
 
 		/** 被拖动的对象。*/
-		 target:ISprite;
+		 target:Sprite;
 		/** 缓动衰减系数。*/
 		 ratio:number = 0.92;
 		/** 单帧最大偏移量。*/
@@ -67,7 +48,7 @@ import { Matrix } from "../maths/Matrix";
 		private _offsets:any[];
 		private _disableMouseEvent:boolean;
 		private _tween:Tween;
-		private _parent:ISprite;
+		private _parent:Sprite;
 		
 		/**
 		 * 开始拖拽。
@@ -80,7 +61,7 @@ import { Matrix } from "../maths/Matrix";
 		 * @param	disableMouseEvent 鼠标事件是否有效。
 		 * @param	ratio 惯性阻尼系数
 		 */
-		 start(target:ISprite, area:Rectangle, hasInertia:boolean, elasticDistance:number, elasticBackTime:number, data:any, disableMouseEvent:boolean, ratio:number = 0.92):void {
+		 start(target:Sprite, area:Rectangle, hasInertia:boolean, elasticDistance:number, elasticBackTime:number, data:any, disableMouseEvent:boolean, ratio:number = 0.92):void {
             this.clearTimer();
 			
 			this.target = target;
@@ -92,7 +73,7 @@ import { Matrix } from "../maths/Matrix";
 			this._disableMouseEvent = disableMouseEvent;
 			this.ratio = ratio;
 			
-			this._parent = (target.parent );
+			this._parent = (target.parent as Sprite);
 			
 			this._clickOnly = true;
 			this._dragging = true;
