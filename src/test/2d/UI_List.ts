@@ -1,11 +1,11 @@
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { Stage } from "../laya/display/Stage"
-	import { Event } from "../laya/events/Event"
-	import { Box } from "../laya/ui/Box"
-	import { List } from "../laya/ui/List"
-	import { Handler } from "../laya/utils/Handler"
-	import { WebGL } from "../laya/webgl/WebGL"
+import { Stage } from "laya/display/Stage"
+	import { Event } from "laya/events/Event"
+	import { Box } from "laya/ui/Box"
+	import { List } from "laya/ui/List"
+	import { Handler } from "laya/utils/Handler"
+	import { WebGL } from "laya/webgl/WebGL"
 	
 	export class UI_List
 	{
@@ -104,7 +104,7 @@ import { Stage } from "../laya/display/Stage"
 
 
 
-import { Image } from "../laya/ui/Image"
+import { Image } from "laya/ui/Image"
 class Item extends Box
 {
 	 static WID:number = 373;
@@ -124,4 +124,4 @@ this.size(Item.WID, Item.HEI);
 		this.img.skin = src;
 	}
 }
-
+

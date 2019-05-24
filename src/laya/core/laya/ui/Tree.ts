@@ -568,7 +568,7 @@ this.width = this.height = 200;
 			var childCount:number = list.length;
 			if (!isRoot) {
 				obj = {};
-				var list2:any = xml.attributes;
+				var list2:any = (xml as any).attributes;
 				for  (let attrs of list2) {
 					var prop:string = attrs.nodeName;
 					var value:string = attrs.nodeValue;

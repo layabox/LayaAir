@@ -1,10 +1,10 @@
 import { Main } from "./../Main";
-import { Skeleton } from "../laya/ani/bone/Skeleton"
-	import { Templet } from "../laya/ani/bone/Templet"
-	import { Event } from "../laya/events/Event"
-	import { Browser } from "../laya/utils/Browser"
-	import { Stat } from "../laya/utils/Stat"
-	import { WebGL } from "../laya/webgl/WebGL"
+import { Skeleton } from "laya/ani/bone/Skeleton"
+	import { Templet } from "laya/ani/bone/Templet"
+	import { Event } from "laya/events/Event"
+	import { Browser } from "laya/utils/Browser"
+	import { Stat } from "laya/utils/Stat"
+	import { WebGL } from "laya/webgl/WebGL"
 	
 	export class Skeleton_SpineVine {
 		

@@ -1,8 +1,8 @@
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { Input } from "../laya/display/Input"
-	import { Stage } from "../laya/display/Stage"
-	import { WebGL } from "../laya/webgl/WebGL"
+import { Input } from "laya/display/Input"
+	import { Stage } from "laya/display/Stage"
+	import { WebGL } from "laya/webgl/WebGL"
 	/**
 	 * ...
 	 * @author Survivor

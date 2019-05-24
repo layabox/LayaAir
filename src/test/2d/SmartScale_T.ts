@@ -1,11 +1,11 @@
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { Sprite } from "../laya/display/Sprite"
-	import { Stage } from "../laya/display/Stage"
-	import { Text } from "../laya/display/Text"
-	import { Event } from "../laya/events/Event"
-	import { Image } from "../laya/ui/Image"
-	import { WebGL } from "../laya/webgl/WebGL"
+import { Sprite } from "laya/display/Sprite"
+	import { Stage } from "laya/display/Stage"
+	import { Text } from "laya/display/Text"
+	import { Event } from "laya/events/Event"
+	import { Image } from "laya/ui/Image"
+	import { WebGL } from "laya/webgl/WebGL"
 	
 	export class SmartScale_T {
 		

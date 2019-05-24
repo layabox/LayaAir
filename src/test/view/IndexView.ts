@@ -87,7 +87,7 @@ import { PerformanceTest_Cartoon } from "./../2d/PerformanceTest_Cartoon";
 import { PerformanceTest_Cartoon2 } from "./../2d/PerformanceTest_Cartoon2";
 import { PerformanceTest_Skeleton } from "./../2d/PerformanceTest_Skeleton";
 import { IDE_Project } from "./../2d/IDE_Project";
-import { Handler } from "../laya/utils/Handler"
+import { Handler } from "laya/utils/Handler"
 	
 	import { IndexViewUI } from "../ui/IndexViewUI"
 	

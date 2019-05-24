@@ -270,7 +270,7 @@ this._byteClass = byteClass ? byteClass : Byte;
 				try {
 					this._socket && this._socket.send(this._output.__getBuffer().slice(0, this._output.length));
 				} catch (e) {
-					evt = this.e;
+					evt = e;
 				}
 				this._output.endian = this.endian;
 				this._output.clear();

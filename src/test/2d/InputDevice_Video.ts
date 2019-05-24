@@ -1,15 +1,15 @@
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { Video } from "../laya/device/media/Video"
-	import { Sprite } from "../laya/display/Sprite"
-	import { Stage } from "../laya/display/Stage"
-	import { Event } from "../laya/events/Event"
-	import { Rectangle } from "../laya/maths/Rectangle"
-	import { Loader } from "../laya/net/Loader"
-	import { Texture } from "../laya/resource/Texture"
-	import { Button } from "../laya/ui/Button"
-	import { Handler } from "../laya/utils/Handler"
-	import { Stat } from "../laya/utils/Stat"
+import { Video } from "laya/device/media/Video"
+	import { Sprite } from "laya/display/Sprite"
+	import { Stage } from "laya/display/Stage"
+	import { Event } from "laya/events/Event"
+	import { Rectangle } from "laya/maths/Rectangle"
+	import { Loader } from "laya/net/Loader"
+	import { Texture } from "laya/resource/Texture"
+	import { Button } from "laya/ui/Button"
+	import { Handler } from "laya/utils/Handler"
+	import { Stat } from "laya/utils/Stat"
 	export class InputDevice_Video
 	{
 		private BackgroundSkin:string = "res/inputDevice/videoPlayer/background.png";

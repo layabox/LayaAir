@@ -1,15 +1,15 @@
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { Animation } from "../laya/display/Animation"
-import { Stage } from "../laya/display/Stage"
-import { Event } from "../laya/events/Event"
-import { Rectangle } from "../laya/maths/Rectangle"
-import { Loader } from "../laya/net/Loader"
-import { Texture } from "../laya/resource/Texture"
-import { Image } from "../laya/ui/Image"
-import { Browser } from "../laya/utils/Browser"
-import { Handler } from "../laya/utils/Handler"
-import { WebGL } from "../laya/webgl/WebGL"
+import { Animation } from "laya/display/Animation"
+import { Stage } from "laya/display/Stage"
+import { Event } from "laya/events/Event"
+import { Rectangle } from "laya/maths/Rectangle"
+import { Loader } from "laya/net/Loader"
+import { Texture } from "laya/resource/Texture"
+import { Image } from "laya/ui/Image"
+import { Browser } from "laya/utils/Browser"
+import { Handler } from "laya/utils/Handler"
+import { WebGL } from "laya/webgl/WebGL"
 
 	export class Animation_Altas
 	{

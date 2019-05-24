@@ -2,7 +2,8 @@
     "compilerOptions": {
         "target": "es6",
         "module": "esnext",
-        "outDir": "bin"
+        "outDir": "bin",
+        "baseUrl": "./src/laya/core"
     },
     "include": [
         "src/debug/Main1.ts"

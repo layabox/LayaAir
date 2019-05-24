@@ -1,14 +1,14 @@
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { Stage } from "../laya/display/Stage"
-	import { Loader } from "../laya/net/Loader"
-	import { URL } from "../laya/net/URL"
-	import { Particle2D } from "../laya/particle/Particle2D"
-	import { ParticleSetting } from "../laya/particle/ParticleSetting"
-	import { Browser } from "../laya/utils/Browser"
-	import { Handler } from "../laya/utils/Handler"
-	import { Stat } from "../laya/utils/Stat"
-	import { WebGL } from "../laya/webgl/WebGL"
+import { Stage } from "laya/display/Stage"
+	import { Loader } from "laya/net/Loader"
+	import { URL } from "laya/net/URL"
+	import { Particle2D } from "laya/particle/Particle2D"
+	import { ParticleSetting } from "laya/particle/ParticleSetting"
+	import { Browser } from "laya/utils/Browser"
+	import { Handler } from "laya/utils/Handler"
+	import { Stat } from "laya/utils/Stat"
+	import { WebGL } from "laya/webgl/WebGL"
 
 	export class Particle_T2
 	{

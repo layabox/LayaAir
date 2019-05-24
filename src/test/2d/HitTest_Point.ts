@@ -1,6 +1,6 @@
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { Sprite } from "../laya/display/Sprite"
+import { Sprite } from "laya/display/Sprite"
 	/**
 	 * ...
 	 * @author suvivor

@@ -1,0 +1,34 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "module": "esnext",
+        "outDir": "../../bin",
+        "moduleResolution": "node",
+        "baseUrl": "../laya/core",
+        /*
+        "rootDirs": [
+            "../laya/core",
+            "../laya/core/laya",
+            "."
+        ],
+        */
+        /*
+        "baseUrl":".",
+        "paths": {
+            "*":[
+                "*",
+                "../laya/core/*"
+            ]
+        }*/
+    },
+    /*
+    "include": [
+        "Main.ts"
+        //"src/debug/LayaUISample.ts"
+        //"src/debug/test/test.ts"
+    ],
+    "files": [
+        "Main.ts"
+    ]
+    */
+}

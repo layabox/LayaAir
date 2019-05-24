@@ -1,8 +1,8 @@
 import { Main } from "./../Main";
-import { Event } from "../laya/events/Event"
-	import { Box } from "../laya/ui/Box"
-	import { Label } from "../laya/ui/Label"
-	import { Stat } from "../laya/utils/Stat"
+import { Event } from "laya/events/Event"
+	import { Box } from "laya/ui/Box"
+	import { Label } from "laya/ui/Label"
+	import { Stat } from "laya/utils/Stat"
 	
 	import { TestPageUI } from "../ui/test/TestPageUI"
 

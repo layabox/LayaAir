@@ -1,14 +1,12 @@
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { Sprite } from "../laya/display/Sprite"
-	import { Stage } from "../laya/display/Stage"
-	import { Text } from "../laya/display/Text"
-	import { Event } from "../laya/events/Event"
-	import { Render } from "../laya/renders/Render"
-	import { IConchRenderObject } from "../laya/runtime/IConchRenderObject"
-	import { Browser } from "../laya/utils/Browser"
-	import { StringKey } from "../laya/utils/StringKey"
-	import { Utils } from "../laya/utils/Utils"
+import { Sprite } from "laya/display/Sprite"
+	import { Stage } from "laya/display/Stage"
+	import { Text } from "laya/display/Text"
+	import { Event } from "laya/events/Event"
+	import { Render } from "laya/renders/Render"
+	import { Browser } from "laya/utils/Browser"
+	import { Utils } from "laya/utils/Utils"
 	
 	/**
 	 * ...

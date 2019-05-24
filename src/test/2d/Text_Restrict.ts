@@ -1,10 +1,10 @@
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { Input } from "../laya/display/Input"
-	import { Stage } from "../laya/display/Stage"
-	import { Text } from "../laya/display/Text"
-	import { Browser } from "../laya/utils/Browser"
-	import { WebGL } from "../laya/webgl/WebGL"
+import { Input } from "laya/display/Input"
+	import { Stage } from "laya/display/Stage"
+	import { Text } from "laya/display/Text"
+	import { Browser } from "laya/utils/Browser"
+	import { WebGL } from "laya/webgl/WebGL"
 
 	export class Text_Restrict 
 	{

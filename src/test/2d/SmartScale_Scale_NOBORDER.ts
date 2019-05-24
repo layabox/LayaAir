@@ -1,7 +1,7 @@
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { Sprite } from "../laya/display/Sprite"
-	import { Stage } from "../laya/display/Stage"
+import { Sprite } from "laya/display/Sprite"
+	import { Stage } from "laya/display/Stage"
 
 	export class SmartScale_Scale_NOBORDER 
 	{

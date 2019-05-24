@@ -1,10 +1,10 @@
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { Sprite } from "../laya/display/Sprite"
-	import { Stage } from "../laya/display/Stage"
-	import { Point } from "../laya/maths/Point"
-	import { Browser } from "../laya/utils/Browser"
-	import { WebGL } from "../laya/webgl/WebGL"
+import { Sprite } from "laya/display/Sprite"
+	import { Stage } from "laya/display/Stage"
+	import { Point } from "laya/maths/Point"
+	import { Browser } from "laya/utils/Browser"
+	import { WebGL } from "laya/webgl/WebGL"
 	
 	/**
 	 * ...

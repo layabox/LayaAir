@@ -1,16 +1,16 @@
 import { Laya3D } from "./Laya3D";
-import { Laya } from "./Laya";
-import { Camera } from "../laya/d3/core/Camera"
-	import { Glitter } from "../laya/d3/core/glitter/Glitter"
-	import { GlitterMaterial } from "../laya/d3/core/material/GlitterMaterial"
-	import { Scene } from "../laya/d3/core/scene/Scene"
-	import { Matrix4x4 } from "../laya/d3/math/Matrix4x4"
-	import { Vector3 } from "../laya/d3/math/Vector3"
-	import { Vector4 } from "../laya/d3/math/Vector4"
-	import { Texture2D } from "../laya/d3/resource/Texture2D"
-	import { GlitterTemplet } from "../laya/d3/resource/tempelet/GlitterTemplet"
-	import { Stage } from "../laya/display/Stage"
-	import { Stat } from "../laya/utils/Stat"
+import { Laya } from "Laya";
+import { Camera } from "laya/d3/core/Camera"
+	import { Glitter } from "laya/d3/core/glitter/Glitter"
+	import { GlitterMaterial } from "laya/d3/core/material/GlitterMaterial"
+	import { Scene } from "laya/d3/core/scene/Scene"
+	import { Matrix4x4 } from "laya/d3/math/Matrix4x4"
+	import { Vector3 } from "laya/d3/math/Vector3"
+	import { Vector4 } from "laya/d3/math/Vector4"
+	import { Texture2D } from "laya/d3/resource/Texture2D"
+	import { GlitterTemplet } from "laya/d3/resource/tempelet/GlitterTemplet"
+	import { Stage } from "laya/display/Stage"
+	import { Stat } from "laya/utils/Stat"
 	import { CameraMoveScript } from "../3d/common/CameraMoveScript"
 	
 	/** @private */

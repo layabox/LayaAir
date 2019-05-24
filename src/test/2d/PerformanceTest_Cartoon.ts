@@ -1,11 +1,11 @@
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { Sprite } from "../laya/display/Sprite"
-	import { Loader } from "../laya/net/Loader"
-	import { Browser } from "../laya/utils/Browser"
-	import { Handler } from "../laya/utils/Handler"
-	import { Stat } from "../laya/utils/Stat"
-	import { WebGL } from "../laya/webgl/WebGL"
+import { Sprite } from "laya/display/Sprite"
+	import { Loader } from "laya/net/Loader"
+	import { Browser } from "laya/utils/Browser"
+	import { Handler } from "laya/utils/Handler"
+	import { Stat } from "laya/utils/Stat"
+	import { WebGL } from "laya/webgl/WebGL"
 	export class PerformanceTest_Cartoon 
 	{
 		private colAmount:number = 100;

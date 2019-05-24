@@ -1,8 +1,8 @@
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { Stage } from "../laya/display/Stage"
-	import { Label } from "../laya/ui/Label"
-	import { WebGL } from "../laya/webgl/WebGL"
+import { Stage } from "laya/display/Stage"
+	import { Label } from "laya/ui/Label"
+	import { WebGL } from "laya/webgl/WebGL"
 	
 	export class UI_Label
 	{

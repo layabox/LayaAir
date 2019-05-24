@@ -1,10 +1,10 @@
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { Stage } from "../laya/display/Stage"
-	import { HScrollBar } from "../laya/ui/HScrollBar"
-	import { VScrollBar } from "../laya/ui/VScrollBar"
-	import { Handler } from "../laya/utils/Handler"
-	import { WebGL } from "../laya/webgl/WebGL"
+import { Stage } from "laya/display/Stage"
+	import { HScrollBar } from "laya/ui/HScrollBar"
+	import { VScrollBar } from "laya/ui/VScrollBar"
+	import { Handler } from "laya/utils/Handler"
+	import { WebGL } from "laya/webgl/WebGL"
 
 	export class UI_ScrollBar
 	{

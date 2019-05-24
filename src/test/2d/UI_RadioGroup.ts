@@ -1,9 +1,9 @@
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { Stage } from "../laya/display/Stage"
-	import { RadioGroup } from "../laya/ui/RadioGroup"
-	import { Handler } from "../laya/utils/Handler"
-	import { WebGL } from "../laya/webgl/WebGL"
+import { Stage } from "layasplay/Stage"
+	import { RadioGroup } from "laya/RadioGroup"
+	import { Handler } from "layails/Handler"
+	import { WebGL } from "layabgl/WebGL"
 	
 	export class UI_RadioGroup
 	{

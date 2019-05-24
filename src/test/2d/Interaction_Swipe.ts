@@ -1,11 +1,11 @@
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { Sprite } from "../laya/display/Sprite"
-	import { Stage } from "../laya/display/Stage"
-	import { Event } from "../laya/events/Event"
-	import { Browser } from "../laya/utils/Browser"
-	import { Tween } from "../laya/utils/Tween"
-	import { WebGL } from "../laya/webgl/WebGL"
+import { Sprite } from "laya/display/Sprite"
+	import { Stage } from "laya/display/Stage"
+	import { Event } from "laya/events/Event"
+	import { Browser } from "laya/utils/Browser"
+	import { Tween } from "laya/utils/Tween"
+	import { WebGL } from "laya/webgl/WebGL"
 	
 	export class Interaction_Swipe
 	{

@@ -1,8 +1,8 @@
-import { Media } from "../laya/device/media/Media"
-	import { Video } from "../laya/device/media/Video"
-	import { Text } from "../laya/display/Text"
-	import { Browser } from "../laya/utils/Browser"
-	import { Handler } from "../laya/utils/Handler"
+import { Media } from "laya/device/media/Media"
+	import { Video } from "laya/device/media/Video"
+	import { Text } from "laya/display/Text"
+	import { Browser } from "laya/utils/Browser"
+	import { Handler } from "laya/utils/Handler"
 	
 	/**
 	 * ...

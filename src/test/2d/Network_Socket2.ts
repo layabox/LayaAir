@@ -1,7 +1,7 @@
-import { Laya } from "./Laya";
-import { Event } from "../laya/events/Event"
-	import { Socket } from "../laya/net/Socket"
-	import { Byte } from "../laya/utils/Byte"
+import { Laya } from "Laya";
+import { Event } from "laya/events/Event"
+	import { Socket } from "laya/net/Socket"
+	import { Byte } from "laya/utils/Byte"
 	
 	export class Network_Socket2
 	{

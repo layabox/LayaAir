@@ -1,11 +1,11 @@
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { Stage } from "../laya/display/Stage"
-	import { Text } from "../laya/display/Text"
-	import { Geolocation } from "../laya/device/geolocation/Geolocation"
-	import { GeolocationInfo } from "../laya/device/geolocation/GeolocationInfo"
-	import { Browser } from "../laya/utils/Browser"
-	import { Handler } from "../laya/utils/Handler"
+import { Stage } from "laya/display/Stage"
+	import { Text } from "laya/display/Text"
+	import { Geolocation } from "laya/device/geolocation/Geolocation"
+	import { GeolocationInfo } from "laya/device/geolocation/GeolocationInfo"
+	import { Browser } from "laya/utils/Browser"
+	import { Handler } from "laya/utils/Handler"
 	/**
 	 * ...
 	 * @author Survivor

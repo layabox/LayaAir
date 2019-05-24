@@ -1,16 +1,16 @@
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { Input } from "../laya/display/Input"
-	import { Sprite } from "../laya/display/Sprite"
-	import { Stage } from "../laya/display/Stage"
-	import { Text } from "../laya/display/Text"
-	import { Event } from "../laya/events/Event"
-	import { List } from "../laya/ui/List"
-	import { Browser } from "../laya/utils/Browser"
-	import { Ease } from "../laya/utils/Ease"
-	import { Handler } from "../laya/utils/Handler"
-	import { Tween } from "../laya/utils/Tween"
-	import { WebGL } from "../laya/webgl/WebGL"
+import { Input } from "laya/display/Input"
+	import { Sprite } from "laya/display/Sprite"
+	import { Stage } from "laya/display/Stage"
+	import { Text } from "laya/display/Text"
+	import { Event } from "laya/events/Event"
+	import { List } from "laya/ui/List"
+	import { Browser } from "laya/utils/Browser"
+	import { Ease } from "laya/utils/Ease"
+	import { Handler } from "laya/utils/Handler"
+	import { Tween } from "laya/utils/Tween"
+	import { WebGL } from "laya/webgl/WebGL"
 	
 	export class Tween_EaseFunctionsDemo
 	{
@@ -134,8 +134,8 @@ import { Input } from "../laya/display/Input"
 
 
 
-import { Box } from "../laya/ui/Box"
-import { Label } from "../laya/ui/Label"
+import { Box } from "laya/ui/Box"
+import { Label } from "laya/ui/Label"
 class ListItemRender extends Box
 {
 	private label:Label;

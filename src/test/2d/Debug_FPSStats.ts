@@ -1,7 +1,7 @@
-import { Laya } from "./Laya";
-import { Browser } from "../laya/utils/Browser"
-	import { Stat } from "../laya/utils/Stat"
-	import { WebGL } from "../laya/webgl/WebGL"
+import { Laya } from "Laya";
+import { Browser } from "laya/utils/Browser"
+	import { Stat } from "laya/utils/Stat"
+	import { WebGL } from "laya/webgl/WebGL"
 
 	export class Debug_FPSStats 
 	{

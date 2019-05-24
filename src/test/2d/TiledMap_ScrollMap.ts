@@ -1,14 +1,14 @@
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { Stage } from "../laya/display/Stage"
-	import { Event } from "../laya/events/Event"
-	import { TiledMap } from "../laya/map/TiledMap"
-	import { Rectangle } from "../laya/maths/Rectangle"
-	import { Resource } from "../laya/resource/Resource"
-	import { Browser } from "../laya/utils/Browser"
-	import { Handler } from "../laya/utils/Handler"
-	import { Stat } from "../laya/utils/Stat"
-	import { WebGL } from "../laya/webgl/WebGL"
+import { Stage } from "laya/display/Stage"
+	import { Event } from "laya/events/Event"
+	import { TiledMap } from "laya/map/TiledMap"
+	import { Rectangle } from "laya/maths/Rectangle"
+	import { Resource } from "laya/resource/Resource"
+	import { Browser } from "laya/utils/Browser"
+	import { Handler } from "laya/utils/Handler"
+	import { Stat } from "laya/utils/Stat"
+	import { WebGL } from "laya/webgl/WebGL"
 
 	export class TiledMap_ScrollMap
 	{

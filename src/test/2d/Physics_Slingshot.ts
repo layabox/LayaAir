@@ -1,10 +1,10 @@
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { Sprite } from "../laya/display/Sprite"
-	import { Stage } from "../laya/display/Stage"
-	import { Render } from "../laya/renders/Render"
-	import { Browser } from "../laya/utils/Browser"
-	import { WebGL } from "../laya/webgl/WebGL"
+import { Sprite } from "laya/display/Sprite"
+	import { Stage } from "laya/display/Stage"
+	import { Render } from "laya/renders/Render"
+	import { Browser } from "laya/utils/Browser"
+	import { WebGL } from "laya/webgl/WebGL"
 	
 	export class Physics_Slingshot
 	{

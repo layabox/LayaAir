@@ -1,5 +1,5 @@
-import { Laya } from "./Laya";
-import { Stage } from "../laya/display/Stage"
+import { Laya } from "Laya";
+import { Stage } from "laya/display/Stage"
 
 	export class SmartScale_Align_Contral
 	{

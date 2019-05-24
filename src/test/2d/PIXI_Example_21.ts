@@ -1,9 +1,9 @@
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { Graphics } from "../laya/display/Graphics"
-	import { Sprite } from "../laya/display/Sprite"
-	import { Browser } from "../laya/utils/Browser"
-	import { WebGL } from "../laya/webgl/WebGL"
+import { Graphics } from "laya/display/Graphics"
+	import { Sprite } from "laya/display/Sprite"
+	import { Browser } from "laya/utils/Browser"
+	import { WebGL } from "laya/webgl/WebGL"
 	
 	/**
 	 * ...

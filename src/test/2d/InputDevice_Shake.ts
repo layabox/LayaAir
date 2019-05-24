@@ -1,11 +1,11 @@
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { Shake } from "../laya/device/Shake"
-	import { Sprite } from "../laya/display/Sprite"
-	import { Stage } from "../laya/display/Stage"
-	import { Text } from "../laya/display/Text"
-	import { Event } from "../laya/events/Event"
-	import { Browser } from "../laya/utils/Browser"
+import { Shake } from "laya/device/Shake"
+	import { Sprite } from "laya/display/Sprite"
+	import { Stage } from "laya/display/Stage"
+	import { Text } from "laya/display/Text"
+	import { Event } from "laya/events/Event"
+	import { Browser } from "laya/utils/Browser"
 	/**
 	 * ...
 	 * @author Survivor

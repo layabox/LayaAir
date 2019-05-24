@@ -1,12 +1,12 @@
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { Stage } from "../laya/display/Stage"
-	import { TiledMap } from "../laya/map/TiledMap"
-	import { Rectangle } from "../laya/maths/Rectangle"
-	import { Resource } from "../laya/resource/Resource"
-	import { Browser } from "../laya/utils/Browser"
-	import { Handler } from "../laya/utils/Handler"
-	import { WebGL } from "../laya/webgl/WebGL"
+import { Stage } from "layasplay/Stage"
+	import { TiledMap } from "layap/TiledMap"
+	import { Rectangle } from "layaths/Rectangle"
+	import { Resource } from "layasource/Resource"
+	import { Browser } from "layails/Browser"
+	import { Handler } from "layails/Handler"
+	import { WebGL } from "layabgl/WebGL"
 	
 	export class TiledMap_PerspectiveWall
 	{

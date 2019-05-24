@@ -1,8 +1,8 @@
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { Sprite } from "../laya/display/Sprite"
-	import { Event } from "../laya/events/Event"
-	import { Rectangle } from "../laya/maths/Rectangle"
+import { Sprite } from "laya/display/Sprite"
+	import { Event } from "laya/events/Event"
+	import { Rectangle } from "laya/maths/Rectangle"
 	/**
 	 * ...
 	 * @author suvivor

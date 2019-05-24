@@ -1,6 +1,6 @@
-import { Laya } from "./Laya";
-import { Texture } from "../laya/resource/Texture"
-	import { Handler } from "../laya/utils/Handler"
+import { Laya } from "Laya";
+import { Texture } from "laya/resource/Texture"
+	import { Handler } from "laya/utils/Handler"
 	
 	export class Loader_Sequence
 	{

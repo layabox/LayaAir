@@ -1,11 +1,11 @@
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { Sprite } from "../laya/display/Sprite"
-	import { Browser } from "../laya/utils/Browser"
-	import { Handler } from "../laya/utils/Handler"
-	import { Stat } from "../laya/utils/Stat"
-	import { Rectangle } from "../laya/maths/Rectangle"
-	import { WebGL } from "../laya/webgl/WebGL"
+import { Sprite } from "laya/display/Sprite"
+	import { Browser } from "laya/utils/Browser"
+	import { Handler } from "laya/utils/Handler"
+	import { Stat } from "laya/utils/Stat"
+	import { Rectangle } from "laya/maths/Rectangle"
+	import { WebGL } from "laya/webgl/WebGL"
 	
 	export class PerformanceTest_Maggots
 	{

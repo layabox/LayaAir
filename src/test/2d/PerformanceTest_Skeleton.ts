@@ -1,14 +1,14 @@
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { Skeleton } from "../laya/ani/bone/Skeleton"
-	import { Templet } from "../laya/ani/bone/Templet"
-	import { Event } from "../laya/events/Event"
-	import { Loader } from "../laya/net/Loader"
-	import { Texture } from "../laya/resource/Texture"
-	import { Browser } from "../laya/utils/Browser"
-	import { Handler } from "../laya/utils/Handler"
-	import { Stat } from "../laya/utils/Stat"
-	import { WebGL } from "../laya/webgl/WebGL"
+import { Skeleton } from "laya/ani/bone/Skeleton"
+	import { Templet } from "laya/ani/bone/Templet"
+	import { Event } from "laya/events/Event"
+	import { Loader } from "laya/net/Loader"
+	import { Texture } from "laya/resource/Texture"
+	import { Browser } from "laya/utils/Browser"
+	import { Handler } from "laya/utils/Handler"
+	import { Stat } from "laya/utils/Stat"
+	import { WebGL } from "laya/webgl/WebGL"
 	
 	export class PerformanceTest_Skeleton
 	{

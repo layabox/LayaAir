@@ -87,13 +87,13 @@ import { PerformanceTest_Cartoon } from "./../2d/PerformanceTest_Cartoon";
 import { PerformanceTest_Cartoon2 } from "./../2d/PerformanceTest_Cartoon2";
 import { PerformanceTest_Skeleton } from "./../2d/PerformanceTest_Skeleton";
 import { IDE_Project } from "./../2d/IDE_Project";
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { Event } from "../laya/events/Event"
-	import { URL } from "../laya/net/URL"
-	import { Resource } from "../laya/resource/Resource"
-	import { Button } from "../laya/ui/Button"
-	import { Handler } from "../laya/utils/Handler"
+import { Event } from "laya/events/Event"
+	import { URL } from "laya/net/URL"
+	import { Resource } from "laya/resource/Resource"
+	import { Button } from "laya/ui/Button"
+	import { Handler } from "laya/utils/Handler"
 	
 	import { IndexViewUI } from "../ui/IndexViewUI"
 	

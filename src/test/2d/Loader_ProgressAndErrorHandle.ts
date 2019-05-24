@@ -1,8 +1,8 @@
-import { Laya } from "./Laya";
-import { Event } from "../laya/events/Event"
-	import { Loader } from "../laya/net/Loader"
-	import { Texture } from "../laya/resource/Texture"
-	import { Handler } from "../laya/utils/Handler"
+import { Laya } from "Laya";
+import { Event } from "laya/events/Event"
+	import { Loader } from "laya/net/Loader"
+	import { Texture } from "laya/resource/Texture"
+	import { Handler } from "laya/utils/Handler"
 	
 	export class Loader_ProgressAndErrorHandle
 	{

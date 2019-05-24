@@ -5,6 +5,7 @@ import { Handler } from "././Handler";
 import { Utils } from "././Utils";
 import { Event } from "../events/Event"
 	import { EventDispatcher } from "../events/EventDispatcher"
+import { ILaya } from "ILaya";
 	
 	/**
 	 * 整个缓动结束的时候会调度
@@ -97,7 +98,7 @@ import { Event } from "../events/Event"
 		
 		/** @private */
 		private _create(target:any, props:any, duration:number, ease:Function, offset:number, isTo:boolean):TimeLine {
-			var tTweenData:tweenData = Pool.getItemByClass("tweenData",this.tweenData);
+			var tTweenData:tweenData = Pool.getItemByClass("tweenData",tweenData);
 			tTweenData.isTo = isTo;
 			tTweenData.type = 0;
 			tTweenData.target = target;
@@ -119,7 +120,7 @@ import { Event } from "../events/Event"
 		 * @param	offset	标签相对于上个动画的偏移时间(单位：毫秒)。
 		 */
 		 addLabel(label:string, offset:number):TimeLine {
-			var tTweenData:tweenData = Pool.getItemByClass("tweenData",this.tweenData);
+			var tTweenData:tweenData = Pool.getItemByClass("tweenData",tweenData);
 			tTweenData.type = 1;
 			tTweenData.data = label;
 			tTweenData.endTime = tTweenData.startTime = this._startTime + offset;
@@ -245,7 +246,7 @@ import { Event } from "../events/Event"
 		 * 暂停整个动画。
 		 */
 		 pause():void {
-			Laya.timer.clear(this, this._update);
+			ILaya.timer.clear(this, this._update);
 		}
 		
 		/**
@@ -305,7 +306,7 @@ import { Event } from "../events/Event"
 			}
 			this._loopKey = loop;
 			this._lastTime = Browser.now();
-			Laya.timer.frameLoop(1, this, this._update);
+			ILaya.timer.frameLoop(1, this, this._update);
 		}
 		
 		/**
@@ -437,7 +438,7 @@ import { Event } from "../events/Event"
 			this._index = 0;
 			this._gidIndex = 0;
 			this.scale = 1;
-			Laya.timer.clear(this, this._update);
+			ILaya.timer.clear(this, this._update);
 		}
 		
 		/**

@@ -1,12 +1,12 @@
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { AccelerationInfo } from "../laya/device/motion/AccelerationInfo"
-	import { Accelerator } from "../laya/device/motion/Accelerator"
-	import { Sprite } from "../laya/display/Sprite"
-	import { Event } from "../laya/events/Event"
-	import { Point } from "../laya/maths/Point"
-	import { Browser } from "../laya/utils/Browser"
-	import { WebGL } from "../laya/webgl/WebGL"
+import { AccelerationInfo } from "laya/device/motion/AccelerationInfo"
+	import { Accelerator } from "laya/device/motion/Accelerator"
+	import { Sprite } from "laya/display/Sprite"
+	import { Event } from "laya/events/Event"
+	import { Point } from "laya/maths/Point"
+	import { Browser } from "laya/utils/Browser"
+	import { WebGL } from "laya/webgl/WebGL"
 	
 	/**
 	 * ...
@@ -19,7 +19,8 @@ import { AccelerationInfo } from "../laya/device/motion/AccelerationInfo"
 		private foods:any[] = [];
 		
 		private initialSegmentsAmount:number = 5;
-		private vx:number = 0, vy:number = 0;
+        private vx:number = 0
+        private vy:number = 0;
 		private targetPosition:Point;
 		
 		constructor(){

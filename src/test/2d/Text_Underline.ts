@@ -1,8 +1,8 @@
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { Stage } from "../laya/display/Stage"
-	import { Text } from "../laya/display/Text"
-	import { WebGL } from "../laya/webgl/WebGL"
+import { Stage } from "laya/display/Stage"
+	import { Text } from "laya/display/Text"
+	import { WebGL } from "laya/webgl/WebGL"
 	
 	export class Text_Underline
 	{

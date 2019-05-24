@@ -1,10 +1,10 @@
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { Sprite } from "../laya/display/Sprite"
-	import { Stage } from "../laya/display/Stage"
-	import { Image } from "../laya/ui/Image"
-	import { Panel } from "../laya/ui/Panel"
-	import { Browser } from "../laya/utils/Browser"
+import { Sprite } from "laya/display/Sprite"
+	import { Stage } from "laya/display/Stage"
+	import { Image } from "laya/ui/Image"
+	import { Panel } from "laya/ui/Panel"
+	import { Browser } from "laya/utils/Browser"
 	/**
 	 * ...
 	 * @author suvivor

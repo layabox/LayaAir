@@ -1,4 +1,4 @@
-import { Utils } from "../laya/utils/Utils"
+import { Utils } from "laya/utils/Utils"
 	
 	export class Network_XML
 	{

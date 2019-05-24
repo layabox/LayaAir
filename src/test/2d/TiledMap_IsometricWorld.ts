@@ -1,14 +1,14 @@
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { Sprite } from "../laya/display/Sprite"
-	import { Stage } from "../laya/display/Stage"
-	import { MapLayer } from "../laya/map/MapLayer"
-	import { TiledMap } from "../laya/map/TiledMap"
-	import { Point } from "../laya/maths/Point"
-	import { Rectangle } from "../laya/maths/Rectangle"
-	import { Resource } from "../laya/resource/Resource"
-	import { Handler } from "../laya/utils/Handler"
-	import { WebGL } from "../laya/webgl/WebGL"
+import { Sprite } from "laya/display/Sprite"
+	import { Stage } from "laya/display/Stage"
+	import { MapLayer } from "laya/map/MapLayer"
+	import { TiledMap } from "laya/map/TiledMap"
+	import { Point } from "laya/maths/Point"
+	import { Rectangle } from "laya/maths/Rectangle"
+	import { Resource } from "laya/resource/Resource"
+	import { Handler } from "laya/utils/Handler"
+	import { WebGL } from "laya/webgl/WebGL"
 	
 	export class TiledMap_IsometricWorld
 	{

@@ -1,14 +1,14 @@
 import { Main } from "./../Main";
-import { EventData } from "../laya/ani/bone/EventData"
-	import { Skeleton } from "../laya/ani/bone/Skeleton"
-	import { Templet } from "../laya/ani/bone/Templet"
-	import { Sprite } from "../laya/display/Sprite"
-	import { Event } from "../laya/events/Event"
-	import { Browser } from "../laya/utils/Browser"
-	import { Handler } from "../laya/utils/Handler"
-	import { Stat } from "../laya/utils/Stat"
-	import { Tween } from "../laya/utils/Tween"
-	import { WebGL } from "../laya/webgl/WebGL"
+import { EventData } from "laya/ani/bone/EventData"
+	import { Skeleton } from "laya/ani/bone/Skeleton"
+	import { Templet } from "laya/ani/bone/Templet"
+	import { Sprite } from "laya/display/Sprite"
+	import { Event } from "laya/events/Event"
+	import { Browser } from "laya/utils/Browser"
+	import { Handler } from "laya/utils/Handler"
+	import { Stat } from "laya/utils/Stat"
+	import { Tween } from "laya/utils/Tween"
+	import { WebGL } from "laya/webgl/WebGL"
 	
 	export class Skeleton_SpineEvent {
 		

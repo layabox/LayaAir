@@ -1,13 +1,13 @@
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { Sprite } from "../laya/display/Sprite"
-	import { Stage } from "../laya/display/Stage"
-	import { Event } from "../laya/events/Event"
-	import { Rectangle } from "../laya/maths/Rectangle"
-	import { Texture } from "../laya/resource/Texture"
-	import { Browser } from "../laya/utils/Browser"
-	import { Handler } from "../laya/utils/Handler"
-	import { WebGL } from "../laya/webgl/WebGL"
+import { Sprite } from "laya/display/Sprite"
+	import { Stage } from "laya/display/Stage"
+	import { Event } from "laya/events/Event"
+	import { Rectangle } from "laya/maths/Rectangle"
+	import { Texture } from "laya/resource/Texture"
+	import { Browser } from "laya/utils/Browser"
+	import { Handler } from "laya/utils/Handler"
+	import { WebGL } from "laya/webgl/WebGL"
 	
 	export class Interaction_Drag
 	{

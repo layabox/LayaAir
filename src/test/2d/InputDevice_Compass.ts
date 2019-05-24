@@ -1,14 +1,14 @@
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { Gyroscope } from "../laya/device/motion/Gyroscope"
-	import { RotationInfo } from "../laya/device/motion/RotationInfo"
-	import { Sprite } from "../laya/display/Sprite"
-	import { Stage } from "../laya/display/Stage"
-	import { Text } from "../laya/display/Text"
-	import { Event } from "../laya/events/Event"
-	import { Browser } from "../laya/utils/Browser"
-	import { Handler } from "../laya/utils/Handler"
-	import { WebGL } from "../laya/webgl/WebGL"
+import { Gyroscope } from "laya/device/motion/Gyroscope"
+	import { RotationInfo } from "laya/device/motion/RotationInfo"
+	import { Sprite } from "laya/display/Sprite"
+	import { Stage } from "laya/display/Stage"
+	import { Text } from "laya/display/Text"
+	import { Event } from "laya/events/Event"
+	import { Browser } from "laya/utils/Browser"
+	import { Handler } from "laya/utils/Handler"
+	import { WebGL } from "laya/webgl/WebGL"
 	
 	/**
 	 * ...

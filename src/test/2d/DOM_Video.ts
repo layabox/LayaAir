@@ -1,11 +1,11 @@
-import { Laya } from "./Laya";
+import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { Sprite } from "../laya/display/Sprite"
-	import { Stage } from "../laya/display/Stage"
-	import { Event } from "../laya/events/Event"
-	import { Render } from "../laya/renders/Render"
-	import { Browser } from "../laya/utils/Browser"
-	import { Utils } from "../laya/utils/Utils"
+import { Sprite } from "laya/display/Sprite"
+	import { Stage } from "laya/display/Stage"
+	import { Event } from "laya/events/Event"
+	import { Render } from "laya/renders/Render"
+	import { Browser } from "laya/utils/Browser"
+	import { Utils } from "laya/utils/Utils"
 	/**
 	 * ...
 	 * @author 
