@@ -2,15 +2,15 @@
 /*import laya.ui.*;                     
 */             
 
-import {Button} from "../../../core/laya/ui/Button"
-import {Clip} from "../../../core/laya/ui/Clip"
-import {ComboBox} from "../../../core/laya/ui/ComboBox"
-import {Tab} from "../../../core/laya/ui/Tab"
-import {List} from "../../../core/laya/ui/List"
-import {CheckBox} from "../../../core/laya/ui/CheckBox"
-import {RadioGroup} from "../../../core/laya/ui/RadioGroup"
-import {Box} from "../../../core/laya/ui/Box"
-import {View} from "../../../core/laya/ui/View"
+import {Button} from "../../../laya/core/laya/ui/Button"
+import {Clip} from "../../../laya/core/laya/ui/Clip"
+import {ComboBox} from "../../../laya/core/laya/ui/ComboBox"
+import {Tab} from "../../../laya/core/laya/ui/Tab"
+import {List} from "../../../laya/core/laya/ui/List"
+import {CheckBox} from "../../../laya/core/laya/ui/CheckBox"
+import {RadioGroup} from "../../../laya/core/laya/ui/RadioGroup"
+import {Box} from "../../../laya/core/laya/ui/Box"
+import {View} from "../../../laya/core/laya/ui/View"
 
 	export class TestPageUI extends View {
 		 btn:Button;

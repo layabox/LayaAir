@@ -1,10 +1,10 @@
 
 
-import {Sprite} from '../core/laya/display/Sprite';
+import {Sprite} from '../laya/core/laya/display/Sprite';
 
-import {Laya} from "../core/Laya"
-import { Text } from '../core/laya/display/Text';
-import { Handler } from '../core/laya/utils/Handler';
+import {Laya} from "../laya/core/Laya"
+import { Text } from '../laya/core/laya/display/Text';
+import { Handler } from '../laya/core/laya/utils/Handler';
 
 Laya.init(1280,720);
 Laya.stage.bgColor='gray';

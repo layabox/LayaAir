@@ -1,4 +1,3 @@
-import { WorkerLoader  } from "../../bin/core/laya/net/WorkerLoader";
 import { Dragging } from "./laya/utils/Dragging";
 import { GraphicsBounds } from "./laya/display/GraphicsBounds";
 import { Sprite } from "./laya/display/Sprite";
@@ -16,6 +15,7 @@ import { Stage } from "./laya/display/Stage";
 import { Context } from "./laya/resource/Context";
 import { Render } from "./laya/renders/Render";
 import { LoaderManager } from "./laya/net/LoaderManager";
+import { WorkerLoader} from "./laya/net/WorkerLoader";
 import { MouseManager } from "./laya/events/MouseManager";
 import { Text } from "./laya/display/Text";
 import { Browser } from "./laya/utils/Browser";

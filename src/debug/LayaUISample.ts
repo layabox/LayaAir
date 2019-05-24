@@ -1,8 +1,7 @@
 import { TestView } from "./view/TestView"
-import { Laya } from "../core/Laya";
-import { WebGL } from "../core/laya/webgl/WebGL";
-import { Handler } from "../core/laya/utils/Handler";
-import { UILib } from "../core/laya/ui/UILib";
+import { Laya } from "../laya/core/Laya";
+import { Handler } from "../laya/core/laya/utils/Handler";
+import { UILib } from "../laya/core/laya/ui/UILib";
 	
 	export class LayaUISample {
 		
