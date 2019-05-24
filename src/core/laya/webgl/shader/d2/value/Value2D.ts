@@ -52,7 +52,7 @@ import { ILaya } from "../../../../../ILaya";
 		
 		private _inClassCache:any;
 		private _cacheID:number = 0;
-		 clipMatDir:any[] = [99999999, 0, 0, 99999999];
+		 clipMatDir:any[] = [ILaya.Context._MAXSIZE, 0, 0, ILaya.Context._MAXSIZE];
 		 clipMatPos:any[] = [0, 0];
 		 clipOff:any[] = [0,0];			// 裁剪是否需要加上偏移，cacheas normal用
 		//public var clipDir:Array = [Context._MAXSIZE, 0, 0, Context._MAXSIZE];		//裁剪信息

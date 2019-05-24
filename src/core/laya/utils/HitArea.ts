@@ -1,6 +1,7 @@
 import { Graphics } from "../display/Graphics"
 	import { Point } from "../maths/Point"
 	import { Rectangle } from "../maths/Rectangle"
+import { ILaya } from "../../ILaya";
 	
 	/**
 	 * 鼠标点击区域，可以设置绘制一系列矢量图作为点击区域和非点击区域（目前只支持圆形，矩形，多边形）
@@ -122,7 +123,7 @@ import { Graphics } from "../display/Graphics"
 		 * 可点击区域，可以设置绘制一系列矢量图作为点击区域（目前只支持圆形，矩形，多边形）
 		 */
 		 get hit():Graphics {
-			if (!this._hit) this._hit = new Graphics();
+			if (!this._hit) this._hit = new ILaya.Graphics();
 			return this._hit;
 		}
 		
@@ -134,7 +135,7 @@ import { Graphics } from "../display/Graphics"
 		 * 不可点击区域，可以设置绘制一系列矢量图作为非点击区域（目前只支持圆形，矩形，多边形）
 		 */
 		 get unHit():Graphics {
-			if (!this._unHit) this._unHit = new Graphics();
+			if (!this._unHit) this._unHit = new ILaya.Graphics();
 			return this._unHit;
 		}
 		

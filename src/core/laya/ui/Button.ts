@@ -613,7 +613,7 @@ this.skin = skin;
 		 set clickHandler(value:Handler) {
 			this._clickHandler = value;
 		}
-		
+        
 		/**
 		 * 按钮文本标签 <code>Text</code> 控件。
 		 */
@@ -639,28 +639,40 @@ this.skin = skin;
 		
 		/**@inheritDoc */
 		/*override*/  set width(value:number) {
-			super.width = value;
+			super.set_width(value);
 			if (this._autoSize) {
 				this._bitmap.width = value;
 				this._text && (this._text.width = value);
 			}
-		}
+        }
+        
+        get width():number{
+            return super.get_width();
+        }
 		
 		/**@inheritDoc */
 		/*override*/  set height(value:number) {
-			super.height = value;
+			super.set_height(value);
 			if (this._autoSize) {
 				this._bitmap.height = value;
 				this._text && (this._text.height = value);
 			}
-		}
+        }
+        
+        get height():number{
+            return super.get_height();
+        }
 		
 		/**@inheritDoc */
 		/*override*/  set dataSource(value:any) {
 			this._dataSource = value;
 			if (typeof(value)=='number' || typeof(value)=='string') this.label = value + "";
-			else super.dataSource = value;
-		}
+			else super.set_dataSource(value);
+        }
+        
+        get dataSource():any{
+            return super.get_dataSource();
+        }
 		
 		/**图标x,y偏移，格式：100,100*/
 		 get iconOffset():string {

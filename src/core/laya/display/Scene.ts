@@ -205,12 +205,12 @@ this._setBit(Const.NOT_READY, true);
 			if (!Scene._root) {
 				Scene._root = (<Sprite>ILaya.stage.addChild(new Sprite()) );
 				Scene._root.name = "root";
-				ILaya.stage.on("resize", null, resize);
-				function resize():void {
+				ILaya.stage.on("resize", null, ()=>{
 					Scene._root.size(ILaya.stage.width, ILaya.stage.height);
 					Scene._root.event(Event.RESIZE);
-				}
-				resize();
+                });
+                Scene._root.size(ILaya.stage.width, ILaya.stage.height);
+                Scene._root.event(Event.RESIZE);
 			}
 			return Scene._root;
 		}

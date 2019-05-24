@@ -52,8 +52,8 @@ import { ClassUtils } from "./laya/utils/ClassUtils";
 import { SceneUtils } from "./laya/utils/SceneUtils";
 import { AudioSound } from "./laya/media/h5audio/AudioSound";
 import { Pool } from "./laya/utils/Pool";
+import { Submit } from "./laya/webgl/submit/Submit";
 
-	
 	/**
 	 * <code>Laya</code> 是全局对象的引用入口集。
 	 * Laya类引用了一些常用的全局对象，比如Laya.stage：舞台，Laya.timer：时间管理器，Laya.loader：加载管理器，使用时注意大小写。
@@ -100,28 +100,6 @@ import { Pool } from "./laya/utils/Pool";
 			if (Laya._isinit) return;
 			Laya._isinit = true;
             ArrayBuffer.prototype.slice || (ArrayBuffer.prototype.slice = Laya._arrayBufferSlice);
-            
-            ILaya.Timer=Timer;
-            ILaya.Dragging=Dragging;
-            ILaya.GraphicsBounds = GraphicsBounds;
-            ILaya.Sprite = Sprite;
-            ILaya.TextRender=TextRender;
-            ILaya.Loader=Loader;
-            ILaya.TTFLoader = TTFLoader;
-            ILaya.WebAudioSound  = WebAudioSound;
-            ILaya.SoundManager = SoundManager;
-            ILaya.ShaderCompile = ShaderCompile;
-            ILaya.ClassUtils = ClassUtils;
-            ILaya.SceneUtils = SceneUtils;
-            ILaya.Context = Context;
-            ILaya.Render = Render;
-            ILaya.MouseManager = MouseManager;
-            ILaya.Text = Text; 
-            ILaya.Browser = Browser;
-            ILaya.WebGL = WebGL;
-            ILaya.AudioSound = AudioSound;
-            ILaya.Pool = Pool;
-
 			
             Browser.__init__();
             // 创建主画布
@@ -330,6 +308,30 @@ import { Pool } from "./laya/utils/Pool";
 			
 		}		
 	}
+
+    ILaya.Timer=Timer;
+    ILaya.Dragging=Dragging;
+    ILaya.GraphicsBounds = GraphicsBounds;
+    ILaya.Sprite = Sprite;
+    ILaya.TextRender=TextRender;
+    ILaya.Loader=Loader;
+    ILaya.TTFLoader = TTFLoader;
+    ILaya.WebAudioSound  = WebAudioSound;
+    ILaya.SoundManager = SoundManager;
+    ILaya.ShaderCompile = ShaderCompile;
+    ILaya.ClassUtils = ClassUtils;
+    ILaya.SceneUtils = SceneUtils;
+    ILaya.Context = Context;
+    ILaya.Render = Render;
+    ILaya.MouseManager = MouseManager;
+    ILaya.Text = Text; 
+    ILaya.Browser = Browser;
+    ILaya.WebGL = WebGL;
+    ILaya.AudioSound = AudioSound;
+    ILaya.Pool = Pool;
+    ILaya.Utils=Utils;
+    ILaya.Graphics=Graphics;
+    ILaya.Submit=Submit;
 
 //初始化引擎库
 var libs:any[] =(window as any)._layalibs;

@@ -22,6 +22,9 @@ import { Browser } from "./laya/utils/Browser";
 import { WebGL } from "./laya/webgl/WebGL";
 import { AudioSound } from "./laya/media/h5audio/AudioSound";
 import { Pool } from "./laya/utils/Pool";
+import { Utils } from "./laya/utils/Utils";
+import { Graphics } from "./laya/display/Graphics";
+import { Submit } from "./laya/webgl/submit/Submit";
 
 /**
  * 使用全局类的时候，避免引用其他模块
@@ -58,5 +61,8 @@ import { Pool } from "./laya/utils/Pool";
      static Browser:typeof Browser = null;
      static WebGL:typeof WebGL = null;
      static Pool:typeof Pool=null;
+     static Utils:typeof Utils = null;
+     static Graphics:typeof Graphics = null;
+     static Submit:typeof Submit = null;
  }
  

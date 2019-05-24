@@ -9,8 +9,9 @@ import { LayaGL } from "../layagl/LayaGL"
 	import { Shader2D } from "../webgl/shader/d2/Shader2D"
 	import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D"
 	import { Value2D } from "../webgl/shader/d2/value/Value2D"
-	import { SubmitBase } from "../webgl/submit/SubmitBase"
+	import { Submit } from "../webgl/submit/Submit"
 	import { Buffer2D } from "../webgl/utils/Buffer2D"
+import { SubmitBase } from "../webgl/submit/SubmitBase";
 	
 	/**
 	 * @private

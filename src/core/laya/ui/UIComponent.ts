@@ -71,9 +71,13 @@ this.preinitialize();
 		 * <p><b>注：</b>当值为0时，宽度为自适应大小。</p>
 		 */
 		/*override*/  get width():number {
+            return this.get_width();
+        }
+        
+        get_width():number{
 			if (this._width) return this._width;
 			return this.measureWidth();
-		}
+        }
 		
 		/**
 		 * <p>显示对象的实际显示区域宽度（以像素为单位）。</p>
@@ -104,9 +108,13 @@ this.preinitialize();
 		 * <p><b>注：</b>当值为0时，高度为自适应大小。</p>
 		 */
 		/*override*/  get height():number {
+            return this.get_height();
+        }
+        
+        get_height():number{
 			if (this._height) return this._height;
 			return this.measureHeight();
-		}
+        }
 		
 		/**
 		 * <p>显示对象的实际显示区域高度（以像素为单位）。</p>
@@ -133,43 +141,66 @@ this.preinitialize();
 		   dataSource = {label2: {text:"改变了label",size:14}, checkbox2: {selected:true,x:10}};
 		 */
 		 get dataSource():any {
-			return this._dataSource;
+			return this.get_dataSource();
 		}
-		
+        
+        get_dataSource():any{
+            return this._dataSource;
+        }
 		 set dataSource(value:any) {
+             this.set_dataSource(value);
+		}
+        
+        set_dataSource(value:any){
 			this._dataSource = value;
 			for (var prop  in this._dataSource) {
 				if (this.hasOwnProperty(prop) && !(this[prop] instanceof Function)) {
 					this[prop] = this._dataSource[prop];
 				}
 			}
-		}
-		
+        }
+
 		/**
 		 * <p>从组件顶边到其内容区域顶边之间的垂直距离（以像素为单位）。</p>
 		 */
 		 get top():number {
-			return this._widget.top;
-		}
+             return this.get_top();
+        }
+        
+        get_top():number{
+            return this._widget.top;
+        }
 		
 		 set top(value:number) {
+             this.set_top(value);
+		}
+        
+        set_top(value:number){
 			if (value != this._widget.top) {
 				this._getWidget().top = value;
 			}
-		}
-		
+        }
+        
 		/**
 		 * <p>从组件底边到其内容区域底边之间的垂直距离（以像素为单位）。</p>
 		 */
 		 get bottom():number {
-			return this._widget.bottom;
-		}
+			return this.get_bottom();
+        }
+        
+        get_bottom():number{
+            return this._widget.bottom;
+        }
 		
 		 set bottom(value:number) {
+             this.set_bottom(value);
+        }
+        
+        set_bottom(value:number){
 			if (value != this._widget.bottom) {
 				this._getWidget().bottom = value;
 			}
-		}
+        }
 		
 		/**
 		 * <p>从组件左边到其内容区域左边之间的水平距离（以像素为单位）。</p>
@@ -330,17 +361,25 @@ this.preinitialize();
 		
 		/**@inheritDoc */
 		/*override*/  set scaleX(value:number) {
-			if (super.scaleX == value) return;
-			super.scaleX = value;
+            this.set_scaleX(value);
+        }
+        
+        set_scaleX(value:number){
+			if (super.get_scaleX() == value) return;
+			super.set_scaleX(value);
 			this.event(Event.RESIZE);
-		}
+        }
 		
 		/**@inheritDoc */
 		/*override*/  set scaleY(value:number) {
-			if (super.scaleY == value) return;
-			super.scaleY = value;
+            this.set_scaleY(value);
+        }
+        
+        set_scaleY(value:number){
+			if (super.get_scaleY() == value) return;
+			super.set_scaleY(value);
 			this.event(Event.RESIZE);
-		}
+        }
 		
 		/**@private */
 		protected onCompResize():void {
@@ -349,42 +388,66 @@ this.preinitialize();
 		
 		/**@inheritDoc */
 		/*override*/  set width(value:number) {
-			if (super.width == value) return;
-			super.width = value;
+            this.set_width(value);
+        }
+        
+        set_width(value:number){
+			if (super.get_width() == value) return;
+			super.set_width(value);
 			this.callLater(this._sizeChanged);
-		}
+        }
 		
 		/**@inheritDoc */
 		/*override*/  set height(value:number) {
-			if (super.height == value) return;
-			super.height = value;
-			this.callLater(this._sizeChanged);
+            this.set_height(value);
 		}
-		
+        
+        set_height(value:number){
+			if (super.get_height() == value) return;
+			super.set_height(value);
+			this.callLater(this._sizeChanged);
+        }
+        
 		/**X锚点，值为0-1，设置anchorX值最终通过pivotX值来改变节点轴心点。*/
 		 get anchorX():number {
-			return this._anchorX;
+             return this.get_anchorX();
 		}
-		
+        
+        get_anchorX():number{
+            return this._anchorX;
+        }
+
 		 set anchorX(value:number) {
+             this.set_anchorX(value);
+        }
+        
+        set_anchorX(value:number){
 			if (this._anchorX != value) {
 				this._anchorX = value;
 				this.callLater(this._sizeChanged);
 			}
-		}
+        }
 		
 		/**Y锚点，值为0-1，设置anchorY值最终通过pivotY值来改变节点轴心点。*/
 		 get anchorY():number {
+			return this.get_anchorY();
+        }
+        
+        get_anchorY():number {
 			return this._anchorY;
-		}
+        }
 		
 		 set anchorY(value:number) {
+             this.set_anchorY(value);
+		}
+        
+        set_anchorY(value:number) {
 			if (this._anchorY != value) {
 				this._anchorY = value
 				this.callLater(this._sizeChanged);
 			}
-		}
-		
+        }
+                
 		/*override*/ protected _childChanged(child:Node = null):void {
 			this.callLater(this._sizeChanged);
 			super._childChanged(child);

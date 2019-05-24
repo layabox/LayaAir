@@ -2,7 +2,8 @@ import { Node } from "../display/Node"
 	import { IDestroy } from "../resource/IDestroy"
 	import { ISingletonElement } from "../resource/ISingletonElement"
 	import { Pool } from "../utils/Pool"
-	import { UtilsBase as Utils } from "../utils/UtilsBase"
+import { ILaya } from "../../ILaya";
+import { Utils } from "../utils/Utils";
 	
 	/**
 	 * <code>Component</code> 类用于创建组件的基类。

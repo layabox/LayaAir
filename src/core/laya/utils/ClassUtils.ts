@@ -5,6 +5,7 @@ import { Node } from "../display/Node";
 import { Scene } from "../display/Scene"
 import { Graphics } from "../display/Graphics";
 import { ILaya } from "../../ILaya";
+import { HitArea } from "../utils/HitArea"
 	/**
 	 * <code>ClassUtils</code> 是一个类工具类。
 	 */

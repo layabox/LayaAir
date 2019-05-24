@@ -35,7 +35,7 @@ import { Matrix } from "../../../maths/Matrix"
 			context._clipInCache = this.incache;
 			/*
 			context._clipRect = _clipSaveRect;
-			context._curSubmit = context._submits[context._submits._length++] = Submit.RENDERBASE;
+			context._curSubmit = context._submits[context._submits._length++] = SubmitBase.RENDERBASE;
 			context._submitKey.submitType=-1;
 			*/
 		}
