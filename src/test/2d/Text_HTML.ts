@@ -2,7 +2,6 @@ import { Laya } from "Laya";
 import { Main } from "./../Main";
 import { Stage } from "laya/display/Stage"
 	import { HTMLDivElement } from "laya/html/dom/HTMLDivElement"
-	import { HTMLIframeElement } from "laya/html/dom/HTMLIframeElement"
 	import { Browser } from "laya/utils/Browser"
 	import { WebGL } from "laya/webgl/WebGL"
 

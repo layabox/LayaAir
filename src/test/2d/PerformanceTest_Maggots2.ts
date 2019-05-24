@@ -23,7 +23,8 @@ import { Sprite } from "laya/display/Sprite"
 		constructor(){
 			Laya.init(Browser.width,Browser.height, WebGL);
 			Laya.stage.bgColor = "#000001";
-			Stat.show(true,30,30);
+            //Stat.show(true,30);
+            Stat.show(0,0);
 			
 			this.wrapBounds = new Rectangle(-this.padding, -this.padding, Laya.stage.width + this.padding * 2, Laya.stage.height + this.padding * 2);
 			

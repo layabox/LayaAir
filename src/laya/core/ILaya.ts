@@ -25,6 +25,7 @@ import { Pool } from "./laya/utils/Pool";
 import { Utils } from "./laya/utils/Utils";
 import { Graphics } from "./laya/display/Graphics";
 import { Submit } from "./laya/webgl/submit/Submit";
+import { Resource } from "laya/resource/Resource";
 
 /**
  * 使用全局类的时候，避免引用其他模块
@@ -64,5 +65,7 @@ import { Submit } from "./laya/webgl/submit/Submit";
      static Utils:typeof Utils = null;
      static Graphics:typeof Graphics = null;
      static Submit:typeof Submit = null;
+     static Stage:typeof Stage=null;
+     static Resource:typeof Resource=null;
  }
  

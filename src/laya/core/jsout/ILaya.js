@@ -37,3 +37,5 @@ ILaya.Pool = null;
 ILaya.Utils = null;
 ILaya.Graphics = null;
 ILaya.Submit = null;
+ILaya.Stage = null;
+ILaya.Resource = null;

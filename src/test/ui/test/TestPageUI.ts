@@ -1,17 +1,19 @@
-import { View } from "./View";
-import { Button } from "./Button";
-import { Clip } from "./Clip";
-import { ComboBox } from "./ComboBox";
-import { Tab } from "./Tab";
-import { List } from "./List";
-import { CheckBox } from "./CheckBox";
-import { RadioGroup } from "./RadioGroup";
-import { Box } from "./Box";
+import { Button } from "laya/ui/Button";
+import { View } from "laya/ui/View";
+import { Clip } from "laya/ui/Clip";
+import { ComboBox } from "laya/ui/ComboBox";
+import { Tab } from "laya/ui/Tab";
+import { List } from "laya/ui/List";
+import { CheckBox } from "laya/ui/CheckBox";
+import { RadioGroup } from "laya/ui/RadioGroup";
+import { Box } from "laya/ui/Box";
+
 /**Created by the LayaAirIDE,do not modify.*/
 /*import laya.ui.*;
 	import laya.display.*;*//*t laya.display.*; 
 
-	public class TestPageUI extends View {*/export class TestPageUI extends View {
+	public class TestPageUI extends View {
+*/export class TestPageUI extends View {
 		 btn:Button;
 		 clip:Clip;
 		 combobox:ComboBox;

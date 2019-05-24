@@ -3,6 +3,7 @@
         "target": "es6",
         "outDir": "jsout",
         "module": "esnext",
-        "baseUrl": "."
+        "baseUrl": ".",
+        "composite": true
     }
 }

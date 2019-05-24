@@ -21,7 +21,7 @@ import { Texture } from "laya/resource/Texture"
 		
 		private onAssetLoaded(texture:Texture):void
 		{
-			console.log(texture.source);
+			//console.log(texture.source);
 			
 			// 恢复默认并发加载个数。
 			if (++this.numLoaded == 3)

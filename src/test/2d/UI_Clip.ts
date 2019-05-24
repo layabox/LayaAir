@@ -27,7 +27,7 @@ import { Stage } from "laya/display/Stage"
 			Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
 			Laya.stage.bgColor = "#232628";
 			
-			Laya.loader.load([this.buttonSkin, this.clipSkin, this.bgSkin], this.laya.utils.Handler.create(this,this.onSkinLoaded));
+			Laya.loader.load([this.buttonSkin, this.clipSkin, this.bgSkin], Handler.create(this,this.onSkinLoaded));
 		}
 		
 		private onSkinLoaded(e:any=null):void

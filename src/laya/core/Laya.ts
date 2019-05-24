@@ -332,6 +332,8 @@ import { Submit } from "./laya/webgl/submit/Submit";
     ILaya.Utils=Utils;
     ILaya.Graphics=Graphics;
     ILaya.Submit=Submit;
+    ILaya.Stage = Stage;
+    ILaya.Resource = Resource;
 
 //初始化引擎库
 var libs:any[] =(window as any)._layalibs;

@@ -26,6 +26,7 @@ import { ColorUtils } from "./laya/utils/ColorUtils";
 import { LayaGL } from "./laya/layagl/LayaGL";
 import { Utils } from "./laya/utils/Utils";
 import { Loader } from "./laya/net/Loader";
+import { Resource } from "./laya/resource/Resource";
 import { TTFLoader } from "./laya/net/TTFLoader";
 import { LocalStorage } from "./laya/net/LocalStorage";
 import { Graphics } from "./laya/display/Graphics";
@@ -293,6 +294,8 @@ ILaya.Pool = Pool;
 ILaya.Utils = Utils;
 ILaya.Graphics = Graphics;
 ILaya.Submit = Submit;
+ILaya.Stage = Stage;
+ILaya.Resource = Resource;
 //初始化引擎库
 var libs = window._layalibs;
 if (libs) {

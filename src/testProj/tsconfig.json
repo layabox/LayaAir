@@ -7,6 +7,9 @@
         "baseUrl": "../laya/core",
     },
     "references": [
-        {"path":""}
+        {"path":"../laya/core"}
+    ],
+    "files": [
+        "Main.ts"
     ]
 }

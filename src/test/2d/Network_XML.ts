@@ -28,7 +28,7 @@ import { Utils } from "laya/utils/Utils"
 			}
 			catch (e)
 			{
-				console.log(this.e.massage);
+				console.log(e.massage);
 				return;
 			}
 			

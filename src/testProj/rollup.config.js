@@ -14,7 +14,7 @@ const resolveFile = function(filePath) {
 function testPlug(){
     return {
         transform( code, id ) {
-            console.log(id,'\n',code);
+            console.log(id);
         }
     }
 }
@@ -38,7 +38,7 @@ export default {
             //abortOnError:false
             check: false
         }),
-        //testPlug(),
+        testPlug(),
         glsl({
 			// By default, everything gets included
 			include: './**/*.glsl',

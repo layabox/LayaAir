@@ -1,11 +1,13 @@
-import { View } from "./View";
-import { Box } from "./Box";
-import { ComboBox } from "./ComboBox";
+import { Box } from "laya/ui/Box";
+import { View } from "laya/ui/View";
+import { ComboBox } from "laya/ui/ComboBox";
+
 /**Created by the LayaAirIDE,do not modify.*/
 /*import laya.ui.*;
 	import laya.display.*;*//*t laya.display.*; 
 
-	public class IndexViewUI extends View {*/export class IndexViewUI extends View {
+	public class IndexViewUI extends View {
+*/export class IndexViewUI extends View {
 		 box1:Box;
 		 smallComBox:ComboBox;
 		 bigComBox:ComboBox;
