@@ -1,10 +1,9 @@
 import { AccelerationInfo } from "././AccelerationInfo";
 import { RotationInfo } from "././RotationInfo";
-import { Laya } from "./../../../../../../core/src/Laya";
-import { Event } from "../../../../../../core/src/laya/events/Event"
-	import { EventDispatcher } from "../../../../../../core/src/laya/events/EventDispatcher"
-	import { Browser } from "../../../../../../core/src/laya/utils/Browser"
-	
+import { EventDispatcher } from "laya/events/EventDispatcher";
+import { ILaya } from "ILaya";
+import { Event } from "laya/events/Event";
+
 	/**
 	 * Accelerator.instance获取唯一的Accelerator引用，请勿调用构造函数。
 	 *
@@ -45,8 +44,7 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 		private static acceleration:AccelerationInfo = new AccelerationInfo();
 		private static accelerationIncludingGravity:AccelerationInfo = new AccelerationInfo();
 		private static rotationRate:RotationInfo = new RotationInfo();
-		
-		private static onChrome:boolean = (Browser.userAgent.indexOf("Chrome") > -1);
+		private static onChrome:boolean = (ILaya.Browser.userAgent.indexOf("Chrome") > -1);
 		
 		constructor(singleton:number){
 			super();
@@ -60,7 +58,7 @@ this.onDeviceOrientationChange = this.onDeviceOrientationChange.bind(this);
 		/*override*/  on(type:string, caller:any, listener:Function, args:any[] = null):EventDispatcher
 		{
 			super.on(type, caller, listener, args);
-			Browser.window.addEventListener('devicemotion', this.onDeviceOrientationChange);
+			ILaya.Browser.window.addEventListener('devicemotion', this.onDeviceOrientationChange);
 			return this;
 		}
 		
@@ -71,7 +69,7 @@ this.onDeviceOrientationChange = this.onDeviceOrientationChange.bind(this);
 		/*override*/  off(type:string, caller:any, listener:Function, onceOnly:boolean = false):EventDispatcher
 		{
 			if (!this.hasListener(type))
-				Browser.window.removeEventListener('devicemotion', this.onDeviceOrientationChange)
+            ILaya.Browser.window.removeEventListener('devicemotion', this.onDeviceOrientationChange)
 			
 			return super.off(type, caller, listener, onceOnly);
 		}
@@ -92,7 +90,7 @@ this.onDeviceOrientationChange = this.onDeviceOrientationChange.bind(this);
 			Accelerator.rotationRate.beta = e.rotationRate.alpha * -1;
 			Accelerator.rotationRate.gamma = e.rotationRate.beta;
 			
-			if (Browser.onAndroid)
+			if (ILaya.Browser.onAndroid)
 			{
 				if (Accelerator.onChrome)
 				{
@@ -104,7 +102,7 @@ this.onDeviceOrientationChange = this.onDeviceOrientationChange.bind(this);
 				Accelerator.acceleration.x *= -1;
 				Accelerator.accelerationIncludingGravity.x *= -1;
 			}
-			else if (Browser.onIOS)
+			else if (ILaya.Browser.onIOS)
 			{
 				Accelerator.acceleration.y *= -1;
 				Accelerator.acceleration.z *= -1;
@@ -114,7 +112,6 @@ this.onDeviceOrientationChange = this.onDeviceOrientationChange.bind(this);
 				
 				interval *= 1000;
 			}
-			
 			this.event(Event.CHANGE, [Accelerator.acceleration, Accelerator.accelerationIncludingGravity, Accelerator.rotationRate, interval]);
 		}
 		
@@ -129,35 +126,35 @@ this.onDeviceOrientationChange = this.onDeviceOrientationChange.bind(this);
 			Accelerator.transformedAcceleration =Accelerator.transformedAcceleration|| new AccelerationInfo();
 			Accelerator.transformedAcceleration.z = acceleration.z;
 			
-			if (Browser.window.orientation == 90)
+			if (ILaya.Browser.window.orientation == 90)
 			{
 				Accelerator.transformedAcceleration.x = acceleration.y;
 				Accelerator.transformedAcceleration.y = -acceleration.x;
 			}
-			else if (Browser.window.orientation == -90)
+			else if (ILaya.Browser.window.orientation == -90)
 			{
 				Accelerator.transformedAcceleration.x = -acceleration.y;
 				Accelerator.transformedAcceleration.y = acceleration.x;
 			}
-			else if (!Browser.window.orientation)
+			else if (!ILaya.Browser.window.orientation)
 			{
 				Accelerator.transformedAcceleration.x = acceleration.x;
 				Accelerator.transformedAcceleration.y = acceleration.y;
 			}
-			else if (Browser.window.orientation == 180)
+			else if (ILaya.Browser.window.orientation == 180)
 			{
 				Accelerator.transformedAcceleration.x = -acceleration.x;
 				Accelerator.transformedAcceleration.y = -acceleration.y;
 			}
 			
 			var tx:number;
-			if (Laya.stage.canvasDegree == -90)
+			if (ILaya.stage.canvasDegree == -90)
 			{
 				tx = Accelerator.transformedAcceleration.x;
 				Accelerator.transformedAcceleration.x = -Accelerator.transformedAcceleration.y;
 				Accelerator.transformedAcceleration.y = tx;
 			}
-			else if (Laya.stage.canvasDegree == 90)
+			else if (ILaya.stage.canvasDegree == 90)
 			{
 				tx = Accelerator.transformedAcceleration.x;
 				Accelerator.transformedAcceleration.x = Accelerator.transformedAcceleration.y;

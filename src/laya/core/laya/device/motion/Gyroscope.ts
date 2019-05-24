@@ -1,7 +1,8 @@
 import { RotationInfo } from "././RotationInfo";
-import { Event } from "../../../../../../core/src/laya/events/Event"
-	import { EventDispatcher } from "../../../../../../core/src/laya/events/EventDispatcher"
-	import { Browser } from "../../../../../../core/src/laya/utils/Browser"
+import { EventDispatcher } from "laya/events/EventDispatcher";
+import { ILaya } from "ILaya";
+import { Event } from "laya/events/Event";
+
 	
 	/**
 	 * 使用Gyroscope.instance获取唯一的Gyroscope引用，请勿调用构造函数。
@@ -45,7 +46,7 @@ this.onDeviceOrientationChange = this.onDeviceOrientationChange.bind(this);
 		/*override*/  on(type:string, caller:any, listener:Function, args:any[] = null):EventDispatcher 
 		{
 			super.on(type, caller, listener, args);
-			Browser.window.addEventListener('deviceorientation', this.onDeviceOrientationChange);
+			ILaya.Browser.window.addEventListener('deviceorientation', this.onDeviceOrientationChange);
 			return this;
 		}
 		
@@ -56,7 +57,7 @@ this.onDeviceOrientationChange = this.onDeviceOrientationChange.bind(this);
 		/*override*/  off(type:string, caller:any, listener:Function, onceOnly:boolean = false):EventDispatcher 
 		{
 			if (!this.hasListener(type))
-				Browser.window.removeEventListener('deviceorientation', this.onDeviceOrientationChange);
+            ILaya.Browser.window.removeEventListener('deviceorientation', this.onDeviceOrientationChange);
 				
 			return super.off(type, caller, listener, onceOnly);
 		}
@@ -72,8 +73,8 @@ this.onDeviceOrientationChange = this.onDeviceOrientationChange.bind(this);
 			{
 				Gyroscope.info.alpha = e.webkitCompassHeading * -1;
 				Gyroscope.info.compassAccuracy = e.webkitCompassAccuracy;
-			}
-			
+            }
+            
 			this.event(Event.CHANGE, [e.absolute, Gyroscope.info]);
 		}
 	}

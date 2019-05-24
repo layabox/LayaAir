@@ -1,13 +1,10 @@
 import { HtmlVideo } from "././HtmlVideo";
 import { WebGLVideo } from "././WebGLVideo";
-import { Laya } from "./../../../../../../core/src/Laya";
-import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
-	import { Stage } from "../../../../../../core/src/laya/display/Stage"
-	import { Rectangle } from "../../../../../../core/src/laya/maths/Rectangle"
-	import { Render } from "../../../../../../core/src/laya/renders/Render"
-	import { Texture } from "../../../../../../core/src/laya/resource/Texture"
-	import { Browser } from "../../../../../../core/src/laya/utils/Browser"
-	import { Utils } from "../../../../../../core/src/laya/utils/Utils"
+import { Sprite } from "laya/display/Sprite";
+import { Texture } from "laya/resource/Texture";
+import { ILaya } from "ILaya";
+import { Stage } from "laya/display/Stage";
+import { Rectangle } from "laya/maths/Rectangle";
 	
 	/**
 	 * <code>Video</code>将视频显示到Canvas上。<code>Video</code>可能不会在所有浏览器有效。
@@ -45,7 +42,7 @@ import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
 			this.videoElement = this.htmlVideo.getVideo();
 			this.videoElement.layaTarget = this;
 			
-			this.internalTexture = new Texture(this.htmlVideo);
+			this.internalTexture = new Texture(this.htmlVideo as any);
 			
 			this.videoElement.addEventListener("abort", Video.onAbort);
 			this.videoElement.addEventListener("canplay", Video.onCanplay);
@@ -71,10 +68,10 @@ import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
 			this.videoElement.addEventListener("ended", this.onPlayComplete['bind'](this));
 			
 			this.size(width, height);
-			if (Browser.onMobile)
+			if (ILaya.Browser.onMobile)
 			{
 				this.onDocumentClick = this.onDocumentClick.bind(this);
-				Browser.document.addEventListener("touchend", this.onDocumentClick);
+				ILaya.Browser.document.addEventListener("touchend", this.onDocumentClick);
 			}
 		}
 		
@@ -123,8 +120,8 @@ import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
 		private onPlayComplete(e:any):void
 		{
 			this.event("ended");
-			if(!Render.isConchApp || !this.videoElement || !this.videoElement.loop)
-				Laya.timer.clear(this, this.renderCanvas);
+			if(!ILaya.Render.isConchApp || !this.videoElement || !this.videoElement.loop)
+				ILaya.timer.clear(this, this.renderCanvas);
 	
 		}
 		
@@ -147,7 +144,7 @@ import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
 		 play():void
 		{
 			this.videoElement.play();
-			Laya.timer.frameLoop(1, this, this.renderCanvas);
+			ILaya.timer.frameLoop(1, this, this.renderCanvas);
 		}
 		
 		/**
@@ -157,7 +154,7 @@ import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
 		{
 			this.videoElement.pause();
 			
-			Laya.timer.clear(this, this.renderCanvas);
+			ILaya.timer.clear(this, this.renderCanvas);
 		}
 		
 		/**
@@ -211,7 +208,7 @@ import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
 		{
 			this.videoElement.play();
 			this.videoElement.pause();
-			Browser.document.removeEventListener("touchend", this.onDocumentClick);
+			ILaya.Browser.document.removeEventListener("touchend", this.onDocumentClick);
 		}
 		
 		/**
@@ -330,9 +327,9 @@ import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
 		 /*override*/ set x(val:number)
 		{
 			super.x = val;
-			if (Render.isConchApp)
+			if (ILaya.Render.isConchApp)
 			{
-				var transform:any = Utils.getTransformRelativeToWindow(this, 0, 0);
+				var transform:any = ILaya.Utils.getTransformRelativeToWindow(this, 0, 0);
 				this.videoElement.style.left = transform.x;
 			}
 		}
@@ -343,9 +340,9 @@ import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
 		 /*override*/ set y(val:number)
 		{
 			super.y = val;
-			if (Render.isConchApp)
+			if (ILaya.Render.isConchApp)
 			{
-				var transform:any = Utils.getTransformRelativeToWindow(this, 0, 0);
+				var transform:any = ILaya.Utils.getTransformRelativeToWindow(this, 0, 0);
 				this.videoElement.style.top = transform.y;
 			}
 		}
@@ -432,14 +429,14 @@ import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
 		{
 			super.size(width, height)
 			
-			if (Render.isConchApp)
+			if (ILaya.Render.isConchApp)
 			{
-				var transform:any = Utils.getTransformRelativeToWindow(this, 0, 0);
+				var transform:any = ILaya.Utils.getTransformRelativeToWindow(this, 0, 0);
 				this.videoElement.width = width * transform.scaleX; 	
 			}
 			else
 			{
-				this.videoElement.width = width / Browser.pixelRatio;
+				this.videoElement.width = width / ILaya.Browser.pixelRatio;
 			}
 			
 			if (this.paused) this.renderCanvas();
@@ -448,14 +445,14 @@ import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
 		
 		/*override*/  set width(value:number)
 		{
-			if (Render.isConchApp)
+			if (ILaya.Render.isConchApp)
 			{
-				var transform:any = Utils.getTransformRelativeToWindow(this, 0, 0);
+				var transform:any = ILaya.Utils.getTransformRelativeToWindow(this, 0, 0);
 				this.videoElement.width = value * transform.scaleX; 
 			}
 			else
 			{
-				this.videoElement.width = this.width / Browser.pixelRatio;
+				this.videoElement.width = this.width / ILaya.Browser.pixelRatio;
 			}
 			
 			super.width = value;
@@ -464,15 +461,15 @@ import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
 		
 		/*override*/  set height(value:number)
 		{
-			if (Render.isConchApp)
+			if (ILaya.Render.isConchApp)
 			{
-				var transform:any = Utils.getTransformRelativeToWindow(this, 0, 0);
+				var transform:any = ILaya.Utils.getTransformRelativeToWindow(this, 0, 0);
 				this.videoElement.height = value * transform.scaleY; 
 
 			}
 			else
 			{
-				this.videoElement.height = this.height / Browser.pixelRatio;
+				this.videoElement.height = this.height / ILaya.Browser.pixelRatio;
 			}
 			super.height = value;
 		}
@@ -515,9 +512,9 @@ import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
 		
 		private syncVideoPosition():void
 		{
-			var stage:Stage = Laya.stage;
+			var stage:Stage = ILaya.stage;
 			var rec:Rectangle;
-			rec = Utils.getGlobalPosAndScale(this);
+			rec = ILaya.Utils.getGlobalPosAndScale(this);
 			
 			var a:number = stage._canvasTransform.a, d:number = stage._canvasTransform.d;
 			var x:number = rec.x * stage.clientScaleX * a + stage.offset.x;
@@ -525,8 +522,8 @@ import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
 			this.videoElement.style.left = x + 'px';
 			;
 			this.videoElement.style.top = y + 'px';
-			this.videoElement.width = this.width / Browser.pixelRatio;
-			this.videoElement.height = this.height / Browser.pixelRatio;
+			this.videoElement.width = this.width / ILaya.Browser.pixelRatio;
+			this.videoElement.height = this.height / ILaya.Browser.pixelRatio;
 		}
 	}
 

@@ -1,10 +1,11 @@
 import { AccelerationInfo } from "./motion/AccelerationInfo"
 	import { Accelerator } from "./motion/Accelerator"
 	import { RotationInfo } from "./motion/RotationInfo"
-	import { Event } from "../../../../../core/src/laya/events/Event"
-	import { EventDispatcher } from "../../../../../core/src/laya/events/EventDispatcher"
-	import { Browser } from "../../../../../core/src/laya/utils/Browser"
-	import { Handler } from "../../../../../core/src/laya/utils/Handler"
+import { EventDispatcher } from "laya/events/EventDispatcher";
+import { Handler } from "laya/utils/Handler";
+import { Event } from "laya/events/Event";
+import { ILaya } from "ILaya";
+
 
 	/**
 	 * Shake只能在支持此操作的设备上有效。
@@ -46,8 +47,8 @@ import { AccelerationInfo } from "./motion/AccelerationInfo"
 			this.throushold = throushold;
 			this.shakeInterval = interval;
 			
-			this.lastX = this.lastY = this.lastZ = NaN;
-			
+            this.lastX = this.lastY = this.lastZ = NaN;
+            
 			// 使用加速器监听设备运动。
 			Accelerator.instance.on(Event.CHANGE, this, this.onShake);
 		}
@@ -69,7 +70,7 @@ import { AccelerationInfo } from "./motion/AccelerationInfo"
 				this.lastY = accelerationIncludingGravity.y;
 				this.lastZ = accelerationIncludingGravity.z;
 
-				this.lastMillSecond = Browser.now();
+				this.lastMillSecond = ILaya.Browser.now();
 				return;
 			}
 
@@ -81,13 +82,13 @@ import { AccelerationInfo } from "./motion/AccelerationInfo"
 			// 是否满足摇晃选项。
 			if(this.isShaked(deltaX, deltaY, deltaZ))
 			{
-				var deltaMillSecond:number = Browser.now() - this.lastMillSecond;
+				var deltaMillSecond:number = ILaya.Browser.now() - this.lastMillSecond;
 				
 				// 按照设定间隔触发摇晃。
 				if (deltaMillSecond > this.shakeInterval)
 				{
 					this.event(Event.CHANGE);
-					this.lastMillSecond = Browser.now();
+					this.lastMillSecond = ILaya.Browser.now();
 				}
 			}
 

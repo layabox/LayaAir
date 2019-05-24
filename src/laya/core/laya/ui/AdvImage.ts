@@ -2,6 +2,7 @@ import { Image } from "././Image";
 import { Event } from "../events/Event"
 	import { LocalStorage } from "../net/LocalStorage"
 	import { Browser } from "../utils/Browser"
+import { ILaya } from "../../ILaya";
 
 	/**
 	 * 广告插件 
@@ -50,7 +51,7 @@ this.skin = skin;
 				//这里需要去加载广告列表资源信息
 				if(Browser.onMiniGame || Browser.onBDMiniGame)
 				{
-					Laya.timer.loop(this._resquestTime,this,this.onGetAdvsListData);
+					ILaya.timer.loop(this._resquestTime,this,this.onGetAdvsListData);
 				}
 				this.onGetAdvsListData();
 				this.initEvent();
@@ -82,7 +83,7 @@ this.skin = skin;
 					var advsObj:any = this.advsListArr[this._playIndex];
 					if(advsObj)
 					{
-						if(Browser.onLimixiu &&GameStatusInfo.gameId == advsObj.gameid)
+						if(ILaya.Browser.onLimixiu && (window as any).GameStatusInfo.gameId == advsObj.gameid)
 						{
 							this.onLunbo();
 						}else
@@ -103,11 +104,11 @@ this.skin = skin;
 		{
 			if(Browser.onMiniGame)
 			{
-				var isSupperJump:boolean = wx.navigateToMiniProgram instanceof Function;
+				var isSupperJump:boolean = (window as any).wx.navigateToMiniProgram instanceof Function;
 				return isSupperJump;
 			}else if(Browser.onLimixiu)
 			{
-				if(BK.QQ.skipGame)
+				if((window as any).BK.QQ.skipGame)
 					return true;
 			}else if(Browser.onBDMiniGame)
 				return true;
@@ -147,13 +148,13 @@ this.skin = skin;
 						this.advsListArr.splice(this._playIndex,1);
 					}
 				}
-				BK.QQ.skipGame(desGameId, extendInfo);
+				(window as any).BK.QQ.skipGame(desGameId, extendInfo);
 				this.updateAdvsInfo();
 			}else if(Browser.onMiniGame)
 			{
 				if(this.isSupportJump())
 				{
-					wx.navigateToMiniProgram({
+					(window as any).wx.navigateToMiniProgram({
 						appId:this._appid,
 						path:"",
 						extraData:"",
@@ -184,7 +185,7 @@ this.skin = skin;
 		{
 			this.visible = false;
 			this.onLunbo();
-			Laya.timer.loop(this._lunboTime,this,this.onLunbo);
+			ILaya.timer.loop(this._lunboTime,this,this.onLunbo);
 		}
 		
 		private onLunbo():void
@@ -328,10 +329,10 @@ this.skin = skin;
 		
 		/*override*/  destroy(destroyChild:boolean=true):void
 		{
-			Laya.timer.clear(this,this.onLunbo);
+			ILaya.timer.clear(this,this.onLunbo);
 			super.destroy(true);
 			this.clear();
-			Laya.timer.clear(this,this.onGetAdvsListData);
+			ILaya.timer.clear(this,this.onGetAdvsListData);
 		}
 	}
 

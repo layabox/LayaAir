@@ -1,7 +1,7 @@
-import { Laya } from "./../../ILaya";
 import { Loader } from "././Loader";
 import { URL } from "././URL";
 import { Handler } from "../utils/Handler"
+import { ILaya } from "../../ILaya";
 	
 	/**
 	 * <p>资源版本的生成由layacmd或IDE完成，使用 <code>ResourceVersion</code> 简化使用过程。</p>

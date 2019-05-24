@@ -1,13 +1,13 @@
 import { GeolocationInfo } from "././GeolocationInfo";
-import { Browser } from "../../../../../../core/src/laya/utils/Browser"
-	import { Handler } from "../../../../../../core/src/laya/utils/Handler"
+import { ILaya } from "ILaya";
+import { Handler } from "laya/utils/Handler";
 
 	/**
 	 * 使用前可用<code>supported</code>查看浏览器支持。
 	 */
 	export class Geolocation
 	{
-		private static navigator:any = Browser.window.navigator;
+		private static navigator:any = ILaya.Browser.window.navigator;
 		private static position:GeolocationInfo = new GeolocationInfo();
 		
 		/**

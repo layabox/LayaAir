@@ -1,6 +1,6 @@
 import { Video } from "././Video";
-import { Bitmap } from "../../../../../../core/src/laya/resource/Bitmap"
-	import { Browser } from "../../../../../../core/src/laya/utils/Browser"
+import { Bitmap } from "laya/resource/Bitmap";
+import { ILaya } from "ILaya";
 	
 	/**
 	 * @private
@@ -25,7 +25,7 @@ import { Bitmap } from "../../../../../../core/src/laya/resource/Bitmap"
 		
 		private createDomElement():void
 		{
-			this._source = this.video = Browser.createElement("video");
+			this._source = this.video = ILaya.Browser.createElement("video");
 			
 			var style:any = this.video.style;
 			style.position = 'absolute';
@@ -52,7 +52,7 @@ import { Bitmap } from "../../../../../../core/src/laya/resource/Bitmap"
 		
 		private appendSource(source:string, type:string):void
 		{
-			var sourceElement:any = Browser.createElement("source");
+			var sourceElement:any = ILaya.Browser.createElement("source");
 			sourceElement.src = source;
 			sourceElement.type = type;
 			this.video.appendChild(sourceElement);
@@ -72,7 +72,7 @@ import { Bitmap } from "../../../../../../core/src/laya/resource/Bitmap"
 		 /*override*/ destroy():void {
 			super.destroy();
 
-			var isConchApp:boolean = Render.isConchApp;
+			var isConchApp:boolean = ILaya.Render.isConchApp;
 			if (isConchApp)
 			{
 				this.video._destroy();

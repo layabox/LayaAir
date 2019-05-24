@@ -82,10 +82,10 @@ PerfHUD.inst = this;
 			var sx:number = this._x;
 			var ex:number = this._x+this.hud_width;
 			var sy:number = this.v2y(v);
-			ctx.fillText(text,sx,sy-6,null,'green');
+			ctx.fillText(text,sx,sy-6,null,'green',null);
 			sx += this.textSpace;
 			ctx.fillStyle = color;
-			ctx.fillRect(sx, sy, this._x + this.hud_width, 1);
+			ctx.fillRect(sx, sy, this._x + this.hud_width, 1,null);
 		}
 				
 		//TODO:coverage
@@ -142,13 +142,13 @@ PerfHUD.inst = this;
 				*/
 				for ( var dtsz:number = dtlen; cx < dtsz; cx++) {
 					var sty:number = this.v2y(cd.datas[cx] * cd.scale);
-					ctx.fillRect(_cx, sty, dx, this.hud_height+this._y-sty);
+					ctx.fillRect(_cx, sty, dx, this.hud_height+this._y-sty, null);
 					_cx += dx;
 				}
 				//剩下的
 				for (cx = 0; cx < cd.datapos; cx++) {
 					sty = this.v2y(cd.datas[cx] * cd.scale);
-					ctx.fillRect(_cx, sty, dx, this.hud_height+this._y-sty);
+					ctx.fillRect(_cx, sty, dx, this.hud_height+this._y-sty, null);
 					_cx += dx;
 				}
 				

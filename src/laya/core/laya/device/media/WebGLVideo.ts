@@ -1,10 +1,7 @@
 import { HtmlVideo } from "./HtmlVideo"
-	import { Browser } from "../../../../../../core/src/laya/utils/Browser"
-	import { WebGL } from "../../../../../../core/src/laya/webgl/WebGL"
-	import { WebGLContext } from "../../../../../../core/src/laya/webgl/WebGLContext"
-	import { Render } from "../../../../../../core/src/laya/renders/Render"
-	
-	import { LayaGL } from "../../../../../../core/src/laya/layagl/LayaGL"
+import { WebGLContext } from "laya/webgl/WebGLContext";
+import { ILaya } from "ILaya";
+
 
 	/**
 	 * @private
@@ -20,10 +17,9 @@ import { HtmlVideo } from "./HtmlVideo"
 		constructor(){
 			super();
 			
-			if(!Render.isConchApp && Browser.onIPhone)
+			if(!ILaya.Render.isConchApp && ILaya.Browser.onIPhone)
 				return;
-			
-			this.gl = Render.isConchApp ? LayaGLContext.instance : WebGL.mainContext;
+			this.gl = ILaya.Render.isConchApp ? (window as any).LayaGLContext.instance : WebGLContext.mainContext;
 			this._source = this.gl.createTexture();
 			
 			//preTarget = WebGLContext.curBindTexTarget; 
@@ -43,7 +39,7 @@ import { HtmlVideo } from "./HtmlVideo"
 		
 		 updateTexture():void
 		{
-			if(!Render.isConchApp && Browser.onIPhone)
+			if(!ILaya.Render.isConchApp && ILaya.Browser.onIPhone)
 				return;
 			
  			WebGLContext.bindTexture(this.gl, WebGLContext.TEXTURE_2D, this._source);
@@ -61,7 +57,7 @@ import { HtmlVideo } from "./HtmlVideo"
 		 /*override*/ destroy():void {
 			if (this._source)
 			{
-				this.gl = Render.isConchApp ? LayaGLContext.instance : WebGL.mainContext;
+				this.gl = ILaya.Render.isConchApp ? (window as any).LayaGLContext.instance : WebGLContext.mainContext;
 				
 				if (WebGLVideo.curBindSource == this._source)
 				{

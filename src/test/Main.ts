@@ -1,11 +1,9 @@
-/*
 import { Laya } from "Laya"
 	import { Sprite } from "laya/display/Sprite"
 	import { Stage } from "laya/display/Stage"
 	import { Loader } from "laya/net/Loader"
 	import { URL } from "laya/net/URL"
 	import { IndexView2D } from "./view/IndexView2D"
-	import { IndexView3D } from "./view/IndexView3D"
 	//import laya.qg.mini.QGMiniAdapter;
 	import { Handler } from "laya/utils/Handler"
 	import { Stat } from "laya/utils/Stat"
@@ -60,7 +58,7 @@ import { Laya } from "Laya"
 				//Layaair1.0-3d
 				//box3D = new Sprite();
 				//Laya.stage.addChild(box3D);
-				Main._indexView = new IndexView3D();
+				//Main._indexView = new IndexView3D();
 			}
 			
 			var sp:Sprite = new Sprite();
@@ -79,7 +77,6 @@ import { Laya } from "Laya"
 			Main._indexView.switchFunc(0,0);//切换到指定case
 		}
 	}
-*/
 
-import { Laya } from "Laya"
-new Laya();
+//import { Laya } from "Laya"
+//new Laya();

@@ -92,14 +92,14 @@ this.skin = skin;
 		 * @return
 		 */
 		 addItem(item:ISelect, autoLayOut:boolean = true):number {
-			var display:Sprite = (<Sprite>item );
+			var display:Sprite = (<Sprite>(item as any) );
 			var index:number = this._items.length;
 			display.name = "item" + index;
 			this.addChild(display);
 			this.initItems();
 			
 			if (autoLayOut && index > 0) {
-				var preItem:Sprite = (<Sprite>this._items[index - 1] );
+				var preItem:Sprite = (<Sprite>(this._items[index - 1] as any));
 				if (this._direction == "horizontal") {
 					display.x = preItem._x + preItem.width + this._space;
 				} else {
@@ -122,10 +122,10 @@ this.skin = skin;
 		 delItem(item:ISelect, autoLayOut:boolean = true):void {
 			var index:number = this._items.indexOf(item);
 			if (index != -1) {
-				var display:Sprite = (<Sprite>item );
+				var display:Sprite = (<Sprite>(item as any));
 				this.removeChild(display);
 				for (var i:number = index + 1, n:number = this._items.length; i < n; i++) {
-					var child:Sprite = (<Sprite>this._items[i] );
+					var child:Sprite = (<Sprite>(this._items[i] as any) );
 					child.name = "item" + (i - 1);
 					if (autoLayOut) {
 						if (this._direction == "horizontal") {
@@ -157,7 +157,7 @@ this.skin = skin;
 			this._items || (this._items = []);
 			this._items.length = 0;
 			for (var i:number = 0; i < 10000; i++) {
-				var item:ISelect = (<ISelect>this.getChildByName("item" + i) );
+				var item:ISelect = (<ISelect>(this.getChildByName("item" + i) as any));
 				if (item == null) break;
 				this._items.push(item);
 				item.selected = (i === this._selectedIndex);
