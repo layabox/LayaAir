@@ -69,8 +69,14 @@ import { Resource } from "laya/resource/Resource";
      static Stage:typeof Stage=null;
      static Resource:typeof Resource=null;
 
+     static __classMap:Object = {};
      static regClass(c:any){
-         ILaya.classMap[c.name]=c;
+         if(ILaya.classMap){
+            ILaya.classMap[c.name]=c;
+         }else{
+            ILaya[c.name]=c;
+         }
+         
      }
  }
  

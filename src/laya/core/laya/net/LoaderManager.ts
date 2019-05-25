@@ -50,7 +50,7 @@ import { ILaya } from "../../ILaya";
 		/**@private */
 		private _loaderCount:number = 0;
 		/**@private */
-		private _resInfos:any[] = [];
+		private _resInfos:ResInfo[][] = [];
 		
 		/**@private */
 		private _infoPool:any[] = [];
@@ -77,7 +77,7 @@ import { ILaya } from "../../ILaya";
 		 */
 		constructor(){
 			super();
-for (var i:number = 0; i < this._maxPriority; i++) this._resInfos[i] = [];
+            for (var i = 0; i < this._maxPriority; i++) this._resInfos[i] = [];
 		}
 		
 		/**

@@ -58,7 +58,7 @@ import { HitArea } from "../utils/HitArea"
 		 static getClass(className:string):any {
             var classObject:any = ClassUtils._classMap[className] || className;
             var glaya:any = ILaya.Laya
-			if (typeof(classObject)=='string') return (glaya["__classmap"][classObject as string] || glaya[className]);
+			if (typeof(classObject)=='string') return ( ILaya.__classMap[classObject as string] || glaya[className]);
 			return classObject;
 		}
 		

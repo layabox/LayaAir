@@ -8,7 +8,7 @@ import { ILaya } from "ILaya";
 	 */
 	export class Widget extends Component {
 		/**一个已初始化的 <code>Widget</code> 实例。*/
-		 static EMPTY:Widget = new Widget();
+		 static EMPTY:Widget = null;// new Widget();
 		
 		private _top:number = NaN;
 		private _bottom:number = NaN;
@@ -188,3 +188,5 @@ import { ILaya } from "ILaya";
 	}
 
 ILaya.regClass(Widget);
+
+Widget.EMPTY=new Widget();

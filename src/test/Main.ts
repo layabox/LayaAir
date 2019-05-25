@@ -46,6 +46,7 @@ import { Laya } from "Laya"
 		
 		private onLoaded():void
 		{
+            console.log('onload');
 			if(!this._isType)
 			{
 				//Layaair1.0-2d
@@ -76,8 +77,3 @@ import { Laya } from "Laya"
 			Main._indexView.switchFunc(0,0);//切换到指定case
 		}
 	}
-
-//import { Laya } from "Laya"
-//new Laya();
-
-new Main();

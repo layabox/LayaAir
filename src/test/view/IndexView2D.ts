@@ -88,7 +88,6 @@ import { PerformanceTest_Cartoon2 } from "./../2d/PerformanceTest_Cartoon2";
 import { PerformanceTest_Skeleton } from "./../2d/PerformanceTest_Skeleton";
 import { IDE_Project } from "./../2d/IDE_Project";
 import { Laya } from "Laya";
-import { Main } from "./../Main";
 import { Event } from "laya/events/Event"
 	import { URL } from "laya/net/URL"
 	import { Resource } from "laya/resource/Resource"
@@ -96,6 +95,7 @@ import { Event } from "laya/events/Event"
 	import { Handler } from "laya/utils/Handler"
 	
 	import { IndexViewUI } from "../ui/IndexViewUI"
+import { Sprite } from "../../../bin/libs/laya/display/Sprite";
 	
 	/**
 	 * 首页View 
@@ -103,7 +103,7 @@ import { Event } from "laya/events/Event"
 	 */	
 	export class IndexView2D extends IndexViewUI
 	{
-		
+		private box2d:Sprite;
 		private btn :Button;
 		private btnOn:boolean = false;
 		private a_length:number;
@@ -206,8 +206,9 @@ import { Event } from "laya/events/Event"
 		private _smallIndex:number;
 		private _oldView:any;
 		
-		constructor(){
-			super();
+		constructor(box:Sprite){
+            super();
+            this.box2d = box;
 			this.initView();
 			this.initEvent();
 			this.zOrder = 99999;
@@ -285,7 +286,7 @@ import { Event } from "laya/events/Event"
 				this._oldView.dispose();
 			}
 			this._oldView = null;
-			Main.box2D.destroyChildren();
+			this.box2d.destroyChildren();
 			//if (_oldView)
 			//{
 				//Laya.timer.clearAll(_oldView);

@@ -90,7 +90,7 @@ import { Submit } from "./laya/webgl/submit/Submit";
 		 static isWXPosMsg:boolean = false;
         
          /**@private @internal*/
-         static __classmap:Object={};
+         static __classmap:Object=null;
 		/**
 		 * 初始化引擎。使用引擎需要先初始化引擎，否则可能会报错。
 		 * @param	width 初始化的游戏窗口宽度，又称设计宽度。
@@ -311,7 +311,7 @@ import { Submit } from "./laya/webgl/submit/Submit";
 		}		
 	}
 
-    ILaya.classMap=Laya.__classmap;
+    Laya.__classmap = ILaya.classMap;
     ILaya.Timer=Timer;
     ILaya.Dragging=Dragging;
     ILaya.GraphicsBounds = GraphicsBounds;

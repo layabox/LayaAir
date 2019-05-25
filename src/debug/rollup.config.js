@@ -1,5 +1,5 @@
 //import { terser } from 'rollup-plugin-terser';
-const typescript = require('rollup-plugin-typescript2');
+import typescript from 'rollup-plugin-typescript2';
 import glsl from 'rollup-plugin-glsl';
 const path = require('path')
 // `npm run build` -> `production` is true
@@ -14,15 +14,16 @@ const resolveFile = function(filePath) {
 function testPlug(){
     return {
         transform( code, id ) {
-            console.log(id,'\n',code);
+            console.log(id);
         }
     }
 }
 
 export default { 
     //input: './src/debug/PerformanceTest_Maggots.ts',
-    input: './index.ts',
-    //input: './src/debug/UITest1.ts',
+    //input: './Main.ts',
+    //input: './UITest1.ts',
+    input: './LayaUISample.ts',
     //input: './src/debug/test/test.ts',
     //input:'./src/debug/Main1.ts',
     treeshake: false,
@@ -38,7 +39,7 @@ export default {
             //abortOnError:false
             check: false
         }),
-        //testPlug(),
+        testPlug(),
         glsl({
 			// By default, everything gets included
 			include: /\.glsl$/,

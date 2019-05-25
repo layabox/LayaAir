@@ -1,10 +1,10 @@
 
+import { Laya } from "Laya" 
+import { Button } from "laya/ui/Button";
+import { Handler } from "laya/utils/Handler";
+import { Event } from "laya/events/Event";
 
 
-import {Laya} from "../core/Laya"
-import { Handler } from '../core/laya/utils/Handler';
-import { Button } from '../core/laya/ui/Button';
-import { Event } from '../core/laya/events/Event';
 
 Laya.init(1280,720);
 Laya.stage.bgColor='gray';
