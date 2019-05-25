@@ -16,7 +16,7 @@ import { Graphics } from "../display/Graphics"
 		/**@private 源数据*/
 		private _source:Texture;
 		/**@private 网格数据*/
-		private _sizeGrid:any[];
+		private _sizeGrid:number[];
 		/**@private */
 		protected _isChanged:boolean;
 		/**@private */
@@ -59,12 +59,12 @@ import { Graphics } from "../display/Graphics"
 		 * 同时也支持3宫格，比如0,4,0,4,1为水平3宫格，4,0,4,0,1为垂直3宫格，3宫格性能比9宫格高。
 		 * </p>
 		 */
-		 get sizeGrid():any[] {
+		 get sizeGrid():number[] {
 			return this._sizeGrid;
 		}
 		
-		 set sizeGrid(value:any[]) {
-			this._sizeGrid = value;
+		 set sizeGrid(value:number[]) {
+			this._sizeGrid = value.map((v)=>{return +v;});
 			this._setChanged();
 		}
 		
