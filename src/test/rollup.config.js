@@ -1,5 +1,5 @@
 //import { terser } from 'rollup-plugin-terser';
-import typescript from 'rollup-plugin-typescript2';
+const typescript = require('rollup-plugin-typescript2');
 import glsl from 'rollup-plugin-glsl';
 const path = require('path')
 // `npm run build` -> `production` is true
@@ -27,7 +27,7 @@ export default {
     //input:'./src/debug/Main1.ts',
     treeshake: false,
 	output: {
-		file: 'bin/bundle.js',
+		file: '../../bin/bundle.js',
 		format: 'iife', // immediately-invoked function expression — suitable for <script> tags
         sourcemap: false,
         name:'laya',
@@ -41,7 +41,7 @@ export default {
         //testPlug(),
         glsl({
 			// By default, everything gets included
-			include: './**/*.glsl',
+			include: /\.glsl$/,
 			sourceMap: false
 		}),        
 		//resolve(), // tells Rollup how to find date-fns in node_modules

@@ -21,6 +21,9 @@
             ]
         }*/
     },
+    "references": [
+        {"path":"../laya/core"}
+    ]
     /*
     "include": [
         "Main.ts"

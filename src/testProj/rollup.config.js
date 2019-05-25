@@ -41,7 +41,7 @@ export default {
         testPlug(),
         glsl({
 			// By default, everything gets included
-			include: './**/*.glsl',
+			include: /\.glsl$/,
 			sourceMap: false
 		}),        
 		//resolve(), // tells Rollup how to find date-fns in node_modules
