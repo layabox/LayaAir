@@ -23,13 +23,15 @@
     },
     "references": [
         {"path":"../laya/core"}
-    ]
+    ],
     /*
     "include": [
         "Main.ts"
         //"src/debug/LayaUISample.ts"
         //"src/debug/test/test.ts"
     ],
+    */
+    /*
     "files": [
         "Main.ts"
     ]

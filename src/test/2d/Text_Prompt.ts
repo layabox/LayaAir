@@ -31,8 +31,8 @@ import { Input } from "laya/display/Input"
 			inputText.x = Laya.stage.width - inputText.width >> 1;
 			inputText.y = Laya.stage.height - inputText.height >> 1;
 			
-			inputText.inputElementXAdjuster = -1;
-			inputText.inputElementYAdjuster = 1;
+			(inputText as any).inputElementXAdjuster = -1;
+			(inputText as any).inputElementYAdjuster = 1;
 			
 			// 设置字体样式
 			inputText.bold = true;

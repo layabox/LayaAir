@@ -1,4 +1,5 @@
 import { Event } from "../events/Event"
+import { ILaya } from "ILaya";
 	
 	/**
 	 * <code>UIEvent</code> 类用来定义UI组件类的事件类型。
@@ -14,3 +15,4 @@ import { Event } from "../events/Event"
 		 static HIDE_TIP:string = "hidetip";
 	}
 
+ILaya.regClass(UIEvent);

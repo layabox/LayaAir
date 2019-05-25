@@ -10,6 +10,7 @@ import { Graphics } from "../display/Graphics"
 	import { Event } from "../events/Event"
 	import { Point } from "../maths/Point"
 	import { Handler } from "../utils/Handler"
+import { ILaya } from "ILaya";
 	
 	/**
 	 * 当用户更改 <code>ComboBox</code> 组件中的选定内容时调度。
@@ -620,3 +621,4 @@ this.skin = skin;
 		}
 	}
 
+ILaya.regClass(ComboBox);

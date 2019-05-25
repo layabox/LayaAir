@@ -80,3 +80,5 @@ import { Laya } from "Laya"
 
 //import { Laya } from "Laya"
 //new Laya();
+
+new Main();

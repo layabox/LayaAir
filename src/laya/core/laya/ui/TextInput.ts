@@ -6,6 +6,7 @@ import { Input } from "../display/Input"
 	import { Styles } from "./Styles"
 	import { UIUtils } from "./UIUtils"
 	import { Handler } from "../utils/Handler"
+import { ILaya } from "ILaya";
 	
 	/**
 	 * 输入文本后调度。
@@ -364,3 +365,4 @@ this.text = text;
 		}
 	}
 
+ILaya.regClass(TextInput);

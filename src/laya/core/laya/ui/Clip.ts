@@ -9,6 +9,7 @@ import { Const } from "../Const"
 	import { Handler } from "../utils/Handler"
 	import { Utils } from "../utils/Utils"
 	import { WeakObject } from "../utils/WeakObject"
+import { ILaya } from "ILaya";
 	
 	/**
 	 * 图片加载完成后调度。
@@ -185,7 +186,7 @@ this._clipX = clipX;
 		}
 		
 		/**@private	 */
-		protected _onDisplay(e:Event = null):void {
+		protected _onDisplay(e?:boolean):void {
 			if (this._isPlaying) {
 				if (this._getBit(Const.DISPLAYED_INSTAGE)) this.play();
 				else this.stop();
@@ -504,3 +505,4 @@ this._clipX = clipX;
 		}
 	}
 
+ILaya.regClass(Clip);

@@ -1510,7 +1510,7 @@ import { ILaya } from "../../ILaya";
 		}
 		
 		/** @private */
-		protected _onDisplay():void {
+		protected _onDisplay(v?:boolean):void {
 			if (this._mouseState !== 1) {
 				var ele:Sprite = this;
 				ele = (<Sprite>ele.parent );
@@ -1550,7 +1550,7 @@ import { ILaya } from "../../ILaya";
 					ILaya.Loader.cacheRes(url, tex);
 				}
 				this.texture = tex;
-				if (!tex.getIsReady()) tex.once(Event.READY, null, loaded);
+				if (!tex.getIsReady()) tex.once(Event.READY, this, loaded);
 				else loaded();
 			}			
 			

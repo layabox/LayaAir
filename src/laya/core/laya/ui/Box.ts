@@ -1,6 +1,7 @@
 import { UIComponent } from "./UIComponent";
 import { IBox } from "./IBox";
 import { Event } from "../events/Event"
+import { ILaya } from "ILaya";
 	
 	/**
 	 * <code>Box</code> 类是一个控件容器类。
@@ -40,3 +41,4 @@ import { Event } from "../events/Event"
 		}
 	}
 
+ILaya.regClass(Box);    

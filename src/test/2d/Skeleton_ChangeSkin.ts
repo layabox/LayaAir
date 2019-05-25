@@ -76,7 +76,7 @@ import { Skeleton } from "laya/ani/bone/Skeleton"
 			{
 				this.mCurrIndex = 0;
 			}
-			this.mArmature.play(this.mCurrIndex);
+			this.mArmature.play(this.mCurrIndex,false);
 		}
 		
 		 dispose():void

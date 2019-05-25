@@ -1,6 +1,7 @@
 import { UIGroup } from "././UIGroup";
 import { Sprite } from "../display/Sprite"
 	import { Radio } from "./Radio"
+import { ILaya } from "ILaya";
 	
 	/**
 	 * 当 <code>Group</code> 实例的 <code>selectedIndex</code> 属性发生变化时调度。
@@ -89,3 +90,4 @@ import { Sprite } from "../display/Sprite"
 		}
 	}
 
+ILaya.regClass(RadioGroup);

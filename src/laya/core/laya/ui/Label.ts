@@ -3,6 +3,7 @@ import { Text } from "../display/Text"
 	import { Event } from "../events/Event"
 	import { UIComponent } from "./UIComponent"
 	import { UIUtils } from "./UIUtils"
+import { ILaya } from "ILaya";
 	
 	/**
 	 * 文本内容发生改变后调度。
@@ -429,3 +430,4 @@ this.text = text;
 		}
 	}
 
+ILaya.regClass(Label);

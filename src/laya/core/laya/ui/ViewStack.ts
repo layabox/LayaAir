@@ -7,6 +7,7 @@ import { Node } from "../display/Node"
 	import { Sprite } from "../display/Sprite"
 	import { Box } from "./Box"
 	import { Handler } from "../utils/Handler"
+import { ILaya } from "ILaya";
 	
 	/**
 	 * <code>ViewStack</code> 类用于视图堆栈类，用于视图的显示等设置处理。
@@ -149,3 +150,4 @@ import { Node } from "../display/Node"
 		}
 	}
 
+ILaya.regClass(ViewStack);

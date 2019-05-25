@@ -1,7 +1,6 @@
 import { Laya } from "Laya";
 import { Main } from "./../Main";
 import { Stage } from "laya/display/Stage"
-	import { HTMLDivElement } from "laya/html/dom/HTMLDivElement"
 	import { Browser } from "laya/utils/Browser"
 	import { WebGL } from "laya/webgl/WebGL"
 
@@ -24,14 +23,14 @@ import { Stage } from "laya/display/Stage"
 		{
 			this.createParagraph();	// 代码创建
 		}
-
 		private createParagraph():void
 		{
-			var p:HTMLDivElement = new HTMLDivElement();
-			Main.box2D.addChild(p);
-			p.zOrder = 90000;
-			p.style.font = "Impact";
-			p.style.fontSize = 30;
+            var p:HTMLDivElement = new HTMLDivElement();
+            // compile error
+			// Main.box2D.addChild(p);
+			// p.zOrder = 90000;
+			// p.style.font = "Impact";
+			// p.style.fontSize = 30;
 
 			var html:string = "<span color='#e3d26a'>使用</span>";
 			html += "<span style='color:#FFFFFF;font-weight:bold'>HTMLDivElement</span>";

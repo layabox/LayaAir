@@ -1,5 +1,6 @@
 import { LayoutBox } from "././LayoutBox";
 import { UIComponent } from "././UIComponent";
+import { ILaya } from "ILaya";
 /**
 	 * <code>VBox</code> 是一个垂直布局容器类。
 	 */
@@ -60,3 +61,5 @@ import { UIComponent } from "././UIComponent";
 		}
 	}
 
+
+ILaya.regClass(VBox);    

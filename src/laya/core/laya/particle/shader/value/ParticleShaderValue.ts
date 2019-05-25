@@ -9,7 +9,7 @@ import { ShaderValue } from "laya/webgl/shader/ShaderValue";
 	 */
 	export class ParticleShaderValue extends Value2D
 	{
-		private static pShader:ParticleShader=new ParticleShader();
+		private static pShader:ParticleShader=null; //new ParticleShader();
 		/*
 		public var a_CornerTextureCoordinate:Array=[4, WebGLContext.FLOAT, false, 116, 0];
 		public var a_Position:Array=[3, WebGLContext.FLOAT, false, 116, 16];
@@ -29,7 +29,10 @@ import { ShaderValue } from "laya/webgl/shader/ShaderValue";
 		 u_texture:any;
 		
 		constructor(){
-			super(0, 0);
+            super(0, 0);
+            if(!ParticleShaderValue.pShader){
+                ParticleShaderValue.pShader =  new ParticleShader();
+            }
 			/* �ŵ� ParticleShader ����
 			this._attribLocation = ['a_CornerTextureCoordinate', 0, 'a_Position', 1, 'a_Velocity', 2, 'a_StartColor', 3,
 									'a_EndColor',4,'a_SizeRotation',5,'a_Radius',6,'a_Radian',7,'a_AgeAddScale',8,'a_Time',9];

@@ -10,6 +10,7 @@ import { Sprite } from "../display/Sprite"
 	import { Ease } from "../utils/Ease"
 	import { Handler } from "../utils/Handler"
 	import { Tween } from "../utils/Tween"
+import { ILaya } from "ILaya";
 	
 	/**
 	 * 滚动条滑块位置发生变化后调度。
@@ -703,3 +704,4 @@ this.skin = skin;
 		}
 	}
 
+ILaya.regClass(ScrollBar);

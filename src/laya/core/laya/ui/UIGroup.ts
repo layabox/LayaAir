@@ -6,6 +6,7 @@ import { Sprite } from "../display/Sprite"
 	import { Loader } from "../net/Loader"
 	import { Button } from "./Button"
 	import { Handler } from "../utils/Handler"
+import { ILaya } from "ILaya";
 	
 	/**
 	 * 当 <code>Group</code> 实例的 <code>selectedIndex</code> 属性发生变化时调度。
@@ -498,3 +499,5 @@ this.skin = skin;
 		}
 	}
 
+
+    ILaya.regClass(UIGroup);

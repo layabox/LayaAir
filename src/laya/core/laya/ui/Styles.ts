@@ -1,3 +1,5 @@
+import { ILaya } from "ILaya";
+
 /**
 	 * <code>Styles</code> 定义了组件常用的样式属性。
 	 */
@@ -55,3 +57,5 @@
 		 static scrollBarDelayTime:number = 500;
 	}
 
+
+ILaya.regClass(Styles);    

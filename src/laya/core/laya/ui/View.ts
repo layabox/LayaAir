@@ -247,3 +247,4 @@ import { ILaya } from "../../ILaya";
 		}
 	}
 
+ILaya.regClass(View);

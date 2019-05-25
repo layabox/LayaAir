@@ -5,6 +5,7 @@ import { ScrollBar } from "././ScrollBar";
 import { Clip } from "././Clip";
 import { Event } from "../events/Event"
 	import { Handler } from "../utils/Handler"
+import { ILaya } from "ILaya";
 	
 	/**
 	 * 实例的 <code>selectedIndex</code> 属性发生变化时调度。
@@ -662,3 +663,4 @@ this.width = this.height = 200;
 		}
 	}
 
+ILaya.regClass(Tree);

@@ -1,4 +1,5 @@
 import { ScrollBar } from "././ScrollBar";
+import { ILaya } from "ILaya";
 /**
 	 * 使用 <code>HScrollBar</code> （水平 <code>ScrollBar</code> ）控件，可以在因数据太多而不能在显示区域完全显示时控制显示的数据部分。
 	 * @example <caption>以下示例代码，创建了一个 <code>HScrollBar</code> 实例。</caption>
@@ -81,3 +82,4 @@ import { ScrollBar } from "././ScrollBar";
 		}
 	}
 
+ILaya.regClass(HScrollBar);

@@ -13,6 +13,7 @@ import { Node } from "../display/Node"
 	import { Handler } from "../utils/Handler"
 	import { SceneUtils } from "../utils/SceneUtils"
 	import { Tween } from "../utils/Tween"
+import { ILaya } from "ILaya";
 	
 	/**
 	 * 当对象的 <code>selectedIndex</code> 属性发生变化时调度。
@@ -1055,3 +1056,4 @@ import { Node } from "../display/Node"
 		}
 	}
 
+ILaya.regClass(List);

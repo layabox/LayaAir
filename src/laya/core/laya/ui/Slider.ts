@@ -6,6 +6,7 @@ import { Event } from "../events/Event"
 	import { Point } from "../maths/Point"
 	import { Loader } from "../net/Loader"
 	import { Handler } from "../utils/Handler"
+import { ILaya } from "ILaya";
 	
 	/**
 	 * 移动滑块位置时调度。
@@ -443,3 +444,4 @@ this.skin = skin;
 		}
 	}
 
+ILaya.regClass(Slider);

@@ -3,7 +3,7 @@ import { Main } from "./../Main";
 import { ILaya } from "ILaya";
 import { Rectangle } from "laya/maths/Rectangle";
 import { Handler } from "laya/utils/Handler";
-
+import { TiledMap } from "laya/map/TiledMap";
 	export class TiledMap_PerspectiveWall
 	{
 		private tiledMap:TiledMap;

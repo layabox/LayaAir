@@ -4,6 +4,7 @@ import { UIUtils } from "././UIUtils";
 import { Node } from "../display/Node"
 	import { Sprite } from "../display/Sprite"
 	import { Event } from "../events/Event"
+import { ILaya } from "ILaya";
 	
 	/**
 	 * <code>Component</code> 是ui控件类的基类。
@@ -454,3 +455,4 @@ this.preinitialize();
 		}
 	}
 
+ILaya.regClass(UIComponent);

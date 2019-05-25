@@ -1,6 +1,7 @@
 import { Box } from "././Box";
 import { Node } from "../display/Node"
 	import { Event } from "../events/Event"
+import { ILaya } from "ILaya";
 	
 	/**
 	 * <code>LayoutBox</code> 是一个布局容器类。
@@ -86,3 +87,4 @@ import { Node } from "../display/Node"
 		}
 	}
 
+ILaya.regClass(LayoutBox);

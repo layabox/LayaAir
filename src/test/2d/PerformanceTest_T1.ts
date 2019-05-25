@@ -53,7 +53,7 @@ import { Stage } from "laya/display/Stage"
 			Laya.init(1280, 720, WebGL);
 			Laya.stage.screenMode = Stage.SCREEN_HORIZONTAL;
 			Stat.enable();			
-			Laya.stage.loadImage("res/cartoon2/background.jpg", 0, 0, 1280, 900);
+			Laya.stage.loadImage("res/cartoon2/background.jpg");
 			
 			this.createCharacters();
 			

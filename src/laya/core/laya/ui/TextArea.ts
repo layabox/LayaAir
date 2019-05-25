@@ -3,6 +3,7 @@ import { VScrollBar } from "././VScrollBar";
 import { HScrollBar } from "././HScrollBar";
 import { Styles } from "././Styles";
 import { Event } from "../events/Event"
+import { ILaya } from "ILaya";
 	
 	/**
 	 * <code>TextArea</code> 类用于创建显示对象以显示和输入文本。
@@ -238,3 +239,4 @@ import { Event } from "../events/Event"
 		}
 	}
 
+ILaya.regClass(TextArea);

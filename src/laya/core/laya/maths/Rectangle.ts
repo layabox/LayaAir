@@ -241,7 +241,7 @@ import { Pool } from "../utils/Pool"
 		 * @param pointList 点列表。
 		 * @return 包含所有点的最小矩形矩形对象。
 		 */
-		 static _getWrapRec(pointList:any[], rst:Rectangle = null):Rectangle {
+		 static _getWrapRec(pointList:ArrayLike<number>, rst:Rectangle = null):Rectangle {
 			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 			if (!pointList || pointList.length < 1) return rst ? rst.setTo(0, 0, 0, 0) : Rectangle.TEMP.setTo(0, 0, 0, 0);
 			rst = rst ? rst : Rectangle.create();

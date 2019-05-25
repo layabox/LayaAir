@@ -6,6 +6,7 @@ import { Graphics } from "../display/Graphics"
 	import { UIComponent } from "./UIComponent"
 	import { UIEvent } from "./UIEvent"
 	import { Handler } from "../utils/Handler"
+import { ILaya } from "ILaya";
 	
 	/**鼠标提示管理类*/
 	export class TipManager extends UIComponent {
@@ -139,3 +140,4 @@ import { Graphics } from "../display/Graphics"
 		}
 	}
 
+ILaya.regClass(TipManager);
