@@ -120,7 +120,9 @@ import { ILaya } from "../../ILaya";
 				this._height = h;
 				this._setCPUMemory(w * h * 4);
 				this._ctx && this._ctx.size && this._ctx.size(w, h);
-				this._source && (this._source.height = h, this._source.width = w);
+				if(this._source && this._source instanceof HTMLCanvasElement){
+                    this._source.height = h, this._source.width = w
+                }
 				if (this._texture)
 				{
 					this._texture.destroy();

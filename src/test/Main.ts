@@ -19,7 +19,7 @@ import { Laya } from "Laya"
 		private _isReadNetWorkRes:boolean = false;
 		constructor(){
 			//QGMiniAdapter.init();
-			//false为2D true为3D
+            //false为2D true为3D
 			this._isType =  false;// __JS__('window.isType') || true;
 			if(!this._isType)
 			{
@@ -46,7 +46,6 @@ import { Laya } from "Laya"
 		
 		private onLoaded():void
 		{
-
 			if(!this._isType)
 			{
 				//Layaair1.0-2d
@@ -64,10 +63,10 @@ import { Laya } from "Laya"
 			var sp:Sprite = new Sprite();
 			var dx=0 ;
 			(sp.graphics as any).runfunc=function(){
-			for (var i = 0; i < 100; i++)
-			{
-				this.ctx.drawRect(0, i+dx, 100, 100, 'red', 'red', 1);
-			}
+                for (var i = 0; i < 100; i++)
+                {
+                    this.ctx.drawRect(0, i+dx, 100, 100, 'red', 'red', 1);
+                }
 			}
 			
 			Laya.stage.addChild(Main._indexView);
