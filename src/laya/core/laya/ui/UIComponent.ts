@@ -33,7 +33,7 @@ import { ILaya } from "ILaya";
 		 */
 		constructor(){
 			super();
-this.preinitialize();
+            this.preinitialize();
 			this.createChildren();
 			this.initialize();
 		}

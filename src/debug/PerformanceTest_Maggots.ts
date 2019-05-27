@@ -1,12 +1,11 @@
-	
-    import { Rectangle } from '../core/laya/maths/Rectangle';
-    import {Laya} from "../core/Laya"
-import { Stat } from '../core/laya/utils/Stat';
-import { Stage } from '../core/laya/display/Stage';
-import { Handler } from '../core/laya/utils/Handler';
-import { Sprite } from '../core/laya/display/Sprite';
-import { Browser } from '../core/laya/utils/Browser';
-import { Texture } from '../core/laya/resource/Texture';
+import { Sprite } from "laya/display/Sprite";
+import { Rectangle } from "laya/maths/Rectangle";
+import { Texture } from "laya/resource/Texture";
+import { Laya } from "Laya";
+import { Handler } from "laya/utils/Handler";
+import { Browser } from "laya/utils/Browser";
+import { Stage } from "laya/display/Stage"
+import { Stat } from "laya/utils/Stat"
 
 
 class Maggot extends Sprite {

@@ -1164,3 +1164,4 @@ this._style = TextStyle.EMPTY;
 	}
 
 
+ILaya.regClass(Text);
