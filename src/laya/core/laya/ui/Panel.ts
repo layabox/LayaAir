@@ -205,14 +205,22 @@ this.width = this.height = 100;
 		/*override*/  set width(value:number) {
 			super.width = value;
 			this._setScrollChanged();
-		}
+        }
+        
+        get width(){
+            return super.width;
+        }
 		
 		/**@inheritDoc */
 		/*override*/  set height(value:number) {
 			super.height = value;
 			this._setScrollChanged();
 		}
-		
+        
+        get height(){
+            return super.height;
+        }
+        
 		/**
 		 * 垂直方向滚动条皮肤。
 		 */
@@ -313,7 +321,11 @@ this.width = this.height = 100;
 				this._hScrollBar && this._hScrollBar.off(Event.START, this, this.onScrollStart);
 				this._vScrollBar && this._vScrollBar.off(Event.START, this, this.onScrollStart);
 			}
-		}
+        }
+        
+        get cacheAs(){
+            return super.cacheAs;
+        }
 		
 		/**是否开启橡皮筋效果*/
 		 get elasticEnabled():boolean {

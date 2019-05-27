@@ -385,7 +385,11 @@ this.text = text;
 			this._dataSource = value;
 			if (typeof(value) =='number' || typeof(value)=='string') this.text = value + "";
 			else super.dataSource = value;
-		}
+        }
+        
+        get dataSource(){
+            return super.dataSource;
+        }
 		
 		/**
 		 * @copy laya.display.Text#overflow

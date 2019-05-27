@@ -183,7 +183,7 @@ import { ILaya } from "../../ILaya";
 		 */
 		constructor() {
 			super();
-this._style = TextStyle.EMPTY;
+            this._style = TextStyle.EMPTY;
 		}
 		
 		/**

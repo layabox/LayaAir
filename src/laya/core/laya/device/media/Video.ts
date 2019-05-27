@@ -332,7 +332,11 @@ import { Rectangle } from "laya/maths/Rectangle";
 				var transform:any = ILaya.Utils.getTransformRelativeToWindow(this, 0, 0);
 				this.videoElement.style.left = transform.x;
 			}
-		}
+        }
+        
+        get x(){
+            return super.x;
+        }
 		
 		/**
 		 * 设置视频的y坐标
@@ -346,7 +350,10 @@ import { Rectangle } from "laya/maths/Rectangle";
 				this.videoElement.style.top = transform.y;
 			}
 		}
-		 
+         
+        get y(){
+            return super.y;
+        }
 		
 		/**
 		 * playbackRate 属性设置或返回音频/视频的当前播放速度。如：
@@ -457,7 +464,11 @@ import { Rectangle } from "laya/maths/Rectangle";
 			
 			super.width = value;
 			if (this.paused) this.renderCanvas();
-		}
+        }
+        
+        get width(){
+            return super.width;
+        }
 		
 		/*override*/  set height(value:number)
 		{
@@ -473,7 +484,11 @@ import { Rectangle } from "laya/maths/Rectangle";
 			}
 			super.height = value;
 		}
-		
+        
+        get height(){
+            return super.height;
+        }
+        
 		/**
 		 * 销毁内部事件绑定。
 		 */

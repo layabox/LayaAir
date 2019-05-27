@@ -178,14 +178,12 @@ this._width = 100;
 			input.addEventListener('mousedown', Input._stopEvent);
 			input.addEventListener('touchmove', Input._stopEvent);
 		
-		/*[IF-SCRIPT-BEGIN]
 		   input.setFontFace = function(fontFace:String):void { input.style.fontFamily = fontFace; };
-		   if(!Render.isConchApp)
+		   if(!ILaya.Render.isConchApp)
 		   {
 		   	input.setColor = function(color:String):void { input.style.color = color; };
-		   	input.setFontSize = function(fontSize:int):void { input.style.fontSize = fontSize + 'px'; };
+		   	input.setFontSize = function(fontSize:number):void { input.style.fontSize = fontSize + 'px'; };
 		   }
-		   [IF-SCRIPT-END]*/
 		}
 		
 		private static _processInputting(e:any):void {
@@ -481,7 +479,11 @@ this._width = 100;
 			
 			super.set_color( this._content ? value : this._promptColor);
 			this._originColor = value;
-		}
+        }
+        
+        get color(){
+            return super.color;
+        }
 		
 		/**@inheritDoc */
 		/*override*/  set bgColor(value:string) {
@@ -489,6 +491,10 @@ this._width = 100;
 			if(ILaya.Render.isConchApp)
 				this.nativeInput.setBgColor(value);
 		}
+
+        get bgColor(){
+            return super.bgColor;
+        }
 
 		/**限制输入的字符。*/
 		 get restrict():string {

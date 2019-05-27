@@ -28,7 +28,11 @@ import { ILaya } from "ILaya";
 				super.width = value;
 				this.callLater(this.changeItems);
 			}
-		}
+        }
+        get width(){
+            return super.width;
+        }
+        
 		/** @inheritDoc	*/
 		/*override*/ protected changeItems():void {
 			this._itemChanged = false;

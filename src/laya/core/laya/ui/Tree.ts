@@ -428,13 +428,21 @@ this.width = this.height = 200;
 		/*override*/  set width(value:number) {
 			super.width = value;
 			this._list.width = value;
-		}
+        }
+        
+        get width(){
+            return super.width;
+        }
 		
 		/**@inheritDoc */
 		/*override*/  set height(value:number) {
 			super.height = value;
 			this._list.height = value;
-		}
+        }
+        
+        get height(){
+            return super.height;
+        }
 		
 		/**
 		 * @private
@@ -547,7 +555,11 @@ this.width = this.height = 200;
 			this._dataSource = value;
 			//if (value is XmlDom) xml = value as XmlDom;
 			super.dataSource = value;
-		}
+        }
+        
+        get dataSource(){
+            return super.dataSource;
+        }
 		
 		/**
 		 *  xml结构的数据源。

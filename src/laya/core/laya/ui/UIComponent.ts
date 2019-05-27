@@ -370,6 +370,10 @@ import { ILaya } from "ILaya";
 			super.set_scaleX(value);
 			this.event(Event.RESIZE);
         }
+
+        get scaleX(){
+            return super.scaleX;
+        }
 		
 		/**@inheritDoc */
 		/*override*/  set scaleY(value:number) {
@@ -380,6 +384,10 @@ import { ILaya } from "ILaya";
 			if (super.get_scaleY() == value) return;
 			super.set_scaleY(value);
 			this.event(Event.RESIZE);
+        }
+
+        get scaleY(){
+            return super.scaleY;
         }
 		
 		/**@private */

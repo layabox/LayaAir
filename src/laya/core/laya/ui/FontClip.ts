@@ -199,13 +199,21 @@ if (skin) this.skin = skin;
 		{
 			super.width = value;
 			this.callLater(this.changeValue);
-		}
+        }
+        
+        get width(){
+            return super.width;
+        }
 		
 		/*override*/  set height(value:number) 
 		{
 			super.height = value;
 			this.callLater(this.changeValue);
-		}
+        }
+        
+        get height(){
+            return super.height;
+        }
 		
 		/*override*/ protected measureWidth():number 
 		{

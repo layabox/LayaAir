@@ -1,10 +1,10 @@
-package laya.html.dom {
-	import laya.display.Sprite;
-	import laya.events.Event;
-	import laya.html.utils.HTMLStyle;
-	import laya.maths.Rectangle;
-	import laya.resource.Context;
-	import laya.utils.Handler;
+import { HTMLDivParser } from "././HTMLDivParser";
+import { HTMLHitRect } from "././HTMLHitRect";
+import { Sprite } from "laya/display/Sprite"
+	import { Event } from "laya/events/Event"
+	import { HTMLStyle } from "../utils/HTMLStyle"
+	import { Rectangle } from "laya/maths/Rectangle"
+	import { Handler } from "laya/utils/Handler"
 	
 	/**
 	 * HTML图文类，用于显示html内容
@@ -42,140 +42,141 @@ package laya.html.dom {
 	 * var div:HTMLDivElement=new HTMLDivElement();
 	 * div.innerHTML = "<link type='text/css' href='html/test.css'/><a href='alink'>a</a><div style='width:130px;height:50px;color:#ff0000'>div</div><br/><span style='font-weight:bold;color:#ffffff;font-size:30px;stroke:2px;italic:true;'>span</span><span style='letter-spacing:5px'>span2</span><p>p</p><img src='res/boy.png'></img>";
 	 */
-	public class HTMLDivElement extends Sprite {
+	export class HTMLDivElement extends Sprite {
 		/**@private */
-		public var _element:HTMLDivParser;
+		 _element:HTMLDivParser;
 		/**@private */
-		private var _recList:Array = [];
+		private _recList:any[] = [];
 		/**@private */
-		private var _innerHTML:String;
+		private _innerHTML:string;
 		/**@private */
-		private var _repaintState:int = 0;
+		private _repaintState:number = 0;
 		
-		public function HTMLDivElement() {
-			_element = new HTMLDivParser();
-			_element.repaintHandler = new Handler(this, _htmlDivRepaint);
+		constructor(){
+			super();
+this._element = new HTMLDivParser();
+			this._element.repaintHandler = new Handler(this, this._htmlDivRepaint);
 			this.mouseEnabled = true;
-			this.on(Event.CLICK, this, _onMouseClick);
+			this.on(Event.CLICK, this, this._onMouseClick);
 		}
 		
 		/**@private */
-		override public function destroy(destroyChild:Boolean = true):void {
-			if (_element) _element.reset();
-			_element = null;
-			_doClears();
+		/*override*/  destroy(destroyChild:boolean = true):void {
+			if (this._element) this._element.reset();
+			this._element = null;
+			this._doClears();
 			super.destroy(destroyChild);
 		}
 		
 		/**@private */
-		private function _htmlDivRepaint(recreate:Boolean = false):void {
+		private _htmlDivRepaint(recreate:boolean = false):void {
 			if (recreate) {
-				if (_repaintState < 2) _repaintState = 2;
+				if (this._repaintState < 2) this._repaintState = 2;
 			} else {
-				if (_repaintState < 1) _repaintState = 1;
+				if (this._repaintState < 1) this._repaintState = 1;
 			}
-			if (_repaintState > 0) _setGraphicDirty();
+			if (this._repaintState > 0) this._setGraphicDirty();
 		}
 		
 		
-		private function _updateGraphicWork():void
+		private _updateGraphicWork():void
 		{
-			switch(_repaintState)
+			switch(this._repaintState)
 			{
 				case 1:
-					_updateGraphic();
+					this._updateGraphic();
 					break;
 				case 2:
-					_refresh();
+					this._refresh();
 					break;
 			}
 		}
 		
-		private function _setGraphicDirty():void
+		private _setGraphicDirty():void
 		{
-			callLater(_updateGraphicWork);
+			this.callLater(this._updateGraphicWork);
 		}
 		
 		/**@private */
-		private function _doClears():void {
-			if (!_recList) return;
-			var i:int, len:int = _recList.length;
+		private _doClears():void {
+			if (!this._recList) return;
+			var i:number, len:number = this._recList.length;
 			var tRec:HTMLHitRect;
 			for (i = 0; i < len; i++) {
-				tRec = _recList[i];
+				tRec = this._recList[i];
 				tRec.recover();
 			}
-			_recList.length = 0;
+			this._recList.length = 0;
 		}
 		
 		/**@private */
-		private function _updateGraphic():void {
-			_doClears();
+		private _updateGraphic():void {
+			this._doClears();
 			this.graphics.clear(true);
-			_repaintState = 0;
-			_element.drawToGraphic(this.graphics, -_element.x, -_element.y, _recList);
-			var bounds:Rectangle = _element.getBounds();
-			if (bounds) setSelfBounds(bounds);
+			this._repaintState = 0;
+			this._element.drawToGraphic(this.graphics, -this._element.x, -this._element.y, this._recList);
+			var bounds:Rectangle = this._element.getBounds();
+			if (bounds) this.setSelfBounds(bounds);
 			//this.hitArea = bounds;
-			size(bounds.width, bounds.height);
+			this.size(bounds.width, bounds.height);
 		}
 		
 		/**
 		 * 获取HTML样式
 		 */
-		public function get style():HTMLStyle {
-			return _element.style;
+		 get style():HTMLStyle {
+			return this._element.style;
 		}
 		
 		/**
 		 * 设置标签内容
 		 */
-		public function set innerHTML(text:String):void {
-			if (_innerHTML == text) return;
-			_repaintState = 1;
-			_innerHTML = text;
-			_element.innerHTML = text;
-			_setGraphicDirty();
+		 set innerHTML(text:string) {
+			if (this._innerHTML == text) return;
+			this._repaintState = 1;
+			this._innerHTML = text;
+			this._element.innerHTML = text;
+			this._setGraphicDirty();
 		}
 		
-		private function _refresh():void {
-			_repaintState = 1;
-			if (_innerHTML) _element.innerHTML = _innerHTML;
-			_setGraphicDirty();
+		private _refresh():void {
+			this._repaintState = 1;
+			if (this._innerHTML) this._element.innerHTML = this._innerHTML;
+			this._setGraphicDirty();
 		}
 		
 		/**
 		 * 获取內容宽度
 		 */
-		public function get contextWidth():Number {
-			return _element.contextWidth;
+		 get contextWidth():number {
+			return this._element.contextWidth;
 		}
 		
 		/**
 		 * 获取內容高度
 		 */
-		public function get contextHeight():Number {
-			return _element.contextHeight;
+		 get contextHeight():number {
+			return this._element.contextHeight;
 		}
 		
 		/**@private */
-		private function _onMouseClick():void {
-			var tX:int = this.mouseX;
-			var tY:int = this.mouseY;
-			var i:int, len:int;
+		private _onMouseClick():void {
+			var tX:number = this.mouseX;
+			var tY:number = this.mouseY;
+			var i:number, len:number;
 			var tHit:HTMLHitRect;
-			len = _recList.length;
+			len = this._recList.length;
 			for (i = 0; i < len; i++) {
-				tHit = _recList[i];
+				tHit = this._recList[i];
 				if (tHit.rec.contains(tX, tY)) {
-					_eventLink(tHit.href);
+					this._eventLink(tHit.href);
 				}
 			}
 		}
 		
 		/**@private */
-		private function _eventLink(href:String):void {
-			event(Event.LINK, [href]);
+		private _eventLink(href:string):void {
+			this.event(Event.LINK, [href]);
 		}
 	}
-}
+

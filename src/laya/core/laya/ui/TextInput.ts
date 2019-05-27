@@ -249,20 +249,32 @@ this.text = text;
 				this._tf.text = value;
 				this.event(Event.CHANGE);
 			}
-		}
+        }
+        
+        get text(){
+            return super.text;
+        }
 		
 		/**@inheritDoc */
 		/*override*/  set width(value:number) {
 			super.width = value;
 			this._bg && (this._bg.width = value);
 		}
-		
+        
+        get width(){
+            return super.width;
+        }
+        
 		/**@inheritDoc */
 		/*override*/  set height(value:number) {
 			super.height = value;
 			this._bg && (this._bg.height = value);
 		}
-		
+        
+        get height(){
+            return super.height;
+        }
+        
 		/**
 		 * <p>指示当前是否是文本域。</p>
 		 * 值为true表示当前是文本域，否则不是文本域。

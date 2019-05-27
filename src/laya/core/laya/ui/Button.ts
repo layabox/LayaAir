@@ -205,7 +205,7 @@ import { ILaya } from "ILaya";
 		 * @private
 		 * 指定此显示对象是否自动计算并改变大小等属性。
 		 */
-		protected _autoSize:boolean = false;        // 由于构造函数执行顺序的区别，这里设置为true真的会导致ts的值为true，as的为false （as的 后调用super）
+		protected _autoSize:boolean = true;        // 注意 由于构造函数执行顺序的区别，这里设置为true真的会导致ts的值为true，as的为false （as的 后调用super）
 		/**
 		 * @private
 		 * 按钮的状态数。

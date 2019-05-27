@@ -20,7 +20,10 @@ import { ILaya } from "ILaya";
 		 * @param label 标签。
 		 */		
 		constructor(skin:string = null, label:string = ""){
-			super(skin, label);
+            super(skin, label);
+            // preinitialize 放到这里了，因为不知道什么时候调用
+			this.toggle = false;
+			this._autoSize = false;
 		}
 		
 		/**@inheritDoc */	

@@ -33,7 +33,11 @@ import { ILaya } from "ILaya";
 				super.height = value;
 				this.callLater(this.changeItems);
 			}
-		}
+        }
+        
+        get height(){
+            return super.height;
+        }
 		
 		/** @inheritDoc	*/
 		/*override*/ protected changeItems():void {

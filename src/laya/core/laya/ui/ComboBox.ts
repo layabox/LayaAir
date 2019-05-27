@@ -295,13 +295,21 @@ this.skin = skin;
 			this._button.width = this._width;
 			this._itemChanged = true;
 			this._listChanged = true;
-		}
+        }
+        
+        get width(){
+            return super.width;
+        }
 		
 		/**@inheritDoc */
 		/*override*/  set height(value:number) {
 			super.height = value;
 			this._button.height = this._height;
-		}
+        }
+        
+        get height(){
+            return super.height;
+        }
 		
 		/**
 		 * 标签集合字符串。
@@ -545,7 +553,11 @@ this.skin = skin;
 			if (typeof(value)=='number' || typeof(value)=='string') this.selectedIndex = parseInt(value as string);
 			else if (value instanceof Array) this.labels = ((<any[]>value )).join(",");
 			else super.dataSource = value;
-		}
+        }
+        
+        get dataSource(){
+            return super.dataSource;
+        }
 		
 		/**
 		 * 获取或设置对 <code>ComboBox</code> 组件所包含的 <code>Button</code> 组件的文本标签颜色。

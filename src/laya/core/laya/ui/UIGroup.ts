@@ -488,7 +488,11 @@ this.skin = skin;
 			if (typeof(value)=='number' || typeof(value)=='string') this.selectedIndex = parseInt(value as string);
 			else if (value instanceof Array) this.labels = ((<any[]>value )).join(",");
 			else super.dataSource = value;
-		}
+        }
+        
+        get dataSource(){
+            return super.dataSource;
+        }
 		
 		/**@private */
 		protected _setLabelChanged():void {

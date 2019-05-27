@@ -123,11 +123,19 @@ import { ILaya } from "ILaya";
 			super.width = value;
 			this.callLater(this.changeScroll);
 		}
-		
+        
+        get width(){
+            return super.width;
+        }
+        
 		/*override*/  set height(value:number) {
 			super.height = value;
 			this.callLater(this.changeScroll);
-		}
+        }
+        
+        get height(){
+            return super.height;
+        }
 		
 		/**垂直滚动条皮肤*/
 		 get vScrollBarSkin():string {

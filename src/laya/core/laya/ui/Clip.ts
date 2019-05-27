@@ -348,14 +348,22 @@ this._clipX = clipX;
 		/*override*/  set width(value:number) {
 			super.width = value;
 			this._bitmap.width = value;
-		}
-		
+        }
+        
+        get width(){
+            return super.width;
+        }
+        
 		/**@inheritDoc */
 		/*override*/  set height(value:number) {
 			super.height = value;
 			this._bitmap.height = value;
 		}
-		
+        
+        get height(){
+            return super.height;
+        }
+        
 		/**@inheritDoc */
 		/*override*/ protected measureWidth():number {
 			this.runCallLater(this.changeClip);
@@ -488,7 +496,11 @@ this._clipX = clipX;
 			if (typeof(value)=='number' || typeof(value)=='string') this.index = parseInt(value as string);
 			else super.dataSource = value;
 		}
-		
+        
+        get dataSource(){
+            return super.dataSource;
+        }
+        
 		/**
 		 * <code>AutoBitmap</code> 位图实例。
 		 */

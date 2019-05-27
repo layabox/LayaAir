@@ -256,7 +256,11 @@ import { ILaya } from "ILaya";
 				if (value !== "none") this._scrollBar.on(Event.START, this, this.onScrollStart);
 				else this._scrollBar.off(Event.START, this, this.onScrollStart);
 			}
-		}
+        }
+        
+        get cacheAs(){
+            return super.cacheAs;
+        }
 		
 		private onScrollStart():void {
 			this._usedCache || (this._usedCache = super.cacheAs);
@@ -366,7 +370,11 @@ import { ILaya } from "ILaya";
 				super.width = value;
 				this._setCellChanged();
 			}
-		}
+        }
+        
+        get width(){
+            return super.width;
+        }
 		
 		/**@inheritDoc */
 		/*override*/  set height(value:number) {
@@ -374,7 +382,11 @@ import { ILaya } from "ILaya";
 				super.height = value;
 				this._setCellChanged();
 			}
-		}
+        }
+        
+        get height(){
+            return super.height;
+        }
 		
 		/**
 		 * 水平方向显示的单元格数量。
@@ -908,7 +920,11 @@ import { ILaya } from "ILaya";
 			else if (value instanceof Array) this.array = (<any[]>value )
 			else super.dataSource = value;
 		}
-		
+        
+        get dataSource(){
+            return super.dataSource;
+        }
+        
 		/**
 		 * 单元格集合。
 		 */

@@ -18,7 +18,11 @@ import { ILaya } from "ILaya";
 				else if (this.hasOwnProperty(name) && !(this[name] instanceof Function)) this[name] = value[name];
 			}
 		}
-		
+        
+        get dataSource(){
+            return super.dataSource;
+        }
+        
 		/**背景颜色*/
 		 get bgColor():string {
 			return this._bgColor;

@@ -257,7 +257,11 @@ this.skin = skin;
 			super.width = value;
 			this._bg.width = this._width;
 			this.callLater(this.changeValue);
-		}
+        }
+        
+        get width(){
+            return super.width;
+        }
 		
 		/**@inheritDoc */
 		/*override*/  set height(value:number) {
@@ -265,13 +269,21 @@ this.skin = skin;
 			this._bg.height = this._height;
 			this._bar.height = this._height;
 		}
-		
+        
+        get height(){
+            return super.height;
+        }
+        
 		/**@inheritDoc */
 		/*override*/  set dataSource(value:any) {
 			this._dataSource = value;
 			if (typeof(value)=='number' || typeof(value)=='string') this.value = Number(value);
 			else super.dataSource = value;
-		}
+        }
+        
+        get dataSource(){
+            return super.dataSource;
+        }
 	}
 
 ILaya.regClass(ProgressBar);

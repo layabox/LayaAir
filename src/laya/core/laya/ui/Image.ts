@@ -200,13 +200,21 @@ this.skin = skin;
 		/*override*/  set width(value:number) {
 			super.width = value;
 			this._bitmap.width = value == 0 ? 0.0000001 : value;
-		}
+        }
+        
+        get width(){
+            return super.width;
+        }
 		
 		/**@inheritDoc */
 		/*override*/  set height(value:number) {
 			super.height = value;
 			this._bitmap.height = value == 0 ? 0.0000001 : value;
-		}
+        }
+        
+        get height(){
+            return super.height;
+        }
 		
 		/**
 		 * <p>当前实例的位图 <code>AutoImage</code> 实例的有效缩放网格数据。</p>
@@ -228,7 +236,11 @@ this.skin = skin;
 			this._dataSource = value;
 			if (typeof(value)=='string') this.skin = value as string;
 			else super.dataSource = value;
-		}
+        }
+        
+        get dataSource(){
+            return super.dataSource;
+        }
 	}
 
 

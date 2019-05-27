@@ -350,7 +350,11 @@ this.skin = skin;
 			this._dataSource = value;
 			if (typeof(value)=='number' || typeof(value)=='string') this.value = Number(value);
 			else super.dataSource = value;
-		}
+        }
+        
+        get dataSource(){
+            return super.dataSource;
+        }
 		
 		/**获取或设置一个值，该值表示滑条长度比例，值为：（0-1）。 */
 		 get thumbPercent():number {

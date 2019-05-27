@@ -8,8 +8,8 @@ import { Label } from "../../laya/core/laya/ui/Label";
 		constructor(){
 			//btn是编辑器界面设定的，代码里面能直接使用，并且有代码提示
 			super();
-this.btn.on(Event.CLICK, this, this.onBtnClick);
-			this.btn2.on(Event.CLICK, this, this.onBtn2Click);
+            //this.btn.on(Event.CLICK, this, this.onBtnClick);
+			//this.btn2.on(Event.CLICK, this, this.onBtn2Click);
 			
 			Laya.stage.on("keydown", this, this.onKeydown);
 		}

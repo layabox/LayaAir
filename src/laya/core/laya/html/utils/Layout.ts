@@ -1,38 +1,40 @@
-package laya.html.utils {
-	import laya.display.Sprite;
-	import laya.html.dom.HTMLBrElement;
-	import laya.html.dom.HTMLElement;
-	import laya.utils.HTMLChar;
+import { HTMLStyle } from "./HTMLStyle";
+import { ILaya } from "ILaya";
+import { ILayout } from "./ILayout";
+import { LayoutLine } from "./LayoutLine";
+import { HTMLChar } from "laya/utils/HTMLChar";
+import { HTMLElement } from "../dom/HTMLElement";
+import { HTMLBrElement } from "../dom/HTMLBrElement";
 	
 	/**
 	 * @private
 	 * HTML的布局类
 	 * 对HTML的显示对象进行排版
 	 */
-	public class Layout {
+	export class Layout {
 		
-		private static var DIV_ELEMENT_PADDING:int = 0;
-		private static var _will:Vector.<HTMLElement>;
+		private static DIV_ELEMENT_PADDING:number = 0;
+		private static _will:HTMLElement[];
 		
 		//TODO:coverage
-		public static function later(element:HTMLElement):void {
-			if (_will == null) {
-				_will = new Vector.<HTMLElement>();
-				Laya.stage.frameLoop(1, null, function():void {
-					if (_will.length < 1)
+		 static later(element:HTMLElement):void {
+			if (Layout._will == null) {
+                Layout._will = [];
+				ILaya.stage.frameLoop(1, null, function():void {
+					if (Layout._will.length < 1)
 						return;
-					for (var i:int = 0; i < _will.length; i++) {
-						Layout.layout(_will[i]);
+					for (var i:number = 0; i < Layout._will.length; i++) {
+						Layout.layout(Layout._will[i]);
 					}
-					_will.length = 0;
+					Layout._will.length = 0;
 				});
 			}
-			_will.push(element);
-		}
-		
-		public static function layout(element:HTMLElement):Array {
+			Layout._will.push(element);
+        }
+        
+		 static layout(element:HTMLElement):any[] {
 			if (!element || !element._style) return null;
-			var style:HTMLStyle = element._style as HTMLStyle;
+			var style:HTMLStyle = (<HTMLStyle>element._style );
 			if ((style._type & HTMLStyle.ADDLAYOUTED) === 0)
 				return null;
 			
@@ -56,7 +58,7 @@ package laya.html.utils {
 			   return _multiLineLayout(htmlElement);
 			   return _singleLineTextLayout(htmlElement, sz.width, sz.height);
 			   }*/
-			var arr:Array = _multiLineLayout(element);
+			var arr:any[] = Layout._multiLineLayout(element);
 			return arr;
 		}
 		
@@ -105,34 +107,34 @@ package laya.html.utils {
 		   }
 		 */
 		
-		public static function _multiLineLayout(element:HTMLElement):Array {
-			var elements:Vector.<ILayout> = new Vector.<ILayout>;
+		 static _multiLineLayout(element:HTMLElement):any[] {
+			var elements:ILayout[] = [];
 			element._addChildsToLayout(elements);
-			var i:int, n:int = elements.length, j:int;
+			var i:number, n:number = elements.length, j:number;
 			var style:HTMLStyle = element._getCSSStyle();
-			var letterSpacing:Number = style.letterSpacing;
-			var leading:Number = style.leading;
-			var lineHeight:Number = style.lineHeight;
-			var widthAuto:Boolean = style._widthAuto() || !style.wordWrap;
-			var width:Number = widthAuto ? 999999 : element.width;
-			var height:Number = element.height;
-			var maxWidth:Number = 0;
-			var exWidth:Number = style.italic ? style.fontSize / 3 : 0;
-			var align:String = style.align;
-			var valign:String = style.valign;
-			var endAdjust:Boolean = valign !== HTMLStyle.VALIGN_TOP || align !== HTMLStyle.ALIGN_LEFT || lineHeight != 0;
+			var letterSpacing:number = style.letterSpacing;
+			var leading:number = style.leading;
+			var lineHeight:number = style.lineHeight;
+			var widthAuto:boolean = style._widthAuto() || !style.wordWrap;
+			var width:number = widthAuto ? 999999 : element.width;
+			var height:number = element.height;
+			var maxWidth:number = 0;
+			var exWidth:number = style.italic ? style.fontSize / 3 : 0;
+			var align:string = style.align;
+			var valign:string = style.valign;
+			var endAdjust:boolean = valign !== HTMLStyle.VALIGN_TOP || align !== HTMLStyle.ALIGN_LEFT || lineHeight != 0;
 			
 			var oneLayout:ILayout;
-			var x:Number = 0;
-			var y:Number = 0;
-			var w:Number = 0;
-			var h:Number = 0;
-			var tBottom:Number = 0;
-			var lines:Vector.<LayoutLine> = new Vector.<LayoutLine>;
+			var x:number = 0;
+			var y:number = 0;
+			var w:number = 0;
+			var h:number = 0;
+			var tBottom:number = 0;
+			var lines:LayoutLine[] = [];
 			var curStyle:HTMLStyle;
-			var curPadding:Array;
+			var curPadding:any[];
 			var curLine:LayoutLine = lines[0] = new LayoutLine();
-			var newLine:Boolean, nextNewline:Boolean = false;
+			var newLine:boolean, nextNewline:boolean = false;
 			var htmlWord:HTMLChar;
 			var sprite:HTMLElement;
 			
@@ -140,8 +142,8 @@ package laya.html.utils {
 			if (style.italic)
 				width -= style.fontSize / 3;
 			
-			var tWordWidth:Number = 0;
-			var tLineFirstKey:Boolean = true;
+			var tWordWidth:number = 0;
+			var tLineFirstKey:boolean = true;
 			function addLine():void {
 				curLine.y = y;
 				y += curLine.h + leading;
@@ -160,24 +162,24 @@ package laya.html.utils {
 				oneLayout = elements[i];
 				if (oneLayout == null) {
 					if (!tLineFirstKey) {
-						x += DIV_ELEMENT_PADDING;
+						x += Layout.DIV_ELEMENT_PADDING;
 					}
 					curLine.wordStartIndex = curLine.elements.length;
 					continue;
-				}
+                }
 				tLineFirstKey = false;
-				if (oneLayout is HTMLBrElement) {
+				if (oneLayout instanceof HTMLBrElement) {
 					addLine();
 					curLine.y = y;
 					curLine.h = lineHeight;
 					continue;
 				} else if (oneLayout._isChar()) {
-					htmlWord = oneLayout as HTMLChar;
+					htmlWord = (<HTMLChar>oneLayout );
 					if (!htmlWord.isWord) //如果是完整单词
 					{
 						if (lines.length > 0 && (x + w) > width && curLine.wordStartIndex > 0) //如果完整单词超界，需要单词开始折到下一行
 						{
-							var tLineWord:int = 0;
+							var tLineWord:number = 0;
 							tLineWord = curLine.elements.length - curLine.wordStartIndex + 1;
 							curLine.elements.length = curLine.wordStartIndex;
 							i -= tLineWord;
@@ -201,7 +203,7 @@ package laya.html.utils {
 					curLine.minTextHeight = Math.min(curLine.minTextHeight, oneLayout.height);
 				} else {
 					curStyle = oneLayout._getCSSStyle();
-					sprite = oneLayout as HTMLElement;
+					sprite = (<HTMLElement>oneLayout );
 					curPadding = curStyle.padding;
 					//curStyle._getCssFloat() === 0 || (endAdjust = true);
 					newLine = nextNewline || curStyle.getLineElement();
@@ -228,8 +230,8 @@ package laya.html.utils {
 				//var dy:Number = 0;
 				//valign === CSSStyle.VALIGN_MIDDLE && (dy = (height - y) / 2);
 				//valign === CSSStyle.VALIGN_BOTTOM && (dy = (height - y));
-				var tY:Number = 0;
-				var tWidth:Number = width;
+				var tY:number = 0;
+				var tWidth:number = width;
 				if (widthAuto && element.width > 0) {
 					//如果使用单行，这里一定要根据单行的实际宽（element.width）来排版
 					tWidth = element.width;
@@ -246,4 +248,4 @@ package laya.html.utils {
 			return [maxWidth, y];
 		}
 	}
-}
+

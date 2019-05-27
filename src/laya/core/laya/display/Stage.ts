@@ -635,7 +635,11 @@ super.set_transform( this._createTransform());
 				var style:any = Render._mainCanvas.source.style;
 				style.visibility = value ? "visible" : "hidden";
 			}
-		}
+        }
+        
+        get visible(){
+            return super.visible;
+        }
 		
 		/** @private */
 		 static clear:Function = function(value:string):void {

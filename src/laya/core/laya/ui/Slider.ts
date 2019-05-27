@@ -435,7 +435,11 @@ this.skin = skin;
 			if (typeof(value)=='number' || typeof(value)=='string') this.value = Number(value);
 			else super.dataSource = value;
 		}
-		
+        
+        get dataSource(){
+            return super.dataSource;
+        }
+        
 		/**
 		 * 表示滑块按钮的引用。
 		 */

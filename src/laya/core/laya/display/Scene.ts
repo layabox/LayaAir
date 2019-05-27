@@ -144,14 +144,22 @@ this._setBit(Const.NOT_READY, true);
 			if (super.get_scaleX() == value) return;
 			super.set_scaleX(value);
 			this.event(Event.RESIZE);
-		}
+        }
+        
+        get scaleX(){
+            return super.scaleX;
+        }
 		
 		/**@inheritDoc */
 		/*override*/  set scaleY(value:number) {
 			if (super.get_scaleY() == value) return;
 			super.set_scaleY(value);
 			this.event(Event.RESIZE);
-		}
+        }
+        
+        get scaleY(){
+            return super.scaleY;
+        }
 		
 		/**@inheritDoc */
 		/*override*/  get width():number {

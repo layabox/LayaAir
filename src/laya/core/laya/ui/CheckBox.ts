@@ -89,7 +89,9 @@ import { ILaya } from "ILaya";
 		 * @param label 文本标签的内容。
 		 */
 		constructor(skin:string = null, label:string = ""){
-			super(skin, label);
+            super(skin, label);
+			this.toggle = true;
+			this._autoSize = false;
 		}
 		
 		/**@inheritDoc */
@@ -114,7 +116,11 @@ import { ILaya } from "ILaya";
 			if (value instanceof Boolean) this.selected = value as boolean;
 			else if (typeof(value)=='string') this.selected = value === "true";
 			else super.dataSource = value;
-		}
+        }
+        
+        get dataSource(){
+            return super.dataSource;
+        }
 	}
 
 ILaya.regClass(CheckBox);

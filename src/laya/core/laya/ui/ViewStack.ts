@@ -147,7 +147,11 @@ import { ILaya } from "ILaya";
 					}
 				}
 			}
-		}
+        }
+        
+        get dataSource(){
+            return super.dataSource;
+        }
 	}
 
 ILaya.regClass(ViewStack);

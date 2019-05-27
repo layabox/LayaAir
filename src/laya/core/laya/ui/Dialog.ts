@@ -327,7 +327,11 @@ this.popupEffect = Dialog.manager.popupEffectHandler;
 		/*override*/  set zOrder(value:number) {
 			super.zOrder = value;
 			Dialog.manager._checkMask();
-		}
+        }
+        
+        get zOrder(){
+            return super.zOrder;
+        }
 		
 		/**
 		 * 设置锁定界面，在界面未准备好前显示锁定界面，准备完毕后则移除锁定层，如果为空则什么都不显示

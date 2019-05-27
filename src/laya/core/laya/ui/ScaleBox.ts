@@ -31,11 +31,19 @@ import { ILaya } from "ILaya";
 			super.width = value;
 			this._oldW = value;
 		}
-		
+        
+        get width(){
+            return super.width;
+        }
+        
 		/*override*/  set height(value:number) {
 			super.height = value;
 			this._oldH = value;
-		}
+        }
+        
+        get height(){
+            return super.height;
+        }
 	}
 
 
