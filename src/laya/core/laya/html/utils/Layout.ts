@@ -5,6 +5,7 @@ import { LayoutLine } from "./LayoutLine";
 import { HTMLChar } from "laya/utils/HTMLChar";
 import { HTMLElement } from "../dom/HTMLElement";
 import { HTMLBrElement } from "../dom/HTMLBrElement";
+import { IHtml } from "./IHtml";
 	
 	/**
 	 * @private
@@ -168,7 +169,7 @@ import { HTMLBrElement } from "../dom/HTMLBrElement";
 					continue;
                 }
 				tLineFirstKey = false;
-				if (oneLayout instanceof HTMLBrElement) {
+				if (oneLayout instanceof IHtml.HTMLBrElement) {
 					addLine();
 					curLine.y = y;
 					curLine.h = lineHeight;

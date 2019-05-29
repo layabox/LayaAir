@@ -1,10 +1,13 @@
-import { HTMLDivParser } from "././HTMLDivParser";
-import { HTMLHitRect } from "././HTMLHitRect";
+import { HTMLDivParser } from "./HTMLDivParser";
+import { HTMLHitRect } from "./HTMLHitRect";
 import { Sprite } from "laya/display/Sprite"
 	import { Event } from "laya/events/Event"
 	import { HTMLStyle } from "../utils/HTMLStyle"
 	import { Rectangle } from "laya/maths/Rectangle"
 	import { Handler } from "laya/utils/Handler"
+import { ILaya } from "ILaya";
+import { IHtml } from "../utils/IHtml";
+import { HTMLParse } from "../utils/HTMLParse";
 	
 	/**
 	 * HTML图文类，用于显示html内容
@@ -180,3 +183,5 @@ this._element = new HTMLDivParser();
 		}
 	}
 
+IHtml.HTMLDivElement=HTMLDivElement;
+IHtml.HTMLParse = HTMLParse;

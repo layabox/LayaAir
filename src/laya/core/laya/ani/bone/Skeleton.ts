@@ -1,4 +1,4 @@
-import { Templet } from "././Templet";
+//import { Templet } from "././Templet";
 import { Bone } from "././Bone";
 import { IkConstraint } from "././IkConstraint";
 import { PathConstraintData } from "././PathConstraintData";
@@ -25,6 +25,7 @@ import { Graphics } from "laya/display/Graphics";
 import { Byte } from "laya/utils/Byte";
 import { Texture } from "laya/resource/Texture";
 import { IAniLib } from "../AniLibPack";
+import { Templet } from "laya/ani/bone/Templet";
 
 	
 	/**动画开始播放调度
@@ -229,11 +230,11 @@ if (templet) this.init(templet, aniMode);
 		private _onLoaded():void {
 			var arraybuffer:ArrayBuffer = ILaya.Loader.getRes(this._aniPath);
 			if (arraybuffer == null) return;
-			if (Templet.TEMPLET_DICTIONARY == null) {
-				Templet.TEMPLET_DICTIONARY = {};
+			if (IAniLib.Templet.TEMPLET_DICTIONARY == null) {
+				IAniLib.Templet.TEMPLET_DICTIONARY = {};
 			}
 			var tFactory:Templet;
-			tFactory = Templet.TEMPLET_DICTIONARY[this._aniPath];
+			tFactory = IAniLib.Templet.TEMPLET_DICTIONARY[this._aniPath];
 			if (tFactory) {
 				if (tFactory.isParseFail) {
 					this._parseFail();
@@ -247,9 +248,9 @@ if (templet) this.init(templet, aniMode);
 				}
 				
 			} else {
-				tFactory = new Templet();
+				tFactory = new IAniLib.Templet();
 				tFactory._setCreateURL(this._aniPath);
-				Templet.TEMPLET_DICTIONARY[this._aniPath] = tFactory;
+				IAniLib.Templet.TEMPLET_DICTIONARY[this._aniPath] = tFactory;
 				tFactory.on(Event.COMPLETE, this, this._parseComplete);
 				tFactory.on(Event.ERROR, this, this._parseFail);
 				tFactory.isParserComplete = false;
@@ -261,7 +262,7 @@ if (templet) this.init(templet, aniMode);
 		 * 解析完成
 		 */
 		private _parseComplete():void {
-			var tTemple:Templet = Templet.TEMPLET_DICTIONARY[this._aniPath];
+			var tTemple:Templet = IAniLib.Templet.TEMPLET_DICTIONARY[this._aniPath];
 			if (tTemple) {
 				this.init(tTemple, this._loadAniMode);
 				this.play(0, true);
@@ -1132,3 +1133,4 @@ if (templet) this.init(templet, aniMode);
 	}
 
 IAniLib.Skeleton=Skeleton;
+ILaya.regClass(Skeleton);

@@ -450,7 +450,7 @@ this.width = this.height = 200;
 		 */
 		protected getArray():any[] {
 			var arr:any[] = [];
-			for  (let item of this._source) {
+			for  (let item of this._source) {//TODO TS
 				if (this.getParentOpenStatus(item)) {
 					item.x = this._spaceLeft * this.getDepth(item);
 					arr.push(item);

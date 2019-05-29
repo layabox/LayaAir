@@ -1,10 +1,11 @@
 import { HTMLDivParser } from "../dom/HTMLDivParser"
-	import { HTMLElement } from "../dom/HTMLElement"
+import { HTMLElement } from "../dom/HTMLElement"
 import { Pool } from "laya/utils/Pool";
 import { ClassUtils } from "laya/utils/ClassUtils";
 import { Utils } from "laya/utils/Utils";
 import { URL } from "laya/net/URL";
-
+import { IHtml } from "./IHtml";
+import { HTMLBrElement } from "../dom/HTMLBrElement"
 	
 	/**
 	 * @private
@@ -13,7 +14,17 @@ import { URL } from "laya/net/URL";
 		private static char255:string = /*[STATIC SAFE]*/ String.fromCharCode(255);
 		private static spacePattern:RegExp = /*[STATIC SAFE]*/ /&nbsp;|&#160;/g;
 		private static char255AndOneSpacePattern:RegExp = /*[STATIC SAFE]*/ new RegExp(String.fromCharCode(255) + "|(\\s+)", "g");
-		private static _htmlClassMapShort:any = /*[STATIC SAFE]*/ {'div': 'HTMLDivParser', 'p': 'HTMLElement', 'img': 'HTMLImageElement', 'span': 'HTMLElement', 'br': 'HTMLBrElement', 'style': 'HTMLStyleElement', 'font': 'HTMLElement', 'a': 'HTMLElement', '#text': 'HTMLElement', 'link': 'HTMLLinkElement'};
+		private static _htmlClassMapShort:any = /*[STATIC SAFE]*/ {
+            'div': HTMLDivParser, 
+            'p': HTMLElement, 
+            'img': HTMLImageElement, 
+            'span': HTMLElement, 
+            'br': HTMLBrElement, 
+            'style': HTMLStyleElement, 
+            'font': HTMLElement, 
+            'a': HTMLElement, 
+            '#text': HTMLElement, 
+            'link': HTMLLinkElement};
 		
 		/**
 		 * 根据类型获取对应的节点
@@ -63,7 +74,7 @@ import { URL } from "laya/net/URL";
 				if (xml.nodeType == 3)	//文本节点
 				{
 					var txt:string;
-					if (parent instanceof HTMLDivParser) {
+					if (parent instanceof IHtml.HTMLDivParser) {
 						if (xml.nodeName == null) {
 							xml.nodeName = "#text";
 						}
@@ -164,3 +175,4 @@ import { URL } from "laya/net/URL";
 	   }*/
 	}
 
+IHtml.HTMLParse=HTMLParse;

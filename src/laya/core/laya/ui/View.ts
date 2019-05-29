@@ -36,6 +36,7 @@ import { HBox } from "./HBox";
 import { VBox } from "./VBox";
 import { FontClip } from "./FontClip";
 import { ILaya } from "../../ILaya";
+import { Dialog } from "laya/ui/Dialog";
     
     
 	/**
@@ -248,3 +249,8 @@ import { ILaya } from "../../ILaya";
 	}
 
 ILaya.regClass(View);
+
+ILaya.ClassUtils.regShortClassName([ViewStack, Button, TextArea, ColorPicker, Box, ScaleBox,CheckBox, Clip, ComboBox, UIComponent, 
+    HScrollBar, HSlider, Image, Label, List, Panel, ProgressBar, Radio, RadioGroup, ScrollBar, Slider, Tab, TextInput, View, /*Dialog,*/ 
+    VScrollBar, VSlider, Tree, HBox, VBox,  Animation, Text, FontClip]);		
+    //dialog 依赖于view，放到这里的话，谁在前都会报错，所以不能放到这里了

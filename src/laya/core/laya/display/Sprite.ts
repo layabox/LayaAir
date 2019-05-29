@@ -1541,7 +1541,7 @@ import { ILaya } from "../../ILaya";
 		 loadImage(url:string, complete:Handler = null):Sprite {
 			if (!url){
 				this.texture = null;
-				loaded();
+				loaded.call(this);
 			}else{
 				var tex:Texture = ILaya.Loader.getRes(url);
 				if (!tex) {
@@ -1551,7 +1551,7 @@ import { ILaya } from "../../ILaya";
 				}
 				this.texture = tex;
 				if (!tex.getIsReady()) tex.once(Event.READY, this, loaded);
-				else loaded();
+				else loaded.call(this);
 			}			
 			
 			function loaded():void {
@@ -1805,7 +1805,7 @@ import { ILaya } from "../../ILaya";
 		}
 		
 		/**@private */
-		 _setTexture(value:Texture):void {
+		 _setTexture(value:Texture|string):void {
 			
 		}
 		

@@ -1,9 +1,10 @@
-import { HTMLElement } from "././HTMLElement";
+import { HTMLElement } from "./HTMLElement";
 import { Loader } from "laya/net/Loader";
 import { Graphics } from "laya/display/Graphics";
-import { Event } from "jsout/laya/events/Event";
+import { Event } from "laya/events/Event";
 import { HTMLStyle } from "../utils/HTMLStyle";
 import { URL } from "laya/net/URL";
+import { ILaya } from "ILaya";
 	
 	/**
 	 * @private
@@ -60,3 +61,4 @@ import { URL } from "laya/net/URL";
         }
 	}
 
+ILaya.regClass(HTMLLinkElement);

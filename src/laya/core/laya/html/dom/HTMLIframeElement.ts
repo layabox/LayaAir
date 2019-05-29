@@ -1,4 +1,4 @@
-import { HTMLDivElement } from "././HTMLDivElement";
+import { HTMLDivElement } from "./HTMLDivElement";
 import { Loader } from "laya/net/Loader"
 	import { URL } from "laya/net/URL"
 	import { Event } from "laya/events/Event"

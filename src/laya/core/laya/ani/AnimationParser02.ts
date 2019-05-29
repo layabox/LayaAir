@@ -89,7 +89,7 @@ import { IAniLib } from "./AniLibPack";
 			var interpolationMethod:any[] = [];
 			interpolationMethod.length = keyframeWidth;
 			for (i = 0; i < keyframeWidth; i++)
-				interpolationMethod[i] = AnimationTemplet.interpolation[reader.getByte()];
+				interpolationMethod[i] = IAniLib.AnimationTemplet.interpolation[reader.getByte()];
 			
 			var aniCount:number = reader.getUint8();
 			AnimationParser02._templet._anis.length = aniCount;
@@ -156,4 +156,3 @@ import { IAniLib } from "./AniLibPack";
 	}
 
 
-IAniLib.AnimationParser02 = AnimationParser02;

@@ -68,9 +68,13 @@ import { Sprite } from "../Sprite"
 				Pool.recover("CacheCanvas", this.canvas);
 				this.canvas.size(0, 0);
 				// 微信在iphone8和mate20上个bug，size存在但是不起作用，可能是canvas对象不是我们的。
-				// 为了避免canvas不消失，再强制设置宽高为0 TODO 没有测试
+                // 为了避免canvas不消失，再强制设置宽高为0 TODO 没有测试
+                try{
 				((<any>this.canvas )).width = 0;
-				((<any>this.canvas )).height = 0;
+                ((<any>this.canvas )).height = 0;
+                }catch(e){
+                    
+                }
 			}
 			this.canvas = null;
 		}

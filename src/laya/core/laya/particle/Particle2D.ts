@@ -139,3 +139,4 @@ this.customRenderEnable = true;
 		}
 	}
 
+ILaya.regClass(Particle2D);

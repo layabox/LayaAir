@@ -164,7 +164,7 @@ import { ILaya } from "ILaya";
 		/**对话框管理容器，所有的对话框都在该容器内，并且受管理器管理，可以自定义自己的管理器，来更改窗口管理的流程。
 		 * 任意对话框打开和关闭，都会触发管理类的open和close事件*/
 		 static get manager():DialogManager {
-			return Dialog._manager =Dialog._manager|| new IUI.DialogManager();
+			return Dialog._manager =Dialog._manager|| new DialogManager();
 		}
 		
 		 static set manager(value:DialogManager) {
@@ -372,5 +372,5 @@ this.popupEffect = Dialog.manager.popupEffectHandler;
 	}
 
 
-
+IUI.Dialog=Dialog;
 ILaya.regClass(Dialog);

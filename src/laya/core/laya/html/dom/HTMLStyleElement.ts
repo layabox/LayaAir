@@ -1,6 +1,7 @@
-import { HTMLElement } from "././HTMLElement";
+import { HTMLElement } from "./HTMLElement";
 import { Graphics } from "laya/display/Graphics"
 	import { HTMLStyle } from "../utils/HTMLStyle"
+import { ILaya } from "ILaya";
 	
 	/**
 	 * @private
@@ -32,3 +33,4 @@ import { Graphics } from "laya/display/Graphics"
         }
 	}
 
+ILaya.regClass(HTMLStyleElement);

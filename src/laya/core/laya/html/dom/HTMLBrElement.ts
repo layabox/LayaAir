@@ -1,8 +1,10 @@
-import { HTMLElement } from "././HTMLElement";
+import { HTMLElement } from "./HTMLElement";
 import { Graphics } from "laya/display/Graphics"
 	import { HTMLStyle } from "../utils/HTMLStyle"
 	import { ILayout } from "../utils/ILayout"
 	import { Pool } from "laya/utils/Pool"
+import { IHtml } from "../utils/IHtml";
+import { ILaya } from "ILaya";
 	
 	/**
 	 * @private
@@ -55,3 +57,5 @@ import { Graphics } from "laya/display/Graphics"
 		}
 	}
 
+IHtml.HTMLBrElement=HTMLBrElement;
+ILaya.regClass(HTMLBrElement);

@@ -1,5 +1,5 @@
-import { HTMLDocument } from "././HTMLDocument";
-import { HTMLHitRect } from "././HTMLHitRect";
+import { HTMLDocument } from "./HTMLDocument";
+import { HTMLHitRect } from "./HTMLHitRect";
 import { Graphics } from "laya/display/Graphics"
 	import { HTMLStyle } from "../utils/HTMLStyle"
 	import { ILayout } from "../utils/ILayout"
@@ -8,13 +8,19 @@ import { Graphics } from "laya/display/Graphics"
 	import { HTMLChar } from "laya/utils/HTMLChar"
 	import { Pool } from "laya/utils/Pool"
 import { ILaya } from "ILaya";
-	
+import { IHtml } from "../utils/IHtml";
+    
+    export enum HTMLElementType{
+        BASE=0,
+        IMAGE=1
+    }
 	/**
 	 * @private
 	 */
 	export class HTMLElement {
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
-		private static _EMPTYTEXT:any = /*[STATIC SAFE]*/ {text: null, words: null};
+        private static _EMPTYTEXT:any = /*[STATIC SAFE]*/ {text: null, words: null};
+        eletype:HTMLElementType=HTMLElementType.BASE;      // 用type来避免 instance判断引起的import问题
 		 URI:URL;
 		 parent:HTMLElement;
 		 _style:HTMLStyle;
@@ -474,3 +480,6 @@ import { ILaya } from "ILaya";
 		}
 	}
 
+
+ILaya.regClass(HTMLElement);    
+IHtml.HTMLElementType=HTMLElementType;

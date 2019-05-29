@@ -1,7 +1,7 @@
 import { AnimationNodeContent } from "././AnimationNodeContent";
 import { AnimationContent } from "././AnimationContent";
 import { KeyFramesContent } from "././KeyFramesContent";
-//import { AnimationParser01 } from "././AnimationParser01";
+import { AnimationParser01 } from "././AnimationParser01";
 import { AnimationParser02 } from "././AnimationParser02";
 import { BezierLerp } from "./math/BezierLerp"
 import { Resource } from "laya/resource/Resource";
@@ -137,7 +137,7 @@ import { IAniLib } from "./AniLibPack";
 		 parse(data:ArrayBuffer):void {//兼容函数
 			var reader:Byte = new Byte(data);
 			this._aniVersion = reader.readUTFString();
-			IAniLib.AnimationParser01.parse(this, reader);
+			AnimationParser01.parse(this, reader);
 		}
 		
 		/**
@@ -165,10 +165,10 @@ import { IAniLib } from "./AniLibPack";
 			this._aniVersion = reader.readUTFString();
 			switch (this._aniVersion) {
 			case "LAYAANIMATION:02": 
-				IAniLib.AnimationParser02.parse(this, reader);
+				AnimationParser02.parse(this, reader);
 				break;
 			default: 
-				IAniLib.AnimationParser01.parse(this, reader);
+				AnimationParser01.parse(this, reader);
 			}
 		}
 		
@@ -458,5 +458,4 @@ import { IAniLib } from "./AniLibPack";
 		}
 	}
 
-
-
+IAniLib.AnimationTemplet = AnimationTemplet;

@@ -154,7 +154,7 @@ import { Skeleton } from "./Skeleton";
 		 * @return
 		 */
 		 buildArmature(aniMode:number = 0):Skeleton {
-			return new IAniLib.Skeleton(this, aniMode);
+			return new Skeleton(this, aniMode);
 		}
 		
 		/**
@@ -766,14 +766,16 @@ import { Skeleton } from "./Skeleton";
 		 */
 		/*override*/  destroy():void {
 			this._isDestroyed = true;
-			var tTexture:Texture;
-			for  (tTexture of this.subTextureDic) {
-				if(tTexture)
-				tTexture.destroy();
+			var tTexture:any;
+			for  (tTexture in this.subTextureDic) {
+				if(tTexture){
+                    this.subTextureDic[tTexture].destroy();
+                }
 			}
-			for  (tTexture of this._textureDic) {
-				if(tTexture)
-				tTexture.destroy();
+			for  (tTexture in this._textureDic) {
+				if(tTexture){
+                    this._textureDic[tTexture].destroy();
+                }
 			}
 			var tSkinSlotDisplayData:SkinSlotDisplayData;
 			for (var i:number = 0, n:number = this.skinSlotDisplayDataArr.length; i < n; i++) {
@@ -808,3 +810,4 @@ import { Skeleton } from "./Skeleton";
 		}
 	}
 
+IAniLib.Templet=Templet;

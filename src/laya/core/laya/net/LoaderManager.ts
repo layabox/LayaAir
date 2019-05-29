@@ -201,7 +201,7 @@ import { ILaya } from "../../ILaya";
 			var content:any = Loader.getRes(url);
 			if (!ignoreCache && content != null) {
 				//增加延迟回掉，防止快速回掉导致执行顺序错误
-				ILaya.systemTimer.frameOnce(1, null, function():void {
+				ILaya.systemTimer.frameOnce(1, this, function():void {
 					progress && progress.runWith(1);
 					complete && complete.runWith(content instanceof Array?[content]:content);
 					//判断是否全部加载，如果是则抛出complete事件
@@ -260,7 +260,7 @@ import { ILaya } from "../../ILaya";
 			var content:any = Loader.getRes(url);
 			if (content != null) {
 				//增加延迟回掉
-				ILaya.systemTimer.frameOnce(1, null, function():void {
+				ILaya.systemTimer.frameOnce(1, this, function():void {
 					progress && progress.runWith(1);
 					complete && complete.runWith(content);
 					//判断是否全部加载，如果是则抛出complete事件

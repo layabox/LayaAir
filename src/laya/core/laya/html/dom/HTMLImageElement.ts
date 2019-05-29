@@ -1,10 +1,12 @@
-import { HTMLElement } from "././HTMLElement";
+import { HTMLElement, HTMLElementType } from "./HTMLElement";
 import { Graphics } from "laya/display/Graphics"
 	import { Event } from "laya/events/Event"
 	import { HTMLStyle } from "../utils/HTMLStyle"
 	import { ILayout } from "../utils/ILayout"
 	import { Loader } from "laya/net/Loader"
 	import { Texture } from "laya/resource/Texture"
+import { IHtml } from "../utils/IHtml";
+import { ILaya } from "ILaya";
 	
 	/**
 	 * @private
@@ -13,7 +15,10 @@ import { Graphics } from "laya/display/Graphics"
 		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		private _tex:Texture;
 		private _url:string;
-		
+		constructor(){
+            super();
+            this.eletype=HTMLElementType.IMAGE;
+        }
 		/*override*/  reset():HTMLElement {
 			super.reset();
 			if (this._tex) {
@@ -71,3 +76,5 @@ import { Graphics } from "laya/display/Graphics"
 		}
 	}
 
+IHtml.HTMLImageElement = HTMLImageElement;
+ILaya.regClass(HTMLImageElement);

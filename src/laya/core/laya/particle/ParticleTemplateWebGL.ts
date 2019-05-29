@@ -17,10 +17,10 @@ import { Context } from "vm";
 		
 		protected _floatCountPerVertex:number = 29;//0~3为CornerTextureCoordinate,4~6为Position,7~9Velocity,10到13为StartColor,14到17为EndColor,18到20位SizeRotation，21到22位Radius,23到26位Radian，27为DurationAddScaleShaderValue,28为Time
 		
-		protected _firstActiveElement:number;
-		protected _firstNewElement:number;
-		protected _firstFreeElement:number;
-		protected _firstRetiredElement:number;
+		protected _firstActiveElement:number=0;
+		protected _firstNewElement:number=0;
+		protected _firstFreeElement:number=0;
+		protected _firstRetiredElement:number=0;
 		
 		 _currentTime:number = 0;
 		protected _drawCounter:number;

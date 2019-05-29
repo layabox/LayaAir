@@ -1,6 +1,8 @@
 import { ILayout } from "././ILayout";
 import { HTMLStyle } from "././HTMLStyle";
+import { IHtml } from "./IHtml";
 import { HTMLImageElement } from "../dom/HTMLImageElement"
+import { HTMLElement, HTMLElementType } from "../dom/HTMLElement";
 	
 	/**
 	 * @private
@@ -53,8 +55,8 @@ import { HTMLImageElement } from "../dom/HTMLImageElement"
 					var tMinTextHeight:number = 0;
 					if (this.minTextHeight != 99999) tMinTextHeight = this.minTextHeight;
 					var tBottomLineY:number = (tMinTextHeight + lineHeight) / 2;
-					tBottomLineY = Math.max(tBottomLineY, this.h);//如果实际行高大于一半行高，用实际行高对齐
-					if (one instanceof HTMLImageElement) ddy = dy + tBottomLineY - one.height;
+                    tBottomLineY = Math.max(tBottomLineY, this.h);//如果实际行高大于一半行高，用实际行高对齐
+					if ((one as any as HTMLElement).eletype == IHtml.HTMLElementType.IMAGE) ddy = dy + tBottomLineY - one.height;
 					else ddy = dy + tBottomLineY - one.height;
 					one.y = ddy;
 					break;

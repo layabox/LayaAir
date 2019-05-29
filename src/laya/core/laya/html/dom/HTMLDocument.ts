@@ -1,4 +1,4 @@
-import { HTMLElement } from "././HTMLElement";
+import { HTMLElement } from "./HTMLElement";
 import { HTMLStyle } from "../utils/HTMLStyle"
 	
 	/**

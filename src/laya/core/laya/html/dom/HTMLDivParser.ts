@@ -1,13 +1,15 @@
-import { HTMLElement } from "././HTMLElement";
-import { HTMLStyleElement } from "././HTMLStyleElement";
-import { HTMLLinkElement } from "././HTMLLinkElement";
-import { HTMLParse } from "../utils/HTMLParse"
+import { HTMLElement } from "./HTMLElement";
+import { HTMLStyleElement } from "./HTMLStyleElement";
+import { HTMLLinkElement } from "./HTMLLinkElement";
+//import { HTMLParse } from "../utils/HTMLParse"
 	import { HTMLStyle } from "../utils/HTMLStyle"
 	import { ILayout } from "../utils/ILayout"
 	import { Layout } from "../utils/Layout"
 import { Rectangle } from "laya/maths/Rectangle";
 import { Handler } from "laya/utils/Handler";
 import { HTMLChar } from "laya/utils/HTMLChar";
+import { IHtml } from "../utils/IHtml";
+import { ILaya } from "ILaya";
 	
 	/**
 	 * @private
@@ -62,7 +64,7 @@ import { HTMLChar } from "laya/utils/HTMLChar";
 		 * @param	text
 		 */
 		 appendHTML(text:string):void {
-			HTMLParse.parse(this, text, this.URI);
+             IHtml.HTMLParse.parse(this, text, this.URI);
 			this.layout();
 		}
 		
@@ -154,3 +156,5 @@ import { HTMLChar } from "laya/utils/HTMLChar";
 		}	
 	}
 
+IHtml.HTMLDivParser = HTMLDivParser;
+ILaya.regClass(HTMLDivParser);

@@ -8,6 +8,7 @@ import { Const } from "../Const"
 	import { Ease } from "../utils/Ease"
 	import { Handler } from "../utils/Handler"
 	import { Tween } from "../utils/Tween"
+import { IUI } from "./IUI";
 	
 	/**打开任意窗口后调度。
 	 * @eventType Event.OPEN
@@ -64,7 +65,7 @@ this.mouseEnabled = this.maskLayer.mouseEnabled = true;
 		
 		private _closeOnSide():void {
 			var dialog:Dialog = (<Dialog>this.getChildAt(this.numChildren - 1) );
-			if (dialog instanceof Dialog) dialog.close();
+			if (dialog instanceof IUI.Dialog) dialog.close();
 		}
 		
 		/**设置锁定界面，如果为空则什么都不显示*/

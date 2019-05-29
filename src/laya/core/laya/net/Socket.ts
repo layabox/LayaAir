@@ -156,16 +156,16 @@ this._byteClass = byteClass ? byteClass : Byte;
 			this._input.endian = this.endian;
 			this._addInputPosition = 0;
 			
-			this._socket.onopen = function(e:any):void {
+			this._socket.onopen = (e:any)=> {
 				this._onOpen(e);
 			};
-			this._socket.onmessage = function(msg:any):void {
+			this._socket.onmessage = (msg:any):void=>{
 				this._onMessage(msg);
 			};
-			this._socket.onclose = function(e:any):void {
+			this._socket.onclose = (e:any):void=> {
 				this._onClose(e);
 			};
-			this._socket.onerror = function(e:any):void {
+			this._socket.onerror = (e:any):void=> {
 				this._onError(e);
 			};
 		}

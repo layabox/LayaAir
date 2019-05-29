@@ -78,9 +78,9 @@ import { IAniLib } from "./AniLibPack";
 					if (node.lerpType === 0 || node.lerpType === 1)//是否逐节点插值
 					{
 						node.interpolationMethod = [];
-						node.interpolationMethod.length = keyframeDataCount;
+                        node.interpolationMethod.length = keyframeDataCount;
 						for (k = 0; k < keyframeDataCount; k++)
-							node.interpolationMethod[k] = AnimationTemplet.interpolation[publicRead.getUint8()];
+							node.interpolationMethod[k] = IAniLib.AnimationTemplet.interpolation[publicRead.getUint8()];
 					}
 					
 					if (node.parent != null)
@@ -164,5 +164,4 @@ import { IAniLib } from "./AniLibPack";
 		}
 	}
 
-IAniLib.AnimationParser01=AnimationParser01;
 

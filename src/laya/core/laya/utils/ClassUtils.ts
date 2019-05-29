@@ -15,7 +15,23 @@ import { HitArea } from "../utils/HitArea"
 		/**@private */
 		private static _temParam:any[] = [];
 		/**@private */
-		private static _classMap:any = /*[STATIC SAFE]*/ {'Sprite': Sprite, 'Scene': Scene, 'Text': Text, 'Animation': 'laya.display.Animation', 'Skeleton': 'laya.ani.bone.Skeleton', 'Particle2D': 'laya.particle.Particle2D', 'div': 'laya.html.dom.HTMLDivParser', 'p': 'laya.html.dom.HTMLElement', 'img': 'laya.html.dom.HTMLImageElement', 'span': 'laya.html.dom.HTMLElement', 'br': 'laya.html.dom.HTMLBrElement', 'style': 'laya.html.dom.HTMLStyleElement', 'font': 'laya.html.dom.HTMLElement', 'a': 'laya.html.dom.HTMLElement', '#text': 'laya.html.dom.HTMLElement', 'link': 'laya.html.dom.HTMLLinkElement'}
+        private static _classMap:any = /*[STATIC SAFE]*/ {
+            'Sprite': Sprite, 
+            'Scene': Scene, 
+            'Text':  Text, 
+            'Animation': 'Animation', 
+            'Skeleton': 'Skeleton', 
+            'Particle2D': 'Particle2D', 
+            'div': 'HTMLDivParser', 
+            'p': 'HTMLElement', 
+            'img': 'HTMLImageElement', 
+            'span': 'HTMLElement', 
+            'br': 'HTMLBrElement', 
+            'style': 'HTMLStyleElement', 
+            'font': 'HTMLElement', 
+            'a': 'HTMLElement', 
+            '#text': 'HTMLElement', 
+            'link': 'HTMLLinkElement'}
 		/**@private */
 		private static _tM:Matrix;
 		/**@private */

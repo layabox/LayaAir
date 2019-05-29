@@ -37,11 +37,8 @@ import { Animation } from "../display/Animation";
 //TODO 什么时候做
 export class UILib{
     static __init__(){
-        IUI.DialogManager = DialogManager;
     //注册UI类名称映射
-    ILaya.ClassUtils.regShortClassName([ViewStack, Button, TextArea, ColorPicker, Box, ScaleBox,CheckBox, Clip, ComboBox, UIComponent, 
-        HScrollBar, HSlider, Image, Label, List, Panel, ProgressBar, Radio, RadioGroup, ScrollBar, Slider, Tab, TextInput, View, Dialog, 
-        VScrollBar, VSlider, Tree, HBox, VBox,  Animation, Text, FontClip]);		
-
+  
     }
 }
+

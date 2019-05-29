@@ -411,3 +411,4 @@ this._setControlNode(this);
 		}
 	}
 
+ILaya.regClass(Animation);
