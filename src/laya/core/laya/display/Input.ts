@@ -342,7 +342,7 @@ this._width = 100;
 			
 			var padding:any[] = this.padding;
 			
-			input.type = this._type;
+			//input.type = this._type;      不知道为什么说这个是只读的。但是as项目就没问题
 			input.value = this._content;
 			input.placeholder = this._prompt;
 			
