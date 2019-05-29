@@ -142,7 +142,7 @@ import { ILaya } from "ILaya";
 				this.selectedIndex = parseInt(value as string);
 			} else {
 				for (var prop  in this._dataSource) {
-					if (this.hasOwnProperty(prop)) {
+					if ( prop in this) {
 						this[prop] = this._dataSource[prop];
 					}
 				}

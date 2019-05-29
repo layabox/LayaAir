@@ -15,7 +15,7 @@ import { ILaya } from "ILaya";
 			for (var name  in value) {
 				var comp:UIComponent = (<UIComponent>this.getChildByName(name) );
 				if (comp) comp.dataSource = value[name];
-				else if (this.hasOwnProperty(name) && !(this[name] instanceof Function)) this[name] = value[name];
+				else if ( name in this && !(this[name] instanceof Function)) this[name] = value[name];
 			}
 		}
         

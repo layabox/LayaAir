@@ -155,7 +155,7 @@ import { ILaya } from "ILaya";
         set_dataSource(value:any){
 			this._dataSource = value;
 			for (var prop  in this._dataSource) {
-				if (this.hasOwnProperty(prop) && !(this[prop] instanceof Function)) {
+				if ( prop in this && !( typeof(this[prop])=='function')) {
 					this[prop] = this._dataSource[prop];
 				}
 			}

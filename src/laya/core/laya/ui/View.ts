@@ -242,7 +242,7 @@ import { ILaya } from "../../ILaya";
 			for (var name  in value) {
 				var comp:any = this.getChildByName(name);
 				if (comp instanceof UIComponent) comp.dataSource = value[name];
-				else if (this.hasOwnProperty(name) && !(this[name] instanceof Function)) this[name] = value[name];
+				else if (name in this && !(this[name] instanceof Function)) this[name] = value[name];
 			}
 		}
 	}
