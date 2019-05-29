@@ -570,10 +570,10 @@ if (templet) this.init(templet, aniMode);
 				var tIkConstraint:IkConstraint;
 				for (i = 0, n = this._ikArr.length; i < n; i++) {
 					tIkConstraint = this._ikArr[i];
-					if (tBendDirectionDic.hasOwnProperty(tIkConstraint.name)) {
+					if (tIkConstraint.name in tBendDirectionDic) {
 						tIkConstraint.bendDirection = tBendDirectionDic[tIkConstraint.name];
 					}
-					if (tMixDic.hasOwnProperty(tIkConstraint.name)) {
+					if (tIkConstraint.name in tMixDic) {
 						tIkConstraint.mix = tMixDic[tIkConstraint.name]
 					}
 					tIkConstraint.apply();

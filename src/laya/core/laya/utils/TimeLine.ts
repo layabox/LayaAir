@@ -159,7 +159,7 @@ import { ILaya } from "ILaya";
 				tObject = this._firstTweenDic[p];
 				if (tObject) {
 					for (var tDataP  in tObject) {
-						if (tObject.diyTarget.hasOwnProperty(tDataP)) {
+						if ( tDataP in tObject.diyTarget) {
 							tObject.diyTarget[tDataP] = tObject[tDataP];
 						}
 					}

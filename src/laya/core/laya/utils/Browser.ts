@@ -106,7 +106,7 @@ import { ILaya } from "../../ILaya";
 			var u:string = Browser.userAgent = win.navigator.userAgent;
 			
 			//微信小游戏
-			if (u.indexOf("MiniGame") > -1 && Browser.window.hasOwnProperty("wx")) {
+			if (u.indexOf("MiniGame") > -1 && "wx" in Browser.window) {
 				if (!Laya["MiniAdpter"]) {
 					console.error("请先添加小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?nav=zh-ts-5-0-0");
 						//TODO 教程要改

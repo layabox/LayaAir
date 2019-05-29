@@ -130,9 +130,9 @@ import { HitArea } from "../utils/HitArea"
 						} else {
 							var tChild:any = ClassUtils.createByJson(data, null, root, customHandler, instanceHandler)
 							if (data.type === "Script") {
-								if (tChild.hasOwnProperty("owner")) {
+								if ( "owner" in tChild) {
 									tChild["owner"] = node;
-								} else if (tChild.hasOwnProperty("target")) {
+								} else if ( "target" in tChild) {
 									tChild["target"] = node;
 								}
 							} else if (data.props.renderType == "mask") {
@@ -228,7 +228,7 @@ import { HitArea } from "../utils/HitArea"
 		private static _getTransformData(propsO:any):Matrix {
 			var m:Matrix;
 			
-			if (propsO.hasOwnProperty("pivotX") || propsO.hasOwnProperty("pivotY")) {
+			if ( "pivotX" in propsO || "pivotY" in propsO) {
 				m = m || new Matrix();
 				m.translate(-ClassUtils._getObjVar(propsO, "pivotX", 0), -ClassUtils._getObjVar(propsO, "pivotY", 0));
 			}
@@ -302,7 +302,7 @@ import { HitArea } from "../utils/HitArea"
 		 */
 		 static _isDrawType(type:string):boolean {
 			if (type === "Image") return false;
-			return ClassUtils.DrawTypeDic.hasOwnProperty(type);
+			return type in ClassUtils.DrawTypeDic;
 		}
 		
 		/**
@@ -351,7 +351,7 @@ import { HitArea } from "../utils/HitArea"
 		 * @private
 		 */
 		private static _getObjVar(obj:any, key:string, noValue:any):any {
-			if (obj.hasOwnProperty(key)) {
+			if (key in obj) {
 				return obj[key];
 			}
 			return noValue;

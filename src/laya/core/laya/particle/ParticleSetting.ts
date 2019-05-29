@@ -152,7 +152,7 @@
 		 static checkSetting(setting:any):void {
 			var key:string;
 			for (key in ParticleSetting._defaultSetting) {
-				if (!setting.hasOwnProperty(key)) {
+				if (! (key in setting)) {
 					setting[key] = ParticleSetting._defaultSetting[key];
 				}
 			}

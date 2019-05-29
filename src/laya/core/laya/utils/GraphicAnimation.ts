@@ -206,12 +206,12 @@ import { FrameAnimation } from "../display/FrameAnimation"
 		
 		/**@private */
 		private _getObjVar(obj:any, key:string, frame:number, noValue:any, obj2:any):any {
-			if (obj.hasOwnProperty(key)) {
+			if ( key in obj) {
 				var vArr:any[] = obj[key];
 				if (frame >= vArr.length) frame = vArr.length - 1;
 				return obj[key][frame];
 			}
-			if (obj2.hasOwnProperty(key)) {
+			if (key in obj2) {
 				return obj2[key];
 			}
 			return noValue;

@@ -123,7 +123,7 @@ import { Utils } from "../utils/Utils"
 			for (i = n - 1; i >= 0; i--) {
 				tmp = PointSet[i];
 				key = tmp.x + "_" + tmp.y;
-				if (!_tmpDic.hasOwnProperty(key)) {
+				if (!(key in _tmpDic)) {
 					_tmpDic[key] = true;
 					ch.push(tmp);
 				}

@@ -46,7 +46,7 @@ import { Const } from "../Const"
 			//递归创建节点
 			root = SceneUtils.createComp(uiView, root, root, null, tInitTool);
 			root._setBit(Const.NOT_READY, true);
-			if (root.hasOwnProperty("_idMap")) {
+			if ("_idMap" in root) {
 				root["_idMap"] = tInitTool._idMap;
 			}
 			
@@ -122,7 +122,7 @@ import { Const } from "../Const"
 				var isList:boolean = comp["_$componentType"] == "List";
 				for (var i:number = 0, n:number = child.length; i < n; i++) {
 					var node:any = child[i];
-					if (comp.hasOwnProperty("itemRender") && (node.props.name == "render" || node.props.renderType === "render")) {
+					if ( 'itemRender' in comp && (node.props.name == "render" || node.props.renderType === "render")) {
 						//如果list的itemRender
 						comp["itemRender"] = node;
 					} else if (node.type == "Graphic") {
@@ -264,7 +264,7 @@ import { Const } from "../Const"
 				comp._destroyed = false;
 				return comp;
 			}
-			if (json.props && json.props.hasOwnProperty("renderType") && json.props["renderType"] == "instance")
+			if (json.props && "renderType" in json.props && json.props["renderType"] == "instance")
 			{
 				if (!compClass["instance"]) compClass["instance"] = new compClass();
 				return compClass["instance"];
