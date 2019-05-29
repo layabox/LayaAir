@@ -200,7 +200,7 @@ import { URL } from "laya/net/URL";
 		 */
 		 set font(value:string) {
 			var strs:any[] = value.split(' ');
-			for (var i:number, n:number = strs.length; i < n; i++) {
+			for (var i:number=0, n:number = strs.length; i < n; i++) {
 				var str:string = strs[i];
 				switch (str) {
 				case 'italic': 

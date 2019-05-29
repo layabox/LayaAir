@@ -135,7 +135,7 @@ if (templet) this.init(templet, aniMode);
 		 * </table>
 		 */
 		 init(templet:Templet, aniMode:number = 0):void {
-			var i:number, n:number;
+			var i:number=0, n:number;
 			//aniMode = 2;
 			if (aniMode == 1)//使用动画自己的缓冲区
 			{
@@ -349,7 +349,7 @@ if (templet) this.init(templet, aniMode);
 			var tEventAniArr:any[] = this._templet.eventAniArr;
 			var tEventArr:EventData[] = tEventAniArr[this._player.currentAnimationClipIndex];
 			if (tEventArr) {
-				var i:number, len:number;
+				var i:number=0, len:number;
 				var tEventData:EventData;
 				len = tEventArr.length;
 				for (i = startIndex; i < len; i++) {

@@ -183,7 +183,7 @@ import { ILaya } from "./../../ILaya";
 			
 			var ratio:number = usedTimer > 0 ? this._ease(usedTimer, 0, 1, this._duration) : 0;
 			var props:any[] = this._props;
-			for (var i:number, n:number = props.length; i < n; i++) {
+			for (var i:number=0, n:number = props.length; i < n; i++) {
 				var prop:any[] = props[i];
 				target[prop[0]] = prop[1] + (ratio * prop[2]);
 			}
@@ -210,7 +210,7 @@ import { ILaya } from "./../../ILaya";
 			var props:any = this._props;
 			var handler:Handler = this._complete;
 			//设置终点属性
-			for (var i:number, n:number = props.length; i < n; i++) {
+			for (var i:number=0, n:number = props.length; i < n; i++) {
 				var prop:any[] = props[i];
 				target[prop[0]] = prop[1] + prop[2];
 			}
@@ -258,7 +258,7 @@ import { ILaya } from "./../../ILaya";
 			if (!target || !target.$_GID) return;
 			var tweens:any[] = Tween.tweenMap[target.$_GID];
 			if (tweens) {
-				for (var i:number, n:number = tweens.length; i < n; i++) {
+				for (var i:number=0, n:number = tweens.length; i < n; i++) {
 					tweens[i]._clear();
 				}
 				tweens.length = 0;
@@ -315,7 +315,7 @@ import { ILaya } from "./../../ILaya";
 		private _remove():void {
 			var tweens:any[] = Tween.tweenMap[this._target.$_GID];
 			if (tweens) {
-				for (var i:number, n:number = tweens.length; i < n; i++) {
+				for (var i:number=0, n:number = tweens.length; i < n; i++) {
 					if (tweens[i] === this) {
 						tweens.splice(i, 1);
 						break;
@@ -336,7 +336,7 @@ import { ILaya } from "./../../ILaya";
 				return;
 			}
 			var props:any[] = this._props;
-			for (var i:number, n:number = props.length; i < n; i++) {
+			for (var i:number=0, n:number = props.length; i < n; i++) {
 				var prop:any[] = props[i];
 				this._target[prop[0]] = prop[1];
 			}
