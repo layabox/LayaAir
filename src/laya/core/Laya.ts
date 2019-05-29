@@ -311,7 +311,7 @@ import { Submit } from "./laya/webgl/submit/Submit";
 		}		
 	}
 
-    Laya.__classmap = ILaya.classMap;
+    Laya.__classmap = ILaya.__classMap;
     ILaya.Timer=Timer;
     ILaya.Dragging=Dragging;
     ILaya.GraphicsBounds = GraphicsBounds;

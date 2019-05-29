@@ -52,7 +52,7 @@ import { Laya } from "Laya"
 				//Layaair1.0-2d
 				Main.box2D = new Sprite();
 				Laya.stage.addChild(Main.box2D);
-				Main._indexView = new IndexView2D();
+				Main._indexView = new IndexView2D(Main.box2D);
 			}else
 			{
 				//Layaair1.0-3d

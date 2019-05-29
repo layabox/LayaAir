@@ -32,7 +32,7 @@ import { Resource } from "laya/resource/Resource";
  */
  export class ILaya{
      static Laya:any=null;
-     static classMap:Object=null;
+     //static classMap:Object=null;
      static Timer:typeof Timer = null;
      static WorkerLoader:typeof WorkerLoader=null;
      static Dragging:typeof Dragging =null;
@@ -71,12 +71,7 @@ import { Resource } from "laya/resource/Resource";
 
      static __classMap:Object = {};
      static regClass(c:any){
-         if(ILaya.classMap){
-            ILaya.classMap[c.name]=c;
-         }else{
-            ILaya[c.name]=c;
-         }
-         
+        ILaya.__classMap[c.name]=c;
      }
  }
  
