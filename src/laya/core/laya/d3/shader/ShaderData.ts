@@ -336,7 +336,7 @@ import { IClone } from "../core/IClone"
 		 * @return	 克隆副本。
 		 */
 		 clone():any {
-			var dest:ShaderData = new this.constructor();
+			var dest:ShaderData = new ShaderData();
 			this.cloneTo(dest);
 			return dest;
 		}

@@ -1,21 +1,20 @@
-import { Float64Array } from "./../../../../../../core/jsc/Float64Array";
 import { TrailFilter } from "././TrailFilter";
 import { VertexTrail } from "././VertexTrail";
 import { BufferState } from "../BufferState"
-	import { Camera } from "../Camera"
-	import { GeometryElement } from "../GeometryElement"
-	import { TextureMode } from "../TextureMode"
+import { Camera } from "../Camera"
+import { GeometryElement } from "../GeometryElement"
+import { TextureMode } from "../TextureMode"
 	import { RenderContext3D } from "../render/RenderContext3D"
 	import { VertexBuffer3D } from "../../graphics/VertexBuffer3D"
 	import { VertexDeclaration } from "../../graphics/VertexDeclaration"
 	import { Color } from "../../math/Color"
 	import { MathUtils3D } from "../../math/MathUtils3D"
 	import { Vector3 } from "../../math/Vector3"
-	import { LayaGL } from "../../../../../../core/src/laya/layagl/LayaGL"
-	import { Resource } from "../../../../../../core/src/laya/resource/Resource"
-	import { Stat } from "../../../../../../core/src/laya/utils/Stat"
-	import { WebGLContext } from "../../../../../../core/src/laya/webgl/WebGLContext"
 	import { Gradient } from "../Gradient"
+import { WebGLContext } from "laya/webgl/WebGLContext";
+import { Resource } from "laya/resource/Resource";
+import { Stat } from "laya/utils/Stat";
+import { LayaGL } from "laya/layagl/LayaGL";
 	
 	/**
 	 * <code>TrailGeometry</code> 类用于创建拖尾渲染单元。
@@ -29,7 +28,7 @@ import { BufferState } from "../BufferState"
 		private static _tempVector32:Vector3 = new Vector3();
 		
 		/**@private */
-		private static _type:number = this._typeCounter++;
+		private static _type:number = GeometryElement._typeCounter++;
 		
 		/**@private */
 		private _floatCountPerVertices1:number = 8;
