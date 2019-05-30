@@ -278,7 +278,7 @@ this._disablePublicDefineDatas = new DefineDatas();
 		 * @return	 克隆副本。
 		 */
 		 clone():any {
-			var dest:BaseMaterial = new this.constructor();
+			var dest:BaseMaterial = new BaseMaterial();
 			this.cloneTo(dest);
 			return dest;
 		}

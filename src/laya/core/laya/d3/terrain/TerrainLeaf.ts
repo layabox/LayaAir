@@ -4,6 +4,7 @@ import { BaseRender } from "../core/render/BaseRender"
 	import { Matrix4x4 } from "../math/Matrix4x4"
 	import { Vector2 } from "../math/Vector2"
 	import { Vector3 } from "../math/Vector3"
+import { Terrain } from "./Terrain";
 	
 	/**
 	 * <code>TerrainLeaf</code> Terrain的叶子节点

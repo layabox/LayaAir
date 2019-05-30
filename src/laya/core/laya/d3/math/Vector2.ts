@@ -112,18 +112,18 @@ import { IClone } from "../core/IClone"
 		
 		 forNativeElement(nativeElements:Float32Array = null):void//[NATIVE_TS]
 		{		
-			/*if (nativeElements)
+			if (nativeElements)
 			{
-				this.elements = nativeElements;
-				this.elements[0] = this.x;
-				this.elements[1] = this.y;
+				(<any>this).elements = nativeElements;
+				(<any>this).elements[0] = this.x;
+				(<any>this).elements[1] = this.y;
 			}
 			else
 			{
-				this.elements = new Float32Array([this.x,this.y]);
+				(<any>this).elements = new Float32Array([this.x,this.y]);
 			}
 			Vector2.rewriteNumProperty(this, "x", 0);
-			Vector2.rewriteNumProperty(this, "y", 1);*/
+			Vector2.rewriteNumProperty(this, "y", 1);
 		}
 		
 		 static rewriteNumProperty(proto:any, name:string,index:number):void
