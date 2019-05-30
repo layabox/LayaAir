@@ -40,7 +40,8 @@
 		/**
 		 * 是否使用webgl2
 		 */
-		 static useWebGL2:boolean = false;
+		 static useWebGL2:boolean = true;
+		
 		 static useRetinalCanvas:boolean = false;
 	}
 

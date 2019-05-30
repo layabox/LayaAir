@@ -92,7 +92,7 @@ import { SubmitBase } from "../webgl/submit/SubmitBase";
 				if (!gl)
 					return false;
 				canvas.size(w, h);	//在ctx之后调用。
-				WebGLContext.__init__(gl);
+				//WebGLContext.__init__(gl);
 				Context.__init__();
 				SubmitBase.__init__();
 				
