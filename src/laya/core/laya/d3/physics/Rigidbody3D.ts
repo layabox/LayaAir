@@ -442,7 +442,7 @@ import { Component } from "laya/components/Component"
 		 * Dynamic刚体,物理引擎每帧调用一次,用于更新渲染矩阵。
 		 */
 		private _delegateMotionStateSetWorldTransform(worldTransPointer:number):void {
-			var rigidBody:Rigidbody3D = this._rigidbody;
+			var rigidBody:Rigidbody3D = (<any>this)._rigidbody;
 			rigidBody._simulation._updatedRigidbodies++;
 			var physics3D:any = Laya3D._physics3D;
 			var worldTrans:any = physics3D.wrapPointer(worldTransPointer, physics3D.btTransform);
@@ -493,7 +493,7 @@ import { Component } from "laya/components/Component"
 		 * @private
 		 */
 		 _delegateMotionStateClear():void {
-			this._rigidbody=null;
+			(<any>this)._rigidbody=null;
 		}
 		
 		/**
@@ -502,7 +502,7 @@ import { Component } from "laya/components/Component"
 		/*override*/  _onAdded():void {
 			var physics3D:any = Laya3D._physics3D;
 			var motionState:any = new physics3D.LayaMotionState();
-			var isConchApp:boolean = (window.conch != null);
+			var isConchApp:boolean = ((<any>window).conch != null);
 			if (isConchApp && physics3D.LayaMotionState.prototype.setRigidbody) {
 				motionState.setRigidbody(this);
 				motionState.setNativeGetWorldTransform(this._delegateMotionStateGetWorldTransformNative);

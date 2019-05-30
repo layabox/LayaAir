@@ -155,14 +155,15 @@ import { InlcudeFile } from "././InlcudeFile";
 		}
 		
 		private _clearCR:RegExp= new RegExp("\r", "g");
+		public defs:Object = {};
 		
-		constructor(vs:string, ps:string, nameMap:any, defs:any = null){
+		constructor(vs:string, ps:string, nameMap:any){
             let _this=this;
 			function _compile(script:string):ShaderNode {
 				script=script.replace(_this._clearCR, "");//CRLF风格需要先去掉“\r",否则切分字符会出错导致宏定义编译错误等
 				var includefiles:any[] = [];
 				var top:ShaderNode = new ShaderNode(includefiles);
-				_this._compileToTree(top, script.split('\n'), 0, includefiles, defs);
+				_this._compileToTree(top, script.split('\n'), 0, includefiles, this.defs);
 				return top;
 			}
 			

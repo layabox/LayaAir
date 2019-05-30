@@ -305,7 +305,7 @@ import { IClone } from "../core/IClone"
 						destData[k] = value;
 					} else if (typeof(value) == 'number') {
 						destData[k] = value;
-					} else if (value instanceof Boolean) {
+					} else if (typeof(value)=="boolean") {
 						destData[k] = value;
 					} else if (value instanceof Vector2) {
 						var v2:Vector2 = (destData[k]) || (destData[k] = new Vector2());
@@ -381,7 +381,7 @@ import { IClone } from "../core/IClone"
 					} else if (typeof(value) == 'number') {
 						destData[i] = value;
 						dest.setInt(i, value);
-					} else if (value instanceof Boolean) {
+					} else if (typeof(value)=="boolean") {
 						destData[i] = value;
 						dest.setBool(i, value);
 					} else if (value instanceof Vector2) {
@@ -477,7 +477,7 @@ import { IClone } from "../core/IClone"
 		 */
 		 setBoolForNative(index:number, value:boolean):void {//[NATIVE]
 			this.needRenewArrayBufferForNative(index);
-			this._int32Data[index] = value;
+			this._int32Data[index] = value?1:0;
 			this._nativeArray[index] = value;
 		}
 		
