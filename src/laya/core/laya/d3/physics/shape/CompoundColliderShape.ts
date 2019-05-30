@@ -26,7 +26,7 @@ import { Quaternion } from "../../math/Quaternion"
 		constructor(){
 			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 			super();
-_type = ColliderShape.SHAPETYPES_COMPOUND;
+			this._type = ColliderShape.SHAPETYPES_COMPOUND;
 			this._nativeShape = new Laya3D._physics3D.btCompoundShape();
 		}
 		
@@ -59,9 +59,9 @@ _type = ColliderShape.SHAPETYPES_COMPOUND;
 		 _updateChildTransform(shape:ColliderShape):void {
 			var offset:Vector3 = shape.localOffset;
 			var rotation:Quaternion = shape.localRotation;
-			var nativeOffset:any = this._nativeVector30;
-			var nativeQuaternion:any = this._nativQuaternion0;
-			var nativeTransform:any = this._nativeTransform0;
+			var nativeOffset:any = ColliderShape._nativeVector30;
+			var nativeQuaternion:any = ColliderShape._nativQuaternion0;
+			var nativeTransform:any = ColliderShape._nativeTransform0;
 			nativeOffset.setValue( -offset.x, offset.y, offset.z);
 			nativeQuaternion.setValue(-rotation.x, rotation.y, rotation.z, -rotation.w);
 			nativeTransform.setOrigin(nativeOffset);

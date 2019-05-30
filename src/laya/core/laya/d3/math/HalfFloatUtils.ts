@@ -72,7 +72,7 @@
 				// normalized
 				while ((m & 0x00800000) === 0) {
 					e -= 0x00800000;    // decrement exponent
-					m this.<<= 1;
+					m <<= 1;
 				}
 				
 				m &= ~0x00800000;   // clear leading 1 bit

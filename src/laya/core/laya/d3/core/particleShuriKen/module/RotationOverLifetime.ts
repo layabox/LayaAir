@@ -69,7 +69,7 @@ import { IClone } from "../../IClone"
 				break;
 			}
 			
-			var destRotationOverLifetime:RotationOverLifetime = new this.constructor(destAngularVelocity);
+			var destRotationOverLifetime:RotationOverLifetime = new RotationOverLifetime(destAngularVelocity);
 			destRotationOverLifetime.enbale = this.enbale;
 			return destRotationOverLifetime;
 		}

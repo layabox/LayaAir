@@ -359,7 +359,7 @@ import { IClone } from "../../IClone"
 		 * @return	 克隆副本。
 		 */
 		 clone():any {
-			var destGradientSize:GradientSize = new this.constructor();
+			var destGradientSize:GradientSize = new GradientSize();
 			this.cloneTo(destGradientSize);
 			return destGradientSize;
 		}

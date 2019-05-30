@@ -386,19 +386,21 @@ import { IClone } from "../core/IClone"
 		 * @return	 克隆副本。
 		 */
 		 clone():any {
-			var destVector3:Vector3 = new this.constructor();
+			var destVector3:Vector3 = new Vector3();
 			this.cloneTo(destVector3);
 			return destVector3;
 		}
 		
-		 toDefault():void {
+		toDefault():void {
 			this.x = 0;
 			this.y = 0;
 			this.z = 0;
 		}
 	
 		 forNativeElement(nativeElements:Float32Array = null):void
-		{			
+		{	
+			//[NATIVE_TS]
+			/*		
 			if (nativeElements)
 			{
 				this.elements = nativeElements;
@@ -413,6 +415,7 @@ import { IClone } from "../core/IClone"
 			Vector2.rewriteNumProperty(this, "x", 0);
 			Vector2.rewriteNumProperty(this, "y", 1);
 			Vector2.rewriteNumProperty(this, "z", 2);
+			*/
 		}
 	}
 

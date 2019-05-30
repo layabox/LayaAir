@@ -600,8 +600,9 @@ import { IClone } from "../core/IClone"
 			}
 		}
 		
-		 forNativeElement(nativeElements:Float32Array = null):void
+		 forNativeElement(nativeElements:Float32Array = null):void//[NATIVE_TS]
 		{
+			/*
 			if (nativeElements)
 			{
 				this.elements = nativeElements;
@@ -618,6 +619,7 @@ import { IClone } from "../core/IClone"
 			Vector2.rewriteNumProperty(this, "y", 1);
 			Vector2.rewriteNumProperty(this, "z", 2);
 			Vector2.rewriteNumProperty(this, "w", 3);
+			*/
 		}
 	}
 

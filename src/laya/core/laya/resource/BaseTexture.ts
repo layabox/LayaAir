@@ -45,6 +45,9 @@ import { ILaya } from "../../ILaya";
 		 static FORMAT_PVRTCRGB_4BPPV:number = 11;
 		/**纹理格式_PVRTCRGBA_4BPPV。*/
 		 static FORMAT_PVRTCRGBA_4BPPV:number = 12;
+
+		 /**渲染纹理格式_16位半精度RGBA浮点格式。*/
+		static  RENDERTEXTURE_FORMAT_RGBA_HALF_FLOAT:number = 14;
 		
 		/**深度格式_DEPTH_16。*/
 		 static FORMAT_DEPTH_16:number = 0;

@@ -49,9 +49,9 @@ import { FloatKeyframe } from "../FloatKeyframe"
 			return (<TrailRenderer>this._render );
 		}
 		
-		constructor(){
+		constructor(name:string = null){
 			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
-			super(this.name);
+			super(name);
 			this._render = new TrailRenderer(this);
 			this._geometryFilter = new TrailFilter(this);
 		}

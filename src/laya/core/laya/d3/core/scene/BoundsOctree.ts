@@ -172,7 +172,7 @@ import { PixelLineSprite3D } from "../pixelLine/PixelLineSprite3D"
 		 updateMotionObjects():void {
 			var elements:ISingletonElement[] = this._motionObjects.elements;
 			for (var i:number = 0, n:number = this._motionObjects.length; i < n; i++) {
-				var object:IOctreeObject = (<IOctreeObject>elements[i] );
+				var object:IOctreeObject = <any>elements[i];
 				this.update(object);
 				object._setIndexInMotionList(-1);
 			}

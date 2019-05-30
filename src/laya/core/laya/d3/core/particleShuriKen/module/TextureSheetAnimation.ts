@@ -100,7 +100,7 @@ import { IClone } from "../../IClone"
 				break;
 			}
 			
-			var destTextureSheetAnimation:TextureSheetAnimation = new this.constructor(destFrame,destStartFrame);
+			var destTextureSheetAnimation:TextureSheetAnimation = new TextureSheetAnimation(destFrame,destStartFrame);
 			this.tiles.cloneTo(destTextureSheetAnimation.tiles);
 			destTextureSheetAnimation.type = this.type;
 			destTextureSheetAnimation.randomRow = this.randomRow;

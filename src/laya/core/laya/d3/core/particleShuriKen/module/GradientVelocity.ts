@@ -218,7 +218,7 @@ import { IClone } from "../../IClone"
 		 * @return	 克隆副本。
 		 */
 		 clone():any {
-			var destGradientVelocity:GradientVelocity = new this.constructor();
+			var destGradientVelocity:GradientVelocity = new GradientVelocity();
 			this.cloneTo(destGradientVelocity);
 			return destGradientVelocity;
 		}

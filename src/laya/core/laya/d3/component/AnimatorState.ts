@@ -171,7 +171,7 @@ import { AnimationClip } from "../animation/AnimationClip"
 		 * @return	 克隆副本。
 		 */
 		 clone():any {
-			var dest:AnimatorState = new this.constructor();
+			var dest:AnimatorState = new AnimatorState();
 			this.cloneTo(dest);
 			return dest;
 		}

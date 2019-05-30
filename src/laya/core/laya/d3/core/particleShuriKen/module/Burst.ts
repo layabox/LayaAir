@@ -53,7 +53,7 @@ import { IClone } from "../../IClone"
 		 */
 		 cloneTo(destObject:any):void {
 			var destBurst:Burst = (<Burst>destObject );
-			destBurst._time = this._time
+			destBurst._time = this._time;
 			destBurst._minCount = this._minCount;
 			destBurst._maxCount = this._maxCount;
 		}
@@ -63,7 +63,7 @@ import { IClone } from "../../IClone"
 		 * @return	 克隆副本。
 		 */
 		 clone():any {
-			var destBurst:Burst = new this.constructor();
+			var destBurst:Burst = new Burst(this._time,this._minCount,this._maxCount);
 			this.cloneTo(destBurst);
 			return destBurst;
 		}

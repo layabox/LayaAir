@@ -144,7 +144,7 @@ import { IClone } from "../../IClone"
 		 * @return	 克隆副本。
 		 */
 		 clone():any {
-			var destEmission:Vector3 = new this.constructor();
+			var destEmission:Vector3 = new Vector3();
 			this.cloneTo(destEmission);
 			return destEmission;
 		}

@@ -45,10 +45,9 @@ import { IClone } from "../../IClone"
 		 * @param	destObject 克隆源。
 		 */
 		 cloneTo(destObject:any):void {
-			var destGradientDataInt:GradientDataInt = (<GradientDataInt>destObject );
+			var destGradientDataInt:GradientDataInt = <GradientDataInt>destObject;
 			destGradientDataInt._currentLength = this._currentLength;
 			var destElements:Float32Array = destGradientDataInt._elements;
-			destElements.length = this._elements.length;
 			for (var i:number = 0, n:number = this._elements.length; i < n; i++) {
 				destElements[i] = this._elements[i];
 			}
@@ -59,7 +58,7 @@ import { IClone } from "../../IClone"
 		 * @return	 克隆副本。
 		 */
 		 clone():any {
-			var destGradientDataInt:GradientDataInt = new this.constructor();
+			var destGradientDataInt:GradientDataInt = new GradientDataInt();
 			this.cloneTo(destGradientDataInt);
 			return destGradientDataInt;
 		}

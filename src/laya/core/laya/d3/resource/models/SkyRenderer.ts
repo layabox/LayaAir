@@ -70,7 +70,7 @@ import { BaseCamera } from "../../core/BaseCamera"
 		 * 是否可用。
 		 */
 		 _isAvailable():boolean {
-			return this._material && this._mesh;
+			return this._material && this._mesh?true:false;
 		}
 		
 		/**

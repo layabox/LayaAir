@@ -385,7 +385,7 @@ import { IClone } from "../../IClone"
 		 * @return	 克隆副本。
 		 */
 		 clone():any {
-			var destGradientAngularVelocity:GradientAngularVelocity = new this.constructor();
+			var destGradientAngularVelocity:GradientAngularVelocity = new GradientAngularVelocity();
 			this.cloneTo(destGradientAngularVelocity);
 			return destGradientAngularVelocity;
 		}

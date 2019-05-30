@@ -85,7 +85,7 @@ import { BufferState } from "../BufferState"
 		private static _tempDirection:Vector3 = new Vector3();
 		
 		/**@private */
-		private static _type:number = this._typeCounter++;
+		private static _type:number = GeometryElement._typeCounter++;
 		
 		/** @private */
 		private _tempRotationMatrix:Matrix4x4 = new Matrix4x4();
@@ -2147,7 +2147,7 @@ this._firstActiveElement=0;
 		 * @return	 克隆副本。
 		 */
 		 clone():any {
-			var dest:ShurikenParticleSystem = new this.constructor();
+			var dest:ShurikenParticleSystem = new ShurikenParticleSystem(null);
 			this.cloneTo(dest);
 			return dest;
 		}

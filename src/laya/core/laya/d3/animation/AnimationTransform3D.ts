@@ -58,7 +58,7 @@ this._owner = owner;
 			this._children = [];
 			
 			this._localMatrix = new Float32Array(16);
-			if (Render.supportWebGLPlusAnimation) {//[NATIVE]
+			if (Render.supportWebGLPlusAnimation) {
 				/*
 				_localPosition = new Vector3(0,0,0);
 				_localPosition.forNativeElement(localPosition);
@@ -68,10 +68,14 @@ this._owner = owner;
 				_localScale.forNativeElement(localScale);
 				_worldMatrix = worldMatrix;
 				*/
+
+				//[NATIVE_TS]
+				/*
 				this._localPosition = new ConchVector3(0,0,0,localPosition);
 				this._localRotation = new ConchQuaternion(0,0,0,1,localRotation);
 				this._localScale = new ConchVector3(0,0,0,localScale);
 				this._worldMatrix = worldMatrix;
+				*/
 
 			} else {
 				this._localPosition = new Vector3();

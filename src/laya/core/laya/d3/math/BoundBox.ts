@@ -156,7 +156,7 @@ import { IClone } from "../core/IClone"
 		 * @return	 克隆副本。
 		 */
 		 clone():any {
-			var dest:BoundBox = new this.constructor(new Vector3(),new Vector3());
+			var dest:BoundBox = new BoundBox(new Vector3(),new Vector3());
 			this.cloneTo(dest);
 			return dest;
 		}

@@ -647,7 +647,7 @@ import { IClone } from "../../core/IClone"
 		 * @return	 克隆副本。
 		 */
 		 clone():any {
-			var dest:ConchQuaternion = new this.constructor();
+			var dest:ConchQuaternion = new ConchQuaternion();
 			this.cloneTo(dest);
 			return dest;
 		}

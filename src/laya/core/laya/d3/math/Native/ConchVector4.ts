@@ -138,7 +138,7 @@ import { IClone } from "../../core/IClone"
 		 * @return	 克隆副本。
 		 */
 		 clone():any {
-			var destVector4:ConchVector4 = new this.constructor();
+			var destVector4:ConchVector4 = new ConchVector4();
 			this.cloneTo(destVector4);
 			return destVector4;
 		}

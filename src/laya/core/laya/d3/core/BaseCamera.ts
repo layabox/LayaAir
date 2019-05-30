@@ -213,8 +213,6 @@ this._shaderValues = new ShaderData(null);
 			this.cullingMask = 2147483647/*int.MAX_VALUE*/;
 			this.clearFlag = BaseCamera.CLEARFLAG_SOLIDCOLOR;
 			this.useOcclusionCulling = true;
-			this._calculateProjectionMatrix();
-			Laya.stage.on(Event.RESIZE, this, this._onScreenSizeChanged);
 		}
 		
 		/**
@@ -244,7 +242,7 @@ this._shaderValues = new ShaderData(null);
 		/**
 		 * @private
 		 */
-		private _onScreenSizeChanged():void {
+		protected _onScreenSizeChanged():void {
 			this._calculateProjectionMatrix();
 		}
 		

@@ -59,7 +59,7 @@ import { IClone } from "../../IClone"
 					destVelocity = GradientVelocity.createByRandomTwoGradient(this._velocity.gradientXMin.clone(),this._velocity.gradientYMin.clone(),this._velocity.gradientZMin.clone(),this._velocity.gradientXMax.clone(),this._velocity.gradientYMax.clone(),this._velocity.gradientZMax.clone());
 					break;
 			}
-			var destVelocityOverLifetime:VelocityOverLifetime = new this.constructor(destVelocity);
+			var destVelocityOverLifetime:VelocityOverLifetime = new VelocityOverLifetime(destVelocity);
 			destVelocityOverLifetime.enbale = this.enbale;
 			destVelocityOverLifetime.space = this.space;
 			return destVelocityOverLifetime;

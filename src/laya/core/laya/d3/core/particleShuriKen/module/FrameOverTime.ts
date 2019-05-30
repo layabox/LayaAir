@@ -153,7 +153,7 @@ import { IClone } from "../../IClone"
 		 * @return	 克隆副本。
 		 */
 		 clone():any {
-			var destFrameOverTime:FrameOverTime = new this.constructor();
+			var destFrameOverTime:FrameOverTime = new FrameOverTime();
 			this.cloneTo(destFrameOverTime);
 			return destFrameOverTime;
 		}

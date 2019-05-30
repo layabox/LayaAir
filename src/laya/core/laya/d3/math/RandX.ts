@@ -15,7 +15,7 @@
 		private _state1L:number;
 		
 		/**基于时间种子的随机数。*/
-		 static defaultRand:RandX = new Rand([0, Date.now() / 65536, 0, Date.now() % 65536]);
+		 static defaultRand:RandX = new RandX([0, Date.now() / 65536, 0, Date.now() % 65536]);
 		
 		/**
 		 * 创建一个 <code>Rand</code> 实例。

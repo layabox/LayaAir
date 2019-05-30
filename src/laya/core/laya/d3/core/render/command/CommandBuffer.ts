@@ -8,6 +8,7 @@ import { Camera } from "../../Camera"
 	import { LayaGL } from "laya/layagl/LayaGL"
 	import { BaseTexture } from "laya/resource/BaseTexture"
 	import { WebGLContext } from "laya/webgl/WebGLContext"
+import { Command } from "./Command";
 	
 	/**
 	 * <code>CommandBuffer</code> 类用于创建命令流。

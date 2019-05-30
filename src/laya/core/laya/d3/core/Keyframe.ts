@@ -27,7 +27,7 @@ import { IClone } from "././IClone";
 		 * @return	 克隆副本。
 		 */
 		 clone():any {
-			var dest:Keyframe = new this.constructor();
+			var dest:Keyframe = new Keyframe();
 			this.cloneTo(dest);
 			return dest;
 		}

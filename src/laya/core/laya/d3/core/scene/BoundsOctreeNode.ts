@@ -17,6 +17,7 @@ import { Bounds } from "../Bounds"
 	import { Vector3 } from "../../math/Vector3"
 	import { Utils3D } from "../../utils/Utils3D"
 	import { Stat } from "laya/utils/Stat"
+import { BoundsOctree } from "./BoundsOctree";
 	
 	/**
 	 * <code>BoundsOctreeNode</code> 类用于创建八叉树节点。

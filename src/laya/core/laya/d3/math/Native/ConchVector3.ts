@@ -493,7 +493,7 @@ import { IClone } from "../../core/IClone"
 		 * @return	 克隆副本。
 		 */
 		 clone():any {
-			var destVector3:ConchVector3 = new this.constructor();
+			var destVector3:ConchVector3 = new ConchVector3();
 			this.cloneTo(destVector3);
 			return destVector3;
 		}

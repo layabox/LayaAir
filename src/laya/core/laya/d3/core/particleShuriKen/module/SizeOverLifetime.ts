@@ -63,7 +63,7 @@ import { IClone } from "../../IClone"
 				break;
 			}
 			
-			var destSizeOverLifetime:SizeOverLifetime = new this.constructor(destSize);
+			var destSizeOverLifetime:SizeOverLifetime = new SizeOverLifetime(destSize);
 			destSizeOverLifetime.enbale = this.enbale;
 			return destSizeOverLifetime;
 		}

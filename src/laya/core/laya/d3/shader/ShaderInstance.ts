@@ -132,7 +132,7 @@ import { BaseCamera } from "../core/BaseCamera"
 				}
 				one.type = uniformData.type;
 				this._addShaderUnifiormFun(one);
-				var uniformPeriod:any[] = this._uniformMap[uniName];
+				var uniformPeriod:number = this._uniformMap[uniName];
 				if (uniformPeriod != null) {
 					one.dataOffset = Shader3D.propertyNameToID(uniName);
 					switch (uniformPeriod) {

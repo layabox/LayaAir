@@ -346,7 +346,7 @@ import { Bounds } from "../../core/Bounds"
 		 * @return	 克隆副本。
 		 */
 		 clone():any {//[实现IClone接口]
-			var dest:Mesh = new this.constructor();
+			var dest:Mesh = new Mesh();
 			this.cloneTo(dest);
 			return dest;
 		}

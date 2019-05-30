@@ -25,7 +25,7 @@ import { Bounds } from "../Bounds"
 	 */
 	export class BaseRender extends EventDispatcher implements ISingletonElement, IOctreeObject {
 		/**@private */
-		 static _tempBoundBoxCorners:Vector3[] = new Array<Vector3>([new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3()]);
+		 static _tempBoundBoxCorners:Vector3[] = [new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3()];
 		
 		/**@private */
 		private static _uniqueIDCounter:number = 0;

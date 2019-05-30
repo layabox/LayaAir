@@ -183,8 +183,9 @@ import { GeometryElement } from "../core/GeometryElement"
 		 * @private
 		 */
 		 getBatchOpaquaMark(lightMapIndex:number, receiveShadow:boolean, materialID:number, staticBatchID:number):BatchMark {
+			var receiveShadowIndex:number= receiveShadow?1:0;
 			var staLightMapMarks:any[] = (this._opaqueBatchMarks[lightMapIndex]) || (this._opaqueBatchMarks[lightMapIndex] = []);
-			var staReceiveShadowMarks:any[] = (staLightMapMarks[receiveShadow]) || (staLightMapMarks[receiveShadow] = []);
+			var staReceiveShadowMarks:any[] = (staLightMapMarks[receiveShadowIndex]) || (staLightMapMarks[receiveShadowIndex] = []);
 			var staMaterialMarks:BatchMark[] = (staReceiveShadowMarks[materialID]) || (staReceiveShadowMarks[materialID] = []);
 			return (staMaterialMarks[staticBatchID]) || (staMaterialMarks[staticBatchID] = new BatchMark);
 		}

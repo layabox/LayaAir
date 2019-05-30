@@ -289,7 +289,7 @@ import { CastShadowList } from "../../CastShadowList"
 		 * @return 雾化颜色。
 		 */
 		 get fogColor():Vector3 {
-			return (<Vector3>this._shaderValues.getVector(Scene3D.FOGCOLOR) );
+			return (<Vector3>this._shaderValues.getVector3(Scene3D.FOGCOLOR) );
 		}
 		
 		/**
@@ -337,7 +337,7 @@ import { CastShadowList } from "../../CastShadowList"
 		 * @return 环境光颜色。
 		 */
 		 get ambientColor():Vector3 {
-			return (<Vector3>this._shaderValues.getVector(Scene3D.AMBIENTCOLOR) );
+			return (<Vector3>this._shaderValues.getVector3(Scene3D.AMBIENTCOLOR) );
 		}
 		
 		/**

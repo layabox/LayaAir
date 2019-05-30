@@ -242,7 +242,7 @@ import { BoundBox } from "../math/BoundBox"
 		 * @return	 克隆副本。
 		 */
 		 clone():any {
-			var dest:Bounds = new this.constructor();
+			var dest:Bounds = new Bounds(new Vector3(),new Vector3());
 			this.cloneTo(dest);
 			return dest;
 		}

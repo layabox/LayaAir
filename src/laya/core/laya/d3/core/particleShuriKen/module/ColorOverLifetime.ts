@@ -54,7 +54,7 @@ import { GradientColor } from "././GradientColor";
 				break;
 			}
 			
-			var destColorOverLifetime:ColorOverLifetime = new this.constructor(destColor);
+			var destColorOverLifetime:ColorOverLifetime = new ColorOverLifetime(destColor);
 			destColorOverLifetime.enbale = this.enbale;
 			return destColorOverLifetime;
 		}

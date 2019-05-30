@@ -1,6 +1,7 @@
 import { HitResult } from "././HitResult";
 import { ContactPoint } from "././ContactPoint";
 import { PhysicsComponent } from "./PhysicsComponent"
+import { Collision } from "./Collision";
 	
 	/**
 	 * <code>CollisionMap</code> 类用于实现碰撞组合实例图。

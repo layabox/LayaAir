@@ -105,14 +105,14 @@ import { IClone } from "../core/IClone"
 		 * @return	 克隆副本。
 		 */
 		 clone():any {
-			var destVector2:Vector2 = new this.constructor();
+			var destVector2:Vector2 = new Vector2();
 			this.cloneTo(destVector2);
 			return destVector2;
 		}
 		
-		 forNativeElement(nativeElements:Float32Array = null):void
+		 forNativeElement(nativeElements:Float32Array = null):void//[NATIVE_TS]
 		{		
-			if (nativeElements)
+			/*if (nativeElements)
 			{
 				this.elements = nativeElements;
 				this.elements[0] = this.x;
@@ -123,7 +123,7 @@ import { IClone } from "../core/IClone"
 				this.elements = new Float32Array([this.x,this.y]);
 			}
 			Vector2.rewriteNumProperty(this, "x", 0);
-			Vector2.rewriteNumProperty(this, "y", 1);
+			Vector2.rewriteNumProperty(this, "y", 1);*/
 		}
 		
 		 static rewriteNumProperty(proto:any, name:string,index:number):void

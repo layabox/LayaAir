@@ -145,7 +145,7 @@ import { Gradient } from "../../Gradient"
 		 * @return	 克隆副本。
 		 */
 		 clone():any {
-			var destGradientColor:GradientColor = new this.constructor();
+			var destGradientColor:GradientColor = new GradientColor();
 			this.cloneTo(destGradientColor);
 			return destGradientColor;
 		}

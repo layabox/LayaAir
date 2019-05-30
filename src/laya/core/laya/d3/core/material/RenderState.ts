@@ -147,7 +147,7 @@ import { IClone } from "../IClone"
 		 * @return	 克隆副本。
 		 */
 		 clone():any {
-			var dest:RenderState = new this.constructor();
+			var dest:RenderState = new RenderState();
 			this.cloneTo(dest);
 			return dest;
 		}

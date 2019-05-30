@@ -1,10 +1,12 @@
 import { AnimatorState } from "./AnimatorState";
 import { KeyframeNodeOwner } from "./KeyframeNodeOwner";
 import { AnimatorPlayState } from "./AnimatorPlayState";
-import { AnimationClip } from "../animation/AnimationClip"
-	import { KeyframeNodeList } from "../animation/KeyframeNodeList"
-	import { IClone } from "../core/IClone"
-	import { IReferenceCounter } from "../resource/IReferenceCounter"
+import { AnimationClip } from "../animation/AnimationClip";
+	import { KeyframeNodeList } from "../animation/KeyframeNodeList";
+	import { IClone } from "../core/IClone";
+	import { IReferenceCounter } from "../resource/IReferenceCounter";
+import { Animator } from "./Animator";
+
 	
 	/**
 	 * <code>AnimatorControllerLayer</code> 类用于创建动画控制器层。
@@ -232,7 +234,7 @@ import { AnimationClip } from "../animation/AnimationClip"
 		 * @return	 克隆副本。
 		 */
 		 clone():any {
-			var dest:AnimatorControllerLayer = new this.constructor();
+			var dest:AnimatorControllerLayer = new AnimatorControllerLayer(this.name);
 			this.cloneTo(dest);
 			return dest;
 		}

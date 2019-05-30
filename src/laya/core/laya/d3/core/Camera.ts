@@ -295,6 +295,7 @@ import { PostProcess } from "../component/PostProcess"
 		 * @param	farPlane 远裁面。
 		 */
 		constructor(aspectRatio:number = 0, nearPlane:number = 0.3, farPlane:number = 1000){
+			super(nearPlane, farPlane);
 			this._viewMatrix = new Matrix4x4();
 			this._projectionMatrix = new Matrix4x4();
 			this._projectionViewMatrix = new Matrix4x4();
@@ -306,7 +307,8 @@ import { PostProcess } from "../component/PostProcess"
 			if (Render.supportWebGLPlusCulling)
 				this._boundFrustumBuffer = new Float32Array(24);
 			
-			super(nearPlane, farPlane);
+			this._calculateProjectionMatrix();
+			Laya.stage.on(Event.RESIZE, this, this._onScreenSizeChanged);
 			this.transform.on(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
 		}
 		
@@ -454,10 +456,10 @@ import { PostProcess } from "../component/PostProcess"
 			var renderTar:RenderTexture = this._renderTexture || this._offScreenRenderTexture;//如果有临时renderTexture则画到临时renderTexture,最后再画到屏幕或者离屏画布,如果无临时renderTexture则直接画到屏幕或离屏画布
 			if (renderTar) {
 				renderTar._start();
-				Matrix4x4.multiply(this._invertYScaleMatrix, this._projectionMatrix, this._invertYProjectionMatrix);
-				Matrix4x4.multiply(this._invertYScaleMatrix, this.projectionViewMatrix, this._invertYProjectionViewMatrix);
-				projectMat = context.projectionMatrix = this._invertYProjectionMatrix;//TODO:
-				context.projectionViewMatrix = this._invertYProjectionViewMatrix;//TODO:
+				Matrix4x4.multiply(BaseCamera._invertYScaleMatrix, this._projectionMatrix, BaseCamera._invertYProjectionMatrix);
+				Matrix4x4.multiply(BaseCamera._invertYScaleMatrix, this.projectionViewMatrix, BaseCamera._invertYProjectionViewMatrix);
+				projectMat = context.projectionMatrix = BaseCamera._invertYProjectionMatrix;//TODO:
+				context.projectionViewMatrix = BaseCamera._invertYProjectionViewMatrix;//TODO:
 			} else {
 				projectMat = context.projectionMatrix = this._projectionMatrix;//TODO:
 				context.projectionViewMatrix = this.projectionViewMatrix;//TODO:

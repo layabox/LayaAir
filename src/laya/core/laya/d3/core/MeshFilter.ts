@@ -5,6 +5,7 @@ import { VertexMesh } from "../graphics/Vertex/VertexMesh"
 	import { Mesh } from "../resource/models/Mesh"
 	import { SubMesh } from "../resource/models/SubMesh"
 	import { ShaderData } from "../shader/ShaderData"
+import { MeshRenderer } from "./MeshRenderer";
 	
 	/**
 	 * <code>MeshFilter</code> 类用于创建网格过滤器。
@@ -69,7 +70,7 @@ import { VertexMesh } from "../graphics/Vertex/VertexMesh"
 					case VertexMesh.MESH_COLOR0: 
 						define |= MeshSprite3D.SHADERDEFINE_COLOR;
 						break
-					case VertexMesh.MESH_TEXTURECOORDINATE0this.: 
+					case VertexMesh.MESH_TEXTURECOORDINATE0: 
 						define |= MeshSprite3D.SHADERDEFINE_UV0;
 						break;
 					case VertexMesh.MESH_TEXTURECOORDINATE1: 

@@ -50,7 +50,7 @@ import { IClone } from "../core/IClone"
 		 * @return	 克隆副本。
 		 */
 		 clone():any {
-			var dest:DefineDatas = new this.constructor();
+			var dest:DefineDatas = new DefineDatas();
 			this.cloneTo(dest);
 			return dest;
 		}

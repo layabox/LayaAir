@@ -16,7 +16,7 @@ import { BufferState } from "../BufferState"
 	 */
 	export class PixelLineFilter extends GeometryElement {
 		/**@private */
-		private static _type:number = this._typeCounter++;
+		private static _type:number = GeometryElement._typeCounter++;
 		
 		/** @private */
 		private _floatCountPerVertices:number = 7;

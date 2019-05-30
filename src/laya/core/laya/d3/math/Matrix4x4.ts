@@ -472,9 +472,9 @@ import { IClone } from "../core/IClone"
 		 getElementByRowColumn(row:number, column:number):number {
 			
 			if (row < 0 || row > 3)
-				throw new Error("row", "Rows and columns for matrices run from 0 to 3, inclusive.");
+				throw new Error("row Rows and columns for matrices run from 0 to 3, inclusive.");
 			if (column < 0 || column > 3)
-				throw new Error("column", "Rows and columns for matrices run from 0 to 3, inclusive.");
+				throw new Error("column Rows and columns for matrices run from 0 to 3, inclusive.");
 			
 			return this.elements[(row * 4) + column];
 		}
@@ -482,9 +482,9 @@ import { IClone } from "../core/IClone"
 		 setElementByRowColumn(row:number, column:number, value:number):void {
 			
 			if (row < 0 || row > 3)
-				throw new Error("row", "Rows and columns for matrices run from 0 to 3, inclusive.");
+				throw new Error("row Rows and columns for matrices run from 0 to 3, inclusive.");
 			if (column < 0 || column > 3)
-				throw new Error("column", "Rows and columns for matrices run from 0 to 3, inclusive.");
+				throw new Error("column Rows and columns for matrices run from 0 to 3, inclusive.");
 			
 			this.elements[(row * 4) + column] = value;
 		}
@@ -774,7 +774,7 @@ import { IClone } from "../core/IClone"
 		 * @return	 克隆副本。
 		 */
 		 clone():any {
-			var dest:Matrix4x4 = new this.constructor();
+			var dest:Matrix4x4 = new Matrix4x4();
 			this.cloneTo(dest);
 			return dest;
 		}

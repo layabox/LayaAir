@@ -343,7 +343,7 @@ import { IClone } from "../core/IClone"
 		 * @return	 克隆副本。
 		 */
 		 clone():any {
-			var dest:Matrix3x3 = new this.constructor();
+			var dest:Matrix3x3 = new Matrix3x3();
 			this.cloneTo(dest);
 			return dest;
 		}

@@ -93,7 +93,7 @@ import { IClone } from "../../IClone"
 		 * @return	 克隆副本。
 		 */
 		 clone():any {
-			var destStartFrame:StartFrame = new this.constructor();
+			var destStartFrame:StartFrame = new StartFrame();
 			this.cloneTo(destStartFrame);
 			return destStartFrame;
 		}

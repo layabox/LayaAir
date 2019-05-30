@@ -51,7 +51,6 @@ import { IClone } from "../../IClone"
 			var destGradientDataVector2:GradientDataVector2 = (<GradientDataVector2>destObject );
 			destGradientDataVector2._currentLength = this._currentLength;
 			var destElements:Float32Array = destGradientDataVector2._elements;
-			destElements.length = this._elements.length;
 			for (var i:number = 0, n:number = this._elements.length; i < n; i++) {
 				destElements[i] = this._elements[i];
 			}
@@ -63,7 +62,7 @@ import { IClone } from "../../IClone"
 		 * @return	 克隆副本。
 		 */
 		 clone():any {
-			var destGradientDataVector2:GradientDataVector2 = new this.constructor();
+			var destGradientDataVector2:GradientDataVector2 = new GradientDataVector2();
 			this.cloneTo(destGradientDataVector2);
 			return destGradientDataVector2;
 		}

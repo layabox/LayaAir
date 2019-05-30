@@ -274,7 +274,7 @@ this._id = ++Sprite3D._uniqueIDCounter;
 				this.transform._setParent(parent3D.transform);
 				if (parent3D._hierarchyAnimator) {
 					(!this._hierarchyAnimator) && (this._setHierarchyAnimator(parent3D._hierarchyAnimator, null));//执行条件为sprite3D._hierarchyAnimator==parentAnimator,只有一种情况sprite3D._hierarchyAnimator=null成立,且_hierarchyAnimator不为空有意义
-					parent3D._changeAnimatorsToLinkSprite3D(this, true, new Array<string>([name]));//TODO:是否获取默认值函数移到active事件函数内，U3D修改active会重新获取默认值
+					parent3D._changeAnimatorsToLinkSprite3D(this, true, [this.name]);//TODO:是否获取默认值函数移到active事件函数内，U3D修改active会重新获取默认值
 				}
 			}
 			super._onAdded();
@@ -291,7 +291,7 @@ this._id = ++Sprite3D._uniqueIDCounter;
 				this.transform._setParent(null);
 				if (parent3D._hierarchyAnimator) {
 					(this._hierarchyAnimator == parent3D._hierarchyAnimator) && (this._clearHierarchyAnimator(parent3D._hierarchyAnimator, null));//_hierarchyAnimator不为空有意义
-					parent3D._changeAnimatorsToLinkSprite3D(this, false, new Array<string>([name]));//TODO:是否获取默认值函数移到active事件函数内，U3D修改active会重新获取默认值
+					parent3D._changeAnimatorsToLinkSprite3D(this, false, [this.name]);//TODO:是否获取默认值函数移到active事件函数内，U3D修改active会重新获取默认值
 				}
 			}
 		}

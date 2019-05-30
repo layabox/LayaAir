@@ -128,7 +128,7 @@ import { IClone } from "../core/IClone"
 		 * @return	 克隆副本。
 		 */
 		 clone():any {
-			var dest:BoundSphere = new this.constructor(new Vector3(),new Vector3());
+			var dest:BoundSphere = new BoundSphere(new Vector3(),0);
 			this.cloneTo(dest);
 			return dest;
 		}

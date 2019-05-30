@@ -360,13 +360,11 @@ import { IClone } from "./IClone"
 			var i:number, n:number;
 			destGradientDataColor._colorAlphaKeysCount = this._colorAlphaKeysCount;
 			var destAlphaElements:Float32Array = destGradientDataColor._alphaElements;
-			destAlphaElements.length = this._alphaElements.length;
 			for (i = 0, n = this._alphaElements.length; i < n; i++)
 				destAlphaElements[i] = this._alphaElements[i];
 			
 			destGradientDataColor._colorRGBKeysCount = this._colorRGBKeysCount;
 			var destRGBElements:Float32Array = destGradientDataColor._rgbElements;
-			destRGBElements.length = this._rgbElements.length;
 			for (i = 0, n = this._rgbElements.length; i < n; i++)
 				destRGBElements[i] = this._rgbElements[i];
 		

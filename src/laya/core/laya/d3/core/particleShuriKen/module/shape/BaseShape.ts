@@ -102,7 +102,7 @@ import { IClone } from "../../../IClone"
 		 * @return	 克隆副本。
 		 */
 		 clone():any {
-			var destShape:Vector3 = new this.constructor();
+			var destShape:BaseShape = new BaseShape();
 			this.cloneTo(destShape);
 			return destShape;
 		}

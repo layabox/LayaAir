@@ -94,8 +94,8 @@ import { Quaternion } from "../../math/Quaternion"
 			if (this._compoundParent) {//TODO:待查,这里有问题
 				this.updateLocalTransformations();//TODO:
 			} else {
-				this._nativeScale.setValue(value.x, value.y, value.z);
-				this._nativeShape.setLocalScaling(this._nativeScale);
+				ColliderShape._nativeScale.setValue(value.x, value.y, value.z);
+				this._nativeShape.setLocalScaling(ColliderShape._nativeScale);
 				this._nativeShape.updateBound();//更新缩放后需要更新包围体,有性能损耗
 			}
 		}

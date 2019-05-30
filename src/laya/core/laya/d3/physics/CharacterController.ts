@@ -156,9 +156,9 @@ import { Component } from "laya/components/Component"
 		 */
 		constructor(stepheight:number = 0.1, upAxis:Vector3 = null, collisionGroup:number = Physics3DUtils.COLLISIONFILTERGROUP_DEFAULTFILTER, canCollideWith:number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER){
 			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			super(collisionGroup, canCollideWith);
 			this._stepHeight = stepheight;
 			(upAxis) && (this._upAxis = upAxis);
-			super(collisionGroup, canCollideWith);
 		}
 		
 		/**
@@ -247,7 +247,7 @@ import { Component } from "laya/components/Component"
 		 * @param	movement 移动向量。
 		 */
 		 move(movement:Vector3):void {
-			var nativeMovement:any = this._nativeVector30;
+			var nativeMovement:any = CharacterController._nativeVector30;
 			nativeMovement.setValue(-movement.x, movement.y, movement.z);
 			this._nativeKinematicCharacter.setWalkDirection(nativeMovement);
 		}
@@ -258,7 +258,7 @@ import { Component } from "laya/components/Component"
 		 */
 		 jump(velocity:Vector3 = null):void {
 			if (velocity) {
-				var nativeVelocity:any = this._nativeVector30;
+				var nativeVelocity:any = CharacterController._nativeVector30;
 				Utils3D._convertToBulletVec3(velocity, nativeVelocity, true);
 				this._nativeKinematicCharacter.jump(nativeVelocity);
 			} else {

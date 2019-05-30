@@ -133,7 +133,7 @@ import { AnimationNode } from "../animation/AnimationNode"
 		 * @return	 克隆副本。
 		 */
 		 clone():any {
-			var dest:Avatar = new this.constructor();
+			var dest:Avatar = new Avatar();
 			this.cloneTo(dest);
 			return dest;
 		}

@@ -93,7 +93,7 @@ import { IClone } from "../core/IClone"
 		 * @return	 克隆副本。
 		 */
 		 clone():any {
-			var destVector4:Vector4 = new this.constructor();
+			var destVector4:Vector4 = new Vector4();
 			this.cloneTo(destVector4);
 			return destVector4;
 		}
@@ -334,8 +334,9 @@ import { IClone } from "../core/IClone"
 			out.w = Math.max(a.w, b.w);
 		}
 		
-		 forNativeElement(nativeElements:Float32Array = null):void
-		{		
+		forNativeElement(nativeElements:Float32Array = null):void//[NATIVE_TS]
+		{
+			/*		
 			if (nativeElements)
 			{
 				this.elements = nativeElements;
@@ -352,6 +353,7 @@ import { IClone } from "../core/IClone"
 			Vector2.rewriteNumProperty(this, "y", 1);
 			Vector2.rewriteNumProperty(this, "z", 2);
 			Vector2.rewriteNumProperty(this, "w", 3);
+			*/
 		}
 	
 	}
