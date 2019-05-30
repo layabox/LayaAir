@@ -1,4 +1,3 @@
-import { FORMAT_R8G8B8A8 } from "./FORMAT_R8G8B8A8";
 import { Color } from "laya/d3/math/Color"
 	import { WebGLContext } from "laya/webgl/WebGLContext"
 	import { BaseTexture } from "laya/resource/BaseTexture"
@@ -6,8 +5,8 @@ import { Color } from "laya/d3/math/Color"
 	export class PixelTexture extends Texture2D {
 		private pixels:Uint8Array;
 		private _color:Color;
-		constructor(color:Color, divide:number = 10, format:number = FORMAT_R8G8B8A8, mipmap:boolean = true, canRead:boolean = true){
-			super(512, 512, FORMAT_R8G8B8A8, mipmap, canRead);
+		constructor(color:Color, divide:number = 10, format:number = BaseTexture.FORMAT_R8G8B8A8, mipmap:boolean = true, canRead:boolean = true){
+			super(512, 512, BaseTexture.FORMAT_R8G8B8A8, mipmap, canRead);
 			this._color = color;
 			this._setFilterMode(BaseTexture.FILTERMODE_TRILINEAR);
 			this._setAnisotropy(16);

@@ -84,7 +84,6 @@ import { Button } from "laya/ui/Button";
 import { List } from "laya/ui/List";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { RenderTextureDemo } from "../LayaAir3D_Texture/RenderTextureDemo";
 import { IndexViewUI } from "../ui/IndexViewUI";
 import { Main } from "./../Main";
 	
@@ -154,8 +153,6 @@ import { Main } from "./../Main";
 		private _sprite3DClsArr:any[] = [PixelLineSprite3DDemo,SkinnedMeshSprite3DDemo,Sprite3DClone,Sprite3DLoad,Sprite3DParent,TransformDemo];
 		private _sprite3DArr:any[] = ['PixelLineSprite3D', 'SkinnedMeshSprite3D',"Sprite3DClone",'Sprite3DLoad','Sprite3DParent','Transform'];
 		
-		private _textureClsArr:any[] = [TextureDemo,TextureGPUCompression,RenderTextureDemo];
-		private _textureArr:any[] = ['Texture','TextureGPUCompression', 'RenderTexture'];
 		
 		private _trailClsArr:any[] = [TrailDemo,TrailRender];
 		private _trailArr:any[] = ['Trail','TrailRender'];
@@ -218,21 +215,21 @@ import { Main } from "./../Main";
 		}
 		private i:number = 0;
 		private nextBtn():void {
-			//var i_length:int
+			var i_length:number;
 			this.a_length = this._bigIndex;
 			if (this.smallComBox.selectedIndex == this.b_length)
 			{
 				this.a_length += 1;
-				this.i_length = 0;
+				i_length = 0;
 			}
 			else
 			{
-				this.i_length = this.smallComBox.selectedIndex+1;
+				i_length = this.smallComBox.selectedIndex+1;
 			}
 			
 			//i++;
 			
-			this.switchFunc(this.a_length, this.i_length);
+			this.switchFunc(this.a_length, i_length);
 			
 		}
 		
@@ -328,8 +325,8 @@ import { Main } from "./../Main";
 						this.b_length = this._sprite3DClsArr.length - 1;
 						break;
 					case 16:
-						this._oldView = new this._textureClsArr[index];
-						this.b_length = this._textureClsArr.length - 1;
+						//this._oldView = new this._textureClsArr[index];
+						//this.b_length = this._textureClsArr.length - 1;
 						break;
 					case 17:
 						this._oldView = new this._trailClsArr[index];
@@ -432,7 +429,7 @@ import { Main } from "./../Main";
 					labelStr = this._sprite3DArr.toString();
 					break;
 				case 16: //advanced
-					labelStr = this._textureArr.toString();
+					//labelStr = this._textureArr.toString();
 					break;
 				case 17: //advanced
 					labelStr = this._trailArr.toString();
