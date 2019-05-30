@@ -36,12 +36,12 @@ import { CollisionUtils } from "././CollisionUtils";
 		private static _tempM1:Matrix4x4 = new Matrix4x4();
 		
 		/** @private */
-		private static _corners:any = new Array<Vector3>([new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3()]);
+		private static _corners:any = [new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3()];
 		
 		/** @private */
-		private static _rows1:Vector3[] = new Array<Vector3>([new Vector3(), new Vector3(), new Vector3()]);
+		private static _rows1:Vector3[] = [new Vector3(), new Vector3(), new Vector3()];
 		/** @private */
-		private static _rows2:Vector3[] = new Array<Vector3>([new Vector3(), new Vector3(), new Vector3()]);
+		private static _rows2:Vector3[] = [new Vector3(), new Vector3(), new Vector3()];
 		
 		/** @private */
 		private static _ray:Ray = new Ray(new Vector3(), new Vector3());

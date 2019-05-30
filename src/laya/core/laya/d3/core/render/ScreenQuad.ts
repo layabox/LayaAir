@@ -3,11 +3,10 @@ import { BufferState } from "../BufferState"
 	import { VertexDeclaration } from "../../graphics/VertexDeclaration"
 	import { VertexElement } from "../../graphics/VertexElement"
 	import { VertexElementFormat } from "../../graphics/VertexElementFormat"
-	import { Vector4 } from "../../math/Vector4"
-	import { LayaGL } from "../../../../../../core/src/laya/layagl/LayaGL"
-	import { Resource } from "../../../../../../core/src/laya/resource/Resource"
-	import { Stat } from "../../../../../../core/src/laya/utils/Stat"
-	import { WebGLContext } from "../../../../../../core/src/laya/webgl/WebGLContext"
+import { Resource } from "laya/resource/Resource";
+import { WebGLContext } from "laya/webgl/WebGLContext";
+import { LayaGL } from "laya/layagl/LayaGL";
+import { Stat } from "laya/utils/Stat";
 	
 	/**
 	 * <code>ScreenQuad</code> 类用于创建全屏四边形。

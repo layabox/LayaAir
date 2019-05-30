@@ -94,7 +94,7 @@ import { LayaGL } from "laya/layagl/LayaGL"
 		/**
 		 * @private
 		 */
-		private _texImage2D(gl:any, glTextureType:number, width:number, height:number):number {
+		private _texImage2D(gl:any, glTextureType:number, width:number, height:number):void {
 			var glFormat:number;
 			switch (this._format) {
 			case BaseTexture.FORMAT_R8G8B8: 
@@ -190,7 +190,7 @@ import { LayaGL } from "laya/layagl/LayaGL"
 		 * @return 像素数据。
 		 */
 		 getData(x:number, y:number, width:number, height:number, out:Uint8Array):Uint8Array {//TODO:检查长度
-			if (Render.isConchApp && conchConfig.threadMode == 2) {
+			if (Render.isConchApp && (<any>window).conchConfig.threadMode == 2) {
 				throw "native 2 thread mode use getDataAsync";
 			}
 			var gl:WebGLContext = LayaGL.instance;

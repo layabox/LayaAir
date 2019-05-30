@@ -441,7 +441,7 @@ import { IClone } from "../core/IClone"
 				this._data["conchRef"] = preConchRef;
 				this._data["_ptrID"] = prePtrID;
 				pre && this._int32Data.set(pre, 0);
-				conch.updateArrayBufferRef(this._data['_ptrID'], preConchRef.isSyncToRender(), this._data);
+				(<any>window).conch.updateArrayBufferRef(this._data['_ptrID'], preConchRef.isSyncToRender(), this._data);
 			}
 		}
 		

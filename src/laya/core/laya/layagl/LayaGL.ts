@@ -1,4 +1,5 @@
 import { CommandEncoder } from "././CommandEncoder";
+import { LayaGPU } from "laya/webgl/LayaGPU";
 
 	/**
 	 * @private

@@ -303,7 +303,7 @@ import { Component } from "laya/components/Component"
 				break;
 			case "MeshSprite3D": 
 				node = new MeshSprite3D();
-				(outBatchSprites) && (outBatchSprites.push(node));
+				(outBatchSprites) && (outBatchSprites.push(<MeshSprite3D>node));
 				break;
 			case "SkinnedMeshSprite3D": 
 				node = new SkinnedMeshSprite3D();
@@ -982,7 +982,7 @@ import { Component } from "laya/components/Component"
 				break;
 			case "MeshSprite3D": 
 				node = new MeshSprite3D();
-				(outBatchSprites) && (outBatchSprites.push(node));
+				(outBatchSprites) && (outBatchSprites.push(<MeshSprite3D>node));
 				break;
 			case "SkinnedMeshSprite3D": 
 				node = new SkinnedMeshSprite3D();
