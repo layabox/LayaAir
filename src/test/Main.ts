@@ -27,7 +27,7 @@ import { Laya } from "Laya"
 				Laya.stage.scaleMode =  Stage.SCALE_FIXED_AUTO;
 			}else
 			{
-				//Laya3D.init(0, 0);
+				Laya3D.init(0, 0);
 				Laya.stage.scaleMode = Stage.SCALE_FULL;
 				Laya.stage.screenMode = Stage.SCREEN_NONE;
 			}
@@ -46,7 +46,7 @@ import { Laya } from "Laya"
 		
 		private onLoaded():void
 		{
-            console.log('onload');
+
 			if(!this._isType)
 			{
 				//Layaair1.0-2d

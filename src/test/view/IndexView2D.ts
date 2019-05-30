@@ -112,7 +112,7 @@ import { Sprite } from "../../../bin/libs/laya/display/Sprite";
 		
 		//---------------------------------------------------------------------------------2D------------开始---------------------------------------------
 		
-		private _comboxBigArr:any[] = ['Sprite','动画','骨骼动画','混合模式','区块地图','滤镜','粒子','音频','文本','UI','计时器','缓动','鼠标交互','屏幕适配','网络和格式','调试','性能测试','IDE'];
+		private _comboxBigArr:any[] = ['Sprite','动画','骨骼动画','混合模式','区块地图','滤镜','粒子','音频','文本','UI','计时器','缓动','鼠标交互','屏幕适配','网络和格式','调试','性能测试','IDE',"VIP测试案例"];
 		/************************sprite-start***************************/
 		private _comboBoxSpriteClsArr:any[] = [Sprite_DisplayImage,Sprite_Container,Sprite_RoateAndScale,Sprite_DrawPath,Sprite_MagnifyingGlass,Sprite_DrawShapes,Sprite_Cache,Sprite_NodeControl,Sprite_Pivot,Sprite_SwitchTexture];
 		private _comboBoxSpriteArr:any[] = ['显示图片','容器','旋转缩放','根据数据绘制路径','遮罩-放大镜','绘制各种形状','缓存为静态图像','节点控制','轴中心','切换纹理'];
@@ -202,6 +202,10 @@ import { Sprite } from "../../../bin/libs/laya/display/Sprite";
 		private _comboBoxIDEClsArr:any[] = [IDE_Project];
 		private _comboBoxIDEArr:any[] = ['显示IDE创建的界面'];
 		/************************IDE-end***************************/
+	
+		private _VIPClsArr:any[] = [VIPMergeBinary_as,VIPMergeText,VIPTexturetrans_as_a,VIPTexturetrans_as_b];
+		private _VIPArr:any[] = ['VIP_MergeBinary',"VIP_MergeText","VIP_Texturetrans_a","VIP_Texturetrans_b"];
+		
 		private _bigIndex:number =0;
 		private _smallIndex:number;
 		private _oldView:any;
@@ -398,6 +402,10 @@ import { Sprite } from "../../../bin/libs/laya/display/Sprite";
 						this._oldView = new this._comboBoxIDEClsArr[index];
 						this.b_length = this._comboBoxIDEClsArr.length - 1;
 						break;
+					case 18://IDE
+						this._oldView = new this._VIPClsArr[index];
+						this.b_length = this._VIPArr.length - 1;
+						break;
 					default:
 						break;
 				}
@@ -472,6 +480,9 @@ import { Sprite } from "../../../bin/libs/laya/display/Sprite";
 					break;
 				case 17://IDE
 					labelStr = this._comboBoxIDEArr.toString();
+					break;
+				case 18://IDE
+					labelStr = this._VIPArr.toString();
 					break;
 			}
 			this.smallComBox.labels = labelStr;
