@@ -725,7 +725,7 @@ import { Browser } from "../utils/Browser";
 		 */
 		 static __init_native():void
 		{
-			if (!Render.supportWebGLPlusRendering) return;
+			if (!ILaya.Render.supportWebGLPlusRendering) return;
 			var webGLContext:any= WebGLContext;
 			webGLContext.activeTexture = webGLContext.activeTextureForNative;
 			webGLContext.bindTexture = webGLContext.bindTextureForNative;
@@ -831,7 +831,7 @@ import { Browser } from "../utils/Browser";
 		 */
 		//TODO:coverage
 		 static bindVertexArrayForNative(gl:WebGLContext, vertexArray:any):void {
-			gl.bindVertexArray(vertexArray);
+			(gl as any).bindVertexArray(vertexArray);
 		}
 		
 	}

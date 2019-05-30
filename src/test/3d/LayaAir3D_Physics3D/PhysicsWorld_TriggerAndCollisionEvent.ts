@@ -1,6 +1,5 @@
 import { Laya3D } from "Laya3D";
 import { Laya } from "Laya";
-import { Transform3D } from "./Transform3D";
 import { Camera } from "laya/d3/core/Camera"
 	import { MeshSprite3D } from "laya/d3/core/MeshSprite3D"
 	import { Sprite3D } from "laya/d3/core/Sprite3D"
@@ -234,6 +233,7 @@ import { MeshRenderer } from "laya/d3/core/MeshRenderer"
 
 import { Collision } from "laya/d3/physics/Collision"
 import { PhysicsComponent } from "laya/d3/physics/PhysicsComponent"
+import { Transform3D } from "../../../../bin/libs/laya/d3/core/Transform3D";
 
 class TriggerCollisionScript extends Script3D {
 	 kinematicSprite:Sprite3D;

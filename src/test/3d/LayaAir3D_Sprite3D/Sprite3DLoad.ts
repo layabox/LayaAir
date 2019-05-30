@@ -1,17 +1,14 @@
+import { Laya } from "Laya";
+import { Camera } from "laya/d3/core/Camera";
+import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
+import { Vector3 } from "laya/d3/math/Vector3";
+import { Stage } from "laya/display/Stage";
+import { Handler } from "laya/utils/Handler";
+import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
-import { Laya } from "Laya"
-import { Transform3D } from "./Transform3D";
-import { CameraMoveScript } from "../common/CameraMoveScript"
-	import { Camera } from "laya/d3/core/Camera"
-	import { Sprite3D } from "laya/d3/core/Sprite3D"
-	import { Scene3D } from "laya/d3/core/scene/Scene3D"
-	import { Matrix4x4 } from "laya/d3/math/Matrix4x4"
-	import { Vector3 } from "laya/d3/math/Vector3"
-	import { Stage } from "laya/display/Stage"
-	import { WorkerLoader } from "laya/net/WorkerLoader"
-	import { Handler } from "laya/utils/Handler"
-	import { Stat } from "laya/utils/Stat"
-	import { Timer } from "laya/utils/Timer"
+import { CameraMoveScript } from "../common/CameraMoveScript";
 	
 	export class Sprite3DLoad {
 		constructor(){
@@ -30,7 +27,7 @@ import { CameraMoveScript } from "../common/CameraMoveScript"
 			
 			Sprite3D.load("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh", Handler.create(null, function(sprite:Sprite3D):void {
 				scene.addChild(sprite);
-				var cameraTransform:Transform3D = camera.transform;
+				var cameraTransform = camera.transform;
 				var cameraPosition:Vector3 = new Vector3();
 				var cameraRight:Vector3 = new Vector3();
 				var cameraUp:Vector3 = new Vector3();

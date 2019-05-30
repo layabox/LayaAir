@@ -1,20 +1,18 @@
-import { Laya3D } from "Laya3D"
 import { Laya } from "Laya";
-import { Camera } from "laya/d3/core/Camera"
-	import { MeshSprite3D } from "laya/d3/core/MeshSprite3D"
-	import { SkinnedMeshSprite3D } from "laya/d3/core/SkinnedMeshSprite3D"
-	import { Sprite3D } from "laya/d3/core/Sprite3D"
-	import { DirectionLight } from "laya/d3/core/light/DirectionLight"
-	import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial"
-	import { Scene3D } from "laya/d3/core/scene/Scene3D"
-	import { Quaternion } from "laya/d3/math/Quaternion"
-	import { Vector3 } from "laya/d3/math/Vector3"
-	import { Matrix4x4 } from "laya/d3/math/Matrix4x4"
-	import { Mesh } from "laya/d3/resource/models/Mesh"
-	import { Stage } from "laya/display/Stage"
-	import { Loader } from "laya/net/Loader"
-	import { Handler } from "laya/utils/Handler"
-	import { Stat } from "laya/utils/Stat"
+import { Camera } from "laya/d3/core/Camera";
+import { DirectionLight } from "laya/d3/core/light/DirectionLight";
+import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
+import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { SkinnedMeshSprite3D } from "laya/d3/core/SkinnedMeshSprite3D";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
+import { Quaternion } from "laya/d3/math/Quaternion";
+import { Vector3 } from "laya/d3/math/Vector3";
+import { Stage } from "laya/display/Stage";
+import { Loader } from "laya/net/Loader";
+import { Handler } from "laya/utils/Handler";
+import { Stat } from "laya/utils/Stat";
+import { Laya3D } from "Laya3D";
     
     /**
      * ...

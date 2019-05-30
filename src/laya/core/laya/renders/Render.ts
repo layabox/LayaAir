@@ -12,6 +12,7 @@ import { LayaGL } from "../layagl/LayaGL"
 	import { Submit } from "../webgl/submit/Submit"
 	import { Buffer2D } from "../webgl/utils/Buffer2D"
 import { SubmitBase } from "../webgl/submit/SubmitBase";
+import { LayaGPU } from "laya/webgl/LayaGPU";
 	
 	/**
 	 * @private
@@ -90,9 +91,12 @@ import { SubmitBase } from "../webgl/submit/SubmitBase";
 				}
 				var gl:WebGLContext = LayaGL.instance = WebGLContext.mainContext = getWebGLContext(Render._mainCanvas.source);
 				if (!gl)
-					return false;
+                    return false;
+                    
+                LayaGL.instance = gl;
+                LayaGL.layaGPUInstance = new LayaGPU(gl,WebGL._isWebGL2);
+                        
 				canvas.size(w, h);	//在ctx之后调用。
-				//WebGLContext.__init__(gl);
 				Context.__init__();
 				SubmitBase.__init__();
 				
@@ -101,14 +105,7 @@ import { SubmitBase } from "../webgl/submit/SubmitBase";
 				Render._context = ctx;
 				canvas._setContext(ctx);
 				
-				WebGL.shaderHighPrecision = false;
-				try {//某些浏览器中未实现此函数，使用try catch增强兼容性。
-					var precisionFormat:any = gl.getShaderPrecisionFormat(WebGLContext.FRAGMENT_SHADER, WebGLContext.HIGH_FLOAT);
-					precisionFormat.precision ? (WebGL.shaderHighPrecision =true) : WebGL.shaderHighPrecision = false;
-				} catch (e) {
-				}
 				//TODO 现在有个问题是 gl.deleteTexture并没有走WebGLContex封装的
-				LayaGL.instance = gl;
 				ShaderDefines2D.__init__();
 				Value2D.__init__();
 				Shader2D.__init__();

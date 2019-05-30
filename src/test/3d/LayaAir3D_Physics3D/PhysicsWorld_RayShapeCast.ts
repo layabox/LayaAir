@@ -1,6 +1,5 @@
 import { Laya3D } from "Laya3D"
 import { Laya } from "Laya";
-import { Transform3D } from "./Transform3D";
 import { CameraMoveScript } from "../common/CameraMoveScript"
 	import { Camera } from "laya/d3/core/Camera"
 	import { MeshSprite3D } from "laya/d3/core/MeshSprite3D"
@@ -28,6 +27,7 @@ import { CameraMoveScript } from "../common/CameraMoveScript"
 	import { Handler } from "laya/utils/Handler"
 	import { Stat } from "laya/utils/Stat"
 	import { Texture2D } from "laya/resource/Texture2D"
+import { Transform3D } from "laya/d3/core/Transform3D";
 	
 	export class PhysicsWorld_RayShapeCast {
 		//声明一些使用到的全局变量

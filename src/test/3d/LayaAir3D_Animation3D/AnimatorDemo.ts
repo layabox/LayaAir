@@ -1,23 +1,23 @@
-import { Laya3D } from "Laya3D";
 import { Laya } from "Laya";
+import { Animator } from "laya/d3/component/Animator";
+import { AnimatorState } from "laya/d3/component/AnimatorState";
+import { Camera } from "laya/d3/core/Camera";
+import { DirectionLight } from "laya/d3/core/light/DirectionLight";
+import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
+import { Vector3 } from "laya/d3/math/Vector3";
+import { Stage } from "laya/display/Stage";
+import { Text } from "laya/display/Text";
+import { Event } from "laya/events/Event";
+import { Loader } from "laya/net/Loader";
+import { Button } from "laya/ui/Button";
+import { Browser } from "laya/utils/Browser";
+import { Handler } from "laya/utils/Handler";
+import { Stat } from "laya/utils/Stat";
+import { Laya3D } from "Laya3D";
+import { CameraMoveScript } from "../common/CameraMoveScript";
 import { CustomAnimatorStateScript } from "././CustomAnimatorStateScript";
-import { CameraMoveScript } from "../common/CameraMoveScript"
-	import { Animator } from "laya/d3/component/Animator"
-	import { AnimatorState } from "laya/d3/component/AnimatorState"
-	import { Camera } from "laya/d3/core/Camera"
-	import { Sprite3D } from "laya/d3/core/Sprite3D"
-	import { DirectionLight } from "laya/d3/core/light/DirectionLight"
-	import { Scene3D } from "laya/d3/core/scene/Scene3D"
-	import { Vector3 } from "laya/d3/math/Vector3"
-	import { Matrix4x4 } from "laya/d3/math/Matrix4x4"
-	import { Stage } from "laya/display/Stage"
-	import { Text } from "laya/display/Text"
-	import { Event } from "laya/events/Event"
-	import { Loader } from "laya/net/Loader"
-	import { Button } from "laya/ui/Button"
-	import { Browser } from "laya/utils/Browser"
-	import { Handler } from "laya/utils/Handler"
-	import { Stat } from "laya/utils/Stat"
 	
 	/**
 	 * ...

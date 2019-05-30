@@ -1,8 +1,9 @@
 import { WebGLContext } from "./WebGLContext";
 import { WebGL } from "./WebGL";
 import { VertexArrayObject } from "./VertexArrayObject";
-import { Render } from "../renders/Render"
+//import { Render } from "../renders/Render"
 	import { Browser } from "../utils/Browser"
+import { ILaya } from "ILaya";
 	
 	/**
 	 * @private
@@ -15,7 +16,8 @@ import { Render } from "../renders/Render"
 		 * @private
 		 */
 		 static _forceSupportVAOPlatform():boolean {
-			return (Browser.onMiniGame && Browser.onIOS) || Browser.onBDMiniGame || Browser.onQGMiniGame;
+             let Browser = ILaya.Browser;
+			return ( Browser.onMiniGame && Browser.onIOS) || Browser.onBDMiniGame || Browser.onQGMiniGame;
 		}
 		
 		/**@private */
@@ -53,7 +55,7 @@ import { Render } from "../renders/Render"
 			
 			if (!isWebGL2) {
 				var forceVAO:boolean = LayaGPU._forceSupportVAOPlatform();
-				if (!Render.isConchApp) {
+				if (!ILaya.Render.isConchApp) {
 					VertexArrayObject;//强制引用
 					if ((window as any)._setupVertexArrayObject) {//兼容VAO
 						if (forceVAO)

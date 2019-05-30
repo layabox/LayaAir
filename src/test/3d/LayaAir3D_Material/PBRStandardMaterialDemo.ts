@@ -72,7 +72,7 @@ import { CameraMoveScript } from "../common/CameraMoveScript"
 				//遮挡贴图强度
 				mat.occlusionTextureStrength = 1.0;
 				//法线贴图缩放系数
-				mat.normalScale = 1;
+				//mat.normalScale = 1;
 				//光滑度数据源:从金属度贴图/反射贴图获取。
 				mat.smoothnessSource = PBRStandardMaterial.SmoothnessSource_MetallicGlossTexture_Alpha;
 				

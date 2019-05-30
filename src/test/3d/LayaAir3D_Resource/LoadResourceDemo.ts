@@ -1,29 +1,28 @@
-import { Laya3D } from "Laya3D";
 import { Laya } from "Laya";
-import { Transform } from "./Transform";
-import { CameraMoveScript } from "../common/CameraMoveScript"
-	import { AnimationClip } from "laya/d3/animation/AnimationClip"
-	import { Animator } from "laya/d3/component/Animator"
-	import { AnimatorState } from "laya/d3/component/AnimatorState"
-	import { BaseCamera } from "laya/d3/core/BaseCamera"
-	import { Camera } from "laya/d3/core/Camera"
-	import { MeshSprite3D } from "laya/d3/core/MeshSprite3D"
-	import { Sprite3D } from "laya/d3/core/Sprite3D"
-	import { DirectionLight } from "laya/d3/core/light/DirectionLight"
-	import { BaseMaterial } from "laya/d3/core/material/BaseMaterial"
-	import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial"
-	import { Scene3D } from "laya/d3/core/scene/Scene3D"
-	import { Quaternion } from "laya/d3/math/Quaternion"
-	import { Vector3 } from "laya/d3/math/Vector3"
-	import { Mesh } from "laya/d3/resource/models/Mesh"
-	import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh"
-	import { SkyBox } from "laya/d3/resource/models/SkyBox"
-	import { SkyRenderer } from "laya/d3/resource/models/SkyRenderer"
-	import { Stage } from "laya/display/Stage"
-	import { Loader } from "laya/net/Loader"
-	import { Handler } from "laya/utils/Handler"
-	import { Stat } from "laya/utils/Stat"
-	import { Texture2D } from "laya/resource/Texture2D"
+import { AnimationClip } from "laya/d3/animation/AnimationClip";
+import { Animator } from "laya/d3/component/Animator";
+import { AnimatorState } from "laya/d3/component/AnimatorState";
+import { BaseCamera } from "laya/d3/core/BaseCamera";
+import { Camera } from "laya/d3/core/Camera";
+import { DirectionLight } from "laya/d3/core/light/DirectionLight";
+import { BaseMaterial } from "laya/d3/core/material/BaseMaterial";
+import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
+import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
+import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { Quaternion } from "laya/d3/math/Quaternion";
+import { Vector3 } from "laya/d3/math/Vector3";
+import { Mesh } from "laya/d3/resource/models/Mesh";
+import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
+import { SkyBox } from "laya/d3/resource/models/SkyBox";
+import { SkyRenderer } from "laya/d3/resource/models/SkyRenderer";
+import { Stage } from "laya/display/Stage";
+import { Loader } from "laya/net/Loader";
+import { Texture2D } from "laya/resource/Texture2D";
+import { Handler } from "laya/utils/Handler";
+import { Stat } from "laya/utils/Stat";
+import { Laya3D } from "Laya3D";
+import { CameraMoveScript } from "../common/CameraMoveScript";
 	
 	/**
 	 * ...
@@ -101,7 +100,7 @@ import { CameraMoveScript } from "../common/CameraMoveScript"
 				//加载Mesh
 				Mesh.load("res/threeDimen/skinModel/LayaMonkey/Assets/LayaMonkey/LayaMonkey-LayaMonkey.lm", Handler.create(this, function(mesh:Mesh):void {
 					var layaMonkey:MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(mesh)) );
-					var layaMonkeyTrans:Transform = layaMonkey.transform;
+					var layaMonkeyTrans = layaMonkey.transform;
 					var layaMonkeyScale:Vector3 = layaMonkeyTrans.localScale;
 					layaMonkeyScale.setValue(4, 4, 4);
 					layaMonkeyTrans.localScale = layaMonkeyScale;
@@ -111,7 +110,7 @@ import { CameraMoveScript } from "../common/CameraMoveScript"
 				//加载精灵
 				Sprite3D.load("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh", Handler.create(this, function(sp:Sprite3D):void {
 					var layaMonkey2:Sprite3D = (<Sprite3D>scene.addChild(sp) );
-					var layaMonkey2Trans:Transform = layaMonkey2.transform;
+					var layaMonkey2Trans = layaMonkey2.transform;
 					var layaMonkey2Scale:Vector3 = layaMonkey2Trans.localScale;
 					layaMonkey2Scale.setValue(4, 4, 4);
 					layaMonkey2Trans.localScale = layaMonkey2Scale;
@@ -121,7 +120,7 @@ import { CameraMoveScript } from "../common/CameraMoveScript"
 				//加载胖子精灵
 				Sprite3D.load("res/threeDimen/skinModel/BoneLinkScene/PangZiNoAni.lh", Handler.create(this, function(sp:Sprite3D):void {
 					this.pangzi = (<Sprite3D>scene.addChild(sp) );
-					var pangziTrans:Transform = this.pangzi.transform;
+					var pangziTrans = this.pangzi.transform;
 					var pangziScale:Vector3 = pangziTrans.localScale;
 					pangziScale.setValue(4, 4, 4);
 					pangziTrans.localScale = pangziScale;
@@ -209,7 +208,7 @@ import { CameraMoveScript } from "../common/CameraMoveScript"
 			var mesh:Mesh = (<Mesh>Loader.getRes("res/threeDimen/skinModel/LayaMonkey/Assets/LayaMonkey/LayaMonkey-LayaMonkey.lm") );
 			//为精灵设置Mesh资源
 			var layaMonkey:MeshSprite3D = (<MeshSprite3D>this._scene.addChild(new MeshSprite3D(mesh)) );
-			var layaMonkeyTrans:Transform = layaMonkey.transform;
+			var layaMonkeyTrans = layaMonkey.transform;
 			var layaMonkeyScale:Vector3 = layaMonkeyTrans.localScale;
 			layaMonkeyScale.setValue(4, 4, 4);
 			layaMonkeyTrans.localScale = layaMonkeyScale;
@@ -219,7 +218,7 @@ import { CameraMoveScript } from "../common/CameraMoveScript"
 			//使用精灵
 			var sp:Sprite3D = (<Sprite3D>Loader.getRes("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh") );
 			var layaMonkey2:Sprite3D = (<Sprite3D>this._scene.addChild(sp) );
-			var layaMonkey2Trans:Transform = layaMonkey2.transform;
+			var layaMonkey2Trans = layaMonkey2.transform;
 			var layaMonkey2Scale:Vector3 = layaMonkey2Trans.localScale;
 			layaMonkey2Scale.setValue(4, 4, 4);
 			layaMonkey2Trans.localScale = layaMonkey2Scale;
@@ -228,7 +227,7 @@ import { CameraMoveScript } from "../common/CameraMoveScript"
 			//使用精灵
 			this.pangzi = (<Sprite3D>Loader.getRes("res/threeDimen/skinModel/BoneLinkScene/PangZiNoAni.lh") );
 			this.pangzi = (<Sprite3D>this._scene.addChild(this.pangzi) );
-			var pangziTrans:Transform = this.pangzi.transform;
+			var pangziTrans = this.pangzi.transform;
 			var pangziScale:Vector3 = pangziTrans.localScale;
 			pangziScale.setValue(4, 4, 4);
 			pangziTrans.localScale = pangziScale;

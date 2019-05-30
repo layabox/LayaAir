@@ -1,17 +1,17 @@
-import { Laya3D } from "Laya3D";
 import { Laya } from "Laya";
-import { Camera } from "laya/d3/core/Camera"
-	import { MeshSprite3D } from "laya/d3/core/MeshSprite3D"
-	import { Sprite3D } from "laya/d3/core/Sprite3D"
-	import { DirectionLight } from "laya/d3/core/light/DirectionLight"
-	import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial"
-	import { Scene3D } from "laya/d3/core/scene/Scene3D"
-	import { Matrix4x4 } from "laya/d3/math/Matrix4x4"
-	import { Vector3 } from "laya/d3/math/Vector3"
-	import { Stage } from "laya/display/Stage"
-	import { Texture2D } from "laya/resource/Texture2D"
-	import { Handler } from "laya/utils/Handler"
-	import { Stat } from "laya/utils/Stat"
+import { Camera } from "laya/d3/core/Camera";
+import { DirectionLight } from "laya/d3/core/light/DirectionLight";
+import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
+import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
+import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
+import { Vector3 } from "laya/d3/math/Vector3";
+import { Stage } from "laya/display/Stage";
+import { Texture2D } from "laya/resource/Texture2D";
+import { Handler } from "laya/utils/Handler";
+import { Stat } from "laya/utils/Stat";
+import { Laya3D } from "Laya3D";
 
 	
 	export class BlinnPhong_NormalMap {
@@ -38,7 +38,7 @@ import { Camera } from "laya/d3/core/Camera"
 			directionLight.transform.worldMatrix=mat;
 			directionLight.color.setValue(1, 1, 1);
 			
-			Laya.loader.create("res/threeDimen/staticModel/lizard/lizard.lh", Handler.create(this, this.onComplete), this, Laya3D.HIERARCHY);
+			Laya.loader.create("res/threeDimen/staticModel/lizard/lizard.lh", Handler.create(this, this.onComplete), null, Laya3D.HIERARCHY);
 		}
 		
 		 onComplete(s:any):void {

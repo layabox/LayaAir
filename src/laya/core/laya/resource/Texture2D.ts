@@ -265,7 +265,7 @@ import { ILaya } from "../../ILaya";
 			var header:Int32Array = new Int32Array(id.buffer, id.length, ETC_HEADER_LENGTH);
 			var compressedFormat:number = header[ETC_HEADER_FORMAT];
 			switch (compressedFormat) {
-			case WebGLContext._compressedTextureEtc1.COMPRESSED_RGB_ETC1_WEBGL: 
+			case LayaGL.layaGPUInstance._compressedTextureEtc1.COMPRESSED_RGB_ETC1_WEBGL: 
 				this._format = BaseTexture.FORMAT_ETC1RGB;
 				break;
 			default: 

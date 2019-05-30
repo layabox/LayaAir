@@ -1,18 +1,18 @@
-import { Laya3D } from "Laya3D"
 import { Laya } from "Laya";
-import { CameraMoveScript } from "../common/CameraMoveScript"
-	import { Animator } from "laya/d3/component/Animator"
-	import { AnimatorState } from "laya/d3/component/AnimatorState"
-	import { Camera } from "laya/d3/core/Camera"
-	import { Sprite3D } from "laya/d3/core/Sprite3D"
-	import { SpotLight } from "laya/d3/core/light/SpotLight"
-	import { Scene3D } from "laya/d3/core/scene/Scene3D"
-	import { Quaternion } from "laya/d3/math/Quaternion"
-	import { Vector3 } from "laya/d3/math/Vector3"
-	import { Matrix4x4 } from "laya/d3/math/Matrix4x4"
-	import { Stage } from "laya/display/Stage"
-	import { Handler } from "laya/utils/Handler"
-	import { Stat } from "laya/utils/Stat"
+import { Animator } from "laya/d3/component/Animator";
+import { AnimatorState } from "laya/d3/component/AnimatorState";
+import { Camera } from "laya/d3/core/Camera";
+import { SpotLight } from "laya/d3/core/light/SpotLight";
+import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
+import { Quaternion } from "laya/d3/math/Quaternion";
+import { Vector3 } from "laya/d3/math/Vector3";
+import { Stage } from "laya/display/Stage";
+import { Handler } from "laya/utils/Handler";
+import { Stat } from "laya/utils/Stat";
+import { Laya3D } from "Laya3D";
+import { CameraMoveScript } from "../common/CameraMoveScript";
 	
 	/**
 	 * ...

@@ -1,4 +1,4 @@
-import { Config3D } from "./Config3D";
+import { Config3D } from "Config3D";
 import { Laya3D } from "Laya3D";
 import { Laya } from "Laya";
 import { CameraMoveScript } from "../common/CameraMoveScript"

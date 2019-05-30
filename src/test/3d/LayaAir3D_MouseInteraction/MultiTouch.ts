@@ -101,7 +101,7 @@ class MonkeyScript extends Script3D {
 	
 	/*override*/  onStart():void {
 		this._scene = (<Scene3D>((<Sprite3D>this.owner )).parent );
-		this._text = (/*_scene.parent as Laya.stage*/).getChildByName("ceshi");
+		this._text = (this._scene.parent as Stage).getChildByName("ceshi") as Text;
 		this._camera = (<Camera>this._scene.getChildByName("camera") );
 	}
 	

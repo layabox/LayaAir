@@ -1,8 +1,8 @@
 	import { TestPageUI } from "../ui/test/TestPageUI"
-import { Event } from "../../laya/core/laya/events/Event";
-import { Laya } from "../../laya/core/Laya";
-import { Box } from "../../laya/core/laya/ui/Box";
-import { Label } from "../../laya/core/laya/ui/Label";
+import { Event } from "laya/events/Event";
+import { Laya } from "Laya";
+import { Box } from "laya/ui/Box";
+import { Label } from "laya/ui/Label";
 	
 	export class TestView extends TestPageUI {
 		constructor(){

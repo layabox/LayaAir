@@ -1,18 +1,16 @@
-import { Laya3D } from "Laya3D";
 import { Laya } from "Laya";
-import { BaseCamera } from "laya/d3/core/BaseCamera"
-	import { Camera } from "laya/d3/core/Camera"
-	import { Sprite3D } from "laya/d3/core/Sprite3D"
-	import { DirectionLight } from "laya/d3/core/light/DirectionLight"
-	import { Scene3D } from "laya/d3/core/scene/Scene3D"
-	import { Vector3 } from "laya/d3/math/Vector3"
-	import { Vector4 } from "laya/d3/math/Vector4"
-	import { Stage } from "laya/display/Stage"
-	import { Event } from "laya/events/Event"
-	import { Image } from "laya/ui/Image"
-	import { Handler } from "laya/utils/Handler"
-	import { Stat } from "laya/utils/Stat"
-	import { KeyBoardManager } from "laya/events/KeyBoardManager"
+import { BaseCamera } from "laya/d3/core/BaseCamera";
+import { Camera } from "laya/d3/core/Camera";
+import { DirectionLight } from "laya/d3/core/light/DirectionLight";
+import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { Vector3 } from "laya/d3/math/Vector3";
+import { Stage } from "laya/display/Stage";
+import { KeyBoardManager } from "laya/events/KeyBoardManager";
+import { Image } from "laya/ui/Image";
+import { Handler } from "laya/utils/Handler";
+import { Stat } from "laya/utils/Stat";
+import { Laya3D } from "Laya3D";
 	
 	export class Scene2DPlayer3D {
 		
@@ -39,7 +37,7 @@ import { BaseCamera } from "laya/d3/core/BaseCamera"
 			Stat.show();
 			
 			//var dialog:Image = Laya.stage.addChild(new Image("res/threeDimen/secne.jpg")) as Image;
-			var dialog:Image = new Laya.Image("res/threeDimen/secne.jpg");
+			var dialog:Image = new Image("res/threeDimen/secne.jpg");
             Laya.stage.addChild(dialog);
 			var scene:Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()) );
 			

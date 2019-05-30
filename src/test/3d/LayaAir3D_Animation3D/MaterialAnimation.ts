@@ -1,14 +1,11 @@
-import { Laya3D } from "Laya3D"
 import { Laya } from "Laya";
-import { CameraMoveScript } from "../common/CameraMoveScript"
-	import { Camera } from "laya/d3/core/Camera"
-	import { MeshSprite3D } from "laya/d3/core/MeshSprite3D"
-	import { Sprite3D } from "laya/d3/core/Sprite3D"
-	import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial"
-	import { Scene3D } from "laya/d3/core/scene/Scene3D"
-	import { Stage } from "laya/display/Stage"
-	import { Handler } from "laya/utils/Handler"
-	import { Stat } from "laya/utils/Stat"
+import { Camera } from "laya/d3/core/Camera";
+import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Stage } from "laya/display/Stage";
+import { Handler } from "laya/utils/Handler";
+import { Stat } from "laya/utils/Stat";
+import { Laya3D } from "Laya3D";
+import { CameraMoveScript } from "../common/CameraMoveScript";
 	
 	export class MaterialAnimation {
 		constructor(){
