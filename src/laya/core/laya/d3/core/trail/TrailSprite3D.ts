@@ -159,5 +159,12 @@ import { FloatKeyframe } from "../FloatKeyframe"
 			((<TrailFilter>this._geometryFilter )).destroy();
 			this._geometryFilter = null;
 		}
+
+		/**
+		 * @private
+		 */
+		protected  _create():Node {
+			return new TrailSprite3D();
+		}
 	}
 

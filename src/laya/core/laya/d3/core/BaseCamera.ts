@@ -10,6 +10,7 @@ import { Scene3D } from "./scene/Scene3D"
 	import { ShaderData } from "../shader/ShaderData"
 	import { Event } from "laya/events/Event"
 	import { Loader } from "laya/net/Loader"
+	import { Node } from "laya/display/Node"
 	
 	/**
 	 * <code>BaseCamera</code> 类用于创建摄像机的父类。
@@ -401,5 +402,14 @@ this._shaderValues = new ShaderData(null);
 			Laya.stage.off(Event.RESIZE, this, this._onScreenSizeChanged);
 			super.destroy(destroyChild);
 		}
+
+		/**
+		 * @private
+		 */
+		protected  _create():Node {
+			return new BaseCamera();
+		}
+
+	
 	}
 

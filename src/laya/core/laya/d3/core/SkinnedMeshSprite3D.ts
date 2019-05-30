@@ -185,6 +185,13 @@ import { Animator } from "../component/Animator"
 			super.destroy(destroyChild);
 			this._meshFilter.destroy();
 		}
+
+		/**
+		 * @private
+		 */
+		protected  _create():Node {
+			return new SkinnedMeshSprite3D();
+		}
 	
 	}
 

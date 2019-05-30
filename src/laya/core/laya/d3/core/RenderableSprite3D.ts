@@ -130,6 +130,13 @@ import { Animator } from "../component/Animator"
 			this._render._destroy();
 			this._render = null;
 		}
+
+		/**
+		 * @private
+		 */
+		protected  _create():Node {
+			return new RenderableSprite3D(this.name);
+		}
 	
 	}
 

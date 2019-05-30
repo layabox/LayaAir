@@ -172,7 +172,7 @@ import { Animator } from "../component/Animator"
 		constructor(name:string = null, isStatic:boolean = false){
 			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 			super();
-this._id = ++Sprite3D._uniqueIDCounter;
+			this._id = ++Sprite3D._uniqueIDCounter;
 			this._transform = new Transform3D(this);
 			this._isStatic = isStatic;
 			this.layer = 0;
@@ -366,7 +366,7 @@ this._id = ++Sprite3D._uniqueIDCounter;
 		 * @private
 		 */
 		private static _createSprite3DInstance(scrSprite:Sprite3D):Node {
-			var node:Node = new scrSprite.constructor();
+			var node:Node = scrSprite._create();
 			var children:any[] = scrSprite._children;
 			for (var i:number = 0, n:number = children.length; i < n; i++) {
 				var child:any = Sprite3D._createSprite3DInstance(children[i])
@@ -408,6 +408,13 @@ this._id = ++Sprite3D._uniqueIDCounter;
 			this._transform = null;
 			this._scripts = null;
 			this._url && Loader.clearRes(this._url);
+		}
+
+		/**
+		 * @private
+		 */
+		protected  _create():Node {
+			return new Sprite3D();
 		}
 	}
 

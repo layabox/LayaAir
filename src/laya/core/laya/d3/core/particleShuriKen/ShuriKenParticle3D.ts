@@ -720,6 +720,13 @@ import { Component } from "laya/components/Component"
 			this._particleSystem.destroy();
 			this._particleSystem = null;
 		}
+
+		/**
+		 * @private
+		 */
+		protected  _create():Node {
+			return new ShuriKenParticle3D();
+		}
 	
 	}
 

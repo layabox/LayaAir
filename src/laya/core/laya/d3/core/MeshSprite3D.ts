@@ -127,6 +127,13 @@ import { BaseMaterial } from "./material/BaseMaterial"
 			super.destroy(destroyChild);
 			this._meshFilter.destroy();
 		}
+
+		/**
+		 * @private
+		 */
+		protected  _create():Node {
+			return new MeshSprite3D();
+		}
 	
 	}
 

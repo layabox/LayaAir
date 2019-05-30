@@ -7,6 +7,7 @@ import { RenderableSprite3D } from "../RenderableSprite3D"
 	import { RenderElement } from "../render/RenderElement"
 	import { Color } from "../../math/Color"
 	import { Vector3 } from "../../math/Vector3"
+	import { Node } from "laya/display/Node"
 	
 	/**
 	 * <code>PixelLineSprite3D</code> 类用于像素线渲染精灵。
@@ -156,6 +157,13 @@ import { RenderableSprite3D } from "../RenderableSprite3D"
 		 */
 		 clear():void {
 			this._geometryFilter._lineCount = 0;
+		}
+
+		/**
+		 * @private
+		 */
+		protected  _create():Node {
+			return new PixelLineSprite3D();
 		}
 	
 	}
