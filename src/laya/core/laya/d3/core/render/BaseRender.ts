@@ -399,8 +399,7 @@ this._id = ++BaseRender._uniqueIDCounter;
 		 * @private
 		 */
 		private _getInstanceMaterial(material:BaseMaterial, index:number):BaseMaterial {
-			var insMat:BaseMaterial = new material.constructor();
-			material.cloneTo(insMat);//深拷贝
+			var insMat:BaseMaterial = material.clone();//深拷贝
 			insMat.name = insMat.name + "(Instance)";
 			this._materialsInstance[index] = true;
 			this._changeMaterialReference(this._sharedMaterials[index], insMat);
