@@ -29,6 +29,53 @@ import { PostProcess } from "../component/PostProcess"
 	import { Utils3D } from "../utils/Utils3D"
 	import { BaseTexture } from "laya/resource/BaseTexture"
 	import { Texture2D } from "laya/resource/Texture2D"
+
+	import LightingGLSL from "./files/Lighting.glsl"
+	import ShadowHelperGLSL from "./files/ShadowHelper.glsl"
+	import BRDFGLSL from "./files/PBRLibs/BRDF.glsl"
+	import PBRUtilsGLSL from "./files/PBRLibs/PBRUtils.glsl"
+	import PBRStandardLightingGLSL from "./files/PBRLibs/PBRStandardLighting.glsl"
+	import PBRSpecularLightingGLSL from "./files/PBRLibs/PBRSpecularLighting.glsl"
+	import ColorsGLSL from "./files/postProcess/Colors.glsl"
+	import SamplingGLSL from "./files/postProcess/Sampling.glsl"
+	import StdLibGLSL from "./files/postProcess/StdLib.glsl"
+
+	import MeshBlinnPhongVS from "./files/Mesh-BlinnPhong.vs"
+	import MeshBlinnPhongPS from "./files/Mesh-BlinnPhong.ps"
+	import lineVS from "./files/line.vs"
+	import linePS from "./files/line.ps"
+	import PBRStandardVS from "./files/PBRStandard.vs"
+	import PBRStandardPS from "./files/PBRStandard.ps"
+	import PBRSpecularVS from "./files/PBRSpecular.vs"
+	import PBRSpecularPS from "./files/PBRSpecular.ps"
+	import UnlitVS from "./files/Unlit.vs"
+	import UnlitPS from "./files/Unlit.ps"
+	import EffectVS from "./files/Effect.vs"
+	import EffectPS from "./files/Effect.ps"
+	import ParticleShuriKenVS from "./files/ParticleShuriKen.vs"
+	import ParticleShuriKenPS from "./files/ParticleShuriKen.ps"
+	import SkyBoxVS from "./files/SkyBox.vs"
+	import SkyBoxPS from "./files/SkyBox.ps"
+	import SkyBoxProceduralVS from "./files/SkyBoxProcedural.vs"
+	import SkyBoxProceduralPS from "./files/SkyBoxProcedural.ps"
+	import extendTerrainVS from "./files/extendTerrain.vs"
+	import extendTerrainPS from "./files/extendTerrain.ps"
+	import TrailVS from "./files/Trail.vs"
+	import TrailPS from "./files/Trail.ps"
+	import WaterPrimaryVS from "./files/WaterPrimary.vs"
+	import WaterPrimaryPS from "./files/WaterPrimary.ps"
+	import BlitScreenVS from "./files/BlitScreen.vs"
+	import BlitScreenPS from "./files/BlitScreen.ps"
+	import BloomVS from "./files/postProcess/Bloom.vs"
+	import BloomPrefilter13PS from "./files/postProcess/BloomPrefilter13.ps"
+	import BloomPrefilter4PS from "./files/postProcess/BloomPrefilter4.ps"
+	import BloomDownsample13PS from "./files/postProcess/BloomDownsample13.ps"
+	import BloomDownsample4PS from "./files/postProcess/BloomDownsample4.ps"
+	import BloomUpsampleTentPS from "./files/postProcess/BloomUpsampleTent.ps"
+	import BloomUpsampleBoxPS from "./files/postProcess/BloomUpsampleBox.ps"
+	import CompositeVS from "./files/postProcess/Composite.vs"
+	import CompositePS from "./files/postProcess/Composite.ps"
+
 	
 	/**
 	 * @private
@@ -67,15 +114,15 @@ import { PostProcess } from "../component/PostProcess"
 			Scene3D.SHADERDEFINE_REFLECTMAP=Shader3D.registerPublicDefine("REFLECTMAP");
 			
 			
-			Shader3D.addInclude("Lighting.glsl", this.__INCLUDESTR__("files/Lighting.glsl"));
-			Shader3D.addInclude("ShadowHelper.glsl", this.__INCLUDESTR__("files/ShadowHelper.glsl"));
-			Shader3D.addInclude("BRDF.glsl", this.__INCLUDESTR__("files/PBRLibs/BRDF.glsl"));
-			Shader3D.addInclude("PBRUtils.glsl", this.__INCLUDESTR__("files/PBRLibs/PBRUtils.glsl"));
-			Shader3D.addInclude("PBRStandardLighting.glsl", this.__INCLUDESTR__("files/PBRLibs/PBRStandardLighting.glsl"));
-			Shader3D.addInclude("PBRSpecularLighting.glsl", this.__INCLUDESTR__("files/PBRLibs/PBRSpecularLighting.glsl"));
-			Shader3D.addInclude("Colors.glsl", this.__INCLUDESTR__("files/postProcess/Colors.glsl"));
-			Shader3D.addInclude("Sampling.glsl", this.__INCLUDESTR__("files/postProcess/Sampling.glsl"));
-			Shader3D.addInclude("StdLib.glsl", this.__INCLUDESTR__("files/postProcess/StdLib.glsl"));
+			Shader3D.addInclude("Lighting.glsl", LightingGLSL);
+			Shader3D.addInclude("ShadowHelper.glsl", ShadowHelperGLSL);
+			Shader3D.addInclude("BRDF.glsl", BRDFGLSL);
+			Shader3D.addInclude("PBRUtils.glsl", PBRUtilsGLSL);
+			Shader3D.addInclude("PBRStandardLighting.glsl", PBRStandardLightingGLSL);
+			Shader3D.addInclude("PBRSpecularLighting.glsl", PBRSpecularLightingGLSL);
+			Shader3D.addInclude("Colors.glsl", ColorsGLSL);
+			Shader3D.addInclude("Sampling.glsl", SamplingGLSL);
+			Shader3D.addInclude("StdLib.glsl", StdLibGLSL);
 			
 			var vs:string, ps:string;
 			var attributeMap:any = {
@@ -141,12 +188,10 @@ import { PostProcess } from "../component/PostProcess"
 				's_DepthWrite':Shader3D.RENDER_STATE_DEPTH_WRITE
 			}
 			
-			vs = this.__INCLUDESTR__("files/Mesh-BlinnPhong.vs");
-			ps = this.__INCLUDESTR__("files/Mesh-BlinnPhong.ps");
 			var shader:Shader3D = Shader3D.add("BLINNPHONG",null,null,true);
 			var subShader:SubShader = new SubShader(attributeMap, uniformMap, SkinnedMeshSprite3D.shaderDefines, BlinnPhongMaterial.shaderDefines);
 			shader.addSubShader(subShader);
-			subShader.addShaderPass(vs, ps, stateMap);
+			subShader.addShaderPass(MeshBlinnPhongVS, MeshBlinnPhongPS, stateMap);
 			
 			
 			attributeMap = {
@@ -164,12 +209,11 @@ import { PostProcess } from "../component/PostProcess"
 				's_DepthTest':Shader3D.RENDER_STATE_DEPTH_TEST,
 				's_DepthWrite':Shader3D.RENDER_STATE_DEPTH_WRITE
 			}
-			vs = this.__INCLUDESTR__("files/line.vs");
-			ps = this.__INCLUDESTR__("files/line.ps");
+
 			shader = Shader3D.add("LineShader");
 			subShader = new SubShader(attributeMap, uniformMap);
 			shader.addSubShader(subShader);
-			subShader.addShaderPass(vs,ps,stateMap);
+			subShader.addShaderPass(lineVS,linePS,stateMap);
 			
 			//PBRStandard
 			attributeMap = {
@@ -244,12 +288,10 @@ import { PostProcess } from "../component/PostProcess"
 				's_DepthWrite':Shader3D.RENDER_STATE_DEPTH_WRITE
 			}
 			
-			vs = this.__INCLUDESTR__("files/PBRStandard.vs");
-			ps = this.__INCLUDESTR__("files/PBRStandard.ps");
 			shader = Shader3D.add("PBRStandard",null,null,true);
 			subShader = new SubShader( attributeMap, uniformMap, SkinnedMeshSprite3D.shaderDefines, PBRStandardMaterial.shaderDefines);
 			shader.addSubShader(subShader);
-			subShader.addShaderPass(vs,ps,stateMap);
+			subShader.addShaderPass(PBRStandardVS,PBRStandardPS,stateMap);
 			
 			//PBRSpecular
 			attributeMap = {
@@ -324,13 +366,11 @@ import { PostProcess } from "../component/PostProcess"
 				's_DepthWrite':Shader3D.RENDER_STATE_DEPTH_WRITE
 			}
 			
-			vs = this.__INCLUDESTR__("files/PBRSpecular.vs");
-			ps = this.__INCLUDESTR__("files/PBRSpecular.ps");
 			shader = Shader3D.add("PBRSpecular",null,null,true);
 			subShader = new SubShader(attributeMap, uniformMap, SkinnedMeshSprite3D.shaderDefines, PBRSpecularMaterial.shaderDefines);
 			shader.addSubShader(subShader);
 			
-			subShader.addShaderPass(vs, ps,stateMap);
+			subShader.addShaderPass(PBRSpecularVS, PBRSpecularPS,stateMap);
 			
 			//unlit
 			attributeMap = {
@@ -361,12 +401,10 @@ import { PostProcess } from "../component/PostProcess"
 				's_DepthWrite':Shader3D.RENDER_STATE_DEPTH_WRITE
 			}
 			
-			vs = this.__INCLUDESTR__("files/Unlit.vs");
-			ps = this.__INCLUDESTR__("files/Unlit.ps");
 			shader = Shader3D.add("Unlit",null,null,true);
 			subShader = new SubShader(attributeMap, uniformMap, SkinnedMeshSprite3D.shaderDefines, UnlitMaterial.shaderDefines);
 			shader.addSubShader(subShader);
-			subShader.addShaderPass(vs, ps,stateMap);
+			subShader.addShaderPass(UnlitVS, UnlitPS,stateMap);
 			
 			//meshEffect
 			attributeMap = {
@@ -395,12 +433,11 @@ import { PostProcess } from "../component/PostProcess"
 				's_DepthTest':Shader3D.RENDER_STATE_DEPTH_TEST,
 				's_DepthWrite':Shader3D.RENDER_STATE_DEPTH_WRITE
 			}
-			vs = this.__INCLUDESTR__("files/Effect.vs");
-			ps = this.__INCLUDESTR__("files/Effect.ps");
+
 			shader = Shader3D.add("Effect",null,null,true);
 			subShader = new SubShader(attributeMap, uniformMap, SkinnedMeshSprite3D.shaderDefines, EffectMaterial.shaderDefines);
 			shader.addSubShader(subShader);
-			subShader.addShaderPass(vs,ps,stateMap);
+			subShader.addShaderPass(EffectVS,EffectPS,stateMap);
 			
 			//ShurikenParticle
 			attributeMap = {
@@ -489,12 +526,11 @@ import { PostProcess } from "../component/PostProcess"
 				's_DepthTest':Shader3D.RENDER_STATE_DEPTH_TEST,
 				's_DepthWrite':Shader3D.RENDER_STATE_DEPTH_WRITE
 			};
-			vs = this.__INCLUDESTR__("files/ParticleShuriKen.vs");
-			ps = this.__INCLUDESTR__("files/ParticleShuriKen.ps");
+
 			shader = Shader3D.add("PARTICLESHURIKEN");
 			subShader = new SubShader(attributeMap, uniformMap, ShuriKenParticle3D.shaderDefines, ShurikenParticleMaterial.shaderDefines);
 			shader.addSubShader(subShader);
-			subShader.addShaderPass(vs,ps,stateMap);
+			subShader.addShaderPass(ParticleShuriKenVS,ParticleShuriKenPS,stateMap);
 			
 			attributeMap = {
 				'a_Position': VertexMesh.MESH_POSITION0};
@@ -504,12 +540,11 @@ import { PostProcess } from "../component/PostProcess"
 				'u_Rotation': Shader3D.PERIOD_MATERIAL, 
 				'u_CubeTexture': Shader3D.PERIOD_MATERIAL, 
 				'u_MvpMatrix': Shader3D.PERIOD_CAMERA};//TODO:优化
-			vs = this.__INCLUDESTR__("files/SkyBox.vs");
-			ps = this.__INCLUDESTR__("files/SkyBox.ps");
+
 			shader =Shader3D.add("SkyBox");
 			subShader = new SubShader(attributeMap, uniformMap);
 			shader.addSubShader(subShader);
-			subShader.addShaderPass(vs,ps);
+			subShader.addShaderPass(SkyBoxVS,SkyBoxPS);
 			
 			attributeMap = {
 				'a_Position': VertexMesh.MESH_POSITION0};
@@ -524,12 +559,11 @@ import { PostProcess } from "../component/PostProcess"
 				'u_DirectionLight.Direction': Shader3D.PERIOD_SCENE, 
 				'u_DirectionLight.Color':Shader3D.PERIOD_SCENE
 			};
-			vs = this.__INCLUDESTR__("files/SkyBoxProcedural.vs");
-			ps = this.__INCLUDESTR__("files/SkyBoxProcedural.ps");
+
 			shader =Shader3D.add("SkyBoxProcedural");
 			subShader = new SubShader(attributeMap, uniformMap,null,SkyProceduralMaterial.shaderDefines);
 			shader.addSubShader(subShader);
-			subShader.addShaderPass(vs,ps);
+			subShader.addShaderPass(SkyBoxProceduralVS,SkyBoxProceduralPS);
 			
 			//extendTerrain的shader
 			 attributeMap = {
@@ -585,12 +619,11 @@ import { PostProcess } from "../component/PostProcess"
 				's_DepthTest':Shader3D.RENDER_STATE_DEPTH_TEST,
 				's_DepthWrite':Shader3D.RENDER_STATE_DEPTH_WRITE
 			};
-            vs = this.__INCLUDESTR__("files/extendTerrain.vs");
-            ps = this.__INCLUDESTR__("files/extendTerrain.ps");
+
 			shader = Shader3D.add("ExtendTerrain");
 			subShader = new SubShader(attributeMap, uniformMap,RenderableSprite3D.shaderDefines,ExtendTerrainMaterial.shaderDefines);
 			shader.addSubShader(subShader);
-			subShader.addShaderPass(vs,ps,stateMap);
+			subShader.addShaderPass(extendTerrainVS,extendTerrainPS,stateMap);
 			
 			//Trail
 			attributeMap = {
@@ -623,12 +656,11 @@ import { PostProcess } from "../component/PostProcess"
 				's_DepthTest':Shader3D.RENDER_STATE_DEPTH_TEST,
 				's_DepthWrite':Shader3D.RENDER_STATE_DEPTH_WRITE
 			};
-            vs = this.__INCLUDESTR__("files/Trail.vs");
-            ps = this.__INCLUDESTR__("files/Trail.ps");
+
             shader = Shader3D.add("Trail");
 			subShader = new SubShader(attributeMap, uniformMap, TrailSprite3D.shaderDefines, TrailMaterial.shaderDefines);
 			shader.addSubShader(subShader);
-			subShader.addShaderPass(vs,ps,stateMap);
+			subShader.addShaderPass(TrailVS,TrailPS,stateMap);
 			
 			//WaterPrimary
 			attributeMap = {
@@ -648,12 +680,10 @@ import { PostProcess } from "../component/PostProcess"
 				'u_WaveSpeed' : Shader3D.PERIOD_MATERIAL
 			};
 				
-			vs = this.__INCLUDESTR__("files/WaterPrimary.vs");
-			ps = this.__INCLUDESTR__("files/WaterPrimary.ps");
 			shader = Shader3D.add("WaterPrimary");
 			subShader = new SubShader(attributeMap, uniformMap, null, WaterPrimaryMaterial.shaderDefines);
 			shader.addSubShader(subShader);
-			subShader.addShaderPass(vs, ps);
+			subShader.addShaderPass(WaterPrimaryVS, WaterPrimaryPS);
 			
 			
 			//BlitScreen
@@ -664,12 +694,11 @@ import { PostProcess } from "../component/PostProcess"
 				'u_MainTex': Shader3D.PERIOD_MATERIAL
 			};
 				
-			vs = this.__INCLUDESTR__("files/BlitScreen.vs");
-			ps = this.__INCLUDESTR__("files/BlitScreen.ps");
+
 			shader = Shader3D.add("BlitScreen");
 			subShader = new SubShader(attributeMap, uniformMap, null,null);
 			shader.addSubShader(subShader);
-			var shaderPass:ShaderPass = subShader.addShaderPass(vs, ps);
+			var shaderPass:ShaderPass = subShader.addShaderPass(BlitScreenVS, BlitScreenPS);
 			var renderState:RenderState = shaderPass.renderState;
 			renderState.depthTest = RenderState.DEPTHTEST_ALWAYS;
 			renderState.depthWrite = false;
@@ -695,7 +724,7 @@ import { PostProcess } from "../component/PostProcess"
 			//subShader0
 			subShader = new SubShader(null, null, null, null);
 			shader.addSubShader(subShader);
-			shaderPass = subShader.addShaderPass(this.__INCLUDESTR__("files/postProcess/Bloom.vs"), this.__INCLUDESTR__("files/postProcess/BloomPrefilter13.ps"));
+			shaderPass = subShader.addShaderPass(BloomVS,BloomPrefilter13PS);
 			renderState = shaderPass.renderState;
 			renderState.depthTest = RenderState.DEPTHTEST_ALWAYS;
 			renderState.depthWrite = false;
@@ -705,7 +734,7 @@ import { PostProcess } from "../component/PostProcess"
 			//subShader1
 			subShader = new SubShader(null, null, null, null);
 			shader.addSubShader(subShader);
-			shaderPass = subShader.addShaderPass(this.__INCLUDESTR__("files/postProcess/Bloom.vs"), this.__INCLUDESTR__("files/postProcess/BloomPrefilter4.ps"));
+			shaderPass = subShader.addShaderPass(BloomVS,BloomPrefilter4PS);
 			renderState = shaderPass.renderState;
 			renderState.depthTest = RenderState.DEPTHTEST_ALWAYS;
 			renderState.depthWrite = false;
@@ -715,7 +744,7 @@ import { PostProcess } from "../component/PostProcess"
 			//subShader2
 			subShader = new SubShader(null, null, null, null);
 			shader.addSubShader(subShader);
-			shaderPass = subShader.addShaderPass(this.__INCLUDESTR__("files/postProcess/Bloom.vs"), this.__INCLUDESTR__("files/postProcess/BloomDownsample13.ps"));
+			shaderPass = subShader.addShaderPass(BloomVS,BloomDownsample13PS);
 			renderState = shaderPass.renderState;
 			renderState.depthTest = RenderState.DEPTHTEST_ALWAYS;
 			renderState.depthWrite = false;
@@ -725,7 +754,7 @@ import { PostProcess } from "../component/PostProcess"
 			//subShader3
 			subShader = new SubShader(null, null, null, null);
 			shader.addSubShader(subShader);
-			shaderPass = subShader.addShaderPass(this.__INCLUDESTR__("files/postProcess/Bloom.vs"), this.__INCLUDESTR__("files/postProcess/BloomDownsample4.ps"));
+			shaderPass = subShader.addShaderPass(BloomVS,BloomDownsample4PS);
 			renderState = shaderPass.renderState;
 			renderState.depthTest = RenderState.DEPTHTEST_ALWAYS;
 			renderState.depthWrite = false;
@@ -735,7 +764,7 @@ import { PostProcess } from "../component/PostProcess"
 			//subShader4
 			subShader = new SubShader(null, null, null, null);
 			shader.addSubShader(subShader);
-			shaderPass = subShader.addShaderPass(this.__INCLUDESTR__("files/postProcess/Bloom.vs"), this.__INCLUDESTR__("files/postProcess/BloomUpsampleTent.ps"));
+			shaderPass = subShader.addShaderPass(BloomVS,BloomUpsampleTentPS);
 			renderState = shaderPass.renderState;
 			renderState.depthTest = RenderState.DEPTHTEST_ALWAYS;
 			renderState.depthWrite = false;
@@ -745,7 +774,7 @@ import { PostProcess } from "../component/PostProcess"
 			//subShader5
 			subShader = new SubShader(null, null, null, null);
 			shader.addSubShader(subShader);
-			shaderPass = subShader.addShaderPass(this.__INCLUDESTR__("files/postProcess/Bloom.vs"), this.__INCLUDESTR__("files/postProcess/BloomUpsampleBox.ps"));
+			shaderPass = subShader.addShaderPass(BloomVS,BloomUpsampleBoxPS);
 			renderState = shaderPass.renderState;
 			renderState.depthTest = RenderState.DEPTHTEST_ALWAYS;
 			renderState.depthWrite = false;
@@ -773,7 +802,7 @@ import { PostProcess } from "../component/PostProcess"
 			
 			subShader = new SubShader(null, null, null, PostProcess.shaderDefines);
 			shader.addSubShader(subShader);
-			shaderPass = subShader.addShaderPass(this.__INCLUDESTR__("files/postProcess/Composite.vs"), this.__INCLUDESTR__("files/postProcess/Composite.ps"));
+			shaderPass = subShader.addShaderPass(CompositeVS, CompositePS);
 			renderState = shaderPass.renderState;
 			renderState.depthTest = RenderState.DEPTHTEST_ALWAYS;
 			renderState.depthWrite = false;

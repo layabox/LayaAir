@@ -3,6 +3,7 @@ import { WebGL } from "./WebGL";
 //import { Render } from "../renders/Render"
 import { Browser } from "../utils/Browser"
 import { ILaya } from "ILaya";
+import { VertexArrayObject } from "laya/webgl/VertexArrayObject"
 	
 	/**
 	 * @private
