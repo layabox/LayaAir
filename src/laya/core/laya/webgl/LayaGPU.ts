@@ -1,8 +1,7 @@
 import { WebGLContext } from "./WebGLContext";
 import { WebGL } from "./WebGL";
-import { VertexArrayObject } from "./VertexArrayObject";
 //import { Render } from "../renders/Render"
-	import { Browser } from "../utils/Browser"
+import { Browser } from "../utils/Browser"
 import { ILaya } from "ILaya";
 	
 	/**

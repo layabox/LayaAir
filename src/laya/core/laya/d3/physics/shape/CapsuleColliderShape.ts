@@ -8,7 +8,7 @@ import { Quaternion } from "../../math/Quaternion"
 	 */
 	export class CapsuleColliderShape extends ColliderShape {
 		/** @private */
-		private static _tempVector30:Vector3 = new Vector3();
+		public static _tempVector30:Vector3 = new Vector3();
 		
 		/**@private */
 		private _radius:number;

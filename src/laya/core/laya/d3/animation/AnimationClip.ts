@@ -66,7 +66,7 @@ import { FloatKeyframe } from "../core/FloatKeyframe"
 		/**@private */
 		 _nodesMap:any;//TODO:去掉
 		/** @private */
-		 _events:AnimationEvent[];
+		_animationEvents:AnimationEvent[];
 		
 		/**是否循环。*/
 		 islooping:boolean;
@@ -84,7 +84,7 @@ import { FloatKeyframe } from "../core/FloatKeyframe"
 		constructor(){
 			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 			super();
-this._events = [];
+			this._animationEvents = [];
 		}
 		
 		/**
@@ -361,11 +361,11 @@ this._events = [];
 		 */
 		private _binarySearchEventIndex(time:number):number {
 			var start:number = 0;
-			var end:number = this._events.length - 1;
+			var end:number = this._animationEvents.length - 1;
 			var mid:number;
 			while (start <= end) {
 				mid = Math.floor((start + end) / 2);
-				var midValue:number = this._events[mid].time;
+				var midValue:number = this._animationEvents[mid].time;
 				if (midValue == time)
 					return mid;
 				else if (midValue > time)
@@ -381,7 +381,7 @@ this._events = [];
 		 */
 		 addEvent(event:AnimationEvent):void {
 			var index:number = this._binarySearchEventIndex(event.time);
-			this._events.splice(index, 0, event);
+			this._animationEvents.splice(index, 0, event);
 		}
 		
 		/**

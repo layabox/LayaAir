@@ -320,7 +320,7 @@ import { Component } from "laya/components/Component"
 			var scripts:Script3D[] = ((<Sprite3D>this.owner ))._scripts;
 			if (scripts) {//TODO:play是否也换成此种计算
 				var clip:AnimationClip = stateInfo._clip;
-				var events:AnimationEvent[] = clip._events;
+				var events:AnimationEvent[] = clip._animationEvents;
 				var clipDuration:number = clip._duration;
 				var elapsedTime:number = playStateInfo._elapsedTime;
 				var time:number = elapsedTime % clipDuration;
@@ -747,7 +747,7 @@ import { Component } from "laya/components/Component"
 		/*override*/  _onAdded():void {
 			var parent:Node = this.owner._parent;
 			((<Sprite3D>this.owner ))._setHierarchyAnimator(this, parent ? ((<Sprite3D>parent ))._hierarchyAnimator : null);//只有动画组件在加载或卸载时才重新组织数据
-			((<Sprite3D>this.owner ))._changeAnimatorToLinkSprite3DNoAvatar(this, true, new Array<string>([]));
+			((<Sprite3D>this.owner ))._changeAnimatorToLinkSprite3DNoAvatar(this, true, []);
 		}
 		
 		/**
@@ -1309,7 +1309,8 @@ import { Component } from "laya/components/Component"
 				linkSprites || (this._linkAvatarSpritesData[nodeName] = linkSprites = []);
 				linkSprites.push(sprite);
 			} else {
-				linkSprites.splice(sprite, 1);
+				var index:number = linkSprites.indexOf(sprite);
+				linkSprites.splice(index, 1);
 			}
 		}
 		

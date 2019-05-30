@@ -398,24 +398,21 @@ import { IClone } from "../core/IClone"
 		}
 	
 		 forNativeElement(nativeElements:Float32Array = null):void
-		{	
-			//[NATIVE_TS]
-			/*		
+		{		
 			if (nativeElements)
 			{
-				this.elements = nativeElements;
-				this.elements[0] = this.x;
-				this.elements[1] = this.y;
-				this.elements[2] = this.z;
+				(<any>this).elements = nativeElements;
+				(<any>this).elements[0] = this.x;
+				(<any>this).elements[1] = this.y;
+				(<any>this).elements[2] = this.z;
 			}
 			else
 			{
-				this.elements = new Float32Array([this.x,this.y,this.z]);
+				(<any>this).elements = new Float32Array([this.x,this.y,this.z]);
 			}
 			Vector2.rewriteNumProperty(this, "x", 0);
 			Vector2.rewriteNumProperty(this, "y", 1);
 			Vector2.rewriteNumProperty(this, "z", 2);
-			*/
 		}
 	}
 

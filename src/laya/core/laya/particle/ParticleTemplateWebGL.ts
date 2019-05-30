@@ -2,7 +2,7 @@ import { ParticleTemplateBase } from "././ParticleTemplateBase";
 import { ParticleSetting } from "././ParticleSetting";
 import { ParticleData } from "././ParticleData";
 import { MeshParticle2D } from "laya/webgl/utils/MeshParticle2D";
-import { Context } from "vm";
+import { Context } from "laya/resource/Context";
 
 	
 	/**

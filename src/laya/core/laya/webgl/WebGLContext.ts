@@ -1,5 +1,6 @@
 import { ILaya } from "../../ILaya";
 import { Browser } from "../utils/Browser";
+import { Render } from "laya/renders/Render";
 
 	export class WebGLContext
 	{

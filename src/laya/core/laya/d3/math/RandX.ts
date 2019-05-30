@@ -121,7 +121,7 @@
 			// :: double d = *((double *)&x)
 			RandX._CONVERTION_BUFFER.setUint32(0, xU, false);
 			RandX._CONVERTION_BUFFER.setUint32(4, xL, false);
-			var d:number = Rand._CONVERTION_BUFFER.getFloat64(0, false);
+			var d:number = RandX._CONVERTION_BUFFER.getFloat64(0, false);
 			
 			// :: d - 1
 			return d - 1;

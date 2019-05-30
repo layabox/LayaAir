@@ -121,7 +121,7 @@ import { Scene3D } from "../scene/Scene3D"
 		}
 		
 		 get ambientColor():Vector3 {
-			return (<Vector3>this._shaderValues.getVector(TerrainMaterial.MATERIALAMBIENT) );
+			return (<Vector3>this._shaderValues.getVector3(TerrainMaterial.MATERIALAMBIENT) );
 		}
 		
 		 set ambientColor(value:Vector3) {
@@ -129,7 +129,7 @@ import { Scene3D } from "../scene/Scene3D"
 		}
 		
 		 get diffuseColor():Vector3 {
-			return (<Vector3>this._shaderValues.getVector(TerrainMaterial.MATERIALDIFFUSE) );
+			return (<Vector3>this._shaderValues.getVector3(TerrainMaterial.MATERIALDIFFUSE) );
 		}
 		
 		 set diffuseColor(value:Vector3) {

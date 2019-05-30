@@ -24,8 +24,6 @@ import { RenderState } from "../core/material/RenderState"
 		/**@private */
 		private _materialValidDefine:number;
 		/**@private */
-		private _validDefineMap:any;
-		/**@private */
 		private _renderState:RenderState = new RenderState();
 		
 		/**
@@ -38,17 +36,17 @@ import { RenderState } from "../core/material/RenderState"
 		
 		constructor(owner:SubShader, vs:string, ps:string,stateMap:any){
 			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			super(vs, ps, null);
 			this._owner = owner;
 			this._cacheSharders = [];
 			this._publicValidDefine = 0;
 			this._spriteValidDefine = 0;
 			this._materialValidDefine = 0;
-			this._validDefineMap = {};
-			super(vs, ps, null, this._validDefineMap);
+			
 			var publicDefineMap:any = this._owner._publicDefinesMap;
 			var spriteDefineMap:any = this._owner._spriteDefinesMap;
 			var materialDefineMap:any = this._owner._materialDefinesMap;
-			for (var k  in this._validDefineMap) {
+			for (var k  in this.defs) {
 				if (publicDefineMap[k] != null)
 					this._publicValidDefine |= publicDefineMap[k];
 				else if (spriteDefineMap[k] != null)
