@@ -80,9 +80,8 @@ import { ILaya } from "../../../ILaya";
             ILaya.TextAtlas=TextAtlas;
             
 			var bugIOS:boolean = false;//是否是有bug的ios版本
-            //在微信下有时候不显示文字，所以采用canvas模式，现在测试微信好像都好了，所以去掉了。
-            var win:any= window;
-			var miniadp:any = win.Laya && win.Laya['MiniAdpter'];
+			//在微信下有时候不显示文字，所以采用canvas模式，现在测试微信好像都好了，所以去掉了。
+			var miniadp:any = ILaya.Laya['MiniAdpter'];
 			if ( miniadp && miniadp.systemInfo && miniadp.systemInfo.system) {
 				bugIOS = miniadp.systemInfo.system.toLowerCase() === 'ios 10.1.1';
             }
@@ -91,7 +90,7 @@ import { ILaya } from "../../../ILaya";
 			//isWan1Wan = true;
 			this.charRender = ILaya.Render.isConchApp ? (new CharRender_Native()) : (new CharRender_Canvas(TextRender.atlasWidth,TextRender.atlasWidth,TextRender.scaleFontWithCtx,!TextRender.isWan1Wan,false));			
 			TextRender.textRenderInst = this;
-			//Laya['textRender'] = this;
+			ILaya.Laya['textRender'] = this;
 			TextRender.atlasWidth2 = TextRender.atlasWidth * TextRender.atlasWidth;
 			//TEST
 			//forceSplitRender = true;

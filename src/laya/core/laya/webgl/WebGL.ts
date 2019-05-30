@@ -55,6 +55,9 @@ import { WebGLContext } from "./WebGLContext";
 			return dec;
 		}
 		
+		 static _nativeRender_enable():void {
+		}
+		
 		//使用webgl渲染器
 		 static enable():boolean {
 			return true;

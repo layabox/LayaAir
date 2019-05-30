@@ -2,6 +2,7 @@ import { LayaGL } from "../layagl/LayaGL"
 	import { Bitmap } from "./Bitmap"
 	import { WebGLContext } from "../webgl/WebGLContext"
 import { ILaya } from "../../ILaya";
+import { LayaGPU } from "laya/webgl/LayaGPU";
 	
 	/**
 	 * <code>BaseTexture</code> 纹理的父类，抽象类，不允许实例。
@@ -45,6 +46,9 @@ import { ILaya } from "../../ILaya";
 		 static FORMAT_PVRTCRGB_4BPPV:number = 11;
 		/**纹理格式_PVRTCRGBA_4BPPV。*/
 		 static FORMAT_PVRTCRGBA_4BPPV:number = 12;
+		
+		/**渲染纹理格式_16位半精度RGBA浮点格式。*/
+		 static RENDERTEXTURE_FORMAT_RGBA_HALF_FLOAT:number = 14;
 		
 		/**深度格式_DEPTH_16。*/
 		 static FORMAT_DEPTH_16:number = 0;
@@ -193,7 +197,8 @@ this._wrapModeU = BaseTexture.WARPMODE_REPEAT;
 		 * @private
 		 */
 		protected _getGLFormat():number {
-			var glFormat:number;
+            var glFormat:number;
+            let gpu = LayaGL.layaGPUInstance;
 			switch (this._format) {
 			case BaseTexture.FORMAT_R8G8B8: 
 				glFormat = WebGLContext.RGB;
@@ -205,44 +210,44 @@ this._wrapModeU = BaseTexture.WARPMODE_REPEAT;
 				glFormat = WebGLContext.ALPHA;
 				break;
 			case BaseTexture.FORMAT_DXT1: 
-				if (WebGLContext._compressedTextureS3tc)
-					glFormat = WebGLContext._compressedTextureS3tc.COMPRESSED_RGB_S3TC_DXT1_EXT;
+				if (gpu._compressedTextureS3tc)
+					glFormat = gpu._compressedTextureS3tc.COMPRESSED_RGB_S3TC_DXT1_EXT;
 				else
 					throw "BaseTexture: not support DXT1 format.";
 				break;
 			case BaseTexture.FORMAT_DXT5: 
-				if (WebGLContext._compressedTextureS3tc)
-					glFormat = WebGLContext._compressedTextureS3tc.COMPRESSED_RGBA_S3TC_DXT5_EXT;
+				if (gpu._compressedTextureS3tc)
+					glFormat = gpu._compressedTextureS3tc.COMPRESSED_RGBA_S3TC_DXT5_EXT;
 				else
 					throw "BaseTexture: not support DXT5 format.";
 				break;
 			case BaseTexture.FORMAT_ETC1RGB: 
-				if (WebGLContext._compressedTextureEtc1)
-					glFormat = WebGLContext._compressedTextureEtc1.COMPRESSED_RGB_ETC1_WEBGL;
+				if (gpu._compressedTextureEtc1)
+					glFormat = gpu._compressedTextureEtc1.COMPRESSED_RGB_ETC1_WEBGL;
 				else
 					throw "BaseTexture: not support ETC1RGB format.";
 				break;
 			case BaseTexture.FORMAT_PVRTCRGB_2BPPV: 
-				if (WebGLContext._compressedTexturePvrtc)
-					glFormat = WebGLContext._compressedTexturePvrtc.COMPRESSED_RGB_PVRTC_2BPPV1_IMG;
+				if (gpu._compressedTexturePvrtc)
+					glFormat = gpu._compressedTexturePvrtc.COMPRESSED_RGB_PVRTC_2BPPV1_IMG;
 				else
 					throw "BaseTexture: not support PVRTCRGB_2BPPV format.";
 				break;
 			case BaseTexture.FORMAT_PVRTCRGBA_2BPPV: 
-				if (WebGLContext._compressedTexturePvrtc)
-					glFormat = WebGLContext._compressedTexturePvrtc.COMPRESSED_RGBA_PVRTC_2BPPV1_IMG;
+				if (gpu._compressedTexturePvrtc)
+					glFormat = gpu._compressedTexturePvrtc.COMPRESSED_RGBA_PVRTC_2BPPV1_IMG;
 				else
 					throw "BaseTexture: not support PVRTCRGBA_2BPPV format.";
 				break;
 			case BaseTexture.FORMAT_PVRTCRGB_4BPPV: 
-				if (WebGLContext._compressedTexturePvrtc)
-					glFormat = WebGLContext._compressedTexturePvrtc.COMPRESSED_RGB_PVRTC_4BPPV1_IMG;
+				if (gpu._compressedTexturePvrtc)
+					glFormat = gpu._compressedTexturePvrtc.COMPRESSED_RGB_PVRTC_4BPPV1_IMG;
 				else
 					throw "BaseTexture: not support PVRTCRGB_4BPPV format.";
 				break;
 			case BaseTexture.FORMAT_PVRTCRGBA_4BPPV: 
-				if (WebGLContext._compressedTexturePvrtc)
-					glFormat = WebGLContext._compressedTexturePvrtc.COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
+				if (gpu._compressedTexturePvrtc)
+					glFormat = gpu._compressedTexturePvrtc.COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
 				else
 					throw "BaseTexture: not support PVRTCRGBA_4BPPV format.";
 				break;
@@ -309,7 +314,7 @@ this._wrapModeU = BaseTexture.WARPMODE_REPEAT;
 		 * @private
 		 */
 		protected _setAnisotropy(value:number):void {
-			var anisotropic:any = WebGLContext._extTextureFilterAnisotropic;
+			var anisotropic:any = LayaGL.layaGPUInstance._extTextureFilterAnisotropic;
 			if (anisotropic && !ILaya.Browser.onLimixiu) {
 				value = Math.max(value, 1);
 				var gl:WebGLContext = LayaGL.instance;

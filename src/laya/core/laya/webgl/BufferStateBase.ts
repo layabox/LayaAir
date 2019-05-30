@@ -16,7 +16,7 @@ import { LayaGL } from "../layagl/LayaGL"
 		 _bindedIndexBuffer:Buffer;
 		
 		constructor(){
-			this._nativeVertexArrayObject = LayaGL.instance.createVertexArray();
+			this._nativeVertexArrayObject = LayaGL.layaGPUInstance.createVertexArray();
 		}
 		
 		/**
@@ -24,7 +24,7 @@ import { LayaGL } from "../layagl/LayaGL"
 		 */
 		 bind():void {
 			if (BufferStateBase._curBindedBufferState !== this) {
-				LayaGL.instance.bindVertexArray(this._nativeVertexArrayObject);
+				LayaGL.layaGPUInstance.bindVertexArray(this._nativeVertexArrayObject);
 				BufferStateBase._curBindedBufferState = this;
 			}
 		}
@@ -34,11 +34,18 @@ import { LayaGL } from "../layagl/LayaGL"
 		 */
 		 unBind():void {
 			if (BufferStateBase._curBindedBufferState === this) {
-				LayaGL.instance.bindVertexArray(null);
+				LayaGL.layaGPUInstance.bindVertexArray(null);
 				BufferStateBase._curBindedBufferState = null;
 			} else {
 				throw "BufferState: must call bind() function first.";
 			}
+		}
+		
+		/**
+		 * @private
+		 */
+		 destroy():void {
+			LayaGL.layaGPUInstance.deleteVertexArray(this._nativeVertexArrayObject);
 		}
 		
 		/**
@@ -53,15 +60,8 @@ import { LayaGL } from "../layagl/LayaGL"
 		 * @private
 		 */
 		 unBindForNative():void {
-				LayaGL.instance.bindVertexArray(null);
-				BufferStateBase._curBindedBufferState = null;
-		}
-		
-		/**
-		 * @private
-		 */
-		 destroy():void {
-			LayaGL.instance.deleteVertexArray(this._nativeVertexArrayObject);
+			LayaGL.instance.bindVertexArray(null);
+			BufferStateBase._curBindedBufferState = null;
 		}
 	
 	}

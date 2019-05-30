@@ -20,9 +20,9 @@ import { CommandEncoder } from "././CommandEncoder";
 		
 		 static UPLOAD_SHADER_UNIFORM_TYPE_ID:number = 0;      //data按照ID传入
 		 static UPLOAD_SHADER_UNIFORM_TYPE_DATA:number = 1;    //data按照数据传入
-	
 		
 		 static instance:any;
+		 static layaGPUInstance:LayaGPU;
 		
 		//TODO:coverage
 		 createCommandEncoder(reserveSize:number = 128, adjustSize:number = 64, isSyncToRenderThread:boolean = false):CommandEncoder {
@@ -42,27 +42,26 @@ import { CommandEncoder } from "././CommandEncoder";
 			return 0;
 		}
 		
-		 static syncBufferToRenderThread(value:any,index:number=0):void 
-		{
+		 static syncBufferToRenderThread(value:any, index:number = 0):void {
 		
 		}
-		 static createArrayBufferRef(arrayBuffer:any, type:number, syncRender:boolean):void 
-		{
+		
+		 static createArrayBufferRef(arrayBuffer:any, type:number, syncRender:boolean):void {
 		
 		}
-		 static createArrayBufferRefs(arrayBuffer:any, type:number, syncRender:boolean,refType:number):void 
-		{
+		
+		 static createArrayBufferRefs(arrayBuffer:any, type:number, syncRender:boolean, refType:number):void {
 		
 		}
-		 matrix4x4Multiply(m1:any,m2:any,out:any):void
-		{
-			
-		}
-		 evaluateClipDatasRealTime(nodes:any, playCurTime:number, realTimeCurrentFrameIndexs:any, addtive:boolean):void
-		{
-			
+		
+		 matrix4x4Multiply(m1:any, m2:any, out:any):void {
+		
 		}
 		
+		 evaluateClipDatasRealTime(nodes:any, playCurTime:number, realTimeCurrentFrameIndexs:any, addtive:boolean):void {
+		
+		}
+	
 	}
 
 

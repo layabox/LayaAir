@@ -1,5 +1,5 @@
-import { Config3D } from "././Config3D";
-import { Config } from "./../../core/src/Config";
+import { Config3D } from "Config3D";
+import { Config } from "Config";
 import { AnimationClip } from "./laya/d3/animation/AnimationClip"
 	import { PostProcess } from "./laya/d3/component/PostProcess"
 	import { Avatar } from "./laya/d3/core/Avatar"
@@ -41,20 +41,22 @@ import { AnimationClip } from "./laya/d3/animation/AnimationClip"
 	import { ShaderInstance } from "./laya/d3/shader/ShaderInstance"
 	import { TerrainHeightData } from "./laya/d3/terrain/TerrainHeightData"
 	import { Utils3D } from "./laya/d3/utils/Utils3D"
-	import { Node } from "../../core/src/laya/display/Node"
-	import { Event } from "../../core/src/laya/events/Event"
-	import { CommandEncoder } from "../../core/src/laya/layagl/CommandEncoder"
-	import { LayaGL } from "../../core/src/laya/layagl/LayaGL"
-	import { Loader } from "../../core/src/laya/net/Loader"
-	import { LoaderManager } from "../../core/src/laya/net/LoaderManager"
-	import { URL } from "../../core/src/laya/net/URL"
-	import { Render } from "../../core/src/laya/renders/Render"
-	import { Resource } from "../../core/src/laya/resource/Resource"
-	import { Texture2D } from "../../core/src/laya/resource/Texture2D"
-	import { Handler } from "../../core/src/laya/utils/Handler"
-	import { RunDriver } from "../../core/src/laya/utils/RunDriver"
-	import { WebGL } from "../../core/src/laya/webgl/WebGL"
-	import { WebGLContext } from "../../core/src/laya/webgl/WebGLContext"
+	import { Node } from "laya/display/Node"
+	import { Event } from "laya/events/Event"
+	import { CommandEncoder } from "laya/layagl/CommandEncoder"
+	import { LayaGL } from "laya/layagl/LayaGL"
+	import { Loader } from "laya/net/Loader"
+	import { LoaderManager } from "laya/net/LoaderManager"
+	import { URL } from "laya/net/URL"
+	import { Render } from "laya/renders/Render"
+	import { Resource } from "laya/resource/Resource"
+	import { Texture2D } from "laya/resource/Texture2D"
+	import { Handler } from "laya/utils/Handler"
+	import { RunDriver } from "laya/utils/RunDriver"
+	import { WebGL } from "laya/webgl/WebGL"
+	import { WebGLContext } from "laya/webgl/WebGLContext"
+import { Laya } from "Laya";
+import { FloatKeyframe } from "laya/d3/core/FloatKeyframe";
 	
 	/**
 	 * <code>Laya3D</code> 类用于初始化3D设置。
@@ -92,7 +94,7 @@ import { AnimationClip } from "./laya/d3/animation/AnimationClip"
 		private static _isInit:boolean = false;
 		
 		/**@private */
-		 static _physics3D:any = window.Physics3D;
+		 static _physics3D:any = (window as any).Physics3D;
 		/**@private */
 		 static _enbalePhysics:boolean = false;
 		/**@private */
@@ -233,7 +235,7 @@ import { AnimationClip } from "./laya/d3/animation/AnimationClip"
 		
 		private static enableNative3D():void {
 			if (Render.isConchApp) {
-				LayaGL = window.LayaGLContext;
+				//LayaGL = (window as any).LayaGLContext;
 				var shaderData:any = ShaderData;
 				var shader3D:any = ShaderInstance;
 				var skinnedMeshRender:any = SkinnedMeshRenderer;
@@ -279,11 +281,11 @@ import { AnimationClip } from "./laya/d3/animation/AnimationClip"
 				
 				if (Render.supportWebGLPlusAnimation) {
 					avatar.prototype._cloneDatasToAnimator = avatar.prototype._cloneDatasToAnimatorNative;
-					FloatKeyframe = window.conchFloatKeyframe;
-					Vector3Keyframe = window.conchFloatArrayKeyframe;
-					QuaternionKeyframe = window.conchFloatArrayKeyframe;
-					KeyframeNode = window.conchKeyframeNode;
-					KeyframeNodeList = window.conchKeyframeNodeList;
+					// FloatKeyframe = window.conchFloatKeyframe;
+					// Vector3Keyframe = window.conchFloatArrayKeyframe;
+					// QuaternionKeyframe = window.conchFloatArrayKeyframe;
+					// KeyframeNode = window.conchKeyframeNode;
+					// KeyframeNodeList = window.conchKeyframeNodeList;
 					var animationClip:any = AnimationClip;
 					animationClip.prototype._evaluateClipDatasRealTime = animationClip.prototype._evaluateClipDatasRealTimeForNative;
 					skinnedMeshRender.prototype.supportWebGLPlusAnimation = skinnedMeshRender.prototype.supportWebGLPlusAnimationForNative;
@@ -722,7 +724,7 @@ import { AnimationClip } from "./laya/d3/animation/AnimationClip"
 			config = config || Config3D._default;
 			config.cloneTo(Laya3D._config);
 			Laya3D._editerEnvironment = Laya3D._config._editerEnvironment;
-			var physics3D:Function = window.Physics3D;
+			var physics3D:Function = (window as any).Physics3D;
 			if (physics3D == null) {
 				Laya3D._enbalePhysics = false;
 				Laya3D.__init__(width, height, Laya3D._config);

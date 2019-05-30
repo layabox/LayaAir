@@ -301,22 +301,13 @@ import { Browser } from "../utils/Browser";
 		 static UNPACK_COLORSPACE_CONVERSION_WEBGL:number = 0x9243;
 		 static BROWSER_DEFAULT_WEBGL:number = 0x9244;
 		
+		//WebGL2.0
+		 static HALF_FLOAT:number = 0x140B;
+		 static RGB16F	:number = 0x881A;
+		 static RGBA16F:number = 0x881A;
+		
 		/**@private */
 		 static mainContext:WebGLContext = null;
-		
-		/**@private */
-		private static _extentionVendorPrefixes:any[] = ["", "WEBKIT_", "MOZ_"];
-		
-		/**@private */
-		 static _extTextureFilterAnisotropic:any;
-		/**@private */
-		 static _compressedTextureS3tc:any;
-		/**@private */
-		 static _compressedTexturePvrtc:any;
-		/**@private */
-		 static _compressedTextureEtc1:any;
-		/**@private */
-		 static _angleInstancedArrays:any;
 		
 		/**@private */
 		 static _activeTextures:any[] = new Array(8);
@@ -350,86 +341,7 @@ import { Browser } from "../utils/Browser";
 		 static _activedTextureID:number = WebGLContext.TEXTURE0;//默认激活纹理区为0
 		
 		
-		/**
-		 * @private
-		 */
-		private  static _forceSupportVAOPlatform():boolean{
-            var Browser = ILaya.Browser;
-			return (Browser.onMiniGame && Browser.onIOS) || Browser.onBDMiniGame || Browser.onQGMiniGame;
-		}
 		
-		
-		/**
-		 * @private
-		 */
-		 static __init__(gl:WebGLContext):void {
-			WebGLContext._checkExtensions(gl);
-			if (!ILaya.WebGL._isWebGL2 && ! ILaya.Render.isConchApp) {
-				if ((window as any)._setupVertexArrayObject){//兼容VAO
-					if (WebGLContext._forceSupportVAOPlatform())
-						(window as any)._forceSetupVertexArrayObject(gl);
-					else
-						(window as any)._setupVertexArrayObject(gl);	
-				}
-				var ext:any = (((<any>gl )).rawgl || gl).getExtension("OES_vertex_array_object");	//gl.rawgl是为了个能兼容glinspector调试
-				if (ext) {
-					//console.log("EXT:webgl support OES_vertex_array_object！");	
-					/**
-					 * 创建一个vao对象。只有支持 OES_vertex_array_object 扩展或者使用polyfill的时候这个函数才有实现。
-					 */
-					var glContext:any = gl;
-					glContext.createVertexArray = function():any{ return ext.createVertexArrayOES();};
-					glContext.bindVertexArray =  function(vao:any):void{ext.bindVertexArrayOES(vao); };
-					glContext.deleteVertexArray =  function(vao:any):void{ext.deleteVertexArrayOES(vao); };
-					glContext.isVertexArray =  function(vao:any):void{ext.isVertexArrayOES(vao);};
-				}
-			}
-		}
-		
-		/**
-		 * @private
-		 */
-		private static _getExtension(gl:WebGLContext, name:string):any {
-			var prefixes:any[] = WebGLContext._extentionVendorPrefixes;
-			for (var k  in prefixes) {
-				var ext:any = gl.getExtension(prefixes[k] + name);
-				if (ext)
-					return ext;
-			}
-			return null;
-		}
-		
-		/**
-		 * @private
-		 */
-		private static _checkExtensions(gl:WebGLContext):void {
-			WebGLContext._extTextureFilterAnisotropic = WebGLContext._getExtension(gl, "EXT_texture_filter_anisotropic");
-			WebGLContext._compressedTextureS3tc =WebGLContext._getExtension(gl, "WEBGL_compressed_texture_s3tc");
-			WebGLContext._compressedTexturePvrtc = WebGLContext._getExtension(gl, "WEBGL_compressed_texture_pvrtc");
-			WebGLContext._compressedTextureEtc1 = WebGLContext._getExtension(gl, "WEBGL_compressed_texture_etc1");
-			if (!WebGLContext._forceSupportVAOPlatform())
-				WebGLContext._angleInstancedArrays = WebGLContext._getExtension(gl, "ANGLE_instanced_arrays");
-		}
-		
-		/**
-		 * @private
-		 */
-		 static __init_native():void
-		{
-			if (!ILaya.Render.supportWebGLPlusRendering) return;
-			var webGLContext:any= WebGLContext;
-			webGLContext.activeTexture = webGLContext.activeTextureForNative;
-			webGLContext.bindTexture = webGLContext.bindTextureForNative;
-			/*webGLContext.useProgram = webGLContext.useProgramForNative;
-			webGLContext.bindVertexArray = webGLContext.bindVertexArrayForNative;
-			webGLContext.setDepthTest = webGLContext.setDepthTestForNative;
-			webGLContext.setDepthMask = webGLContext.setDepthMaskForNative;
-			webGLContext.setDepthFunc = webGLContext.setDepthFuncForNative;
-			webGLContext.setBlend = webGLContext.setBlendForNative;
-			webGLContext.setBlendFunc = webGLContext.setBlendFuncForNative;
-			webGLContext.setCullFace = webGLContext.setCullFaceForNative;
-			webGLContext.setFrontFace = webGLContext.setFrontFaceForNative;*/
-		}
 		/**
 		 * @private
 		 */
@@ -530,99 +442,7 @@ import { Browser } from "../utils/Browser";
 			}
 		}
 		
-		/**
-		 * @private
-		 */
-		//TODO:coverage
-		 static useProgramForNative(gl:WebGLContext,program:any):boolean{
-			gl.useProgram(program);
-			return true;
-		}
-		
-		
-		/**
-		 * @private
-		 */
-		//TODO:coverage
-		 static setDepthTestForNative(gl:WebGLContext, value:boolean):void{
-			if (value)gl.enable(WebGLContext.DEPTH_TEST);
-			else gl.disable(WebGLContext.DEPTH_TEST);
-		}
-		
-		/**
-		 * @private
-		 */
-		//TODO:coverage
-		 static setDepthMaskForNative(gl:WebGLContext, value:boolean):void{
-			gl.depthMask(value);
-		}
-		
-		/**
-		 * @private
-		 */
-		//TODO:coverage
-		 static setDepthFuncForNative(gl:WebGLContext, value:number):void{
-			gl.depthFunc(value);
-		}
-		
-		/**
-		 * @private
-		 */
-		//TODO:coverage
-		 static setBlendForNative(gl:WebGLContext, value:boolean):void{
-			if (value) gl.enable(WebGLContext.BLEND);
-			else gl.disable(WebGLContext.BLEND);
-		}
-		
-		/**
-		 * @private
-		 */
-		//TODO:coverage
-		 static setBlendFuncForNative(gl:WebGLContext, sFactor:number, dFactor:number):void{
-			gl.blendFunc(sFactor, dFactor);
-		}
-		
-		/**
-		 * @private
-		 */
-		//TODO:coverage
-		 static setCullFaceForNative(gl:WebGLContext, value:boolean):void{
-			 if (value) gl.enable(WebGLContext.CULL_FACE)
-			 else gl.disable(WebGLContext.CULL_FACE);
-		}
-		
-		/**
-		 * @private
-		 */
-		//TODO:coverage
-		 static setFrontFaceForNative(gl:WebGLContext, value:number):void{
-			gl.frontFace(value);
-		}
-		
-		
-		/**
-		 * @private
-		 */
-		//TODO:coverage
-		 static activeTextureForNative(gl:WebGLContext, textureID:number):void{
-			gl.activeTexture(textureID);
-		}
-		
-		/**
-		 * @private
-		 */
-		//TODO:coverage
-		 static bindTextureForNative(gl:WebGLContext, target:any, texture:any):void {
-			gl.bindTexture(target, texture);
-		}
-		
-		/**
-		 * @private
-		 */
-		//TODO:coverage
-		 static bindVertexArrayForNative(gl:WebGLContext, vertexArray:any):void {
-			gl.bindVertexArray(vertexArray);
-		}
+
 	
 		 getContextAttributes():any{return null;}
 		
@@ -896,25 +716,122 @@ import { Browser } from "../utils/Browser";
 		
 		 compressedTexImage2D(... args):void{}
 		
-		//WebGL1.0下为扩展方法
-		//TODO:coverage
-		 createVertexArray():any{
-			throw "not implemented";
+		
+		
+		//--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+		
+		/**
+		 * @private
+		 */
+		 static __init_native():void
+		{
+			if (!Render.supportWebGLPlusRendering) return;
+			var webGLContext:any= WebGLContext;
+			webGLContext.activeTexture = webGLContext.activeTextureForNative;
+			webGLContext.bindTexture = webGLContext.bindTextureForNative;
+			/*webGLContext.useProgram = webGLContext.useProgramForNative;
+			webGLContext.bindVertexArray = webGLContext.bindVertexArrayForNative;
+			webGLContext.setDepthTest = webGLContext.setDepthTestForNative;
+			webGLContext.setDepthMask = webGLContext.setDepthMaskForNative;
+			webGLContext.setDepthFunc = webGLContext.setDepthFuncForNative;
+			webGLContext.setBlend = webGLContext.setBlendForNative;
+			webGLContext.setBlendFunc = webGLContext.setBlendFuncForNative;
+			webGLContext.setCullFace = webGLContext.setCullFaceForNative;
+			webGLContext.setFrontFace = webGLContext.setFrontFaceForNative;*/
 		}
 		
+		/**
+		 * @private
+		 */
 		//TODO:coverage
-		 bindVertexArray(vao:any):void{
-			throw "not implemented";
+		 static useProgramForNative(gl:WebGLContext,program:any):boolean{
+			gl.useProgram(program);
+			return true;
 		}
 		
+		
+		/**
+		 * @private
+		 */
 		//TODO:coverage
-		 deleteVertexArray(vao:any):void{
-			throw "not implemented";
+		 static setDepthTestForNative(gl:WebGLContext, value:boolean):void{
+			if (value)gl.enable(WebGLContext.DEPTH_TEST);
+			else gl.disable(WebGLContext.DEPTH_TEST);
 		}
 		
+		/**
+		 * @private
+		 */
 		//TODO:coverage
-		 isVertexArray(vao:any):void{
-			throw "not implemented";
+		 static setDepthMaskForNative(gl:WebGLContext, value:boolean):void{
+			gl.depthMask(value);
+		}
+		
+		/**
+		 * @private
+		 */
+		//TODO:coverage
+		 static setDepthFuncForNative(gl:WebGLContext, value:number):void{
+			gl.depthFunc(value);
+		}
+		
+		/**
+		 * @private
+		 */
+		//TODO:coverage
+		 static setBlendForNative(gl:WebGLContext, value:boolean):void{
+			if (value) gl.enable(WebGLContext.BLEND);
+			else gl.disable(WebGLContext.BLEND);
+		}
+		
+		/**
+		 * @private
+		 */
+		//TODO:coverage
+		 static setBlendFuncForNative(gl:WebGLContext, sFactor:number, dFactor:number):void{
+			gl.blendFunc(sFactor, dFactor);
+		}
+		
+		/**
+		 * @private
+		 */
+		//TODO:coverage
+		 static setCullFaceForNative(gl:WebGLContext, value:boolean):void{
+			 if (value) gl.enable(WebGLContext.CULL_FACE)
+			 else gl.disable(WebGLContext.CULL_FACE);
+		}
+		
+		/**
+		 * @private
+		 */
+		//TODO:coverage
+		 static setFrontFaceForNative(gl:WebGLContext, value:number):void{
+			gl.frontFace(value);
+		}
+		
+		
+		/**
+		 * @private
+		 */
+		//TODO:coverage
+		 static activeTextureForNative(gl:WebGLContext, textureID:number):void{
+			gl.activeTexture(textureID);
+		}
+		
+		/**
+		 * @private
+		 */
+		//TODO:coverage
+		 static bindTextureForNative(gl:WebGLContext, target:any, texture:any):void {
+			gl.bindTexture(target, texture);
+		}
+		
+		/**
+		 * @private
+		 */
+		//TODO:coverage
+		 static bindVertexArrayForNative(gl:WebGLContext, vertexArray:any):void {
+			gl.bindVertexArray(vertexArray);
 		}
 		
 	}
