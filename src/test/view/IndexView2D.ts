@@ -203,7 +203,7 @@ import { Sprite } from "../../../bin/libs/laya/display/Sprite";
 		private _comboBoxIDEArr:any[] = ['显示IDE创建的界面'];
 		/************************IDE-end***************************/
 	
-		private _VIPClsArr:any[] = [VIPMergeBinary_as,VIPMergeText,VIPTexturetrans_as_a,VIPTexturetrans_as_b];
+		//private _VIPClsArr:any[] = [VIPMergeBinary_as,VIPMergeText,VIPTexturetrans_as_a,VIPTexturetrans_as_b];
 		private _VIPArr:any[] = ['VIP_MergeBinary',"VIP_MergeText","VIP_Texturetrans_a","VIP_Texturetrans_b"];
 		
 		private _bigIndex:number =0;
@@ -403,7 +403,7 @@ import { Sprite } from "../../../bin/libs/laya/display/Sprite";
 						this.b_length = this._comboBoxIDEClsArr.length - 1;
 						break;
 					case 18://IDE
-						this._oldView = new this._VIPClsArr[index];
+						//this._oldView = new this._VIPClsArr[index];
 						this.b_length = this._VIPArr.length - 1;
 						break;
 					default:

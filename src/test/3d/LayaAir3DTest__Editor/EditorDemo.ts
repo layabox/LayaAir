@@ -1,27 +1,27 @@
-import { Config3D } from "./Config3D";
 import { Laya } from "Laya";
-import { CameraMoveScript } from "../common/CameraMoveScript"
-	import { Camera } from "laya/d3/core/Camera"
-	import { MeshSprite3D } from "laya/d3/core/MeshSprite3D"
-	import { Sprite3D } from "laya/d3/core/Sprite3D"
-	import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial"
-	import { RenderContext3D } from "laya/d3/core/render/RenderContext3D"
-	import { Scene3D } from "laya/d3/core/scene/Scene3D"
-	import { Vector2 } from "laya/d3/math/Vector2"
-	import { Vector3 } from "laya/d3/math/Vector3"
-	import { Vector4 } from "laya/d3/math/Vector4"
-	import { RenderTexture } from "laya/d3/resource/RenderTexture"
-	import { Shader3D } from "laya/d3/shader/Shader3D"
-	import { Laya3D } from "laya/d3/utils/Laya3D"
-	import { EditerScene3D } from "laya/d3Editor/EditerScene3D"
-	import { TransformSprite3D } from "laya/d3Editor/TransformSprite3D"
-	import { PickShader } from "laya/d3Editor/material/PickShader"
-	import { Sprite } from "laya/display/Sprite"
-	import { Stage } from "laya/display/Stage"
-	import { Event } from "laya/events/Event"
-	import { Handler } from "laya/utils/Handler"
-	import { Stat } from "laya/utils/Stat"
-	import { BaseTexture } from "laya/webgl/resource/BaseTexture"
+import { Camera } from "laya/d3/core/Camera";
+import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
+import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
+import { RenderContext3D } from "laya/d3/core/render/RenderContext3D";
+import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { Vector2 } from "laya/d3/math/Vector2";
+import { Vector3 } from "laya/d3/math/Vector3";
+import { Vector4 } from "laya/d3/math/Vector4";
+import { RenderTexture } from "laya/d3/resource/RenderTexture";
+import { Shader3D } from "laya/d3/shader/Shader3D";
+import { EditerScene3D } from "laya/d3Editor/EditerScene3D";
+import { PickShader } from "laya/d3Editor/material/PickShader";
+import { TransformSprite3D } from "laya/d3Editor/TransformSprite3D";
+import { Sprite } from "laya/display/Sprite";
+import { Stage } from "laya/display/Stage";
+import { Event } from "laya/events/Event";
+import { Handler } from "laya/utils/Handler";
+import { Stat } from "laya/utils/Stat";
+import { BaseTexture } from "laya/webgl/resource/BaseTexture";
+import { Laya3D } from "Laya3D";
+import { CameraMoveScript } from "../common/CameraMoveScript";
+import { Config3D } from "Config3D";
 	
 	/**
 	 * ...

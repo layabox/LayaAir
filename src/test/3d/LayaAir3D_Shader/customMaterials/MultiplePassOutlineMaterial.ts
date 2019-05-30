@@ -1,16 +1,13 @@
-import { BaseTexture } from "./BaseTexture";
-import { MultiplePassOutlineMaterial } from "./MultiplePassOutlineMaterial"
-	import { BaseMaterial } from "laya/d3/core/material/BaseMaterial"
-	import { RenderState } from "laya/d3/core/material/RenderState"
-	import { VertexMesh } from "laya/d3/graphics/Vertex/VertexMesh"
-	import { Color } from "laya/d3/math/Color"
-	import { Vector3 } from "laya/d3/math/Vector3"
-	import { Vector4 } from "laya/d3/math/Vector4"
-	import { Shader3D } from "laya/d3/shader/Shader3D"
-	import { ShaderDefines } from "laya/d3/shader/ShaderDefines"
-	import { ShaderPass } from "laya/d3/shader/ShaderPass"
-	import { SubShader } from "laya/d3/shader/SubShader"
-	import { StringTool } from "laya/debug/tools/StringTool"
+	import { BaseMaterial } from "laya/d3/core/material/BaseMaterial";
+import { RenderState } from "laya/d3/core/material/RenderState";
+import { VertexMesh } from "laya/d3/graphics/Vertex/VertexMesh";
+import { Color } from "laya/d3/math/Color";
+import { Vector4 } from "laya/d3/math/Vector4";
+import { Shader3D } from "laya/d3/shader/Shader3D";
+import { ShaderDefines } from "laya/d3/shader/ShaderDefines";
+import { ShaderPass } from "laya/d3/shader/ShaderPass";
+import { SubShader } from "laya/d3/shader/SubShader";
+import { BaseTexture } from "laya/resource/BaseTexture";
 	
 	/**
 	 * ...

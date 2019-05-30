@@ -69,7 +69,7 @@ import { Camera } from "laya/d3/core/Camera"
 				planeMat.albedoTexture = tex;
 			}));
 			//设置材质
-			var tilingOffset:Vector3 = planeMat.tilingOffset;
+			var tilingOffset = planeMat.tilingOffset;
 			tilingOffset.setValue(2, 2, 0, 0);
 			planeMat.tilingOffset = tilingOffset;
 			plane.meshRenderer.material = planeMat;

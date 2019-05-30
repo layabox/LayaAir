@@ -1,99 +1,92 @@
-import { Laya3D } from "Laya3D";
 import { Laya } from "Laya";
+import { Laya3D } from "Laya3D";
+import { DynamicBatchTest } from "../3d/LayaAir3DTest_Performance/DynamicBatchTest";
+import { SkinAnimationPerformance } from "../3d/LayaAir3DTest_Performance/SkinAnimationPerformance";
+import { Laya3DCombineHtml } from "../3d/LayaAir3D_Advance/Laya3DCombineHtml";
+import { Scene2DPlayer3D } from "../3d/LayaAir3D_Advance/Scene2DPlayer3D";
+import { Secne3DPlayer2D } from "../3d/LayaAir3D_Advance/Secne3DPlayer2D";
+import { AnimationEventByUnity } from "../3d/LayaAir3D_Animation3D/AnimationEventByUnity";
+import { AnimationLayerBlend } from "../3d/LayaAir3D_Animation3D/AnimationLayerBlend";
+import { AnimatorDemo } from "../3d/LayaAir3D_Animation3D/AnimatorDemo";
+import { AnimatorStateScriptDemo } from "../3d/LayaAir3D_Animation3D/AnimatorStateScriptDemo";
+import { BoneLinkSprite3D } from "../3d/LayaAir3D_Animation3D/BoneLinkSprite3D";
+import { CameraAnimation } from "../3d/LayaAir3D_Animation3D/CameraAnimation";
+import { MaterialAnimation } from "../3d/LayaAir3D_Animation3D/MaterialAnimation";
+import { RigidbodyAnimationDemo } from "../3d/LayaAir3D_Animation3D/RigidbodyAnimationDemo";
+import { SkinAnimationSample } from "../3d/LayaAir3D_Animation3D/SkinAnimationSample";
+import { CameraDemo } from "../3d/LayaAir3D_Camera/CameraDemo";
+import { CameraLayer } from "../3d/LayaAir3D_Camera/CameraLayer";
+import { CameraLookAt } from "../3d/LayaAir3D_Camera/CameraLookAt";
+import { CameraRay } from "../3d/LayaAir3D_Camera/CameraRay";
+import { D3SpaceToD2Space } from "../3d/LayaAir3D_Camera/D3SpaceToD2Space";
+import { MultiCamera } from "../3d/LayaAir3D_Camera/MultiCamera";
+import { OrthographicCamera } from "../3d/LayaAir3D_Camera/OrthographicCamera";
+import { RenderTargetCamera } from "../3d/LayaAir3D_Camera/RenderTargetCamera";
+import { DirectionLightDemo } from "../3d/LayaAir3D_Lighting/DirectionLightDemo";
+import { PointLightDemo } from "../3d/LayaAir3D_Lighting/PointLightDemo";
+import { RealTimeShadow } from "../3d/LayaAir3D_Lighting/RealTimeShadow";
+import { SpotLightDemo } from "../3d/LayaAir3D_Lighting/SpotLightDemo";
+import { BlinnPhongMaterialLoad } from "../3d/LayaAir3D_Material/BlinnPhongMaterialLoad";
+import { BlinnPhong_DiffuseMap } from "../3d/LayaAir3D_Material/BlinnPhong_DiffuseMap";
+import { BlinnPhong_NormalMap } from "../3d/LayaAir3D_Material/BlinnPhong_NormalMap";
+import { BlinnPhong_SpecularMap } from "../3d/LayaAir3D_Material/BlinnPhong_SpecularMap";
+import { EffectMaterialDemo } from "../3d/LayaAir3D_Material/EffectMaterialDemo";
+import { MaterialDemo } from "../3d/LayaAir3D_Material/MaterialDemo";
+import { PBRStandardMaterialDemo } from "../3d/LayaAir3D_Material/PBRStandardMaterialDemo";
+import { UnlitMaterialDemo } from "../3d/LayaAir3D_Material/UnlitMaterialDemo";
+import { WaterPrimaryMaterialDemo } from "../3d/LayaAir3D_Material/WaterPrimaryMaterialDemo";
+import { ChangeMesh } from "../3d/LayaAir3D_Mesh/ChangeMesh";
+import { CustomMesh } from "../3d/LayaAir3D_Mesh/CustomMesh";
+import { MeshLoad } from "../3d/LayaAir3D_Mesh/MeshLoad";
+import { MouseInteraction } from "../3d/LayaAir3D_MouseInteraction/MouseInteraction";
+import { TouchScriptSample } from "../3d/LayaAir3D_MouseInteraction/TouchScriptSample";
+import { Particle_BurningGround } from "../3d/LayaAir3D_Particle3D/Particle_BurningGround";
+import { Particle_EternalLight } from "../3d/LayaAir3D_Particle3D/Particle_EternalLight";
+import { StaticBatchingTest } from "../3d/LayaAir3D_Performance/StaticBatchingTest";
+import { PhysicsWorld_BaseCollider } from "../3d/LayaAir3D_Physics3D/PhysicsWorld_BaseCollider";
+import { PhysicsWorld_BuildingBlocks } from "../3d/LayaAir3D_Physics3D/PhysicsWorld_BuildingBlocks";
+import { PhysicsWorld_Character } from "../3d/LayaAir3D_Physics3D/PhysicsWorld_Character";
+import { PhysicsWorld_CollisionFiflter } from "../3d/LayaAir3D_Physics3D/PhysicsWorld_CollisionFiflter";
+import { PhysicsWorld_CompoundCollider } from "../3d/LayaAir3D_Physics3D/PhysicsWorld_CompoundCollider";
+import { PhysicsWorld_ContinueCollisionDetection } from "../3d/LayaAir3D_Physics3D/PhysicsWorld_ContinueCollisionDetection";
+import { PhysicsWorld_Kinematic } from "../3d/LayaAir3D_Physics3D/PhysicsWorld_Kinematic";
+import { PhysicsWorld_MeshCollider } from "../3d/LayaAir3D_Physics3D/PhysicsWorld_MeshCollider";
+import { PhysicsWorld_RayShapeCast } from "../3d/LayaAir3D_Physics3D/PhysicsWorld_RayShapeCast";
+import { PhysicsWorld_TriggerAndCollisionEvent } from "../3d/LayaAir3D_Physics3D/PhysicsWorld_TriggerAndCollisionEvent";
+import { GarbageCollection } from "../3d/LayaAir3D_Resource/GarbageCollection";
+import { LoadResourceDemo } from "../3d/LayaAir3D_Resource/LoadResourceDemo";
+import { EnvironmentalReflection } from "../3d/LayaAir3D_Scene3D/EnvironmentalReflection";
+import { LightmapScene } from "../3d/LayaAir3D_Scene3D/LightmapScene";
+import { SceneLoad1 } from "../3d/LayaAir3D_Scene3D/SceneLoad1";
+import { SceneLoad2 } from "../3d/LayaAir3D_Scene3D/SceneLoad2";
+import { ScriptDemo } from "../3d/LayaAir3D_Script/ScriptDemo";
+import { Shader_GlowingEdge } from "../3d/LayaAir3D_Shader/Shader_GlowingEdge";
+import { Shader_MultiplePassOutline } from "../3d/LayaAir3D_Shader/Shader_MultiplePassOutline";
+import { Shader_Simple } from "../3d/LayaAir3D_Shader/Shader_Simple";
+import { Shader_Terrain } from "../3d/LayaAir3D_Shader/Shader_Terrain";
+import { Sky_Procedural } from "../3d/LayaAir3D_Sky/Sky_Procedural";
+import { Sky_SkyBox } from "../3d/LayaAir3D_Sky/Sky_SkyBox";
+import { PixelLineSprite3DDemo } from "../3d/LayaAir3D_Sprite3D/PixelLineSprite3DDemo";
+import { SkinnedMeshSprite3DDemo } from "../3d/LayaAir3D_Sprite3D/SkinnedMeshSprite3DDemo";
+import { Sprite3DClone } from "../3d/LayaAir3D_Sprite3D/Sprite3DClone";
+import { Sprite3DLoad } from "../3d/LayaAir3D_Sprite3D/Sprite3DLoad";
+import { Sprite3DParent } from "../3d/LayaAir3D_Sprite3D/Sprite3DParent";
+import { TransformDemo } from "../3d/LayaAir3D_Sprite3D/TransformDemo";
+import { TextureDemo } from "../3d/LayaAir3D_Texture/TextureDemo";
+import { TextureGPUCompression } from "../3d/LayaAir3D_Texture/TextureGPUCompression";
+import { TrailDemo } from "../3d/LayaAir3D_Trail/TrailDemo";
+import { TrailRender } from "../3d/LayaAir3D_Trail/TrailRender";
+import { Stage } from "laya/display/Stage";
+import { Event } from "laya/events/Event";
+import { URL } from "laya/net/URL";
+import { Resource } from "laya/resource/Resource";
+import { Button } from "laya/ui/Button";
+import { List } from "laya/ui/List";
+import { Handler } from "laya/utils/Handler";
+import { Stat } from "laya/utils/Stat";
+import { RenderTextureDemo } from "../LayaAir3D_Texture/RenderTextureDemo";
+import { IndexViewUI } from "../ui/IndexViewUI";
 import { Main } from "./../Main";
-import { GradientDataNumber } from "../laya/d3/core/particleShuriKen/module/GradientDataNumber"
-	import { Event } from "../laya/events/Event"
-	import { URL } from "../laya/net/URL"
-	import { Button } from "../laya/ui/Button"
-	import { AnimationEventByUnity } from "../3d/LayaAir3D_Animation3D/AnimationEventByUnity"
-	import { AnimationLayerBlend } from "../3d/LayaAir3D_Animation3D/AnimationLayerBlend"
-	import { AnimatorDemo } from "../3d/LayaAir3D_Animation3D/AnimatorDemo"
-	import { AnimatorStateScriptDemo } from "../3d/LayaAir3D_Animation3D/AnimatorStateScriptDemo"
-	import { BoneLinkSprite3D } from "../3d/LayaAir3D_Animation3D/BoneLinkSprite3D"
-	import { CameraAnimation } from "../3d/LayaAir3D_Animation3D/CameraAnimation"
-	import { MaterialAnimation } from "../3d/LayaAir3D_Animation3D/MaterialAnimation"
-	import { RigidbodyAnimationDemo } from "../3d/LayaAir3D_Animation3D/RigidbodyAnimationDemo"
-	import { SkinAnimationSample } from "../3d/LayaAir3D_Animation3D/SkinAnimationSample"
-	import { Particle_BurningGround } from "../3d/LayaAir3D_Particle3D/Particle_BurningGround"
-	import { Particle_EternalLight } from "../3d/LayaAir3D_Particle3D/Particle_EternalLight"
-	import { PhysicsWorld_BaseCollider } from "../3d/LayaAir3D_Physics3D/PhysicsWorld_BaseCollider"
-	import { PhysicsWorld_BuildingBlocks } from "../3d/LayaAir3D_Physics3D/PhysicsWorld_BuildingBlocks"
-	import { PhysicsWorld_Character } from "../3d/LayaAir3D_Physics3D/PhysicsWorld_Character"
-	import { PhysicsWorld_CollisionFiflter } from "../3d/LayaAir3D_Physics3D/PhysicsWorld_CollisionFiflter"
-	import { PhysicsWorld_CompoundCollider } from "../3d/LayaAir3D_Physics3D/PhysicsWorld_CompoundCollider"
-	import { PhysicsWorld_ContinueCollisionDetection } from "../3d/LayaAir3D_Physics3D/PhysicsWorld_ContinueCollisionDetection"
-	import { PhysicsWorld_Kinematic } from "../3d/LayaAir3D_Physics3D/PhysicsWorld_Kinematic"
-	import { PhysicsWorld_MeshCollider } from "../3d/LayaAir3D_Physics3D/PhysicsWorld_MeshCollider"
-	import { PhysicsWorld_RayShapeCast } from "../3d/LayaAir3D_Physics3D/PhysicsWorld_RayShapeCast"
-	import { PhysicsWorld_TriggerAndCollisionEvent } from "../3d/LayaAir3D_Physics3D/PhysicsWorld_TriggerAndCollisionEvent"
-	import { Shader_MultiplePassOutline } from "../3d/LayaAir3D_Shader/Shader_MultiplePassOutline"
-	import { CartoonRender } from "../3d/LayaAir3D_Demo/CartoonRender"
-	import { AnimationTest } from "../3d/LayaAir3DTest_Native/AnimationTest"
-	import { AnimationTestNotCom } from "../3d/LayaAir3DTest_Native/AnimationTestNotCom"
-	import { SceneLoad3 } from "../3d/LayaAir3DTest_Native/SceneLoad3"
-	import { EditorDemo } from "../3d/LayaAir3DTest__Editor/EditorDemo"
-	import { CameraDemo } from "../3d/LayaAir3D_Camera/CameraDemo"
-	import { CameraLayer } from "../3d/LayaAir3D_Camera/CameraLayer"
-	import { CameraLookAt } from "../3d/LayaAir3D_Camera/CameraLookAt"
-	import { CameraRay } from "../3d/LayaAir3D_Camera/CameraRay"
-	import { D3SpaceToD2Space } from "../3d/LayaAir3D_Camera/D3SpaceToD2Space"
-	import { MultiCamera } from "../3d/LayaAir3D_Camera/MultiCamera"
-	import { OrthographicCamera } from "../3d/LayaAir3D_Camera/OrthographicCamera"
-	import { RenderTargetCamera } from "../3d/LayaAir3D_Camera/RenderTargetCamera"
-	import { DirectionLightDemo } from "../3d/LayaAir3D_Lighting/DirectionLightDemo"
-	import { PointLightDemo } from "../3d/LayaAir3D_Lighting/PointLightDemo"
-	import { RealTimeShadow } from "../3d/LayaAir3D_Lighting/RealTimeShadow"
-	import { SpotLightDemo } from "../3d/LayaAir3D_Lighting/SpotLightDemo"
-	import { BlinnPhongMaterialLoad } from "../3d/LayaAir3D_Material/BlinnPhongMaterialLoad"
-	import { BlinnPhong_DiffuseMap } from "../3d/LayaAir3D_Material/BlinnPhong_DiffuseMap"
-	import { BlinnPhong_NormalMap } from "../3d/LayaAir3D_Material/BlinnPhong_NormalMap"
-	import { BlinnPhong_SpecularMap } from "../3d/LayaAir3D_Material/BlinnPhong_SpecularMap"
-	import { EffectMaterialDemo } from "../3d/LayaAir3D_Material/EffectMaterialDemo"
-	import { MaterialDemo } from "../3d/LayaAir3D_Material/MaterialDemo"
-	import { PBRStandardMaterialDemo } from "../3d/LayaAir3D_Material/PBRStandardMaterialDemo"
-	import { UnlitMaterialDemo } from "../3d/LayaAir3D_Material/UnlitMaterialDemo"
-	import { WaterPrimaryMaterialDemo } from "../3d/LayaAir3D_Material/WaterPrimaryMaterialDemo"
-	import { ChangeMesh } from "../3d/LayaAir3D_Mesh/ChangeMesh"
-	import { CustomMesh } from "../3d/LayaAir3D_Mesh/CustomMesh"
-	import { MeshLoad } from "../3d/LayaAir3D_Mesh/MeshLoad"
-	import { MouseInteraction } from "../3d/LayaAir3D_MouseInteraction/MouseInteraction"
-	import { TouchScriptSample } from "../3d/LayaAir3D_MouseInteraction/TouchScriptSample"
-	import { StaticBatchingTest } from "../3d/LayaAir3D_Performance/StaticBatchingTest"
-	import { GarbageCollection } from "../3d/LayaAir3D_Resource/GarbageCollection"
-	import { LoadResourceDemo } from "../3d/LayaAir3D_Resource/LoadResourceDemo"
-	import { EnvironmentalReflection } from "../3d/LayaAir3D_Scene3D/EnvironmentalReflection"
-	import { LightmapScene } from "../3d/LayaAir3D_Scene3D/LightmapScene"
-	import { SceneLoad1 } from "../3d/LayaAir3D_Scene3D/SceneLoad1"
-	import { SceneLoad2 } from "../3d/LayaAir3D_Scene3D/SceneLoad2"
-	import { ScriptDemo } from "../3d/LayaAir3D_Script/ScriptDemo"
-	import { Shader_GlowingEdge } from "../3d/LayaAir3D_Shader/Shader_GlowingEdge"
-	import { Shader_Simple } from "../3d/LayaAir3D_Shader/Shader_Simple"
-	import { Shader_Terrain } from "../3d/LayaAir3D_Shader/Shader_Terrain"
-	import { Sky_Procedural } from "../3d/LayaAir3D_Sky/Sky_Procedural"
-	import { Sky_SkyBox } from "../3d/LayaAir3D_Sky/Sky_SkyBox"
-	import { PixelLineSprite3DDemo } from "../3d/LayaAir3D_Sprite3D/PixelLineSprite3DDemo"
-	import { SkinnedMeshSprite3DDemo } from "../3d/LayaAir3D_Sprite3D/SkinnedMeshSprite3DDemo"
-	import { Sprite3DClone } from "../3d/LayaAir3D_Sprite3D/Sprite3DClone"
-	import { Sprite3DLoad } from "../3d/LayaAir3D_Sprite3D/Sprite3DLoad"
-	import { Sprite3DParent } from "../3d/LayaAir3D_Sprite3D/Sprite3DParent"
-	import { TransformDemo } from "../3d/LayaAir3D_Sprite3D/TransformDemo"
-	import { RenderTextureDemo } from "../LayaAir3D_Texture/RenderTextureDemo"
-	import { TextureDemo } from "../3d/LayaAir3D_Texture/TextureDemo"
-	import { TextureGPUCompression } from "../3d/LayaAir3D_Texture/TextureGPUCompression"
-	import { TrailDemo } from "../3d/LayaAir3D_Trail/TrailDemo"
-	import { TrailRender } from "../3d/LayaAir3D_Trail/TrailRender"
-	import { Stage } from "../laya/display/Stage"
-	import { Resource } from "../laya/resource/Resource"
-	import { List } from "../laya/ui/List"
-	import { Handler } from "../laya/utils/Handler"
-	import { Stat } from "../laya/utils/Stat"
-	import { AStarFindPath } from "../3d/LayaAir3D_Advance/AStarFindPath"
-	import { Laya3DCombineHtml } from "../3d/LayaAir3D_Advance/Laya3DCombineHtml"
-	import { Scene2DPlayer3D } from "../3d/LayaAir3D_Advance/Scene2DPlayer3D"
-	import { Secne3DPlayer2D } from "../3d/LayaAir3D_Advance/Secne3DPlayer2D"
-	import { DynamicBatchTest } from "../3d/LayaAir3DTest_Performance/DynamicBatchTest"
-	import { SkinAnimationPerformance } from "../3d/LayaAir3DTest_Performance/SkinAnimationPerformance"
-	import { IndexViewUI } from "../ui/IndexViewUI"
 	
 	export class IndexView3D extends IndexViewUI
 	{

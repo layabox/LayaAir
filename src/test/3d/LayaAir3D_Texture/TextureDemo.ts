@@ -24,6 +24,7 @@ import { CameraMoveScript } from "../common/CameraMoveScript"
 	import { WebGLContext } from "laya/webgl/WebGLContext"
 	import { BaseTexture } from "laya/resource/BaseTexture"
 	import { Texture2D } from "laya/resource/Texture2D"
+import { BaseMaterial } from "../../../../bin/libs/laya/d3/core/material/BaseMaterial";
 	
 	/**
 	 * ...
@@ -58,7 +59,7 @@ import { CameraMoveScript } from "../common/CameraMoveScript"
 			var box:MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createBox(0.5, 0.5, 0.5))) );
 			box.transform.position = new Vector3(0.0, 1.0, 2.5);
 			box.transform.rotate(new Vector3(0, 0, 0), false, false);
-			var mat:BlinnPhongMaterial = new BlinnPhongMaterial();
+			var mat1:BlinnPhongMaterial = new BlinnPhongMaterial();
 			//漫反射贴图
 			Texture2D.load("res/threeDimen/texture/layabox.png", Handler.create(this, function(texture:Texture2D):void {
 				//在U方向上使用WARPMODE_CLAMP
@@ -70,13 +71,13 @@ import { CameraMoveScript } from "../common/CameraMoveScript"
 				//设置各向异性等级
 				texture.anisoLevel = 2;
 				
-				mat.albedoTexture = texture;
+				mat1.albedoTexture = texture;
 				//修改材质贴图的平铺和偏移
-				var tilingOffset:Vector4 = mat.tilingOffset;
+				var tilingOffset:Vector4 = mat1.tilingOffset;
 				tilingOffset.setValue(3, 3, 0.0, 0.0);
-				mat.tilingOffset = tilingOffset;
+				mat1.tilingOffset = tilingOffset;
 				
-				box.meshRenderer.material = mat;
+				box.meshRenderer.material = mat1 as BaseMaterial;
 			}));
 		
 		}

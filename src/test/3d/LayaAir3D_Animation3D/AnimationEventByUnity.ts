@@ -1,10 +1,11 @@
-import { Laya3D } from "Laya3D"
 import { Laya } from "Laya";
-import { Sprite3D } from "laya/d3/core/Sprite3D"
-	import { Scene3D } from "laya/d3/core/scene/Scene3D"
-	import { Stage } from "laya/display/Stage"
-	import { Handler } from "laya/utils/Handler"
-	import { Stat } from "laya/utils/Stat"
+import { Script3D } from "laya/d3/component/Script3D";
+import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { Stage } from "laya/display/Stage";
+import { Handler } from "laya/utils/Handler";
+import { Stat } from "laya/utils/Stat";
+import { Laya3D } from "Laya3D";
 	
 	/**
 	 * ...
@@ -22,7 +23,7 @@ import { Sprite3D } from "laya/d3/core/Sprite3D"
 			//加载场景
 			Scene3D.load("res/threeDimen/scene/LayaScene_AnimationEvent/Conventional/layaScene.ls", Handler.create(this, function(scene:Scene3D):void {
 				(<Scene3D>Laya.stage.addChild(scene) );
-				var cube:Sprite3D = scene.getChildByName("Cube");
+				var cube:Sprite3D = scene.getChildByName("Cube") as Sprite3D;
 				//添加组件(脚本)
 				cube.addComponent(SceneScript);
 			}));
@@ -32,7 +33,6 @@ import { Sprite3D } from "laya/d3/core/Sprite3D"
 
 
 
-import { Script3D } from "laya/d3/component/Script3D"
 
 class SceneScript extends Script3D {
 	constructor(){super();

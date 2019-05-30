@@ -91,7 +91,7 @@ import { CameraMoveScript } from "../common/CameraMoveScript"
 			//循环模式
 			state1.clip.islooping = true;
 			//为动画状态添加动画状态脚本
-			var asst1:AnimatorStateScriptTest = state1.addScript(AnimatorStateScriptTest);
+			var asst1 = state1.addScript(AnimatorStateScriptTest) as AnimatorStateScriptTest;
 			asst1.text = this.text;
 			this.animator.speed = 0.0;
 			//为动画组件添加一个动作状态
@@ -103,7 +103,7 @@ import { CameraMoveScript } from "../common/CameraMoveScript"
 			state2.clipEnd = 33 / 581;
 			state2.clip = this.animator.getDefaultState().clip;
 			state2.clip.islooping = true;
-			var asst2:AnimatorStateScriptTest = state2.addScript(AnimatorStateScriptTest);
+			var asst2 = state2.addScript(AnimatorStateScriptTest) as AnimatorStateScriptTest;
 			asst2.text = this.text;
 			this.animator.addState(state2);
 			
@@ -115,7 +115,7 @@ import { CameraMoveScript } from "../common/CameraMoveScript"
 			state3.clip = this.animator.getDefaultState().clip;
 			state3.clip.islooping = true;
 			this.animator.speed = 0.0;
-			var asst3:AnimatorStateScriptTest = state3.addScript(AnimatorStateScriptTest);
+			var asst3 = state3.addScript(AnimatorStateScriptTest) as AnimatorStateScriptTest;
 			asst3.text = this.text;
 			this.animator.addState(state3);
 			

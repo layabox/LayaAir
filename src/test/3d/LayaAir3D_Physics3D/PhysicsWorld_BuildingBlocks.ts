@@ -32,8 +32,8 @@ import { Camera } from "laya/d3/core/Camera"
 		private _outHitResult:HitResult = new HitResult();
 		private hasSelectedSprite:Sprite3D;
 		private hasSelectedRigidBody:Rigidbody3D;
-		private ZERO:Vector3ctor3 = new Laya.Vector3(0,0,0);
-		private ONE:Vector3ctor3 = new Laya.Vector3(0,0,0);
+		private ZERO = new Vector3(0,0,0);
+		private ONE= new Vector3(0,0,0);
 		private posX:number;
 		private posY:number;
 		private delX:number;

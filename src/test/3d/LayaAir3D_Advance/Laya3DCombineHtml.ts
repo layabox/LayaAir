@@ -1,4 +1,4 @@
-import { Config3D } from "./Config3D";
+import { Config3D } from "Config3D";
 import { Camera } from "laya/d3/core/Camera"
 	import { Sprite3D } from "laya/d3/core/Sprite3D"
 	import { DirectionLight } from "laya/d3/core/light/DirectionLight"
@@ -6,6 +6,8 @@ import { Camera } from "laya/d3/core/Camera"
 	import { Vector3 } from "laya/d3/math/Vector3"
 	import { Stage } from "laya/display/Stage"
 	import { Handler } from "laya/utils/Handler"
+import { Laya3D } from "Laya3D";
+import { Laya } from "Laya";
 	
 	export class Laya3DCombineHtml
 	{

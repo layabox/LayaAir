@@ -1,14 +1,13 @@
-import { Laya3D } from "Laya3D"
 import { Laya } from "Laya";
-import { Animator } from "laya/d3/component/Animator"
-	import { Scene3D } from "laya/d3/core/scene/Scene3D"
-	import { Shader3D } from "laya/d3/shader/Shader3D"
-	import { Stage } from "laya/display/Stage"
-	import { Event } from "laya/events/Event"
-	import { Button } from "laya/ui/Button"
-	import { Browser } from "laya/utils/Browser"
-	import { Handler } from "laya/utils/Handler"
-	import { Stat } from "laya/utils/Stat"
+import { Animator } from "laya/d3/component/Animator";
+import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Stage } from "laya/display/Stage";
+import { Event } from "laya/events/Event";
+import { Button } from "laya/ui/Button";
+import { Browser } from "laya/utils/Browser";
+import { Handler } from "laya/utils/Handler";
+import { Stat } from "laya/utils/Stat";
+import { Laya3D } from "Laya3D";
 	
 	export class AnimationLayerBlend {
 		private _motionCross:boolean = false;

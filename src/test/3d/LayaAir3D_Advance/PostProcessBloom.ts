@@ -28,10 +28,10 @@ import { CameraMoveScript } from "../common/CameraMoveScript"
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			//加载场景
 			Scene3D.load("res/threeDimen/scene/LayaScene_BloomScene/Conventional/BloomScene.ls", Handler.create(this, function(scene:Scene3D):void {
-				(<Scene3D>Laya.stage.addChild(scene) );
+				Laya.stage.addChild(scene);
 				
 				//获取场景中的相机
-				this.camera = (<Camera>scene.getChildByName("Main Camera") );
+				this.camera = <Camera>(scene.getChildByName("Main Camera") as any);
 				//加入摄像机移动控制脚本
 				this.camera.addComponent(CameraMoveScript);
 				

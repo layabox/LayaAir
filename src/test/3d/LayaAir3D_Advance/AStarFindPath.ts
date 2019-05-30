@@ -1,7 +1,5 @@
 import { Laya3D } from "Laya3D";
 import { Laya } from "Laya";
-import { Grid } from "../PathFinding/core/Grid"
-	import { Heuristic } from "../PathFinding/core/Heuristic"
 	import { Animator } from "laya/d3/component/Animator"
 	import { AnimatorState } from "laya/d3/component/AnimatorState"
 	import { PathFind } from "laya/d3/component/PathFind"
@@ -53,10 +51,10 @@ import { Grid } from "../PathFinding/core/Grid"
 			this.path = [];
 			
 			//预加载所有资源
-			var resource = [{url: "res/threeDimen/scene/TerrainScene/XunLongShi.ls", clas: Laya.Scene3D, priority: 1}, 
-			{url: "res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh", clas: Laya.Sprite3D, priority: 1},
-			{url: "res/threeDimen/scene/TerrainScene/Assets/HeightMap.png", clas: Laya.Texture2D, priority: 1, constructParams: [1024, 1024, 1, false, true]}, 
-			{url: "res/threeDimen/scene/TerrainScene/Assets/AStarMap.png", clas: Laya.Texture2D, priority: 1, constructParams: [64, 64, 1, false, true]}];
+			var resource = [{url: "res/threeDimen/scene/TerrainScene/XunLongShi.ls", clas: Scene3D, priority: 1}, 
+			{url: "res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh", clas: Sprite3D, priority: 1},
+			{url: "res/threeDimen/scene/TerrainScene/Assets/HeightMap.png", clas: Texture2D, priority: 1, constructParams: [1024, 1024, 1, false, true]}, 
+			{url: "res/threeDimen/scene/TerrainScene/Assets/AStarMap.png", clas: Texture2D, priority: 1, constructParams: [64, 64, 1, false, true]}];
 			
 			Laya.loader.create(resource, Handler.create(this, this.onLoadFinish));
 		}

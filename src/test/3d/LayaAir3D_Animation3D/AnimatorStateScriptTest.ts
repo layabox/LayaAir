@@ -5,7 +5,7 @@ import { AnimatorStateScript } from "laya/d3/animation/AnimatorStateScript"
 	 * @author ...
 	 */
 	//继承自AnimatorStateScript(动画状态脚本)
-	class AnimatorStateScriptTest extends AnimatorStateScript {
+	export class AnimatorStateScriptTest extends AnimatorStateScript {
 		private _text:Text = null;
 	
 		 get text():Text {

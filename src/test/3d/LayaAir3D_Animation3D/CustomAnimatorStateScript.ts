@@ -4,7 +4,7 @@ import { AnimatorStateScript } from "laya/d3/animation/AnimatorStateScript"
 	 * @author ...
 	 */
 	//继承自AnimatorStateScript(动画状态脚本)
-	class CustomAnimatorStateScript extends AnimatorStateScript {
+	export class CustomAnimatorStateScript extends AnimatorStateScript {
 	
 		constructor(){
 			super();

@@ -63,7 +63,7 @@ import { CameraMoveScript } from "../common/CameraMoveScript"
 			Texture2D.load("res/threeDimen/Physics/grass.png", Handler.create(this, function(tex:Texture2D):void {
 				planeMat.albedoTexture = tex;
 			}));
-			var tilingOffset:Vector3 = planeMat.tilingOffset;
+			var tilingOffset = planeMat.tilingOffset;
 			tilingOffset.setValue(10, 10, 0, 0);
 			planeMat.tilingOffset = tilingOffset;
 			plane.meshRenderer.material = planeMat;

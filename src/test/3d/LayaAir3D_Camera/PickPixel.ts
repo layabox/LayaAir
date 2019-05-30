@@ -1,25 +1,21 @@
+import { Laya } from "Laya";
+import { BaseCamera } from "laya/d3/core/BaseCamera";
+import { Camera } from "laya/d3/core/Camera";
+import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Ray } from "laya/d3/math/Ray";
+import { Vector3 } from "laya/d3/math/Vector3";
+import { RenderTexture } from "laya/d3/resource/RenderTexture";
+import { Stage } from "laya/display/Stage";
+import { Text } from "laya/display/Text";
+import { Event } from "laya/events/Event";
+import { MouseManager } from "laya/events/MouseManager";
+import { Loader } from "laya/net/Loader";
+import { Button } from "laya/ui/Button";
+import { Browser } from "laya/utils/Browser";
+import { Handler } from "laya/utils/Handler";
+import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
-import { Laya } from "Laya"
-import { CameraMoveScript } from "../common/CameraMoveScript"
-	import { BaseCamera } from "laya/d3/core/BaseCamera"
-	import { Camera } from "laya/d3/core/Camera"
-	import { PBRSpecularMaterial } from "laya/d3/core/material/PBRSpecularMaterial"
-	import { MeshSprite3D } from "laya/d3/core/MeshSprite3D"
-	import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial"
-	import { Scene3D } from "laya/d3/core/scene/Scene3D"
-	import { Vector3 } from "laya/d3/math/Vector3"
-	import { RenderTexture } from "laya/d3/resource/RenderTexture"
-	import { Stage } from "laya/display/Stage"
-	import { Event } from "laya/events/Event"
-	import { Loader } from "laya/net/Loader"
-	import { Button } from "laya/ui/Button"
-	import { Browser } from "laya/utils/Browser"
-	import { Handler } from "laya/utils/Handler"
-	import { Stat } from "laya/utils/Stat"
-	import { BaseTexture } from "laya/resource/BaseTexture"
-	import { Texture2D } from "laya/resource/Texture2D"
-	import { Ray } from "laya/d3/math/Ray"
-	import { MouseManager } from "laya/events/MouseManager"import { Text } from "laya/display/Text"
+import { CameraMoveScript } from "../common/CameraMoveScript";
 	
 	export class PickPixel {
 		private isPick:boolean = false;

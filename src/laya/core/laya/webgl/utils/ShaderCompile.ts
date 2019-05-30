@@ -163,7 +163,7 @@ import { InlcudeFile } from "././InlcudeFile";
 				script=script.replace(_this._clearCR, "");//CRLF风格需要先去掉“\r",否则切分字符会出错导致宏定义编译错误等
 				var includefiles:any[] = [];
 				var top:ShaderNode = new ShaderNode(includefiles);
-				_this._compileToTree(top, script.split('\n'), 0, includefiles, this.defs);
+				_this._compileToTree(top, script.split('\n'), 0, includefiles, _this.defs);
 				return top;
 			}
 			
