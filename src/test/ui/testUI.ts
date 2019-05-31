@@ -1,4 +1,4 @@
-import { View } from "jsout/laya/ui/View";
+import { View } from "laya/ui/View";
 
 /**Created by the LayaAirIDE,do not modify.*/
 /*import laya.ui.*;

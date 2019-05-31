@@ -41,9 +41,16 @@ async function loadAll (load, loaded) {
   await Promise.all(load.d.map(dep => loadAll(dep, loaded)));
 }
 
+/**
+ * 加载入口
+ * @param {string} url 
+ * @param {string} source 
+ */
 async function topLevelLoad (url, source) {
   const load = getOrCreateLoad(url, source);
+  // 加载所有需要的模块文件
   await loadAll(load, {});
+  // 构造依赖树。构造load的b:Blob
   resolveDeps(load, {});
   const module = await dynamicImport(load.b);
   // if the top-level load is a shell, run its update function
@@ -69,6 +76,11 @@ Object.defineProperties(importShim, {
   e: { value: undefined, writable: true }
 });
 
+/**
+ * 
+ * @param {any} load 
+ * @param {any} seen  记录已经加载的模块
+ */
 async function resolveDeps (load, seen) {
   if (load.b)
     return;
@@ -78,10 +90,10 @@ async function resolveDeps (load, seen) {
   let resolvedSource;
 
   for (const depLoad of load.d)
-    if (!seen[depLoad.u])
+    if (!seen[depLoad.u])  // 如果依赖的模块还没有加载，则递归创建
       resolveDeps(depLoad, seen);
   
-  if (!load.a[0].length) {
+  if (!load.a[0].length) {// 如果没有依赖
     resolvedSource = source;
   }
   else {
@@ -90,6 +102,7 @@ async function resolveDeps (load, seen) {
     let lastIndex = 0;
     resolvedSource = '';
     let depIndex = 0;
+    // 替换所有的import，变成 import blob
     for (let i = 0; i < load.a[0].length; i++) {
       const { s: start, e: end, d: dynamicImportIndex } = load.a[0][i];
       // dependency source replacements
@@ -133,12 +146,25 @@ async function resolveDeps (load, seen) {
         lastIndex = end;
       }
     }
+    // 源码加上剩余的部分
     resolvedSource += source.slice(lastIndex);
+  }
+
+  // 如果是glsl的处理
+  // TODO
+  if(load.r.indexOf('.glsl')>0){
+      resolvedSource = 'export default \`'+resolvedSource+'\`';
   }
 
   load.b = createBlob(resolvedSource + '\n//# sourceURL=' + load.r);
   load.S = undefined;
 }
+
+/**
+ * 创建一个BlobUrl,返回是类似 "blob:https://developer.mozilla.org/b749ed8c-efb3-405c-8731-94ba2ee61690"
+ * 等效于一个实际的url
+ * @param {string} source 
+ */
 const createBlob = source => 
     URL.createObjectURL(new Blob([source], { type: 'application/javascript' }));
 
@@ -230,12 +256,13 @@ function getOrCreateLoad (url, source) {
     load.S = source;
     // 根据位置获得对应的字符串，返回所有依赖的库的字符串数组
     let deps = load.a[0].filter(d => d.d === -1).map(d => source.slice(d.s, d.e));
+    /*
     if(deps.filter(d=>{
         if(d.indexOf('/ui/View')>0){
             debugger;
         }
     })){}
-
+    */
     return deps;
   })();
 
@@ -258,7 +285,6 @@ if (typeof document !== 'undefined') {
     if (script.type === 'importmap-shim' && !importMapPromise) {
       if (script.src) {
         importMapPromise = (async function () {
-            console.log('fetch2 ', script.src)
           importMap = parseImportMap(await (await fetch(script.src)).json(), script.src.slice(0, script.src.lastIndexOf('/') + 1));
         })();
       }
