@@ -134,6 +134,14 @@ export function parseImportMap (json, baseUrl) {
   return { imports: imports, scopes: scopes, baseUrl: baseUrl };
 }
 
+/**
+ * 看 matchObj中是否有 path
+ * 看看path的一级一级的目录是否在matchObj中，选择最大的path
+ * 相当于返回最大匹配字符串
+ * @param {string} path 
+ * @param {Object} matchObj 
+ * @return {string}
+ */
 function getMatch (path, matchObj) {
   if (matchObj[path])
     return path;
@@ -145,6 +153,12 @@ function getMatch (path, matchObj) {
   } while ((sepIndex = path.lastIndexOf('/', sepIndex - 1)) !== -1)
 }
 
+/**
+ * 
+ * @param {string} id 
+ * @param {any} packages 
+ * @param {string} baseUrl  基路径例如 http://localhost:8888/
+ */
 function applyPackages (id, packages, baseUrl) {
   const pkgName = getMatch(id, packages);
   if (pkgName) {
@@ -158,6 +172,13 @@ function applyPackages (id, packages, baseUrl) {
 }
 
 const protocolre = /^[a-z][a-z0-9.+-]*\:/i;
+/**
+ * 
+ * @param {string} id 
+ * @param {string} parentUrl 
+ * @param {any} importMap 
+ * @return {string}
+ */
 export function resolveImportMap (id, parentUrl, importMap) {
   const urlResolved = resolveIfNotPlainOrUrl(id, parentUrl);
   if (urlResolved){
@@ -169,8 +190,9 @@ export function resolveImportMap (id, parentUrl, importMap) {
   if (scopeName) {
     const scopePackages = importMap.scopes[scopeName];
     const packageResolution = applyPackages(id, scopePackages, scopeName);
-    if (packageResolution)
+    if (packageResolution){
       return packageResolution;
+    }
   }
   return applyPackages(id, importMap.imports, importMap.baseUrl) || urlResolved || throwBare(id, parentUrl);
 }

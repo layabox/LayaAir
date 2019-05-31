@@ -1,5 +1,23 @@
 <html>
     <body>
-        <script src='Main.js' type='module' ></script>
+        <script defer src="import/es-module-shims.js" type='module'></script>
+        <script type="importmap-shim">
+        {
+            "imports": {
+                "test": "/test/test.js",
+                "laya/":"/laya/"
+            },
+            "scopes": {
+            "/": {
+                "Laya":"libs/Laya.js",
+                "ILaya":"libs/ILaya.js",
+                "laya/":"libs/laya/",
+                "Laya/":"Laya3/",
+                "test-dep": "/test-dep.js"
+            }
+            }
+        }
+        </script>
+        <script src='Main.js' type='module-shim' ></script>
     </body>
 </html>

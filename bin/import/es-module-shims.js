@@ -139,7 +139,8 @@ async function resolveDeps (load, seen) {
   load.b = createBlob(resolvedSource + '\n//# sourceURL=' + load.r);
   load.S = undefined;
 }
-const createBlob = source => URL.createObjectURL(new Blob([source], { type: 'application/javascript' }));
+const createBlob = source => 
+    URL.createObjectURL(new Blob([source], { type: 'application/javascript' }));
 
 function getOrCreateLoad (url, source) {
   let load = registry[url];
@@ -169,6 +170,20 @@ function getOrCreateLoad (url, source) {
 
   load.f = (async () => {
     if (!source) {
+        console.log('fetch1', url);
+        var ext = url.substr(url.lastIndexOf('.'));
+        switch(ext){
+            case '.js':
+            case '.glsl':
+            case '.vs':
+            case '.ps':
+            case '.fs':
+            case '.txt':
+                break;
+            default:
+                url = url+'.js';
+                break;
+        }
       const res = await fetch(url);
       if (!res.ok)
         throw new Error(`${res.status} ${res.statusText} ${res.url}`);
@@ -208,11 +223,20 @@ function getOrCreateLoad (url, source) {
 
       source = await res.text();
     }
+    // .a[0] 解析出本模块依赖的所有的其他模块的名字所在的位置
     load.a = analyzeModuleSyntax(source);
     if (load.a[2])
       importShim.err = [source, load.a[2]];
     load.S = source;
-    return load.a[0].filter(d => d.d === -1).map(d => source.slice(d.s, d.e));
+    // 根据位置获得对应的字符串，返回所有依赖的库的字符串数组
+    let deps = load.a[0].filter(d => d.d === -1).map(d => source.slice(d.s, d.e));
+    if(deps.filter(d=>{
+        if(d.indexOf('/ui/View')>0){
+            debugger;
+        }
+    })){}
+
+    return deps;
   })();
 
   load.L = load.f.then(async deps => {
@@ -234,6 +258,7 @@ if (typeof document !== 'undefined') {
     if (script.type === 'importmap-shim' && !importMapPromise) {
       if (script.src) {
         importMapPromise = (async function () {
+            console.log('fetch2 ', script.src)
           importMap = parseImportMap(await (await fetch(script.src)).json(), script.src.slice(0, script.src.lastIndexOf('/') + 1));
         })();
       }
@@ -253,6 +278,11 @@ if (typeof document !== 'undefined') {
 
 importMap = importMap || { imports: {}, scopes: {} };
 
+/**
+ * 
+ * @param {string} id 
+ * @param {string} parentUrl 
+ */
 async function resolve (id, parentUrl) {
   parentUrl = parentUrl || pageBaseUrl;
 
@@ -261,6 +291,5 @@ async function resolve (id, parentUrl) {
     .then(function () {
       return resolveImportMap(id, parentUrl, importMap);
     });
-
   return resolveImportMap(id, parentUrl, importMap);
 }
