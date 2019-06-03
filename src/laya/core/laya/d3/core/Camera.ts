@@ -362,6 +362,8 @@ import { Scene3DShaderDeclaration } from "./scene/Scene3DShaderDeclaration";
 			super._parse(data, spriteMap);
 			var viewport:any[] = data.viewport;
 			this.normalizedViewport = new Viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+			var enableHDR:boolean = data.enableHDR;
+			(enableHDR !== undefined) && (this.enableHDR = enableHDR);
 		}
 		
 		/**
