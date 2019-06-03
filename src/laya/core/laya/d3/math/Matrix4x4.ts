@@ -11,6 +11,10 @@ import { LayaGL } from "laya/layagl/LayaGL"
 		/**@private */
 		private static _tempMatrix4x4:Matrix4x4 = new Matrix4x4();
 		/**@private */
+		static TEMPMatrix0:Matrix4x4 = new Matrix4x4();
+		/**@private */
+		static TEMPMatrix1:Matrix4x4 = new Matrix4x4();
+		/**@private */
 		private static _tempVector0:Vector3 = new Vector3();
 		/**@private */
 		private static _tempVector1:Vector3 = new Vector3();

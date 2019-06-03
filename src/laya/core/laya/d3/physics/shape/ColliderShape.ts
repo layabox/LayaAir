@@ -7,6 +7,7 @@ import { Vector3 } from "../../math/Vector3";
 import { PhysicsComponent } from "../PhysicsComponent";
 import { CompoundColliderShape } from "././CompoundColliderShape";
 import { MeshColliderShape } from "././MeshColliderShape";
+import { Physics } from "../Physics";
 	
 	/**
 	 * <code>ColliderShape</code> 类用于创建形状碰撞器的父类，该类为抽象类。
@@ -37,15 +38,25 @@ import { MeshColliderShape } from "././MeshColliderShape";
 		 static SHAPETYPES_CONE:number = 7;
 		
 		/** @private */
-		 static _tempVector30:Vector3 = new Vector3();
+		static _tempVector30:Vector3 = new Vector3();
 		/** @private */
-		protected static _nativeScale:any = new ILaya3D.Laya3D._physics3D.btVector3(1, 1, 1);
+		protected static _nativeScale:any;
 		/**@private */
-		protected static _nativeVector30:any = new ILaya3D.Laya3D._physics3D.btVector3(0, 0, 0);
+		protected static _nativeVector30:any;
 		/**@private */
-		protected static _nativQuaternion0:any = new ILaya3D.Laya3D._physics3D.btQuaternion(0, 0, 0, 1);
+		protected static _nativQuaternion0:any;
 		/**@private */
-		protected static _nativeTransform0:any = new ILaya3D.Laya3D._physics3D.btTransform();
+		protected static _nativeTransform0:any;
+
+		/**
+		 * @private
+		 */
+		static __init__():void {
+			ColliderShape._nativeScale = new Physics._physics3D.btVector3(1, 1, 1);
+			ColliderShape._nativeVector30 = new Physics._physics3D.btVector3(0, 0, 0);
+			ColliderShape._nativQuaternion0 = new Physics._physics3D.btQuaternion(0, 0, 0, 1);
+			ColliderShape._nativeTransform0 = new Physics._physics3D.btTransform();
+		}
 		
 		/**
 		 * @private
@@ -257,7 +268,7 @@ import { MeshColliderShape } from "././MeshColliderShape";
 		 */
 		 destroy():void {
 			if (this._nativeShape) {
-				ILaya3D.Laya3D._physics3D.destroy(this._nativeShape);
+				Physics._physics3D.destroy(this._nativeShape);
 				this._nativeShape = null;
 			}
 		}

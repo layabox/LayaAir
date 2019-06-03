@@ -34,7 +34,6 @@ import { BufferState } from "../core/BufferState"
 		constructor(){
 			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 			super();
-			SubMeshDynamicBatch.instance = new SubMeshDynamicBatch();
 			this._updateCountMark = 0;
 		}
 		

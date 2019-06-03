@@ -68,7 +68,7 @@ import { WebGL } from "laya/webgl/WebGL"
 		 static _preCompileShader:any = {};
 		
 		/**是否开启调试模式。 */
-		 static debugMode:boolean = false;
+		 static debugMode:boolean = true;
 		
 		/**
 		 * 通过Shader属性名称获得唯一ID。

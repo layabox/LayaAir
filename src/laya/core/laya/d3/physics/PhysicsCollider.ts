@@ -1,13 +1,10 @@
+import { Sprite3D } from "../core/Sprite3D";
+import { Transform3D } from "../core/Transform3D";
+import { Physics3DUtils } from "../utils/Physics3DUtils";
 import { Laya3D } from "./../../../Laya3D";
-import { Component } from "laya/components/Component"
-	import { Sprite3D } from "../core/Sprite3D"
-	import { Transform3D } from "../core/Transform3D"
-	import { PhysicsTriggerComponent } from "./PhysicsTriggerComponent"
-	import { PhysicsComponent } from "./PhysicsComponent"
-	import { ColliderShape } from "./shape/ColliderShape"
-	import { Physics3DUtils } from "../utils/Physics3DUtils"
-	import { Event } from "laya/events/Event"
-	import { Stat } from "laya/utils/Stat"
+import { PhysicsComponent } from "./PhysicsComponent";
+import { PhysicsTriggerComponent } from "./PhysicsTriggerComponent";
+import { Physics } from "./Physics";
 	
 	/**
 	 * <code>PhysicsCollider</code> 类用于创建物理碰撞器。
@@ -66,7 +63,7 @@ import { Component } from "laya/components/Component"
 		 * @inheritDoc
 		 */
 		/*override*/  _onAdded():void {
-			var physics3D:any = Laya3D._physics3D;
+			var physics3D:any = Physics._physics3D;
 			var btColObj:any = new physics3D.btCollisionObject();
 			btColObj.setUserIndex(this.id);
 			btColObj.forceActivationState(PhysicsComponent.ACTIVATIONSTATE_DISABLE_SIMULATION);//prevent simulation

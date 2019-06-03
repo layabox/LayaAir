@@ -27,13 +27,6 @@ import { RenderQueue } from "././RenderQueue";
 	 */
 	export class SubMeshRenderElement extends RenderElement {
 		/** @private */
-		private static _maxInstanceCount:number = 1024;
-		/** @private */
-		private static _instanceMatrixData:Float32Array = new Float32Array(SubMeshRenderElement._maxInstanceCount * 16);
-		/** @private */
-		private static _instanceMatrixBuffer:VertexBuffer3D = new VertexBuffer3D(SubMeshRenderElement._instanceMatrixData.length * 4, WebGLContext.DYNAMIC_DRAW);
-		
-		/** @private */
 		private _dynamicWorldPositionNormalNeedUpdate:boolean;
 		
 		/** @private */

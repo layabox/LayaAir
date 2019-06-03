@@ -17,10 +17,7 @@ import { ILaya3D } from "ILaya3D";
 		 static TEMPVector32:Vector3 = new Vector3();
 		/**@private */
 		 static TEMPVector33:Vector3 = new Vector3();
-		/**@private */
-		 static TEMPMatrix0:Matrix4x4 = new ILaya3D.Matrix4x4();
-		/**@private */
-		 static TEMPMatrix1:Matrix4x4 = new ILaya3D.Matrix4x4();
+		
 		/**@private */
 		 static _tempMatrix3x3:Matrix3x3 = new Matrix3x3();
 		
@@ -398,11 +395,11 @@ import { ILaya3D } from "ILaya3D";
 				angle.y = Quaternion.arcTanAngle(-upe.z, -upe.x);
 				angle.z = 0;
 			} else {
-				ILaya3D.Matrix4x4.createRotationY(-angle.y, Quaternion.TEMPMatrix0);
-				ILaya3D.Matrix4x4.createRotationX(-angle.x, Quaternion.TEMPMatrix1);
+				ILaya3D.Matrix4x4.createRotationY(-angle.y, ILaya3D.Matrix4x4.TEMPMatrix0);
+				ILaya3D.Matrix4x4.createRotationX(-angle.x, ILaya3D.Matrix4x4.TEMPMatrix1);
 				
-				Vector3.transformCoordinate(Quaternion.TEMPVector32, Quaternion.TEMPMatrix0, Quaternion.TEMPVector32);
-				Vector3.transformCoordinate(Quaternion.TEMPVector32, Quaternion.TEMPMatrix1, Quaternion.TEMPVector32);
+				Vector3.transformCoordinate(Quaternion.TEMPVector32, ILaya3D.Matrix4x4.TEMPMatrix0, Quaternion.TEMPVector32);
+				Vector3.transformCoordinate(Quaternion.TEMPVector32, ILaya3D.Matrix4x4.TEMPMatrix1, Quaternion.TEMPVector32);
 				angle.z = Quaternion.arcTanAngle(upe.y, -upe.x);
 			}
 			

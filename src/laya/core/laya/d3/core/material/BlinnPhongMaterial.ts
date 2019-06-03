@@ -44,7 +44,7 @@ import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
 		 static DEPTH_WRITE:number = Shader3D.propertyNameToID("s_DepthWrite");
 		
 		/** 默认材质，禁止修改*/
-		 static defaultMaterial:BlinnPhongMaterial = new BlinnPhongMaterial();
+		 static defaultMaterial:BlinnPhongMaterial;
 		
 		/**@private */
 		 static shaderDefines:ShaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
@@ -53,6 +53,7 @@ import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
 		 * @private
 		 */
 		 static __init__():void {
+			//BlinnPhongMaterial.defaultMaterial= new BlinnPhongMaterial();
 			BlinnPhongMaterial.SHADERDEFINE_DIFFUSEMAP = BlinnPhongMaterial.shaderDefines.registerDefine("DIFFUSEMAP");
 			BlinnPhongMaterial.SHADERDEFINE_NORMALMAP = BlinnPhongMaterial.shaderDefines.registerDefine("NORMALMAP");
 			BlinnPhongMaterial.SHADERDEFINE_SPECULARMAP = BlinnPhongMaterial.shaderDefines.registerDefine("SPECULARMAP");

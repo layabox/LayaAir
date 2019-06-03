@@ -19,6 +19,7 @@ import { PhysicsSettings } from "./PhysicsSettings";
 import { PhysicsTriggerComponent } from "./PhysicsTriggerComponent";
 import { Rigidbody3D } from "./Rigidbody3D";
 import { ColliderShape } from "./shape/ColliderShape";
+import { Physics } from "./Physics";
 	
 	/**
 	 * <code>Simulation</code> 类用于创建物理模拟器。
@@ -57,27 +58,39 @@ import { ColliderShape } from "./shape/ColliderShape";
 		 static SOLVERMODE_ALLOW_ZERO_LENGTH_FRICTION_DIRECTIONS:number = 1024;
 		
 		/** @private */
-		private static _nativeTempVector30:any = new ILaya3D.Laya3D._physics3D.btVector3(0, 0, 0);
+		private static _nativeTempVector30:any;
 		/** @private */
-		private static _nativeTempVector31:any = new ILaya3D.Laya3D._physics3D.btVector3(0, 0, 0);
+		private static _nativeTempVector31:any;
 		/** @private */
-		private static _nativeTempQuaternion0:any = new ILaya3D.Laya3D._physics3D.btQuaternion(0, 0, 0, 1);
+		private static _nativeTempQuaternion0:any;
 		/** @private */
-		private static _nativeTempQuaternion1:any = new ILaya3D.Laya3D._physics3D.btQuaternion(0, 0, 0, 1);
+		private static _nativeTempQuaternion1:any;
 		/** @private */
-		private static _nativeTempTransform0:any = new ILaya3D.Laya3D._physics3D.btTransform();
+		private static _nativeTempTransform0:any;
 		/** @private */
-		private static _nativeTempTransform1:any = new ILaya3D.Laya3D._physics3D.btTransform();
+		private static _nativeTempTransform1:any;
 		/**@private */
 		private static _tempVector30:Vector3 = new Vector3();
 		
 		/*是否禁用所有模拟器。*/
 		 static disableSimulation:boolean = false;
+
+		 /**
+		 * @private
+		 */
+		static __init__():void {
+			PhysicsSimulation._nativeTempVector30 = new Physics._physics3D.btVector3(0, 0, 0);
+			PhysicsSimulation._nativeTempVector31 = new Physics._physics3D.btVector3(0, 0, 0);
+			PhysicsSimulation._nativeTempQuaternion0 = new Physics._physics3D.btQuaternion(0, 0, 0, 1);
+			PhysicsSimulation._nativeTempQuaternion1 = new Physics._physics3D.btQuaternion(0, 0, 0, 1);
+			PhysicsSimulation._nativeTempTransform0 = new Physics._physics3D.btTransform();
+			PhysicsSimulation._nativeTempTransform1 = new Physics._physics3D.btTransform();
+		}
 		
 		/**
 		 * 创建限制刚体运动的约束条件。
 		 */
-		 static createConstraint():void {//TODO: 两种重载函数
+		static createConstraint():void {//TODO: 两种重载函数
 			//TODO:
 		}
 		
@@ -99,9 +112,9 @@ import { ColliderShape } from "./shape/ColliderShape";
 		private _gravity:Vector3 = new Vector3(0, -10, 0);
 		
 		/** @private */
-		private _nativeVector3Zero:any = new ILaya3D.Laya3D._physics3D.btVector3(0, 0, 0);
+		private _nativeVector3Zero:any = new Physics._physics3D.btVector3(0, 0, 0);
 		/** @private */
-		private _nativeDefaultQuaternion:any = new ILaya3D.Laya3D._physics3D.btQuaternion(0, 0, 0, -1);
+		private _nativeDefaultQuaternion:any = new Physics._physics3D.btQuaternion(0, 0, 0, -1);
 		/**@private */
 		private _nativeClosestRayResultCallback:any;
 		/**@private */
@@ -194,7 +207,7 @@ import { ColliderShape } from "./shape/ColliderShape";
 			this.maxSubSteps = configuration.maxSubSteps;
 			this.fixedTimeStep = configuration.fixedTimeStep;
 			
-			var physics3D:any = ILaya3D.Laya3D._physics3D;
+			var physics3D:any = Physics._physics3D;
 			this._nativeCollisionConfiguration = new physics3D.btDefaultCollisionConfiguration();
 			this._nativeDispatcher = new physics3D.btCollisionDispatcher(this._nativeCollisionConfiguration);
 			this._nativeBroadphase = new physics3D.btDbvtBroadphase();
@@ -241,7 +254,7 @@ import { ColliderShape } from "./shape/ColliderShape";
 		 * @private
 		 */
 		 _destroy():void {
-			var physics3D:any = ILaya3D.Laya3D._physics3D;
+			var physics3D:any = Physics._physics3D;
 			if (this._nativeDiscreteDynamicsWorld) {
 				physics3D.destroy(this._nativeDiscreteDynamicsWorld);
 				this._nativeDiscreteDynamicsWorld = null;

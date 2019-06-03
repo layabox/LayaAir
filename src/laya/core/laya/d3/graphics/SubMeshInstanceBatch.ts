@@ -1,25 +1,32 @@
+import { LayaGL } from "laya/layagl/LayaGL";
+import { Stat } from "laya/utils/Stat";
+import { WebGLContext } from "laya/webgl/WebGLContext";
+import { GeometryElement } from "../core/GeometryElement";
+import { RenderContext3D } from "../core/render/RenderContext3D";
+import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement";
+import { SubMesh } from "../resource/models/SubMesh";
 import { VertexBuffer3D } from "././VertexBuffer3D";
-import { GeometryElement } from "../core/GeometryElement"
-	import { RenderContext3D } from "../core/render/RenderContext3D"
-	import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement"
-	import { VertexMesh } from "./Vertex/VertexMesh"
-	import { SubMesh } from "../resource/models/SubMesh"
-	import { LayaGL } from "laya/layagl/LayaGL"
-	import { Stat } from "laya/utils/Stat"
-	import { WebGLContext } from "laya/webgl/WebGLContext"
+import { VertexMesh } from "./Vertex/VertexMesh";
 	
 	/**
 	 * @private
 	 */
 	export class SubMeshInstanceBatch extends GeometryElement {
 		/** @private */
-		 static instance:SubMeshInstanceBatch = new SubMeshInstanceBatch();
+		static instance:SubMeshInstanceBatch;
+
+		/**
+		 * @private
+		 */
+		static __init__():void{
+			SubMeshInstanceBatch.instance = new SubMeshInstanceBatch();
+		}
 		
 		/** @private */
-		 maxInstanceCount:number = 1024;
+		maxInstanceCount:number = 1024;
 		
 		/** @private */
-		 instanceWorldMatrixData:Float32Array = new Float32Array(this.maxInstanceCount * 16);
+		instanceWorldMatrixData:Float32Array = new Float32Array(this.maxInstanceCount * 16);
 		/** @private */
 		 instanceMVPMatrixData:Float32Array = new Float32Array(this.maxInstanceCount * 16);
 		/** @private */
@@ -32,7 +39,7 @@ import { GeometryElement } from "../core/GeometryElement"
 		 */
 		constructor(){
 			super();
-this.instanceWorldMatrixBuffer.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
+			this.instanceWorldMatrixBuffer.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
 			this.instanceMVPMatrixBuffer.vertexDeclaration = VertexMesh.instanceMVPMatrixDeclaration;
 		}
 		

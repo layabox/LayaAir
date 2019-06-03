@@ -1,17 +1,18 @@
 
-import { Component } from "laya/components/Component"
-	import { Sprite3D } from "../core/Sprite3D"
-	import { Transform3D } from "../core/Transform3D"
-	import { Scene3D } from "../core/scene/Scene3D"
-	import { Matrix4x4 } from "../math/Matrix4x4"
-	import { Quaternion } from "../math/Quaternion"
-	import { Vector3 } from "../math/Vector3"
-	import { PhysicsSimulation } from "./PhysicsSimulation"
-	import { ColliderShape } from "./shape/ColliderShape"
-	import { CompoundColliderShape } from "./shape/CompoundColliderShape"
-	import { Physics3DUtils } from "../utils/Physics3DUtils"
-	import { Event } from "laya/events/Event"
 import { ILaya3D } from "ILaya3D";
+import { Component } from "laya/components/Component";
+import { Event } from "laya/events/Event";
+import { Scene3D } from "../core/scene/Scene3D";
+import { Sprite3D } from "../core/Sprite3D";
+import { Transform3D } from "../core/Transform3D";
+import { Matrix4x4 } from "../math/Matrix4x4";
+import { Quaternion } from "../math/Quaternion";
+import { Vector3 } from "../math/Vector3";
+import { Physics3DUtils } from "../utils/Physics3DUtils";
+import { PhysicsSimulation } from "./PhysicsSimulation";
+import { ColliderShape } from "./shape/ColliderShape";
+import { CompoundColliderShape } from "./shape/CompoundColliderShape";
+import { Physics } from "./Physics";
 	
 	/**
 	 * <code>PhysicsComponent</code> 类用于创建物理组件的父类。
@@ -52,14 +53,22 @@ import { ILaya3D } from "ILaya3D";
 		/**@private */
 		protected static _tempMatrix4x40:Matrix4x4 = new Matrix4x4();
 		/** @private */
-		protected static _nativeVector30:any = new ILaya3D.Laya3D._physics3D.btVector3(0, 0, 0);
+		protected static _nativeVector30:any;
 		/** @private */
-		protected static _nativeQuaternion0:any = new ILaya3D.Laya3D._physics3D.btQuaternion(0, 0, 0, 1);
+		protected static _nativeQuaternion0:any;
 		
 		/**@private */
 		 static _physicObjectsMap:any = {};
 		/** @private */
 		 static _addUpdateList:boolean = true;
+
+		 /**
+		 * @private
+		 */
+		static __init__():void {
+			PhysicsComponent._nativeVector30 = new Physics._physics3D.btVector3(0, 0, 0);
+			PhysicsComponent._nativeQuaternion0 = new Physics._physics3D.btQuaternion(0, 0, 0, 1);
+		}
 		
 		/**
 		 * @private
@@ -588,7 +597,7 @@ this._collisionGroup = collisionGroup;
 		 * @inheritDoc
 		 */
 		/*override*/ protected _onDestroy():void {
-			var physics3D:any = ILaya3D.Laya3D._physics3D;
+			var physics3D:any = Physics._physics3D;
 			delete PhysicsComponent._physicObjectsMap[this.id];
 			physics3D.destroy(this._nativeColliderObject);
 			this._colliderShape.destroy();

@@ -29,12 +29,13 @@ import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShade
 		 static BONES:number = Shader3D.propertyNameToID("u_Bones");
 		
 		/**@private */
-		 static shaderDefines:ShaderDefines = new ShaderDefines(MeshSprite3D.shaderDefines);
+		 static shaderDefines:ShaderDefines=null;
 		
 		/**
 		 * @private
 		 */
 		 static __init__():void {
+			SkinnedMeshSprite3D.shaderDefines= new ShaderDefines(MeshSprite3D.shaderDefines);
 			SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_BONE = SkinnedMeshSprite3D.shaderDefines.registerDefine("BONE");
 		}
 		

@@ -32,7 +32,7 @@ import { BaseMaterial } from "../material/BaseMaterial"
 		 static DEPTH_WRITE:number = Shader3D.propertyNameToID("s_DepthWrite");
 		
 		/** 默认材质，禁止修改*/
-		 static defaultMaterial:ShurikenParticleMaterial = new ShurikenParticleMaterial();
+		 static defaultMaterial:ShurikenParticleMaterial;
 		/**@private */
 		 static shaderDefines:ShaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
 		
@@ -40,6 +40,7 @@ import { BaseMaterial } from "../material/BaseMaterial"
 		 * @private
 		 */
 		 static __init__():void {
+			//ShurikenParticleMaterial.defaultMaterial = new ShurikenParticleMaterial();
 			ShurikenParticleMaterial.SHADERDEFINE_DIFFUSEMAP = ShurikenParticleMaterial.shaderDefines.registerDefine("DIFFUSEMAP");
 			ShurikenParticleMaterial.SHADERDEFINE_TINTCOLOR = ShurikenParticleMaterial.shaderDefines.registerDefine("TINTCOLOR");
 			ShurikenParticleMaterial.SHADERDEFINE_ADDTIVEFOG = ShurikenParticleMaterial.shaderDefines.registerDefine("ADDTIVEFOG");

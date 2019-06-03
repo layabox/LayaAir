@@ -36,6 +36,13 @@ import { VertexMesh } from "./Vertex/VertexMesh";
 		
 		/** @private */
 		 static instance:SubMeshDynamicBatch;
+
+		 /**
+		 * @private
+		 */
+		static __init__():void{
+			SubMeshDynamicBatch.instance = new SubMeshDynamicBatch();
+		}
 		
 		/**@private */
 		private _vertices:Float32Array;
@@ -65,7 +72,7 @@ import { VertexMesh } from "./Vertex/VertexMesh";
 		 */
 		constructor(){
 			super();
-var maxVerDec:VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,COLOR,UV,UV1,TANGENT");
+			var maxVerDec:VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,COLOR,UV,UV1,TANGENT");
 			var maxByteCount:number = maxVerDec.vertexStride * SubMeshDynamicBatch.maxIndicesCount;
 			this._vertices = new Float32Array(maxByteCount / 4);
 			this._vertexBuffer = new VertexBuffer3D(maxByteCount, WebGLContext.DYNAMIC_DRAW);
