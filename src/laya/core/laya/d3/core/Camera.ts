@@ -25,6 +25,7 @@ import { PostProcess } from "../component/PostProcess"
 	import { Render } from "laya/renders/Render"
 	import { BaseTexture } from "laya/resource/BaseTexture"
 	import { WebGLContext } from "laya/webgl/WebGLContext"
+import { Scene3DShaderDeclaration } from "./scene/Scene3DShaderDeclaration";
 	
 	/**
 	 * <code>Camera</code> 类用于创建摄像机。
@@ -424,7 +425,7 @@ import { PostProcess } from "../component/PostProcess"
 				ShaderData.setRuntimeValueMode(false);
 				var parallelSplitShadowMap:ParallelSplitShadowMap = scene.parallelSplitShadowMaps[0];
 				parallelSplitShadowMap._calcAllLightCameraInfo(this);
-				scene._shaderValues.addDefine(Scene3D.SHADERDEFINE_CAST_SHADOW);//增加宏定义
+				scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_CAST_SHADOW);//增加宏定义
 				for (var i:number = 0, n:number = parallelSplitShadowMap.shadowMapCount; i < n; i++) {
 					var smCamera:Camera = parallelSplitShadowMap.cameras[i];
 					context.camera = smCamera;
@@ -442,7 +443,7 @@ import { PostProcess } from "../component/PostProcess"
 					queue._render(context, false);//TODO:临时改为False
 					shadowMap._end();
 				}
-				scene._shaderValues.removeDefine(Scene3D.SHADERDEFINE_CAST_SHADOW);//去掉宏定义
+				scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_CAST_SHADOW);//去掉宏定义
 				ShaderData.setRuntimeValueMode(true);
 			}
 			

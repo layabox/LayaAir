@@ -1,11 +1,10 @@
+import { BaseTexture } from "laya/resource/BaseTexture";
+import { Vector4 } from "../../math/Vector4";
+import { Shader3D } from "../../shader/Shader3D";
+import { ShaderDefines } from "../../shader/ShaderDefines";
 import { BaseMaterial } from "./BaseMaterial";
 import { RenderState } from "./RenderState";
-import { Scene3D } from "../scene/Scene3D"
-	import { Vector4 } from "../../math/Vector4"
-	import { Shader3D } from "../../shader/Shader3D"
-	import { ShaderData } from "../../shader/ShaderData"
-	import { ShaderDefines } from "../../shader/ShaderDefines"
-	import { BaseTexture } from "laya/resource/BaseTexture"
+import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
 	
 	/**
 	 * <code>PBRStandardMaterial</code> 类用于实现PBR(Standard)材质。
@@ -813,9 +812,9 @@ import { Scene3D } from "../scene/Scene3D"
 		 set enableReflection(value:boolean) {
 			this._shaderValues.setBool(PBRStandardMaterial.ENABLEREFLECT, true);
 			if (value) {
-				this._disablePublicDefineDatas.remove(Scene3D.SHADERDEFINE_REFLECTMAP);
+				this._disablePublicDefineDatas.remove(Scene3DShaderDeclaration.SHADERDEFINE_REFLECTMAP);
 			} else {
-				this._disablePublicDefineDatas.add(Scene3D.SHADERDEFINE_REFLECTMAP);
+				this._disablePublicDefineDatas.add(Scene3DShaderDeclaration.SHADERDEFINE_REFLECTMAP);
 			}
 		}
 		
@@ -1076,7 +1075,7 @@ import { Scene3D } from "../scene/Scene3D"
 			this._shaderValues.setBool(PBRStandardMaterial.ENABLEEMISSION, false);
 			this._shaderValues.setBool(PBRStandardMaterial.ENABLEREFLECT, true);
 			this._shaderValues.setNumber(BaseMaterial.ALPHATESTVALUE, 0.5);
-			this._disablePublicDefineDatas.remove(Scene3D.SHADERDEFINE_REFLECTMAP);
+			this._disablePublicDefineDatas.remove(Scene3DShaderDeclaration.SHADERDEFINE_REFLECTMAP);
 			this.renderMode = PBRStandardMaterial.RENDERMODE_OPAQUE;
 		}
 		

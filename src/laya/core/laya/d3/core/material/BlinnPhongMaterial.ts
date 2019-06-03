@@ -1,13 +1,11 @@
+import { BaseTexture } from "laya/resource/BaseTexture";
+import { Vector4 } from "../../math/Vector4";
+import { Shader3D } from "../../shader/Shader3D";
+import { ShaderData } from "../../shader/ShaderData";
+import { ShaderDefines } from "../../shader/ShaderDefines";
 import { BaseMaterial } from "./BaseMaterial";
 import { RenderState } from "./RenderState";
-import { RenderQueue } from "../render/RenderQueue"
-	import { Scene3D } from "../scene/Scene3D"
-	import { Vector3 } from "../../math/Vector3"
-	import { Vector4 } from "../../math/Vector4"
-	import { Shader3D } from "../../shader/Shader3D"
-	import { ShaderData } from "../../shader/ShaderData"
-	import { ShaderDefines } from "../../shader/ShaderDefines"
-	import { BaseTexture } from "laya/resource/BaseTexture"
+import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
 	
 	/**
 	 * <code>BlinnPhongMaterial</code> 类用于实现Blinn-Phong材质。
@@ -713,9 +711,9 @@ import { RenderQueue } from "../render/RenderQueue"
 		 set enableLighting(value:boolean) {
 			if (this._enableLighting !== value) {
 				if (value)
-					this._disablePublicDefineDatas.remove(Scene3D.SHADERDEFINE_POINTLIGHT | Scene3D.SHADERDEFINE_SPOTLIGHT | Scene3D.SHADERDEFINE_DIRECTIONLIGHT);
+					this._disablePublicDefineDatas.remove(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT | Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT | Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
 				else
-					this._disablePublicDefineDatas.add(Scene3D.SHADERDEFINE_POINTLIGHT | Scene3D.SHADERDEFINE_SPOTLIGHT | Scene3D.SHADERDEFINE_DIRECTIONLIGHT);
+					this._disablePublicDefineDatas.add(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT | Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT | Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
 				this._enableLighting = value;
 			}
 		}

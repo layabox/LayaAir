@@ -1,81 +1,92 @@
-import { Config3D } from "Config3D";
 import { Config } from "Config";
-import { AnimationClip } from "./laya/d3/animation/AnimationClip"
-	import { PostProcess } from "./laya/d3/component/PostProcess"
-	import { Avatar } from "./laya/d3/core/Avatar"
-	import { MeshRenderer } from "./laya/d3/core/MeshRenderer"
-	import { MeshSprite3D } from "./laya/d3/core/MeshSprite3D"
-	import { RenderableSprite3D } from "./laya/d3/core/RenderableSprite3D"
-	import { SkinnedMeshRenderer } from "./laya/d3/core/SkinnedMeshRenderer"
-	import { SkinnedMeshSprite3D } from "./laya/d3/core/SkinnedMeshSprite3D"
-	import { Sprite3D } from "./laya/d3/core/Sprite3D"
-	import { BaseMaterial } from "./laya/d3/core/material/BaseMaterial"
-	import { BlinnPhongMaterial } from "./laya/d3/core/material/BlinnPhongMaterial"
-	import { EffectMaterial } from "./laya/d3/core/material/EffectMaterial"
-	import { ExtendTerrainMaterial } from "./laya/d3/core/material/ExtendTerrainMaterial"
-	import { PBRSpecularMaterial } from "./laya/d3/core/material/PBRSpecularMaterial"
-	import { PBRStandardMaterial } from "./laya/d3/core/material/PBRStandardMaterial"
-	import { SkyBoxMaterial } from "./laya/d3/core/material/SkyBoxMaterial"
-	import { SkyProceduralMaterial } from "./laya/d3/core/material/SkyProceduralMaterial"
-	import { TerrainMaterial } from "./laya/d3/core/material/TerrainMaterial"
-	import { UnlitMaterial } from "./laya/d3/core/material/UnlitMaterial"
-	import { WaterPrimaryMaterial } from "./laya/d3/core/material/WaterPrimaryMaterial"
-	import { ShuriKenParticle3D } from "./laya/d3/core/particleShuriKen/ShuriKenParticle3D"
-	import { ShurikenParticleMaterial } from "./laya/d3/core/particleShuriKen/ShurikenParticleMaterial"
-	import { PixelLineMaterial } from "./laya/d3/core/pixelLine/PixelLineMaterial"
-	import { RenderContext3D } from "./laya/d3/core/render/RenderContext3D"
-	import { ScreenQuad } from "./laya/d3/core/render/ScreenQuad"
-	import { ScreenTriangle } from "./laya/d3/core/render/ScreenTriangle"
-	import { Scene3D } from "./laya/d3/core/scene/Scene3D"
-	import { TrailMaterial } from "./laya/d3/core/trail/TrailMaterial"
-	import { TrailSprite3D } from "./laya/d3/core/trail/TrailSprite3D"
-	import { FrustumCulling } from "./laya/d3/graphics/FrustumCulling"
-	import { HalfFloatUtils } from "./laya/d3/math/HalfFloatUtils"
-	import { PhysicsSettings } from "./laya/d3/physics/PhysicsSettings"
-	import { TextureCube } from "./laya/d3/resource/TextureCube"
-	import { Mesh } from "./laya/d3/resource/models/Mesh"
-	import { SkyBox } from "./laya/d3/resource/models/SkyBox"
-	import { SkyDome } from "./laya/d3/resource/models/SkyDome"
-	import { ShaderData } from "./laya/d3/shader/ShaderData"
-	import { ShaderInit3D } from "./laya/d3/shader/ShaderInit3D"
-	import { ShaderInstance } from "./laya/d3/shader/ShaderInstance"
-	import { TerrainHeightData } from "./laya/d3/terrain/TerrainHeightData"
-	import { Utils3D } from "./laya/d3/utils/Utils3D"
-	import { Node } from "laya/display/Node"
-	import { Event } from "laya/events/Event"
-	import { CommandEncoder } from "laya/layagl/CommandEncoder"
-	import { LayaGL } from "laya/layagl/LayaGL"
-	import { Loader } from "laya/net/Loader"
-	import { LoaderManager } from "laya/net/LoaderManager"
-	import { URL } from "laya/net/URL"
-	import { Render } from "laya/renders/Render"
-	import { Resource } from "laya/resource/Resource"
-	import { Texture2D } from "laya/resource/Texture2D"
-	import { Handler } from "laya/utils/Handler"
-	import { RunDriver } from "laya/utils/RunDriver"
-	import { WebGL } from "laya/webgl/WebGL"
-	import { WebGLContext } from "laya/webgl/WebGLContext"
+import { Config3D } from "Config3D";
+import { ILaya3D } from "ILaya3D";
 import { Laya } from "Laya";
-import { FloatKeyframe } from "laya/d3/core/FloatKeyframe";
+import { Scene3DUtils } from "laya/d3/utils/Scene3DUtils";
+import { Node } from "laya/display/Node";
+import { Event } from "laya/events/Event";
+import { CommandEncoder } from "laya/layagl/CommandEncoder";
+import { LayaGL } from "laya/layagl/LayaGL";
+import { Loader } from "laya/net/Loader";
+import { LoaderManager } from "laya/net/LoaderManager";
+import { URL } from "laya/net/URL";
+import { Render } from "laya/renders/Render";
+import { Resource } from "laya/resource/Resource";
+import { Texture2D } from "laya/resource/Texture2D";
+import { Handler } from "laya/utils/Handler";
+import { RunDriver } from "laya/utils/RunDriver";
+import { WebGL } from "laya/webgl/WebGL";
+import { WebGLContext } from "laya/webgl/WebGLContext";
+import { AnimationClip } from "./laya/d3/animation/AnimationClip";
+import { PostProcess } from "./laya/d3/component/PostProcess";
+import { Avatar } from "./laya/d3/core/Avatar";
+import { BaseMaterial } from "./laya/d3/core/material/BaseMaterial";
+import { BlinnPhongMaterial } from "./laya/d3/core/material/BlinnPhongMaterial";
+import { EffectMaterial } from "./laya/d3/core/material/EffectMaterial";
+import { ExtendTerrainMaterial } from "./laya/d3/core/material/ExtendTerrainMaterial";
+import { PBRSpecularMaterial } from "./laya/d3/core/material/PBRSpecularMaterial";
+import { PBRStandardMaterial } from "./laya/d3/core/material/PBRStandardMaterial";
+import { SkyBoxMaterial } from "./laya/d3/core/material/SkyBoxMaterial";
+import { SkyProceduralMaterial } from "./laya/d3/core/material/SkyProceduralMaterial";
+import { TerrainMaterial } from "./laya/d3/core/material/TerrainMaterial";
+import { UnlitMaterial } from "./laya/d3/core/material/UnlitMaterial";
+import { WaterPrimaryMaterial } from "./laya/d3/core/material/WaterPrimaryMaterial";
+import { MeshRenderer } from "./laya/d3/core/MeshRenderer";
+import { MeshSprite3D } from "./laya/d3/core/MeshSprite3D";
+import { ShuriKenParticle3D } from "./laya/d3/core/particleShuriKen/ShuriKenParticle3D";
+import { ShurikenParticleMaterial } from "./laya/d3/core/particleShuriKen/ShurikenParticleMaterial";
+import { PixelLineMaterial } from "./laya/d3/core/pixelLine/PixelLineMaterial";
+import { RenderContext3D } from "./laya/d3/core/render/RenderContext3D";
+import { ScreenQuad } from "./laya/d3/core/render/ScreenQuad";
+import { ScreenTriangle } from "./laya/d3/core/render/ScreenTriangle";
+import { RenderableSprite3D } from "./laya/d3/core/RenderableSprite3D";
+import { Scene3D } from "./laya/d3/core/scene/Scene3D";
+import { SkinnedMeshRenderer } from "./laya/d3/core/SkinnedMeshRenderer";
+import { SkinnedMeshSprite3D } from "./laya/d3/core/SkinnedMeshSprite3D";
+import { Sprite3D } from "./laya/d3/core/Sprite3D";
+import { TrailMaterial } from "./laya/d3/core/trail/TrailMaterial";
+import { TrailSprite3D } from "./laya/d3/core/trail/TrailSprite3D";
+import { FrustumCulling } from "./laya/d3/graphics/FrustumCulling";
+import { HalfFloatUtils } from "./laya/d3/math/HalfFloatUtils";
+import { PhysicsSettings } from "./laya/d3/physics/PhysicsSettings";
+import { Mesh } from "./laya/d3/resource/models/Mesh";
+import { SkyBox } from "./laya/d3/resource/models/SkyBox";
+import { SkyDome } from "./laya/d3/resource/models/SkyDome";
+import { TextureCube } from "./laya/d3/resource/TextureCube";
+import { ShaderData } from "./laya/d3/shader/ShaderData";
+import { ShaderInit3D } from "./laya/d3/shader/ShaderInit3D";
+import { ShaderInstance } from "./laya/d3/shader/ShaderInstance";
+import { Utils3D } from "./laya/d3/utils/Utils3D";
+import { MeshRenderStaticBatchManager } from "laya/d3/graphics/MeshRenderStaticBatchManager";
+import { MeshRenderDynamicBatchManager } from "laya/d3/graphics/MeshRenderDynamicBatchManager";
+import { SubMeshDynamicBatch } from "laya/d3/graphics/SubMeshDynamicBatch";
+import { CapsuleColliderShape } from "laya/d3/physics/shape/CapsuleColliderShape";
+import { BoxColliderShape } from "laya/d3/physics/shape/BoxColliderShape";
+import { SphereColliderShape } from "laya/d3/physics/shape/SphereColliderShape";
+import { MeshColliderShape } from "laya/d3/physics/shape/MeshColliderShape";
+import { ConeColliderShape } from "laya/d3/physics/shape/ConeColliderShape";
+import { CylinderColliderShape } from "laya/d3/physics/shape/CylinderColliderShape";
+import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
+import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
 	
 	/**
 	 * <code>Laya3D</code> 类用于初始化3D设置。
 	 */
 	export class Laya3D {
 		/**Hierarchy资源。*/
-		 static HIERARCHY:string = "HIERARCHY";
+		 static HIERARCHY:string = "HIERARCHY";//兼容
 		/**Mesh资源。*/
-		 static MESH:string = "MESH";
+		 static MESH:string = "MESH";//兼容
 		/**Material资源。*/
-		 static MATERIAL:string = "MATERIAL";
+		 static MATERIAL:string = "MATERIAL";//兼容
 		/**Texture2D资源。*/
-		 static TEXTURE2D:string = "TEXTURE2D";
+		 static TEXTURE2D:string = "TEXTURE2D";//兼容
 		/**TextureCube资源。*/
-		 static TEXTURECUBE:string = "TEXTURECUBE";
+		 static TEXTURECUBE:string = "TEXTURECUBE";//兼容
 		/**AnimationClip资源。*/
-		 static ANIMATIONCLIP:string = "ANIMATIONCLIP";
+		 static ANIMATIONCLIP:string = "ANIMATIONCLIP";//兼容
 		/**Avatar资源。*/
-		 static AVATAR:string = "AVATAR";
+		 static AVATAR:string = "AVATAR";//兼容
 		/**Terrain资源。*/
 		 static TERRAINHEIGHTDATA:string = "TERRAINHEIGHTDATA";
 		/**Terrain资源。*/
@@ -156,6 +167,21 @@ import { FloatKeyframe } from "laya/d3/core/FloatKeyframe";
 					return new CommandEncoder(this, reserveSize, adjustSize, isSyncToRenderThread);
 				}
 			}
+			ILaya3D.Scene3D=Scene3D;
+			ILaya3D.MeshRenderStaticBatchManager=MeshRenderStaticBatchManager;
+			ILaya3D.MeshRenderDynamicBatchManager=MeshRenderDynamicBatchManager;
+			ILaya3D.SubMeshDynamicBatch=SubMeshDynamicBatch;
+			ILaya3D.Laya3D=Laya3D;
+			ILaya3D.BoxColliderShape=BoxColliderShape;
+			ILaya3D.SphereColliderShape=SphereColliderShape;
+			ILaya3D.CapsuleColliderShape = CapsuleColliderShape;
+			ILaya3D.MeshColliderShape = MeshColliderShape;
+			ILaya3D.ConeColliderShape = ConeColliderShape;
+			ILaya3D.CylinderColliderShape = CylinderColliderShape;
+			ILaya3D.CommandBuffer = CommandBuffer;
+			ILaya3D.Matrix4x4 = Matrix4x4;
+			ILaya3D.Scene3DUtils = Scene3DUtils;
+
 			//函数里面会有判断isConchApp
 			Laya3D.enableNative3D();
 			Sprite3D.__init__();
@@ -177,6 +203,7 @@ import { FloatKeyframe } from "laya/d3/core/FloatKeyframe";
 			TerrainMaterial.__init__();
 			ExtendTerrainMaterial.__init__();
 			PostProcess.__init__();
+			Scene3D.__init__();
 			ShaderInit3D.__init__();
 			PixelLineMaterial.defaultMaterial.lock = true;
 			BlinnPhongMaterial.defaultMaterial.lock = true;
@@ -199,7 +226,7 @@ import { FloatKeyframe } from "laya/d3/core/FloatKeyframe";
 			HalfFloatUtils.__init__();
 			
 			var createMap:any = LoaderManager.createMap;
-			createMap["lh"] = [Laya3D.HIERARCHY, Sprite3D._parse];
+			createMap["lh"] = [Laya3D.HIERARCHY, Scene3DUtils._parse];
 			createMap["ls"] = [Laya3D.HIERARCHY, Scene3D._parse];
 			createMap["lm"] = [Laya3D.MESH, Mesh._parse];
 			createMap["lmat"] = [Laya3D.MATERIAL, BaseMaterial._parse];
@@ -214,7 +241,6 @@ import { FloatKeyframe } from "laya/d3/core/FloatKeyframe";
 			createMap["pvr"] = [Laya3D.TEXTURE2D, Texture2D._parse];
 			createMap["lani"] = [Laya3D.ANIMATIONCLIP, AnimationClip._parse];
 			createMap["lav"] = [Laya3D.AVATAR, Avatar._parse];
-			createMap["thdata"] = [Laya3D.TERRAINHEIGHTDATA, TerrainHeightData._pharse];
 			
 			var parserMap:any = Loader.parserMap;
 			parserMap[Laya3D.HIERARCHY] = Laya3D._loadHierarchy;
@@ -521,7 +547,7 @@ import { FloatKeyframe } from "laya/d3/core/FloatKeyframe";
 		private static _onHierarchyInnerFirstLevResouLoaded(loader:Loader, processHandler:Handler, lhData:any, subUrls:any[]):void {
 			(processHandler) && (processHandler.recover());
 			loader._cache = loader._createCache;
-			var item:Node = lhData.data.type === "Scene3D" ? Scene3D._parse(lhData, loader._propertyParams, loader._constructParams) : Sprite3D._parse(lhData, loader._propertyParams, loader._constructParams);
+			var item:Node = lhData.data.type === "Scene3D" ? Scene3D._parse(lhData, loader._propertyParams, loader._constructParams) : Scene3DUtils._parse(lhData, loader._propertyParams, loader._constructParams);
 			Laya3D._endLoad(loader, item, subUrls);
 		}
 		
@@ -723,14 +749,22 @@ import { FloatKeyframe } from "laya/d3/core/FloatKeyframe";
 			Laya3D._isInit = true;
 			config = config || Config3D._default;
 			config.cloneTo(Laya3D._config);
+			FrustumCulling.debugFrustumCulling=config.debugFrustumCulling;
 			Laya3D._editerEnvironment = Laya3D._config._editerEnvironment;
+			Scene3D._enbalePhysics=Laya3D._enbalePhysics;
+			Scene3D.octreeCulling=config.octreeCulling;
+			Scene3D.octreeInitialSize=config.octreeInitialSize;
+			Scene3D.octreeInitialCenter=config.octreeInitialCenter;
+			Scene3D.octreeMinNodeSize=config.octreeMinNodeSize;
+			Scene3D.octreeLooseness=config.octreeLooseness;
+
 			var physics3D:Function = (window as any).Physics3D;
 			if (physics3D == null) {
-				Laya3D._enbalePhysics = false;
+				Laya3D._enbalePhysics=Scene3D._enbalePhysics = false;
 				Laya3D.__init__(width, height, Laya3D._config);
 				compolete && compolete.run();
 			} else {
-				Laya3D._enbalePhysics = true;
+				Laya3D._enbalePhysics=Scene3D._enbalePhysics = true;
 				physics3D(Laya3D._config.defaultPhysicsMemory * 1024 * 1024).then(function():void {
 					Laya3D.__init__(width, height, Laya3D._config);
 					compolete && compolete.run();

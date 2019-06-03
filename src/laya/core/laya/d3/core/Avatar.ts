@@ -1,6 +1,5 @@
 import { IClone } from "././IClone";
 import { Laya } from "Laya";
-import { Laya3D } from "./../../../Laya3D";
 import { AnimationNode } from "../animation/AnimationNode"
 	import { AnimationTransform3D } from "../animation/AnimationTransform3D"
 	import { Animator } from "../component/Animator"
@@ -14,7 +13,9 @@ import { AnimationNode } from "../animation/AnimationNode"
 	 * <code>Avatar</code> 类用于创建Avatar。
 	 */
 	export class Avatar extends Resource implements IClone {
-		
+		/**Avatar资源。*/
+		static AVATAR:string = "AVATAR";
+
 		/**
 		 * @inheritDoc
 		 */
@@ -36,7 +37,7 @@ import { AnimationNode } from "../animation/AnimationNode"
 		 * @param complete 完成回掉。
 		 */
 		 static load(url:string, complete:Handler):void {
-			Laya.loader.create(url, complete, null, Laya3D.AVATAR);
+			Laya.loader.create(url, complete, null, Avatar.AVATAR);
 		}
 		
 		/**@private */

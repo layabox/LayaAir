@@ -1,26 +1,26 @@
-import { RenderElement } from "././RenderElement";
-import { RenderContext3D } from "././RenderContext3D";
-import { RenderQueue } from "././RenderQueue";
-import { BatchMark } from "././BatchMark";
+import { ILaya3D } from "ILaya3D";
+import { Event } from "laya/events/Event";
+import { LayaGL } from "laya/layagl/LayaGL";
+import { WebGLContext } from "laya/webgl/WebGLContext";
+import { MeshRenderDynamicBatchManager } from "../../graphics/MeshRenderDynamicBatchManager";
+import { MeshRenderStaticBatchManager } from "../../graphics/MeshRenderStaticBatchManager";
+import { SubMeshInstanceBatch } from "../../graphics/SubMeshInstanceBatch";
+import { SubMeshStaticBatch } from "../../graphics/SubMeshStaticBatch";
+import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
+import { VertexDeclaration } from "../../graphics/VertexDeclaration";
+import { Matrix4x4 } from "../../math/Matrix4x4";
+import { Quaternion } from "../../math/Quaternion";
+import { Mesh } from "../../resource/models/Mesh";
+import { SubMesh } from "../../resource/models/SubMesh";
+import { Utils3D } from "../../utils/Utils3D";
+import { GeometryElement } from "../GeometryElement";
+import { Sprite3D } from "../Sprite3D";
+import { Transform3D } from "../Transform3D";
 import { BaseRender } from "././BaseRender";
-import { GeometryElement } from "../GeometryElement"
-	import { Sprite3D } from "../Sprite3D"
-	import { Transform3D } from "../Transform3D"
-	import { MeshRenderDynamicBatchManager } from "../../graphics/MeshRenderDynamicBatchManager"
-	import { MeshRenderStaticBatchManager } from "../../graphics/MeshRenderStaticBatchManager"
-	import { SubMeshDynamicBatch } from "../../graphics/SubMeshDynamicBatch"
-	import { SubMeshInstanceBatch } from "../../graphics/SubMeshInstanceBatch"
-	import { SubMeshStaticBatch } from "../../graphics/SubMeshStaticBatch"
-	import { VertexBuffer3D } from "../../graphics/VertexBuffer3D"
-	import { VertexDeclaration } from "../../graphics/VertexDeclaration"
-	import { Matrix4x4 } from "../../math/Matrix4x4"
-	import { Quaternion } from "../../math/Quaternion"
-	import { Mesh } from "../../resource/models/Mesh"
-	import { SubMesh } from "../../resource/models/SubMesh"
-	import { Utils3D } from "../../utils/Utils3D"
-	import { Event } from "laya/events/Event"
-	import { LayaGL } from "laya/layagl/LayaGL"
-	import { WebGLContext } from "laya/webgl/WebGLContext"
+import { BatchMark } from "././BatchMark";
+import { RenderContext3D } from "././RenderContext3D";
+import { RenderElement } from "././RenderElement";
+import { RenderQueue } from "././RenderQueue";
 	
 	/**
 	 * @private
@@ -128,7 +128,7 @@ import { GeometryElement } from "../GeometryElement"
 				if (mesh) {//TODO:可能是StaticSubMesh
 					var multiSubMesh:boolean = mesh._subMeshCount > 1;
 					var dynBatVerCount:number = multiSubMesh ? subMesh._indexCount : mesh._vertexCount;
-					if (dynBatVerCount <= SubMeshDynamicBatch.maxAllowVertexCount) {
+					if (dynBatVerCount <= ILaya3D.SubMeshDynamicBatch.maxAllowVertexCount) {
 						var length:number = dynBatVerCount * 3;
 						this._dynamicVertexBatch = true;
 						this._dynamicWorldPositions = new Float32Array(length);
@@ -150,7 +150,7 @@ import { GeometryElement } from "../GeometryElement"
 			var subMeshStaticBatch:SubMeshStaticBatch = (<SubMeshStaticBatch>this.staticBatch );
 			var elements:any[] = queue.elements;
 			if (subMeshStaticBatch) {
-				var staManager:MeshRenderStaticBatchManager = MeshRenderStaticBatchManager.instance;
+				var staManager:MeshRenderStaticBatchManager = ILaya3D.MeshRenderStaticBatchManager.instance;
 				var staBatchMarks:BatchMark = staManager.getBatchOpaquaMark(this.render.lightmapIndex + 1, this.render.receiveShadow, this.material.id, subMeshStaticBatch._batchID);
 				if (staManager._updateCountMark === staBatchMarks.updateMark) {
 					var staBatchIndex:number = staBatchMarks.indexInList;
@@ -182,7 +182,7 @@ import { GeometryElement } from "../GeometryElement"
 				}
 			} else if (this.material._shader._enableInstancing && LayaGL.layaGPUInstance.supportInstance()) {//需要支持Instance渲染才可用
 				var subMesh:SubMesh = (<SubMesh>this._geometry );
-				var insManager:MeshRenderDynamicBatchManager = MeshRenderDynamicBatchManager.instance;
+				var insManager:MeshRenderDynamicBatchManager = ILaya3D.MeshRenderDynamicBatchManager.instance;
 				var insBatchMarks:BatchMark = insManager.getInstanceBatchOpaquaMark(this.render.lightmapIndex + 1, this.render.receiveShadow, this.material.id, subMesh._id);
 				if (insManager._updateCountMark === insBatchMarks.updateMark) {
 					var insBatchIndex:number = insBatchMarks.indexInList;
@@ -221,7 +221,7 @@ import { GeometryElement } from "../GeometryElement"
 				}
 			} else if (this._dynamicVertexBatch) {
 				var verDec:VertexDeclaration = ((<SubMesh>this._geometry ))._vertexBuffer.vertexDeclaration;
-				var dynManager:MeshRenderDynamicBatchManager = MeshRenderDynamicBatchManager.instance;
+				var dynManager:MeshRenderDynamicBatchManager = ILaya3D.MeshRenderDynamicBatchManager.instance;
 				var dynBatchMarks:BatchMark = dynManager.getVertexBatchOpaquaMark(this.render.lightmapIndex + 1, this.render.receiveShadow, this.material.id, verDec.id);
 				if (dynManager._updateCountMark === dynBatchMarks.updateMark) {
 					var dynBatchIndex:number = dynBatchMarks.indexInList;
@@ -232,7 +232,7 @@ import { GeometryElement } from "../GeometryElement"
 						var dynOriRender:BaseRender = dynOriElement.render;
 						var dynBatchElement:SubMeshRenderElement = (<SubMeshRenderElement>dynManager._getBatchRenderElementFromPool() );//TODO:是否动态和静态方法可合并
 						dynBatchElement.renderType = RenderElement.RENDERTYPE_VERTEXBATCH;
-						dynBatchElement.setGeometry(SubMeshDynamicBatch.instance);
+						dynBatchElement.setGeometry(ILaya3D.SubMeshDynamicBatch.instance);
 						dynBatchElement.material = dynOriElement.material;
 						dynBatchElement.setTransform(null);
 						dynBatchElement.render = dynOriRender;
@@ -262,7 +262,7 @@ import { GeometryElement } from "../GeometryElement"
 			var subMeshStaticBatch:SubMeshStaticBatch = (<SubMeshStaticBatch>this.staticBatch );
 			var elements:any[] = queue.elements;
 			if (subMeshStaticBatch) {
-				var staManager:MeshRenderStaticBatchManager = MeshRenderStaticBatchManager.instance;
+				var staManager:MeshRenderStaticBatchManager = ILaya3D.MeshRenderStaticBatchManager.instance;
 				var staLastElement:RenderElement = queue.lastTransparentRenderElement;
 				if (staLastElement) {
 					var staLastRender:BaseRender = staLastElement.render;
@@ -295,7 +295,7 @@ import { GeometryElement } from "../GeometryElement"
 				}
 			} else if (this.material._shader._enableInstancing && LayaGL.layaGPUInstance.supportInstance()) {//需要支持Instance渲染才可用
 				var subMesh:SubMesh = (<SubMesh>this._geometry );
-				var insManager:MeshRenderDynamicBatchManager = MeshRenderDynamicBatchManager.instance;
+				var insManager:MeshRenderDynamicBatchManager = ILaya3D.MeshRenderDynamicBatchManager.instance;
 				var insLastElement:RenderElement = queue.lastTransparentRenderElement;
 				if (insLastElement) {
 					var insLastRender:BaseRender = insLastElement.render;
@@ -328,7 +328,7 @@ import { GeometryElement } from "../GeometryElement"
 				
 			} else if (this._dynamicVertexBatch) {
 				var verDec:VertexDeclaration = ((<SubMesh>this._geometry ))._vertexBuffer.vertexDeclaration;
-				var dynManager:MeshRenderDynamicBatchManager = MeshRenderDynamicBatchManager.instance;
+				var dynManager:MeshRenderDynamicBatchManager = ILaya3D.MeshRenderDynamicBatchManager.instance;
 				var dynLastElement:RenderElement = queue.lastTransparentRenderElement;
 				if (dynLastElement) {
 					var dynLastRender:BaseRender = dynLastElement.render;
@@ -341,7 +341,7 @@ import { GeometryElement } from "../GeometryElement"
 						} else {
 							var dynBatchElement:SubMeshRenderElement = (<SubMeshRenderElement>dynManager._getBatchRenderElementFromPool() );
 							dynBatchElement.renderType = RenderElement.RENDERTYPE_VERTEXBATCH;
-							dynBatchElement.setGeometry(SubMeshDynamicBatch.instance);
+							dynBatchElement.setGeometry(ILaya3D.SubMeshDynamicBatch.instance);
 							dynBatchElement.material = dynLastElement.material;
 							dynBatchElement.setTransform(null);
 							dynBatchElement.render = this.render;

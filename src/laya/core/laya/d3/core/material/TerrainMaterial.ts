@@ -7,6 +7,7 @@ import { Scene3D } from "../scene/Scene3D"
 	import { Shader3D } from "../../shader/Shader3D"
 	import { ShaderDefines } from "../../shader/ShaderDefines"
 	import { BaseTexture } from "laya/resource/BaseTexture"
+import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
 	
 	/**
 	 * ...
@@ -260,7 +261,7 @@ import { Scene3D } from "../scene/Scene3D"
 		}
 		
 		 disableLight():void {
-			this._disablePublicDefineDatas.add(Scene3D.SHADERDEFINE_POINTLIGHT | Scene3D.SHADERDEFINE_SPOTLIGHT | Scene3D.SHADERDEFINE_DIRECTIONLIGHT);
+			this._disablePublicDefineDatas.add(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT | Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT | Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
 		}
 		
 		/**

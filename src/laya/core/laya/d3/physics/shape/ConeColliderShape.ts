@@ -1,7 +1,5 @@
+import { ILaya3D } from "ILaya3D";
 import { ColliderShape } from "././ColliderShape";
-import { Laya3D } from "./../../../../Laya3D";
-import { Quaternion } from "../../math/Quaternion"
-	import { Vector3 } from "../../math/Vector3"
 	
 	/**
 	 * <code>ConeColliderShape</code> 类用于创建圆柱碰撞器。
@@ -49,13 +47,13 @@ this._radius = radius;
 			this._type = ColliderShape.SHAPETYPES_CYLINDER;
 			switch (orientation) {
 			case ColliderShape.SHAPEORIENTATION_UPX: 
-				this._nativeShape = new Laya3D._physics3D.btConeShapeX(radius, height);
+				this._nativeShape = new ILaya3D.Laya3D._physics3D.btConeShapeX(radius, height);
 				break;
 			case ColliderShape.SHAPEORIENTATION_UPY: 
-				this._nativeShape = new Laya3D._physics3D.btConeShape(radius, height);
+				this._nativeShape = new ILaya3D.Laya3D._physics3D.btConeShape(radius, height);
 				break;
 			case ColliderShape.SHAPEORIENTATION_UPZ: 
-				this._nativeShape = new Laya3D._physics3D.btConeShapeZ(radius, height);
+				this._nativeShape = new ILaya3D.Laya3D._physics3D.btConeShapeZ(radius, height);
 				break;
 			default: 
 				throw "ConeColliderShape:unknown orientation.";

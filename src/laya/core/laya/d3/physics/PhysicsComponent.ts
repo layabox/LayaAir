@@ -1,4 +1,4 @@
-import { Laya3D } from "./../../../Laya3D";
+
 import { Component } from "laya/components/Component"
 	import { Sprite3D } from "../core/Sprite3D"
 	import { Transform3D } from "../core/Transform3D"
@@ -11,6 +11,7 @@ import { Component } from "laya/components/Component"
 	import { CompoundColliderShape } from "./shape/CompoundColliderShape"
 	import { Physics3DUtils } from "../utils/Physics3DUtils"
 	import { Event } from "laya/events/Event"
+import { ILaya3D } from "ILaya3D";
 	
 	/**
 	 * <code>PhysicsComponent</code> 类用于创建物理组件的父类。
@@ -51,9 +52,9 @@ import { Component } from "laya/components/Component"
 		/**@private */
 		protected static _tempMatrix4x40:Matrix4x4 = new Matrix4x4();
 		/** @private */
-		protected static _nativeVector30:any = new Laya3D._physics3D.btVector3(0, 0, 0);
+		protected static _nativeVector30:any = new ILaya3D.Laya3D._physics3D.btVector3(0, 0, 0);
 		/** @private */
-		protected static _nativeQuaternion0:any = new Laya3D._physics3D.btQuaternion(0, 0, 0, 1);
+		protected static _nativeQuaternion0:any = new ILaya3D.Laya3D._physics3D.btQuaternion(0, 0, 0, 1);
 		
 		/**@private */
 		 static _physicObjectsMap:any = {};
@@ -587,7 +588,7 @@ this._collisionGroup = collisionGroup;
 		 * @inheritDoc
 		 */
 		/*override*/ protected _onDestroy():void {
-			var physics3D:any = Laya3D._physics3D;
+			var physics3D:any = ILaya3D.Laya3D._physics3D;
 			delete PhysicsComponent._physicObjectsMap[this.id];
 			physics3D.destroy(this._nativeColliderObject);
 			this._colliderShape.destroy();

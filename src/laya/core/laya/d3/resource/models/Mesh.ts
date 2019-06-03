@@ -1,27 +1,29 @@
-import { Laya3D } from "./../../../../Laya3D";
 import { Laya } from "Laya";
 import { SubMesh } from "././SubMesh";
 import { Bounds } from "../../core/Bounds"
-	import { BufferState } from "../../core/BufferState"
-	import { GeometryElement } from "../../core/GeometryElement"
-	import { IClone } from "../../core/IClone"
-	import { IndexBuffer3D } from "../../graphics/IndexBuffer3D"
-	import { SubMeshInstanceBatch } from "../../graphics/SubMeshInstanceBatch"
-	import { VertexMesh } from "../../graphics/Vertex/VertexMesh"
-	import { VertexBuffer3D } from "../../graphics/VertexBuffer3D"
-	import { VertexElement } from "../../graphics/VertexElement"
-	import { VertexElementFormat } from "../../graphics/VertexElementFormat"
-	import { MeshReader } from "../../loaders/MeshReader"
-	import { Matrix4x4 } from "../../math/Matrix4x4"
-	import { Vector3 } from "../../math/Vector3"
-	import { Utils3D } from "../../utils/Utils3D"
-	import { Resource } from "laya/resource/Resource"
-	import { Handler } from "laya/utils/Handler"
+import { BufferState } from "../../core/BufferState"
+import { GeometryElement } from "../../core/GeometryElement"
+import { IClone } from "../../core/IClone"
+import { IndexBuffer3D } from "../../graphics/IndexBuffer3D"
+import { SubMeshInstanceBatch } from "../../graphics/SubMeshInstanceBatch"
+import { VertexMesh } from "../../graphics/Vertex/VertexMesh"
+import { VertexBuffer3D } from "../../graphics/VertexBuffer3D"
+import { VertexElement } from "../../graphics/VertexElement"
+import { VertexElementFormat } from "../../graphics/VertexElementFormat"
+import { MeshReader } from "../../loaders/MeshReader"
+import { Matrix4x4 } from "../../math/Matrix4x4"
+import { Vector3 } from "../../math/Vector3"
+import { Utils3D } from "../../utils/Utils3D"
+import { Resource } from "laya/resource/Resource"
+import { Handler } from "laya/utils/Handler"
 	
 	/**
 	 * <code>Mesh</code> 类用于创建文件网格数据模板。
 	 */
 	export class Mesh extends Resource implements IClone {
+		/**Mesh资源。*/
+		static MESH:string = "MESH";
+
 		/** @private */
 		private _tempVector30:Vector3 = new Vector3()
 		/** @private */
@@ -29,11 +31,11 @@ import { Bounds } from "../../core/Bounds"
 		/** @private */
 		private _tempVector32:Vector3 = new Vector3();
 		/** @private */
-		private static _nativeTempVector30:any = new Laya3D._physics3D.btVector3(0, 0, 0);
+		private static _nativeTempVector30:any = new (<any>window).Physics3D.btVector3(0, 0, 0);
 		/** @private */
-		private static _nativeTempVector31:any = new Laya3D._physics3D.btVector3(0, 0, 0);
+		private static _nativeTempVector31:any = new (<any>window).Physics3D.btVector3(0, 0, 0);
 		/** @private */
-		private static _nativeTempVector32:any = new Laya3D._physics3D.btVector3(0, 0, 0);
+		private static _nativeTempVector32:any = new (<any>window).Physics3D.btVector3(0, 0, 0);
 		
 		/**
 		 *@private
@@ -50,7 +52,7 @@ import { Bounds } from "../../core/Bounds"
 		 * @param complete 完成回掉。
 		 */
 		 static load(url:string, complete:Handler):void {
-			Laya.loader.create(url, complete, null, Laya3D.MESH);
+			Laya.loader.create(url, complete, null, Mesh.MESH);
 		}
 		
 		/** @private */
@@ -215,7 +217,7 @@ import { Bounds } from "../../core/Bounds"
 		/*override*/ protected _disposeResource():void {
 			for (var i:number = 0, n:number = this._subMeshes.length; i < n; i++)
 				this._subMeshes[i].destroy();
-			this._nativeTriangleMesh && Laya3D._physics3D.destroy(this._nativeTriangleMesh);
+			this._nativeTriangleMesh && (<any>window).Physics3D.destroy(this._nativeTriangleMesh);
 			for (i = 0, n = this._vertexBuffers.length; i < n; i++)
 				this._vertexBuffers[i].destroy();
 			this._indexBuffer.destroy();
@@ -240,7 +242,7 @@ import { Bounds } from "../../core/Bounds"
 		 */
 		 _getPhysicMesh():any {
 			if (!this._nativeTriangleMesh) {
-				var physics3D:any = Laya3D._physics3D;
+				var physics3D:any = (<any>window).Physics3D;
 				var triangleMesh:any = new physics3D.btTriangleMesh();//TODO:独立抽象btTriangleMesh,增加内存复用
 				var nativePositio0:any = Mesh._nativeTempVector30;
 				var nativePositio1:any = Mesh._nativeTempVector31;

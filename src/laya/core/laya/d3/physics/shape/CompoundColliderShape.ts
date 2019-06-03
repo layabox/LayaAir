@@ -1,21 +1,20 @@
+import { ILaya3D } from "ILaya3D";
+import { Quaternion } from "../../math/Quaternion";
+import { Vector3 } from "../../math/Vector3";
 import { ColliderShape } from "././ColliderShape";
-import { Laya3D } from "./../../../../Laya3D";
-import { Quaternion } from "../../math/Quaternion"
-	import { Vector3 } from "../../math/Vector3"
-	import { PhysicsComponent } from "../PhysicsComponent"
 	
 	/**
 	 * <code>CompoundColliderShape</code> 类用于创建盒子形状碰撞器。
 	 */
 	export class CompoundColliderShape extends ColliderShape {
 		/**@private */
-		private static _nativeVector3One:any = new Laya3D._physics3D.btVector3(1, 1, 1);
+		private static _nativeVector3One:any = new ILaya3D.Laya3D._physics3D.btVector3(1, 1, 1);
 		/**@private */
-		private static _nativeTransform:any = new Laya3D._physics3D.btTransform();
+		private static _nativeTransform:any = new ILaya3D.Laya3D._physics3D.btTransform();
 		/**@private */
-		private static _nativeOffset:any = new Laya3D._physics3D.btVector3(0, 0, 0);
+		private static _nativeOffset:any = new ILaya3D.Laya3D._physics3D.btVector3(0, 0, 0);
 		/**@private */
-		private static _nativRotation:any = new Laya3D._physics3D.btQuaternion(0, 0, 0, 1);
+		private static _nativRotation:any = new ILaya3D.Laya3D._physics3D.btQuaternion(0, 0, 0, 1);
 		
 		/**@private */
 		private _childColliderShapes:ColliderShape[] = [];
@@ -27,7 +26,7 @@ import { Quaternion } from "../../math/Quaternion"
 			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 			super();
 			this._type = ColliderShape.SHAPETYPES_COMPOUND;
-			this._nativeShape = new Laya3D._physics3D.btCompoundShape();
+			this._nativeShape = new ILaya3D.Laya3D._physics3D.btCompoundShape();
 		}
 		
 		/**

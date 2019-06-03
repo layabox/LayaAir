@@ -1,12 +1,12 @@
+import { ILaya3D } from "ILaya3D";
+import { Node } from "laya/display/Node";
+import { Animator } from "../component/Animator";
+import { Vector4 } from "../math/Vector4";
+import { Shader3D } from "../shader/Shader3D";
+import { ShaderDefines } from "../shader/ShaderDefines";
 import { Sprite3D } from "././Sprite3D";
-import { Laya3D } from "./../../../Laya3D";
-import { Animator } from "../component/Animator"
-	import { BaseRender } from "./render/BaseRender"
-	import { Scene3D } from "./scene/Scene3D"
-	import { Vector4 } from "../math/Vector4"
-	import { Shader3D } from "../shader/Shader3D"
-	import { ShaderDefines } from "../shader/ShaderDefines"
-	import { Node } from "laya/display/Node"
+import { BaseRender } from "./render/BaseRender";
+import { Scene3D } from "./scene/Scene3D";
 	
 	/**
 	 * <code>RenderableSprite3D</code> 类用于可渲染3D精灵的父类，抽象类不允许实例。
@@ -77,7 +77,7 @@ import { Animator } from "../component/Animator"
 		/*override*/ protected _onActiveInScene():void {
 			super._onActiveInScene();
 			
-			if (Laya3D._editerEnvironment) {
+			if (ILaya3D.Laya3D._editerEnvironment) {
 				var scene:Scene3D = (<Scene3D>this._scene );
 				var pickColor:Vector4 = new Vector4();
 				scene._allotPickColorByID(this.id, pickColor);

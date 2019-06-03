@@ -1,24 +1,25 @@
-import { RenderableSprite3D } from "././RenderableSprite3D";
-import { Transform3D } from "././Transform3D";
-import { Sprite3D } from "././Sprite3D";
+import { Render } from "laya/renders/Render";
+import { FrustumCulling } from "../graphics/FrustumCulling";
+import { MeshRenderStaticBatchManager } from "../graphics/MeshRenderStaticBatchManager";
+import { SubMeshInstanceBatch } from "../graphics/SubMeshInstanceBatch";
+import { BoundFrustum } from "../math/BoundFrustum";
+import { ContainmentType } from "../math/ContainmentType";
+import { Matrix4x4 } from "../math/Matrix4x4";
+import { Vector3 } from "../math/Vector3";
+import { Mesh } from "../resource/models/Mesh";
+import { ShaderData } from "../shader/ShaderData";
+import { Utils3D } from "../utils/Utils3D";
 import { MeshSprite3D } from "././MeshSprite3D";
-import { BaseMaterial } from "./material/BaseMaterial"
-	import { BlinnPhongMaterial } from "./material/BlinnPhongMaterial"
-	import { BaseRender } from "./render/BaseRender"
-	import { RenderContext3D } from "./render/RenderContext3D"
-	import { RenderElement } from "./render/RenderElement"
-	import { SubMeshRenderElement } from "./render/SubMeshRenderElement"
-	import { FrustumCulling } from "../graphics/FrustumCulling"
-	import { MeshRenderStaticBatchManager } from "../graphics/MeshRenderStaticBatchManager"
-	import { SubMeshInstanceBatch } from "../graphics/SubMeshInstanceBatch"
-	import { BoundFrustum } from "../math/BoundFrustum"
-	import { ContainmentType } from "../math/ContainmentType"
-	import { Matrix4x4 } from "../math/Matrix4x4"
-	import { Vector3 } from "../math/Vector3"
-	import { Mesh } from "../resource/models/Mesh"
-	import { ShaderData } from "../shader/ShaderData"
-	import { Utils3D } from "../utils/Utils3D"
-	import { Render } from "laya/renders/Render"
+import { RenderableSprite3D } from "././RenderableSprite3D";
+import { Sprite3D } from "././Sprite3D";
+import { Transform3D } from "././Transform3D";
+import { BaseMaterial } from "./material/BaseMaterial";
+import { BlinnPhongMaterial } from "./material/BlinnPhongMaterial";
+import { BaseRender } from "./render/BaseRender";
+import { RenderContext3D } from "./render/RenderContext3D";
+import { RenderElement } from "./render/RenderElement";
+import { SubMeshRenderElement } from "./render/SubMeshRenderElement";
+import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration";
 	
 	/**
 	 * <code>MeshRenderer</code> 类用于网格渲染器。
@@ -121,7 +122,7 @@ import { BaseMaterial } from "./material/BaseMaterial"
 					this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, transform.worldMatrix);
 				else
 					this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, Matrix4x4.DEFAULT);
-				this._shaderValues.addDefine(MeshSprite3D.SHADERDEFINE_UV1);
+				this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1);
 				this._shaderValues.removeDefine(RenderableSprite3D.SHADERDEFINE_SCALEOFFSETLIGHTINGMAPUV);
 				break;
 			case RenderElement.RENDERTYPE_VERTEXBATCH: 
@@ -134,7 +135,7 @@ import { BaseMaterial } from "./material/BaseMaterial"
 				for (var i:number = 0; i < count; i++)
 					worldMatrixData.set(insBatches[i]._transform.worldMatrix.elements, i * 16);
 				SubMeshInstanceBatch.instance.instanceWorldMatrixBuffer.setData(worldMatrixData, 0, 0, count * 16);
-				this._shaderValues.addDefine(MeshSprite3D.SHADERDEFINE_GPU_INSTANCE);
+				this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
 				break;
 			}
 		}
@@ -219,7 +220,7 @@ import { BaseMaterial } from "./material/BaseMaterial"
 				this._shaderValues._defineValue = this._oriDefineValue;
 				break;
 			case RenderElement.RENDERTYPE_INSTANCEBATCH: 
-				this._shaderValues.removeDefine(MeshSprite3D.SHADERDEFINE_GPU_INSTANCE);
+				this._shaderValues.removeDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
 				break;
 			}
 		}

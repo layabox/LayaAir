@@ -1,27 +1,29 @@
 import { AnimationClipParser03 } from "././AnimationClipParser03";
 import { AnimationClipParser04 } from "././AnimationClipParser04";
 import { Laya } from "Laya";
-import { Laya3D } from "./../../../Laya3D";
 import { KeyframeNodeList } from "././KeyframeNodeList";
 import { AnimationEvent } from "././AnimationEvent";
 import { KeyframeNode } from "././KeyframeNode";
 import { FloatKeyframe } from "../core/FloatKeyframe"
-	import { Keyframe } from "../core/Keyframe"
-	import { QuaternionKeyframe } from "../core/QuaternionKeyframe"
-	import { Vector3Keyframe } from "../core/Vector3Keyframe"
-	import { Quaternion } from "../math/Quaternion"
-	import { Vector3 } from "../math/Vector3"
-	import { Vector4 } from "../math/Vector4"
-	import { Utils3D } from "../utils/Utils3D"
-	import { LayaGL } from "laya/layagl/LayaGL"
-	import { Resource } from "laya/resource/Resource"
-	import { Byte } from "laya/utils/Byte"
-	import { Handler } from "laya/utils/Handler"
+import { Keyframe } from "../core/Keyframe"
+import { QuaternionKeyframe } from "../core/QuaternionKeyframe"
+import { Vector3Keyframe } from "../core/Vector3Keyframe"
+import { Quaternion } from "../math/Quaternion"
+import { Vector3 } from "../math/Vector3"
+import { Vector4 } from "../math/Vector4"
+import { Utils3D } from "../utils/Utils3D"
+import { LayaGL } from "laya/layagl/LayaGL"
+import { Resource } from "laya/resource/Resource"
+import { Byte } from "laya/utils/Byte"
+import { Handler } from "laya/utils/Handler"
 	
 	/**
 	 * <code>AnimationClip</code> 类用于动画片段资源。
 	 */
 	export class AnimationClip extends Resource {
+		/**AnimationClip资源。*/
+		static ANIMATIONCLIP:string = "ANIMATIONCLIP";
+
 		/**@private	*/
 		 static _tempQuaternion0:Quaternion = new Quaternion();
 		
@@ -52,7 +54,7 @@ import { FloatKeyframe } from "../core/FloatKeyframe"
 		 * @param complete  完成回掉。
 		 */
 		 static load(url:string, complete:Handler):void {
-			Laya.loader.create(url, complete, null, Laya3D.ANIMATIONCLIP);
+			Laya.loader.create(url, complete, null, AnimationClip.ANIMATIONCLIP);
 		}
 
 		/**@private */

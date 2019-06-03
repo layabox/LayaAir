@@ -1,28 +1,34 @@
-import { TrailSprite3D } from "././TrailSprite3D";
-import { TrailRenderer } from "././TrailRenderer";
-import { TrailMaterial } from "././TrailMaterial";
+import { Color } from "../../math/Color";
+import { Vector3 } from "../../math/Vector3";
+import { Camera } from "../Camera";
+import { FloatKeyframe } from "../FloatKeyframe";
+import { GeometryElement } from "../GeometryElement";
+import { Gradient } from "../Gradient";
+import { GradientMode } from "../GradientMode";
+import { BaseRender } from "../render/BaseRender";
+import { RenderContext3D } from "../render/RenderContext3D";
+import { RenderElement } from "../render/RenderElement";
+import { Scene3D } from "../scene/Scene3D";
+import { TextureMode } from "../TextureMode";
 import { TrailGeometry } from "././TrailGeometry";
-import { Camera } from "../Camera"
-	import { FloatKeyframe } from "../FloatKeyframe"
-	import { GeometryElement } from "../GeometryElement"
-	import { Gradient } from "../Gradient"
-	import { GradientMode } from "../GradientMode"
-	import { TextureMode } from "../TextureMode"
-	import { BaseRender } from "../render/BaseRender"
-	import { RenderContext3D } from "../render/RenderContext3D"
-	import { RenderElement } from "../render/RenderElement"
-	import { Scene3D } from "../scene/Scene3D"
-	import { Color } from "../../math/Color"
-	import { Vector3 } from "../../math/Vector3"
+import { TrailMaterial } from "././TrailMaterial";
+import { TrailRenderer } from "././TrailRenderer";
+import { TrailSprite3D } from "././TrailSprite3D";
+import { Shader3D } from "laya/d3/shader/Shader3D";
 	
 	/**
 	 * <code>TrailFilter</code> 类用于创建拖尾过滤器。
 	 */
 	export class TrailFilter {
+		static CURTIME:number=Shader3D.propertyNameToID("u_CurTime");
+		static LIFETIME:number=Shader3D.propertyNameToID("u_LifeTime");
+		static WIDTHCURVE:number=Shader3D.propertyNameToID("u_WidthCurve");
+		static WIDTHCURVEKEYLENGTH:number=Shader3D.propertyNameToID("u_WidthCurveKeyLength");
+		
 		/** 轨迹准线_面向摄像机。*/
-		 static ALIGNMENT_VIEW:number = 0;
+		static ALIGNMENT_VIEW:number = 0;
 		/** 轨迹准线_面向运动方向。*/
-		 static ALIGNMENT_TRANSFORM_Z:number = 1;
+		static ALIGNMENT_TRANSFORM_Z:number = 1;
 		
 		/**@private */
 		private _minVertexDistance:number;
@@ -65,7 +71,7 @@ import { Camera } from "../Camera"
 		 */
 		 set time(value:number) {
 			this._time = value;
-			this._owner._render._shaderValues.setNumber(TrailSprite3D.LIFETIME, value);
+			this._owner._render._shaderValues.setNumber(TrailFilter.LIFETIME, value);
 		}
 		
 		/**
@@ -122,8 +128,8 @@ import { Camera } from "../Camera"
 				widthCurveFloatArray[index++] = value[i].outTangent;
 				widthCurveFloatArray[index++] = value[i].value;
 			}
-			this._owner._render._shaderValues.setBuffer(TrailSprite3D.WIDTHCURVE, widthCurveFloatArray);
-			this._owner._render._shaderValues.setInt(TrailSprite3D.WIDTHCURVEKEYLENGTH, value.length);
+			this._owner._render._shaderValues.setBuffer(TrailFilter.WIDTHCURVE, widthCurveFloatArray);
+			this._owner._render._shaderValues.setInt(TrailFilter.WIDTHCURVEKEYLENGTH, value.length);
 		}
 		
 		/**
@@ -187,7 +193,7 @@ import { Camera } from "../Camera"
 		 _update(state:RenderContext3D):void {
 			var render:BaseRender = this._owner._render;
 			this._curtime += ((<Scene3D>state.scene )).timer._delta / 1000;
-			render._shaderValues.setNumber(TrailSprite3D.CURTIME, this._curtime);
+			render._shaderValues.setNumber(TrailFilter.CURTIME, this._curtime);
 			
 			var curPos:Vector3 = this._owner.transform.position;
 			var element:TrailGeometry = (<TrailGeometry>render._renderElements[0]._geometry );

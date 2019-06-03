@@ -4,7 +4,7 @@ import { Matrix3x3 } from "././Matrix3x3";
 import { MathUtils3D } from "././MathUtils3D";
 import { Vector2 } from "././Vector2";
 import { IClone } from "../core/IClone"
-	import { Render } from "laya/renders/Render"
+import { ILaya3D } from "ILaya3D";
 	/**
 	 * <code>Quaternion</code> 类用于创建四元数。
 	 */
@@ -18,9 +18,9 @@ import { IClone } from "../core/IClone"
 		/**@private */
 		 static TEMPVector33:Vector3 = new Vector3();
 		/**@private */
-		 static TEMPMatrix0:Matrix4x4 = new Matrix4x4();
+		 static TEMPMatrix0:Matrix4x4 = new ILaya3D.Matrix4x4();
 		/**@private */
-		 static TEMPMatrix1:Matrix4x4 = new Matrix4x4();
+		 static TEMPMatrix1:Matrix4x4 = new ILaya3D.Matrix4x4();
 		/**@private */
 		 static _tempMatrix3x3:Matrix3x3 = new Matrix3x3();
 		
@@ -398,8 +398,8 @@ import { IClone } from "../core/IClone"
 				angle.y = Quaternion.arcTanAngle(-upe.z, -upe.x);
 				angle.z = 0;
 			} else {
-				Matrix4x4.createRotationY(-angle.y, Quaternion.TEMPMatrix0);
-				Matrix4x4.createRotationX(-angle.x, Quaternion.TEMPMatrix1);
+				ILaya3D.Matrix4x4.createRotationY(-angle.y, Quaternion.TEMPMatrix0);
+				ILaya3D.Matrix4x4.createRotationX(-angle.x, Quaternion.TEMPMatrix1);
 				
 				Vector3.transformCoordinate(Quaternion.TEMPVector32, Quaternion.TEMPMatrix0, Quaternion.TEMPVector32);
 				Vector3.transformCoordinate(Quaternion.TEMPVector32, Quaternion.TEMPMatrix1, Quaternion.TEMPVector32);

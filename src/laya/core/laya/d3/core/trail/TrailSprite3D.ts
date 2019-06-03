@@ -15,10 +15,7 @@ import { FloatKeyframe } from "../FloatKeyframe"
 	 */
 	export class TrailSprite3D extends RenderableSprite3D {
 		
-		 static CURTIME:number=Shader3D.propertyNameToID("u_CurTime");
-		 static LIFETIME:number=Shader3D.propertyNameToID("u_LifeTime");
-		 static WIDTHCURVE:number=Shader3D.propertyNameToID("u_WidthCurve");
-		 static WIDTHCURVEKEYLENGTH:number=Shader3D.propertyNameToID("u_WidthCurveKeyLength");
+		
 		
 		/**@private */
 		 static shaderDefines:ShaderDefines = new ShaderDefines(RenderableSprite3D.shaderDefines);

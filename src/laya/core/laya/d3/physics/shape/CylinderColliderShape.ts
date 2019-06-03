@@ -1,14 +1,12 @@
+import { ILaya3D } from "ILaya3D";
 import { ColliderShape } from "././ColliderShape";
-import { Laya3D } from "./../../../../Laya3D";
-import { Quaternion } from "../../math/Quaternion"
-	import { Vector3 } from "../../math/Vector3"
 	
 	/**
 	 * <code>CylinderColliderShape</code> 类用于创建圆柱碰撞器。
 	 */
 	export class CylinderColliderShape extends ColliderShape {
 		/** @private */
-		private static _nativeSize:any = new Laya3D._physics3D.btVector3(0, 0, 0);
+		private static _nativeSize:any = new ILaya3D.Laya3D._physics3D.btVector3(0, 0, 0);
 		
 		/**@private */
 		private _orientation:number;
@@ -53,15 +51,15 @@ this._radius = radius;
 			switch (orientation) {
 			case ColliderShape.SHAPEORIENTATION_UPX: 
 				CylinderColliderShape._nativeSize.setValue(height / 2, radius, radius);
-				this._nativeShape = new Laya3D._physics3D.btCylinderShapeX(CylinderColliderShape._nativeSize);
+				this._nativeShape = new ILaya3D.Laya3D._physics3D.btCylinderShapeX(CylinderColliderShape._nativeSize);
 				break;
 			case ColliderShape.SHAPEORIENTATION_UPY: 
 				CylinderColliderShape._nativeSize.setValue(radius, height / 2, radius);
-				this._nativeShape = new Laya3D._physics3D.btCylinderShape(CylinderColliderShape._nativeSize);
+				this._nativeShape = new ILaya3D.Laya3D._physics3D.btCylinderShape(CylinderColliderShape._nativeSize);
 				break;
 			case ColliderShape.SHAPEORIENTATION_UPZ: 
 				CylinderColliderShape._nativeSize.setValue(radius, radius, height / 2);
-				this._nativeShape = new Laya3D._physics3D.btCylinderShapeZ(CylinderColliderShape._nativeSize);
+				this._nativeShape = new ILaya3D.Laya3D._physics3D.btCylinderShapeZ(CylinderColliderShape._nativeSize);
 				break;
 			default: 
 				throw "CapsuleColliderShape:unknown orientation.";

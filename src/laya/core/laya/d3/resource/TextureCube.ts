@@ -1,5 +1,4 @@
 import { Laya } from "Laya";
-import { Laya3D } from "./../../../Laya3D";
 import { LayaGL } from "laya/layagl/LayaGL"
 	import { Render } from "laya/renders/Render"
 	import { Handler } from "laya/utils/Handler"
@@ -10,6 +9,9 @@ import { LayaGL } from "laya/layagl/LayaGL"
 	 * <code>TextureCube</code> 类用于生成立方体纹理。
 	 */
 	export class TextureCube extends BaseTexture {
+		/**TextureCube资源。*/
+		static TEXTURECUBE:string = "TEXTURECUBE";
+		
 		/**灰色纯色纹理。*/
 		 static grayTexture:TextureCube;
 		
@@ -41,7 +43,7 @@ import { LayaGL } from "laya/layagl/LayaGL"
 		 * @param complete 完成回调。
 		 */
 		 static load(url:string, complete:Handler):void {
-			Laya.loader.create(url, complete, null, Laya3D.TEXTURECUBE);
+			Laya.loader.create(url, complete, null, TextureCube.TEXTURECUBE);
 		}
 		
 		/** @private */

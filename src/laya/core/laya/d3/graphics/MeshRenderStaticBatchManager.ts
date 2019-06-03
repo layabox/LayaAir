@@ -1,19 +1,15 @@
+import { MeshSprite3D } from "../core/MeshSprite3D";
+import { BaseRender } from "../core/render/BaseRender";
+import { BatchMark } from "../core/render/BatchMark";
+import { RenderElement } from "../core/render/RenderElement";
+import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement";
+import { RenderableSprite3D } from "../core/RenderableSprite3D";
+import { Sprite3D } from "../core/Sprite3D";
+import { Mesh } from "../resource/models/Mesh";
 import { StaticBatchManager } from "././StaticBatchManager";
-import { VertexDeclaration } from "././VertexDeclaration";
 import { SubMeshStaticBatch } from "././SubMeshStaticBatch";
-import { GeometryElement } from "../core/GeometryElement"
-	import { MeshRenderer } from "../core/MeshRenderer"
-	import { MeshSprite3D } from "../core/MeshSprite3D"
-	import { RenderableSprite3D } from "../core/RenderableSprite3D"
-	import { Sprite3D } from "../core/Sprite3D"
-	import { BaseRender } from "../core/render/BaseRender"
-	import { BatchMark } from "../core/render/BatchMark"
-	import { RenderContext3D } from "../core/render/RenderContext3D"
-	import { RenderElement } from "../core/render/RenderElement"
-	import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement"
-	import { Scene3D } from "../core/scene/Scene3D"
-	import { VertexMesh } from "./Vertex/VertexMesh"
-	import { Mesh } from "../resource/models/Mesh"
+import { VertexDeclaration } from "././VertexDeclaration";
+import { VertexMesh } from "./Vertex/VertexMesh";
 	
 	/**
 	 * @private

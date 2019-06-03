@@ -1,30 +1,29 @@
-import { RenderableSprite3D } from "././RenderableSprite3D";
-import { MeshSprite3D } from "././MeshSprite3D";
-import { MeshFilter } from "././MeshFilter";
-import { SkinnedMeshRenderer } from "././SkinnedMeshRenderer";
+import { Node } from "laya/display/Node";
+import { Loader } from "laya/net/Loader";
+import { Animator } from "../component/Animator";
+import { Vector3 } from "../math/Vector3";
+import { Vector4 } from "../math/Vector4";
+import { Mesh } from "../resource/models/Mesh";
+import { Shader3D } from "../shader/Shader3D";
+import { ShaderDefines } from "../shader/ShaderDefines";
+import { Utils3D } from "../utils/Utils3D";
 import { Avatar } from "././Avatar";
-import { Sprite3D } from "././Sprite3D";
 import { Bounds } from "././Bounds";
-import { Animator } from "../component/Animator"
-	import { BaseMaterial } from "./material/BaseMaterial"
-	import { Vector3 } from "../math/Vector3"
-	import { Vector4 } from "../math/Vector4"
-	import { Mesh } from "../resource/models/Mesh"
-	import { Shader3D } from "../shader/Shader3D"
-	import { ShaderDefines } from "../shader/ShaderDefines"
-	import { Utils3D } from "../utils/Utils3D"
-	import { Node } from "laya/display/Node"
-	import { Loader } from "laya/net/Loader"
+import { MeshFilter } from "././MeshFilter";
+import { MeshSprite3D } from "././MeshSprite3D";
+import { RenderableSprite3D } from "././RenderableSprite3D";
+import { SkinnedMeshRenderer } from "././SkinnedMeshRenderer";
+import { Sprite3D } from "././Sprite3D";
+import { BaseMaterial } from "./material/BaseMaterial";
+import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
 	
+
 	/**
 	 * <code>SkinnedMeshSprite3D</code> 类用于创建网格。
 	 */
 	export class SkinnedMeshSprite3D extends RenderableSprite3D {
 		/**@private */
 		 static _tempArray0:any[] = [];
-		
-		/**精灵级着色器宏定义,蒙皮动画。*/
-		 static SHADERDEFINE_BONE:number;
 		
 		/**着色器变量名，蒙皮动画。*/
 		 static BONES:number = Shader3D.propertyNameToID("u_Bones");
@@ -36,7 +35,7 @@ import { Animator } from "../component/Animator"
 		 * @private
 		 */
 		 static __init__():void {
-			SkinnedMeshSprite3D.SHADERDEFINE_BONE = SkinnedMeshSprite3D.shaderDefines.registerDefine("BONE");
+			SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_BONE = SkinnedMeshSprite3D.shaderDefines.registerDefine("BONE");
 		}
 		
 		/** @private */

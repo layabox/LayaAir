@@ -8,6 +8,8 @@ import { ILaya } from "../../ILaya";
 	 * <code>Texture2D</code> 类用于生成2D纹理。
 	 */
 	export class Texture2D extends BaseTexture {
+		/**Texture2D资源。*/
+		static TEXTURE2D:string = "TEXTURE2D";
 
 		/**纯灰色纹理。*/
 		 static grayTexture:Texture2D=null;

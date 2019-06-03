@@ -1,30 +1,15 @@
-import { Component } from "laya/components/Component"
-	import { Camera } from "../core/Camera"
-	import { MeshSprite3D } from "../core/MeshSprite3D"
-	import { RenderableSprite3D } from "../core/RenderableSprite3D"
-	import { SkinnedMeshSprite3D } from "../core/SkinnedMeshSprite3D"
-	import { Sprite3D } from "../core/Sprite3D"
-	import { DirectionLight } from "../core/light/DirectionLight"
-	import { PointLight } from "../core/light/PointLight"
-	import { SpotLight } from "../core/light/SpotLight"
-	import { ShuriKenParticle3D } from "../core/particleShuriKen/ShuriKenParticle3D"
-	import { PixelLineSprite3D } from "../core/pixelLine/PixelLineSprite3D"
-	import { Scene3D } from "../core/scene/Scene3D"
-	import { TrailSprite3D } from "../core/trail/TrailSprite3D"
-	import { BoundBox } from "../math/BoundBox"
-	import { Color } from "../math/Color"
-	import { Matrix4x4 } from "../math/Matrix4x4"
-	import { Quaternion } from "../math/Quaternion"
-	import { Vector3 } from "../math/Vector3"
-	import { Vector4 } from "../math/Vector4"
-	import { TextureGenerator } from "../resource/TextureGenerator"
-	import { Terrain } from "../terrain/Terrain"
-	import { Node } from "laya/display/Node"
-	import { LayaGL } from "laya/layagl/LayaGL"
-	import { Browser } from "laya/utils/Browser"
-	import { ClassUtils } from "laya/utils/ClassUtils"
-	import { BaseTexture } from "laya/resource/BaseTexture"
-	import { Texture2D } from "laya/resource/Texture2D"
+import { Node } from "laya/display/Node";
+import { LayaGL } from "laya/layagl/LayaGL";
+import { BaseTexture } from "laya/resource/BaseTexture";
+import { Texture2D } from "laya/resource/Texture2D";
+import { PixelLineSprite3D } from "../core/pixelLine/PixelLineSprite3D";
+import { BoundBox } from "../math/BoundBox";
+import { Color } from "../math/Color";
+import { Matrix4x4 } from "../math/Matrix4x4";
+import { Quaternion } from "../math/Quaternion";
+import { Vector3 } from "../math/Vector3";
+import { Vector4 } from "../math/Vector4";
+import { TextureGenerator } from "../resource/TextureGenerator";
 	
 	/**
 	 * <code>Utils3D</code> 类用于创建3D工具。
@@ -153,242 +138,11 @@ import { Component } from "laya/components/Component"
 		 */
 		 static _compIdToNode:any = new Object();
 		
-		/**
-		 * @private
-		 */
-		 static _createSceneByJsonForMaker(nodeData:any, outBatchSprites:RenderableSprite3D[], initTool:any = null):Scene3D {
-			var scene3d:Scene3D = (<Scene3D>Utils3D._createNodeByJsonForMaker(nodeData, outBatchSprites, initTool) );
-			Utils3D._addComponentByJsonForMaker(nodeData, outBatchSprites, initTool);
-			return scene3d;
-		}
+
 		
-		/**
-		 * @private
-		 */
-		 static _createNodeByJsonForMaker(nodeData:any, outBatchSprites:RenderableSprite3D[], initTool:any = null):Node {
-			var node:Node;
-			switch (nodeData.type) {
-			case "Scene3D": 
-				node = new Scene3D();
-				break;
-			case "Sprite3D": 
-				node = new Sprite3D();
-				break;
-			case "MeshSprite3D": 
-				node = new MeshSprite3D();
-				(outBatchSprites) && (outBatchSprites.push(<MeshSprite3D>node));
-				break;
-			case "SkinnedMeshSprite3D": 
-				node = new SkinnedMeshSprite3D();
-				break;
-			case "ShuriKenParticle3D": 
-				node = new ShuriKenParticle3D();
-				break;
-			case "Terrain": 
-				node = new Terrain();
-				break;
-			case "Camera": 
-				node = new Camera();
-				break;
-			case "DirectionLight": 
-				node = new DirectionLight();
-				break;
-			case "PointLight": 
-				node = new PointLight();
-				break;
-			case "SpotLight": 
-				node = new SpotLight();
-				break;
-			case "TrailSprite3D": 
-				node = new TrailSprite3D();
-				break;
-			default: 
-				var clas:any = ClassUtils.getClass(nodeData.props.runtime);
-				node = new clas();
-				break;
-			}
-			
-			var childData:any[] = nodeData.child;
-			if (childData) {
-				for (var i:number = 0, n:number = childData.length; i < n; i++) {
-					var child:any = Utils3D._createNodeByJsonForMaker(childData[i], outBatchSprites, initTool);
-					node.addChild(child);
-				}
-			}
-			
-			var compId:number = nodeData.compId;
-			
-			((<any>node )).compId = compId;
-			node._parse(nodeData.props, null);
-			
-			if (initTool) {
-				initTool._idMap[compId] = node;
-			}
-			Utils3D._compIdToNode[compId] = node;
-			
-			var componentsData:any[] = nodeData.components;
-			if (componentsData) {
-				for (var j:number = 0, m:number = componentsData.length; j < m; j++) {
-					var data:any = componentsData[j];
-					clas = Browser.window.Laya[data.type];//兼容
-					if (!clas) {//兼容
-						clas = Browser.window;
-						var clasPaths:any[] = data.type.split('.');
-						clasPaths.forEach(function(cls:any):void {
-							clas = clas[cls];
-						});
-					}
-					if (typeof(clas) == 'function') {
-						var comp:Component = new clas();
-						if (initTool) {
-							initTool._idMap[data.compId] = comp;
-							console.log(data.compId);
-						}
-					} else {
-						console.warn("Utils3D:Unkown component type.");
-					}
-				}
-			}
-			
-			return node;
-		}
 		
-		/**
-		 * @private
-		 */
-		 static _addComponentByJsonForMaker(nodeData:any, outBatchSprites:RenderableSprite3D[], initTool:any = null):void {
-			var compId:number = nodeData.compId;
-			var node:Node = Utils3D._compIdToNode[compId];
-			var childData:any[] = nodeData.child;
-			if (childData) {
-				for (var i:number = 0, n:number = childData.length; i < n; i++) {
-					var child:any = Utils3D._addComponentByJsonForMaker(childData[i], outBatchSprites, initTool);
-				}
-			}
-			
-			var componentsData:any[] = nodeData.components;
-			if (componentsData) {
-				for (var j:number = 0, m:number = componentsData.length; j < m; j++) {
-					var data:any = componentsData[j];
-					clas = Browser.window.Laya[data.type];//兼容
-					if (!clas) {//兼容
-						var clasPaths:any[] = data.type.split('.');
-						var clas:any = Browser.window;
-						clasPaths.forEach(function(cls:any):void {
-							clas = clas[cls];
-						});
-					}
-					if (typeof(clas) == 'function') {
-						var component:Component = initTool._idMap[data.compId];
-						node.addComponentIntance(component);
-						component._parse(data);
-					} else {
-						console.warn("Utils3D:Unkown component type.");
-					}
-				}
-			}
-		}
 		
-		/**
-		 * @private
-		 */
-		private static _createSprite3DInstance(nodeData:any, spriteMap:any, outBatchSprites:RenderableSprite3D[]):Node {
-			var node:Node;
-			switch (nodeData.type) {
-			case "Scene3D": 
-				node = new Scene3D();
-				break;
-			case "Sprite3D": 
-				node = new Sprite3D();
-				break;
-			case "MeshSprite3D": 
-				node = new MeshSprite3D();
-				(outBatchSprites) && (outBatchSprites.push(<MeshSprite3D>node));
-				break;
-			case "SkinnedMeshSprite3D": 
-				node = new SkinnedMeshSprite3D();
-				break;
-			case "ShuriKenParticle3D": 
-				node = new ShuriKenParticle3D();
-				break;
-			case "Terrain": 
-				node = new Terrain();
-				break;
-			case "Camera": 
-				node = new Camera();
-				break;
-			case "DirectionLight": 
-				node = new DirectionLight();
-				break;
-			case "PointLight": 
-				node = new PointLight();
-				break;
-			case "SpotLight": 
-				node = new SpotLight();
-				break;
-			case "TrailSprite3D": 
-				node = new TrailSprite3D();
-				break;
-			default: 
-				throw new Error("Utils3D:unidentified class type in (.lh) file.");
-			}
-			
-			var childData:any[] = nodeData.child;
-			if (childData) {
-				for (var i:number = 0, n:number = childData.length; i < n; i++) {
-					var child:any = Utils3D._createSprite3DInstance(childData[i], spriteMap, outBatchSprites)
-					node.addChild(child);
-				}
-			}
-			
-			spriteMap[nodeData.instanceID] = node;
-			return node;
-		}
 		
-		/**
-		 * @private
-		 */
-		private static _createComponentInstance(nodeData:any, spriteMap:any):void {
-			var node:Node = spriteMap[nodeData.instanceID];
-			node._parse(nodeData.props, spriteMap);
-			
-			var childData:any[] = nodeData.child;
-			if (childData) {
-				for (var i:number = 0, n:number = childData.length; i < n; i++)
-					Utils3D._createComponentInstance(childData[i], spriteMap)
-			}
-			
-			var componentsData:any[] = nodeData.components;
-			if (componentsData) {
-				for (var j:number = 0, m:number = componentsData.length; j < m; j++) {
-					var data:any = componentsData[j];
-					var clas:any = Browser.window.Laya[data.type];//兼容
-					if (!clas) {//兼容
-						var clasPaths:any[] = data.type.split('.');
-						clas = Browser.window;
-						clasPaths.forEach(function(cls:any):void {
-							clas = clas[cls];
-						});
-					}
-					if (typeof(clas) == 'function') {
-						var component:Component = node.addComponent(clas);
-						component._parse(data);
-					} else {
-						console.warn("Unkown component type.");
-					}
-				}
-			}
-		}
-		
-		/**
-		 * @private
-		 */
-		 static _createNodeByJson02(nodeData:any, outBatchSprites:RenderableSprite3D[]):Node {
-			var spriteMap:any = {};
-			var node:Node = Utils3D._createSprite3DInstance(nodeData, spriteMap, outBatchSprites);
-			Utils3D._createComponentInstance(nodeData, spriteMap);
-			return node;
-		}
 		
 		/** @private */
 		 static _computeBoneAndAnimationDatasByBindPoseMatrxix(bones:any, curData:Float32Array, inverGlobalBindPose:Matrix4x4[], outBonesDatas:Float32Array, outAnimationDatas:Float32Array, boneIndexToMesh:number[]):void {
@@ -785,35 +539,7 @@ import { Component } from "laya/components/Component"
 			out.z = sng.z > 0 ? Math.abs(saw.z * sbw.z) : -Math.abs(saw.z * sbw.z);
 		}
 		
-		// http://www.opengl.org/registry/specs/EXT/framebuffer_sRGB.txt
-		// http://www.opengl.org/registry/specs/EXT/texture_sRGB_decode.txt
-		// {  cs / 12.92,                 cs <= 0.04045 }
-		// {  ((cs + 0.055)/1.055)^2.4,   cs >  0.04045 }
-		 static gammaToLinearSpace(value:number):number {
-			if (value <= 0.04045)
-				return value / 12.92;
-			else if (value < 1.0)
-				return Math.pow((value + 0.055) / 1.055, 2.4);
-			else
-				return Math.pow(value, 2.4);
-		}
 		
-		// http://www.opengl.org/registry/specs/EXT/framebuffer_sRGB.txt
-		// http://www.opengl.org/registry/specs/EXT/texture_sRGB_decode.txt
-		// {  0.0,                          0         <= cl
-		// {  12.92 * c,                    0         <  cl < 0.0031308
-		// {  1.055 * cl^0.41666 - 0.055,   0.0031308 <= cl < 1
-		// {  1.0,                                       cl >= 1  <- This has been adjusted since we want to maintain HDR colors
-		 static linearToGammaSpace(value:number):number {
-			if (value <= 0.0)
-				return 0.0;
-			else if (value <= 0.0031308)
-				return 12.92 * value;
-			else if (value <= 1.0)
-				return 1.055 * Math.pow(value, 0.41666) - 0.055;
-			else
-				return Math.pow(value, 0.41666);
-		}
 		
 		 static matrix4x4MultiplyFFF(a:Float32Array, b:Float32Array, e:Float32Array):void {
 			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
@@ -966,83 +692,7 @@ import { Component } from "laya/components/Component"
 			return sprite;
 		}
 		
-		//--------------------------------------------------------------------------------------------------------------------------------
 		
-		/**
-		 * @private
-		 */
-		 static _createNodeByJson(nodeData:any, outBatchSprites:RenderableSprite3D[]):Node {//兼容代码
-			var node:Node;
-			switch (nodeData.type) {
-			case "Scene3D": 
-				node = new Scene3D();
-				break;
-			case "Sprite3D": 
-				node = new Sprite3D();
-				break;
-			case "MeshSprite3D": 
-				node = new MeshSprite3D();
-				(outBatchSprites) && (outBatchSprites.push(<MeshSprite3D>node));
-				break;
-			case "SkinnedMeshSprite3D": 
-				node = new SkinnedMeshSprite3D();
-				break;
-			case "ShuriKenParticle3D": 
-				node = new ShuriKenParticle3D();
-				break;
-			case "Terrain": 
-				node = new Terrain();
-				break;
-			case "Camera": 
-				node = new Camera();
-				break;
-			case "DirectionLight": 
-				node = new DirectionLight();
-				break;
-			case "PointLight": 
-				node = new PointLight();
-				break;
-			case "SpotLight": 
-				node = new SpotLight();
-				break;
-			case "TrailSprite3D": 
-				node = new TrailSprite3D();
-				break;
-			default: 
-				throw new Error("Utils3D:unidentified class type in (.lh) file.");
-			}
-			
-			var childData:any[] = nodeData.child;
-			if (childData) {
-				for (var i:number = 0, n:number = childData.length; i < n; i++) {
-					var child:any = Utils3D._createNodeByJson(childData[i], outBatchSprites)
-					node.addChild(child);
-				}
-			}
-			
-			var componentsData:any[] = nodeData.components;
-			if (componentsData) {
-				for (var j:number = 0, m:number = componentsData.length; j < m; j++) {
-					var data:any = componentsData[j];
-					clas = Browser.window.Laya[data.type];//兼容
-					if (!clas) {//兼容
-						var clasPaths:any[] = data.type.split('.');
-						var clas:any = Browser.window;
-						clasPaths.forEach(function(cls:any):void {
-							clas = clas[cls];
-						});
-					}
-					if (typeof(clas) == 'function') {
-						var component:Component = node.addComponent(clas);
-						component._parse(data);
-					} else {
-						console.warn("Unkown component type.");
-					}
-				}
-			}
-			node._parse(nodeData.props, null);
-			return node;
-		}
 	}
 
 

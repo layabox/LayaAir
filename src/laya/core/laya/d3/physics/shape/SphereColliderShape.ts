@@ -1,7 +1,5 @@
+import { ILaya3D } from "ILaya3D";
 import { ColliderShape } from "././ColliderShape";
-import { Laya3D } from "./../../../../Laya3D";
-import { Quaternion } from "../../math/Quaternion"
-	import { Vector3 } from "../../math/Vector3"
 	
 	/**
 	 * <code>SphereColliderShape</code> 类用于创建球形碰撞器。
@@ -27,7 +25,7 @@ import { Quaternion } from "../../math/Quaternion"
 this._radius = radius;
 			this._type = ColliderShape.SHAPETYPES_SPHERE;
 			
-			this._nativeShape = new Laya3D._physics3D.btSphereShape(radius);
+			this._nativeShape = new ILaya3D.Laya3D._physics3D.btSphereShape(radius);
 		}
 		
 		/**

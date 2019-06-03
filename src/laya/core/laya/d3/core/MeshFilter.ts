@@ -6,6 +6,7 @@ import { VertexMesh } from "../graphics/Vertex/VertexMesh"
 	import { SubMesh } from "../resource/models/SubMesh"
 	import { ShaderData } from "../shader/ShaderData"
 import { MeshRenderer } from "./MeshRenderer";
+import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration";
 	
 	/**
 	 * <code>MeshFilter</code> 类用于创建网格过滤器。
@@ -68,13 +69,13 @@ import { MeshRenderer } from "./MeshRenderer";
 					var name:number = vertexElement.elementUsage;
 					switch (name) {
 					case VertexMesh.MESH_COLOR0: 
-						define |= MeshSprite3D.SHADERDEFINE_COLOR;
+						define |= MeshSprite3DShaderDeclaration.SHADERDEFINE_COLOR;
 						break
 					case VertexMesh.MESH_TEXTURECOORDINATE0: 
-						define |= MeshSprite3D.SHADERDEFINE_UV0;
+						define |= MeshSprite3DShaderDeclaration.SHADERDEFINE_UV0;
 						break;
 					case VertexMesh.MESH_TEXTURECOORDINATE1: 
-						define |= MeshSprite3D.SHADERDEFINE_UV1;
+						define |= MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1;
 						break;
 					}
 				}

@@ -1,24 +1,24 @@
-import { MeshRenderer } from "././MeshRenderer";
-import { Sprite3D } from "././Sprite3D";
-import { Bounds } from "././Bounds";
-import { RenderableSprite3D } from "././RenderableSprite3D";
-import { SkinnedMeshSprite3D } from "././SkinnedMeshSprite3D";
-import { Transform3D } from "././Transform3D";
+import { Event } from "laya/events/Event";
+import { LayaGL } from "laya/layagl/LayaGL";
+import { Render } from "laya/renders/Render";
+import { Stat } from "laya/utils/Stat";
+import { AnimationNode } from "../animation/AnimationNode";
+import { Animator } from "../component/Animator";
+import { FrustumCulling } from "../graphics/FrustumCulling";
+import { Matrix4x4 } from "../math/Matrix4x4";
+import { Vector3 } from "../math/Vector3";
+import { Mesh } from "../resource/models/Mesh";
+import { SubMesh } from "../resource/models/SubMesh";
+import { Utils3D } from "../utils/Utils3D";
 import { Avatar } from "././Avatar";
-import { AnimationNode } from "../animation/AnimationNode"
-	import { Animator } from "../component/Animator"
-	import { RenderContext3D } from "./render/RenderContext3D"
-	import { RenderElement } from "./render/RenderElement"
-	import { FrustumCulling } from "../graphics/FrustumCulling"
-	import { Matrix4x4 } from "../math/Matrix4x4"
-	import { Vector3 } from "../math/Vector3"
-	import { Mesh } from "../resource/models/Mesh"
-	import { SubMesh } from "../resource/models/SubMesh"
-	import { Utils3D } from "../utils/Utils3D"
-	import { Event } from "laya/events/Event"
-	import { LayaGL } from "laya/layagl/LayaGL"
-	import { Render } from "laya/renders/Render"
-	import { Stat } from "laya/utils/Stat"
+import { Bounds } from "././Bounds";
+import { MeshRenderer } from "././MeshRenderer";
+import { RenderableSprite3D } from "././RenderableSprite3D";
+import { Sprite3D } from "././Sprite3D";
+import { Transform3D } from "././Transform3D";
+import { RenderContext3D } from "./render/RenderContext3D";
+import { RenderElement } from "./render/RenderElement";
+import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
 	
 	/**
 	 * <code>SkinMeshRenderer</code> 类用于蒙皮渲染器。
@@ -200,7 +200,7 @@ import { AnimationNode } from "../animation/AnimationNode"
 		 */
 		 _setCacheAnimator(animator:Animator):void {
 			this._cacheAnimator = animator;
-			this._shaderValues.addDefine(SkinnedMeshSprite3D.SHADERDEFINE_BONE);
+			this._shaderValues.addDefine(SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_BONE);
 			this._setRootNode();//[兼容性API]
 		}
 		
@@ -356,7 +356,7 @@ import { AnimationNode } from "../animation/AnimationNode"
 				if (this._cacheMesh) {
 					this._cacheAvatar = value;
 					if (value) {
-						this._shaderValues.addDefine(SkinnedMeshSprite3D.SHADERDEFINE_BONE);
+						this._shaderValues.addDefine(SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_BONE);
 						this._getCacheAnimationNodes();
 					}
 				} else {

@@ -1,10 +1,10 @@
+import { ILaya3D } from "ILaya3D";
+import { Matrix4x4 } from "../../math/Matrix4x4";
+import { Vector3 } from "../../math/Vector3";
+import { ShaderData } from "../../shader/ShaderData";
+import { Scene3D } from "../scene/Scene3D";
+import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
 import { LightSprite } from "././LightSprite";
-import { RenderContext3D } from "../render/RenderContext3D"
-	import { Scene3D } from "../scene/Scene3D"
-	import { Matrix4x4 } from "../../math/Matrix4x4"
-	import { Vector3 } from "../../math/Vector3"
-	import { DefineDatas } from "../../shader/DefineDatas"
-	import { ShaderData } from "../../shader/ShaderData"
 	
 	/**
 	 * <code>PointLight</code> 类用于创建点光。
@@ -47,7 +47,7 @@ import { RenderContext3D } from "../render/RenderContext3D"
 		 */
 		/*override*/ protected _onActive():void {
 			super._onActive();
-			(this._lightmapBakedType!==LightSprite.LIGHTMAPBAKEDTYPE_BAKED)&&(((<Scene3D>this._scene ))._shaderValues.addDefine(Scene3D.SHADERDEFINE_POINTLIGHT));
+			(this._lightmapBakedType!==LightSprite.LIGHTMAPBAKEDTYPE_BAKED)&&(((<Scene3D>this._scene ))._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT));
 		}
 		
 		/**
@@ -55,7 +55,7 @@ import { RenderContext3D } from "../render/RenderContext3D"
 		 */
 		/*override*/ protected _onInActive():void {
 			super._onInActive();
-			(this._lightmapBakedType!==LightSprite.LIGHTMAPBAKEDTYPE_BAKED)&&(((<Scene3D>this._scene ))._shaderValues.removeDefine(Scene3D.SHADERDEFINE_POINTLIGHT));
+			(this._lightmapBakedType!==LightSprite.LIGHTMAPBAKEDTYPE_BAKED)&&(((<Scene3D>this._scene ))._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT));
 		}
 		
 		/**
@@ -67,9 +67,9 @@ import { RenderContext3D } from "../render/RenderContext3D"
 			if (scene.enableLight && this.activeInHierarchy) {
 				var shaderValue:ShaderData = scene._shaderValues;
 				Vector3.scale(this.color, this._intensity, this._intensityColor);
-				shaderValue.setVector3(Scene3D.POINTLIGHTCOLOR, this._intensityColor);
-				shaderValue.setVector3(Scene3D.POINTLIGHTPOS, this.transform.position);
-				shaderValue.setNumber(Scene3D.POINTLIGHTRANGE, this.range);
+				shaderValue.setVector3(ILaya3D.Scene3D.POINTLIGHTCOLOR, this._intensityColor);
+				shaderValue.setVector3(ILaya3D.Scene3D.POINTLIGHTPOS, this.transform.position);
+				shaderValue.setNumber(ILaya3D.Scene3D.POINTLIGHTRANGE, this.range);
 				
 				var lightMatrix:Matrix4x4 = this._lightMatrix;
 				var lightMatrixE:Float32Array = lightMatrix.elements;
@@ -78,7 +78,7 @@ import { RenderContext3D } from "../render/RenderContext3D"
 				var toLightMatrix:Matrix4x4 = PointLight._tempMatrix0;
 				this.transform.worldMatrix.invert(toLightMatrix);
 				Matrix4x4.multiply(lightMatrix, toLightMatrix, lightMatrix);
-				shaderValue.setMatrix4x4(Scene3D.POINTLIGHTMATRIX, lightMatrix);
+				shaderValue.setMatrix4x4(ILaya3D.Scene3D.POINTLIGHTMATRIX, lightMatrix);
 				return true;
 			} else {
 				return false;

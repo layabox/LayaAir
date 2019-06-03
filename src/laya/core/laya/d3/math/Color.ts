@@ -1,7 +1,4 @@
-import { Vector2 } from "././Vector2";
 import { IClone } from "../core/IClone"
-	import { Utils3D } from "../utils/Utils3D"
-	import { Render } from "laya/renders/Render"
 	
 	/**
 	 * <code>Color</code> 类用于创建颜色实例。
@@ -43,6 +40,36 @@ import { IClone } from "../core/IClone"
 		 * 黑色
 		 */
 		 static BLACK:Color = new Color(0, 0, 0, 1);
+
+		 // http://www.opengl.org/registry/specs/EXT/framebuffer_sRGB.txt
+		// http://www.opengl.org/registry/specs/EXT/texture_sRGB_decode.txt
+		// {  cs / 12.92,                 cs <= 0.04045 }
+		// {  ((cs + 0.055)/1.055)^2.4,   cs >  0.04045 }
+		static gammaToLinearSpace(value:number):number {
+			if (value <= 0.04045)
+				return value / 12.92;
+			else if (value < 1.0)
+				return Math.pow((value + 0.055) / 1.055, 2.4);
+			else
+				return Math.pow(value, 2.4);
+		}
+		
+		// http://www.opengl.org/registry/specs/EXT/framebuffer_sRGB.txt
+		// http://www.opengl.org/registry/specs/EXT/texture_sRGB_decode.txt
+		// {  0.0,                          0         <= cl
+		// {  12.92 * c,                    0         <  cl < 0.0031308
+		// {  1.055 * cl^0.41666 - 0.055,   0.0031308 <= cl < 1
+		// {  1.0,                                       cl >= 1  <- This has been adjusted since we want to maintain HDR colors
+		 static linearToGammaSpace(value:number):number {
+			if (value <= 0.0)
+				return 0.0;
+			else if (value <= 0.0031308)
+				return 12.92 * value;
+			else if (value <= 1.0)
+				return 1.055 * Math.pow(value, 0.41666) - 0.055;
+			else
+				return Math.pow(value, 0.41666);
+		}
 		
 		/**red分量*/
 		 r:number;
@@ -72,9 +99,9 @@ import { IClone } from "../core/IClone"
 		 * @param	linear 线性空间颜色。
 		 */
 		 toLinear(out:Color):void {
-			out.r = Utils3D.gammaToLinearSpace(this.r);
-			out.g = Utils3D.gammaToLinearSpace(this.g);
-			out.b = Utils3D.gammaToLinearSpace(this.b);
+			out.r = Color.gammaToLinearSpace(this.r);
+			out.g = Color.gammaToLinearSpace(this.g);
+			out.b = Color.gammaToLinearSpace(this.b);
 		}
 		
 		/**
@@ -82,9 +109,9 @@ import { IClone } from "../core/IClone"
 		 * @param	gamma Gamma空间颜色。
 		 */
 		 toGamma(out:Color):void {
-			out.r = Utils3D.linearToGammaSpace(this.r);
-			out.g = Utils3D.linearToGammaSpace(this.g);
-			out.b = Utils3D.linearToGammaSpace(this.b);
+			out.r = Color.linearToGammaSpace(this.r);
+			out.g = Color.linearToGammaSpace(this.g);
+			out.b = Color.linearToGammaSpace(this.b);
 		}
 		
 		/**
@@ -109,7 +136,7 @@ import { IClone } from "../core/IClone"
 			return dest;
 		}
 		
-		 forNativeElement(nativeElements:Float32Array = null):void {//[NATIVE_TS]
+		 forNativeElement():void {//[NATIVE_TS]
 			/*if (nativeElements) {
 				this.elements = nativeElements;
 				this.elements[0] = this.r;

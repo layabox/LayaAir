@@ -1,98 +1,91 @@
 import { Laya } from "Laya";
-import { Laya3D } from "./../../../../Laya3D";
+import { PhysicsSettings } from "laya/d3/physics/PhysicsSettings";
+import { Scene3DUtils } from "laya/d3/utils/Scene3DUtils";
+import { Sprite } from "laya/display/Sprite";
+import { LayaGL } from "laya/layagl/LayaGL";
+import { Loader } from "laya/net/Loader";
+import { URL } from "laya/net/URL";
+import { Render } from "laya/renders/Render";
+import { BaseTexture } from "laya/resource/BaseTexture";
+import { Context } from "laya/resource/Context";
+import { ICreateResource } from "laya/resource/ICreateResource";
+import { ISingletonElement } from "laya/resource/ISingletonElement";
+import { RenderTexture2D } from "laya/resource/RenderTexture2D";
+import { Texture2D } from "laya/resource/Texture2D";
+import { Handler } from "laya/utils/Handler";
+import { Timer } from "laya/utils/Timer";
+import { ISubmit } from "laya/webgl/submit/ISubmit";
+import { SubmitBase } from "laya/webgl/submit/SubmitBase";
+import { SubmitKey } from "laya/webgl/submit/SubmitKey";
+import { WebGL } from "laya/webgl/WebGL";
+import { WebGLContext } from "laya/webgl/WebGLContext";
+import { CastShadowList } from "../../CastShadowList";
+import { Animator } from "../../component/Animator";
+import { Script3D } from "../../component/Script3D";
+import { SimpleSingletonList } from "../../component/SimpleSingletonList";
+import { FrustumCulling } from "../../graphics/FrustumCulling";
+import { StaticBatchManager } from "../../graphics/StaticBatchManager";
+import { Input3D } from "../../Input3D";
+import { Vector3 } from "../../math/Vector3";
+import { Vector4 } from "../../math/Vector4";
+import { Viewport } from "../../math/Viewport";
+import { PhysicsComponent } from "../../physics/PhysicsComponent";
+import { PhysicsSimulation } from "../../physics/PhysicsSimulation";
+import { SkyBox } from "../../resource/models/SkyBox";
+import { SkyDome } from "../../resource/models/SkyDome";
+import { SkyRenderer } from "../../resource/models/SkyRenderer";
+import { RenderTexture } from "../../resource/RenderTexture";
+import { TextureCube } from "../../resource/TextureCube";
+import { Shader3D } from "../../shader/Shader3D";
+import { ShaderData } from "../../shader/ShaderData";
+import { ShaderInit3D } from "../../shader/ShaderInit3D";
+import { ParallelSplitShadowMap } from "../../shadowMap/ParallelSplitShadowMap";
+import { BaseCamera } from "../BaseCamera";
+import { Camera } from "../Camera";
+import { LightSprite } from "../light/LightSprite";
+import { BaseMaterial } from "../material/BaseMaterial";
+import { RenderState } from "../material/RenderState";
+import { PixelLineMaterial } from "../pixelLine/PixelLineMaterial";
+import { PixelLineSprite3D } from "../pixelLine/PixelLineSprite3D";
+import { BaseRender } from "../render/BaseRender";
+import { RenderContext3D } from "../render/RenderContext3D";
+import { RenderElement } from "../render/RenderElement";
+import { RenderQueue } from "../render/RenderQueue";
+import { RenderableSprite3D } from "../RenderableSprite3D";
+import { Sprite3D } from "../Sprite3D";
 import { BoundsOctree } from "././BoundsOctree";
-import { Config3D } from "./../../../../Config3D";
-import { CastShadowList } from "../../CastShadowList"
-	import { Input3D } from "../../Input3D"
-	import { Animator } from "../../component/Animator"
-	import { Script3D } from "../../component/Script3D"
-	import { SimpleSingletonList } from "../../component/SimpleSingletonList"
-	import { BaseCamera } from "../BaseCamera"
-	import { Camera } from "../Camera"
-	import { RenderableSprite3D } from "../RenderableSprite3D"
-	import { Sprite3D } from "../Sprite3D"
-	import { LightSprite } from "../light/LightSprite"
-	import { BaseMaterial } from "../material/BaseMaterial"
-	import { RenderState } from "../material/RenderState"
-	import { PixelLineMaterial } from "../pixelLine/PixelLineMaterial"
-	import { PixelLineSprite3D } from "../pixelLine/PixelLineSprite3D"
-	import { BaseRender } from "../render/BaseRender"
-	import { RenderContext3D } from "../render/RenderContext3D"
-	import { RenderElement } from "../render/RenderElement"
-	import { RenderQueue } from "../render/RenderQueue"
-	import { FrustumCulling } from "../../graphics/FrustumCulling"
-	import { StaticBatchManager } from "../../graphics/StaticBatchManager"
-	import { Vector3 } from "../../math/Vector3"
-	import { Vector4 } from "../../math/Vector4"
-	import { Viewport } from "../../math/Viewport"
-	import { PhysicsComponent } from "../../physics/PhysicsComponent"
-	import { PhysicsSimulation } from "../../physics/PhysicsSimulation"
-	import { RenderTexture } from "../../resource/RenderTexture"
-	import { TextureCube } from "../../resource/TextureCube"
-	import { SkyBox } from "../../resource/models/SkyBox"
-	import { SkyDome } from "../../resource/models/SkyDome"
-	import { SkyRenderer } from "../../resource/models/SkyRenderer"
-	import { DefineDatas } from "../../shader/DefineDatas"
-	import { Shader3D } from "../../shader/Shader3D"
-	import { ShaderData } from "../../shader/ShaderData"
-	import { ShaderInit3D } from "../../shader/ShaderInit3D"
-	import { ParallelSplitShadowMap } from "../../shadowMap/ParallelSplitShadowMap"
-	import { Utils3D } from "../../utils/Utils3D"
-	import { Sprite } from "laya/display/Sprite"
-	import { LayaGL } from "laya/layagl/LayaGL"
-	import { Loader } from "laya/net/Loader"
-	import { URL } from "laya/net/URL"
-	import { Render } from "laya/renders/Render"
-	import { BaseTexture } from "laya/resource/BaseTexture"
-	import { Context } from "laya/resource/Context"
-	import { ICreateResource } from "laya/resource/ICreateResource"
-	import { ISingletonElement } from "laya/resource/ISingletonElement"
-	import { RenderTexture2D } from "laya/resource/RenderTexture2D"
-	import { Texture2D } from "laya/resource/Texture2D"
-	import { Handler } from "laya/utils/Handler"
-	import { Timer } from "laya/utils/Timer"
-	import { WebGL } from "laya/webgl/WebGL"
-	import { WebGLContext } from "laya/webgl/WebGLContext"
-	import { ISubmit } from "laya/webgl/submit/ISubmit"
-	import { Submit } from "laya/webgl/submit/Submit"
-	import { SubmitBase } from "laya/webgl/submit/SubmitBase"
-	import { SubmitKey } from "laya/webgl/submit/SubmitKey"
+import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
+import { ILaya3D } from "ILaya3D";
+
+
 	
 	/**
 	 * <code>Scene3D</code> 类用于实现场景。
 	 */
 	export class Scene3D extends Sprite implements ISubmit, ICreateResource {
+		/**Hierarchy资源。*/
+		static HIERARCHY:string = "HIERARCHY";
+		/**@private */
+		static _enbalePhysics:Boolean=false;
+		/**@private */
+		static physicsSettings:PhysicsSettings;//TODO:
+		/** 是否开启八叉树裁剪。*/
+		static octreeCulling:boolean = false;
+		/** 八叉树初始化尺寸。*/
+		static  octreeInitialSize:number = 64.0;
+		/** 八叉树初始化中心。*/
+		static octreeInitialCenter:Vector3 = new Vector3(0, 0, 0);
+		/** 八叉树最小尺寸。*/
+		static octreeMinNodeSize:number = 2.0;
+		/** 八叉树松散值。*/
+		static octreeLooseness:number = 1.25;
+
 		/**@private */
 		 static REFLECTIONMODE_SKYBOX:number = 0;
 		/**@private */
 		 static REFLECTIONMODE_CUSTOM:number = 1;
 		
-		/**@private */
-		 static SHADERDEFINE_FOG:number;
-		/**@private */
-		 static SHADERDEFINE_DIRECTIONLIGHT:number;
-		/**@private */
-		 static SHADERDEFINE_POINTLIGHT:number;
-		/**@private */
-		 static SHADERDEFINE_SPOTLIGHT:number;
-		/**@private */
-		 static SHADERDEFINE_CAST_SHADOW:number;
-		/**@private */
-		 static SHADERDEFINE_SHADOW_PSSM1:number;
-		/**@private */
-		 static SHADERDEFINE_SHADOW_PSSM2:number;
-		/**@private */
-		 static SHADERDEFINE_SHADOW_PSSM3:number;
-		/**@private */
-		 static SHADERDEFINE_SHADOW_PCF_NO:number;
-		/**@private */
-		 static SHADERDEFINE_SHADOW_PCF1:number;
-		/**@private */
-		 static SHADERDEFINE_SHADOW_PCF2:number;
-		/**@private */
-		 static SHADERDEFINE_SHADOW_PCF3:number;
-		/**@private */
-		 static SHADERDEFINE_REFLECTMAP:number;
+		
 		
 		 static FOGCOLOR:number = Shader3D.propertyNameToID("u_FogColor");
 		 static FOGSTART:number = Shader3D.propertyNameToID("u_FogStart");
@@ -127,7 +120,24 @@ import { CastShadowList } from "../../CastShadowList"
 		 static RANGEATTENUATIONTEXTURE:number = Shader3D.propertyNameToID("u_RangeTexture");
 		 static POINTLIGHTMATRIX:number = Shader3D.propertyNameToID("u_PointLightMatrix");
 		 static SPOTLIGHTMATRIX:number = Shader3D.propertyNameToID("u_SpotLightMatrix");
-		
+		/**
+		 * @private
+		 */
+		static __init__():void {
+			Scene3DShaderDeclaration.SHADERDEFINE_FOG=Shader3D.registerPublicDefine("FOG");
+			Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT=Shader3D.registerPublicDefine("DIRECTIONLIGHT");
+			Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT=Shader3D.registerPublicDefine("POINTLIGHT");
+			Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT=Shader3D.registerPublicDefine("SPOTLIGHT");
+			Scene3DShaderDeclaration.SHADERDEFINE_CAST_SHADOW= Shader3D.registerPublicDefine("CASTSHADOW");
+			Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM1= Shader3D.registerPublicDefine("SHADOWMAP_PSSM1");
+			Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM2= Shader3D.registerPublicDefine("SHADOWMAP_PSSM2");
+			Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM3= Shader3D.registerPublicDefine("SHADOWMAP_PSSM3");
+			Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF_NO=Shader3D.registerPublicDefine("SHADOWMAP_PCF_NO");
+			Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF1= Shader3D.registerPublicDefine("SHADOWMAP_PCF1");
+			Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF2=Shader3D.registerPublicDefine("SHADOWMAP_PCF2");
+			Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF3=Shader3D.registerPublicDefine("SHADOWMAP_PCF3");
+			Scene3DShaderDeclaration.SHADERDEFINE_REFLECTMAP=Shader3D.registerPublicDefine("REFLECTMAP");
+		}
 		/**
 		 *@private
 		 */
@@ -137,10 +147,10 @@ import { CastShadowList } from "../../CastShadowList"
 			var scene:Scene3D;
 			switch (data.version) {
 			case "LAYASCENE3D:02": 
-				scene = (<Scene3D>Utils3D._createNodeByJson02(json, outBatchSprits) );
+				scene = (<Scene3D>ILaya3D.Scene3DUtils._createNodeByJson02(json, outBatchSprits) );
 				break;
 			default: 
-				scene = (<Scene3D>Utils3D._createNodeByJson(json, outBatchSprits) );
+				scene = (<Scene3D>ILaya3D.Scene3DUtils._createNodeByJson(json, outBatchSprits) );
 			}
 			
 			StaticBatchManager.combine(null, outBatchSprits);
@@ -153,7 +163,7 @@ import { CastShadowList } from "../../CastShadowList"
 		 * @param complete 完成回调。
 		 */
 		 static load(url:string, complete:Handler):void {
-			Laya.loader.create(url, complete, null, Laya3D.HIERARCHY);
+			Laya.loader.create(url, complete, null, Scene3D.HIERARCHY);
 		}
 		
 		/**@private */
@@ -278,9 +288,9 @@ import { CastShadowList } from "../../CastShadowList"
 			if (this._enableFog !== value) {
 				this._enableFog = value;
 				if (value) {
-					this._shaderValues.addDefine(Scene3D.SHADERDEFINE_FOG);
+					this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_FOG);
 				} else
-					this._shaderValues.removeDefine(Scene3D.SHADERDEFINE_FOG);
+					this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_FOG);
 			}
 		}
 		
@@ -371,9 +381,9 @@ import { CastShadowList } from "../../CastShadowList"
 		 set customReflection(value:TextureCube) {
 			this._shaderValues.setTexture(Scene3D.REFLECTIONTEXTURE, value);
 			if (value)
-				this._shaderValues.addDefine(Scene3D.SHADERDEFINE_REFLECTMAP);
+				this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_REFLECTMAP);
 			else
-				this._shaderValues.removeDefine(Scene3D.SHADERDEFINE_REFLECTMAP);
+				this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_REFLECTMAP);
 		}
 		
 		/**
@@ -445,8 +455,8 @@ import { CastShadowList } from "../../CastShadowList"
 		constructor(){
 			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 			super();
-if (Laya3D._enbalePhysics)
-				this._physicsSimulation = new PhysicsSimulation(Laya3D.physicsSettings);
+			if (Scene3D._enbalePhysics)
+				this._physicsSimulation = new PhysicsSimulation(Scene3D.physicsSettings);
 			
 			this._shaderValues = new ShaderData(null);
 			this.parallelSplitShadowMaps = [];
@@ -469,15 +479,14 @@ if (Laya3D._enbalePhysics)
 			//var angleAttenTex:Texture2D = Texture2D.buildTexture2D(64, 64, BaseTexture.FORMAT_Alpha8, TextureGenerator.haloTexture);
 			//_shaderValues.setTexture(Scene3D.ANGLEATTENUATIONTEXTURE, angleAttenTex);
 			this._scene = this;
-			if (Laya3D._enbalePhysics && !PhysicsSimulation.disableSimulation)//不引物理库初始化Input3D会内存泄漏 
+			if (Scene3D._enbalePhysics && !PhysicsSimulation.disableSimulation)//不引物理库初始化Input3D会内存泄漏 
 				this._input.__init__(Render.canvas, this);
 			
-			var config:Config3D = Laya3D._config;
-			if (config.octreeCulling) {
-				this._octree = new BoundsOctree(config.octreeInitialSize, config.octreeInitialCenter, config.octreeMinNodeSize, config.octreeLooseness);
+			if (Scene3D.octreeCulling) {
+				this._octree = new BoundsOctree(Scene3D.octreeInitialSize, Scene3D.octreeInitialCenter, Scene3D.octreeMinNodeSize, Scene3D.octreeLooseness);
 			}
 			
-			if (Laya3D._config.debugFrustumCulling) {
+			if (FrustumCulling.debugFrustumCulling) {
 				this._debugTool = new PixelLineSprite3D();
 				var lineMaterial:PixelLineMaterial = new PixelLineMaterial();
 				lineMaterial.renderQueue = BaseMaterial.RENDERQUEUE_TRANSPARENT;
@@ -501,6 +510,7 @@ if (Laya3D._enbalePhysics)
 			
 			var children:any[] = sprite._children;
 			for (var i:number = 0, n:number = children.length; i < n; i++)
+
 				this._setLightmapToChildNode(children[i]);
 		}
 		
@@ -513,7 +523,7 @@ if (Laya3D._enbalePhysics)
 			this._shaderValues.setNumber(Scene3D.TIME, this._time);
 			
 			var simulation:PhysicsSimulation = this._physicsSimulation;
-			if (Laya3D._enbalePhysics && !PhysicsSimulation.disableSimulation) {
+			if (Scene3D._enbalePhysics && !PhysicsSimulation.disableSimulation) {
 				simulation._updatePhysicsTransformFromRender();
 				PhysicsComponent._addUpdateList = false;//物理模拟器会触发_updateTransformComponent函数,不加入更新队列
 				//simulate physics
@@ -760,7 +770,7 @@ if (Laya3D._enbalePhysics)
 			}
 			camera._renderTexture ? this._transparentQueue._render(state, true, customShader, replacementTag) : this._transparentQueue._render(state, false, customShader, replacementTag);//透明队列
 
-			if (Laya3D._config.debugFrustumCulling) {
+			if (FrustumCulling.debugFrustumCulling) {
 				var renderElements:RenderElement[] = this._debugTool._render._renderElements;
 				for (var i:number = 0, n:number = renderElements.length; i < n; i++) {
 					renderElements[i]._render(state, false, customShader, replacementTag);

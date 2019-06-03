@@ -223,11 +223,11 @@ this._shader = Shader3D.find("PostProcessBloom");
 			this._shaderData.setNumber(BloomEffect.SHADERVALUE_SAMPLESCALE, sampleScale);
 			
 			//预过滤参数
-			var lthresh:number = Utils3D.gammaToLinearSpace(this.threshold);
+			var lthresh:number = Color.gammaToLinearSpace(this.threshold);
 			var knee:number = lthresh * this._softKnee + 1e-5;
 			this._shaderThreshold.setValue(lthresh, lthresh - knee, knee * 2, 0.25 / knee);
 			this._shaderData.setVector(BloomEffect.SHADERVALUE_THRESHOLD, this._shaderThreshold);
-			var lclamp:number = Utils3D.gammaToLinearSpace(this.clamp);
+			var lclamp:number = Color.gammaToLinearSpace(this.clamp);
 			
 			this._shaderParams.setValue(lclamp, 0, 0, 0);
 			this._shaderData.setVector(BloomEffect.SHADERVALUE_PARAMS, this._shaderParams);

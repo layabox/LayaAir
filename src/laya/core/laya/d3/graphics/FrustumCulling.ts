@@ -1,26 +1,26 @@
-import { StaticBatchManager } from "././StaticBatchManager";
-import { DynamicBatchManager } from "././DynamicBatchManager";
+import { LayaGL } from "laya/layagl/LayaGL";
+import { Render } from "laya/renders/Render";
+import { ISingletonElement } from "laya/resource/ISingletonElement";
+import { Stat } from "laya/utils/Stat";
+import { SimpleSingletonList } from "../component/SimpleSingletonList";
+import { SingletonList } from "../component/SingletonList";
+import { Bounds } from "../core/Bounds";
+import { Camera } from "../core/Camera";
+import { BaseMaterial } from "../core/material/BaseMaterial";
+import { PixelLineSprite3D } from "../core/pixelLine/PixelLineSprite3D";
+import { BaseRender } from "../core/render/BaseRender";
+import { RenderContext3D } from "../core/render/RenderContext3D";
+import { RenderElement } from "../core/render/RenderElement";
+import { RenderQueue } from "../core/render/RenderQueue";
+import { BoundsOctree } from "../core/scene/BoundsOctree";
+import { Scene3D } from "../core/scene/Scene3D";
+import { BoundFrustum } from "../math/BoundFrustum";
+import { Color } from "../math/Color";
+import { Vector3 } from "../math/Vector3";
+import { Utils3D } from "../utils/Utils3D";
 import { Laya3D } from "./../../../Laya3D";
-import { SimpleSingletonList } from "../component/SimpleSingletonList"
-	import { SingletonList } from "../component/SingletonList"
-	import { Bounds } from "../core/Bounds"
-	import { Camera } from "../core/Camera"
-	import { BaseMaterial } from "../core/material/BaseMaterial"
-	import { PixelLineSprite3D } from "../core/pixelLine/PixelLineSprite3D"
-	import { BaseRender } from "../core/render/BaseRender"
-	import { RenderContext3D } from "../core/render/RenderContext3D"
-	import { RenderElement } from "../core/render/RenderElement"
-	import { RenderQueue } from "../core/render/RenderQueue"
-	import { BoundsOctree } from "../core/scene/BoundsOctree"
-	import { Scene3D } from "../core/scene/Scene3D"
-	import { BoundFrustum } from "../math/BoundFrustum"
-	import { Color } from "../math/Color"
-	import { Vector3 } from "../math/Vector3"
-	import { Utils3D } from "../utils/Utils3D"
-	import { LayaGL } from "laya/layagl/LayaGL"
-	import { Render } from "laya/renders/Render"
-	import { ISingletonElement } from "laya/resource/ISingletonElement"
-	import { Stat } from "laya/utils/Stat"
+import { DynamicBatchManager } from "././DynamicBatchManager";
+import { StaticBatchManager } from "././StaticBatchManager";
 	
 	/**
 	 * @private
@@ -31,10 +31,14 @@ import { SimpleSingletonList } from "../component/SimpleSingletonList"
 		private static _tempVector3:Vector3 = new Vector3();
 		/**@private */
 		private static _tempColor0:Color = new Color();
+
+		/**@private */
+		static debugFrustumCulling:boolean=false;
+
 		/**@private	[NATIVE]*/
-		 static _cullingBufferLength:number;
+		static _cullingBufferLength:number;
 		/**@private	[NATIVE]*/
-		 static _cullingBuffer:Float32Array;
+		static _cullingBuffer:Float32Array;
 		
 		/**
 		 * @private
@@ -127,7 +131,7 @@ import { SimpleSingletonList } from "../component/SimpleSingletonList"
 				FrustumCulling._traversalCulling(camera, scene, context, renderList);
 			}
 			
-			if (Laya3D._config.debugFrustumCulling) {
+			if (FrustumCulling.debugFrustumCulling) {
 				var debugTool:PixelLineSprite3D = scene._debugTool;
 				debugTool.clear();
 				if (octree) {

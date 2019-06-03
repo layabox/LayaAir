@@ -1,20 +1,20 @@
-import { VertexBuffer3D } from "././VertexBuffer3D";
+import { ILaya3D } from "ILaya3D";
+import { LayaGL } from "laya/layagl/LayaGL";
+import { Resource } from "laya/resource/Resource";
+import { Stat } from "laya/utils/Stat";
+import { WebGLContext } from "laya/webgl/WebGLContext";
+import { BufferState } from "../core/BufferState";
+import { GeometryElement } from "../core/GeometryElement";
+import { RenderContext3D } from "../core/render/RenderContext3D";
+import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement";
+import { Transform3D } from "../core/Transform3D";
+import { Vector4 } from "../math/Vector4";
+import { SubMesh } from "../resource/models/SubMesh";
 import { IndexBuffer3D } from "././IndexBuffer3D";
+import { VertexBuffer3D } from "././VertexBuffer3D";
 import { VertexDeclaration } from "././VertexDeclaration";
-import { MeshRenderDynamicBatchManager } from "././MeshRenderDynamicBatchManager";
 import { VertexElement } from "././VertexElement";
-import { BufferState } from "../core/BufferState"
-	import { GeometryElement } from "../core/GeometryElement"
-	import { Transform3D } from "../core/Transform3D"
-	import { RenderContext3D } from "../core/render/RenderContext3D"
-	import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement"
-	import { VertexMesh } from "./Vertex/VertexMesh"
-	import { Vector4 } from "../math/Vector4"
-	import { SubMesh } from "../resource/models/SubMesh"
-	import { LayaGL } from "laya/layagl/LayaGL"
-	import { Resource } from "laya/resource/Resource"
-	import { Stat } from "laya/utils/Stat"
-	import { WebGLContext } from "laya/webgl/WebGLContext"
+import { VertexMesh } from "./Vertex/VertexMesh";
 	
 	/**
 	 * @private
@@ -208,7 +208,7 @@ var maxVerDec:VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORM
 		/*override*/  _prepareRender(state:RenderContext3D):boolean {
 			var element:SubMeshRenderElement = (<SubMeshRenderElement>state.renderElement );
 			var vertexDeclaration:VertexDeclaration = element.vertexBatchVertexDeclaration;
-			this._bufferState=MeshRenderDynamicBatchManager.instance._getBufferState(vertexDeclaration);
+			this._bufferState=ILaya3D.MeshRenderDynamicBatchManager.instance._getBufferState(vertexDeclaration);
 			
 			this._positionOffset = vertexDeclaration.getVertexElementByUsage(VertexMesh.MESH_POSITION0).offset / 4;
 			var normalElement:VertexElement = vertexDeclaration.getVertexElementByUsage(VertexMesh.MESH_NORMAL0);

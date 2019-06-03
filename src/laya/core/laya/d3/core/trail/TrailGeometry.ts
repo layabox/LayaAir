@@ -1,25 +1,30 @@
-import { TrailFilter } from "././TrailFilter";
-import { VertexTrail } from "././VertexTrail";
-import { BufferState } from "../BufferState"
-import { Camera } from "../Camera"
-import { GeometryElement } from "../GeometryElement"
-import { TextureMode } from "../TextureMode"
-	import { RenderContext3D } from "../render/RenderContext3D"
-	import { VertexBuffer3D } from "../../graphics/VertexBuffer3D"
-	import { VertexDeclaration } from "../../graphics/VertexDeclaration"
-	import { Color } from "../../math/Color"
-	import { MathUtils3D } from "../../math/MathUtils3D"
-	import { Vector3 } from "../../math/Vector3"
-	import { Gradient } from "../Gradient"
-import { WebGLContext } from "laya/webgl/WebGLContext";
+import { LayaGL } from "laya/layagl/LayaGL";
 import { Resource } from "laya/resource/Resource";
 import { Stat } from "laya/utils/Stat";
-import { LayaGL } from "laya/layagl/LayaGL";
+import { WebGLContext } from "laya/webgl/WebGLContext";
+import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
+import { VertexDeclaration } from "../../graphics/VertexDeclaration";
+import { Color } from "../../math/Color";
+import { MathUtils3D } from "../../math/MathUtils3D";
+import { Vector3 } from "../../math/Vector3";
+import { BufferState } from "../BufferState";
+import { Camera } from "../Camera";
+import { GeometryElement } from "../GeometryElement";
+import { Gradient } from "../Gradient";
+import { RenderContext3D } from "../render/RenderContext3D";
+import { TextureMode } from "../TextureMode";
+import { TrailFilter } from "././TrailFilter";
+import { VertexTrail } from "././VertexTrail";
 	
 	/**
 	 * <code>TrailGeometry</code> 类用于创建拖尾渲染单元。
 	 */
 	export class TrailGeometry extends GeometryElement {
+		/** 轨迹准线_面向摄像机。*/
+		static ALIGNMENT_VIEW:number = 0;
+		/** 轨迹准线_面向运动方向。*/
+		static ALIGNMENT_TRANSFORM_Z:number = 1;
+
 		/**@private */
 		private static _tempVector30:Vector3 = new Vector3();
 		/**@private */
@@ -70,7 +75,7 @@ import { LayaGL } from "laya/layagl/LayaGL";
 		
 		constructor(owner:TrailFilter){
 			super();
-this._owner = owner;
+			this._owner = owner;
 			this._resizeData(this._increaseSegementCount, this._bufferState);
 		}
 		
@@ -166,11 +171,11 @@ this._owner = owner;
 			Vector3.subtract(position, this._lastFixedVertexPosition, delVector3);
 			var forward:Vector3 = TrailGeometry._tempVector32;
 			switch (this._owner.alignment) {
-			case TrailFilter.ALIGNMENT_VIEW: 
+			case TrailGeometry.ALIGNMENT_VIEW: 
 				camera.transform.getForward(forward);
 				Vector3.cross(delVector3, forward, pointAtoBVector3);
 				break;
-			case TrailFilter.ALIGNMENT_TRANSFORM_Z: 
+			case TrailGeometry.ALIGNMENT_TRANSFORM_Z: 
 				this._owner._owner.transform.getForward(forward);
 				Vector3.cross(delVector3, forward, pointAtoBVector3);//实时更新模式需要和view一样根据当前forward重新计算
 				break;

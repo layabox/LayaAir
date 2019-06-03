@@ -1,18 +1,18 @@
-import { BaseCamera } from "../core/BaseCamera"
-	import { Camera } from "../core/Camera"
-	import { Scene3D } from "../core/scene/Scene3D"
-	import { BoundBox } from "../math/BoundBox"
-	import { BoundFrustum } from "../math/BoundFrustum"
-	import { BoundSphere } from "../math/BoundSphere"
-	import { Matrix4x4 } from "../math/Matrix4x4"
-	import { Vector2 } from "../math/Vector2"
-	import { Vector3 } from "../math/Vector3"
-	import { Vector4 } from "../math/Vector4"
-	import { RenderTexture } from "../resource/RenderTexture"
-	import { DefineDatas } from "../shader/DefineDatas"
-	import { ShaderData } from "../shader/ShaderData"
-	import { BaseTexture } from "laya/resource/BaseTexture"
-	import { RenderTexture2D } from "laya/resource/RenderTexture2D"
+import { ILaya3D } from "ILaya3D";
+import { BaseTexture } from "laya/resource/BaseTexture";
+import { BaseCamera } from "../core/BaseCamera";
+import { Camera } from "../core/Camera";
+import { Scene3D } from "../core/scene/Scene3D";
+import { Scene3DShaderDeclaration } from "../core/scene/Scene3DShaderDeclaration";
+import { BoundBox } from "../math/BoundBox";
+import { BoundFrustum } from "../math/BoundFrustum";
+import { BoundSphere } from "../math/BoundSphere";
+import { Matrix4x4 } from "../math/Matrix4x4";
+import { Vector2 } from "../math/Vector2";
+import { Vector3 } from "../math/Vector3";
+import { Vector4 } from "../math/Vector4";
+import { RenderTexture } from "../resource/RenderTexture";
+import { ShaderData } from "../shader/ShaderData";
 	
 	/**
 	 * ...
@@ -148,28 +148,28 @@ import { BaseCamera } from "../core/BaseCamera"
 			var defineData:ShaderData = this._scene._shaderValues;
 			switch (this._PCFType) {
 			case 0: 
-				defineData.addDefine(Scene3D.SHADERDEFINE_SHADOW_PCF_NO);
-				defineData.removeDefine(Scene3D.SHADERDEFINE_SHADOW_PCF1);
-				defineData.removeDefine(Scene3D.SHADERDEFINE_SHADOW_PCF2);
-				defineData.removeDefine(Scene3D.SHADERDEFINE_SHADOW_PCF3);
+				defineData.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF_NO);
+				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF1);
+				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF2);
+				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF3);
 				break;
 			case 1: 
-				defineData.addDefine(Scene3D.SHADERDEFINE_SHADOW_PCF1);
-				defineData.removeDefine(Scene3D.SHADERDEFINE_SHADOW_PCF_NO);
-				defineData.removeDefine(Scene3D.SHADERDEFINE_SHADOW_PCF2);
-				defineData.removeDefine(Scene3D.SHADERDEFINE_SHADOW_PCF3);
+				defineData.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF1);
+				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF_NO);
+				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF2);
+				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF3);
 				break;
 			case 2: 
-				defineData.addDefine(Scene3D.SHADERDEFINE_SHADOW_PCF2);
-				defineData.removeDefine(Scene3D.SHADERDEFINE_SHADOW_PCF_NO);
-				defineData.removeDefine(Scene3D.SHADERDEFINE_SHADOW_PCF1);
-				defineData.removeDefine(Scene3D.SHADERDEFINE_SHADOW_PCF3);
+				defineData.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF2);
+				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF_NO);
+				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF1);
+				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF3);
 				break;
 			case 3: 
-				defineData.addDefine(Scene3D.SHADERDEFINE_SHADOW_PCF3);
-				defineData.removeDefine(Scene3D.SHADERDEFINE_SHADOW_PCF_NO);
-				defineData.removeDefine(Scene3D.SHADERDEFINE_SHADOW_PCF1);
-				defineData.removeDefine(Scene3D.SHADERDEFINE_SHADOW_PCF2);
+				defineData.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF3);
+				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF_NO);
+				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF1);
+				defineData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF2);
 				break;
 			}
 		}
@@ -276,38 +276,38 @@ import { BaseCamera } from "../core/BaseCamera"
 			var sceneSV:ShaderData = this._scene._shaderValues;
 			switch (this._shadowMapCount) {
 			case 1: 
-				sceneSV.addDefine(Scene3D.SHADERDEFINE_SHADOW_PSSM1);
-				sceneSV.removeDefine(Scene3D.SHADERDEFINE_SHADOW_PSSM2);
-				sceneSV.removeDefine(Scene3D.SHADERDEFINE_SHADOW_PSSM3);
+				sceneSV.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM1);
+				sceneSV.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM2);
+				sceneSV.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM3);
 				break;
 			case 2: 
-				sceneSV.addDefine(Scene3D.SHADERDEFINE_SHADOW_PSSM2);
-				sceneSV.removeDefine(Scene3D.SHADERDEFINE_SHADOW_PSSM1);
-				sceneSV.removeDefine(Scene3D.SHADERDEFINE_SHADOW_PSSM3);
+				sceneSV.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM2);
+				sceneSV.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM1);
+				sceneSV.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM3);
 				break;
 			case 3: 
-				sceneSV.addDefine(Scene3D.SHADERDEFINE_SHADOW_PSSM3);
-				sceneSV.removeDefine(Scene3D.SHADERDEFINE_SHADOW_PSSM1);
-				sceneSV.removeDefine(Scene3D.SHADERDEFINE_SHADOW_PSSM2);
+				sceneSV.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM3);
+				sceneSV.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM1);
+				sceneSV.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM2);
 				break;
 			}
 			
 			
-			sceneSV.setVector(Scene3D.SHADOWDISTANCE, this._shaderValueDistance);
-			sceneSV.setBuffer(Scene3D.SHADOWLIGHTVIEWPROJECT, this._shaderValueLightVP);
-			sceneSV.setVector2(Scene3D.SHADOWMAPPCFOFFSET, this._shadowPCFOffset);
+			sceneSV.setVector(ILaya3D.Scene3D.SHADOWDISTANCE, this._shaderValueDistance);
+			sceneSV.setBuffer(ILaya3D.Scene3D.SHADOWLIGHTVIEWPROJECT, this._shaderValueLightVP);
+			sceneSV.setVector2(ILaya3D.Scene3D.SHADOWMAPPCFOFFSET, this._shadowPCFOffset);
 			switch (this._shadowMapCount) {
 			case 3: 
-				sceneSV.setTexture(Scene3D.SHADOWMAPTEXTURE1, this.cameras[1].renderTarget);
-				sceneSV.setTexture(Scene3D.SHADOWMAPTEXTURE2, this.cameras[2].renderTarget)
-				sceneSV.setTexture(Scene3D.SHADOWMAPTEXTURE3, this.cameras[3].renderTarget);
+				sceneSV.setTexture(ILaya3D.Scene3D.SHADOWMAPTEXTURE1, this.cameras[1].renderTarget);
+				sceneSV.setTexture(ILaya3D.Scene3D.SHADOWMAPTEXTURE2, this.cameras[2].renderTarget)
+				sceneSV.setTexture(ILaya3D.Scene3D.SHADOWMAPTEXTURE3, this.cameras[3].renderTarget);
 				break;
 			case 2: 
-				sceneSV.setTexture(Scene3D.SHADOWMAPTEXTURE1, this.cameras[1].renderTarget);
-				sceneSV.setTexture(Scene3D.SHADOWMAPTEXTURE2, this.cameras[2].renderTarget);
+				sceneSV.setTexture(ILaya3D.Scene3D.SHADOWMAPTEXTURE1, this.cameras[1].renderTarget);
+				sceneSV.setTexture(ILaya3D.Scene3D.SHADOWMAPTEXTURE2, this.cameras[2].renderTarget);
 				break;
 			case 1: 
-				sceneSV.setTexture(Scene3D.SHADOWMAPTEXTURE1, this.cameras[1].renderTarget);
+				sceneSV.setTexture(ILaya3D.Scene3D.SHADOWMAPTEXTURE1, this.cameras[1].renderTarget);
 				break;
 			}
 		}
@@ -561,7 +561,7 @@ import { BaseCamera } from "../core/BaseCamera"
 			//calc frustum
 			var projectView:Matrix4x4 = curLightCamera.projectionViewMatrix;
 			ParallelSplitShadowMap.multiplyMatrixOutFloat32Array(this._tempScaleMatrix44, projectView, this._shaderValueVPs[this._currentPSSM]);
-			this._scene._shaderValues.setBuffer(Scene3D.SHADOWLIGHTVIEWPROJECT, this._shaderValueLightVP);
+			this._scene._shaderValues.setBuffer(ILaya3D.Scene3D.SHADOWLIGHTVIEWPROJECT, this._shaderValueLightVP);
 		}
 		
 		/**

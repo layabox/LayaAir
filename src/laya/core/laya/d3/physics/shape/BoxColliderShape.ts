@@ -1,14 +1,12 @@
+import { ILaya3D } from "ILaya3D";
 import { ColliderShape } from "././ColliderShape";
-import { Laya3D } from "./../../../../Laya3D";
-import { Quaternion } from "../../math/Quaternion"
-	import { Vector3 } from "../../math/Vector3"
 	
 	/**
 	 * <code>BoxColliderShape</code> 类用于创建盒子形状碰撞器。
 	 */
 	export class BoxColliderShape extends ColliderShape {
 		/** @private */
-		private static _nativeSize:any = new Laya3D._physics3D.btVector3(0, 0, 0);
+		private static _nativeSize:any = new ILaya3D.Laya3D._physics3D.btVector3(0, 0, 0);
 		
 		/**@private */
 		private _sizeX:number;
@@ -53,7 +51,7 @@ this._sizeX = sizeX;
 			this._type = ColliderShape.SHAPETYPES_BOX;
 			
 			BoxColliderShape._nativeSize.setValue(sizeX / 2, sizeY / 2, sizeZ / 2);
-			this._nativeShape = new Laya3D._physics3D.btBoxShape(BoxColliderShape._nativeSize);
+			this._nativeShape = new ILaya3D.Laya3D._physics3D.btBoxShape(BoxColliderShape._nativeSize);
 		}
 		
 		/**

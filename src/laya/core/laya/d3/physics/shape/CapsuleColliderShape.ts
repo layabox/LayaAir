@@ -1,7 +1,6 @@
+import { ILaya3D } from "ILaya3D";
+import { Vector3 } from "../../math/Vector3";
 import { ColliderShape } from "././ColliderShape";
-import { Laya3D } from "./../../../../Laya3D";
-import { Quaternion } from "../../math/Quaternion"
-	import { Vector3 } from "../../math/Vector3"
 	
 	/**
 	 * <code>CapsuleColliderShape</code> 类用于创建胶囊形状碰撞器。
@@ -54,13 +53,13 @@ this._radius = radius;
 			
 			switch (orientation) {
 			case ColliderShape.SHAPEORIENTATION_UPX: 
-				this._nativeShape = new Laya3D._physics3D.btCapsuleShapeX(radius, length - radius * 2);
+				this._nativeShape = new ILaya3D.Laya3D._physics3D.btCapsuleShapeX(radius, length - radius * 2);
 				break;
 			case ColliderShape.SHAPEORIENTATION_UPY: 
-				this._nativeShape = new Laya3D._physics3D.btCapsuleShape(radius, length - radius * 2);
+				this._nativeShape = new ILaya3D.Laya3D._physics3D.btCapsuleShape(radius, length - radius * 2);
 				break;
 			case ColliderShape.SHAPEORIENTATION_UPZ: 
-				this._nativeShape = new Laya3D._physics3D.btCapsuleShapeZ(radius, length - radius * 2);
+				this._nativeShape = new ILaya3D.Laya3D._physics3D.btCapsuleShapeZ(radius, length - radius * 2);
 				break;
 			default: 
 				throw "CapsuleColliderShape:unknown orientation.";

@@ -11,15 +11,13 @@ import { BaseMaterial } from "./material/BaseMaterial"
 	import { ShaderDefines } from "../shader/ShaderDefines"
 	import { Node } from "laya/display/Node"
 	import { Loader } from "laya/net/Loader"
+import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration";
 	
 	/**
 	 * <code>MeshSprite3D</code> 类用于创建网格。
 	 */
 	export class MeshSprite3D extends RenderableSprite3D {
-		 static SHADERDEFINE_UV0:number;
-		 static SHADERDEFINE_COLOR:number;
-		 static SHADERDEFINE_UV1:number;
-		 static SHADERDEFINE_GPU_INSTANCE:number;
+		
 		/**@private */
 		 static shaderDefines:ShaderDefines = new ShaderDefines(RenderableSprite3D.shaderDefines);
 		
@@ -27,10 +25,10 @@ import { BaseMaterial } from "./material/BaseMaterial"
 		 * @private
 		 */
 		 static __init__():void {
-			MeshSprite3D.SHADERDEFINE_UV0 = MeshSprite3D.shaderDefines.registerDefine("UV");
-			MeshSprite3D.SHADERDEFINE_COLOR = MeshSprite3D.shaderDefines.registerDefine("COLOR");
-			MeshSprite3D.SHADERDEFINE_UV1 = MeshSprite3D.shaderDefines.registerDefine("UV1");
-			MeshSprite3D.SHADERDEFINE_GPU_INSTANCE = MeshSprite3D.shaderDefines.registerDefine("GPU_INSTANCE");
+			MeshSprite3DShaderDeclaration.SHADERDEFINE_UV0 = MeshSprite3D.shaderDefines.registerDefine("UV");
+			MeshSprite3DShaderDeclaration.SHADERDEFINE_COLOR = MeshSprite3D.shaderDefines.registerDefine("COLOR");
+			MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1 = MeshSprite3D.shaderDefines.registerDefine("UV1");
+			MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE = MeshSprite3D.shaderDefines.registerDefine("GPU_INSTANCE");
 			StaticBatchManager._registerManager(MeshRenderStaticBatchManager.instance);
 			DynamicBatchManager._registerManager(MeshRenderDynamicBatchManager.instance);
 		}

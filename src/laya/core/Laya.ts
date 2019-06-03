@@ -1,58 +1,54 @@
-﻿import { Input } from "./laya/display/Input"
-	import { Sprite } from "./laya/display/Sprite"
-	import { Stage } from "./laya/display/Stage"
-	import { KeyBoardManager } from "./laya/events/KeyBoardManager"
-	import { MouseManager } from "./laya/events/MouseManager"
-	import { SoundManager } from "./laya/media/SoundManager"
-	import { LoaderManager } from "./laya/net/LoaderManager"
-	import { URL } from "./laya/net/URL"
-	import { Render } from "./laya/renders/Render"
-	import { RenderSprite } from "./laya/renders/RenderSprite"
-	import { Texture2D } from "./laya/resource/Texture2D"
-	import { Browser } from "./laya/utils/Browser"
-	import { CacheManger } from "./laya/utils/CacheManger"
-	import { Timer } from "./laya/utils/Timer"
-	import { WebGL } from "./laya/webgl/WebGL"
+﻿import { ILaya } from "./ILaya";
+import { Graphics } from "./laya/display/Graphics";
+import { GraphicsBounds } from "./laya/display/GraphicsBounds";
+import { Input } from "./laya/display/Input";
 import { Node } from "./laya/display/Node";
+import { Sprite } from "./laya/display/Sprite";
+import { Stage } from "./laya/display/Stage";
 import { Text } from "./laya/display/Text";
-import { Event } from "./laya/events/Event";
-import { WeakObject } from "./laya/utils/WeakObject";
-import { Texture } from "./laya/resource/Texture";
+import { KeyBoardManager } from "./laya/events/KeyBoardManager";
+import { MouseManager } from "./laya/events/MouseManager";
+import { LayaGL } from "./laya/layagl/LayaGL";
+import { LayaGLRunner } from "./laya/layagl/LayaGLRunner";
+import { AudioSound } from "./laya/media/h5audio/AudioSound";
+import { SoundManager } from "./laya/media/SoundManager";
+import { WebAudioSound } from "./laya/media/webaudio/WebAudioSound";
+import { Loader } from "./laya/net/Loader";
+import { LoaderManager } from "./laya/net/LoaderManager";
+import { LocalStorage } from "./laya/net/LocalStorage";
+import { TTFLoader } from "./laya/net/TTFLoader";
+import { URL } from "./laya/net/URL";
+import { Render } from "./laya/renders/Render";
+import { RenderSprite } from "./laya/renders/RenderSprite";
+import { Context } from "./laya/resource/Context";
 import { HTMLCanvas } from "./laya/resource/HTMLCanvas";
 import { RenderTexture2D } from "./laya/resource/RenderTexture2D";
-import { LayaGLRunner } from "./laya/layagl/LayaGLRunner";
-import { WebGLContext } from "./laya/webgl/WebGLContext";
-import { Shader } from "./laya/webgl/shader/Shader";
-import { RenderState2D } from "./laya/webgl/utils/RenderState2D";
-import { Context } from "./laya/resource/Context";
-import { ColorUtils } from "./laya/utils/ColorUtils";
-import { LayaGL } from "./laya/layagl/LayaGL";
-import { Utils } from "./laya/utils/Utils";
-import { Loader } from "./laya/net/Loader";
 import { Resource } from "./laya/resource/Resource";
-import { TTFLoader } from "./laya/net/TTFLoader";
-import { LocalStorage } from "./laya/net/LocalStorage";
-import { Graphics } from "./laya/display/Graphics";
-import { Tween } from "./laya/utils/Tween";
+import { Texture } from "./laya/resource/Texture";
+import { Browser } from "./laya/utils/Browser";
+import { CacheManger } from "./laya/utils/CacheManger";
+import { ClassUtils } from "./laya/utils/ClassUtils";
+import { ColorUtils } from "./laya/utils/ColorUtils";
 import { Dragging } from "./laya/utils/Dragging";
-import { Script } from "./laya/components/Script";
+import { Pool } from "./laya/utils/Pool";
+import { SceneUtils } from "./laya/utils/SceneUtils";
 import { Stat } from "./laya/utils/Stat";
 import { StatUI } from "./laya/utils/StatUI";
-import { Value2D } from "./laya/webgl/shader/d2/value/Value2D";
+import { Timer } from "./laya/utils/Timer";
+import { Utils } from "./laya/utils/Utils";
+import { WeakObject } from "./laya/utils/WeakObject";
 import { ShaderDefines2D } from "./laya/webgl/shader/d2/ShaderDefines2D";
-import { TextureSV } from "./laya/webgl/shader/d2/value/TextureSV";
-import { PrimitiveSV } from "./laya/webgl/shader/d2/value/PrimitiveSV";
 import { SkinSV } from "./laya/webgl/shader/d2/skinAnishader/SkinSV";
-import { TextRender } from "./laya/webgl/text/TextRender";
-import { ILaya } from "./ILaya";
-import { GraphicsBounds } from "./laya/display/GraphicsBounds";
-import { WebAudioSound } from "./laya/media/webaudio/WebAudioSound";
-import { ShaderCompile } from "./laya/webgl/utils/ShaderCompile";
-import { ClassUtils } from "./laya/utils/ClassUtils";
-import { SceneUtils } from "./laya/utils/SceneUtils";
-import { AudioSound } from "./laya/media/h5audio/AudioSound";
-import { Pool } from "./laya/utils/Pool";
+import { PrimitiveSV } from "./laya/webgl/shader/d2/value/PrimitiveSV";
+import { TextureSV } from "./laya/webgl/shader/d2/value/TextureSV";
+import { Value2D } from "./laya/webgl/shader/d2/value/Value2D";
+import { Shader } from "./laya/webgl/shader/Shader";
 import { Submit } from "./laya/webgl/submit/Submit";
+import { TextRender } from "./laya/webgl/text/TextRender";
+import { RenderState2D } from "./laya/webgl/utils/RenderState2D";
+import { ShaderCompile } from "./laya/webgl/utils/ShaderCompile";
+import { WebGL } from "./laya/webgl/WebGL";
+import { WebGLContext } from "./laya/webgl/WebGLContext";
 
 	/**
 	 * <code>Laya</code> 是全局对象的引用入口集。

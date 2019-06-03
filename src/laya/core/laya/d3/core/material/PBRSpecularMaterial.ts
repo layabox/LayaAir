@@ -1,11 +1,11 @@
+import { BaseTexture } from "laya/resource/BaseTexture";
+import { Vector4 } from "../../math/Vector4";
+import { Shader3D } from "../../shader/Shader3D";
+import { ShaderDefines } from "../../shader/ShaderDefines";
+import { ILaya3D } from "ILaya3D";
 import { BaseMaterial } from "./BaseMaterial";
 import { RenderState } from "./RenderState";
-import { Scene3D } from "../scene/Scene3D"
-	import { Vector4 } from "../../math/Vector4"
-	import { Shader3D } from "../../shader/Shader3D"
-	import { ShaderData } from "../../shader/ShaderData"
-	import { ShaderDefines } from "../../shader/ShaderDefines"
-	import { BaseTexture } from "laya/resource/BaseTexture"
+import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
 	
 	/**
 	 * <code>PBRSpecularMaterial</code> 类用于实现PBR(Specular)材质。
@@ -858,9 +858,9 @@ import { Scene3D } from "../scene/Scene3D"
 		 set enableReflection(value:boolean) {
 			this._shaderValues.setBool(PBRSpecularMaterial.ENABLEREFLECT, true);
 			if (value)
-				this._disablePublicDefineDatas.remove(Scene3D.SHADERDEFINE_REFLECTMAP);
+				this._disablePublicDefineDatas.remove(Scene3DShaderDeclaration.SHADERDEFINE_REFLECTMAP);
 			else
-				this._disablePublicDefineDatas.add(Scene3D.SHADERDEFINE_REFLECTMAP);
+				this._disablePublicDefineDatas.add(Scene3DShaderDeclaration.SHADERDEFINE_REFLECTMAP);
 		}
 		
 		/**

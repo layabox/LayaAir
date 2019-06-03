@@ -1,17 +1,12 @@
-import { Laya3D } from "./../../../../Laya3D";
-import { BoxColliderShape } from "././BoxColliderShape";
-import { SphereColliderShape } from "././SphereColliderShape";
-import { CapsuleColliderShape } from "././CapsuleColliderShape";
-import { MeshColliderShape } from "././MeshColliderShape";
-import { ConeColliderShape } from "././ConeColliderShape";
-import { CylinderColliderShape } from "././CylinderColliderShape";
+import { ILaya3D } from "ILaya3D";
+import { Loader } from "laya/net/Loader";
+import { IClone } from "../../core/IClone";
+import { Matrix4x4 } from "../../math/Matrix4x4";
+import { Quaternion } from "../../math/Quaternion";
+import { Vector3 } from "../../math/Vector3";
+import { PhysicsComponent } from "../PhysicsComponent";
 import { CompoundColliderShape } from "././CompoundColliderShape";
-import { IClone } from "../../core/IClone"
-	import { PhysicsComponent } from "../PhysicsComponent"
-	import { Matrix4x4 } from "../../math/Matrix4x4"
-	import { Quaternion } from "../../math/Quaternion"
-	import { Vector3 } from "../../math/Vector3"
-	import { Loader } from "laya/net/Loader"
+import { MeshColliderShape } from "././MeshColliderShape";
 	
 	/**
 	 * <code>ColliderShape</code> 类用于创建形状碰撞器的父类，该类为抽象类。
@@ -44,13 +39,13 @@ import { IClone } from "../../core/IClone"
 		/** @private */
 		 static _tempVector30:Vector3 = new Vector3();
 		/** @private */
-		protected static _nativeScale:any = new Laya3D._physics3D.btVector3(1, 1, 1);
+		protected static _nativeScale:any = new ILaya3D.Laya3D._physics3D.btVector3(1, 1, 1);
 		/**@private */
-		protected static _nativeVector30:any = new Laya3D._physics3D.btVector3(0, 0, 0);
+		protected static _nativeVector30:any = new ILaya3D.Laya3D._physics3D.btVector3(0, 0, 0);
 		/**@private */
-		protected static _nativQuaternion0:any = new Laya3D._physics3D.btQuaternion(0, 0, 0, 1);
+		protected static _nativQuaternion0:any = new ILaya3D.Laya3D._physics3D.btQuaternion(0, 0, 0, 1);
 		/**@private */
-		protected static _nativeTransform0:any = new Laya3D._physics3D.btTransform();
+		protected static _nativeTransform0:any = new ILaya3D.Laya3D._physics3D.btTransform();
 		
 		/**
 		 * @private
@@ -60,24 +55,24 @@ import { IClone } from "../../core/IClone"
 			switch (shapeData.type) {
 			case "BoxColliderShape": 
 				var sizeData:any[] = shapeData.size;
-				colliderShape = sizeData ? new BoxColliderShape(sizeData[0], sizeData[1], sizeData[2]) : new BoxColliderShape();
+				colliderShape = sizeData ? new ILaya3D.BoxColliderShape(sizeData[0], sizeData[1], sizeData[2]) : new ILaya3D.BoxColliderShape();
 				break;
 			case "SphereColliderShape": 
-				colliderShape = new SphereColliderShape(shapeData.radius);
+				colliderShape = new ILaya3D.SphereColliderShape(shapeData.radius);
 				break;
 			case "CapsuleColliderShape": 
-				colliderShape = new CapsuleColliderShape(shapeData.radius, shapeData.height, shapeData.orientation);
+				colliderShape = new ILaya3D.CapsuleColliderShape(shapeData.radius, shapeData.height, shapeData.orientation);
 				break;
 			case "MeshColliderShape": 
-				var meshCollider:MeshColliderShape = new MeshColliderShape();
+				var meshCollider:MeshColliderShape = new ILaya3D.MeshColliderShape();
 				shapeData.mesh && (meshCollider.mesh = Loader.getRes(shapeData.mesh));
 				colliderShape = meshCollider;
 				break;
 			case "ConeColliderShape": 
-				colliderShape = new ConeColliderShape(shapeData.radius, shapeData.height, shapeData.orientation);
+				colliderShape = new ILaya3D.ConeColliderShape(shapeData.radius, shapeData.height, shapeData.orientation);
 				break;
 			case "CylinderColliderShape": 
-				colliderShape = new CylinderColliderShape(shapeData.radius, shapeData.height, shapeData.orientation);
+				colliderShape = new ILaya3D.CylinderColliderShape(shapeData.radius, shapeData.height, shapeData.orientation);
 				break;
 			default: 
 				throw "unknown shape type.";
@@ -262,7 +257,7 @@ import { IClone } from "../../core/IClone"
 		 */
 		 destroy():void {
 			if (this._nativeShape) {
-				Laya3D._physics3D.destroy(this._nativeShape);
+				ILaya3D.Laya3D._physics3D.destroy(this._nativeShape);
 				this._nativeShape = null;
 			}
 		}

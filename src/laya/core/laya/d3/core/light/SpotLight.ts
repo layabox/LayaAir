@@ -1,11 +1,10 @@
+import { ILaya3D } from "ILaya3D";
+import { Matrix4x4 } from "../../math/Matrix4x4";
+import { Vector3 } from "../../math/Vector3";
+import { ShaderData } from "../../shader/ShaderData";
+import { Scene3D } from "../scene/Scene3D";
+import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
 import { LightSprite } from "././LightSprite";
-import { RenderContext3D } from "../render/RenderContext3D"
-	import { Scene3D } from "../scene/Scene3D"
-	import { Matrix4x4 } from "../../math/Matrix4x4"
-	import { Vector3 } from "../../math/Vector3"
-	import { DefineDatas } from "../../shader/DefineDatas"
-	import { ShaderData } from "../../shader/ShaderData"
-	import { Event } from "laya/events/Event"
 	
 	/**
 	 * <code>SpotLight</code> 类用于创建聚光。
@@ -73,7 +72,7 @@ import { RenderContext3D } from "../render/RenderContext3D"
 		 */
 		/*override*/ protected _onActive():void {
 			super._onActive();
-			(this._lightmapBakedType!==LightSprite.LIGHTMAPBAKEDTYPE_BAKED)&&(((<Scene3D>this.scene ))._shaderValues.addDefine(Scene3D.SHADERDEFINE_SPOTLIGHT));
+			(this._lightmapBakedType!==LightSprite.LIGHTMAPBAKEDTYPE_BAKED)&&(((<Scene3D>this.scene ))._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT));
 		}
 		
 		/**
@@ -81,7 +80,7 @@ import { RenderContext3D } from "../render/RenderContext3D"
 		 */
 		/*override*/ protected _onInActive():void {
 			super._onInActive();
-			(this._lightmapBakedType!==LightSprite.LIGHTMAPBAKEDTYPE_BAKED)&&(((<Scene3D>this.scene ))._shaderValues.removeDefine(Scene3D.SHADERDEFINE_SPOTLIGHT));
+			(this._lightmapBakedType!==LightSprite.LIGHTMAPBAKEDTYPE_BAKED)&&(((<Scene3D>this.scene ))._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT));
 		}
 		
 		/**
@@ -93,13 +92,13 @@ import { RenderContext3D } from "../render/RenderContext3D"
 			if (scene.enableLight && this.activeInHierarchy) {
 				var shaderValue:ShaderData = scene._shaderValues;
 				Vector3.scale(this.color, this._intensity, this._intensityColor);
-				shaderValue.setVector3(Scene3D.SPOTLIGHTCOLOR, this._intensityColor);
-				shaderValue.setVector3(Scene3D.SPOTLIGHTPOS, this.transform.position);
+				shaderValue.setVector3(ILaya3D.Scene3D.SPOTLIGHTCOLOR, this._intensityColor);
+				shaderValue.setVector3(ILaya3D.Scene3D.SPOTLIGHTPOS, this.transform.position);
 				this.transform.worldMatrix.getForward(this._direction);
 				Vector3.normalize(this._direction, this._direction);
-				shaderValue.setVector3(Scene3D.SPOTLIGHTDIRECTION, this._direction);
-				shaderValue.setNumber(Scene3D.SPOTLIGHTRANGE, this.range);
-				shaderValue.setNumber(Scene3D.SPOTLIGHTSPOTANGLE, this.spotAngle * Math.PI / 180);
+				shaderValue.setVector3(ILaya3D.Scene3D.SPOTLIGHTDIRECTION, this._direction);
+				shaderValue.setNumber(ILaya3D.Scene3D.SPOTLIGHTRANGE, this.range);
+				shaderValue.setNumber(ILaya3D.Scene3D.SPOTLIGHTSPOTANGLE, this.spotAngle * Math.PI / 180);
 				
 				//----------------------------------To do SpotLight Attenuate----------------------------------
 				//var tempMatrix:Matrix4x4 = _tempMatrix0;

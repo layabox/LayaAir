@@ -1,18 +1,17 @@
+import { ILaya3D } from "ILaya3D";
+import { LayaGL } from "laya/layagl/LayaGL";
+import { BaseTexture } from "laya/resource/BaseTexture";
+import { Vector4 } from "../../../math/Vector4";
+import { RenderTexture } from "../../../resource/RenderTexture";
+import { Shader3D } from "../../../shader/Shader3D";
+import { ShaderData } from "../../../shader/ShaderData";
+import { ShaderInstance } from "../../../shader/ShaderInstance";
+import { ShaderPass } from "../../../shader/ShaderPass";
+import { SubShader } from "../../../shader/SubShader";
+import { RenderContext3D } from "../RenderContext3D";
+import { ScreenQuad } from "../ScreenQuad";
+import { ScreenTriangle } from "../ScreenTriangle";
 import { Command } from "././Command";
-import { CommandBuffer } from "././CommandBuffer";
-import { RenderState } from "../../material/RenderState"
-	import { RenderContext3D } from "../RenderContext3D"
-	import { ScreenQuad } from "../ScreenQuad"
-	import { ScreenTriangle } from "../ScreenTriangle"
-	import { Vector4 } from "../../../math/Vector4"
-	import { RenderTexture } from "../../../resource/RenderTexture"
-	import { Shader3D } from "../../../shader/Shader3D"
-	import { ShaderData } from "../../../shader/ShaderData"
-	import { ShaderInstance } from "../../../shader/ShaderInstance"
-	import { ShaderPass } from "../../../shader/ShaderPass"
-	import { SubShader } from "../../../shader/SubShader"
-	import { LayaGL } from "laya/layagl/LayaGL"
-	import { BaseTexture } from "laya/resource/BaseTexture"
 	
 	/**
 	 * @private
@@ -61,16 +60,16 @@ import { RenderState } from "../../material/RenderState"
 		 * @inheritDoc
 		 */
 		/*override*/  run():void {//TODO:相机的UV
-			var shader:Shader3D = this._shader || CommandBuffer._screenShader;
-			var shaderData:ShaderData = this._shaderData || CommandBuffer._screenShaderData;
+			var shader:Shader3D = this._shader || ILaya3D.CommandBuffer._screenShader;
+			var shaderData:ShaderData = this._shaderData || ILaya3D.CommandBuffer._screenShaderData;
 			var dest:RenderTexture = this._dest;
 			
 			LayaGL.instance.viewport(0, 0, dest ? dest.width : RenderContext3D.clientWidth, dest ? dest.height : RenderContext3D.clientHeight);//TODO:是否在此
 			
 			//TODO:优化
-			shaderData.setTexture(CommandBuffer.SCREENTEXTURE_ID, this._source);
+			shaderData.setTexture(ILaya3D.CommandBuffer.SCREENTEXTURE_ID, this._source);
 			this._sourceTexelSize.setValue(1.0 / this._source.width, 1.0 / this._source.height, this._source.width, this._source.height);
-			shaderData.setVector(CommandBuffer.MAINTEXTURE_TEXELSIZE_ID, this._sourceTexelSize);
+			shaderData.setVector(ILaya3D.CommandBuffer.MAINTEXTURE_TEXELSIZE_ID, this._sourceTexelSize);
 			
 			(dest) && (dest._start());
 			var subShader:SubShader = shader.getSubShaderAt(this._subShader);

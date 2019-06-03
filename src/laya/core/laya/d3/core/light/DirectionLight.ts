@@ -1,10 +1,10 @@
+import { Vector3 } from "../../math/Vector3";
+import { ShaderData } from "../../shader/ShaderData";
+import { ParallelSplitShadowMap } from "../../shadowMap/ParallelSplitShadowMap";
+import { Scene3D } from "../scene/Scene3D";
+import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
 import { LightSprite } from "./LightSprite";
-import { RenderContext3D } from "../render/RenderContext3D"
-	import { Scene3D } from "../scene/Scene3D"
-	import { Vector3 } from "../../math/Vector3"
-	import { DefineDatas } from "../../shader/DefineDatas"
-	import { ShaderData } from "../../shader/ShaderData"
-	import { ParallelSplitShadowMap } from "../../shadowMap/ParallelSplitShadowMap"
+import { ILaya3D } from "ILaya3D";
 	
 	/**
 	 * <code>DirectionLight</code> 类用于创建平行光。
@@ -47,9 +47,9 @@ import { RenderContext3D } from "../render/RenderContext3D"
 				parallelSplitShadowMaps.splice(parallelSplitShadowMaps.indexOf(this._parallelSplitShadowMap), 1);
 				this._parallelSplitShadowMap.disposeAllRenderTarget();
 				this._parallelSplitShadowMap = null;
-				defineDatas.removeDefine(Scene3D.SHADERDEFINE_SHADOW_PSSM1);
-				defineDatas.removeDefine(Scene3D.SHADERDEFINE_SHADOW_PSSM2);
-				defineDatas.removeDefine(Scene3D.SHADERDEFINE_SHADOW_PSSM3);
+				defineDatas.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM1);
+				defineDatas.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM2);
+				defineDatas.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM3);
 			}
 		}
 		
@@ -59,7 +59,7 @@ import { RenderContext3D } from "../render/RenderContext3D"
 		/*override*/ protected _onActive():void {
 			super._onActive();
 			this._shadow && (this._initShadow());
-			(this._lightmapBakedType!==LightSprite.LIGHTMAPBAKEDTYPE_BAKED)&&(((<Scene3D>this._scene ))._shaderValues.addDefine(Scene3D.SHADERDEFINE_DIRECTIONLIGHT));
+			(this._lightmapBakedType!==LightSprite.LIGHTMAPBAKEDTYPE_BAKED)&&(((<Scene3D>this._scene ))._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT));
 		}
 		
 		/**
@@ -67,7 +67,7 @@ import { RenderContext3D } from "../render/RenderContext3D"
 		 */
 		/*override*/ protected _onInActive():void {
 			super._onInActive();
-			(this._lightmapBakedType!==LightSprite.LIGHTMAPBAKEDTYPE_BAKED)&&(((<Scene3D>this._scene ))._shaderValues.removeDefine(Scene3D.SHADERDEFINE_DIRECTIONLIGHT));
+			(this._lightmapBakedType!==LightSprite.LIGHTMAPBAKEDTYPE_BAKED)&&(((<Scene3D>this._scene ))._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT));
 		}
 		
 		/**
@@ -79,10 +79,10 @@ import { RenderContext3D } from "../render/RenderContext3D"
 			if (scene.enableLight && this.activeInHierarchy) {
 				var shaderValue:ShaderData = scene._shaderValues;
 				Vector3.scale(this.color, this._intensity, this._intensityColor);
-				shaderValue.setVector3(Scene3D.LIGHTDIRCOLOR, this._intensityColor);
+				shaderValue.setVector3(ILaya3D.Scene3D.LIGHTDIRCOLOR, this._intensityColor);
 				this.transform.worldMatrix.getForward(this._direction);
 				Vector3.normalize(this._direction, this._direction);
-				shaderValue.setVector3(Scene3D.LIGHTDIRECTION, this._direction);
+				shaderValue.setVector3(ILaya3D.Scene3D.LIGHTDIRECTION, this._direction);
 				return true;
 			} else {
 				return false;

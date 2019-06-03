@@ -1,20 +1,20 @@
+import { Render } from "laya/renders/Render";
+import { FrustumCulling } from "../../graphics/FrustumCulling";
+import { BoundBox } from "../../math/BoundBox";
+import { BoundFrustum } from "../../math/BoundFrustum";
+import { ContainmentType } from "../../math/ContainmentType";
+import { Matrix4x4 } from "../../math/Matrix4x4";
+import { Vector3 } from "../../math/Vector3";
+import { Mesh } from "../../resource/models/Mesh";
+import { ShaderData } from "../../shader/ShaderData";
+import { Physics3DUtils } from "../../utils/Physics3DUtils";
+import { Bounds } from "../Bounds";
+import { BaseRender } from "../render/BaseRender";
+import { RenderContext3D } from "../render/RenderContext3D";
+import { Transform3D } from "../Transform3D";
 import { ShuriKenParticle3D } from "././ShuriKenParticle3D";
 import { ShurikenParticleSystem } from "././ShurikenParticleSystem";
-import { Bounds } from "../Bounds"
-	import { Transform3D } from "../Transform3D"
-	import { BaseRender } from "../render/BaseRender"
-	import { RenderContext3D } from "../render/RenderContext3D"
-	import { FrustumCulling } from "../../graphics/FrustumCulling"
-	import { BoundBox } from "../../math/BoundBox"
-	import { BoundFrustum } from "../../math/BoundFrustum"
-	import { ContainmentType } from "../../math/ContainmentType"
-	import { Matrix4x4 } from "../../math/Matrix4x4"
-	import { Vector3 } from "../../math/Vector3"
-	import { Mesh } from "../../resource/models/Mesh"
-	import { DefineDatas } from "../../shader/DefineDatas"
-	import { ShaderData } from "../../shader/ShaderData"
-	import { Physics3DUtils } from "../../utils/Physics3DUtils"
-	import { Render } from "laya/renders/Render"
+import { ShuriKenParticle3DShaderDeclaration } from "./ShuriKenParticle3DShaderDeclaration";
 	
 	
 	/**
@@ -92,37 +92,37 @@ import { Bounds } from "../Bounds"
 				var defineDatas:ShaderData = this._shaderValues;
 				switch (this._renderMode) {
 				case 0: 
-					defineDatas.removeDefine(ShuriKenParticle3D.SHADERDEFINE_RENDERMODE_BILLBOARD);
+					defineDatas.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RENDERMODE_BILLBOARD);
 					break;
 				case 1: 
-					defineDatas.removeDefine(ShuriKenParticle3D.SHADERDEFINE_RENDERMODE_STRETCHEDBILLBOARD);
+					defineDatas.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RENDERMODE_STRETCHEDBILLBOARD);
 					break;
 				case 2: 
-					defineDatas.removeDefine(ShuriKenParticle3D.SHADERDEFINE_RENDERMODE_HORIZONTALBILLBOARD);
+					defineDatas.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RENDERMODE_HORIZONTALBILLBOARD);
 					break;
 				case 3: 
-					defineDatas.removeDefine(ShuriKenParticle3D.SHADERDEFINE_RENDERMODE_VERTICALBILLBOARD);
+					defineDatas.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RENDERMODE_VERTICALBILLBOARD);
 					break;
 				case 4: 
-					defineDatas.removeDefine(ShuriKenParticle3D.SHADERDEFINE_RENDERMODE_MESH);
+					defineDatas.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RENDERMODE_MESH);
 					break;
 				}
 				this._renderMode = value;
 				switch (value) {
 				case 0: 
-					defineDatas.addDefine(ShuriKenParticle3D.SHADERDEFINE_RENDERMODE_BILLBOARD);
+					defineDatas.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RENDERMODE_BILLBOARD);
 					break;
 				case 1: 
-					defineDatas.addDefine(ShuriKenParticle3D.SHADERDEFINE_RENDERMODE_STRETCHEDBILLBOARD);
+					defineDatas.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RENDERMODE_STRETCHEDBILLBOARD);
 					break;
 				case 2: 
-					defineDatas.addDefine(ShuriKenParticle3D.SHADERDEFINE_RENDERMODE_HORIZONTALBILLBOARD);
+					defineDatas.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RENDERMODE_HORIZONTALBILLBOARD);
 					break;
 				case 3: 
-					defineDatas.addDefine(ShuriKenParticle3D.SHADERDEFINE_RENDERMODE_VERTICALBILLBOARD);
+					defineDatas.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RENDERMODE_VERTICALBILLBOARD);
 					break;
 				case 4: 
-					defineDatas.addDefine(ShuriKenParticle3D.SHADERDEFINE_RENDERMODE_MESH);
+					defineDatas.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RENDERMODE_MESH);
 					break;
 				default: 
 					throw new Error("ShurikenParticleRender: unknown renderMode Value.");
@@ -210,8 +210,8 @@ import { Bounds } from "../Bounds"
 			case 0: //World
 				break;
 			case 1: //Local
-				sv.setVector3(ShuriKenParticle3D.WORLDPOSITION, transform.position);
-				sv.setQuaternion(ShuriKenParticle3D.WORLDROTATION, transform.rotation);
+				sv.setVector3(ShuriKenParticle3DShaderDeclaration.WORLDPOSITION, transform.position);
+				sv.setQuaternion(ShuriKenParticle3DShaderDeclaration.WORLDROTATION, transform.rotation);
 				break;
 			default: 
 				throw new Error("ShurikenParticleMaterial: SimulationSpace value is invalid.");
@@ -220,35 +220,35 @@ import { Bounds } from "../Bounds"
 			switch (particleSystem.scaleMode) {
 			case 0: 
 				var scale:Vector3 = transform.scale;
-				sv.setVector3(ShuriKenParticle3D.POSITIONSCALE, scale);
-				sv.setVector3(ShuriKenParticle3D.SIZESCALE, scale);
+				sv.setVector3(ShuriKenParticle3DShaderDeclaration.POSITIONSCALE, scale);
+				sv.setVector3(ShuriKenParticle3DShaderDeclaration.SIZESCALE, scale);
 				break;
 			case 1: 
 				var localScale:Vector3 = transform.localScale;
-				sv.setVector3(ShuriKenParticle3D.POSITIONSCALE, localScale);
-				sv.setVector3(ShuriKenParticle3D.SIZESCALE, localScale);
+				sv.setVector3(ShuriKenParticle3DShaderDeclaration.POSITIONSCALE, localScale);
+				sv.setVector3(ShuriKenParticle3DShaderDeclaration.SIZESCALE, localScale);
 				break;
 			case 2: 
-				sv.setVector3(ShuriKenParticle3D.POSITIONSCALE, transform.scale);
-				sv.setVector3(ShuriKenParticle3D.SIZESCALE, Vector3._ONE);
+				sv.setVector3(ShuriKenParticle3DShaderDeclaration.POSITIONSCALE, transform.scale);
+				sv.setVector3(ShuriKenParticle3DShaderDeclaration.SIZESCALE, Vector3._ONE);
 				break;
 			}
 			
 			Vector3.scale(Physics3DUtils.gravity, particleSystem.gravityModifier, this._finalGravity);
-			sv.setVector3(ShuriKenParticle3D.GRAVITY, this._finalGravity);
-			sv.setInt(ShuriKenParticle3D.SIMULATIONSPACE, particleSystem.simulationSpace);
-			sv.setBool(ShuriKenParticle3D.THREEDSTARTROTATION, particleSystem.threeDStartRotation);
-			sv.setInt(ShuriKenParticle3D.SCALINGMODE, particleSystem.scaleMode);
-			sv.setNumber(ShuriKenParticle3D.STRETCHEDBILLBOARDLENGTHSCALE, this.stretchedBillboardLengthScale);
-			sv.setNumber(ShuriKenParticle3D.STRETCHEDBILLBOARDSPEEDSCALE, this.stretchedBillboardSpeedScale);
-			sv.setNumber(ShuriKenParticle3D.CURRENTTIME, particleSystem._currentTime);
+			sv.setVector3(ShuriKenParticle3DShaderDeclaration.GRAVITY, this._finalGravity);
+			sv.setInt(ShuriKenParticle3DShaderDeclaration.SIMULATIONSPACE, particleSystem.simulationSpace);
+			sv.setBool(ShuriKenParticle3DShaderDeclaration.THREEDSTARTROTATION, particleSystem.threeDStartRotation);
+			sv.setInt(ShuriKenParticle3DShaderDeclaration.SCALINGMODE, particleSystem.scaleMode);
+			sv.setNumber(ShuriKenParticle3DShaderDeclaration.STRETCHEDBILLBOARDLENGTHSCALE, this.stretchedBillboardLengthScale);
+			sv.setNumber(ShuriKenParticle3DShaderDeclaration.STRETCHEDBILLBOARDSPEEDSCALE, this.stretchedBillboardSpeedScale);
+			sv.setNumber(ShuriKenParticle3DShaderDeclaration.CURRENTTIME, particleSystem._currentTime);
 		}
 		
 		/**
 		 * @inheritDoc
 		 */
 		/*override*/  get bounds():Bounds {
-			//if (!(_owner as ShuriKenParticle3D).particleSystem.isAlive) {
+			//if (!(_owner as ShuriKenParticle3DShaderDeclaration).particleSystem.isAlive) {
 			//return _defaultBoundBox;
 			//} else {
 			if (this._boundsChange) {

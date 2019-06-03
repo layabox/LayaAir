@@ -1,23 +1,25 @@
 import { Laya } from "Laya";
-import { Laya3D } from "./../../../../Laya3D";
-import { IClone } from "../IClone"
-	import { Vector2 } from "../../math/Vector2"
-	import { Vector3 } from "../../math/Vector3"
-	import { Vector4 } from "../../math/Vector4"
-	import { DefineDatas } from "../../shader/DefineDatas"
-	import { Shader3D } from "../../shader/Shader3D"
-	import { ShaderData } from "../../shader/ShaderData"
-	import { ShaderDefines } from "../../shader/ShaderDefines"
-	import { Loader } from "laya/net/Loader"
-	import { Resource } from "laya/resource/Resource"
-	import { Browser } from "laya/utils/Browser"
-	import { Handler } from "laya/utils/Handler"
-	import { BaseTexture } from "laya/resource/BaseTexture"
+import { Loader } from "laya/net/Loader";
+import { BaseTexture } from "laya/resource/BaseTexture";
+import { Resource } from "laya/resource/Resource";
+import { Browser } from "laya/utils/Browser";
+import { Handler } from "laya/utils/Handler";
+import { Vector2 } from "../../math/Vector2";
+import { Vector3 } from "../../math/Vector3";
+import { Vector4 } from "../../math/Vector4";
+import { DefineDatas } from "../../shader/DefineDatas";
+import { Shader3D } from "../../shader/Shader3D";
+import { ShaderData } from "../../shader/ShaderData";
+import { ShaderDefines } from "../../shader/ShaderDefines";
+import { IClone } from "../IClone";
 	
 	/**
 	 * <code>BaseMaterial</code> 类用于创建材质,抽象类,不允许实例。
 	 */
 	export class BaseMaterial extends Resource implements IClone {
+		/**Material资源。*/
+		static MATERIAL:string = "MATERIAL";
+
 		/** 渲染队列_不透明。*/
 		 static RENDERQUEUE_OPAQUE:number = 2000;
 		/** 渲染队列_阿尔法裁剪。*/
@@ -40,7 +42,7 @@ import { IClone } from "../IClone"
 		 * @param complete 完成回掉。
 		 */
 		 static load(url:string, complete:Handler):void {
-			Laya.loader.create(url, complete, null, Laya3D.MATERIAL);
+			Laya.loader.create(url, complete, null, BaseMaterial.MATERIAL);
 		}
 		
 		/**

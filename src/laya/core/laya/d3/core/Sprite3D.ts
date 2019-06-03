@@ -1,46 +1,25 @@
-import { RenderableSprite3D } from "././RenderableSprite3D";
-import { Transform3D } from "././Transform3D";
 import { Laya } from "Laya";
-import { Laya3D } from "./../../../Laya3D";
+import { Node } from "laya/display/Node";
+import { Loader } from "laya/net/Loader";
+import { URL } from "laya/net/URL";
+import { ICreateResource } from "laya/resource/ICreateResource";
+import { Handler } from "laya/utils/Handler";
+import { Animator } from "../component/Animator";
+import { Script3D } from "../component/Script3D";
+import { Matrix4x4 } from "../math/Matrix4x4";
+import { Quaternion } from "../math/Quaternion";
+import { Vector3 } from "../math/Vector3";
+import { Shader3D } from "../shader/Shader3D";
 import { Avatar } from "././Avatar";
-import { Animator } from "../component/Animator"
-	import { Script3D } from "../component/Script3D"
-	import { StaticBatchManager } from "../graphics/StaticBatchManager"
-	import { Matrix4x4 } from "../math/Matrix4x4"
-	import { Quaternion } from "../math/Quaternion"
-	import { Vector3 } from "../math/Vector3"
-	import { Shader3D } from "../shader/Shader3D"
-	import { Utils3D } from "../utils/Utils3D"
-	import { Node } from "laya/display/Node"
-	import { Loader } from "laya/net/Loader"
-	import { URL } from "laya/net/URL"
-	import { ICreateResource } from "laya/resource/ICreateResource"
-	import { Handler } from "laya/utils/Handler"
+import { Transform3D } from "././Transform3D";
 	
 	/**
 	 * <code>Sprite3D</code> 类用于实现3D精灵。
 	 */
 	export class Sprite3D extends Node implements ICreateResource {
-		
-		/**
-		 *@private
-		 */
-		 static _parse(data:any, propertyParams:any = null, constructParams:any[] = null):Sprite3D {
-			var json:any = data.data;
-			var outBatchSprits:RenderableSprite3D[] = [];
-			var sprite:Sprite3D;
-			switch (data.version) {
-			case "LAYAHIERARCHY:02": 
-				sprite = (<Sprite3D>Utils3D._createNodeByJson02(json, outBatchSprits) );
-				break;
-			default: 
-				sprite = (<Sprite3D>Utils3D._createNodeByJson(json, outBatchSprits) );
-			}
-			
-			StaticBatchManager.combine(sprite, outBatchSprits);
-			return sprite;
-		}
-		
+		/**Hierarchy资源。*/
+		static HIERARCHY:string = "HIERARCHY";
+
 		/**@private 着色器变量名，世界矩阵。*/
 		 static WORLDMATRIX:number = Shader3D.propertyNameToID("u_WorldMat");
 		/**@private 着色器变量名，世界视图投影矩阵。*/
@@ -86,7 +65,7 @@ import { Animator } from "../component/Animator"
 		 * @param complete 完成回掉。
 		 */
 		 static load(url:string, complete:Handler):void {
-			Laya.loader.create(url, complete, null, Laya3D.HIERARCHY);
+			Laya.loader.create(url, complete, null, Sprite3D.HIERARCHY);
 		}
 		
 		/** @private */

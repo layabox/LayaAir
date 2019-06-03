@@ -1,25 +1,24 @@
-import { Laya3D } from "./../../../Laya3D";
-import { PhysicsUpdateList } from "././PhysicsUpdateList";
+import { ILaya3D } from "ILaya3D";
+import { Stat } from "laya/utils/Stat";
+import { Script3D } from "../component/Script3D";
+import { Sprite3D } from "../core/Sprite3D";
+import { Quaternion } from "../math/Quaternion";
+import { Ray } from "../math/Ray";
+import { Vector3 } from "../math/Vector3";
+import { Physics3DUtils } from "../utils/Physics3DUtils";
 import { CharacterController } from "././CharacterController";
-import { Script3D } from "../component/Script3D"
-	import { Sprite3D } from "../core/Sprite3D"
-	import { Quaternion } from "../math/Quaternion"
-	import { Ray } from "../math/Ray"
-	import { Vector3 } from "../math/Vector3"
-	import { Collision } from "./Collision"
-	import { CollisionTool } from "./CollisionTool"
-	import { Constraint3D } from "./Constraint3D"
-	import { ContactPoint } from "./ContactPoint"
-	import { HitResult } from "./HitResult"
-	import { PhysicsCollider } from "./PhysicsCollider"
-	import { PhysicsComponent } from "./PhysicsComponent"
-	import { PhysicsSettings } from "./PhysicsSettings"
-	import { PhysicsTriggerComponent } from "./PhysicsTriggerComponent"
-	import { Rigidbody3D } from "./Rigidbody3D"
-	import { ColliderShape } from "./shape/ColliderShape"
-	import { Physics3DUtils } from "../utils/Physics3DUtils"
-	import { Event } from "laya/events/Event"
-	import { Stat } from "laya/utils/Stat"
+import { PhysicsUpdateList } from "././PhysicsUpdateList";
+import { Collision } from "./Collision";
+import { CollisionTool } from "./CollisionTool";
+import { Constraint3D } from "./Constraint3D";
+import { ContactPoint } from "./ContactPoint";
+import { HitResult } from "./HitResult";
+import { PhysicsCollider } from "./PhysicsCollider";
+import { PhysicsComponent } from "./PhysicsComponent";
+import { PhysicsSettings } from "./PhysicsSettings";
+import { PhysicsTriggerComponent } from "./PhysicsTriggerComponent";
+import { Rigidbody3D } from "./Rigidbody3D";
+import { ColliderShape } from "./shape/ColliderShape";
 	
 	/**
 	 * <code>Simulation</code> 类用于创建物理模拟器。
@@ -58,17 +57,17 @@ import { Script3D } from "../component/Script3D"
 		 static SOLVERMODE_ALLOW_ZERO_LENGTH_FRICTION_DIRECTIONS:number = 1024;
 		
 		/** @private */
-		private static _nativeTempVector30:any = new Laya3D._physics3D.btVector3(0, 0, 0);
+		private static _nativeTempVector30:any = new ILaya3D.Laya3D._physics3D.btVector3(0, 0, 0);
 		/** @private */
-		private static _nativeTempVector31:any = new Laya3D._physics3D.btVector3(0, 0, 0);
+		private static _nativeTempVector31:any = new ILaya3D.Laya3D._physics3D.btVector3(0, 0, 0);
 		/** @private */
-		private static _nativeTempQuaternion0:any = new Laya3D._physics3D.btQuaternion(0, 0, 0, 1);
+		private static _nativeTempQuaternion0:any = new ILaya3D.Laya3D._physics3D.btQuaternion(0, 0, 0, 1);
 		/** @private */
-		private static _nativeTempQuaternion1:any = new Laya3D._physics3D.btQuaternion(0, 0, 0, 1);
+		private static _nativeTempQuaternion1:any = new ILaya3D.Laya3D._physics3D.btQuaternion(0, 0, 0, 1);
 		/** @private */
-		private static _nativeTempTransform0:any = new Laya3D._physics3D.btTransform();
+		private static _nativeTempTransform0:any = new ILaya3D.Laya3D._physics3D.btTransform();
 		/** @private */
-		private static _nativeTempTransform1:any = new Laya3D._physics3D.btTransform();
+		private static _nativeTempTransform1:any = new ILaya3D.Laya3D._physics3D.btTransform();
 		/**@private */
 		private static _tempVector30:Vector3 = new Vector3();
 		
@@ -100,9 +99,9 @@ import { Script3D } from "../component/Script3D"
 		private _gravity:Vector3 = new Vector3(0, -10, 0);
 		
 		/** @private */
-		private _nativeVector3Zero:any = new Laya3D._physics3D.btVector3(0, 0, 0);
+		private _nativeVector3Zero:any = new ILaya3D.Laya3D._physics3D.btVector3(0, 0, 0);
 		/** @private */
-		private _nativeDefaultQuaternion:any = new Laya3D._physics3D.btQuaternion(0, 0, 0, -1);
+		private _nativeDefaultQuaternion:any = new ILaya3D.Laya3D._physics3D.btQuaternion(0, 0, 0, -1);
 		/**@private */
 		private _nativeClosestRayResultCallback:any;
 		/**@private */
@@ -195,7 +194,7 @@ import { Script3D } from "../component/Script3D"
 			this.maxSubSteps = configuration.maxSubSteps;
 			this.fixedTimeStep = configuration.fixedTimeStep;
 			
-			var physics3D:any = Laya3D._physics3D;
+			var physics3D:any = ILaya3D.Laya3D._physics3D;
 			this._nativeCollisionConfiguration = new physics3D.btDefaultCollisionConfiguration();
 			this._nativeDispatcher = new physics3D.btCollisionDispatcher(this._nativeCollisionConfiguration);
 			this._nativeBroadphase = new physics3D.btDbvtBroadphase();
@@ -242,7 +241,7 @@ import { Script3D } from "../component/Script3D"
 		 * @private
 		 */
 		 _destroy():void {
-			var physics3D:any = Laya3D._physics3D;
+			var physics3D:any = ILaya3D.Laya3D._physics3D;
 			if (this._nativeDiscreteDynamicsWorld) {
 				physics3D.destroy(this._nativeDiscreteDynamicsWorld);
 				this._nativeDiscreteDynamicsWorld = null;

@@ -84,6 +84,7 @@ import { PostProcess } from "../component/PostProcess"
 	export class ShaderInit3D {
 		/**@private */
 		 static _rangeAttenTex:Texture2D;
+
 		/**
 		 * 创建一个 <code>ShaderInit</code> 实例。
 		 */
@@ -99,19 +100,6 @@ import { PostProcess } from "../component/PostProcess"
 			ShaderInit3D._rangeAttenTex.wrapModeV = BaseTexture.WARPMODE_CLAMP;
 			ShaderInit3D._rangeAttenTex.lock = true;
 			Shader3D.SHADERDEFINE_HIGHPRECISION = Shader3D.registerPublicDefine("HIGHPRECISION");
-			Scene3D.SHADERDEFINE_FOG=Shader3D.registerPublicDefine("FOG");
-			Scene3D.SHADERDEFINE_DIRECTIONLIGHT=Shader3D.registerPublicDefine("DIRECTIONLIGHT");
-			Scene3D.SHADERDEFINE_POINTLIGHT=Shader3D.registerPublicDefine("POINTLIGHT");
-			Scene3D.SHADERDEFINE_SPOTLIGHT=Shader3D.registerPublicDefine("SPOTLIGHT");
-			Scene3D.SHADERDEFINE_CAST_SHADOW= Shader3D.registerPublicDefine("CASTSHADOW");
-			Scene3D.SHADERDEFINE_SHADOW_PSSM1= Shader3D.registerPublicDefine("SHADOWMAP_PSSM1");
-			Scene3D.SHADERDEFINE_SHADOW_PSSM2= Shader3D.registerPublicDefine("SHADOWMAP_PSSM2");
-			Scene3D.SHADERDEFINE_SHADOW_PSSM3= Shader3D.registerPublicDefine("SHADOWMAP_PSSM3");
-			Scene3D.SHADERDEFINE_SHADOW_PCF_NO=Shader3D.registerPublicDefine("SHADOWMAP_PCF_NO");
-			Scene3D.SHADERDEFINE_SHADOW_PCF1= Shader3D.registerPublicDefine("SHADOWMAP_PCF1");
-			Scene3D.SHADERDEFINE_SHADOW_PCF2=Shader3D.registerPublicDefine("SHADOWMAP_PCF2");
-			Scene3D.SHADERDEFINE_SHADOW_PCF3=Shader3D.registerPublicDefine("SHADOWMAP_PCF3");
-			Scene3D.SHADERDEFINE_REFLECTMAP=Shader3D.registerPublicDefine("REFLECTMAP");
 			
 			
 			Shader3D.addInclude("Lighting.glsl", LightingGLSL);
