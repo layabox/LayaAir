@@ -179,7 +179,6 @@ export class Laya3D {
 		ILaya3D.Laya3D = Laya3D;
 		ILaya3D.CommandBuffer = CommandBuffer;
 		ILaya3D.Matrix4x4 = Matrix4x4;
-		ILaya3D.Scene3DUtils = Scene3DUtils;
 
 		//函数里面会有判断isConchApp
 		Laya3D.enableNative3D();
@@ -258,7 +257,7 @@ export class Laya3D {
 
 		var createMap: any = LoaderManager.createMap;
 		createMap["lh"] = [Laya3D.HIERARCHY, Scene3DUtils._parse];
-		createMap["ls"] = [Laya3D.HIERARCHY, Scene3D._parse];
+		createMap["ls"] = [Laya3D.HIERARCHY, Scene3DUtils._parseScene];
 		createMap["lm"] = [Laya3D.MESH, Mesh._parse];
 		createMap["lmat"] = [Laya3D.MATERIAL, BaseMaterial._parse];
 		createMap["ltc"] = [Laya3D.TEXTURECUBE, TextureCube._parse];
@@ -578,7 +577,7 @@ export class Laya3D {
 	private static _onHierarchyInnerFirstLevResouLoaded(loader: Loader, processHandler: Handler, lhData: any, subUrls: any[]): void {
 		(processHandler) && (processHandler.recover());
 		loader._cache = loader._createCache;
-		var item: Node = lhData.data.type === "Scene3D" ? Scene3D._parse(lhData, loader._propertyParams, loader._constructParams) : Scene3DUtils._parse(lhData, loader._propertyParams, loader._constructParams);
+		var item: Node = lhData.data.type === "Scene3D" ? Scene3DUtils._parseScene(lhData, loader._propertyParams, loader._constructParams) : Scene3DUtils._parse(lhData, loader._propertyParams, loader._constructParams);
 		Laya3D._endLoad(loader, item, subUrls);
 	}
 

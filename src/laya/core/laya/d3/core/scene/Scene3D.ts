@@ -55,6 +55,7 @@ import { RenderableSprite3D } from "../RenderableSprite3D";
 import { Sprite3D } from "../Sprite3D";
 import { BoundsOctree } from "././BoundsOctree";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
+import { Scene3DUtils } from "laya/d3/utils/Scene3DUtils";
 
 
 
@@ -136,24 +137,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF3 = Shader3D.registerPublicDefine("SHADOWMAP_PCF3");
 		Scene3DShaderDeclaration.SHADERDEFINE_REFLECTMAP = Shader3D.registerPublicDefine("REFLECTMAP");
 	}
-	/**
-	 *@private
-	 */
-	static _parse(data: any, propertyParams: any = null, constructParams: any[] = null): Scene3D {
-		var json: any = data.data;
-		var outBatchSprits: RenderableSprite3D[] = [];
-		var scene: Scene3D;
-		switch (data.version) {
-			case "LAYASCENE3D:02":
-				scene = (<Scene3D>ILaya3D.Scene3DUtils._createNodeByJson02(json, outBatchSprits));
-				break;
-			default:
-				scene = (<Scene3D>ILaya3D.Scene3DUtils._createNodeByJson(json, outBatchSprits));
-		}
-
-		StaticBatchManager.combine(null, outBatchSprits);
-		return scene;
-	}
+	
 
 	/**
 	 * 加载场景,注意:不缓存。

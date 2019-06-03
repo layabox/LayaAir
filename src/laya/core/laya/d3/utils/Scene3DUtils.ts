@@ -107,6 +107,8 @@ import { StaticBatchManager } from "../graphics/StaticBatchManager";
 				}
 			}
 		}
+
+
         
         /**
 		 * @private
@@ -137,6 +139,25 @@ import { StaticBatchManager } from "../graphics/StaticBatchManager";
 			StaticBatchManager.combine(sprite, outBatchSprits);
 			return sprite;
 		}
+
+	/**
+	 *@private
+	 */
+	static _parseScene(data: any, propertyParams: any = null, constructParams: any[] = null): Scene3D {
+		var json: any = data.data;
+		var outBatchSprits: RenderableSprite3D[] = [];
+		var scene: Scene3D;
+		switch (data.version) {
+			case "LAYASCENE3D:02":
+				scene = <Scene3D>Scene3DUtils._createNodeByJson02(json, outBatchSprits);
+				break;
+			default:
+				scene = <Scene3D>Scene3DUtils._createNodeByJson(json, outBatchSprits);
+		}
+
+		StaticBatchManager.combine(null, outBatchSprits);
+		return scene;
+	}
         
       //--------------------------------------------------------------------------------------------------------------------------------
 		

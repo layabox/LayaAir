@@ -18,6 +18,5 @@ import { Laya3D } from "Laya3D";
      static Laya3D:typeof Laya3D = null;
      static CommandBuffer:typeof CommandBuffer = null;
      static Matrix4x4:typeof Matrix4x4 = null;
-     static Scene3DUtils:typeof Scene3DUtils = null;
  }
  
