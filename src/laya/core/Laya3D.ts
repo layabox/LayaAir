@@ -177,12 +177,6 @@ export class Laya3D {
 		ILaya3D.MeshRenderDynamicBatchManager = MeshRenderDynamicBatchManager;
 		ILaya3D.SubMeshDynamicBatch = SubMeshDynamicBatch;
 		ILaya3D.Laya3D = Laya3D;
-		ILaya3D.BoxColliderShape = BoxColliderShape;
-		ILaya3D.SphereColliderShape = SphereColliderShape;
-		ILaya3D.CapsuleColliderShape = CapsuleColliderShape;
-		ILaya3D.MeshColliderShape = MeshColliderShape;
-		ILaya3D.ConeColliderShape = ConeColliderShape;
-		ILaya3D.CylinderColliderShape = CylinderColliderShape;
 		ILaya3D.CommandBuffer = CommandBuffer;
 		ILaya3D.Matrix4x4 = Matrix4x4;
 		ILaya3D.Scene3DUtils = Scene3DUtils;
