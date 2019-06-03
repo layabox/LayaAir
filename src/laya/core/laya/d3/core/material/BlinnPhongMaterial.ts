@@ -47,13 +47,13 @@ import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
 		 static defaultMaterial:BlinnPhongMaterial;
 		
 		/**@private */
-		 static shaderDefines:ShaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
+		 static shaderDefines:ShaderDefines = null;
 		
 		/**
 		 * @private
 		 */
-		 static __init__():void {
-			//BlinnPhongMaterial.defaultMaterial= new BlinnPhongMaterial();
+		 static __initDefine__():void {
+			BlinnPhongMaterial.shaderDefines= new ShaderDefines(BaseMaterial.shaderDefines);
 			BlinnPhongMaterial.SHADERDEFINE_DIFFUSEMAP = BlinnPhongMaterial.shaderDefines.registerDefine("DIFFUSEMAP");
 			BlinnPhongMaterial.SHADERDEFINE_NORMALMAP = BlinnPhongMaterial.shaderDefines.registerDefine("NORMALMAP");
 			BlinnPhongMaterial.SHADERDEFINE_SPECULARMAP = BlinnPhongMaterial.shaderDefines.registerDefine("SPECULARMAP");

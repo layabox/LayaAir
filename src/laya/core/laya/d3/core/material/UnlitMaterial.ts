@@ -36,13 +36,13 @@ export class UnlitMaterial extends BaseMaterial {
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: UnlitMaterial;
 	/**@private */
-	static shaderDefines: ShaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
+	static shaderDefines: ShaderDefines=null;
 
 	/**
 	 * @private
 	 */
-	static __init__(): void {
-		//UnlitMaterial.defaultMaterial = new UnlitMaterial();
+	static __initDefine__(): void {
+		UnlitMaterial.shaderDefines= new ShaderDefines(BaseMaterial.shaderDefines);
 		UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE = UnlitMaterial.shaderDefines.registerDefine("ALBEDOTEXTURE");
 		UnlitMaterial.SHADERDEFINE_TILINGOFFSET = UnlitMaterial.shaderDefines.registerDefine("TILINGOFFSET");
 		UnlitMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR = UnlitMaterial.shaderDefines.registerDefine("ENABLEVERTEXCOLOR");

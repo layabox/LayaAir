@@ -32,13 +32,13 @@ export class EffectMaterial extends BaseMaterial {
 	static DEPTH_WRITE: number = Shader3D.propertyNameToID("s_DepthWrite");
 
 	/**@private */
-	static shaderDefines: ShaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
+	static shaderDefines: ShaderDefines =null;
 
 	/**
 	 * @private
 	 */
-	static __init__(): void {
-		//EffectMaterial.defaultMaterial = new EffectMaterial();
+	static __initDefine__(): void {
+		EffectMaterial.shaderDefines= new ShaderDefines(BaseMaterial.shaderDefines);
 		EffectMaterial.SHADERDEFINE_MAINTEXTURE = EffectMaterial.shaderDefines.registerDefine("MAINTEXTURE");
 		EffectMaterial.SHADERDEFINE_TILINGOFFSET = EffectMaterial.shaderDefines.registerDefine("TILINGOFFSET");
 		EffectMaterial.SHADERDEFINE_ADDTIVEFOG = EffectMaterial.shaderDefines.registerDefine("ADDTIVEFOG");

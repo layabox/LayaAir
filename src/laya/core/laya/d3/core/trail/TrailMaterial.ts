@@ -32,13 +32,13 @@ export class TrailMaterial extends BaseMaterial {
 	static DEPTH_WRITE: number = Shader3D.propertyNameToID("s_DepthWrite");
 
 	/**@private */
-	static shaderDefines: ShaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
+	static shaderDefines: ShaderDefines=null;
 
 	/**
 	 * @private
 	 */
-	static __init__(): void {
-		//TrailMaterial.defaultMaterial = new TrailMaterial();
+	static __initDefine__(): void {
+		TrailMaterial.shaderDefines= new ShaderDefines(BaseMaterial.shaderDefines);
 		TrailMaterial.SHADERDEFINE_MAINTEXTURE = TrailMaterial.shaderDefines.registerDefine("MAINTEXTURE");
 		TrailMaterial.SHADERDEFINE_TILINGOFFSET = TrailMaterial.shaderDefines.registerDefine("TILINGOFFSET");
 		TrailMaterial.SHADERDEFINE_ADDTIVEFOG = TrailMaterial.shaderDefines.registerDefine("ADDTIVEFOG");

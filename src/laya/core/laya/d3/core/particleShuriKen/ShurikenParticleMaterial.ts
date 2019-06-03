@@ -34,13 +34,13 @@ import { BaseMaterial } from "../material/BaseMaterial"
 		/** 默认材质，禁止修改*/
 		 static defaultMaterial:ShurikenParticleMaterial;
 		/**@private */
-		 static shaderDefines:ShaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
+		 static shaderDefines:ShaderDefines = null;
 		
 		/**
 		 * @private
 		 */
-		 static __init__():void {
-			//ShurikenParticleMaterial.defaultMaterial = new ShurikenParticleMaterial();
+		 static __initDefine__():void {
+			ShurikenParticleMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
 			ShurikenParticleMaterial.SHADERDEFINE_DIFFUSEMAP = ShurikenParticleMaterial.shaderDefines.registerDefine("DIFFUSEMAP");
 			ShurikenParticleMaterial.SHADERDEFINE_TINTCOLOR = ShurikenParticleMaterial.shaderDefines.registerDefine("TINTCOLOR");
 			ShurikenParticleMaterial.SHADERDEFINE_ADDTIVEFOG = ShurikenParticleMaterial.shaderDefines.registerDefine("ADDTIVEFOG");

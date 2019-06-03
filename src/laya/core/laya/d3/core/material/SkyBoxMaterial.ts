@@ -18,8 +18,8 @@ export class SkyBoxMaterial extends BaseMaterial {
 	/**
 	* @private
 	*/
-	static __init__(): void {
-		//SkyBoxMaterial.defaultMaterial = new SkyBoxMaterial();
+	static __initDefine__(): void {
+		
 	}
 
 	/**

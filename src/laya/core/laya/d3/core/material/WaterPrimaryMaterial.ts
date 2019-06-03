@@ -23,13 +23,13 @@ export class WaterPrimaryMaterial extends BaseMaterial {
 	static defaultMaterial: WaterPrimaryMaterial;
 
 	/**@private */
-	static shaderDefines: ShaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
+	static shaderDefines: ShaderDefines =null;
 
 	/**
 	 * @private
 	 */
-	static __init__(): void {
-		//WaterPrimaryMaterial.defaultMaterial = new WaterPrimaryMaterial();
+	static __initDefine__(): void {
+		WaterPrimaryMaterial.shaderDefines =new ShaderDefines(BaseMaterial.shaderDefines);
 		WaterPrimaryMaterial.SHADERDEFINE_MAINTEXTURE = WaterPrimaryMaterial.shaderDefines.registerDefine("MAINTEXTURE");
 		WaterPrimaryMaterial.SHADERDEFINE_NORMALTEXTURE = WaterPrimaryMaterial.shaderDefines.registerDefine("NORMALTEXTURE");
 	}

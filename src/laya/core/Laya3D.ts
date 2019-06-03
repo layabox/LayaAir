@@ -212,19 +212,19 @@ export class Laya3D {
 		PostProcess.__init__();
 		Scene3D.__init__();
 		
-		BaseMaterial.__init__();
-		BlinnPhongMaterial.__init__();
-		PBRStandardMaterial.__init__();
-		PBRSpecularMaterial.__init__();
-		SkyProceduralMaterial.__init__();
-		UnlitMaterial.__init__();
-		TrailMaterial.__init__();
-		EffectMaterial.__init__();
-		WaterPrimaryMaterial.__init__();
-		ShurikenParticleMaterial.__init__();
-		ExtendTerrainMaterial.__init__();
-		PixelLineMaterial.__init__();
-		SkyBoxMaterial.__init__();
+		BaseMaterial.__initDefine__();
+		BlinnPhongMaterial.__initDefine__();
+		PBRStandardMaterial.__initDefine__();
+		PBRSpecularMaterial.__initDefine__();
+		SkyProceduralMaterial.__initDefine__();
+		UnlitMaterial.__initDefine__();
+		TrailMaterial.__initDefine__();
+		EffectMaterial.__initDefine__();
+		WaterPrimaryMaterial.__initDefine__();
+		ShurikenParticleMaterial.__initDefine__();
+		ExtendTerrainMaterial.__initDefine__();
+		PixelLineMaterial.__initDefine__();
+		SkyBoxMaterial.__initDefine__();
 		ShaderInit3D.__init__();
 
 		(Laya as any).BlinnPhongMaterial=BlinnPhongMaterial;//todo:

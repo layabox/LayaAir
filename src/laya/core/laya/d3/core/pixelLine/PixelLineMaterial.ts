@@ -14,7 +14,7 @@ export class PixelLineMaterial extends BaseMaterial {
 	static defaultMaterial: PixelLineMaterial;
 
 	/**@private */
-	static shaderDefines: ShaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
+	static shaderDefines: ShaderDefines=null;
 
 	static CULL: number = Shader3D.propertyNameToID("s_Cull");
 	static BLEND: number = Shader3D.propertyNameToID("s_Blend");
@@ -26,8 +26,8 @@ export class PixelLineMaterial extends BaseMaterial {
 	/**
 	* @private
 	*/
-	static __init__(): void {
-		//PixelLineMaterial.defaultMaterial = new PixelLineMaterial();
+	static __initDefine__(): void {
+		PixelLineMaterial.shaderDefines= new ShaderDefines(BaseMaterial.shaderDefines);
 	}
 
 	/**

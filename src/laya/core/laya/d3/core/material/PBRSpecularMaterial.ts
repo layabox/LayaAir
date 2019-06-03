@@ -67,13 +67,13 @@ export class PBRSpecularMaterial extends BaseMaterial {
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: PBRSpecularMaterial;
 	/**@private */
-	static shaderDefines: ShaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
+	static shaderDefines: ShaderDefines = null;
 
 	/**
 	 * @private
 	 */
-	static __init__(): void {
-		//PBRSpecularMaterial.defaultMaterial = new PBRSpecularMaterial();
+	static __initDefine__(): void {
+		PBRSpecularMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
 		PBRSpecularMaterial.SHADERDEFINE_ALBEDOTEXTURE = PBRSpecularMaterial.shaderDefines.registerDefine("ALBEDOTEXTURE");
 		PBRSpecularMaterial.SHADERDEFINE_SPECULARTEXTURE = PBRSpecularMaterial.shaderDefines.registerDefine("SPECULARTEXTURE");
 		PBRSpecularMaterial.SHADERDEFINE_SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA = PBRSpecularMaterial.shaderDefines.registerDefine("SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA");

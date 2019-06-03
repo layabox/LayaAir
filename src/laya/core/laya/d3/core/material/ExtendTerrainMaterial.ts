@@ -46,12 +46,13 @@ import { RenderState } from "./RenderState";
 		 static SHADERDEFINE_DETAIL_NUM5:number;
 		
 		/**@private */
-		 static shaderDefines:ShaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
+		 static shaderDefines:ShaderDefines=null;
 		
 		/**
 		 * @private
 		 */
-		 static __init__():void {
+		 static __initDefine__():void {
+			ExtendTerrainMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
 			ExtendTerrainMaterial.SHADERDEFINE_DETAIL_NUM1 = ExtendTerrainMaterial.shaderDefines.registerDefine("ExtendTerrain_DETAIL_NUM1");
 			ExtendTerrainMaterial.SHADERDEFINE_DETAIL_NUM2 = ExtendTerrainMaterial.shaderDefines.registerDefine("ExtendTerrain_DETAIL_NUM2");
 			ExtendTerrainMaterial.SHADERDEFINE_DETAIL_NUM3 = ExtendTerrainMaterial.shaderDefines.registerDefine("ExtendTerrain_DETAIL_NUM3");
