@@ -60,16 +60,16 @@ import { Command } from "././Command";
 		 * @inheritDoc
 		 */
 		/*override*/  run():void {//TODO:相机的UV
-			var shader:Shader3D = this._shader || ILaya3D.CommandBuffer._screenShader;
-			var shaderData:ShaderData = this._shaderData || ILaya3D.CommandBuffer._screenShaderData;
+			var shader:Shader3D = this._shader || Command._screenShader;
+			var shaderData:ShaderData = this._shaderData || Command._screenShaderData;
 			var dest:RenderTexture = this._dest;
 			
 			LayaGL.instance.viewport(0, 0, dest ? dest.width : RenderContext3D.clientWidth, dest ? dest.height : RenderContext3D.clientHeight);//TODO:是否在此
 			
 			//TODO:优化
-			shaderData.setTexture(ILaya3D.CommandBuffer.SCREENTEXTURE_ID, this._source);
+			shaderData.setTexture(Command.SCREENTEXTURE_ID, this._source);
 			this._sourceTexelSize.setValue(1.0 / this._source.width, 1.0 / this._source.height, this._source.width, this._source.height);
-			shaderData.setVector(ILaya3D.CommandBuffer.MAINTEXTURE_TEXELSIZE_ID, this._sourceTexelSize);
+			shaderData.setVector(Command.MAINTEXTURE_TEXELSIZE_ID, this._sourceTexelSize);
 			
 			(dest) && (dest._start());
 			var subShader:SubShader = shader.getSubShaderAt(this._subShader);

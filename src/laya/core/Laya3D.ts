@@ -177,7 +177,6 @@ export class Laya3D {
 		ILaya3D.MeshRenderDynamicBatchManager = MeshRenderDynamicBatchManager;
 		ILaya3D.SubMeshDynamicBatch = SubMeshDynamicBatch;
 		ILaya3D.Laya3D = Laya3D;
-		ILaya3D.CommandBuffer = CommandBuffer;
 		ILaya3D.Matrix4x4 = Matrix4x4;
 
 		//函数里面会有判断isConchApp
