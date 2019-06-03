@@ -1,8 +1,12 @@
 import {delay, loadRes} from './delay.js'
+import { Laya } from 'Laya.js';
+import { Sprite } from 'laya/display/Sprite.js';
+import { Text } from 'laya/display/Text.js';
+import { Image } from 'laya/ui/Image.js';
 
 class Main {
 	constructor() {
-        Laya3D.init(800,600);
+        Laya.init(800,600);
 		//Laya.stage.scaleMode = 'fixedwidth';
 		Laya.stage.screenMode = 'none';
         //Laya.Stat.show();
@@ -14,34 +18,34 @@ class Main {
      */
     async test1(){
         await loadRes('./res/monkey0.png');
-        var sp = new Laya.Sprite();
+        var sp = new Sprite();
         sp.drawCallOptimize=true;       // 优化
         sp.pos(100,100);
         Laya.stage.addChild(sp);
 
-        var sp2 = new Laya.Sprite();
+        var sp2 = new Sprite();
         sp2.cacheAs='normal';           // 加 normal
         sp.addChild(sp2);
 
-        var tx1 = new Laya.Text();   
+        var tx1 = new Text();   
         tx1.text='A';
         tx1.pos(100,0);
         tx1.fontSize=40;
         tx1.color='red';
         sp2.addChild(tx1);
 
-        var i1 = new Laya.Image();
+        var i1 = new Image();
         i1.skin = './res/monkey0.png';
         sp2.addChild(i1);
 
-        var t2 = new Laya.Text();   
+        var t2 = new Text();   
         t2.text='B';
         t2.pos(200,0);
         t2.fontSize=40;
         t2.color='red';
         sp2.addChild(t2);
 
-        var t3 = new Laya.Text();   
+        var t3 = new Text();   
         t3.text='C';
         t3.pos(230,0);
         t3.fontSize=40;

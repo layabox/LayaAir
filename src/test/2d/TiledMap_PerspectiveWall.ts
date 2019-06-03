@@ -7,9 +7,10 @@ import { TiledMap } from "laya/map/TiledMap";
 	export class TiledMap_PerspectiveWall
 	{
 		private tiledMap:TiledMap;
-		constructor(){
-			// 不支持WebGL时自动切换至Canvas
-//			Laya.init(700, 500, WebGL);
+		    Main:typeof Main = null;
+            constructor(maincls:typeof Main){
+                this.Main=maincls;
+    //			Laya.init(700, 500, WebGL);
 			Laya.stage.alignV = ILaya.Stage.ALIGN_MIDDLE;
 			Laya.stage.alignH = ILaya.Stage.ALIGN_CENTER;
 
@@ -27,7 +28,7 @@ import { TiledMap } from "laya/map/TiledMap";
 		private onLoaded():void
 		{
 			this.tiledMap.mapSprite().removeSelf();
-			Main.box2D.addChild(this.tiledMap.mapSprite());
+			this.Main.box2D.addChild(this.tiledMap.mapSprite());
 		}
 		
 		 dispose():void

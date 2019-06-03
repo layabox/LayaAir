@@ -5,8 +5,8 @@ import { Loader } from "laya/net/Loader"
 	
 	export class Loader_SingleType 
 	{
-		
-		constructor(){
+        constructor(){
+
 			Laya.init(550, 400);
 			
 			// 加载一张png类型资源

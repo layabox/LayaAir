@@ -22,7 +22,10 @@ import { Gyroscope } from "laya/device/motion/Gyroscope"
 		private directionIndicator:Sprite;
 		private firstTime:boolean = true;
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			Laya.init(700, 1024, WebGL);
 			Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
 			Laya.stage.alignH = Stage.ALIGN_CENTER;
@@ -48,7 +51,7 @@ import { Gyroscope } from "laya/device/motion/Gyroscope"
 		private createCompass():void
 		{
 			this.compassImg = new Sprite();
-			Main.box2D.addChild(this.compassImg);
+			this.Main.box2D.addChild(this.compassImg);
 			this.compassImg.loadImage(this.compassImgPath);
 			
 			this.compassImg.pivot(this.compassImg.width / 2, this.compassImg.height / 2);
@@ -58,7 +61,7 @@ import { Gyroscope } from "laya/device/motion/Gyroscope"
 		private drawUI():void
 		{
 			var canvas:Sprite = new Sprite();
-			Main.box2D.addChild(canvas);
+			this.Main.box2D.addChild(canvas);
 			
 			canvas.graphics.drawLine(this.compassImg.x, 50, this.compassImg.x, 182, "#FFFFFF", 3);
 			
@@ -69,7 +72,7 @@ import { Gyroscope } from "laya/device/motion/Gyroscope"
 		private createDegreesText():void
 		{
 			this.degreesText = new Text();
-			Main.box2D.addChild(this.degreesText);
+			this.Main.box2D.addChild(this.degreesText);
 			
 			this.degreesText.align = "center";
 			this.degreesText.size(Laya.stage.width, 100);
@@ -82,7 +85,7 @@ import { Gyroscope } from "laya/device/motion/Gyroscope"
 		private createDirectionIndicator():void
 		{
 			this.directionIndicator = new Sprite();
-			Main.box2D.addChild(this.directionIndicator);
+			this.Main.box2D.addChild(this.directionIndicator);
 			
 			this.directionIndicator.alpha = 0.8;
 			

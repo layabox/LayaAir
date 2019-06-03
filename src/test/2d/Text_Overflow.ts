@@ -7,7 +7,10 @@ import { Stage } from "laya/display/Stage"
 
 	export class Text_Overflow
 	{
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(600, 300, WebGL);
 
@@ -50,7 +53,7 @@ import { Stage } from "laya/display/Stage"
 			txt.fontSize = 20;
 			txt.color = "#ffffff";
 			
-			Main.box2D.addChild(txt);
+			this.Main.box2D.addChild(txt);
 
 			return txt;
 		}

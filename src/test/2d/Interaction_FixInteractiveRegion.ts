@@ -11,7 +11,10 @@ import { Sprite } from "laya/display/Sprite"
 	{
 		private logger:Text;
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 //
@@ -49,7 +52,7 @@ Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 			//设置名称
 			coralRect.name = "珊瑚色容器";
 			coralRect.size(Laya.stage.width, Laya.stage.height / 2);
-			Main.box2D.addChild(coralRect);
+			this.Main.box2D.addChild(coralRect);
 			
 			coralRect.on(Event.MOUSE_DOWN, this, this.onDown);
 		}
@@ -63,7 +66,7 @@ Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 			//设置宽高（要接收鼠标事件必须设置宽高，否则不会被命中）  
 			deepSkyblueRect.size(100, 100);
 			deepSkyblueRect.pos(10, 10);
-			Main.box2D.addChild(deepSkyblueRect);
+			this.Main.box2D.addChild(deepSkyblueRect);
 			
 			deepSkyblueRect.on(Event.MOUSE_DOWN, this, this.onDown);
 		}
@@ -75,7 +78,7 @@ Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 			darkOrchidRect.graphics.drawRect(-100, -100, 200, 200, "#9932CC");
 
 			darkOrchidRect.pos(Laya.stage.width / 2, Laya.stage.height / 2);
-			Main.box2D.addChild(darkOrchidRect);
+			this.Main.box2D.addChild(darkOrchidRect);
 
 			// 为true时，碰撞区域会被修正为实际显示边界
 			// mouseThrough命名真是具有强烈的误导性
@@ -90,7 +93,7 @@ Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 			this.logger.align = 'right';
 			this.logger.fontSize = 20;
 			this.logger.color = "#FFFFFF";
-			Main.box2D.addChild(this.logger);
+			this.Main.box2D.addChild(this.logger);
 		}
 		
 		/**侦听处理方法*/

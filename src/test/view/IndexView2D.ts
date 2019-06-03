@@ -96,6 +96,7 @@ import { Event } from "laya/events/Event"
 	
 	import { IndexViewUI } from "../ui/IndexViewUI"
 import { Sprite } from "../../../bin/libs/laya/display/Sprite";
+import { Main } from "../Main";
 	
 	/**
 	 * 首页View 
@@ -209,9 +210,10 @@ import { Sprite } from "../../../bin/libs/laya/display/Sprite";
 		private _bigIndex:number =0;
 		private _smallIndex:number;
 		private _oldView:any;
-		
-		constructor(box:Sprite){
+		private Main:typeof Main;
+		constructor(box:Sprite, MainCls:typeof Main){
             super();
+            this.Main=MainCls;
             this.box2d = box;
 			this.initView();
 			this.initEvent();
@@ -324,82 +326,82 @@ import { Sprite } from "../../../bin/libs/laya/display/Sprite";
 			
 			if (false)
 			{
-				this._oldView = new  Timer_CallLater;
+				this._oldView = new  Timer_CallLater(this.Main);
 			}
 			else
 			{
 				switch(this._bigIndex)
 				{
 					case 0://sprite
-						this._oldView = new this._comboBoxSpriteClsArr[index];
+						this._oldView = new this._comboBoxSpriteClsArr[index](this.Main);
 						this.b_length = this._comboBoxSpriteClsArr.length - 1;
 						break;
 					case 1://Animation
-						this._oldView = new this._comboBoxAnimationClsArr[index];
+						this._oldView = new this._comboBoxAnimationClsArr[index](this.Main);
 						this.b_length = this._comboBoxAnimationClsArr.length - 1;
 						break;
 					case 2://Skeleton
-						this._oldView = new this._comboBoxSkeletonClsArr[index];
+						this._oldView = new this._comboBoxSkeletonClsArr[index](this.Main);
 						this.b_length = this._comboBoxSkeletonClsArr.length - 1;
 						break;
 					case 3://BlendMode
-						this._oldView = new this._comboBoxBlendModeClsArr[index];
+						this._oldView = new this._comboBoxBlendModeClsArr[index](this.Main);
 						this.b_length = this._comboBoxBlendModeClsArr.length - 1;
 						break;
 					case 4://TiledMap
-						this._oldView = new this._comboBoxTiledMapClsArr[index];
+						this._oldView = new this._comboBoxTiledMapClsArr[index](this.Main);
 						this.b_length = this._comboBoxTiledMapClsArr.length - 1;
 						break;
 					case 5://Filters
-						this._oldView = new this._comboBoxFiltersClsArr[index];
+						this._oldView = new this._comboBoxFiltersClsArr[index](this.Main);
 						this.b_length = this._comboBoxFiltersClsArr.length - 1;
 						break;
 					case 6://Particle
-						this._oldView = new this._comboBoxParticleClsArr[index];
+						this._oldView = new this._comboBoxParticleClsArr[index](this.Main);
 						this.b_length = this._comboBoxParticleClsArr.length - 1;
 						break;
 					case 7://Sound
-						this._oldView = new this._comboBoxSoundClsArr[index];
+						this._oldView = new this._comboBoxSoundClsArr[index](this.Main);
 						this.b_length = this._comboBoxSoundClsArr.length - 1;
 						break;
 					case 8://Text
-						this._oldView = new this._comboBoxTextClsArr[index];
+						this._oldView = new this._comboBoxTextClsArr[index](this.Main);
 						this.b_length = this._comboBoxTextClsArr.length - 1;
 						break;
 					case 9://UI
-						this._oldView = new this._comboBoxUIClsArr[index];
+						this._oldView = new this._comboBoxUIClsArr[index](this.Main);
 						this.b_length = this._comboBoxUIClsArr.length - 1;
 						break;
 					case 10://Timer
-						this._oldView = new this._comboBoxTimerClsArr[index];
+						this._oldView = new this._comboBoxTimerClsArr[index](this.Main);
 						this.b_length = this._comboBoxTimerClsArr.length - 1;
 						break;
 					case 11://Tween
-						this._oldView = new this._comboBoxTweenClsArr[index];
+						this._oldView = new this._comboBoxTweenClsArr[index](this.Main);
 						this.b_length = this._comboBoxTweenClsArr.length - 1;
 						break;
 					case 12://Interaction
-						this._oldView = new this._comboBoxInteractionClsArr[index];
+						this._oldView = new this._comboBoxInteractionClsArr[index](this.Main);
 						this.b_length = this._comboBoxInteractionClsArr.length - 1;
 						break;
 					case 13://SmartScale
-						this._oldView = new this._comboBoxSmartScaleClsArr[index];
+						this._oldView = new this._comboBoxSmartScaleClsArr[index](this.Main);
 						this.b_length = this._comboBoxSmartScaleClsArr.length - 1;
 						break;
 					case 14://Network
-						this._oldView = new this._comboBoxNetworkClsArr[index];
+						this._oldView = new this._comboBoxNetworkClsArr[index](this.Main);
 						this.b_length = this._comboBoxNetworkClsArr.length - 1;
 						break;
 					case 15://Debug
-						this._oldView = new this._comboBoxDebugClsArr[index];
+						this._oldView = new this._comboBoxDebugClsArr[index](this.Main);
 						this.b_length = this._comboBoxDebugClsArr.length - 1;
 						break;
 					case 16://PerformanceTest
-						this._oldView = new this._comboBoxPerformanceTestClsArr[index];
+						this._oldView = new this._comboBoxPerformanceTestClsArr[index](this.Main);
 						this.b_length = this._comboBoxPerformanceTestClsArr.length - 1;
 						break;
 					case 17://IDE
-						this._oldView = new this._comboBoxIDEClsArr[index];
+						this._oldView = new this._comboBoxIDEClsArr[index](this.Main);
 						this.b_length = this._comboBoxIDEClsArr.length - 1;
 						break;
 					case 18://IDE
@@ -408,7 +410,8 @@ import { Sprite } from "../../../bin/libs/laya/display/Sprite";
 						break;
 					default:
 						break;
-				}
+                }
+                (this._oldView as any).Main = this.Main;
 			}
 		}
 		

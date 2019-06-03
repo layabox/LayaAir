@@ -10,7 +10,10 @@ import { Stage } from "laya/display/Stage"
 	export class Tween_Letters
 	{
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 //
@@ -47,7 +50,7 @@ Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 			letter.color = "#FFFFFF";
 			letter.font = "Impact";
 			letter.fontSize = 110;
-			Main.box2D.addChild(letter);
+			this.Main.box2D.addChild(letter);
 			
 			return letter;
 		}

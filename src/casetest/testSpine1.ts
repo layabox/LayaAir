@@ -1,16 +1,18 @@
 import {delay,loadRes} from './delay.js'
+import { Laya } from 'Laya.js';
+import { Skeleton } from 'laya/ani/bone/Skeleton.js'
 
 class Main {
 	constructor() {
-        Laya3D.init(800,600);
+        Laya.init(800,600);
 		//Laya.stage.scaleMode = 'fixedwidth';
-		Laya.stage.screenMode = 'none';
-        Laya.Stat.show();
+        Laya.stage.screenMode = 'none';
+        //Laya.Stat.show();
         this.test1();
     }
     
     addsp(){
-        var sk = new Laya.Skeleton();
+        var sk = new Skeleton();
         Laya.stage.addChild(sk);
         sk.pos(Math.random()*800,Math.random()*600);
         sk.load('res/spine/vine.sk',null,2);
@@ -22,7 +24,7 @@ class Main {
      */
     async test1(){
 
-        var sk = new Laya.Skeleton();
+        var sk = new Skeleton();
         Laya.stage.addChild(sk);
         sk.pos(300,300);
         sk.load('res/spine/vine.sk');

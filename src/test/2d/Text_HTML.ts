@@ -3,10 +3,14 @@ import { Stage } from "laya/display/Stage"
 	import { Browser } from "laya/utils/Browser"
 	import { WebGL } from "laya/webgl/WebGL"
     import {HTMLDivElement} from "laya/html/dom/HTMLDivElement"
+    import {Main} from "../Main"
 
 	export class Text_HTML
 	{
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 

@@ -15,7 +15,10 @@ import { Sprite } from "laya/display/Sprite"
 
 		private characterGroup:any[];
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 //			Laya.init(Browser.width, Browser.height, WebGL);
 			Laya.stage.bgColor = "#232628";
@@ -49,7 +52,7 @@ import { Sprite } from "laya/display/Sprite"
 			charactor.loadImage(skin);
 			charactor.rotation = rotation;
 			charactor.pivot(pivotX, pivotY);
-			Main.box2D.addChild(charactor);
+			this.Main.box2D.addChild(charactor);
 			this.characterGroup.push(charactor);
 
 			return charactor;

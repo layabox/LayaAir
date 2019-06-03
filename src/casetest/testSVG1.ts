@@ -1,8 +1,9 @@
 import {delay} from './delay.js'
+import { Laya } from 'Laya.js';
 
 class Main {
 	constructor() {
-        Laya3D.init(800,600);
+        Laya.init(800,600);
 		//Laya.stage.scaleMode = 'fixedwidth';
 		Laya.stage.screenMode = 'none';
         //Laya.Stat.show();
@@ -12,7 +13,7 @@ class Main {
     /**
      */
     async test1(){
-        var Sprite = Laya.Sprite;
+        var Sprite = Sprite;
         var sp = new Sprite();
         //sp1.graphics.drawRect(0,0,100,100,'red');
         sp.graphics.drawPoly(10,10, [0, 0, 60, 0, 60,50], "#ffff00");

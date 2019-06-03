@@ -13,7 +13,10 @@ import { Sprite } from "laya/display/Sprite"
 	export class DOM_Video 
 	{
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			Laya.init(800, 600);
 			Laya.stage.bgColor = "#FFFFFF";
 			Laya.stage.alignH = Stage.ALIGN_CENTER;
@@ -33,7 +36,7 @@ import { Sprite } from "laya/display/Sprite"
 			
 			// 设置画布上的对齐参照物
 			var reference:Sprite = new Sprite();
-			Main.box2D.addChild(reference);
+			this.Main.box2D.addChild(reference);
 			reference.pos(100, 100);
 			reference.size(600, 400);
 			reference.graphics.drawRect(0, 0, reference.width, reference.height, "#CCCCCC");

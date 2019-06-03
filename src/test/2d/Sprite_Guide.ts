@@ -19,7 +19,10 @@ import { Sprite } from "laya/display/Sprite"
 		private hitArea:HitArea;
 		private interactionArea:Sprite;
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 //			Laya.init(1285, 727);
 			Laya.stage.alignH = Stage.ALIGN_CENTER;
 			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
@@ -27,13 +30,13 @@ import { Sprite } from "laya/display/Sprite"
 			//绘制一个蓝色方块，不被抠图
 			var gameContainer:Sprite = new Sprite();
 			gameContainer.loadImage("res/guide/crazy_snowball.png");
-			Main.box2D.addChild(gameContainer);
+			this.Main.box2D.addChild(gameContainer);
 			
 			// 引导所在容器
 			this.guideContainer = new Sprite();
 			// 设置容器为画布缓存
 			this.guideContainer.cacheAs = "bitmap";
-			Main.box2D.addChild(this.guideContainer);
+			this.Main.box2D.addChild(this.guideContainer);
 			gameContainer.on("click", this, this.nextStep);
 			
 			//绘制遮罩区，含透明度，可见游戏背景
@@ -55,7 +58,7 @@ import { Sprite } from "laya/display/Sprite"
 			this.guideContainer.mouseEnabled = true;
 			
 			this.tipContainer = new Sprite();
-			Main.box2D.addChild(this.tipContainer);
+			this.Main.box2D.addChild(this.tipContainer);
 			
 			this.nextStep();
 		}

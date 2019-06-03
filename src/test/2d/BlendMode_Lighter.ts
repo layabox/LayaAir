@@ -17,7 +17,10 @@ import { Animation } from "laya/display/Animation"
 		private gradientInterval:number = 2000;
 		private bgColorChannels:any = {r: 99, g: 0, b: 0xFF};
 
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 //			Laya.init(phoenixWidth * 2, phoenixHeight, WebGL);
 
@@ -70,7 +73,7 @@ import { Animation } from "laya/display/Animation"
 			
 			var animation:Animation = new Animation();
 			animation.loadImages(frames);
-			Main.box2D.addChild(animation);
+			this.Main.box2D.addChild(animation);
 			
 			var clips:any[] = animation.frames.concat();
 			// 反转帧
@@ -111,8 +114,8 @@ import { Animation } from "laya/display/Animation"
 		
 		private renderBg():void
 		{
-			Main.box2D.graphics.clear();
-			Main.box2D.graphics.drawRect(
+			this.Main.box2D.graphics.clear();
+			this.Main.box2D.graphics.drawRect(
 				this.blendedPhoenix.x, this.blendedPhoenix.y, 
 				this.phoenixWidth, this.phoenixHeight, this.getHexColorString());
 		}
@@ -144,7 +147,7 @@ import { Animation } from "laya/display/Animation"
 			this.normalPhoenix.stop();
 			this.blendedPhoenix.stop();
 			Laya.timer.clear(this, this.renderBg);
-			Main.box2D.graphics.clear();
+			this.Main.box2D.graphics.clear();
 		}
 	}
 

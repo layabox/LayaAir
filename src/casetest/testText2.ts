@@ -1,8 +1,11 @@
 import {delay} from './delay.js'
+import { Laya } from 'Laya.js';
+import { Text } from 'laya/display/Text.js';
+import { TextRender } from 'laya/webgl/text/TextRender.js';
 
 class Main {
 	constructor() {
-        Laya3D.init(800,600);
+        Laya.init(800,600);
 		//Laya.stage.scaleMode = 'fixedwidth';
 		Laya.stage.screenMode = 'none';
         //Laya.Stat.show();
@@ -14,13 +17,13 @@ class Main {
      */
     async test1(){
         // 先创建两个文字贴图，由于字体较大，4个字就占一张图。
-        var t1 = new Laya.Text();
+        var t1 = new Text();
         t1.fontSize = 120;
         t1.text = 'abcd';       // 1是 abcd
         t1.color='red';
         Laya.stage.addChild(t1);
 
-        var t2 = new Laya.Text();
+        var t2 = new Text();
         t2.pos(0,120);
         t2.fontSize = 120;
         t2.text = 'efgh';       // 2是efgh
@@ -33,7 +36,7 @@ class Main {
         t2.visible=false;
         await delay(10);
         //t3 使用第一张的3个字，第二张的1个字，如果GC的话，会导致第二张被回收，第一张的d被释放
-        var t3 = new Laya.Text();
+        var t3 = new Text();
         t3.pos(0,240);
         t3.text='abce';
         t3.fontSize=120;
@@ -41,7 +44,7 @@ class Main {
         Laya.stage.addChild(t3);
         await delay(10); //等待画出来
         //t3.visible=false;
-        Laya.textRender.GC();
+        TextRender.textRenderInst.GC();
 
         await delay(10);
         t1.visible=true;    // 这时候d由于被释放了，应该触发重新创建

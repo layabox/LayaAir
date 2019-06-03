@@ -17,7 +17,9 @@ import { Stage } from "laya/display/Stage"
 		private currFrame:number;
 		private controller:Button;
 		
-		constructor(){
+        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(800, 600, WebGL);
 
@@ -43,7 +45,7 @@ import { Stage } from "laya/display/Stage"
 			var bg:Image = new Image(this.bgSkin);
 			bg.size(224, 302);
 			bg.pos(Laya.stage.width - bg.width >> 1, Laya.stage.height -bg.height >> 1);
-			Main.box2D.addChild(bg);
+			this.Main.box2D.addChild(bg);
 		}
 		
 		private createTimerAnimation():void
@@ -55,7 +57,7 @@ import { Stage } from "laya/display/Stage"
 			this.counter.x = (Laya.stage.width - this.counter.width) / 2 - 35;
 			this.counter.y = (Laya.stage.height - this.counter.height) / 2 - 40;
 			
-			Main.box2D.addChild(this.counter);
+			this.Main.box2D.addChild(this.counter);
 		}
 		
 		private showTotalSeconds():void 
@@ -63,7 +65,7 @@ import { Stage } from "laya/display/Stage"
 			var clip:Clip = new Clip(this.clipSkin, 10, 1);
 			clip.index = clip.clipX - 1;
 			clip.pos(this.counter.x + 60, this.counter.y);
-			Main.box2D.addChild(clip);
+			this.Main.box2D.addChild(clip);
 		}
 		
 		private createController():void 
@@ -77,7 +79,7 @@ import { Stage } from "laya/display/Stage"
 			
 			this.controller.x = (Laya.stage.width - this.controller.width) / 2;
 			this.controller.y = (Laya.stage.height - this.controller.height) / 2 + 110;
-			Main.box2D.addChild(this.controller);
+			this.Main.box2D.addChild(this.controller);
 		}
 		
 		private onClipSwitchState(e:any=null):void 

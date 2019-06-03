@@ -7,7 +7,10 @@ import { Stage } from "laya/display/Stage"
 	
 	export class Text_WordWrap
 	{
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 
@@ -37,7 +40,7 @@ import { Stage } from "laya/display/Stage"
 			txt.x = Laya.stage.width - txt.textWidth >> 1;
 			txt.y = Laya.stage.height - txt.textHeight >> 1;
 			
-			Main.box2D.addChild(txt);
+			this.Main.box2D.addChild(txt);
 		}
 	}
 

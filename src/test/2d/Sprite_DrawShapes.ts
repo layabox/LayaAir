@@ -8,7 +8,10 @@ import { Sprite } from "laya/display/Sprite"
 	{
 		private sp:Sprite;
 
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 //			Laya.init(740, 400, WebGL);
 //
@@ -24,7 +27,7 @@ import { Sprite } from "laya/display/Sprite"
 		private drawSomething():void
 		{
 			this.sp = new Sprite();
-			Main.box2D.addChild(this.sp);
+			this.Main.box2D.addChild(this.sp);
 			//画线
 			this.sp.graphics.drawLine(10, 58, 146, 58, "#ff0000", 3);
 			//画连续直线

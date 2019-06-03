@@ -8,7 +8,7 @@ import { Event } from "laya/events/Event"
 		private socket:Socket;
 		private output:Byte;
 		
-		constructor(){
+        constructor(){
 			Laya.init(550, 400);
 			
 			this.connect();

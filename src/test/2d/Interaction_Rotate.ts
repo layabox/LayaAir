@@ -11,7 +11,10 @@ import { Sprite } from "laya/display/Sprite"
 		private sp:Sprite;
 		private preRadian:number = 0;
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 //
@@ -40,7 +43,7 @@ Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 			this.sp.size(w, h);
 			this.sp.pivot(w / 2, h / 2);
 			this.sp.pos(Laya.stage.width / 2, Laya.stage.height / 2);
-			Main.box2D.addChild(this.sp);
+			this.Main.box2D.addChild(this.sp);
 			
 			this.sp.on(Event.MOUSE_DOWN, this, this.onMouseDown);
 		}

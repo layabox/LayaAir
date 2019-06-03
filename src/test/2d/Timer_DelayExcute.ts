@@ -11,7 +11,10 @@ import { Sprite } from "laya/display/Sprite"
 		private button1:Sprite;
 		private button2:Sprite;
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 //
@@ -31,12 +34,12 @@ Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 			this.button1 = this.createButton("点我3秒之后 alpha - 0.5");
 			this.button1.x = (Laya.stage.width - this.button1.width) / 2;
 			this.button1.y = (Laya.stage.height - this.button1.height - vGap) / 2;
-			Main.box2D.addChild(this.button1);
+			this.Main.box2D.addChild(this.button1);
 			this.button1.on(Event.CLICK, this, this.onDecreaseAlpha1);
 			
 			this.button2 = this.createButton("点我60帧之后 alpha - 0.5");
 			this.button2.pos(this.button1.x, this.button1.y + vGap);
-			Main.box2D.addChild(this.button2);
+			this.Main.box2D.addChild(this.button2);
 			this.button2.on(Event.CLICK, this, this.onDecreaseAlpha2);
 		}
 

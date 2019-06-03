@@ -1,4 +1,6 @@
 import {delay} from './delay.js'
+import { Laya } from 'Laya.js';
+import { Rectangle } from 'laya/maths/Rectangle.js';
 
 class Main {
 	constructor() {
@@ -12,7 +14,7 @@ class Main {
     /**
      */
     async test1(){
-        var Sprite = Laya.Sprite;
+        var Sprite = Sprite;
         var sp1 = new Sprite();
         sp1.graphics.drawRect(0,0,100,100,'red');
         //sp1.graphics.drawRect(25,25,50,50,'green');
@@ -20,7 +22,7 @@ class Main {
         sp1.pos(100,100);
         sp1.pivot(50,50);
         //sp1.scale(2,2);
-        sp1.scrollRect=new Laya.Rectangle(-50,-50,80,80);// 视口移到-50,-50
+        sp1.scrollRect=new Rectangle(-50,-50,80,80);// 视口移到-50,-50
         Laya.stage.addChild(sp1);
 
         var sp2 = new Sprite();

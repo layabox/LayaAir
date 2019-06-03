@@ -25,7 +25,10 @@ import { Sprite } from "laya/display/Sprite"
 		private tpoint3:any[] = [];
 		private balls:any[] = [];
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(Browser.width, Browser.height, WebGL);
 			Stat.show();
@@ -52,7 +55,7 @@ import { Sprite } from "laya/display/Sprite"
 				tempBall.alpha = 0.5;
 				this.balls[i] = tempBall;
 				
-				Main.box2D.addChild(tempBall);
+				this.Main.box2D.addChild(tempBall);
 			}
 			
 			this.onResize();

@@ -14,7 +14,10 @@ import { Sprite } from "laya/display/Sprite"
 
 		private ape:Sprite;
 
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 
@@ -42,7 +45,7 @@ import { Sprite } from "laya/display/Sprite"
 			this.ape.x = (Laya.stage.width - texture.width) / 2;
 			this.ape.y = (Laya.stage.height - texture.height) / 2;
 
-			Main.box2D.addChild(this.ape);
+			this.Main.box2D.addChild(this.ape);
 		}
 
 		private applayFilter():void

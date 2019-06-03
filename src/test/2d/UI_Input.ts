@@ -13,7 +13,10 @@ import { Stage } from "laya/display/Stage"
 		private Y_OFFSET:number = 50;
 		private skins:any[];
 		
-        constructor(){
+                Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(800, 600, WebGL);
 
@@ -50,7 +53,7 @@ import { Stage } from "laya/display/Stage"
             ti.bold = true;
 			ti.color = "#606368";
 			
-			Main.box2D.addChild(ti);
+			this.Main.box2D.addChild(ti);
 			
 			return ti;
 		}

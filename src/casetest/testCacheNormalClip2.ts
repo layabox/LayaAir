@@ -1,8 +1,9 @@
 import {delay} from './delay.js'
+import { Laya } from 'Laya.js';
 
 class Main {
 	constructor() {
-        Laya3D.init(800,600);
+        Laya.init(800,600);
 		//Laya.stage.scaleMode = 'fixedwidth';
 		Laya.stage.screenMode = 'none';
         //Laya.Stat.show();
@@ -12,7 +13,7 @@ class Main {
     /**
      */
     async test1(){
-        var Sprite = Laya.Sprite;
+        var Sprite = Sprite;
         // 另外一种情况。cacheas normal的对象本身有clip，父对象有偏移，这时候clip也要偏移。有bug是clip没有加父对象的偏移导致错误
         // _copyClipInfo(submit, _globalClipMatrix); 这时候如果是cacheas normal， ctx的当前矩阵的偏移被去掉了，导致保存的clip也是去掉偏移的
         var sp3 = new Sprite();

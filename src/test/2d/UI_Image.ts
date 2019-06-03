@@ -6,7 +6,10 @@ import { Stage } from "laya/display/Stage"
 	
 	export class UI_Image
 	{
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(550, 400, WebGL);
 
@@ -23,7 +26,7 @@ import { Stage } from "laya/display/Stage"
 		{
 			var dialog:Image = new Image("res/ui/dialog (3).png");
 			dialog.pos(165, 62.5);
-			Main.box2D.addChild(dialog);
+			this.Main.box2D.addChild(dialog);
 		}
 	}
 

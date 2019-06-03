@@ -11,7 +11,10 @@ import { Stage } from "laya/display/Stage"
 	{
 		private tiledMap:TiledMap;
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 //			Laya.init(1100, 800, WebGL);
 
@@ -34,7 +37,7 @@ import { Stage } from "laya/display/Stage"
 		private onLoaded():void
 		{
 			this.tiledMap.mapSprite().removeSelf();
-			Main.box2D.addChild(this.tiledMap.mapSprite());
+			this.Main.box2D.addChild(this.tiledMap.mapSprite());
 		}
 		
 		 dispose():void

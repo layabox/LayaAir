@@ -11,7 +11,10 @@ import { BitmapFont } from "laya/display/BitmapFont"
 	{
 		private fontName:string = "diyFont";
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 
@@ -47,7 +50,7 @@ import { BitmapFont } from "laya/display/BitmapFont"
 			txt.font = font;
 			txt.leading = 5;
 			txt.pos(Laya.stage.width - txt.width >> 1, Laya.stage.height - txt.height >> 1);
-			Main.box2D.addChild(txt);
+			this.Main.box2D.addChild(txt);
 		}
 	}
 

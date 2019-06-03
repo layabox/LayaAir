@@ -13,7 +13,10 @@ import { Stage } from "laya/display/Stage"
 		private prevX:number = 0;
 		private prevY:number = 0;
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 			Stat.show();
@@ -48,7 +51,7 @@ import { Stage } from "laya/display/Stage"
 			this.txt.fontSize = 20;
 			this.txt.color = "#ffffff";
 			
-			Main.box2D.addChild(this.txt);
+			this.Main.box2D.addChild(this.txt);
 			
 			this.txt.on(Event.MOUSE_DOWN, this, this.startScrollText);
 		}

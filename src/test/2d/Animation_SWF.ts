@@ -12,7 +12,10 @@ import { Main } from "./../Main";
 		private MCWidth:number = 318;
 		private MCHeight:number = 406;
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 
@@ -33,7 +36,7 @@ import { Main } from "./../Main";
 			mc.x = (Laya.stage.width - this.MCWidth) / 2;
 			mc.y = (Laya.stage.height - this.MCHeight) / 2;
 			
-			Main.box2D.addChild(mc);
+			this.Main.box2D.addChild(mc);
 		}
 	}
 

@@ -11,7 +11,10 @@ import { Sprite } from "laya/display/Sprite"
 		private sp1:Sprite;
 		private sp2:Sprite;
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 //
@@ -34,13 +37,13 @@ Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 			this.sp1.pos((Laya.stage.width - gap) / 2, Laya.stage.height / 2);
 			//设置轴心点为中心
 			this.sp1.pivot(55, 72);
-			Main.box2D.addChild(this.sp1);
+			this.Main.box2D.addChild(this.sp1);
 			
 			//不设置轴心点默认为左上角
 			this.sp2 = new Sprite();
 			this.sp2.loadImage("res/apes/monkey2.png");
 			this.sp2.pos((Laya.stage.width + gap) / 2, Laya.stage.height / 2);
-			Main.box2D.addChild(this.sp2);
+			this.Main.box2D.addChild(this.sp2);
 			
 			Laya.timer.frameLoop(1, this, this.animate);
 		}

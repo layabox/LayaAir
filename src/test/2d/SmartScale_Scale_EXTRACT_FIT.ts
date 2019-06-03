@@ -7,7 +7,10 @@ import { Sprite } from "laya/display/Sprite"
 	{
 		private rect:Sprite;
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			Laya.init(550, 400);
 			Laya.stage.scaleMode = Stage.SCALE_EXACTFIT;
 			Laya.stage.bgColor = "#232628";
@@ -18,7 +21,7 @@ import { Sprite } from "laya/display/Sprite"
 		{
 			this.rect = new Sprite();
 			this.rect.graphics.drawRect(-100, -100, 200, 200, "gray");
-			Main.box2D.addChild(this.rect);
+			this.Main.box2D.addChild(this.rect);
 			
 			this.updateRectPos();
 		}

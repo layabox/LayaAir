@@ -14,7 +14,10 @@ import { Sprite } from "laya/display/Sprite"
 
 		private apeTexture:Texture;
 
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 
@@ -59,7 +62,7 @@ Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 			var redApe:Sprite = this.createApe();
 			redApe.filters = [redFilter];
 
-			var firstChild:Sprite = (<Sprite>Main.box2D.getChildAt(0) );
+			var firstChild:Sprite = (<Sprite>this.Main.box2D.getChildAt(0) );
 			redApe.x = firstChild.x + this.apeTexture.width;
 			redApe.y = firstChild.y;
 		}
@@ -79,7 +82,7 @@ Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 			var grayApe:Sprite = this.createApe();
 			grayApe.filters = [grayscaleFilter];
 
-			var secondChild:Sprite = (<Sprite>Main.box2D.getChildAt(1) );
+			var secondChild:Sprite = (<Sprite>this.Main.box2D.getChildAt(1) );
 			grayApe.x = secondChild.x + this.apeTexture.width;
 			grayApe.y = secondChild.y;
 		}
@@ -88,7 +91,7 @@ Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 		{
 			var ape:Sprite = new Sprite();
 			ape.loadImage("res/apes/monkey2.png");
-			Main.box2D.addChild(ape);
+			this.Main.box2D.addChild(ape);
 			
 			return ape;
 		}

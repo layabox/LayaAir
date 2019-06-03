@@ -23,7 +23,10 @@ import { Stage } from "laya/display/Stage"
 		
 		private infoText:Text;
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			Laya.init(Browser.width, 255);
 			Laya.stage.scaleMode = Stage.SCALE_NOSCALE;
 			
@@ -80,7 +83,7 @@ import { Stage } from "laya/display/Stage"
 		private createInfoText():void
 		{
 			this.infoText = new Text();
-			Main.box2D.addChild(this.infoText);
+			this.Main.box2D.addChild(this.infoText);
 			this.infoText.fontSize = 50;
 			this.infoText.color = "#FFFFFF";
 			this.infoText.size(Laya.stage.width, Laya.stage.height);

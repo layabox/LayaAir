@@ -1,6 +1,6 @@
 
-import {ILaya} from "ILaya"
 import { Handler } from "laya/utils/Handler";
+import { Laya } from 'Laya';
 
 export function delay(duration:number) {
     return new Promise(resolve=>{
@@ -13,7 +13,7 @@ export function delay(duration:number) {
 
 export function loadRes(url:string){
     return new Promise(resolve=>{
-        ILaya.loader.load(url, Handler.create(this,()=>{
+        Laya.loader.load(url, Handler.create(this,()=>{
             console.log('kkkk')
             resolve();}));
     });

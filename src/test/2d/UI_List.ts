@@ -9,7 +9,10 @@ import { Stage } from "laya/display/Stage"
 	
 	export class UI_List
 	{
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(800, 600, WebGL);
 
@@ -41,7 +44,7 @@ import { Stage } from "laya/display/Stage"
 			list.selectHandler = new Handler(this, this.onSelect);
 			
 			list.renderHandler = new Handler(this, this.updateItem);
-			Main.box2D.addChild(list);
+			this.Main.box2D.addChild(list);
 			
 //			list.mouseHandler = new Handler(this,onMuseHandler);
 			
@@ -111,8 +114,7 @@ class Item extends Box
 	 static HEI:number = 85;
 
 	private img:Image;
-	
-	constructor(){
+        constructor(maincls:typeof Main){
 		super();
 this.size(Item.WID, Item.HEI);
 		this.img = new Image();

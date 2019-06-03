@@ -19,7 +19,9 @@ import { Sprite } from "laya/display/Sprite"
 		private wrapBounds:Rectangle;
 		private maggotTexture:any;
 		
-		constructor(){
+        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
 			Laya.init(Browser.width,Browser.height, WebGL);
 			Laya.stage.bgColor = "#000000";
 			Stat.show();
@@ -58,7 +60,7 @@ import { Sprite } from "laya/display/Sprite"
 			// 解除IBQuadrangle数量限制
 			// 在显示虫子数量超过16383时需要打开下面一行
 			// container.cacheAsBitmap = true;
-			Main.box2D.addChild(container);
+			this.Main.box2D.addChild(container);
 			return container;
 		}
 

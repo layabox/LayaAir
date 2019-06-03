@@ -16,7 +16,10 @@ import { Sprite } from "laya/display/Sprite"
 		private ape:Sprite;
 		private dragRegion:Rectangle;
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 //
@@ -40,7 +43,7 @@ Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 			this.ape = new Sprite();
 			
 			this.ape.loadImage(this.ApePath);
-			Main.box2D.addChild(this.ape);
+			this.Main.box2D.addChild(this.ape);
 			
 			var texture:Texture = Laya.loader.getRes(this.ApePath);
 			this.ape.pivot(texture.width / 2, texture.height / 2);

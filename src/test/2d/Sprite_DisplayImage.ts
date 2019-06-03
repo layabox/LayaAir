@@ -9,7 +9,10 @@ import { Sprite } from "laya/display/Sprite"
 	
 	export class Sprite_DisplayImage
 	{
-		constructor(){
+        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 
@@ -26,7 +29,7 @@ import { Sprite } from "laya/display/Sprite"
 		{
 			// 方法1：使用loadImage
 			var ape:Sprite = new Sprite();
-			Main.box2D.addChild(ape);
+			this.Main.box2D.addChild(ape);
 			ape.loadImage("res/apes/monkey3.png");
 			
 			// 方法2：使用drawTexture
@@ -35,7 +38,7 @@ import { Sprite } from "laya/display/Sprite"
 				var t:Texture = Laya.loader.getRes("res/apes/monkey2.png");
 				var ape:Sprite = new Sprite();
 				ape.graphics.drawTexture(t,0,0);
-				Main.box2D.addChild(ape);
+				this.Main.box2D.addChild(ape);
 				ape.pos(200, 0);
 			}));
 		}

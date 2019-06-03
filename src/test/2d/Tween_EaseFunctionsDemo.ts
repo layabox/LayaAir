@@ -18,7 +18,10 @@ import { Input } from "laya/display/Input"
 		private duration:number = 2000;
 		private tween:Tween;
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 //			Laya.init(550, 400, WebGL);
 //
@@ -43,7 +46,7 @@ import { Input } from "laya/display/Input"
 			this.character = new Sprite();
 			this.character.loadImage("res/cartoonCharacters/1.png");
 			this.character.pos(100, 50);
-			Main.box2D.addChild(this.character);
+			this.Main.box2D.addChild(this.character);
 		}
 		
 		private createEaseFunctionList():void
@@ -61,7 +64,7 @@ import { Input } from "laya/display/Input"
 			easeFunctionsList.selectEnable = true;
 			easeFunctionsList.selectHandler = new Handler(this, this.onEaseFunctionChange, [easeFunctionsList]);
 			easeFunctionsList.renderHandler = new Handler(this, this.renderList);
-			Main.box2D.addChild(easeFunctionsList);
+			this.Main.box2D.addChild(easeFunctionsList);
 
 			var data:any[] = [];
 			data.push('backIn', 'backOut', 'backInOut');
@@ -108,14 +111,14 @@ import { Input } from "laya/display/Input"
 			var text:Text = new Text();
 			text.text = label;
 			text.color = "white";
-			Main.box2D.addChild(text);
+			this.Main.box2D.addChild(text);
 			text.pos(x, y);
 			
 			var input:Input = new Input();
 			input.size(50,20);
 			input.text = prompt;
 			input.align = 'center';
-			Main.box2D.addChild(input);
+			this.Main.box2D.addChild(input);
 			input.color = "#FFFFFF";
 			input.borderColor = "#FFFFFF";
 			input.pos(text.x + text.width + 10, text.y - 3);
@@ -140,9 +143,9 @@ class ListItemRender extends Box
 {
 	private label:Label;
 	
-	constructor(){
+        constructor(){
 		super();
-this.size(100, 20);
+        this.size(100, 20);
 		
 		this.label = new Label();
 		this.label.fontSize = 12;

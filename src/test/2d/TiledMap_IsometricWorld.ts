@@ -16,7 +16,10 @@ import { Sprite } from "laya/display/Sprite"
 		private layer:MapLayer;
 		private sprite:Sprite;
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 //			Laya.init(1600, 800, WebGL);
 
@@ -61,10 +64,10 @@ import { Sprite } from "laya/display/Sprite"
 			this.sprite.graphics.drawLine(0, 0, radiusX, radiusY, color);
 			this.sprite.graphics.drawLine(-radiusX, radiusY, 0, radiusY * 2, color);
 			this.sprite.graphics.drawLine(radiusX, radiusY, 0, radiusY * 2, color);
-			Main.box2D.addChild(this.sprite);
+			this.Main.box2D.addChild(this.sprite);
 			this.sprite.zOrder = 99999;
 			this.tiledMap.mapSprite().removeSelf();
-			Main.box2D.addChild(this.tiledMap.mapSprite());
+			this.Main.box2D.addChild(this.tiledMap.mapSprite());
 		}
 		
 		 dispose():void

@@ -1,4 +1,14 @@
 import {delay} from './delay.js'
+import { Button } from 'laya/ui/Button.js';
+import { List } from 'laya/ui/List.js';
+import { View } from 'laya/ui/View.js';
+import { ComboBox } from 'laya/ui/ComboBox.js';
+import { Tab } from 'laya/ui/Tab.js';
+import { Box } from 'laya/ui/Box.js';
+import { CheckBox } from 'laya/ui/CheckBox.js';
+import { RadioGroup } from 'laya/ui/RadioGroup.js';
+import { Clip } from 'laya/ui/Clip.js';
+import { Laya } from 'Laya.js';
 
 var uiView:Object ={
     "type": "View",
@@ -51,16 +61,16 @@ var uiView:Object ={
 };
 
 
-class TestPageUI extends Laya.View {
-    btn:Laya.Button;
-    clip:Laya.Clip;
-    combobox:Laya.ComboBox;
-    tab:Laya.Tab;
-    list:Laya.List;
-    btn2:Laya.Button;
-    check:Laya.CheckBox;
-    radio:Laya.RadioGroup;
-    box:Laya.Box;
+class TestPageUI extends View {
+    btn:Button;
+    clip:Clip;
+    combobox:ComboBox;
+    tab:Tab;
+    list:List;
+    btn2:Button;
+    check:CheckBox;
+    radio:RadioGroup;
+    box:Box;
  
     TestPageUI(){}
     createChildren():void {
@@ -72,7 +82,7 @@ class TestPageUI extends Laya.View {
 
 class Main {
 	constructor() {
-        Laya3D.init(800,600);
+        Laya.init(800,600);
 		//Laya.stage.scaleMode = 'fixedwidth';
 		Laya.stage.screenMode = 'none';
         //Laya.Stat.show();
@@ -82,7 +92,7 @@ class Main {
     /**
      */
     async test1(){
-        var Sprite = Laya.Sprite;
+        var Sprite = Sprite;
         var sp1 = new Sprite();
         sp1.pos(100,100);
         //sp1.graphics.drawRect(0,0,100,100,'red');

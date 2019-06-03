@@ -7,7 +7,10 @@ import { Stage } from "laya/display/Stage"
 	
 	export class Text_AutoSize
 	{
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(550, 400, WebGL);
 
@@ -49,7 +52,7 @@ import { Stage } from "laya/display/Stage"
 			text.borderColor = "#FFFF00";
 			text.x = 80;
 			
-			Main.box2D.addChild(text);
+			this.Main.box2D.addChild(text);
 			text.text = "A POWERFUL HTML5 ENGINE ON FLASH TECHNICAL\n" + "A POWERFUL HTML5 ENGINE ON FLASH TECHNICAL\n" + "A POWERFUL HTML5 ENGINE ON FLASH TECHNICAL";
 			
 			return text;

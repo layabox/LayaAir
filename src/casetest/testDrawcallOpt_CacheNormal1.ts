@@ -1,8 +1,11 @@
 import {delay, loadRes} from './delay.js'
+import { Laya } from 'Laya.js';
+import { Sprite } from 'laya/display/Sprite.js';
+import { Text } from 'laya/display/Text.js';
 
 class Main {
 	constructor() {
-        Laya3D.init(800,600);
+        Laya.init(800,600);
 		//Laya.stage.scaleMode = 'fixedwidth';
 		Laya.stage.screenMode = 'none';
         //Laya.Stat.show();
@@ -14,13 +17,13 @@ class Main {
      */
     async test1(){
         await loadRes('./res/monkey0.png');
-        var sp = new Laya.Sprite();
+        var sp = new Sprite();
         sp.drawCallOptimize=true;       // 优化
         sp.pos(100,100);
         Laya.stage.addChild(sp);
 
         // 先文字
-        var tx1 = new Laya.Text();   
+        var tx1 = new Text();   
         tx1.text='A';
         tx1.pos(100,0);
         tx1.fontSize=40;
@@ -29,7 +32,7 @@ class Main {
 
 
         // 一个空的sprite ，有normal
-        var sp2 = new Laya.Sprite();
+        var sp2 = new Sprite();
         sp2.cacheAs='normal';       
         sp.addChild(sp2);
 

@@ -11,7 +11,10 @@ import { Sprite } from "laya/display/Sprite"
 	{
 		private apePath:string = "res/apes/monkey2.png";
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 
@@ -32,7 +35,7 @@ import { Sprite } from "laya/display/Sprite"
 			ape.x = (Laya.stage.width - ape.width) / 2;
 			ape.y = (Laya.stage.height - ape.height) / 2;
 
-			Main.box2D.addChild(ape);
+			this.Main.box2D.addChild(ape);
 
 			this.applayFilter(ape);
 		}

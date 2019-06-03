@@ -14,7 +14,10 @@ import { Stage } from "laya/display/Stage"
 	{
 		private sp:Particle2D;
 
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 //
@@ -35,7 +38,7 @@ Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 			this.sp = new Particle2D(settings);
 			this.sp.emitter.start(); 	
 			this.sp.play();
-			Main.box2D.addChild(this.sp);
+			this.Main.box2D.addChild(this.sp);
 		
 			this.sp.x = Laya.stage.width / 2;
 			this.sp.y = Laya.stage.height / 2;

@@ -1,9 +1,12 @@
 
 import {delay, loadRes} from './delay.js'
+import { ColorFilter } from 'laya/filters/ColorFilter.js';
+import { Laya } from 'Laya.js';
+import { Image } from 'laya/ui/Image.js';
 
 class Main {
 	constructor() {
-        Laya3D.init(800,600);
+        Laya.init(800,600);
 		//Laya.stage.scaleMode = 'fixedwidth';
 		Laya.stage.screenMode = 'none';
         //Laya.Stat.show();
@@ -19,10 +22,10 @@ class Main {
             0,0,0,0,0,
             0,0,0,0,0,
             0,0,0,1,0];
-		var redFilter =new Laya.ColorFilter(redMat);
+		var redFilter =new ColorFilter(redMat);
 
         await loadRes('./res/monkey0.png');
-        var sp = new Laya.Image();
+        var sp = new Image();
         sp.skin = './res/monkey0.png';
         sp.filters=[redFilter];             // 先加一个
         var fs = sp.filters;    

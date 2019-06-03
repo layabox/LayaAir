@@ -9,7 +9,10 @@ import { Sprite } from "laya/display/Sprite"
 	{
 		private rect:Sprite;
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			Laya.init(800, 600);
 			Laya.stage.scaleMode = "showall";
 			Laya.stage.bgColor = "#232628";
@@ -21,7 +24,7 @@ import { Sprite } from "laya/display/Sprite"
 			this.rect.size(size, size);
 			this.rect.x = (Laya.stage.width - this.rect.width)/ 2;
 			this.rect.y = (Laya.stage.height - this.rect.height) / 2;
-			Main.box2D.addChild(this.rect);
+			this.Main.box2D.addChild(this.rect);
 			
 			Laya.timer.frameLoop(1, this, this.loop);
 		}

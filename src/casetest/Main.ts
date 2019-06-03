@@ -1,6 +1,6 @@
-import { Main } from "./testBlendeMode";
+export { Main } from "./testBlendeMode";
 
 //import { Main } from "./testText.js";
 
 
-new Main();
+//new Main();

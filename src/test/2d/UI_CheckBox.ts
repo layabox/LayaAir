@@ -17,7 +17,10 @@ import { Stage } from "laya/display/Stage"
 		private skins:any[];
 		
 
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(800, 600, WebGL);
 
@@ -59,7 +62,7 @@ import { Stage } from "laya/display/Stage"
 		private createCheckBox(skin:string):CheckBox
 		{
 			var cb:CheckBox = new CheckBox(skin);
-			Main.box2D.addChild(cb);
+			this.Main.box2D.addChild(cb);
 
 			cb.labelColors = "white";
 			cb.labelSize = 20;

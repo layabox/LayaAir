@@ -212,8 +212,7 @@
 		/*
 		 * 图片资源
 		 */
-		constructor(){
-			
+        constructor(){
 		}
 		
 	}

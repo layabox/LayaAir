@@ -39,7 +39,10 @@ import { Video } from "laya/device/media/Video"
 		private volumeScrollRect:Rectangle;
 		private playProgressScrollRect:Rectangle;
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			Laya.init(650, 350);
 			Stat.show();
 
@@ -71,7 +74,7 @@ import { Video } from "laya/device/media/Video"
 		private showBackground():void
 		{
 			var background:Sprite = new Sprite();
-			Main.box2D.addChild(background);
+			this.Main.box2D.addChild(background);
 			background.loadImage(this.BackgroundSkin);
 			background.y = 25;
 		}
@@ -88,7 +91,7 @@ import { Video } from "laya/device/media/Video"
 		private showTimelineBox():void
 		{
 			this.timelineBox = new Sprite();
-			Main.box2D.addChild(this.timelineBox);
+			this.Main.box2D.addChild(this.timelineBox);
 			this.timelineBox.loadImage(this.TimeLineBoxSkin);
 			this.timelineBox.pos(108, 280);
 		}
@@ -97,7 +100,7 @@ import { Video } from "laya/device/media/Video"
 		{
 			this.togglePlayButton = new Button();
 			this.togglePlayButton.skin = this.PlayButtonSkin;
-			Main.box2D.addChild(this.togglePlayButton);
+			this.Main.box2D.addChild(this.togglePlayButton);
 			this.togglePlayButton.pos(110, 290);
 			this.togglePlayButton.on(Event.CLICK, this, this.onTogglePlay);
 		}
@@ -105,7 +108,7 @@ import { Video } from "laya/device/media/Video"
 		private showTimeline():void 
 		{
 			var timeline:Sprite = new Sprite();
-			Main.box2D.addChild(timeline);
+			this.Main.box2D.addChild(timeline);
 			timeline.loadImage(this.TimeLineSkin);
 			timeline.pos(143, 295);
 		}
@@ -114,7 +117,7 @@ import { Video } from "laya/device/media/Video"
 		{
 			var texture:Texture = Loader.getRes(this.ColorTimelineSkin);
 			this.colorTimeline = new Sprite();
-			Main.box2D.addChild(this.colorTimeline);
+			this.Main.box2D.addChild(this.colorTimeline);
 			this.colorTimeline.graphics.drawTexture(texture, 0, 0);
 			this.colorTimeline.size(texture.width, texture.height);
 			this.colorTimeline.pos(143, 296);
@@ -128,7 +131,7 @@ import { Video } from "laya/device/media/Video"
 		{
 			this.playHeadSlider = new Sprite();
 			this.playHeadSlider.loadImage(this.PlayHeadSliderSkin);
-			Main.box2D.addChild(this.playHeadSlider);
+			this.Main.box2D.addChild(this.playHeadSlider);
 			this.playHeadSlider.pos(143, 292);
 			this.playHeadSlider.pivotX = this.playHeadSlider.width / 2;
 			
@@ -180,7 +183,7 @@ import { Video } from "laya/device/media/Video"
 		private showNormalSoundControl():void 
 		{
 			var soundContorl:Sprite = new Sprite();
-			Main.box2D.addChild(soundContorl);
+			this.Main.box2D.addChild(soundContorl);
 			soundContorl.loadImage(this.NormalSoundControlSkin);
 			soundContorl.pos(68, 280);
 			soundContorl.on(Event.CLICK, this, function():void
@@ -188,7 +191,7 @@ import { Video } from "laya/device/media/Video"
 				if (this.volumeControl.parent)
 					Laya.stage.removeChild(this.volumeControl);
 				else
-					Main.box2D.addChild(this.volumeControl);
+                this.Main.box2D.addChild(this.volumeControl);
 			});
 		}
 		private createVolumeControl():void 
@@ -279,7 +282,7 @@ import { Video } from "laya/device/media/Video"
 			// 加载视频源
 			this.video.load("res/av/mov_bbb.mp4");
 			
-			Main.box2D.addChild(this.video);
+			this.Main.box2D.addChild(this.video);
 		}
 		
 		private onTogglePlay(e:Event):void

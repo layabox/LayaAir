@@ -9,7 +9,9 @@ import { Stage } from "laya/display/Stage"
 
 	export class UI_Tree
 	{
-		constructor(){
+        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(550, 400, WebGL);
 
@@ -54,7 +56,7 @@ import { Stage } from "laya/display/Stage"
 			tree.size(300, 300);
 			tree.x = (Laya.stage.width - tree.width) / 2;
 			tree.y = (Laya.stage.height - tree.height) / 2;
-			Main.box2D.addChild(tree);
+			this.Main.box2D.addChild(tree);
 		}	
 	}
 
@@ -67,9 +69,11 @@ import { Label } from "laya/ui/Label"
 // {"child": [{"type": "Clip", "props": {"x": "13", "y": "0", "left": "12", "height": "24", "name": "selectBox", "skin": "ui/clip_selectBox.png", "right": "0", "clipY": "2"}}, {"type": "Clip", "props": {"y": "4", "x": "14", "name": "folder", "clipX": "1", "skin": "ui/clip_tree_folder.png", "clipY": "3"}}, {"type": "Label", "props": {"y": "1", "text": "treeItem", "width": "150", "left": "33", "height": "22", "name": "label", "color": "#ffff00", "right": "0", "x": "33"}}, {"type": "Clip", "props": {"x": "0", "name": "arrow", "y": "5", "skin": "ui/clip_tree_arrow.png", "clipY": "2"}}], "type": "Box", "props": {"name": "render", "right": "0", "left": "0"}};
 class Item extends Box
 {
-	constructor(){
-		super();
-this.right = 0;
+	        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            super();            
+            this.Main=maincls;
+        this.right = 0;
 		this.left = 0;
 		
 		var selectBox:Clip = new Clip("res/ui/tree/clip_selectBox.png", 1, 2);

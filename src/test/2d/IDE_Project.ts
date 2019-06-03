@@ -8,10 +8,12 @@ import { Event } from "laya/events/Event"
 
 	export class IDE_Project extends TestPageUI {
 
-		constructor(){
-			
+        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
 			super();
-Main.box2D.addChild(this);
+            this.Main=maincls;
+			
+            this.Main.box2D.addChild(this);
 			//btn是编辑器界面设定的，代码里面能直接使用，并且有代码提示
 			this.btn.on(Event.CLICK, this, this.onBtnClick);
 			this.btn2.on(Event.CLICK, this, this.onBtn2Click);

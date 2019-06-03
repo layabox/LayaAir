@@ -27,7 +27,7 @@ import { Laya } from "Laya"
 				Laya.stage.scaleMode =  Stage.SCALE_FIXED_AUTO;
 			}else
 			{
-				Laya3D.init(0, 0);
+				//Laya3D.init(0, 0);
 				Laya.stage.scaleMode = Stage.SCALE_FULL;
 				Laya.stage.screenMode = Stage.SCREEN_NONE;
 			}
@@ -52,7 +52,7 @@ import { Laya } from "Laya"
 				//Layaair1.0-2d
 				Main.box2D = new Sprite();
 				Laya.stage.addChild(Main.box2D);
-				Main._indexView = new IndexView2D(Main.box2D);
+				Main._indexView = new IndexView2D(Main.box2D,Main);
 			}else
 			{
 				//Layaair1.0-3d

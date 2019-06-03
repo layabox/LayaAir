@@ -24,7 +24,8 @@ import { Laya } from "Laya";
 		 * 1. 引擎初始化后，会占用16M内存，用来存放文字图集资源，所以即便舞台没有任何对象，也会占用这部分内存；
 		 * 2. 销毁 Texture 使用的图片资源后，会保留 Texture 壳，当下次渲染时，发现 Texture 使用的图片资源不存在，则自动恢复。
 		 */
-		constructor(){
+        constructor(){
+
 			//初始化引擎
 			Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 

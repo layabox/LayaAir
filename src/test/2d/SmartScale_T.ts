@@ -16,7 +16,9 @@ import { Sprite } from "laya/display/Sprite"
 		//全局文本信息
 		private txt:Text;
 		
-		constructor(){
+        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(1136, 640, WebGL);
 			
@@ -32,7 +34,7 @@ import { Sprite } from "laya/display/Sprite"
 			//实例一个背景
 			var bg:Image = new Image();
 			bg.skin = "res/bg.jpg";
-			Main.box2D.addChild(bg);
+			this.Main.box2D.addChild(bg);
 			
 			//实例一个文本
 			this.txt = new Text();
@@ -41,7 +43,7 @@ import { Sprite } from "laya/display/Sprite"
 			this.txt.pos(0, 200);
 			this.txt.fontSize = 30;
 			this.txt.on("click", this, this.onTxtClick);
-			Main.box2D.addChild(this.txt);
+			this.Main.box2D.addChild(this.txt);
 			
 			//实例一个小人，放到右上角，并相对布局
 			var boy1:Image = new Image();
@@ -49,7 +51,7 @@ import { Sprite } from "laya/display/Sprite"
 			boy1.top = 0;
 			boy1.right = 0;
 			boy1.on("click", this, this.onBoyClick);
-			Main.box2D.addChild(boy1);
+			this.Main.box2D.addChild(boy1);
 			
 			//实例一个小人，放到右下角，并相对布局
 			var boy2:Image = new Image();
@@ -57,7 +59,7 @@ import { Sprite } from "laya/display/Sprite"
 			boy2.bottom = 0;
 			boy2.right = 0;
 			boy2.on("click", this, this.onBoyClick);
-			Main.box2D.addChild(boy2);
+			this.Main.box2D.addChild(boy2);
 			
 			//侦听点击事件，输出坐标信息
 			Laya.stage.on("click", this, this.onClick);

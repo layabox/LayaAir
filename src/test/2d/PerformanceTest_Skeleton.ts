@@ -28,7 +28,9 @@ import { Skeleton } from "laya/ani/bone/Skeleton"
 		
 		private mFactory:Templet;
 		
-		constructor(){
+        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
 			this.mSpacingX = Browser.width / this.colCount;
 			this.mSpacingY = Browser.height / this.rowCount;
 			
@@ -60,7 +62,7 @@ import { Skeleton } from "laya/ani/bone/Skeleton"
 					this.mArmature.y = this.yOff + i * this.mSpacingY;
 					this.mAnimationArray.push(this.mArmature);
 					this.mArmature.play(0, true);
-					Main.box2D.addChild(this.mArmature);
+					this.Main.box2D.addChild(this.mArmature);
 				}
 			}
 			Laya.stage.on(Event.CLICK, this, this.toggleAction);

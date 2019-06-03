@@ -11,7 +11,10 @@ import { Sprite } from "laya/display/Sprite"
 		private maskSp:Sprite;
 		private bg2:Sprite;
 
-		constructor(){
+        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 //			Laya.init(1136, 640, WebGL);
 //
@@ -28,11 +31,11 @@ import { Sprite } from "laya/display/Sprite"
 		{
 			var bg:Sprite = new Sprite();
 			bg.loadImage("res/bg2.png");
-			Main.box2D.addChild(bg);
+			this.Main.box2D.addChild(bg);
 
 			this.bg2 = new Sprite();
 			this.bg2.loadImage("res/bg2.png");
-			Main.box2D.addChild(this.bg2);
+			this.Main.box2D.addChild(this.bg2);
 			this.bg2.scale(3, 3);
 			
 			//创建mask

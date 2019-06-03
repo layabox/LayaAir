@@ -9,7 +9,10 @@ import { Stage } from "laya/display/Stage"
 	{
 		private skins:any[] = ["res/ui/tab1.png", "res/ui/tab2.png"];
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(550, 400, WebGL);
 
@@ -51,7 +54,7 @@ import { Stage } from "laya/display/Stage"
 			this.onSelect(tab.selectedIndex);
 			tab.selectHandler = new Handler(this, this.onSelect);
 			
-			Main.box2D.addChild(tab);
+			this.Main.box2D.addChild(tab);
 			
 			return tab;
 		}

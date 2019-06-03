@@ -13,7 +13,10 @@ import { Sprite } from "laya/display/Sprite"
 	{
 		//声明一个信息文本
 		private txtInfo:Text;
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 
@@ -34,13 +37,13 @@ import { Sprite } from "laya/display/Sprite"
 			var soundButton:Sprite = this.createButton("播放音效");
 			soundButton.x = (Laya.stage.width - soundButton.width * 2 + gap) / 2;
 			soundButton.y = (Laya.stage.height - soundButton.height) / 2;
-			Main.box2D.addChild(soundButton);
+			this.Main.box2D.addChild(soundButton);
 			
 			//创建一个Sprite充当音乐播放按钮
 			var musicButton:Sprite = this.createButton("播放音乐");
 			musicButton.x = soundButton.x + gap + soundButton.width;
 			musicButton.y = soundButton.y;
-			Main.box2D.addChild(musicButton);
+			this.Main.box2D.addChild(musicButton);
 
 			soundButton.on(Event.CLICK, this, this.onPlaySound);
 			musicButton.on(Event.CLICK, this, this.onPlayMusic);
@@ -55,7 +58,7 @@ import { Sprite } from "laya/display/Sprite"
 			button.size(w, h);
 			button.graphics.drawRect(0, 0, w, h, "#FF7F50");
 			button.graphics.fillText(label, w / 2 , 8, "25px SimHei", "#FFFFFF", "center");
-			Main.box2D.addChild(button);
+			this.Main.box2D.addChild(button);
 			return button;
 		}
 		

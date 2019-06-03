@@ -11,7 +11,9 @@ import { Sprite } from "laya/display/Sprite"
 	{
 		private txt:Text;
 		
-		constructor(){
+        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
 			// 不支持WebGL时自动切换至Canvas
 Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 //
@@ -38,7 +40,7 @@ Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 			rect.size(200, 200);
 			rect.x = (Laya.stage.width - 200) / 2;
 			rect.y = (Laya.stage.height - 200) / 2;
-			Main.box2D.addChild(rect);
+			this.Main.box2D.addChild(rect);
 			
 			//增加鼠标事件
 			rect.on(Event.MOUSE_DOWN, this, this.mouseHandler);
@@ -120,7 +122,7 @@ Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 			this.txt.wordWrap = true;
 			this.txt.color = "#FFFFFF";
 			
-			Main.box2D.addChild(this.txt);
+			this.Main.box2D.addChild(this.txt);
 		}
 		
 		 dispose():void

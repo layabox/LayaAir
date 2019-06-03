@@ -52,10 +52,12 @@ async function topLevelLoad (url, source) {
   await loadAll(load, {});
   // 构造依赖树。构造load的b:Blob
   resolveDeps(load, {});
+  console.log('---start load ',load.r);
   const module = await dynamicImport(load.b);
   // if the top-level load is a shell, run its update function
-  if (load.s)
+  if (load.s){
     (await dynamicImport(load.s)).u$_(module);
+  }
   return module;
 }
 
@@ -110,8 +112,9 @@ async function resolveDeps (load, seen) {
         const depLoad = load.d[depIndex++];
         let blobUrl = depLoad.b;
         if (!blobUrl) {
+            // 如果依赖项还没有对应的blob说明遇到循环依赖了（从root到端，在端没有完成的时候，路径上的blob都为空，如果依赖的blob为空了，说明构成循环了）
           // circular shell creation
-          if (!(blobUrl = depLoad.s)) {
+          if (!(blobUrl = depLoad.s)) {// 如果有shell不存在
             let hasDefault = false;
             blobUrl = depLoad.s = createBlob(`export function u$_(m){${
                 depLoad.a[1].map(
@@ -125,7 +128,7 @@ async function resolveDeps (load, seen) {
           }
         }
         // circular shell execution
-        else if (depLoad.s) {
+        else if (depLoad.s) {// 如果存在shell
           resolvedSource += source.slice(lastIndex, start - 1) + '/*' + source.slice(start - 1, end + 1) + '*/' + source.slice(start - 1, start) + blobUrl + source[end] + `;import*as m$_${depIndex} from'${depLoad.b}';import{u$_ as u$_${depIndex}}from'${depLoad.s}';u$_${depIndex}(m$_${depIndex})`;
           lastIndex = end + 1;
           depLoad.s = undefined;
@@ -196,7 +199,7 @@ function getOrCreateLoad (url, source) {
 
   load.f = (async () => {
     if (!source) {
-        console.log('fetch1', url);
+        //console.log('fetch1', url);
         var ext = url.substr(url.lastIndexOf('.'));
         switch(ext){
             case '.js':
@@ -296,8 +299,9 @@ if (typeof document !== 'undefined') {
     else if (script.type === 'module-shim') {
       if (script.src)
         topLevelLoad(script.src);
-      else
-        topLevelLoad(`${pageBaseUrl}?${id++}`, script.innerHTML);
+      else{
+         topLevelLoad(`${pageBaseUrl}?${id++}`, script.innerHTML);
+      }
     }
   }
 }

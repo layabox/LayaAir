@@ -17,7 +17,10 @@ import { Sprite } from "laya/display/Sprite"
 		private mouseConstraint:any;
 		private engine:any;
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			Laya.init(this.stageWidth, this.stageHeight);
 			
 			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
@@ -39,7 +42,7 @@ import { Sprite } from "laya/display/Sprite"
 		private initMatter():void
 		{
 			var gameWorld:Sprite = new Sprite();
-			Main.box2D.addChild(gameWorld);
+			this.Main.box2D.addChild(gameWorld);
 			
 			// 初始化物理引擎
 			this.engine = this.Matter.Engine.create({enableSleeping: true});

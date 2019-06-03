@@ -10,8 +10,9 @@ import { Sprite } from "laya/display/Sprite"
     {
         // 该容器用于装载4张猩猩图片
         private apesCtn:Sprite;
-         
-        constructor(){
+        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
             // 不支持WebGL时自动切换至Canvas
 //            Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 
@@ -31,7 +32,7 @@ import { Sprite } from "laya/display/Sprite"
             var radianUnit:number = Math.PI / 2;
              
             this.apesCtn = new Sprite();
-            Main.box2D.addChild(this.apesCtn);
+            this.Main.box2D.addChild(this.apesCtn);
              
             // 添加4张猩猩图片
             for (var i:number = 0; i < 4; i++ )

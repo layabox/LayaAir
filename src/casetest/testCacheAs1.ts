@@ -1,9 +1,13 @@
 
 import {delay, loadRes} from './delay.js'
+import { Sprite } from 'laya/display/Sprite.js';
+import { Laya } from 'Laya.js';
+import { Image } from 'laya/ui/Image.js';
+import { Box } from 'laya/ui/Box.js';
 
 class Main {
 	constructor() {
-        Laya3D.init(800,600);
+        Laya.init(800,600);
 		//Laya.stage.scaleMode = 'fixedwidth';
 		Laya.stage.screenMode = 'none';
         //Laya.Stat.show();
@@ -15,29 +19,29 @@ class Main {
      */
     async test1(){
         await loadRes('./res/monkey0.png');
-        var sp = new Laya.Image();
-        var mask = new Laya.Sprite();
+        var sp = new Image();
+        var mask = new Sprite();
         mask.graphics.drawCircle(50,50,50,'green');
         sp.mask=mask;
         sp.skin = './res/monkey0.png';
 
-        var sp1 = new Laya.Sprite();
+        var sp1 = new Sprite();
         sp1.addChild(sp);
 
-        var sp2 = new Laya.Sprite();
+        var sp2 = new Sprite();
         sp2.addChild(sp1);
         sp2.cacheAs='normal';
         sp2.pos(100,100);
         Laya.stage.addChild(sp2);
 
         // cache as normal 的pivot
-        var box = new Laya.Box();
+        var box = new Box();
         box.size(200, 200);
         box.graphics.drawRect(0, 0, box.width, box.height, "#00ff00");
         box.anchorY = 1;
         box.cacheAs = "normal";
         //box.cacheAs = "bitmap";
-        var sp3 = new Laya.Sprite();
+        var sp3 = new Sprite();
         sp3.graphics.drawRect(0, 0, 100, 100, "#ff0000");
         box.addChild(sp3);
         
@@ -46,12 +50,12 @@ class Main {
 
 
         // cache as bitmap 的pivot
-        var box2 = new Laya.Box();
+        var box2 = new Box();
         box2.size(200, 200);
         box2.graphics.drawRect(0, 0, box.width, box.height, "#00ff00");
         box2.anchorY = 1;
         box2.cacheAs = "bitmap";
-        var sp4 = new Laya.Sprite();
+        var sp4 = new Sprite();
         sp4.graphics.drawRect(0, 0, 100, 100, "#ff0000");
         box2.addChild(sp4);
         

@@ -1,8 +1,13 @@
 import {delay} from './delay.js'
+import { Laya } from 'Laya.js';
+import { Texture2D } from 'laya/resource/Texture2D.js';
+import { Texture } from 'laya/resource/Texture.js';
+import { WorkerLoader } from 'laya/net/WorkerLoader.js';
+import { Sprite } from 'laya/display/Sprite.js';
 
 class Main {
 	constructor() {
-        Laya3D.init(800,600);
+        Laya.init(800,600);
 		//Laya.stage.scaleMode = 'fixedwidth';
 		Laya.stage.screenMode = 'none';
         //Laya.Stat.show();
@@ -12,12 +17,12 @@ class Main {
     /**
      */
     async test1(){
-        var l = new Laya.WorkerLoader();
+        var l = new WorkerLoader();
         var url = 'http://127.0.0.1:8888/res/monkey0.png';
-        l.on(url, this, function(d:Laya.Texture2D) { 
-            var sp = new Laya.Sprite();
+        l.on(url, this, function(d:Texture2D) { 
+            var sp = new Sprite();
             Laya.stage.addChild(sp);
-            sp.graphics.drawTexture(new Laya.Texture(d));
+            sp.graphics.drawTexture(new Texture(d));
         } );
 
         l.loadImage(url);

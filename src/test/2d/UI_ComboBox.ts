@@ -9,7 +9,10 @@ import { Stage } from "laya/display/Stage"
 	{
 		private skin:string = "res/ui/combobox.png";
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(800, 600, WebGL);
 
@@ -36,7 +39,7 @@ import { Stage } from "laya/display/Stage"
 			comboBox.labelSize = 30;
 			comboBox.itemSize = 25;
 			comboBox.selectHandler = new Handler(this, this.onSelect, [comboBox]);
-			Main.box2D.addChild(comboBox);
+			this.Main.box2D.addChild(comboBox);
 			
 			return comboBox;
 		}

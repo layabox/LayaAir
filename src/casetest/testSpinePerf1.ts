@@ -1,4 +1,11 @@
 import {delay,loadRes} from './delay.js'
+import { Laya } from 'Laya.js';
+import { Sprite } from 'laya/display/Sprite.js';
+import { Texture } from 'laya/resource/Texture.js';
+import { Loader } from 'laya/net/Loader.js';
+import { Handler } from 'laya/utils/Handler.js';
+import { Skeleton } from 'laya/ani/bone/Skeleton.js'
+import { Templet } from 'laya/ani/bone/Templet.js'
 
 class Main {
     rolsInfo = [
@@ -6,30 +13,30 @@ class Main {
         {tex:'res/spine/hero_006.png', sk:'res/spine/hero_006.sk', act:'sk_2' }	// spine
     ];
     roleid = 0;
-    templetCache:Laya.Templet = null;
+    templetCache:Templet = null;
 
 	constructor() {
-        Laya3D.init(800,1600);
+        Laya.init(800,1600);
 		//Laya.stage.scaleMode = 'fixedwidth';
         Laya.stage.bgColor = "#ffffff";
         Laya.stage.screenMode = 'none';
-        Laya.Stat.show();
+        //Laya.Stat.show();
         var res = [
-            { "type": Laya.Loader.BUFFER, "url": this.rolsInfo[this.roleid].sk },
-            { "type": Laya.Loader.IMAGE, "url": this.rolsInfo[this.roleid].tex}
+            { "type": Loader.BUFFER, "url": this.rolsInfo[this.roleid].sk },
+            { "type": Loader.IMAGE, "url": this.rolsInfo[this.roleid].tex}
         ];
-        Laya.loader.load(res,  Laya.Handler.create(this,this.test1), null, null);
+        Laya.loader.load(res,  Handler.create(this,this.test1), null, null);
     }
     
-    getRole(aniType:number, parent:Laya.Sprite) {
-        var skeleton:Laya.Skeleton = null;
+    getRole(aniType:number, parent:Sprite) {
+        var skeleton:Skeleton = null;
         var _x = Math.random() * 640;
         var _y = Math.random() * 1136;
             //role = DisplayUtils_1.displayUtils.createSkeleton(_x, _y, 'res/ani/SwordsMan', 0);
-        var templet:Laya.Templet ;
+        var templet:Templet ;
         if ( !this.templetCache) {
-            templet = new Laya.Templet();
-            var pngData:Laya.Texture = Laya.loader.getRes(this.rolsInfo[this.roleid].tex);
+            templet = new Templet();
+            var pngData:Texture = Laya.loader.getRes(this.rolsInfo[this.roleid].tex);
             var skData:ArrayBuffer = Laya.loader.getRes(this.rolsInfo[this.roleid].sk);
             if (pngData && skData) {
                 templet.parseData(pngData, skData);

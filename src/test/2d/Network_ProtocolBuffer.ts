@@ -8,7 +8,10 @@ import { URL } from "laya/net/URL"
 	{
 		private ProtoBuf:any = Browser.window.protobuf;
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			Laya.init(550, 400);
 			var resPath:string ="res/protobuf/awesome.proto";
 			if(Main.isWXAPP)

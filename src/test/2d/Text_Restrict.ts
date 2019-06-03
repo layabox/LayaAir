@@ -9,7 +9,10 @@ import { Input } from "laya/display/Input"
 	export class Text_Restrict 
 	{
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(550, 300, WebGL);
 
@@ -46,7 +49,7 @@ import { Input } from "laya/display/Input"
 			label.text = text;
 			label.color = "white";
 			label.fontSize = 20;
-			Main.box2D.addChild(label);
+			this.Main.box2D.addChild(label);
 			return label;
 		}
 		

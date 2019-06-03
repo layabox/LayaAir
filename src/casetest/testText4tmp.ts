@@ -1,11 +1,13 @@
 import {delay} from './delay.js'
-
+import { Laya } from 'Laya.js';
+import { Text } from 'laya/display/Text.js';
+import { ArabicReshaper } from 'laya/webgl/text/ArabicReshaper.js'
 /**
  * 检查文字渲染正确
  */
 class Main {
 	constructor() {
-        Laya3D.init(800,600);
+        Laya.init(800,600);
 		//Laya.stage.scaleMode = 'fixedwidth';
 		Laya.stage.screenMode = 'none';
         //Laya.Stat.show();
@@ -13,15 +15,15 @@ class Main {
     }
 
     async test1(){
-        var t1 = new Laya.Text();
+        var t1 = new Text();
         t1.font='Microsoft YaHei'
         t1.fontSize = 30;
         t1.text = '️❤️😂';       
         t1.color='red';
         Laya.stage.addChild(t1);
 
-        var ar = new Laya.ArabicReshaper();
-        var t2 = new Laya.Text();
+        var ar = new ArabicReshaper();
+        var t2 = new Text();
         t2.pos(0,40);
         t2.fontSize = 30;
         t2.text = 'E️❤️🌹😢😊';       

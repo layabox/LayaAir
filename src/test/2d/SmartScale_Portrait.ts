@@ -6,7 +6,10 @@ import { Stage } from "laya/display/Stage"
 
 	export class SmartScale_Portrait
 	{
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(550, 400, WebGL);
 			
@@ -33,7 +36,7 @@ import { Stage } from "laya/display/Stage"
 			text.x = Laya.stage.width - text.width >> 1;
 			text.y = Laya.stage.height - text.height >> 1;
 			
-			Main.box2D.addChild(text);
+			this.Main.box2D.addChild(text);
 		}
 	}
 
