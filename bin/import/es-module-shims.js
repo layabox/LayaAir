@@ -154,8 +154,7 @@ async function resolveDeps (load, seen) {
   }
 
   // 如果是glsl的处理
-  // TODO
-  if(load.r.indexOf('.glsl')>0){
+    if(load.e == '.glsl'||load.e == '.vs' || load.e == '.ps' || load.e == '.fs'){
       resolvedSource = 'export default \`'+resolvedSource+'\`';
   }
 
@@ -172,6 +171,20 @@ const createBlob = source =>
     URL.createObjectURL(new Blob([source], { type: 'application/javascript' }));
 
 function getOrCreateLoad (url, source) {
+    var ext = url.substr(url.lastIndexOf('.'));
+    switch(ext){
+        case '.js':
+        case '.glsl':
+        case '.vs':
+        case '.ps':
+        case '.fs':
+        case '.txt':
+            break;
+        default:
+            url = url+'.js';
+            break;
+    }
+
   let load = registry[url];
   if (load)
     return load;
@@ -195,24 +208,13 @@ function getOrCreateLoad (url, source) {
     b: undefined,
     // shellUrl
     s: undefined,
+    // ext
+    e: ext,
   };
 
   load.f = (async () => {
     if (!source) {
         //console.log('fetch1', url);
-        var ext = url.substr(url.lastIndexOf('.'));
-        switch(ext){
-            case '.js':
-            case '.glsl':
-            case '.vs':
-            case '.ps':
-            case '.fs':
-            case '.txt':
-                break;
-            default:
-                url = url+'.js';
-                break;
-        }
       const res = await fetch(url);
       if (!res.ok)
         throw new Error(`${res.status} ${res.statusText} ${res.url}`);
