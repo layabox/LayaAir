@@ -8,9 +8,9 @@ import { CommandBuffer } from "././CommandBuffer";
  */
 export class Command {
 	/**@private */
-	static _screenShaderData: ShaderData = new ShaderData();
+	static _screenShaderData: ShaderData;
 	/** @private */
-	static _screenShader: Shader3D = Shader3D.find("BlitScreen");
+	static _screenShader: Shader3D;
 
 	/** @private */
 	static SCREENTEXTURE_NAME: string = "u_MainTex";//todo：
@@ -23,6 +23,14 @@ export class Command {
 
 	/**@private */
 	private _commandBuffer: CommandBuffer = null;
+
+	/**
+	* @private
+	*/
+	static __init__(): void {
+		Command._screenShaderData = new ShaderData();
+		Command._screenShader = Shader3D.find("BlitScreen");
+	}
 
 	/**
 	 * 创建一个 <code>Command</code> 实例。

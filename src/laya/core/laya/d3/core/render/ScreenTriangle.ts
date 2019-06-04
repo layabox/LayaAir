@@ -18,9 +18,9 @@ import { BufferState } from "../BufferState"
 		/** @private */
 		private static _vertexDeclaration:VertexDeclaration = new VertexDeclaration(16, [new VertexElement(0, VertexElementFormat.Vector4, ScreenTriangle.SCREENTRIANGLE_POSITION_UV)]);
 		/** @private */
-		private static _vertices:Float32Array = new Float32Array([1, -1, 0, 1,  -1, 3, 0, -1,   3, -1, 2, 1]);
+		private static _vertices:Float32Array = new Float32Array([-1, -1, 0, 1,  -1, 3, 0, -1,   3, -1, 2, 1]);
 		/** @private */ 
-		private static _verticesInvertUV:Float32Array = new Float32Array([1, -1, 0, 0,   -1, 3, 0, 2,   3, -1, 2, 0]);
+		private static _verticesInvertUV:Float32Array = new Float32Array([-1, -1, 0, 0,   -1, 3, 0, 2,   3, -1, 2, 0]);
 		
 		/**@private */
 		 static instance:ScreenTriangle;
