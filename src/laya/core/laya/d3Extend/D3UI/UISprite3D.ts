@@ -111,7 +111,7 @@ import { UISprite3DRenderer } from "./UISprite3DRenderer"
 		 * @param	width
 		 * @param	height
 		 */
-		 loadView(viewClass:Function, width:number, height:number):void{
+		 loadView(viewClass:new()=>View, width:number, height:number):void{
 			var ui:View = new viewClass();
 			// 用addchild 到 rootview么
 		}
