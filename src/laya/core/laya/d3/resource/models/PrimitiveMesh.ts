@@ -70,7 +70,9 @@ export class PrimitiveMesh {
 		var halfHeight: number = height / 2;
 		var halfWidth: number = width / 2;
 
-		var vertices: Float32Array = new Float32Array([halfLong, halfHeight, -halfWidth, 0, 1, 0, 0, 0, halfLong, halfHeight, -halfWidth, 0, 1, 0, 1, 0, halfLong, halfHeight, halfWidth, 0, 1, 0, 1, 1, -halfLong, halfHeight, halfWidth, 0, 1, 0, 0, 1,
+		var vertices: Float32Array = new Float32Array([
+			//上
+			-halfLong, halfHeight, -halfWidth, 0, 1, 0, 0, 0, halfLong, halfHeight, -halfWidth, 0, 1, 0, 1, 0, halfLong, halfHeight, halfWidth, 0, 1, 0, 1, 1, -halfLong, halfHeight, halfWidth, 0, 1, 0, 0, 1,
 			//下
 			-halfLong, -halfHeight, -halfWidth, 0, -1, 0, 0, 1, halfLong, -halfHeight, -halfWidth, 0, -1, 0, 1, 1, halfLong, -halfHeight, halfWidth, 0, -1, 0, 1, 0, -halfLong, -halfHeight, halfWidth, 0, -1, 0, 0, 0,
 			//左
@@ -82,7 +84,9 @@ export class PrimitiveMesh {
 			//后
 			-halfLong, halfHeight, -halfWidth, 0, 0, -1, 1, 0, halfLong, halfHeight, -halfWidth, 0, 0, -1, 0, 0, halfLong, -halfHeight, -halfWidth, 0, 0, -1, 0, 1, -halfLong, -halfHeight, -halfWidth, 0, 0, -1, 1, 1]);
 
-		var indices: Uint16Array = new Uint16Array([0, 1, 2, 2, 3, 0,
+		var indices: Uint16Array = new Uint16Array([
+			//上
+			0, 1, 2, 2, 3, 0,
 			//下
 			4, 7, 6, 6, 5, 4,
 			//左
