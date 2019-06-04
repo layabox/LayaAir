@@ -34,7 +34,8 @@ export class SkyBox extends SkyMesh {
 		var halfDepth: number = 0.5;
 		var vertices: Float32Array = new Float32Array([-halfDepth, halfHeight, -halfWidth, halfDepth, halfHeight, -halfWidth, halfDepth, halfHeight, halfWidth, -halfDepth, halfHeight, halfWidth,//上
 		-halfDepth, -halfHeight, -halfWidth, halfDepth, -halfHeight, -halfWidth, halfDepth, -halfHeight, halfWidth, -halfDepth, -halfHeight, halfWidth]);//下
-		var indices: Uint8Array = new Uint8Array([0, 1, 2, 2, 3, 0, //上
+		var indices: Uint8Array = new Uint8Array([
+			0, 1, 2, 2, 3, 0, //上
 			4, 7, 6, 6, 5, 4, //下
 			0, 3, 7, 7, 4, 0, //左
 			1, 5, 6, 6, 2, 1,//右

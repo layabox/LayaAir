@@ -1,0 +1,26 @@
+{
+	"version":"LAYAMATERIAL:01",
+	"props":{
+		"type":"Laya.SkyBoxMaterial",
+		"name":"Skybox",
+		"exposure":1,
+		"rotation":168,
+		"vectors":[
+			{
+				"name":"tintColor",
+				"value":[
+					0.5,
+					0.5,
+					0.5,
+					0.5
+				]
+			}
+		],
+		"textures":[
+			{
+				"name":"textureCube",
+				"path":"New Cubemap.ltc"
+			}
+		]
+	}
+}

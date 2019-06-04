@@ -1,0 +1,175 @@
+{
+	"meta":
+	{
+		"scale": "1",
+		"version": "1.0",
+		"prefix": "cartoonCharactors/",
+		"app": "http://www.layabox.com"
+	},
+	"frames":
+	{
+		"5.png":
+		{
+			"rotated": false,
+			"sourceSize":
+			{
+				"w": 72,
+				"h": 100
+			},
+			"pivot":
+			{
+				"y": 0.5,
+				"x": 0.5
+			},
+			"frame":
+			{
+				"x": 99,
+				"y": 1,
+				"w": 72,
+				"h": 100
+			},
+			"trimmed": false,
+			"spriteSourceSize":
+			{
+				"x": 0,
+				"y": 0,
+				"w": 72,
+				"h": 100
+			}
+		},
+		"3.png":
+		{
+			"rotated": false,
+			"sourceSize":
+			{
+				"w": 84,
+				"h": 100
+			},
+			"pivot":
+			{
+				"y": 0.5,
+				"x": 0.5
+			},
+			"frame":
+			{
+				"x": 96,
+				"y": 103,
+				"w": 84,
+				"h": 100
+			},
+			"trimmed": false,
+			"spriteSourceSize":
+			{
+				"x": 0,
+				"y": 0,
+				"w": 84,
+				"h": 100
+			}
+		},
+		"1.png":
+		{
+			"rotated": false,
+			"sourceSize":
+			{
+				"w": 93,
+				"h": 100
+			},
+			"pivot":
+			{
+				"y": 0.5,
+				"x": 0.5
+			},
+			"frame":
+			{
+				"x": 1,
+				"y": 103,
+				"w": 93,
+				"h": 100
+			},
+			"trimmed": false,
+			"spriteSourceSize":
+			{
+				"x": 0,
+				"y": 0,
+				"w": 93,
+				"h": 100
+			}
+		},
+		"4.png":
+		{
+			"rotated": false,
+			"sourceSize":
+			{
+				"w": 96,
+				"h": 100
+			},
+			"pivot":
+			{
+				"y": 0.5,
+				"x": 0.5
+			},
+			"frame":
+			{
+				"x": 1,
+				"y": 1,
+				"w": 96,
+				"h": 100
+			},
+			"trimmed": false,
+			"spriteSourceSize":
+			{
+				"x": 0,
+				"y": 0,
+				"w": 96,
+				"h": 100
+			}
+		},
+		"textureList":
+		{
+			"rotated": false,
+			"sourceSize":
+			{},
+			"pivot":
+			{
+				"y": 0.5,
+				"x": 0.5
+			},
+			"frame":
+			{
+				"x": 1
+			},
+			"trimmed": false,
+			"spriteSourceSize":
+			{}
+		},
+		"2.png":
+		{
+			"rotated": false,
+			"sourceSize":
+			{
+				"w": 68,
+				"h": 100
+			},
+			"pivot":
+			{
+				"y": 0.5,
+				"x": 0.5
+			},
+			"frame":
+			{
+				"x": 173,
+				"y": 1,
+				"w": 68,
+				"h": 100
+			},
+			"trimmed": false,
+			"spriteSourceSize":
+			{
+				"x": 0,
+				"y": 0,
+				"w": 68,
+				"h": 100
+			}
+		}
+	}
+}

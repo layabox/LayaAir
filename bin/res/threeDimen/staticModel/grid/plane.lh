@@ -1,0 +1,60 @@
+{
+	"version":"LAYAHIERARCHY:01",
+	"data":{
+		"type":"Sprite3D",
+		"props":{
+			"name":"New Scene",
+			"position":[
+				0,
+				0,
+				0
+			],
+			"rotation":[
+				0,
+				0,
+				0,
+				-1
+			],
+			"scale":[
+				1,
+				1,
+				1
+			]
+		},
+		"child":[
+			{
+				"type":"MeshSprite3D",
+				"props":{
+					"isStatic":false,
+					"name":"Plane",
+					"layer":0,
+					"position":[
+						0,
+						0,
+						0
+					],
+					"rotation":[
+						0,
+						0,
+						0,
+						-1
+					],
+					"scale":[
+						1,
+						1,
+						1
+					],
+					"meshPath":"Library/unity default resources-Plane.lm",
+					"materials":[
+						{
+							"type":"Laya.BlinnPhongMaterial",
+							"path":"Assets/Fantasy Monster(wizard) Demo/Environment/Demo Scene/New Material.lmat"
+						}
+					]
+				},
+				"components":[],
+				"child":[]
+			}
+		]
+	}
+}

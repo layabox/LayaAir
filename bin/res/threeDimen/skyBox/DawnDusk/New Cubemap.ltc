@@ -1,0 +1,8 @@
+{
+	"front":"New Cubemap_PositiveZ.png",
+	"back":"New Cubemap_NegativeZ.png",
+	"left":"New Cubemap_PositiveX.png",
+	"right":"New Cubemap_NegativeX.png",
+	"up":"New Cubemap_PositiveY.png",
+	"down":"New Cubemap_NegativeY.png"
+}

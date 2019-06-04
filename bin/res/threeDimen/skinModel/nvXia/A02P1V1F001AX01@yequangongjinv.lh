@@ -1,0 +1,145 @@
+{
+  "type": "Sprite3D",
+  "props": {
+    "name": "RootNode",
+    "load": [
+      null
+    ]
+  },
+  "customProps": {
+    "translate": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "rotation": [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "child": [
+    {
+      "type": "Mesh",
+      "props": {
+        "isStatic": false,
+        "name": "DEFAULT0",
+        "load": [
+          "A02P1V1F001AX01@yequangongjinv-DEFAULT0.lm"
+        ]
+      },
+      "customProps": {
+        "translate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "child": []
+    },
+    {
+      "type": "Mesh",
+      "props": {
+        "isStatic": false,
+        "name": "DEFAULT1",
+        "load": [
+          "A02P1V1F001AX01@yequangongjinv-DEFAULT1.lm"
+        ]
+      },
+      "customProps": {
+        "translate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "child": []
+    },
+    {
+      "type": "Mesh",
+      "props": {
+        "isStatic": false,
+        "name": "DEFAULT2",
+        "load": [
+          "A02P1V1F001AX01@yequangongjinv-DEFAULT2.lm"
+        ]
+      },
+      "customProps": {
+        "translate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "child": []
+    },
+    {
+      "type": "Mesh",
+      "props": {
+        "isStatic": false,
+        "name": "DEFAULT3",
+        "load": [
+          "A02P1V1F001AX01@yequangongjinv-DEFAULT3.lm"
+        ]
+      },
+      "customProps": {
+        "translate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "child": []
+    }
+  ]
+}

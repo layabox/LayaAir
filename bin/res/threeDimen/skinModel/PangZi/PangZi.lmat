@@ -1,0 +1,61 @@
+{
+    "type": "Material",
+    "props":
+    {
+        "name": "PangZi",
+        "transparent": false,
+        "cullFace": true
+    },
+    "customProps":
+    {
+        "ambientColor":
+        [
+            0.6,
+            0.6,
+            0.6
+        ],
+        "diffuseColor":
+        [
+            0.588,
+            0.588,
+            0.588
+        ],
+        "specularColor":
+        [
+            1,
+            1,
+            1,
+            8
+        ],
+        "reflectColor":
+        [
+            1,
+            1,
+            1
+        ],
+        "diffuseTexture":
+        {
+            "texture2D": "PangZi.png"
+        },
+        "normalTexture":
+        {
+            "texture2D": ""
+        },
+        "specularTexture":
+        {
+            "texture2D": ""
+        },
+        "emissiveTexture":
+        {
+            "texture2D": ""
+        },
+        "ambientTexture":
+        {
+            "texture2D": ""
+        },
+        "reflectTexture":
+        {
+            "texture2D": ""
+        }
+    }
+}
