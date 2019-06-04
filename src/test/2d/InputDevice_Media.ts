@@ -10,7 +10,7 @@ import { Media } from "laya/device/media/Media"
 	 */
 	export class InputDevice_Media
 	{
-		constructor(){
+        constructor(){
 			if (Media.supported() === false)
 				alert("当前浏览器不支持");
 			else

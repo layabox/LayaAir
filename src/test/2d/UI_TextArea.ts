@@ -10,7 +10,10 @@ import { Stage } from "laya/display/Stage"
 	{
 		private skin:string = "res/ui/textarea.png";
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(550, 400, WebGL);
 
@@ -42,7 +45,7 @@ import { Stage } from "laya/display/Stage"
             
 			var scaleFactor:number = Browser.pixelRatio;
 			
-            Main.box2D.addChild(ta);
+            this.Main.box2D.addChild(ta);
         }
 	}
 

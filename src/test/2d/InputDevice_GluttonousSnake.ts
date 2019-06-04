@@ -23,7 +23,10 @@ import { AccelerationInfo } from "laya/device/motion/AccelerationInfo"
         private vy:number = 0;
 		private targetPosition:Point;
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			Laya.init(Browser.width, Browser.height, WebGL);
 			
 			// 初始化蛇
@@ -73,7 +76,7 @@ import { AccelerationInfo } from "laya/device/motion/AccelerationInfo"
 		private addSegment():void
 		{
 			var seg:Segment = new Segment(40, 30);
-			Main.box2D.addChildAt(seg, 0);
+			this.Main.box2D.addChildAt(seg, 0);
 			
 			// 蛇尾与上一节身体对齐
 			if (this.segments.length > 0)
@@ -161,7 +164,7 @@ import { AccelerationInfo } from "laya/device/motion/AccelerationInfo"
 				return;
 			
 			var food:Sprite = new Sprite();
-			Main.box2D.addChild(food);
+			this.Main.box2D.addChild(food);
 			this.foods.push(food);
 			
 			const foodSize:number = 40;

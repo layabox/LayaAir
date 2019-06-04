@@ -7,7 +7,10 @@ import { Stage } from "laya/display/Stage"
 	export class Text_Underline
 	{
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(600, 400);
 			
@@ -44,7 +47,7 @@ import { Stage } from "laya/display/Stage"
 
 			txt.pos(x, y);
 			
-			Main.box2D.addChild(txt);
+			this.Main.box2D.addChild(txt);
 
 			return txt;
 		}

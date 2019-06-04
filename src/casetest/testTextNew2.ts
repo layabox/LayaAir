@@ -1,18 +1,21 @@
 import {delay} from './delay.js'
+import { Laya } from 'Laya.js';
+import { Text } from 'laya/display/Text.js';
+import { TextRender } from 'laya/webgl/text/TextRender.js';
 
 /**
  * 检查新版文字的释放恢复是否正确
  */
 class Main {
 	constructor() {
-        Laya3D.init(800,600);
+        Laya.init(800,600);
 		Laya.stage.screenMode = 'none';
         //Laya.Stat.show();
         this.test1();
     }
 
-    createFromTemp(t:Laya.Text,x:number, y:number,sx:number, sy:number){
-        var ret =new Laya.Text();
+    createFromTemp(t:Text,x:number, y:number,sx:number, sy:number){
+        var ret =new Text();
         ret.fontSize=t.fontSize;
         ret.color=t.color;
         ret.font=t.font;
@@ -25,12 +28,12 @@ class Main {
 
     async test1(){
         // 使用小贴图，容易测试
-        Laya.TextRender.atlasWidth=128;
-        Laya.TextRender.destroyAtlasDt=1;
-        Laya.TextRender.checkCleanTextureDt=1;
-        Laya.TextRender.destroyUnusedTextureDt=1;
+        TextRender.atlasWidth=128;
+        TextRender.destroyAtlasDt=1;
+        TextRender.checkCleanTextureDt=1;
+        TextRender.destroyUnusedTextureDt=1;
 
-        var t1 = new Laya.Text();
+        var t1 = new Text();
         t1.fontSize = 50;
         t1.text = 'A';       
         t1.color='red';
@@ -51,9 +54,9 @@ class Main {
         t4.visible=false;
 
         await delay(10);
-        Laya.textRender.GC();
+        TextRender.textRenderInst.GC();
         await delay(10);    // 过一帧再GC才能触发删除贴图
-        Laya.textRender.GC();
+        TextRender.textRenderInst.GC();
 
         await delay(10);
         //t2.visible=true;

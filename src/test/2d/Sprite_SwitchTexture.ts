@@ -15,7 +15,10 @@ import { Sprite } from "laya/display/Sprite"
 		
 		private ape:Sprite;
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 //
@@ -31,7 +34,7 @@ Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 		private onAssetsLoaded(e:any=null):void
 		{
 			this.ape = new Sprite();
-			Main.box2D.addChild(this.ape);
+			this.Main.box2D.addChild(this.ape);
 			this.ape.pivot(55, 72);
 			this.ape.pos(Laya.stage.width / 2, Laya.stage.height / 2);
 			

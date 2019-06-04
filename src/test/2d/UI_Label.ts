@@ -6,7 +6,9 @@ import { Stage } from "laya/display/Stage"
 	
 	export class UI_Label
 	{
-		constructor(){
+        Main:typeof Main;
+        constructor(maincls:typeof Main){
+            this.Main = maincls;
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(800, 600, WebGL);
 
@@ -45,7 +47,7 @@ import { Stage } from "laya/display/Stage"
 				label.strokeColor = strokeColor;
 			}
 			
-			Main.box2D.addChild(label);
+			this.Main.box2D.addChild(label);
 			
 			return label;
 		}

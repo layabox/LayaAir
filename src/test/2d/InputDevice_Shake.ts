@@ -18,7 +18,10 @@ import { Shake } from "laya/device/Shake"
 		
 		private shakeCount:number = 0;
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			Laya.init(this.picW, Browser.height * this.picW / Browser.width);
 			Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
 			
@@ -31,13 +34,13 @@ import { Shake } from "laya/device/Shake"
 		{
 			var shakePic:Sprite = new Sprite();
 			shakePic.loadImage("res/inputDevice/shake.png");
-			Main.box2D.addChild(shakePic);
+			this.Main.box2D.addChild(shakePic);
 		}
 		
 		private showConsoleText():void
 		{
 			this.console = new Text();
-			Main.box2D.addChild(this.console);
+			this.Main.box2D.addChild(this.console);
 			
 			this.console.y = this.picH + 10;
 			this.console.width = Laya.stage.width;

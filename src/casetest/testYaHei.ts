@@ -1,9 +1,11 @@
 
 import {delay, loadRes} from './delay.js'
+import { Laya } from 'Laya.js';
+import { Text } from 'laya/display/Text.js';
 
 class Main {
 	constructor() {
-        Laya.init(800,600,Laya.WebGL);
+        Laya.init(800,600);
 		//Laya.stage.scaleMode = 'fixedwidth';
 		Laya.stage.screenMode = 'none';
         //Laya.Stat.show();
@@ -14,7 +16,7 @@ class Main {
      * 微软雅黑会偏上，从而导致上面被裁剪了
      */
     async test1(){
-        var t1 = new Laya.Text();
+        var t1 = new Text();
         t1.pos(100,100);
         t1.color='red';
         t1.bold=true;

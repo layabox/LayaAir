@@ -20,7 +20,10 @@ import { Stage } from "laya/display/Stage"
 		private mX:number = 0;
 		private mY:number = 0;
 
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 //			Laya.stage.scaleMode = Stage.SCALE_FULL;
@@ -46,7 +49,7 @@ Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 		private onLoaded():void
 		{
 			this.tiledMap.mapSprite().removeSelf();
-			Main.box2D.addChild(this.tiledMap.mapSprite());
+			this.Main.box2D.addChild(this.tiledMap.mapSprite());
 		}
 
 		/**

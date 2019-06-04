@@ -9,7 +9,10 @@ import { Sprite } from "laya/display/Sprite"
 	export class Tween_SimpleSample
 	{
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 //
@@ -34,7 +37,7 @@ Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 			characterB.pivot(34, 50);
 			characterB.y = 250;
 
-			Main.box2D.graphics.drawLine(terminalX, 0, terminalX, Laya.stage.height, "#FFFFFF");
+			this.Main.box2D.graphics.drawLine(terminalX, 0, terminalX, Laya.stage.height, "#FFFFFF");
 			
 			// characterA使用Tween.to缓动
 			Tween.to(characterA, { x : terminalX }, 1000);
@@ -47,14 +50,14 @@ Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 		{
 			var character:Sprite = new Sprite();
 			character.loadImage(skin);
-			Main.box2D.addChild(character);
+			this.Main.box2D.addChild(character);
 			
 			return character;
 		}
 		
 		 dispose():void
 		{
-			Main.box2D.graphics.clear();
+			this.Main.box2D.graphics.clear();
 		}
 	}
 

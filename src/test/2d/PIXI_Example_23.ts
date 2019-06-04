@@ -19,7 +19,10 @@ import { Sprite } from "laya/display/Sprite"
 		private frequency:number = 80;
 		private type:number = 0;
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			Laya.init(this.viewWidth, this.viewHeight, WebGL);
 			Laya.stage.screenMode = Stage.SCREEN_HORIZONTAL;
 			Laya.stage.scaleMode = Stage.SCALE_NOBORDER;
@@ -70,7 +73,7 @@ import { Sprite } from "laya/display/Sprite"
 				
 				this.lasers.push(laser);
 				
-				Main.box2D.addChild(laser);
+				this.Main.box2D.addChild(laser);
 				
 				this.frequency *= 0.9;
 			}

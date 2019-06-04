@@ -8,7 +8,10 @@ import { Main } from "./../Main";
 	
 	export class Sprite_Cache
 	{
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(800, 600, WebGL);
 
@@ -46,7 +49,7 @@ import { Main } from "./../Main";
 			//缓存为静态图像
 //			textBox.cacheAsBitmap = true;
 			
-			Main.box2D.addChild(textBox);
+this.Main.box2D.addChild(textBox);
 		}
 	}
 

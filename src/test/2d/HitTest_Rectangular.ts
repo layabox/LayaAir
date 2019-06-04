@@ -12,7 +12,10 @@ import { Sprite } from "laya/display/Sprite"
 		private rect1:Sprite;
 		private rect2:Sprite;
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			Laya.init(800, 600);
 			Laya.stage.scaleMode = "showall";
 			Laya.stage.bgColor = "#232628";
@@ -28,7 +31,7 @@ import { Sprite } from "laya/display/Sprite"
 			var rect:Sprite = new Sprite(); 
 			rect.graphics.drawRect(0, 0, size, size, color);
 			rect.size(size, size);
-			Main.box2D.addChild(rect);
+			this.Main.box2D.addChild(rect);
 			
 			rect.on(Event.MOUSE_DOWN, this, this.startDrag, [rect]);
 			rect.on(Event.MOUSE_UP, this, this.stopDrag, [rect]);

@@ -11,7 +11,10 @@ import { Sprite } from "laya/display/Sprite"
 		private ape:Sprite;
 		private scaleDelta:number = 0;
 		
-		constructor(){
+        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 
@@ -29,7 +32,7 @@ Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 			this.ape = new Sprite();
 			
 			this.ape.loadImage("res/apes/monkey2.png");
-			Main.box2D.addChild(this.ape);
+			this.Main.box2D.addChild(this.ape);
 			this.ape.pivot(55, 72);
 			this.ape.x = Laya.stage.width / 2;
 			this.ape.y = Laya.stage.height / 2;

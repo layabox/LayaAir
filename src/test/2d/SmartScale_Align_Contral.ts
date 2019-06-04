@@ -1,9 +1,13 @@
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage"
+import { Main } from "../Main";
 
 	export class SmartScale_Align_Contral
 	{
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 //			Laya.init(100, 100);
 			Laya.stage.scaleMode = Stage.SCALE_NOSCALE;
 			

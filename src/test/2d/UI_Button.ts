@@ -18,7 +18,10 @@ import { Stage } from "laya/display/Stage"
 
 		private skins:any[];
 
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(800, 600, WebGL);
 
@@ -53,7 +56,7 @@ import { Stage } from "laya/display/Stage"
 		private createButton(skin:string):Button
 		{
 			var btn:Button = new Button(skin);
-			Main.box2D.addChild(btn);
+			this.Main.box2D.addChild(btn);
 			return btn;
 		}
 	}

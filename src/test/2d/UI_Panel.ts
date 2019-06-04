@@ -12,7 +12,10 @@ import { Sprite } from "laya/display/Sprite"
 	export class UI_Panel 
 	{
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			Laya.init(800, 600);
 
 			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
@@ -32,7 +35,7 @@ import { Sprite } from "laya/display/Sprite"
 			panel.size(600, 275);
 			panel.x = (Laya.stage.width - panel.width) / 2;
 			panel.y = (Laya.stage.height - panel.height) / 2;
-			Main.box2D.addChild(panel);
+			this.Main.box2D.addChild(panel);
 			
 			var img:Image;
 			for (var i:number = 0; i < 4; i++) 

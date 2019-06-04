@@ -13,7 +13,10 @@ import { RadioGroup } from "laya/ui/RadioGroup";
 		
 		private skins:any[];
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(800, 600, WebGL);
 
@@ -53,7 +56,7 @@ import { RadioGroup } from "laya/ui/RadioGroup";
 			rg.labelPadding = "5,0,0,5";
 			
 			rg.selectHandler = new Handler(this, this.onSelectChange);
-			Main.box2D.addChild(rg);
+			this.Main.box2D.addChild(rg);
 
 			return rg;
 		}

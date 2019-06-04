@@ -1,8 +1,11 @@
 import {delay} from './delay.js'
+import { Laya } from 'Laya.js';
+import { Event } from 'laya/events/Event.js';
+import { Render } from 'laya/renders/Render.js';
 
 class Main {
 	constructor() {
-        Laya3D.init(800,600);
+        Laya.init(800,600);
 		//Laya.stage.scaleMode = 'fixedwidth';
 		Laya.stage.screenMode = 'none';
         //Laya.Stat.show();
@@ -13,14 +16,14 @@ class Main {
      * 各种输入事件的处理
      */
     async test1(){
-        var Sprite = Laya.Sprite;
+        var Sprite = Sprite;
         var sp1 = new Sprite();
         sp1.pos(10,10);
         sp1.size(10,10);
         //sp1.rotation=90;    // 旋转对宽度的影响
         sp1.graphics.drawRect(0,0,10,10,'red');
         Laya.stage.addChild(sp1);
-        sp1.on('mousedown', this, (e:Laya.Event)=>{
+        sp1.on('mousedown', this, (e:Event)=>{
             sp1.captureMouseEvent(false);
         }).on('mouseup', this, ()=>{
             sp1.releaseMouseEvent();
@@ -31,7 +34,7 @@ class Main {
         sp2.size(10,10);
         sp2.graphics.drawRect(0,0,10,10,'green');
         Laya.stage.addChild(sp2);
-        sp2.on('mousemove', sp2, (e:Laya.Event)=>{
+        sp2.on('mousemove', sp2, (e:Event)=>{
             console.log('mm');
         }).on('mouseover', sp2, ()=>{
             console.log('over');
@@ -39,7 +42,7 @@ class Main {
             console.log('out');
         });
 
-        let canv:HTMLCanvasElement = Laya.Render.canvas;
+        let canv:HTMLCanvasElement = Render.canvas;
         function sendMsg(type:string, x:number, y:number){
             canv.dispatchEvent( new MouseEvent(type,{clientX:x,clientY:y}));    
         }

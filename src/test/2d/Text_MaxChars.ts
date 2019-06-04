@@ -8,7 +8,10 @@ import { Input } from "laya/display/Input"
 	export class Text_MaxChars
 	{
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 
@@ -37,7 +40,7 @@ import { Input } from "laya/display/Input"
 			
 			inputText.maxChars = 5;
 			
-			Main.box2D.addChild(inputText);
+			this.Main.box2D.addChild(inputText);
 		}
 	}
 

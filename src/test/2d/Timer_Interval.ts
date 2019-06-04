@@ -3,14 +3,17 @@ import { Main } from "./../Main";
 import { Stage } from "laya/display/Stage"
 	import { Text } from "laya/display/Text"
 	import { Browser } from "laya/utils/Browser"
-	import { WebGL } from "laya/webgl/WebGL"
+    import { WebGL } from "laya/webgl/WebGL"
 	
 	export class Timer_Interval
 	{
 		private rotateTimeBasedText:Text;
 		private rotateFrameRateBasedText:Text;
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 //
@@ -43,7 +46,7 @@ Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 			t.bold = true;
 			t.pivot(t.width / 2, t.height / 2);
 			t.pos(x, y);
-			Main.box2D.addChild(t);
+			this.Main.box2D.addChild(t);
 			
 			return t;
 		}

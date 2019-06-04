@@ -11,7 +11,10 @@ import { Stage } from "laya/display/Stage"
 		private logger:Text;
 		private keyDownList:any[];
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 
@@ -85,7 +88,7 @@ import { Stage } from "laya/display/Stage"
 			this.logger.align = 'center';
 			this.logger.valign = 'middle';
 			
-			Main.box2D.addChild(this.logger);
+			this.Main.box2D.addChild(this.logger);
 		}
 	}
 

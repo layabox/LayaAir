@@ -11,7 +11,10 @@ import { Sprite } from "laya/display/Sprite"
 	{
 		private target:Sprite;
 		private timeLine:TimeLine = new TimeLine();
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 //			Laya.init(550, 400, WebGL);
 //			
@@ -34,7 +37,7 @@ import { Sprite } from "laya/display/Sprite"
 		{
 			this.target = new Sprite();
 			this.target.loadImage("res/apes/monkey2.png");
-			Main.box2D.addChild(this.target);
+			this.Main.box2D.addChild(this.target);
 			this.target.pivot(55, 72);
 			this.target.pos(100,100);
 		}

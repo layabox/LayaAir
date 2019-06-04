@@ -12,7 +12,10 @@ import { Stage } from "laya/display/Stage"
 		private hr:HttpRequest;
 		private logger:Text;
 		
-		constructor(){	
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+	
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 
@@ -46,7 +49,7 @@ import { Stage } from "laya/display/Stage"
 			
 			this.logger.size(Laya.stage.width, Laya.stage.height);
 			this.logger.text = "等待响应...\n";
-			Main.box2D.addChild(this.logger);
+			this.Main.box2D.addChild(this.logger);
 		}
 
 		private onHttpRequestError(e:any=null):void

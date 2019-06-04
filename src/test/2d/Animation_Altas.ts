@@ -15,7 +15,10 @@ import { WebGL } from "laya/webgl/WebGL"
 	{
 		private AniConfPath:string = "res/fighter/fighter.json";
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 
@@ -40,7 +43,7 @@ import { WebGL } from "laya/webgl/WebGL"
 			var bounds:Rectangle = ani.getGraphicBounds();
 			ani.pivot(bounds.width / 2, bounds.height / 2);
 			ani.pos(Laya.stage.width / 2, Laya.stage.height / 2);
-			Main.box2D.addChild(ani);
+			this.Main.box2D.addChild(ani);
 		}
 		
 		private onMouseDown(ani:Animation):void

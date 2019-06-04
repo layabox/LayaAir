@@ -8,7 +8,9 @@ import { Stage } from "laya/display/Stage"
 	
 	export class UI_Slider
 	{
-		constructor(){
+        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(550, 400, WebGL);
 
@@ -43,7 +45,7 @@ import { Stage } from "laya/display/Stage"
 			hs.tick = 1;
 			
 			hs.changeHandler = new Handler(this, this.onChange);
-			Main.box2D.addChild(hs);
+			this.Main.box2D.addChild(hs);
 		}
 		
 		private placeVSlider():void
@@ -60,7 +62,7 @@ import { Stage } from "laya/display/Stage"
 			vs.tick = 1;
 			
 			vs.changeHandler = new Handler(this, this.onChange);
-			Main.box2D.addChild(vs);
+			this.Main.box2D.addChild(vs);
 		}
 		
 		private onChange(value:number):void

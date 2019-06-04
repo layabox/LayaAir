@@ -15,7 +15,7 @@ import { Stage } from "laya/display/Stage"
 		
 		private assets:any[];
 		
-		constructor(){
+        constructor(){
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(800, 600, WebGL);
 

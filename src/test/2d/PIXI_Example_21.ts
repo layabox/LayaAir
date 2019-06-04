@@ -21,7 +21,10 @@ import { Graphics } from "laya/display/Graphics"
 		private liveGraphics:Graphics;
 		private canvasGraphics:Graphics;
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			Laya.init(Browser.width, Browser.height, WebGL);
 			Laya.stage.bgColor = "#3da8bb";
 			
@@ -37,9 +40,9 @@ import { Graphics } from "laya/display/Graphics"
 		private createCanvases():void 
 		{
 			var graphicsCanvas:Sprite = new Sprite();
-			Main.box2D.addChild(graphicsCanvas);
+			this.Main.box2D.addChild(graphicsCanvas);
 			var liveGraphicsCanvas:Sprite = new Sprite();
-			Main.box2D.addChild(liveGraphicsCanvas);
+			this.Main.box2D.addChild(liveGraphicsCanvas);
 			
 			this.liveGraphics = liveGraphicsCanvas.graphics;
 			this.canvasGraphics = graphicsCanvas.graphics;

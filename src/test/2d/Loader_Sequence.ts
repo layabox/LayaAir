@@ -7,7 +7,7 @@ import { Texture } from "laya/resource/Texture"
 		private numLoaded:number = 0;
 		private resAmount:number = 3;
 		
-		constructor(){
+        constructor(){
 			Laya.init(500, 400);
 			
 			// 按序列加载 monkey2.png - monkey1.png - monkey0.png

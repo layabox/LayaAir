@@ -20,7 +20,10 @@ import { Sprite } from "laya/display/Sprite"
 
 		private button:Sprite;
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 //
@@ -55,7 +58,7 @@ Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 			
 			this.button.on(Event.MOUSE_DOWN, this, this.onMouseDown);
 
-			Main.box2D.addChild(this.button);
+			this.Main.box2D.addChild(this.button);
 			//左侧临界点设为圆形初始位置
 			this.beginPosition = this.button.x;
 			//右侧临界点设置
@@ -69,7 +72,7 @@ Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 				this.beginPosition, Laya.stage.height / 2,
 				this.endPosition, Laya.stage.height / 2,
 				"#FFFFFF", 20);
-			Main.box2D.addChild(graph);
+                this.Main.box2D.addChild(graph);
 		}
 		
 		/**按下事件处理*/

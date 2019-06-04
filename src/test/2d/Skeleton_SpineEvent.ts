@@ -24,7 +24,10 @@ import { EventData } from "laya/ani/bone/EventData"
 		private mFactory2:Templet;
 		private mLabelSprite:Sprite;
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 //			WebGL.enable();
 //			Laya.init(Browser.width, Browser.height);
 //			Laya.stage.bgColor = "#ffffff";
@@ -53,7 +56,7 @@ import { EventData } from "laya/ani/bone/EventData"
 			this.mArmature.x = this.mStartX;
 			this.mArmature.y = this.mStartY;
 			this.mArmature.scale(0.5, 0.5);
-			Main.box2D.addChild(this.mArmature);
+			this.Main.box2D.addChild(this.mArmature);
 			this.mArmature.on(Event.LABEL, this, this.onEvent);
 			this.mArmature.on(Event.STOPPED, this, this.completeHandler);
 			this.play();
@@ -79,7 +82,7 @@ import { EventData } from "laya/ani/bone/EventData"
 		{
 			var tEventData:EventData = (<EventData>e );
 			
-			Main.box2D.addChild(this.mLabelSprite);
+			this.Main.box2D.addChild(this.mLabelSprite);
 			this.mLabelSprite.x = this.mStartX;
 			this.mLabelSprite.y = this.mStartY;
 			this.mLabelSprite.graphics.clear();

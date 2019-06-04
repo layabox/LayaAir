@@ -8,8 +8,9 @@ import { Input } from "laya/display/Input"
 	export class Text_InputMultiline 
 	{
 		
-		constructor(){
-			// 不支持WebGL时自动切换至Canvas
+		Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
 			Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 
 			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
@@ -41,7 +42,7 @@ import { Input } from "laya/display/Input"
 			inputText.color = "#ffffff";
 			inputText.fontSize = 20;
 			
-			Main.box2D.addChild(inputText);
+			this.Main.box2D.addChild(inputText);
 		}
 	}
 

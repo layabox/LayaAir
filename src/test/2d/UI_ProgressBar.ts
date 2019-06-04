@@ -9,7 +9,10 @@ import { Stage } from "laya/display/Stage"
 	{
 		private progressBar:ProgressBar;
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 			//Laya.init(800, 600, WebGL);
 			Laya.init(800, 600);
@@ -34,7 +37,7 @@ import { Stage } from "laya/display/Stage"
 			
 			this.progressBar.sizeGrid = "5,5,5,5";
 			this.progressBar.changeHandler = new Handler(this, this.onChange);
-			Main.box2D.addChild(this.progressBar);
+			this.Main.box2D.addChild(this.progressBar);
 			
 			Laya.timer.loop(100, this, this.changeValue);
 		}

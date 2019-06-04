@@ -7,7 +7,10 @@ import { Stage } from "laya/display/Stage"
 	
 	export class Timer_CallLater
 	{
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 //
@@ -41,7 +44,7 @@ Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 			text.wordWrap = true;
 			text.valign = "middle";
 			text.align = "center";
-			Main.box2D.addChild(text);
+			this.Main.box2D.addChild(text);
 		}
 	}
 

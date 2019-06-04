@@ -13,9 +13,10 @@ import { Sprite } from "laya/display/Sprite"
 		 static ROTATE:string = "rotate";
 		
 		private sp:Sprite;
-		
-		constructor()
+		Main:typeof Main;
+		constructor(maincls:typeof Main)
 		{
+            this.Main=maincls;
 			// 不支持WebGL时自动切换至Canvas
 Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 //
@@ -38,7 +39,7 @@ Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 			this.sp.y = Laya.stage.height / 2;
 
 			this.sp.size(200, 200);
-			Main.box2D.addChild(this.sp);
+			this.Main.box2D.addChild(this.sp);
 
 			this.sp.on(Interaction_CustomEvent.ROTATE, this, this.onRotate);	// 侦听自定义的事件
 			this.sp.on(Event.CLICK, this, this.onSpriteClick);

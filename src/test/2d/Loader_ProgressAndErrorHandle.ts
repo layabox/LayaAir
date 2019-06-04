@@ -6,8 +6,8 @@ import { Event } from "laya/events/Event"
 	
 	export class Loader_ProgressAndErrorHandle
 	{
-		
 		constructor(){
+
 			Laya.init(550, 400);
 			
 			// 无加载失败重试

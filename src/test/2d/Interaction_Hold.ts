@@ -19,7 +19,9 @@ import { Sprite } from "laya/display/Sprite"
 		private ape:Sprite;
 		private isApeHold:boolean;
 
-		constructor(){
+        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 //
@@ -42,7 +44,7 @@ import { Sprite } from "laya/display/Sprite"
 			this.ape.pivot(texture.width / 2, texture.height / 2);
 			this.ape.pos(Laya.stage.width / 2, Laya.stage.height / 2);
 			this.ape.scale(0.8, 0.8);
-			Main.box2D.addChild(this.ape);
+			this.Main.box2D.addChild(this.ape);
 
 			// 鼠标交互
 			this.ape.on(Event.MOUSE_DOWN, this, this.onApePress);

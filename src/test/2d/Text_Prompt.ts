@@ -10,7 +10,10 @@ import { Input } from "laya/display/Input"
 	export class Text_Prompt 
 	{
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(550, 400, WebGL);
 
@@ -44,7 +47,7 @@ import { Input } from "laya/display/Input"
 			inputText.prompt = "输入用户名";
 			inputText.promptColor = "#000000";
 			
-			Main.box2D.addChild(inputText);
+			this.Main.box2D.addChild(inputText);
 		}
 	}
 

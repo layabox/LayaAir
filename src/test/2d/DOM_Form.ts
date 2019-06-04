@@ -18,7 +18,10 @@ import { Sprite } from "laya/display/Sprite"
 		private rowHeight:number = 30;
 		private rowSpacing:number = 10;
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			Laya.init(600, 400);
 			Laya.stage.alignH = Stage.ALIGN_CENTER;
 			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
@@ -29,7 +32,7 @@ import { Sprite } from "laya/display/Sprite"
 			this.form = new Sprite();
 			this.form.size(250, 120);
 			this.form.pos((Laya.stage.width - this.form.width) / 2, (Laya.stage.height - this.form.height) / 2);
-			Main.box2D.addChild(this.form);
+			this.Main.box2D.addChild(this.form);
 			
 			var rowHeightDelta = this.rowSpacing + this.rowHeight;
 			

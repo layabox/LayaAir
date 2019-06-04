@@ -7,7 +7,8 @@ import { Loader } from "laya/net/Loader"
 		private ROBOT_DATA_PATH:string = "res/skeleton/robot/robot.bin";
 		private ROBOT_TEXTURE_PATH:string = "res/skeleton/robot/texture.png";
 		
-		constructor(){
+        constructor(){
+
 			Laya.init(100, 100);
 			
 			var assets:any[] = [];

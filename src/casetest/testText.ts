@@ -2,6 +2,7 @@ import {delay} from './delay.js'
 import { Laya } from 'Laya.js';
 import { Text } from 'laya/display/Text.js';
 import { ILaya } from 'ILaya.js';
+import { TextRender } from 'laya/webgl/text/TextRender.js';
 
 export class Main {
 	constructor() {
@@ -47,7 +48,7 @@ export class Main {
         Laya.stage.addChild(t3);
         await delay(10); //等待画出来
         //t3.visible=false;
-        ILaya.TextRender.textRenderInst.GC();
+        TextRender.textRenderInst.GC();
 
         await delay(10);
         t1.visible=true;    // 这时候d由于被释放了，应该触发重新创建

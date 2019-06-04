@@ -22,7 +22,10 @@ import { Sprite } from "laya/display/Sprite"
 		
 		private speedInfo:Text;
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			Laya.init(this.w, this.h, WebGL);
 			
 			this.createText();
@@ -42,7 +45,7 @@ import { Sprite } from "laya/display/Sprite"
 				
 				this.stars.push({sprite: tempBall, x: tempBall.x, y: tempBall.y});
 				
-				Main.box2D.addChild(tempBall);
+				this.Main.box2D.addChild(tempBall);
 			}
 			
 			Laya.stage.on('click', this, this.newWave);
@@ -59,7 +62,7 @@ import { Sprite } from "laya/display/Sprite"
 			this.speedInfo.color = "#FFFFFF";
 			this.speedInfo.pos(this.w - 160, 20);
 			this.speedInfo.zOrder = 1;
-			Main.box2D.addChild(this.speedInfo);
+			this.Main.box2D.addChild(this.speedInfo);
 		}
 		
 		private newWave():void

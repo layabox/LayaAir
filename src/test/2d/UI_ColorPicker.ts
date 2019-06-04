@@ -10,7 +10,10 @@ import { Stage } from "laya/display/Stage"
 	{
 		private skin:string = "res/ui/colorPicker.png";
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 			Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 
@@ -31,7 +34,7 @@ import { Stage } from "laya/display/Stage"
 			
 			colorPicker.pos(100, 100);
 			colorPicker.changeHandler = new Handler(this, this.onChangeColor, [colorPicker]);
-			Main.box2D.addChild(colorPicker);
+			this.Main.box2D.addChild(colorPicker);
 			
 			this.onChangeColor(colorPicker);
 		}

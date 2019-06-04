@@ -47,11 +47,13 @@ import { Stage } from "laya/display/Stage"
 		private characters:any[] = [];
 		private text:Text;
 		
-		constructor(){
+        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
 			Laya.init(1280, 720, WebGL);
 //			Laya.stage.screenMode = Stage.SCREEN_HORIZONTAL;
 			Stat.enable();			
-			Main.box2D.loadImage("res/cartoon2/background.jpg");
+			this.Main.box2D.loadImage("res/cartoon2/background.jpg");
 			
 			this.createCharacters();
 			
@@ -59,7 +61,7 @@ import { Stage } from "laya/display/Stage"
 			this.text.zOrder = 10000;
 			this.text.fontSize = 60;
 			this.text.color = "#ff0000"
-			Main.box2D.addChild(this.text);
+			this.Main.box2D.addChild(this.text);
 			
 			Laya.timer.frameLoop(1, this, this.gameLoop);
 		}
@@ -80,7 +82,7 @@ import { Stage } from "laya/display/Stage"
 				char.setSpeed(Math.floor(Math.random() * 2 + 3));
 				char.setName(i.toString());
 				
-				Main.box2D.addChild(char);
+				this.Main.box2D.addChild(char);
 				this.characters.push(char);
 			}
 		}

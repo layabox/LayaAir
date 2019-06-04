@@ -17,7 +17,10 @@ import { Skeleton } from "laya/ani/bone/Skeleton"
 		private mArmature:Skeleton;
 		private mCurrSkinIndex:number = 0;
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 //			WebGL.enable();
 //			Laya.init(Browser.width, Browser.height);
 //			Laya.stage.bgColor = "#ffffff";
@@ -45,7 +48,7 @@ import { Skeleton } from "laya/ani/bone/Skeleton"
 			this.mArmature.x = this.mStartX;
 			this.mArmature.y = this.mStartY;
 			this.mArmature.scale(0.3, 0.3);
-			Main.box2D.addChild(this.mArmature);
+			this.Main.box2D.addChild(this.mArmature);
 			this.mArmature.on(Event.STOPPED, this, this.completeHandler);
 			this.play();
 		}

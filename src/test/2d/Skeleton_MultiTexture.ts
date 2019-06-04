@@ -1,10 +1,8 @@
+import { Skeleton } from "laya/ani/bone/Skeleton";
+import { Templet } from "laya/ani/bone/Templet";
+import { Event } from "laya/events/Event";
+import { Stat } from "laya/utils/Stat";
 import { Main } from "./../Main";
-import { Skeleton } from "laya/ani/bone/Skeleton"
-	import { Templet } from "laya/ani/bone/Templet"
-	import { Event } from "laya/events/Event"
-	import { Browser } from "laya/utils/Browser"
-	import { Stat } from "laya/utils/Stat"
-	import { WebGL } from "laya/webgl/WebGL"
 	
 	export class Skeleton_MultiTexture {
 		
@@ -17,7 +15,10 @@ import { Skeleton } from "laya/ani/bone/Skeleton"
 		private mArmature:Skeleton;
 		private mCurrSkinIndex:number = 0;
 		
-		constructor(){
+		Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 //			WebGL.enable();
 //			Laya.init(Browser.width, Browser.height);
 //			Laya.stage.bgColor = "#ffffff";
@@ -45,7 +46,7 @@ import { Skeleton } from "laya/ani/bone/Skeleton"
 			this.mArmature.x = this.mStartX;
 			this.mArmature.y = this.mStartY;
 			this.mArmature.scale(0.5, 0.5);
-			Main.box2D.addChild(this.mArmature);
+			this.Main.box2D.addChild(this.mArmature);
 			this.mArmature.on(Event.STOPPED, this, this.completeHandler);
 			this.play();
 		}

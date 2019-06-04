@@ -11,7 +11,10 @@ import { Sprite } from "laya/display/Sprite"
 		private ape1:Sprite;
 		private ape2:Sprite;
 		
-		constructor(){
+		        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
+
 			// 不支持WebGL时自动切换至Canvas
 Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 //
@@ -39,7 +42,7 @@ Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 			this.ape2.pos(200, 0);
 			
 			//一只猩猩在舞台上，另一只被添加成第一只猩猩的子级
-			Main.box2D.addChild(this.ape1);
+			this.Main.box2D.addChild(this.ape1);
 			this.ape1.addChild(this.ape2);
 			
 			Laya.timer.frameLoop(1, this, this.animate);

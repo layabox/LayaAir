@@ -7,7 +7,9 @@ import { Sprite } from "laya/display/Sprite"
 
 	export class Sprite_DrawPath
 	{
-		constructor(){
+        Main:typeof Main = null;
+        constructor(maincls:typeof Main){
+            this.Main=maincls;
 			// 不支持WebGL时自动切换至Canvas
 Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 //
@@ -23,7 +25,7 @@ Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
 		private drawPentagram():void
 		{
 			var canvas:Sprite = new Sprite();
-			Main.box2D.addChild(canvas);
+			this.Main.box2D.addChild(canvas);
 			
 			var path:any[] = [];
 			path.push(0, -130);

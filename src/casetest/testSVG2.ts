@@ -1,8 +1,9 @@
 import {delay} from './delay.js'
+import { Laya } from 'Laya.js';
 
 class Main {
 	constructor() {
-        Laya3D.init(800,600);
+        Laya.init(800,600);
 		//Laya.stage.scaleMode = 'fixedwidth';
 		Laya.stage.screenMode = 'none';
         //Laya.Stat.show();
@@ -15,7 +16,7 @@ class Main {
      * 简单实现是暂时撤销cache
      */
     async test1(){
-        var Sprite = Laya.Sprite;
+        var Sprite = Sprite;
         var sp1 = new Sprite();
         sp1.graphics.drawPath(20, 20, [
             ['moveTo',0,0],
