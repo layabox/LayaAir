@@ -110,9 +110,9 @@ import { Vector3 } from "laya/d3/math/Vector3"
 			} );
 			// 六个面的贡献. 光线从中心发散出去，贡献就是朝向与面法线的点积。方向相反的贡献为0
 			var dirlen:number = Math.sqrt(ex * ex + ey * ey + ez * ez);
-			var dirx:number = this.dir.elements[0] = ex / dirlen;
-			var diry:number = this.dir.elements[1] = ey / dirlen;
-			var dirz:number = this.dir.elements[2] = ez / dirlen;
+			var dirx:number = this.dir.x = ex / dirlen;
+			var diry:number = this.dir.y = ey / dirlen;
+			var dirz:number = this.dir.z = ez / dirlen;
 			var fl:any[] = this.faceLight;
 			fl[0] = Math.max(dirz,0);
 			fl[1] = Math.max(dirx,0);

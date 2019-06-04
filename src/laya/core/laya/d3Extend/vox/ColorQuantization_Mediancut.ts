@@ -75,8 +75,8 @@ import { ColorBoundingBox } from "././ColorBoundingBox";
 			var colors:VoxelColor[] = [];	// r,g,b,num
 			
 			var ci:number = 0;
-			for (var c  in colorData) {
-				var ic:number = c | 0;
+			for (let c  in colorData) {
+				var ic:number = (c as any) | 0;
 				var b:number=((ic>>>10)&0x1f);// 用的直接是555的
 				var g:number=((ic>>>5)&0x1f);
 				var r:number = (ic & 0x1f);
