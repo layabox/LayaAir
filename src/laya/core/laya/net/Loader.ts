@@ -148,7 +148,7 @@ import { TTFLoader } from "./TTFLoader";
 		 * @param	ignoreCache (default = false)是否忽略缓存，强制重新加载。
 		 * @param	useWorkerLoader(default = false)是否使用worker加载（只针对IMAGE类型和ATLAS类型，并且浏览器支持的情况下生效）
 		 */
-		 load(url:string, type:string = null, cache:boolean = true, group:string = null, ignoreCache:boolean = false, useWorkerLoader:boolean = false):void {
+		 load(url:string, type:string = null, cache:boolean = true, group:string = null, ignoreCache:boolean = false, useWorkerLoader:boolean = ILaya.WorkerLoader.enable):void {
 			if (!url) {
 				this.onLoaded(null);
 				return;
@@ -383,7 +383,7 @@ import { TTFLoader } from "./TTFLoader";
 				this.complete(data);
 			} else if (type === Loader.ATLAS) {
 				//处理图集
-				if (!data.url && !data._setContext) {
+				if (!(data instanceof Texture2D)) {
 					if (!this._data) {
 						this._data = data;
 						//构造加载图片信息

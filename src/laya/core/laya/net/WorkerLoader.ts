@@ -106,24 +106,13 @@ import { EventDispatcher } from "../events/EventDispatcher"
 				return;
 			}
 			
-			//TODO:
-			var canvas:HTMLCanvas = new HTMLCanvas(true);
-			var ctx:any = canvas.source.getContext("2d");
-			
-			switch (data.dataType) {
-			case "imageBitmap": 
-				var imageData:any = data.imageBitmap;
-				canvas.size(imageData.width, imageData.height);
-				ctx.drawImage(imageData, 0, 0);
-				break;
-			}
-			console.log("load:", data.url);
-			//避免被计算两次
-			canvas._setGPUMemory(0);
+			var imageData:ImageBitmap = data.imageBitmap;// imageBitmap
 			var tex:Texture2D = new Texture2D();
-			tex.loadImageSource(canvas.source);
+			tex.loadImageSource(imageData);
+			console.log("load:", data.url);
 			//canvas = tex;
 			this.event(data.url, tex);
+
 		}
 		
 		/**
