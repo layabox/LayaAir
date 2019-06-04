@@ -2,7 +2,6 @@ import { Component } from "laya/components/Component";
 import { Vector3 } from "../math/Vector3";
 import { Physics3DUtils } from "../utils/Physics3DUtils";
 import { Utils3D } from "../utils/Utils3D";
-import { Laya3D } from "./../../../Laya3D";
 import { PhysicsComponent } from "././PhysicsComponent";
 import { Physics } from "./Physics";
 import { ColliderShape } from "./shape/ColliderShape";
@@ -12,7 +11,14 @@ import { ColliderShape } from "./shape/ColliderShape";
  */
 export class CharacterController extends PhysicsComponent {
 	/** @private */
-	private static _nativeTempVector30: any = new Physics._physics3D.btVector3(0, 0, 0);
+	private static _nativeTempVector30: any;
+
+	/**
+	 * @private
+	 */
+	static __init__(): void {
+		CharacterController._nativeTempVector30 = new Physics._physics3D.btVector3(0, 0, 0);
+	}
 
 	/* UP轴_X轴。*/
 	static UPAXIS_X: number = 0;

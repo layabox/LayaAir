@@ -74,6 +74,8 @@ import { ShaderInit3D } from "./laya/d3/shader/ShaderInit3D";
 import { ShaderInstance } from "./laya/d3/shader/ShaderInstance";
 import { Utils3D } from "./laya/d3/utils/Utils3D";
 import { PhysicsCollider } from "laya/d3/physics/PhysicsCollider";
+import { CharacterController } from "laya/d3/physics/CharacterController";
+import { Rigidbody3D } from "laya/d3/physics/Rigidbody3D";
 
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
@@ -193,6 +195,8 @@ export class Laya3D {
 			PhysicsSimulation.__init__();
 			BoxColliderShape.__init__();
 			CylinderColliderShape.__init__();
+			CharacterController.__init__();
+			Rigidbody3D.__init__();
 		}
 
 		Sprite3D.__init__();

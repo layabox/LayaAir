@@ -2,7 +2,6 @@ import { Component } from "laya/components/Component";
 import { Vector3 } from "../math/Vector3";
 import { Physics3DUtils } from "../utils/Physics3DUtils";
 import { Utils3D } from "../utils/Utils3D";
-import { Laya3D } from "./../../../Laya3D";
 import { PhysicsComponent } from "././PhysicsComponent";
 import { Physics } from "./Physics";
 import { PhysicsTriggerComponent } from "./PhysicsTriggerComponent";
@@ -36,14 +35,32 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	static _BT_ENABLE_GYROPSCOPIC_FORCE: number = 2;
 
 	/** @private */
-	private static _nativeTempVector30: any = new Physics._physics3D.btVector3(0, 0, 0);
+	private static _nativeTempVector30: any;
 	/** @private */
-	private static _nativeTempVector31: any = new Physics._physics3D.btVector3(0, 0, 0);
-	private static _nativeVector3Zero: any = new Physics._physics3D.btVector3(0, 0, 0);
-	private static _nativeInertia: any = new Physics._physics3D.btVector3(0, 0, 0);
-	private static _nativeImpulse: any = new Physics._physics3D.btVector3(0, 0, 0);
-	private static _nativeImpulseOffset: any = new Physics._physics3D.btVector3(0, 0, 0);
-	private static _nativeGravity: any = new Physics._physics3D.btVector3(0, 0, 0);
+	private static _nativeTempVector31: any;
+	/** @private */
+	private static _nativeVector3Zero: any;
+	/** @private */
+	private static _nativeInertia: any;
+	/** @private */
+	private static _nativeImpulse: any;
+	/** @private */
+	private static _nativeImpulseOffset: any;
+	/** @private */
+	private static _nativeGravity: any;
+
+	/**
+	 * @private
+	 */
+	static __init__(): void {
+		Rigidbody3D._nativeTempVector30 = new Physics._physics3D.btVector3(0, 0, 0);
+		Rigidbody3D._nativeTempVector31 = new Physics._physics3D.btVector3(0, 0, 0);
+		Rigidbody3D._nativeVector3Zero = new Physics._physics3D.btVector3(0, 0, 0);
+		Rigidbody3D._nativeInertia = new Physics._physics3D.btVector3(0, 0, 0);
+		Rigidbody3D._nativeImpulse = new Physics._physics3D.btVector3(0, 0, 0);
+		Rigidbody3D._nativeImpulseOffset = new Physics._physics3D.btVector3(0, 0, 0);
+		Rigidbody3D._nativeGravity = new Physics._physics3D.btVector3(0, 0, 0);
+	}
 
 	/** @private */
 	private _nativeMotionState: any;
