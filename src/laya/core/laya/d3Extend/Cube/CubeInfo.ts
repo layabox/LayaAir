@@ -1,4 +1,4 @@
-import { SubCubeGeometry } from "././SubCubeGeometry";
+import { SubCubeGeometry } from "SubCubeGeometry";
 /**
 	 * <code>CubeInfo</code> 类用于实现方块信息(也可能是点)。
 	 */

@@ -1,10 +1,8 @@
-import { BezierLerp } from "laya/ani/math/BezierLerp"
-	import { BufferState } from "laya/d3/core/BufferState"
-	import { GeometryElement } from "laya/d3/core/GeometryElement"
-	import { RenderContext3D } from "laya/d3/core/render/RenderContext3D"
-	import { BoundSphere } from "laya/d3/math/BoundSphere"
-	import { Vector3 } from "laya/d3/math/Vector3"
-    import { UISprite3D } from "./UISprite3D";
+import { GeometryElement } from "laya/d3/core/GeometryElement";
+import { RenderContext3D } from "laya/d3/core/render/RenderContext3D";
+import { BoundSphere } from "laya/d3/math/BoundSphere";
+import { Vector3 } from "laya/d3/math/Vector3";
+import { UISprite3D } from "./UISprite3D";
 	/**
 	 */
 	export class UISprite3DFilter extends GeometryElement {

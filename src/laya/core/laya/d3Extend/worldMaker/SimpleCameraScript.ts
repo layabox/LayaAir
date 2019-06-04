@@ -1,17 +1,14 @@
 import { Laya } from "Laya";
-import { Component } from "laya/components/Component"
-	import { Script3D } from "laya/d3/component/Script3D"
-	import { BaseCamera } from "laya/d3/core/BaseCamera"
-	import { Camera } from "laya/d3/core/Camera"
-	import { Matrix4x4 } from "laya/d3/math/Matrix4x4"
-	import { Quaternion } from "laya/d3/math/Quaternion"
-	import { Vector3 } from "laya/d3/math/Vector3"
-	import { ArcBall } from "./ArcBall"
-	import { Event } from "laya/events/Event"
-	import { KeyBoardManager } from "laya/events/KeyBoardManager"
-	import { Keyboard } from "laya/events/Keyboard"
-	import { Handler } from "laya/utils/Handler"
-	import { Tween } from "laya/utils/Tween"
+import { Script3D } from "laya/d3/component/Script3D";
+import { Camera } from "laya/d3/core/Camera";
+import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
+import { Quaternion } from "laya/d3/math/Quaternion";
+import { Vector3 } from "laya/d3/math/Vector3";
+import { Event } from "laya/events/Event";
+import { Keyboard } from "laya/events/Keyboard";
+import { KeyBoardManager } from "laya/events/KeyBoardManager";
+import { Handler } from "laya/utils/Handler";
+import { ArcBall } from "./ArcBall";
 	
 	/**
 	 * TODO 自己测试用。只要效果，不顾效率
@@ -41,12 +38,10 @@ import { Component } from "laya/components/Component"
 		 arcball:ArcBall = new ArcBall();
 		private isInitArcball:boolean = false;
 		private quatArcBallResult:Quaternion = new Quaternion();
-		private startDragMatrix:Matrix4x4 = new Matrix4x4();	// 开始旋转的时候的矩阵
 		
 		private movVel:number = 0.5;				// 移动速度，用来计算vMovVel的
 		private vMovVel:Vector3 = new Vector3();	// 向量移动速度。实际使用的。
 		private ctrlDown:boolean = false;
-		private changed:boolean = false;
 		
 		constructor(posx:number, posy:number, posz:number, targetx:number, targety:number, targetz:number){
 			super();
@@ -135,6 +130,7 @@ this.target.x = targetx;
 				this.arcball.init(Laya.stage.width, Laya.stage.height);
 				this.isInitArcball = true;
 			}
+			this.updateCamera(Laya.timer.delta);
 		}
 		
 		 frontView():void {
@@ -243,17 +239,14 @@ this.target.x = targetx;
 		}
 		
 		protected rightMouseDown(e:Event):void {
-			Laya.stage.captureMouseEvent(true);
 			this.lastMouseX = e.stageX;
 			this.lastMouseY = e.stageY;
 			this.isRightDown = true;
-			this.camWorldMatrix.cloneTo(this.startDragMatrix);
 			this.arcball.startDrag(e.stageX, e.stageY, this.camera.transform.worldMatrix);
 		}
 		
 		protected rightMouseUp(e:Event):void {
 			this.isRightDown = false;
-			Laya.stage.releaseMouseEvent();
 		}
 		
 		protected mouseMov(e:Event):void {
@@ -264,29 +257,27 @@ this.target.x = targetx;
 				//dragQuat = arcball.dragTo(Laya.stage.width / 2+2, Laya.stage.height / 2);
 				//DEBUG
 				dragQuat.invert(this.quatArcBallResult);	// 取逆表示不转物体，转摄像机对象
+				//DEBUG
+				//Quaternion.createFromAxisAngle(new Vector3(1, 0, 0), 0.1, quatArcBallResult);
+				//DEBUG
 				var dragMat:Matrix4x4 = new Matrix4x4();
 				Matrix4x4.createFromQuaternion(this.quatArcBallResult, dragMat);
 				var cammate:Float32Array = this.camWorldMatrix.elements;
-				cammate[12] = cammate[13] = cammate[14] = 0;
-				Matrix4x4.multiply(dragMat, this.startDragMatrix, this.camWorldMatrix);				
-				this.updateCam(true);
-			}
-		}
-		
-		// 更新摄像机的世界矩阵
-		 updateCam(force:boolean):void {
-			if(this.changed || force){
-				this.camWorldMatrix.cloneTo(this.outMatrix);
-				var camm:Float32Array = this.outMatrix.elements;
-				camm[12] = this.target.x + camm[8] * this.dist;
-				camm[13] = this.target.y + camm[9] * this.dist;
-				camm[14] = this.target.z + camm[10] * this.dist;
-				this.camera.transform.worldMatrix = this.outMatrix;
-				this.changed = false;
-				//owner.event("scrollView");
-			}
-		}
+				var oldx:number = cammate[12];  cammate[12] = 0;
+				var oldy:number = cammate[13];  cammate[13] = 0;
+				var oldz:number = cammate[14];	cammate[14] = 0;
+				Matrix4x4.multiply(dragMat, this.camWorldMatrix, this.camWorldMatrix);
 				
+				// 加上target影响
+				this.camWorldMatrix.cloneTo(this.outMatrix);
+				this.outMatrix.elements[12] = this.target.x + cammate[8] * this.dist;
+				this.outMatrix.elements[13] = this.target.y + cammate[9] * this.dist;
+				this.outMatrix.elements[14] = this.target.z + cammate[10] * this.dist;
+				
+				this.camera.transform.worldMatrix = this.outMatrix;
+				//camera.transform.worldMatrix = arcball.getResultMatrix();
+			}
+		}
 		
 		private mouseDown(e:Event):void{
 			this.isMouseDown = true;
@@ -334,6 +325,11 @@ this.target.x = targetx;
 		 * @param distance 移动距离。
 		 */
 		 moveForward(distance:number):void {
+		}
+		
+		protected updateCamera(elapsedTime:number):void {
+			this.lastMouseX = Laya.stage.mouseX;
+			this.lastMouseY = Laya.stage.mouseY;
 		}
 	}
 

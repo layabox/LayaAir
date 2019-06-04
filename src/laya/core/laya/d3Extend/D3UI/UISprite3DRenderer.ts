@@ -14,7 +14,7 @@ import { MeshSprite3D } from "laya/d3/core/MeshSprite3D"
 		 boundsph:BoundSphere = new BoundSphere(new Vector3(), 1.0);
 		protected _projectionViewWorldMatrix:Matrix4x4;
 		constructor(owner:UISprite3D){
-			super(owner, 4);
+			super(owner);
 			this._projectionViewWorldMatrix = new Matrix4x4();
 		}
 		
