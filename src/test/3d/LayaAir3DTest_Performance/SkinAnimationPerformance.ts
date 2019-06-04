@@ -1,17 +1,17 @@
 import { Config3D } from "Config3D";
-import { Laya3D } from "Laya3D";
 import { Laya } from "Laya";
-import { CameraMoveScript } from "../common/CameraMoveScript"
-	import { Animator } from "laya/d3/component/Animator"
-	import { Camera } from "laya/d3/core/Camera"
-	import { Sprite3D } from "laya/d3/core/Sprite3D"
-	import { DirectionLight } from "laya/d3/core/light/DirectionLight"
-	import { Scene3D } from "laya/d3/core/scene/Scene3D"
-	import { Vector3 } from "laya/d3/math/Vector3"
-	import { Stage } from "laya/display/Stage"
-	import { Button } from "laya/ui/Button"
-	import { Handler } from "laya/utils/Handler"
-	import { Stat } from "laya/utils/Stat"
+import { Animator } from "laya/d3/component/Animator";
+import { Camera } from "laya/d3/core/Camera";
+import { DirectionLight } from "laya/d3/core/light/DirectionLight";
+import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { Vector3 } from "laya/d3/math/Vector3";
+import { Stage } from "laya/display/Stage";
+import { Button } from "laya/ui/Button";
+import { Handler } from "laya/utils/Handler";
+import { Stat } from "laya/utils/Stat";
+import { Laya3D } from "Laya3D";
+import { CameraMoveScript } from "../common/CameraMoveScript";
 	
 	/**
 	 * ...
@@ -50,7 +50,7 @@ import { CameraMoveScript } from "../common/CameraMoveScript"
 			//Sprite3D.load("test/monkey.lh", Handler.create(null, function(zombie:Sprite3D):void {
 			Sprite3D.load("res/threeDimen/skinModel/Zombie/Zombie.lh", Handler.create(null, function(zombie:Sprite3D):void {
 				for (var i:number = 0; i < 200; i++) {
-					zombie = zombie.clone();
+					zombie = <Sprite3D>zombie.clone();
 					zombie.transform.localPosition = new Vector3(i*0.04-4.0,0,0);
 					scene.addChild(zombie);
 					this.zombieAnimator = (<Animator>((<Sprite3D>zombie.getChildAt(0) )).getComponent(Animator) );//获取Animator动画组件
