@@ -9,6 +9,7 @@ import { Camera } from "laya/d3/core/Camera"
 	import { Handler } from "laya/utils/Handler"
 	import { Stat } from "laya/utils/Stat"
 	import { BaseCamera } from "laya/d3/core/BaseCamera"
+import { Vector4 } from "../../../../bin/libs/laya/d3/math/Vector4";
 	
 	/**
 	 * ...
@@ -28,7 +29,7 @@ import { Camera } from "laya/d3/core/Camera"
 			camera.transform.translate(new Vector3(0, 2, 4));
 			camera.transform.rotate(new Vector3( -15, 0, 0), true, false);
 			camera.clearFlag = BaseCamera.CLEARFLAG_SOLIDCOLOR;
-			camera.clearColor = new Color(0, 0, 0, 1);
+			camera.clearColor = new Vector4(0, 0, 0, 1);
 			
 			Sprite3D.load("res/threeDimen/particle/ETF_Eternal_Light.lh", Handler.create(this, function(sprite:Sprite3D):void {
 				(<Sprite3D>scene.addChild(sprite) );
