@@ -76,6 +76,7 @@ import { Utils3D } from "./laya/d3/utils/Utils3D";
 import { PhysicsCollider } from "laya/d3/physics/PhysicsCollider";
 import { CharacterController } from "laya/d3/physics/CharacterController";
 import { Rigidbody3D } from "laya/d3/physics/Rigidbody3D";
+import { Animator } from "laya/d3/component/Animator";
 
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
@@ -223,8 +224,11 @@ export class Laya3D {
 		SkyBoxMaterial.__initDefine__();
 		ShaderInit3D.__init__();
 
-		(Laya as any).BlinnPhongMaterial=BlinnPhongMaterial;//todo:
-		(Laya as any).PhysicsCollider=PhysicsCollider;//todo:
+		//TODO:临时
+		(Laya as any).BlinnPhongMaterial=BlinnPhongMaterial;
+		(Laya as any).PhysicsCollider=PhysicsCollider;
+		(Laya as any).CharacterController=CharacterController;
+		(Laya as any).Animator=Animator;
 
 		PixelLineMaterial.defaultMaterial=new PixelLineMaterial();
 		BlinnPhongMaterial.defaultMaterial=new BlinnPhongMaterial();

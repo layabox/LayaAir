@@ -41,7 +41,7 @@ export class CharacterController extends PhysicsComponent {
 	private _gravity: Vector3 = new Vector3(0, -9.8 * 3, 0);
 
 	/**@private */
-	_nativeKinematicCharacter: any;
+	_nativeKinematicCharacter: any=null;
 
 	/**
 	 * 获取角色降落速度。
