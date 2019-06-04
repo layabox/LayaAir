@@ -395,7 +395,7 @@ import { Scene3DShaderDeclaration } from "./scene/Scene3DShaderDeclaration";
 		 * @private
 		 */
 		 _applyPostProcessCommandBuffers():void {
-			for (var i:number, n:number = this._postProcessCommandBuffers.length; i < n; i++)
+			for (var i:number=0, n:number = this._postProcessCommandBuffers.length; i < n; i++)
 				this._postProcessCommandBuffers[i]._apply();
 		}
 		
