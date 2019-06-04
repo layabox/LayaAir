@@ -1,42 +1,48 @@
-import { Laya } from "Laya"
-	import { Sprite } from "laya/display/Sprite"
-	import { Stage } from "laya/display/Stage"
-	import { Loader } from "laya/net/Loader"
-	import { URL } from "laya/net/URL"
-	import { IndexView2D } from "./view/IndexView2D"
-	//import laya.qg.mini.QGMiniAdapter;
-	import { Handler } from "laya/utils/Handler"
-	import { Stat } from "laya/utils/Stat"
+import { ILaya } from "ILaya";
+import { Laya } from "Laya";
+import { Sprite } from "laya/display/Sprite";
+import { Stage } from "laya/display/Stage";
+import { Loader } from "laya/net/Loader";
+import { URL } from "laya/net/URL";
+//import laya.qg.mini.QGMiniAdapter;
+import { Handler } from "laya/utils/Handler";
+import { Stat } from "laya/utils/Stat";
+import { Laya3D } from "Laya3D";
+import { IndexView2D } from "./view/IndexView2D";
+import { IndexView3D } from "./view/IndexView3D";
 
 	export class Main
 	{
-		//public static var box3D:Sprite;
-		 static box2D:Sprite;
-		 static _indexView:any;
-		//false 2d；true 3d
+		static box3D:Sprite;
+		static box2D:Sprite;
+		static _indexView:any;
+		/**false 2d；true 3d**/
 		private _isType:boolean = false;
 		 static isWXAPP:boolean = false;
 		private _isReadNetWorkRes:boolean = false;
 		constructor(){
+			
 			//QGMiniAdapter.init();
-            //false为2D true为3D
-			this._isType =  false;// __JS__('window.isType') || true;
+			//false为2D true为3D
+			console.log("oppen testBrowser");
+			this._isType = (window as any).isType || true;
 			if(!this._isType)
 			{
 				Laya.init(1280,720);
 				Laya.stage.scaleMode =  Stage.SCALE_FIXED_AUTO;
 			}else
 			{
-				//Laya3D.init(0, 0);
+				Laya3D.init(0, 0);
 				Laya.stage.scaleMode = Stage.SCALE_FULL;
 				Laya.stage.screenMode = Stage.SCREEN_NONE;
 			}
-			Laya.stage.bgColor = "#c1c1c1c";
+			Laya.stage.bgColor = "#ffffff";
+			//Laya.stage.bgColor = "#c1c1c1c";
 			Stat.show();
 			
 			//这里改成true就会从外部加载资源
 			this._isReadNetWorkRes = (window as any).isReadNetWorkRes || false;
-			if(this._isReadNetWorkRes)
+			if(this._isReadNetWorkRes|| ILaya.Browser.onVVMiniGame|| ILaya.Browser.onBDMiniGame)
 			{
 				URL.rootPath = URL.basePath = "https://layaair.ldc.layabox.com/demo2/h5/";
 			}
@@ -56,18 +62,9 @@ import { Laya } from "Laya"
 			}else
 			{
 				//Layaair1.0-3d
-				//box3D = new Sprite();
-				//Laya.stage.addChild(box3D);
-				//Main._indexView = new IndexView3D();
-			}
-			
-			var sp:Sprite = new Sprite();
-			var dx=0 ;
-			(sp.graphics as any).runfunc=function(){
-                for (var i = 0; i < 100; i++)
-                {
-                    this.ctx.drawRect(0, i+dx, 100, 100, 'red', 'red', 1);
-                }
+				Main.box3D = new Sprite();
+				Laya.stage.addChild(Main.box3D);
+				Main._indexView = new IndexView3D();
 			}
 			
 			Laya.stage.addChild(Main._indexView);
