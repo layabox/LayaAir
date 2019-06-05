@@ -49,6 +49,7 @@ import { RenderState2D } from "./laya/webgl/utils/RenderState2D";
 import { ShaderCompile } from "./laya/webgl/utils/ShaderCompile";
 import { WebGL } from "./laya/webgl/WebGL";
 import { WebGLContext } from "./laya/webgl/WebGLContext";
+import { WorkerLoader } from "laya/net/WorkerLoader";
 
 	/**
 	 * <code>Laya</code> 是全局对象的引用入口集。
@@ -332,7 +333,8 @@ import { WebGLContext } from "./laya/webgl/WebGLContext";
     ILaya.Graphics=Graphics;
     ILaya.Submit=Submit;
     ILaya.Stage = Stage;
-    ILaya.Resource = Resource;
+	ILaya.Resource = Resource;
+	ILaya.WorkerLoader=WorkerLoader;
 
 //初始化引擎库
 var libs:any[] =(window as any)._layalibs;

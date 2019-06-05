@@ -148,5 +148,15 @@ export class PixelLineMaterial extends BaseMaterial {
 		this._shaderValues.setVector(PixelLineMaterial.COLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
 	}
 
+		/**
+	 * 克隆。
+	 * @return	 克隆副本。
+	 */
+	clone(): any {
+		var dest: PixelLineMaterial = new PixelLineMaterial();
+		this.cloneTo(dest);
+		return dest;
+	}
+
 }
 

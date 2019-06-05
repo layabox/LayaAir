@@ -43,6 +43,16 @@ import { Sprite3D } from "laya/d3/core/Sprite3D"
 			this.setShaderName("LineShader");
 			super(1);
 		}
+
+			/**
+	 * 克隆。
+	 * @return	 克隆副本。
+	 */
+	clone(): any {
+		var dest: LineMaterial = new LineMaterial();
+		this.cloneTo(dest);
+		return dest;
+	}
 	
 	}
 

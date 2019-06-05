@@ -823,6 +823,16 @@ import { BaseCamera } from "laya/d3/core/BaseCamera"
 			this._enableLighting = true;
 			this.renderMode = CubeMaterial.RENDERMODE_OPAQUE;
 		}
+
+			/**
+	 * 克隆。
+	 * @return	 克隆副本。
+	 */
+	clone(): any {
+		var dest: CubeMaterial = new CubeMaterial();
+		this.cloneTo(dest);
+		return dest;
+	}
 		
 		/**
 		 * @inheritDoc

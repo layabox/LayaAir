@@ -196,6 +196,16 @@ export class SkyProceduralMaterial extends BaseMaterial {
 		this.exposure = 1.3;
 	}
 
+		/**
+	 * 克隆。
+	 * @return	 克隆副本。
+	 */
+	clone(): any {
+		var dest: SkyProceduralMaterial = new SkyProceduralMaterial();
+		this.cloneTo(dest);
+		return dest;
+	}
+
 }
 
 

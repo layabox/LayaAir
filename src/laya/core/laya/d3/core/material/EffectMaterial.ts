@@ -493,5 +493,15 @@ export class EffectMaterial extends BaseMaterial {
 		this._shaderValues.setVector(EffectMaterial.TINTCOLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
 		this.renderMode = EffectMaterial.RENDERMODE_ADDTIVE;
 	}
+
+	/**
+	 * 克隆。
+	 * @return	 克隆副本。
+	 */
+	clone(): any {
+		var dest: EffectMaterial = new EffectMaterial();
+		this.cloneTo(dest);
+		return dest;
+	}
 }
 

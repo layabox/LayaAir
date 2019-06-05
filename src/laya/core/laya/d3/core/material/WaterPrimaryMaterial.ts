@@ -130,6 +130,16 @@ export class WaterPrimaryMaterial extends BaseMaterial {
 		this._shaderValues.setNumber(WaterPrimaryMaterial.WAVESCALE, 0.15);
 		this._shaderValues.setVector(WaterPrimaryMaterial.WAVESPEED, new Vector4(19, 9, -16, -7));
 	}
+
+		/**
+	 * 克隆。
+	 * @return	 克隆副本。
+	 */
+	clone(): any {
+		var dest: WaterPrimaryMaterial = new WaterPrimaryMaterial();
+		this.cloneTo(dest);
+		return dest;
+	}
 }
 
 

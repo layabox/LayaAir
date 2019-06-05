@@ -295,5 +295,15 @@ export class CartoonMaterial extends BaseMaterial {
 		this._shaderValues.setNumber(CartoonMaterial.OUTLINEWIDTH, 0.01581197);
 		this._shaderValues.setNumber(CartoonMaterial.OUTLINELIGHTNESS, 1);
 	}
+
+		/**
+	 * 克隆。
+	 * @return	 克隆副本。
+	 */
+	clone(): any {
+		var dest: CartoonMaterial = new CartoonMaterial();
+		this.cloneTo(dest);
+		return dest;
+	}
 }
 

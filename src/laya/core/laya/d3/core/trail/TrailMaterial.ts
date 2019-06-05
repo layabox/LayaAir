@@ -493,5 +493,15 @@ export class TrailMaterial extends BaseMaterial {
 		this._shaderValues.setVector(TrailMaterial.TINTCOLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
 		this.renderMode = TrailMaterial.RENDERMODE_ALPHABLENDED;
 	}
+
+		/**
+	 * 克隆。
+	 * @return	 克隆副本。
+	 */
+	clone(): any {
+		var dest: TrailMaterial = new TrailMaterial();
+		this.cloneTo(dest);
+		return dest;
+	}
 }
 

@@ -84,6 +84,16 @@ export class SkyBoxMaterial extends BaseMaterial {
 		this._shaderValues.setTexture(SkyBoxMaterial.TEXTURECUBE, value);
 	}
 
+		/**
+	 * 克隆。
+	 * @return	 克隆副本。
+	 */
+	clone(): any {
+		var dest: SkyBoxMaterial = new SkyBoxMaterial();
+		this.cloneTo(dest);
+		return dest;
+	}
+
 	/**
 	 * 创建一个 <code>SkyBoxMaterial</code> 实例。
 	 */

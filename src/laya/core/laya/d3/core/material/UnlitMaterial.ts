@@ -576,5 +576,15 @@ export class UnlitMaterial extends BaseMaterial {
 		this._shaderValues.setVector(UnlitMaterial.ALBEDOCOLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
 		this.renderMode = UnlitMaterial.RENDERMODE_OPAQUE;
 	}
+
+		/**
+	 * 克隆。
+	 * @return	 克隆副本。
+	 */
+	clone(): any {
+		var dest: UnlitMaterial = new UnlitMaterial();
+		this.cloneTo(dest);
+		return dest;
+	}
 }
 

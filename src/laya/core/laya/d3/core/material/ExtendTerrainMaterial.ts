@@ -366,6 +366,16 @@ import { RenderState } from "./RenderState";
 			this.setShaderName("ExtendTerrain");
 			this.renderMode = ExtendTerrainMaterial.RENDERMODE_OPAQUE;
 		}
+
+			/**
+	 * 克隆。
+	 * @return	 克隆副本。
+	 */
+	clone(): any {
+		var dest: ExtendTerrainMaterial = new ExtendTerrainMaterial();
+		this.cloneTo(dest);
+		return dest;
+	}
 	
 	}
 

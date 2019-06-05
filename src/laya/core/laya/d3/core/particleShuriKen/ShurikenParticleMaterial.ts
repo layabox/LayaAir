@@ -500,6 +500,16 @@ import { BaseMaterial } from "../material/BaseMaterial"
 			this._color = new Vector4(1.0, 1.0, 1.0, 1.0);
 			this.renderMode = ShurikenParticleMaterial.RENDERMODE_ALPHABLENDED;//默认加色法会自动加上雾化宏定义，导致非加色法从材质读取完后未移除宏定义。
 		}
+
+			/**
+	 * 克隆。
+	 * @return	 克隆副本。
+	 */
+	clone(): any {
+		var dest: ShurikenParticleMaterial = new ShurikenParticleMaterial();
+		this.cloneTo(dest);
+		return dest;
+	}
 	
 	}
 
