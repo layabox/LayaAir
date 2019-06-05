@@ -50,7 +50,7 @@ uniform mat4 u_View;
 uniform mat4 u_Projection;
 
 #ifdef STRETCHEDBILLBOARD
-	uniform vec3 u_CameraPosition;
+	uniform vec3 u_CameraPos;
 #endif
 uniform vec3 u_CameraDirection;//TODO:只有几种广告牌模式需要用
 uniform vec3 u_CameraUp;
@@ -153,7 +153,7 @@ uniform int u_SimulationSpace;
 #endif
 
 #ifdef FOG
-	varying vec3 v_PositionWorld;
+	//varying vec3 v_PositionWorld;
 #endif
 
 #ifdef TILINGOFFSET
@@ -642,7 +642,7 @@ void main()
 	    velocity= rotationByQuaternions(u_SizeScale*startVelocity,worldRotation)+gravityVelocity;
     #endif	
 		vec3 cameraUpVector = normalize(velocity);
-		vec3 direction = normalize(center-u_CameraPosition);
+		vec3 direction = normalize(center-u_CameraPos);
         vec3 sideVector = normalize(cross(direction,normalize(velocity)));
 		
 		sideVector=u_SizeScale.xzy*sideVector;
@@ -763,7 +763,7 @@ void main()
     v_Discard=0.0;
 	  
 	#ifdef FOG
-		v_PositionWorld=center;
+		//v_PositionWorld=center;
 	#endif
    }
    else

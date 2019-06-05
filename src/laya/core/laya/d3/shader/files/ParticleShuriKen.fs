@@ -15,8 +15,8 @@ uniform vec4 u_Tintcolor;
 #endif
 
 #ifdef FOG
-	varying vec3 v_PositionWorld;
-	uniform vec3 u_CameraPosition;
+	//varying vec3 v_PositionWorld;
+	//uniform vec3 u_CameraPos;
 	uniform float u_FogStart;
 	uniform float u_FogRange;
 	#ifdef ADDTIVEFOG
@@ -51,11 +51,20 @@ void main()
 	#endif
 	
 	#ifdef FOG
-		vec3 toEye=u_CameraPosition-v_PositionWorld;
-		float toEyeLength=length(toEye);
-		toEye/=toEyeLength;
+		//vec3 toEye=u_CameraPos-v_PositionWorld;
+		//float toEyeLength=length(toEye);
+		//toEye/=toEyeLength;
 		
-		float lerpFact=clamp((toEyeLength-u_FogStart)/u_FogRange,0.0,1.0);
+		//float lerpFact=clamp((toEyeLength-u_FogStart)/u_FogRange,0.0,1.0);
+		#ifdef ADDTIVEFOG
+			//gl_FragColor.rgb=mix(gl_FragColor.rgb,vec3(0.0,0.0,0.0),lerpFact);
+		#else
+			//gl_FragColor.rgb=mix(gl_FragColor.rgb,u_FogColor,lerpFact);
+		#endif
+	#endif
+	
+	#ifdef FOG
+		float lerpFact=clamp((1.0/gl_FragCoord.w-u_FogStart)/u_FogRange,0.0,1.0);
 		#ifdef ADDTIVEFOG
 			gl_FragColor.rgb=mix(gl_FragColor.rgb,vec3(0.0,0.0,0.0),lerpFact);
 		#else
