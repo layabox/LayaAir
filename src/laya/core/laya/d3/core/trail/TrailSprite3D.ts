@@ -18,13 +18,13 @@ import { FloatKeyframe } from "../FloatKeyframe"
 		
 		
 		/**@private */
-		 static shaderDefines:ShaderDefines = new ShaderDefines(RenderableSprite3D.shaderDefines);
+		 static shaderDefines:ShaderDefines;
 		
 		/**
 		 * @private
 		 */
 		 static __init__():void {
-			
+			TrailSprite3D.shaderDefines= new ShaderDefines(RenderableSprite3D.shaderDefines);
 		}
 		
 		/** @private */

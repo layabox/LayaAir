@@ -19,12 +19,13 @@ import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration";
 	export class MeshSprite3D extends RenderableSprite3D {
 		
 		/**@private */
-		 static shaderDefines:ShaderDefines = new ShaderDefines(RenderableSprite3D.shaderDefines);
+		 static shaderDefines:ShaderDefines;
 		
 		/**
 		 * @private
 		 */
 		 static __init__():void {
+			MeshSprite3D.shaderDefines= new ShaderDefines(RenderableSprite3D.shaderDefines);
 			MeshSprite3DShaderDeclaration.SHADERDEFINE_UV0 = MeshSprite3D.shaderDefines.registerDefine("UV");
 			MeshSprite3DShaderDeclaration.SHADERDEFINE_COLOR = MeshSprite3D.shaderDefines.registerDefine("COLOR");
 			MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1 = MeshSprite3D.shaderDefines.registerDefine("UV1");
