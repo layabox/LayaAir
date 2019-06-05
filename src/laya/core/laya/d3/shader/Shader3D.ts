@@ -89,6 +89,7 @@ import { WebGL } from "laya/webgl/WebGL"
 		 * @private
 		 */
 		 static addInclude(fileName:string, txt:string):void {
+			txt=txt.replace(ShaderCompile._clearCR,"");//CRLF风格需要先去掉“\r",否则切分字符会出错导致宏定义编译错误等
 			ShaderCompile.addInclude(fileName, txt);
 		}
 		
