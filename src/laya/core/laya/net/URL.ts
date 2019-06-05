@@ -1,3 +1,5 @@
+import { ILaya } from "ILaya";
+
 /**
 	 * <p><code>URL</code> 提供URL格式化，URL版本管理的类。</p>
 	 * <p>引擎加载资源的时候，会自动调用formatURL函数格式化URL路径</p>
@@ -37,18 +39,8 @@
 		/**root路径。只针对'~'类型的url路径有效*/
 		 static rootPath:string = "";
 		
-		/**@private */
-		 static _getUrlPath():string {
-			var location:any = window.location;
-			var pathName:string = location.pathname;
-			// 索引为2的字符如果是':'就是windows file协议
-			pathName = pathName.charAt(2) == ':' ? pathName.substring(1) : pathName;
-			return URL.getPath(location.protocol == "file:" ? pathName : location.protocol + "//" + location.host + location.pathname);
-		}
-		
-		
 		 static set basePath(value:string) {
-			URL._basePath=URL._getUrlPath();//还原BaseURL为Index目录
+			URL._basePath=ILaya.Laya._getUrlPath();//还原BaseURL为Index目录
 			URL._basePath = URL.formatURL(value);
 		}
 		
