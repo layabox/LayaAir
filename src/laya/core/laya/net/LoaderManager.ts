@@ -196,7 +196,7 @@ import { ILaya } from "../../ILaya";
 		 * @param	useWorkerLoader(default = false)是否使用worker加载（只针对IMAGE类型和ATLAS类型，并且浏览器支持的情况下生效）
 		 * @return 此 LoaderManager 对象本身。
 		 */
-		 load(url:any, complete:Handler = null, progress:Handler = null, type:string = null, priority:number = 1, cache:boolean = true, group:string = null, ignoreCache:boolean = false, useWorkerLoader:boolean = false):LoaderManager {
+		 load(url:any, complete:Handler = null, progress:Handler = null, type:string = null, priority:number = 1, cache:boolean = true, group:string = null, ignoreCache:boolean = false, useWorkerLoader:boolean = ILaya.WorkerLoader.enable):LoaderManager {
 			if (url instanceof Array) return this._loadAssets((<any[]>url ), complete, progress, type, priority, cache, group);
 			var content:any = Loader.getRes(url);
 			if (!ignoreCache && content != null) {
