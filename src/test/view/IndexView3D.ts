@@ -241,7 +241,7 @@ import { Main } from "./../Main";
 			{
 				return;
 			}
-			//m_length += 1;
+			this.m_length += 1;
 			this.onClearPreBox();
 			
 			this._smallIndex = index;
@@ -343,7 +343,7 @@ import { Main } from "./../Main";
 			if (this._oldView)
 			{
 				Laya.timer.clearAll(this._oldView);
-				//Laya.stage.offAllCaller(_oldView);
+				Laya.stage.offAllCaller(this._oldView);
 				var i:number =Laya.stage.numChildren-1;
 				for (i; i>-1; i--)
 				{
