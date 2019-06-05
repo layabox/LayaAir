@@ -42,7 +42,8 @@ export default {
         glsl({
 			// By default, everything gets included
 			include: /.*(.glsl|.vs|.fs)$/,
-			sourceMap: false
+            sourceMap: false,
+            compress:false
 		}),        
 		//resolve(), // tells Rollup how to find date-fns in node_modules
 		//commonjs(), // converts date-fns to ES modules
