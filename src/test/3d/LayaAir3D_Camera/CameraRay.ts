@@ -146,7 +146,6 @@ import { CameraMoveScript } from "../common/CameraMoveScript"
 			//拿到射线碰撞的物体
 			this.scene.physicsSimulation.rayCastAll(this._ray, this.outs);
 			
-			debugger;
 			//如果碰撞到物体
 			if (this.outs.length != 0) {
 				
