@@ -71,34 +71,34 @@ import { IClone } from "../../IClone"
 		}
 		
 		/**@private */
-		private _type:number;
+		private _type:number=0;
 		/**@private */
-		private _constant:Vector3;
+		private _constant:Vector3=null;
 		
 		/**@private */
-		private _gradientX:GradientDataNumber;
+		private _gradientX:GradientDataNumber=null;
 		/**@private */
-		private _gradientY:GradientDataNumber;
+		private _gradientY:GradientDataNumber=null;
 		/**@private */
-		private _gradientZ:GradientDataNumber;
+		private _gradientZ:GradientDataNumber=null;
 		
 		/**@private */
-		private _constantMin:Vector3;
+		private _constantMin:Vector3=null;
 		/**@private */
-		private _constantMax:Vector3;
+		private _constantMax:Vector3=null;
 		
 		/**@private */
-		private _gradientXMin:GradientDataNumber;
+		private _gradientXMin:GradientDataNumber=null;
 		/**@private */
-		private _gradientXMax:GradientDataNumber;
+		private _gradientXMax:GradientDataNumber=null;
 		/**@private */
-		private _gradientYMin:GradientDataNumber;
+		private _gradientYMin:GradientDataNumber=null;
 		/**@private */
-		private _gradientYMax:GradientDataNumber;
+		private _gradientYMax:GradientDataNumber=null;
 		/**@private */
-		private _gradientZMin:GradientDataNumber;
+		private _gradientZMin:GradientDataNumber=null;
 		/**@private */
-		private _gradientZMax:GradientDataNumber;
+		private _gradientZMax:GradientDataNumber=null;
 		
 		/**
 		 *生命周期速度类型，0常量模式，1曲线模式，2随机双常量模式，3随机双曲线模式。

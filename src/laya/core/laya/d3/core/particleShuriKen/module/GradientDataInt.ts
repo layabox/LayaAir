@@ -5,7 +5,7 @@ import { IClone } from "../../IClone"
 	 */
 	export class GradientDataInt implements IClone {
 		/**@private */
-		private _currentLength:number;
+		private _currentLength:number=0;
 		/**@private 开发者禁止修改。*/
 		 _elements:Float32Array;//TODO:是否用int
 		

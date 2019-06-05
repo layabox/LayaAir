@@ -8,20 +8,20 @@ import { IClone } from "./IClone"
 	 */
 	export class Gradient implements IClone {
 		/**@private */
-		private _mode:number;
+		private _mode:number=0;
 		/**@private */
-		private _maxColorRGBKeysCount:number;
+		private _maxColorRGBKeysCount:number=0;
 		/**@private */
-		private _maxColorAlphaKeysCount:number;
+		private _maxColorAlphaKeysCount:number=0;
 		/**@private */
-		private _colorRGBKeysCount:number;
+		private _colorRGBKeysCount:number=0;
 		/**@private */
-		private _colorAlphaKeysCount:number;
+		private _colorAlphaKeysCount:number=0;
 		
 		/**@private */
-		 _alphaElements:Float32Array;
+		 _alphaElements:Float32Array=null;
 		/**@private */
-		 _rgbElements:Float32Array;
+		 _rgbElements:Float32Array=null;
 		
 		/**
 		 * 获取梯度模式。

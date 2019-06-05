@@ -55,20 +55,20 @@ import { Gradient } from "../../Gradient"
 		}
 		
 		/**@private */
-		private _type:number;
+		private _type:number=0;
 		
 		/**@private */
-		private _constant:Vector4;
+		private _constant:Vector4=null;
 		/**@private */
-		private _constantMin:Vector4;
+		private _constantMin:Vector4=null;
 		/**@private */
-		private _constantMax:Vector4;
+		private _constantMax:Vector4=null;
 		/**@private */
-		private _gradient:Gradient;
+		private _gradient:Gradient=null;
 		/**@private */
-		private _gradientMin:Gradient;
+		private _gradientMin:Gradient=null;
 		/**@private */
-		private _gradientMax:Gradient;
+		private _gradientMax:Gradient=null;
 		
 		/**
 		 *生命周期颜色类型,0为固定颜色模式,1渐变模式,2为随机双固定颜色模式,3随机双渐变模式。
