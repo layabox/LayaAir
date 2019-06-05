@@ -39,12 +39,13 @@ import { ShuriKenParticle3DShaderDeclaration } from "./ShuriKenParticle3DShaderD
  */
 export class ShuriKenParticle3D extends RenderableSprite3D {
 	/**@private */
-	static shaderDefines: ShaderDefines = new ShaderDefines(RenderableSprite3D.shaderDefines);
+	static shaderDefines: ShaderDefines;
 
 	/**
 	 * @private
 	 */
 	static __init__(): void {
+		ShuriKenParticle3D.shaderDefines = new ShaderDefines(RenderableSprite3D.shaderDefines);
 		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RENDERMODE_BILLBOARD = ShuriKenParticle3D.shaderDefines.registerDefine("SPHERHBILLBOARD");
 		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RENDERMODE_STRETCHEDBILLBOARD = ShuriKenParticle3D.shaderDefines.registerDefine("STRETCHEDBILLBOARD");
 		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RENDERMODE_HORIZONTALBILLBOARD = ShuriKenParticle3D.shaderDefines.registerDefine("HORIZONTALBILLBOARD");
