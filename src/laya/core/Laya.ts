@@ -162,7 +162,7 @@ import { WorkerLoader } from "laya/net/WorkerLoader";
             ILaya.stage = Laya.stage;
             
 			Utils.gStage = Laya.stage;
-            URL.rootPath = URL._basePath = URL._getUrlPath();
+            URL.rootPath = URL._basePath = Laya._getUrlPath();
 			Laya.render = new Render(0, 0, Browser.mainCanvas);
 			Laya.stage.size(width, height);
             ((<any>window )).stage = Laya.stage;
@@ -184,7 +184,16 @@ import { WorkerLoader } from "laya/net/WorkerLoader";
 		}
 		
 		/**@private */
-		private static _arrayBufferSlice(start:number, end:number):ArrayBuffer {
+		static  _getUrlPath():string {
+			var location:any = Browser.window.location;
+			var pathName:string = location.pathname;
+			// 索引为2的字符如果是':'就是windows file协议
+			pathName = pathName.charAt(2) == ':' ? pathName.substring(1) : pathName;
+			return URL.getPath(location.protocol == "file:" ? pathName : location.protocol + "//" + location.host + location.pathname);
+		}
+		
+		/**@private */
+		static _arrayBufferSlice(start:number, end:number):ArrayBuffer {
 			var arr:any = this;
 			var arrU8List:Uint8Array = new Uint8Array(arr, start, end - start);
 			var newU8List:Uint8Array = new Uint8Array(arrU8List.length);
