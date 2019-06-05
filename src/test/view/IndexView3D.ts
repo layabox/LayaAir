@@ -431,7 +431,7 @@ import { Main } from "./../Main";
 					labelStr = this._sprite3DArr.toString();
 					break;
 				case 16: //advanced
-					//labelStr = this._textureArr.toString();
+					labelStr = this._textureArr.toString();
 					break;
 				case 17: //advanced
 					labelStr = this._trailArr.toString();
