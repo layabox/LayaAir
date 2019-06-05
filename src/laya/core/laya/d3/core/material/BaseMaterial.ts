@@ -12,6 +12,7 @@ import { Shader3D } from "../../shader/Shader3D";
 import { ShaderData } from "../../shader/ShaderData";
 import { ShaderDefines } from "../../shader/ShaderDefines";
 import { IClone } from "../IClone";
+import { ClassUtils } from "laya/utils/ClassUtils";
 
 /**
  * <code>BaseMaterial</code> 类用于创建材质,抽象类,不允许实例。
@@ -62,12 +63,13 @@ export class BaseMaterial extends Resource implements IClone {
 
 		var material: BaseMaterial;
 		var classType: string = props.type;
-		var clasPaths: any[] = classType.split('.');
-		var clas: new () => any = Browser.window;
-		clasPaths.forEach(function (cls: any): void {
-			clas = clas[cls];
-		});
-		if (typeof (clas) == 'function')
+		//var clasPaths: any[] = classType.split('.');
+		//var clas: new () => any = Browser.window;
+		//clasPaths.forEach(function (cls: any): void {
+		//	clas = clas[cls];
+		//});
+		var clas:any=ClassUtils.getRegClass(classType);
+		if (clas)
 			material = new clas();
 		else
 			throw ('_getSprite3DHierarchyInnerUrls 错误: ' + data.type + ' 不是类');

@@ -53,17 +53,17 @@ import { ShaderData } from "../shader/ShaderData";
 		/**@private */
 		private _scene:Scene3D = null;
 		/**@private */
-		private _boundingSphere:BoundSphere[] = new BoundSphere[ParallelSplitShadowMap.MAX_PSSM_COUNT+1];
+		private _boundingSphere:BoundSphere[] = new Array<BoundSphere>(ParallelSplitShadowMap.MAX_PSSM_COUNT+1);
 		/**@private */
-		 _boundingBox:BoundBox[] = new BoundBox[ParallelSplitShadowMap.MAX_PSSM_COUNT+1];
+		 _boundingBox:BoundBox[] = new Array<BoundBox>(ParallelSplitShadowMap.MAX_PSSM_COUNT+1);
 		/**@private */
-		private _frustumPos:Vector3[] = new Vector3[(ParallelSplitShadowMap.MAX_PSSM_COUNT+1)*4];
+		private _frustumPos:Vector3[] = new Array<Vector3>((ParallelSplitShadowMap.MAX_PSSM_COUNT+1)*4);
 		/**@private */
-		private _uniformDistance:number[] =new Number[ParallelSplitShadowMap.MAX_PSSM_COUNT+1];
+		private _uniformDistance:number[] =new Array<number>(ParallelSplitShadowMap.MAX_PSSM_COUNT+1);
 		/**@private */
-		private _logDistance:number[] =new Number[ParallelSplitShadowMap.MAX_PSSM_COUNT+1];
+		private _logDistance:number[] =new Array <number>(ParallelSplitShadowMap.MAX_PSSM_COUNT+1);
 		/**@private */
-		private _dimension:Vector2[] = new Vector2[ParallelSplitShadowMap.MAX_PSSM_COUNT+1];
+		private _dimension:Vector2[] = new Array <Vector2>(ParallelSplitShadowMap.MAX_PSSM_COUNT+1);
 		/** @private */
 		private _PCFType:number = 0;
 		/** @private */

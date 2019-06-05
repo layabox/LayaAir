@@ -78,6 +78,7 @@ import { CharacterController } from "laya/d3/physics/CharacterController";
 import { Rigidbody3D } from "laya/d3/physics/Rigidbody3D";
 import { Animator } from "laya/d3/component/Animator";
 import { Command } from "laya/d3/core/render/command/Command";
+import { ClassUtils } from "laya/utils/ClassUtils";
 
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
@@ -201,6 +202,7 @@ export class Laya3D {
 			Rigidbody3D.__init__();
 		}
 
+		Mesh.__init__();
 		Sprite3D.__init__();
 		RenderableSprite3D.__init__();
 		MeshSprite3D.__init__();
@@ -227,12 +229,23 @@ export class Laya3D {
 		
 		Command.__init__();
 
-		//TODO:临时
-		(Laya as any).BlinnPhongMaterial=BlinnPhongMaterial;
-		(Laya as any).PhysicsCollider=PhysicsCollider;
-		(Laya as any).CharacterController=CharacterController;
-		(Laya as any).Animator=Animator;
-		(Laya as any).SkyProceduralMaterial=SkyProceduralMaterial;
+		//注册类命,解析的时候需要
+		ClassUtils.regClass("Laya.BlinnPhongMaterial",BlinnPhongMaterial);
+		ClassUtils.regClass("Laya.SkyProceduralMaterial",SkyProceduralMaterial);
+		ClassUtils.regClass("Laya.PBRStandardMaterial",PBRStandardMaterial);
+		ClassUtils.regClass("Laya.PBRSpecularMaterial",PBRSpecularMaterial);
+		ClassUtils.regClass("Laya.SkyBoxMaterial",SkyBoxMaterial);
+		ClassUtils.regClass("Laya.WaterPrimaryMaterial",WaterPrimaryMaterial);
+		ClassUtils.regClass("Laya.ExtendTerrainMaterial",ExtendTerrainMaterial);
+		ClassUtils.regClass("Laya.ShurikenParticleMaterial",ShurikenParticleMaterial);
+		ClassUtils.regClass("Laya.PhysicsCollider",PhysicsCollider);
+		ClassUtils.regClass("Laya.CharacterController",CharacterController);
+		ClassUtils.regClass("Laya.Animator",Animator);
+
+		ClassUtils.regClass("PhysicsCollider",PhysicsCollider);//兼容
+		ClassUtils.regClass("CharacterController",CharacterController);//兼容
+		ClassUtils.regClass("Animator",Animator);//兼容
+
 
 		PixelLineMaterial.defaultMaterial=new PixelLineMaterial();
 		BlinnPhongMaterial.defaultMaterial=new BlinnPhongMaterial();

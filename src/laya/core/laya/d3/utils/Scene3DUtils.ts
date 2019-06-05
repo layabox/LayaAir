@@ -13,6 +13,7 @@ import { SkinnedMeshSprite3D } from "../core/SkinnedMeshSprite3D";
 import { Sprite3D } from "../core/Sprite3D";
 import { TrailSprite3D } from "../core/trail/TrailSprite3D";
 import { StaticBatchManager } from "../graphics/StaticBatchManager";
+import { ClassUtils } from "laya/utils/ClassUtils";
 
 
 
@@ -214,15 +215,17 @@ import { StaticBatchManager } from "../graphics/StaticBatchManager";
 			if (componentsData) {
 				for (var j:number = 0, m:number = componentsData.length; j < m; j++) {
 					var data:any = componentsData[j];
-					clas = Browser.window.Laya[data.type];//兼容
-					if (!clas) {//兼容
-						var clasPaths:any[] = data.type.split('.');
-						var clas:any = Browser.window;
-						clasPaths.forEach(function(cls:any):void {
-							clas = clas[cls];
-						});
-					}
-					if (typeof(clas) == 'function') {
+
+					//clas = Browser.window.Laya[data.type];//兼容
+					//if (!clas) {//兼容
+					//	var clasPaths:any[] = data.type.split('.');
+					//	var clas:any = Browser.window;
+					//	clasPaths.forEach(function(cls:any):void {
+					//		clas = clas[cls];
+					//	});
+					//}
+					var clas:any = ClassUtils.getRegClass(data.type);
+					if (clas) {
 						var component:Component = node.addComponent(clas);
 						component._parse(data);
 					} else {

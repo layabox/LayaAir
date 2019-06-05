@@ -408,9 +408,9 @@ vec3 computeParticlePosition(in vec3 startVelocity, in vec3 lifeVelocity,in floa
 	 startPosition=startVelocity*age;
 	 vec3 finalPosition;
 	 if(u_ScalingMode!=2)
-	   finalPosition = rotationByQuaternions(u_PositionScale*(a_ShapePositionStartLifeTime.xyz+startPosition),worldRotation);
+			finalPosition = rotationByQuaternions(u_PositionScale*(a_ShapePositionStartLifeTime.xyz+startPosition),worldRotation);
 	 else
-	   finalPosition = rotationByQuaternions(u_PositionScale*a_ShapePositionStartLifeTime.xyz+startPosition,worldRotation);
+	   	finalPosition = rotationByQuaternions(u_PositionScale*a_ShapePositionStartLifeTime.xyz+startPosition,worldRotation);
   #endif
   
   if(u_SimulationSpace==0)
