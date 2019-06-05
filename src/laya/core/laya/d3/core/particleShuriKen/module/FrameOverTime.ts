@@ -59,23 +59,23 @@ import { IClone } from "../../IClone"
 		}
 		
 		/**@private */
-		private _type:number;
+		private _type:number=0;
 		
 		/**@private */
-		private _constant:number;
+		private _constant:number=0;
 		
 		/**@private */
-		private _overTime:GradientDataInt;
+		private _overTime:GradientDataInt=null;
 		
 		/**@private */
-		private _constantMin:number;
+		private _constantMin:number=0;
 		/**@private */
-		private _constantMax:number;
+		private _constantMax:number=0;
 		
 		/**@private */
-		private _overTimeMin:GradientDataInt;
+		private _overTimeMin:GradientDataInt=null;
 		/**@private */
-		private _overTimeMax:GradientDataInt;
+		private _overTimeMax:GradientDataInt=null;
 		
 		/**
 		 *生命周期旋转类型,0常量模式，1曲线模式，2随机双常量模式，3随机双曲线模式。

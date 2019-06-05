@@ -92,198 +92,198 @@ import { BufferState } from "../BufferState"
 		private _tempRotationMatrix:Matrix4x4 = new Matrix4x4();
 		
 		/** @private */
-		 _boundingSphere:BoundSphere;
+		 _boundingSphere:BoundSphere=null;
 		/** @private */
-		 _boundingBox:BoundBox;
+		 _boundingBox:BoundBox=null;
 		/** @private */
-		 _boundingBoxCorners:Vector3[];
+		 _boundingBoxCorners:Vector3[]=null;
 		
 		/** @private */
-		private _owner:ShuriKenParticle3D;
+		private _owner:ShuriKenParticle3D=null;
 		/** @private */
-		private _ownerRender:ShurikenParticleRenderer;
+		private _ownerRender:ShurikenParticleRenderer=null;
 		/**@private */
-		private _vertices:Float32Array;
+		private _vertices:Float32Array=null;
 		/**@private */
-		private _floatCountPerVertex:number;
+		private _floatCountPerVertex:number=0;
 		/**@private */
-		private _startLifeTimeIndex:number;
+		private _startLifeTimeIndex:number=0;
 		/**@private */
-		private _timeIndex:number;
+		private _timeIndex:number=0;
 		/**@private */
-		private _simulateUpdate:boolean;
+		private _simulateUpdate:boolean=false;
 		
 		
 		/**@private */
-		private _firstActiveElement:number;
+		private _firstActiveElement:number=0;
 		/**@private */
-		private _firstNewElement:number;
+		private _firstNewElement:number=0;
 		/**@private */
-		private _firstFreeElement:number;
+		private _firstFreeElement:number=0;
 		/**@private */
-		private _firstRetiredElement:number;
+		private _firstRetiredElement:number=0;
 		/**@private */
-		private _drawCounter:number;
+		private _drawCounter:number=0;
 		/**@private */
-		private _bufferMaxParticles:number;
+		private _bufferMaxParticles:number=0;
 		/**@private */
-		private _emission:Emission;
+		private _emission:Emission=null;
 		/**@private */
-		private _shape:BaseShape;
+		private _shape:BaseShape=null;
 		
 		/**@private */
-		private _isEmitting:boolean;
+		private _isEmitting:boolean=false;
 		/**@private */
-		private _isPlaying:boolean;
+		private _isPlaying:boolean=false;
 		/**@private */
-		private _isPaused:boolean;
+		private _isPaused:boolean=false;
 		/**@private */
-		private _playStartDelay:number;
+		private _playStartDelay:number=0;
 		/**@private 发射的累计时间。*/
-		private _frameRateTime:number;
+		private _frameRateTime:number=0;
 		/**@private 一次循环内的累计时间。*/
-		private _emissionTime:number;
+		private _emissionTime:number=0;
 		/**@private */
-		private _totalDelayTime:number;
+		private _totalDelayTime:number=0;
 		/**@private */
-		private _burstsIndex:number;
+		private _burstsIndex:number=0;
 		///**@private 发射粒子最小时间间隔。*/
 		//private var _minEmissionTime:Number;
 		/**@private */
-		private _velocityOverLifetime:VelocityOverLifetime;
+		private _velocityOverLifetime:VelocityOverLifetime=null;
 		/**@private */
-		private _colorOverLifetime:ColorOverLifetime;
+		private _colorOverLifetime:ColorOverLifetime=null;
 		/**@private */
-		private _sizeOverLifetime:SizeOverLifetime;
+		private _sizeOverLifetime:SizeOverLifetime=null;
 		/**@private */
-		private _rotationOverLifetime:RotationOverLifetime;
+		private _rotationOverLifetime:RotationOverLifetime=null;
 		/**@private */
-		private _textureSheetAnimation:TextureSheetAnimation;
+		private _textureSheetAnimation:TextureSheetAnimation=null;
 		/**@private */
-		private _startLifetimeType:number;
+		private _startLifetimeType:number=0;
 		/**@private */
-		private _startLifetimeConstant:number;
+		private _startLifetimeConstant:number=0;
 		/**@private */
-		private _startLifeTimeGradient:GradientDataNumber;
+		private _startLifeTimeGradient:GradientDataNumber=null;
 		/**@private */
-		private _startLifetimeConstantMin:number;
+		private _startLifetimeConstantMin:number=0;
 		/**@private */
-		private _startLifetimeConstantMax:number;
+		private _startLifetimeConstantMax:number=0;
 		/**@private */
-		private _startLifeTimeGradientMin:GradientDataNumber;
+		private _startLifeTimeGradientMin:GradientDataNumber=null;
 		/**@private */
-		private _startLifeTimeGradientMax:GradientDataNumber;
+		private _startLifeTimeGradientMax:GradientDataNumber=null;
 		/**@private */
-		private _maxStartLifetime:number;
+		private _maxStartLifetime:number=0;
 		
 		/** @private */
 		private _uvLength:Vector2 = new Vector2();//TODO:
 		/** @private */
-		private _vertexStride:number;
+		private _vertexStride:number=0;
 		/** @private */
-		private _indexStride:number;
+		private _indexStride:number=0;
 		/**@private */
-		private _vertexBuffer:VertexBuffer3D;
+		private _vertexBuffer:VertexBuffer3D=null;
 		/**@private */
-		private _indexBuffer:IndexBuffer3D;
+		private _indexBuffer:IndexBuffer3D=null;
 		/** @private */
 		private _bufferState:BufferState = new BufferState();
 		
 		/**@private */
-		 _currentTime:number;
+		 _currentTime:number=0;
 		/**@private */
-		 _startUpdateLoopCount:number;
+		 _startUpdateLoopCount:number=0;
 		/**@private */
-		 _rand:Rand;
+		 _rand:Rand=null;
 		/**@private */
-		 _randomSeeds:Uint32Array;
+		 _randomSeeds:Uint32Array=null;
 		
 		/**粒子运行的总时长，单位为秒。*/
-		 duration:number;
+		 duration:number=0;
 		/**是否循环。*/
-		 looping:boolean;
+		 looping:boolean=false;
 		/**是否预热。暂不支持*/
-		 prewarm:boolean;
+		 prewarm:boolean=false;
 		/**开始延迟类型，0为常量模式,1为随机随机双常量模式，不能和prewarm一起使用。*/
-		 startDelayType:number;
+		 startDelayType:number=0;
 		/**开始播放延迟，不能和prewarm一起使用。*/
-		 startDelay:number;
+		 startDelay:number=0;
 		/**开始播放最小延迟，不能和prewarm一起使用。*/
-		 startDelayMin:number;
+		 startDelayMin:number=0;
 		/**开始播放最大延迟，不能和prewarm一起使用。*/
-		 startDelayMax:number;
+		 startDelayMax:number=0;
 		
 		/**开始速度模式，0为恒定速度，2为两个恒定速度的随机插值。缺少1、3模式*/
-		 startSpeedType:number;
+		 startSpeedType:number=0;
 		/**开始速度,0模式。*/
-		 startSpeedConstant:number;
+		 startSpeedConstant:number=0;
 		/**最小开始速度,1模式。*/
-		 startSpeedConstantMin:number;
+		 startSpeedConstantMin:number=0;
 		/**最大开始速度,1模式。*/
-		 startSpeedConstantMax:number;
+		 startSpeedConstantMax:number=0;
 		
 		/**开始尺寸是否为3D模式。*/
-		 threeDStartSize:boolean;
+		 threeDStartSize:boolean=false;
 		/**开始尺寸模式,0为恒定尺寸，2为两个恒定尺寸的随机插值。缺少1、3模式和对应的二种3D模式*/
-		 startSizeType:number;
+		 startSizeType:number=0;
 		/**开始尺寸，0模式。*/
-		 startSizeConstant:number;
+		 startSizeConstant:number=0;
 		/**开始三维尺寸，0模式。*/
-		 startSizeConstantSeparate:Vector3;
+		 startSizeConstantSeparate:Vector3=null;
 		/**最小开始尺寸，2模式。*/
-		 startSizeConstantMin:number;
+		 startSizeConstantMin:number=0;
 		/**最大开始尺寸，2模式。*/
-		 startSizeConstantMax:number;
+		 startSizeConstantMax:number=0;
 		/**最小三维开始尺寸，2模式。*/
-		 startSizeConstantMinSeparate:Vector3;
+		 startSizeConstantMinSeparate:Vector3=null;
 		/**最大三维开始尺寸，2模式。*/
-		 startSizeConstantMaxSeparate:Vector3;
+		 startSizeConstantMaxSeparate:Vector3=null;
 		
 		/**3D开始旋转，暂不支持*/
-		 threeDStartRotation:boolean;
+		 threeDStartRotation:boolean=false;
 		/**开始旋转模式,0为恒定尺寸，2为两个恒定旋转的随机插值,缺少2种模式,和对应的四种3D模式。*/
-		 startRotationType:number;
+		 startRotationType:number=0;
 		/**开始旋转，0模式。*/
-		 startRotationConstant:number;
+		 startRotationConstant:number=0;
 		/**开始三维旋转，0模式。*/
-		 startRotationConstantSeparate:Vector3;
+		 startRotationConstantSeparate:Vector3=null;
 		/**最小开始旋转，1模式。*/
-		 startRotationConstantMin:number;
+		 startRotationConstantMin:number=0;
 		/**最大开始旋转，1模式。*/
-		 startRotationConstantMax:number;
+		 startRotationConstantMax:number=0;
 		/**最小开始三维旋转，1模式。*/
-		 startRotationConstantMinSeparate:Vector3;
+		 startRotationConstantMinSeparate:Vector3=null;
 		/**最大开始三维旋转，1模式。*/
-		 startRotationConstantMaxSeparate:Vector3;
+		 startRotationConstantMaxSeparate:Vector3=null;
 		
 		/**随机旋转方向，范围为0.0到1.0*/
-		 randomizeRotationDirection:number;
+		 randomizeRotationDirection:number=0;
 		
 		/**开始颜色模式，0为恒定颜色，2为两个恒定颜色的随机插值,缺少2种模式。*/
-		 startColorType:number;
+		 startColorType:number=0;
 		/**开始颜色，0模式。*/
-		 startColorConstant:Vector4;
+		 startColorConstant:Vector4=null;
 		/**最小开始颜色，1模式。*/
-		 startColorConstantMin:Vector4;
+		 startColorConstantMin:Vector4=null;
 		/**最大开始颜色，1模式。*/
-		 startColorConstantMax:Vector4;
+		 startColorConstantMax:Vector4=null;
 		
 		/**重力敏感度。*/
-		 gravityModifier:number;
+		 gravityModifier:number=0;
 		/**模拟器空间,0为World,1为Local。暂不支持Custom。*/
-		 simulationSpace:number;
+		 simulationSpace:number=0;
 		/**缩放模式，0为Hiercachy,1为Local,2为World。*/
-		 scaleMode:number;
+		 scaleMode:number=0;
 		/**激活时是否自动播放。*/
-		 playOnAwake:boolean;
+		 playOnAwake:boolean=false;
 		
 		/**随机种子,注:play()前设置有效。*/
-		 randomSeed:Uint32Array;
+		 randomSeed:Uint32Array=null;
 		/**是否使用随机种子。 */
-		 autoRandomSeed:boolean;
+		 autoRandomSeed:boolean=false;
 		
 		/**是否为性能模式,性能模式下会延迟粒子释放。*/
-		 isPerformanceMode:boolean;
+		 isPerformanceMode:boolean=false;
 		
 		/**获取最大粒子数。*/
 		 get maxParticles():number {

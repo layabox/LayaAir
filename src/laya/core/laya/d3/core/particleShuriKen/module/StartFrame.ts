@@ -31,15 +31,15 @@ import { IClone } from "../../IClone"
 		}
 		
 		/**@private */
-		private _type:number;
+		private _type:number=0;
 		
 		/**@private */
-		private _constant:number;
+		private _constant:number=0;
 		
 		/**@private */
-		private _constantMin:number;
+		private _constantMin:number=0;
 		/**@private */
-		private _constantMax:number;
+		private _constantMax:number=0;
 		
 		/**
 		 *开始帧类型,0常量模式，1随机双常量模式。

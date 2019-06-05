@@ -361,7 +361,7 @@ import { Transform3D } from "../Transform3D"
 					break;
 				}
 				
-				var startRow:number;
+				var startRow:number=0;//TODO:case 2 没处理
 				switch (textureSheetAnimation.type) {
 				case 0://Whole Sheet
 					startRow = Math.floor(startFrameCount / titleX);

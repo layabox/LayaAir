@@ -40,16 +40,16 @@ import { ShuriKenParticle3DShaderDeclaration } from "./ShuriKenParticle3DShaderD
 		//public const SORTINGMODE_YOUNGESTINFRONT:int = 3;
 		
 		/**@private */
-		private _renderMode:number;
+		private _renderMode:number=0;
 		/**@private */
-		private _mesh:Mesh;
+		private _mesh:Mesh=null;
 		
 		/**拉伸广告牌模式摄像机速度缩放,暂不支持。*/
-		 stretchedBillboardCameraSpeedScale:number;
+		 stretchedBillboardCameraSpeedScale:number=0;
 		/**拉伸广告牌模式速度缩放。*/
-		 stretchedBillboardSpeedScale:number;
+		 stretchedBillboardSpeedScale:number=0;
 		/**拉伸广告牌模式长度缩放。*/
-		 stretchedBillboardLengthScale:number;
+		 stretchedBillboardLengthScale:number=0;
 		
 		///**排序模式。*/
 		//public var sortingMode:int;

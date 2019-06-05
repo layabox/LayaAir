@@ -10,9 +10,9 @@ import { IClone } from "../../IClone"
 		private _velocity:GradientVelocity;
 		
 		/**是否启用*/
-		 enbale:boolean;
+		 enbale:boolean=false;
 		/**速度空间,0为local,1为world。*/
-		 space:number;
+		 space:number=0;
 		
 		/**
 		 *获取尺寸。

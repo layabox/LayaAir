@@ -15,17 +15,17 @@ import { IClone } from "../../IClone"
 		/**纹理平铺。*/
 		 tiles:Vector2;
 		/**类型,0为whole sheet、1为singal row。*/
-		 type:number;
+		 type:number=0;
 		/**是否随机行，type为1时有效。*/
-		 randomRow:boolean;
+		 randomRow:boolean=false;
 		/**行索引,type为1时有效。*/
-		 rowIndex:number;
+		 rowIndex:number=0;
 		/**循环次数。*/
-		 cycles:number;
+		 cycles:number=0;
 		/**UV通道类型,0为Noting,1为Everything,待补充,暂不支持。*/
-		 enableUVChannels:number;
+		 enableUVChannels:number=0;
 		/**是否启用*/
-		 enable:boolean;
+		 enable:boolean=false;
 		
 		/**获取时间帧率。*/
 		 get frame():FrameOverTime {
