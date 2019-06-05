@@ -153,6 +153,8 @@ import { Main } from "./../Main";
 		private _sprite3DClsArr:any[] = [PixelLineSprite3DDemo,SkinnedMeshSprite3DDemo,Sprite3DClone,Sprite3DLoad,Sprite3DParent,TransformDemo];
 		private _sprite3DArr:any[] = ['PixelLineSprite3D', 'SkinnedMeshSprite3D',"Sprite3DClone",'Sprite3DLoad','Sprite3DParent','Transform'];
 		
+		private  _textureClsArr:any[] = [TextureDemo,TextureGPUCompression];
+		private  _textureArr:any[] = ['Texture','TextureGPUCompression'];
 		
 		private _trailClsArr:any[] = [TrailDemo,TrailRender];
 		private _trailArr:any[] = ['Trail','TrailRender'];
@@ -249,7 +251,7 @@ import { Main } from "./../Main";
 			{
 				if (this.i%2 == 0)
 				{
-					this._oldView = new SkinAnimationPerformance;
+					this._oldView = new RenderTargetCamera;
 				}
 				else
 				{
@@ -325,8 +327,8 @@ import { Main } from "./../Main";
 						this.b_length = this._sprite3DClsArr.length - 1;
 						break;
 					case 16:
-						//this._oldView = new this._textureClsArr[index];
-						//this.b_length = this._textureClsArr.length - 1;
+						this._oldView = new this._textureClsArr[index];
+						this.b_length = this._textureClsArr.length - 1;
 						break;
 					case 17:
 						this._oldView = new this._trailClsArr[index];
@@ -340,10 +342,10 @@ import { Main } from "./../Main";
 		
 		private onClearPreBox():void
 		{
+			Laya.timer.clearAll(this._oldView);
+			Laya.stage.offAllCaller(this._oldView);
 			if (this._oldView)
-			{
-				Laya.timer.clearAll(this._oldView);
-				Laya.stage.offAllCaller(this._oldView);
+			{	
 				var i:number =Laya.stage.numChildren-1;
 				for (i; i>-1; i--)
 				{
