@@ -4,20 +4,22 @@
         <script type="importmap-shim">
         {
             "imports": {
-                "test": "/test/test.js",
-                "laya/":"/laya/"
+                
             },
             "scopes": {
             "/": {
-                "Laya":"libs/Laya.js",
-                "ILaya":"libs/ILaya.js",
-                "laya/":"libs/laya/",
-                "Laya/":"Laya3/",
-                "test-dep": "/test-dep.js"
-            }
+                "laya/":"../layaAir/laya/",
+                "Laya3D":"../layaAir/Laya3D.js",
+                "Config3D":"../layaAir/Config3D.js",
+                "ILaya3D":"../layaAir/ILaya3D.js",
+                "Laya":"../layaAir/Laya.js",
+                "Config":"../layaAir/Config.js",
+                "ILaya":"../layaAir/ILaya.js"
+                }
             }
         }
         </script>
-        <script src='index.js' type='module-shim' ></script>
+        <script src='laya.physics3D.js'></script>
+        <script src='samples/index.js' type='module-shim' ></script>
     </body>
 </html>
