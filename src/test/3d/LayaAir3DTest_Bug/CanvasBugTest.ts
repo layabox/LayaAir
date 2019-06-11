@@ -11,7 +11,7 @@ import { Texture2D } from "laya/resource/Texture2D";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { PixGridSprite } from "../LayaAir3DTest__Experiment/PixGridSprite";
-import { Config3D } from "../../../../bin/libs/Config3D";
+import { Config3D } from "Config3D";
 //import CameraMoveScript;
 export class CanvasBugTest {
 	private plane: PixGridSprite;

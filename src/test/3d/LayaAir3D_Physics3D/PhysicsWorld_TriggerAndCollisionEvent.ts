@@ -24,7 +24,7 @@ import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
-import { Transform3D } from "../../../../bin/libs/laya/d3/core/Transform3D";
+import { Transform3D } from "laya/d3/core/Transform3D";
 
 export class PhysicsWorld_TriggerAndCollisionEvent {
 

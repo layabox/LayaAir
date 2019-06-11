@@ -24,7 +24,7 @@ import { CameraMoveScript } from "../common/CameraMoveScript"
 	import { WebGLContext } from "laya/webgl/WebGLContext"
 	import { BaseTexture } from "laya/resource/BaseTexture"
 	import { Texture2D } from "laya/resource/Texture2D"
-import { BaseMaterial } from "../../../../bin/libs/laya/d3/core/material/BaseMaterial";
+import { BaseMaterial } from "laya/d3/core/material/BaseMaterial";
 	
 	/**
 	 * ...

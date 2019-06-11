@@ -16,7 +16,7 @@ import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
-import { Config3D } from "../../../../bin/libs/Config3D";
+import { Config3D } from "Config3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 
 /**
