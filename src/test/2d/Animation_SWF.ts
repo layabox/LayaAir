@@ -2,8 +2,8 @@ import { Laya } from "Laya";
 import { Main } from "./../Main";
 	import { Stage } from "laya/display/Stage"
 	import { Browser } from "laya/utils/Browser"
-    import { WebGL } from "laya/webgl/WebGL"
-    import { MovieClip } from "laya/ani/swf/MovieClip"
+import { WebGL } from "laya/webgl/WebGL";
+import { MovieClip } from "laya/ani/swf/MovieClip";
 	
 	export class Animation_SWF 
 	{
