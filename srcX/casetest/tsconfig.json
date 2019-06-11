@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "module": "esnext",
+        "outDir": "../../bin",
+        "moduleResolution": "classic",
+        "baseUrl": "../laya/core",
+    },
+    "references": [
+        {"path":"../laya/core"}
+    ]
+}
