@@ -9,7 +9,7 @@ import { Camera } from "laya/d3/core/Camera"
 	import { Handler } from "laya/utils/Handler"
 	import { Stat } from "laya/utils/Stat"
 	import { BaseCamera } from "laya/d3/core/BaseCamera"
-import { Vector4 } from "../../../../bin/libs/laya/d3/math/Vector4";
+import { Vector4 } from "laya/d3/math/Vector4";
 	
 	/**
 	 * ...
