@@ -2,9 +2,9 @@
     "compilerOptions": {
         "target": "es6",
         "module": "esnext",
-        "jsx":"preserve",
-        "outDir": "../../bin/Samples",
-        "baseUrl": "../laya/core"
+        "baseUrl": "../layaAir",
+        "outDir": "../../bin/samples",
+        
         /*
         "rootDirs": [
             "../laya/core",
@@ -22,7 +22,7 @@
         }*/
     },
     "references": [
-        {"path":"../LayaAir"}
+        {"path":"../layaAir"}
     ],
     /*
     "include": [
