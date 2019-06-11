@@ -191,8 +191,7 @@ import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShade
 					subData[j] = new Float32Array(subBoneIndices[j].length * 16);
 			}
 			
-			if (!this._bones)
-				(this._cacheAvatar && value) && (this._getCacheAnimationNodes());//[兼容性]
+			(this._cacheAvatar && value) && (this._getCacheAnimationNodes());//[兼容性]
 		}
 		
 		/**
