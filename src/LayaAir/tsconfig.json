@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "module": "esnext",
+        "outDir": "../../../bin/laya/core",
+        "composite":true
+    },
+    "exclude": [
+        "laya/d3Extend/Cube",
+        "laya/d3Extend/D3UI",
+        "laya/d3Extend/lineRender",
+        "laya/d3Extend/physics",
+        "laya/d3Extend/vox",
+        "laya/d3Extend/worldMaker"
+    ]
+}
