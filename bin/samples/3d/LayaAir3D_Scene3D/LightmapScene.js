@@ -1,0 +1,27 @@
+import { Laya3D } from "Laya3D";
+import { Laya } from "Laya";
+import { CameraMoveScript } from "../common/CameraMoveScript";
+import { Camera } from "laya/d3/core/Camera";
+import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Vector3 } from "laya/d3/math/Vector3";
+import { Stage } from "laya/display/Stage";
+import { Handler } from "laya/utils/Handler";
+import { Stat } from "laya/utils/Stat";
+/**
+ * ...
+ * @author ...
+ */
+export class LightmapScene {
+    constructor() {
+        Laya3D.init(0, 0);
+        Laya.stage.scaleMode = Stage.SCALE_FULL;
+        Laya.stage.screenMode = Stage.SCREEN_NONE;
+        Stat.show();
+        Scene3D.load("res/threeDimen/scene/ParticleScene/Example_01.ls", Handler.create(this, function (sprite) {
+            var scene = Laya.stage.addChild(sprite);
+            var camera = scene.addChild(new Camera(0, 0.1, 100));
+            camera.transform.translate(new Vector3(0, 1, 0));
+            camera.addComponent(CameraMoveScript);
+        }));
+    }
+}
