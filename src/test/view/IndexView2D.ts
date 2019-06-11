@@ -95,7 +95,7 @@ import { Event } from "laya/events/Event"
 	import { Handler } from "laya/utils/Handler"
 	
 	import { IndexViewUI } from "../ui/IndexViewUI"
-import { Sprite } from "../../../bin/libs/laya/display/Sprite";
+import { Sprite } from "laya/display/Sprite";
 import { Main } from "../Main";
 	
 	/**
