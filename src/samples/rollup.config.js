@@ -16,8 +16,7 @@ export default {
 	},
 	plugins: [
         typescript({
-            //abortOnError:false
-            check: false
+            check: true//Set to false to avoid doing any diagnostic checks on the code
         }),
         glsl({
 			// By default, everything gets included
