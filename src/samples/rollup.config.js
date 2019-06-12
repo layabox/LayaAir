@@ -1,9 +1,6 @@
 const typescript = require('rollup-plugin-typescript2');
 import glsl from 'rollup-plugin-glsl';
-const path = require('path')
-// `npm run build` -> `production` is true
-// `npm run dev` -> `production` is false
-const production = !process.env.ROLLUP_WATCH;
+//import { terser } from "rollup-plugin-terser";
 
 export default { 
     input: './index.ts',
@@ -23,6 +20,12 @@ export default {
 			include: /.*(.glsl|.vs|.fs)$/,
             sourceMap: false,
             compress:false
-		}),        
+        }),
+        /*terser({
+            output: {
+            },
+            numWorkers:1,//Amount of workers to spawn. Defaults to the number of CPUs minus 1
+            sourcemap: false
+        })*/        
 	]
 };
