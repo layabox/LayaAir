@@ -1,2 +1,2 @@
-import { Main } from "./Main";
-new Main();
+import { PostProcessBloom } from "./3d/LayaAir3D_Advance/PostProcessBloom";
+new PostProcessBloom();
