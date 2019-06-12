@@ -1,13 +1,15 @@
 const webpack = require('webpack'); //to access built-in plugins
 const path = require('path');
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 module.exports = {
-  entry: './src/debug/Main1.ts',
+  entry: './src/layaAir/Laya3D.ts',
   mode: 'development',
+  devtool:'inline-source-map',
   module: {
     rules: [
         {
-            test: /\.glsl$/,
+            test: /.*(.glsl|.vs|.fs)$/,
             loader: 'webpack-glsl-loader'
         },
       {
@@ -18,7 +20,8 @@ module.exports = {
     ]
   },
   resolve: {
-    extensions: [ '.tsx', '.ts', '.js' ]
+    extensions: [ '.tsx', '.ts', '.js' ],
+    plugins: [new TsconfigPathsPlugin({ configFile: "./src/samples/tsconfig.json" })]
   },
   output: {
     filename: 'bundle.js',
