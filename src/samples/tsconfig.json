@@ -3,40 +3,11 @@
         "target": "es6",
         "module": "esnext",
         "baseUrl": "../layaAir",
-        "outDir": "../../bin/samples",
-        
-        /*
-        "rootDirs": [
-            "../laya/core",
-            "../laya/core/laya",
-            "."
-        ],
-        */
-        /*
-        "baseUrl":".",
-        "paths": {
-            "*":[
-                "*",
-                "../laya/core/*"
-            ]
-        }*/
+        "outDir": "../../bin/samples"
     },
     "references": [
         {"path":"../layaAir"}
     ],
-    /*
-    "include": [
-        "Main.ts"
-        //"src/debug/LayaUISample.ts"
-        //"src/debug/test/test.ts"
-    ],
-    */
-    /*
-    "files": [
-        "index.ts"
-    ]
-    */
-
     "exclude": [
         "3d/LayaAir3DTest__Voxel",
         "3d/LayaAir3DTest__Editor",

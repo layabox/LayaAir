@@ -20,11 +20,7 @@ function testPlug(){
 }
 
 export default { 
-    //input: './src/debug/PerformanceTest_Maggots.ts',
     input: './index.ts',
-    //input: './src/debug/UITest1.ts',
-    //input: './src/debug/test/test.ts',
-    //input:'./src/debug/Main1.ts',
     treeshake: false,
 	output: {
 		file: '../../bin/bundle.js',
