@@ -7,7 +7,7 @@ const production = !process.env.ROLLUP_WATCH;
 
 export default { 
     input: './index.ts',
-    treeshake: false,
+    treeshake: true,//建议忽略
 	output: {
 		file: '../../bin/bundle.js',
 		format: 'iife', // immediately-invoked function expression — suitable for <script> tags
