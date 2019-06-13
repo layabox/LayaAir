@@ -7,7 +7,7 @@ import { Context } from "../../resource/Context"
 	 */
 	export class DrawTexturesCmd {
 		 static ID:string = "DrawTextures";
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		/**
 		 * 纹理。
 		 */

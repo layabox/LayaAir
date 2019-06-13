@@ -6,7 +6,7 @@ import { Context } from "../../resource/Context"
 	 */
 	export class ClipRectCmd {
 		 static ID:string = "ClipRect";
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		
 		/**
 		 * X 轴偏移量。

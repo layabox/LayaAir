@@ -162,7 +162,7 @@ import { WebGL } from "laya/webgl/WebGL"
 		 * 创建一个 <code>Shader3D</code> 实例。
 		 */
 		constructor(name:string,attributeMap:any, uniformMap:any, enableInstancing:boolean){
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			this._name = name;
 			this._attributeMap = attributeMap;
 			this._uniformMap = uniformMap;

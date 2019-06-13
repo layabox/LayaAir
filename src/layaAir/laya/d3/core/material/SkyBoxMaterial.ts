@@ -19,7 +19,7 @@ export class SkyBoxMaterial extends BaseMaterial {
 	* @private
 	*/
 	static __initDefine__(): void {
-		
+
 	}
 
 	/**
@@ -84,10 +84,10 @@ export class SkyBoxMaterial extends BaseMaterial {
 		this._shaderValues.setTexture(SkyBoxMaterial.TEXTURECUBE, value);
 	}
 
-		/**
-	 * 克隆。
-	 * @return	 克隆副本。
-	 */
+	/**
+ * 克隆。
+ * @return	 克隆副本。
+ */
 	clone(): any {
 		var dest: SkyBoxMaterial = new SkyBoxMaterial();
 		this.cloneTo(dest);
@@ -98,7 +98,6 @@ export class SkyBoxMaterial extends BaseMaterial {
 	 * 创建一个 <code>SkyBoxMaterial</code> 实例。
 	 */
 	constructor() {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		super();
 		this.setShaderName("SkyBox");
 	}

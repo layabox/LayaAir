@@ -11,7 +11,7 @@ import { IClone } from "../core/IClone"
 		 * 创建一个 <code>DefineDatas</code> 实例。
 		 */
 		constructor(){
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			this.value = 0;
 		}
 		

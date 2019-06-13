@@ -10,7 +10,7 @@ import { ILaya } from "ILaya";
 	 * @private
 	 */
 	export class HTMLLinkElement extends HTMLElement {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		 static _cuttingStyle:RegExp =/*[STATIC SAFE]*/ new RegExp("((@keyframes[\\s\\t]+|)(.+))[\\t\\n\\r\\\s]*{", "g");
 		 type:string;
 		private _loader:Loader;

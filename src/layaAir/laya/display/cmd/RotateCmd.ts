@@ -6,7 +6,7 @@ import { Context } from "../../resource/Context"
 	 */
 	export class RotateCmd {
 		 static ID:string = "Rotate";
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		/**
 		 * 旋转角度，以弧度计。
 		 */

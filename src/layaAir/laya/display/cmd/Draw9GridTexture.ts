@@ -8,7 +8,7 @@ import { Context } from "../../resource/Context"
 	export class Draw9GridTexture 
 	{
 		 static ID:string = "Draw9GridTexture";
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		/**
 		 * 纹理。
 		 */

@@ -494,7 +494,6 @@ import { BaseMaterial } from "../material/BaseMaterial"
 		}
 		
 		constructor(){
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 			super();
 			this.setShaderName("PARTICLESHURIKEN");
 			this._color = new Vector4(1.0, 1.0, 1.0, 1.0);

@@ -8,7 +8,7 @@ import { URL } from "laya/net/URL";
 	 * @private
 	 */
 	export class HTMLStyle {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		private static _CSSTOVALUE:any =/*[STATIC SAFE]*/ {'letter-spacing': 'letterSpacing', 'white-space': 'whiteSpace', 'line-height': 'lineHeight', 'font-family': 'family', 'vertical-align': 'valign', 'text-decoration': 'textDecoration', 'background-color': 'bgColor', 'border-color': 'borderColor'};
 		private static _parseCSSRegExp:RegExp =/*[STATIC SAFE]*/ new RegExp("([\.\#]\\w+)\\s*{([\\s\\S]*?)}", "g");
 		/**

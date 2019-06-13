@@ -6,7 +6,7 @@ import { Context } from "../../resource/Context"
 	 */
 	export class StrokeTextCmd {
 		 static ID:string = "StrokeText";
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		/**
 		 * 在画布上输出的文本。
 		 */

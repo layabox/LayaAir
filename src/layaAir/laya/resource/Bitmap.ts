@@ -27,7 +27,7 @@ import { Resource } from "././Resource";
 		 * 创建一个 <code>Bitmap</code> 实例。
 		 */
 		constructor(){
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			super();
 this._width = -1;
 			this._height = -1;

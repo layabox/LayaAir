@@ -7,7 +7,7 @@ import { ILaya } from "../../ILaya";
 	 * <code>Event</code> 是事件类型的集合。一般当发生事件时，<code>Event</code> 对象将作为参数传递给事件侦听器。
 	 */
 	export class Event {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		/** 一个空的 Event 对象。用于事件派发中转使用。*/
 		 static EMPTY:Event =/*[STATIC SAFE]*/ new Event();
 		/** 定义 mousedown 事件对象的 type 属性值。*/

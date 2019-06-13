@@ -82,14 +82,20 @@ void main_normal()
 	#else
 		position=a_Position;
 	#endif
-	mat4 worldMat;
 	#ifdef GPU_INSTANCE
-		worldMat = a_WorldMat;
+		gl_Position = a_MvpMatrix * position;
 	#else
-		worldMat = u_WorldMat;
+		gl_Position = u_MvpMatrix * position;
 	#endif
-
-	gl_Position = worldMat * position;
+	
+	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(RECEIVESHADOW)
+		mat4 worldMat;
+		#ifdef GPU_INSTANCE
+			worldMat = a_WorldMat;
+		#else
+			worldMat = u_WorldMat;
+		#endif
+	#endif
 	
 	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
 		mat3 worldInvMat;

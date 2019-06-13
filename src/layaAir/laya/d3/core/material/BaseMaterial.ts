@@ -2,7 +2,7 @@ import { Laya } from "Laya";
 import { Loader } from "laya/net/Loader";
 import { BaseTexture } from "laya/resource/BaseTexture";
 import { Resource } from "laya/resource/Resource";
-import { Browser } from "laya/utils/Browser";
+import { ClassUtils } from "laya/utils/ClassUtils";
 import { Handler } from "laya/utils/Handler";
 import { Vector2 } from "../../math/Vector2";
 import { Vector3 } from "../../math/Vector3";
@@ -12,7 +12,6 @@ import { Shader3D } from "../../shader/Shader3D";
 import { ShaderData } from "../../shader/ShaderData";
 import { ShaderDefines } from "../../shader/ShaderDefines";
 import { IClone } from "../IClone";
-import { ClassUtils } from "laya/utils/ClassUtils";
 
 /**
  * <code>BaseMaterial</code> 类用于创建材质,抽象类,不允许实例。
@@ -68,7 +67,7 @@ export class BaseMaterial extends Resource implements IClone {
 		//clasPaths.forEach(function (cls: any): void {
 		//	clas = clas[cls];
 		//});
-		var clas:any=ClassUtils.getRegClass(classType);
+		var clas: any = ClassUtils.getRegClass(classType);
 		if (clas)
 			material = new clas();
 		else
@@ -206,7 +205,6 @@ export class BaseMaterial extends Resource implements IClone {
 	 * 创建一个 <code>BaseMaterial</code> 实例。
 	 */
 	constructor() {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		super();
 		this._disablePublicDefineDatas = new DefineDatas();
 		this._shaderValues = new ShaderData(this);

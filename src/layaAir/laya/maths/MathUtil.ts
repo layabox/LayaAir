@@ -36,7 +36,7 @@
 		}
 		
 		 static slerpQuaternionArray(a:Float32Array, Offset1:number, b:Float32Array, Offset2:number, t:number, out:Float32Array, Offset3:number):Float32Array {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			var ax:number = a[Offset1 + 0], ay:number = a[Offset1 + 1], az:number = a[Offset1 + 2], aw:number = a[Offset1 + 3], bx:number = b[Offset2 + 0], by:number = b[Offset2 + 1], bz:number = b[Offset2 + 2], bw:number = b[Offset2 + 3];
 			
 			var omega:number, cosom:number, sinom:number, scale0:number, scale1:number;

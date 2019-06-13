@@ -36,7 +36,6 @@ import { LayaGL } from "laya/layagl/LayaGL"
 		 * @param	out 输出矩阵
 		 */
 		 static createRotationX(rad:number, out:Matrix4x4):void {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 			var oe:Float32Array = out.elements;
 			var s:number = Math.sin(rad), c:number = Math.cos(rad);
 			
@@ -54,7 +53,7 @@ import { LayaGL } from "laya/layagl/LayaGL"
 		 * @param	out 输出矩阵
 		 */
 		 static createRotationY(rad:number, out:Matrix4x4):void {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			var oe:Float32Array = out.elements;
 			var s:number = Math.sin(rad), c:number = Math.cos(rad);
 			
@@ -71,7 +70,7 @@ import { LayaGL } from "laya/layagl/LayaGL"
 		 * @param	out 输出矩阵
 		 */
 		 static createRotationZ(rad:number, out:Matrix4x4):void {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			var oe:Float32Array = out.elements;
 			var s:number = Math.sin(rad), c:number = Math.cos(rad);
 			
@@ -203,7 +202,7 @@ import { LayaGL } from "laya/layagl/LayaGL"
 		 * @param	out 输出矩阵
 		 */
 		 static createTranslate(trans:Vector3, out:Matrix4x4):void {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			var oe:Float32Array = out.elements;
 			oe[4] = oe[8] = oe[1] = oe[9] = oe[2] = oe[6] = oe[3] = oe[7] = oe[11] = 0;
 			oe[0] = oe[5] = oe[10] = oe[15] = 1;
@@ -218,7 +217,7 @@ import { LayaGL } from "laya/layagl/LayaGL"
 		 * @param	out 输出矩阵
 		 */
 		 static createScaling(scale:Vector3, out:Matrix4x4):void {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			var oe:Float32Array = out.elements;
 			oe[0] = scale.x;
 			oe[5] = scale.y;
@@ -234,7 +233,7 @@ import { LayaGL } from "laya/layagl/LayaGL"
 		 * @param	out  输出矩阵
 		 */
 		 static multiply(left:Matrix4x4, right:Matrix4x4, out:Matrix4x4):void {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			var i:number, e:Float32Array, a:Float32Array, b:Float32Array, ai0:number, ai1:number, ai2:number, ai3:number;
 			
 			e = out.elements;
@@ -273,7 +272,7 @@ import { LayaGL } from "laya/layagl/LayaGL"
 		 * @param	out 输出矩阵
 		 */
 		 static createFromQuaternion(rotation:Quaternion, out:Matrix4x4):void {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			var e:Float32Array = out.elements;
 			var x:number = rotation.x, y:number = rotation.y, z:number = rotation.z, w:number = rotation.w;
 			var x2:number = x + x;
@@ -319,7 +318,7 @@ import { LayaGL } from "laya/layagl/LayaGL"
 		 * @param	out 输出矩阵
 		 */
 		 static createAffineTransformation(trans:Vector3, rot:Quaternion, scale:Vector3, out:Matrix4x4):void {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			var oe:Float32Array = out.elements;
 			
 			var x:number = rot.x, y:number = rot.y, z:number = rot.z, w:number = rot.w, x2:number = x + x, y2:number = y + y, z2:number = z + z;
@@ -352,7 +351,7 @@ import { LayaGL } from "laya/layagl/LayaGL"
 		 * @param	out 输出矩阵
 		 */
 		 static createLookAt(eye:Vector3, target:Vector3, up:Vector3, out:Matrix4x4):void {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			//注:WebGL为右手坐标系统
 			var oE:Float32Array = out.elements;
 			var xaxis:Vector3 = Matrix4x4._tempVector0;
@@ -389,7 +388,7 @@ import { LayaGL } from "laya/layagl/LayaGL"
 		 * @param	out 输出矩阵。
 		 */
 		 static createPerspective(fov:number, aspect:number, znear:number, zfar:number, out:Matrix4x4):void {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			var yScale:number = 1.0 / Math.tan(fov * 0.5);
 			var xScale:number = yScale / aspect;
 			
@@ -409,7 +408,7 @@ import { LayaGL } from "laya/layagl/LayaGL"
 		 * @param	out 输出矩阵。
 		 */
 		 static createPerspectiveOffCenter(left:number, right:number, bottom:number, top:number, znear:number, zfar:number, out:Matrix4x4):void {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			var oe:Float32Array = out.elements;
 			var zRange:number = zfar / (zfar - znear);
 			oe[1] = oe[2] = oe[3] = oe[4] = oe[6] = oe[7] = oe[12] = oe[13] = oe[15] = 0;
@@ -433,7 +432,7 @@ import { LayaGL } from "laya/layagl/LayaGL"
 		 * @param	out 输出矩阵。
 		 */
 		 static createOrthoOffCenter(left:number, right:number, bottom:number, top:number, znear:number, zfar:number, out:Matrix4x4):void {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			var oe:Float32Array = out.elements;
 			var zRange:number = 1.0 / (zfar - znear);
 			oe[1] = oe[2] = oe[3] = oe[4] = oe[6] = oe[8] = oe[7] = oe[9] = oe[11] = 0;
@@ -530,7 +529,7 @@ import { LayaGL } from "laya/layagl/LayaGL"
 		 * @return 是否分解成功。
 		 */
 		 decomposeTransRotMatScale(translation:Vector3, rotationMatrix:Matrix4x4, scale:Vector3):boolean {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			var e:Float32Array = this.elements;
 			var te:Vector3 = translation;
 			var re:Float32Array = rotationMatrix.elements;
@@ -617,7 +616,7 @@ import { LayaGL } from "laya/layagl/LayaGL"
 		
 		/**归一化矩阵 */
 		 normalize():void {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			var v:Float32Array = this.elements;
 			var c:number = v[0], d:number = v[1], e:number = v[2], g:number = Math.sqrt(c * c + d * d + e * e);
 			if (g) {
@@ -637,7 +636,7 @@ import { LayaGL } from "laya/layagl/LayaGL"
 		
 		/**计算矩阵的转置矩阵*/
 		 transpose():Matrix4x4 {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			var e:Float32Array, t:number;
 			e = this.elements;
 			t = e[1];
@@ -667,7 +666,7 @@ import { LayaGL } from "laya/layagl/LayaGL"
 		 * @param	out 输出矩阵
 		 */
 		 invert(out:Matrix4x4):void {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			var ae:Float32Array = this.elements;
 			var oe:Float32Array = out.elements;
 			var a00:number = ae[0], a01:number = ae[1], a02:number = ae[2], a03:number = ae[3], a10:number = ae[4], a11:number = ae[5], a12:number = ae[6], a13:number = ae[7], a20:number = ae[8], a21:number = ae[9], a22:number = ae[10], a23:number = ae[11], a30:number = ae[12], a31:number = ae[13], a32:number = ae[14], a33:number = ae[15],
@@ -761,7 +760,7 @@ import { LayaGL } from "laya/layagl/LayaGL"
 		 * @param	destObject 克隆源。
 		 */
 		 cloneTo(destObject:any):void {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			var i:number, s:Float32Array, d:Float32Array;
 			s = this.elements;
 			d = destObject.elements;

@@ -5,7 +5,7 @@ import { Pool } from "laya/utils/Pool";
 	 */
 	export class HTMLExtendStyle 
 	{
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		 static EMPTY:HTMLExtendStyle =/*[STATIC SAFE]*/ new HTMLExtendStyle();
 		/**
 		 * <p>描边宽度（以像素为单位）。</p>

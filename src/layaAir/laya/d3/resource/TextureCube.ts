@@ -62,7 +62,7 @@ import { LayaGL } from "laya/layagl/LayaGL"
 		 * @param	mipmap 是否生成mipmap。
 		 */
 		constructor(format:number = BaseTexture.FORMAT_R8G8B8, mipmap:boolean = false){
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			super(format, mipmap);
 			this._glTextureType = WebGLContext.TEXTURE_CUBE_MAP;
 		}

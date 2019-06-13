@@ -3,7 +3,7 @@
 	 * <code>StringKey</code> 类用于存取字符串对应的数字。
 	 */
 	export class StringKey {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		private _strsToID:any = {};
 		private _idToStrs:any[] = [];
 		private _length:number = 0;

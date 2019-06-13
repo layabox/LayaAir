@@ -1,6 +1,6 @@
 
 	export class Path {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		//public var _rect:Rectangle;
 		 _lastOriX:number = 0;	//moveto等的原始位置。没有经过内部矩阵变换的
 		 _lastOriY:number = 0;

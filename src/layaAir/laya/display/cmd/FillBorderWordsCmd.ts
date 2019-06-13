@@ -8,7 +8,7 @@
 	export class FillBorderWordsCmd
 	{
 		 static ID:string = "FillBorderWords";
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		/**
 		 * 文字数组
 		 */

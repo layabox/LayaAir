@@ -20,7 +20,7 @@ import { Physics } from "../Physics";
 		 * 创建一个新的 <code>StaticPlaneColliderShape</code> 实例。
 		 */
 		constructor(normal:Vector3, offset:number){
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			super();
 this._normal = normal;
 			this._offset = offset;

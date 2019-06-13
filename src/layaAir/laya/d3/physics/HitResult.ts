@@ -20,7 +20,7 @@ import { PhysicsComponent } from "./PhysicsComponent"
 		 * 创建一个 <code>HitResult</code> 实例。
 		 */
 		constructor(){
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		}
 	
 	}

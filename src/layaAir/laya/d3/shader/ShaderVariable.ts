@@ -27,7 +27,7 @@
 		 * 创建一个 <code>shaderVariable</code> 实例。
 		 */
 		constructor(){
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			this.textureID = -1;
 		}
 	

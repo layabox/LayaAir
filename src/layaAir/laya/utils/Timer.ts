@@ -12,7 +12,7 @@ import { ILaya } from "../../ILaya";
 		/**@private */
 		 static _mid:number = 1;
 		
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		/** 时针缩放。*/
 		 scale:number = 1;
         /** 当前帧开始的时间。*/

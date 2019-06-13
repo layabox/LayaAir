@@ -113,7 +113,7 @@ import { ILaya } from "../../ILaya";
 		 * @param	canRead 是否可读像素,如果为true,会在内存保留像素数据。
 		 */
 		constructor(width:number = 0, height:number = 0, format:number = BaseTexture.FORMAT_R8G8B8A8, mipmap:boolean = true, canRead:boolean = false){
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			super(format, mipmap);
 			this._glTextureType = WebGLContext.TEXTURE_2D;
 			this._width = width;

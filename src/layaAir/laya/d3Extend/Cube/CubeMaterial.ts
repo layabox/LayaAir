@@ -809,7 +809,7 @@ import { BaseCamera } from "laya/d3/core/BaseCamera"
 		 * 创建一个 <code>CubeMaterial</code> 实例。
 		 */
 		constructor(){
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			super(12);
 			this.setShaderName("CUBESHADER");
 			this._albedoIntensity = 1.0;

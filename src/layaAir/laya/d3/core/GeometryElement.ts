@@ -1,10 +1,5 @@
-import { RenderContext3D } from "./render/RenderContext3D"
-	import { VertexBuffer3D } from "../graphics/VertexBuffer3D"
-	import { VertexDeclaration } from "../graphics/VertexDeclaration"
-	import { LayaGL } from "laya/layagl/LayaGL"
-	import { IDestroy } from "laya/resource/IDestroy"
-	import { Stat } from "laya/utils/Stat"
-	import { WebGLContext } from "laya/webgl/WebGLContext"
+import { IDestroy } from "laya/resource/IDestroy";
+import { RenderContext3D } from "./render/RenderContext3D";
 	
 	/**
 	 * @private
@@ -29,7 +24,7 @@ import { RenderContext3D } from "./render/RenderContext3D"
 		 * 创建一个 <code>GeometryElement</code> 实例。
 		 */
 		constructor(){
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			this._destroyed = false;
 		}
 		

@@ -6,7 +6,7 @@
 	 */
 	export class DrawRectCmd {
 		 static ID:string = "DrawRect";
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		/**
 		 * 开始绘制的 X 轴位置。
 		 */

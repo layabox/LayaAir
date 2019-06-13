@@ -32,7 +32,7 @@ import { Graphics } from "./Graphics";
 	 * Graphic bounds数据类
 	 */
 	export class GraphicsBounds {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		/**@private */
 		private static _tempMatrix:Matrix = new Matrix();
 		/**@private */

@@ -6,7 +6,7 @@ import { Context } from "../../resource/Context"
 	 */
 	export class AlphaCmd {
 		 static ID:string = "Alpha";
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		/**
 		 * 透明度
 		 */

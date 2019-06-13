@@ -5,7 +5,7 @@ import { Rectangle } from "laya/maths/Rectangle"
 	 * @private
 	 */
 	export class HTMLHitRect {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		 rec:Rectangle;
 		 href:string;
 		

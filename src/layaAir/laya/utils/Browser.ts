@@ -7,7 +7,7 @@ import { ILaya } from "../../ILaya";
 	 * <code>Browser</code> 是浏览器代理类。封装浏览器及原生 js 提供的一些功能。
 	 */
 	export class Browser {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		/** 浏览器代理信息。*/
 		 static userAgent:string;
 		/** 表示是否在移动设备，包括IOS和安卓等设备内。*/

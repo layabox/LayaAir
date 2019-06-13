@@ -6,7 +6,7 @@ import { Context } from "../../resource/Context"
 	 */
 	export class DrawLineCmd {
 		 static ID:string = "DrawLine";
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		/**
 		 * X轴开始位置。
 		 */

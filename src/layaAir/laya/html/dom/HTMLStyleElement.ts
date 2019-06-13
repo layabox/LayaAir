@@ -7,7 +7,7 @@ import { ILaya } from "ILaya";
 	 * @private
 	 */
 	export class HTMLStyleElement extends HTMLElement {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		
 		/*override*/ protected _creates():void 
 		{

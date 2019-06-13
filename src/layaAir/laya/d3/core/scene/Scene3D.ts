@@ -1,4 +1,3 @@
-import { ILaya3D } from "ILaya3D";
 import { Laya } from "Laya";
 import { PhysicsSettings } from "laya/d3/physics/PhysicsSettings";
 import { Sprite } from "laya/display/Sprite";
@@ -24,7 +23,6 @@ import { Animator } from "../../component/Animator";
 import { Script3D } from "../../component/Script3D";
 import { SimpleSingletonList } from "../../component/SimpleSingletonList";
 import { FrustumCulling } from "../../graphics/FrustumCulling";
-import { StaticBatchManager } from "../../graphics/StaticBatchManager";
 import { Input3D } from "../../Input3D";
 import { Vector3 } from "../../math/Vector3";
 import { Vector4 } from "../../math/Vector4";
@@ -55,7 +53,6 @@ import { RenderableSprite3D } from "../RenderableSprite3D";
 import { Sprite3D } from "../Sprite3D";
 import { BoundsOctree } from "././BoundsOctree";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
-import { Scene3DUtils } from "laya/d3/utils/Scene3DUtils";
 
 
 
@@ -118,7 +115,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	static RANGEATTENUATIONTEXTURE: number = Shader3D.propertyNameToID("u_RangeTexture");
 	static POINTLIGHTMATRIX: number = Shader3D.propertyNameToID("u_PointLightMatrix");
 	static SPOTLIGHTMATRIX: number = Shader3D.propertyNameToID("u_SpotLightMatrix");
-	
+
 	/**
 	 * @private
 	 */
@@ -137,7 +134,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF3 = Shader3D.registerPublicDefine("SHADOWMAP_PCF3");
 		Scene3DShaderDeclaration.SHADERDEFINE_REFLECTMAP = Shader3D.registerPublicDefine("REFLECTMAP");
 	}
-	
+
 
 	/**
 	 * 加载场景,注意:不缓存。
@@ -435,7 +432,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * 创建一个 <code>Scene3D</code> 实例。
 	 */
 	constructor() {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		super();
 		if (Scene3D._enbalePhysics)
 			this._physicsSimulation = new PhysicsSimulation(Scene3D.physicsSettings);

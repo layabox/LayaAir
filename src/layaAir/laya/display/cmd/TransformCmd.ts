@@ -7,7 +7,7 @@ import { Matrix } from "../../maths/Matrix"
 	 */
 	export class TransformCmd {
 		 static ID:string = "Transform";
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		/**
 		 * 矩阵。
 		 */

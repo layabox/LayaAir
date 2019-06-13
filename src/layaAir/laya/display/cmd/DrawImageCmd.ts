@@ -7,7 +7,7 @@ import { Context } from "../../resource/Context"
 	 */
 	export class DrawImageCmd {
 		 static ID:string = "DrawImage";
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		/**
 		 * 纹理。
 		 */

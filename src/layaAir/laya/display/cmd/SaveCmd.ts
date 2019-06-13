@@ -7,7 +7,7 @@ import { Context } from "../../resource/Context"
 	export class SaveCmd {
 		 static ID:string = "Save";
 		
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		
 		/**@private */
 		 static create():SaveCmd {

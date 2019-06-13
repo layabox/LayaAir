@@ -9,7 +9,7 @@ import { ILaya } from "../../ILaya";
 	 * <code>HTMLCanvas</code> 是 Html Canvas 的代理类，封装了 Canvas 的属性和方法。
 	 */
 	export class HTMLCanvas extends Bitmap {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		private _ctx:any;
 		 _source:any;
 		 _texture:Texture;

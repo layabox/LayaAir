@@ -12,7 +12,7 @@ import { ILaya } from "ILaya";
 	 * @private
 	 */
 	export class HTMLImageElement extends HTMLElement {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		private _tex:Texture;
 		private _url:string;
 		constructor(){

@@ -40,7 +40,7 @@ import { IClone } from "../../core/IClone"
 		 * @private
 		 */
 		 static _normalizeArray(f:Float32Array, o:Float32Array):void {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			var x:number = f[0], y:number = f[1], z:number = f[2], w:number = f[3];
 			var len:number = x * x + y * y + z * z + w * w;
 			if (len > 0) {
@@ -79,7 +79,7 @@ import { IClone } from "../../core/IClone"
 		 * @param	out 输出四元数
 		 */
 		 static createFromYawPitchRoll(yaw:number, pitch:number, roll:number, out:ConchQuaternion):void {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			var halfRoll:number = roll * 0.5;
 			var halfPitch:number = pitch * 0.5;
 			var halfYaw:number = yaw * 0.5;
@@ -105,7 +105,7 @@ import { IClone } from "../../core/IClone"
 		 * @param	out 输出四元数
 		 */
 		 static multiply(left:ConchQuaternion, right:ConchQuaternion, out:ConchQuaternion):void {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			var le:Float32Array = left.elements;
 			var re:Float32Array = right.elements;
 			var oe:Float32Array = out.elements;
@@ -129,7 +129,7 @@ import { IClone } from "../../core/IClone"
 		}
 		
 		private static arcTanAngle(x:number, y:number):number {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			if (x == 0) {
 				if (y == 1)
 					return Math.PI / 2;
@@ -146,7 +146,7 @@ import { IClone } from "../../core/IClone"
 		}
 		
 		private static angleTo(from:ConchVector3, location:ConchVector3, angle:ConchVector3):void {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			ConchVector3.subtract(location, from, ConchQuaternion.TEMPVector30);
 			ConchVector3.normalize(ConchQuaternion.TEMPVector30, ConchQuaternion.TEMPVector30);
 			
@@ -178,7 +178,7 @@ import { IClone } from "../../core/IClone"
 		 * @param	out 输出四元数
 		 */
 		 static createFromMatrix3x3(sou:Matrix3x3, out:ConchQuaternion):void {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			var e:Float32Array = out.elements;
 			var f:Float32Array = sou.elements;
 			
@@ -220,7 +220,7 @@ import { IClone } from "../../core/IClone"
 		 * @param	out  输出四元数
 		 */
 		 static createFromMatrix4x4(mat:Matrix4x4, out:ConchQuaternion):void {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			var me:Float32Array = mat.elements;
 			var oe:Float32Array = out.elements;
 			
@@ -273,7 +273,7 @@ import { IClone } from "../../core/IClone"
 		 * @return   输出Float32Array
 		 */
 		 static slerp(left:ConchQuaternion, right:ConchQuaternion, t:number, out:ConchQuaternion):Float32Array {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			var a:Float32Array = left.elements;
 			var b:Float32Array = right.elements;
 			var oe:Float32Array = out.elements;
@@ -456,7 +456,7 @@ import { IClone } from "../../core/IClone"
 		 * @param	out 输出四元数
 		 */
 		 normalize(out:ConchQuaternion):void {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			ConchQuaternion._normalizeArray(this.elements, out.elements);
 		}
 		
@@ -465,7 +465,7 @@ import { IClone } from "../../core/IClone"
 		 * @return  长度
 		 */
 		 length():number {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			var f:Float32Array = this.elements;
 			
 			var x:number = f[0], y:number = f[1], z:number = f[2], w:number = f[3];
@@ -478,7 +478,7 @@ import { IClone } from "../../core/IClone"
 		 * @param	out 输出四元数
 		 */
 		 rotateX(rad:number, out:ConchQuaternion):void {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			var e:Float32Array = out.elements;
 			var f:Float32Array = this.elements;
 			
@@ -499,7 +499,7 @@ import { IClone } from "../../core/IClone"
 		 * @param	out 输出四元数
 		 */
 		 rotateY(rad:number, out:ConchQuaternion):void {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			var e:Float32Array = out.elements;
 			var f:Float32Array = this.elements;
 			
@@ -519,7 +519,7 @@ import { IClone } from "../../core/IClone"
 		 * @param	out 输出四元数
 		 */
 		 rotateZ(rad:number, out:ConchQuaternion):void {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			var e:Float32Array = out.elements;
 			var f:Float32Array = this.elements;
 			
@@ -539,7 +539,7 @@ import { IClone } from "../../core/IClone"
 		 * @param	out 欧拉角值
 		 */
 		 getYawPitchRoll(out:ConchVector3):void {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			ConchVector3.transformQuat(ConchVector3.ForwardRH, this, ConchQuaternion.TEMPVector31/*forwarldRH*/);
 			
 			ConchVector3.transformQuat(ConchVector3.Up, this, ConchQuaternion.TEMPVector32/*up*/);
@@ -586,7 +586,7 @@ import { IClone } from "../../core/IClone"
 		 * @param	out  输出四元数
 		 */
 		 invert(out:ConchQuaternion):void {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			var e:Float32Array = out.elements;
 			var f:Float32Array = this.elements;
 			
@@ -630,7 +630,7 @@ import { IClone } from "../../core/IClone"
 		 * @param	destObject 克隆源。
 		 */
 		 cloneTo(destObject:any):void {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			var i:number, s:Float32Array, d:Float32Array;
 			s = this.elements;
 			d = destObject.elements;

@@ -6,7 +6,7 @@ import { Context } from "../../resource/Context"
 	 */
 	export class DrawPathCmd {
 		 static ID:string = "DrawPath";
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		/**
 		 * 开始绘制的 X 轴位置。
 		 */

@@ -7,7 +7,7 @@ import { Rectangle } from "../../maths/Rectangle"
 	 * 元素样式
 	 */
 	export class SpriteStyle {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		 static EMPTY:SpriteStyle =/*[STATIC SAFE]*/ new SpriteStyle();
 		 scaleX:number;
 		 scaleY:number;

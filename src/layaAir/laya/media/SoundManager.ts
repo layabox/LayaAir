@@ -20,7 +20,7 @@ import { ILaya } from "../../ILaya";
 	 * 详细教程及声音格式请参考：http://ldc2.layabox.com/doc/?nav=ch-as-1-7-0
 	 */
 	export class SoundManager {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		
 		/**
 		 * 背景音乐音量。

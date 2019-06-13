@@ -6,7 +6,7 @@ import { Utils } from "./Utils"
 	 */
 	export class ColorUtils {
 		/*[FILEINDEX:10000]*/
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		/**@private */
 		 static _SAVE:any = /*[STATIC SAFE]*/ {};
 		/**@private */

@@ -5,7 +5,7 @@ import { Matrix } from "../maths/Matrix"
 	 * <p> <code>Byte</code> 类适用于需要在字节层访问数据的高级开发人员。</p>
 	 */
 	export class Byte {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		/**
 		 * <p>主机字节序，是 CPU 存放数据的两种不同顺序，包括小端字节序和大端字节序。通过 <code>getSystemEndian</code> 可以获取当前系统的字节序。</p>
 		 * <p> <code>BIG_ENDIAN</code> ：大端字节序，地址低位存储值的高位，地址高位存储值的低位。有时也称之为网络字节序。<br/>

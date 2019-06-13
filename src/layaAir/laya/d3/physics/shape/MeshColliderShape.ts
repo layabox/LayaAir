@@ -83,7 +83,7 @@ import { Physics } from "../Physics";
 		 */
 		constructor(){super();
 
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		}
 		
 		/**

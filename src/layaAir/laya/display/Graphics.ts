@@ -45,7 +45,7 @@ import { ILaya } from "../../ILaya";
 	 * @see laya.display.Sprite#graphics
 	 */
 	export class Graphics {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		
 		/**@private */
 		 _sp:Sprite=null;

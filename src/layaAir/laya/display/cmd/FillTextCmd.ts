@@ -10,7 +10,7 @@ import { ILaya } from "../../../ILaya";
 	 */
 	export class FillTextCmd {
 		 static ID:string = "FillText";
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		
 		private _text:string|WordText;
 		/**@private */

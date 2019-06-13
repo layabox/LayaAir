@@ -6,7 +6,7 @@ import { Pool } from "../utils/Pool"
 	 * <p>您可以对一个显示对象执行不同的图形转换，方法是设置 Matrix 对象的属性，将该 Matrix 对象应用于 Transform 对象的 matrix 属性，然后应用该 Transform 对象作为显示对象的 transform 属性。这些转换函数包括平移（x 和 y 重新定位）、旋转、缩放和倾斜。</p>
 	 */
 	export class Matrix {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		/**@private 一个初始化的 <code>Matrix</code> 对象，不允许修改此对象内容。*/
 		 static EMPTY:Matrix =/*[STATIC SAFE]*/ new Matrix();
 		/**用于中转使用的 <code>Matrix</code> 对象。*/

@@ -82,7 +82,7 @@ import { LayaGL } from "laya/layagl/LayaGL"
 		 * 创建一个 <code>RenderTexture</code> 实例。
 		 */
 		constructor(width:number, height:number, format:number = BaseTexture.FORMAT_R8G8B8, depthStencilFormat:number = BaseTexture.FORMAT_DEPTH_16){
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			super(format, false);
 			this._glTextureType = WebGLContext.TEXTURE_2D;
 			this._width = width;

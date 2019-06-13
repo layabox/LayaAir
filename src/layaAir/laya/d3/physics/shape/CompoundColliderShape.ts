@@ -34,7 +34,7 @@ import { Physics } from "../Physics";
 		 * 创建一个新的 <code>CompoundColliderShape</code> 实例。
 		 */
 		constructor(){
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			super();
 			this._type = ColliderShape.SHAPETYPES_COMPOUND;
 			this._nativeShape = new Physics._physics3D.btCompoundShape();

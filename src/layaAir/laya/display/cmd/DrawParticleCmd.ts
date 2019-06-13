@@ -7,7 +7,7 @@
 	 */
 	export class DrawParticleCmd {
 		 static ID:string = "DrawParticleCmd";
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		private _templ:any;
 		
 		/**@private */

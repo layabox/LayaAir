@@ -35,7 +35,7 @@ import { RenderState } from "../core/material/RenderState"
 		}
 		
 		constructor(owner:SubShader, vs:string, ps:string,stateMap:any){
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			super(vs, ps, null);
 			this._owner = owner;
 			this._cacheSharders = [];

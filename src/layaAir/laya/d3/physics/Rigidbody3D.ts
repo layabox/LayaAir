@@ -419,7 +419,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	 * @param canCollideWith 可产生碰撞的碰撞组。
 	 */
 	constructor(collisionGroup: number = Physics3DUtils.COLLISIONFILTERGROUP_DEFAULTFILTER, canCollideWith: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER) {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		//LinkedConstraints = new List<Constraint>();
 		super(collisionGroup, canCollideWith);
 	}

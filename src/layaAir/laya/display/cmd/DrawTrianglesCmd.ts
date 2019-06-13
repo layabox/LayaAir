@@ -10,7 +10,7 @@ import { ColorFilter } from "../../filters/ColorFilter"
 	 */
 	export class DrawTrianglesCmd {
 		 static ID:string = "DrawTriangles";
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		/**
 		 * 纹理。
 		 */

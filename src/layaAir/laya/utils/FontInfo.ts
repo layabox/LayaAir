@@ -1,5 +1,5 @@
 export class FontInfo{
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		 static EMPTY:FontInfo =/*[STATIC SAFE]*/ new FontInfo(null);
 		
 		private static _cache:any = { };

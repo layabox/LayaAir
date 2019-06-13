@@ -5,7 +5,7 @@
 	 */
 	export class ScaleCmd {
 		 static ID:string = "Scale";
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		/**
 		 * 水平方向缩放值。
 		 */

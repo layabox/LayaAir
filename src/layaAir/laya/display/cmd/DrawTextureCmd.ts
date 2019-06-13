@@ -9,7 +9,7 @@ import { ColorFilter } from "../../filters/ColorFilter"
 	 */
 	export class DrawTextureCmd {
 		 static ID:string = "DrawTexture";
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		/**
 		 * 纹理。
 		 */

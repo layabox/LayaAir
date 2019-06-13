@@ -27,7 +27,7 @@ export class SkyBox extends SkyMesh {
 	 * 创建一个 <code>SkyBox</code> 实例。
 	 */
 	constructor() {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		super();
 		var halfHeight: number = 0.5;
 		var halfWidth: number = 0.5;

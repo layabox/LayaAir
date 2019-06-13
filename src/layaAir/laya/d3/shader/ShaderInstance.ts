@@ -77,7 +77,7 @@ import { BaseCamera } from "../core/BaseCamera"
 		 * 创建一个 <code>ShaderInstance</code> 实例。
 		 */
 		constructor(vs:string, ps:string, attributeMap:any, uniformMap:any, shaderPass:ShaderPass){
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			super();
 			this._vs = vs;
 			this._ps = ps;

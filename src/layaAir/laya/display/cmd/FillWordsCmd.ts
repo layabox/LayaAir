@@ -7,7 +7,7 @@ import { Context } from "../../resource/Context"
 	 */
 	export class FillWordsCmd {
 		 static ID:string = "FillWords";
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		/**
 		 * 文字数组
 		 */

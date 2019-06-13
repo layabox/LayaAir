@@ -3,7 +3,7 @@ import { Context } from "../../../resource/Context"
 	import { SubmitBase } from "../../submit/SubmitBase"
 	
 	export class SaveBase implements ISaveData {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		/*[FILEINDEX:1]*/
 		/*[DISBALEOUTCONST-BEGIN]*/
 		 static TYPE_ALPHA:number = 0x1;

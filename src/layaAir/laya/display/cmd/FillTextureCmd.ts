@@ -8,7 +8,7 @@ import { Point } from "../../maths/Point"
 	 */
 	export class FillTextureCmd {
 		 static ID:string = "FillTexture";
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		/**
 		 * 纹理。
 		 */

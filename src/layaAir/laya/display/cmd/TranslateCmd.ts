@@ -5,7 +5,7 @@
 	 */
 	export class TranslateCmd {
 		 static ID:string = "Translate";
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		/**
 		 * 添加到水平坐标（x）上的值。
 		 */

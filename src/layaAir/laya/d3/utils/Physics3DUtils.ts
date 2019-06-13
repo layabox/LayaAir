@@ -47,7 +47,7 @@ import { Sprite3D } from "../core/Sprite3D"
 		 * 创建一个 <code>Physics</code> 实例。
 		 */
 		constructor(){
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		}
 		
 		/**

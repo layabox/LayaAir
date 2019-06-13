@@ -571,7 +571,7 @@ import { ShaderData } from "../shader/ShaderData";
 		 * @param	out  输出矩阵
 		 */
 		 static multiplyMatrixOutFloat32Array(left:Matrix4x4, right:Matrix4x4, out:Float32Array):void {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			var i:number, a:Float32Array, b:Float32Array, ai0:number, ai1:number, ai2:number, ai3:number;
 			a = left.elements;
 			b = right.elements;

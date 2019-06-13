@@ -8,7 +8,7 @@
 import { ILaya } from "../../../../../ILaya";
 
 	export class Value2D{
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 
 		protected static _cache:any[]=[];
 		protected static _typeClass:any = [];

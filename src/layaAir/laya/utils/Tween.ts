@@ -7,7 +7,7 @@ import { ILaya } from "./../../ILaya";
 	 * <code>Tween</code>  是一个缓动类。使用此类能够实现对目标对象属性的渐变。
 	 */
 	export class Tween {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		
 		/**@private */
 		private static tweenMap:any[] = [];

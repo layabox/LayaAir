@@ -97,7 +97,6 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	 * @param settings value 粒子配置。
 	 */
 	constructor() {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		super(null);
 		this._render = new ShurikenParticleRenderer(this);
 

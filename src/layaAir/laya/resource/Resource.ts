@@ -153,7 +153,7 @@ import { ILaya } from "../../ILaya";
 		 * 创建一个 <code>Resource</code> 实例。
 		 */
 		constructor(){
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			super();
 this._id = ++Resource._uniqueIDCounter;
 			this._destroyed = false;

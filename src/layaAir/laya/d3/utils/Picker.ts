@@ -30,7 +30,7 @@ import { Matrix4x4 } from "../math/Matrix4x4"
 		 * @return  out  输出射线。
 		 */
 		 static calculateCursorRay(point:Vector2, viewPort:Viewport, projectionMatrix:Matrix4x4, viewMatrix:Matrix4x4, world:Matrix4x4, out:Ray):void {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			var x:number = point.x;
 			var y:number = point.y;
 			
@@ -68,7 +68,7 @@ import { Matrix4x4 } from "../math/Matrix4x4"
 		 * @return   射线距离三角形的距离，返回Number.NaN则不相交。
 		 */
 		 static rayIntersectsTriangle(ray:Ray, vertex1:Vector3, vertex2:Vector3, vertex3:Vector3):number {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			var result:number;
 			// Compute vectors along two edges of the triangle.
 			var edge1:Vector3 = Picker._tempVector30, edge2:Vector3 = Picker._tempVector31;

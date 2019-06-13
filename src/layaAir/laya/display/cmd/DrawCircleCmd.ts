@@ -6,7 +6,7 @@ import { Context } from "../../resource/Context"
 	 */
 	export class DrawCircleCmd {
 		 static ID:string = "DrawCircle";
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		/**
 		 * 圆点X 轴位置。
 		 */

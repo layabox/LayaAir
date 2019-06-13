@@ -7,7 +7,7 @@ import { Context } from "../../resource/Context"
 	export class RestoreCmd {
 		 static ID:string = "Restore";
 		
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		
 		/**@private */
 		 static create():RestoreCmd {

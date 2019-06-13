@@ -15,7 +15,7 @@ import { ILaya } from "../../ILaya";
 	 * <code>Texture</code> 是一个纹理处理类。
 	 */
 	export class Texture extends EventDispatcher {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		/**@private 默认 UV 信息。*/
 		 static DEF_UV = /*[STATIC SAFE]*/ new Float32Array([0, 0, 1.0, 0, 1.0, 1.0, 0, 1.0]);
 		/**@private */

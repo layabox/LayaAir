@@ -171,7 +171,7 @@ import { LayaGPU } from "laya/webgl/LayaGPU";
 		 * 创建一个 <code>BaseTexture</code> 实例。
 		 */
 		constructor(format:number, mipMap:boolean){
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+			
 			super();
 this._wrapModeU = BaseTexture.WARPMODE_REPEAT;
 			this._wrapModeV = BaseTexture.WARPMODE_REPEAT;
