@@ -409,10 +409,10 @@ export class Camera extends BaseCamera {
 			return BaseTexture.FORMAT_R8G8B8;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  render(shader: Shader3D = null, replacementTag: string = null): void {
+	/**
+	 * @inheritDoc
+	 */
+	render(shader: Shader3D = null, replacementTag: string = null): void {
 		if (!this._scene) //自定义相机渲染需要加保护判断是否在场景中,否则报错
 			return;
 

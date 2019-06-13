@@ -80,7 +80,7 @@ this._id = ++SubMesh._uniqueIDCounter;
 				var subSkinnedDatas:Float32Array[] = skinnedDatas[this._indexInMesh];
 				var boneIndicesListCount:number = this._boneIndicesList.length;
 				for (var i:number = 0; i < boneIndicesListCount; i++) {
-					state.shader.uploadCustomUniform(SkinnedMeshSprite3D.BONES, subSkinnedDatas[i]);
+					state.shaderInstance.uploadCustomUniform(SkinnedMeshSprite3D.BONES, subSkinnedDatas[i]);
 					LayaGL.instance.drawElements(WebGLContext.TRIANGLES, this._subIndexBufferCount[i], WebGLContext.UNSIGNED_SHORT, this._subIndexBufferStart[i] * 2);
 				}
 			} else {

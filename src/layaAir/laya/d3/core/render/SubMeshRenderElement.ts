@@ -171,7 +171,7 @@ export class SubMeshRenderElement extends RenderElement {
 				staBatchMarks.batched = false;//是否已有大于两个的元素可合并
 				elements.push(this);
 			}
-		} else if (this.material._shader._enableInstancing && LayaGL.layaGPUInstance.supportInstance()) {//需要支持Instance渲染才可用
+		} else if (context.shader._enableInstancing && LayaGL.layaGPUInstance.supportInstance()) {//需要支持Instance渲染才可用,不能从材质取Shader,应从context.shader取，可能是customShader
 			var subMesh: SubMesh = (<SubMesh>this._geometry);
 			var insManager: MeshRenderDynamicBatchManager = ILaya3D.MeshRenderDynamicBatchManager.instance;
 			var insBatchMarks: BatchMark = insManager.getInstanceBatchOpaquaMark(this.render.lightmapIndex + 1, this.render.receiveShadow, this.material.id, subMesh._id);
@@ -284,7 +284,7 @@ export class SubMeshRenderElement extends RenderElement {
 				elements.push(this);
 				queue.lastTransparentBatched = false;
 			}
-		} else if (this.material._shader._enableInstancing && LayaGL.layaGPUInstance.supportInstance()) {//需要支持Instance渲染才可用
+		} else if (context.shader._enableInstancing && LayaGL.layaGPUInstance.supportInstance()) {//需要支持Instance渲染才可用,不能从材质取Shader,应从context.shader取，可能是customShader
 			var subMesh: SubMesh = (<SubMesh>this._geometry);
 			var insManager: MeshRenderDynamicBatchManager = ILaya3D.MeshRenderDynamicBatchManager.instance;
 			var insLastElement: RenderElement = queue.lastTransparentRenderElement;

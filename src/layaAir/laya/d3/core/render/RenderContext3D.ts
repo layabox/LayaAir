@@ -4,6 +4,7 @@ import { ShaderInstance } from "../../shader/ShaderInstance";
 import { BaseCamera } from "../BaseCamera";
 import { Scene3D } from "../scene/Scene3D";
 import { RenderElement } from "././RenderElement";
+import { Shader3D } from "../../shader/Shader3D";
 
 /**
  * <code>RenderContext3D</code> 类用于实现渲染状态。
@@ -38,7 +39,9 @@ export class RenderContext3D {
 	/** @private */
 	renderElement: RenderElement;
 	/** @private */
-	shader: ShaderInstance;
+	shader: Shader3D;
+	/** @private */
+	shaderInstance: ShaderInstance;
 
 	/**
 	 * 创建一个 <code>RenderContext3D</code> 实例。
