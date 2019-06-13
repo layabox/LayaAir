@@ -6,7 +6,6 @@ import { MeshRenderDynamicBatchManager } from "laya/d3/graphics/MeshRenderDynami
 import { MeshRenderStaticBatchManager } from "laya/d3/graphics/MeshRenderStaticBatchManager";
 import { SubMeshDynamicBatch } from "laya/d3/graphics/SubMeshDynamicBatch";
 import { SubMeshInstanceBatch } from "laya/d3/graphics/SubMeshInstanceBatch";
-import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
 import { Physics } from "laya/d3/physics/Physics";
 import { PhysicsComponent } from "laya/d3/physics/PhysicsComponent";
 import { PhysicsSimulation } from "laya/d3/physics/PhysicsSimulation";
@@ -132,7 +131,6 @@ export class Laya3D {
         ILaya3D.MeshRenderDynamicBatchManager = MeshRenderDynamicBatchManager;
         ILaya3D.SubMeshDynamicBatch = SubMeshDynamicBatch;
         ILaya3D.Laya3D = Laya3D;
-        ILaya3D.Matrix4x4 = Matrix4x4;
         //函数里面会有判断isConchApp
         Laya3D.enableNative3D();
         SubMeshInstanceBatch.__init__();

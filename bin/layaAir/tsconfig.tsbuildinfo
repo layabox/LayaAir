@@ -133,6 +133,10 @@
         "version": "5b98074c6c60023765be975561649e18fa0088c7b85b7fc68f77d7117abd2e2e",
         "signature": "57c9d47cc11b543beae6df9f62805242531ef44b473abbe8c8bb0cbb0a8673a1"
       },
+      "c:/work/layaairts/src/layaair/laya/layagl/commandencoder.ts": {
+        "version": "0b01791e968fa97d18ca5b02ecd1ea0200b70fb1fa1eeff9a2e57bc7c59d143e",
+        "signature": "dc2fb8b550876b28a4b98a0ecdcf6d26d33b623c46673765f25a7df29e882647"
+      },
       "c:/work/layaairts/src/layaair/laya/utils/handler.ts": {
         "version": "5c801741b9d5c33e9902d1a65e71348f9e8764c3f4ae3ab2b52ec8cdde7dee8d",
         "signature": "130a4bc6a2273f0646b62b80fb814f47a83cb92df8025ae2e46bf71f1489aef4"
@@ -165,50 +169,6 @@
         "version": "08b75ccc0843c016f0e07e9fbd1bd3e40628750f1abf34b6320e26e787523855",
         "signature": "d2bd45150068b2a7e8b99aa7efd29384d595f126473fb96f371a0b3b1879e1d4"
       },
-      "c:/work/layaairts/src/layaair/laya/layagl/commandencoder.ts": {
-        "version": "0b01791e968fa97d18ca5b02ecd1ea0200b70fb1fa1eeff9a2e57bc7c59d143e",
-        "signature": "dc2fb8b550876b28a4b98a0ecdcf6d26d33b623c46673765f25a7df29e882647"
-      },
-      "c:/work/layaairts/src/layaair/laya/webgl/webglcontext.ts": {
-        "version": "02a0e5f63cdf08089b5552878b68e4b1403a6da6e8a4ac21f09cc337354cb5c7",
-        "signature": "1aceeca3770c7668b21168c34fe1e2965bedad3afd94a2467ad82d788392c40e"
-      },
-      "c:/work/layaairts/src/layaair/laya/maths/point.ts": {
-        "version": "78bb519d5752657a33e2da5502f132492d0e59119403f6c04a99f69d7af75d6d",
-        "signature": "d83bd090b212cd73b65238c562b5694cd52fca9a1c8660699f37ab1cedbe32c6"
-      },
-      "c:/work/layaairts/src/layaair/laya/maths/matrix.ts": {
-        "version": "8341bcd68a8ebd79ad7d8c999d6839e5f5c474ab68f5c399cd8c9184c47da8d7",
-        "signature": "7c585871c984cfd9a3b080192ddcbbd7a2cf18073cadd8d18b134faad7fd0986"
-      },
-      "c:/work/layaairts/src/layaair/laya/webgl/shader/shaderdefinesbase.ts": {
-        "version": "5ffe45412e3a3236889c053dff2fc22bb0c683464be9195375abad02bd78bd75",
-        "signature": "115971c5d8faaaa9048f94741691bb462f748c1287c64e8fbffe95b301717567"
-      },
-      "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/shaderdefines2d.ts": {
-        "version": "65436219f408af117627191c4db606cab3d86b2a3a859deb134a37680ef2aaa0",
-        "signature": "017f98b88540bd397e33f7af5409ff7e755a6a3e3de65f8c0f12985986a19197"
-      },
-      "c:/work/layaairts/src/layaair/laya/webgl/utils/renderstate2d.ts": {
-        "version": "3b8bada4d4e994ffe5c0ae923b911bdd9def282415397a720da5d472b048e5f2",
-        "signature": "a53efb1893c6ff391c9f396c2d63daa4ba2a7f1c2b14b7b22a779a52ab9584ac"
-      },
-      "c:/work/layaairts/src/layaair/laya/webgl/webgl.ts": {
-        "version": "bafb18b4b812efc9890cdd2799f1d9a987cc6ea2d4b3df874c62fb4ee1eb344f",
-        "signature": "077a62eb7c696f08e5aa3d97404e60c91f2e4adfc89eb508428dd3f31e0fbe3a"
-      },
-      "c:/work/layaairts/src/layaair/laya/webgl/vertexarrayobject.ts": {
-        "version": "2965bdcea67a29fb78cd2daf5cecc266c68a88b8996a3a3296ce1452eace2490",
-        "signature": "fdb5f6ee4fee944cb0bc7e15599c04b7d44f3bead4017fb91cc6aa6084e6183a"
-      },
-      "c:/work/layaairts/src/layaair/laya/webgl/layagpu.ts": {
-        "version": "4c3c8df74271acb551f7b3684d5315af9a8dfe21499fa60af088923ec59763e4",
-        "signature": "ba535944ae77389d4d74ea3831de92c9845eb26b8ec3dac417a83afadb694c85"
-      },
-      "c:/work/layaairts/src/layaair/laya/layagl/layagl.ts": {
-        "version": "f966092e783a46daeafa1e2f4eccf6aa9c754d491db00e2caf404282ce1f32ba",
-        "signature": "68dc033176799c9817718522046de18960bb0e6046ef884b5bec93b70ff706d4"
-      },
       "c:/work/layaairts/src/layaair/laya/resource/basetexture.ts": {
         "version": "61532a472f4e919da0c1e6b3d1fec98931d6f95bec40db7e28f89f4f48b80ff4",
         "signature": "374626902f6861c7e48349c1db7fb568a6558388d8b6553c7139b1dd5ca5dfb7"
@@ -225,6 +185,10 @@
         "version": "e151d801ff31c58f68f8d5a8c3a20f13c2247474d9c4ff66c19954699a48acaf",
         "signature": "30ccc7c6f8b3c119506a2611b7ddfa6431c4c4ea8f70c513a8a76ac5fc2497ad"
       },
+      "c:/work/layaairts/src/layaair/laya/maths/point.ts": {
+        "version": "78bb519d5752657a33e2da5502f132492d0e59119403f6c04a99f69d7af75d6d",
+        "signature": "d83bd090b212cd73b65238c562b5694cd52fca9a1c8660699f37ab1cedbe32c6"
+      },
       "c:/work/layaairts/src/layaair/laya/maths/rectangle.ts": {
         "version": "41c64ed93eda8476222f552fd0df69c6cfc2f5da1d3730e90fafa8f71882d123",
         "signature": "58c67ad3bff56d1b54b3c49af4496c96883e55c06425ef8bd177e726081c6f3d"
@@ -240,6 +204,10 @@
       "c:/work/layaairts/src/layaair/laya/filters/ifilter.ts": {
         "version": "fcb66ed05a9a6d3c65f5b2c5570b49bd19a081a420a21e3ae4494aca11c3e0c1",
         "signature": "29ae86e0fcadcbf94f43af645520a1f8006436e231ccdc9eb4cb0cbe1537fc6e"
+      },
+      "c:/work/layaairts/src/layaair/laya/maths/matrix.ts": {
+        "version": "8341bcd68a8ebd79ad7d8c999d6839e5f5c474ab68f5c399cd8c9184c47da8d7",
+        "signature": "7c585871c984cfd9a3b080192ddcbbd7a2cf18073cadd8d18b134faad7fd0986"
       },
       "c:/work/layaairts/src/layaair/laya/display/css/cachestyle.ts": {
         "version": "2df0459c935ade243d18771e6d558a5b059b4582b81c7ba2d3057e2a4a4c4787",
@@ -272,6 +240,18 @@
       "c:/work/layaairts/src/layaair/laya/webgl/shader/baseshader.ts": {
         "version": "aa82e5f28918843f46162617e3193c24215a2ceb4696b3e26cc4ae4069ef65a0",
         "signature": "506900b5fb28b3fe1239c516fbc2b491e1c6ade082e5f8768cfe1a6b4582af47"
+      },
+      "c:/work/layaairts/src/layaair/laya/webgl/shader/shaderdefinesbase.ts": {
+        "version": "5ffe45412e3a3236889c053dff2fc22bb0c683464be9195375abad02bd78bd75",
+        "signature": "115971c5d8faaaa9048f94741691bb462f748c1287c64e8fbffe95b301717567"
+      },
+      "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/shaderdefines2d.ts": {
+        "version": "65436219f408af117627191c4db606cab3d86b2a3a859deb134a37680ef2aaa0",
+        "signature": "017f98b88540bd397e33f7af5409ff7e755a6a3e3de65f8c0f12985986a19197"
+      },
+      "c:/work/layaairts/src/layaair/laya/webgl/utils/renderstate2d.ts": {
+        "version": "3b8bada4d4e994ffe5c0ae923b911bdd9def282415397a720da5d472b048e5f2",
+        "signature": "a53efb1893c6ff391c9f396c2d63daa4ba2a7f1c2b14b7b22a779a52ab9584ac"
       },
       "c:/work/layaairts/src/layaair/laya/resource/rendertexture2d.ts": {
         "version": "9905b9c24585cf47a92d0ca6e0fe27e46ea875ca0cede03e3fa034d39c508076",
@@ -477,6 +457,10 @@
         "version": "e17b97e8e52174039b703217e8885d4954a39df47a1fb447f9198d262e6e769d",
         "signature": "5e98e4b2335fcbcfbf46570ae55fe7cd83aa980411c375a9690d64a2f424c5ac"
       },
+      "c:/work/layaairts/src/layaair/laya/webgl/webgl.ts": {
+        "version": "bafb18b4b812efc9890cdd2799f1d9a987cc6ea2d4b3df874c62fb4ee1eb344f",
+        "signature": "077a62eb7c696f08e5aa3d97404e60c91f2e4adfc89eb508428dd3f31e0fbe3a"
+      },
       "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/value/texturesv.ts": {
         "version": "407fe864b9488b4aa0b6a3acb6fc8939998533a9db38ba5b35688dda69bc1c41",
         "signature": "9658dc529c19ea8a18c576c9f8300c7e00a726d3aa3b1bfd24faf8ea9b891bdd"
@@ -604,6 +588,10 @@
       "c:/work/layaairts/src/layaair/laya/maths/grahamscan.ts": {
         "version": "8d5c583f6162dceb3858c3b9f538e8692b8579cb1cb7e0af8e8273933e163512",
         "signature": "2a47d1e7a4c9b87d9498e91408c9243936ea6e0fc0e86e18d4d95c1421f33187"
+      },
+      "c:/work/layaairts/src/layaair/laya/renders/render.ts": {
+        "version": "08d18fec7d454b620fbd388efebf263b471b728305aaadaf5b440eb1608566bf",
+        "signature": "d9f48cce76159800f16856a7753943658d56d947c58ba76ee3abfb8fe6edcfab"
       },
       "c:/work/layaairts/src/layaair/laya/display/graphicsbounds.ts": {
         "version": "69c0d221a4619a26cd19108b5807e6c001aa891cb4e17b7771a2de7423b7faeb",
@@ -833,9 +821,25 @@
         "version": "ab355aa6bf177abec0e641939c859de1ab439ed556a52bf554cb3e9ef09b4418",
         "signature": "8a859f1df67fe0bd0615f51a1d45eacd877c9bebb4c0ccc7e37de3b8ff3f1d56"
       },
-      "c:/work/layaairts/src/layaair/laya/renders/render.ts": {
-        "version": "08d18fec7d454b620fbd388efebf263b471b728305aaadaf5b440eb1608566bf",
-        "signature": "d9f48cce76159800f16856a7753943658d56d947c58ba76ee3abfb8fe6edcfab"
+      "c:/work/layaairts/src/layaair/laya/webgl/webglcontext.ts": {
+        "version": "02a0e5f63cdf08089b5552878b68e4b1403a6da6e8a4ac21f09cc337354cb5c7",
+        "signature": "1aceeca3770c7668b21168c34fe1e2965bedad3afd94a2467ad82d788392c40e"
+      },
+      "c:/work/layaairts/src/layaair/laya/webgl/vertexarrayobject.ts": {
+        "version": "2965bdcea67a29fb78cd2daf5cecc266c68a88b8996a3a3296ce1452eace2490",
+        "signature": "fdb5f6ee4fee944cb0bc7e15599c04b7d44f3bead4017fb91cc6aa6084e6183a"
+      },
+      "c:/work/layaairts/src/layaair/laya/webgl/layagpu.ts": {
+        "version": "4c3c8df74271acb551f7b3684d5315af9a8dfe21499fa60af088923ec59763e4",
+        "signature": "ba535944ae77389d4d74ea3831de92c9845eb26b8ec3dac417a83afadb694c85"
+      },
+      "c:/work/layaairts/src/layaair/laya/layagl/layagl.ts": {
+        "version": "f966092e783a46daeafa1e2f4eccf6aa9c754d491db00e2caf404282ce1f32ba",
+        "signature": "68dc033176799c9817718522046de18960bb0e6046ef884b5bec93b70ff706d4"
+      },
+      "c:/work/layaairts/src/layaair/laya/d3/math/mathutils3d.ts": {
+        "version": "80ecdef23042b24646d003b7c0c54dab86a5cd2e9d62acd7d8eb1c5c67652956",
+        "signature": "a664731b47ce33c0aaf91b281323a6edfef6e5f27cc797be713f838c72df51de"
       },
       "c:/work/layaairts/src/layaair/laya/d3/math/vector2.ts": {
         "version": "f9d864743542573fc3ff8404a9431130fa35ec6ca6cbfee0bdb0430c1ffa52d9",
@@ -844,10 +848,6 @@
       "c:/work/layaairts/src/layaair/laya/d3/math/matrix3x3.ts": {
         "version": "c75600eb27f9435597daaf5a5589cb17b994de00a34333f3d61d2660c98f4abf",
         "signature": "fee40572e1c13df74e0efbb72deb64ba5d48f29033b9e1fd00780a66911bb95f"
-      },
-      "c:/work/layaairts/src/layaair/laya/d3/math/mathutils3d.ts": {
-        "version": "80ecdef23042b24646d003b7c0c54dab86a5cd2e9d62acd7d8eb1c5c67652956",
-        "signature": "a664731b47ce33c0aaf91b281323a6edfef6e5f27cc797be713f838c72df51de"
       },
       "c:/work/layaairts/src/layaair/laya/events/keyboardmanager.ts": {
         "version": "036be87d84d41777dcee81d4979659463dc6687dc93d5e384972e6d29b892dd6",
@@ -1606,7 +1606,7 @@
         "signature": "bb89eb300c3ce5979bc03e0f0bdb897ae3f577787287c2201abcd500cce747d6"
       },
       "c:/work/layaairts/src/layaair/laya3d.ts": {
-        "version": "45bff6ffae1cffd990a4a1130039fe113872523a18f7c332c35710a0e1d5047e",
+        "version": "0819512201fc595f6ae22d1b7e9614086009e4f77075c742f0876ba3d56f74fb",
         "signature": "84c6a019788d9c0dfd998ee95202988c84aa7958da3d955598777c0ab370751c"
       },
       "c:/work/layaairts/src/layaair/laya/d3/graphics/frustumculling.ts": {
@@ -1698,16 +1698,16 @@
         "signature": "57249a505d0906976f2de5cd1105afb3ff10fd6a68d989943e4482a5a04fcb47"
       },
       "c:/work/layaairts/src/layaair/ilaya3d.ts": {
-        "version": "4686ad373d7a9fc0ebe62f903a49d2890662c359bd2c882fef41a06a235644eb",
-        "signature": "b3358ae1198280344eec0cc03253974403a761d00777ac3c119e36bcd6e3e8eb"
+        "version": "58fed18c2900d490e1066798c269c6b5e1f7cc8dd7628769ffd2b53321983a88",
+        "signature": "cf4541137835eb70316ae708d3ee5a0148753f26f8945218c44dde10bcda9c10"
       },
       "c:/work/layaairts/src/layaair/laya/d3/math/quaternion.ts": {
-        "version": "8fa456423de983302420245ce67bd90f413d3c03eeb0451ae5f4ce4dede8b679",
+        "version": "3d6e283acc8203024169b7d9b29add93b679106bfc5ab7d039b3f2aeb8319f64",
         "signature": "01d1d7d04b749a85a656a1cfdee9de546af092be0c532829bdecb33c71de6f05"
       },
       "c:/work/layaairts/src/layaair/laya/d3/math/matrix4x4.ts": {
-        "version": "dd7330eaceb485cd1ddb68c1fe010d2e1bc8c534daf6f206c94cf6042bf37326",
-        "signature": "e0301859d01d1fa735e86d65e850e799c267c1752b88b348fb7f2e787955bc39"
+        "version": "fe01242ff348a5b8387292306fe212cd6751e08f77e36d4c0f4be5af1928df4f",
+        "signature": "760f5526e6ede9917549d0185ad4cb88c1c14e2401fd0a6c5ffc2d70140206e8"
       },
       "c:/work/layaairts/src/layaair/laya/d3/math/vector4.ts": {
         "version": "b28bfaf7dd06fa545c658c6d1b901db76f6d5fdd33f61f2d97ef4e3359e37ffc",
@@ -2612,9 +2612,10 @@
     },
     "options": {
       "target": 2,
-      "module": 5,
+      "module": 6,
       "outDir": "c:/Work/LayaAirTS/bin/layaAir",
       "composite": true,
+      "project": "c:\\Work\\LayaAirTS\\src\\layaAir\\tsconfig.json",
       "configFilePath": "c:/Work/LayaAirTS/src/layaAir/tsconfig.json"
     },
     "referencedMap": {
@@ -2750,6 +2751,10 @@
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
+      "c:/work/layaairts/src/layaair/laya/layagl/commandencoder.ts": [
+        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
+        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
+      ],
       "c:/work/layaairts/src/layaair/laya/utils/handler.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
@@ -2790,68 +2795,6 @@
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/src/layaair/laya/layagl/commandencoder.ts": [
-        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
-        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "c:/work/layaairts/src/layaair/laya/webgl/webglcontext.ts": [
-        "c:/work/layaairts/src/layaair/ilaya.ts",
-        "c:/work/layaairts/src/layaair/laya/utils/browser.ts",
-        "c:/work/layaairts/src/layaair/laya/renders/render.ts",
-        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
-        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "c:/work/layaairts/src/layaair/laya/maths/point.ts": [
-        "c:/work/layaairts/src/layaair/laya/utils/pool.ts",
-        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
-        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "c:/work/layaairts/src/layaair/laya/maths/matrix.ts": [
-        "c:/work/layaairts/src/layaair/laya/maths/point.ts",
-        "c:/work/layaairts/src/layaair/laya/utils/pool.ts",
-        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
-        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "c:/work/layaairts/src/layaair/laya/webgl/shader/shaderdefinesbase.ts": [
-        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
-        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/shaderdefines2d.ts": [
-        "c:/work/layaairts/src/layaair/laya/webgl/shader/shaderdefinesbase.ts",
-        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
-        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "c:/work/layaairts/src/layaair/laya/webgl/utils/renderstate2d.ts": [
-        "c:/work/layaairts/src/layaair/laya/maths/matrix.ts",
-        "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/shaderdefines2d.ts",
-        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
-        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "c:/work/layaairts/src/layaair/laya/webgl/webgl.ts": [
-        "c:/work/layaairts/src/layaair/laya/webgl/utils/renderstate2d.ts",
-        "c:/work/layaairts/src/layaair/laya/webgl/webglcontext.ts",
-        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
-        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "c:/work/layaairts/src/layaair/laya/webgl/vertexarrayobject.ts": [
-        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
-        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "c:/work/layaairts/src/layaair/laya/webgl/layagpu.ts": [
-        "c:/work/layaairts/src/layaair/laya/webgl/webglcontext.ts",
-        "c:/work/layaairts/src/layaair/laya/webgl/webgl.ts",
-        "c:/work/layaairts/src/layaair/laya/utils/browser.ts",
-        "c:/work/layaairts/src/layaair/ilaya.ts",
-        "c:/work/layaairts/src/layaair/laya/webgl/vertexarrayobject.ts",
-        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
-        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "c:/work/layaairts/src/layaair/laya/layagl/layagl.ts": [
-        "c:/work/layaairts/src/layaair/laya/layagl/commandencoder.ts",
-        "c:/work/layaairts/src/layaair/laya/webgl/layagpu.ts",
-        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
-        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
-      ],
       "c:/work/layaairts/src/layaair/laya/resource/basetexture.ts": [
         "c:/work/layaairts/src/layaair/laya/layagl/layagl.ts",
         "c:/work/layaairts/src/layaair/laya/resource/bitmap.ts",
@@ -2878,6 +2821,11 @@
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
+      "c:/work/layaairts/src/layaair/laya/maths/point.ts": [
+        "c:/work/layaairts/src/layaair/laya/utils/pool.ts",
+        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
+        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
+      ],
       "c:/work/layaairts/src/layaair/laya/maths/rectangle.ts": [
         "c:/work/layaairts/src/layaair/laya/maths/point.ts",
         "c:/work/layaairts/src/layaair/laya/utils/pool.ts",
@@ -2898,6 +2846,12 @@
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
       "c:/work/layaairts/src/layaair/laya/filters/ifilter.ts": [
+        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
+        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
+      ],
+      "c:/work/layaairts/src/layaair/laya/maths/matrix.ts": [
+        "c:/work/layaairts/src/layaair/laya/maths/point.ts",
+        "c:/work/layaairts/src/layaair/laya/utils/pool.ts",
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
@@ -2955,6 +2909,21 @@
       ],
       "c:/work/layaairts/src/layaair/laya/webgl/shader/baseshader.ts": [
         "c:/work/layaairts/src/layaair/laya/resource/resource.ts",
+        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
+        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
+      ],
+      "c:/work/layaairts/src/layaair/laya/webgl/shader/shaderdefinesbase.ts": [
+        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
+        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
+      ],
+      "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/shaderdefines2d.ts": [
+        "c:/work/layaairts/src/layaair/laya/webgl/shader/shaderdefinesbase.ts",
+        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
+        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
+      ],
+      "c:/work/layaairts/src/layaair/laya/webgl/utils/renderstate2d.ts": [
+        "c:/work/layaairts/src/layaair/laya/maths/matrix.ts",
+        "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/shaderdefines2d.ts",
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
@@ -3334,6 +3303,12 @@
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
+      "c:/work/layaairts/src/layaair/laya/webgl/webgl.ts": [
+        "c:/work/layaairts/src/layaair/laya/webgl/utils/renderstate2d.ts",
+        "c:/work/layaairts/src/layaair/laya/webgl/webglcontext.ts",
+        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
+        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
+      ],
       "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/value/texturesv.ts": [
         "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/value/value2d.ts",
         "c:/work/layaairts/src/layaair/laya/webgl/webgl.ts",
@@ -3636,6 +3611,25 @@
       "c:/work/layaairts/src/layaair/laya/maths/grahamscan.ts": [
         "c:/work/layaairts/src/layaair/laya/maths/point.ts",
         "c:/work/layaairts/src/layaair/laya/utils/utils.ts",
+        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
+        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
+      ],
+      "c:/work/layaairts/src/layaair/laya/renders/render.ts": [
+        "c:/work/layaairts/src/layaair/ilaya.ts",
+        "c:/work/layaairts/src/layaair/config.ts",
+        "c:/work/layaairts/src/layaair/laya/layagl/layagl.ts",
+        "c:/work/layaairts/src/layaair/laya/resource/context.ts",
+        "c:/work/layaairts/src/layaair/laya/resource/htmlcanvas.ts",
+        "c:/work/layaairts/src/layaair/laya/webgl/webgl.ts",
+        "c:/work/layaairts/src/layaair/laya/webgl/webglcontext.ts",
+        "c:/work/layaairts/src/layaair/laya/webgl/canvas/blendmode.ts",
+        "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/shader2d.ts",
+        "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/shaderdefines2d.ts",
+        "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/value/value2d.ts",
+        "c:/work/layaairts/src/layaair/laya/webgl/submit/submit.ts",
+        "c:/work/layaairts/src/layaair/laya/webgl/utils/buffer2d.ts",
+        "c:/work/layaairts/src/layaair/laya/webgl/submit/submitbase.ts",
+        "c:/work/layaairts/src/layaair/laya/webgl/layagpu.ts",
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
@@ -4279,22 +4273,33 @@
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/src/layaair/laya/renders/render.ts": [
+      "c:/work/layaairts/src/layaair/laya/webgl/webglcontext.ts": [
         "c:/work/layaairts/src/layaair/ilaya.ts",
-        "c:/work/layaairts/src/layaair/config.ts",
-        "c:/work/layaairts/src/layaair/laya/layagl/layagl.ts",
-        "c:/work/layaairts/src/layaair/laya/resource/context.ts",
-        "c:/work/layaairts/src/layaair/laya/resource/htmlcanvas.ts",
-        "c:/work/layaairts/src/layaair/laya/webgl/webgl.ts",
+        "c:/work/layaairts/src/layaair/laya/utils/browser.ts",
+        "c:/work/layaairts/src/layaair/laya/renders/render.ts",
+        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
+        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
+      ],
+      "c:/work/layaairts/src/layaair/laya/webgl/vertexarrayobject.ts": [
+        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
+        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
+      ],
+      "c:/work/layaairts/src/layaair/laya/webgl/layagpu.ts": [
         "c:/work/layaairts/src/layaair/laya/webgl/webglcontext.ts",
-        "c:/work/layaairts/src/layaair/laya/webgl/canvas/blendmode.ts",
-        "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/shader2d.ts",
-        "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/shaderdefines2d.ts",
-        "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/value/value2d.ts",
-        "c:/work/layaairts/src/layaair/laya/webgl/submit/submit.ts",
-        "c:/work/layaairts/src/layaair/laya/webgl/utils/buffer2d.ts",
-        "c:/work/layaairts/src/layaair/laya/webgl/submit/submitbase.ts",
+        "c:/work/layaairts/src/layaair/laya/webgl/webgl.ts",
+        "c:/work/layaairts/src/layaair/laya/utils/browser.ts",
+        "c:/work/layaairts/src/layaair/ilaya.ts",
+        "c:/work/layaairts/src/layaair/laya/webgl/vertexarrayobject.ts",
+        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
+        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
+      ],
+      "c:/work/layaairts/src/layaair/laya/layagl/layagl.ts": [
+        "c:/work/layaairts/src/layaair/laya/layagl/commandencoder.ts",
         "c:/work/layaairts/src/layaair/laya/webgl/layagpu.ts",
+        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
+        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
+      ],
+      "c:/work/layaairts/src/layaair/laya/d3/math/mathutils3d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
@@ -4309,10 +4314,6 @@
         "c:/work/layaairts/src/layaair/laya/d3/math/vector2.ts",
         "c:/work/layaairts/src/layaair/laya/d3/math/matrix4x4.ts",
         "c:/work/layaairts/src/layaair/laya/d3/core/iclone.ts",
-        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
-        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "c:/work/layaairts/src/layaair/laya/d3/math/mathutils3d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
@@ -6841,7 +6842,6 @@
         "c:/work/layaairts/src/layaair/laya/d3/graphics/meshrenderdynamicbatchmanager.ts",
         "c:/work/layaairts/src/layaair/laya/d3/graphics/meshrenderstaticbatchmanager.ts",
         "c:/work/layaairts/src/layaair/laya/d3/graphics/submeshdynamicbatch.ts",
-        "c:/work/layaairts/src/layaair/laya/d3/math/matrix4x4.ts",
         "c:/work/layaairts/src/layaair/laya3d.ts",
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
@@ -6858,11 +6858,11 @@
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
       "c:/work/layaairts/src/layaair/laya/d3/math/matrix4x4.ts": [
-        "c:/work/layaairts/src/layaair/laya/d3/math/vector3.ts",
-        "c:/work/layaairts/src/layaair/laya/d3/math/quaternion.ts",
-        "c:/work/layaairts/src/layaair/laya/d3/math/mathutils3d.ts",
-        "c:/work/layaairts/src/layaair/laya/d3/core/iclone.ts",
         "c:/work/layaairts/src/layaair/laya/layagl/layagl.ts",
+        "c:/work/layaairts/src/layaair/laya/d3/core/iclone.ts",
+        "c:/work/layaairts/src/layaair/laya/d3/math/mathutils3d.ts",
+        "c:/work/layaairts/src/layaair/laya/d3/math/quaternion.ts",
+        "c:/work/layaairts/src/layaair/laya/d3/math/vector3.ts",
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
@@ -8853,20 +8853,6 @@
       "c:/work/layaairts/src/layaair/laya/resource/bitmap.ts": [
         "c:/work/layaairts/src/layaair/laya/resource/resource.ts"
       ],
-      "c:/work/layaairts/src/layaair/laya/maths/matrix.ts": [
-        "c:/work/layaairts/src/layaair/laya/maths/point.ts"
-      ],
-      "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/shaderdefines2d.ts": [
-        "c:/work/layaairts/src/layaair/laya/webgl/shader/shaderdefinesbase.ts"
-      ],
-      "c:/work/layaairts/src/layaair/laya/webgl/utils/renderstate2d.ts": [
-        "c:/work/layaairts/src/layaair/laya/maths/matrix.ts",
-        "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/shaderdefines2d.ts"
-      ],
-      "c:/work/layaairts/src/layaair/laya/layagl/layagl.ts": [
-        "c:/work/layaairts/src/layaair/laya/webgl/layagpu.ts",
-        "c:/work/layaairts/src/layaair/laya/layagl/commandencoder.ts"
-      ],
       "c:/work/layaairts/src/layaair/laya/resource/basetexture.ts": [
         "c:/work/layaairts/src/layaair/laya/resource/bitmap.ts"
       ],
@@ -8878,6 +8864,9 @@
         "c:/work/layaairts/src/layaair/laya/utils/handler.ts",
         "c:/work/layaairts/src/layaair/laya/resource/texture.ts",
         "c:/work/layaairts/src/layaair/laya/display/sprite.ts"
+      ],
+      "c:/work/layaairts/src/layaair/laya/maths/matrix.ts": [
+        "c:/work/layaairts/src/layaair/laya/maths/point.ts"
       ],
       "c:/work/layaairts/src/layaair/laya/display/css/cachestyle.ts": [
         "c:/work/layaairts/src/layaair/laya/display/sprite.ts",
@@ -8907,6 +8896,13 @@
       ],
       "c:/work/layaairts/src/layaair/laya/webgl/shader/baseshader.ts": [
         "c:/work/layaairts/src/layaair/laya/resource/resource.ts"
+      ],
+      "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/shaderdefines2d.ts": [
+        "c:/work/layaairts/src/layaair/laya/webgl/shader/shaderdefinesbase.ts"
+      ],
+      "c:/work/layaairts/src/layaair/laya/webgl/utils/renderstate2d.ts": [
+        "c:/work/layaairts/src/layaair/laya/maths/matrix.ts",
+        "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/shaderdefines2d.ts"
       ],
       "c:/work/layaairts/src/layaair/laya/resource/rendertexture2d.ts": [
         "c:/work/layaairts/src/layaair/laya/resource/basetexture.ts"
@@ -9180,6 +9176,10 @@
       "c:/work/layaairts/src/layaair/laya/maths/grahamscan.ts": [
         "c:/work/layaairts/src/layaair/laya/maths/point.ts"
       ],
+      "c:/work/layaairts/src/layaair/laya/renders/render.ts": [
+        "c:/work/layaairts/src/layaair/laya/resource/context.ts",
+        "c:/work/layaairts/src/layaair/laya/resource/htmlcanvas.ts"
+      ],
       "c:/work/layaairts/src/layaair/laya/display/graphicsbounds.ts": [
         "c:/work/layaairts/src/layaair/laya/display/graphics.ts",
         "c:/work/layaairts/src/layaair/laya/maths/rectangle.ts"
@@ -9442,9 +9442,9 @@
         "c:/work/layaairts/src/layaair/laya/webgl/submit/submit.ts",
         "c:/work/layaairts/src/layaair/laya/resource/resource.ts"
       ],
-      "c:/work/layaairts/src/layaair/laya/renders/render.ts": [
-        "c:/work/layaairts/src/layaair/laya/resource/context.ts",
-        "c:/work/layaairts/src/layaair/laya/resource/htmlcanvas.ts"
+      "c:/work/layaairts/src/layaair/laya/layagl/layagl.ts": [
+        "c:/work/layaairts/src/layaair/laya/webgl/layagpu.ts",
+        "c:/work/layaairts/src/layaair/laya/layagl/commandencoder.ts"
       ],
       "c:/work/layaairts/src/layaair/laya/d3/math/vector2.ts": [
         "c:/work/layaairts/src/layaair/laya/d3/core/iclone.ts"
@@ -10554,8 +10554,7 @@
         "c:/work/layaairts/src/layaair/laya/d3/graphics/meshrenderstaticbatchmanager.ts",
         "c:/work/layaairts/src/layaair/laya/d3/graphics/meshrenderdynamicbatchmanager.ts",
         "c:/work/layaairts/src/layaair/laya/d3/graphics/submeshdynamicbatch.ts",
-        "c:/work/layaairts/src/layaair/laya3d.ts",
-        "c:/work/layaairts/src/layaair/laya/d3/math/matrix4x4.ts"
+        "c:/work/layaairts/src/layaair/laya3d.ts"
       ],
       "c:/work/layaairts/src/layaair/laya/d3/math/quaternion.ts": [
         "c:/work/layaairts/src/layaair/laya/d3/math/vector3.ts",
@@ -11199,6 +11198,10 @@
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
+      "c:/work/layaairts/node_modules/@types/json5/index.d.ts": [
+        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
+        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
+      ],
       "c:/work/layaairts/node_modules/@types/node/globals.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
@@ -11469,10 +11472,6 @@
         "c:/work/layaairts/node_modules/@types/node/ts3.2/index.d.ts",
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
-      ],
-      "c:/work/layaairts/node_modules/@types/json5/index.d.ts": [
-        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
-        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ]
     },
     "semanticDiagnosticsPerFile": [
@@ -11509,6 +11508,7 @@
       "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.esnext.bigint.d.ts",
       "c:/work/layaairts/src/layaair/config.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/iclone.ts",
+      "c:/work/layaairts/src/layaair/laya/layagl/commandencoder.ts",
       "c:/work/layaairts/src/layaair/laya/utils/handler.ts",
       "c:/work/layaairts/src/layaair/laya/utils/pool.ts",
       "c:/work/layaairts/src/layaair/laya/resource/icreateresource.ts",
@@ -11517,25 +11517,16 @@
       "c:/work/layaairts/src/layaair/laya/net/url.ts",
       "c:/work/layaairts/src/layaair/laya/resource/resource.ts",
       "c:/work/layaairts/src/layaair/laya/resource/bitmap.ts",
-      "c:/work/layaairts/src/layaair/laya/layagl/commandencoder.ts",
-      "c:/work/layaairts/src/layaair/laya/webgl/webglcontext.ts",
-      "c:/work/layaairts/src/layaair/laya/maths/point.ts",
-      "c:/work/layaairts/src/layaair/laya/maths/matrix.ts",
-      "c:/work/layaairts/src/layaair/laya/webgl/shader/shaderdefinesbase.ts",
-      "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/shaderdefines2d.ts",
-      "c:/work/layaairts/src/layaair/laya/webgl/utils/renderstate2d.ts",
-      "c:/work/layaairts/src/layaair/laya/webgl/webgl.ts",
-      "c:/work/layaairts/src/layaair/laya/webgl/vertexarrayobject.ts",
-      "c:/work/layaairts/src/layaair/laya/webgl/layagpu.ts",
-      "c:/work/layaairts/src/layaair/laya/layagl/layagl.ts",
       "c:/work/layaairts/src/layaair/laya/resource/basetexture.ts",
       "c:/work/layaairts/src/layaair/laya/resource/texture2d.ts",
       "c:/work/layaairts/src/layaair/laya/const.ts",
       "c:/work/layaairts/src/layaair/laya/resource/isingletonelement.ts",
+      "c:/work/layaairts/src/layaair/laya/maths/point.ts",
       "c:/work/layaairts/src/layaair/laya/maths/rectangle.ts",
       "c:/work/layaairts/src/layaair/laya/display/bitmapfont.ts",
       "c:/work/layaairts/src/layaair/laya/display/spriteconst.ts",
       "c:/work/layaairts/src/layaair/laya/filters/ifilter.ts",
+      "c:/work/layaairts/src/layaair/laya/maths/matrix.ts",
       "c:/work/layaairts/src/layaair/laya/display/css/cachestyle.ts",
       "c:/work/layaairts/src/layaair/laya/display/css/spritestyle.ts",
       "c:/work/layaairts/src/layaair/laya/display/css/textstyle.ts",
@@ -11544,6 +11535,9 @@
       "c:/work/layaairts/src/layaair/laya/utils/stat.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/canvas/blendmode.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/shader/baseshader.ts",
+      "c:/work/layaairts/src/layaair/laya/webgl/shader/shaderdefinesbase.ts",
+      "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/shaderdefines2d.ts",
+      "c:/work/layaairts/src/layaair/laya/webgl/utils/renderstate2d.ts",
       "c:/work/layaairts/src/layaair/laya/resource/rendertexture2d.ts",
       "c:/work/layaairts/src/layaair/laya/resource/webglrtmgr.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/shader/shadervalue.ts",
@@ -11595,6 +11589,7 @@
       "c:/work/layaairts/src/layaair/laya/webgl/shapes/earcutnode.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/shapes/earcut.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/submit/submitcanvas.ts",
+      "c:/work/layaairts/src/layaair/laya/webgl/webgl.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/value/texturesv.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/submit/submittarget.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/submit/submittexture.ts",
@@ -11627,6 +11622,7 @@
       "c:/work/layaairts/src/layaair/laya/display/cmd/transformcmd.ts",
       "c:/work/layaairts/src/layaair/laya/display/cmd/translatecmd.ts",
       "c:/work/layaairts/src/layaair/laya/maths/grahamscan.ts",
+      "c:/work/layaairts/src/layaair/laya/renders/render.ts",
       "c:/work/layaairts/src/layaair/laya/display/graphicsbounds.ts",
       "c:/work/layaairts/src/layaair/laya/display/cmd/cliprectcmd.ts",
       "c:/work/layaairts/src/layaair/laya/display/cmd/draw9gridtexture.ts",
@@ -11684,10 +11680,12 @@
       "c:/work/layaairts/src/layaair/laya/utils/classutils.ts",
       "c:/work/layaairts/src/layaair/laya/net/workerloader.ts",
       "c:/work/layaairts/src/layaair/ilaya.ts",
-      "c:/work/layaairts/src/layaair/laya/renders/render.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/math/vector2.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/math/matrix3x3.ts",
+      "c:/work/layaairts/src/layaair/laya/webgl/webglcontext.ts",
+      "c:/work/layaairts/src/layaair/laya/webgl/vertexarrayobject.ts",
+      "c:/work/layaairts/src/layaair/laya/webgl/layagpu.ts",
+      "c:/work/layaairts/src/layaair/laya/layagl/layagl.ts",
       "c:/work/layaairts/src/layaair/laya/d3/math/mathutils3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/math/vector2.ts",
       "c:/work/layaairts/src/layaair/laya/events/keyboardmanager.ts",
       "c:/work/layaairts/src/layaair/laya/layagl/layaglrunner.ts",
       "c:/work/layaairts/src/layaair/laya/net/localstorage.ts",
@@ -11698,214 +11696,40 @@
       "c:/work/layaairts/src/layaair/laya/d3/physics/physicssettings.ts",
       "c:/work/layaairts/src/layaair/laya/d3/component/singletonlist.ts",
       "c:/work/layaairts/src/layaair/laya/d3/component/simplesingletonlist.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/component/keyframenodeowner.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/keyframe.ts",
       "c:/work/layaairts/src/layaair/laya/d3/animation/keyframenode.ts",
       "c:/work/layaairts/src/layaair/laya/d3/animation/keyframenodelist.ts",
       "c:/work/layaairts/src/layaair/laya/d3/animation/animationevent.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/floatkeyframe.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/quaternionkeyframe.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/vector3keyframe.ts",
       "c:/work/layaairts/src/layaair/laya/d3/math/native/conchvector4.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/math/native/conchvector3.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/math/native/conchquaternion.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/animation/animationclipparser03.ts",
       "c:/work/layaairts/src/layaair/laya/d3/math/halffloatutils.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/animation/animationclipparser04.ts",
       "c:/work/layaairts/src/layaair/laya/d3/graphics/vertexelement.ts",
       "c:/work/layaairts/src/layaair/laya/d3/graphics/vertexelementformat.ts",
       "c:/work/layaairts/src/layaair/laya/d3/shader/definedatas.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/shader/shaderdata.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/graphics/vertexdeclaration.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/graphics/ivertex.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/graphics/vertex/vertexmesh.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/pixelline/pixellinevertex.ts",
       "c:/work/layaairts/src/layaair/laya/d3/math/color.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/pixelline/pixellinedata.ts",
       "c:/work/layaairts/src/layaair/laya/d3/graphics/indexbuffer3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/graphics/vertexbuffer3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/bufferstate.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/geometryelement.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/pixelline/pixellinefilter.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/avatar.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/animation/animationnode.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/animation/animationtransform3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/transform3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/math/boundbox.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/bounds.ts",
       "c:/work/layaairts/src/layaair/laya/d3/resource/rendertexture.ts",
       "c:/work/layaairts/src/layaair/laya/d3/shader/shadervariable.ts",
       "c:/work/layaairts/src/layaair/laya/d3/shader/shaderdefines.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/material/basematerial.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/material/renderstate.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/shader/shaderinstance.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/shader/shaderpass.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/renderablesprite3d.ts",
       "c:/work/layaairts/src/layaair/laya/d3/physics/physics.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/graphics/dynamicbatchmanager.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/meshsprite3dshaderdeclaration.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/meshfilter.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/graphics/staticbatchmanager.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/meshsprite3d.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/render/batchmark.ts",
       "c:/work/layaairts/src/layaair/laya/resource/idispose.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/graphics/submeshstaticbatch.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/graphics/meshrenderstaticbatchmanager.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/math/plane.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/math/ray.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/math/boundsphere.ts",
       "c:/work/layaairts/src/layaair/laya/d3/math/containmenttype.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/math/collisionutils.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/math/boundfrustum.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/scene/scene3dshaderdeclaration.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/material/blinnphongmaterial.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/meshrenderer.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/skinnedmeshsprite3dshaderdeclaration.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/skinnedmeshrenderer.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/resource/models/submesh.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/graphics/submeshdynamicbatch.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/graphics/meshrenderdynamicbatchmanager.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/render/renderqueue.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/render/submeshrenderelement.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/graphics/submeshinstancebatch.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/graphics/vertex/vertexpositiontexture0.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/loaders/loadmodelv04.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/loaders/loadmodelv05.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/loaders/meshreader.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/resource/models/mesh.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/skinnedmeshsprite3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/shader/subshader.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/shader/shader3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/render/screenquad.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/render/screentriangle.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/render/command/command.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/render/command/blitscreenquadcmd.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/render/command/setrendertargetcmd.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/render/command/setshaderdatatexturecmd.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/render/command/commandbuffer.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/render/postprocessrendercontext.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/render/postprocesseffect.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/component/postprocess.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/math/viewport.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/shadowmap/parallelsplitshadowmap.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/utils/picker.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/camera.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/scene/ioctreeobject.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/scene/boundsoctreenode.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/scene/octreemotionlist.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/scene/boundsoctree.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/utils/physics3dutils.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/contactpoint.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/collision.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/component/script3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/shape/compoundcollidershape.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/shape/collidershape.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/charactercontroller.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/physicsupdatelist.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/hitresult.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/collisiontool.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/physicstriggercomponent.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/rigidbody3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/constraint3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/physicscollider.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/physicssimulation.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/shape/boxcollidershape.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/shape/capsulecollidershape.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/shape/conecollidershape.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/shape/cylindercollidershape.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/shape/meshcollidershape.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/shape/spherecollidershape.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/physicscomponent.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/light/lightsprite.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/light/directionlight.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/light/pointlight.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/light/spotlight.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/gradientmode.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/gradient.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/shurikenparticlematerial.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/gradientcolor.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/coloroverlifetime.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/gradientdataint.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/frameovertime.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/gradientdatanumber.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/gradientsize.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/sizeoverlifetime.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/startframe.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/texturesheetanimation.ts",
       "c:/work/layaairts/src/layaair/laya/d3/math/rand.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/shurikenparticledata.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/burst.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/emission.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/gradientangularvelocity.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/gradientvelocity.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/rotationoverlifetime.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/velocityoverlifetime.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/shape/baseshape.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/graphics/vertex/vertexshurikenparticle.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/graphics/vertex/vertexshurikenparticlebillboard.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/graphics/vertex/vertexshurikenparticlemesh.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/shurikenparticle3dshaderdeclaration.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/shurikenparticlesystem.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/shurikenparticlerenderer.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/shape/shapeutils.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/shape/boxshape.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/shape/circleshape.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/shape/coneshape.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/shape/hemisphereshape.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/shape/sphereshape.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/shurikenparticle3d.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/texturemode.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/trail/vertextrail.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/trail/trailgeometry.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/trail/trailmaterial.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/trail/trailrenderer.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/trail/trailfilter.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/trail/trailsprite3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/utils/scene3dutils.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/material/effectmaterial.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/material/extendterrainmaterial.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/material/pbrspecularmaterial.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/material/pbrstandardmaterial.ts",
       "c:/work/layaairts/src/layaair/laya/d3/resource/texturecube.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/material/skyboxmaterial.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/material/skyproceduralmaterial.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/material/unlitmaterial.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/material/waterprimarymaterial.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/pixelline/pixellinematerial.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/resource/models/skymesh.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/resource/models/skybox.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/resource/models/skydome.ts",
       "c:/work/layaairts/src/layaair/laya/d3/resource/texturegenerator.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/shader/shaderinit3d.ts",
-      "c:/work/layaairts/src/layaair/laya3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/graphics/frustumculling.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/pixelline/pixellinerenderer.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/pixelline/pixellinesprite3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/utils/utils3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/animation/animationclip.ts",
       "c:/work/layaairts/src/layaair/laya/d3/animation/animatorstatescript.ts",
       "c:/work/layaairts/src/layaair/laya/d3/resource/ireferencecounter.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/component/animatorstate.ts",
       "c:/work/layaairts/src/layaair/laya/d3/component/animatorplaystate.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/component/animatorcontrollerlayer.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/component/animator.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/sprite3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/resource/models/skyrenderer.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/basecamera.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/render/rendercontext3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/render/renderelement.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/render/baserender.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/castshadowlist.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/mousetouch.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/touch.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/input3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/scene/scene3d.ts",
-      "c:/work/layaairts/src/layaair/ilaya3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/math/quaternion.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/math/matrix4x4.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/math/vector4.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/math/vector3.ts",
-      "c:/work/layaairts/src/layaair/config3d.ts",
       "c:/work/layaairts/src/layaair/gcanvas.ts",
       "c:/work/layaairts/src/layaair/packagemgr.ts",
       "c:/work/layaairts/src/layaair/uiconfig.ts",
@@ -11946,22 +11770,11 @@
       "c:/work/layaairts/src/layaair/laya/ani/swf/movieclip.ts",
       "c:/work/layaairts/src/layaair/laya/components/commonscript.ts",
       "c:/work/layaairts/src/layaair/laya/components/script.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/heightmap.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/meshterrainsprite3d.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/gradientdatavector2.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/render/bloomeffect.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/scene/scenemanager.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/graphics/vertex/vertexpositionterrain.ts",
       "c:/work/layaairts/src/layaair/laya/d3/math/randx.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/constraints/constraintcomponent.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/constraints/point2pointconstraint.ts",
       "c:/work/layaairts/src/layaair/laya/d3/physics/shape/heightfieldcollidershape.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/shape/staticplanecollidershape.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/resource/models/primitivemesh.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/text/textmesh.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/utils/size.ts",
       "c:/work/layaairts/src/layaair/laya/d3extend/filesaver.ts",
-      "c:/work/layaairts/src/layaair/laya/d3extend/cartoonmaterial/cartoonmaterial.ts",
       "c:/work/layaairts/src/layaair/laya/device/motion/accelerationinfo.ts",
       "c:/work/layaairts/src/layaair/laya/device/motion/rotationinfo.ts",
       "c:/work/layaairts/src/layaair/laya/device/motion/accelerator.ts",
@@ -12082,6 +11895,7 @@
       "c:/work/layaairts/src/layaair/laya/webgl/text/arabicreshaper.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/utils/matirxarray.ts",
       "c:/work/layaairts/node_modules/@types/estree/index.d.ts",
+      "c:/work/layaairts/node_modules/@types/json5/index.d.ts",
       "c:/work/layaairts/node_modules/@types/node/globals.d.ts",
       "c:/work/layaairts/node_modules/@types/node/assert.d.ts",
       "c:/work/layaairts/node_modules/@types/node/async_hooks.d.ts",
@@ -12127,7 +11941,192 @@
       "c:/work/layaairts/node_modules/@types/node/ts3.2/globals.d.ts",
       "c:/work/layaairts/node_modules/@types/node/ts3.2/index.d.ts",
       "c:/work/layaairts/node_modules/@types/resolve/index.d.ts",
-      "c:/work/layaairts/node_modules/@types/json5/index.d.ts"
+      "c:/work/layaairts/src/layaair/laya/d3/math/matrix3x3.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/component/keyframenodeowner.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/quaternionkeyframe.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/vector3keyframe.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/math/native/conchvector3.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/math/native/conchquaternion.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/animation/animationclipparser03.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/animation/animationclipparser04.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/shader/shaderdata.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/graphics/vertexdeclaration.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/graphics/ivertex.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/graphics/vertex/vertexmesh.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/pixelline/pixellinevertex.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/pixelline/pixellinedata.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/graphics/vertexbuffer3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/bufferstate.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/geometryelement.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/pixelline/pixellinefilter.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/avatar.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/animation/animationnode.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/animation/animationtransform3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/transform3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/math/boundbox.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/bounds.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/material/basematerial.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/material/renderstate.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/shader/shaderinstance.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/shader/shaderpass.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/renderablesprite3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/graphics/dynamicbatchmanager.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/meshfilter.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/graphics/staticbatchmanager.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/meshsprite3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/graphics/submeshstaticbatch.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/graphics/meshrenderstaticbatchmanager.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/math/plane.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/math/ray.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/math/boundsphere.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/math/collisionutils.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/math/boundfrustum.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/material/blinnphongmaterial.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/meshrenderer.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/skinnedmeshrenderer.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/resource/models/submesh.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/graphics/submeshdynamicbatch.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/graphics/meshrenderdynamicbatchmanager.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/render/renderqueue.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/render/submeshrenderelement.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/graphics/submeshinstancebatch.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/graphics/vertex/vertexpositiontexture0.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/loaders/loadmodelv04.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/loaders/loadmodelv05.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/loaders/meshreader.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/resource/models/mesh.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/skinnedmeshsprite3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/shader/subshader.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/shader/shader3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/render/screenquad.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/render/screentriangle.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/render/command/command.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/render/command/blitscreenquadcmd.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/render/command/setrendertargetcmd.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/render/command/setshaderdatatexturecmd.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/render/command/commandbuffer.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/render/postprocessrendercontext.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/render/postprocesseffect.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/component/postprocess.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/math/viewport.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/shadowmap/parallelsplitshadowmap.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/utils/picker.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/camera.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/scene/ioctreeobject.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/scene/boundsoctreenode.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/scene/octreemotionlist.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/scene/boundsoctree.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/utils/physics3dutils.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/contactpoint.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/collision.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/component/script3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/shape/compoundcollidershape.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/shape/collidershape.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/charactercontroller.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/physicsupdatelist.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/hitresult.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/collisiontool.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/physicstriggercomponent.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/rigidbody3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/constraint3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/physicscollider.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/physicssimulation.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/shape/boxcollidershape.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/shape/capsulecollidershape.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/shape/conecollidershape.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/shape/cylindercollidershape.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/shape/meshcollidershape.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/shape/spherecollidershape.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/physicscomponent.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/light/lightsprite.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/light/directionlight.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/light/pointlight.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/light/spotlight.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/gradient.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/shurikenparticlematerial.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/gradientcolor.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/coloroverlifetime.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/frameovertime.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/gradientsize.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/sizeoverlifetime.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/texturesheetanimation.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/shurikenparticledata.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/emission.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/gradientangularvelocity.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/gradientvelocity.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/rotationoverlifetime.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/velocityoverlifetime.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/shape/baseshape.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/graphics/vertex/vertexshurikenparticle.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/graphics/vertex/vertexshurikenparticlebillboard.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/graphics/vertex/vertexshurikenparticlemesh.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/shurikenparticle3dshaderdeclaration.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/shurikenparticlesystem.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/shurikenparticlerenderer.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/shape/shapeutils.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/shape/boxshape.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/shape/circleshape.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/shape/coneshape.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/shape/hemisphereshape.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/shape/sphereshape.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/shurikenparticle3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/trail/vertextrail.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/trail/trailgeometry.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/trail/trailmaterial.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/trail/trailrenderer.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/trail/trailfilter.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/trail/trailsprite3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/utils/scene3dutils.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/material/effectmaterial.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/material/extendterrainmaterial.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/material/pbrspecularmaterial.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/material/pbrstandardmaterial.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/material/skyboxmaterial.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/material/skyproceduralmaterial.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/material/unlitmaterial.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/material/waterprimarymaterial.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/pixelline/pixellinematerial.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/resource/models/skymesh.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/resource/models/skybox.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/resource/models/skydome.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/shader/shaderinit3d.ts",
+      "c:/work/layaairts/src/layaair/laya3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/graphics/frustumculling.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/pixelline/pixellinerenderer.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/pixelline/pixellinesprite3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/utils/utils3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/animation/animationclip.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/component/animatorstate.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/component/animatorcontrollerlayer.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/component/animator.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/sprite3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/resource/models/skyrenderer.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/basecamera.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/render/rendercontext3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/render/renderelement.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/render/baserender.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/castshadowlist.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/mousetouch.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/touch.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/input3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/scene/scene3d.ts",
+      "c:/work/layaairts/src/layaair/ilaya3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/math/quaternion.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/math/matrix4x4.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/math/vector4.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/math/vector3.ts",
+      "c:/work/layaairts/src/layaair/config3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/heightmap.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/meshterrainsprite3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/render/bloomeffect.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/graphics/vertex/vertexpositionterrain.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/constraints/constraintcomponent.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/constraints/point2pointconstraint.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/shape/staticplanecollidershape.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/resource/models/primitivemesh.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/text/textmesh.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/utils/size.ts",
+      "c:/work/layaairts/src/layaair/laya/d3extend/cartoonmaterial/cartoonmaterial.ts"
     ]
   },
   "version": "3.5.1"

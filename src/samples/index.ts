@@ -1,2 +1,3 @@
 import { Main } from "./Main";
-new Main();
+import { RenderTargetCamera } from "./3d/LayaAir3D_Camera/RenderTargetCamera";
+new RenderTargetCamera();

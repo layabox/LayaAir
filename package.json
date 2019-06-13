@@ -2,7 +2,7 @@
   "name": "ts",
   "version": "1.0.0",
   "description": "",
-  "main": "rollup.config.js",
+  "main": "layaAir.rollup.config.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
