@@ -4,7 +4,6 @@
         "module": "esnext",
         "outDir": "../../bin/layaAir",
         "composite":true
-
     },
     "exclude": [
         "laya/d3Extend/Cube",

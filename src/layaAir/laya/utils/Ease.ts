@@ -3,9 +3,9 @@
 	 */
 export class Ease {
 	/**@private */
-	private static HALF_PI: number =/*[STATIC SAFE]*/ Math.PI * 0.5;
+	private static HALF_PI: number = Math.PI * 0.5;
 	/**@private */
-	private static PI2: number =  /*[STATIC SAFE]*/ Math.PI * 2;
+	private static PI2: number =   Math.PI * 2;
 
 	/**
 	 * 定义无加速持续运动。
@@ -150,7 +150,7 @@ export class Ease {
 	 * @return 指定时间的插补属性的值。
 	 */
 	static elasticIn(t: number, b: number, c: number, d: number, a: number = 0, p: number = 0): number {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+
 		var s: number;
 		if (t == 0) return b;
 		if ((t /= d) == 1) return b + c;
@@ -174,7 +174,7 @@ export class Ease {
 	 * @return 指定时间的插补属性的值。
 	 */
 	static elasticInOut(t: number, b: number, c: number, d: number, a: number = 0, p: number = 0): number {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+
 		var s: number;
 		if (t == 0) return b;
 		if ((t /= d * 0.5) == 2) return b + c;
@@ -199,7 +199,7 @@ export class Ease {
 	 * @return 指定时间的插补属性的值。
 	 */
 	static elasticOut(t: number, b: number, c: number, d: number, a: number = 0, p: number = 0): number {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+
 		var s: number;
 		if (t == 0) return b;
 		if ((t /= d) == 1) return b + c;

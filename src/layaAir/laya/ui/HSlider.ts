@@ -1,5 +1,5 @@
 import { Slider } from "././Slider";
-import { ILaya } from "../../ILaya";
+import { ILaya } from "ILaya";
 /**
 	 * 使用 <code>HSlider</code> 控件，用户可以通过在滑块轨道的终点之间移动滑块来选择值。
 	 * <p> <code>HSlider</code> 控件采用水平方向。滑块轨道从左向右扩展，而标签位于轨道的顶部或底部。</p>
@@ -89,16 +89,16 @@ import { ILaya } from "../../ILaya";
 	 *
 	 * @see laya.ui.Slider
 	 */
-export class HSlider extends Slider {
-
-	/**
-	 * 创建一个 <code>HSlider</code> 类实例。
-	 * @param skin 皮肤。
-	 */
-	constructor(skin: string = null) {
-		super(skin);
-		this.isVertical = false;
+	export class HSlider extends Slider {
+		
+		/**
+		 * 创建一个 <code>HSlider</code> 类实例。
+		 * @param skin 皮肤。
+		 */
+		constructor(skin:string = null){
+			super(skin);
+			this.isVertical = false;
+		}
 	}
-}
 
 ILaya.regClass(HSlider);

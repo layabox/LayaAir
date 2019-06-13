@@ -1,4 +1,4 @@
-import { Bezier } from "../../maths/Bezier";
+import { Bezier } from "laya/maths/Bezier";
 
 	/**
 	 * @private

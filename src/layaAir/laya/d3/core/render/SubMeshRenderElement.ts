@@ -1,5 +1,6 @@
-import { Event } from "../../../events/Event";
-import { LayaGL } from "../../../layagl/LayaGL";
+import { ILaya3D } from "ILaya3D";
+import { Event } from "laya/events/Event";
+import { LayaGL } from "laya/layagl/LayaGL";
 import { MeshRenderDynamicBatchManager } from "../../graphics/MeshRenderDynamicBatchManager";
 import { MeshRenderStaticBatchManager } from "../../graphics/MeshRenderStaticBatchManager";
 import { SubMeshInstanceBatch } from "../../graphics/SubMeshInstanceBatch";
@@ -19,7 +20,6 @@ import { BatchMark } from "././BatchMark";
 import { RenderContext3D } from "././RenderContext3D";
 import { RenderElement } from "././RenderElement";
 import { RenderQueue } from "././RenderQueue";
-import { ILaya3D } from "../../../../ILaya3D";
 
 /**
  * @private
@@ -61,7 +61,6 @@ export class SubMeshRenderElement extends RenderElement {
 	 * 创建一个 <code>SubMeshRenderElement</code> 实例。
 	 */
 	constructor() {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		super();
 		this._dynamicWorldPositionNormalNeedUpdate = true;
 	}

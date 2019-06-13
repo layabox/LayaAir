@@ -39,7 +39,7 @@ import { BufferState } from "laya/d3/core/BufferState"
 		 static HALFMAXNumCube:number = 1600;
 		
 		/**@private */
-		private static _pool:SubCubeGeometry[] =/*[STATIC SAFE]*/ [];
+		private static _pool:SubCubeGeometry[] = [];
 		/**@private */
 		private static _indexBuffer:IndexBuffer3D;
 		

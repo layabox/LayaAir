@@ -1,4 +1,4 @@
-import { BaseTexture } from "../../../resource/BaseTexture";
+import { BaseTexture } from "laya/resource/BaseTexture";
 import { Vector4 } from "../../math/Vector4";
 import { Shader3D } from "../../shader/Shader3D";
 import { ShaderDefines } from "../../shader/ShaderDefines";
@@ -32,13 +32,13 @@ export class TrailMaterial extends BaseMaterial {
 	static DEPTH_WRITE: number = Shader3D.propertyNameToID("s_DepthWrite");
 
 	/**@private */
-	static shaderDefines: ShaderDefines = null;
+	static shaderDefines: ShaderDefines=null;
 
 	/**
 	 * @private
 	 */
 	static __initDefine__(): void {
-		TrailMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
+		TrailMaterial.shaderDefines= new ShaderDefines(BaseMaterial.shaderDefines);
 		TrailMaterial.SHADERDEFINE_MAINTEXTURE = TrailMaterial.shaderDefines.registerDefine("MAINTEXTURE");
 		TrailMaterial.SHADERDEFINE_TILINGOFFSET = TrailMaterial.shaderDefines.registerDefine("TILINGOFFSET");
 		TrailMaterial.SHADERDEFINE_ADDTIVEFOG = TrailMaterial.shaderDefines.registerDefine("ADDTIVEFOG");
@@ -494,10 +494,10 @@ export class TrailMaterial extends BaseMaterial {
 		this.renderMode = TrailMaterial.RENDERMODE_ALPHABLENDED;
 	}
 
-	/**
- * 克隆。
- * @return	 克隆副本。
- */
+		/**
+	 * 克隆。
+	 * @return	 克隆副本。
+	 */
 	clone(): any {
 		var dest: TrailMaterial = new TrailMaterial();
 		this.cloneTo(dest);

@@ -1,8 +1,9 @@
-import { Event } from "../../events/Event";
-import { LayaGL } from "../../layagl/LayaGL";
-import { Render } from "../../renders/Render";
-import { BaseTexture } from "../../resource/BaseTexture";
-import { WebGLContext } from "../../webgl/WebGLContext";
+import { Laya } from "Laya";
+import { Event } from "laya/events/Event";
+import { LayaGL } from "laya/layagl/LayaGL";
+import { Render } from "laya/renders/Render";
+import { BaseTexture } from "laya/resource/BaseTexture";
+import { WebGLContext } from "laya/webgl/WebGLContext";
 import { PostProcess } from "../component/PostProcess";
 import { FrustumCulling } from "../graphics/FrustumCulling";
 import { BoundFrustum } from "../math/BoundFrustum";
@@ -25,13 +26,12 @@ import { RenderContext3D } from "./render/RenderContext3D";
 import { RenderQueue } from "./render/RenderQueue";
 import { Scene3D } from "./scene/Scene3D";
 import { Scene3DShaderDeclaration } from "./scene/Scene3DShaderDeclaration";
-import { Laya } from "../../../Laya";
 
 /**
  * <code>Camera</code> 类用于创建摄像机。
  */
 export class Camera extends BaseCamera {
-	/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+
 	/** @private */
 	static CAMERAEVENT_POSTPROCESS: number = 0;
 
@@ -60,7 +60,7 @@ export class Camera extends BaseCamera {
 	/** @private */
 	private _updateViewMatrix: boolean = true;
 	/** @private 渲染目标。*/
-	private _offScreenRenderTexture: RenderTexture = null;
+	public _offScreenRenderTexture: RenderTexture = null;
 	/**@private */
 	private _postProcess: PostProcess = null;
 	/**@private */
@@ -409,10 +409,10 @@ export class Camera extends BaseCamera {
 			return BaseTexture.FORMAT_R8G8B8;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  render(shader: Shader3D = null, replacementTag: string = null): void {
+	/**
+	 * @inheritDoc
+	 */
+	render(shader: Shader3D = null, replacementTag: string = null): void {
 		if (!this._scene) //自定义相机渲染需要加保护判断是否在场景中,否则报错
 			return;
 

@@ -1,6 +1,6 @@
-import { LayaGL } from "../../../layagl/LayaGL";
-import { Stat } from "../../../utils/Stat";
-import { WebGLContext } from "../../../webgl/WebGLContext";
+import { LayaGL } from "laya/layagl/LayaGL";
+import { Stat } from "laya/utils/Stat";
+import { WebGLContext } from "laya/webgl/WebGLContext";
 import { BufferState } from "../../core/BufferState";
 import { RenderContext3D } from "../../core/render/RenderContext3D";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
@@ -27,7 +27,7 @@ export class SkyBox extends SkyMesh {
 	 * 创建一个 <code>SkyBox</code> 实例。
 	 */
 	constructor() {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		super();
 		var halfHeight: number = 0.5;
 		var halfWidth: number = 0.5;

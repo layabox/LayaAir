@@ -1,5 +1,5 @@
-import { Event } from "../../events/Event";
-import { EventDispatcher } from "../../events/EventDispatcher";
+import { Event } from "laya/events/Event";
+import { EventDispatcher } from "laya/events/EventDispatcher";
 import { AnimationTransform3D } from "../animation/AnimationTransform3D";
 import { MathUtils3D } from "../math/MathUtils3D";
 import { Matrix4x4 } from "../math/Matrix4x4";

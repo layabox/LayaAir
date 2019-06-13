@@ -10,8 +10,8 @@ import { Sprite } from "../Sprite"
 	 * 存储cache相关
 	 */
 	export class CacheStyle {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
-		 static EMPTY:CacheStyle =/*[STATIC SAFE]*/ new CacheStyle();
+		
+		 static EMPTY:CacheStyle = new CacheStyle();
 		/**当前实际的cache状态*/
 		 cacheAs:string;
 		/**是否开启canvas渲染*/

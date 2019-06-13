@@ -25,7 +25,7 @@ import { Pool } from "./laya/utils/Pool";
 import { Utils } from "./laya/utils/Utils";
 import { Graphics } from "./laya/display/Graphics";
 import { Submit } from "./laya/webgl/submit/Submit";
-import { Resource } from "./laya/resource/Resource";
+import { Resource } from "laya/resource/Resource";
 
 console.log('--------------------')
 

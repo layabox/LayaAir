@@ -1,3 +1,4 @@
+import { BaseTexture } from "laya/resource/BaseTexture";
 import { RenderTexture } from "../../../resource/RenderTexture";
 import { Shader3D } from "../../../shader/Shader3D";
 import { ShaderData } from "../../../shader/ShaderData";
@@ -6,7 +7,6 @@ import { BlitScreenQuadCMD } from "././BlitScreenQuadCMD";
 import { SetRenderTargetCMD } from "././SetRenderTargetCMD";
 import { SetShaderDataTextureCMD } from "././SetShaderDataTextureCMD";
 import { Command } from "./Command";
-import { BaseTexture } from "../../../../resource/BaseTexture";
 
 /**
  * <code>CommandBuffer</code> 类用于创建命令流。

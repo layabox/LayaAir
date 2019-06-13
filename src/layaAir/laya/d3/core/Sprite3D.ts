@@ -1,7 +1,9 @@
-import { Node } from "../../display/Node";
-import { Loader } from "../../net/Loader";
-import { URL } from "../../net/URL";
-import { Handler } from "../../utils/Handler";
+import { Laya } from "Laya";
+import { Node } from "laya/display/Node";
+import { Loader } from "laya/net/Loader";
+import { URL } from "laya/net/URL";
+import { ICreateResource } from "laya/resource/ICreateResource";
+import { Handler } from "laya/utils/Handler";
 import { Animator } from "../component/Animator";
 import { Script3D } from "../component/Script3D";
 import { Matrix4x4 } from "../math/Matrix4x4";
@@ -10,8 +12,6 @@ import { Vector3 } from "../math/Vector3";
 import { Shader3D } from "../shader/Shader3D";
 import { Avatar } from "././Avatar";
 import { Transform3D } from "././Transform3D";
-import { Laya } from "../../../Laya";
-import { ICreateResource } from "../../resource/ICreateResource";
 
 /**
  * <code>Sprite3D</code> 类用于实现3D精灵。
@@ -149,7 +149,6 @@ export class Sprite3D extends Node implements ICreateResource {
 	 * @param isStatic 是否为静态。
 	 */
 	constructor(name: string = null, isStatic: boolean = false) {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		super();
 		this._id = ++Sprite3D._uniqueIDCounter;
 		this._transform = new Transform3D(this);

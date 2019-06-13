@@ -30,7 +30,6 @@ export class MeshRenderStaticBatchManager extends StaticBatchManager {
 	 * 创建一个 <code>MeshSprite3DStaticBatchManager</code> 实例。
 	 */
 	constructor() {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		super();
 		this._updateCountMark = 0;
 	}

@@ -2,12 +2,12 @@
 	 * ...
 	 * @author ...
 	 */
-export class HeightfieldColliderShape {
-
-	constructor() {
-
+	export class HeightfieldColliderShape {
+		
+		constructor(){
+			
+		}
+		
 	}
-
-}
 
 

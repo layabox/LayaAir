@@ -1,7 +1,7 @@
-import { HitResult } from "././HitResult";
 import { ContactPoint } from "././ContactPoint";
-import { PhysicsComponent } from "./PhysicsComponent"
+import { HitResult } from "././HitResult";
 import { Collision } from "./Collision";
+import { PhysicsComponent } from "./PhysicsComponent";
 
 /**
  * <code>CollisionMap</code> 类用于实现碰撞组合实例图。
@@ -25,7 +25,7 @@ export class CollisionTool {
 	 * 创建一个 <code>CollisionMap</code> 实例。
 	 */
 	constructor() {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+
 	}
 
 	/**

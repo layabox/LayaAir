@@ -1,7 +1,6 @@
-import { Texture } from "../../../resource/Texture";
-import { Matrix } from "../../../maths/Matrix";
-import { Rectangle } from "../../../maths/Rectangle";
-
+import { Texture } from "laya/resource/Texture";
+import { Matrix } from "laya/maths/Matrix";
+import { Rectangle } from "laya/maths/Rectangle";
 
 	/**
 	 * @private

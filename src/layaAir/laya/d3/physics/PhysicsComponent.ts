@@ -1,7 +1,7 @@
 
-import { Component } from "../../components/Component";
-import { Event } from "../../events/Event";
-import { Loader } from "../../net/Loader";
+import { Component } from "laya/components/Component";
+import { Event } from "laya/events/Event";
+import { Loader } from "laya/net/Loader";
 import { Scene3D } from "../core/scene/Scene3D";
 import { Sprite3D } from "../core/Sprite3D";
 import { Transform3D } from "../core/Transform3D";
@@ -80,7 +80,7 @@ export class PhysicsComponent extends Component {
 	 * @private
 	 */
 	private static _createAffineTransformationArray(tranX: number, tranY: number, tranZ: number, rotX: number, rotY: number, rotZ: number, rotW: number, scale: Float32Array, outE: Float32Array): void {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		var x2: number = rotX + rotX, y2: number = rotY + rotY, z2: number = rotZ + rotZ;
 		var xx: number = rotX * x2, xy: number = rotX * y2, xz: number = rotX * z2, yy: number = rotY * y2, yz: number = rotY * z2, zz: number = rotZ * z2;
 		var wx: number = rotW * x2, wy: number = rotW * y2, wz: number = rotW * z2, sx: number = scale[0], sy: number = scale[1], sz: number = scale[2];
@@ -103,9 +103,9 @@ export class PhysicsComponent extends Component {
 		outE[15] = 1;
 	}
 
-	/**
-* @private
-*/
+		/**
+	* @private
+	*/
 	static _creatShape(shapeData: any): ColliderShape {
 		var colliderShape: ColliderShape;
 		switch (shapeData.type) {
@@ -159,7 +159,7 @@ export class PhysicsComponent extends Component {
 	 * @private
 	 */
 	private static physicQuaternionMultiply(lx: number, ly: number, lz: number, lw: number, right: Quaternion, out: Quaternion): void {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		var rx: number = right.x;
 		var ry: number = right.y;
 		var rz: number = right.z;
@@ -413,7 +413,7 @@ export class PhysicsComponent extends Component {
 	 * @param canCollideWith 可产生碰撞的碰撞组。
 	 */
 	constructor(collisionGroup: number, canCollideWith: number) {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		super();
 		this._collisionGroup = collisionGroup;
 		this._canCollideWith = canCollideWith;

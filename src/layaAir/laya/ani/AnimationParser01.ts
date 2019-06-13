@@ -2,8 +2,8 @@ import { AnimationTemplet } from "././AnimationTemplet";
 import { AnimationContent } from "././AnimationContent";
 import { AnimationNodeContent } from "././AnimationNodeContent";
 import { KeyFramesContent } from "././KeyFramesContent";
+import { Byte } from "laya/utils/Byte";
 import { IAniLib } from "./AniLibPack";
-import { Byte } from "../utils/Byte";
 	
 	/**
 	 * @private

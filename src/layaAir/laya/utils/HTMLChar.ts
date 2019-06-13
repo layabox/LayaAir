@@ -4,8 +4,8 @@ import { Pool } from "././Pool";
 	 * <code>HTMLChar</code> 是一个 HTML 字符类。
 	 */
 	export class HTMLChar {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
-		private static _isWordRegExp:RegExp =/*[STATIC SAFE]*/ new RegExp("[\\w\.]", "");
+		
+		private static _isWordRegExp:RegExp = new RegExp("[\\w\.]", "");
 		
 		/** x坐标*/
 		 x:number;

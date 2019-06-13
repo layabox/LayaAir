@@ -1,7 +1,7 @@
-import { Node } from "../../display/Node";
-import { LayaGL } from "../../layagl/LayaGL";
-import { BaseTexture } from "../../resource/BaseTexture";
-import { Texture2D } from "../../resource/Texture2D";
+import { Node } from "laya/display/Node";
+import { LayaGL } from "laya/layagl/LayaGL";
+import { BaseTexture } from "laya/resource/BaseTexture";
+import { Texture2D } from "laya/resource/Texture2D";
 import { PixelLineSprite3D } from "../core/pixelLine/PixelLineSprite3D";
 import { BoundBox } from "../math/BoundBox";
 import { Color } from "../math/Color";
@@ -24,13 +24,13 @@ export class Utils3D {
 	/**@private */
 	private static _tempColor0: Color = new Color();
 
-	private static _tempArray16_0: Float32Array = /*[STATIC SAFE]*/ new Float32Array(16);
+	private static _tempArray16_0: Float32Array =  new Float32Array(16);
 	/** @private */
-	private static _tempArray16_1: Float32Array = /*[STATIC SAFE]*/ new Float32Array(16);
+	private static _tempArray16_1: Float32Array =  new Float32Array(16);
 	/** @private */
-	private static _tempArray16_2: Float32Array = /*[STATIC SAFE]*/ new Float32Array(16);
+	private static _tempArray16_2: Float32Array =  new Float32Array(16);
 	/** @private */
-	private static _tempArray16_3: Float32Array =  /*[STATIC SAFE]*/ new Float32Array(16);
+	private static _tempArray16_3: Float32Array =   new Float32Array(16);
 
 	/**
 	 * @private
@@ -64,7 +64,7 @@ export class Utils3D {
 	 * @param outOffset 结果矩阵数组的偏移。
 	 */
 	private static _rotationTransformScaleSkinAnimation(tx: number, ty: number, tz: number, qx: number, qy: number, qz: number, qw: number, sx: number, sy: number, sz: number, outArray: Float32Array, outOffset: number): void {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+
 		var re: Float32Array = Utils3D._tempArray16_0;
 		var se: Float32Array = Utils3D._tempArray16_1;
 		var tse: Float32Array = Utils3D._tempArray16_2;
@@ -146,7 +146,7 @@ export class Utils3D {
 
 	/** @private */
 	static _computeBoneAndAnimationDatasByBindPoseMatrxix(bones: any, curData: Float32Array, inverGlobalBindPose: Matrix4x4[], outBonesDatas: Float32Array, outAnimationDatas: Float32Array, boneIndexToMesh: number[]): void {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+
 		var offset: number = 0;
 		var matOffset: number = 0;
 
@@ -178,7 +178,7 @@ export class Utils3D {
 
 	/** @private */
 	static _computeBoneAndAnimationDatasByBindPoseMatrxixOld(bones: any, curData: Float32Array, inverGlobalBindPose: Matrix4x4[], outBonesDatas: Float32Array, outAnimationDatas: Float32Array): void {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+
 		var offset: number = 0;
 		var matOffset: number = 0;
 
@@ -215,7 +215,7 @@ export class Utils3D {
 
 	/** @private */
 	static _computeRootAnimationData(bones: any, curData: Float32Array, animationDatas: Float32Array): void {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+
 		for (var i: number = 0, offset: number = 0, matOffset: number = 0, boneLength: number = bones.length; i < boneLength; offset += bones[i].keyframeWidth, matOffset += 16, i++)
 			Utils3D.createAffineTransformationArray(curData[offset + 0], curData[offset + 1], curData[offset + 2], curData[offset + 3], curData[offset + 4], curData[offset + 5], curData[offset + 6], curData[offset + 7], curData[offset + 8], curData[offset + 9], animationDatas, matOffset);
 	}
@@ -243,7 +243,7 @@ export class Utils3D {
 	 * @param outOffset 输出矩阵数组的偏移。
 	 */
 	static mulMatrixByArray(leftArray: Float32Array, leftOffset: number, rightArray: Float32Array, rightOffset: number, outArray: Float32Array, outOffset: number): void {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+
 		var i: number, ai0: number, ai1: number, ai2: number, ai3: number;
 
 		if (outArray === rightArray) {
@@ -276,7 +276,7 @@ export class Utils3D {
 	 * @param outOffset 结果矩阵数组的偏移。
 	 */
 	static mulMatrixByArrayFast(leftArray: Float32Array, leftOffset: number, rightArray: Float32Array, rightOffset: number, outArray: Float32Array, outOffset: number): void {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+
 		var i: number, ai0: number, ai1: number, ai2: number, ai3: number;
 		for (i = 0; i < 4; i++) {
 			ai0 = leftArray[leftOffset + i];
@@ -299,7 +299,7 @@ export class Utils3D {
 	 * @param outOffset 结果矩阵数组的偏移。
 	 */
 	static mulMatrixByArrayAndMatrixFast(leftArray: Float32Array, leftOffset: number, rightMatrix: Matrix4x4, outArray: Float32Array, outOffset: number): void {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+
 		var i: number, ai0: number, ai1: number, ai2: number, ai3: number;
 		var rightMatrixE: Float32Array = rightMatrix.elements;
 		var m11: number = rightMatrixE[0], m12: number = rightMatrixE[1], m13: number = rightMatrixE[2], m14: number = rightMatrixE[3];
@@ -343,7 +343,7 @@ export class Utils3D {
 	 * @param outOffset 结果矩阵数组的偏移。
 	 */
 	static createAffineTransformationArray(tX: number, tY: number, tZ: number, rX: number, rY: number, rZ: number, rW: number, sX: number, sY: number, sZ: number, outArray: Float32Array, outOffset: number): void {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+
 		var x2: number = rX + rX, y2: number = rY + rY, z2: number = rZ + rZ;
 		var xx: number = rX * x2, xy: number = rX * y2, xz: number = rX * z2, yy: number = rY * y2, yz: number = rY * z2, zz: number = rZ * z2;
 		var wx: number = rW * x2, wy: number = rW * y2, wz: number = rW * z2;
@@ -408,7 +408,7 @@ export class Utils3D {
 	 * @private
 	 */
 	static _createAffineTransformationArray(trans: Vector3, rot: Quaternion, scale: Vector3, outE: Float32Array): void {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+
 		var x: number = rot.x, y: number = rot.y, z: number = rot.z, w: number = rot.w, x2: number = x + x, y2: number = y + y, z2: number = z + z;
 		var xx: number = x * x2, xy: number = x * y2, xz: number = x * z2, yy: number = y * y2, yz: number = y * z2, zz: number = z * z2;
 		var wx: number = w * x2, wy: number = w * y2, wz: number = w * z2, sx: number = scale.x, sy: number = scale.y, sz: number = scale.z;
@@ -435,7 +435,7 @@ export class Utils3D {
 	 * @private
 	 */
 	static _mulMatrixArray(leftMatrixE: Float32Array, rightMatrix: Matrix4x4, outArray: Float32Array, outOffset: number): void {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+
 		var i: number, ai0: number, ai1: number, ai2: number, ai3: number;
 		var rightMatrixE: Float32Array = rightMatrix.elements;
 		var m11: number = rightMatrixE[0], m12: number = rightMatrixE[1], m13: number = rightMatrixE[2], m14: number = rightMatrixE[3];
@@ -461,7 +461,7 @@ export class Utils3D {
 	}
 
 	private static arcTanAngle(x: number, y: number): number {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+
 		if (x == 0) {
 			if (y == 1)
 				return Math.PI / 2;
@@ -478,7 +478,7 @@ export class Utils3D {
 	}
 
 	private static angleTo(from: Vector3, location: Vector3, angle: Vector3): void {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+
 		Vector3.subtract(location, from, Quaternion.TEMPVector30);
 		Vector3.normalize(Quaternion.TEMPVector30, Quaternion.TEMPVector30);
 
@@ -542,7 +542,7 @@ export class Utils3D {
 
 
 	static matrix4x4MultiplyFFF(a: Float32Array, b: Float32Array, e: Float32Array): void {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+
 		var i: number, ai0: number, ai1: number, ai2: number, ai3: number;
 		if (e === b) {
 			b = new Float32Array(16);

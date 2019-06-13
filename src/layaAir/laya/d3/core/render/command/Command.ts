@@ -1,5 +1,5 @@
-import { Shader3D } from "../../../../d3/shader/Shader3D";
-import { ShaderData } from "../../../../d3/shader/ShaderData";
+import { Shader3D } from "laya/d3/shader/Shader3D";
+import { ShaderData } from "laya/d3/shader/ShaderData";
 import { CommandBuffer } from "././CommandBuffer";
 
 /**

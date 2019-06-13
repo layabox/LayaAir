@@ -1,19 +1,23 @@
-import { Sprite } from "../../../display/Sprite";
-import { LayaGL } from "../../../layagl/LayaGL";
-import { Loader } from "../../../net/Loader";
-import { URL } from "../../../net/URL";
-import { Render } from "../../../renders/Render";
-import { BaseTexture } from "../../../resource/BaseTexture";
-import { ICreateResource } from "../../../resource/ICreateResource";
-import { ISingletonElement } from "../../../resource/ISingletonElement";
-import { RenderTexture2D } from "../../../resource/RenderTexture2D";
-import { Texture2D } from "../../../resource/Texture2D";
-import { Handler } from "../../../utils/Handler";
-import { Timer } from "../../../utils/Timer";
-import { ISubmit } from "../../../webgl/submit/ISubmit";
-import { SubmitBase } from "../../../webgl/submit/SubmitBase";
-import { SubmitKey } from "../../../webgl/submit/SubmitKey";
-import { WebGLContext } from "../../../webgl/WebGLContext";
+import { Laya } from "Laya";
+import { PhysicsSettings } from "laya/d3/physics/PhysicsSettings";
+import { Sprite } from "laya/display/Sprite";
+import { LayaGL } from "laya/layagl/LayaGL";
+import { Loader } from "laya/net/Loader";
+import { URL } from "laya/net/URL";
+import { Render } from "laya/renders/Render";
+import { BaseTexture } from "laya/resource/BaseTexture";
+import { Context } from "laya/resource/Context";
+import { ICreateResource } from "laya/resource/ICreateResource";
+import { ISingletonElement } from "laya/resource/ISingletonElement";
+import { RenderTexture2D } from "laya/resource/RenderTexture2D";
+import { Texture2D } from "laya/resource/Texture2D";
+import { Handler } from "laya/utils/Handler";
+import { Timer } from "laya/utils/Timer";
+import { ISubmit } from "laya/webgl/submit/ISubmit";
+import { SubmitBase } from "laya/webgl/submit/SubmitBase";
+import { SubmitKey } from "laya/webgl/submit/SubmitKey";
+import { WebGL } from "laya/webgl/WebGL";
+import { WebGLContext } from "laya/webgl/WebGLContext";
 import { CastShadowList } from "../../CastShadowList";
 import { Animator } from "../../component/Animator";
 import { Script3D } from "../../component/Script3D";
@@ -49,10 +53,6 @@ import { RenderableSprite3D } from "../RenderableSprite3D";
 import { Sprite3D } from "../Sprite3D";
 import { BoundsOctree } from "././BoundsOctree";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
-import { Laya } from "../../../../Laya";
-import { Context } from "../../../resource/Context";
-import { WebGL } from "../../../webgl/WebGL";
-import { PhysicsSettings } from "../../physics/PhysicsSettings";
 
 
 
@@ -115,7 +115,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	static RANGEATTENUATIONTEXTURE: number = Shader3D.propertyNameToID("u_RangeTexture");
 	static POINTLIGHTMATRIX: number = Shader3D.propertyNameToID("u_PointLightMatrix");
 	static SPOTLIGHTMATRIX: number = Shader3D.propertyNameToID("u_SpotLightMatrix");
-	
+
 	/**
 	 * @private
 	 */
@@ -134,7 +134,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF3 = Shader3D.registerPublicDefine("SHADOWMAP_PCF3");
 		Scene3DShaderDeclaration.SHADERDEFINE_REFLECTMAP = Shader3D.registerPublicDefine("REFLECTMAP");
 	}
-	
+
 
 	/**
 	 * 加载场景,注意:不缓存。
@@ -432,7 +432,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * 创建一个 <code>Scene3D</code> 实例。
 	 */
 	constructor() {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		super();
 		if (Scene3D._enbalePhysics)
 			this._physicsSimulation = new PhysicsSimulation(Scene3D.physicsSettings);
@@ -663,7 +662,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	_clear(gl: WebGLContext, state: RenderContext3D): void {
 		var viewport: Viewport = state.viewport;
 		var camera: Camera = (<Camera>state.camera);
-		var renderTexture: RenderTexture = camera._renderTexture;
+		var renderTexture:RenderTexture = camera._renderTexture|| camera._offScreenRenderTexture;
 		var vpW: number = viewport.width;
 		var vpH: number = viewport.height;
 		var vpX: number = viewport.x;
@@ -740,14 +739,15 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	_renderScene(gl: WebGLContext, state: RenderContext3D, customShader: Shader3D = null, replacementTag: string = null): void {
 		var camera: Camera = (<Camera>state.camera);
 		var position: Vector3 = camera.transform.position;
-		camera._renderTexture ? this._opaqueQueue._render(state, true, customShader, replacementTag) : this._opaqueQueue._render(state, false, customShader, replacementTag);//非透明队列
+		var renderTar:RenderTexture = camera._renderTexture || camera._offScreenRenderTexture;
+		renderTar ? this._opaqueQueue._render(state, true, customShader, replacementTag) : this._opaqueQueue._render(state, false, customShader, replacementTag);//非透明队列
 		if (camera.clearFlag === BaseCamera.CLEARFLAG_SKY) {
 			if (camera.skyRenderer._isAvailable())
 				camera.skyRenderer._render(state);
 			else if (this._skyRenderer._isAvailable())
 				this._skyRenderer._render(state);
 		}
-		camera._renderTexture ? this._transparentQueue._render(state, true, customShader, replacementTag) : this._transparentQueue._render(state, false, customShader, replacementTag);//透明队列
+		renderTar ? this._transparentQueue._render(state, true, customShader, replacementTag) : this._transparentQueue._render(state, false, customShader, replacementTag);//透明队列
 
 		if (FrustumCulling.debugFrustumCulling) {
 			var renderElements: RenderElement[] = this._debugTool._render._renderElements;

@@ -1,27 +1,27 @@
-import { Const } from "../Const"
-import { Graphics } from "../display/Graphics"
-import { Sprite } from "../display/Sprite"
-import { SpriteConst } from "../display/SpriteConst"
-import { CacheStyle } from "../display/css/CacheStyle"
-import { SpriteStyle } from "../display/css/SpriteStyle"
-import { TextStyle } from "../display/css/TextStyle"
-import { Filter } from "../filters/Filter"
-import { Matrix } from "../maths/Matrix"
-import { Point } from "../maths/Point"
-import { Rectangle } from "../maths/Rectangle"
-import { LayaGLQuickRunner } from "./LayaGLQuickRunner"
-import { Context } from "../resource/Context"
-import { HTMLCanvas } from "../resource/HTMLCanvas"
-import { Texture } from "../resource/Texture"
-import { Stat } from "../utils/Stat"
-import { WebGLContext } from "../webgl/WebGLContext"
-import { BlendMode } from "../webgl/canvas/BlendMode"
-import { RenderTexture2D } from "../resource/RenderTexture2D"
-import { WebGLRTMgr } from "../resource/WebGLRTMgr"
-import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D"
-import { Value2D } from "../webgl/shader/d2/value/Value2D"
-import { SubmitCMD } from "../webgl/submit/SubmitCMD"
+import { Const } from "../Const";
+import { CacheStyle } from "../display/css/CacheStyle";
+import { SpriteStyle } from "../display/css/SpriteStyle";
+import { TextStyle } from "../display/css/TextStyle";
+import { Graphics } from "../display/Graphics";
+import { Sprite } from "../display/Sprite";
+import { SpriteConst } from "../display/SpriteConst";
+import { Filter } from "../filters/Filter";
+import { Matrix } from "../maths/Matrix";
+import { Point } from "../maths/Point";
+import { Rectangle } from "../maths/Rectangle";
+import { Context } from "../resource/Context";
+import { HTMLCanvas } from "../resource/HTMLCanvas";
+import { RenderTexture2D } from "../resource/RenderTexture2D";
+import { Texture } from "../resource/Texture";
+import { WebGLRTMgr } from "../resource/WebGLRTMgr";
+import { Stat } from "../utils/Stat";
+import { BlendMode } from "../webgl/canvas/BlendMode";
 import { WebGLCacheAsNormalCanvas } from "../webgl/canvas/WebGLCacheAsNormalCanvas";
+import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
+import { Value2D } from "../webgl/shader/d2/value/Value2D";
+import { SubmitCMD } from "../webgl/submit/SubmitCMD";
+import { WebGLContext } from "../webgl/WebGLContext";
+import { LayaGLQuickRunner } from "./LayaGLQuickRunner";
 
 /**
  * @private
@@ -57,7 +57,7 @@ export class RenderSprite {
 	/** @private */
 	static renders: any[] = [];
 	/** @private */
-	protected static NORENDER: RenderSprite = /*[STATIC SAFE]*/ new RenderSprite(0, null);
+	protected static NORENDER: RenderSprite =  new RenderSprite(0, null);
 	/** @private */
 	_next: RenderSprite;
 	/** @private */
@@ -253,7 +253,7 @@ export class RenderSprite {
 
 	//TODO:coverage
 	_alpha(sprite: Sprite, context: Context, x: number, y: number): void {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+
 		var style: SpriteStyle = sprite._style;
 		var alpha: number;
 		if ((alpha = style.alpha) > 0.01 || sprite._needRepaint()) {
@@ -306,7 +306,7 @@ export class RenderSprite {
 	}
 
 	_canvas(sprite: Sprite, context: Context, x: number, y: number): void {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+
 		var _cacheStyle: CacheStyle = sprite._cacheStyle;
 		var _next: RenderSprite = this._next;
 
@@ -354,7 +354,7 @@ export class RenderSprite {
 	}
 
 	_canvas_repaint(sprite: Sprite, context: Context, x: number, y: number): void {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+
 		var _cacheStyle: CacheStyle = sprite._cacheStyle;
 		var _next: RenderSprite = this._next;
 		var tx: Context;
@@ -423,7 +423,7 @@ export class RenderSprite {
 	}
 
 	_canvas_webgl_normal_repaint(sprite: Sprite, context: Context): void {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+
 		var _cacheStyle: CacheStyle = sprite._cacheStyle;
 		var _next: RenderSprite = this._next;
 		var canvas: HTMLCanvas = _cacheStyle.canvas;

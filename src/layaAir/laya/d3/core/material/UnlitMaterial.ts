@@ -1,4 +1,4 @@
-import { BaseTexture } from "../../../resource/BaseTexture";
+import { BaseTexture } from "laya/resource/BaseTexture";
 import { Vector4 } from "../../math/Vector4";
 import { Shader3D } from "../../shader/Shader3D";
 import { ShaderDefines } from "../../shader/ShaderDefines";

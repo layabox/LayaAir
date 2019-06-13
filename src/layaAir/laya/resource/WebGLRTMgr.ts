@@ -1,12 +1,12 @@
-import { BaseTexture } from "./BaseTexture"
-import { RenderTexture2D } from "./RenderTexture2D"
+import { BaseTexture } from "./BaseTexture";
+import { RenderTexture2D } from "./RenderTexture2D";
 
 /**
  * WebGLRTMgr 管理WebGLRenderTarget的创建和回收
  */
 
 export class WebGLRTMgr {
-	/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+	
 	private static dict: any = {};		//key=h*10000+w
 	/**
 	 * 获得一个renderTarget

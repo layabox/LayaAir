@@ -1,7 +1,7 @@
 import { ISubmit } from "././ISubmit";
 import { SubmitKey } from "././SubmitKey";
 export class SubmitCMD implements ISubmit{
-		 static POOL:any =[];/*[STATIC SAFE]*/ fun:Function;
+		 static POOL:any =[]; fun:Function;
 		 _this:any;	
 		 args:any[];
 		 _ref:number = 1;

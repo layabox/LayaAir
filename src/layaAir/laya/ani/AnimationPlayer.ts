@@ -1,9 +1,9 @@
 import { AnimationTemplet } from "././AnimationTemplet";
 import { AnimationState } from "././AnimationState";
-import { Stat } from "../utils/Stat";
-import { Event } from "../events/Event";
-import { IDestroy } from "../resource/IDestroy";
-import { EventDispatcher } from "../events/EventDispatcher";
+import { EventDispatcher } from "laya/events/EventDispatcher";
+import { IDestroy } from "laya/resource/IDestroy";
+import { Stat } from "laya/utils/Stat";
+import { Event } from "laya/events/Event";
 
 	
 	/**开始播放时调度。

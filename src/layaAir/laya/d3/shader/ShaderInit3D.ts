@@ -1,5 +1,5 @@
-import { BaseTexture } from "../../resource/BaseTexture";
-import { Texture2D } from "../../resource/Texture2D";
+import { BaseTexture } from "laya/resource/BaseTexture";
+import { Texture2D } from "laya/resource/Texture2D";
 import { PostProcess } from "../component/PostProcess";
 import { BlinnPhongMaterial } from "../core/material/BlinnPhongMaterial";
 import { EffectMaterial } from "../core/material/EffectMaterial";

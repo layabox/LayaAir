@@ -1,5 +1,5 @@
-import { Node } from "../../../display/Node";
-import { Loader } from "../../../net/Loader";
+import { Node } from "laya/display/Node";
+import { Loader } from "laya/net/Loader";
 import { Color } from "../../math/Color";
 import { Vector2 } from "../../math/Vector2";
 import { Vector3 } from "../../math/Vector3";
@@ -97,7 +97,6 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	 * @param settings value 粒子配置。
 	 */
 	constructor() {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		super(null);
 		this._render = new ShurikenParticleRenderer(this);
 

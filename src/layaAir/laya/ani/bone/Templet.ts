@@ -7,22 +7,22 @@ import { DeformSlotDisplayData } from "././DeformSlotDisplayData";
 import { DrawOrderData } from "././DrawOrderData";
 import { EventData } from "././EventData";
 import { AnimationContent } from "../AnimationContent"
-import { AnimationTemplet } from "../AnimationTemplet"
-import { BoneSlot } from "./BoneSlot"
-import { SkinData } from "./SkinData"
-import { SkinSlotDisplayData } from "./SkinSlotDisplayData"
-import { SlotData } from "./SlotData"
-import { Transform } from "./Transform"
-import { IkConstraintData } from "./IkConstraintData"
-import { Texture } from "../../resource/Texture";
-import { Matrix } from "../../maths/Matrix";
-import { Handler } from "../../utils/Handler";
-import { Event } from "../../events/Event";
-import { Byte } from "../../utils/Byte";
-import { Graphics } from "../../display/Graphics";
+	import { AnimationTemplet } from "../AnimationTemplet"
+	import { BoneSlot } from "./BoneSlot"
+	import { SkinData } from "./SkinData"
+	import { SkinSlotDisplayData } from "./SkinSlotDisplayData"
+	import { SlotData } from "./SlotData"
+	import { Transform } from "./Transform"
+	import { IkConstraintData } from "./IkConstraintData"
+import { Texture } from "laya/resource/Texture";
+import { Matrix } from "laya/maths/Matrix";
+import { Handler } from "laya/utils/Handler";
+import { ILaya } from "ILaya";
+import { Event } from "laya/events/Event";
+import { Byte } from "laya/utils/Byte";
+import { Graphics } from "laya/display/Graphics";
 import { IAniLib } from "../AniLibPack";
 import { Skeleton } from "./Skeleton";
-import { ILaya } from "../../../ILaya";
 	
 	/**数据解析完成后的调度。
 	 * @eventType Event.COMPLETE

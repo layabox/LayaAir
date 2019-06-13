@@ -1,9 +1,9 @@
-import { IkConstraintData } from "./IkConstraintData";
-import { Bone } from "./Bone";
-import { Matrix } from "../../maths/Matrix";
-import { Sprite } from "../../display/Sprite";
-import { ILaya } from "../../../ILaya";
-
+import { Bone } from "././Bone";
+import { IkConstraintData } from "././IkConstraintData";
+import { Matrix } from "laya/maths/Matrix";
+import { Sprite } from "laya/display/Sprite";
+import { ILaya } from "ILaya";
+	
 	/**
 	 * @private
 	 */

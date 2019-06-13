@@ -1,48 +1,48 @@
+import { LayaGL } from "laya/layagl/LayaGL";
+import { MathUtil } from "laya/maths/MathUtil";
+import { Resource } from "laya/resource/Resource";
+import { Stat } from "laya/utils/Stat";
+import { WebGLContext } from "laya/webgl/WebGLContext";
+import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
+import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
+import { VertexShurikenParticleBillboard } from "../../graphics/Vertex/VertexShurikenParticleBillboard";
+import { VertexShurikenParticleMesh } from "../../graphics/Vertex/VertexShurikenParticleMesh";
+import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
+import { VertexDeclaration } from "../../graphics/VertexDeclaration";
+import { VertexElement } from "../../graphics/VertexElement";
+import { BoundBox } from "../../math/BoundBox";
+import { BoundSphere } from "../../math/BoundSphere";
+import { Matrix4x4 } from "../../math/Matrix4x4";
+import { Rand } from "../../math/Rand";
+import { Vector2 } from "../../math/Vector2";
+import { Vector3 } from "../../math/Vector3";
+import { Vector4 } from "../../math/Vector4";
+import { Mesh } from "../../resource/models/Mesh";
+import { ShaderData } from "../../shader/ShaderData";
+import { BufferState } from "../BufferState";
+import { GeometryElement } from "../GeometryElement";
+import { Gradient } from "../Gradient";
+import { IClone } from "../IClone";
+import { RenderContext3D } from "../render/RenderContext3D";
+import { Scene3D } from "../scene/Scene3D";
+import { Transform3D } from "../Transform3D";
 import { ShuriKenParticle3D } from "././ShuriKenParticle3D";
-import { ShurikenParticleRenderer } from "././ShurikenParticleRenderer";
 import { ShurikenParticleData } from "././ShurikenParticleData";
-import { BufferState } from "../BufferState"
-import { GeometryElement } from "../GeometryElement"
-import { Gradient } from "../Gradient"
-import { IClone } from "../IClone"
-import { Transform3D } from "../Transform3D"
-import { Burst } from "./module/Burst"
-import { ColorOverLifetime } from "./module/ColorOverLifetime"
-import { Emission } from "./module/Emission"
-import { FrameOverTime } from "./module/FrameOverTime"
-import { GradientAngularVelocity } from "./module/GradientAngularVelocity"
-import { GradientColor } from "./module/GradientColor"
-import { GradientDataNumber } from "./module/GradientDataNumber"
-import { GradientSize } from "./module/GradientSize"
-import { GradientVelocity } from "./module/GradientVelocity"
-import { RotationOverLifetime } from "./module/RotationOverLifetime"
-import { SizeOverLifetime } from "./module/SizeOverLifetime"
-import { TextureSheetAnimation } from "./module/TextureSheetAnimation"
-import { VelocityOverLifetime } from "./module/VelocityOverLifetime"
-import { BaseShape } from "./module/shape/BaseShape"
-import { RenderContext3D } from "../render/RenderContext3D"
-import { Scene3D } from "../scene/Scene3D"
-import { IndexBuffer3D } from "../../graphics/IndexBuffer3D"
-import { VertexMesh } from "../../graphics/Vertex/VertexMesh"
-import { VertexShurikenParticleBillboard } from "../../graphics/Vertex/VertexShurikenParticleBillboard"
-import { VertexShurikenParticleMesh } from "../../graphics/Vertex/VertexShurikenParticleMesh"
-import { VertexBuffer3D } from "../../graphics/VertexBuffer3D"
-import { VertexDeclaration } from "../../graphics/VertexDeclaration"
-import { VertexElement } from "../../graphics/VertexElement"
-import { BoundBox } from "../../math/BoundBox"
-import { BoundSphere } from "../../math/BoundSphere"
-import { Matrix4x4 } from "../../math/Matrix4x4"
-import { Rand } from "../../math/Rand"
-import { Vector2 } from "../../math/Vector2"
-import { Vector3 } from "../../math/Vector3"
-import { Vector4 } from "../../math/Vector4"
-import { Mesh } from "../../resource/models/Mesh"
-import { ShaderData } from "../../shader/ShaderData"
-import { LayaGL } from "../../../layagl/LayaGL"
-import { MathUtil } from "../../../maths/MathUtil"
-import { Resource } from "../../../resource/Resource"
-import { Stat } from "../../../utils/Stat"
-import { WebGLContext } from "../../../webgl/WebGLContext"
+import { ShurikenParticleRenderer } from "././ShurikenParticleRenderer";
+import { Burst } from "./module/Burst";
+import { ColorOverLifetime } from "./module/ColorOverLifetime";
+import { Emission } from "./module/Emission";
+import { FrameOverTime } from "./module/FrameOverTime";
+import { GradientAngularVelocity } from "./module/GradientAngularVelocity";
+import { GradientColor } from "./module/GradientColor";
+import { GradientDataNumber } from "./module/GradientDataNumber";
+import { GradientSize } from "./module/GradientSize";
+import { GradientVelocity } from "./module/GradientVelocity";
+import { RotationOverLifetime } from "./module/RotationOverLifetime";
+import { BaseShape } from "./module/shape/BaseShape";
+import { SizeOverLifetime } from "./module/SizeOverLifetime";
+import { TextureSheetAnimation } from "./module/TextureSheetAnimation";
+import { VelocityOverLifetime } from "./module/VelocityOverLifetime";
 import { ShuriKenParticle3DShaderDeclaration } from "./ShuriKenParticle3DShaderDeclaration";
 
 
@@ -951,7 +951,6 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	}
 
 	constructor(owner: ShuriKenParticle3D) {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		super();
 		this._firstActiveElement = 0;
 		this._firstNewElement = 0;

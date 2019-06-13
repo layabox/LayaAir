@@ -1,5 +1,5 @@
-import { Component } from "../../components/Component"
-import { PhysicsComponent } from "./PhysicsComponent"
+import { Component } from "laya/components/Component";
+import { PhysicsComponent } from "./PhysicsComponent";
 
 /**
  * <code>PhysicsTriggerComponent</code> 类用于创建物理触发器组件。
@@ -40,7 +40,7 @@ export class PhysicsTriggerComponent extends PhysicsComponent {
 	 * @param canCollideWith 可产生碰撞的碰撞组。
 	 */
 	constructor(collisionGroup: number, canCollideWith: number) {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		super(collisionGroup, canCollideWith);
 	}
 

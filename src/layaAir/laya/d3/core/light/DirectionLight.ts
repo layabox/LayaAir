@@ -4,8 +4,8 @@ import { ParallelSplitShadowMap } from "../../shadowMap/ParallelSplitShadowMap";
 import { Scene3D } from "../scene/Scene3D";
 import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
 import { LightSprite } from "./LightSprite";
-import { ILaya3D } from "../../../../ILaya3D";
-
+import { ILaya3D } from "ILaya3D";
+	
 	/**
 	 * <code>DirectionLight</code> 类用于创建平行光。
 	 */

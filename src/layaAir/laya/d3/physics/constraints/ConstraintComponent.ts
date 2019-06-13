@@ -1,6 +1,7 @@
+import { Laya3D } from "./../../../../Laya3D";
+import { Component } from "laya/components/Component"
 import { Rigidbody3D } from "../Rigidbody3D"
 import { Physics } from "../Physics";
-import { Component } from "../../../components/Component";
 
 /**
  * <code>ConstraintComponent</code> 类用于创建约束的父类。

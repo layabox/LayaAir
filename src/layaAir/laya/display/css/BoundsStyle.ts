@@ -7,7 +7,7 @@ import { Rectangle } from "../../maths/Rectangle"
 	 */
 	export class BoundsStyle {
 		
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		
 		/**@private */
 		 bounds:Rectangle;

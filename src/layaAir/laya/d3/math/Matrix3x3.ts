@@ -1,7 +1,7 @@
-import { Vector3 } from "././Vector3";
-import { Vector2 } from "././Vector2";
+import { IClone } from "../core/IClone";
 import { Matrix4x4 } from "././Matrix4x4";
-import { IClone } from "../core/IClone"
+import { Vector2 } from "././Vector2";
+import { Vector3 } from "././Vector3";
 
 /**
  * <code>Matrix3x3</code> 类用于创建3x3矩阵。
@@ -9,7 +9,7 @@ import { IClone } from "../core/IClone"
 export class Matrix3x3 implements IClone {
 
 	/**默认矩阵,禁止修改*/
-	static DEFAULT: Matrix3x3 =/*[STATIC SAFE]*/ new Matrix3x3();
+	static DEFAULT: Matrix3x3 = new Matrix3x3();
 
 	/** @private */
 	private static _tempV30: Vector3 = new Vector3();
@@ -326,7 +326,6 @@ export class Matrix3x3 implements IClone {
 	 * @param	destObject 克隆源。
 	 */
 	cloneTo(destObject: any): void {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		var i: number, s: Float32Array, d: Float32Array;
 		s = this.elements;
 		d = destObject.elements;

@@ -1,5 +1,5 @@
 export class ShaderDefinesBase {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		
 		 _value:number = 0;
 		

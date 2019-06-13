@@ -1,7 +1,7 @@
-import { RenderableSprite3D } from "../core/RenderableSprite3D"
-import { Sprite3D } from "../core/Sprite3D"
-import { RenderElement } from "../core/render/RenderElement"
-import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement"
+import { RenderElement } from "../core/render/RenderElement";
+import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement";
+import { RenderableSprite3D } from "../core/RenderableSprite3D";
+import { Sprite3D } from "../core/Sprite3D";
 
 /**
  * <code>StaticBatchManager</code> 类用于静态批处理管理的父类。
@@ -70,7 +70,6 @@ export class StaticBatchManager {
 	 * 创建一个 <code>StaticBatchManager</code> 实例。
 	 */
 	constructor() {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		this._initBatchSprites = [];
 		this._staticBatches = {};
 		this._batchRenderElementPoolIndex = 0;

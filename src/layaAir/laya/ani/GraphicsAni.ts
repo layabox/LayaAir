@@ -1,6 +1,6 @@
 import { SkinMeshForGraphic } from "./bone/canvasmesh/SkinMeshForGraphic"
-import { Matrix } from "../maths/Matrix";
-import { Graphics } from "../display/Graphics";
+import { Graphics } from "laya/display/Graphics";
+import { Matrix } from "laya/maths/Matrix";
 
 	/**
 	 * @private

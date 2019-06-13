@@ -4,7 +4,7 @@ import { SubmitKey } from "././SubmitKey";
 	import { Mesh2D } from "../utils/Mesh2D"
 	
 	export class SubmitBase implements ISubmit {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		 static TYPE_2D:number = 10000;
 		 static TYPE_CANVAS:number = 10003;
 		 static TYPE_CMDSETRT:number = 10004;

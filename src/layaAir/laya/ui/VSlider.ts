@@ -1,5 +1,5 @@
 import { Slider } from "././Slider";
-import { ILaya } from "../../ILaya";
+import { ILaya } from "ILaya";
 /**
 	 * 使用 <code>VSlider</code> 控件，用户可以通过在滑块轨道的终点之间移动滑块来选择值。
 	 * <p> <code>VSlider</code> 控件采用垂直方向。滑块轨道从下往上扩展，而标签位于轨道的左右两侧。</p>
@@ -87,8 +87,8 @@ import { ILaya } from "../../ILaya";
 	 * }
 	 * @see laya.ui.Slider
 	 */
-export class VSlider extends Slider {
-
-}
+	export class VSlider extends Slider {
+	
+	}
 
 ILaya.regClass(VSlider);

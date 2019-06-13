@@ -15,7 +15,7 @@ export class PhysicsSettings {
 	 * 创建一个 <code>PhysicsSettings</code> 实例。
 	 */
 	constructor() {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 	}
 
 }

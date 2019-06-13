@@ -1,31 +1,31 @@
-import { VertexDeclaration } from "././VertexDeclaration";
-import { VertexBuffer3D } from "././VertexBuffer3D";
+import { LayaGL } from "laya/layagl/LayaGL";
+import { IDispose } from "laya/resource/IDispose";
+import { Resource } from "laya/resource/Resource";
+import { Stat } from "laya/utils/Stat";
+import { WebGLContext } from "laya/webgl/WebGLContext";
+import { BufferState } from "../core/BufferState";
+import { GeometryElement } from "../core/GeometryElement";
+import { MeshRenderer } from "../core/MeshRenderer";
+import { MeshSprite3D } from "../core/MeshSprite3D";
+import { BaseRender } from "../core/render/BaseRender";
+import { RenderContext3D } from "../core/render/RenderContext3D";
+import { RenderElement } from "../core/render/RenderElement";
+import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement";
+import { RenderableSprite3D } from "../core/RenderableSprite3D";
+import { Sprite3D } from "../core/Sprite3D";
+import { Transform3D } from "../core/Transform3D";
+import { Matrix4x4 } from "../math/Matrix4x4";
+import { Quaternion } from "../math/Quaternion";
+import { Vector3 } from "../math/Vector3";
+import { Vector4 } from "../math/Vector4";
+import { Mesh } from "../resource/models/Mesh";
+import { SubMesh } from "../resource/models/SubMesh";
+import { Utils3D } from "../utils/Utils3D";
 import { IndexBuffer3D } from "././IndexBuffer3D";
+import { VertexBuffer3D } from "././VertexBuffer3D";
+import { VertexDeclaration } from "././VertexDeclaration";
 import { VertexElement } from "././VertexElement";
-import { BufferState } from "../core/BufferState"
-import { GeometryElement } from "../core/GeometryElement"
-import { MeshRenderer } from "../core/MeshRenderer"
-import { MeshSprite3D } from "../core/MeshSprite3D"
-import { RenderableSprite3D } from "../core/RenderableSprite3D"
-import { Sprite3D } from "../core/Sprite3D"
-import { Transform3D } from "../core/Transform3D"
-import { BaseRender } from "../core/render/BaseRender"
-import { RenderContext3D } from "../core/render/RenderContext3D"
-import { RenderElement } from "../core/render/RenderElement"
-import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement"
-import { VertexMesh } from "./Vertex/VertexMesh"
-import { Matrix4x4 } from "../math/Matrix4x4"
-import { Quaternion } from "../math/Quaternion"
-import { Vector3 } from "../math/Vector3"
-import { Vector4 } from "../math/Vector4"
-import { Mesh } from "../resource/models/Mesh"
-import { SubMesh } from "../resource/models/SubMesh"
-import { Utils3D } from "../utils/Utils3D"
-import { LayaGL } from "../../layagl/LayaGL"
-import { IDispose } from "../../resource/IDispose"
-import { Resource } from "../../resource/Resource"
-import { Stat } from "../../utils/Stat"
-import { WebGLContext } from "../../webgl/WebGLContext"
+import { VertexMesh } from "./Vertex/VertexMesh";
 
 /**
  * @private
@@ -77,7 +77,6 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 	 * 创建一个 <code>SubMeshStaticBatch</code> 实例。
 	 */
 	constructor(batchOwner: Sprite3D, number: number, vertexDeclaration: VertexDeclaration) {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		super();
 		this._batchID = SubMeshStaticBatch._batchIDCounter++;
 		this._batchElements = [];

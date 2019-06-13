@@ -1,4 +1,4 @@
-import { Matrix } from "../../maths/Matrix";
+import { Matrix } from "laya/maths/Matrix";
 
 	
 	/**

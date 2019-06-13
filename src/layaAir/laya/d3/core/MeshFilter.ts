@@ -1,95 +1,96 @@
 import { RenderableSprite3D } from "././RenderableSprite3D";
+import { MeshSprite3D } from "././MeshSprite3D";
 import { VertexMesh } from "../graphics/Vertex/VertexMesh"
-import { VertexElement } from "../graphics/VertexElement"
-import { Mesh } from "../resource/models/Mesh"
-import { SubMesh } from "../resource/models/SubMesh"
-import { ShaderData } from "../shader/ShaderData"
+	import { VertexElement } from "../graphics/VertexElement"
+	import { Mesh } from "../resource/models/Mesh"
+	import { SubMesh } from "../resource/models/SubMesh"
+	import { ShaderData } from "../shader/ShaderData"
 import { MeshRenderer } from "./MeshRenderer";
 import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration";
-
-/**
- * <code>MeshFilter</code> 类用于创建网格过滤器。
- */
-export class MeshFilter {
-	/** @private */
-	private _owner: RenderableSprite3D;
-	/** @private */
-	private _sharedMesh: Mesh;
-
+	
 	/**
-	 * 获取共享网格。
-	 * @return 共享网格。
+	 * <code>MeshFilter</code> 类用于创建网格过滤器。
 	 */
-	get sharedMesh(): Mesh {
-		return this._sharedMesh;
-	}
-
-	/**
-	 * 设置共享网格。
-	 * @return  value 共享网格。
-	 */
-	set sharedMesh(value: Mesh) {
-		if (this._sharedMesh !== value) {
-			var defineDatas: ShaderData = this._owner._render._shaderValues;
-			var lastValue: Mesh = this._sharedMesh;
-			if (lastValue) {
-				lastValue._removeReference();
-				defineDatas.removeDefine(this._getMeshDefine(lastValue));
-			}
-
-			if (value) {
-				value._addReference();
-				defineDatas.addDefine(this._getMeshDefine(value));
-			}
-
-			((<MeshRenderer>this._owner._render))._onMeshChange(value);
-			this._sharedMesh = value;
+	export class MeshFilter {
+		/** @private */
+		private _owner:RenderableSprite3D;
+		/** @private */
+		private _sharedMesh:Mesh;
+		
+		/**
+		 * 获取共享网格。
+		 * @return 共享网格。
+		 */
+		 get sharedMesh():Mesh {
+			return this._sharedMesh;
 		}
-	}
-
-	/**
-	 * 创建一个新的 <code>MeshFilter</code> 实例。
-	 * @param owner 所属网格精灵。
-	 */
-	constructor(owner: RenderableSprite3D) {
-		this._owner = owner;
-	}
-
-	/**
-	 * @private
-	 */
-	private _getMeshDefine(mesh: Mesh): number {
-		var define: number;
-		for (var i: number = 0, n: number = mesh._subMeshCount; i < n; i++) {
-			var subMesh: SubMesh = (<SubMesh>mesh._getSubMesh(i));
-			var vertexElements: any[] = subMesh._vertexBuffer._vertexDeclaration.vertexElements;
-			for (var j: number = 0, m: number = vertexElements.length; j < m; j++) {
-				var vertexElement: VertexElement = vertexElements[j];
-				var name: number = vertexElement.elementUsage;
-				switch (name) {
-					case VertexMesh.MESH_COLOR0:
+		
+		/**
+		 * 设置共享网格。
+		 * @return  value 共享网格。
+		 */
+		 set sharedMesh(value:Mesh) {
+			if (this._sharedMesh !== value) {
+				var defineDatas:ShaderData = this._owner._render._shaderValues;
+				var lastValue:Mesh = this._sharedMesh;
+				if (lastValue) {
+					lastValue._removeReference();
+					defineDatas.removeDefine(this._getMeshDefine(lastValue));
+				}
+				
+				if (value) {
+					value._addReference();
+					defineDatas.addDefine(this._getMeshDefine(value));
+				}
+				
+				((<MeshRenderer>this._owner._render ))._onMeshChange(value);
+				this._sharedMesh = value;
+			}
+		}
+		
+		/**
+		 * 创建一个新的 <code>MeshFilter</code> 实例。
+		 * @param owner 所属网格精灵。
+		 */
+		constructor(owner:RenderableSprite3D){
+			this._owner = owner;
+		}
+		
+		/**
+		 * @private
+		 */
+		private _getMeshDefine(mesh:Mesh):number {
+			var define:number;
+			for (var i:number = 0, n:number = mesh._subMeshCount; i < n; i++) {
+				var subMesh:SubMesh = (<SubMesh>mesh._getSubMesh(i) );
+				var vertexElements:any[] = subMesh._vertexBuffer._vertexDeclaration.vertexElements;
+				for (var j:number = 0, m:number = vertexElements.length; j < m; j++) {
+					var vertexElement:VertexElement = vertexElements[j];
+					var name:number = vertexElement.elementUsage;
+					switch (name) {
+					case VertexMesh.MESH_COLOR0: 
 						define |= MeshSprite3DShaderDeclaration.SHADERDEFINE_COLOR;
 						break
-					case VertexMesh.MESH_TEXTURECOORDINATE0:
+					case VertexMesh.MESH_TEXTURECOORDINATE0: 
 						define |= MeshSprite3DShaderDeclaration.SHADERDEFINE_UV0;
 						break;
-					case VertexMesh.MESH_TEXTURECOORDINATE1:
+					case VertexMesh.MESH_TEXTURECOORDINATE1: 
 						define |= MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1;
 						break;
+					}
 				}
 			}
+			return define;
 		}
-		return define;
+		
+		/**
+		 * @inheritDoc
+		 */
+		 destroy():void {
+			this._owner = null;
+			(this._sharedMesh) && (this._sharedMesh._removeReference(), this._sharedMesh = null);
+		}
+	
 	}
-
-	/**
-	 * @inheritDoc
-	 */
-	destroy(): void {
-		this._owner = null;
-		(this._sharedMesh) && (this._sharedMesh._removeReference(), this._sharedMesh = null);
-	}
-
-}
 
 

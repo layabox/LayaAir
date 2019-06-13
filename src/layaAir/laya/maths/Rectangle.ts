@@ -1,16 +1,16 @@
+import { Pool } from "../utils/Pool";
 import { Point } from "././Point";
-import { Pool } from "../utils/Pool"
 
 /**
  * <p><code>Rectangle</code> 对象是按其位置（由它左上角的点 (x, y) 确定）以及宽度和高度定义的区域。</p>
  * <p>Rectangle 类的 x、y、width 和 height 属性相互独立；更改一个属性的值不会影响其他属性。</p>
  */
 export class Rectangle {
-	/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+
 	/**@private 全局空的矩形区域x=0,y=0,width=0,height=0，不允许修改此对象内容*/
-	static EMPTY: Rectangle =/*[STATIC SAFE]*/ new Rectangle();
+	static EMPTY: Rectangle = new Rectangle();
 	/**全局临时的矩形区域，此对象用于全局复用，以减少对象创建*/
-	static TEMP: Rectangle =/*[STATIC SAFE]*/ new Rectangle();
+	static TEMP: Rectangle = new Rectangle();
 
 	/** @private */
 	private static _temB: any[] = [];
@@ -241,7 +241,7 @@ export class Rectangle {
 	 * @return 包含所有点的最小矩形矩形对象。
 	 */
 	static _getWrapRec(pointList: ArrayLike<number>, rst: Rectangle = null): Rectangle {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+
 		if (!pointList || pointList.length < 1) return rst ? rst.setTo(0, 0, 0, 0) : Rectangle.TEMP.setTo(0, 0, 0, 0);
 		rst = rst ? rst : Rectangle.create();
 		var i: number, len: number = pointList.length, minX: number, maxX: number, minY: number, maxY: number, tPoint: Point = Point.TEMP;

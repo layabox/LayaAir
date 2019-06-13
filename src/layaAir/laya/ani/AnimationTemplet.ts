@@ -3,19 +3,18 @@ import { AnimationContent } from "././AnimationContent";
 import { KeyFramesContent } from "././KeyFramesContent";
 import { AnimationParser01 } from "././AnimationParser01";
 import { AnimationParser02 } from "././AnimationParser02";
-import { Resource } from "../resource/Resource";
-import { MathUtil } from "../maths/MathUtil";
+import { BezierLerp } from "./math/BezierLerp"
+import { Resource } from "laya/resource/Resource";
+import { MathUtil } from "laya/maths/MathUtil";
+import { Byte } from "laya/utils/Byte";
 import { IAniLib } from "./AniLibPack";
-import { Byte } from "../utils/Byte";
-import { BezierLerp } from "./math/BezierLerp";
 
 	/**
 	 * @private
 	 * <code>AnimationTemplet</code> 类用于动画模板资源。
 	 */
 	export class AnimationTemplet extends Resource {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
-		 static interpolation:any[] = /*[STATIC SAFE]*/ [AnimationTemplet._LinearInterpolation_0, AnimationTemplet._QuaternionInterpolation_1, AnimationTemplet._AngleInterpolation_2, AnimationTemplet._RadiansInterpolation_3, AnimationTemplet._Matrix4x4Interpolation_4, AnimationTemplet._NoInterpolation_5, AnimationTemplet._BezierInterpolation_6, AnimationTemplet._BezierInterpolation_7];
+		 static interpolation:any[] =  [AnimationTemplet._LinearInterpolation_0, AnimationTemplet._QuaternionInterpolation_1, AnimationTemplet._AngleInterpolation_2, AnimationTemplet._RadiansInterpolation_3, AnimationTemplet._Matrix4x4Interpolation_4, AnimationTemplet._NoInterpolation_5, AnimationTemplet._BezierInterpolation_6, AnimationTemplet._BezierInterpolation_7];
 		
 		/**
 		 * @private
