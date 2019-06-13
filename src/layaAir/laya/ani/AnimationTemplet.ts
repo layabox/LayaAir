@@ -14,7 +14,7 @@ import { IAniLib } from "./AniLibPack";
 	 * <code>AnimationTemplet</code> 类用于动画模板资源。
 	 */
 	export class AnimationTemplet extends Resource {
-		 static interpolation:any[] = /*[STATIC SAFE]*/ [AnimationTemplet._LinearInterpolation_0, AnimationTemplet._QuaternionInterpolation_1, AnimationTemplet._AngleInterpolation_2, AnimationTemplet._RadiansInterpolation_3, AnimationTemplet._Matrix4x4Interpolation_4, AnimationTemplet._NoInterpolation_5, AnimationTemplet._BezierInterpolation_6, AnimationTemplet._BezierInterpolation_7];
+		 static interpolation:any[] =  [AnimationTemplet._LinearInterpolation_0, AnimationTemplet._QuaternionInterpolation_1, AnimationTemplet._AngleInterpolation_2, AnimationTemplet._RadiansInterpolation_3, AnimationTemplet._Matrix4x4Interpolation_4, AnimationTemplet._NoInterpolation_5, AnimationTemplet._BezierInterpolation_6, AnimationTemplet._BezierInterpolation_7];
 		
 		/**
 		 * @private

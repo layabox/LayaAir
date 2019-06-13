@@ -15,7 +15,7 @@ import { HitArea } from "../utils/HitArea"
 		/**@private */
 		private static _temParam:any[] = [];
 		/**@private */
-        private static _classMap:any = /*[STATIC SAFE]*/ {
+        private static _classMap:any =  {
             'Sprite': Sprite, 
             'Scene': Scene, 
             'Text':  Text, 

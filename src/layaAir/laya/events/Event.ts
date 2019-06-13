@@ -9,7 +9,7 @@ import { ILaya } from "../../ILaya";
 	export class Event {
 		
 		/** 一个空的 Event 对象。用于事件派发中转使用。*/
-		 static EMPTY:Event =/*[STATIC SAFE]*/ new Event();
+		 static EMPTY:Event = new Event();
 		/** 定义 mousedown 事件对象的 type 属性值。*/
 		 static MOUSE_DOWN:string = "mousedown";
 		/** 定义 mouseup 事件对象的 type 属性值。*/

@@ -4,9 +4,9 @@ import { Matrix } from "../../maths/Matrix"
 	export class RenderState2D {
 		 static _MAXSIZE:number = 99999999;
 		/**@private 一个初始化的 <code>Matrix</code> 对象，不允许修改此对象内容。*/
-		 static EMPTYMAT4_ARRAY:any[] =/*[STATIC SAFE]*/ [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
-		 static TEMPMAT4_ARRAY:any[] =/*[STATIC SAFE]*/ [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
-		 static worldMatrix4:any[] = /*[STATIC SAFE]*/ RenderState2D.TEMPMAT4_ARRAY;
+		 static EMPTYMAT4_ARRAY:any[] = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+		 static TEMPMAT4_ARRAY:any[] = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+		 static worldMatrix4:any[] =  RenderState2D.TEMPMAT4_ARRAY;
 		
 		 static worldMatrix:Matrix = new Matrix();
 			static matWVP:any = null;// :Matrix4x4 = Matrix4x4.DEFAULT;		// 3d矩阵

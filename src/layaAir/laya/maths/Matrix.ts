@@ -8,9 +8,9 @@ import { Pool } from "../utils/Pool"
 	export class Matrix {
 		
 		/**@private 一个初始化的 <code>Matrix</code> 对象，不允许修改此对象内容。*/
-		 static EMPTY:Matrix =/*[STATIC SAFE]*/ new Matrix();
+		 static EMPTY:Matrix = new Matrix();
 		/**用于中转使用的 <code>Matrix</code> 对象。*/
-		 static TEMP:Matrix =/*[STATIC SAFE]*/ new Matrix();
+		 static TEMP:Matrix = new Matrix();
 		/**@private */
 		 static _createFun:Function = null;
 		

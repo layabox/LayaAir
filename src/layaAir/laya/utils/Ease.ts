@@ -3,9 +3,9 @@
 	 */
 export class Ease {
 	/**@private */
-	private static HALF_PI: number =/*[STATIC SAFE]*/ Math.PI * 0.5;
+	private static HALF_PI: number = Math.PI * 0.5;
 	/**@private */
-	private static PI2: number =  /*[STATIC SAFE]*/ Math.PI * 2;
+	private static PI2: number =   Math.PI * 2;
 
 	/**
 	 * 定义无加速持续运动。

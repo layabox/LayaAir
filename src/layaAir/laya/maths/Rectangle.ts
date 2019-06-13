@@ -8,9 +8,9 @@ import { Point } from "././Point";
 export class Rectangle {
 
 	/**@private 全局空的矩形区域x=0,y=0,width=0,height=0，不允许修改此对象内容*/
-	static EMPTY: Rectangle =/*[STATIC SAFE]*/ new Rectangle();
+	static EMPTY: Rectangle = new Rectangle();
 	/**全局临时的矩形区域，此对象用于全局复用，以减少对象创建*/
-	static TEMP: Rectangle =/*[STATIC SAFE]*/ new Rectangle();
+	static TEMP: Rectangle = new Rectangle();
 
 	/** @private */
 	private static _temB: any[] = [];

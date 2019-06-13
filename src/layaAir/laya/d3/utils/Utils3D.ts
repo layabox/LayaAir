@@ -24,13 +24,13 @@ export class Utils3D {
 	/**@private */
 	private static _tempColor0: Color = new Color();
 
-	private static _tempArray16_0: Float32Array = /*[STATIC SAFE]*/ new Float32Array(16);
+	private static _tempArray16_0: Float32Array =  new Float32Array(16);
 	/** @private */
-	private static _tempArray16_1: Float32Array = /*[STATIC SAFE]*/ new Float32Array(16);
+	private static _tempArray16_1: Float32Array =  new Float32Array(16);
 	/** @private */
-	private static _tempArray16_2: Float32Array = /*[STATIC SAFE]*/ new Float32Array(16);
+	private static _tempArray16_2: Float32Array =  new Float32Array(16);
 	/** @private */
-	private static _tempArray16_3: Float32Array =  /*[STATIC SAFE]*/ new Float32Array(16);
+	private static _tempArray16_3: Float32Array =   new Float32Array(16);
 
 	/**
 	 * @private

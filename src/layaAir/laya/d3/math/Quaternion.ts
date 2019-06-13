@@ -22,7 +22,7 @@ import { ILaya3D } from "ILaya3D";
 		 static _tempMatrix3x3:Matrix3x3 = new Matrix3x3();
 		
 		/**默认矩阵,禁止修改*/
-		 static DEFAULT:Quaternion =/*[STATIC SAFE]*/ new Quaternion();
+		 static DEFAULT:Quaternion = new Quaternion();
 		/**无效矩阵,禁止修改*/
 		 static NAN:Quaternion = new Quaternion(NaN, NaN, NaN, NaN);
 		

@@ -4,7 +4,7 @@ import { ILaya } from "../../ILaya";
 	 * @private
 	 */
 	export class CallLater {
-		 static I:CallLater =/*[STATIC SAFE]*/ new CallLater();
+		 static I:CallLater = new CallLater();
 		/**@private */
 		private _pool:any[] = [];
 		/**@private */

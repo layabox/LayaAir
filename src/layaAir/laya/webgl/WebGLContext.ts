@@ -313,7 +313,7 @@ import { Render } from "laya/renders/Render";
 		/**@private */
 		 static _activeTextures:any[] = new Array(8);
 		/**@private */
-		 static _glTextureIDs:any[] = /*[STATIC SAFE]*/ [WebGLContext.TEXTURE0, WebGLContext.TEXTURE1, WebGLContext.TEXTURE2, WebGLContext.TEXTURE3, WebGLContext.TEXTURE4, WebGLContext.TEXTURE5, WebGLContext.TEXTURE6, WebGLContext.TEXTURE7];
+		 static _glTextureIDs:any[] =  [WebGLContext.TEXTURE0, WebGLContext.TEXTURE1, WebGLContext.TEXTURE2, WebGLContext.TEXTURE3, WebGLContext.TEXTURE4, WebGLContext.TEXTURE5, WebGLContext.TEXTURE6, WebGLContext.TEXTURE7];
 		/**@private */
 		 static _useProgram:any = null;
 		/**@private */

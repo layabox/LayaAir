@@ -6,7 +6,7 @@ import { Matrix } from "../../../maths/Matrix"
 	export class SaveTranslate implements ISaveData {
 		
 		
-		private static POOL:any =/*[STATIC SAFE]*/ SaveBase._createArray();
+		private static POOL:any = SaveBase._createArray();
 		 _mat:Matrix=new Matrix();
 		 isSaveMark():boolean { return false; }
 		

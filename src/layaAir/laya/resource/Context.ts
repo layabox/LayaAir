@@ -273,7 +273,7 @@ export class Context {
 		}
 	}
 	/**Math.PI*2的结果缓存 */
-	static PI2: number =/*[STATIC SAFE]*/ 2 * Math.PI;
+	static PI2: number = 2 * Math.PI;
 	_drawCircle(x: number, y: number, radius: number, fillColor: any, lineColor: any, lineWidth: number, vid: number): void {
 		Stat.renderBatches++;
 		this.beginPath(true);

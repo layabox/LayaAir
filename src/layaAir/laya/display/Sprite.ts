@@ -1214,7 +1214,7 @@ import { ILaya } from "../../ILaya";
 		 * @private
 		 * 绘制到画布。
 		 */
-		 static drawToCanvas:Function =/*[STATIC SAFE]*/ function(sprite:Sprite, _renderType:number, canvasWidth:number, canvasHeight:number, offsetX:number, offsetY:number):HTMLCanvas {
+		 static drawToCanvas:Function = function(sprite:Sprite, _renderType:number, canvasWidth:number, canvasHeight:number, offsetX:number, offsetY:number):HTMLCanvas {
 			offsetX -= sprite.x;
 			offsetY -= sprite.y;
 			offsetX |= 0;

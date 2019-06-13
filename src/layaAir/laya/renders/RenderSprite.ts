@@ -57,7 +57,7 @@ export class RenderSprite {
 	/** @private */
 	static renders: any[] = [];
 	/** @private */
-	protected static NORENDER: RenderSprite = /*[STATIC SAFE]*/ new RenderSprite(0, null);
+	protected static NORENDER: RenderSprite =  new RenderSprite(0, null);
 	/** @private */
 	_next: RenderSprite;
 	/** @private */

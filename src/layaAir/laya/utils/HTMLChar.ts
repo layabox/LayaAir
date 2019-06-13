@@ -5,7 +5,7 @@ import { Pool } from "././Pool";
 	 */
 	export class HTMLChar {
 		
-		private static _isWordRegExp:RegExp =/*[STATIC SAFE]*/ new RegExp("[\\w\.]", "");
+		private static _isWordRegExp:RegExp = new RegExp("[\\w\.]", "");
 		
 		/** x坐标*/
 		 x:number;

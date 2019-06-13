@@ -7,7 +7,7 @@ import { Matrix } from "../../../maths/Matrix"
 	export class SaveClipRect implements ISaveData {
 		
 		
-		private static POOL:any =/*[STATIC SAFE]*/ SaveBase._createArray();
+		private static POOL:any = SaveBase._createArray();
 		
 		//public var _clipSaveRect:Rectangle;
 		//private var _transedClipInfo:Array = new Array(6);

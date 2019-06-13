@@ -5,7 +5,7 @@ import { Handler } from "../utils/Handler"
 	 */
 	export class EventDispatcher {
 		/**@private */
-		 static MOUSE_EVENTS:any =/*[STATIC SAFE]*/ {"rightmousedown": true, "rightmouseup": true, "rightclick": true, "mousedown": true, "mouseup": true, "mousemove": true, "mouseover": true, "mouseout": true, "click": true, "doubleclick": true};
+		 static MOUSE_EVENTS:any = {"rightmousedown": true, "rightmouseup": true, "rightclick": true, "mousedown": true, "mouseup": true, "mousemove": true, "mouseover": true, "mouseout": true, "click": true, "doubleclick": true};
 		/**@private */
 		private _events:any;
 		

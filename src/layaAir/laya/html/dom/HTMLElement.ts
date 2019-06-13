@@ -19,7 +19,7 @@ import { IHtml } from "../utils/IHtml";
 	 */
 	export class HTMLElement {
 		
-        private static _EMPTYTEXT:any = /*[STATIC SAFE]*/ {text: null, words: null};
+        private static _EMPTYTEXT:any =  {text: null, words: null};
         eletype:HTMLElementType=HTMLElementType.BASE;      // 用type来避免 instance判断引起的import问题
 		 URI:URL;
 		 parent:HTMLElement;

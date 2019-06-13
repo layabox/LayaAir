@@ -11,10 +11,10 @@ import { HTMLBrElement } from "../dom/HTMLBrElement"
 	 * @private
 	 */
 	export class HTMLParse {
-		private static char255:string = /*[STATIC SAFE]*/ String.fromCharCode(255);
-		private static spacePattern:RegExp = /*[STATIC SAFE]*/ /&nbsp;|&#160;/g;
-		private static char255AndOneSpacePattern:RegExp = /*[STATIC SAFE]*/ new RegExp(String.fromCharCode(255) + "|(\\s+)", "g");
-		private static _htmlClassMapShort:any = /*[STATIC SAFE]*/ {
+		private static char255:string =  String.fromCharCode(255);
+		private static spacePattern:RegExp =  /&nbsp;|&#160;/g;
+		private static char255AndOneSpacePattern:RegExp =  new RegExp(String.fromCharCode(255) + "|(\\s+)", "g");
+		private static _htmlClassMapShort:any =  {
             'div': HTMLDivParser, 
             'p': HTMLElement, 
             'img': HTMLImageElement, 

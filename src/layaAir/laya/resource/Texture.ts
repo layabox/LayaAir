@@ -17,15 +17,15 @@ import { ILaya } from "../../ILaya";
 	export class Texture extends EventDispatcher {
 		
 		/**@private 默认 UV 信息。*/
-		 static DEF_UV = /*[STATIC SAFE]*/ new Float32Array([0, 0, 1.0, 0, 1.0, 1.0, 0, 1.0]);
+		 static DEF_UV =  new Float32Array([0, 0, 1.0, 0, 1.0, 1.0, 0, 1.0]);
 		/**@private */
-		 static NO_UV = /*[STATIC SAFE]*/ new Float32Array([0, 0, 0, 0, 0, 0, 0, 0]);
+		 static NO_UV =  new Float32Array([0, 0, 0, 0, 0, 0, 0, 0]);
 		/**@private 反转 UV 信息。*/
-		 static INV_UV = /*[STATIC SAFE]*/ new Float32Array([0, 1, 1.0, 1, 1.0, 0.0, 0, 0.0]);
+		 static INV_UV =  new Float32Array([0, 1, 1.0, 1, 1.0, 0.0, 0, 0.0]);
 		/**@private */
-		private static _rect1:Rectangle = /*[STATIC SAFE]*/ new Rectangle();
+		private static _rect1:Rectangle =  new Rectangle();
 		/**@private */
-		private static _rect2:Rectangle = /*[STATIC SAFE]*/ new Rectangle();
+		private static _rect2:Rectangle =  new Rectangle();
 		
 		/**@private uv的范围*/
 		 uvrect:any[] = [0, 0, 1, 1]; //startu,startv, urange,vrange

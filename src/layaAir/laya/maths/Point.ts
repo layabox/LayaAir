@@ -6,9 +6,9 @@ import { Pool } from "../utils/Pool"
 	export class Point {
 		
 		/**临时使用的公用对象。*/
-		 static TEMP:Point =/*[STATIC SAFE]*/ new Point();
+		 static TEMP:Point = new Point();
 		/**@private 全局空的point对象(x=0，y=0)，不允许修改此对象内容*/
-		 static EMPTY:Point =/*[STATIC SAFE]*/ new Point();
+		 static EMPTY:Point = new Point();
 		
 		/**该点的水平坐标。*/
 		 x:number;

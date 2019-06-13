@@ -25,7 +25,7 @@ import { IClone } from "../../core/IClone"
 		 static _tempMatrix3x3:Matrix3x3 = new Matrix3x3();
 		
 		/**默认矩阵,禁止修改*/
-		 static DEFAULT:ConchQuaternion =/*[STATIC SAFE]*/ new ConchQuaternion();
+		 static DEFAULT:ConchQuaternion = new ConchQuaternion();
 		/**无效矩阵,禁止修改*/
 		 static NAN:ConchQuaternion = new ConchQuaternion(NaN, NaN, NaN, NaN);
 		

@@ -36,7 +36,7 @@ import { Matrix } from "laya/maths/Matrix";
 	 */
 	export class MovieClip extends Sprite {
 		/**@private */
-		protected static _ValueList:any[] = /*[STATIC SAFE]*/ ["x", "y", "width", "height", "scaleX", "scaleY", "rotation", "alpha"];
+		protected static _ValueList:any[] =  ["x", "y", "width", "height", "scaleX", "scaleY", "rotation", "alpha"];
 		/**@private 数据起始位置。*/
 		protected _start:number = 0;
 		/**@private 当前位置。*/

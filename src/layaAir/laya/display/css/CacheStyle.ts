@@ -11,7 +11,7 @@ import { Sprite } from "../Sprite"
 	 */
 	export class CacheStyle {
 		
-		 static EMPTY:CacheStyle =/*[STATIC SAFE]*/ new CacheStyle();
+		 static EMPTY:CacheStyle = new CacheStyle();
 		/**当前实际的cache状态*/
 		 cacheAs:string;
 		/**是否开启canvas渲染*/

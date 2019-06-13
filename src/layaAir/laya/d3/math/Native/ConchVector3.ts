@@ -12,25 +12,25 @@ import { IClone } from "../../core/IClone"
 		 static _tempVector4:ConchVector4 = new ConchVector4();
 		
 		/**零向量，禁止修改*/
-		 static ZERO:ConchVector3 =/*[STATIC SAFE]*/ new ConchVector3(0.0, 0.0, 0.0);
+		 static ZERO:ConchVector3 = new ConchVector3(0.0, 0.0, 0.0);
 		/**一向量，禁止修改*/
-		 static ONE:ConchVector3 =/*[STATIC SAFE]*/ new ConchVector3(1.0, 1.0, 1.0);
+		 static ONE:ConchVector3 = new ConchVector3(1.0, 1.0, 1.0);
 		/**X轴单位向量，禁止修改*/
-		 static NegativeUnitX:ConchVector3 =/*[STATIC SAFE]*/ new ConchVector3(-1, 0, 0);
+		 static NegativeUnitX:ConchVector3 = new ConchVector3(-1, 0, 0);
 		/**X轴单位向量，禁止修改*/
-		 static UnitX:ConchVector3 =/*[STATIC SAFE]*/ new ConchVector3(1, 0, 0);
+		 static UnitX:ConchVector3 = new ConchVector3(1, 0, 0);
 		/**Y轴单位向量，禁止修改*/
-		 static UnitY:ConchVector3 =/*[STATIC SAFE]*/ new ConchVector3(0, 1, 0);
+		 static UnitY:ConchVector3 = new ConchVector3(0, 1, 0);
 		/**Z轴单位向量，禁止修改*/
-		 static UnitZ:ConchVector3 =/*[STATIC SAFE]*/ new ConchVector3(0, 0, 1);
+		 static UnitZ:ConchVector3 = new ConchVector3(0, 0, 1);
 		/**右手坐标系统前向量，禁止修改*/
-		 static ForwardRH:ConchVector3 =/*[STATIC SAFE]*/ new ConchVector3(0, 0, -1);
+		 static ForwardRH:ConchVector3 = new ConchVector3(0, 0, -1);
 		/**左手坐标系统前向量,禁止修改*/
-		 static ForwardLH:ConchVector3 =/*[STATIC SAFE]*/ new ConchVector3(0, 0, 1);
+		 static ForwardLH:ConchVector3 = new ConchVector3(0, 0, 1);
 		/**上向量,禁止修改*/
-		 static Up:ConchVector3 =/*[STATIC SAFE]*/ new ConchVector3(0, 1, 0);
+		 static Up:ConchVector3 = new ConchVector3(0, 1, 0);
 		/**无效矩阵,禁止修改*/
-		 static NAN:ConchVector3 =/*[STATIC SAFE]*/ new ConchVector3(NaN, NaN, NaN);
+		 static NAN:ConchVector3 = new ConchVector3(NaN, NaN, NaN);
 		/**[只读]向量元素集合。*/
 		 elements:Float32Array;
 		/**

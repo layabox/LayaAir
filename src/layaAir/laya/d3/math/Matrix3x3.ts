@@ -9,7 +9,7 @@ import { Vector3 } from "././Vector3";
 export class Matrix3x3 implements IClone {
 
 	/**默认矩阵,禁止修改*/
-	static DEFAULT: Matrix3x3 =/*[STATIC SAFE]*/ new Matrix3x3();
+	static DEFAULT: Matrix3x3 = new Matrix3x3();
 
 	/** @private */
 	private static _tempV30: Vector3 = new Vector3();

@@ -8,7 +8,7 @@ import { Rectangle } from "../../maths/Rectangle"
 	 */
 	export class SpriteStyle {
 		
-		 static EMPTY:SpriteStyle =/*[STATIC SAFE]*/ new SpriteStyle();
+		 static EMPTY:SpriteStyle = new SpriteStyle();
 		 scaleX:number;
 		 scaleY:number;
 		 skewX:number;

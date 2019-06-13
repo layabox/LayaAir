@@ -27,7 +27,7 @@ import { GeometryElement } from "laya/d3/core/GeometryElement"
 		 static HLAFMAXSIZE:number = 1600;
 		
 		/**@private 方块8个点局部坐标*/
-		 static POINTS:any[] =/*[STATIC SAFE]*/ [1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0];
+		 static POINTS:any[] = [1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0];
 		
 		/**@private 需要每帧处理的盒子数组 */
 		private _modifyCubes:any[] = [];

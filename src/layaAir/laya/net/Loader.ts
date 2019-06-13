@@ -84,9 +84,9 @@ import { TTFLoader } from "./TTFLoader";
 		 static TERRAINRES:string = "TERRAIN";
 		
 		/**文件后缀和类型对应表。*/
-		 static typeMap:any = /*[STATIC SAFE]*/ {"ttf": "ttf", "png": "image", "jpg": "image", "jpeg": "image", "ktx": "image", "pvr": "image", "txt": "text", "json": "json", "prefab": "prefab", "xml": "xml", "als": "atlas", "atlas": "atlas", "mp3": "sound", "ogg": "sound", "wav": "sound", "part": "json", "fnt": "font", "plf": "plf", "plfb": "plfb", "scene": "json", "ani": "json", "sk": "arraybuffer"};
+		 static typeMap:any =  {"ttf": "ttf", "png": "image", "jpg": "image", "jpeg": "image", "ktx": "image", "pvr": "image", "txt": "text", "json": "json", "prefab": "prefab", "xml": "xml", "als": "atlas", "atlas": "atlas", "mp3": "sound", "ogg": "sound", "wav": "sound", "part": "json", "fnt": "font", "plf": "plf", "plfb": "plfb", "scene": "json", "ani": "json", "sk": "arraybuffer"};
 		/**资源解析函数对应表，用来扩展更多类型的资源加载解析。*/
-		 static parserMap:any = /*[STATIC SAFE]*/ {};
+		 static parserMap:any =  {};
 		/**每帧加载完成回调使用的最大超时时间，如果超时，则下帧再处理，防止帧卡顿。*/
 		 static maxTimeOut:number = 100;
 		/**资源分组对应表。*/

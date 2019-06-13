@@ -9,8 +9,8 @@ import { URL } from "laya/net/URL";
 	 */
 	export class HTMLStyle {
 		
-		private static _CSSTOVALUE:any =/*[STATIC SAFE]*/ {'letter-spacing': 'letterSpacing', 'white-space': 'whiteSpace', 'line-height': 'lineHeight', 'font-family': 'family', 'vertical-align': 'valign', 'text-decoration': 'textDecoration', 'background-color': 'bgColor', 'border-color': 'borderColor'};
-		private static _parseCSSRegExp:RegExp =/*[STATIC SAFE]*/ new RegExp("([\.\#]\\w+)\\s*{([\\s\\S]*?)}", "g");
+		private static _CSSTOVALUE:any = {'letter-spacing': 'letterSpacing', 'white-space': 'whiteSpace', 'line-height': 'lineHeight', 'font-family': 'family', 'vertical-align': 'valign', 'text-decoration': 'textDecoration', 'background-color': 'bgColor', 'border-color': 'borderColor'};
+		private static _parseCSSRegExp:RegExp = new RegExp("([\.\#]\\w+)\\s*{([\\s\\S]*?)}", "g");
 		/**
 		 * 需要继承的属性
 		 */
@@ -32,7 +32,7 @@ import { URL } from "laya/net/URL";
 		 static styleSheets:any = {};
 		/**添加布局。 */
 		 static ADDLAYOUTED:number = 0x200;
-		private static _PADDING:any[] = /*[STATIC SAFE]*/ [0, 0, 0, 0];
+		private static _PADDING:any[] =  [0, 0, 0, 0];
 		
 		protected static _HEIGHT_SET:number = 0x2000;
 		protected static _LINE_ELEMENT:number = 0x10000;

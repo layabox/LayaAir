@@ -6,7 +6,7 @@ import { Pool } from "laya/utils/Pool";
 	export class HTMLExtendStyle 
 	{
 		
-		 static EMPTY:HTMLExtendStyle =/*[STATIC SAFE]*/ new HTMLExtendStyle();
+		 static EMPTY:HTMLExtendStyle = new HTMLExtendStyle();
 		/**
 		 * <p>描边宽度（以像素为单位）。</p>
 		 * 默认值0，表示不描边。

@@ -8,7 +8,7 @@ import { ShaderValue } from "././ShaderValue";
 
 export class Shader extends BaseShader {
 
-	//private static var _TEXTURES:Array = /*[STATIC SAFE]*/ [WebGLContext.TEXTURE0, WebGLContext.TEXTURE1, WebGLContext.TEXTURE2, WebGLContext.TEXTURE3, WebGLContext.TEXTURE4, WebGLContext.TEXTURE5, WebGLContext.TEXTURE6,, WebGLContext.TEXTURE7, WebGLContext.TEXTURE8];
+	//private static var _TEXTURES:Array =  [WebGLContext.TEXTURE0, WebGLContext.TEXTURE1, WebGLContext.TEXTURE2, WebGLContext.TEXTURE3, WebGLContext.TEXTURE4, WebGLContext.TEXTURE5, WebGLContext.TEXTURE6,, WebGLContext.TEXTURE7, WebGLContext.TEXTURE8];
 	private static _count: number = 0;
 	static _preCompileShader: any = {}; //存储预编译结果，可以通过名字获得内容,目前不支持#ifdef嵌套和条件
 	private _attribInfo: any[] = null;
@@ -18,7 +18,7 @@ export class Shader extends BaseShader {
 
 	static nameKey: StringKey = new StringKey();
 
-	static sharders: any[] = /*[STATIC SAFE]*/ new Array(0x20);// (sharders = [], sharders.length = 0x20, sharders);
+	static sharders: any[] =  new Array(0x20);// (sharders = [], sharders.length = 0x20, sharders);
 
 	//TODO:coverage
 	static getShader(name: any): Shader {

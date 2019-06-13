@@ -8,13 +8,13 @@ import { Utils } from "./Utils"
 		/*[FILEINDEX:10000]*/
 		
 		/**@private */
-		 static _SAVE:any = /*[STATIC SAFE]*/ {};
+		 static _SAVE:any =  {};
 		/**@private */
 		 static _SAVE_SIZE:number = 0;
 		/**@private */
-		private static _COLOR_MAP:any = /*[STATIC SAFE]*/ { "purple":"#800080","orange":"#ffa500","white": '#FFFFFF', "red": '#FF0000', "green": '#00FF00', "blue": '#0000FF', "black": '#000000', "yellow": '#FFFF00', 'gray': '#808080' };
+		private static _COLOR_MAP:any =  { "purple":"#800080","orange":"#ffa500","white": '#FFFFFF', "red": '#FF0000', "green": '#00FF00', "blue": '#0000FF', "black": '#000000', "yellow": '#FFFF00', 'gray': '#808080' };
 		/**@private */
-		private static _DEFAULT:any = /*[STATIC SAFE]*/ ColorUtils._initDefault();
+		private static _DEFAULT:any =  ColorUtils._initDefault();
 		/**@private */
 		private static _COLODID:number = 1;
 		

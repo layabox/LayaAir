@@ -11,7 +11,7 @@ import { BitmapFont } from "../BitmapFont"
 		 /**
 		 * 一个已初始化的 <code>TextStyle</code> 实例。
 		 */
-		 static EMPTY:TextStyle = /*[STATIC SAFE]*/ new TextStyle();
+		 static EMPTY:TextStyle =  new TextStyle();
 		/**
 		 * 表示使用此文本格式的文本是否为斜体。
 		 * @default false

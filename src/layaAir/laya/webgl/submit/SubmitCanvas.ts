@@ -85,6 +85,6 @@ export class SubmitCanvas extends SubmitBase {
 		return SubmitBase.TYPE_CANVAS;
 	}
 
-	static POOL: any = [];/*[STATIC SAFE]*/;
+	static POOL: any = [];;
 }
 { SubmitCanvas.POOL._length = 0 }

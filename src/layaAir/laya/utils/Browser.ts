@@ -192,7 +192,7 @@ import { ILaya } from "../../ILaya";
 			Browser.onMobile = (window as any).isConchApp ? true : u.indexOf("Mobile") > -1;
 			Browser.onIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
 			Browser.onIPhone = u.indexOf("iPhone") > -1;
-			Browser.onMac = /*[STATIC SAFE]*/ u.indexOf("Mac OS X") > -1;
+			Browser.onMac =  u.indexOf("Mac OS X") > -1;
 			Browser.onIPad = u.indexOf("iPad") > -1;
 			Browser.onAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1;
 			Browser.onWP = u.indexOf("Windows Phone") > -1;
@@ -200,20 +200,20 @@ import { ILaya } from "../../ILaya";
 			Browser.onMQQBrowser = u.indexOf("MQQBrowser") > -1 || (u.indexOf("Mobile") > -1 && u.indexOf("QQ") > -1);
 			Browser.onIE = !!win.ActiveXObject || "ActiveXObject" in win;
 			Browser.onWeiXin = u.indexOf('MicroMessenger') > -1;
-			Browser.onSafari = /*[STATIC SAFE]*/ u.indexOf("Safari") > -1;
+			Browser.onSafari =  u.indexOf("Safari") > -1;
 			Browser.onPC = !Browser.onMobile;
-			Browser.onMiniGame = /*[STATIC SAFE]*/ u.indexOf('MiniGame') > -1;
-			Browser.onBDMiniGame = /*[STATIC SAFE]*/ u.indexOf('SwanGame') > -1;
+			Browser.onMiniGame =  u.indexOf('MiniGame') > -1;
+			Browser.onBDMiniGame =  u.indexOf('SwanGame') > -1;
 			Browser.onLayaRuntime = ! !((<any>Browser.window ) ).conch;
 			if(u.indexOf('OPPO') > -1 && u.indexOf('MiniGame') > -1)
 			{
 				Browser.onQGMiniGame = true;//OPPO环境判断
 				Browser.onMiniGame = false;
 			}	
-			Browser.onLimixiu = /*[STATIC SAFE]*/ u.indexOf('limixiu') > -1;
-			Browser.onVVMiniGame = /*[STATIC SAFE]*/ u.indexOf('VVGame') > -1;//vivo
+			Browser.onLimixiu =  u.indexOf('limixiu') > -1;
+			Browser.onVVMiniGame =  u.indexOf('VVGame') > -1;//vivo
 			//小米运行环境判断
-			Browser.onKGMiniGame = /*[STATIC SAFE]*/ u.indexOf('QuickGame') > -1;//小米环境判断
+			Browser.onKGMiniGame =  u.indexOf('QuickGame') > -1;//小米环境判断
 			
 			return win;
 		}
