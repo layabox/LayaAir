@@ -662,7 +662,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	_clear(gl: WebGLContext, state: RenderContext3D): void {
 		var viewport: Viewport = state.viewport;
 		var camera: Camera = (<Camera>state.camera);
-		var renderTexture: RenderTexture = camera._renderTexture;
+		var renderTexture:RenderTexture = camera._renderTexture|| camera._offScreenRenderTexture;
 		var vpW: number = viewport.width;
 		var vpH: number = viewport.height;
 		var vpX: number = viewport.x;
@@ -739,14 +739,15 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	_renderScene(gl: WebGLContext, state: RenderContext3D, customShader: Shader3D = null, replacementTag: string = null): void {
 		var camera: Camera = (<Camera>state.camera);
 		var position: Vector3 = camera.transform.position;
-		camera._renderTexture ? this._opaqueQueue._render(state, true, customShader, replacementTag) : this._opaqueQueue._render(state, false, customShader, replacementTag);//非透明队列
+		var renderTar:RenderTexture = camera._renderTexture || camera._offScreenRenderTexture;
+		renderTar ? this._opaqueQueue._render(state, true, customShader, replacementTag) : this._opaqueQueue._render(state, false, customShader, replacementTag);//非透明队列
 		if (camera.clearFlag === BaseCamera.CLEARFLAG_SKY) {
 			if (camera.skyRenderer._isAvailable())
 				camera.skyRenderer._render(state);
 			else if (this._skyRenderer._isAvailable())
 				this._skyRenderer._render(state);
 		}
-		camera._renderTexture ? this._transparentQueue._render(state, true, customShader, replacementTag) : this._transparentQueue._render(state, false, customShader, replacementTag);//透明队列
+		renderTar ? this._transparentQueue._render(state, true, customShader, replacementTag) : this._transparentQueue._render(state, false, customShader, replacementTag);//透明队列
 
 		if (FrustumCulling.debugFrustumCulling) {
 			var renderElements: RenderElement[] = this._debugTool._render._renderElements;

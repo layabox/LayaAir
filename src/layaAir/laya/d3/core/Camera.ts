@@ -60,7 +60,7 @@ export class Camera extends BaseCamera {
 	/** @private */
 	private _updateViewMatrix: boolean = true;
 	/** @private 渲染目标。*/
-	private _offScreenRenderTexture: RenderTexture = null;
+	public _offScreenRenderTexture: RenderTexture = null;
 	/**@private */
 	private _postProcess: PostProcess = null;
 	/**@private */
