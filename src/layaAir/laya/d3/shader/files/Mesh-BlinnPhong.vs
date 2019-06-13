@@ -48,7 +48,7 @@ attribute vec4 a_Position;
 	varying vec3 v_Binormal;
 #endif
 
-#if defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(RECEIVESHADOW)
+#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(RECEIVESHADOW)
 	#ifdef GPU_INSTANCE
 		attribute mat4 a_WorldMat;
 	#else
@@ -137,11 +137,11 @@ void main_normal()
 		#endif
 	#endif
 
-	#if defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(RECEIVESHADOW)
+	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(RECEIVESHADOW)
 		v_PositionWorld=(worldMat*position).xyz;
 	#endif
 	
-	#if defined(POINTLIGHT)||defined(SPOTLIGHT)
+	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
 		v_ViewDir=u_CameraPos-v_PositionWorld;
 	#endif
 
