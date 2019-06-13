@@ -85,7 +85,7 @@ import { BaseCamera } from "../../core/BaseCamera"
 				WebGLContext.setCullFace(gl, false);
 				WebGLContext.setDepthFunc(gl, WebGLContext.LEQUAL);
 				WebGLContext.setDepthMask(gl, false);
-				var shader:ShaderInstance = state.shaderInstance = this._material._shader.getSubShaderAt(0)._passes[0].withCompile(0, 0, this._material._shaderValues._defineValue);//TODO:调整SubShader代码
+				var shader:ShaderInstance = state.shader = this._material._shader.getSubShaderAt(0)._passes[0].withCompile(0, 0, this._material._shaderValues._defineValue);//TODO:调整SubShader代码
 				var switchShader:boolean = shader.bind();//纹理需要切换shader时重新绑定 其他uniform不需要
 				var switchShaderLoop:boolean = (Stat.loopCount !== shader._uploadMark);
 				

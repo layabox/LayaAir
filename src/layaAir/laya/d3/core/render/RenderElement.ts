@@ -12,7 +12,6 @@ import { Transform3D } from "../Transform3D";
 import { BaseRender } from "././BaseRender";
 import { RenderContext3D } from "././RenderContext3D";
 import { RenderQueue } from "././RenderQueue";
-import { Shader } from "../../../webgl/shader/Shader";
 
 /**
  * @private
@@ -100,11 +99,9 @@ export class RenderElement {
 		}
 
 		if (geometry._prepareRender(context)) {
-			var shader:Shader3D=this.material._shader;
-			var subShader: SubShader = shader.getSubShaderAt(0);//TODO:
+			var subShader: SubShader = this.material._shader.getSubShaderAt(0);//TODO:
 			var passes: ShaderPass[];
 			if (customShader) {
-				context.shader=customShader;
 				if (replacementTag) {
 					var oriTag: string = subShader.getFlag(replacementTag);
 					if (oriTag) {
@@ -125,12 +122,11 @@ export class RenderElement {
 					passes = customShader.getSubShaderAt(0)._passes;//TODO:
 				}
 			} else {
-				context.shader=shader;
 				passes = subShader._passes;
 			}
 
 			for (var j: number = 0, m: number = passes.length; j < m; j++) {
-				var shaderPass: ShaderInstance = context.shaderInstance = passes[j].withCompile((scene._shaderValues._defineValue) & (~this.material._disablePublicDefineDatas.value), this.render._shaderValues._defineValue, this.material._shaderValues._defineValue);
+				var shaderPass: ShaderInstance = context.shader = passes[j].withCompile((scene._shaderValues._defineValue) & (~this.material._disablePublicDefineDatas.value), this.render._shaderValues._defineValue, this.material._shaderValues._defineValue);
 				var switchShader: boolean = shaderPass.bind();//纹理需要切换shader时重新绑定 其他uniform不需要
 				var switchUpdateMark: boolean = (updateMark !== shaderPass._uploadMark);
 
