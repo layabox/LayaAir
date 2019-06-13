@@ -1,9 +1,10 @@
-import { LayaGL } from "laya/layagl/LayaGL";
-import { Render } from "laya/renders/Render";
-import { BufferStateBase } from "laya/webgl/BufferStateBase";
-import { IndexBuffer3D } from "../graphics/IndexBuffer3D";
-import { VertexBuffer3D } from "../graphics/VertexBuffer3D";
-import { VertexDeclaration } from "../graphics/VertexDeclaration";
+import { IndexBuffer3D } from "../graphics/IndexBuffer3D"
+import { VertexBuffer3D } from "../graphics/VertexBuffer3D"
+import { VertexDeclaration } from "../graphics/VertexDeclaration"
+import { LayaGL } from "../../layagl/LayaGL"
+import { Render } from "../../renders/Render"
+import { BufferStateBase } from "../../webgl/BufferStateBase"
+
 
 /**
  * @private
@@ -16,6 +17,8 @@ export class BufferState extends BufferStateBase {
 	 */
 	constructor() {
 		super();
+
+		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 	}
 
 	/**

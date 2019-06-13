@@ -1,11 +1,11 @@
-import { BufferState } from "../core/BufferState";
-import { BatchMark } from "../core/render/BatchMark";
-import { RenderElement } from "../core/render/RenderElement";
-import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement";
 import { DynamicBatchManager } from "././DynamicBatchManager";
 import { SubMeshDynamicBatch } from "././SubMeshDynamicBatch";
-import { VertexBuffer3D } from "././VertexBuffer3D";
 import { VertexDeclaration } from "././VertexDeclaration";
+import { VertexBuffer3D } from "././VertexBuffer3D";
+import { BufferState } from "../core/BufferState"
+import { BatchMark } from "../core/render/BatchMark"
+import { RenderElement } from "../core/render/RenderElement"
+import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement"
 
 /**
  * @private
@@ -29,6 +29,7 @@ export class MeshRenderDynamicBatchManager extends DynamicBatchManager {
 	 * 创建一个 <code>MeshSprite3DDynamicBatchManager</code> 实例。
 	 */
 	constructor() {
+		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		super();
 		this._updateCountMark = 0;
 	}

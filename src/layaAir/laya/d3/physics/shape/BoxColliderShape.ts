@@ -52,7 +52,7 @@ export class BoxColliderShape extends ColliderShape {
 	 * @param sizeZ 盒子Z轴尺寸。
 	 */
 	constructor(sizeX: number = 1.0, sizeY: number = 1.0, sizeZ: number = 1.0) {
-		
+		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		super();
 		this._sizeX = sizeX;
 		this._sizeY = sizeY;

@@ -9,40 +9,40 @@ import { SubCubeGeometry } from "SubCubeGeometry";
 		 static aoFactor:number[] = [];
 		/**@private */
 		//用来存储所有的情况
-		 static Objcect0down:any[] = new Array(256);//5,6,7
-		 static Objcect0front:any[] = new Array(256);//3,6,7
-		 static Objcect0right:any[] = new Array(256);//3,7,5
+		 static Objcect0down:any[] =/*[STATIC SAFE]*/ new Array(256);//5,6,7
+		 static Objcect0front:any[] =/*[STATIC SAFE]*/ new Array(256);//3,6,7
+		 static Objcect0right:any[] =/*[STATIC SAFE]*/ new Array(256);//3,7,5
 		
-		 static Objcect1down:any[] = new Array(256);//4,6,7
-		 static Objcect1left:any[] = new Array(256);//2,4,6
-		 static Objcect1front:any[] = new Array(256);//2,6,7
+		 static Objcect1down:any[] =/*[STATIC SAFE]*/ new Array(256);//4,6,7
+		 static Objcect1left:any[] =/*[STATIC SAFE]*/ new Array(256);//2,4,6
+		 static Objcect1front:any[] =/*[STATIC SAFE]*/ new Array(256);//2,6,7
 		
-		 static Objcect2down:any[] = new Array(256);//4,5,7
-		 static Objcect2back:any[] = new Array(256);//1,4,5
-		 static Objcect2right:any[] = new Array(256);//1,5,7
+		 static Objcect2down:any[] =/*[STATIC SAFE]*/ new Array(256);//4,5,7
+		 static Objcect2back:any[] =/*[STATIC SAFE]*/ new Array(256);//1,4,5
+		 static Objcect2right:any[] =/*[STATIC SAFE]*/ new Array(256);//1,5,7
 		
 		
-		 static Objcect3down:any[] = new Array(256);//4,5,6
-		 static Objcect3left:any[] = new Array(256);//0,4,6
-		 static Objcect3back:any[] = new Array(256);//0,4,5
+		 static Objcect3down:any[] =/*[STATIC SAFE]*/ new Array(256);//4,5,6
+		 static Objcect3left:any[] =/*[STATIC SAFE]*/ new Array(256);//0,4,6
+		 static Objcect3back:any[] =/*[STATIC SAFE]*/ new Array(256);//0,4,5
 		
-		 static Objcect4up:any[] = new Array(256);//1,2,3
-		 static Objcect4front:any[] = new Array(256);//7,3,2
-		 static Objcect4right:any[] = new Array(256);//1,3,7
+		 static Objcect4up:any[] =/*[STATIC SAFE]*/ new Array(256);//1,2,3
+		 static Objcect4front:any[] =/*[STATIC SAFE]*/ new Array(256);//7,3,2
+		 static Objcect4right:any[] =/*[STATIC SAFE]*/ new Array(256);//1,3,7
 		
-		 static Objcect5up:any[] = new Array(256);//0,2,3
-		 static Objcect5left:any[] = new Array(256);//0,2,6
-		 static Objcect5front:any[] = new Array(256);//2,3,6
+		 static Objcect5up:any[] =/*[STATIC SAFE]*/ new Array(256);//0,2,3
+		 static Objcect5left:any[] =/*[STATIC SAFE]*/ new Array(256);//0,2,6
+		 static Objcect5front:any[] =/*[STATIC SAFE]*/ new Array(256);//2,3,6
 		
-		 static Objcect6up:any[] = new Array(256);//0,1,3
-		 static Objcect6back:any[] = new Array(256);//0,1,5
-		 static Objcect6right:any[] = new Array(256);//1,3,5
+		 static Objcect6up:any[] =/*[STATIC SAFE]*/ new Array(256);//0,1,3
+		 static Objcect6back:any[] =/*[STATIC SAFE]*/ new Array(256);//0,1,5
+		 static Objcect6right:any[] =/*[STATIC SAFE]*/ new Array(256);//1,3,5
 		
-		 static Objcect7up:any[] = new Array(256);//0,1,2
-		 static Objcect7back:any[] = new Array(256);//0,1,4
-		 static Objcect7left:any[] = new Array(256);//0,2,4
+		 static Objcect7up:any[] =/*[STATIC SAFE]*/ new Array(256);//0,1,2
+		 static Objcect7back:any[] =/*[STATIC SAFE]*/ new Array(256);//0,1,4
+		 static Objcect7left:any[] =/*[STATIC SAFE]*/ new Array(256);//0,2,4
 		
-		 static PanduanWei:Int32Array = new Int32Array([1, 2, 4, 8, 16, 32, 64, 128]);
+		 static PanduanWei:Int32Array =/*[STATIC SAFE]*/ new Int32Array([1, 2, 4, 8, 16, 32, 64, 128]);
 		/**@private */
 		 static MODIFYE_NONE:number = 0;
 		/**@private */

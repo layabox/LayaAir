@@ -12,6 +12,8 @@ export class FloatKeyframe extends Keyframe {
 	 */
 	constructor() {
 		super();
+
+		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 	}
 
 		/**

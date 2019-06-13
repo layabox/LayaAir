@@ -4,9 +4,9 @@ import { Matrix } from "../../../maths/Matrix"
 	import { Context } from "../../../resource/Context"
 	
 	export class SaveTransform implements ISaveData {
+		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		
-		
-		private static POOL:any = SaveBase._createArray();
+		private static POOL:any =/*[STATIC SAFE]*/ SaveBase._createArray();
 		
 		 _savematrix:Matrix;
 		 _matrix:Matrix = new Matrix();

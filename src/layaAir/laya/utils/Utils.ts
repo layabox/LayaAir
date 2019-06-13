@@ -15,11 +15,11 @@ import { ILaya } from "../../ILaya";
 		/**@private */
 		private static _gid:number = 1;
 		/**@private */
-		private static _pi:number =  180 / Math.PI;
+		private static _pi:number = /*[STATIC SAFE]*/ 180 / Math.PI;
 		/**@private */
-		private static _pi2:number =  Math.PI / 180;
+		private static _pi2:number = /*[STATIC SAFE]*/ Math.PI / 180;
 		/**@private */
-		protected static _extReg:RegExp = /\.(\w+)\??/g;
+		protected static _extReg:RegExp =/*[STATIC SAFE]*/ /\.(\w+)\??/g;
 		
 		/**
 		 * 角度转弧度。

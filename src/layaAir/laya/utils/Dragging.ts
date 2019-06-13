@@ -1,19 +1,19 @@
-import { Sprite } from "../display/Sprite";
-import { Event } from "../events/Event";
-import { MouseManager } from "../events/MouseManager";
-import { Point } from "../maths/Point";
-import { Rectangle } from "../maths/Rectangle";
+import { Tween } from "././Tween";
 import { ILaya } from "./../../ILaya";
 import { Ease } from "././Ease";
 import { Handler } from "././Handler";
-import { Tween } from "././Tween";
+import { Event } from "../events/Event"
+import { MouseManager } from "../events/MouseManager"
+import { Point } from "../maths/Point"
+import { Rectangle } from "../maths/Rectangle"
+import { Sprite } from "../display/Sprite";
 
 /**
  * @private
  * <code>Dragging</code> 类是触摸滑动控件。
  */
 export class Dragging {
-
+	/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 
 	/** 被拖动的对象。*/
 	target: Sprite;

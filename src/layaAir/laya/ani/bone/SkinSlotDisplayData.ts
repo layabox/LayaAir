@@ -1,5 +1,5 @@
 import { Transform } from "././Transform";
-import { Texture } from "laya/resource/Texture";
+import { Texture } from "../../resource/Texture";
 	
 	
 	/**

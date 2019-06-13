@@ -1,17 +1,17 @@
-import { Shader3D } from "../../shader/Shader3D";
-import { ShaderData } from "../../shader/ShaderData";
-import { ShaderInstance } from "../../shader/ShaderInstance";
-import { ShaderPass } from "../../shader/ShaderPass";
-import { SubShader } from "../../shader/SubShader";
-import { BaseCamera } from "../BaseCamera";
-import { Camera } from "../Camera";
-import { GeometryElement } from "../GeometryElement";
-import { BaseMaterial } from "../material/BaseMaterial";
-import { Scene3D } from "../scene/Scene3D";
-import { Transform3D } from "../Transform3D";
 import { BaseRender } from "././BaseRender";
 import { RenderContext3D } from "././RenderContext3D";
 import { RenderQueue } from "././RenderQueue";
+import { BaseCamera } from "../BaseCamera"
+import { Camera } from "../Camera"
+import { GeometryElement } from "../GeometryElement"
+import { Transform3D } from "../Transform3D"
+import { BaseMaterial } from "../material/BaseMaterial"
+import { Scene3D } from "../scene/Scene3D"
+import { Shader3D } from "../../shader/Shader3D"
+import { ShaderData } from "../../shader/ShaderData"
+import { ShaderInstance } from "../../shader/ShaderInstance"
+import { ShaderPass } from "../../shader/ShaderPass"
+import { SubShader } from "../../shader/SubShader"
 
 /**
  * @private
@@ -45,7 +45,7 @@ export class RenderElement {
 	 * 创建一个 <code>RenderElement</code> 实例。
 	 */
 	constructor() {
-
+		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 	}
 
 	/**

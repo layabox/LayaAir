@@ -1,4 +1,6 @@
-import { RenderElement } from "../core/render/RenderElement";
+
+import { RenderElement } from "../core/render/RenderElement"
+
 
 /**
  * @private
@@ -24,6 +26,7 @@ export class DynamicBatchManager {
 	 * 创建一个 <code>DynamicBatchManager</code> 实例。
 	 */
 	constructor() {
+		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		this._batchRenderElementPool = [];
 	}
 

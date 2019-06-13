@@ -9,6 +9,8 @@ import { Utils } from "../utils/Utils";
 	 * <code>Component</code> 类用于创建组件的基类。
 	 */
 	export class Component implements ISingletonElement, IDestroy {
+		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+		
 		/** @private [实现IListPool接口]*/
 		 _destroyed:boolean;
 		/** @private [实现IListPool接口]*/

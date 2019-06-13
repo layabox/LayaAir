@@ -1,4 +1,4 @@
-import { Utils } from "laya/utils/Utils";
+import { Utils } from "../../utils/Utils";
 
 	/**
 	 * 用于UV转换的工具类

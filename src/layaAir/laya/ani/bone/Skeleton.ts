@@ -1,4 +1,3 @@
-//import { Templet } from "././Templet";
 import { Bone } from "././Bone";
 import { IkConstraint } from "././IkConstraint";
 import { PathConstraintData } from "././PathConstraintData";
@@ -13,19 +12,19 @@ import { DeformAniData } from "././DeformAniData";
 import { DeformSlotData } from "././DeformSlotData";
 import { DeformSlotDisplayData } from "././DeformSlotDisplayData";
 import { AnimationPlayer } from "../AnimationPlayer"
-	import { GraphicsAni } from "../GraphicsAni"
-import { Sprite } from "laya/display/Sprite";
-import { Handler } from "laya/utils/Handler";
-import { Matrix } from "laya/maths/Matrix";
-import { Event } from "laya/events/Event";
-import { ILaya } from "ILaya";
-import { SoundChannel } from "laya/media/SoundChannel";
-import { SoundManager } from "laya/media/SoundManager";
-import { Graphics } from "laya/display/Graphics";
-import { Byte } from "laya/utils/Byte";
-import { Texture } from "laya/resource/Texture";
+import { GraphicsAni } from "../GraphicsAni"
+import { Sprite } from "../../display/Sprite";
+import { Handler } from "../../utils/Handler";
+import { Matrix } from "../../maths/Matrix";
+import { Event } from "../../events/Event";
+import { SoundChannel } from "../../media/SoundChannel";
+import { SoundManager } from "../../media/SoundManager";
+import { Graphics } from "../../display/Graphics";
+import { Byte } from "../../utils/Byte";
+import { Texture } from "../../resource/Texture";
 import { IAniLib } from "../AniLibPack";
-import { Templet } from "laya/ani/bone/Templet";
+import { Templet } from "../../ani/bone/Templet";
+import { ILaya } from "../../../ILaya";
 
 	
 	/**动画开始播放调度

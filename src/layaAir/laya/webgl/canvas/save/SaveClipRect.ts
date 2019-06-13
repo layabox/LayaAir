@@ -5,9 +5,9 @@ import { Matrix } from "../../../maths/Matrix"
 	import { Context } from "../../../resource/Context"
 	
 	export class SaveClipRect implements ISaveData {
+		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		
-		
-		private static POOL:any = SaveBase._createArray();
+		private static POOL:any =/*[STATIC SAFE]*/ SaveBase._createArray();
 		
 		//public var _clipSaveRect:Rectangle;
 		//private var _transedClipInfo:Array = new Array(6);

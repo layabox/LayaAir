@@ -1,4 +1,3 @@
-import { BaseTexture } from "laya/resource/BaseTexture";
 import { Vector4 } from "../../math/Vector4";
 import { Shader3D } from "../../shader/Shader3D";
 import { ShaderData } from "../../shader/ShaderData";
@@ -6,6 +5,7 @@ import { ShaderDefines } from "../../shader/ShaderDefines";
 import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
 import { BaseMaterial } from "./BaseMaterial";
 import { RenderState } from "./RenderState";
+import { BaseTexture } from "../../../resource/BaseTexture";
 
 /**
  * <code>BlinnPhongMaterial</code> 类用于实现Blinn-Phong材质。

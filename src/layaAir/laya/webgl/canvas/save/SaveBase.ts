@@ -3,7 +3,7 @@ import { Context } from "../../../resource/Context"
 	import { SubmitBase } from "../../submit/SubmitBase"
 	
 	export class SaveBase implements ISaveData {
-		
+		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		/*[FILEINDEX:1]*/
 		/*[DISBALEOUTCONST-BEGIN]*/
 		 static TYPE_ALPHA:number = 0x1;
@@ -27,8 +27,8 @@ import { Context } from "../../../resource/Context"
 		 static TYPE_FILTERS_TYPE:number = 0x400000;
 		 static TYPE_COLORFILTER:number = 0x800000;
 		/*[DISBALEOUTCONST-END]*/
-		private static POOL:any = SaveBase._createArray();
-		private static _namemap:any = SaveBase._init();
+		private static POOL:any =/*[STATIC SAFE]*/ SaveBase._createArray();
+		private static _namemap:any =/*[STATIC SAFE]*/ SaveBase._init();
 		
 		 static _createArray():any[] {
 			var value:any = [];

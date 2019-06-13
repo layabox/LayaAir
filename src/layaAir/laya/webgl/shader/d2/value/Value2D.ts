@@ -8,12 +8,12 @@
 import { ILaya } from "../../../../../ILaya";
 
 	export class Value2D{
-		
+		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 
 		protected static _cache:any[]=[];
 		protected static _typeClass:any = [];
 		
-		 static TEMPMAT4_ARRAY:any[]= [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+		 static TEMPMAT4_ARRAY:any[]=/*[STATIC SAFE]*/ [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 
 		public static _initone(type:number, classT:any):void
 		{

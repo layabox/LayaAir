@@ -1,17 +1,17 @@
-import { Node } from "laya/display/Node";
-import { Loader } from "laya/net/Loader";
-import { DynamicBatchManager } from "../graphics/DynamicBatchManager";
-import { MeshRenderDynamicBatchManager } from "../graphics/MeshRenderDynamicBatchManager";
-import { MeshRenderStaticBatchManager } from "../graphics/MeshRenderStaticBatchManager";
-import { StaticBatchManager } from "../graphics/StaticBatchManager";
-import { Vector4 } from "../math/Vector4";
-import { Mesh } from "../resource/models/Mesh";
-import { ShaderDefines } from "../shader/ShaderDefines";
+import { RenderableSprite3D } from "././RenderableSprite3D";
 import { MeshFilter } from "././MeshFilter";
 import { MeshRenderer } from "././MeshRenderer";
-import { RenderableSprite3D } from "././RenderableSprite3D";
-import { BaseMaterial } from "./material/BaseMaterial";
+import { BaseMaterial } from "./material/BaseMaterial"
+import { DynamicBatchManager } from "../graphics/DynamicBatchManager"
+import { MeshRenderDynamicBatchManager } from "../graphics/MeshRenderDynamicBatchManager"
+import { MeshRenderStaticBatchManager } from "../graphics/MeshRenderStaticBatchManager"
+import { StaticBatchManager } from "../graphics/StaticBatchManager"
+import { Vector4 } from "../math/Vector4"
+import { Mesh } from "../resource/models/Mesh"
+import { ShaderDefines } from "../shader/ShaderDefines"
+import { Node } from "../../display/Node"
 import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration";
+import { Loader } from "../../net/Loader";
 
 /**
  * <code>MeshSprite3D</code> 类用于创建网格。
@@ -59,6 +59,7 @@ export class MeshSprite3D extends RenderableSprite3D {
 	 * @param name 名字。
 	 */
 	constructor(mesh: Mesh = null, name: string = null) {
+		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		super(name);
 		this._meshFilter = new MeshFilter(this);
 		this._render = new MeshRenderer(this);

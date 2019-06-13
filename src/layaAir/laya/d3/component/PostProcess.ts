@@ -7,8 +7,8 @@ import { Camera } from "../core/Camera"
 	import { Shader3D } from "../shader/Shader3D"
 	import { ShaderData } from "../shader/ShaderData"
 	import { ShaderDefines } from "../shader/ShaderDefines"
-	import { BaseTexture } from "laya/resource/BaseTexture"
-	import { Texture2D } from "laya/resource/Texture2D"
+	import { BaseTexture } from "../../resource/BaseTexture"
+	import { Texture2D } from "../../resource/Texture2D"
 	
 	/**
 	 * <code>PostProcess</code> 类用于创建后期处理组件。

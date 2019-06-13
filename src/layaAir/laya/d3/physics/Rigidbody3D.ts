@@ -1,4 +1,4 @@
-import { Component } from "laya/components/Component";
+import { Component } from "../../components/Component";
 import { Vector3 } from "../math/Vector3";
 import { Physics3DUtils } from "../utils/Physics3DUtils";
 import { Utils3D } from "../utils/Utils3D";
@@ -419,7 +419,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	 * @param canCollideWith 可产生碰撞的碰撞组。
 	 */
 	constructor(collisionGroup: number = Physics3DUtils.COLLISIONFILTERGROUP_DEFAULTFILTER, canCollideWith: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER) {
-		
+		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		//LinkedConstraints = new List<Constraint>();
 		super(collisionGroup, canCollideWith);
 	}

@@ -1,23 +1,23 @@
-import { Event } from "laya/events/Event";
-import { EventDispatcher } from "laya/events/EventDispatcher";
-import { Render } from "laya/renders/Render";
-import { ISingletonElement } from "laya/resource/ISingletonElement";
-import { Texture2D } from "laya/resource/Texture2D";
-import { FrustumCulling } from "../../graphics/FrustumCulling";
-import { BoundFrustum } from "../../math/BoundFrustum";
-import { Vector3 } from "../../math/Vector3";
-import { Vector4 } from "../../math/Vector4";
-import { ShaderData } from "../../shader/ShaderData";
-import { Bounds } from "../Bounds";
-import { GeometryElement } from "../GeometryElement";
-import { BaseMaterial } from "../material/BaseMaterial";
-import { RenderableSprite3D } from "../RenderableSprite3D";
-import { BoundsOctreeNode } from "../scene/BoundsOctreeNode";
-import { IOctreeObject } from "../scene/IOctreeObject";
-import { Scene3D } from "../scene/Scene3D";
-import { Transform3D } from "../Transform3D";
-import { RenderContext3D } from "././RenderContext3D";
 import { RenderElement } from "././RenderElement";
+import { RenderContext3D } from "././RenderContext3D";
+import { Bounds } from "../Bounds"
+import { GeometryElement } from "../GeometryElement"
+import { RenderableSprite3D } from "../RenderableSprite3D"
+import { Transform3D } from "../Transform3D"
+import { BaseMaterial } from "../material/BaseMaterial"
+import { BoundsOctreeNode } from "../scene/BoundsOctreeNode"
+import { IOctreeObject } from "../scene/IOctreeObject"
+import { Scene3D } from "../scene/Scene3D"
+import { FrustumCulling } from "../../graphics/FrustumCulling"
+import { BoundFrustum } from "../../math/BoundFrustum"
+import { Vector3 } from "../../math/Vector3"
+import { Vector4 } from "../../math/Vector4"
+import { ShaderData } from "../../shader/ShaderData"
+import { Event } from "../../../events/Event"
+import { EventDispatcher } from "../../../events/EventDispatcher"
+import { Render } from "../../../renders/Render"
+import { ISingletonElement } from "../../../resource/ISingletonElement"
+import { Texture2D } from "../../../resource/Texture2D"
 
 /**
  * <code>Render</code> 类用于渲染器的父类，抽象类不允许实例。
@@ -327,6 +327,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	 * 创建一个新的 <code>BaseRender</code> 实例。
 	 */
 	constructor(owner: RenderableSprite3D) {
+		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		super();
 		this._id = ++BaseRender._uniqueIDCounter;
 		this._indexInCastShadowList = -1;

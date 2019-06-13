@@ -2,15 +2,15 @@ import { KeyframeNode } from "././KeyframeNode";
 import { KeyframeNodeList } from "././KeyframeNodeList";
 import { AnimationEvent } from "././AnimationEvent";
 import { FloatKeyframe } from "../core/FloatKeyframe"
-	import { QuaternionKeyframe } from "../core/QuaternionKeyframe"
-	import { Vector3Keyframe } from "../core/Vector3Keyframe"
-	import { ConchQuaternion } from "../math/Native/ConchQuaternion"
-	import { ConchVector3 } from "../math/Native/ConchVector3"
-	import { Quaternion } from "../math/Quaternion"
-	import { Vector3 } from "../math/Vector3"
-	import { Vector4 } from "../math/Vector4"
-	import { Render } from "laya/renders/Render"
-	import { Byte } from "laya/utils/Byte"
+import { QuaternionKeyframe } from "../core/QuaternionKeyframe"
+import { Vector3Keyframe } from "../core/Vector3Keyframe"
+import { ConchQuaternion } from "../math/Native/ConchQuaternion"
+import { ConchVector3 } from "../math/Native/ConchVector3"
+import { Quaternion } from "../math/Quaternion"
+import { Vector3 } from "../math/Vector3"
+import { Vector4 } from "../math/Vector4"
+import { Render } from "../../renders/Render"
+import { Byte } from "../../utils/Byte"
 import { AnimationClip } from "./AnimationClip";
 	
 	/**

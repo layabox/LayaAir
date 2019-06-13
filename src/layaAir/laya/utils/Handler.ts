@@ -4,7 +4,7 @@
 	 * <p><b>注意：</b>由于鼠标事件也用本对象池，不正确的回收及调用，可能会影响鼠标事件的执行。</p>
 	 */
 	export class Handler {
-		
+		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		
 		/**@private handler对象池*/
 		protected static _pool:any[] = [];

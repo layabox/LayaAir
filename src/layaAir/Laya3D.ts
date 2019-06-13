@@ -1,39 +1,34 @@
-import { Config } from "Config";
-import { Config3D } from "Config3D";
-import { ILaya3D } from "ILaya3D";
-import { Laya } from "Laya";
-import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
-import { MeshRenderDynamicBatchManager } from "laya/d3/graphics/MeshRenderDynamicBatchManager";
-import { MeshRenderStaticBatchManager } from "laya/d3/graphics/MeshRenderStaticBatchManager";
-import { SubMeshDynamicBatch } from "laya/d3/graphics/SubMeshDynamicBatch";
-import { SubMeshInstanceBatch } from "laya/d3/graphics/SubMeshInstanceBatch";
-import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
-import { Physics } from "laya/d3/physics/Physics";
-import { PhysicsComponent } from "laya/d3/physics/PhysicsComponent";
-import { PhysicsSimulation } from "laya/d3/physics/PhysicsSimulation";
-import { BoxColliderShape } from "laya/d3/physics/shape/BoxColliderShape";
-import { CapsuleColliderShape } from "laya/d3/physics/shape/CapsuleColliderShape";
-import { ColliderShape } from "laya/d3/physics/shape/ColliderShape";
-import { CompoundColliderShape } from "laya/d3/physics/shape/CompoundColliderShape";
-import { ConeColliderShape } from "laya/d3/physics/shape/ConeColliderShape";
-import { CylinderColliderShape } from "laya/d3/physics/shape/CylinderColliderShape";
-import { MeshColliderShape } from "laya/d3/physics/shape/MeshColliderShape";
-import { SphereColliderShape } from "laya/d3/physics/shape/SphereColliderShape";
-import { Scene3DUtils } from "laya/d3/utils/Scene3DUtils";
-import { Node } from "laya/display/Node";
-import { Event } from "laya/events/Event";
-import { CommandEncoder } from "laya/layagl/CommandEncoder";
-import { LayaGL } from "laya/layagl/LayaGL";
-import { Loader } from "laya/net/Loader";
-import { LoaderManager } from "laya/net/LoaderManager";
-import { URL } from "laya/net/URL";
-import { Render } from "laya/renders/Render";
-import { Resource } from "laya/resource/Resource";
-import { Texture2D } from "laya/resource/Texture2D";
-import { Handler } from "laya/utils/Handler";
-import { RunDriver } from "laya/utils/RunDriver";
-import { WebGL } from "laya/webgl/WebGL";
-import { WebGLContext } from "laya/webgl/WebGLContext";
+import { Config } from "./Config";
+import { Config3D } from "./Config3D";
+import { ILaya3D } from "./ILaya3D";
+import { Laya } from "./Laya";
+import { MeshRenderDynamicBatchManager } from "./laya/d3/graphics/MeshRenderDynamicBatchManager";
+import { MeshRenderStaticBatchManager } from "./laya/d3/graphics/MeshRenderStaticBatchManager";
+import { SubMeshDynamicBatch } from "./laya/d3/graphics/SubMeshDynamicBatch";
+import { SubMeshInstanceBatch } from "./laya/d3/graphics/SubMeshInstanceBatch";
+import { Matrix4x4 } from "./laya/d3/math/Matrix4x4";
+import { Physics } from "./laya/d3/physics/Physics";
+import { PhysicsComponent } from "./laya/d3/physics/PhysicsComponent";
+import { PhysicsSimulation } from "./laya/d3/physics/PhysicsSimulation";
+import { BoxColliderShape } from "./laya/d3/physics/shape/BoxColliderShape";
+import { ColliderShape } from "./laya/d3/physics/shape/ColliderShape";
+import { CompoundColliderShape } from "./laya/d3/physics/shape/CompoundColliderShape";
+import { CylinderColliderShape } from "./laya/d3/physics/shape/CylinderColliderShape";
+import { Scene3DUtils } from "./laya/d3/utils/Scene3DUtils";
+import { Node } from "./laya/display/Node";
+import { Event } from "./laya/events/Event";
+import { CommandEncoder } from "./laya/layagl/CommandEncoder";
+import { LayaGL } from "./laya/layagl/LayaGL";
+import { Loader } from "./laya/net/Loader";
+import { LoaderManager } from "./laya/net/LoaderManager";
+import { URL } from "./laya/net/URL";
+import { Render } from "./laya/renders/Render";
+import { Resource } from "./laya/resource/Resource";
+import { Texture2D } from "./laya/resource/Texture2D";
+import { Handler } from "./laya/utils/Handler";
+import { RunDriver } from "./laya/utils/RunDriver";
+import { WebGL } from "./laya/webgl/WebGL";
+import { WebGLContext } from "./laya/webgl/WebGLContext";
 import { AnimationClip } from "./laya/d3/animation/AnimationClip";
 import { PostProcess } from "./laya/d3/component/PostProcess";
 import { Avatar } from "./laya/d3/core/Avatar";
@@ -73,12 +68,12 @@ import { ShaderData } from "./laya/d3/shader/ShaderData";
 import { ShaderInit3D } from "./laya/d3/shader/ShaderInit3D";
 import { ShaderInstance } from "./laya/d3/shader/ShaderInstance";
 import { Utils3D } from "./laya/d3/utils/Utils3D";
-import { PhysicsCollider } from "laya/d3/physics/PhysicsCollider";
-import { CharacterController } from "laya/d3/physics/CharacterController";
-import { Rigidbody3D } from "laya/d3/physics/Rigidbody3D";
-import { Animator } from "laya/d3/component/Animator";
-import { Command } from "laya/d3/core/render/command/Command";
-import { ClassUtils } from "laya/utils/ClassUtils";
+import { PhysicsCollider } from "./laya/d3/physics/PhysicsCollider";
+import { CharacterController } from "./laya/d3/physics/CharacterController";
+import { Rigidbody3D } from "./laya/d3/physics/Rigidbody3D";
+import { Animator } from "./laya/d3/component/Animator";
+import { Command } from "./laya/d3/core/render/command/Command";
+import { ClassUtils } from "./laya/utils/ClassUtils";
 
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
@@ -190,7 +185,7 @@ export class Laya3D {
 		SubMeshInstanceBatch.__init__();
 		SubMeshDynamicBatch.__init__();
 
-		Physics._physics3D=(window as any).Physics3D;
+		Physics._physics3D = (window as any).Physics3D;
 		if (Physics._physics3D) {
 			ColliderShape.__init__();
 			CompoundColliderShape.__init__();
@@ -211,7 +206,7 @@ export class Laya3D {
 		TrailSprite3D.__init__();
 		PostProcess.__init__();
 		Scene3D.__init__();
-		
+
 		BaseMaterial.__initDefine__();
 		BlinnPhongMaterial.__initDefine__();
 		PBRStandardMaterial.__initDefine__();
@@ -226,39 +221,39 @@ export class Laya3D {
 		PixelLineMaterial.__initDefine__();
 		SkyBoxMaterial.__initDefine__();
 		ShaderInit3D.__init__();
-		
+
 		Command.__init__();
 
 		//注册类命,解析的时候需要
-		ClassUtils.regClass("Laya.BlinnPhongMaterial",BlinnPhongMaterial);
-		ClassUtils.regClass("Laya.SkyProceduralMaterial",SkyProceduralMaterial);
-		ClassUtils.regClass("Laya.PBRStandardMaterial",PBRStandardMaterial);
-		ClassUtils.regClass("Laya.PBRSpecularMaterial",PBRSpecularMaterial);
-		ClassUtils.regClass("Laya.SkyBoxMaterial",SkyBoxMaterial);
-		ClassUtils.regClass("Laya.WaterPrimaryMaterial",WaterPrimaryMaterial);
-		ClassUtils.regClass("Laya.ExtendTerrainMaterial",ExtendTerrainMaterial);
-		ClassUtils.regClass("Laya.ShurikenParticleMaterial",ShurikenParticleMaterial);
-		ClassUtils.regClass("Laya.TrailMaterial",TrailMaterial);
-		ClassUtils.regClass("Laya.PhysicsCollider",PhysicsCollider);
-		ClassUtils.regClass("Laya.CharacterController",CharacterController);
-		ClassUtils.regClass("Laya.Animator",Animator);
+		ClassUtils.regClass("Laya.BlinnPhongMaterial", BlinnPhongMaterial);
+		ClassUtils.regClass("Laya.SkyProceduralMaterial", SkyProceduralMaterial);
+		ClassUtils.regClass("Laya.PBRStandardMaterial", PBRStandardMaterial);
+		ClassUtils.regClass("Laya.PBRSpecularMaterial", PBRSpecularMaterial);
+		ClassUtils.regClass("Laya.SkyBoxMaterial", SkyBoxMaterial);
+		ClassUtils.regClass("Laya.WaterPrimaryMaterial", WaterPrimaryMaterial);
+		ClassUtils.regClass("Laya.ExtendTerrainMaterial", ExtendTerrainMaterial);
+		ClassUtils.regClass("Laya.ShurikenParticleMaterial", ShurikenParticleMaterial);
+		ClassUtils.regClass("Laya.TrailMaterial", TrailMaterial);
+		ClassUtils.regClass("Laya.PhysicsCollider", PhysicsCollider);
+		ClassUtils.regClass("Laya.CharacterController", CharacterController);
+		ClassUtils.regClass("Laya.Animator", Animator);
 
-		ClassUtils.regClass("PhysicsCollider",PhysicsCollider);//兼容
-		ClassUtils.regClass("CharacterController",CharacterController);//兼容
-		ClassUtils.regClass("Animator",Animator);//兼容
+		ClassUtils.regClass("PhysicsCollider", PhysicsCollider);//兼容
+		ClassUtils.regClass("CharacterController", CharacterController);//兼容
+		ClassUtils.regClass("Animator", Animator);//兼容
 
 
-		PixelLineMaterial.defaultMaterial=new PixelLineMaterial();
-		BlinnPhongMaterial.defaultMaterial=new BlinnPhongMaterial();
-		EffectMaterial.defaultMaterial=new EffectMaterial();
-		PBRStandardMaterial.defaultMaterial=new PBRStandardMaterial();
-		PBRSpecularMaterial.defaultMaterial=new PBRSpecularMaterial();
-		UnlitMaterial.defaultMaterial=new UnlitMaterial();
-		ShurikenParticleMaterial.defaultMaterial=new ShurikenParticleMaterial();
-		TrailMaterial.defaultMaterial=new TrailMaterial();
-		SkyProceduralMaterial.defaultMaterial=new SkyProceduralMaterial();
-		SkyBoxMaterial.defaultMaterial=new SkyBoxMaterial();
-		WaterPrimaryMaterial.defaultMaterial=new WaterPrimaryMaterial();
+		PixelLineMaterial.defaultMaterial = new PixelLineMaterial();
+		BlinnPhongMaterial.defaultMaterial = new BlinnPhongMaterial();
+		EffectMaterial.defaultMaterial = new EffectMaterial();
+		PBRStandardMaterial.defaultMaterial = new PBRStandardMaterial();
+		PBRSpecularMaterial.defaultMaterial = new PBRSpecularMaterial();
+		UnlitMaterial.defaultMaterial = new UnlitMaterial();
+		ShurikenParticleMaterial.defaultMaterial = new ShurikenParticleMaterial();
+		TrailMaterial.defaultMaterial = new TrailMaterial();
+		SkyProceduralMaterial.defaultMaterial = new SkyProceduralMaterial();
+		SkyBoxMaterial.defaultMaterial = new SkyBoxMaterial();
+		WaterPrimaryMaterial.defaultMaterial = new WaterPrimaryMaterial();
 
 		PixelLineMaterial.defaultMaterial.lock = true;//todo:
 		BlinnPhongMaterial.defaultMaterial.lock = true;

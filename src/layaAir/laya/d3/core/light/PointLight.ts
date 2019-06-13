@@ -1,10 +1,10 @@
-import { ILaya3D } from "ILaya3D";
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Vector3 } from "../../math/Vector3";
 import { ShaderData } from "../../shader/ShaderData";
 import { Scene3D } from "../scene/Scene3D";
 import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
 import { LightSprite } from "././LightSprite";
+import { ILaya3D } from "../../../../ILaya3D";
 	
 	/**
 	 * <code>PointLight</code> 类用于创建点光。

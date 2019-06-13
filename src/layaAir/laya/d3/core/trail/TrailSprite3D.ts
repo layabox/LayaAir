@@ -1,13 +1,13 @@
-import { Node } from "laya/display/Node";
-import { Loader } from "laya/net/Loader";
-import { Color } from "../../math/Color";
-import { ShaderDefines } from "../../shader/ShaderDefines";
-import { FloatKeyframe } from "../FloatKeyframe";
-import { Gradient } from "../Gradient";
-import { BaseMaterial } from "../material/BaseMaterial";
-import { RenderableSprite3D } from "../RenderableSprite3D";
 import { TrailFilter } from "././TrailFilter";
 import { TrailRenderer } from "././TrailRenderer";
+import { FloatKeyframe } from "../FloatKeyframe"
+import { Gradient } from "../Gradient"
+import { RenderableSprite3D } from "../RenderableSprite3D"
+import { BaseMaterial } from "../material/BaseMaterial"
+import { Color } from "../../math/Color"
+import { ShaderDefines } from "../../shader/ShaderDefines"
+import { Node } from "../../../display/Node"
+import { Loader } from "../../../net/Loader"
 
 /**
  * <code>TrailSprite3D</code> 类用于创建拖尾渲染精灵。
@@ -46,6 +46,7 @@ export class TrailSprite3D extends RenderableSprite3D {
 	}
 
 	constructor(name: string = null) {
+		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		super(name);
 		this._render = new TrailRenderer(this);
 		this._geometryFilter = new TrailFilter(this);

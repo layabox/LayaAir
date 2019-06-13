@@ -1,9 +1,9 @@
-import { Scene3D } from "laya/d3/core/scene/Scene3D";
-import { MeshRenderDynamicBatchManager } from "laya/d3/graphics/MeshRenderDynamicBatchManager";
-import { MeshRenderStaticBatchManager } from "laya/d3/graphics/MeshRenderStaticBatchManager";
-import { SubMeshDynamicBatch } from "laya/d3/graphics/SubMeshDynamicBatch";
-import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
-import { Laya3D } from "Laya3D";
+import { Scene3D } from "./laya/d3/core/scene/Scene3D";
+import { MeshRenderDynamicBatchManager } from "./laya/d3/graphics/MeshRenderDynamicBatchManager";
+import { MeshRenderStaticBatchManager } from "./laya/d3/graphics/MeshRenderStaticBatchManager";
+import { Matrix4x4 } from "./laya/d3/math/Matrix4x4";
+import { SubMeshDynamicBatch } from "./laya/d3/graphics/SubMeshDynamicBatch";
+import { Laya3D } from "./Laya3D";
 
 /**
  * 使用全局类的时候，避免引用其他模块

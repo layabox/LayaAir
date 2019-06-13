@@ -59,7 +59,7 @@ export class ColliderShape implements IClone {
 	 * @private
 	 */
 	static _createAffineTransformation(trans: Vector3, rot: Quaternion, outE: Float32Array): void {
-
+		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		var x: number = rot.x, y: number = rot.y, z: number = rot.z, w: number = rot.w, x2: number = x + x, y2: number = y + y, z2: number = z + z;
 		var xx: number = x * x2, xy: number = x * y2, xz: number = x * z2, yy: number = y * y2, yz: number = y * z2, zz: number = z * z2;
 		var wx: number = w * x2, wy: number = w * y2, wz: number = w * z2;
@@ -159,7 +159,7 @@ export class ColliderShape implements IClone {
 	 * 创建一个新的 <code>ColliderShape</code> 实例。
 	 */
 	constructor() {
-
+		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 	}
 
 	/**

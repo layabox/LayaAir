@@ -2,9 +2,10 @@ import { Matrix4x4 } from "././Matrix4x4";
 import { Vector3 } from "././Vector3";
 import { Vector4 } from "././Vector4";
 /**
-	 * <code>Viewport</code> 类用于创建视口。
-	 */
+ * <code>Viewport</code> 类用于创建视口。
+ */
 export class Viewport {
+	/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 	private static _tempMatrix4x4: Matrix4x4 = new Matrix4x4();
 
 	/**X轴坐标*/
@@ -44,7 +45,7 @@ export class Viewport {
 	 * @param	vector 输出三维向量。
 	 */
 	project(source: Vector3, matrix: Matrix4x4, out: Vector3): void {
-		
+		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		Vector3.transformV3ToV3(source, matrix, out);
 		var matrixEleme: Float32Array = matrix.elements;
 
@@ -63,7 +64,7 @@ export class Viewport {
 	}
 
 	project1(source: Vector3, matrix: Matrix4x4, out: Vector3): void {
-		
+		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		var v4: Vector4 = Vector3._tempVector4;
 		Vector3.transformV3ToV4(source, matrix, v4);
 		//v4e[3]是z，是相对于摄像机的位置。注意有时候可能为0
@@ -86,7 +87,7 @@ export class Viewport {
 	 * @param	vector 输出三维向量。
 	 */
 	unprojectFromMat(source: Vector3, matrix: Matrix4x4, out: Vector3): void {
-		
+		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		var matrixEleme: Float32Array = matrix.elements;
 
 		out.x = (((source.x - this.x) / (this.width)) * 2.0) - 1.0;
@@ -114,7 +115,7 @@ export class Viewport {
 	 * @param   out 输出向量。
 	 */
 	unprojectFromWVP(source: Vector3, projection: Matrix4x4, view: Matrix4x4, world: Matrix4x4, out: Vector3): void {
-		
+		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		Matrix4x4.multiply(projection, view, Viewport._tempMatrix4x4);
 		(world) && (Matrix4x4.multiply(Viewport._tempMatrix4x4, world, Viewport._tempMatrix4x4));
 		Viewport._tempMatrix4x4.invert(Viewport._tempMatrix4x4);

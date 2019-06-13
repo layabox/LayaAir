@@ -1,4 +1,3 @@
-import { ILaya3D } from "ILaya3D";
 import { ColliderShape } from "././ColliderShape";
 import { Physics } from "../Physics";
 
@@ -21,7 +20,7 @@ export class SphereColliderShape extends ColliderShape {
 	 * @param radius 半径。
 	 */
 	constructor(radius: number = 0.5) {//TODO:球形旋转无效，需要优化
-		
+		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		super();
 		this._radius = radius;
 		this._type = ColliderShape.SHAPETYPES_SPHERE;

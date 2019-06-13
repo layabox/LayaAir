@@ -1,72 +1,72 @@
-import { ILaya } from "../../ILaya";
-import { Sprite } from "../display/Sprite";
-import { ColorFilter } from "../filters/ColorFilter";
-import { LayaGL } from "../layagl/LayaGL";
-import { Bezier } from "../maths/Bezier";
-import { Matrix } from "../maths/Matrix";
-import { Point } from "../maths/Point";
-import { Rectangle } from "../maths/Rectangle";
-import { ColorUtils } from "../utils/ColorUtils";
-import { FontInfo } from "../utils/FontInfo";
-import { HTMLChar } from "../utils/HTMLChar";
-import { Stat } from "../utils/Stat";
-import { WordText } from "../utils/WordText";
-import { BlendMode } from "../webgl/canvas/BlendMode";
-import { DrawStyle } from "../webgl/canvas/DrawStyle";
-import { Path } from "../webgl/canvas/Path";
-import { ISaveData } from "../webgl/canvas/save/ISaveData";
-import { SaveBase } from "../webgl/canvas/save/SaveBase";
-import { SaveClipRect } from "../webgl/canvas/save/SaveClipRect";
-import { SaveMark } from "../webgl/canvas/save/SaveMark";
-import { SaveTransform } from "../webgl/canvas/save/SaveTransform";
-import { SaveTranslate } from "../webgl/canvas/save/SaveTranslate";
-import { WebGLCacheAsNormalCanvas } from "../webgl/canvas/WebGLCacheAsNormalCanvas";
-import { BaseShader } from "../webgl/shader/BaseShader";
-import { Shader2D } from "../webgl/shader/d2/Shader2D";
-import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
-import { SkinMeshBuffer } from "../webgl/shader/d2/skinAnishader/SkinMeshBuffer";
-import { Value2D } from "../webgl/shader/d2/value/Value2D";
-import { Shader } from "../webgl/shader/Shader";
-import { BasePoly } from "../webgl/shapes/BasePoly";
-import { Earcut } from "../webgl/shapes/Earcut";
-import { ISubmit } from "../webgl/submit/ISubmit";
-import { Submit } from "../webgl/submit/Submit";
-import { SubmitBase } from "../webgl/submit/SubmitBase";
-import { SubmitCanvas } from "../webgl/submit/SubmitCanvas";
-import { SubmitCMD } from "../webgl/submit/SubmitCMD";
-import { SubmitKey } from "../webgl/submit/SubmitKey";
-import { SubmitTarget } from "../webgl/submit/SubmitTarget";
-import { SubmitTexture } from "../webgl/submit/SubmitTexture";
-import { CharRenderInfo } from "../webgl/text/CharRenderInfo";
-import { CharSubmitCache } from "../webgl/text/CharSubmitCache";
-import { TextRender } from "../webgl/text/TextRender";
-import { IndexBuffer2D } from "../webgl/utils/IndexBuffer2D";
-import { Mesh2D } from "../webgl/utils/Mesh2D";
-import { MeshQuadTexture } from "../webgl/utils/MeshQuadTexture";
-import { MeshTexture } from "../webgl/utils/MeshTexture";
-import { MeshVG } from "../webgl/utils/MeshVG";
-import { RenderState2D } from "../webgl/utils/RenderState2D";
-import { VertexBuffer2D } from "../webgl/utils/VertexBuffer2D";
-import { WebGLContext } from "../webgl/WebGLContext";
-import { Bitmap } from "././Bitmap";
 import { Texture } from "././Texture";
-import { BaseTexture } from "./BaseTexture";
+import { Bitmap } from "././Bitmap";
+import { Sprite } from "../display/Sprite"
+import { ColorFilter } from "../filters/ColorFilter"
+import { LayaGL } from "../layagl/LayaGL"
+import { Bezier } from "../maths/Bezier"
+import { Matrix } from "../maths/Matrix"
+import { Point } from "../maths/Point"
+import { Rectangle } from "../maths/Rectangle"
+import { ColorUtils } from "../utils/ColorUtils"
+import { FontInfo } from "../utils/FontInfo"
+import { HTMLChar } from "../utils/HTMLChar"
+import { Stat } from "../utils/Stat"
+import { WordText } from "../utils/WordText"
+import { WebGLContext } from "../webgl/WebGLContext"
+import { BlendMode } from "../webgl/canvas/BlendMode"
+import { DrawStyle } from "../webgl/canvas/DrawStyle"
+import { Path } from "../webgl/canvas/Path"
+import { WebGLCacheAsNormalCanvas } from "../webgl/canvas/WebGLCacheAsNormalCanvas"
+import { ISaveData } from "../webgl/canvas/save/ISaveData"
+import { SaveBase } from "../webgl/canvas/save/SaveBase"
+import { SaveClipRect } from "../webgl/canvas/save/SaveClipRect"
+import { SaveMark } from "../webgl/canvas/save/SaveMark"
+import { SaveTransform } from "../webgl/canvas/save/SaveTransform"
+import { SaveTranslate } from "../webgl/canvas/save/SaveTranslate"
+import { BaseTexture } from "./BaseTexture"
+import { SubmitBase } from "../webgl/submit/SubmitBase"
+import { CharRenderInfo } from "../webgl/text/CharRenderInfo"
+import { RenderTexture2D } from "./RenderTexture2D"
+import { Texture2D } from "./Texture2D"
+import { BaseShader } from "../webgl/shader/BaseShader"
+import { Shader } from "../webgl/shader/Shader"
+import { Shader2D } from "../webgl/shader/d2/Shader2D"
+import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D"
+import { SkinMeshBuffer } from "../webgl/shader/d2/skinAnishader/SkinMeshBuffer"
+import { Value2D } from "../webgl/shader/d2/value/Value2D"
+import { BasePoly } from "../webgl/shapes/BasePoly"
+import { Earcut } from "../webgl/shapes/Earcut"
+import { ISubmit } from "../webgl/submit/ISubmit"
+import { Submit } from "../webgl/submit/Submit"
+import { SubmitCMD } from "../webgl/submit/SubmitCMD"
+import { SubmitCanvas } from "../webgl/submit/SubmitCanvas"
+import { SubmitKey } from "../webgl/submit/SubmitKey"
+import { SubmitTarget } from "../webgl/submit/SubmitTarget"
+import { SubmitTexture } from "../webgl/submit/SubmitTexture"
+import { CharSubmitCache } from "../webgl/text/CharSubmitCache"
+import { TextRender } from "../webgl/text/TextRender"
+import { IndexBuffer2D } from "../webgl/utils/IndexBuffer2D"
+import { Mesh2D } from "../webgl/utils/Mesh2D"
+import { MeshQuadTexture } from "../webgl/utils/MeshQuadTexture"
+import { MeshTexture } from "../webgl/utils/MeshTexture"
+import { MeshVG } from "../webgl/utils/MeshVG"
+import { RenderState2D } from "../webgl/utils/RenderState2D"
+import { VertexBuffer2D } from "../webgl/utils/VertexBuffer2D"
 import { HTMLCanvas } from "./HTMLCanvas";
-import { RenderTexture2D } from "./RenderTexture2D";
-import { Texture2D } from "./Texture2D";
+import { ILaya } from "../../ILaya";
 
 /**
  * @private
  * Context扩展类
  */
 export class Context {
-
+	/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 	_canvas: HTMLCanvas;
 	static ENUM_TEXTALIGN_DEFAULT: number = 0;
 	static ENUM_TEXTALIGN_CENTER: number = 1;
 	static ENUM_TEXTALIGN_RIGHT: number = 2;
 
-
+	/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 	static _SUBMITVBSIZE: number = 32000;
 
 	static _MAXSIZE: number = 99999999;
@@ -273,7 +273,7 @@ export class Context {
 		}
 	}
 	/**Math.PI*2的结果缓存 */
-	static PI2: number = 2 * Math.PI;
+	static PI2: number =/*[STATIC SAFE]*/ 2 * Math.PI;
 	_drawCircle(x: number, y: number, radius: number, fillColor: any, lineColor: any, lineWidth: number, vid: number): void {
 		Stat.renderBatches++;
 		this.beginPath(true);

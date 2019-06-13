@@ -1,6 +1,6 @@
-import { Shader3D } from "../../shader/Shader3D";
-import { RenderContext3D } from "././RenderContext3D";
 import { RenderElement } from "././RenderElement";
+import { RenderContext3D } from "././RenderContext3D";
+import { Shader3D } from "../../shader/Shader3D"
 
 /**
  * @private
@@ -20,6 +20,7 @@ export class RenderQueue {
 	 * 创建一个 <code>RenderQuene</code> 实例。
 	 */
 	constructor(isTransparent: boolean = false) {
+		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		this.isTransparent = isTransparent;
 		this.elements = [];
 	}

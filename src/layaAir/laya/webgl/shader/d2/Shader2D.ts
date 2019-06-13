@@ -11,7 +11,7 @@ import { ShaderDefines2D } from "././ShaderDefines2D";
 
 	export class Shader2D
 	{
-		
+		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		
 		 ALPHA:number = 1;
 		 shader:Shader;

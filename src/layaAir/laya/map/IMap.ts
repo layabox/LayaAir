@@ -1,5 +1,5 @@
 import { TiledMap } from "./TiledMap";
 
-export class IMap{
-    static TiledMap:typeof TiledMap=null;
+export class IMap {
+    static TiledMap: typeof TiledMap = null;
 }

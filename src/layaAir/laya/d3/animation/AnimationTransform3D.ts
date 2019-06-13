@@ -1,10 +1,10 @@
-import { Event } from "laya/events/Event";
-import { EventDispatcher } from "laya/events/EventDispatcher";
-import { Render } from "laya/renders/Render";
-import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
-import { Utils3D } from "../utils/Utils3D";
 import { AnimationNode } from "./AnimationNode";
+import { Quaternion } from "../math/Quaternion"
+import { Vector3 } from "../math/Vector3"
+import { Utils3D } from "../utils/Utils3D"
+import { Event } from "../../events/Event"
+import { EventDispatcher } from "../../events/EventDispatcher"
+import { Render } from "../../renders/Render"
 
 /**
  * <code>AnimationTransform3D</code> 类用于实现3D变换。
@@ -48,6 +48,7 @@ export class AnimationTransform3D extends EventDispatcher {
 	 * @param owner 所属精灵。
 	 */
 	constructor(owner: AnimationNode, localPosition: Float32Array = null/*[NATIVE]*/, localRotation: Float32Array = null/*[NATIVE]*/, localScale: Float32Array = null/*[NATIVE]*/, worldMatrix: Float32Array = null/*[NATIVE]*/) {
+		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		super();
 		this._owner = owner;
 		this._children = [];

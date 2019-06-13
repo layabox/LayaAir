@@ -1,6 +1,7 @@
 import { MeshData } from "./MeshData";
-import { Matrix } from "laya/maths/Matrix";
-import { Texture } from "laya/resource/Texture";
+import { Matrix } from "../../../maths/Matrix";
+import { Texture } from "../../../resource/Texture";
+
 
 	
 	/**

@@ -2,13 +2,12 @@
 	 * ...
 	 * @author ...
 	 */
-	export class SceneManager 
-	{
-		
-		constructor(){
-			
-		}
-		
+export class SceneManager {
+
+	constructor() {
+
 	}
+
+}
 
 

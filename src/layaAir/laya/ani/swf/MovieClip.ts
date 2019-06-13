@@ -1,10 +1,10 @@
-import { Sprite } from "laya/display/Sprite";
-import { Byte } from "laya/utils/Byte";
-import { Handler } from "laya/utils/Handler";
-import { Const } from "laya/Const";
-import { Event } from "laya/events/Event";
-import { ILaya } from "ILaya";
-import { Matrix } from "laya/maths/Matrix";
+import { Sprite } from "../../display/Sprite";
+import { Byte } from "../../utils/Byte";
+import { Handler } from "../../utils/Handler";
+import { Const } from "../../Const";
+import { Event } from "../../events/Event";
+import { ILaya } from "../../../ILaya";
+import { Matrix } from "../../maths/Matrix";
 
 	
 	/**
@@ -36,7 +36,7 @@ import { Matrix } from "laya/maths/Matrix";
 	 */
 	export class MovieClip extends Sprite {
 		/**@private */
-		protected static _ValueList:any[] =  ["x", "y", "width", "height", "scaleX", "scaleY", "rotation", "alpha"];
+		protected static _ValueList:any[] = /*[STATIC SAFE]*/ ["x", "y", "width", "height", "scaleX", "scaleY", "rotation", "alpha"];
 		/**@private 数据起始位置。*/
 		protected _start:number = 0;
 		/**@private 当前位置。*/

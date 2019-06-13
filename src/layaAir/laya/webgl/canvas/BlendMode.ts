@@ -3,8 +3,8 @@ import { WebGLContext } from "../WebGLContext"
 	export class BlendMode
 	{
 		 static activeBlendFunction:Function = null;
-		 static NAMES:any[] = ["normal", "add", "multiply", "screen", "overlay", "light", "mask", "destination-out"];
-		 static TOINT:any = { "normal":0, "add":1, "multiply":2, "screen":3 , "overlay":4, "light":5, "mask":6, "destination-out":7, "lighter":1 };
+		 static NAMES:any[] = /*[STATIC SAFE]*/["normal", "add", "multiply", "screen", "overlay", "light", "mask", "destination-out"];
+		 static TOINT:any = /*[STATIC SAFE]*/{ "normal":0, "add":1, "multiply":2, "screen":3 , "overlay":4, "light":5, "mask":6, "destination-out":7, "lighter":1 };
 		
 		 static NORMAL:string = "normal";					//0
 		 static ADD:string = "add";							//1
