@@ -15,7 +15,6 @@ import { RenderContext3D } from "../render/RenderContext3D";
 import { TextureMode } from "../TextureMode";
 import { TrailFilter } from "././TrailFilter";
 import { VertexTrail } from "././VertexTrail";
-import { Matrix4x4 } from "../../math/Matrix4x4";
 
 /**
  * <code>TrailGeometry</code> 类用于创建拖尾渲染单元。
@@ -32,14 +31,6 @@ export class TrailGeometry extends GeometryElement {
 	private static _tempVector31: Vector3 = new Vector3();
 	/**@private */
 	private static _tempVector32: Vector3 = new Vector3();
-	/**@private */
-	private static _tempVector33: Vector3 = new Vector3();
-	/**@private */
-	private static _tempVector34: Vector3 = new Vector3();
-	/**@private */
-	private static _position2: Vector3 = new Vector3();
-	/**@private */
-	private static _lastFixedVertexPosition2: Vector3 = new Vector3();
 
 	/**@private */
 	private static _type: number = GeometryElement._typeCounter++;
@@ -66,9 +57,9 @@ export class TrailGeometry extends GeometryElement {
 	/**@private */
 	private _segementCount: number;
 	/**@private */
-	private _vertices1: Float32Array = null;
+	private _vertices1: Float32Array;
 	/**@private */
-	private _vertices2: Float32Array = null;
+	private _vertices2: Float32Array;
 	/**@private */
 	private _vertexBuffer1: VertexBuffer3D;
 	/**@private */
@@ -85,10 +76,6 @@ export class TrailGeometry extends GeometryElement {
 	constructor(owner: TrailFilter) {
 		super();
 		this._owner = owner;
-		//初始化_segementCount
-		this._segementCount = this._increaseSegementCount;
-		this._subBirthTime = new Float32Array(this._segementCount);
-		this._subDistance = new Float64Array(this._segementCount);
 		this._resizeData(this._increaseSegementCount, this._bufferState);
 	}
 
@@ -96,7 +83,7 @@ export class TrailGeometry extends GeometryElement {
 	 * @private
 	 */
 	private _resizeData(segementCount: number, bufferState: BufferState): void {
-		/*this._segementCount = this._increaseSegementCount;
+		this._segementCount = this._increaseSegementCount;
 		this._subBirthTime = new Float32Array(segementCount);
 		this._subDistance = new Float64Array(segementCount);
 
@@ -122,44 +109,6 @@ export class TrailGeometry extends GeometryElement {
 		bufferState.applyVertexBuffers(vertexBuffers);
 		bufferState.unBind();
 
-		Resource._addMemory(memorySize, memorySize);*/
-		let vertexCount = segementCount * 2;
-		let vertexDeclaration1:VertexDeclaration = VertexTrail.vertexDeclaration1;
-		let vertexDeclaration2:VertexDeclaration = VertexTrail.vertexDeclaration2;
-		let vertexBuffers: VertexBuffer3D[] = [];
-		let vertexbuffer1Size = vertexCount * vertexDeclaration1.vertexStride;
-		let vertexbuffer2Size = vertexCount * vertexDeclaration2.vertexStride;
-		let memorySize = vertexbuffer1Size + vertexbuffer2Size;
-		if(this._vertices1 === null){
-			this._vertices1 = new Float32Array(vertexCount * this._floatCountPerVertices1);
-			this._vertices2 = new Float32Array(vertexCount * this._floatCountPerVertices2);
-		}
-		else{
-			let offset = this._activeIndex * 64; //一个index对应有两个顶点，一个顶点有8个float数据，一个float为4byte
-			let count =  (this._endIndex - this._activeIndex) * 16; //一个index对应有两个顶点，一个顶点有8个float数据
-			let newVertices1:Float32Array = new Float32Array(this._vertices1.buffer, offset, count);
-			this._vertices1 = new Float32Array(vertexCount * this._floatCountPerVertices1);
-			this._vertices1.set(newVertices1, 0);
-		
-			offset = this._activeIndex * 40;//一个index对应有两个顶点，一个顶点有5个float数据，一个float为4byte
-			count = (this._endIndex - this._activeIndex) * 10;
-			var newVertices2:Float32Array = new Float32Array(this._vertices2.buffer, offset, count);
-			this._vertices2 = new Float32Array(vertexCount * this._floatCountPerVertices2);
-			this._vertices2.set(newVertices2, 0);
-		}
-		
-		this._vertexBuffer1 = new VertexBuffer3D(vertexbuffer1Size, WebGLContext.STATIC_DRAW, false);
-		this._vertexBuffer1.vertexDeclaration = vertexDeclaration1;
-		
-		this._vertexBuffer2 = new VertexBuffer3D(vertexbuffer2Size, WebGLContext.DYNAMIC_DRAW, false);
-		this._vertexBuffer2.vertexDeclaration = vertexDeclaration2;
-		
-		vertexBuffers.push(this._vertexBuffer1);
-		vertexBuffers.push(this._vertexBuffer2);
-		bufferState.bind();
-		bufferState.applyVertexBuffers(vertexBuffers);
-		bufferState.unBind();
-		
 		Resource._addMemory(memorySize, memorySize);
 	}
 
@@ -167,7 +116,7 @@ export class TrailGeometry extends GeometryElement {
 	 * @private
 	 */
 	private _resetData(): void {
-		/*var count: number = this._endIndex - this._activeIndex;
+		var count: number = this._endIndex - this._activeIndex;
 		if (count == this._segementCount) {//当前count=_segementCount表示已满,需要扩充
 			this._vertexBuffer1.destroy();
 			this._vertexBuffer2.destroy();
@@ -177,35 +126,12 @@ export class TrailGeometry extends GeometryElement {
 
 		this._vertexBuffer1.setData(this._vertices1, 0, this._floatCountPerVertices1 * 2 * this._activeIndex, this._floatCountPerVertices1 * 2 * count);
 		this._vertexBuffer2.setData(this._vertices2, 0, this._floatCountPerVertices2 * 2 * this._activeIndex, this._floatCountPerVertices2 * 2 * count);
-		var offset: number = this._activeIndex * 4;
-		var rightSubDistance: Float64Array = new Float64Array(this._subDistance.buffer, offset, count);//修改距离数据
-		var rightSubBirthTime: Float32Array = new Float32Array(this._subBirthTime.buffer, offset, count);//修改出生时间数据
-		this._subDistance.set(rightSubDistance, 0);
-		this._subBirthTime.set(rightSubBirthTime, 0);
-		this._endIndex = count;
-		this._activeIndex = 0;*/
-
-
-		let count = this._endIndex - this._activeIndex;
-		//原来的设计,当count=_segementCount表示已满,需要扩充,20190604更改设计,
-		//在_endIndex === _segementCount时候就进行扩充，避免了一些数据数据重置带来的bug
-		this._vertexBuffer1.destroy();
-		this._vertexBuffer2.destroy();
-		this._segementCount += this._increaseSegementCount;
-		this._resizeData(this._segementCount, this._bufferState);
-
-		let offset = this._activeIndex * 8;
-		let rightSubDistance:Float64Array = new Float64Array(this._subDistance.buffer, offset, count);//修改距离数据
-		offset = this._activeIndex * 4;
-		var rightSubBirthTime:Float32Array = new Float32Array(this._subBirthTime.buffer, offset, count);//修改出生时间数据
-		this._subBirthTime = new Float32Array(this._segementCount);
-		this._subDistance = new Float64Array(this._segementCount);
+		var rightSubDistance: Float64Array = new Float64Array(this._subDistance.buffer, this._activeIndex * 8, count);//修改距离数据
+		var rightSubBirthTime: Float32Array = new Float32Array(this._subBirthTime.buffer, this._activeIndex * 4, count);//修改出生时间数据
 		this._subDistance.set(rightSubDistance, 0);
 		this._subBirthTime.set(rightSubBirthTime, 0);
 		this._endIndex = count;
 		this._activeIndex = 0;
-		this._vertexBuffer1.setData(this._vertices1, 0, this._floatCountPerVertices1 * 2 * this._activeIndex, this._floatCountPerVertices1 * 2 * count);
-		this._vertexBuffer2.setData(this._vertices2, 0, this._floatCountPerVertices2 * 2 * this._activeIndex, this._floatCountPerVertices2 * 2 * count);
 	}
 
 	/**
@@ -239,22 +165,19 @@ export class TrailGeometry extends GeometryElement {
 	 * 通过位置更新TrailRenderElement数据
 	 */
 	private _addTrailByNextPosition(camera: Camera, position: Vector3): void {
-		var cameraMatrix:Matrix4x4 = camera.transform.worldMatrix;
-		Vector3.transformV3ToV3(position, cameraMatrix, TrailGeometry._tempVector33);
-		var delVector3:Vector3 = TrailGeometry._tempVector30;
-		var pointAtoBVector3:Vector3 = TrailGeometry._tempVector31;
-		Vector3.transformV3ToV3(this._lastFixedVertexPosition, cameraMatrix, TrailGeometry._tempVector34);
-		Vector3.subtract(TrailGeometry._tempVector33, TrailGeometry._tempVector34, delVector3);
-		var forward:Vector3 = TrailGeometry._tempVector32;
-		this._owner.alignment = 0;
+		var delVector3: Vector3 = TrailGeometry._tempVector30;
+		var pointAtoBVector3: Vector3 = TrailGeometry._tempVector31;
+		Vector3.subtract(position, this._lastFixedVertexPosition, delVector3);
+		var forward: Vector3 = TrailGeometry._tempVector32;
 		switch (this._owner.alignment) {
-		case TrailFilter.ALIGNMENT_VIEW: 
-			Vector3.cross(TrailGeometry._tempVector33, delVector3, pointAtoBVector3);
-			break;
-		case TrailFilter.ALIGNMENT_TRANSFORM_Z: 
-			this._owner._owner.transform.getForward(forward);
-			Vector3.cross(delVector3, forward, pointAtoBVector3);//实时更新模式需要和view一样根据当前forward重新计算
-			break;
+			case TrailGeometry.ALIGNMENT_VIEW:
+				camera.transform.getForward(forward);
+				Vector3.cross(delVector3, forward, pointAtoBVector3);
+				break;
+			case TrailGeometry.ALIGNMENT_TRANSFORM_Z:
+				this._owner._owner.transform.getForward(forward);
+				Vector3.cross(delVector3, forward, pointAtoBVector3);//实时更新模式需要和view一样根据当前forward重新计算
+				break;
 		}
 
 		Vector3.normalize(pointAtoBVector3, pointAtoBVector3);
