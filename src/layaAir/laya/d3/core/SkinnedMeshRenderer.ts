@@ -275,7 +275,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 		/*override*/  _destroy(): void {
 		super._destroy();
 		if (!this._cacheAvatar) {
-			(this._cacheRootBone) && (this._cacheRootBone.transform.off(Event.TRANSFORM_CHANGED, this, this._boundChange));
+			(this._cacheRootBone&&!this._cacheRootBone.destroyed) && (this._cacheRootBone.transform.off(Event.TRANSFORM_CHANGED, this, this._boundChange));
 		} else {//[兼容性]
 			if (this._cacheRootAnimationNode)
 				this._cacheRootAnimationNode.transform.off(Event.TRANSFORM_CHANGED, this, this._boundChange);

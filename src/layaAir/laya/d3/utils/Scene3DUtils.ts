@@ -91,15 +91,8 @@ import { ClassUtils } from "laya/utils/ClassUtils";
 			if (componentsData) {
 				for (var j:number = 0, m:number = componentsData.length; j < m; j++) {
 					var data:any = componentsData[j];
-					var clas:any = Browser.window.Laya[data.type];//兼容
-					if (!clas) {//兼容
-						var clasPaths:any[] = data.type.split('.');
-						clas = Browser.window;
-						clasPaths.forEach(function(cls:any):void {
-							clas = clas[cls];
-						});
-					}
-					if (typeof(clas) == 'function') {
+					var clas:any = ClassUtils.getRegClass(data.type);
+					if (clas) {
 						var component:Component = node.addComponent(clas);
 						component._parse(data);
 					} else {
@@ -215,15 +208,6 @@ import { ClassUtils } from "laya/utils/ClassUtils";
 			if (componentsData) {
 				for (var j:number = 0, m:number = componentsData.length; j < m; j++) {
 					var data:any = componentsData[j];
-
-					//clas = Browser.window.Laya[data.type];//兼容
-					//if (!clas) {//兼容
-					//	var clasPaths:any[] = data.type.split('.');
-					//	var clas:any = Browser.window;
-					//	clasPaths.forEach(function(cls:any):void {
-					//		clas = clas[cls];
-					//	});
-					//}
 					var clas:any = ClassUtils.getRegClass(data.type);
 					if (clas) {
 						var component:Component = node.addComponent(clas);
