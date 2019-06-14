@@ -87,6 +87,7 @@ import { Stat } from "laya/utils/Stat";
 import { IndexViewUI } from "../ui/IndexViewUI";
 import { Main } from "./../Main";
 import { PostProcessBloom } from "../3d/LayaAir3D_Advance/PostProcessBloom";
+import { MultiTouch } from "../3d/LayaAir3D_MouseInteraction/MultiTouch";
 	
 	export class IndexView3D extends IndexViewUI
 	{
@@ -124,8 +125,8 @@ import { PostProcessBloom } from "../3d/LayaAir3D_Advance/PostProcessBloom";
 		private _meshClsArr:any[] = [ChangeMesh,CustomMesh,MeshLoad];
 		private _meshArr:any[] = ['ChangeMesh', 'CustomMesh',"MeshLoad"];
 		
-		private _mouseLnteractionClsArr:any[] = [MouseInteraction, SceneLoad2,TouchScriptSample];
-		private _mouseLnteractionArr:any[] = ['MouseInteraction', 'SceneLoad2',"TouchScriptSample"];
+		private _mouseLnteractionClsArr:any[] = [MouseInteraction, MultiTouch,TouchScriptSample];
+		private _mouseLnteractionArr:any[] = ['MouseInteraction', 'MultiTouch',"TouchScriptSample"];
 		
 		private _particleClsArr:any[] = [Particle_BurningGround,Particle_EternalLight];
 		private _particleArr:any[] = ['Particle_BurningGround', 'Particle_EternalLight'];
