@@ -1,9 +1,11 @@
+import { Laya } from "../../../../Laya";
 import { Sprite } from "../../../display/Sprite";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Loader } from "../../../net/Loader";
 import { URL } from "../../../net/URL";
 import { Render } from "../../../renders/Render";
 import { BaseTexture } from "../../../resource/BaseTexture";
+import { Context } from "../../../resource/Context";
 import { ICreateResource } from "../../../resource/ICreateResource";
 import { ISingletonElement } from "../../../resource/ISingletonElement";
 import { RenderTexture2D } from "../../../resource/RenderTexture2D";
@@ -13,6 +15,7 @@ import { Timer } from "../../../utils/Timer";
 import { ISubmit } from "../../../webgl/submit/ISubmit";
 import { SubmitBase } from "../../../webgl/submit/SubmitBase";
 import { SubmitKey } from "../../../webgl/submit/SubmitKey";
+import { WebGL } from "../../../webgl/WebGL";
 import { WebGLContext } from "../../../webgl/WebGLContext";
 import { CastShadowList } from "../../CastShadowList";
 import { Animator } from "../../component/Animator";
@@ -24,6 +27,7 @@ import { Vector3 } from "../../math/Vector3";
 import { Vector4 } from "../../math/Vector4";
 import { Viewport } from "../../math/Viewport";
 import { PhysicsComponent } from "../../physics/PhysicsComponent";
+import { PhysicsSettings } from "../../physics/PhysicsSettings";
 import { PhysicsSimulation } from "../../physics/PhysicsSimulation";
 import { SkyBox } from "../../resource/models/SkyBox";
 import { SkyDome } from "../../resource/models/SkyDome";
@@ -49,11 +53,6 @@ import { RenderableSprite3D } from "../RenderableSprite3D";
 import { Sprite3D } from "../Sprite3D";
 import { BoundsOctree } from "././BoundsOctree";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
-import { Laya } from "../../../../Laya";
-import { Context } from "../../../resource/Context";
-import { WebGL } from "../../../webgl/WebGL";
-import { PhysicsSettings } from "../../physics/PhysicsSettings";
-
 
 
 /**
@@ -406,10 +405,10 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this._reflectionMode = value;
 	}
 
-		/**
-		 * 获取场景时钟。
-		 */
-		/*override*/  get timer(): Timer {
+	/**
+	 * 获取场景时钟。
+	 */
+	/*override*/  get timer(): Timer {
 		return this._timer;
 	}
 
@@ -457,8 +456,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		//var angleAttenTex:Texture2D = Texture2D.buildTexture2D(64, 64, BaseTexture.FORMAT_Alpha8, TextureGenerator.haloTexture);
 		//_shaderValues.setTexture(Scene3D.ANGLEATTENUATIONTEXTURE, angleAttenTex);
 		this._scene = this;
-		if (Scene3D._enbalePhysics && !PhysicsSimulation.disableSimulation)//不引物理库初始化Input3D会内存泄漏 
-			this._input.__init__(Render.canvas, this);
+		this._input.__init__(Render.canvas, this);
 
 		if (Scene3D.octreeCulling) {
 			this._octree = new BoundsOctree(Scene3D.octreeInitialSize, Scene3D.octreeInitialCenter, Scene3D.octreeMinNodeSize, Scene3D.octreeLooseness);
@@ -515,9 +513,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 			//send contact events
 			simulation._eventScripts();
-
-			this._input._update();//允许物理才更新
 		}
+		this._input._update();
 
 		this._updateScript();
 		Animator._update(this);
