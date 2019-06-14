@@ -1,6 +1,6 @@
-import { Shader3D } from "../../shader/Shader3D";
-import { RenderContext3D } from "././RenderContext3D";
 import { RenderElement } from "././RenderElement";
+import { RenderContext3D } from "././RenderContext3D";
+import { Shader3D } from "../../shader/Shader3D"
 
 /**
  * @private

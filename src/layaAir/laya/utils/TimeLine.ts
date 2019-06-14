@@ -4,8 +4,8 @@ import { Browser } from "././Browser";
 import { Handler } from "././Handler";
 import { Utils } from "././Utils";
 import { Event } from "../events/Event"
-	import { EventDispatcher } from "../events/EventDispatcher"
-import { ILaya } from "ILaya";
+import { EventDispatcher } from "../events/EventDispatcher"
+import { ILaya } from "../../ILaya";
 	
 	/**
 	 * 整个缓动结束的时候会调度

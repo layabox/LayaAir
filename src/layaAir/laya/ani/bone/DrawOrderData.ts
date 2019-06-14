@@ -1,13 +1,12 @@
 /**
-	 * @private
-	 */
-	export class DrawOrderData 
-	{
-		 time:number;
-		 drawOrder:number[] = [];
-		
-		//TODO:coverage
-		constructor(){
-		}
+ * @private
+ */
+export class DrawOrderData {
+	time: number;
+	drawOrder: number[] = [];
+
+	//TODO:coverage
+	constructor() {
 	}
+}
 

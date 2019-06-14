@@ -1,6 +1,6 @@
 /**
-	 * 滤镜接口。
-	 */
-	export interface IFilter {
-		type:number;
-	}
+ * 滤镜接口。
+ */
+export interface IFilter {
+	type: number;
+}

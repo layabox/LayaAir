@@ -1,5 +1,5 @@
-import { Node } from "laya/display/Node";
-import { Loader } from "laya/net/Loader";
+import { Node } from "../../display/Node";
+import { Loader } from "../../net/Loader";
 import { Animator } from "../component/Animator";
 import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
@@ -16,6 +16,7 @@ import { SkinnedMeshRenderer } from "././SkinnedMeshRenderer";
 import { Sprite3D } from "././Sprite3D";
 import { BaseMaterial } from "./material/BaseMaterial";
 import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
+	
 
 
 /**

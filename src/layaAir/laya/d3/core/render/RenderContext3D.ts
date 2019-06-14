@@ -1,9 +1,9 @@
-import { Matrix4x4 } from "../../math/Matrix4x4";
-import { Viewport } from "../../math/Viewport";
-import { ShaderInstance } from "../../shader/ShaderInstance";
-import { BaseCamera } from "../BaseCamera";
-import { Scene3D } from "../scene/Scene3D";
 import { RenderElement } from "././RenderElement";
+import { BaseCamera } from "../BaseCamera"
+import { Scene3D } from "../scene/Scene3D"
+import { Matrix4x4 } from "../../math/Matrix4x4"
+import { Viewport } from "../../math/Viewport"
+import { ShaderInstance } from "../../shader/ShaderInstance"
 
 /**
  * <code>RenderContext3D</code> 类用于实现渲染状态。

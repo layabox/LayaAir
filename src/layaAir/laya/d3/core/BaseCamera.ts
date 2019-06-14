@@ -1,7 +1,7 @@
-import { Laya } from "Laya";
-import { Node } from "laya/display/Node";
-import { Event } from "laya/events/Event";
-import { Loader } from "laya/net/Loader";
+import { Laya } from "../../../Laya";
+import { Node } from "../../display/Node";
+import { Event } from "../../events/Event";
+import { Loader } from "../../net/Loader";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";

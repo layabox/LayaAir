@@ -1,6 +1,5 @@
 import { AnimationClipParser03 } from "././AnimationClipParser03";
 import { AnimationClipParser04 } from "././AnimationClipParser04";
-import { Laya } from "Laya";
 import { KeyframeNodeList } from "././KeyframeNodeList";
 import { AnimationEvent } from "././AnimationEvent";
 import { KeyframeNode } from "././KeyframeNode";
@@ -12,10 +11,11 @@ import { Quaternion } from "../math/Quaternion"
 import { Vector3 } from "../math/Vector3"
 import { Vector4 } from "../math/Vector4"
 import { Utils3D } from "../utils/Utils3D"
-import { LayaGL } from "laya/layagl/LayaGL"
-import { Resource } from "laya/resource/Resource"
-import { Byte } from "laya/utils/Byte"
-import { Handler } from "laya/utils/Handler"
+import { LayaGL } from "../../layagl/LayaGL"
+import { Resource } from "../../resource/Resource"
+import { Byte } from "../../utils/Byte"
+import { Handler } from "../../utils/Handler"
+import { Laya } from "../../../Laya";
 
 /**
  * <code>AnimationClip</code> 类用于动画片段资源。

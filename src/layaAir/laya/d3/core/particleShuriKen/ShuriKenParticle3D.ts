@@ -1,5 +1,5 @@
-import { Node } from "laya/display/Node";
-import { Loader } from "laya/net/Loader";
+import { Node } from "../../../display/Node";
+import { Loader } from "../../../net/Loader";
 import { Color } from "../../math/Color";
 import { Vector2 } from "../../math/Vector2";
 import { Vector3 } from "../../math/Vector3";

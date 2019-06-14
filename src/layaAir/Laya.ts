@@ -49,7 +49,7 @@ import { RenderState2D } from "./laya/webgl/utils/RenderState2D";
 import { ShaderCompile } from "./laya/webgl/utils/ShaderCompile";
 import { WebGL } from "./laya/webgl/WebGL";
 import { WebGLContext } from "./laya/webgl/WebGLContext";
-import { WorkerLoader } from "laya/net/WorkerLoader";
+import { WorkerLoader } from "./laya/net/WorkerLoader";
 
 	/**
 	 * <code>Laya</code> 是全局对象的引用入口集。

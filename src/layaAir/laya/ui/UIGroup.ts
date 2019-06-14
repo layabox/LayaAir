@@ -2,11 +2,11 @@ import { Box } from "././Box";
 import { IItem } from "././IItem";
 import { ISelect } from "././ISelect";
 import { Sprite } from "../display/Sprite"
-	import { Event } from "../events/Event"
-	import { Loader } from "../net/Loader"
-	import { Button } from "./Button"
-	import { Handler } from "../utils/Handler"
-import { ILaya } from "ILaya";
+import { Event } from "../events/Event"
+import { Loader } from "../net/Loader"
+import { Button } from "./Button"
+import { Handler } from "../utils/Handler"
+import { ILaya } from "../../ILaya";
 	
 	/**
 	 * 当 <code>Group</code> 实例的 <code>selectedIndex</code> 属性发生变化时调度。

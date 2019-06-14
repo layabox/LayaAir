@@ -1,12 +1,12 @@
 import { IClone } from "../core/IClone"
-	import { Matrix4x4 } from "../math/Matrix4x4"
-	import { Quaternion } from "../math/Quaternion"
-	import { Vector2 } from "../math/Vector2"
-	import { Vector3 } from "../math/Vector3"
-	import { Vector4 } from "../math/Vector4"
-	import { LayaGL } from "laya/layagl/LayaGL"
-	import { Resource } from "laya/resource/Resource"
-	import { BaseTexture } from "laya/resource/BaseTexture"
+import { Matrix4x4 } from "../math/Matrix4x4"
+import { Quaternion } from "../math/Quaternion"
+import { Vector2 } from "../math/Vector2"
+import { Vector3 } from "../math/Vector3"
+import { Vector4 } from "../math/Vector4"
+import { LayaGL } from "../../layagl/LayaGL"
+import { Resource } from "../../resource/Resource"
+import { BaseTexture } from "../../resource/BaseTexture"
 	
 	/**
 	 * @private

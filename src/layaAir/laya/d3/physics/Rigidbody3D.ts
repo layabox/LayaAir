@@ -1,4 +1,4 @@
-import { Component } from "laya/components/Component";
+import { Component } from "../../components/Component";
 import { Vector3 } from "../math/Vector3";
 import { Physics3DUtils } from "../utils/Physics3DUtils";
 import { Utils3D } from "../utils/Utils3D";

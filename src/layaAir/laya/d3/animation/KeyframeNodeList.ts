@@ -1,8 +1,8 @@
 import { KeyframeNode } from "./KeyframeNode";
 
 /**
-	 * <code>KeyframeNodeList</code> 类用于创建KeyframeNode节点队列。
-	 */
+ * <code>KeyframeNodeList</code> 类用于创建KeyframeNode节点队列。
+ */
 export class KeyframeNodeList {
 	/**@private */
 	private _nodes: KeyframeNode[] = [];
@@ -27,7 +27,7 @@ export class KeyframeNodeList {
 	 * 创建一个 <code>KeyframeNodeList</code> 实例。
 	 */
 	constructor() {
-
+		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 	}
 
 	/**

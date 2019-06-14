@@ -1,16 +1,7 @@
 import { Shader3D } from "././Shader3D";
 import { ShaderPass } from "././ShaderPass";
 import { ShaderDefines } from "././ShaderDefines";
-import { RenderableSprite3D } from "../core/RenderableSprite3D"
-	import { SkinnedMeshSprite3D } from "../core/SkinnedMeshSprite3D"
-	import { BaseMaterial } from "../core/material/BaseMaterial"
-	import { Render } from "laya/renders/Render"
-	import { Browser } from "laya/utils/Browser"
-	import { WebGL } from "laya/webgl/WebGL"
-	import { WebGLContext } from "laya/webgl/WebGLContext"
-	import { Shader } from "laya/webgl/shader/Shader"
-	import { ShaderCompile } from "laya/webgl/utils/ShaderCompile"
-	
+
 	/**
 	 * <code>SubShader</code> 类用于创建SubShader。
 	 */

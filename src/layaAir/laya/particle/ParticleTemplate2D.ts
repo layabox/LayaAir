@@ -1,15 +1,15 @@
 import { ParticleTemplateWebGL } from "././ParticleTemplateWebGL";
 import { ParticleSetting } from "././ParticleSetting";
-import { ISubmit } from "laya/webgl/submit/ISubmit";
+import { ISubmit } from "../webgl/submit/ISubmit";
 import { ParticleShaderValue } from "./shader/value/ParticleShaderValue";
-import { Handler } from "laya/utils/Handler";
-import { Texture } from "laya/resource/Texture";
-import { ILaya } from "ILaya";
-import { BlendMode } from "laya/webgl/canvas/BlendMode";
-import { MeshParticle2D } from "laya/webgl/utils/MeshParticle2D";
-import { VertexBuffer2D } from "laya/webgl/utils/VertexBuffer2D";
-import { WebGLContext } from "laya/webgl/WebGLContext";
-import { Stat } from "laya/utils/Stat";
+import { Handler } from "../utils/Handler";
+import { Texture } from "../resource/Texture";
+import { ILaya } from "../../ILaya";
+import { BlendMode } from "../webgl/canvas/BlendMode";
+import { MeshParticle2D } from "../webgl/utils/MeshParticle2D";
+import { VertexBuffer2D } from "../webgl/utils/VertexBuffer2D";
+import { WebGLContext } from "../webgl/WebGLContext";
+import { Stat } from "../utils/Stat";
 
 
 	/**

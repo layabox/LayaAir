@@ -1,5 +1,4 @@
-import { ILaya3D } from "ILaya3D";
-import { Node } from "laya/display/Node";
+import { Node } from "../../display/Node";
 import { Animator } from "../component/Animator";
 import { Vector4 } from "../math/Vector4";
 import { Shader3D } from "../shader/Shader3D";
@@ -7,6 +6,7 @@ import { ShaderDefines } from "../shader/ShaderDefines";
 import { Sprite3D } from "././Sprite3D";
 import { BaseRender } from "./render/BaseRender";
 import { Scene3D } from "./scene/Scene3D";
+import { ILaya3D } from "../../../ILaya3D";
 	
 	/**
 	 * <code>RenderableSprite3D</code> 类用于可渲染3D精灵的父类，抽象类不允许实例。

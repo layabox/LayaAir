@@ -10,7 +10,7 @@ gulp.task("default", function() {
             target: "es6",
             includeDeclarations: false,
  
-            mode: "modules",                   
+            mode: "file",                   
             // Output options (see typedoc docs)
             out: "./out",
             json: "output/to/file.json",
@@ -21,7 +21,7 @@ gulp.task("default", function() {
             name: "my-project",
             theme: "default",
             plugins: ["my", "plugins"],
-            ignoreCompilerErrors: false,
+            ignoreCompilerErrors: true,
             version: true,
         }))
     ;

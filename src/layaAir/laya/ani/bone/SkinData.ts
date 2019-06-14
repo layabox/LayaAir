@@ -1,9 +1,9 @@
 /**
-	 * @private
-	 */
-	export class SkinData {
-		
-		 name:string;
-		 slotArr:any[] = [];
-	}
+ * @private
+ */
+export class SkinData {
+
+	name: string;
+	slotArr: any[] = [];
+}
 

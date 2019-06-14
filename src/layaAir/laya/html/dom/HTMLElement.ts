@@ -1,13 +1,13 @@
 import { HTMLDocument } from "./HTMLDocument";
 import { HTMLHitRect } from "./HTMLHitRect";
-import { Graphics } from "laya/display/Graphics"
-	import { HTMLStyle } from "../utils/HTMLStyle"
-	import { ILayout } from "../utils/ILayout"
-	import { Layout } from "../utils/Layout"
-	import { URL } from "laya/net/URL"
-	import { HTMLChar } from "laya/utils/HTMLChar"
-	import { Pool } from "laya/utils/Pool"
-import { ILaya } from "ILaya";
+import { Graphics } from "../../display/Graphics"
+import { HTMLStyle } from "../utils/HTMLStyle"
+import { ILayout } from "../utils/ILayout"
+import { Layout } from "../utils/Layout"
+import { URL } from "../../net/URL"
+import { HTMLChar } from "../../utils/HTMLChar"
+import { Pool } from "../../utils/Pool"
+import { ILaya } from "../../../ILaya";
 import { IHtml } from "../utils/IHtml";
     
     export enum HTMLElementType{

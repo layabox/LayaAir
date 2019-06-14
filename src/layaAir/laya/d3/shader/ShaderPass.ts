@@ -2,10 +2,10 @@ import { SubShader } from "././SubShader";
 import { ShaderInstance } from "././ShaderInstance";
 import { Shader3D } from "././Shader3D";
 import { RenderState } from "../core/material/RenderState"
-	import { WebGL } from "laya/webgl/WebGL"
-	import { InlcudeFile } from "laya/webgl/utils/InlcudeFile"
-	import { ShaderCompile } from "laya/webgl/utils/ShaderCompile"
-	import { ShaderNode } from "laya/webgl/utils/ShaderNode"
+import { WebGL } from "../../webgl/WebGL"
+import { InlcudeFile } from "../../webgl/utils/InlcudeFile"
+import { ShaderCompile } from "../../webgl/utils/ShaderCompile"
+import { ShaderNode } from "../../webgl/utils/ShaderNode"
 	
 	/**
 	 * <code>ShaderPass</code> 类用于实现ShaderPass。

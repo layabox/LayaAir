@@ -1,14 +1,14 @@
 import { SkyMesh } from "././SkyMesh";
 import { SkyBox } from "././SkyBox";
 import { BaseCamera } from "../../core/BaseCamera"
-	import { BaseMaterial } from "../../core/material/BaseMaterial"
-	import { SkyBoxMaterial } from "../../core/material/SkyBoxMaterial"
-	import { RenderContext3D } from "../../core/render/RenderContext3D"
-	import { Scene3D } from "../../core/scene/Scene3D"
-	import { ShaderInstance } from "../../shader/ShaderInstance"
-	import { LayaGL } from "laya/layagl/LayaGL"
-	import { Stat } from "laya/utils/Stat"
-	import { WebGLContext } from "laya/webgl/WebGLContext"
+import { BaseMaterial } from "../../core/material/BaseMaterial"
+import { RenderContext3D } from "../../core/render/RenderContext3D"
+import { Scene3D } from "../../core/scene/Scene3D"
+import { ShaderInstance } from "../../shader/ShaderInstance"
+import { LayaGL } from "../../../layagl/LayaGL"
+import { Stat } from "../../../utils/Stat"
+import { WebGLContext } from "../../../webgl/WebGLContext"
+
 	
 	/**
 	 * <code>SkyRenderer</code> 类用于实现天空渲染器。

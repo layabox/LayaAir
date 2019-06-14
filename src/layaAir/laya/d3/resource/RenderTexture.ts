@@ -1,8 +1,8 @@
-import { LayaGL } from "laya/layagl/LayaGL"
-	import { Render } from "laya/renders/Render"
-	import { BaseTexture } from "laya/resource/BaseTexture"
-	import { Texture2D } from "laya/resource/Texture2D"
-	import { WebGLContext } from "laya/webgl/WebGLContext"
+import { LayaGL } from "../../layagl/LayaGL"
+import { Render } from "../../renders/Render"
+import { BaseTexture } from "../../resource/BaseTexture"
+import { Texture2D } from "../../resource/Texture2D"
+import { WebGLContext } from "../../webgl/WebGLContext";
 	
 	/**
 	   //* <code>RenderTexture</code> 类用于创建渲染目标。

@@ -1,4 +1,3 @@
-import { ILaya3D } from "ILaya3D";
 import { ColliderShape } from "././ColliderShape";
 import { Physics } from "../Physics";
 

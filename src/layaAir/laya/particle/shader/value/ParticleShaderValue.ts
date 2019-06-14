@@ -1,7 +1,7 @@
 import { ParticleShader } from "../ParticleShader"
-import { Value2D } from "laya/webgl/shader/d2/value/Value2D";
-import { RenderState2D } from "laya/webgl/utils/RenderState2D";
-import { ShaderValue } from "laya/webgl/shader/ShaderValue";
+import { Value2D } from "../../../webgl/shader/d2/value/Value2D";
+import { RenderState2D } from "../../../webgl/utils/RenderState2D";
+import { ShaderValue } from "../../../webgl/shader/ShaderValue";
 
 
 	/**

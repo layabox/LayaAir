@@ -1,4 +1,4 @@
-import { BaseTexture } from "laya/resource/BaseTexture";
+import { BaseTexture } from "../../../resource/BaseTexture";
 import { Vector4 } from "../../math/Vector4";
 import { Shader3D } from "../../shader/Shader3D";
 import { ShaderDefines } from "../../shader/ShaderDefines";
@@ -32,13 +32,13 @@ export class EffectMaterial extends BaseMaterial {
 	static DEPTH_WRITE: number = Shader3D.propertyNameToID("s_DepthWrite");
 
 	/**@private */
-	static shaderDefines: ShaderDefines =null;
+	static shaderDefines: ShaderDefines = null;
 
 	/**
 	 * @private
 	 */
 	static __initDefine__(): void {
-		EffectMaterial.shaderDefines= new ShaderDefines(BaseMaterial.shaderDefines);
+		EffectMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
 		EffectMaterial.SHADERDEFINE_MAINTEXTURE = EffectMaterial.shaderDefines.registerDefine("MAINTEXTURE");
 		EffectMaterial.SHADERDEFINE_TILINGOFFSET = EffectMaterial.shaderDefines.registerDefine("TILINGOFFSET");
 		EffectMaterial.SHADERDEFINE_ADDTIVEFOG = EffectMaterial.shaderDefines.registerDefine("ADDTIVEFOG");

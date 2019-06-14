@@ -1,8 +1,7 @@
 import { VertexElement } from "././VertexElement";
 import { VertexElementFormat } from "././VertexElementFormat";
-import { DefineDatas } from "../shader/DefineDatas"
-	import { ShaderData } from "../shader/ShaderData"
-	import { WebGLContext } from "laya/webgl/WebGLContext"
+import { ShaderData } from "../shader/ShaderData"
+
 	
 	/**
 	 * @private

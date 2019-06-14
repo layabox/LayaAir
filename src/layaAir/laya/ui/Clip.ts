@@ -9,7 +9,7 @@ import { Const } from "../Const"
 	import { Handler } from "../utils/Handler"
 	import { Utils } from "../utils/Utils"
 	import { WeakObject } from "../utils/WeakObject"
-import { ILaya } from "ILaya";
+import { ILaya } from "../../ILaya";
 	
 	/**
 	 * 图片加载完成后调度。

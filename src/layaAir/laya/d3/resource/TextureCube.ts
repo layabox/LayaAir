@@ -1,9 +1,9 @@
-import { Laya } from "Laya";
-import { LayaGL } from "laya/layagl/LayaGL"
-	import { Render } from "laya/renders/Render"
-	import { Handler } from "laya/utils/Handler"
-	import { WebGLContext } from "laya/webgl/WebGLContext"
-	import { BaseTexture } from "laya/resource/BaseTexture"
+import { Render } from "../../renders/Render"
+import { Handler } from "../../utils/Handler"
+import { WebGLContext } from "../../webgl/WebGLContext"
+import { BaseTexture } from "../../resource/BaseTexture"
+import { LayaGL } from "../../layagl/LayaGL";
+import { Laya } from "../../../Laya";
 	
 	/**
 	 * <code>TextureCube</code> 类用于生成立方体纹理。

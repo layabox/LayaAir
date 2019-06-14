@@ -6,7 +6,7 @@ import { Node } from "../display/Node"
 	import { Sprite } from "../display/Sprite"
 	import { Event } from "../events/Event"
 	import { Rectangle } from "../maths/Rectangle"
-import { ILaya } from "ILaya";
+import { ILaya } from "../../ILaya";
 	
 	/**
 	 * <code>Panel</code> 是一个面板容器类。

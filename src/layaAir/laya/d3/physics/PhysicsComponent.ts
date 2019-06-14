@@ -1,7 +1,7 @@
 
-import { Component } from "laya/components/Component";
-import { Event } from "laya/events/Event";
-import { Loader } from "laya/net/Loader";
+import { Component } from "../../components/Component";
+import { Event } from "../../events/Event";
+import { Loader } from "../../net/Loader";
 import { Scene3D } from "../core/scene/Scene3D";
 import { Sprite3D } from "../core/Sprite3D";
 import { Transform3D } from "../core/Transform3D";
@@ -103,9 +103,9 @@ export class PhysicsComponent extends Component {
 		outE[15] = 1;
 	}
 
-		/**
-	* @private
-	*/
+	/**
+* @private
+*/
 	static _creatShape(shapeData: any): ColliderShape {
 		var colliderShape: ColliderShape;
 		switch (shapeData.type) {

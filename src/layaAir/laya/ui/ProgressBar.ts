@@ -3,7 +3,7 @@ import { Event } from "../events/Event"
 	import { UIComponent } from "./UIComponent"
 	import { Image } from "./Image"
 	import { Handler } from "../utils/Handler"
-import { ILaya } from "ILaya";
+import { ILaya } from "../../ILaya";
 	
 	/**
 	 * 值发生改变后调度。

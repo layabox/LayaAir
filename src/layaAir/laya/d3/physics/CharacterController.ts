@@ -1,10 +1,10 @@
-import { Component } from "laya/components/Component";
 import { Vector3 } from "../math/Vector3";
 import { Physics3DUtils } from "../utils/Physics3DUtils";
 import { Utils3D } from "../utils/Utils3D";
 import { PhysicsComponent } from "././PhysicsComponent";
 import { Physics } from "./Physics";
 import { ColliderShape } from "./shape/ColliderShape";
+import { Component } from "../../components/Component";
 
 /**
  * <code>CharacterController</code> 类用于创建角色控制器。
@@ -41,7 +41,7 @@ export class CharacterController extends PhysicsComponent {
 	private _gravity: Vector3 = new Vector3(0, -9.8 * 3, 0);
 
 	/**@private */
-	_nativeKinematicCharacter: any=null;
+	_nativeKinematicCharacter: any = null;
 
 	/**
 	 * 获取角色降落速度。

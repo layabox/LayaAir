@@ -1,4 +1,4 @@
-import { BaseTexture } from "laya/resource/BaseTexture";
+import { BaseTexture } from "../../../resource/BaseTexture";
 import { Vector4 } from "../../math/Vector4";
 import { Shader3D } from "../../shader/Shader3D";
 import { ShaderDefines } from "../../shader/ShaderDefines";
@@ -36,13 +36,13 @@ export class UnlitMaterial extends BaseMaterial {
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: UnlitMaterial;
 	/**@private */
-	static shaderDefines: ShaderDefines=null;
+	static shaderDefines: ShaderDefines = null;
 
 	/**
 	 * @private
 	 */
 	static __initDefine__(): void {
-		UnlitMaterial.shaderDefines= new ShaderDefines(BaseMaterial.shaderDefines);
+		UnlitMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
 		UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE = UnlitMaterial.shaderDefines.registerDefine("ALBEDOTEXTURE");
 		UnlitMaterial.SHADERDEFINE_TILINGOFFSET = UnlitMaterial.shaderDefines.registerDefine("TILINGOFFSET");
 		UnlitMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR = UnlitMaterial.shaderDefines.registerDefine("ENABLEVERTEXCOLOR");
@@ -577,10 +577,10 @@ export class UnlitMaterial extends BaseMaterial {
 		this.renderMode = UnlitMaterial.RENDERMODE_OPAQUE;
 	}
 
-		/**
-	 * 克隆。
-	 * @return	 克隆副本。
-	 */
+	/**
+ * 克隆。
+ * @return	 克隆副本。
+ */
 	clone(): any {
 		var dest: UnlitMaterial = new UnlitMaterial();
 		this.cloneTo(dest);

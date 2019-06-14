@@ -1,7 +1,7 @@
 import { SubShader } from "././SubShader";
 import { ShaderPass } from "././ShaderPass";
-import { WebGL } from "laya/webgl/WebGL"
-	import { ShaderCompile } from "laya/webgl/utils/ShaderCompile"
+import { WebGL } from "../../webgl/WebGL"
+import { ShaderCompile } from "../../webgl/utils/ShaderCompile"
 	
 	/**
 	 * <code>Shader3D</code> 类用于创建Shader3D。

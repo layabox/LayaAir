@@ -1,8 +1,8 @@
-import { SimpleSingletonList } from "./component/SimpleSingletonList"
-	import { SingletonList } from "./component/SingletonList"
-	import { BaseRender } from "./core/render/BaseRender"
-	import { ISingletonElement } from "laya/resource/ISingletonElement"
-	
+import { SingletonList } from "./component/SingletonList"
+import { BaseRender } from "./core/render/BaseRender"
+
+
+/**
 	/**
 	 * <code>CastShadowList</code> 类用于实现产生阴影者队列。
 	 */

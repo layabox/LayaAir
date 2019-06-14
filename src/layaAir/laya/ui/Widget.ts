@@ -1,7 +1,7 @@
 import { Component } from "../components/Component"
-	import { Sprite } from "../display/Sprite"
-	import { Event } from "../events/Event"
-import { ILaya } from "ILaya";
+import { Sprite } from "../display/Sprite"
+import { Event } from "../events/Event"
+import { ILaya } from "../../ILaya";
 	
 	/**
 	 * 相对布局插件

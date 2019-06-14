@@ -1,7 +1,5 @@
 import { ColliderShape } from "././ColliderShape";
-import { Laya3D } from "./../../../../Laya3D";
-import { Quaternion } from "../../math/Quaternion"
-	import { Vector3 } from "../../math/Vector3"
+import { Vector3 } from "../../math/Vector3"
 import { Physics } from "../Physics";
 	
 	/**

@@ -1,4 +1,4 @@
-import { Render } from "laya/renders/Render";
+import { Render } from "../../../renders/Render";
 import { FrustumCulling } from "../../graphics/FrustumCulling";
 import { BoundBox } from "../../math/BoundBox";
 import { BoundFrustum } from "../../math/BoundFrustum";

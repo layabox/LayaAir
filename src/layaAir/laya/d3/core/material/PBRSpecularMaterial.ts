@@ -1,4 +1,4 @@
-import { BaseTexture } from "laya/resource/BaseTexture";
+import { BaseTexture } from "../../../resource/BaseTexture";
 import { Vector4 } from "../../math/Vector4";
 import { Shader3D } from "../../shader/Shader3D";
 import { ShaderDefines } from "../../shader/ShaderDefines";
@@ -1120,10 +1120,10 @@ export class PBRSpecularMaterial extends BaseMaterial {
 		this.renderMode = PBRSpecularMaterial.RENDERMODE_OPAQUE;
 	}
 
-		/**
-	 * 克隆。
-	 * @return	 克隆副本。
-	 */
+	/**
+ * 克隆。
+ * @return	 克隆副本。
+ */
 	clone(): any {
 		var dest: PBRSpecularMaterial = new PBRSpecularMaterial();
 		this.cloneTo(dest);

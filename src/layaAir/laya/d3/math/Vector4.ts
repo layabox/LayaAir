@@ -2,7 +2,6 @@ import { Matrix4x4 } from "././Matrix4x4";
 import { MathUtils3D } from "././MathUtils3D";
 import { Vector2 } from "././Vector2";
 import { IClone } from "../core/IClone"
-	import { Render } from "laya/renders/Render"
 
 	/**
 	 * <code>Vector4</code> 类用于创建四维向量。

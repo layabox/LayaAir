@@ -1,20 +1,19 @@
 import { MouseTouch } from "././MouseTouch";
 import { Touch } from "././Touch";
-import { Laya } from "Laya";
 import { Script3D } from "./component/Script3D"
-	import { SimpleSingletonList } from "./component/SimpleSingletonList"
-	import { BaseCamera } from "./core/BaseCamera"
-	import { Camera } from "./core/Camera"
-	import { Sprite3D } from "./core/Sprite3D"
-	import { Scene3D } from "./core/scene/Scene3D"
-	import { Ray } from "./math/Ray"
-	import { Vector2 } from "./math/Vector2"
-	import { Vector3 } from "./math/Vector3"
-	import { Viewport } from "./math/Viewport"
-	import { HitResult } from "./physics/HitResult"
-	import { Point } from "laya/maths/Point"
-	import { Browser } from "laya/utils/Browser"
-	import { Stat } from "laya/utils/Stat"
+import { SimpleSingletonList } from "./component/SimpleSingletonList"
+import { BaseCamera } from "./core/BaseCamera"
+import { Camera } from "./core/Camera"
+import { Sprite3D } from "./core/Sprite3D"
+import { Scene3D } from "./core/scene/Scene3D"
+import { Ray } from "./math/Ray"
+import { Vector2 } from "./math/Vector2"
+import { Vector3 } from "./math/Vector3"
+import { Viewport } from "./math/Viewport"
+import { HitResult } from "./physics/HitResult"
+import { Point } from "../maths/Point"
+import { Stat } from "../utils/Stat";
+import { Laya } from "../../Laya";
 	
 	/**
 	 * <code>Input3D</code> 类用于实现3D输入。

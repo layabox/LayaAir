@@ -1,8 +1,7 @@
-import { ILaya3D } from "ILaya3D";
-import { LayaGL } from "laya/layagl/LayaGL";
-import { Resource } from "laya/resource/Resource";
-import { Stat } from "laya/utils/Stat";
-import { WebGLContext } from "laya/webgl/WebGLContext";
+import { LayaGL } from "../../layagl/LayaGL";
+import { Resource } from "../../resource/Resource";
+import { Stat } from "../../utils/Stat";
+import { WebGLContext } from "../../webgl/WebGLContext";
 import { BufferState } from "../core/BufferState";
 import { GeometryElement } from "../core/GeometryElement";
 import { RenderContext3D } from "../core/render/RenderContext3D";
@@ -15,7 +14,7 @@ import { VertexBuffer3D } from "././VertexBuffer3D";
 import { VertexDeclaration } from "././VertexDeclaration";
 import { VertexElement } from "././VertexElement";
 import { VertexMesh } from "./Vertex/VertexMesh";
-	
+import { ILaya3D } from "../../../ILaya3D";
 	/**
 	 * @private
 	 * <code>SubMeshDynamicBatch</code> 类用于网格动态合并。

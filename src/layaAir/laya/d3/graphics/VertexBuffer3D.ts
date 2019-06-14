@@ -1,9 +1,9 @@
-import { VertexDeclaration } from "././VertexDeclaration";
-import { Render } from "laya/renders/Render"
-	import { LayaGL } from "laya/layagl/LayaGL"
-	import { WebGL } from "laya/webgl/WebGL"
-	import { WebGLContext } from "laya/webgl/WebGLContext"
-	import { Buffer } from "laya/webgl/utils/Buffer"
+
+import { LayaGL } from "../../layagl/LayaGL"
+import { WebGLContext } from "../../webgl/WebGLContext"
+import { Buffer } from "../../webgl/utils/Buffer"
+import { VertexDeclaration } from "./VertexDeclaration";
+
 	
 	/**
 	 * <code>VertexBuffer3D</code> 类用于创建顶点缓冲。

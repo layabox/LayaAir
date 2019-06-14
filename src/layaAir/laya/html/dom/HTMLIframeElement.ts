@@ -1,7 +1,7 @@
 import { HTMLDivElement } from "./HTMLDivElement";
-import { Loader } from "laya/net/Loader"
-	import { URL } from "laya/net/URL"
-	import { Event } from "laya/events/Event"
+import { Loader } from "../../net/Loader"
+import { URL } from "../../net/URL"
+import { Event } from "../../events/Event"
 
 	/**
 	 * iframe标签类，目前用于加载外并解析数据

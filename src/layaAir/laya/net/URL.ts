@@ -1,4 +1,4 @@
-import { ILaya } from "ILaya";
+import { ILaya } from "../../ILaya";
 
 /**
 	 * <p><code>URL</code> 提供URL格式化，URL版本管理的类。</p>

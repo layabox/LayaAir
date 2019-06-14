@@ -1,5 +1,4 @@
 import { ILaya } from "../../ILaya";
-//import { Timer } from "././Timer";
 /**
 	 * @private
 	 */

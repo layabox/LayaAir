@@ -1,8 +1,8 @@
 import { HTMLExtendStyle } from "././HTMLExtendStyle";
-import { ILaya } from "ILaya";
-import { Pool } from "laya/utils/Pool";
+import { ILaya } from "../../../ILaya";
+import { Pool } from "../../utils/Pool";
 import { HTMLElement } from "../dom/HTMLElement";
-import { URL } from "laya/net/URL";
+import { URL } from "../../net/URL";
 	
 	/**
 	 * @private

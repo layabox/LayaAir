@@ -4,7 +4,6 @@ import { AnimatorControllerLayer } from "./AnimatorControllerLayer";
 import { AnimatorState } from "./AnimatorState";
 import { AnimatorPlayState } from "./AnimatorPlayState";
 import { Script3D } from "./Script3D";
-import { Component } from "laya/components/Component"
 import { AnimationClip } from "../animation/AnimationClip"
 import { AnimationEvent } from "../animation/AnimationEvent"
 import { AnimationNode } from "../animation/AnimationNode"
@@ -21,11 +20,12 @@ import { Matrix4x4 } from "../math/Matrix4x4"
 import { Quaternion } from "../math/Quaternion"
 import { Vector3 } from "../math/Vector3"
 import { Utils3D } from "../utils/Utils3D"
-import { Node } from "laya/display/Node"
-import { LayaGL } from "laya/layagl/LayaGL"
-import { Loader } from "laya/net/Loader"
-import { Render } from "laya/renders/Render"
-import { Timer } from "laya/utils/Timer"
+import { Node } from "../../display/Node"
+import { Loader } from "../../net/Loader"
+import { Render } from "../../renders/Render"
+import { Timer } from "../../utils/Timer"
+import { LayaGL } from "../../layagl/LayaGL";
+import { Component } from "../../components/Component";
 
 /**
  * <code>Animator</code> 类用于创建动画组件。
@@ -41,9 +41,9 @@ export class Animator extends Component {
 	private static _tempQuaternion1: Quaternion = new Quaternion();
 
 	/** @private */
-	private static _tempVector3Array0: Float32Array =  new Float32Array(3);
+	private static _tempVector3Array0: Float32Array = new Float32Array(3);
 	/** @private */
-	private static _tempVector3Array1: Float32Array =  new Float32Array(3);
+	private static _tempVector3Array1: Float32Array = new Float32Array(3);
 	/** @private */
 	private static _tempQuaternionArray0: Float32Array = new Float32Array(4);
 	/** @private */

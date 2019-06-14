@@ -1,7 +1,7 @@
-import { IClone } from "../core/IClone";
-import { Matrix4x4 } from "././Matrix4x4";
-import { Vector2 } from "././Vector2";
 import { Vector3 } from "././Vector3";
+import { Vector2 } from "././Vector2";
+import { Matrix4x4 } from "././Matrix4x4";
+import { IClone } from "../core/IClone"
 
 /**
  * <code>Matrix3x3</code> 类用于创建3x3矩阵。

@@ -1,7 +1,7 @@
-import { RenderElement } from "../core/render/RenderElement";
-import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement";
-import { RenderableSprite3D } from "../core/RenderableSprite3D";
-import { Sprite3D } from "../core/Sprite3D";
+import { RenderableSprite3D } from "../core/RenderableSprite3D"
+import { Sprite3D } from "../core/Sprite3D"
+import { RenderElement } from "../core/render/RenderElement"
+import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement"
 
 /**
  * <code>StaticBatchManager</code> 类用于静态批处理管理的父类。
