@@ -728,7 +728,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 
 		rigidBody.clearForces();
 		var nativeZero: any = Rigidbody3D._nativeVector3Zero;
-		rigidBody.setInterpolationAngularVelocity(nativeZero);
+		rigidBody.setInterpolationLinearVelocity(nativeZero);
 		rigidBody.setLinearVelocity(nativeZero);
 		rigidBody.setInterpolationAngularVelocity(nativeZero);
 		rigidBody.setAngularVelocity(nativeZero);
