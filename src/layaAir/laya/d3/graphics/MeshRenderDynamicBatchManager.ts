@@ -36,11 +36,11 @@ export class MeshRenderDynamicBatchManager extends DynamicBatchManager {
 	/**
 	 * @private
 	 */
-	getInstanceBatchOpaquaMark(lightMapIndex: number, receiveShadow: boolean, materialID: number, subMeshID: number): BatchMark {
-		var instanceLightMapMarks: any[] = (this._instanceBatchOpaqueMarks[lightMapIndex]) || (this._instanceBatchOpaqueMarks[lightMapIndex] = []);
-		var instanceReceiveShadowMarks: any[] = (instanceLightMapMarks[receiveShadow ? 0 : 1]) || (instanceLightMapMarks[receiveShadow ? 0 : 1] = []);
-		var instanceMaterialMarks: BatchMark[] = (instanceReceiveShadowMarks[materialID]) || (instanceReceiveShadowMarks[materialID] = []);
-		return instanceMaterialMarks[subMeshID] || (instanceMaterialMarks[subMeshID] = new BatchMark());
+	getInstanceBatchOpaquaMark(receiveShadow: boolean, materialID: number, subMeshID: number,invertFace:boolean): BatchMark {
+		var instanceReceiveShadowMarks: any[] = (this._instanceBatchOpaqueMarks[receiveShadow ? 0 : 1]) || (this._instanceBatchOpaqueMarks[receiveShadow ? 0 : 1] = []);
+		var instanceMaterialMarks: any[] = (instanceReceiveShadowMarks[materialID]) || (instanceReceiveShadowMarks[materialID] = []);
+		var instancSubMeshMarks: BatchMark[]=(instanceMaterialMarks[subMeshID]) || (instanceMaterialMarks[subMeshID] = []);
+		return instancSubMeshMarks[invertFace?1:0] || (instancSubMeshMarks[invertFace?1:0] = new BatchMark());
 	}
 
 	/**

@@ -38,14 +38,22 @@ export class RenderElement {
 	render: BaseRender;
 	/** @private */
 	staticBatch: GeometryElement;
+
 	/** @private */
 	renderType: number = RenderElement.RENDERTYPE_NORMAL;
+
 
 	/**
 	 * 创建一个 <code>RenderElement</code> 实例。
 	 */
 	constructor() {
+	}
 
+	/**
+	 * @private
+	 */
+	getInvertFront(): boolean {
+		return this._transform._isFrontFaceInvert;
 	}
 
 	/**
@@ -99,6 +107,7 @@ export class RenderElement {
 		}
 
 		if (geometry._prepareRender(context)) {
+
 			var subShader: SubShader = this.material._shader.getSubShaderAt(0);//TODO:
 			var passes: ShaderPass[];
 			if (customShader) {
@@ -158,13 +167,13 @@ export class RenderElement {
 				var matValues: ShaderData = this.material._shaderValues;
 				if (lastStateMaterial !== this.material || lastStateShaderInstance !== shaderPass) {//lastStateMaterial,lastStateShaderInstance存到全局，多摄像机还可优化
 					shaderPass.uploadRenderStateBlendDepth(matValues);
-					shaderPass.uploadRenderStateFrontFace(matValues, isTarget, transform);
+					shaderPass.uploadRenderStateFrontFace(matValues, isTarget, this.getInvertFront());
 					lastStateMaterial = this.material;
 					lastStateShaderInstance = shaderPass;
 					lastStateRender = this.render;
 				} else {
 					if (lastStateRender !== this.render) {//TODO:是否可以用transfrom
-						shaderPass.uploadRenderStateFrontFace(matValues, isTarget, transform);
+						shaderPass.uploadRenderStateFrontFace(matValues, isTarget, this.getInvertFront());
 						lastStateRender = this.render;
 					}
 				}

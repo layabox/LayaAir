@@ -171,10 +171,10 @@ export class SubMeshRenderElement extends RenderElement {
 				staBatchMarks.batched = false;//是否已有大于两个的元素可合并
 				elements.push(this);
 			}
-		} else if (this.material._shader._enableInstancing && LayaGL.layaGPUInstance.supportInstance()) {//需要支持Instance渲染才可用
+		} else if (this.material._shader._enableInstancing && LayaGL.layaGPUInstance.supportInstance()&&this.render.lightmapIndex<0) {//需要支持Instance渲染才可用,暂不支持光照贴图
 			var subMesh: SubMesh = (<SubMesh>this._geometry);
 			var insManager: MeshRenderDynamicBatchManager = ILaya3D.MeshRenderDynamicBatchManager.instance;
-			var insBatchMarks: BatchMark = insManager.getInstanceBatchOpaquaMark(this.render.lightmapIndex + 1, this.render.receiveShadow, this.material.id, subMesh._id);
+			var insBatchMarks: BatchMark = insManager.getInstanceBatchOpaquaMark(this.render.receiveShadow, this.material.id, subMesh._id, this._transform._isFrontFaceInvert);
 			if (insManager._updateCountMark === insBatchMarks.updateMark) {
 				var insBatchIndex: number = insBatchMarks.indexInList;
 				if (insBatchMarks.batched) {
@@ -284,13 +284,13 @@ export class SubMeshRenderElement extends RenderElement {
 				elements.push(this);
 				queue.lastTransparentBatched = false;
 			}
-		} else if (this.material._shader._enableInstancing && LayaGL.layaGPUInstance.supportInstance()) {//需要支持Instance渲染才可用
+		} else if (this.material._shader._enableInstancing && LayaGL.layaGPUInstance.supportInstance()&&this.render.lightmapIndex<0) {//需要支持Instance渲染才可用，暂不支持光照贴图
 			var subMesh: SubMesh = (<SubMesh>this._geometry);
 			var insManager: MeshRenderDynamicBatchManager = ILaya3D.MeshRenderDynamicBatchManager.instance;
 			var insLastElement: RenderElement = queue.lastTransparentRenderElement;
 			if (insLastElement) {
 				var insLastRender: BaseRender = insLastElement.render;
-				if (insLastElement._geometry._getType() !== this._geometry._getType() || ((<SubMesh>insLastElement._geometry)) !== subMesh || insLastElement.material !== this.material || insLastRender.receiveShadow !== this.render.receiveShadow || insLastRender.lightmapIndex !== this.render.lightmapIndex) {
+				if (insLastElement._geometry._getType() !== this._geometry._getType() || ((<SubMesh>insLastElement._geometry)) !== subMesh || insLastElement.material !== this.material || insLastRender.receiveShadow !== this.render.receiveShadow) {
 					elements.push(this);
 					queue.lastTransparentBatched = false;
 				} else {
@@ -353,6 +353,22 @@ export class SubMeshRenderElement extends RenderElement {
 			elements.push(this);
 		}
 		queue.lastTransparentRenderElement = this;
+	}
+
+	getInvertFront(): boolean {
+		switch (this.renderType) {
+			case RenderElement.RENDERTYPE_NORMAL:
+				return this._transform._isFrontFaceInvert;
+				break;
+			case RenderElement.RENDERTYPE_STATICBATCH:
+			case RenderElement.RENDERTYPE_VERTEXBATCH:
+				return false;
+				break;
+			case RenderElement.RENDERTYPE_INSTANCEBATCH:
+				return this.instanceBatchElementList[0]._transform._isFrontFaceInvert;
+				break;
+				throw "SubMeshRenderElement: unknown renderType";
+		}
 	}
 
 		/**

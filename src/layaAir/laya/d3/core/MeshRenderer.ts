@@ -25,11 +25,6 @@ import { Render } from "../../renders/Render";
  * <code>MeshRenderer</code> 类用于网格渲染器。
  */
 export class MeshRenderer extends BaseRender {
-	/**@private */
-	private static _tempVector30: Vector3 = new Vector3();
-	/**@private */
-	private static _tempVector31: Vector3 = new Vector3();
-
 	/** @private */
 	protected _oriDefineValue: number;
 	/** @private */
