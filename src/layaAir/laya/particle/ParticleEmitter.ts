@@ -1,5 +1,5 @@
 import { ParticleTemplateBase } from "././ParticleTemplateBase";
-import { MathUtil } from "laya/maths/MathUtil";
+import { MathUtil } from "../maths/MathUtil";
 	
 	/**
 	 *  @private

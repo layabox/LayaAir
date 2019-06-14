@@ -1,14 +1,13 @@
 import { ParticleTemplateBase } from "././ParticleTemplateBase";
-import { Sprite } from "laya/display/Sprite";
+import { Sprite } from "../display/Sprite";
 import { ParticleSetting } from "./ParticleSetting";
-import { Handler } from "laya/utils/Handler";
-import { ILaya } from "ILaya";
-import { Context } from "laya/resource/Context";
+import { Handler } from "../utils/Handler";
+import { ILaya } from "../../ILaya";
+import { Context } from "../resource/Context";
 import { ParticleTemplate2D } from "./ParticleTemplate2D"
-//import { ParticleTemplateCanvas } from "./ParticleTemplateCanvas"
 import { EmitterBase } from "./emitter/EmitterBase"
 import { Emitter2D } from "./emitter/Emitter2D"
-import { DrawParticleCmd } from "laya/display/cmd/DrawParticleCmd"
+import { DrawParticleCmd } from "../display/cmd/DrawParticleCmd"
 	
 	/**
 	 * <code>Particle2D</code> 类是2D粒子播放类

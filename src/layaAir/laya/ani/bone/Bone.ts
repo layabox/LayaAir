@@ -1,7 +1,7 @@
 import { Transform } from "././Transform";
-import { Matrix } from "laya/maths/Matrix";
-import { Sprite } from "laya/display/Sprite";
-import { ILaya } from "ILaya";
+import { Sprite } from "../../display/Sprite";
+import { Matrix } from "../../maths/Matrix";
+import { ILaya } from "../../../ILaya";
 
 	
 	/**

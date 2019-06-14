@@ -1,11 +1,11 @@
 import { VertexShuriKenParticle } from "././VertexShuriKenParticle";
 import { VertexDeclaration } from "../VertexDeclaration"
-	import { VertexElement } from "../VertexElement"
-	import { VertexElementFormat } from "../VertexElementFormat"
-	import { Vector2 } from "../../math/Vector2"
-	import { Vector3 } from "../../math/Vector3"
-	import { Vector4 } from "../../math/Vector4"
-	
+import { VertexElement } from "../VertexElement"
+import { VertexElementFormat } from "../VertexElementFormat"
+import { Vector3 } from "../../math/Vector3"
+import { Vector4 } from "../../math/Vector4"
+
+/**
 	/**
 	 * <code>VertexShurikenParticle</code> 类用于创建粒子顶点结构。
 	 */

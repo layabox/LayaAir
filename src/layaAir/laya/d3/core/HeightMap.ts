@@ -1,14 +1,14 @@
 import { Bounds } from "././Bounds";
 import { IndexBuffer3D } from "../graphics/IndexBuffer3D"
-	import { VertexBuffer3D } from "../graphics/VertexBuffer3D"
-	import { BoundBox } from "../math/BoundBox"
-	import { Ray } from "../math/Ray"
-	import { Vector2 } from "../math/Vector2"
-	import { Vector3 } from "../math/Vector3"
-	import { Mesh } from "../resource/models/Mesh"
-	import { SubMesh } from "../resource/models/SubMesh"
-	import { Picker } from "../utils/Picker"
-	import { Texture2D } from "laya/resource/Texture2D"
+import { VertexBuffer3D } from "../graphics/VertexBuffer3D"
+import { Ray } from "../math/Ray"
+import { Vector2 } from "../math/Vector2"
+import { Vector3 } from "../math/Vector3"
+import { Mesh } from "../resource/models/Mesh"
+import { SubMesh } from "../resource/models/SubMesh"
+import { Picker } from "../utils/Picker"
+import { Texture2D } from "../../resource/Texture2D"
+
 	
 	/**
 	 * <code>HeightMap</code> 类用于实现高度图数据。

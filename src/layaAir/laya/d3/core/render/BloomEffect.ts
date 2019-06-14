@@ -1,20 +1,16 @@
 import { PostProcessEffect } from "././PostProcessEffect";
 import { PostProcessRenderContext } from "././PostProcessRenderContext";
 import { PostProcess } from "../../component/PostProcess"
-	import { Camera } from "../Camera"
-	import { CommandBuffer } from "./command/CommandBuffer"
-	import { Color } from "../../math/Color"
-	import { Vector4 } from "../../math/Vector4"
-	import { Viewport } from "../../math/Viewport"
-	import { RenderTexture } from "../../resource/RenderTexture"
-	import { DefineDatas } from "../../shader/DefineDatas"
-	import { Shader3D } from "../../shader/Shader3D"
-	import { ShaderData } from "../../shader/ShaderData"
-	import { Utils3D } from "../../utils/Utils3D"
-	import { BaseTexture } from "laya/resource/BaseTexture"
-	import { RenderTexture2D } from "laya/resource/RenderTexture2D"
-	import { Texture2D } from "laya/resource/Texture2D"
-	
+import { CommandBuffer } from "./command/CommandBuffer"
+import { Color } from "../../math/Color"
+import { Vector4 } from "../../math/Vector4"
+import { Viewport } from "../../math/Viewport"
+import { RenderTexture } from "../../resource/RenderTexture"
+import { Shader3D } from "../../shader/Shader3D"
+import { ShaderData } from "../../shader/ShaderData"
+import { BaseTexture } from "../../../resource/BaseTexture"
+import { Texture2D } from "../../../resource/Texture2D"
+
 	/**
 	 * <code>BloomEffect</code> 类用于创建泛光效果。
 	 */

@@ -1,10 +1,10 @@
-import { Sprite } from "laya/display/Sprite";
-import { Byte } from "laya/utils/Byte";
-import { Handler } from "laya/utils/Handler";
-import { Const } from "laya/Const";
-import { Event } from "laya/events/Event";
-import { ILaya } from "ILaya";
-import { Matrix } from "laya/maths/Matrix";
+import { Sprite } from "../../display/Sprite";
+import { Byte } from "../../utils/Byte";
+import { Handler } from "../../utils/Handler";
+import { Const } from "../../Const";
+import { Event } from "../../events/Event";
+import { ILaya } from "../../../ILaya";
+import { Matrix } from "../../maths/Matrix";
 
 	
 	/**

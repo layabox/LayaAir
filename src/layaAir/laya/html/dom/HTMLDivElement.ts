@@ -1,11 +1,10 @@
 import { HTMLDivParser } from "./HTMLDivParser";
 import { HTMLHitRect } from "./HTMLHitRect";
-import { Sprite } from "laya/display/Sprite"
-	import { Event } from "laya/events/Event"
-	import { HTMLStyle } from "../utils/HTMLStyle"
-	import { Rectangle } from "laya/maths/Rectangle"
-	import { Handler } from "laya/utils/Handler"
-import { ILaya } from "ILaya";
+import { Sprite } from "../../display/Sprite"
+import { Event } from "../../events/Event"
+import { HTMLStyle } from "../utils/HTMLStyle"
+import { Rectangle } from "../../maths/Rectangle"
+import { Handler } from "../../utils/Handler"
 import { IHtml } from "../utils/IHtml";
 import { HTMLParse } from "../utils/HTMLParse";
 	

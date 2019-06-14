@@ -1,15 +1,14 @@
 import { HTMLElement } from "./HTMLElement";
 import { HTMLStyleElement } from "./HTMLStyleElement";
 import { HTMLLinkElement } from "./HTMLLinkElement";
-//import { HTMLParse } from "../utils/HTMLParse"
-	import { HTMLStyle } from "../utils/HTMLStyle"
-	import { ILayout } from "../utils/ILayout"
-	import { Layout } from "../utils/Layout"
-import { Rectangle } from "laya/maths/Rectangle";
-import { Handler } from "laya/utils/Handler";
-import { HTMLChar } from "laya/utils/HTMLChar";
+import { HTMLStyle } from "../utils/HTMLStyle"
+import { ILayout } from "../utils/ILayout"
+import { Layout } from "../utils/Layout"
+import { Rectangle } from "../../maths/Rectangle";
+import { Handler } from "../../utils/Handler";
+import { HTMLChar } from "../../utils/HTMLChar";
 import { IHtml } from "../utils/IHtml";
-import { ILaya } from "ILaya";
+import { ILaya } from "../../../ILaya";
 	
 	/**
 	 * @private

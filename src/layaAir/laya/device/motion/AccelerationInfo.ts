@@ -4,23 +4,22 @@
 	 * 
 	 * @author Survivor
 	 */
-	export class AccelerationInfo
-	{
-		/**
-		 * x轴上的加速度值。
-		 */
-		 x:number;
-		/**
-		 * y轴上的加速度值。
-		 */
-		 y:number;
-		/**
-		 * z轴上的加速度值。
-		 */
-		 z:number;
-		
-		constructor(){
-		
-		}
+export class AccelerationInfo {
+	/**
+	 * x轴上的加速度值。
+	 */
+	x: number;
+	/**
+	 * y轴上的加速度值。
+	 */
+	y: number;
+	/**
+	 * z轴上的加速度值。
+	 */
+	z: number;
+
+	constructor() {
+
 	}
+}
 

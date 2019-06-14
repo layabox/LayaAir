@@ -1,18 +1,17 @@
 import { ILaya } from "./../../ILaya";
 import { Config } from "./../../Config";
 import { LayaGL } from "../layagl/LayaGL"
-	import { Context } from "../resource/Context"
-	import { HTMLCanvas } from "../resource/HTMLCanvas"
-	import { WebGL } from "../webgl/WebGL"
-	import { WebGLContext } from "../webgl/WebGLContext"
-	import { BlendMode } from "../webgl/canvas/BlendMode"
-	import { Shader2D } from "../webgl/shader/d2/Shader2D"
-	import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D"
-	import { Value2D } from "../webgl/shader/d2/value/Value2D"
-	import { Submit } from "../webgl/submit/Submit"
-	import { Buffer2D } from "../webgl/utils/Buffer2D"
+import { Context } from "../resource/Context"
+import { HTMLCanvas } from "../resource/HTMLCanvas"
+import { WebGL } from "../webgl/WebGL"
+import { WebGLContext } from "../webgl/WebGLContext"
+import { BlendMode } from "../webgl/canvas/BlendMode"
+import { Shader2D } from "../webgl/shader/d2/Shader2D"
+import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D"
+import { Value2D } from "../webgl/shader/d2/value/Value2D"
+import { Buffer2D } from "../webgl/utils/Buffer2D"
 import { SubmitBase } from "../webgl/submit/SubmitBase";
-import { LayaGPU } from "laya/webgl/LayaGPU";
+import { LayaGPU } from "../webgl/LayaGPU";
 	
 	/**
 	 * @private

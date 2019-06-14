@@ -1,6 +1,6 @@
-import { Render } from "laya/renders/Render"
-	import { BaseTexture } from "laya/resource/BaseTexture"
-	import { Texture2D } from "laya/resource/Texture2D"
+import { BaseTexture } from "../../resource/BaseTexture"
+import { Texture2D } from "../../resource/Texture2D"
+
 	
 	/**
 	 * ...

@@ -1,7 +1,7 @@
 import { GradientMode } from "././GradientMode";
 import { IClone } from "./IClone"
-	import { Color } from "../math/Color"
-	import { Vector3 } from "../math/Vector3"
+import { Color } from "../math/Color"
+
 	
 	/**
 	 * <code>Gradient</code> 类用于创建颜色渐变。

@@ -1,5 +1,5 @@
 import { Button } from "./Button"
-import { ILaya } from "ILaya";
+import { ILaya } from "../../ILaya";
 	
 	/**
 	 * 当按钮的选中状态（ <code>selected</code> 属性）发生改变时调度。

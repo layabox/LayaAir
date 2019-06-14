@@ -1,7 +1,7 @@
 import { Burst } from "././Burst";
 import { IClone } from "../../IClone"
-	import { Vector3 } from "../../../math/Vector3"
-	import { IDestroy } from "laya/resource/IDestroy"
+import { Vector3 } from "../../../math/Vector3"
+import { IDestroy } from "../../../../resource/IDestroy";
 	
 	/**
 	 * <code>Emission</code> 类用于粒子发射器。

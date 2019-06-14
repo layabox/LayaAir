@@ -1,20 +1,19 @@
 import { Widget } from "././Widget";
 import { Animation } from "../display/Animation"
-	import { Scene } from "../display/Scene"
-	import { Sprite } from "../display/Sprite"
-	import { Text } from "../display/Text"
-	import { Event } from "../events/Event"
-	import { Box } from "./Box"
-	import { Button } from "./Button"
-	import { CheckBox } from "./CheckBox"
-	import { Image } from "./Image"
-	import { Label } from "./Label"
-	import { ProgressBar } from "./ProgressBar"
-	import { Radio } from "./Radio"
-	import { RadioGroup } from "./RadioGroup"
-	import { Tab } from "./Tab"
-	import { UIComponent } from "./UIComponent"
-	//import { ClassUtils } from "../utils/ClassUtils"
+import { Scene } from "../display/Scene"
+import { Sprite } from "../display/Sprite"
+import { Text } from "../display/Text"
+import { Event } from "../events/Event"
+import { Box } from "./Box"
+import { Button } from "./Button"
+import { CheckBox } from "./CheckBox"
+import { Image } from "./Image"
+import { Label } from "./Label"
+import { ProgressBar } from "./ProgressBar"
+import { Radio } from "./Radio"
+import { RadioGroup } from "./RadioGroup"
+import { Tab } from "./Tab"
+import { UIComponent } from "./UIComponent"
 import { ViewStack } from "./ViewStack";
 import { TextArea } from "./TextArea";
 import { ColorPicker } from "./ColorPicker";
@@ -28,7 +27,6 @@ import { Panel } from "./Panel";
 import { ScrollBar } from "./ScrollBar";
 import { Slider } from "./Slider";
 import { TextInput } from "./TextInput";
-//import { Dialog } from "./Dialog";
 import { VScrollBar } from "./VScrollBar";
 import { VSlider } from "./VSlider";
 import { Tree } from "./Tree";
@@ -36,7 +34,7 @@ import { HBox } from "./HBox";
 import { VBox } from "./VBox";
 import { FontClip } from "./FontClip";
 import { ILaya } from "../../ILaya";
-import { Dialog } from "laya/ui/Dialog";
+
     
     
 	/**

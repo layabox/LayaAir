@@ -1,9 +1,9 @@
 import { AnimationBase } from "././AnimationBase";
 import { Graphics } from "././Graphics";
 import { Loader } from "../net/Loader"
-	import { GraphicAnimation } from "../utils/GraphicAnimation"
-	import { Handler } from "../utils/Handler"
-	import { Utils } from "../utils/Utils"
+import { GraphicAnimation } from "../utils/GraphicAnimation"
+import { Handler } from "../utils/Handler"
+import { Utils } from "../utils/Utils"
 import { ILaya } from "../../ILaya";
 
 	/**

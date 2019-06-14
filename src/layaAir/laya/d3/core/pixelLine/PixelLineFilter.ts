@@ -2,14 +2,14 @@ import { PixelLineSprite3D } from "././PixelLineSprite3D";
 import { PixelLineVertex } from "././PixelLineVertex";
 import { PixelLineData } from "././PixelLineData";
 import { BufferState } from "../BufferState"
-	import { GeometryElement } from "../GeometryElement"
-	import { RenderContext3D } from "../render/RenderContext3D"
-	import { VertexBuffer3D } from "../../graphics/VertexBuffer3D"
-	import { Color } from "../../math/Color"
-	import { Vector3 } from "../../math/Vector3"
-	import { LayaGL } from "laya/layagl/LayaGL"
-	import { Stat } from "laya/utils/Stat"
-	import { WebGLContext } from "laya/webgl/WebGLContext"
+import { GeometryElement } from "../GeometryElement"
+import { RenderContext3D } from "../render/RenderContext3D"
+import { VertexBuffer3D } from "../../graphics/VertexBuffer3D"
+import { Color } from "../../math/Color"
+import { Vector3 } from "../../math/Vector3"
+import { LayaGL } from "../../../layagl/LayaGL"
+import { Stat } from "../../../utils/Stat"
+import { WebGLContext } from "../../../webgl/WebGLContext"
 	
 	/**
 	 * <code>PixelLineFilter</code> 类用于线过滤器。

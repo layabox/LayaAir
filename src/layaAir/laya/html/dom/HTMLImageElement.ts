@@ -1,12 +1,12 @@
 import { HTMLElement, HTMLElementType } from "./HTMLElement";
-import { Graphics } from "laya/display/Graphics"
-	import { Event } from "laya/events/Event"
-	import { HTMLStyle } from "../utils/HTMLStyle"
-	import { ILayout } from "../utils/ILayout"
-	import { Loader } from "laya/net/Loader"
-	import { Texture } from "laya/resource/Texture"
+import { Graphics } from "../../display/Graphics"
+import { Event } from "../../events/Event"
+import { HTMLStyle } from "../utils/HTMLStyle"
+import { ILayout } from "../utils/ILayout"
+import { Loader } from "../../net/Loader"
+import { Texture } from "../../resource/Texture"
 import { IHtml } from "../utils/IHtml";
-import { ILaya } from "ILaya";
+import { ILaya } from "../../../ILaya";
 	
 	/**
 	 * @private

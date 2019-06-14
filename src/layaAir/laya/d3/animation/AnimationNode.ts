@@ -1,8 +1,8 @@
 import { AnimationTransform3D } from "././AnimationTransform3D";
 import { Avatar } from "../core/Avatar"
-import { IClone } from "../core/IClone"
-import { Quaternion } from "../math/Quaternion"
-import { Vector3 } from "../math/Vector3"
+	import { IClone } from "../core/IClone"
+	import { Quaternion } from "../math/Quaternion"
+	import { Vector3 } from "../math/Vector3"
 
 /**
  * <code>BoneNode</code> 类用于实现骨骼节点。

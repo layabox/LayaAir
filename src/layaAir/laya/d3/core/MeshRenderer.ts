@@ -1,4 +1,3 @@
-import { Render } from "laya/renders/Render";
 import { FrustumCulling } from "../graphics/FrustumCulling";
 import { MeshRenderStaticBatchManager } from "../graphics/MeshRenderStaticBatchManager";
 import { SubMeshInstanceBatch } from "../graphics/SubMeshInstanceBatch";
@@ -15,7 +14,6 @@ import { Sprite3D } from "././Sprite3D";
 import { Transform3D } from "././Transform3D";
 import { BaseMaterial } from "./material/BaseMaterial";
 import { BlinnPhongMaterial } from "./material/BlinnPhongMaterial";
-import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration";
 import { BaseRender } from "./render/BaseRender";
 import { RenderContext3D } from "./render/RenderContext3D";
 import { RenderElement } from "./render/RenderElement";

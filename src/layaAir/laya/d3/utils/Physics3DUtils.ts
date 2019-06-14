@@ -1,6 +1,6 @@
-import { Sprite3D } from "../core/Sprite3D"
-	import { Vector3 } from "../math/Vector3"
-	import { PhysicsComponent } from "../physics/PhysicsComponent"
+import { Vector3 } from "../math/Vector3"
+import { PhysicsComponent } from "../physics/PhysicsComponent"
+
 	
 	/**
 	 * <code>Physics</code> 类用于简单物理检测。

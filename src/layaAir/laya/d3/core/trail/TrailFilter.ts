@@ -14,7 +14,7 @@ import { TrailGeometry } from "././TrailGeometry";
 import { TrailMaterial } from "././TrailMaterial";
 import { TrailRenderer } from "././TrailRenderer";
 import { TrailSprite3D } from "././TrailSprite3D";
-import { Shader3D } from "laya/d3/shader/Shader3D";
+import { Shader3D } from "../../../d3/shader/Shader3D";
 	
 	/**
 	 * <code>TrailFilter</code> 类用于创建拖尾过滤器。

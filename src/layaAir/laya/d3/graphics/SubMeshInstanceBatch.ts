@@ -1,13 +1,13 @@
-import { LayaGL } from "laya/layagl/LayaGL";
-import { Stat } from "laya/utils/Stat";
-import { WebGLContext } from "laya/webgl/WebGLContext";
+import { LayaGL } from "../../layagl/LayaGL";
+import { Stat } from "../../utils/Stat";
+import { WebGLContext } from "../../webgl/WebGLContext";
 import { GeometryElement } from "../core/GeometryElement";
 import { RenderContext3D } from "../core/render/RenderContext3D";
 import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement";
 import { SubMesh } from "../resource/models/SubMesh";
 import { VertexBuffer3D } from "././VertexBuffer3D";
 import { VertexMesh } from "./Vertex/VertexMesh";
-	
+
 	/**
 	 * @private
 	 */

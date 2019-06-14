@@ -1,10 +1,9 @@
 import { HTMLStyle } from "./HTMLStyle";
-import { ILaya } from "ILaya";
+import { ILaya } from "../../../ILaya";
 import { ILayout } from "./ILayout";
 import { LayoutLine } from "./LayoutLine";
-import { HTMLChar } from "laya/utils/HTMLChar";
+import { HTMLChar } from "../../utils/HTMLChar";
 import { HTMLElement } from "../dom/HTMLElement";
-import { HTMLBrElement } from "../dom/HTMLBrElement";
 import { IHtml } from "./IHtml";
 	
 	/**

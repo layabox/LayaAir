@@ -1,10 +1,9 @@
 import { RenderableSprite3D } from "././RenderableSprite3D";
-import { MeshSprite3D } from "././MeshSprite3D";
 import { VertexMesh } from "../graphics/Vertex/VertexMesh"
-	import { VertexElement } from "../graphics/VertexElement"
-	import { Mesh } from "../resource/models/Mesh"
-	import { SubMesh } from "../resource/models/SubMesh"
-	import { ShaderData } from "../shader/ShaderData"
+import { VertexElement } from "../graphics/VertexElement"
+import { Mesh } from "../resource/models/Mesh"
+import { SubMesh } from "../resource/models/SubMesh"
+import { ShaderData } from "../shader/ShaderData"
 import { MeshRenderer } from "./MeshRenderer";
 import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration";
 	

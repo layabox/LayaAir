@@ -1,6 +1,6 @@
 import { IClone } from "../IClone"
-	import { Transform3D } from "../Transform3D"
-	import { Vector4 } from "../../math/Vector4"
+import { Vector4 } from "../../math/Vector4"
+
 	import { LayaGL } from "laya/layagl/LayaGL"
 	import { WebGLContext } from "laya/webgl/WebGLContext"
 	

@@ -1,12 +1,12 @@
 import { Label } from "././Label";
 import { Input } from "../display/Input"
-	import { Event } from "../events/Event"
-	import { Loader } from "../net/Loader"
-	import { AutoBitmap } from "./AutoBitmap"
-	import { Styles } from "./Styles"
-	import { UIUtils } from "./UIUtils"
-	import { Handler } from "../utils/Handler"
-import { ILaya } from "ILaya";
+import { Event } from "../events/Event"
+import { Loader } from "../net/Loader"
+import { AutoBitmap } from "./AutoBitmap"
+import { Styles } from "./Styles"
+import { UIUtils } from "./UIUtils"
+import { Handler } from "../utils/Handler"
+import { ILaya } from "../../ILaya";
 	
 	/**
 	 * 输入文本后调度。

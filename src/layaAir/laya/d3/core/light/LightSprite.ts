@@ -2,7 +2,7 @@ import { Sprite3D } from "../Sprite3D"
 	import { Scene3D } from "../scene/Scene3D"
 	import { Vector3 } from "../../math/Vector3"
 	import { ParallelSplitShadowMap } from "../../shadowMap/ParallelSplitShadowMap"
-	import { Node } from "laya/display/Node"
+	import { Node } from "../../../display/Node"
 	
 	/**
 	 * <code>LightSprite</code> 类用于创建灯光的父类。

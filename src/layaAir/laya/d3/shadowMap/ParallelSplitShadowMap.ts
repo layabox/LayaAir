@@ -1,5 +1,5 @@
-import { ILaya3D } from "ILaya3D";
-import { BaseTexture } from "laya/resource/BaseTexture";
+import { ILaya3D } from "../../../ILaya3D";
+import { BaseTexture } from "../../resource/BaseTexture";
 import { BaseCamera } from "../core/BaseCamera";
 import { Camera } from "../core/Camera";
 import { Scene3D } from "../core/scene/Scene3D";

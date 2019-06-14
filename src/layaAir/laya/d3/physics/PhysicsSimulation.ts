@@ -1,5 +1,4 @@
-import { ILaya3D } from "ILaya3D";
-import { Stat } from "laya/utils/Stat";
+import { Stat } from "../../utils/Stat";
 import { Script3D } from "../component/Script3D";
 import { Sprite3D } from "../core/Sprite3D";
 import { Quaternion } from "../math/Quaternion";

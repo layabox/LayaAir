@@ -1,6 +1,6 @@
 import { LayoutBox } from "././LayoutBox";
 import { UIComponent } from "././UIComponent";
-import { ILaya } from "ILaya";
+import { ILaya } from "../../ILaya";
 /**
 	 * <code>HBox</code> 是一个水平布局容器类。
 	 */

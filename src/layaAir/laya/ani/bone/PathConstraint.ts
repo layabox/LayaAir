@@ -1,8 +1,9 @@
-import { BoneSlot } from "././BoneSlot";
-import { PathConstraintData } from "././PathConstraintData";
-import { Bone } from "././Bone";
-import { Graphics } from "laya/display/Graphics";
-import { Matrix } from "laya/maths/Matrix";
+import { BoneSlot } from "./BoneSlot";
+import { PathConstraintData } from "./PathConstraintData";
+import { Bone } from "./Bone";
+import { Graphics } from "../../display/Graphics";
+import { Matrix } from "../../maths/Matrix";
+
 	
 	/**
 	 * @private

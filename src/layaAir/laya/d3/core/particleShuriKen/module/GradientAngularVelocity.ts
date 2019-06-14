@@ -1,8 +1,8 @@
 import { GradientDataNumber } from "././GradientDataNumber";
 import { IClone } from "../../IClone"
-	import { Vector3 } from "../../../math/Vector3"
-	import { Vector4 } from "../../../math/Vector4"
-	
+import { Vector3 } from "../../../math/Vector3"
+
+
 	/**
 	 * <code>GradientRotation</code> 类用于创建渐变角速度。
 	 */

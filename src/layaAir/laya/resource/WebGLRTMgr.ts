@@ -1,5 +1,5 @@
-import { BaseTexture } from "./BaseTexture";
-import { RenderTexture2D } from "./RenderTexture2D";
+import { BaseTexture } from "./BaseTexture"
+import { RenderTexture2D } from "./RenderTexture2D"
 
 /**
  * WebGLRTMgr 管理WebGLRenderTarget的创建和回收

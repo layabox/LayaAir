@@ -1,10 +1,10 @@
 import { HTMLElement } from "./HTMLElement";
-import { Loader } from "laya/net/Loader";
-import { Graphics } from "laya/display/Graphics";
-import { Event } from "laya/events/Event";
+import { Loader } from "../../net/Loader";
+import { Graphics } from "../../display/Graphics";
+import { Event } from "../../events/Event";
 import { HTMLStyle } from "../utils/HTMLStyle";
-import { URL } from "laya/net/URL";
-import { ILaya } from "ILaya";
+import { URL } from "../../net/URL";
+import { ILaya } from "../../../ILaya";
 	
 	/**
 	 * @private

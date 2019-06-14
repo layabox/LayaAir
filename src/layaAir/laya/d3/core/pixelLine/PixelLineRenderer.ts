@@ -1,13 +1,13 @@
 import { PixelLineSprite3D } from "././PixelLineSprite3D";
 import { Sprite3D } from "../Sprite3D"
-	import { Transform3D } from "../Transform3D"
-	import { BaseRender } from "../render/BaseRender"
-	import { RenderContext3D } from "../render/RenderContext3D"
-	import { FrustumCulling } from "../../graphics/FrustumCulling"
-	import { Matrix4x4 } from "../../math/Matrix4x4"
-	import { Vector3 } from "../../math/Vector3"
-	import { ShaderData } from "../../shader/ShaderData"
-	import { Render } from "laya/renders/Render"
+import { Transform3D } from "../Transform3D"
+import { BaseRender } from "../render/BaseRender"
+import { RenderContext3D } from "../render/RenderContext3D"
+import { FrustumCulling } from "../../graphics/FrustumCulling"
+import { Matrix4x4 } from "../../math/Matrix4x4"
+import { Vector3 } from "../../math/Vector3"
+import { ShaderData } from "../../shader/ShaderData"
+import { Render } from "../../../renders/Render"
 	
 	
 	/**

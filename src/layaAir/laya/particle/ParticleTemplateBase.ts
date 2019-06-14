@@ -1,5 +1,5 @@
 import { ParticleSetting } from "././ParticleSetting";
-import { Texture } from "laya/resource/Texture";
+import { Texture } from "../resource/Texture";
 	
 	/**
 	 * 

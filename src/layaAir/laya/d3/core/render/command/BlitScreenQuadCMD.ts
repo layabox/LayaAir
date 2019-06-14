@@ -1,6 +1,4 @@
-import { ILaya3D } from "ILaya3D";
-import { LayaGL } from "laya/layagl/LayaGL";
-import { BaseTexture } from "laya/resource/BaseTexture";
+import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Vector4 } from "../../../math/Vector4";
 import { RenderTexture } from "../../../resource/RenderTexture";
 import { Shader3D } from "../../../shader/Shader3D";
@@ -12,6 +10,7 @@ import { RenderContext3D } from "../RenderContext3D";
 import { ScreenQuad } from "../ScreenQuad";
 import { ScreenTriangle } from "../ScreenTriangle";
 import { Command } from "././Command";
+import { LayaGL } from "../../../../layagl/LayaGL";
 	
 	/**
 	 * @private

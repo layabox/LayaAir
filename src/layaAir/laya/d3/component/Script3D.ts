@@ -1,9 +1,10 @@
-import { Laya } from "Laya";
-import { Component } from "laya/components/Component"
-	import { Sprite3D } from "../core/Sprite3D"
-	import { Collision } from "../physics/Collision"
-	import { PhysicsComponent } from "../physics/PhysicsComponent"
-	import { Event } from "laya/events/Event"
+
+import { Component } from "../../components/Component"
+import { Sprite3D } from "../core/Sprite3D"
+import { Collision } from "../physics/Collision"
+import { PhysicsComponent } from "../physics/PhysicsComponent"
+import { Event } from "../../events/Event"
+import { Laya } from "../../../Laya";
 	
 	/**
 	 * <code>Script3D</code> 类用于创建脚本的父类,该类为抽象类,不允许实例。

@@ -2,11 +2,11 @@ import { BoundsOctreeNode } from "././BoundsOctreeNode";
 import { OctreeMotionList } from "././OctreeMotionList";
 import { IOctreeObject } from "././IOctreeObject";
 import { PixelLineSprite3D } from "../pixelLine/PixelLineSprite3D"
-	import { RenderContext3D } from "../render/RenderContext3D"
-	import { BoundBox } from "../../math/BoundBox"
-	import { Ray } from "../../math/Ray"
-	import { Vector3 } from "../../math/Vector3"
-	import { ISingletonElement } from "laya/resource/ISingletonElement"
+import { RenderContext3D } from "../render/RenderContext3D"
+import { BoundBox } from "../../math/BoundBox"
+import { Ray } from "../../math/Ray"
+import { Vector3 } from "../../math/Vector3"
+import { ISingletonElement } from "../../../resource/ISingletonElement"
 	
 	/**
 	 * <code>BoundsOctree</code> 类用于创建八叉树。

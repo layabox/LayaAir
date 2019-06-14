@@ -1,7 +1,6 @@
-import { LayaGL } from "laya/layagl/LayaGL";
-import { Render } from "laya/renders/Render";
-import { ISingletonElement } from "laya/resource/ISingletonElement";
-import { Stat } from "laya/utils/Stat";
+import { LayaGL } from "../../layagl/LayaGL";
+import { Render } from "../../renders/Render";
+import { Stat } from "../../utils/Stat";
 import { SimpleSingletonList } from "../component/SimpleSingletonList";
 import { SingletonList } from "../component/SingletonList";
 import { Bounds } from "../core/Bounds";
@@ -20,6 +19,7 @@ import { Vector3 } from "../math/Vector3";
 import { Utils3D } from "../utils/Utils3D";
 import { DynamicBatchManager } from "././DynamicBatchManager";
 import { StaticBatchManager } from "././StaticBatchManager";
+import { ISingletonElement } from "../../resource/ISingletonElement";
 
 /**
  * @private

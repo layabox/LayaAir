@@ -1,14 +1,14 @@
 import { Mesh } from "././Mesh";
 import { GeometryElement } from "../../core/GeometryElement"
-	import { SkinnedMeshRenderer } from "../../core/SkinnedMeshRenderer"
-	import { SkinnedMeshSprite3D } from "../../core/SkinnedMeshSprite3D"
-	import { RenderContext3D } from "../../core/render/RenderContext3D"
-	import { SubMeshRenderElement } from "../../core/render/SubMeshRenderElement"
-	import { IndexBuffer3D } from "../../graphics/IndexBuffer3D"
-	import { VertexBuffer3D } from "../../graphics/VertexBuffer3D"
-	import { LayaGL } from "laya/layagl/LayaGL"
-	import { Stat } from "laya/utils/Stat"
-	import { WebGLContext } from "laya/webgl/WebGLContext"
+import { SkinnedMeshRenderer } from "../../core/SkinnedMeshRenderer"
+import { SkinnedMeshSprite3D } from "../../core/SkinnedMeshSprite3D"
+import { RenderContext3D } from "../../core/render/RenderContext3D"
+import { IndexBuffer3D } from "../../graphics/IndexBuffer3D"
+import { VertexBuffer3D } from "../../graphics/VertexBuffer3D"
+import { LayaGL } from "../../../layagl/LayaGL"
+import { Stat } from "../../../utils/Stat"
+import { WebGLContext } from "../../../webgl/WebGLContext"
+
 	
 	/**
 	 * <code>SubMesh</code> 类用于创建子网格数据模板。
@@ -114,4 +114,5 @@ this._id = ++SubMesh._uniqueIDCounter;
 		
 		}
 	}
+}
 

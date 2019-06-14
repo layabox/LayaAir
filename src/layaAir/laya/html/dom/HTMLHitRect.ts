@@ -1,6 +1,6 @@
-import { Rectangle } from "laya/maths/Rectangle"
+import { Rectangle } from "../../maths/Rectangle"
 	
-	import { Pool } from "laya/utils/Pool"
+	import { Pool } from "../../utils/Pool"
 	/**
 	 * @private
 	 */

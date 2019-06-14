@@ -1,7 +1,7 @@
-import { LayaGL } from "laya/layagl/LayaGL"
-	import { BufferStateBase } from "laya/webgl/BufferStateBase"
-	import { WebGLContext } from "laya/webgl/WebGLContext"
-	import { Buffer } from "laya/webgl/utils/Buffer"
+import { LayaGL } from "../../layagl/LayaGL"
+import { BufferStateBase } from "../../webgl/BufferStateBase"
+import { WebGLContext } from "../../webgl/WebGLContext"
+import { Buffer } from "../../webgl/utils/Buffer"
 	
 	/**
 	 * <code>IndexBuffer3D</code> 类用于创建索引缓冲。

@@ -1,6 +1,6 @@
-import { Sprite3D } from "./core/Sprite3D"
-	import { Vector2 } from "./math/Vector2"
-	import { ISingletonElement } from "laya/resource/ISingletonElement"
+import { Vector2 } from "./math/Vector2"
+import { ISingletonElement } from "../resource/ISingletonElement"
+
 	
 	/**
 	 * <code>Touch</code> 类用于实现触摸描述。

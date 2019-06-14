@@ -1,13 +1,13 @@
 import { BufferState } from "../BufferState"
-	import { VertexBuffer3D } from "../../graphics/VertexBuffer3D"
-	import { VertexDeclaration } from "../../graphics/VertexDeclaration"
-	import { VertexElement } from "../../graphics/VertexElement"
-	import { VertexElementFormat } from "../../graphics/VertexElementFormat"
-	import { Vector4 } from "../../math/Vector4"
-	import { LayaGL } from "laya/layagl/LayaGL"
-	import { Resource } from "laya/resource/Resource"
-	import { Stat } from "laya/utils/Stat"
-	import { WebGLContext } from "laya/webgl/WebGLContext"
+import { VertexBuffer3D } from "../../graphics/VertexBuffer3D"
+import { VertexDeclaration } from "../../graphics/VertexDeclaration"
+import { VertexElement } from "../../graphics/VertexElement"
+import { VertexElementFormat } from "../../graphics/VertexElementFormat"
+import { LayaGL } from "../../../layagl/LayaGL"
+import { Resource } from "../../../resource/Resource"
+import { Stat } from "../../../utils/Stat"
+import { WebGLContext } from "../../../webgl/WebGLContext"
+
 	
 	/**
 	 * <code>ScreenTriangle</code> 类用于创建全屏三角形。

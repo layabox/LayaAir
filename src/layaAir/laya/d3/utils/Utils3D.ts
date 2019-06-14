@@ -1,7 +1,7 @@
-import { Node } from "laya/display/Node";
-import { LayaGL } from "laya/layagl/LayaGL";
-import { BaseTexture } from "laya/resource/BaseTexture";
-import { Texture2D } from "laya/resource/Texture2D";
+import { Node } from "../../display/Node";
+import { LayaGL } from "../../layagl/LayaGL";
+import { BaseTexture } from "../../resource/BaseTexture";
+import { Texture2D } from "../../resource/Texture2D";
 import { PixelLineSprite3D } from "../core/pixelLine/PixelLineSprite3D";
 import { BoundBox } from "../math/BoundBox";
 import { Color } from "../math/Color";

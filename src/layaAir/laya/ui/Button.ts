@@ -11,7 +11,7 @@ import { Const } from "../Const"
 	import { Handler } from "../utils/Handler"
 	import { Utils } from "../utils/Utils"
 	import { WeakObject } from "../utils/WeakObject"
-import { ILaya } from "ILaya";
+import { ILaya } from "../../ILaya";
 	
 	/**
 	 * 当按钮的选中状态（ <code>selected</code> 属性）发生改变时调度。

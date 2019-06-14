@@ -1,10 +1,9 @@
 import { BaseShape } from "././BaseShape";
 import { ShapeUtils } from "././ShapeUtils";
-import { RenderContext3D } from "../../../render/RenderContext3D"
-	import { BoundBox } from "../../../../math/BoundBox"
-	import { Rand } from "../../../../math/Rand"
-	import { Vector3 } from "../../../../math/Vector3"
-	
+import { BoundBox } from "../../../../math/BoundBox"
+import { Rand } from "../../../../math/Rand"
+import { Vector3 } from "../../../../math/Vector3"
+
 	/**
 	 * <code>SphereShape</code> 类用于创建球形粒子形状。
 	 */

@@ -1,7 +1,7 @@
 import { HTMLElement } from "./HTMLElement";
-import { Graphics } from "laya/display/Graphics"
-	import { HTMLStyle } from "../utils/HTMLStyle"
-import { ILaya } from "ILaya";
+import { Graphics } from "../../display/Graphics"
+import { HTMLStyle } from "../utils/HTMLStyle"
+import { ILaya } from "../../../ILaya";
 	
 	/**
 	 * @private

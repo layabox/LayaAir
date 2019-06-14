@@ -1,7 +1,7 @@
 import { Command } from "././Command";
-import { RenderTexture } from "../../../resource/RenderTexture"
-	import { ShaderData } from "../../../shader/ShaderData"
-	import { BaseTexture } from "laya/resource/BaseTexture"
+import { ShaderData } from "../../../shader/ShaderData"
+import { BaseTexture } from "../../../../resource/BaseTexture";
+
 	
 	/**
 	 * @private

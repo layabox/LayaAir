@@ -1,13 +1,13 @@
 import { SkyMesh } from "././SkyMesh";
 import { BufferState } from "../../core/BufferState"
-	import { RenderContext3D } from "../../core/render/RenderContext3D"
-	import { IndexBuffer3D } from "../../graphics/IndexBuffer3D"
-	import { VertexPositionTexture0 } from "../../graphics/Vertex/VertexPositionTexture0"
-	import { VertexBuffer3D } from "../../graphics/VertexBuffer3D"
-	import { VertexDeclaration } from "../../graphics/VertexDeclaration"
-	import { LayaGL } from "laya/layagl/LayaGL"
-	import { Stat } from "laya/utils/Stat"
-	import { WebGLContext } from "laya/webgl/WebGLContext"
+import { RenderContext3D } from "../../core/render/RenderContext3D"
+import { IndexBuffer3D } from "../../graphics/IndexBuffer3D"
+import { VertexPositionTexture0 } from "../../graphics/Vertex/VertexPositionTexture0"
+import { VertexBuffer3D } from "../../graphics/VertexBuffer3D"
+import { VertexDeclaration } from "../../graphics/VertexDeclaration"
+import { LayaGL } from "../../../layagl/LayaGL"
+import { Stat } from "../../../utils/Stat"
+import { WebGLContext } from "../../../webgl/WebGLContext"
 	
 	/**
 	 * <code>SkyDome</code> 类用于创建天空盒。

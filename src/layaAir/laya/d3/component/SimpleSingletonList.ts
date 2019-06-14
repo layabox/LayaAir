@@ -1,7 +1,10 @@
 import { SingletonList } from "./SingletonList";
-import { Component } from "laya/components/Component"
-	import { ISingletonElement } from "laya/resource/ISingletonElement"
-	
+import { ISingletonElement } from "../../resource/ISingletonElement"
+
+/**
+ * <code>SimpleSingletonList</code> 类用于实现单例队列。
+ */
+export class SimpleSingletonList extends SingletonList {
 	/**
 	 * <code>SimpleSingletonList</code> 类用于实现单例队列。
 	 */

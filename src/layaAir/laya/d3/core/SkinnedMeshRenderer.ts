@@ -1,7 +1,6 @@
-import { Event } from "laya/events/Event";
-import { LayaGL } from "laya/layagl/LayaGL";
-import { Render } from "laya/renders/Render";
-import { Stat } from "laya/utils/Stat";
+import { Event } from "../../events/Event";
+import { LayaGL } from "../../layagl/LayaGL";
+import { Stat } from "../../utils/Stat";
 import { AnimationNode } from "../animation/AnimationNode";
 import { Animator } from "../component/Animator";
 import { FrustumCulling } from "../graphics/FrustumCulling";
@@ -19,7 +18,7 @@ import { Transform3D } from "././Transform3D";
 import { RenderContext3D } from "./render/RenderContext3D";
 import { RenderElement } from "./render/RenderElement";
 import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
-
+import { Render } from "../../renders/Render";
 /**
  * <code>SkinMeshRenderer</code> 类用于蒙皮渲染器。
  */

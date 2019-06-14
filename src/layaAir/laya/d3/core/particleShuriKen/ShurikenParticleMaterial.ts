@@ -1,10 +1,10 @@
 import { BaseMaterial } from "../material/BaseMaterial"
-	import { RenderState } from "../material/RenderState"
-	import { Vector4 } from "../../math/Vector4"
-	import { Shader3D } from "../../shader/Shader3D"
-	import { ShaderData } from "../../shader/ShaderData"
-	import { ShaderDefines } from "../../shader/ShaderDefines"
-	import { BaseTexture } from "laya/resource/BaseTexture"
+import { RenderState } from "../material/RenderState"
+import { Vector4 } from "../../math/Vector4"
+import { Shader3D } from "../../shader/Shader3D"
+import { ShaderDefines } from "../../shader/ShaderDefines"
+import { BaseTexture } from "../../../resource/BaseTexture"
+
 	
 	/**
 	 * <code>ShurikenParticleMaterial</code> 类用于实现粒子材质。

@@ -1,5 +1,5 @@
 import { ParticleSetting } from "././ParticleSetting";
-import { MathUtil } from "laya/maths/MathUtil";
+import { MathUtil } from "../maths/MathUtil";
 	
 	/**
 	 *  @private

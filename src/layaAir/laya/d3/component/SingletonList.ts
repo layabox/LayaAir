@@ -1,5 +1,4 @@
-import { Component } from "laya/components/Component"
-	import { ISingletonElement } from "laya/resource/ISingletonElement"
+import { ISingletonElement } from "../../resource/ISingletonElement"
 	
 	/**
 	 * <code>SingletonList</code> 类用于实现单例队列。

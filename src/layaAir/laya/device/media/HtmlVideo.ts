@@ -1,6 +1,6 @@
 import { Video } from "././Video";
-import { Bitmap } from "laya/resource/Bitmap";
-import { ILaya } from "ILaya";
+import { Bitmap } from "../../resource/Bitmap";
+import { ILaya } from "../../../ILaya";
 	
 	/**
 	 * @private

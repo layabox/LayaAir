@@ -3,11 +3,11 @@ import { AnimationContent } from "././AnimationContent";
 import { KeyFramesContent } from "././KeyFramesContent";
 import { AnimationParser01 } from "././AnimationParser01";
 import { AnimationParser02 } from "././AnimationParser02";
-import { BezierLerp } from "./math/BezierLerp"
-import { Resource } from "laya/resource/Resource";
-import { MathUtil } from "laya/maths/MathUtil";
-import { Byte } from "laya/utils/Byte";
+import { Resource } from "../resource/Resource";
+import { MathUtil } from "../maths/MathUtil";
 import { IAniLib } from "./AniLibPack";
+import { Byte } from "../utils/Byte";
+import { BezierLerp } from "./math/BezierLerp";
 
 	/**
 	 * @private

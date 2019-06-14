@@ -1,5 +1,5 @@
-import { Component } from "laya/components/Component";
-import { PhysicsComponent } from "./PhysicsComponent";
+import { Component } from "../../components/Component"
+import { PhysicsComponent } from "./PhysicsComponent"
 
 /**
  * <code>PhysicsTriggerComponent</code> 类用于创建物理触发器组件。

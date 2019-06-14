@@ -3,11 +3,11 @@ import { SlotData } from "././SlotData";
 import { SkinSlotDisplayData } from "././SkinSlotDisplayData";
 import { UVTools } from "././UVTools";
 import { SkinMeshForGraphic } from "./canvasmesh/SkinMeshForGraphic"
-import { Texture } from "laya/resource/Texture";
-import { Matrix } from "laya/maths/Matrix";
-import { ILaya } from "ILaya";
+import { ILaya } from "../../../ILaya";
 import { GraphicsAni } from "../GraphicsAni";
-import { Graphics } from "laya/display/Graphics";
+import { Matrix } from "../../maths/Matrix";
+import { Graphics } from "../../display/Graphics";
+import { Texture } from "../../resource/Texture";
 
 	
 	/**

@@ -1,8 +1,8 @@
 import { AccelerationInfo } from "././AccelerationInfo";
 import { RotationInfo } from "././RotationInfo";
-import { EventDispatcher } from "laya/events/EventDispatcher";
-import { ILaya } from "ILaya";
-import { Event } from "laya/events/Event";
+import { EventDispatcher } from "../../events/EventDispatcher";
+import { ILaya } from "../../../ILaya";
+import { Event } from "../../events/Event";
 
 	/**
 	 * Accelerator.instance获取唯一的Accelerator引用，请勿调用构造函数。

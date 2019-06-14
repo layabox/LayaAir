@@ -1,9 +1,9 @@
 import { HTMLDivParser } from "../dom/HTMLDivParser"
 import { HTMLElement } from "../dom/HTMLElement"
-import { Pool } from "laya/utils/Pool";
-import { ClassUtils } from "laya/utils/ClassUtils";
-import { Utils } from "laya/utils/Utils";
-import { URL } from "laya/net/URL";
+import { Pool } from "../../utils/Pool";
+import { ClassUtils } from "../../utils/ClassUtils";
+import { Utils } from "../../utils/Utils";
+import { URL } from "../../net/URL";
 import { IHtml } from "./IHtml";
 import { HTMLBrElement } from "../dom/HTMLBrElement"
 	

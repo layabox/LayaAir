@@ -1,5 +1,4 @@
-export class Physics
-{
+export class Physics {
     /**@private */
-	static _physics3D:any=null;
+    static _physics3D: any = null;
 }

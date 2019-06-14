@@ -1,11 +1,11 @@
-import { AnimationClip } from "../animation/AnimationClip";
-import { KeyframeNodeList } from "../animation/KeyframeNodeList";
-import { IClone } from "../core/IClone";
-import { IReferenceCounter } from "../resource/IReferenceCounter";
-import { Animator } from "./Animator";
-import { AnimatorPlayState } from "./AnimatorPlayState";
 import { AnimatorState } from "./AnimatorState";
 import { KeyframeNodeOwner } from "./KeyframeNodeOwner";
+import { AnimatorPlayState } from "./AnimatorPlayState";
+import { AnimationClip } from "../animation/AnimationClip";
+	import { KeyframeNodeList } from "../animation/KeyframeNodeList";
+	import { IClone } from "../core/IClone";
+	import { IReferenceCounter } from "../resource/IReferenceCounter";
+import { Animator } from "./Animator";
 
 
 /**

@@ -2,7 +2,7 @@ import { Event } from "../events/Event"
 	import { Texture } from "../resource/Texture"
 	import { AutoBitmap } from "./AutoBitmap"
 	import { Clip } from "./Clip"
-import { ILaya } from "ILaya";
+import { ILaya } from "../../ILaya";
 	
 	/**
 	 * 字体切片，简化版的位图字体，只需设置一个切片图片和文字内容即可使用，效果同位图字体

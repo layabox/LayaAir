@@ -1,7 +1,5 @@
-import { Laya } from "Laya";
-import { Physics } from "laya/d3/physics/Physics";
-import { Resource } from "laya/resource/Resource";
-import { Handler } from "laya/utils/Handler";
+import { Physics } from "../../../d3/physics/Physics";
+import { Resource } from "../../../resource/Resource";
 import { Bounds } from "../../core/Bounds";
 import { BufferState } from "../../core/BufferState";
 import { GeometryElement } from "../../core/GeometryElement";
@@ -17,6 +15,8 @@ import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Vector3 } from "../../math/Vector3";
 import { Utils3D } from "../../utils/Utils3D";
 import { SubMesh } from "././SubMesh";
+import { Laya } from "../../../../Laya";
+import { Handler } from "../../../utils/Handler";
 
 /**
  * <code>Mesh</code> 类用于创建文件网格数据模板。

@@ -6,7 +6,7 @@ import { Event } from "../events/Event"
 	import { UIComponent } from "./UIComponent"
 	import { UIUtils } from "./UIUtils"
 	import { Handler } from "../utils/Handler"
-import { ILaya } from "ILaya";
+import { ILaya } from "../../ILaya";
 	
 	/**
 	 * 资源加载完成后调度。

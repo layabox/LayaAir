@@ -1,6 +1,6 @@
 import { GradientDataInt } from "././GradientDataInt";
 import { IClone } from "../../IClone"
-	import { Vector3 } from "../../../math/Vector3"
+
 	
 	/**
 	 * <code>FrameOverTime</code> 类用于创建时间帧。

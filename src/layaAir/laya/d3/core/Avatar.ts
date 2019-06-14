@@ -1,14 +1,13 @@
 import { IClone } from "././IClone";
-import { Laya } from "Laya";
 import { AnimationNode } from "../animation/AnimationNode"
-	import { AnimationTransform3D } from "../animation/AnimationTransform3D"
-	import { Animator } from "../component/Animator"
-	import { Quaternion } from "../math/Quaternion"
-	import { Vector3 } from "../math/Vector3"
-	import { Render } from "laya/renders/Render"
-	import { Resource } from "laya/resource/Resource"
-	import { Handler } from "laya/utils/Handler"
-	
+import { AnimationTransform3D } from "../animation/AnimationTransform3D"
+import { Animator } from "../component/Animator"
+import { Quaternion } from "../math/Quaternion"
+import { Vector3 } from "../math/Vector3"
+import { Render } from "../../renders/Render"
+import { Resource } from "../../resource/Resource"
+import { Handler } from "../../utils/Handler"
+import { Laya } from "../../../Laya";
 	/**
 	 * <code>Avatar</code> 类用于创建Avatar。
 	 */

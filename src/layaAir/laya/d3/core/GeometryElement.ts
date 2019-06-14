@@ -1,5 +1,5 @@
-import { IDestroy } from "laya/resource/IDestroy";
-import { RenderContext3D } from "./render/RenderContext3D";
+import { RenderContext3D } from "./render/RenderContext3D"
+import { IDestroy } from "../../resource/IDestroy"
 	
 	/**
 	 * @private

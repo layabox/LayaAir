@@ -3,10 +3,10 @@ import { Label } from "./Label";
 import { Image } from "./Image";
 import { Button } from "./Button";
 import { Event } from "../events/Event"
-	import { Point } from "../maths/Point"
-	import { Loader } from "../net/Loader"
-	import { Handler } from "../utils/Handler"
-import { ILaya } from "ILaya";
+import { Point } from "../maths/Point"
+import { Loader } from "../net/Loader"
+import { Handler } from "../utils/Handler"
+import { ILaya } from "../../ILaya";
 	
 	/**
 	 * 移动滑块位置时调度。

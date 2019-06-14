@@ -1,17 +1,14 @@
-import { BufferState } from "../core/BufferState"
-	import { IndexBuffer3D } from "../graphics/IndexBuffer3D"
-	import { SubMeshInstanceBatch } from "../graphics/SubMeshInstanceBatch"
-	import { MeshRenderDynamicBatchManager } from "../graphics/MeshRenderDynamicBatchManager"
-	import { VertexMesh } from "../graphics/Vertex/VertexMesh"
-	import { VertexPositionTexture0 } from "../graphics/Vertex/VertexPositionTexture0"
-	import { VertexBuffer3D } from "../graphics/VertexBuffer3D"
-	import { VertexDeclaration } from "../graphics/VertexDeclaration"
-	import { Matrix4x4 } from "../math/Matrix4x4"
-	import { Mesh } from "../resource/models/Mesh"
-	import { SubMesh } from "../resource/models/SubMesh"
-	import { Byte } from "laya/utils/Byte"
-	import { WebGLContext } from "laya/webgl/WebGLContext"
-	
+
+import { IndexBuffer3D } from "../graphics/IndexBuffer3D"
+import { VertexMesh } from "../graphics/Vertex/VertexMesh"
+import { VertexBuffer3D } from "../graphics/VertexBuffer3D"
+import { VertexDeclaration } from "../graphics/VertexDeclaration"
+import { Matrix4x4 } from "../math/Matrix4x4"
+import { Mesh } from "../resource/models/Mesh"
+import { SubMesh } from "../resource/models/SubMesh"
+import { Byte } from "../../utils/Byte"
+import { WebGLContext } from "../../webgl/WebGLContext"
+
 	/**
 	 * @private
 	 * <code>LoadModel</code> 类用于模型加载。

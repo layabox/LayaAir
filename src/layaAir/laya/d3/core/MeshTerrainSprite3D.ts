@@ -2,12 +2,12 @@ import { MeshSprite3D } from "././MeshSprite3D";
 import { HeightMap } from "././HeightMap";
 import { Bounds } from "././Bounds";
 import { RenderContext3D } from "./render/RenderContext3D"
-	import { BoundBox } from "../math/BoundBox"
-	import { Matrix4x4 } from "../math/Matrix4x4"
-	import { Quaternion } from "../math/Quaternion"
-	import { Vector2 } from "../math/Vector2"
-	import { Vector3 } from "../math/Vector3"
-	import { Mesh } from "../resource/models/Mesh"
+import { Matrix4x4 } from "../math/Matrix4x4"
+import { Quaternion } from "../math/Quaternion"
+import { Vector2 } from "../math/Vector2"
+import { Vector3 } from "../math/Vector3"
+import { Mesh } from "../resource/models/Mesh"
+import { Texture2D } from "../../resource/Texture2D"
 	import { Event } from "laya/events/Event"
 	import { Texture2D } from "laya/resource/Texture2D"
 	

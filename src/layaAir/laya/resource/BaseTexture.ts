@@ -1,8 +1,8 @@
 import { LayaGL } from "../layagl/LayaGL"
-	import { Bitmap } from "./Bitmap"
-	import { WebGLContext } from "../webgl/WebGLContext"
+import { Bitmap } from "./Bitmap"
+import { WebGLContext } from "../webgl/WebGLContext"
 import { ILaya } from "../../ILaya";
-import { LayaGPU } from "laya/webgl/LayaGPU";
+
 	
 	/**
 	 * <code>BaseTexture</code> 纹理的父类，抽象类，不允许实例。

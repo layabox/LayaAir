@@ -1,7 +1,7 @@
 import { Sprite } from "../display/Sprite"
-	import { Button } from "./Button"
-	import { UIGroup } from "./UIGroup"
-import { ILaya } from "ILaya";
+import { Button } from "./Button"
+import { UIGroup } from "./UIGroup"
+import { ILaya } from "../../ILaya";
 	
 	/**
 	 * 当 <code>Group</code> 实例的 <code>selectedIndex</code> 属性发生变化时调度。
