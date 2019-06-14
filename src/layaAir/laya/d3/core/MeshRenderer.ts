@@ -18,6 +18,8 @@ import { BaseRender } from "./render/BaseRender";
 import { RenderContext3D } from "./render/RenderContext3D";
 import { RenderElement } from "./render/RenderElement";
 import { SubMeshRenderElement } from "./render/SubMeshRenderElement";
+import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration";
+import { Render } from "../../renders/Render";
 
 /**
  * <code>MeshRenderer</code> 类用于网格渲染器。

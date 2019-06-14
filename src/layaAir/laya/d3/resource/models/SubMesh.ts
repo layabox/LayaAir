@@ -114,5 +114,4 @@ this._id = ++SubMesh._uniqueIDCounter;
 		
 		}
 	}
-}
 

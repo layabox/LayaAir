@@ -15,6 +15,7 @@ import { LayaGL } from "../../layagl/LayaGL"
 import { Resource } from "../../resource/Resource"
 import { Byte } from "../../utils/Byte"
 import { Handler } from "../../utils/Handler"
+import { Laya } from "../../../Laya";
 
 /**
  * <code>AnimationClip</code> 类用于动画片段资源。

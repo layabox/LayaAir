@@ -25,6 +25,7 @@ import { Loader } from "../../net/Loader"
 import { Render } from "../../renders/Render"
 import { Timer } from "../../utils/Timer"
 import { LayaGL } from "../../layagl/LayaGL";
+import { Component } from "../../components/Component";
 
 /**
  * <code>Animator</code> 类用于创建动画组件。
