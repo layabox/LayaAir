@@ -1,5 +1,5 @@
 //const typescript = require('rollup-plugin-typescript');//typescript plugin
-const typescript2 = require('rollup-plugin-typescript2');//typescript2 plugin
+const typescript = require('rollup-plugin-typescript2');//typescript2 plugin
 import glsl from 'rollup-plugin-glsl';
 //import { terser } from "rollup-plugin-terser";//compress plugin
 
@@ -13,7 +13,7 @@ export default {
         name:'laya',
 	},
 	plugins: [
-        typescript2({
+        typescript({
             check: false//Set to false to avoid doing any diagnostic checks on the code
         }),
         glsl({
