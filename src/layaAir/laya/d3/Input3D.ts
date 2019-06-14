@@ -298,7 +298,7 @@ export class Input3D {
 						(enablePhysics) && (this._mouseTouchRayCast(cameras));
 						break;
 					case "touchstart":
-						var lastLength: number = this._touches.length;
+						var lastLength: number = this._touches.length;//需要在_changeTouches()之前获取
 						this._changeTouches(e.changedTouches, 0);
 						if (enablePhysics) {
 							this._mouseTouchRayCast(cameras);//触摸点击时touchMove不会触发,需要调用_touchRayCast()函数
