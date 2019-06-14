@@ -1,16 +1,12 @@
-import { Vector3 } from "././Vector3";
-import { Quaternion } from "././Quaternion";
 import { IClone } from "../core/IClone";
+import { Quaternion } from "././Quaternion";
+import { Vector3 } from "././Vector3";
 /**
  * <code>Matrix4x4</code> 类用于创建4x4矩阵。
  */
 export declare class Matrix4x4 implements IClone {
     /**@private */
     private static _tempMatrix4x4;
-    /**@private */
-    static TEMPMatrix0: Matrix4x4;
-    /**@private */
-    static TEMPMatrix1: Matrix4x4;
     /**@private */
     private static _tempVector0;
     /**@private */
@@ -21,10 +17,18 @@ export declare class Matrix4x4 implements IClone {
     private static _tempVector3;
     /**@private */
     private static _tempQuaternion;
+    /**@private */
+    static _tempMatrix0: Matrix4x4;
+    /**@private */
+    static _tempMatrix1: Matrix4x4;
     /**默认矩阵,禁止修改*/
     static DEFAULT: Matrix4x4;
     /**默认矩阵,禁止修改*/
     static ZERO: Matrix4x4;
+    /**
+     * @private
+     */
+    static __init__(): void;
     /**
      * 绕X轴旋转
      * @param	rad  旋转角度
@@ -46,10 +50,10 @@ export declare class Matrix4x4 implements IClone {
     static createRotationZ(rad: number, out: Matrix4x4): void;
     /**
      * 通过yaw pitch roll旋转创建旋转矩阵。
-     * @param	yaw
-     * @param	pitch
-     * @param	roll
-     * @param	result
+     * @param yaw
+     * @param pitch
+     * @param roll
+     * @param result
      */
     static createRotationYawPitchRoll(yaw: number, pitch: number, roll: number, result: Matrix4x4): void;
     /**

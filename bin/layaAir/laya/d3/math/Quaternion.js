@@ -1,8 +1,8 @@
 import { Vector3 } from "././Vector3";
+import { Matrix4x4 } from "././Matrix4x4";
 import { Matrix3x3 } from "././Matrix3x3";
 import { MathUtils3D } from "././MathUtils3D";
 import { Vector2 } from "././Vector2";
-import { ILaya3D } from "ILaya3D";
 /**
  * <code>Quaternion</code> 类用于创建四元数。
  */
@@ -333,10 +333,10 @@ export class Quaternion {
             angle.z = 0;
         }
         else {
-            ILaya3D.Matrix4x4.createRotationY(-angle.y, ILaya3D.Matrix4x4.TEMPMatrix0);
-            ILaya3D.Matrix4x4.createRotationX(-angle.x, ILaya3D.Matrix4x4.TEMPMatrix1);
-            Vector3.transformCoordinate(Quaternion.TEMPVector32, ILaya3D.Matrix4x4.TEMPMatrix0, Quaternion.TEMPVector32);
-            Vector3.transformCoordinate(Quaternion.TEMPVector32, ILaya3D.Matrix4x4.TEMPMatrix1, Quaternion.TEMPVector32);
+            Matrix4x4.createRotationY(-angle.y, Matrix4x4._tempMatrix0);
+            Matrix4x4.createRotationX(-angle.x, Matrix4x4._tempMatrix1);
+            Vector3.transformCoordinate(Quaternion.TEMPVector32, Matrix4x4._tempMatrix0, Quaternion.TEMPVector32);
+            Vector3.transformCoordinate(Quaternion.TEMPVector32, Matrix4x4._tempMatrix1, Quaternion.TEMPVector32);
             angle.z = Quaternion.arcTanAngle(upe.y, -upe.x);
         }
         // Special cases.

@@ -1,33 +1,25 @@
-import { Vector3 } from "././Vector3";
-import { Quaternion } from "././Quaternion";
-import { MathUtils3D } from "././MathUtils3D";
 import { LayaGL } from "laya/layagl/LayaGL";
+import { MathUtils3D } from "././MathUtils3D";
+import { Quaternion } from "././Quaternion";
+import { Vector3 } from "././Vector3";
 /**
  * <code>Matrix4x4</code> 类用于创建4x4矩阵。
  */
 export class Matrix4x4 {
     /**
-     * 创建一个 <code>Matrix4x4</code> 实例。
-     * @param	4x4矩阵的各元素
+     * @private
      */
-    constructor(m11 = 1, m12 = 0, m13 = 0, m14 = 0, m21 = 0, m22 = 1, m23 = 0, m24 = 0, m31 = 0, m32 = 0, m33 = 1, m34 = 0, m41 = 0, m42 = 0, m43 = 0, m44 = 1, elements = null) {
-        var e = elements ? this.elements = elements : this.elements = new Float32Array(16); //TODO:[NATIVE]临时
-        e[0] = m11;
-        e[1] = m12;
-        e[2] = m13;
-        e[3] = m14;
-        e[4] = m21;
-        e[5] = m22;
-        e[6] = m23;
-        e[7] = m24;
-        e[8] = m31;
-        e[9] = m32;
-        e[10] = m33;
-        e[11] = m34;
-        e[12] = m41;
-        e[13] = m42;
-        e[14] = m43;
-        e[15] = m44;
+    static __init__() {
+        Matrix4x4._tempMatrix4x4 = new Matrix4x4();
+        Matrix4x4._tempVector0 = new Vector3();
+        Matrix4x4._tempVector1 = new Vector3();
+        Matrix4x4._tempVector2 = new Vector3();
+        Matrix4x4._tempVector3 = new Vector3();
+        Matrix4x4._tempQuaternion = new Quaternion();
+        Matrix4x4._tempMatrix0 = new Matrix4x4();
+        Matrix4x4._tempMatrix1 = new Matrix4x4();
+        Matrix4x4.DEFAULT = new Matrix4x4();
+        Matrix4x4.ZERO = new Matrix4x4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
     /**
      * 绕X轴旋转
@@ -77,10 +69,10 @@ export class Matrix4x4 {
     }
     /**
      * 通过yaw pitch roll旋转创建旋转矩阵。
-     * @param	yaw
-     * @param	pitch
-     * @param	roll
-     * @param	result
+     * @param yaw
+     * @param pitch
+     * @param roll
+     * @param result
      */
     static createRotationYawPitchRoll(yaw, pitch, roll, result) {
         Quaternion.createFromYawPitchRoll(yaw, pitch, roll, Matrix4x4._tempQuaternion);
@@ -407,6 +399,29 @@ export class Matrix4x4 {
         oe[13] = (top + bottom) / (bottom - top);
         oe[14] = -znear * zRange;
     }
+    /**
+     * 创建一个 <code>Matrix4x4</code> 实例。
+     * @param	4x4矩阵的各元素
+     */
+    constructor(m11 = 1, m12 = 0, m13 = 0, m14 = 0, m21 = 0, m22 = 1, m23 = 0, m24 = 0, m31 = 0, m32 = 0, m33 = 1, m34 = 0, m41 = 0, m42 = 0, m43 = 0, m44 = 1, elements = null) {
+        var e = elements ? this.elements = elements : this.elements = new Float32Array(16); //TODO:[NATIVE]临时
+        e[0] = m11;
+        e[1] = m12;
+        e[2] = m13;
+        e[3] = m14;
+        e[4] = m21;
+        e[5] = m22;
+        e[6] = m23;
+        e[7] = m24;
+        e[8] = m31;
+        e[9] = m32;
+        e[10] = m33;
+        e[11] = m34;
+        e[12] = m41;
+        e[13] = m42;
+        e[14] = m43;
+        e[15] = m44;
+    }
     getElementByRowColumn(row, column) {
         if (row < 0 || row > 3)
             throw new Error("row Rows and columns for matrices run from 0 to 3, inclusive.");
@@ -730,23 +745,3 @@ export class Matrix4x4 {
         me[10] = -forward.z;
     }
 }
-/**@private */
-Matrix4x4._tempMatrix4x4 = new Matrix4x4();
-/**@private */
-Matrix4x4.TEMPMatrix0 = new Matrix4x4();
-/**@private */
-Matrix4x4.TEMPMatrix1 = new Matrix4x4();
-/**@private */
-Matrix4x4._tempVector0 = new Vector3();
-/**@private */
-Matrix4x4._tempVector1 = new Vector3();
-/**@private */
-Matrix4x4._tempVector2 = new Vector3();
-/**@private */
-Matrix4x4._tempVector3 = new Vector3();
-/**@private */
-Matrix4x4._tempQuaternion = new Quaternion();
-/**默认矩阵,禁止修改*/
-Matrix4x4.DEFAULT = new Matrix4x4();
-/**默认矩阵,禁止修改*/
-Matrix4x4.ZERO = new Matrix4x4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
