@@ -115,7 +115,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	static RANGEATTENUATIONTEXTURE: number = Shader3D.propertyNameToID("u_RangeTexture");
 	static POINTLIGHTMATRIX: number = Shader3D.propertyNameToID("u_PointLightMatrix");
 	static SPOTLIGHTMATRIX: number = Shader3D.propertyNameToID("u_SpotLightMatrix");
-	
+
 	/**
 	 * @private
 	 */
@@ -134,7 +134,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF3 = Shader3D.registerPublicDefine("SHADOWMAP_PCF3");
 		Scene3DShaderDeclaration.SHADERDEFINE_REFLECTMAP = Shader3D.registerPublicDefine("REFLECTMAP");
 	}
-	
+
 
 	/**
 	 * 加载场景,注意:不缓存。
@@ -662,7 +662,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	_clear(gl: WebGLContext, state: RenderContext3D): void {
 		var viewport: Viewport = state.viewport;
 		var camera: Camera = (<Camera>state.camera);
-		var renderTexture:RenderTexture = camera._renderTexture|| camera._offScreenRenderTexture;
+		var renderTexture: RenderTexture = camera._renderTexture || camera._offScreenRenderTexture;
 		var vpW: number = viewport.width;
 		var vpH: number = viewport.height;
 		var vpX: number = viewport.x;
@@ -739,7 +739,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	_renderScene(gl: WebGLContext, state: RenderContext3D, customShader: Shader3D = null, replacementTag: string = null): void {
 		var camera: Camera = (<Camera>state.camera);
 		var position: Vector3 = camera.transform.position;
-		var renderTar:RenderTexture = camera._renderTexture || camera._offScreenRenderTexture;
+		var renderTar: RenderTexture = camera._renderTexture || camera._offScreenRenderTexture;
 		renderTar ? this._opaqueQueue._render(state, true, customShader, replacementTag) : this._opaqueQueue._render(state, false, customShader, replacementTag);//非透明队列
 		if (camera.clearFlag === BaseCamera.CLEARFLAG_SKY) {
 			if (camera.skyRenderer._isAvailable())

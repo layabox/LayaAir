@@ -5,8 +5,7 @@ import { ShaderDefines } from "../../shader/ShaderDefines";
 import { BaseMaterial } from "./BaseMaterial";
 
 /**
- * ...
- * @author
+ * <code>WaterPrimaryMaterial</code> 类用于实现水材质。
  */
 export class WaterPrimaryMaterial extends BaseMaterial {
 
@@ -23,13 +22,13 @@ export class WaterPrimaryMaterial extends BaseMaterial {
 	static defaultMaterial: WaterPrimaryMaterial;
 
 	/**@private */
-	static shaderDefines: ShaderDefines =null;
+	static shaderDefines: ShaderDefines = null;
 
 	/**
 	 * @private
 	 */
 	static __initDefine__(): void {
-		WaterPrimaryMaterial.shaderDefines =new ShaderDefines(BaseMaterial.shaderDefines);
+		WaterPrimaryMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
 		WaterPrimaryMaterial.SHADERDEFINE_MAINTEXTURE = WaterPrimaryMaterial.shaderDefines.registerDefine("MAINTEXTURE");
 		WaterPrimaryMaterial.SHADERDEFINE_NORMALTEXTURE = WaterPrimaryMaterial.shaderDefines.registerDefine("NORMALTEXTURE");
 	}
@@ -131,10 +130,10 @@ export class WaterPrimaryMaterial extends BaseMaterial {
 		this._shaderValues.setVector(WaterPrimaryMaterial.WAVESPEED, new Vector4(19, 9, -16, -7));
 	}
 
-		/**
-	 * 克隆。
-	 * @return	 克隆副本。
-	 */
+	/**
+ * 克隆。
+ * @return	 克隆副本。
+ */
 	clone(): any {
 		var dest: WaterPrimaryMaterial = new WaterPrimaryMaterial();
 		this.cloneTo(dest);

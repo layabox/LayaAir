@@ -4,8 +4,7 @@ import { ShaderDefines } from "../../shader/ShaderDefines";
 import { BaseMaterial } from "../material/BaseMaterial";
 
 /**
- * ...
- * @author
+ * <code>PixelLineMaterial</code> 类用于实现像素线材质。
  */
 export class PixelLineMaterial extends BaseMaterial {
 	static COLOR: number = Shader3D.propertyNameToID("u_Color");
@@ -14,7 +13,7 @@ export class PixelLineMaterial extends BaseMaterial {
 	static defaultMaterial: PixelLineMaterial;
 
 	/**@private */
-	static shaderDefines: ShaderDefines=null;
+	static shaderDefines: ShaderDefines = null;
 
 	static CULL: number = Shader3D.propertyNameToID("s_Cull");
 	static BLEND: number = Shader3D.propertyNameToID("s_Blend");
@@ -27,7 +26,7 @@ export class PixelLineMaterial extends BaseMaterial {
 	* @private
 	*/
 	static __initDefine__(): void {
-		PixelLineMaterial.shaderDefines= new ShaderDefines(BaseMaterial.shaderDefines);
+		PixelLineMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
 	}
 
 	/**
@@ -148,10 +147,10 @@ export class PixelLineMaterial extends BaseMaterial {
 		this._shaderValues.setVector(PixelLineMaterial.COLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
 	}
 
-		/**
-	 * 克隆。
-	 * @return	 克隆副本。
-	 */
+	/**
+ * 克隆。
+ * @return	 克隆副本。
+ */
 	clone(): any {
 		var dest: PixelLineMaterial = new PixelLineMaterial();
 		this.cloneTo(dest);

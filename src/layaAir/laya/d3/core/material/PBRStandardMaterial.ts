@@ -69,13 +69,13 @@ export class PBRStandardMaterial extends BaseMaterial {
 	static defaultMaterial: PBRStandardMaterial;
 
 	/**@private */
-	static shaderDefines: ShaderDefines=null;
+	static shaderDefines: ShaderDefines = null;
 
 	/**
 	 * @private
 	 */
 	static __initDefine__(): void {
-		PBRStandardMaterial.shaderDefines= new ShaderDefines(BaseMaterial.shaderDefines);
+		PBRStandardMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
 		PBRStandardMaterial.SHADERDEFINE_ALBEDOTEXTURE = PBRStandardMaterial.shaderDefines.registerDefine("ALBEDOTEXTURE");
 		PBRStandardMaterial.SHADERDEFINE_METALLICGLOSSTEXTURE = PBRStandardMaterial.shaderDefines.registerDefine("METALLICGLOSSTEXTURE");
 		PBRStandardMaterial.SHADERDEFINE_SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA = PBRStandardMaterial.shaderDefines.registerDefine("SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA");
@@ -1080,10 +1080,10 @@ export class PBRStandardMaterial extends BaseMaterial {
 		this.renderMode = PBRStandardMaterial.RENDERMODE_OPAQUE;
 	}
 
-		/**
-	 * 克隆。
-	 * @return	 克隆副本。
-	 */
+	/**
+ * 克隆。
+ * @return	 克隆副本。
+ */
 	clone(): any {
 		var dest: PBRStandardMaterial = new PBRStandardMaterial();
 		this.cloneTo(dest);

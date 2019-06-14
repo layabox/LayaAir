@@ -1120,10 +1120,10 @@ export class PBRSpecularMaterial extends BaseMaterial {
 		this.renderMode = PBRSpecularMaterial.RENDERMODE_OPAQUE;
 	}
 
-		/**
-	 * 克隆。
-	 * @return	 克隆副本。
-	 */
+	/**
+ * 克隆。
+ * @return	 克隆副本。
+ */
 	clone(): any {
 		var dest: PBRSpecularMaterial = new PBRSpecularMaterial();
 		this.cloneTo(dest);

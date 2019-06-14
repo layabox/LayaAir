@@ -41,9 +41,9 @@ export class Animator extends Component {
 	private static _tempQuaternion1: Quaternion = new Quaternion();
 
 	/** @private */
-	private static _tempVector3Array0: Float32Array =  new Float32Array(3);
+	private static _tempVector3Array0: Float32Array = new Float32Array(3);
 	/** @private */
-	private static _tempVector3Array1: Float32Array =  new Float32Array(3);
+	private static _tempVector3Array1: Float32Array = new Float32Array(3);
 	/** @private */
 	private static _tempQuaternionArray0: Float32Array = new Float32Array(4);
 	/** @private */

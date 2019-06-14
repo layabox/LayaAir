@@ -35,13 +35,13 @@ export class SkyProceduralMaterial extends BaseMaterial {
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: SkyProceduralMaterial;
 	/**@private */
-	static shaderDefines: ShaderDefines =null;
+	static shaderDefines: ShaderDefines = null;
 
 	/**
 	 * @private
 	 */
 	static __initDefine__(): void {
-		SkyProceduralMaterial.shaderDefines= new ShaderDefines(BaseMaterial.shaderDefines);
+		SkyProceduralMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
 		SkyProceduralMaterial.SHADERDEFINE_SUN_HIGH_QUALITY = SkyProceduralMaterial.shaderDefines.registerDefine("SUN_HIGH_QUALITY");
 		SkyProceduralMaterial.SHADERDEFINE_SUN_SIMPLE = SkyProceduralMaterial.shaderDefines.registerDefine("SUN_SIMPLE");
 	}
@@ -196,10 +196,10 @@ export class SkyProceduralMaterial extends BaseMaterial {
 		this.exposure = 1.3;
 	}
 
-		/**
-	 * 克隆。
-	 * @return	 克隆副本。
-	 */
+	/**
+ * 克隆。
+ * @return	 克隆副本。
+ */
 	clone(): any {
 		var dest: SkyProceduralMaterial = new SkyProceduralMaterial();
 		this.cloneTo(dest);
