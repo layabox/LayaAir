@@ -109,7 +109,7 @@ import { ILaya } from "../../../ILaya";
 				return;
 			if ("pause" in this._audio)
 			//理论上应该全部使用stop，但是不知为什么，使用pause，为了安全我只修改在加速器模式下再调用一次stop
-			if ( Render.isConchApp ){
+			if ( ILaya.Render.isConchApp ){
 				(this._audio as any).stop();
 			}
 			this._audio.pause();

@@ -786,7 +786,7 @@ super.set_transform( this._createTransform());
 		}
 		
 		 get frameRate():string {
-			if (!Render.isConchApp) {
+			if (!ILaya.Render.isConchApp) {
 				return this._frameRate;
 			} else {
 				return ((<any>this ))._frameRateNative;
@@ -794,7 +794,7 @@ super.set_transform( this._createTransform());
 		}
 		
 		 set frameRate(value:string) {
-			if (!Render.isConchApp) {
+			if (!ILaya.Render.isConchApp) {
 				this._frameRate = value;
 			} else {
 				var c:any = ((<any>window )).conch;

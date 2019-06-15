@@ -5,7 +5,8 @@ import { Utils3D } from "../utils/Utils3D"
 import { Event } from "../../events/Event"
 import { EventDispatcher } from "../../events/EventDispatcher"
 import { Render } from "../../renders/Render"
-
+import { ConchQuaternion } from "../math/Native/ConchQuaternion"
+import { ConchVector3 } from "../math/Native/ConchVector3"
 /**
  * <code>AnimationTransform3D</code> 类用于实现3D变换。
  */
@@ -64,14 +65,10 @@ export class AnimationTransform3D extends EventDispatcher {
 			_worldMatrix = worldMatrix;
 			*/
 
-			//[NATIVE_TS]
-			/*
-			this._localPosition = new ConchVector3(0,0,0,localPosition);
-			this._localRotation = new ConchQuaternion(0,0,0,1,localRotation);
-			this._localScale = new ConchVector3(0,0,0,localScale);
+			this._localPosition = new ConchVector3(0,0,0,localPosition) as any as Vector3;
+			this._localRotation = new ConchQuaternion(0,0,0,1,localRotation) as any as Quaternion;
+			this._localScale = new ConchVector3(0,0,0,localScale) as any as Vector3;
 			this._worldMatrix = worldMatrix;
-			*/
-
 		} else {
 			this._localPosition = new Vector3();
 			this._localRotation = new Quaternion();
