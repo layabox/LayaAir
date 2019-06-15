@@ -37,6 +37,7 @@ import { WebGLContext } from "../../webgl/WebGLContext";
 			}
 			tex = new RenderTexture(width, height, format, depthStencilFormat);
 			tex.filterMode = filterMode;
+			tex.lock=true;//TODO:资源不加锁会被GC掉,或GC时对象池清空
 			return tex;
 		}
 		
