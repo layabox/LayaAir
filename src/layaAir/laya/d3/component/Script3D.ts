@@ -5,15 +5,19 @@ import { Collision } from "../physics/Collision"
 import { PhysicsComponent } from "../physics/PhysicsComponent"
 import { Event } from "../../events/Event"
 import { Laya } from "../../../Laya";
+import { Scene3D } from "../core/scene/Scene3D";
 
 /**
  * <code>Script3D</code> 类用于创建脚本的父类,该类为抽象类,不允许实例。
  */
 export class Script3D extends Component {
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  get isSingleton(): boolean {
+	/**@private*/
+	public _indexInPool: number = -1;
+
+	/**
+	 * @inheritDoc
+	 */
+	/*override*/  get isSingleton(): boolean {
 		return false;
 	}
 
@@ -45,21 +49,20 @@ export class Script3D extends Component {
 		return false;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _onAwake(): void {
+	/**
+	 * @inheritDoc
+	 */
+	/*override*/ protected _onAwake(): void {
 		this.onAwake();
 		if (this.onStart !== Script3D.prototype.onStart)
 			Laya.startTimer.callLater(this, this.onStart);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _onEnable(): void {
-		((<any>this.owner))._scene._scriptPool.add(this);
-
+	/**
+	 * @inheritDoc
+	 */
+	/*override*/ protected _onEnable(): void {
+		(<Scene3D>this.owner._scene)._addScript(this);
 		var proto: any = Script3D.prototype;
 		if (this.onKeyDown !== proto.onKeyDown) {
 			Laya.stage.on(Event.KEY_DOWN, this, this.onKeyDown);
@@ -72,26 +75,26 @@ export class Script3D extends Component {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _onDisable(): void {
-		((<any>this.owner))._scene._scriptPool.remove(this);
+	/**
+	 * @inheritDoc
+	 */
+	/*override*/ protected _onDisable(): void {
+		(<Scene3D>this.owner._scene)._removeScript(this);
 		this.owner.offAllCaller(this);
 		Laya.stage.offAllCaller(this);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _isScript(): boolean {
+	/**
+	 * @inheritDoc
+	 */
+	/*override*/  _isScript(): boolean {
 		return true;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _onAdded(): void {
+	/**
+	 * @inheritDoc
+	 */
+	/*override*/  _onAdded(): void {
 		var sprite: Sprite3D = (<Sprite3D>this.owner);
 		var scripts: Script3D[] = sprite._scripts;
 		scripts || (sprite._scripts = scripts = []);
@@ -104,10 +107,10 @@ export class Script3D extends Component {
 			sprite._needProcessTriggers = this._checkProcessTriggers();//检查是否需要处理触发器
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _onDestroy(): void {
+	/**
+	 * @inheritDoc
+	 */
+	/*override*/ protected _onDestroy(): void {
 		var scripts: Script3D[] = ((<Sprite3D>this.owner))._scripts;
 		scripts.splice(scripts.indexOf(this), 1);
 
@@ -127,7 +130,6 @@ export class Script3D extends Component {
 				break;
 			}
 		}
-
 		this.onDestroy();
 	}
 

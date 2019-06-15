@@ -187,7 +187,11 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/**@private */
 	_animatorPool: SimpleSingletonList = new SimpleSingletonList();
 	/**@private */
-	_scriptPool: SimpleSingletonList = new SimpleSingletonList();
+	_scriptPool: Script3D[] = new Array<Script3D>();
+	/**@private */
+	_tempScriptPool: Script3D[] = new Array<Script3D>();
+	/**@private */
+	_needClearScriptPool: boolean = false;
 
 	/** @private */
 	_castShadowRenders: CastShadowList = new CastShadowList();
@@ -516,6 +520,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		}
 		this._input._update();
 
+		this._clearScript();
 		this._updateScript();
 		Animator._update(this);
 		this._lateUpdateScript();
@@ -565,11 +570,28 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/**
 	 * @private
 	 */
+	private _clearScript(): void {
+		if (this._needClearScriptPool) {
+			var scripts: Script3D[] = this._scriptPool;
+			for (var i: number = 0, n: number = scripts.length; i < n; i++) {
+				var script: Script3D = scripts[i];
+				script && this._tempScriptPool.push(script);
+			}
+			this._scriptPool = this._tempScriptPool;
+			scripts.length = 0;
+			this._tempScriptPool = scripts;
+
+			this._needClearScriptPool = false;
+		}
+	}
+
+	/**
+	 * @private
+	 */
 	private _updateScript(): void {
-		var pool: SimpleSingletonList = this._scriptPool;
-		var elements: ISingletonElement[] = pool.elements;
-		for (var i: number = 0, n: number = pool.length; i < n; i++) {
-			var script: Script3D = (<Script3D>elements[i]);
+		var scripts: Script3D[] = this._scriptPool;
+		for (var i: number = 0, n: number = scripts.length; i < n; i++) {
+			var script: Script3D = scripts[i];
 			(script && script.enabled) && (script.onUpdate());
 		}
 	}
@@ -578,10 +600,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @private
 	 */
 	private _lateUpdateScript(): void {
-		var pool: SimpleSingletonList = this._scriptPool;
-		var elements: ISingletonElement[] = pool.elements;
-		for (var i: number = 0, n: number = pool.length; i < n; i++) {
-			var script: Script3D = (<Script3D>elements[i]);
+		var scripts: Script3D[] = this._scriptPool;
+		for (var i: number = 0, n: number = scripts.length; i < n; i++) {
+			var script: Script3D = (<Script3D>scripts[i]);
 			(script && script.enabled) && (script.onLateUpdate());
 		}
 	}
@@ -589,11 +610,28 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/**
 	 * @private
 	 */
+	_addScript(script: Script3D): void {
+		var scripts: Script3D[] = this._scriptPool;
+		script._indexInPool = scripts.length;
+		scripts.push(script);
+	}
+
+	/**
+	 * @private
+	 */
+	_removeScript(script: Script3D): void {
+		this._scriptPool[script._indexInPool] = null;
+		script._indexInPool = -1;
+		this._needClearScriptPool = true;
+	}
+
+	/**
+	 * @private
+	 */
 	_preRenderScript(): void {
-		var pool: SimpleSingletonList = this._scriptPool;
-		var elements: ISingletonElement[] = pool.elements;
-		for (var i: number = 0, n: number = pool.length; i < n; i++) {
-			var script: Script3D = (<Script3D>elements[i]);
+		var scripts: Script3D[] = this._scriptPool;
+		for (var i: number = 0, n: number = scripts.length; i < n; i++) {
+			var script: Script3D = scripts[i];
 			(script && script.enabled) && (script.onPreRender());
 		}
 	}
@@ -602,10 +640,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @private
 	 */
 	_postRenderScript(): void {
-		var pool: SimpleSingletonList = this._scriptPool;
-		var elements: ISingletonElement[] = pool.elements;
-		for (var i: number = 0, n: number = pool.length; i < n; i++) {
-			var script: Script3D = (<Script3D>elements[i]);
+		var scripts: Script3D[] = this._scriptPool;
+		for (var i: number = 0, n: number = scripts.length; i < n; i++) {
+			var script: Script3D = scripts[i];
 			(script && script.enabled) && (script.onPostRender());
 		}
 	}

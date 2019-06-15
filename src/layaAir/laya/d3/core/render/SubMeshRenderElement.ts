@@ -97,10 +97,10 @@ export class SubMeshRenderElement extends RenderElement {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  setTransform(transform: Transform3D): void {
+	/**
+	 * @inheritDoc
+	 */
+	/*override*/  setTransform(transform: Transform3D): void {
 		if (this._transform !== transform) {
 			(this._transform) && (this._transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatrixChanged));
 			(transform) && (transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatrixChanged));
@@ -109,10 +109,10 @@ export class SubMeshRenderElement extends RenderElement {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  setGeometry(geometry: GeometryElement): void {
+	/**
+	 * @inheritDoc
+	 */
+	/*override*/  setGeometry(geometry: GeometryElement): void {
 		if (this._geometry !== geometry) {
 			var subMesh: SubMesh = (<SubMesh>geometry);
 			var mesh: Mesh = subMesh._mesh;
@@ -134,10 +134,10 @@ export class SubMeshRenderElement extends RenderElement {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  addToOpaqueRenderQueue(context: RenderContext3D, queue: RenderQueue): void {
+	/**
+	 * @inheritDoc
+	 */
+	/*override*/  addToOpaqueRenderQueue(context: RenderContext3D, queue: RenderQueue): void {
 		var subMeshStaticBatch: SubMeshStaticBatch = (<SubMeshStaticBatch>this.staticBatch);
 		var elements: any[] = queue.elements;
 		if (subMeshStaticBatch) {
@@ -246,10 +246,10 @@ export class SubMeshRenderElement extends RenderElement {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  addToTransparentRenderQueue(context: RenderContext3D, queue: RenderQueue): void {
+	/**
+	 * @inheritDoc
+	 */
+	/*override*/  addToTransparentRenderQueue(context: RenderContext3D, queue: RenderQueue): void {
 		var subMeshStaticBatch: SubMeshStaticBatch = (<SubMeshStaticBatch>this.staticBatch);
 		var elements: any[] = queue.elements;
 		if (subMeshStaticBatch) {
@@ -371,10 +371,10 @@ export class SubMeshRenderElement extends RenderElement {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  destroy(): void {
+	/**
+	 * @inheritDoc
+	 */
+	/*override*/  destroy(): void {
 		super.destroy();
 		this._dynamicWorldPositions = null;
 		this._dynamicWorldNormals = null;
