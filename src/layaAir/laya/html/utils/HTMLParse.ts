@@ -5,8 +5,9 @@ import { ClassUtils } from "../../utils/ClassUtils";
 import { Utils } from "../../utils/Utils";
 import { URL } from "../../net/URL";
 import { IHtml } from "./IHtml";
-import { HTMLBrElement } from "../dom/HTMLBrElement"
-	
+import { HTMLBrElement } from "../dom/HTMLBrElement";
+import { HTMLStyleElement } from "../dom/HTMLStyleElement";
+import { HTMLLinkElement } from "../dom/HTMLLinkElement";
 	/**
 	 * @private
 	 */
@@ -19,7 +20,7 @@ import { HTMLBrElement } from "../dom/HTMLBrElement"
             'p': HTMLElement, 
             'img': HTMLImageElement, 
             'span': HTMLElement, 
-            'br': HTMLBrElement, 
+			'br': HTMLBrElement, 
             'style': HTMLStyleElement, 
             'font': HTMLElement, 
             'a': HTMLElement, 
