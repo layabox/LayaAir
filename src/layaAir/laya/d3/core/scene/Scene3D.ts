@@ -575,7 +575,10 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			var scripts: Script3D[] = this._scriptPool;
 			for (var i: number = 0, n: number = scripts.length; i < n; i++) {
 				var script: Script3D = scripts[i];
-				script && this._tempScriptPool.push(script);
+				if (script) {
+					script._indexInPool = this._tempScriptPool.length;
+					this._tempScriptPool.push(script);
+				}
 			}
 			this._scriptPool = this._tempScriptPool;
 			scripts.length = 0;
