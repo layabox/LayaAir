@@ -829,7 +829,7 @@ import { ILaya } from "../../ILaya";
 				return;
 			}
 			
-			if (ILaya.Browser.onLayaRuntime) {
+			if (ILaya.Render.isConchApp) {
 				(window as any).conchTextCanvas.font=this._getContextFont();;
 			}else{
 				ILaya.Browser.context.font = this._getContextFont();
@@ -909,7 +909,7 @@ import { ILaya } from "../../ILaya";
 				this._charSize.height = bitmapFont.getMaxHeight();
 			} else {
 				var measureResult:any = null;
-				if (ILaya.Browser.onLayaRuntime) {
+				if (ILaya.Render.isConchApp) {
 					measureResult = (window as any).conchTextCanvas.measureText(Text._testWord);
 				}else {
 					measureResult = ILaya.Browser.context.measureText(Text._testWord);					
@@ -1020,7 +1020,7 @@ import { ILaya } from "../../ILaya";
 			var bitmapFont:BitmapFont = ((<TextStyle>this._style )).currBitmapFont;
 			if (bitmapFont) return bitmapFont.getTextWidth(text);
 			else {
-				if (ILaya.Browser.onLayaRuntime) {
+				if (ILaya.Render.isConchApp) {
 					return (window as any).conchTextCanvas.measureText(text).width;;
 				}
 				else return ILaya.Browser.context.measureText(text).width;

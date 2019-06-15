@@ -357,11 +357,11 @@ export class Laya3D {
 
 			if (Render.supportWebGLPlusAnimation) {
 				avatar.prototype._cloneDatasToAnimator = avatar.prototype._cloneDatasToAnimatorNative;
-				// FloatKeyframe = window.conchFloatKeyframe;
-				// Vector3Keyframe = window.conchFloatArrayKeyframe;
-				// QuaternionKeyframe = window.conchFloatArrayKeyframe;
-				// KeyframeNode = window.conchKeyframeNode;
-				// KeyframeNodeList = window.conchKeyframeNodeList;
+				(window as any).FloatKeyframe = (window as any).conchFloatKeyframe;
+				(window as any).Vector3Keyframe = (window as any).conchFloatArrayKeyframe;
+				(window as any).QuaternionKeyframe = (window as any).conchFloatArrayKeyframe;
+				(window as any).KeyframeNode = (window as any).conchKeyframeNode;
+				(window as any).KeyframeNodeList = (window as any).conchKeyframeNodeList;
 				var animationClip: any = AnimationClip;
 				animationClip.prototype._evaluateClipDatasRealTime = animationClip.prototype._evaluateClipDatasRealTimeForNative;
 				skinnedMeshRender.prototype.supportWebGLPlusAnimation = skinnedMeshRender.prototype.supportWebGLPlusAnimationForNative;

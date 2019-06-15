@@ -37,7 +37,7 @@ import { ILaya } from "../../../ILaya";
 		/**
 		 * 用于播放解锁声音以及解决Ios9版本的内存释放
 		 */
-		 static _miniBuffer:any = WebAudioSound.ctx.createBuffer(1, 1, 22050);
+		 static _miniBuffer:any = WebAudioSound.ctx ? WebAudioSound.ctx.createBuffer(1, 1, 22050) : undefined;
 		
 		/**
 		 * 事件派发器，用于处理加载解码完成事件的广播

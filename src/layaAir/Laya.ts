@@ -152,7 +152,7 @@ import { WorkerLoader } from "./laya/net/WorkerLoader";
 					plugins[i].enable();
 				}
 			}
-			if (Render.isConchApp) {
+			if (ILaya.Render.isConchApp) {
 				Laya.enableNative();
 			}
 			
