@@ -1,4 +1,4 @@
-enum TrailAlignment {
+export enum TrailAlignment {
     View,
     TransformZ
 }

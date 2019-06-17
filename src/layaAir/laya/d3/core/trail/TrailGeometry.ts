@@ -16,6 +16,7 @@ import { TextureMode } from "../TextureMode";
 import { TrailFilter } from "././TrailFilter";
 import { VertexTrail } from "././VertexTrail";
 import { Matrix4x4 } from "../../math/Matrix4x4";
+import { TrailAlignment } from "./TrailAlignment";
 
 /**
  * <code>TrailGeometry</code> 类用于创建拖尾渲染单元。
