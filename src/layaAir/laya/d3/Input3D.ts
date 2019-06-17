@@ -15,6 +15,7 @@ import { Vector3 } from "./math/Vector3";
 import { Viewport } from "./math/Viewport";
 import { HitResult } from "./physics/HitResult";
 import { PhysicsSimulation } from "./physics/PhysicsSimulation";
+import { Physics } from "./physics/Physics";
 
 /**
  * <code>Input3D</code> 类用于实现3D输入。
@@ -275,7 +276,7 @@ export class Input3D {
 	 * @private
 	 */
 	_update(): void {
-		var enablePhysics: boolean = Scene3D._enbalePhysics && !PhysicsSimulation.disableSimulation;
+		var enablePhysics: boolean = Physics._enbalePhysics && !PhysicsSimulation.disableSimulation;
 		var i: number, n: number, j: number, m: number;
 		n = this._eventList.length;
 		var cameras: BaseCamera[] = this._scene._cameraPool;

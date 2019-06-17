@@ -112,8 +112,6 @@ export class Laya3D {
 
 
 	/**@private */
-	static _enbalePhysics: boolean = false;
-	/**@private */
 	static _editerEnvironment: boolean = false;
 	/**@private */
 	static _config: Config3D = new Config3D();
@@ -126,7 +124,7 @@ export class Laya3D {
 	 * @param 是否启用物理。
 	 */
 	static get enbalePhysics(): any {
-		return Laya3D._enbalePhysics;
+		return Physics._enbalePhysics;
 	}
 
 	/**
@@ -801,7 +799,6 @@ export class Laya3D {
 		config.cloneTo(Laya3D._config);
 		FrustumCulling.debugFrustumCulling = config.debugFrustumCulling;
 		Laya3D._editerEnvironment = Laya3D._config._editerEnvironment;
-		Scene3D._enbalePhysics = Laya3D._enbalePhysics;
 		Scene3D.octreeCulling = config.octreeCulling;
 		Scene3D.octreeInitialSize = config.octreeInitialSize;
 		Scene3D.octreeInitialCenter = config.octreeInitialCenter;
@@ -810,11 +807,11 @@ export class Laya3D {
 
 		var physics3D: Function = (window as any).Physics3D;
 		if (physics3D == null) {
-			Laya3D._enbalePhysics = Scene3D._enbalePhysics = false;
+			Physics._enbalePhysics = false;
 			Laya3D.__init__(width, height, Laya3D._config);
 			compolete && compolete.run();
 		} else {
-			Laya3D._enbalePhysics = Scene3D._enbalePhysics = true;
+			Physics._enbalePhysics = true;
 			physics3D(Laya3D._config.defaultPhysicsMemory * 1024 * 1024).then(function (): void {
 				Laya3D.__init__(width, height, Laya3D._config);
 				compolete && compolete.run();
