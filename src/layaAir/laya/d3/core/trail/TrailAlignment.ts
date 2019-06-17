@@ -1,0 +1,4 @@
+enum TrailAlignment {
+    View,
+    TransformZ
+}

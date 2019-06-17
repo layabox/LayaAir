@@ -184,10 +184,10 @@ export class TrailGeometry extends GeometryElement {
 		Vector3.subtract(TrailGeometry._tempVector33, TrailGeometry._tempVector34, delVector3);
 
 		switch (this._owner.alignment) {
-			case TrailFilter.ALIGNMENT_VIEW:
+			case TrailAlignment.View:
 				Vector3.cross(TrailGeometry._tempVector33, delVector3, pointAtoBVector3);
 				break;
-			case TrailFilter.ALIGNMENT_TRANSFORM_Z:
+			case TrailAlignment.TransformZ:
 				var forward: Vector3 = TrailGeometry._tempVector32;
 				this._owner._owner.transform.getForward(forward);
 				Vector3.cross(delVector3, forward, pointAtoBVector3);//实时更新模式需要和view一样根据当前forward重新计算
