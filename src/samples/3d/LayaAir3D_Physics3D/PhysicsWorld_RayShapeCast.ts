@@ -53,7 +53,6 @@ import { Transform3D } from "laya/d3/core/Transform3D";
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			//显示性能面板
 			Stat.show();
-			var test:boolean = Laya3D._enbalePhysics;
 			//创建场景
 			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()) );
 			

@@ -131,8 +131,8 @@ import { MultiTouch } from "../3d/LayaAir3D_MouseInteraction/MultiTouch";
 		private _particleClsArr:any[] = [Particle_BurningGround,Particle_EternalLight];
 		private _particleArr:any[] = ['Particle_BurningGround', 'Particle_EternalLight'];
 		
-		private _performanceClsArr:any[] = [StaticBatchingTest];
-		private _performanceArr:any[] = ['StaticBatchingTest'];
+		private _performanceClsArr:any[] = [StaticBatchingTest,DynamicBatchTest];
+		private _performanceArr:any[] = ['StaticBatchingTest','DynamicBatchTest'];
 		
 		private _physicsClsArr:any[] = [PhysicsWorld_BaseCollider, PhysicsWorld_BuildingBlocks, PhysicsWorld_Character, PhysicsWorld_CollisionFiflter, PhysicsWorld_CompoundCollider, PhysicsWorld_ContinueCollisionDetection, PhysicsWorld_Kinematic, PhysicsWorld_MeshCollider, PhysicsWorld_RayShapeCast, PhysicsWorld_TriggerAndCollisionEvent];
 		private _physicslArr:any[] = ['PhysicsWorld_BaseCollider', 'PhysicsWorld_BuildingBlocks', 'PhysicsWorld_Character', 'PhysicsWorld_CollisionFiflter', 'PhysicsWorld_CompoundCollider', 'PhysicsWorld_ContinueCollisionDetection', 'PhysicsWorld_Kinematic', 'PhysicsWorld_MeshCollider', 'PhysicsWorld_RayShapeCast', 'PhysicsWorld_TriggerAndCollisionEvent'];
@@ -160,6 +160,7 @@ import { MultiTouch } from "../3d/LayaAir3D_MouseInteraction/MultiTouch";
 		
 		private _trailClsArr:any[] = [TrailDemo,TrailRender];
 		private _trailArr:any[] = ['Trail','TrailRender'];
+
 		
 		constructor(){
 			super();
