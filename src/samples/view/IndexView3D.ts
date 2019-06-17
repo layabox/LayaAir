@@ -351,7 +351,7 @@ import { MultiTouch } from "../3d/LayaAir3D_MouseInteraction/MultiTouch";
 				var i:number =Laya.stage.numChildren-1;
 				for (i; i>-1; i--)
 				{
-					if ((Laya.stage.getChildAt(i))== Main._indexView||(Laya.stage.getChildAt(i)) instanceof List)
+					if ((Laya.stage.getChildAt(i))== this||(Laya.stage.getChildAt(i)) instanceof List)
 					{
 						//trace("__________________");
 					}
