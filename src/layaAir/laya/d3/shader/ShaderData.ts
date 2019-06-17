@@ -18,7 +18,7 @@ export class ShaderData implements IClone {
 	private _ownerResource: Resource = null;
 	/**@private */
 	private _data: any = null;
-
+	_defineDatas
 	/** @private */
 	_defineDatas: DefineDatas = new DefineDatas();
 
@@ -49,7 +49,7 @@ export class ShaderData implements IClone {
 	 * @param value 宏定义。
 	 */
 	addDefine(define: number): void {
-		this._defineData.add(define);
+		this._defineDatas.add(define);
 	}
 
 	/**
@@ -57,7 +57,7 @@ export class ShaderData implements IClone {
 	 * @param value 宏定义。
 	 */
 	removeDefine(define: number): void {
-		this._defineData.remove(define);
+		this._defineDatas.remove(define);
 	}
 
 	/**
@@ -65,14 +65,14 @@ export class ShaderData implements IClone {
 	 * @param value 宏定义。
 	 */
 	hasDefine(define: number): boolean {
-		return (this._defineData.value & define) > 0;
+		return (this._defineDatas.value & define) > 0;
 	}
 
 	/**
 	 * 清空宏定义。
 	 */
 	clearDefine(): void {
-		this._defineData.value = 0;
+		this._defineDatas.value = 0;
 	}
 
 	/**
