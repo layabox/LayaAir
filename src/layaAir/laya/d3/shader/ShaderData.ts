@@ -18,7 +18,7 @@ export class ShaderData implements IClone {
 	private _ownerResource: Resource = null;
 	/**@private */
 	private _data: any = null;
-	_defineDatas
+
 	/** @private */
 	_defineDatas: DefineDatas = new DefineDatas();
 
@@ -331,7 +331,7 @@ export class ShaderData implements IClone {
 				}
 			}
 		}
-		this._defineData.cloneTo(dest._defineData);
+		this._defineDatas.cloneTo(dest._defineDatas);
 	}
 
 	/**

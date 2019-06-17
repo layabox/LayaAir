@@ -135,7 +135,7 @@ export class RenderElement {
 			}
 
 			for (var j: number = 0, m: number = passes.length; j < m; j++) {
-				var shaderPass: ShaderInstance = context.shader = passes[j].withCompile((scene._shaderValues._defineValue) & (~this.material._disablePublicDefineDatas.value), this.render._shaderValues._defineValue, this.material._shaderValues._defineValue);
+				var shaderPass: ShaderInstance = context.shader = passes[j].withCompile((scene._shaderValues._defineDatas.value) & (~this.material._disablePublicDefineDatas.value), this.render._shaderValues._defineDatas.value, this.material._shaderValues._defineDatas.value);
 				var switchShader: boolean = shaderPass.bind();//纹理需要切换shader时重新绑定 其他uniform不需要
 				var switchUpdateMark: boolean = (updateMark !== shaderPass._uploadMark);
 
