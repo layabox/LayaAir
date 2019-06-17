@@ -1,0 +1,32 @@
+import { WebGLContext } from "../WebGLContext";
+export declare class BlendMode {
+    static activeBlendFunction: Function;
+    static NAMES: any[];
+    static TOINT: any;
+    static NORMAL: string;
+    static ADD: string;
+    static MULTIPLY: string;
+    static SCREEN: string;
+    static OVERLAY: string;
+    static LIGHT: string;
+    static MASK: string;
+    static DESTINATIONOUT: string;
+    static LIGHTER: string;
+    static fns: any[];
+    static targetFns: any[];
+    static _init_(gl: WebGLContext): void;
+    static BlendNormal(gl: WebGLContext): void;
+    static BlendAdd(gl: WebGLContext): void;
+    static BlendMultiply(gl: WebGLContext): void;
+    static BlendScreen(gl: WebGLContext): void;
+    static BlendOverlay(gl: WebGLContext): void;
+    static BlendLight(gl: WebGLContext): void;
+    static BlendNormalTarget(gl: WebGLContext): void;
+    static BlendAddTarget(gl: WebGLContext): void;
+    static BlendMultiplyTarget(gl: WebGLContext): void;
+    static BlendScreenTarget(gl: WebGLContext): void;
+    static BlendOverlayTarget(gl: WebGLContext): void;
+    static BlendLightTarget(gl: WebGLContext): void;
+    static BlendMask(gl: WebGLContext): void;
+    static BlendDestinationOut(gl: WebGLContext): void;
+}

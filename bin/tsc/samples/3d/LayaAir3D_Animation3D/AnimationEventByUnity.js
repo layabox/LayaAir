@@ -1,0 +1,36 @@
+import { Laya } from "Laya";
+import { Script3D } from "laya/d3/component/Script3D";
+import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Stage } from "laya/display/Stage";
+import { Handler } from "laya/utils/Handler";
+import { Stat } from "laya/utils/Stat";
+import { Laya3D } from "Laya3D";
+/**
+ * ...
+ * @author ...
+ */
+export class AnimationEventByUnity {
+    constructor() {
+        //初始化引擎
+        Laya3D.init(0, 0);
+        Stat.show();
+        Laya.stage.scaleMode = Stage.SCALE_FULL;
+        Laya.stage.screenMode = Stage.SCREEN_NONE;
+        //加载场景
+        Scene3D.load("res/threeDimen/scene/LayaScene_AnimationEvent/Conventional/layaScene.ls", Handler.create(this, function (scene) {
+            Laya.stage.addChild(scene);
+            var cube = scene.getChildByName("Cube");
+            //添加组件(脚本)
+            cube.addComponent(SceneScript);
+        }));
+    }
+}
+class SceneScript extends Script3D {
+    constructor() {
+        super();
+    }
+    //对应unity添加的AnimationEvent的动画事件函数，名字是可以对应上的
+    ShowMsg() {
+        console.log("TTTTTTT");
+    }
+}
