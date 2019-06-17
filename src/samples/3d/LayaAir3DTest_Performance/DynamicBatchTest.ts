@@ -15,6 +15,14 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 
+//PC:
+//机型:Surface Pro 6     CPU:I5-8250U 	  GPU:Intel UHD Graphics 620    平台:chrome:75.0.3770.90     分辨率:外接1080P显示器 Chrome全屏    帧率：43-45
+
+//Mobile
+//机型:Mi note 3   		 CPU:骁龙660      GPU:CPU集成                    平台：chrome 71.0.3578.99    分辨率:横屏                         帧率： 16-17
+//机型:Mi Mix3       	 CPU:骁龙845 	  GPU:CPU集成                    平台:chrome:72.0.3626.105    分辨率:横屏                         帧率：16-19 
+//机型:Mi 9        		 CPU:骁龙855 	  GPU:CPU集成                    平台:chrome:75.0.3770.89     分辨率:横屏                         帧率：52-55          
+
 export class DynamicBatchTest {
 	constructor() {
 		Shader3D.debugMode = true;
