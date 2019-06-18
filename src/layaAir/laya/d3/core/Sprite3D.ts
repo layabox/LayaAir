@@ -308,11 +308,11 @@ export class Sprite3D extends Node implements ICreateResource {
 		(data.layer != undefined) && (this.layer = data.layer);
 	}
 
-		/**
-		 * 克隆。
-		 * @param	destObject 克隆源。
-		 */
-		 /*override*/ _cloneTo(destObject: any, srcRoot: Node, dstRoot: Node): void {
+	/**
+	 * 克隆。
+	 * @param	destObject 克隆源。
+	 */
+	/*override*/ _cloneTo(destObject: any, srcRoot: Node, dstRoot: Node): void {
 		if (this.destroyed)
 			throw new Error("Sprite3D: Can't be cloned if the Sprite3D has destroyed.");
 
@@ -375,10 +375,10 @@ export class Sprite3D extends Node implements ICreateResource {
 		return dstSprite3D;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  destroy(destroyChild: boolean = true): void {
+	/**
+	 * @inheritDoc
+	 */
+	/*override*/  destroy(destroyChild: boolean = true): void {
 		if (this.destroyed)
 			return;
 
