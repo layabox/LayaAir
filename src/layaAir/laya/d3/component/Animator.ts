@@ -1213,6 +1213,9 @@ export class Animator extends Component {
 						scripts[i].onStateEnter();
 				}
 			}
+			else {
+				console.warn("Invalid name " + layerIndex + ".");
+			}
 		}
 		else {
 			console.warn("Invalid layerIndex " + layerIndex + ".");
