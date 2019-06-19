@@ -53,10 +53,11 @@ export class PixelLineFilter extends GeometryElement {
 		this._bufferState.unBind();
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _getType(): number {
+	/**
+	 *	{@inheritDoc PixelLineFilter._getType}
+	 *	@override
+	 */
+	_getType(): number {
 		return PixelLineFilter._type;
 	}
 
