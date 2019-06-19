@@ -79,15 +79,11 @@ export class FrustumCulling {
 				Stat.frustumCulling++;
 				if (!camera.useOcclusionCulling || render._needRender(boundFrustum)) {
 					render._visible = true;
-
-					var bounds: Bounds = render.bounds;
-					render._distanceForSort = Vector3.distance(bounds.getCenter(), camPos);//TODO:合并计算浪费,或者合并后取平均值
+					render._distanceForSort = Vector3.distance(render.bounds.getCenter(), camPos);//TODO:合并计算浪费,或者合并后取平均值
 
 					var elements: RenderElement[] = render._renderElements;
-					for (var j: number = 0, m: number = elements.length; j < m; j++) {
-						var element: RenderElement = elements[j];
-						element._update(scene,context,customShader, replacementTag);
-					}
+					for (var j: number = 0, m: number = elements.length; j < m; j++) 
+						elements[j]._update(scene,context,customShader, replacementTag);
 				} else {
 					render._visible = false;
 				}
