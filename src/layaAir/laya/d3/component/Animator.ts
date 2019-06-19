@@ -740,29 +740,32 @@ export class Animator extends Component {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _onAdded(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_onAdded(): void {
 		var parent: Node = this.owner._parent;
 		((<Sprite3D>this.owner))._setHierarchyAnimator(this, parent ? ((<Sprite3D>parent))._hierarchyAnimator : null);//只有动画组件在加载或卸载时才重新组织数据
 		((<Sprite3D>this.owner))._changeAnimatorToLinkSprite3DNoAvatar(this, true, []);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _onDestroy(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _onDestroy(): void {
 		for (var i: number = 0, n: number = this._controllerLayers.length; i < n; i++)
 			this._controllerLayers[i]._removeReference();
 		var parent: Node = this.owner._parent;
 		((<Sprite3D>this.owner))._clearHierarchyAnimator(this, parent ? ((<Sprite3D>parent))._hierarchyAnimator : null);//只有动画组件在加载或卸载时才重新组织数据
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _onEnable(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _onEnable(): void {
 		((<Scene3D>this.owner._scene))._animatorPool.add(this);
 		for (var i: number = 0, n: number = this._controllerLayers.length; i < n; i++) {
 			if (this._controllerLayers[i].playOnWake) {
@@ -772,10 +775,11 @@ export class Animator extends Component {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _onDisable(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _onDisable(): void {
 		((<Scene3D>this.owner._scene))._animatorPool.remove(this);
 	}
 
@@ -803,10 +807,11 @@ export class Animator extends Component {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _parse(data: any): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_parse(data: any): void {
 		var avatarData: any = data.avatar;
 		if (avatarData) {
 			this.avatar = Loader.getRes(avatarData.path);
@@ -968,10 +973,11 @@ export class Animator extends Component {
 		}
 	}
 
-		/**
-		 * @private
-		 */
-		/*override*/  _cloneTo(dest: Component): void {
+	/**
+	 * @private
+	 * @override
+	 */
+	_cloneTo(dest: Component): void {
 		var animator: Animator = (<Animator>dest);
 		animator.avatar = this.avatar;
 
@@ -1058,33 +1064,38 @@ export class Animator extends Component {
 	 */
 	play(name: string = null, layerIndex: number = 0, normalizedTime: number = Number.NEGATIVE_INFINITY): void {
 		var controllerLayer: AnimatorControllerLayer = this._controllerLayers[layerIndex];
-		var defaultState: AnimatorState = controllerLayer.defaultState;
-		if (!name && !defaultState)
-			throw new Error("Animator:must have  default clip value,please set clip property.");
-		var curPlayState: AnimatorState = controllerLayer._currentPlayState;
-		var playStateInfo: AnimatorPlayState = controllerLayer._playStateInfo;
+		if (controllerLayer) {
+			var defaultState: AnimatorState = controllerLayer.defaultState;
+			if (!name && !defaultState)
+				throw new Error("Animator:must have  default clip value,please set clip property.");
+			var curPlayState: AnimatorState = controllerLayer._currentPlayState;
+			var playStateInfo: AnimatorPlayState = controllerLayer._playStateInfo;
 
-		var animatorState: AnimatorState = name ? controllerLayer._statesMap[name] : defaultState;
-		var clipDuration: number = animatorState._clip._duration;
-		if (curPlayState !== animatorState) {
-			if (normalizedTime !== Number.NEGATIVE_INFINITY)
-				playStateInfo._resetPlayState(clipDuration * normalizedTime);
-			else
-				playStateInfo._resetPlayState(0.0);
-			(curPlayState !== null && curPlayState !== animatorState) && (this._revertDefaultKeyframeNodes(curPlayState));
-			controllerLayer._playType = 0;
-			controllerLayer._currentPlayState = animatorState;
-		} else {
-			if (normalizedTime !== Number.NEGATIVE_INFINITY) {
-				playStateInfo._resetPlayState(clipDuration * normalizedTime);
+			var animatorState: AnimatorState = name ? controllerLayer._statesMap[name] : defaultState;
+			var clipDuration: number = animatorState._clip._duration;
+			if (curPlayState !== animatorState) {
+				if (normalizedTime !== Number.NEGATIVE_INFINITY)
+					playStateInfo._resetPlayState(clipDuration * normalizedTime);
+				else
+					playStateInfo._resetPlayState(0.0);
+				(curPlayState !== null && curPlayState !== animatorState) && (this._revertDefaultKeyframeNodes(curPlayState));
 				controllerLayer._playType = 0;
+				controllerLayer._currentPlayState = animatorState;
+			} else {
+				if (normalizedTime !== Number.NEGATIVE_INFINITY) {
+					playStateInfo._resetPlayState(clipDuration * normalizedTime);
+					controllerLayer._playType = 0;
+				}
+			}
+
+			var scripts: AnimatorStateScript[] = animatorState._scripts;
+			if (scripts) {
+				for (var i: number = 0, n: number = scripts.length; i < n; i++)
+					scripts[i].onStateEnter();
 			}
 		}
-
-		var scripts: AnimatorStateScript[] = animatorState._scripts;
-		if (scripts) {
-			for (var i: number = 0, n: number = scripts.length; i < n; i++)
-				scripts[i].onStateEnter();
+		else {
+			console.warn("Invalid layerIndex " + layerIndex + ".");
 		}
 	}
 
