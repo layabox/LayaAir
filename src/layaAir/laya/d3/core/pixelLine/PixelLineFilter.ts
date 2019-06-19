@@ -128,11 +128,10 @@ export class PixelLineFilter extends GeometryElement {
 		var floatCount: number = this._floatCountPerVertices * 2;
 		var nextIndex: number = index + 1;
 		var offset: number = index * floatCount;
-		var nextOffset: number = nextIndex * floatCount;
 		var rightPartVertices: Float32Array = new Float32Array(this._vertices.buffer, nextIndex * floatCount * 4, (this._lineCount - nextIndex) * floatCount);
 		this._vertices.set(rightPartVertices, offset);
-		this._minUpdate = offset;
-		this._maxUpdate = offset + this._floatCountPerVertices * 2;
+		this._minUpdate = Math.min(this._minUpdate, offset);
+		this._maxUpdate = Math.max(this._maxUpdate, offset + floatCount);
 		this._lineCount--;
 	}
 
@@ -188,17 +187,19 @@ export class PixelLineFilter extends GeometryElement {
 		endColor.a = vertices[offset + 13];
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _prepareRender(state: RenderContext3D): boolean {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_prepareRender(state: RenderContext3D): boolean {
 		return true;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _render(state: RenderContext3D): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_render(state: RenderContext3D): void {
 		if (this._minUpdate !== Number.MAX_VALUE && this._maxUpdate !== Number.MIN_VALUE) {
 			this._vertexBuffer.setData(this._vertices, this._minUpdate, this._minUpdate, this._maxUpdate - this._minUpdate);
 			this._minUpdate = Number.MAX_VALUE;
@@ -212,10 +213,11 @@ export class PixelLineFilter extends GeometryElement {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  destroy(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	destroy(): void {
 		if (this._destroyed)
 			return;
 		super.destroy();
