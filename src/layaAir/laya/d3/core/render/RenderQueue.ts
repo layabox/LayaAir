@@ -8,20 +8,19 @@ import { Shader3D } from "../../shader/Shader3D"
  */
 export class RenderQueue {
 	/** @private [只读]*/
-	isTransparent: boolean;
+	isTransparent: boolean = false;
 	/** @private */
-	elements: any[];
+	elements: RenderElement[] = new Array<RenderElement>();
 	/** @private */
-	lastTransparentRenderElement: RenderElement;
+	lastTransparentRenderElement: RenderElement = null;
 	/** @private */
-	lastTransparentBatched: boolean;
+	lastTransparentBatched: boolean = false;
 
 	/**
 	 * 创建一个 <code>RenderQuene</code> 实例。
 	 */
 	constructor(isTransparent: boolean = false) {
 		this.isTransparent = isTransparent;
-		this.elements = [];
 	}
 
 	/**
@@ -81,9 +80,9 @@ export class RenderQueue {
 	/**
 	 * @private
 	 */
-	_render(context: RenderContext3D, isTarget: boolean, customShader: Shader3D = null, replacementTag: string = null): void {
+	_render(context: RenderContext3D, isTarget: boolean): void {
 		for (var i: number = 0, n: number = this.elements.length; i < n; i++)
-			this.elements[i]._render(context, isTarget, customShader, replacementTag);
+			this.elements[i]._render(context, isTarget);
 	}
 
 	/**

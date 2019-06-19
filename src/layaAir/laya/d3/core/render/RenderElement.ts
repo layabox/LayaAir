@@ -130,7 +130,7 @@ export class RenderElement {
 	/**
 	 * @private
 	 */
-	_render(context: RenderContext3D, isTarget: boolean, customShader: Shader3D = null, replacementTag: string = null): void {
+	_render(context: RenderContext3D, isTarget: boolean): void {
 		var lastStateMaterial: BaseMaterial, lastStateShaderInstance: ShaderInstance, lastStateRender: BaseRender;
 		var updateMark: number = Camera._updateMark;
 		var scene: Scene3D = context.scene;

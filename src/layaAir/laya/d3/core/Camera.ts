@@ -472,7 +472,7 @@ export class Camera extends BaseCamera {
 		this._prepareCameraViewProject(viewMat, projectMat, context.projectionViewMatrix, this._projectionViewMatrixNoTranslateScale);
 		scene._preCulling(context, this,shader,replacementTag);
 		scene._clear(gl, context);
-		scene._renderScene(gl, context, shader, replacementTag);
+		scene._renderScene(context);
 		scene._postRenderScript();//TODO:duo相机是否重复
 		(renderTar) && (renderTar._end());
 
