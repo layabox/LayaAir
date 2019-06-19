@@ -15,6 +15,9 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 
+
+//2019.0.17 8.00PM
+
 //PC:
 //机型:Surface Pro 6     CPU:I5-8250U 	  GPU:Intel UHD Graphics 620    平台:chrome:75.0.3770.90     分辨率:外接1080P显示器 Chrome全屏    帧率：43-45
 
