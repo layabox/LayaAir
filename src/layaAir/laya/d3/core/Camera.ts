@@ -432,7 +432,7 @@ export class Camera extends BaseCamera {
 				var smCamera: Camera = parallelSplitShadowMap.cameras[i];
 				context.camera = smCamera;
 				context.projectionViewMatrix = smCamera.projectionViewMatrix;//TODO:重复计算浪费
-				FrustumCulling.renderObjectCulling(smCamera, scene, context, scene._castShadowRenders);
+				FrustumCulling.renderObjectCulling(smCamera, scene, context, scene._castShadowRenders,shader,replacementTag);
 
 				var shadowMap: RenderTexture = parallelSplitShadowMap.cameras[i + 1].renderTarget;
 				shadowMap._start();
@@ -470,7 +470,7 @@ export class Camera extends BaseCamera {
 		context.viewport = this.viewport;
 		this._prepareCameraToRender();
 		this._prepareCameraViewProject(viewMat, projectMat, context.projectionViewMatrix, this._projectionViewMatrixNoTranslateScale);
-		scene._preCulling(context, this);
+		scene._preCulling(context, this,shader,replacementTag);
 		scene._clear(gl, context);
 		scene._renderScene(gl, context, shader, replacementTag);
 		scene._postRenderScript();//TODO:duo相机是否重复

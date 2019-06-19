@@ -687,8 +687,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/**
 	 * @private
 	 */
-	_preCulling(context: RenderContext3D, camera: Camera): void {
-		FrustumCulling.renderObjectCulling(camera, this, context, this._renders);
+	_preCulling(context: RenderContext3D, camera: Camera, shader: Shader3D, replacementTag: string): void {
+		FrustumCulling.renderObjectCulling(camera, this, context, this._renders,shader,replacementTag);
 	}
 
 	/**
