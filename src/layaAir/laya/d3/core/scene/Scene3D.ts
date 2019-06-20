@@ -688,7 +688,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @private
 	 */
 	_preCulling(context: RenderContext3D, camera: Camera, shader: Shader3D, replacementTag: string): void {
-		FrustumCulling.renderObjectCulling(camera, this, context, this._renders,shader,replacementTag);
+		FrustumCulling.renderObjectCulling(camera, this, context, this._renders, shader, replacementTag);
 	}
 
 	/**
@@ -785,8 +785,10 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 		if (FrustumCulling.debugFrustumCulling) {
 			var renderElements: RenderElement[] = this._debugTool._render._renderElements;
-			for (var i: number = 0, n: number = renderElements.length; i < n; i++) 
+			for (var i: number = 0, n: number = renderElements.length; i < n; i++) {
+				renderElements[i]._update(this,context,null,null);
 				renderElements[i]._render(context, false);
+			}
 		}
 	}
 
