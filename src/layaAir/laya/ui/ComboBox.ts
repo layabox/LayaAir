@@ -15,7 +15,7 @@ import { ILaya } from "../../ILaya";
 	/**
 	 * 当用户更改 <code>ComboBox</code> 组件中的选定内容时调度。
 	 * @eventType laya.events.Event
-	 * @internal selectedIndex属性变化时调度。
+	 * selectedIndex属性变化时调度。
 	 */
 	/*[Event(name = "change", type = "laya.events.Event")]*/
 	
