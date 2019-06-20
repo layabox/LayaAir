@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Laya3D } from "Laya3D";
-import { DynamicBatchTest } from "../3d/LayaAir3DTest_Performance/DynamicBatchTest";
 import { SkinAnimationPerformance } from "../3d/LayaAir3DTest_Performance/SkinAnimationPerformance";
 import { Laya3DCombineHtml } from "../3d/LayaAir3D_Advance/Laya3DCombineHtml";
 import { Scene2DPlayer3D } from "../3d/LayaAir3D_Advance/Scene2DPlayer3D";
@@ -88,6 +87,7 @@ import { IndexViewUI } from "../ui/IndexViewUI";
 import { Main } from "./../Main";
 import { PostProcessBloom } from "../3d/LayaAir3D_Advance/PostProcessBloom";
 import { MultiTouch } from "../3d/LayaAir3D_MouseInteraction/MultiTouch";
+import { DynamicBatchTest } from "../3d/LayaAir3D_Performance/DynamicBatchTest";
 	
 	export class IndexView3D extends IndexViewUI
 	{
