@@ -8,7 +8,6 @@ import { IReferenceCounter } from "../resource/IReferenceCounter"
  * <code>AnimatorState</code> 类用于创建动作状态。
  */
 export class AnimatorState implements IReferenceCounter, IClone {
-	/**@private */
 	private _referenceCount: number = 0;
 
 	/**@private */

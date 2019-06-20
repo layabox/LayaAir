@@ -3,7 +3,8 @@
         "target": "es6",
         "module": "esnext",
         "outDir": "../../bin/tsc/layaAir",
-        "composite":true
+        "composite":true,
+        "stripInternal": true
 
     },
     "exclude": [
