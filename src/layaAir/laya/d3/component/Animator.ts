@@ -980,6 +980,7 @@ export class Animator extends Component {
 	_cloneTo(dest: Component): void {
 		var animator: Animator = (<Animator>dest);
 		animator.avatar = this.avatar;
+		animator.cullingMode = this.cullingMode;
 
 		for (var i: number = 0, n: number = this._controllerLayers.length; i < n; i++) {
 			var controllLayer: AnimatorControllerLayer = this._controllerLayers[i];
