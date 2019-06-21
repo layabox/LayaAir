@@ -307,6 +307,18 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	private _cacheAnimationNode: AnimationNode[] = [];//[兼容性]
 
 	/**
+	 * 获取包围盒,只读,不允许修改其值。
+	 * @return 包围盒。
+	 */
+	get bounds(): Bounds {
+		if (this._boundsChange||this._cacheAvatar) {//有this._cacheAvatar会导致裁剪后动画不更新。动画不更新包围不更新。包围盒不更新就永远裁掉了
+			this._calculateBoundingBox();
+			this._boundsChange = false;
+		}
+		return this._bounds;
+	}
+
+	/**
 	 * @private
 	 */
 	_setRootBone(name: string): void {//[兼容性API]
@@ -326,7 +338,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 
 		if (this._cacheRootAnimationNode != rootNode) {
 			this._boundChange(Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDSCALE);
-			if (this._cacheRootAnimationNode)
+			if (this._cacheRootAnimationNode) 
 				this._cacheRootAnimationNode.transform.off(Event.TRANSFORM_CHANGED, this, this._boundChange);
 			(rootNode) && (rootNode.transform.on(Event.TRANSFORM_CHANGED, this, this._boundChange));
 			this._cacheRootAnimationNode = rootNode;
@@ -358,6 +370,8 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 			}
 		}
 	}
+
+
 
 	/**
 	 * @private
