@@ -4,9 +4,9 @@
         "module": "esnext",
         "outDir": "../../bin",
         "moduleResolution": "classic",
-        "baseUrl": "../laya/core",
+        "baseUrl": "../layaAir",
     },
     "references": [
-        {"path":"../laya/core"}
+        {"path":"../layaAir/"}
     ]
 }
