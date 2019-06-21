@@ -132,7 +132,9 @@ export class BoundsOctree {
 		var octreeNode: BoundsOctreeNode = object._getOctreeNode();
 		if (octreeNode) {
 			while (!octreeNode._update(object)) {
-				this._grow(object.bounds.getCenter());
+				var growCenter: Vector3 = BoundsOctree._tempVector30;
+				Vector3.subtract(object.bounds.getCenter(), this._rootNode.center, growCenter);
+				this._grow(growCenter);
 				if (++count > 20) {
 					throw "Aborted Add operation as it seemed to be going on forever (" + (count - 1) + ") attempts at growing the octree.";
 				}
