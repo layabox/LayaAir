@@ -5,7 +5,6 @@ import { ICreateResource } from "././ICreateResource";
 import { IDestroy } from "././IDestroy";
 
 /**
- * @private
  * <code>Resource</code> 资源存取类。
  */
 export class Resource extends EventDispatcher implements ICreateResource, IDestroy {
@@ -153,7 +152,6 @@ export class Resource extends EventDispatcher implements ICreateResource, IDestr
 	 * 创建一个 <code>Resource</code> 实例。
 	 */
 	constructor() {
-
 		super();
 		this._id = ++Resource._uniqueIDCounter;
 		this._destroyed = false;
