@@ -11,9 +11,21 @@ const resolveFile = function(filePath) {
 }
 
 
-function testPlug(){
+function testPlug(options){
     return {
         transform( code, id ) {
+            var filter = rollupPluginutils.createFilter(options.include, options.exclude);
+            return {
+                name: 'glsl',
+                transform( code, id ) {
+                    if (!filter(id)) return;
+                    //console.log(id,'\n',code);
+                    var code = 'export default \`'+code+'\`';
+                    var result = { code: code };
+                    return result
+                }
+            }
+        
             console.log(id);
         }
     }
