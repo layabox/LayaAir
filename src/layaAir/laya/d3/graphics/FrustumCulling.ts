@@ -115,9 +115,10 @@ export class FrustumCulling {
 			octree.updateMotionObjects();
 			octree.shrinkRootIfPossible();
 			octree.getCollidingWithFrustum(context,customShader,replacementTag);
-		} else {
-			FrustumCulling._traversalCulling(camera, scene, context, renderList,customShader,replacementTag);
 		}
+		//else {//包围盒不完善的节点走遍历裁剪
+			FrustumCulling._traversalCulling(camera, scene, context, renderList,customShader,replacementTag);
+		//}
 
 		if (FrustumCulling.debugFrustumCulling) {
 			var debugTool: PixelLineSprite3D = scene._debugTool;
@@ -125,9 +126,10 @@ export class FrustumCulling {
 			if (octree) {
 				octree.drawAllBounds(debugTool);
 				octree.drawAllObjects(debugTool);
-			} else {
+			} 
+			//else {//包围盒不完善的节点走遍历裁剪
 				FrustumCulling._drawTraversalCullingBound(renderList, debugTool);
-			}
+			//}
 		}
 
 		var count: number = opaqueQueue.elements.length;

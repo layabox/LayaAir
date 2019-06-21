@@ -877,7 +877,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @private
 	 */
 	_addRenderObject(render: BaseRender): void {
-		if (this._octree) {
+		if (this._octree&&render._supportOctree) {
 			this._octree.add(render);
 		} else {
 			this._renders.add(render);
@@ -901,7 +901,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @private
 	 */
 	_removeRenderObject(render: BaseRender): void {
-		if (this._octree) {
+		if (this._octree&&render._supportOctree) {
 			this._octree.remove(render);
 		} else {
 			var endRender: BaseRender;

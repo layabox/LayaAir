@@ -67,7 +67,7 @@ export class ShurikenParticleRenderer extends BaseRender {
 	 * @return 网格模式所使用Mesh。
 	 */
 	get mesh(): Mesh {
-		return this._mesh
+		return this._mesh;
 	}
 
 	/**
@@ -142,6 +142,7 @@ export class ShurikenParticleRenderer extends BaseRender {
 		this.stretchedBillboardSpeedScale = 0.0;
 		this.stretchedBillboardLengthScale = 1.0;
 		//sortingMode = SORTINGMODE_NONE;
+		this._supportOctree=false;
 	}
 
 		/**
