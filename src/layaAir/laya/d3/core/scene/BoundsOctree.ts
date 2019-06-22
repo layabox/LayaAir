@@ -141,7 +141,7 @@ export class BoundsOctree {
 			}
 
 			return true;
-		} else {
+		} else {//节点从场景中移除时octreeNode为空
 			return false;
 		}
 	}
