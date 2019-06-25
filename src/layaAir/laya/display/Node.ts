@@ -58,8 +58,8 @@ import { ILaya } from "../../ILaya";
 			this.createGLBuffer();
 		}
 		
-		/**@private */
-		 createGLBuffer():void {
+		/**@internal */
+		createGLBuffer():void {
 		}
 		
 		/**@internal */
