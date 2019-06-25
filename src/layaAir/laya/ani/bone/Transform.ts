@@ -2,7 +2,7 @@ import { Matrix } from "../../maths/Matrix";
 
 
 /**
- * @private
+ * @internal
  */
 export class Transform {
 

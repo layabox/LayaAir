@@ -1,7 +1,6 @@
 import { KeyFramesContent } from "././KeyFramesContent";
 /**
- * @private
- * @author ...
+ * @internal
  */
 export class AnimationNodeContent {
 	name: string;

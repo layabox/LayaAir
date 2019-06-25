@@ -10,7 +10,7 @@ import { Byte } from "../utils/Byte";
 import { BezierLerp } from "./math/BezierLerp";
 
 /**
- * @private
+ * @internal
  * <code>AnimationTemplet</code> 类用于动画模板资源。
  */
 export class AnimationTemplet extends Resource {
@@ -98,15 +98,15 @@ export class AnimationTemplet extends Resource {
 	//return Laya.loader.create(url, null, null, AnimationTemplet);
 	//}
 
-	/**@private */
+	/**@internal */
 	_aniVersion: string;
-	/**@private */
+	/**@internal */
 	_anis: AnimationContent[] = [];
-	/**@private */
+	/**@internal */
 	_aniMap: any = {};
-	/**@private */
+	/**@internal */
 	_publicExtData: ArrayBuffer;//公共扩展数据
-	/**@private */
+	/**@internal */
 	_useParent: boolean;//是否采用对象树数据格式
 	/**@private */
 	protected unfixedCurrentFrameIndexes: Uint32Array;
@@ -116,11 +116,11 @@ export class AnimationTemplet extends Resource {
 	protected unfixedKeyframes: KeyFramesContent[];
 	/**@private */
 	protected unfixedLastAniIndex: number = -1;
-	/**@private */
+	/**@internal */
 	_aniClassName: string;
-	/**@private */
+	/**@internal */
 	_animationDatasCache: any;
-
+	/**@internal */
 	_fullFrames: any[] = null;
 
 	/**@private */
@@ -141,7 +141,7 @@ export class AnimationTemplet extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_calculateKeyFrame(node: AnimationNodeContent, keyframeCount: number, keyframeDataCount: number): void {
 		var keyFrames: KeyFramesContent[] = node.keyFrame;
@@ -157,7 +157,7 @@ export class AnimationTemplet extends Resource {
 	}
 
 	/**
-	 * @inheritDoc
+	 * @internal
 	 */
 	//TODO:coverage
 	_onAsynLoaded(data: any, propertyParams: any = null): void {

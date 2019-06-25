@@ -32,6 +32,7 @@ import { ILaya } from "../../ILaya";
 		}
 		
 		/**
+		 * @internal
 		 * 对象被添加到显示列表的事件侦听处理函数。
 		 */
 		/*override*/  _onAdded():void {

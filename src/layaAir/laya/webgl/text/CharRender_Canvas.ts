@@ -13,7 +13,7 @@ import { CharRenderInfo } from "./CharRenderInfo"
 		private supportImageData:boolean = true;
 		constructor(maxw:number, maxh:number, scalefont:boolean=true, useImageData:boolean=true, showdbg:boolean=false) {
 			super();
-this.maxTexW = maxw;
+			this.maxTexW = maxw;
 			this.maxTexH = maxh;
 			this.scaleFontSize = scalefont;
 			this.supportImageData = useImageData;

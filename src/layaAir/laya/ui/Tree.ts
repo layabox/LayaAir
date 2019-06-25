@@ -251,7 +251,7 @@ import { ILaya } from "../../ILaya";
 		 */
 		constructor(){
 			super();
-this.width = this.height = 200;
+			this.width = this.height = 200;
 		}
 		
 		/**@inheritDoc */

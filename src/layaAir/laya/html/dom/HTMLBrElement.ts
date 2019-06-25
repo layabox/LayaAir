@@ -7,12 +7,12 @@ import { IHtml } from "../utils/IHtml";
 import { ILaya } from "../../../ILaya";
 	
 	/**
-	 * @private
+	 * @internal
 	 */
 	export class HTMLBrElement {
 		 static brStyle:HTMLStyle;
 		
-		/**@private */
+		/**@internal */
 		 _addToLayout(out:ILayout[]):void {
 			out.push((<ILayout>(this as any) ));
 		}
@@ -41,7 +41,7 @@ import { ILaya } from "../../../ILaya";
 		
 		}
 		
-		/**@private */
+		/**@internal */
 		//TODO:coverage
 		 _getCSSStyle():HTMLStyle {
 			if (!HTMLBrElement.brStyle) {

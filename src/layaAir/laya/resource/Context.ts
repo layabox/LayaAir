@@ -61,6 +61,7 @@ import { Texture2D } from "./Texture2D";
  */
 export class Context {
 
+	/**@internal */
 	_canvas: HTMLCanvas;
 	static ENUM_TEXTALIGN_DEFAULT: number = 0;
 	static ENUM_TEXTALIGN_CENTER: number = 1;
@@ -76,6 +77,7 @@ export class Context {
 
 	static _COUNT: number = 0;
 
+	/**@internal */
 	_tmpMatrix: Matrix = new Matrix();		// chrome下静态的访问比从this访问要慢
 
 	private static SEGNUM: number = 32;
@@ -147,7 +149,7 @@ export class Context {
 	clearRect(x: number, y: number, width: number, height: number): void {
 	}
 
-	/**@private */
+	/**@internal */
 	//TODO:coverage
 	_drawRect(x: number, y: number, width: number, height: number, style: any): void {
 		Stat.renderBatches++;
@@ -205,6 +207,7 @@ export class Context {
 		this.globalAlpha *= value;
 	}
 
+	/**@internal */
 	//TODO:coverage
 	_transform(mat: Matrix, pivotX: number, pivotY: number): void {
 		this.translate(pivotX, pivotY);
@@ -212,18 +215,21 @@ export class Context {
 		this.translate(-pivotX, -pivotY);
 	}
 
+	/**@internal */
 	_rotate(angle: number, pivotX: number, pivotY: number): void {
 		this.translate(pivotX, pivotY);
 		this.rotate(angle);
 		this.translate(-pivotX, -pivotY);
 	}
 
+	/**@internal */
 	_scale(scaleX: number, scaleY: number, pivotX: number, pivotY: number): void {
 		this.translate(pivotX, pivotY);
 		this.scale(scaleX, scaleY);
 		this.translate(-pivotX, -pivotY);
 	}
 
+	/**@internal */
 	_drawLine(x: number, y: number, fromX: number, fromY: number, toX: number, toY: number, lineColor: string, lineWidth: number, vid: number): void {
 		this.beginPath();
 		this.strokeStyle = lineColor;
@@ -233,6 +239,7 @@ export class Context {
 		this.stroke();
 	}
 
+	/**@internal */
 	_drawLines(x: number, y: number, points: any[], lineColor: any, lineWidth: number, vid: number): void {
 		this.beginPath();
 		//x += args[0], y += args[1];
@@ -274,6 +281,7 @@ export class Context {
 	}
 	/**Math.PI*2的结果缓存 */
 	static PI2: number = 2 * Math.PI;
+	/**@internal */
 	_drawCircle(x: number, y: number, radius: number, fillColor: any, lineColor: any, lineWidth: number, vid: number): void {
 		Stat.renderBatches++;
 		this.beginPath(true);
@@ -283,7 +291,8 @@ export class Context {
 		this._fillAndStroke(fillColor, lineColor, lineWidth);
 	}
 
-	//矢量方法		
+	//矢量方法	
+	/**@internal */	
 	_drawPie(x: number, y: number, radius: number, startAngle: number, endAngle: number, fillColor: any, lineColor: any, lineWidth: number, vid: number): void {
 		//移动中心点
 		//ctx.translate(x + args[0], y + args[1]);
@@ -298,6 +307,7 @@ export class Context {
 		//ctx.translate(-x - args[0], -y - args[1]);
 	}
 
+	/**@internal */
 	_drawPoly(x: number, y: number, points: any[], fillColor: any, lineColor: any, lineWidth: number, isConvexPolygon: boolean, vid: number): void {
 		//var points:Array = args[2];
 		var i: number = 2, n: number = points.length;
@@ -308,6 +318,7 @@ export class Context {
 		this._fillAndStroke(fillColor, lineColor, lineWidth, isConvexPolygon);
 	}
 
+	/**@internal */
 	_drawPath(x: number, y: number, paths: any[], brush: any, pen: any): void {
 		//形成路径
 		this.beginPath();
@@ -361,6 +372,7 @@ export class Context {
 		gl.viewport(0, 0, RenderState2D.width, RenderState2D.height);//还原2D视口
 	}
 
+	/**@internal */
 	_id: number = ++Context._COUNT;
 
 	private _other: ContextParams = null;
@@ -368,17 +380,24 @@ export class Context {
 
 	private _path: Path = null;
 	private _primitiveValue2D: Value2D;
+	/**@internal */
 	_drawCount: number = 1;
 	private _width: number = Context._MAXSIZE;
 	private _height: number = Context._MAXSIZE;
 	private _renderCount: number = 0;
 	private _isConvexCmd: boolean = true;	//arc等是convex的，moveTo,linTo就不是了
+	/**@internal */
 	_submits: any = null;
+	/**@internal */
 	_curSubmit: any = null;
+	/**@internal */
 	_submitKey: SubmitKey = new SubmitKey();	//当前将要使用的设置。用来跟上一次的_curSubmit比较
 
+	/**@internal */
 	_mesh: MeshQuadTexture = null;			//用Mesh2D代替_vb,_ib. 当前使用的mesh
+	/**@internal */
 	_pathMesh: MeshVG = null;			//矢量专用mesh。
+	/**@internal */
 	_triangleMesh: MeshTexture = null;	//drawTriangles专用mesh。由于ib不固定，所以不能与_mesh通用
 
 	meshlist: any[] = [];	//本context用到的mesh
@@ -387,29 +406,39 @@ export class Context {
 	private _transedPoints: any[] = new Array(8);	//临时的数组，用来计算4个顶点的转换后的位置。
 	private _temp4Points: any[] = new Array(8);		//临时数组。用来保存4个顶点的位置。
 
+	/**@internal */
 	_clipRect: Rectangle = Context.MAXCLIPRECT;
 	//public var _transedClipInfo:Array = [0, 0, Context._MAXSIZE, 0, 0, Context._MAXSIZE];	//应用矩阵后的clip。ox,oy, xx,xy,yx,yy 	xx,xy等是缩放*宽高
+	/**@internal */
 	_globalClipMatrix: Matrix = new Matrix(Context._MAXSIZE, 0, 0, Context._MAXSIZE, 0, 0);	//用矩阵描述的clip信息。最终的点投影到这个矩阵上，在0~1之间就可见。
+	/**@internal */
 	_clipInCache: boolean = false; 	// 当前记录的clipinfo是在cacheas normal后赋值的，因为cacheas normal会去掉当前矩阵的tx，ty，所以需要记录一下，以便在是shader中恢复
+	/**@internal */
 	_clipInfoID: number = 0;					//用来区分是不是clipinfo已经改变了
 	private static _clipID_Gen: number = 0;			//生成clipid的，原来是  _clipInfoID=++_clipInfoID 这样会有问题，导致兄弟clip的id都相同
+	/**@internal */
 	_curMat: Matrix = null;
 
 	//计算矩阵缩放的缓存
+	/**@internal */
 	_lastMatScaleX: number = 1.0;
+	/**@internal */
 	_lastMatScaleY: number = 1.0;
 	private _lastMat_a: number = 1.0;
 	private _lastMat_b: number = 0.0;
 	private _lastMat_c: number = 0.0;
 	private _lastMat_d: number = 1.0;
-
+	/**@internal */
 	_nBlendType: number = 0;
+	/**@internal */
 	_save: any = null;
+	/**@internal */
 	_targets: RenderTexture2D = null;
+	/**@internal */
 	_charSubmitCache: CharSubmitCache = null;
-
+	/**@internal */
 	_saveMark: SaveMark = null;
-
+	/**@internal */	
 	_shader2D: Shader2D = new Shader2D();	//
 
 	/**
@@ -420,19 +449,20 @@ export class Context {
 	sprite: Sprite = null;
 
 	private static _textRender: TextRender = null;// new TextRender();
-
+	/**@internal */
 	_italicDeg: number = 0;//文字的倾斜角度
+	/**@internal */
 	_lastTex: Texture = null; //上次使用的texture。主要是给fillrect用，假装自己也是一个drawtexture
 
 	private _fillColor: number = 0;
 	private _flushCnt: number = 0;
 
 	private defTexture: Texture = null;	//给fillrect用
-
+	/**@internal */
 	_colorFiler: ColorFilter = null;
 
 	drawTexAlign: boolean = false;		// 按照像素对齐
-
+	/**@internal */
 	_incache: boolean = false;			// 正处在cacheas normal过程中
 
 	isMain: boolean = false;				// 是否是主context
@@ -458,6 +488,7 @@ export class Context {
 	}
 
 	//TODO:coverage
+	/**@internal */
 	_getSubmits(): any[] {
 		return this._submits;
 	}
@@ -801,6 +832,7 @@ export class Context {
 			Context._textRender.fillWords(this, words, x, y, fontStr, color, strokeColor, lineWidth);
 	}
 
+	/**@internal */
 	_fast_filltext(data: WordText, x: number, y: number, fontObj: any, color: string, strokeColor: string, lineWidth: number, textAlign: number, underLine: number = 0): void {
 		Context._textRender._fast_filltext(this, data, null, x, y, (<FontInfo>fontObj), color, strokeColor, lineWidth, textAlign, underLine);
 	}
@@ -917,6 +949,7 @@ export class Context {
 		this._fillTexture(texture, texture.width, texture.height, texture.uvrect, x, y, width, height, type, offset.x, offset.y);
 	}
 
+	/**@internal */
 	_fillTexture(texture: Texture, texw: number, texh: number, texuvRect: any[], x: number, y: number, width: number, height: number, type: string, offsetx: number, offsety: number): void {
 		var submit: Submit = this._curSubmit;
 		var sameKey: boolean = false;
@@ -1081,6 +1114,7 @@ export class Context {
 		//shader.ALPHA = alphaBack;
 	}
 
+	/**@internal */
 	_drawTextureM(tex: Texture, x: number, y: number, width: number, height: number, m: Matrix, alpha: number, uv: any[]): boolean {
 		// 注意sprite要保存，因为后面会被冲掉
 		var cs: Sprite = this.sprite;
@@ -1095,6 +1129,7 @@ export class Context {
 		return this._inner_drawTexture(tex, (tex.bitmap as Texture2D).id, x, y, width, height, m, uv, alpha, false);
 	}
 
+	/**@internal */
 	_drawRenderTexture(tex: RenderTexture2D, x: number, y: number, width: number, height: number, m: Matrix, alpha: number, uv: any[]): boolean {
 		return this._inner_drawTexture((<Texture>(tex as any)), -1, x, y, width, height, m, uv, 1.0, false);
 	}
@@ -1113,6 +1148,7 @@ export class Context {
 		submit.clipInfoID = this._clipInfoID;
 	}
 	*/
+	/**@internal */
 	_copyClipInfo(submit: SubmitBase, clipInfo: Matrix): void {
 		var cm: any[] = submit.shaderValue.clipMatDir;
 		cm[0] = clipInfo.a; cm[1] = clipInfo.b; cm[2] = clipInfo.c; cm[3] = clipInfo.d;
@@ -1139,6 +1175,7 @@ export class Context {
 	}
 
 	/**
+	 * @internal
 	 * 这个还是会检查是否合并
 	 * @param	tex
 	 * @param	minVertNum
@@ -1159,6 +1196,7 @@ export class Context {
 	}
 
 	/**
+	 * @internal
 	 * 使用上面的设置（texture，submit，alpha，clip），画一个rect
 	 */
 	_drawTexRect(x: number, y: number, w: number, h: number, uv: any[]): void {
@@ -1188,7 +1226,7 @@ export class Context {
 	}
 
 	/**
-	 * 
+	 * @internal
 	 * @param	tex {Texture | RenderTexture }
 	 * @param  imgid 图片id用来比较合并的
 	 * @param	x
@@ -1694,6 +1732,7 @@ export class Context {
 	}
 
 	//TODO:coverage
+	/**@internal */
 	_transformByMatrix(matrix: Matrix, tx: number, ty: number): void {
 		matrix.setTranslate(tx, ty);
 		Matrix.mul(matrix, this._curMat, this._curMat);
@@ -2316,6 +2355,7 @@ export class Context {
 	mixRGBandAlpha(color: number): number {
 		return this._mixRGBandAlpha(color, this._shader2D.ALPHA);
 	}
+	/**@internal */
 	_mixRGBandAlpha(color: number, alpha: number): number {
 		if (alpha >= 1) {
 			return color;

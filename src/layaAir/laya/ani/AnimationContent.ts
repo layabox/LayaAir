@@ -1,6 +1,6 @@
 import { AnimationNodeContent } from "././AnimationNodeContent";
 /**
- * @private
+ * @internal
  * @author ...
  */
 export class AnimationContent {

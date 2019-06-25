@@ -16,6 +16,7 @@ import { TiledMap } from "./TiledMap";
 	export class MapLayer extends Sprite {
 		
 		private _map:TiledMap;
+		/**@internal */
 		 _mapData:any[] = null;
 		
 		private _tileWidthHalf:number = 0;
@@ -25,7 +26,7 @@ import { TiledMap } from "./TiledMap";
 		private _mapHeightHalf:number = 0;
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 _gridSpriteArray:any[] = [];
 		private _objDic:any = null;//用来做字典，方便查询

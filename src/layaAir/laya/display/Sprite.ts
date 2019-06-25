@@ -3,23 +3,23 @@ import { SpriteConst } from "././SpriteConst";
 import { Graphics } from "././Graphics";
 import { Stage } from "././Stage";
 import { Const } from "../Const"
-	import { BoundsStyle } from "./css/BoundsStyle"
-	import { CacheStyle } from "./css/CacheStyle"
-	import { SpriteStyle } from "./css/SpriteStyle"
-	import { Event } from "../events/Event"
-	import { EventDispatcher } from "../events/EventDispatcher"
-	import { ColorFilter } from "../filters/ColorFilter"
-	import { Filter } from "../filters/Filter"
-	import { GrahamScan } from "../maths/GrahamScan"
-	import { Matrix } from "../maths/Matrix"
-	import { Point } from "../maths/Point"
-	import { Rectangle } from "../maths/Rectangle"
-	import { RenderSprite } from "../renders/RenderSprite"
-	import { Context } from "../resource/Context"
-	import { HTMLCanvas } from "../resource/HTMLCanvas"
-	import { Texture } from "../resource/Texture"
-	import { Handler } from "../utils/Handler"
-	import { Utils } from "../utils/Utils"
+import { BoundsStyle } from "./css/BoundsStyle"
+import { CacheStyle } from "./css/CacheStyle"
+import { SpriteStyle } from "./css/SpriteStyle"
+import { Event } from "../events/Event"
+import { EventDispatcher } from "../events/EventDispatcher"
+import { ColorFilter } from "../filters/ColorFilter"
+import { Filter } from "../filters/Filter"
+import { GrahamScan } from "../maths/GrahamScan"
+import { Matrix } from "../maths/Matrix"
+import { Point } from "../maths/Point"
+import { Rectangle } from "../maths/Rectangle"
+import { RenderSprite } from "../renders/RenderSprite"
+import { Context } from "../resource/Context"
+import { HTMLCanvas } from "../resource/HTMLCanvas"
+import { Texture } from "../resource/Texture"
+import { Handler } from "../utils/Handler"
+import { Utils } from "../utils/Utils"
 import { Texture2D } from "../resource/Texture2D";
 import { Timer } from "../utils/Timer";
 import { Dragging } from "../utils/Dragging";
@@ -205,23 +205,23 @@ import { ILaya } from "../../ILaya";
 	 * }
 	 */
 	export class Sprite extends Node {
-		/**@private */
+		/**@internal */
 		 _x:number = 0;
-		/**@private */
+		/**@internal */
 		 _y:number = 0;
-		/**@private */
+		/**@internal */
 		 _width:number = 0;
-		/**@private */
+		/**@internal */
 		 _height:number = 0;
-		/**@private */
+		/**@internal */
 		 _visible:boolean = true;
-		/**@private 鼠标状态，0:auto,1:mouseEnabled=false,2:mouseEnabled=true。*/
+		/**@internal 鼠标状态，0:auto,1:mouseEnabled=false,2:mouseEnabled=true。*/
 		 _mouseState:number = 0;		
-		/**@private z排序，数值越大越靠前。*/
+		/**@internal z排序，数值越大越靠前。*/
 		 _zOrder:number = 0;
-		/**@private */
+		/**@internal */
 		 _renderType:number = 0;
-		/**@private */
+		/**@internal */
 		 _transform:Matrix = null;
 		/**@private */
 		protected _tfChanged:boolean = false;
@@ -231,13 +231,13 @@ import { ILaya } from "../../ILaya";
 		private _texture:Texture = null;
 		
 		//以下变量为系统调用，请不要直接使用
-		/**@private */
+		/**@internal */
 		 _style:SpriteStyle = SpriteStyle.EMPTY;
-		/**@private */
+		/**@internal */
 		 _cacheStyle:CacheStyle = CacheStyle.EMPTY;
-		/**@private */
+		/**@internal */
 		 _boundStyle:BoundsStyle = null;
-		/**@private */
+		/**@internal */
 		 _graphics:Graphics = null;
 		
 		/**
@@ -288,14 +288,14 @@ import { ILaya } from "../../ILaya";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 _getBoundsStyle():BoundsStyle {
 			if (!this._boundStyle) this._boundStyle = BoundsStyle.create();
 			return this._boundStyle;
 		}
 		
-		/**@private */
+		/**@internal */
 		 _setCustomRender():void
 		{
 			
@@ -325,7 +325,7 @@ import { ILaya } from "../../ILaya";
 			return this._cacheStyle.cacheAs;
 		}
 		
-		/**@private */
+		/**@internal */
 		 _setCacheAs(value:string):void {
 			//_dataf32[SpriteConst.POSCACHE] = value == "bitmap"?2:(value == "normal"?1:0);
 		}
@@ -382,24 +382,24 @@ import { ILaya } from "../../ILaya";
 			return this._repaint;
 		}
 		
-		/**@private */
+		/**@internal */
 		 _setX(value:number):void
 		{
 			this._x = value;
 		}
 		
-		/**@private */
+		/**@internal */
 		 _setY(value:number):void
 		{
 			this._y = value;
 		}
 		
-		/**@private */
+		/**@internal */
 		 _setWidth(texture:Texture, value:number):void
 		{
 		}
 		
-		/**@private */
+		/**@internal */
 		 _setHeight(texture:Texture, value:number):void
 		{
 		}
@@ -549,7 +549,7 @@ import { ILaya } from "../../ILaya";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 * 获取本对象在父容器坐标系的显示区域多边形顶点列表。
 		 * 当显示对象链中有旋转时，返回多边形顶点列表，无旋转时返回矩形的四个顶点。
 		 * @param ifRotate	（可选）之前的对象链中是否有旋转。
@@ -600,7 +600,7 @@ import { ILaya } from "../../ILaya";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 * 获取自己坐标系的显示区域多边形顶点列表
 		 * @param ifRotate	（可选）当前的显示对象链是否由旋转
 		 * @return 顶点列表。结构：[x1,y1,x2,y2,x3,y3,...]。
@@ -646,7 +646,7 @@ import { ILaya } from "../../ILaya";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 * 获取cache数据。
 		 * @return  cache数据 CacheStyle 。
 		 */
@@ -683,7 +683,7 @@ import { ILaya } from "../../ILaya";
 			this.set_scaleX(value);
 		}
 		
-		/**@private */
+		/**@internal */
 		 _setScaleX(value:number):void {
 			this._style.scaleX = value;
 		}
@@ -697,7 +697,7 @@ import { ILaya } from "../../ILaya";
 			this.set_scaleY(value);
 		}
 		
-		/**@private */
+		/**@internal */
 		 _setScaleY(value:number):void {
 			this._style.scaleY = value;
 		}
@@ -738,7 +738,7 @@ import { ILaya } from "../../ILaya";
 			}
 		}
 		
-		/**@private */
+		/**@internal */
 		 _setRotation(value:number):void {
 			this._style.rotation = value;
 		}
@@ -756,7 +756,7 @@ import { ILaya } from "../../ILaya";
 			}
 		}
 		
-		/**@private */
+		/**@internal */
 		 _setSkewX(value:number):void {
 			this._style.skewX = value;
 		}
@@ -774,12 +774,12 @@ import { ILaya } from "../../ILaya";
 			}
 		}
 		
-		/**@private */
+		/**@internal */
 		 _setSkewY(value:number):void {
 			this._style.skewY = value;
 		}
 		
-		/**@private */
+		/**@internal */
 		 _createTransform():Matrix
 		{
 			return Matrix.create();
@@ -815,7 +815,7 @@ import { ILaya } from "../../ILaya";
 			return m;
 		}
 		
-		/**@private */
+		/**@internal */
 		 _setTransform(value:Matrix):void {
 			
 		}
@@ -855,27 +855,27 @@ import { ILaya } from "../../ILaya";
 			this.parentRepaint();
 		}
 		
-		/**@private */
+		/**@internal */
 		 _setPivotX(value:number):void
 		{
 			var style:SpriteStyle = this.getStyle();
 			style.pivotX = value;
 		}
 		
-		/**@private */
+		/**@internal */
 		 _getPivotX():number
 		{
 			return this._style.pivotX;
 		}
 		
-		/**@private */
+		/**@internal */
 		 _setPivotY(value:number):void
 		{
 			var style:SpriteStyle = this.getStyle();
 			style.pivotY = value;
 		}
 		
-		/**@private */
+		/**@internal */
 		 _getPivotY():number
 		{
 			return this._style.pivotY;
@@ -901,7 +901,7 @@ import { ILaya } from "../../ILaya";
 			this.repaint();
 		}
 		
-		/**@private */
+		/**@internal */
 		 _setAlpha(value:number):void
 		{
 			if (this._style.alpha !== value)
@@ -915,7 +915,7 @@ import { ILaya } from "../../ILaya";
 			}
 		}
 		
-		/**@private */
+		/**@internal */
 		 _getAlpha():number
 		{
 			return this._style.alpha;
@@ -951,7 +951,7 @@ import { ILaya } from "../../ILaya";
 			}
 		}
 		
-		/**@private */
+		/**@internal */
 		 _setBlendMode(value:string):void
 		{
 			
@@ -981,12 +981,12 @@ import { ILaya } from "../../ILaya";
 			return this._graphics;
 		}
 		
-		/**@private */
+		/**@internal */
 		 _setGraphics(value:Graphics):void
 		{
 		}
 		
-		/**@private */
+		/**@internal */
 		 _setGraphicsCallBack():void 
 		{
 		}
@@ -1015,7 +1015,7 @@ import { ILaya } from "../../ILaya";
 			return this._style.scrollRect;
 		}
 		
-		/**@private */
+		/**@internal */
 		 _setScrollRect(value:Rectangle):void{
 			
 		}
@@ -1291,7 +1291,7 @@ import { ILaya } from "../../ILaya";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 * 应用滤镜。
 		 */
 		 _applyFilters():void {
@@ -1303,7 +1303,7 @@ import { ILaya } from "../../ILaya";
 			return this._cacheStyle.filters;
 		}
 		
-		/**@private */
+		/**@internal */
 		 _setColorFilter(value:any):void{}		
 		
 		 set filters(value:any[]) {
@@ -1337,7 +1337,7 @@ import { ILaya } from "../../ILaya";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 * 查看当前原件中是否包含发光滤镜。
 		 * @return 一个 Boolean 值，表示当前原件中是否包含发光滤镜。
 		 */
@@ -1584,7 +1584,7 @@ import { ILaya } from "../../ILaya";
 		
 
 		/**
-		 * @private
+		 * @internal
 		 * 获取是否重新缓存。
 		 * @return 如果重新缓存值为 true，否则值为 false。
 		 */
@@ -1627,7 +1627,7 @@ import { ILaya } from "../../ILaya";
 			this.getStyle().hitArea = value;
 		}
 		
-		/**@private */
+		/**@internal */
 		 _setMask(value:Sprite):void
 		{
 			
@@ -1690,7 +1690,7 @@ import { ILaya } from "../../ILaya";
 			this._style.dragging && this._style.dragging.stop();
 		}
 		
-		/**@private */
+		/**@internal */
 		/*override*/  _setDisplay(value:boolean):void {
 			if (!value) {
 				if (this._cacheStyle)
@@ -1804,7 +1804,7 @@ import { ILaya } from "../../ILaya";
 			return this._texture;
 		}
 		
-		/**@private */
+		/**@internal */
 		 _setTexture(value:Texture|string):void {
 			
 		}
@@ -1848,24 +1848,24 @@ import { ILaya } from "../../ILaya";
 			this.getStyle().viewport = value;
 		}
 		
-		/**@private */
+		/**@internal */
 		 _setRenderType(type:number):void{
 			
 		}
 		
-		/**@private */
+		/**@internal */
 		 _setTranformChange():void{
 			this._tfChanged = true;
 			this._renderType |= SpriteConst.TRANSFORM;
 			this.parentRepaint(SpriteConst.REPAINT_CACHE);
 		}
 		
-		/**@private */
+		/**@internal */
 		 _setBgStyleColor(x:number, y:number, width:number, height:number, fillColor:any):void {
 			
 		}
 		
-		/**@private */
+		/**@internal */
 		 _setBorderStyleColor(x:number, y:number, width:number, height:number, fillColor:any, borderWidth:number):void {
 			
 		}

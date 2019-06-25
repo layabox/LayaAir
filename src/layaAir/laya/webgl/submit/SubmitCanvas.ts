@@ -11,8 +11,10 @@ import { SubmitBase } from "././SubmitBase";
  */
 
 export class SubmitCanvas extends SubmitBase {
+	/**@internal */
 	_matrix: Matrix = new Matrix();		// 用来计算当前的世界矩阵
 	canv: Context;
+	/**@internal */
 	_matrix4: any[] = CONST3D2D.defaultMatrix4.concat();
 
 

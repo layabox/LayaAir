@@ -5,7 +5,7 @@ import { ShaderValue } from "../../../webgl/shader/ShaderValue";
 
 
 	/**
-	 *  @private 
+	 *  @internal 
 	 */
 	export class ParticleShaderValue extends Value2D
 	{

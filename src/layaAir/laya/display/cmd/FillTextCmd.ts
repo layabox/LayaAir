@@ -13,7 +13,7 @@ import { ILaya } from "../../../ILaya";
 		
 		
 		private _text:string|WordText;
-		/**@private */
+		/**@internal */
 		 _textIsWorldText:boolean = false;
 		/**
 		 * 开始绘制文本的 x 坐标位置（相对于画布）。

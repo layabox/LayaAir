@@ -13,12 +13,17 @@ import { ColorFilter } from "../../filters/ColorFilter"
 
 
 	export class SubmitTarget implements ISubmit{
+		/**@internal */
 		 _mesh:Mesh2D;			//代替 _vb,_ib
+		 /**@internal */
 		 _startIdx : number;
+		 /**@internal */
 		 _numEle : number;		
 		 shaderValue:Value2D;
 		 blendType:number = 0;
+		 /**@internal */
 		 _ref:number=1;
+		 /**@internal */
 		 _key:SubmitKey=new SubmitKey();
 		 srcRT:RenderTexture2D;
 		

@@ -13,6 +13,7 @@ import { Matrix } from "../../../maths/Matrix"
 		//private var _transedClipInfo:Array = new Array(6);
 		private _globalClipMatrix:Matrix = new Matrix();
 		private _clipInfoID:number = -1;
+		/**@internal */
 		 _clipRect:Rectangle = new Rectangle();
 		 incache:boolean = false;
 		

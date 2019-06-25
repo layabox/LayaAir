@@ -50,7 +50,7 @@ import { IStatRender } from "././IStatRender";
 		public static _timer:number = 0;
 		public static _count:number = 0;
 		
-		/**@private*/
+		/**@internal*/
 		 static _StatRender:IStatRender = null;
 		/**
 		 * 显示性能统计信息。

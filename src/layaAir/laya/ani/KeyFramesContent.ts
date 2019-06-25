@@ -1,6 +1,5 @@
 /**
- * @private
- * @author ...
+ * @internal
  */
 export class KeyFramesContent {
 	//TODO 这个对内存影响较大，建议减少一下

@@ -28,7 +28,7 @@ import { Sprite } from "../display/Sprite"
 		//TODO:coverage
 		constructor(){
 			super();
-PerfHUD.inst = this;
+			PerfHUD.inst = this;
 			this._renderType |= SpriteConst.CUSTOM;
 			this._setRenderType(this._renderType);
 			this._setCustomRender();

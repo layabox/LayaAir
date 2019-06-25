@@ -10,6 +10,8 @@ import { HTMLStyle } from "././HTMLStyle";
 		/*function set y(value:Number):void;*/
 		width:number;
 		height:number;
+		/**@internal */
 		_isChar():boolean;
+		/**@internal */
 		_getCSSStyle():HTMLStyle;
 	}

@@ -51,7 +51,7 @@ import { Graphics } from "./Graphics";
 		private _rstBoundPoints:any[];
 		/**@private */
 		private _cacheBoundsType:boolean = false;
-		/**@private */
+		/**@internal */
          _graphics:Graphics;
 		
 		/**

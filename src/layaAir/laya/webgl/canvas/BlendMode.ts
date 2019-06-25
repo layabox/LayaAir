@@ -18,7 +18,7 @@ import { WebGLContext } from "../WebGLContext"
 		
 		 static fns:any[] = [];
 		 static targetFns:any[] = [];
-		
+		/**@internal */
 		 static _init_(gl:WebGLContext):void
 		{
 			BlendMode.fns = [BlendMode.BlendNormal, BlendMode.BlendAdd, BlendMode.BlendMultiply, BlendMode.BlendScreen, BlendMode.BlendOverlay, BlendMode.BlendLight, BlendMode.BlendMask,BlendMode.BlendDestinationOut];

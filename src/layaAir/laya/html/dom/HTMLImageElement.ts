@@ -63,7 +63,7 @@ import { ILaya } from "../../../ILaya";
 			this.repaint();
 		}
 		
-		//TODO:coverage
+		/**@internal */
 		 /*override*/ _addToLayout(out:ILayout[]):void {
 			var style:HTMLStyle = (<HTMLStyle>this._style );
 			!style.absolute && out.push(this);

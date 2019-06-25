@@ -1,12 +1,12 @@
 import { AtlasInfoManager } from "././AtlasInfoManager";
-	import { Event } from "../events/Event"
-	import { EventDispatcher } from "../events/EventDispatcher"
-	import { Loader } from "./Loader"
-	import { ICreateResource } from "../resource/ICreateResource"
-	import { Resource } from "../resource/Resource"
-	import { Texture } from "../resource/Texture"
-	import { Handler } from "../utils/Handler"
-	import { Utils } from "../utils/Utils"
+import { Event } from "../events/Event"
+import { EventDispatcher } from "../events/EventDispatcher"
+import { Loader } from "./Loader"
+import { ICreateResource } from "../resource/ICreateResource"
+import { Resource } from "../resource/Resource"
+import { Texture } from "../resource/Texture"
+import { Handler } from "../utils/Handler"
+import { Utils } from "../utils/Utils"
 import { Timer } from "../utils/Timer";
 import { ILaya } from "../../ILaya";
 	
@@ -99,7 +99,7 @@ import { ILaya } from "../../ILaya";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 _create(url:any, mainResou:boolean, complete:Handler = null, progress:Handler = null, type:string = null, constructParams:any[] = null, propertyParams:any = null, priority:number = 1, cache:boolean = true):void {
 			if (url instanceof Array) {
@@ -253,7 +253,7 @@ import { ILaya } from "../../ILaya";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 _createLoad(url:any, complete:Handler = null, progress:Handler = null, type:string = null, constructParams:any[] = null, propertyParams:any = null, priority:number = 1, cache:boolean = true, ignoreCache:boolean = false):LoaderManager {
 			if (url instanceof Array) return this._loadAssets((<any[]>url ), complete, progress, type, priority, cache);

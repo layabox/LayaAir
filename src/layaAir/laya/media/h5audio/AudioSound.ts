@@ -29,7 +29,7 @@ import { ILaya } from "../../../ILaya";
 		 * 是否已加载完成
 		 */
 		 loaded:boolean = false;
-		/**@private */
+		/**@internal */
 		 static _musicAudio:HTMLAudioElement;
 		/**
 		 * 释放声音
@@ -46,7 +46,7 @@ import { ILaya } from "../../../ILaya";
 			}
 		}
 		
-		/**@private */
+		/**@internal */
 		 static _initMusicAudio():void
 		{
 			if (AudioSound._musicAudio) return;

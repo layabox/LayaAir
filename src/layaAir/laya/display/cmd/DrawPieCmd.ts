@@ -18,7 +18,7 @@ import { Context } from "../../resource/Context"
 		/**
 		 * 扇形半径。
 		 */
-		 radius:number;
+		radius:number;
 		private _startAngle:number;
 		private _endAngle:number;
 		/**

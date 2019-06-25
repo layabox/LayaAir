@@ -87,6 +87,7 @@ import { Sprite } from "../display/Sprite"
 		
 		private static _PreStageRender:Function;
 		
+		/**@internal */
 		//TODO:coverage
 		 _stageRender(context:Context, x:number, y:number):void
 		{
@@ -118,7 +119,7 @@ import { Sprite } from "../display/Sprite"
 			}
 		}
 		
-		//TODO:coverage
+		/**@internal */
 		private static _addType(type:number):void
 		{
 			if (!QuickTestTool._countDic[type])

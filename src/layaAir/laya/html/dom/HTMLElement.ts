@@ -95,12 +95,12 @@ import { IHtml } from "../utils/IHtml";
 			return this;
 		}
 		
-		/**@private */
+		/**@internal */
 		 _getCSSStyle():HTMLStyle {
 			return (<HTMLStyle>this._style );
 		}
 		
-		/**@private */
+		/**@internal */
 		 _addChildsToLayout(out:ILayout[]):boolean {
 			var words:HTMLChar[] = this._getWords();
 			if (words == null && (!this._children || this._children.length == 0))
@@ -118,7 +118,7 @@ import { IHtml } from "../utils/IHtml";
 			return true;
 		}
 		
-		/**@private */
+		/**@internal */
 		 _addToLayout(out:ILayout[]):void {
 			if (!this._style) return;
 			var style:HTMLStyle = (<HTMLStyle>this._style );
@@ -223,7 +223,7 @@ import { IHtml } from "../utils/IHtml";
 		 get style():HTMLStyle {
 			return (<HTMLStyle>this._style );
 		}
-		
+		/**@internal */
 		 _getWords():HTMLChar[] {
 			if (!this._text) return null;
 			var txt:string = this._text.text;
@@ -245,11 +245,13 @@ import { IHtml } from "../utils/IHtml";
 			return words;
 		}
 		
+		/**@internal */
 		//TODO:coverage
 		 _isChar():boolean {
 			return false;
 		}
 		
+		/**@internal */
 		 _layoutLater():void {
 			var style:HTMLStyle = this.style;
 			
@@ -308,7 +310,7 @@ import { IHtml } from "../utils/IHtml";
 				this.repaint();
 			}
 		}
-		
+		/**@internal */
 		 _setAttributes(name:string, value:string):void {
 			switch (name) {
 			case 'style': 

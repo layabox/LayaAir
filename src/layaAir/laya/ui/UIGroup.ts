@@ -68,7 +68,7 @@ import { ILaya } from "../../ILaya";
 		 */
 		constructor(labels:string = null, skin:string = null){
 			super();
-this.skin = skin;
+			this.skin = skin;
 			this.labels = labels;
 		}
 		
@@ -145,7 +145,7 @@ this.skin = skin;
 				}
 			}
 		}
-		
+		/**@internal */
 		 _afterInited():void 
 		{
 			this.initItems();

@@ -61,7 +61,7 @@ import { ILaya } from "../../ILaya";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 * 是否击中绘图指令
 		 */
 		 static _isHitCmd(x:number, y:number, cmd:any):boolean {
@@ -89,7 +89,7 @@ import { ILaya } from "../../ILaya";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 * 坐标是否在多边形内
 		 */
 		 static _ptInPolygon(x:number, y:number, areaPoints:any[]):boolean {

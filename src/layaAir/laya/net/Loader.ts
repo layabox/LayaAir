@@ -5,18 +5,18 @@ import { URL } from "././URL";
 import { BitmapFont } from "./../display/BitmapFont";
 //import { Laya } from "./../../Laya";
 import { Prefab } from "../components/Prefab"
-	import { Text } from "../display/Text"
-	import { Event } from "../events/Event"
-	import { EventDispatcher } from "../events/EventDispatcher"
-	import { Sound } from "../media/Sound"
-	import { SoundManager } from "../media/SoundManager"
-	import { BaseTexture } from "../resource/BaseTexture"
-	import { Texture } from "../resource/Texture"
-	import { Texture2D } from "../resource/Texture2D"
-	import { Browser } from "../utils/Browser"
-	import { Byte } from "../utils/Byte"
-	import { Handler } from "../utils/Handler"
-	import { Utils } from "../utils/Utils"
+import { Text } from "../display/Text"
+import { Event } from "../events/Event"
+import { EventDispatcher } from "../events/EventDispatcher"
+import { Sound } from "../media/Sound"
+import { SoundManager } from "../media/SoundManager"
+import { BaseTexture } from "../resource/BaseTexture"
+import { Texture } from "../resource/Texture"
+import { Texture2D } from "../resource/Texture2D"
+import { Browser } from "../utils/Browser"
+import { Byte } from "../utils/Byte"
+import { Handler } from "../utils/Handler"
+import { Utils } from "../utils/Utils"
 import { ILaya } from "../../ILaya";
 import { TTFLoader } from "./TTFLoader";
 	
@@ -118,25 +118,25 @@ import { TTFLoader } from "./TTFLoader";
 			return "text";
 		}
 		
-		/**@private 加载后的数据对象，只读*/
+		/**@internal 加载后的数据对象，只读*/
 		 _data:any;
 		/**@private */
 		protected _url:string;
 		/**@private */
 		protected _type:string;
-		/**@private */
+		/**@internal */
 		 _cache:boolean;
 		/**@private */
 		protected _http:HttpRequest;
 		/**@private */
 		protected _useWorkerLoader:boolean;
-		/**@private 自定义解析不派发complete事件，但会派发loaded事件，手动调用endLoad方法再派发complete事件*/
+		/**@internal 自定义解析不派发complete事件，但会派发loaded事件，手动调用endLoad方法再派发complete事件*/
 		 _customParse:boolean = false;
-		/**@private */
+		/**@internal */
 		 _constructParams:any[];
-		/**@private */
+		/**@internal */
 		 _propertyParams:any;
-		/**@private */
+		/**@internal */
 		 _createCache:boolean;
 		
 		/**

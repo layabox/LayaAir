@@ -7,6 +7,7 @@ import { Matrix } from "../../../maths/Matrix"
 		
 		
 		private static POOL:any = SaveBase._createArray();
+		/**@internal */
 		 _mat:Matrix=new Matrix();
 		 isSaveMark():boolean { return false; }
 		

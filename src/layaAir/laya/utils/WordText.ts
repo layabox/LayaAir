@@ -7,6 +7,7 @@
 		 save:any[] = [];
 		 toUpperCase:string = null;
 		 changed:boolean;
+		 /**@internal */
 		 _text:string;
 		 width:number=-1;	//整个WordText的长度。-1表示没有计算还。
 		 pageChars:any[] = [];	//把本对象的字符按照texture分组保存的文字信息。里面又是一个数组。具体含义见使用的地方。

@@ -30,13 +30,13 @@ import { MathUtil } from "../maths/MathUtil"
 		
 		constructor(){
 			super();
-if (FrameAnimation._sortIndexFun === null) {
+			if (FrameAnimation._sortIndexFun === null) {
 				FrameAnimation._sortIndexFun = MathUtil.sortByKey("index", false, true);
 			}
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 * 初始化动画数据
 		 * @param targetDic 节点ID索引
 		 * @param animationData 动画数据

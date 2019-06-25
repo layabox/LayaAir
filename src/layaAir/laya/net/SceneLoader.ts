@@ -3,11 +3,11 @@ import { ILaya } from "./../../ILaya";
 import { AtlasInfoManager } from "././AtlasInfoManager";
 import { LoaderManager } from "././LoaderManager";
 import { Prefab } from "../components/Prefab"
-	import { Event } from "../events/Event"
-	
-	import { EventDispatcher } from "../events/EventDispatcher"
-	import { Handler } from "../utils/Handler"
-	import { Utils } from "../utils/Utils"
+import { Event } from "../events/Event"
+
+import { EventDispatcher } from "../events/EventDispatcher"
+import { Handler } from "../utils/Handler"
+import { Utils } from "../utils/Utils"
 	/**
 	 * @private
 	 * 场景资源加载器
@@ -23,7 +23,7 @@ import { Prefab } from "../components/Prefab"
 		
 		constructor(){
 			super();
-this._completeHandler = new Handler(this, this.onOneLoadComplete);
+			this._completeHandler = new Handler(this, this.onOneLoadComplete);
 			this.reset();
 		}
 		

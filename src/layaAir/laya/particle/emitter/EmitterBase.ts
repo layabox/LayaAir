@@ -21,7 +21,7 @@ import { ParticleTemplateBase } from "../ParticleTemplateBase"
 		 */
 		 minEmissionTime:number = 1 / 60;
 		
-		/**@private */
+		/**@internal */
 		 _particleTemplate:ParticleTemplateBase;
 		
 		/**

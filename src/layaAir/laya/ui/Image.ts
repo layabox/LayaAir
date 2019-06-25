@@ -1,11 +1,11 @@
 import { Styles } from "././Styles";
 import { Event } from "../events/Event"
-	import { Loader } from "../net/Loader"
-	import { Texture } from "../resource/Texture"
-	import { AutoBitmap } from "./AutoBitmap"
-	import { UIComponent } from "./UIComponent"
-	import { UIUtils } from "./UIUtils"
-	import { Handler } from "../utils/Handler"
+import { Loader } from "../net/Loader"
+import { Texture } from "../resource/Texture"
+import { AutoBitmap } from "./AutoBitmap"
+import { UIComponent } from "./UIComponent"
+import { UIUtils } from "./UIUtils"
+import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
 	
 	/**
@@ -87,7 +87,7 @@ import { ILaya } from "../../ILaya";
 	 * @see laya.ui.AutoBitmap
 	 */
 	export class Image extends UIComponent {
-		/**@private */
+		/**@internal */
 		 _bitmap:AutoBitmap;
 		/**@private */
 		protected _skin:string;
@@ -100,7 +100,7 @@ import { ILaya } from "../../ILaya";
 		 */
 		constructor(skin:string = null){
 			super();
-this.skin = skin;
+			this.skin = skin;
 		}
 		
 		/**@inheritDoc */

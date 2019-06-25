@@ -29,13 +29,13 @@ import { Context } from "../../../resource/Context"
 		/*[DISBALEOUTCONST-END]*/
 		private static POOL:any = SaveBase._createArray();
 		private static _namemap:any = SaveBase._init();
-		
+		/**@internal */
 		 static _createArray():any[] {
 			var value:any = [];
 			value._length = 0;
 			return value;
 		}
-		
+		/**@internal */
 		 static _init():any {
 			var namemap:any = SaveBase._namemap = {};
 			

@@ -122,7 +122,7 @@ import { ILaya } from "../../ILaya";
 		 */
 		constructor(text:string = ""){
 			super();
-this.text = text;
+			this.text = text;
 			this.skin = this.skin;
 		}
 		

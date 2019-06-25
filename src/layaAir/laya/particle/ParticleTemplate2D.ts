@@ -28,6 +28,7 @@ import { Stat } from "../utils/Stat";
 		 sv:ParticleShaderValue = new ParticleShaderValue();
 		
 		private _startTime:number;
+		/**@internal */
 		 _key:any = {};
 
 		constructor(parSetting:ParticleSetting){

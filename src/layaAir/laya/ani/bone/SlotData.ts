@@ -1,6 +1,6 @@
 import { SkinSlotDisplayData } from "././SkinSlotDisplayData";
 /**
- * @private
+ * @internal
  */
 export class SlotData {
 	name: string;

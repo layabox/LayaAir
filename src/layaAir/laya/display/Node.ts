@@ -1,10 +1,10 @@
 import { Const } from "../Const"
-	import { Component } from "../components/Component"
-	import { Event } from "../events/Event"
-	import { EventDispatcher } from "../events/EventDispatcher"
-	import { Pool } from "../utils/Pool"
-	import { Stat } from "../utils/Stat"
-	import { Timer } from "../utils/Timer"
+import { Component } from "../components/Component"
+import { Event } from "../events/Event"
+import { EventDispatcher } from "../events/EventDispatcher"
+import { Pool } from "../utils/Pool"
+import { Stat } from "../utils/Stat"
+import { Timer } from "../utils/Timer"
 import { Sprite } from "./Sprite";
 import { ILaya } from "../../ILaya";
 	
@@ -37,32 +37,32 @@ import { ILaya } from "../../ILaya";
 		protected static ARRAY_EMPTY:any[] = [];
 		/**@private */
 		private _bits:number = 0;
-		/**@private 子对象集合，请不要直接修改此对象。*/
+		/**@internal 子对象集合，请不要直接修改此对象。*/
 		 _children:any[] = Node.ARRAY_EMPTY;
 		
-		/**@private 仅仅用来处理输入事件的,并不是真正意义上的子对象 */
+		/**@internal 仅仅用来处理输入事件的,并不是真正意义上的子对象 */
 		 _extUIChild:any[] = Node.ARRAY_EMPTY;
 		
-		/**@private 父节点对象*/
+		/**@internal 父节点对象*/
 		 _parent:Node = null;
 		
 		/**节点名称。*/
 		 name:string = "";
 		/**[只读]是否已经销毁。对象销毁后不能再使用。*/
 		 destroyed:boolean = false;
-		/**@private */
+		/**@internal */
 		 _conchData:any;
 		
 		constructor(){
 			super();
-this.createGLBuffer();
+			this.createGLBuffer();
 		}
 		
 		/**@private */
 		 createGLBuffer():void {
 		}
 		
-		/**@private */
+		/**@internal */
 		 _setBit(type:number, value:boolean):void {
 			if (type === Const.DISPLAY) {
 				var preValue:boolean = this._getBit(type);
@@ -72,17 +72,17 @@ this.createGLBuffer();
 			else this._bits &= ~type;
 		}
 		
-		/**@private */
+		/**@internal */
 		 _getBit(type:number):boolean {
 			return (this._bits & type) != 0;
 		}
 		
-		/**@private */
+		/**@internal */
 		 _setUpNoticeChain():void {
 			if (this._getBit(Const.DISPLAY)) this._setBitUp(Const.DISPLAY);
 		}
 		
-		/**@private */
+		/**@internal */
 		 _setBitUp(type:number):void {
 			var ele:Node = this;
 			ele._setBit(type, true);
@@ -467,7 +467,7 @@ this.createGLBuffer();
 			this._setBit(Const.DISPLAYED_INSTAGE, displayedInStage);
 		}
 		
-		/**@private */
+		/**@internal */
 		 _setDisplay(value:boolean):void {
 			if (this._getBit(Const.DISPLAYED_INSTAGE) !== value) {
 				this._setBit(Const.DISPLAYED_INSTAGE, value);
@@ -604,7 +604,7 @@ this.createGLBuffer();
 		/**@private */
 		private _activeChangeScripts:any[];//TODO:可用对象池
 		
-		/**@private */
+		/**@internal */
 		 _scene:Node;
 		
 		/**
@@ -686,14 +686,14 @@ this.createGLBuffer();
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 _parse(data:any, spriteMap:any):void {
 			//override it.
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 _setBelongScene(scene:Node):void {
 			if (!this._scene) {
@@ -705,7 +705,7 @@ this.createGLBuffer();
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 _setUnBelongScene():void {
 			if (this._scene !== this) {//移除节点本身是scene不继续派发
@@ -733,7 +733,7 @@ this.createGLBuffer();
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 _processActive():void {
 			(this._activeChangeScripts) || (this._activeChangeScripts = []);
@@ -742,7 +742,7 @@ this.createGLBuffer();
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 _activeHierarchy(activeChangeScripts:any[]):void {
 			this._setBit(Const.ACTIVE_INHIERARCHY, true);
@@ -786,7 +786,7 @@ this.createGLBuffer();
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 _inActiveHierarchy(activeChangeScripts:any[]):void {
 			this._onInActive();
@@ -849,7 +849,7 @@ this.createGLBuffer();
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 _addComponentInstance(comp:Component):void {
 			this._components = this._components || [];
@@ -864,7 +864,7 @@ this.createGLBuffer();
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 _destroyComponent(comp:Component):void {
 			if (this._components) {
@@ -880,7 +880,7 @@ this.createGLBuffer();
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 _destroyAllComponent():void {
 			if (this._components) {
@@ -893,7 +893,7 @@ this.createGLBuffer();
 		}
 		
 		/**
-		 * @private 克隆。
+		 * @internal 克隆。
 		 * @param	destObject 克隆源。
 		 */
 		 _cloneTo(destObject:any, srcRoot:Node, dstRoot:Node):void {

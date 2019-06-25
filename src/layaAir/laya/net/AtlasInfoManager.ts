@@ -4,7 +4,7 @@ import { Handler } from "../utils/Handler"
 import { LoaderManager } from "./LoaderManager";
 	
 	/**
-	 * @private
+	 * @internal
 	 */
 	export class AtlasInfoManager {
 		

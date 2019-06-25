@@ -19,7 +19,7 @@ import { Graphics } from "../display/Graphics"
 		private _sizeGrid:number[];
 		/**@private */
 		protected _isChanged:boolean;
-		/**@private */
+		/**@internal */
 		 _offset:any[];
 		///**@private */
 		//private var _key:String;

@@ -3,7 +3,6 @@
 	
 	/**
 	 * 绘制边框
-	 * @private
 	 */
 	export class FillBorderWordsCmd
 	{

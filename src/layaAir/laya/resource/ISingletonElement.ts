@@ -1,5 +1,5 @@
 /**
-	 * @private
+	 * @internal
 	 * <code>IList</code> 可加入队列接口。
 	 */
 	export interface ISingletonElement {

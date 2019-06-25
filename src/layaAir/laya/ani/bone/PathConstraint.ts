@@ -6,7 +6,7 @@ import { Matrix } from "../../maths/Matrix";
 
 
 /**
- * @private
+ * @internal
  * 路径作用器
  * 1，生成根据骨骼计算控制点
  * 2，根据控制点生成路径，并计算路径上的节点

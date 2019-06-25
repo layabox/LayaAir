@@ -10,13 +10,17 @@ export class GlowFilter extends Filter {
 
 	/**数据的存储，顺序R,G,B,A,blurWidth,offX,offY;*/
 	private _elements: Float32Array = new Float32Array(9);
+	/**@internal */
 	_sv_blurInfo1: any[] = new Array(4);	//给shader用
+	/**@internal */
 	_sv_blurInfo2: any[] = [0, 0, 1, 0];
 	/**滤镜的颜色*/
 	private _color: ColorUtils;
-
+	/**@internal */
 	_color_native: Float32Array;
+	/**@internal */
 	_blurInof1_native: Float32Array;
+	/**@internal */
 	_blurInof2_native: Float32Array;
 
 	/**

@@ -52,17 +52,18 @@ export class RenderSprite {
 	//public static const CUSTOM:int = 0x400;
 	/** @private */
 	//public static const CHILDS:int = 0x800;
-	/** @private */
+	/** @internal */
 	static INIT: number = 0x11111;
 	/** @private */
 	static renders: any[] = [];
 	/** @private */
 	protected static NORENDER: RenderSprite =  new RenderSprite(0, null);
-	/** @private */
+	/** @internal */
 	_next: RenderSprite;
-	/** @private */
+	/** @internal */
 	_fun: Function;
 
+	/** @internal */
 	static __init__(): void {
 		LayaGLQuickRunner.__init__();
 		var i: number, len: number;
@@ -178,6 +179,7 @@ export class RenderSprite {
 
 	}
 
+	/**@internal */
 	_style(sprite: Sprite, context: Context, x: number, y: number): void {
 		//现在只有Text会走这里，Html已经不走这里了
 		var style: TextStyle = (<TextStyle>sprite._style);
@@ -186,15 +188,17 @@ export class RenderSprite {
 		next._fun.call(next, sprite, context, x, y);
 	}
 
+	/**@internal */
 	_no(sprite: Sprite, context: Context, x: number, y: number): void {
 	}
 
-	//TODO:coverage
+	/**@internal */
 	_custom(sprite: Sprite, context: Context, x: number, y: number): void {
 		sprite.customRender(context, x, y);
 		this._next._fun.call(this._next, sprite, context, x - sprite.pivotX, y - sprite.pivotY);
 	}
 
+	/**@internal */
 	_clip(sprite: Sprite, context: Context, x: number, y: number): void {
 		var next: RenderSprite = this._next;
 		if (next == RenderSprite.NORENDER) return;
@@ -221,6 +225,7 @@ export class RenderSprite {
 	}
 	*/
 
+	/**@internal */
 	_texture(sprite: Sprite, context: Context, x: number, y: number): void {
 		var tex: Texture = sprite.texture;
 		if (tex._getSource())
@@ -230,6 +235,7 @@ export class RenderSprite {
 			next._fun.call(next, sprite, context, x, y);
 	}
 
+	/**@internal */
 	_graphics(sprite: Sprite, context: Context, x: number, y: number): void {
 		var style: any = sprite._style;
 		var g: Graphics = sprite._graphics;
@@ -239,18 +245,19 @@ export class RenderSprite {
 			next._fun.call(next, sprite, context, x, y);
 	}
 
-	//TODO:coverage
+	/**@internal */
 	_image(sprite: Sprite, context: Context, x: number, y: number): void {
 		var style: SpriteStyle = sprite._style;
 		context.drawTexture2(x, y, style.pivotX, style.pivotY, sprite.transform, sprite._graphics._one);
 	}
 
-	//TODO:coverage
+	/**@internal */
 	_image2(sprite: Sprite, context: Context, x: number, y: number): void {
 		var style: SpriteStyle = sprite._style;
 		context.drawTexture2(x, y, style.pivotX, style.pivotY, sprite.transform, sprite._graphics._one);
 	}
 
+	/**@internal */
 	//TODO:coverage
 	_alpha(sprite: Sprite, context: Context, x: number, y: number): void {
 
@@ -265,6 +272,7 @@ export class RenderSprite {
 		}
 	}
 
+	/**@internal */
 	_transform(sprite: Sprite, context: Context, x: number, y: number): void {
 		var transform: Matrix = sprite.transform, _next: RenderSprite = this._next;
 		var style: SpriteStyle = sprite._style;
@@ -279,6 +287,7 @@ export class RenderSprite {
 		}
 	}
 
+	/**@internal */
 	_children(sprite: Sprite, context: Context, x: number, y: number): void {
 		var style: SpriteStyle = sprite._style;
 		var childs: any[] = sprite._children, n: number = childs.length, ele: any;
@@ -305,6 +314,7 @@ export class RenderSprite {
 		textLastRender && context.drawCallOptimize(false);
 	}
 
+	/**@internal */
 	_canvas(sprite: Sprite, context: Context, x: number, y: number): void {
 
 		var _cacheStyle: CacheStyle = sprite._cacheStyle;
@@ -353,6 +363,7 @@ export class RenderSprite {
 		context.drawCanvas(_cacheStyle.canvas, x + tRec.x, y + tRec.y, tRec.width, tRec.height);
 	}
 
+	/**@internal */
 	_canvas_repaint(sprite: Sprite, context: Context, x: number, y: number): void {
 
 		var _cacheStyle: CacheStyle = sprite._cacheStyle;
@@ -422,6 +433,7 @@ export class RenderSprite {
 		Stat.canvasReCache++;
 	}
 
+	/**@internal */
 	_canvas_webgl_normal_repaint(sprite: Sprite, context: Context): void {
 
 		var _cacheStyle: CacheStyle = sprite._cacheStyle;
@@ -447,6 +459,7 @@ export class RenderSprite {
 		//context.drawCanvas(canvas, x , y , 1, 1); // 这种情况下宽高没用
 	}
 
+	/**@internal */
 	_blend(sprite: Sprite, context: Context, x: number, y: number): void {
 		var style: SpriteStyle = sprite._style;
 		var next: RenderSprite = this._next;
@@ -461,6 +474,7 @@ export class RenderSprite {
 	}
 
 	/**
+	 * @internal
 	 * mask的渲染。 sprite有mask属性的情况下，来渲染这个sprite
 	 * @param	sprite
 	 * @param	context

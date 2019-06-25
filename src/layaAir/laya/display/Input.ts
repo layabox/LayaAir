@@ -1,7 +1,7 @@
 import { Text } from "././Text";
 import { Event } from "../events/Event"
-	import { Matrix } from "../maths/Matrix"
-	import { Utils } from "../utils/Utils"
+import { Matrix } from "../maths/Matrix"
+import { Utils } from "../utils/Utils"
 import { ILaya } from "../../ILaya";
 	/**
 	 * 用户输入一个或多个文本字符时后调度。
@@ -102,7 +102,7 @@ import { ILaya } from "../../ILaya";
 		private _content:string = '';
 		
 		/**@private */
-		 static IOS_IFRAME:boolean = false; 
+		static IOS_IFRAME:boolean = false; 
 		private static inputHeight:number = 45;
 		
 		/**表示是否处于输入状态。*/
@@ -112,7 +112,7 @@ import { ILaya } from "../../ILaya";
 		constructor(){
             super();
             Input.IOS_IFRAME = (ILaya.Browser.onIOS && ILaya.Browser.window.top != ILaya.Browser.window.self);
-this._width = 100;
+			this._width = 100;
 			this._height = 20;
 			
 			this.multiline = false;

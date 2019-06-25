@@ -3,7 +3,7 @@ import { Rectangle } from "../../maths/Rectangle"
 	import { Pool } from "../../utils/Pool"
 	
 	/**
-	 * @private
+	 * @internal
 	 * 元素样式
 	 */
 	export class SpriteStyle {

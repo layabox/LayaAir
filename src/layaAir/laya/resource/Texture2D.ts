@@ -1,7 +1,7 @@
 import { LayaGL } from "../layagl/LayaGL"
-	import { BaseTexture } from "./BaseTexture"
-	import { Handler } from "../utils/Handler"
-	import { WebGLContext } from "../webgl/WebGLContext"
+import { BaseTexture } from "./BaseTexture"
+import { Handler } from "../utils/Handler"
+import { WebGLContext } from "../webgl/WebGLContext"
 import { ILaya } from "../../ILaya";
 	
 	/**
@@ -19,7 +19,7 @@ import { ILaya } from "../../ILaya";
 		 static blackTexture:Texture2D=null;
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 static __init__():void {
 			var pixels:Uint8Array = new Uint8Array(3);
@@ -44,7 +44,7 @@ import { ILaya } from "../../ILaya";
 		}
 		
 		/**
-		 * @inheritDoc
+		 * @internal
 		 */
 		 static _parse(data:any, propertyParams:any = null, constructParams:any[] = null):Texture2D {
 			var texture:Texture2D = constructParams ? new Texture2D(constructParams[0], constructParams[1], constructParams[2], constructParams[3], constructParams[4]) : new Texture2D(0, 0);
@@ -333,7 +333,7 @@ import { ILaya } from "../../ILaya";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 _upLoadCompressedTexImage2D(data:ArrayBuffer, width:number, height:number, miplevelCount:number, dataOffset:number, imageSizeOffset:number):void {
 			var gl:WebGLContext = LayaGL.instance;

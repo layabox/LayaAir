@@ -21,13 +21,13 @@ import { Context } from "../resource/Context";
 		protected _firstNewElement:number=0;
 		protected _firstFreeElement:number=0;
 		protected _firstRetiredElement:number=0;
-		
+		/**@internal */
 		 _currentTime:number = 0;
 		protected _drawCounter:number;
 		
 		constructor(parSetting:ParticleSetting){
 			super();
-this.settings = parSetting;
+			this.settings = parSetting;
 		}
 		
 		 reUse(context:Context, pos:number):number{

@@ -55,7 +55,7 @@ import { Const } from "../Const"
 		 */
 		constructor(){
 			super();
-this._setBitUp(Const.DISPLAY);
+			this._setBitUp(Const.DISPLAY);
 		}
 		
 		/**
@@ -147,7 +147,7 @@ this._setBitUp(Const.DISPLAY);
 			this.index = this._index;
 		}
 		
-		/**@private */
+		/**@internal */
 		 _setControlNode(node:Sprite):void {
 			if (this._controlNode) {
 				this._controlNode.off(Event.DISPLAY, this, this._resumePlay);
@@ -160,7 +160,7 @@ this._setBitUp(Const.DISPLAY);
 			}
 		}
 		
-		/**@private */
+		/**@internal */
 		/*override*/  _setDisplay(value:boolean):void {
 			super._setDisplay(value);
 			this._resumePlay();

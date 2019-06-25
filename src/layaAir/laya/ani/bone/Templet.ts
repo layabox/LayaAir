@@ -36,13 +36,14 @@ import { ILaya } from "../../../ILaya";
  * 动画模板类
  */
 export class Templet extends AnimationTemplet {
-	/**@private */
+	/**@internal */
 	static LAYA_ANIMATION_160_VISION: string = "LAYAANIMATION:1.6.0";
+	/**@internal */
 	static LAYA_ANIMATION_VISION: string = "LAYAANIMATION:1.7.0";
+	/**@internal */
 	static TEMPLET_DICTIONARY: any;
 
 	private _mainTexture: Texture;
-	private _textureJson: any;
 	private _graphicsCache: any[] = [];
 
 	/** 存放原始骨骼信息 */
@@ -199,7 +200,6 @@ export class Templet extends AnimationTemplet {
 		var tTextureLen: number = tByte.getInt32();
 		var tTextureName: string = tByte.readUTFString();
 		var tTextureNameArr: any[] = tTextureName.split("\n");
-		var tTexture: Texture;
 		var tSrcTexturePath: string;
 		for (i = 0; i < tTextureLen; i++) {
 			tSrcTexturePath = this._path + tTextureNameArr[i * 2];
@@ -337,7 +337,6 @@ export class Templet extends AnimationTemplet {
 
 		this.tMatrixDataLen = tByte.getUint16();
 		var tLen: number = tByte.getUint16();
-		var parentIndex: number;
 		var boneLength: number = Math.floor(tLen / this.tMatrixDataLen);
 		var tResultTransform: Transform;
 		var tMatrixArray: any[] = this.srcBoneMatrixArr;
@@ -725,6 +724,9 @@ export class Templet extends AnimationTemplet {
 		return null;
 	}
 
+	/**
+	 * @internal
+	 */
 
 		/*override*/  _setCreateURL(url: string): void {
 		this._relativeUrl = url;

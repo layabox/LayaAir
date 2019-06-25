@@ -102,7 +102,7 @@ import { ILaya } from "./../../ILaya";
 			return this._create(target, props, duration, ease, complete, delay, coverBefore, false, false, true);
 		}
 		
-		/** @private */
+		/** @internal */
 		 _create(target:any, props:any, duration:number, ease:Function, complete:Handler, delay:number, coverBefore:boolean, isTo:boolean, usePool:boolean, runNow:boolean):Tween {
 			if (!target) throw new Error("Tween:target is null");
 			this._target = target;
@@ -169,7 +169,7 @@ import { ILaya } from "./../../ILaya";
 			this._updateEase(Browser.now());
 		}
 		
-		/**@private */
+		/**@internal */
 		 _updateEase(time:number):void {
 			var target:any = this._target;
 			if (!target) return;
@@ -289,7 +289,7 @@ import { ILaya } from "./../../ILaya";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 _clear():void {
 			this.pause();

@@ -1,9 +1,9 @@
 import { WebAudioSoundChannel } from "././WebAudioSoundChannel";
 import { Event } from "../../events/Event"
-	import { EventDispatcher } from "../../events/EventDispatcher"
-	import { SoundChannel } from "../SoundChannel"
-	//import { SoundManager } from "../SoundManager"
-	import { URL } from "../../net/URL"
+import { EventDispatcher } from "../../events/EventDispatcher"
+import { SoundChannel } from "../SoundChannel"
+//import { SoundManager } from "../SoundManager"
+import { URL } from "../../net/URL"
 import { ILaya } from "../../../ILaya";
 	
 	/**

@@ -45,7 +45,7 @@ export class AnimationPlayer extends EventDispatcher implements IDestroy {
 	private _overallDuration: number;
 	/** 是否在一次动画结束时停止。 设置这个标志后就不会再发送complete事件了*/
 	private _stopWhenCircleFinish: boolean;
-	/** 已播放时间，包括重播时间*/
+	/**@internal 已播放时间，包括重播时间*/
 	_elapsedPlaybackTime: number;
 	/** 播放时帧数*/
 	private _startUpdateLoopCount: number;
@@ -287,7 +287,7 @@ export class AnimationPlayer extends EventDispatcher implements IDestroy {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_onTempletLoadedComputeFullKeyframeIndices(cachePlayRate: number, cacheFrameRate: number, templet: AnimationTemplet): void {
 		if (this._templet === templet && this._cachePlayRate === cachePlayRate && this._cacheFrameRate === cacheFrameRate)
@@ -302,6 +302,9 @@ export class AnimationPlayer extends EventDispatcher implements IDestroy {
 		var templet: AnimationTemplet = this._templet;
 		if (templet._fullFrames)
 			return;
+
+
+
 		var anifullFrames: any[] = this._templet._fullFrames = [];
 
 		var cacheFrameInterval: number = this._cacheFrameRateInterval * this._cachePlayRate;
@@ -387,7 +390,7 @@ export class AnimationPlayer extends EventDispatcher implements IDestroy {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_update(elapsedTime: number): void {
 		if (this._currentAnimationClipIndex === -1 || this._paused || !this._templet /*|| !_templet.loaded*/)//动画停止或暂停，不更新
@@ -438,7 +441,7 @@ export class AnimationPlayer extends EventDispatcher implements IDestroy {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_destroy(): void {
 		this.offAll();

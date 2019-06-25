@@ -210,7 +210,7 @@ import { ILaya } from "../../ILaya";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 * 将指定的文本绘制到指定的显示对象上。
 		 */
 		 _drawText(text:string, sprite:Sprite, drawX:number, drawY:number, align:string, width:number):void {

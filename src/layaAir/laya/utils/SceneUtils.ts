@@ -15,7 +15,7 @@ import { Const } from "../Const"
 		private static _parseWatchData:RegExp = /\${(.*?)}/g;
 		/**@private */
 		private static _parseKeyWord:RegExp = /[a-zA-Z_][a-zA-Z0-9_]*(?:(?:\.[a-zA-Z_][a-zA-Z0-9_]*)+)/g;
-		/**@private */
+		/**@internal */
 		 static _sheet:any;
 		
 		/**
@@ -314,8 +314,9 @@ class InitTool {
 	/**@private */
 	private _initList:any[];
 	private _loadList:any[];
-	/**@private */
+	/**@internal */
 	 _idMap:any[];
+	 /**@internal */
 	 _scene:Scene;
 	
 	//TODO:coverage

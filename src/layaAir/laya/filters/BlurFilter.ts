@@ -16,7 +16,7 @@ import { BlurFilterGLRender } from "././BlurFilterGLRender";
 		 */
 		constructor(strength:number = 4){
 			super();
-this.strength = strength;
+			this.strength = strength;
 			this._glRender = new BlurFilterGLRender();
 		}
 		
@@ -28,7 +28,7 @@ this.strength = strength;
 			return Filter.BLUR;
 		}
 		
-		 getStrenth_sig2_2sig2_native():Float32Array
+		getStrenth_sig2_2sig2_native():Float32Array
 		{
 			if (!this.strength_sig2_native)
 			{

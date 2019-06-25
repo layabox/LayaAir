@@ -2,15 +2,15 @@ import { UIComponent } from "./UIComponent";
 import { ISelect } from "./ISelect";
 import { Styles } from "./Styles";
 import { Const } from "../Const"
-	import { Text } from "../display/Text"
-	import { Event } from "../events/Event"
-	import { Loader } from "../net/Loader"
-	import { Texture } from "../resource/Texture"
-	import { AutoBitmap } from "./AutoBitmap"
-	import { UIUtils } from "./UIUtils"
-	import { Handler } from "../utils/Handler"
-	import { Utils } from "../utils/Utils"
-	import { WeakObject } from "../utils/WeakObject"
+import { Text } from "../display/Text"
+import { Event } from "../events/Event"
+import { Loader } from "../net/Loader"
+import { Texture } from "../resource/Texture"
+import { AutoBitmap } from "./AutoBitmap"
+import { UIUtils } from "./UIUtils"
+import { Handler } from "../utils/Handler"
+import { Utils } from "../utils/Utils"
+import { WeakObject } from "../utils/WeakObject"
 import { ILaya } from "../../ILaya";
 	
 	/**

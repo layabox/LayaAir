@@ -22,8 +22,9 @@ import { RenderInfo } from "../../renders/RenderInfo";
 		private _imgId:number;
 		private _clipid:number =-1;
 		private _clipMatrix:Matrix = new Matrix();
+		/**@internal */
 		 _enbale:boolean = false;
-		
+		/**@internal */
 		 _colorFiler:ColorFilter;
 		
 		constructor(){

@@ -58,7 +58,6 @@ export class Skeleton extends Sprite {
 	protected _curOriginalData: Float32Array;//当前骨骼的偏移数据
 	private _boneMatrixArray: any[] = [];//当前骨骼动画的最终结果数据
 	private _lastTime: number = 0;//上次的帧时间
-	private _currAniName: string = null;
 	private _currAniIndex: number = -1;
 	private _pause: boolean = true;
 	/** @private */
@@ -80,7 +79,6 @@ export class Skeleton extends Sprite {
 	private _indexControl: boolean = false;
 	//加载路径
 	private _aniPath: string;
-	private _texturePath: string;
 	private _complete: Handler;
 	private _loadAniMode: number;
 
@@ -613,8 +611,6 @@ export class Skeleton extends Sprite {
 		//变形动画作用器
 		var tDeformAniArr: any[] = this._templet.deformAniArr;
 		var tDeformAniData: DeformAniData;
-		var tDeformSlotData: DeformSlotData;
-		var tDeformSlotDisplayData: DeformSlotDisplayData;
 		if (tDeformAniArr && tDeformAniArr.length > 0) {
 			if (this._lastAniClipIndex != this._aniClipIndex) {
 				this._lastAniClipIndex = this._aniClipIndex;

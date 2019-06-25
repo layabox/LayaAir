@@ -88,7 +88,7 @@ import { ILaya } from "../../ILaya";
             if(!Slider.label){
                 Slider.label=new Label();
             }
-this.skin = skin;
+			this.skin = skin;
 		}
 		
 		/**

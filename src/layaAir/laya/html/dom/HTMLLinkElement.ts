@@ -11,8 +11,8 @@ import { ILaya } from "../../../ILaya";
 	 */
 	export class HTMLLinkElement extends HTMLElement {
 		
-		 static _cuttingStyle:RegExp = new RegExp("((@keyframes[\\s\\t]+|)(.+))[\\t\\n\\r\\\s]*{", "g");
-		 type:string;
+		static _cuttingStyle:RegExp = new RegExp("((@keyframes[\\s\\t]+|)(.+))[\\t\\n\\r\\\s]*{", "g");
+		type:string;
 		private _loader:Loader;
 		
 		/*override*/ protected _creates():void 
@@ -28,6 +28,7 @@ import { ILaya } from "../../../ILaya";
 			return this;
 		}
 		
+		/**@internal */
 		 _onload(data:string):void {
 			if (this._loader) this._loader = null;
 			switch (this.type) {

@@ -5,7 +5,7 @@ import { Sprite } from "../../display/Sprite";
 import { ILaya } from "../../../ILaya";
 
 /**
- * @private
+ * @internal
  */
 export class IkConstraint {
 

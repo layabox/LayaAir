@@ -18,10 +18,10 @@ var supportWeakMap = !!WeakMap;
 		private static _keys:any = {};
 		/**@private */
 		private static _maps:any[] = [];
-		/**@private */
+		/**@internal */
 		 _obj:any;
 		
-		/**@private */
+		/**@internal */
 		 static __init__():void {
 			//WeakObject.supportWeakMap = Browser.window.WeakMap != null;
 			//如果不支持，10分钟回收一次

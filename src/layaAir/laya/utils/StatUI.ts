@@ -17,15 +17,15 @@ import { ILaya } from "../../ILaya";
 		private static _fontSize:number = 12;
 		private _txt:Text;
 		private _leftText:Text;
-		/**@private */
+		/**@internal */
 		 _sp:Sprite;
-		/**@private */
+		/**@internal */
 		 _titleSp:Sprite;
-		/**@private */
+		/**@internal */
 		 _bgSp:Sprite;
-		/**@private */
+		/**@internal */
 		 _show:boolean = false;
-		
+		/**@internal */
 		 _useCanvas:boolean = false;
 		private _canvas:HTMLCanvas;
 		private _ctx:Context;

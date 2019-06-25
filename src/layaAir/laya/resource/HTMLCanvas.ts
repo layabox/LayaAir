@@ -11,7 +11,9 @@ import { ILaya } from "../../ILaya";
 	export class HTMLCanvas extends Bitmap {
 		
 		private _ctx:any;
+		/**@internal */
 		 _source:any;
+		 /**@internal */
 		 _texture:Texture;
 		/**
 		 * @inheritDoc
@@ -19,7 +21,7 @@ import { ILaya } from "../../ILaya";
 		  get source():any {
 			return this._source;
 		}
-		
+		/**@internal */
 		/*override*/  _getSource():any 
 		{
 			return this._source;
@@ -81,7 +83,7 @@ import { ILaya } from "../../ILaya";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 * 设置 Canvas 渲染上下文。是webgl用来替换_ctx用的
 		 * @param	context Canvas 渲染上下文。
 		 */

@@ -7,9 +7,9 @@ import { Label } from "././Label";
 import { UIUtils } from "././UIUtils";
 import { VScrollBar } from "././VScrollBar";
 import { Graphics } from "../display/Graphics"
-	import { Event } from "../events/Event"
-	import { Point } from "../maths/Point"
-	import { Handler } from "../utils/Handler"
+import { Event } from "../events/Event"
+import { Point } from "../maths/Point"
+import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
 	
 	/**
@@ -160,7 +160,7 @@ import { ILaya } from "../../ILaya";
 		 */
 		constructor(skin:string = null, labels:string = null){
 			super();
-this.skin = skin;
+			this.skin = skin;
 			this.labels = labels;
 		}
 		

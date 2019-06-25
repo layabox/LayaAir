@@ -34,21 +34,21 @@ export class Resource extends EventDispatcher implements ICreateResource, IDestr
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static _addCPUMemory(size: number): void {
 		Resource._cpuMemory += size;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static _addGPUMemory(size: number): void {
 		Resource._gpuMemory += size;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static _addMemory(cpuSize: number, gpuSize: number): void {
 		Resource._cpuMemory += cpuSize;
@@ -161,7 +161,7 @@ export class Resource extends EventDispatcher implements ICreateResource, IDestr
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_setCPUMemory(value: number): void {
 		var offsetValue: number = value - this._cpuMemory;
@@ -170,7 +170,7 @@ export class Resource extends EventDispatcher implements ICreateResource, IDestr
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_setGPUMemory(value: number): void {
 		var offsetValue: number = value - this._gpuMemory;
@@ -179,7 +179,7 @@ export class Resource extends EventDispatcher implements ICreateResource, IDestr
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_setCreateURL(url: string): void {
 		url = URL.formatURL(url);//需要序列化为绝对路径
@@ -200,21 +200,21 @@ export class Resource extends EventDispatcher implements ICreateResource, IDestr
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_addReference(count: number = 1): void {
 		this._referenceCount += count;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_removeReference(count: number = 1): void {
 		this._referenceCount -= count;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_clearReference(): void {
 		this._referenceCount = 0;

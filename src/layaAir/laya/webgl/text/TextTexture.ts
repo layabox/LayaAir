@@ -20,11 +20,15 @@ import { ILaya } from "../../../ILaya";
 		private static pool:any[] = new Array(10);		// 回收用
 		private static poolLen:number = 0;
 		private static cleanTm:number = 0;
-		
+		/**@internal */
 		 _source:any;	// webgl 贴图
+		 /**@internal */
 		 _texW:number = 0;
+		 /**@internal */
 		 _texH:number = 0;
+		 /**@internal */
 		 __destroyed:boolean = false;	//父类有，但是private
+		 /**@internal */
 		 _discardTm:number = 0;			//释放的时间。超过一定时间会被真正删除
 		 genID:number = 0; 				// 这个对象会重新利用，为了能让引用他的人知道自己引用的是否有效，加个id
 		 bitmap:any= { id:0,_glTexture:null};						//samekey的判断用的
@@ -230,6 +234,7 @@ import { ILaya } from "../../../ILaya";
 		 get texture():any {
 			return this;
 		}
+		/**@internal */
 		 _getSource():any{	
 			return this._source;
 		}

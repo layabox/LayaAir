@@ -104,7 +104,7 @@ import { ILaya } from "../../ILaya";
 		 */
 		constructor() {
 			super();
-this._setControlNode(this);
+			this._setControlNode(this);
 		}
 		
 		/** @inheritDoc */

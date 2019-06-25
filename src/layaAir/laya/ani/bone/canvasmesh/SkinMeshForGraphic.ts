@@ -5,8 +5,7 @@ import { Texture } from "../../../resource/Texture";
 
 
 /**
- * ...
- * @author ww
+ * @internal
  */
 export class SkinMeshForGraphic extends MeshData {
 

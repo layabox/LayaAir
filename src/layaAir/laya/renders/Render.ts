@@ -14,13 +14,13 @@ import { SubmitBase } from "../webgl/submit/SubmitBase";
 import { LayaGPU } from "../webgl/LayaGPU";
 	
 	/**
-	 * @private
+	 * @internal
 	 * <code>Render</code> 是渲染管理类。它是一个单例，可以使用 Laya.render 访问。
 	 */
 	export class Render {
-		/** @private */
+		/** @internal */
 		 static _context:Context;
-		/** @private 主画布。canvas和webgl渲染都用这个画布*/
+		/** @internal 主画布。canvas和webgl渲染都用这个画布*/
 		 static _mainCanvas:HTMLCanvas;
 		
 		 static supportWebGLPlusCulling:boolean = false;

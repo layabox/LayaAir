@@ -2,9 +2,12 @@ import { ISubmit } from "././ISubmit";
 import { SubmitKey } from "././SubmitKey";
 export class SubmitCMD implements ISubmit{
 		 static POOL:any =[]; fun:Function;
+		 /**@internal */
 		 _this:any;	
 		 args:any[];
+		 /**@internal */
 		 _ref:number = 1;
+		 /**@internal */
 		 _key:SubmitKey=new SubmitKey();
 		
 		constructor(){

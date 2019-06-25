@@ -3,7 +3,7 @@ import { Bitmap } from "../../resource/Bitmap";
 import { ILaya } from "../../../ILaya";
 	
 	/**
-	 * @private
+	 * @internal
 	 */
 	export class HtmlVideo extends Bitmap
 	{
@@ -62,7 +62,9 @@ import { ILaya } from "../../../ILaya";
 		{
 			return this.video;
 		}
-		
+		/**
+		 * @internal
+		 */
 		/*override*/  _getSource():any
 		{
 			// TODO Auto Generated method stub

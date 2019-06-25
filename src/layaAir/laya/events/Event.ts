@@ -1,6 +1,6 @@
 import { Sprite } from "../display/Sprite"
-	import { Stage } from "../display/Stage"
-	import { Point } from "../maths/Point"
+import { Stage } from "../display/Stage"
+import { Point } from "../maths/Point"
 import { ILaya } from "../../ILaya";
 	
 	/**
@@ -141,7 +141,7 @@ import { ILaya } from "../../ILaya";
 		 target:Sprite;
 		/** 事件当前冒泡对象。*/
 		 currentTarget:Sprite;
-		/** @private */
+		/** @internal */
 		 _stoped:boolean;
 		/** 分配给触摸点的唯一标识号（作为 int）。*/
 		 touchId:number;

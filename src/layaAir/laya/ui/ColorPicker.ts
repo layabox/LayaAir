@@ -3,11 +3,11 @@ import { Box } from "././Box";
 import { Button } from "././Button";
 import { UIUtils } from "././UIUtils";
 import { Graphics } from "../display/Graphics"
-	import { Input } from "../display/Input"
-	import { Sprite } from "../display/Sprite"
-	import { Event } from "../events/Event"
-	import { Point } from "../maths/Point"
-	import { Handler } from "../utils/Handler"
+import { Input } from "../display/Input"
+import { Sprite } from "../display/Sprite"
+import { Event } from "../events/Event"
+import { Point } from "../maths/Point"
+import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
 	
 	/**

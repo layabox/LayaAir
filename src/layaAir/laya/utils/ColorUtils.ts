@@ -25,7 +25,7 @@ import { Utils } from "./Utils"
 		 strColor:string;
 		/** uint 型颜色值。*/
 		 numColor:number;
-		/**@private TODO:*/
+		/**@internal TODO:*/
 		 _drawStyle:any;
 		
 		/**

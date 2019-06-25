@@ -21,6 +21,7 @@ import { Sprite } from "../../display/Sprite"
 		 sprite:Sprite = null;	// 对应的sprite对象
 
 		// submit需要关联稳定独立的mesh。所以这里要创建自己的mesh对象
+		/**@internal */
 		 _mesh:MeshQuadTexture;			//用Mesh2D代替_vb,_ib. 当前使用的mesh
 		private _pathMesh:MeshVG;			//矢量专用mesh。
 		private _triangleMesh:MeshTexture;	//drawTriangles专用mesh。由于ib不固定，所以不能与_mesh通用

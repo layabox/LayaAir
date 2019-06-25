@@ -4,13 +4,11 @@ import { ILaya } from "../../../ILaya";
 
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	export class WebGLVideo extends HtmlVideo
 	{
 		private gl:WebGLContext;
-		private preTarget:any;
-		private preTexture:any;
 		
 		private static curBindSource:any;
 		

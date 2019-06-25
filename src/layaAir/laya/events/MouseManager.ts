@@ -38,6 +38,7 @@ import { ILaya } from "../../ILaya";
 		 mouseMoveAccuracy:number = 2;
 		/** @private */
 		private static _isTouchRespond:boolean;
+		/** @internal */
 		 _event:Event = new Event();
 		private _stage:Stage;
 		

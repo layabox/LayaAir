@@ -57,7 +57,7 @@ import { URL } from "../../net/URL";
 		protected static _ALIGN:number = 0x30;// 0x10 & 0x20;
 		protected static _VALIGN:number = 0xc0;//0x40 & 0x80;
 		
-		/**@private */
+		/**@internal */
 		 _type:number;
 		 fontSize:number;
 		 family:string;
@@ -331,7 +331,7 @@ import { URL } from "../../net/URL";
 			value ? (this._type |= HTMLStyle._ITALIC) : (this._type &= ~HTMLStyle._ITALIC);
 		}
 		
-		/**@private */
+		/**@internal */
 		 _widthAuto():boolean {
 			return (this._type & HTMLStyle._WIDTHAUTO) !== 0;// || (_type & _WIDTH_SET) === 0;
 		}
@@ -354,7 +354,7 @@ import { URL } from "../../net/URL";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		//TODO:coverage
 		 _calculation(type:string, value:string):boolean {
@@ -434,7 +434,7 @@ import { URL } from "../../net/URL";
 			value ? (this._type |= HTMLStyle._LINE_ELEMENT) : (this._type &= (~HTMLStyle._LINE_ELEMENT));
 		}
 		
-		/**@private */
+		/**@internal */
 		//TODO:coverage
 		 _enableLayout():boolean {
 			return (this._type & HTMLStyle._DISPLAY_NONE) === 0 && (this._type & HTMLStyle._ABSOLUTE) === 0;

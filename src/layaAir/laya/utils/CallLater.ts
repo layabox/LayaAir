@@ -12,7 +12,7 @@ import { ILaya } from "../../ILaya";
 		private _laters:any[] = [];
 		
 		/**
-		 * @private
+		 * @internal
 		 * 帧循环处理函数。
 		 */
 		 _update():void {

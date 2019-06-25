@@ -210,7 +210,7 @@ export class Rectangle {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * 返回代表当前矩形的顶点数据。
 	 * @return 顶点数据。
 	 */
@@ -223,7 +223,7 @@ export class Rectangle {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * 返回矩形的顶点数据。
 	 */
 	static _getBoundPointS(x: number, y: number, width: number, height: number): any[] {
@@ -235,7 +235,7 @@ export class Rectangle {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * 返回包含所有点的最小矩形。
 	 * @param pointList 点列表。
 	 * @return 包含所有点的最小矩形矩形对象。

@@ -1,8 +1,8 @@
 import { Loader } from "././Loader";
 import { URL } from "././URL";
 import { EventDispatcher } from "../events/EventDispatcher"
-	import { HTMLCanvas } from "../resource/HTMLCanvas"
-	import { Texture2D } from "../resource/Texture2D"
+import { HTMLCanvas } from "../resource/HTMLCanvas"
+import { Texture2D } from "../resource/Texture2D"
 	
 	/**
 	 * @private
@@ -37,6 +37,7 @@ import { EventDispatcher } from "../events/EventDispatcher"
 		}
 		
 		/**
+		 * @internal
 		 * 尝试使用Work加载Image
 		 * @return 是否启动成功
 		 */

@@ -41,7 +41,7 @@ import { Event } from "../events/Event"
 		 * <p> LITTLE_ENDIAN ：小端字节序，地址低位存储值的低位，地址高位存储值的高位。</p>
 		 */
 		 static BIG_ENDIAN:string = "bigEndian";
-		/**@private */
+		/**@internal */
 		 _endian:string;
 		/**@private */
 		protected _socket:any;
@@ -115,7 +115,7 @@ import { Event } from "../events/Event"
 		 */
 		constructor(host:string = null, port:number = 0, byteClass:new()=>any = null, protocols:any[] = null){
 			super();
-this._byteClass = byteClass ? byteClass : Byte;
+			this._byteClass = byteClass ? byteClass : Byte;
 			this.protocols = protocols;
 			this.endian = Socket.BIG_ENDIAN;
 			if (host && port > 0 && port < 65535) this.connect(host, port);

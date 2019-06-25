@@ -11,7 +11,7 @@ import { ILaya } from "../../ILaya";
 	 */
 	export class TouchManager {
 		
-		 static I:TouchManager = new TouchManager();
+		static I:TouchManager = new TouchManager();
 		private static _oldArr:any[] = [];
 		private static _newArr:any[] = [];
 		private static _tEleArr:any[] = [];
@@ -30,6 +30,7 @@ import { ILaya } from "../../ILaya";
 		 enable:boolean = true;
 		
 		/**
+		 * @internal
 		 * 用于派发事件用的Event对象
 		 */
 		 _event:Event = new Event();

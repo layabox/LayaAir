@@ -6,7 +6,7 @@ import { IAniLib } from "./AniLibPack";
 import { Byte } from "../utils/Byte";
 
 /**
- * @private
+ * @internal
  */
 export class AnimationParser01 {
 	/**

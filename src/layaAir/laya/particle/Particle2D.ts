@@ -33,7 +33,7 @@ import { DrawParticleCmd } from "../display/cmd/DrawParticleCmd"
 		 */
 		constructor(setting:ParticleSetting){
 			super();
-this.customRenderEnable = true;
+			this.customRenderEnable = true;
 			if (setting) this.setParticleSetting(setting);
 		}
 		

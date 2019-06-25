@@ -7,8 +7,9 @@ import { Matrix } from "../../../maths/Matrix"
 		
 		
 		private static POOL:any = SaveBase._createArray();
-		
+		/**@internal */
 		 _savematrix:Matrix;
+		 /**@internal */
 		 _matrix:Matrix = new Matrix();
 		
 		constructor(){

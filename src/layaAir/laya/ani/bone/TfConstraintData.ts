@@ -1,5 +1,5 @@
 /**
- * @private
+ * @internal
  */
 //TODO:coverage
 export class TfConstraintData {

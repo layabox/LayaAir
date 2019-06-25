@@ -1,7 +1,7 @@
 import { EmitterBase } from "././EmitterBase";
 import { ParticleSetting } from "../ParticleSetting"
-	import { ParticleTemplate2D } from "../ParticleTemplate2D"
-	import { ParticleTemplateBase } from "../ParticleTemplateBase"
+import { ParticleTemplate2D } from "../ParticleTemplate2D"
+import { ParticleTemplateBase } from "../ParticleTemplateBase"
 	
 	/**
 	 * 
@@ -9,7 +9,7 @@ import { ParticleSetting } from "../ParticleSetting"
 	 */
 	export class Emitter2D extends EmitterBase
 	{
-		 setting:ParticleSetting;
+		setting:ParticleSetting;
 		private _posRange:Float32Array;
 		private _canvasTemplate:ParticleTemplateBase;
 		private _emitFun:Function;

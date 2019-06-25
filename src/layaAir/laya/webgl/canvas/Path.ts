@@ -2,7 +2,9 @@
 	export class Path {
 		
 		//public var _rect:Rectangle;
+		/**@internal */
 		 _lastOriX:number = 0;	//moveto等的原始位置。没有经过内部矩阵变换的
+		 /**@internal */
 		 _lastOriY:number = 0;
 		 paths:any[] = [];	//所有的路径。{@type renderPath[] }
 		private _curPath:renderPath = null;

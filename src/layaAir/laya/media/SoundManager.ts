@@ -1,11 +1,11 @@
 import { SoundChannel } from "././SoundChannel";
 import { Event } from "../events/Event"
-	import { AudioSound } from "./h5audio/AudioSound"
-	import { WebAudioSound } from "./webaudio/WebAudioSound"
-	//import { Loader } from "../net/Loader"
-	import { URL } from "../net/URL"
-	import { Handler } from "../utils/Handler"
-	import { Utils } from "../utils/Utils"
+import { AudioSound } from "./h5audio/AudioSound"
+import { WebAudioSound } from "./webaudio/WebAudioSound"
+//import { Loader } from "../net/Loader"
+import { URL } from "../net/URL"
+import { Handler } from "../utils/Handler"
+import { Utils } from "../utils/Utils"
 import { Sound } from "./Sound";
 import { Stage } from "../display/Stage";
 import { LoaderManager } from "../net/LoaderManager";

@@ -48,7 +48,7 @@ import { ILaya } from "../../ILaya";
 			this.addChild(view);
 			this.initItems();
 		}
-		
+		/**@internal */
 		 _afterInited():void 
 		{
 			this.initItems();

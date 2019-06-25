@@ -55,15 +55,15 @@ export class MovieClip extends Sprite {
 	protected _ended: boolean = true;
 	/**@private 总帧数。*/
 	protected _count: number;
-	/**@private id_data起始位置表*/
+	/**@internal id_data起始位置表*/
 	_ids: any;
 	/**@private */
 	protected _loadedImage: any = {};
-	/**@private id_实例表*/
+	/**@internal id_实例表*/
 	_idOfSprite: any[];
-	/**@private 父mc*/
+	/**@internal 父mc*/
 	_parentMovieClip: MovieClip;
-	/**@private 需要更新的movieClip表*/
+	/**@internal 需要更新的movieClip表*/
 	_movieClipList: any[];
 	/**@private */
 	protected _labels: any;
@@ -116,8 +116,8 @@ export class MovieClip extends Sprite {
 		super.destroy(destroyChild);
 	}
 
-		/**@private */
-		/*override*/  _setDisplay(value: boolean): void {
+	/**@internal */
+	/*override*/  _setDisplay(value: boolean): void {
 		super._setDisplay(value);
 		if (this._isRoot) {
 			this._onDisplay(value);
@@ -409,7 +409,7 @@ export class MovieClip extends Sprite {
 		this._Pos = _data.pos;
 	}
 
-	/**@private */
+	/**@internal */
 	//TODO:coverage
 	_setData(data: Byte, start: number): void {
 		this._data = data;

@@ -45,7 +45,7 @@ import { HTMLParse } from "../utils/HTMLParse";
 	 * div.innerHTML = "<link type='text/css' href='html/test.css'/><a href='alink'>a</a><div style='width:130px;height:50px;color:#ff0000'>div</div><br/><span style='font-weight:bold;color:#ffffff;font-size:30px;stroke:2px;italic:true;'>span</span><span style='letter-spacing:5px'>span2</span><p>p</p><img src='res/boy.png'></img>";
 	 */
 	export class HTMLDivElement extends Sprite {
-		/**@private */
+		/**@internal */
 		 _element:HTMLDivParser;
 		/**@private */
 		private _recList:any[] = [];
@@ -56,7 +56,7 @@ import { HTMLParse } from "../utils/HTMLParse";
 		
 		constructor(){
 			super();
-this._element = new HTMLDivParser();
+			this._element = new HTMLDivParser();
 			this._element.repaintHandler = new Handler(this, this._htmlDivRepaint);
 			this.mouseEnabled = true;
 			this.on(Event.CLICK, this, this._onMouseClick);

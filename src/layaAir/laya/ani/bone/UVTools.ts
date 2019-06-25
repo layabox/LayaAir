@@ -2,7 +2,7 @@ import { Utils } from "../../utils/Utils";
 
 /**
  * 用于UV转换的工具类
- * @private
+ * @internal
  */
 export class UVTools {
 

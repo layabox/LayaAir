@@ -19,9 +19,9 @@ import { ILaya } from "../../ILaya";
 		 currTimer:number = Date.now(); 
 		/** 当前的帧数。*/
 		 currFrame:number = 0;
-		/**@private 两帧之间的时间间隔,单位毫秒。*/
+		/**@internal 两帧之间的时间间隔,单位毫秒。*/
 		 _delta:number = 0;
-		/**@private */
+		/**@internal */
 		 _lastTimer:number = Date.now();
 		/**@private */
 		private _map:any[] = [];
@@ -45,7 +45,7 @@ import { ILaya } from "../../ILaya";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 * 帧循环处理函数。
 		 */
 		 _update():void {
@@ -113,7 +113,7 @@ import { ILaya } from "../../ILaya";
 			Timer._pool.push(handler);
 		}
 		
-		/** @private */
+		/** @internal */
 		 _create(useFrame:boolean, repeat:boolean, delay:number, caller:any, method:Function, args:any[], coverBefore:boolean):TimerHandler {
 			//如果延迟为0，则立即执行
 			if (!delay) {

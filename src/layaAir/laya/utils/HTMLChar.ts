@@ -76,12 +76,12 @@ import { Pool } from "././Pool";
 			return Pool.getItemByClass("HTMLChar", HTMLChar);
 		}
 		
-		/** @private */
+		/** @internal */
 		 _isChar():boolean {
 			return true;
 		}
 		
-		/** @private */
+		/** @internal */
 		 _getCSSStyle():any {
 			return this.style;
 		}

@@ -1,9 +1,9 @@
 import { Filter } from "././Filter";
 import { Matrix } from "../maths/Matrix"
-	import { Context } from "../resource/Context"
-	import { RenderTexture2D } from "../resource/RenderTexture2D"
-	import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D"
-	import { Value2D } from "../webgl/shader/d2/value/Value2D"
+import { Context } from "../resource/Context"
+import { RenderTexture2D } from "../resource/RenderTexture2D"
+import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D"
+import { Value2D } from "../webgl/shader/d2/value/Value2D"
 import { BlurFilter } from "./BlurFilter";
 	/**
 	 * @private

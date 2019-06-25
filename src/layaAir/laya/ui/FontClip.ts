@@ -37,7 +37,7 @@ import { ILaya } from "../../ILaya";
 		 */
 		constructor(skin:string = null, sheet:string = null){
 			super();
-if (skin) this.skin = skin;
+			if (skin) this.skin = skin;
 			if (sheet) this.sheet = sheet;
 		}
 		

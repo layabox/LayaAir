@@ -2,7 +2,7 @@ import { Rectangle } from "../../maths/Rectangle"
 	import { Pool } from "../../utils/Pool"
 	
 	/**
-	 * @private
+	 * @internal
 	 * Graphic bounds数据类
 	 */
 	export class BoundsStyle {

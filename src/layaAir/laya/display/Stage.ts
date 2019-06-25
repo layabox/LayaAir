@@ -4,19 +4,19 @@ import { Config } from "./../../Config";
 import { Input } from "././Input";
 import { SpriteConst } from "././SpriteConst";
 import { Const } from "../Const"
-	import { Event } from "../events/Event"
-	import { MouseManager } from "../events/MouseManager"
-	import { Matrix } from "../maths/Matrix"
-	import { Point } from "../maths/Point"
-	import { Render } from "../renders/Render"
-	import { RenderInfo } from "../renders/RenderInfo"
-	import { Context } from "../resource/Context"
-	import { HTMLCanvas } from "../resource/HTMLCanvas"
-	import { Browser } from "../utils/Browser"
-	import { CallLater } from "../utils/CallLater"
-	import { ColorUtils } from "../utils/ColorUtils"
-	import { RunDriver } from "../utils/RunDriver"
-	import { VectorGraphManager } from "../utils/VectorGraphManager"
+import { Event } from "../events/Event"
+import { MouseManager } from "../events/MouseManager"
+import { Matrix } from "../maths/Matrix"
+import { Point } from "../maths/Point"
+import { Render } from "../renders/Render"
+import { RenderInfo } from "../renders/RenderInfo"
+import { Context } from "../resource/Context"
+import { HTMLCanvas } from "../resource/HTMLCanvas"
+import { Browser } from "../utils/Browser"
+import { CallLater } from "../utils/CallLater"
+import { ColorUtils } from "../utils/ColorUtils"
+import { RunDriver } from "../utils/RunDriver"
+import { VectorGraphManager } from "../utils/VectorGraphManager"
 import { RenderState2D } from "../webgl/utils/RenderState2D";
 import { WebGLContext } from "../webgl/WebGLContext";
 import { Stat } from "../utils/Stat";
@@ -127,7 +127,7 @@ import { ILaya } from "../../ILaya";
 		 renderingEnabled:boolean = true;
 		/**是否启用屏幕适配，可以适配后，在某个时候关闭屏幕适配，防止某些操作导致的屏幕意外改变*/
 		 screenAdaptationEnabled:boolean = true;
-		/**@private */
+		/**@internal */
 		 _canvasTransform:Matrix = new Matrix();
 		/**@private */
 		private _screenMode:string = "none";
@@ -153,9 +153,9 @@ import { ILaya } from "../../ILaya";
 		private _isFocused:boolean;
 		/**@private */
 		private _isVisibility:boolean;
-		/**@private webgl Color*/
+		/**@internal webgl Color*/
 		 _wgColor:any[] = [0, 0, 0, 1];
-		/**@private */
+		/**@internal */
 		 _scene3Ds:any[]=[];
 		
 		/**@private */
@@ -165,16 +165,16 @@ import { ILaya } from "../../ILaya";
 		/**@private */
 		 static _dbgSprite:Sprite = new Sprite();
 		
-		/**@private */
-		 _3dUI:Sprite[] = [];
-		/**@private */
-		 _curUIBase:Sprite = null; 		// 给鼠标事件capture用的。用来找到自己的根。因为3d界面的根不是stage（界面链会被3d对象打断）
+		/**@internal */
+		_3dUI:Sprite[] = [];
+		/**@internal */
+		_curUIBase:Sprite = null; 		// 给鼠标事件capture用的。用来找到自己的根。因为3d界面的根不是stage（界面链会被3d对象打断）
 		/**使用物理分辨率作为canvas大小，会改进渲染效果，但是会降低性能*/
-		 useRetinalCanvas:boolean = false;
+		useRetinalCanvas:boolean = false;
 		/**场景类，引擎中只有一个stage实例，此实例可以通过Laya.stage访问。*/
 		constructor(){
 			super();
-super.set_transform( this._createTransform()); 
+			super.set_transform( this._createTransform()); 
 			//重置默认值，请不要修改
 			this.mouseEnabled = true;
 			this.hitTestPrior = true;
@@ -602,7 +602,7 @@ super.set_transform( this._createTransform());
 		/*override*/  parentRepaint(type:number = SpriteConst.REPAINT_CACHE):void {
 		}
 		
-		/**@private */
+		/**@internal */
 		 _loop():boolean {
 			this._globalRepaintGet = this._globalRepaintSet;
 			this._globalRepaintSet = false;

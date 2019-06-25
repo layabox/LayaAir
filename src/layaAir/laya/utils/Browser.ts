@@ -97,7 +97,7 @@ import { ILaya } from "../../ILaya";
              return r;
          }         
          
-		/**@private */
+		/**@internal */
 		 static __init__():any {
              var Laya:any = ILaya.Laya;
 			if (Browser._window) return Browser._window;

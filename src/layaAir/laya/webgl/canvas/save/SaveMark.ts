@@ -5,7 +5,9 @@ import { SaveBase } from "././SaveBase";
 export class SaveMark implements ISaveData {
 
 	private static POOL: any = SaveBase._createArray();
+	/**@internal */
 	_saveuse: number = 0;
+	/**@internal */
 	_preSaveMark: SaveMark;
 
 	constructor() {

@@ -31,7 +31,7 @@ import { ILaya } from "../../ILaya";
 		 */
 		constructor(){
 			super();
-this.width = this.height = 100;
+			this.width = this.height = 100;
 			//子对象缩放的情况下，优化会有问题，先屏蔽掉
 			//_content.optimizeScrollRect = true;
 		}

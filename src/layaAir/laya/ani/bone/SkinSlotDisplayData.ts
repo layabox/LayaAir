@@ -3,7 +3,7 @@ import { Texture } from "../../resource/Texture";
 
 
 /**
- * @private
+ * @internal
  */
 export class SkinSlotDisplayData {
 

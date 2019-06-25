@@ -1,8 +1,8 @@
 import { Event } from "../events/Event"
-	import { Loader } from "../net/Loader"
-	import { UIComponent } from "./UIComponent"
-	import { Image } from "./Image"
-	import { Handler } from "../utils/Handler"
+import { Loader } from "../net/Loader"
+import { UIComponent } from "./UIComponent"
+import { Image } from "./Image"
+import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
 	
 	/**
@@ -130,7 +130,7 @@ import { ILaya } from "../../ILaya";
 		 */
 		constructor(skin:string = null){
 			super();
-this.skin = skin;
+			this.skin = skin;
 		}
 		
 		/**@inheritDoc */

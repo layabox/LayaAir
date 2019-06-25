@@ -6,7 +6,7 @@ import { Sprite } from "../Sprite"
 	import { Pool } from "../../utils/Pool"
 	
 	/**
-	 * @private
+	 * @internal
 	 * 存储cache相关
 	 */
 	export class CacheStyle {
@@ -141,6 +141,9 @@ import { Sprite } from "../Sprite"
 		
 		private static _scaleInfo:Point = new Point();
 		 static CANVAS_EXTEND_EDGE:number = 16;
+		 /**
+		 * @internal
+		 */
 		 _calculateCacheRect(sprite:Sprite, tCacheType:string,x:number,y:number):Point
 		{
 			var _cacheStyle:CacheStyle = sprite._cacheStyle;

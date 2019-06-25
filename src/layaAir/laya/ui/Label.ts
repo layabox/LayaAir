@@ -1,8 +1,8 @@
 import { Styles } from "././Styles";
 import { Text } from "../display/Text"
-	import { Event } from "../events/Event"
-	import { UIComponent } from "./UIComponent"
-	import { UIUtils } from "./UIUtils"
+import { Event } from "../events/Event"
+import { UIComponent } from "./UIComponent"
+import { UIUtils } from "./UIUtils"
 import { ILaya } from "../../ILaya";
 	
 	/**
@@ -130,7 +130,7 @@ import { ILaya } from "../../ILaya";
 		 */
 		constructor(text:string = ""){
 			super();
-this.text = text;
+			this.text = text;
 		}
 		
 		/**@inheritDoc */

@@ -4,12 +4,12 @@ import { Slider } from "././Slider";
 import { UIConfig } from "./../../UIConfig";
 import { Styles } from "././Styles";
 import { Sprite } from "../display/Sprite"
-	import { Event } from "../events/Event"
-	import { Point } from "../maths/Point"
-	import { Loader } from "../net/Loader"
-	import { Ease } from "../utils/Ease"
-	import { Handler } from "../utils/Handler"
-	import { Tween } from "../utils/Tween"
+import { Event } from "../events/Event"
+import { Point } from "../maths/Point"
+import { Loader } from "../net/Loader"
+import { Ease } from "../utils/Ease"
+import { Handler } from "../utils/Handler"
+import { Tween } from "../utils/Tween"
 import { ILaya } from "../../ILaya";
 	
 	/**
@@ -93,7 +93,7 @@ import { ILaya } from "../../ILaya";
 		 */
 		constructor(skin:string = null) {
 			super();
-this.skin = skin;
+			this.skin = skin;
 			this.max = 1;
 		}
 		

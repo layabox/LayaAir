@@ -4,6 +4,7 @@
 	 * CommandEncoder
 	 */
 	export class CommandEncoder {
+		/**@internal */
 		 _idata:any[] = [];
 		
 		//TODO:coverage

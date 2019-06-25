@@ -1,5 +1,5 @@
 /**
- * @private
+ * @internal
  */
 export class AnimationState {
 	static stopped: number = 0;

@@ -1,6 +1,6 @@
 import { DeformSlotDisplayData } from "././DeformSlotDisplayData";
 /**
- * @private
+ * @internal
  */
 export class DeformSlotData {
 

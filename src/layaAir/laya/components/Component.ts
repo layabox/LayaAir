@@ -8,14 +8,14 @@ import { Utils } from "../utils/Utils";
  * <code>Component</code> 类用于创建组件的基类。
  */
 export class Component implements ISingletonElement, IDestroy {
-	/** @private [实现IListPool接口]*/
+	/** @internal [实现IListPool接口]*/
 	_destroyed: boolean;
 	/** @private [实现IListPool接口]*/
 	private _indexInList: number;
 
-	/** @private */
+	/** @internal */
 	_id: number;
-	/** @private */
+	/** @internal */
 	_enabled: boolean;
 	/** @private */
 	private _awaked: boolean;
@@ -74,7 +74,7 @@ export class Component implements ISingletonElement, IDestroy {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_isScript(): boolean {
 		return false;
@@ -92,7 +92,7 @@ export class Component implements ISingletonElement, IDestroy {
 
 	/**
 	 * [实现IListPool接口]
-	 * @private
+	 * @internal
 	 */
 	_getIndexInList(): number {
 		return this._indexInList;
@@ -100,7 +100,7 @@ export class Component implements ISingletonElement, IDestroy {
 
 	/**
 	 * [实现IListPool接口]
-	 * @private
+	 * @internal
 	 */
 	_setIndexInList(index: number): void {
 		this._indexInList = index;
@@ -108,7 +108,7 @@ export class Component implements ISingletonElement, IDestroy {
 
 	/**
 	 * 被添加到节点后调用，可根据需要重写此方法
-	 * @private
+	 * @internal
 	 */
 	_onAdded(): void {
 		//override it.
@@ -156,21 +156,21 @@ export class Component implements ISingletonElement, IDestroy {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_parse(data: any): void {
 		//override it.
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_cloneTo(dest: Component): void {
 		//override it.
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_setActive(value: boolean): void {
 		if (value) {
@@ -192,7 +192,7 @@ export class Component implements ISingletonElement, IDestroy {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_destroy(): void {
 		if (this.owner.activeInHierarchy && this._enabled) {

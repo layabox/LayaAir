@@ -29,12 +29,12 @@ import { Resource } from "././Resource";
 		constructor(){
 			
 			super();
-this._width = -1;
+			this._width = -1;
 			this._height = -1;
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 * 获取纹理资源。
 		 */
 		//TODO:coverage

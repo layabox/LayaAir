@@ -8,9 +8,9 @@ import { ILaya } from "../../ILaya";
 	 * <code>BaseTexture</code> 纹理的父类，抽象类，不允许实例。
 	 */
 	export class BaseTexture extends Bitmap {
-		/** @private */
+		/** @internal */
 		 static WARPMODE_REPEAT:number = 0;
-		/** @private */
+		/** @internal */
 		 static WARPMODE_CLAMP:number = 1;
 		
 		/**寻址模式_重复。*/
@@ -173,7 +173,7 @@ import { ILaya } from "../../ILaya";
 		constructor(format:number, mipMap:boolean){
 			
 			super();
-this._wrapModeU = BaseTexture.WARPMODE_REPEAT;
+			this._wrapModeU = BaseTexture.WARPMODE_REPEAT;
 			this._wrapModeV = BaseTexture.WARPMODE_REPEAT;
 			this._filterMode = BaseTexture.FILTERMODE_BILINEAR;
 			
@@ -336,6 +336,7 @@ this._wrapModeU = BaseTexture.WARPMODE_REPEAT;
 		}
 		
 		/**
+		 * @internal
 		 * 获取纹理资源。
 		 */
 		/*override*/  _getSource():any {

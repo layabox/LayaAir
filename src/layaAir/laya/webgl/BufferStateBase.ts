@@ -6,13 +6,13 @@ import { LayaGL } from "../layagl/LayaGL"
 	 * @author ...
 	 */
 	export class BufferStateBase {
-		/**@private [只读]*/
+		/**@internal [只读]*/
 		 static _curBindedBufferState:BufferStateBase;
 		
 		/**@private [只读]*/
 		private _nativeVertexArrayObject:any;
 		
-		/**@private [只读]*/
+		/**@internal [只读]*/
 		 _bindedIndexBuffer:Buffer;
 		
 		constructor(){

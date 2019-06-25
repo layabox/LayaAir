@@ -48,7 +48,7 @@ import { Event } from "../../events/Event";
 		
 		constructor(singleton:number){
 			super();
-this.onDeviceOrientationChange = this.onDeviceOrientationChange.bind(this);
+			this.onDeviceOrientationChange = this.onDeviceOrientationChange.bind(this);
 		}
 		
 		/**

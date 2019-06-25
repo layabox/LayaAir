@@ -24,7 +24,7 @@ import { ColorFilter } from "./ColorFilter";
 		 static COLOR:number = 0x20;
 		/**@private 发光滤镜。*/
 		 static GLOW:number = 0x08;
-		/** @private*/
+		/** @internal*/
 		 _glRender:any;
 		
 		/**

@@ -3,11 +3,11 @@ import { BitmapFont } from "././BitmapFont";
 import { SpriteConst } from "././SpriteConst";
 import { Graphics } from "././Graphics";
 import { SpriteStyle } from "./css/SpriteStyle"
-	import { TextStyle } from "./css/TextStyle"
-	import { Event } from "../events/Event"
-	import { Point } from "../maths/Point"
-	import { Rectangle } from "../maths/Rectangle"
-	import { WordText } from "../utils/WordText"
+import { TextStyle } from "./css/TextStyle"
+import { Event } from "../events/Event"
+import { Point } from "../maths/Point"
+import { Rectangle } from "../maths/Rectangle"
+import { WordText } from "../utils/WordText"
 import { Timer } from "../utils/Timer";
 import { ILaya } from "../../ILaya";
 //import { ClassUtils } from "../utils/ClassUtils";
@@ -162,11 +162,11 @@ import { ILaya } from "../../ILaya";
 		protected _charSize:any = {};
 		/**@private */
 		protected _valign:string = "top";
-		/**@private */
+		/**@internal */
 		 _fontSize:number = Text.defaultFontSize;
-		/**@private */
+		/**@internal */
 		 _font:string = Text.defaultFont;
-		/**@private */
+		/**@internal */
 		 _color:string = "#000000";
 		
 		/**@private */
@@ -243,7 +243,7 @@ import { ILaya } from "../../ILaya";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 * @inheritDoc
 		 */
 		/*override*/  _getBoundPointsM(ifRotate:boolean = false):any[] {
@@ -280,7 +280,7 @@ import { ILaya } from "../../ILaya";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 _getCSSStyle():TextStyle {
 			return (<TextStyle>this._style );

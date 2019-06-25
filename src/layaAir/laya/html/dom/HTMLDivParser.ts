@@ -68,7 +68,7 @@ import { ILaya } from "../../../ILaya";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 * @param	out
 		 * @return
 		 */
@@ -94,7 +94,7 @@ import { ILaya } from "../../../ILaya";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 * @param	out
 		 */
 		//TODO:coverage

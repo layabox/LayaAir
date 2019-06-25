@@ -1,9 +1,9 @@
 import { Texture2D } from "././Texture2D";
 import { LayaGL } from "../layagl/LayaGL"
-	import { BaseTexture } from "./BaseTexture"
-	import { WebGLContext } from "../webgl/WebGLContext"
-	import { BaseShader } from "../webgl/shader/BaseShader"
-	import { RenderState2D } from "../webgl/utils/RenderState2D"
+import { BaseTexture } from "./BaseTexture"
+import { WebGLContext } from "../webgl/WebGLContext"
+import { BaseShader } from "../webgl/shader/BaseShader"
+import { RenderState2D } from "../webgl/utils/RenderState2D"
 import { ILaya } from "../../ILaya";
 	
 	/**
@@ -35,7 +35,7 @@ import { ILaya } from "../../ILaya";
 		private _depthStencilBuffer:any;
 		/** @private */
 		private _depthStencilFormat:number;
-		
+		/**@internal */
 		 _mgrKey:number = 0;	//给WebGLRTMgr用的
 
 		/**

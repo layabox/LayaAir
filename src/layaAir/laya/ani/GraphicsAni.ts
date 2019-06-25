@@ -3,7 +3,7 @@ import { Matrix } from "../maths/Matrix";
 import { Graphics } from "../display/Graphics";
 
 /**
- * @private
+ * @internal
  */
 export class GraphicsAni extends Graphics {
 

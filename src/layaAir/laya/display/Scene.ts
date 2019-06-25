@@ -22,22 +22,22 @@ import { ILaya } from "../../ILaya";
 		private static _loadPage:Scene;
 		
 		/**场景被关闭后，是否自动销毁（销毁节点和使用到的资源），默认为false*/
-		 autoDestroyAtClosed:boolean = false;
+		autoDestroyAtClosed:boolean = false;
 		/**场景地址*/
-		 url:string = null;
+		url:string = null;
 		
 		/**场景时钟*/
 		private _timer:Timer;
 		/**@private */
 		private _viewCreated:boolean = false;
-		/**@private */
+		/**@internal */
 		 _idMap:any;
-		/**@private */
+		/**@internal */
 		 _$componentType:string = "Scene";
 		
 		constructor(){
 			super();
-this._setBit(Const.NOT_READY, true);
+			this._setBit(Const.NOT_READY, true);
 			Scene.unDestroyedScenes.push(this);
 			this._scene = this;
 			this.createChildren();

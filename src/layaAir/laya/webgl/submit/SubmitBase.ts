@@ -33,18 +33,25 @@ import { SubmitKey } from "././SubmitKey";
 		 static preRender:ISubmit=null;	//上一个submit，主要用来比较key,以减少uniform的重复提交。
 
 		 clipInfoID:number = -1;	//用来比较clipinfo
+		 /**@internal */
 		 _mesh:Mesh2D=null;			//代替 _vb,_ib
+		 /**@internal */
 		 _blendFn:Function=null;
 		protected _id:number=0;
+		/**@internal */
 		 _renderType:number=0;
+		 /**@internal */
 		 _parent:ISubmit=null;
 		//渲染key，通过key判断是否是同一个
+		/**@internal */
 		 _key:SubmitKey=new SubmitKey();
 		
 		// 从VB中什么地方开始画，画到哪
+		/**@internal */
 		 _startIdx:number=0;		//indexbuffer 的偏移，单位是byte
+		 /**@internal */
 		 _numEle:number=0;
-
+		/**@internal */
 		 _ref:number=1;	// 其实已经没有用了
 		
 		 shaderValue:Value2D=null;

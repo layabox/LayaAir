@@ -14,10 +14,10 @@ export class Script extends Component {
 		return false;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _onAwake(): void {
+	/**
+	 * @inheritDoc
+	 */
+	/*override*/ protected _onAwake(): void {
 		this.onAwake();
 		if (this.onStart !== Script.prototype.onStart) {
 			ILaya.startTimer.callLater(this, this.onStart);
@@ -107,7 +107,7 @@ export class Script extends Component {
 	}
 
 		/**
-		 * @inheritDoc
+		 * @internal
 		 */
 		/*override*/  _isScript(): boolean {
 		return true;

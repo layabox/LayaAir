@@ -3,12 +3,12 @@ import { AutoBitmap } from "././AutoBitmap";
 import { UIUtils } from "././UIUtils";
 import { Styles } from "././Styles";
 import { Const } from "../Const"
-	import { Event } from "../events/Event"
-	import { Loader } from "../net/Loader"
-	import { Texture } from "../resource/Texture"
-	import { Handler } from "../utils/Handler"
-	import { Utils } from "../utils/Utils"
-	import { WeakObject } from "../utils/WeakObject"
+import { Event } from "../events/Event"
+import { Loader } from "../net/Loader"
+import { Texture } from "../resource/Texture"
+import { Handler } from "../utils/Handler"
+import { Utils } from "../utils/Utils"
+import { WeakObject } from "../utils/WeakObject"
 import { ILaya } from "../../ILaya";
 	
 	/**
@@ -159,7 +159,7 @@ import { ILaya } from "../../ILaya";
 		 */
 		constructor(url:string = null, clipX:number = 1, clipY:number = 1){
 			super();
-this._clipX = clipX;
+			this._clipX = clipX;
 			this._clipY = clipY;
 			this.skin = url;
 		}

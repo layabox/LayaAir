@@ -7,12 +7,12 @@ import { HScrollBar } from "././HScrollBar";
 import { Clip } from "././Clip";
 import { UIUtils } from "././UIUtils";
 import { Node } from "../display/Node"
-	import { Event } from "../events/Event"
-	import { Point } from "../maths/Point"
-	import { Rectangle } from "../maths/Rectangle"
-	import { Handler } from "../utils/Handler"
-	import { SceneUtils } from "../utils/SceneUtils"
-	import { Tween } from "../utils/Tween"
+import { Event } from "../events/Event"
+import { Point } from "../maths/Point"
+import { Rectangle } from "../maths/Rectangle"
+import { Handler } from "../utils/Handler"
+import { SceneUtils } from "../utils/SceneUtils"
+import { Tween } from "../utils/Tween"
 import { ILaya } from "../../ILaya";
 	
 	/**
@@ -178,7 +178,7 @@ import { ILaya } from "../../ILaya";
 		 selectEnable:boolean = false;
 		/**最大分页数。*/
 		 totalPage:number = 0;
-		/**@private */
+		/**@internal */
 		 _$componentType:string = "List";
 		
 		/**@private */
@@ -561,7 +561,7 @@ import { ILaya } from "../../ILaya";
 			cell.on(Event.MOUSE_UP, this, this.onCellMouse);
 			this._cells.push(cell);
 		}
-		
+		/**@internal */
 		 _afterInited():void {
 			this.initItems();
 		}

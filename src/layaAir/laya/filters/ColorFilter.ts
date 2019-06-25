@@ -16,9 +16,9 @@ import { ColorUtils } from "../utils/ColorUtils"
 		/**标准矩阵长度*/
 		private static LENGTH:number = 25;
 		
-		/** @private */
+		/** @internal */
 		 _mat:Float32Array;
-		/** @private */
+		/** @internal */
 		 _alpha:Float32Array;
 		/**当前使用的矩阵*/
 		private _matrix:any[];
@@ -29,7 +29,7 @@ import { ColorUtils } from "../utils/ColorUtils"
 		 */
 		constructor(mat:any[] = null){
 			super();
-if (!mat) mat = this._copyMatrix(ColorFilter.IDENTITY_MATRIX);
+			if (!mat) mat = this._copyMatrix(ColorFilter.IDENTITY_MATRIX);
 			this._mat = new Float32Array(16);
 			this._alpha = new Float32Array(4);
 			this.setByMatrix(mat);

@@ -8,7 +8,7 @@ import { Const } from "../Const"
 	import { Texture } from "../resource/Texture"
 	
 	/**
-	 * @private
+	 * @internal
 	 * 快速节点命令执行器
 	 * 多个指令组合才有意义，单个指令没必要在下面加
 	 */
@@ -16,7 +16,7 @@ import { Const } from "../Const"
 		/*[FILEINDEX:10000]*/
 		 static map:any = {};
 		private static curMat:Matrix = new Matrix();
-		
+		/**@internal */
 		 static __init__():void {
 			/*
 			   glQuickMap["drawNode;"] = drawNode;

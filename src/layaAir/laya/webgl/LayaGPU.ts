@@ -11,7 +11,7 @@ import { VertexArrayObject } from "../../laya/webgl/VertexArrayObject"
 		private static _extentionVendorPrefixes:any[] = ["", "WEBKIT_", "MOZ_"];
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 static _forceSupportVAOPlatform():boolean {
              let Browser = ILaya.Browser;
@@ -25,17 +25,17 @@ import { VertexArrayObject } from "../../laya/webgl/VertexArrayObject"
 		/**@private */
 		private _angleInstancedArrays:any = null;
 		
-		/**@private */
+		/**@internal */
 		 _isWebGL2:boolean = false;
-		/**@private */
+		/**@internal */
 		 _oesTextureHalfFloat:any = null;
-		/**@private */
+		/**@internal */
 		 _extTextureFilterAnisotropic:any = null;
-		/**@private */
+		/**@internal */
 		 _compressedTextureS3tc:any = null;
-		/**@private */
+		/**@internal */
 		 _compressedTexturePvrtc:any = null;
-		/**@private */
+		/**@internal */
 		 _compressedTextureEtc1:any = null;
 		
 		/**

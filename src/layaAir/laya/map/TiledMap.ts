@@ -101,9 +101,9 @@ import { IMap } from "./IMap";
 		private _pivotScaleY:number = 0.5;
 		private _centerX:number = 0;
 		private _centerY:number = 0;
-		/**@private */
+		/**@internal */
 		 _viewPortX:number = 0;
-		/**@private */
+		/**@internal */
 		 _viewPortY:number = 0;
 		private _viewPortWidth:number = 0;
 		private _viewPortHeight:number = 0;

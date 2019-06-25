@@ -1,6 +1,6 @@
 export class ShaderDefinesBase {
 		
-		
+		/**@internal */
 		 _value:number = 0;
 		
 		private _name2int:{[id:string]:number};

@@ -11,7 +11,7 @@ import { Texture } from "../../resource/Texture";
 
 
 /**
- * @private
+ * @internal
  */
 export class BoneSlot {
 
@@ -47,7 +47,6 @@ export class BoneSlot {
 	private _replaceDic: any = {};
 	/** 当前diyTexture的动画纹理 */
 	private _curDiyUV: any[];
-	private _curDiyVS: any[];
 
 	/** 实时模式下，复用使用 */
 	private _skinSprite: any;

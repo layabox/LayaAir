@@ -37,7 +37,7 @@ import { ILaya } from "../../ILaya";
 		public _uv:ArrayLike<number>;
 		/**@private */
 		private _referenceCount:number = 0;
-		/** @private [NATIVE]*/
+		/** @internal [NATIVE]*/
 		 _nativeObj:any;
 		
 		/**@private 唯一ID*/
@@ -93,7 +93,7 @@ import { ILaya } from "../../ILaya";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 * 根据指定资源和坐标、宽高、偏移量等创建 <code>Texture</code> 对象。
 		 * @param	source 绘图资源 Texture2D 或者 Texture 对象。
 		 * @param	x 起始绝对坐标 x 。
@@ -254,11 +254,11 @@ import { ILaya } from "../../ILaya";
 		 */
 		constructor(bitmap:Texture2D|Texture = null, uv:ArrayLike<number> = null, sourceWidth:number = 0, sourceHeight:number = 0){
 			super();
-this.setTo(bitmap, uv, sourceWidth, sourceHeight);
+			this.setTo(bitmap, uv, sourceWidth, sourceHeight);
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 _addReference():void {
 			this._bitmap && this._bitmap._addReference();
@@ -266,7 +266,7 @@ this.setTo(bitmap, uv, sourceWidth, sourceHeight);
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 _removeReference():void {
 			this._bitmap && this._bitmap._removeReference();
@@ -274,7 +274,7 @@ this.setTo(bitmap, uv, sourceWidth, sourceHeight);
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 _getSource(cb:Function=null):any {
 			if (this._destroyed || !this._bitmap)

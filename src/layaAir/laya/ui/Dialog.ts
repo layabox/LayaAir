@@ -4,11 +4,11 @@ import { UIUtils } from "./UIUtils";
 import { Button } from "./Button";
 import { UIComponent } from "././UIComponent";
 import { Sprite } from "../display/Sprite"
-	import { Event } from "../events/Event"
-	import { Point } from "../maths/Point"
-	import { Rectangle } from "../maths/Rectangle"
-	import { Handler } from "../utils/Handler"
-	import { Tween } from "../utils/Tween"
+import { Event } from "../events/Event"
+import { Point } from "../maths/Point"
+import { Rectangle } from "../maths/Rectangle"
+import { Handler } from "../utils/Handler"
+import { Tween } from "../utils/Tween"
 import { IUI } from "./IUI";
 import { ILaya } from "../../ILaya";
 	
@@ -198,14 +198,14 @@ import { ILaya } from "../../ILaya";
 		 closeType:string;
 		/**@private */
 		private _dragArea:Rectangle;
-		/**@private */
+		/**@internal */
 		 _param:any;
-		/**@private */
+		/**@internal */
 		 _effectTween:Tween;		
 		
 		constructor(){
 			super();
-this.popupEffect = Dialog.manager.popupEffectHandler;
+			this.popupEffect = Dialog.manager.popupEffectHandler;
 			this.closeEffect = Dialog.manager.closeEffectHandler;
 			this._dealDragArea();
 			this.on(Event.CLICK, this, this._onClick);

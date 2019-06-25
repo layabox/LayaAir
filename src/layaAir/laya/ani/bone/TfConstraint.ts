@@ -1,7 +1,7 @@
 import { TfConstraintData } from "././TfConstraintData";
 import { Bone } from "././Bone";
 /**
- * @private
+ * @internal
  */
 export class TfConstraint {
 

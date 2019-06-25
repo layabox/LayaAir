@@ -76,7 +76,7 @@ import { Handler } from "../utils/Handler"
 			return this._createListener(type, caller, listener, args, true);
 		}
 		
-		/**@private */
+		/**@internal */
 		 _createListener(type:string, caller:any, listener:Function, args:any[], once:boolean, offBefore:boolean = true):EventDispatcher {
 			//移除之前相同的监听
 			offBefore && this.off(type, caller, listener, once);

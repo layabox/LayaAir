@@ -10,6 +10,7 @@ export class Shader extends BaseShader {
 
 	//private static var _TEXTURES:Array =  [WebGLContext.TEXTURE0, WebGLContext.TEXTURE1, WebGLContext.TEXTURE2, WebGLContext.TEXTURE3, WebGLContext.TEXTURE4, WebGLContext.TEXTURE5, WebGLContext.TEXTURE6,, WebGLContext.TEXTURE7, WebGLContext.TEXTURE8];
 	private static _count: number = 0;
+	/**@internal */ 
 	static _preCompileShader: any = {}; //存储预编译结果，可以通过名字获得内容,目前不支持#ifdef嵌套和条件
 	private _attribInfo: any[] = null;
 
@@ -104,11 +105,15 @@ export class Shader extends BaseShader {
 
 	//存储一些私有变量
 	tag: any = {};
-
+	/**@internal */
 	_vshader: any;
+	/**@internal */
 	_pshader: any
+	/**@internal */
 	_program: any = null;
+	/**@internal */
 	_params: any[] = null;
+	/**@internal */
 	_paramsMap: any = {};
 
 	/**

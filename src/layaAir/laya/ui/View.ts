@@ -43,7 +43,7 @@ import { ILaya } from "../../ILaya";
 	export class View extends Scene {
 		/**@private 兼容老版本*/
 		 static uiMap:any = {};
-		/**@private */
+		/**@internal */
 		 _watchMap:any = {};
 		/**@private 相对布局组件*/
 		protected _widget:Widget;

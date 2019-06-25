@@ -26,7 +26,7 @@ import { Pool } from "../utils/Pool"
 		 tx:number;
 		/**沿 y 轴平移每个点的距离。*/
 		 ty:number;
-		/**@private 是否有旋转缩放操作*/
+		/**@internal 是否有旋转缩放操作*/
 		 _bTransform:boolean = false;
 		
 		/**
@@ -62,7 +62,7 @@ import { Pool } from "../utils/Pool"
 			return this;
 		}
 		
-		/**@private */
+		/**@internal */
 		 _checkTransform():boolean {
 			return this._bTransform = (this.a !== 1 || this.b !== 0 || this.c !== 0 || this.d !== 1);
 		}

@@ -47,11 +47,11 @@ import { ILaya } from "../../ILaya";
 	export class Graphics {
 		
 		
-		/**@private */
+		/**@internal */
 		 _sp:Sprite=null;
-		/**@private */
+		/**@internal */
 		 _one:any = null;
-		/**@private */
+		/**@internal */
 		 _render:Function = this._renderEmpty;
 		/**@private */
 		private _cmds:any[] = null;
@@ -60,23 +60,23 @@ import { ILaya } from "../../ILaya";
 		/**@private */
 		private _graphicBounds:GraphicsBounds=null;
 		/**@private */
-		 autoDestroy:boolean = false;
+		autoDestroy:boolean = false;
 		
 		constructor(){
 			this._createData();
 		}
 		
-		/**@private */
+		/**@internal */
 		 _createData():void {
 		
 		}
 		
-		/**@private */
+		/**@internal */
 		 _clearData():void {
 		
 		}
 		
-		/**@private */
+		/**@internal */
 		 _destroyData():void {
 		
 		}
@@ -150,7 +150,7 @@ import { ILaya } from "../../ILaya";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 * 重绘此对象。
 		 */
 		 _repaint():void {
@@ -158,7 +158,7 @@ import { ILaya } from "../../ILaya";
 			this._sp && this._sp.repaint();
 		}
 		
-		/**@private */
+		/**@internal */
 		//TODO:coverage
 		 _isOnlyOne():boolean {
 			return !this._cmds || this._cmds.length === 0;
@@ -333,7 +333,7 @@ import { ILaya } from "../../ILaya";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 * 保存到命令流。
 		 */
 		 _saveToCmd(fun:Function, args:any):any {
@@ -576,13 +576,13 @@ import { ILaya } from "../../ILaya";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 _renderEmpty(sprite:Sprite, context:Context, x:number, y:number):void {
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 _renderAll(sprite:Sprite, context:Context, x:number, y:number):void {
 			var cmds:any[] = this._cmds;
@@ -592,7 +592,7 @@ import { ILaya } from "../../ILaya";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 _renderOne(sprite:Sprite, context:Context, x:number, y:number):void {
 			context.sprite = sprite;
@@ -600,7 +600,7 @@ import { ILaya } from "../../ILaya";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 _renderOneImg(sprite:Sprite, context:Context, x:number, y:number):void {
 			context.sprite = sprite;

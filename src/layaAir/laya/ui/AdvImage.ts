@@ -29,7 +29,7 @@ import { ILaya } from "../../ILaya";
 		private _lunboTime:number = 5000;
 		constructor(skin:string=null){
 			super();
-this.skin = skin;
+			this.skin = skin;
 			this.setLoadUrl();
 			this.init();
 			this.size(120,120);

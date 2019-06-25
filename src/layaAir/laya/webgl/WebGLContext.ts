@@ -308,35 +308,35 @@ import { ILaya } from "../../ILaya";
 		/**@private */
 		 static mainContext:WebGLContext = null;
 		
-		/**@private */
+		/**@internal */
 		 static _activeTextures:any[] = new Array(8);
-		/**@private */
+		/**@internal */
 		 static _glTextureIDs:any[] =  [WebGLContext.TEXTURE0, WebGLContext.TEXTURE1, WebGLContext.TEXTURE2, WebGLContext.TEXTURE3, WebGLContext.TEXTURE4, WebGLContext.TEXTURE5, WebGLContext.TEXTURE6, WebGLContext.TEXTURE7];
-		/**@private */
+		/**@internal */
 		 static _useProgram:any = null;
-		/**@private */
+		/**@internal */
 		 static _depthTest:boolean = true;
-		/**@private */
+		/**@internal */
 		 static _depthMask:boolean = true;
-		/**@private */
+		/**@internal */
 		 static _depthFunc:number = WebGLContext.LESS; 
 	
-		/**@private */
+		/**@internal */
 		 static _blend:boolean = false;
-		/**@private */
+		/**@internal */
 		 static _sFactor:number = WebGLContext.ONE;//待确认
-		/**@private */
+		/**@internal */
 		 static _dFactor:number = WebGLContext.ZERO;//待确认
-		/**@private */
+		/**@internal */
 		 static _srcAlpha:number = WebGLContext.ONE;//待确认
-		/**@private */
+		/**@internal */
 		 static _dstAlpha:number =WebGLContext.ZERO;//待确认
 		
-		/**@private */
+		/**@internal */
 		 static _cullFace:boolean = false;
-		/**@private */
+		/**@internal */
 		 static _frontFace:number = WebGLContext.CCW;
-		/**@private */
+		/**@internal */
 		 static _activedTextureID:number = WebGLContext.TEXTURE0;//默认激活纹理区为0
 		
 		

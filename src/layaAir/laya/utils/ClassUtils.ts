@@ -213,7 +213,7 @@ import { Text } from "../display/Text";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 * 将graphic绘图指令添加到sprite上
 		 * @param graphicO 绘图指令描述
 		 */
@@ -315,7 +315,7 @@ import { Text } from "../display/Text";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 static _isDrawType(type:string):boolean {
 			if (type === "Image") return false;
@@ -352,7 +352,7 @@ import { Text } from "../display/Text";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 static _getPointListByStr(str:string):any[] {
 			var pointArr:any[] = str.split(",");
