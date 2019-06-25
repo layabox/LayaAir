@@ -20,7 +20,8 @@ import { Graphics } from "../display/Graphics"
 		/**@private */
 		protected _isChanged:boolean;
 		/**@internal */
-		 _offset:any[];
+         _offset:any[];
+         uv:number[]=null;
 		///**@private */
 		//private var _key:String;
 		
@@ -144,7 +145,7 @@ import { Graphics } from "../display/Graphics"
 			//如果没有设置9宫格，或大小未改变，则直接用原图绘制
 			if (!sizeGrid || (sw === width && sh === height)) {
 				this.clear();
-				this.drawTexture(source, this._offset ? this._offset[0] : 0, this._offset ? this._offset[1] : 0, width, height);
+				this.drawTexture(source, this._offset ? this._offset[0] : 0, this._offset ? this._offset[1] : 0, width, height,null,1,null,null,this.uv);
 			} else {
 				//从缓存中读取渲染命令(和回收冲突，暂时去掉)
 				//source.$_GID || (source.$_GID = Utils.getGID());
@@ -154,46 +155,10 @@ import { Graphics } from "../display/Graphics"
 					//return;
 				//}
 				
-				this.clear();
-				var top:number = sizeGrid[0];
-				var right:number = sizeGrid[1];
-				var bottom:number = sizeGrid[2];
-				var left:number = sizeGrid[3];
-				var repeat:boolean = sizeGrid[4];
-				var needClip:boolean = false;
-				if (width == sw) {
-					left = right = 0;
-				}
-				if (height == sh) {
-					top = bottom = 0;
-				}
-				//处理进度条不好看的问题
-				if (left + right > width) {
-					var clipWidth:number = width;
-					needClip = true;
-					width = left + right;
-					this.save();
-					this.clipRect(0, 0, clipWidth, height);
-				}
-				
-				//绘制四个角
-				left && top && this.drawImage(AutoBitmap.getTexture(source, 0, 0, left, top), 0, 0, left, top);
-				right && top && this.drawImage(AutoBitmap.getTexture(source, sw - right, 0, right, top), width - right, 0, right, top);
-				left && bottom && this.drawImage(AutoBitmap.getTexture(source, 0, sh - bottom, left, bottom), 0, height - bottom, left, bottom);
-				right && bottom && this.drawImage(AutoBitmap.getTexture(source, sw - right, sh - bottom, right, bottom), width - right, height - bottom, right, bottom);
-				//绘制上下两个边
-				top && this.drawBitmap(repeat, AutoBitmap.getTexture(source, left, 0, sw - left - right, top), left, 0, width - left - right, top);
-				bottom && this.drawBitmap(repeat, AutoBitmap.getTexture(source, left, sh - bottom, sw - left - right, bottom), left, height - bottom, width - left - right, bottom);
-				//绘制左右两边
-				left && this.drawBitmap(repeat, AutoBitmap.getTexture(source, 0, top, left, sh - top - bottom), 0, top, left, height - top - bottom);
-				right && this.drawBitmap(repeat, AutoBitmap.getTexture(source, sw - right, top, right, sh - top - bottom), width - right, top, right, height - top - bottom);
-				//绘制中间
-				this.drawBitmap(repeat, AutoBitmap.getTexture(source, left, top, sw - left - right, sh - top - bottom), left, top, width - left - right, height - top - bottom);
-				
-				if (needClip) this.restore();
-				
-				//缓存命令
-				//if (autoCacheCmd) WeakObject.I.set(_key, this.cmds);
+                this.clear();
+				this.draw9Grid(source, 0, 0, width, height, sizeGrid);
+				this._repaint();
+				return;
 			}
 			this._repaint();
 		}
