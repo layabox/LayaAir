@@ -208,9 +208,7 @@ import { ShaderData } from "../shader/ShaderData";
 			return this._shadowMapCount;
 		}
 		
-		/**
-		 * @internal
-		 */
+
 		private _beginSampler(index:number, sceneCamera:BaseCamera):void {
 			if (index < 0 || index > this._shadowMapCount) //TODO:
 				throw new Error("ParallelSplitShadowMap: beginSample invalid index");

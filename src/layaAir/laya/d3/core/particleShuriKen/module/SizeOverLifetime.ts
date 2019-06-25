@@ -6,7 +6,6 @@ import { Vector3 } from "../../../math/Vector3"
  * <code>SizeOverLifetime</code> 类用于粒子的生命周期尺寸。
  */
 export class SizeOverLifetime implements IClone {
-	/**@internal */
 	private _size: GradientSize;
 
 	/**是否启用*/
