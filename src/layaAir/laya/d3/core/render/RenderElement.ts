@@ -38,6 +38,8 @@ export class RenderElement {
 	render: BaseRender;
 	/** @private */
 	staticBatch: GeometryElement;
+	/** @private */
+	renderSubShader: SubShader = null;//TODO：做缓存标记优化
 
 	/** @private */
 	renderType: number = RenderElement.RENDERTYPE_NORMAL;
@@ -89,7 +91,46 @@ export class RenderElement {
 	/**
 	 * @private
 	 */
-	_render(context: RenderContext3D, isTarget: boolean, customShader: Shader3D = null, replacementTag: string = null): void {
+	_update(scene: Scene3D, context: RenderContext3D, customShader: Shader3D, replacementTag: string): void {
+		if (this.material) {//材质可能为空
+			var subShader: SubShader = this.material._shader.getSubShaderAt(0);//TODO:
+			this.renderSubShader = null;
+			if (customShader) {
+				if (replacementTag) {
+					var oriTag: string = subShader.getFlag(replacementTag);
+					if (oriTag) {
+						var customSubShaders: SubShader[] = customShader._subShaders;
+						for (var k: number = 0, p: number = customSubShaders.length; k < p; k++) {
+							var customSubShader: SubShader = customSubShaders[k];
+							if (oriTag === customSubShader.getFlag(replacementTag)) {
+								this.renderSubShader = customSubShader;
+								break;
+							}
+						}
+						if (!this.renderSubShader)
+							return;
+					} else {
+						return;
+					}
+				} else {
+					this.renderSubShader = customShader.getSubShaderAt(0);//TODO:
+				}
+			} else {
+				this.renderSubShader = subShader;
+			}
+
+			var renderQueue: RenderQueue = scene._getRenderQueue(this.material.renderQueue);
+			if (renderQueue.isTransparent)
+				this.addToTransparentRenderQueue(context, renderQueue);
+			else
+				this.addToOpaqueRenderQueue(context, renderQueue);
+		}
+	}
+
+	/**
+	 * @private
+	 */
+	_render(context: RenderContext3D, isTarget: boolean): void {
 		var lastStateMaterial: BaseMaterial, lastStateShaderInstance: ShaderInstance, lastStateRender: BaseRender;
 		var updateMark: number = Camera._updateMark;
 		var scene: Scene3D = context.scene;
@@ -107,35 +148,9 @@ export class RenderElement {
 		}
 
 		if (geometry._prepareRender(context)) {
-
-			var subShader: SubShader = this.material._shader.getSubShaderAt(0);//TODO:
-			var passes: ShaderPass[];
-			if (customShader) {
-				if (replacementTag) {
-					var oriTag: string = subShader.getFlag(replacementTag);
-					if (oriTag) {
-						var customSubShaders: SubShader[] = customShader._subShaders;
-						for (var k: number = 0, p: number = customSubShaders.length; k < p; k++) {
-							var customSubShader: SubShader = customSubShaders[k];
-							if (oriTag === customSubShader.getFlag(replacementTag)) {
-								passes = customSubShader._passes;
-								break;
-							}
-						}
-						if (!passes)
-							return;
-					} else {
-						return;
-					}
-				} else {
-					passes = customShader.getSubShaderAt(0)._passes;//TODO:
-				}
-			} else {
-				passes = subShader._passes;
-			}
-
+			var passes: ShaderPass[] = this.renderSubShader._passes;
 			for (var j: number = 0, m: number = passes.length; j < m; j++) {
-				var shaderPass: ShaderInstance = context.shader = passes[j].withCompile((scene._shaderValues._defineValue) & (~this.material._disablePublicDefineDatas.value), this.render._shaderValues._defineValue, this.material._shaderValues._defineValue);
+				var shaderPass: ShaderInstance = context.shader = passes[j].withCompile((scene._shaderValues._defineDatas.value) & (~this.material._disablePublicDefineDatas.value), this.render._shaderValues._defineDatas.value, this.material._shaderValues._defineDatas.value);
 				var switchShader: boolean = shaderPass.bind();//纹理需要切换shader时重新绑定 其他uniform不需要
 				var switchUpdateMark: boolean = (updateMark !== shaderPass._uploadMark);
 

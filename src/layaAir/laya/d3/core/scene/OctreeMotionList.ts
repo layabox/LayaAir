@@ -34,7 +34,7 @@ export class OctreeMotionList extends SingletonList {
 		if (index !== this.length) {
 			var end: any = this.elements[this.length];
 			this.elements[index] = end;
-			end._inPhysicUpdateListIndex = index;
+			end._setIndexInMotionList(index);
 		}
 		element._setIndexInMotionList(-1);
 	}

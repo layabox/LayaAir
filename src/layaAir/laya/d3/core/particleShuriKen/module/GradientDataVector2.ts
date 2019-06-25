@@ -5,7 +5,6 @@ import { Vector2 } from "../../../math/Vector2"
  * <code>GradientDataVector2</code> 类用于创建二维向量渐变。
  */
 export class GradientDataVector2 implements IClone {
-	/**@private */
 	private _currentLength: number = 0;
 	/**@private 开发者禁止修改。*/
 	_elements: Float32Array;

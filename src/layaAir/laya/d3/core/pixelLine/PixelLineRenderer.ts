@@ -20,6 +20,7 @@ export class PixelLineRenderer extends BaseRender {
 	constructor(owner: PixelLineSprite3D) {
 		super(owner);
 		this._projectionViewWorldMatrix = new Matrix4x4();
+		this._supportOctree=false;
 	}
 
 		/**

@@ -51,6 +51,8 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	/** @private */
 	protected _boundsChange: boolean = true;
 
+
+	_supportOctree: boolean = true;
 	/** @private */
 	_enable: boolean;
 	/** @private */

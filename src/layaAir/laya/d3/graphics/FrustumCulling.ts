@@ -1,11 +1,11 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { Render } from "../../renders/Render";
+import { ISingletonElement } from "../../resource/ISingletonElement";
 import { Stat } from "../../utils/Stat";
 import { SimpleSingletonList } from "../component/SimpleSingletonList";
 import { SingletonList } from "../component/SingletonList";
 import { Bounds } from "../core/Bounds";
 import { Camera } from "../core/Camera";
-import { BaseMaterial } from "../core/material/BaseMaterial";
 import { PixelLineSprite3D } from "../core/pixelLine/PixelLineSprite3D";
 import { BaseRender } from "../core/render/BaseRender";
 import { RenderContext3D } from "../core/render/RenderContext3D";
@@ -19,7 +19,7 @@ import { Vector3 } from "../math/Vector3";
 import { Utils3D } from "../utils/Utils3D";
 import { DynamicBatchManager } from "././DynamicBatchManager";
 import { StaticBatchManager } from "././StaticBatchManager";
-import { ISingletonElement } from "../../resource/ISingletonElement";
+import { Shader3D } from "../shader/Shader3D";
 
 /**
  * @private
@@ -68,7 +68,7 @@ export class FrustumCulling {
 	/**
 	 * @private
 	 */
-	private static _traversalCulling(camera: Camera, scene: Scene3D, context: RenderContext3D, renderList: SingletonList): void {
+	private static _traversalCulling(camera: Camera, scene: Scene3D, context: RenderContext3D, renderList: SingletonList, customShader: Shader3D, replacementTag: string): void {
 		var validCount: number = renderList.length;
 		var renders: ISingletonElement[] = renderList.elements;
 		var boundFrustum: BoundFrustum = camera.boundFrustum;
@@ -79,22 +79,11 @@ export class FrustumCulling {
 				Stat.frustumCulling++;
 				if (!camera.useOcclusionCulling || render._needRender(boundFrustum)) {
 					render._visible = true;
-
-					var bounds: Bounds = render.bounds;
-					render._distanceForSort = Vector3.distance(bounds.getCenter(), camPos);//TODO:合并计算浪费,或者合并后取平均值
+					render._distanceForSort = Vector3.distance(render.bounds.getCenter(), camPos);//TODO:合并计算浪费,或者合并后取平均值
 
 					var elements: RenderElement[] = render._renderElements;
-					for (var j: number = 0, m: number = elements.length; j < m; j++) {
-						var element: RenderElement = elements[j];
-						var material: BaseMaterial = element.material;
-						if (material) {//材质可能为空
-							var renderQueue: RenderQueue = scene._getRenderQueue(material.renderQueue);
-							if (renderQueue.isTransparent)
-								element.addToTransparentRenderQueue(context, renderQueue);
-							else
-								element.addToOpaqueRenderQueue(context, renderQueue);
-						}
-					}
+					for (var j: number = 0, m: number = elements.length; j < m; j++) 
+						elements[j]._update(scene,context,customShader, replacementTag);
 				} else {
 					render._visible = false;
 				}
@@ -107,7 +96,7 @@ export class FrustumCulling {
 	/**
 	 * @private
 	 */
-	static renderObjectCulling(camera: Camera, scene: Scene3D, context: RenderContext3D, renderList: SingletonList): void {
+	static renderObjectCulling(camera: Camera, scene: Scene3D, context: RenderContext3D, renderList: SingletonList, customShader: Shader3D, replacementTag: string): void {
 		var i: number, n: number, j: number, m: number;
 		var opaqueQueue: RenderQueue = scene._opaqueQueue;
 		var transparentQueue: RenderQueue = scene._transparentQueue;
@@ -125,10 +114,11 @@ export class FrustumCulling {
 		if (octree) {
 			octree.updateMotionObjects();
 			octree.shrinkRootIfPossible();
-			octree.getCollidingWithFrustum(context);
-		} else {
-			FrustumCulling._traversalCulling(camera, scene, context, renderList);
+			octree.getCollidingWithFrustum(context,customShader,replacementTag);
 		}
+		//else {//包围盒不完善的节点走遍历裁剪
+			FrustumCulling._traversalCulling(camera, scene, context, renderList,customShader,replacementTag);
+		//}
 
 		if (FrustumCulling.debugFrustumCulling) {
 			var debugTool: PixelLineSprite3D = scene._debugTool;
@@ -136,9 +126,10 @@ export class FrustumCulling {
 			if (octree) {
 				octree.drawAllBounds(debugTool);
 				octree.drawAllObjects(debugTool);
-			} else {
+			} 
+			//else {//包围盒不完善的节点走遍历裁剪
 				FrustumCulling._drawTraversalCullingBound(renderList, debugTool);
-			}
+			//}
 		}
 
 		var count: number = opaqueQueue.elements.length;
@@ -150,7 +141,7 @@ export class FrustumCulling {
 	/**
 	 * @private [NATIVE]
 	 */
-	static renderObjectCullingNative(camera: Camera, scene: Scene3D, context: RenderContext3D, renderList: SimpleSingletonList): void {
+	static renderObjectCullingNative(camera: Camera, scene: Scene3D, context: RenderContext3D, renderList: SimpleSingletonList, customShader: Shader3D, replacementTag: string): void {
 		var i: number, n: number, j: number, m: number;
 		var opaqueQueue: RenderQueue = scene._opaqueQueue;
 		var transparentQueue: RenderQueue = scene._transparentQueue;
@@ -181,11 +172,7 @@ export class FrustumCulling {
 				var elements: RenderElement[] = render._renderElements;
 				for (j = 0, m = elements.length; j < m; j++) {
 					var element: RenderElement = elements[j];
-					var renderQueue: RenderQueue = scene._getRenderQueue(element.material.renderQueue);
-					if (renderQueue.isTransparent)
-						element.addToTransparentRenderQueue(context, renderQueue);
-					else
-						element.addToOpaqueRenderQueue(context, renderQueue);
+					element._update(scene,context,customShader,replacementTag);
 				}
 			} else {
 				render._visible = false;

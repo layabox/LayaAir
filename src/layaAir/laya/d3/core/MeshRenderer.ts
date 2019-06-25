@@ -111,7 +111,7 @@ export class MeshRenderer extends BaseRender {
 				this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, transform.worldMatrix);
 				break;
 			case RenderElement.RENDERTYPE_STATICBATCH:
-				this._oriDefineValue = this._shaderValues._defineValue;
+				this._oriDefineValue = this._shaderValues._defineDatas.value;
 				if (transform)
 					this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, transform.worldMatrix);
 				else
@@ -211,7 +211,7 @@ export class MeshRenderer extends BaseRender {
 		var element: SubMeshRenderElement = (<SubMeshRenderElement>context.renderElement);
 		switch (element.renderType) {
 			case RenderElement.RENDERTYPE_STATICBATCH:
-				this._shaderValues._defineValue = this._oriDefineValue;
+				this._shaderValues._defineDatas.value = this._oriDefineValue;
 				break;
 			case RenderElement.RENDERTYPE_INSTANCEBATCH:
 				this._shaderValues.removeDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);

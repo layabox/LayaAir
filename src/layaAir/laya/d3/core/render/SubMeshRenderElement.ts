@@ -158,6 +158,7 @@ export class SubMeshRenderElement extends RenderElement {
 					var staBatchTransform: Transform3D = staRootOwner ? staRootOwner._transform : null;
 					staBatchElement.setTransform(staBatchTransform);
 					staBatchElement.render = staOriRender;
+					staBatchElement.renderSubShader=staOriElement.renderSubShader;
 					var staBatchList: SubMeshRenderElement[] = staBatchElement.staticBatchElementList;
 					staBatchList.length = 0;
 					staBatchList.push((<SubMeshRenderElement>staOriElement));
@@ -171,7 +172,7 @@ export class SubMeshRenderElement extends RenderElement {
 				staBatchMarks.batched = false;//是否已有大于两个的元素可合并
 				elements.push(this);
 			}
-		} else if (this.material._shader._enableInstancing && LayaGL.layaGPUInstance.supportInstance()&&this.render.lightmapIndex<0) {//需要支持Instance渲染才可用,暂不支持光照贴图
+		} else if (this.renderSubShader._owner._enableInstancing && LayaGL.layaGPUInstance.supportInstance()&&this.render.lightmapIndex<0) {//需要支持Instance渲染才可用,暂不支持光照贴图
 			var subMesh: SubMesh = (<SubMesh>this._geometry);
 			var insManager: MeshRenderDynamicBatchManager = ILaya3D.MeshRenderDynamicBatchManager.instance;
 			var insBatchMarks: BatchMark = insManager.getInstanceBatchOpaquaMark(this.render.receiveShadow, this.material.id, subMesh._id, this._transform._isFrontFaceInvert);
@@ -197,6 +198,7 @@ export class SubMeshRenderElement extends RenderElement {
 					insBatchElement.setTransform(null);
 					insBatchElement.render = insOriRender;
 					insBatchElement.instanceSubMesh = subMesh;
+					insBatchElement.renderSubShader=insOriElement.renderSubShader;
 					var insBatchList: SubMeshRenderElement[] = insBatchElement.instanceBatchElementList;
 					insBatchList.length = 0;
 					insBatchList.push((<SubMeshRenderElement>insOriElement));
@@ -228,6 +230,7 @@ export class SubMeshRenderElement extends RenderElement {
 					dynBatchElement.setTransform(null);
 					dynBatchElement.render = dynOriRender;
 					dynBatchElement.vertexBatchVertexDeclaration = verDec;
+					dynBatchElement.renderSubShader=dynOriElement.renderSubShader;
 					var dynBatchList: SubMeshRenderElement[] = dynBatchElement.vertexBatchElementList;
 					dynBatchList.length = 0;
 					dynBatchList.push((<SubMeshRenderElement>dynOriElement));
@@ -272,6 +275,7 @@ export class SubMeshRenderElement extends RenderElement {
 						var staBatchTransform: Transform3D = staRootOwner ? staRootOwner._transform : null;
 						staBatchElement.setTransform(staBatchTransform);
 						staBatchElement.render = this.render;
+						staBatchElement.renderSubShader=staLastElement.renderSubShader;
 						var staBatchList: SubMeshRenderElement[] = staBatchElement.staticBatchElementList;
 						staBatchList.length = 0;
 						staBatchList.push((<SubMeshRenderElement>staLastElement));
@@ -284,7 +288,7 @@ export class SubMeshRenderElement extends RenderElement {
 				elements.push(this);
 				queue.lastTransparentBatched = false;
 			}
-		} else if (this.material._shader._enableInstancing && LayaGL.layaGPUInstance.supportInstance()&&this.render.lightmapIndex<0) {//需要支持Instance渲染才可用，暂不支持光照贴图
+		} else if (this.renderSubShader._owner._enableInstancing && LayaGL.layaGPUInstance.supportInstance()&&this.render.lightmapIndex<0) {//需要支持Instance渲染才可用，暂不支持光照贴图
 			var subMesh: SubMesh = (<SubMesh>this._geometry);
 			var insManager: MeshRenderDynamicBatchManager = ILaya3D.MeshRenderDynamicBatchManager.instance;
 			var insLastElement: RenderElement = queue.lastTransparentRenderElement;
@@ -304,6 +308,7 @@ export class SubMeshRenderElement extends RenderElement {
 						insBatchElement.setTransform(null);
 						insBatchElement.render = this.render;
 						insBatchElement.instanceSubMesh = subMesh;
+						insBatchElement.renderSubShader=insLastElement.renderSubShader;
 						var insBatchList: SubMeshRenderElement[] = insBatchElement.instanceBatchElementList;
 						insBatchList.length = 0;
 						insBatchList.push((<SubMeshRenderElement>insLastElement));
@@ -337,6 +342,7 @@ export class SubMeshRenderElement extends RenderElement {
 						dynBatchElement.setTransform(null);
 						dynBatchElement.render = this.render;
 						dynBatchElement.vertexBatchVertexDeclaration = verDec;
+						dynBatchElement.renderSubShader=dynLastElement.renderSubShader;
 						var dynBatchList: SubMeshRenderElement[] = dynBatchElement.vertexBatchElementList;
 						dynBatchList.length = 0;
 						dynBatchList.push((<SubMeshRenderElement>dynLastElement));

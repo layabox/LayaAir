@@ -74,7 +74,7 @@ export class BlitScreenQuadCMD extends Command {
 		var subShader: SubShader = shader.getSubShaderAt(this._subShader);
 		var passes: ShaderPass[] = subShader._passes;
 		for (var i: number = 0, n: number = passes.length; i < n; i++) {
-			var shaderPass: ShaderInstance = passes[i].withCompile(0, 0, shaderData._defineValue);//TODO:define处理
+			var shaderPass: ShaderInstance = passes[i].withCompile(0, 0, shaderData._defineDatas.value);//TODO:define处理
 			shaderPass.bind();
 			shaderPass.uploadUniforms(shaderPass._materialUniformParamsMap, shaderData, true);//TODO:最后一个参数处理
 			shaderPass.uploadRenderStateBlendDepth(shaderData);

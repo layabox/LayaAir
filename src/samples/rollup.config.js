@@ -7,7 +7,7 @@ export default {
     input: './index.ts',
     treeshake: true,//建议忽略
 	output: {
-		file: '../../bin/bundle.js',
+		file: '../../bin/rollUp/bundle.js',
 		format: 'iife', // immediately-invoked function expression — suitable for <script> tags
         sourcemap: false,
         name:'laya',

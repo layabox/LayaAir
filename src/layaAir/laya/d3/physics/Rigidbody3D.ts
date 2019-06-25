@@ -78,6 +78,8 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	private _overrideGravity: boolean = false;
 	/** @private */
 	private _totalTorque: Vector3 = new Vector3(0, 0, 0);
+	/** @private */
+	private _totalForce: Vector3 = new Vector3(0, 0, 0);
 
 	//private var _linkedConstraints:Array;//TODO:
 
@@ -237,8 +239,11 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	 * 获取总力。
 	 */
 	get totalForce(): Vector3 {
-		if (this._nativeColliderObject)
-			return this._nativeColliderObject.getTotalForce();
+		if (this._nativeColliderObject) {
+			var nativeTotalForce: any = this._nativeColliderObject.getTotalForce();
+			Utils3D._convertToLayaVec3(this._totalForce, nativeTotalForce, true);
+			return this._totalForce;
+		}
 		return null;
 	}
 
@@ -338,10 +343,8 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	get totalTorque(): Vector3 {
 		if (this._nativeColliderObject) {
 			var nativeTotalTorque: any = this._nativeColliderObject.getTotalTorque();
-			var totalTorque: Vector3 = this._totalTorque;
-			totalTorque.x = -nativeTotalTorque.x;
-			totalTorque.y = nativeTotalTorque.y;
-			totalTorque.z = nativeTotalTorque.z;
+			Utils3D._convertToLayaVec3(nativeTotalTorque, this._totalTorque, true);
+			return this._totalTorque;
 		}
 		return null;
 	}
@@ -419,7 +422,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	 * @param canCollideWith 可产生碰撞的碰撞组。
 	 */
 	constructor(collisionGroup: number = Physics3DUtils.COLLISIONFILTERGROUP_DEFAULTFILTER, canCollideWith: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER) {
-		
+
 		//LinkedConstraints = new List<Constraint>();
 		super(collisionGroup, canCollideWith);
 	}

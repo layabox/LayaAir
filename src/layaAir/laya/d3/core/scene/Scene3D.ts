@@ -7,7 +7,6 @@ import { Render } from "../../../renders/Render";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Context } from "../../../resource/Context";
 import { ICreateResource } from "../../../resource/ICreateResource";
-import { ISingletonElement } from "../../../resource/ISingletonElement";
 import { RenderTexture2D } from "../../../resource/RenderTexture2D";
 import { Texture2D } from "../../../resource/Texture2D";
 import { Handler } from "../../../utils/Handler";
@@ -53,6 +52,7 @@ import { RenderableSprite3D } from "../RenderableSprite3D";
 import { Sprite3D } from "../Sprite3D";
 import { BoundsOctree } from "././BoundsOctree";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
+import { Physics } from "../../physics/Physics";
 
 
 /**
@@ -61,8 +61,6 @@ import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
 export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/**Hierarchy资源。*/
 	static HIERARCHY: string = "HIERARCHY";
-	/**@private */
-	static _enbalePhysics: Boolean = false;
 	/**@private */
 	static physicsSettings: PhysicsSettings = new PhysicsSettings();
 	/** 是否开启八叉树裁剪。*/
@@ -436,7 +434,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 */
 	constructor() {
 		super();
-		if (Scene3D._enbalePhysics)
+		if (Physics._enbalePhysics)
 			this._physicsSimulation = new PhysicsSimulation(Scene3D.physicsSettings);
 
 		this._shaderValues = new ShaderData(null);
@@ -503,7 +501,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this._shaderValues.setNumber(Scene3D.TIME, this._time);
 
 		var simulation: PhysicsSimulation = this._physicsSimulation;
-		if (Scene3D._enbalePhysics && !PhysicsSimulation.disableSimulation) {
+		if (Physics._enbalePhysics && !PhysicsSimulation.disableSimulation) {
 			simulation._updatePhysicsTransformFromRender();
 			PhysicsComponent._addUpdateList = false;//物理模拟器会触发_updateTransformComponent函数,不加入更新队列
 			//simulate physics
@@ -689,8 +687,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/**
 	 * @private
 	 */
-	_preCulling(context: RenderContext3D, camera: Camera): void {
-		FrustumCulling.renderObjectCulling(camera, this, context, this._renders);
+	_preCulling(context: RenderContext3D, camera: Camera, shader: Shader3D, replacementTag: string): void {
+		FrustumCulling.renderObjectCulling(camera, this, context, this._renders, shader, replacementTag);
 	}
 
 	/**
@@ -773,23 +771,23 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/**
 	 * @private
 	 */
-	_renderScene(gl: WebGLContext, state: RenderContext3D, customShader: Shader3D = null, replacementTag: string = null): void {
-		var camera: Camera = (<Camera>state.camera);
-		var position: Vector3 = camera.transform.position;
+	_renderScene(context: RenderContext3D): void {
+		var camera: Camera = (<Camera>context.camera);
 		var renderTar: RenderTexture = camera._renderTexture || camera._offScreenRenderTexture;
-		renderTar ? this._opaqueQueue._render(state, true, customShader, replacementTag) : this._opaqueQueue._render(state, false, customShader, replacementTag);//非透明队列
+		renderTar ? this._opaqueQueue._render(context, true) : this._opaqueQueue._render(context, false);//非透明队列
 		if (camera.clearFlag === BaseCamera.CLEARFLAG_SKY) {
 			if (camera.skyRenderer._isAvailable())
-				camera.skyRenderer._render(state);
+				camera.skyRenderer._render(context);
 			else if (this._skyRenderer._isAvailable())
-				this._skyRenderer._render(state);
+				this._skyRenderer._render(context);
 		}
-		renderTar ? this._transparentQueue._render(state, true, customShader, replacementTag) : this._transparentQueue._render(state, false, customShader, replacementTag);//透明队列
+		renderTar ? this._transparentQueue._render(context, true) : this._transparentQueue._render(context, false);//透明队列
 
 		if (FrustumCulling.debugFrustumCulling) {
 			var renderElements: RenderElement[] = this._debugTool._render._renderElements;
 			for (var i: number = 0, n: number = renderElements.length; i < n; i++) {
-				renderElements[i]._render(state, false, customShader, replacementTag);
+				renderElements[i]._update(this,context,null,null);
+				renderElements[i]._render(context, false);
 			}
 		}
 	}
@@ -879,7 +877,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @private
 	 */
 	_addRenderObject(render: BaseRender): void {
-		if (this._octree) {
+		if (this._octree&&render._supportOctree) {
 			this._octree.add(render);
 		} else {
 			this._renders.add(render);
@@ -903,7 +901,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @private
 	 */
 	_removeRenderObject(render: BaseRender): void {
-		if (this._octree) {
+		if (this._octree&&render._supportOctree) {
 			this._octree.remove(render);
 		} else {
 			var endRender: BaseRender;

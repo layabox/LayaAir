@@ -8,7 +8,6 @@ import { Vector3 } from "../math/Vector3"
  * <code>BoneNode</code> 类用于实现骨骼节点。
  */
 export class AnimationNode implements IClone {
-	/**@private */
 	private _children: AnimationNode[];
 
 	/**@private */

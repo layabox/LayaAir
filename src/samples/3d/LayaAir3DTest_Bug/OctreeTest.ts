@@ -111,7 +111,6 @@ export class OctreeTest {
 	private loadUI(): void {
 
 		Laya.loader.load(["../../../../res/threeDimen/ui/button.png"], Handler.create(null, function (): void {
-
 			var changeActionButton: Button = (<Button>Laya.stage.addChild(new Button("../../../../res/threeDimen/ui/button.png", "正常模式")));
 			changeActionButton.size(160, 40);
 			changeActionButton.labelBold = true;

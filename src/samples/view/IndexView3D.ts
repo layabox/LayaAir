@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Laya3D } from "Laya3D";
-import { DynamicBatchTest } from "../3d/LayaAir3DTest_Performance/DynamicBatchTest";
 import { SkinAnimationPerformance } from "../3d/LayaAir3DTest_Performance/SkinAnimationPerformance";
 import { Laya3DCombineHtml } from "../3d/LayaAir3D_Advance/Laya3DCombineHtml";
 import { Scene2DPlayer3D } from "../3d/LayaAir3D_Advance/Scene2DPlayer3D";
@@ -88,6 +87,7 @@ import { IndexViewUI } from "../ui/IndexViewUI";
 import { Main } from "./../Main";
 import { PostProcessBloom } from "../3d/LayaAir3D_Advance/PostProcessBloom";
 import { MultiTouch } from "../3d/LayaAir3D_MouseInteraction/MultiTouch";
+import { DynamicBatchTest } from "../3d/LayaAir3D_Performance/DynamicBatchTest";
 	
 	export class IndexView3D extends IndexViewUI
 	{
@@ -131,8 +131,8 @@ import { MultiTouch } from "../3d/LayaAir3D_MouseInteraction/MultiTouch";
 		private _particleClsArr:any[] = [Particle_BurningGround,Particle_EternalLight];
 		private _particleArr:any[] = ['Particle_BurningGround', 'Particle_EternalLight'];
 		
-		private _performanceClsArr:any[] = [StaticBatchingTest];
-		private _performanceArr:any[] = ['StaticBatchingTest'];
+		private _performanceClsArr:any[] = [StaticBatchingTest,DynamicBatchTest];
+		private _performanceArr:any[] = ['StaticBatchingTest','DynamicBatchTest'];
 		
 		private _physicsClsArr:any[] = [PhysicsWorld_BaseCollider, PhysicsWorld_BuildingBlocks, PhysicsWorld_Character, PhysicsWorld_CollisionFiflter, PhysicsWorld_CompoundCollider, PhysicsWorld_ContinueCollisionDetection, PhysicsWorld_Kinematic, PhysicsWorld_MeshCollider, PhysicsWorld_RayShapeCast, PhysicsWorld_TriggerAndCollisionEvent];
 		private _physicslArr:any[] = ['PhysicsWorld_BaseCollider', 'PhysicsWorld_BuildingBlocks', 'PhysicsWorld_Character', 'PhysicsWorld_CollisionFiflter', 'PhysicsWorld_CompoundCollider', 'PhysicsWorld_ContinueCollisionDetection', 'PhysicsWorld_Kinematic', 'PhysicsWorld_MeshCollider', 'PhysicsWorld_RayShapeCast', 'PhysicsWorld_TriggerAndCollisionEvent'];
@@ -160,6 +160,7 @@ import { MultiTouch } from "../3d/LayaAir3D_MouseInteraction/MultiTouch";
 		
 		private _trailClsArr:any[] = [TrailDemo,TrailRender];
 		private _trailArr:any[] = ['Trail','TrailRender'];
+
 		
 		constructor(){
 			super();
@@ -351,7 +352,7 @@ import { MultiTouch } from "../3d/LayaAir3D_MouseInteraction/MultiTouch";
 				var i:number =Laya.stage.numChildren-1;
 				for (i; i>-1; i--)
 				{
-					if ((Laya.stage.getChildAt(i))== Main._indexView||(Laya.stage.getChildAt(i)) instanceof List)
+					if ((Laya.stage.getChildAt(i))== this||(Laya.stage.getChildAt(i)) instanceof List)
 					{
 						//trace("__________________");
 					}

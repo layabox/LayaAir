@@ -107,15 +107,14 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
 	 */
 	private _removeClip(clipStateInfos: AnimatorState[], statesMap: any, index: number, state: AnimatorState): void {
 		var clip: AnimationClip = state._clip;
+		var clipStateInfo: AnimatorState = clipStateInfos[index];
 
 		clipStateInfos.splice(index, 1);
 		delete statesMap[state.name];
 
-		var clipStateInfo: AnimatorState = clipStateInfos[index];
-		var frameNodes: KeyframeNodeList = clip._nodes;
-		var nodeOwners: KeyframeNodeOwner[] = clipStateInfo._nodeOwners;
-
 		if (this._animator) {
+			var frameNodes: KeyframeNodeList = clip._nodes;
+			var nodeOwners: KeyframeNodeOwner[] = clipStateInfo._nodeOwners;
 			clip._removeReference();
 			for (var i: number = 0, n: number = frameNodes.count; i < n; i++)
 				this._animator._removeKeyframeNodeOwner(nodeOwners, frameNodes.getNodeByIndex(i));

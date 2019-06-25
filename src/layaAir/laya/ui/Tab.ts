@@ -11,7 +11,7 @@ import { ILaya } from "../../ILaya";
 	
 	/**
 	 * <code>Tab</code> 组件用来定义选项卡按钮组。	 *
-	 * @internal <p>属性：<code>selectedIndex</code> 的默认值为-1。</p>
+	 * <p>属性：<code>selectedIndex</code> 的默认值为-1。</p>
 	 *
 	 * @example <caption>以下示例代码，创建了一个 <code>Tab</code> 实例。</caption>
 	 * package

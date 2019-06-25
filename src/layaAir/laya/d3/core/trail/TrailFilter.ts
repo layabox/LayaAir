@@ -25,11 +25,6 @@ export class TrailFilter {
 	static WIDTHCURVE: number = Shader3D.propertyNameToID("u_WidthCurve");
 	static WIDTHCURVEKEYLENGTH: number = Shader3D.propertyNameToID("u_WidthCurveKeyLength");
 
-	/** 轨迹准线_面向摄像机。*/
-	static ALIGNMENT_VIEW: number = 0;
-	/** 轨迹准线_面向运动方向。*/
-	static ALIGNMENT_TRANSFORM_Z: number = 1;
-
 	/**@private */
 	private _minVertexDistance: number;
 	/**@private */
@@ -51,8 +46,6 @@ export class TrailFilter {
 	_lastPosition: Vector3 = new Vector3();
 
 	_curtime: number = 0;
-
-	private _trailRenderElementIndex: number;
 
 	/**轨迹准线。*/
 	alignment: number = TrailFilter.ALIGNMENT_VIEW;
@@ -245,5 +238,11 @@ export class TrailFilter {
 		this._widthCurve = null;
 		this._colorGradient = null;
 	}
+
+	//--------------------------------------------------兼容---------------------------------------------------------------------
+	/** 轨迹准线_面向摄像机。*/
+	static ALIGNMENT_VIEW: number = 0;
+	/** 轨迹准线_面向运动方向。*/
+	static ALIGNMENT_TRANSFORM_Z: number = 1;
 }
 

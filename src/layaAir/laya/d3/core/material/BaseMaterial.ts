@@ -14,7 +14,7 @@ import { ClassUtils } from "../../../utils/ClassUtils";
 import { Laya } from "../../../../Laya";
 
 /**
- * <code>BaseMaterial</code> 类用于创建材质,抽象类,不允许实例。
+ * <code>BaseMaterial</code> 类用于创建材质。
  */
 export class BaseMaterial extends Resource implements IClone {
 	/**Material资源。*/
@@ -224,10 +224,10 @@ export class BaseMaterial extends Resource implements IClone {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _addReference(count: number = 1): void {
+	/**
+	 * @inheritDoc
+	 */
+	/*override*/  _addReference(count: number = 1): void {
 		super._addReference(count);
 		var data: any = this._shaderValues.getData();
 		for (var k in data) {
@@ -237,18 +237,18 @@ export class BaseMaterial extends Resource implements IClone {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _removeReference(count: number = 1): void {
+	/**
+	 * @inheritDoc
+	 */
+	/*override*/  _removeReference(count: number = 1): void {
 		super._removeReference(count);
 		this._removeTetxureReference();
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _disposeResource(): void {
+	/**
+	 * @inheritDoc
+	 */
+	/*override*/ protected _disposeResource(): void {
 		if (this._referenceCount > 0)
 			this._removeTetxureReference();
 		this._shaderValues = null;
@@ -284,6 +284,11 @@ export class BaseMaterial extends Resource implements IClone {
 		var dest: BaseMaterial = new BaseMaterial();
 		this.cloneTo(dest);
 		return dest;
+	}
+
+	//--------------------------------------------兼容-------------------------------------------------
+	get _defineDatas(): DefineDatas {
+		return this._shaderValues._defineDatas;
 	}
 }
 

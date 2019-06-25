@@ -1,22 +1,21 @@
+import { Stat } from "../../../utils/Stat";
+import { BoundBox } from "../../math/BoundBox";
+import { BoundFrustum } from "../../math/BoundFrustum";
+import { CollisionUtils } from "../../math/CollisionUtils";
+import { Color } from "../../math/Color";
+import { ContainmentType } from "../../math/ContainmentType";
+import { Ray } from "../../math/Ray";
+import { Vector3 } from "../../math/Vector3";
+import { Utils3D } from "../../utils/Utils3D";
+import { Camera } from "../Camera";
+import { PixelLineSprite3D } from "../pixelLine/PixelLineSprite3D";
+import { BaseRender } from "../render/BaseRender";
+import { RenderContext3D } from "../render/RenderContext3D";
+import { RenderElement } from "../render/RenderElement";
 import { IOctreeObject } from "././IOctreeObject";
 import { Scene3D } from "././Scene3D";
-import { Camera } from "../Camera"
-import { BaseMaterial } from "../material/BaseMaterial"
-import { PixelLineSprite3D } from "../pixelLine/PixelLineSprite3D"
-import { BaseRender } from "../render/BaseRender"
-import { RenderContext3D } from "../render/RenderContext3D"
-import { RenderElement } from "../render/RenderElement"
-import { RenderQueue } from "../render/RenderQueue"
-import { BoundBox } from "../../math/BoundBox"
-import { BoundFrustum } from "../../math/BoundFrustum"
-import { CollisionUtils } from "../../math/CollisionUtils"
-import { Color } from "../../math/Color"
-import { ContainmentType } from "../../math/ContainmentType"
-import { Ray } from "../../math/Ray"
-import { Vector3 } from "../../math/Vector3"
-import { Utils3D } from "../../utils/Utils3D"
-import { Stat } from "../../../utils/Stat"
 import { BoundsOctree } from "./BoundsOctree";
+import { Shader3D } from "../../shader/Shader3D";
 
 /**
  * <code>BoundsOctreeNode</code> 类用于创建八叉树节点。
@@ -370,7 +369,7 @@ export class BoundsOctreeNode {
 	/**
 	 * @private
 	 */
-	private _getCollidingWithFrustum(context: RenderContext3D, frustum: BoundFrustum, testVisible: boolean, camPos: Vector3): void {
+	private _getCollidingWithFrustum(context: RenderContext3D, frustum: BoundFrustum, testVisible: boolean, camPos: Vector3, customShader: Shader3D, replacementTag: string): void {
 		//if (_children === null && _objects.length == 0) {//无用末级节不需要检查，调试用
 		//debugger;
 		//return;
@@ -401,14 +400,7 @@ export class BoundsOctreeNode {
 				var elements: RenderElement[] = render._renderElements;
 				for (var j: number = 0, m: number = elements.length; j < m; j++) {
 					var element: RenderElement = elements[j];
-					var material: BaseMaterial = element.material;
-					if (material) {
-						var renderQueue: RenderQueue = scene._getRenderQueue(material.renderQueue);
-						if (renderQueue.isTransparent)
-							element.addToTransparentRenderQueue(context, renderQueue);
-						else
-							element.addToOpaqueRenderQueue(context, renderQueue);
-					}
+					element._update(scene,context,customShader,replacementTag);
 				}
 			}
 		}
@@ -417,7 +409,7 @@ export class BoundsOctreeNode {
 		if (this._children != null) {
 			for (i = 0; i < 8; i++) {
 				var child: BoundsOctreeNode = this._children[i];
-				child && child._getCollidingWithFrustum(context, frustum, testVisible, camPos);
+				child && child._getCollidingWithFrustum(context, frustum, testVisible, camPos,customShader,replacementTag);
 			}
 		}
 	}
@@ -648,10 +640,10 @@ export class BoundsOctreeNode {
 	 * 	@param	ray 射线。.
 	 * 	@param	result 相交物体列表。
 	 */
-	getCollidingWithFrustum(context: RenderContext3D): void {
+	getCollidingWithFrustum(context: RenderContext3D, customShader: Shader3D, replacementTag: string): void {
 		var cameraPos: Vector3 = context.camera.transform.position;
 		var boundFrustum: BoundFrustum = ((<Camera>context.camera)).boundFrustum;
-		this._getCollidingWithFrustum(context, boundFrustum, true, cameraPos);
+		this._getCollidingWithFrustum(context, boundFrustum, true, cameraPos,customShader,replacementTag);
 	}
 
 	/**
