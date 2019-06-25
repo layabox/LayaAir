@@ -133,55 +133,32 @@ export class GradientAngularVelocity implements IClone {
 		return gradientAngularVelocity;
 	}
 
-	/**@private */
 	private _type: number = 0;
-	/**@private */
 	private _separateAxes: boolean = false;
 
-	/**@private */
 	private _constant: number = 0;
-	/**@private */
 	private _constantSeparate: Vector3 = null;
 
-	/**@private */
 	private _gradient: GradientDataNumber = null;
-	/**@private */
 	private _gradientX: GradientDataNumber = null;
-	/**@private */
 	private _gradientY: GradientDataNumber = null;
-	/**@private */
 	private _gradientZ: GradientDataNumber = null;
-	/**@private */
 	private _gradientW: GradientDataNumber = null;
 
-	/**@private */
 	private _constantMin: number = 0;
-	/**@private */
 	private _constantMax: number = 0;
-	/**@private */
 	private _constantMinSeparate: Vector3 = null;
-	/**@private */
 	private _constantMaxSeparate: Vector3 = null;
 
-	/**@private */
 	private _gradientMin: GradientDataNumber = null;
-	/**@private */
 	private _gradientMax: GradientDataNumber = null;
-	/**@private */
 	private _gradientXMin: GradientDataNumber = null;
-	/**@private */
 	private _gradientXMax: GradientDataNumber = null;
-	/**@private */
 	private _gradientYMin: GradientDataNumber = null;
-	/**@private */
 	private _gradientYMax: GradientDataNumber = null;
-	/**@private */
 	private _gradientZMin: GradientDataNumber = null;
-	/**@private */
 	private _gradientZMax: GradientDataNumber = null;
-	/**@private */
 	private _gradientWMin: GradientDataNumber = null;
-	/**@private */
 	private _gradientWMax: GradientDataNumber = null;
 
 	/**

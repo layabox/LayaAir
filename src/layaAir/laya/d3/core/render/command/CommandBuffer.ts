@@ -12,9 +12,9 @@ import { BaseTexture } from "../../../../resource/BaseTexture";
  * <code>CommandBuffer</code> 类用于创建命令流。
  */
 export class CommandBuffer {
-	/**@private */
+	/**@internal */
 	_camera: Camera = null;
-	/**@private */
+	/**@internal */
 	private _commands: Command[] = [];
 
 	/**
@@ -25,7 +25,7 @@ export class CommandBuffer {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	_apply(): void {
 		for (var i: number = 0, n: number = this._commands.length; i < n; i++)
@@ -33,7 +33,7 @@ export class CommandBuffer {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	setShaderDataTexture(shaderData: ShaderData, nameID: number, source: BaseTexture): void {
 		this._commands.push(SetShaderDataTextureCMD.create(shaderData, nameID, source));
@@ -64,14 +64,14 @@ export class CommandBuffer {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	setRenderTarget(renderTexture: RenderTexture): void {
 		this._commands.push(SetRenderTargetCMD.create(renderTexture));
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	clear(): void {
 		for (var i: number = 0, n: number = this._commands.length; i < n; i++)

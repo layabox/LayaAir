@@ -12,18 +12,18 @@ import { VertexDeclaration } from "././VertexDeclaration";
 import { VertexMesh } from "./Vertex/VertexMesh";
 
 /**
- * @private
+ * @internal
  * <code>MeshSprite3DStaticBatchManager</code> 类用于网格精灵静态批处理管理。
  */
 export class MeshRenderStaticBatchManager extends StaticBatchManager {
-	/** @private */
+	/** @internal */
 	static _verDec: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,COLOR,UV,UV1,TANGENT");
-	/** @private */
+	/** @internal */
 	static instance: MeshRenderStaticBatchManager = new MeshRenderStaticBatchManager();
 
-	/**@private */
+	/**@internal */
 	_opaqueBatchMarks: any[] = [];
-	/**@private [只读]*/
+	/**@internal [只读]*/
 	_updateCountMark: number;
 
 	/**
@@ -78,7 +78,7 @@ export class MeshRenderStaticBatchManager extends StaticBatchManager {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _getStaticBatch(rootOwner: Sprite3D, number: number): SubMeshStaticBatch {
 		var key: number = rootOwner ? rootOwner.id : 0;
@@ -123,7 +123,7 @@ export class MeshRenderStaticBatchManager extends StaticBatchManager {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_destroyRenderSprite(sprite: RenderableSprite3D): void {
 		var staticBatch: SubMeshStaticBatch = (<SubMeshStaticBatch>sprite._render._staticBatch);
@@ -175,7 +175,7 @@ export class MeshRenderStaticBatchManager extends StaticBatchManager {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	getBatchOpaquaMark(lightMapIndex: number, receiveShadow: boolean, materialID: number, staticBatchID: number): BatchMark {
 		var receiveShadowIndex: number = receiveShadow ? 1 : 0;

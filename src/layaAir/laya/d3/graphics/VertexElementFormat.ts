@@ -19,7 +19,7 @@ export class VertexElementFormat {
 	static HalfVector4: string = "halfvector4";
 
 
-	/** @private [组数量,数据类型,是否归一化:0为false]。*/
+	/** @internal [组数量,数据类型,是否归一化:0为false]。*/
 	private static _elementInfos: any = {
 		"single": [1, WebGLContext.FLOAT, 0],
 		"vector2": [2, WebGLContext.FLOAT, 0],

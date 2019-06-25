@@ -22,7 +22,7 @@ export class Rand {
 		return (v & 0x007FFFFF) >>> 15/*(23-8)*/;
 	}
 
-	/**@private */
+	/**@internal */
 	private _temp: Uint32Array = new Uint32Array(1);
 
 	/**获取随机种子。*/

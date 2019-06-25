@@ -5,7 +5,6 @@ import { Physics } from "../Physics";
  * <code>SphereColliderShape</code> 类用于创建球形碰撞器。
  */
 export class SphereColliderShape extends ColliderShape {
-	/**@private */
 	private _radius: number;
 
 	/**

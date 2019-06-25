@@ -10,7 +10,7 @@ import { Vector4 } from "../../math/Vector4"
 	 * <code>VertexShurikenParticle</code> 类用于创建粒子顶点结构。
 	 */
 	export class VertexShurikenParticleMesh extends VertexShuriKenParticle {
-		/**@private */
+		/**@internal */
 		private static _vertexDeclaration:VertexDeclaration = new VertexDeclaration(172, [new VertexElement(0, VertexElementFormat.Vector3, VertexShuriKenParticle.PARTICLE_POSITION0),
 		new VertexElement(12, VertexElementFormat.Vector4, VertexShuriKenParticle.PARTICLE_COLOR0),
 		new VertexElement(28, VertexElementFormat.Vector2, VertexShuriKenParticle.PARTICLE_TEXTURECOORDINATE0),
@@ -29,33 +29,33 @@ import { Vector4 } from "../../math/Vector4"
 			return VertexShurikenParticleMesh._vertexDeclaration;
 		}
 		
-		/**@private */
+		/**@internal */
 		private _cornerTextureCoordinate:Vector4;
-		/**@private */
+		/**@internal */
 		private _positionStartLifeTime:Vector4;
-		/**@private */
+		/**@internal */
 		private _velocity:Vector3;
-		/**@private */
+		/**@internal */
 		private _startColor:Vector4;
-		/**@private */
+		/**@internal */
 		private _startSize:Vector3;
-		/**@private */
+		/**@internal */
 		private _startRotation0:Vector3;
-		/**@private */
+		/**@internal */
 		private _startRotation1:Vector3;
-		/**@private */
+		/**@internal */
 		private _startRotation2:Vector3;
-		/**@private */
+		/**@internal */
 		private _startLifeTime:number;
-		/**@private */
+		/**@internal */
 		private _time:number;
-		/**@private */
+		/**@internal */
 		private _startSpeed:number;
-		/**@private */
+		/**@internal */
 		private _randoms0:Vector4;
-		/**@private */
+		/**@internal */
 		private _randoms1:Vector4;
-		/**@private */
+		/**@internal */
 		private _simulationWorldPostion:Vector3;
 		
 		 get cornerTextureCoordinate():Vector4 {

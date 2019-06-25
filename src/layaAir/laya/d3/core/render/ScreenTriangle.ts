@@ -13,33 +13,33 @@ import { WebGLContext } from "../../../webgl/WebGLContext"
  * <code>ScreenTriangle</code> 类用于创建全屏三角形。
  */
 export class ScreenTriangle extends Resource {
-	/** @private */
+	/** @internal */
 	static SCREENTRIANGLE_POSITION_UV: number = 0;
-	/** @private */
+	/** @internal */
 	private static _vertexDeclaration: VertexDeclaration = new VertexDeclaration(16, [new VertexElement(0, VertexElementFormat.Vector4, ScreenTriangle.SCREENTRIANGLE_POSITION_UV)]);
-	/** @private */
+	/** @internal */
 	private static _vertices: Float32Array = new Float32Array([-1, -1, 0, 1, -1, 3, 0, -1, 3, -1, 2, 1]);
-	/** @private */
+	/** @internal */
 	private static _verticesInvertUV: Float32Array = new Float32Array([-1, -1, 0, 0, -1, 3, 0, 2, 3, -1, 2, 0]);
 
-	/**@private */
+	/**@internal */
 	static instance: ScreenTriangle;
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static __init__(): void {
 		ScreenTriangle.instance = new ScreenTriangle();
 		ScreenTriangle.instance.lock = true;
 	}
 
-	/** @private */
+	/** @internal */
 	private _vertexBuffer: VertexBuffer3D;
-	/** @private */
+	/** @internal */
 	private _bufferState: BufferState = new BufferState();
-	/** @private */
+	/** @internal */
 	private _vertexBufferInvertUV: VertexBuffer3D;
-	/** @private */
+	/** @internal */
 	private _bufferStateInvertUV: BufferState = new BufferState();
 
 	/**
@@ -65,7 +65,7 @@ export class ScreenTriangle extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	render(): void {
 		this._bufferState.bind();
@@ -74,7 +74,7 @@ export class ScreenTriangle extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	renderInvertUV(): void {
 		this._bufferStateInvertUV.bind();

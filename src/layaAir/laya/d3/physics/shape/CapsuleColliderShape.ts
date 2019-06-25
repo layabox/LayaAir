@@ -6,14 +6,14 @@ import { ColliderShape } from "././ColliderShape";
  * <code>CapsuleColliderShape</code> 类用于创建胶囊形状碰撞器。
  */
 export class CapsuleColliderShape extends ColliderShape {
-	/** @private */
+	/** @internal */
 	public static _tempVector30: Vector3 = new Vector3();
 
-	/**@private */
+	/**@internal */
 	private _radius: number;
-	/**@private */
+	/**@internal */
 	private _length: number;
-	/**@private */
+	/**@internal */
 	private _orientation: number;
 
 	/**

@@ -11,7 +11,7 @@ import { Scene3D } from "../core/scene/Scene3D";
  * <code>Script3D</code> 类用于创建脚本的父类,该类为抽象类,不允许实例。
  */
 export class Script3D extends Component {
-	/**@private*/
+	/**@internal*/
 	public _indexInPool: number = -1;
 
 	/**
@@ -21,9 +21,6 @@ export class Script3D extends Component {
 		return false;
 	}
 
-	/**
-	 * @private
-	 */
 	private _checkProcessTriggers(): boolean {
 		var prototype: any = Script3D.prototype;
 		if (this.onTriggerEnter !== prototype.onTriggerEnter)
@@ -35,9 +32,6 @@ export class Script3D extends Component {
 		return false;
 	}
 
-	/**
-	 * @private
-	 */
 	private _checkProcessCollisions(): boolean {
 		var prototype: any = Script3D.prototype;
 		if (this.onCollisionEnter !== prototype.onCollisionEnter)

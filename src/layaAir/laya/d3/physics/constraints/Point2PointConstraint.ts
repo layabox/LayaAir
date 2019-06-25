@@ -4,15 +4,15 @@ import { Vector3 } from "../../math/Vector3"
 	 * <code>Point2PointConstraint</code> 类用于创建物理组件的父类。
 	 */
 	export class Point2PointConstraint {
-		/**@private */
+		/**@internal */
 		private _pivotInA:Vector3 = new Vector3();
-		/**@private */
+		/**@internal */
 		private _pivotInB:Vector3 = new Vector3();
-		/**@private */
+		/**@internal */
 		private _damping:number;
-		/**@private */
+		/**@internal */
 		private _impulseClamp:number;
-		/**@private */
+		/**@internal */
 		private _tau:number;
 		
 		 get pivotInA():Vector3 {

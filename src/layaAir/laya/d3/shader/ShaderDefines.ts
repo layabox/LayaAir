@@ -1,14 +1,14 @@
 /**
-	 * @private
+	 * @internal
 	 */
 	export class ShaderDefines {
-		/**@private */
+		/**@internal */
 		private _counter:number = 0;
-		/**@private [只读]*/
+		/**@internal [只读]*/
 		 defines:any = {};
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		constructor(superDefines:ShaderDefines = null){
 			if (superDefines) {
@@ -19,7 +19,7 @@
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 registerDefine(name:string):number {
 			var value:number = Math.pow(2, this._counter++);//TODO:超界处理

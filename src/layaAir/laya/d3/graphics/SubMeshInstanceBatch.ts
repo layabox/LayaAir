@@ -9,29 +9,29 @@ import { VertexBuffer3D } from "././VertexBuffer3D";
 import { VertexMesh } from "./Vertex/VertexMesh";
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	export class SubMeshInstanceBatch extends GeometryElement {
-		/** @private */
+		/** @internal */
 		static instance:SubMeshInstanceBatch;
 
 		/**
-		 * @private
+		 * @internal
 		 */
 		static __init__():void{
 			SubMeshInstanceBatch.instance = new SubMeshInstanceBatch();
 		}
 		
-		/** @private */
+		/** @internal */
 		maxInstanceCount:number = 1024;
 		
-		/** @private */
+		/** @internal */
 		instanceWorldMatrixData:Float32Array = new Float32Array(this.maxInstanceCount * 16);
-		/** @private */
+		/** @internal */
 		 instanceMVPMatrixData:Float32Array = new Float32Array(this.maxInstanceCount * 16);
-		/** @private */
+		/** @internal */
 		 instanceWorldMatrixBuffer:VertexBuffer3D = new VertexBuffer3D(this.instanceWorldMatrixData.length * 4, WebGLContext.DYNAMIC_DRAW);
-		/** @private */
+		/** @internal */
 		 instanceMVPMatrixBuffer:VertexBuffer3D = new VertexBuffer3D(this.instanceMVPMatrixData.length * 4, WebGLContext.DYNAMIC_DRAW);
 		
 		/**

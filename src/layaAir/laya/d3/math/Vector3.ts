@@ -8,26 +8,26 @@ import { IClone } from "../core/IClone"
 	 * <code>Vector3</code> 类用于创建三维向量。
 	 */
 	export class Vector3 implements IClone {
-		/**@private	*/
+		/**@internal	*/
 		 static _tempVector4:Vector4 = new Vector4();
 		
-		/**@private	*/
+		/**@internal	*/
 		 static _ZERO:Vector3 = new Vector3(0.0, 0.0, 0.0);
-		/**@private	*/
+		/**@internal	*/
 		 static _ONE:Vector3 = new Vector3(1.0, 1.0, 1.0);
-		/**@private	*/
+		/**@internal	*/
 		 static _NegativeUnitX:Vector3 = new Vector3(-1, 0, 0);
-		/**@private	*/
+		/**@internal	*/
 		 static _UnitX:Vector3 = new Vector3(1, 0, 0);
-		/**@private	*/
+		/**@internal	*/
 		 static _UnitY:Vector3 = new Vector3(0, 1, 0);
-		/**@private	*/
+		/**@internal	*/
 		 static _UnitZ:Vector3 = new Vector3(0, 0, 1);
-		/**@private	*/
+		/**@internal	*/
 		 static _ForwardRH:Vector3 = new Vector3(0, 0, -1);
-		/**@private	*/
+		/**@internal	*/
 		 static _ForwardLH:Vector3 = new Vector3(0, 0, 1);
-		/**@private	*/
+		/**@internal	*/
 		 static _Up:Vector3 = new Vector3(0, 1, 0);
 		
 		/**

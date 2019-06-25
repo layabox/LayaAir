@@ -32,43 +32,33 @@ import { Laya } from "../../../Laya";
  */
 export class Camera extends BaseCamera {
 
-	/** @private */
+	/** @internal */
 	static CAMERAEVENT_POSTPROCESS: number = 0;
 
-	/** @private */
+	/** @internal */
 	static _tempVector20: Vector2 = new Vector2();
 
-	/** @private */
+	/** @internal */
 	static _updateMark: number = 0;
 
-	/** @private */
 	private _aspectRatio: number;
-	/** @private */
 	private _viewport: Viewport;
-	/** @private */
 	private _normalizedViewport: Viewport;
-	/** @private */
 	private _viewMatrix: Matrix4x4;
-	/**@private */
 	private _projectionMatrix: Matrix4x4;
-	/** @private */
 	private _projectionViewMatrix: Matrix4x4;
-	/** @private */
+	/** @internal */
 	_projectionViewMatrixNoTranslateScale: Matrix4x4;
-	/** @private */
 	private _boundFrustum: BoundFrustum;
-	/** @private */
 	private _updateViewMatrix: boolean = true;
-	/** @private 渲染目标。*/
+	/** @internal 渲染目标。*/
 	public _offScreenRenderTexture: RenderTexture = null;
-	/**@private */
 	private _postProcess: PostProcess = null;
-	/**@private */
 	private _enableHDR: boolean = false;
 
-	/**@private */
+	/**@internal */
 	_renderTexture: RenderTexture = null;
-	/** @private */
+	/** @internal */
 	_postProcessCommandBuffers: CommandBuffer[] = [];
 
 	/**是否允许渲染。*/
@@ -323,16 +313,13 @@ export class Camera extends BaseCamera {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_onTransformChanged(flag: number): void {
 		flag &= Transform3D.TRANSFORM_WORLDMATRIX;//过滤有用TRANSFORM标记
 		(flag) && (this._updateViewMatrix = true);
 	}
 
-	/**
-	 * @private
-	 */
 	private _calculationViewport(normalizedViewport: Viewport, width: number, height: number): void {
 		var lx: number = normalizedViewport.x * width;//不应限制x范围
 		var ly: number = normalizedViewport.y * height;//不应限制y范围
@@ -382,7 +369,7 @@ export class Camera extends BaseCamera {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_getCanvasHeight(): number {
 		if (this._offScreenRenderTexture)
@@ -392,7 +379,7 @@ export class Camera extends BaseCamera {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_applyPostProcessCommandBuffers(): void {
 		for (var i: number = 0, n: number = this._postProcessCommandBuffers.length; i < n; i++)
@@ -400,7 +387,7 @@ export class Camera extends BaseCamera {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_getRenderTextureFormat(): number {
 		if (this._enableHDR)
@@ -619,7 +606,7 @@ export class Camera extends BaseCamera {
 		}
 	}
 
-	/** @private [NATIVE]*/
+	/** @internal [NATIVE]*/
 	_boundFrustumBuffer: Float32Array;
 }
 

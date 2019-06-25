@@ -15,25 +15,18 @@ import { TextureGenerator } from "../resource/TextureGenerator";
  * <code>Utils3D</code> 类用于创建3D工具。
  */
 export class Utils3D {
-	/** @private */
 	private static _tempVector3_0: Vector3 = new Vector3();
-	/** @private */
 	private static _tempVector3_1: Vector3 = new Vector3();
-	/** @private */
 	private static _tempVector3_2: Vector3 = new Vector3();
-	/**@private */
 	private static _tempColor0: Color = new Color();
 
 	private static _tempArray16_0: Float32Array =  new Float32Array(16);
-	/** @private */
 	private static _tempArray16_1: Float32Array =  new Float32Array(16);
-	/** @private */
 	private static _tempArray16_2: Float32Array =  new Float32Array(16);
-	/** @private */
 	private static _tempArray16_3: Float32Array =   new Float32Array(16);
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static _convertToLayaVec3(bVector: any, out: Vector3, inverseX: boolean): void {
 		out.x = inverseX ? -bVector.x() : bVector.x();
@@ -42,7 +35,7 @@ export class Utils3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static _convertToBulletVec3(lVector: Vector3, out: any, inverseX: boolean): void {
 		out.setValue(inverseX ? -lVector.x : lVector.x, lVector.y, lVector.z);
@@ -134,7 +127,7 @@ export class Utils3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static _compIdToNode: any = new Object();
 
@@ -144,7 +137,7 @@ export class Utils3D {
 
 
 
-	/** @private */
+	/** @internal */
 	static _computeBoneAndAnimationDatasByBindPoseMatrxix(bones: any, curData: Float32Array, inverGlobalBindPose: Matrix4x4[], outBonesDatas: Float32Array, outAnimationDatas: Float32Array, boneIndexToMesh: number[]): void {
 
 		var offset: number = 0;
@@ -170,13 +163,13 @@ export class Utils3D {
 		}
 	}
 
-	/** @private */
+	/** @internal */
 	static _computeAnimationDatasByArrayAndMatrixFast(inverGlobalBindPose: Matrix4x4[], bonesDatas: Float32Array, outAnimationDatas: Float32Array, boneIndexToMesh: number[]): void {
 		for (var i: number = 0, n: number = inverGlobalBindPose.length; i < n; i++)//将绝对矩阵乘以反置矩阵
 			Utils3D.mulMatrixByArrayAndMatrixFast(bonesDatas, boneIndexToMesh[i] * 16, inverGlobalBindPose[i], outAnimationDatas, i * 16);//TODO:-1处理
 	}
 
-	/** @private */
+	/** @internal */
 	static _computeBoneAndAnimationDatasByBindPoseMatrxixOld(bones: any, curData: Float32Array, inverGlobalBindPose: Matrix4x4[], outBonesDatas: Float32Array, outAnimationDatas: Float32Array): void {
 
 		var offset: number = 0;
@@ -203,7 +196,7 @@ export class Utils3D {
 		}
 	}
 
-	/** @private */
+	/** @internal */
 	static _computeAnimationDatasByArrayAndMatrixFastOld(inverGlobalBindPose: Matrix4x4[], bonesDatas: Float32Array, outAnimationDatas: Float32Array): void {
 		var n: number = inverGlobalBindPose.length;
 		for (var i: number = 0; i < n; i++)//将绝对矩阵乘以反置矩阵................................................
@@ -213,7 +206,7 @@ export class Utils3D {
 		}
 	}
 
-	/** @private */
+	/** @internal */
 	static _computeRootAnimationData(bones: any, curData: Float32Array, animationDatas: Float32Array): void {
 
 		for (var i: number = 0, offset: number = 0, matOffset: number = 0, boneLength: number = bones.length; i < boneLength; offset += bones[i].keyframeWidth, matOffset += 16, i++)
@@ -387,7 +380,7 @@ export class Utils3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static transformLightingMapTexcoordArray(source: Float32Array, sourceOffset: number, lightingMapScaleOffset: Vector4, result: Float32Array, resultOffset: number): void {
 		result[resultOffset + 0] = source[sourceOffset + 0] * lightingMapScaleOffset.x + lightingMapScaleOffset.z;
@@ -405,7 +398,7 @@ export class Utils3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static _createAffineTransformationArray(trans: Vector3, rot: Quaternion, scale: Vector3, outE: Float32Array): void {
 
@@ -432,7 +425,7 @@ export class Utils3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static _mulMatrixArray(leftMatrixE: Float32Array, rightMatrix: Matrix4x4, outArray: Float32Array, outOffset: number): void {
 
@@ -506,7 +499,7 @@ export class Utils3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static quaternionConjugate(value: Quaternion, result: Quaternion): void {
 		result.x = -value.x;
@@ -516,7 +509,7 @@ export class Utils3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static scaleWeight(s: Vector3, w: number, out: Vector3): void {
 		var sX: number = s.x, sY: number = s.y, sZ: number = s.z;
@@ -526,7 +519,7 @@ export class Utils3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static scaleBlend(sa: Vector3, sb: Vector3, w: number, out: Vector3): void {
 		var saw: Vector3 = Utils3D._tempVector3_0;
@@ -577,7 +570,7 @@ export class Utils3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static _buildTexture2D(width: number, height: number, format: number, colorFunc: Function, mipmaps: boolean = false): Texture2D {
 		var texture: Texture2D = new Texture2D(width, height, format, mipmaps, true);
@@ -588,7 +581,7 @@ export class Utils3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static _drawBound(debugLine: PixelLineSprite3D, boundBox: BoundBox, color: Color): void {
 		if (debugLine.lineCount + 12 > debugLine.maxLineCount)
@@ -648,11 +641,11 @@ export class Utils3D {
 		debugLine.addLine(start, end, color, color);
 	}
 
-	///**@private */
+	///**@internal */
 	//private static var _tempHierarchyID:int = 0;
 	//
 	///**
-	//* @private
+	//* @internal
 	//*/
 	//public static function _getSpritesHierarchyID(sprite:Sprite3D, checkSprites:Array, outIDs:Array):void {
 	//var index:int = checkSprites.indexOf(sprite);
@@ -665,7 +658,7 @@ export class Utils3D {
 	//}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static _getHierarchyPath(rootSprite: Node, checkSprite: Node, path: any[]): any[] {
 		path.length = 0;
@@ -682,7 +675,7 @@ export class Utils3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static _getNodeByHierarchyPath(rootSprite: Node, invPath: any[]): Node {
 		var sprite: Node = rootSprite;

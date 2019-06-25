@@ -11,37 +11,25 @@ import { ConchVector3 } from "../math/Native/ConchVector3"
  * <code>AnimationTransform3D</code> 类用于实现3D变换。
  */
 export class AnimationTransform3D extends EventDispatcher {
-	/**@private */
 	private static _tempVector3: Vector3 = new Vector3();
-	/**@private */
 	private static _angleToRandin: number = 180 / Math.PI;
 
-	/** @private */
 	private _localMatrix: Float32Array;
-	/** @private */
 	private _worldMatrix: Float32Array;
-	/** @private */
 	private _localPosition: Vector3;
-	/** @private */
 	private _localRotation: Quaternion;
-	/** @private */
 	private _localScale: Vector3;
-	/** @private */
 	private _localQuaternionUpdate: boolean;
-	/** @private */
 	private _locaEulerlUpdate: boolean;
-	/** @private */
 	private _localUpdate: boolean;
-	/** @private */
 	private _parent: AnimationTransform3D;
-	/** @private */
 	private _children: AnimationTransform3D[];
 
-	/**@private */
+	/**@internal */
 	_localRotationEuler: Vector3;
-	/**@private */
+	/**@internal */
 	_owner: AnimationNode;
-	/** @private */
+	/** @internal */
 	_worldUpdate: boolean;
 
 	/**
@@ -81,9 +69,6 @@ export class AnimationTransform3D extends EventDispatcher {
 		this._worldUpdate = true;
 	}
 
-	/**
-	 * @private
-	 */
 	private _getlocalMatrix(): Float32Array {
 		if (this._localUpdate) {
 			Utils3D._createAffineTransformationArray(this._localPosition, this._localRotation, this._localScale, this._localMatrix);
@@ -92,9 +77,6 @@ export class AnimationTransform3D extends EventDispatcher {
 		return this._localMatrix;
 	}
 
-	/**
-	 * @private
-	 */
 	private _onWorldTransform(): void {
 		if (!this._worldUpdate) {
 			this._worldUpdate = true;
@@ -105,14 +87,14 @@ export class AnimationTransform3D extends EventDispatcher {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get localPosition(): Vector3 {
 		return this._localPosition;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set localPosition(value: Vector3) {
 		this._localPosition = value;
@@ -121,7 +103,7 @@ export class AnimationTransform3D extends EventDispatcher {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get localRotation(): Quaternion {
 		if (this._localQuaternionUpdate) {
@@ -133,7 +115,7 @@ export class AnimationTransform3D extends EventDispatcher {
 	}
 
 	/*
-	 * @private
+	 * @internal
 	 */
 	set localRotation(value: Quaternion) {
 		this._localRotation = value;
@@ -145,14 +127,14 @@ export class AnimationTransform3D extends EventDispatcher {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get localScale(): Vector3 {
 		return this._localScale;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set localScale(value: Vector3) {
 		this._localScale = value;
@@ -161,7 +143,7 @@ export class AnimationTransform3D extends EventDispatcher {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get localRotationEuler(): Vector3 {
 		if (this._locaEulerlUpdate) {
@@ -177,7 +159,7 @@ export class AnimationTransform3D extends EventDispatcher {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set localRotationEuler(value: Vector3) {
 		this._localRotationEuler = value;

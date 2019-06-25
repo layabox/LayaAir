@@ -11,31 +11,31 @@ import { WebGLContext } from "../../webgl/WebGLContext"
 
 	
 	/**
-	 * @private
+	 * @internal
 	 * <code>LoadModelV05</code> 类用于模型加载。
 	 */
 	export class LoadModelV05 {
 		
-		/**@private */
+		/**@internal */
 		private static _BLOCK:any = {count: 0};
-		/**@private */
+		/**@internal */
 		private static _DATA:any = {offset: 0, size: 0};
 		
-		/**@private */
+		/**@internal */
 		private static _strings:any[] = [];
-		/**@private */
+		/**@internal */
 		private static _readData:Byte;
-		/**@private */
+		/**@internal */
 		private static _version:string;
-		/**@private */
+		/**@internal */
 		private static _mesh:Mesh;
-		/**@private */
+		/**@internal */
 		private static _subMeshes:SubMesh[];
-		/**@private */
+		/**@internal */
 		private static _bindPoseIndices:number[] = [];
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 static parse(readData:Byte, version:string, mesh:Mesh, subMeshes:SubMesh[]):void {
 			LoadModelV05._mesh = mesh;
@@ -65,14 +65,14 @@ import { WebGLContext } from "../../webgl/WebGLContext"
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private static _readString():string {
 			return LoadModelV05._strings[LoadModelV05._readData.getUint16()];
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private static READ_DATA():void {
 			LoadModelV05._DATA.offset = LoadModelV05._readData.getUint32();
@@ -80,7 +80,7 @@ import { WebGLContext } from "../../webgl/WebGLContext"
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private static READ_BLOCK():void {
 			var count:number = LoadModelV05._BLOCK.count = LoadModelV05._readData.getUint16();
@@ -93,7 +93,7 @@ import { WebGLContext } from "../../webgl/WebGLContext"
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private static READ_STRINGS():void {
 			var offset:number = LoadModelV05._readData.getUint32();
@@ -108,7 +108,7 @@ import { WebGLContext } from "../../webgl/WebGLContext"
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private static READ_MESH():boolean {
 			var i:number, n:number;
@@ -251,7 +251,7 @@ import { WebGLContext } from "../../webgl/WebGLContext"
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private static READ_SUBMESH():boolean {
 			var arrayBuffer:ArrayBuffer = LoadModelV05._readData.__getBuffer();

@@ -4,7 +4,7 @@ import { IClone } from "../core/IClone"
 	 * <code>DefineDatas</code> 类用于创建宏定义数据。
 	 */
 	export class DefineDatas implements IClone {
-		/** @private */
+		/** @internal */
 		 value:number;
 		
 		/**
@@ -16,21 +16,21 @@ import { IClone } from "../core/IClone"
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 add(define:number):void {
 			this.value |= define;
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 remove(define:number):void {
 			this.value &= ~define;
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 has(define:number):boolean {
 			return (this.value & define) > 0;

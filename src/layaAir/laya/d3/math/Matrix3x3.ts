@@ -11,11 +11,11 @@ export class Matrix3x3 implements IClone {
 	/**默认矩阵,禁止修改*/
 	static DEFAULT: Matrix3x3 = new Matrix3x3();
 
-	/** @private */
+	/** @internal */
 	private static _tempV30: Vector3 = new Vector3();
-	/** @private */
+	/** @internal */
 	private static _tempV31: Vector3 = new Vector3();
-	/** @private */
+	/** @internal */
 	private static _tempV32: Vector3 = new Vector3();
 
 	/**

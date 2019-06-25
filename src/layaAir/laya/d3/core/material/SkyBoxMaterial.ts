@@ -16,7 +16,7 @@ export class SkyBoxMaterial extends BaseMaterial {
 	static defaultMaterial: SkyBoxMaterial;
 
 	/**
-	* @private
+	* @internal
 	*/
 	static __initDefine__(): void {
 

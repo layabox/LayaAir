@@ -13,11 +13,11 @@ import { SkyMesh } from "././SkyMesh";
  * <code>SkyBox</code> 类用于创建天空盒。
  */
 export class SkyBox extends SkyMesh {
-	/**@private */
+	/**@internal */
 	static instance: SkyBox;
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static __init__(): void {
 		SkyBox.instance = new SkyBox();//TODO:移植为标准Mesh后需要加锁

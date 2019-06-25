@@ -2,23 +2,23 @@
  * <code>AnimatorPlayState</code> 类用于创建动画播放状态信息。
  */
 export class AnimatorPlayState {
-	/**@private */
+	/**@internal */
 	_finish: boolean;
-	/**@private */
+	/**@internal */
 	_startPlayTime: number;
-	/**@private */
+	/**@internal */
 	_lastElapsedTime: number;
-	/**@private */
+	/**@internal */
 	_elapsedTime: number;
-	/**@private */
+	/**@internal */
 	_normalizedTime: number;
-	/**@private */
+	/**@internal */
 	_normalizedPlayTime: number;
-	/**@private */
+	/**@internal */
 	_duration: number;
-	/**@private */
+	/**@internal */
 	_playEventIndex: number;
-	/**@private */
+	/**@internal */
 	_lastIsFront: boolean;
 
 	/**
@@ -43,7 +43,7 @@ export class AnimatorPlayState {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_resetPlayState(startTime: number): void {
 		this._finish = false;
@@ -54,7 +54,7 @@ export class AnimatorPlayState {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_cloneTo(dest: AnimatorPlayState): void {
 		dest._finish = this._finish;

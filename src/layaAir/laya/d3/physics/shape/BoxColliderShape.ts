@@ -5,21 +5,21 @@ import { ColliderShape } from "././ColliderShape";
  * <code>BoxColliderShape</code> 类用于创建盒子形状碰撞器。
  */
 export class BoxColliderShape extends ColliderShape {
-	/** @private */
+	/** @internal */
 	private static _nativeSize: any;
 
 	/**
-	* @private
+	* @internal
 	*/
 	static __init__(): void {
 		BoxColliderShape._nativeSize = new Physics._physics3D.btVector3(0, 0, 0);
 	}
 
-	/**@private */
+	/**@internal */
 	private _sizeX: number;
-	/**@private */
+	/**@internal */
 	private _sizeY: number;
-	/**@private */
+	/**@internal */
 	private _sizeZ: number;
 
 	/**

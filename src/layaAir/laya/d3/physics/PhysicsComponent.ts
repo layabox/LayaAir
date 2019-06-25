@@ -24,52 +24,52 @@ import { SphereColliderShape } from "./shape/SphereColliderShape";
  * <code>PhysicsComponent</code> 类用于创建物理组件的父类。
  */
 export class PhysicsComponent extends Component {
-	/** @private */
+	/** @internal */
 	static ACTIVATIONSTATE_ACTIVE_TAG: number = 1;
-	/** @private */
+	/** @internal */
 	static ACTIVATIONSTATE_ISLAND_SLEEPING: number = 2;
-	/** @private */
+	/** @internal */
 	static ACTIVATIONSTATE_WANTS_DEACTIVATION: number = 3;
-	/** @private */
+	/** @internal */
 	static ACTIVATIONSTATE_DISABLE_DEACTIVATION: number = 4;
-	/** @private */
+	/** @internal */
 	static ACTIVATIONSTATE_DISABLE_SIMULATION: number = 5;
 
-	/** @private */
+	/** @internal */
 	static COLLISIONFLAGS_STATIC_OBJECT: number = 1;
-	/** @private */
+	/** @internal */
 	static COLLISIONFLAGS_KINEMATIC_OBJECT: number = 2;
-	/** @private */
+	/** @internal */
 	static COLLISIONFLAGS_NO_CONTACT_RESPONSE: number = 4;
-	/** @private */
+	/** @internal */
 	static COLLISIONFLAGS_CUSTOM_MATERIAL_CALLBACK: number = 8;//this allows per-triangle material (friction/restitution)
-	/** @private */
+	/** @internal */
 	static COLLISIONFLAGS_CHARACTER_OBJECT: number = 16;
-	/** @private */
+	/** @internal */
 	static COLLISIONFLAGS_DISABLE_VISUALIZE_OBJECT: number = 32;//disable debug drawing
-	/** @private */
+	/** @internal */
 	static COLLISIONFLAGS_DISABLE_SPU_COLLISION_PROCESSING: number = 64;//disable parallel/SPU processing
 
-	/**@private */
+	/**@internal */
 	protected static _tempVector30: Vector3 = new Vector3();
-	/**@private */
+	/**@internal */
 	protected static _tempQuaternion0: Quaternion = new Quaternion();
-	/**@private */
+	/**@internal */
 	protected static _tempQuaternion1: Quaternion = new Quaternion();
-	/**@private */
+	/**@internal */
 	protected static _tempMatrix4x40: Matrix4x4 = new Matrix4x4();
-	/** @private */
+	/** @internal */
 	protected static _nativeVector30: any;
-	/** @private */
+	/** @internal */
 	protected static _nativeQuaternion0: any;
 
-	/**@private */
+	/**@internal */
 	static _physicObjectsMap: any = {};
-	/** @private */
+	/** @internal */
 	static _addUpdateList: boolean = true;
 
 	/**
-	* @private
+	* @internal
 	*/
 	static __init__(): void {
 		PhysicsComponent._nativeVector30 = new Physics._physics3D.btVector3(0, 0, 0);
@@ -77,7 +77,7 @@ export class PhysicsComponent extends Component {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private static _createAffineTransformationArray(tranX: number, tranY: number, tranZ: number, rotX: number, rotY: number, rotZ: number, rotW: number, scale: Float32Array, outE: Float32Array): void {
 		
@@ -104,7 +104,7 @@ export class PhysicsComponent extends Component {
 	}
 
 	/**
-* @private
+* @internal
 */
 	static _creatShape(shapeData: any): ColliderShape {
 		var colliderShape: ColliderShape;
@@ -143,7 +143,7 @@ export class PhysicsComponent extends Component {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private static physicVector3TransformQuat(source: Vector3, qx: number, qy: number, qz: number, qw: number, out: Vector3): void {
 		var x: number = source.x, y: number = source.y, z: number = source.z,
@@ -156,7 +156,7 @@ export class PhysicsComponent extends Component {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private static physicQuaternionMultiply(lx: number, ly: number, lz: number, lw: number, right: Quaternion, out: Quaternion): void {
 		
@@ -174,33 +174,33 @@ export class PhysicsComponent extends Component {
 		out.w = lw * rw - d;
 	}
 
-	/** @private */
+	/** @internal */
 	private _restitution: number = 0.0;
-	/** @private */
+	/** @internal */
 	private _friction: number = 0.5;
-	/** @private */
+	/** @internal */
 	private _rollingFriction: number = 0.0;
-	/** @private */
+	/** @internal */
 	private _ccdMotionThreshold: number = 0.0;
-	/** @private */
+	/** @internal */
 	private _ccdSweptSphereRadius: number = 0.0;
 
-	/** @private */
+	/** @internal */
 	protected _collisionGroup: number = Physics3DUtils.COLLISIONFILTERGROUP_DEFAULTFILTER;
-	/** @private */
+	/** @internal */
 	protected _canCollideWith: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER;
-	/** @private */
+	/** @internal */
 	protected _colliderShape: ColliderShape = null;
-	/** @private */
+	/** @internal */
 	protected _transformFlag: number = 2147483647 /*int.MAX_VALUE*/;
 
-	/** @private */
+	/** @internal */
 	_nativeColliderObject: any;//TODO:不用声明,TODO:删除相关判断
-	/** @private */
+	/** @internal */
 	_simulation: PhysicsSimulation;
-	/** @private */
+	/** @internal */
 	_enableProcessCollisions: boolean = true;
-	/** @private */
+	/** @internal */
 	_inPhysicUpdateListIndex: number = -1;
 
 	/** 是否可以缩放Shape。 */
@@ -421,7 +421,7 @@ export class PhysicsComponent extends Component {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_isValid(): boolean {
 		return this._simulation && this._colliderShape && this._enabled;
@@ -440,7 +440,7 @@ export class PhysicsComponent extends Component {
 
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	protected _parseShape(shapesData: any[]): void {
 		var shapeCount: number = shapesData.length;
@@ -458,14 +458,14 @@ export class PhysicsComponent extends Component {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	protected _onScaleChange(scale: Vector3): void {
 		this._colliderShape._setScale(scale);
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_setTransformFlag(type: number, value: boolean): void {
 		if (value)
@@ -475,34 +475,34 @@ export class PhysicsComponent extends Component {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_getTransformFlag(type: number): boolean {
 		return (this._transformFlag & type) != 0;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_addToSimulation(): void {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_removeFromSimulation(): void {
 
 	}
 
 	/**
-	 * 	@private
+	 * 	@internal
 	 */
 	_derivePhysicsTransformation(force: boolean): void {
 		this._innerDerivePhysicsTransformation(this._nativeColliderObject.getWorldTransform(), force);
 	}
 
 	/**
-	 * 	@private
+	 * 	@internal
 	 *	通过渲染矩阵更新物理矩阵。
 	 */
 	_innerDerivePhysicsTransformation(physicTransformOut: any, force: boolean): void {
@@ -545,7 +545,7 @@ export class PhysicsComponent extends Component {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * 通过物理矩阵更新渲染矩阵。
 	 */
 	_updateTransformComponent(physicsTransform: any): void {
@@ -613,7 +613,7 @@ export class PhysicsComponent extends Component {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_onShapeChange(colShape: ColliderShape): void {
 		var btColObj: any = this._nativeColliderObject;
@@ -657,7 +657,7 @@ export class PhysicsComponent extends Component {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_onTransformChanged(flag: number): void {
 		if (PhysicsComponent._addUpdateList) {

@@ -7,18 +7,18 @@ import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement"
  * <code>StaticBatchManager</code> 类用于静态批处理管理的父类。
  */
 export class StaticBatchManager {
-	/** @private [只读]*/
+	/** @internal [只读]*/
 	static _managers: StaticBatchManager[] = [];
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static _registerManager(manager: StaticBatchManager): void {
 		StaticBatchManager._managers.push(manager);
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private static _addToStaticBatchQueue(sprite3D: Sprite3D, renderableSprite3D: RenderableSprite3D[]): void {
 		if (sprite3D instanceof RenderableSprite3D && sprite3D.isStatic)
@@ -57,13 +57,13 @@ export class StaticBatchManager {
 		}
 	}
 
-	/** @private */
+	/** @internal */
 	protected _batchRenderElementPool: SubMeshRenderElement[];
-	/** @private */
+	/** @internal */
 	protected _batchRenderElementPoolIndex: number;
-	/** @private */
+	/** @internal */
 	protected _initBatchSprites: RenderableSprite3D[];
-	/** @private */
+	/** @internal */
 	protected _staticBatches: any;
 
 	/**
@@ -77,7 +77,7 @@ export class StaticBatchManager {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _partition(items: RenderableSprite3D[], left: number, right: number): number {
 		var pivot: RenderableSprite3D = items[Math.floor((right + left) / 2)];
@@ -101,7 +101,7 @@ export class StaticBatchManager {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	protected _quickSort(items: RenderableSprite3D[], left: number, right: number): void {
 		if (items.length > 1) {
@@ -116,49 +116,49 @@ export class StaticBatchManager {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	protected _compare(left: RenderableSprite3D, right: RenderableSprite3D): number {
 		throw "StaticBatch:must override this function.";
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	protected _initStaticBatchs(rootSprite: Sprite3D): void {
 		throw "StaticBatch:must override this function.";
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_getBatchRenderElementFromPool(): RenderElement {
 		throw "StaticBatch:must override this function.";
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_addBatchSprite(renderableSprite3D: RenderableSprite3D): void {
 		this._initBatchSprites.push(renderableSprite3D);
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_clear(): void {
 		this._batchRenderElementPoolIndex = 0;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_garbageCollection(): void {
 		throw "StaticBatchManager: must override it.";
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	dispose(): void {
 		this._staticBatches = null;

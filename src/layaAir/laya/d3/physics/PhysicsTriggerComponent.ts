@@ -5,7 +5,7 @@ import { PhysicsComponent } from "./PhysicsComponent"
  * <code>PhysicsTriggerComponent</code> 类用于创建物理触发器组件。
  */
 export class PhysicsTriggerComponent extends PhysicsComponent {
-	/** @private */
+	/** @internal */
 	private _isTrigger: boolean = false;
 
 	/**

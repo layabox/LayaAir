@@ -28,11 +28,11 @@ import { ILaya3D } from "../../../ILaya3D";
 		
 		 pickColor:Vector4;
 		
-		/**@private */
+		/**@internal */
 		 static shaderDefines:ShaderDefines = new ShaderDefines();
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 static __init__():void {
 			RenderableSprite3D.SHADERDEFINE_RECEIVE_SHADOW = RenderableSprite3D.shaderDefines.registerDefine("RECEIVESHADOW");
@@ -40,7 +40,7 @@ import { ILaya3D } from "../../../ILaya3D";
 			RenderableSprite3D.SAHDERDEFINE_LIGHTMAP = RenderableSprite3D.shaderDefines.registerDefine("LIGHTMAP");
 		}
 		
-		/** @private */
+		/** @internal */
 		 _render:BaseRender;
 		
 		/**
@@ -87,7 +87,7 @@ import { ILaya3D } from "../../../ILaya3D";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 _addToInitStaticBatchManager():void {
 		}
@@ -132,7 +132,7 @@ import { ILaya3D } from "../../../ILaya3D";
 		}
 
 		/**
-		 * @private
+		 * @internal
 		 */
 		protected  _create():Node {
 			return new RenderableSprite3D(this.name);

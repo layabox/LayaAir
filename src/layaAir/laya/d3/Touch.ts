@@ -6,12 +6,12 @@ import { ISingletonElement } from "../resource/ISingletonElement"
 	 * <code>Touch</code> 类用于实现触摸描述。
 	 */
 	export class Touch implements ISingletonElement {
-		/** @private  [实现IListPool接口]*/
+		/**[实现IListPool接口]*/
 		private _indexInList:number = -1;
 		
-		/** @private */
+		/** @internal */
 		 _identifier:number = -1;
-		/** @private */
+		/** @internal */
 		 _position:Vector2 = new Vector2();
 		
 		/**
@@ -31,21 +31,21 @@ import { ISingletonElement } from "../resource/ISingletonElement"
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 * 创建一个 <code>Touch</code> 实例。
 		 */
 		constructor(){
 		}
 		
 		/**
-		 * @private [实现ISingletonElement接口]
+		 * @internal [实现ISingletonElement接口]
 		 */
 		 _getIndexInList():number {
 			return this._indexInList;
 		}
 		
 		/**
-		 * @private [实现ISingletonElement接口]
+		 * @internal [实现ISingletonElement接口]
 		 */
 		 _setIndexInList(index:number):void {
 			this._indexInList = index;

@@ -31,11 +31,11 @@ export class TrailMaterial extends BaseMaterial {
 	static DEPTH_TEST: number = Shader3D.propertyNameToID("s_DepthTest");
 	static DEPTH_WRITE: number = Shader3D.propertyNameToID("s_DepthWrite");
 
-	/**@private */
+	/**@internal */
 	static shaderDefines: ShaderDefines = null;
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static __initDefine__(): void {
 		TrailMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
@@ -44,18 +44,18 @@ export class TrailMaterial extends BaseMaterial {
 		TrailMaterial.SHADERDEFINE_ADDTIVEFOG = TrailMaterial.shaderDefines.registerDefine("ADDTIVEFOG");
 	}
 
-	/**@private */
+	/**@internal */
 	private _color: Vector4;
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _TintColorR(): number {
 		return this._color.x;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _TintColorR(value: number) {
 		this._color.x = value;
@@ -63,14 +63,14 @@ export class TrailMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _TintColorG(): number {
 		return this._color.y;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _TintColorG(value: number) {
 		this._color.y = value;
@@ -78,27 +78,27 @@ export class TrailMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _TintColorB(): number {
 		return this._color.z;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _TintColorB(value: number) {
 		this._color.z = value;
 		this.color = this._color;
 	}
 
-	/**@private */
+	/**@internal */
 	get _TintColorA(): number {
 		return this._color.w;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _TintColorA(value: number) {
 		this._color.w = value;
@@ -106,14 +106,14 @@ export class TrailMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _MainTex_STX(): number {
 		return this._shaderValues.getVector(TrailMaterial.TILINGOFFSET).x;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _MainTex_STX(x: number) {
 		var tilOff: Vector4 = (<Vector4>this._shaderValues.getVector(TrailMaterial.TILINGOFFSET));
@@ -122,14 +122,14 @@ export class TrailMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _MainTex_STY(): number {
 		return this._shaderValues.getVector(TrailMaterial.TILINGOFFSET).y;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _MainTex_STY(y: number) {
 		var tilOff: Vector4 = (<Vector4>this._shaderValues.getVector(TrailMaterial.TILINGOFFSET));
@@ -138,14 +138,14 @@ export class TrailMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _MainTex_STZ(): number {
 		return this._shaderValues.getVector(TrailMaterial.TILINGOFFSET).z;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _MainTex_STZ(z: number) {
 		var tilOff: Vector4 = (<Vector4>this._shaderValues.getVector(TrailMaterial.TILINGOFFSET));
@@ -154,14 +154,14 @@ export class TrailMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _MainTex_STW(): number {
 		return this._shaderValues.getVector(TrailMaterial.TILINGOFFSET).w;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _MainTex_STW(w: number) {
 		var tilOff: Vector4 = (<Vector4>this._shaderValues.getVector(TrailMaterial.TILINGOFFSET));

@@ -7,12 +7,11 @@ import { IDestroy } from "../../../../resource/IDestroy";
  * <code>Emission</code> 类用于粒子发射器。
  */
 export class Emission implements IClone, IDestroy {
-	/**@private */
 	private _destroyed: boolean;
-	/**@private 粒子发射速率,每秒发射的个数。*/
+	/** 粒子发射速率,每秒发射的个数。*/
 	private _emissionRate: number;
 
-	/**@private 粒子的爆裂,不允许修改。*/
+	/**@internal 粒子的爆裂,不允许修改。*/
 	_bursts: Burst[];
 
 	/**是否启用。*/
@@ -54,7 +53,7 @@ export class Emission implements IClone, IDestroy {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	destroy(): void {
 		this._bursts = null;

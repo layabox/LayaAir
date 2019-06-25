@@ -4,9 +4,9 @@ import { ISingletonElement } from "../../resource/ISingletonElement"
  * <code>SingletonList</code> 类用于实现单例队列。
  */
 export class SingletonList {
-	/**@private [只读]*/
+	/**@internal [只读]*/
 	elements: ISingletonElement[] = [];
-	/** @private [只读]*/
+	/** @internal [只读]*/
 	length: number = 0;
 
 	/**
@@ -16,7 +16,7 @@ export class SingletonList {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	protected _add(element: any): void {
 		if (this.length === this.elements.length)

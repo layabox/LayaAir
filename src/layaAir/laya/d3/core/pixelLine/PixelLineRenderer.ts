@@ -14,7 +14,7 @@ import { Render } from "../../../renders/Render"
  * <code>PixelLineRenderer</code> 类用于线渲染器。
  */
 export class PixelLineRenderer extends BaseRender {
-	/** @private */
+	/** @internal */
 	protected _projectionViewWorldMatrix: Matrix4x4;
 
 	constructor(owner: PixelLineSprite3D) {

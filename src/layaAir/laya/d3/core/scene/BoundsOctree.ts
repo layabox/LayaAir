@@ -13,22 +13,22 @@ import { Shader3D } from "../../shader/Shader3D";
  * <code>BoundsOctree</code> 类用于创建八叉树。
  */
 export class BoundsOctree {
-	/**@private */
+	/**@internal */
 	private static _tempVector30: Vector3 = new Vector3();
 
-	/**@private */
+	/**@internal */
 	private _initialSize: number;
-	/**@private */
+	/**@internal */
 	private _rootNode: BoundsOctreeNode;
-	/**@private */
+	/**@internal */
 	private _motionObjects: OctreeMotionList = new OctreeMotionList();
 
-	/**@private */
+	/**@internal */
 	_looseness: number;
-	/**@private */
+	/**@internal */
 	_minSize: number;
 
-	/**@private [只读]*/
+	/**@internal [只读]*/
 	count: number = 0;
 
 	/**
@@ -50,7 +50,7 @@ export class BoundsOctree {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _getMaxDepth(node: BoundsOctreeNode, depth: number): number {
 		depth++;
@@ -66,7 +66,7 @@ export class BoundsOctree {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_grow(growObjectCenter: Vector3): void {
 		var xDirection: number = growObjectCenter.x >= 0 ? 1 : -1;
@@ -237,7 +237,7 @@ export class BoundsOctree {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * [Debug]
 	 */
 	drawAllBounds(pixelLine: PixelLineSprite3D): void {
@@ -246,7 +246,7 @@ export class BoundsOctree {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * [Debug]
 	 */
 	drawAllObjects(pixelLine: PixelLineSprite3D): void {

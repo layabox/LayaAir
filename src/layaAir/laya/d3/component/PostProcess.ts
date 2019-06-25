@@ -14,34 +14,34 @@ import { Texture2D } from "../../resource/Texture2D"
  * <code>PostProcess</code> 类用于创建后期处理组件。
  */
 export class PostProcess {
-	/**@private */
+	/**@internal */
 	static SHADERDEFINE_BLOOM_LOW: number;
-	/**@private */
+	/**@internal */
 	static SHADERDEFINE_BLOOM: number;
-	/**@private */
+	/**@internal */
 	static SHADERDEFINE_FINALPASS: number;
-	/**@private */
+	/**@internal */
 	static SHADERVALUE_MAINTEX: number = Shader3D.propertyNameToID("u_MainTex");
-	/**@private */
+	/**@internal */
 	static SHADERVALUE_BLOOMTEX: number = Shader3D.propertyNameToID("u_BloomTex");
-	/**@private */
+	/**@internal */
 	static SHADERVALUE_AUTOEXPOSURETEX: number = Shader3D.propertyNameToID("u_AutoExposureTex");
-	/**@private */
+	/**@internal */
 	static SHADERVALUE_BLOOM_DIRTTEX: number = Shader3D.propertyNameToID("u_Bloom_DirtTex");
-	/**@private */
+	/**@internal */
 	static SHADERVALUE_BLOOMTEX_TEXELSIZE: number = Shader3D.propertyNameToID("u_BloomTex_TexelSize");
-	/**@private */
+	/**@internal */
 	static SHADERVALUE_BLOOM_DIRTTILEOFFSET: number = Shader3D.propertyNameToID("u_Bloom_DirtTileOffset");
-	/**@private */
+	/**@internal */
 	static SHADERVALUE_BLOOM_SETTINGS: number = Shader3D.propertyNameToID("u_Bloom_Settings");
-	/**@private */
+	/**@internal */
 	static SHADERVALUE_BLOOM_COLOR: number = Shader3D.propertyNameToID("u_Bloom_Color");
 
-	/**@private */
+	/**@internal */
 	static shaderDefines: ShaderDefines = new ShaderDefines();
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static __init__(): void {
 		PostProcess.SHADERDEFINE_BLOOM_LOW = PostProcess.shaderDefines.registerDefine("BLOOM_LOW");
@@ -49,13 +49,10 @@ export class PostProcess {
 		PostProcess.SHADERDEFINE_FINALPASS = PostProcess.shaderDefines.registerDefine("FINALPASS");
 	}
 
-	/**@private */
 	private _compositeShader: Shader3D = Shader3D.find("PostProcessComposite");
-	/**@private */
 	private _compositeShaderData: ShaderData = new ShaderData();
-	/**@private */
+	/**@internal */
 	_context: PostProcessRenderContext = null;
-	/**@private */
 	private _effects: PostProcessEffect[] = [];
 
 	/**
@@ -67,7 +64,7 @@ export class PostProcess {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	_init(camera: Camera, command: CommandBuffer): void {
 		this._context.camera = camera;
@@ -75,7 +72,7 @@ export class PostProcess {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_render(): void {
 		var camera: Camera = this._context.camera;

@@ -16,7 +16,7 @@ import { BaseRender } from "./core/render/BaseRender"
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 add(element:BaseRender):void {
 			var index:number = element._indexInCastShadowList;
@@ -27,7 +27,7 @@ import { BaseRender } from "./core/render/BaseRender"
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 remove(element:BaseRender):void {
 			var index:number = element._indexInCastShadowList;

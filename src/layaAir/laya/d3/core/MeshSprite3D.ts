@@ -18,11 +18,11 @@ import { Loader } from "../../net/Loader";
  */
 export class MeshSprite3D extends RenderableSprite3D {
 
-	/**@private */
+	/**@internal */
 	static shaderDefines: ShaderDefines;
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static __init__(): void {
 		MeshSprite3D.shaderDefines = new ShaderDefines(RenderableSprite3D.shaderDefines);
@@ -34,7 +34,6 @@ export class MeshSprite3D extends RenderableSprite3D {
 		DynamicBatchManager._registerManager(MeshRenderDynamicBatchManager.instance);
 	}
 
-	/** @private */
 	private _meshFilter: MeshFilter;
 
 	/**
@@ -127,7 +126,7 @@ export class MeshSprite3D extends RenderableSprite3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	protected _create(): Node {
 		return new MeshSprite3D();

@@ -29,28 +29,28 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	 */
 	static TYPE_KINEMATIC: number = 2;
 
-	/** @private */
+	/** @internal */
 	static _BT_DISABLE_WORLD_GRAVITY: number = 1;
-	/** @private */
+	/** @internal */
 	static _BT_ENABLE_GYROPSCOPIC_FORCE: number = 2;
 
-	/** @private */
+	/** @internal */
 	private static _nativeTempVector30: any;
-	/** @private */
+	/** @internal */
 	private static _nativeTempVector31: any;
-	/** @private */
+	/** @internal */
 	private static _nativeVector3Zero: any;
-	/** @private */
+	/** @internal */
 	private static _nativeInertia: any;
-	/** @private */
+	/** @internal */
 	private static _nativeImpulse: any;
-	/** @private */
+	/** @internal */
 	private static _nativeImpulseOffset: any;
-	/** @private */
+	/** @internal */
 	private static _nativeGravity: any;
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static __init__(): void {
 		Rigidbody3D._nativeTempVector30 = new Physics._physics3D.btVector3(0, 0, 0);
@@ -62,36 +62,36 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		Rigidbody3D._nativeGravity = new Physics._physics3D.btVector3(0, 0, 0);
 	}
 
-	/** @private */
+	/** @internal */
 	private _nativeMotionState: any;
-	/** @private */
+	/** @internal */
 	private _isKinematic: boolean = false;
-	/** @private */
+	/** @internal */
 	private _mass: number = 1.0;
-	/** @private */
+	/** @internal */
 	private _gravity: Vector3 = new Vector3(0, -10, 0);
-	/** @private */
+	/** @internal */
 	private _angularDamping: number = 0.0;
-	/** @private */
+	/** @internal */
 	private _linearDamping: number = 0.0;
-	/** @private */
+	/** @internal */
 	private _overrideGravity: boolean = false;
-	/** @private */
+	/** @internal */
 	private _totalTorque: Vector3 = new Vector3(0, 0, 0);
-	/** @private */
+	/** @internal */
 	private _totalForce: Vector3 = new Vector3(0, 0, 0);
 
 	//private var _linkedConstraints:Array;//TODO:
 
-	/** @private */
+	/** @internal */
 	private _linearVelocity: Vector3 = new Vector3();
-	/** @private */
+	/** @internal */
 	private _angularVelocity: Vector3 = new Vector3();
-	/** @private */
+	/** @internal */
 	private _linearFactor: Vector3 = new Vector3(1, 1, 1);
-	/** @private */
+	/** @internal */
 	private _angularFactor: Vector3 = new Vector3(1, 1, 1);
-	/** @private */
+	/** @internal */
 	private _detectCollisions: boolean = true;
 
 	/**
@@ -428,7 +428,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _updateMass(mass: number): void {
 		if (this._nativeColliderObject && this._colliderShape) {
@@ -439,7 +439,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * Dynamic刚体,初始化时调用一次。
 	 * Kinematic刚体,每次物理tick时调用(如果未进入睡眠状态),让物理引擎知道刚体位置。
 	 */
@@ -457,7 +457,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * Dynamic刚体,物理引擎每帧调用一次,用于更新渲染矩阵。
 	 */
 	private _delegateMotionStateSetWorldTransform(worldTransPointer: number): void {
@@ -469,7 +469,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	}
 
 	/**
-	 *  @private
+	 *  @internal
 	 * Dynamic刚体,初始化时调用一次。
 	 * Kinematic刚体,每次物理tick时调用(如果未进入睡眠状态),让物理引擎知道刚体位置。
 	 * 该函数只有在runtime下调用
@@ -488,7 +488,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * Dynamic刚体,物理引擎每帧调用一次,用于更新渲染矩阵。
 	 * 该函数只有在runtime下调用
 	 */
@@ -509,7 +509,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_delegateMotionStateClear(): void {
 		(<any>this)._rigidbody = null;

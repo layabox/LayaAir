@@ -16,7 +16,7 @@ import { Laya } from "../../../Laya";
 		 static grayTexture:TextureCube;
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 static __init__():void {
 			var pixels:Uint8Array = new Uint8Array(3);
@@ -46,7 +46,7 @@ import { Laya } from "../../../Laya";
 			Laya.loader.create(url, complete, null, TextureCube.TEXTURECUBE);
 		}
 		
-		/** @private */
+		/** @internal */
 		private _premultiplyAlpha:number;
 		
 		/**

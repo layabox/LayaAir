@@ -2,28 +2,28 @@ import { Quaternion } from "../math/Quaternion"
 import { Vector3 } from "../math/Vector3"
 
 /**
- * @private
+ * @internal
  * <code>KeyframeNodeOwner</code> 类用于保存帧节点的拥有者信息。
  */
 export class KeyframeNodeOwner {
-	/**@private */
+	/**@internal */
 	indexInList: number = -1;
-	/**@private */
+	/**@internal */
 	referenceCount: number = 0;
-	/**@private */
+	/**@internal */
 	updateMark: number = -1;
 
-	/**@private */
+	/**@internal */
 	type: number = -1;
-	/**@private */
+	/**@internal */
 	fullPath: string = null;
-	/**@private */
+	/**@internal */
 	propertyOwner: any = null;
-	/**@private */
+	/**@internal */
 	property: string[] = null;
-	/**@private */
+	/**@internal */
 	defaultValue: any = null;
-	/**@private */
+	/**@internal */
 	crossFixedValue: any = null;
 
 	/**
@@ -33,7 +33,7 @@ export class KeyframeNodeOwner {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	saveCrossFixedValue(): void {
 		var pro: any = this.propertyOwner;

@@ -8,7 +8,7 @@ import { IClone } from "../../core/IClone"
 	 */
 	export class ConchVector3 implements IClone {
 		/*[FILEINDEX:10000]*/
-		/**@private	*/
+		/**@internal	*/
 		 static _tempVector4:ConchVector4 = new ConchVector4();
 		
 		/**零向量，禁止修改*/

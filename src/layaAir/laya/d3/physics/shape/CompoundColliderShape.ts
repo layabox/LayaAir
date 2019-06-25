@@ -7,17 +7,17 @@ import { Physics } from "../Physics";
  * <code>CompoundColliderShape</code> 类用于创建盒子形状碰撞器。
  */
 export class CompoundColliderShape extends ColliderShape {
-	/**@private */
+	/**@internal */
 	private static _nativeVector3One: any;
-	/**@private */
+	/**@internal */
 	private static _nativeTransform: any;
-	/**@private */
+	/**@internal */
 	private static _nativeOffset: any;
-	/**@private */
+	/**@internal */
 	private static _nativRotation: any;
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static __init__(): void {
 		CompoundColliderShape._nativeVector3One = new Physics._physics3D.btVector3(1, 1, 1);
@@ -26,7 +26,7 @@ export class CompoundColliderShape extends ColliderShape {
 		CompoundColliderShape._nativRotation = new Physics._physics3D.btQuaternion(0, 0, 0, 1);
 	}
 
-	/**@private */
+	/**@internal */
 	private _childColliderShapes: ColliderShape[] = [];
 
 	/**
@@ -40,7 +40,7 @@ export class CompoundColliderShape extends ColliderShape {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _clearChildShape(shape: ColliderShape): void {
 		shape._attatched = false;
@@ -63,7 +63,7 @@ export class CompoundColliderShape extends ColliderShape {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_updateChildTransform(shape: ColliderShape): void {
 		var offset: Vector3 = shape.localOffset;

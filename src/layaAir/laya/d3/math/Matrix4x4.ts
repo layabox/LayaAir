@@ -8,21 +8,21 @@ import { LayaGL } from "../../layagl/LayaGL"
 	 * <code>Matrix4x4</code> 类用于创建4x4矩阵。
 	 */
 	export class Matrix4x4 implements IClone {
-		/**@private */
+		/**@internal */
 		private static _tempMatrix4x4:Matrix4x4 = new Matrix4x4();
-		/**@private */
+		/**@internal */
 		static TEMPMatrix0:Matrix4x4 = new Matrix4x4();
-		/**@private */
+		/**@internal */
 		static TEMPMatrix1:Matrix4x4 = new Matrix4x4();
-		/**@private */
+		/**@internal */
 		private static _tempVector0:Vector3 = new Vector3();
-		/**@private */
+		/**@internal */
 		private static _tempVector1:Vector3 = new Vector3();
-		/**@private */
+		/**@internal */
 		private static _tempVector2:Vector3 = new Vector3();
-		/**@private */
+		/**@internal */
 		private static _tempVector3:Vector3 = new Vector3();
-		/**@private */
+		/**@internal */
 		private static _tempQuaternion:Quaternion = new Quaternion();
 
 		/**默认矩阵,禁止修改*/

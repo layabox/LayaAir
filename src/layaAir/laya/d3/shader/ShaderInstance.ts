@@ -22,55 +22,55 @@ import { ShaderPass } from "././ShaderPass";
 import { ShaderVariable } from "././ShaderVariable";
 
 /**
- * @private
+ * @internal
  * <code>ShaderInstance</code> 类用于实现ShaderInstance。
  */
 export class ShaderInstance extends Resource {
-	/**@private */
+	/**@internal */
 	private _attributeMap: any;
-	/**@private */
+	/**@internal */
 	private _uniformMap: any;
-	/**@private */
+	/**@internal */
 	private _shaderPass: ShaderPass;
 
-	/**@private */
+	/**@internal */
 	private _vs: string
-	/**@private */
+	/**@internal */
 	private _ps: string;
-	/**@private */
+	/**@internal */
 	private _curActTexIndex: number;
 
-	/**@private */
+	/**@internal */
 	private _vshader: any;
-	/**@private */
+	/**@internal */
 	private _pshader: any
-	/**@private */
+	/**@internal */
 	private _program: any;
 
-	/**@private */
+	/**@internal */
 	_sceneUniformParamsMap: CommandEncoder;
-	/**@private */
+	/**@internal */
 	_cameraUniformParamsMap: CommandEncoder;
-	/**@private */
+	/**@internal */
 	_spriteUniformParamsMap: CommandEncoder;
-	/**@private */
+	/**@internal */
 	_materialUniformParamsMap: CommandEncoder;
-	/**@private */
+	/**@internal */
 	private _customUniformParamsMap: any[];
-	/**@private */
+	/**@internal */
 	private _stateParamsMap: any[] = [];
 
-	/**@private */
+	/**@internal */
 	_uploadMark: number = -1;
-	/**@private */
+	/**@internal */
 	_uploadMaterial: BaseMaterial;
-	/**@private */
+	/**@internal */
 	_uploadRender: BaseRender;
-	/** @private */
+	/** @internal */
 	_uploadRenderType: number = -1;
-	/**@private */
+	/**@internal */
 	_uploadCamera: BaseCamera;
-	/**@private */
+	/**@internal */
 	_uploadScene: Scene3D;
 
 	/**
@@ -89,7 +89,7 @@ export class ShaderInstance extends Resource {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	private _create(): void {
 		var gl: WebGLContext = LayaGL.instance;
@@ -186,7 +186,7 @@ export class ShaderInstance extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _getRenderState(shaderDatas: any, stateIndex: number): any {
 		var stateID: any = this._stateParamsMap[stateIndex];
@@ -209,7 +209,7 @@ export class ShaderInstance extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_addShaderUnifiormFun(one: ShaderVariable): void {
 		var gl: WebGLContext = LayaGL.instance;
@@ -271,7 +271,7 @@ export class ShaderInstance extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _createShader(gl: WebGLContext, str: string, type: any): any {
 		var shader: any = gl.createShader(type);
@@ -284,7 +284,7 @@ export class ShaderInstance extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_uniform1f(one: any, value: any): number {
 		var uploadedValue: any[] = one.uploadedValue;
@@ -296,7 +296,7 @@ export class ShaderInstance extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_uniform1fv(one: any, value: any): number {
 		if (value.length < 4) {
@@ -317,7 +317,7 @@ export class ShaderInstance extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_uniform_vec2(one: any, v: Vector2): number {
 		var uploadedValue: any[] = one.uploadedValue;
@@ -329,7 +329,7 @@ export class ShaderInstance extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_uniform_vec2v(one: any, value: Float32Array): number {
 		if (value.length < 2) {
@@ -350,7 +350,7 @@ export class ShaderInstance extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_uniform_vec3(one: any, v: Vector3): number {
 		var uploadedValue: any[] = one.uploadedValue;
@@ -362,7 +362,7 @@ export class ShaderInstance extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_uniform_vec3v(one: any, v: Float32Array): number {
 		LayaGL.instance.uniform3fv(one.location, v);
@@ -370,7 +370,7 @@ export class ShaderInstance extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_uniform_vec4(one: any, v: Vector4): number {
 		var uploadedValue: any[] = one.uploadedValue;
@@ -382,7 +382,7 @@ export class ShaderInstance extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_uniform_vec4v(one: any, v: Float32Array): number {
 		LayaGL.instance.uniform4fv(one.location, v);
@@ -390,7 +390,7 @@ export class ShaderInstance extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_uniformMatrix2fv(one: any, value: any): number {
 		LayaGL.instance.uniformMatrix2fv(one.location, false, value);
@@ -398,7 +398,7 @@ export class ShaderInstance extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_uniformMatrix3fv(one: any, value: any): number {
 		LayaGL.instance.uniformMatrix3fv(one.location, false, value);
@@ -406,7 +406,7 @@ export class ShaderInstance extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_uniformMatrix4f(one: any, m: Matrix4x4): number {
 		var value: Float32Array = m.elements;
@@ -415,7 +415,7 @@ export class ShaderInstance extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_uniformMatrix4fv(one: any, m: Float32Array): number {
 		LayaGL.instance.uniformMatrix4fv(one.location, false, m);
@@ -423,7 +423,7 @@ export class ShaderInstance extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_uniform1i(one: any, value: any): number {
 		var uploadedValue: any[] = one.uploadedValue;
@@ -435,7 +435,7 @@ export class ShaderInstance extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_uniform1iv(one: any, value: any): number {
 		LayaGL.instance.uniform1iv(one.location, value);
@@ -443,7 +443,7 @@ export class ShaderInstance extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_uniform_ivec2(one: any, value: any): number {
 		var uploadedValue: any[] = one.uploadedValue;
@@ -455,7 +455,7 @@ export class ShaderInstance extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_uniform_ivec2v(one: any, value: any): number {
 		LayaGL.instance.uniform2iv(one.location, value);
@@ -463,7 +463,7 @@ export class ShaderInstance extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_uniform_vec3i(one: any, value: any): number {
 		var uploadedValue: any[] = one.uploadedValue;
@@ -475,7 +475,7 @@ export class ShaderInstance extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_uniform_vec3vi(one: any, value: any): number {
 		LayaGL.instance.uniform3iv(one.location, value);
@@ -483,7 +483,7 @@ export class ShaderInstance extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_uniform_vec4i(one: any, value: any): number {
 		var uploadedValue: any[] = one.uploadedValue;
@@ -495,7 +495,7 @@ export class ShaderInstance extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_uniform_vec4vi(one: any, value: any): number {
 		LayaGL.instance.uniform4iv(one.location, value);
@@ -503,7 +503,7 @@ export class ShaderInstance extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_uniform_sampler2D(one: any, texture: BaseTexture): number {//TODO:TEXTURTE ARRAY
 		var value: any = texture._getSource() || texture.defaulteTexture._getSource();
@@ -522,7 +522,7 @@ export class ShaderInstance extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_uniform_samplerCube(one: any, texture: BaseTexture): number {//TODO:TEXTURTECUBE ARRAY
 		var value: any = texture._getSource() || texture.defaulteTexture._getSource();
@@ -533,21 +533,21 @@ export class ShaderInstance extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	bind(): boolean {
 		return WebGLContext.useProgram(LayaGL.instance, this._program);
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	uploadUniforms(shaderUniform: CommandEncoder, shaderDatas: ShaderData, uploadUnTexture: boolean): void {
 		Stat.shaderCall += LayaGLRunner.uploadShaderUniforms(LayaGL.instance, shaderUniform, shaderDatas, uploadUnTexture);
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	uploadRenderStateBlendDepth(shaderDatas: ShaderData): void {
 		var gl: WebGLContext = LayaGL.instance;
@@ -597,7 +597,7 @@ export class ShaderInstance extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	uploadRenderStateFrontFace(shaderDatas: ShaderData, isTarget: boolean, invertFront: boolean): void {
 		var gl: WebGLContext = LayaGL.instance;
@@ -647,14 +647,14 @@ export class ShaderInstance extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	uploadCustomUniform(index: number, data: any): void {
 		Stat.shaderCall += LayaGLRunner.uploadCustomUniform(LayaGL.instance, this._customUniformParamsMap, index, data);
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * [NATIVE]
 	 */
 	_uniformMatrix2fvForNative(one: any, value: any): number {
@@ -663,7 +663,7 @@ export class ShaderInstance extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * [NATIVE]
 	 */
 	_uniformMatrix3fvForNative(one: any, value: any): number {
@@ -672,7 +672,7 @@ export class ShaderInstance extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * [NATIVE]
 	 */
 	_uniformMatrix4fvForNative(one: any, m: Float32Array): number {

@@ -6,9 +6,9 @@ import { PhysicsSimulation } from "./PhysicsSimulation"
  * @author ...
  */
 export class Constraint3D {
-	/**@private */
+	/**@internal */
 	_nativeConstraint: any;
-	/**@private */
+	/**@internal */
 	_simulation: PhysicsSimulation;
 
 	/**获取刚体A。[只读]*/

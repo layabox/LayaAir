@@ -14,7 +14,6 @@ import { Texture2D } from "../../resource/Texture2D"
  * <code>HeightMap</code> 类用于实现高度图数据。
  */
 export class HeightMap {
-	/** @private */
 	private static _tempRay: Ray = new Ray(new Vector3(), new Vector3());
 
 	/**
@@ -119,7 +118,6 @@ export class HeightMap {
 		return heightMap;
 	}
 
-	/** @private */
 	private static _getPosition(ray: Ray, vertices: any[], indexs: Uint16Array[]): number {
 		var closestIntersection: number = Number.MAX_VALUE;
 		for (var i: number = 0; i < vertices.length; i++) {
@@ -143,15 +141,10 @@ export class HeightMap {
 
 	}
 
-	/** @private */
 	private _datas: any[];
-	/** @private */
 	private _w: number;
-	/** @private */
 	private _h: number;
-	/** @private */
 	private _minHeight: number;
-	/** @private */
 	private _maxHeight: number;
 
 	/**
@@ -201,7 +194,7 @@ export class HeightMap {
 		this._maxHeight = maxHeight;
 	}
 
-	/** @private */
+	/** @internal */
 	private _inBounds(row: number, col: number): boolean {
 		return row >= 0 && row < this._h && col >= 0 && col < this._w;
 	}

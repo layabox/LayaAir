@@ -45,11 +45,11 @@ export class ExtendTerrainMaterial extends BaseMaterial {
 	static SHADERDEFINE_DETAIL_NUM4: number;
 	static SHADERDEFINE_DETAIL_NUM5: number;
 
-	/**@private */
+	/**@internal */
 	static shaderDefines: ShaderDefines = null;
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static __initDefine__(): void {
 		ExtendTerrainMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
@@ -60,7 +60,6 @@ export class ExtendTerrainMaterial extends BaseMaterial {
 		ExtendTerrainMaterial.SHADERDEFINE_DETAIL_NUM5 = ExtendTerrainMaterial.shaderDefines.registerDefine("ExtendTerrain_DETAIL_NUM5");
 	}
 
-	/**@private */
 	private _enableLighting: boolean = true;
 
 	/**

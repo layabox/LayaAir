@@ -16,11 +16,11 @@ import { VertexElement } from "././VertexElement";
 import { VertexMesh } from "./Vertex/VertexMesh";
 import { ILaya3D } from "../../../ILaya3D";
 	/**
-	 * @private
+	 * @internal
 	 * <code>SubMeshDynamicBatch</code> 类用于网格动态合并。
 	 */
 	export class SubMeshDynamicBatch extends GeometryElement {
-		/** @private
+		/** @internal
 		 * //MI6 (微信) 大于12个顶点微小提升
 		 * //MI6 (QQ浏览器8.2 X5内核038230GPU-UU) 大于12个顶点微小提升
 		 * //MI6 (chrome63) 大于10个顶点微小提升
@@ -28,42 +28,42 @@ import { ILaya3D } from "../../../ILaya3D";
 		 * //IPHONE5s  IOS8 微信 大于12仍有较大提升
 		 */
 		 static maxAllowVertexCount:number = 10;
-		/** @private */
+		/** @internal */
 		 static maxAllowAttribueCount:number = 900;//TODO:
-		/** @private */
+		/** @internal */
 		 static maxIndicesCount:number = 32000;
 		
-		/** @private */
+		/** @internal */
 		 static instance:SubMeshDynamicBatch;
 
 		 /**
-		 * @private
+		 * @internal
 		 */
 		static __init__():void{
 			SubMeshDynamicBatch.instance = new SubMeshDynamicBatch();
 		}
 		
-		/**@private */
+		/**@internal */
 		private _vertices:Float32Array;
-		/**@private */
+		/**@internal */
 		private _indices:Int16Array;
-		/**@private */
+		/**@internal */
 		private _positionOffset:number;
-		/**@private */
+		/**@internal */
 		private _normalOffset:number;
-		/**@private */
+		/**@internal */
 		private _colorOffset:number;
-		/**@private */
+		/**@internal */
 		private _uv0Offset:number;
-		/**@private */
+		/**@internal */
 		private _uv1Offset:number;
-		/**@private */
+		/**@internal */
 		private _sTangentOffset:number;
-		/**@private */
+		/**@internal */
 		 _vertexBuffer:VertexBuffer3D;
-		/**@private */
+		/**@internal */
 		 _indexBuffer:IndexBuffer3D;
-		/** @private */
+		/** @internal */
 		private _bufferState:BufferState = new BufferState();
 		
 		/**
@@ -83,7 +83,7 @@ import { ILaya3D } from "../../../ILaya3D";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private _getBatchVertices(vertexDeclaration:VertexDeclaration, batchVertices:Float32Array, batchOffset:number, transform:Transform3D, element:SubMeshRenderElement, subMesh:SubMesh):void {
 			var vertexFloatCount:number = vertexDeclaration.vertexStride / 4;
@@ -156,7 +156,7 @@ import { ILaya3D } from "../../../ILaya3D";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private _getBatchIndices(batchIndices:Int16Array, batchIndexCount:number, batchVertexCount:number, transform:Transform3D, subMesh:SubMesh, multiSubMesh:boolean):void {
 			var subIndices:Uint16Array = subMesh._indices;
@@ -200,7 +200,7 @@ import { ILaya3D } from "../../../ILaya3D";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private _flush(vertexCount:number, indexCount:number):void {
 			this._vertexBuffer.setData(this._vertices, 0, 0, vertexCount * (this._vertexBuffer.vertexDeclaration.vertexStride / 4));

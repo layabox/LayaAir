@@ -11,19 +11,19 @@ import { ShaderNode } from "../../webgl/utils/ShaderNode"
 	 * <code>ShaderPass</code> 类用于实现ShaderPass。
 	 */
 	export class ShaderPass extends ShaderCompile {
-		/**@private */
+		/**@internal */
 		private _owner:SubShader;
-		/**@private */
+		/**@internal */
 		 _stateMap:any;
-		/**@private */
+		/**@internal */
 		private _cacheSharders:any[];
-		/**@private */
+		/**@internal */
 		private _publicValidDefine:number;
-		/**@private */
+		/**@internal */
 		private _spriteValidDefine:number;
-		/**@private */
+		/**@internal */
 		private _materialValidDefine:number;
-		/**@private */
+		/**@internal */
 		private _renderState:RenderState = new RenderState();
 		
 		/**
@@ -58,7 +58,7 @@ import { ShaderNode } from "../../webgl/utils/ShaderNode"
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private _definesToNameDic(value:number, int2Name:any[]):any {
 			var o:any = {};
@@ -174,7 +174,7 @@ import { ShaderNode } from "../../webgl/utils/ShaderNode"
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 withCompile(publicDefine:number, spriteDefine:number, materialDefine:number):ShaderInstance {
 			publicDefine &= this._publicValidDefine;

@@ -4,22 +4,22 @@ import { BaseTexture } from "../../../../resource/BaseTexture";
 
 
 /**
- * @private
+ * @internal
  * <code>SetShaderDataTextureCMD</code> 类用于创建设置渲染目标指令。
  */
 export class SetShaderDataTextureCMD extends Command {
-	/**@private */
+	/**@internal */
 	private static _pool: any[] = [];
 
-	/**@private */
+	/**@internal */
 	private _shaderData: ShaderData = null;
-	/**@private */
+	/**@internal */
 	private _nameID: number = 0;
-	/**@private */
+	/**@internal */
 	private _texture: BaseTexture = null;
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static create(shaderData: ShaderData, nameID: number, texture: BaseTexture): SetShaderDataTextureCMD {
 		var cmd: SetShaderDataTextureCMD;

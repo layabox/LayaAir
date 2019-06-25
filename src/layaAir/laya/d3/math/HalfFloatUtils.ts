@@ -2,27 +2,27 @@
 	 * <code>HalfFloatUtils</code> 类用于创建HalfFloat工具。
 	 */
 	export class HalfFloatUtils {
-		/**@private */
+		/**@internal */
 		private static _buffer:ArrayBuffer = new ArrayBuffer(4);
-		/**@private */
+		/**@internal */
 		private static _floatView:Float32Array = new Float32Array(HalfFloatUtils._buffer);
-		/**@private */
+		/**@internal */
 		private static _uint32View:Uint32Array = new Uint32Array(HalfFloatUtils._buffer);
 		
-		/**@private */
+		/**@internal */
 		private static _baseTable:Uint32Array = new Uint32Array(512);
-		/**@private */
+		/**@internal */
 		private static _shiftTable:Uint32Array = new Uint32Array(512);
 		
-		/**@private */
+		/**@internal */
 		private static _mantissaTable:Uint32Array = new Uint32Array(2048);
-		/**@private */
+		/**@internal */
 		private static _exponentTable:Uint32Array = new Uint32Array(64);
-		/**@private */
+		/**@internal */
 		private static _offsetTable:Uint32Array = new Uint32Array(64);
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 static __init__():void {
 			for (var i:number = 0; i < 256; ++i) {

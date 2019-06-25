@@ -23,22 +23,22 @@ import { Render } from "../../renders/Render";
  * <code>SkinMeshRenderer</code> 类用于蒙皮渲染器。
  */
 export class SkinnedMeshRenderer extends MeshRenderer {
-	/**@private */
+	/**@internal */
 	private static _tempMatrix4x4: Matrix4x4 = new Matrix4x4();
 
-	/**@private */
+	/**@internal */
 	private _cacheMesh: Mesh;
-	/** @private */
+	/** @internal */
 	private _bones: Sprite3D[] = [];
-	/** @private */
+	/** @internal */
 	_skinnedData: any[];
-	/** @private */
+	/** @internal */
 	private _skinnedDataLoopMarks: number[] = [];
-	/**@private */
+	/**@internal */
 	private _localBounds: Bounds = new Bounds(Vector3._ZERO, Vector3._ZERO);
-	/**@private */
+	/**@internal */
 	private _cacheAnimator: Animator;
-	/**@private */
+	/**@internal */
 	private _cacheRootBone: Sprite3D;
 
 	/**
@@ -95,7 +95,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _computeSkinnedDataForNative(): void {
 		if (this._cacheMesh && this._cacheAvatar/*兼容*/ || this._cacheMesh && !this._cacheAvatar) {
@@ -133,7 +133,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _computeSubSkinnedData(bindPoses: Matrix4x4[], boneIndices: Uint16Array, meshBindPoseInices: Uint16Array, data: Float32Array, pathMarks: any[][]): void {
 		for (var k: number = 0, q: number = boneIndices.length; k < q; k++) {
@@ -159,7 +159,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _boundChange(flag: number): void {//TODO:是否直接使用_onWorldMatNeedChange
 		this._boundsChange = true;
@@ -207,7 +207,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_setCacheAnimator(animator: Animator): void {
 		this._cacheAnimator = animator;
@@ -297,13 +297,13 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 
 	//-----------------------------------------------------------------------------------------------------------------------------------------------------------
 
-	/**@private */
+	/**@internal */
 	_rootBone: string;//[兼容性API]
-	/**@private */
+	/**@internal */
 	private _cacheAvatar: Avatar;//[兼容性API]
-	/**@private */
+	/**@internal */
 	private _cacheRootAnimationNode: AnimationNode;//[兼容性API]
-	/** @private */
+	/** @internal */
 	private _cacheAnimationNode: AnimationNode[] = [];//[兼容性]
 
 	/**
@@ -319,7 +319,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_setRootBone(name: string): void {//[兼容性API]
 		this._rootBone = name;
@@ -327,7 +327,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _setRootNode(): void {//[兼容性API]
 		var rootNode: AnimationNode;
@@ -346,7 +346,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _getCacheAnimationNodes(): void {//[兼容性API]
 		var meshBoneNames: string[] = this._cacheMesh._boneNames;
@@ -374,7 +374,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_setCacheAvatar(value: Avatar): void {//[兼容性API]
 		if (this._cacheAvatar !== value) {
@@ -391,11 +391,11 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 		}
 	}
 
-	/**@private	[NATIVE]*/
+	/**@internal	[NATIVE]*/
 	private _cacheAnimationNodeIndices: Uint16Array;
 
 	/**
-	 * @private [NATIVE]
+	 * @internal [NATIVE]
 	 */
 	private _computeSubSkinnedDataNative(worldMatrixs: Float32Array, cacheAnimationNodeIndices: Uint16Array, inverseBindPosesBuffer: ArrayBuffer, boneIndices: Uint16Array, bindPoseInices: Uint16Array, data: Float32Array): void {
 		LayaGL.instance.computeSubSkinnedData(worldMatrixs, cacheAnimationNodeIndices, inverseBindPosesBuffer, boneIndices, bindPoseInices, data);

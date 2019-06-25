@@ -7,20 +7,15 @@ import { Color } from "../math/Color"
  * <code>Gradient</code> 类用于创建颜色渐变。
  */
 export class Gradient implements IClone {
-	/**@private */
 	private _mode: number = 0;
-	/**@private */
 	private _maxColorRGBKeysCount: number = 0;
-	/**@private */
 	private _maxColorAlphaKeysCount: number = 0;
-	/**@private */
 	private _colorRGBKeysCount: number = 0;
-	/**@private */
 	private _colorAlphaKeysCount: number = 0;
 
-	/**@private */
+	/**@internal */
 	_alphaElements: Float32Array = null;
-	/**@private */
+	/**@internal */
 	_rgbElements: Float32Array = null;
 
 	/**

@@ -35,11 +35,11 @@ export class UnlitMaterial extends BaseMaterial {
 
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: UnlitMaterial;
-	/**@private */
+	/**@internal */
 	static shaderDefines: ShaderDefines = null;
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static __initDefine__(): void {
 		UnlitMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
@@ -48,22 +48,19 @@ export class UnlitMaterial extends BaseMaterial {
 		UnlitMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR = UnlitMaterial.shaderDefines.registerDefine("ENABLEVERTEXCOLOR");
 	}
 
-	/**@private */
 	private _albedoColor: Vector4 = new Vector4(1.0, 1.0, 1.0, 1.0);
-	/**@private */
 	private _albedoIntensity: number = 1.0;
-	/**@private */
 	private _enableVertexColor: boolean = false;
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _ColorR(): number {
 		return this._albedoColor.x;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _ColorR(value: number) {
 		this._albedoColor.x = value;
@@ -71,14 +68,14 @@ export class UnlitMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _ColorG(): number {
 		return this._albedoColor.y;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _ColorG(value: number) {
 		this._albedoColor.y = value;
@@ -86,27 +83,27 @@ export class UnlitMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _ColorB(): number {
 		return this._albedoColor.z;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _ColorB(value: number) {
 		this._albedoColor.z = value;
 		this.albedoColor = this._albedoColor;
 	}
 
-	/**@private */
+	/**@internal */
 	get _ColorA(): number {
 		return this._albedoColor.w;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _ColorA(value: number) {
 		this._albedoColor.w = value;
@@ -114,14 +111,14 @@ export class UnlitMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _AlbedoIntensity(): number {
 		return this._albedoIntensity;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _AlbedoIntensity(value: number) {
 		if (this._albedoIntensity !== value) {
@@ -133,14 +130,14 @@ export class UnlitMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _MainTex_STX(): number {
 		return this._shaderValues.getVector(UnlitMaterial.TILINGOFFSET).x;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _MainTex_STX(x: number) {
 		var tilOff: Vector4 = (<Vector4>this._shaderValues.getVector(UnlitMaterial.TILINGOFFSET));
@@ -149,14 +146,14 @@ export class UnlitMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _MainTex_STY(): number {
 		return this._shaderValues.getVector(UnlitMaterial.TILINGOFFSET).y;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _MainTex_STY(y: number) {
 		var tilOff: Vector4 = (<Vector4>this._shaderValues.getVector(UnlitMaterial.TILINGOFFSET));
@@ -165,14 +162,14 @@ export class UnlitMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _MainTex_STZ(): number {
 		return this._shaderValues.getVector(UnlitMaterial.TILINGOFFSET).z;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _MainTex_STZ(z: number) {
 		var tilOff: Vector4 = (<Vector4>this._shaderValues.getVector(UnlitMaterial.TILINGOFFSET));
@@ -181,14 +178,14 @@ export class UnlitMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _MainTex_STW(): number {
 		return this._shaderValues.getVector(UnlitMaterial.TILINGOFFSET).w;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _MainTex_STW(w: number) {
 		var tilOff: Vector4 = (<Vector4>this._shaderValues.getVector(UnlitMaterial.TILINGOFFSET));
@@ -197,14 +194,14 @@ export class UnlitMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _Cutoff(): number {
 		return this.alphaTestValue;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _Cutoff(value: number) {
 		this.alphaTestValue = value;

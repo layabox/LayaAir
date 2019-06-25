@@ -6,7 +6,6 @@ import { Vector3 } from "../../../math/Vector3"
  * <code>RotationOverLifetime</code> 类用于粒子的生命周期旋转。
  */
 export class RotationOverLifetime implements IClone {
-	/**@private */
 	private _angularVelocity: GradientAngularVelocity;
 
 	/**是否启用*/

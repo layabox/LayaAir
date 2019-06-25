@@ -6,13 +6,13 @@ import { Component } from "../../../components/Component";
  * <code>ConstraintComponent</code> 类用于创建约束的父类。
  */
 export class ConstraintComponent extends Component {
-	/**@private */
+	/**@internal */
 	private _nativeConstraint: any;
-	/**@private */
+	/**@internal */
 	private _breakingImpulseThreshold: number;
-	/**@private */
+	/**@internal */
 	private _connectedBody: Rigidbody3D;
-	/**@private */
+	/**@internal */
 	private _feedbackEnabled: boolean = false;
 
 		/**

@@ -4,7 +4,7 @@ import { Vector3 } from "././Vector3";
 	 */
 export class Plane {
 
-	/** @private */
+	/** @internal */
 	private static _TEMPVec3: Vector3 = new Vector3();
 	/**平面的向量*/
 	normal: Vector3;

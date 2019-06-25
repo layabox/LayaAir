@@ -14,31 +14,31 @@ export class SkyProceduralMaterial extends BaseMaterial {
 	/** 太阳_高质量*/
 	static SUN_HIGH_QUALITY: number = 2;
 
-	/**@private */
+	/**@internal */
 	static SUNSIZE: number = Shader3D.propertyNameToID("u_SunSize");
-	/**@private */
+	/**@internal */
 	static SUNSIZECONVERGENCE: number = Shader3D.propertyNameToID("u_SunSizeConvergence");
-	/**@private */
+	/**@internal */
 	static ATMOSPHERETHICKNESS: number = Shader3D.propertyNameToID("u_AtmosphereThickness");
-	/**@private */
+	/**@internal */
 	static SKYTINT: number = Shader3D.propertyNameToID("u_SkyTint");
-	/**@private */
+	/**@internal */
 	static GROUNDTINT: number = Shader3D.propertyNameToID("u_GroundTint");
-	/**@private */
+	/**@internal */
 	static EXPOSURE: number = Shader3D.propertyNameToID("u_Exposure");
 
-	/**@private */
+	/**@internal */
 	static SHADERDEFINE_SUN_HIGH_QUALITY: number;
-	/**@private */
+	/**@internal */
 	static SHADERDEFINE_SUN_SIMPLE: number;
 
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: SkyProceduralMaterial;
-	/**@private */
+	/**@internal */
 	static shaderDefines: ShaderDefines = null;
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static __initDefine__(): void {
 		SkyProceduralMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
@@ -46,7 +46,6 @@ export class SkyProceduralMaterial extends BaseMaterial {
 		SkyProceduralMaterial.SHADERDEFINE_SUN_SIMPLE = SkyProceduralMaterial.shaderDefines.registerDefine("SUN_SIMPLE");
 	}
 
-	/**@private */
 	private _sunDisk: number;
 
 	/**

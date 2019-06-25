@@ -9,19 +9,19 @@ import { IClone } from "../../core/IClone"
 	 */
 	export class ConchQuaternion implements IClone {
 		/*[FILEINDEX:10000]*/
-		/**@private */
+		/**@internal */
 		 static TEMPVector30:ConchVector3 = new ConchVector3();
-		/**@private */
+		/**@internal */
 		 static TEMPVector31:ConchVector3 = new ConchVector3();
-		/**@private */
+		/**@internal */
 		 static TEMPVector32:ConchVector3 = new ConchVector3();
-		/**@private */
+		/**@internal */
 		 static TEMPVector33:ConchVector3 = new ConchVector3();
-		/**@private */
+		/**@internal */
 		 static TEMPMatrix0:Matrix4x4 = new Matrix4x4();
-		/**@private */
+		/**@internal */
 		 static TEMPMatrix1:Matrix4x4 = new Matrix4x4();
-		/**@private */
+		/**@internal */
 		 static _tempMatrix3x3:Matrix3x3 = new Matrix3x3();
 		
 		/**默认矩阵,禁止修改*/
@@ -30,14 +30,14 @@ import { IClone } from "../../core/IClone"
 		 static NAN:ConchQuaternion = new ConchQuaternion(NaN, NaN, NaN, NaN);
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 static _dotArray(l:Float32Array, r:Float32Array):number {			
 			return l[0] * r[0] + l[1] * r[1] + l[2] * r[2] + l[3] * r[3];
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 static _normalizeArray(f:Float32Array, o:Float32Array):void {
 			
@@ -53,7 +53,7 @@ import { IClone } from "../../core/IClone"
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 static _lerpArray(l:Float32Array, r:Float32Array, amount:number, o:Float32Array):void {
 			var inverse:number = 1.0 - amount;

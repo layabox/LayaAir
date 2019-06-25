@@ -11,9 +11,7 @@ import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration";
 	 * <code>MeshFilter</code> 类用于创建网格过滤器。
 	 */
 	export class MeshFilter {
-		/** @private */
 		private _owner:RenderableSprite3D;
-		/** @private */
 		private _sharedMesh:Mesh;
 		
 		/**
@@ -55,9 +53,6 @@ import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration";
 			this._owner = owner;
 		}
 		
-		/**
-		 * @private
-		 */
 		private _getMeshDefine(mesh:Mesh):number {
 			var define:number;
 			for (var i:number = 0, n:number = mesh._subMeshCount; i < n; i++) {

@@ -15,65 +15,65 @@ import { Texture2D } from "../../../resource/Texture2D"
  * <code>BloomEffect</code> 类用于创建泛光效果。
  */
 export class BloomEffect extends PostProcessEffect {
-	/** @private */
+	/** @internal */
 	static SHADERVALUE_MAINTEX: number = Shader3D.propertyNameToID("u_MainTex");
-	/**@private */
+	/**@internal */
 	static SHADERVALUE_AUTOEXPOSURETEX: number = Shader3D.propertyNameToID("u_AutoExposureTex");
-	/**@private */
+	/**@internal */
 	static SHADERVALUE_SAMPLESCALE: number = Shader3D.propertyNameToID("u_SampleScale");
-	/**@private */
+	/**@internal */
 	static SHADERVALUE_THRESHOLD: number = Shader3D.propertyNameToID("u_Threshold");
-	/**@private */
+	/**@internal */
 	static SHADERVALUE_PARAMS: number = Shader3D.propertyNameToID("u_Params");
-	/**@private */
+	/**@internal */
 	static SHADERVALUE_BLOOMTEX: number = Shader3D.propertyNameToID("u_BloomTex");
 
-	/**@private */
+	/**@internal */
 	private static SUBSHADER_PREFILTER13: number = 0;
-	/**@private */
+	/**@internal */
 	private static SUBSHADER_PREFILTER4: number = 1;
-	/**@private */
+	/**@internal */
 	private static SUBSHADER_DOWNSAMPLE13: number = 2;
-	/**@private */
+	/**@internal */
 	private static SUBSHADER_DOWNSAMPLE4: number = 3;
-	/**@private */
+	/**@internal */
 	private static SUBSHADER_UPSAMPLETENT: number = 4;
-	/**@private */
+	/**@internal */
 	private static SUBSHADER_UPSAMPLEBOX: number = 5;
 
-	/**@private */
+	/**@internal */
 	private static MAXPYRAMIDSIZE: number = 16; // Just to make sure we handle 64k screens... Future-proof!
 
-	/**@private */
+	/**@internal */
 	private _shader: Shader3D = null;
-	/**@private */
+	/**@internal */
 	private _shaderData: ShaderData = new ShaderData();
-	/**@private */
+	/**@internal */
 	private _linearColor: Color = new Color();
-	/**@private */
+	/**@internal */
 	private _bloomTextureTexelSize: Vector4 = new Vector4();
 
-	/**@private */
+	/**@internal */
 	private _shaderThreshold: Vector4 = new Vector4();
-	/**@private */
+	/**@internal */
 	private _shaderParams: Vector4 = new Vector4();
-	/**@private */
+	/**@internal */
 	private _pyramid: any[] = null;
-	/**@private */
+	/**@internal */
 	private _intensity: number = 0.0;
-	/**@private */
+	/**@internal */
 	private _threshold: number = 1.0;
-	/**@private */
+	/**@internal */
 	private _softKnee: number = 0.5;
-	/**@private */
+	/**@internal */
 	private _diffusion: number = 7.0;
-	/**@private */
+	/**@internal */
 	private _anamorphicRatio: number = 0.0;
-	/**@private */
+	/**@internal */
 	private _dirtIntensity: number = 0.0;
-	/**@private */
+	/**@internal */
 	private _shaderSetting: Vector4 = new Vector4();
-	/**@private */
+	/**@internal */
 	private _dirtTileOffset: Vector4 = new Vector4();
 
 	/**限制泛光像素的数量,该值在伽马空间。*/

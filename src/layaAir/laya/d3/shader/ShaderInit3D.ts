@@ -73,11 +73,11 @@ import WaterPrimaryVS from "./files/WaterPrimary.vs";
 
 
 /**
- * @private
+ * @internal
  * <code>ShaderInit</code> 类用于初始化内置Shader。
  */
 export class ShaderInit3D {
-	/**@private */
+	/**@internal */
 	static _rangeAttenTex: Texture2D;
 
 	/**
@@ -87,7 +87,7 @@ export class ShaderInit3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static __init__(): void {
 		ShaderInit3D._rangeAttenTex = Utils3D._buildTexture2D(1024, 1, BaseTexture.FORMAT_ALPHA8, TextureGenerator.lightAttenTexture);//TODO:移动位置

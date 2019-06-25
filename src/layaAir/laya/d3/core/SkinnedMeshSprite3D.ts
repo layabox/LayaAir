@@ -23,24 +23,24 @@ import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShade
  * <code>SkinnedMeshSprite3D</code> 类用于创建网格。
  */
 export class SkinnedMeshSprite3D extends RenderableSprite3D {
-	/**@private */
+	/**@internal */
 	static _tempArray0: any[] = [];
 
 	/**着色器变量名，蒙皮动画。*/
 	static BONES: number = Shader3D.propertyNameToID("u_Bones");
 
-	/**@private */
+	/**@internal */
 	static shaderDefines: ShaderDefines = null;
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static __init__(): void {
 		SkinnedMeshSprite3D.shaderDefines = new ShaderDefines(MeshSprite3D.shaderDefines);
 		SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_BONE = SkinnedMeshSprite3D.shaderDefines.registerDefine("BONE");
 	}
 
-	/** @private */
+	/** @internal */
 	private _meshFilter: MeshFilter;
 
 	/**
@@ -187,7 +187,7 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	protected _create(): Node {
 		return new SkinnedMeshSprite3D();

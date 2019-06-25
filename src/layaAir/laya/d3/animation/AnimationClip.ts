@@ -24,7 +24,7 @@ export class AnimationClip extends Resource {
 	/**AnimationClip资源。*/
 	static ANIMATIONCLIP: string = "ANIMATIONCLIP";
 
-	/**@private	*/
+	/**@internal	*/
 	static _tempQuaternion0: Quaternion = new Quaternion();
 
 	/**
@@ -57,17 +57,17 @@ export class AnimationClip extends Resource {
 		Laya.loader.create(url, complete, null, AnimationClip.ANIMATIONCLIP);
 	}
 
-	/**@private */
+	/**@internal */
 	_duration: number;
-	/**@private */
+	/**@internal */
 	_frameRate: number;
-	/**@private */
+	/**@internal */
 	_nodes: KeyframeNodeList = new KeyframeNodeList();
-	/**@private */
+	/**@internal */
 	_nodesDic: any;
-	/**@private */
+	/**@internal */
 	_nodesMap: any;//TODO:去掉
-	/** @private */
+	/** @internal */
 	_animationEvents: AnimationEvent[];
 
 	/**是否循环。*/
@@ -88,9 +88,6 @@ export class AnimationClip extends Resource {
 		this._animationEvents = [];
 	}
 
-	/**
-	 * @private
-	 */
 	private _hermiteInterpolate(frame: FloatKeyframe, nextFrame: FloatKeyframe, t: number, dur: number): number {
 		var t0: number = frame.outTangent, t1: number = nextFrame.inTangent;
 		if (Number.isFinite(t0) && Number.isFinite(t1)) {
@@ -105,9 +102,6 @@ export class AnimationClip extends Resource {
 			return frame.value;
 	}
 
-	/**
-	 * @private
-	 */
 	private _hermiteInterpolateVector3(frame: Vector3Keyframe, nextFrame: Vector3Keyframe, t: number, dur: number, out: Vector3): void {
 		var p0: Vector3 = frame.value;
 		var tan0: Vector3 = frame.outTangent;
@@ -140,9 +134,6 @@ export class AnimationClip extends Resource {
 			out.z = p0.z;
 	}
 
-	/**
-	 * @private
-	 */
 	private _hermiteInterpolateQuaternion(frame: QuaternionKeyframe, nextFrame: QuaternionKeyframe, t: number, dur: number, out: Quaternion): void {
 		var p0: Quaternion = frame.value;
 		var tan0: Vector4 = frame.outTangent;
@@ -182,7 +173,7 @@ export class AnimationClip extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_evaluateClipDatasRealTime(nodes: KeyframeNodeList, playCurTime: number, realTimeCurrentFrameIndexes: Int16Array, addtive: boolean, frontPlay: boolean): void {
 		for (var i: number = 0, n: number = nodes.count; i < n; i++) {
@@ -291,9 +282,6 @@ export class AnimationClip extends Resource {
 		LayaGL.instance.evaluateClipDatasRealTime(nodes._nativeObj, playCurTime, realTimeCurrentFrameIndexes, addtive);
 	}
 
-	/**
-	 * @private
-	 */
 	private _evaluateFrameNodeVector3DatasRealTime(keyFrames: Vector3Keyframe[], frameIndex: number, isEnd: boolean, playCurTime: number, outDatas: Vector3): void {
 		if (frameIndex !== -1) {
 			var frame: Vector3Keyframe = keyFrames[frameIndex];
@@ -323,9 +311,7 @@ export class AnimationClip extends Resource {
 		}
 	}
 
-	/**
-	 * @private
-	 */
+
 	private _evaluateFrameNodeQuaternionDatasRealTime(keyFrames: QuaternionKeyframe[], frameIndex: number, isEnd: boolean, playCurTime: number, outDatas: Quaternion): void {
 		if (frameIndex !== -1) {
 			var frame: QuaternionKeyframe = keyFrames[frameIndex];
@@ -357,9 +343,6 @@ export class AnimationClip extends Resource {
 		}
 	}
 
-	/**
-	 * @private
-	 */
 	private _binarySearchEventIndex(time: number): number {
 		var start: number = 0;
 		var end: number = this._animationEvents.length - 1;

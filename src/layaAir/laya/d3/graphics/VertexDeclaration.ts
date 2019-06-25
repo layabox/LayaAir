@@ -4,23 +4,23 @@ import { ShaderData } from "../shader/ShaderData"
 
 	
 	/**
-	 * @private
+	 * @internal
 	 * <code>VertexDeclaration</code> 类用于生成顶点声明。
 	 */
 	export class VertexDeclaration {
-		/**@private */
+		/**@internal */
 		private static _uniqueIDCounter:number = 1;
 		
-		/**@private */
+		/**@internal */
 		private _id:number;
-		/**@private */
+		/**@internal */
 		private _vertexStride:number;
-		/**@private */
+		/**@internal */
 		private _vertexElementsDic:any;
-		/**@private */
+		/**@internal */
 		 _shaderValues:ShaderData;
 		
-		/**@private [只读]*/
+		/**@internal [只读]*/
 		 vertexElements:any[];
 		
 		/**
@@ -32,7 +32,7 @@ import { ShaderData } from "../shader/ShaderData"
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 get vertexStride():number {
 			return this._vertexStride;
@@ -67,14 +67,14 @@ import { ShaderData } from "../shader/ShaderData"
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 getVertexElementByUsage(usage:number):VertexElement {
 			return this._vertexElementsDic[usage];
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 unBinding():void {
 		

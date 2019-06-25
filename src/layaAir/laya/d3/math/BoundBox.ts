@@ -6,9 +6,9 @@ import { IClone } from "../core/IClone"
 	 * <code>BoundBox</code> 类用于创建包围盒。
 	 */
 	export class BoundBox implements IClone {
-		/**@private */
+		/**@internal */
 		private static _tempVector30:Vector3 = new Vector3();
-		/**@private */
+		/**@internal */
 		private static _tempVector31:Vector3 = new Vector3();
 		
 		/**最小顶点。*/
@@ -27,7 +27,7 @@ import { IClone } from "../core/IClone"
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private _rotateExtents(extents:Vector3, rotation:Matrix4x4, out:Vector3):void {
 			var extentsX:number = extents.x;
@@ -89,7 +89,7 @@ import { IClone } from "../core/IClone"
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 tranform(matrix:Matrix4x4, out:BoundBox):void {
 			var center:Vector3 = BoundBox._tempVector30;

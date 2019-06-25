@@ -10,16 +10,16 @@ import { ILaya3D } from "../../../ILaya3D";
  * <code>Quaternion</code> 类用于创建四元数。
  */
 export class Quaternion implements IClone {
-	/**@private */
+	/**@internal */
 	static TEMPVector30: Vector3 = new Vector3();
-	/**@private */
+	/**@internal */
 	static TEMPVector31: Vector3 = new Vector3();
-	/**@private */
+	/**@internal */
 	static TEMPVector32: Vector3 = new Vector3();
-	/**@private */
+	/**@internal */
 	static TEMPVector33: Vector3 = new Vector3();
 
-	/**@private */
+	/**@internal */
 	static _tempMatrix3x3: Matrix3x3 = new Matrix3x3();
 
 	/**默认矩阵,禁止修改*/

@@ -7,23 +7,22 @@ import { Vector3 } from "../math/Vector3"
  * <code>Bounds</code> 类用于创建包围体。
  */
 export class Bounds implements IClone {
-	/**@private */
+	/**@internal */
 	static _UPDATE_MIN: number = 0x01;
-	/**@private */
+	/**@internal */
 	static _UPDATE_MAX: number = 0x02;
-	/**@private */
+	/**@internal */
 	static _UPDATE_CENTER: number = 0x04;
-	/**@private */
+	/**@internal */
 	static _UPDATE_EXTENT: number = 0x08;
 
-	/**@private */
 	private _updateFlag: number = 0;
 
-	/**@private	*/
+	/**@internal	*/
 	_center: Vector3 = new Vector3();
-	/**@private	*/
+	/**@internal	*/
 	_extent: Vector3 = new Vector3();
-	/**@private	*/
+	/**@internal	*/
 	_boundBox: BoundBox = new BoundBox(new Vector3(), new Vector3());
 
 	/**
@@ -133,16 +132,12 @@ export class Bounds implements IClone {
 		this._setUpdateFlag(Bounds._UPDATE_CENTER | Bounds._UPDATE_EXTENT, true);
 	}
 
-	/**
-	 * @private
-	 */
+	
 	private _getUpdateFlag(type: number): boolean {
 		return (this._updateFlag & type) != 0;
 	}
 
-	/**
-	 * @private
-	 */
+
 	private _setUpdateFlag(type: number, value: boolean): void {
 		if (value)
 			this._updateFlag |= type;
@@ -150,39 +145,28 @@ export class Bounds implements IClone {
 			this._updateFlag &= ~type;
 	}
 
-	/**
-	 * @private
-	 */
+
 	private _getCenter(min: Vector3, max: Vector3, out: Vector3): void {
 		Vector3.add(min, max, out);
 		Vector3.scale(out, 0.5, out);
 	}
 
-	/**
-	 * @private
-	 */
+
 	private _getExtent(min: Vector3, max: Vector3, out: Vector3): void {
 		Vector3.subtract(max, min, out);
 		Vector3.scale(out, 0.5, out);
 	}
 
-	/**
-	 * @private
-	 */
+
 	private _getMin(center: Vector3, extent: Vector3, out: Vector3): void {
 		Vector3.subtract(center, extent, out);
 	}
 
-	/**
-	 * @private
-	 */
+
 	private _getMax(center: Vector3, extent: Vector3, out: Vector3): void {
 		Vector3.add(center, extent, out);
 	}
 
-	/**
-	 * @private
-	 */
 	private _rotateExtents(extents: Vector3, rotation: Matrix4x4, out: Vector3): void {
 		var extentsX: number = extents.x;
 		var extentsY: number = extents.y;
@@ -194,7 +178,7 @@ export class Bounds implements IClone {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_tranform(matrix: Matrix4x4, out: Bounds): void {
 		var outCen: Vector3 = out._center;
@@ -208,7 +192,7 @@ export class Bounds implements IClone {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_getBoundBox(): BoundBox {
 		var min: Vector3 = this._boundBox.min;

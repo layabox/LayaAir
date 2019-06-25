@@ -25,21 +25,21 @@ export class Mesh extends Resource implements IClone {
 	/**Mesh资源。*/
 	static MESH: string = "MESH";
 
-	/** @private */
+	/** @internal */
 	private _tempVector30: Vector3 = new Vector3()
-	/** @private */
+	/** @internal */
 	private _tempVector31: Vector3 = new Vector3();
-	/** @private */
+	/** @internal */
 	private _tempVector32: Vector3 = new Vector3();
-	/** @private */
+	/** @internal */
 	private static _nativeTempVector30: any;
-	/** @private */
+	/** @internal */
 	private static _nativeTempVector31: any;
-	/** @private */
+	/** @internal */
 	private static _nativeTempVector32: any;
 
 	/**
- 	* @private
+ 	* @internal
  	*/
 	static __init__(): void {
 		var physics3D: any = Physics._physics3D;
@@ -51,7 +51,7 @@ export class Mesh extends Resource implements IClone {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	static _parse(data: any, propertyParams: any = null, constructParams: any[] = null): Mesh {
 		var mesh: Mesh = new Mesh();
@@ -68,35 +68,35 @@ export class Mesh extends Resource implements IClone {
 		Laya.loader.create(url, complete, null, Mesh.MESH);
 	}
 
-	/** @private */
+	/** @internal */
 	private _nativeTriangleMesh: any;
 
-	/** @private */
+	/** @internal */
 	protected _bounds: Bounds;
 
-	/** @private */
+	/** @internal */
 	_bufferState: BufferState = new BufferState();
-	/** @private */
+	/** @internal */
 	_instanceBufferState: BufferState = new BufferState();
-	/** @private */
+	/** @internal */
 	_subMeshCount: number;
-	/** @private */
+	/** @internal */
 	_subMeshes: SubMesh[];
-	/** @private */
+	/** @internal */
 	_vertexBuffers: VertexBuffer3D[];
-	/** @private */
+	/** @internal */
 	_indexBuffer: IndexBuffer3D;
-	/** @private */
+	/** @internal */
 	_boneNames: string[];
-	/** @private */
+	/** @internal */
 	_inverseBindPoses: Matrix4x4[];
-	/** @private */
+	/** @internal */
 	_inverseBindPosesBuffer: ArrayBuffer;//TODO:[NATIVE]临时
-	/** @private */
+	/** @internal */
 	_bindPoseIndices: Uint16Array;
-	/** @private */
+	/** @internal */
 	_skinDataPathMarks: any[][];
-	/** @private */
+	/** @internal */
 	_vertexCount: number = 0;
 
 	/**
@@ -142,7 +142,7 @@ export class Mesh extends Resource implements IClone {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _getPositionElement(vertexBuffer: VertexBuffer3D): VertexElement {
 		var vertexElements: any[] = vertexBuffer.vertexDeclaration.vertexElements;
@@ -155,7 +155,7 @@ export class Mesh extends Resource implements IClone {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _generateBoundingObject(): void {
 		var min: Vector3 = this._tempVector30;
@@ -187,7 +187,7 @@ export class Mesh extends Resource implements IClone {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	_setSubMeshes(subMeshes: SubMesh[]): void {
 		this._subMeshes = subMeshes
@@ -206,7 +206,7 @@ export class Mesh extends Resource implements IClone {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_setBuffer(vertexBuffers: VertexBuffer3D[], indexBuffer: IndexBuffer3D): void {
 		var bufferState: BufferState = this._bufferState;
@@ -251,7 +251,7 @@ export class Mesh extends Resource implements IClone {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_getPhysicMesh(): any {
 		if (!this._nativeTriangleMesh) {

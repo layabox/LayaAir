@@ -12,46 +12,44 @@ import { Animator } from "./Animator";
  * <code>AnimatorControllerLayer</code> 类用于创建动画控制器层。
  */
 export class AnimatorControllerLayer implements IReferenceCounter, IClone {
-	/**@private */
+	/**@internal */
 	static BLENDINGMODE_OVERRIDE: number = 0;
-	/**@private */
+	/**@internal */
 	static BLENDINGMODE_ADDTIVE: number = 1;
 
-	/**@private */
 	private _defaultState: AnimatorState = null;
-	/**@private */
 	private _referenceCount: number = 0;
 
-	/**@private 0:常规播放、1:动态融合播放、2:固定融合播放*/
+	/**@internal 0:常规播放、1:动态融合播放、2:固定融合播放*/
 	_playType: number;
-	/**@private */
+	/**@internal */
 	_crossDuration: number;
-	/**@private */
+	/**@internal */
 	_crossPlayState: AnimatorState;
-	/**@private */
+	/**@internal */
 	_crossMark: number;
-	/**@private */
+	/**@internal */
 	_crossNodesOwnersCount: number;
-	/**@private */
+	/**@internal */
 	_crossNodesOwners: KeyframeNodeOwner[];
-	/**@private */
+	/**@internal */
 	_crossNodesOwnersIndicesMap: any;
-	/**@private */
+	/**@internal */
 	_srcCrossClipNodeIndices: number[];
-	/**@private */
+	/**@internal */
 	_destCrossClipNodeIndices: number[];
 
-	/**@private */
+	/**@internal */
 	_animator: Animator;
-	/**@private */
+	/**@internal */
 	_currentPlayState: AnimatorState;
-	/**@private */
+	/**@internal */
 	_statesMap: any = {};
-	/**@private */
+	/**@internal */
 	_states: AnimatorState[];
-	/**@private */
+	/**@internal */
 	_playStateInfo: AnimatorPlayState;
-	/**@private */
+	/**@internal */
 	_crossPlayStateInfo: AnimatorPlayState;
 
 	/** 层的名称。*/
@@ -102,9 +100,6 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
 		this.blendingMode = AnimatorControllerLayer.BLENDINGMODE_OVERRIDE;
 	}
 
-	/**
-	 * @private
-	 */
 	private _removeClip(clipStateInfos: AnimatorState[], statesMap: any, index: number, state: AnimatorState): void {
 		var clip: AnimationClip = state._clip;
 		var clipStateInfo: AnimatorState = clipStateInfos[index];
@@ -122,7 +117,7 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * [实现IReferenceCounter接口]
 	 */
 	_getReferenceCount(): number {
@@ -130,7 +125,7 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * [实现IReferenceCounter接口]
 	 */
 	_addReference(count: number = 1): void {
@@ -140,7 +135,7 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * [实现IReferenceCounter接口]
 	 */
 	_removeReference(count: number = 1): void {
@@ -150,7 +145,7 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * [实现IReferenceCounter接口]
 	 */
 	_clearReference(): void {
@@ -158,7 +153,7 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	getAnimatorState(name: string): AnimatorState {
 		var state: AnimatorState = this._statesMap[name];
@@ -204,7 +199,7 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	destroy(): void {
 		this._clearReference();

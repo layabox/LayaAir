@@ -38,7 +38,7 @@ import { IVertex } from "../IVertex"
 		new VertexElement(32, VertexElementFormat.Vector4, VertexMesh.MESH_MVPMATRIX_ROW2), 
 		new VertexElement(48, VertexElementFormat.Vector4, VertexMesh.MESH_MVPMATRIX_ROW3)]);
 		
-		/**@private */
+		/**@internal */
 		private static _vertexDeclarationMap:any = {};
 		
 		/**

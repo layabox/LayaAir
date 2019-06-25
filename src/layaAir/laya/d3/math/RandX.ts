@@ -2,16 +2,16 @@
 	 * <code>Rand</code> 类用于通过128位整型种子创建随机数,算法来自:https://github.com/AndreasMadsen/xorshift。
 	 */
 export class RandX {
-	/**@private */
+	/**@internal */
 	private static _CONVERTION_BUFFER: DataView = new DataView(new ArrayBuffer(8));
 
-	/**@private */
+	/**@internal */
 	private _state0U: number;
-	/**@private */
+	/**@internal */
 	private _state0L: number;
-	/**@private */
+	/**@internal */
 	private _state1U: number;
-	/**@private */
+	/**@internal */
 	private _state1L: number;
 
 	/**基于时间种子的随机数。*/

@@ -10,12 +10,9 @@ import { ILaya3D } from "../../../../ILaya3D";
  * <code>PointLight</code> 类用于创建点光。
  */
 export class PointLight extends LightSprite {
-	/** @private */
 	private static _tempMatrix0: Matrix4x4 = new Matrix4x4();
 
-	/** @private */
 	private _range: number;
-	/** @private */
 	private _lightMatrix: Matrix4x4 = new Matrix4x4();
 
 	/**

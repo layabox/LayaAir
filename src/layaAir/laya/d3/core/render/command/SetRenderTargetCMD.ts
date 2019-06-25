@@ -2,18 +2,18 @@ import { Command } from "././Command";
 import { RenderTexture } from "../../../resource/RenderTexture"
 
 /**
- * @private
+ * @internal
  * <code>SetRenderTargetCMD</code> 类用于创建设置渲染目标指令。
  */
 export class SetRenderTargetCMD extends Command {
-	/**@private */
+	/**@internal */
 	private static _pool: any[] = [];
 
-	/**@private */
+	/**@internal */
 	private _renderTexture: RenderTexture = null;
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static create(renderTexture: RenderTexture): SetRenderTargetCMD {
 		var cmd: SetRenderTargetCMD;

@@ -13,9 +13,7 @@ import { Texture2D } from "../../resource/Texture2D"
  * <code>TerrainMeshSprite3D</code> 类用于创建网格。
  */
 export class MeshTerrainSprite3D extends MeshSprite3D {
-	/** @private */
 	private static _tempVector3: Vector3 = new Vector3();
-	/** @private */
 	private static _tempMatrix4x4: Matrix4x4 = new Matrix4x4();
 
 	/**
@@ -43,13 +41,9 @@ export class MeshTerrainSprite3D extends MeshSprite3D {
 		return meshTerrainSprite3D;
 	}
 
-	/** @private */
 	private _minX: number;
-	/** @private */
 	private _minZ: number;
-	/** @private */
 	private _cellSize: Vector2;
-	/** @private */
 	private _heightMap: HeightMap;
 
 	/**
@@ -100,9 +94,6 @@ export class MeshTerrainSprite3D extends MeshSprite3D {
 		this._cellSize = new Vector2();
 	}
 
-	/**
-	 * @private
-	 */
 	private _disableRotation(): void {
 		var rotation: Quaternion = this.transform.rotation;
 		rotation.x = 0;
@@ -112,9 +103,6 @@ export class MeshTerrainSprite3D extends MeshSprite3D {
 		this.transform.rotation = rotation;
 	}
 
-	/**
-	 * @private
-	 */
 	private _getScaleX(): number {
 		var worldMat: Matrix4x4 = this.transform.worldMatrix;
 		var worldMatE: Float32Array = worldMat.elements;
@@ -124,9 +112,6 @@ export class MeshTerrainSprite3D extends MeshSprite3D {
 		return Math.sqrt((m11 * m11) + (m12 * m12) + (m13 * m13));
 	}
 
-	/**
-	 * @private
-	 */
 	private _getScaleZ(): number {
 		var worldMat: Matrix4x4 = this.transform.worldMatrix;
 		var worldMatE: Float32Array = worldMat.elements;
@@ -136,9 +121,6 @@ export class MeshTerrainSprite3D extends MeshSprite3D {
 		return Math.sqrt((m31 * m31) + (m32 * m32) + (m33 * m33));
 	}
 
-	/**
-	 * @private
-	 */
 	private _initCreateFromMesh(heightMapWidth: number, heightMapHeight: number): void {
 		this._heightMap = HeightMap.creatFromMesh((<Mesh>this.meshFilter.sharedMesh), heightMapWidth, heightMapHeight, this._cellSize);
 
@@ -149,9 +131,6 @@ export class MeshTerrainSprite3D extends MeshSprite3D {
 		this._minZ = min.z;
 	}
 
-	/**
-	 * @private
-	 */
 	private _initCreateFromMeshHeightMap(texture: Texture2D, minHeight: number, maxHeight: number): void {
 		var boundingBox: Bounds = this.meshFilter.sharedMesh.bounds;
 		this._heightMap = HeightMap.createFromImage(texture, minHeight, maxHeight);
@@ -163,9 +142,6 @@ export class MeshTerrainSprite3D extends MeshSprite3D {
 		this._minZ = min.z;
 	}
 
-	/**
-	 * @private
-	 */
 	private _computeCellSize(boundingBox: Bounds): void {
 		var min: Vector3 = boundingBox.getMin();
 		var max: Vector3 = boundingBox.getMax();
@@ -182,7 +158,7 @@ export class MeshTerrainSprite3D extends MeshSprite3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_update(state: RenderContext3D): void {//TODO:
 		this._disableRotation();

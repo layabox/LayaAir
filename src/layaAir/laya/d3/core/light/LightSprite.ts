@@ -15,24 +15,24 @@ export class LightSprite extends Sprite3D {
 	/** 灯光烘培类型-烘焙。*/
 	static LIGHTMAPBAKEDTYPE_BAKED: number = 2;
 
-	/** @private */
+	/** @internal */
 	protected _intensityColor: Vector3;
 
-	/** @private */
+	/** @internal */
 	protected _intensity: number;
-	/** @private */
+	/** @internal */
 	protected _shadow: boolean;
-	/** @private */
+	/** @internal */
 	protected _shadowFarPlane: number;
-	/** @private */
+	/** @internal */
 	protected _shadowMapSize: number;
-	/** @private */
+	/** @internal */
 	protected _shadowMapCount: number;
-	/** @private */
+	/** @internal */
 	protected _shadowMapPCFType: number;
-	/** @private */
+	/** @internal */
 	_parallelSplitShadowMap: ParallelSplitShadowMap;
-	/** @private */
+	/** @internal */
 	_lightmapBakedType: number;
 
 	/** 灯光颜色。 */
@@ -213,7 +213,7 @@ export class LightSprite extends Sprite3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	protected _create(): Node {
 		return new LightSprite();

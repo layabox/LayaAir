@@ -27,13 +27,13 @@ export class BaseMaterial extends Resource implements IClone {
 	/** 渲染队列_透明。*/
 	static RENDERQUEUE_TRANSPARENT: number = 3000;
 
-	/**@private 着色器变量,透明测试值。*/
+	/**@internal 着色器变量,透明测试值。*/
 	static ALPHATESTVALUE: number = Shader3D.propertyNameToID("u_AlphaTestValue");
 
-	/**@private 材质级着色器宏定义,透明测试。*/
+	/**@internal 材质级着色器宏定义,透明测试。*/
 	static SHADERDEFINE_ALPHATEST: number;
 
-	/**@private */
+	/**@internal */
 	static shaderDefines: ShaderDefines = null;
 
 	/**
@@ -46,7 +46,7 @@ export class BaseMaterial extends Resource implements IClone {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static __initDefine__(): void {
 		BaseMaterial.shaderDefines = new ShaderDefines();
@@ -152,14 +152,13 @@ export class BaseMaterial extends Resource implements IClone {
 		return material;
 	}
 
-	/** @private */
 	private _alphaTest: boolean;
 
-	/** @private */
+	/** @internal */
 	_disablePublicDefineDatas: DefineDatas;//TODO:移除
-	/** @private */
+	/** @internal */
 	_shader: Shader3D;
-	/** @private */
+	/** @internal */
 	_shaderValues: ShaderData = null;//TODO:剥离贴图ShaderValue
 
 	/** 所属渲染队列. */
@@ -212,9 +211,6 @@ export class BaseMaterial extends Resource implements IClone {
 		this._alphaTest = false;
 	}
 
-	/**
-	 * @private
-	 */
 	private _removeTetxureReference(): void {
 		var data: any = this._shaderValues.getData();
 		for (var k in data) {

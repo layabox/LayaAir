@@ -1,26 +1,26 @@
 /**
-	 * @private
+	 * @internal
 	 *  <code>shaderVariable</code> 类用于保存shader变量上传相关信息。
 	 */
 	export class ShaderVariable {
-		/**@private */
+		/**@internal */
 		 name:string;
-		/**@private */
+		/**@internal */
 		 type:number;
-		/**@private */
+		/**@internal */
 		 location:number;
-		/**@private */
+		/**@internal */
 		 isArray:boolean;
-		/**@private */
+		/**@internal */
 		 textureID:number;
-		/**@private */
+		/**@internal */
 		 dataOffset:number;
 		
-		/**@private */
+		/**@internal */
 		 caller:any;
-		/**@private */
+		/**@internal */
 		 fun:any;
-		/**@private */
+		/**@internal */
 		 uploadedValue:any[];
 		
 		/**

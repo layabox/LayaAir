@@ -13,7 +13,7 @@ import { Node } from "../../../display/Node"
  * <code>PixelLineSprite3D</code> 类用于像素线渲染精灵。
  */
 export class PixelLineSprite3D extends RenderableSprite3D {
-	/** @private */
+	/** @internal */
 	private _geometryFilter: PixelLineFilter;
 
 	/**
@@ -160,7 +160,7 @@ export class PixelLineSprite3D extends RenderableSprite3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	protected _create(): Node {
 		return new PixelLineSprite3D();
