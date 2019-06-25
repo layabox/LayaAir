@@ -42,7 +42,7 @@ export class Avatar extends Resource implements IClone {
 	/**@internal */
 	_rootNode: AnimationNode;
 
-	/**@internal [NATIVE]*/
+	/** [NATIVE]*/
 	private _nativeNodeCount: number = 0;
 	/**@internal [NATIVE]*/
 	_nativeCurCloneCount: number = 0;
@@ -54,9 +54,7 @@ export class Avatar extends Resource implements IClone {
 		super();
 	}
 
-	/**
-	 * @internal
-	 */
+
 	private _initCloneToAnimator(destNode: AnimationNode, destAnimator: Animator): void {
 		destAnimator._avatarNodeMap[destNode.name] = destNode;
 
@@ -64,9 +62,6 @@ export class Avatar extends Resource implements IClone {
 			this._initCloneToAnimator(destNode.getChildByIndex(i), destAnimator);
 	}
 
-	/**
-	 * @internal
-	 */
 	private _parseNode(nodaData: any, node: AnimationNode): void {
 		var name: string = nodaData.props.name;
 		node.name = name;

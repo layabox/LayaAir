@@ -86,11 +86,8 @@ export class PBRSpecularMaterial extends BaseMaterial {
 		PBRSpecularMaterial.SHADERDEFINE_ALPHAPREMULTIPLY = PBRSpecularMaterial.shaderDefines.registerDefine("ALPHAPREMULTIPLY");
 	}
 
-	/**@internal */
 	private _albedoColor: Vector4;
-	/**@internal */
 	private _specularColor: Vector4;
-	/**@internal */
 	private _emissionColor: Vector4;
 
 	/**

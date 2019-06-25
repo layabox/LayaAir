@@ -34,7 +34,6 @@ export class MeshSprite3D extends RenderableSprite3D {
 		DynamicBatchManager._registerManager(MeshRenderDynamicBatchManager.instance);
 	}
 
-	/** @internal */
 	private _meshFilter: MeshFilter;
 
 	/**

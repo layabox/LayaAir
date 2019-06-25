@@ -41,29 +41,19 @@ export class Camera extends BaseCamera {
 	/** @internal */
 	static _updateMark: number = 0;
 
-	/** @internal */
 	private _aspectRatio: number;
-	/** @internal */
 	private _viewport: Viewport;
-	/** @internal */
 	private _normalizedViewport: Viewport;
-	/** @internal */
 	private _viewMatrix: Matrix4x4;
-	/**@internal */
 	private _projectionMatrix: Matrix4x4;
-	/** @internal */
 	private _projectionViewMatrix: Matrix4x4;
 	/** @internal */
 	_projectionViewMatrixNoTranslateScale: Matrix4x4;
-	/** @internal */
 	private _boundFrustum: BoundFrustum;
-	/** @internal */
 	private _updateViewMatrix: boolean = true;
 	/** @internal 渲染目标。*/
 	public _offScreenRenderTexture: RenderTexture = null;
-	/**@internal */
 	private _postProcess: PostProcess = null;
-	/**@internal */
 	private _enableHDR: boolean = false;
 
 	/**@internal */
@@ -330,9 +320,6 @@ export class Camera extends BaseCamera {
 		(flag) && (this._updateViewMatrix = true);
 	}
 
-	/**
-	 * @internal
-	 */
 	private _calculationViewport(normalizedViewport: Viewport, width: number, height: number): void {
 		var lx: number = normalizedViewport.x * width;//不应限制x范围
 		var ly: number = normalizedViewport.y * height;//不应限制y范围

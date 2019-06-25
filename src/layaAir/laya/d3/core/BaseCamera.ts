@@ -15,7 +15,6 @@ import { Scene3D } from "./scene/Scene3D";
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
  */
 export class BaseCamera extends Sprite3D {
-	/** @internal */
 	private static _tempMatrix4x40: Matrix4x4 = new Matrix4x4();
 
 	static CAMERAPOS: number = Shader3D.propertyNameToID("u_CameraPos");
@@ -40,11 +39,8 @@ export class BaseCamera extends Sprite3D {
 	/**清除标记，不清除。*/
 	static CLEARFLAG_NONE: number = 3;
 
-	/** @internal */
 	protected static _invertYScaleMatrix: Matrix4x4 = new Matrix4x4(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);//Matrix4x4.createScaling(new Vector3(1, -1, 1), _invertYScaleMatrix);
-	/** @internal */
 	protected static _invertYProjectionMatrix: Matrix4x4 = new Matrix4x4();
-	/** @internal */
 	protected static _invertYProjectionViewMatrix: Matrix4x4 = new Matrix4x4();
 
 	//private static const Vector3[] cornersWorldSpace:Vector.<Vector3> = new Vector.<Vector3>(8);
@@ -54,19 +50,16 @@ export class BaseCamera extends Sprite3D {
 	/** @internal 渲染顺序。*/
 	_renderingOrder: number
 
-	/**@internal 近裁剪面。*/
+	/** 近裁剪面。*/
 	private _nearPlane: number;
-	/**@internal 远裁剪面。*/
+	/** 远裁剪面。*/
 	private _farPlane: number;
-	/**@internal 视野。*/
+	/** 视野。*/
 	private _fieldOfView: number;
-	/**@internal 正交投影的垂直尺寸。*/
+	/** 正交投影的垂直尺寸。*/
 	private _orthographicVerticalSize: number;
-	/**@internal */
 	private _skyRenderer: SkyRenderer = new SkyRenderer();
-	/**@internal */
 	private _forward: Vector3 = new Vector3();
-	/**@internal */
 	private _up: Vector3 = new Vector3();
 
 	/**@internal */

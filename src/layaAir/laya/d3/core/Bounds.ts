@@ -16,7 +16,6 @@ export class Bounds implements IClone {
 	/**@internal */
 	static _UPDATE_EXTENT: number = 0x08;
 
-	/**@internal */
 	private _updateFlag: number = 0;
 
 	/**@internal	*/
@@ -133,16 +132,12 @@ export class Bounds implements IClone {
 		this._setUpdateFlag(Bounds._UPDATE_CENTER | Bounds._UPDATE_EXTENT, true);
 	}
 
-	/**
-	 * @internal
-	 */
+	
 	private _getUpdateFlag(type: number): boolean {
 		return (this._updateFlag & type) != 0;
 	}
 
-	/**
-	 * @internal
-	 */
+
 	private _setUpdateFlag(type: number, value: boolean): void {
 		if (value)
 			this._updateFlag |= type;
@@ -150,39 +145,28 @@ export class Bounds implements IClone {
 			this._updateFlag &= ~type;
 	}
 
-	/**
-	 * @internal
-	 */
+
 	private _getCenter(min: Vector3, max: Vector3, out: Vector3): void {
 		Vector3.add(min, max, out);
 		Vector3.scale(out, 0.5, out);
 	}
 
-	/**
-	 * @internal
-	 */
+
 	private _getExtent(min: Vector3, max: Vector3, out: Vector3): void {
 		Vector3.subtract(max, min, out);
 		Vector3.scale(out, 0.5, out);
 	}
 
-	/**
-	 * @internal
-	 */
+
 	private _getMin(center: Vector3, extent: Vector3, out: Vector3): void {
 		Vector3.subtract(center, extent, out);
 	}
 
-	/**
-	 * @internal
-	 */
+
 	private _getMax(center: Vector3, extent: Vector3, out: Vector3): void {
 		Vector3.add(center, extent, out);
 	}
 
-	/**
-	 * @internal
-	 */
 	private _rotateExtents(extents: Vector3, rotation: Matrix4x4, out: Vector3): void {
 		var extentsX: number = extents.x;
 		var extentsY: number = extents.y;

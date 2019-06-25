@@ -6,7 +6,7 @@ import { ISingletonElement } from "../resource/ISingletonElement"
 	 * <code>Touch</code> 类用于实现触摸描述。
 	 */
 	export class Touch implements ISingletonElement {
-		/** @internal  [实现IListPool接口]*/
+		/**[实现IListPool接口]*/
 		private _indexInList:number = -1;
 		
 		/** @internal */

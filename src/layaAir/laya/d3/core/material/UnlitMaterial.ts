@@ -48,11 +48,8 @@ export class UnlitMaterial extends BaseMaterial {
 		UnlitMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR = UnlitMaterial.shaderDefines.registerDefine("ENABLEVERTEXCOLOR");
 	}
 
-	/**@internal */
 	private _albedoColor: Vector4 = new Vector4(1.0, 1.0, 1.0, 1.0);
-	/**@internal */
 	private _albedoIntensity: number = 1.0;
-	/**@internal */
 	private _enableVertexColor: boolean = false;
 
 	/**

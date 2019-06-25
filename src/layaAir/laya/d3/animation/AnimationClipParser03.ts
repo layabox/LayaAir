@@ -17,28 +17,17 @@ import { AnimationClip } from "./AnimationClip";
  * @internal
  */
 export class AnimationClipParser03 {
-	/**@internal */
 	private static _animationClip: AnimationClip;
-	/**@internal */
 	private static _reader: Byte;
-	/**@internal */
 	private static _strings: any[] = [];
-	/**@internal */
 	private static _BLOCK: any = { count: 0 };
-	/**@internal */
 	private static _DATA: any = { offset: 0, size: 0 };
 
-	/**
-	 * @internal
-	 */
 	private static READ_DATA(): void {
 		AnimationClipParser03._DATA.offset = AnimationClipParser03._reader.getUint32();
 		AnimationClipParser03._DATA.size = AnimationClipParser03._reader.getUint32();
 	}
 
-	/**
-	 * @internal
-	 */
 	private static READ_BLOCK(): void {
 		var count: number = AnimationClipParser03._BLOCK.count = AnimationClipParser03._reader.getUint16();
 		var blockStarts: any[] = AnimationClipParser03._BLOCK.blockStarts = [];
@@ -49,9 +38,6 @@ export class AnimationClipParser03 {
 		}
 	}
 
-	/**
-	 * @internal
-	 */
 	private static READ_STRINGS(): void {
 		var offset: number = AnimationClipParser03._reader.getUint32();
 		var count: number = AnimationClipParser03._reader.getUint16();

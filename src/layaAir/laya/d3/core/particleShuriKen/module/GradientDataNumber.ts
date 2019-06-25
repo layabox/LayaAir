@@ -4,7 +4,6 @@ import { IClone } from "../../IClone"
  * <code>GradientDataNumber</code> 类用于创建浮点渐变。
  */
 export class GradientDataNumber implements IClone {
-	/**@internal */
 	private _currentLength: number = 0;
 	/**@internal 开发者禁止修改。*/
 	_elements: Float32Array;

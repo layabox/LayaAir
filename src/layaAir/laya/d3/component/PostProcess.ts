@@ -49,13 +49,10 @@ export class PostProcess {
 		PostProcess.SHADERDEFINE_FINALPASS = PostProcess.shaderDefines.registerDefine("FINALPASS");
 	}
 
-	/**@internal */
 	private _compositeShader: Shader3D = Shader3D.find("PostProcessComposite");
-	/**@internal */
 	private _compositeShaderData: ShaderData = new ShaderData();
 	/**@internal */
 	_context: PostProcessRenderContext = null;
-	/**@internal */
 	private _effects: PostProcessEffect[] = [];
 
 	/**

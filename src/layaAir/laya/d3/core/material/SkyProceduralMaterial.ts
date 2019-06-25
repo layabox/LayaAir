@@ -46,7 +46,6 @@ export class SkyProceduralMaterial extends BaseMaterial {
 		SkyProceduralMaterial.SHADERDEFINE_SUN_SIMPLE = SkyProceduralMaterial.shaderDefines.registerDefine("SUN_SIMPLE");
 	}
 
-	/**@internal */
 	private _sunDisk: number;
 
 	/**

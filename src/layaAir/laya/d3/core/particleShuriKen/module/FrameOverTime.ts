@@ -58,23 +58,16 @@ export class FrameOverTime implements IClone {
 		return rotationOverLifetime;
 	}
 
-	/**@internal */
 	private _type: number = 0;
 
-	/**@internal */
 	private _constant: number = 0;
 
-	/**@internal */
 	private _overTime: GradientDataInt = null;
 
-	/**@internal */
 	private _constantMin: number = 0;
-	/**@internal */
 	private _constantMax: number = 0;
 
-	/**@internal */
 	private _overTimeMin: GradientDataInt = null;
-	/**@internal */
 	private _overTimeMax: GradientDataInt = null;
 
 	/**

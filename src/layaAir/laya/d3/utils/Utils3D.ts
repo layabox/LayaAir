@@ -15,21 +15,14 @@ import { TextureGenerator } from "../resource/TextureGenerator";
  * <code>Utils3D</code> 类用于创建3D工具。
  */
 export class Utils3D {
-	/** @internal */
 	private static _tempVector3_0: Vector3 = new Vector3();
-	/** @internal */
 	private static _tempVector3_1: Vector3 = new Vector3();
-	/** @internal */
 	private static _tempVector3_2: Vector3 = new Vector3();
-	/**@internal */
 	private static _tempColor0: Color = new Color();
 
 	private static _tempArray16_0: Float32Array =  new Float32Array(16);
-	/** @internal */
 	private static _tempArray16_1: Float32Array =  new Float32Array(16);
-	/** @internal */
 	private static _tempArray16_2: Float32Array =  new Float32Array(16);
-	/** @internal */
 	private static _tempArray16_3: Float32Array =   new Float32Array(16);
 
 	/**

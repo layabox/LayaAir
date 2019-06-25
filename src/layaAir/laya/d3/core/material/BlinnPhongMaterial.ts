@@ -61,13 +61,9 @@ export class BlinnPhongMaterial extends BaseMaterial {
 		BlinnPhongMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR = BlinnPhongMaterial.shaderDefines.registerDefine("ENABLEVERTEXCOLOR");
 	}
 
-	/**@internal */
 	private _albedoColor: Vector4;
-	/**@internal */
 	private _albedoIntensity: number;
-	/**@internal */
 	private _enableLighting: boolean;
-	/**@internal */
 	private _enableVertexColor: boolean = false;
 
 	/**

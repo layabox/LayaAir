@@ -21,9 +21,6 @@ import { ClassUtils } from "../../utils/ClassUtils";
 	 * <code>Utils3D</code> 类用于创建3D工具。
 	 */
 	export class Scene3DUtils {
-        		/**
-		 * @internal
-		 */
 		private static _createSprite3DInstance(nodeData:any, spriteMap:any, outBatchSprites:RenderableSprite3D[]):Node {
 			var node:Node;
 			switch (nodeData.type) {
@@ -74,9 +71,6 @@ import { ClassUtils } from "../../utils/ClassUtils";
 			return node;
         }
 
-        /**
-		 * @internal
-		 */
 		private static _createComponentInstance(nodeData:any, spriteMap:any):void {
 			var node:Node = spriteMap[nodeData.instanceID];
 			node._parse(nodeData.props, spriteMap);

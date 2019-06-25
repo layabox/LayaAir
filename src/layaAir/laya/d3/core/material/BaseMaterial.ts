@@ -152,7 +152,6 @@ export class BaseMaterial extends Resource implements IClone {
 		return material;
 	}
 
-	/** @internal */
 	private _alphaTest: boolean;
 
 	/** @internal */
@@ -212,9 +211,6 @@ export class BaseMaterial extends Resource implements IClone {
 		this._alphaTest = false;
 	}
 
-	/**
-	 * @internal
-	 */
 	private _removeTetxureReference(): void {
 		var data: any = this._shaderValues.getData();
 		for (var k in data) {

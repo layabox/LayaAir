@@ -60,7 +60,6 @@ export class ExtendTerrainMaterial extends BaseMaterial {
 		ExtendTerrainMaterial.SHADERDEFINE_DETAIL_NUM5 = ExtendTerrainMaterial.shaderDefines.registerDefine("ExtendTerrain_DETAIL_NUM5");
 	}
 
-	/**@internal */
 	private _enableLighting: boolean = true;
 
 	/**

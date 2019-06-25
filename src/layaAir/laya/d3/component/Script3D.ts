@@ -21,9 +21,6 @@ export class Script3D extends Component {
 		return false;
 	}
 
-	/**
-	 * @internal
-	 */
 	private _checkProcessTriggers(): boolean {
 		var prototype: any = Script3D.prototype;
 		if (this.onTriggerEnter !== prototype.onTriggerEnter)
@@ -35,9 +32,6 @@ export class Script3D extends Component {
 		return false;
 	}
 
-	/**
-	 * @internal
-	 */
 	private _checkProcessCollisions(): boolean {
 		var prototype: any = Script3D.prototype;
 		if (this.onCollisionEnter !== prototype.onCollisionEnter)

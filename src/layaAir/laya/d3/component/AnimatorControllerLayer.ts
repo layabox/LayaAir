@@ -17,9 +17,7 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
 	/**@internal */
 	static BLENDINGMODE_ADDTIVE: number = 1;
 
-	/**@internal */
 	private _defaultState: AnimatorState = null;
-	/**@internal */
 	private _referenceCount: number = 0;
 
 	/**@internal 0:常规播放、1:动态融合播放、2:固定融合播放*/
@@ -102,9 +100,6 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
 		this.blendingMode = AnimatorControllerLayer.BLENDINGMODE_OVERRIDE;
 	}
 
-	/**
-	 * @internal
-	 */
 	private _removeClip(clipStateInfos: AnimatorState[], statesMap: any, index: number, state: AnimatorState): void {
 		var clip: AnimationClip = state._clip;
 		var clipStateInfo: AnimatorState = clipStateInfos[index];

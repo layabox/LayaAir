@@ -89,9 +89,7 @@ export class PBRStandardMaterial extends BaseMaterial {
 		PBRStandardMaterial.SHADERDEFINE_ALPHAPREMULTIPLY = PBRStandardMaterial.shaderDefines.registerDefine("ALPHAPREMULTIPLY");
 	}
 
-	/**@internal */
 	private _albedoColor: Vector4;
-	/**@internal */
 	private _emissionColor: Vector4;
 
 	/**

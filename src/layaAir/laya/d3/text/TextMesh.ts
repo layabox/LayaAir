@@ -6,18 +6,12 @@ import { IndexBuffer3D } from "../graphics/IndexBuffer3D"
 	 * <code>TextMesh</code> 类用于创建文本网格。
 	 */
 	export class TextMesh {
-		/**@internal */
 		private static _indexBuffer:IndexBuffer3D;
 		
-		/**@internal */
 		private _vertices:Float32Array;
-		/**@internal */
 		private _vertexBuffer:VertexBuffer3D;
-		/**@internal */
 		private _text:string;
-		/**@internal */
 		private _fontSize:number;
-		/**@internal */
 		private _color:Color;
 		
 		/**
@@ -75,9 +69,7 @@ import { IndexBuffer3D } from "../graphics/IndexBuffer3D"
 		
 		}
 		
-		/**
-		 * @internal
-		 */
+	
 		private _createVertexBuffer(charCount:number):void {
 			//var verDec:VertexDeclaration = vertexbu.vertexDeclaration;
 			//var newVertices:Float32Array = new Float32Array(verticesCount * FLOATCOUNTPERVERTEX);
@@ -96,16 +88,12 @@ import { IndexBuffer3D } from "../graphics/IndexBuffer3D"
 			//_bufferStates.push(bufferState);
 		}
 		
-		/**
-		 * @internal
-		 */
+	
 		private _resizeVertexBuffer(charCount:number):void {
 		
 		}
 		
-		/**
-		 * @internal
-		 */
+	
 		private _addChar():void {
 			//_vertexBuffer
 		}

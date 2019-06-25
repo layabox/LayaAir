@@ -18,30 +18,18 @@ import { Render } from "../../renders/Render";
  * @internal
  */
 export class AnimationClipParser04 {
-	/**@internal */
 	private static _animationClip: AnimationClip;
-	/**@internal */
 	private static _reader: Byte;
-	/**@internal */
 	private static _strings: any[] = [];
-	/**@internal */
 	private static _BLOCK: any = { count: 0 };
-	/**@internal */
 	private static _DATA: any = { offset: 0, size: 0 };
-	/**@internal */
 	private static _version: string;
 
-	/**
-	 * @internal
-	 */
 	private static READ_DATA(): void {
 		AnimationClipParser04._DATA.offset = AnimationClipParser04._reader.getUint32();
 		AnimationClipParser04._DATA.size = AnimationClipParser04._reader.getUint32();
 	}
 
-	/**
-	 * @internal
-	 */
 	private static READ_BLOCK(): void {
 		var count: number = AnimationClipParser04._BLOCK.count = AnimationClipParser04._reader.getUint16();
 		var blockStarts: any[] = AnimationClipParser04._BLOCK.blockStarts = [];
@@ -52,9 +40,6 @@ export class AnimationClipParser04 {
 		}
 	}
 
-	/**
-	 * @internal
-	 */
 	private static READ_STRINGS(): void {
 		var offset: number = AnimationClipParser04._reader.getUint32();
 		var count: number = AnimationClipParser04._reader.getUint16();

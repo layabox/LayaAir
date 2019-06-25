@@ -11,30 +11,18 @@ import { ConchVector3 } from "../math/Native/ConchVector3"
  * <code>AnimationTransform3D</code> 类用于实现3D变换。
  */
 export class AnimationTransform3D extends EventDispatcher {
-	/**@internal */
 	private static _tempVector3: Vector3 = new Vector3();
-	/**@internal */
 	private static _angleToRandin: number = 180 / Math.PI;
 
-	/** @internal */
 	private _localMatrix: Float32Array;
-	/** @internal */
 	private _worldMatrix: Float32Array;
-	/** @internal */
 	private _localPosition: Vector3;
-	/** @internal */
 	private _localRotation: Quaternion;
-	/** @internal */
 	private _localScale: Vector3;
-	/** @internal */
 	private _localQuaternionUpdate: boolean;
-	/** @internal */
 	private _locaEulerlUpdate: boolean;
-	/** @internal */
 	private _localUpdate: boolean;
-	/** @internal */
 	private _parent: AnimationTransform3D;
-	/** @internal */
 	private _children: AnimationTransform3D[];
 
 	/**@internal */
@@ -81,9 +69,6 @@ export class AnimationTransform3D extends EventDispatcher {
 		this._worldUpdate = true;
 	}
 
-	/**
-	 * @internal
-	 */
 	private _getlocalMatrix(): Float32Array {
 		if (this._localUpdate) {
 			Utils3D._createAffineTransformationArray(this._localPosition, this._localRotation, this._localScale, this._localMatrix);
@@ -92,9 +77,6 @@ export class AnimationTransform3D extends EventDispatcher {
 		return this._localMatrix;
 	}
 
-	/**
-	 * @internal
-	 */
 	private _onWorldTransform(): void {
 		if (!this._worldUpdate) {
 			this._worldUpdate = true;

@@ -4,9 +4,7 @@ import { Keyframe } from "../core/Keyframe"
  * @internal
  */
 export class KeyframeNode {
-	/**@internal */
 	private _ownerPath: string[] = [];
-	/**@internal */
 	private _propertys: string[] = [];
 
 	/**@internal */

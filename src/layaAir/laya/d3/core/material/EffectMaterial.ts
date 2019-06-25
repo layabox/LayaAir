@@ -44,7 +44,6 @@ export class EffectMaterial extends BaseMaterial {
 		EffectMaterial.SHADERDEFINE_ADDTIVEFOG = EffectMaterial.shaderDefines.registerDefine("ADDTIVEFOG");
 	}
 
-	/**@internal */
 	private _color: Vector4;
 
 	/**

@@ -4,11 +4,11 @@ import { IClone } from "../../IClone"
  * <code>Burst</code> 类用于粒子的爆裂描述。
  */
 export class Burst implements IClone {
-	/**@internal 爆裂时间,单位为秒。*/
+	/** 爆裂时间,单位为秒。*/
 	private _time: number;
-	/**@internal 爆裂的最小数量。*/
+	/** 爆裂的最小数量。*/
 	private _minCount: number;
-	/**@internal 爆裂的最大数量。*/
+	/** 爆裂的最大数量。*/
 	private _maxCount: number;
 
 	/**
