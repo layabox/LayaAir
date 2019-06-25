@@ -12,33 +12,33 @@ import { Stat } from "../../../utils/Stat";
  * <code>ScreenQuad</code> 类用于创建全屏四边形。
  */
 export class ScreenQuad extends Resource {
-	/** @private */
+	/** @internal */
 	static SCREENQUAD_POSITION_UV: number = 0;
-	/** @private */
+	/** @internal */
 	private static _vertexDeclaration: VertexDeclaration = new VertexDeclaration(16, [new VertexElement(0, VertexElementFormat.Vector4, ScreenQuad.SCREENQUAD_POSITION_UV)]);
-	/** @private */
+	/** @internal */
 	private static _vertices: Float32Array = new Float32Array([1, 1, 1, 0, 1, -1, 1, 1, -1, 1, 0, 0, -1, -1, 0, 1]);
-	/** @private */
+	/** @internal */
 	private static _verticesInvertUV: Float32Array = new Float32Array([1, 1, 1, 1, 1, -1, 1, 0, -1, 1, 0, 1, -1, -1, 0, 0]);
 
-	/**@private */
+	/**@internal */
 	static instance: ScreenQuad;
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static __init__(): void {
 		ScreenQuad.instance = new ScreenQuad();
 		ScreenQuad.instance.lock = true;
 	}
 
-	/** @private */
+	/** @internal */
 	private _vertexBuffer: VertexBuffer3D;
-	/** @private */
+	/** @internal */
 	private _bufferState: BufferState = new BufferState();
-	/** @private */
+	/** @internal */
 	private _vertexBufferInvertUV: VertexBuffer3D;
-	/** @private */
+	/** @internal */
 	private _bufferStateInvertUV: BufferState = new BufferState();
 
 	/**
@@ -64,7 +64,7 @@ export class ScreenQuad extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	render(): void {
 		this._bufferState.bind();
@@ -73,7 +73,7 @@ export class ScreenQuad extends Resource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	renderInvertUV(): void {
 		this._bufferStateInvertUV.bind();

@@ -13,21 +13,21 @@ import { WebGLContext } from "../../../webgl/WebGLContext"
 	 * <code>SkyDome</code> 类用于创建天空盒。
 	 */
 	export class SkyDome extends SkyMesh {
-		/**@private */
+		/**@internal */
 		private static _radius:number = 1;
-		/**@private */
+		/**@internal */
 		 static instance:SkyDome;
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 static __init__():void {
 			SkyDome.instance = new SkyDome();//TODO:移植为标准Mesh后需要加锁
 		}
 		
-		/**@private */
+		/**@internal */
 		private _stacks:number;
-		/**@private */
+		/**@internal */
 		private _slices:number;
 		
 		/**

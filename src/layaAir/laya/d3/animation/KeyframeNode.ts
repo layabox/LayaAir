@@ -1,27 +1,27 @@
 import { Keyframe } from "../core/Keyframe"
 
 /**
- * @private
+ * @internal
  */
 export class KeyframeNode {
-	/**@private */
+	/**@internal */
 	private _ownerPath: string[] = [];
-	/**@private */
+	/**@internal */
 	private _propertys: string[] = [];
 
-	/**@private */
+	/**@internal */
 	_keyFrames: Keyframe[] = [];
-	/**@private */
+	/**@internal */
 	_indexInList: number;
 
-	/**@private */
+	/**@internal */
 	type: number;
-	/**@private */
+	/**@internal */
 	fullPath: string;
-	/**@private */
+	/**@internal */
 	propertyOwner: string;
 
-	/**@private */
+	/**@internal */
 	data: any;
 
 	/**
@@ -49,56 +49,56 @@ export class KeyframeNode {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_setOwnerPathCount(value: number): void {
 		this._ownerPath.length = value;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_setOwnerPathByIndex(index: number, value: string): void {
 		this._ownerPath[index] = value;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_joinOwnerPath(sep: string): string {
 		return this._ownerPath.join(sep);
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_setPropertyCount(value: number): void {
 		this._propertys.length = value;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_setPropertyByIndex(index: number, value: string): void {
 		this._propertys[index] = value;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_joinProperty(sep: string): string {
 		return this._propertys.join(sep);
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_setKeyframeCount(value: number): void {
 		this._keyFrames.length = value;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_setKeyframeByIndex(index: number, value: Keyframe): void {
 		this._keyFrames[index] = value;

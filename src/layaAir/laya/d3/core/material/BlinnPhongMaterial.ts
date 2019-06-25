@@ -46,11 +46,11 @@ export class BlinnPhongMaterial extends BaseMaterial {
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: BlinnPhongMaterial;
 
-	/**@private */
+	/**@internal */
 	static shaderDefines: ShaderDefines = null;
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static __initDefine__(): void {
 		BlinnPhongMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
@@ -61,24 +61,24 @@ export class BlinnPhongMaterial extends BaseMaterial {
 		BlinnPhongMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR = BlinnPhongMaterial.shaderDefines.registerDefine("ENABLEVERTEXCOLOR");
 	}
 
-	/**@private */
+	/**@internal */
 	private _albedoColor: Vector4;
-	/**@private */
+	/**@internal */
 	private _albedoIntensity: number;
-	/**@private */
+	/**@internal */
 	private _enableLighting: boolean;
-	/**@private */
+	/**@internal */
 	private _enableVertexColor: boolean = false;
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _ColorR(): number {
 		return this._albedoColor.x;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _ColorR(value: number) {
 		this._albedoColor.x = value;
@@ -86,14 +86,14 @@ export class BlinnPhongMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _ColorG(): number {
 		return this._albedoColor.y;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _ColorG(value: number) {
 		this._albedoColor.y = value;
@@ -101,27 +101,27 @@ export class BlinnPhongMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _ColorB(): number {
 		return this._albedoColor.z;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _ColorB(value: number) {
 		this._albedoColor.z = value;
 		this.albedoColor = this._albedoColor;
 	}
 
-	/**@private */
+	/**@internal */
 	get _ColorA(): number {
 		return this._albedoColor.w;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _ColorA(value: number) {
 		this._albedoColor.w = value;
@@ -129,70 +129,70 @@ export class BlinnPhongMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _SpecColorR(): number {
 		return this._shaderValues.getVector(BlinnPhongMaterial.MATERIALSPECULAR).x;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _SpecColorR(value: number) {
 		this._shaderValues.getVector(BlinnPhongMaterial.MATERIALSPECULAR).x = value;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _SpecColorG(): number {
 		return this._shaderValues.getVector(BlinnPhongMaterial.MATERIALSPECULAR).y;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _SpecColorG(value: number) {
 		this._shaderValues.getVector(BlinnPhongMaterial.MATERIALSPECULAR).y = value;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _SpecColorB(): number {
 		return this._shaderValues.getVector(BlinnPhongMaterial.MATERIALSPECULAR).z;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _SpecColorB(value: number) {
 		this._shaderValues.getVector(BlinnPhongMaterial.MATERIALSPECULAR).z = value;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _SpecColorA(): number {
 		return this._shaderValues.getVector(BlinnPhongMaterial.MATERIALSPECULAR).w;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _SpecColorA(value: number) {
 		this._shaderValues.getVector(BlinnPhongMaterial.MATERIALSPECULAR).w = value;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _AlbedoIntensity(): number {
 		return this._albedoIntensity;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _AlbedoIntensity(value: number) {
 		if (this._albedoIntensity !== value) {
@@ -204,14 +204,14 @@ export class BlinnPhongMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _Shininess(): number {
 		return this._shaderValues.getNumber(BlinnPhongMaterial.SHININESS);
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _Shininess(value: number) {
 		value = Math.max(0.0, Math.min(1.0, value));
@@ -219,14 +219,14 @@ export class BlinnPhongMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _MainTex_STX(): number {
 		return this._shaderValues.getVector(BlinnPhongMaterial.TILINGOFFSET).x;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _MainTex_STX(x: number) {
 		var tilOff: Vector4 = (<Vector4>this._shaderValues.getVector(BlinnPhongMaterial.TILINGOFFSET));
@@ -235,14 +235,14 @@ export class BlinnPhongMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _MainTex_STY(): number {
 		return this._shaderValues.getVector(BlinnPhongMaterial.TILINGOFFSET).y;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _MainTex_STY(y: number) {
 		var tilOff: Vector4 = (<Vector4>this._shaderValues.getVector(BlinnPhongMaterial.TILINGOFFSET));
@@ -251,14 +251,14 @@ export class BlinnPhongMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _MainTex_STZ(): number {
 		return this._shaderValues.getVector(BlinnPhongMaterial.TILINGOFFSET).z;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _MainTex_STZ(z: number) {
 		var tilOff: Vector4 = (<Vector4>this._shaderValues.getVector(BlinnPhongMaterial.TILINGOFFSET));
@@ -267,14 +267,14 @@ export class BlinnPhongMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _MainTex_STW(): number {
 		return this._shaderValues.getVector(BlinnPhongMaterial.TILINGOFFSET).w;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _MainTex_STW(w: number) {
 		var tilOff: Vector4 = (<Vector4>this._shaderValues.getVector(BlinnPhongMaterial.TILINGOFFSET));
@@ -283,14 +283,14 @@ export class BlinnPhongMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _Cutoff(): number {
 		return this.alphaTestValue;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _Cutoff(value: number) {
 		this.alphaTestValue = value;

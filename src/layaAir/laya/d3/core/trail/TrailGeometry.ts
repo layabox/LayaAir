@@ -27,53 +27,53 @@ export class TrailGeometry extends GeometryElement {
 	/** 轨迹准线_面向运动方向。*/
 	static ALIGNMENT_TRANSFORM_Z: number = 1;
 
-	/**@private */
+	/**@internal */
 	private static _tempVector30: Vector3 = new Vector3();
-	/**@private */
+	/**@internal */
 	private static _tempVector31: Vector3 = new Vector3();
-	/**@private */
+	/**@internal */
 	private static _tempVector32: Vector3 = new Vector3();
-	/**@private */
+	/**@internal */
 	private static _tempVector33: Vector3 = new Vector3();
-	/**@private */
+	/**@internal */
 	private static _tempVector34: Vector3 = new Vector3();
 
-	/**@private */
+	/**@internal */
 	private static _type: number = GeometryElement._typeCounter++;
 
-	/**@private */
+	/**@internal */
 	private _floatCountPerVertices1: number = 8;
-	/**@private */
+	/**@internal */
 	private _floatCountPerVertices2: number = 5;
-	/**@private */
+	/**@internal */
 	private _increaseSegementCount: number = 16;
-	/**@private */
+	/**@internal */
 	private _activeIndex: number = 0;
-	/**@private */
+	/**@internal */
 	private _endIndex: number = 0;
-	/**@private */
+	/**@internal */
 	private _needAddFirstVertex: boolean = false;
-	/**@private */
+	/**@internal */
 	private _isTempEndVertex: boolean = false;
-	/**@private */
+	/**@internal */
 	private _subBirthTime: Float32Array;
-	/**@private */
+	/**@internal */
 	private _subDistance: Float64Array;
-	/**@private */
+	/**@internal */
 	private _segementCount: number;
-	/**@private */
+	/**@internal */
 	private _vertices1: Float32Array = null;
-	/**@private */
+	/**@internal */
 	private _vertices2: Float32Array = null;
-	/**@private */
+	/**@internal */
 	private _vertexBuffer1: VertexBuffer3D;
-	/**@private */
+	/**@internal */
 	private _vertexBuffer2: VertexBuffer3D;
-	/**@private */
+	/**@internal */
 	private _lastFixedVertexPosition: Vector3 = new Vector3();
-	/**@private */
+	/**@internal */
 	private _owner: TrailFilter;
-	/** @private */
+	/** @internal */
 	private _bufferState: BufferState = new BufferState();
 
 	private tmpColor: Color = new Color();
@@ -88,7 +88,7 @@ export class TrailGeometry extends GeometryElement {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _resizeData(segementCount: number, bufferState: BufferState): void {
 		this._subBirthTime = new Float32Array(segementCount);
@@ -118,7 +118,7 @@ export class TrailGeometry extends GeometryElement {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _resetData(): void {
 		var count: number = this._endIndex - this._activeIndex;
@@ -147,7 +147,7 @@ export class TrailGeometry extends GeometryElement {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * 更新Trail数据
 	 */
 	_updateTrail(camera: Camera, lastPosition: Vector3, position: Vector3): void {
@@ -160,7 +160,7 @@ export class TrailGeometry extends GeometryElement {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * 通过起始位置添加TrailRenderElement起始数据
 	 */
 	private _addTrailByFirstPosition(camera: Camera, position: Vector3): void {
@@ -173,7 +173,7 @@ export class TrailGeometry extends GeometryElement {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * 通过位置更新TrailRenderElement数据
 	 */
 	private _addTrailByNextPosition(camera: Camera, position: Vector3): void {
@@ -238,7 +238,7 @@ export class TrailGeometry extends GeometryElement {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * 通过位置更新顶点数据
 	 */
 	private _updateVerticesByPositionData(position: Vector3, pointAtoBVector3: Vector3, index: number): void {
@@ -268,7 +268,7 @@ export class TrailGeometry extends GeometryElement {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * 通过位置更新顶点数据、距离、出生时间
 	 */
 	private _updateVerticesByPosition(position: Vector3, pointAtoBVector3: Vector3, delDistance: number, index: number): void {
@@ -278,7 +278,7 @@ export class TrailGeometry extends GeometryElement {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * 更新VertexBuffer2数据
 	 */
 	_updateVertexBufferUV(): void {
@@ -325,7 +325,7 @@ export class TrailGeometry extends GeometryElement {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_updateDisappear(): void {
 		var count: number = this._endIndex;

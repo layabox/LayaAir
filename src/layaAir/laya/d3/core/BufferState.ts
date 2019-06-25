@@ -7,7 +7,7 @@ import { BufferStateBase } from "../../webgl/BufferStateBase"
 
 
 /**
- * @private
+ * @internal
  * <code>BufferState</code> 类用于实现渲染所需的Buffer状态集合。
  */
 export class BufferState extends BufferStateBase {
@@ -20,7 +20,7 @@ export class BufferState extends BufferStateBase {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * vertexBuffer的vertexDeclaration不能为空,该函数比较消耗性能，建议初始化时使用。
 	 */
 	applyVertexBuffer(vertexBuffer: VertexBuffer3D): void {//TODO:动态合并是否需要使用对象池机制
@@ -45,7 +45,7 @@ export class BufferState extends BufferStateBase {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * vertexBuffers中的vertexDeclaration不能为空,该函数比较消耗性能，建议初始化时使用。
 	 */
 	applyVertexBuffers(vertexBuffers: VertexBuffer3D[]): void {
@@ -73,7 +73,7 @@ export class BufferState extends BufferStateBase {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	applyInstanceVertexBuffer(vertexBuffer: VertexBuffer3D): void {//TODO:动态合并是否需要使用对象池机制
 		if (LayaGL.layaGPUInstance.supportInstance()) {//判断是否支持Instance
@@ -100,7 +100,7 @@ export class BufferState extends BufferStateBase {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	applyIndexBuffer(indexBuffer: IndexBuffer3D): void {
 		if (BufferStateBase._curBindedBufferState === this) {

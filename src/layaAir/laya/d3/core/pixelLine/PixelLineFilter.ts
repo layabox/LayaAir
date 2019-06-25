@@ -15,28 +15,28 @@ import { WebGLContext } from "../../../webgl/WebGLContext"
  * <code>PixelLineFilter</code> 类用于线过滤器。
  */
 export class PixelLineFilter extends GeometryElement {
-	/**@private */
+	/**@internal */
 	private static _type: number = GeometryElement._typeCounter++;
 
-	/** @private */
+	/** @internal */
 	private _floatCountPerVertices: number = 7;
 
-	/** @private */
+	/** @internal */
 	private _owner: PixelLineSprite3D;
-	/** @private */
+	/** @internal */
 	private _vertexBuffer: VertexBuffer3D;
-	/** @private */
+	/** @internal */
 	private _vertices: Float32Array;
-	/** @private */
+	/** @internal */
 	private _minUpdate: number = Number.MAX_VALUE;
-	/** @private */
+	/** @internal */
 	private _maxUpdate: number = Number.MIN_VALUE;
-	/** @private */
+	/** @internal */
 	private _bufferState: BufferState = new BufferState();
 
-	/** @private */
+	/** @internal */
 	_maxLineCount: number = 0;
-	/** @private */
+	/** @internal */
 	_lineCount: number = 0;
 
 	constructor(owner: PixelLineSprite3D, maxLineCount: number) {
@@ -62,7 +62,7 @@ export class PixelLineFilter extends GeometryElement {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_resizeLineData(maxCount: number): void {
 		var pointCount: number = maxCount * 2;
@@ -90,7 +90,7 @@ export class PixelLineFilter extends GeometryElement {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _updateLineVertices(offset: number, startPosition: Vector3, endPosition: Vector3, startColor: Color, endColor: Color): void {
 		if (startPosition) {
@@ -123,7 +123,7 @@ export class PixelLineFilter extends GeometryElement {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_removeLineData(index: number): void {
 		var floatCount: number = this._floatCountPerVertices * 2;
@@ -137,7 +137,7 @@ export class PixelLineFilter extends GeometryElement {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_updateLineData(index: number, startPosition: Vector3, endPosition: Vector3, startColor: Color, endColor: Color): void {
 		var floatCount: number = this._floatCountPerVertices * 2;
@@ -146,7 +146,7 @@ export class PixelLineFilter extends GeometryElement {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_updateLineDatas(index: number, data: PixelLineData[]): void {
 		var floatCount: number = this._floatCountPerVertices * 2;

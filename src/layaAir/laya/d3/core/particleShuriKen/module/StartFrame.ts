@@ -30,15 +30,15 @@ export class StartFrame implements IClone {
 		return rotationOverLifetime;
 	}
 
-	/**@private */
+	/**@internal */
 	private _type: number = 0;
 
-	/**@private */
+	/**@internal */
 	private _constant: number = 0;
 
-	/**@private */
+	/**@internal */
 	private _constantMin: number = 0;
-	/**@private */
+	/**@internal */
 	private _constantMax: number = 0;
 
 	/**

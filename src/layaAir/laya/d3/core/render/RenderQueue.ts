@@ -3,17 +3,17 @@ import { RenderContext3D } from "././RenderContext3D";
 import { Shader3D } from "../../shader/Shader3D"
 
 /**
- * @private
+ * @internal
  * <code>RenderQuene</code> 类用于实现渲染队列。
  */
 export class RenderQueue {
-	/** @private [只读]*/
+	/** @internal [只读]*/
 	isTransparent: boolean = false;
-	/** @private */
+	/** @internal */
 	elements: RenderElement[] = new Array<RenderElement>();
-	/** @private */
+	/** @internal */
 	lastTransparentRenderElement: RenderElement = null;
-	/** @private */
+	/** @internal */
 	lastTransparentBatched: boolean = false;
 
 	/**
@@ -24,7 +24,7 @@ export class RenderQueue {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _compare(left: RenderElement, right: RenderElement): number {
 		var renderQueue: number = left.material.renderQueue - right.material.renderQueue;
@@ -37,7 +37,7 @@ export class RenderQueue {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _partitionRenderObject(left: number, right: number): number {
 		var pivot: RenderElement = this.elements[Math.floor((right + left) / 2)];
@@ -61,7 +61,7 @@ export class RenderQueue {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_quickSort(left: number, right: number): void {
 		if (this.elements.length > 1) {
@@ -78,7 +78,7 @@ export class RenderQueue {
 
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_render(context: RenderContext3D, isTarget: boolean): void {
 		for (var i: number = 0, n: number = this.elements.length; i < n; i++)
@@ -86,7 +86,7 @@ export class RenderQueue {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	clear(): void {
 		this.elements.length = 0;

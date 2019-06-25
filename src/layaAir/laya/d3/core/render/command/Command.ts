@@ -3,29 +3,29 @@ import { ShaderData } from "../../../../d3/shader/ShaderData";
 import { CommandBuffer } from "././CommandBuffer";
 
 /**
- * @private
+ * @internal
  * <code>Command</code> 类用于创建指令。
  */
 export class Command {
-	/**@private */
+	/**@internal */
 	static _screenShaderData: ShaderData;
-	/** @private */
+	/** @internal */
 	static _screenShader: Shader3D;
 
-	/** @private */
+	/** @internal */
 	static SCREENTEXTURE_NAME: string = "u_MainTex";//todo：
-	/** @private */
+	/** @internal */
 	static MAINTEXTURE_TEXELSIZE_NAME: string = "u_MainTex_TexelSize";//todo：
-	/** @private */
+	/** @internal */
 	static SCREENTEXTURE_ID: number = Shader3D.propertyNameToID(Command.SCREENTEXTURE_NAME);//todo：
-	/** @private */
+	/** @internal */
 	static MAINTEXTURE_TEXELSIZE_ID: number = Shader3D.propertyNameToID(Command.MAINTEXTURE_TEXELSIZE_NAME);//todo：
 
-	/**@private */
+	/**@internal */
 	private _commandBuffer: CommandBuffer = null;
 
 	/**
-	* @private
+	* @internal
 	*/
 	static __init__(): void {
 		Command._screenShaderData = new ShaderData();
@@ -40,14 +40,14 @@ export class Command {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	run(): void {
 
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	recover(): void {
 		this._commandBuffer = null;

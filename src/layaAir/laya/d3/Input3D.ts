@@ -21,30 +21,30 @@ import { Physics } from "./physics/Physics";
  * <code>Input3D</code> 类用于实现3D输入。
  */
 export class Input3D {
-	/**@private */
+	/**@internal */
 	private static _tempPoint: Point = new Point();
-	/**@private */
+	/**@internal */
 	private static _tempVector20: Vector2 = new Vector2();
-	/**@private */
+	/**@internal */
 	private static _tempRay0: Ray = new Ray(new Vector3(), new Vector3());
-	/**@private */
+	/**@internal */
 	private static _tempHitResult0: HitResult = new HitResult();
 
-	/**@private */
+	/**@internal */
 	private _scene: Scene3D;
-	/**@private */
+	/**@internal */
 	private _eventList: any[] = [];
-	/**@private */
+	/**@internal */
 	private _mouseTouch: MouseTouch = new MouseTouch();
-	/**@private */
+	/**@internal */
 	private _touchPool: Touch[] = [];
-	/**@private */
+	/**@internal */
 	private _touches: SimpleSingletonList = new SimpleSingletonList();
-	/**@private */
+	/**@internal */
 	private _multiTouchEnabled: boolean = true;
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	__init__(canvas: any, scene: Scene3D): void {
 		this._scene = scene;
@@ -108,14 +108,14 @@ export class Input3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * 创建一个 <code>Input3D</code> 实例。
 	 */
 	constructor() {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _getTouch(touchID: number): Touch {
 		var touch: Touch = this._touchPool[touchID];
@@ -128,7 +128,7 @@ export class Input3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _mouseTouchDown(): void {
 		var touch: MouseTouch = this._mouseTouch;
@@ -145,7 +145,7 @@ export class Input3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _mouseTouchUp(): void {
 		var i: number, n: number;
@@ -174,7 +174,7 @@ export class Input3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _mouseTouchRayCast(cameras: BaseCamera[]): void {
 		var touchHitResult: HitResult = Input3D._tempHitResult0;
@@ -224,7 +224,7 @@ export class Input3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * @param flag 0:add、1:remove、2:change
 	 */
 	_changeTouches(changedTouches: any[], flag: number): void {
@@ -273,7 +273,7 @@ export class Input3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_update(): void {
 		var enablePhysics: boolean = Physics._enbalePhysics && !PhysicsSimulation.disableSimulation;

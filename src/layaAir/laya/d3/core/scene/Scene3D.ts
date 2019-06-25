@@ -61,7 +61,7 @@ import { Physics } from "../../physics/Physics";
 export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/**Hierarchy资源。*/
 	static HIERARCHY: string = "HIERARCHY";
-	/**@private */
+	/**@internal */
 	static physicsSettings: PhysicsSettings = new PhysicsSettings();
 	/** 是否开启八叉树裁剪。*/
 	static octreeCulling: boolean = false;
@@ -74,9 +74,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** 八叉树松散值。*/
 	static octreeLooseness: number = 1.25;
 
-	/**@private */
+	/**@internal */
 	static REFLECTIONMODE_SKYBOX: number = 0;
-	/**@private */
+	/**@internal */
 	static REFLECTIONMODE_CUSTOM: number = 1;
 
 	static FOGCOLOR: number = Shader3D.propertyNameToID("u_FogColor");
@@ -114,7 +114,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	static SPOTLIGHTMATRIX: number = Shader3D.propertyNameToID("u_SpotLightMatrix");
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static __init__(): void {
 		Scene3DShaderDeclaration.SHADERDEFINE_FOG = Shader3D.registerPublicDefine("FOG");
@@ -142,56 +142,56 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		Laya.loader.create(url, complete, null, Scene3D.HIERARCHY);
 	}
 
-	/**@private */
+	/**@internal */
 	private _url: string;
-	/**@private */
+	/**@internal */
 	private _group: string;
-	/** @private */
+	/** @internal */
 	private _lights: LightSprite[] = [];
-	/** @private */
+	/** @internal */
 	private _lightmaps: Texture2D[] = [];
-	/** @private */
+	/** @internal */
 	private _skyRenderer: SkyRenderer = new SkyRenderer();
-	/** @private */
+	/** @internal */
 	private _reflectionMode: number = 1;
-	/** @private */
+	/** @internal */
 	private _enableLightCount: number = 3;
-	/** @private */
+	/** @internal */
 	private _renderTargetTexture: RenderTexture2D;
-	/** @private */
+	/** @internal */
 	private _enableFog: boolean;
-	/**@private */
+	/**@internal */
 	_physicsSimulation: PhysicsSimulation;
-	/**@private */
+	/**@internal */
 	private _input: Input3D = new Input3D();
-	/**@private */
+	/**@internal */
 	private _timer: Timer = Laya.timer;
 
-	/**@private */
+	/**@internal */
 	_octree: BoundsOctree;
-	/** @private 只读,不允许修改。*/
+	/** @internal 只读,不允许修改。*/
 	_collsionTestList: number[] = [];
 
-	/** @private */
+	/** @internal */
 	_shaderValues: ShaderData;
-	/** @private */
+	/** @internal */
 	_renders: SimpleSingletonList = new SimpleSingletonList();
-	/** @private */
+	/** @internal */
 	_opaqueQueue: RenderQueue = new RenderQueue(false);
-	/** @private */
+	/** @internal */
 	_transparentQueue: RenderQueue = new RenderQueue(true);
-	/** @private 相机的对象池*/
+	/** @internal 相机的对象池*/
 	_cameraPool: BaseCamera[] = [];
-	/**@private */
+	/**@internal */
 	_animatorPool: SimpleSingletonList = new SimpleSingletonList();
-	/**@private */
+	/**@internal */
 	_scriptPool: Script3D[] = new Array<Script3D>();
-	/**@private */
+	/**@internal */
 	_tempScriptPool: Script3D[] = new Array<Script3D>();
-	/**@private */
+	/**@internal */
 	_needClearScriptPool: boolean = false;
 
-	/** @private */
+	/** @internal */
 	_castShadowRenders: CastShadowList = new CastShadowList();
 
 	/** 当前创建精灵所属遮罩层。*/
@@ -201,24 +201,24 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 	//阴影相关变量
 	parallelSplitShadowMaps: ParallelSplitShadowMap[];
-	/**@private */
+	/**@internal */
 	_debugTool: PixelLineSprite3D;
 
-	/**@private */
+	/**@internal */
 	_key: SubmitKey = new SubmitKey();
 
 	private _time: number = 0;
 
-	/**@private	[NATIVE]*/
+	/**@internal	[NATIVE]*/
 	_cullingBufferIndices: Int32Array;
-	/**@private	[NATIVE]*/
+	/**@internal	[NATIVE]*/
 	_cullingBufferResult: Int32Array;
 
-	/**@private [Editer]*/
+	/**@internal [Editer]*/
 	_pickIdToSprite: any = new Object();
 
 	/**
-	 * @private
+	 * @internal
 	 * [Editer]
 	 */
 	_allotPickColorByID(id: number, pickColor: Vector4): void {
@@ -236,7 +236,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * [Editer]
 	 */
 	_searchIDByPickColor(pickColor: Vector4): number {
@@ -480,7 +480,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _setLightmapToChildNode(sprite: Sprite3D): void {
 		if (sprite instanceof RenderableSprite3D)
@@ -493,7 +493,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	private _update(): void {
 		var delta: number = this.timer._delta / 1000;
@@ -525,7 +525,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _binarySearchIndexInCameraPool(camera: BaseCamera): number {
 		var start: number = 0;
@@ -545,28 +545,28 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_setCreateURL(url: string): void {
 		this._url = URL.formatURL(url);
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_getGroup(): string {
 		return this._group;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_setGroup(value: string): void {
 		this._group = value;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _clearScript(): void {
 		if (this._needClearScriptPool) {
@@ -587,7 +587,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _updateScript(): void {
 		var scripts: Script3D[] = this._scriptPool;
@@ -598,7 +598,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _lateUpdateScript(): void {
 		var scripts: Script3D[] = this._scriptPool;
@@ -609,7 +609,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_addScript(script: Script3D): void {
 		var scripts: Script3D[] = this._scriptPool;
@@ -618,7 +618,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_removeScript(script: Script3D): void {
 		this._scriptPool[script._indexInPool] = null;
@@ -627,7 +627,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_preRenderScript(): void {
 		var scripts: Script3D[] = this._scriptPool;
@@ -638,7 +638,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_postRenderScript(): void {
 		var scripts: Script3D[] = this._scriptPool;
@@ -649,7 +649,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	protected _prepareSceneToRender(): void {
 		var lightCount: number = this._lights.length;
@@ -666,7 +666,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_addCamera(camera: BaseCamera): void {
 		var index: number = this._binarySearchIndexInCameraPool(camera);
@@ -678,21 +678,21 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_removeCamera(camera: BaseCamera): void {
 		this._cameraPool.splice(this._cameraPool.indexOf(camera), 1);
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_preCulling(context: RenderContext3D, camera: Camera, shader: Shader3D, replacementTag: string): void {
 		FrustumCulling.renderObjectCulling(camera, this, context, this._renders, shader, replacementTag);
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_clear(gl: WebGLContext, state: RenderContext3D): void {
 		var viewport: Viewport = state.viewport;
@@ -769,7 +769,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_renderScene(context: RenderContext3D): void {
 		var camera: Camera = (<Camera>context.camera);
@@ -859,14 +859,14 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_addLight(light: LightSprite): void {
 		if (this._lights.indexOf(light) < 0) this._lights.push(light);
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_removeLight(light: LightSprite): void {
 		var index: number = this._lights.indexOf(light);
@@ -874,7 +874,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_addRenderObject(render: BaseRender): void {
 		if (this._octree&&render._supportOctree) {
@@ -898,7 +898,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_removeRenderObject(render: BaseRender): void {
 		if (this._octree&&render._supportOctree) {
@@ -916,7 +916,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_addShadowCastRenderObject(render: BaseRender): void {
 		if (this._octree) {
@@ -928,7 +928,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_removeShadowCastRenderObject(render: BaseRender): void {
 		if (this._octree) {
@@ -940,7 +940,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_getRenderQueue(index: number): RenderQueue {
 		if (index <= 2500)//2500作为队列临界点
@@ -1012,7 +1012,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	renderSubmit(): number {
 		var gl: any = LayaGL.instance;
@@ -1030,20 +1030,20 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	getRenderType(): number {
 		return 0;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	releaseRender(): void {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	reUse(context: Context, pos: number): number {
 		return 0;

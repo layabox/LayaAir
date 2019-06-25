@@ -10,15 +10,15 @@ import { Vector3 } from "../math/Vector3"
 export class AnimationNode implements IClone {
 	private _children: AnimationNode[];
 
-	/**@private */
+	/**@internal */
 	_parent: AnimationNode;
-	/**@private [只读]*/
+	/**@internal [只读]*/
 	transform: AnimationTransform3D;
 
 	/**节点名称。 */
 	name: string;
 
-	/**@private	[NATIVE]*/
+	/**@internal	[NATIVE]*/
 	_worldMatrixIndex: number;
 
 	/**
@@ -115,7 +115,7 @@ export class AnimationNode implements IClone {
 	}
 
 	/**
-	 * @private [NATIVE]
+	 * @internal [NATIVE]
 	 */
 	_cloneNative(localPositions: Float32Array, localRotations: Float32Array, localScales: Float32Array, animationNodeWorldMatrixs: Float32Array, animationNodeParentIndices: Int16Array, parentIndex: number, avatar: Avatar): any {
 		var curID: number = avatar._nativeCurCloneCount;
@@ -131,7 +131,7 @@ export class AnimationNode implements IClone {
 	}
 
 	/**
-	 * @private [NATIVE]
+	 * @internal [NATIVE]
 	 */
 	_cloneToNative(destObject: any, localPositions: Float32Array, localRotations: Float32Array, localScales: Float32Array, animationNodeWorldMatrixs: Float32Array, animationNodeParentIndices: Int16Array, parentIndex: number, avatar: Avatar): void {
 		var destNode: AnimationNode = (<AnimationNode>destObject);

@@ -14,7 +14,7 @@ import { SingletonList } from "../component/SingletonList"
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 add(element:PhysicsComponent):void {
 			var index:number = element._inPhysicUpdateListIndex;
@@ -25,7 +25,7 @@ import { SingletonList } from "../component/SingletonList"
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 remove(element:PhysicsComponent):void {
 			var index:number = element._inPhysicUpdateListIndex;

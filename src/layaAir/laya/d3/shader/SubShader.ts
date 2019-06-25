@@ -6,28 +6,28 @@ import { ShaderDefines } from "././ShaderDefines";
 	 * <code>SubShader</code> 类用于创建SubShader。
 	 */
 	export class SubShader {
-		/**@private */
+		/**@internal */
 		 _attributeMap:any;
-		/**@private */
+		/**@internal */
 		 _uniformMap:any;
-		/**@private */
+		/**@internal */
 		 _publicDefines:any[];
-		/**@private */
+		/**@internal */
 		 _publicDefinesMap:any;
-		/**@private */
+		/**@internal */
 		 _spriteDefines:any[];
-		/**@private */
+		/**@internal */
 		 _spriteDefinesMap:any;
-		/**@private */
+		/**@internal */
 		 _materialDefines:any[];
-		/**@private */
+		/**@internal */
 		 _materialDefinesMap:any;
 		
-		/**@private */
+		/**@internal */
 		 _owner:Shader3D;
-		/**@private */
+		/**@internal */
 		 _flags:any = {};
-		/**@private */
+		/**@internal */
 		 _passes:ShaderPass[] = [];
 		
 		/**
@@ -53,7 +53,7 @@ import { ShaderDefines } from "././ShaderDefines";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private _addDefines(defines:any[], definesMap:any, supportDefines:any):void {
 			for (var k  in supportDefines) {
@@ -94,7 +94,7 @@ import { ShaderDefines } from "././ShaderDefines";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 addShaderPass(vs:string, ps:string, stateMap:any = null):ShaderPass {
 			var shaderPass:ShaderPass = new ShaderPass(this, vs, ps, stateMap);

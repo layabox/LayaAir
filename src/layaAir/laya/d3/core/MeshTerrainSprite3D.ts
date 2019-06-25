@@ -13,9 +13,9 @@ import { Texture2D } from "../../resource/Texture2D"
  * <code>TerrainMeshSprite3D</code> 类用于创建网格。
  */
 export class MeshTerrainSprite3D extends MeshSprite3D {
-	/** @private */
+	/** @internal */
 	private static _tempVector3: Vector3 = new Vector3();
-	/** @private */
+	/** @internal */
 	private static _tempMatrix4x4: Matrix4x4 = new Matrix4x4();
 
 	/**
@@ -43,13 +43,13 @@ export class MeshTerrainSprite3D extends MeshSprite3D {
 		return meshTerrainSprite3D;
 	}
 
-	/** @private */
+	/** @internal */
 	private _minX: number;
-	/** @private */
+	/** @internal */
 	private _minZ: number;
-	/** @private */
+	/** @internal */
 	private _cellSize: Vector2;
-	/** @private */
+	/** @internal */
 	private _heightMap: HeightMap;
 
 	/**
@@ -101,7 +101,7 @@ export class MeshTerrainSprite3D extends MeshSprite3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _disableRotation(): void {
 		var rotation: Quaternion = this.transform.rotation;
@@ -113,7 +113,7 @@ export class MeshTerrainSprite3D extends MeshSprite3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _getScaleX(): number {
 		var worldMat: Matrix4x4 = this.transform.worldMatrix;
@@ -125,7 +125,7 @@ export class MeshTerrainSprite3D extends MeshSprite3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _getScaleZ(): number {
 		var worldMat: Matrix4x4 = this.transform.worldMatrix;
@@ -137,7 +137,7 @@ export class MeshTerrainSprite3D extends MeshSprite3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _initCreateFromMesh(heightMapWidth: number, heightMapHeight: number): void {
 		this._heightMap = HeightMap.creatFromMesh((<Mesh>this.meshFilter.sharedMesh), heightMapWidth, heightMapHeight, this._cellSize);
@@ -150,7 +150,7 @@ export class MeshTerrainSprite3D extends MeshSprite3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _initCreateFromMeshHeightMap(texture: Texture2D, minHeight: number, maxHeight: number): void {
 		var boundingBox: Bounds = this.meshFilter.sharedMesh.bounds;
@@ -164,7 +164,7 @@ export class MeshTerrainSprite3D extends MeshSprite3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _computeCellSize(boundingBox: Bounds): void {
 		var min: Vector3 = boundingBox.getMin();
@@ -182,7 +182,7 @@ export class MeshTerrainSprite3D extends MeshSprite3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_update(state: RenderContext3D): void {//TODO:
 		this._disableRotation();

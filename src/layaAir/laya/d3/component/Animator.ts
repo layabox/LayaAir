@@ -31,22 +31,22 @@ import { SimpleSingletonList } from "./SimpleSingletonList";
  * <code>Animator</code> 类用于创建动画组件。
  */
 export class Animator extends Component {
-	/** @private */
+	/** @internal */
 	private static _tempVector30: Vector3 = new Vector3();
-	/** @private */
+	/** @internal */
 	private static _tempVector31: Vector3 = new Vector3();
-	/** @private */
+	/** @internal */
 	private static _tempQuaternion0: Quaternion = new Quaternion();
-	/** @private */
+	/** @internal */
 	private static _tempQuaternion1: Quaternion = new Quaternion();
 
-	/** @private */
+	/** @internal */
 	private static _tempVector3Array0: Float32Array = new Float32Array(3);
-	/** @private */
+	/** @internal */
 	private static _tempVector3Array1: Float32Array = new Float32Array(3);
-	/** @private */
+	/** @internal */
 	private static _tempQuaternionArray0: Float32Array = new Float32Array(4);
-	/** @private */
+	/** @internal */
 	private static _tempQuaternionArray1: Float32Array = new Float32Array(4);
 
 	/** 裁剪模式_始终播放动画。*/
@@ -55,7 +55,7 @@ export class Animator extends Component {
 	static CULLINGMODE_CULLCOMPLETELY: number = 2;
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static _update(scene: Scene3D): void {
 		var pool: SimpleSingletonList = scene._animatorPool;
@@ -66,41 +66,41 @@ export class Animator extends Component {
 		}
 	}
 
-	/**@private */
+	/**@internal */
 	private _speed: number;
 
-	/**@private */
+	/**@internal */
 	private _keyframeNodeOwnerMap: any;
-	/**@private */
+	/**@internal */
 	private _keyframeNodeOwners: KeyframeNodeOwner[] = [];
-	/**@private */
+	/**@internal */
 	private _updateMark: number;
-	/**@private */
+	/**@internal */
 	private _controllerLayers: AnimatorControllerLayer[];
-	/**@private */
+	/**@internal */
 	_linkSprites: any;
 
-	/**@private	*/
+	/**@internal	*/
 	_avatarNodeMap: any;
-	/**@private */
+	/**@internal */
 	_linkAvatarSpritesData: any = {};
-	/**@private */
+	/**@internal */
 	_linkAvatarSprites: Sprite3D[] = [];
-	/**@private */
+	/**@internal */
 	_renderableSprites: RenderableSprite3D[] = [];
 
 	/**	裁剪模式*/
 	cullingMode: number = Animator.CULLINGMODE_CULLCOMPLETELY;
 
-	/**@private	[NATIVE]*/
+	/**@internal	[NATIVE]*/
 	_animationNodeLocalPositions: Float32Array;
-	/**@private	[NATIVE]*/
+	/**@internal	[NATIVE]*/
 	_animationNodeLocalRotations: Float32Array;
-	/**@private	[NATIVE]*/
+	/**@internal	[NATIVE]*/
 	_animationNodeLocalScales: Float32Array;
-	/**@private	[NATIVE]*/
+	/**@internal	[NATIVE]*/
 	_animationNodeWorldMatrixs: Float32Array;
-	/**@private	[NATIVE]*/
+	/**@internal	[NATIVE]*/
 	_animationNodeParentIndices: Int16Array;
 
 	/**
@@ -133,7 +133,7 @@ export class Animator extends Component {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _linkToSprites(linkSprites: any): void {
 		for (var k in linkSprites) {
@@ -154,7 +154,7 @@ export class Animator extends Component {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _addKeyframeNodeOwner(clipOwners: KeyframeNodeOwner[], node: KeyframeNode, propertyOwner: any): void {
 		var nodeIndex: number = node._indexInList;
@@ -199,7 +199,7 @@ export class Animator extends Component {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_removeKeyframeNodeOwner(nodeOwners: KeyframeNodeOwner[], node: KeyframeNode): void {
 		var fullPath: string = node.fullPath;
@@ -215,7 +215,7 @@ export class Animator extends Component {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_getOwnersByClip(clipStateInfo: AnimatorState): void {
 		var frameNodes: KeyframeNodeList = clipStateInfo._clip._nodes;
@@ -245,7 +245,7 @@ export class Animator extends Component {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _updatePlayer(animatorState: AnimatorState, playState: AnimatorPlayState, elapsedTime: number, islooping: boolean): void {
 		var clipDuration: number = animatorState._clip._duration * (animatorState.clipEnd - animatorState.clipStart);
@@ -279,7 +279,7 @@ export class Animator extends Component {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _eventScript(scripts: Script3D[], events: AnimationEvent[], eventIndex: number, endTime: number, front: boolean): number {
 		if (front) {
@@ -313,7 +313,7 @@ export class Animator extends Component {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _updateEventScript(stateInfo: AnimatorState, playStateInfo: AnimatorPlayState): void {
 		var scripts: Script3D[] = ((<Sprite3D>this.owner))._scripts;
@@ -353,7 +353,7 @@ export class Animator extends Component {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _updateClipDatas(animatorState: AnimatorState, addtive: boolean, playStateInfo: AnimatorPlayState, scale: number): void {
 		var clip: AnimationClip = animatorState._clip;
@@ -366,7 +366,7 @@ export class Animator extends Component {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _applyFloat(pro: any, proName: string, nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, data: number): void {
 		if (nodeOwner.updateMark === this._updateMark) {//一定非第一层
@@ -394,7 +394,7 @@ export class Animator extends Component {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _applyPositionAndRotationEuler(nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, data: Vector3, out: Vector3): void {
 		if (nodeOwner.updateMark === this._updateMark) {//一定非第一层
@@ -441,7 +441,7 @@ export class Animator extends Component {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _applyRotation(nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, clipRot: Quaternion, localRotation: Quaternion): void {
 		if (nodeOwner.updateMark === this._updateMark) {//一定非第一层
@@ -479,7 +479,7 @@ export class Animator extends Component {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _applyScale(nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, clipSca: Vector3, localScale: Vector3): void {
 		if (nodeOwner.updateMark === this._updateMark) {//一定非第一层
@@ -520,7 +520,7 @@ export class Animator extends Component {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _applyCrossData(nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, srcValue: any, desValue: any, crossWeight: number): void {
 		var pro: any = nodeOwner.propertyOwner;
@@ -578,7 +578,7 @@ export class Animator extends Component {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _setClipDatasToNode(stateInfo: AnimatorState, additive: boolean, weight: number, isFirstLayer: boolean): void {
 		var nodes: KeyframeNodeList = stateInfo._clip._nodes;
@@ -627,7 +627,7 @@ export class Animator extends Component {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _setCrossClipDatasToNode(controllerLayer: AnimatorControllerLayer, srcState: AnimatorState, destState: AnimatorState, crossWeight: number, isFirstLayer: boolean): void {
 		//TODO:srcNodes、destNodes未使用
@@ -656,7 +656,7 @@ export class Animator extends Component {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _setFixedCrossClipDatasToNode(controllerLayer: AnimatorControllerLayer, destState: AnimatorState, crossWeight: number, isFirstLayer: boolean): void {
 		var nodeOwners: KeyframeNodeOwner[] = controllerLayer._crossNodesOwners;
@@ -678,7 +678,7 @@ export class Animator extends Component {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _revertDefaultKeyframeNodes(clipStateInfo: AnimatorState): void {
 		var nodeOwners: KeyframeNodeOwner[] = clipStateInfo._nodeOwners;
@@ -784,7 +784,7 @@ export class Animator extends Component {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_handleSpriteOwnersBySprite(isLink: boolean, path: string[], sprite: Sprite3D): void {
 		for (var i: number = 0, n: number = this._controllerLayers.length; i < n; i++) {
@@ -859,7 +859,7 @@ export class Animator extends Component {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_update(): void {
 		if (this._speed === 0)
@@ -974,7 +974,7 @@ export class Animator extends Component {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * @override
 	 */
 	_cloneTo(dest: Component): void {
@@ -1236,7 +1236,7 @@ export class Animator extends Component {
 
 	//-----------------------------------------------------------------------------------------------------------------------------------------------------------
 
-	/**@private */
+	/**@internal */
 	private _avatar: Avatar;//[兼容性API]
 
 	/**
@@ -1265,7 +1265,7 @@ export class Animator extends Component {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _getAvatarOwnersAndInitDatasAsync(): void {//[兼容性API]
 		for (var i: number = 0, n: number = this._controllerLayers.length; i < n; i++) {
@@ -1285,7 +1285,7 @@ export class Animator extends Component {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _isLinkSpriteToAnimationNode(sprite: Sprite3D, nodeName: string, isLink: boolean): void {//[兼容性API]
 		if (this._avatar) {
@@ -1320,7 +1320,7 @@ export class Animator extends Component {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _isLinkSpriteToAnimationNodeData(sprite: Sprite3D, nodeName: string, isLink: boolean): void {//[兼容性API]
 		var linkSprites: any[] = this._linkAvatarSpritesData[nodeName];//存储挂点数据
@@ -1334,7 +1334,7 @@ export class Animator extends Component {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	_updateAvatarNodesToSprite(): void {
 		for (var i: number = 0, n: number = this._linkAvatarSprites.length; i < n; i++) {
@@ -1385,7 +1385,7 @@ export class Animator extends Component {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 * [NATIVE]
 	 */
 	_updateAnimationNodeWorldMatix(localPositions: Float32Array, localRotations: Float32Array, localScales: Float32Array, worldMatrixs: Float32Array, parentIndices: Int16Array): void {

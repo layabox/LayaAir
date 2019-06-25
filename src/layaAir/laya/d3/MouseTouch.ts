@@ -1,18 +1,18 @@
 import { Sprite3D } from "./core/Sprite3D"
 
 /**
- * @private
+ * @internal
  */
 export class MouseTouch {
-	/**@private */
+	/**@internal */
 	_pressedSprite: Sprite3D = null;
-	/**@private */
+	/**@internal */
 	_pressedLoopCount: number = -1;
-	/**@private */
+	/**@internal */
 	sprite: Sprite3D = null;
-	/**@private */
+	/**@internal */
 	mousePositionX: number = 0;
-	/**@private */
+	/**@internal */
 	mousePositionY: number = 0;
 
 	constructor() {

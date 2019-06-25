@@ -12,7 +12,7 @@ export class PostProcessEffect {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	render(context: PostProcessRenderContext): void {
 

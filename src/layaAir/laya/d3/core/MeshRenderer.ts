@@ -25,9 +25,9 @@ import { Render } from "../../renders/Render";
  * <code>MeshRenderer</code> 类用于网格渲染器。
  */
 export class MeshRenderer extends BaseRender {
-	/** @private */
+	/** @internal */
 	protected _oriDefineValue: number;
-	/** @private */
+	/** @internal */
 	protected _projectionViewWorldMatrix: Matrix4x4;
 
 	/**
@@ -39,14 +39,14 @@ export class MeshRenderer extends BaseRender {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_createRenderElement(): RenderElement {
 		return new SubMeshRenderElement();
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_onMeshChange(mesh: Mesh): void {
 		if (mesh) {
@@ -205,7 +205,7 @@ export class MeshRenderer extends BaseRender {
 	}
 
 		/**
-		 * @private
+		 * @internal
 		 */
 		/*override*/  _revertBatchRenderUpdate(context: RenderContext3D): void {
 		var element: SubMeshRenderElement = (<SubMeshRenderElement>context.renderElement);

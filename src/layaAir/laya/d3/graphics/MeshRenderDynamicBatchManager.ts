@@ -8,21 +8,21 @@ import { RenderElement } from "../core/render/RenderElement"
 import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement"
 
 /**
- * @private
+ * @internal
  * <code>MeshSprite3DDynamicBatchManager</code> 类用于网格精灵动态批处理管理。
  */
 export class MeshRenderDynamicBatchManager extends DynamicBatchManager {
-	/** @private */
+	/** @internal */
 	static instance: MeshRenderDynamicBatchManager = new MeshRenderDynamicBatchManager();
 
-	/**@private */
+	/**@internal */
 	private _instanceBatchOpaqueMarks: any[] = [];
-	/**@private */
+	/**@internal */
 	private _vertexBatchOpaqueMarks: any[] = [];
 
-	/**@private */
+	/**@internal */
 	private _cacheBufferStates: BufferState[] = [];
-	/**@private [只读]*/
+	/**@internal [只读]*/
 	_updateCountMark: number;
 
 	/**
@@ -34,7 +34,7 @@ export class MeshRenderDynamicBatchManager extends DynamicBatchManager {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	getInstanceBatchOpaquaMark(receiveShadow: boolean, materialID: number, subMeshID: number,invertFace:boolean): BatchMark {
 		var instanceReceiveShadowMarks: any[] = (this._instanceBatchOpaqueMarks[receiveShadow ? 0 : 1]) || (this._instanceBatchOpaqueMarks[receiveShadow ? 0 : 1] = []);
@@ -44,7 +44,7 @@ export class MeshRenderDynamicBatchManager extends DynamicBatchManager {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	getVertexBatchOpaquaMark(lightMapIndex: number, receiveShadow: boolean, materialID: number, verDecID: number): BatchMark {
 		var dynLightMapMarks: any[] = (this._vertexBatchOpaqueMarks[lightMapIndex]) || (this._vertexBatchOpaqueMarks[lightMapIndex] = []);
@@ -54,7 +54,7 @@ export class MeshRenderDynamicBatchManager extends DynamicBatchManager {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_getBufferState(vertexDeclaration: VertexDeclaration): BufferState {
 		var bufferState: BufferState = this._cacheBufferStates[vertexDeclaration.id];

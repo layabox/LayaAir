@@ -54,20 +54,20 @@ export class GradientColor implements IClone {
 		return gradientColor;
 	}
 
-	/**@private */
+	/**@internal */
 	private _type: number = 0;
 
-	/**@private */
+	/**@internal */
 	private _constant: Vector4 = null;
-	/**@private */
+	/**@internal */
 	private _constantMin: Vector4 = null;
-	/**@private */
+	/**@internal */
 	private _constantMax: Vector4 = null;
-	/**@private */
+	/**@internal */
 	private _gradient: Gradient = null;
-	/**@private */
+	/**@internal */
 	private _gradientMin: Gradient = null;
-	/**@private */
+	/**@internal */
 	private _gradientMax: Gradient = null;
 
 	/**

@@ -5,21 +5,21 @@ import { PhysicsComponent } from "./PhysicsComponent"
 	 * <code>Collision</code> 类用于创建物理碰撞信息。
 	 */
 	export class Collision {
-		/**@private */
+		/**@internal */
 		 _lastUpdateFrame:number = -2147483648/*int.MIN_VALUE*/;
-		/**@private */
+		/**@internal */
 		 _updateFrame:number = -2147483648/*int.MIN_VALUE*/;
-		/**@private */
+		/**@internal */
 		 _isTrigger:boolean = false;
 		
-		/**@private */
+		/**@internal */
 		 _colliderA:PhysicsComponent;
-		/**@private */
+		/**@internal */
 		 _colliderB:PhysicsComponent;
 		
-		/**@private [只读]*/
+		/**@internal [只读]*/
 		 contacts:ContactPoint[] = [];
-		/**@private [只读]*/
+		/**@internal [只读]*/
 		 other:PhysicsComponent;
 		
 		/**
@@ -30,7 +30,7 @@ import { PhysicsComponent } from "./PhysicsComponent"
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 _setUpdateFrame(farme:number):void {
 			this._lastUpdateFrame = this._updateFrame;//TODO:为啥整两个

@@ -10,19 +10,19 @@ import { ILaya3D } from "../../../../ILaya3D";
  * <code>SpotLight</code> 类用于创建聚光。
  */
 export class SpotLight extends LightSprite {
-	/** @private */
+	/** @internal */
 	private static _tempMatrix0: Matrix4x4 = new Matrix4x4();
-	/** @private */
+	/** @internal */
 	private static _tempMatrix1: Matrix4x4 = new Matrix4x4();
 
-	/** @private */
+	/** @internal */
 	private _direction: Vector3;
-	/** @private */
+	/** @internal */
 	private _spotAngle: number;
-	/** @private */
+	/** @internal */
 	private _range: number;
 
-	/** @private */
+	/** @internal */
 	//private var _tempMatrix:Matrix4x4 = new Matrix4x4();
 
 	/**

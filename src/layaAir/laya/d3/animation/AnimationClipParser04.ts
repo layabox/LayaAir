@@ -15,24 +15,24 @@ import { Byte } from "../../utils/Byte";
 import { Render } from "../../renders/Render";
 
 /**
- * @private
+ * @internal
  */
 export class AnimationClipParser04 {
-	/**@private */
+	/**@internal */
 	private static _animationClip: AnimationClip;
-	/**@private */
+	/**@internal */
 	private static _reader: Byte;
-	/**@private */
+	/**@internal */
 	private static _strings: any[] = [];
-	/**@private */
+	/**@internal */
 	private static _BLOCK: any = { count: 0 };
-	/**@private */
+	/**@internal */
 	private static _DATA: any = { offset: 0, size: 0 };
-	/**@private */
+	/**@internal */
 	private static _version: string;
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private static READ_DATA(): void {
 		AnimationClipParser04._DATA.offset = AnimationClipParser04._reader.getUint32();
@@ -40,7 +40,7 @@ export class AnimationClipParser04 {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private static READ_BLOCK(): void {
 		var count: number = AnimationClipParser04._BLOCK.count = AnimationClipParser04._reader.getUint16();
@@ -53,7 +53,7 @@ export class AnimationClipParser04 {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private static READ_STRINGS(): void {
 		var offset: number = AnimationClipParser04._reader.getUint32();
@@ -67,7 +67,7 @@ export class AnimationClipParser04 {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static parse(clip: AnimationClip, reader: Byte, version: string): void {
 		AnimationClipParser04._animationClip = clip;
@@ -91,7 +91,7 @@ export class AnimationClipParser04 {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static READ_ANIMATIONS(): void {
 		var i: number, j: number;

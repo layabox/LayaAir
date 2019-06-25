@@ -10,13 +10,13 @@ import { IReferenceCounter } from "../resource/IReferenceCounter"
 export class AnimatorState implements IReferenceCounter, IClone {
 	private _referenceCount: number = 0;
 
-	/**@private */
+	/**@internal */
 	_clip: AnimationClip = null;
-	/**@private */
+	/**@internal */
 	_nodeOwners: KeyframeNodeOwner[] = [];//TODO:提出去
-	/**@private */
+	/**@internal */
 	_currentFrameIndices: Int16Array = null;
-	/**@private */
+	/**@internal */
 	_scripts: AnimatorStateScript[] = null;
 
 	/**名称。*/
@@ -61,7 +61,7 @@ export class AnimatorState implements IReferenceCounter, IClone {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * [实现IReferenceCounter接口]
 	 */
 	_getReferenceCount(): number {
@@ -69,7 +69,7 @@ export class AnimatorState implements IReferenceCounter, IClone {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * [实现IReferenceCounter接口]
 	 */
 	_addReference(count: number = 1): void {
@@ -78,7 +78,7 @@ export class AnimatorState implements IReferenceCounter, IClone {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * [实现IReferenceCounter接口]
 	 */
 	_removeReference(count: number = 1): void {
@@ -87,7 +87,7 @@ export class AnimatorState implements IReferenceCounter, IClone {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * [实现IReferenceCounter接口]
 	 */
 	_clearReference(): void {
@@ -95,7 +95,7 @@ export class AnimatorState implements IReferenceCounter, IClone {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_resetFrameIndices(): void {
 		for (var i: number = 0, n: number = this._currentFrameIndices.length; i < n; i++)

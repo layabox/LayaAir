@@ -10,7 +10,7 @@ import { ILaya3D } from "../../../../ILaya3D";
  * <code>DirectionLight</code> 类用于创建平行光。
  */
 export class DirectionLight extends LightSprite {
-	/** @private */
+	/** @internal */
 	private _direction: Vector3;
 
 		/**
@@ -32,7 +32,7 @@ export class DirectionLight extends LightSprite {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _initShadow(): void {
 		if (this._shadow) {

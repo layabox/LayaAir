@@ -5,21 +5,21 @@ import { ColliderShape } from "././ColliderShape";
  * <code>CylinderColliderShape</code> 类用于创建圆柱碰撞器。
  */
 export class CylinderColliderShape extends ColliderShape {
-	/** @private */
+	/** @internal */
 	private static _nativeSize: any;
 
 	/**
-* @private
+* @internal
 */
 	static __init__(): void {
 		CylinderColliderShape._nativeSize = new Physics._physics3D.btVector3(0, 0, 0);
 	}
 
-	/**@private */
+	/**@internal */
 	private _orientation: number;
-	/**@private */
+	/**@internal */
 	private _radius: number = 1;
-	/**@private */
+	/**@internal */
 	private _height: number = 0.5;
 
 	/**

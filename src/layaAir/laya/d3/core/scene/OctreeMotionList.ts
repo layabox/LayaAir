@@ -15,7 +15,7 @@ export class OctreeMotionList extends SingletonList {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	add(element: IOctreeObject): void {
 		var index: number = element._getIndexInMotionList();
@@ -26,7 +26,7 @@ export class OctreeMotionList extends SingletonList {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	remove(element: IOctreeObject): void {
 		var index: number = element._getIndexInMotionList();

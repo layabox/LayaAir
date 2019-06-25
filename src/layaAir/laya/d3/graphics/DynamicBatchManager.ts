@@ -1,23 +1,23 @@
 import { RenderElement } from "../core/render/RenderElement";
 
 /**
- * @private
+ * @internal
  * <code>DynamicBatchManager</code> 类用于管理动态批处理。
  */
 export class DynamicBatchManager {
-	/** @private [只读]*/
+	/** @internal [只读]*/
 	static _managers: DynamicBatchManager[] = [];
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static _registerManager(manager: DynamicBatchManager): void {
 		DynamicBatchManager._managers.push(manager);
 	}
 
-	/** @private */
+	/** @internal */
 	protected _batchRenderElementPool: RenderElement[];
-	/** @private */
+	/** @internal */
 	protected _batchRenderElementPoolIndex: number;
 
 	/**
@@ -28,21 +28,21 @@ export class DynamicBatchManager {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_clear(): void {
 		this._batchRenderElementPoolIndex = 0;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_getBatchRenderElementFromPool(): RenderElement {
 		throw "StaticBatch:must override this function.";
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	dispose(): void {
 	}

@@ -7,9 +7,9 @@ import { Vector2 } from "../../../math/Vector2"
  * <code>TextureSheetAnimation</code> 类用于创建粒子帧动画。
  */
 export class TextureSheetAnimation implements IClone {
-	/**@private */
+	/**@internal */
 	private _frame: FrameOverTime;
-	/**@private */
+	/**@internal */
 	private _startFrame: StartFrame;
 
 	/**纹理平铺。*/

@@ -12,13 +12,13 @@ import { Buffer } from "../../webgl/utils/Buffer"
 		/** 16位ushort无符号索引类型。*/
 		 static INDEXTYPE_USHORT:string = "ushort";
 		
-		/** @private */
+		/** @internal */
 		private _indexType:string;
-		/** @private */
+		/** @internal */
 		private _indexTypeByteCount:number;
-		/** @private */
+		/** @internal */
 		private _indexCount:number;
-		/** @private */
+		/** @internal */
 		private _canRead:boolean;
 		
 		/**

@@ -9,7 +9,7 @@ import { ShaderInstance } from "../../shader/ShaderInstance"
  * <code>RenderContext3D</code> 类用于实现渲染状态。
  */
 export class RenderContext3D {
-	/** @private */
+	/** @internal */
 	static _instance: RenderContext3D = new RenderContext3D();
 
 	/**渲染区宽度。*/
@@ -17,27 +17,27 @@ export class RenderContext3D {
 	/**渲染区高度。*/
 	static clientHeight: number;
 
-	/** @private */
+	/** @internal */
 	_batchIndexStart: number;
-	/** @private */
+	/** @internal */
 	_batchIndexEnd: number;
 
-	/** @private */
+	/** @internal */
 	viewMatrix: Matrix4x4;
-	/** @private */
+	/** @internal */
 	projectionMatrix: Matrix4x4;
-	/** @private */
+	/** @internal */
 	projectionViewMatrix: Matrix4x4;
-	/** @private */
+	/** @internal */
 	viewport: Viewport;
 
-	/** @private */
+	/** @internal */
 	scene: Scene3D;
-	/** @private */
+	/** @internal */
 	camera: BaseCamera;
-	/** @private */
+	/** @internal */
 	renderElement: RenderElement;
-	/** @private */
+	/** @internal */
 	shader: ShaderInstance;
 
 	/**

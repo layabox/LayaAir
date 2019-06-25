@@ -104,44 +104,44 @@ export class GradientSize implements IClone {
 		return gradientSize;
 	}
 
-	/**@private */
+	/**@internal */
 	private _type: number = 0;
-	/**@private */
+	/**@internal */
 	private _separateAxes: boolean = false;
 
-	/**@private */
+	/**@internal */
 	private _gradient: GradientDataNumber = null;
-	/**@private */
+	/**@internal */
 	private _gradientX: GradientDataNumber = null;
-	/**@private */
+	/**@internal */
 	private _gradientY: GradientDataNumber = null;
-	/**@private */
+	/**@internal */
 	private _gradientZ: GradientDataNumber = null;
 
-	/**@private */
+	/**@internal */
 	private _constantMin: number = 0;
-	/**@private */
+	/**@internal */
 	private _constantMax: number = 0;
-	/**@private */
+	/**@internal */
 	private _constantMinSeparate: Vector3 = null;
-	/**@private */
+	/**@internal */
 	private _constantMaxSeparate: Vector3 = null;
 
-	/**@private */
+	/**@internal */
 	private _gradientMin: GradientDataNumber = null;
-	/**@private */
+	/**@internal */
 	private _gradientMax: GradientDataNumber = null;
-	/**@private */
+	/**@internal */
 	private _gradientXMin: GradientDataNumber = null;
-	/**@private */
+	/**@internal */
 	private _gradientXMax: GradientDataNumber = null;
-	/**@private */
+	/**@internal */
 	private _gradientYMin: GradientDataNumber = null;
-	/**@private */
+	/**@internal */
 	private _gradientYMax: GradientDataNumber = null;
-	/**@private */
+	/**@internal */
 	private _gradientZMin: GradientDataNumber = null;
-	/**@private */
+	/**@internal */
 	private _gradientZMax: GradientDataNumber = null;
 
 	/**

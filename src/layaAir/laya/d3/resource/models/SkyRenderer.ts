@@ -14,9 +14,9 @@ import { WebGLContext } from "../../../webgl/WebGLContext"
 	 * <code>SkyRenderer</code> 类用于实现天空渲染器。
 	 */
 	export class SkyRenderer {
-		/** @private */
+		/** @internal */
 		private _material:BaseMaterial;
-		/** @private */
+		/** @internal */
 		private _mesh:SkyMesh = SkyBox.instance;
 		
 		/**
@@ -66,7 +66,7 @@ import { WebGLContext } from "../../../webgl/WebGLContext"
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 * 是否可用。
 		 */
 		 _isAvailable():boolean {
@@ -74,7 +74,7 @@ import { WebGLContext } from "../../../webgl/WebGLContext"
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 _render(state:RenderContext3D):void {
 			if (this._material && this._mesh) {
@@ -115,7 +115,7 @@ import { WebGLContext } from "../../../webgl/WebGLContext"
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 destroy():void {
 			if (this._material) {

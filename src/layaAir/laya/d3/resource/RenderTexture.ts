@@ -8,9 +8,9 @@ import { WebGLContext } from "../../webgl/WebGLContext";
 	   //* <code>RenderTexture</code> 类用于创建渲染目标。
 	 */
 	export class RenderTexture extends BaseTexture {
-		/** @private */
+		/** @internal */
 		private static _pool:any[] = [];
-		/** @private */
+		/** @internal */
 		private static _currentActive:RenderTexture;
 		
 		/**
@@ -51,13 +51,13 @@ import { WebGLContext } from "../../webgl/WebGLContext";
 			renderTexture._inPool = true;
 		}
 		
-		/** @private */
+		/** @internal */
 		private _frameBuffer:any;
-		/** @private */
+		/** @internal */
 		private _depthStencilBuffer:any;
-		/** @private */
+		/** @internal */
 		private _depthStencilFormat:number;
-		/** @private */
+		/** @internal */
 		private _inPool:boolean = false;
 		
 		/**
@@ -93,7 +93,7 @@ import { WebGLContext } from "../../webgl/WebGLContext";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private _texImage2D(gl:any, glTextureType:number, width:number, height:number):void {
 			var glFormat:number;
@@ -119,7 +119,7 @@ import { WebGLContext } from "../../webgl/WebGLContext";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private _create(width:number, height:number):void {
 			var gl:WebGLContext = LayaGL.instance;
@@ -165,7 +165,7 @@ import { WebGLContext } from "../../webgl/WebGLContext";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 _start():void {
 			LayaGL.instance.bindFramebuffer(WebGLContext.FRAMEBUFFER, this._frameBuffer);
@@ -174,7 +174,7 @@ import { WebGLContext } from "../../webgl/WebGLContext";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 _end():void {
 			LayaGL.instance.bindFramebuffer(WebGLContext.FRAMEBUFFER, null);

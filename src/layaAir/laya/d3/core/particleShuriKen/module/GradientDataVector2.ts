@@ -6,7 +6,7 @@ import { Vector2 } from "../../../math/Vector2"
  */
 export class GradientDataVector2 implements IClone {
 	private _currentLength: number = 0;
-	/**@private 开发者禁止修改。*/
+	/**@internal 开发者禁止修改。*/
 	_elements: Float32Array;
 
 	/**二维向量渐变数量。*/

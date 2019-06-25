@@ -14,40 +14,40 @@ import { WebGLContext } from "../../../webgl/WebGLContext"
 	 * <code>SubMesh</code> 类用于创建子网格数据模板。
 	 */
 	export class SubMesh extends GeometryElement {
-		/** @private */
+		/** @internal */
 		private static _uniqueIDCounter:number = 0;
-		/**@private */
+		/**@internal */
 		private static _type:number = GeometryElement._typeCounter++;
 		
-		/** @private */
+		/** @internal */
 		 _mesh:Mesh;
 		
-		/** @private */
+		/** @internal */
 		 _boneIndicesList:Uint16Array[];
-		/** @private */
+		/** @internal */
 		 _subIndexBufferStart:number[];
-		/** @private */
+		/** @internal */
 		 _subIndexBufferCount:number[];
-		/** @private */
+		/** @internal */
 		 _skinAnimationDatas:Float32Array[];
 		
-		/** @private */
+		/** @internal */
 		 _indexInMesh:number;
 		
-		/** @private */
+		/** @internal */
 		 _vertexStart:number;
-		/** @private */
+		/** @internal */
 		 _indexStart:number;
-		/** @private */
+		/** @internal */
 		 _indexCount:number;
-		/** @private */
+		/** @internal */
 		 _indices:Uint16Array;
-		/**@private [只读]*/
+		/**@internal [只读]*/
 		 _vertexBuffer:VertexBuffer3D;
-		/**@private [只读]*/
+		/**@internal [只读]*/
 		 _indexBuffer:IndexBuffer3D;
 		
-		/** @private */
+		/** @internal */
 		 _id:number;
 		
 		/**
@@ -91,7 +91,7 @@ this._id = ++SubMesh._uniqueIDCounter;
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 getIndices():Uint16Array {
 			return this._indices;

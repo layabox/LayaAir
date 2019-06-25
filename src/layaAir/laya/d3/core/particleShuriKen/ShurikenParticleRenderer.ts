@@ -21,13 +21,13 @@ import { ShuriKenParticle3DShaderDeclaration } from "./ShuriKenParticle3DShaderD
  * <code>ShurikenParticleRender</code> 类用于创建3D粒子渲染器。
  */
 export class ShurikenParticleRenderer extends BaseRender {
-	/** @private */
+	/** @internal */
 	private _finalGravity: Vector3 = new Vector3();
 
-	/** @private */
+	/** @internal */
 	private _tempRotationMatrix: Matrix4x4 = new Matrix4x4();
 
-	/**@private */
+	/**@internal */
 	private _defaultBoundBox: BoundBox;
 
 	///**排序模式,无。*/
@@ -39,9 +39,9 @@ export class ShurikenParticleRenderer extends BaseRender {
 	///**排序模式,年轻的在前绘制,暂不支持*/
 	//public const SORTINGMODE_YOUNGESTINFRONT:int = 3;
 
-	/**@private */
+	/**@internal */
 	private _renderMode: number = 0;
-	/**@private */
+	/**@internal */
 	private _mesh: Mesh = null;
 
 	/**拉伸广告牌模式摄像机速度缩放,暂不支持。*/

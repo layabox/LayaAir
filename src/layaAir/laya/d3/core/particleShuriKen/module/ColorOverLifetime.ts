@@ -3,7 +3,7 @@ import { GradientColor } from "././GradientColor";
  * <code>ColorOverLifetime</code> 类用于粒子的生命周期颜色。
  */
 export class ColorOverLifetime {
-	/**@private */
+	/**@internal */
 	private _color: GradientColor;
 
 	/**是否启用。*/

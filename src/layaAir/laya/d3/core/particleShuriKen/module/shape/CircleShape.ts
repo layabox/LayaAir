@@ -9,7 +9,7 @@ import { Vector3 } from "../../../../math/Vector3"
  * <code>CircleShape</code> 类用于创建环形粒子形状。
  */
 export class CircleShape extends BaseShape {
-	/** @private */
+	/** @internal */
 	protected static _tempPositionPoint: Vector2 = new Vector2();
 
 	/**发射器半径。*/

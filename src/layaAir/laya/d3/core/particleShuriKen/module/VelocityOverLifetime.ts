@@ -6,7 +6,7 @@ import { Vector3 } from "../../../math/Vector3"
  * <code>VelocityOverLifetime</code> 类用于粒子的生命周期速度。
  */
 export class VelocityOverLifetime implements IClone {
-	/**@private */
+	/**@internal */
 	private _velocity: GradientVelocity;
 
 	/**是否启用*/

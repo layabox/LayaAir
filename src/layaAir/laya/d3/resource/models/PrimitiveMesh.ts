@@ -14,7 +14,7 @@ import { SubMesh } from "././SubMesh";
 export class PrimitiveMesh {
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static _createMesh(vertexDeclaration: VertexDeclaration, vertices: Float32Array, indices: Uint16Array): Mesh {
 		var mesh: Mesh = new Mesh();

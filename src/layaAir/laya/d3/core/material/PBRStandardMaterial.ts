@@ -68,11 +68,11 @@ export class PBRStandardMaterial extends BaseMaterial {
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: PBRStandardMaterial;
 
-	/**@private */
+	/**@internal */
 	static shaderDefines: ShaderDefines = null;
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static __initDefine__(): void {
 		PBRStandardMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
@@ -89,20 +89,20 @@ export class PBRStandardMaterial extends BaseMaterial {
 		PBRStandardMaterial.SHADERDEFINE_ALPHAPREMULTIPLY = PBRStandardMaterial.shaderDefines.registerDefine("ALPHAPREMULTIPLY");
 	}
 
-	/**@private */
+	/**@internal */
 	private _albedoColor: Vector4;
-	/**@private */
+	/**@internal */
 	private _emissionColor: Vector4;
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _ColorR(): number {
 		return this._albedoColor.x;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _ColorR(value: number) {
 		this._albedoColor.x = value;
@@ -110,14 +110,14 @@ export class PBRStandardMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _ColorG(): number {
 		return this._albedoColor.y;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _ColorG(value: number) {
 		this._albedoColor.y = value;
@@ -125,14 +125,14 @@ export class PBRStandardMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _ColorB(): number {
 		return this._albedoColor.z;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _ColorB(value: number) {
 		this._albedoColor.z = value;
@@ -140,14 +140,14 @@ export class PBRStandardMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _ColorA(): number {
 		return this._albedoColor.w;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _ColorA(value: number) {
 		this._albedoColor.w = value;
@@ -155,94 +155,94 @@ export class PBRStandardMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _Metallic(): number {
 		return this._shaderValues.getNumber(PBRStandardMaterial.METALLIC);
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _Metallic(value: number) {
 		this._shaderValues.setNumber(PBRStandardMaterial.METALLIC, value);
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _Glossiness(): number {
 		return this._shaderValues.getNumber(PBRStandardMaterial.SMOOTHNESS);
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _Glossiness(value: number) {
 		this._shaderValues.setNumber(PBRStandardMaterial.SMOOTHNESS, value);
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _GlossMapScale(): number {
 		return this._shaderValues.getNumber(PBRStandardMaterial.SMOOTHNESSSCALE);
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _GlossMapScale(value: number) {
 		this._shaderValues.setNumber(PBRStandardMaterial.SMOOTHNESSSCALE, value);
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _BumpScale(): number {
 		return this._shaderValues.getNumber(PBRStandardMaterial.NORMALSCALE);
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _BumpScale(value: number) {
 		this._shaderValues.setNumber(PBRStandardMaterial.NORMALSCALE, value);
 	}
 
-	/**@private */
+	/**@internal */
 	get _Parallax(): number {
 		return this._shaderValues.getNumber(PBRStandardMaterial.PARALLAXSCALE);
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _Parallax(value: number) {
 		this._shaderValues.setNumber(PBRStandardMaterial.PARALLAXSCALE, value);
 	}
 
-	/**@private */
+	/**@internal */
 	get _OcclusionStrength(): number {
 		return this._shaderValues.getNumber(PBRStandardMaterial.OCCLUSIONSTRENGTH);
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _OcclusionStrength(value: number) {
 		this._shaderValues.setNumber(PBRStandardMaterial.OCCLUSIONSTRENGTH, value);
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _EmissionColorR(): number {
 		return this._emissionColor.x;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _EmissionColorR(value: number) {
 		this._emissionColor.x = value;
@@ -250,14 +250,14 @@ export class PBRStandardMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _EmissionColorG(): number {
 		return this._emissionColor.y;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _EmissionColorG(value: number) {
 		this._emissionColor.y = value;
@@ -265,14 +265,14 @@ export class PBRStandardMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _EmissionColorB(): number {
 		return this._emissionColor.z;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _EmissionColorB(value: number) {
 		this._emissionColor.z = value;
@@ -280,14 +280,14 @@ export class PBRStandardMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _EmissionColorA(): number {
 		return this._emissionColor.w;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _EmissionColorA(value: number) {
 		this._emissionColor.w = value;
@@ -295,14 +295,14 @@ export class PBRStandardMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _MainTex_STX(): number {
 		return this._shaderValues.getVector(PBRStandardMaterial.TILINGOFFSET).x;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _MainTex_STX(x: number) {
 		var tilOff: Vector4 = (<Vector4>this._shaderValues.getVector(PBRStandardMaterial.TILINGOFFSET));
@@ -311,14 +311,14 @@ export class PBRStandardMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _MainTex_STY(): number {
 		return this._shaderValues.getVector(PBRStandardMaterial.TILINGOFFSET).y;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _MainTex_STY(y: number) {
 		var tilOff: Vector4 = (<Vector4>this._shaderValues.getVector(PBRStandardMaterial.TILINGOFFSET));
@@ -327,14 +327,14 @@ export class PBRStandardMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _MainTex_STZ(): number {
 		return this._shaderValues.getVector(PBRStandardMaterial.TILINGOFFSET).z;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _MainTex_STZ(z: number) {
 		var tilOff: Vector4 = (<Vector4>this._shaderValues.getVector(PBRStandardMaterial.TILINGOFFSET));
@@ -343,14 +343,14 @@ export class PBRStandardMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _MainTex_STW(): number {
 		return this._shaderValues.getVector(PBRStandardMaterial.TILINGOFFSET).w;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _MainTex_STW(w: number) {
 		var tilOff: Vector4 = (<Vector4>this._shaderValues.getVector(PBRStandardMaterial.TILINGOFFSET));
@@ -359,14 +359,14 @@ export class PBRStandardMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	get _Cutoff(): number {
 		return this.alphaTestValue;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	set _Cutoff(value: number) {
 		this.alphaTestValue = value;

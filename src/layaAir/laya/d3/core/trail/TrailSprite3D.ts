@@ -16,17 +16,17 @@ export class TrailSprite3D extends RenderableSprite3D {
 
 
 
-	/**@private */
+	/**@internal */
 	static shaderDefines: ShaderDefines;
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static __init__(): void {
 		TrailSprite3D.shaderDefines = new ShaderDefines(RenderableSprite3D.shaderDefines);
 	}
 
-	/** @private */
+	/** @internal */
 	private _geometryFilter: TrailFilter;
 
 	/**
@@ -156,7 +156,7 @@ export class TrailSprite3D extends RenderableSprite3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	protected _create(): Node {
 		return new TrailSprite3D();

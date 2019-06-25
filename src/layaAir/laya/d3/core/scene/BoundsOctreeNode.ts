@@ -21,44 +21,44 @@ import { Shader3D } from "../../shader/Shader3D";
  * <code>BoundsOctreeNode</code> 类用于创建八叉树节点。
  */
 export class BoundsOctreeNode {
-	/**@private */
+	/**@internal */
 	private static _tempVector3: Vector3 = new Vector3();
-	/**@private */
+	/**@internal */
 	private static _tempVector30: Vector3 = new Vector3();
-	/**@private */
+	/**@internal */
 	private static _tempVector31: Vector3 = new Vector3();
-	/**@private */
+	/**@internal */
 	private static _tempColor0: Color = new Color();
-	/**@private */
+	/**@internal */
 	private static _tempBoundBox: BoundBox = new BoundBox(new Vector3(), new Vector3());
 
-	/**@private */
+	/**@internal */
 	private static _NUM_OBJECTS_ALLOWED: number = 8;
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private static _encapsulates(outerBound: BoundBox, innerBound: BoundBox): boolean {
 		return CollisionUtils.boxContainsBox(outerBound, innerBound) == ContainmentType.Contains;
 	}
 
-	/**@private */
+	/**@internal */
 	_octree: BoundsOctree;
-	/**@private */
+	/**@internal */
 	_parent: BoundsOctreeNode;
-	/**@private AABB包围盒*/
+	/**@internal AABB包围盒*/
 	private _bounds: BoundBox = new BoundBox(new Vector3(), new Vector3());
-	/**@private */
+	/**@internal */
 	private _objects: IOctreeObject[] = [];
 
-	/**@private */
+	/**@internal */
 	_children: BoundsOctreeNode[];
-	/**@private [Debug]*/
+	/**@internal [Debug]*/
 	_isContaion: boolean = false;
 
-	/**@private	[只读]*/
+	/**@internal	[只读]*/
 	center: Vector3 = new Vector3();
-	/**@private	[只读]*/
+	/**@internal	[只读]*/
 	baseLength: number = 0.0;
 
 	/**
@@ -73,7 +73,7 @@ export class BoundsOctreeNode {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _setValues(octree: BoundsOctree, parent: BoundsOctreeNode, baseLength: number, center: Vector3): void {
 		this._octree = octree;
@@ -88,7 +88,7 @@ export class BoundsOctreeNode {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _getChildBound(index: number): BoundBox {
 		if (this._children != null && this._children[index]) {
@@ -171,7 +171,7 @@ export class BoundsOctreeNode {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _getChildCenter(index: number): Vector3 {
 		if (this._children != null) {
@@ -227,7 +227,7 @@ export class BoundsOctreeNode {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _getChild(index: number): BoundsOctreeNode {
 		var quarter: number = this.baseLength / 4;
@@ -255,7 +255,7 @@ export class BoundsOctreeNode {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * 是否合并判断(如果该节点和子节点包含的物体小于_NUM_OBJECTS_ALLOWED则应将子节点合并到该节点)
 	 */
 	private _shouldMerge(): boolean {//无子节点不能调用该函数
@@ -272,7 +272,7 @@ export class BoundsOctreeNode {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _mergeChildren(): void {
 		for (var i: number = 0; i < 8; i++) {
@@ -292,7 +292,7 @@ export class BoundsOctreeNode {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _merge(): void {
 		if (this._children === null) {
@@ -305,7 +305,7 @@ export class BoundsOctreeNode {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _checkAddNode(object: IOctreeObject): BoundsOctreeNode {
 		//始终将物体放入可能的最深层子节点，如果有子节点可以跳过检查
@@ -333,7 +333,7 @@ export class BoundsOctreeNode {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _add(object: IOctreeObject): void {
 		var addNode: BoundsOctreeNode = this._checkAddNode(object);
@@ -342,7 +342,7 @@ export class BoundsOctreeNode {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _remove(object: IOctreeObject): void {
 		var index: number = this._objects.indexOf(object);
@@ -352,7 +352,7 @@ export class BoundsOctreeNode {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _addUp(object: IOctreeObject): boolean {
 		if ((CollisionUtils.boxContainsBox(this._bounds, object.bounds._getBoundBox()) === ContainmentType.Contains)) {
@@ -367,7 +367,7 @@ export class BoundsOctreeNode {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _getCollidingWithFrustum(context: RenderContext3D, frustum: BoundFrustum, testVisible: boolean, camPos: Vector3, customShader: Shader3D, replacementTag: string): void {
 		//if (_children === null && _objects.length == 0) {//无用末级节不需要检查，调试用
@@ -415,7 +415,7 @@ export class BoundsOctreeNode {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _getCollidingWithBoundBox(checkBound: BoundBox, testVisible: boolean, result: any[]): void {
 		//if (_children === null && _objects.length == 0){//无用末级节不需要检查，调试用
@@ -451,14 +451,14 @@ export class BoundsOctreeNode {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_bestFitChild(boundCenter: Vector3): number {
 		return (boundCenter.x <= this.center.x ? 0 : 1) + (boundCenter.y >= this.center.y ? 0 : 4) + (boundCenter.z <= this.center.z ? 0 : 2);
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * @return 是否需要扩充根节点
 	 */
 	_update(object: IOctreeObject): boolean {
@@ -712,7 +712,7 @@ export class BoundsOctreeNode {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * [Debug]
 	 */
 	drawAllBounds(debugLine: PixelLineSprite3D, currentDepth: number, maxDepth: number): void {
@@ -742,7 +742,7 @@ export class BoundsOctreeNode {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * [Debug]
 	 */
 	drawAllObjects(debugLine: PixelLineSprite3D, currentDepth: number, maxDepth: number): void {

@@ -17,12 +17,12 @@ import { Vector4 } from "../../math/Vector4"
 import { MathUtil } from "../../../maths/MathUtil"
 
 /**
- *  @private
+ *  @internal
  */
 export class ShurikenParticleData {
-	/**@private */
+	/**@internal */
 	private static _tempVector30: Vector3 = new Vector3();
-	/**@private */
+	/**@internal */
 	private static _tempQuaternion: Quaternion = new Quaternion();
 
 	static startLifeTime: number;
@@ -38,7 +38,7 @@ export class ShurikenParticleData {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private static _getStartLifetimeFromGradient(startLifeTimeGradient: GradientDataNumber, emissionTime: number): number {
 		for (var i: number = 1, n: number = startLifeTimeGradient.gradientCount; i < n; i++) {
@@ -53,7 +53,7 @@ export class ShurikenParticleData {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private static _randomInvertRoationArray(rotatonE: Vector3, outE: Vector3, randomizeRotationDirection: number, rand: Rand, randomSeeds: Uint32Array): void {
 		var randDic: number;
@@ -76,7 +76,7 @@ export class ShurikenParticleData {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private static _randomInvertRoation(rotaton: number, randomizeRotationDirection: number, rand: Rand, randomSeeds: Uint32Array): number {
 		var randDic: number;
@@ -93,7 +93,7 @@ export class ShurikenParticleData {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static create(particleSystem: ShurikenParticleSystem, particleRender: ShurikenParticleRenderer, transform: Transform3D): void {
 		var autoRandomSeed: boolean = particleSystem.autoRandomSeed;

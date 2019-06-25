@@ -19,12 +19,12 @@ export class BaseShape implements IClone {
 	constructor() {
 	}
 
-	/**@private */
+	/**@internal */
 	protected _getShapeBoundBox(boundBox: BoundBox): void {
 		throw new Error("BaseShape: must override it.");
 	}
 
-	/**@private */
+	/**@internal */
 	protected _getSpeedBoundBox(boundBox: BoundBox): void {
 		throw new Error("BaseShape: must override it.");
 	}
@@ -39,7 +39,7 @@ export class BaseShape implements IClone {
 	}
 
 	/** 
-	 * @private 
+	 * @internal 
 	 */
 	_calculateProceduralBounds(boundBox: BoundBox, emitterPosScale: Vector3, minMaxBounds: Vector2): void {
 		this._getShapeBoundBox(boundBox);

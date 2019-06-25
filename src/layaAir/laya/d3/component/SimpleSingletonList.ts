@@ -14,7 +14,7 @@ export class SimpleSingletonList extends SingletonList {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	add(element: ISingletonElement): void {
 		var index: number = element._getIndexInList();
@@ -25,7 +25,7 @@ export class SimpleSingletonList extends SingletonList {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	remove(element: ISingletonElement): void {
 		var index: number = element._getIndexInList();

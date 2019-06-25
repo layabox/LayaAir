@@ -28,49 +28,49 @@ import { Stat } from "../../utils/Stat"
 import { WebGLContext } from "../../webgl/WebGLContext"
 
 /**
- * @private
+ * @internal
  * <code>SubMeshStaticBatch</code> 类用于网格静态合并。
  */
 export class SubMeshStaticBatch extends GeometryElement implements IDispose {
-	/** @private */
+	/** @internal */
 	private static _tempVector30: Vector3 = new Vector3();
-	/** @private */
+	/** @internal */
 	private static _tempVector31: Vector3 = new Vector3();
-	/** @private */
+	/** @internal */
 	private static _tempQuaternion0: Quaternion = new Quaternion();
-	/** @private */
+	/** @internal */
 	private static _tempMatrix4x40: Matrix4x4 = new Matrix4x4();
-	/** @private */
+	/** @internal */
 	private static _tempMatrix4x41: Matrix4x4 = new Matrix4x4();
 
-	/** @private */
+	/** @internal */
 	static maxBatchVertexCount: number = 65535;
 
-	/** @private */
+	/** @internal */
 	private static _batchIDCounter: number = 0;
 
-	/** @private */
+	/** @internal */
 	private _currentBatchVertexCount: number;
-	/** @private */
+	/** @internal */
 	private _currentBatchIndexCount: number;
-	/** @private */
+	/** @internal */
 	private _vertexDeclaration: VertexDeclaration;
-	/**@private */
+	/**@internal */
 	private _vertexBuffer: VertexBuffer3D;
-	/**@private */
+	/**@internal */
 	private _indexBuffer: IndexBuffer3D;
-	/** @private */
+	/** @internal */
 	private _bufferState: BufferState = new BufferState();
 
-	/** @private */
+	/** @internal */
 	_batchElements: RenderableSprite3D[];
 
-	/** @private */
+	/** @internal */
 	_batchID: number;
 
-	/** @private [只读]*/
+	/** @internal [只读]*/
 	batchOwner: Sprite3D;
-	/** @private [只读]*/
+	/** @internal [只读]*/
 	number: number;
 
 	/**
@@ -89,7 +89,7 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _getStaticBatchBakedVertexs(batchVertices: Float32Array, batchOffset: number, batchOwnerTransform: Transform3D, transform: Transform3D, render: MeshRenderer, mesh: Mesh): number {
 		var vertexBuffer: VertexBuffer3D = mesh._vertexBuffers[0];
@@ -167,7 +167,7 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	addTest(sprite: RenderableSprite3D): boolean {
 		var vertexCount: number;
@@ -179,7 +179,7 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	add(sprite: RenderableSprite3D): void {
 		var oldStaticBatch: SubMeshStaticBatch = (<SubMeshStaticBatch>sprite._render._staticBatch);
@@ -202,7 +202,7 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	remove(sprite: RenderableSprite3D): void {
 		var mesh: Mesh = (<Mesh>((<MeshSprite3D>sprite)).meshFilter.sharedMesh);
@@ -223,7 +223,7 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	finishInit(): void {//TODO:看下优化
 		if (this._vertexBuffer) {
@@ -333,7 +333,7 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	dispose(): void {
 		var memorySize: number = this._vertexBuffer._byteLength + this._indexBuffer._byteLength;

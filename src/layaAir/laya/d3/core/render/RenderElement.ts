@@ -14,34 +14,34 @@ import { ShaderPass } from "../../shader/ShaderPass"
 import { SubShader } from "../../shader/SubShader"
 
 /**
- * @private
+ * @internal
  * <code>RenderElement</code> 类用于实现渲染元素。
  */
 export class RenderElement {
-	/** @private */
+	/** @internal */
 	static RENDERTYPE_NORMAL: number = 0;
-	/** @private */
+	/** @internal */
 	static RENDERTYPE_STATICBATCH: number = 1;
-	/** @private */
+	/** @internal */
 	static RENDERTYPE_INSTANCEBATCH: number = 2;
-	/** @private */
+	/** @internal */
 	static RENDERTYPE_VERTEXBATCH: number = 3;
 
-	/** @private */
+	/** @internal */
 	_transform: Transform3D;
-	/** @private */
+	/** @internal */
 	_geometry: GeometryElement;
 
-	/** @private */
+	/** @internal */
 	material: BaseMaterial;//可能为空
-	/** @private */
+	/** @internal */
 	render: BaseRender;
-	/** @private */
+	/** @internal */
 	staticBatch: GeometryElement;
-	/** @private */
+	/** @internal */
 	renderSubShader: SubShader = null;//TODO：做缓存标记优化
 
-	/** @private */
+	/** @internal */
 	renderType: number = RenderElement.RENDERTYPE_NORMAL;
 
 
@@ -52,35 +52,35 @@ export class RenderElement {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	getInvertFront(): boolean {
 		return this._transform._isFrontFaceInvert;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	setTransform(transform: Transform3D): void {
 		this._transform = transform;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	setGeometry(geometry: GeometryElement): void {
 		this._geometry = geometry;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	addToOpaqueRenderQueue(context: RenderContext3D, queue: RenderQueue): void {
 		queue.elements.push(this);
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	addToTransparentRenderQueue(context: RenderContext3D, queue: RenderQueue): void {
 		queue.elements.push(this);
@@ -89,7 +89,7 @@ export class RenderElement {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_update(scene: Scene3D, context: RenderContext3D, customShader: Shader3D, replacementTag: string): void {
 		if (this.material) {//材质可能为空
@@ -128,7 +128,7 @@ export class RenderElement {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_render(context: RenderContext3D, isTarget: boolean): void {
 		var lastStateMaterial: BaseMaterial, lastStateShaderInstance: ShaderInstance, lastStateRender: BaseRender;
@@ -203,7 +203,7 @@ export class RenderElement {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	destroy(): void {
 		this._transform = null;

@@ -19,80 +19,80 @@ import { ShaderData } from "../shader/ShaderData";
 	 * @author ...
 	 */
 	export class ParallelSplitShadowMap {
-		/**@private */
+		/**@internal */
 		 static MAX_PSSM_COUNT:number = 3;
 		
-		/**@private */
+		/**@internal */
 		 static _tempVector30:Vector3 = new Vector3();
 		
-		/**@private */
+		/**@internal */
 		private lastNearPlane:number;
-		/**@private */
+		/**@internal */
 		private lastFieldOfView:number;
-		/**@private */
+		/**@internal */
 		private lastAspectRatio:number;
 		
-		/**@private */
+		/**@internal */
 		private _spiltDistance:number[] = [];
-		/**@private */
+		/**@internal */
 		private _currentPSSM:number = -1;
-		/**@private */
+		/**@internal */
 		private _shadowMapCount:number = 3;
-		/**@private */
+		/**@internal */
 		private _maxDistance:number = 200.0;
-		/**@private */
+		/**@internal */
 		private _ratioOfDistance:number = 1.0 / this._shadowMapCount;
-		/**@private */
+		/**@internal */
 		private _globalParallelLightDir:Vector3 = new Vector3(0, -1, 0);
-		/**@private */
+		/**@internal */
 		private _statesDirty:boolean = true;
-		/**@private */
+		/**@internal */
 		 cameras:Camera[];
-		/**@private */
+		/**@internal */
 		private _shadowMapTextureSize:number = 1024;
-		/**@private */
+		/**@internal */
 		private _scene:Scene3D = null;
-		/**@private */
+		/**@internal */
 		private _boundingSphere:BoundSphere[] = new Array<BoundSphere>(ParallelSplitShadowMap.MAX_PSSM_COUNT+1);
-		/**@private */
+		/**@internal */
 		 _boundingBox:BoundBox[] = new Array<BoundBox>(ParallelSplitShadowMap.MAX_PSSM_COUNT+1);
-		/**@private */
+		/**@internal */
 		private _frustumPos:Vector3[] = new Array<Vector3>((ParallelSplitShadowMap.MAX_PSSM_COUNT+1)*4);
-		/**@private */
+		/**@internal */
 		private _uniformDistance:number[] =new Array<number>(ParallelSplitShadowMap.MAX_PSSM_COUNT+1);
-		/**@private */
+		/**@internal */
 		private _logDistance:number[] =new Array <number>(ParallelSplitShadowMap.MAX_PSSM_COUNT+1);
-		/**@private */
+		/**@internal */
 		private _dimension:Vector2[] = new Array <Vector2>(ParallelSplitShadowMap.MAX_PSSM_COUNT+1);
-		/** @private */
+		/** @internal */
 		private _PCFType:number = 0;
-		/** @private */
+		/** @internal */
 		private _tempLookAt3:Vector3 = new Vector3();
-		/** @private */
+		/** @internal */
 		private _tempLookAt4:Vector4 = new Vector4();
-		/** @private */
+		/** @internal */
 		private _tempValue:Vector4 = new Vector4();
-		/** @private */
+		/** @internal */
 		private _tempPos:Vector3 = new Vector3();
-		/** @private */
+		/** @internal */
 		private _tempLightUp:Vector3 = new Vector3();
-		/** @private */
+		/** @internal */
 		private _tempMin:Vector4 = new Vector4();
-		/** @private */
+		/** @internal */
 		private _tempMax:Vector4 = new Vector4();
-		/** @private */
+		/** @internal */
 		private _tempMatrix44:Matrix4x4 = new Matrix4x4;
-		/**@private */
+		/**@internal */
 		private _splitFrustumCulling:BoundFrustum = new BoundFrustum(Matrix4x4.DEFAULT);
-		/** @private */
+		/** @internal */
 		private _tempScaleMatrix44:Matrix4x4 = new Matrix4x4();
-		/** @private */
+		/** @internal */
 		private _shadowPCFOffset:Vector2 = new Vector2(1.0 / 1024.0, 1.0 / 1024.0);
-		/** @private */
+		/** @internal */
 		private _shaderValueDistance:Vector4 = new Vector4();
-		/** @private */
+		/** @internal */
 		private _shaderValueLightVP:Float32Array = null;
-		/** @private */
+		/** @internal */
 		private _shaderValueVPs:Float32Array[];
 		
 		constructor(){
@@ -209,7 +209,7 @@ import { ShaderData } from "../shader/ShaderData";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private _beginSampler(index:number, sceneCamera:BaseCamera):void {
 			if (index < 0 || index > this._shadowMapCount) //TODO:
@@ -220,14 +220,14 @@ import { ShaderData } from "../shader/ShaderData";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 endSampler(sceneCamera:BaseCamera):void {
 			this._currentPSSM = -1;
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 _calcAllLightCameraInfo(sceneCamera:BaseCamera):void {
 			if (this._shadowMapCount === 1) {
@@ -242,7 +242,7 @@ import { ShaderData } from "../shader/ShaderData";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private _recalculate(nearPlane:number, fieldOfView:number, aspectRatio:number):void {
 			this._calcSplitDistance(nearPlane);
@@ -251,7 +251,7 @@ import { ShaderData } from "../shader/ShaderData";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private _update(sceneCamera:BaseCamera):void {
 			var nearPlane:number = sceneCamera.nearPlane;
@@ -270,7 +270,7 @@ import { ShaderData } from "../shader/ShaderData";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private _uploadShaderValue():void {
 			var sceneSV:ShaderData = this._scene._shaderValues;
@@ -313,7 +313,7 @@ import { ShaderData } from "../shader/ShaderData";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private _calcSplitDistance(nearPlane:number):void {
 			var far:number = this._maxDistance;
@@ -339,7 +339,7 @@ import { ShaderData } from "../shader/ShaderData";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 _calcBoundingBox(fieldOfView:number, aspectRatio:number):void {
 			var fov:number = 3.1415926 * fieldOfView / 180.0;
@@ -435,7 +435,7 @@ import { ShaderData } from "../shader/ShaderData";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private _rebuildRenderInfo():void {
 			var nNum:number = this._shadowMapCount + 1;
@@ -460,7 +460,7 @@ import { ShaderData } from "../shader/ShaderData";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private _calcLightViewProject(sceneCamera:BaseCamera):void {
 			var boundSphere:BoundSphere = this._boundingSphere[this._currentPSSM];

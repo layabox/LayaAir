@@ -1,12 +1,12 @@
 /**
- * @private
+ * @internal
  */
 export class BatchMark {
-	/**@private */
+	/**@internal */
 	updateMark: number = -1;
-	/**@private */
+	/**@internal */
 	indexInList: number = -1;
-	/**@private */
+	/**@internal */
 	batched: boolean = false;
 }
 

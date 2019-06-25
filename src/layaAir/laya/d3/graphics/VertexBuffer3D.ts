@@ -14,14 +14,14 @@ import { VertexDeclaration } from "./VertexDeclaration";
 		/**数据类型_Uint8Array类型。*/
 		 static DATATYPE_UINT8ARRAY:number = 1;
 		
-		/** @private */
+		/** @internal */
 		private _vertexCount:number;
-		/** @private */
+		/** @internal */
 		private _canRead:boolean;
-		/** @private */
+		/** @internal */
 		private _dataType:number;
 		
-		/** @private */
+		/** @internal */
 		 _vertexDeclaration:VertexDeclaration;
 		
 		/**

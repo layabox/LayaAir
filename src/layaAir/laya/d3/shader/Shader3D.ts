@@ -47,24 +47,24 @@ import { ShaderCompile } from "../../webgl/utils/ShaderCompile"
 		/**shader变量提交周期，逐场景。*/
 		 static PERIOD_SCENE:number = 4;
 		
-		/**@private */
+		/**@internal */
 		 static SHADERDEFINE_HIGHPRECISION:number;
 		
-		/**@private */
+		/**@internal */
 		private static _propertyNameCounter:number = 0;
-		/**@private */
+		/**@internal */
 		private static _propertyNameMap:any = {};
-		/**@private */
+		/**@internal */
 		private static _publicCounter:number = 0;
 		
 		
-		/**@private */
+		/**@internal */
 		 _attributeMap:any=null;
-		/**@private */
+		/**@internal */
 		 _uniformMap:any=null;
-		/**@private */
+		/**@internal */
 		 static _globleDefines:any[] = [];
-		/**@private */
+		/**@internal */
 		 static _preCompileShader:any = {};
 		
 		/**是否开启调试模式。 */
@@ -86,7 +86,7 @@ import { ShaderCompile } from "../../webgl/utils/ShaderCompile"
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 static addInclude(fileName:string, txt:string):void {
 			txt=txt.replace(ShaderCompile._clearCR,"");//CRLF风格需要先去掉“\r",否则切分字符会出错导致宏定义编译错误等
@@ -94,7 +94,7 @@ import { ShaderCompile } from "../../webgl/utils/ShaderCompile"
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 static registerPublicDefine(name:string):number {
 			var value:number = Math.pow(2, Shader3D._publicCounter++);//TODO:超界处理
@@ -134,7 +134,7 @@ import { ShaderCompile } from "../../webgl/utils/ShaderCompile"
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 * 添加预编译shader文件，主要是处理宏定义
 		 */
 		 static add(name:string,attributeMap:any=null, uniformMap:any=null, enableInstancing:boolean = false):Shader3D {
@@ -150,12 +150,12 @@ import { ShaderCompile } from "../../webgl/utils/ShaderCompile"
 			return Shader3D._preCompileShader[name];
 		}
 		
-		/**@private */
+		/**@internal */
 		 _name:string;
-		/**@private */
+		/**@internal */
 		 _enableInstancing:boolean = false;
 		
-		/**@private */
+		/**@internal */
 		 _subShaders:SubShader[] = [];
 		
 		/**

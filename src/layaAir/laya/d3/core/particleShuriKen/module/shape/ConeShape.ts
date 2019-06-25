@@ -9,9 +9,9 @@ import { Vector3 } from "../../../../math/Vector3"
  * <code>ConeShape</code> 类用于创建锥形粒子形状。
  */
 export class ConeShape extends BaseShape {
-	/** @private */
+	/** @internal */
 	protected static _tempPositionPoint: Vector2 = new Vector2();
-	/** @private */
+	/** @internal */
 	protected static _tempDirectionPoint: Vector2 = new Vector2();
 
 	/**发射角度。*/

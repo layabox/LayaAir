@@ -25,21 +25,21 @@ export class TrailFilter {
 	static WIDTHCURVE: number = Shader3D.propertyNameToID("u_WidthCurve");
 	static WIDTHCURVEKEYLENGTH: number = Shader3D.propertyNameToID("u_WidthCurveKeyLength");
 
-	/**@private */
+	/**@internal */
 	private _minVertexDistance: number;
-	/**@private */
+	/**@internal */
 	private _widthMultiplier: number;
-	/**@private */
+	/**@internal */
 	private _time: number;
-	/**@private */
+	/**@internal */
 	private _widthCurve: FloatKeyframe[];
-	/**@private */
+	/**@internal */
 	private _colorGradient: Gradient;
-	/**@private */
+	/**@internal */
 	private _textureMode: number;
-	/**@private */
+	/**@internal */
 	private _trialGeometry: GeometryElement;
-	/**@private 拖尾总长度*/
+	/**@internal 拖尾总长度*/
 	_totalLength: number = 0;
 
 	_owner: TrailSprite3D;
@@ -164,7 +164,7 @@ export class TrailFilter {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	addRenderElement(): void {
 		var render: TrailRenderer = (<TrailRenderer>this._owner._render);
@@ -181,7 +181,7 @@ export class TrailFilter {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_update(state: RenderContext3D): void {
 		var render: BaseRender = this._owner._render;
@@ -197,7 +197,7 @@ export class TrailFilter {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_initDefaultData(): void {
 		this.time = 5.0;
@@ -230,7 +230,7 @@ export class TrailFilter {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	destroy(): void {
 		this._trialGeometry.destroy();

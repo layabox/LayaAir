@@ -23,71 +23,71 @@ import { Texture2D } from "../../../resource/Texture2D"
  * <code>Render</code> 类用于渲染器的父类，抽象类不允许实例。
  */
 export class BaseRender extends EventDispatcher implements ISingletonElement, IOctreeObject {
-	/**@private */
+	/**@internal */
 	static _tempBoundBoxCorners: Vector3[] = [new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3()];
 
-	/**@private */
+	/**@internal */
 	private static _uniqueIDCounter: number = 0;
 
-	/**@private */
+	/**@internal */
 	private _id: number;
-	/** @private */
+	/** @internal */
 	private _lightmapScaleOffset: Vector4;
-	/** @private */
+	/** @internal */
 	private _lightmapIndex: number;
-	/** @private */
+	/** @internal */
 	private _receiveShadow: boolean;
-	/** @private */
+	/** @internal */
 	private _materialsInstance: boolean[];
-	/** @private */
+	/** @internal */
 	private _castShadow: boolean;
-	/** @private  [实现IListPool接口]*/
+	/** @internal  [实现IListPool接口]*/
 	private _indexInList: number = -1;
-	/** @private */
+	/** @internal */
 	_indexInCastShadowList: number = -1;
 
-	/** @private */
+	/** @internal */
 	protected _bounds: Bounds;
-	/** @private */
+	/** @internal */
 	protected _boundsChange: boolean = true;
 
 
 	_supportOctree: boolean = true;
-	/** @private */
+	/** @internal */
 	_enable: boolean;
-	/** @private */
+	/** @internal */
 	_shaderValues: ShaderData;
 
-	/** @private */
+	/** @internal */
 	_sharedMaterials: BaseMaterial[] = [];
-	/** @private */
+	/** @internal */
 	_scene: Scene3D;
-	/** @private */
+	/** @internal */
 	_owner: RenderableSprite3D;
-	/** @private */
+	/** @internal */
 	_renderElements: RenderElement[];
-	/** @private */
+	/** @internal */
 	_distanceForSort: number;
-	/**@private */
+	/**@internal */
 	_visible: boolean = true;//初始值为默认可见,否则会造成第一帧动画不更新等，TODO:还有个包围盒更新好像浪费了
-	/** @private */
+	/** @internal */
 	_octreeNode: BoundsOctreeNode;
-	/** @private */
+	/** @internal */
 	_indexInOctreeMotionList: number = -1;
 
-	/** @private */
+	/** @internal */
 	_updateMark: number = -1;
-	/** @private */
+	/** @internal */
 	_updateRenderType: number = -1;
-	/** @private */
+	/** @internal */
 	_isPartOfStaticBatch: boolean = false;
-	/** @private */
+	/** @internal */
 	_staticBatch: GeometryElement = null;
 
 	/**排序矫正值。*/
 	sortingFudge: number;
 
-	/**@private	[NATIVE]*/
+	/**@internal	[NATIVE]*/
 	_cullingBufferIndex: number;
 
 	/**
@@ -325,7 +325,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * 创建一个新的 <code>BaseRender</code> 实例。
 	 */
 	constructor(owner: RenderableSprite3D) {
@@ -360,35 +360,35 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_getOctreeNode(): BoundsOctreeNode {//[实现IOctreeObject接口]
 		return this._octreeNode;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_setOctreeNode(value: BoundsOctreeNode): void {//[实现IOctreeObject接口]
 		this._octreeNode = value;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_getIndexInMotionList(): number {//[实现IOctreeObject接口]
 		return this._indexInOctreeMotionList;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_setIndexInMotionList(value: number): void {//[实现IOctreeObject接口]
 		this._indexInOctreeMotionList = value;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _changeMaterialReference(lastValue: BaseMaterial, value: BaseMaterial): void {
 		(lastValue) && (lastValue._removeReference());
@@ -396,7 +396,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _getInstanceMaterial(material: BaseMaterial, index: number): BaseMaterial {
 		var insMat: BaseMaterial = material.clone();//深拷贝
@@ -408,7 +408,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_applyLightMapParams(): void {
 		if (this._scene && this._lightmapIndex >= 0) {
@@ -425,7 +425,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	protected _onWorldMatNeedChange(flag: number): void {
 		this._boundsChange = true;
@@ -439,28 +439,28 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	protected _calculateBoundingBox(): void {
 		throw ("BaseRender: must override it.");
 	}
 
 	/**
-	 * @private [实现ISingletonElement接口]
+	 * @internal [实现ISingletonElement接口]
 	 */
 	_getIndexInList(): number {
 		return this._indexInList;
 	}
 
 	/**
-	 * @private [实现ISingletonElement接口]
+	 * @internal [实现ISingletonElement接口]
 	 */
 	_setIndexInList(index: number): void {
 		this._indexInList = index;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_setBelongScene(scene: Scene3D): void {
 		if (this._scene !== scene) {
@@ -470,7 +470,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * @param boundFrustum 如果boundFrustum为空则为摄像机不裁剪模式。
 	 */
 	_needRender(boundFrustum: BoundFrustum): boolean {
@@ -478,25 +478,25 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_renderUpdate(context: RenderContext3D, transform: Transform3D): void {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_revertBatchRenderUpdate(context: RenderContext3D): void {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_destroy(): void {
 		(this._indexInOctreeMotionList !== -1) && (this._octreeNode._octree.removeMotionObject(this));

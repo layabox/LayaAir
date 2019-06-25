@@ -12,7 +12,7 @@ export class PixelLineMaterial extends BaseMaterial {
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: PixelLineMaterial;
 
-	/**@private */
+	/**@internal */
 	static shaderDefines: ShaderDefines = null;
 
 	static CULL: number = Shader3D.propertyNameToID("s_Cull");
@@ -23,7 +23,7 @@ export class PixelLineMaterial extends BaseMaterial {
 	static DEPTH_WRITE: number = Shader3D.propertyNameToID("s_DepthWrite");
 
 	/**
-	* @private
+	* @internal
 	*/
 	static __initDefine__(): void {
 		PixelLineMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);

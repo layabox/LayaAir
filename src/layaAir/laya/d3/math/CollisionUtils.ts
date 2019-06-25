@@ -10,19 +10,19 @@ import { ContainmentType } from "././ContainmentType";
 	 */
 	export class CollisionUtils {
 		
-		/** @private */
+		/** @internal */
 		private static _tempV30:Vector3 = new Vector3();
-		/** @private */
+		/** @internal */
 		private static _tempV31:Vector3 = new Vector3();
-		/** @private */
+		/** @internal */
 		private static _tempV32:Vector3 = new Vector3();
-		/** @private */
+		/** @internal */
 		private static _tempV33:Vector3 = new Vector3();
-		/** @private */
+		/** @internal */
 		private static _tempV34:Vector3 = new Vector3();
-		/** @private */
+		/** @internal */
 		private static _tempV35:Vector3 = new Vector3();
-		/** @private */
+		/** @internal */
 		private static _tempV36:Vector3 = new Vector3();
 		
 		

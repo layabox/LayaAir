@@ -70,34 +70,34 @@ export class GradientVelocity implements IClone {
 		return gradientVelocity;
 	}
 
-	/**@private */
+	/**@internal */
 	private _type: number = 0;
-	/**@private */
+	/**@internal */
 	private _constant: Vector3 = null;
 
-	/**@private */
+	/**@internal */
 	private _gradientX: GradientDataNumber = null;
-	/**@private */
+	/**@internal */
 	private _gradientY: GradientDataNumber = null;
-	/**@private */
+	/**@internal */
 	private _gradientZ: GradientDataNumber = null;
 
-	/**@private */
+	/**@internal */
 	private _constantMin: Vector3 = null;
-	/**@private */
+	/**@internal */
 	private _constantMax: Vector3 = null;
 
-	/**@private */
+	/**@internal */
 	private _gradientXMin: GradientDataNumber = null;
-	/**@private */
+	/**@internal */
 	private _gradientXMax: GradientDataNumber = null;
-	/**@private */
+	/**@internal */
 	private _gradientYMin: GradientDataNumber = null;
-	/**@private */
+	/**@internal */
 	private _gradientYMax: GradientDataNumber = null;
-	/**@private */
+	/**@internal */
 	private _gradientZMin: GradientDataNumber = null;
-	/**@private */
+	/**@internal */
 	private _gradientZMax: GradientDataNumber = null;
 
 	/**

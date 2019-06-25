@@ -22,7 +22,7 @@ import { ClassUtils } from "../../utils/ClassUtils";
 	 */
 	export class Scene3DUtils {
         		/**
-		 * @private
+		 * @internal
 		 */
 		private static _createSprite3DInstance(nodeData:any, spriteMap:any, outBatchSprites:RenderableSprite3D[]):Node {
 			var node:Node;
@@ -75,7 +75,7 @@ import { ClassUtils } from "../../utils/ClassUtils";
         }
 
         /**
-		 * @private
+		 * @internal
 		 */
 		private static _createComponentInstance(nodeData:any, spriteMap:any):void {
 			var node:Node = spriteMap[nodeData.instanceID];
@@ -105,7 +105,7 @@ import { ClassUtils } from "../../utils/ClassUtils";
 
         
         /**
-		 * @private
+		 * @internal
 		 */
 		 static _createNodeByJson02(nodeData:any, outBatchSprites:RenderableSprite3D[]):Node {
 			var spriteMap:any = {};
@@ -116,7 +116,7 @@ import { ClassUtils } from "../../utils/ClassUtils";
 				
 
 		/**
-		 *@private
+		 *@internal
 		 */
 		static _parse(data:any, propertyParams:any = null, constructParams:any[] = null):Sprite3D {
 			var json:any = data.data;
@@ -135,7 +135,7 @@ import { ClassUtils } from "../../utils/ClassUtils";
 		}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	static _parseScene(data: any, propertyParams: any = null, constructParams: any[] = null): Scene3D {
 		var json: any = data.data;
@@ -156,7 +156,7 @@ import { ClassUtils } from "../../utils/ClassUtils";
       //--------------------------------------------------------------------------------------------------------------------------------
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 static _createNodeByJson(nodeData:any, outBatchSprites:RenderableSprite3D[]):Node {//兼容代码
 			var node:Node;

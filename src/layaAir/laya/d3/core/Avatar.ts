@@ -39,12 +39,12 @@ export class Avatar extends Resource implements IClone {
 		Laya.loader.create(url, complete, null, Avatar.AVATAR);
 	}
 
-	/**@private */
+	/**@internal */
 	_rootNode: AnimationNode;
 
-	/**@private [NATIVE]*/
+	/**@internal [NATIVE]*/
 	private _nativeNodeCount: number = 0;
-	/**@private [NATIVE]*/
+	/**@internal [NATIVE]*/
 	_nativeCurCloneCount: number = 0;
 
 	/**
@@ -55,7 +55,7 @@ export class Avatar extends Resource implements IClone {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _initCloneToAnimator(destNode: AnimationNode, destAnimator: Animator): void {
 		destAnimator._avatarNodeMap[destNode.name] = destNode;
@@ -65,7 +65,7 @@ export class Avatar extends Resource implements IClone {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _parseNode(nodaData: any, node: AnimationNode): void {
 		var name: string = nodaData.props.name;
@@ -139,7 +139,7 @@ export class Avatar extends Resource implements IClone {
 	}
 
 	/**
-	 * @private [NATIVE]
+	 * @internal [NATIVE]
 	 */
 	_cloneDatasToAnimatorNative(destAnimator: Animator): void {
 		var animationNodeLocalPositions: Float32Array = new Float32Array(this._nativeNodeCount * 3);

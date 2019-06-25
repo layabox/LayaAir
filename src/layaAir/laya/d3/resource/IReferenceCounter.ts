@@ -1,5 +1,5 @@
 /**
-	 * @private
+	 * @internal
 	 * <code>IReferenceCounter</code> 引用计数器接口。
 	 */
 export interface IReferenceCounter {

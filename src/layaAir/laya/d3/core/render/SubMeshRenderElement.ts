@@ -22,38 +22,38 @@ import { RenderQueue } from "././RenderQueue";
 import { ILaya3D } from "../../../../ILaya3D";
 
 /**
- * @private
+ * @internal
  */
 export class SubMeshRenderElement extends RenderElement {
-	/** @private */
+	/** @internal */
 	private _dynamicWorldPositionNormalNeedUpdate: boolean;
 
-	/** @private */
+	/** @internal */
 	_dynamicVertexBatch: boolean;
-	/** @private */
+	/** @internal */
 	_dynamicMultiSubMesh: boolean;
-	/** @private */
+	/** @internal */
 	_dynamicVertexCount: number;
-	/** @private */
+	/** @internal */
 	_dynamicWorldPositions: Float32Array;
-	/** @private */
+	/** @internal */
 	_dynamicWorldNormals: Float32Array;
 
-	/** @private */
+	/** @internal */
 	staticBatchIndexStart: number;
-	/** @private */
+	/** @internal */
 	staticBatchIndexEnd: number;
-	/** @private */
+	/** @internal */
 	staticBatchElementList: SubMeshRenderElement[];
 
-	/** @private */
+	/** @internal */
 	instanceSubMesh: SubMesh;
-	/** @private */
+	/** @internal */
 	instanceBatchElementList: SubMeshRenderElement[];
 
-	/** @private */
+	/** @internal */
 	vertexBatchElementList: SubMeshRenderElement[];
-	/** @private */
+	/** @internal */
 	vertexBatchVertexDeclaration: VertexDeclaration;
 
 
@@ -66,7 +66,7 @@ export class SubMeshRenderElement extends RenderElement {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _onWorldMatrixChanged(): void {
 		this._dynamicWorldPositionNormalNeedUpdate = true;

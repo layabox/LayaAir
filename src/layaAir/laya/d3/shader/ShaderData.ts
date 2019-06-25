@@ -11,19 +11,19 @@ import { DefineDatas } from "./DefineDatas";
 
 
 /**
- * @private
+ * @internal
  */
 export class ShaderData implements IClone {
-	/**@private */
+	/**@internal */
 	private _ownerResource: Resource = null;
-	/**@private */
+	/**@internal */
 	private _data: any = null;
 
-	/** @private */
+	/** @internal */
 	_defineDatas: DefineDatas = new DefineDatas();
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	constructor(ownerResource: Resource = null) {
 		this._ownerResource = ownerResource;
@@ -31,14 +31,14 @@ export class ShaderData implements IClone {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_initData(): void {
 		this._data = new Object();
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	getData(): any {
 		return this._data;
@@ -346,17 +346,17 @@ export class ShaderData implements IClone {
 
 	//------------------------------------------------------------------------------------------------------------------------------------
 
-	/**@private [NATIVE]*/
+	/**@internal [NATIVE]*/
 	private _int32Data: Int32Array;
-	/**@private [NATIVE]*/
+	/**@internal [NATIVE]*/
 	private _float32Data: Float32Array;
-	/**@private [NATIVE]*/
+	/**@internal [NATIVE]*/
 	_nativeArray: any[];
-	/**@private [NATIVE]*/
+	/**@internal [NATIVE]*/
 	_frameCount: number;
-	/**@private [NATIVE]*/
+	/**@internal [NATIVE]*/
 	static _SET_RUNTIME_VALUE_MODE_REFERENCE_: boolean = true;
-	/**@private [NATIVE]*/
+	/**@internal [NATIVE]*/
 	_runtimeCopyValues: any[] = [];
 
 	/**
@@ -416,7 +416,7 @@ export class ShaderData implements IClone {
 	}
 
 	/**
-	 * @private [NATIVE]
+	 * @internal [NATIVE]
 	 */
 	_initDataForNative(): void {
 		var length: number = 8;//默认分配8个
@@ -453,14 +453,14 @@ export class ShaderData implements IClone {
 	}
 
 	/**
-	 *@private [NATIVE]
+	 *@internal [NATIVE]
 	 */
 	getIntForNative(index: number): number {//[NATIVE]
 		return this._int32Data[index];
 	}
 
 	/**
-	 *@private [NATIVE]
+	 *@internal [NATIVE]
 	 */
 	setIntForNative(index: number, value: number): void {//[NATIVE]
 		this.needRenewArrayBufferForNative(index);
@@ -469,14 +469,14 @@ export class ShaderData implements IClone {
 	}
 
 	/**
-	 *@private [NATIVE]
+	 *@internal [NATIVE]
 	 */
 	getBoolForNative(index: number): boolean {//[NATIVE]
 		return this._int32Data[index] == 1;
 	}
 
 	/**
-	 *@private [NATIVE]
+	 *@internal [NATIVE]
 	 */
 	setBoolForNative(index: number, value: boolean): void {//[NATIVE]
 		this.needRenewArrayBufferForNative(index);
@@ -485,14 +485,14 @@ export class ShaderData implements IClone {
 	}
 
 	/**
-	 *@private [NATIVE]
+	 *@internal [NATIVE]
 	 */
 	getNumberForNative(index: number): number {//[NATIVE]
 		return this._float32Data[index];
 	}
 
 	/**
-	 *@private [NATIVE]
+	 *@internal [NATIVE]
 	 */
 	setNumberForNative(index: number, value: number): void {//[NATIVE]
 		this.needRenewArrayBufferForNative(index);
@@ -501,14 +501,14 @@ export class ShaderData implements IClone {
 	}
 
 	/**
-	 *@private [NATIVE]
+	 *@internal [NATIVE]
 	 */
 	getMatrix4x4ForNative(index: number): Matrix4x4 {//[NATIVE]
 		return this._nativeArray[index];
 	}
 
 	/**
-	 *@private [NATIVE]
+	 *@internal [NATIVE]
 	 */
 	setMatrix4x4ForNative(index: number, value: Matrix4x4): void {//[NATIVE]
 		this.needRenewArrayBufferForNative(index);
@@ -518,14 +518,14 @@ export class ShaderData implements IClone {
 	}
 
 	/**
-	 *@private [NATIVE]
+	 *@internal [NATIVE]
 	 */
 	getVectorForNative(index: number): any {//[NATIVE]
 		return this._nativeArray[index];
 	}
 
 	/**
-	 *@private [NATIVE]
+	 *@internal [NATIVE]
 	 */
 	setVectorForNative(index: number, value: any): void {//[NATIVE]
 		this.needRenewArrayBufferForNative(index);
@@ -538,14 +538,14 @@ export class ShaderData implements IClone {
 	}
 
 	/**
-	 *@private [NATIVE]
+	 *@internal [NATIVE]
 	 */
 	getVector2ForNative(index: number): any {//[NATIVE]
 		return this._nativeArray[index];
 	}
 
 	/**
-	 *@private [NATIVE]
+	 *@internal [NATIVE]
 	 */
 	setVector2ForNative(index: number, value: any): void {//[NATIVE]
 		this.needRenewArrayBufferForNative(index);
@@ -558,14 +558,14 @@ export class ShaderData implements IClone {
 	}
 
 	/**
-	 *@private [NATIVE]
+	 *@internal [NATIVE]
 	 */
 	getVector3ForNative(index: number): any {//[NATIVE]
 		return this._nativeArray[index];
 	}
 
 	/**
-	 *@private [NATIVE]
+	 *@internal [NATIVE]
 	 */
 	setVector3ForNative(index: number, value: any): void {//[NATIVE]
 		this.needRenewArrayBufferForNative(index);
@@ -578,14 +578,14 @@ export class ShaderData implements IClone {
 	}
 
 	/**
-	 *@private [NATIVE]
+	 *@internal [NATIVE]
 	 */
 	getQuaternionForNative(index: number): Quaternion {//[NATIVE]
 		return this._nativeArray[index];
 	}
 
 	/**
-	 *@private [NATIVE]
+	 *@internal [NATIVE]
 	 */
 	setQuaternionForNative(index: number, value: any): void {//[NATIVE]
 		this.needRenewArrayBufferForNative(index);
@@ -598,14 +598,14 @@ export class ShaderData implements IClone {
 	}
 
 	/**
-	 *@private [NATIVE]
+	 *@internal [NATIVE]
 	 */
 	getBufferForNative(shaderIndex: number): Float32Array {//[NATIVE]
 		return this._nativeArray[shaderIndex];
 	}
 
 	/**
-	 *@private [NATIVE]
+	 *@internal [NATIVE]
 	 */
 	setBufferForNative(index: number, value: Float32Array): void {//[NATIVE]
 		this.needRenewArrayBufferForNative(index);
@@ -615,14 +615,14 @@ export class ShaderData implements IClone {
 	}
 
 	/**
-	 *@private [NATIVE]
+	 *@internal [NATIVE]
 	 */
 	getAttributeForNative(index: number): any[] {//[NATIVE]
 		return this._nativeArray[index];
 	}
 
 	/**
-	 *@private [NATIVE]
+	 *@internal [NATIVE]
 	 */
 	setAttributeForNative(index: number, value: Int32Array): void {//[NATIVE]
 		this._nativeArray[index] = value;//保存引用
@@ -634,14 +634,14 @@ export class ShaderData implements IClone {
 	}
 
 	/**
-	 *@private [NATIVE]
+	 *@internal [NATIVE]
 	 */
 	getTextureForNative(index: number): BaseTexture {//[NATIVE]
 		return this._nativeArray[index];
 	}
 
 	/**
-	 *@private [NATIVE]
+	 *@internal [NATIVE]
 	 */
 	setTextureForNative(index: number, value: BaseTexture): void {//[NATIVE]
 		if (!value) return;

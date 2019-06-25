@@ -7,9 +7,9 @@ import { Physics } from "../Physics";
  * <code>MeshColliderShape</code> 类用于创建网格碰撞器。
  */
 export class MeshColliderShape extends ColliderShape {
-	/**@private */
+	/**@internal */
 	private _mesh: Mesh = null;
-	/**@private */
+	/**@internal */
 	private _convex: boolean = false;
 
 	/**

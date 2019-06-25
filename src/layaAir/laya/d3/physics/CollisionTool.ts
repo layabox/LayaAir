@@ -7,18 +7,18 @@ import { PhysicsComponent } from "./PhysicsComponent";
  * <code>CollisionMap</code> 类用于实现碰撞组合实例图。
  */
 export class CollisionTool {
-	/**@private	*/
+	/**@internal	*/
 	private _hitResultsPoolIndex: number = 0;
-	/**@private	*/
+	/**@internal	*/
 	private _hitResultsPool: HitResult[] = [];
-	/**@private	*/
+	/**@internal	*/
 	private _contactPonintsPoolIndex: number = 0;
-	/**@private	*/
+	/**@internal	*/
 	private _contactPointsPool: ContactPoint[] = [];
-	/**@private */
+	/**@internal */
 	private _collisionsPool: Collision[] = [];
 
-	/**@private */
+	/**@internal */
 	private _collisions: any = {};
 
 	/**
@@ -29,7 +29,7 @@ export class CollisionTool {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	getHitResult(): HitResult {
 		var hitResult: HitResult = this._hitResultsPool[this._hitResultsPoolIndex++];
@@ -41,14 +41,14 @@ export class CollisionTool {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	recoverAllHitResultsPool(): void {
 		this._hitResultsPoolIndex = 0;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	getContactPoints(): ContactPoint {
 		var contactPoint: ContactPoint = this._contactPointsPool[this._contactPonintsPoolIndex++];
@@ -60,14 +60,14 @@ export class CollisionTool {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	recoverAllContactPointsPool(): void {
 		this._contactPonintsPoolIndex = 0;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	getCollision(physicComponentA: PhysicsComponent, physicComponentB: PhysicsComponent): Collision {
 		var collision: Collision;
@@ -90,7 +90,7 @@ export class CollisionTool {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	recoverCollision(collision: Collision): void {
 		var idA: number = collision._colliderA.id;
@@ -100,7 +100,7 @@ export class CollisionTool {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	garbageCollection(): void {//TODO:哪里调用
 		this._hitResultsPoolIndex = 0;

@@ -10,43 +10,43 @@ import { CompoundColliderShape } from "././CompoundColliderShape";
  * <code>ColliderShape</code> 类用于创建形状碰撞器的父类，该类为抽象类。
  */
 export class ColliderShape implements IClone {
-	/** @private */
+	/** @internal */
 	static SHAPEORIENTATION_UPX: number = 0;
-	/** @private */
+	/** @internal */
 	static SHAPEORIENTATION_UPY: number = 1;
-	/** @private */
+	/** @internal */
 	static SHAPEORIENTATION_UPZ: number = 2;
 
-	/** @private */
+	/** @internal */
 	static SHAPETYPES_BOX: number = 0;
-	/** @private */
+	/** @internal */
 	static SHAPETYPES_SPHERE: number = 1;
-	/** @private */
+	/** @internal */
 	static SHAPETYPES_CYLINDER: number = 2;
-	/** @private */
+	/** @internal */
 	static SHAPETYPES_CAPSULE: number = 3;
-	/** @private */
+	/** @internal */
 	static SHAPETYPES_CONVEXHULL: number = 4;
-	/** @private */
+	/** @internal */
 	static SHAPETYPES_COMPOUND: number = 5;
-	/** @private */
+	/** @internal */
 	static SHAPETYPES_STATICPLANE: number = 6;
-	/** @private */
+	/** @internal */
 	static SHAPETYPES_CONE: number = 7;
 
-	/** @private */
+	/** @internal */
 	static _tempVector30: Vector3 = new Vector3();
-	/** @private */
+	/** @internal */
 	protected static _nativeScale: any;
-	/**@private */
+	/**@internal */
 	protected static _nativeVector30: any;
-	/**@private */
+	/**@internal */
 	protected static _nativQuaternion0: any;
-	/**@private */
+	/**@internal */
 	protected static _nativeTransform0: any;
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static __init__(): void {
 		ColliderShape._nativeScale = new Physics._physics3D.btVector3(1, 1, 1);
@@ -56,7 +56,7 @@ export class ColliderShape implements IClone {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static _createAffineTransformation(trans: Vector3, rot: Quaternion, outE: Float32Array): void {
 
@@ -82,31 +82,31 @@ export class ColliderShape implements IClone {
 		outE[15] = 1;
 	}
 
-	/**@private */
+	/**@internal */
 	protected _scale: Vector3 = new Vector3(1, 1, 1);
 
-	/**@private */
+	/**@internal */
 	_nativeShape: any;
-	/**@private */
+	/**@internal */
 	_type: number;//TODO:可以删掉
-	/**@private */
+	/**@internal */
 	_centerMatrix: Matrix4x4 = new Matrix4x4();
 
-	/**@private */
+	/**@internal */
 	_attatched: boolean = false;
-	/**@private */
+	/**@internal */
 	_indexInCompound: number = -1;
-	/**@private */
+	/**@internal */
 	_compoundParent: CompoundColliderShape = null;
-	/**@private */
+	/**@internal */
 	_attatchedCollisionObject: PhysicsComponent = null;
 
-	/**@private */
+	/**@internal */
 	_referenceCount: number = 0;
 
-	/**@private */
+	/**@internal */
 	private _localOffset: Vector3 = new Vector3(0, 0, 0);
-	/**@private */
+	/**@internal */
 	private _localRotation: Quaternion = new Quaternion(0, 0, 0, 1);
 
 	needsCustomCollisionCallback: boolean = false;//TODO:默认值,TODO:::::::::::::::::::::::::::::::
@@ -163,7 +163,7 @@ export class ColliderShape implements IClone {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_setScale(value: Vector3): void {
 		if (this._compoundParent) {//TODO:待查,这里有问题
@@ -175,14 +175,14 @@ export class ColliderShape implements IClone {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_addReference(): void {
 		this._referenceCount++;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_removeReference(): void {
 		this._referenceCount--;
@@ -222,7 +222,7 @@ export class ColliderShape implements IClone {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	destroy(): void {
 		if (this._nativeShape) {

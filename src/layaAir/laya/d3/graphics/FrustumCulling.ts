@@ -22,25 +22,25 @@ import { StaticBatchManager } from "././StaticBatchManager";
 import { Shader3D } from "../shader/Shader3D";
 
 /**
- * @private
+ * @internal
  * <code>FrustumCulling</code> 类用于裁剪。
  */
 export class FrustumCulling {
-	/**@private */
+	/**@internal */
 	private static _tempVector3: Vector3 = new Vector3();
-	/**@private */
+	/**@internal */
 	private static _tempColor0: Color = new Color();
 
-	/**@private */
+	/**@internal */
 	static debugFrustumCulling: boolean = false;
 
-	/**@private	[NATIVE]*/
+	/**@internal	[NATIVE]*/
 	static _cullingBufferLength: number;
-	/**@private	[NATIVE]*/
+	/**@internal	[NATIVE]*/
 	static _cullingBuffer: Float32Array;
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static __init__(): void {
 		if (Render.supportWebGLPlusCulling) {//[NATIVE]
@@ -50,7 +50,7 @@ export class FrustumCulling {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private static _drawTraversalCullingBound(renderList: SingletonList, debugTool: PixelLineSprite3D): void {
 		var validCount: number = renderList.length;
@@ -66,7 +66,7 @@ export class FrustumCulling {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private static _traversalCulling(camera: Camera, scene: Scene3D, context: RenderContext3D, renderList: SingletonList, customShader: Shader3D, replacementTag: string): void {
 		var validCount: number = renderList.length;
@@ -94,7 +94,7 @@ export class FrustumCulling {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static renderObjectCulling(camera: Camera, scene: Scene3D, context: RenderContext3D, renderList: SingletonList, customShader: Shader3D, replacementTag: string): void {
 		var i: number, n: number, j: number, m: number;
@@ -139,7 +139,7 @@ export class FrustumCulling {
 	}
 
 	/**
-	 * @private [NATIVE]
+	 * @internal [NATIVE]
 	 */
 	static renderObjectCullingNative(camera: Camera, scene: Scene3D, context: RenderContext3D, renderList: SimpleSingletonList, customShader: Shader3D, replacementTag: string): void {
 		var i: number, n: number, j: number, m: number;
@@ -186,7 +186,7 @@ export class FrustumCulling {
 	}
 
 	/**
-	 * @private [NATIVE]
+	 * @internal [NATIVE]
 	 */
 	static cullingNative(boundFrustumBuffer: Float32Array, cullingBuffer: Float32Array, cullingBufferIndices: Int32Array, cullingCount: number, cullingBufferResult: Int32Array): number {
 		return LayaGL.instance.culling(boundFrustumBuffer, cullingBuffer, cullingBufferIndices, cullingCount, cullingBufferResult);

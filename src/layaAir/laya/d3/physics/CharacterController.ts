@@ -10,11 +10,11 @@ import { Component } from "../../components/Component";
  * <code>CharacterController</code> 类用于创建角色控制器。
  */
 export class CharacterController extends PhysicsComponent {
-	/** @private */
+	/** @internal */
 	private static _nativeTempVector30: any;
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static __init__(): void {
 		CharacterController._nativeTempVector30 = new Physics._physics3D.btVector3(0, 0, 0);
@@ -27,20 +27,20 @@ export class CharacterController extends PhysicsComponent {
 	/* UP轴_Z轴。*/
 	static UPAXIS_Z: number = 2;
 
-	/** @private */
+	/** @internal */
 	private _stepHeight: number;
-	/** @private */
+	/** @internal */
 	private _upAxis: Vector3 = new Vector3(0, 1, 0);
-	/**@private */
+	/**@internal */
 	private _maxSlope: number = 45.0;
-	/**@private */
+	/**@internal */
 	private _jumpSpeed: number = 10.0;
-	/**@private */
+	/**@internal */
 	private _fallSpeed: number = 55.0;
-	/** @private */
+	/** @internal */
 	private _gravity: Vector3 = new Vector3(0, -9.8 * 3, 0);
 
-	/**@private */
+	/**@internal */
 	_nativeKinematicCharacter: any = null;
 
 	/**
@@ -169,7 +169,7 @@ export class CharacterController extends PhysicsComponent {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _constructCharacter(): void {
 		var physics3D: any = Physics._physics3D;

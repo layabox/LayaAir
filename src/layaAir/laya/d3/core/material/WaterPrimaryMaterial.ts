@@ -21,11 +21,11 @@ export class WaterPrimaryMaterial extends BaseMaterial {
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: WaterPrimaryMaterial;
 
-	/**@private */
+	/**@internal */
 	static shaderDefines: ShaderDefines = null;
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static __initDefine__(): void {
 		WaterPrimaryMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);

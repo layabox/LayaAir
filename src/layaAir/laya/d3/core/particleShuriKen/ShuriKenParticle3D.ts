@@ -38,11 +38,11 @@ import { ShuriKenParticle3DShaderDeclaration } from "./ShuriKenParticle3DShaderD
  * <code>ShuriKenParticle3D</code> 3D粒子。
  */
 export class ShuriKenParticle3D extends RenderableSprite3D {
-	/**@private */
+	/**@internal */
 	static shaderDefines: ShaderDefines;
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static __init__(): void {
 		ShuriKenParticle3D.shaderDefines = new ShaderDefines(RenderableSprite3D.shaderDefines);
@@ -73,7 +73,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SHAPE = ShuriKenParticle3D.shaderDefines.registerDefine("SHAPE");
 	}
 
-	/** @private */
+	/** @internal */
 	private _particleSystem: ShurikenParticleSystem;
 
 	/**
@@ -111,7 +111,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private static _initStartLife(gradientData: any): GradientDataNumber {
 		var gradient: GradientDataNumber = new GradientDataNumber();
@@ -124,7 +124,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _initParticleVelocity(gradientData: any): GradientDataNumber {
 		var gradient: GradientDataNumber = new GradientDataNumber();
@@ -137,7 +137,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _initParticleColor(gradientColorData: any): Gradient {
 		var gradientColor: Gradient = new Gradient(4, 4);
@@ -166,7 +166,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _initParticleSize(gradientSizeData: any): GradientDataNumber {
 		var gradientSize: GradientDataNumber = new GradientDataNumber();
@@ -179,7 +179,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _initParticleRotation(gradientData: any): GradientDataNumber {
 		var gradient: GradientDataNumber = new GradientDataNumber();
@@ -192,7 +192,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _initParticleFrame(overTimeFramesData: any): GradientDataInt {
 		var overTimeFrame: GradientDataInt = new GradientDataInt();
@@ -601,7 +601,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	}
 
 		/**
-		 * @private
+		 * @internal
 		 */
 		/*override*/  _cloneTo(destObject: any, srcSprite: Node, dstSprite: Node): void {
 		var destShuriKenParticle3D: ShuriKenParticle3D = (<ShuriKenParticle3D>destObject);
@@ -633,7 +633,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	protected _create(): Node {
 		return new ShuriKenParticle3D();

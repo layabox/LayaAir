@@ -8,12 +8,12 @@ import { BufferState } from "../../core/BufferState"
 	 */
 	export class SkyMesh {
 		
-		/**@private */
+		/**@internal */
 		protected _vertexBuffer:VertexBuffer3D;
-		/**@private */
+		/**@internal */
 		protected _indexBuffer:IndexBuffer3D;
 		
-		/**@private */
+		/**@internal */
 		 _bufferState:BufferState;
 		
 		/**
@@ -24,7 +24,7 @@ import { BufferState } from "../../core/BufferState"
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 _render(state:RenderContext3D):void {
 		

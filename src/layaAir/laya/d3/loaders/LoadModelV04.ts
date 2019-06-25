@@ -10,31 +10,31 @@ import { Byte } from "../../utils/Byte"
 import { WebGLContext } from "../../webgl/WebGLContext"
 
 	/**
-	 * @private
+	 * @internal
 	 * <code>LoadModel</code> 类用于模型加载。
 	 */
 	export class LoadModelV04 {
 		
-		/**@private */
+		/**@internal */
 		private static _BLOCK:any = {count: 0};
-		/**@private */
+		/**@internal */
 		private static _DATA:any = {offset: 0, size: 0};
 		
-		/**@private */
+		/**@internal */
 		private static _strings:any[] = [];
-		/**@private */
+		/**@internal */
 		private static _readData:Byte;
-		/**@private */
+		/**@internal */
 		private static _version:string;
-		/**@private */
+		/**@internal */
 		private static _mesh:Mesh;
-		/**@private */
+		/**@internal */
 		private static _subMeshes:SubMesh[];
-		/**@private */
+		/**@internal */
 		private static _bindPoseIndices:number[] = [];
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 static parse(readData:Byte, version:string, mesh:Mesh, subMeshes:SubMesh[]):void {
 			LoadModelV04._mesh = mesh;
@@ -64,14 +64,14 @@ import { WebGLContext } from "../../webgl/WebGLContext"
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private static _readString():string {
 			return LoadModelV04._strings[LoadModelV04._readData.getUint16()];
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private static READ_DATA():void {
 			LoadModelV04._DATA.offset = LoadModelV04._readData.getUint32();
@@ -79,7 +79,7 @@ import { WebGLContext } from "../../webgl/WebGLContext"
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private static READ_BLOCK():void {
 			var count:number = LoadModelV04._BLOCK.count = LoadModelV04._readData.getUint16();
@@ -92,7 +92,7 @@ import { WebGLContext } from "../../webgl/WebGLContext"
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private static READ_STRINGS():void {
 			var offset:number = LoadModelV04._readData.getUint32();
@@ -107,7 +107,7 @@ import { WebGLContext } from "../../webgl/WebGLContext"
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private static READ_MESH():boolean {
 			var name:string = LoadModelV04._readString();
@@ -183,7 +183,7 @@ import { WebGLContext } from "../../webgl/WebGLContext"
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		private static READ_SUBMESH():boolean {
 			var arrayBuffer:ArrayBuffer = LoadModelV04._readData.__getBuffer();

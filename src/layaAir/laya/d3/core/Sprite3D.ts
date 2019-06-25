@@ -20,17 +20,17 @@ export class Sprite3D extends Node implements ICreateResource {
 	/**Hierarchy资源。*/
 	static HIERARCHY: string = "HIERARCHY";
 
-	/**@private 着色器变量名，世界矩阵。*/
+	/**@internal 着色器变量名，世界矩阵。*/
 	static WORLDMATRIX: number = Shader3D.propertyNameToID("u_WorldMat");
-	/**@private 着色器变量名，世界视图投影矩阵。*/
+	/**@internal 着色器变量名，世界视图投影矩阵。*/
 	static MVPMATRIX: number = Shader3D.propertyNameToID("u_MvpMatrix");
 	/*;*/
 
-	/**@private */
+	/**@internal */
 	protected static _uniqueIDCounter: number = 0;
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static __init__(): void {
 	}
@@ -68,25 +68,25 @@ export class Sprite3D extends Node implements ICreateResource {
 		Laya.loader.create(url, complete, null, Sprite3D.HIERARCHY);
 	}
 
-	/** @private */
+	/** @internal */
 	private _id: number;
 
-	/**@private */
+	/**@internal */
 	private _url: string;
 
-	/** @private */
+	/** @internal */
 	_isStatic: boolean;
-	/** @private */
+	/** @internal */
 	_layer: number;
-	/** @private */
+	/** @internal */
 	_scripts: Script3D[];
-	/**@private */
+	/**@internal */
 	_transform: Transform3D;
-	/** @private */
+	/** @internal */
 	_hierarchyAnimator: Animator;
-	/** @private */
+	/** @internal */
 	_needProcessCollisions: boolean = false;
-	/** @private */
+	/** @internal */
 	_needProcessTriggers: boolean = false;
 
 	/**
@@ -158,14 +158,14 @@ export class Sprite3D extends Node implements ICreateResource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_setCreateURL(url: string): void {
 		this._url = URL.formatURL(url);//perfab根节点会设置URL
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _changeAnimatorsToLinkSprite3D(sprite3D: Sprite3D, isLink: boolean, path: string[]): void {
 		var animator: Animator = (<Animator>this.getComponent(Animator));
@@ -182,7 +182,7 @@ export class Sprite3D extends Node implements ICreateResource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_setHierarchyAnimator(animator: Animator, parentAnimator: Animator): void {
 		this._changeHierarchyAnimator(animator);
@@ -194,7 +194,7 @@ export class Sprite3D extends Node implements ICreateResource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_clearHierarchyAnimator(animator: Animator, parentAnimator: Animator): void {
 		this._changeHierarchyAnimator(parentAnimator);
@@ -206,7 +206,7 @@ export class Sprite3D extends Node implements ICreateResource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_changeHierarchyAnimatorAvatar(animator: Animator, avatar: Avatar): void {
 		this._changeAnimatorAvatar(avatar);
@@ -217,7 +217,7 @@ export class Sprite3D extends Node implements ICreateResource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_changeAnimatorToLinkSprite3DNoAvatar(animator: Animator, isLink: boolean, path: string[]): void {
 		animator._handleSpriteOwnersBySprite(isLink, path, this);
@@ -231,14 +231,14 @@ export class Sprite3D extends Node implements ICreateResource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	protected _changeHierarchyAnimator(animator: Animator): void {
 		this._hierarchyAnimator = animator;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	protected _changeAnimatorAvatar(avatar: Avatar): void {
 	}
@@ -341,7 +341,7 @@ export class Sprite3D extends Node implements ICreateResource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private static _createSprite3DInstance(scrSprite: Sprite3D): Node {
 		var node: Node = scrSprite._create();
@@ -354,7 +354,7 @@ export class Sprite3D extends Node implements ICreateResource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private static _parseSprite3DInstance(srcRoot: Node, dstRoot: Node, scrSprite: Node, dstSprite: Node): void {
 		//scrSprite._cloneTo(dstSprite,srcRoot,dstRoot);//TODO:因为根据名字找Owner,子节点名字还未赋值有BUG
@@ -389,7 +389,7 @@ export class Sprite3D extends Node implements ICreateResource {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	protected _create(): Node {
 		return new Sprite3D();
