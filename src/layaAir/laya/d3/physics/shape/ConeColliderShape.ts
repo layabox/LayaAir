@@ -5,11 +5,8 @@ import { Physics } from "../Physics";
  * <code>ConeColliderShape</code> 类用于创建圆柱碰撞器。
  */
 export class ConeColliderShape extends ColliderShape {
-	/**@internal */
 	private _orientation: number;
-	/**@internal */
 	private _radius: number = 1;
-	/**@internal */
 	private _height: number = 0.5;
 
 	/**
