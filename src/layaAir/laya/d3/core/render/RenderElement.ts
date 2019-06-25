@@ -14,7 +14,6 @@ import { ShaderPass } from "../../shader/ShaderPass"
 import { SubShader } from "../../shader/SubShader"
 
 /**
- * @internal
  * <code>RenderElement</code> 类用于实现渲染元素。
  */
 export class RenderElement {

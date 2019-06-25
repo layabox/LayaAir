@@ -360,28 +360,28 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	}
 
 	/**
-	 * @internal
+	 * 
 	 */
 	_getOctreeNode(): BoundsOctreeNode {//[实现IOctreeObject接口]
 		return this._octreeNode;
 	}
 
 	/**
-	 * @internal
+	 * 
 	 */
 	_setOctreeNode(value: BoundsOctreeNode): void {//[实现IOctreeObject接口]
 		this._octreeNode = value;
 	}
 
 	/**
-	 * @internal
+	 * 
 	 */
 	_getIndexInMotionList(): number {//[实现IOctreeObject接口]
 		return this._indexInOctreeMotionList;
 	}
 
 	/**
-	 * @internal
+	 *
 	 */
 	_setIndexInMotionList(value: number): void {//[实现IOctreeObject接口]
 		this._indexInOctreeMotionList = value;
@@ -446,14 +446,14 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	}
 
 	/**
-	 * @internal [实现ISingletonElement接口]
+	 *  [实现ISingletonElement接口]
 	 */
 	_getIndexInList(): number {
 		return this._indexInList;
 	}
 
 	/**
-	 * @internal [实现ISingletonElement接口]
+	 *  [实现ISingletonElement接口]
 	 */
 	_setIndexInList(index: number): void {
 		this._indexInList = index;

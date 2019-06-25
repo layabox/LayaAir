@@ -1,5 +1,5 @@
 /**
- * @internal
+ * @private
  * <code>IClone</code> 资源克隆接口。
  */
 export interface IClone {

@@ -17,9 +17,9 @@ import { PhysicsComponent } from "./PhysicsComponent"
 		/**@internal */
 		 _colliderB:PhysicsComponent;
 		
-		/**@internal [只读]*/
+		/**@readonly*/
 		 contacts:ContactPoint[] = [];
-		/**@internal [只读]*/
+		/**@readonly*/
 		 other:PhysicsComponent;
 		
 		/**

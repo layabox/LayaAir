@@ -11,7 +11,7 @@ import { DefineDatas } from "./DefineDatas";
 
 
 /**
- * @internal
+ * @private
  */
 export class ShaderData implements IClone {
 	/**@internal */

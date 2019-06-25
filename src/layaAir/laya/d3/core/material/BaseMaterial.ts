@@ -27,13 +27,12 @@ export class BaseMaterial extends Resource implements IClone {
 	/** 渲染队列_透明。*/
 	static RENDERQUEUE_TRANSPARENT: number = 3000;
 
-	/**@internal 着色器变量,透明测试值。*/
+	/**着色器变量,透明测试值。*/
 	static ALPHATESTVALUE: number = Shader3D.propertyNameToID("u_AlphaTestValue");
 
-	/**@internal 材质级着色器宏定义,透明测试。*/
+	/**材质级着色器宏定义,透明测试。*/
 	static SHADERDEFINE_ALPHATEST: number;
 
-	/**@internal */
 	static shaderDefines: ShaderDefines = null;
 
 	/**
@@ -158,7 +157,7 @@ export class BaseMaterial extends Resource implements IClone {
 	_disablePublicDefineDatas: DefineDatas;//TODO:移除
 	/** @internal */
 	_shader: Shader3D;
-	/** @internal */
+	
 	_shaderValues: ShaderData = null;//TODO:剥离贴图ShaderValue
 
 	/** 所属渲染队列. */

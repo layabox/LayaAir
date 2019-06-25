@@ -15,7 +15,7 @@ import { WebGLContext } from "../../../webgl/WebGLContext"
 	export class SkyDome extends SkyMesh {
 		/**@internal */
 		private static _radius:number = 1;
-		/**@internal */
+	
 		 static instance:SkyDome;
 		
 		/**

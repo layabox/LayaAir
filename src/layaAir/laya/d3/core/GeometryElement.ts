@@ -2,7 +2,6 @@ import { RenderContext3D } from "./render/RenderContext3D"
 import { IDestroy } from "../../resource/IDestroy"
 
 /**
- * @internal
  * <code>GeometryElement</code> 类用于实现几何体元素,该类为抽象类。
  */
 export class GeometryElement implements IDestroy {

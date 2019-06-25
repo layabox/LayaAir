@@ -5,7 +5,7 @@ import { ILaya } from "../../../ILaya";
 
 
 /**
- * @internal
+ * @private
  */
 export class Bone {
 	static ShowBones: any = {};

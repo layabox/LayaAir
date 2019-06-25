@@ -158,7 +158,7 @@ export class Sprite3D extends Node implements ICreateResource {
 	}
 
 	/**
-	 * @internal
+	 * 
 	 */
 	_setCreateURL(url: string): void {
 		this._url = URL.formatURL(url);//perfab根节点会设置URL

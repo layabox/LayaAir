@@ -10,9 +10,6 @@ import { Graphics } from "../../display/Graphics";
 import { Texture } from "../../resource/Texture";
 
 
-/**
- * @internal
- */
 export class BoneSlot {
 
 	/** 插槽名称 */

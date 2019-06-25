@@ -4,7 +4,6 @@ import { ShaderData } from "../shader/ShaderData"
 
 	
 	/**
-	 * @internal
 	 * <code>VertexDeclaration</code> 类用于生成顶点声明。
 	 */
 	export class VertexDeclaration {
@@ -31,9 +30,6 @@ import { ShaderData } from "../shader/ShaderData"
 			return this._id;
 		}
 		
-		/**
-		 * @internal
-		 */
 		 get vertexStride():number {
 			return this._vertexStride;
 		}

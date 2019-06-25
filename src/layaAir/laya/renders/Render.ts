@@ -14,7 +14,6 @@ import { SubmitBase } from "../webgl/submit/SubmitBase";
 import { LayaGPU } from "../webgl/LayaGPU";
 	
 	/**
-	 * @internal
 	 * <code>Render</code> 是渲染管理类。它是一个单例，可以使用 Laya.render 访问。
 	 */
 	export class Render {

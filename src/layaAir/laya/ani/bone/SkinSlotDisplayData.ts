@@ -2,9 +2,6 @@ import { Transform } from "././Transform";
 import { Texture } from "../../resource/Texture";
 
 
-/**
- * @internal
- */
 export class SkinSlotDisplayData {
 
 	name: string;
