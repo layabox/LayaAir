@@ -302,7 +302,7 @@ if (typeof document !== 'undefined') {
       if (script.src)
         topLevelLoad(script.src);
       else{
-         topLevelLoad(`${pageBaseUrl}?${id++}`, script.innerHTML);
+        topLevelLoad(`${pageBaseUrl}?${id++}`, script.innerHTML);
       }
     }
   }

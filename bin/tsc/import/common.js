@@ -120,6 +120,7 @@ function resolvePackages(pkgs) {
 
 export function parseImportMap (json, baseUrl) {
   const imports = resolvePackages(json.imports) || {};
+  const secondBaseUrl = json.secondBaseUrl || {};
   const scopes = {};
   if (json.scopes) {
     for (let scopeName in json.scopes) {
@@ -131,7 +132,7 @@ export function parseImportMap (json, baseUrl) {
     }
   }
 
-  return { imports: imports, scopes: scopes, baseUrl: baseUrl };
+  return { imports: imports, scopes: scopes, baseUrl: baseUrl , secondBaseUrl: secondBaseUrl};
 }
 
 /**
@@ -153,13 +154,30 @@ function getMatch (path, matchObj) {
   } while ((sepIndex = path.lastIndexOf('/', sepIndex - 1)) !== -1)
 }
 
+function getMatch2 (path, secondBaseUrl) {
+  var firstUrl = '/' + secondBaseUrl.split('/')[1];
+  let sepIndex = path.length;
+  do {
+    const segment = path.slice(0, sepIndex);
+    const litterSegment = segment.slice(segment.lastIndexOf('/'), segment.length);
+    //if (secondBaseUrl.indexOf(litterSegment) != -1){
+    if (firstUrl === litterSegment){
+      let idnex = segment.lastIndexOf(litterSegment);
+      let lastUrl = segment.slice(0, idnex);
+      lastUrl += secondBaseUrl;
+      return lastUrl;
+    }
+      //return segment;
+  } while ((sepIndex = path.lastIndexOf('/', sepIndex - 1)) !== -1)
+}
+
 /**
  * 
  * @param {string} id 
  * @param {any} packages 
  * @param {string} baseUrl  基路径例如 http://localhost:8888/
  */
-function applyPackages (id, packages, baseUrl) {
+function applyPackages (id, packages, baseUrl, sceondBaseUrl) {
   const pkgName = getMatch(id, packages);
   if (pkgName) {
     const pkg = packages[pkgName];
@@ -180,21 +198,17 @@ const protocolre = /^[a-z][a-z0-9.+-]*\:/i;
  * @return {string}
  */
 export function resolveImportMap (id, parentUrl, importMap) {
-  const urlResolved = resolveIfNotPlainOrUrl(id, parentUrl);
+  const urlResolved = resolveIfNotPlainOrUrl(id, parentUrl);//只有main才会有返回值
   if (urlResolved){
-    id = urlResolved;
+    return urlResolved;
   } else if (protocolre.test(id)) { // non-relative URL with protocol
     return id;
   }
-  const scopeName = getMatch(parentUrl, importMap.scopes);
-  if (scopeName) {
-    const scopePackages = importMap.scopes[scopeName];
-    const packageResolution = applyPackages(id, scopePackages, scopeName);
-    if (packageResolution){
-      return packageResolution;
-    }
-  }
-  return applyPackages(id, importMap.imports, importMap.baseUrl) || urlResolved || throwBare(id, parentUrl);
+
+  //const scopeName = getMatch(parentUrl, importMap.scopes);getMatch2
+  const frontName = getMatch2(parentUrl, importMap.secondBaseUrl);
+  let lastUrl = frontName + id;
+  return lastUrl;
 }
 
 export function throwBare (id, parentUrl) {
