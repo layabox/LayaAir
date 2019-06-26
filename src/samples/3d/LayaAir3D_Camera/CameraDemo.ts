@@ -1,27 +1,27 @@
 import { Laya3D } from "Laya3D";
 import { Laya } from "Laya";
 import { CameraMoveScript } from "../common/CameraMoveScript"
-import { BaseCamera } from "laya/d3/core/BaseCamera"
-import { Camera } from "laya/d3/core/Camera"
-import { MeshSprite3D } from "laya/d3/core/MeshSprite3D"
-import { Sprite3D } from "laya/d3/core/Sprite3D"
-import { DirectionLight } from "laya/d3/core/light/DirectionLight"
-import { BaseMaterial } from "laya/d3/core/material/BaseMaterial"
-import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial"
-import { Scene3D } from "laya/d3/core/scene/Scene3D"
-import { Vector3 } from "laya/d3/math/Vector3"
-import { Vector4 } from "laya/d3/math/Vector4"
-import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh"
-import { SkyBox } from "laya/d3/resource/models/SkyBox"
-import { SkyRenderer } from "laya/d3/resource/models/SkyRenderer"
-import { Stage } from "laya/display/Stage"
-import { Event } from "laya/events/Event"
-import { Loader } from "laya/net/Loader"
-import { Texture2D } from "laya/resource/Texture2D"
-import { Button } from "laya/ui/Button"
-import { Browser } from "laya/utils/Browser"
-import { Handler } from "laya/utils/Handler"
-import { Stat } from "laya/utils/Stat"
+	import { BaseCamera } from "laya/d3/core/BaseCamera"
+	import { Camera } from "laya/d3/core/Camera"
+	import { MeshSprite3D } from "laya/d3/core/MeshSprite3D"
+	import { Sprite3D } from "laya/d3/core/Sprite3D"
+	import { DirectionLight } from "laya/d3/core/light/DirectionLight"
+	import { BaseMaterial } from "laya/d3/core/material/BaseMaterial"
+	import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial"
+	import { Scene3D } from "laya/d3/core/scene/Scene3D"
+	import { Vector3 } from "laya/d3/math/Vector3"
+	import { Vector4 } from "laya/d3/math/Vector4"
+	import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh"
+	import { SkyBox } from "laya/d3/resource/models/SkyBox"
+	import { SkyRenderer } from "laya/d3/resource/models/SkyRenderer"
+	import { Stage } from "laya/display/Stage"
+	import { Event } from "laya/events/Event"
+	import { Loader } from "laya/net/Loader"
+	import { Texture2D } from "laya/resource/Texture2D"
+	import { Button } from "laya/ui/Button"
+	import { Browser } from "laya/utils/Browser"
+	import { Handler } from "laya/utils/Handler"
+	import { Stat } from "laya/utils/Stat"
 
 	
 	/**
@@ -36,6 +36,7 @@ import { Stat } from "laya/utils/Stat"
 		private _rotation:Vector3 = new Vector3(-15, 0, 0);
 		private _rotation2:Vector3 = new Vector3(-3.14 / 3, 0, 0);
 		private _rotation3:Vector3 = new Vector3(0, 45, 0);
+		private _clearColor:Vector4 = new Vector4(0, 0.2, 0.6, 1);
 		
 		constructor(){
 			//初始化引擎
@@ -61,6 +62,8 @@ import { Stat } from "laya/utils/Stat"
 			this.camera.useOcclusionCulling = false;
 			//相机设置清楚标记,使用固定颜色
 			this.camera.clearFlag = BaseCamera.CLEARFLAG_SOLIDCOLOR;
+			//使用默认颜色
+			//camera.clearColor = _clearColor;
 			//设置摄像机视野范围（角度）
 			this.camera.fieldOfView = 60;
 			//为相机添加视角控制组件(脚本)

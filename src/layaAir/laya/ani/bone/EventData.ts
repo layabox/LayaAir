@@ -1,6 +1,4 @@
-/**
- * @internal
- */
+
 export class EventData {
 
 	name: string;

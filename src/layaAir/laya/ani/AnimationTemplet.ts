@@ -10,7 +10,6 @@ import { Byte } from "../utils/Byte";
 import { BezierLerp } from "./math/BezierLerp";
 
 /**
- * @internal
  * <code>AnimationTemplet</code> 类用于动画模板资源。
  */
 export class AnimationTemplet extends Resource {

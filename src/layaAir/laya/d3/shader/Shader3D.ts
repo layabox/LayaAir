@@ -134,7 +134,6 @@ import { ShaderCompile } from "../../webgl/utils/ShaderCompile"
 		}
 		
 		/**
-		 * @internal
 		 * 添加预编译shader文件，主要是处理宏定义
 		 */
 		 static add(name:string,attributeMap:any=null, uniformMap:any=null, enableInstancing:boolean = false):Shader3D {

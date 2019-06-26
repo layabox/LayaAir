@@ -1,2 +1,11 @@
 import { Main } from "./Main";
+import { PostProcessBloom } from "./3d/LayaAir3D_Advance/PostProcessBloom";
+import { RenderTargetCamera } from "./3d/LayaAir3D_Camera/RenderTargetCamera";
+import { MultiTouch } from "./3d/LayaAir3D_MouseInteraction/MultiTouch";
+import { ScriptDemo } from "./3d/LayaAir3D_Script/ScriptDemo";
+import { AnimatorStateScriptDemo } from "./3d/LayaAir3D_Animation3D/AnimatorStateScriptDemo";
+import { StaticBatchingTest } from "./3d/LayaAir3D_Performance/StaticBatchingTest";
+import { Particle_BurningGround } from "./3d/LayaAir3D_Particle3D/Particle_BurningGround";
+import { OctreeTest } from "./3d/LayaAir3DTest_Bug/OctreeTest";
+import { Sprite3DLoad } from "./3d/LayaAir3D_Sprite3D/Sprite3DLoad";
 new Main();

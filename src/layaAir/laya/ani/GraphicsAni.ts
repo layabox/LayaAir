@@ -2,9 +2,6 @@ import { SkinMeshForGraphic } from "./bone/canvasmesh/SkinMeshForGraphic"
 import { Matrix } from "../maths/Matrix";
 import { Graphics } from "../display/Graphics";
 
-/**
- * @internal
- */
 export class GraphicsAni extends Graphics {
 
 	/**

@@ -375,7 +375,7 @@ import { ILaya } from "../../ILaya";
 			ctx.asBitmap = true;
 			var uv:any[] = null;
 			if (x != 0 || y != 0 || width != texw || height != texh) {
-				uv = uv.concat();	// 复制一份uv
+				uv = (this._uv as Array<number>).slice();	// 复制一份uv
 				var stu:number = uv[0];
 				var stv:number = uv[1];
 				var uvw:number = uv[2] - stu;

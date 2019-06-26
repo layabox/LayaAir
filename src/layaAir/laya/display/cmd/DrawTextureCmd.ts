@@ -50,7 +50,7 @@ import { ColorFilter } from "../../filters/ColorFilter"
 		 blendMode:string;
 		
 		/**@private */
-		 static create(texture:Texture, x:number, y:number, width:number, height:number, matrix:Matrix, alpha:number, color:string, blendMode:string):DrawTextureCmd {
+		 static create(texture:Texture, x:number, y:number, width:number, height:number, matrix:Matrix, alpha:number, color:string, blendMode:string, uv?:number[]):DrawTextureCmd {
 			var cmd:DrawTextureCmd = Pool.getItemByClass("DrawTextureCmd", DrawTextureCmd);
 			cmd.texture = texture;
 			texture._addReference();

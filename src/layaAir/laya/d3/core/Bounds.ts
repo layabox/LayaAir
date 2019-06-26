@@ -22,7 +22,7 @@ export class Bounds implements IClone {
 	_center: Vector3 = new Vector3();
 	/**@internal	*/
 	_extent: Vector3 = new Vector3();
-	/**@internal	*/
+	/***/
 	_boundBox: BoundBox = new BoundBox(new Vector3(), new Vector3());
 
 	/**

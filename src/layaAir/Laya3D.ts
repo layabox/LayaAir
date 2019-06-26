@@ -812,7 +812,9 @@ export class Laya3D {
 			compolete && compolete.run();
 		} else {
 			Physics._enbalePhysics = true;
-			physics3D(Laya3D._config.defaultPhysicsMemory * 1024 * 1024).then(function (): void {
+			debugger;
+			//physics3D(Laya3D._config.defaultPhysicsMemory * 1024 * 1024);
+			physics3D(Laya3D._config.defaultPhysicsMemory * 1024 * 1024)(Laya3D._config.defaultPhysicsMemory * 1024 * 1024).then(function (): void {
 				Laya3D.__init__(width, height, Laya3D._config);
 				compolete && compolete.run();
 			});

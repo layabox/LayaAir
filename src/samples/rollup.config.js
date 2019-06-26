@@ -9,8 +9,7 @@ export default {
 	output: {
 		file: '../../bin/rollUp/bundle.js',
 		format: 'iife', // immediately-invoked function expression — suitable for <script> tags
-        sourcemap: false,
-        name:'laya',
+        sourcemap: false
 	},
 	plugins: [
         typescript({

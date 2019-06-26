@@ -179,7 +179,6 @@ export class Resource extends EventDispatcher implements ICreateResource, IDestr
 	}
 
 	/**
-	 * @internal
 	 */
 	_setCreateURL(url: string): void {
 		url = URL.formatURL(url);//需要序列化为绝对路径

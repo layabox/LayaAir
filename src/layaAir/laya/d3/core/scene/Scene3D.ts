@@ -74,9 +74,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** 八叉树松散值。*/
 	static octreeLooseness: number = 1.25;
 
-	/**@internal */
 	static REFLECTIONMODE_SKYBOX: number = 0;
-	/**@internal */
 	static REFLECTIONMODE_CUSTOM: number = 1;
 
 	static FOGCOLOR: number = Shader3D.propertyNameToID("u_FogColor");
@@ -545,7 +543,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * @internal
 	 */
 	_setCreateURL(url: string): void {
 		this._url = URL.formatURL(url);
@@ -1012,7 +1009,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * @internal
+	 * 
 	 */
 	renderSubmit(): number {
 		var gl: any = LayaGL.instance;
@@ -1030,20 +1027,20 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * @internal
+	 * 
 	 */
 	getRenderType(): number {
 		return 0;
 	}
 
 	/**
-	 * @internal
+	 * 
 	 */
 	releaseRender(): void {
 	}
 
 	/**
-	 * @internal
+	 * 
 	 */
 	reUse(context: Context, pos: number): number {
 		return 0;

@@ -94,7 +94,10 @@ import { ShaderDefines } from "././ShaderDefines";
 		}
 		
 		/**
-		 * @internal
+		 * 添加着色器Pass
+		 * @param vs 
+		 * @param ps 
+		 * @param stateMap 
 		 */
 		 addShaderPass(vs:string, ps:string, stateMap:any = null):ShaderPass {
 			var shaderPass:ShaderPass = new ShaderPass(this, vs, ps, stateMap);

@@ -13,7 +13,6 @@ import { SkyMesh } from "././SkyMesh";
  * <code>SkyBox</code> 类用于创建天空盒。
  */
 export class SkyBox extends SkyMesh {
-	/**@internal */
 	static instance: SkyBox;
 
 	/**

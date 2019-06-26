@@ -7,10 +7,10 @@ import { ILaya } from "../../ILaya";
  * 组件的生命周期
  */
 export class Script extends Component {
-	/**
-	 * @inheritDoc
-	 */
-	/*override*/  get isSingleton(): boolean {
+		/**
+		 * @inheritDoc
+		 */
+		/*override*/  get isSingleton(): boolean {
 		return false;
 	}
 

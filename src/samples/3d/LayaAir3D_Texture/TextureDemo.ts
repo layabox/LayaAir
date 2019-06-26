@@ -1,30 +1,22 @@
-import { Laya3D } from "Laya3D";
-import { Laya } from "Laya"
-import { CameraMoveScript } from "../common/CameraMoveScript"
-	import { BufferState } from "laya/d3/core/BufferState"
-	import { Camera } from "laya/d3/core/Camera"
-	import { MeshSprite3D } from "laya/d3/core/MeshSprite3D"
-	import { Sprite3D } from "laya/d3/core/Sprite3D"
-	import { DirectionLight } from "laya/d3/core/light/DirectionLight"
-	import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial"
-	import { Scene3D } from "laya/d3/core/scene/Scene3D"
-	import { IndexBuffer3D } from "laya/d3/graphics/IndexBuffer3D"
-	import { VertexMesh } from "laya/d3/graphics/Vertex/VertexMesh"
-	import { VertexBuffer3D } from "laya/d3/graphics/VertexBuffer3D"
-	import { VertexDeclaration } from "laya/d3/graphics/VertexDeclaration"
-	import { Vector3 } from "laya/d3/math/Vector3"
-	import { Vector4 } from "laya/d3/math/Vector4"
-	import { Matrix4x4 } from "laya/d3/math/Matrix4x4"
-	import { Mesh } from "laya/d3/resource/models/Mesh"
-	import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh"
-	import { SubMesh } from "laya/d3/resource/models/SubMesh"
-	import { Stage } from "laya/display/Stage"
-	import { Handler } from "laya/utils/Handler"
-	import { Stat } from "laya/utils/Stat"
-	import { WebGLContext } from "laya/webgl/WebGLContext"
-	import { BaseTexture } from "laya/resource/BaseTexture"
-	import { Texture2D } from "laya/resource/Texture2D"
+import { Laya } from "Laya";
+import { Camera } from "laya/d3/core/Camera";
+import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BaseMaterial } from "laya/d3/core/material/BaseMaterial";
+import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
+import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
+import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
+import { Vector3 } from "laya/d3/math/Vector3";
+import { Vector4 } from "laya/d3/math/Vector4";
+import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
+import { Stage } from "laya/display/Stage";
+import { BaseTexture } from "laya/resource/BaseTexture";
+import { Texture2D } from "laya/resource/Texture2D";
+import { Handler } from "laya/utils/Handler";
+import { Stat } from "laya/utils/Stat";
+import { Laya3D } from "Laya3D";
+import { CameraMoveScript } from "../common/CameraMoveScript";
 	
 	/**
 	 * ...
