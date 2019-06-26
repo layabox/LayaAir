@@ -65,7 +65,7 @@ export class MeshSprite3D extends RenderableSprite3D {
 	}
 
 		/**
-		 * @inheritDoc
+		 * @internal
 		 */
 		/*override*/  _parse(data: any, spriteMap: any): void {
 		super._parse(data, spriteMap);
@@ -90,14 +90,14 @@ export class MeshSprite3D extends RenderableSprite3D {
 	}
 
 		/**
-		 * @inheritDoc
+		 * @internal
 		 */
 		/*override*/  _addToInitStaticBatchManager(): void {
 		MeshRenderStaticBatchManager.instance._addBatchSprite(this);
 	}
 
 		/**
-		 * @inheritDoc
+		 * @internal
 		 */
 		/*override*/  _cloneTo(destObject: any, rootSprite: Node, dstSprite: Node): void {
 		var meshSprite3D: MeshSprite3D = (<MeshSprite3D>destObject);

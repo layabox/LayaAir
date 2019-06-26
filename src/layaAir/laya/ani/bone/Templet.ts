@@ -74,7 +74,7 @@ export class Templet extends AnimationTemplet {
 	drawOrderAniArr: any[] = [];
 	/** 事件动画数据 */
 	eventAniArr: any[] = [];
-	/** @private 索引对应的名称 */
+	/** @internal 索引对应的名称 */
 	attachmentNames: any[] = null;
 	/** 顶点动画数据 */
 	deformAniArr: any[] = [];
@@ -92,7 +92,7 @@ export class Templet extends AnimationTemplet {
 	private _loadList: any[];
 	private _path: string;
 	private _relativeUrl: string;
-	/**@private */
+	/**@internal */
 	tMatrixDataLen: number;
 
 	mRootBone: Bone;
