@@ -3,7 +3,6 @@ import { Sprite } from "../../display/Sprite"
 	import { Point } from "../../maths/Point"
 	import { Physics } from "../Physics"
 	import { RigidBody } from "../RigidBody"
-import { ClassUtils } from "../../utils/ClassUtils";
 	
 	/**
 	 * 焊接关节：焊接关节的用途是使两个物体不能相对运动，受到关节的限制，两个刚体的相对位置和角度都保持不变，看上去像一个整体
@@ -64,5 +63,3 @@ import { ClassUtils } from "../../utils/ClassUtils";
 			if (this._joint) this._joint.SetDampingRatio(value);
 		}
 	}
-
-	ClassUtils.regClass("WeldJoint", WeldJoint);

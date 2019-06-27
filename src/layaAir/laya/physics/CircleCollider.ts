@@ -1,6 +1,5 @@
 import { ColliderBase } from "././ColliderBase";
 import { Physics } from "././Physics";
-import { ClassUtils } from "../utils/ClassUtils";
 /**
 	 * 2D圆形碰撞体
 	 */
@@ -66,5 +65,3 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this._setShape();
 		}
 	}
-
-	ClassUtils.regClass("CircleCollider", CircleCollider);
