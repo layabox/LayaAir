@@ -4,11 +4,11 @@ import { CircleCollider } from "././CircleCollider";
 import { PolygonCollider } from "././PolygonCollider";
 import { RigidBody } from "././RigidBody";
 import { PhysicsDebugDraw } from "././PhysicsDebugDraw";
-import { Laya } from "./../../../../core/src/Laya";
-import { Sprite } from "../../../../core/src/laya/display/Sprite"
-	import { Event } from "../../../../core/src/laya/events/Event"
-	import { EventDispatcher } from "../../../../core/src/laya/events/EventDispatcher"
-	import { Point } from "../../../../core/src/laya/maths/Point"
+import { Laya } from "../../Laya";
+import { Sprite } from "../display/Sprite"
+	import { Event } from "../events/Event"
+	import { EventDispatcher } from "../events/EventDispatcher"
+	import { Point } from "../maths/Point"
 	import { DistanceJoint } from "./joint/DistanceJoint"
 	import { GearJoint } from "./joint/GearJoint"
 	import { MotorJoint } from "./joint/MotorJoint"
@@ -19,7 +19,7 @@ import { Sprite } from "../../../../core/src/laya/display/Sprite"
 	import { RopeJoint } from "./joint/RopeJoint"
 	import { WeldJoint } from "./joint/WeldJoint"
 	import { WheelJoint } from "./joint/WheelJoint"
-	import { ClassUtils } from "../../../../core/src/laya/utils/ClassUtils"
+	import { ClassUtils } from "../utils/ClassUtils"
 	
 	/**
 	 * 2D物理引擎，使用Box2d驱动
@@ -31,7 +31,7 @@ import { Sprite } from "../../../../core/src/laya/display/Sprite"
 		private static _I:Physics;
 		
 		/**Box2d引擎的全局引用，更多属性和api请参考 http://box2d.org */
-		 box2d:any = window.box2d;
+		 box2d:any = (<any>window).box2d;
 		/**[只读]物理世界引用，更多属性请参考官网 */
 		 world:any;
 		/**旋转迭代次数，增大数字会提高精度，但是会降低性能*/
@@ -55,7 +55,7 @@ import { Sprite } from "../../../../core/src/laya/display/Sprite"
 		
 		constructor() {
 			super();
-ClassUtils.regShortClassName([BoxCollider, ChainCollider, CircleCollider, PolygonCollider, RigidBody, DistanceJoint, GearJoint, MotorJoint, MouseJoint, PrismaticJoint, PulleyJoint, RevoluteJoint, RopeJoint, WeldJoint, WheelJoint, PhysicsDebugDraw]);
+// ClassUtils.regShortClassName([BoxCollider, ChainCollider, CircleCollider, PolygonCollider, RigidBody, DistanceJoint, GearJoint, MotorJoint, MouseJoint, PrismaticJoint, PulleyJoint, RevoluteJoint, RopeJoint, WeldJoint, WheelJoint, PhysicsDebugDraw]);
 		}
 		
 		/**
@@ -81,7 +81,7 @@ ClassUtils.regShortClassName([BoxCollider, ChainCollider, CircleCollider, Polygo
 				this._enabled = true;
 				
 				options || (options = {});
-				var box2d:any = window.box2d;
+				var box2d:any = (<any>window).box2d;
 				if (box2d == null) {
 					console.error("Can not find box2d libs, you should reuqest box2d.js first.");
 					return;
@@ -92,7 +92,7 @@ ClassUtils.regShortClassName([BoxCollider, ChainCollider, CircleCollider, Polygo
 				this.world.SetContactListener(new ContactListener());
 				this.allowSleeping = options.allowSleeping == null ? true : options.allowSleeping;
 				if (!options.customUpdate) Laya.physicsTimer.frameLoop(1, this, this._update);
-				this._emptyBody = this._createBody(new window.box2d.b2BodyDef());
+				this._emptyBody = this._createBody(new (<any>window).box2d.b2BodyDef());
 			}
 		}
 		
@@ -251,7 +251,7 @@ ClassUtils.regShortClassName([BoxCollider, ChainCollider, CircleCollider, Polygo
 	}
 
 
-import { Physics } from "./Physics"
+// import { Physics } from "./Physics"
 
 /**@private */
 class ContactListener {

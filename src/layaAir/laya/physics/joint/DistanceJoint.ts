@@ -1,6 +1,7 @@
 import { JointBase } from "././JointBase";
 import { Physics } from "../Physics"
 	import { RigidBody } from "../RigidBody"
+import { ClassUtils } from "../../utils/ClassUtils";
 	
 	/**
 	 * 距离关节：两个物体上面各自有一点，两点之间的距离固定不变
@@ -31,7 +32,7 @@ import { Physics } from "../Physics"
 				this.selfBody =this.selfBody|| this.owner.getComponent(RigidBody);
 				if (!this.selfBody) throw "selfBody can not be empty";
 				
-				var box2d:any = window.box2d;
+				var box2d:any = (<any>window).box2d;
 				var def:any = DistanceJoint._temp || (DistanceJoint._temp = new box2d.b2DistanceJointDef());
 				def.bodyA = this.otherBody ? this.otherBody.getBody() : Physics.I._emptyBody;
 				def.bodyB = this.selfBody.getBody();
@@ -79,3 +80,4 @@ import { Physics } from "../Physics"
 		}
 	}
 
+	ClassUtils.regClass("DistanceJoint", DistanceJoint);

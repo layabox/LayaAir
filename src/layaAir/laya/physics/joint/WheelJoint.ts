@@ -1,8 +1,9 @@
 import { JointBase } from "././JointBase";
-import { Sprite } from "../../../../../core/src/laya/display/Sprite"
-	import { Point } from "../../../../../core/src/laya/maths/Point"
+import { Sprite } from "../../display/Sprite"
+	import { Point } from "../../maths/Point"
 	import { Physics } from "../Physics"
 	import { RigidBody } from "../RigidBody"
+import { ClassUtils } from "../../utils/ClassUtils";
 	
 	/**
 	 * 轮子关节：围绕节点旋转，包含弹性属性，使得刚体在节点位置发生弹性偏移
@@ -39,9 +40,9 @@ import { Sprite } from "../../../../../core/src/laya/display/Sprite"
 				this.selfBody =this.selfBody|| this.owner.getComponent(RigidBody);
 				if (!this.selfBody) throw "selfBody can not be empty";
 				
-				var box2d:any = window.box2d;
+				var box2d:any = (<any>window).box2d;
 				var def:any = WheelJoint._temp || (WheelJoint._temp = new box2d.b2WheelJointDef());
-				var anchorPos:Point = Sprite(this.selfBody.owner).localToGlobal(Point.TEMP.setTo(this.anchor[0], this.anchor[1]), false, Physics.I.worldRoot);
+				var anchorPos:Point = (<Sprite>this.selfBody.owner).localToGlobal(Point.TEMP.setTo(this.anchor[0], this.anchor[1]), false, Physics.I.worldRoot);
 				var anchorVec:any = new box2d.b2Vec2(anchorPos.x / Physics.PIXEL_RATIO, anchorPos.y / Physics.PIXEL_RATIO);
 				def.Initialize(this.otherBody.getBody(), this.selfBody.getBody(), anchorVec, new box2d.b2Vec2(this.axis[0], this.axis[1]));
 				def.enableMotor = this._enableMotor;
@@ -106,3 +107,4 @@ import { Sprite } from "../../../../../core/src/laya/display/Sprite"
 		}
 	}
 
+	ClassUtils.regClass("WheelJoint", WheelJoint);

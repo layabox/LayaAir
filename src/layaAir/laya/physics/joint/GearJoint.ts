@@ -1,6 +1,7 @@
 import { JointBase } from "././JointBase";
 import { Physics } from "../Physics"
 	import { RigidBody } from "../RigidBody"
+import { ClassUtils } from "../../utils/ClassUtils";
 	
 	/**
 	 * 齿轮关节：用来模拟两个齿轮间的约束关系，齿轮旋转时，产生的动量有两种输出方式，一种是齿轮本身的角速度，另一种是齿轮表面的线速度
@@ -23,7 +24,7 @@ import { Physics } from "../Physics"
 				if (!this.joint1) throw "Joint1 can not be empty";
 				if (!this.joint2) throw "Joint2 can not be empty";
 				
-				var box2d:any = window.box2d;
+				var box2d:any = (<any>window).box2d;
 				var def:any = GearJoint._temp || (GearJoint._temp = new box2d.b2GearJointDef());
 				def.bodyA = this.joint1.owner.getComponent(RigidBody).getBody();
 				def.bodyB = this.joint2.owner.getComponent(RigidBody).getBody();
@@ -46,3 +47,4 @@ import { Physics } from "../Physics"
 		}
 	}
 
+	ClassUtils.regClass("GearJoint", GearJoint);

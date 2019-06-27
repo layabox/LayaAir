@@ -1,6 +1,6 @@
 import { RigidBody } from "././RigidBody";
-import { Laya } from "./../../../../core/src/Laya";
-import { Component } from "../../../../core/src/laya/components/Component"
+import { Laya } from "../../Laya";
+import { Component } from "../components/Component"
 	
 	/**
 	 * 碰撞体基类
@@ -29,7 +29,7 @@ import { Component } from "../../../../core/src/laya/components/Component"
 		/**@private 获取碰撞体信息*/
 		protected getDef():any {
 			if (!this._def) {
-				var def:any = new window.box2d.b2FixtureDef();
+				var def:any = new (<any>window).box2d.b2FixtureDef();
 				def.density = this.density;
 				def.friction = this.friction;
 				def.isSensor = this.isSensor;

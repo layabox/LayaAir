@@ -1,6 +1,7 @@
 import { JointBase } from "././JointBase";
 import { Physics } from "../Physics"
 	import { RigidBody } from "../RigidBody"
+import { ClassUtils } from "../../utils/ClassUtils";
 	
 	/**
 	 * 绳索关节：限制了两个点之间的最大距离。它能够阻止连接的物体之间的拉伸，即使在很大的负载下
@@ -28,7 +29,7 @@ import { Physics } from "../Physics"
 				this.selfBody =this.selfBody|| this.owner.getComponent(RigidBody);
 				if (!this.selfBody) throw "selfBody can not be empty";
 				
-				var box2d:any = window.box2d;
+				var box2d:any = (<any>window).box2d;
 				var def:any = RopeJoint._temp || (RopeJoint._temp = new box2d.b2RopeJointDef());
 				def.bodyA = this.otherBody ? this.otherBody.getBody() : Physics.I._emptyBody;
 				def.bodyB = this.selfBody.getBody();
@@ -52,3 +53,4 @@ import { Physics } from "../Physics"
 		}
 	}
 
+	ClassUtils.regClass("RopeJoint", RopeJoint);

@@ -1,8 +1,10 @@
-import { Laya } from "./../../../../core/src/Laya";
-import { Graphics } from "../../../../core/src/laya/display/Graphics"
-	import { Sprite } from "../../../../core/src/laya/display/Sprite"
-	import { Context } from "../../../../core/src/laya/resource/Context"
-	import { Browser } from "../../../../core/src/laya/utils/Browser"
+import { Laya } from "../../Laya";
+import { Graphics } from "../display/Graphics"
+	import { Sprite } from "../display/Sprite"
+	import { Context } from "../resource/Context"
+	import { Browser } from "../utils/Browser"
+import { Physics } from "./Physics";
+import { ClassUtils } from "../utils/ClassUtils";
 	
 	/**
 	 * 物理辅助线，调用PhysicsDebugDraw.enable()开启，或者通过IDE设置打开
@@ -238,3 +240,4 @@ if (!PhysicsDebugDraw._inited) {
 		}
 	}
 
+	ClassUtils.regClass("PhysicsDebugDraw", PhysicsDebugDraw);

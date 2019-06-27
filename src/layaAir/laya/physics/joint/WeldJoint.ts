@@ -1,8 +1,9 @@
 import { JointBase } from "././JointBase";
-import { Sprite } from "../../../../../core/src/laya/display/Sprite"
-	import { Point } from "../../../../../core/src/laya/maths/Point"
+import { Sprite } from "../../display/Sprite"
+	import { Point } from "../../maths/Point"
 	import { Physics } from "../Physics"
 	import { RigidBody } from "../RigidBody"
+import { ClassUtils } from "../../utils/ClassUtils";
 	
 	/**
 	 * 焊接关节：焊接关节的用途是使两个物体不能相对运动，受到关节的限制，两个刚体的相对位置和角度都保持不变，看上去像一个整体
@@ -30,9 +31,9 @@ import { Sprite } from "../../../../../core/src/laya/display/Sprite"
 				this.selfBody =this.selfBody|| this.owner.getComponent(RigidBody);
 				if (!this.selfBody) throw "selfBody can not be empty";
 				
-				var box2d:any = window.box2d;
+				var box2d:any = (<any>window).box2d;
 				var def:any = WeldJoint._temp || (WeldJoint._temp = new box2d.b2WeldJointDef());
-				var anchorPos:Point = Sprite(this.selfBody.owner).localToGlobal(Point.TEMP.setTo(this.anchor[0], this.anchor[1]), false, Physics.I.worldRoot);
+				var anchorPos:Point = (<Sprite>this.selfBody.owner).localToGlobal(Point.TEMP.setTo(this.anchor[0], this.anchor[1]), false, Physics.I.worldRoot);
 				var anchorVec:any = new box2d.b2Vec2(anchorPos.x / Physics.PIXEL_RATIO, anchorPos.y / Physics.PIXEL_RATIO);
 				def.Initialize(this.otherBody.getBody(), this.selfBody.getBody(), anchorVec);
 				def.frequencyHz = this._frequency;
@@ -64,3 +65,4 @@ import { Sprite } from "../../../../../core/src/laya/display/Sprite"
 		}
 	}
 
+	ClassUtils.regClass("WeldJoint", WeldJoint);

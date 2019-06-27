@@ -1,8 +1,9 @@
 import { JointBase } from "././JointBase";
-import { Sprite } from "../../../../../core/src/laya/display/Sprite"
-	import { Point } from "../../../../../core/src/laya/maths/Point"
+import { Sprite } from "../../display/Sprite"
+	import { Point } from "../../maths/Point"
 	import { Physics } from "../Physics"
 	import { RigidBody } from "../RigidBody"
+import { ClassUtils } from "../../utils/ClassUtils";
 	
 	/**
 	 * 平移关节：移动关节允许两个物体沿指定轴相对移动，它会阻止相对旋转
@@ -41,9 +42,9 @@ import { Sprite } from "../../../../../core/src/laya/display/Sprite"
 				this.selfBody =this.selfBody|| this.owner.getComponent(RigidBody);
 				if (!this.selfBody) throw "selfBody can not be empty";
 				
-				var box2d:any = window.box2d;
+				var box2d:any = (<any>window).box2d;
 				var def:any = PrismaticJoint._temp || (PrismaticJoint._temp = new box2d.b2PrismaticJointDef());
-				var anchorPos:Point = Sprite(this.selfBody.owner).localToGlobal(Point.TEMP.setTo(this.anchor[0], this.anchor[1]), false, Physics.I.worldRoot);
+				var anchorPos:Point = (<Sprite>this.selfBody.owner).localToGlobal(Point.TEMP.setTo(this.anchor[0], this.anchor[1]), false, Physics.I.worldRoot);
 				var anchorVec:any = new box2d.b2Vec2(anchorPos.x / Physics.PIXEL_RATIO, anchorPos.y / Physics.PIXEL_RATIO);
 				def.Initialize(this.otherBody ? this.otherBody.getBody() : Physics.I._emptyBody, this.selfBody.getBody(), anchorVec, new box2d.b2Vec2(this.axis[0], this.axis[1]));
 				def.enableMotor = this._enableMotor;
@@ -119,3 +120,4 @@ import { Sprite } from "../../../../../core/src/laya/display/Sprite"
 		}
 	}
 
+	ClassUtils.regClass("PrismaticJoint", PrismaticJoint);

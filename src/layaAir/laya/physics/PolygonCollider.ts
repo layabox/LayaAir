@@ -1,5 +1,6 @@
 import { ColliderBase } from "././ColliderBase";
 import { Physics } from "././Physics";
+import { ClassUtils } from "../utils/ClassUtils";
 /**
 	 * 2D多边形碰撞体，暂时不支持凹多边形，如果是凹多边形，先手动拆分为多个凸多边形
 	 * 节点个数最多是b2_maxPolygonVertices，这数值默认是8，所以点的数量不建议超过8个，也不能小于3个
@@ -14,7 +15,7 @@ import { Physics } from "././Physics";
 		
 		/*override*/ protected getDef():any {
 			if (!this._shape) {
-				this._shape = new window.box2d.b2PolygonShape();
+				this._shape = new (<any>window).box2d.b2PolygonShape();
 				this._setShape(false);
 			}
 			this.label = (this.label || "PolygonCollider");
@@ -29,7 +30,7 @@ import { Physics } from "././Physics";
 			
 			var ps:any[] = [];
 			for (var i:number = 0, n:number = len; i < n; i += 2) {
-				ps.push(new window.box2d.b2Vec2((this._x + parseInt(arr[i])) / Physics.PIXEL_RATIO, (this._y + parseInt(arr[i + 1])) / Physics.PIXEL_RATIO));
+				ps.push(new (<any>window).box2d.b2Vec2((this._x + parseInt(arr[i])) / Physics.PIXEL_RATIO, (this._y + parseInt(arr[i + 1])) / Physics.PIXEL_RATIO));
 			}
 			
 			this._shape.Set(ps, len / 2);
@@ -68,3 +69,4 @@ import { Physics } from "././Physics";
 		}
 	}
 
+	ClassUtils.regClass("PolygonCollider", PolygonCollider);

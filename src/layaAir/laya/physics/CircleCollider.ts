@@ -1,5 +1,6 @@
 import { ColliderBase } from "././ColliderBase";
 import { Physics } from "././Physics";
+import { ClassUtils } from "../utils/ClassUtils";
 /**
 	 * 2D圆形碰撞体
 	 */
@@ -15,7 +16,7 @@ import { Physics } from "././Physics";
 		
 		/*override*/ protected getDef():any {
 			if (!this._shape) {
-				this._shape = new window.box2d.b2CircleShape();
+				this._shape = new (<any>window).box2d.b2CircleShape();
 				this._setShape(false);
 			}
 			this.label = (this.label || "CircleCollider");
@@ -66,3 +67,4 @@ import { Physics } from "././Physics";
 		}
 	}
 
+	ClassUtils.regClass("CircleCollider", CircleCollider);
