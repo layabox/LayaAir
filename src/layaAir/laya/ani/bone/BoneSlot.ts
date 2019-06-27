@@ -10,9 +10,6 @@ import { Graphics } from "../../display/Graphics";
 import { Texture } from "../../resource/Texture";
 
 
-/**
- * @internal
- */
 export class BoneSlot {
 
 	/** 插槽名称 */
@@ -50,7 +47,7 @@ export class BoneSlot {
 
 	/** 实时模式下，复用使用 */
 	private _skinSprite: any;
-	/** @internal 变形动画数据 */
+	/** @private 变形动画数据 */
 	deformData: any[];
 
 	/**
@@ -150,9 +147,7 @@ export class BoneSlot {
 		this._parentMatrix = parentMatrix;
 	}
 
-	/**@internal */
 	private _mVerticleArr: any[];
-	/**@internal */
 	private static _tempMatrix: Matrix = new Matrix();
 
 	//TODO:coverage
@@ -170,10 +165,8 @@ export class BoneSlot {
 		}
 		return true;
 	}
-
-	/**@internal */
 	private static _tempResultMatrix: Matrix = new Matrix();
-	/**@internal */
+
 	private _preGraphicVerticle: any[];
 
 	//TODO:coverage
@@ -192,9 +185,8 @@ export class BoneSlot {
 		return mtA.a == mtB.a && mtA.b == mtB.b && mtA.c == mtB.c && mtA.d == mtB.d && Math.abs(mtA.tx - mtB.tx) < 0.00001 && Math.abs(mtA.ty - mtB.ty) < 0.00001;
 	}
 
-	/**@internal */
 	private _preGraphicMatrix: Matrix;
-	/**@internal */
+
 	private static useSameMatrixAndVerticle: boolean = true;
 
 	//TODO:coverage
@@ -363,7 +355,6 @@ export class BoneSlot {
 		}
 	}
 
-	/**@internal */
 	private static _tempVerticleArr: any[] = [];
 	/**
 	 * 显示蒙皮动画

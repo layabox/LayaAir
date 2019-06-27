@@ -158,7 +158,7 @@ export class Sprite3D extends Node implements ICreateResource {
 	}
 
 	/**
-	 * @internal
+	 * 
 	 */
 	_setCreateURL(url: string): void {
 		this._url = URL.formatURL(url);//perfab根节点会设置URL
@@ -244,7 +244,7 @@ export class Sprite3D extends Node implements ICreateResource {
 	}
 
 		/**
-		 * @internal
+		 * @inheritDoc
 		 */
 		/*override*/ protected _onAdded(): void {
 		if (this._parent instanceof Sprite3D) {
@@ -275,7 +275,7 @@ export class Sprite3D extends Node implements ICreateResource {
 	}
 
 		/**
-		 * @internal
+		 * @inheritDoc
 		 */
 		/*override*/  _parse(data: any, spriteMap: any): void {
 		(data.isStatic !== undefined) && (this._isStatic = data.isStatic);
@@ -309,7 +309,6 @@ export class Sprite3D extends Node implements ICreateResource {
 	}
 
 	/**
-	 * @internal
 	 * 克隆。
 	 * @param	destObject 克隆源。
 	 */

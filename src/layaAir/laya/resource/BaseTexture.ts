@@ -8,9 +8,7 @@ import { ILaya } from "../../ILaya";
 	 * <code>BaseTexture</code> 纹理的父类，抽象类，不允许实例。
 	 */
 	export class BaseTexture extends Bitmap {
-		/** @internal */
 		 static WARPMODE_REPEAT:number = 0;
-		/** @internal */
 		 static WARPMODE_CLAMP:number = 1;
 		
 		/**寻址模式_重复。*/

@@ -82,9 +82,9 @@ export class Mesh extends Resource implements IClone {
 	_subMeshCount: number;
 	/** @internal */
 	_subMeshes: SubMesh[];
-	/** @internal */
+	/** */
 	_vertexBuffers: VertexBuffer3D[];
-	/** @internal */
+	/** */
 	_indexBuffer: IndexBuffer3D;
 	/** @internal */
 	_boneNames: string[];

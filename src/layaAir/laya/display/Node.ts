@@ -970,6 +970,7 @@ import { ILaya } from "../../ILaya";
 		}
 		
 		/**
+		 * @private
 		 * 获取timer
 		 */
 		 get timer():Timer {

@@ -1,7 +1,4 @@
 import { SkinSlotDisplayData } from "././SkinSlotDisplayData";
-/**
- * @internal
- */
 export class SlotData {
 	name: string;
 	displayArr: any[] = [];

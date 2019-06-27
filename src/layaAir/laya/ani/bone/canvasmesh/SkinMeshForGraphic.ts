@@ -4,9 +4,6 @@ import { Texture } from "../../../resource/Texture";
 
 
 
-/**
- * @internal
- */
 export class SkinMeshForGraphic extends MeshData {
 
 	//TODO:coverage

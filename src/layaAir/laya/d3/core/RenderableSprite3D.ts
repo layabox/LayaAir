@@ -28,7 +28,7 @@ import { ILaya3D } from "../../../ILaya3D";
 		
 		 pickColor:Vector4;
 		
-		/**@internal */
+		
 		 static shaderDefines:ShaderDefines = new ShaderDefines();
 		
 		/**

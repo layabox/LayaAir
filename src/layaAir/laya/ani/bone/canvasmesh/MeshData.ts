@@ -4,7 +4,6 @@ import { Rectangle } from "../../../maths/Rectangle";
 
 
 /**
- * @internal
  */
 export class MeshData {
 	/**

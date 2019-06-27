@@ -259,7 +259,7 @@ import { ILaya } from "../../ILaya";
 		 * @param color		（可选）颜色滤镜。
 		 * @param blendMode （可选）混合模式。
 		 */
-		 drawTexture(texture:Texture, x:number = 0, y:number = 0, width:number = 0, height:number = 0, matrix:Matrix = null, alpha:number = 1, color:string = null, blendMode:string = null):DrawTextureCmd {
+		 drawTexture(texture:Texture, x:number = 0, y:number = 0, width:number = 0, height:number = 0, matrix:Matrix = null, alpha:number = 1, color:string = null, blendMode:string = null,uv?:number[]):DrawTextureCmd {
 			if (!texture || alpha < 0.01) return null;
 			if (!texture.getIsReady()) return null;
 			if (!width) width = texture.sourceWidth;
@@ -281,7 +281,7 @@ import { ILaya } from "../../ILaya";
 			}
 			
 			// canvas 模式不支持
-			var args:DrawTextureCmd = DrawTextureCmd.create.call(this, texture, x, y, width, height, matrix, alpha, color, blendMode);
+			var args:DrawTextureCmd = DrawTextureCmd.create.call(this, texture, x, y, width, height, matrix, alpha, color, blendMode,uv);
 			this._repaint();
 			
 			return this._saveToCmd(null, args);
@@ -740,8 +740,7 @@ import { ILaya } from "../../ILaya";
 		 * @param	height
 		 * @param	sizeGrid
 		 */
-		 draw9Grid(texture:Texture, x:number = 0, y:number =0, width:number=0, height:number=0, sizeGrid:any[]=null):void
-		{
+		 draw9Grid(texture:Texture, x:number = 0, y:number =0, width:number=0, height:number=0, sizeGrid:any[]=null):void{
 			this._saveToCmd(null, Draw9GridTexture.create(texture, x, y, width, height, sizeGrid));
 		}
 	}
