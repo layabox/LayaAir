@@ -145,11 +145,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 		 * @param accessor 
 		 */
 		private accessGetSetFunc(obj:Object, prop:string, accessor:string):any {
-			console.log(obj, prop, accessor);
 			if (["get", "set"].indexOf(accessor) === -1) { // includes
 				return;
 			}
-			let propertyDes = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(obj), "x");
+			let propertyDes = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(obj), prop);
 			return propertyDes && propertyDes[accessor].bind(obj);
 		}
 		
