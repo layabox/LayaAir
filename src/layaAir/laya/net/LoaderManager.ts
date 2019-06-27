@@ -275,7 +275,7 @@ import { ILaya } from "../../ILaya";
 					info.cache = false;
 					info.ignoreCache = ignoreCache;
 					info.originalUrl = null;
-					
+					info.group=null;
 					info.createCache = cache;
 					info.createConstructParams = constructParams;
 					info.createPropertyParams = propertyParams;
