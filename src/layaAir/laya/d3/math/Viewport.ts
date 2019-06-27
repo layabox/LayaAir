@@ -62,23 +62,6 @@ export class Viewport {
 		out.z = (out.z * (this.maxDepth - this.minDepth)) + this.minDepth;
 	}
 
-	project1(source: Vector3, matrix: Matrix4x4, out: Vector3): void {
-		
-		var v4: Vector4 = Vector3._tempVector4;
-		Vector3.transformV3ToV4(source, matrix, v4);
-		//v4e[3]是z，是相对于摄像机的位置。注意有时候可能为0
-		var dist: number = v4.w;
-		if (dist < 1e-1 && dist > -1e-6) dist = 1e-6;
-		v4.x /= dist;
-		v4.y /= dist;
-		v4.z /= dist;
-
-		out.x = (v4.x + 1) * this.width / 2 + this.x;
-		out.y = (-v4.y + 1) * this.height / 2 + this.y;
-		out.z = v4.w;
-		return;
-	}
-
 	/**
 	 * 反变换一个三维向量。
 	 * @param	source 源三维向量。

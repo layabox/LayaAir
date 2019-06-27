@@ -34,10 +34,10 @@ export class MeshRenderStaticBatchManager extends StaticBatchManager {
 		this._updateCountMark = 0;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _compare(left: RenderableSprite3D, right: RenderableSprite3D): number {
+	/**
+	 * @inheritDoc
+	 */
+	/*override*/ protected _compare(left: RenderableSprite3D, right: RenderableSprite3D): number {
 		//按照合并条件排序，增加初始状态合并几率
 		var lRender: BaseRender = left._render, rRender: BaseRender = right._render;
 		var leftGeo: Mesh = (<Mesh>((<MeshSprite3D>left)).meshFilter.sharedMesh), rightGeo: Mesh = (<Mesh>((<MeshSprite3D>right)).meshFilter.sharedMesh);
@@ -87,10 +87,10 @@ export class MeshRenderStaticBatchManager extends StaticBatchManager {
 		return (batchOwner[number]) || (batchOwner[number] = new SubMeshStaticBatch(rootOwner, number, MeshRenderStaticBatchManager._verDec));
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _initStaticBatchs(rootOwner: Sprite3D): void {
+	/**
+	 * @inheritDoc
+	 */
+	/*override*/ protected _initStaticBatchs(rootOwner: Sprite3D): void {
 		this._quickSort(this._initBatchSprites, 0, this._initBatchSprites.length - 1);
 		var lastCanMerage: boolean = false;
 		var curStaticBatch: SubMeshStaticBatch;

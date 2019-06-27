@@ -789,10 +789,10 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _parse(data: any, spriteMap: any): void {
+	/**
+	 * @inheritDoc
+	 */
+	/*override*/  _parse(data: any, spriteMap: any): void {
 		var lightMapsData: any[] = data.lightmaps;
 		if (lightMapsData) {
 			var lightMapCount: number = lightMapsData.length;

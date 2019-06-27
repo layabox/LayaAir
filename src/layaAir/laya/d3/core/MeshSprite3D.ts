@@ -89,11 +89,12 @@ export class MeshSprite3D extends RenderableSprite3D {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _addToInitStaticBatchManager(): void {
-		MeshRenderStaticBatchManager.instance._addBatchSprite(this);
+	/**
+	 * @inheritDoc
+	 */
+	/*override*/  _addToInitStaticBatchManager(): void {
+		if(this.meshFilter.sharedMesh)//无sharedMesh精灵会报错
+			MeshRenderStaticBatchManager.instance._addBatchSprite(this);
 	}
 
 		/**
