@@ -3,7 +3,6 @@ import { Sprite } from "../../display/Sprite"
 	import { Point } from "../../maths/Point"
 	import { Physics } from "../Physics"
 	import { RigidBody } from "../RigidBody"
-import { ClassUtils } from "../../utils/ClassUtils";
 	
 	/**
 	 * 平移关节：移动关节允许两个物体沿指定轴相对移动，它会阻止相对旋转
@@ -119,5 +118,3 @@ import { ClassUtils } from "../../utils/ClassUtils";
 			if (this._joint) this._joint.SetLimits(this._lowerTranslation, value);
 		}
 	}
-
-	ClassUtils.regClass("PrismaticJoint", PrismaticJoint);

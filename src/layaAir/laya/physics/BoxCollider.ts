@@ -1,6 +1,5 @@
 import { ColliderBase } from "././ColliderBase";
 import { Physics } from "././Physics";
-import { ClassUtils } from "../utils/ClassUtils";
 /**
 	 * 2D矩形碰撞体
 	 */
@@ -79,5 +78,3 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this._setShape();
 		}
 	}
-
-	ClassUtils.regClass("BoxCollider", BoxCollider);

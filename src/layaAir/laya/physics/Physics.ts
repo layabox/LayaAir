@@ -55,7 +55,7 @@ import { Sprite } from "../display/Sprite"
 		
 		constructor() {
 			super();
-// ClassUtils.regShortClassName([BoxCollider, ChainCollider, CircleCollider, PolygonCollider, RigidBody, DistanceJoint, GearJoint, MotorJoint, MouseJoint, PrismaticJoint, PulleyJoint, RevoluteJoint, RopeJoint, WeldJoint, WheelJoint, PhysicsDebugDraw]);
+ClassUtils.regShortClassName([BoxCollider, ChainCollider, CircleCollider, PolygonCollider, RigidBody, DistanceJoint, GearJoint, MotorJoint, MouseJoint, PrismaticJoint, PulleyJoint, RevoluteJoint, RopeJoint, WeldJoint, WheelJoint, PhysicsDebugDraw]);
 		}
 		
 		/**

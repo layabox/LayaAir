@@ -1,6 +1,5 @@
 import { ColliderBase } from "././ColliderBase";
 import { Physics } from "././Physics";
-import { ClassUtils } from "../utils/ClassUtils";
 /**
 	 * 2D线形碰撞体
 	 */
@@ -78,5 +77,3 @@ import { ClassUtils } from "../utils/ClassUtils";
 			if (this._shape) this._setShape();
 		}
 	}
-
-	ClassUtils.regClass("ChainCollider", ChainCollider);
