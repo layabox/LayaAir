@@ -205,10 +205,21 @@ export function resolveImportMap (id, parentUrl, importMap) {
     return id;
   }
 
-  //const scopeName = getMatch(parentUrl, importMap.scopes);getMatch2
-  const frontName = getMatch2(parentUrl, importMap.secondBaseUrl);
-  let lastUrl = frontName + id;
-  return lastUrl;
+  const scopeName = getMatch(parentUrl, importMap.scopes);
+  if (scopeName) {
+    const scopePackages = importMap.scopes[scopeName];
+    const packageResolution = applyPackages(id, scopePackages, scopeName);
+    if (packageResolution){
+      return packageResolution;
+    }
+  }
+  if(importMap.secondBaseUrl !== ""){
+    const frontName = getMatch2(parentUrl, importMap.secondBaseUrl);
+    let lastUrl = frontName + id;
+    return lastUrl;
+  }
+  
+  return applyPackages(id, importMap.imports, importMap.baseUrl) || urlResolved || throwBare(id, parentUrl);
 }
 
 export function throwBare (id, parentUrl) {
