@@ -1,6 +1,6 @@
-import { AtlasGrid } from "././AtlasGrid";
-import { TextTexture } from "././TextTexture";
-import { TextRender } from "././TextRender";
+import { AtlasGrid } from "./AtlasGrid";
+import { TextTexture } from "./TextTexture";
+import { TextRender } from "./TextRender";
 import { Point } from "../../maths/Point"
 	import { CharRenderInfo } from "./CharRenderInfo"
 import { ILaya } from "../../../ILaya";

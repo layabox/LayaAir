@@ -12,8 +12,8 @@ import { PixelLineSprite3D } from "../pixelLine/PixelLineSprite3D";
 import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { RenderElement } from "../render/RenderElement";
-import { IOctreeObject } from "././IOctreeObject";
-import { Scene3D } from "././Scene3D";
+import { IOctreeObject } from "./IOctreeObject";
+import { Scene3D } from "./Scene3D";
 import { BoundsOctree } from "./BoundsOctree";
 import { Shader3D } from "../../shader/Shader3D";
 

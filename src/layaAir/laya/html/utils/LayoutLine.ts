@@ -1,5 +1,5 @@
-import { ILayout } from "././ILayout";
-import { HTMLStyle } from "././HTMLStyle";
+import { ILayout } from "./ILayout";
+import { HTMLStyle } from "./HTMLStyle";
 import { IHtml } from "./IHtml";
 import { HTMLImageElement } from "../dom/HTMLImageElement"
 import { HTMLElement, HTMLElementType } from "../dom/HTMLElement";

@@ -5,7 +5,7 @@ import { GeometryElement } from "../core/GeometryElement";
 import { RenderContext3D } from "../core/render/RenderContext3D";
 import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement";
 import { SubMesh } from "../resource/models/SubMesh";
-import { VertexBuffer3D } from "././VertexBuffer3D";
+import { VertexBuffer3D } from "./VertexBuffer3D";
 import { VertexMesh } from "./Vertex/VertexMesh";
 
 	/**

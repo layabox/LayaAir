@@ -5,7 +5,7 @@ import { MathUtils3D } from "../math/MathUtils3D";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { Sprite3D } from "././Sprite3D";
+import { Sprite3D } from "./Sprite3D";
 
 /**
  * <code>Transform3D</code> 类用于实现3D变换。

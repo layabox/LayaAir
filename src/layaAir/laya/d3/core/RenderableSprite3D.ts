@@ -3,7 +3,7 @@ import { Animator } from "../component/Animator";
 import { Vector4 } from "../math/Vector4";
 import { Shader3D } from "../shader/Shader3D";
 import { ShaderDefines } from "../shader/ShaderDefines";
-import { Sprite3D } from "././Sprite3D";
+import { Sprite3D } from "./Sprite3D";
 import { BaseRender } from "./render/BaseRender";
 import { Scene3D } from "./scene/Scene3D";
 import { ILaya3D } from "../../../ILaya3D";

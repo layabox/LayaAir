@@ -1,6 +1,6 @@
-import { VoxFileChunkChild } from "././VoxFileChunkChild";
+import { VoxFileChunkChild } from "./VoxFileChunkChild";
 import { Laya } from "Laya";
-import { VoxData } from "././VoxData";
+import { VoxData } from "./VoxData";
 	import { Color } from "laya/d3/math/Color"
 	import { CubeInfo } from "../Cube/CubeInfo"
 	import { CubeInfoArray } from "../worldMaker/CubeInfoArray"

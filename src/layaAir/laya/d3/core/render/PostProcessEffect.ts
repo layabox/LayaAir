@@ -1,4 +1,4 @@
-import { PostProcessRenderContext } from "././PostProcessRenderContext";
+import { PostProcessRenderContext } from "./PostProcessRenderContext";
 /**
 	 * <code>PostProcessEffect</code> 类用于创建后期处理渲染效果。
 	 */

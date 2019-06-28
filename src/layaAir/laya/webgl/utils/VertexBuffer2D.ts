@@ -1,4 +1,4 @@
-import { Buffer2D } from "././Buffer2D";
+import { Buffer2D } from "./Buffer2D";
 	import { LayaGL } from "../../layagl/LayaGL"
 	import { WebGLContext } from "../WebGLContext"
 import { Buffer } from "./Buffer";

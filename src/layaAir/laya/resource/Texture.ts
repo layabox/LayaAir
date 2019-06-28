@@ -1,4 +1,4 @@
-import { Texture2D } from "././Texture2D";
+import { Texture2D } from "./Texture2D";
 import { Event } from "../events/Event"
 	import { EventDispatcher } from "../events/EventDispatcher"
 	import { Rectangle } from "../maths/Rectangle"

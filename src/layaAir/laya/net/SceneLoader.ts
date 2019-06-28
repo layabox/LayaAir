@@ -1,7 +1,7 @@
-import { Loader } from "././Loader";
+import { Loader } from "./Loader";
 import { ILaya } from "./../../ILaya";
-import { AtlasInfoManager } from "././AtlasInfoManager";
-import { LoaderManager } from "././LoaderManager";
+import { AtlasInfoManager } from "./AtlasInfoManager";
+import { LoaderManager } from "./LoaderManager";
 import { Prefab } from "../components/Prefab"
 import { Event } from "../events/Event"
 

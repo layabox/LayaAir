@@ -1,4 +1,4 @@
-import { VoxelColor } from "././VoxelColor";
+import { VoxelColor } from "./VoxelColor";
 /**
 	 * 给 median cut 算法用的包围盒。
 	 */

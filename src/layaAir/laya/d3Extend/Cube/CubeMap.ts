@@ -1,4 +1,4 @@
-import { CubeInfo } from "././CubeInfo";
+import { CubeInfo } from "./CubeInfo";
 import { Vector3 } from "laya/d3/math/Vector3"
 	import { CubeInfoArray } from "../worldMaker/CubeInfoArray"
 

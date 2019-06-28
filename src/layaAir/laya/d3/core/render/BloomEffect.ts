@@ -1,5 +1,5 @@
-import { PostProcessEffect } from "././PostProcessEffect";
-import { PostProcessRenderContext } from "././PostProcessRenderContext";
+import { PostProcessEffect } from "./PostProcessEffect";
+import { PostProcessRenderContext } from "./PostProcessRenderContext";
 import { PostProcess } from "../../component/PostProcess"
 import { CommandBuffer } from "./command/CommandBuffer"
 import { Color } from "../../math/Color"

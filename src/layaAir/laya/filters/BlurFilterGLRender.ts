@@ -1,4 +1,4 @@
-import { Filter } from "././Filter";
+import { Filter } from "./Filter";
 import { Matrix } from "../maths/Matrix"
 import { Context } from "../resource/Context"
 import { RenderTexture2D } from "../resource/RenderTexture2D"

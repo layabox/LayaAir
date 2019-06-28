@@ -1,4 +1,4 @@
-import { Transform } from "././Transform";
+import { Transform } from "./Transform";
 import { Sprite } from "../../display/Sprite";
 import { Matrix } from "../../maths/Matrix";
 import { ILaya } from "../../../ILaya";

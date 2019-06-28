@@ -1,4 +1,4 @@
-import { IFilter } from "././IFilter";
+import { IFilter } from "./IFilter";
 import { Sprite } from "../display/Sprite"
 	import { Matrix } from "../maths/Matrix"
 	import { Point } from "../maths/Point"

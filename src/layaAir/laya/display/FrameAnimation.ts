@@ -1,4 +1,4 @@
-import { AnimationBase } from "././AnimationBase";
+import { AnimationBase } from "./AnimationBase";
 import { MathUtil } from "../maths/MathUtil"
 	import { Ease } from "../utils/Ease"
 	

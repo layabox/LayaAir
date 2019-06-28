@@ -4,9 +4,9 @@ import { MouseManager } from "../events/MouseManager";
 import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
 import { ILaya } from "./../../ILaya";
-import { Ease } from "././Ease";
-import { Handler } from "././Handler";
-import { Tween } from "././Tween";
+import { Ease } from "./Ease";
+import { Handler } from "./Handler";
+import { Tween } from "./Tween";
 
 /**
  * @private

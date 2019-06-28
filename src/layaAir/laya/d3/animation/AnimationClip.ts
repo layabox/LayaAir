@@ -1,8 +1,8 @@
-import { AnimationClipParser03 } from "././AnimationClipParser03";
-import { AnimationClipParser04 } from "././AnimationClipParser04";
-import { KeyframeNodeList } from "././KeyframeNodeList";
-import { AnimationEvent } from "././AnimationEvent";
-import { KeyframeNode } from "././KeyframeNode";
+import { AnimationClipParser03 } from "./AnimationClipParser03";
+import { AnimationClipParser04 } from "./AnimationClipParser04";
+import { KeyframeNodeList } from "./KeyframeNodeList";
+import { AnimationEvent } from "./AnimationEvent";
+import { KeyframeNode } from "./KeyframeNode";
 import { FloatKeyframe } from "../core/FloatKeyframe"
 import { Keyframe } from "../core/Keyframe"
 import { QuaternionKeyframe } from "../core/QuaternionKeyframe"

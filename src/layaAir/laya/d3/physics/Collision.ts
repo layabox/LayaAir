@@ -1,4 +1,4 @@
-import { ContactPoint } from "././ContactPoint";
+import { ContactPoint } from "./ContactPoint";
 import { PhysicsComponent } from "./PhysicsComponent"
 	
 	/**

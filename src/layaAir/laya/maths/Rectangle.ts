@@ -1,5 +1,5 @@
 import { Pool } from "../utils/Pool";
-import { Point } from "././Point";
+import { Point } from "./Point";
 
 /**
  * <p><code>Rectangle</code> 对象是按其位置（由它左上角的点 (x, y) 确定）以及宽度和高度定义的区域。</p>

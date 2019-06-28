@@ -8,7 +8,7 @@ import { Vector4 } from "../math/Vector4";
 import { SkyRenderer } from "../resource/models/SkyRenderer";
 import { Shader3D } from "../shader/Shader3D";
 import { ShaderData } from "../shader/ShaderData";
-import { Sprite3D } from "././Sprite3D";
+import { Sprite3D } from "./Sprite3D";
 import { Scene3D } from "./scene/Scene3D";
 
 /**

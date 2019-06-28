@@ -10,10 +10,10 @@ import { RenderContext3D } from "../render/RenderContext3D";
 import { RenderElement } from "../render/RenderElement";
 import { Scene3D } from "../scene/Scene3D";
 import { TextureMode } from "../TextureMode";
-import { TrailGeometry } from "././TrailGeometry";
-import { TrailMaterial } from "././TrailMaterial";
-import { TrailRenderer } from "././TrailRenderer";
-import { TrailSprite3D } from "././TrailSprite3D";
+import { TrailGeometry } from "./TrailGeometry";
+import { TrailMaterial } from "./TrailMaterial";
+import { TrailRenderer } from "./TrailRenderer";
+import { TrailSprite3D } from "./TrailSprite3D";
 import { Shader3D } from "../../../d3/shader/Shader3D";
 
 /**

@@ -1,4 +1,4 @@
-import { HTMLStyle } from "././HTMLStyle";
+import { HTMLStyle } from "./HTMLStyle";
 /**
 	 * @private
 	 *  <code>ILayout</code> 类是显示对象的布局接口。

@@ -1,8 +1,8 @@
 import { Laya } from "../../Laya";
 import { Point } from "../maths/Point";
 import { Stat } from "../utils/Stat";
-import { MouseTouch } from "././MouseTouch";
-import { Touch } from "././Touch";
+import { MouseTouch } from "./MouseTouch";
+import { Touch } from "./Touch";
 import { Script3D } from "./component/Script3D";
 import { SimpleSingletonList } from "./component/SimpleSingletonList";
 import { BaseCamera } from "./core/BaseCamera";

@@ -1,7 +1,7 @@
-import { Templet } from "././Templet";
-import { SlotData } from "././SlotData";
-import { SkinSlotDisplayData } from "././SkinSlotDisplayData";
-import { UVTools } from "././UVTools";
+import { Templet } from "./Templet";
+import { SlotData } from "./SlotData";
+import { SkinSlotDisplayData } from "./SkinSlotDisplayData";
+import { UVTools } from "./UVTools";
 import { SkinMeshForGraphic } from "./canvasmesh/SkinMeshForGraphic"
 import { ILaya } from "../../../ILaya";
 import { GraphicsAni } from "../GraphicsAni";

@@ -1,4 +1,4 @@
-import { CharRenderInfo } from "././CharRenderInfo";
+import { CharRenderInfo } from "./CharRenderInfo";
 import { ICharRender } from "./ICharRender"
 	import { ColorUtils } from "../../utils/ColorUtils"
 	export class CharRender_Native extends ICharRender{

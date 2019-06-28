@@ -1,6 +1,6 @@
-import { SubShader } from "././SubShader";
-import { ShaderInstance } from "././ShaderInstance";
-import { Shader3D } from "././Shader3D";
+import { SubShader } from "./SubShader";
+import { ShaderInstance } from "./ShaderInstance";
+import { Shader3D } from "./Shader3D";
 import { RenderState } from "../core/material/RenderState"
 import { WebGL } from "../../webgl/WebGL"
 import { InlcudeFile } from "../../webgl/utils/InlcudeFile"

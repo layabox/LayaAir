@@ -1,10 +1,10 @@
-import { Vector3 } from "././Vector3";
-import { Matrix4x4 } from "././Matrix4x4";
-import { Plane } from "././Plane";
-import { CollisionUtils } from "././CollisionUtils";
-import { ContainmentType } from "././ContainmentType";
-import { BoundBox } from "././BoundBox";
-import { BoundSphere } from "././BoundSphere";
+import { Vector3 } from "./Vector3";
+import { Matrix4x4 } from "./Matrix4x4";
+import { Plane } from "./Plane";
+import { CollisionUtils } from "./CollisionUtils";
+import { ContainmentType } from "./ContainmentType";
+import { BoundBox } from "./BoundBox";
+import { BoundSphere } from "./BoundSphere";
 /**
 	 * <code>BoundFrustum</code> 类用于创建锥截体。
 	 */

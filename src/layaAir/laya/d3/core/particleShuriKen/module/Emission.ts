@@ -1,4 +1,4 @@
-import { Burst } from "././Burst";
+import { Burst } from "./Burst";
 import { IClone } from "../../IClone"
 import { Vector3 } from "../../../math/Vector3"
 import { IDestroy } from "../../../../resource/IDestroy";

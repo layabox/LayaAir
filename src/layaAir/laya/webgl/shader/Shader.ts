@@ -3,8 +3,8 @@ import { Stat } from "../../utils/Stat";
 import { StringKey } from "../../utils/StringKey";
 import { ShaderCompile } from "../utils/ShaderCompile";
 import { WebGLContext } from "../WebGLContext";
-import { BaseShader } from "././BaseShader";
-import { ShaderValue } from "././ShaderValue";
+import { BaseShader } from "./BaseShader";
+import { ShaderValue } from "./ShaderValue";
 
 export class Shader extends BaseShader {
 

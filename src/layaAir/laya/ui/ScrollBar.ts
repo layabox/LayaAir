@@ -1,8 +1,8 @@
-import { UIComponent } from "././UIComponent";
-import { Button } from "././Button";
-import { Slider } from "././Slider";
+import { UIComponent } from "./UIComponent";
+import { Button } from "./Button";
+import { Slider } from "./Slider";
 import { UIConfig } from "./../../UIConfig";
-import { Styles } from "././Styles";
+import { Styles } from "./Styles";
 import { Sprite } from "../display/Sprite"
 import { Event } from "../events/Event"
 import { Point } from "../maths/Point"

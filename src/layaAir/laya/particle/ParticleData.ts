@@ -1,4 +1,4 @@
-import { ParticleSetting } from "././ParticleSetting";
+import { ParticleSetting } from "./ParticleSetting";
 import { MathUtil } from "../maths/MathUtil";
 	
 	/**

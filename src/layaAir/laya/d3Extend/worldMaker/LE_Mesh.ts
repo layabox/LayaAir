@@ -1,4 +1,4 @@
-import { IRenderableMesh } from "././IRenderableMesh";
+import { IRenderableMesh } from "./IRenderableMesh";
 import { Vector3 } from "laya/d3/math/Vector3"
 
 	

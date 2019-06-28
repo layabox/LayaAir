@@ -1,6 +1,6 @@
 import { Vector3 } from "../../math/Vector3";
 import { Mesh } from "../../resource/models/Mesh";
-import { ColliderShape } from "././ColliderShape";
+import { ColliderShape } from "./ColliderShape";
 import { Physics } from "../Physics";
 
 /**

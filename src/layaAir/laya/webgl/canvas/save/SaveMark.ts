@@ -1,6 +1,6 @@
 import { Context } from "../../../resource/Context";
-import { ISaveData } from "././ISaveData";
-import { SaveBase } from "././SaveBase";
+import { ISaveData } from "./ISaveData";
+import { SaveBase } from "./SaveBase";
 
 export class SaveMark implements ISaveData {
 

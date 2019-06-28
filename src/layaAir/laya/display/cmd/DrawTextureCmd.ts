@@ -47,7 +47,9 @@ import { ColorFilter } from "../../filters/ColorFilter"
 		/**
 		 * （可选）混合模式。
 		 */
-		 blendMode:string;
+         blendMode:string;
+         
+         uv:number[]=null;
 		
 		/**@private */
 		 static create(texture:Texture, x:number, y:number, width:number, height:number, matrix:Matrix, alpha:number, color:string, blendMode:string, uv?:number[]):DrawTextureCmd {
@@ -61,7 +63,8 @@ import { ColorFilter } from "../../filters/ColorFilter"
 			cmd.matrix = matrix;
 			cmd.alpha = alpha;
 			cmd.color = color;
-			cmd.blendMode = blendMode;
+            cmd.blendMode = blendMode;
+            cmd.uv=uv;
 			if (color) {
 				cmd.colorFlt = new ColorFilter();
 				cmd.colorFlt.setColor(color);
@@ -82,7 +85,7 @@ import { ColorFilter } from "../../filters/ColorFilter"
 		
 		/**@private */
 		 run(context:Context, gx:number, gy:number):void {
-			context.drawTextureWithTransform(this.texture, this.x, this.y, this.width, this.height, this.matrix, gx, gy, this.alpha, this.blendMode, this.colorFlt);
+			context.drawTextureWithTransform(this.texture, this.x, this.y, this.width, this.height, this.matrix, gx, gy, this.alpha, this.blendMode, this.colorFlt,this.uv);
 		}
 		
 		/**@private */

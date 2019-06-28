@@ -1,9 +1,9 @@
-import { BoxCollider } from "././BoxCollider";
-import { ChainCollider } from "././ChainCollider";
-import { CircleCollider } from "././CircleCollider";
-import { PolygonCollider } from "././PolygonCollider";
-import { RigidBody } from "././RigidBody";
-import { PhysicsDebugDraw } from "././PhysicsDebugDraw";
+import { BoxCollider } from "./BoxCollider";
+import { ChainCollider } from "./ChainCollider";
+import { CircleCollider } from "./CircleCollider";
+import { PolygonCollider } from "./PolygonCollider";
+import { RigidBody } from "./RigidBody";
+import { PhysicsDebugDraw } from "./PhysicsDebugDraw";
 import { Laya } from "../../Laya";
 import { Sprite } from "../display/Sprite"
 	import { Event } from "../events/Event"

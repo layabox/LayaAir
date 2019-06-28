@@ -1,5 +1,5 @@
-import { Filter } from "././Filter";
-import { GlowFilterGLRender } from "././GlowFilterGLRender";
+import { Filter } from "./Filter";
+import { GlowFilterGLRender } from "./GlowFilterGLRender";
 import { ColorUtils } from "../utils/ColorUtils"
 import { BlurFilter } from "./BlurFilter";
 

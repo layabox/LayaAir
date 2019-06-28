@@ -1,4 +1,4 @@
-import { LineVertex } from "././LineVertex";
+import { LineVertex } from "./LineVertex";
 import { BufferState } from "laya/d3/core/BufferState"
 	import { Camera } from "laya/d3/core/Camera"
 	import { GeometryElement } from "laya/d3/core/GeometryElement"

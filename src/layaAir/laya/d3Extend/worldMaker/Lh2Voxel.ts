@@ -1,4 +1,4 @@
-import { VoxTriangleFiller } from "././VoxTriangleFiller";
+import { VoxTriangleFiller } from "./VoxTriangleFiller";
 import { CubeInfo } from "../Cube/CubeInfo"
 	import { CubeSprite3D } from "../Cube/CubeSprite3D"
 	import { MeshFilter } from "laya/d3/core/MeshFilter"

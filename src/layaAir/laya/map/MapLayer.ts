@@ -1,5 +1,5 @@
-import { TileTexSet } from "././TileTexSet";
-import { TileAniSprite } from "././TileAniSprite";
+import { TileTexSet } from "./TileTexSet";
+import { TileAniSprite } from "./TileAniSprite";
 import { Sprite } from "../display/Sprite";
 import { Point } from "../maths/Point";
 import { GridSprite } from "./GridSprite";

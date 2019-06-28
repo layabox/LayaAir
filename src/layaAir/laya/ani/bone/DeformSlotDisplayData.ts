@@ -1,4 +1,4 @@
-import { BoneSlot } from "././BoneSlot";
+import { BoneSlot } from "./BoneSlot";
 /**
  * @internal
  */

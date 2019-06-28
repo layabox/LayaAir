@@ -1,6 +1,6 @@
-import { Physics } from "././Physics";
+import { Physics } from "./Physics";
 import { Laya } from "../../Laya";
-import { ColliderBase } from "././ColliderBase";
+import { ColliderBase } from "./ColliderBase";
 import { Component } from "../components/Component"
 	import { Sprite } from "..//display/Sprite"
 	import { Point } from "../maths/Point"

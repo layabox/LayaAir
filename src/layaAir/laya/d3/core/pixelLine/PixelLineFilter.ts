@@ -1,6 +1,6 @@
-import { PixelLineSprite3D } from "././PixelLineSprite3D";
-import { PixelLineVertex } from "././PixelLineVertex";
-import { PixelLineData } from "././PixelLineData";
+import { PixelLineSprite3D } from "./PixelLineSprite3D";
+import { PixelLineVertex } from "./PixelLineVertex";
+import { PixelLineData } from "./PixelLineData";
 import { BufferState } from "../BufferState"
 import { GeometryElement } from "../GeometryElement"
 import { RenderContext3D } from "../render/RenderContext3D"

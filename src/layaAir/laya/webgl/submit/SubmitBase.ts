@@ -1,5 +1,5 @@
-import { ISubmit } from "././ISubmit";
-import { SubmitKey } from "././SubmitKey";
+import { ISubmit } from "./ISubmit";
+import { SubmitKey } from "./SubmitKey";
 	import { Value2D } from "../shader/d2/value/Value2D"
 	import { Mesh2D } from "../utils/Mesh2D"
 	

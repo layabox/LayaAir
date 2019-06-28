@@ -1,4 +1,4 @@
-import { TrailSprite3D } from "././TrailSprite3D";
+import { TrailSprite3D } from "./TrailSprite3D";
 import { Sprite3D } from "../Sprite3D"
 import { Transform3D } from "../Transform3D"
 import { BaseRender } from "../render/BaseRender"

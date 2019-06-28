@@ -1,6 +1,6 @@
-import { Matrix4x4 } from "././Matrix4x4";
-import { MathUtils3D } from "././MathUtils3D";
-import { Vector2 } from "././Vector2";
+import { Matrix4x4 } from "./Matrix4x4";
+import { MathUtils3D } from "./MathUtils3D";
+import { Vector2 } from "./Vector2";
 import { IClone } from "../core/IClone"
 
 	/**

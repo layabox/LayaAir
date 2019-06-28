@@ -1,8 +1,8 @@
-import { CubeGeometry } from "././CubeGeometry";
-import { CubeInfo } from "././CubeInfo";
-import { CubeRender } from "././CubeRender";
-import { CubeMaterial } from "././CubeMaterial";
-import { CubeMap } from "././CubeMap";
+import { CubeGeometry } from "./CubeGeometry";
+import { CubeInfo } from "./CubeInfo";
+import { CubeRender } from "./CubeRender";
+import { CubeMaterial } from "./CubeMaterial";
+import { CubeMap } from "./CubeMap";
 import { VoxFileData } from "./../vox/VoxFileData";
 import { Handler } from "laya/utils/Handler";
 import { Event } from "events/Event";

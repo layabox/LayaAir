@@ -1,4 +1,4 @@
-import { PhysicsComponent } from "././PhysicsComponent";
+import { PhysicsComponent } from "./PhysicsComponent";
 import { SingletonList } from "../component/SingletonList"
 	
 	/**

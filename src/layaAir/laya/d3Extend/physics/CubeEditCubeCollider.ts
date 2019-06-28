@@ -1,4 +1,4 @@
-import { CubePhysicsCompnent } from "././CubePhysicsCompnent";
+import { CubePhysicsCompnent } from "./CubePhysicsCompnent";
 import { CubeMeshManager } from "./CubeMeshManager";
 import { CubeInfo } from "../Cube/CubeInfo"
 	import { CubeMap } from "../Cube/CubeMap"

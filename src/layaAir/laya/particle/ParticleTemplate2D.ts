@@ -1,5 +1,5 @@
-import { ParticleTemplateWebGL } from "././ParticleTemplateWebGL";
-import { ParticleSetting } from "././ParticleSetting";
+import { ParticleTemplateWebGL } from "./ParticleTemplateWebGL";
+import { ParticleSetting } from "./ParticleSetting";
 import { ISubmit } from "../webgl/submit/ISubmit";
 import { ParticleShaderValue } from "./shader/value/ParticleShaderValue";
 import { Handler } from "../utils/Handler";

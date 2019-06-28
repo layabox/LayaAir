@@ -1,4 +1,4 @@
-import { FrameAnimation } from "././FrameAnimation";
+import { FrameAnimation } from "./FrameAnimation";
 import { ClassUtils } from "../utils/ClassUtils"
 	import { Ease } from "../utils/Ease"
 	

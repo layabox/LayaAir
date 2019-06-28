@@ -1,5 +1,5 @@
-import { SubmitBase } from "././SubmitBase";
-import { SubmitKey } from "././SubmitKey";
+import { SubmitBase } from "./SubmitBase";
+import { SubmitKey } from "./SubmitKey";
 import { ColorFilter } from "../../filters/ColorFilter"
 	import { Context } from "../../resource/Context"
 	import { Texture } from "../../resource/Texture"

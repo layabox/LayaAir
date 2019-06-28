@@ -1,4 +1,4 @@
-import { Video } from "././Video";
+import { Video } from "./Video";
 import { Bitmap } from "../../resource/Bitmap";
 import { ILaya } from "../../../ILaya";
 	

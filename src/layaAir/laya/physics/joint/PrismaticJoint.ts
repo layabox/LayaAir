@@ -1,4 +1,4 @@
-import { JointBase } from "././JointBase";
+import { JointBase } from "./JointBase";
 import { Sprite } from "../../display/Sprite"
 	import { Point } from "../../maths/Point"
 	import { Physics } from "../Physics"

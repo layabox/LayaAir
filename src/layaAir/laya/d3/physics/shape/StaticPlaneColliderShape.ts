@@ -1,4 +1,4 @@
-import { ColliderShape } from "././ColliderShape";
+import { ColliderShape } from "./ColliderShape";
 import { Vector3 } from "../../math/Vector3"
 import { Physics } from "../Physics";
 

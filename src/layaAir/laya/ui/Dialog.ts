@@ -2,7 +2,7 @@ import { View } from "./View";
 import { DialogManager } from "./DialogManager";
 import { UIUtils } from "./UIUtils";
 import { Button } from "./Button";
-import { UIComponent } from "././UIComponent";
+import { UIComponent } from "./UIComponent";
 import { Sprite } from "../display/Sprite"
 import { Event } from "../events/Event"
 import { Point } from "../maths/Point"

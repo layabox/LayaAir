@@ -1,6 +1,6 @@
-import { Vector3 } from "././Vector3";
-import { Quaternion } from "././Quaternion";
-import { MathUtils3D } from "././MathUtils3D";
+import { Vector3 } from "./Vector3";
+import { Quaternion } from "./Quaternion";
+import { MathUtils3D } from "./MathUtils3D";
 import { IClone } from "../core/IClone"
 import { LayaGL } from "../../layagl/LayaGL"
 	

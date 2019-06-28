@@ -12,8 +12,8 @@ import { Bounds } from "../Bounds";
 import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { Transform3D } from "../Transform3D";
-import { ShuriKenParticle3D } from "././ShuriKenParticle3D";
-import { ShurikenParticleSystem } from "././ShurikenParticleSystem";
+import { ShuriKenParticle3D } from "./ShuriKenParticle3D";
+import { ShurikenParticleSystem } from "./ShurikenParticleSystem";
 import { ShuriKenParticle3DShaderDeclaration } from "./ShuriKenParticle3DShaderDeclaration";
 
 
