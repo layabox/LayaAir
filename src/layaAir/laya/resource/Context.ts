@@ -1481,7 +1481,7 @@ export class Context {
 	 * @param	ty
 	 * @param	alpha
 	 */
-	drawTextureWithTransform(tex: Texture, x: number, y: number, width: number, height: number, transform: Matrix, tx: number, ty: number, alpha: number, blendMode: string, colorfilter: ColorFilter = null): void {
+	drawTextureWithTransform(tex: Texture, x: number, y: number, width: number, height: number, transform: Matrix, tx: number, ty: number, alpha: number, blendMode: string, colorfilter: ColorFilter = null,uv?:number[]): void {
 		var oldcomp: string = null;
 		var curMat: Matrix = this._curMat;
 		if (blendMode) {
@@ -1494,7 +1494,7 @@ export class Context {
 		}
 
 		if (!transform) {
-			this._drawTextureM(tex, x + tx, y + ty, width, height, curMat, alpha, null);
+			this._drawTextureM(tex, x + tx, y + ty, width, height, curMat, alpha, uv);
 			if (blendMode) {
 				this.globalCompositeOperation = oldcomp;
 			}
@@ -1519,7 +1519,7 @@ export class Context {
 			tmpMat.ty += curMat.ty;
 			transform = tmpMat;
 		}
-		this._drawTextureM(tex, x, y, width, height, transform, alpha, null);
+		this._drawTextureM(tex, x, y, width, height, transform, alpha, uv);
 		if (blendMode) {
 			this.globalCompositeOperation = oldcomp;
 		}
