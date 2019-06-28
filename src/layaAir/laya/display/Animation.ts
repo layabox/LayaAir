@@ -321,8 +321,8 @@ import { ILaya } from "../../ILaya";
 					// 这时候可以取frameMap中去找，如果找到了，走正常流程。--王伟
 					if (Animation.framesMap[url + "#"]) {
 						_this._setFramesFromCache(this._actionName, true);
-						this.index = 0;
-						this._resumePlay();
+						_this.index = 0;
+						_this._resumePlay();
 						if (loaded) loaded.run();
 					}
 					return;
@@ -344,14 +344,14 @@ import { ILaya } from "../../ILaya";
 						}
 						if (defaultO) {
 							Animation.framesMap[url + "#"] = defaultO;
-							_this._setFramesFromCache(this._actionName, true);
-							this.index = 0;
+							_this._setFramesFromCache(_this._actionName, true);
+							_this.index = 0;
 						}
-						this._resumePlay();
+						_this._resumePlay();
 					} else {
-						_this._setFramesFromCache(this._actionName, true);
-						this.index = 0;
-						this._resumePlay();
+						_this._setFramesFromCache(_this._actionName, true);
+						_this.index = 0;
+						_this._resumePlay();
 					}
 					if (loaded) loaded.run();
 				}

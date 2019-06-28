@@ -50,6 +50,8 @@ import { ShaderCompile } from "./laya/webgl/utils/ShaderCompile";
 import { WebGL } from "./laya/webgl/WebGL";
 import { WebGLContext } from "./laya/webgl/WebGLContext";
 import { WorkerLoader } from "./laya/net/WorkerLoader";
+import { Physics } from "./laya/physics/Physics";
+import { View } from "./laya/ui/View";
 
 	/**
 	 * <code>Laya</code> 是全局对象的引用入口集。
@@ -167,6 +169,8 @@ import { WorkerLoader } from "./laya/net/WorkerLoader";
 			Laya.stage.size(width, height);
             ((<any>window )).stage = Laya.stage;
 
+			Physics.__init__();
+			View.__init__();
 			RenderSprite.__init__();
 			KeyBoardManager.__init__();
 			MouseManager.instance.__init__(Laya.stage, Render.canvas);
