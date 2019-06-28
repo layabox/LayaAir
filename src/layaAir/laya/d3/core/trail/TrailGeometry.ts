@@ -172,7 +172,6 @@ export class TrailGeometry extends GeometryElement {
 	_updateTrail(camera: Camera, lastPosition: Vector3, position: Vector3): void {
 		if (!Vector3.equals(lastPosition, position)) {//位置不变不产生分段
 			if ((this._endIndex - this._activeIndex) === 0)
-			//if ((this._endIndex === 0) && (this._activeIndex === 0))
 				this._addTrailByFirstPosition(camera, position);//当前分段全部消失时,需要添加一个首分段
 			else
 				this._addTrailByNextPosition(camera, position);
@@ -189,10 +188,6 @@ export class TrailGeometry extends GeometryElement {
 		this._subBirthTime[this._endIndex] = this._owner._curtime;
 		this._endIndex++;
 		position.cloneTo(this._lastFixedVertexPosition);
-
-		//var bounds:Bounds = this._owner._owner.trailRenderer.bounds;
-		//bounds.setMin(this._lastFixedVertexPosition);
-		//bounds.setMax(this._lastFixedVertexPosition);
 		this._needAddFirstVertex = true;
 	}
 
@@ -470,6 +465,7 @@ export class TrailGeometry extends GeometryElement {
 		this._subBirthTime = null;
 		this._subDistance = null;
 		this._lastFixedVertexPosition = null;
+		this._isHaveDisappear = false;
 	}
 
 }
