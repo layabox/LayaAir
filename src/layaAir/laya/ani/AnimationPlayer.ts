@@ -1,5 +1,5 @@
-import { AnimationTemplet } from "././AnimationTemplet";
-import { AnimationState } from "././AnimationState";
+import { AnimationTemplet } from "./AnimationTemplet";
+import { AnimationState } from "./AnimationState";
 import { Stat } from "../utils/Stat";
 import { Event } from "../events/Event";
 import { IDestroy } from "../resource/IDestroy";

@@ -1,7 +1,7 @@
-import { CubePhysicsCompnent } from "././CubePhysicsCompnent";
+import { CubePhysicsCompnent } from "./CubePhysicsCompnent";
 import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
-import { CubeBoxCollider } from "././CubeBoxCollider";
-import { CubeEditCubeCollider } from "././CubeEditCubeCollider";
+import { CubeBoxCollider } from "./CubeBoxCollider";
+import { CubeEditCubeCollider } from "./CubeEditCubeCollider";
 import { CubeMap } from "../Cube/CubeMap"
 import { RenderableSprite3D } from "laya/d3/core/RenderableSprite3D"
 import { Sprite3D } from "laya/d3/core/Sprite3D"

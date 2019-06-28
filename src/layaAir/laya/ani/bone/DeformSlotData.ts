@@ -1,4 +1,4 @@
-import { DeformSlotDisplayData } from "././DeformSlotDisplayData";
+import { DeformSlotDisplayData } from "./DeformSlotDisplayData";
 /**
  * @internal
  */

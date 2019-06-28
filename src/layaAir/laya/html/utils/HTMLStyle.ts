@@ -1,4 +1,4 @@
-import { HTMLExtendStyle } from "././HTMLExtendStyle";
+import { HTMLExtendStyle } from "./HTMLExtendStyle";
 import { ILaya } from "../../../ILaya";
 import { Pool } from "../../utils/Pool";
 import { HTMLElement } from "../dom/HTMLElement";

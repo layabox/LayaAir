@@ -1,4 +1,4 @@
-import { Rigidbody3D } from "././Rigidbody3D";
+import { Rigidbody3D } from "./Rigidbody3D";
 import { PhysicsSimulation } from "./PhysicsSimulation"
 
 /**

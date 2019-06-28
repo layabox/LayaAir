@@ -1,5 +1,5 @@
-import { BaseShape } from "././BaseShape";
-import { ShapeUtils } from "././ShapeUtils";
+import { BaseShape } from "./BaseShape";
+import { ShapeUtils } from "./ShapeUtils";
 import { BoundBox } from "../../../../math/BoundBox"
 import { Rand } from "../../../../math/Rand"
 import { Vector3 } from "../../../../math/Vector3"

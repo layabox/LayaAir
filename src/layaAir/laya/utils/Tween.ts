@@ -1,7 +1,7 @@
-import { Handler } from "././Handler";
-import { Pool } from "././Pool";
-import { Browser } from "././Browser";
-import { Utils } from "././Utils";
+import { Handler } from "./Handler";
+import { Pool } from "./Pool";
+import { Browser } from "./Browser";
+import { Utils } from "./Utils";
 import { ILaya } from "./../../ILaya";
 /**
 	 * <code>Tween</code>  是一个缓动类。使用此类能够实现对目标对象属性的渐变。

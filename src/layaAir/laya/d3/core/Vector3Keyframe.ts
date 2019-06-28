@@ -1,4 +1,4 @@
-import { Keyframe } from "././Keyframe";
+import { Keyframe } from "./Keyframe";
 import { Vector3 } from "../math/Vector3"
 	
 	/**

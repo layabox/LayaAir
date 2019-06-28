@@ -1,4 +1,4 @@
-import { BoundsOctreeNode } from "././BoundsOctreeNode";
+import { BoundsOctreeNode } from "./BoundsOctreeNode";
 import { Bounds } from "../Bounds"
 
 /**

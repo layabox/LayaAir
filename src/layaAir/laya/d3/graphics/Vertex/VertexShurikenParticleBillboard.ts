@@ -1,4 +1,4 @@
-import { VertexShuriKenParticle } from "././VertexShuriKenParticle";
+import { VertexShuriKenParticle } from "./VertexShuriKenParticle";
 import { VertexDeclaration } from "../VertexDeclaration"
 	import { VertexElement } from "../VertexElement"
 	import { VertexElementFormat } from "../VertexElementFormat"

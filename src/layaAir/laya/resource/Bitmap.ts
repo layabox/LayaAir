@@ -1,4 +1,4 @@
-import { Resource } from "././Resource";
+import { Resource } from "./Resource";
 /**
 	 * @private
 	 * <code>Bitmap</code> 图片资源类。

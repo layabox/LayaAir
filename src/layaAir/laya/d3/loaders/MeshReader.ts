@@ -1,5 +1,5 @@
-import { LoadModelV04 } from "././LoadModelV04";
-import { LoadModelV05 } from "././LoadModelV05";
+import { LoadModelV04 } from "./LoadModelV04";
+import { LoadModelV05 } from "./LoadModelV05";
 import { Mesh } from "../resource/models/Mesh"
 import { SubMesh } from "../resource/models/SubMesh"
 import { Byte } from "../../utils/Byte"

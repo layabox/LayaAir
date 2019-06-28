@@ -1,6 +1,6 @@
-import { Box } from "././Box";
-import { IItem } from "././IItem";
-import { ISelect } from "././ISelect";
+import { Box } from "./Box";
+import { IItem } from "./IItem";
+import { ISelect } from "./ISelect";
 import { Sprite } from "../display/Sprite"
 import { Event } from "../events/Event"
 import { Loader } from "../net/Loader"

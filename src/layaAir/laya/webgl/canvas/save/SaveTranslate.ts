@@ -1,5 +1,5 @@
-import { ISaveData } from "././ISaveData";
-import { SaveBase } from "././SaveBase";
+import { ISaveData } from "./ISaveData";
+import { SaveBase } from "./SaveBase";
 import { Matrix } from "../../../maths/Matrix"
 	import { Context } from "../../../resource/Context"
 	

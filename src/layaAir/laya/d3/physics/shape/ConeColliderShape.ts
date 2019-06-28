@@ -1,4 +1,4 @@
-import { ColliderShape } from "././ColliderShape";
+import { ColliderShape } from "./ColliderShape";
 import { Physics } from "../Physics";
 
 /**

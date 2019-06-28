@@ -1,4 +1,4 @@
-import { GradientVelocity } from "././GradientVelocity";
+import { GradientVelocity } from "./GradientVelocity";
 import { IClone } from "../../IClone"
 import { Vector3 } from "../../../math/Vector3"
 

@@ -1,6 +1,6 @@
-import { Bitmap } from "././Bitmap";
-import { Texture } from "././Texture";
-import { Texture2D } from "././Texture2D";
+import { Bitmap } from "./Bitmap";
+import { Texture } from "./Texture";
+import { Texture2D } from "./Texture2D";
 import { Context } from "./Context";
 import { ILaya } from "../../ILaya";
 

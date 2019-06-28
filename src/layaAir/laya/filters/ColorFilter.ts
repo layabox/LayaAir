@@ -1,5 +1,5 @@
-import { Filter } from "././Filter";
-import { IFilter } from "././IFilter";
+import { Filter } from "./Filter";
+import { IFilter } from "./IFilter";
 import { ColorUtils } from "../utils/ColorUtils"
 	
 	/**

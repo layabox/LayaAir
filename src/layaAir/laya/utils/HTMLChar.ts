@@ -1,4 +1,4 @@
-import { Pool } from "././Pool";
+import { Pool } from "./Pool";
 /**
 	 * @private
 	 * <code>HTMLChar</code> 是一个 HTML 字符类。

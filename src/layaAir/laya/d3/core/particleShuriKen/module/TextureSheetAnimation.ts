@@ -1,5 +1,5 @@
-import { FrameOverTime } from "././FrameOverTime";
-import { StartFrame } from "././StartFrame";
+import { FrameOverTime } from "./FrameOverTime";
+import { StartFrame } from "./StartFrame";
 import { IClone } from "../../IClone"
 import { Vector2 } from "../../../math/Vector2"
 

@@ -1,4 +1,4 @@
-import { PerfHUD } from "././PerfHUD";
+import { PerfHUD } from "./PerfHUD";
 export class PerfData {
 		 id:number;
 		 name:string;

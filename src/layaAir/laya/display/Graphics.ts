@@ -1,6 +1,6 @@
-import { Sprite } from "././Sprite";
-import { GraphicsBounds } from "././GraphicsBounds";
-import { SpriteConst } from "././SpriteConst";
+import { Sprite } from "./Sprite";
+import { GraphicsBounds } from "./GraphicsBounds";
+import { SpriteConst } from "./SpriteConst";
 import { AlphaCmd } from "./cmd/AlphaCmd"
 	import { ClipRectCmd } from "./cmd/ClipRectCmd"
 	import { Draw9GridTexture } from "./cmd/Draw9GridTexture"

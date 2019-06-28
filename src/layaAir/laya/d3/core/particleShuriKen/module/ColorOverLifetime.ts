@@ -1,4 +1,4 @@
-import { GradientColor } from "././GradientColor";
+import { GradientColor } from "./GradientColor";
 /**
  * <code>ColorOverLifetime</code> 类用于粒子的生命周期颜色。
  */

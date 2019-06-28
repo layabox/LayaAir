@@ -1,8 +1,8 @@
-import { Sprite } from "././Sprite";
-import { Node } from "././Node";
+import { Sprite } from "./Sprite";
+import { Node } from "./Node";
 import { Config } from "./../../Config";
-import { Input } from "././Input";
-import { SpriteConst } from "././SpriteConst";
+import { Input } from "./Input";
+import { SpriteConst } from "./SpriteConst";
 import { Const } from "../Const"
 import { Event } from "../events/Event"
 import { MouseManager } from "../events/MouseManager"

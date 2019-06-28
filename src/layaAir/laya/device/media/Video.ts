@@ -1,5 +1,5 @@
-import { HtmlVideo } from "././HtmlVideo";
-import { WebGLVideo } from "././WebGLVideo";
+import { HtmlVideo } from "./HtmlVideo";
+import { WebGLVideo } from "./WebGLVideo";
 import { Sprite } from "../../display/Sprite";
 import { Texture } from "../../resource/Texture";
 import { Stage } from "../../display/Stage";

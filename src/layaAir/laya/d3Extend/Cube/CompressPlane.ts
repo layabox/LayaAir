@@ -1,4 +1,4 @@
-import { PlaneInfo } from "././PlaneInfo";
+import { PlaneInfo } from "./PlaneInfo";
 import { Color } from "laya/d3/math/Color"
 	import { Vector4 } from "laya/d3/math/Vector4"
 	import { VoxFileData } from "../vox/VoxFileData"

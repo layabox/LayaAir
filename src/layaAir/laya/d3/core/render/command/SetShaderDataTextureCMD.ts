@@ -1,4 +1,4 @@
-import { Command } from "././Command";
+import { Command } from "./Command";
 import { ShaderData } from "../../../shader/ShaderData"
 import { BaseTexture } from "../../../../resource/BaseTexture";
 

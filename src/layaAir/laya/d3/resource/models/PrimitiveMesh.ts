@@ -5,8 +5,8 @@ import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { VertexDeclaration } from "../../graphics/VertexDeclaration";
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
-import { Mesh } from "././Mesh";
-import { SubMesh } from "././SubMesh";
+import { Mesh } from "./Mesh";
+import { SubMesh } from "./SubMesh";
 
 /**
  * <code>PrimitiveMesh</code> 类用于创建简单网格。

@@ -1,4 +1,4 @@
-import { AudioSoundChannel } from "././AudioSoundChannel";
+import { AudioSoundChannel } from "./AudioSoundChannel";
 import { Event } from "../../events/Event"
 	import { EventDispatcher } from "../../events/EventDispatcher"
 	import { SoundChannel } from "../SoundChannel"

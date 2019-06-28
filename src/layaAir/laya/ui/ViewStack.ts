@@ -1,4 +1,4 @@
-import { IItem } from "././IItem";
+import { IItem } from "./IItem";
 /**
  * Morn UI Version 3.0 http://www.mornui.com/
  * Feedback yung http://weibo.com/newyung

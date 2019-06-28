@@ -1,4 +1,4 @@
-import { VoxData } from "././VoxData";
+import { VoxData } from "./VoxData";
 import { Byte } from "laya/utils/Byte"
 	/**
 	 * ...

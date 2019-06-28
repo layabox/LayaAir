@@ -1,4 +1,4 @@
-import { VoxelLightRay } from "././VoxelLightRay";
+import { VoxelLightRay } from "./VoxelLightRay";
 /**
 	 * 包含若干条光线的球
 	 */

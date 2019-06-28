@@ -1,4 +1,4 @@
-import { AnimationTransform3D } from "././AnimationTransform3D";
+import { AnimationTransform3D } from "./AnimationTransform3D";
 import { Avatar } from "../core/Avatar"
 import { IClone } from "../core/IClone"
 import { Quaternion } from "../math/Quaternion"

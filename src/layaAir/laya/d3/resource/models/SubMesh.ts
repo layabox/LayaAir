@@ -1,4 +1,4 @@
-import { Mesh } from "././Mesh";
+import { Mesh } from "./Mesh";
 import { GeometryElement } from "../../core/GeometryElement"
 import { SkinnedMeshRenderer } from "../../core/SkinnedMeshRenderer"
 import { SkinnedMeshSprite3D } from "../../core/SkinnedMeshSprite3D"

@@ -1,5 +1,5 @@
-import { Event } from "././Event";
-import { TouchManager } from "././TouchManager";
+import { Event } from "./Event";
+import { TouchManager } from "./TouchManager";
 import { Input } from "../display/Input"
 	import { Sprite } from "../display/Sprite"
 	import { Point } from "../maths/Point"

@@ -1,4 +1,4 @@
-import { RenderElement } from "././RenderElement";
+import { RenderElement } from "./RenderElement";
 import { BaseCamera } from "../BaseCamera"
 import { Scene3D } from "../scene/Scene3D"
 import { Matrix4x4 } from "../../math/Matrix4x4"

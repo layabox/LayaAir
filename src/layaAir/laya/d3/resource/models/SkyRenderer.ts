@@ -1,5 +1,5 @@
-import { SkyMesh } from "././SkyMesh";
-import { SkyBox } from "././SkyBox";
+import { SkyMesh } from "./SkyMesh";
+import { SkyBox } from "./SkyBox";
 import { BaseCamera } from "../../core/BaseCamera"
 import { BaseMaterial } from "../../core/material/BaseMaterial"
 import { RenderContext3D } from "../../core/render/RenderContext3D"

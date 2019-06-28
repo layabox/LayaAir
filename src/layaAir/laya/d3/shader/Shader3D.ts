@@ -1,5 +1,5 @@
-import { SubShader } from "././SubShader";
-import { ShaderPass } from "././ShaderPass";
+import { SubShader } from "./SubShader";
+import { ShaderPass } from "./ShaderPass";
 import { WebGL } from "../../webgl/WebGL"
 import { ShaderCompile } from "../../webgl/utils/ShaderCompile"
 	

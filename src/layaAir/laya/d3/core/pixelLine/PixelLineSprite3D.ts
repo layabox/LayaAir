@@ -1,7 +1,7 @@
-import { PixelLineFilter } from "././PixelLineFilter";
-import { PixelLineRenderer } from "././PixelLineRenderer";
-import { PixelLineMaterial } from "././PixelLineMaterial";
-import { PixelLineData } from "././PixelLineData";
+import { PixelLineFilter } from "./PixelLineFilter";
+import { PixelLineRenderer } from "./PixelLineRenderer";
+import { PixelLineMaterial } from "./PixelLineMaterial";
+import { PixelLineData } from "./PixelLineData";
 import { RenderableSprite3D } from "../RenderableSprite3D"
 import { BaseMaterial } from "../material/BaseMaterial"
 import { RenderElement } from "../render/RenderElement"

@@ -1,4 +1,4 @@
-import { AnimationNodeContent } from "././AnimationNodeContent";
+import { AnimationNodeContent } from "./AnimationNodeContent";
 /**
  * @internal
  * @author ...

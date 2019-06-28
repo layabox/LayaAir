@@ -1,4 +1,4 @@
-import { Slider } from "././Slider";
+import { Slider } from "./Slider";
 import { ILaya } from "../../ILaya";
 /**
 	 * 使用 <code>VSlider</code> 控件，用户可以通过在滑块轨道的终点之间移动滑块来选择值。

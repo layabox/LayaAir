@@ -1,6 +1,6 @@
-import { ShuriKenParticle3D } from "././ShuriKenParticle3D";
-import { ShurikenParticleRenderer } from "././ShurikenParticleRenderer";
-import { ShurikenParticleData } from "././ShurikenParticleData";
+import { ShuriKenParticle3D } from "./ShuriKenParticle3D";
+import { ShurikenParticleRenderer } from "./ShurikenParticleRenderer";
+import { ShurikenParticleData } from "./ShurikenParticleData";
 import { BufferState } from "../BufferState"
 import { GeometryElement } from "../GeometryElement"
 import { Gradient } from "../Gradient"

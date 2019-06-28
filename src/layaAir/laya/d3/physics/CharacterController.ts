@@ -1,7 +1,7 @@
 import { Vector3 } from "../math/Vector3";
 import { Physics3DUtils } from "../utils/Physics3DUtils";
 import { Utils3D } from "../utils/Utils3D";
-import { PhysicsComponent } from "././PhysicsComponent";
+import { PhysicsComponent } from "./PhysicsComponent";
 import { Physics } from "./Physics";
 import { ColliderShape } from "./shape/ColliderShape";
 import { Component } from "../../components/Component";

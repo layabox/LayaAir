@@ -1,4 +1,4 @@
-import { IClone } from "././IClone";
+import { IClone } from "./IClone";
 import { AnimationNode } from "../animation/AnimationNode"
 import { AnimationTransform3D } from "../animation/AnimationTransform3D"
 import { Animator } from "../component/Animator"

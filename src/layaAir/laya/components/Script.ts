@@ -1,4 +1,4 @@
-import { Component } from "././Component";
+import { Component } from "./Component";
 import { Event } from "../events/Event"
 import { ILaya } from "../../ILaya";
 

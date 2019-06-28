@@ -1,4 +1,4 @@
-import { PlaneInfo } from "././PlaneInfo";
+import { PlaneInfo } from "./PlaneInfo";
 import { CubeInfoList } from "./CubeInfoList";
 import { CubeInfo } from "./CubeInfo"
 	/**

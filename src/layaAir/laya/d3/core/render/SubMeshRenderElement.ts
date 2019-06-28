@@ -14,11 +14,11 @@ import { Utils3D } from "../../utils/Utils3D";
 import { GeometryElement } from "../GeometryElement";
 import { Sprite3D } from "../Sprite3D";
 import { Transform3D } from "../Transform3D";
-import { BaseRender } from "././BaseRender";
-import { BatchMark } from "././BatchMark";
-import { RenderContext3D } from "././RenderContext3D";
-import { RenderElement } from "././RenderElement";
-import { RenderQueue } from "././RenderQueue";
+import { BaseRender } from "./BaseRender";
+import { BatchMark } from "./BatchMark";
+import { RenderContext3D } from "./RenderContext3D";
+import { RenderElement } from "./RenderElement";
+import { RenderQueue } from "./RenderQueue";
 import { ILaya3D } from "../../../../ILaya3D";
 
 /**

@@ -1,5 +1,5 @@
-import { VoxelColor } from "././VoxelColor";
-import { ColorBoundingBox } from "././ColorBoundingBox";
+import { VoxelColor } from "./VoxelColor";
+import { ColorBoundingBox } from "./ColorBoundingBox";
 /**
 	 * 用median cut算法实现的颜色量化算法，即真彩转256色调色板
 	 * 源码来自：

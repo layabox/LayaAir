@@ -1,5 +1,5 @@
-import { HttpRequest } from "././HttpRequest";
-import { Loader } from "././Loader";
+import { HttpRequest } from "./HttpRequest";
+import { Loader } from "./Loader";
 import { Event } from "../events/Event"
 import { Handler } from "../utils/Handler"
 //import { RunDriver } from "../utils/RunDriver"

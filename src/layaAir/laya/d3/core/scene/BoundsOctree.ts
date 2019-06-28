@@ -1,6 +1,6 @@
-import { BoundsOctreeNode } from "././BoundsOctreeNode";
-import { OctreeMotionList } from "././OctreeMotionList";
-import { IOctreeObject } from "././IOctreeObject";
+import { BoundsOctreeNode } from "./BoundsOctreeNode";
+import { OctreeMotionList } from "./OctreeMotionList";
+import { IOctreeObject } from "./IOctreeObject";
 import { PixelLineSprite3D } from "../pixelLine/PixelLineSprite3D"
 import { RenderContext3D } from "../render/RenderContext3D"
 import { BoundBox } from "../../math/BoundBox"

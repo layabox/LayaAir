@@ -1,4 +1,4 @@
-import { ISaveData } from "././ISaveData";
+import { ISaveData } from "./ISaveData";
 import { Context } from "../../../resource/Context"
 	import { SubmitBase } from "../../submit/SubmitBase"
 	

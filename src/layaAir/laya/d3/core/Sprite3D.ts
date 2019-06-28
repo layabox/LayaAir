@@ -8,8 +8,8 @@ import { Matrix4x4 } from "../math/Matrix4x4";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { Shader3D } from "../shader/Shader3D";
-import { Avatar } from "././Avatar";
-import { Transform3D } from "././Transform3D";
+import { Avatar } from "./Avatar";
+import { Transform3D } from "./Transform3D";
 import { Laya } from "../../../Laya";
 import { ICreateResource } from "../../resource/ICreateResource";
 

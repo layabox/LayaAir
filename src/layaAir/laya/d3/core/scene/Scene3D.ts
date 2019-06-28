@@ -50,7 +50,7 @@ import { RenderElement } from "../render/RenderElement";
 import { RenderQueue } from "../render/RenderQueue";
 import { RenderableSprite3D } from "../RenderableSprite3D";
 import { Sprite3D } from "../Sprite3D";
-import { BoundsOctree } from "././BoundsOctree";
+import { BoundsOctree } from "./BoundsOctree";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
 import { Physics } from "../../physics/Physics";
 

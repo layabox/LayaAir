@@ -1,4 +1,4 @@
-import { GradientMode } from "././GradientMode";
+import { GradientMode } from "./GradientMode";
 import { IClone } from "./IClone"
 import { Color } from "../math/Color"
 

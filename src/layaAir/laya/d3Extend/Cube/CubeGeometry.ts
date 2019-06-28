@@ -1,6 +1,6 @@
-import { CubeMap } from "././CubeMap";
-import { CubeInfo } from "././CubeInfo";
-import { SubCubeGeometry } from "././SubCubeGeometry";
+import { CubeMap } from "./CubeMap";
+import { CubeInfo } from "./CubeInfo";
+import { SubCubeGeometry } from "./SubCubeGeometry";
 import { FileSaver } from "./../FileSaver";
 import { GeometryElement } from "laya/d3/core/GeometryElement"
 	import { MeshSprite3D } from "laya/d3/core/MeshSprite3D"

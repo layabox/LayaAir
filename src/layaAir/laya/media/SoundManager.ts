@@ -1,4 +1,4 @@
-import { SoundChannel } from "././SoundChannel";
+import { SoundChannel } from "./SoundChannel";
 import { Event } from "../events/Event"
 import { AudioSound } from "./h5audio/AudioSound"
 import { WebAudioSound } from "./webaudio/WebAudioSound"

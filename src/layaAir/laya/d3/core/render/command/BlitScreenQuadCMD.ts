@@ -9,7 +9,7 @@ import { SubShader } from "../../../shader/SubShader";
 import { RenderContext3D } from "../RenderContext3D";
 import { ScreenQuad } from "../ScreenQuad";
 import { ScreenTriangle } from "../ScreenTriangle";
-import { Command } from "././Command";
+import { Command } from "./Command";
 import { LayaGL } from "../../../../layagl/LayaGL";
 
 /**

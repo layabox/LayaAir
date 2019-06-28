@@ -9,10 +9,10 @@ import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement";
 import { Transform3D } from "../core/Transform3D";
 import { Vector4 } from "../math/Vector4";
 import { SubMesh } from "../resource/models/SubMesh";
-import { IndexBuffer3D } from "././IndexBuffer3D";
-import { VertexBuffer3D } from "././VertexBuffer3D";
-import { VertexDeclaration } from "././VertexDeclaration";
-import { VertexElement } from "././VertexElement";
+import { IndexBuffer3D } from "./IndexBuffer3D";
+import { VertexBuffer3D } from "./VertexBuffer3D";
+import { VertexDeclaration } from "./VertexDeclaration";
+import { VertexElement } from "./VertexElement";
 import { VertexMesh } from "./Vertex/VertexMesh";
 import { ILaya3D } from "../../../ILaya3D";
 	/**

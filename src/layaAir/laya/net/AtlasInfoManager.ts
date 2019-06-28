@@ -1,5 +1,5 @@
 import { ILaya } from "./../../ILaya";
-import { Loader } from "././Loader";
+import { Loader } from "./Loader";
 import { Handler } from "../utils/Handler"
 import { LoaderManager } from "./LoaderManager";
 	

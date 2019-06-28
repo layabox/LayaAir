@@ -7,7 +7,7 @@ import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
 import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { VertexDeclaration } from "../../graphics/VertexDeclaration";
-import { SkyMesh } from "././SkyMesh";
+import { SkyMesh } from "./SkyMesh";
 
 /**
  * <code>SkyBox</code> 类用于创建天空盒。

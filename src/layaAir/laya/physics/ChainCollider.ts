@@ -1,5 +1,5 @@
-import { ColliderBase } from "././ColliderBase";
-import { Physics } from "././Physics";
+import { ColliderBase } from "./ColliderBase";
+import { Physics } from "./Physics";
 /**
 	 * 2D线形碰撞体
 	 */

@@ -1,5 +1,5 @@
-import { Browser } from "././Browser";
-import { Utils } from "././Utils";
+import { Browser } from "./Browser";
+import { Utils } from "./Utils";
 
 var supportWeakMap = !!WeakMap;
 /**

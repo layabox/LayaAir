@@ -1,5 +1,5 @@
-import { ISubmit } from "././ISubmit";
-import { SubmitKey } from "././SubmitKey";
+import { ISubmit } from "./ISubmit";
+import { SubmitKey } from "./SubmitKey";
 import { ColorFilter } from "../../filters/ColorFilter"
 	import { Context } from "../../resource/Context"
 	import { RenderTexture2D } from "../../resource/RenderTexture2D"

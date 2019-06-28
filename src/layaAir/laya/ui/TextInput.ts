@@ -1,4 +1,4 @@
-import { Label } from "././Label";
+import { Label } from "./Label";
 import { Input } from "../display/Input"
 import { Event } from "../events/Event"
 import { Loader } from "../net/Loader"

@@ -1,4 +1,4 @@
-import { SkyMesh } from "././SkyMesh";
+import { SkyMesh } from "./SkyMesh";
 import { BufferState } from "../../core/BufferState"
 import { RenderContext3D } from "../../core/render/RenderContext3D"
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D"

@@ -1,4 +1,4 @@
-import { Widget } from "././Widget";
+import { Widget } from "./Widget";
 import { Animation } from "../display/Animation"
 import { Scene } from "../display/Scene"
 import { Sprite } from "../display/Sprite"

@@ -1,4 +1,4 @@
-import { PixelLineSprite3D } from "././PixelLineSprite3D";
+import { PixelLineSprite3D } from "./PixelLineSprite3D";
 import { Sprite3D } from "../Sprite3D"
 import { Transform3D } from "../Transform3D"
 import { BaseRender } from "../render/BaseRender"

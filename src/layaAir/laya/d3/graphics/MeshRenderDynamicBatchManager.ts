@@ -1,7 +1,7 @@
-import { DynamicBatchManager } from "././DynamicBatchManager";
-import { SubMeshDynamicBatch } from "././SubMeshDynamicBatch";
-import { VertexDeclaration } from "././VertexDeclaration";
-import { VertexBuffer3D } from "././VertexBuffer3D";
+import { DynamicBatchManager } from "./DynamicBatchManager";
+import { SubMeshDynamicBatch } from "./SubMeshDynamicBatch";
+import { VertexDeclaration } from "./VertexDeclaration";
+import { VertexBuffer3D } from "./VertexBuffer3D";
 import { BufferState } from "../core/BufferState"
 import { BatchMark } from "../core/render/BatchMark"
 import { RenderElement } from "../core/render/RenderElement"

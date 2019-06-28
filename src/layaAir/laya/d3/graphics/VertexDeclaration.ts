@@ -1,5 +1,5 @@
-import { VertexElement } from "././VertexElement";
-import { VertexElementFormat } from "././VertexElementFormat";
+import { VertexElement } from "./VertexElement";
+import { VertexElementFormat } from "./VertexElementFormat";
 import { ShaderData } from "../shader/ShaderData"
 
 	

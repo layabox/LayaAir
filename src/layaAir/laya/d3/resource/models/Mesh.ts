@@ -14,7 +14,7 @@ import { MeshReader } from "../../loaders/MeshReader";
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Vector3 } from "../../math/Vector3";
 import { Utils3D } from "../../utils/Utils3D";
-import { SubMesh } from "././SubMesh";
+import { SubMesh } from "./SubMesh";
 import { Laya } from "../../../../Laya";
 import { Handler } from "../../../utils/Handler";
 
