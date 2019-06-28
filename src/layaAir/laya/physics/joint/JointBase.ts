@@ -1,4 +1,4 @@
-import { Component } from "../../../../../core/src/laya/components/Component"
+import { Component } from "../../components/Component"
 	import { Physics } from "../Physics"
 	
 	/**

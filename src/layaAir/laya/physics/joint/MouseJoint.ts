@@ -1,8 +1,8 @@
 import { JointBase } from "././JointBase";
-import { Laya } from "./../../../../../core/src/Laya";
-import { Sprite } from "../../../../../core/src/laya/display/Sprite"
-	import { Event } from "../../../../../core/src/laya/events/Event"
-	import { Point } from "../../../../../core/src/laya/maths/Point"
+import { Laya } from "../../../Laya";
+import { Sprite } from "../../display/Sprite"
+	import { Event } from "../../events/Event"
+	import { Point } from "../../maths/Point"
 	import { Physics } from "../Physics"
 	import { RigidBody } from "../RigidBody"
 	
@@ -26,7 +26,7 @@ import { Sprite } from "../../../../../core/src/laya/display/Sprite"
 		
 		/*override*/ protected _onEnable():void {
 			//super._onEnable();
-			Sprite(this.owner).on(Event.MOUSE_DOWN, this, this.onMouseDown);
+			(<Sprite>this.owner).on(Event.MOUSE_DOWN, this, this.onMouseDown);
 		}
 		
 		/*override*/ protected _onAwake():void {
@@ -43,10 +43,10 @@ import { Sprite } from "../../../../../core/src/laya/display/Sprite"
 				this.selfBody =this.selfBody|| this.owner.getComponent(RigidBody);
 				if (!this.selfBody) throw "selfBody can not be empty";
 				
-				var box2d:any = window.box2d;
+				var box2d:any = (<any>window).box2d;
 				var def:any = MouseJoint._temp || (MouseJoint._temp = new box2d.b2MouseJointDef());
 				if (this.anchor) {
-					var anchorPos:Point = Sprite(this.selfBody.owner).localToGlobal(Point.TEMP.setTo(this.anchor[0], this.anchor[1]), false, Physics.I.worldRoot);
+					var anchorPos:Point = (<Sprite>this.selfBody.owner).localToGlobal(Point.TEMP.setTo(this.anchor[0], this.anchor[1]), false, Physics.I.worldRoot);
 				} else {
 					anchorPos = Physics.I.worldRoot.globalToLocal(Point.TEMP.setTo(Laya.stage.mouseX, Laya.stage.mouseY));
 				}
@@ -67,11 +67,11 @@ import { Sprite } from "../../../../../core/src/laya/display/Sprite"
 		}
 		
 		private onMouseMove():void {
-			this._joint.SetTarget(new window.box2d.b2Vec2(Physics.I.worldRoot.mouseX / Physics.PIXEL_RATIO, Physics.I.worldRoot.mouseY / Physics.PIXEL_RATIO));
+			this._joint.SetTarget(new (<any>window).box2d.b2Vec2(Physics.I.worldRoot.mouseX / Physics.PIXEL_RATIO, Physics.I.worldRoot.mouseY / Physics.PIXEL_RATIO));
 		}
 		
 		/*override*/ protected _onDisable():void {
-			Sprite(this.owner).off(Event.MOUSE_DOWN, this, this.onMouseDown);
+			(<Sprite>this.owner).off(Event.MOUSE_DOWN, this, this.onMouseDown);
 			super._onDisable();
 		}
 		

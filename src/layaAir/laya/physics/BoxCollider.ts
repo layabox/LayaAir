@@ -17,7 +17,7 @@ import { Physics } from "././Physics";
 		
 		/*override*/ protected getDef():any {
 			if (!this._shape) {
-				this._shape = new window.box2d.b2PolygonShape();
+				this._shape = new (<any>window).box2d.b2PolygonShape();
 				this._setShape(false);
 			}
 			this.label = (this.label || "BoxCollider");
@@ -27,7 +27,7 @@ import { Physics } from "././Physics";
 		private _setShape(re:boolean = true):void {
 			var scaleX:number = (this.owner["scaleX"] || 1);
 			var scaleY:number = (this.owner["scaleY"] || 1);
-			this._shape.SetAsBox(this._width / 2 / Physics.PIXEL_RATIO * scaleX, this._height / 2 / Physics.PIXEL_RATIO * scaleY, new window.box2d.b2Vec2((this._width / 2 + this._x) / Physics.PIXEL_RATIO * scaleX, (this._height / 2 + this._y) / Physics.PIXEL_RATIO * scaleY));
+			this._shape.SetAsBox(this._width / 2 / Physics.PIXEL_RATIO * scaleX, this._height / 2 / Physics.PIXEL_RATIO * scaleY, new (<any>window).box2d.b2Vec2((this._width / 2 + this._x) / Physics.PIXEL_RATIO * scaleX, (this._height / 2 + this._y) / Physics.PIXEL_RATIO * scaleY));
 			if (re) this.refresh();
 		}
 		
@@ -78,4 +78,3 @@ import { Physics } from "././Physics";
 			this._setShape();
 		}
 	}
-

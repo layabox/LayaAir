@@ -23,7 +23,7 @@ import { Physics } from "../Physics"
 				if (!this.joint1) throw "Joint1 can not be empty";
 				if (!this.joint2) throw "Joint2 can not be empty";
 				
-				var box2d:any = window.box2d;
+				var box2d:any = (<any>window).box2d;
 				var def:any = GearJoint._temp || (GearJoint._temp = new box2d.b2GearJointDef());
 				def.bodyA = this.joint1.owner.getComponent(RigidBody).getBody();
 				def.bodyB = this.joint2.owner.getComponent(RigidBody).getBody();
@@ -45,4 +45,3 @@ import { Physics } from "../Physics"
 			if (this._joint) this._joint.SetRatio(value);
 		}
 	}
-

@@ -1,6 +1,6 @@
 import { JointBase } from "././JointBase";
-import { Sprite } from "../../../../../core/src/laya/display/Sprite"
-	import { Point } from "../../../../../core/src/laya/maths/Point"
+import { Sprite } from "../../display/Sprite"
+	import { Point } from "../../maths/Point"
 	import { Physics } from "../Physics"
 	import { RigidBody } from "../RigidBody"
 	
@@ -34,7 +34,7 @@ import { Sprite } from "../../../../../core/src/laya/display/Sprite"
 				this.selfBody =this.selfBody|| this.owner.getComponent(RigidBody);
 				if (!this.selfBody) throw "selfBody can not be empty";
 				
-				var box2d:any = window.box2d;
+				var box2d:any = (<any>window).box2d;
 				var def:any = PulleyJoint._temp || (PulleyJoint._temp = new box2d.b2PulleyJointDef());
 				var posA:Point = ((<Sprite>this.otherBody.owner )).localToGlobal(Point.TEMP.setTo(this.otherAnchor[0], this.otherAnchor[1]), false, Physics.I.worldRoot);
 				var anchorVecA:any = new box2d.b2Vec2(posA.x / Physics.PIXEL_RATIO, posA.y / Physics.PIXEL_RATIO);
@@ -51,4 +51,3 @@ import { Sprite } from "../../../../../core/src/laya/display/Sprite"
 			}
 		}
 	}
-

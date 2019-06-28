@@ -15,7 +15,7 @@ import { Physics } from "././Physics";
 		
 		/*override*/ protected getDef():any {
 			if (!this._shape) {
-				this._shape = new window.box2d.b2CircleShape();
+				this._shape = new (<any>window).box2d.b2CircleShape();
 				this._setShape(false);
 			}
 			this.label = (this.label || "CircleCollider");
@@ -65,4 +65,3 @@ import { Physics } from "././Physics";
 			this._setShape();
 		}
 	}
-

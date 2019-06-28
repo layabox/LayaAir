@@ -1,6 +1,6 @@
 import { JointBase } from "././JointBase";
-import { Sprite } from "../../../../../core/src/laya/display/Sprite"
-	import { Point } from "../../../../../core/src/laya/maths/Point"
+import { Sprite } from "../../display/Sprite"
+	import { Point } from "../../maths/Point"
 	import { Physics } from "../Physics"
 	import { RigidBody } from "../RigidBody"
 	
@@ -39,9 +39,9 @@ import { Sprite } from "../../../../../core/src/laya/display/Sprite"
 				this.selfBody =this.selfBody|| this.owner.getComponent(RigidBody);
 				if (!this.selfBody) throw "selfBody can not be empty";
 				
-				var box2d:any = window.box2d;
+				var box2d:any = (<any>window).box2d;
 				var def:any = RevoluteJoint._temp || (RevoluteJoint._temp = new box2d.b2RevoluteJointDef());
-				var anchorPos:Point = Sprite(this.selfBody.owner).localToGlobal(Point.TEMP.setTo(this.anchor[0], this.anchor[1]), false, Physics.I.worldRoot);
+				var anchorPos:Point = (<Sprite>this.selfBody.owner).localToGlobal(Point.TEMP.setTo(this.anchor[0], this.anchor[1]), false, Physics.I.worldRoot);
 				var anchorVec:any = new box2d.b2Vec2(anchorPos.x / Physics.PIXEL_RATIO, anchorPos.y / Physics.PIXEL_RATIO);
 				def.Initialize(this.otherBody ? this.otherBody.getBody() : Physics.I._emptyBody, this.selfBody.getBody(), anchorVec);
 				def.enableMotor = this._enableMotor;
@@ -116,4 +116,3 @@ import { Sprite } from "../../../../../core/src/laya/display/Sprite"
 			if (this._joint) this._joint.SetLimits(this._lowerAngle, value);
 		}
 	}
-

@@ -31,7 +31,7 @@ import { Physics } from "../Physics"
 				this.selfBody =this.selfBody|| this.owner.getComponent(RigidBody);
 				if (!this.selfBody) throw "selfBody can not be empty";
 				
-				var box2d:any = window.box2d;
+				var box2d:any = (<any>window).box2d;
 				var def:any = DistanceJoint._temp || (DistanceJoint._temp = new box2d.b2DistanceJointDef());
 				def.bodyA = this.otherBody ? this.otherBody.getBody() : Physics.I._emptyBody;
 				def.bodyB = this.selfBody.getBody();
@@ -78,4 +78,3 @@ import { Physics } from "../Physics"
 			if (this._joint) this._joint.SetDampingRatio(value);
 		}
 	}
-

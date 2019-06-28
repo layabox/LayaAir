@@ -1,10 +1,10 @@
 import { Physics } from "././Physics";
-import { Laya } from "./../../../../core/src/Laya";
+import { Laya } from "../../Laya";
 import { ColliderBase } from "././ColliderBase";
-import { Component } from "../../../../core/src/laya/components/Component"
-	import { Sprite } from "../../../../core/src/laya/display/Sprite"
-	import { Point } from "../../../../core/src/laya/maths/Point"
-	import { Utils } from "../../../../core/src/laya/utils/Utils"
+import { Component } from "../components/Component"
+	import { Sprite } from "..//display/Sprite"
+	import { Point } from "../maths/Point"
+	import { Utils } from "../utils/Utils"
 	
 	/**
 	 * 2D刚体，显示对象通过RigidBody和物理世界进行绑定，保持物理和显示对象之间的位置同步
@@ -63,9 +63,9 @@ import { Component } from "../../../../core/src/laya/components/Component"
 		private _createBody():void {
 			if (this._body) return;
 			var sp:Sprite = (<Sprite>this.owner );
-			var box2d:any = window.box2d;
+			var box2d:any = (<any>window).box2d;
 			var def:any = new box2d.b2BodyDef();
-			var point:Point = Sprite(this.owner).localToGlobal(Point.TEMP.setTo(0, 0), false, Physics.I.worldRoot);
+			var point:Point = (<Sprite>this.owner).localToGlobal(Point.TEMP.setTo(0, 0), false, Physics.I.worldRoot);
 			def.position.Set(point.x / Physics.PIXEL_RATIO, point.y / Physics.PIXEL_RATIO);
 			def.angle = Utils.toRadian(sp.rotation);
 			def.allowSleep = this._allowSleep;
@@ -94,45 +94,61 @@ import { Component } from "../../../../core/src/laya/components/Component"
 		}
 		
 		/*override*/ protected _onEnable():void {
+			var _$this = this;
 			this._createBody();
 			//实时同步物理到节点
 			Laya.physicsTimer.frameLoop(1, this, this._sysPhysicToNode);
 			
 			//监听节点变化，同步到物理世界
-			var sp:any = (<Sprite>this.owner );
+			var sp:any = <Sprite>this.owner;
 			//如果节点发生变化，则同步到物理世界（仅限节点本身，父节点发生变化不会自动同步）
-			if (sp._$set_x && !sp._changeByRigidBody) {
+			if (this.accessGetSetFunc(sp, "x", "set") && !sp._changeByRigidBody) {
 				sp._changeByRigidBody = true;
 				function setX(value:any):void {
-					sp._$set_x(value);
-					this._sysPosToPhysic();
+					_$this.accessGetSetFunc(sp, "x", "set")(value);
+					_$this._sysPosToPhysic();
 				}
 				this._overSet(sp, "x", setX);
 				
 				function setY(value:any):void {
-					sp._$set_y(value);
-					this._sysPosToPhysic();
+					_$this.accessGetSetFunc(sp, "y", "set")(value);
+					_$this._sysPosToPhysic();
 				};
 				this._overSet(sp, "y", setY);
 				
 				function setRotation(value:any):void {
-					sp._$set_rotation(value);
-					this._sysNodeToPhysic();
+					_$this.accessGetSetFunc(sp, "rotation", "set")(value);
+					_$this._sysNodeToPhysic();
 				};
 				this._overSet(sp, "rotation", setRotation);
 				
 				function setScaleX(value:any):void {
-					sp._$set_scaleX(value);
-					this.resetCollider(true);
+					_$this.accessGetSetFunc(sp, "scaleX", "set")(value);
+					_$this.resetCollider(true);
 				};
 				this._overSet(sp, "scaleX", setScaleX);
 				
 				function setScaleY(value:any):void {
-					sp._$set_scaleY(value);
-					this.resetCollider(true);
+					_$this.accessGetSetFunc(sp, "scaleY", "set")(value);
+					_$this.resetCollider(true);
 				};
 				this._overSet(sp, "scaleY", setScaleY);
 			}
+		}
+
+		/**
+		 * 获取对象某属性的get set方法
+		 * 通过其本身无法获取该方法，只能从原型上获取
+		 * @param obj 
+		 * @param prop 
+		 * @param accessor 
+		 */
+		private accessGetSetFunc(obj:Object, prop:string, accessor:string):any {
+			if (["get", "set"].indexOf(accessor) === -1) { // includes
+				return;
+			}
+			let propertyDes = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(obj), prop);
+			return propertyDes && propertyDes[accessor].bind(obj);
 		}
 		
 		/**
@@ -160,26 +176,26 @@ import { Component } from "../../../../core/src/laya/components/Component"
 				var sp:any = (<Sprite>this.owner );
 				
 				//if (label == "tank") console.log("get",ang);
-				sp._$set_rotation(Utils.toAngle(ang) - Sprite(sp.parent).globalRotation);
+				this.accessGetSetFunc(sp, "rotation", "set")(Utils.toAngle(ang) - (<Sprite>sp.parent).globalRotation);
 				
 				if (ang == 0) {
 					var point:Point = sp.parent.globalToLocal(Point.TEMP.setTo(pos.x * Physics.PIXEL_RATIO + sp.pivotX, pos.y * Physics.PIXEL_RATIO + sp.pivotY), false, Physics.I.worldRoot);
-					sp._$set_x(point.x);
-					sp._$set_y(point.y);
+					this.accessGetSetFunc(sp, "x", "set")(point.x);
+					this.accessGetSetFunc(sp, "y", "set")(point.y);
 				} else {
 					point = sp.globalToLocal(Point.TEMP.setTo(pos.x * Physics.PIXEL_RATIO, pos.y * Physics.PIXEL_RATIO), false, Physics.I.worldRoot);
 					point.x += sp.pivotX;
 					point.y += sp.pivotY;
 					point = sp.toParentPoint(point);
-					sp._$set_x(point.x);
-					sp._$set_y(point.y);
+					this.accessGetSetFunc(sp, "x", "set")(point.x);
+					this.accessGetSetFunc(sp, "y", "set")(point.y);
 				}
 			}
 		}
 		
 		/**@private 同步节点坐标及旋转到物理世界*/
 		private _sysNodeToPhysic():void {
-			var sp:Sprite = Sprite(this.owner);
+			var sp:Sprite = <Sprite>this.owner;
 			this._body.SetAngle(Utils.toRadian(sp.rotation));
 			var p:Point = sp.localToGlobal(Point.TEMP.setTo(0, 0), false, Physics.I.worldRoot);
 			this._body.SetPositionXY(p.x / Physics.PIXEL_RATIO, p.y / Physics.PIXEL_RATIO);
@@ -187,14 +203,14 @@ import { Component } from "../../../../core/src/laya/components/Component"
 		
 		/**@private 同步节点坐标到物理世界*/
 		private _sysPosToPhysic():void {
-			var sp:Sprite = Sprite(this.owner);
+			var sp:Sprite = <Sprite>this.owner;
 			var p:Point = sp.localToGlobal(Point.TEMP.setTo(0, 0), false, Physics.I.worldRoot);
 			this._body.SetPositionXY(p.x / Physics.PIXEL_RATIO, p.y / Physics.PIXEL_RATIO);
 		}
 		
 		/**@private */
-		private _overSet(sp:Sprite, prop:string, getfun:Function):void {
-			Object.defineProperty(sp, prop, {get: sp["_$get_" + prop], set: getfun, enumerable: false, configurable: true});;
+		private _overSet(sp:Sprite, prop:string, getfun:any):void {
+			Object.defineProperty(sp, prop, {get: this.accessGetSetFunc(sp, prop, "get") , set: getfun, enumerable: false, configurable: true});;
 		}
 		
 		/*override*/ protected _onDisable():void {
@@ -205,11 +221,11 @@ import { Component } from "../../../../core/src/laya/components/Component"
 			
 			var owner:any = this.owner;
 			if (owner._changeByRigidBody) {
-				this._overSet(owner, "x", owner._$set_x);
-				this._overSet(owner, "y", owner._$set_y);
-				this._overSet(owner, "rotation", owner._$set_rotation);
-				this._overSet(owner, "scaleX", owner._$set_scaleX);
-				this._overSet(owner, "scaleY", owner._$set_scaleY);
+				this._overSet(owner, "x", this.accessGetSetFunc(owner, "x", "set"));
+				this._overSet(owner, "y", this.accessGetSetFunc(owner, "y", "set"));
+				this._overSet(owner, "rotation", this.accessGetSetFunc(owner, "rotation", "set"));
+				this._overSet(owner, "scaleX", this.accessGetSetFunc(owner, "scaleX", "set"));
+				this._overSet(owner, "scaleY", this.accessGetSetFunc(owner, "scaleY", "set"));
 				owner._changeByRigidBody = false;
 			}
 		}
@@ -331,7 +347,7 @@ import { Component } from "../../../../core/src/laya/components/Component"
 		
 		 set type(value:string) {
 			this._type = value;
-			if (this._body) this._body.SetType(window.box2d.b2BodyType["b2_" + this._type + "Body"]);
+			if (this._body) this._body.SetType((<any>window).box2d.b2BodyType["b2_" + this._type + "Body"]);
 		}
 		
 		/**重力缩放系数，设置为0为没有重力*/
@@ -410,7 +426,7 @@ import { Component } from "../../../../core/src/laya/components/Component"
 				value = {x: value[0], y: value[1]};
 			}
 			this._linearVelocity = value;
-			if (this._body) this._body.SetLinearVelocity(new window.box2d.b2Vec2(value.x, value.y));
+			if (this._body) this._body.SetLinearVelocity(new (<any>window).box2d.b2Vec2(value.x, value.y));
 		}
 		
 		/**是否高速移动的物体，设置为true，可以防止高速穿透*/
@@ -423,4 +439,3 @@ import { Component } from "../../../../core/src/laya/components/Component"
 			if (this._body) this._body.SetBullet(value);
 		}
 	}
-
