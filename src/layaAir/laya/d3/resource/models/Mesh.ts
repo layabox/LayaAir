@@ -15,8 +15,8 @@ import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Vector3 } from "../../math/Vector3";
 import { Utils3D } from "../../utils/Utils3D";
 import { SubMesh } from "./SubMesh";
-import { Laya } from "../../../../Laya";
 import { Handler } from "../../../utils/Handler";
+import { ILaya } from "../../../../ILaya";
 
 /**
  * <code>Mesh</code> 类用于创建文件网格数据模板。
@@ -65,7 +65,7 @@ export class Mesh extends Resource implements IClone {
 	 * @param complete 完成回掉。
 	 */
 	static load(url: string, complete: Handler): void {
-		Laya.loader.create(url, complete, null, Mesh.MESH);
+		ILaya.loader.create(url, complete, null, Mesh.MESH);
 	}
 
 	/** @internal */

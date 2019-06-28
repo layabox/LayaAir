@@ -7,7 +7,7 @@ import { Vector3 } from "../math/Vector3"
 import { Render } from "../../renders/Render"
 import { Resource } from "../../resource/Resource"
 import { Handler } from "../../utils/Handler"
-import { Laya } from "../../../Laya";
+import { ILaya } from "../../../ILaya";
 /**
  * <code>Avatar</code> 类用于创建Avatar。
  */
@@ -36,7 +36,7 @@ export class Avatar extends Resource implements IClone {
 	 * @param complete 完成回掉。
 	 */
 	static load(url: string, complete: Handler): void {
-		Laya.loader.create(url, complete, null, Avatar.AVATAR);
+		ILaya.loader.create(url, complete, null, Avatar.AVATAR);
 	}
 
 	/**@internal */
