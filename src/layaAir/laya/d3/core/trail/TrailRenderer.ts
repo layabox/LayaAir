@@ -1,4 +1,4 @@
-import { TrailSprite3D } from "./TrailSprite3D";
+import { TrailSprite3D } from "././TrailSprite3D";
 import { Sprite3D } from "../Sprite3D"
 import { Transform3D } from "../Transform3D"
 import { BaseRender } from "../render/BaseRender"
@@ -22,18 +22,28 @@ export class TrailRenderer extends BaseRender {
 		 * @inheritDoc
 		 */
 		/*override*/ protected _calculateBoundingBox(): void {
-			var bounds = this._bounds;
-			if (Render.supportWebGLPlusCulling) {//[NATIVE]
-				var min:Vector3 = this._bounds.getMin();
-				var max:Vector3 = this._bounds.getMax();
-				var buffer:Float32Array = FrustumCulling._cullingBuffer;
-				buffer[this._cullingBufferIndex + 1] = min.x;
-				buffer[this._cullingBufferIndex + 2] = min.y;
-				buffer[this._cullingBufferIndex + 3] = min.z;
-				buffer[this._cullingBufferIndex + 4] = max.x;
-				buffer[this._cullingBufferIndex + 5] = max.y;
-				buffer[this._cullingBufferIndex + 6] = max.z;
-			}
+		var min: Vector3 = this._bounds.getMin();
+		min.x = -Number.MAX_VALUE;
+		min.y = -Number.MAX_VALUE;
+		min.z = -Number.MAX_VALUE;
+		this._bounds.setMin(min);
+		var max: Vector3 = this._bounds.getMax();
+		max.x = Number.MAX_VALUE;
+		max.y = Number.MAX_VALUE;
+		max.z = Number.MAX_VALUE;
+		this._bounds.setMax(max);
+
+		if (Render.supportWebGLPlusCulling) {//[NATIVE]
+			var min: Vector3 = this._bounds.getMin();
+			var max: Vector3 = this._bounds.getMax();
+			var buffer: Float32Array = FrustumCulling._cullingBuffer;
+			buffer[this._cullingBufferIndex + 1] = min.x;
+			buffer[this._cullingBufferIndex + 2] = min.y;
+			buffer[this._cullingBufferIndex + 3] = min.z;
+			buffer[this._cullingBufferIndex + 4] = max.x;
+			buffer[this._cullingBufferIndex + 5] = max.y;
+			buffer[this._cullingBufferIndex + 6] = max.z;
+		}
 	}
 
 		/**
