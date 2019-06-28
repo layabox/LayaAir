@@ -51,6 +51,14 @@ export class TrailFilter {
 	alignment: number = TrailFilter.ALIGNMENT_VIEW;
 
 	/**
+	 * 网格过滤器。
+	 * @return  网格过滤器。
+	 */
+	get trialGeometry(): GeometryElement {
+		return this._trialGeometry;
+	}
+
+	/**
 	 * 获取淡出时间。
 	 * @return  淡出时间。
 	 */

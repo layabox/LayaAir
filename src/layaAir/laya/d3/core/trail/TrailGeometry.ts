@@ -17,6 +17,7 @@ import { TrailFilter } from "././TrailFilter";
 import { VertexTrail } from "././VertexTrail";
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { TrailAlignment } from "./TrailAlignment";
+import { Bounds } from "../Bounds";
 
 /**
  * <code>TrailGeometry</code> 类用于创建拖尾渲染单元。
@@ -37,6 +38,11 @@ export class TrailGeometry extends GeometryElement {
 	private static _tempVector33: Vector3 = new Vector3();
 	/**@internal */
 	private static _tempVector34: Vector3 = new Vector3();
+
+	/**@internal */
+	private static _tempVector35: Vector3 = new Vector3();
+	/**@internal */
+	private static _tempVector36: Vector3 = new Vector3();
 
 	/**@internal */
 	private static _type: number = GeometryElement._typeCounter++;
@@ -77,6 +83,8 @@ export class TrailGeometry extends GeometryElement {
 	private _bufferState: BufferState = new BufferState();
 
 	private tmpColor: Color = new Color();
+	/** @private */
+	private _isHaveDisappear:Boolean = false;
 
 	constructor(owner: TrailFilter) {
 		super();
@@ -85,6 +93,17 @@ export class TrailGeometry extends GeometryElement {
 		this._segementCount = this._increaseSegementCount;
 
 		this._resizeData(this._segementCount, this._bufferState);
+		TrailGeometry._tempVector35.x = Number.MAX_VALUE;
+		TrailGeometry._tempVector35.y = Number.MAX_VALUE;
+		TrailGeometry._tempVector35.z = Number.MAX_VALUE;
+			
+		TrailGeometry._tempVector36.x = -Number.MAX_VALUE;
+		TrailGeometry._tempVector36.y = -Number.MAX_VALUE;
+		TrailGeometry._tempVector36.z = -Number.MAX_VALUE;
+
+		var bounds:Bounds = this._owner._owner.trailRenderer.bounds;
+		bounds.setMin(TrailGeometry._tempVector35);
+		bounds.setMax(TrailGeometry._tempVector36);
 	}
 
 	/**
@@ -153,6 +172,7 @@ export class TrailGeometry extends GeometryElement {
 	_updateTrail(camera: Camera, lastPosition: Vector3, position: Vector3): void {
 		if (!Vector3.equals(lastPosition, position)) {//位置不变不产生分段
 			if ((this._endIndex - this._activeIndex) === 0)
+			//if ((this._endIndex === 0) && (this._activeIndex === 0))
 				this._addTrailByFirstPosition(camera, position);//当前分段全部消失时,需要添加一个首分段
 			else
 				this._addTrailByNextPosition(camera, position);
@@ -169,6 +189,10 @@ export class TrailGeometry extends GeometryElement {
 		this._subBirthTime[this._endIndex] = this._owner._curtime;
 		this._endIndex++;
 		position.cloneTo(this._lastFixedVertexPosition);
+
+		//var bounds:Bounds = this._owner._owner.trailRenderer.bounds;
+		//bounds.setMin(this._lastFixedVertexPosition);
+		//bounds.setMax(this._lastFixedVertexPosition);
 		this._needAddFirstVertex = true;
 	}
 
@@ -184,6 +208,7 @@ export class TrailGeometry extends GeometryElement {
 		Vector3.transformCoordinate(this._lastFixedVertexPosition, cameraMatrix, TrailGeometry._tempVector34);
 		Vector3.subtract(TrailGeometry._tempVector33, TrailGeometry._tempVector34, delVector3);
 
+		this._owner.alignment = TrailAlignment.View;
 		switch (this._owner.alignment) {
 			case TrailAlignment.View:
 				Vector3.cross(TrailGeometry._tempVector33, delVector3, pointAtoBVector3);
@@ -242,8 +267,8 @@ export class TrailGeometry extends GeometryElement {
 	 * 通过位置更新顶点数据
 	 */
 	private _updateVerticesByPositionData(position: Vector3, pointAtoBVector3: Vector3, index: number): void {
-		var vertexOffset: number = this._floatCountPerVertices1 * 2 * index;
 
+		var vertexOffset: number = this._floatCountPerVertices1 * 2 * index;
 		var curtime: number = this._owner._curtime;
 		this._vertices1[vertexOffset] = position.x;
 		this._vertices1[vertexOffset + 1] = position.y;
@@ -263,8 +288,24 @@ export class TrailGeometry extends GeometryElement {
 		this._vertices1[vertexOffset + 14] = curtime;
 		this._vertices1[vertexOffset + 15] = 0.0;
 
+		//添加新的顶点时，需要更新包围盒
+		var bounds:Bounds = this._owner._owner.trailRenderer.bounds;
+		var max:Vector3 = bounds.getMax();
+		var min:Vector3 = bounds.getMin();
+		Vector3.add(position, pointAtoBVector3, TrailGeometry._tempVector35);
+		Vector3.subtract(position, pointAtoBVector3, TrailGeometry._tempVector36);
+			
+		Vector3.min(TrailGeometry._tempVector36, TrailGeometry._tempVector35, TrailGeometry._tempVector32);
+		Vector3.min(min, TrailGeometry._tempVector32, TrailGeometry._tempVector32);
+		bounds.setMin(TrailGeometry._tempVector32);
+			
+		Vector3.max(TrailGeometry._tempVector35, TrailGeometry._tempVector36, TrailGeometry._tempVector32);
+		Vector3.max(max, TrailGeometry._tempVector32, TrailGeometry._tempVector32);
+		bounds.setMax(TrailGeometry._tempVector32);
+
 		var floatCount: number = this._floatCountPerVertices1 * 2;
 		this._vertexBuffer1.setData(this._vertices1, vertexOffset, vertexOffset, floatCount);
+			
 	}
 
 	/**
@@ -282,6 +323,16 @@ export class TrailGeometry extends GeometryElement {
 	 * 更新VertexBuffer2数据
 	 */
 	_updateVertexBufferUV(): void {
+		var bounds:Bounds;
+		if (this._isHaveDisappear){//如果有顶点消失时候，需要重新计算包围盒
+			bounds = this._owner._owner.trailRenderer.bounds;
+			TrailGeometry._tempVector30.x = Number.MAX_VALUE;//min
+			TrailGeometry._tempVector30.y = Number.MAX_VALUE;
+			TrailGeometry._tempVector30.z = Number.MAX_VALUE;
+			TrailGeometry._tempVector31.x = -Number.MAX_VALUE;//max
+			TrailGeometry._tempVector31.y = -Number.MAX_VALUE;
+			TrailGeometry._tempVector31.z = -Number.MAX_VALUE;
+		}
 		var vertexCount: number = this._endIndex;
 		var curLength: number = 0;
 
@@ -319,6 +370,28 @@ export class TrailGeometry extends GeometryElement {
 			this._vertices2[index + 8] = this.tmpColor.b;
 			this._vertices2[index + 9] = this.tmpColor.a;
 
+			if(this._isHaveDisappear){
+				var stride2 = this._floatCountPerVertices1 * 2;
+				var offset2 = stride2 * i;
+				TrailGeometry._tempVector32.x = this._vertices1[offset2 + 0];
+				TrailGeometry._tempVector32.y = this._vertices1[offset2 + 1];
+				TrailGeometry._tempVector32.z = this._vertices1[offset2 + 2];
+				TrailGeometry._tempVector33.x = this._vertices1[offset2 + 3];
+				TrailGeometry._tempVector33.y = this._vertices1[offset2 + 4];
+				TrailGeometry._tempVector33.z = this._vertices1[offset2 + 5];
+
+				Vector3.add(TrailGeometry._tempVector32, TrailGeometry._tempVector33, TrailGeometry._tempVector34);
+				Vector3.min(TrailGeometry._tempVector34, TrailGeometry._tempVector30, TrailGeometry._tempVector30);	
+				Vector3.max(TrailGeometry._tempVector34, TrailGeometry._tempVector31, TrailGeometry._tempVector31);
+				Vector3.subtract(TrailGeometry._tempVector32, TrailGeometry._tempVector33, TrailGeometry._tempVector34);
+				Vector3.min(TrailGeometry._tempVector34, TrailGeometry._tempVector30,TrailGeometry. _tempVector30);
+				Vector3.max(TrailGeometry._tempVector34, TrailGeometry._tempVector31, TrailGeometry._tempVector31);
+			}
+		}
+		if(this._isHaveDisappear){
+			bounds.setMin(TrailGeometry._tempVector30);
+			bounds.setMax(TrailGeometry._tempVector31);
+			this._isHaveDisappear = false;
 		}
 		var offset: number = this._activeIndex * stride;
 		this._vertexBuffer2.setData(this._vertices2, offset, offset, vertexCount * stride - offset);
@@ -344,6 +417,7 @@ export class TrailGeometry extends GeometryElement {
 					this._isTempEndVertex = false;
 				}
 				this._activeIndex++;
+				this._isHaveDisappear = true;
 			} else {
 				break;
 			}
