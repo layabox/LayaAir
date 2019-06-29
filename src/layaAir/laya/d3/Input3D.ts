@@ -1,8 +1,7 @@
-import { Laya } from "../../Laya";
 import { Point } from "../maths/Point";
 import { Stat } from "../utils/Stat";
-import { MouseTouch } from "././MouseTouch";
-import { Touch } from "././Touch";
+import { MouseTouch } from "./MouseTouch";
+import { Touch } from "./Touch";
 import { Script3D } from "./component/Script3D";
 import { SimpleSingletonList } from "./component/SimpleSingletonList";
 import { BaseCamera } from "./core/BaseCamera";
@@ -16,6 +15,7 @@ import { Viewport } from "./math/Viewport";
 import { HitResult } from "./physics/HitResult";
 import { PhysicsSimulation } from "./physics/PhysicsSimulation";
 import { Physics } from "./physics/Physics";
+import { ILaya } from "../../ILaya";
 
 /**
  * <code>Input3D</code> 类用于实现3D输入。
@@ -239,7 +239,7 @@ export class Input3D {
 			var pos: Vector2 = touch._position;
 			var mousePoint: Point = Input3D._tempPoint;
 			mousePoint.setTo(nativeTouch.pageX, nativeTouch.pageY);
-			Laya.stage._canvasTransform.invertTransformPoint(mousePoint);//考虑画布缩放	
+			ILaya.stage._canvasTransform.invertTransformPoint(mousePoint);//考虑画布缩放	
 			var posX: number = mousePoint.x;
 			var posY: number = mousePoint.y;
 			switch (flag) {
@@ -293,7 +293,7 @@ export class Input3D {
 					case "mousemove":
 						var mousePoint: Point = Input3D._tempPoint;
 						mousePoint.setTo(e.pageX, e.pageY);
-						Laya.stage._canvasTransform.invertTransformPoint(mousePoint);//考虑画布缩放
+						ILaya.stage._canvasTransform.invertTransformPoint(mousePoint);//考虑画布缩放
 						this._mouseTouch.mousePositionX = mousePoint.x;
 						this._mouseTouch.mousePositionY = mousePoint.y;
 						(enablePhysics) && (this._mouseTouchRayCast(cameras));

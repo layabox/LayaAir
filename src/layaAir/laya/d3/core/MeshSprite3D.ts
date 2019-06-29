@@ -1,6 +1,6 @@
-import { RenderableSprite3D } from "././RenderableSprite3D";
-import { MeshFilter } from "././MeshFilter";
-import { MeshRenderer } from "././MeshRenderer";
+import { RenderableSprite3D } from "./RenderableSprite3D";
+import { MeshFilter } from "./MeshFilter";
+import { MeshRenderer } from "./MeshRenderer";
 import { BaseMaterial } from "./material/BaseMaterial"
 import { DynamicBatchManager } from "../graphics/DynamicBatchManager"
 import { MeshRenderDynamicBatchManager } from "../graphics/MeshRenderDynamicBatchManager"

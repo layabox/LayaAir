@@ -1,4 +1,4 @@
-import { RenderableSprite3D } from "././RenderableSprite3D";
+import { RenderableSprite3D } from "./RenderableSprite3D";
 import { VertexMesh } from "../graphics/Vertex/VertexMesh"
 import { VertexElement } from "../graphics/VertexElement"
 import { Mesh } from "../resource/models/Mesh"

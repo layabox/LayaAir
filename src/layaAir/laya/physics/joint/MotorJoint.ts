@@ -1,4 +1,4 @@
-import { JointBase } from "././JointBase";
+import { JointBase } from "./JointBase";
 import { Physics } from "../Physics"
 	import { RigidBody } from "../RigidBody"
 	

@@ -1,4 +1,4 @@
-import { Node } from "././Node";
+import { Node } from "./Node";
 import { Const } from "../Const"
 	import { Sprite } from "./Sprite"
 	import { Event } from "../events/Event"

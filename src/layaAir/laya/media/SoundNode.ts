@@ -1,5 +1,5 @@
-import { SoundChannel } from "././SoundChannel";
-import { SoundManager } from "././SoundManager";
+import { SoundChannel } from "./SoundChannel";
+import { SoundManager } from "./SoundManager";
 import { Sprite } from "../display/Sprite"
 	import { Event } from "../events/Event"
 	import { Handler } from "../utils/Handler"

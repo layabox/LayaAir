@@ -1,4 +1,4 @@
-import { LineSprite3D } from "././LineSprite3D";
+import { LineSprite3D } from "./LineSprite3D";
 import { RenderableSprite3D } from "laya/d3/core/RenderableSprite3D"
 	import { Sprite3D } from "laya/d3/core/Sprite3D"
 	import { Transform3D } from "laya/d3/core/Transform3D"

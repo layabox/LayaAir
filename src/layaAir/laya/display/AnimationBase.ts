@@ -1,4 +1,4 @@
-import { Sprite } from "././Sprite";
+import { Sprite } from "./Sprite";
 import { Config } from "./../../Config";
 import { Const } from "../Const"
 	import { Event } from "../events/Event"

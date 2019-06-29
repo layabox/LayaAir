@@ -1,6 +1,6 @@
-import { HandlePoint } from "././HandlePoint";
-import { LE_Mesh } from "././LE_Mesh";
-import { IRenderableMesh } from "././IRenderableMesh";
+import { HandlePoint } from "./HandlePoint";
+import { LE_Mesh } from "./LE_Mesh";
+import { IRenderableMesh } from "./IRenderableMesh";
 	import { BufferState } from "laya/d3/core/BufferState"
 	import { GeometryElement } from "laya/d3/core/GeometryElement"
 	import { RenderContext3D } from "laya/d3/core/render/RenderContext3D"

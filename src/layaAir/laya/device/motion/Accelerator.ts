@@ -1,5 +1,5 @@
-import { AccelerationInfo } from "././AccelerationInfo";
-import { RotationInfo } from "././RotationInfo";
+import { AccelerationInfo } from "./AccelerationInfo";
+import { RotationInfo } from "./RotationInfo";
 import { EventDispatcher } from "../../events/EventDispatcher";
 import { ILaya } from "../../../ILaya";
 import { Event } from "../../events/Event";

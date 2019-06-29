@@ -1,6 +1,6 @@
 import { ILaya } from "../../../ILaya";
 
-//import { ShaderCompile } from "././ShaderCompile";
+//import { ShaderCompile } from "./ShaderCompile";
 export class InlcudeFile {
 		 script:string;
 		 codes:any = {};

@@ -1,8 +1,8 @@
-import { AnimationClipParser03 } from "././AnimationClipParser03";
-import { AnimationClipParser04 } from "././AnimationClipParser04";
-import { KeyframeNodeList } from "././KeyframeNodeList";
-import { AnimationEvent } from "././AnimationEvent";
-import { KeyframeNode } from "././KeyframeNode";
+import { AnimationClipParser03 } from "./AnimationClipParser03";
+import { AnimationClipParser04 } from "./AnimationClipParser04";
+import { KeyframeNodeList } from "./KeyframeNodeList";
+import { AnimationEvent } from "./AnimationEvent";
+import { KeyframeNode } from "./KeyframeNode";
 import { FloatKeyframe } from "../core/FloatKeyframe"
 import { Keyframe } from "../core/Keyframe"
 import { QuaternionKeyframe } from "../core/QuaternionKeyframe"
@@ -15,7 +15,7 @@ import { LayaGL } from "../../layagl/LayaGL"
 import { Resource } from "../../resource/Resource"
 import { Byte } from "../../utils/Byte"
 import { Handler } from "../../utils/Handler"
-import { Laya } from "../../../Laya";
+import { ILaya } from "../../../ILaya";
 
 /**
  * <code>AnimationClip</code> 类用于动画片段资源。
@@ -54,7 +54,7 @@ export class AnimationClip extends Resource {
 	 * @param complete  完成回掉。
 	 */
 	static load(url: string, complete: Handler): void {
-		Laya.loader.create(url, complete, null, AnimationClip.ANIMATIONCLIP);
+		ILaya.loader.create(url, complete, null, AnimationClip.ANIMATIONCLIP);
 	}
 
 	/**@internal */

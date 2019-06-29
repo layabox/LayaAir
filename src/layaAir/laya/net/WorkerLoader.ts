@@ -1,5 +1,5 @@
-import { Loader } from "././Loader";
-import { URL } from "././URL";
+import { Loader } from "./Loader";
+import { URL } from "./URL";
 import { EventDispatcher } from "../events/EventDispatcher"
 import { HTMLCanvas } from "../resource/HTMLCanvas"
 import { Texture2D } from "../resource/Texture2D"

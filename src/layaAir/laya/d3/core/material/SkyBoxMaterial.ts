@@ -1,7 +1,7 @@
 import { Vector4 } from "../../math/Vector4";
 import { TextureCube } from "../../resource/TextureCube";
 import { Shader3D } from "../../shader/Shader3D";
-import { BaseMaterial } from "././BaseMaterial";
+import { BaseMaterial } from "./BaseMaterial";
 
 /**
  * <code>SkyBoxMaterial</code> 类用于实现SkyBoxMaterial材质。

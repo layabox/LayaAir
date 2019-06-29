@@ -1,4 +1,4 @@
-import { Bounds } from "././Bounds";
+import { Bounds } from "./Bounds";
 import { IndexBuffer3D } from "../graphics/IndexBuffer3D"
 import { VertexBuffer3D } from "../graphics/VertexBuffer3D"
 import { Ray } from "../math/Ray"

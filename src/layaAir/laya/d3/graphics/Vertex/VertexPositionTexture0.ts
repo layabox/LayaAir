@@ -1,4 +1,4 @@
-import { VertexMesh } from "././VertexMesh";
+import { VertexMesh } from "./VertexMesh";
 import { IVertex } from "../IVertex"
 	import { VertexDeclaration } from "../VertexDeclaration"
 	import { VertexElement } from "../VertexElement"

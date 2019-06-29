@@ -1,6 +1,6 @@
 import { Shader3D } from "../../../../d3/shader/Shader3D";
 import { ShaderData } from "../../../../d3/shader/ShaderData";
-import { CommandBuffer } from "././CommandBuffer";
+import { CommandBuffer } from "./CommandBuffer";
 
 /**
  * @internal

@@ -1,8 +1,8 @@
 import { ILaya } from "../../ILaya";
 import { EventDispatcher } from "../events/EventDispatcher";
 import { URL } from "../net/URL";
-import { ICreateResource } from "././ICreateResource";
-import { IDestroy } from "././IDestroy";
+import { ICreateResource } from "./ICreateResource";
+import { IDestroy } from "./IDestroy";
 
 /**
  * <code>Resource</code> 资源存取类。

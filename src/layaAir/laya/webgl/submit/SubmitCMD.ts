@@ -1,5 +1,5 @@
-import { ISubmit } from "././ISubmit";
-import { SubmitKey } from "././SubmitKey";
+import { ISubmit } from "./ISubmit";
+import { SubmitKey } from "./SubmitKey";
 export class SubmitCMD implements ISubmit{
 		 static POOL:any =[]; fun:Function;
 		 /**@internal */

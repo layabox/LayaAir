@@ -1,5 +1,5 @@
-import { ShurikenParticleSystem } from "././ShurikenParticleSystem";
-import { ShurikenParticleRenderer } from "././ShurikenParticleRenderer";
+import { ShurikenParticleSystem } from "./ShurikenParticleSystem";
+import { ShurikenParticleRenderer } from "./ShurikenParticleRenderer";
 import { Transform3D } from "../Transform3D"
 import { ColorOverLifetime } from "./module/ColorOverLifetime"
 import { FrameOverTime } from "./module/FrameOverTime"

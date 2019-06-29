@@ -1,6 +1,6 @@
-import { MeshSprite3D } from "././MeshSprite3D";
-import { HeightMap } from "././HeightMap";
-import { Bounds } from "././Bounds";
+import { MeshSprite3D } from "./MeshSprite3D";
+import { HeightMap } from "./HeightMap";
+import { Bounds } from "./Bounds";
 import { RenderContext3D } from "./render/RenderContext3D"
 import { Matrix4x4 } from "../math/Matrix4x4"
 import { Quaternion } from "../math/Quaternion"

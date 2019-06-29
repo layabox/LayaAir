@@ -1,7 +1,7 @@
-import { VertexDeclaration } from "././VertexDeclaration";
-import { VertexBuffer3D } from "././VertexBuffer3D";
-import { IndexBuffer3D } from "././IndexBuffer3D";
-import { VertexElement } from "././VertexElement";
+import { VertexDeclaration } from "./VertexDeclaration";
+import { VertexBuffer3D } from "./VertexBuffer3D";
+import { IndexBuffer3D } from "./IndexBuffer3D";
+import { VertexElement } from "./VertexElement";
 import { BufferState } from "../core/BufferState"
 import { GeometryElement } from "../core/GeometryElement"
 import { MeshRenderer } from "../core/MeshRenderer"

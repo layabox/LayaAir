@@ -1,5 +1,5 @@
-import { ConchVector4 } from "././ConchVector4";
-import { ConchQuaternion } from "././ConchQuaternion";
+import { ConchVector4 } from "./ConchVector4";
+import { ConchQuaternion } from "./ConchQuaternion";
 import { IClone } from "../../core/IClone"
 	import { MathUtils3D } from "../MathUtils3D"
 	

@@ -6,7 +6,7 @@ import { Value2D } from "../shader/d2/value/Value2D";
 import { CONST3D2D } from "../utils/CONST3D2D";
 import { Mesh2D } from "../utils/Mesh2D";
 import { WebGLContext } from "../WebGLContext";
-import { SubmitBase } from "././SubmitBase";
+import { SubmitBase } from "./SubmitBase";
 
 export class Submit extends SubmitBase {
 	

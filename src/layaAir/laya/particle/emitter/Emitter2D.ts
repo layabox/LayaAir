@@ -1,4 +1,4 @@
-import { EmitterBase } from "././EmitterBase";
+import { EmitterBase } from "./EmitterBase";
 import { ParticleSetting } from "../ParticleSetting"
 import { ParticleTemplate2D } from "../ParticleTemplate2D"
 import { ParticleTemplateBase } from "../ParticleTemplateBase"

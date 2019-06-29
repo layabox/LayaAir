@@ -1,5 +1,5 @@
-import { Filter } from "././Filter";
-import { BlurFilterGLRender } from "././BlurFilterGLRender";
+import { Filter } from "./Filter";
+import { BlurFilterGLRender } from "./BlurFilterGLRender";
 	/**
 	 * 模糊滤镜
 	 */

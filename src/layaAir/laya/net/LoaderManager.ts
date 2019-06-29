@@ -1,4 +1,4 @@
-import { AtlasInfoManager } from "././AtlasInfoManager";
+import { AtlasInfoManager } from "./AtlasInfoManager";
 import { Event } from "../events/Event"
 import { EventDispatcher } from "../events/EventDispatcher"
 import { Loader } from "./Loader"

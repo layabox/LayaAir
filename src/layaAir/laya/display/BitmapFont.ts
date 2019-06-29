@@ -1,4 +1,4 @@
-import { Sprite } from "././Sprite";
+import { Sprite } from "./Sprite";
 import { Rectangle } from "../maths/Rectangle"
 	import { Texture } from "../resource/Texture"
 	import { Handler } from "../utils/Handler"

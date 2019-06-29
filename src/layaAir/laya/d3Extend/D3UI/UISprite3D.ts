@@ -1,4 +1,4 @@
-import { UISprite3DFilter } from "././UISprite3DFilter";
+import { UISprite3DFilter } from "./UISprite3DFilter";
 import { Laya } from "Laya";
 import { UISprite3DRenderer } from "./UISprite3DRenderer"
 	import { Camera } from "laya/d3/core/Camera"

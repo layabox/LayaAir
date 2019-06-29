@@ -1,4 +1,4 @@
-import { ScrollBar } from "././ScrollBar";
+import { ScrollBar } from "./ScrollBar";
 import { ILaya } from "../../ILaya";
 /**
 	 *

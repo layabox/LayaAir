@@ -1,5 +1,5 @@
-import { IStatRender } from "././IStatRender";
-import { Browser } from "././Browser";
+import { IStatRender } from "./IStatRender";
+import { Browser } from "./Browser";
 //import { Laya } from "./../../Laya";
 import { Sprite } from "../display/Sprite"
 	import { Text } from "../display/Text"

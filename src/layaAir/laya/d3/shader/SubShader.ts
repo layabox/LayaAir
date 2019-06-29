@@ -1,6 +1,6 @@
-import { Shader3D } from "././Shader3D";
-import { ShaderPass } from "././ShaderPass";
-import { ShaderDefines } from "././ShaderDefines";
+import { Shader3D } from "./Shader3D";
+import { ShaderPass } from "./ShaderPass";
+import { ShaderDefines } from "./ShaderDefines";
 
 	/**
 	 * <code>SubShader</code> 类用于创建SubShader。

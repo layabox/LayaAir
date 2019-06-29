@@ -4,7 +4,7 @@ import { ShaderDefines2D } from "../shader/d2/ShaderDefines2D";
 import { Value2D } from "../shader/d2/value/Value2D";
 import { CONST3D2D } from "../utils/CONST3D2D";
 import { RenderState2D } from "../utils/RenderState2D";
-import { SubmitBase } from "././SubmitBase";
+import { SubmitBase } from "./SubmitBase";
 
 /**
  * cache as normal 模式下的生成的canvas的渲染。

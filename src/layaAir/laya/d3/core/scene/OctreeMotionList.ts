@@ -1,4 +1,4 @@
-import { IOctreeObject } from "././IOctreeObject";
+import { IOctreeObject } from "./IOctreeObject";
 import { SingletonList } from "../../component/SingletonList"
 
 /**

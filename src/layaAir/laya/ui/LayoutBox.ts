@@ -1,4 +1,4 @@
-import { Box } from "././Box";
+import { Box } from "./Box";
 import { Node } from "../display/Node"
 import { Event } from "../events/Event"
 import { ILaya } from "../../ILaya";

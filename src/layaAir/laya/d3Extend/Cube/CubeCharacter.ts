@@ -1,6 +1,6 @@
-import { CubeInfo } from "././CubeInfo";
-import { CubeSprite3D } from "././CubeSprite3D";
-import { SubCubeGeometry } from "././SubCubeGeometry";
+import { CubeInfo } from "./CubeInfo";
+import { CubeSprite3D } from "./CubeSprite3D";
+import { SubCubeGeometry } from "./SubCubeGeometry";
 	import { AnimationClip } from "laya/d3/animation/AnimationClip"
 	import { Animator } from "laya/d3/component/Animator"
 	import { Avatar } from "laya/d3/core/Avatar"

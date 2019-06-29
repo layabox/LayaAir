@@ -3,7 +3,7 @@ import { Vector3 } from "../../math/Vector3";
 import { ShaderData } from "../../shader/ShaderData";
 import { Scene3D } from "../scene/Scene3D";
 import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
-import { LightSprite } from "././LightSprite";
+import { LightSprite } from "./LightSprite";
 import { ILaya3D } from "../../../../ILaya3D";
 
 /**

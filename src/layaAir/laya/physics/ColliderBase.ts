@@ -1,4 +1,4 @@
-import { RigidBody } from "././RigidBody";
+import { RigidBody } from "./RigidBody";
 import { Laya } from "../../Laya";
 import { Component } from "../components/Component"
 	

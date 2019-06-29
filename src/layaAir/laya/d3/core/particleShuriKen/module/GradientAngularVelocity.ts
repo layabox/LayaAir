@@ -1,4 +1,4 @@
-import { GradientDataNumber } from "././GradientDataNumber";
+import { GradientDataNumber } from "./GradientDataNumber";
 import { IClone } from "../../IClone"
 import { Vector3 } from "../../../math/Vector3"
 

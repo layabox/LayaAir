@@ -1,6 +1,6 @@
-import { Vector3 } from "././Vector3";
-import { Ray } from "././Ray";
-import { CollisionUtils } from "././CollisionUtils";
+import { Vector3 } from "./Vector3";
+import { Ray } from "./Ray";
+import { CollisionUtils } from "./CollisionUtils";
 import { IClone } from "../core/IClone"
 	
 	/**

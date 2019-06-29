@@ -1,4 +1,4 @@
-import { Texture2D } from "././Texture2D";
+import { Texture2D } from "./Texture2D";
 import { LayaGL } from "../layagl/LayaGL"
 import { BaseTexture } from "./BaseTexture"
 import { WebGLContext } from "../webgl/WebGLContext"

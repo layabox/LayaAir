@@ -1,6 +1,6 @@
-import { Mesh2D } from "././Mesh2D";
-import { IndexBuffer2D } from "././IndexBuffer2D";
-import { VertexBuffer2D } from "././VertexBuffer2D";
+import { Mesh2D } from "./Mesh2D";
+import { IndexBuffer2D } from "./IndexBuffer2D";
+import { VertexBuffer2D } from "./VertexBuffer2D";
 	import { WebGLContext } from "../WebGLContext"
 	/**
 	 * drawImage，fillRect等会用到的简单的mesh。每次添加必然是一个四边形。

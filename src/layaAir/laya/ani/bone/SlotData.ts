@@ -1,4 +1,4 @@
-import { SkinSlotDisplayData } from "././SkinSlotDisplayData";
+import { SkinSlotDisplayData } from "./SkinSlotDisplayData";
 export class SlotData {
 	name: string;
 	displayArr: any[] = [];

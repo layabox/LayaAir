@@ -1,8 +1,8 @@
-import { Box } from "././Box";
-import { IRender } from "././IRender";
-import { List } from "././List";
-import { ScrollBar } from "././ScrollBar";
-import { Clip } from "././Clip";
+import { Box } from "./Box";
+import { IRender } from "./IRender";
+import { List } from "./List";
+import { ScrollBar } from "./ScrollBar";
+import { Clip } from "./Clip";
 import { Event } from "../events/Event"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";

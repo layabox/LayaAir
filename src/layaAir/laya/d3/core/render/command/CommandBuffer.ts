@@ -2,9 +2,9 @@ import { RenderTexture } from "../../../resource/RenderTexture";
 import { Shader3D } from "../../../shader/Shader3D";
 import { ShaderData } from "../../../shader/ShaderData";
 import { Camera } from "../../Camera";
-import { BlitScreenQuadCMD } from "././BlitScreenQuadCMD";
-import { SetRenderTargetCMD } from "././SetRenderTargetCMD";
-import { SetShaderDataTextureCMD } from "././SetShaderDataTextureCMD";
+import { BlitScreenQuadCMD } from "./BlitScreenQuadCMD";
+import { SetRenderTargetCMD } from "./SetRenderTargetCMD";
+import { SetShaderDataTextureCMD } from "./SetShaderDataTextureCMD";
 import { Command } from "./Command";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 

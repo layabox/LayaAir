@@ -1,4 +1,3 @@
-import { Laya } from "../../../../Laya";
 import { Sprite } from "../../../display/Sprite";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Loader } from "../../../net/Loader";
@@ -50,9 +49,10 @@ import { RenderElement } from "../render/RenderElement";
 import { RenderQueue } from "../render/RenderQueue";
 import { RenderableSprite3D } from "../RenderableSprite3D";
 import { Sprite3D } from "../Sprite3D";
-import { BoundsOctree } from "././BoundsOctree";
+import { BoundsOctree } from "./BoundsOctree";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
 import { Physics } from "../../physics/Physics";
+import { ILaya } from "../../../../ILaya";
 
 
 /**
@@ -137,7 +137,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @param complete 完成回调。
 	 */
 	static load(url: string, complete: Handler): void {
-		Laya.loader.create(url, complete, null, Scene3D.HIERARCHY);
+		ILaya.loader.create(url, complete, null, Scene3D.HIERARCHY);
 	}
 
 	/**@internal */
@@ -163,7 +163,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/**@internal */
 	private _input: Input3D = new Input3D();
 	/**@internal */
-	private _timer: Timer = Laya.timer;
+	private _timer: Timer = ILaya.timer;
 
 	/**@internal */
 	_octree: BoundsOctree;
@@ -843,7 +843,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		 */
 		/*override*/ protected _onActive(): void {
 		super._onActive();
-		Laya.stage._scene3Ds.push(this);
+		ILaya.stage._scene3Ds.push(this);
 	}
 
 		/**
@@ -851,7 +851,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		 */
 		/*override*/ protected _onInActive(): void {
 		super._onInActive();
-		var scenes: any[] = Laya.stage._scene3Ds;
+		var scenes: any[] = ILaya.stage._scene3Ds;
 		scenes.splice(scenes.indexOf(this), 1);
 	}
 

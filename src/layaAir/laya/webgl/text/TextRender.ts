@@ -1,5 +1,5 @@
-import { TextAtlas } from "././TextAtlas";
-import { TextTexture } from "././TextTexture";
+import { TextAtlas } from "./TextAtlas";
+import { TextTexture } from "./TextTexture";
 import { Sprite } from "../../display/Sprite"
 	import { Matrix } from "../../maths/Matrix"
 	import { Point } from "../../maths/Point"

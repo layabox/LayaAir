@@ -1,5 +1,5 @@
-import { ContactPoint } from "././ContactPoint";
-import { HitResult } from "././HitResult";
+import { ContactPoint } from "./ContactPoint";
+import { HitResult } from "./HitResult";
 import { Collision } from "./Collision";
 import { PhysicsComponent } from "./PhysicsComponent";
 

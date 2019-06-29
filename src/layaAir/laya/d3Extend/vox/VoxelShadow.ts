@@ -1,5 +1,5 @@
-import { VoxelLightRay } from "././VoxelLightRay";
-import { VoxelLightSphere } from "././VoxelLightSphere";
+import { VoxelLightRay } from "./VoxelLightRay";
+import { VoxelLightSphere } from "./VoxelLightSphere";
 import { Vector3 } from "laya/d3/math/Vector3"
 	/**
 	 *  sh = new VoxelShadow()

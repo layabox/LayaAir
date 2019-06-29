@@ -1,6 +1,6 @@
-import { SimpleShapeFilter } from "././SimpleShapeFilter";
-import { SimpleShapeEditor } from "././SimpleShapeEditor";
-import { SimpleShapeRenderer } from "././SimpleShapeRenderer";
+import { SimpleShapeFilter } from "./SimpleShapeFilter";
+import { SimpleShapeEditor } from "./SimpleShapeEditor";
+import { SimpleShapeRenderer } from "./SimpleShapeRenderer";
 import { Camera } from "laya/d3/core/Camera"
 	import { MeshSprite3D } from "laya/d3/core/MeshSprite3D"
 	import { RenderableSprite3D } from "laya/d3/core/RenderableSprite3D"

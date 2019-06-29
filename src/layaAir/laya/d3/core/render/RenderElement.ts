@@ -1,6 +1,6 @@
-import { BaseRender } from "././BaseRender";
-import { RenderContext3D } from "././RenderContext3D";
-import { RenderQueue } from "././RenderQueue";
+import { BaseRender } from "./BaseRender";
+import { RenderContext3D } from "./RenderContext3D";
+import { RenderQueue } from "./RenderQueue";
 import { BaseCamera } from "../BaseCamera"
 import { Camera } from "../Camera"
 import { GeometryElement } from "../GeometryElement"

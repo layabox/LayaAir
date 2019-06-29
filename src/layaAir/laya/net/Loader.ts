@@ -1,7 +1,7 @@
-import { HttpRequest } from "././HttpRequest";
-import { URL } from "././URL";
-//import { WorkerLoader } from "././WorkerLoader";
-//import { TTFLoader } from "././TTFLoader";
+import { HttpRequest } from "./HttpRequest";
+import { URL } from "./URL";
+//import { WorkerLoader } from "./WorkerLoader";
+//import { TTFLoader } from "./TTFLoader";
 import { BitmapFont } from "./../display/BitmapFont";
 //import { Laya } from "./../../Laya";
 import { Prefab } from "../components/Prefab"

@@ -3,7 +3,7 @@ import { Handler } from "../../utils/Handler"
 import { WebGLContext } from "../../webgl/WebGLContext"
 import { BaseTexture } from "../../resource/BaseTexture"
 import { LayaGL } from "../../layagl/LayaGL";
-import { Laya } from "../../../Laya";
+import { ILaya } from "../../../ILaya";
 	
 	/**
 	 * <code>TextureCube</code> 类用于生成立方体纹理。
@@ -43,7 +43,7 @@ import { Laya } from "../../../Laya";
 		 * @param complete 完成回调。
 		 */
 		 static load(url:string, complete:Handler):void {
-			Laya.loader.create(url, complete, null, TextureCube.TEXTURECUBE);
+			ILaya.loader.create(url, complete, null, TextureCube.TEXTURECUBE);
 		}
 		
 		/** @internal */

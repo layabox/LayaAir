@@ -1,6 +1,6 @@
-import { KeyframeNode } from "././KeyframeNode";
-import { KeyframeNodeList } from "././KeyframeNodeList";
-import { AnimationEvent } from "././AnimationEvent";
+import { KeyframeNode } from "./KeyframeNode";
+import { KeyframeNodeList } from "./KeyframeNodeList";
+import { AnimationEvent } from "./AnimationEvent";
 import { FloatKeyframe } from "../core/FloatKeyframe"
 import { QuaternionKeyframe } from "../core/QuaternionKeyframe"
 import { Vector3Keyframe } from "../core/Vector3Keyframe"

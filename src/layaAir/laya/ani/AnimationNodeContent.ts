@@ -1,4 +1,4 @@
-import { KeyFramesContent } from "././KeyFramesContent";
+import { KeyFramesContent } from "./KeyFramesContent";
 /**
  * @internal
  */

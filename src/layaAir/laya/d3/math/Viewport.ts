@@ -1,6 +1,6 @@
-import { Matrix4x4 } from "././Matrix4x4";
-import { Vector3 } from "././Vector3";
-import { Vector4 } from "././Vector4";
+import { Matrix4x4 } from "./Matrix4x4";
+import { Vector3 } from "./Vector3";
+import { Vector4 } from "./Vector4";
 /**
 	 * <code>Viewport</code> 类用于创建视口。
 	 */

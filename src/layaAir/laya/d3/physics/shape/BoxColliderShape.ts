@@ -1,5 +1,5 @@
 import { Physics } from "../Physics";
-import { ColliderShape } from "././ColliderShape";
+import { ColliderShape } from "./ColliderShape";
 
 /**
  * <code>BoxColliderShape</code> 类用于创建盒子形状碰撞器。

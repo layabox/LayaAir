@@ -1,6 +1,6 @@
-import { Mesh2D } from "././Mesh2D";
-import { VertexBuffer2D } from "././VertexBuffer2D";
-import { IndexBuffer2D } from "././IndexBuffer2D";
+import { Mesh2D } from "./Mesh2D";
+import { VertexBuffer2D } from "./VertexBuffer2D";
+import { IndexBuffer2D } from "./IndexBuffer2D";
  import { Matrix } from "../../maths/Matrix"
 	import { WebGLContext } from "../WebGLContext"
 

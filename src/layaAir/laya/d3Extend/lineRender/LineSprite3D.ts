@@ -1,6 +1,6 @@
-import { LineFilter } from "././LineFilter";
-import { LineRenderer } from "././LineRenderer";
-import { LineMaterial } from "././LineMaterial";
+import { LineFilter } from "./LineFilter";
+import { LineRenderer } from "./LineRenderer";
+import { LineMaterial } from "./LineMaterial";
 import { Camera } from "laya/d3/core/Camera"
 	import { RenderableSprite3D } from "laya/d3/core/RenderableSprite3D"
 	import { BaseMaterial } from "laya/d3/core/material/BaseMaterial"

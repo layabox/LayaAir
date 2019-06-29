@@ -1,16 +1,16 @@
-import { LayaGL } from "../../../layagl/LayaGL";
-import { Stat } from "../../../utils/Stat";
-import { WebGLContext } from "../../../webgl/WebGLContext";
-import { BaseCamera } from "../../core/BaseCamera";
-import { Camera } from "../../core/Camera";
-import { BaseMaterial } from "../../core/material/BaseMaterial";
-import { RenderContext3D } from "../../core/render/RenderContext3D";
-import { Scene3D } from "../../core/scene/Scene3D";
+import { SkyMesh } from "./SkyMesh";
+import { SkyBox } from "./SkyBox";
+import { BaseCamera } from "../../core/BaseCamera"
+import { BaseMaterial } from "../../core/material/BaseMaterial"
+import { RenderContext3D } from "../../core/render/RenderContext3D"
+import { Scene3D } from "../../core/scene/Scene3D"
+import { ShaderInstance } from "../../shader/ShaderInstance"
+import { LayaGL } from "../../../layagl/LayaGL"
+import { Stat } from "../../../utils/Stat"
+import { WebGLContext } from "../../../webgl/WebGLContext"
 import { Matrix4x4 } from "../../math/Matrix4x4";
-import { ShaderInstance } from "../../shader/ShaderInstance";
 import { RenderTexture } from "../RenderTexture";
-import { SkyBox } from "././SkyBox";
-import { SkyMesh } from "././SkyMesh";
+import { Camera } from "../../core/Camera";
 
 
 /**

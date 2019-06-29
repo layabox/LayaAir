@@ -1,5 +1,5 @@
-import { SimpleShapeSprite3D } from "././SimpleShapeSprite3D";
-import { SimpleShapeEditor } from "././SimpleShapeEditor";
+import { SimpleShapeSprite3D } from "./SimpleShapeSprite3D";
+import { SimpleShapeEditor } from "./SimpleShapeEditor";
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera"
 	import { Sprite3D } from "laya/d3/core/Sprite3D"

@@ -1,4 +1,4 @@
-import { VoxFileData } from "././VoxFileData";
+import { VoxFileData } from "./VoxFileData";
 	import { CubeInfo } from "../Cube/CubeInfo"
 	import { Byte } from "laya/utils/Byte"
 	

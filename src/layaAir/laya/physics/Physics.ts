@@ -1,9 +1,9 @@
-import { BoxCollider } from "././BoxCollider";
-import { ChainCollider } from "././ChainCollider";
-import { CircleCollider } from "././CircleCollider";
-import { PolygonCollider } from "././PolygonCollider";
-import { RigidBody } from "././RigidBody";
-import { PhysicsDebugDraw } from "././PhysicsDebugDraw";
+import { BoxCollider } from "./BoxCollider";
+import { ChainCollider } from "./ChainCollider";
+import { CircleCollider } from "./CircleCollider";
+import { PolygonCollider } from "./PolygonCollider";
+import { RigidBody } from "./RigidBody";
+import { PhysicsDebugDraw } from "./PhysicsDebugDraw";
 import { Laya } from "../../Laya";
 import { Sprite } from "../display/Sprite"
 	import { Event } from "../events/Event"
@@ -52,10 +52,13 @@ import { Sprite } from "../display/Sprite"
 		 static get I():Physics {
 			return Physics._I || (Physics._I = new Physics());
 		}
+
+		static __init__():void {
+			ClassUtils.regShortClassName([BoxCollider, ChainCollider, CircleCollider, PolygonCollider, RigidBody, DistanceJoint, GearJoint, MotorJoint, MouseJoint, PrismaticJoint, PulleyJoint, RevoluteJoint, RopeJoint, WeldJoint, WheelJoint, PhysicsDebugDraw]);
+		}
 		
 		constructor() {
 			super();
-ClassUtils.regShortClassName([BoxCollider, ChainCollider, CircleCollider, PolygonCollider, RigidBody, DistanceJoint, GearJoint, MotorJoint, MouseJoint, PrismaticJoint, PulleyJoint, RevoluteJoint, RopeJoint, WeldJoint, WheelJoint, PhysicsDebugDraw]);
 		}
 		
 		/**

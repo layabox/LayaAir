@@ -1,4 +1,4 @@
-import { ParticleTemplateBase } from "././ParticleTemplateBase";
+import { ParticleTemplateBase } from "./ParticleTemplateBase";
 import { Sprite } from "../display/Sprite";
 import { ParticleSetting } from "./ParticleSetting";
 import { Handler } from "../utils/Handler";

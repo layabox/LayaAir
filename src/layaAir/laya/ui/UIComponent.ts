@@ -1,6 +1,6 @@
-import { Widget } from "././Widget";
-import { UIEvent } from "././UIEvent";
-import { UIUtils } from "././UIUtils";
+import { Widget } from "./Widget";
+import { UIEvent } from "./UIEvent";
+import { UIUtils } from "./UIUtils";
 import { Node } from "../display/Node"
 import { Sprite } from "../display/Sprite"
 import { Event } from "../events/Event"

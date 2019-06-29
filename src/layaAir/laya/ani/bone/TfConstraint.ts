@@ -1,5 +1,5 @@
-import { TfConstraintData } from "././TfConstraintData";
-import { Bone } from "././Bone";
+import { TfConstraintData } from "./TfConstraintData";
+import { Bone } from "./Bone";
 /**
  * @internal
  */

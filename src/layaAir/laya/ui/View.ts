@@ -1,4 +1,4 @@
-import { Widget } from "././Widget";
+import { Widget } from "./Widget";
 import { Animation } from "../display/Animation"
 import { Scene } from "../display/Scene"
 import { Sprite } from "../display/Sprite"
@@ -53,6 +53,12 @@ import { ILaya } from "../../ILaya";
 		protected _anchorX:number = NaN;
 		/**Y锚点，值为0-1，设置anchorY值最终通过pivotY值来改变节点轴心点。*/
 		protected _anchorY:number = NaN;
+
+		static __init__():void {
+			ILaya.ClassUtils.regShortClassName([ViewStack, Button, TextArea, ColorPicker, Box, ScaleBox,CheckBox, Clip, ComboBox, UIComponent, 
+				HScrollBar, HSlider, Image, Label, List, Panel, ProgressBar, Radio, RadioGroup, ScrollBar, Slider, Tab, TextInput, View, /*Dialog,*/ 
+				VScrollBar, VSlider, Tree, HBox, VBox,  Animation, Text, FontClip]);
+		}
 		
 		constructor(){
             super();
@@ -248,7 +254,5 @@ import { ILaya } from "../../ILaya";
 
 ILaya.regClass(View);
 
-ILaya.ClassUtils.regShortClassName([ViewStack, Button, TextArea, ColorPicker, Box, ScaleBox,CheckBox, Clip, ComboBox, UIComponent, 
-    HScrollBar, HSlider, Image, Label, List, Panel, ProgressBar, Radio, RadioGroup, ScrollBar, Slider, Tab, TextInput, View, /*Dialog,*/ 
-    VScrollBar, VSlider, Tree, HBox, VBox,  Animation, Text, FontClip]);		
+		
     //dialog 依赖于view，放到这里的话，谁在前都会报错，所以不能放到这里了

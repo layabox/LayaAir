@@ -1,6 +1,6 @@
-import { CubeGeometry } from "././CubeGeometry";
-import { CubeMap } from "././CubeMap";
-import { CubeInfo } from "././CubeInfo";
+import { CubeGeometry } from "./CubeGeometry";
+import { CubeMap } from "./CubeMap";
+import { CubeInfo } from "./CubeInfo";
 import { BufferState } from "laya/d3/core/BufferState"
 	import { Camera } from "laya/d3/core/Camera"
 	import { RenderContext3D } from "laya/d3/core/render/RenderContext3D"

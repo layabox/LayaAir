@@ -1,4 +1,4 @@
-import { Event } from "././Event";
+import { Event } from "./Event";
 import { Node } from "../display/Node"
 	//import { Sprite } from "../display/Sprite"
 	import { Browser } from "../utils/Browser"

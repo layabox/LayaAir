@@ -1,4 +1,4 @@
-import { Image } from "././Image";
+import { Image } from "./Image";
 import { Event } from "../events/Event"
 	import { LocalStorage } from "../net/LocalStorage"
 	import { Browser } from "../utils/Browser"

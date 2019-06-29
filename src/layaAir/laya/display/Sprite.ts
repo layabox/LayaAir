@@ -1,7 +1,7 @@
-import { Node } from "././Node";
-import { SpriteConst } from "././SpriteConst";
-import { Graphics } from "././Graphics";
-import { Stage } from "././Stage";
+import { Node } from "./Node";
+import { SpriteConst } from "./SpriteConst";
+import { Graphics } from "./Graphics";
+import { Stage } from "./Stage";
 import { Const } from "../Const"
 import { BoundsStyle } from "./css/BoundsStyle"
 import { CacheStyle } from "./css/CacheStyle"

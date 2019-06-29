@@ -17,8 +17,8 @@ import { BoundFrustum } from "../math/BoundFrustum";
 import { Color } from "../math/Color";
 import { Vector3 } from "../math/Vector3";
 import { Utils3D } from "../utils/Utils3D";
-import { DynamicBatchManager } from "././DynamicBatchManager";
-import { StaticBatchManager } from "././StaticBatchManager";
+import { DynamicBatchManager } from "./DynamicBatchManager";
+import { StaticBatchManager } from "./StaticBatchManager";
 import { Shader3D } from "../shader/Shader3D";
 
 /**

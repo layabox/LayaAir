@@ -1,4 +1,4 @@
-//import { TextAtlas } from "././TextAtlas";
+//import { TextAtlas } from "./TextAtlas";
 import { LayaGL } from "../../layagl/LayaGL"
 	import { RenderInfo } from "../../renders/RenderInfo"
 	import { Resource } from "../../resource/Resource"

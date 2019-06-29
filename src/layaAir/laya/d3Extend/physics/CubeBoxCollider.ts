@@ -1,6 +1,6 @@
-import { CubePhysicsCompnent } from "././CubePhysicsCompnent";
-import { CubeSphereCollider } from "././CubeSphereCollider";
-import { CubeEditCubeCollider } from "././CubeEditCubeCollider";
+import { CubePhysicsCompnent } from "./CubePhysicsCompnent";
+import { CubeSphereCollider } from "./CubeSphereCollider";
+import { CubeEditCubeCollider } from "./CubeEditCubeCollider";
 import { CubeMap } from "../Cube/CubeMap"
 
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D"

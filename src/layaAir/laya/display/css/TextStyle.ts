@@ -1,4 +1,4 @@
-import { SpriteStyle } from "././SpriteStyle";
+import { SpriteStyle } from "./SpriteStyle";
 import { BitmapFont } from "../BitmapFont"
 	import { Sprite } from "../Sprite"
 	import { Context } from "../../resource/Context"

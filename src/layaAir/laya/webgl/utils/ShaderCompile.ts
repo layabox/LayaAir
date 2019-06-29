@@ -1,7 +1,7 @@
 import { Shader } from "../shader/Shader";
 import { WebGLContext } from "../WebGLContext";
-import { InlcudeFile } from "././InlcudeFile";
-import { ShaderNode } from "././ShaderNode";
+import { InlcudeFile } from "./InlcudeFile";
+import { ShaderNode } from "./ShaderNode";
 
 /**
  * @private
