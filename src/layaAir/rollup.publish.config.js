@@ -30,12 +30,54 @@ var packsDef={
         ],
         'out':'../../bin/laya.core.js'
     },
+    'd3':{
+        'input':[
+            './laya/d3/**/*.*',
+            './Config3D.ts',
+            './ILaya3D.ts',
+            './Laya3D.ts'
+        ],
+        'out':'../../bin/laya.d3.js'
+    },
+    'device':{
+        'input':[
+            './laya/device/**/*.*'
+        ],
+        'out':'../../bin/laya.device.js'
+    },
+    'html':{
+        'input':[
+            './laya/html/**/*.*'
+        ],
+        'out':'../../bin/laya.html.js' 
+    },
+    'particle':{
+        'input':[
+            './laya/particle/**/*.*'
+        ],
+        'out':'../../bin/laya.particle.js'
+    },
+
+    'physics':{
+        'input':[
+            './laya/physics/**/*.*'
+        ],
+        'out':'../../bin/laya.physics.js' 
+    },
+    'ui':{
+        'input':[
+            './laya/ui/**/*.*'
+        ],
+        'out':'../../bin/laya.ui.js'
+    },
+
     'ani':{
         'input':[
             './laya/ani/**/*.*'
         ],
         'out':'../../bin/laya.ani.js'
     }
+
 };
 
 
@@ -54,15 +96,21 @@ function myMultiInput(){
             exclude = config.exclude || [];
       
             if (config.exports === false) {
-              exporter = function exporter(path) {
-                return `import ${JSON.stringify(path)};`;
+              exporter = function exporter(p) {
+                if(p.substr(p.length-3)=='.ts'){
+                    p=p.substr(0,p.length-3);
+                }
+                return `import ${JSON.stringify(p)};`;
               };
             }            
         }
       }  
       
-      var exporter = function exporter(path) {
-        return `export * from ${JSON.stringify(path)};`;
+      var exporter = function exporter(p) {
+        if(p.substr(p.length-3)=='.ts'){
+            p=p.substr(0,p.length-3);
+        }
+        return `export * from ${JSON.stringify(p)};`;
       };
           
     return(
@@ -102,8 +150,6 @@ function myMultiInput(){
                     }));
                     return matched.promise(patterns, {realpath: true}).then(function (paths) {
                         curPackFiles = paths;   // 记录一下所有的文件
-                        //console.log(paths);
-                        fs.writeFileSync('d:/temp/pp.ts',paths.join('\n'));
                         return paths.map(exporter).join('\n');
                     });
                   }else{
@@ -142,6 +188,160 @@ export default [
         input:packsDef.ani.input,
         output: {
             file: packsDef.ani.out,
+            format: 'iife', // immediately-invoked function expression — suitable for <script> tags
+            sourcemap: false,
+            name:'Laya',
+            extend:true,
+            globals:{'Laya':'Laya'}
+            //indent: false
+        },
+        external:['Laya'],
+        plugins: [
+            myMultiInput(),
+            typescript({
+                //abortOnError:false
+                check: false
+            }),
+            glsl({
+                include: /\.glsl$/,
+                sourceMap: false
+            }),        
+        ]
+
+    },
+    { //d3
+        input:packsDef.d3.input,
+        output: {
+            file: packsDef.d3.out,
+            format: 'iife', // immediately-invoked function expression — suitable for <script> tags
+            sourcemap: false,
+            name:'Laya',
+            extend:true,
+            globals:{'Laya':'Laya'}
+            //indent: false
+        },
+        external:['Laya'],
+        plugins: [
+            myMultiInput(),
+            typescript({
+                //abortOnError:false
+                check: false
+            }),
+            glsl({
+                include: /.*(.glsl|.vs|.fs)$/,
+                sourceMap: false
+            }),        
+        ]
+    },
+    {
+        //device
+        input:packsDef.device.input,
+        output: {
+            file: packsDef.device.out,
+            format: 'iife', // immediately-invoked function expression — suitable for <script> tags
+            sourcemap: false,
+            name:'Laya',
+            extend:true,
+            globals:{'Laya':'Laya'}
+            //indent: false
+        },
+        external:['Laya'],
+        plugins: [
+            myMultiInput(),
+            typescript({
+                //abortOnError:false
+                check: false
+            }),
+            glsl({
+                include: /\.glsl$/,
+                sourceMap: false
+            }),        
+        ]
+
+    },
+    {
+        //html
+        input:packsDef.html.input,
+        output: {
+            file: packsDef.html.out,
+            format: 'iife', // immediately-invoked function expression — suitable for <script> tags
+            sourcemap: false,
+            name:'Laya',
+            extend:true,
+            globals:{'Laya':'Laya'}
+            //indent: false
+        },
+        external:['Laya'],
+        plugins: [
+            myMultiInput(),
+            typescript({
+                //abortOnError:false
+                check: false
+            }),
+            glsl({
+                include: /\.glsl$/,
+                sourceMap: false
+            }),        
+        ]
+
+    },
+    {
+        //particle
+        input:packsDef.particle.input,
+        output: {
+            file: packsDef.particle.out,
+            format: 'iife', // immediately-invoked function expression — suitable for <script> tags
+            sourcemap: false,
+            name:'Laya',
+            extend:true,
+            globals:{'Laya':'Laya'}
+            //indent: false
+        },
+        external:['Laya'],
+        plugins: [
+            myMultiInput(),
+            typescript({
+                //abortOnError:false
+                check: false
+            }),
+            glsl({
+                include: /\.glsl$/,
+                sourceMap: false
+            }),        
+        ]
+
+    },
+    {
+        //physics
+        input:packsDef.physics.input,
+        output: {
+            file: packsDef.physics.out,
+            format: 'iife', // immediately-invoked function expression — suitable for <script> tags
+            sourcemap: false,
+            name:'Laya',
+            extend:true,
+            globals:{'Laya':'Laya'}
+            //indent: false
+        },
+        external:['Laya'],
+        plugins: [
+            myMultiInput(),
+            typescript({
+                //abortOnError:false
+                check: false
+            }),
+            glsl({
+                include: /\.glsl$/,
+                sourceMap: false
+            }),        
+        ]
+
+    },
+    {
+        //ui
+        input:packsDef.ui.input,
+        output: {
+            file: packsDef.ui.out,
             format: 'iife', // immediately-invoked function expression — suitable for <script> tags
             sourcemap: false,
             name:'Laya',

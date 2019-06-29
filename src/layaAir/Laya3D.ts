@@ -74,6 +74,7 @@ import { Rigidbody3D } from "./laya/d3/physics/Rigidbody3D";
 import { Animator } from "./laya/d3/component/Animator";
 import { Command } from "./laya/d3/core/render/command/Command";
 import { ClassUtils } from "./laya/utils/ClassUtils";
+import { StaticPlaneColliderShape } from "./laya/d3/physics/shape/StaticPlaneColliderShape";
 
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
@@ -185,6 +186,7 @@ export class Laya3D {
 
 		Physics._physics3D=(window as any).Physics3D;
 		if (Physics._physics3D) {
+			StaticPlaneColliderShape.__init__();
 			ColliderShape.__init__();
 			CompoundColliderShape.__init__();
 			PhysicsComponent.__init__();
