@@ -1,16 +1,16 @@
-import { SkyMesh } from "./SkyMesh";
-import { SkyBox } from "./SkyBox";
-import { BaseCamera } from "../../core/BaseCamera"
-import { BaseMaterial } from "../../core/material/BaseMaterial"
-import { RenderContext3D } from "../../core/render/RenderContext3D"
-import { Scene3D } from "../../core/scene/Scene3D"
-import { ShaderInstance } from "../../shader/ShaderInstance"
-import { LayaGL } from "../../../layagl/LayaGL"
-import { Stat } from "../../../utils/Stat"
-import { WebGLContext } from "../../../webgl/WebGLContext"
-import { Matrix4x4 } from "../../math/Matrix4x4";
-import { RenderTexture } from "../RenderTexture";
+import { LayaGL } from "../../../layagl/LayaGL";
+import { Stat } from "../../../utils/Stat";
+import { WebGLContext } from "../../../webgl/WebGLContext";
+import { BaseCamera } from "../../core/BaseCamera";
 import { Camera } from "../../core/Camera";
+import { BaseMaterial } from "../../core/material/BaseMaterial";
+import { RenderContext3D } from "../../core/render/RenderContext3D";
+import { Scene3D } from "../../core/scene/Scene3D";
+import { Matrix4x4 } from "../../math/Matrix4x4";
+import { ShaderInstance } from "../../shader/ShaderInstance";
+import { RenderTexture } from "../RenderTexture";
+import { SkyBox } from "./SkyBox";
+import { SkyMesh } from "./SkyMesh";
 
 
 /**
@@ -111,13 +111,13 @@ export class SkyRenderer {
 				if (camera.orthographic) {
 					projectionMatrix = SkyRenderer._tempMatrix1;
 					Matrix4x4.createPerspective(Math.PI / 2, (<Camera>camera).aspectRatio, camera.nearPlane, camera.farPlane, projectionMatrix);
-					//无穷投影矩阵算法
-					// var epsilon: number = 1e-6;
-					// var nearPlane: number = camera.nearPlane * 0.01;
-					// projectionMatrix.elements[10] = -1.0 + epsilon;
-					// projectionMatrix.elements[11] = -1.0;
-					// projectionMatrix.elements[14] = (-1.0 + epsilon) * nearPlane;//Direct模式投影矩阵盒OpenGL不同
 				}
+				//无穷投影矩阵算法
+				// var epsilon: number = 1e-6;
+				// var nearPlane: number = camera.nearPlane * 0.01;
+				// projectionMatrix.elements[10] = -1.0 + epsilon;
+				// projectionMatrix.elements[11] = -1.0;
+				// projectionMatrix.elements[14] = (-1.0 + epsilon) * nearPlane;//Direct模式投影矩阵盒OpenGL不同
 				(<Camera>camera)._applyViewProject(state, viewMatrix, projectionMatrix, renderTar ? true : false);//TODO:优化不应设置给Camera直接提交
 
 				shader.uploadUniforms(shader._cameraUniformParamsMap, camera._shaderValues, uploadCamera);
