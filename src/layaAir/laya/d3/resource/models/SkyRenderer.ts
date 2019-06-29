@@ -110,8 +110,7 @@ export class SkyRenderer {
 				viewMatrix.transpose();
 				if (camera.orthographic) {
 					projectionMatrix = SkyRenderer._tempMatrix1;
-					//TODO:1:宽高比可使用camera设置否则会变形,2:采用无穷投影矩阵算法
-					Matrix4x4.createPerspective(Math.PI / 2, 1.0, camera.nearPlane, camera.farPlane, projectionMatrix);
+					Matrix4x4.createPerspective(Math.PI / 2, (<Camera>camera).aspectRatio, camera.nearPlane, camera.farPlane, projectionMatrix);
 					//无穷投影矩阵算法
 					// var epsilon: number = 1e-6;
 					// var nearPlane: number = camera.nearPlane * 0.01;
