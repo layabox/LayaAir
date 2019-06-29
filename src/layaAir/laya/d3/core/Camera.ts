@@ -463,16 +463,22 @@ export class Camera extends BaseCamera {
 	 * @internal
 	 */
 	_applyViewProject(context: RenderContext3D, viewMat: Matrix4x4, proMat: Matrix4x4, inverseY: Boolean): void {
+		var projectView: Matrix4x4;
 		var shaderData: ShaderData = this._shaderValues;
 		if (inverseY) {
 			Matrix4x4.multiply(BaseCamera._invertYScaleMatrix, proMat, BaseCamera._invertYProjectionMatrix);
+			Matrix4x4.multiply(BaseCamera._invertYProjectionMatrix, viewMat, BaseCamera._invertYProjectionViewMatrix);
 			proMat = BaseCamera._invertYProjectionMatrix;
+			projectView = BaseCamera._invertYProjectionViewMatrix;
 		}
-		Matrix4x4.multiply(proMat, viewMat, this._projectionViewMatrix);
+		else {
+			Matrix4x4.multiply(proMat, viewMat, this._projectionViewMatrix);
+			projectView = this._projectionViewMatrix;
+		}
 
 		context.viewMatrix = viewMat;
 		context.projectionMatrix = proMat;
-		context.projectionViewMatrix = this._projectionViewMatrix;
+		context.projectionViewMatrix = projectView;
 		shaderData.setMatrix4x4(BaseCamera.VIEWMATRIX, viewMat);
 		shaderData.setMatrix4x4(BaseCamera.PROJECTMATRIX, proMat);
 		shaderData.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, this._projectionViewMatrix);
