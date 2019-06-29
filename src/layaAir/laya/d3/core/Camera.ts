@@ -47,8 +47,6 @@ export class Camera extends BaseCamera {
 	private _viewMatrix: Matrix4x4;
 	private _projectionMatrix: Matrix4x4;
 	private _projectionViewMatrix: Matrix4x4;
-	/** @internal */
-	_projectionViewMatrixNoTranslateScale: Matrix4x4;
 	private _boundFrustum: BoundFrustum;
 	private _updateViewMatrix: boolean = true;
 	/** @internal 渲染目标。*/
@@ -290,7 +288,6 @@ export class Camera extends BaseCamera {
 		this._viewMatrix = new Matrix4x4();
 		this._projectionMatrix = new Matrix4x4();
 		this._projectionViewMatrix = new Matrix4x4();
-		this._projectionViewMatrixNoTranslateScale = new Matrix4x4();
 		this._viewport = new Viewport(0, 0, 0, 0);
 		this._normalizedViewport = new Viewport(0, 0, 1, 1);
 		this._aspectRatio = aspectRatio;
@@ -418,15 +415,14 @@ export class Camera extends BaseCamera {
 			for (var i: number = 0, n: number = parallelSplitShadowMap.shadowMapCount; i < n; i++) {
 				var smCamera: Camera = parallelSplitShadowMap.cameras[i];
 				context.camera = smCamera;
-				context.projectionViewMatrix = smCamera.projectionViewMatrix;//TODO:重复计算浪费
-				FrustumCulling.renderObjectCulling(smCamera, scene, context, scene._castShadowRenders,shader,replacementTag);
+				FrustumCulling.renderObjectCulling(smCamera, scene, context, scene._castShadowRenders, shader, replacementTag);
 
 				var shadowMap: RenderTexture = parallelSplitShadowMap.cameras[i + 1].renderTarget;
 				shadowMap._start();
 				context.camera = smCamera;
 				context.viewport = smCamera.viewport;
 				smCamera._prepareCameraToRender();
-				smCamera._prepareCameraViewProject(smCamera.viewMatrix, smCamera.projectionMatrix, context.projectionViewMatrix, smCamera._projectionViewMatrixNoTranslateScale);
+				smCamera._applyViewProject(context, smCamera.viewMatrix, smCamera.projectionMatrix, false);
 				scene._clear(gl, context);
 				var queue: RenderQueue = scene._opaqueQueue;//阴影均为非透明队列
 				queue._render(context, false);//TODO:临时改为False
@@ -439,25 +435,12 @@ export class Camera extends BaseCamera {
 		context.camera = this;
 
 		scene._preRenderScript();//TODO:duo相机是否重复
-
-		var viewMat: Matrix4x4, projectMat: Matrix4x4;
-		viewMat = context.viewMatrix = this.viewMatrix;
-
 		var renderTar: RenderTexture = this._renderTexture || this._offScreenRenderTexture;//如果有临时renderTexture则画到临时renderTexture,最后再画到屏幕或者离屏画布,如果无临时renderTexture则直接画到屏幕或离屏画布
-		if (renderTar) {
-			renderTar._start();
-			Matrix4x4.multiply(BaseCamera._invertYScaleMatrix, this._projectionMatrix, BaseCamera._invertYProjectionMatrix);
-			Matrix4x4.multiply(BaseCamera._invertYScaleMatrix, this.projectionViewMatrix, BaseCamera._invertYProjectionViewMatrix);
-			projectMat = context.projectionMatrix = BaseCamera._invertYProjectionMatrix;//TODO:
-			context.projectionViewMatrix = BaseCamera._invertYProjectionViewMatrix;//TODO:
-		} else {
-			projectMat = context.projectionMatrix = this._projectionMatrix;//TODO:
-			context.projectionViewMatrix = this.projectionViewMatrix;//TODO:
-		}
+		(renderTar) && (renderTar._start());
 		context.viewport = this.viewport;
 		this._prepareCameraToRender();
-		this._prepareCameraViewProject(viewMat, projectMat, context.projectionViewMatrix, this._projectionViewMatrixNoTranslateScale);
-		scene._preCulling(context, this,shader,replacementTag);
+		this._applyViewProject(context, this.viewMatrix, this._projectionMatrix, renderTar ? true : false);
+		scene._preCulling(context, this, shader, replacementTag);
 		scene._clear(gl, context);
 		scene._renderScene(context);
 		scene._postRenderScript();//TODO:duo相机是否重复
@@ -475,6 +458,26 @@ export class Camera extends BaseCamera {
 			RenderTexture.recoverToPool(this._renderTexture);
 		}
 	}
+
+	/**
+	 * @internal
+	 */
+	_applyViewProject(context: RenderContext3D, viewMat: Matrix4x4, proMat: Matrix4x4, inverseY: Boolean): void {
+		var shaderData: ShaderData = this._shaderValues;
+		if (inverseY) {
+			Matrix4x4.multiply(BaseCamera._invertYScaleMatrix, proMat, BaseCamera._invertYProjectionMatrix);
+			proMat = BaseCamera._invertYProjectionMatrix;
+		}
+		Matrix4x4.multiply(proMat, viewMat, this._projectionViewMatrix);
+
+		context.viewMatrix = viewMat;
+		context.projectionMatrix = proMat;
+		context.projectionViewMatrix = this._projectionViewMatrix;
+		shaderData.setMatrix4x4(BaseCamera.VIEWMATRIX, viewMat);
+		shaderData.setMatrix4x4(BaseCamera.PROJECTMATRIX, proMat);
+		shaderData.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, this._projectionViewMatrix);
+	}
+
 
 	/**
 	 * 计算从屏幕空间生成的射线。

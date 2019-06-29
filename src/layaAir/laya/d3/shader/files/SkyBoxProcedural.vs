@@ -36,7 +36,7 @@ const vec3 c_VariableRangeForScatteringWavelength = vec3(0.15, 0.15, 0.15);//散
 
 attribute vec4 a_Position;
 
-uniform mat4 u_MvpMatrix;
+uniform mat4 u_ViewProjection;
 uniform vec3 u_SkyTint;
 uniform vec3 u_GroundTint;
 uniform float u_Exposure;
@@ -73,7 +73,7 @@ float scaleAngle(float inCos)
 
 
 void main () {
-	gl_Position = (u_MvpMatrix*a_Position).xyww;
+	gl_Position = (u_ViewProjection*a_Position).xyww;
 
 	vec3 skyTintInGammaSpace = u_SkyTint;//支持非GAMMA空间后要调整
 	vec3 scatteringWavelength = mix(c_DefaultScatteringWavelength-c_VariableRangeForScatteringWavelength,c_DefaultScatteringWavelength+c_VariableRangeForScatteringWavelength,vec3(1.0) - skyTintInGammaSpace); // using Tint in sRGB+ gamma allows for more visually linear interpolation and to keep (0.5) at (128, gray in sRGB) point

@@ -524,7 +524,7 @@ export class ShaderInit3D {
 			'u_Exposure': Shader3D.PERIOD_MATERIAL,
 			'u_Rotation': Shader3D.PERIOD_MATERIAL,
 			'u_CubeTexture': Shader3D.PERIOD_MATERIAL,
-			'u_MvpMatrix': Shader3D.PERIOD_CAMERA
+			'u_ViewProjection': Shader3D.PERIOD_CAMERA
 		};//TODO:优化
 
 		shader = Shader3D.add("SkyBox");
@@ -542,7 +542,7 @@ export class ShaderInit3D {
 			'u_SkyTint': Shader3D.PERIOD_MATERIAL,
 			'u_GroundTint': Shader3D.PERIOD_MATERIAL,
 			'u_Exposure': Shader3D.PERIOD_MATERIAL,
-			'u_MvpMatrix': Shader3D.PERIOD_CAMERA,//TODO:优化
+			'u_ViewProjection': Shader3D.PERIOD_CAMERA,//TODO:优化
 			'u_DirectionLight.Direction': Shader3D.PERIOD_SCENE,
 			'u_DirectionLight.Color': Shader3D.PERIOD_SCENE
 		};

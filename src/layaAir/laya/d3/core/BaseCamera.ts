@@ -15,13 +15,12 @@ import { Scene3D } from "./scene/Scene3D";
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
  */
 export class BaseCamera extends Sprite3D {
-	private static _tempMatrix4x40: Matrix4x4 = new Matrix4x4();
+	static _tempMatrix4x40: Matrix4x4 = new Matrix4x4();
 
 	static CAMERAPOS: number = Shader3D.propertyNameToID("u_CameraPos");
 	static VIEWMATRIX: number = Shader3D.propertyNameToID("u_View");
 	static PROJECTMATRIX: number = Shader3D.propertyNameToID("u_Projection");
 	static VIEWPROJECTMATRIX: number = Shader3D.propertyNameToID("u_ViewProjection");
-	static VPMATRIX_NO_TRANSLATE: number = Shader3D.propertyNameToID("u_MvpMatrix");
 	static CAMERADIRECTION: number = Shader3D.propertyNameToID("u_CameraDirection");
 	static CAMERAUP: number = Shader3D.propertyNameToID("u_CameraUp");
 
@@ -242,28 +241,14 @@ export class BaseCamera extends Sprite3D {
 	 * @internal
 	 */
 	_prepareCameraToRender(): void {
+		var cameraSV: ShaderData = this._shaderValues;
 		this.transform.getForward(this._forward);
 		this.transform.getUp(this._up);
-		var cameraSV: ShaderData = this._shaderValues;
 		cameraSV.setVector3(BaseCamera.CAMERAPOS, this.transform.position);
 		cameraSV.setVector3(BaseCamera.CAMERADIRECTION, this._forward);
 		cameraSV.setVector3(BaseCamera.CAMERAUP, this._up);
 	}
 
-	/**
-	 * @internal
-	 */
-	_prepareCameraViewProject(vieMat: Matrix4x4, proMat: Matrix4x4, viewProject: Matrix4x4, vieProNoTraSca: Matrix4x4): void {
-		var shaderData: ShaderData = this._shaderValues;
-		shaderData.setMatrix4x4(BaseCamera.VIEWMATRIX, vieMat);
-		shaderData.setMatrix4x4(BaseCamera.PROJECTMATRIX, proMat);
-		shaderData.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, viewProject);
-
-		this.transform.worldMatrix.cloneTo(BaseCamera._tempMatrix4x40);//视图矩阵逆矩阵的转置矩阵，移除平移和缩放
-		BaseCamera._tempMatrix4x40.transpose();
-		Matrix4x4.multiply(proMat, BaseCamera._tempMatrix4x40, vieProNoTraSca);
-		shaderData.setMatrix4x4(BaseCamera.VPMATRIX_NO_TRANSLATE, vieProNoTraSca);
-	}
 
 	/**
 	 * 相机渲染。
@@ -370,7 +355,7 @@ export class BaseCamera extends Sprite3D {
 
 		this.orthographic = data.orthographic;
 		this.orthographicVerticalSize = data.orthographicVerticalSize;
-		this.fieldOfView = data.fieldOfView;
+		(data.fieldOfView !== undefined) && (this.fieldOfView = data.fieldOfView);
 		this.nearPlane = data.nearPlane;
 		this.farPlane = data.farPlane;
 
