@@ -6,12 +6,18 @@ import { Physics } from "../Physics";
  * <code>StaticPlaneColliderShape</code> 类用于创建静态平面碰撞器。
  */
 export class StaticPlaneColliderShape extends ColliderShape {
-	private static _nativeNormal: any = new Physics._physics3D.btVector3(0, 0, 0);
-
+	private static _nativeNormal: any;
 	/**@internal */
 	_offset: number;
 	/**@internal */
 	_normal: Vector3;
+
+	/**
+	 * @internal
+	 */
+	static __init__(): void {
+		StaticPlaneColliderShape._nativeNormal= new Physics._physics3D.btVector3(0, 0, 0);
+	}
 
 	/**
 	 * 创建一个新的 <code>StaticPlaneColliderShape</code> 实例。
