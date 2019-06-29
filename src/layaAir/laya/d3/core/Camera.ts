@@ -481,7 +481,7 @@ export class Camera extends BaseCamera {
 		context.projectionViewMatrix = projectView;
 		shaderData.setMatrix4x4(BaseCamera.VIEWMATRIX, viewMat);
 		shaderData.setMatrix4x4(BaseCamera.PROJECTMATRIX, proMat);
-		shaderData.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, this._projectionViewMatrix);
+		shaderData.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, projectView);
 	}
 
 
