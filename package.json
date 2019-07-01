@@ -9,6 +9,7 @@
   "author": "LayaAir Team",
   "license": "ISC",
   "dependencies": {
+    "@types/webgl2": "0.0.4",
     "browserify-shader": "^0.1.2",
     "rollup-plugin-auto-external": "^2.0.0",
     "rollup-plugin-commonjs": "^9.3.4",
