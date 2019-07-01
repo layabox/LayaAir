@@ -255,7 +255,7 @@ import { View } from "./laya/ui/View";
 			WebGLContext.__init_native();
 			Shader.prototype.uploadTexture2D = function(value:any):void {
 				var CTX:any = WebGLContext;
-				CTX.bindTexture(WebGLContext.mainContext, CTX.TEXTURE_2D, value);
+				CTX.bindTexture(WebGLContext.mainContext, WebGL2RenderingContext.TEXTURE_2D, value);
 			}
 			RenderState2D.width = Browser.window.innerWidth;
 			RenderState2D.height = Browser.window.innerHeight;
@@ -269,7 +269,7 @@ import { View } from "./laya/ui/View";
 				var c:any[] = ColorUtils.create(color).arrColor;
 				var gl:any = LayaGL.instance;
 				if (c) gl.clearColor(c[0], c[1], c[2], c[3]);
-				gl.clear(WebGLContext.COLOR_BUFFER_BIT | WebGLContext.DEPTH_BUFFER_BIT | WebGLContext.STENCIL_BUFFER_BIT);
+				gl.clear(WebGL2RenderingContext.COLOR_BUFFER_BIT | WebGL2RenderingContext.DEPTH_BUFFER_BIT | WebGL2RenderingContext.STENCIL_BUFFER_BIT);
 				RenderState2D.clear();
 			}
 			Sprite.drawToCanvas = Sprite.drawToTexture =  function(sprite:Sprite, _renderType:number, canvasWidth:number, canvasHeight:number, offsetX:number, offsetY:number):any {

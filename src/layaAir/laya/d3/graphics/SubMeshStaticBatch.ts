@@ -238,9 +238,9 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 		var floatStride: number = this._vertexDeclaration.vertexStride / 4;
 		var vertexDatas: Float32Array = new Float32Array(floatStride * this._currentBatchVertexCount);
 		var indexDatas: Uint16Array = new Uint16Array(this._currentBatchIndexCount);
-		this._vertexBuffer = new VertexBuffer3D(this._vertexDeclaration.vertexStride * this._currentBatchVertexCount, WebGLContext.STATIC_DRAW);
+		this._vertexBuffer = new VertexBuffer3D(this._vertexDeclaration.vertexStride * this._currentBatchVertexCount, WebGL2RenderingContext.STATIC_DRAW);
 		this._vertexBuffer.vertexDeclaration = this._vertexDeclaration;
-		this._indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, this._currentBatchIndexCount, WebGLContext.STATIC_DRAW);
+		this._indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, this._currentBatchIndexCount, WebGL2RenderingContext.STATIC_DRAW);
 
 		for (var i: number = 0, n: number = this._batchElements.length; i < n; i++) {
 			var sprite: MeshSprite3D = (<MeshSprite3D>this._batchElements[i]);
@@ -309,14 +309,14 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 			} else {
 				var start: number = batchElementList[from].staticBatchIndexStart;
 				var indexCount: number = batchElementList[end].staticBatchIndexEnd - start;
-				LayaGL.instance.drawElements(WebGLContext.TRIANGLES, indexCount, WebGLContext.UNSIGNED_SHORT, start * 2);
+				LayaGL.instance.drawElements(WebGL2RenderingContext.TRIANGLES, indexCount, WebGL2RenderingContext.UNSIGNED_SHORT, start * 2);
 				from = ++end;
 				Stat.trianglesFaces += indexCount / 3;
 			}
 		}
 		start = batchElementList[from].staticBatchIndexStart;
 		indexCount = batchElementList[end].staticBatchIndexEnd - start;
-		LayaGL.instance.drawElements(WebGLContext.TRIANGLES, indexCount, WebGLContext.UNSIGNED_SHORT, start * 2);
+		LayaGL.instance.drawElements(WebGL2RenderingContext.TRIANGLES, indexCount, WebGL2RenderingContext.UNSIGNED_SHORT, start * 2);
 		Stat.renderBatches++;
 		Stat.savedRenderBatches += count - 1;
 		Stat.trianglesFaces += indexCount / 3;

@@ -364,11 +364,11 @@ export class Context {
 	static set2DRenderConfig(): void {
 		var gl: any = LayaGL.instance;
 		WebGLContext.setBlend(gl, true);//还原2D设置
-		WebGLContext.setBlendFunc(gl, WebGLContext.ONE, WebGLContext.ONE_MINUS_SRC_ALPHA);
+		WebGLContext.setBlendFunc(gl, WebGL2RenderingContext.ONE, WebGL2RenderingContext.ONE_MINUS_SRC_ALPHA);
 		WebGLContext.setDepthTest(gl, false);
 		WebGLContext.setCullFace(gl, false);
 		WebGLContext.setDepthMask(gl, true);
-		WebGLContext.setFrontFace(gl, WebGLContext.CCW);
+		WebGLContext.setFrontFace(gl, WebGL2RenderingContext.CCW);
 		gl.viewport(0, 0, RenderState2D.width, RenderState2D.height);//还原2D视口
 	}
 
@@ -484,7 +484,7 @@ export class Context {
 	clearBG(r: number, g: number, b: number, a: number): void {
 		var gl: WebGLContext = WebGLContext.mainContext;
 		gl.clearColor(r, g, b, a);
-		gl.clear(WebGLContext.COLOR_BUFFER_BIT);
+		gl.clear(WebGL2RenderingContext.COLOR_BUFFER_BIT);
 	}
 
 	//TODO:coverage
@@ -1538,7 +1538,7 @@ export class Context {
 		//var preworldClipRect:Rectangle = RenderState2D.worldClipRect;
 		//裁剪不用考虑，现在是在context内部自己维护，不会乱窜
 		RenderState2D.worldScissorTest = false;
-		WebGLContext.mainContext.disable(WebGLContext.SCISSOR_TEST);
+		WebGLContext.mainContext.disable(WebGL2RenderingContext.SCISSOR_TEST);
 
 		var preAlpha: number = RenderState2D.worldAlpha;
 		var preMatrix4: any[] = RenderState2D.worldMatrix4;

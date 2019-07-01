@@ -1,6 +1,5 @@
 
 import { LayaGL } from "../../layagl/LayaGL"
-import { WebGLContext } from "../../webgl/WebGLContext"
 import { Buffer } from "../../webgl/utils/Buffer"
 import { VertexDeclaration } from "./VertexDeclaration";
 
@@ -68,7 +67,7 @@ import { VertexDeclaration } from "./VertexDeclaration";
 			super();
 			this._vertexCount = -1;
 			this._bufferUsage = bufferUsage;
-			this._bufferType = WebGLContext.ARRAY_BUFFER;
+			this._bufferType = WebGL2RenderingContext.ARRAY_BUFFER;
 			this._canRead = canRead;
 			this._dataType = dateType;
 			
@@ -92,7 +91,7 @@ import { VertexDeclaration } from "./VertexDeclaration";
 		 */
 		/*override*/  bind():boolean {
 			if (Buffer._bindedVertexBuffer !== this._glBuffer) {
-				LayaGL.instance.bindBuffer(WebGLContext.ARRAY_BUFFER, this._glBuffer);
+				LayaGL.instance.bindBuffer(WebGL2RenderingContext.ARRAY_BUFFER, this._glBuffer);
 				Buffer._bindedVertexBuffer = this._glBuffer;
 				return true;
 			} else {

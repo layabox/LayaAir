@@ -1,7 +1,6 @@
 import { Mesh2D } from "./Mesh2D";
 import { IndexBuffer2D } from "./IndexBuffer2D";
 import { VertexBuffer2D } from "./VertexBuffer2D";
-	import { WebGLContext } from "../WebGLContext"
 	/**
 	 * drawImage，fillRect等会用到的简单的mesh。每次添加必然是一个四边形。
 	 */
@@ -9,9 +8,9 @@ import { VertexBuffer2D } from "./VertexBuffer2D";
 		 static const_stride:number = 24;// 48;  24是不带clip的
 		private static _fixib:IndexBuffer2D;
 		private static _maxIB:number = 16 * 1024;
-		private static _fixattriInfo:any[] = [WebGLContext.FLOAT, 4, 0,	//pos,uv
-			WebGLContext.UNSIGNED_BYTE, 4, 16,	//color alpha
-			WebGLContext.UNSIGNED_BYTE,4,20];
+		private static _fixattriInfo:any[] = [WebGL2RenderingContext.FLOAT, 4, 0,	//pos,uv
+			WebGL2RenderingContext.UNSIGNED_BYTE, 4, 16,	//color alpha
+			WebGL2RenderingContext.UNSIGNED_BYTE,4,20];
 		private static _POOL:any[] = [];
 		//private static var _num;
 		constructor() {

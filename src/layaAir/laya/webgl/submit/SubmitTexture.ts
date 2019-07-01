@@ -66,7 +66,7 @@ import { ColorFilter } from "../../filters/ColorFilter"
 				this.shaderValue.upload();
 			}
 			
-			gl.drawElements(WebGLContext.TRIANGLES, this._numEle, WebGLContext.UNSIGNED_SHORT, this._startIdx);
+			gl.drawElements(WebGL2RenderingContext.TRIANGLES, this._numEle, WebGL2RenderingContext.UNSIGNED_SHORT, this._startIdx);
 			
 			Stat.renderBatches++;
 			Stat.trianglesFaces += this._numEle / 3;

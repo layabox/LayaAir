@@ -1,4 +1,4 @@
-import { WebGLContext } from "./WebGLContext";
+
 import { WebGL } from "./WebGL";
 import { ILaya } from "../../ILaya";
 import { VertexArrayObject } from "../../laya/webgl/VertexArrayObject"
@@ -46,7 +46,7 @@ import { VertexArrayObject } from "../../laya/webgl/VertexArrayObject"
 			this._isWebGL2 = isWebGL2;
 			
 			try {//某些浏览器中未实现此函数，使用try catch增强兼容性。
-				var precisionFormat:any = gl.getShaderPrecisionFormat(WebGLContext.FRAGMENT_SHADER, WebGLContext.HIGH_FLOAT);
+				var precisionFormat:any = gl.getShaderPrecisionFormat(WebGL2RenderingContext.FRAGMENT_SHADER, WebGL2RenderingContext.HIGH_FLOAT);
 				precisionFormat.precision ? (WebGL.shaderHighPrecision = true) : WebGL.shaderHighPrecision = false;
 			} catch (e) {
 			}

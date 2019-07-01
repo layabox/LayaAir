@@ -89,7 +89,7 @@ export class SkyRenderer {
 			var camera: BaseCamera = state.camera;
 
 			WebGLContext.setCullFace(gl, false);
-			WebGLContext.setDepthFunc(gl, WebGLContext.LEQUAL);
+			WebGLContext.setDepthFunc(gl, WebGL2RenderingContext.LEQUAL);
 			WebGLContext.setDepthMask(gl, false);
 			var shader: ShaderInstance = state.shader = this._material._shader.getSubShaderAt(0)._passes[0].withCompile(0, 0, this._material._shaderValues._defineDatas.value);//TODO:调整SubShader代码
 			var switchShader: boolean = shader.bind();//纹理需要切换shader时重新绑定 其他uniform不需要
@@ -132,7 +132,7 @@ export class SkyRenderer {
 
 			this._mesh._bufferState.bind();
 			this._mesh._render(state);
-			WebGLContext.setDepthFunc(gl, WebGLContext.LESS);
+			WebGLContext.setDepthFunc(gl, WebGL2RenderingContext.LESS);
 			WebGLContext.setDepthMask(gl, true);
 			if (camera.orthographic) {
 				(<Camera>camera)._applyViewProject(state, (<Camera>camera).viewMatrix, (<Camera>camera).projectionMatrix, renderTar ? true : false);

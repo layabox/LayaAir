@@ -115,13 +115,13 @@ import { ILaya } from "../../ILaya";
 		constructor(width:number = 0, height:number = 0, format:number = BaseTexture.FORMAT_R8G8B8A8, mipmap:boolean = true, canRead:boolean = false){
 			
 			super(format, mipmap);
-			this._glTextureType = WebGLContext.TEXTURE_2D;
+			this._glTextureType = WebGL2RenderingContext.TEXTURE_2D;
 			this._width = width;
 			this._height = height;
 			this._canRead = canRead;
 			
-			this._setWarpMode(WebGLContext.TEXTURE_WRAP_S, this._wrapModeU);//TODO:重置宽高需要调整
-			this._setWarpMode(WebGLContext.TEXTURE_WRAP_T, this._wrapModeV);//TODO:重置宽高需要调整
+			this._setWarpMode(WebGL2RenderingContext.TEXTURE_WRAP_S, this._wrapModeU);//TODO:重置宽高需要调整
+			this._setWarpMode(WebGL2RenderingContext.TEXTURE_WRAP_T, this._wrapModeV);//TODO:重置宽高需要调整
 			this._setFilterMode(this._filterMode);//TODO:重置宽高需要调整
 			this._setAnisotropy(this._anisoLevel);
 			
@@ -161,11 +161,11 @@ import { ILaya } from "../../ILaya";
 			var glFormat:number = this._getGLFormat();
 			WebGLContext.bindTexture(gl, textureType, this._glTexture);
 			if (this.format === BaseTexture.FORMAT_R8G8B8) {
-				gl.pixelStorei(WebGLContext.UNPACK_ALIGNMENT, 1);//字节对齐
-				gl.texImage2D(textureType, miplevel, glFormat, width, height, 0, glFormat, WebGLContext.UNSIGNED_BYTE, pixels);
-				gl.pixelStorei(WebGLContext.UNPACK_ALIGNMENT, 4);
+				gl.pixelStorei(WebGL2RenderingContext.UNPACK_ALIGNMENT, 1);//字节对齐
+				gl.texImage2D(textureType, miplevel, glFormat, width, height, 0, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels);
+				gl.pixelStorei(WebGL2RenderingContext.UNPACK_ALIGNMENT, 4);
 			} else {
-				gl.texImage2D(textureType, miplevel, glFormat, width, height, 0, glFormat, WebGLContext.UNSIGNED_BYTE, pixels);
+				gl.texImage2D(textureType, miplevel, glFormat, width, height, 0, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels);
 			}
 		}
 		
@@ -370,8 +370,8 @@ import { ILaya } from "../../ILaya";
 			this._height = height;
 			if (!(this._isPot(width) && this._isPot(height)))
 				this._mipmap = false;
-			this._setWarpMode(WebGLContext.TEXTURE_WRAP_S, this._wrapModeU);//宽高变化后需要重新设置
-			this._setWarpMode(WebGLContext.TEXTURE_WRAP_T, this._wrapModeV);//宽高变化后需要重新设置
+			this._setWarpMode(WebGL2RenderingContext.TEXTURE_WRAP_S, this._wrapModeU);//宽高变化后需要重新设置
+			this._setWarpMode(WebGL2RenderingContext.TEXTURE_WRAP_T, this._wrapModeV);//宽高变化后需要重新设置
 			this._setFilterMode(this._filterMode);//宽高变化后需要重新设置
 			
 			var gl:WebGLContext = LayaGL.instance;
@@ -383,11 +383,11 @@ import { ILaya } from "../../ILaya";
                 if(source.setPremultiplyAlpha){
                     source.setPremultiplyAlpha(premultiplyAlpha);
                 }
-					gl.texImage2D(this._glTextureType, 0, WebGLContext.RGBA, WebGLContext.RGBA, WebGLContext.UNSIGNED_BYTE, source);
+					gl.texImage2D(this._glTextureType, 0, WebGL2RenderingContext.RGBA, WebGL2RenderingContext.RGBA, WebGL2RenderingContext.UNSIGNED_BYTE, source);
 			} else {
-				(premultiplyAlpha) && (gl.pixelStorei(WebGLContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true));
-				gl.texImage2D(this._glTextureType, 0, glFormat, glFormat, WebGLContext.UNSIGNED_BYTE, source);
-				(premultiplyAlpha) && (gl.pixelStorei(WebGLContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false));
+				(premultiplyAlpha) && (gl.pixelStorei(WebGL2RenderingContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true));
+				gl.texImage2D(this._glTextureType, 0, glFormat, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, source);
+				(premultiplyAlpha) && (gl.pixelStorei(WebGL2RenderingContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false));
 			}
 			if (this._mipmap) {
 				gl.generateMipmap(this._glTextureType);
@@ -451,11 +451,11 @@ import { ILaya } from "../../ILaya";
 			var glFormat:number = this._getGLFormat();
 			
 			if (this._format === BaseTexture.FORMAT_R8G8B8) {
-				gl.pixelStorei(WebGLContext.UNPACK_ALIGNMENT, 1);//字节对齐
-				gl.texSubImage2D(textureType, miplevel, x, y, width, height, glFormat, WebGLContext.UNSIGNED_BYTE, pixels);
-				gl.pixelStorei(WebGLContext.UNPACK_ALIGNMENT, 4);
+				gl.pixelStorei(WebGL2RenderingContext.UNPACK_ALIGNMENT, 1);//字节对齐
+				gl.texSubImage2D(textureType, miplevel, x, y, width, height, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels);
+				gl.pixelStorei(WebGL2RenderingContext.UNPACK_ALIGNMENT, 4);
 			} else {
-				gl.texSubImage2D(textureType, miplevel, x, y, width, height, glFormat, WebGLContext.UNSIGNED_BYTE, pixels);
+				gl.texSubImage2D(textureType, miplevel, x, y, width, height, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels);
 			}
 			
 			//if (_canRead)

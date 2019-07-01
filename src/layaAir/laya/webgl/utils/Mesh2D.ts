@@ -29,7 +29,7 @@ import { Config } from "./../../../Config";
 		 */
 		constructor(stride:number,vballoc:number, iballoc:number) {
 			this._stride = stride;
-			this._vb = new VertexBuffer2D(stride, WebGLContext.DYNAMIC_DRAW);
+			this._vb = new VertexBuffer2D(stride, WebGL2RenderingContext.DYNAMIC_DRAW);
 			if (vballoc) {
 				this._vb._resizeBuffer(vballoc,false);
 			}else{

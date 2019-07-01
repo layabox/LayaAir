@@ -1533,7 +1533,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 						}
 
 						vbMemorySize = vertexDeclaration.vertexStride * lastVBVertexCount;
-						this._vertexBuffer = new VertexBuffer3D(vbMemorySize, WebGLContext.DYNAMIC_DRAW);
+						this._vertexBuffer = new VertexBuffer3D(vbMemorySize, WebGL2RenderingContext.DYNAMIC_DRAW);
 						this._vertexBuffer.vertexDeclaration = vertexDeclaration;
 						this._vertices = new Float32Array(this._floatCountPerVertex * lastVBVertexCount);
 
@@ -1541,7 +1541,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 						this._indexStride = mesh._indexBuffer.indexCount;
 						var indexDatas: Uint16Array = mesh._indexBuffer.getData();
 						var indexCount: number = this._bufferMaxParticles * this._indexStride;
-						this._indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, indexCount, WebGLContext.STATIC_DRAW);
+						this._indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, indexCount, WebGL2RenderingContext.STATIC_DRAW);
 						indices = new Uint16Array(indexCount);
 
 						memorySize = vbMemorySize + indexCount * 2;
@@ -1567,7 +1567,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 				this._timeIndex = 11;
 				this._vertexStride = 4;
 				vbMemorySize = vertexDeclaration.vertexStride * this._bufferMaxParticles * this._vertexStride;
-				this._vertexBuffer = new VertexBuffer3D(vbMemorySize, WebGLContext.DYNAMIC_DRAW);
+				this._vertexBuffer = new VertexBuffer3D(vbMemorySize, WebGL2RenderingContext.DYNAMIC_DRAW);
 				this._vertexBuffer.vertexDeclaration = vertexDeclaration;
 				this._vertices = new Float32Array(this._floatCountPerVertex * this._bufferMaxParticles * this._vertexStride);
 
@@ -1599,7 +1599,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 				}
 
 				this._indexStride = 6;
-				this._indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, this._bufferMaxParticles * 6, WebGLContext.STATIC_DRAW);
+				this._indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, this._bufferMaxParticles * 6, WebGL2RenderingContext.STATIC_DRAW);
 				indices = new Uint16Array(this._bufferMaxParticles * 6);
 				for (i = 0; i < this._bufferMaxParticles; i++) {
 					indexOffset = i * 6;
@@ -1968,17 +1968,17 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		var gl: WebGLContext = LayaGL.instance;
 		if (this._firstActiveElement < this._firstFreeElement) {
 			indexCount = (this._firstFreeElement - this._firstActiveElement) * this._indexStride;
-			gl.drawElements(WebGLContext.TRIANGLES, indexCount, WebGLContext.UNSIGNED_SHORT, 2 * this._firstActiveElement * this._indexStride);
+			gl.drawElements(WebGL2RenderingContext.TRIANGLES, indexCount, WebGL2RenderingContext.UNSIGNED_SHORT, 2 * this._firstActiveElement * this._indexStride);
 			Stat.trianglesFaces += indexCount / 3;
 			Stat.renderBatches++;
 		} else {
 			indexCount = (this._bufferMaxParticles - this._firstActiveElement) * this._indexStride;
-			gl.drawElements(WebGLContext.TRIANGLES, indexCount, WebGLContext.UNSIGNED_SHORT, 2 * this._firstActiveElement * this._indexStride);
+			gl.drawElements(WebGL2RenderingContext.TRIANGLES, indexCount, WebGL2RenderingContext.UNSIGNED_SHORT, 2 * this._firstActiveElement * this._indexStride);
 			Stat.trianglesFaces += indexCount / 3;
 			Stat.renderBatches++;
 			if (this._firstFreeElement > 0) {
 				indexCount = this._firstFreeElement * this._indexStride;
-				gl.drawElements(WebGLContext.TRIANGLES, indexCount, WebGLContext.UNSIGNED_SHORT, 0);
+				gl.drawElements(WebGL2RenderingContext.TRIANGLES, indexCount, WebGL2RenderingContext.UNSIGNED_SHORT, 0);
 				Stat.trianglesFaces += indexCount / 3;
 				Stat.renderBatches++;
 			}

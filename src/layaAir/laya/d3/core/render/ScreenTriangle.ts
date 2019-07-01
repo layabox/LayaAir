@@ -6,7 +6,6 @@ import { VertexElementFormat } from "../../graphics/VertexElementFormat"
 import { LayaGL } from "../../../layagl/LayaGL"
 import { Resource } from "../../../resource/Resource"
 import { Stat } from "../../../utils/Stat"
-import { WebGLContext } from "../../../webgl/WebGLContext"
 
 
 /**
@@ -47,14 +46,14 @@ export class ScreenTriangle extends Resource {
 	 */
 	constructor() {
 		super();
-		this._vertexBuffer = new VertexBuffer3D(12 * 4, WebGLContext.STATIC_DRAW, false);
+		this._vertexBuffer = new VertexBuffer3D(12 * 4, WebGL2RenderingContext.STATIC_DRAW, false);
 		this._vertexBuffer.vertexDeclaration = ScreenTriangle._vertexDeclaration;
 		this._vertexBuffer.setData(ScreenTriangle._vertices);
 		this._bufferState.bind();
 		this._bufferState.applyVertexBuffer(this._vertexBuffer);
 		this._bufferState.unBind();
 
-		this._vertexBufferInvertUV = new VertexBuffer3D(12 * 4, WebGLContext.STATIC_DRAW, false);
+		this._vertexBufferInvertUV = new VertexBuffer3D(12 * 4, WebGL2RenderingContext.STATIC_DRAW, false);
 		this._vertexBufferInvertUV.vertexDeclaration = ScreenTriangle._vertexDeclaration;
 		this._vertexBufferInvertUV.setData(ScreenTriangle._verticesInvertUV);
 		this._bufferStateInvertUV.bind();
@@ -69,7 +68,7 @@ export class ScreenTriangle extends Resource {
 	 */
 	render(): void {
 		this._bufferState.bind();
-		LayaGL.instance.drawArrays(WebGLContext.TRIANGLES, 0, 3);
+		LayaGL.instance.drawArrays(WebGL2RenderingContext.TRIANGLES, 0, 3);
 		Stat.renderBatches++;
 	}
 
@@ -78,7 +77,7 @@ export class ScreenTriangle extends Resource {
 	 */
 	renderInvertUV(): void {
 		this._bufferStateInvertUV.bind();
-		LayaGL.instance.drawArrays(WebGLContext.TRIANGLES, 0, 3);
+		LayaGL.instance.drawArrays(WebGL2RenderingContext.TRIANGLES, 0, 3);
 		Stat.renderBatches++;
 	}
 

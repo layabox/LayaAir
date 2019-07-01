@@ -1,6 +1,5 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { Stat } from "../../utils/Stat";
-import { WebGLContext } from "../../webgl/WebGLContext";
 import { GeometryElement } from "../core/GeometryElement";
 import { RenderContext3D } from "../core/render/RenderContext3D";
 import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement";
@@ -30,9 +29,9 @@ import { VertexMesh } from "./Vertex/VertexMesh";
 		/** @internal */
 		 instanceMVPMatrixData:Float32Array = new Float32Array(this.maxInstanceCount * 16);
 		/** @internal */
-		 instanceWorldMatrixBuffer:VertexBuffer3D = new VertexBuffer3D(this.instanceWorldMatrixData.length * 4, WebGLContext.DYNAMIC_DRAW);
+		 instanceWorldMatrixBuffer:VertexBuffer3D = new VertexBuffer3D(this.instanceWorldMatrixData.length * 4, WebGL2RenderingContext.DYNAMIC_DRAW);
 		/** @internal */
-		 instanceMVPMatrixBuffer:VertexBuffer3D = new VertexBuffer3D(this.instanceMVPMatrixData.length * 4, WebGLContext.DYNAMIC_DRAW);
+		 instanceMVPMatrixBuffer:VertexBuffer3D = new VertexBuffer3D(this.instanceMVPMatrixData.length * 4, WebGL2RenderingContext.DYNAMIC_DRAW);
 		
 		/**
 		 * 创建一个 <code>InstanceSubMesh</code> 实例。
@@ -52,7 +51,7 @@ import { VertexMesh } from "./Vertex/VertexMesh";
 			var count:number = element.instanceBatchElementList.length;
 			var indexCount:number = subMesh._indexCount;
 			subMesh._mesh._instanceBufferState.bind();
-			LayaGL.layaGPUInstance.drawElementsInstanced(WebGLContext.TRIANGLES, indexCount, WebGLContext.UNSIGNED_SHORT, subMesh._indexStart * 2, count);
+			LayaGL.layaGPUInstance.drawElementsInstanced(WebGL2RenderingContext.TRIANGLES, indexCount, WebGL2RenderingContext.UNSIGNED_SHORT, subMesh._indexStart * 2, count);
 			Stat.renderBatches++;
 			Stat.savedRenderBatches += count - 1;
 			Stat.trianglesFaces += indexCount * count / 3;

@@ -42,7 +42,7 @@ import { ColorFilter } from "../../filters/ColorFilter"
 				this.blend();
 				Stat.renderBatches++;
 				Stat.trianglesFaces += this._numEle/3;
-				WebGLContext.mainContext.drawElements(WebGLContext.TRIANGLES, this._numEle, WebGLContext.UNSIGNED_SHORT, this._startIdx);
+				WebGLContext.mainContext.drawElements(WebGL2RenderingContext.TRIANGLES, this._numEle, WebGL2RenderingContext.UNSIGNED_SHORT, this._startIdx);
 			}
 			return 1;
 		}
@@ -51,7 +51,7 @@ import { ColorFilter } from "../../filters/ColorFilter"
 			if (BlendMode.activeBlendFunction !== BlendMode.fns[this.blendType])
 			{
 				var gl:WebGLContext= WebGLContext.mainContext;
-				gl.enable( WebGLContext.BLEND );
+				gl.enable( WebGL2RenderingContext.BLEND );
 				BlendMode.fns[this.blendType]( gl);
 				BlendMode.activeBlendFunction = BlendMode.fns[this.blendType];
 			}

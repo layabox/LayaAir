@@ -13,7 +13,7 @@ import { Buffer } from "./Buffer";
 		constructor(bufferUsage:number = 0x88e4/* WebGLContext.STATIC_DRAW*/){
 			super();
 			this._bufferUsage = bufferUsage;
-			this._bufferType = WebGLContext.ELEMENT_ARRAY_BUFFER;
+			this._bufferType = WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER;
 			this._buffer = new ArrayBuffer(8);
 		}
 		
@@ -29,7 +29,7 @@ import { Buffer } from "./Buffer";
 		 * @inheritDoc
 		 */
 		/*override*/  _bindForVAO():void {
-			LayaGL.instance.bindBuffer(WebGLContext.ELEMENT_ARRAY_BUFFER, this._glBuffer);
+			LayaGL.instance.bindBuffer(WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER, this._glBuffer);
 		}
 		
 		/**
@@ -37,7 +37,7 @@ import { Buffer } from "./Buffer";
 		 */
 		/*override*/  bind():boolean {
 			if (Buffer._bindedIndexBuffer !== this._glBuffer) {
-				LayaGL.instance.bindBuffer(WebGLContext.ELEMENT_ARRAY_BUFFER, this._glBuffer);
+				LayaGL.instance.bindBuffer(WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER, this._glBuffer);
 				Buffer._bindedIndexBuffer = this._glBuffer;
 				return true;
 			}
