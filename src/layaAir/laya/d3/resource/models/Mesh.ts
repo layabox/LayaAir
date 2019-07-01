@@ -224,10 +224,11 @@ export class Mesh extends Resource implements IClone {
 		instanceBufferState.unBind();
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _disposeResource(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _disposeResource(): void {
 		for (var i: number = 0, n: number = this._subMeshes.length; i < n; i++)
 			this._subMeshes[i].destroy();
 		this._nativeTriangleMesh && (<any>window).Physics3D.destroy(this._nativeTriangleMesh);
