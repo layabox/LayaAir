@@ -123,7 +123,7 @@ import { Stat } from "../utils/Stat";
 				
 				if (this._firstActiveElement != this._firstFreeElement)
 				{
-					var gl:WebGLContext = WebGLContext.mainContext;
+					var gl:WebGL2RenderingContext = WebGLContext.mainContext;
 					this._mesh.useMesh(gl);
 					//_vertexBuffer2D.bind();
 					//_indexBuffer2D.bind();
@@ -201,7 +201,7 @@ import { Stat } from "../utils/Stat";
 		{
 			if (BlendMode.activeBlendFunction !== this._blendFn)
 			{
-				var gl:WebGLContext= WebGLContext.mainContext;
+				var gl:WebGL2RenderingContext= WebGLContext.mainContext;
 				gl.enable( WebGL2RenderingContext.BLEND );
 				this._blendFn(gl);
 				BlendMode.activeBlendFunction = this._blendFn;

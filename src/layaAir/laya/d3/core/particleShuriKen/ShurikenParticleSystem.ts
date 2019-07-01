@@ -1965,7 +1965,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		/*override*/  _render(state: RenderContext3D): void {
 		this._bufferState.bind();
 		var indexCount: number;
-		var gl: WebGLContext = LayaGL.instance;
+		var gl: WebGL2RenderingContext = LayaGL.instance;
 		if (this._firstActiveElement < this._firstFreeElement) {
 			indexCount = (this._firstFreeElement - this._firstActiveElement) * this._indexStride;
 			gl.drawElements(WebGL2RenderingContext.TRIANGLES, indexCount, WebGL2RenderingContext.UNSIGNED_SHORT, 2 * this._firstActiveElement * this._indexStride);

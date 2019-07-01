@@ -32,7 +32,7 @@ import { ColorFilter } from "../../filters/ColorFilter"
 		
 		 static POOL:any =[];
 		 renderSubmit():number{
-			var gl:WebGLContext= WebGLContext.mainContext;
+			var gl:WebGL2RenderingContext= WebGLContext.mainContext;
 			this._mesh.useMesh(gl);
 			
 			var target:RenderTexture2D = this.srcRT;
@@ -50,7 +50,7 @@ import { ColorFilter } from "../../filters/ColorFilter"
 		 blend():void{
 			if (BlendMode.activeBlendFunction !== BlendMode.fns[this.blendType])
 			{
-				var gl:WebGLContext= WebGLContext.mainContext;
+				var gl:WebGL2RenderingContext= WebGLContext.mainContext;
 				gl.enable( WebGL2RenderingContext.BLEND );
 				BlendMode.fns[this.blendType]( gl);
 				BlendMode.activeBlendFunction = BlendMode.fns[this.blendType];

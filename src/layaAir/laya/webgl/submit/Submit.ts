@@ -28,7 +28,7 @@ export class Submit extends SubmitBase {
 			this.shaderValue.texture = source;
 		}
 
-		var gl: WebGLContext = WebGLContext.mainContext;
+		var gl: WebGL2RenderingContext = WebGLContext.mainContext;
 		this._mesh.useMesh(gl);
 		//_ib._bind_upload() || _ib._bind();
 		//_vb._bind_upload() || _vb._bind();

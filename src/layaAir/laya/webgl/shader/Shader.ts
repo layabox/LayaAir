@@ -169,7 +169,7 @@ export class Shader extends BaseShader {
 		var result: any;
 		if (this.customCompile)
 			result = ILaya.ShaderCompile.preGetParams(this._vs, this._ps);
-		var gl: WebGLContext = WebGLContext.mainContext;
+		var gl: WebGL2RenderingContext = WebGLContext.mainContext;
 		this._program = gl.createProgram();
 		this._vshader = Shader._createShader(gl, this._vs, WebGL2RenderingContext.VERTEX_SHADER);
 		this._pshader = Shader._createShader(gl, this._ps, WebGL2RenderingContext.FRAGMENT_SHADER);
@@ -267,7 +267,7 @@ export class Shader extends BaseShader {
 		}
 	}
 
-	private static _createShader(gl: WebGLContext, str: string, type: any): any {
+	private static _createShader(gl: WebGL2RenderingContext, str: string, type: any): any {
 		var shader: any = gl.createShader(type);
 		gl.shaderSource(shader, str);
 		gl.compileShader(shader);
@@ -458,7 +458,7 @@ export class Shader extends BaseShader {
 	}
 
 	private _uniform_sampler2D(one: any, value: any): number {//TODO:TEXTURTE ARRAY
-		var gl: WebGLContext = WebGLContext.mainContext;
+		var gl: WebGL2RenderingContext = WebGLContext.mainContext;
 		var uploadedValue: any[] = one.uploadedValue;
 		if (uploadedValue[0] == null) {
 			uploadedValue[0] = this._curActTexIndex;
@@ -476,7 +476,7 @@ export class Shader extends BaseShader {
 
 	//TODO:coverage
 	private _uniform_samplerCube(one: any, value: any): number {//TODO:TEXTURTECUBE ARRAY
-		var gl: WebGLContext = WebGLContext.mainContext;
+		var gl: WebGL2RenderingContext = WebGLContext.mainContext;
 		var uploadedValue: any[] = one.uploadedValue;
 		if (uploadedValue[0] == null) {
 			uploadedValue[0] = this._curActTexIndex;
@@ -526,7 +526,7 @@ export class Shader extends BaseShader {
 	upload(shaderValue: ShaderValue, params: any[] = null): void {
 		BaseShader.activeShader = BaseShader.bindShader = this;
 		//recreateResource();
-		var gl: WebGLContext = WebGLContext.mainContext;
+		var gl: WebGL2RenderingContext = WebGLContext.mainContext;
 		WebGLContext.useProgram(gl, this._program);
 
 		if (this._reCompile) {

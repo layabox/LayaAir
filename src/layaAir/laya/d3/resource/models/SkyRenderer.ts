@@ -84,7 +84,7 @@ export class SkyRenderer {
 	 */
 	_render(state: RenderContext3D): void {
 		if (this._material && this._mesh) {
-			var gl: WebGLContext = LayaGL.instance;
+			var gl: WebGL2RenderingContext = LayaGL.instance;
 			var scene: Scene3D = state.scene;
 			var camera: BaseCamera = state.camera;
 

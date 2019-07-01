@@ -259,7 +259,7 @@ import { ILaya } from "../../ILaya";
 		 * @private
 		 */
 		protected _setFilterMode(value:number):void {
-			var gl:WebGLContext = LayaGL.instance;
+			var gl:WebGL2RenderingContext = LayaGL.instance;
 			WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
 			switch (value) {
 			case BaseTexture.FILTERMODE_POINT: 
@@ -292,7 +292,7 @@ import { ILaya } from "../../ILaya";
 		 * @private
 		 */
 		protected _setWarpMode(orientation:number, mode:number):void {
-			var gl:WebGLContext = LayaGL.instance;
+			var gl:WebGL2RenderingContext = LayaGL.instance;
 			WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
 			if (this._isPot(this._width) && this._isPot(this._height)) {
 				switch (mode) {
@@ -315,7 +315,7 @@ import { ILaya } from "../../ILaya";
 			var anisotropic:any = LayaGL.layaGPUInstance._extTextureFilterAnisotropic;
 			if (anisotropic && !ILaya.Browser.onLimixiu) {
 				value = Math.max(value, 1);
-				var gl:WebGLContext = LayaGL.instance;
+				var gl:WebGL2RenderingContext = LayaGL.instance;
 				WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
 				value = Math.min(gl.getParameter(anisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT), value);
 				gl.texParameterf(this._glTextureType, anisotropic.TEXTURE_MAX_ANISOTROPY_EXT, value);

@@ -107,7 +107,7 @@ import { ILaya } from "../../ILaya";
 		 * @private
 		 */
 		private _create(width:number, height:number):void {
-			var gl:WebGLContext = LayaGL.instance;
+			var gl:WebGL2RenderingContext = LayaGL.instance;
 			this._frameBuffer = gl.createFramebuffer();
 			WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
 			var glFormat:number = this._getGLFormat();
@@ -173,7 +173,7 @@ import { ILaya } from "../../ILaya";
 		 * 恢复上次保存的RT信息
 		 */
 		 static popRT():void {
-			var gl:WebGLContext = LayaGL.instance;
+			var gl:WebGL2RenderingContext = LayaGL.instance;
 			var top:any = RenderTexture2D.rtStack.pop();
 			if (top) {
 				if (RenderTexture2D._currentActive != top.rt) {
@@ -189,7 +189,7 @@ import { ILaya } from "../../ILaya";
 		 * 开始绑定。
 		 */
 		 start():void {
-			var gl:WebGLContext = LayaGL.instance;
+			var gl:WebGL2RenderingContext = LayaGL.instance;
 			//(memorySize == 0) && recreateResource();
 			LayaGL.instance.bindFramebuffer(WebGL2RenderingContext.FRAMEBUFFER, this._frameBuffer);
 			this._lastRT = RenderTexture2D._currentActive;
@@ -227,7 +227,7 @@ import { ILaya } from "../../ILaya";
 		 * 恢复上一次的RenderTarge.由于使用自己保存的，所以如果被外面打断了的话，会出错。
 		 */
 		 restore():void {
-			var gl:WebGLContext = LayaGL.instance;
+			var gl:WebGL2RenderingContext = LayaGL.instance;
 			if (this._lastRT != RenderTexture2D._currentActive) {
 				LayaGL.instance.bindFramebuffer(WebGL2RenderingContext.FRAMEBUFFER,  this._lastRT?this._lastRT._frameBuffer:null);
 				RenderTexture2D._currentActive = this._lastRT;
@@ -245,7 +245,7 @@ import { ILaya } from "../../ILaya";
 		}		
 		
 		 clear(r:number = 0.0, g:number = 0.0, b:number = 0.0, a:number = 1.0):void {
-			var gl:WebGLContext = LayaGL.instance;
+			var gl:WebGL2RenderingContext = LayaGL.instance;
 			gl.clearColor(r, g, b, a);
 			var clearFlag:number = WebGL2RenderingContext.COLOR_BUFFER_BIT;
 			switch (this._depthStencilFormat) {
@@ -278,7 +278,7 @@ import { ILaya } from "../../ILaya";
 			if (ILaya.Render.isConchApp && (window as any).conchConfig.threadMode == 2) {
 				throw "native 2 thread mode use getDataAsync";
 			}
-			var gl:WebGLContext = LayaGL.instance;
+			var gl:WebGL2RenderingContext = LayaGL.instance;
 			gl.bindFramebuffer(WebGL2RenderingContext.FRAMEBUFFER, this._frameBuffer);
 			var canRead:boolean = (gl.checkFramebufferStatus(WebGL2RenderingContext.FRAMEBUFFER) === WebGL2RenderingContext.FRAMEBUFFER_COMPLETE);
 			
@@ -313,7 +313,7 @@ import { ILaya } from "../../ILaya";
 		 */
 		/*override*/ protected _disposeResource():void {
 			if (this._frameBuffer) {
-				var gl:WebGLContext = LayaGL.instance;
+				var gl:WebGL2RenderingContext = LayaGL.instance;
 				gl.deleteTexture(this._glTexture);
 				gl.deleteFramebuffer(this._frameBuffer);
 				gl.deleteRenderbuffer(this._depthStencilBuffer);

@@ -136,7 +136,7 @@ import { Config } from "./../../../Config";
 		 * 初始化VAO的配置，只需要执行一次。以后使用的时候直接bind就行
 		 * @param	gl
 		 */
-		private configVAO(gl:WebGLContext):void {
+		private configVAO(gl:WebGL2RenderingContext):void {
 			if (this._applied)
 				return;
 			this._applied = true;
@@ -172,7 +172,7 @@ import { Config } from "./../../../Config";
 		 * 应用这个mesh
 		 * @param	gl
 		 */
-		 useMesh(gl:WebGLContext):void {
+		 useMesh(gl:WebGL2RenderingContext):void {
 			//要先bind，在bufferData
 			this._applied || this.configVAO(gl);
 			

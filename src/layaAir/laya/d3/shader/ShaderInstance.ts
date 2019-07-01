@@ -92,7 +92,7 @@ export class ShaderInstance extends Resource {
 	 *@internal
 	 */
 	private _create(): void {
-		var gl: WebGLContext = LayaGL.instance;
+		var gl: WebGL2RenderingContext = LayaGL.instance;
 		this._program = gl.createProgram();
 		this._vshader = this._createShader(gl, this._vs, WebGL2RenderingContext.VERTEX_SHADER);
 		this._pshader = this._createShader(gl, this._ps, WebGL2RenderingContext.FRAGMENT_SHADER);
@@ -212,7 +212,7 @@ export class ShaderInstance extends Resource {
 	 * @internal
 	 */
 	_addShaderUnifiormFun(one: ShaderVariable): void {
-		var gl: WebGLContext = LayaGL.instance;
+		var gl: WebGL2RenderingContext = LayaGL.instance;
 		one.caller = this;
 		var isArray: boolean = one.isArray;
 		switch (one.type) {
@@ -273,7 +273,7 @@ export class ShaderInstance extends Resource {
 	/**
 	 * @internal
 	 */
-	private _createShader(gl: WebGLContext, str: string, type: any): any {
+	private _createShader(gl: WebGL2RenderingContext, str: string, type: any): any {
 		var shader: any = gl.createShader(type);
 		gl.shaderSource(shader, str);
 		gl.compileShader(shader);
@@ -507,7 +507,7 @@ export class ShaderInstance extends Resource {
 	 */
 	_uniform_sampler2D(one: any, texture: BaseTexture): number {//TODO:TEXTURTE ARRAY
 		var value: any = texture._getSource() || texture.defaulteTexture._getSource();
-		var gl: WebGLContext = LayaGL.instance;
+		var gl: WebGL2RenderingContext = LayaGL.instance;
 		WebGLContext.activeTexture(gl, one.textureID);
 		WebGLContext.bindTexture(gl, WebGL2RenderingContext.TEXTURE_2D, value);
 		return 0;
@@ -515,7 +515,7 @@ export class ShaderInstance extends Resource {
 
 	_uniform_sampler3D(one: any, texture: BaseTexture): number {//TODO:TEXTURTE ARRAY
 		var value: any = texture._getSource() || texture.defaulteTexture._getSource();
-		var gl: WebGLContext = LayaGL.instance;
+		var gl: WebGL2RenderingContext = LayaGL.instance;
 		WebGLContext.activeTexture(gl, one.textureID);
 		WebGLContext.bindTexture(gl, WebGL2RenderingContext.TEXTURE_3D, value);
 		return 0;
@@ -526,7 +526,7 @@ export class ShaderInstance extends Resource {
 	 */
 	_uniform_samplerCube(one: any, texture: BaseTexture): number {//TODO:TEXTURTECUBE ARRAY
 		var value: any = texture._getSource() || texture.defaulteTexture._getSource();
-		var gl: WebGLContext = LayaGL.instance;
+		var gl: WebGL2RenderingContext = LayaGL.instance;
 		WebGLContext.activeTexture(gl, one.textureID);
 		WebGLContext.bindTexture(gl, WebGL2RenderingContext.TEXTURE_CUBE_MAP, value);
 		return 0;
@@ -550,7 +550,7 @@ export class ShaderInstance extends Resource {
 	 * @internal
 	 */
 	uploadRenderStateBlendDepth(shaderDatas: ShaderData): void {
-		var gl: WebGLContext = LayaGL.instance;
+		var gl: WebGL2RenderingContext = LayaGL.instance;
 		var renderState: RenderState = this._shaderPass.renderState;
 		var datas: any = shaderDatas.getData();
 
@@ -600,7 +600,7 @@ export class ShaderInstance extends Resource {
 	 * @internal
 	 */
 	uploadRenderStateFrontFace(shaderDatas: ShaderData, isTarget: boolean, invertFront: boolean): void {
-		var gl: WebGLContext = LayaGL.instance;
+		var gl: WebGL2RenderingContext = LayaGL.instance;
 		var renderState: RenderState = this._shaderPass.renderState;
 		var datas: any = shaderDatas.getData();
 

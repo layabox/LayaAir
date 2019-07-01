@@ -482,7 +482,7 @@ export class Context {
 	}
 
 	clearBG(r: number, g: number, b: number, a: number): void {
-		var gl: WebGLContext = WebGLContext.mainContext;
+		var gl: WebGL2RenderingContext = WebGLContext.mainContext;
 		gl.clearColor(r, g, b, a);
 		gl.clear(WebGL2RenderingContext.COLOR_BUFFER_BIT);
 	}

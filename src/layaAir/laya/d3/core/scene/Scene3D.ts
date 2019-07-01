@@ -691,7 +691,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/**
 	 * @internal
 	 */
-	_clear(gl: WebGLContext, state: RenderContext3D): void {
+	_clear(gl: WebGL2RenderingContext, state: RenderContext3D): void {
 		var viewport: Viewport = state.viewport;
 		var camera: Camera = (<Camera>state.camera);
 		var renderTexture: RenderTexture = camera._renderTexture || camera._offScreenRenderTexture;

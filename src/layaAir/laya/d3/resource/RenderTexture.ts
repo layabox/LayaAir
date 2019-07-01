@@ -122,7 +122,7 @@ import { WebGLContext } from "../../webgl/WebGLContext";
 		 * @internal
 		 */
 		private _create(width:number, height:number):void {
-			var gl:WebGLContext = LayaGL.instance;
+			var gl:WebGL2RenderingContext = LayaGL.instance;
 			this._frameBuffer = gl.createFramebuffer();
 			WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
 			
@@ -194,7 +194,7 @@ import { WebGLContext } from "../../webgl/WebGLContext";
 			if (Render.isConchApp && (<any>window).conchConfig.threadMode == 2) {
 				throw "native 2 thread mode use getDataAsync";
 			}
-			var gl:WebGLContext = LayaGL.instance;
+			var gl:WebGL2RenderingContext = LayaGL.instance;
 			gl.bindFramebuffer(WebGL2RenderingContext.FRAMEBUFFER, this._frameBuffer);
 			var canRead:boolean = (gl.checkFramebufferStatus(WebGL2RenderingContext.FRAMEBUFFER) === WebGL2RenderingContext.FRAMEBUFFER_COMPLETE);
 			
@@ -224,7 +224,7 @@ import { WebGLContext } from "../../webgl/WebGLContext";
 		 */
 		/*override*/ protected _disposeResource():void {
 			if (this._frameBuffer) {
-				var gl:WebGLContext = LayaGL.instance;
+				var gl:WebGL2RenderingContext = LayaGL.instance;
 				gl.deleteTexture(this._glTexture);
 				gl.deleteFramebuffer(this._frameBuffer);
 				gl.deleteRenderbuffer(this._depthStencilBuffer);

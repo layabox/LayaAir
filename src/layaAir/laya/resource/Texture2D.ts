@@ -156,7 +156,7 @@ import { ILaya } from "../../ILaya";
 		 * @private
 		 */
 		private _setPixels(pixels:Uint8Array, miplevel:number, width:number, height:number):void {
-			var gl:WebGLContext = LayaGL.instance;
+			var gl:WebGL2RenderingContext = LayaGL.instance;
 			var textureType:number = this._glTextureType;
 			var glFormat:number = this._getGLFormat();
 			WebGLContext.bindTexture(gl, textureType, this._glTexture);
@@ -336,7 +336,7 @@ import { ILaya } from "../../ILaya";
 		 * @internal
 		 */
 		 _upLoadCompressedTexImage2D(data:ArrayBuffer, width:number, height:number, miplevelCount:number, dataOffset:number, imageSizeOffset:number):void {
-			var gl:WebGLContext = LayaGL.instance;
+			var gl:WebGL2RenderingContext = LayaGL.instance;
 			var textureType:number = this._glTextureType;
 			WebGLContext.bindTexture(gl, textureType, this._glTexture);
 			var glFormat:number = this._getGLFormat();
@@ -374,7 +374,7 @@ import { ILaya } from "../../ILaya";
 			this._setWarpMode(WebGL2RenderingContext.TEXTURE_WRAP_T, this._wrapModeV);//宽高变化后需要重新设置
 			this._setFilterMode(this._filterMode);//宽高变化后需要重新设置
 			
-			var gl:WebGLContext = LayaGL.instance;
+			var gl:WebGL2RenderingContext = LayaGL.instance;
 			
 			WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
 			var glFormat:number = this._getGLFormat();
@@ -445,7 +445,7 @@ import { ILaya } from "../../ILaya";
 			if (!pixels)
 				throw "Texture2D:pixels can't be null.";
 			
-			var gl:WebGLContext = LayaGL.instance;
+			var gl:WebGL2RenderingContext = LayaGL.instance;
 			var textureType:number = this._glTextureType;
 			WebGLContext.bindTexture(gl, textureType, this._glTexture);
 			var glFormat:number = this._getGLFormat();

@@ -8,7 +8,7 @@ import { ILaya } from "../../../ILaya";
 	 */
 	export class WebGLVideo extends HtmlVideo
 	{
-		private gl:WebGLContext;
+		private gl:WebGL2RenderingContext;
 		
 		private static curBindSource:any;
 		

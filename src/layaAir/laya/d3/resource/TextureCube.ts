@@ -100,7 +100,7 @@ import { ILaya } from "../../../ILaya";
 			this._width = width;
 			this._height = height;
 			
-			var gl:WebGLContext = LayaGL.instance;
+			var gl:WebGL2RenderingContext = LayaGL.instance;
 			WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
 			var glFormat:number = this._getGLFormat();
 			
@@ -152,7 +152,7 @@ import { ILaya } from "../../../ILaya";
 			this._width = width;
 			this._height = height;
 			
-			var gl:WebGLContext = LayaGL.instance;
+			var gl:WebGL2RenderingContext = LayaGL.instance;
 			WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
 			var glFormat:number = this._getGLFormat();
 			gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_POSITIVE_Z, 0, glFormat, width, height, 0, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels[0]);//back
