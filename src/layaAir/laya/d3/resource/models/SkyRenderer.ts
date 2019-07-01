@@ -86,7 +86,7 @@ export class SkyRenderer {
 		if (this._material && this._mesh) {
 			var gl: WebGL2RenderingContext = LayaGL.instance;
 			var scene: Scene3D = state.scene;
-			var camera: BaseCamera = state.camera;
+			var camera: Camera = <Camera>state.camera;
 
 			WebGLContext.setCullFace(gl, false);
 			WebGLContext.setDepthFunc(gl, WebGL2RenderingContext.LEQUAL);
@@ -101,7 +101,7 @@ export class SkyRenderer {
 				shader._uploadScene = scene;
 			}
 
-			var renderTar: RenderTexture = (<Camera>camera)._renderTexture || (<Camera>camera)._offScreenRenderTexture;
+			var renderTar: RenderTexture = camera._renderTexture || camera._offScreenRenderTexture;
 			var uploadCamera: boolean = (shader._uploadCamera !== camera) || switchShaderLoop;
 			if (uploadCamera || switchShader) {
 				var viewMatrix: Matrix4x4 = SkyRenderer._tempMatrix0;
@@ -110,7 +110,7 @@ export class SkyRenderer {
 				viewMatrix.transpose();
 				if (camera.orthographic) {
 					projectionMatrix = SkyRenderer._tempMatrix1;
-					Matrix4x4.createPerspective(Math.PI / 2, (<Camera>camera).aspectRatio, camera.nearPlane, camera.farPlane, projectionMatrix);
+					Matrix4x4.createPerspective(camera.fieldOfView, camera.aspectRatio, camera.nearPlane, camera.farPlane, projectionMatrix);
 				}
 				//无穷投影矩阵算法
 				// var epsilon: number = 1e-6;
