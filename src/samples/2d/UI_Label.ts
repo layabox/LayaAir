@@ -1,55 +1,51 @@
 import { Laya } from "Laya";
+import { Stage } from "laya/display/Stage";
+import { Label } from "laya/ui/Label";
+import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
-import { Stage } from "laya/display/Stage"
-	import { Label } from "laya/ui/Label"
-	import { WebGL } from "laya/webgl/WebGL"
-	
-	export class UI_Label
-	{
-        Main:typeof Main;
-        constructor(maincls:typeof Main){
-            this.Main = maincls;
-			// 不支持WebGL时自动切换至Canvas
-			Laya.init(800, 600, WebGL);
 
-			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-			Laya.stage.alignH = Stage.ALIGN_CENTER;
+export class UI_Label {
+	Main: typeof Main;
+	constructor(maincls: typeof Main) {
+		this.Main = maincls;
+		// 不支持WebGL时自动切换至Canvas
+		Laya.init(800, 600, WebGL);
 
-			Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
-			Laya.stage.bgColor = "#232628";
+		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+		Laya.stage.alignH = Stage.ALIGN_CENTER;
 
-			this.setup();			
-		}
+		Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
+		Laya.stage.bgColor = "#232628";
 
-		private setup():void
-		{
-			this.createLabel("#FFFFFF", null).pos(30, 50);
-			this.createLabel("#00FFFF", null).pos(290, 50);
-			this.createLabel("#FFFF00", "#FFFFFF").pos(30, 100);
-			this.createLabel("#000000", "#FFFFFF").pos(290, 100);
-			this.createLabel("#FFFFFF", "#00FFFF").pos(30, 150);
-			this.createLabel("#0080FF", "#00FFFF").pos(290, 150);
-		}
-		
-		private createLabel(color:string, strokeColor:string):Label
-		{
-			const STROKE_WIDTH:number = 4;
-			
-			var label:Label = new Label();
-			label.font = "Microsoft YaHei";
-			label.text = "SAMPLE DEMO";
-			label.fontSize = 30;
-			label.color = color;
-			
-			if (strokeColor)
-			{
-				label.stroke = STROKE_WIDTH;
-				label.strokeColor = strokeColor;
-			}
-			
-			this.Main.box2D.addChild(label);
-			
-			return label;
-		}
+		this.setup();
 	}
+
+	private setup(): void {
+		this.createLabel("#FFFFFF", null).pos(30, 50);
+		this.createLabel("#00FFFF", null).pos(290, 50);
+		this.createLabel("#FFFF00", "#FFFFFF").pos(30, 100);
+		this.createLabel("#000000", "#FFFFFF").pos(290, 100);
+		this.createLabel("#FFFFFF", "#00FFFF").pos(30, 150);
+		this.createLabel("#0080FF", "#00FFFF").pos(290, 150);
+	}
+
+	private createLabel(color: string, strokeColor: string): Label {
+		const STROKE_WIDTH: number = 4;
+
+		var label: Label = new Label();
+		label.font = "Microsoft YaHei";
+		label.text = "SAMPLE DEMO";
+		label.fontSize = 30;
+		label.color = color;
+
+		if (strokeColor) {
+			label.stroke = STROKE_WIDTH;
+			label.strokeColor = strokeColor;
+		}
+
+		this.Main.box2D.addChild(label);
+
+		return label;
+	}
+}
 
