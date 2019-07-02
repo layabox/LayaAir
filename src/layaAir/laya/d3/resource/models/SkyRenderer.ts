@@ -1,16 +1,16 @@
-import { SkyMesh } from "./SkyMesh";
-import { SkyBox } from "./SkyBox";
-import { BaseCamera } from "../../core/BaseCamera"
-import { BaseMaterial } from "../../core/material/BaseMaterial"
-import { RenderContext3D } from "../../core/render/RenderContext3D"
-import { Scene3D } from "../../core/scene/Scene3D"
-import { ShaderInstance } from "../../shader/ShaderInstance"
-import { LayaGL } from "../../../layagl/LayaGL"
-import { Stat } from "../../../utils/Stat"
-import { WebGLContext } from "../../../webgl/WebGLContext"
-import { Matrix4x4 } from "../../math/Matrix4x4";
-import { RenderTexture } from "../RenderTexture";
+import { LayaGL } from "../../../layagl/LayaGL";
+import { Stat } from "../../../utils/Stat";
+import { WebGLContext } from "../../../webgl/WebGLContext";
+import { BaseCamera } from "../../core/BaseCamera";
 import { Camera } from "../../core/Camera";
+import { BaseMaterial } from "../../core/material/BaseMaterial";
+import { RenderContext3D } from "../../core/render/RenderContext3D";
+import { Scene3D } from "../../core/scene/Scene3D";
+import { Matrix4x4 } from "../../math/Matrix4x4";
+import { ShaderInstance } from "../../shader/ShaderInstance";
+import { RenderTexture } from "../RenderTexture";
+import { SkyBox } from "./SkyBox";
+import { SkyMesh } from "./SkyMesh";
 
 
 /**
@@ -84,12 +84,12 @@ export class SkyRenderer {
 	 */
 	_render(state: RenderContext3D): void {
 		if (this._material && this._mesh) {
-			var gl: WebGLContext = LayaGL.instance;
+			var gl: WebGL2RenderingContext = LayaGL.instance;
 			var scene: Scene3D = state.scene;
-			var camera: BaseCamera = state.camera;
+			var camera: Camera = <Camera>state.camera;
 
 			WebGLContext.setCullFace(gl, false);
-			WebGLContext.setDepthFunc(gl, WebGLContext.LEQUAL);
+			WebGLContext.setDepthFunc(gl, WebGL2RenderingContext.LEQUAL);
 			WebGLContext.setDepthMask(gl, false);
 			var shader: ShaderInstance = state.shader = this._material._shader.getSubShaderAt(0)._passes[0].withCompile(0, 0, this._material._shaderValues._defineDatas.value);//TODO:调整SubShader代码
 			var switchShader: boolean = shader.bind();//纹理需要切换shader时重新绑定 其他uniform不需要
@@ -101,7 +101,7 @@ export class SkyRenderer {
 				shader._uploadScene = scene;
 			}
 
-			var renderTar: RenderTexture = (<Camera>camera)._renderTexture || (<Camera>camera)._offScreenRenderTexture;
+			var renderTar: RenderTexture = camera._renderTexture || camera._offScreenRenderTexture;
 			var uploadCamera: boolean = (shader._uploadCamera !== camera) || switchShaderLoop;
 			if (uploadCamera || switchShader) {
 				var viewMatrix: Matrix4x4 = SkyRenderer._tempMatrix0;
@@ -110,15 +110,14 @@ export class SkyRenderer {
 				viewMatrix.transpose();
 				if (camera.orthographic) {
 					projectionMatrix = SkyRenderer._tempMatrix1;
-					//TODO:1:宽高比可使用camera设置否则会变形,2:采用无穷投影矩阵算法
-					Matrix4x4.createPerspective(Math.PI / 2, 1.0, camera.nearPlane, camera.farPlane, projectionMatrix);
-					//无穷投影矩阵算法
-					// var epsilon: number = 1e-6;
-					// var nearPlane: number = camera.nearPlane * 0.01;
-					// projectionMatrix.elements[10] = -1.0 + epsilon;
-					// projectionMatrix.elements[11] = -1.0;
-					// projectionMatrix.elements[14] = (-1.0 + epsilon) * nearPlane;//Direct模式投影矩阵盒OpenGL不同
+					Matrix4x4.createPerspective(camera.fieldOfView, camera.aspectRatio, camera.nearPlane, camera.farPlane, projectionMatrix);
 				}
+				//无穷投影矩阵算法
+				// var epsilon: number = 1e-6;
+				// var nearPlane: number = camera.nearPlane * 0.01;
+				// projectionMatrix.elements[10] = -1.0 + epsilon;
+				// projectionMatrix.elements[11] = -1.0;
+				// projectionMatrix.elements[14] = (-1.0 + epsilon) * nearPlane;//Direct模式投影矩阵盒OpenGL不同
 				(<Camera>camera)._applyViewProject(state, viewMatrix, projectionMatrix, renderTar ? true : false);//TODO:优化不应设置给Camera直接提交
 
 				shader.uploadUniforms(shader._cameraUniformParamsMap, camera._shaderValues, uploadCamera);
@@ -133,7 +132,7 @@ export class SkyRenderer {
 
 			this._mesh._bufferState.bind();
 			this._mesh._render(state);
-			WebGLContext.setDepthFunc(gl, WebGLContext.LESS);
+			WebGLContext.setDepthFunc(gl, WebGL2RenderingContext.LESS);
 			WebGLContext.setDepthMask(gl, true);
 			if (camera.orthographic) {
 				(<Camera>camera)._applyViewProject(state, (<Camera>camera).viewMatrix, (<Camera>camera).projectionMatrix, renderTar ? true : false);

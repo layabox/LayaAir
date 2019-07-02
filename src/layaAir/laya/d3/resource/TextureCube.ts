@@ -64,7 +64,7 @@ import { ILaya } from "../../../ILaya";
 		constructor(format:number = BaseTexture.FORMAT_R8G8B8, mipmap:boolean = false){
 			
 			super(format, mipmap);
-			this._glTextureType = WebGLContext.TEXTURE_CUBE_MAP;
+			this._glTextureType = WebGL2RenderingContext.TEXTURE_CUBE_MAP;
 		}
 		
 		/**
@@ -100,30 +100,30 @@ import { ILaya } from "../../../ILaya";
 			this._width = width;
 			this._height = height;
 			
-			var gl:WebGLContext = LayaGL.instance;
+			var gl:WebGL2RenderingContext = LayaGL.instance;
 			WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
 			var glFormat:number = this._getGLFormat();
 			
 			if (!Render.isConchApp) {
-				(premultiplyAlpha) && (gl.pixelStorei(WebGLContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true));
-				gl.texImage2D(WebGLContext.TEXTURE_CUBE_MAP_POSITIVE_Z, 0, glFormat, glFormat, WebGLContext.UNSIGNED_BYTE, source[0]);//back
-				gl.texImage2D(WebGLContext.TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, glFormat, glFormat, WebGLContext.UNSIGNED_BYTE, source[1]);//front
-				gl.texImage2D(WebGLContext.TEXTURE_CUBE_MAP_POSITIVE_X, 0, glFormat, glFormat, WebGLContext.UNSIGNED_BYTE, source[2]);//right
-				gl.texImage2D(WebGLContext.TEXTURE_CUBE_MAP_NEGATIVE_X, 0, glFormat, glFormat, WebGLContext.UNSIGNED_BYTE, source[3]);//left
-				gl.texImage2D(WebGLContext.TEXTURE_CUBE_MAP_POSITIVE_Y, 0, glFormat, glFormat, WebGLContext.UNSIGNED_BYTE, source[4]);//up
-				gl.texImage2D(WebGLContext.TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, glFormat, glFormat, WebGLContext.UNSIGNED_BYTE, source[5]);//down
-				(premultiplyAlpha) && (gl.pixelStorei(WebGLContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false));
+				(premultiplyAlpha) && (gl.pixelStorei(WebGL2RenderingContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true));
+				gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_POSITIVE_Z, 0, glFormat, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, source[0]);//back
+				gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, glFormat, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, source[1]);//front
+				gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X, 0, glFormat, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, source[2]);//right
+				gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_X, 0, glFormat, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, source[3]);//left
+				gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_POSITIVE_Y, 0, glFormat, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, source[4]);//up
+				gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, glFormat, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, source[5]);//down
+				(premultiplyAlpha) && (gl.pixelStorei(WebGL2RenderingContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false));
 			} else {
 				if (premultiplyAlpha == true) {
 					for (var j:number = 0; j < 6; j++)
 						source[j].setPremultiplyAlpha(premultiplyAlpha);
 				}
-				gl.texImage2D(WebGLContext.TEXTURE_CUBE_MAP_POSITIVE_Z, 0, WebGLContext.RGBA, WebGLContext.RGBA, WebGLContext.UNSIGNED_BYTE, source[0]);//back
-				gl.texImage2D(WebGLContext.TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, WebGLContext.RGBA, WebGLContext.RGBA, WebGLContext.UNSIGNED_BYTE, source[1]);//front
-				gl.texImage2D(WebGLContext.TEXTURE_CUBE_MAP_POSITIVE_X, 0, WebGLContext.RGBA, WebGLContext.RGBA, WebGLContext.UNSIGNED_BYTE, source[2]);//right
-				gl.texImage2D(WebGLContext.TEXTURE_CUBE_MAP_NEGATIVE_X, 0, WebGLContext.RGBA, WebGLContext.RGBA, WebGLContext.UNSIGNED_BYTE, source[3]);//left
-				gl.texImage2D(WebGLContext.TEXTURE_CUBE_MAP_POSITIVE_Y, 0, WebGLContext.RGBA, WebGLContext.RGBA, WebGLContext.UNSIGNED_BYTE, source[4]);//up
-				gl.texImage2D(WebGLContext.TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, WebGLContext.RGBA, WebGLContext.RGBA, WebGLContext.UNSIGNED_BYTE, source[5]);//down
+				gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_POSITIVE_Z, 0, WebGL2RenderingContext.RGBA, WebGL2RenderingContext.RGBA, WebGL2RenderingContext.UNSIGNED_BYTE, source[0]);//back
+				gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, WebGL2RenderingContext.RGBA, WebGL2RenderingContext.RGBA, WebGL2RenderingContext.UNSIGNED_BYTE, source[1]);//front
+				gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X, 0, WebGL2RenderingContext.RGBA, WebGL2RenderingContext.RGBA, WebGL2RenderingContext.UNSIGNED_BYTE, source[2]);//right
+				gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_X, 0, WebGL2RenderingContext.RGBA, WebGL2RenderingContext.RGBA, WebGL2RenderingContext.UNSIGNED_BYTE, source[3]);//left
+				gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_POSITIVE_Y, 0, WebGL2RenderingContext.RGBA, WebGL2RenderingContext.RGBA, WebGL2RenderingContext.UNSIGNED_BYTE, source[4]);//up
+				gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, WebGL2RenderingContext.RGBA, WebGL2RenderingContext.RGBA, WebGL2RenderingContext.UNSIGNED_BYTE, source[5]);//down
 			}
 			if (this._mipmap && this._isPot(width) && this._isPot(height)) {
 				gl.generateMipmap(this._glTextureType);
@@ -132,8 +132,8 @@ import { ILaya } from "../../../ILaya";
 				this._setGPUMemory(width * height * 4 * 6);
 			}
 			
-			this._setWarpMode(WebGLContext.TEXTURE_WRAP_S, this._wrapModeU);
-			this._setWarpMode(WebGLContext.TEXTURE_WRAP_T, this._wrapModeV);
+			this._setWarpMode(WebGL2RenderingContext.TEXTURE_WRAP_S, this._wrapModeU);
+			this._setWarpMode(WebGL2RenderingContext.TEXTURE_WRAP_T, this._wrapModeV);
 			this._setFilterMode(this._filterMode);
 			this._readyed = true;
 			this._activeResource();
@@ -152,15 +152,15 @@ import { ILaya } from "../../../ILaya";
 			this._width = width;
 			this._height = height;
 			
-			var gl:WebGLContext = LayaGL.instance;
+			var gl:WebGL2RenderingContext = LayaGL.instance;
 			WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
 			var glFormat:number = this._getGLFormat();
-			gl.texImage2D(WebGLContext.TEXTURE_CUBE_MAP_POSITIVE_Z, 0, glFormat, width, height, 0, glFormat, WebGLContext.UNSIGNED_BYTE, pixels[0]);//back
-			gl.texImage2D(WebGLContext.TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, glFormat, width, height, 0, glFormat, WebGLContext.UNSIGNED_BYTE, pixels[1]);//front
-			gl.texImage2D(WebGLContext.TEXTURE_CUBE_MAP_POSITIVE_X, 0, glFormat, width, height, 0, glFormat, WebGLContext.UNSIGNED_BYTE, pixels[2]);//right
-			gl.texImage2D(WebGLContext.TEXTURE_CUBE_MAP_NEGATIVE_X, 0, glFormat, width, height, 0, glFormat, WebGLContext.UNSIGNED_BYTE, pixels[3]);//left
-			gl.texImage2D(WebGLContext.TEXTURE_CUBE_MAP_POSITIVE_Y, 0, glFormat, width, height, 0, glFormat, WebGLContext.UNSIGNED_BYTE, pixels[4]);//up
-			gl.texImage2D(WebGLContext.TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, glFormat, width, height, 0, glFormat, WebGLContext.UNSIGNED_BYTE, pixels[5]);//down
+			gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_POSITIVE_Z, 0, glFormat, width, height, 0, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels[0]);//back
+			gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, glFormat, width, height, 0, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels[1]);//front
+			gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X, 0, glFormat, width, height, 0, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels[2]);//right
+			gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_X, 0, glFormat, width, height, 0, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels[3]);//left
+			gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_POSITIVE_Y, 0, glFormat, width, height, 0, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels[4]);//up
+			gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, glFormat, width, height, 0, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels[5]);//down
 			if (this._mipmap && this._isPot(width) && this._isPot(height)) {
 				gl.generateMipmap(this._glTextureType);
 				this._setGPUMemory(width * height * 4 * (1 + 1 / 3) * 6);
@@ -168,8 +168,8 @@ import { ILaya } from "../../../ILaya";
 				this._setGPUMemory(width * height * 4 * 6);
 			}
 			
-			this._setWarpMode(WebGLContext.TEXTURE_WRAP_S, this._wrapModeU);
-			this._setWarpMode(WebGLContext.TEXTURE_WRAP_T, this._wrapModeV);
+			this._setWarpMode(WebGL2RenderingContext.TEXTURE_WRAP_S, this._wrapModeU);
+			this._setWarpMode(WebGL2RenderingContext.TEXTURE_WRAP_T, this._wrapModeV);
 			this._setFilterMode(this._filterMode);
 			this._readyed = true;
 			this._activeResource();

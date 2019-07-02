@@ -7,7 +7,6 @@ import { Matrix4x4 } from "../math/Matrix4x4"
 import { Mesh } from "../resource/models/Mesh"
 import { SubMesh } from "../resource/models/SubMesh"
 import { Byte } from "../../utils/Byte"
-import { WebGLContext } from "../../webgl/WebGLContext"
 
 	
 	/**
@@ -209,7 +208,7 @@ import { WebGLContext } from "../../webgl/WebGLContext"
 					break;
 				}
 				
-				var vertexBuffer:VertexBuffer3D = new VertexBuffer3D(vertexData.byteLength, WebGLContext.STATIC_DRAW, true);
+				var vertexBuffer:VertexBuffer3D = new VertexBuffer3D(vertexData.byteLength, WebGL2RenderingContext.STATIC_DRAW, true);
 				vertexBuffer.vertexDeclaration = vertexDeclaration;
 				vertexBuffer.setData(floatData);
 				LoadModelV05._mesh._vertexBuffers.push(vertexBuffer);
@@ -220,7 +219,7 @@ import { WebGLContext } from "../../webgl/WebGLContext"
 			var ibStart:number = offset + LoadModelV05._readData.getUint32();
 			var ibLength:number = LoadModelV05._readData.getUint32();
 			var ibDatas:Uint16Array = new Uint16Array(arrayBuffer.slice(ibStart, ibStart + ibLength));
-			var indexBuffer:IndexBuffer3D = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, ibLength / 2, WebGLContext.STATIC_DRAW, true);
+			var indexBuffer:IndexBuffer3D = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, ibLength / 2, WebGL2RenderingContext.STATIC_DRAW, true);
 			indexBuffer.setData(ibDatas);
 			LoadModelV05._mesh._indexBuffer = indexBuffer;
 			

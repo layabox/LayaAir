@@ -103,7 +103,7 @@ import { ILaya } from "../../ILaya";
 		 set wrapModeU(value:number) {
 			if (this._wrapModeU !== value) {
 				this._wrapModeU = value;
-				(this._width !== -1) && (this._setWarpMode(WebGLContext.TEXTURE_WRAP_S, value));
+				(this._width !== -1) && (this._setWarpMode(WebGL2RenderingContext.TEXTURE_WRAP_S, value));
 			}
 		}
 		
@@ -120,7 +120,7 @@ import { ILaya } from "../../ILaya";
 		 set wrapModeV(value:number) {
 			if (this._wrapModeV !== value) {
 				this._wrapModeV = value;
-				(this._height !== -1) && (this._setWarpMode(WebGLContext.TEXTURE_WRAP_T, value));
+				(this._height !== -1) && (this._setWarpMode(WebGL2RenderingContext.TEXTURE_WRAP_T, value));
 			}
 		}
 		
@@ -199,13 +199,13 @@ import { ILaya } from "../../ILaya";
             let gpu = LayaGL.layaGPUInstance;
 			switch (this._format) {
 			case BaseTexture.FORMAT_R8G8B8: 
-				glFormat = WebGLContext.RGB;
+				glFormat = WebGL2RenderingContext.RGB;
 				break;
 			case BaseTexture.FORMAT_R8G8B8A8: 
-				glFormat = WebGLContext.RGBA;
+				glFormat = WebGL2RenderingContext.RGBA;
 				break;
 			case BaseTexture.FORMAT_ALPHA8: 
-				glFormat = WebGLContext.ALPHA;
+				glFormat = WebGL2RenderingContext.ALPHA;
 				break;
 			case BaseTexture.FORMAT_DXT1: 
 				if (gpu._compressedTextureS3tc)
@@ -259,29 +259,29 @@ import { ILaya } from "../../ILaya";
 		 * @private
 		 */
 		protected _setFilterMode(value:number):void {
-			var gl:WebGLContext = LayaGL.instance;
+			var gl:WebGL2RenderingContext = LayaGL.instance;
 			WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
 			switch (value) {
 			case BaseTexture.FILTERMODE_POINT: 
 				if (this._mipmap)
-					gl.texParameteri(this._glTextureType, WebGLContext.TEXTURE_MIN_FILTER, WebGLContext.NEAREST_MIPMAP_NEAREST);
+					gl.texParameteri(this._glTextureType, WebGL2RenderingContext.TEXTURE_MIN_FILTER, WebGL2RenderingContext.NEAREST_MIPMAP_NEAREST);
 				else
-					gl.texParameteri(this._glTextureType, WebGLContext.TEXTURE_MIN_FILTER, WebGLContext.NEAREST);
-				gl.texParameteri(this._glTextureType, WebGLContext.TEXTURE_MAG_FILTER, WebGLContext.NEAREST);
+					gl.texParameteri(this._glTextureType, WebGL2RenderingContext.TEXTURE_MIN_FILTER, WebGL2RenderingContext.NEAREST);
+				gl.texParameteri(this._glTextureType, WebGL2RenderingContext.TEXTURE_MAG_FILTER, WebGL2RenderingContext.NEAREST);
 				break;
 			case BaseTexture.FILTERMODE_BILINEAR: 
 				if (this._mipmap)
-					gl.texParameteri(this._glTextureType, WebGLContext.TEXTURE_MIN_FILTER, WebGLContext.LINEAR_MIPMAP_NEAREST);
+					gl.texParameteri(this._glTextureType, WebGL2RenderingContext.TEXTURE_MIN_FILTER, WebGL2RenderingContext.LINEAR_MIPMAP_NEAREST);
 				else
-					gl.texParameteri(this._glTextureType, WebGLContext.TEXTURE_MIN_FILTER, WebGLContext.LINEAR);
-				gl.texParameteri(this._glTextureType, WebGLContext.TEXTURE_MAG_FILTER, WebGLContext.LINEAR);
+					gl.texParameteri(this._glTextureType, WebGL2RenderingContext.TEXTURE_MIN_FILTER, WebGL2RenderingContext.LINEAR);
+				gl.texParameteri(this._glTextureType, WebGL2RenderingContext.TEXTURE_MAG_FILTER, WebGL2RenderingContext.LINEAR);
 				break;
 			case BaseTexture.FILTERMODE_TRILINEAR: 
 				if (this._mipmap)
-					gl.texParameteri(this._glTextureType, WebGLContext.TEXTURE_MIN_FILTER, WebGLContext.LINEAR_MIPMAP_LINEAR);
+					gl.texParameteri(this._glTextureType, WebGL2RenderingContext.TEXTURE_MIN_FILTER, WebGL2RenderingContext.LINEAR_MIPMAP_LINEAR);
 				else
-					gl.texParameteri(this._glTextureType, WebGLContext.TEXTURE_MIN_FILTER, WebGLContext.LINEAR);
-				gl.texParameteri(this._glTextureType, WebGLContext.TEXTURE_MAG_FILTER, WebGLContext.LINEAR);
+					gl.texParameteri(this._glTextureType, WebGL2RenderingContext.TEXTURE_MIN_FILTER, WebGL2RenderingContext.LINEAR);
+				gl.texParameteri(this._glTextureType, WebGL2RenderingContext.TEXTURE_MAG_FILTER, WebGL2RenderingContext.LINEAR);
 				break;
 			default: 
 				throw new Error("BaseTexture:unknown filterMode value.");
@@ -292,19 +292,19 @@ import { ILaya } from "../../ILaya";
 		 * @private
 		 */
 		protected _setWarpMode(orientation:number, mode:number):void {
-			var gl:WebGLContext = LayaGL.instance;
+			var gl:WebGL2RenderingContext = LayaGL.instance;
 			WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
 			if (this._isPot(this._width) && this._isPot(this._height)) {
 				switch (mode) {
 				case BaseTexture.WARPMODE_REPEAT: 
-					gl.texParameteri(this._glTextureType, orientation, WebGLContext.REPEAT);
+					gl.texParameteri(this._glTextureType, orientation, WebGL2RenderingContext.REPEAT);
 					break;
 				case BaseTexture.WARPMODE_CLAMP: 
-					gl.texParameteri(this._glTextureType, orientation, WebGLContext.CLAMP_TO_EDGE);
+					gl.texParameteri(this._glTextureType, orientation, WebGL2RenderingContext.CLAMP_TO_EDGE);
 					break;
 				}
 			} else {
-				gl.texParameteri(this._glTextureType, orientation, WebGLContext.CLAMP_TO_EDGE);
+				gl.texParameteri(this._glTextureType, orientation, WebGL2RenderingContext.CLAMP_TO_EDGE);
 			}
 		}
 		
@@ -315,7 +315,7 @@ import { ILaya } from "../../ILaya";
 			var anisotropic:any = LayaGL.layaGPUInstance._extTextureFilterAnisotropic;
 			if (anisotropic && !ILaya.Browser.onLimixiu) {
 				value = Math.max(value, 1);
-				var gl:WebGLContext = LayaGL.instance;
+				var gl:WebGL2RenderingContext = LayaGL.instance;
 				WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
 				value = Math.min(gl.getParameter(anisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT), value);
 				gl.texParameterf(this._glTextureType, anisotropic.TEXTURE_MAX_ANISOTROPY_EXT, value);

@@ -367,11 +367,11 @@ this._long = long;
 			var glFormat:number =  ((<any>this._texture2D ))._getGLFormat();
 			var format:number = this._texture2D.format;
 			if (format === BaseTexture.FORMAT_R8G8B8) {
-				gl.pixelStorei(WebGLContext.UNPACK_ALIGNMENT, 1);//字节对齐
-				gl.texSubImage2D(textureType, miplevel, x, y, glFormat, WebGLContext.UNSIGNED_BYTE, image);
-				gl.pixelStorei(WebGLContext.UNPACK_ALIGNMENT, 4);
+				gl.pixelStorei(WebGL2RenderingContext.UNPACK_ALIGNMENT, 1);//字节对齐
+				gl.texSubImage2D(textureType, miplevel, x, y, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, image);
+				gl.pixelStorei(WebGL2RenderingContext.UNPACK_ALIGNMENT, 4);
 			} else {
-				gl.texSubImage2D(textureType, miplevel, x, y, glFormat, WebGLContext.UNSIGNED_BYTE, image);
+				gl.texSubImage2D(textureType, miplevel, x, y, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, image);
 			}
 			
 			((<any>this._texture2D ))._readyed = true;

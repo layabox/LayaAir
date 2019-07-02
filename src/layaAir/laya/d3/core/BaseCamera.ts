@@ -354,7 +354,7 @@ export class BaseCamera extends Sprite3D {
 		(clearFlagData !== undefined) && (this.clearFlag = clearFlagData);
 
 		this.orthographic = data.orthographic;
-		this.orthographicVerticalSize = data.orthographicVerticalSize;
+		(data.orthographicVerticalSize!==undefined)&&(this.orthographicVerticalSize = data.orthographicVerticalSize);
 		(data.fieldOfView !== undefined) && (this.fieldOfView = data.fieldOfView);
 		this.nearPlane = data.nearPlane;
 		this.farPlane = data.farPlane;

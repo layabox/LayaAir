@@ -28,7 +28,7 @@ export class Viewport {
 	 * @param	height 高度。
 	 */
 	constructor(x: number, y: number, width: number, height: number) {
-		this.minDepth = 0.0;//TODO:待确认，-1。
+		this.minDepth = 0.0;
 		this.maxDepth = 1.0;
 
 		this.x = x;

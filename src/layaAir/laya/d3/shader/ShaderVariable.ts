@@ -8,7 +8,7 @@
 		/**@internal */
 		 type:number;
 		/**@internal */
-		 location:number;
+		 location:WebGLUniformLocation;
 		/**@internal */
 		 isArray:boolean;
 		/**@internal */

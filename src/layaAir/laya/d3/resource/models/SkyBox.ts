@@ -1,6 +1,5 @@
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Stat } from "../../../utils/Stat";
-import { WebGLContext } from "../../../webgl/WebGLContext";
 import { BufferState } from "../../core/BufferState";
 import { RenderContext3D } from "../../core/render/RenderContext3D";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
@@ -26,11 +25,10 @@ export class SkyBox extends SkyMesh {
 	 * 创建一个 <code>SkyBox</code> 实例。
 	 */
 	constructor() {
-		
 		super();
-		var halfHeight: number = 0.5;
-		var halfWidth: number = 0.5;
-		var halfDepth: number = 0.5;
+		var halfHeight: number = 1.0;
+		var halfWidth: number = 1.0;
+		var halfDepth: number = 1.0;
 		var vertices: Float32Array = new Float32Array([-halfDepth, halfHeight, -halfWidth, halfDepth, halfHeight, -halfWidth, halfDepth, halfHeight, halfWidth, -halfDepth, halfHeight, halfWidth,//上
 		-halfDepth, -halfHeight, -halfWidth, halfDepth, -halfHeight, -halfWidth, halfDepth, -halfHeight, halfWidth, -halfDepth, -halfHeight, halfWidth]);//下
 		var indices: Uint8Array = new Uint8Array([
@@ -42,9 +40,9 @@ export class SkyBox extends SkyMesh {
 			0, 4, 5, 5, 1, 0]);//后
 
 		var verDec: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION");
-		this._vertexBuffer = new VertexBuffer3D(verDec.vertexStride * 8, WebGLContext.STATIC_DRAW, false);
+		this._vertexBuffer = new VertexBuffer3D(verDec.vertexStride * 8, WebGL2RenderingContext.STATIC_DRAW, false);
 		this._vertexBuffer.vertexDeclaration = verDec;
-		this._indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_UBYTE, 36, WebGLContext.STATIC_DRAW, false);
+		this._indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_UBYTE, 36, WebGL2RenderingContext.STATIC_DRAW, false);
 		this._vertexBuffer.setData(vertices);
 		this._indexBuffer.setData(indices);
 
@@ -60,7 +58,7 @@ export class SkyBox extends SkyMesh {
 		 * @inheritDoc
 		 */
 		/*override*/  _render(state: RenderContext3D): void {
-		LayaGL.instance.drawElements(WebGLContext.TRIANGLES, 36, WebGLContext.UNSIGNED_BYTE, 0);
+		LayaGL.instance.drawElements(WebGL2RenderingContext.TRIANGLES, 36, WebGL2RenderingContext.UNSIGNED_BYTE, 0);
 		Stat.trianglesFaces += 12;
 		Stat.renderBatches++;
 	}

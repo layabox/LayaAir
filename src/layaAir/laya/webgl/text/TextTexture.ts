@@ -49,19 +49,19 @@ import { ILaya } from "../../../ILaya";
 		 recreateResource():void {
 			if (this._source)
                 return;
-			var gl:WebGLContext = ILaya.Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
+			var gl:WebGL2RenderingContext = ILaya.Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
 			var glTex:any = this._source = gl.createTexture();
 			this.bitmap._glTexture = glTex;
 			
-			WebGLContext.bindTexture(gl, WebGLContext.TEXTURE_2D, glTex);
+			WebGLContext.bindTexture(gl, WebGL2RenderingContext.TEXTURE_2D, glTex);
 			//gl.bindTexture(WebGLContext.TEXTURE_2D, glTex);
 			//var sz:int = _width * _height * 4;
 			//分配显存。
-			gl.texImage2D(WebGLContext.TEXTURE_2D, 0, WebGLContext.RGBA, this._texW, this._texH, 0, WebGLContext.RGBA, WebGLContext.UNSIGNED_BYTE, null);
-			gl.texParameteri(WebGLContext.TEXTURE_2D, WebGLContext.TEXTURE_MIN_FILTER, WebGLContext.LINEAR);	//不能用点采样，否则旋转的时候，非常难看
-			gl.texParameteri(WebGLContext.TEXTURE_2D, WebGLContext.TEXTURE_MAG_FILTER, WebGLContext.LINEAR);
-			gl.texParameteri(WebGLContext.TEXTURE_2D, WebGLContext.TEXTURE_WRAP_S, WebGLContext.CLAMP_TO_EDGE);
-			gl.texParameteri(WebGLContext.TEXTURE_2D, WebGLContext.TEXTURE_WRAP_T, WebGLContext.CLAMP_TO_EDGE);
+			gl.texImage2D(WebGL2RenderingContext.TEXTURE_2D, 0, WebGL2RenderingContext.RGBA, this._texW, this._texH, 0, WebGL2RenderingContext.RGBA, WebGL2RenderingContext.UNSIGNED_BYTE, null);
+			gl.texParameteri(WebGL2RenderingContext.TEXTURE_2D, WebGL2RenderingContext.TEXTURE_MIN_FILTER, WebGL2RenderingContext.LINEAR);	//不能用点采样，否则旋转的时候，非常难看
+			gl.texParameteri(WebGL2RenderingContext.TEXTURE_2D, WebGL2RenderingContext.TEXTURE_MAG_FILTER, WebGL2RenderingContext.LINEAR);
+			gl.texParameteri(WebGL2RenderingContext.TEXTURE_2D, WebGL2RenderingContext.TEXTURE_WRAP_S, WebGL2RenderingContext.CLAMP_TO_EDGE);
+			gl.texParameteri(WebGL2RenderingContext.TEXTURE_2D, WebGL2RenderingContext.TEXTURE_WRAP_T, WebGL2RenderingContext.CLAMP_TO_EDGE);
 			
 			//TODO 预乘alpha
 			if (TextTexture.gTextRender.debugUV) {
@@ -83,14 +83,14 @@ import { ILaya } from "../../../ILaya";
 				return this.addCharCanvas(data , x, y, uv);
 			}
 			!this._source && this.recreateResource();
-			var gl:WebGLContext = ILaya.Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
-			WebGLContext.bindTexture(gl, WebGLContext.TEXTURE_2D, this._source);
-			!ILaya.Render.isConchApp && gl.pixelStorei( WebGLContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+			var gl:WebGL2RenderingContext = ILaya.Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
+			WebGLContext.bindTexture(gl, WebGL2RenderingContext.TEXTURE_2D, this._source);
+			!ILaya.Render.isConchApp && gl.pixelStorei( WebGL2RenderingContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 			var dt:any = data.data;
 			if ( data.data instanceof Uint8ClampedArray ) 
 				dt = new Uint8Array(dt.buffer);
-			gl.texSubImage2D(WebGLContext.TEXTURE_2D, 0, x, y, data.width, data.height, WebGLContext.RGBA, WebGLContext.UNSIGNED_BYTE, dt);
-			!ILaya.Render.isConchApp && gl.pixelStorei( WebGLContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+			gl.texSubImage2D(WebGL2RenderingContext.TEXTURE_2D, 0, x, y, data.width, data.height, WebGL2RenderingContext.RGBA, WebGL2RenderingContext.UNSIGNED_BYTE, dt);
+			!ILaya.Render.isConchApp && gl.pixelStorei( WebGL2RenderingContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
 			var u0:number;
 			var v0:number;
 			var u1:number;
@@ -122,11 +122,11 @@ import { ILaya } from "../../../ILaya";
 		 */
 		 addCharCanvas(canv:any, x:number, y:number,uv:any[]=null):any[] {
 			!this._source && this.recreateResource();
-			var gl:WebGLContext = ILaya.Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
-			WebGLContext.bindTexture(gl, WebGLContext.TEXTURE_2D, this._source);
-			!ILaya.Render.isConchApp && gl.pixelStorei( WebGLContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-			gl.texSubImage2D(WebGLContext.TEXTURE_2D, 0, x, y, WebGLContext.RGBA, WebGLContext.UNSIGNED_BYTE, canv);
-			!ILaya.Render.isConchApp && gl.pixelStorei( WebGLContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+			var gl:WebGL2RenderingContext = ILaya.Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
+			WebGLContext.bindTexture(gl, WebGL2RenderingContext.TEXTURE_2D, this._source);
+			!ILaya.Render.isConchApp && gl.pixelStorei( WebGL2RenderingContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+			gl.texSubImage2D(WebGL2RenderingContext.TEXTURE_2D, 0, x, y, WebGL2RenderingContext.RGBA, WebGL2RenderingContext.UNSIGNED_BYTE, canv);
+			!ILaya.Render.isConchApp && gl.pixelStorei( WebGL2RenderingContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
 			var u0:number;
 			var v0:number;
 			var u1:number;
@@ -155,10 +155,10 @@ import { ILaya } from "../../../ILaya";
 		 */
 		 fillWhite():void {
 			!this._source && this.recreateResource();
-			var gl:WebGLContext = ILaya.Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
+			var gl:WebGL2RenderingContext = ILaya.Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
 			var dt:Uint8Array = new Uint8Array(this._texW * this._texH * 4);
 			((<any>dt )).fill(0xff);
-			gl.texSubImage2D(WebGLContext.TEXTURE_2D, 0, 0, 0, this._texW, this._texH, WebGLContext.RGBA, WebGLContext.UNSIGNED_BYTE, dt);
+			gl.texSubImage2D(WebGL2RenderingContext.TEXTURE_2D, 0, 0, 0, this._texW, this._texH, WebGL2RenderingContext.RGBA, WebGL2RenderingContext.UNSIGNED_BYTE, dt);
 		}
 		
 		 discard():void {
@@ -192,7 +192,7 @@ import { ILaya } from "../../../ILaya";
 		/*override*/  destroy():void {		
 			//console.log('destroy TextTexture');
 			this.__destroyed = true;
-			var gl:WebGLContext = ILaya.Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
+			var gl:WebGL2RenderingContext = ILaya.Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
 			this._source && gl.deleteTexture(this._source);
 			this._source = null;
 		}		

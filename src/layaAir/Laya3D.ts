@@ -368,7 +368,7 @@ export class Laya3D {
 			}
 		}
 		WebGL.shaderHighPrecision = false;
-		var precisionFormat: any = LayaGL.instance.getShaderPrecisionFormat(WebGLContext.FRAGMENT_SHADER, WebGLContext.HIGH_FLOAT);
+		var precisionFormat: any = LayaGL.instance.getShaderPrecisionFormat(WebGL2RenderingContext.FRAGMENT_SHADER, WebGL2RenderingContext.HIGH_FLOAT);
 		precisionFormat.precision ? WebGL.shaderHighPrecision = true : WebGL.shaderHighPrecision = false;
 	}
 

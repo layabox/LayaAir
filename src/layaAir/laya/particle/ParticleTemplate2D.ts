@@ -123,7 +123,7 @@ import { Stat } from "../utils/Stat";
 				
 				if (this._firstActiveElement != this._firstFreeElement)
 				{
-					var gl:WebGLContext = WebGLContext.mainContext;
+					var gl:WebGL2RenderingContext = WebGLContext.mainContext;
 					this._mesh.useMesh(gl);
 					//_vertexBuffer2D.bind();
 					//_indexBuffer2D.bind();
@@ -133,13 +133,13 @@ import { Stat } from "../utils/Stat";
 						
 					if (this._firstActiveElement < this._firstFreeElement)
 					{
-						WebGLContext.mainContext.drawElements(WebGLContext.TRIANGLES, (this._firstFreeElement - this._firstActiveElement) * 6, WebGLContext.UNSIGNED_SHORT, this._firstActiveElement * 6 * 2);
+						WebGLContext.mainContext.drawElements(WebGL2RenderingContext.TRIANGLES, (this._firstFreeElement - this._firstActiveElement) * 6, WebGL2RenderingContext.UNSIGNED_SHORT, this._firstActiveElement * 6 * 2);
 					}
 					else
 					{
-						WebGLContext.mainContext.drawElements(WebGLContext.TRIANGLES, (this.settings.maxPartices - this._firstActiveElement) * 6, WebGLContext.UNSIGNED_SHORT, this._firstActiveElement * 6 * 2);
+						WebGLContext.mainContext.drawElements(WebGL2RenderingContext.TRIANGLES, (this.settings.maxPartices - this._firstActiveElement) * 6, WebGL2RenderingContext.UNSIGNED_SHORT, this._firstActiveElement * 6 * 2);
 						if (this._firstFreeElement > 0)
-							WebGLContext.mainContext.drawElements(WebGLContext.TRIANGLES, this._firstFreeElement * 6, WebGLContext.UNSIGNED_SHORT, 0);
+							WebGLContext.mainContext.drawElements(WebGL2RenderingContext.TRIANGLES, this._firstFreeElement * 6, WebGL2RenderingContext.UNSIGNED_SHORT, 0);
 					}
 					
 					Stat.renderBatches++;
@@ -201,8 +201,8 @@ import { Stat } from "../utils/Stat";
 		{
 			if (BlendMode.activeBlendFunction !== this._blendFn)
 			{
-				var gl:WebGLContext= WebGLContext.mainContext;
-				gl.enable( WebGLContext.BLEND );
+				var gl:WebGL2RenderingContext= WebGLContext.mainContext;
+				gl.enable( WebGL2RenderingContext.BLEND );
 				this._blendFn(gl);
 				BlendMode.activeBlendFunction = this._blendFn;
 			}

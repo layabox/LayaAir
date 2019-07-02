@@ -1,4 +1,4 @@
-import { WebGLContext } from "../../webgl/WebGLContext"
+
 
 /**
  * ...
@@ -21,18 +21,18 @@ export class VertexElementFormat {
 
 	/** @internal [组数量,数据类型,是否归一化:0为false]。*/
 	private static _elementInfos: any = {
-		"single": [1, WebGLContext.FLOAT, 0],
-		"vector2": [2, WebGLContext.FLOAT, 0],
-		"vector3": [3, WebGLContext.FLOAT, 0],
-		"vector4": [4, WebGLContext.FLOAT, 0],
-		"color": [4, WebGLContext.FLOAT, 0],
-		"byte4": [4, WebGLContext.UNSIGNED_BYTE, 0],
-		"short2": [2, WebGLContext.FLOAT, 0],
-		"short4": [4, WebGLContext.FLOAT, 0],
-		"normalizedshort2": [2, WebGLContext.FLOAT, 0],
-		"normalizedshort4": [4, WebGLContext.FLOAT, 0],
-		"halfvector2": [2, WebGLContext.FLOAT, 0],
-		"halfvector4": [4, WebGLContext.FLOAT, 0]
+		"single": [1, WebGL2RenderingContext.FLOAT, 0],
+		"vector2": [2, WebGL2RenderingContext.FLOAT, 0],
+		"vector3": [3, WebGL2RenderingContext.FLOAT, 0],
+		"vector4": [4, WebGL2RenderingContext.FLOAT, 0],
+		"color": [4, WebGL2RenderingContext.FLOAT, 0],
+		"byte4": [4, WebGL2RenderingContext.UNSIGNED_BYTE, 0],
+		"short2": [2, WebGL2RenderingContext.FLOAT, 0],
+		"short4": [4, WebGL2RenderingContext.FLOAT, 0],
+		"normalizedshort2": [2, WebGL2RenderingContext.FLOAT, 0],
+		"normalizedshort4": [4, WebGL2RenderingContext.FLOAT, 0],
+		"halfvector2": [2, WebGL2RenderingContext.FLOAT, 0],
+		"halfvector4": [4, WebGL2RenderingContext.FLOAT, 0]
 	};
 
 	/**

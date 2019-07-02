@@ -68,8 +68,8 @@ import { LayaGPU } from "../webgl/LayaGPU";
 		}
 		
 		 initRender(canvas:HTMLCanvas, w:number, h:number):boolean { 
-				function getWebGLContext(canvas:any):WebGLContext {
-					var gl:WebGLContext;
+				function getWebGLContext(canvas:any):WebGL2RenderingContext {
+					var gl:WebGL2RenderingContext;
 					var names:any[] = ["webgl2", "webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
 					if (!Config.useWebGL2) {
 						names.shift();
@@ -87,7 +87,7 @@ import { LayaGPU } from "../webgl/LayaGPU";
 					}
 					return null;
 				}
-				var gl:WebGLContext = LayaGL.instance = WebGLContext.mainContext = getWebGLContext(Render._mainCanvas.source);
+				var gl:WebGL2RenderingContext = LayaGL.instance = WebGLContext.mainContext = getWebGLContext(Render._mainCanvas.source);
 				if (!gl)
                     return false;
                     

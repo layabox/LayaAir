@@ -7,8 +7,8 @@ import { Context } from "../../resource/Context"
 	 */
 	export class MeshVG extends Mesh2D {
 		 static const_stride:number = 12;// 36;
-		private static _fixattriInfo:any[] = [WebGLContext.FLOAT, 2, 0,	//x,y
-			WebGLContext.UNSIGNED_BYTE, 4, 8];
+		private static _fixattriInfo:any[] = [WebGL2RenderingContext.FLOAT, 2, 0,	//x,y
+			WebGL2RenderingContext.UNSIGNED_BYTE, 4, 8];
 		private static _POOL:any[] = [];		
 		
 		constructor() {

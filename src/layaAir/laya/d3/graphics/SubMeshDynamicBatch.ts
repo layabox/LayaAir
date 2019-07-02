@@ -74,9 +74,9 @@ import { ILaya3D } from "../../../ILaya3D";
 			var maxVerDec:VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,COLOR,UV,UV1,TANGENT");
 			var maxByteCount:number = maxVerDec.vertexStride * SubMeshDynamicBatch.maxIndicesCount;
 			this._vertices = new Float32Array(maxByteCount / 4);
-			this._vertexBuffer = new VertexBuffer3D(maxByteCount, WebGLContext.DYNAMIC_DRAW);
+			this._vertexBuffer = new VertexBuffer3D(maxByteCount, WebGL2RenderingContext.DYNAMIC_DRAW);
 			this._indices = new Int16Array(SubMeshDynamicBatch.maxIndicesCount);
-			this._indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, this._indices.length, WebGLContext.DYNAMIC_DRAW);
+			this._indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, this._indices.length, WebGL2RenderingContext.DYNAMIC_DRAW);
 			
 			var memorySize:number = this._vertexBuffer._byteLength + this._indexBuffer._byteLength;
 			Resource._addMemory(memorySize,memorySize);
@@ -205,7 +205,7 @@ import { ILaya3D } from "../../../ILaya3D";
 		private _flush(vertexCount:number, indexCount:number):void {
 			this._vertexBuffer.setData(this._vertices, 0, 0, vertexCount * (this._vertexBuffer.vertexDeclaration.vertexStride / 4));
 			this._indexBuffer.setData(this._indices, 0, 0, indexCount);
-			LayaGL.instance.drawElements(WebGLContext.TRIANGLES, indexCount, WebGLContext.UNSIGNED_SHORT, 0);
+			LayaGL.instance.drawElements(WebGL2RenderingContext.TRIANGLES, indexCount, WebGL2RenderingContext.UNSIGNED_SHORT, 0);
 		}
 		
 		/**
