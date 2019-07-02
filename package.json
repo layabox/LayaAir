@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "browserify-shader": "^0.1.2",
+    "gulp-typescript": "^5.0.1",
     "rollup-plugin-auto-external": "^2.0.0",
     "rollup-plugin-commonjs": "^9.3.4",
     "rollup-plugin-multi-entry": "^2.1.0",
