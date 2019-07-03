@@ -87,7 +87,7 @@ import { ILaya3D } from "../../../ILaya3D";
 		 */
 		private _getBatchVertices(vertexDeclaration:VertexDeclaration, batchVertices:Float32Array, batchOffset:number, transform:Transform3D, element:SubMeshRenderElement, subMesh:SubMesh):void {
 			var vertexFloatCount:number = vertexDeclaration.vertexStride / 4;
-			var oriVertexes:Float32Array = (<Float32Array>subMesh._vertexBuffer.getData() );
+			var oriVertexes:Float32Array = subMesh._vertexBuffer.getFloat32Data();
 			var lightmapScaleOffset:Vector4 = element.render.lightmapScaleOffset;
 			
 			var multiSubMesh:boolean = element._dynamicMultiSubMesh;
@@ -203,7 +203,7 @@ import { ILaya3D } from "../../../ILaya3D";
 		 * @internal
 		 */
 		private _flush(vertexCount:number, indexCount:number):void {
-			this._vertexBuffer.setData(this._vertices, 0, 0, vertexCount * (this._vertexBuffer.vertexDeclaration.vertexStride / 4));
+			this._vertexBuffer.setData(this._vertices.buffer, 0, 0, vertexCount * (this._vertexBuffer.vertexDeclaration.vertexStride));
 			this._indexBuffer.setData(this._indices, 0, 0, indexCount);
 			LayaGL.instance.drawElements(WebGL2RenderingContext.TRIANGLES, indexCount, WebGL2RenderingContext.UNSIGNED_SHORT, 0);
 		}
@@ -216,17 +216,17 @@ import { ILaya3D } from "../../../ILaya3D";
 			var vertexDeclaration:VertexDeclaration = element.vertexBatchVertexDeclaration;
 			this._bufferState=ILaya3D.MeshRenderDynamicBatchManager.instance._getBufferState(vertexDeclaration);
 			
-			this._positionOffset = vertexDeclaration.getVertexElementByUsage(VertexMesh.MESH_POSITION0).offset / 4;
+			this._positionOffset = vertexDeclaration.getVertexElementByUsage(VertexMesh.MESH_POSITION0)._offset / 4;
 			var normalElement:VertexElement = vertexDeclaration.getVertexElementByUsage(VertexMesh.MESH_NORMAL0);
-			this._normalOffset = normalElement ? normalElement.offset / 4 : -1;
+			this._normalOffset = normalElement ? normalElement._offset / 4 : -1;
 			var colorElement:VertexElement = vertexDeclaration.getVertexElementByUsage(VertexMesh.MESH_COLOR0);
-			this._colorOffset = colorElement ? colorElement.offset / 4 : -1;
+			this._colorOffset = colorElement ? colorElement._offset / 4 : -1;
 			var uv0Element:VertexElement = vertexDeclaration.getVertexElementByUsage(VertexMesh.MESH_TEXTURECOORDINATE0);
-			this._uv0Offset = uv0Element ? uv0Element.offset / 4 : -1;
+			this._uv0Offset = uv0Element ? uv0Element._offset / 4 : -1;
 			var uv1Element:VertexElement = vertexDeclaration.getVertexElementByUsage(VertexMesh.MESH_TEXTURECOORDINATE1);
-			this._uv1Offset = uv1Element ? uv1Element.offset / 4 : -1;
+			this._uv1Offset = uv1Element ? uv1Element._offset / 4 : -1;
 			var tangentElement:VertexElement = vertexDeclaration.getVertexElementByUsage(VertexMesh.MESH_TANGENT0);
-			this._sTangentOffset = tangentElement ? tangentElement.offset / 4 : -1;
+			this._sTangentOffset = tangentElement ? tangentElement._offset / 4 : -1;
 			return true;
 		}
 		

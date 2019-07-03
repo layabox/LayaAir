@@ -63,15 +63,26 @@ export class SubMesh extends GeometryElement {
 	}
 
 	/**
-	 * @inheritDoc
+	 * @internal
 	 * @override
 	 */
 	_getType(): number {
 		return SubMesh._type;
 	}
 
+
+
 	/**
-	 * @inheritDoc
+	 * @internal
+	 * @override
+	 */
+	_prepareRender(state: RenderContext3D): boolean {
+		this._mesh._uploadVerticesData();
+		return true;
+	}
+
+	/**
+	 * @internal
 	 * @override
 	 */
 	_render(state: RenderContext3D): void {
@@ -92,14 +103,33 @@ export class SubMesh extends GeometryElement {
 	}
 
 	/**
-	 * @internal
+	 * 获取索引数量。
 	 */
-	getIndices(): Uint16Array {
-		return this._indices;
+	getIndicesCount(): number {
+		return this._indexCount;
 	}
 
 	/**
-	 * @inheritDoc
+	 * 获取索引。
+	 * @param triangles 索引。 
+	 */
+	getIndices(): Uint16Array {
+		if (this._mesh._isReadable)
+			return this._indices;
+		else
+			throw "SubMesh:can't get indices on subMesh,mesh's isReadable must be true.";
+	}
+
+	/**
+	 * 设置子网格索引。
+	 * @param indices 
+	 */
+	setIndices(indices: Uint16Array): void {
+		this._indexBuffer.setData(indices, this._indexStart, 0, this._indexCount);
+	}
+
+	/**
+	 * {@inheritDoc GeometryElement.destroy}
 	 * @override
 	 */
 	destroy(): void {

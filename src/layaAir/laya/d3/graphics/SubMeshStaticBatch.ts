@@ -92,22 +92,22 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 	 * @internal
 	 */
 	private _getStaticBatchBakedVertexs(batchVertices: Float32Array, batchOffset: number, batchOwnerTransform: Transform3D, transform: Transform3D, render: MeshRenderer, mesh: Mesh): number {
-		var vertexBuffer: VertexBuffer3D = mesh._vertexBuffers[0];
+		var vertexBuffer: VertexBuffer3D = mesh._vertexBuffer;
 		var vertexDeclaration: VertexDeclaration = vertexBuffer.vertexDeclaration;
-		var positionOffset: number = vertexDeclaration.getVertexElementByUsage(VertexMesh.MESH_POSITION0).offset / 4;
+		var positionOffset: number = vertexDeclaration.getVertexElementByUsage(VertexMesh.MESH_POSITION0)._offset / 4;
 		var normalElement: VertexElement = vertexDeclaration.getVertexElementByUsage(VertexMesh.MESH_NORMAL0);
-		var normalOffset: number = normalElement ? normalElement.offset / 4 : -1;
+		var normalOffset: number = normalElement ? normalElement._offset / 4 : -1;
 		var colorElement: VertexElement = vertexDeclaration.getVertexElementByUsage(VertexMesh.MESH_COLOR0);
-		var colorOffset: number = colorElement ? colorElement.offset / 4 : -1;
+		var colorOffset: number = colorElement ? colorElement._offset / 4 : -1;
 		var uv0Element: VertexElement = vertexDeclaration.getVertexElementByUsage(VertexMesh.MESH_TEXTURECOORDINATE0);
-		var uv0Offset: number = uv0Element ? uv0Element.offset / 4 : -1;
+		var uv0Offset: number = uv0Element ? uv0Element._offset / 4 : -1;
 		var uv1Element: VertexElement = vertexDeclaration.getVertexElementByUsage(VertexMesh.MESH_TEXTURECOORDINATE1);
-		var uv1Offset: number = uv1Element ? uv1Element.offset / 4 : -1;
+		var uv1Offset: number = uv1Element ? uv1Element._offset / 4 : -1;
 		var tangentElement: VertexElement = vertexDeclaration.getVertexElementByUsage(VertexMesh.MESH_TANGENT0);
-		var sTangentOffset: number = tangentElement ? tangentElement.offset / 4 : -1;
+		var sTangentOffset: number = tangentElement ? tangentElement._offset / 4 : -1;
 		var bakeVertexFloatCount: number = 18;
 		var oriVertexFloatCount: number = vertexDeclaration.vertexStride / 4;
-		var oriVertexes: Float32Array = (<Float32Array>vertexBuffer.getData());
+		var oriVertexes: Float32Array = vertexBuffer.getFloat32Data();
 
 		var worldMat: Matrix4x4;
 		if (batchOwnerTransform) {
@@ -279,7 +279,7 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 			batchIndexCount += indices.length;
 			batchVertexCount += meshVerCount;
 		}
-		this._vertexBuffer.setData(vertexDatas);
+		this._vertexBuffer.setData(vertexDatas.buffer);
 		this._indexBuffer.setData(indexDatas);
 		var memorySize: number = this._vertexBuffer._byteLength + this._indexBuffer._byteLength;
 		Resource._addGPUMemory(memorySize);

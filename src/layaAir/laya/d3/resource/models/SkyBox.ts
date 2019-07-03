@@ -43,7 +43,7 @@ export class SkyBox extends SkyMesh {
 		this._vertexBuffer = new VertexBuffer3D(verDec.vertexStride * 8, WebGL2RenderingContext.STATIC_DRAW, false);
 		this._vertexBuffer.vertexDeclaration = verDec;
 		this._indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_UBYTE, 36, WebGL2RenderingContext.STATIC_DRAW, false);
-		this._vertexBuffer.setData(vertices);
+		this._vertexBuffer.setData(vertices.buffer);
 		this._indexBuffer.setData(indices);
 
 		var bufferState: BufferState = new BufferState();

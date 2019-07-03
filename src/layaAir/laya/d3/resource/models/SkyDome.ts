@@ -102,7 +102,7 @@ this._stacks = stacks;
 			this._vertexBuffer = new VertexBuffer3D(vertices.length * 4, WebGL2RenderingContext.STATIC_DRAW, false);
 			this._vertexBuffer.vertexDeclaration = vertexDeclaration;
 			this._indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, indices.length, WebGL2RenderingContext.STATIC_DRAW, false);
-			this._vertexBuffer.setData(vertices);
+			this._vertexBuffer.setData(vertices.buffer);
 			this._indexBuffer.setData(indices);
 			
 			var bufferState:BufferState = new BufferState();

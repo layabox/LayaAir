@@ -78,10 +78,10 @@ export class PixelLineFilter extends GeometryElement {
 
 		if (vertexCount < lastVertices.length) {//取最小长度,拷贝旧数据
 			this._vertices.set(new Float32Array(lastVertices.buffer, 0, vertexCount));
-			this._vertexBuffer.setData(this._vertices, 0, 0, vertexCount);
+			this._vertexBuffer.setData(this._vertices.buffer, 0, 0, vertexCount*4);
 		} else {
 			this._vertices.set(lastVertices);
-			this._vertexBuffer.setData(this._vertices, 0, 0, lastVertices.length);
+			this._vertexBuffer.setData(this._vertices.buffer, 0, 0, lastVertices.length*4);
 		}
 
 		this._bufferState.bind();
@@ -202,7 +202,7 @@ export class PixelLineFilter extends GeometryElement {
 	 */
 	_render(state: RenderContext3D): void {
 		if (this._minUpdate !== Number.MAX_VALUE && this._maxUpdate !== Number.MIN_VALUE) {
-			this._vertexBuffer.setData(this._vertices, this._minUpdate, this._minUpdate, this._maxUpdate - this._minUpdate);
+			this._vertexBuffer.setData(this._vertices.buffer, this._minUpdate*4, this._minUpdate*4, (this._maxUpdate - this._minUpdate)*4);
 			this._minUpdate = Number.MAX_VALUE;
 			this._maxUpdate = Number.MIN_VALUE;
 		}

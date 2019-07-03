@@ -47,7 +47,7 @@ export class MeshRenderStaticBatchManager extends StaticBatchManager {
 			if (receiveShadowOffset === 0) {
 				var materialOffset: number = lRender.sharedMaterial.id - rRender.sharedMaterial.id;//多维子材质以第一个材质排序
 				if (materialOffset === 0) {
-					var verDec: number = leftGeo._vertexBuffers[0].vertexDeclaration.id - rightGeo._vertexBuffers[0].vertexDeclaration.id;//TODO:以第一个Buffer为主,后期是否修改VB机制
+					var verDec: number = leftGeo._vertexBuffer.vertexDeclaration.id - rightGeo._vertexBuffer.vertexDeclaration.id;
 					if (verDec === 0) {
 						return rightGeo._indexBuffer.indexCount - leftGeo._indexBuffer.indexCount;//根据三角面排序
 					} else {

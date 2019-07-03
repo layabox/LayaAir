@@ -22,8 +22,8 @@ export class PrimitiveMesh {
 
 		var vertexBuffer: VertexBuffer3D = new VertexBuffer3D(vertices.length * 4, WebGL2RenderingContext.STATIC_DRAW, true);
 		vertexBuffer.vertexDeclaration = vertexDeclaration;
-		vertexBuffer.setData(vertices);
-		mesh._vertexBuffers.push(vertexBuffer);
+		vertexBuffer.setData(vertices.buffer);
+		mesh._vertexBuffer = vertexBuffer;
 		mesh._vertexCount += vertexBuffer.vertexCount;
 		var indexBuffer: IndexBuffer3D = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, indices.length, WebGL2RenderingContext.STATIC_DRAW, true);
 		indexBuffer.setData(indices);
@@ -31,7 +31,7 @@ export class PrimitiveMesh {
 
 		var vertexBuffers: VertexBuffer3D[] = [];
 		vertexBuffers[0] = vertexBuffer;
-		mesh._setBuffer(vertexBuffers, indexBuffer);
+		mesh._setBuffer(vertexBuffer, indexBuffer);
 
 		subMesh._vertexBuffer = vertexBuffer;
 		subMesh._indexBuffer = indexBuffer;

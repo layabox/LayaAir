@@ -128,7 +128,7 @@ export class MeshRenderer extends BaseRender {
 				var count: number = insBatches.length;
 				for (var i: number = 0; i < count; i++)
 					worldMatrixData.set(insBatches[i]._transform.worldMatrix.elements, i * 16);
-				SubMeshInstanceBatch.instance.instanceWorldMatrixBuffer.setData(worldMatrixData, 0, 0, count * 16);
+				SubMeshInstanceBatch.instance.instanceWorldMatrixBuffer.setData(worldMatrixData.buffer, 0, 0, count * 16*4);
 				this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
 				break;
 		}
@@ -159,7 +159,7 @@ export class MeshRenderer extends BaseRender {
 					var worldMat: Matrix4x4 = insBatches[i]._transform.worldMatrix;
 					Utils3D.mulMatrixByArray(projectionView.elements, 0, worldMat.elements, 0, mvpMatrixData, i * 16);
 				}
-				SubMeshInstanceBatch.instance.instanceMVPMatrixBuffer.setData(mvpMatrixData, 0, 0, count * 16);
+				SubMeshInstanceBatch.instance.instanceMVPMatrixBuffer.setData(mvpMatrixData.buffer, 0, 0, count * 16*4);
 				break;
 		}
 	}
@@ -199,7 +199,7 @@ export class MeshRenderer extends BaseRender {
 					var worldMat: Matrix4x4 = insBatches[i]._transform.worldMatrix;
 					Utils3D.mulMatrixByArray(projectionView.elements, 0, worldMat.elements, 0, mvpMatrixData, i * 16);
 				}
-				SubMeshInstanceBatch.instance.instanceMVPMatrixBuffer.setData(mvpMatrixData, 0, 0, count * 16);
+				SubMeshInstanceBatch.instance.instanceMVPMatrixBuffer.setData(mvpMatrixData.buffer, 0, 0, count * 16*4);
 				break;
 		}
 	}

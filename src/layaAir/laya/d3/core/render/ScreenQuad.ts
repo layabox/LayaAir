@@ -48,14 +48,14 @@ export class ScreenQuad extends Resource {
 		super();
 		this._vertexBuffer = new VertexBuffer3D(16 * 4, WebGL2RenderingContext.STATIC_DRAW, false);
 		this._vertexBuffer.vertexDeclaration = ScreenQuad._vertexDeclaration;
-		this._vertexBuffer.setData(ScreenQuad._vertices);
+		this._vertexBuffer.setData(ScreenQuad._vertices.buffer);
 		this._bufferState.bind();
 		this._bufferState.applyVertexBuffer(this._vertexBuffer);
 		this._bufferState.unBind();
 
 		this._vertexBufferInvertUV = new VertexBuffer3D(16 * 4, WebGL2RenderingContext.STATIC_DRAW, false);
 		this._vertexBufferInvertUV.vertexDeclaration = ScreenQuad._vertexDeclaration;
-		this._vertexBufferInvertUV.setData(ScreenQuad._verticesInvertUV);
+		this._vertexBufferInvertUV.setData(ScreenQuad._verticesInvertUV.buffer);
 		this._bufferStateInvertUV.bind();
 		this._bufferStateInvertUV.applyVertexBuffer(this._vertexBufferInvertUV);
 		this._bufferStateInvertUV.unBind();

@@ -48,14 +48,14 @@ export class ScreenTriangle extends Resource {
 		super();
 		this._vertexBuffer = new VertexBuffer3D(12 * 4, WebGL2RenderingContext.STATIC_DRAW, false);
 		this._vertexBuffer.vertexDeclaration = ScreenTriangle._vertexDeclaration;
-		this._vertexBuffer.setData(ScreenTriangle._vertices);
+		this._vertexBuffer.setData(ScreenTriangle._vertices.buffer);
 		this._bufferState.bind();
 		this._bufferState.applyVertexBuffer(this._vertexBuffer);
 		this._bufferState.unBind();
 
 		this._vertexBufferInvertUV = new VertexBuffer3D(12 * 4, WebGL2RenderingContext.STATIC_DRAW, false);
 		this._vertexBufferInvertUV.vertexDeclaration = ScreenTriangle._vertexDeclaration;
-		this._vertexBufferInvertUV.setData(ScreenTriangle._verticesInvertUV);
+		this._vertexBufferInvertUV.setData(ScreenTriangle._verticesInvertUV.buffer);
 		this._bufferStateInvertUV.bind();
 		this._bufferStateInvertUV.applyVertexBuffer(this._vertexBufferInvertUV);
 		this._bufferStateInvertUV.unBind();

@@ -1516,49 +1516,49 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 			var mesh: Mesh = render.mesh;
 			if (renderMode === 4) {
 				if (mesh) {
-					var vertexBufferCount: number = mesh._vertexBuffers.length;
-					if (vertexBufferCount > 1) {
-						throw new Error("ShurikenParticleSystem: submesh Count mesh be One or all subMeshes have the same vertexDeclaration.");
-					} else {
-						vertexDeclaration = VertexShurikenParticleMesh.vertexDeclaration;
-						this._floatCountPerVertex = vertexDeclaration.vertexStride / 4;
-						this._startLifeTimeIndex = 12;
-						this._timeIndex = 16;
-						this._vertexStride = mesh._vertexBuffers[0].vertexCount;
-						var totalVertexCount: number = this._bufferMaxParticles * this._vertexStride;
-						var vbCount: number = Math.floor(totalVertexCount / 65535) + 1;
-						var lastVBVertexCount: number = totalVertexCount % 65535;
-						if (vbCount > 1) {//TODO:随后支持
-							throw new Error("ShurikenParticleSystem:the maxParticleCount multiply mesh vertexCount is large than 65535.");
-						}
-
-						vbMemorySize = vertexDeclaration.vertexStride * lastVBVertexCount;
-						this._vertexBuffer = new VertexBuffer3D(vbMemorySize, WebGL2RenderingContext.DYNAMIC_DRAW);
-						this._vertexBuffer.vertexDeclaration = vertexDeclaration;
-						this._vertices = new Float32Array(this._floatCountPerVertex * lastVBVertexCount);
-
-
-						this._indexStride = mesh._indexBuffer.indexCount;
-						var indexDatas: Uint16Array = mesh._indexBuffer.getData();
-						var indexCount: number = this._bufferMaxParticles * this._indexStride;
-						this._indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, indexCount, WebGL2RenderingContext.STATIC_DRAW);
-						indices = new Uint16Array(indexCount);
-
-						memorySize = vbMemorySize + indexCount * 2;
-
-						indexOffset = 0;
-						for (i = 0; i < this._bufferMaxParticles; i++) {
-							var indexValueOffset: number = i * this._vertexStride;
-							for (j = 0, m = indexDatas.length; j < m; j++)
-								indices[indexOffset++] = indexValueOffset + indexDatas[j];
-						}
-						this._indexBuffer.setData(indices);
-
-						this._bufferState.bind();
-						this._bufferState.applyVertexBuffer(this._vertexBuffer);
-						this._bufferState.applyIndexBuffer(this._indexBuffer);
-						this._bufferState.unBind();
+					// var vertexBufferCount: number = mesh._vertexBuffers.length;
+					// if (vertexBufferCount > 1) {
+					// 	throw new Error("ShurikenParticleSystem: submesh Count mesh be One or all subMeshes have the same vertexDeclaration.");
+					// } else {
+					vertexDeclaration = VertexShurikenParticleMesh.vertexDeclaration;
+					this._floatCountPerVertex = vertexDeclaration.vertexStride / 4;
+					this._startLifeTimeIndex = 12;
+					this._timeIndex = 16;
+					this._vertexStride = mesh._vertexBuffer.vertexCount;
+					var totalVertexCount: number = this._bufferMaxParticles * this._vertexStride;
+					var vbCount: number = Math.floor(totalVertexCount / 65535) + 1;
+					var lastVBVertexCount: number = totalVertexCount % 65535;
+					if (vbCount > 1) {//TODO:随后支持
+						throw new Error("ShurikenParticleSystem:the maxParticleCount multiply mesh vertexCount is large than 65535.");
 					}
+
+					vbMemorySize = vertexDeclaration.vertexStride * lastVBVertexCount;
+					this._vertexBuffer = new VertexBuffer3D(vbMemorySize, WebGL2RenderingContext.DYNAMIC_DRAW);
+					this._vertexBuffer.vertexDeclaration = vertexDeclaration;
+					this._vertices = new Float32Array(this._floatCountPerVertex * lastVBVertexCount);
+
+
+					this._indexStride = mesh._indexBuffer.indexCount;
+					var indexDatas: Uint16Array = mesh._indexBuffer.getData();
+					var indexCount: number = this._bufferMaxParticles * this._indexStride;
+					this._indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, indexCount, WebGL2RenderingContext.STATIC_DRAW);
+					indices = new Uint16Array(indexCount);
+
+					memorySize = vbMemorySize + indexCount * 2;
+
+					indexOffset = 0;
+					for (i = 0; i < this._bufferMaxParticles; i++) {
+						var indexValueOffset: number = i * this._vertexStride;
+						for (j = 0, m = indexDatas.length; j < m; j++)
+							indices[indexOffset++] = indexValueOffset + indexDatas[j];
+					}
+					this._indexBuffer.setData(indices);
+
+					this._bufferState.bind();
+					this._bufferState.applyVertexBuffer(this._vertexBuffer);
+					this._bufferState.applyIndexBuffer(this._indexBuffer);
+					this._bufferState.unBind();
+					// }
 				}
 			} else {
 				vertexDeclaration = VertexShurikenParticleBillboard.vertexDeclaration;
@@ -1800,14 +1800,14 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		var meshVertices: Float32Array, meshVertexStride: number, meshPosOffset: number, meshCorOffset: number, meshUVOffset: number, meshVertexIndex: number;
 		var render: ShurikenParticleRenderer = this._ownerRender;
 		if (render.renderMode === 4) {
-			var meshVB: VertexBuffer3D = render.mesh._vertexBuffers[0];
-			meshVertices = meshVB.getData();
+			var meshVB: VertexBuffer3D = render.mesh._vertexBuffer;
+			meshVertices = meshVB.getFloat32Data();
 			var meshVertexDeclaration: VertexDeclaration = meshVB.vertexDeclaration;
-			meshPosOffset = meshVertexDeclaration.getVertexElementByUsage(VertexMesh.MESH_POSITION0).offset / 4;
+			meshPosOffset = meshVertexDeclaration.getVertexElementByUsage(VertexMesh.MESH_POSITION0)._offset / 4;
 			var colorElement: VertexElement = meshVertexDeclaration.getVertexElementByUsage(VertexMesh.MESH_COLOR0);
-			meshCorOffset = colorElement ? colorElement.offset / 4 : -1;
+			meshCorOffset = colorElement ? colorElement._offset / 4 : -1;
 			var uvElement: VertexElement = meshVertexDeclaration.getVertexElementByUsage(VertexMesh.MESH_TEXTURECOORDINATE0);
-			meshUVOffset = uvElement ? uvElement.offset / 4 : -1;
+			meshUVOffset = uvElement ? uvElement._offset / 4 : -1;
 			meshVertexStride = meshVertexDeclaration.vertexStride / 4;
 			meshVertexIndex = 0;
 		} else {
@@ -1920,33 +1920,36 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
 	addNewParticlesToVertexBuffer(): void {
 		var start: number;
+		var byteStride: number = this._vertexStride * this._floatCountPerVertex * 4;
 		if (this._firstNewElement < this._firstFreeElement) {
-			start = this._firstNewElement * this._vertexStride * this._floatCountPerVertex;
-			this._vertexBuffer.setData(this._vertices, start, start, (this._firstFreeElement - this._firstNewElement) * this._vertexStride * this._floatCountPerVertex);
+			start = this._firstNewElement * byteStride;
+			this._vertexBuffer.setData(this._vertices.buffer, start, start, (this._firstFreeElement - this._firstNewElement) * byteStride);
 
 		} else {
-			start = this._firstNewElement * this._vertexStride * this._floatCountPerVertex;
-			this._vertexBuffer.setData(this._vertices, start, start, (this._bufferMaxParticles - this._firstNewElement) * this._vertexStride * this._floatCountPerVertex);
+			start = this._firstNewElement * byteStride;
+			this._vertexBuffer.setData(this._vertices.buffer, start, start, (this._bufferMaxParticles - this._firstNewElement) * byteStride);
 
 			if (this._firstFreeElement > 0) {
-				this._vertexBuffer.setData(this._vertices, 0, 0, this._firstFreeElement * this._vertexStride * this._floatCountPerVertex);
+				this._vertexBuffer.setData(this._vertices.buffer, 0, 0, this._firstFreeElement * byteStride);
 
 			}
 		}
 		this._firstNewElement = this._firstFreeElement;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _getType(): number {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_getType(): number {
 		return ShurikenParticleSystem._type;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _prepareRender(state: RenderContext3D): boolean {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_prepareRender(state: RenderContext3D): boolean {
 		this._updateEmission();
 		//设备丢失时, setData  here
 		if (this._firstNewElement != this._firstFreeElement)
@@ -1959,10 +1962,11 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 			return false;
 	}
 
-		/**
-		 * @internal
-		 */
-		/*override*/  _render(state: RenderContext3D): void {
+	/**
+	 * @internal
+	 * @override
+	 */
+	_render(state: RenderContext3D): void {
 		this._bufferState.bind();
 		var indexCount: number;
 		var gl: WebGL2RenderingContext = LayaGL.instance;

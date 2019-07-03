@@ -55,12 +55,12 @@ import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration";
 		
 		private _getMeshDefine(mesh:Mesh):number {
 			var define:number;
-			for (var i:number = 0, n:number = mesh._subMeshCount; i < n; i++) {
+			for (var i:number = 0, n:number = mesh._subMeshes.length; i < n; i++) {
 				var subMesh:SubMesh = (<SubMesh>mesh._getSubMesh(i) );
-				var vertexElements:any[] = subMesh._vertexBuffer._vertexDeclaration.vertexElements;
+				var vertexElements:any[] = subMesh._vertexBuffer._vertexDeclaration._vertexElements;
 				for (var j:number = 0, m:number = vertexElements.length; j < m; j++) {
 					var vertexElement:VertexElement = vertexElements[j];
-					var name:number = vertexElement.elementUsage;
+					var name:number = vertexElement._elementUsage;
 					switch (name) {
 					case VertexMesh.MESH_COLOR0: 
 						define |= MeshSprite3DShaderDeclaration.SHADERDEFINE_COLOR;

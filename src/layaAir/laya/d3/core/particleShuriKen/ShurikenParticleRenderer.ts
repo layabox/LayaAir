@@ -142,7 +142,7 @@ export class ShurikenParticleRenderer extends BaseRender {
 		this.stretchedBillboardSpeedScale = 0.0;
 		this.stretchedBillboardLengthScale = 1.0;
 		//sortingMode = SORTINGMODE_NONE;
-		this._supportOctree=false;
+		this._supportOctree = false;
 	}
 
 		/**

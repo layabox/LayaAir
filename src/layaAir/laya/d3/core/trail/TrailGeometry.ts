@@ -142,8 +142,8 @@ export class TrailGeometry extends GeometryElement {
 
 		this._endIndex = count;
 		this._activeIndex = 0;
-		this._vertexBuffer1.setData(this._vertices1, 0, this._floatCountPerVertices1 * 2 * this._activeIndex, this._floatCountPerVertices1 * 2 * count);
-		this._vertexBuffer2.setData(this._vertices2, 0, this._floatCountPerVertices2 * 2 * this._activeIndex, this._floatCountPerVertices2 * 2 * count);
+		this._vertexBuffer1.setData(this._vertices1.buffer, 0, this._floatCountPerVertices1 * 2 * this._activeIndex*4, this._floatCountPerVertices1 * 2 * count*4);
+		this._vertexBuffer2.setData(this._vertices2.buffer, 0, this._floatCountPerVertices2 * 2 * this._activeIndex*4, this._floatCountPerVertices2 * 2 * count*4);
 	}
 
 	/**
@@ -264,7 +264,7 @@ export class TrailGeometry extends GeometryElement {
 		this._vertices1[vertexOffset + 15] = 0.0;
 
 		var floatCount: number = this._floatCountPerVertices1 * 2;
-		this._vertexBuffer1.setData(this._vertices1, vertexOffset, vertexOffset, floatCount);
+		this._vertexBuffer1.setData(this._vertices1.buffer, vertexOffset*4, vertexOffset*4, floatCount*4);
 	}
 
 	/**
@@ -321,7 +321,7 @@ export class TrailGeometry extends GeometryElement {
 
 		}
 		var offset: number = this._activeIndex * stride;
-		this._vertexBuffer2.setData(this._vertices2, offset, offset, vertexCount * stride - offset);
+		this._vertexBuffer2.setData(this._vertices2.buffer, offset*4, offset*4, (vertexCount * stride - offset)*4);
 	}
 
 	/**
