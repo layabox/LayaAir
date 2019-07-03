@@ -103,7 +103,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 			var meshBindPoseIndices: Uint16Array = this._cacheMesh._bindPoseIndices;
 			var pathMarks: any[][] = this._cacheMesh._skinDataPathMarks;
 			for (var i: number = 0, n: number = this._cacheMesh.subMeshCount; i < n; i++) {
-				var subMeshBoneIndices: Uint16Array[] = ((<SubMesh>this._cacheMesh._getSubMesh(i)))._boneIndicesList;
+				var subMeshBoneIndices: Uint16Array[] = ((<SubMesh>this._cacheMesh.getSubMesh(i)))._boneIndicesList;
 				var subData: Float32Array[] = this._skinnedData[i];
 				for (var j: number = 0, m: number = subMeshBoneIndices.length; j < m; j++) {
 					var boneIndices: Uint16Array = subMeshBoneIndices[j];
@@ -122,7 +122,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 			var meshBindPoseIndices: Uint16Array = this._cacheMesh._bindPoseIndices;
 			var pathMarks: any[][] = this._cacheMesh._skinDataPathMarks;
 			for (var i: number = 0, n: number = this._cacheMesh.subMeshCount; i < n; i++) {
-				var subMeshBoneIndices: Uint16Array[] = ((<SubMesh>this._cacheMesh._getSubMesh(i)))._boneIndicesList;
+				var subMeshBoneIndices: Uint16Array[] = ((<SubMesh>this._cacheMesh.getSubMesh(i)))._boneIndicesList;
 				var subData: Float32Array[] = this._skinnedData[i];
 				for (var j: number = 0, m: number = subMeshBoneIndices.length; j < m; j++) {
 					var boneIndices: Uint16Array = subMeshBoneIndices[j];
@@ -196,7 +196,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 		this._skinnedData = [];
 		this._skinnedDataLoopMarks.length = ((<Mesh>value))._bindPoseIndices.length;
 		for (var i: number = 0; i < subMeshCount; i++) {
-			var subBoneIndices: Uint16Array[] = ((<SubMesh>value._getSubMesh(i)))._boneIndicesList;
+			var subBoneIndices: Uint16Array[] = ((<SubMesh>value.getSubMesh(i)))._boneIndicesList;
 			var subCount: number = subBoneIndices.length;
 			var subData: Float32Array[] = this._skinnedData[i] = [];
 			for (var j: number = 0; j < subCount; j++)

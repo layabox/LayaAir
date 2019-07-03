@@ -61,7 +61,7 @@ export class MeshRenderer extends BaseRender {
 					renderElement.render = this;
 					renderElement.material = material ? material : BlinnPhongMaterial.defaultMaterial;//确保有材质,由默认材质代替。
 				}
-				renderElement.setGeometry(mesh._getSubMesh(i));
+				renderElement.setGeometry(mesh.getSubMesh(i));
 			}
 		} else {
 			this._renderElements.length = 0;

@@ -64,12 +64,20 @@ export class SubMesh extends GeometryElement {
 
 	/**
 	 * @internal
+	 */
+	_setIndexRange(indexStart: number, indexCount: number): void {
+		this._indexStart = indexStart;
+		this._indexCount = indexCount;
+		this._indices = new Uint16Array(this._indexBuffer.getData().buffer, indexStart * 2, indexCount);
+	}
+
+	/**
+	 * @internal
 	 * @override
 	 */
 	_getType(): number {
 		return SubMesh._type;
 	}
-
 
 
 	/**
@@ -110,12 +118,11 @@ export class SubMesh extends GeometryElement {
 	}
 
 	/**
-	 * 获取索引。
-	 * @param triangles 索引。 
+	 * 拷贝并获取索引数据的副本。
 	 */
 	getIndices(): Uint16Array {
 		if (this._mesh._isReadable)
-			return this._indices;
+			return this._indices.slice();
 		else
 			throw "SubMesh:can't get indices on subMesh,mesh's isReadable must be true.";
 	}

@@ -191,52 +191,49 @@ export class Mesh extends Resource implements IClone {
 	}
 
 	private _getVerticeElementData(data: Array<Vector2 | Vector3 | Vector4 | Color>, elementUsage: number): void {
-		data.length = 0;
+		data.length = this._vertexCount;
 		var verDec: VertexDeclaration = this._vertexBuffer.vertexDeclaration;
 		var element: VertexElement = verDec.getVertexElementByUsage(elementUsage);
 		if (element) {
 			var uint8Vertices: Uint8Array = this._vertexBuffer.getUint8Data();
 			var floatVertices: Float32Array = this._vertexBuffer.getFloat32Data();
-			var verStr: number = verDec.vertexStride;
-			var elementOffset: number = element._offset;
+			var uint8VerStr: number = verDec.vertexStride;
+			var floatVerStr: number = uint8VerStr/4;
+			var uint8EleOffset: number = element._offset;
+			var floatEleOffset: number = uint8EleOffset/4;
 
 			switch (elementUsage) {
 				case VertexMesh.MESH_TEXTURECOORDINATE0:
 				case VertexMesh.MESH_TEXTURECOORDINATE1:
 					for (var i: number = 0; i < this._vertexCount; i++) {
-						var offset: number = verStr * i + elementOffset;
-						var vec2: Vector2 = new Vector2(floatVertices[offset], floatVertices[offset + 1]);
-						data.push(vec2);
+						var offset: number = floatVerStr * i + floatEleOffset;
+						data[i] = new Vector2(floatVertices[offset], floatVertices[offset + 1]);
 					}
 					break;
 				case VertexMesh.MESH_POSITION0:
 				case VertexMesh.MESH_NORMAL0:
 					for (var i: number = 0; i < this._vertexCount; i++) {
-						var offset: number = verStr * i + elementOffset;
-						var vec3: Vector3 = new Vector3(floatVertices[offset], floatVertices[offset + 1], floatVertices[offset + 2]);
-						data.push(vec3);
+						var offset: number = floatVerStr * i + floatEleOffset;
+						data[i] = new Vector3(floatVertices[offset], floatVertices[offset + 1], floatVertices[offset + 2]);
 					}
 					break;
 				case VertexMesh.MESH_TANGENT0:
 				case VertexMesh.MESH_BLENDWEIGHT0:
 					for (var i: number = 0; i < this._vertexCount; i++) {
-						var offset: number = verStr * i + elementOffset;
-						var vec4: Vector4 = new Vector4(floatVertices[offset], floatVertices[offset + 1], floatVertices[offset + 2], floatVertices[offset + 3]);
-						data.push(vec4);
+						var offset: number = floatVerStr * i + floatEleOffset;
+						data[i] = new Vector4(floatVertices[offset], floatVertices[offset + 1], floatVertices[offset + 2], floatVertices[offset + 3]);
 					}
 					break;
 				case VertexMesh.MESH_COLOR0:
 					for (var i: number = 0; i < this._vertexCount; i++) {
-						var offset: number = verStr * i + elementOffset;
-						var cor: Color = new Color(floatVertices[offset], floatVertices[offset + 1], floatVertices[offset + 2], floatVertices[offset + 3]);
-						data.push(cor);
+						var offset: number = floatVerStr * i + floatEleOffset;
+						data[i] = new Color(floatVertices[offset], floatVertices[offset + 1], floatVertices[offset + 2], floatVertices[offset + 3]);
 					}
 					break;
 				case VertexMesh.MESH_BLENDINDICES0:
 					for (var i: number = 0; i < this._vertexCount; i++) {
-						var offset: number = verStr * i + elementOffset;
-						var vec4: Vector4 = new Vector4(uint8Vertices[offset], uint8Vertices[offset + 1], uint8Vertices[offset + 2], uint8Vertices[offset + 3]);
-						data.push(vec4);
+						var offset: number = uint8VerStr * i + uint8EleOffset;
+						data[i] = new Vector4(uint8Vertices[offset], uint8Vertices[offset + 1], uint8Vertices[offset + 2], uint8Vertices[offset + 3]);
 					}
 					break;
 				default:
@@ -351,12 +348,6 @@ export class Mesh extends Resource implements IClone {
 		this._generateBoundingObject();
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	_getSubMesh(index: number): SubMesh {
-		return this._subMeshes[index];
-	}
 
 	/**
 	 * @internal
@@ -428,6 +419,14 @@ export class Mesh extends Resource implements IClone {
 			this._minVerticesUpdate = Number.MAX_VALUE;
 			this._maxVerticesUpdate = Number.MIN_VALUE;
 		}
+	}
+
+	/**
+	 * 根据获取子网格。
+	 * @param index 索引。
+	 */
+	getSubMesh(index: number): SubMesh {
+		return this._subMeshes[index];
 	}
 
 	/**

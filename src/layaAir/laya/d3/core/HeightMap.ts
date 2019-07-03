@@ -29,7 +29,7 @@ export class HeightMap {
 
 		var submesheCount: number = mesh.subMeshCount;
 		for (var i: number = 0; i < submesheCount; i++) {
-			var subMesh: SubMesh = (<SubMesh>mesh._getSubMesh(i));
+			var subMesh: SubMesh = (<SubMesh>mesh.getSubMesh(i));
 			var vertexBuffer: VertexBuffer3D = subMesh._vertexBuffer;
 			var verts: Float32Array =vertexBuffer.getFloat32Data();
 			var subMeshVertices: Vector3[] = [];

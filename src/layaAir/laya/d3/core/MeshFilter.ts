@@ -56,7 +56,7 @@ import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration";
 		private _getMeshDefine(mesh:Mesh):number {
 			var define:number;
 			for (var i:number = 0, n:number = mesh._subMeshes.length; i < n; i++) {
-				var subMesh:SubMesh = (<SubMesh>mesh._getSubMesh(i) );
+				var subMesh:SubMesh = (<SubMesh>mesh.getSubMesh(i) );
 				var vertexElements:any[] = subMesh._vertexBuffer._vertexDeclaration._vertexElements;
 				for (var j:number = 0, m:number = vertexElements.length; j < m; j++) {
 					var vertexElement:VertexElement = vertexElements[j];
