@@ -49,8 +49,6 @@ import { ShaderCompile } from "./laya/webgl/utils/ShaderCompile";
 import { WebGL } from "./laya/webgl/WebGL";
 import { WebGLContext } from "./laya/webgl/WebGLContext";
 import { WorkerLoader } from "./laya/net/WorkerLoader";
-import { Physics } from "./laya/physics/Physics";
-import { View } from "./laya/ui/View";
 /**
  * <code>Laya</code> 是全局对象的引用入口集。
  * Laya类引用了一些常用的全局对象，比如Laya.stage：舞台，Laya.timer：时间管理器，Laya.loader：加载管理器，使用时注意大小写。
@@ -89,21 +87,21 @@ export class Laya {
         Browser.supportLocalStorage = LocalStorage.__init__();
         //temp TODO 以后分包
         Laya.systemTimer = new Timer(false);
-        Timer.gSysTimer = Laya.systemTimer;
+        systemTimer = Timer.gSysTimer = Laya.systemTimer;
         Laya.startTimer = new Timer(false);
         Laya.physicsTimer = new Timer(false);
         Laya.updateTimer = new Timer(false);
         Laya.lateTimer = new Timer(false);
         Laya.timer = new Timer(false);
-        ILaya.startTimer = Laya.startTimer;
-        ILaya.lateTimer = Laya.lateTimer;
-        ILaya.updateTimer = Laya.updateTimer;
+        startTimer = ILaya.startTimer = Laya.startTimer;
+        lateTimer = ILaya.lateTimer = Laya.lateTimer;
+        updateTimer = ILaya.updateTimer = Laya.updateTimer;
         ILaya.systemTimer = Laya.systemTimer;
-        ILaya.timer = Laya.timer;
-        ILaya.physicsTimer = Laya.physicsTimer;
+        timer = ILaya.timer = Laya.timer;
+        physicsTimer = ILaya.physicsTimer = Laya.physicsTimer;
         Laya.loader = new LoaderManager();
         ILaya.Laya = Laya;
-        ILaya.loader = Laya.loader;
+        loader = ILaya.loader = Laya.loader;
         WeakObject.__init__();
         WebGL.inner_enable();
         for (var i = 0, n = plugins.length; i < n; i++) {
@@ -115,15 +113,14 @@ export class Laya {
             Laya.enableNative();
         }
         CacheManger.beginCheck();
-        Laya._currentStage = Laya.stage = new Stage();
+        stage = Laya._currentStage = Laya.stage = new Stage();
         ILaya.stage = Laya.stage;
         Utils.gStage = Laya.stage;
         URL.rootPath = URL._basePath = Laya._getUrlPath();
         Laya.render = new Render(0, 0, Browser.mainCanvas);
+        render = Laya.render;
         Laya.stage.size(width, height);
         window.stage = Laya.stage;
-        Physics.__init__();
-        View.__init__();
         RenderSprite.__init__();
         KeyBoardManager.__init__();
         MouseManager.instance.__init__(Laya.stage, Render.canvas);
@@ -337,3 +334,18 @@ regClassToEngine(Sprite);
 regClassToEngine(Node);
 regClassToEngine(Context);
 regClassToEngine(WebGL);
+export var init = Laya.init;
+export var stage;
+export var systemTimer;
+export var startTimer;
+export var physicsTimer;
+export var updateTimer;
+export var lateTimer;
+export var timer;
+export var loader;
+export var version;
+export var render;
+export var isWXOpenDataContext;
+export var isWXPosMsg;
+export var alertGlobalError = Laya.alertGlobalError;
+export var enableDebugPanel = Laya.enableDebugPanel;

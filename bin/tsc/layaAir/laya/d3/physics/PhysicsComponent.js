@@ -6,7 +6,7 @@ import { Matrix4x4 } from "../math/Matrix4x4";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { Physics3DUtils } from "../utils/Physics3DUtils";
-import { Physics } from "./Physics";
+import { Physics3D } from "./Physics3D";
 import { BoxColliderShape } from "./shape/BoxColliderShape";
 import { CapsuleColliderShape } from "./shape/CapsuleColliderShape";
 import { CompoundColliderShape } from "./shape/CompoundColliderShape";
@@ -57,8 +57,8 @@ export class PhysicsComponent extends Component {
     * @internal
     */
     static __init__() {
-        PhysicsComponent._nativeVector30 = new Physics._physics3D.btVector3(0, 0, 0);
-        PhysicsComponent._nativeQuaternion0 = new Physics._physics3D.btQuaternion(0, 0, 0, 1);
+        PhysicsComponent._nativeVector30 = new Physics3D._physics3D.btVector3(0, 0, 0);
+        PhysicsComponent._nativeQuaternion0 = new Physics3D._physics3D.btQuaternion(0, 0, 0, 1);
     }
     /**
      * @internal
@@ -536,7 +536,7 @@ export class PhysicsComponent extends Component {
      * @inheritDoc
      */
     /*override*/ _onDestroy() {
-        var physics3D = Physics._physics3D;
+        var physics3D = Physics3D._physics3D;
         delete PhysicsComponent._physicObjectsMap[this.id];
         physics3D.destroy(this._nativeColliderObject);
         this._colliderShape.destroy();

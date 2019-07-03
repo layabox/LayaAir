@@ -2,7 +2,7 @@ import { Transform3D } from "../core/Transform3D";
 import { Physics3DUtils } from "../utils/Physics3DUtils";
 import { PhysicsComponent } from "./PhysicsComponent";
 import { PhysicsTriggerComponent } from "./PhysicsTriggerComponent";
-import { Physics } from "./Physics";
+import { Physics3D } from "./Physics3D";
 /**
  * <code>PhysicsCollider</code> 类用于创建物理碰撞器。
  */
@@ -53,7 +53,7 @@ export class PhysicsCollider extends PhysicsTriggerComponent {
      * @inheritDoc
      */
     /*override*/ _onAdded() {
-        var physics3D = Physics._physics3D;
+        var physics3D = Physics3D._physics3D;
         var btColObj = new physics3D.btCollisionObject();
         btColObj.setUserIndex(this.id);
         btColObj.forceActivationState(PhysicsComponent.ACTIVATIONSTATE_DISABLE_SIMULATION); //prevent simulation

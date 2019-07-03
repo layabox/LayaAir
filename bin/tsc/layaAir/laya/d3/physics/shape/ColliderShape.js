@@ -1,7 +1,7 @@
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
-import { Physics } from "../Physics";
+import { Physics3D } from "../Physics3D";
 /**
  * <code>ColliderShape</code> 类用于创建形状碰撞器的父类，该类为抽象类。
  */
@@ -34,10 +34,10 @@ export class ColliderShape {
      * @internal
      */
     static __init__() {
-        ColliderShape._nativeScale = new Physics._physics3D.btVector3(1, 1, 1);
-        ColliderShape._nativeVector30 = new Physics._physics3D.btVector3(0, 0, 0);
-        ColliderShape._nativQuaternion0 = new Physics._physics3D.btQuaternion(0, 0, 0, 1);
-        ColliderShape._nativeTransform0 = new Physics._physics3D.btTransform();
+        ColliderShape._nativeScale = new Physics3D._physics3D.btVector3(1, 1, 1);
+        ColliderShape._nativeVector30 = new Physics3D._physics3D.btVector3(0, 0, 0);
+        ColliderShape._nativQuaternion0 = new Physics3D._physics3D.btQuaternion(0, 0, 0, 1);
+        ColliderShape._nativeTransform0 = new Physics3D._physics3D.btTransform();
     }
     /**
      * @internal
@@ -162,7 +162,7 @@ export class ColliderShape {
      */
     destroy() {
         if (this._nativeShape) {
-            Physics._physics3D.destroy(this._nativeShape);
+            Physics3D._physics3D.destroy(this._nativeShape);
             this._nativeShape = null;
         }
     }

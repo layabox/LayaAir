@@ -80,7 +80,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
             var meshBindPoseIndices = this._cacheMesh._bindPoseIndices;
             var pathMarks = this._cacheMesh._skinDataPathMarks;
             for (var i = 0, n = this._cacheMesh.subMeshCount; i < n; i++) {
-                var subMeshBoneIndices = this._cacheMesh._getSubMesh(i)._boneIndicesList;
+                var subMeshBoneIndices = this._cacheMesh.getSubMesh(i)._boneIndicesList;
                 var subData = this._skinnedData[i];
                 for (var j = 0, m = subMeshBoneIndices.length; j < m; j++) {
                     var boneIndices = subMeshBoneIndices[j];
@@ -98,7 +98,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
             var meshBindPoseIndices = this._cacheMesh._bindPoseIndices;
             var pathMarks = this._cacheMesh._skinDataPathMarks;
             for (var i = 0, n = this._cacheMesh.subMeshCount; i < n; i++) {
-                var subMeshBoneIndices = this._cacheMesh._getSubMesh(i)._boneIndicesList;
+                var subMeshBoneIndices = this._cacheMesh.getSubMesh(i)._boneIndicesList;
                 var subData = this._skinnedData[i];
                 for (var j = 0, m = subMeshBoneIndices.length; j < m; j++) {
                     var boneIndices = subMeshBoneIndices[j];
@@ -168,7 +168,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         this._skinnedData = [];
         this._skinnedDataLoopMarks.length = value._bindPoseIndices.length;
         for (var i = 0; i < subMeshCount; i++) {
-            var subBoneIndices = value._getSubMesh(i)._boneIndicesList;
+            var subBoneIndices = value.getSubMesh(i)._boneIndicesList;
             var subCount = subBoneIndices.length;
             var subData = this._skinnedData[i] = [];
             for (var j = 0; j < subCount; j++)

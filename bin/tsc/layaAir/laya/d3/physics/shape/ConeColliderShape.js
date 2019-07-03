@@ -1,5 +1,5 @@
 import { ColliderShape } from "./ColliderShape";
-import { Physics } from "../Physics";
+import { Physics3D } from "../Physics3D";
 /**
  * <code>ConeColliderShape</code> 类用于创建圆柱碰撞器。
  */
@@ -19,13 +19,13 @@ export class ConeColliderShape extends ColliderShape {
         this._type = ColliderShape.SHAPETYPES_CYLINDER;
         switch (orientation) {
             case ColliderShape.SHAPEORIENTATION_UPX:
-                this._nativeShape = new Physics._physics3D.btConeShapeX(radius, height);
+                this._nativeShape = new Physics3D._physics3D.btConeShapeX(radius, height);
                 break;
             case ColliderShape.SHAPEORIENTATION_UPY:
-                this._nativeShape = new Physics._physics3D.btConeShape(radius, height);
+                this._nativeShape = new Physics3D._physics3D.btConeShape(radius, height);
                 break;
             case ColliderShape.SHAPEORIENTATION_UPZ:
-                this._nativeShape = new Physics._physics3D.btConeShapeZ(radius, height);
+                this._nativeShape = new Physics3D._physics3D.btConeShapeZ(radius, height);
                 break;
             default:
                 throw "ConeColliderShape:unknown orientation.";

@@ -1,5 +1,5 @@
 import { Vector3 } from "../../math/Vector3";
-import { Physics } from "../Physics";
+import { Physics3D } from "../Physics3D";
 import { ColliderShape } from "./ColliderShape";
 /**
  * <code>CapsuleColliderShape</code> 类用于创建胶囊形状碰撞器。
@@ -19,13 +19,13 @@ export class CapsuleColliderShape extends ColliderShape {
         this._type = ColliderShape.SHAPETYPES_CAPSULE;
         switch (orientation) {
             case ColliderShape.SHAPEORIENTATION_UPX:
-                this._nativeShape = new Physics._physics3D.btCapsuleShapeX(radius, length - radius * 2);
+                this._nativeShape = new Physics3D._physics3D.btCapsuleShapeX(radius, length - radius * 2);
                 break;
             case ColliderShape.SHAPEORIENTATION_UPY:
-                this._nativeShape = new Physics._physics3D.btCapsuleShape(radius, length - radius * 2);
+                this._nativeShape = new Physics3D._physics3D.btCapsuleShape(radius, length - radius * 2);
                 break;
             case ColliderShape.SHAPEORIENTATION_UPZ:
-                this._nativeShape = new Physics._physics3D.btCapsuleShapeZ(radius, length - radius * 2);
+                this._nativeShape = new Physics3D._physics3D.btCapsuleShapeZ(radius, length - radius * 2);
                 break;
             default:
                 throw "CapsuleColliderShape:unknown orientation.";

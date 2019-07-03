@@ -1,5 +1,5 @@
 import { ColliderShape } from "./ColliderShape";
-import { Physics } from "../Physics";
+import { Physics3D } from "../Physics3D";
 /**
  * <code>SphereColliderShape</code> 类用于创建球形碰撞器。
  */
@@ -18,7 +18,7 @@ export class SphereColliderShape extends ColliderShape {
         super();
         this._radius = radius;
         this._type = ColliderShape.SHAPETYPES_SPHERE;
-        this._nativeShape = new Physics._physics3D.btSphereShape(radius);
+        this._nativeShape = new Physics3D._physics3D.btSphereShape(radius);
     }
     /**
      * @inheritDoc

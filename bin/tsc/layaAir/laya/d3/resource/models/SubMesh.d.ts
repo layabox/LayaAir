@@ -5,17 +5,16 @@ import { Mesh } from "./Mesh";
  */
 export declare class SubMesh extends GeometryElement {
     /**
+     * 获取索引数量。
+     */
+    readonly indexCount: number;
+    /**
      * 创建一个 <code>SubMesh</code> 实例。
      * @param	mesh  网格数据模板。
      */
     constructor(mesh: Mesh);
     /**
-     * 获取索引数量。
-     */
-    getIndicesCount(): number;
-    /**
-     * 获取索引。
-     * @param triangles 索引。
+     * 拷贝并获取子网格索引数据的副本。
      */
     getIndices(): Uint16Array;
     /**

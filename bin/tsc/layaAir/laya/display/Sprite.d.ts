@@ -427,7 +427,7 @@ export declare class Sprite extends Node {
      * @private
      *
      */
-    static drawToTexture: (sprite: Sprite, _renderType: number, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number) => Texture;
+    static drawToTexture: Function;
     /**
      * <p>自定义更新、呈现显示对象。一般用来扩展渲染模式，请合理使用，可能会导致在加速器上无法渲染。</p>
      * <p><b>注意</b>不要在此函数内增加或删除树节点，否则会对树节点遍历造成影响。</p>

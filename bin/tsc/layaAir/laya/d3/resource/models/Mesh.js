@@ -1,5 +1,5 @@
 import { ILaya } from "../../../../ILaya";
-import { Physics } from "../../../d3/physics/Physics";
+import { Physics3D } from "../../../d3/physics/Physics3D";
 import { Resource } from "../../../resource/Resource";
 import { Bounds } from "../../core/Bounds";
 import { BufferState } from "../../core/BufferState";
@@ -44,8 +44,6 @@ export class Mesh extends Resource {
         /** */
         this._indexBuffer = null;
         /** @internal */
-        this._vertices = null;
-        /** @internal */
         this._vertexCount = 0;
         this._isReadable = isReadable;
         this._subMeshes = [];
@@ -55,7 +53,7 @@ export class Mesh extends Resource {
     * @internal
     */
     static __init__() {
-        var physics3D = Physics._physics3D;
+        var physics3D = Physics3D._physics3D;
         if (physics3D) {
             Mesh._nativeTempVector30 = new physics3D.btVector3(0, 0, 0);
             Mesh._nativeTempVector31 = new physics3D.btVector3(0, 0, 0);
@@ -90,6 +88,12 @@ export class Mesh extends Resource {
      */
     get vertexCount() {
         return this._vertexCount;
+    }
+    /**
+     * 获取索引个数。
+     */
+    get indexCount() {
+        return this._indexBuffer.indexCount;
     }
     /**
      * 获取SubMesh的个数。
@@ -145,51 +149,48 @@ export class Mesh extends Resource {
         this._bounds = new Bounds(min, max);
     }
     _getVerticeElementData(data, elementUsage) {
-        data.length = 0;
+        data.length = this._vertexCount;
         var verDec = this._vertexBuffer.vertexDeclaration;
         var element = verDec.getVertexElementByUsage(elementUsage);
         if (element) {
             var uint8Vertices = this._vertexBuffer.getUint8Data();
             var floatVertices = this._vertexBuffer.getFloat32Data();
-            var verStr = verDec.vertexStride;
-            var elementOffset = element._offset;
+            var uint8VerStr = verDec.vertexStride;
+            var floatVerStr = uint8VerStr / 4;
+            var uint8EleOffset = element._offset;
+            var floatEleOffset = uint8EleOffset / 4;
             switch (elementUsage) {
                 case VertexMesh.MESH_TEXTURECOORDINATE0:
                 case VertexMesh.MESH_TEXTURECOORDINATE1:
                     for (var i = 0; i < this._vertexCount; i++) {
-                        var offset = verStr * i + elementOffset;
-                        var vec2 = new Vector2(floatVertices[offset], floatVertices[offset + 1]);
-                        data.push(vec2);
+                        var offset = floatVerStr * i + floatEleOffset;
+                        data[i] = new Vector2(floatVertices[offset], floatVertices[offset + 1]);
                     }
                     break;
                 case VertexMesh.MESH_POSITION0:
                 case VertexMesh.MESH_NORMAL0:
                     for (var i = 0; i < this._vertexCount; i++) {
-                        var offset = verStr * i + elementOffset;
-                        var vec3 = new Vector3(floatVertices[offset], floatVertices[offset + 1], floatVertices[offset + 2]);
-                        data.push(vec3);
+                        var offset = floatVerStr * i + floatEleOffset;
+                        data[i] = new Vector3(floatVertices[offset], floatVertices[offset + 1], floatVertices[offset + 2]);
                     }
                     break;
                 case VertexMesh.MESH_TANGENT0:
                 case VertexMesh.MESH_BLENDWEIGHT0:
                     for (var i = 0; i < this._vertexCount; i++) {
-                        var offset = verStr * i + elementOffset;
-                        var vec4 = new Vector4(floatVertices[offset], floatVertices[offset + 1], floatVertices[offset + 2], floatVertices[offset + 3]);
-                        data.push(vec4);
+                        var offset = floatVerStr * i + floatEleOffset;
+                        data[i] = new Vector4(floatVertices[offset], floatVertices[offset + 1], floatVertices[offset + 2], floatVertices[offset + 3]);
                     }
                     break;
                 case VertexMesh.MESH_COLOR0:
                     for (var i = 0; i < this._vertexCount; i++) {
-                        var offset = verStr * i + elementOffset;
-                        var cor = new Color(floatVertices[offset], floatVertices[offset + 1], floatVertices[offset + 2], floatVertices[offset + 3]);
-                        data.push(cor);
+                        var offset = floatVerStr * i + floatEleOffset;
+                        data[i] = new Color(floatVertices[offset], floatVertices[offset + 1], floatVertices[offset + 2], floatVertices[offset + 3]);
                     }
                     break;
                 case VertexMesh.MESH_BLENDINDICES0:
                     for (var i = 0; i < this._vertexCount; i++) {
-                        var offset = verStr * i + elementOffset;
-                        var vec4 = new Vector4(uint8Vertices[offset], uint8Vertices[offset + 1], uint8Vertices[offset + 2], uint8Vertices[offset + 3]);
-                        data.push(vec4);
+                        var offset = uint8VerStr * i + uint8EleOffset;
+                        data[i] = new Vector4(uint8Vertices[offset], uint8Vertices[offset + 1], uint8Vertices[offset + 2], uint8Vertices[offset + 3]);
                     }
                     break;
                 default:
@@ -198,18 +199,20 @@ export class Mesh extends Resource {
         }
     }
     _setVerticeElementData(data, elementUsage) {
-        var uint8Vertices = this._vertexBuffer.getUint8Data();
-        var floatVertices = this._vertexBuffer.getFloat32Data();
         var verDec = this._vertexBuffer.vertexDeclaration;
-        var verStr = verDec.vertexStride;
         var element = verDec.getVertexElementByUsage(elementUsage);
         if (element) {
-            var elementOffset = element._offset;
+            var uint8Vertices = this._vertexBuffer.getUint8Data();
+            var floatVertices = this._vertexBuffer.getFloat32Data();
+            var uint8VerStr = verDec.vertexStride;
+            var float8VerStr = uint8VerStr / 4;
+            var uint8EleOffset = element._offset;
+            var floatEleOffset = uint8EleOffset / 4;
             switch (elementUsage) {
                 case VertexMesh.MESH_TEXTURECOORDINATE0:
                 case VertexMesh.MESH_TEXTURECOORDINATE1:
                     for (var i = 0, n = data.length; i < n; i++) {
-                        var offset = verStr * i + elementOffset;
+                        var offset = float8VerStr * i + floatEleOffset;
                         var vec2 = data[i];
                         floatVertices[offset] = vec2.x;
                         floatVertices[offset + 1] = vec2.y;
@@ -218,7 +221,7 @@ export class Mesh extends Resource {
                 case VertexMesh.MESH_POSITION0:
                 case VertexMesh.MESH_NORMAL0:
                     for (var i = 0, n = data.length; i < n; i++) {
-                        var offset = verStr * i + elementOffset;
+                        var offset = float8VerStr * i + floatEleOffset;
                         var vec3 = data[i];
                         floatVertices[offset] = vec3.x;
                         floatVertices[offset + 1] = vec3.y;
@@ -228,7 +231,7 @@ export class Mesh extends Resource {
                 case VertexMesh.MESH_TANGENT0:
                 case VertexMesh.MESH_BLENDWEIGHT0:
                     for (var i = 0, n = data.length; i < n; i++) {
-                        var offset = verStr * i + elementOffset;
+                        var offset = float8VerStr * i + floatEleOffset;
                         var vec4 = data[i];
                         floatVertices[offset] = vec4.x;
                         floatVertices[offset + 1] = vec4.y;
@@ -238,7 +241,7 @@ export class Mesh extends Resource {
                     break;
                 case VertexMesh.MESH_COLOR0:
                     for (var i = 0, n = data.length; i < n; i++) {
-                        var offset = verStr * i + elementOffset;
+                        var offset = float8VerStr * i + floatEleOffset;
                         var cor = data[i];
                         floatVertices[offset] = cor.r;
                         floatVertices[offset + 1] = cor.g;
@@ -248,7 +251,7 @@ export class Mesh extends Resource {
                     break;
                 case VertexMesh.MESH_BLENDINDICES0:
                     for (var i = 0, n = data.length; i < n; i++) {
-                        var offset = verStr * i + elementOffset;
+                        var offset = uint8VerStr * i + uint8EleOffset;
                         var vec4 = data[i];
                         uint8Vertices[offset] = vec4.x;
                         uint8Vertices[offset + 1] = vec4.y;
@@ -297,12 +300,6 @@ export class Mesh extends Resource {
         for (var i = 0, n = subMeshes.length; i < n; i++)
             subMeshes[i]._indexInMesh = i;
         this._generateBoundingObject();
-    }
-    /**
-     * @inheritDoc
-     */
-    _getSubMesh(index) {
-        return this._subMeshes[index];
     }
     /**
      * @internal
@@ -367,6 +364,13 @@ export class Mesh extends Resource {
             this._minVerticesUpdate = Number.MAX_VALUE;
             this._maxVerticesUpdate = Number.MIN_VALUE;
         }
+    }
+    /**
+     * 根据获取子网格。
+     * @param index 索引。
+     */
+    getSubMesh(index) {
+        return this._subMeshes[index];
     }
     /**
      * 拷贝并填充位置数据至数组。
@@ -566,6 +570,22 @@ export class Mesh extends Resource {
     */
     setVertices(vertices) {
         return this._vertexBuffer.setData(vertices);
+    }
+    /**
+     * 拷贝并获取网格索引数据的副本。
+     */
+    getIndices() {
+        if (this._isReadable)
+            return this._indexBuffer.getData().slice();
+        else
+            throw "SubMesh:can't get indices on subMesh,mesh's isReadable must be true.";
+    }
+    /**
+     * 设置网格索引。
+     * @param indices
+     */
+    setIndices(indices) {
+        this._indexBuffer.setData(indices);
     }
     /**
      * 克隆。

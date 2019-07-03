@@ -33,7 +33,7 @@ import { RenderQueue } from "../render/RenderQueue";
 import { RenderableSprite3D } from "../RenderableSprite3D";
 import { BoundsOctree } from "./BoundsOctree";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
-import { Physics } from "../../physics/Physics";
+import { Physics3D } from "../../physics/Physics3D";
 import { ILaya } from "../../../../ILaya";
 /**
  * <code>Scene3D</code> 类用于实现场景。
@@ -87,7 +87,7 @@ export class Scene3D extends Sprite {
         this._time = 0;
         /**@internal [Editer]*/
         this._pickIdToSprite = new Object();
-        if (Physics._enbalePhysics)
+        if (Physics3D._enbalePhysics)
             this._physicsSimulation = new PhysicsSimulation(Scene3D.physicsSettings);
         this._shaderValues = new ShaderData(null);
         this.parallelSplitShadowMaps = [];
@@ -355,7 +355,7 @@ export class Scene3D extends Sprite {
         this._time += delta;
         this._shaderValues.setNumber(Scene3D.TIME, this._time);
         var simulation = this._physicsSimulation;
-        if (Physics._enbalePhysics && !PhysicsSimulation.disableSimulation) {
+        if (Physics3D._enbalePhysics && !PhysicsSimulation.disableSimulation) {
             simulation._updatePhysicsTransformFromRender();
             PhysicsComponent._addUpdateList = false; //物理模拟器会触发_updateTransformComponent函数,不加入更新队列
             //simulate physics

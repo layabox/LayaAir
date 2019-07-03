@@ -28,8 +28,7 @@ export class PrimitiveMesh {
         mesh._setBuffer(vertexBuffer, indexBuffer);
         subMesh._vertexBuffer = vertexBuffer;
         subMesh._indexBuffer = indexBuffer;
-        subMesh._indexStart = 0;
-        subMesh._indexCount = indexBuffer.indexCount;
+        subMesh._setIndexRange(0, indexBuffer.indexCount);
         var subIndexBufferStart = subMesh._subIndexBufferStart;
         var subIndexBufferCount = subMesh._subIndexBufferCount;
         var boneIndicesList = subMesh._boneIndicesList;

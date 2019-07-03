@@ -2,7 +2,7 @@ import { Vector3 } from "../math/Vector3";
 import { Physics3DUtils } from "../utils/Physics3DUtils";
 import { Utils3D } from "../utils/Utils3D";
 import { PhysicsComponent } from "./PhysicsComponent";
-import { Physics } from "./Physics";
+import { Physics3D } from "./Physics3D";
 /**
  * <code>CharacterController</code> 类用于创建角色控制器。
  */
@@ -35,7 +35,7 @@ export class CharacterController extends PhysicsComponent {
      * @internal
      */
     static __init__() {
-        CharacterController._nativeTempVector30 = new Physics._physics3D.btVector3(0, 0, 0);
+        CharacterController._nativeTempVector30 = new Physics3D._physics3D.btVector3(0, 0, 0);
     }
     /**
      * 获取角色降落速度。
@@ -139,7 +139,7 @@ export class CharacterController extends PhysicsComponent {
      * @internal
      */
     _constructCharacter() {
-        var physics3D = Physics._physics3D;
+        var physics3D = Physics3D._physics3D;
         if (this._nativeKinematicCharacter)
             physics3D.destroy(this._nativeKinematicCharacter);
         var nativeUpAxis = CharacterController._nativeTempVector30;
@@ -161,7 +161,7 @@ export class CharacterController extends PhysicsComponent {
      * @inheritDoc
      */
     /*override*/ _onAdded() {
-        var physics3D = Physics._physics3D;
+        var physics3D = Physics3D._physics3D;
         var ghostObject = new physics3D.btPairCachingGhostObject();
         ghostObject.setUserIndex(this.id);
         ghostObject.setCollisionFlags(PhysicsComponent.COLLISIONFLAGS_CHARACTER_OBJECT);
@@ -202,7 +202,7 @@ export class CharacterController extends PhysicsComponent {
      * @inheritDoc
      */
     /*override*/ _onDestroy() {
-        Physics._physics3D.destroy(this._nativeKinematicCharacter);
+        Physics3D._physics3D.destroy(this._nativeKinematicCharacter);
         super._onDestroy();
         this._nativeKinematicCharacter = null;
     }

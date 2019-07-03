@@ -9,7 +9,7 @@ import { Vector2 } from "./math/Vector2";
 import { Vector3 } from "./math/Vector3";
 import { HitResult } from "./physics/HitResult";
 import { PhysicsSimulation } from "./physics/PhysicsSimulation";
-import { Physics } from "./physics/Physics";
+import { Physics3D } from "./physics/Physics3D";
 import { ILaya } from "../../ILaya";
 /**
  * <code>Input3D</code> 类用于实现3D输入。
@@ -243,7 +243,7 @@ export class Input3D {
      * @internal
      */
     _update() {
-        var enablePhysics = Physics._enbalePhysics && !PhysicsSimulation.disableSimulation;
+        var enablePhysics = Physics3D._enbalePhysics && !PhysicsSimulation.disableSimulation;
         var i, n, j, m;
         n = this._eventList.length;
         var cameras = this._scene._cameraPool;

@@ -1,4 +1,4 @@
-import { Physics } from "../Physics";
+import { Physics3D } from "../Physics3D";
 import { ColliderShape } from "./ColliderShape";
 /**
  * <code>BoxColliderShape</code> 类用于创建盒子形状碰撞器。
@@ -8,7 +8,7 @@ export class BoxColliderShape extends ColliderShape {
     * @internal
     */
     static __init__() {
-        BoxColliderShape._nativeSize = new Physics._physics3D.btVector3(0, 0, 0);
+        BoxColliderShape._nativeSize = new Physics3D._physics3D.btVector3(0, 0, 0);
     }
     /**
      * 获取X轴尺寸。
@@ -41,7 +41,7 @@ export class BoxColliderShape extends ColliderShape {
         this._sizeZ = sizeZ;
         this._type = ColliderShape.SHAPETYPES_BOX;
         BoxColliderShape._nativeSize.setValue(sizeX / 2, sizeY / 2, sizeZ / 2);
-        this._nativeShape = new Physics._physics3D.btBoxShape(BoxColliderShape._nativeSize);
+        this._nativeShape = new Physics3D._physics3D.btBoxShape(BoxColliderShape._nativeSize);
     }
     /**
      * @inheritDoc

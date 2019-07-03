@@ -216,21 +216,19 @@ export class LoadModelV05 {
      */
     static READ_SUBMESH() {
         var arrayBuffer = LoadModelV05._readData.__getBuffer();
-        var submesh = new SubMesh(LoadModelV05._mesh);
+        var subMesh = new SubMesh(LoadModelV05._mesh);
         LoadModelV05._readData.getInt16(); //TODO:vbIndex
         var ibStart = LoadModelV05._readData.getUint32();
         var ibCount = LoadModelV05._readData.getUint32();
         var indexBuffer = LoadModelV05._mesh._indexBuffer;
-        submesh._indexBuffer = indexBuffer;
-        submesh._indexStart = ibStart;
-        submesh._indexCount = ibCount;
-        submesh._indices = new Uint16Array(indexBuffer.getData().buffer, ibStart * 2, ibCount);
+        subMesh._indexBuffer = indexBuffer;
+        subMesh._setIndexRange(ibStart, ibCount);
         var vertexBuffer = LoadModelV05._mesh._vertexBuffer;
-        submesh._vertexBuffer = vertexBuffer;
+        subMesh._vertexBuffer = vertexBuffer;
         var offset = LoadModelV05._DATA.offset;
-        var subIndexBufferStart = submesh._subIndexBufferStart;
-        var subIndexBufferCount = submesh._subIndexBufferCount;
-        var boneIndicesList = submesh._boneIndicesList;
+        var subIndexBufferStart = subMesh._subIndexBufferStart;
+        var subIndexBufferCount = subMesh._subIndexBufferCount;
+        var boneIndicesList = subMesh._boneIndicesList;
         var drawCount = LoadModelV05._readData.getUint16();
         subIndexBufferStart.length = drawCount;
         subIndexBufferCount.length = drawCount;
@@ -257,7 +255,7 @@ export class LoadModelV05 {
                 }
             }
         }
-        LoadModelV05._subMeshes.push(submesh);
+        LoadModelV05._subMeshes.push(subMesh);
         return true;
     }
 }

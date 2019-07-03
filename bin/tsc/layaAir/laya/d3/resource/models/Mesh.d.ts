@@ -37,6 +37,10 @@ export declare class Mesh extends Resource implements IClone {
      */
     readonly vertexCount: number;
     /**
+     * 获取索引个数。
+     */
+    readonly indexCount: number;
+    /**
      * 获取SubMesh的个数。
      * @return SubMesh的个数。
      */
@@ -59,9 +63,10 @@ export declare class Mesh extends Resource implements IClone {
      */
     protected _disposeResource(): void;
     /**
-     * @inheritDoc
+     * 根据获取子网格。
+     * @param index 索引。
      */
-    _getSubMesh(index: number): SubMesh;
+    getSubMesh(index: number): SubMesh;
     /**
      * 拷贝并填充位置数据至数组。
      * @param positions 位置数组。
@@ -156,6 +161,15 @@ export declare class Mesh extends Resource implements IClone {
     * @param boneWeights 骨骼权重。
     */
     setVertices(vertices: ArrayBuffer): void;
+    /**
+     * 拷贝并获取网格索引数据的副本。
+     */
+    getIndices(): Uint16Array;
+    /**
+     * 设置网格索引。
+     * @param indices
+     */
+    setIndices(indices: Uint16Array): void;
     /**
      * 克隆。
      * @param	destObject 克隆源。

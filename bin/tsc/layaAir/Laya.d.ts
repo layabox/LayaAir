@@ -65,3 +65,18 @@ export declare class Laya {
     /**@private */
     private static enableNative;
 }
+export declare var init: typeof Laya.init;
+export declare var stage: any;
+export declare var systemTimer: any;
+export declare var startTimer: any;
+export declare var physicsTimer: any;
+export declare var updateTimer: any;
+export declare var lateTimer: any;
+export declare var timer: any;
+export declare var loader: any;
+export declare var version: any;
+export declare var render: any;
+export declare var isWXOpenDataContext: any;
+export declare var isWXPosMsg: any;
+export declare var alertGlobalError: boolean;
+export declare var enableDebugPanel: typeof Laya.enableDebugPanel;

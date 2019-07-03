@@ -1,5 +1,5 @@
 import { ColliderShape } from "./ColliderShape";
-import { Physics } from "../Physics";
+import { Physics3D } from "../Physics3D";
 /**
  * <code>CompoundColliderShape</code> 类用于创建盒子形状碰撞器。
  */
@@ -12,16 +12,16 @@ export class CompoundColliderShape extends ColliderShape {
         /**@internal */
         this._childColliderShapes = [];
         this._type = ColliderShape.SHAPETYPES_COMPOUND;
-        this._nativeShape = new Physics._physics3D.btCompoundShape();
+        this._nativeShape = new Physics3D._physics3D.btCompoundShape();
     }
     /**
      * @internal
      */
     static __init__() {
-        CompoundColliderShape._nativeVector3One = new Physics._physics3D.btVector3(1, 1, 1);
-        CompoundColliderShape._nativeTransform = new Physics._physics3D.btTransform();
-        CompoundColliderShape._nativeOffset = new Physics._physics3D.btVector3(0, 0, 0);
-        CompoundColliderShape._nativRotation = new Physics._physics3D.btQuaternion(0, 0, 0, 1);
+        CompoundColliderShape._nativeVector3One = new Physics3D._physics3D.btVector3(1, 1, 1);
+        CompoundColliderShape._nativeTransform = new Physics3D._physics3D.btTransform();
+        CompoundColliderShape._nativeOffset = new Physics3D._physics3D.btVector3(0, 0, 0);
+        CompoundColliderShape._nativRotation = new Physics3D._physics3D.btQuaternion(0, 0, 0, 1);
     }
     /**
      * @internal

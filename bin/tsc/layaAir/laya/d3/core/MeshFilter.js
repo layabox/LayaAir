@@ -41,7 +41,7 @@ export class MeshFilter {
     _getMeshDefine(mesh) {
         var define;
         for (var i = 0, n = mesh._subMeshes.length; i < n; i++) {
-            var subMesh = mesh._getSubMesh(i);
+            var subMesh = mesh.getSubMesh(i);
             var vertexElements = subMesh._vertexBuffer._vertexDeclaration._vertexElements;
             for (var j = 0, m = vertexElements.length; j < m; j++) {
                 var vertexElement = vertexElements[j];

@@ -4,7 +4,7 @@ import { Physics3DUtils } from "../utils/Physics3DUtils";
 import { PhysicsUpdateList } from "./PhysicsUpdateList";
 import { CollisionTool } from "./CollisionTool";
 import { PhysicsComponent } from "./PhysicsComponent";
-import { Physics } from "./Physics";
+import { Physics3D } from "./Physics3D";
 /**
  * <code>Simulation</code> 类用于创建物理模拟器。
  */
@@ -17,9 +17,9 @@ export class PhysicsSimulation {
         /**@internal	*/
         this._gravity = new Vector3(0, -10, 0);
         /** @internal */
-        this._nativeVector3Zero = new Physics._physics3D.btVector3(0, 0, 0);
+        this._nativeVector3Zero = new Physics3D._physics3D.btVector3(0, 0, 0);
         /** @internal */
-        this._nativeDefaultQuaternion = new Physics._physics3D.btQuaternion(0, 0, 0, -1);
+        this._nativeDefaultQuaternion = new Physics3D._physics3D.btQuaternion(0, 0, 0, -1);
         /**@internal	*/
         this._collisionsUtils = new CollisionTool();
         /**@internal	*/
@@ -38,7 +38,7 @@ export class PhysicsSimulation {
         this.fixedTimeStep = 1.0 / 60.0;
         this.maxSubSteps = configuration.maxSubSteps;
         this.fixedTimeStep = configuration.fixedTimeStep;
-        var physics3D = Physics._physics3D;
+        var physics3D = Physics3D._physics3D;
         this._nativeCollisionConfiguration = new physics3D.btDefaultCollisionConfiguration();
         this._nativeDispatcher = new physics3D.btCollisionDispatcher(this._nativeCollisionConfiguration);
         this._nativeBroadphase = new physics3D.btDbvtBroadphase();
@@ -69,12 +69,12 @@ export class PhysicsSimulation {
     * @internal
     */
     static __init__() {
-        PhysicsSimulation._nativeTempVector30 = new Physics._physics3D.btVector3(0, 0, 0);
-        PhysicsSimulation._nativeTempVector31 = new Physics._physics3D.btVector3(0, 0, 0);
-        PhysicsSimulation._nativeTempQuaternion0 = new Physics._physics3D.btQuaternion(0, 0, 0, 1);
-        PhysicsSimulation._nativeTempQuaternion1 = new Physics._physics3D.btQuaternion(0, 0, 0, 1);
-        PhysicsSimulation._nativeTempTransform0 = new Physics._physics3D.btTransform();
-        PhysicsSimulation._nativeTempTransform1 = new Physics._physics3D.btTransform();
+        PhysicsSimulation._nativeTempVector30 = new Physics3D._physics3D.btVector3(0, 0, 0);
+        PhysicsSimulation._nativeTempVector31 = new Physics3D._physics3D.btVector3(0, 0, 0);
+        PhysicsSimulation._nativeTempQuaternion0 = new Physics3D._physics3D.btQuaternion(0, 0, 0, 1);
+        PhysicsSimulation._nativeTempQuaternion1 = new Physics3D._physics3D.btQuaternion(0, 0, 0, 1);
+        PhysicsSimulation._nativeTempTransform0 = new Physics3D._physics3D.btTransform();
+        PhysicsSimulation._nativeTempTransform1 = new Physics3D._physics3D.btTransform();
     }
     /**
      * 创建限制刚体运动的约束条件。
@@ -145,7 +145,7 @@ export class PhysicsSimulation {
      * @internal
      */
     _destroy() {
-        var physics3D = Physics._physics3D;
+        var physics3D = Physics3D._physics3D;
         if (this._nativeDiscreteDynamicsWorld) {
             physics3D.destroy(this._nativeDiscreteDynamicsWorld);
             this._nativeDiscreteDynamicsWorld = null;

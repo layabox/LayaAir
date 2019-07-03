@@ -1,5 +1,5 @@
-import { Rigidbody3D } from "../Rigidbody3D";
 import { Component } from "../../../components/Component";
+import { Rigidbody3D } from "../Rigidbody3D";
 /**
  * <code>ConstraintComponent</code> 类用于创建约束的父类。
  */
