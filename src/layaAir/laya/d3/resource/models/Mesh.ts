@@ -198,9 +198,9 @@ export class Mesh extends Resource implements IClone {
 			var uint8Vertices: Uint8Array = this._vertexBuffer.getUint8Data();
 			var floatVertices: Float32Array = this._vertexBuffer.getFloat32Data();
 			var uint8VerStr: number = verDec.vertexStride;
-			var floatVerStr: number = uint8VerStr/4;
+			var floatVerStr: number = uint8VerStr / 4;
 			var uint8EleOffset: number = element._offset;
-			var floatEleOffset: number = uint8EleOffset/4;
+			var floatEleOffset: number = uint8EleOffset / 4;
 
 			switch (elementUsage) {
 				case VertexMesh.MESH_TEXTURECOORDINATE0:
@@ -244,18 +244,20 @@ export class Mesh extends Resource implements IClone {
 
 
 	private _setVerticeElementData(data: Array<Vector2 | Vector3 | Vector4 | Color>, elementUsage: number): void {
-		var uint8Vertices: Uint8Array = this._vertexBuffer.getUint8Data();
-		var floatVertices: Float32Array = this._vertexBuffer.getFloat32Data();
 		var verDec: VertexDeclaration = this._vertexBuffer.vertexDeclaration;
-		var verStr: number = verDec.vertexStride;
 		var element: VertexElement = verDec.getVertexElementByUsage(elementUsage);
 		if (element) {
-			var elementOffset: number = element._offset;
+			var uint8Vertices: Uint8Array = this._vertexBuffer.getUint8Data();
+			var floatVertices: Float32Array = this._vertexBuffer.getFloat32Data();
+			var uint8VerStr: number = verDec.vertexStride;
+			var float8VerStr: number = uint8VerStr / 4;
+			var uint8EleOffset: number = element._offset;
+			var floatEleOffset: number = uint8EleOffset / 4;
 			switch (elementUsage) {
 				case VertexMesh.MESH_TEXTURECOORDINATE0:
 				case VertexMesh.MESH_TEXTURECOORDINATE1:
 					for (var i: number = 0, n: number = data.length; i < n; i++) {
-						var offset: number = verStr * i + elementOffset;
+						var offset: number = float8VerStr * i + floatEleOffset;
 						var vec2: Vector2 = <Vector2>data[i];
 						floatVertices[offset] = vec2.x;
 						floatVertices[offset + 1] = vec2.y;
@@ -264,7 +266,7 @@ export class Mesh extends Resource implements IClone {
 				case VertexMesh.MESH_POSITION0:
 				case VertexMesh.MESH_NORMAL0:
 					for (var i: number = 0, n: number = data.length; i < n; i++) {
-						var offset: number = verStr * i + elementOffset;
+						var offset: number = float8VerStr * i + floatEleOffset;
 						var vec3: Vector3 = <Vector3>data[i];
 						floatVertices[offset] = vec3.x;
 						floatVertices[offset + 1] = vec3.y;
@@ -274,7 +276,7 @@ export class Mesh extends Resource implements IClone {
 				case VertexMesh.MESH_TANGENT0:
 				case VertexMesh.MESH_BLENDWEIGHT0:
 					for (var i: number = 0, n: number = data.length; i < n; i++) {
-						var offset: number = verStr * i + elementOffset;
+						var offset: number = float8VerStr * i + floatEleOffset;
 						var vec4: Vector4 = <Vector4>data[i];
 						floatVertices[offset] = vec4.x;
 						floatVertices[offset + 1] = vec4.y;
@@ -284,7 +286,7 @@ export class Mesh extends Resource implements IClone {
 					break;
 				case VertexMesh.MESH_COLOR0:
 					for (var i: number = 0, n: number = data.length; i < n; i++) {
-						var offset: number = verStr * i + elementOffset;
+						var offset: number = float8VerStr * i + floatEleOffset;
 						var cor: Color = <Color>data[i];
 						floatVertices[offset] = cor.r;
 						floatVertices[offset + 1] = cor.g;
@@ -294,7 +296,7 @@ export class Mesh extends Resource implements IClone {
 					break;
 				case VertexMesh.MESH_BLENDINDICES0:
 					for (var i: number = 0, n: number = data.length; i < n; i++) {
-						var offset: number = verStr * i + elementOffset;
+						var offset: number = uint8VerStr * i + uint8EleOffset;
 						var vec4: Vector4 = <Vector4>data[i];
 						uint8Vertices[offset] = vec4.x;
 						uint8Vertices[offset + 1] = vec4.y;
