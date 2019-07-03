@@ -19,8 +19,6 @@ export declare class EmitterBase {
      * 发射粒子最小时间间隔
      */
     minEmissionTime: number;
-    /**@private */
-    _particleTemplate: ParticleTemplateBase;
     /**
      * 设置粒子粒子模板
      * @param particleTemplate 粒子模板

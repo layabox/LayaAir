@@ -1,9 +1,6 @@
-import { AnimationNodeContent } from "././AnimationNodeContent";
-import { AnimationContent } from "././AnimationContent";
-import { KeyFramesContent } from "././KeyFramesContent";
+import { KeyFramesContent } from "./KeyFramesContent";
 import { Resource } from "../resource/Resource";
 /**
- * @private
  * <code>AnimationTemplet</code> 类用于动画模板资源。
  */
 export declare class AnimationTemplet extends Resource {
@@ -40,20 +37,6 @@ export declare class AnimationTemplet extends Resource {
      * @private
      */
     private static _BezierInterpolation_7;
-    /**
-     * 加载动画模板。
-     * @param url 动画模板地址。
-     */
-    /**@private */
-    _aniVersion: string;
-    /**@private */
-    _anis: AnimationContent[];
-    /**@private */
-    _aniMap: any;
-    /**@private */
-    _publicExtData: ArrayBuffer;
-    /**@private */
-    _useParent: boolean;
     /**@private */
     protected unfixedCurrentFrameIndexes: Uint32Array;
     /**@private */
@@ -63,25 +46,12 @@ export declare class AnimationTemplet extends Resource {
     /**@private */
     protected unfixedLastAniIndex: number;
     /**@private */
-    _aniClassName: string;
-    /**@private */
-    _animationDatasCache: any;
-    _fullFrames: any[];
-    /**@private */
     private _boneCurKeyFrm;
     constructor();
     /**
      * @private
      */
     parse(data: ArrayBuffer): void;
-    /**
-     * @private
-     */
-    _calculateKeyFrame(node: AnimationNodeContent, keyframeCount: number, keyframeDataCount: number): void;
-    /**
-     * @inheritDoc
-     */
-    _onAsynLoaded(data: any, propertyParams?: any): void;
     getAnimationCount(): number;
     getAnimation(aniIndex: number): any;
     getAniDuration(aniIndex: number): number;

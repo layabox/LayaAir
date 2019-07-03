@@ -9,11 +9,6 @@ export declare class CallLater {
     private _map;
     /**@private */
     private _laters;
-    /**
-     * @private
-     * 帧循环处理函数。
-     */
-    _update(): void;
     /** @private */
     private _getHandler;
     /**

@@ -1,4 +1,4 @@
-import { SubmitBase } from "././SubmitBase";
+import { SubmitBase } from "./SubmitBase";
 import { Stat } from "../../utils/Stat";
 import { WebGLContext } from "../WebGLContext";
 import { BlendMode } from "../canvas/BlendMode";
@@ -48,7 +48,7 @@ export class SubmitTexture extends SubmitBase {
             this.shaderValue.texture = source;
             this.shaderValue.upload();
         }
-        gl.drawElements(WebGLContext.TRIANGLES, this._numEle, WebGLContext.UNSIGNED_SHORT, this._startIdx);
+        gl.drawElements(WebGL2RenderingContext.TRIANGLES, this._numEle, WebGL2RenderingContext.UNSIGNED_SHORT, this._startIdx);
         Stat.renderBatches++;
         Stat.trianglesFaces += this._numEle / 3;
         return 1;

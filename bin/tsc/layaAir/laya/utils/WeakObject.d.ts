@@ -14,10 +14,6 @@ export declare class WeakObject {
     private static _keys;
     /**@private */
     private static _maps;
-    /**@private */
-    _obj: any;
-    /**@private */
-    static __init__(): void;
     /**清理缓存，回收内存*/
     static clearCache(): void;
     constructor();

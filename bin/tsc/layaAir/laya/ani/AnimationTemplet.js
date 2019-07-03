@@ -1,23 +1,23 @@
-import { AnimationParser01 } from "././AnimationParser01";
-import { AnimationParser02 } from "././AnimationParser02";
+import { AnimationParser01 } from "./AnimationParser01";
+import { AnimationParser02 } from "./AnimationParser02";
 import { Resource } from "../resource/Resource";
 import { MathUtil } from "../maths/MathUtil";
 import { IAniLib } from "./AniLibPack";
 import { Byte } from "../utils/Byte";
 import { BezierLerp } from "./math/BezierLerp";
 /**
- * @private
  * <code>AnimationTemplet</code> 类用于动画模板资源。
  */
 export class AnimationTemplet extends Resource {
     constructor() {
         super();
-        /**@private */
+        /**@internal */
         this._anis = [];
-        /**@private */
+        /**@internal */
         this._aniMap = {};
         /**@private */
         this.unfixedLastAniIndex = -1;
+        /**@internal */
         this._fullFrames = null;
         /**@private */
         this._boneCurKeyFrm = []; // 记录每个骨骼当前在动画的第几帧。这个是为了去掉缓存的帧索引数据。TODO 其实这个应该放到skeleton中
@@ -96,7 +96,7 @@ export class AnimationTemplet extends Resource {
         AnimationParser01.parse(this, reader);
     }
     /**
-     * @private
+     * @internal
      */
     _calculateKeyFrame(node, keyframeCount, keyframeDataCount) {
         var keyFrames = node.keyFrame;
@@ -111,7 +111,7 @@ export class AnimationTemplet extends Resource {
         keyFrames.length--;
     }
     /**
-     * @inheritDoc
+     * @internal
      */
     //TODO:coverage
     _onAsynLoaded(data, propertyParams = null) {

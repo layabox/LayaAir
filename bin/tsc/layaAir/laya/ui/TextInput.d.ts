@@ -1,4 +1,4 @@
-import { Label } from "././Label";
+import { Label } from "./Label";
 import { AutoBitmap } from "./AutoBitmap";
 /**
  * 输入文本后调度。

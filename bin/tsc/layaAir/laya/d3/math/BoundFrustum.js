@@ -1,7 +1,7 @@
-import { Vector3 } from "././Vector3";
-import { Plane } from "././Plane";
-import { CollisionUtils } from "././CollisionUtils";
-import { ContainmentType } from "././ContainmentType";
+import { Vector3 } from "./Vector3";
+import { Plane } from "./Plane";
+import { CollisionUtils } from "./CollisionUtils";
+import { ContainmentType } from "./ContainmentType";
 /**
      * <code>BoundFrustum</code> 类用于创建锥截体。
      */
@@ -362,19 +362,19 @@ export class BoundFrustum {
         }
     }
 }
-/** @private */
+/** @internal */
 BoundFrustum._tempV30 = new Vector3();
-/** @private */
+/** @internal */
 BoundFrustum._tempV31 = new Vector3();
-/** @private */
+/** @internal */
 BoundFrustum._tempV32 = new Vector3();
-/** @private */
+/** @internal */
 BoundFrustum._tempV33 = new Vector3();
-/** @private */
+/** @internal */
 BoundFrustum._tempV34 = new Vector3();
-/** @private */
+/** @internal */
 BoundFrustum._tempV35 = new Vector3();
-/** @private */
+/** @internal */
 BoundFrustum._tempV36 = new Vector3();
-/** @private */
+/** @internal */
 BoundFrustum._tempV37 = new Vector3();

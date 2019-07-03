@@ -1,4 +1,4 @@
-import { EarcutNode } from "././EarcutNode";
+import { EarcutNode } from "./EarcutNode";
 export class Earcut {
     static earcut(data, holeIndices, dim) {
         dim = dim || 2;

@@ -1,6 +1,6 @@
-import { Box } from "././Box";
-import { IItem } from "././IItem";
-import { ISelect } from "././ISelect";
+import { Box } from "./Box";
+import { IItem } from "./IItem";
+import { ISelect } from "./ISelect";
 import { Sprite } from "../display/Sprite";
 import { Handler } from "../utils/Handler";
 /**
@@ -75,7 +75,6 @@ export declare class UIGroup extends Box implements IItem {
      * @param autoLayOut 是否自动布局，如果为true，会根据 <code>direction</code> 和 <code>space</code> 属性计算item的位置。
      */
     delItem(item: ISelect, autoLayOut?: boolean): void;
-    _afterInited(): void;
     /**
      * 初始化项对象们。
      */

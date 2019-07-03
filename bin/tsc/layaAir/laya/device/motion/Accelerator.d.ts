@@ -1,4 +1,4 @@
-import { AccelerationInfo } from "././AccelerationInfo";
+import { AccelerationInfo } from "./AccelerationInfo";
 import { EventDispatcher } from "../../events/EventDispatcher";
 /**
  * Accelerator.instance获取唯一的Accelerator引用，请勿调用构造函数。

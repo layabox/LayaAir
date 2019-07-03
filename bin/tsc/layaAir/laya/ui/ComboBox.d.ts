@@ -1,13 +1,13 @@
-import { UIComponent } from "././UIComponent";
-import { Button } from "././Button";
-import { List } from "././List";
-import { VScrollBar } from "././VScrollBar";
+import { UIComponent } from "./UIComponent";
+import { Button } from "./Button";
+import { List } from "./List";
+import { VScrollBar } from "./VScrollBar";
 import { Event } from "../events/Event";
 import { Handler } from "../utils/Handler";
 /**
  * 当用户更改 <code>ComboBox</code> 组件中的选定内容时调度。
  * @eventType laya.events.Event
- * @internal selectedIndex属性变化时调度。
+ * selectedIndex属性变化时调度。
  */
 /**
  * <code>ComboBox</code> 组件包含一个下拉列表，用户可以从该列表中选择单个值。

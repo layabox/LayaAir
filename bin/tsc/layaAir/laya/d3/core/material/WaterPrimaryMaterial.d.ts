@@ -1,6 +1,5 @@
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Vector4 } from "../../math/Vector4";
-import { ShaderDefines } from "../../shader/ShaderDefines";
 import { BaseMaterial } from "./BaseMaterial";
 /**
  * <code>WaterPrimaryMaterial</code> 类用于实现水材质。
@@ -15,12 +14,6 @@ export declare class WaterPrimaryMaterial extends BaseMaterial {
     static SHADERDEFINE_NORMALTEXTURE: number;
     /** 默认材质，禁止修改*/
     static defaultMaterial: WaterPrimaryMaterial;
-    /**@private */
-    static shaderDefines: ShaderDefines;
-    /**
-     * @private
-     */
-    static __initDefine__(): void;
     /**
      * 获取地平线颜色。
      * @return 地平线颜色。

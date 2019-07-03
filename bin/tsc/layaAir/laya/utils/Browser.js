@@ -3,7 +3,7 @@ import { ILaya } from "../../ILaya";
  * <code>Browser</code> 是浏览器代理类。封装浏览器及原生 js 提供的一些功能。
  */
 export class Browser {
-    /**@private */
+    /**@internal */
     static __init__() {
         var Laya = ILaya.Laya;
         if (Browser._window)

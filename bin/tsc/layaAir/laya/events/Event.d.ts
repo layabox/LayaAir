@@ -135,8 +135,6 @@ export declare class Event {
     target: Sprite;
     /** 事件当前冒泡对象。*/
     currentTarget: Sprite;
-    /** @private */
-    _stoped: boolean;
     /** 分配给触摸点的唯一标识号（作为 int）。*/
     touchId: number;
     /**键盘值*/

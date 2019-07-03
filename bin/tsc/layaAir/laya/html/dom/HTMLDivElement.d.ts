@@ -1,4 +1,3 @@
-import { HTMLDivParser } from "./HTMLDivParser";
 import { Sprite } from "../../display/Sprite";
 import { HTMLStyle } from "../utils/HTMLStyle";
 /**
@@ -38,8 +37,6 @@ import { HTMLStyle } from "../utils/HTMLStyle";
  * div.innerHTML = "<link type='text/css' href='html/test.css'/><a href='alink'>a</a><div style='width:130px;height:50px;color:#ff0000'>div</div><br/><span style='font-weight:bold;color:#ffffff;font-size:30px;stroke:2px;italic:true;'>span</span><span style='letter-spacing:5px'>span2</span><p>p</p><img src='res/boy.png'></img>";
  */
 export declare class HTMLDivElement extends Sprite {
-    /**@private */
-    _element: HTMLDivParser;
     /**@private */
     private _recList;
     /**@private */

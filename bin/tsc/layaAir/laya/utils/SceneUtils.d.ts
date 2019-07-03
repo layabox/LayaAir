@@ -8,8 +8,6 @@ export declare class SceneUtils {
     private static _parseWatchData;
     /**@private */
     private static _parseKeyWord;
-    /**@private */
-    static _sheet: any;
     /**
      * @private 根据字符串，返回函数表达式
      */
@@ -56,9 +54,6 @@ declare class InitTool {
     /**@private */
     private _initList;
     private _loadList;
-    /**@private */
-    _idMap: any[];
-    _scene: Scene;
     reset(): void;
     recover(): void;
     static create(): InitTool;

@@ -1,5 +1,5 @@
-import { AtlasGrid } from "././AtlasGrid";
-import { TextTexture } from "././TextTexture";
+import { AtlasGrid } from "./AtlasGrid";
+import { TextTexture } from "./TextTexture";
 import { ILaya } from "../../../ILaya";
 /**
  *  文字贴图的大图集。

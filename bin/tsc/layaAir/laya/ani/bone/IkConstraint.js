@@ -2,7 +2,7 @@ import { Matrix } from "../../maths/Matrix";
 import { Sprite } from "../../display/Sprite";
 import { ILaya } from "../../../ILaya";
 /**
- * @private
+ * @internal
  */
 export class IkConstraint {
     //TODO:coverage

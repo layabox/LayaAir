@@ -1,4 +1,4 @@
-import { BaseShape } from "././BaseShape";
+import { BaseShape } from "./BaseShape";
 import { BoundBox } from "../../../../math/BoundBox";
 import { Rand } from "../../../../math/Rand";
 import { Vector3 } from "../../../../math/Vector3";

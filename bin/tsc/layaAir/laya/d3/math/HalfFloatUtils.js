@@ -3,7 +3,7 @@
      */
 export class HalfFloatUtils {
     /**
-     * @private
+     * @internal
      */
     static __init__() {
         for (var i = 0; i < 256; ++i) {
@@ -100,19 +100,19 @@ export class HalfFloatUtils {
         return HalfFloatUtils._floatView[0];
     }
 }
-/**@private */
+/**@internal */
 HalfFloatUtils._buffer = new ArrayBuffer(4);
-/**@private */
+/**@internal */
 HalfFloatUtils._floatView = new Float32Array(HalfFloatUtils._buffer);
-/**@private */
+/**@internal */
 HalfFloatUtils._uint32View = new Uint32Array(HalfFloatUtils._buffer);
-/**@private */
+/**@internal */
 HalfFloatUtils._baseTable = new Uint32Array(512);
-/**@private */
+/**@internal */
 HalfFloatUtils._shiftTable = new Uint32Array(512);
-/**@private */
+/**@internal */
 HalfFloatUtils._mantissaTable = new Uint32Array(2048);
-/**@private */
+/**@internal */
 HalfFloatUtils._exponentTable = new Uint32Array(64);
-/**@private */
+/**@internal */
 HalfFloatUtils._offsetTable = new Uint32Array(64);

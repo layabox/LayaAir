@@ -1,4 +1,4 @@
-import { PerfHUD } from "././PerfHUD";
+import { PerfHUD } from "./PerfHUD";
 export class PerfData {
     constructor(id, color, name, scale) {
         this.scale = 1.0;

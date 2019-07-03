@@ -10,28 +10,28 @@ export class ColliderShape {
      * 创建一个新的 <code>ColliderShape</code> 实例。
      */
     constructor() {
-        /**@private */
+        /**@internal */
         this._scale = new Vector3(1, 1, 1);
-        /**@private */
+        /**@internal */
         this._centerMatrix = new Matrix4x4();
-        /**@private */
+        /**@internal */
         this._attatched = false;
-        /**@private */
+        /**@internal */
         this._indexInCompound = -1;
-        /**@private */
+        /**@internal */
         this._compoundParent = null;
-        /**@private */
+        /**@internal */
         this._attatchedCollisionObject = null;
-        /**@private */
+        /**@internal */
         this._referenceCount = 0;
-        /**@private */
+        /**@internal */
         this._localOffset = new Vector3(0, 0, 0);
-        /**@private */
+        /**@internal */
         this._localRotation = new Quaternion(0, 0, 0, 1);
         this.needsCustomCollisionCallback = false; //TODO:默认值,TODO:::::::::::::::::::::::::::::::
     }
     /**
-     * @private
+     * @internal
      */
     static __init__() {
         ColliderShape._nativeScale = new Physics._physics3D.btVector3(1, 1, 1);
@@ -40,7 +40,7 @@ export class ColliderShape {
         ColliderShape._nativeTransform0 = new Physics._physics3D.btTransform();
     }
     /**
-     * @private
+     * @internal
      */
     static _createAffineTransformation(trans, rot, outE) {
         var x = rot.x, y = rot.y, z = rot.z, w = rot.w, x2 = x + x, y2 = y + y, z2 = z + z;
@@ -103,7 +103,7 @@ export class ColliderShape {
             this._compoundParent._updateChildTransform(this);
     }
     /**
-     * @private
+     * @internal
      */
     _setScale(value) {
         if (this._compoundParent) { //TODO:待查,这里有问题
@@ -115,13 +115,13 @@ export class ColliderShape {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _addReference() {
         this._referenceCount++;
     }
     /**
-     * @private
+     * @internal
      */
     _removeReference() {
         this._referenceCount--;
@@ -158,7 +158,7 @@ export class ColliderShape {
         return null;
     }
     /**
-     * @private
+     * @internal
      */
     destroy() {
         if (this._nativeShape) {
@@ -167,27 +167,27 @@ export class ColliderShape {
         }
     }
 }
-/** @private */
+/** @internal */
 ColliderShape.SHAPEORIENTATION_UPX = 0;
-/** @private */
+/** @internal */
 ColliderShape.SHAPEORIENTATION_UPY = 1;
-/** @private */
+/** @internal */
 ColliderShape.SHAPEORIENTATION_UPZ = 2;
-/** @private */
+/** @internal */
 ColliderShape.SHAPETYPES_BOX = 0;
-/** @private */
+/** @internal */
 ColliderShape.SHAPETYPES_SPHERE = 1;
-/** @private */
+/** @internal */
 ColliderShape.SHAPETYPES_CYLINDER = 2;
-/** @private */
+/** @internal */
 ColliderShape.SHAPETYPES_CAPSULE = 3;
-/** @private */
+/** @internal */
 ColliderShape.SHAPETYPES_CONVEXHULL = 4;
-/** @private */
+/** @internal */
 ColliderShape.SHAPETYPES_COMPOUND = 5;
-/** @private */
+/** @internal */
 ColliderShape.SHAPETYPES_STATICPLANE = 6;
-/** @private */
+/** @internal */
 ColliderShape.SHAPETYPES_CONE = 7;
-/** @private */
+/** @internal */
 ColliderShape._tempVector30 = new Vector3();

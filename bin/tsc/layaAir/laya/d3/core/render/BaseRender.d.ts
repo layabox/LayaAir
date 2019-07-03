@@ -1,79 +1,17 @@
-import { RenderElement } from "././RenderElement";
-import { RenderContext3D } from "././RenderContext3D";
 import { Bounds } from "../Bounds";
-import { GeometryElement } from "../GeometryElement";
-import { RenderableSprite3D } from "../RenderableSprite3D";
-import { Transform3D } from "../Transform3D";
 import { BaseMaterial } from "../material/BaseMaterial";
 import { BoundsOctreeNode } from "../scene/BoundsOctreeNode";
 import { IOctreeObject } from "../scene/IOctreeObject";
-import { Scene3D } from "../scene/Scene3D";
-import { BoundFrustum } from "../../math/BoundFrustum";
-import { Vector3 } from "../../math/Vector3";
 import { Vector4 } from "../../math/Vector4";
-import { ShaderData } from "../../shader/ShaderData";
 import { EventDispatcher } from "../../../events/EventDispatcher";
 import { ISingletonElement } from "../../../resource/ISingletonElement";
 /**
  * <code>Render</code> 类用于渲染器的父类，抽象类不允许实例。
  */
 export declare class BaseRender extends EventDispatcher implements ISingletonElement, IOctreeObject {
-    /**@private */
-    static _tempBoundBoxCorners: Vector3[];
-    /**@private */
-    private static _uniqueIDCounter;
-    /**@private */
-    private _id;
-    /** @private */
-    private _lightmapScaleOffset;
-    /** @private */
-    private _lightmapIndex;
-    /** @private */
-    private _receiveShadow;
-    /** @private */
-    private _materialsInstance;
-    /** @private */
-    private _castShadow;
-    /** @private  [实现IListPool接口]*/
-    private _indexInList;
-    /** @private */
-    _indexInCastShadowList: number;
-    /** @private */
-    protected _bounds: Bounds;
-    /** @private */
-    protected _boundsChange: boolean;
-    /** @private */
-    _enable: boolean;
-    /** @private */
-    _shaderValues: ShaderData;
-    /** @private */
-    _sharedMaterials: BaseMaterial[];
-    /** @private */
-    _scene: Scene3D;
-    /** @private */
-    _owner: RenderableSprite3D;
-    /** @private */
-    _renderElements: RenderElement[];
-    /** @private */
-    _distanceForSort: number;
-    /**@private */
-    _visible: boolean;
-    /** @private */
-    _octreeNode: BoundsOctreeNode;
-    /** @private */
-    _indexInOctreeMotionList: number;
-    /** @private */
-    _updateMark: number;
-    /** @private */
-    _updateRenderType: number;
-    /** @private */
-    _isPartOfStaticBatch: boolean;
-    /** @private */
-    _staticBatch: GeometryElement;
+    _supportOctree: boolean;
     /**排序矫正值。*/
     sortingFudge: number;
-    /**@private	[NATIVE]*/
-    _cullingBufferIndex: number;
     /**
      * 获取唯一标识ID,通常用于识别。
      */
@@ -167,77 +105,27 @@ export declare class BaseRender extends EventDispatcher implements ISingletonEle
      */
     readonly isPartOfStaticBatch: boolean;
     /**
-     * @private
-     * 创建一个新的 <code>BaseRender</code> 实例。
-     */
-    constructor(owner: RenderableSprite3D);
-    /**
-     * @private
+     *
      */
     _getOctreeNode(): BoundsOctreeNode;
     /**
-     * @private
+     *
      */
     _setOctreeNode(value: BoundsOctreeNode): void;
     /**
-     * @private
+     *
      */
     _getIndexInMotionList(): number;
     /**
-     * @private
+     *
      */
     _setIndexInMotionList(value: number): void;
     /**
-     * @private
-     */
-    private _changeMaterialReference;
-    /**
-     * @private
-     */
-    private _getInstanceMaterial;
-    /**
-     * @private
-     */
-    _applyLightMapParams(): void;
-    /**
-     * @private
-     */
-    protected _onWorldMatNeedChange(flag: number): void;
-    /**
-     * @private
-     */
-    protected _calculateBoundingBox(): void;
-    /**
-     * @private [实现ISingletonElement接口]
+     *  [实现ISingletonElement接口]
      */
     _getIndexInList(): number;
     /**
-     * @private [实现ISingletonElement接口]
+     *  [实现ISingletonElement接口]
      */
     _setIndexInList(index: number): void;
-    /**
-     * @private
-     */
-    _setBelongScene(scene: Scene3D): void;
-    /**
-     * @private
-     * @param boundFrustum 如果boundFrustum为空则为摄像机不裁剪模式。
-     */
-    _needRender(boundFrustum: BoundFrustum): boolean;
-    /**
-     * @private
-     */
-    _renderUpdate(context: RenderContext3D, transform: Transform3D): void;
-    /**
-     * @private
-     */
-    _renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void;
-    /**
-     * @private
-     */
-    _revertBatchRenderUpdate(context: RenderContext3D): void;
-    /**
-     * @private
-     */
-    _destroy(): void;
 }

@@ -1,7 +1,4 @@
 import { Matrix } from "../../maths/Matrix";
-/**
- * @private
- */
 export declare class Transform {
     skX: number;
     skY: number;

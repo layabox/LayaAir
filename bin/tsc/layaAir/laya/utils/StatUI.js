@@ -1,5 +1,5 @@
-import { IStatRender } from "././IStatRender";
-import { Browser } from "././Browser";
+import { IStatRender } from "./IStatRender";
+import { Browser } from "./Browser";
 //import { Laya } from "./../../Laya";
 import { Sprite } from "../display/Sprite";
 import { Text } from "../display/Text";
@@ -15,8 +15,9 @@ import { ILaya } from "../../ILaya";
 export class StatUI extends IStatRender {
     constructor() {
         super(...arguments);
-        /**@private */
+        /**@internal */
         this._show = false;
+        /**@internal */
         this._useCanvas = false;
         this._height = 100;
         this._view = [];

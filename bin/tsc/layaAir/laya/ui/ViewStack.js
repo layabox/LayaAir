@@ -37,6 +37,7 @@ export class ViewStack extends Box {
         this.addChild(view);
         this.initItems();
     }
+    /**@internal */
     _afterInited() {
         this.initItems();
     }

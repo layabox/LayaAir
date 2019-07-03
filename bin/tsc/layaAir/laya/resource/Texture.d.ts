@@ -1,4 +1,4 @@
-import { Texture2D } from "././Texture2D";
+import { Texture2D } from "./Texture2D";
 import { EventDispatcher } from "../events/EventDispatcher";
 import { Handler } from "../utils/Handler";
 /**
@@ -29,8 +29,6 @@ export declare class Texture extends EventDispatcher {
     _uv: ArrayLike<number>;
     /**@private */
     private _referenceCount;
-    /** @private [NATIVE]*/
-    _nativeObj: any;
     /**@private 唯一ID*/
     $_GID: number;
     /**沿 X 轴偏移量。*/
@@ -72,22 +70,6 @@ export declare class Texture extends EventDispatcher {
      */
     static create(source: Texture2D | Texture, x: number, y: number, width: number, height: number, offsetX?: number, offsetY?: number, sourceWidth?: number, sourceHeight?: number): Texture;
     /**
-     * @private
-     * 根据指定资源和坐标、宽高、偏移量等创建 <code>Texture</code> 对象。
-     * @param	source 绘图资源 Texture2D 或者 Texture 对象。
-     * @param	x 起始绝对坐标 x 。
-     * @param	y 起始绝对坐标 y 。
-     * @param	width 宽绝对值。
-     * @param	height 高绝对值。
-     * @param	offsetX X 轴偏移量（可选）。
-     * @param	offsetY Y 轴偏移量（可选）。
-     * @param	sourceWidth 原始宽度，包括被裁剪的透明区域（可选）。
-     * @param	sourceHeight 原始高度，包括被裁剪的透明区域（可选）。
-     * @param	outTexture 返回的Texture对象。
-     * @return  <code>Texture</code> 对象。
-     */
-    static _create(source: Texture2D | Texture, x: number, y: number, width: number, height: number, offsetX?: number, offsetY?: number, sourceWidth?: number, sourceHeight?: number, outTexture?: Texture): Texture;
-    /**
      * 截取Texture的一部分区域，生成新的Texture，如果两个区域没有相交，则返回null。
      * @param	texture	目标Texture。
      * @param	x		相对于目标Texture的x位置。
@@ -122,18 +104,6 @@ export declare class Texture extends EventDispatcher {
      * @param	uv UV 数据信息。
      */
     constructor(bitmap?: Texture2D | Texture, uv?: ArrayLike<number>, sourceWidth?: number, sourceHeight?: number);
-    /**
-     * @private
-     */
-    _addReference(): void;
-    /**
-     * @private
-     */
-    _removeReference(): void;
-    /**
-     * @private
-     */
-    _getSource(cb?: Function): any;
     /**
      * @private
      */

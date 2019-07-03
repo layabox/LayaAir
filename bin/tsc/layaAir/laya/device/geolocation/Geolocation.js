@@ -1,4 +1,4 @@
-import { GeolocationInfo } from "././GeolocationInfo";
+import { GeolocationInfo } from "./GeolocationInfo";
 import { ILaya } from "../../../ILaya";
 /**
  * 使用前可用<code>supported</code>查看浏览器支持。

@@ -5,7 +5,6 @@ import { Texture2D } from "../../resource/Texture2D";
  * <code>HeightMap</code> 类用于实现高度图数据。
  */
 export declare class HeightMap {
-    /** @private */
     private static _tempRay;
     /**
      * 从网格精灵生成高度图。
@@ -22,17 +21,11 @@ export declare class HeightMap {
      * @param maxHeight 最大高度。
      */
     static createFromImage(texture: Texture2D, minHeight: number, maxHeight: number): HeightMap;
-    /** @private */
     private static _getPosition;
-    /** @private */
     private _datas;
-    /** @private */
     private _w;
-    /** @private */
     private _h;
-    /** @private */
     private _minHeight;
-    /** @private */
     private _maxHeight;
     /**
      * 获取宽度。
@@ -62,8 +55,6 @@ export declare class HeightMap {
      * @param maxHeight 最大高度。
      */
     constructor(width: number, height: number, minHeight: number, maxHeight: number);
-    /** @private */
-    private _inBounds;
     /**
      * 获取高度。
      * @param row 列数。

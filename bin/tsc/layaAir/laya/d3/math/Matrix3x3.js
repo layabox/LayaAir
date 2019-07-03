@@ -1,4 +1,4 @@
-import { Vector3 } from "././Vector3";
+import { Vector3 } from "./Vector3";
 /**
  * <code>Matrix3x3</code> 类用于创建3x3矩阵。
  */
@@ -311,9 +311,9 @@ export class Matrix3x3 {
 }
 /**默认矩阵,禁止修改*/
 Matrix3x3.DEFAULT = new Matrix3x3();
-/** @private */
+/** @internal */
 Matrix3x3._tempV30 = new Vector3();
-/** @private */
+/** @internal */
 Matrix3x3._tempV31 = new Vector3();
-/** @private */
+/** @internal */
 Matrix3x3._tempV32 = new Vector3();

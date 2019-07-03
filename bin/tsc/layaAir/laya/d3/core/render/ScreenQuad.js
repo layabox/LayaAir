@@ -4,7 +4,6 @@ import { VertexDeclaration } from "../../graphics/VertexDeclaration";
 import { VertexElement } from "../../graphics/VertexElement";
 import { VertexElementFormat } from "../../graphics/VertexElementFormat";
 import { Resource } from "../../../resource/Resource";
-import { WebGLContext } from "../../../webgl/WebGLContext";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Stat } from "../../../utils/Stat";
 /**
@@ -16,45 +15,45 @@ export class ScreenQuad extends Resource {
      */
     constructor() {
         super();
-        /** @private */
+        /** @internal */
         this._bufferState = new BufferState();
-        /** @private */
+        /** @internal */
         this._bufferStateInvertUV = new BufferState();
-        this._vertexBuffer = new VertexBuffer3D(16 * 4, WebGLContext.STATIC_DRAW, false);
+        this._vertexBuffer = new VertexBuffer3D(16 * 4, WebGL2RenderingContext.STATIC_DRAW, false);
         this._vertexBuffer.vertexDeclaration = ScreenQuad._vertexDeclaration;
-        this._vertexBuffer.setData(ScreenQuad._vertices);
+        this._vertexBuffer.setData(ScreenQuad._vertices.buffer);
         this._bufferState.bind();
         this._bufferState.applyVertexBuffer(this._vertexBuffer);
         this._bufferState.unBind();
-        this._vertexBufferInvertUV = new VertexBuffer3D(16 * 4, WebGLContext.STATIC_DRAW, false);
+        this._vertexBufferInvertUV = new VertexBuffer3D(16 * 4, WebGL2RenderingContext.STATIC_DRAW, false);
         this._vertexBufferInvertUV.vertexDeclaration = ScreenQuad._vertexDeclaration;
-        this._vertexBufferInvertUV.setData(ScreenQuad._verticesInvertUV);
+        this._vertexBufferInvertUV.setData(ScreenQuad._verticesInvertUV.buffer);
         this._bufferStateInvertUV.bind();
         this._bufferStateInvertUV.applyVertexBuffer(this._vertexBufferInvertUV);
         this._bufferStateInvertUV.unBind();
         this._setGPUMemory(this._vertexBuffer._byteLength + this._vertexBufferInvertUV._byteLength);
     }
     /**
-     * @private
+     * @internal
      */
     static __init__() {
         ScreenQuad.instance = new ScreenQuad();
         ScreenQuad.instance.lock = true;
     }
     /**
-     * @private
+     * @internal
      */
     render() {
         this._bufferState.bind();
-        LayaGL.instance.drawArrays(WebGLContext.TRIANGLE_STRIP, 0, 4);
+        LayaGL.instance.drawArrays(WebGL2RenderingContext.TRIANGLE_STRIP, 0, 4);
         Stat.renderBatches++;
     }
     /**
-     * @private
+     * @internal
      */
     renderInvertUV() {
         this._bufferStateInvertUV.bind();
-        LayaGL.instance.drawArrays(WebGLContext.TRIANGLE_STRIP, 0, 4);
+        LayaGL.instance.drawArrays(WebGL2RenderingContext.TRIANGLE_STRIP, 0, 4);
         Stat.renderBatches++;
     }
     /**
@@ -69,11 +68,11 @@ export class ScreenQuad extends Resource {
         this._setGPUMemory(0);
     }
 }
-/** @private */
+/** @internal */
 ScreenQuad.SCREENQUAD_POSITION_UV = 0;
-/** @private */
+/** @internal */
 ScreenQuad._vertexDeclaration = new VertexDeclaration(16, [new VertexElement(0, VertexElementFormat.Vector4, ScreenQuad.SCREENQUAD_POSITION_UV)]);
-/** @private */
+/** @internal */
 ScreenQuad._vertices = new Float32Array([1, 1, 1, 0, 1, -1, 1, 1, -1, 1, 0, 0, -1, -1, 0, 1]);
-/** @private */
+/** @internal */
 ScreenQuad._verticesInvertUV = new Float32Array([1, 1, 1, 1, 1, -1, 1, 0, -1, 1, 0, 1, -1, -1, 0, 0]);

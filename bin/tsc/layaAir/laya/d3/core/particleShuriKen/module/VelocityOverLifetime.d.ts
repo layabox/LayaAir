@@ -1,11 +1,9 @@
-import { GradientVelocity } from "././GradientVelocity";
+import { GradientVelocity } from "./GradientVelocity";
 import { IClone } from "../../IClone";
 /**
  * <code>VelocityOverLifetime</code> 类用于粒子的生命周期速度。
  */
 export declare class VelocityOverLifetime implements IClone {
-    /**@private */
-    private _velocity;
     /**是否启用*/
     enbale: boolean;
     /**速度空间,0为local,1为world。*/

@@ -1,4 +1,4 @@
-import { ColliderShape } from "././ColliderShape";
+import { ColliderShape } from "./ColliderShape";
 import { Physics } from "../Physics";
 /**
  * <code>MeshColliderShape</code> 类用于创建网格碰撞器。
@@ -9,9 +9,7 @@ export class MeshColliderShape extends ColliderShape {
      */
     constructor() {
         super();
-        /**@private */
         this._mesh = null;
-        /**@private */
         this._convex = false;
     }
     /**

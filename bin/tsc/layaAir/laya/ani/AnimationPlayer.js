@@ -1,4 +1,4 @@
-import { AnimationState } from "././AnimationState";
+import { AnimationState } from "./AnimationState";
 import { Stat } from "../utils/Stat";
 import { Event } from "../events/Event";
 import { EventDispatcher } from "../events/EventDispatcher";
@@ -220,7 +220,7 @@ export class AnimationPlayer extends EventDispatcher {
         return this._destroyed;
     }
     /**
-     * @private
+     * @internal
      */
     _onTempletLoadedComputeFullKeyframeIndices(cachePlayRate, cacheFrameRate, templet) {
         if (this._templet === templet && this._cachePlayRate === cachePlayRate && this._cacheFrameRate === cacheFrameRate)
@@ -311,7 +311,7 @@ export class AnimationPlayer extends EventDispatcher {
         this._currentAnimationClipIndex = -1; //动画结束	
     }
     /**
-     * @private
+     * @internal
      */
     _update(elapsedTime) {
         if (this._currentAnimationClipIndex === -1 || this._paused || !this._templet /*|| !_templet.loaded*/) //动画停止或暂停，不更新
@@ -362,7 +362,7 @@ export class AnimationPlayer extends EventDispatcher {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _destroy() {
         this.offAll();

@@ -13,13 +13,13 @@ export class StaticBatchManager {
         this._batchRenderElementPool = [];
     }
     /**
-     * @private
+     * @internal
      */
     static _registerManager(manager) {
         StaticBatchManager._managers.push(manager);
     }
     /**
-     * @private
+     * @internal
      */
     static _addToStaticBatchQueue(sprite3D, renderableSprite3D) {
         if (sprite3D instanceof RenderableSprite3D && sprite3D.isStatic)
@@ -55,7 +55,7 @@ export class StaticBatchManager {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _partition(items, left, right) {
         var pivot = items[Math.floor((right + left) / 2)];
@@ -79,7 +79,7 @@ export class StaticBatchManager {
         return left;
     }
     /**
-     * @private
+     * @internal
      */
     _quickSort(items, left, right) {
         if (items.length > 1) {
@@ -92,47 +92,47 @@ export class StaticBatchManager {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _compare(left, right) {
         throw "StaticBatch:must override this function.";
     }
     /**
-     * @private
+     * @internal
      */
     _initStaticBatchs(rootSprite) {
         throw "StaticBatch:must override this function.";
     }
     /**
-     * @private
+     * @internal
      */
     _getBatchRenderElementFromPool() {
         throw "StaticBatch:must override this function.";
     }
     /**
-     * @private
+     * @internal
      */
     _addBatchSprite(renderableSprite3D) {
         this._initBatchSprites.push(renderableSprite3D);
     }
     /**
-     * @private
+     * @internal
      */
     _clear() {
         this._batchRenderElementPoolIndex = 0;
     }
     /**
-     * @private
+     * @internal
      */
     _garbageCollection() {
         throw "StaticBatchManager: must override it.";
     }
     /**
-     * @private
+     * @internal
      */
     dispose() {
         this._staticBatches = null;
     }
 }
-/** @private [只读]*/
+/** @internal [只读]*/
 StaticBatchManager._managers = [];

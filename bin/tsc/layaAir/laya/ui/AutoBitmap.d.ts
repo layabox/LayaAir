@@ -17,8 +17,7 @@ export declare class AutoBitmap extends Graphics {
     private _sizeGrid;
     /**@private */
     protected _isChanged: boolean;
-    /**@private */
-    _offset: any[];
+    uv: number[];
     /**@inheritDoc */
     destroy(): void;
     /**

@@ -1,7 +1,7 @@
 import { Pool } from "../../utils/Pool";
 /**
  * 绘制带九宫格信息的图片
- * @private
+ * @internal
  */
 export class Draw9GridTexture {
     constructor() {

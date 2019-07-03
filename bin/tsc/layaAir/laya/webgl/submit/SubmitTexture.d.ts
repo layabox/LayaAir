@@ -1,4 +1,4 @@
-import { SubmitBase } from "././SubmitBase";
+import { SubmitBase } from "./SubmitBase";
 import { Context } from "../../resource/Context";
 import { Value2D } from "../shader/d2/value/Value2D";
 import { Mesh2D } from "../utils/Mesh2D";

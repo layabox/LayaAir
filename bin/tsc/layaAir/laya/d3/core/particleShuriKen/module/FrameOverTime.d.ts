@@ -1,4 +1,4 @@
-import { GradientDataInt } from "././GradientDataInt";
+import { GradientDataInt } from "./GradientDataInt";
 import { IClone } from "../../IClone";
 /**
  * <code>FrameOverTime</code> 类用于创建时间帧。
@@ -30,19 +30,12 @@ export declare class FrameOverTime implements IClone {
      * @return 时间帧。
      */
     static createByRandomTwoOverTime(gradientFrameMin: GradientDataInt, gradientFrameMax: GradientDataInt): FrameOverTime;
-    /**@private */
     private _type;
-    /**@private */
     private _constant;
-    /**@private */
     private _overTime;
-    /**@private */
     private _constantMin;
-    /**@private */
     private _constantMax;
-    /**@private */
     private _overTimeMin;
-    /**@private */
     private _overTimeMax;
     /**
      *生命周期旋转类型,0常量模式，1曲线模式，2随机双常量模式，3随机双曲线模式。

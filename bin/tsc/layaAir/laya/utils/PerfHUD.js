@@ -1,4 +1,4 @@
-import { PerfData } from "././PerfData";
+import { PerfData } from "./PerfData";
 import { Sprite } from "../display/Sprite";
 import { SpriteConst } from "../display/SpriteConst";
 export class PerfHUD extends Sprite {

@@ -210,7 +210,7 @@ export class DialogManager extends Sprite {
         }
         return arr;
     }
-    /**@private 发生层次改变后，重新检查遮罩层是否正确*/
+    /**@internal 发生层次改变后，重新检查遮罩层是否正确*/
     _checkMask() {
         this.maskLayer.removeSelf();
         for (var i = this.numChildren - 1; i > -1; i--) {

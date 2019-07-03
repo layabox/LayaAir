@@ -1,4 +1,4 @@
-import { SubmitKey } from "././SubmitKey";
+import { SubmitKey } from "./SubmitKey";
 import { Stat } from "../../utils/Stat";
 import { WebGLContext } from "../WebGLContext";
 import { BlendMode } from "../canvas/BlendMode";
@@ -6,7 +6,9 @@ import { CONST3D2D } from "../utils/CONST3D2D";
 export class SubmitTarget {
     constructor() {
         this.blendType = 0;
+        /**@internal */
         this._ref = 1;
+        /**@internal */
         this._key = new SubmitKey();
     }
     renderSubmit() {
@@ -19,14 +21,14 @@ export class SubmitTarget {
             this.blend();
             Stat.renderBatches++;
             Stat.trianglesFaces += this._numEle / 3;
-            WebGLContext.mainContext.drawElements(WebGLContext.TRIANGLES, this._numEle, WebGLContext.UNSIGNED_SHORT, this._startIdx);
+            WebGLContext.mainContext.drawElements(WebGL2RenderingContext.TRIANGLES, this._numEle, WebGL2RenderingContext.UNSIGNED_SHORT, this._startIdx);
         }
         return 1;
     }
     blend() {
         if (BlendMode.activeBlendFunction !== BlendMode.fns[this.blendType]) {
             var gl = WebGLContext.mainContext;
-            gl.enable(WebGLContext.BLEND);
+            gl.enable(WebGL2RenderingContext.BLEND);
             BlendMode.fns[this.blendType](gl);
             BlendMode.activeBlendFunction = BlendMode.fns[this.blendType];
         }

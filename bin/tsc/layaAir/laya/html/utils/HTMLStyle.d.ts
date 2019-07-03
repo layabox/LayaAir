@@ -1,5 +1,4 @@
 import { HTMLElement } from "../dom/HTMLElement";
-import { URL } from "../../net/URL";
 /**
  * @private
  */
@@ -46,8 +45,6 @@ export declare class HTMLStyle {
     protected static vAlign_Value: any;
     protected static _ALIGN: number;
     protected static _VALIGN: number;
-    /**@private */
-    _type: number;
     fontSize: number;
     family: string;
     color: string;
@@ -133,18 +130,12 @@ export declare class HTMLStyle {
      * @default false
      */
     italic: boolean;
-    /**@private */
-    _widthAuto(): boolean;
     /**@inheritDoc	 */
     widthed(sprite: any): boolean;
     /**
     * 设置如何处理元素内的空白。
     */
     whiteSpace: string;
-    /**
-     * @private
-     */
-    _calculation(type: string, value: string): boolean;
     /**
      * 宽度。
      */
@@ -170,8 +161,6 @@ export declare class HTMLStyle {
      */
     getLineElement(): boolean;
     setLineElement(value: boolean): void;
-    /**@private */
-    _enableLayout(): boolean;
     /**
      * 间距。
      */
@@ -203,11 +192,4 @@ export declare class HTMLStyle {
      * @return 样式列表。
      */
     static parseOneCSS(text: string, clipWord: string): any[];
-    /**
-     * 解析 CSS 样式文本。
-     * @param	text CSS 样式文本。
-     * @param	uri URL对象。
-     * @internal 此处需要再详细点注释。
-     */
-    static parseCSS(text: string, uri: URL): void;
 }

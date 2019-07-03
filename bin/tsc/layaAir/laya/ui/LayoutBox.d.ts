@@ -1,4 +1,4 @@
-import { Box } from "././Box";
+import { Box } from "./Box";
 import { Node } from "../display/Node";
 /**
  * <code>LayoutBox</code> 是一个布局容器类。

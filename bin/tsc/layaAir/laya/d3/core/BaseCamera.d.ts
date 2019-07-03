@@ -1,21 +1,17 @@
-import { Node } from "../../display/Node";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Vector4 } from "../math/Vector4";
 import { SkyRenderer } from "../resource/models/SkyRenderer";
 import { Shader3D } from "../shader/Shader3D";
-import { ShaderData } from "../shader/ShaderData";
-import { Sprite3D } from "././Sprite3D";
+import { Sprite3D } from "./Sprite3D";
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
  */
 export declare class BaseCamera extends Sprite3D {
-    /** @private */
-    private static _tempMatrix4x40;
+    static _tempMatrix4x40: Matrix4x4;
     static CAMERAPOS: number;
     static VIEWMATRIX: number;
     static PROJECTMATRIX: number;
     static VIEWPROJECTMATRIX: number;
-    static VPMATRIX_NO_TRANSLATE: number;
     static CAMERADIRECTION: number;
     static CAMERAUP: number;
     /**渲染模式,延迟光照渲染，暂未开放。*/
@@ -30,34 +26,20 @@ export declare class BaseCamera extends Sprite3D {
     static CLEARFLAG_DEPTHONLY: number;
     /**清除标记，不清除。*/
     static CLEARFLAG_NONE: number;
-    /** @private */
     protected static _invertYScaleMatrix: Matrix4x4;
-    /** @private */
     protected static _invertYProjectionMatrix: Matrix4x4;
-    /** @private */
     protected static _invertYProjectionViewMatrix: Matrix4x4;
-    /** @private 渲染顺序。*/
-    _renderingOrder: number;
-    /**@private 近裁剪面。*/
+    /** 近裁剪面。*/
     private _nearPlane;
-    /**@private 远裁剪面。*/
+    /** 远裁剪面。*/
     private _farPlane;
-    /**@private 视野。*/
+    /** 视野。*/
     private _fieldOfView;
-    /**@private 正交投影的垂直尺寸。*/
+    /** 正交投影的垂直尺寸。*/
     private _orthographicVerticalSize;
-    /**@private */
     private _skyRenderer;
-    /**@private */
     private _forward;
-    /**@private */
     private _up;
-    /**@private */
-    protected _orthographic: boolean;
-    /**@private 是否使用用户自定义投影矩阵，如果使用了用户投影矩阵，摄像机投影矩阵相关的参数改变则不改变投影矩阵的值，需调用ResetProjectionMatrix方法。*/
-    protected _useUserProjectionMatrix: boolean;
-    /** @private */
-    _shaderValues: ShaderData;
     /**清楚标记。*/
     clearFlag: number;
     /**摄像机的清除颜色,默认颜色为CornflowerBlue。*/
@@ -129,22 +111,6 @@ export declare class BaseCamera extends Sprite3D {
      */
     _sortCamerasByRenderingOrder(): void;
     /**
-     * @private
-     */
-    protected _calculateProjectionMatrix(): void;
-    /**
-     * @private
-     */
-    protected _onScreenSizeChanged(): void;
-    /**
-     * @private
-     */
-    _prepareCameraToRender(): void;
-    /**
-     * @private
-     */
-    _prepareCameraViewProject(vieMat: Matrix4x4, proMat: Matrix4x4, viewProject: Matrix4x4, vieProNoTraSca: Matrix4x4): void;
-    /**
      * 相机渲染。
      * @param	shader 着色器。
      * @param   replacementTag 着色器替换标记。
@@ -185,8 +151,4 @@ export declare class BaseCamera extends Sprite3D {
      * @inheritDoc
      */
     destroy(destroyChild?: boolean): void;
-    /**
-     * @private
-     */
-    protected _create(): Node;
 }

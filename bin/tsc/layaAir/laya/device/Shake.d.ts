@@ -2,7 +2,6 @@ import { EventDispatcher } from "../events/EventDispatcher";
 /**
  * Shake只能在支持此操作的设备上有效。
  *
- * @author Survivor
  */
 export declare class Shake extends EventDispatcher {
     private throushold;

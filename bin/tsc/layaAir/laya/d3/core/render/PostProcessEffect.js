@@ -8,7 +8,7 @@ export class PostProcessEffect {
     constructor() {
     }
     /**
-     * @private
+     * @internal
      */
     render(context) {
     }

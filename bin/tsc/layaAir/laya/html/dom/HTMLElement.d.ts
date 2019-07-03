@@ -1,8 +1,6 @@
 import { Graphics } from "../../display/Graphics";
 import { HTMLStyle } from "../utils/HTMLStyle";
-import { ILayout } from "../utils/ILayout";
 import { URL } from "../../net/URL";
-import { HTMLChar } from "../../utils/HTMLChar";
 export declare enum HTMLElementType {
     BASE = 0,
     IMAGE = 1
@@ -35,12 +33,6 @@ export declare class HTMLElement {
      * 重置
      */
     reset(): HTMLElement;
-    /**@private */
-    _getCSSStyle(): HTMLStyle;
-    /**@private */
-    _addChildsToLayout(out: ILayout[]): boolean;
-    /**@private */
-    _addToLayout(out: ILayout[]): void;
     id: string;
     repaint(recreate?: boolean): void;
     parentRepaint(recreate?: boolean): void;
@@ -61,14 +53,10 @@ export declare class HTMLElement {
      */
     destroyChildren(): void;
     readonly style: HTMLStyle;
-    _getWords(): HTMLChar[];
-    _isChar(): boolean;
-    _layoutLater(): void;
     x: number;
     y: number;
     width: number;
     height: number;
-    _setAttributes(name: string, value: string): void;
     href: string;
     formatURL(url: string): string;
     color: string;

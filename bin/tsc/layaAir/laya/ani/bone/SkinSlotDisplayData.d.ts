@@ -1,8 +1,5 @@
-import { Transform } from "././Transform";
+import { Transform } from "./Transform";
 import { Texture } from "../../resource/Texture";
-/**
- * @private
- */
 export declare class SkinSlotDisplayData {
     name: string;
     attachmentName: string;

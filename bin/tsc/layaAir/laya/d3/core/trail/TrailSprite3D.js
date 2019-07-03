@@ -11,7 +11,7 @@ import { Loader } from "../../../net/Loader";
  */
 export class TrailSprite3D extends RenderableSprite3D {
     /**
-     * @private
+     * @internal
      */
     static __init__() {
         TrailSprite3D.shaderDefines = new ShaderDefines(RenderableSprite3D.shaderDefines);
@@ -130,7 +130,7 @@ export class TrailSprite3D extends RenderableSprite3D {
         this._geometryFilter = null;
     }
     /**
-     * @private
+     * @internal
      */
     _create() {
         return new TrailSprite3D();

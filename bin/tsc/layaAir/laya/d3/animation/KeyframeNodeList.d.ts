@@ -3,7 +3,6 @@ import { KeyframeNode } from "./KeyframeNode";
  * <code>KeyframeNodeList</code> 类用于创建KeyframeNode节点队列。
  */
 export declare class KeyframeNodeList {
-    /**@private */
     private _nodes;
     /**
      *	获取节点个数。

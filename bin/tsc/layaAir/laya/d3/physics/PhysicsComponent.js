@@ -25,27 +25,27 @@ export class PhysicsComponent extends Component {
      */
     constructor(collisionGroup, canCollideWith) {
         super();
-        /** @private */
+        /** @internal */
         this._restitution = 0.0;
-        /** @private */
+        /** @internal */
         this._friction = 0.5;
-        /** @private */
+        /** @internal */
         this._rollingFriction = 0.0;
-        /** @private */
+        /** @internal */
         this._ccdMotionThreshold = 0.0;
-        /** @private */
+        /** @internal */
         this._ccdSweptSphereRadius = 0.0;
-        /** @private */
+        /** @internal */
         this._collisionGroup = Physics3DUtils.COLLISIONFILTERGROUP_DEFAULTFILTER;
-        /** @private */
+        /** @internal */
         this._canCollideWith = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER;
-        /** @private */
+        /** @internal */
         this._colliderShape = null;
-        /** @private */
+        /** @internal */
         this._transformFlag = 2147483647 /*int.MAX_VALUE*/;
-        /** @private */
+        /** @internal */
         this._enableProcessCollisions = true;
-        /** @private */
+        /** @internal */
         this._inPhysicUpdateListIndex = -1;
         /** 是否可以缩放Shape。 */
         this.canScaleShape = true;
@@ -54,14 +54,14 @@ export class PhysicsComponent extends Component {
         PhysicsComponent._physicObjectsMap[this.id] = this;
     }
     /**
-    * @private
+    * @internal
     */
     static __init__() {
         PhysicsComponent._nativeVector30 = new Physics._physics3D.btVector3(0, 0, 0);
         PhysicsComponent._nativeQuaternion0 = new Physics._physics3D.btQuaternion(0, 0, 0, 1);
     }
     /**
-     * @private
+     * @internal
      */
     static _createAffineTransformationArray(tranX, tranY, tranZ, rotX, rotY, rotZ, rotW, scale, outE) {
         var x2 = rotX + rotX, y2 = rotY + rotY, z2 = rotZ + rotZ;
@@ -85,7 +85,7 @@ export class PhysicsComponent extends Component {
         outE[15] = 1;
     }
     /**
-* @private
+* @internal
 */
     static _creatShape(shapeData) {
         var colliderShape;
@@ -122,7 +122,7 @@ export class PhysicsComponent extends Component {
         return colliderShape;
     }
     /**
-     * @private
+     * @internal
      */
     static physicVector3TransformQuat(source, qx, qy, qz, qw, out) {
         var x = source.x, y = source.y, z = source.z, ix = qw * x + qy * z - qz * y, iy = qw * y + qz * x - qx * z, iz = qw * z + qx * y - qy * x, iw = -qx * x - qy * y - qz * z;
@@ -131,7 +131,7 @@ export class PhysicsComponent extends Component {
         out.z = iz * qw + iw * -qz + ix * -qy - iy * -qx;
     }
     /**
-     * @private
+     * @internal
      */
     static physicQuaternionMultiply(lx, ly, lz, lw, right, out) {
         var rx = right.x;
@@ -331,7 +331,7 @@ export class PhysicsComponent extends Component {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _isValid() {
         return this._simulation && this._colliderShape && this._enabled;
@@ -346,7 +346,7 @@ export class PhysicsComponent extends Component {
         (data.ccdSweptSphereRadius != null) && (this.ccdSweptSphereRadius = data.ccdSweptSphereRadius);
     }
     /**
-     * @private
+     * @internal
      */
     _parseShape(shapesData) {
         var shapeCount = shapesData.length;
@@ -364,13 +364,13 @@ export class PhysicsComponent extends Component {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _onScaleChange(scale) {
         this._colliderShape._setScale(scale);
     }
     /**
-     * @private
+     * @internal
      */
     _setTransformFlag(type, value) {
         if (value)
@@ -379,29 +379,29 @@ export class PhysicsComponent extends Component {
             this._transformFlag &= ~type;
     }
     /**
-     * @private
+     * @internal
      */
     _getTransformFlag(type) {
         return (this._transformFlag & type) != 0;
     }
     /**
-     * @private
+     * @internal
      */
     _addToSimulation() {
     }
     /**
-     * @private
+     * @internal
      */
     _removeFromSimulation() {
     }
     /**
-     * 	@private
+     * 	@internal
      */
     _derivePhysicsTransformation(force) {
         this._innerDerivePhysicsTransformation(this._nativeColliderObject.getWorldTransform(), force);
     }
     /**
-     * 	@private
+     * 	@internal
      *	通过渲染矩阵更新物理矩阵。
      */
     _innerDerivePhysicsTransformation(physicTransformOut, force) {
@@ -443,7 +443,7 @@ export class PhysicsComponent extends Component {
         }
     }
     /**
-     * @private
+     * @internal
      * 通过物理矩阵更新渲染矩阵。
      */
     _updateTransformComponent(physicsTransform) {
@@ -506,7 +506,7 @@ export class PhysicsComponent extends Component {
         this._simulation = null;
     }
     /**
-     * @private
+     * @internal
      */
     _onShapeChange(colShape) {
         var btColObj = this._nativeColliderObject;
@@ -547,7 +547,7 @@ export class PhysicsComponent extends Component {
         this.owner.transform.off(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
     }
     /**
-     * @private
+     * @internal
      */
     _onTransformChanged(flag) {
         if (PhysicsComponent._addUpdateList) {
@@ -575,39 +575,39 @@ export class PhysicsComponent extends Component {
         (this._colliderShape) && (destPhysicsComponent.colliderShape = this._colliderShape.clone());
     }
 }
-/** @private */
+/** @internal */
 PhysicsComponent.ACTIVATIONSTATE_ACTIVE_TAG = 1;
-/** @private */
+/** @internal */
 PhysicsComponent.ACTIVATIONSTATE_ISLAND_SLEEPING = 2;
-/** @private */
+/** @internal */
 PhysicsComponent.ACTIVATIONSTATE_WANTS_DEACTIVATION = 3;
-/** @private */
+/** @internal */
 PhysicsComponent.ACTIVATIONSTATE_DISABLE_DEACTIVATION = 4;
-/** @private */
+/** @internal */
 PhysicsComponent.ACTIVATIONSTATE_DISABLE_SIMULATION = 5;
-/** @private */
+/** @internal */
 PhysicsComponent.COLLISIONFLAGS_STATIC_OBJECT = 1;
-/** @private */
+/** @internal */
 PhysicsComponent.COLLISIONFLAGS_KINEMATIC_OBJECT = 2;
-/** @private */
+/** @internal */
 PhysicsComponent.COLLISIONFLAGS_NO_CONTACT_RESPONSE = 4;
-/** @private */
+/** @internal */
 PhysicsComponent.COLLISIONFLAGS_CUSTOM_MATERIAL_CALLBACK = 8; //this allows per-triangle material (friction/restitution)
-/** @private */
+/** @internal */
 PhysicsComponent.COLLISIONFLAGS_CHARACTER_OBJECT = 16;
-/** @private */
+/** @internal */
 PhysicsComponent.COLLISIONFLAGS_DISABLE_VISUALIZE_OBJECT = 32; //disable debug drawing
-/** @private */
+/** @internal */
 PhysicsComponent.COLLISIONFLAGS_DISABLE_SPU_COLLISION_PROCESSING = 64; //disable parallel/SPU processing
-/**@private */
+/**@internal */
 PhysicsComponent._tempVector30 = new Vector3();
-/**@private */
+/**@internal */
 PhysicsComponent._tempQuaternion0 = new Quaternion();
-/**@private */
+/**@internal */
 PhysicsComponent._tempQuaternion1 = new Quaternion();
-/**@private */
+/**@internal */
 PhysicsComponent._tempMatrix4x40 = new Matrix4x4();
-/**@private */
+/**@internal */
 PhysicsComponent._physicObjectsMap = {};
-/** @private */
+/** @internal */
 PhysicsComponent._addUpdateList = true;

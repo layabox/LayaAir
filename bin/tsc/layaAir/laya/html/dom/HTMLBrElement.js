@@ -4,10 +4,10 @@ import { Pool } from "../../utils/Pool";
 import { IHtml } from "../utils/IHtml";
 import { ILaya } from "../../../ILaya";
 /**
- * @private
+ * @internal
  */
 export class HTMLBrElement {
-    /**@private */
+    /**@internal */
     _addToLayout(out) {
         out.push(this);
     }
@@ -26,7 +26,7 @@ export class HTMLBrElement {
     }
     set href(value) {
     }
-    /**@private */
+    /**@internal */
     //TODO:coverage
     _getCSSStyle() {
         if (!HTMLBrElement.brStyle) {

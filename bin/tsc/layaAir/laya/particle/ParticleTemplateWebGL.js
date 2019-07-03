@@ -1,5 +1,5 @@
-import { ParticleTemplateBase } from "././ParticleTemplateBase";
-import { ParticleData } from "././ParticleData";
+import { ParticleTemplateBase } from "./ParticleTemplateBase";
+import { ParticleData } from "./ParticleData";
 /**
  *  @private
  */
@@ -11,6 +11,7 @@ export class ParticleTemplateWebGL extends ParticleTemplateBase {
         this._firstNewElement = 0;
         this._firstFreeElement = 0;
         this._firstRetiredElement = 0;
+        /**@internal */
         this._currentTime = 0;
         this.settings = parSetting;
     }

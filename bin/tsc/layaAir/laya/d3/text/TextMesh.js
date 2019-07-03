@@ -49,9 +49,6 @@ export class TextMesh {
      */
     constructor() {
     }
-    /**
-     * @private
-     */
     _createVertexBuffer(charCount) {
         //var verDec:VertexDeclaration = vertexbu.vertexDeclaration;
         //var newVertices:Float32Array = new Float32Array(verticesCount * FLOATCOUNTPERVERTEX);
@@ -69,14 +66,8 @@ export class TextMesh {
         //_vertexUpdateFlag.push([2147483647/*int.MAX_VALUE*/, -2147483647/*int.MIN_VALUE*/]);//0:startUpdate,1:endUpdate
         //_bufferStates.push(bufferState);
     }
-    /**
-     * @private
-     */
     _resizeVertexBuffer(charCount) {
     }
-    /**
-     * @private
-     */
     _addChar() {
         //_vertexBuffer
     }

@@ -1,15 +1,11 @@
-import { FrameOverTime } from "././FrameOverTime";
-import { StartFrame } from "././StartFrame";
+import { FrameOverTime } from "./FrameOverTime";
+import { StartFrame } from "./StartFrame";
 import { IClone } from "../../IClone";
 import { Vector2 } from "../../../math/Vector2";
 /**
  * <code>TextureSheetAnimation</code> 类用于创建粒子帧动画。
  */
 export declare class TextureSheetAnimation implements IClone {
-    /**@private */
-    private _frame;
-    /**@private */
-    private _startFrame;
     /**纹理平铺。*/
     tiles: Vector2;
     /**类型,0为whole sheet、1为singal row。*/

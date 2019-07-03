@@ -14,7 +14,7 @@ export class Matrix {
      * @param ty	（可选）沿 y 轴平移每个点的距离。
      */
     constructor(a = 1, b = 0, c = 0, d = 1, tx = 0, ty = 0, nums = 0) {
-        /**@private 是否有旋转缩放操作*/
+        /**@internal 是否有旋转缩放操作*/
         this._bTransform = false;
         if (Matrix._createFun != null) {
             return Matrix._createFun(a, b, c, d, tx, ty, nums);
@@ -37,7 +37,7 @@ export class Matrix {
         this._bTransform = false;
         return this;
     }
-    /**@private */
+    /**@internal */
     _checkTransform() {
         return this._bTransform = (this.a !== 1 || this.b !== 0 || this.c !== 0 || this.d !== 1);
     }

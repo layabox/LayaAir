@@ -1,4 +1,4 @@
-import { TileAniSprite } from "././TileAniSprite";
+import { TileAniSprite } from "./TileAniSprite";
 import { Sprite } from "../display/Sprite";
 import { Point } from "../maths/Point";
 import { GridSprite } from "./GridSprite";
@@ -11,13 +11,14 @@ import { IMap } from "./IMap";
 export class MapLayer extends Sprite {
     constructor() {
         super(...arguments);
+        /**@internal */
         this._mapData = null;
         this._tileWidthHalf = 0;
         this._tileHeightHalf = 0;
         this._mapWidthHalf = 0;
         this._mapHeightHalf = 0;
         /**
-         * @private
+         * @internal
          */
         this._gridSpriteArray = [];
         this._objDic = null; //用来做字典，方便查询

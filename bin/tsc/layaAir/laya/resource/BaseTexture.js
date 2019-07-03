@@ -46,7 +46,7 @@ export class BaseTexture extends Bitmap {
     set wrapModeU(value) {
         if (this._wrapModeU !== value) {
             this._wrapModeU = value;
-            (this._width !== -1) && (this._setWarpMode(WebGLContext.TEXTURE_WRAP_S, value));
+            (this._width !== -1) && (this._setWarpMode(WebGL2RenderingContext.TEXTURE_WRAP_S, value));
         }
     }
     /**
@@ -61,7 +61,7 @@ export class BaseTexture extends Bitmap {
     set wrapModeV(value) {
         if (this._wrapModeV !== value) {
             this._wrapModeV = value;
-            (this._height !== -1) && (this._setWarpMode(WebGLContext.TEXTURE_WRAP_T, value));
+            (this._height !== -1) && (this._setWarpMode(WebGL2RenderingContext.TEXTURE_WRAP_T, value));
         }
     }
     /**
@@ -114,13 +114,13 @@ export class BaseTexture extends Bitmap {
         let gpu = LayaGL.layaGPUInstance;
         switch (this._format) {
             case BaseTexture.FORMAT_R8G8B8:
-                glFormat = WebGLContext.RGB;
+                glFormat = WebGL2RenderingContext.RGB;
                 break;
             case BaseTexture.FORMAT_R8G8B8A8:
-                glFormat = WebGLContext.RGBA;
+                glFormat = WebGL2RenderingContext.RGBA;
                 break;
             case BaseTexture.FORMAT_ALPHA8:
-                glFormat = WebGLContext.ALPHA;
+                glFormat = WebGL2RenderingContext.ALPHA;
                 break;
             case BaseTexture.FORMAT_DXT1:
                 if (gpu._compressedTextureS3tc)
@@ -178,24 +178,24 @@ export class BaseTexture extends Bitmap {
         switch (value) {
             case BaseTexture.FILTERMODE_POINT:
                 if (this._mipmap)
-                    gl.texParameteri(this._glTextureType, WebGLContext.TEXTURE_MIN_FILTER, WebGLContext.NEAREST_MIPMAP_NEAREST);
+                    gl.texParameteri(this._glTextureType, WebGL2RenderingContext.TEXTURE_MIN_FILTER, WebGL2RenderingContext.NEAREST_MIPMAP_NEAREST);
                 else
-                    gl.texParameteri(this._glTextureType, WebGLContext.TEXTURE_MIN_FILTER, WebGLContext.NEAREST);
-                gl.texParameteri(this._glTextureType, WebGLContext.TEXTURE_MAG_FILTER, WebGLContext.NEAREST);
+                    gl.texParameteri(this._glTextureType, WebGL2RenderingContext.TEXTURE_MIN_FILTER, WebGL2RenderingContext.NEAREST);
+                gl.texParameteri(this._glTextureType, WebGL2RenderingContext.TEXTURE_MAG_FILTER, WebGL2RenderingContext.NEAREST);
                 break;
             case BaseTexture.FILTERMODE_BILINEAR:
                 if (this._mipmap)
-                    gl.texParameteri(this._glTextureType, WebGLContext.TEXTURE_MIN_FILTER, WebGLContext.LINEAR_MIPMAP_NEAREST);
+                    gl.texParameteri(this._glTextureType, WebGL2RenderingContext.TEXTURE_MIN_FILTER, WebGL2RenderingContext.LINEAR_MIPMAP_NEAREST);
                 else
-                    gl.texParameteri(this._glTextureType, WebGLContext.TEXTURE_MIN_FILTER, WebGLContext.LINEAR);
-                gl.texParameteri(this._glTextureType, WebGLContext.TEXTURE_MAG_FILTER, WebGLContext.LINEAR);
+                    gl.texParameteri(this._glTextureType, WebGL2RenderingContext.TEXTURE_MIN_FILTER, WebGL2RenderingContext.LINEAR);
+                gl.texParameteri(this._glTextureType, WebGL2RenderingContext.TEXTURE_MAG_FILTER, WebGL2RenderingContext.LINEAR);
                 break;
             case BaseTexture.FILTERMODE_TRILINEAR:
                 if (this._mipmap)
-                    gl.texParameteri(this._glTextureType, WebGLContext.TEXTURE_MIN_FILTER, WebGLContext.LINEAR_MIPMAP_LINEAR);
+                    gl.texParameteri(this._glTextureType, WebGL2RenderingContext.TEXTURE_MIN_FILTER, WebGL2RenderingContext.LINEAR_MIPMAP_LINEAR);
                 else
-                    gl.texParameteri(this._glTextureType, WebGLContext.TEXTURE_MIN_FILTER, WebGLContext.LINEAR);
-                gl.texParameteri(this._glTextureType, WebGLContext.TEXTURE_MAG_FILTER, WebGLContext.LINEAR);
+                    gl.texParameteri(this._glTextureType, WebGL2RenderingContext.TEXTURE_MIN_FILTER, WebGL2RenderingContext.LINEAR);
+                gl.texParameteri(this._glTextureType, WebGL2RenderingContext.TEXTURE_MAG_FILTER, WebGL2RenderingContext.LINEAR);
                 break;
             default:
                 throw new Error("BaseTexture:unknown filterMode value.");
@@ -210,15 +210,15 @@ export class BaseTexture extends Bitmap {
         if (this._isPot(this._width) && this._isPot(this._height)) {
             switch (mode) {
                 case BaseTexture.WARPMODE_REPEAT:
-                    gl.texParameteri(this._glTextureType, orientation, WebGLContext.REPEAT);
+                    gl.texParameteri(this._glTextureType, orientation, WebGL2RenderingContext.REPEAT);
                     break;
                 case BaseTexture.WARPMODE_CLAMP:
-                    gl.texParameteri(this._glTextureType, orientation, WebGLContext.CLAMP_TO_EDGE);
+                    gl.texParameteri(this._glTextureType, orientation, WebGL2RenderingContext.CLAMP_TO_EDGE);
                     break;
             }
         }
         else {
-            gl.texParameteri(this._glTextureType, orientation, WebGLContext.CLAMP_TO_EDGE);
+            gl.texParameteri(this._glTextureType, orientation, WebGL2RenderingContext.CLAMP_TO_EDGE);
         }
     }
     /**
@@ -245,6 +245,7 @@ export class BaseTexture extends Bitmap {
         }
     }
     /**
+     * @internal
      * 获取纹理资源。
      */
     /*override*/ _getSource() {
@@ -261,9 +262,7 @@ export class BaseTexture extends Bitmap {
             LayaGL.instance.generateMipmap(this._glTextureType);
     }
 }
-/** @private */
 BaseTexture.WARPMODE_REPEAT = 0;
-/** @private */
 BaseTexture.WARPMODE_CLAMP = 1;
 /**寻址模式_重复。*/
 BaseTexture.FILTERMODE_POINT = 0;

@@ -1,11 +1,10 @@
-import { SkyMesh } from "././SkyMesh";
+import { SkyMesh } from "./SkyMesh";
 import { BufferState } from "../../core/BufferState";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
 import { VertexPositionTexture0 } from "../../graphics/Vertex/VertexPositionTexture0";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Stat } from "../../../utils/Stat";
-import { WebGLContext } from "../../../webgl/WebGLContext";
 /**
  * <code>SkyDome</code> 类用于创建天空盒。
  */
@@ -57,10 +56,10 @@ export class SkyDome extends SkyMesh {
                 }
             }
         }
-        this._vertexBuffer = new VertexBuffer3D(vertices.length * 4, WebGLContext.STATIC_DRAW, false);
+        this._vertexBuffer = new VertexBuffer3D(vertices.length * 4, WebGL2RenderingContext.STATIC_DRAW, false);
         this._vertexBuffer.vertexDeclaration = vertexDeclaration;
-        this._indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, indices.length, WebGLContext.STATIC_DRAW, false);
-        this._vertexBuffer.setData(vertices);
+        this._indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, indices.length, WebGL2RenderingContext.STATIC_DRAW, false);
+        this._vertexBuffer.setData(vertices.buffer);
         this._indexBuffer.setData(indices);
         var bufferState = new BufferState();
         bufferState.bind();
@@ -70,7 +69,7 @@ export class SkyDome extends SkyMesh {
         this._bufferState = bufferState;
     }
     /**
-     * @private
+     * @internal
      */
     static __init__() {
         SkyDome.instance = new SkyDome(); //TODO:移植为标准Mesh后需要加锁
@@ -89,10 +88,10 @@ export class SkyDome extends SkyMesh {
     }
     /*override*/ _render(state) {
         var indexCount = this._indexBuffer.indexCount;
-        LayaGL.instance.drawElements(WebGLContext.TRIANGLES, indexCount, WebGLContext.UNSIGNED_SHORT, 0);
+        LayaGL.instance.drawElements(WebGL2RenderingContext.TRIANGLES, indexCount, WebGL2RenderingContext.UNSIGNED_SHORT, 0);
         Stat.trianglesFaces += indexCount / 3;
         Stat.renderBatches++;
     }
 }
-/**@private */
+/**@internal */
 SkyDome._radius = 1;

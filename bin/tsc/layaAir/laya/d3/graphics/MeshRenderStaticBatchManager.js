@@ -1,10 +1,10 @@
 import { BatchMark } from "../core/render/BatchMark";
 import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement";
-import { StaticBatchManager } from "././StaticBatchManager";
-import { SubMeshStaticBatch } from "././SubMeshStaticBatch";
+import { StaticBatchManager } from "./StaticBatchManager";
+import { SubMeshStaticBatch } from "./SubMeshStaticBatch";
 import { VertexMesh } from "./Vertex/VertexMesh";
 /**
- * @private
+ * @internal
  * <code>MeshSprite3DStaticBatchManager</code> 类用于网格精灵静态批处理管理。
  */
 export class MeshRenderStaticBatchManager extends StaticBatchManager {
@@ -13,7 +13,7 @@ export class MeshRenderStaticBatchManager extends StaticBatchManager {
      */
     constructor() {
         super();
-        /**@private */
+        /**@internal */
         this._opaqueBatchMarks = [];
         this._updateCountMark = 0;
     }
@@ -30,7 +30,7 @@ export class MeshRenderStaticBatchManager extends StaticBatchManager {
             if (receiveShadowOffset === 0) {
                 var materialOffset = lRender.sharedMaterial.id - rRender.sharedMaterial.id; //多维子材质以第一个材质排序
                 if (materialOffset === 0) {
-                    var verDec = leftGeo._vertexBuffers[0].vertexDeclaration.id - rightGeo._vertexBuffers[0].vertexDeclaration.id; //TODO:以第一个Buffer为主,后期是否修改VB机制
+                    var verDec = leftGeo._vertexBuffer.vertexDeclaration.id - rightGeo._vertexBuffer.vertexDeclaration.id;
                     if (verDec === 0) {
                         return rightGeo._indexBuffer.indexCount - leftGeo._indexBuffer.indexCount; //根据三角面排序
                     }
@@ -63,7 +63,7 @@ export class MeshRenderStaticBatchManager extends StaticBatchManager {
         return renderElement;
     }
     /**
-     * @private
+     * @internal
      */
     _getStaticBatch(rootOwner, number) {
         var key = rootOwner ? rootOwner.id : 0;
@@ -107,7 +107,7 @@ export class MeshRenderStaticBatchManager extends StaticBatchManager {
         this._initBatchSprites.length = 0;
     }
     /**
-     * @private
+     * @internal
      */
     _destroyRenderSprite(sprite) {
         var staticBatch = sprite._render._staticBatch;
@@ -154,7 +154,7 @@ export class MeshRenderStaticBatchManager extends StaticBatchManager {
         }
     }
     /**
-     * @private
+     * @internal
      */
     getBatchOpaquaMark(lightMapIndex, receiveShadow, materialID, staticBatchID) {
         var receiveShadowIndex = receiveShadow ? 1 : 0;
@@ -164,7 +164,7 @@ export class MeshRenderStaticBatchManager extends StaticBatchManager {
         return (staMaterialMarks[staticBatchID]) || (staMaterialMarks[staticBatchID] = new BatchMark);
     }
 }
-/** @private */
+/** @internal */
 MeshRenderStaticBatchManager._verDec = VertexMesh.getVertexDeclaration("POSITION,NORMAL,COLOR,UV,UV1,TANGENT");
-/** @private */
+/** @internal */
 MeshRenderStaticBatchManager.instance = new MeshRenderStaticBatchManager();

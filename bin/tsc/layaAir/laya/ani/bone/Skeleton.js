@@ -1,6 +1,6 @@
-import { IkConstraint } from "././IkConstraint";
-import { PathConstraint } from "././PathConstraint";
-import { TfConstraint } from "././TfConstraint";
+import { IkConstraint } from "./IkConstraint";
+import { PathConstraint } from "./PathConstraint";
+import { TfConstraint } from "./TfConstraint";
 import { AnimationPlayer } from "../AnimationPlayer";
 import { GraphicsAni } from "../GraphicsAni";
 import { Sprite } from "../../display/Sprite";
@@ -41,7 +41,6 @@ export class Skeleton extends Sprite {
         super();
         this._boneMatrixArray = []; //当前骨骼动画的最终结果数据
         this._lastTime = 0; //上次的帧时间
-        this._currAniName = null;
         this._currAniIndex = -1;
         this._pause = true;
         /** @private */
@@ -557,8 +556,6 @@ export class Skeleton extends Sprite {
         //变形动画作用器
         var tDeformAniArr = this._templet.deformAniArr;
         var tDeformAniData;
-        var tDeformSlotData;
-        var tDeformSlotDisplayData;
         if (tDeformAniArr && tDeformAniArr.length > 0) {
             if (this._lastAniClipIndex != this._aniClipIndex) {
                 this._lastAniClipIndex = this._aniClipIndex;

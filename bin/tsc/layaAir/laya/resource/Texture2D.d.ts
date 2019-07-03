@@ -13,14 +13,6 @@ export declare class Texture2D extends BaseTexture {
     /**纯黑色纹理。*/
     static blackTexture: Texture2D;
     /**
-     * @private
-     */
-    static __init__(): void;
-    /**
-     * @inheritDoc
-     */
-    static _parse(data: any, propertyParams?: any, constructParams?: any[]): Texture2D;
-    /**
      * 加载Texture2D。
      * @param url Texture2D地址。
      * @param complete 完成回掉。
@@ -73,10 +65,6 @@ export declare class Texture2D extends BaseTexture {
      * @private
      */
     private _pharsePVR;
-    /**
-     * @private
-     */
-    _upLoadCompressedTexImage2D(data: ArrayBuffer, width: number, height: number, miplevelCount: number, dataOffset: number, imageSizeOffset: number): void;
     /**
      * 通过图片源填充纹理,可为HTMLImageElement、HTMLCanvasElement、HTMLVideoElement、ImageBitmap、ImageData,
      * 设置之后纹理宽高可能会发生变化。

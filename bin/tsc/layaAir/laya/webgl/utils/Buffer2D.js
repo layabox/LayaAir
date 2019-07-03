@@ -1,7 +1,6 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { RenderInfo } from "../../renders/RenderInfo";
 import { BaseShader } from "../shader/BaseShader";
-import { WebGLContext } from "../WebGLContext";
 import { Buffer } from "./Buffer";
 export class Buffer2D extends Buffer {
     constructor() {
@@ -234,9 +233,9 @@ export class Buffer2D extends Buffer {
     upload() {
         var scuess = this._bind_upload();
         LayaGL.instance.bindBuffer(this._bufferType, null);
-        if (this._bufferType == WebGLContext.ARRAY_BUFFER)
+        if (this._bufferType == WebGL2RenderingContext.ARRAY_BUFFER)
             Buffer._bindedVertexBuffer = null;
-        if (this._bufferType == WebGLContext.ELEMENT_ARRAY_BUFFER)
+        if (this._bufferType == WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER)
             Buffer._bindedIndexBuffer = null;
         BaseShader.activeShader = null;
         return scuess;
@@ -245,9 +244,9 @@ export class Buffer2D extends Buffer {
     subUpload(offset = 0, dataStart = 0, dataLength = 0) {
         var scuess = this._bind_subUpload();
         LayaGL.instance.bindBuffer(this._bufferType, null);
-        if (this._bufferType == WebGLContext.ARRAY_BUFFER)
+        if (this._bufferType == WebGL2RenderingContext.ARRAY_BUFFER)
             Buffer._bindedVertexBuffer = null;
-        if (this._bufferType == WebGLContext.ELEMENT_ARRAY_BUFFER)
+        if (this._bufferType == WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER)
             Buffer._bindedIndexBuffer = null;
         BaseShader.activeShader = null;
         return scuess;

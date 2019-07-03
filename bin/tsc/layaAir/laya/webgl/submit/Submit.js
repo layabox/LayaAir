@@ -2,7 +2,7 @@ import { Stat } from "../../utils/Stat";
 import { BlendMode } from "../canvas/BlendMode";
 import { CONST3D2D } from "../utils/CONST3D2D";
 import { WebGLContext } from "../WebGLContext";
-import { SubmitBase } from "././SubmitBase";
+import { SubmitBase } from "./SubmitBase";
 export class Submit extends SubmitBase {
     constructor(renderType = SubmitBase.TYPE_2D) {
         super(renderType);
@@ -27,7 +27,7 @@ export class Submit extends SubmitBase {
             this._blendFn(gl);
             BlendMode.activeBlendFunction = this._blendFn;
         }
-        gl.drawElements(WebGLContext.TRIANGLES, this._numEle, WebGLContext.UNSIGNED_SHORT, this._startIdx);
+        gl.drawElements(WebGL2RenderingContext.TRIANGLES, this._numEle, WebGL2RenderingContext.UNSIGNED_SHORT, this._startIdx);
         Stat.renderBatches++;
         Stat.trianglesFaces += this._numEle / 3;
         return 1;

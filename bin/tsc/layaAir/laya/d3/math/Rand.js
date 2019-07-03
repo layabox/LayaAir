@@ -7,7 +7,7 @@ export class Rand {
      * @param	seed  32位无符号整型随机种子。
      */
     constructor(seed) {
-        /**@private */
+        /**@internal */
         this._temp = new Uint32Array(1);
         /**获取随机种子。*/
         this.seeds = new Uint32Array(4);

@@ -9,11 +9,11 @@ export class BaseShape {
      */
     constructor() {
     }
-    /**@private */
+    /**@internal */
     _getShapeBoundBox(boundBox) {
         throw new Error("BaseShape: must override it.");
     }
-    /**@private */
+    /**@internal */
     _getSpeedBoundBox(boundBox) {
         throw new Error("BaseShape: must override it.");
     }
@@ -26,7 +26,7 @@ export class BaseShape {
         throw new Error("BaseShape: must override it.");
     }
     /**
-     * @private
+     * @internal
      */
     _calculateProceduralBounds(boundBox, emitterPosScale, minMaxBounds) {
         this._getShapeBoundBox(boundBox);

@@ -1,4 +1,4 @@
-import { Resource } from "././Resource";
+import { Resource } from "./Resource";
 /**
      * @private
      * <code>Bitmap</code> 图片资源类。
@@ -25,7 +25,7 @@ export class Bitmap extends Resource {
         this._height = -1;
     }
     /**
-     * @private
+     * @internal
      * 获取纹理资源。
      */
     //TODO:coverage

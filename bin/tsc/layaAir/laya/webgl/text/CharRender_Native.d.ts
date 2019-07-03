@@ -1,4 +1,4 @@
-import { CharRenderInfo } from "././CharRenderInfo";
+import { CharRenderInfo } from "./CharRenderInfo";
 import { ICharRender } from "./ICharRender";
 export declare class CharRender_Native extends ICharRender {
     private lastFont;

@@ -1,5 +1,5 @@
-import { FrameOverTime } from "././FrameOverTime";
-import { StartFrame } from "././StartFrame";
+import { FrameOverTime } from "./FrameOverTime";
+import { StartFrame } from "./StartFrame";
 import { Vector2 } from "../../../math/Vector2";
 /**
  * <code>TextureSheetAnimation</code> 类用于创建粒子帧动画。

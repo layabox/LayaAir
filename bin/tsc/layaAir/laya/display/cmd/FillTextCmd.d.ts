@@ -6,8 +6,6 @@ import { WordText } from "../../utils/WordText";
 export declare class FillTextCmd {
     static ID: string;
     private _text;
-    /**@private */
-    _textIsWorldText: boolean;
     /**
      * 开始绘制文本的 x 坐标位置（相对于画布）。
      */

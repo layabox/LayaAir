@@ -1,4 +1,4 @@
-import { SoundChannel } from "././SoundChannel";
+import { SoundChannel } from "./SoundChannel";
 import { Handler } from "../utils/Handler";
 /**
  * <code>SoundManager</code> 是一个声音管理类。提供了对背景音乐、音效的播放控制方法。

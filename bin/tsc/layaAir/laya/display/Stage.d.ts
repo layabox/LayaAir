@@ -1,5 +1,5 @@
-import { Sprite } from "././Sprite";
-import { Node } from "././Node";
+import { Sprite } from "./Sprite";
+import { Node } from "./Node";
 import { Matrix } from "../maths/Matrix";
 import { Point } from "../maths/Point";
 import { Context } from "../resource/Context";
@@ -96,7 +96,6 @@ export declare class Stage extends Sprite {
     renderingEnabled: boolean;
     /**是否启用屏幕适配，可以适配后，在某个时候关闭屏幕适配，防止某些操作导致的屏幕意外改变*/
     screenAdaptationEnabled: boolean;
-    /**@private */
     _canvasTransform: Matrix;
     /**@private */
     private _screenMode;
@@ -122,20 +121,12 @@ export declare class Stage extends Sprite {
     private _isFocused;
     /**@private */
     private _isVisibility;
-    /**@private webgl Color*/
-    _wgColor: any[];
-    /**@private */
-    _scene3Ds: any[];
     /**@private */
     private _globalRepaintSet;
     /**@private */
     private _globalRepaintGet;
     /**@private */
     static _dbgSprite: Sprite;
-    /**@private */
-    _3dUI: Sprite[];
-    /**@private */
-    _curUIBase: Sprite;
     /**使用物理分辨率作为canvas大小，会改进渲染效果，但是会降低性能*/
     useRetinalCanvas: boolean;
     /**场景类，引擎中只有一个stage实例，此实例可以通过Laya.stage访问。*/
@@ -228,8 +219,6 @@ export declare class Stage extends Sprite {
     repaint(type?: number): void;
     /**@inheritDoc */
     parentRepaint(type?: number): void;
-    /**@private */
-    _loop(): boolean;
     /**@private */
     getFrameTm(): number;
     /**@private */

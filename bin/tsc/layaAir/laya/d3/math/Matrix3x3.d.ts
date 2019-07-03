@@ -1,6 +1,6 @@
-import { Vector3 } from "././Vector3";
-import { Vector2 } from "././Vector2";
-import { Matrix4x4 } from "././Matrix4x4";
+import { Vector3 } from "./Vector3";
+import { Vector2 } from "./Vector2";
+import { Matrix4x4 } from "./Matrix4x4";
 import { IClone } from "../core/IClone";
 /**
  * <code>Matrix3x3</code> 类用于创建3x3矩阵。
@@ -8,12 +8,6 @@ import { IClone } from "../core/IClone";
 export declare class Matrix3x3 implements IClone {
     /**默认矩阵,禁止修改*/
     static DEFAULT: Matrix3x3;
-    /** @private */
-    private static _tempV30;
-    /** @private */
-    private static _tempV31;
-    /** @private */
-    private static _tempV32;
     /**
      * 根据指定平移生成3x3矩阵
      * @param	tra 平移

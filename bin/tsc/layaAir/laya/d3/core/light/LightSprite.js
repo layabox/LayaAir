@@ -159,7 +159,7 @@ export class LightSprite extends Sprite3D {
         return false;
     }
     /**
-     * @private
+     * @internal
      */
     _create() {
         return new LightSprite();

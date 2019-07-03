@@ -1,6 +1,6 @@
-import { PixelLineFilter } from "././PixelLineFilter";
-import { PixelLineRenderer } from "././PixelLineRenderer";
-import { PixelLineMaterial } from "././PixelLineMaterial";
+import { PixelLineFilter } from "./PixelLineFilter";
+import { PixelLineRenderer } from "./PixelLineRenderer";
+import { PixelLineMaterial } from "./PixelLineMaterial";
 import { RenderableSprite3D } from "../RenderableSprite3D";
 import { RenderElement } from "../render/RenderElement";
 /**
@@ -139,7 +139,7 @@ export class PixelLineSprite3D extends RenderableSprite3D {
         this._geometryFilter._lineCount = 0;
     }
     /**
-     * @private
+     * @internal
      */
     _create() {
         return new PixelLineSprite3D();

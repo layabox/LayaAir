@@ -1,5 +1,5 @@
-import { Sprite } from "././Sprite";
-import { BitmapFont } from "././BitmapFont";
+import { Sprite } from "./Sprite";
+import { BitmapFont } from "./BitmapFont";
 import { SpriteStyle } from "./css/SpriteStyle";
 import { TextStyle } from "./css/TextStyle";
 import { Point } from "../maths/Point";
@@ -146,12 +146,6 @@ export declare class Text extends Sprite {
     /**@private */
     protected _valign: string;
     /**@private */
-    _fontSize: number;
-    /**@private */
-    _font: string;
-    /**@private */
-    _color: string;
-    /**@private */
     private _singleCharRender;
     /**
      * <p>overflow 指定文本超出文本域后的行为。其值为"hidden"、"visible"和"scroll"之一。</p>
@@ -184,11 +178,6 @@ export declare class Text extends Sprite {
     /**@inheritDoc */
     destroy(destroyChild?: boolean): void;
     /**
-     * @private
-     * @inheritDoc
-     */
-    _getBoundPointsM(ifRotate?: boolean): any[];
-    /**
      * @inheritDoc
      */
     getGraphicBounds(realSize?: boolean): Rectangle;
@@ -196,10 +185,6 @@ export declare class Text extends Sprite {
      * @inheritDoc
      */
     /*override*/ width: number;
-    /**
-     * @private
-     */
-    _getCSSStyle(): TextStyle;
     /**
      * @inheritDoc
      */

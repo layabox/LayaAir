@@ -1,7 +1,6 @@
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Vector4 } from "../../math/Vector4";
-import { ShaderDefines } from "../../shader/ShaderDefines";
-import { BaseMaterial } from "././BaseMaterial";
+import { BaseMaterial } from "./BaseMaterial";
 /**
  * <code>UnlitMaterial</code> 类用于实现不受光照影响的材质。
  */
@@ -28,86 +27,9 @@ export declare class UnlitMaterial extends BaseMaterial {
     static DEPTH_WRITE: number;
     /** 默认材质，禁止修改*/
     static defaultMaterial: UnlitMaterial;
-    /**@private */
-    static shaderDefines: ShaderDefines;
-    /**
-     * @private
-     */
-    static __initDefine__(): void;
-    /**@private */
     private _albedoColor;
-    /**@private */
     private _albedoIntensity;
-    /**@private */
     private _enableVertexColor;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _ColorR: number;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _ColorG: number;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _ColorB: number;
-    /**@private */
-    /**
-    * @private
-    */
-    _ColorA: number;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _AlbedoIntensity: number;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _MainTex_STX: number;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _MainTex_STY: number;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _MainTex_STZ: number;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _MainTex_STW: number;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _Cutoff: number;
     /**
      * 获取反照率颜色R分量。
      * @return 反照率颜色R分量。

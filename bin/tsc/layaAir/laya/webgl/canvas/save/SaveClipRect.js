@@ -1,4 +1,4 @@
-import { SaveBase } from "././SaveBase";
+import { SaveBase } from "./SaveBase";
 import { Matrix } from "../../../maths/Matrix";
 import { Rectangle } from "../../../maths/Rectangle";
 export class SaveClipRect {
@@ -7,6 +7,7 @@ export class SaveClipRect {
         //private var _transedClipInfo:Array = new Array(6);
         this._globalClipMatrix = new Matrix();
         this._clipInfoID = -1;
+        /**@internal */
         this._clipRect = new Rectangle();
         this.incache = false;
     }

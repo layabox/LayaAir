@@ -1,7 +1,6 @@
-import { BoundsOctreeNode } from "././BoundsOctreeNode";
+import { BoundsOctreeNode } from "./BoundsOctreeNode";
 import { Bounds } from "../Bounds";
 /**
- * @private
  * <code>IOctreeObject</code> 类用于实现八叉树物体规范。
  */
 export interface IOctreeObject {

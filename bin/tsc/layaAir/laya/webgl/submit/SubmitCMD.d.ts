@@ -1,12 +1,8 @@
-import { ISubmit } from "././ISubmit";
-import { SubmitKey } from "././SubmitKey";
+import { ISubmit } from "./ISubmit";
 export declare class SubmitCMD implements ISubmit {
     static POOL: any;
     fun: Function;
-    _this: any;
     args: any[];
-    _ref: number;
-    _key: SubmitKey;
     constructor();
     renderSubmit(): number;
     getRenderType(): number;

@@ -7,11 +7,9 @@ export class AnimatorControllerLayer {
      * 创建一个 <code>AnimatorControllerLayer</code> 实例。
      */
     constructor(name) {
-        /**@private */
         this._defaultState = null;
-        /**@private */
         this._referenceCount = 0;
-        /**@private */
+        /**@internal */
         this._statesMap = {};
         /**	激活时是否自动播放*/
         this.playOnWake = true;
@@ -46,31 +44,27 @@ export class AnimatorControllerLayer {
         this._defaultState = value;
         this._statesMap[value.name] = value;
     }
-    /**
-     * @private
-     */
     _removeClip(clipStateInfos, statesMap, index, state) {
         var clip = state._clip;
+        var clipStateInfo = clipStateInfos[index];
         clipStateInfos.splice(index, 1);
         delete statesMap[state.name];
-        var clipStateInfo = clipStateInfos[index];
-        var frameNodes = clip._nodes;
-        var nodeOwners = clipStateInfo._nodeOwners;
         if (this._animator) {
+            var frameNodes = clip._nodes;
+            var nodeOwners = clipStateInfo._nodeOwners;
             clip._removeReference();
             for (var i = 0, n = frameNodes.count; i < n; i++)
                 this._animator._removeKeyframeNodeOwner(nodeOwners, frameNodes.getNodeByIndex(i));
         }
     }
     /**
-     * @private
+     *
      * [实现IReferenceCounter接口]
      */
     _getReferenceCount() {
         return this._referenceCount;
     }
     /**
-     * @private
      * [实现IReferenceCounter接口]
      */
     _addReference(count = 1) {
@@ -79,7 +73,6 @@ export class AnimatorControllerLayer {
         this._referenceCount += count;
     }
     /**
-     * @private
      * [实现IReferenceCounter接口]
      */
     _removeReference(count = 1) {
@@ -88,14 +81,13 @@ export class AnimatorControllerLayer {
         this._referenceCount -= count;
     }
     /**
-     * @private
      * [实现IReferenceCounter接口]
      */
     _clearReference() {
         this._removeReference(-this._referenceCount);
     }
     /**
-     * @private
+     * @internal
      */
     getAnimatorState(name) {
         var state = this._statesMap[name];
@@ -138,7 +130,7 @@ export class AnimatorControllerLayer {
             this._removeClip(states, this._statesMap, index, state);
     }
     /**
-     * @private
+     * @internal
      */
     destroy() {
         this._clearReference();
@@ -169,7 +161,7 @@ export class AnimatorControllerLayer {
         return dest;
     }
 }
-/**@private */
+/**@internal */
 AnimatorControllerLayer.BLENDINGMODE_OVERRIDE = 0;
-/**@private */
+/**@internal */
 AnimatorControllerLayer.BLENDINGMODE_ADDTIVE = 1;

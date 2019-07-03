@@ -1,5 +1,5 @@
 import { Shader } from "../shader/Shader";
-import { ShaderNode } from "././ShaderNode";
+import { ShaderNode } from "./ShaderNode";
 /**
  * @private
  * <code>ShaderCompile</code> 类用于实现Shader编译。

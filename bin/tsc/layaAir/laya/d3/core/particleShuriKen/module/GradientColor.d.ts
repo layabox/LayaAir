@@ -27,19 +27,12 @@ export declare class GradientColor implements IClone {
      * @param maxGradient 最大渐变颜色。
      */
     static createByRandomTwoGradient(minGradient: Gradient, maxGradient: Gradient): GradientColor;
-    /**@private */
     private _type;
-    /**@private */
     private _constant;
-    /**@private */
     private _constantMin;
-    /**@private */
     private _constantMax;
-    /**@private */
     private _gradient;
-    /**@private */
     private _gradientMin;
-    /**@private */
     private _gradientMax;
     /**
      *生命周期颜色类型,0为固定颜色模式,1渐变模式,2为随机双固定颜色模式,3随机双渐变模式。

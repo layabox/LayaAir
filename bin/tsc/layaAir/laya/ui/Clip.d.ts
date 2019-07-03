@@ -1,5 +1,5 @@
-import { UIComponent } from "././UIComponent";
-import { AutoBitmap } from "././AutoBitmap";
+import { UIComponent } from "./UIComponent";
+import { AutoBitmap } from "./AutoBitmap";
 import { Texture } from "../resource/Texture";
 import { Handler } from "../utils/Handler";
 /**

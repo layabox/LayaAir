@@ -1,4 +1,4 @@
-import { Vector3 } from "././Vector3";
+import { Vector3 } from "./Vector3";
 /**
      * <code>Plane</code> 类用于创建平面。
      */
@@ -53,7 +53,7 @@ export class Plane {
         this.distance *= magnitude;
     }
 }
-/** @private */
+/** @internal */
 Plane._TEMPVec3 = new Vector3();
 /**平面与其他几何体相交类型*/
 Plane.PlaneIntersectionType_Back = 0;

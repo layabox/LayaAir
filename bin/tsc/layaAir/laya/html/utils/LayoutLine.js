@@ -1,4 +1,4 @@
-import { HTMLStyle } from "././HTMLStyle";
+import { HTMLStyle } from "./HTMLStyle";
 import { IHtml } from "./IHtml";
 /**
  * @private

@@ -1,5 +1,5 @@
-import { Event } from "././Event";
-import { TouchManager } from "././TouchManager";
+import { Event } from "./Event";
+import { TouchManager } from "./TouchManager";
 import { Input } from "../display/Input";
 import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
@@ -24,6 +24,7 @@ export class MouseManager {
         this.mouseDownTime = 0;
         /** 鼠标移动精度。*/
         this.mouseMoveAccuracy = 2;
+        /** @internal */
         this._event = new Event();
         /** @private 希望capture鼠标事件的对象。*/
         this._captureSp = null;

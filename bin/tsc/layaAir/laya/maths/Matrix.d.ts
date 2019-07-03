@@ -1,4 +1,4 @@
-import { Point } from "././Point";
+import { Point } from "./Point";
 /**
  * <p> <code>Matrix</code> 类表示一个转换矩阵，它确定如何将点从一个坐标空间映射到另一个坐标空间。</p>
  * <p>您可以对一个显示对象执行不同的图形转换，方法是设置 Matrix 对象的属性，将该 Matrix 对象应用于 Transform 对象的 matrix 属性，然后应用该 Transform 对象作为显示对象的 transform 属性。这些转换函数包括平移（x 和 y 重新定位）、旋转、缩放和倾斜。</p>
@@ -22,8 +22,6 @@ export declare class Matrix {
     tx: number;
     /**沿 y 轴平移每个点的距离。*/
     ty: number;
-    /**@private 是否有旋转缩放操作*/
-    _bTransform: boolean;
     /**
      * 使用指定参数创建新的 <code>Matrix</code> 对象。
      * @param a		（可选）缩放或旋转图像时影响像素沿 x 轴定位的值。
@@ -39,8 +37,6 @@ export declare class Matrix {
      * @return 返回当前矩形。
      */
     identity(): Matrix;
-    /**@private */
-    _checkTransform(): boolean;
     /**
      * 设置沿 x 、y 轴平移每个点的距离。
      * @param	x 沿 x 轴平移每个点的距离。

@@ -1,77 +1,12 @@
 import { EventDispatcher } from "../../events/EventDispatcher";
-import { AnimationTransform3D } from "../animation/AnimationTransform3D";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { Sprite3D } from "././Sprite3D";
+import { Sprite3D } from "./Sprite3D";
 /**
  * <code>Transform3D</code> 类用于实现3D变换。
  */
 export declare class Transform3D extends EventDispatcher {
-    /** @private */
-    private static _tempVector30;
-    /** @private */
-    private static _tempVector31;
-    /** @private */
-    private static _tempVector32;
-    /** @private */
-    private static _tempVector33;
-    /** @private */
-    private static _tempQuaternion0;
-    /** @private */
-    private static _tempMatrix0;
-    /**@private */
-    static TRANSFORM_LOCALQUATERNION: number;
-    /**@private */
-    static TRANSFORM_LOCALEULER: number;
-    /**@private */
-    static TRANSFORM_LOCALMATRIX: number;
-    /**@private */
-    static TRANSFORM_WORLDPOSITION: number;
-    /**@private */
-    static TRANSFORM_WORLDQUATERNION: number;
-    /**@private */
-    static TRANSFORM_WORLDSCALE: number;
-    /**@private */
-    static TRANSFORM_WORLDMATRIX: number;
-    /**@private */
-    static TRANSFORM_WORLDEULER: number;
-    /**@private */
-    private static _angleToRandin;
-    /** @private */
-    private _owner;
-    /** @private */
-    private _localPosition;
-    /** @private */
-    private _localRotation;
-    /** @private */
-    private _localScale;
-    /**@private */
-    private _localRotationEuler;
-    /** @private */
-    private _localMatrix;
-    /** @private */
-    private _position;
-    /** @private */
-    private _rotation;
-    /** @private */
-    private _scale;
-    /**@private */
-    private _rotationEuler;
-    /** @private */
-    private _worldMatrix;
-    /** @private */
-    private _children;
-    /** @private */
-    _parent: Transform3D;
-    /**@private */
-    _dummy: AnimationTransform3D;
-    /**@private */
-    _transformFlag: number;
-    /**
-     * @private
-     */
-    readonly _isFrontFaceInvert: boolean;
     /**
      * 获取所属精灵。
      */
@@ -293,46 +228,6 @@ export declare class Transform3D extends EventDispatcher {
      * @param owner 所属精灵。
      */
     constructor(owner: Sprite3D);
-    /**
-     * @private
-     */
-    _setTransformFlag(type: number, value: boolean): void;
-    /**
-     * @private
-     */
-    _getTransformFlag(type: number): boolean;
-    /**
-     * @private
-     */
-    _setParent(value: Transform3D): void;
-    /**
-     * @private
-     */
-    private _updateLocalMatrix;
-    /**
-     * @private
-     */
-    private _onWorldPositionRotationTransform;
-    /**
-     * @private
-     */
-    private _onWorldPositionScaleTransform;
-    /**
-     * @private
-     */
-    private _onWorldPositionTransform;
-    /**
-     * @private
-     */
-    private _onWorldRotationTransform;
-    /**
-     * @private
-     */
-    private _onWorldScaleTransform;
-    /**
-     * @private
-     */
-    _onWorldTransform(): void;
     /**
      * 平移变换。
      * @param 	translation 移动距离。

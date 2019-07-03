@@ -1,11 +1,8 @@
 import { Node } from "../../display/Node";
 import { Handler } from "../../utils/Handler";
-import { Animator } from "../component/Animator";
-import { Script3D } from "../component/Script3D";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { Avatar } from "././Avatar";
-import { Transform3D } from "././Transform3D";
+import { Transform3D } from "./Transform3D";
 import { ICreateResource } from "../../resource/ICreateResource";
 /**
  * <code>Sprite3D</code> 类用于实现3D精灵。
@@ -13,16 +10,6 @@ import { ICreateResource } from "../../resource/ICreateResource";
 export declare class Sprite3D extends Node implements ICreateResource {
     /**Hierarchy资源。*/
     static HIERARCHY: string;
-    /**@private 着色器变量名，世界矩阵。*/
-    static WORLDMATRIX: number;
-    /**@private 着色器变量名，世界视图投影矩阵。*/
-    static MVPMATRIX: number;
-    /**@private */
-    protected static _uniqueIDCounter: number;
-    /**
-     * @private
-     */
-    static __init__(): void;
     /**
      * 创建精灵的克隆实例。
      * @param	original  原始精灵。
@@ -39,24 +26,6 @@ export declare class Sprite3D extends Node implements ICreateResource {
      * @param complete 完成回掉。
      */
     static load(url: string, complete: Handler): void;
-    /** @private */
-    private _id;
-    /**@private */
-    private _url;
-    /** @private */
-    _isStatic: boolean;
-    /** @private */
-    _layer: number;
-    /** @private */
-    _scripts: Script3D[];
-    /**@private */
-    _transform: Transform3D;
-    /** @private */
-    _hierarchyAnimator: Animator;
-    /** @private */
-    _needProcessCollisions: boolean;
-    /** @private */
-    _needProcessTriggers: boolean;
     /**
      * 获取唯一标识ID。
      *   @return	唯一标识ID。
@@ -93,37 +62,9 @@ export declare class Sprite3D extends Node implements ICreateResource {
      */
     constructor(name?: string, isStatic?: boolean);
     /**
-     * @private
+     *
      */
     _setCreateURL(url: string): void;
-    /**
-     * @private
-     */
-    private _changeAnimatorsToLinkSprite3D;
-    /**
-     * @private
-     */
-    _setHierarchyAnimator(animator: Animator, parentAnimator: Animator): void;
-    /**
-     * @private
-     */
-    _clearHierarchyAnimator(animator: Animator, parentAnimator: Animator): void;
-    /**
-     * @private
-     */
-    _changeHierarchyAnimatorAvatar(animator: Animator, avatar: Avatar): void;
-    /**
-     * @private
-     */
-    _changeAnimatorToLinkSprite3DNoAvatar(animator: Animator, isLink: boolean, path: string[]): void;
-    /**
-     * @private
-     */
-    protected _changeHierarchyAnimator(animator: Animator): void;
-    /**
-     * @private
-     */
-    protected _changeAnimatorAvatar(avatar: Avatar): void;
     /**
      * @inheritDoc
      */
@@ -142,14 +83,6 @@ export declare class Sprite3D extends Node implements ICreateResource {
      */
     _cloneTo(destObject: any, srcRoot: Node, dstRoot: Node): void;
     /**
-     * @private
-     */
-    private static _createSprite3DInstance;
-    /**
-     * @private
-     */
-    private static _parseSprite3DInstance;
-    /**
      * 克隆。
      * @return	 克隆副本。
      */
@@ -158,8 +91,4 @@ export declare class Sprite3D extends Node implements ICreateResource {
      * @inheritDoc
      */
     destroy(destroyChild?: boolean): void;
-    /**
-     * @private
-     */
-    protected _create(): Node;
 }

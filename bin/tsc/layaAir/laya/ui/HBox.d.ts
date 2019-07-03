@@ -1,4 +1,4 @@
-import { LayoutBox } from "././LayoutBox";
+import { LayoutBox } from "./LayoutBox";
 /**
      * <code>HBox</code> 是一个水平布局容器类。
      */

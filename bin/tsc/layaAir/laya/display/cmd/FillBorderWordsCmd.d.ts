@@ -1,7 +1,6 @@
 import { Context } from "../../resource/Context";
 /**
  * 绘制边框
- * @private
  */
 export declare class FillBorderWordsCmd {
     static ID: string;

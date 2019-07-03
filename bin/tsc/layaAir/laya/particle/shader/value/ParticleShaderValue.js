@@ -2,7 +2,7 @@ import { ParticleShader } from "../ParticleShader";
 import { Value2D } from "../../../webgl/shader/d2/value/Value2D";
 import { RenderState2D } from "../../../webgl/utils/RenderState2D";
 /**
- *  @private
+ *  @internal
  */
 export class ParticleShaderValue extends Value2D {
     constructor() {

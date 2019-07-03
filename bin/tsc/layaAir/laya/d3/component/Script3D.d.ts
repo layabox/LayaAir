@@ -6,19 +6,11 @@ import { Event } from "../../events/Event";
  * <code>Script3D</code> 类用于创建脚本的父类,该类为抽象类,不允许实例。
  */
 export declare class Script3D extends Component {
-    /**@private*/
-    _indexInPool: number;
     /**
      * @inheritDoc
      */
     readonly isSingleton: boolean;
-    /**
-     * @private
-     */
     private _checkProcessTriggers;
-    /**
-     * @private
-     */
     private _checkProcessCollisions;
     /**
      * @inheritDoc

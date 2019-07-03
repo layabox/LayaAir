@@ -1,6 +1,6 @@
-import { RenderableSprite3D } from "././RenderableSprite3D";
-import { MeshFilter } from "././MeshFilter";
-import { MeshRenderer } from "././MeshRenderer";
+import { RenderableSprite3D } from "./RenderableSprite3D";
+import { MeshFilter } from "./MeshFilter";
+import { MeshRenderer } from "./MeshRenderer";
 import { DynamicBatchManager } from "../graphics/DynamicBatchManager";
 import { MeshRenderDynamicBatchManager } from "../graphics/MeshRenderDynamicBatchManager";
 import { MeshRenderStaticBatchManager } from "../graphics/MeshRenderStaticBatchManager";
@@ -14,7 +14,7 @@ import { Loader } from "../../net/Loader";
  */
 export class MeshSprite3D extends RenderableSprite3D {
     /**
-     * @private
+     * @internal
      */
     static __init__() {
         MeshSprite3D.shaderDefines = new ShaderDefines(RenderableSprite3D.shaderDefines);
@@ -77,7 +77,8 @@ export class MeshSprite3D extends RenderableSprite3D {
      * @inheritDoc
      */
     /*override*/ _addToInitStaticBatchManager() {
-        MeshRenderStaticBatchManager.instance._addBatchSprite(this);
+        if (this.meshFilter.sharedMesh) //无sharedMesh精灵会报错
+            MeshRenderStaticBatchManager.instance._addBatchSprite(this);
     }
     /**
      * @inheritDoc
@@ -107,7 +108,7 @@ export class MeshSprite3D extends RenderableSprite3D {
         this._meshFilter.destroy();
     }
     /**
-     * @private
+     * @internal
      */
     _create() {
         return new MeshSprite3D();

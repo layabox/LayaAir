@@ -1,6 +1,6 @@
 export class Physics {
 }
-/**@private */
+/**@internal */
 Physics._physics3D = null;
-/**@private */
+/**@internal */
 Physics._enbalePhysics = false;

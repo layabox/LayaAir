@@ -3,7 +3,7 @@ import { Loader } from "../../net/Loader";
 import { URL } from "../../net/URL";
 import { Animator } from "../component/Animator";
 import { Shader3D } from "../shader/Shader3D";
-import { Transform3D } from "././Transform3D";
+import { Transform3D } from "./Transform3D";
 import { Laya } from "../../../Laya";
 /**
  * <code>Sprite3D</code> 类用于实现3D精灵。
@@ -16,9 +16,9 @@ export class Sprite3D extends Node {
      */
     constructor(name = null, isStatic = false) {
         super();
-        /** @private */
+        /** @internal */
         this._needProcessCollisions = false;
-        /** @private */
+        /** @internal */
         this._needProcessTriggers = false;
         this._id = ++Sprite3D._uniqueIDCounter;
         this._transform = new Transform3D(this);
@@ -27,7 +27,7 @@ export class Sprite3D extends Node {
         this.name = name ? name : "New Sprite3D";
     }
     /**
-     * @private
+     * @internal
      */
     static __init__() {
     }
@@ -113,13 +113,13 @@ export class Sprite3D extends Node {
         return this._transform;
     }
     /**
-     * @private
+     *
      */
     _setCreateURL(url) {
         this._url = URL.formatURL(url); //perfab根节点会设置URL
     }
     /**
-     * @private
+     * @internal
      */
     _changeAnimatorsToLinkSprite3D(sprite3D, isLink, path) {
         var animator = this.getComponent(Animator);
@@ -134,7 +134,7 @@ export class Sprite3D extends Node {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _setHierarchyAnimator(animator, parentAnimator) {
         this._changeHierarchyAnimator(animator);
@@ -145,7 +145,7 @@ export class Sprite3D extends Node {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _clearHierarchyAnimator(animator, parentAnimator) {
         this._changeHierarchyAnimator(parentAnimator);
@@ -156,7 +156,7 @@ export class Sprite3D extends Node {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _changeHierarchyAnimatorAvatar(animator, avatar) {
         this._changeAnimatorAvatar(avatar);
@@ -166,7 +166,7 @@ export class Sprite3D extends Node {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _changeAnimatorToLinkSprite3DNoAvatar(animator, isLink, path) {
         animator._handleSpriteOwnersBySprite(isLink, path, this);
@@ -179,13 +179,13 @@ export class Sprite3D extends Node {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _changeHierarchyAnimator(animator) {
         this._hierarchyAnimator = animator;
     }
     /**
-     * @private
+     * @internal
      */
     _changeAnimatorAvatar(avatar) {
     }
@@ -271,7 +271,7 @@ export class Sprite3D extends Node {
         super._cloneTo(destSprite3D, srcRoot, dstRoot);
     }
     /**
-     * @private
+     * @internal
      */
     static _createSprite3DInstance(scrSprite) {
         var node = scrSprite._create();
@@ -283,7 +283,7 @@ export class Sprite3D extends Node {
         return node;
     }
     /**
-     * @private
+     * @internal
      */
     static _parseSprite3DInstance(srcRoot, dstRoot, scrSprite, dstSprite) {
         //scrSprite._cloneTo(dstSprite,srcRoot,dstRoot);//TODO:因为根据名字找Owner,子节点名字还未赋值有BUG
@@ -314,7 +314,7 @@ export class Sprite3D extends Node {
         this._url && Loader.clearRes(this._url);
     }
     /**
-     * @private
+     * @internal
      */
     _create() {
         return new Sprite3D();
@@ -322,10 +322,10 @@ export class Sprite3D extends Node {
 }
 /**Hierarchy资源。*/
 Sprite3D.HIERARCHY = "HIERARCHY";
-/**@private 着色器变量名，世界矩阵。*/
+/**@internal 着色器变量名，世界矩阵。*/
 Sprite3D.WORLDMATRIX = Shader3D.propertyNameToID("u_WorldMat");
-/**@private 着色器变量名，世界视图投影矩阵。*/
+/**@internal 着色器变量名，世界视图投影矩阵。*/
 Sprite3D.MVPMATRIX = Shader3D.propertyNameToID("u_MvpMatrix");
 /*;*/
-/**@private */
+/**@internal */
 Sprite3D._uniqueIDCounter = 0;

@@ -1,10 +1,6 @@
 import { MeshData } from "./MeshData";
 import { Matrix } from "../../../maths/Matrix";
 import { Texture } from "../../../resource/Texture";
-/**
- * ...
- * @author ww
- */
 export declare class SkinMeshForGraphic extends MeshData {
     constructor();
     /**

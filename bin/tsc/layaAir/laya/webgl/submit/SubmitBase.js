@@ -1,18 +1,26 @@
-import { SubmitKey } from "././SubmitKey";
+import { SubmitKey } from "./SubmitKey";
 import { Value2D } from "../shader/d2/value/Value2D";
 export class SubmitBase {
     constructor(renderType = SubmitBase.TYPE_2D) {
         this.clipInfoID = -1; //用来比较clipinfo
+        /**@internal */
         this._mesh = null; //代替 _vb,_ib
+        /**@internal */
         this._blendFn = null;
         this._id = 0;
+        /**@internal */
         this._renderType = 0;
+        /**@internal */
         this._parent = null;
         //渲染key，通过key判断是否是同一个
+        /**@internal */
         this._key = new SubmitKey();
         // 从VB中什么地方开始画，画到哪
+        /**@internal */
         this._startIdx = 0; //indexbuffer 的偏移，单位是byte
+        /**@internal */
         this._numEle = 0;
+        /**@internal */
         this._ref = 1; // 其实已经没有用了
         this.shaderValue = null;
         this._renderType = renderType;

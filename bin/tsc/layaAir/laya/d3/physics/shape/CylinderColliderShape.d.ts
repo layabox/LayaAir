@@ -1,19 +1,11 @@
-import { ColliderShape } from "././ColliderShape";
+import { ColliderShape } from "./ColliderShape";
 /**
  * <code>CylinderColliderShape</code> 类用于创建圆柱碰撞器。
  */
 export declare class CylinderColliderShape extends ColliderShape {
-    /** @private */
     private static _nativeSize;
-    /**
-* @private
-*/
-    static __init__(): void;
-    /**@private */
     private _orientation;
-    /**@private */
     private _radius;
-    /**@private */
     private _height;
     /**
      * 获取半径。

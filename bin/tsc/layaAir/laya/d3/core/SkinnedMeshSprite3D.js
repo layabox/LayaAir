@@ -4,10 +4,10 @@ import { Vector4 } from "../math/Vector4";
 import { Shader3D } from "../shader/Shader3D";
 import { ShaderDefines } from "../shader/ShaderDefines";
 import { Utils3D } from "../utils/Utils3D";
-import { MeshFilter } from "././MeshFilter";
-import { MeshSprite3D } from "././MeshSprite3D";
-import { RenderableSprite3D } from "././RenderableSprite3D";
-import { SkinnedMeshRenderer } from "././SkinnedMeshRenderer";
+import { MeshFilter } from "./MeshFilter";
+import { MeshSprite3D } from "./MeshSprite3D";
+import { RenderableSprite3D } from "./RenderableSprite3D";
+import { SkinnedMeshRenderer } from "./SkinnedMeshRenderer";
 import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
 /**
  * <code>SkinnedMeshSprite3D</code> 类用于创建网格。
@@ -25,7 +25,7 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
         (mesh) && (this._meshFilter.sharedMesh = mesh);
     }
     /**
-     * @private
+     * @internal
      */
     static __init__() {
         SkinnedMeshSprite3D.shaderDefines = new ShaderDefines(MeshSprite3D.shaderDefines);
@@ -150,15 +150,15 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
         this._meshFilter.destroy();
     }
     /**
-     * @private
+     * @internal
      */
     _create() {
         return new SkinnedMeshSprite3D();
     }
 }
-/**@private */
+/**@internal */
 SkinnedMeshSprite3D._tempArray0 = [];
 /**着色器变量名，蒙皮动画。*/
 SkinnedMeshSprite3D.BONES = Shader3D.propertyNameToID("u_Bones");
-/**@private */
+/**@internal */
 SkinnedMeshSprite3D.shaderDefines = null;

@@ -1,4 +1,4 @@
-import { SpriteStyle } from "././SpriteStyle";
+import { SpriteStyle } from "./SpriteStyle";
 import { Pool } from "../../utils/Pool";
 /**
  * 文本的样式类

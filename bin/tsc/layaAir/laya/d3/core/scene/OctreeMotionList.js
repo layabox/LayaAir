@@ -10,7 +10,7 @@ export class OctreeMotionList extends SingletonList {
         super();
     }
     /**
-     * @private
+     * @internal
      */
     add(element) {
         var index = element._getIndexInMotionList();
@@ -20,7 +20,7 @@ export class OctreeMotionList extends SingletonList {
         element._setIndexInMotionList(this.length++);
     }
     /**
-     * @private
+     * @internal
      */
     remove(element) {
         var index = element._getIndexInMotionList();
@@ -28,7 +28,7 @@ export class OctreeMotionList extends SingletonList {
         if (index !== this.length) {
             var end = this.elements[this.length];
             this.elements[index] = end;
-            end._inPhysicUpdateListIndex = index;
+            end._setIndexInMotionList(index);
         }
         element._setIndexInMotionList(-1);
     }

@@ -1,7 +1,7 @@
 #include "Lighting.glsl";
 
 attribute vec4 a_Position;
-uniform mat4 u_MvpMatrix;
+uniform mat4 u_ViewProjection;
 uniform float u_Rotation;
 varying vec3 v_Texcoord;
 
@@ -18,7 +18,7 @@ vec4 rotateAroundYInDegrees (vec4 vertex, float degrees)
 void main()
 {
 	vec4 position=rotateAroundYInDegrees(a_Position,u_Rotation);
-	gl_Position = (u_MvpMatrix*position).xyww;
+	gl_Position = (u_ViewProjection*position).xyww;
 	v_Texcoord=vec3(-a_Position.x,a_Position.yz);//转换坐标系
 	gl_Position=remapGLPositionZ(gl_Position);
 }

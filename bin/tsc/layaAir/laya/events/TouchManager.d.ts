@@ -1,4 +1,3 @@
-import { Event } from "././Event";
 /**
  * @private
  * Touch事件管理类，处理多点触控下的鼠标事件
@@ -21,10 +20,6 @@ export declare class TouchManager {
      * 是否启用
      */
     enable: boolean;
-    /**
-     * 用于派发事件用的Event对象
-     */
-    _event: Event;
     private _lastClickTime;
     private _clearTempArrs;
     /**

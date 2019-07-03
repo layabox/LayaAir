@@ -1,20 +1,11 @@
-import { AnimationTransform3D } from "././AnimationTransform3D";
-import { Avatar } from "../core/Avatar";
 import { IClone } from "../core/IClone";
 /**
  * <code>BoneNode</code> 类用于实现骨骼节点。
  */
 export declare class AnimationNode implements IClone {
-    /**@private */
     private _children;
-    /**@private */
-    _parent: AnimationNode;
-    /**@private [只读]*/
-    transform: AnimationTransform3D;
     /**节点名称。 */
     name: string;
-    /**@private	[NATIVE]*/
-    _worldMatrixIndex: number;
     /**
      * 创建一个新的 <code>AnimationNode</code> 实例。
      */
@@ -53,12 +44,4 @@ export declare class AnimationNode implements IClone {
      * @return	 克隆副本。
      */
     clone(): any;
-    /**
-     * @private [NATIVE]
-     */
-    _cloneNative(localPositions: Float32Array, localRotations: Float32Array, localScales: Float32Array, animationNodeWorldMatrixs: Float32Array, animationNodeParentIndices: Int16Array, parentIndex: number, avatar: Avatar): any;
-    /**
-     * @private [NATIVE]
-     */
-    _cloneToNative(destObject: any, localPositions: Float32Array, localRotations: Float32Array, localScales: Float32Array, animationNodeWorldMatrixs: Float32Array, animationNodeParentIndices: Int16Array, parentIndex: number, avatar: Avatar): void;
 }

@@ -16,12 +16,12 @@ export class Texture2D extends BaseTexture {
      */
     constructor(width = 0, height = 0, format = BaseTexture.FORMAT_R8G8B8A8, mipmap = true, canRead = false) {
         super(format, mipmap);
-        this._glTextureType = WebGLContext.TEXTURE_2D;
+        this._glTextureType = WebGL2RenderingContext.TEXTURE_2D;
         this._width = width;
         this._height = height;
         this._canRead = canRead;
-        this._setWarpMode(WebGLContext.TEXTURE_WRAP_S, this._wrapModeU); //TODO:重置宽高需要调整
-        this._setWarpMode(WebGLContext.TEXTURE_WRAP_T, this._wrapModeV); //TODO:重置宽高需要调整
+        this._setWarpMode(WebGL2RenderingContext.TEXTURE_WRAP_S, this._wrapModeU); //TODO:重置宽高需要调整
+        this._setWarpMode(WebGL2RenderingContext.TEXTURE_WRAP_T, this._wrapModeV); //TODO:重置宽高需要调整
         this._setFilterMode(this._filterMode); //TODO:重置宽高需要调整
         this._setAnisotropy(this._anisoLevel);
         if (this._mipmap) {
@@ -36,7 +36,7 @@ export class Texture2D extends BaseTexture {
         }
     }
     /**
-     * @private
+     * @internal
      */
     static __init__() {
         var pixels = new Uint8Array(3);
@@ -60,7 +60,7 @@ export class Texture2D extends BaseTexture {
         Texture2D.blackTexture.lock = true; //锁住资源防止被资源管理释放
     }
     /**
-     * @inheritDoc
+     * @internal
      */
     static _parse(data, propertyParams = null, constructParams = null) {
         var texture = constructParams ? new Texture2D(constructParams[0], constructParams[1], constructParams[2], constructParams[3], constructParams[4]) : new Texture2D(0, 0);
@@ -133,12 +133,12 @@ export class Texture2D extends BaseTexture {
         var glFormat = this._getGLFormat();
         WebGLContext.bindTexture(gl, textureType, this._glTexture);
         if (this.format === BaseTexture.FORMAT_R8G8B8) {
-            gl.pixelStorei(WebGLContext.UNPACK_ALIGNMENT, 1); //字节对齐
-            gl.texImage2D(textureType, miplevel, glFormat, width, height, 0, glFormat, WebGLContext.UNSIGNED_BYTE, pixels);
-            gl.pixelStorei(WebGLContext.UNPACK_ALIGNMENT, 4);
+            gl.pixelStorei(WebGL2RenderingContext.UNPACK_ALIGNMENT, 1); //字节对齐
+            gl.texImage2D(textureType, miplevel, glFormat, width, height, 0, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels);
+            gl.pixelStorei(WebGL2RenderingContext.UNPACK_ALIGNMENT, 4);
         }
         else {
-            gl.texImage2D(textureType, miplevel, glFormat, width, height, 0, glFormat, WebGLContext.UNSIGNED_BYTE, pixels);
+            gl.texImage2D(textureType, miplevel, glFormat, width, height, 0, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels);
         }
     }
     /**
@@ -289,7 +289,7 @@ export class Texture2D extends BaseTexture {
         this._upLoadCompressedTexImage2D(arrayBuffer, width, height, mipLevels, dataOffset, 0);
     }
     /**
-     * @private
+     * @internal
      */
     _upLoadCompressedTexImage2D(data, width, height, miplevelCount, dataOffset, imageSizeOffset) {
         var gl = LayaGL.instance;
@@ -324,8 +324,8 @@ export class Texture2D extends BaseTexture {
         this._height = height;
         if (!(this._isPot(width) && this._isPot(height)))
             this._mipmap = false;
-        this._setWarpMode(WebGLContext.TEXTURE_WRAP_S, this._wrapModeU); //宽高变化后需要重新设置
-        this._setWarpMode(WebGLContext.TEXTURE_WRAP_T, this._wrapModeV); //宽高变化后需要重新设置
+        this._setWarpMode(WebGL2RenderingContext.TEXTURE_WRAP_S, this._wrapModeU); //宽高变化后需要重新设置
+        this._setWarpMode(WebGL2RenderingContext.TEXTURE_WRAP_T, this._wrapModeV); //宽高变化后需要重新设置
         this._setFilterMode(this._filterMode); //宽高变化后需要重新设置
         var gl = LayaGL.instance;
         WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
@@ -334,12 +334,12 @@ export class Texture2D extends BaseTexture {
             if (source.setPremultiplyAlpha) {
                 source.setPremultiplyAlpha(premultiplyAlpha);
             }
-            gl.texImage2D(this._glTextureType, 0, WebGLContext.RGBA, WebGLContext.RGBA, WebGLContext.UNSIGNED_BYTE, source);
+            gl.texImage2D(this._glTextureType, 0, WebGL2RenderingContext.RGBA, WebGL2RenderingContext.RGBA, WebGL2RenderingContext.UNSIGNED_BYTE, source);
         }
         else {
-            (premultiplyAlpha) && (gl.pixelStorei(WebGLContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true));
-            gl.texImage2D(this._glTextureType, 0, glFormat, glFormat, WebGLContext.UNSIGNED_BYTE, source);
-            (premultiplyAlpha) && (gl.pixelStorei(WebGLContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false));
+            (premultiplyAlpha) && (gl.pixelStorei(WebGL2RenderingContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true));
+            gl.texImage2D(this._glTextureType, 0, glFormat, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, source);
+            (premultiplyAlpha) && (gl.pixelStorei(WebGL2RenderingContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false));
         }
         if (this._mipmap) {
             gl.generateMipmap(this._glTextureType);
@@ -398,12 +398,12 @@ export class Texture2D extends BaseTexture {
         WebGLContext.bindTexture(gl, textureType, this._glTexture);
         var glFormat = this._getGLFormat();
         if (this._format === BaseTexture.FORMAT_R8G8B8) {
-            gl.pixelStorei(WebGLContext.UNPACK_ALIGNMENT, 1); //字节对齐
-            gl.texSubImage2D(textureType, miplevel, x, y, width, height, glFormat, WebGLContext.UNSIGNED_BYTE, pixels);
-            gl.pixelStorei(WebGLContext.UNPACK_ALIGNMENT, 4);
+            gl.pixelStorei(WebGL2RenderingContext.UNPACK_ALIGNMENT, 1); //字节对齐
+            gl.texSubImage2D(textureType, miplevel, x, y, width, height, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels);
+            gl.pixelStorei(WebGL2RenderingContext.UNPACK_ALIGNMENT, 4);
         }
         else {
-            gl.texSubImage2D(textureType, miplevel, x, y, width, height, glFormat, WebGLContext.UNSIGNED_BYTE, pixels);
+            gl.texSubImage2D(textureType, miplevel, x, y, width, height, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels);
         }
         //if (_canRead)
         //_pixels = pixels;//TODO:

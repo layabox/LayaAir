@@ -1,6 +1,6 @@
 import { Bezier } from "../../maths/Bezier";
 /**
- * @private
+ * @internal
  * ...
  * @author ww
  */

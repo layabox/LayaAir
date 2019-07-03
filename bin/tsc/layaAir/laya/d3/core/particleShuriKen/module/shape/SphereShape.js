@@ -1,5 +1,5 @@
-import { BaseShape } from "././BaseShape";
-import { ShapeUtils } from "././ShapeUtils";
+import { BaseShape } from "./BaseShape";
+import { ShapeUtils } from "./ShapeUtils";
 import { Vector3 } from "../../../../math/Vector3";
 /**
  * <code>SphereShape</code> 类用于创建球形粒子形状。

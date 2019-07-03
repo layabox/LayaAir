@@ -1,8 +1,8 @@
-import { Video } from "././Video";
+import { Video } from "./Video";
 import { Bitmap } from "../../resource/Bitmap";
 import { ILaya } from "../../../ILaya";
 /**
- * @private
+ * @internal
  */
 export class HtmlVideo extends Bitmap {
     constructor() {
@@ -39,6 +39,9 @@ export class HtmlVideo extends Bitmap {
     getVideo() {
         return this.video;
     }
+    /**
+     * @internal
+     */
     /*override*/ _getSource() {
         // TODO Auto Generated method stub
         return this._source;

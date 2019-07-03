@@ -1,31 +1,11 @@
-import { Vector4 } from "././Vector4";
-import { Quaternion } from "././Quaternion";
-import { Matrix4x4 } from "././Matrix4x4";
+import { Vector4 } from "./Vector4";
+import { Quaternion } from "./Quaternion";
+import { Matrix4x4 } from "./Matrix4x4";
 import { IClone } from "../core/IClone";
 /**
  * <code>Vector3</code> 类用于创建三维向量。
  */
 export declare class Vector3 implements IClone {
-    /**@private	*/
-    static _tempVector4: Vector4;
-    /**@private	*/
-    static _ZERO: Vector3;
-    /**@private	*/
-    static _ONE: Vector3;
-    /**@private	*/
-    static _NegativeUnitX: Vector3;
-    /**@private	*/
-    static _UnitX: Vector3;
-    /**@private	*/
-    static _UnitY: Vector3;
-    /**@private	*/
-    static _UnitZ: Vector3;
-    /**@private	*/
-    static _ForwardRH: Vector3;
-    /**@private	*/
-    static _ForwardLH: Vector3;
-    /**@private	*/
-    static _Up: Vector3;
     /**
      * 两个三维向量距离的平方。
      * @param	value1 向量1。

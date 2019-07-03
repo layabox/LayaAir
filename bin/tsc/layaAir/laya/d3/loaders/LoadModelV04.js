@@ -3,14 +3,13 @@ import { VertexMesh } from "../graphics/Vertex/VertexMesh";
 import { VertexBuffer3D } from "../graphics/VertexBuffer3D";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { SubMesh } from "../resource/models/SubMesh";
-import { WebGLContext } from "../../webgl/WebGLContext";
 /**
- * @private
+ * @internal
  * <code>LoadModel</code> 类用于模型加载。
  */
 export class LoadModelV04 {
     /**
-     * @private
+     * @internal
      */
     static parse(readData, version, mesh, subMeshes) {
         LoadModelV04._mesh = mesh;
@@ -39,20 +38,20 @@ export class LoadModelV04 {
         LoadModelV04._subMeshes = null;
     }
     /**
-     * @private
+     * @internal
      */
     static _readString() {
         return LoadModelV04._strings[LoadModelV04._readData.getUint16()];
     }
     /**
-     * @private
+     * @internal
      */
     static READ_DATA() {
         LoadModelV04._DATA.offset = LoadModelV04._readData.getUint32();
         LoadModelV04._DATA.size = LoadModelV04._readData.getUint32();
     }
     /**
-     * @private
+     * @internal
      */
     static READ_BLOCK() {
         var count = LoadModelV04._BLOCK.count = LoadModelV04._readData.getUint16();
@@ -64,7 +63,7 @@ export class LoadModelV04 {
         }
     }
     /**
-     * @private
+     * @internal
      */
     static READ_STRINGS() {
         var offset = LoadModelV04._readData.getUint32();
@@ -76,7 +75,7 @@ export class LoadModelV04 {
         LoadModelV04._readData.pos = prePos;
     }
     /**
-     * @private
+     * @internal
      */
     static READ_MESH() {
         var name = LoadModelV04._readString();
@@ -88,7 +87,8 @@ export class LoadModelV04 {
         for (i = 0; i < vertexBufferCount; i++) { //TODO:始终为1
             var vbStart = offset + LoadModelV04._readData.getUint32();
             var vbLength = LoadModelV04._readData.getUint32();
-            var vbDatas = new Float32Array(arrayBuffer.slice(vbStart, vbStart + vbLength));
+            var vbArrayBuffer = arrayBuffer.slice(vbStart, vbStart + vbLength);
+            var vbDatas = new Float32Array(vbArrayBuffer);
             var bufferAttribute = LoadModelV04._readString();
             var vertexDeclaration;
             switch (LoadModelV04._version) {
@@ -104,21 +104,21 @@ export class LoadModelV04 {
             }
             if (!vertexDeclaration)
                 throw new Error("LoadModelV03: unknown vertexDeclaration.");
-            var vertexBuffer = new VertexBuffer3D(vbDatas.length * 4, WebGLContext.STATIC_DRAW, true);
+            var vertexBuffer = new VertexBuffer3D(vbDatas.length * 4, WebGL2RenderingContext.STATIC_DRAW, true);
             vertexBuffer.vertexDeclaration = vertexDeclaration;
-            vertexBuffer.setData(vbDatas);
-            LoadModelV04._mesh._vertexBuffers.push(vertexBuffer);
+            vertexBuffer.setData(vbDatas.buffer);
+            LoadModelV04._mesh._vertexBuffer = vertexBuffer;
             LoadModelV04._mesh._vertexCount += vertexBuffer.vertexCount;
             memorySize += vbDatas.length * 4;
         }
         var ibStart = offset + LoadModelV04._readData.getUint32();
         var ibLength = LoadModelV04._readData.getUint32();
         var ibDatas = new Uint16Array(arrayBuffer.slice(ibStart, ibStart + ibLength));
-        var indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, ibLength / 2, WebGLContext.STATIC_DRAW, true);
+        var indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, ibLength / 2, WebGL2RenderingContext.STATIC_DRAW, true);
         indexBuffer.setData(ibDatas);
         LoadModelV04._mesh._indexBuffer = indexBuffer;
         memorySize += indexBuffer.indexCount * 2;
-        LoadModelV04._mesh._setBuffer(LoadModelV04._mesh._vertexBuffers, indexBuffer);
+        LoadModelV04._mesh._setBuffer(LoadModelV04._mesh._vertexBuffer, indexBuffer);
         LoadModelV04._mesh._setCPUMemory(memorySize);
         LoadModelV04._mesh._setGPUMemory(memorySize);
         var boneNames = LoadModelV04._mesh._boneNames = [];
@@ -141,12 +141,12 @@ export class LoadModelV04 {
         return true;
     }
     /**
-     * @private
+     * @internal
      */
     static READ_SUBMESH() {
         var arrayBuffer = LoadModelV04._readData.__getBuffer();
         var submesh = new SubMesh(LoadModelV04._mesh);
-        var vbIndex = LoadModelV04._readData.getInt16();
+        LoadModelV04._readData.getInt16(); //TODO:vbIndex
         LoadModelV04._readData.getUint32(); //TODO:vbStart
         LoadModelV04._readData.getUint32(); //TODO:vbLength
         var ibStart = LoadModelV04._readData.getUint32();
@@ -156,7 +156,7 @@ export class LoadModelV04 {
         submesh._indexStart = ibStart;
         submesh._indexCount = ibCount;
         submesh._indices = new Uint16Array(indexBuffer.getData().buffer, ibStart * 2, ibCount);
-        var vertexBuffer = LoadModelV04._mesh._vertexBuffers[vbIndex];
+        var vertexBuffer = LoadModelV04._mesh._vertexBuffer;
         submesh._vertexBuffer = vertexBuffer;
         var offset = LoadModelV04._DATA.offset;
         var subIndexBufferStart = submesh._subIndexBufferStart;
@@ -192,11 +192,11 @@ export class LoadModelV04 {
         return true;
     }
 }
-/**@private */
+/**@internal */
 LoadModelV04._BLOCK = { count: 0 };
-/**@private */
+/**@internal */
 LoadModelV04._DATA = { offset: 0, size: 0 };
-/**@private */
+/**@internal */
 LoadModelV04._strings = [];
-/**@private */
+/**@internal */
 LoadModelV04._bindPoseIndices = [];

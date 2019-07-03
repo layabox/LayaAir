@@ -1,5 +1,4 @@
-import { Mesh2D } from "././Mesh2D";
-import { WebGLContext } from "../WebGLContext";
+import { Mesh2D } from "./Mesh2D";
 /**
  * 与MeshQuadTexture基本相同。不过index不是固定的
  */
@@ -95,7 +94,7 @@ export class MeshTexture extends Mesh2D {
     }
 }
 MeshTexture.const_stride = 24;
-MeshTexture._fixattriInfo = [WebGLContext.FLOAT, 4, 0,
-    WebGLContext.UNSIGNED_BYTE, 4, 16,
-    WebGLContext.UNSIGNED_BYTE, 4, 20];
+MeshTexture._fixattriInfo = [WebGL2RenderingContext.FLOAT, 4, 0,
+    WebGL2RenderingContext.UNSIGNED_BYTE, 4, 16,
+    WebGL2RenderingContext.UNSIGNED_BYTE, 4, 20];
 MeshTexture._POOL = [];

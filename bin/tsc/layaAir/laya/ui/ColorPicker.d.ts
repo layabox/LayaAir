@@ -1,6 +1,6 @@
-import { UIComponent } from "././UIComponent";
-import { Box } from "././Box";
-import { Button } from "././Button";
+import { UIComponent } from "./UIComponent";
+import { Box } from "./Box";
+import { Button } from "./Button";
 import { Input } from "../display/Input";
 import { Sprite } from "../display/Sprite";
 import { Handler } from "../utils/Handler";

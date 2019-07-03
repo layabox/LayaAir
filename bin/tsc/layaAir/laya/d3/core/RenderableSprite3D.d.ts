@@ -2,8 +2,7 @@ import { Node } from "../../display/Node";
 import { Animator } from "../component/Animator";
 import { Vector4 } from "../math/Vector4";
 import { ShaderDefines } from "../shader/ShaderDefines";
-import { Sprite3D } from "././Sprite3D";
-import { BaseRender } from "./render/BaseRender";
+import { Sprite3D } from "./Sprite3D";
 /**
  * <code>RenderableSprite3D</code> 类用于可渲染3D精灵的父类，抽象类不允许实例。
  */
@@ -21,14 +20,7 @@ export declare class RenderableSprite3D extends Sprite3D {
     /**拾取颜色。*/
     static PICKCOLOR: number;
     pickColor: Vector4;
-    /**@private */
     static shaderDefines: ShaderDefines;
-    /**
-     * @private
-     */
-    static __init__(): void;
-    /** @private */
-    _render: BaseRender;
     /**
      * 创建一个 <code>RenderableSprite3D</code> 实例。
      */
@@ -46,10 +38,6 @@ export declare class RenderableSprite3D extends Sprite3D {
      */
     protected _onActiveInScene(): void;
     /**
-     * @private
-     */
-    _addToInitStaticBatchManager(): void;
-    /**
      * @inheritDoc
      */
     _setBelongScene(scene: Node): void;
@@ -65,8 +53,4 @@ export declare class RenderableSprite3D extends Sprite3D {
      * @inheritDoc
      */
     destroy(destroyChild?: boolean): void;
-    /**
-     * @private
-     */
-    protected _create(): Node;
 }

@@ -1,5 +1,5 @@
-import { ContactPoint } from "././ContactPoint";
-import { HitResult } from "././HitResult";
+import { ContactPoint } from "./ContactPoint";
+import { HitResult } from "./HitResult";
 import { Collision } from "./Collision";
 /**
  * <code>CollisionMap</code> 类用于实现碰撞组合实例图。
@@ -9,21 +9,21 @@ export class CollisionTool {
      * 创建一个 <code>CollisionMap</code> 实例。
      */
     constructor() {
-        /**@private	*/
+        /**@internal	*/
         this._hitResultsPoolIndex = 0;
-        /**@private	*/
+        /**@internal	*/
         this._hitResultsPool = [];
-        /**@private	*/
+        /**@internal	*/
         this._contactPonintsPoolIndex = 0;
-        /**@private	*/
+        /**@internal	*/
         this._contactPointsPool = [];
-        /**@private */
+        /**@internal */
         this._collisionsPool = [];
-        /**@private */
+        /**@internal */
         this._collisions = {};
     }
     /**
-     * @private
+     * @internal
      */
     getHitResult() {
         var hitResult = this._hitResultsPool[this._hitResultsPoolIndex++];
@@ -34,13 +34,13 @@ export class CollisionTool {
         return hitResult;
     }
     /**
-     * @private
+     * @internal
      */
     recoverAllHitResultsPool() {
         this._hitResultsPoolIndex = 0;
     }
     /**
-     * @private
+     * @internal
      */
     getContactPoints() {
         var contactPoint = this._contactPointsPool[this._contactPonintsPoolIndex++];
@@ -51,13 +51,13 @@ export class CollisionTool {
         return contactPoint;
     }
     /**
-     * @private
+     * @internal
      */
     recoverAllContactPointsPool() {
         this._contactPonintsPoolIndex = 0;
     }
     /**
-     * @private
+     * @internal
      */
     getCollision(physicComponentA, physicComponentB) {
         var collision;
@@ -79,7 +79,7 @@ export class CollisionTool {
         return collision;
     }
     /**
-     * @private
+     * @internal
      */
     recoverCollision(collision) {
         var idA = collision._colliderA.id;
@@ -88,7 +88,7 @@ export class CollisionTool {
         this._collisionsPool.push(collision);
     }
     /**
-     * @private
+     * @internal
      */
     garbageCollection() {
         this._hitResultsPoolIndex = 0;

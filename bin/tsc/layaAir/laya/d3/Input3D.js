@@ -1,8 +1,7 @@
-import { Laya } from "../../Laya";
 import { Point } from "../maths/Point";
 import { Stat } from "../utils/Stat";
-import { MouseTouch } from "././MouseTouch";
-import { Touch } from "././Touch";
+import { MouseTouch } from "./MouseTouch";
+import { Touch } from "./Touch";
 import { SimpleSingletonList } from "./component/SimpleSingletonList";
 import { BaseCamera } from "./core/BaseCamera";
 import { Ray } from "./math/Ray";
@@ -11,28 +10,29 @@ import { Vector3 } from "./math/Vector3";
 import { HitResult } from "./physics/HitResult";
 import { PhysicsSimulation } from "./physics/PhysicsSimulation";
 import { Physics } from "./physics/Physics";
+import { ILaya } from "../../ILaya";
 /**
  * <code>Input3D</code> 类用于实现3D输入。
  */
 export class Input3D {
     /**
-     * @private
+     * @internal
      * 创建一个 <code>Input3D</code> 实例。
      */
     constructor() {
-        /**@private */
+        /**@internal */
         this._eventList = [];
-        /**@private */
+        /**@internal */
         this._mouseTouch = new MouseTouch();
-        /**@private */
+        /**@internal */
         this._touchPool = [];
-        /**@private */
+        /**@internal */
         this._touches = new SimpleSingletonList();
-        /**@private */
+        /**@internal */
         this._multiTouchEnabled = true;
     }
     /**
-     *@private
+     *@internal
      */
     __init__(canvas, scene) {
         this._scene = scene;
@@ -91,7 +91,7 @@ export class Input3D {
         this._multiTouchEnabled = value;
     }
     /**
-     * @private
+     * @internal
      */
     _getTouch(touchID) {
         var touch = this._touchPool[touchID];
@@ -103,7 +103,7 @@ export class Input3D {
         return touch;
     }
     /**
-     * @private
+     * @internal
      */
     _mouseTouchDown() {
         var touch = this._mouseTouch;
@@ -119,7 +119,7 @@ export class Input3D {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _mouseTouchUp() {
         var i, n;
@@ -146,7 +146,7 @@ export class Input3D {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _mouseTouchRayCast(cameras) {
         var touchHitResult = Input3D._tempHitResult0;
@@ -192,7 +192,7 @@ export class Input3D {
         }
     }
     /**
-     * @private
+     * @internal
      * @param flag 0:add、1:remove、2:change
      */
     _changeTouches(changedTouches, flag) {
@@ -207,7 +207,7 @@ export class Input3D {
             var pos = touch._position;
             var mousePoint = Input3D._tempPoint;
             mousePoint.setTo(nativeTouch.pageX, nativeTouch.pageY);
-            Laya.stage._canvasTransform.invertTransformPoint(mousePoint); //考虑画布缩放	
+            ILaya.stage._canvasTransform.invertTransformPoint(mousePoint); //考虑画布缩放	
             var posX = mousePoint.x;
             var posY = mousePoint.y;
             switch (flag) {
@@ -240,7 +240,7 @@ export class Input3D {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _update() {
         var enablePhysics = Physics._enbalePhysics && !PhysicsSimulation.disableSimulation;
@@ -260,7 +260,7 @@ export class Input3D {
                     case "mousemove":
                         var mousePoint = Input3D._tempPoint;
                         mousePoint.setTo(e.pageX, e.pageY);
-                        Laya.stage._canvasTransform.invertTransformPoint(mousePoint); //考虑画布缩放
+                        ILaya.stage._canvasTransform.invertTransformPoint(mousePoint); //考虑画布缩放
                         this._mouseTouch.mousePositionX = mousePoint.x;
                         this._mouseTouch.mousePositionY = mousePoint.y;
                         (enablePhysics) && (this._mouseTouchRayCast(cameras));
@@ -322,11 +322,11 @@ export class Input3D {
         }
     }
 }
-/**@private */
+/**@internal */
 Input3D._tempPoint = new Point();
-/**@private */
+/**@internal */
 Input3D._tempVector20 = new Vector2();
-/**@private */
+/**@internal */
 Input3D._tempRay0 = new Ray(new Vector3(), new Vector3());
-/**@private */
+/**@internal */
 Input3D._tempHitResult0 = new HitResult();

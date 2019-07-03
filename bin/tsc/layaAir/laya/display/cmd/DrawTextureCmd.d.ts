@@ -44,8 +44,9 @@ export declare class DrawTextureCmd {
      * （可选）混合模式。
      */
     blendMode: string;
+    uv: number[];
     /**@private */
-    static create(texture: Texture, x: number, y: number, width: number, height: number, matrix: Matrix, alpha: number, color: string, blendMode: string): DrawTextureCmd;
+    static create(texture: Texture, x: number, y: number, width: number, height: number, matrix: Matrix, alpha: number, color: string, blendMode: string, uv?: number[]): DrawTextureCmd;
     /**
      * 回收到对象池
      */

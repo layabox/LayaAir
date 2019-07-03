@@ -1,34 +1,14 @@
 import { Vector3 } from "../math/Vector3";
-import { PhysicsComponent } from "././PhysicsComponent";
+import { PhysicsComponent } from "./PhysicsComponent";
 import { ColliderShape } from "./shape/ColliderShape";
 import { Component } from "../../components/Component";
 /**
  * <code>CharacterController</code> 类用于创建角色控制器。
  */
 export declare class CharacterController extends PhysicsComponent {
-    /** @private */
-    private static _nativeTempVector30;
-    /**
-     * @private
-     */
-    static __init__(): void;
     static UPAXIS_X: number;
     static UPAXIS_Y: number;
     static UPAXIS_Z: number;
-    /** @private */
-    private _stepHeight;
-    /** @private */
-    private _upAxis;
-    /**@private */
-    private _maxSlope;
-    /**@private */
-    private _jumpSpeed;
-    /**@private */
-    private _fallSpeed;
-    /** @private */
-    private _gravity;
-    /**@private */
-    _nativeKinematicCharacter: any;
     /**
      * 获取角色降落速度。
      * @return 角色降落速度。
@@ -95,10 +75,6 @@ export declare class CharacterController extends PhysicsComponent {
      * @param canCollideWith 可产生碰撞的碰撞组。
      */
     constructor(stepheight?: number, upAxis?: Vector3, collisionGroup?: number, canCollideWith?: number);
-    /**
-     * @private
-     */
-    private _constructCharacter;
     /**
      * @inheritDoc
      */

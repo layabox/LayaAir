@@ -1,6 +1,5 @@
 import { Pool } from "../../utils/Pool";
 /**
- * @private
  * 元素样式
  */
 export class SpriteStyle {

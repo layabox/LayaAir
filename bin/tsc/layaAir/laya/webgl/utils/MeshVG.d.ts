@@ -1,4 +1,4 @@
-import { Mesh2D } from "././Mesh2D";
+import { Mesh2D } from "./Mesh2D";
 import { Context } from "../../resource/Context";
 /**
  * 用来画矢量的mesh。顶点格式固定为 x,y,rgba

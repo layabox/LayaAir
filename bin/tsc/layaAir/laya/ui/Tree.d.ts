@@ -1,7 +1,7 @@
-import { Box } from "././Box";
-import { IRender } from "././IRender";
-import { List } from "././List";
-import { ScrollBar } from "././ScrollBar";
+import { Box } from "./Box";
+import { IRender } from "./IRender";
+import { List } from "./List";
+import { ScrollBar } from "./ScrollBar";
 import { Event } from "../events/Event";
 import { Handler } from "../utils/Handler";
 /**

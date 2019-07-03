@@ -3,7 +3,7 @@ import { Event } from "../events/Event";
 import { UIComponent } from "./UIComponent";
 import { UIEvent } from "./UIEvent";
 import { Handler } from "../utils/Handler";
-import { ILaya } from "ILaya";
+import { ILaya } from "../../ILaya";
 /**鼠标提示管理类*/
 export class TipManager extends UIComponent {
     constructor() {

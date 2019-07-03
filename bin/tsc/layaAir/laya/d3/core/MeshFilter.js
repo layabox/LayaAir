@@ -38,17 +38,14 @@ export class MeshFilter {
     constructor(owner) {
         this._owner = owner;
     }
-    /**
-     * @private
-     */
     _getMeshDefine(mesh) {
         var define;
-        for (var i = 0, n = mesh._subMeshCount; i < n; i++) {
+        for (var i = 0, n = mesh._subMeshes.length; i < n; i++) {
             var subMesh = mesh._getSubMesh(i);
-            var vertexElements = subMesh._vertexBuffer._vertexDeclaration.vertexElements;
+            var vertexElements = subMesh._vertexBuffer._vertexDeclaration._vertexElements;
             for (var j = 0, m = vertexElements.length; j < m; j++) {
                 var vertexElement = vertexElements[j];
-                var name = vertexElement.elementUsage;
+                var name = vertexElement._elementUsage;
                 switch (name) {
                     case VertexMesh.MESH_COLOR0:
                         define |= MeshSprite3DShaderDeclaration.SHADERDEFINE_COLOR;

@@ -1,5 +1,5 @@
 import { ILaya } from "../../../ILaya";
-//import { ShaderCompile } from "././ShaderCompile";
+//import { ShaderCompile } from "./ShaderCompile";
 export class InlcudeFile {
     constructor(txt) {
         this.codes = {};

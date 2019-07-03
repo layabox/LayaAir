@@ -1,4 +1,4 @@
-import { GradientVelocity } from "././GradientVelocity";
+import { GradientVelocity } from "./GradientVelocity";
 /**
  * <code>VelocityOverLifetime</code> 类用于粒子的生命周期速度。
  */

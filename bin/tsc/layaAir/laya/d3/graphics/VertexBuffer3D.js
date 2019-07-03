@@ -1,36 +1,34 @@
 import { LayaGL } from "../../layagl/LayaGL";
-import { WebGLContext } from "../../webgl/WebGLContext";
 import { Buffer } from "../../webgl/utils/Buffer";
 /**
  * <code>VertexBuffer3D</code> 类用于创建顶点缓冲。
  */
 export class VertexBuffer3D extends Buffer {
     /**
-     * 创建一个 <code>VertexBuffer3D,不建议开发者使用并用VertexBuffer3D.create()代替</code> 实例。
+     * 创建一个 <code>VertexBuffer3D</code> 实例。
      * @param	vertexCount 顶点个数。
      * @param	bufferUsage VertexBuffer3D用途类型。
      * @param	canRead 是否可读。
      * @param   dateType 数据类型。
      */
-    constructor(byteLength, bufferUsage, canRead = false, dateType = VertexBuffer3D.DATATYPE_FLOAT32ARRAY) {
+    constructor(byteLength, bufferUsage, canRead = false) {
         super();
+        /** @internal */
+        this._vertexCount = 0;
+        /** @internal */
+        this._vertexDeclaration = null;
+        /** @internal */
+        this._float32Reader = null;
         this._vertexCount = -1;
         this._bufferUsage = bufferUsage;
-        this._bufferType = WebGLContext.ARRAY_BUFFER;
+        this._bufferType = WebGL2RenderingContext.ARRAY_BUFFER;
         this._canRead = canRead;
-        this._dataType = dateType;
         this._byteLength = byteLength;
         this.bind();
         LayaGL.instance.bufferData(this._bufferType, this._byteLength, this._bufferUsage);
         if (canRead) {
-            switch (dateType) {
-                case VertexBuffer3D.DATATYPE_FLOAT32ARRAY:
-                    this._buffer = new Float32Array(byteLength / 4);
-                    break;
-                case VertexBuffer3D.DATATYPE_UINT8ARRAY:
-                    this._buffer = new Uint8Array(byteLength);
-                    break;
-            }
+            this._buffer = new Uint8Array(byteLength);
+            this._float32Reader = new Float32Array(this._buffer.buffer);
         }
     }
     /**
@@ -64,10 +62,11 @@ export class VertexBuffer3D extends Buffer {
     }
     /**
      * @inheritDoc
+     * @override
      */
-    /*override*/ bind() {
+    bind() {
         if (Buffer._bindedVertexBuffer !== this._glBuffer) {
-            LayaGL.instance.bindBuffer(WebGLContext.ARRAY_BUFFER, this._glBuffer);
+            LayaGL.instance.bindBuffer(WebGL2RenderingContext.ARRAY_BUFFER, this._glBuffer);
             Buffer._bindedVertexBuffer = this._glBuffer;
             return true;
         }
@@ -78,50 +77,61 @@ export class VertexBuffer3D extends Buffer {
     /**
      * 设置数据。
      * @param	data 顶点数据。
-     * @param	bufferOffset 顶点缓冲中的偏移。
-     * @param	dataStartIndex 顶点数据的偏移。
-     * @param	dataCount 顶点数据的数量。
+     * @param	bufferOffset 顶点缓冲中的偏移,以字节为单位。
+     * @param	dataStartIndex 顶点数据的偏移,以字节为单位。
+     * @param	dataCount 顶点数据的长度,以字节为单位。
      */
-    setData(data, bufferOffset = 0, dataStartIndex = 0, dataCount = 4294967295 /*uint.MAX_VALUE*/) {
+    setData(buffer, bufferOffset = 0, dataStartIndex = 0, dataCount = 4294967295 /*uint.MAX_VALUE*/) {
+        ;
         this.bind();
         var needSubData = dataStartIndex !== 0 || dataCount !== 4294967295 /*uint.MAX_VALUE*/;
         if (needSubData) {
-            switch (this._dataType) {
-                case VertexBuffer3D.DATATYPE_FLOAT32ARRAY:
-                    data = new Float32Array(data.buffer, dataStartIndex * 4, dataCount);
-                    break;
-                case VertexBuffer3D.DATATYPE_UINT8ARRAY:
-                    data = new Uint8Array(data.buffer, dataStartIndex, dataCount);
-                    break;
-            }
+            var subData = new Uint8Array(buffer, dataStartIndex, dataCount);
+            LayaGL.instance.bufferSubData(this._bufferType, bufferOffset, subData);
+            if (this._canRead)
+                this._buffer.set(subData, bufferOffset);
         }
-        switch (this._dataType) {
-            case VertexBuffer3D.DATATYPE_FLOAT32ARRAY:
-                LayaGL.instance.bufferSubData(this._bufferType, bufferOffset * 4, data);
-                break;
-            case VertexBuffer3D.DATATYPE_UINT8ARRAY:
-                LayaGL.instance.bufferSubData(this._bufferType, bufferOffset, data);
-                break;
+        else {
+            LayaGL.instance.bufferSubData(this._bufferType, bufferOffset, buffer);
+            if (this._canRead)
+                this._buffer.set(new Uint8Array(buffer), bufferOffset);
         }
-        if (this._canRead)
-            this._buffer.set(data, bufferOffset);
     }
     /**
      * 获取顶点数据。
      * @return	顶点数据。
      */
-    getData() {
+    getUint8Data() {
         if (this._canRead)
             return this._buffer;
         else
             throw new Error("Can't read data from VertexBuffer with only write flag!");
     }
     /**
-     * @inheritDoc
+     * @ignore
      */
-    /*override*/ destroy() {
+    getFloat32Data() {
+        if (this._canRead)
+            return this._float32Reader;
+        else
+            throw new Error("Can't read data from VertexBuffer with only write flag!");
+    }
+    /**
+     * @ignore
+     */
+    markAsUnreadbale() {
+        this._canRead = false;
+        this._buffer = null;
+        this._float32Reader = null;
+    }
+    /**
+     * @inheritDoc
+     * @override
+     */
+    destroy() {
         super.destroy();
         this._buffer = null;
+        this._float32Reader = null;
         this._vertexDeclaration = null;
     }
 }

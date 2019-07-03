@@ -1,4 +1,3 @@
-import { ColorFilter } from "../../filters/ColorFilter";
 import { Context } from "../../resource/Context";
 import { Texture } from "../../resource/Texture";
 /**
@@ -14,8 +13,6 @@ export declare class CharSubmitCache {
     private _imgId;
     private _clipid;
     private _clipMatrix;
-    _enbale: boolean;
-    _colorFiler: ColorFilter;
     constructor();
     clear(): void;
     destroy(): void;

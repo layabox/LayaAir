@@ -1,5 +1,5 @@
 /**
- * @private
+ * @internal
  */
 export class AnimationState {
     constructor() {

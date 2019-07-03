@@ -1,4 +1,4 @@
-import { IClone } from "././IClone";
+import { IClone } from "./IClone";
 /**
      * <code>KeyFrame</code> 类用于创建关键帧实例。
      */

@@ -1,7 +1,8 @@
-import { SaveBase } from "././SaveBase";
+import { SaveBase } from "./SaveBase";
 import { Matrix } from "../../../maths/Matrix";
 export class SaveTransform {
     constructor() {
+        /**@internal */
         this._matrix = new Matrix();
     }
     isSaveMark() { return false; }

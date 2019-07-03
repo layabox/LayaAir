@@ -1,6 +1,6 @@
-import { Vector3 } from "././Vector3";
-import { Quaternion } from "././Quaternion";
-import { MathUtils3D } from "././MathUtils3D";
+import { Vector3 } from "./Vector3";
+import { Quaternion } from "./Quaternion";
+import { MathUtils3D } from "./MathUtils3D";
 import { LayaGL } from "../../layagl/LayaGL";
 /**
  * <code>Matrix4x4</code> 类用于创建4x4矩阵。
@@ -713,21 +713,21 @@ export class Matrix4x4 {
         me[10] = -forward.z;
     }
 }
-/**@private */
+/**@internal */
 Matrix4x4._tempMatrix4x4 = new Matrix4x4();
-/**@private */
+/**@internal */
 Matrix4x4.TEMPMatrix0 = new Matrix4x4();
-/**@private */
+/**@internal */
 Matrix4x4.TEMPMatrix1 = new Matrix4x4();
-/**@private */
+/**@internal */
 Matrix4x4._tempVector0 = new Vector3();
-/**@private */
+/**@internal */
 Matrix4x4._tempVector1 = new Vector3();
-/**@private */
+/**@internal */
 Matrix4x4._tempVector2 = new Vector3();
-/**@private */
+/**@internal */
 Matrix4x4._tempVector3 = new Vector3();
-/**@private */
+/**@internal */
 Matrix4x4._tempQuaternion = new Quaternion();
 /**默认矩阵,禁止修改*/
 Matrix4x4.DEFAULT = new Matrix4x4();

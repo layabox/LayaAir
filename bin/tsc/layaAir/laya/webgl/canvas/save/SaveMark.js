@@ -1,6 +1,7 @@
-import { SaveBase } from "././SaveBase";
+import { SaveBase } from "./SaveBase";
 export class SaveMark {
     constructor() {
+        /**@internal */
         this._saveuse = 0;
     }
     isSaveMark() {

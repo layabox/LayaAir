@@ -4,15 +4,15 @@ import { Vector2 } from "./math/Vector2";
  */
 export class Touch {
     /**
-     * @private
+     * @internal
      * 创建一个 <code>Touch</code> 实例。
      */
     constructor() {
-        /** @private  [实现IListPool接口]*/
+        /**[实现IListPool接口]*/
         this._indexInList = -1;
-        /** @private */
+        /** @internal */
         this._identifier = -1;
-        /** @private */
+        /** @internal */
         this._position = new Vector2();
     }
     /**
@@ -30,13 +30,13 @@ export class Touch {
         return this._position;
     }
     /**
-     * @private [实现ISingletonElement接口]
+     *  [实现ISingletonElement接口]
      */
     _getIndexInList() {
         return this._indexInList;
     }
     /**
-     * @private [实现ISingletonElement接口]
+     *  [实现ISingletonElement接口]
      */
     _setIndexInList(index) {
         this._indexInList = index;

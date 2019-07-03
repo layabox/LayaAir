@@ -3,7 +3,6 @@ import { LightSprite } from "./LightSprite";
  * <code>DirectionLight</code> 类用于创建平行光。
  */
 export declare class DirectionLight extends LightSprite {
-    /** @private */
     private _direction;
     /**
      * @inheritDoc
@@ -13,9 +12,6 @@ export declare class DirectionLight extends LightSprite {
      * 创建一个 <code>DirectionLight</code> 实例。
      */
     constructor();
-    /**
-     * @private
-     */
     private _initShadow;
     /**
      * @inheritDoc

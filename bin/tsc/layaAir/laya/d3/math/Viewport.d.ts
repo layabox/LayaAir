@@ -1,5 +1,5 @@
-import { Matrix4x4 } from "././Matrix4x4";
-import { Vector3 } from "././Vector3";
+import { Matrix4x4 } from "./Matrix4x4";
+import { Vector3 } from "./Vector3";
 /**
      * <code>Viewport</code> 类用于创建视口。
      */
@@ -32,7 +32,6 @@ export declare class Viewport {
      * @param	vector 输出三维向量。
      */
     project(source: Vector3, matrix: Matrix4x4, out: Vector3): void;
-    project1(source: Vector3, matrix: Matrix4x4, out: Vector3): void;
     /**
      * 反变换一个三维向量。
      * @param	source 源三维向量。

@@ -19,8 +19,6 @@ export declare class ColorUtils {
     strColor: string;
     /** uint 型颜色值。*/
     numColor: number;
-    /**@private TODO:*/
-    _drawStyle: any;
     /**
      * 根据指定的属性值，创建一个 <code>Color</code> 类的实例。
      * @param	value 颜色值，可以是字符串："#ff0000"或者16进制颜色 0xff0000。

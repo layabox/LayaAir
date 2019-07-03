@@ -1,10 +1,10 @@
-import { DynamicBatchManager } from "././DynamicBatchManager";
-import { SubMeshDynamicBatch } from "././SubMeshDynamicBatch";
+import { DynamicBatchManager } from "./DynamicBatchManager";
+import { SubMeshDynamicBatch } from "./SubMeshDynamicBatch";
 import { BufferState } from "../core/BufferState";
 import { BatchMark } from "../core/render/BatchMark";
 import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement";
 /**
- * @private
+ * @internal
  * <code>MeshSprite3DDynamicBatchManager</code> 类用于网格精灵动态批处理管理。
  */
 export class MeshRenderDynamicBatchManager extends DynamicBatchManager {
@@ -13,16 +13,16 @@ export class MeshRenderDynamicBatchManager extends DynamicBatchManager {
      */
     constructor() {
         super();
-        /**@private */
+        /**@internal */
         this._instanceBatchOpaqueMarks = [];
-        /**@private */
+        /**@internal */
         this._vertexBatchOpaqueMarks = [];
-        /**@private */
+        /**@internal */
         this._cacheBufferStates = [];
         this._updateCountMark = 0;
     }
     /**
-     * @private
+     * @internal
      */
     getInstanceBatchOpaquaMark(receiveShadow, materialID, subMeshID, invertFace) {
         var instanceReceiveShadowMarks = (this._instanceBatchOpaqueMarks[receiveShadow ? 0 : 1]) || (this._instanceBatchOpaqueMarks[receiveShadow ? 0 : 1] = []);
@@ -31,7 +31,7 @@ export class MeshRenderDynamicBatchManager extends DynamicBatchManager {
         return instancSubMeshMarks[invertFace ? 1 : 0] || (instancSubMeshMarks[invertFace ? 1 : 0] = new BatchMark());
     }
     /**
-     * @private
+     * @internal
      */
     getVertexBatchOpaquaMark(lightMapIndex, receiveShadow, materialID, verDecID) {
         var dynLightMapMarks = (this._vertexBatchOpaqueMarks[lightMapIndex]) || (this._vertexBatchOpaqueMarks[lightMapIndex] = []);
@@ -40,7 +40,7 @@ export class MeshRenderDynamicBatchManager extends DynamicBatchManager {
         return dynMaterialMarks[verDecID] || (dynMaterialMarks[verDecID] = new BatchMark());
     }
     /**
-     * @private
+     * @internal
      */
     _getBufferState(vertexDeclaration) {
         var bufferState = this._cacheBufferStates[vertexDeclaration.id];
@@ -78,5 +78,5 @@ export class MeshRenderDynamicBatchManager extends DynamicBatchManager {
         this._updateCountMark++;
     }
 }
-/** @private */
+/** @internal */
 MeshRenderDynamicBatchManager.instance = new MeshRenderDynamicBatchManager();

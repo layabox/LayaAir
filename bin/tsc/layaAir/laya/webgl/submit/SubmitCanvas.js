@@ -2,14 +2,16 @@ import { Matrix } from "../../maths/Matrix";
 import { Value2D } from "../shader/d2/value/Value2D";
 import { CONST3D2D } from "../utils/CONST3D2D";
 import { RenderState2D } from "../utils/RenderState2D";
-import { SubmitBase } from "././SubmitBase";
+import { SubmitBase } from "./SubmitBase";
 /**
  * cache as normal 模式下的生成的canvas的渲染。
  */
 export class SubmitCanvas extends SubmitBase {
     constructor() {
         super(SubmitBase.TYPE_2D);
+        /**@internal */
         this._matrix = new Matrix(); // 用来计算当前的世界矩阵
+        /**@internal */
         this._matrix4 = CONST3D2D.defaultMatrix4.concat();
         this.shaderValue = new Value2D(0, 0);
     }

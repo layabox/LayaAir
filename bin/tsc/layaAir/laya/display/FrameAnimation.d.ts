@@ -1,4 +1,4 @@
-import { AnimationBase } from "././AnimationBase";
+import { AnimationBase } from "./AnimationBase";
 /**
  * 动画播放完毕后调度。
  * @eventType Event.COMPLETE
@@ -20,13 +20,6 @@ export declare class FrameAnimation extends AnimationBase {
     /**@private */
     protected _usedFrames: any[];
     constructor();
-    /**
-     * @private
-     * 初始化动画数据
-     * @param targetDic 节点ID索引
-     * @param animationData 动画数据
-     */
-    _setUp(targetDic: any, animationData: any): void;
     /**@inheritDoc */
     clear(): AnimationBase;
     /**@inheritDoc */

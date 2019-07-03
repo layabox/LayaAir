@@ -12,7 +12,7 @@ export class CallLater {
         this._laters = [];
     }
     /**
-     * @private
+     * @internal
      * 帧循环处理函数。
      */
     _update() {

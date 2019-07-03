@@ -1,7 +1,6 @@
 import { Resource } from "../../../resource/Resource";
 import { Handler } from "../../../utils/Handler";
 import { DefineDatas } from "../../shader/DefineDatas";
-import { Shader3D } from "../../shader/Shader3D";
 import { ShaderData } from "../../shader/ShaderData";
 import { ShaderDefines } from "../../shader/ShaderDefines";
 import { IClone } from "../IClone";
@@ -17,11 +16,10 @@ export declare class BaseMaterial extends Resource implements IClone {
     static RENDERQUEUE_ALPHATEST: number;
     /** 渲染队列_透明。*/
     static RENDERQUEUE_TRANSPARENT: number;
-    /**@private 着色器变量,透明测试值。*/
+    /**着色器变量,透明测试值。*/
     static ALPHATESTVALUE: number;
-    /**@private 材质级着色器宏定义,透明测试。*/
+    /**材质级着色器宏定义,透明测试。*/
     static SHADERDEFINE_ALPHATEST: number;
-    /**@private */
     static shaderDefines: ShaderDefines;
     /**
      * 加载材质。
@@ -30,20 +28,10 @@ export declare class BaseMaterial extends Resource implements IClone {
      */
     static load(url: string, complete: Handler): void;
     /**
-     * @private
-     */
-    static __initDefine__(): void;
-    /**
      * @inheritDoc
      */
     static _parse(data: any, propertyParams?: any, constructParams?: any[]): BaseMaterial;
-    /** @private */
     private _alphaTest;
-    /** @private */
-    _disablePublicDefineDatas: DefineDatas;
-    /** @private */
-    _shader: Shader3D;
-    /** @private */
     _shaderValues: ShaderData;
     /** 所属渲染队列. */
     renderQueue: number;
@@ -69,9 +57,6 @@ export declare class BaseMaterial extends Resource implements IClone {
      * 创建一个 <code>BaseMaterial</code> 实例。
      */
     constructor();
-    /**
-     * @private
-     */
     private _removeTetxureReference;
     /**
      * @inheritDoc

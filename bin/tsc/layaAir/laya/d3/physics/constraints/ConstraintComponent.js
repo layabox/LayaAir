@@ -9,7 +9,7 @@ export class ConstraintComponent extends Component {
      */
     constructor() {
         super();
-        /**@private */
+        /**@internal */
         this._feedbackEnabled = false;
     }
     /**

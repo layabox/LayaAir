@@ -21,7 +21,6 @@ export declare class RenderTexture2D extends BaseTexture {
     private _depthStencilBuffer;
     /** @private */
     private _depthStencilFormat;
-    _mgrKey: number;
     /**
      * 获取深度格式。
      *@return 深度格式。

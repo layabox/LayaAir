@@ -72,5 +72,5 @@ Stat.renderSlow = false;
 Stat._fpsData = [];
 Stat._timer = 0;
 Stat._count = 0;
-/**@private*/
+/**@internal*/
 Stat._StatRender = null;

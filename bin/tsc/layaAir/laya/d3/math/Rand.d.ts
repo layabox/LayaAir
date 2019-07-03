@@ -14,8 +14,6 @@ export declare class Rand {
      * @return 无符号8位字节随机数。
      */
     static getByteFromInt(v: number): number;
-    /**@private */
-    private _temp;
     /**获取随机种子。*/
     seeds: Uint32Array;
     /**

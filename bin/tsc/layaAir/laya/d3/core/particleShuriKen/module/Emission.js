@@ -35,7 +35,7 @@ export class Emission {
         this._bursts = [];
     }
     /**
-     * @private
+     * @internal
      */
     destroy() {
         this._bursts = null;

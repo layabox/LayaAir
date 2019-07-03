@@ -20,10 +20,6 @@ export declare class Scene extends Sprite {
     private _timer;
     /**@private */
     private _viewCreated;
-    /**@private */
-    _idMap: any;
-    /**@private */
-    _$componentType: string;
     constructor();
     /**
      * @private 兼容老项目

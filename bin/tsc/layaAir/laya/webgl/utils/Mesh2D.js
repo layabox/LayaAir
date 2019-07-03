@@ -1,8 +1,7 @@
-import { VertexBuffer2D } from "././VertexBuffer2D";
-import { IndexBuffer2D } from "././IndexBuffer2D";
+import { VertexBuffer2D } from "./VertexBuffer2D";
+import { IndexBuffer2D } from "./IndexBuffer2D";
 import { Config } from "./../../../Config";
 import { BufferState2D } from "../BufferState2D";
-import { WebGLContext } from "../WebGLContext";
 /**
  * Mesh2d只是保存数据。描述attribute用的。本身不具有渲染功能。
  */
@@ -22,7 +21,7 @@ export class Mesh2D {
         //public static var meshlist:Array = [];	//活着的mesh对象列表。
         this.canReuse = false; //用完以后，是删除还是回收。
         this._stride = stride;
-        this._vb = new VertexBuffer2D(stride, WebGLContext.DYNAMIC_DRAW);
+        this._vb = new VertexBuffer2D(stride, WebGL2RenderingContext.DYNAMIC_DRAW);
         if (vballoc) {
             this._vb._resizeBuffer(vballoc, false);
         }

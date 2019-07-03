@@ -1,9 +1,9 @@
 import { Event } from "../events/Event";
 import { MouseManager } from "../events/MouseManager";
 import { ILaya } from "./../../ILaya";
-import { Ease } from "././Ease";
-import { Handler } from "././Handler";
-import { Tween } from "././Tween";
+import { Ease } from "./Ease";
+import { Handler } from "./Handler";
+import { Tween } from "./Tween";
 /**
  * @private
  * <code>Dragging</code> 类是触摸滑动控件。

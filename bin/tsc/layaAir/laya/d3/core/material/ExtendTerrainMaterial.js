@@ -10,13 +10,12 @@ import { RenderState } from "./RenderState";
 export class ExtendTerrainMaterial extends BaseMaterial {
     constructor() {
         super();
-        /**@private */
         this._enableLighting = true;
         this.setShaderName("ExtendTerrain");
         this.renderMode = ExtendTerrainMaterial.RENDERMODE_OPAQUE;
     }
     /**
-     * @private
+     * @internal
      */
     static __initDefine__() {
         ExtendTerrainMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
@@ -324,5 +323,5 @@ ExtendTerrainMaterial.BLEND_SRC = Shader3D.propertyNameToID("s_BlendSrc");
 ExtendTerrainMaterial.BLEND_DST = Shader3D.propertyNameToID("s_BlendDst");
 ExtendTerrainMaterial.DEPTH_TEST = Shader3D.propertyNameToID("s_DepthTest");
 ExtendTerrainMaterial.DEPTH_WRITE = Shader3D.propertyNameToID("s_DepthWrite");
-/**@private */
+/**@internal */
 ExtendTerrainMaterial.shaderDefines = null;

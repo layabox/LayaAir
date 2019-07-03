@@ -1,7 +1,7 @@
 import { Shader3D } from "../../../../d3/shader/Shader3D";
 import { ShaderData } from "../../../../d3/shader/ShaderData";
 /**
- * @private
+ * @internal
  * <code>Command</code> 类用于创建指令。
  */
 export class Command {
@@ -9,33 +9,33 @@ export class Command {
      * 创建一个 <code>Command</code> 实例。
      */
     constructor() {
-        /**@private */
+        /**@internal */
         this._commandBuffer = null;
     }
     /**
-    * @private
+    * @internal
     */
     static __init__() {
         Command._screenShaderData = new ShaderData();
         Command._screenShader = Shader3D.find("BlitScreen");
     }
     /**
-     *@private
+     *@internal
      */
     run() {
     }
     /**
-     *@private
+     *@internal
      */
     recover() {
         this._commandBuffer = null;
     }
 }
-/** @private */
+/** @internal */
 Command.SCREENTEXTURE_NAME = "u_MainTex"; //todo：
-/** @private */
+/** @internal */
 Command.MAINTEXTURE_TEXELSIZE_NAME = "u_MainTex_TexelSize"; //todo：
-/** @private */
+/** @internal */
 Command.SCREENTEXTURE_ID = Shader3D.propertyNameToID(Command.SCREENTEXTURE_NAME); //todo：
-/** @private */
+/** @internal */
 Command.MAINTEXTURE_TEXELSIZE_ID = Shader3D.propertyNameToID(Command.MAINTEXTURE_TEXELSIZE_NAME); //todo：

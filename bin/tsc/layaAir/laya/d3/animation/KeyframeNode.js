@@ -1,13 +1,11 @@
 /**
- * @private
+ * @internal
  */
 export class KeyframeNode {
     constructor() {
-        /**@private */
         this._ownerPath = [];
-        /**@private */
         this._propertys = [];
-        /**@private */
+        /**@internal */
         this._keyFrames = [];
     }
     /**
@@ -32,49 +30,49 @@ export class KeyframeNode {
         return this._keyFrames.length;
     }
     /**
-     * @private
+     * @internal
      */
     _setOwnerPathCount(value) {
         this._ownerPath.length = value;
     }
     /**
-     * @private
+     * @internal
      */
     _setOwnerPathByIndex(index, value) {
         this._ownerPath[index] = value;
     }
     /**
-     * @private
+     * @internal
      */
     _joinOwnerPath(sep) {
         return this._ownerPath.join(sep);
     }
     /**
-     * @private
+     * @internal
      */
     _setPropertyCount(value) {
         this._propertys.length = value;
     }
     /**
-     * @private
+     * @internal
      */
     _setPropertyByIndex(index, value) {
         this._propertys[index] = value;
     }
     /**
-     * @private
+     * @internal
      */
     _joinProperty(sep) {
         return this._propertys.join(sep);
     }
     /**
-     * @private
+     * @internal
      */
     _setKeyframeCount(value) {
         this._keyFrames.length = value;
     }
     /**
-     * @private
+     * @internal
      */
     _setKeyframeByIndex(index, value) {
         this._keyFrames[index] = value;

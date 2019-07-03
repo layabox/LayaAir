@@ -85,12 +85,6 @@ export declare class ClassUtils {
     static _addGraphicsToSprite(graphicO: any, sprite: Sprite): void;
     /**
      * @private
-     * 将graphic绘图指令添加到sprite上
-     * @param graphicO 绘图指令描述
-     */
-    static _addGraphicToSprite(graphicO: any, sprite: Sprite, isChild?: boolean): void;
-    /**
-     * @private
      */
     private static _getGraphicsFromSprite;
     /**
@@ -116,15 +110,7 @@ export declare class ClassUtils {
     /**
      * @private
      */
-    static _isDrawType(type: string): boolean;
-    /**
-     * @private
-     */
     private static _getParams;
-    /**
-     * @private
-     */
-    static _getPointListByStr(str: string): any[];
     /**
      * @private
      */

@@ -1,6 +1,6 @@
-import { Pool } from "././Pool";
-import { Browser } from "././Browser";
-import { Utils } from "././Utils";
+import { Pool } from "./Pool";
+import { Browser } from "./Browser";
+import { Utils } from "./Utils";
 import { ILaya } from "./../../ILaya";
 /**
      * <code>Tween</code>  是一个缓动类。使用此类能够实现对目标对象属性的渐变。
@@ -72,7 +72,7 @@ export class Tween {
     from(target, props, duration, ease = null, complete = null, delay = 0, coverBefore = false) {
         return this._create(target, props, duration, ease, complete, delay, coverBefore, false, false, true);
     }
-    /** @private */
+    /** @internal */
     _create(target, props, duration, ease, complete, delay, coverBefore, isTo, usePool, runNow) {
         if (!target)
             throw new Error("Tween:target is null");
@@ -138,7 +138,7 @@ export class Tween {
     _doEase() {
         this._updateEase(Browser.now());
     }
-    /**@private */
+    /**@internal */
     _updateEase(time) {
         var target = this._target;
         if (!target)
@@ -252,7 +252,7 @@ export class Tween {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _clear() {
         this.pause();

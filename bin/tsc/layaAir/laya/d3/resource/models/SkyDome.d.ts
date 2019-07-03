@@ -1,21 +1,10 @@
-import { SkyMesh } from "././SkyMesh";
+import { SkyMesh } from "./SkyMesh";
 import { RenderContext3D } from "../../core/render/RenderContext3D";
 /**
  * <code>SkyDome</code> 类用于创建天空盒。
  */
 export declare class SkyDome extends SkyMesh {
-    /**@private */
-    private static _radius;
-    /**@private */
     static instance: SkyDome;
-    /**
-     * @private
-     */
-    static __init__(): void;
-    /**@private */
-    private _stacks;
-    /**@private */
-    private _slices;
     /**
      * 获取堆数。
      */

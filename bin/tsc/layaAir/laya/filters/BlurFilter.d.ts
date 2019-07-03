@@ -1,4 +1,4 @@
-import { Filter } from "././Filter";
+import { Filter } from "./Filter";
 /**
  * 模糊滤镜
  */

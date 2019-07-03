@@ -1,17 +1,9 @@
 import { Vector3 } from "../../math/Vector3";
-import { ColliderShape } from "././ColliderShape";
+import { ColliderShape } from "./ColliderShape";
 /**
  * <code>CapsuleColliderShape</code> 类用于创建胶囊形状碰撞器。
  */
 export declare class CapsuleColliderShape extends ColliderShape {
-    /** @private */
-    static _tempVector30: Vector3;
-    /**@private */
-    private _radius;
-    /**@private */
-    private _length;
-    /**@private */
-    private _orientation;
     /**
      * 获取半径。
      */

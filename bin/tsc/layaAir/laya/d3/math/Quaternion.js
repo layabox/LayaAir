@@ -1,7 +1,7 @@
-import { Vector3 } from "././Vector3";
-import { Matrix3x3 } from "././Matrix3x3";
-import { MathUtils3D } from "././MathUtils3D";
-import { Vector2 } from "././Vector2";
+import { Vector3 } from "./Vector3";
+import { Matrix3x3 } from "./Matrix3x3";
+import { MathUtils3D } from "./MathUtils3D";
+import { Vector2 } from "./Vector2";
 import { ILaya3D } from "../../../ILaya3D";
 /**
  * <code>Quaternion</code> 类用于创建四元数。
@@ -526,15 +526,15 @@ export class Quaternion {
         Vector2.rewriteNumProperty(this, "w", 3);
     }
 }
-/**@private */
+/**@internal */
 Quaternion.TEMPVector30 = new Vector3();
-/**@private */
+/**@internal */
 Quaternion.TEMPVector31 = new Vector3();
-/**@private */
+/**@internal */
 Quaternion.TEMPVector32 = new Vector3();
-/**@private */
+/**@internal */
 Quaternion.TEMPVector33 = new Vector3();
-/**@private */
+/**@internal */
 Quaternion._tempMatrix3x3 = new Matrix3x3();
 /**默认矩阵,禁止修改*/
 Quaternion.DEFAULT = new Quaternion();

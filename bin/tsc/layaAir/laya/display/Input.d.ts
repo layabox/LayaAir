@@ -1,4 +1,4 @@
-import { Text } from "././Text";
+import { Text } from "./Text";
 /**
  * 用户输入一个或多个文本字符时后调度。
  * @eventType Event.INPUT

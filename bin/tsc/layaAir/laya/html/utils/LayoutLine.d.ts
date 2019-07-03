@@ -1,4 +1,4 @@
-import { ILayout } from "././ILayout";
+import { ILayout } from "./ILayout";
 /**
  * @private
  */

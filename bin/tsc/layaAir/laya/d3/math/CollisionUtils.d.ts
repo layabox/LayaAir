@@ -1,26 +1,12 @@
-import { Vector3 } from "././Vector3";
-import { Plane } from "././Plane";
-import { BoundBox } from "././BoundBox";
-import { BoundSphere } from "././BoundSphere";
-import { Ray } from "././Ray";
+import { Vector3 } from "./Vector3";
+import { Plane } from "./Plane";
+import { BoundBox } from "./BoundBox";
+import { BoundSphere } from "./BoundSphere";
+import { Ray } from "./Ray";
 /**
      * <code>Collision</code> 类用于检测碰撞。
      */
 export declare class CollisionUtils {
-    /** @private */
-    private static _tempV30;
-    /** @private */
-    private static _tempV31;
-    /** @private */
-    private static _tempV32;
-    /** @private */
-    private static _tempV33;
-    /** @private */
-    private static _tempV34;
-    /** @private */
-    private static _tempV35;
-    /** @private */
-    private static _tempV36;
     /**
      * 创建一个 <code>Collision</code> 实例。
      */

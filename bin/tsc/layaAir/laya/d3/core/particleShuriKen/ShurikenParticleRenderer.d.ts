@@ -4,21 +4,11 @@ import { Bounds } from "../Bounds";
 import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { Transform3D } from "../Transform3D";
-import { ShuriKenParticle3D } from "././ShuriKenParticle3D";
+import { ShuriKenParticle3D } from "./ShuriKenParticle3D";
 /**
  * <code>ShurikenParticleRender</code> 类用于创建3D粒子渲染器。
  */
 export declare class ShurikenParticleRenderer extends BaseRender {
-    /** @private */
-    private _finalGravity;
-    /** @private */
-    private _tempRotationMatrix;
-    /**@private */
-    private _defaultBoundBox;
-    /**@private */
-    private _renderMode;
-    /**@private */
-    private _mesh;
     /**拉伸广告牌模式摄像机速度缩放,暂不支持。*/
     stretchedBillboardCameraSpeedScale: number;
     /**拉伸广告牌模式速度缩放。*/

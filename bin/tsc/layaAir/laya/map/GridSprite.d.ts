@@ -1,5 +1,5 @@
-import { TiledMap } from "././TiledMap";
-import { TileAniSprite } from "././TileAniSprite";
+import { TiledMap } from "./TiledMap";
+import { TileAniSprite } from "./TileAniSprite";
 import { Sprite } from "../display/Sprite";
 /**
  * 地图的每层都会分块渲染处理

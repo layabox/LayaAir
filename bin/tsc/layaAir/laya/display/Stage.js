@@ -1,7 +1,7 @@
-import { Sprite } from "././Sprite";
+import { Sprite } from "./Sprite";
 import { Config } from "./../../Config";
-import { Input } from "././Input";
-import { SpriteConst } from "././SpriteConst";
+import { Input } from "./Input";
+import { SpriteConst } from "./SpriteConst";
 import { Const } from "../Const";
 import { Event } from "../events/Event";
 import { MouseManager } from "../events/MouseManager";
@@ -77,7 +77,6 @@ export class Stage extends Sprite {
         this.renderingEnabled = true;
         /**是否启用屏幕适配，可以适配后，在某个时候关闭屏幕适配，防止某些操作导致的屏幕意外改变*/
         this.screenAdaptationEnabled = true;
-        /**@private */
         this._canvasTransform = new Matrix();
         /**@private */
         this._screenMode = "none";
@@ -99,17 +98,17 @@ export class Stage extends Sprite {
         this._frameStartTime = 0;
         /**@private */
         this._previousOrientation = Browser.window.orientation;
-        /**@private webgl Color*/
+        /**@internal webgl Color*/
         this._wgColor = [0, 0, 0, 1];
-        /**@private */
+        /**@internal */
         this._scene3Ds = [];
         /**@private */
         this._globalRepaintSet = false; // 设置全局重画标志。这个是给IDE用的。IDE的Image无法在onload的时候通知对应的sprite重画。
         /**@private */
         this._globalRepaintGet = false; // 一个get一个set是为了把标志延迟到下一帧的开始，防止部分对象接收不到。
-        /**@private */
+        /**@internal */
         this._3dUI = [];
-        /**@private */
+        /**@internal */
         this._curUIBase = null; // 给鼠标事件capture用的。用来找到自己的根。因为3d界面的根不是stage（界面链会被3d对象打断）
         /**使用物理分辨率作为canvas大小，会改进渲染效果，但是会降低性能*/
         this.useRetinalCanvas = false;
@@ -514,7 +513,7 @@ export class Stage extends Sprite {
     /**@inheritDoc */
     /*override*/ parentRepaint(type = SpriteConst.REPAINT_CACHE) {
     }
-    /**@private */
+    /**@internal */
     _loop() {
         this._globalRepaintGet = this._globalRepaintSet;
         this._globalRepaintSet = false;
@@ -804,7 +803,7 @@ Stage._dbgSprite = new Sprite();
 Stage.clear = function (value) {
     //修改需要同步到上面的native实现中
     Context.set2DRenderConfig(); //渲染2D前要还原2D状态,否则可能受3D影响
-    RenderState2D.worldScissorTest && WebGLContext.mainContext.disable(WebGLContext.SCISSOR_TEST);
+    RenderState2D.worldScissorTest && WebGLContext.mainContext.disable(WebGL2RenderingContext.SCISSOR_TEST);
     var ctx = Render.context;
     //兼容浏览器
     var c = (ctx._submits._length == 0 || Config.preserveDrawingBuffer) ? ColorUtils.create(value).arrColor : window.Laya.stage._wgColor;

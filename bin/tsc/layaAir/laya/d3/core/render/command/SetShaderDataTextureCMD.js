@@ -1,20 +1,20 @@
-import { Command } from "././Command";
+import { Command } from "./Command";
 /**
- * @private
+ * @internal
  * <code>SetShaderDataTextureCMD</code> 类用于创建设置渲染目标指令。
  */
 export class SetShaderDataTextureCMD extends Command {
     constructor() {
         super(...arguments);
-        /**@private */
+        /**@internal */
         this._shaderData = null;
-        /**@private */
+        /**@internal */
         this._nameID = 0;
-        /**@private */
+        /**@internal */
         this._texture = null;
     }
     /**
-     * @private
+     * @internal
      */
     static create(shaderData, nameID, texture) {
         var cmd;
@@ -40,5 +40,5 @@ export class SetShaderDataTextureCMD extends Command {
         this._texture = null;
     }
 }
-/**@private */
+/**@internal */
 SetShaderDataTextureCMD._pool = [];

@@ -1,4 +1,4 @@
-import { AnimationTemplet } from "././AnimationTemplet";
+import { AnimationTemplet } from "./AnimationTemplet";
 import { IDestroy } from "../resource/IDestroy";
 import { EventDispatcher } from "../events/EventDispatcher";
 /**开始播放时调度。
@@ -35,8 +35,6 @@ export declare class AnimationPlayer extends EventDispatcher implements IDestroy
     private _overallDuration;
     /** 是否在一次动画结束时停止。 设置这个标志后就不会再发送complete事件了*/
     private _stopWhenCircleFinish;
-    /** 已播放时间，包括重播时间*/
-    _elapsedPlaybackTime: number;
     /** 播放时帧数*/
     private _startUpdateLoopCount;
     /** 当前动画索引*/
@@ -160,10 +158,6 @@ export declare class AnimationPlayer extends EventDispatcher implements IDestroy
     /**
      * @private
      */
-    _onTempletLoadedComputeFullKeyframeIndices(cachePlayRate: number, cacheFrameRate: number, templet: AnimationTemplet): void;
-    /**
-     * @private
-     */
     private _computeFullKeyframeIndices;
     /**
      * @private
@@ -182,14 +176,6 @@ export declare class AnimationPlayer extends EventDispatcher implements IDestroy
      * @private
      */
     private _setPlayParamsWhenStop;
-    /**
-     * @private
-     */
-    _update(elapsedTime: number): void;
-    /**
-     * @private
-     */
-    _destroy(): void;
     /**
      * 播放动画。
      * @param	index 动画索引。

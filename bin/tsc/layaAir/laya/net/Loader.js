@@ -1,7 +1,7 @@
-import { HttpRequest } from "././HttpRequest";
-import { URL } from "././URL";
-//import { WorkerLoader } from "././WorkerLoader";
-//import { TTFLoader } from "././TTFLoader";
+import { HttpRequest } from "./HttpRequest";
+import { URL } from "./URL";
+//import { WorkerLoader } from "./WorkerLoader";
+//import { TTFLoader } from "./TTFLoader";
 import { BitmapFont } from "./../display/BitmapFont";
 //import { Laya } from "./../../Laya";
 import { Prefab } from "../components/Prefab";
@@ -38,7 +38,7 @@ import { ILaya } from "../../ILaya";
 export class Loader extends EventDispatcher {
     constructor() {
         super(...arguments);
-        /**@private 自定义解析不派发complete事件，但会派发loaded事件，手动调用endLoad方法再派发complete事件*/
+        /**@internal 自定义解析不派发complete事件，但会派发loaded事件，手动调用endLoad方法再派发complete事件*/
         this._customParse = false;
     }
     /**

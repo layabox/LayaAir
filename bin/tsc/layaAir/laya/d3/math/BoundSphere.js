@@ -1,5 +1,5 @@
-import { Vector3 } from "././Vector3";
-import { CollisionUtils } from "././CollisionUtils";
+import { Vector3 } from "./Vector3";
+import { CollisionUtils } from "./CollisionUtils";
 /**
  * <code>BoundSphere</code> 类用于创建包围球。
  */

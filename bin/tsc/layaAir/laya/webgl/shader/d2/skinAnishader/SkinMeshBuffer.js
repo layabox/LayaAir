@@ -5,7 +5,7 @@ export class SkinMeshBuffer {
     //TODO:coverage
     constructor() {
         var gl = WebGLContext.mainContext;
-        this.ib = IndexBuffer2D.create(WebGLContext.DYNAMIC_DRAW);
+        this.ib = IndexBuffer2D.create(WebGL2RenderingContext.DYNAMIC_DRAW);
         this.vb = VertexBuffer2D.create(8);
     }
     //TODO:coverage

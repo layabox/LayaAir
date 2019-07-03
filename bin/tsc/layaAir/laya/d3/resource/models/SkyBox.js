@@ -1,17 +1,16 @@
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Stat } from "../../../utils/Stat";
-import { WebGLContext } from "../../../webgl/WebGLContext";
 import { BufferState } from "../../core/BufferState";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
 import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
-import { SkyMesh } from "././SkyMesh";
+import { SkyMesh } from "./SkyMesh";
 /**
  * <code>SkyBox</code> 类用于创建天空盒。
  */
 export class SkyBox extends SkyMesh {
     /**
-     * @private
+     * @internal
      */
     static __init__() {
         SkyBox.instance = new SkyBox(); //TODO:移植为标准Mesh后需要加锁
@@ -21,9 +20,9 @@ export class SkyBox extends SkyMesh {
      */
     constructor() {
         super();
-        var halfHeight = 0.5;
-        var halfWidth = 0.5;
-        var halfDepth = 0.5;
+        var halfHeight = 1.0;
+        var halfWidth = 1.0;
+        var halfDepth = 1.0;
         var vertices = new Float32Array([-halfDepth, halfHeight, -halfWidth, halfDepth, halfHeight, -halfWidth, halfDepth, halfHeight, halfWidth, -halfDepth, halfHeight, halfWidth,
             -halfDepth, -halfHeight, -halfWidth, halfDepth, -halfHeight, -halfWidth, halfDepth, -halfHeight, halfWidth, -halfDepth, -halfHeight, halfWidth]); //下
         var indices = new Uint8Array([
@@ -35,10 +34,10 @@ export class SkyBox extends SkyMesh {
             0, 4, 5, 5, 1, 0
         ]); //后
         var verDec = VertexMesh.getVertexDeclaration("POSITION");
-        this._vertexBuffer = new VertexBuffer3D(verDec.vertexStride * 8, WebGLContext.STATIC_DRAW, false);
+        this._vertexBuffer = new VertexBuffer3D(verDec.vertexStride * 8, WebGL2RenderingContext.STATIC_DRAW, false);
         this._vertexBuffer.vertexDeclaration = verDec;
-        this._indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_UBYTE, 36, WebGLContext.STATIC_DRAW, false);
-        this._vertexBuffer.setData(vertices);
+        this._indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_UBYTE, 36, WebGL2RenderingContext.STATIC_DRAW, false);
+        this._vertexBuffer.setData(vertices.buffer);
         this._indexBuffer.setData(indices);
         var bufferState = new BufferState();
         bufferState.bind();
@@ -51,7 +50,7 @@ export class SkyBox extends SkyMesh {
      * @inheritDoc
      */
     /*override*/ _render(state) {
-        LayaGL.instance.drawElements(WebGLContext.TRIANGLES, 36, WebGLContext.UNSIGNED_BYTE, 0);
+        LayaGL.instance.drawElements(WebGL2RenderingContext.TRIANGLES, 36, WebGL2RenderingContext.UNSIGNED_BYTE, 0);
         Stat.trianglesFaces += 12;
         Stat.renderBatches++;
     }

@@ -1,32 +1,31 @@
-import { WebGLContext } from "../../../webgl/WebGLContext";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
 import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
-import { Mesh } from "././Mesh";
-import { SubMesh } from "././SubMesh";
+import { Mesh } from "./Mesh";
+import { SubMesh } from "./SubMesh";
 /**
  * <code>PrimitiveMesh</code> 类用于创建简单网格。
  */
 export class PrimitiveMesh {
     /**
-     * @private
+     * @internal
      */
     static _createMesh(vertexDeclaration, vertices, indices) {
         var mesh = new Mesh();
         var subMesh = new SubMesh(mesh);
-        var vertexBuffer = new VertexBuffer3D(vertices.length * 4, WebGLContext.STATIC_DRAW, true);
+        var vertexBuffer = new VertexBuffer3D(vertices.length * 4, WebGL2RenderingContext.STATIC_DRAW, true);
         vertexBuffer.vertexDeclaration = vertexDeclaration;
-        vertexBuffer.setData(vertices);
-        mesh._vertexBuffers.push(vertexBuffer);
+        vertexBuffer.setData(vertices.buffer);
+        mesh._vertexBuffer = vertexBuffer;
         mesh._vertexCount += vertexBuffer.vertexCount;
-        var indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, indices.length, WebGLContext.STATIC_DRAW, true);
+        var indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, indices.length, WebGL2RenderingContext.STATIC_DRAW, true);
         indexBuffer.setData(indices);
         mesh._indexBuffer = indexBuffer;
         var vertexBuffers = [];
         vertexBuffers[0] = vertexBuffer;
-        mesh._setBuffer(vertexBuffers, indexBuffer);
+        mesh._setBuffer(vertexBuffer, indexBuffer);
         subMesh._vertexBuffer = vertexBuffer;
         subMesh._indexBuffer = indexBuffer;
         subMesh._indexStart = 0;

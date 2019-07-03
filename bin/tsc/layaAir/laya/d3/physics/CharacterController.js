@@ -1,7 +1,7 @@
 import { Vector3 } from "../math/Vector3";
 import { Physics3DUtils } from "../utils/Physics3DUtils";
 import { Utils3D } from "../utils/Utils3D";
-import { PhysicsComponent } from "././PhysicsComponent";
+import { PhysicsComponent } from "./PhysicsComponent";
 import { Physics } from "./Physics";
 /**
  * <code>CharacterController</code> 类用于创建角色控制器。
@@ -16,23 +16,23 @@ export class CharacterController extends PhysicsComponent {
      */
     constructor(stepheight = 0.1, upAxis = null, collisionGroup = Physics3DUtils.COLLISIONFILTERGROUP_DEFAULTFILTER, canCollideWith = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER) {
         super(collisionGroup, canCollideWith);
-        /** @private */
+        /** @internal */
         this._upAxis = new Vector3(0, 1, 0);
-        /**@private */
+        /**@internal */
         this._maxSlope = 45.0;
-        /**@private */
+        /**@internal */
         this._jumpSpeed = 10.0;
-        /**@private */
+        /**@internal */
         this._fallSpeed = 55.0;
-        /** @private */
+        /** @internal */
         this._gravity = new Vector3(0, -9.8 * 3, 0);
-        /**@private */
+        /**@internal */
         this._nativeKinematicCharacter = null;
         this._stepHeight = stepheight;
         (upAxis) && (this._upAxis = upAxis);
     }
     /**
-     * @private
+     * @internal
      */
     static __init__() {
         CharacterController._nativeTempVector30 = new Physics._physics3D.btVector3(0, 0, 0);
@@ -136,7 +136,7 @@ export class CharacterController extends PhysicsComponent {
         this._constructCharacter();
     }
     /**
-     * @private
+     * @internal
      */
     _constructCharacter() {
         var physics3D = Physics._physics3D;

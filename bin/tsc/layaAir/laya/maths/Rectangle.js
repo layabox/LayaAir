@@ -1,5 +1,5 @@
 import { Pool } from "../utils/Pool";
-import { Point } from "././Point";
+import { Point } from "./Point";
 /**
  * <p><code>Rectangle</code> 对象是按其位置（由它左上角的点 (x, y) 确定）以及宽度和高度定义的区域。</p>
  * <p>Rectangle 类的 x、y、width 和 height 属性相互独立；更改一个属性的值不会影响其他属性。</p>
@@ -178,7 +178,7 @@ export class Rectangle {
         return this;
     }
     /**
-     * @private
+     * @internal
      * 返回代表当前矩形的顶点数据。
      * @return 顶点数据。
      */
@@ -191,7 +191,7 @@ export class Rectangle {
         return rst;
     }
     /**
-     * @private
+     * @internal
      * 返回矩形的顶点数据。
      */
     static _getBoundPointS(x, y, width, height) {
@@ -203,7 +203,7 @@ export class Rectangle {
         return rst;
     }
     /**
-     * @private
+     * @internal
      * 返回包含所有点的最小矩形。
      * @param pointList 点列表。
      * @return 包含所有点的最小矩形矩形对象。

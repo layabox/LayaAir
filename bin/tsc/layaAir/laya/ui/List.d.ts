@@ -1,7 +1,7 @@
-import { Box } from "././Box";
-import { IRender } from "././IRender";
-import { IItem } from "././IItem";
-import { ScrollBar } from "././ScrollBar";
+import { Box } from "./Box";
+import { IRender } from "./IRender";
+import { IItem } from "./IItem";
+import { ScrollBar } from "./ScrollBar";
 import { Event } from "../events/Event";
 import { Point } from "../maths/Point";
 import { Handler } from "../utils/Handler";
@@ -164,8 +164,6 @@ export declare class List extends Box implements IRender, IItem {
     /**最大分页数。*/
     totalPage: number;
     /**@private */
-    _$componentType: string;
-    /**@private */
     protected _content: Box;
     /**@private */
     protected _scrollBar: ScrollBar;
@@ -267,12 +265,6 @@ export declare class List extends Box implements IRender, IItem {
      * 垂直方向显示的单元格之间的间距（以像素为单位）。
      */
     spaceY: number;
-    /**
-     * @private
-     * 更改单元格的信息。
-     * @internal 在此销毁、创建单元格，并设置单元格的位置等属性。相当于此列表内容发送改变时调用此函数。
-     */
-    protected changeCells(): void;
     private _getOneCell;
     private _createItems;
     protected createItem(): Box;
@@ -282,7 +274,6 @@ export declare class List extends Box implements IRender, IItem {
      * @param cell 需要添加的单元格对象。
      */
     protected addCell(cell: Box): void;
-    _afterInited(): void;
     /**
      * 初始化单元格信息。
      */

@@ -51,7 +51,7 @@ export class SceneLoad3 {
             mat.albedoIntensity = 5;
             var monkeyAnimator = this.layaMonkey.getChildAt(0).getComponent(Animator);
             //monkeyAnimator.getDefaultClip().islooping = true;
-            monkeyAnimator.getDefaultState(0)._clip.islooping = true;
+            monkeyAnimator.getDefaultState(0).clip.islooping = true;
             this.layaMonkey.transform.translate(new Vector3(0, 7, 0));
             this.layaMonkey.transform.scale = new Vector3(0.3, 0.3, 0.3);
             this.layaMonkey.transform.rotate(new Vector3(0, 180, 0), true, false);

@@ -1,11 +1,11 @@
-import { Bone } from "././Bone";
-import { TfConstraintData } from "././TfConstraintData";
-import { PathConstraintData } from "././PathConstraintData";
-import { DeformAniData } from "././DeformAniData";
-import { DeformSlotData } from "././DeformSlotData";
-import { DeformSlotDisplayData } from "././DeformSlotDisplayData";
-import { DrawOrderData } from "././DrawOrderData";
-import { EventData } from "././EventData";
+import { Bone } from "./Bone";
+import { TfConstraintData } from "./TfConstraintData";
+import { PathConstraintData } from "./PathConstraintData";
+import { DeformAniData } from "./DeformAniData";
+import { DeformSlotData } from "./DeformSlotData";
+import { DeformSlotDisplayData } from "./DeformSlotDisplayData";
+import { DrawOrderData } from "./DrawOrderData";
+import { EventData } from "./EventData";
 import { AnimationTemplet } from "../AnimationTemplet";
 import { BoneSlot } from "./BoneSlot";
 import { SkinData } from "./SkinData";
@@ -174,7 +174,6 @@ export class Templet extends AnimationTemplet {
         var tTextureLen = tByte.getInt32();
         var tTextureName = tByte.readUTFString();
         var tTextureNameArr = tTextureName.split("\n");
-        var tTexture;
         var tSrcTexturePath;
         for (i = 0; i < tTextureLen; i++) {
             tSrcTexturePath = this._path + tTextureNameArr[i * 2];
@@ -306,7 +305,6 @@ export class Templet extends AnimationTemplet {
         }
         this.tMatrixDataLen = tByte.getUint16();
         var tLen = tByte.getUint16();
-        var parentIndex;
         var boneLength = Math.floor(tLen / this.tMatrixDataLen);
         var tResultTransform;
         var tMatrixArray = this.srcBoneMatrixArr;
@@ -680,6 +678,9 @@ export class Templet extends AnimationTemplet {
         //trace("getGrahicsDataWithCache fail:",aniIndex,frameIndex,this._path);
         return null;
     }
+    /**
+     * @internal
+     */
     /*override*/ _setCreateURL(url) {
         this._relativeUrl = url;
         super._setCreateURL(url);
@@ -747,7 +748,8 @@ export class Templet extends AnimationTemplet {
         this._rate = v;
     }
 }
-/**@private */
+/**@internal */
 Templet.LAYA_ANIMATION_160_VISION = "LAYAANIMATION:1.6.0";
+/**@internal */
 Templet.LAYA_ANIMATION_VISION = "LAYAANIMATION:1.7.0";
 IAniLib.Templet = Templet;

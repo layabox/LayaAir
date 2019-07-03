@@ -1,7 +1,7 @@
-import { Box } from "././Box";
-import { VScrollBar } from "././VScrollBar";
-import { HScrollBar } from "././HScrollBar";
-import { UIUtils } from "././UIUtils";
+import { Box } from "./Box";
+import { VScrollBar } from "./VScrollBar";
+import { HScrollBar } from "./HScrollBar";
+import { UIUtils } from "./UIUtils";
 import { Event } from "../events/Event";
 import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
@@ -164,7 +164,7 @@ export class List extends Box {
         this.selectEnable = false;
         /**最大分页数。*/
         this.totalPage = 0;
-        /**@private */
+        /**@internal */
         this._$componentType = "List";
         /**@private */
         this._repeatX = 0;
@@ -505,6 +505,7 @@ export class List extends Box {
         cell.on(Event.MOUSE_UP, this, this.onCellMouse);
         this._cells.push(cell);
     }
+    /**@internal */
     _afterInited() {
         this.initItems();
     }

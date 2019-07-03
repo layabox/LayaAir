@@ -1,8 +1,5 @@
 import { SkinMeshForGraphic } from "./bone/canvasmesh/SkinMeshForGraphic";
 import { Graphics } from "../display/Graphics";
-/**
- * @private
- */
 export declare class GraphicsAni extends Graphics {
     /**
      * @private

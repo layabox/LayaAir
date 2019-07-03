@@ -10,13 +10,12 @@ export class Bounds {
      * @param	max  max 最大坐标。
      */
     constructor(min, max) {
-        /**@private */
         this._updateFlag = 0;
-        /**@private	*/
+        /**@internal	*/
         this._center = new Vector3();
-        /**@private	*/
+        /**@internal	*/
         this._extent = new Vector3();
-        /**@private	*/
+        /***/
         this._boundBox = new BoundBox(new Vector3(), new Vector3());
         min.cloneTo(this._boundBox.min);
         max.cloneTo(this._boundBox.max);
@@ -110,50 +109,29 @@ export class Bounds {
         }
         return this._extent;
     }
-    /**
-     * @private
-     */
     _getUpdateFlag(type) {
         return (this._updateFlag & type) != 0;
     }
-    /**
-     * @private
-     */
     _setUpdateFlag(type, value) {
         if (value)
             this._updateFlag |= type;
         else
             this._updateFlag &= ~type;
     }
-    /**
-     * @private
-     */
     _getCenter(min, max, out) {
         Vector3.add(min, max, out);
         Vector3.scale(out, 0.5, out);
     }
-    /**
-     * @private
-     */
     _getExtent(min, max, out) {
         Vector3.subtract(max, min, out);
         Vector3.scale(out, 0.5, out);
     }
-    /**
-     * @private
-     */
     _getMin(center, extent, out) {
         Vector3.subtract(center, extent, out);
     }
-    /**
-     * @private
-     */
     _getMax(center, extent, out) {
         Vector3.add(center, extent, out);
     }
-    /**
-     * @private
-     */
     _rotateExtents(extents, rotation, out) {
         var extentsX = extents.x;
         var extentsY = extents.y;
@@ -164,7 +142,7 @@ export class Bounds {
         out.z = Math.abs(matE[2] * extentsX) + Math.abs(matE[6] * extentsY) + Math.abs(matE[10] * extentsZ);
     }
     /**
-     * @private
+     * @internal
      */
     _tranform(matrix, out) {
         var outCen = out._center;
@@ -175,7 +153,7 @@ export class Bounds {
         out._updateFlag = 0;
     }
     /**
-     * @private
+     * @internal
      */
     _getBoundBox() {
         var min = this._boundBox.min;
@@ -212,11 +190,11 @@ export class Bounds {
         return dest;
     }
 }
-/**@private */
+/**@internal */
 Bounds._UPDATE_MIN = 0x01;
-/**@private */
+/**@internal */
 Bounds._UPDATE_MAX = 0x02;
-/**@private */
+/**@internal */
 Bounds._UPDATE_CENTER = 0x04;
-/**@private */
+/**@internal */
 Bounds._UPDATE_EXTENT = 0x08;

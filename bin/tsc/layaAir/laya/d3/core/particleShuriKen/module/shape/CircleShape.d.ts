@@ -1,14 +1,11 @@
-import { BaseShape } from "././BaseShape";
+import { BaseShape } from "./BaseShape";
 import { BoundBox } from "../../../../math/BoundBox";
 import { Rand } from "../../../../math/Rand";
-import { Vector2 } from "../../../../math/Vector2";
 import { Vector3 } from "../../../../math/Vector3";
 /**
  * <code>CircleShape</code> 类用于创建环形粒子形状。
  */
 export declare class CircleShape extends BaseShape {
-    /** @private */
-    protected static _tempPositionPoint: Vector2;
     /**发射器半径。*/
     radius: number;
     /**环形弧度。*/

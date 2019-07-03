@@ -5,6 +5,7 @@
 export class CommandEncoder {
     //TODO:coverage
     constructor(layagl, reserveSize, adjustSize, isSyncToRenderThread) {
+        /**@internal */
         this._idata = [];
     }
     //TODO:coverage

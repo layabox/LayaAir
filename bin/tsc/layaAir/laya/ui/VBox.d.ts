@@ -1,4 +1,4 @@
-import { LayoutBox } from "././LayoutBox";
+import { LayoutBox } from "./LayoutBox";
 /**
      * <code>VBox</code> 是一个垂直布局容器类。
      */

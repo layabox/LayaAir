@@ -1,10 +1,9 @@
-import { GradientSize } from "././GradientSize";
+import { GradientSize } from "./GradientSize";
 import { IClone } from "../../IClone";
 /**
  * <code>SizeOverLifetime</code> 类用于粒子的生命周期尺寸。
  */
 export declare class SizeOverLifetime implements IClone {
-    /**@private */
     private _size;
     /**是否启用*/
     enbale: boolean;

@@ -36,8 +36,6 @@ export declare class Laya {
     static isWXOpenDataContext: boolean;
     /**微信小游戏是否需要在主域中自动将加载的文本数据自动传递到子域，默认 false**/
     static isWXPosMsg: boolean;
-    /**@private @internal*/
-    static __classmap: Object;
     /**
      * 初始化引擎。使用引擎需要先初始化引擎，否则可能会报错。
      * @param	width 初始化的游戏窗口宽度，又称设计宽度。

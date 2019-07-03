@@ -12,11 +12,6 @@ export declare class TextTexture extends Resource {
     private static pool;
     private static poolLen;
     private static cleanTm;
-    _source: any;
-    _texW: number;
-    _texH: number;
-    __destroyed: boolean;
-    _discardTm: number;
     genID: number;
     bitmap: any;
     curUsedCovRate: number;
@@ -55,7 +50,6 @@ export declare class TextTexture extends Resource {
     static clean(): void;
     touchRect(ri: CharRenderInfo, curloop: number): void;
     readonly texture: any;
-    _getSource(): any;
     drawOnScreen(x: number, y: number): void;
 }
 export {};

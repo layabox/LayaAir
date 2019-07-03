@@ -46,7 +46,7 @@ export class Component {
         return this._destroyed;
     }
     /**
-     * @private
+     * @internal
      */
     _isScript() {
         return false;
@@ -62,21 +62,19 @@ export class Component {
     }
     /**
      * [实现IListPool接口]
-     * @private
      */
     _getIndexInList() {
         return this._indexInList;
     }
     /**
      * [实现IListPool接口]
-     * @private
      */
     _setIndexInList(index) {
         this._indexInList = index;
     }
     /**
      * 被添加到节点后调用，可根据需要重写此方法
-     * @private
+     * @internal
      */
     _onAdded() {
         //override it.
@@ -118,19 +116,19 @@ export class Component {
         //override it.
     }
     /**
-     * @private
+     * @internal
      */
     _parse(data) {
         //override it.
     }
     /**
-     * @private
+     * @internal
      */
     _cloneTo(dest) {
         //override it.
     }
     /**
-     * @private
+     * @internal
      */
     _setActive(value) {
         if (value) {
@@ -152,7 +150,7 @@ export class Component {
             this.owner._destroyComponent(this);
     }
     /**
-     * @private
+     * @internal
      */
     _destroy() {
         if (this.owner.activeInHierarchy && this._enabled) {

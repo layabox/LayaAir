@@ -16,7 +16,6 @@ export class Buffer {
     /**
      * @private
      */
-    //TODO:coverage
     bind() {
         return false;
     }

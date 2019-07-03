@@ -1,17 +1,12 @@
-import { Filter } from "././Filter";
+import { Filter } from "./Filter";
 /**
  *  发光滤镜(也可以当成阴影滤使用）
  */
 export declare class GlowFilter extends Filter {
     /**数据的存储，顺序R,G,B,A,blurWidth,offX,offY;*/
     private _elements;
-    _sv_blurInfo1: any[];
-    _sv_blurInfo2: any[];
     /**滤镜的颜色*/
     private _color;
-    _color_native: Float32Array;
-    _blurInof1_native: Float32Array;
-    _blurInof2_native: Float32Array;
     /**
      * 创建发光滤镜
      * @param	color	滤镜的颜色

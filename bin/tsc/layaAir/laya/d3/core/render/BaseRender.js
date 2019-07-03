@@ -12,30 +12,31 @@ import { Render } from "../../../renders/Render";
  */
 export class BaseRender extends EventDispatcher {
     /**
-     * @private
+     * @internal
      * 创建一个新的 <code>BaseRender</code> 实例。
      */
     constructor(owner) {
         super();
-        /** @private  [实现IListPool接口]*/
+        /** @internal  [实现IListPool接口]*/
         this._indexInList = -1;
-        /** @private */
+        /** @internal */
         this._indexInCastShadowList = -1;
-        /** @private */
+        /** @internal */
         this._boundsChange = true;
-        /** @private */
+        this._supportOctree = true;
+        /** @internal */
         this._sharedMaterials = [];
-        /**@private */
+        /**@internal */
         this._visible = true; //初始值为默认可见,否则会造成第一帧动画不更新等，TODO:还有个包围盒更新好像浪费了
-        /** @private */
+        /** @internal */
         this._indexInOctreeMotionList = -1;
-        /** @private */
+        /** @internal */
         this._updateMark = -1;
-        /** @private */
+        /** @internal */
         this._updateRenderType = -1;
-        /** @private */
+        /** @internal */
         this._isPartOfStaticBatch = false;
-        /** @private */
+        /** @internal */
         this._staticBatch = null;
         this._id = ++BaseRender._uniqueIDCounter;
         this._indexInCastShadowList = -1;
@@ -277,38 +278,38 @@ export class BaseRender extends EventDispatcher {
         return this._isPartOfStaticBatch;
     }
     /**
-     * @private
+     *
      */
     _getOctreeNode() {
         return this._octreeNode;
     }
     /**
-     * @private
+     *
      */
     _setOctreeNode(value) {
         this._octreeNode = value;
     }
     /**
-     * @private
+     *
      */
     _getIndexInMotionList() {
         return this._indexInOctreeMotionList;
     }
     /**
-     * @private
+     *
      */
     _setIndexInMotionList(value) {
         this._indexInOctreeMotionList = value;
     }
     /**
-     * @private
+     * @internal
      */
     _changeMaterialReference(lastValue, value) {
         (lastValue) && (lastValue._removeReference());
         value._addReference(); //TODO:value可以为空
     }
     /**
-     * @private
+     * @internal
      */
     _getInstanceMaterial(material, index) {
         var insMat = material.clone(); //深拷贝
@@ -319,7 +320,7 @@ export class BaseRender extends EventDispatcher {
         return insMat;
     }
     /**
-     * @private
+     * @internal
      */
     _applyLightMapParams() {
         if (this._scene && this._lightmapIndex >= 0) {
@@ -337,7 +338,7 @@ export class BaseRender extends EventDispatcher {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _onWorldMatNeedChange(flag) {
         this._boundsChange = true;
@@ -350,25 +351,25 @@ export class BaseRender extends EventDispatcher {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _calculateBoundingBox() {
         throw ("BaseRender: must override it.");
     }
     /**
-     * @private [实现ISingletonElement接口]
+     *  [实现ISingletonElement接口]
      */
     _getIndexInList() {
         return this._indexInList;
     }
     /**
-     * @private [实现ISingletonElement接口]
+     *  [实现ISingletonElement接口]
      */
     _setIndexInList(index) {
         this._indexInList = index;
     }
     /**
-     * @private
+     * @internal
      */
     _setBelongScene(scene) {
         if (this._scene !== scene) {
@@ -377,29 +378,29 @@ export class BaseRender extends EventDispatcher {
         }
     }
     /**
-     * @private
+     * @internal
      * @param boundFrustum 如果boundFrustum为空则为摄像机不裁剪模式。
      */
     _needRender(boundFrustum) {
         return true;
     }
     /**
-     * @private
+     * @internal
      */
     _renderUpdate(context, transform) {
     }
     /**
-     * @private
+     * @internal
      */
     _renderUpdateWithCamera(context, transform) {
     }
     /**
-     * @private
+     * @internal
      */
     _revertBatchRenderUpdate(context) {
     }
     /**
-     * @private
+     * @internal
      */
     _destroy() {
         (this._indexInOctreeMotionList !== -1) && (this._octreeNode._octree.removeMotionObject(this));
@@ -416,7 +417,7 @@ export class BaseRender extends EventDispatcher {
         this._lightmapScaleOffset = null;
     }
 }
-/**@private */
+/**@internal */
 BaseRender._tempBoundBoxCorners = [new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3(), new Vector3()];
-/**@private */
+/**@internal */
 BaseRender._uniqueIDCounter = 0;

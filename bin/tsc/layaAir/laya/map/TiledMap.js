@@ -74,9 +74,9 @@ export class TiledMap {
         this._pivotScaleY = 0.5;
         this._centerX = 0;
         this._centerY = 0;
-        /**@private */
+        /**@internal */
         this._viewPortX = 0;
-        /**@private */
+        /**@internal */
         this._viewPortY = 0;
         this._viewPortWidth = 0;
         this._viewPortHeight = 0;

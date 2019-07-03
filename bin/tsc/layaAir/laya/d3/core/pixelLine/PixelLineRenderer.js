@@ -10,6 +10,7 @@ export class PixelLineRenderer extends BaseRender {
     constructor(owner) {
         super(owner);
         this._projectionViewWorldMatrix = new Matrix4x4();
+        this._supportOctree = false;
     }
     /**
      * @inheritDoc

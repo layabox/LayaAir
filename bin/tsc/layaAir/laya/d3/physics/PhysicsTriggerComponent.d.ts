@@ -4,8 +4,6 @@ import { PhysicsComponent } from "./PhysicsComponent";
  * <code>PhysicsTriggerComponent</code> 类用于创建物理触发器组件。
  */
 export declare class PhysicsTriggerComponent extends PhysicsComponent {
-    /** @private */
-    private _isTrigger;
     /**
      * 获取是否为触发器。
      * @return 是否为触发器。

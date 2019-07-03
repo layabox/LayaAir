@@ -1,20 +1,11 @@
 import { TrailFilter } from "././TrailFilter";
 import { TrailRenderer } from "././TrailRenderer";
 import { RenderableSprite3D } from "../RenderableSprite3D";
-import { ShaderDefines } from "../../shader/ShaderDefines";
 import { Node } from "../../../display/Node";
 /**
  * <code>TrailSprite3D</code> 类用于创建拖尾渲染精灵。
  */
 export declare class TrailSprite3D extends RenderableSprite3D {
-    /**@private */
-    static shaderDefines: ShaderDefines;
-    /**
-     * @private
-     */
-    static __init__(): void;
-    /** @private */
-    private _geometryFilter;
     /**
      * 获取Trail过滤器。
      * @return  Trail过滤器。
@@ -43,8 +34,4 @@ export declare class TrailSprite3D extends RenderableSprite3D {
      * @param	destroyChild 是否同时销毁子节点，若值为true,则销毁子节点，否则不销毁子节点。
      */
     destroy(destroyChild?: boolean): void;
-    /**
-     * @private
-     */
-    protected _create(): Node;
 }

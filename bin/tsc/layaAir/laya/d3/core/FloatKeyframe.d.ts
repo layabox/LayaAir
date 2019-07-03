@@ -1,4 +1,4 @@
-import { Keyframe } from "././Keyframe";
+import { Keyframe } from "./Keyframe";
 /**
      * <code>FloatKeyFrame</code> 类用于创建浮点关键帧实例。
      */

@@ -1,5 +1,5 @@
-import { BaseShape } from "././BaseShape";
-import { ShapeUtils } from "././ShapeUtils";
+import { BaseShape } from "./BaseShape";
+import { ShapeUtils } from "./ShapeUtils";
 import { Vector2 } from "../../../../math/Vector2";
 import { Vector3 } from "../../../../math/Vector3";
 /**
@@ -86,5 +86,5 @@ export class CircleShape extends BaseShape {
         destShape.randomDirection = this.randomDirection;
     }
 }
-/** @private */
+/** @internal */
 CircleShape._tempPositionPoint = new Vector2();

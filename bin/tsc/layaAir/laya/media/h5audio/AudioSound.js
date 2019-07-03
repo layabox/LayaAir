@@ -1,4 +1,4 @@
-import { AudioSoundChannel } from "././AudioSoundChannel";
+import { AudioSoundChannel } from "./AudioSoundChannel";
 import { Event } from "../../events/Event";
 import { EventDispatcher } from "../../events/EventDispatcher";
 //import { SoundManager } from "../SoundManager"
@@ -33,7 +33,7 @@ export class AudioSound extends EventDispatcher {
             delete AudioSound._audioCache[this.url];
         }
     }
-    /**@private */
+    /**@internal */
     static _initMusicAudio() {
         if (AudioSound._musicAudio)
             return;

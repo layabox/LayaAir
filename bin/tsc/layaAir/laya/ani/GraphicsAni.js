@@ -1,8 +1,5 @@
 import { Matrix } from "../maths/Matrix";
 import { Graphics } from "../display/Graphics";
-/**
- * @private
- */
 export class GraphicsAni extends Graphics {
     /**
      * @private

@@ -16,13 +16,9 @@ export declare class StartFrame implements IClone {
      * @return 开始帧。
      */
     static createByRandomTwoConstant(constantMin: number, constantMax: number): StartFrame;
-    /**@private */
     private _type;
-    /**@private */
     private _constant;
-    /**@private */
     private _constantMin;
-    /**@private */
     private _constantMax;
     /**
      *开始帧类型,0常量模式，1随机双常量模式。

@@ -6,31 +6,18 @@ export class GradientVelocity {
      * 创建一个 <code>GradientVelocity,不允许new，请使用静态创建函数。</code> 实例。
      */
     constructor() {
-        /**@private */
         this._type = 0;
-        /**@private */
         this._constant = null;
-        /**@private */
         this._gradientX = null;
-        /**@private */
         this._gradientY = null;
-        /**@private */
         this._gradientZ = null;
-        /**@private */
         this._constantMin = null;
-        /**@private */
         this._constantMax = null;
-        /**@private */
         this._gradientXMin = null;
-        /**@private */
         this._gradientXMax = null;
-        /**@private */
         this._gradientYMin = null;
-        /**@private */
         this._gradientYMax = null;
-        /**@private */
         this._gradientZMin = null;
-        /**@private */
         this._gradientZMax = null;
     }
     /**

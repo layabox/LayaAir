@@ -7,9 +7,9 @@ export class Point2PointConstraint {
      * 创建一个 <code>Point2PointConstraint</code> 实例。
      */
     constructor() {
-        /**@private */
+        /**@internal */
         this._pivotInA = new Vector3();
-        /**@private */
+        /**@internal */
         this._pivotInB = new Vector3();
     }
     get pivotInA() {

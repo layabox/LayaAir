@@ -6,13 +6,13 @@ export class SingletonList {
      * 创建一个新的 <code>SingletonList</code> 实例。
      */
     constructor() {
-        /**@private [只读]*/
+        /**@internal [只读]*/
         this.elements = [];
-        /** @private [只读]*/
+        /** @internal [只读]*/
         this.length = 0;
     }
     /**
-     * @private
+     * @internal
      */
     _add(element) {
         if (this.length === this.elements.length)

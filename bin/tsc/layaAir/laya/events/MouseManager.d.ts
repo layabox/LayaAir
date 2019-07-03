@@ -1,4 +1,3 @@
-import { Event } from "././Event";
 import { Sprite } from "../display/Sprite";
 import { Stage } from "../display/Stage";
 /**
@@ -29,7 +28,6 @@ export declare class MouseManager {
     mouseMoveAccuracy: number;
     /** @private */
     private static _isTouchRespond;
-    _event: Event;
     private _stage;
     /** @private 希望capture鼠标事件的对象。*/
     private _captureSp;

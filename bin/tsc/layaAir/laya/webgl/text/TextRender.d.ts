@@ -1,4 +1,4 @@
-import { TextAtlas } from "././TextAtlas";
+import { TextAtlas } from "./TextAtlas";
 import { Sprite } from "../../display/Sprite";
 import { Context } from "../../resource/Context";
 import { FontInfo } from "../../utils/FontInfo";

@@ -1,4 +1,4 @@
-import { Bone } from "././Bone";
+import { Bone } from "./Bone";
 import { AnimationTemplet } from "../AnimationTemplet";
 import { SkinSlotDisplayData } from "./SkinSlotDisplayData";
 import { Texture } from "../../resource/Texture";
@@ -15,12 +15,7 @@ import { Skeleton } from "./Skeleton";
  * 动画模板类
  */
 export declare class Templet extends AnimationTemplet {
-    /**@private */
-    static LAYA_ANIMATION_160_VISION: string;
-    static LAYA_ANIMATION_VISION: string;
-    static TEMPLET_DICTIONARY: any;
     private _mainTexture;
-    private _textureJson;
     private _graphicsCache;
     /** 存放原始骨骼信息 */
     srcBoneMatrixArr: any[];
@@ -133,7 +128,6 @@ export declare class Templet extends AnimationTemplet {
      * @return
      */
     getGrahicsDataWithCache(aniIndex: number, frameIndex: number): Graphics;
-    _setCreateURL(url: string): void;
     /**
      * @private
      * 保存缓冲grahpics

@@ -1,4 +1,4 @@
-import { GradientDataNumber } from "././GradientDataNumber";
+import { GradientDataNumber } from "./GradientDataNumber";
 import { IClone } from "../../IClone";
 import { Vector3 } from "../../../math/Vector3";
 /**
@@ -51,41 +51,23 @@ export declare class GradientSize implements IClone {
      * @return  渐变尺寸。
      */
     static createByRandomTwoGradientSeparate(gradientXMin: GradientDataNumber, gradientXMax: GradientDataNumber, gradientYMin: GradientDataNumber, gradientYMax: GradientDataNumber, gradientZMin: GradientDataNumber, gradientZMax: GradientDataNumber): GradientSize;
-    /**@private */
     private _type;
-    /**@private */
     private _separateAxes;
-    /**@private */
     private _gradient;
-    /**@private */
     private _gradientX;
-    /**@private */
     private _gradientY;
-    /**@private */
     private _gradientZ;
-    /**@private */
     private _constantMin;
-    /**@private */
     private _constantMax;
-    /**@private */
     private _constantMinSeparate;
-    /**@private */
     private _constantMaxSeparate;
-    /**@private */
     private _gradientMin;
-    /**@private */
     private _gradientMax;
-    /**@private */
     private _gradientXMin;
-    /**@private */
     private _gradientXMax;
-    /**@private */
     private _gradientYMin;
-    /**@private */
     private _gradientYMax;
-    /**@private */
     private _gradientZMin;
-    /**@private */
     private _gradientZMax;
     /**
      *生命周期尺寸类型，0曲线模式，1随机双常量模式，2随机双曲线模式。

@@ -1,16 +1,13 @@
-import { PixelLineRenderer } from "././PixelLineRenderer";
-import { PixelLineData } from "././PixelLineData";
+import { PixelLineRenderer } from "./PixelLineRenderer";
+import { PixelLineData } from "./PixelLineData";
 import { RenderableSprite3D } from "../RenderableSprite3D";
 import { BaseMaterial } from "../material/BaseMaterial";
 import { Color } from "../../math/Color";
 import { Vector3 } from "../../math/Vector3";
-import { Node } from "../../../display/Node";
 /**
  * <code>PixelLineSprite3D</code> 类用于像素线渲染精灵。
  */
 export declare class PixelLineSprite3D extends RenderableSprite3D {
-    /** @private */
-    private _geometryFilter;
     /**
      * 获取最大线数量
      * @return  最大线数量。
@@ -80,8 +77,4 @@ export declare class PixelLineSprite3D extends RenderableSprite3D {
      * 清除所有线段。
      */
     clear(): void;
-    /**
-     * @private
-     */
-    protected _create(): Node;
 }

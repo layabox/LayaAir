@@ -95,16 +95,16 @@ class MonkeyScript extends Script3D {
             //是否为新一次触碰，并未发生移动
             if (this.first) {
                 //获取触碰点的位置
-                this.lastPosition.x = touch._position.x;
-                this.lastPosition.y = touch._position.y;
+                this.lastPosition.x = touch.position.x;
+                this.lastPosition.y = touch.position.y;
                 this.first = false;
             }
             else {
                 //移动触碰点
-                var deltaY = touch._position.y - this.lastPosition.y;
-                var deltaX = touch._position.x - this.lastPosition.x;
-                this.lastPosition.x = touch._position.x;
-                this.lastPosition.y = touch._position.y;
+                var deltaY = touch.position.y - this.lastPosition.y;
+                var deltaX = touch.position.x - this.lastPosition.x;
+                this.lastPosition.x = touch.position.x;
+                this.lastPosition.y = touch.position.y;
                 //根据移动的距离进行旋转
                 this.tmpVector.setValue(1 * deltaY / 2, 1 * deltaX / 2, 0);
                 this.owner.transform.rotate(this.tmpVector, true, false);

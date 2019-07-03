@@ -33,7 +33,7 @@ export class HeightMap {
         for (var i = 0; i < submesheCount; i++) {
             var subMesh = mesh._getSubMesh(i);
             var vertexBuffer = subMesh._vertexBuffer;
-            var verts = vertexBuffer.getData();
+            var verts = vertexBuffer.getFloat32Data();
             var subMeshVertices = [];
             for (var j = 0; j < verts.length; j += vertexBuffer.vertexDeclaration.vertexStride / 4) {
                 var position = new Vector3(verts[j + 0], verts[j + 1], verts[j + 2]);
@@ -106,7 +106,6 @@ export class HeightMap {
         }
         return heightMap;
     }
-    /** @private */
     static _getPosition(ray, vertices, indexs) {
         var closestIntersection = Number.MAX_VALUE;
         for (var i = 0; i < vertices.length; i++) {
@@ -152,7 +151,7 @@ export class HeightMap {
     get minHeight() {
         return this._minHeight;
     }
-    /** @private */
+    /** @internal */
     _inBounds(row, col) {
         return row >= 0 && row < this._h && col >= 0 && col < this._w;
     }
@@ -169,5 +168,4 @@ export class HeightMap {
             return NaN;
     }
 }
-/** @private */
 HeightMap._tempRay = new Ray(new Vector3(), new Vector3());

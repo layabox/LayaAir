@@ -1,4 +1,4 @@
-import { Texture2D } from "././Texture2D";
+import { Texture2D } from "./Texture2D";
 import { LayaGL } from "../layagl/LayaGL";
 import { BaseTexture } from "./BaseTexture";
 import { WebGLContext } from "../webgl/WebGLContext";
@@ -18,8 +18,9 @@ export class RenderTexture2D extends BaseTexture {
      */
     constructor(width, height, format = BaseTexture.FORMAT_R8G8B8, depthStencilFormat = BaseTexture.FORMAT_DEPTH_16) {
         super(format, false);
+        /**@internal */
         this._mgrKey = 0; //给WebGLRTMgr用的
-        this._glTextureType = WebGLContext.TEXTURE_2D;
+        this._glTextureType = WebGL2RenderingContext.TEXTURE_2D;
         this._width = width;
         this._height = height;
         this._depthStencilFormat = depthStencilFormat;
@@ -80,34 +81,34 @@ export class RenderTexture2D extends BaseTexture {
         this._frameBuffer = gl.createFramebuffer();
         WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
         var glFormat = this._getGLFormat();
-        gl.texImage2D(this._glTextureType, 0, glFormat, width, height, 0, glFormat, WebGLContext.UNSIGNED_BYTE, null);
+        gl.texImage2D(this._glTextureType, 0, glFormat, width, height, 0, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, null);
         this._setGPUMemory(width * height * 4);
-        gl.bindFramebuffer(WebGLContext.FRAMEBUFFER, this._frameBuffer);
-        gl.framebufferTexture2D(WebGLContext.FRAMEBUFFER, WebGLContext.COLOR_ATTACHMENT0, WebGLContext.TEXTURE_2D, this._glTexture, 0);
+        gl.bindFramebuffer(WebGL2RenderingContext.FRAMEBUFFER, this._frameBuffer);
+        gl.framebufferTexture2D(WebGL2RenderingContext.FRAMEBUFFER, WebGL2RenderingContext.COLOR_ATTACHMENT0, WebGL2RenderingContext.TEXTURE_2D, this._glTexture, 0);
         if (this._depthStencilFormat !== BaseTexture.FORMAT_DEPTHSTENCIL_NONE) {
             this._depthStencilBuffer = gl.createRenderbuffer();
-            gl.bindRenderbuffer(WebGLContext.RENDERBUFFER, this._depthStencilBuffer);
+            gl.bindRenderbuffer(WebGL2RenderingContext.RENDERBUFFER, this._depthStencilBuffer);
             switch (this._depthStencilFormat) {
                 case BaseTexture.FORMAT_DEPTH_16:
-                    gl.renderbufferStorage(WebGLContext.RENDERBUFFER, WebGLContext.DEPTH_COMPONENT16, width, height);
-                    gl.framebufferRenderbuffer(WebGLContext.FRAMEBUFFER, WebGLContext.DEPTH_ATTACHMENT, WebGLContext.RENDERBUFFER, this._depthStencilBuffer);
+                    gl.renderbufferStorage(WebGL2RenderingContext.RENDERBUFFER, WebGL2RenderingContext.DEPTH_COMPONENT16, width, height);
+                    gl.framebufferRenderbuffer(WebGL2RenderingContext.FRAMEBUFFER, WebGL2RenderingContext.DEPTH_ATTACHMENT, WebGL2RenderingContext.RENDERBUFFER, this._depthStencilBuffer);
                     break;
                 case BaseTexture.FORMAT_STENCIL_8:
-                    gl.renderbufferStorage(WebGLContext.RENDERBUFFER, WebGLContext.STENCIL_INDEX8, width, height);
-                    gl.framebufferRenderbuffer(WebGLContext.FRAMEBUFFER, WebGLContext.STENCIL_ATTACHMENT, WebGLContext.RENDERBUFFER, this._depthStencilBuffer);
+                    gl.renderbufferStorage(WebGL2RenderingContext.RENDERBUFFER, WebGL2RenderingContext.STENCIL_INDEX8, width, height);
+                    gl.framebufferRenderbuffer(WebGL2RenderingContext.FRAMEBUFFER, WebGL2RenderingContext.STENCIL_ATTACHMENT, WebGL2RenderingContext.RENDERBUFFER, this._depthStencilBuffer);
                     break;
                 case BaseTexture.FORMAT_DEPTHSTENCIL_16_8:
-                    gl.renderbufferStorage(WebGLContext.RENDERBUFFER, WebGLContext.DEPTH_STENCIL, width, height);
-                    gl.framebufferRenderbuffer(WebGLContext.FRAMEBUFFER, WebGLContext.DEPTH_STENCIL_ATTACHMENT, WebGLContext.RENDERBUFFER, this._depthStencilBuffer);
+                    gl.renderbufferStorage(WebGL2RenderingContext.RENDERBUFFER, WebGL2RenderingContext.DEPTH_STENCIL, width, height);
+                    gl.framebufferRenderbuffer(WebGL2RenderingContext.FRAMEBUFFER, WebGL2RenderingContext.DEPTH_STENCIL_ATTACHMENT, WebGL2RenderingContext.RENDERBUFFER, this._depthStencilBuffer);
                     break;
                 default:
                 //console.log("RenderTexture: unkonw depth format.");//2d并不需要depthbuffer
             }
         }
-        gl.bindFramebuffer(WebGLContext.FRAMEBUFFER, null);
-        gl.bindRenderbuffer(WebGLContext.RENDERBUFFER, null);
-        this._setWarpMode(WebGLContext.TEXTURE_WRAP_S, this._wrapModeU);
-        this._setWarpMode(WebGLContext.TEXTURE_WRAP_T, this._wrapModeV);
+        gl.bindFramebuffer(WebGL2RenderingContext.FRAMEBUFFER, null);
+        gl.bindRenderbuffer(WebGL2RenderingContext.RENDERBUFFER, null);
+        this._setWarpMode(WebGL2RenderingContext.TEXTURE_WRAP_S, this._wrapModeU);
+        this._setWarpMode(WebGL2RenderingContext.TEXTURE_WRAP_T, this._wrapModeV);
         this._setFilterMode(this._filterMode);
         this._setAnisotropy(this._anisoLevel);
         this._readyed = true;
@@ -142,7 +143,7 @@ export class RenderTexture2D extends BaseTexture {
         var top = RenderTexture2D.rtStack.pop();
         if (top) {
             if (RenderTexture2D._currentActive != top.rt) {
-                LayaGL.instance.bindFramebuffer(WebGLContext.FRAMEBUFFER, top.rt ? top.rt._frameBuffer : null);
+                LayaGL.instance.bindFramebuffer(WebGL2RenderingContext.FRAMEBUFFER, top.rt ? top.rt._frameBuffer : null);
                 RenderTexture2D._currentActive = top.rt;
             }
             gl.viewport(0, 0, top.w, top.h);
@@ -156,7 +157,7 @@ export class RenderTexture2D extends BaseTexture {
     start() {
         var gl = LayaGL.instance;
         //(memorySize == 0) && recreateResource();
-        LayaGL.instance.bindFramebuffer(WebGLContext.FRAMEBUFFER, this._frameBuffer);
+        LayaGL.instance.bindFramebuffer(WebGL2RenderingContext.FRAMEBUFFER, this._frameBuffer);
         this._lastRT = RenderTexture2D._currentActive;
         RenderTexture2D._currentActive = this;
         this._readyed = true;
@@ -181,7 +182,7 @@ export class RenderTexture2D extends BaseTexture {
      * 结束绑定。
      */
     end() {
-        LayaGL.instance.bindFramebuffer(WebGLContext.FRAMEBUFFER, null);
+        LayaGL.instance.bindFramebuffer(WebGL2RenderingContext.FRAMEBUFFER, null);
         RenderTexture2D._currentActive = null;
         this._readyed = true;
     }
@@ -191,7 +192,7 @@ export class RenderTexture2D extends BaseTexture {
     restore() {
         var gl = LayaGL.instance;
         if (this._lastRT != RenderTexture2D._currentActive) {
-            LayaGL.instance.bindFramebuffer(WebGLContext.FRAMEBUFFER, this._lastRT ? this._lastRT._frameBuffer : null);
+            LayaGL.instance.bindFramebuffer(WebGL2RenderingContext.FRAMEBUFFER, this._lastRT ? this._lastRT._frameBuffer : null);
             RenderTexture2D._currentActive = this._lastRT;
         }
         this._readyed = true;
@@ -207,19 +208,19 @@ export class RenderTexture2D extends BaseTexture {
     clear(r = 0.0, g = 0.0, b = 0.0, a = 1.0) {
         var gl = LayaGL.instance;
         gl.clearColor(r, g, b, a);
-        var clearFlag = WebGLContext.COLOR_BUFFER_BIT;
+        var clearFlag = WebGL2RenderingContext.COLOR_BUFFER_BIT;
         switch (this._depthStencilFormat) {
             //case WebGLContext.DEPTH_COMPONENT: 
-            case WebGLContext.DEPTH_COMPONENT16:
-                clearFlag |= WebGLContext.DEPTH_BUFFER_BIT;
+            case WebGL2RenderingContext.DEPTH_COMPONENT16:
+                clearFlag |= WebGL2RenderingContext.DEPTH_BUFFER_BIT;
                 break;
             //case WebGLContext.STENCIL_INDEX:
-            case WebGLContext.STENCIL_INDEX8:
-                clearFlag |= WebGLContext.STENCIL_BUFFER_BIT;
+            case WebGL2RenderingContext.STENCIL_INDEX8:
+                clearFlag |= WebGL2RenderingContext.STENCIL_BUFFER_BIT;
                 break;
-            case WebGLContext.DEPTH_STENCIL:
-                clearFlag |= WebGLContext.DEPTH_BUFFER_BIT;
-                clearFlag |= WebGLContext.STENCIL_BUFFER_BIT;
+            case WebGL2RenderingContext.DEPTH_STENCIL:
+                clearFlag |= WebGL2RenderingContext.DEPTH_BUFFER_BIT;
+                clearFlag |= WebGL2RenderingContext.STENCIL_BUFFER_BIT;
                 break;
         }
         gl.clear(clearFlag);
@@ -237,16 +238,16 @@ export class RenderTexture2D extends BaseTexture {
             throw "native 2 thread mode use getDataAsync";
         }
         var gl = LayaGL.instance;
-        gl.bindFramebuffer(WebGLContext.FRAMEBUFFER, this._frameBuffer);
-        var canRead = (gl.checkFramebufferStatus(WebGLContext.FRAMEBUFFER) === WebGLContext.FRAMEBUFFER_COMPLETE);
+        gl.bindFramebuffer(WebGL2RenderingContext.FRAMEBUFFER, this._frameBuffer);
+        var canRead = (gl.checkFramebufferStatus(WebGL2RenderingContext.FRAMEBUFFER) === WebGL2RenderingContext.FRAMEBUFFER_COMPLETE);
         if (!canRead) {
-            gl.bindFramebuffer(WebGLContext.FRAMEBUFFER, null);
+            gl.bindFramebuffer(WebGL2RenderingContext.FRAMEBUFFER, null);
             return null;
         }
         var pixels = new Uint8Array(this._width * this._height * 4);
         var glFormat = this._getGLFormat();
-        gl.readPixels(x, y, width, height, glFormat, WebGLContext.UNSIGNED_BYTE, pixels);
-        gl.bindFramebuffer(WebGLContext.FRAMEBUFFER, null);
+        gl.readPixels(x, y, width, height, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels);
+        gl.bindFramebuffer(WebGL2RenderingContext.FRAMEBUFFER, null);
         return pixels;
     }
     /**
@@ -254,11 +255,11 @@ export class RenderTexture2D extends BaseTexture {
      */
     getDataAsync(x, y, width, height, callBack) {
         var gl = LayaGL.instance;
-        gl.bindFramebuffer(WebGLContext.FRAMEBUFFER, this._frameBuffer);
-        gl.readPixelsAsync(x, y, width, height, WebGLContext.RGBA, WebGLContext.UNSIGNED_BYTE, function (data) {
+        gl.bindFramebuffer(WebGL2RenderingContext.FRAMEBUFFER, this._frameBuffer);
+        gl.readPixelsAsync(x, y, width, height, WebGL2RenderingContext.RGBA, WebGL2RenderingContext.UNSIGNED_BYTE, function (data) {
             callBack(new Uint8Array(data));
         });
-        gl.bindFramebuffer(WebGLContext.FRAMEBUFFER, null);
+        gl.bindFramebuffer(WebGL2RenderingContext.FRAMEBUFFER, null);
     }
     recycle() {
     }

@@ -4,14 +4,6 @@ import { Component } from "../../../components/Component";
  * <code>ConstraintComponent</code> 类用于创建约束的父类。
  */
 export declare class ConstraintComponent extends Component {
-    /**@private */
-    private _nativeConstraint;
-    /**@private */
-    private _breakingImpulseThreshold;
-    /**@private */
-    private _connectedBody;
-    /**@private */
-    private _feedbackEnabled;
     /**
      * @inheritDoc
      */

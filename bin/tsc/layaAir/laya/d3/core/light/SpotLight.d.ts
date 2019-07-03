@@ -1,23 +1,13 @@
-import { LightSprite } from "././LightSprite";
+import { LightSprite } from "./LightSprite";
 /**
  * <code>SpotLight</code> 类用于创建聚光。
  */
 export declare class SpotLight extends LightSprite {
-    /** @private */
     private static _tempMatrix0;
-    /** @private */
     private static _tempMatrix1;
-    /** @private */
     private _direction;
-    /** @private */
     private _spotAngle;
-    /** @private */
     private _range;
-    /** @private */
-    /**
-     * 创建一个 <code>SpotLight</code> 实例。
-     */
-    constructor();
     /**
      * 获取聚光灯的锥形角度。
      * @return 聚光灯的锥形角度。

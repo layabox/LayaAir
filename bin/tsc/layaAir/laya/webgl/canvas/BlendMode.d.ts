@@ -1,4 +1,4 @@
-import { WebGLContext } from "../WebGLContext";
+/// <reference types="webgl2" />
 export declare class BlendMode {
     static activeBlendFunction: Function;
     static NAMES: any[];
@@ -14,19 +14,18 @@ export declare class BlendMode {
     static LIGHTER: string;
     static fns: any[];
     static targetFns: any[];
-    static _init_(gl: WebGLContext): void;
-    static BlendNormal(gl: WebGLContext): void;
-    static BlendAdd(gl: WebGLContext): void;
-    static BlendMultiply(gl: WebGLContext): void;
-    static BlendScreen(gl: WebGLContext): void;
-    static BlendOverlay(gl: WebGLContext): void;
-    static BlendLight(gl: WebGLContext): void;
-    static BlendNormalTarget(gl: WebGLContext): void;
-    static BlendAddTarget(gl: WebGLContext): void;
-    static BlendMultiplyTarget(gl: WebGLContext): void;
-    static BlendScreenTarget(gl: WebGLContext): void;
-    static BlendOverlayTarget(gl: WebGLContext): void;
-    static BlendLightTarget(gl: WebGLContext): void;
-    static BlendMask(gl: WebGLContext): void;
-    static BlendDestinationOut(gl: WebGLContext): void;
+    static BlendNormal(gl: WebGL2RenderingContext): void;
+    static BlendAdd(gl: WebGL2RenderingContext): void;
+    static BlendMultiply(gl: WebGL2RenderingContext): void;
+    static BlendScreen(gl: WebGL2RenderingContext): void;
+    static BlendOverlay(gl: WebGL2RenderingContext): void;
+    static BlendLight(gl: WebGL2RenderingContext): void;
+    static BlendNormalTarget(gl: WebGL2RenderingContext): void;
+    static BlendAddTarget(gl: WebGL2RenderingContext): void;
+    static BlendMultiplyTarget(gl: WebGL2RenderingContext): void;
+    static BlendScreenTarget(gl: WebGL2RenderingContext): void;
+    static BlendOverlayTarget(gl: WebGL2RenderingContext): void;
+    static BlendLightTarget(gl: WebGL2RenderingContext): void;
+    static BlendMask(gl: WebGL2RenderingContext): void;
+    static BlendDestinationOut(gl: WebGL2RenderingContext): void;
 }

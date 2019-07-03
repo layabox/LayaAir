@@ -19,7 +19,6 @@ export class BaseMaterial extends Resource {
      */
     constructor() {
         super();
-        /** @private */
         this._shaderValues = null; //TODO:剥离贴图ShaderValue
         this._disablePublicDefineDatas = new DefineDatas();
         this._shaderValues = new ShaderData(this);
@@ -35,7 +34,7 @@ export class BaseMaterial extends Resource {
         Laya.loader.create(url, complete, null, BaseMaterial.MATERIAL);
     }
     /**
-     * @private
+     * @internal
      */
     static __initDefine__() {
         BaseMaterial.shaderDefines = new ShaderDefines();
@@ -168,9 +167,6 @@ export class BaseMaterial extends Resource {
         else
             this._shaderValues.removeDefine(BaseMaterial.SHADERDEFINE_ALPHATEST);
     }
-    /**
-     * @private
-     */
     _removeTetxureReference() {
         var data = this._shaderValues.getData();
         for (var k in data) {
@@ -248,7 +244,6 @@ BaseMaterial.RENDERQUEUE_OPAQUE = 2000;
 BaseMaterial.RENDERQUEUE_ALPHATEST = 2450;
 /** 渲染队列_透明。*/
 BaseMaterial.RENDERQUEUE_TRANSPARENT = 3000;
-/**@private 着色器变量,透明测试值。*/
+/**着色器变量,透明测试值。*/
 BaseMaterial.ALPHATESTVALUE = Shader3D.propertyNameToID("u_AlphaTestValue");
-/**@private */
 BaseMaterial.shaderDefines = null;

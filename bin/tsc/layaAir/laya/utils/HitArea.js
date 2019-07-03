@@ -50,7 +50,7 @@ export class HitArea {
         return false;
     }
     /**
-     * @private
+     * @internal
      * 是否击中绘图指令
      */
     static _isHitCmd(x, y, cmd) {
@@ -78,7 +78,7 @@ export class HitArea {
         return rst;
     }
     /**
-     * @private
+     * @internal
      * 坐标是否在多边形内
      */
     static _ptInPolygon(x, y, areaPoints) {

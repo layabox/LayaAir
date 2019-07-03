@@ -22,8 +22,6 @@ export declare class VertexMesh {
     static MESH_MVPMATRIX_ROW3: number;
     static instanceWorldMatrixDeclaration: VertexDeclaration;
     static instanceMVPMatrixDeclaration: VertexDeclaration;
-    /**@private */
-    private static _vertexDeclarationMap;
     /**
      * 获取顶点声明。
      * @param vertexFlag 顶点声明标记字符,格式为:"POSITION,NORMAL,COLOR,UV,UV1,BLENDWEIGHT,BLENDINDICES,TANGENT"。

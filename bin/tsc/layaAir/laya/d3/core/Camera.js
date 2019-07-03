@@ -11,8 +11,8 @@ import { Viewport } from "../math/Viewport";
 import { RenderTexture } from "../resource/RenderTexture";
 import { ShaderData } from "../shader/ShaderData";
 import { Picker } from "../utils/Picker";
-import { BaseCamera } from "././BaseCamera";
-import { Transform3D } from "././Transform3D";
+import { BaseCamera } from "./BaseCamera";
+import { Transform3D } from "./Transform3D";
 import { BlitScreenQuadCMD } from "./render/command/BlitScreenQuadCMD";
 import { CommandBuffer } from "./render/command/CommandBuffer";
 import { RenderContext3D } from "./render/RenderContext3D";
@@ -30,24 +30,20 @@ export class Camera extends BaseCamera {
      */
     constructor(aspectRatio = 0, nearPlane = 0.3, farPlane = 1000) {
         super(nearPlane, farPlane);
-        /** @private */
         this._updateViewMatrix = true;
-        /** @private 渲染目标。*/
+        /** @internal 渲染目标。*/
         this._offScreenRenderTexture = null;
-        /**@private */
         this._postProcess = null;
-        /**@private */
         this._enableHDR = false;
-        /**@private */
+        /**@internal */
         this._renderTexture = null;
-        /** @private */
+        /** @internal */
         this._postProcessCommandBuffers = [];
         /**是否允许渲染。*/
         this.enableRender = true;
         this._viewMatrix = new Matrix4x4();
         this._projectionMatrix = new Matrix4x4();
         this._projectionViewMatrix = new Matrix4x4();
-        this._projectionViewMatrixNoTranslateScale = new Matrix4x4();
         this._viewport = new Viewport(0, 0, 0, 0);
         this._normalizedViewport = new Viewport(0, 0, 1, 1);
         this._aspectRatio = aspectRatio;
@@ -265,15 +261,12 @@ export class Camera extends BaseCamera {
         return (Math.pow(2, layer) & this.cullingMask) != 0;
     }
     /**
-     * @private
+     * @internal
      */
     _onTransformChanged(flag) {
         flag &= Transform3D.TRANSFORM_WORLDMATRIX; //过滤有用TRANSFORM标记
         (flag) && (this._updateViewMatrix = true);
     }
-    /**
-     * @private
-     */
     _calculationViewport(normalizedViewport, width, height) {
         var lx = normalizedViewport.x * width; //不应限制x范围
         var ly = normalizedViewport.y * height; //不应限制y范围
@@ -318,7 +311,7 @@ export class Camera extends BaseCamera {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _getCanvasHeight() {
         if (this._offScreenRenderTexture)
@@ -327,14 +320,14 @@ export class Camera extends BaseCamera {
             return RenderContext3D.clientHeight;
     }
     /**
-     * @private
+     * @internal
      */
     _applyPostProcessCommandBuffers() {
         for (var i = 0, n = this._postProcessCommandBuffers.length; i < n; i++)
             this._postProcessCommandBuffers[i]._apply();
     }
     /**
-     * @private
+     * @internal
      */
     _getRenderTextureFormat() {
         if (this._enableHDR)
@@ -362,14 +355,13 @@ export class Camera extends BaseCamera {
             for (var i = 0, n = parallelSplitShadowMap.shadowMapCount; i < n; i++) {
                 var smCamera = parallelSplitShadowMap.cameras[i];
                 context.camera = smCamera;
-                context.projectionViewMatrix = smCamera.projectionViewMatrix; //TODO:重复计算浪费
-                FrustumCulling.renderObjectCulling(smCamera, scene, context, scene._castShadowRenders);
+                FrustumCulling.renderObjectCulling(smCamera, scene, context, scene._castShadowRenders, shader, replacementTag);
                 var shadowMap = parallelSplitShadowMap.cameras[i + 1].renderTarget;
                 shadowMap._start();
                 context.camera = smCamera;
                 context.viewport = smCamera.viewport;
                 smCamera._prepareCameraToRender();
-                smCamera._prepareCameraViewProject(smCamera.viewMatrix, smCamera.projectionMatrix, context.projectionViewMatrix, smCamera._projectionViewMatrixNoTranslateScale);
+                smCamera._applyViewProject(context, smCamera.viewMatrix, smCamera.projectionMatrix, false);
                 scene._clear(gl, context);
                 var queue = scene._opaqueQueue; //阴影均为非透明队列
                 queue._render(context, false); //TODO:临时改为False
@@ -380,26 +372,14 @@ export class Camera extends BaseCamera {
         }
         context.camera = this;
         scene._preRenderScript(); //TODO:duo相机是否重复
-        var viewMat, projectMat;
-        viewMat = context.viewMatrix = this.viewMatrix;
         var renderTar = this._renderTexture || this._offScreenRenderTexture; //如果有临时renderTexture则画到临时renderTexture,最后再画到屏幕或者离屏画布,如果无临时renderTexture则直接画到屏幕或离屏画布
-        if (renderTar) {
-            renderTar._start();
-            Matrix4x4.multiply(BaseCamera._invertYScaleMatrix, this._projectionMatrix, BaseCamera._invertYProjectionMatrix);
-            Matrix4x4.multiply(BaseCamera._invertYScaleMatrix, this.projectionViewMatrix, BaseCamera._invertYProjectionViewMatrix);
-            projectMat = context.projectionMatrix = BaseCamera._invertYProjectionMatrix; //TODO:
-            context.projectionViewMatrix = BaseCamera._invertYProjectionViewMatrix; //TODO:
-        }
-        else {
-            projectMat = context.projectionMatrix = this._projectionMatrix; //TODO:
-            context.projectionViewMatrix = this.projectionViewMatrix; //TODO:
-        }
+        (renderTar) && (renderTar._start());
         context.viewport = this.viewport;
         this._prepareCameraToRender();
-        this._prepareCameraViewProject(viewMat, projectMat, context.projectionViewMatrix, this._projectionViewMatrixNoTranslateScale);
-        scene._preCulling(context, this);
+        this._applyViewProject(context, this.viewMatrix, this._projectionMatrix, renderTar ? true : false);
+        scene._preCulling(context, this, shader, replacementTag);
         scene._clear(gl, context);
-        scene._renderScene(gl, context, shader, replacementTag);
+        scene._renderScene(context);
         scene._postRenderScript(); //TODO:duo相机是否重复
         (renderTar) && (renderTar._end());
         if (createRenderTexture) {
@@ -414,6 +394,29 @@ export class Camera extends BaseCamera {
             }
             RenderTexture.recoverToPool(this._renderTexture);
         }
+    }
+    /**
+     * @internal
+     */
+    _applyViewProject(context, viewMat, proMat, inverseY) {
+        var projectView;
+        var shaderData = this._shaderValues;
+        if (inverseY) {
+            Matrix4x4.multiply(BaseCamera._invertYScaleMatrix, proMat, BaseCamera._invertYProjectionMatrix);
+            Matrix4x4.multiply(BaseCamera._invertYProjectionMatrix, viewMat, BaseCamera._invertYProjectionViewMatrix);
+            proMat = BaseCamera._invertYProjectionMatrix;
+            projectView = BaseCamera._invertYProjectionViewMatrix;
+        }
+        else {
+            Matrix4x4.multiply(proMat, viewMat, this._projectionViewMatrix);
+            projectView = this._projectionViewMatrix;
+        }
+        context.viewMatrix = viewMat;
+        context.projectionMatrix = proMat;
+        context.projectionViewMatrix = projectView;
+        shaderData.setMatrix4x4(BaseCamera.VIEWMATRIX, viewMat);
+        shaderData.setMatrix4x4(BaseCamera.PROJECTMATRIX, proMat);
+        shaderData.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, projectView);
     }
     /**
      * 计算从屏幕空间生成的射线。
@@ -537,9 +540,9 @@ export class Camera extends BaseCamera {
         }
     }
 }
-/** @private */
+/** @internal */
 Camera.CAMERAEVENT_POSTPROCESS = 0;
-/** @private */
+/** @internal */
 Camera._tempVector20 = new Vector2();
-/** @private */
+/** @internal */
 Camera._updateMark = 0;

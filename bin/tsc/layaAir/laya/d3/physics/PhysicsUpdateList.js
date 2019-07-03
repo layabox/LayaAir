@@ -10,7 +10,7 @@ export class PhysicsUpdateList extends SingletonList {
         super();
     }
     /**
-     * @private
+     * @internal
      */
     add(element) {
         var index = element._inPhysicUpdateListIndex;
@@ -20,7 +20,7 @@ export class PhysicsUpdateList extends SingletonList {
         element._inPhysicUpdateListIndex = this.length++;
     }
     /**
-     * @private
+     * @internal
      */
     remove(element) {
         var index = element._inPhysicUpdateListIndex;

@@ -71,7 +71,7 @@ export class MovieClip extends Sprite {
         this._clear();
         super.destroy(destroyChild);
     }
-    /**@private */
+    /**@internal */
     /*override*/ _setDisplay(value) {
         super._setDisplay(value);
         if (this._isRoot) {
@@ -362,7 +362,7 @@ export class MovieClip extends Sprite {
             this.event(Event.FRAME);
         this._Pos = _data.pos;
     }
-    /**@private */
+    /**@internal */
     //TODO:coverage
     _setData(data, start) {
         this._data = data;

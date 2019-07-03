@@ -1,6 +1,5 @@
 import { Rectangle } from "../../../maths/Rectangle";
 /**
- * @private
  */
 export class MeshData {
     constructor() {

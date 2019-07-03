@@ -3,21 +3,12 @@ import { ColorFilter } from "../filters/ColorFilter";
 import { Matrix } from "../maths/Matrix";
 import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
-import { WordText } from "../utils/WordText";
-import { SaveMark } from "../webgl/canvas/save/SaveMark";
-import { Shader2D } from "../webgl/shader/d2/Shader2D";
 import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { Shader } from "../webgl/shader/Shader";
 import { ISubmit } from "../webgl/submit/ISubmit";
-import { SubmitBase } from "../webgl/submit/SubmitBase";
-import { SubmitKey } from "../webgl/submit/SubmitKey";
-import { CharSubmitCache } from "../webgl/text/CharSubmitCache";
 import { IndexBuffer2D } from "../webgl/utils/IndexBuffer2D";
-import { MeshQuadTexture } from "../webgl/utils/MeshQuadTexture";
-import { MeshTexture } from "../webgl/utils/MeshTexture";
-import { MeshVG } from "../webgl/utils/MeshVG";
 import { VertexBuffer2D } from "../webgl/utils/VertexBuffer2D";
-import { Texture } from "././Texture";
+import { Texture } from "./Texture";
 import { HTMLCanvas } from "./HTMLCanvas";
 import { RenderTexture2D } from "./RenderTexture2D";
 /**
@@ -25,7 +16,6 @@ import { RenderTexture2D } from "./RenderTexture2D";
  * Context扩展类
  */
 export declare class Context {
-    _canvas: HTMLCanvas;
     static ENUM_TEXTALIGN_DEFAULT: number;
     static ENUM_TEXTALIGN_CENTER: number;
     static ENUM_TEXTALIGN_RIGHT: number;
@@ -34,7 +24,6 @@ export declare class Context {
     private static _MAXVERTNUM;
     static MAXCLIPRECT: Rectangle;
     static _COUNT: number;
-    _tmpMatrix: Matrix;
     private static SEGNUM;
     private static _contextcount;
     private _drawTexToDrawTri_Vert;
@@ -64,8 +53,6 @@ export declare class Context {
     /**@private */
     clearRect(x: number, y: number, width: number, height: number): void;
     /**@private */
-    _drawRect(x: number, y: number, width: number, height: number, style: any): void;
-    /**@private */
     /**@private */
     drawTexture2(x: number, y: number, pivotX: number, pivotY: number, m: Matrix, args2: any[]): void;
     transformByMatrix(matrix: Matrix, tx: number, ty: number): void;
@@ -73,57 +60,27 @@ export declare class Context {
     restoreTransform(matrix: Matrix): void;
     drawRect(x: number, y: number, width: number, height: number, fillColor: any, lineColor: any, lineWidth: number): void;
     alpha(value: number): void;
-    _transform(mat: Matrix, pivotX: number, pivotY: number): void;
-    _rotate(angle: number, pivotX: number, pivotY: number): void;
-    _scale(scaleX: number, scaleY: number, pivotX: number, pivotY: number): void;
-    _drawLine(x: number, y: number, fromX: number, fromY: number, toX: number, toY: number, lineColor: string, lineWidth: number, vid: number): void;
-    _drawLines(x: number, y: number, points: any[], lineColor: any, lineWidth: number, vid: number): void;
     drawCurves(x: number, y: number, points: any[], lineColor: any, lineWidth: number): void;
     private _fillAndStroke;
     /**Math.PI*2的结果缓存 */
     static PI2: number;
-    _drawCircle(x: number, y: number, radius: number, fillColor: any, lineColor: any, lineWidth: number, vid: number): void;
-    _drawPie(x: number, y: number, radius: number, startAngle: number, endAngle: number, fillColor: any, lineColor: any, lineWidth: number, vid: number): void;
-    _drawPoly(x: number, y: number, points: any[], fillColor: any, lineColor: any, lineWidth: number, isConvexPolygon: boolean, vid: number): void;
-    _drawPath(x: number, y: number, paths: any[], brush: any, pen: any): void;
     static set2DRenderConfig(): void;
-    _id: number;
     private _other;
     private _renderNextSubmitIndex;
     private _path;
     private _primitiveValue2D;
-    _drawCount: number;
     private _width;
     private _height;
     private _renderCount;
     private _isConvexCmd;
-    _submits: any;
-    _curSubmit: any;
-    _submitKey: SubmitKey;
-    _mesh: MeshQuadTexture;
-    _pathMesh: MeshVG;
-    _triangleMesh: MeshTexture;
     meshlist: any[];
     private _transedPoints;
     private _temp4Points;
-    _clipRect: Rectangle;
-    _globalClipMatrix: Matrix;
-    _clipInCache: boolean;
-    _clipInfoID: number;
     private static _clipID_Gen;
-    _curMat: Matrix;
-    _lastMatScaleX: number;
-    _lastMatScaleY: number;
     private _lastMat_a;
     private _lastMat_b;
     private _lastMat_c;
     private _lastMat_d;
-    _nBlendType: number;
-    _save: any;
-    _targets: RenderTexture2D;
-    _charSubmitCache: CharSubmitCache;
-    _saveMark: SaveMark;
-    _shader2D: Shader2D;
     /**
      * 所cacheAs精灵
      * 对于cacheas bitmap的情况，如果图片还没准备好，需要有机会重画，所以要保存sprite。例如在图片
@@ -131,18 +88,13 @@ export declare class Context {
      */
     sprite: Sprite;
     private static _textRender;
-    _italicDeg: number;
-    _lastTex: Texture;
     private _fillColor;
     private _flushCnt;
     private defTexture;
-    _colorFiler: ColorFilter;
     drawTexAlign: boolean;
-    _incache: boolean;
     isMain: boolean;
     constructor();
     clearBG(r: number, g: number, b: number, a: number): void;
-    _getSubmits(): any[];
     /**
      * 释放占用内存
      * @param	keepRT  是否保留rendertarget
@@ -202,7 +154,6 @@ export declare class Context {
      * @param	underLine
      */
     private _fillText;
-    _fast_filltext(data: WordText, x: number, y: number, fontObj: any, color: string, strokeColor: string, lineWidth: number, textAlign: number, underLine?: number): void;
     fillWords(words: any[], x: number, y: number, fontStr: string, color: string): void;
     fillBorderWords(words: any[], x: number, y: number, font: string, color: string, borderColor: string, lineWidth: number): void;
     drawText(text: any, x: number, y: number, font: string, color: string, textAlign: string): void;
@@ -233,7 +184,6 @@ export declare class Context {
     private _fillRect;
     fillRect(x: number, y: number, width: number, height: number, fillStyle: any): void;
     fillTexture(texture: Texture, x: number, y: number, width: number, height: number, type: string, offset: Point, other: any): void;
-    _fillTexture(texture: Texture, texw: number, texh: number, texuvRect: any[], x: number, y: number, width: number, height: number, type: string, offsetx: number, offsety: number): void;
     /**
      * 反正只支持一种filter，就不要叫setFilter了，直接叫setColorFilter
      * @param	value
@@ -249,36 +199,9 @@ export declare class Context {
      * @param	tex
      */
     private _drawTextureAddSubmit;
-    _drawTextureM(tex: Texture, x: number, y: number, width: number, height: number, m: Matrix, alpha: number, uv: any[]): boolean;
-    _drawRenderTexture(tex: RenderTexture2D, x: number, y: number, width: number, height: number, m: Matrix, alpha: number, uv: any[]): boolean;
     submitDebugger(): void;
-    _copyClipInfo(submit: SubmitBase, clipInfo: Matrix): void;
     private isSameClipInfo;
-    /**
-     * 这个还是会检查是否合并
-     * @param	tex
-     * @param	minVertNum
-     */
-    _useNewTex2DSubmit(tex: Texture, minVertNum: number): void;
-    /**
-     * 使用上面的设置（texture，submit，alpha，clip），画一个rect
-     */
-    _drawTexRect(x: number, y: number, w: number, h: number, uv: any[]): void;
     drawCallOptimize(enbale: boolean): boolean;
-    /**
-     *
-     * @param	tex {Texture | RenderTexture }
-     * @param  imgid 图片id用来比较合并的
-     * @param	x
-     * @param	y
-     * @param	width
-     * @param	height
-     * @param	m
-     * @param	alpha
-     * @param	uv
-     * @return
-     */
-    _inner_drawTexture(tex: Texture, imgid: number, x: number, y: number, width: number, height: number, m: Matrix, uv: ArrayLike<number>, alpha: number, lastRender: boolean): boolean;
     /**
      * 转换4个顶点。为了效率这个不做任何检查。需要调用者的配合。
      * @param	a		输入。8个元素表示4个点
@@ -326,7 +249,7 @@ export declare class Context {
      * @param	ty
      * @param	alpha
      */
-    drawTextureWithTransform(tex: Texture, x: number, y: number, width: number, height: number, transform: Matrix, tx: number, ty: number, alpha: number, blendMode: string, colorfilter?: ColorFilter): void;
+    drawTextureWithTransform(tex: Texture, x: number, y: number, width: number, height: number, transform: Matrix, tx: number, ty: number, alpha: number, blendMode: string, colorfilter?: ColorFilter, uv?: number[]): void;
     /**
      * * 把ctx中的submits提交。结果渲染到target上
      * @param	ctx
@@ -337,7 +260,6 @@ export declare class Context {
     drawTarget(rt: RenderTexture2D, x: number, y: number, width: number, height: number, m: Matrix, shaderValue: Value2D, uv?: ArrayLike<number>, blend?: number): boolean;
     drawTriangles(tex: Texture, x: number, y: number, vertices: Float32Array, uvs: Float32Array, indices: Uint16Array, matrix: Matrix, alpha: number, color: ColorFilter, blendMode: string): void;
     transform(a: number, b: number, c: number, d: number, tx: number, ty: number): void;
-    _transformByMatrix(matrix: Matrix, tx: number, ty: number): void;
     setTransformByMatrix(value: Matrix): void;
     rotate(angle: number): void;
     scale(scaleX: number, scaleY: number): void;
@@ -396,7 +318,6 @@ export declare class Context {
      * @return
      */
     mixRGBandAlpha(color: number): number;
-    _mixRGBandAlpha(color: number, alpha: number): number;
     strokeRect(x: number, y: number, width: number, height: number, parameterLineWidth: number): void;
     clip(): void;
     /*******************************************end矢量绘制***************************************************/

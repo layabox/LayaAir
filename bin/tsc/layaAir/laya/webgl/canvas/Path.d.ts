@@ -1,6 +1,4 @@
 export declare class Path {
-    _lastOriX: number;
-    _lastOriY: number;
     paths: any[];
     private _curPath;
     constructor();

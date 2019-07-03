@@ -1,7 +1,5 @@
-import { ISubmit } from "././ISubmit";
-import { SubmitKey } from "././SubmitKey";
+import { ISubmit } from "./ISubmit";
 import { Value2D } from "../shader/d2/value/Value2D";
-import { Mesh2D } from "../utils/Mesh2D";
 export declare class SubmitBase implements ISubmit {
     static TYPE_2D: number;
     static TYPE_CANVAS: number;
@@ -28,15 +26,7 @@ export declare class SubmitBase implements ISubmit {
     static ID: number;
     static preRender: ISubmit;
     clipInfoID: number;
-    _mesh: Mesh2D;
-    _blendFn: Function;
     protected _id: number;
-    _renderType: number;
-    _parent: ISubmit;
-    _key: SubmitKey;
-    _startIdx: number;
-    _numEle: number;
-    _ref: number;
     shaderValue: Value2D;
     static __init__(): void;
     constructor(renderType?: number);

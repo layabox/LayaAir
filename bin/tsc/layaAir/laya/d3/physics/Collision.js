@@ -6,17 +6,17 @@ export class Collision {
      * 创建一个 <code>Collision</code> 实例。
      */
     constructor() {
-        /**@private */
+        /**@internal */
         this._lastUpdateFrame = -2147483648 /*int.MIN_VALUE*/;
-        /**@private */
+        /**@internal */
         this._updateFrame = -2147483648 /*int.MIN_VALUE*/;
-        /**@private */
+        /**@internal */
         this._isTrigger = false;
-        /**@private [只读]*/
+        /**@readonly*/
         this.contacts = [];
     }
     /**
-     * @private
+     * @internal
      */
     _setUpdateFrame(farme) {
         this._lastUpdateFrame = this._updateFrame; //TODO:为啥整两个

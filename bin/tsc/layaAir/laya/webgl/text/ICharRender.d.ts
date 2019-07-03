@@ -1,4 +1,4 @@
-import { CharRenderInfo } from "././CharRenderInfo";
+import { CharRenderInfo } from "./CharRenderInfo";
 export declare class ICharRender {
     getWidth(font: string, str: string): number;
     scale(sx: number, sy: number): void;

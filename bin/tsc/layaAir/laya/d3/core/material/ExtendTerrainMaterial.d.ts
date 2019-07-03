@@ -1,6 +1,5 @@
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Vector4 } from "../../math/Vector4";
-import { ShaderDefines } from "../../shader/ShaderDefines";
 import { BaseMaterial } from "./BaseMaterial";
 /**
  * ...
@@ -35,13 +34,6 @@ export declare class ExtendTerrainMaterial extends BaseMaterial {
     static SHADERDEFINE_DETAIL_NUM3: number;
     static SHADERDEFINE_DETAIL_NUM4: number;
     static SHADERDEFINE_DETAIL_NUM5: number;
-    /**@private */
-    static shaderDefines: ShaderDefines;
-    /**
-     * @private
-     */
-    static __initDefine__(): void;
-    /**@private */
     private _enableLighting;
     /**
      * 获取splatAlpha贴图。

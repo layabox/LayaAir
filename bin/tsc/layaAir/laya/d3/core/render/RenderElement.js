@@ -1,6 +1,5 @@
 import { Camera } from "../Camera";
 /**
- * @private
  * <code>RenderElement</code> 类用于实现渲染元素。
  */
 export class RenderElement {
@@ -8,35 +7,37 @@ export class RenderElement {
      * 创建一个 <code>RenderElement</code> 实例。
      */
     constructor() {
-        /** @private */
+        /** @internal */
+        this.renderSubShader = null; //TODO：做缓存标记优化
+        /** @internal */
         this.renderType = RenderElement.RENDERTYPE_NORMAL;
     }
     /**
-     * @private
+     * @internal
      */
     getInvertFront() {
         return this._transform._isFrontFaceInvert;
     }
     /**
-     * @private
+     * @internal
      */
     setTransform(transform) {
         this._transform = transform;
     }
     /**
-     * @private
+     * @internal
      */
     setGeometry(geometry) {
         this._geometry = geometry;
     }
     /**
-     * @private
+     * @internal
      */
     addToOpaqueRenderQueue(context, queue) {
         queue.elements.push(this);
     }
     /**
-     * @private
+     * @internal
      */
     addToTransparentRenderQueue(context, queue) {
         queue.elements.push(this);
@@ -44,9 +45,49 @@ export class RenderElement {
         queue.lastTransparentRenderElement = this;
     }
     /**
-     * @private
+     * @internal
      */
-    _render(context, isTarget, customShader = null, replacementTag = null) {
+    _update(scene, context, customShader, replacementTag) {
+        if (this.material) { //材质可能为空
+            var subShader = this.material._shader.getSubShaderAt(0); //TODO:
+            this.renderSubShader = null;
+            if (customShader) {
+                if (replacementTag) {
+                    var oriTag = subShader.getFlag(replacementTag);
+                    if (oriTag) {
+                        var customSubShaders = customShader._subShaders;
+                        for (var k = 0, p = customSubShaders.length; k < p; k++) {
+                            var customSubShader = customSubShaders[k];
+                            if (oriTag === customSubShader.getFlag(replacementTag)) {
+                                this.renderSubShader = customSubShader;
+                                break;
+                            }
+                        }
+                        if (!this.renderSubShader)
+                            return;
+                    }
+                    else {
+                        return;
+                    }
+                }
+                else {
+                    this.renderSubShader = customShader.getSubShaderAt(0); //TODO:
+                }
+            }
+            else {
+                this.renderSubShader = subShader;
+            }
+            var renderQueue = scene._getRenderQueue(this.material.renderQueue);
+            if (renderQueue.isTransparent)
+                this.addToTransparentRenderQueue(context, renderQueue);
+            else
+                this.addToOpaqueRenderQueue(context, renderQueue);
+        }
+    }
+    /**
+     * @internal
+     */
+    _render(context, isTarget) {
         var lastStateMaterial, lastStateShaderInstance, lastStateRender;
         var updateMark = Camera._updateMark;
         var scene = context.scene;
@@ -62,34 +103,7 @@ export class RenderElement {
             this.render._updateRenderType = this.renderType;
         }
         if (geometry._prepareRender(context)) {
-            var subShader = this.material._shader.getSubShaderAt(0); //TODO:
-            var passes;
-            if (customShader) {
-                if (replacementTag) {
-                    var oriTag = subShader.getFlag(replacementTag);
-                    if (oriTag) {
-                        var customSubShaders = customShader._subShaders;
-                        for (var k = 0, p = customSubShaders.length; k < p; k++) {
-                            var customSubShader = customSubShaders[k];
-                            if (oriTag === customSubShader.getFlag(replacementTag)) {
-                                passes = customSubShader._passes;
-                                break;
-                            }
-                        }
-                        if (!passes)
-                            return;
-                    }
-                    else {
-                        return;
-                    }
-                }
-                else {
-                    passes = customShader.getSubShaderAt(0)._passes; //TODO:
-                }
-            }
-            else {
-                passes = subShader._passes;
-            }
+            var passes = this.renderSubShader._passes;
             for (var j = 0, m = passes.length; j < m; j++) {
                 var shaderPass = context.shader = passes[j].withCompile((scene._shaderValues._defineDatas.value) & (~this.material._disablePublicDefineDatas.value), this.render._shaderValues._defineDatas.value, this.material._shaderValues._defineDatas.value);
                 var switchShader = shaderPass.bind(); //纹理需要切换shader时重新绑定 其他uniform不需要
@@ -138,7 +152,7 @@ export class RenderElement {
         Camera._updateMark++;
     }
     /**
-     * @private
+     * @internal
      */
     destroy() {
         this._transform = null;
@@ -147,11 +161,11 @@ export class RenderElement {
         this.render = null;
     }
 }
-/** @private */
+/** @internal */
 RenderElement.RENDERTYPE_NORMAL = 0;
-/** @private */
+/** @internal */
 RenderElement.RENDERTYPE_STATICBATCH = 1;
-/** @private */
+/** @internal */
 RenderElement.RENDERTYPE_INSTANCEBATCH = 2;
-/** @private */
+/** @internal */
 RenderElement.RENDERTYPE_VERTEXBATCH = 3;

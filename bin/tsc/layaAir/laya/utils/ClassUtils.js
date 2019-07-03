@@ -1,10 +1,82 @@
 import { Matrix } from "../maths/Matrix";
 import { Sprite } from "../display/Sprite";
+import { Node } from "../display/Node";
 import { Scene } from "../display/Scene";
 import { Graphics } from "../display/Graphics";
 import { ILaya } from "../../ILaya";
 import { HitArea } from "../utils/HitArea";
 import { Text } from "../display/Text";
+import { Animation } from "./../display/Animation";
+import { AnimationBase } from "./../display/AnimationBase";
+import { BitmapFont } from "./../display/BitmapFont";
+import { EffectAnimation } from "./../display/EffectAnimation";
+import { FrameAnimation } from "./../display/FrameAnimation";
+import { GraphicsBounds } from "./../display/GraphicsBounds";
+import { Input } from "./../display/Input";
+import { SpriteConst } from "./../display/SpriteConst";
+import { Stage } from "./../display/Stage";
+import { AdvImage } from "../ui/AdvImage";
+import { AutoBitmap } from "../ui/AutoBitmap";
+import { Box } from "../ui/Box";
+import { Button } from "../ui/Button";
+import { CheckBox } from "../ui/CheckBox";
+import { Clip } from "../ui/Clip";
+import { ColorPicker } from "../ui/ColorPicker";
+import { ComboBox } from "../ui/ComboBox";
+import { Dialog } from "../ui/Dialog";
+import { DialogManager } from "../ui/DialogManager";
+import { FontClip } from "../ui/FontClip";
+import { HBox } from "../ui/HBox";
+import { HScrollBar } from "../ui/HScrollBar";
+import { HSlider } from "../ui/HSlider";
+import { Image } from "../ui/Image";
+import { IUI } from "../ui/IUI";
+import { Label } from "../ui/Label";
+import { LayoutBox } from "../ui/LayoutBox";
+import { List } from "../ui/List";
+import { Panel } from "../ui/Panel";
+import { ProgressBar } from "../ui/ProgressBar";
+import { Radio } from "../ui/Radio";
+import { RadioGroup } from "../ui/RadioGroup";
+import { ScaleBox } from "../ui/ScaleBox";
+import { ScrollBar } from "../ui/ScrollBar";
+import { Slider } from "../ui/Slider";
+import { Styles } from "../ui/Styles";
+import { Tab } from "../ui/Tab";
+import { TextArea } from "../ui/TextArea";
+import { TextInput } from "../ui/TextInput";
+import { TipManager } from "../ui/TipManager";
+import { Tree } from "../ui/Tree";
+import { UIComponent } from "../ui/UIComponent";
+import { UIEvent } from "../ui/UIEvent";
+import { UIGroup } from "../ui/UIGroup";
+import { UILib } from "../ui/UILib";
+import { UIUtils } from "../ui/UIUtils";
+import { VBox } from "../ui/VBox";
+import { View } from "../ui/View";
+import { ViewStack } from "../ui/ViewStack";
+import { VScrollBar } from "../ui/VScrollBar";
+import { VSlider } from "../ui/VSlider";
+import { Widget } from "../ui/Widget";
+import { Physics } from "../physics/Physics";
+import { BoxCollider } from "../physics/BoxCollider";
+import { ChainCollider } from "../physics/ChainCollider";
+import { CircleCollider } from "../physics/CircleCollider";
+import { ColliderBase } from "../physics/ColliderBase";
+import { PhysicsDebugDraw } from "../physics/PhysicsDebugDraw";
+import { PolygonCollider } from "../physics/PolygonCollider";
+import { RigidBody } from "../physics/RigidBody";
+import { DistanceJoint } from "../physics/joint/DistanceJoint";
+import { GearJoint } from "../physics/joint/GearJoint";
+import { JointBase } from "../physics/joint/JointBase";
+import { MotorJoint } from "../physics/joint/MotorJoint";
+import { MouseJoint } from "../physics/joint/MouseJoint";
+import { PrismaticJoint } from "../physics/joint/PrismaticJoint";
+import { PulleyJoint } from "../physics/joint/PulleyJoint";
+import { RevoluteJoint } from "../physics/joint/RevoluteJoint";
+import { RopeJoint } from "../physics/joint/RopeJoint";
+import { WeldJoint } from "../physics/joint/WeldJoint";
+import { WheelJoint } from "../physics/joint/WheelJoint";
 /**
  * <code>ClassUtils</code> 是一个类工具类。
  */
@@ -185,7 +257,7 @@ export class ClassUtils {
         }
     }
     /**
-     * @private
+     * @internal
      * 将graphic绘图指令添加到sprite上
      * @param graphicO 绘图指令描述
      */
@@ -281,7 +353,7 @@ export class ClassUtils {
         return params;
     }
     /**
-     * @private
+     * @internal
      */
     static _isDrawType(type) {
         if (type === "Image")
@@ -318,7 +390,7 @@ export class ClassUtils {
         return rst;
     }
     /**
-     * @private
+     * @internal
      */
     static _getPointListByStr(str) {
         var pointArr = str.split(",");
@@ -360,5 +432,81 @@ ClassUtils._classMap = {
     'font': 'HTMLElement',
     'a': 'HTMLElement',
     '#text': 'HTMLElement',
-    'link': 'HTMLLinkElement'
+    'link': 'HTMLLinkElement',
+    'laya.display.Animation': Animation,
+    'laya.display.AnimationBase': AnimationBase,
+    'laya.display.BitmapFont': BitmapFont,
+    'laya.display.EffectAnimation': EffectAnimation,
+    'laya.display.FrameAnimation': FrameAnimation,
+    'laya.display.Graphics': Graphics,
+    'laya.display.GraphicsBounds': GraphicsBounds,
+    'laya.display.Input': Input,
+    'laya.display.Node': Node,
+    'laya.display.Scene': Scene,
+    'laya.display.Sprite': Sprite,
+    'laya.display.SpriteConst': SpriteConst,
+    'laya.display.Stage': Stage,
+    'laya.display.Text': Text,
+    'laya.ui.View': View,
+    'laya.ui.AdvImage': AdvImage,
+    'laya.ui.AutoBitmap': AutoBitmap,
+    'laya.ui.Box': Box,
+    'laya.ui.Button': Button,
+    'laya.ui.CheckBox': CheckBox,
+    'laya.ui.Clip': Clip,
+    'laya.ui.ColorPicker': ColorPicker,
+    'laya.ui.ComboBox': ComboBox,
+    'laya.ui.Dialog': Dialog,
+    'laya.ui.DialogManager': DialogManager,
+    'laya.ui.FontClip': FontClip,
+    'laya.ui.HBox': HBox,
+    'laya.ui.HScrollBar': HScrollBar,
+    'laya.ui.HSlider': HSlider,
+    'laya.ui.Image': Image,
+    'laya.ui.IUI': IUI,
+    'laya.ui.Label': Label,
+    'laya.ui.LayoutBox': LayoutBox,
+    'laya.ui.List': List,
+    'laya.ui.Panel': Panel,
+    'laya.ui.ProgressBar': ProgressBar,
+    'laya.ui.Radio': Radio,
+    'laya.ui.RadioGroup': RadioGroup,
+    'laya.ui.ScaleBox': ScaleBox,
+    'laya.ui.ScrollBar': ScrollBar,
+    'laya.ui.Slider': Slider,
+    'laya.ui.Styles': Styles,
+    'laya.ui.Tab': Tab,
+    'laya.ui.TextArea': TextArea,
+    'laya.ui.TextInput': TextInput,
+    'laya.ui.TipManager': TipManager,
+    'laya.ui.Tree': Tree,
+    'laya.ui.UIComponent': UIComponent,
+    'laya.ui.UIEvent': UIEvent,
+    'laya.ui.UIGroup': UIGroup,
+    'laya.ui.UILib': UILib,
+    'laya.ui.UIUtils': UIUtils,
+    'laya.ui.VBox': VBox,
+    'laya.ui.ViewStack': ViewStack,
+    'laya.ui.VScrollBar': VScrollBar,
+    'laya.ui.VSlider': VSlider,
+    'laya.ui.Widget': Widget,
+    'laya.physics.BoxCollider': BoxCollider,
+    'laya.physics.ChainCollider': ChainCollider,
+    'laya.physics.CircleCollider': CircleCollider,
+    'laya.physics.ColliderBase': ColliderBase,
+    'laya.physics.Physics': Physics,
+    'laya.physics.PhysicsDebugDraw': PhysicsDebugDraw,
+    'laya.physics.PolygonCollider': PolygonCollider,
+    'laya.physics.RigidBody': RigidBody,
+    'laya.physics.joint.DistanceJoint': DistanceJoint,
+    'laya.physics.joint.GearJoint': GearJoint,
+    'laya.physics.joint.JointBase': JointBase,
+    'laya.physics.joint.MotorJoint': MotorJoint,
+    'laya.physics.joint.MouseJoint': MouseJoint,
+    'laya.physics.joint.PrismaticJoint': PrismaticJoint,
+    'laya.physics.joint.PulleyJoint': PulleyJoint,
+    'laya.physics.joint.RevoluteJoint': RevoluteJoint,
+    'laya.physics.joint.RopeJoint': RopeJoint,
+    'laya.physics.joint.WeldJoint': WeldJoint,
+    'laya.physics.joint.WheelJoint': WheelJoint
 };

@@ -1,7 +1,7 @@
 import { Pool } from "../../utils/Pool";
 /**
  * 绘制Canvas贴图
- * @private
+ * @internal
  */
 export class DrawCanvasCmd {
     constructor() {

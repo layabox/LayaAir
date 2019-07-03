@@ -14,7 +14,7 @@ export class ShurikenParticleMaterial extends BaseMaterial {
         this.renderMode = ShurikenParticleMaterial.RENDERMODE_ALPHABLENDED; //默认加色法会自动加上雾化宏定义，导致非加色法从材质读取完后未移除宏定义。
     }
     /**
-     * @private
+     * @internal
      */
     static __initDefine__() {
         ShurikenParticleMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
@@ -24,63 +24,63 @@ export class ShurikenParticleMaterial extends BaseMaterial {
         ShurikenParticleMaterial.SHADERDEFINE_TILINGOFFSET = ShurikenParticleMaterial.shaderDefines.registerDefine("TILINGOFFSET");
     }
     /**
-     * @private
+     * @internal
      */
     get _TintColorR() {
         return this._color.x;
     }
     /**
-     * @private
+     * @internal
      */
     set _TintColorR(value) {
         this._color.x = value;
         this.color = this._color;
     }
     /**
-     * @private
+     * @internal
      */
     get _TintColorG() {
         return this._color.y;
     }
     /**
-     * @private
+     * @internal
      */
     set _TintColorG(value) {
         this._color.y = value;
         this.color = this._color;
     }
     /**
-     * @private
+     * @internal
      */
     get _TintColorB() {
         return this._color.z;
     }
     /**
-     * @private
+     * @internal
      */
     set _TintColorB(value) {
         this._color.z = value;
         this.color = this._color;
     }
-    /**@private */
+    /**@internal */
     get _TintColorA() {
         return this._color.w;
     }
     /**
-     * @private
+     * @internal
      */
     set _TintColorA(value) {
         this._color.w = value;
         this.color = this._color;
     }
     /**
-     * @private
+     * @internal
      */
     get _MainTex_STX() {
         return this._shaderValues.getVector(ShurikenParticleMaterial.TILINGOFFSET).x;
     }
     /**
-     * @private
+     * @internal
      */
     set _MainTex_STX(x) {
         var tilOff = this._shaderValues.getVector(ShurikenParticleMaterial.TILINGOFFSET);
@@ -88,13 +88,13 @@ export class ShurikenParticleMaterial extends BaseMaterial {
         this.tilingOffset = tilOff;
     }
     /**
-     * @private
+     * @internal
      */
     get _MainTex_STY() {
         return this._shaderValues.getVector(ShurikenParticleMaterial.TILINGOFFSET).y;
     }
     /**
-     * @private
+     * @internal
      */
     set _MainTex_STY(y) {
         var tilOff = this._shaderValues.getVector(ShurikenParticleMaterial.TILINGOFFSET);
@@ -102,13 +102,13 @@ export class ShurikenParticleMaterial extends BaseMaterial {
         this.tilingOffset = tilOff;
     }
     /**
-     * @private
+     * @internal
      */
     get _MainTex_STZ() {
         return this._shaderValues.getVector(ShurikenParticleMaterial.TILINGOFFSET).z;
     }
     /**
-     * @private
+     * @internal
      */
     set _MainTex_STZ(z) {
         var tilOff = this._shaderValues.getVector(ShurikenParticleMaterial.TILINGOFFSET);
@@ -116,13 +116,13 @@ export class ShurikenParticleMaterial extends BaseMaterial {
         this.tilingOffset = tilOff;
     }
     /**
-     * @private
+     * @internal
      */
     get _MainTex_STW() {
         return this._shaderValues.getVector(ShurikenParticleMaterial.TILINGOFFSET).w;
     }
     /**
-     * @private
+     * @internal
      */
     set _MainTex_STW(w) {
         var tilOff = this._shaderValues.getVector(ShurikenParticleMaterial.TILINGOFFSET);
@@ -437,5 +437,5 @@ ShurikenParticleMaterial.BLEND_SRC = Shader3D.propertyNameToID("s_BlendSrc");
 ShurikenParticleMaterial.BLEND_DST = Shader3D.propertyNameToID("s_BlendDst");
 ShurikenParticleMaterial.DEPTH_TEST = Shader3D.propertyNameToID("s_DepthTest");
 ShurikenParticleMaterial.DEPTH_WRITE = Shader3D.propertyNameToID("s_DepthWrite");
-/**@private */
+/**@internal */
 ShurikenParticleMaterial.shaderDefines = null;

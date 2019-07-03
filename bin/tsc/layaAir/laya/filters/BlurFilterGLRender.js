@@ -1,4 +1,4 @@
-import { Filter } from "././Filter";
+import { Filter } from "./Filter";
 import { Matrix } from "../maths/Matrix";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { Value2D } from "../webgl/shader/d2/value/Value2D";

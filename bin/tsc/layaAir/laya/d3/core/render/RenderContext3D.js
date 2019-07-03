@@ -8,5 +8,5 @@ export class RenderContext3D {
     constructor() {
     }
 }
-/** @private */
+/** @internal */
 RenderContext3D._instance = new RenderContext3D();

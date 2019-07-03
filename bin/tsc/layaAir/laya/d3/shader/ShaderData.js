@@ -10,28 +10,28 @@ import { DefineDatas } from "./DefineDatas";
  */
 export class ShaderData {
     /**
-     * @private
+     * @internal
      */
     constructor(ownerResource = null) {
-        /**@private */
+        /**@internal */
         this._ownerResource = null;
-        /**@private */
+        /**@internal */
         this._data = null;
-        /** @private */
+        /** @internal */
         this._defineDatas = new DefineDatas();
-        /**@private [NATIVE]*/
+        /**@internal [NATIVE]*/
         this._runtimeCopyValues = [];
         this._ownerResource = ownerResource;
         this._initData();
     }
     /**
-     * @private
+     * @internal
      */
     _initData() {
         this._data = new Object();
     }
     /**
-     * @private
+     * @internal
      */
     getData() {
         return this._data;
@@ -374,7 +374,7 @@ export class ShaderData {
         }
     }
     /**
-     * @private [NATIVE]
+     * @internal [NATIVE]
      */
     _initDataForNative() {
         var length = 8; //默认分配8个
@@ -408,13 +408,13 @@ export class ShaderData {
         return this._nativeArray;
     }
     /**
-     *@private [NATIVE]
+     *@internal [NATIVE]
      */
     getIntForNative(index) {
         return this._int32Data[index];
     }
     /**
-     *@private [NATIVE]
+     *@internal [NATIVE]
      */
     setIntForNative(index, value) {
         this.needRenewArrayBufferForNative(index);
@@ -422,13 +422,13 @@ export class ShaderData {
         this._nativeArray[index] = value;
     }
     /**
-     *@private [NATIVE]
+     *@internal [NATIVE]
      */
     getBoolForNative(index) {
         return this._int32Data[index] == 1;
     }
     /**
-     *@private [NATIVE]
+     *@internal [NATIVE]
      */
     setBoolForNative(index, value) {
         this.needRenewArrayBufferForNative(index);
@@ -436,13 +436,13 @@ export class ShaderData {
         this._nativeArray[index] = value;
     }
     /**
-     *@private [NATIVE]
+     *@internal [NATIVE]
      */
     getNumberForNative(index) {
         return this._float32Data[index];
     }
     /**
-     *@private [NATIVE]
+     *@internal [NATIVE]
      */
     setNumberForNative(index, value) {
         this.needRenewArrayBufferForNative(index);
@@ -450,13 +450,13 @@ export class ShaderData {
         this._nativeArray[index] = value;
     }
     /**
-     *@private [NATIVE]
+     *@internal [NATIVE]
      */
     getMatrix4x4ForNative(index) {
         return this._nativeArray[index];
     }
     /**
-     *@private [NATIVE]
+     *@internal [NATIVE]
      */
     setMatrix4x4ForNative(index, value) {
         this.needRenewArrayBufferForNative(index);
@@ -465,13 +465,13 @@ export class ShaderData {
         this._int32Data[index] = nPtrID;
     }
     /**
-     *@private [NATIVE]
+     *@internal [NATIVE]
      */
     getVectorForNative(index) {
         return this._nativeArray[index];
     }
     /**
-     *@private [NATIVE]
+     *@internal [NATIVE]
      */
     setVectorForNative(index, value) {
         this.needRenewArrayBufferForNative(index);
@@ -483,13 +483,13 @@ export class ShaderData {
         this._int32Data[index] = nPtrID;
     }
     /**
-     *@private [NATIVE]
+     *@internal [NATIVE]
      */
     getVector2ForNative(index) {
         return this._nativeArray[index];
     }
     /**
-     *@private [NATIVE]
+     *@internal [NATIVE]
      */
     setVector2ForNative(index, value) {
         this.needRenewArrayBufferForNative(index);
@@ -501,13 +501,13 @@ export class ShaderData {
         this._int32Data[index] = nPtrID;
     }
     /**
-     *@private [NATIVE]
+     *@internal [NATIVE]
      */
     getVector3ForNative(index) {
         return this._nativeArray[index];
     }
     /**
-     *@private [NATIVE]
+     *@internal [NATIVE]
      */
     setVector3ForNative(index, value) {
         this.needRenewArrayBufferForNative(index);
@@ -519,13 +519,13 @@ export class ShaderData {
         this._int32Data[index] = nPtrID;
     }
     /**
-     *@private [NATIVE]
+     *@internal [NATIVE]
      */
     getQuaternionForNative(index) {
         return this._nativeArray[index];
     }
     /**
-     *@private [NATIVE]
+     *@internal [NATIVE]
      */
     setQuaternionForNative(index, value) {
         this.needRenewArrayBufferForNative(index);
@@ -537,13 +537,13 @@ export class ShaderData {
         this._int32Data[index] = nPtrID;
     }
     /**
-     *@private [NATIVE]
+     *@internal [NATIVE]
      */
     getBufferForNative(shaderIndex) {
         return this._nativeArray[shaderIndex];
     }
     /**
-     *@private [NATIVE]
+     *@internal [NATIVE]
      */
     setBufferForNative(index, value) {
         this.needRenewArrayBufferForNative(index);
@@ -552,13 +552,13 @@ export class ShaderData {
         this._int32Data[index] = nPtrID;
     }
     /**
-     *@private [NATIVE]
+     *@internal [NATIVE]
      */
     getAttributeForNative(index) {
         return this._nativeArray[index];
     }
     /**
-     *@private [NATIVE]
+     *@internal [NATIVE]
      */
     setAttributeForNative(index, value) {
         this._nativeArray[index] = value; //保存引用
@@ -569,13 +569,13 @@ export class ShaderData {
         this._int32Data[index] = value["_ptrID"];
     }
     /**
-     *@private [NATIVE]
+     *@internal [NATIVE]
      */
     getTextureForNative(index) {
         return this._nativeArray[index];
     }
     /**
-     *@private [NATIVE]
+     *@internal [NATIVE]
      */
     setTextureForNative(index, value) {
         if (!value)
@@ -624,5 +624,5 @@ export class ShaderData {
         }
     }
 }
-/**@private [NATIVE]*/
+/**@internal [NATIVE]*/
 ShaderData._SET_RUNTIME_VALUE_MODE_REFERENCE_ = true;

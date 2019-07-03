@@ -23,12 +23,10 @@ export declare class QuickTestTool {
      */
     render(context: Context, x: number, y: number): void;
     private static _PreStageRender;
-    _stageRender(context: Context, x: number, y: number): void;
     private static _countDic;
     private static _countStart;
     private static _i;
     private static _countEnd;
-    private static _addType;
     static showCountInfo(): void;
     static enableQuickTest(): void;
 }

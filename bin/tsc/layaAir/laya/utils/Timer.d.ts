@@ -14,10 +14,6 @@ export declare class Timer {
     currTimer: number;
     /** 当前的帧数。*/
     currFrame: number;
-    /**@private 两帧之间的时间间隔,单位毫秒。*/
-    _delta: number;
-    /**@private */
-    _lastTimer: number;
     /**@private */
     private _map;
     /**@private */
@@ -32,17 +28,10 @@ export declare class Timer {
     constructor(autoActive?: boolean);
     /**两帧之间的时间间隔,单位毫秒。*/
     readonly delta: number;
-    /**
-     * @private
-     * 帧循环处理函数。
-     */
-    _update(): void;
     /** @private */
     private _clearHandlers;
     /** @private */
     private _recoverHandler;
-    /** @private */
-    _create(useFrame: boolean, repeat: boolean, delay: number, caller: any, method: Function, args: any[], coverBefore: boolean): TimerHandler;
     /** @private */
     private _indexHandler;
     /**
@@ -125,18 +114,3 @@ export declare class Timer {
      */
     resume(): void;
 }
-/** @private */
-declare class TimerHandler {
-    key: number;
-    repeat: boolean;
-    delay: number;
-    userFrame: boolean;
-    exeTime: number;
-    caller: any;
-    method: Function;
-    args: any[];
-    jumpFrame: boolean;
-    clear(): void;
-    run(withClear: boolean): void;
-}
-export {};

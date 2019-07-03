@@ -9,54 +9,6 @@ export declare class Rigidbody3D extends PhysicsTriggerComponent {
     static TYPE_STATIC: number;
     static TYPE_DYNAMIC: number;
     static TYPE_KINEMATIC: number;
-    /** @private */
-    static _BT_DISABLE_WORLD_GRAVITY: number;
-    /** @private */
-    static _BT_ENABLE_GYROPSCOPIC_FORCE: number;
-    /** @private */
-    private static _nativeTempVector30;
-    /** @private */
-    private static _nativeTempVector31;
-    /** @private */
-    private static _nativeVector3Zero;
-    /** @private */
-    private static _nativeInertia;
-    /** @private */
-    private static _nativeImpulse;
-    /** @private */
-    private static _nativeImpulseOffset;
-    /** @private */
-    private static _nativeGravity;
-    /**
-     * @private
-     */
-    static __init__(): void;
-    /** @private */
-    private _nativeMotionState;
-    /** @private */
-    private _isKinematic;
-    /** @private */
-    private _mass;
-    /** @private */
-    private _gravity;
-    /** @private */
-    private _angularDamping;
-    /** @private */
-    private _linearDamping;
-    /** @private */
-    private _overrideGravity;
-    /** @private */
-    private _totalTorque;
-    /** @private */
-    private _linearVelocity;
-    /** @private */
-    private _angularVelocity;
-    /** @private */
-    private _linearFactor;
-    /** @private */
-    private _angularFactor;
-    /** @private */
-    private _detectCollisions;
     /**
      * 获取质量。
      * @return 质量。
@@ -190,41 +142,9 @@ export declare class Rigidbody3D extends PhysicsTriggerComponent {
      */
     constructor(collisionGroup?: number, canCollideWith?: number);
     /**
-     * @private
-     */
-    private _updateMass;
-    /**
-     * @private
-     * Dynamic刚体,初始化时调用一次。
-     * Kinematic刚体,每次物理tick时调用(如果未进入睡眠状态),让物理引擎知道刚体位置。
-     */
-    private _delegateMotionStateGetWorldTransform;
-    /**
-     * @private
-     * Dynamic刚体,物理引擎每帧调用一次,用于更新渲染矩阵。
-     */
-    private _delegateMotionStateSetWorldTransform;
-    /**
-     *  @private
-     * Dynamic刚体,初始化时调用一次。
-     * Kinematic刚体,每次物理tick时调用(如果未进入睡眠状态),让物理引擎知道刚体位置。
-     * 该函数只有在runtime下调用
-     */
-    private _delegateMotionStateGetWorldTransformNative;
-    /**
-     * @private
-     * Dynamic刚体,物理引擎每帧调用一次,用于更新渲染矩阵。
-     * 该函数只有在runtime下调用
-     */
-    private _delegateMotionStateSetWorldTransformNative;
-    /**
      * @inheritDoc
      */
     protected _onScaleChange(scale: Vector3): void;
-    /**
-     * @private
-     */
-    _delegateMotionStateClear(): void;
     /**
      * @inheritDoc
      */

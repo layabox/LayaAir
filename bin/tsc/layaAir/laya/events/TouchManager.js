@@ -1,4 +1,4 @@
-import { Event } from "././Event";
+import { Event } from "./Event";
 //import { Sprite } from "../display/Sprite"
 import { Browser } from "../utils/Browser";
 import { Pool } from "../utils/Pool";
@@ -23,6 +23,7 @@ export class TouchManager {
          */
         this.enable = true;
         /**
+         * @internal
          * 用于派发事件用的Event对象
          */
         this._event = new Event();

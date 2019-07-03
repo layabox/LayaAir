@@ -7,7 +7,7 @@ import { Laya } from "../../../Laya";
 export class Script3D extends Component {
     constructor() {
         super(...arguments);
-        /**@private*/
+        /**@internal*/
         this._indexInPool = -1;
     }
     /**
@@ -16,9 +16,6 @@ export class Script3D extends Component {
     /*override*/ get isSingleton() {
         return false;
     }
-    /**
-     * @private
-     */
     _checkProcessTriggers() {
         var prototype = Script3D.prototype;
         if (this.onTriggerEnter !== prototype.onTriggerEnter)
@@ -29,9 +26,6 @@ export class Script3D extends Component {
             return true;
         return false;
     }
-    /**
-     * @private
-     */
     _checkProcessCollisions() {
         var prototype = Script3D.prototype;
         if (this.onCollisionEnter !== prototype.onCollisionEnter)

@@ -8,14 +8,6 @@ export declare class VertexBuffer3D extends Buffer {
     static DATATYPE_FLOAT32ARRAY: number;
     /**数据类型_Uint8Array类型。*/
     static DATATYPE_UINT8ARRAY: number;
-    /** @private */
-    private _vertexCount;
-    /** @private */
-    private _canRead;
-    /** @private */
-    private _dataType;
-    /** @private */
-    _vertexDeclaration: VertexDeclaration;
     /**
      * 获取顶点声明。
      */
@@ -34,32 +26,42 @@ export declare class VertexBuffer3D extends Buffer {
      */
     readonly canRead: boolean;
     /**
-     * 创建一个 <code>VertexBuffer3D,不建议开发者使用并用VertexBuffer3D.create()代替</code> 实例。
+     * 创建一个 <code>VertexBuffer3D</code> 实例。
      * @param	vertexCount 顶点个数。
      * @param	bufferUsage VertexBuffer3D用途类型。
      * @param	canRead 是否可读。
      * @param   dateType 数据类型。
      */
-    constructor(byteLength: number, bufferUsage: number, canRead?: boolean, dateType?: number);
+    constructor(byteLength: number, bufferUsage: number, canRead?: boolean);
     /**
      * @inheritDoc
+     * @override
      */
     bind(): boolean;
     /**
      * 设置数据。
      * @param	data 顶点数据。
-     * @param	bufferOffset 顶点缓冲中的偏移。
-     * @param	dataStartIndex 顶点数据的偏移。
-     * @param	dataCount 顶点数据的数量。
+     * @param	bufferOffset 顶点缓冲中的偏移,以字节为单位。
+     * @param	dataStartIndex 顶点数据的偏移,以字节为单位。
+     * @param	dataCount 顶点数据的长度,以字节为单位。
      */
-    setData(data: any, bufferOffset?: number, dataStartIndex?: number, dataCount?: number): void;
+    setData(buffer: ArrayBuffer, bufferOffset?: number, dataStartIndex?: number, dataCount?: number): void;
     /**
      * 获取顶点数据。
      * @return	顶点数据。
      */
-    getData(): any;
+    getUint8Data(): Uint8Array;
+    /**
+     * @ignore
+     */
+    getFloat32Data(): Float32Array;
+    /**
+     * @ignore
+     */
+    markAsUnreadbale(): void;
     /**
      * @inheritDoc
+     * @override
      */
     destroy(): void;
 }

@@ -25,29 +25,11 @@ export declare class Node extends EventDispatcher {
     protected static ARRAY_EMPTY: any[];
     /**@private */
     private _bits;
-    /**@private 子对象集合，请不要直接修改此对象。*/
-    _children: any[];
-    /**@private 仅仅用来处理输入事件的,并不是真正意义上的子对象 */
-    _extUIChild: any[];
-    /**@private 父节点对象*/
-    _parent: Node;
     /**节点名称。*/
     name: string;
     /**[只读]是否已经销毁。对象销毁后不能再使用。*/
     destroyed: boolean;
-    /**@private */
-    _conchData: any;
     constructor();
-    /**@private */
-    createGLBuffer(): void;
-    /**@private */
-    _setBit(type: number, value: boolean): void;
-    /**@private */
-    _getBit(type: number): boolean;
-    /**@private */
-    _setUpNoticeChain(): void;
-    /**@private */
-    _setBitUp(type: number): void;
     /**
      * <p>增加事件侦听器，以使侦听器能够接收事件通知。</p>
      * <p>如果侦听鼠标事件，则会自动设置自己和父亲节点的属性 mouseEnabled 的值为 true(如果父节点mouseEnabled=false，则停止设置父节点mouseEnabled属性)。</p>
@@ -165,14 +147,6 @@ export declare class Node extends EventDispatcher {
      */
     removeChildren(beginIndex?: number, endIndex?: number): Node;
     /**
-     * 替换子节点。
-     * @internal 将传入的新节点对象替换到已有子节点索引位置处。
-     * @param	newNode 新节点。
-     * @param	oldNode 老节点。
-     * @return	返回新节点。
-     */
-    replaceChild(newNode: Node, oldNode: Node): Node;
-    /**
      * 子对象数量。
      */
     readonly numChildren: number;
@@ -184,8 +158,6 @@ export declare class Node extends EventDispatcher {
     readonly displayedInStage: boolean;
     /**@private */
     private _updateDisplayedInstage;
-    /**@private */
-    _setDisplay(value: boolean): void;
     /**
      * 设置指定节点对象是否可见(是否在渲染列表中)。
      * @private
@@ -261,8 +233,6 @@ export declare class Node extends EventDispatcher {
     private _components;
     /**@private */
     private _activeChangeScripts;
-    /**@private */
-    _scene: Node;
     /**
      * 获得所属场景。
      * @return	场景。
@@ -299,18 +269,6 @@ export declare class Node extends EventDispatcher {
      */
     protected _onInActiveInScene(): void;
     /**
-     * @private
-     */
-    _parse(data: any, spriteMap: any): void;
-    /**
-     * @private
-     */
-    _setBelongScene(scene: Node): void;
-    /**
-     * @private
-     */
-    _setUnBelongScene(): void;
-    /**
      * 组件被激活后执行，此时所有节点和组件均已创建完毕，次方法只执行一次
      * 此方法为虚方法，使用时重写覆盖即可
      */
@@ -323,23 +281,11 @@ export declare class Node extends EventDispatcher {
     /**
      * @private
      */
-    _processActive(): void;
-    /**
-     * @private
-     */
-    _activeHierarchy(activeChangeScripts: any[]): void;
-    /**
-     * @private
-     */
     private _activeScripts;
     /**
      * @private
      */
     private _processInActive;
-    /**
-     * @private
-     */
-    _inActiveHierarchy(activeChangeScripts: any[]): void;
     /**
      * @private
      */
@@ -357,23 +303,6 @@ export declare class Node extends EventDispatcher {
      * @private
      */
     protected _onRemoved(): void;
-    /**
-     * @private
-     */
-    _addComponentInstance(comp: Component): void;
-    /**
-     * @private
-     */
-    _destroyComponent(comp: Component): void;
-    /**
-     * @private
-     */
-    _destroyAllComponent(): void;
-    /**
-     * @private 克隆。
-     * @param	destObject 克隆源。
-     */
-    _cloneTo(destObject: any, srcRoot: Node, dstRoot: Node): void;
     /**
      * 添加组件实例。
      * @param	comp 组件实例。

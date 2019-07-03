@@ -1,13 +1,10 @@
-import { Templet } from "././Templet";
-import { SlotData } from "././SlotData";
-import { SkinSlotDisplayData } from "././SkinSlotDisplayData";
+import { Templet } from "./Templet";
+import { SlotData } from "./SlotData";
+import { SkinSlotDisplayData } from "./SkinSlotDisplayData";
 import { GraphicsAni } from "../GraphicsAni";
 import { Matrix } from "../../maths/Matrix";
 import { Graphics } from "../../display/Graphics";
 import { Texture } from "../../resource/Texture";
-/**
- * @private
- */
 export declare class BoneSlot {
     /** 插槽名称 */
     name: string;
@@ -39,7 +36,6 @@ export declare class BoneSlot {
     private _replaceDic;
     /** 当前diyTexture的动画纹理 */
     private _curDiyUV;
-    private _curDiyVS;
     /** 实时模式下，复用使用 */
     private _skinSprite;
     /** @private 变形动画数据 */

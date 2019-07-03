@@ -29,6 +29,7 @@ export class Widget extends Component {
             this.owner.parent.off(Event.RESIZE, this, this._onParentResize);
     }
     /**
+     * @internal
      * 对象被添加到显示列表的事件侦听处理函数。
      */
     /*override*/ _onAdded() {

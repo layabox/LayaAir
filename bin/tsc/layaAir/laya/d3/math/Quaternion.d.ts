@@ -1,21 +1,11 @@
-import { Vector3 } from "././Vector3";
-import { Matrix4x4 } from "././Matrix4x4";
-import { Matrix3x3 } from "././Matrix3x3";
+import { Vector3 } from "./Vector3";
+import { Matrix4x4 } from "./Matrix4x4";
+import { Matrix3x3 } from "./Matrix3x3";
 import { IClone } from "../core/IClone";
 /**
  * <code>Quaternion</code> 类用于创建四元数。
  */
 export declare class Quaternion implements IClone {
-    /**@private */
-    static TEMPVector30: Vector3;
-    /**@private */
-    static TEMPVector31: Vector3;
-    /**@private */
-    static TEMPVector32: Vector3;
-    /**@private */
-    static TEMPVector33: Vector3;
-    /**@private */
-    static _tempMatrix3x3: Matrix3x3;
     /**默认矩阵,禁止修改*/
     static DEFAULT: Quaternion;
     /**无效矩阵,禁止修改*/

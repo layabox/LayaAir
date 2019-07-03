@@ -1,7 +1,9 @@
-import { SubmitKey } from "././SubmitKey";
+import { SubmitKey } from "./SubmitKey";
 export class SubmitCMD {
     constructor() {
+        /**@internal */
         this._ref = 1;
+        /**@internal */
         this._key = new SubmitKey();
     }
     renderSubmit() {

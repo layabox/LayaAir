@@ -7,7 +7,7 @@ import { Vector4 } from "../math/Vector4";
 import { SkyRenderer } from "../resource/models/SkyRenderer";
 import { Shader3D } from "../shader/Shader3D";
 import { ShaderData } from "../shader/ShaderData";
-import { Sprite3D } from "././Sprite3D";
+import { Sprite3D } from "./Sprite3D";
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
  */
@@ -20,11 +20,8 @@ export class BaseCamera extends Sprite3D {
      */
     constructor(nearPlane = 0.3, farPlane = 1000) {
         super();
-        /**@private */
         this._skyRenderer = new SkyRenderer();
-        /**@private */
         this._forward = new Vector3();
-        /**@private */
         this._up = new Vector3();
         /**摄像机的清除颜色,默认颜色为CornflowerBlue。*/
         this.clearColor = new Vector4(100 / 255, 149 / 255, 237 / 255, 255 / 255);
@@ -146,39 +143,26 @@ export class BaseCamera extends Sprite3D {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _calculateProjectionMatrix() {
     }
     /**
-     * @private
+     * @internal
      */
     _onScreenSizeChanged() {
         this._calculateProjectionMatrix();
     }
     /**
-     * @private
+     * @internal
      */
     _prepareCameraToRender() {
+        var cameraSV = this._shaderValues;
         this.transform.getForward(this._forward);
         this.transform.getUp(this._up);
-        var cameraSV = this._shaderValues;
         cameraSV.setVector3(BaseCamera.CAMERAPOS, this.transform.position);
         cameraSV.setVector3(BaseCamera.CAMERADIRECTION, this._forward);
         cameraSV.setVector3(BaseCamera.CAMERAUP, this._up);
-    }
-    /**
-     * @private
-     */
-    _prepareCameraViewProject(vieMat, proMat, viewProject, vieProNoTraSca) {
-        var shaderData = this._shaderValues;
-        shaderData.setMatrix4x4(BaseCamera.VIEWMATRIX, vieMat);
-        shaderData.setMatrix4x4(BaseCamera.PROJECTMATRIX, proMat);
-        shaderData.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, viewProject);
-        this.transform.worldMatrix.cloneTo(BaseCamera._tempMatrix4x40); //视图矩阵逆矩阵的转置矩阵，移除平移和缩放
-        BaseCamera._tempMatrix4x40.transpose();
-        Matrix4x4.multiply(proMat, BaseCamera._tempMatrix4x40, vieProNoTraSca);
-        shaderData.setMatrix4x4(BaseCamera.VPMATRIX_NO_TRANSLATE, vieProNoTraSca);
     }
     /**
      * 相机渲染。
@@ -273,7 +257,8 @@ export class BaseCamera extends Sprite3D {
         var clearFlagData = data.clearFlag;
         (clearFlagData !== undefined) && (this.clearFlag = clearFlagData);
         this.orthographic = data.orthographic;
-        this.fieldOfView = data.fieldOfView;
+        (data.orthographicVerticalSize !== undefined) && (this.orthographicVerticalSize = data.orthographicVerticalSize);
+        (data.fieldOfView !== undefined) && (this.fieldOfView = data.fieldOfView);
         this.nearPlane = data.nearPlane;
         this.farPlane = data.farPlane;
         var color = data.clearColor;
@@ -295,19 +280,17 @@ export class BaseCamera extends Sprite3D {
         super.destroy(destroyChild);
     }
     /**
-     * @private
+     * @internal
      */
     _create() {
         return new BaseCamera();
     }
 }
-/** @private */
 BaseCamera._tempMatrix4x40 = new Matrix4x4();
 BaseCamera.CAMERAPOS = Shader3D.propertyNameToID("u_CameraPos");
 BaseCamera.VIEWMATRIX = Shader3D.propertyNameToID("u_View");
 BaseCamera.PROJECTMATRIX = Shader3D.propertyNameToID("u_Projection");
 BaseCamera.VIEWPROJECTMATRIX = Shader3D.propertyNameToID("u_ViewProjection");
-BaseCamera.VPMATRIX_NO_TRANSLATE = Shader3D.propertyNameToID("u_MvpMatrix");
 BaseCamera.CAMERADIRECTION = Shader3D.propertyNameToID("u_CameraDirection");
 BaseCamera.CAMERAUP = Shader3D.propertyNameToID("u_CameraUp");
 /**渲染模式,延迟光照渲染，暂未开放。*/
@@ -322,9 +305,6 @@ BaseCamera.CLEARFLAG_SKY = 1;
 BaseCamera.CLEARFLAG_DEPTHONLY = 2;
 /**清除标记，不清除。*/
 BaseCamera.CLEARFLAG_NONE = 3;
-/** @private */
 BaseCamera._invertYScaleMatrix = new Matrix4x4(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); //Matrix4x4.createScaling(new Vector3(1, -1, 1), _invertYScaleMatrix);
-/** @private */
 BaseCamera._invertYProjectionMatrix = new Matrix4x4();
-/** @private */
 BaseCamera._invertYProjectionViewMatrix = new Matrix4x4();

@@ -1,6 +1,3 @@
-/**
- * @private
- */
 export declare class EventData {
     name: string;
     intValue: number;

@@ -15,7 +15,7 @@ export class EffectMaterial extends BaseMaterial {
         this.renderMode = EffectMaterial.RENDERMODE_ADDTIVE;
     }
     /**
-     * @private
+     * @internal
      */
     static __initDefine__() {
         EffectMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
@@ -24,63 +24,63 @@ export class EffectMaterial extends BaseMaterial {
         EffectMaterial.SHADERDEFINE_ADDTIVEFOG = EffectMaterial.shaderDefines.registerDefine("ADDTIVEFOG");
     }
     /**
-     * @private
+     * @internal
      */
     get _TintColorR() {
         return this._color.x;
     }
     /**
-     * @private
+     * @internal
      */
     set _TintColorR(value) {
         this._color.x = value;
         this.color = this._color;
     }
     /**
-     * @private
+     * @internal
      */
     get _TintColorG() {
         return this._color.y;
     }
     /**
-     * @private
+     * @internal
      */
     set _TintColorG(value) {
         this._color.y = value;
         this.color = this._color;
     }
     /**
-     * @private
+     * @internal
      */
     get _TintColorB() {
         return this._color.z;
     }
     /**
-     * @private
+     * @internal
      */
     set _TintColorB(value) {
         this._color.z = value;
         this.color = this._color;
     }
-    /**@private */
+    /**@internal */
     get _TintColorA() {
         return this._color.w;
     }
     /**
-     * @private
+     * @internal
      */
     set _TintColorA(value) {
         this._color.w = value;
         this.color = this._color;
     }
     /**
-     * @private
+     * @internal
      */
     get _MainTex_STX() {
         return this._shaderValues.getVector(EffectMaterial.TILINGOFFSET).x;
     }
     /**
-     * @private
+     * @internal
      */
     set _MainTex_STX(x) {
         var tilOff = this._shaderValues.getVector(EffectMaterial.TILINGOFFSET);
@@ -88,13 +88,13 @@ export class EffectMaterial extends BaseMaterial {
         this.tilingOffset = tilOff;
     }
     /**
-     * @private
+     * @internal
      */
     get _MainTex_STY() {
         return this._shaderValues.getVector(EffectMaterial.TILINGOFFSET).y;
     }
     /**
-     * @private
+     * @internal
      */
     set _MainTex_STY(y) {
         var tilOff = this._shaderValues.getVector(EffectMaterial.TILINGOFFSET);
@@ -102,13 +102,13 @@ export class EffectMaterial extends BaseMaterial {
         this.tilingOffset = tilOff;
     }
     /**
-     * @private
+     * @internal
      */
     get _MainTex_STZ() {
         return this._shaderValues.getVector(EffectMaterial.TILINGOFFSET).z;
     }
     /**
-     * @private
+     * @internal
      */
     set _MainTex_STZ(z) {
         var tilOff = this._shaderValues.getVector(EffectMaterial.TILINGOFFSET);
@@ -116,13 +116,13 @@ export class EffectMaterial extends BaseMaterial {
         this.tilingOffset = tilOff;
     }
     /**
-     * @private
+     * @internal
      */
     get _MainTex_STW() {
         return this._shaderValues.getVector(EffectMaterial.TILINGOFFSET).w;
     }
     /**
-     * @private
+     * @internal
      */
     set _MainTex_STW(w) {
         var tilOff = this._shaderValues.getVector(EffectMaterial.TILINGOFFSET);
@@ -435,5 +435,5 @@ EffectMaterial.BLEND_SRC = Shader3D.propertyNameToID("s_BlendSrc");
 EffectMaterial.BLEND_DST = Shader3D.propertyNameToID("s_BlendDst");
 EffectMaterial.DEPTH_TEST = Shader3D.propertyNameToID("s_DepthTest");
 EffectMaterial.DEPTH_WRITE = Shader3D.propertyNameToID("s_DepthWrite");
-/**@private */
+/**@internal */
 EffectMaterial.shaderDefines = null;

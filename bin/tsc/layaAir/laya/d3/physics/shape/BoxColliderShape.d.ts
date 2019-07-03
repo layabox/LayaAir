@@ -1,20 +1,8 @@
-import { ColliderShape } from "././ColliderShape";
+import { ColliderShape } from "./ColliderShape";
 /**
  * <code>BoxColliderShape</code> 类用于创建盒子形状碰撞器。
  */
 export declare class BoxColliderShape extends ColliderShape {
-    /** @private */
-    private static _nativeSize;
-    /**
-    * @private
-    */
-    static __init__(): void;
-    /**@private */
-    private _sizeX;
-    /**@private */
-    private _sizeY;
-    /**@private */
-    private _sizeZ;
     /**
      * 获取X轴尺寸。
      */

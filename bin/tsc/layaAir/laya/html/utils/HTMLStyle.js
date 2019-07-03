@@ -1,4 +1,4 @@
-import { HTMLExtendStyle } from "././HTMLExtendStyle";
+import { HTMLExtendStyle } from "./HTMLExtendStyle";
 import { ILaya } from "../../../ILaya";
 import { Pool } from "../../utils/Pool";
 /**
@@ -235,7 +235,7 @@ export class HTMLStyle {
     set italic(value) {
         value ? (this._type |= HTMLStyle._ITALIC) : (this._type &= ~HTMLStyle._ITALIC);
     }
-    /**@private */
+    /**@internal */
     _widthAuto() {
         return (this._type & HTMLStyle._WIDTHAUTO) !== 0; // || (_type & _WIDTH_SET) === 0;
     }
@@ -254,7 +254,7 @@ export class HTMLStyle {
         return (this._type & HTMLStyle._NOWARP) ? "nowrap" : "";
     }
     /**
-     * @private
+     * @internal
      */
     //TODO:coverage
     _calculation(type, value) {
@@ -328,7 +328,7 @@ export class HTMLStyle {
     setLineElement(value) {
         value ? (this._type |= HTMLStyle._LINE_ELEMENT) : (this._type &= (~HTMLStyle._LINE_ELEMENT));
     }
-    /**@private */
+    /**@internal */
     //TODO:coverage
     _enableLayout() {
         return (this._type & HTMLStyle._DISPLAY_NONE) === 0 && (this._type & HTMLStyle._ABSOLUTE) === 0;

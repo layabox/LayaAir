@@ -33,8 +33,6 @@ export declare class Socket extends EventDispatcher {
      */
     static BIG_ENDIAN: string;
     /**@private */
-    _endian: string;
-    /**@private */
     protected _socket: any;
     /**@private */
     private _connected;

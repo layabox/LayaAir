@@ -1,15 +1,15 @@
-import { UIComponent } from "././UIComponent";
-import { Button } from "././Button";
-import { Slider } from "././Slider";
+import { UIComponent } from "./UIComponent";
+import { Button } from "./Button";
+import { Slider } from "./Slider";
 import { UIConfig } from "./../../UIConfig";
-import { Styles } from "././Styles";
+import { Styles } from "./Styles";
 import { Event } from "../events/Event";
 import { Point } from "../maths/Point";
 import { Loader } from "../net/Loader";
 import { Ease } from "../utils/Ease";
 import { Handler } from "../utils/Handler";
 import { Tween } from "../utils/Tween";
-import { ILaya } from "ILaya";
+import { ILaya } from "../../ILaya";
 /**
  * 滚动条滑块位置发生变化后调度。
  * @eventType laya.events.Event

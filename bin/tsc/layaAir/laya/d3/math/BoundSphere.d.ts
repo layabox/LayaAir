@@ -1,5 +1,5 @@
-import { Vector3 } from "././Vector3";
-import { Ray } from "././Ray";
+import { Vector3 } from "./Vector3";
+import { Ray } from "./Ray";
 import { IClone } from "../core/IClone";
 /**
  * <code>BoundSphere</code> 类用于创建包围球。

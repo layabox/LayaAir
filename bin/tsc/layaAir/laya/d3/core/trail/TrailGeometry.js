@@ -1,7 +1,6 @@
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Resource } from "../../../resource/Resource";
 import { Stat } from "../../../utils/Stat";
-import { WebGLContext } from "../../../webgl/WebGLContext";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { Color } from "../../math/Color";
 import { MathUtils3D } from "../../math/MathUtils3D";
@@ -17,27 +16,27 @@ import { TrailAlignment } from "./TrailAlignment";
 export class TrailGeometry extends GeometryElement {
     constructor(owner) {
         super();
-        /**@private */
+        /**@internal */
         this._floatCountPerVertices1 = 8;
-        /**@private */
+        /**@internal */
         this._floatCountPerVertices2 = 5;
-        /**@private */
+        /**@internal */
         this._increaseSegementCount = 16;
-        /**@private */
+        /**@internal */
         this._activeIndex = 0;
-        /**@private */
+        /**@internal */
         this._endIndex = 0;
-        /**@private */
+        /**@internal */
         this._needAddFirstVertex = false;
-        /**@private */
+        /**@internal */
         this._isTempEndVertex = false;
-        /**@private */
+        /**@internal */
         this._vertices1 = null;
-        /**@private */
+        /**@internal */
         this._vertices2 = null;
-        /**@private */
+        /**@internal */
         this._lastFixedVertexPosition = new Vector3();
-        /** @private */
+        /** @internal */
         this._bufferState = new BufferState();
         this.tmpColor = new Color();
         this._owner = owner;
@@ -46,7 +45,7 @@ export class TrailGeometry extends GeometryElement {
         this._resizeData(this._segementCount, this._bufferState);
     }
     /**
-     * @private
+     * @internal
      */
     _resizeData(segementCount, bufferState) {
         this._subBirthTime = new Float32Array(segementCount);
@@ -60,9 +59,9 @@ export class TrailGeometry extends GeometryElement {
         var memorySize = vertexbuffer1Size + vertexbuffer2Size;
         this._vertices1 = new Float32Array(vertexCount * this._floatCountPerVertices1);
         this._vertices2 = new Float32Array(vertexCount * this._floatCountPerVertices2);
-        this._vertexBuffer1 = new VertexBuffer3D(vertexbuffer1Size, WebGLContext.STATIC_DRAW, false);
+        this._vertexBuffer1 = new VertexBuffer3D(vertexbuffer1Size, WebGL2RenderingContext.STATIC_DRAW, false);
         this._vertexBuffer1.vertexDeclaration = vertexDeclaration1;
-        this._vertexBuffer2 = new VertexBuffer3D(vertexbuffer2Size, WebGLContext.DYNAMIC_DRAW, false);
+        this._vertexBuffer2 = new VertexBuffer3D(vertexbuffer2Size, WebGL2RenderingContext.DYNAMIC_DRAW, false);
         this._vertexBuffer2.vertexDeclaration = vertexDeclaration2;
         vertexBuffers.push(this._vertexBuffer1);
         vertexBuffers.push(this._vertexBuffer2);
@@ -72,7 +71,7 @@ export class TrailGeometry extends GeometryElement {
         Resource._addMemory(memorySize, memorySize);
     }
     /**
-     * @private
+     * @internal
      */
     _resetData() {
         var count = this._endIndex - this._activeIndex;
@@ -93,11 +92,11 @@ export class TrailGeometry extends GeometryElement {
         this._subBirthTime.set(oldSubBirthTime, 0);
         this._endIndex = count;
         this._activeIndex = 0;
-        this._vertexBuffer1.setData(this._vertices1, 0, this._floatCountPerVertices1 * 2 * this._activeIndex, this._floatCountPerVertices1 * 2 * count);
-        this._vertexBuffer2.setData(this._vertices2, 0, this._floatCountPerVertices2 * 2 * this._activeIndex, this._floatCountPerVertices2 * 2 * count);
+        this._vertexBuffer1.setData(this._vertices1.buffer, 0, this._floatCountPerVertices1 * 2 * this._activeIndex * 4, this._floatCountPerVertices1 * 2 * count * 4);
+        this._vertexBuffer2.setData(this._vertices2.buffer, 0, this._floatCountPerVertices2 * 2 * this._activeIndex * 4, this._floatCountPerVertices2 * 2 * count * 4);
     }
     /**
-     * @private
+     * @internal
      * 更新Trail数据
      */
     _updateTrail(camera, lastPosition, position) {
@@ -109,7 +108,7 @@ export class TrailGeometry extends GeometryElement {
         }
     }
     /**
-     * @private
+     * @internal
      * 通过起始位置添加TrailRenderElement起始数据
      */
     _addTrailByFirstPosition(camera, position) {
@@ -121,7 +120,7 @@ export class TrailGeometry extends GeometryElement {
         this._needAddFirstVertex = true;
     }
     /**
-     * @private
+     * @internal
      * 通过位置更新TrailRenderElement数据
      */
     _addTrailByNextPosition(camera, position) {
@@ -183,7 +182,7 @@ export class TrailGeometry extends GeometryElement {
         }
     }
     /**
-     * @private
+     * @internal
      * 通过位置更新顶点数据
      */
     _updateVerticesByPositionData(position, pointAtoBVector3, index) {
@@ -206,10 +205,10 @@ export class TrailGeometry extends GeometryElement {
         this._vertices1[vertexOffset + 14] = curtime;
         this._vertices1[vertexOffset + 15] = 0.0;
         var floatCount = this._floatCountPerVertices1 * 2;
-        this._vertexBuffer1.setData(this._vertices1, vertexOffset, vertexOffset, floatCount);
+        this._vertexBuffer1.setData(this._vertices1.buffer, vertexOffset * 4, vertexOffset * 4, floatCount * 4);
     }
     /**
-     * @private
+     * @internal
      * 通过位置更新顶点数据、距离、出生时间
      */
     _updateVerticesByPosition(position, pointAtoBVector3, delDistance, index) {
@@ -218,7 +217,7 @@ export class TrailGeometry extends GeometryElement {
         this._subBirthTime[index] = this._owner._curtime;
     }
     /**
-     * @private
+     * @internal
      * 更新VertexBuffer2数据
      */
     _updateVertexBufferUV() {
@@ -256,10 +255,10 @@ export class TrailGeometry extends GeometryElement {
             this._vertices2[index + 9] = this.tmpColor.a;
         }
         var offset = this._activeIndex * stride;
-        this._vertexBuffer2.setData(this._vertices2, offset, offset, vertexCount * stride - offset);
+        this._vertexBuffer2.setData(this._vertices2.buffer, offset * 4, offset * 4, (vertexCount * stride - offset) * 4);
     }
     /**
-     * @private
+     * @internal
      */
     _updateDisappear() {
         var count = this._endIndex;
@@ -302,7 +301,7 @@ export class TrailGeometry extends GeometryElement {
         this._bufferState.bind();
         var start = this._activeIndex * 2;
         var count = this._endIndex * 2 - start;
-        LayaGL.instance.drawArrays(WebGLContext.TRIANGLE_STRIP, start, count);
+        LayaGL.instance.drawArrays(WebGL2RenderingContext.TRIANGLE_STRIP, start, count);
         Stat.renderBatches++;
         Stat.trianglesFaces += count - 2;
     }
@@ -330,15 +329,15 @@ export class TrailGeometry extends GeometryElement {
 TrailGeometry.ALIGNMENT_VIEW = 0;
 /** 轨迹准线_面向运动方向。*/
 TrailGeometry.ALIGNMENT_TRANSFORM_Z = 1;
-/**@private */
+/**@internal */
 TrailGeometry._tempVector30 = new Vector3();
-/**@private */
+/**@internal */
 TrailGeometry._tempVector31 = new Vector3();
-/**@private */
+/**@internal */
 TrailGeometry._tempVector32 = new Vector3();
-/**@private */
+/**@internal */
 TrailGeometry._tempVector33 = new Vector3();
-/**@private */
+/**@internal */
 TrailGeometry._tempVector34 = new Vector3();
-/**@private */
+/**@internal */
 TrailGeometry._type = GeometryElement._typeCounter++;

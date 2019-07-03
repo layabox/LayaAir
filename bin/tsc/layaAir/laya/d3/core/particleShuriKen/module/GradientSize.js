@@ -6,41 +6,23 @@ export class GradientSize {
      * 创建一个 <code>GradientSize,不允许new，请使用静态创建函数。</code> 实例。
      */
     constructor() {
-        /**@private */
         this._type = 0;
-        /**@private */
         this._separateAxes = false;
-        /**@private */
         this._gradient = null;
-        /**@private */
         this._gradientX = null;
-        /**@private */
         this._gradientY = null;
-        /**@private */
         this._gradientZ = null;
-        /**@private */
         this._constantMin = 0;
-        /**@private */
         this._constantMax = 0;
-        /**@private */
         this._constantMinSeparate = null;
-        /**@private */
         this._constantMaxSeparate = null;
-        /**@private */
         this._gradientMin = null;
-        /**@private */
         this._gradientMax = null;
-        /**@private */
         this._gradientXMin = null;
-        /**@private */
         this._gradientXMax = null;
-        /**@private */
         this._gradientYMin = null;
-        /**@private */
         this._gradientYMax = null;
-        /**@private */
         this._gradientZMin = null;
-        /**@private */
         this._gradientZMax = null;
     }
     /**

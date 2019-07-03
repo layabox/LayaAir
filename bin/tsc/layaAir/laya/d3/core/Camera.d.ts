@@ -7,46 +7,22 @@ import { Vector3 } from "../math/Vector3";
 import { Viewport } from "../math/Viewport";
 import { RenderTexture } from "../resource/RenderTexture";
 import { Shader3D } from "../shader/Shader3D";
-import { BaseCamera } from "././BaseCamera";
+import { BaseCamera } from "./BaseCamera";
 import { CommandBuffer } from "./render/command/CommandBuffer";
 /**
  * <code>Camera</code> 类用于创建摄像机。
  */
 export declare class Camera extends BaseCamera {
-    /** @private */
-    static CAMERAEVENT_POSTPROCESS: number;
-    /** @private */
-    static _tempVector20: Vector2;
-    /** @private */
-    static _updateMark: number;
-    /** @private */
     private _aspectRatio;
-    /** @private */
     private _viewport;
-    /** @private */
     private _normalizedViewport;
-    /** @private */
     private _viewMatrix;
-    /**@private */
     private _projectionMatrix;
-    /** @private */
     private _projectionViewMatrix;
-    /** @private */
-    _projectionViewMatrixNoTranslateScale: Matrix4x4;
-    /** @private */
     private _boundFrustum;
-    /** @private */
     private _updateViewMatrix;
-    /** @private 渲染目标。*/
-    _offScreenRenderTexture: RenderTexture;
-    /**@private */
     private _postProcess;
-    /**@private */
     private _enableHDR;
-    /**@private */
-    _renderTexture: RenderTexture;
-    /** @private */
-    _postProcessCommandBuffers: CommandBuffer[];
     /**是否允许渲染。*/
     enableRender: boolean;
     /**
@@ -131,13 +107,6 @@ export declare class Camera extends BaseCamera {
      * 	@return 是否显示。
      */
     _isLayerVisible(layer: number): boolean;
-    /**
-     * @private
-     */
-    _onTransformChanged(flag: number): void;
-    /**
-     * @private
-     */
     private _calculationViewport;
     /**
      * @inheritDoc
@@ -147,18 +116,6 @@ export declare class Camera extends BaseCamera {
      * @inheritDoc
      */
     protected _calculateProjectionMatrix(): void;
-    /**
-     * @private
-     */
-    _getCanvasHeight(): number;
-    /**
-     * @private
-     */
-    _applyPostProcessCommandBuffers(): void;
-    /**
-     * @private
-     */
-    _getRenderTextureFormat(): number;
     /**
      * @inheritDoc
      */
@@ -210,6 +167,4 @@ export declare class Camera extends BaseCamera {
      * 在特定渲染管线阶段移除所有指令缓存。
      */
     removeCommandBuffers(event: number): void;
-    /** @private [NATIVE]*/
-    _boundFrustumBuffer: Float32Array;
 }

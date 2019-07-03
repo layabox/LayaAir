@@ -1,4 +1,4 @@
-import { AnimationBase } from "././AnimationBase";
+import { AnimationBase } from "./AnimationBase";
 import { Handler } from "../utils/Handler";
 /**
  * 动画播放完毕后调度。

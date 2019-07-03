@@ -1,4 +1,4 @@
-//import { TextAtlas } from "././TextAtlas";
+//import { TextAtlas } from "./TextAtlas";
 import { LayaGL } from "../../layagl/LayaGL";
 import { RenderInfo } from "../../renders/RenderInfo";
 import { Resource } from "../../resource/Resource";
@@ -8,9 +8,13 @@ export class TextTexture extends Resource {
     //public var isIso:Boolean = false;
     constructor(textureW, textureH) {
         super();
+        /**@internal */
         this._texW = 0;
+        /**@internal */
         this._texH = 0;
+        /**@internal */
         this.__destroyed = false; //父类有，但是private
+        /**@internal */
         this._discardTm = 0; //释放的时间。超过一定时间会被真正删除
         this.genID = 0; // 这个对象会重新利用，为了能让引用他的人知道自己引用的是否有效，加个id
         this.bitmap = { id: 0, _glTexture: null }; //samekey的判断用的
@@ -29,15 +33,15 @@ export class TextTexture extends Resource {
         var gl = ILaya.Render.isConchApp ? LayaGL.instance.getDefaultCommandEncoder() : WebGLContext.mainContext;
         var glTex = this._source = gl.createTexture();
         this.bitmap._glTexture = glTex;
-        WebGLContext.bindTexture(gl, WebGLContext.TEXTURE_2D, glTex);
+        WebGLContext.bindTexture(gl, WebGL2RenderingContext.TEXTURE_2D, glTex);
         //gl.bindTexture(WebGLContext.TEXTURE_2D, glTex);
         //var sz:int = _width * _height * 4;
         //分配显存。
-        gl.texImage2D(WebGLContext.TEXTURE_2D, 0, WebGLContext.RGBA, this._texW, this._texH, 0, WebGLContext.RGBA, WebGLContext.UNSIGNED_BYTE, null);
-        gl.texParameteri(WebGLContext.TEXTURE_2D, WebGLContext.TEXTURE_MIN_FILTER, WebGLContext.LINEAR); //不能用点采样，否则旋转的时候，非常难看
-        gl.texParameteri(WebGLContext.TEXTURE_2D, WebGLContext.TEXTURE_MAG_FILTER, WebGLContext.LINEAR);
-        gl.texParameteri(WebGLContext.TEXTURE_2D, WebGLContext.TEXTURE_WRAP_S, WebGLContext.CLAMP_TO_EDGE);
-        gl.texParameteri(WebGLContext.TEXTURE_2D, WebGLContext.TEXTURE_WRAP_T, WebGLContext.CLAMP_TO_EDGE);
+        gl.texImage2D(WebGL2RenderingContext.TEXTURE_2D, 0, WebGL2RenderingContext.RGBA, this._texW, this._texH, 0, WebGL2RenderingContext.RGBA, WebGL2RenderingContext.UNSIGNED_BYTE, null);
+        gl.texParameteri(WebGL2RenderingContext.TEXTURE_2D, WebGL2RenderingContext.TEXTURE_MIN_FILTER, WebGL2RenderingContext.LINEAR); //不能用点采样，否则旋转的时候，非常难看
+        gl.texParameteri(WebGL2RenderingContext.TEXTURE_2D, WebGL2RenderingContext.TEXTURE_MAG_FILTER, WebGL2RenderingContext.LINEAR);
+        gl.texParameteri(WebGL2RenderingContext.TEXTURE_2D, WebGL2RenderingContext.TEXTURE_WRAP_S, WebGL2RenderingContext.CLAMP_TO_EDGE);
+        gl.texParameteri(WebGL2RenderingContext.TEXTURE_2D, WebGL2RenderingContext.TEXTURE_WRAP_T, WebGL2RenderingContext.CLAMP_TO_EDGE);
         //TODO 预乘alpha
         if (TextTexture.gTextRender.debugUV) {
             this.fillWhite();
@@ -58,13 +62,13 @@ export class TextTexture extends Resource {
         }
         !this._source && this.recreateResource();
         var gl = ILaya.Render.isConchApp ? LayaGL.instance.getDefaultCommandEncoder() : WebGLContext.mainContext;
-        WebGLContext.bindTexture(gl, WebGLContext.TEXTURE_2D, this._source);
-        !ILaya.Render.isConchApp && gl.pixelStorei(WebGLContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+        WebGLContext.bindTexture(gl, WebGL2RenderingContext.TEXTURE_2D, this._source);
+        !ILaya.Render.isConchApp && gl.pixelStorei(WebGL2RenderingContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
         var dt = data.data;
         if (data.data instanceof Uint8ClampedArray)
             dt = new Uint8Array(dt.buffer);
-        gl.texSubImage2D(WebGLContext.TEXTURE_2D, 0, x, y, data.width, data.height, WebGLContext.RGBA, WebGLContext.UNSIGNED_BYTE, dt);
-        !ILaya.Render.isConchApp && gl.pixelStorei(WebGLContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+        gl.texSubImage2D(WebGL2RenderingContext.TEXTURE_2D, 0, x, y, data.width, data.height, WebGL2RenderingContext.RGBA, WebGL2RenderingContext.UNSIGNED_BYTE, dt);
+        !ILaya.Render.isConchApp && gl.pixelStorei(WebGL2RenderingContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
         var u0;
         var v0;
         var u1;
@@ -97,10 +101,10 @@ export class TextTexture extends Resource {
     addCharCanvas(canv, x, y, uv = null) {
         !this._source && this.recreateResource();
         var gl = ILaya.Render.isConchApp ? LayaGL.instance.getDefaultCommandEncoder() : WebGLContext.mainContext;
-        WebGLContext.bindTexture(gl, WebGLContext.TEXTURE_2D, this._source);
-        !ILaya.Render.isConchApp && gl.pixelStorei(WebGLContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-        gl.texSubImage2D(WebGLContext.TEXTURE_2D, 0, x, y, WebGLContext.RGBA, WebGLContext.UNSIGNED_BYTE, canv);
-        !ILaya.Render.isConchApp && gl.pixelStorei(WebGLContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+        WebGLContext.bindTexture(gl, WebGL2RenderingContext.TEXTURE_2D, this._source);
+        !ILaya.Render.isConchApp && gl.pixelStorei(WebGL2RenderingContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+        gl.texSubImage2D(WebGL2RenderingContext.TEXTURE_2D, 0, x, y, WebGL2RenderingContext.RGBA, WebGL2RenderingContext.UNSIGNED_BYTE, canv);
+        !ILaya.Render.isConchApp && gl.pixelStorei(WebGL2RenderingContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
         var u0;
         var v0;
         var u1;
@@ -132,7 +136,7 @@ export class TextTexture extends Resource {
         var gl = ILaya.Render.isConchApp ? LayaGL.instance.getDefaultCommandEncoder() : WebGLContext.mainContext;
         var dt = new Uint8Array(this._texW * this._texH * 4);
         dt.fill(0xff);
-        gl.texSubImage2D(WebGLContext.TEXTURE_2D, 0, 0, 0, this._texW, this._texH, WebGLContext.RGBA, WebGLContext.UNSIGNED_BYTE, dt);
+        gl.texSubImage2D(WebGL2RenderingContext.TEXTURE_2D, 0, 0, 0, this._texW, this._texH, WebGL2RenderingContext.RGBA, WebGL2RenderingContext.UNSIGNED_BYTE, dt);
     }
     discard() {
         // 非标准大小不回收。
@@ -202,6 +206,7 @@ export class TextTexture extends Resource {
     get texture() {
         return this;
     }
+    /**@internal */
     _getSource() {
         return this._source;
     }

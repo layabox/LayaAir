@@ -1,4 +1,4 @@
-import { Sprite } from "././Sprite";
+import { Sprite } from "./Sprite";
 /**
  * 动画播放完毕后调度。
  * @eventType Event.COMPLETE
@@ -61,10 +61,6 @@ export declare class AnimationBase extends Sprite {
     protected _getFrameByLabel(label: string): number;
     /**@private */
     protected _frameLoop(): void;
-    /**@private */
-    _setControlNode(node: Sprite): void;
-    /**@private */
-    _setDisplay(value: boolean): void;
     /**@private */
     protected _resumePlay(): void;
     /**

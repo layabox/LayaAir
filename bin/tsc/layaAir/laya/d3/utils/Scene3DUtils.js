@@ -14,9 +14,6 @@ import { ClassUtils } from "../../utils/ClassUtils";
  * <code>Utils3D</code> 类用于创建3D工具。
  */
 export class Scene3DUtils {
-    /**
-* @private
-*/
     static _createSprite3DInstance(nodeData, spriteMap, outBatchSprites) {
         var node;
         switch (nodeData.type) {
@@ -64,9 +61,6 @@ export class Scene3DUtils {
         spriteMap[nodeData.instanceID] = node;
         return node;
     }
-    /**
-     * @private
-     */
     static _createComponentInstance(nodeData, spriteMap) {
         var node = spriteMap[nodeData.instanceID];
         node._parse(nodeData.props, spriteMap);
@@ -91,7 +85,7 @@ export class Scene3DUtils {
         }
     }
     /**
-     * @private
+     * @internal
      */
     static _createNodeByJson02(nodeData, outBatchSprites) {
         var spriteMap = {};
@@ -100,7 +94,7 @@ export class Scene3DUtils {
         return node;
     }
     /**
-     *@private
+     *@internal
      */
     static _parse(data, propertyParams = null, constructParams = null) {
         var json = data.data;
@@ -117,7 +111,7 @@ export class Scene3DUtils {
         return sprite;
     }
     /**
-     *@private
+     *@internal
      */
     static _parseScene(data, propertyParams = null, constructParams = null) {
         var json = data.data;
@@ -135,7 +129,7 @@ export class Scene3DUtils {
     }
     //--------------------------------------------------------------------------------------------------------------------------------
     /**
-     * @private
+     * @internal
      */
     static _createNodeByJson(nodeData, outBatchSprites) {
         var node;

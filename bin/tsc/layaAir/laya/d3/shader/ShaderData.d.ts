@@ -1,34 +1,14 @@
 import { BaseTexture } from "../../resource/BaseTexture";
-import { Resource } from "../../resource/Resource";
 import { IClone } from "../core/IClone";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Quaternion } from "../math/Quaternion";
 import { Vector2 } from "../math/Vector2";
 import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
-import { DefineDatas } from "./DefineDatas";
 /**
  * @private
  */
 export declare class ShaderData implements IClone {
-    /**@private */
-    private _ownerResource;
-    /**@private */
-    private _data;
-    /** @private */
-    _defineDatas: DefineDatas;
-    /**
-     * @private
-     */
-    constructor(ownerResource?: Resource);
-    /**
-     * @private
-     */
-    _initData(): void;
-    /**
-     * @private
-     */
-    getData(): any;
     /**
      * 增加Shader宏定义。
      * @param value 宏定义。
@@ -200,117 +180,13 @@ export declare class ShaderData implements IClone {
      * @return	 克隆副本。
      */
     clone(): any;
-    /**@private [NATIVE]*/
-    private _int32Data;
-    /**@private [NATIVE]*/
-    private _float32Data;
-    /**@private [NATIVE]*/
-    _nativeArray: any[];
-    /**@private [NATIVE]*/
-    _frameCount: number;
-    /**@private [NATIVE]*/
-    static _SET_RUNTIME_VALUE_MODE_REFERENCE_: boolean;
-    /**@private [NATIVE]*/
-    _runtimeCopyValues: any[];
     /**
      * 克隆。
      * @param	destObject 克隆源。
      */
     cloneToForNative(destObject: any): void;
-    /**
-     * @private [NATIVE]
-     */
-    _initDataForNative(): void;
     needRenewArrayBufferForNative(index: number): void;
     getDataForNative(): any[];
-    /**
-     *@private [NATIVE]
-     */
-    getIntForNative(index: number): number;
-    /**
-     *@private [NATIVE]
-     */
-    setIntForNative(index: number, value: number): void;
-    /**
-     *@private [NATIVE]
-     */
-    getBoolForNative(index: number): boolean;
-    /**
-     *@private [NATIVE]
-     */
-    setBoolForNative(index: number, value: boolean): void;
-    /**
-     *@private [NATIVE]
-     */
-    getNumberForNative(index: number): number;
-    /**
-     *@private [NATIVE]
-     */
-    setNumberForNative(index: number, value: number): void;
-    /**
-     *@private [NATIVE]
-     */
-    getMatrix4x4ForNative(index: number): Matrix4x4;
-    /**
-     *@private [NATIVE]
-     */
-    setMatrix4x4ForNative(index: number, value: Matrix4x4): void;
-    /**
-     *@private [NATIVE]
-     */
-    getVectorForNative(index: number): any;
-    /**
-     *@private [NATIVE]
-     */
-    setVectorForNative(index: number, value: any): void;
-    /**
-     *@private [NATIVE]
-     */
-    getVector2ForNative(index: number): any;
-    /**
-     *@private [NATIVE]
-     */
-    setVector2ForNative(index: number, value: any): void;
-    /**
-     *@private [NATIVE]
-     */
-    getVector3ForNative(index: number): any;
-    /**
-     *@private [NATIVE]
-     */
-    setVector3ForNative(index: number, value: any): void;
-    /**
-     *@private [NATIVE]
-     */
-    getQuaternionForNative(index: number): Quaternion;
-    /**
-     *@private [NATIVE]
-     */
-    setQuaternionForNative(index: number, value: any): void;
-    /**
-     *@private [NATIVE]
-     */
-    getBufferForNative(shaderIndex: number): Float32Array;
-    /**
-     *@private [NATIVE]
-     */
-    setBufferForNative(index: number, value: Float32Array): void;
-    /**
-     *@private [NATIVE]
-     */
-    getAttributeForNative(index: number): any[];
-    /**
-     *@private [NATIVE]
-     */
-    setAttributeForNative(index: number, value: Int32Array): void;
-    /**
-     *@private [NATIVE]
-     */
-    getTextureForNative(index: number): BaseTexture;
-    /**
-     *@private [NATIVE]
-     */
-    setTextureForNative(index: number, value: BaseTexture): void;
     setReferenceForNative(value: any): number;
     static setRuntimeValueMode(bReference: boolean): void;
     clearRuntimeCopyArray(): void;

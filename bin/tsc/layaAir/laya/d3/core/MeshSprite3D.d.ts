@@ -1,20 +1,12 @@
-import { RenderableSprite3D } from "././RenderableSprite3D";
-import { MeshFilter } from "././MeshFilter";
-import { MeshRenderer } from "././MeshRenderer";
+import { RenderableSprite3D } from "./RenderableSprite3D";
+import { MeshFilter } from "./MeshFilter";
+import { MeshRenderer } from "./MeshRenderer";
 import { Mesh } from "../resource/models/Mesh";
-import { ShaderDefines } from "../shader/ShaderDefines";
 import { Node } from "../../display/Node";
 /**
  * <code>MeshSprite3D</code> 类用于创建网格。
  */
 export declare class MeshSprite3D extends RenderableSprite3D {
-    /**@private */
-    static shaderDefines: ShaderDefines;
-    /**
-     * @private
-     */
-    static __init__(): void;
-    /** @private */
     private _meshFilter;
     /**
      * 获取网格过滤器。
@@ -48,8 +40,4 @@ export declare class MeshSprite3D extends RenderableSprite3D {
      * @inheritDoc
      */
     destroy(destroyChild?: boolean): void;
-    /**
-     * @private
-     */
-    protected _create(): Node;
 }

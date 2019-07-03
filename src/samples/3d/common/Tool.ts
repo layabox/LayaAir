@@ -24,9 +24,9 @@ export class Tool {
 			var meshSprite3D: MeshSprite3D = (<MeshSprite3D>sprite3D);
 			var mesh: Mesh = (<Mesh>meshSprite3D.meshFilter.sharedMesh);
 
-			var vbBuffer: VertexBuffer3D = mesh._vertexBuffers[0];
+			var vbBuffer: VertexBuffer3D = mesh._vertexBuffer;
 
-			var vbBufferData: Float32Array = vbBuffer.getData();
+			var vbBufferData: Float32Array = vbBuffer.getFloat32Data();
 			var ibBufferData: Uint16Array = mesh._indexBuffer.getData();
 			var vertexStrideCount: number = vbBuffer.vertexDeclaration.vertexStride / 4;
 			var loopCount: number = 0;

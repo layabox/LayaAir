@@ -1,5 +1,5 @@
-import { Shader3D } from "././Shader3D";
-import { ShaderPass } from "././ShaderPass";
+import { Shader3D } from "./Shader3D";
+import { ShaderPass } from "./ShaderPass";
 /**
  * <code>SubShader</code> 类用于创建SubShader。
  */
@@ -12,9 +12,9 @@ export class SubShader {
      * @param	materialDefines  materialDefines 材质宏定义。
      */
     constructor(attributeMap, uniformMap, spriteDefines = null, materialDefines = null) {
-        /**@private */
+        /**@internal */
         this._flags = {};
-        /**@private */
+        /**@internal */
         this._passes = [];
         this._publicDefines = [];
         this._publicDefinesMap = {};
@@ -29,7 +29,7 @@ export class SubShader {
         this._uniformMap = uniformMap;
     }
     /**
-     * @private
+     * @internal
      */
     _addDefines(defines, definesMap, supportDefines) {
         for (var k in supportDefines) {
@@ -66,7 +66,10 @@ export class SubShader {
         return this._flags[key];
     }
     /**
-     * @private
+     * 添加着色器Pass
+     * @param vs
+     * @param ps
+     * @param stateMap
      */
     addShaderPass(vs, ps, stateMap = null) {
         var shaderPass = new ShaderPass(this, vs, ps, stateMap);

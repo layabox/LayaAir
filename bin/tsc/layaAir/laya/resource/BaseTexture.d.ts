@@ -3,9 +3,7 @@ import { Bitmap } from "./Bitmap";
  * <code>BaseTexture</code> 纹理的父类，抽象类，不允许实例。
  */
 export declare class BaseTexture extends Bitmap {
-    /** @private */
     static WARPMODE_REPEAT: number;
-    /** @private */
     static WARPMODE_CLAMP: number;
     /**寻址模式_重复。*/
     static FILTERMODE_POINT: number;
@@ -130,10 +128,6 @@ export declare class BaseTexture extends Bitmap {
      * @inheritDoc
      */
     protected _disposeResource(): void;
-    /**
-     * 获取纹理资源。
-     */
-    _getSource(): any;
     /**
      * 通过基础数据生成mipMap。
      */

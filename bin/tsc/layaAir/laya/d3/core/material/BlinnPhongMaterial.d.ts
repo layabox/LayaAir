@@ -1,5 +1,4 @@
 import { Vector4 } from "../../math/Vector4";
-import { ShaderDefines } from "../../shader/ShaderDefines";
 import { BaseMaterial } from "./BaseMaterial";
 import { BaseTexture } from "../../../resource/BaseTexture";
 /**
@@ -36,123 +35,10 @@ export declare class BlinnPhongMaterial extends BaseMaterial {
     static DEPTH_WRITE: number;
     /** 默认材质，禁止修改*/
     static defaultMaterial: BlinnPhongMaterial;
-    /**@private */
-    static shaderDefines: ShaderDefines;
-    /**
-     * @private
-     */
-    static __initDefine__(): void;
-    /**@private */
     private _albedoColor;
-    /**@private */
     private _albedoIntensity;
-    /**@private */
     private _enableLighting;
-    /**@private */
     private _enableVertexColor;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _ColorR: number;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _ColorG: number;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _ColorB: number;
-    /**@private */
-    /**
-    * @private
-    */
-    _ColorA: number;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _SpecColorR: number;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _SpecColorG: number;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _SpecColorB: number;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _SpecColorA: number;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _AlbedoIntensity: number;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _Shininess: number;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _MainTex_STX: number;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _MainTex_STY: number;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _MainTex_STZ: number;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _MainTex_STW: number;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _Cutoff: number;
     /**
      * 设置渲染模式。
      * @return 渲染模式。

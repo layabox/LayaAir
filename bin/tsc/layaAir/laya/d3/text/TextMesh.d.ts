@@ -3,17 +3,11 @@ import { Color } from "../math/Color";
  * <code>TextMesh</code> 类用于创建文本网格。
  */
 export declare class TextMesh {
-    /**@private */
     private static _indexBuffer;
-    /**@private */
     private _vertices;
-    /**@private */
     private _vertexBuffer;
-    /**@private */
     private _text;
-    /**@private */
     private _fontSize;
-    /**@private */
     private _color;
     /**
      * 获取文本。
@@ -46,16 +40,7 @@ export declare class TextMesh {
      * 创建一个新的 <code>TextMesh</code> 实例。
      */
     constructor();
-    /**
-     * @private
-     */
     private _createVertexBuffer;
-    /**
-     * @private
-     */
     private _resizeVertexBuffer;
-    /**
-     * @private
-     */
     private _addChar;
 }

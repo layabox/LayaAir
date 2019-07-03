@@ -1,9 +1,8 @@
 import { View } from "./View";
 import { DialogManager } from "./DialogManager";
-import { UIComponent } from "././UIComponent";
+import { UIComponent } from "./UIComponent";
 import { Event } from "../events/Event";
 import { Handler } from "../utils/Handler";
-import { Tween } from "../utils/Tween";
 /**
  * <code>Dialog</code> 组件是一个弹出对话框，实现对话框弹出，拖动，模式窗口功能。
  * 可以通过UIConfig设置弹出框背景透明度，模式窗口点击边缘是否关闭等
@@ -181,10 +180,6 @@ export declare class Dialog extends View {
     closeType: string;
     /**@private */
     private _dragArea;
-    /**@private */
-    _param: any;
-    /**@private */
-    _effectTween: Tween;
     constructor();
     /**@private 提取拖拽区域*/
     protected _dealDragArea(): void;

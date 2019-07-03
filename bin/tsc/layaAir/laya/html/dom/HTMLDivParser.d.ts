@@ -1,5 +1,4 @@
 import { HTMLElement } from "./HTMLElement";
-import { ILayout } from "../utils/ILayout";
 import { Rectangle } from "../../maths/Rectangle";
 import { Handler } from "../../utils/Handler";
 /**
@@ -30,17 +29,6 @@ export declare class HTMLDivParser extends HTMLElement {
      * @param	text
      */
     appendHTML(text: string): void;
-    /**
-     * @private
-     * @param	out
-     * @return
-     */
-    _addChildsToLayout(out: ILayout[]): boolean;
-    /**
-     * @private
-     * @param	out
-     */
-    _addToLayout(out: ILayout[]): void;
     /**
      * 获取bounds
      * @return

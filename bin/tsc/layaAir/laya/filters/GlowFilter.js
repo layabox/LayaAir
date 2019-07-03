@@ -1,5 +1,5 @@
-import { Filter } from "././Filter";
-import { GlowFilterGLRender } from "././GlowFilterGLRender";
+import { Filter } from "./Filter";
+import { GlowFilterGLRender } from "./GlowFilterGLRender";
 import { ColorUtils } from "../utils/ColorUtils";
 import { BlurFilter } from "./BlurFilter";
 /**
@@ -17,7 +17,9 @@ export class GlowFilter extends Filter {
         super();
         /**数据的存储，顺序R,G,B,A,blurWidth,offX,offY;*/
         this._elements = new Float32Array(9);
+        /**@internal */
         this._sv_blurInfo1 = new Array(4); //给shader用
+        /**@internal */
         this._sv_blurInfo2 = [0, 0, 1, 0];
         this._color = new ColorUtils(color);
         //限制最大效果为20

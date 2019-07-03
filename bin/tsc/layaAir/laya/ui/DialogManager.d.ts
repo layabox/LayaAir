@@ -83,6 +83,4 @@ export declare class DialogManager extends Sprite {
      * @return	需要关闭的对话框数组
      */
     closeByGroup(group: string): any[];
-    /**@private 发生层次改变后，重新检查遮罩层是否正确*/
-    _checkMask(): void;
 }

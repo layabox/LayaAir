@@ -1,4 +1,4 @@
-import { CallLater } from "././CallLater";
+import { CallLater } from "./CallLater";
 import { ILaya } from "../../ILaya";
 /**
      * <code>Timer</code> 是时钟管理类。它是一个单例，不要手动实例化此类，应该通过 Laya.timer 访问。
@@ -14,9 +14,9 @@ export class Timer {
         this.currTimer = Date.now();
         /** 当前的帧数。*/
         this.currFrame = 0;
-        /**@private 两帧之间的时间间隔,单位毫秒。*/
+        /**@internal 两帧之间的时间间隔,单位毫秒。*/
         this._delta = 0;
-        /**@private */
+        /**@internal */
         this._lastTimer = Date.now();
         /**@private */
         this._map = [];
@@ -33,7 +33,7 @@ export class Timer {
         return this._delta;
     }
     /**
-     * @private
+     * @internal
      * 帧循环处理函数。
      */
     _update() {
@@ -103,7 +103,7 @@ export class Timer {
         handler.clear();
         Timer._pool.push(handler);
     }
-    /** @private */
+    /** @internal */
     _create(useFrame, repeat, delay, caller, method, args, coverBefore) {
         //如果延迟为0，则立即执行
         if (!delay) {

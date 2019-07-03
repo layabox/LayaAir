@@ -10,7 +10,7 @@ export class PhysicsTriggerComponent extends PhysicsComponent {
      */
     constructor(collisionGroup, canCollideWith) {
         super(collisionGroup, canCollideWith);
-        /** @private */
+        /** @internal */
         this._isTrigger = false;
     }
     /**

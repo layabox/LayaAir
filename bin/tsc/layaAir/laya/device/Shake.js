@@ -5,7 +5,6 @@ import { ILaya } from "../../ILaya";
 /**
  * Shake只能在支持此操作的设备上有效。
  *
- * @author Survivor
  */
 export class Shake extends EventDispatcher {
     constructor() {

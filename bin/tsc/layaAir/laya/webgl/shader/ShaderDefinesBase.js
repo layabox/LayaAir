@@ -1,5 +1,6 @@
 export class ShaderDefinesBase {
     constructor(name2int, int2name, int2nameMap) {
+        /**@internal */
         this._value = 0;
         this._name2int = name2int;
         this._int2name = int2name;

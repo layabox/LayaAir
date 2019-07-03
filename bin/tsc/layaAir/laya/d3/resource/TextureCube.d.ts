@@ -9,10 +9,6 @@ export declare class TextureCube extends BaseTexture {
     /**灰色纯色纹理。*/
     static grayTexture: TextureCube;
     /**
-     * @private
-     */
-    static __init__(): void;
-    /**
      * @inheritDoc
      */
     static _parse(data: any, propertyParams?: any, constructParams?: any[]): TextureCube;
@@ -22,8 +18,6 @@ export declare class TextureCube extends BaseTexture {
      * @param complete 完成回调。
      */
     static load(url: string, complete: Handler): void;
-    /** @private */
-    private _premultiplyAlpha;
     /**
      * @inheritDoc
      */

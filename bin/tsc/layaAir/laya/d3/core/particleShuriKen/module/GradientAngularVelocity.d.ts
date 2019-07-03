@@ -1,4 +1,4 @@
-import { GradientDataNumber } from "././GradientDataNumber";
+import { GradientDataNumber } from "./GradientDataNumber";
 import { IClone } from "../../IClone";
 import { Vector3 } from "../../../math/Vector3";
 /**
@@ -63,51 +63,28 @@ export declare class GradientAngularVelocity implements IClone {
      * @return  渐变角速度。
      */
     static createByRandomTwoGradientSeparate(gradientXMin: GradientDataNumber, gradientXMax: GradientDataNumber, gradientYMin: GradientDataNumber, gradientYMax: GradientDataNumber, gradientZMin: GradientDataNumber, gradientZMax: GradientDataNumber, gradientWMin: GradientDataNumber, gradientWMax: GradientDataNumber): GradientAngularVelocity;
-    /**@private */
     private _type;
-    /**@private */
     private _separateAxes;
-    /**@private */
     private _constant;
-    /**@private */
     private _constantSeparate;
-    /**@private */
     private _gradient;
-    /**@private */
     private _gradientX;
-    /**@private */
     private _gradientY;
-    /**@private */
     private _gradientZ;
-    /**@private */
     private _gradientW;
-    /**@private */
     private _constantMin;
-    /**@private */
     private _constantMax;
-    /**@private */
     private _constantMinSeparate;
-    /**@private */
     private _constantMaxSeparate;
-    /**@private */
     private _gradientMin;
-    /**@private */
     private _gradientMax;
-    /**@private */
     private _gradientXMin;
-    /**@private */
     private _gradientXMax;
-    /**@private */
     private _gradientYMin;
-    /**@private */
     private _gradientYMax;
-    /**@private */
     private _gradientZMin;
-    /**@private */
     private _gradientZMax;
-    /**@private */
     private _gradientWMin;
-    /**@private */
     private _gradientWMax;
     /**
      *生命周期角速度类型,0常量模式，1曲线模式，2随机双常量模式，3随机双曲线模式。

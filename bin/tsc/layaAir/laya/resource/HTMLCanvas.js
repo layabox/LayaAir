@@ -1,6 +1,6 @@
-import { Bitmap } from "././Bitmap";
-import { Texture } from "././Texture";
-import { Texture2D } from "././Texture2D";
+import { Bitmap } from "./Bitmap";
+import { Texture } from "./Texture";
+import { Texture2D } from "./Texture2D";
 import { ILaya } from "../../ILaya";
 /**
  * <code>HTMLCanvas</code> 是 Html Canvas 的代理类，封装了 Canvas 的属性和方法。
@@ -12,6 +12,7 @@ export class HTMLCanvas extends Bitmap {
     get source() {
         return this._source;
     }
+    /**@internal */
     /*override*/ _getSource() {
         return this._source;
     }
@@ -68,7 +69,7 @@ export class HTMLCanvas extends Bitmap {
         return this._ctx;
     }
     /**
-     * @private
+     * @internal
      * 设置 Canvas 渲染上下文。是webgl用来替换_ctx用的
      * @param	context Canvas 渲染上下文。
      */

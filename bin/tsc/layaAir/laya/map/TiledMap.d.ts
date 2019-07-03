@@ -73,10 +73,6 @@ export declare class TiledMap {
     private _pivotScaleY;
     private _centerX;
     private _centerY;
-    /**@private */
-    _viewPortX: number;
-    /**@private */
-    _viewPortY: number;
     private _viewPortWidth;
     private _viewPortHeight;
     private _enableLinear;

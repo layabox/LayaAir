@@ -1,4 +1,4 @@
-import { Resource } from "././Resource";
+import { Resource } from "./Resource";
 /**
      * @private
      * <code>Bitmap</code> 图片资源类。
@@ -20,9 +20,4 @@ export declare class Bitmap extends Resource {
      * 创建一个 <code>Bitmap</code> 实例。
      */
     constructor();
-    /**
-     * @private
-     * 获取纹理资源。
-     */
-    _getSource(): any;
 }

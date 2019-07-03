@@ -1,5 +1,4 @@
-import { Mesh2D } from "././Mesh2D";
-import { WebGLContext } from "../WebGLContext";
+import { Mesh2D } from "./Mesh2D";
 /**
  * 用来画矢量的mesh。顶点格式固定为 x,y,rgba
  */
@@ -73,6 +72,6 @@ export class MeshVG extends Mesh2D {
     }
 }
 MeshVG.const_stride = 12; // 36;
-MeshVG._fixattriInfo = [WebGLContext.FLOAT, 2, 0,
-    WebGLContext.UNSIGNED_BYTE, 4, 8];
+MeshVG._fixattriInfo = [WebGL2RenderingContext.FLOAT, 2, 0,
+    WebGL2RenderingContext.UNSIGNED_BYTE, 4, 8];
 MeshVG._POOL = [];

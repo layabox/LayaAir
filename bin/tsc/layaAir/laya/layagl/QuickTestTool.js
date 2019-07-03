@@ -66,6 +66,7 @@ export class QuickTestTool {
         RenderSprite.renders[this._renderType]._fun(this, context, x + this._x, y + this._y);
         this._repaint = 0;
     }
+    /**@internal */
     //TODO:coverage
     _stageRender(context, x, y) {
         QuickTestTool._countStart();
@@ -87,7 +88,7 @@ export class QuickTestTool {
             QuickTestTool._i = 0;
         }
     }
-    //TODO:coverage
+    /**@internal */
     static _addType(type) {
         if (!QuickTestTool._countDic[type]) {
             QuickTestTool._countDic[type] = 1;

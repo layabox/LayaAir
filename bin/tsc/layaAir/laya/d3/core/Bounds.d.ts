@@ -1,26 +1,12 @@
-import { IClone } from "././IClone";
+import { IClone } from "./IClone";
 import { BoundBox } from "../math/BoundBox";
-import { Matrix4x4 } from "../math/Matrix4x4";
 import { Vector3 } from "../math/Vector3";
 /**
  * <code>Bounds</code> 类用于创建包围体。
  */
 export declare class Bounds implements IClone {
-    /**@private */
-    static _UPDATE_MIN: number;
-    /**@private */
-    static _UPDATE_MAX: number;
-    /**@private */
-    static _UPDATE_CENTER: number;
-    /**@private */
-    static _UPDATE_EXTENT: number;
-    /**@private */
     private _updateFlag;
-    /**@private	*/
-    _center: Vector3;
-    /**@private	*/
-    _extent: Vector3;
-    /**@private	*/
+    /***/
     _boundBox: BoundBox;
     /**
      * 设置包围盒的最小点。
@@ -68,42 +54,13 @@ export declare class Bounds implements IClone {
      * @param	max  max 最大坐标。
      */
     constructor(min: Vector3, max: Vector3);
-    /**
-     * @private
-     */
     private _getUpdateFlag;
-    /**
-     * @private
-     */
     private _setUpdateFlag;
-    /**
-     * @private
-     */
     private _getCenter;
-    /**
-     * @private
-     */
     private _getExtent;
-    /**
-     * @private
-     */
     private _getMin;
-    /**
-     * @private
-     */
     private _getMax;
-    /**
-     * @private
-     */
     private _rotateExtents;
-    /**
-     * @private
-     */
-    _tranform(matrix: Matrix4x4, out: Bounds): void;
-    /**
-     * @private
-     */
-    _getBoundBox(): BoundBox;
     /**
      * 克隆。
      * @param	destObject 克隆源。

@@ -111,24 +111,6 @@ export declare class Rectangle {
      */
     addPoint(x: number, y: number): Rectangle;
     /**
-     * @private
-     * 返回代表当前矩形的顶点数据。
-     * @return 顶点数据。
-     */
-    _getBoundPoints(): any[];
-    /**
-     * @private
-     * 返回矩形的顶点数据。
-     */
-    static _getBoundPointS(x: number, y: number, width: number, height: number): any[];
-    /**
-     * @private
-     * 返回包含所有点的最小矩形。
-     * @param pointList 点列表。
-     * @return 包含所有点的最小矩形矩形对象。
-     */
-    static _getWrapRec(pointList: ArrayLike<number>, rst?: Rectangle): Rectangle;
-    /**
      * 确定此 Rectangle 对象是否为空。
      * @return 如果 Rectangle 对象的宽度或高度小于等于 0，则返回 true 值，否则返回 false。
      */

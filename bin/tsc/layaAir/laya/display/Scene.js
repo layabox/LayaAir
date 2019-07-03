@@ -1,4 +1,4 @@
-import { Node } from "././Node";
+import { Node } from "./Node";
 import { Const } from "../Const";
 import { Sprite } from "./Sprite";
 import { Event } from "../events/Event";
@@ -20,7 +20,7 @@ export class Scene extends Sprite {
         this.url = null;
         /**@private */
         this._viewCreated = false;
-        /**@private */
+        /**@internal */
         this._$componentType = "Scene";
         this._setBit(Const.NOT_READY, true);
         Scene.unDestroyedScenes.push(this);

@@ -10,7 +10,7 @@ export class SimpleSingletonList extends SingletonList {
         super();
     }
     /**
-     * @private
+     * @internal
      */
     add(element) {
         var index = element._getIndexInList();
@@ -20,7 +20,7 @@ export class SimpleSingletonList extends SingletonList {
         element._setIndexInList(this.length++);
     }
     /**
-     * @private
+     * @internal
      */
     remove(element) {
         var index = element._getIndexInList();

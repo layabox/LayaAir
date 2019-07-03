@@ -1,43 +1,30 @@
-import { VertexElement } from "././VertexElement";
-import { ShaderData } from "../shader/ShaderData";
+import { VertexElement } from "./VertexElement";
 /**
- * @private
  * <code>VertexDeclaration</code> 类用于生成顶点声明。
  */
 export declare class VertexDeclaration {
-    /**@private */
-    private static _uniqueIDCounter;
-    /**@private */
-    private _id;
-    /**@private */
-    private _vertexStride;
-    /**@private */
-    private _vertexElementsDic;
-    /**@private */
-    _shaderValues: ShaderData;
-    /**@private [只读]*/
-    vertexElements: any[];
     /**
      * 获取唯一标识ID(通常用于优化或识别)。
      * @return 唯一标识ID
      */
     readonly id: number;
     /**
-     * @private
+     * 顶点跨度，以字节为单位。
      */
     readonly vertexStride: number;
+    /**
+     * 顶点元素的数量。
+     */
+    readonly vertexElementCount: number;
     /**
      * 创建一个 <code>VertexDeclaration</code> 实例。
      * @param	vertexStride 顶点跨度。
      * @param	vertexElements 顶点元素集合。
      */
-    constructor(vertexStride: number, vertexElements: any[]);
+    constructor(vertexStride: number, vertexElements: Array<VertexElement>);
     /**
-     * @private
+     * 通过索引获取顶点元素。
+     * @param index 索引。
      */
-    getVertexElementByUsage(usage: number): VertexElement;
-    /**
-     * @private
-     */
-    unBinding(): void;
+    getVertexElementByIndex(index: number): VertexElement;
 }

@@ -1,4 +1,3 @@
-import { Sprite } from "././Sprite";
 import { AlphaCmd } from "./cmd/AlphaCmd";
 import { ClipRectCmd } from "./cmd/ClipRectCmd";
 import { DrawCircleCmd } from "./cmd/DrawCircleCmd";
@@ -28,7 +27,6 @@ import { TranslateCmd } from "./cmd/TranslateCmd";
 import { Matrix } from "../maths/Matrix";
 import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
-import { Context } from "../resource/Context";
 import { Texture } from "../resource/Texture";
 /**
  * <code>Graphics</code> 类用于创建绘图显示对象。Graphics可以同时绘制多个位图或者矢量图，还可以结合save，restore，transform，scale，rotate，translate，alpha等指令对绘图效果进行变化。
@@ -36,12 +34,6 @@ import { Texture } from "../resource/Texture";
  * @see laya.display.Sprite#graphics
  */
 export declare class Graphics {
-    /**@private */
-    _sp: Sprite;
-    /**@private */
-    _one: any;
-    /**@private */
-    _render: Function;
     /**@private */
     private _cmds;
     /**@private */
@@ -51,12 +43,6 @@ export declare class Graphics {
     /**@private */
     autoDestroy: boolean;
     constructor();
-    /**@private */
-    _createData(): void;
-    /**@private */
-    _clearData(): void;
-    /**@private */
-    _destroyData(): void;
     /**
      * <p>销毁此对象。</p>
      */
@@ -70,13 +56,6 @@ export declare class Graphics {
     private _clearBoundsCache;
     /**@private */
     private _initGraphicBounds;
-    /**
-     * @private
-     * 重绘此对象。
-     */
-    _repaint(): void;
-    /**@private */
-    _isOnlyOne(): boolean;
     /**
      * @private
      * 命令流。存储了所有绘制命令。
@@ -115,7 +94,7 @@ export declare class Graphics {
      * @param color		（可选）颜色滤镜。
      * @param blendMode （可选）混合模式。
      */
-    drawTexture(texture: Texture, x?: number, y?: number, width?: number, height?: number, matrix?: Matrix, alpha?: number, color?: string, blendMode?: string): DrawTextureCmd;
+    drawTexture(texture: Texture, x?: number, y?: number, width?: number, height?: number, matrix?: Matrix, alpha?: number, color?: string, blendMode?: string, uv?: number[]): DrawTextureCmd;
     /**
      * 批量绘制同样纹理。
      * @param texture 纹理。
@@ -148,11 +127,6 @@ export declare class Graphics {
      *
      */
     fillTexture(texture: Texture, x: number, y: number, width?: number, height?: number, type?: string, offset?: Point): FillTextureCmd;
-    /**
-     * @private
-     * 保存到命令流。
-     */
-    _saveToCmd(fun: Function, args: any): any;
     /**
      * 设置剪裁区域，超出剪裁区域的坐标不显示。
      * @param x X 轴偏移量。
@@ -266,22 +240,6 @@ export declare class Graphics {
      * @param complete	（可选）加载完成回调。
      */
     loadImage(url: string, x?: number, y?: number, width?: number, height?: number, complete?: Function): void;
-    /**
-     * @private
-     */
-    _renderEmpty(sprite: Sprite, context: Context, x: number, y: number): void;
-    /**
-     * @private
-     */
-    _renderAll(sprite: Sprite, context: Context, x: number, y: number): void;
-    /**
-     * @private
-     */
-    _renderOne(sprite: Sprite, context: Context, x: number, y: number): void;
-    /**
-     * @private
-     */
-    _renderOneImg(sprite: Sprite, context: Context, x: number, y: number): void;
     /**
      * 绘制一条线。
      * @param fromX		X轴开始位置。

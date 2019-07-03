@@ -1,6 +1,5 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { BufferStateBase } from "../../webgl/BufferStateBase";
-import { WebGLContext } from "../../webgl/WebGLContext";
 import { Buffer } from "../../webgl/utils/Buffer";
 /**
  * <code>IndexBuffer3D</code> 类用于创建索引缓冲。
@@ -18,7 +17,7 @@ export class IndexBuffer3D extends Buffer {
         this._indexType = indexType;
         this._indexCount = indexCount;
         this._bufferUsage = bufferUsage;
-        this._bufferType = WebGLContext.ELEMENT_ARRAY_BUFFER;
+        this._bufferType = WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER;
         this._canRead = canRead;
         var byteLength;
         if (indexType == IndexBuffer3D.INDEXTYPE_USHORT)
@@ -85,7 +84,7 @@ export class IndexBuffer3D extends Buffer {
      */
     /*override*/ _bindForVAO() {
         if (BufferStateBase._curBindedBufferState) {
-            LayaGL.instance.bindBuffer(WebGLContext.ELEMENT_ARRAY_BUFFER, this._glBuffer);
+            LayaGL.instance.bindBuffer(WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER, this._glBuffer);
         }
         else {
             throw "IndexBuffer3D: must bind current BufferState.";
@@ -100,7 +99,7 @@ export class IndexBuffer3D extends Buffer {
         }
         else {
             if (Buffer._bindedIndexBuffer !== this._glBuffer) {
-                LayaGL.instance.bindBuffer(WebGLContext.ELEMENT_ARRAY_BUFFER, this._glBuffer);
+                LayaGL.instance.bindBuffer(WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER, this._glBuffer);
                 Buffer._bindedIndexBuffer = this._glBuffer;
                 return true;
             }

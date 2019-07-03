@@ -18,6 +18,7 @@ export class HTMLLinkElement extends HTMLElement {
         this._loader = null;
         return this;
     }
+    /**@internal */
     _onload(data) {
         if (this._loader)
             this._loader = null;

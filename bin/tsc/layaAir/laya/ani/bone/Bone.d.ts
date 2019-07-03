@@ -1,4 +1,4 @@
-import { Transform } from "././Transform";
+import { Transform } from "./Transform";
 import { Matrix } from "../../maths/Matrix";
 /**
  * @private

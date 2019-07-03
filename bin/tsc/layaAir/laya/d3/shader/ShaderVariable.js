@@ -1,5 +1,5 @@
 /**
-     * @private
+     * @internal
      *  <code>shaderVariable</code> 类用于保存shader变量上传相关信息。
      */
 export class ShaderVariable {

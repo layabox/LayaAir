@@ -1,4 +1,4 @@
-import { ParticleTemplateWebGL } from "././ParticleTemplateWebGL";
+import { ParticleTemplateWebGL } from "./ParticleTemplateWebGL";
 import { ParticleShaderValue } from "./shader/value/ParticleShaderValue";
 import { Handler } from "../utils/Handler";
 import { ILaya } from "../../ILaya";
@@ -15,6 +15,7 @@ export class ParticleTemplate2D extends ParticleTemplateWebGL {
         this.x = 0;
         this.y = 0;
         this.sv = new ParticleShaderValue();
+        /**@internal */
         this._key = {};
         var _this = this;
         ILaya.loader.load(this.settings.textureName, Handler.create(null, function (texture) {
@@ -95,12 +96,12 @@ export class ParticleTemplate2D extends ParticleTemplateWebGL {
                 this.sv.u_texture = this.texture._getSource();
                 this.sv.upload();
                 if (this._firstActiveElement < this._firstFreeElement) {
-                    WebGLContext.mainContext.drawElements(WebGLContext.TRIANGLES, (this._firstFreeElement - this._firstActiveElement) * 6, WebGLContext.UNSIGNED_SHORT, this._firstActiveElement * 6 * 2);
+                    WebGLContext.mainContext.drawElements(WebGL2RenderingContext.TRIANGLES, (this._firstFreeElement - this._firstActiveElement) * 6, WebGL2RenderingContext.UNSIGNED_SHORT, this._firstActiveElement * 6 * 2);
                 }
                 else {
-                    WebGLContext.mainContext.drawElements(WebGLContext.TRIANGLES, (this.settings.maxPartices - this._firstActiveElement) * 6, WebGLContext.UNSIGNED_SHORT, this._firstActiveElement * 6 * 2);
+                    WebGLContext.mainContext.drawElements(WebGL2RenderingContext.TRIANGLES, (this.settings.maxPartices - this._firstActiveElement) * 6, WebGL2RenderingContext.UNSIGNED_SHORT, this._firstActiveElement * 6 * 2);
                     if (this._firstFreeElement > 0)
-                        WebGLContext.mainContext.drawElements(WebGLContext.TRIANGLES, this._firstFreeElement * 6, WebGLContext.UNSIGNED_SHORT, 0);
+                        WebGLContext.mainContext.drawElements(WebGL2RenderingContext.TRIANGLES, this._firstFreeElement * 6, WebGL2RenderingContext.UNSIGNED_SHORT, 0);
                 }
                 Stat.renderBatches++;
             }
@@ -147,7 +148,7 @@ export class ParticleTemplate2D extends ParticleTemplateWebGL {
     blend() {
         if (BlendMode.activeBlendFunction !== this._blendFn) {
             var gl = WebGLContext.mainContext;
-            gl.enable(WebGLContext.BLEND);
+            gl.enable(WebGL2RenderingContext.BLEND);
             this._blendFn(gl);
             BlendMode.activeBlendFunction = this._blendFn;
         }

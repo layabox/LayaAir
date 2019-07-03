@@ -1,5 +1,5 @@
-import { ShaderInstance } from "././ShaderInstance";
-import { Shader3D } from "././Shader3D";
+import { ShaderInstance } from "./ShaderInstance";
+import { Shader3D } from "./Shader3D";
 import { RenderState } from "../core/material/RenderState";
 import { WebGL } from "../../webgl/WebGL";
 import { ShaderCompile } from "../../webgl/utils/ShaderCompile";
@@ -10,7 +10,7 @@ import { ShaderNode } from "../../webgl/utils/ShaderNode";
 export class ShaderPass extends ShaderCompile {
     constructor(owner, vs, ps, stateMap) {
         super(vs, ps, null);
-        /**@private */
+        /**@internal */
         this._renderState = new RenderState();
         this._owner = owner;
         this._cacheSharders = [];
@@ -38,7 +38,7 @@ export class ShaderPass extends ShaderCompile {
         return this._renderState;
     }
     /**
-     * @private
+     * @internal
      */
     _definesToNameDic(value, int2Name) {
         var o = {};
@@ -156,7 +156,7 @@ export class ShaderPass extends ShaderCompile {
         }
     }
     /**
-     * @private
+     * @internal
      */
     withCompile(publicDefine, spriteDefine, materialDefine) {
         publicDefine &= this._publicValidDefine;

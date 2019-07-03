@@ -1,4 +1,4 @@
-import { ISaveData } from "././ISaveData";
+import { ISaveData } from "./ISaveData";
 import { Context } from "../../../resource/Context";
 export declare class SaveBase implements ISaveData {
     static TYPE_ALPHA: number;
@@ -22,8 +22,6 @@ export declare class SaveBase implements ISaveData {
     static TYPE_COLORFILTER: number;
     private static POOL;
     private static _namemap;
-    static _createArray(): any[];
-    static _init(): any;
     private _valueName;
     private _value;
     private _dataObj;

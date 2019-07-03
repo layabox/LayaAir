@@ -1,6 +1,6 @@
-import { Bitmap } from "././Bitmap";
-import { Texture2D } from "././Texture2D";
-import { BaseTexture } from "././BaseTexture";
+import { Bitmap } from "./Bitmap";
+import { Texture2D } from "./Texture2D";
+import { BaseTexture } from "./BaseTexture";
 /**
  * @private
  * <p> <code>HTMLImage</code> 用于创建 HTML Image 元素。</p>

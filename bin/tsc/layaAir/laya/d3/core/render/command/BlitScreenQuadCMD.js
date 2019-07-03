@@ -2,32 +2,32 @@ import { Vector4 } from "../../../math/Vector4";
 import { RenderContext3D } from "../RenderContext3D";
 import { ScreenQuad } from "../ScreenQuad";
 import { ScreenTriangle } from "../ScreenTriangle";
-import { Command } from "././Command";
+import { Command } from "./Command";
 import { LayaGL } from "../../../../layagl/LayaGL";
 /**
- * @private
+ * @internal
  * <code>BlitCMD</code> 类用于创建从一张渲染目标输出到另外一张渲染目标指令。
  */
 export class BlitScreenQuadCMD extends Command {
     constructor() {
         super(...arguments);
-        /**@private */
+        /**@internal */
         this._source = null;
-        /**@private */
+        /**@internal */
         this._dest = null;
-        /**@private */
+        /**@internal */
         this._shader = null;
-        /**@private */
+        /**@internal */
         this._shaderData = null;
-        /**@private */
+        /**@internal */
         this._subShader = 0;
-        /**@private */
+        /**@internal */
         this._sourceTexelSize = new Vector4();
-        /**@private */
+        /**@internal */
         this._screenType = 0;
     }
     /**
-     * @private
+     * @internal
      */
     static create(source, dest, shader = null, shaderData = null, subShader = 0, screenType = BlitScreenQuadCMD._SCREENTYPE_QUAD) {
         var cmd;
@@ -84,9 +84,9 @@ export class BlitScreenQuadCMD extends Command {
         super.recover();
     }
 }
-/**@private */
+/**@internal */
 BlitScreenQuadCMD._SCREENTYPE_QUAD = 0;
-/**@private */
+/**@internal */
 BlitScreenQuadCMD._SCREENTYPE_TRIANGLE = 1;
-/**@private */
+/**@internal */
 BlitScreenQuadCMD._pool = [];

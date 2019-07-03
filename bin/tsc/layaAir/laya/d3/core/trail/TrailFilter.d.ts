@@ -1,7 +1,6 @@
 import { Vector3 } from "../../math/Vector3";
 import { FloatKeyframe } from "../FloatKeyframe";
 import { Gradient } from "../Gradient";
-import { RenderContext3D } from "../render/RenderContext3D";
 import { TrailSprite3D } from "././TrailSprite3D";
 /**
  * <code>TrailFilter</code> 类用于创建拖尾过滤器。
@@ -11,22 +10,6 @@ export declare class TrailFilter {
     static LIFETIME: number;
     static WIDTHCURVE: number;
     static WIDTHCURVEKEYLENGTH: number;
-    /**@private */
-    private _minVertexDistance;
-    /**@private */
-    private _widthMultiplier;
-    /**@private */
-    private _time;
-    /**@private */
-    private _widthCurve;
-    /**@private */
-    private _colorGradient;
-    /**@private */
-    private _textureMode;
-    /**@private */
-    private _trialGeometry;
-    /**@private 拖尾总长度*/
-    _totalLength: number;
     _owner: TrailSprite3D;
     _lastPosition: Vector3;
     _curtime: number;
@@ -87,22 +70,6 @@ export declare class TrailFilter {
     */
     textureMode: number;
     constructor(owner: TrailSprite3D);
-    /**
-     * @private
-     */
-    addRenderElement(): void;
-    /**
-     * @private
-     */
-    _update(state: RenderContext3D): void;
-    /**
-     * @private
-     */
-    _initDefaultData(): void;
-    /**
-     * @private
-     */
-    destroy(): void;
     /** 轨迹准线_面向摄像机。*/
     static ALIGNMENT_VIEW: number;
     /** 轨迹准线_面向运动方向。*/

@@ -1,5 +1,5 @@
 import { Shader3D } from "../../shader/Shader3D";
-import { BaseMaterial } from "././BaseMaterial";
+import { BaseMaterial } from "./BaseMaterial";
 /**
  * <code>SkyBoxMaterial</code> 类用于实现SkyBoxMaterial材质。
  */
@@ -13,7 +13,7 @@ export class SkyBoxMaterial extends BaseMaterial {
         this.setShaderName("SkyBox");
     }
     /**
-    * @private
+    * @internal
     */
     static __initDefine__() {
     }

@@ -1,5 +1,4 @@
 import { Rectangle } from "../maths/Rectangle";
-import { Graphics } from "./Graphics";
 /**
  * @private
  * Graphic bounds数据类
@@ -23,8 +22,6 @@ export declare class GraphicsBounds {
     private _rstBoundPoints;
     /**@private */
     private _cacheBoundsType;
-    /**@private */
-    _graphics: Graphics;
     /**
      * 销毁
      */

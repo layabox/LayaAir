@@ -12,7 +12,6 @@ import { Buffer2D } from "../webgl/utils/Buffer2D";
 import { SubmitBase } from "../webgl/submit/SubmitBase";
 import { LayaGPU } from "../webgl/LayaGPU";
 /**
- * @private
  * <code>Render</code> 是渲染管理类。它是一个单例，可以使用 Laya.render 访问。
  */
 export class Render {

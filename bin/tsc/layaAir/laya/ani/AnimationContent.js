@@ -1,5 +1,5 @@
 /**
- * @private
+ * @internal
  * @author ...
  */
 export class AnimationContent {

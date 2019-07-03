@@ -1,4 +1,4 @@
-import { Component } from "././Component";
+import { Component } from "./Component";
 import { Event } from "../events/Event";
 /**
  * <code>Script</code> 类用于创建脚本的父类，该类为抽象类，不允许实例。
@@ -21,10 +21,6 @@ export declare class Script extends Component {
      * @inheritDoc
      */
     protected _onDisable(): void;
-    /**
-     * @inheritDoc
-     */
-    _isScript(): boolean;
     /**
      * @inheritDoc
      */

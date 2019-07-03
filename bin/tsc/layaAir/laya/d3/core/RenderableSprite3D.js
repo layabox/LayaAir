@@ -1,7 +1,7 @@
 import { Vector4 } from "../math/Vector4";
 import { Shader3D } from "../shader/Shader3D";
 import { ShaderDefines } from "../shader/ShaderDefines";
-import { Sprite3D } from "././Sprite3D";
+import { Sprite3D } from "./Sprite3D";
 import { ILaya3D } from "../../../ILaya3D";
 /**
  * <code>RenderableSprite3D</code> 类用于可渲染3D精灵的父类，抽象类不允许实例。
@@ -14,7 +14,7 @@ export class RenderableSprite3D extends Sprite3D {
         super(name);
     }
     /**
-     * @private
+     * @internal
      */
     static __init__() {
         RenderableSprite3D.SHADERDEFINE_RECEIVE_SHADOW = RenderableSprite3D.shaderDefines.registerDefine("RECEIVESHADOW");
@@ -53,7 +53,7 @@ export class RenderableSprite3D extends Sprite3D {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _addToInitStaticBatchManager() {
     }
@@ -92,7 +92,7 @@ export class RenderableSprite3D extends Sprite3D {
         this._render = null;
     }
     /**
-     * @private
+     * @internal
      */
     _create() {
         return new RenderableSprite3D(this.name);
@@ -104,5 +104,4 @@ RenderableSprite3D.LIGHTMAPSCALEOFFSET = Shader3D.propertyNameToID("u_LightmapSc
 RenderableSprite3D.LIGHTMAP = Shader3D.propertyNameToID("u_LightMap");
 /**拾取颜色。*/
 RenderableSprite3D.PICKCOLOR = Shader3D.propertyNameToID("u_PickColor");
-/**@private */
 RenderableSprite3D.shaderDefines = new ShaderDefines();

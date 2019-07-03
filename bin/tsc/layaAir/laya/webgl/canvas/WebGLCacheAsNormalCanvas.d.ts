@@ -1,7 +1,6 @@
 import { Sprite } from "../../display/Sprite";
 import { Matrix } from "../../maths/Matrix";
 import { Context } from "../../resource/Context";
-import { MeshQuadTexture } from "../utils/MeshQuadTexture";
 /**
  * 对象 cacheas normal的时候，本质上只是想把submit缓存起来，以后直接执行
  * 为了避免各种各样的麻烦，这里采用复制相应部分的submit的方法。执行环境还是在原来的context中
@@ -14,7 +13,6 @@ export declare class WebGLCacheAsNormalCanvas {
     touches: any[];
     submits: any[];
     sprite: Sprite;
-    _mesh: MeshQuadTexture;
     private _pathMesh;
     private _triangleMesh;
     meshlist: any[];

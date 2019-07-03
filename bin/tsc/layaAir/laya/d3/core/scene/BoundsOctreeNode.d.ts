@@ -1,46 +1,14 @@
-import { IOctreeObject } from "././IOctreeObject";
-import { PixelLineSprite3D } from "../pixelLine/PixelLineSprite3D";
-import { RenderContext3D } from "../render/RenderContext3D";
 import { BoundBox } from "../../math/BoundBox";
 import { Ray } from "../../math/Ray";
 import { Vector3 } from "../../math/Vector3";
+import { RenderContext3D } from "../render/RenderContext3D";
+import { IOctreeObject } from "./IOctreeObject";
 import { BoundsOctree } from "./BoundsOctree";
+import { Shader3D } from "../../shader/Shader3D";
 /**
  * <code>BoundsOctreeNode</code> 类用于创建八叉树节点。
  */
 export declare class BoundsOctreeNode {
-    /**@private */
-    private static _tempVector3;
-    /**@private */
-    private static _tempVector30;
-    /**@private */
-    private static _tempVector31;
-    /**@private */
-    private static _tempColor0;
-    /**@private */
-    private static _tempBoundBox;
-    /**@private */
-    private static _NUM_OBJECTS_ALLOWED;
-    /**
-     * @private
-     */
-    private static _encapsulates;
-    /**@private */
-    _octree: BoundsOctree;
-    /**@private */
-    _parent: BoundsOctreeNode;
-    /**@private AABB包围盒*/
-    private _bounds;
-    /**@private */
-    private _objects;
-    /**@private */
-    _children: BoundsOctreeNode[];
-    /**@private [Debug]*/
-    _isContaion: boolean;
-    /**@private	[只读]*/
-    center: Vector3;
-    /**@private	[只读]*/
-    baseLength: number;
     /**
      * 创建一个 <code>BoundsOctreeNode</code> 实例。
      * @param octree  所属八叉树。
@@ -49,68 +17,6 @@ export declare class BoundsOctreeNode {
      * @param center  节点的中心位置。
      */
     constructor(octree: BoundsOctree, parent: BoundsOctreeNode, baseLength: number, center: Vector3);
-    /**
-     * @private
-     */
-    private _setValues;
-    /**
-     * @private
-     */
-    private _getChildBound;
-    /**
-     * @private
-     */
-    private _getChildCenter;
-    /**
-     * @private
-     */
-    private _getChild;
-    /**
-     * @private
-     * 是否合并判断(如果该节点和子节点包含的物体小于_NUM_OBJECTS_ALLOWED则应将子节点合并到该节点)
-     */
-    private _shouldMerge;
-    /**
-     * @private
-     */
-    private _mergeChildren;
-    /**
-     * @private
-     */
-    private _merge;
-    /**
-     * @private
-     */
-    private _checkAddNode;
-    /**
-     * @private
-     */
-    private _add;
-    /**
-     * @private
-     */
-    private _remove;
-    /**
-     * @private
-     */
-    private _addUp;
-    /**
-     * @private
-     */
-    private _getCollidingWithFrustum;
-    /**
-     * @private
-     */
-    private _getCollidingWithBoundBox;
-    /**
-     * @private
-     */
-    _bestFitChild(boundCenter: Vector3): number;
-    /**
-     * @private
-     * @return 是否需要扩充根节点
-     */
-    _update(object: IOctreeObject): boolean;
     /**
      * 添加指定物体。
      * @param	object 指定物体。
@@ -159,7 +65,7 @@ export declare class BoundsOctreeNode {
      * 	@param	ray 射线。.
      * 	@param	result 相交物体列表。
      */
-    getCollidingWithFrustum(context: RenderContext3D): void;
+    getCollidingWithFrustum(context: RenderContext3D, customShader: Shader3D, replacementTag: string): void;
     /**
      * 获取是否与指定包围盒相交。
      * @param checkBound AABB包围盒。
@@ -177,14 +83,4 @@ export declare class BoundsOctreeNode {
      * 获取包围盒。
      */
     getBound(): BoundBox;
-    /**
-     * @private
-     * [Debug]
-     */
-    drawAllBounds(debugLine: PixelLineSprite3D, currentDepth: number, maxDepth: number): void;
-    /**
-     * @private
-     * [Debug]
-     */
-    drawAllObjects(debugLine: PixelLineSprite3D, currentDepth: number, maxDepth: number): void;
 }

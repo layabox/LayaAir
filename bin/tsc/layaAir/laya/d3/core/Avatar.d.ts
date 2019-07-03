@@ -1,5 +1,4 @@
-import { IClone } from "././IClone";
-import { AnimationNode } from "../animation/AnimationNode";
+import { IClone } from "./IClone";
 import { Animator } from "../component/Animator";
 import { Resource } from "../../resource/Resource";
 import { Handler } from "../../utils/Handler";
@@ -19,23 +18,13 @@ export declare class Avatar extends Resource implements IClone {
      * @param complete 完成回掉。
      */
     static load(url: string, complete: Handler): void;
-    /**@private */
-    _rootNode: AnimationNode;
-    /**@private [NATIVE]*/
+    /** [NATIVE]*/
     private _nativeNodeCount;
-    /**@private [NATIVE]*/
-    _nativeCurCloneCount: number;
     /**
      * 创建一个 <code>Avatar</code> 实例。
      */
     constructor();
-    /**
-     * @private
-     */
     private _initCloneToAnimator;
-    /**
-     * @private
-     */
     private _parseNode;
     /**
      * 克隆数据到Avatr。
@@ -52,8 +41,4 @@ export declare class Avatar extends Resource implements IClone {
      * @return	 克隆副本。
      */
     clone(): any;
-    /**
-     * @private [NATIVE]
-     */
-    _cloneDatasToAnimatorNative(destAnimator: Animator): void;
 }

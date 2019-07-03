@@ -1,4 +1,4 @@
-import { SoundManager } from "././SoundManager";
+import { SoundManager } from "./SoundManager";
 import { Sprite } from "../display/Sprite";
 import { Event } from "../events/Event";
 /**

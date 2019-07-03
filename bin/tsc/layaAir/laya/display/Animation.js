@@ -1,5 +1,5 @@
-import { AnimationBase } from "././AnimationBase";
-import { Graphics } from "././Graphics";
+import { AnimationBase } from "./AnimationBase";
+import { Graphics } from "./Graphics";
 import { Loader } from "../net/Loader";
 import { GraphicAnimation } from "../utils/GraphicAnimation";
 import { Handler } from "../utils/Handler";
@@ -312,8 +312,8 @@ export class Animation extends AnimationBase {
                 // 这时候可以取frameMap中去找，如果找到了，走正常流程。--王伟
                 if (Animation.framesMap[url + "#"]) {
                     _this._setFramesFromCache(this._actionName, true);
-                    this.index = 0;
-                    this._resumePlay();
+                    _this.index = 0;
+                    _this._resumePlay();
                     if (loaded)
                         loaded.run();
                 }
@@ -338,15 +338,15 @@ export class Animation extends AnimationBase {
                     }
                     if (defaultO) {
                         Animation.framesMap[url + "#"] = defaultO;
-                        _this._setFramesFromCache(this._actionName, true);
-                        this.index = 0;
+                        _this._setFramesFromCache(_this._actionName, true);
+                        _this.index = 0;
                     }
-                    this._resumePlay();
+                    _this._resumePlay();
                 }
                 else {
-                    _this._setFramesFromCache(this._actionName, true);
-                    this.index = 0;
-                    this._resumePlay();
+                    _this._setFramesFromCache(_this._actionName, true);
+                    _this.index = 0;
+                    _this._resumePlay();
                 }
                 if (loaded)
                     loaded.run();

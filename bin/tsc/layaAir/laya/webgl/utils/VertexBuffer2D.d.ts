@@ -1,4 +1,4 @@
-import { Buffer2D } from "././Buffer2D";
+import { Buffer2D } from "./Buffer2D";
 export declare class VertexBuffer2D extends Buffer2D {
     static create: Function;
     _floatArray32: Float32Array;

@@ -1,8 +1,8 @@
-import { Vector3 } from "././Vector3";
-import { Plane } from "././Plane";
-import { Ray } from "././Ray";
-import { MathUtils3D } from "././MathUtils3D";
-import { ContainmentType } from "././ContainmentType";
+import { Vector3 } from "./Vector3";
+import { Plane } from "./Plane";
+import { Ray } from "./Ray";
+import { MathUtils3D } from "./MathUtils3D";
+import { ContainmentType } from "./ContainmentType";
 /**
      * <code>Collision</code> 类用于检测碰撞。
      */
@@ -969,17 +969,17 @@ export class CollisionUtils {
         Vector3.add(out, sphere1C, out);
     }
 }
-/** @private */
+/** @internal */
 CollisionUtils._tempV30 = new Vector3();
-/** @private */
+/** @internal */
 CollisionUtils._tempV31 = new Vector3();
-/** @private */
+/** @internal */
 CollisionUtils._tempV32 = new Vector3();
-/** @private */
+/** @internal */
 CollisionUtils._tempV33 = new Vector3();
-/** @private */
+/** @internal */
 CollisionUtils._tempV34 = new Vector3();
-/** @private */
+/** @internal */
 CollisionUtils._tempV35 = new Vector3();
-/** @private */
+/** @internal */
 CollisionUtils._tempV36 = new Vector3();

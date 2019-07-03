@@ -1,18 +1,15 @@
-import { Bitmap } from "././Bitmap";
-import { Texture } from "././Texture";
+import { Bitmap } from "./Bitmap";
+import { Texture } from "./Texture";
 import { Context } from "./Context";
 /**
  * <code>HTMLCanvas</code> 是 Html Canvas 的代理类，封装了 Canvas 的属性和方法。
  */
 export declare class HTMLCanvas extends Bitmap {
     private _ctx;
-    _source: any;
-    _texture: Texture;
     /**
      * @inheritDoc
      */
     readonly source: any;
-    _getSource(): any;
     /**
      * 根据指定的类型，创建一个 <code>HTMLCanvas</code> 实例。
      */
@@ -33,12 +30,6 @@ export declare class HTMLCanvas extends Bitmap {
      * Canvas 渲染上下文。
      */
     readonly context: Context;
-    /**
-     * @private
-     * 设置 Canvas 渲染上下文。是webgl用来替换_ctx用的
-     * @param	context Canvas 渲染上下文。
-     */
-    _setContext(context: Context): void;
     /**
      * 获取 Canvas 渲染上下文。
      * @param	contextID 上下文ID.

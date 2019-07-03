@@ -1,33 +1,15 @@
-import { Animator } from "../component/Animator";
 import { Mesh } from "../resource/models/Mesh";
-import { Avatar } from "././Avatar";
-import { Bounds } from "././Bounds";
-import { MeshRenderer } from "././MeshRenderer";
-import { RenderableSprite3D } from "././RenderableSprite3D";
-import { Sprite3D } from "././Sprite3D";
-import { Transform3D } from "././Transform3D";
+import { Bounds } from "./Bounds";
+import { MeshRenderer } from "./MeshRenderer";
+import { RenderableSprite3D } from "./RenderableSprite3D";
+import { Sprite3D } from "./Sprite3D";
+import { Transform3D } from "./Transform3D";
 import { RenderContext3D } from "./render/RenderContext3D";
 import { RenderElement } from "./render/RenderElement";
 /**
  * <code>SkinMeshRenderer</code> 类用于蒙皮渲染器。
  */
 export declare class SkinnedMeshRenderer extends MeshRenderer {
-    /**@private */
-    private static _tempMatrix4x4;
-    /**@private */
-    private _cacheMesh;
-    /** @private */
-    private _bones;
-    /** @private */
-    _skinnedData: any[];
-    /** @private */
-    private _skinnedDataLoopMarks;
-    /**@private */
-    private _localBounds;
-    /**@private */
-    private _cacheAnimator;
-    /**@private */
-    private _cacheRootBone;
     /**
      * 获取局部边界。
      * @return 边界。
@@ -54,31 +36,15 @@ export declare class SkinnedMeshRenderer extends MeshRenderer {
      * 创建一个 <code>SkinnedMeshRender</code> 实例。
      */
     constructor(owner: RenderableSprite3D);
-    /**
-     * @private
-     */
-    private _computeSkinnedDataForNative;
     private _computeSkinnedData;
     /**
-     * @private
-     */
-    private _computeSubSkinnedData;
-    /**
-     * @private
-     */
-    private _boundChange;
-    /**
      *@inheritDoc
-     */
+        */
     _createRenderElement(): RenderElement;
     /**
      *@inheritDoc
-     */
+        */
     _onMeshChange(value: Mesh): void;
-    /**
-     * @private
-     */
-    _setCacheAnimator(animator: Animator): void;
     /**
      * @inheritDoc
      */
@@ -95,34 +61,9 @@ export declare class SkinnedMeshRenderer extends MeshRenderer {
      * @inheritDoc
      */
     _destroy(): void;
-    /**@private */
-    _rootBone: string;
-    /**@private */
-    private _cacheAvatar;
-    /**@private */
-    private _cacheRootAnimationNode;
-    /** @private */
-    private _cacheAnimationNode;
     /**
-     * @private
+     * 获取包围盒,只读,不允许修改其值。
+     * @return 包围盒。
      */
-    _setRootBone(name: string): void;
-    /**
-     * @private
-     */
-    private _setRootNode;
-    /**
-     * @private
-     */
-    private _getCacheAnimationNodes;
-    /**
-     * @private
-     */
-    _setCacheAvatar(value: Avatar): void;
-    /**@private	[NATIVE]*/
-    private _cacheAnimationNodeIndices;
-    /**
-     * @private [NATIVE]
-     */
-    private _computeSubSkinnedDataNative;
+    readonly bounds: Bounds;
 }

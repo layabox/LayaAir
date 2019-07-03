@@ -1,9 +1,8 @@
-import { GradientColor } from "././GradientColor";
+import { GradientColor } from "./GradientColor";
 /**
  * <code>ColorOverLifetime</code> 类用于粒子的生命周期颜色。
  */
 export declare class ColorOverLifetime {
-    /**@private */
     private _color;
     /**是否启用。*/
     enbale: boolean;

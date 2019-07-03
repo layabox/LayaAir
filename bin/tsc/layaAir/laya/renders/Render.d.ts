@@ -1,14 +1,9 @@
 import { Context } from "../resource/Context";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
 /**
- * @private
  * <code>Render</code> 是渲染管理类。它是一个单例，可以使用 Laya.render 访问。
  */
 export declare class Render {
-    /** @private */
-    static _context: Context;
-    /** @private 主画布。canvas和webgl渲染都用这个画布*/
-    static _mainCanvas: HTMLCanvas;
     static supportWebGLPlusCulling: boolean;
     static supportWebGLPlusAnimation: boolean;
     static supportWebGLPlusRendering: boolean;

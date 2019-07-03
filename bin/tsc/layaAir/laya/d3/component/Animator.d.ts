@@ -1,73 +1,32 @@
-import { KeyframeNodeOwner } from "./KeyframeNodeOwner";
-import { AnimatorControllerLayer } from "./AnimatorControllerLayer";
-import { AnimatorState } from "./AnimatorState";
-import { AnimatorPlayState } from "./AnimatorPlayState";
-import { KeyframeNode } from "../animation/KeyframeNode";
-import { Avatar } from "../core/Avatar";
-import { RenderableSprite3D } from "../core/RenderableSprite3D";
-import { Sprite3D } from "../core/Sprite3D";
-import { Scene3D } from "../core/scene/Scene3D";
 import { Component } from "../../components/Component";
+import { Avatar } from "../core/Avatar";
+import { Sprite3D } from "../core/Sprite3D";
+import { AnimatorControllerLayer } from "./AnimatorControllerLayer";
+import { AnimatorPlayState } from "./AnimatorPlayState";
+import { AnimatorState } from "./AnimatorState";
 /**
  * <code>Animator</code> 类用于创建动画组件。
  */
 export declare class Animator extends Component {
-    /** @private */
     private static _tempVector30;
-    /** @private */
     private static _tempVector31;
-    /** @private */
     private static _tempQuaternion0;
-    /** @private */
     private static _tempQuaternion1;
-    /** @private */
     private static _tempVector3Array0;
-    /** @private */
     private static _tempVector3Array1;
-    /** @private */
     private static _tempQuaternionArray0;
-    /** @private */
     private static _tempQuaternionArray1;
     /** 裁剪模式_始终播放动画。*/
     static CULLINGMODE_ALWAYSANIMATE: number;
     /** 裁剪模式_不可见时完全不播放动画。*/
     static CULLINGMODE_CULLCOMPLETELY: number;
-    /**
-     * @private
-     */
-    static _update(scene: Scene3D): void;
-    /**@private */
     private _speed;
-    /**@private */
     private _keyframeNodeOwnerMap;
-    /**@private */
     private _keyframeNodeOwners;
-    /**@private */
     private _updateMark;
-    /**@private */
     private _controllerLayers;
-    /**@private */
-    _linkSprites: any;
-    /**@private	*/
-    _avatarNodeMap: any;
-    /**@private */
-    _linkAvatarSpritesData: any;
-    /**@private */
-    _linkAvatarSprites: Sprite3D[];
-    /**@private */
-    _renderableSprites: RenderableSprite3D[];
     /**	裁剪模式*/
     cullingMode: number;
-    /**@private	[NATIVE]*/
-    _animationNodeLocalPositions: Float32Array;
-    /**@private	[NATIVE]*/
-    _animationNodeLocalRotations: Float32Array;
-    /**@private	[NATIVE]*/
-    _animationNodeLocalScales: Float32Array;
-    /**@private	[NATIVE]*/
-    _animationNodeWorldMatrixs: Float32Array;
-    /**@private	[NATIVE]*/
-    _animationNodeParentIndices: Int16Array;
     /**
      * 获取动画的播放速度,1.0为正常播放速度。
      * @return 动画的播放速度。
@@ -81,106 +40,46 @@ export declare class Animator extends Component {
      * 创建一个 <code>Animation</code> 实例。
      */
     constructor();
-    /**
-     * @private
-     */
     private _linkToSprites;
-    /**
-     * @private
-     */
     private _addKeyframeNodeOwner;
-    /**
-     * @private
-     */
-    _removeKeyframeNodeOwner(nodeOwners: KeyframeNodeOwner[], node: KeyframeNode): void;
-    /**
-     * @private
-     */
-    _getOwnersByClip(clipStateInfo: AnimatorState): void;
-    /**
-     * @private
-     */
     private _updatePlayer;
-    /**
-     * @private
-     */
     private _eventScript;
-    /**
-     * @private
-     */
     private _updateEventScript;
-    /**
-     * @private
-     */
     private _updateClipDatas;
-    /**
-     * @private
-     */
     private _applyFloat;
-    /**
-     * @private
-     */
     private _applyPositionAndRotationEuler;
-    /**
-     * @private
-     */
     private _applyRotation;
-    /**
-     * @private
-     */
     private _applyScale;
-    /**
-     * @private
-     */
     private _applyCrossData;
-    /**
-     * @private
-     */
     private _setClipDatasToNode;
-    /**
-     * @private
-     */
     private _setCrossClipDatasToNode;
-    /**
-     * @private
-     */
     private _setFixedCrossClipDatasToNode;
-    /**
-     * @private
-     */
     private _revertDefaultKeyframeNodes;
     /**
      * @inheritDoc
+     * @override
      */
     _onAdded(): void;
     /**
      * @inheritDoc
+     * @override
      */
     protected _onDestroy(): void;
     /**
      * @inheritDoc
+     * @override
      */
     protected _onEnable(): void;
     /**
      * @inheritDoc
+     * @override
      */
     protected _onDisable(): void;
     /**
-     * @private
-     */
-    _handleSpriteOwnersBySprite(isLink: boolean, path: string[], sprite: Sprite3D): void;
-    /**
      * @inheritDoc
+     * @override
      */
     _parse(data: any): void;
-    /**
-     * @private
-     */
-    _update(): void;
-    /**
-     * @private
-     */
-    _cloneTo(dest: Component): void;
     /**
      * 获取默认动画状态。
      * @param	layerIndex 层索引。
@@ -228,7 +127,6 @@ export declare class Animator extends Component {
      * @param	normalizedTime 归一化的播放起始时间。
      */
     crossFade(name: string, transitionDuration: number, layerIndex?: number, normalizedTime?: number): void;
-    /**@private */
     private _avatar;
     /**
      * 获取avatar。
@@ -239,22 +137,9 @@ export declare class Animator extends Component {
     * @param value avatar。
     */
     avatar: Avatar;
-    /**
-     * @private
-     */
     private _getAvatarOwnersAndInitDatasAsync;
-    /**
-     * @private
-     */
     private _isLinkSpriteToAnimationNode;
-    /**
-     * @private
-     */
     private _isLinkSpriteToAnimationNodeData;
-    /**
-     *@private
-     */
-    _updateAvatarNodesToSprite(): void;
     /**
      * 关联精灵节点到Avatar节点,此Animator必须有Avatar文件。
      * @param nodeName 关联节点的名字。
@@ -268,9 +153,4 @@ export declare class Animator extends Component {
      * @return 是否解除关联成功。
      */
     unLinkSprite3DToAvatarNode(sprite3D: Sprite3D): boolean;
-    /**
-     *@private
-     * [NATIVE]
-     */
-    _updateAnimationNodeWorldMatix(localPositions: Float32Array, localRotations: Float32Array, localScales: Float32Array, worldMatrixs: Float32Array, parentIndices: Int16Array): void;
 }

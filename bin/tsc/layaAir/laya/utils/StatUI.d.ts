@@ -1,5 +1,4 @@
-import { IStatRender } from "././IStatRender";
-import { Sprite } from "../display/Sprite";
+import { IStatRender } from "./IStatRender";
 /**
  * 显示Stat的结果。由于stat会引入很多的循环引用，所以把显示部分拆开
  * @author laya
@@ -8,15 +7,6 @@ export declare class StatUI extends IStatRender {
     private static _fontSize;
     private _txt;
     private _leftText;
-    /**@private */
-    _sp: Sprite;
-    /**@private */
-    _titleSp: Sprite;
-    /**@private */
-    _bgSp: Sprite;
-    /**@private */
-    _show: boolean;
-    _useCanvas: boolean;
     private _canvas;
     private _ctx;
     private _first;

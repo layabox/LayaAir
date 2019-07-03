@@ -36,7 +36,7 @@ import { MeshTexture } from "../webgl/utils/MeshTexture";
 import { MeshVG } from "../webgl/utils/MeshVG";
 import { RenderState2D } from "../webgl/utils/RenderState2D";
 import { WebGLContext } from "../webgl/WebGLContext";
-import { Texture } from "././Texture";
+import { Texture } from "./Texture";
 import { BaseTexture } from "./BaseTexture";
 import { RenderTexture2D } from "./RenderTexture2D";
 import { Texture2D } from "./Texture2D";
@@ -46,48 +46,70 @@ import { Texture2D } from "./Texture2D";
  */
 export class Context {
     constructor() {
+        /**@internal */
         this._tmpMatrix = new Matrix(); // chrome下静态的访问比从this访问要慢
         this._drawTexToDrawTri_Vert = new Float32Array(8); // 从速度考虑，不做成static了
         this._drawTexToDrawTri_Index = new Uint16Array([0, 1, 2, 0, 2, 3]);
         this._tempUV = new Float32Array(8);
         this._drawTriUseAbsMatrix = false; //drawTriange函数的矩阵是全局的，不用再乘以当前矩阵了。这是一个补丁。
+        /**@internal */
         this._id = ++Context._COUNT;
         this._other = null;
         this._renderNextSubmitIndex = 0;
         this._path = null;
+        /**@internal */
         this._drawCount = 1;
         this._width = Context._MAXSIZE;
         this._height = Context._MAXSIZE;
         this._renderCount = 0;
         this._isConvexCmd = true; //arc等是convex的，moveTo,linTo就不是了
+        /**@internal */
         this._submits = null;
+        /**@internal */
         this._curSubmit = null;
+        /**@internal */
         this._submitKey = new SubmitKey(); //当前将要使用的设置。用来跟上一次的_curSubmit比较
+        /**@internal */
         this._mesh = null; //用Mesh2D代替_vb,_ib. 当前使用的mesh
+        /**@internal */
         this._pathMesh = null; //矢量专用mesh。
+        /**@internal */
         this._triangleMesh = null; //drawTriangles专用mesh。由于ib不固定，所以不能与_mesh通用
         this.meshlist = []; //本context用到的mesh
         //public var _vbs:Array = [];	//双buffer管理。TODO 临时删掉，需要mesh中加上
         this._transedPoints = new Array(8); //临时的数组，用来计算4个顶点的转换后的位置。
         this._temp4Points = new Array(8); //临时数组。用来保存4个顶点的位置。
+        /**@internal */
         this._clipRect = Context.MAXCLIPRECT;
         //public var _transedClipInfo:Array = [0, 0, Context._MAXSIZE, 0, 0, Context._MAXSIZE];	//应用矩阵后的clip。ox,oy, xx,xy,yx,yy 	xx,xy等是缩放*宽高
+        /**@internal */
         this._globalClipMatrix = new Matrix(Context._MAXSIZE, 0, 0, Context._MAXSIZE, 0, 0); //用矩阵描述的clip信息。最终的点投影到这个矩阵上，在0~1之间就可见。
+        /**@internal */
         this._clipInCache = false; // 当前记录的clipinfo是在cacheas normal后赋值的，因为cacheas normal会去掉当前矩阵的tx，ty，所以需要记录一下，以便在是shader中恢复
+        /**@internal */
         this._clipInfoID = 0; //用来区分是不是clipinfo已经改变了
+        /**@internal */
         this._curMat = null;
         //计算矩阵缩放的缓存
+        /**@internal */
         this._lastMatScaleX = 1.0;
+        /**@internal */
         this._lastMatScaleY = 1.0;
         this._lastMat_a = 1.0;
         this._lastMat_b = 0.0;
         this._lastMat_c = 0.0;
         this._lastMat_d = 1.0;
+        /**@internal */
         this._nBlendType = 0;
+        /**@internal */
         this._save = null;
+        /**@internal */
         this._targets = null;
+        /**@internal */
         this._charSubmitCache = null;
+        /**@internal */
         this._saveMark = null;
+        /**@internal */
         this._shader2D = new Shader2D(); //
         /**
          * 所cacheAs精灵
@@ -95,13 +117,17 @@ export class Context {
          * 加载完成后，调用repaint
          */
         this.sprite = null;
+        /**@internal */
         this._italicDeg = 0; //文字的倾斜角度
+        /**@internal */
         this._lastTex = null; //上次使用的texture。主要是给fillrect用，假装自己也是一个drawtexture
         this._fillColor = 0;
         this._flushCnt = 0;
         this.defTexture = null; //给fillrect用
+        /**@internal */
         this._colorFiler = null;
         this.drawTexAlign = false; // 按照像素对齐
+        /**@internal */
         this._incache = false; // 正处在cacheas normal过程中
         this.isMain = false; // 是否是主context
         Context._contextcount++;
@@ -161,7 +187,7 @@ export class Context {
     /**@private */
     clearRect(x, y, width, height) {
     }
-    /**@private */
+    /**@internal */
     //TODO:coverage
     _drawRect(x, y, width, height, style) {
         Stat.renderBatches++;
@@ -208,22 +234,26 @@ export class Context {
     alpha(value) {
         this.globalAlpha *= value;
     }
+    /**@internal */
     //TODO:coverage
     _transform(mat, pivotX, pivotY) {
         this.translate(pivotX, pivotY);
         this.transform(mat.a, mat.b, mat.c, mat.d, mat.tx, mat.ty);
         this.translate(-pivotX, -pivotY);
     }
+    /**@internal */
     _rotate(angle, pivotX, pivotY) {
         this.translate(pivotX, pivotY);
         this.rotate(angle);
         this.translate(-pivotX, -pivotY);
     }
+    /**@internal */
     _scale(scaleX, scaleY, pivotX, pivotY) {
         this.translate(pivotX, pivotY);
         this.scale(scaleX, scaleY);
         this.translate(-pivotX, -pivotY);
     }
+    /**@internal */
     _drawLine(x, y, fromX, fromY, toX, toY, lineColor, lineWidth, vid) {
         this.beginPath();
         this.strokeStyle = lineColor;
@@ -232,6 +262,7 @@ export class Context {
         this.lineTo(x + toX, y + toY);
         this.stroke();
     }
+    /**@internal */
     _drawLines(x, y, points, lineColor, lineWidth, vid) {
         this.beginPath();
         //x += args[0], y += args[1];
@@ -268,6 +299,7 @@ export class Context {
             this.stroke();
         }
     }
+    /**@internal */
     _drawCircle(x, y, radius, fillColor, lineColor, lineWidth, vid) {
         Stat.renderBatches++;
         this.beginPath(true);
@@ -276,7 +308,8 @@ export class Context {
         //绘制
         this._fillAndStroke(fillColor, lineColor, lineWidth);
     }
-    //矢量方法		
+    //矢量方法	
+    /**@internal */
     _drawPie(x, y, radius, startAngle, endAngle, fillColor, lineColor, lineWidth, vid) {
         //移动中心点
         //ctx.translate(x + args[0], y + args[1]);
@@ -290,6 +323,7 @@ export class Context {
         //恢复中心点
         //ctx.translate(-x - args[0], -y - args[1]);
     }
+    /**@internal */
     _drawPoly(x, y, points, fillColor, lineColor, lineWidth, isConvexPolygon, vid) {
         //var points:Array = args[2];
         var i = 2, n = points.length;
@@ -299,6 +333,7 @@ export class Context {
         this.closePath();
         this._fillAndStroke(fillColor, lineColor, lineWidth, isConvexPolygon);
     }
+    /**@internal */
     _drawPath(x, y, paths, brush, pen) {
         //形成路径
         this.beginPath();
@@ -339,19 +374,20 @@ export class Context {
     static set2DRenderConfig() {
         var gl = LayaGL.instance;
         WebGLContext.setBlend(gl, true); //还原2D设置
-        WebGLContext.setBlendFunc(gl, WebGLContext.ONE, WebGLContext.ONE_MINUS_SRC_ALPHA);
+        WebGLContext.setBlendFunc(gl, WebGL2RenderingContext.ONE, WebGL2RenderingContext.ONE_MINUS_SRC_ALPHA);
         WebGLContext.setDepthTest(gl, false);
         WebGLContext.setCullFace(gl, false);
         WebGLContext.setDepthMask(gl, true);
-        WebGLContext.setFrontFace(gl, WebGLContext.CCW);
+        WebGLContext.setFrontFace(gl, WebGL2RenderingContext.CCW);
         gl.viewport(0, 0, RenderState2D.width, RenderState2D.height); //还原2D视口
     }
     clearBG(r, g, b, a) {
         var gl = WebGLContext.mainContext;
         gl.clearColor(r, g, b, a);
-        gl.clear(WebGLContext.COLOR_BUFFER_BIT);
+        gl.clear(WebGL2RenderingContext.COLOR_BUFFER_BIT);
     }
     //TODO:coverage
+    /**@internal */
     _getSubmits() {
         return this._submits;
     }
@@ -648,6 +684,7 @@ export class Context {
         else if (words)
             Context._textRender.fillWords(this, words, x, y, fontStr, color, strokeColor, lineWidth);
     }
+    /**@internal */
     _fast_filltext(data, x, y, fontObj, color, strokeColor, lineWidth, textAlign, underLine = 0) {
         Context._textRender._fast_filltext(this, data, null, x, y, fontObj, color, strokeColor, lineWidth, textAlign, underLine);
     }
@@ -750,6 +787,7 @@ export class Context {
         }
         this._fillTexture(texture, texture.width, texture.height, texture.uvrect, x, y, width, height, type, offset.x, offset.y);
     }
+    /**@internal */
     _fillTexture(texture, texw, texh, texuvRect, x, y, width, height, type, offsetx, offsety) {
         var submit = this._curSubmit;
         var sameKey = false;
@@ -913,6 +951,7 @@ export class Context {
         this._curSubmit = submit;
         //shader.ALPHA = alphaBack;
     }
+    /**@internal */
     _drawTextureM(tex, x, y, width, height, m, alpha, uv) {
         // 注意sprite要保存，因为后面会被冲掉
         var cs = this.sprite;
@@ -925,6 +964,7 @@ export class Context {
         }
         return this._inner_drawTexture(tex, tex.bitmap.id, x, y, width, height, m, uv, alpha, false);
     }
+    /**@internal */
     _drawRenderTexture(tex, x, y, width, height, m, alpha, uv) {
         return this._inner_drawTexture(tex, -1, x, y, width, height, m, uv, 1.0, false);
     }
@@ -941,6 +981,7 @@ export class Context {
         submit.clipInfoID = this._clipInfoID;
     }
     */
+    /**@internal */
     _copyClipInfo(submit, clipInfo) {
         var cm = submit.shaderValue.clipMatDir;
         cm[0] = clipInfo.a;
@@ -967,6 +1008,7 @@ export class Context {
         */
     }
     /**
+     * @internal
      * 这个还是会检查是否合并
      * @param	tex
      * @param	minVertNum
@@ -984,6 +1026,7 @@ export class Context {
         this._copyClipInfo(submit, this._globalClipMatrix);
     }
     /**
+     * @internal
      * 使用上面的设置（texture，submit，alpha，clip），画一个rect
      */
     _drawTexRect(x, y, w, h, uv) {
@@ -1010,7 +1053,7 @@ export class Context {
         return enbale;
     }
     /**
-     *
+     * @internal
      * @param	tex {Texture | RenderTexture }
      * @param  imgid 图片id用来比较合并的
      * @param	x
@@ -1272,7 +1315,7 @@ export class Context {
      * @param	ty
      * @param	alpha
      */
-    drawTextureWithTransform(tex, x, y, width, height, transform, tx, ty, alpha, blendMode, colorfilter = null) {
+    drawTextureWithTransform(tex, x, y, width, height, transform, tx, ty, alpha, blendMode, colorfilter = null, uv) {
         var oldcomp = null;
         var curMat = this._curMat;
         if (blendMode) {
@@ -1284,7 +1327,7 @@ export class Context {
             this.setColorFilter(colorfilter);
         }
         if (!transform) {
-            this._drawTextureM(tex, x + tx, y + ty, width, height, curMat, alpha, null);
+            this._drawTextureM(tex, x + tx, y + ty, width, height, curMat, alpha, uv);
             if (blendMode) {
                 this.globalCompositeOperation = oldcomp;
             }
@@ -1314,7 +1357,7 @@ export class Context {
             tmpMat.ty += curMat.ty;
             transform = tmpMat;
         }
-        this._drawTextureM(tex, x, y, width, height, transform, alpha, null);
+        this._drawTextureM(tex, x, y, width, height, transform, alpha, uv);
         if (blendMode) {
             this.globalCompositeOperation = oldcomp;
         }
@@ -1332,7 +1375,7 @@ export class Context {
         //var preworldClipRect:Rectangle = RenderState2D.worldClipRect;
         //裁剪不用考虑，现在是在context内部自己维护，不会乱窜
         RenderState2D.worldScissorTest = false;
-        WebGLContext.mainContext.disable(WebGLContext.SCISSOR_TEST);
+        WebGLContext.mainContext.disable(WebGL2RenderingContext.SCISSOR_TEST);
         var preAlpha = RenderState2D.worldAlpha;
         var preMatrix4 = RenderState2D.worldMatrix4;
         var preMatrix = RenderState2D.worldMatrix;
@@ -1520,6 +1563,7 @@ export class Context {
         this._curMat._checkTransform();
     }
     //TODO:coverage
+    /**@internal */
     _transformByMatrix(matrix, tx, ty) {
         matrix.setTranslate(tx, ty);
         Matrix.mul(matrix, this._curMat, this._curMat);
@@ -2105,6 +2149,7 @@ export class Context {
     mixRGBandAlpha(color) {
         return this._mixRGBandAlpha(color, this._shader2D.ALPHA);
     }
+    /**@internal */
     _mixRGBandAlpha(color, alpha) {
         if (alpha >= 1) {
             return color;

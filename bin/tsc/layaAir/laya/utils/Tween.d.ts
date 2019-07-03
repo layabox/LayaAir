@@ -1,4 +1,4 @@
-import { Handler } from "././Handler";
+import { Handler } from "./Handler";
 /**
      * <code>Tween</code>  是一个缓动类。使用此类能够实现对目标对象属性的渐变。
      */
@@ -83,15 +83,11 @@ export declare class Tween {
      * @return	返回Tween对象。
      */
     from(target: any, props: any, duration: number, ease?: Function, complete?: Handler, delay?: number, coverBefore?: boolean): Tween;
-    /** @private */
-    _create(target: any, props: any, duration: number, ease: Function, complete: Handler, delay: number, coverBefore: boolean, isTo: boolean, usePool: boolean, runNow: boolean): Tween;
     private firstStart;
     private _initProps;
     private _beginLoop;
     /**执行缓动**/
     private _doEase;
-    /**@private */
-    _updateEase(time: number): void;
     /**设置当前执行比例**/
     progress: number;
     /**
@@ -123,10 +119,6 @@ export declare class Tween {
      * 停止并清理当前缓动。
      */
     clear(): void;
-    /**
-     * @private
-     */
-    _clear(): void;
     /** 回收到对象池。*/
     recover(): void;
     private _remove;

@@ -1,4 +1,4 @@
-import { Component } from "././Component";
+import { Component } from "./Component";
 /**
  * <code>CommonScript</code> 类用于创建公共脚本类。
  */

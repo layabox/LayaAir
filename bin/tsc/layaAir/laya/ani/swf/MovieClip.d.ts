@@ -41,16 +41,8 @@ export declare class MovieClip extends Sprite {
     protected _ended: boolean;
     /**@private 总帧数。*/
     protected _count: number;
-    /**@private id_data起始位置表*/
-    _ids: any;
     /**@private */
     protected _loadedImage: any;
-    /**@private id_实例表*/
-    _idOfSprite: any[];
-    /**@private 父mc*/
-    _parentMovieClip: MovieClip;
-    /**@private 需要更新的movieClip表*/
-    _movieClipList: any[];
     /**@private */
     protected _labels: any;
     /**资源根目录。*/
@@ -79,8 +71,6 @@ export declare class MovieClip extends Sprite {
      * @param	destroyChild 是否同时销毁子节点，若值为true,则销毁子节点，否则不销毁子节点。
      */
     destroy(destroyChild?: boolean): void;
-    /**@private */
-    _setDisplay(value: boolean): void;
     /**@private */
     protected _onDisplay(value?: boolean): void;
     /**@private 更新时间轴*/
@@ -136,8 +126,6 @@ export declare class MovieClip extends Sprite {
     private _reset;
     /**@private */
     private _parseFrame;
-    /**@private */
-    _setData(data: Byte, start: number): void;
     /**
      * 资源地址。
      */

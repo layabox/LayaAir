@@ -6,7 +6,6 @@ export class KeyframeNodeList {
      * 创建一个 <code>KeyframeNodeList</code> 实例。
      */
     constructor() {
-        /**@private */
         this._nodes = [];
         /*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
     }

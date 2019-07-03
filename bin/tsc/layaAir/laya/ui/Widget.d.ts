@@ -15,10 +15,6 @@ export declare class Widget extends Component {
     protected _onEnable(): void;
     protected _onDisable(): void;
     /**
-     * 对象被添加到显示列表的事件侦听处理函数。
-     */
-    _onAdded(): void;
-    /**
      * 父容器的 <code>Event.RESIZE</code> 事件侦听处理函数。
      */
     protected _onParentResize(): void;

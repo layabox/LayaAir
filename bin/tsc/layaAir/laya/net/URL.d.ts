@@ -37,11 +37,6 @@ export declare class URL {
      */
     static formatURL(url: string): string;
     /**
-     * @private
-     * 格式化相对路径。
-     */
-    static _formatRelativePath(value: string): string;
-    /**
      * 获取指定 URL 的文件夹路径（不包括文件名）。
      * <p><b>注意：</b>末尾有斜杠（/）。</p>
      * @param	url url地址。

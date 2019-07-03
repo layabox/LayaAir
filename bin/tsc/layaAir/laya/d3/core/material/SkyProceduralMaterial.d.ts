@@ -1,6 +1,5 @@
 import { Vector4 } from "../../math/Vector4";
-import { ShaderDefines } from "../../shader/ShaderDefines";
-import { BaseMaterial } from "././BaseMaterial";
+import { BaseMaterial } from "./BaseMaterial";
 /**
  * <code>SkyProceduralMaterial</code> 类用于实现SkyProceduralMaterial材质。
  */
@@ -11,31 +10,8 @@ export declare class SkyProceduralMaterial extends BaseMaterial {
     static SUN_SIMPLE: number;
     /** 太阳_高质量*/
     static SUN_HIGH_QUALITY: number;
-    /**@private */
-    static SUNSIZE: number;
-    /**@private */
-    static SUNSIZECONVERGENCE: number;
-    /**@private */
-    static ATMOSPHERETHICKNESS: number;
-    /**@private */
-    static SKYTINT: number;
-    /**@private */
-    static GROUNDTINT: number;
-    /**@private */
-    static EXPOSURE: number;
-    /**@private */
-    static SHADERDEFINE_SUN_HIGH_QUALITY: number;
-    /**@private */
-    static SHADERDEFINE_SUN_SIMPLE: number;
     /** 默认材质，禁止修改*/
     static defaultMaterial: SkyProceduralMaterial;
-    /**@private */
-    static shaderDefines: ShaderDefines;
-    /**
-     * @private
-     */
-    static __initDefine__(): void;
-    /**@private */
     private _sunDisk;
     /**
      * 获取太阳状态。

@@ -1,6 +1,5 @@
 import { BaseMaterial } from "../material/BaseMaterial";
 import { Vector4 } from "../../math/Vector4";
-import { ShaderDefines } from "../../shader/ShaderDefines";
 import { BaseTexture } from "../../../resource/BaseTexture";
 /**
  * <code>ShurikenParticleMaterial</code> 类用于实现粒子材质。
@@ -25,68 +24,6 @@ export declare class ShurikenParticleMaterial extends BaseMaterial {
     static DEPTH_WRITE: number;
     /** 默认材质，禁止修改*/
     static defaultMaterial: ShurikenParticleMaterial;
-    /**@private */
-    static shaderDefines: ShaderDefines;
-    /**
-     * @private
-     */
-    static __initDefine__(): void;
-    /**@private */
-    private _color;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _TintColorR: number;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _TintColorG: number;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _TintColorB: number;
-    /**@private */
-    /**
-    * @private
-    */
-    _TintColorA: number;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _MainTex_STX: number;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _MainTex_STY: number;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _MainTex_STZ: number;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _MainTex_STW: number;
     /**
      * 设置渲染模式。
      * @return 渲染模式。

@@ -1,8 +1,8 @@
-import { Pool } from "././Pool";
-import { Tween } from "././Tween";
-import { Browser } from "././Browser";
-import { Handler } from "././Handler";
-import { Utils } from "././Utils";
+import { Pool } from "./Pool";
+import { Tween } from "./Tween";
+import { Browser } from "./Browser";
+import { Handler } from "./Handler";
+import { Utils } from "./Utils";
 import { Event } from "../events/Event";
 import { EventDispatcher } from "../events/EventDispatcher";
 import { ILaya } from "../../ILaya";

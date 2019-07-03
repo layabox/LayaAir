@@ -1,4 +1,4 @@
-import { Sprite } from "././Sprite";
+import { Sprite } from "./Sprite";
 import { Config } from "./../../Config";
 import { Const } from "../Const";
 import { Event } from "../events/Event";
@@ -122,7 +122,7 @@ export class AnimationBase extends Sprite {
         }
         this.index = this._index;
     }
-    /**@private */
+    /**@internal */
     _setControlNode(node) {
         if (this._controlNode) {
             this._controlNode.off(Event.DISPLAY, this, this._resumePlay);
@@ -134,7 +134,7 @@ export class AnimationBase extends Sprite {
             node.on(Event.UNDISPLAY, this, this._resumePlay);
         }
     }
-    /**@private */
+    /**@internal */
     /*override*/ _setDisplay(value) {
         super._setDisplay(value);
         this._resumePlay();

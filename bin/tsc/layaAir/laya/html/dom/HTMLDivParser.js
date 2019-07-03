@@ -56,7 +56,7 @@ export class HTMLDivParser extends HTMLElement {
         this.layout();
     }
     /**
-     * @private
+     * @internal
      * @param	out
      * @return
      */
@@ -82,7 +82,7 @@ export class HTMLDivParser extends HTMLElement {
         return true;
     }
     /**
-     * @private
+     * @internal
      * @param	out
      */
     //TODO:coverage

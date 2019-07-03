@@ -45,9 +45,6 @@ export class AnimationTransform3D extends EventDispatcher {
         this._localUpdate = false;
         this._worldUpdate = true;
     }
-    /**
-     * @private
-     */
     _getlocalMatrix() {
         if (this._localUpdate) {
             Utils3D._createAffineTransformationArray(this._localPosition, this._localRotation, this._localScale, this._localMatrix);
@@ -55,9 +52,6 @@ export class AnimationTransform3D extends EventDispatcher {
         }
         return this._localMatrix;
     }
-    /**
-     * @private
-     */
     _onWorldTransform() {
         if (!this._worldUpdate) {
             this._worldUpdate = true;
@@ -67,13 +61,13 @@ export class AnimationTransform3D extends EventDispatcher {
         }
     }
     /**
-     * @private
+     * @internal
      */
     get localPosition() {
         return this._localPosition;
     }
     /**
-     * @private
+     * @internal
      */
     set localPosition(value) {
         this._localPosition = value;
@@ -81,7 +75,7 @@ export class AnimationTransform3D extends EventDispatcher {
         this._onWorldTransform();
     }
     /**
-     * @private
+     * @internal
      */
     get localRotation() {
         if (this._localQuaternionUpdate) {
@@ -92,7 +86,7 @@ export class AnimationTransform3D extends EventDispatcher {
         return this._localRotation;
     }
     /*
-     * @private
+     * @internal
      */
     set localRotation(value) {
         this._localRotation = value;
@@ -103,13 +97,13 @@ export class AnimationTransform3D extends EventDispatcher {
         this._onWorldTransform();
     }
     /**
-     * @private
+     * @internal
      */
     get localScale() {
         return this._localScale;
     }
     /**
-     * @private
+     * @internal
      */
     set localScale(value) {
         this._localScale = value;
@@ -117,7 +111,7 @@ export class AnimationTransform3D extends EventDispatcher {
         this._onWorldTransform();
     }
     /**
-     * @private
+     * @internal
      */
     get localRotationEuler() {
         if (this._locaEulerlUpdate) {
@@ -132,7 +126,7 @@ export class AnimationTransform3D extends EventDispatcher {
         return this._localRotationEuler;
     }
     /**
-     * @private
+     * @internal
      */
     set localRotationEuler(value) {
         this._localRotationEuler = value;
@@ -181,7 +175,5 @@ export class AnimationTransform3D extends EventDispatcher {
         }
     }
 }
-/**@private */
 AnimationTransform3D._tempVector3 = new Vector3();
-/**@private */
 AnimationTransform3D._angleToRandin = 180 / Math.PI;

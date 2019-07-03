@@ -1,8 +1,6 @@
-import { Node } from "././Node";
-import { Graphics } from "././Graphics";
-import { Stage } from "././Stage";
-import { BoundsStyle } from "./css/BoundsStyle";
-import { CacheStyle } from "./css/CacheStyle";
+import { Node } from "./Node";
+import { Graphics } from "./Graphics";
+import { Stage } from "./Stage";
 import { SpriteStyle } from "./css/SpriteStyle";
 import { EventDispatcher } from "../events/EventDispatcher";
 import { Matrix } from "../maths/Matrix";
@@ -182,37 +180,11 @@ import { Handler } from "../utils/Handler";
  */
 export declare class Sprite extends Node {
     /**@private */
-    _x: number;
-    /**@private */
-    _y: number;
-    /**@private */
-    _width: number;
-    /**@private */
-    _height: number;
-    /**@private */
-    _visible: boolean;
-    /**@private 鼠标状态，0:auto,1:mouseEnabled=false,2:mouseEnabled=true。*/
-    _mouseState: number;
-    /**@private z排序，数值越大越靠前。*/
-    _zOrder: number;
-    /**@private */
-    _renderType: number;
-    /**@private */
-    _transform: Matrix;
-    /**@private */
     protected _tfChanged: boolean;
     /**@private */
     protected _repaint: number;
     /**@private */
     private _texture;
-    /**@private */
-    _style: SpriteStyle;
-    /**@private */
-    _cacheStyle: CacheStyle;
-    /**@private */
-    _boundStyle: BoundsStyle;
-    /**@private */
-    _graphics: Graphics;
     /**
      * <p>鼠标事件与此对象的碰撞检测是否可穿透。碰撞检测发生在鼠标事件的捕获阶段，此阶段引擎会从stage开始递归检测stage及其子对象，直到找到命中的目标对象或者未命中任何对象。</p>
      * <p>穿透表示鼠标事件发生的位置处于本对象绘图区域内时，才算命中，而与对象宽高和值为Rectangle对象的hitArea属性无关。如果sprite.hitArea值是HitArea对象，表示显式声明了此对象的鼠标事件响应区域，而忽略对象的宽高、mouseThrough属性。</p>
@@ -239,12 +211,6 @@ export declare class Sprite extends Node {
     /**根据zOrder进行重新排序。*/
     updateZOrder(): void;
     /**
-     * @private
-     */
-    _getBoundsStyle(): BoundsStyle;
-    /**@private */
-    _setCustomRender(): void;
-    /**
      * 设置是否开启自定义渲染，只有开启自定义渲染，才能使用customRender函数渲染。
      */
     customRenderEnable: boolean;
@@ -258,8 +224,6 @@ export declare class Sprite extends Node {
      * webgl下命令缓存模式缺点：只会减少节点遍历及命令组织，不会减少drawcall数，性能中等。优点：没有额外内存开销，无需renderTarget支持。</p>
      */
     cacheAs: string;
-    /**@private */
-    _setCacheAs(value: string): void;
     /**
      * 更新_cnavas相关的状态
      */
@@ -269,14 +233,6 @@ export declare class Sprite extends Node {
     /**在设置cacheAs的情况下，调用此方法会重新刷新缓存。*/
     reCache(): void;
     getRepaint(): number;
-    /**@private */
-    _setX(value: number): void;
-    /**@private */
-    _setY(value: number): void;
-    /**@private */
-    _setWidth(texture: Texture, value: number): void;
-    /**@private */
-    _setHeight(texture: Texture, value: number): void;
     /**表示显示对象相对于父容器的水平方向坐标值。*/
     x: number;
     /**表示显示对象相对于父容器的垂直方向坐标值。*/
@@ -323,32 +279,11 @@ export declare class Sprite extends Node {
      */
     getSelfBounds(): Rectangle;
     /**
-     * @private
-     * 获取本对象在父容器坐标系的显示区域多边形顶点列表。
-     * 当显示对象链中有旋转时，返回多边形顶点列表，无旋转时返回矩形的四个顶点。
-     * @param ifRotate	（可选）之前的对象链中是否有旋转。
-     * @return 顶点列表。结构：[x1,y1,x2,y2,x3,y3,...]。
-     */
-    _boundPointsToParent(ifRotate?: boolean): any[];
-    /**
      * 返回此实例中的绘图对象（ <code>Graphics</code> ）的显示区域，不包括子对象。
      * @param realSize	（可选）使用图片的真实大小，默认为false
      * @return 一个 Rectangle 对象，表示获取到的显示区域。
      */
     getGraphicBounds(realSize?: boolean): Rectangle;
-    /**
-     * @private
-     * 获取自己坐标系的显示区域多边形顶点列表
-     * @param ifRotate	（可选）当前的显示对象链是否由旋转
-     * @return 顶点列表。结构：[x1,y1,x2,y2,x3,y3,...]。
-     */
-    _getBoundPointsM(ifRotate?: boolean): any[];
-    /**
-     * @private
-     * 获取cache数据。
-     * @return  cache数据 CacheStyle 。
-     */
-    _getCacheStyle(): CacheStyle;
     /**
      * @private
      * 获取样式。
@@ -363,34 +298,20 @@ export declare class Sprite extends Node {
     setStyle(value: SpriteStyle): void;
     /**X轴缩放值，默认值为1。设置为负数，可以实现水平反转效果，比如scaleX=-1。*/
     scaleX: number;
-    /**@private */
-    _setScaleX(value: number): void;
     /**Y轴缩放值，默认值为1。设置为负数，可以实现垂直反转效果，比如scaleX=-1。*/
     scaleY: number;
-    /**@private */
-    _setScaleY(value: number): void;
     set_scaleX(value: number): void;
     get_scaleX(): number;
     set_scaleY(value: number): void;
     get_scaleY(): number;
     /**旋转角度，默认值为0。以角度为单位。*/
     rotation: number;
-    /**@private */
-    _setRotation(value: number): void;
     /**水平倾斜角度，默认值为0。以角度为单位。*/
     skewX: number;
-    /**@private */
-    _setSkewX(value: number): void;
     /**垂直倾斜角度，默认值为0。以角度为单位。*/
     skewY: number;
     /**@private */
-    _setSkewY(value: number): void;
-    /**@private */
-    _createTransform(): Matrix;
-    /**@private */
     protected _adjustTransform(): Matrix;
-    /**@private */
-    _setTransform(value: Matrix): void;
     /**
      * <p>对象的矩阵信息。通过设置矩阵可以实现节点旋转，缩放，位移效果。</p>
      * <p>矩阵更多信息请参考 <code>Matrix</code></p>
@@ -398,38 +319,20 @@ export declare class Sprite extends Node {
     transform: Matrix;
     get_transform(): Matrix;
     set_transform(value: Matrix): void;
-    /**@private */
-    _setPivotX(value: number): void;
-    /**@private */
-    _getPivotX(): number;
-    /**@private */
-    _setPivotY(value: number): void;
-    /**@private */
-    _getPivotY(): number;
     /**X轴 轴心点的位置，单位为像素，默认为0。轴心点会影响对象位置，缩放中心，旋转中心。*/
     pivotX: number;
     /**Y轴 轴心点的位置，单位为像素，默认为0。轴心点会影响对象位置，缩放中心，旋转中心。*/
     pivotY: number;
-    /**@private */
-    _setAlpha(value: number): void;
-    /**@private */
-    _getAlpha(): number;
     /**透明度，值为0-1，默认值为1，表示不透明。更改alpha值会影响drawcall。*/
     alpha: number;
     /**表示是否可见，默认为true。如果设置不可见，节点将不被渲染。*/
     visible: boolean;
     get_visible(): boolean;
     set_visible(value: boolean): void;
-    /**@private */
-    _setBlendMode(value: string): void;
     /**指定要使用的混合模式。目前只支持"lighter"。*/
     blendMode: string;
     /**绘图对象。封装了绘制位图和矢量图的接口，Sprite所有的绘图操作都通过Graphics来实现的。*/
     graphics: Graphics;
-    /**@private */
-    _setGraphics(value: Graphics): void;
-    /**@private */
-    _setGraphicsCallBack(): void;
     /**
      * <p>显示对象的滚动矩形范围，具有裁剪效果(如果只想限制子对象渲染区域，请使用viewport)</p>
      * <p> srollRect和viewport的区别：<br/>
@@ -437,8 +340,6 @@ export declare class Sprite extends Node {
      * 2.设置rect的x,y属性均能实现区域滚动效果，但scrollRect会保持0,0点位置不变。</p>
      */
     scrollRect: Rectangle;
-    /**@private */
-    _setScrollRect(value: Rectangle): void;
     /**
      * <p>设置坐标位置。相当于分别设置x和y属性。</p>
      * <p>因为返回值为Sprite对象本身，所以可以使用如下语法：spr.pos(...).scale(...);</p>
@@ -535,21 +436,8 @@ export declare class Sprite extends Node {
      * @param	y Y轴坐标。
      */
     customRender(context: Context, x: number, y: number): void;
-    /**
-     * @private
-     * 应用滤镜。
-     */
-    _applyFilters(): void;
     /**滤镜集合。可以设置多个滤镜组合。*/
     filters: any[];
-    /**@private */
-    _setColorFilter(value: any): void;
-    /**
-     * @private
-     * 查看当前原件中是否包含发光滤镜。
-     * @return 一个 Boolean 值，表示当前原件中是否包含发光滤镜。
-     */
-    _isHaveGlowFilter(): boolean;
     /**
      * 把本地坐标转换为相对stage的全局坐标。
      * @param point				本地坐标点。
@@ -624,12 +512,6 @@ export declare class Sprite extends Node {
     static fromImage(url: string): Sprite;
     /**cacheAs后，设置自己和父对象缓存失效。*/
     repaint(type?: number): void;
-    /**
-     * @private
-     * 获取是否重新缓存。
-     * @return 如果重新缓存值为 true，否则值为 false。
-     */
-    _needRepaint(): boolean;
     /**@private	*/
     protected _childChanged(child?: Node): void;
     /**cacheAs时，设置所有父对象缓存失效。 */
@@ -641,8 +523,6 @@ export declare class Sprite extends Node {
      * <p>如果不设置hitArea，则根据宽高形成的区域进行碰撞。</p>
      */
     hitArea: any;
-    /**@private */
-    _setMask(value: Sprite): void;
     /**
      * <p>遮罩，可以设置一个对象(支持位图和矢量图)，根据对象形状进行遮罩显示。</p>
      * <p>【注意】遮罩对象坐标系是相对遮罩对象本身的，和Flash机制不同</p>
@@ -666,8 +546,6 @@ export declare class Sprite extends Node {
     startDrag(area?: Rectangle, hasInertia?: boolean, elasticDistance?: number, elasticBackTime?: number, data?: any, disableMouseEvent?: boolean, ratio?: number): void;
     /**停止拖动此对象。*/
     stopDrag(): void;
-    /**@private */
-    _setDisplay(value: boolean): void;
     /**
      * 检测某个点是否在此对象内。
      * @param	x 全局x坐标。
@@ -705,8 +583,6 @@ export declare class Sprite extends Node {
      * 还可以赋值一个图片地址，则会自动加载图片，然后显示
      */
     texture: Texture;
-    /**@private */
-    _setTexture(value: Texture | string): void;
     /**
      * <p>视口大小，视口外的子对象，将不被渲染(如果想实现裁剪效果，请使用srollRect)，合理使用能提高渲染性能。比如由一个个小图片拼成的地图块，viewport外面的小图片将不渲染</p>
      * <p>srollRect和viewport的区别：<br/>
@@ -715,14 +591,6 @@ export declare class Sprite extends Node {
      * @default null
      */
     viewport: Rectangle;
-    /**@private */
-    _setRenderType(type: number): void;
-    /**@private */
-    _setTranformChange(): void;
-    /**@private */
-    _setBgStyleColor(x: number, y: number, width: number, height: number, fillColor: any): void;
-    /**@private */
-    _setBorderStyleColor(x: number, y: number, width: number, height: number, fillColor: any, borderWidth: number): void;
     /**@private */
     captureMouseEvent(exclusive: boolean): void;
     /**@private */

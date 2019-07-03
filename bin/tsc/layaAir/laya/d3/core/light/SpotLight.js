@@ -1,13 +1,13 @@
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Vector3 } from "../../math/Vector3";
 import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
-import { LightSprite } from "././LightSprite";
+import { LightSprite } from "./LightSprite";
 import { ILaya3D } from "../../../../ILaya3D";
 /**
  * <code>SpotLight</code> 类用于创建聚光。
  */
 export class SpotLight extends LightSprite {
-    /** @private */
+    /** @internal */
     //private var _tempMatrix:Matrix4x4 = new Matrix4x4();
     /**
      * 创建一个 <code>SpotLight</code> 实例。
@@ -111,7 +111,5 @@ export class SpotLight extends LightSprite {
         this.spotAngle = data.spotAngle;
     }
 }
-/** @private */
 SpotLight._tempMatrix0 = new Matrix4x4();
-/** @private */
 SpotLight._tempMatrix1 = new Matrix4x4();

@@ -97,7 +97,7 @@ export class RandX {
         return d - 1;
     }
 }
-/**@private */
+/**@internal */
 RandX._CONVERTION_BUFFER = new DataView(new ArrayBuffer(8));
 /**基于时间种子的随机数。*/
 RandX.defaultRand = new RandX([0, Date.now() / 65536, 0, Date.now() % 65536]);

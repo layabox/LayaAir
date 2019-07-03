@@ -49,6 +49,8 @@ import { ShaderCompile } from "./laya/webgl/utils/ShaderCompile";
 import { WebGL } from "./laya/webgl/WebGL";
 import { WebGLContext } from "./laya/webgl/WebGLContext";
 import { WorkerLoader } from "./laya/net/WorkerLoader";
+import { Physics } from "./laya/physics/Physics";
+import { View } from "./laya/ui/View";
 /**
  * <code>Laya</code> 是全局对象的引用入口集。
  * Laya类引用了一些常用的全局对象，比如Laya.stage：舞台，Laya.timer：时间管理器，Laya.loader：加载管理器，使用时注意大小写。
@@ -120,6 +122,8 @@ export class Laya {
         Laya.render = new Render(0, 0, Browser.mainCanvas);
         Laya.stage.size(width, height);
         window.stage = Laya.stage;
+        Physics.__init__();
+        View.__init__();
         RenderSprite.__init__();
         KeyBoardManager.__init__();
         MouseManager.instance.__init__(Laya.stage, Render.canvas);
@@ -193,7 +197,7 @@ export class Laya {
         WebGLContext.__init_native();
         Shader.prototype.uploadTexture2D = function (value) {
             var CTX = WebGLContext;
-            CTX.bindTexture(WebGLContext.mainContext, CTX.TEXTURE_2D, value);
+            CTX.bindTexture(WebGLContext.mainContext, WebGL2RenderingContext.TEXTURE_2D, value);
         };
         RenderState2D.width = Browser.window.innerWidth;
         RenderState2D.height = Browser.window.innerHeight;
@@ -207,7 +211,7 @@ export class Laya {
             var gl = LayaGL.instance;
             if (c)
                 gl.clearColor(c[0], c[1], c[2], c[3]);
-            gl.clear(WebGLContext.COLOR_BUFFER_BIT | WebGLContext.DEPTH_BUFFER_BIT | WebGLContext.STENCIL_BUFFER_BIT);
+            gl.clear(WebGL2RenderingContext.COLOR_BUFFER_BIT | WebGL2RenderingContext.DEPTH_BUFFER_BIT | WebGL2RenderingContext.STENCIL_BUFFER_BIT);
             RenderState2D.clear();
         };
         Sprite.drawToCanvas = Sprite.drawToTexture = function (sprite, _renderType, canvasWidth, canvasHeight, offsetX, offsetY) {

@@ -32,11 +32,11 @@ export class Node extends EventDispatcher {
         super();
         /**@private */
         this._bits = 0;
-        /**@private 子对象集合，请不要直接修改此对象。*/
+        /**@internal 子对象集合，请不要直接修改此对象。*/
         this._children = Node.ARRAY_EMPTY;
-        /**@private 仅仅用来处理输入事件的,并不是真正意义上的子对象 */
+        /**@internal 仅仅用来处理输入事件的,并不是真正意义上的子对象 */
         this._extUIChild = Node.ARRAY_EMPTY;
-        /**@private 父节点对象*/
+        /**@internal 父节点对象*/
         this._parent = null;
         /**节点名称。*/
         this.name = "";
@@ -44,10 +44,10 @@ export class Node extends EventDispatcher {
         this.destroyed = false;
         this.createGLBuffer();
     }
-    /**@private */
+    /**@internal */
     createGLBuffer() {
     }
-    /**@private */
+    /**@internal */
     _setBit(type, value) {
         if (type === Const.DISPLAY) {
             var preValue = this._getBit(type);
@@ -59,16 +59,16 @@ export class Node extends EventDispatcher {
         else
             this._bits &= ~type;
     }
-    /**@private */
+    /**@internal */
     _getBit(type) {
         return (this._bits & type) != 0;
     }
-    /**@private */
+    /**@internal */
     _setUpNoticeChain() {
         if (this._getBit(Const.DISPLAY))
             this._setBitUp(Const.DISPLAY);
     }
-    /**@private */
+    /**@internal */
     _setBitUp(type) {
         var ele = this;
         ele._setBit(type, true);
@@ -439,7 +439,7 @@ export class Node extends EventDispatcher {
         }
         this._setBit(Const.DISPLAYED_INSTAGE, displayedInStage);
     }
-    /**@private */
+    /**@internal */
     _setDisplay(value) {
         if (this._getBit(Const.DISPLAYED_INSTAGE) !== value) {
             this._setBit(Const.DISPLAYED_INSTAGE, value);
@@ -638,13 +638,13 @@ export class Node extends EventDispatcher {
         //override it.
     }
     /**
-     * @private
+     * @internal
      */
     _parse(data, spriteMap) {
         //override it.
     }
     /**
-     * @private
+     * @internal
      */
     _setBelongScene(scene) {
         if (!this._scene) {
@@ -655,7 +655,7 @@ export class Node extends EventDispatcher {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _setUnBelongScene() {
         if (this._scene !== this) { //移除节点本身是scene不继续派发
@@ -680,7 +680,7 @@ export class Node extends EventDispatcher {
         //this.name  && trace("onEnable node ", this.name);
     }
     /**
-     * @private
+     * @internal
      */
     _processActive() {
         (this._activeChangeScripts) || (this._activeChangeScripts = []);
@@ -688,7 +688,7 @@ export class Node extends EventDispatcher {
         this._activeScripts(); //延时处理组件
     }
     /**
-     * @private
+     * @internal
      */
     _activeHierarchy(activeChangeScripts) {
         this._setBit(Const.ACTIVE_INHIERARCHY, true);
@@ -727,7 +727,7 @@ export class Node extends EventDispatcher {
         this._inActiveScripts(); //延时处理组件
     }
     /**
-     * @private
+     * @internal
      */
     _inActiveHierarchy(activeChangeScripts) {
         this._onInActive();
@@ -786,7 +786,7 @@ export class Node extends EventDispatcher {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _addComponentInstance(comp) {
         this._components = this._components || [];
@@ -799,7 +799,7 @@ export class Node extends EventDispatcher {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _destroyComponent(comp) {
         if (this._components) {
@@ -814,7 +814,7 @@ export class Node extends EventDispatcher {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _destroyAllComponent() {
         if (this._components) {
@@ -826,7 +826,7 @@ export class Node extends EventDispatcher {
         }
     }
     /**
-     * @private 克隆。
+     * @internal 克隆。
      * @param	destObject 克隆源。
      */
     _cloneTo(destObject, srcRoot, dstRoot) {

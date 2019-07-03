@@ -1,4 +1,4 @@
-import { Vector3 } from "././Vector3";
+import { Vector3 } from "./Vector3";
 /**
  * <code>BoundBox</code> 类用于创建包围盒。
  */
@@ -13,7 +13,7 @@ export class BoundBox {
         this.max = max;
     }
     /**
-     * @private
+     * @internal
      */
     _rotateExtents(extents, rotation, out) {
         var extentsX = extents.x;
@@ -70,7 +70,7 @@ export class BoundBox {
         Vector3.add(center, extent, this.max);
     }
     /**
-     * @private
+     * @internal
      */
     tranform(matrix, out) {
         var center = BoundBox._tempVector30;
@@ -135,7 +135,7 @@ export class BoundBox {
         return dest;
     }
 }
-/**@private */
+/**@internal */
 BoundBox._tempVector30 = new Vector3();
-/**@private */
+/**@internal */
 BoundBox._tempVector31 = new Vector3();

@@ -1,10 +1,7 @@
-import { UVTools } from "././UVTools";
+import { UVTools } from "./UVTools";
 import { SkinMeshForGraphic } from "./canvasmesh/SkinMeshForGraphic";
 import { ILaya } from "../../../ILaya";
 import { Matrix } from "../../maths/Matrix";
-/**
- * @private
- */
 export class BoneSlot {
     constructor() {
         /** 原始数据的索引 */

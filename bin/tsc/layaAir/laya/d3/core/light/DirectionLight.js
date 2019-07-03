@@ -23,9 +23,6 @@ export class DirectionLight extends LightSprite {
         super();
         this._direction = new Vector3();
     }
-    /**
-     * @private
-     */
     _initShadow() {
         if (this._shadow) {
             this._parallelSplitShadowMap = new ParallelSplitShadowMap();

@@ -1,8 +1,8 @@
-import { UIComponent } from "././UIComponent";
-import { Button } from "././Button";
-import { List } from "././List";
-import { Styles } from "././Styles";
-import { UIUtils } from "././UIUtils";
+import { UIComponent } from "./UIComponent";
+import { Button } from "./Button";
+import { List } from "./List";
+import { Styles } from "./Styles";
+import { UIUtils } from "./UIUtils";
 import { Event } from "../events/Event";
 import { Point } from "../maths/Point";
 import { Handler } from "../utils/Handler";
@@ -10,7 +10,7 @@ import { ILaya } from "../../ILaya";
 /**
  * 当用户更改 <code>ComboBox</code> 组件中的选定内容时调度。
  * @eventType laya.events.Event
- * @internal selectedIndex属性变化时调度。
+ * selectedIndex属性变化时调度。
  */
 /*[Event(name = "change", type = "laya.events.Event")]*/
 /**

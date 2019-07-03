@@ -1,4 +1,4 @@
-import { Widget } from "././Widget";
+import { Widget } from "./Widget";
 import { Scene } from "../display/Scene";
 /**
  * <code>View</code> 是一个视图类，2.0开始，更改继承至Scene类，相对于Scene，增加相对布局功能。
@@ -6,8 +6,6 @@ import { Scene } from "../display/Scene";
 export declare class View extends Scene {
     /**@private 兼容老版本*/
     static uiMap: any;
-    /**@private */
-    _watchMap: any;
     /**@private 相对布局组件*/
     protected _widget: Widget;
     /**@private 控件的数据源。 */
@@ -16,6 +14,7 @@ export declare class View extends Scene {
     protected _anchorX: number;
     /**Y锚点，值为0-1，设置anchorY值最终通过pivotY值来改变节点轴心点。*/
     protected _anchorY: number;
+    static __init__(): void;
     constructor();
     /**
      * @private 兼容老版本
@@ -25,14 +24,6 @@ export declare class View extends Scene {
      * @param compClass 组件类对象。
      */
     static regComponent(key: string, compClass: new () => any): void;
-    /**
-     * @private 兼容老版本
-     * 注册UI视图类的逻辑处理类。
-     * @internal 注册runtime解析。
-     * @param key UI视图类的关键字。
-     * @param compClass UI视图类对应的逻辑处理类。
-     */
-    static regViewRuntime(key: string, compClass: new () => any): void;
     /**
      * @private 兼容老版本
      * 注册UI配置信息，比如注册一个路径为"test/TestPage"的页面，UI内容是IDE生成的json

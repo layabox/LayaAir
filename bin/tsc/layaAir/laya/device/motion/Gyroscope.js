@@ -1,4 +1,4 @@
-import { RotationInfo } from "././RotationInfo";
+import { RotationInfo } from "./RotationInfo";
 import { EventDispatcher } from "../../events/EventDispatcher";
 import { ILaya } from "../../../ILaya";
 import { Event } from "../../events/Event";

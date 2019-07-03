@@ -16,9 +16,9 @@ export class ShurikenParticleRenderer extends BaseRender {
      */
     constructor(owner) {
         super(owner);
-        /** @private */
+        /** @internal */
         this._finalGravity = new Vector3();
-        /** @private */
+        /** @internal */
         this._tempRotationMatrix = new Matrix4x4();
         ///**排序模式,无。*/
         //public const SORTINGMODE_NONE:int = 0;
@@ -28,9 +28,9 @@ export class ShurikenParticleRenderer extends BaseRender {
         //public const SORTINGMODE_OLDESTINFRONT:int = 2;
         ///**排序模式,年轻的在前绘制,暂不支持*/
         //public const SORTINGMODE_YOUNGESTINFRONT:int = 3;
-        /**@private */
+        /**@internal */
         this._renderMode = 0;
-        /**@private */
+        /**@internal */
         this._mesh = null;
         /**拉伸广告牌模式摄像机速度缩放,暂不支持。*/
         this.stretchedBillboardCameraSpeedScale = 0;
@@ -44,6 +44,7 @@ export class ShurikenParticleRenderer extends BaseRender {
         this.stretchedBillboardSpeedScale = 0.0;
         this.stretchedBillboardLengthScale = 1.0;
         //sortingMode = SORTINGMODE_NONE;
+        this._supportOctree = false;
     }
     ///**排序模式。*/
     //public var sortingMode:int;

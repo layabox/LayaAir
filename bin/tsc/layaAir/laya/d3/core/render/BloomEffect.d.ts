@@ -1,67 +1,11 @@
-import { PostProcessEffect } from "././PostProcessEffect";
-import { PostProcessRenderContext } from "././PostProcessRenderContext";
+import { PostProcessEffect } from "./PostProcessEffect";
+import { PostProcessRenderContext } from "./PostProcessRenderContext";
 import { Color } from "../../math/Color";
 import { Texture2D } from "../../../resource/Texture2D";
 /**
  * <code>BloomEffect</code> 类用于创建泛光效果。
  */
 export declare class BloomEffect extends PostProcessEffect {
-    /** @private */
-    static SHADERVALUE_MAINTEX: number;
-    /**@private */
-    static SHADERVALUE_AUTOEXPOSURETEX: number;
-    /**@private */
-    static SHADERVALUE_SAMPLESCALE: number;
-    /**@private */
-    static SHADERVALUE_THRESHOLD: number;
-    /**@private */
-    static SHADERVALUE_PARAMS: number;
-    /**@private */
-    static SHADERVALUE_BLOOMTEX: number;
-    /**@private */
-    private static SUBSHADER_PREFILTER13;
-    /**@private */
-    private static SUBSHADER_PREFILTER4;
-    /**@private */
-    private static SUBSHADER_DOWNSAMPLE13;
-    /**@private */
-    private static SUBSHADER_DOWNSAMPLE4;
-    /**@private */
-    private static SUBSHADER_UPSAMPLETENT;
-    /**@private */
-    private static SUBSHADER_UPSAMPLEBOX;
-    /**@private */
-    private static MAXPYRAMIDSIZE;
-    /**@private */
-    private _shader;
-    /**@private */
-    private _shaderData;
-    /**@private */
-    private _linearColor;
-    /**@private */
-    private _bloomTextureTexelSize;
-    /**@private */
-    private _shaderThreshold;
-    /**@private */
-    private _shaderParams;
-    /**@private */
-    private _pyramid;
-    /**@private */
-    private _intensity;
-    /**@private */
-    private _threshold;
-    /**@private */
-    private _softKnee;
-    /**@private */
-    private _diffusion;
-    /**@private */
-    private _anamorphicRatio;
-    /**@private */
-    private _dirtIntensity;
-    /**@private */
-    private _shaderSetting;
-    /**@private */
-    private _dirtTileOffset;
     /**限制泛光像素的数量,该值在伽马空间。*/
     clamp: number;
     /**泛光颜色。*/

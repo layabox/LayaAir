@@ -1,4 +1,4 @@
-import { GradientAngularVelocity } from "././GradientAngularVelocity";
+import { GradientAngularVelocity } from "./GradientAngularVelocity";
 /**
  * <code>RotationOverLifetime</code> 类用于粒子的生命周期旋转。
  */

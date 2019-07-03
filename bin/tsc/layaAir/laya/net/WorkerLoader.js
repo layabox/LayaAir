@@ -1,5 +1,5 @@
-import { Loader } from "././Loader";
-import { URL } from "././URL";
+import { Loader } from "./Loader";
+import { URL } from "./URL";
 import { EventDispatcher } from "../events/EventDispatcher";
 import { Texture2D } from "../resource/Texture2D";
 /**
@@ -16,6 +16,7 @@ export class WorkerLoader extends EventDispatcher {
         };
     }
     /**
+     * @internal
      * 尝试使用Work加载Image
      * @return 是否启动成功
      */

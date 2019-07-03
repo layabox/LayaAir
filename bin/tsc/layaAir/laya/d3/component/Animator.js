@@ -1,13 +1,13 @@
-import { KeyframeNodeOwner } from "./KeyframeNodeOwner";
-import { AnimatorControllerLayer } from "./AnimatorControllerLayer";
-import { AnimatorState } from "./AnimatorState";
+import { Component } from "../../components/Component";
+import { LayaGL } from "../../layagl/LayaGL";
+import { Loader } from "../../net/Loader";
+import { Render } from "../../renders/Render";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { Utils3D } from "../utils/Utils3D";
-import { Loader } from "../../net/Loader";
-import { Render } from "../../renders/Render";
-import { LayaGL } from "../../layagl/LayaGL";
-import { Component } from "../../components/Component";
+import { AnimatorControllerLayer } from "./AnimatorControllerLayer";
+import { AnimatorState } from "./AnimatorState";
+import { KeyframeNodeOwner } from "./KeyframeNodeOwner";
 /**
  * <code>Animator</code> 类用于创建动画组件。
  */
@@ -17,13 +17,12 @@ export class Animator extends Component {
      */
     constructor() {
         super();
-        /**@private */
         this._keyframeNodeOwners = [];
-        /**@private */
+        /**@internal */
         this._linkAvatarSpritesData = {};
-        /**@private */
+        /**@internal */
         this._linkAvatarSprites = [];
-        /**@private */
+        /**@internal */
         this._renderableSprites = [];
         /**	裁剪模式*/
         this.cullingMode = Animator.CULLINGMODE_CULLCOMPLETELY;
@@ -34,7 +33,7 @@ export class Animator extends Component {
         this._updateMark = 0;
     }
     /**
-     * @private
+     * @internal
      */
     static _update(scene) {
         var pool = scene._animatorPool;
@@ -58,9 +57,6 @@ export class Animator extends Component {
     set speed(value) {
         this._speed = value;
     }
-    /**
-     * @private
-     */
     _linkToSprites(linkSprites) {
         for (var k in linkSprites) {
             var nodeOwner = this.owner;
@@ -79,9 +75,6 @@ export class Animator extends Component {
             (nodeOwner) && (this.linkSprite3DToAvatarNode(k, nodeOwner)); //此时Avatar文件已经加载完成
         }
     }
-    /**
-     * @private
-     */
     _addKeyframeNodeOwner(clipOwners, node, propertyOwner) {
         var nodeIndex = node._indexInList;
         var fullPath = node.fullPath;
@@ -123,7 +116,7 @@ export class Animator extends Component {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _removeKeyframeNodeOwner(nodeOwners, node) {
         var fullPath = node.fullPath;
@@ -138,7 +131,7 @@ export class Animator extends Component {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _getOwnersByClip(clipStateInfo) {
         var frameNodes = clipStateInfo._clip._nodes;
@@ -166,9 +159,6 @@ export class Animator extends Component {
             }
         }
     }
-    /**
-     * @private
-     */
     _updatePlayer(animatorState, playState, elapsedTime, islooping) {
         var clipDuration = animatorState._clip._duration * (animatorState.clipEnd - animatorState.clipStart);
         var lastElapsedTime = playState._elapsedTime;
@@ -196,9 +186,6 @@ export class Animator extends Component {
                 scripts[i].onStateUpdate();
         }
     }
-    /**
-     * @private
-     */
     _eventScript(scripts, events, eventIndex, endTime, front) {
         if (front) {
             for (var n = events.length; eventIndex < n; eventIndex++) {
@@ -232,9 +219,6 @@ export class Animator extends Component {
         }
         return eventIndex;
     }
-    /**
-     * @private
-     */
     _updateEventScript(stateInfo, playStateInfo) {
         var scripts = this.owner._scripts;
         if (scripts) { //TODO:play是否也换成此种计算
@@ -272,9 +256,6 @@ export class Animator extends Component {
             }
         }
     }
-    /**
-     * @private
-     */
     _updateClipDatas(animatorState, addtive, playStateInfo, scale) {
         var clip = animatorState._clip;
         var clipDuration = clip._duration;
@@ -283,9 +264,6 @@ export class Animator extends Component {
         var frontPlay = playStateInfo._elapsedTime > playStateInfo._lastElapsedTime;
         clip._evaluateClipDatasRealTime(clip._nodes, curPlayTime, currentFrameIndices, addtive, frontPlay);
     }
-    /**
-     * @private
-     */
     _applyFloat(pro, proName, nodeOwner, additive, weight, isFirstLayer, data) {
         if (nodeOwner.updateMark === this._updateMark) { //一定非第一层
             if (additive) {
@@ -314,9 +292,6 @@ export class Animator extends Component {
             }
         }
     }
-    /**
-     * @private
-     */
     _applyPositionAndRotationEuler(nodeOwner, additive, weight, isFirstLayer, data, out) {
         if (nodeOwner.updateMark === this._updateMark) { //一定非第一层
             if (additive) {
@@ -365,9 +340,6 @@ export class Animator extends Component {
             }
         }
     }
-    /**
-     * @private
-     */
     _applyRotation(nodeOwner, additive, weight, isFirstLayer, clipRot, localRotation) {
         if (nodeOwner.updateMark === this._updateMark) { //一定非第一层
             if (additive) {
@@ -407,9 +379,6 @@ export class Animator extends Component {
             }
         }
     }
-    /**
-     * @private
-     */
     _applyScale(nodeOwner, additive, weight, isFirstLayer, clipSca, localScale) {
         if (nodeOwner.updateMark === this._updateMark) { //一定非第一层
             if (additive) {
@@ -452,9 +421,6 @@ export class Animator extends Component {
             }
         }
     }
-    /**
-     * @private
-     */
     _applyCrossData(nodeOwner, additive, weight, isFirstLayer, srcValue, desValue, crossWeight) {
         var pro = nodeOwner.propertyOwner;
         if (pro) {
@@ -508,9 +474,6 @@ export class Animator extends Component {
             nodeOwner.updateMark = this._updateMark;
         }
     }
-    /**
-     * @private
-     */
     _setClipDatasToNode(stateInfo, additive, weight, isFirstLayer) {
         var nodes = stateInfo._clip._nodes;
         var nodeOwners = stateInfo._nodeOwners;
@@ -556,9 +519,6 @@ export class Animator extends Component {
             }
         }
     }
-    /**
-     * @private
-     */
     _setCrossClipDatasToNode(controllerLayer, srcState, destState, crossWeight, isFirstLayer) {
         //TODO:srcNodes、destNodes未使用
         var nodeOwners = controllerLayer._crossNodesOwners;
@@ -582,9 +542,6 @@ export class Animator extends Component {
             }
         }
     }
-    /**
-     * @private
-     */
     _setFixedCrossClipDatasToNode(controllerLayer, destState, crossWeight, isFirstLayer) {
         var nodeOwners = controllerLayer._crossNodesOwners;
         var ownerCount = controllerLayer._crossNodesOwnersCount;
@@ -602,9 +559,6 @@ export class Animator extends Component {
             }
         }
     }
-    /**
-     * @private
-     */
     _revertDefaultKeyframeNodes(clipStateInfo) {
         var nodeOwners = clipStateInfo._nodeOwners;
         for (var i = 0, n = nodeOwners.length; i < n; i++) {
@@ -665,16 +619,18 @@ export class Animator extends Component {
     }
     /**
      * @inheritDoc
+     * @override
      */
-    /*override*/ _onAdded() {
+    _onAdded() {
         var parent = this.owner._parent;
         this.owner._setHierarchyAnimator(this, parent ? parent._hierarchyAnimator : null); //只有动画组件在加载或卸载时才重新组织数据
         this.owner._changeAnimatorToLinkSprite3DNoAvatar(this, true, []);
     }
     /**
      * @inheritDoc
+     * @override
      */
-    /*override*/ _onDestroy() {
+    _onDestroy() {
         for (var i = 0, n = this._controllerLayers.length; i < n; i++)
             this._controllerLayers[i]._removeReference();
         var parent = this.owner._parent;
@@ -682,8 +638,9 @@ export class Animator extends Component {
     }
     /**
      * @inheritDoc
+     * @override
      */
-    /*override*/ _onEnable() {
+    _onEnable() {
         this.owner._scene._animatorPool.add(this);
         for (var i = 0, n = this._controllerLayers.length; i < n; i++) {
             if (this._controllerLayers[i].playOnWake) {
@@ -694,12 +651,13 @@ export class Animator extends Component {
     }
     /**
      * @inheritDoc
+     * @override
      */
-    /*override*/ _onDisable() {
+    _onDisable() {
         this.owner._scene._animatorPool.remove(this);
     }
     /**
-     * @private
+     * @internal
      */
     _handleSpriteOwnersBySprite(isLink, path, sprite) {
         for (var i = 0, n = this._controllerLayers.length; i < n; i++) {
@@ -723,8 +681,9 @@ export class Animator extends Component {
     }
     /**
      * @inheritDoc
+     * @override
      */
-    /*override*/ _parse(data) {
+    _parse(data) {
         var avatarData = data.avatar;
         if (avatarData) {
             this.avatar = Loader.getRes(avatarData.path);
@@ -768,7 +727,7 @@ export class Animator extends Component {
         (cullingModeData !== undefined) && (this.cullingMode = cullingModeData);
     }
     /**
-     * @private
+     * @internal
      */
     _update() {
         if (this._speed === 0)
@@ -883,11 +842,13 @@ export class Animator extends Component {
         }
     }
     /**
-     * @private
+     * @internal
+     * @override
      */
-    /*override*/ _cloneTo(dest) {
+    _cloneTo(dest) {
         var animator = dest;
         animator.avatar = this.avatar;
+        animator.cullingMode = this.cullingMode;
         for (var i = 0, n = this._controllerLayers.length; i < n; i++) {
             var controllLayer = this._controllerLayers[i];
             animator.addControllerLayer(controllLayer.clone());
@@ -964,32 +925,37 @@ export class Animator extends Component {
      */
     play(name = null, layerIndex = 0, normalizedTime = Number.NEGATIVE_INFINITY) {
         var controllerLayer = this._controllerLayers[layerIndex];
-        var defaultState = controllerLayer.defaultState;
-        if (!name && !defaultState)
-            throw new Error("Animator:must have  default clip value,please set clip property.");
-        var curPlayState = controllerLayer._currentPlayState;
-        var playStateInfo = controllerLayer._playStateInfo;
-        var animatorState = name ? controllerLayer._statesMap[name] : defaultState;
-        var clipDuration = animatorState._clip._duration;
-        if (curPlayState !== animatorState) {
-            if (normalizedTime !== Number.NEGATIVE_INFINITY)
-                playStateInfo._resetPlayState(clipDuration * normalizedTime);
-            else
-                playStateInfo._resetPlayState(0.0);
-            (curPlayState !== null && curPlayState !== animatorState) && (this._revertDefaultKeyframeNodes(curPlayState));
-            controllerLayer._playType = 0;
-            controllerLayer._currentPlayState = animatorState;
-        }
-        else {
-            if (normalizedTime !== Number.NEGATIVE_INFINITY) {
-                playStateInfo._resetPlayState(clipDuration * normalizedTime);
+        if (controllerLayer) {
+            var defaultState = controllerLayer.defaultState;
+            if (!name && !defaultState)
+                throw new Error("Animator:must have  default clip value,please set clip property.");
+            var curPlayState = controllerLayer._currentPlayState;
+            var playStateInfo = controllerLayer._playStateInfo;
+            var animatorState = name ? controllerLayer._statesMap[name] : defaultState;
+            var clipDuration = animatorState._clip._duration;
+            if (curPlayState !== animatorState) {
+                if (normalizedTime !== Number.NEGATIVE_INFINITY)
+                    playStateInfo._resetPlayState(clipDuration * normalizedTime);
+                else
+                    playStateInfo._resetPlayState(0.0);
+                (curPlayState !== null && curPlayState !== animatorState) && (this._revertDefaultKeyframeNodes(curPlayState));
                 controllerLayer._playType = 0;
+                controllerLayer._currentPlayState = animatorState;
+            }
+            else {
+                if (normalizedTime !== Number.NEGATIVE_INFINITY) {
+                    playStateInfo._resetPlayState(clipDuration * normalizedTime);
+                    controllerLayer._playType = 0;
+                }
+            }
+            var scripts = animatorState._scripts;
+            if (scripts) {
+                for (var i = 0, n = scripts.length; i < n; i++)
+                    scripts[i].onStateEnter();
             }
         }
-        var scripts = animatorState._scripts;
-        if (scripts) {
-            for (var i = 0, n = scripts.length; i < n; i++)
-                scripts[i].onStateEnter();
+        else {
+            console.warn("Invalid layerIndex " + layerIndex + ".");
         }
     }
     /**
@@ -1001,110 +967,118 @@ export class Animator extends Component {
      */
     crossFade(name, transitionDuration, layerIndex = 0, normalizedTime = Number.NEGATIVE_INFINITY) {
         var controllerLayer = this._controllerLayers[layerIndex];
-        var destAnimatorState = controllerLayer._statesMap[name];
-        if (destAnimatorState) {
-            var playType = controllerLayer._playType;
-            if (playType === -1) {
-                this.play(name, layerIndex, normalizedTime); //如果未层调用过play则回滚到play方法
-                return;
-            }
-            var crossPlayStateInfo = controllerLayer._crossPlayStateInfo;
-            var crossNodeOwners = controllerLayer._crossNodesOwners;
-            var crossNodeOwnerIndicesMap = controllerLayer._crossNodesOwnersIndicesMap;
-            var srcAnimatorState = controllerLayer._currentPlayState;
-            var destNodeOwners = destAnimatorState._nodeOwners;
-            var destCrossClipNodeIndices = controllerLayer._destCrossClipNodeIndices;
-            var destClip = destAnimatorState._clip;
-            var destNodes = destClip._nodes;
-            var destNodesMap = destClip._nodesDic;
-            switch (playType) {
-                case 0:
-                    var srcNodeOwners = srcAnimatorState._nodeOwners;
-                    var scrCrossClipNodeIndices = controllerLayer._srcCrossClipNodeIndices;
-                    var srcClip = srcAnimatorState._clip;
-                    var srcNodes = srcClip._nodes;
-                    var srcNodesMap = srcClip._nodesDic;
-                    controllerLayer._playType = 1;
-                    var crossMark = ++controllerLayer._crossMark;
-                    var crossCount = controllerLayer._crossNodesOwnersCount = 0;
-                    for (var i = 0, n = srcNodes.count; i < n; i++) {
-                        var srcNode = srcNodes.getNodeByIndex(i);
-                        var srcIndex = srcNode._indexInList;
-                        var srcNodeOwner = srcNodeOwners[srcIndex];
-                        if (srcNodeOwner) {
-                            var srcFullPath = srcNode.fullPath;
-                            scrCrossClipNodeIndices[crossCount] = srcIndex;
-                            var destNode = destNodesMap[srcFullPath];
+        if (controllerLayer) {
+            var destAnimatorState = controllerLayer._statesMap[name];
+            if (destAnimatorState) {
+                var playType = controllerLayer._playType;
+                if (playType === -1) {
+                    this.play(name, layerIndex, normalizedTime); //如果未层调用过play则回滚到play方法
+                    return;
+                }
+                var crossPlayStateInfo = controllerLayer._crossPlayStateInfo;
+                var crossNodeOwners = controllerLayer._crossNodesOwners;
+                var crossNodeOwnerIndicesMap = controllerLayer._crossNodesOwnersIndicesMap;
+                var srcAnimatorState = controllerLayer._currentPlayState;
+                var destNodeOwners = destAnimatorState._nodeOwners;
+                var destCrossClipNodeIndices = controllerLayer._destCrossClipNodeIndices;
+                var destClip = destAnimatorState._clip;
+                var destNodes = destClip._nodes;
+                var destNodesMap = destClip._nodesDic;
+                switch (playType) {
+                    case 0:
+                        var srcNodeOwners = srcAnimatorState._nodeOwners;
+                        var scrCrossClipNodeIndices = controllerLayer._srcCrossClipNodeIndices;
+                        var srcClip = srcAnimatorState._clip;
+                        var srcNodes = srcClip._nodes;
+                        var srcNodesMap = srcClip._nodesDic;
+                        controllerLayer._playType = 1;
+                        var crossMark = ++controllerLayer._crossMark;
+                        var crossCount = controllerLayer._crossNodesOwnersCount = 0;
+                        for (var i = 0, n = srcNodes.count; i < n; i++) {
+                            var srcNode = srcNodes.getNodeByIndex(i);
+                            var srcIndex = srcNode._indexInList;
+                            var srcNodeOwner = srcNodeOwners[srcIndex];
+                            if (srcNodeOwner) {
+                                var srcFullPath = srcNode.fullPath;
+                                scrCrossClipNodeIndices[crossCount] = srcIndex;
+                                var destNode = destNodesMap[srcFullPath];
+                                if (destNode)
+                                    destCrossClipNodeIndices[crossCount] = destNode._indexInList;
+                                else
+                                    destCrossClipNodeIndices[crossCount] = -1;
+                                crossNodeOwnerIndicesMap[srcFullPath] = crossMark;
+                                crossNodeOwners[crossCount] = srcNodeOwner;
+                                crossCount++;
+                            }
+                        }
+                        for (i = 0, n = destNodes.count; i < n; i++) {
+                            destNode = destNodes.getNodeByIndex(i);
+                            var destIndex = destNode._indexInList;
+                            var destNodeOwner = destNodeOwners[destIndex];
+                            if (destNodeOwner) {
+                                var destFullPath = destNode.fullPath;
+                                if (!srcNodesMap[destFullPath]) {
+                                    scrCrossClipNodeIndices[crossCount] = -1;
+                                    destCrossClipNodeIndices[crossCount] = destIndex;
+                                    crossNodeOwnerIndicesMap[destFullPath] = crossMark;
+                                    crossNodeOwners[crossCount] = destNodeOwner;
+                                    crossCount++;
+                                }
+                            }
+                        }
+                        break;
+                    case 1:
+                    case 2:
+                        controllerLayer._playType = 2;
+                        for (i = 0, n = crossNodeOwners.length; i < n; i++) {
+                            var nodeOwner = crossNodeOwners[i];
+                            nodeOwner.saveCrossFixedValue();
+                            destNode = destNodesMap[nodeOwner.fullPath];
                             if (destNode)
-                                destCrossClipNodeIndices[crossCount] = destNode._indexInList;
+                                destCrossClipNodeIndices[i] = destNode._indexInList;
                             else
-                                destCrossClipNodeIndices[crossCount] = -1;
-                            crossNodeOwnerIndicesMap[srcFullPath] = crossMark;
-                            crossNodeOwners[crossCount] = srcNodeOwner;
-                            crossCount++;
+                                destCrossClipNodeIndices[i] = -1;
                         }
-                    }
-                    for (i = 0, n = destNodes.count; i < n; i++) {
-                        destNode = destNodes.getNodeByIndex(i);
-                        var destIndex = destNode._indexInList;
-                        var destNodeOwner = destNodeOwners[destIndex];
-                        if (destNodeOwner) {
-                            var destFullPath = destNode.fullPath;
-                            if (!srcNodesMap[destFullPath]) {
-                                scrCrossClipNodeIndices[crossCount] = -1;
-                                destCrossClipNodeIndices[crossCount] = destIndex;
-                                crossNodeOwnerIndicesMap[destFullPath] = crossMark;
-                                crossNodeOwners[crossCount] = destNodeOwner;
-                                crossCount++;
+                        crossCount = controllerLayer._crossNodesOwnersCount;
+                        crossMark = controllerLayer._crossMark;
+                        for (i = 0, n = destNodes.count; i < n; i++) {
+                            destNode = destNodes.getNodeByIndex(i);
+                            destIndex = destNode._indexInList;
+                            destNodeOwner = destNodeOwners[destIndex];
+                            if (destNodeOwner) {
+                                destFullPath = destNode.fullPath;
+                                if (crossNodeOwnerIndicesMap[destFullPath] !== crossMark) {
+                                    destCrossClipNodeIndices[crossCount] = destIndex;
+                                    crossNodeOwnerIndicesMap[destFullPath] = crossMark;
+                                    nodeOwner = destNodeOwners[destIndex];
+                                    crossNodeOwners[crossCount] = nodeOwner;
+                                    nodeOwner.saveCrossFixedValue();
+                                    crossCount++;
+                                }
                             }
                         }
-                    }
-                    break;
-                case 1:
-                case 2:
-                    controllerLayer._playType = 2;
-                    for (i = 0, n = crossNodeOwners.length; i < n; i++) {
-                        var nodeOwner = crossNodeOwners[i];
-                        nodeOwner.saveCrossFixedValue();
-                        destNode = destNodesMap[nodeOwner.fullPath];
-                        if (destNode)
-                            destCrossClipNodeIndices[i] = destNode._indexInList;
-                        else
-                            destCrossClipNodeIndices[i] = -1;
-                    }
-                    crossCount = controllerLayer._crossNodesOwnersCount;
-                    crossMark = controllerLayer._crossMark;
-                    for (i = 0, n = destNodes.count; i < n; i++) {
-                        destNode = destNodes.getNodeByIndex(i);
-                        destIndex = destNode._indexInList;
-                        destNodeOwner = destNodeOwners[destIndex];
-                        if (destNodeOwner) {
-                            destFullPath = destNode.fullPath;
-                            if (crossNodeOwnerIndicesMap[destFullPath] !== crossMark) {
-                                destCrossClipNodeIndices[crossCount] = destIndex;
-                                crossNodeOwnerIndicesMap[destFullPath] = crossMark;
-                                nodeOwner = destNodeOwners[destIndex];
-                                crossNodeOwners[crossCount] = nodeOwner;
-                                nodeOwner.saveCrossFixedValue();
-                                crossCount++;
-                            }
-                        }
-                    }
-                    break;
-                default:
+                        break;
+                    default:
+                }
+                controllerLayer._crossNodesOwnersCount = crossCount;
+                controllerLayer._crossPlayState = destAnimatorState;
+                controllerLayer._crossDuration = srcAnimatorState._clip._duration * transitionDuration;
+                if (normalizedTime !== Number.NEGATIVE_INFINITY)
+                    crossPlayStateInfo._resetPlayState(destClip._duration * normalizedTime);
+                else
+                    crossPlayStateInfo._resetPlayState(0.0);
+                var scripts = destAnimatorState._scripts;
+                if (scripts) {
+                    for (i = 0, n = scripts.length; i < n; i++)
+                        scripts[i].onStateEnter();
+                }
             }
-            controllerLayer._crossNodesOwnersCount = crossCount;
-            controllerLayer._crossPlayState = destAnimatorState;
-            controllerLayer._crossDuration = srcAnimatorState._clip._duration * transitionDuration;
-            if (normalizedTime !== Number.NEGATIVE_INFINITY)
-                crossPlayStateInfo._resetPlayState(destClip._duration * normalizedTime);
-            else
-                crossPlayStateInfo._resetPlayState(0.0);
+            else {
+                console.warn("Invalid name " + layerIndex + ".");
+            }
         }
-        var scripts = destAnimatorState._scripts;
-        if (scripts) {
-            for (i = 0, n = scripts.length; i < n; i++)
-                scripts[i].onStateEnter();
+        else {
+            console.warn("Invalid layerIndex " + layerIndex + ".");
         }
     }
     /**
@@ -1131,9 +1105,6 @@ export class Animator extends Component {
             }
         }
     }
-    /**
-     * @private
-     */
     _getAvatarOwnersAndInitDatasAsync() {
         for (var i = 0, n = this._controllerLayers.length; i < n; i++) {
             var clipStateInfos = this._controllerLayers[i]._states;
@@ -1149,9 +1120,6 @@ export class Animator extends Component {
             }
         }
     }
-    /**
-     * @private
-     */
     _isLinkSpriteToAnimationNode(sprite, nodeName, isLink) {
         if (this._avatar) {
             var node = this._avatarNodeMap[nodeName];
@@ -1184,9 +1152,6 @@ export class Animator extends Component {
             }
         }
     }
-    /**
-     * @private
-     */
     _isLinkSpriteToAnimationNodeData(sprite, nodeName, isLink) {
         var linkSprites = this._linkAvatarSpritesData[nodeName]; //存储挂点数据
         if (isLink) {
@@ -1199,7 +1164,7 @@ export class Animator extends Component {
         }
     }
     /**
-     *@private
+     *@internal
      */
     _updateAvatarNodesToSprite() {
         for (var i = 0, n = this._linkAvatarSprites.length; i < n; i++) {
@@ -1249,28 +1214,20 @@ export class Animator extends Component {
         }
     }
     /**
-     *@private
+     *@internal
      * [NATIVE]
      */
     _updateAnimationNodeWorldMatix(localPositions, localRotations, localScales, worldMatrixs, parentIndices) {
         LayaGL.instance.updateAnimationNodeWorldMatix(localPositions, localRotations, localScales, parentIndices, worldMatrixs);
     }
 }
-/** @private */
 Animator._tempVector30 = new Vector3();
-/** @private */
 Animator._tempVector31 = new Vector3();
-/** @private */
 Animator._tempQuaternion0 = new Quaternion();
-/** @private */
 Animator._tempQuaternion1 = new Quaternion();
-/** @private */
 Animator._tempVector3Array0 = new Float32Array(3);
-/** @private */
 Animator._tempVector3Array1 = new Float32Array(3);
-/** @private */
 Animator._tempQuaternionArray0 = new Float32Array(4);
-/** @private */
 Animator._tempQuaternionArray1 = new Float32Array(4);
 /** 裁剪模式_始终播放动画。*/
 Animator.CULLINGMODE_ALWAYSANIMATE = 0;

@@ -1,12 +1,10 @@
-import { ConchVector4 } from "././ConchVector4";
-import { ConchQuaternion } from "././ConchQuaternion";
+import { ConchVector4 } from "./ConchVector4";
+import { ConchQuaternion } from "./ConchQuaternion";
 import { IClone } from "../../core/IClone";
 /**
  * <code>Vector3</code> 类用于创建三维向量。
  */
 export declare class ConchVector3 implements IClone {
-    /**@private	*/
-    static _tempVector4: ConchVector4;
     /**零向量，禁止修改*/
     static ZERO: ConchVector3;
     /**一向量，禁止修改*/

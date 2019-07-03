@@ -1,5 +1,4 @@
-import { Mesh2D } from "././Mesh2D";
-import { WebGLContext } from "../WebGLContext";
+import { Mesh2D } from "./Mesh2D";
 /**
  * drawImage，fillRect等会用到的简单的mesh。每次添加必然是一个四边形。
  */
@@ -50,14 +49,14 @@ export class MeshParticle2D extends Mesh2D {
     }
 }
 MeshParticle2D.const_stride = 116;
-MeshParticle2D._fixattriInfo = [WebGLContext.FLOAT, 4, 0,
-    WebGLContext.FLOAT, 3, 16,
-    WebGLContext.FLOAT, 3, 28,
-    WebGLContext.FLOAT, 4, 40,
-    WebGLContext.FLOAT, 4, 56,
-    WebGLContext.FLOAT, 3, 72,
-    WebGLContext.FLOAT, 2, 84,
-    WebGLContext.FLOAT, 4, 92,
-    WebGLContext.FLOAT, 1, 108,
-    WebGLContext.FLOAT, 1, 112];
+MeshParticle2D._fixattriInfo = [WebGL2RenderingContext.FLOAT, 4, 0,
+    WebGL2RenderingContext.FLOAT, 3, 16,
+    WebGL2RenderingContext.FLOAT, 3, 28,
+    WebGL2RenderingContext.FLOAT, 4, 40,
+    WebGL2RenderingContext.FLOAT, 4, 56,
+    WebGL2RenderingContext.FLOAT, 3, 72,
+    WebGL2RenderingContext.FLOAT, 2, 84,
+    WebGL2RenderingContext.FLOAT, 4, 92,
+    WebGL2RenderingContext.FLOAT, 1, 108,
+    WebGL2RenderingContext.FLOAT, 1, 112];
 MeshParticle2D._POOL = [];

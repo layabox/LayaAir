@@ -7,14 +7,6 @@ export declare class IndexBuffer3D extends Buffer {
     static INDEXTYPE_UBYTE: string;
     /** 16位ushort无符号索引类型。*/
     static INDEXTYPE_USHORT: string;
-    /** @private */
-    private _indexType;
-    /** @private */
-    private _indexTypeByteCount;
-    /** @private */
-    private _indexCount;
-    /** @private */
-    private _canRead;
     /**
      * 获取索引类型。
      *   @return	索引类型。

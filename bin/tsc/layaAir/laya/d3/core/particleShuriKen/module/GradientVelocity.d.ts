@@ -1,4 +1,4 @@
-import { GradientDataNumber } from "././GradientDataNumber";
+import { GradientDataNumber } from "./GradientDataNumber";
 import { IClone } from "../../IClone";
 import { Vector3 } from "../../../math/Vector3";
 /**
@@ -37,31 +37,18 @@ export declare class GradientVelocity implements IClone {
      * @return  渐变速度。
      */
     static createByRandomTwoGradient(gradientXMin: GradientDataNumber, gradientXMax: GradientDataNumber, gradientYMin: GradientDataNumber, gradientYMax: GradientDataNumber, gradientZMin: GradientDataNumber, gradientZMax: GradientDataNumber): GradientVelocity;
-    /**@private */
     private _type;
-    /**@private */
     private _constant;
-    /**@private */
     private _gradientX;
-    /**@private */
     private _gradientY;
-    /**@private */
     private _gradientZ;
-    /**@private */
     private _constantMin;
-    /**@private */
     private _constantMax;
-    /**@private */
     private _gradientXMin;
-    /**@private */
     private _gradientXMax;
-    /**@private */
     private _gradientYMin;
-    /**@private */
     private _gradientYMax;
-    /**@private */
     private _gradientZMin;
-    /**@private */
     private _gradientZMax;
     /**
      *生命周期速度类型，0常量模式，1曲线模式，2随机双常量模式，3随机双曲线模式。

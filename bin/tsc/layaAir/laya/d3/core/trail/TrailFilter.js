@@ -13,7 +13,7 @@ import { Shader3D } from "../../../d3/shader/Shader3D";
  */
 export class TrailFilter {
     constructor(owner) {
-        /**@private 拖尾总长度*/
+        /**@internal 拖尾总长度*/
         this._totalLength = 0;
         this._lastPosition = new Vector3();
         this._curtime = 0;
@@ -119,7 +119,7 @@ export class TrailFilter {
         this._textureMode = value;
     }
     /**
-     * @private
+     * @internal
      */
     addRenderElement() {
         var render = this._owner._render;
@@ -135,7 +135,7 @@ export class TrailFilter {
         elements.push(element);
     }
     /**
-     * @private
+     * @internal
      */
     _update(state) {
         var render = this._owner._render;
@@ -149,7 +149,7 @@ export class TrailFilter {
         curPos.cloneTo(this._lastPosition);
     }
     /**
-     * @private
+     * @internal
      */
     _initDefaultData() {
         this.time = 5.0;
@@ -179,7 +179,7 @@ export class TrailFilter {
         this.colorGradient = gradient;
     }
     /**
-     * @private
+     * @internal
      */
     destroy() {
         this._trialGeometry.destroy();

@@ -1,4 +1,3 @@
-import { Matrix } from "../maths/Matrix";
 /**
  * <p> <code>Byte</code> 类提供用于优化读取、写入以及处理二进制数据的方法和属性。</p>
  * <p> <code>Byte</code> 类适用于需要在字节层访问数据的高级开发人员。</p>
@@ -236,46 +235,6 @@ export declare class Byte {
     writeUint8(value: number): void;
     /**
      * @private
-     * 从字节流的指定字节偏移量位置处读取一个 Uint8 值。
-     * @param	pos	字节读取位置。
-     * @return Uint8 值。
-     */
-    _getUInt8(pos: number): number;
-    /**
-     * @private
-     * 从字节流的指定字节偏移量位置处读取一个 Uint8 值。
-     * @param	pos	字节读取位置。
-     * @return Uint8 值。
-     */
-    _readUInt8(pos: number): number;
-    /**
-     * @private
-     * 从字节流的指定字节偏移量位置处读取一个 Uint16 值。
-     * @param	pos	字节读取位置。
-     * @return Uint16 值。
-     */
-    _getUint16(pos: number): number;
-    /**
-     * @private
-     * 从字节流的指定字节偏移量位置处读取一个 Uint16 值。
-     * @param	pos	字节读取位置。
-     * @return Uint16 值。
-     */
-    _readUint16(pos: number): number;
-    /**
-     * @private
-     * 使用 getFloat32() 读取6个值，用于创建并返回一个 Matrix 对象。
-     * @return  Matrix 对象。
-     */
-    _getMatrix(): Matrix;
-    /**
-     * @private
-     * 使用 getFloat32() 读取6个值，用于创建并返回一个 Matrix 对象。
-     * @return  Matrix 对象。
-     */
-    _readMatrix(): Matrix;
-    /**
-     * @private
      * 读取指定长度的 UTF 型字符串。
      * @param	len 需要读取的长度。
      * @return 读取的字符串。
@@ -307,12 +266,6 @@ export declare class Byte {
      * 清除字节数组的内容，并将 length 和 pos 属性重置为 0。调用此方法将释放 Byte 实例占用的内存。
      */
     clear(): void;
-    /**
-     * @private
-     * 获取此对象的 ArrayBuffer 引用。
-     * @return
-     */
-    __getBuffer(): ArrayBuffer;
     /**
      * <p>将 UTF-8 字符串写入字节流。类似于 writeUTF() 方法，但 writeUTFBytes() 不使用 16 位长度的字为字符串添加前缀。</p>
      * <p>对应的读取方法为： getUTFBytes 。</p>
@@ -368,12 +321,6 @@ export declare class Byte {
      * 从字节流中读取带符号的字节。
      */
     getByte(): number;
-    /**
-     * @private
-     * <p>保证该字节流的可用长度不小于 <code>lengthToEnsure</code> 参数指定的值。</p>
-     * @param	lengthToEnsure	指定的长度。
-     */
-    _ensureWrite(lengthToEnsure: number): void;
     /**
      * <p>将指定 arraybuffer 对象中的以 offset 为起始偏移量， length 为长度的字节序列写入字节流。</p>
      * <p>如果省略 length 参数，则使用默认长度 0，该方法将从 offset 开始写入整个缓冲区；如果还省略了 offset 参数，则写入整个缓冲区。</p>

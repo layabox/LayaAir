@@ -1,5 +1,5 @@
-import { Box } from "././Box";
-import { List } from "././List";
+import { Box } from "./Box";
+import { List } from "./List";
 import { Event } from "../events/Event";
 import { Handler } from "../utils/Handler";
 import { ILaya } from "../../ILaya";

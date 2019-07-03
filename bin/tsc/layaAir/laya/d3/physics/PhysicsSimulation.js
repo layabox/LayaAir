@@ -1,7 +1,7 @@
 import { Stat } from "../../utils/Stat";
 import { Vector3 } from "../math/Vector3";
 import { Physics3DUtils } from "../utils/Physics3DUtils";
-import { PhysicsUpdateList } from "././PhysicsUpdateList";
+import { PhysicsUpdateList } from "./PhysicsUpdateList";
 import { CollisionTool } from "./CollisionTool";
 import { PhysicsComponent } from "./PhysicsComponent";
 import { Physics } from "./Physics";
@@ -10,27 +10,27 @@ import { Physics } from "./Physics";
  */
 export class PhysicsSimulation {
     /**
-     * @private
+     * @internal
      * 创建一个 <code>Simulation</code> 实例。
      */
     constructor(configuration, flags = 0) {
-        /**@private	*/
+        /**@internal	*/
         this._gravity = new Vector3(0, -10, 0);
-        /** @private */
+        /** @internal */
         this._nativeVector3Zero = new Physics._physics3D.btVector3(0, 0, 0);
-        /** @private */
+        /** @internal */
         this._nativeDefaultQuaternion = new Physics._physics3D.btQuaternion(0, 0, 0, -1);
-        /**@private	*/
+        /**@internal	*/
         this._collisionsUtils = new CollisionTool();
-        /**@private	*/
+        /**@internal	*/
         this._previousFrameCollisions = [];
-        /**@private	*/
+        /**@internal	*/
         this._currentFrameCollisions = [];
-        /**@private	*/
+        /**@internal	*/
         this._physicsUpdateList = new PhysicsUpdateList();
-        /**@private	*/
+        /**@internal	*/
         this._characters = [];
-        /**@private	*/
+        /**@internal	*/
         this._updatedRigidbodies = 0;
         /**物理引擎在一帧中用于补偿减速的最大次数：模拟器每帧允许的最大模拟次数，如果引擎运行缓慢,可能需要增加该次数，否则模拟器会丢失“时间",引擎间隔时间小于maxSubSteps*fixedTimeStep非常重要。*/
         this.maxSubSteps = 1;
@@ -66,7 +66,7 @@ export class PhysicsSimulation {
         physics3D._btGImpactCollisionAlgorithm_RegisterAlgorithm(this._nativeDispatcher.a); //注册算法
     }
     /**
-    * @private
+    * @internal
     */
     static __init__() {
         PhysicsSimulation._nativeTempVector30 = new Physics._physics3D.btVector3(0, 0, 0);
@@ -116,7 +116,7 @@ export class PhysicsSimulation {
         this._nativeDiscreteDynamicsWorld.setGravity(nativeGravity);
     }
     /**
-     * @private
+     * @internal
      */
     get speculativeContactRestitution() {
         if (!this._nativeDiscreteDynamicsWorld)
@@ -124,7 +124,7 @@ export class PhysicsSimulation {
         return this._nativeDiscreteDynamicsWorld.getApplySpeculativeContactRestitution();
     }
     /**
-     * @private
+     * @internal
      */
     set speculativeContactRestitution(value) {
         if (!this._nativeDiscreteDynamicsWorld)
@@ -132,7 +132,7 @@ export class PhysicsSimulation {
         this._nativeDiscreteDynamicsWorld.setApplySpeculativeContactRestitution(value);
     }
     /**
-     * @private
+     * @internal
      */
     _simulate(deltaTime) {
         this._updatedRigidbodies = 0;
@@ -142,7 +142,7 @@ export class PhysicsSimulation {
             this._nativeCollisionWorld.PerformDiscreteCollisionDetection();
     }
     /**
-     * @private
+     * @internal
      */
     _destroy() {
         var physics3D = Physics._physics3D;
@@ -162,19 +162,19 @@ export class PhysicsSimulation {
         this._nativeCollisionConfiguration = null;
     }
     /**
-     * @private
+     * @internal
      */
     _addPhysicsCollider(component, group, mask) {
         this._nativeCollisionWorld.addCollisionObject(component._nativeColliderObject, group, mask);
     }
     /**
-     * @private
+     * @internal
      */
     _removePhysicsCollider(component) {
         this._nativeCollisionWorld.removeCollisionObject(component._nativeColliderObject);
     }
     /**
-     * @private
+     * @internal
      */
     _addRigidBody(rigidBody, group, mask) {
         if (!this._nativeDiscreteDynamicsWorld)
@@ -182,7 +182,7 @@ export class PhysicsSimulation {
         this._nativeCollisionWorld.addRigidBody(rigidBody._nativeColliderObject, group, mask);
     }
     /**
-     * @private
+     * @internal
      */
     _removeRigidBody(rigidBody) {
         if (!this._nativeDiscreteDynamicsWorld)
@@ -190,7 +190,7 @@ export class PhysicsSimulation {
         this._nativeCollisionWorld.removeRigidBody(rigidBody._nativeColliderObject);
     }
     /**
-     * @private
+     * @internal
      */
     _addCharacter(character, group, mask) {
         if (!this._nativeDiscreteDynamicsWorld)
@@ -199,7 +199,7 @@ export class PhysicsSimulation {
         this._nativeCollisionWorld.addAction(character._nativeKinematicCharacter);
     }
     /**
-     * @private
+     * @internal
      */
     _removeCharacter(character) {
         if (!this._nativeDiscreteDynamicsWorld)
@@ -509,7 +509,7 @@ export class PhysicsSimulation {
         this._nativeDiscreteDynamicsWorld.removeConstraint(constraint._nativeConstraint);
     }
     /**
-     * @private
+     * @internal
      */
     _updatePhysicsTransformFromRender() {
         var elements = this._physicsUpdateList.elements;
@@ -521,7 +521,7 @@ export class PhysicsSimulation {
         this._physicsUpdateList.length = 0; //清空物理更新队列
     }
     /**
-     * @private
+     * @internal
      */
     _updateCharacters() {
         for (var i = 0, n = this._characters.length; i < n; i++) {
@@ -530,7 +530,7 @@ export class PhysicsSimulation {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _updateCollisions() {
         this._collisionsUtils.recoverAllContactPointsPool();
@@ -612,7 +612,7 @@ export class PhysicsSimulation {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _eventScripts() {
         var loopCount = Stat.loopCount;
@@ -755,37 +755,37 @@ export class PhysicsSimulation {
         this._nativeDiscreteDynamicsWorld.clearForces();
     }
 }
-/** @private */
+/** @internal */
 PhysicsSimulation.PHYSICSENGINEFLAGS_NONE = 0x0;
-/** @private */
+/** @internal */
 PhysicsSimulation.PHYSICSENGINEFLAGS_COLLISIONSONLY = 0x1;
-/** @private */
+/** @internal */
 PhysicsSimulation.PHYSICSENGINEFLAGS_SOFTBODYSUPPORT = 0x2;
-/** @private */
+/** @internal */
 PhysicsSimulation.PHYSICSENGINEFLAGS_MULTITHREADED = 0x4;
-/** @private */
+/** @internal */
 PhysicsSimulation.PHYSICSENGINEFLAGS_USEHARDWAREWHENPOSSIBLE = 0x8;
-/** @private */
+/** @internal */
 PhysicsSimulation.SOLVERMODE_RANDMIZE_ORDER = 1;
-/** @private */
+/** @internal */
 PhysicsSimulation.SOLVERMODE_FRICTION_SEPARATE = 2;
-/** @private */
+/** @internal */
 PhysicsSimulation.SOLVERMODE_USE_WARMSTARTING = 4;
-/** @private */
+/** @internal */
 PhysicsSimulation.SOLVERMODE_USE_2_FRICTION_DIRECTIONS = 16;
-/** @private */
+/** @internal */
 PhysicsSimulation.SOLVERMODE_ENABLE_FRICTION_DIRECTION_CACHING = 32;
-/** @private */
+/** @internal */
 PhysicsSimulation.SOLVERMODE_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION = 64;
-/** @private */
+/** @internal */
 PhysicsSimulation.SOLVERMODE_CACHE_FRIENDLY = 128;
-/** @private */
+/** @internal */
 PhysicsSimulation.SOLVERMODE_SIMD = 256;
-/** @private */
+/** @internal */
 PhysicsSimulation.SOLVERMODE_INTERLEAVE_CONTACT_AND_FRICTION_CONSTRAINTS = 512;
-/** @private */
+/** @internal */
 PhysicsSimulation.SOLVERMODE_ALLOW_ZERO_LENGTH_FRICTION_DIRECTIONS = 1024;
-/**@private */
+/**@internal */
 PhysicsSimulation._tempVector30 = new Vector3();
 /*是否禁用所有模拟器。*/
 PhysicsSimulation.disableSimulation = false;

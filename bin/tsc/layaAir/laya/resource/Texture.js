@@ -76,7 +76,7 @@ export class Texture extends EventDispatcher {
         return Texture._create(source, x, y, width, height, offsetX, offsetY, sourceWidth, sourceHeight);
     }
     /**
-     * @private
+     * @internal
      * 根据指定资源和坐标、宽高、偏移量等创建 <code>Texture</code> 对象。
      * @param	source 绘图资源 Texture2D 或者 Texture 对象。
      * @param	x 起始绝对坐标 x 。
@@ -219,21 +219,21 @@ export class Texture extends EventDispatcher {
         return this._destroyed;
     }
     /**
-     * @private
+     * @internal
      */
     _addReference() {
         this._bitmap && this._bitmap._addReference();
         this._referenceCount++;
     }
     /**
-     * @private
+     * @internal
      */
     _removeReference() {
         this._bitmap && this._bitmap._removeReference();
         this._referenceCount--;
     }
     /**
-     * @private
+     * @internal
      */
     _getSource(cb = null) {
         if (this._destroyed || !this._bitmap)
@@ -332,7 +332,7 @@ export class Texture extends EventDispatcher {
         ctx.asBitmap = true;
         var uv = null;
         if (x != 0 || y != 0 || width != texw || height != texh) {
-            uv = uv.concat(); // 复制一份uv
+            uv = this._uv.slice(); // 复制一份uv
             var stu = uv[0];
             var stv = uv[1];
             var uvw = uv[2] - stu;

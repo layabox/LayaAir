@@ -1,4 +1,4 @@
-import { Value2D } from "././Value2D";
+import { Value2D } from "./Value2D";
 import { WebGL } from "../../../WebGL";
 import { ShaderDefines2D } from "../ShaderDefines2D";
 export class TextureSV extends Value2D {

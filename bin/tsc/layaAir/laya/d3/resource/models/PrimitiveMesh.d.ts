@@ -1,13 +1,8 @@
-import { VertexDeclaration } from "../../graphics/VertexDeclaration";
-import { Mesh } from "././Mesh";
+import { Mesh } from "./Mesh";
 /**
  * <code>PrimitiveMesh</code> 类用于创建简单网格。
  */
 export declare class PrimitiveMesh {
-    /**
-     * @private
-     */
-    static _createMesh(vertexDeclaration: VertexDeclaration, vertices: Float32Array, indices: Uint16Array): Mesh;
     /**
      * 创建Box网格。
      * @param long 半径

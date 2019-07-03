@@ -1,5 +1,5 @@
-import { BoundsOctreeNode } from "././BoundsOctreeNode";
-import { OctreeMotionList } from "././OctreeMotionList";
+import { BoundsOctreeNode } from "./BoundsOctreeNode";
+import { OctreeMotionList } from "./OctreeMotionList";
 import { Vector3 } from "../../math/Vector3";
 /**
  * <code>BoundsOctree</code> 类用于创建八叉树。
@@ -13,9 +13,9 @@ export class BoundsOctree {
      * @param	loosenessVal 松散值
      */
     constructor(initialWorldSize, initialWorldPos, minNodeSize, looseness) {
-        /**@private */
+        /**@internal */
         this._motionObjects = new OctreeMotionList();
-        /**@private [只读]*/
+        /**@internal [只读]*/
         this.count = 0;
         if (minNodeSize > initialWorldSize) {
             console.warn("Minimum node size must be at least as big as the initial world size. Was: " + minNodeSize + " Adjusted to: " + initialWorldSize);
@@ -27,7 +27,7 @@ export class BoundsOctree {
         this._rootNode = new BoundsOctreeNode(this, null, initialWorldSize, initialWorldPos);
     }
     /**
-     * @private
+     * @internal
      */
     _getMaxDepth(node, depth) {
         depth++;
@@ -42,7 +42,7 @@ export class BoundsOctree {
         return depth;
     }
     /**
-     * @private
+     * @internal
      */
     _grow(growObjectCenter) {
         var xDirection = growObjectCenter.x >= 0 ? 1 : -1;
@@ -103,14 +103,16 @@ export class BoundsOctree {
         var octreeNode = object._getOctreeNode();
         if (octreeNode) {
             while (!octreeNode._update(object)) {
-                this._grow(object.bounds.getCenter());
+                var growCenter = BoundsOctree._tempVector30;
+                Vector3.subtract(object.bounds.getCenter(), this._rootNode.center, growCenter);
+                this._grow(growCenter);
                 if (++count > 20) {
                     throw "Aborted Add operation as it seemed to be going on forever (" + (count - 1) + ") attempts at growing the octree.";
                 }
             }
             return true;
         }
-        else {
+        else { //节点从场景中移除时octreeNode为空
             return false;
         }
     }
@@ -184,8 +186,8 @@ export class BoundsOctree {
      *	获取与指定视锥相交的的物理列表。
      *  @param 渲染上下文。
      */
-    getCollidingWithFrustum(context) {
-        this._rootNode.getCollidingWithFrustum(context);
+    getCollidingWithFrustum(context, shader, replacementTag) {
+        this._rootNode.getCollidingWithFrustum(context, shader, replacementTag);
     }
     /**
      * 获取最大包围盒
@@ -195,7 +197,7 @@ export class BoundsOctree {
         return this._rootNode.getBound();
     }
     /**
-     * @private
+     * @internal
      * [Debug]
      */
     drawAllBounds(pixelLine) {
@@ -203,7 +205,7 @@ export class BoundsOctree {
         this._rootNode.drawAllBounds(pixelLine, -1, maxDepth);
     }
     /**
-     * @private
+     * @internal
      * [Debug]
      */
     drawAllObjects(pixelLine) {
@@ -211,5 +213,5 @@ export class BoundsOctree {
         this._rootNode.drawAllObjects(pixelLine, -1, maxDepth);
     }
 }
-/**@private */
+/**@internal */
 BoundsOctree._tempVector30 = new Vector3();

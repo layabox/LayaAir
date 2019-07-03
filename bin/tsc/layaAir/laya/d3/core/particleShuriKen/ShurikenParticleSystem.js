@@ -1,4 +1,4 @@
-import { ShurikenParticleData } from "././ShurikenParticleData";
+import { ShurikenParticleData } from "./ShurikenParticleData";
 import { BufferState } from "../BufferState";
 import { GeometryElement } from "../GeometryElement";
 import { Emission } from "./module/Emission";
@@ -19,7 +19,6 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { MathUtil } from "../../../maths/MathUtil";
 import { Resource } from "../../../resource/Resource";
 import { Stat } from "../../../utils/Stat";
-import { WebGLContext } from "../../../webgl/WebGLContext";
 import { ShuriKenParticle3DShaderDeclaration } from "./ShuriKenParticle3DShaderDeclaration";
 /**
  * <code>ShurikenParticleSystem</code> 类用于创建3D粒子数据模板。
@@ -27,107 +26,107 @@ import { ShuriKenParticle3DShaderDeclaration } from "./ShuriKenParticle3DShaderD
 export class ShurikenParticleSystem extends GeometryElement {
     constructor(owner) {
         super();
-        /** @private */
+        /** @internal */
         this._tempRotationMatrix = new Matrix4x4();
-        /** @private */
+        /** @internal */
         this._boundingSphere = null;
-        /** @private */
+        /** @internal */
         this._boundingBox = null;
-        /** @private */
+        /** @internal */
         this._boundingBoxCorners = null;
-        /** @private */
+        /** @internal */
         this._owner = null;
-        /** @private */
+        /** @internal */
         this._ownerRender = null;
-        /**@private */
+        /**@internal */
         this._vertices = null;
-        /**@private */
+        /**@internal */
         this._floatCountPerVertex = 0;
-        /**@private */
+        /**@internal */
         this._startLifeTimeIndex = 0;
-        /**@private */
+        /**@internal */
         this._timeIndex = 0;
-        /**@private */
+        /**@internal */
         this._simulateUpdate = false;
-        /**@private */
+        /**@internal */
         this._firstActiveElement = 0;
-        /**@private */
+        /**@internal */
         this._firstNewElement = 0;
-        /**@private */
+        /**@internal */
         this._firstFreeElement = 0;
-        /**@private */
+        /**@internal */
         this._firstRetiredElement = 0;
-        /**@private */
+        /**@internal */
         this._drawCounter = 0;
-        /**@private */
+        /**@internal */
         this._bufferMaxParticles = 0;
-        /**@private */
+        /**@internal */
         this._emission = null;
-        /**@private */
+        /**@internal */
         this._shape = null;
-        /**@private */
+        /**@internal */
         this._isEmitting = false;
-        /**@private */
+        /**@internal */
         this._isPlaying = false;
-        /**@private */
+        /**@internal */
         this._isPaused = false;
-        /**@private */
+        /**@internal */
         this._playStartDelay = 0;
-        /**@private 发射的累计时间。*/
+        /**@internal 发射的累计时间。*/
         this._frameRateTime = 0;
-        /**@private 一次循环内的累计时间。*/
+        /**@internal 一次循环内的累计时间。*/
         this._emissionTime = 0;
-        /**@private */
+        /**@internal */
         this._totalDelayTime = 0;
-        /**@private */
+        /**@internal */
         this._burstsIndex = 0;
-        ///**@private 发射粒子最小时间间隔。*/
+        ///**@internal 发射粒子最小时间间隔。*/
         //private var _minEmissionTime:Number;
-        /**@private */
+        /**@internal */
         this._velocityOverLifetime = null;
-        /**@private */
+        /**@internal */
         this._colorOverLifetime = null;
-        /**@private */
+        /**@internal */
         this._sizeOverLifetime = null;
-        /**@private */
+        /**@internal */
         this._rotationOverLifetime = null;
-        /**@private */
+        /**@internal */
         this._textureSheetAnimation = null;
-        /**@private */
+        /**@internal */
         this._startLifetimeType = 0;
-        /**@private */
+        /**@internal */
         this._startLifetimeConstant = 0;
-        /**@private */
+        /**@internal */
         this._startLifeTimeGradient = null;
-        /**@private */
+        /**@internal */
         this._startLifetimeConstantMin = 0;
-        /**@private */
+        /**@internal */
         this._startLifetimeConstantMax = 0;
-        /**@private */
+        /**@internal */
         this._startLifeTimeGradientMin = null;
-        /**@private */
+        /**@internal */
         this._startLifeTimeGradientMax = null;
-        /**@private */
+        /**@internal */
         this._maxStartLifetime = 0;
-        /** @private */
+        /** @internal */
         this._uvLength = new Vector2(); //TODO:
-        /** @private */
+        /** @internal */
         this._vertexStride = 0;
-        /** @private */
+        /** @internal */
         this._indexStride = 0;
-        /**@private */
+        /**@internal */
         this._vertexBuffer = null;
-        /**@private */
+        /**@internal */
         this._indexBuffer = null;
-        /** @private */
+        /** @internal */
         this._bufferState = new BufferState();
-        /**@private */
+        /**@internal */
         this._currentTime = 0;
-        /**@private */
+        /**@internal */
         this._startUpdateLoopCount = 0;
-        /**@private */
+        /**@internal */
         this._rand = null;
-        /**@private */
+        /**@internal */
         this._randomSeeds = null;
         /**粒子运行的总时长，单位为秒。*/
         this.duration = 0;
@@ -901,7 +900,7 @@ export class ShurikenParticleSystem extends GeometryElement {
         return this._indexBuffer;
     }
     /**
-     * @private
+     * @internal
      */
     _generateBoundingSphere() {
         var centerE = this._boundingSphere.center;
@@ -911,7 +910,7 @@ export class ShurikenParticleSystem extends GeometryElement {
         this._boundingSphere.radius = Number.MAX_VALUE;
     }
     /**
-     * @private
+     * @internal
      */
     _generateBoundingBox() {
         var particle = this._owner;
@@ -1169,7 +1168,7 @@ export class ShurikenParticleSystem extends GeometryElement {
         this._boundingBox.getCorners(this._boundingBoxCorners);
     }
     /**
-     * @private
+     * @internal
      */
     _updateEmission() {
         if (!this.isAlive)
@@ -1184,7 +1183,7 @@ export class ShurikenParticleSystem extends GeometryElement {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _updateParticles(elapsedTime) {
         if (this._ownerRender.renderMode === 4 && !this._ownerRender.mesh) //renderMode=4且mesh为空时不更新
@@ -1206,7 +1205,7 @@ export class ShurikenParticleSystem extends GeometryElement {
             this._advanceTime(elapsedTime, this._currentTime);
     }
     /**
-     * @private
+     * @internal
      */
     _updateParticlesSimulationRestart(time) {
         this._firstActiveElement = 0;
@@ -1227,7 +1226,7 @@ export class ShurikenParticleSystem extends GeometryElement {
             this._advanceTime(time, time); //TODO:如果time，time均为零brust无效
     }
     /**
-     * @private
+     * @internal
      */
     _retireActiveParticles() {
         const epsilon = 0.0001;
@@ -1244,7 +1243,7 @@ export class ShurikenParticleSystem extends GeometryElement {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _freeRetiredParticles() {
         while (this._firstRetiredElement != this._firstActiveElement) {
@@ -1258,7 +1257,7 @@ export class ShurikenParticleSystem extends GeometryElement {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _burst(fromTime, toTime) {
         var totalEmitCount = 0;
@@ -1285,7 +1284,7 @@ export class ShurikenParticleSystem extends GeometryElement {
         return totalEmitCount;
     }
     /**
-     * @private
+     * @internal
      */
     _advanceTime(elapsedTime, emitTime) {
         var i;
@@ -1329,7 +1328,7 @@ export class ShurikenParticleSystem extends GeometryElement {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _initBufferDatas() {
         if (this._vertexBuffer) { //修改了maxCount以及renderMode以及Mesh等需要清空
@@ -1345,44 +1344,43 @@ export class ShurikenParticleSystem extends GeometryElement {
             var mesh = render.mesh;
             if (renderMode === 4) {
                 if (mesh) {
-                    var vertexBufferCount = mesh._vertexBuffers.length;
-                    if (vertexBufferCount > 1) {
-                        throw new Error("ShurikenParticleSystem: submesh Count mesh be One or all subMeshes have the same vertexDeclaration.");
+                    // var vertexBufferCount: number = mesh._vertexBuffers.length;
+                    // if (vertexBufferCount > 1) {
+                    // 	throw new Error("ShurikenParticleSystem: submesh Count mesh be One or all subMeshes have the same vertexDeclaration.");
+                    // } else {
+                    vertexDeclaration = VertexShurikenParticleMesh.vertexDeclaration;
+                    this._floatCountPerVertex = vertexDeclaration.vertexStride / 4;
+                    this._startLifeTimeIndex = 12;
+                    this._timeIndex = 16;
+                    this._vertexStride = mesh._vertexBuffer.vertexCount;
+                    var totalVertexCount = this._bufferMaxParticles * this._vertexStride;
+                    var vbCount = Math.floor(totalVertexCount / 65535) + 1;
+                    var lastVBVertexCount = totalVertexCount % 65535;
+                    if (vbCount > 1) { //TODO:随后支持
+                        throw new Error("ShurikenParticleSystem:the maxParticleCount multiply mesh vertexCount is large than 65535.");
                     }
-                    else {
-                        vertexDeclaration = VertexShurikenParticleMesh.vertexDeclaration;
-                        this._floatCountPerVertex = vertexDeclaration.vertexStride / 4;
-                        this._startLifeTimeIndex = 12;
-                        this._timeIndex = 16;
-                        this._vertexStride = mesh._vertexBuffers[0].vertexCount;
-                        var totalVertexCount = this._bufferMaxParticles * this._vertexStride;
-                        var vbCount = Math.floor(totalVertexCount / 65535) + 1;
-                        var lastVBVertexCount = totalVertexCount % 65535;
-                        if (vbCount > 1) { //TODO:随后支持
-                            throw new Error("ShurikenParticleSystem:the maxParticleCount multiply mesh vertexCount is large than 65535.");
-                        }
-                        vbMemorySize = vertexDeclaration.vertexStride * lastVBVertexCount;
-                        this._vertexBuffer = new VertexBuffer3D(vbMemorySize, WebGLContext.DYNAMIC_DRAW);
-                        this._vertexBuffer.vertexDeclaration = vertexDeclaration;
-                        this._vertices = new Float32Array(this._floatCountPerVertex * lastVBVertexCount);
-                        this._indexStride = mesh._indexBuffer.indexCount;
-                        var indexDatas = mesh._indexBuffer.getData();
-                        var indexCount = this._bufferMaxParticles * this._indexStride;
-                        this._indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, indexCount, WebGLContext.STATIC_DRAW);
-                        indices = new Uint16Array(indexCount);
-                        memorySize = vbMemorySize + indexCount * 2;
-                        indexOffset = 0;
-                        for (i = 0; i < this._bufferMaxParticles; i++) {
-                            var indexValueOffset = i * this._vertexStride;
-                            for (j = 0, m = indexDatas.length; j < m; j++)
-                                indices[indexOffset++] = indexValueOffset + indexDatas[j];
-                        }
-                        this._indexBuffer.setData(indices);
-                        this._bufferState.bind();
-                        this._bufferState.applyVertexBuffer(this._vertexBuffer);
-                        this._bufferState.applyIndexBuffer(this._indexBuffer);
-                        this._bufferState.unBind();
+                    vbMemorySize = vertexDeclaration.vertexStride * lastVBVertexCount;
+                    this._vertexBuffer = new VertexBuffer3D(vbMemorySize, WebGL2RenderingContext.DYNAMIC_DRAW);
+                    this._vertexBuffer.vertexDeclaration = vertexDeclaration;
+                    this._vertices = new Float32Array(this._floatCountPerVertex * lastVBVertexCount);
+                    this._indexStride = mesh._indexBuffer.indexCount;
+                    var indexDatas = mesh._indexBuffer.getData();
+                    var indexCount = this._bufferMaxParticles * this._indexStride;
+                    this._indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, indexCount, WebGL2RenderingContext.STATIC_DRAW);
+                    indices = new Uint16Array(indexCount);
+                    memorySize = vbMemorySize + indexCount * 2;
+                    indexOffset = 0;
+                    for (i = 0; i < this._bufferMaxParticles; i++) {
+                        var indexValueOffset = i * this._vertexStride;
+                        for (j = 0, m = indexDatas.length; j < m; j++)
+                            indices[indexOffset++] = indexValueOffset + indexDatas[j];
                     }
+                    this._indexBuffer.setData(indices);
+                    this._bufferState.bind();
+                    this._bufferState.applyVertexBuffer(this._vertexBuffer);
+                    this._bufferState.applyIndexBuffer(this._indexBuffer);
+                    this._bufferState.unBind();
+                    // }
                 }
             }
             else {
@@ -1392,7 +1390,7 @@ export class ShurikenParticleSystem extends GeometryElement {
                 this._timeIndex = 11;
                 this._vertexStride = 4;
                 vbMemorySize = vertexDeclaration.vertexStride * this._bufferMaxParticles * this._vertexStride;
-                this._vertexBuffer = new VertexBuffer3D(vbMemorySize, WebGLContext.DYNAMIC_DRAW);
+                this._vertexBuffer = new VertexBuffer3D(vbMemorySize, WebGL2RenderingContext.DYNAMIC_DRAW);
                 this._vertexBuffer.vertexDeclaration = vertexDeclaration;
                 this._vertices = new Float32Array(this._floatCountPerVertex * this._bufferMaxParticles * this._vertexStride);
                 for (i = 0; i < this._bufferMaxParticles; i++) {
@@ -1418,7 +1416,7 @@ export class ShurikenParticleSystem extends GeometryElement {
                     this._vertices[perPartOffset + 3] = 0;
                 }
                 this._indexStride = 6;
-                this._indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, this._bufferMaxParticles * 6, WebGLContext.STATIC_DRAW);
+                this._indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, this._bufferMaxParticles * 6, WebGL2RenderingContext.STATIC_DRAW);
                 indices = new Uint16Array(this._bufferMaxParticles * 6);
                 for (i = 0; i < this._bufferMaxParticles; i++) {
                     indexOffset = i * 6;
@@ -1441,7 +1439,7 @@ export class ShurikenParticleSystem extends GeometryElement {
         }
     }
     /**
-     * @private
+     * @internal
      */
     /*override*/ destroy() {
         super.destroy();
@@ -1620,14 +1618,14 @@ export class ShurikenParticleSystem extends GeometryElement {
         var meshVertices, meshVertexStride, meshPosOffset, meshCorOffset, meshUVOffset, meshVertexIndex;
         var render = this._ownerRender;
         if (render.renderMode === 4) {
-            var meshVB = render.mesh._vertexBuffers[0];
-            meshVertices = meshVB.getData();
+            var meshVB = render.mesh._vertexBuffer;
+            meshVertices = meshVB.getFloat32Data();
             var meshVertexDeclaration = meshVB.vertexDeclaration;
-            meshPosOffset = meshVertexDeclaration.getVertexElementByUsage(VertexMesh.MESH_POSITION0).offset / 4;
+            meshPosOffset = meshVertexDeclaration.getVertexElementByUsage(VertexMesh.MESH_POSITION0)._offset / 4;
             var colorElement = meshVertexDeclaration.getVertexElementByUsage(VertexMesh.MESH_COLOR0);
-            meshCorOffset = colorElement ? colorElement.offset / 4 : -1;
+            meshCorOffset = colorElement ? colorElement._offset / 4 : -1;
             var uvElement = meshVertexDeclaration.getVertexElementByUsage(VertexMesh.MESH_TEXTURECOORDINATE0);
-            meshUVOffset = uvElement ? uvElement.offset / 4 : -1;
+            meshUVOffset = uvElement ? uvElement._offset / 4 : -1;
             meshVertexStride = meshVertexDeclaration.vertexStride / 4;
             meshVertexIndex = 0;
         }
@@ -1730,29 +1728,32 @@ export class ShurikenParticleSystem extends GeometryElement {
     }
     addNewParticlesToVertexBuffer() {
         var start;
+        var byteStride = this._vertexStride * this._floatCountPerVertex * 4;
         if (this._firstNewElement < this._firstFreeElement) {
-            start = this._firstNewElement * this._vertexStride * this._floatCountPerVertex;
-            this._vertexBuffer.setData(this._vertices, start, start, (this._firstFreeElement - this._firstNewElement) * this._vertexStride * this._floatCountPerVertex);
+            start = this._firstNewElement * byteStride;
+            this._vertexBuffer.setData(this._vertices.buffer, start, start, (this._firstFreeElement - this._firstNewElement) * byteStride);
         }
         else {
-            start = this._firstNewElement * this._vertexStride * this._floatCountPerVertex;
-            this._vertexBuffer.setData(this._vertices, start, start, (this._bufferMaxParticles - this._firstNewElement) * this._vertexStride * this._floatCountPerVertex);
+            start = this._firstNewElement * byteStride;
+            this._vertexBuffer.setData(this._vertices.buffer, start, start, (this._bufferMaxParticles - this._firstNewElement) * byteStride);
             if (this._firstFreeElement > 0) {
-                this._vertexBuffer.setData(this._vertices, 0, 0, this._firstFreeElement * this._vertexStride * this._floatCountPerVertex);
+                this._vertexBuffer.setData(this._vertices.buffer, 0, 0, this._firstFreeElement * byteStride);
             }
         }
         this._firstNewElement = this._firstFreeElement;
     }
     /**
      * @inheritDoc
+     * @override
      */
-    /*override*/ _getType() {
+    _getType() {
         return ShurikenParticleSystem._type;
     }
     /**
      * @inheritDoc
+     * @override
      */
-    /*override*/ _prepareRender(state) {
+    _prepareRender(state) {
         this._updateEmission();
         //设备丢失时, setData  here
         if (this._firstNewElement != this._firstFreeElement)
@@ -1764,26 +1765,27 @@ export class ShurikenParticleSystem extends GeometryElement {
             return false;
     }
     /**
-     * @private
+     * @internal
+     * @override
      */
-    /*override*/ _render(state) {
+    _render(state) {
         this._bufferState.bind();
         var indexCount;
         var gl = LayaGL.instance;
         if (this._firstActiveElement < this._firstFreeElement) {
             indexCount = (this._firstFreeElement - this._firstActiveElement) * this._indexStride;
-            gl.drawElements(WebGLContext.TRIANGLES, indexCount, WebGLContext.UNSIGNED_SHORT, 2 * this._firstActiveElement * this._indexStride);
+            gl.drawElements(WebGL2RenderingContext.TRIANGLES, indexCount, WebGL2RenderingContext.UNSIGNED_SHORT, 2 * this._firstActiveElement * this._indexStride);
             Stat.trianglesFaces += indexCount / 3;
             Stat.renderBatches++;
         }
         else {
             indexCount = (this._bufferMaxParticles - this._firstActiveElement) * this._indexStride;
-            gl.drawElements(WebGLContext.TRIANGLES, indexCount, WebGLContext.UNSIGNED_SHORT, 2 * this._firstActiveElement * this._indexStride);
+            gl.drawElements(WebGL2RenderingContext.TRIANGLES, indexCount, WebGL2RenderingContext.UNSIGNED_SHORT, 2 * this._firstActiveElement * this._indexStride);
             Stat.trianglesFaces += indexCount / 3;
             Stat.renderBatches++;
             if (this._firstFreeElement > 0) {
                 indexCount = this._firstFreeElement * this._indexStride;
-                gl.drawElements(WebGLContext.TRIANGLES, indexCount, WebGLContext.UNSIGNED_SHORT, 0);
+                gl.drawElements(WebGL2RenderingContext.TRIANGLES, indexCount, WebGL2RenderingContext.UNSIGNED_SHORT, 0);
                 Stat.trianglesFaces += indexCount / 3;
                 Stat.renderBatches++;
             }
@@ -1934,35 +1936,35 @@ export class ShurikenParticleSystem extends GeometryElement {
         return dest;
     }
 }
-/** @private 0:Burst,1:预留,2:StartDelay,3:StartColor,4:StartSize,5:StartRotation,6:randomizeRotationDirection,7:StartLifetime,8:StartSpeed,9:VelocityOverLifetime,10:ColorOverLifetime,11:SizeOverLifetime,12:RotationOverLifetime,13-15:TextureSheetAnimation,16-17:Shape*/
+/** @internal 0:Burst,1:预留,2:StartDelay,3:StartColor,4:StartSize,5:StartRotation,6:randomizeRotationDirection,7:StartLifetime,8:StartSpeed,9:VelocityOverLifetime,10:ColorOverLifetime,11:SizeOverLifetime,12:RotationOverLifetime,13-15:TextureSheetAnimation,16-17:Shape*/
 ShurikenParticleSystem._RANDOMOFFSET = new Uint32Array([0x23571a3e, 0xc34f56fe, 0x13371337, 0x12460f3b, 0x6aed452e, 0xdec4aea1, 0x96aa4de3, 0x8d2c8431, 0xf3857f6f, 0xe0fbd834, 0x13740583, 0x591bc05c, 0x40eb95e4, 0xbc524e5f, 0xaf502044, 0xa614b381, 0x1034e524, 0xfc524e5f]);
-/** @private */
+/** @internal */
 ShurikenParticleSystem.halfKSqrtOf2 = 1.42 * 0.5;
-/** @private */
+/** @internal */
 ShurikenParticleSystem._maxElapsedTime = 1.0 / 3.0;
-/**@private */
+/**@internal */
 ShurikenParticleSystem._tempVector30 = new Vector3();
-/**@private */
+/**@internal */
 ShurikenParticleSystem._tempVector31 = new Vector3();
-/**@private */
+/**@internal */
 ShurikenParticleSystem._tempVector32 = new Vector3();
-/**@private */
+/**@internal */
 ShurikenParticleSystem._tempVector33 = new Vector3();
-/**@private */
+/**@internal */
 ShurikenParticleSystem._tempVector34 = new Vector3();
-/**@private */
+/**@internal */
 ShurikenParticleSystem._tempVector35 = new Vector3();
-/**@private */
+/**@internal */
 ShurikenParticleSystem._tempVector36 = new Vector3();
-/**@private */
+/**@internal */
 ShurikenParticleSystem._tempVector37 = new Vector3();
-/**@private */
+/**@internal */
 ShurikenParticleSystem._tempVector38 = new Vector3();
-/**@private */
+/**@internal */
 ShurikenParticleSystem._tempVector39 = new Vector3();
-/** @private */
+/** @internal */
 ShurikenParticleSystem._tempPosition = new Vector3();
-/** @private */
+/** @internal */
 ShurikenParticleSystem._tempDirection = new Vector3();
-/**@private */
+/**@internal */
 ShurikenParticleSystem._type = GeometryElement._typeCounter++;

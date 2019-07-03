@@ -1,5 +1,5 @@
 /**
- * @private
+ * @internal
  */
 export class IkConstraintData {
     //TODO:coverage

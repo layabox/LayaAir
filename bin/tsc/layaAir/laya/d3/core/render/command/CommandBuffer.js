@@ -1,6 +1,6 @@
-import { BlitScreenQuadCMD } from "././BlitScreenQuadCMD";
-import { SetRenderTargetCMD } from "././SetRenderTargetCMD";
-import { SetShaderDataTextureCMD } from "././SetShaderDataTextureCMD";
+import { BlitScreenQuadCMD } from "./BlitScreenQuadCMD";
+import { SetRenderTargetCMD } from "./SetRenderTargetCMD";
+import { SetShaderDataTextureCMD } from "./SetShaderDataTextureCMD";
 /**
  * <code>CommandBuffer</code> 类用于创建命令流。
  */
@@ -9,20 +9,20 @@ export class CommandBuffer {
      * 创建一个 <code>CommandBuffer</code> 实例。
      */
     constructor() {
-        /**@private */
+        /**@internal */
         this._camera = null;
-        /**@private */
+        /**@internal */
         this._commands = [];
     }
     /**
-     *@private
+     *@internal
      */
     _apply() {
         for (var i = 0, n = this._commands.length; i < n; i++)
             this._commands[i].run();
     }
     /**
-     *@private
+     *@internal
      */
     setShaderDataTexture(shaderData, nameID, source) {
         this._commands.push(SetShaderDataTextureCMD.create(shaderData, nameID, source));
@@ -50,13 +50,13 @@ export class CommandBuffer {
         this._commands.push(BlitScreenQuadCMD.create(source, dest, shader, shaderData, subShader, BlitScreenQuadCMD._SCREENTYPE_TRIANGLE));
     }
     /**
-     *@private
+     *@internal
      */
     setRenderTarget(renderTexture) {
         this._commands.push(SetRenderTargetCMD.create(renderTexture));
     }
     /**
-     *@private
+     *@internal
      */
     clear() {
         for (var i = 0, n = this._commands.length; i < n; i++)

@@ -1,5 +1,5 @@
-import { VertexBuffer3D } from "././VertexBuffer3D";
-import { IndexBuffer3D } from "././IndexBuffer3D";
+import { VertexBuffer3D } from "./VertexBuffer3D";
+import { IndexBuffer3D } from "./IndexBuffer3D";
 import { BufferState } from "../core/BufferState";
 import { GeometryElement } from "../core/GeometryElement";
 import { VertexMesh } from "./Vertex/VertexMesh";
@@ -10,9 +10,8 @@ import { Utils3D } from "../utils/Utils3D";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Resource } from "../../resource/Resource";
 import { Stat } from "../../utils/Stat";
-import { WebGLContext } from "../../webgl/WebGLContext";
 /**
- * @private
+ * @internal
  * <code>SubMeshStaticBatch</code> 类用于网格静态合并。
  */
 export class SubMeshStaticBatch extends GeometryElement {
@@ -21,7 +20,7 @@ export class SubMeshStaticBatch extends GeometryElement {
      */
     constructor(batchOwner, number, vertexDeclaration) {
         super();
-        /** @private */
+        /** @internal */
         this._bufferState = new BufferState();
         this._batchID = SubMeshStaticBatch._batchIDCounter++;
         this._batchElements = [];
@@ -32,25 +31,25 @@ export class SubMeshStaticBatch extends GeometryElement {
         this.number = number;
     }
     /**
-     * @private
+     * @internal
      */
     _getStaticBatchBakedVertexs(batchVertices, batchOffset, batchOwnerTransform, transform, render, mesh) {
-        var vertexBuffer = mesh._vertexBuffers[0];
+        var vertexBuffer = mesh._vertexBuffer;
         var vertexDeclaration = vertexBuffer.vertexDeclaration;
-        var positionOffset = vertexDeclaration.getVertexElementByUsage(VertexMesh.MESH_POSITION0).offset / 4;
+        var positionOffset = vertexDeclaration.getVertexElementByUsage(VertexMesh.MESH_POSITION0)._offset / 4;
         var normalElement = vertexDeclaration.getVertexElementByUsage(VertexMesh.MESH_NORMAL0);
-        var normalOffset = normalElement ? normalElement.offset / 4 : -1;
+        var normalOffset = normalElement ? normalElement._offset / 4 : -1;
         var colorElement = vertexDeclaration.getVertexElementByUsage(VertexMesh.MESH_COLOR0);
-        var colorOffset = colorElement ? colorElement.offset / 4 : -1;
+        var colorOffset = colorElement ? colorElement._offset / 4 : -1;
         var uv0Element = vertexDeclaration.getVertexElementByUsage(VertexMesh.MESH_TEXTURECOORDINATE0);
-        var uv0Offset = uv0Element ? uv0Element.offset / 4 : -1;
+        var uv0Offset = uv0Element ? uv0Element._offset / 4 : -1;
         var uv1Element = vertexDeclaration.getVertexElementByUsage(VertexMesh.MESH_TEXTURECOORDINATE1);
-        var uv1Offset = uv1Element ? uv1Element.offset / 4 : -1;
+        var uv1Offset = uv1Element ? uv1Element._offset / 4 : -1;
         var tangentElement = vertexDeclaration.getVertexElementByUsage(VertexMesh.MESH_TANGENT0);
-        var sTangentOffset = tangentElement ? tangentElement.offset / 4 : -1;
+        var sTangentOffset = tangentElement ? tangentElement._offset / 4 : -1;
         var bakeVertexFloatCount = 18;
         var oriVertexFloatCount = vertexDeclaration.vertexStride / 4;
-        var oriVertexes = vertexBuffer.getData();
+        var oriVertexes = vertexBuffer.getFloat32Data();
         var worldMat;
         if (batchOwnerTransform) {
             var rootMat = batchOwnerTransform.worldMatrix;
@@ -104,7 +103,7 @@ export class SubMeshStaticBatch extends GeometryElement {
         return vertexCount;
     }
     /**
-     * @private
+     * @internal
      */
     addTest(sprite) {
         var vertexCount;
@@ -115,7 +114,7 @@ export class SubMeshStaticBatch extends GeometryElement {
         return true;
     }
     /**
-     * @private
+     * @internal
      */
     add(sprite) {
         var oldStaticBatch = sprite._render._staticBatch;
@@ -133,7 +132,7 @@ export class SubMeshStaticBatch extends GeometryElement {
         this._currentBatchVertexCount += subMeshVertexCount;
     }
     /**
-     * @private
+     * @internal
      */
     remove(sprite) {
         var mesh = sprite.meshFilter.sharedMesh;
@@ -151,7 +150,7 @@ export class SubMeshStaticBatch extends GeometryElement {
         }
     }
     /**
-     * @private
+     * @internal
      */
     finishInit() {
         if (this._vertexBuffer) {
@@ -165,9 +164,9 @@ export class SubMeshStaticBatch extends GeometryElement {
         var floatStride = this._vertexDeclaration.vertexStride / 4;
         var vertexDatas = new Float32Array(floatStride * this._currentBatchVertexCount);
         var indexDatas = new Uint16Array(this._currentBatchIndexCount);
-        this._vertexBuffer = new VertexBuffer3D(this._vertexDeclaration.vertexStride * this._currentBatchVertexCount, WebGLContext.STATIC_DRAW);
+        this._vertexBuffer = new VertexBuffer3D(this._vertexDeclaration.vertexStride * this._currentBatchVertexCount, WebGL2RenderingContext.STATIC_DRAW);
         this._vertexBuffer.vertexDeclaration = this._vertexDeclaration;
-        this._indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, this._currentBatchIndexCount, WebGLContext.STATIC_DRAW);
+        this._indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, this._currentBatchIndexCount, WebGL2RenderingContext.STATIC_DRAW);
         for (var i = 0, n = this._batchElements.length; i < n; i++) {
             var sprite = this._batchElements[i];
             var mesh = sprite.meshFilter.sharedMesh;
@@ -205,7 +204,7 @@ export class SubMeshStaticBatch extends GeometryElement {
             batchIndexCount += indices.length;
             batchVertexCount += meshVerCount;
         }
-        this._vertexBuffer.setData(vertexDatas);
+        this._vertexBuffer.setData(vertexDatas.buffer);
         this._indexBuffer.setData(indexDatas);
         var memorySize = this._vertexBuffer._byteLength + this._indexBuffer._byteLength;
         Resource._addGPUMemory(memorySize);
@@ -234,14 +233,14 @@ export class SubMeshStaticBatch extends GeometryElement {
             else {
                 var start = batchElementList[from].staticBatchIndexStart;
                 var indexCount = batchElementList[end].staticBatchIndexEnd - start;
-                LayaGL.instance.drawElements(WebGLContext.TRIANGLES, indexCount, WebGLContext.UNSIGNED_SHORT, start * 2);
+                LayaGL.instance.drawElements(WebGL2RenderingContext.TRIANGLES, indexCount, WebGL2RenderingContext.UNSIGNED_SHORT, start * 2);
                 from = ++end;
                 Stat.trianglesFaces += indexCount / 3;
             }
         }
         start = batchElementList[from].staticBatchIndexStart;
         indexCount = batchElementList[end].staticBatchIndexEnd - start;
-        LayaGL.instance.drawElements(WebGLContext.TRIANGLES, indexCount, WebGLContext.UNSIGNED_SHORT, start * 2);
+        LayaGL.instance.drawElements(WebGL2RenderingContext.TRIANGLES, indexCount, WebGL2RenderingContext.UNSIGNED_SHORT, start * 2);
         Stat.renderBatches++;
         Stat.savedRenderBatches += count - 1;
         Stat.trianglesFaces += indexCount / 3;
@@ -257,7 +256,7 @@ export class SubMeshStaticBatch extends GeometryElement {
          */
     }
     /**
-     * @private
+     * @internal
      */
     dispose() {
         var memorySize = this._vertexBuffer._byteLength + this._indexBuffer._byteLength;
@@ -273,17 +272,17 @@ export class SubMeshStaticBatch extends GeometryElement {
         this._bufferState = null;
     }
 }
-/** @private */
+/** @internal */
 SubMeshStaticBatch._tempVector30 = new Vector3();
-/** @private */
+/** @internal */
 SubMeshStaticBatch._tempVector31 = new Vector3();
-/** @private */
+/** @internal */
 SubMeshStaticBatch._tempQuaternion0 = new Quaternion();
-/** @private */
+/** @internal */
 SubMeshStaticBatch._tempMatrix4x40 = new Matrix4x4();
-/** @private */
+/** @internal */
 SubMeshStaticBatch._tempMatrix4x41 = new Matrix4x4();
-/** @private */
+/** @internal */
 SubMeshStaticBatch.maxBatchVertexCount = 65535;
-/** @private */
+/** @internal */
 SubMeshStaticBatch._batchIDCounter = 0;

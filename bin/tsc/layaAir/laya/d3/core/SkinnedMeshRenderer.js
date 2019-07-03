@@ -5,9 +5,10 @@ import { FrustumCulling } from "../graphics/FrustumCulling";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Vector3 } from "../math/Vector3";
 import { Utils3D } from "../utils/Utils3D";
-import { Bounds } from "././Bounds";
-import { MeshRenderer } from "././MeshRenderer";
-import { Sprite3D } from "././Sprite3D";
+import { Bounds } from "./Bounds";
+import { MeshRenderer } from "./MeshRenderer";
+import { Sprite3D } from "./Sprite3D";
+import { Transform3D } from "./Transform3D";
 import { RenderElement } from "./render/RenderElement";
 import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
 import { Render } from "../../renders/Render";
@@ -20,14 +21,15 @@ export class SkinnedMeshRenderer extends MeshRenderer {
      */
     constructor(owner) {
         super(owner);
-        /** @private */
+        /** @internal */
         this._bones = [];
-        /** @private */
+        /** @internal */
         this._skinnedDataLoopMarks = [];
-        /**@private */
+        /**@internal */
         this._localBounds = new Bounds(Vector3._ZERO, Vector3._ZERO);
-        /** @private */
+        /** @internal */
         this._cacheAnimationNode = []; //[兼容性]
+        (owner) && (this._owner.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange)); //需要移除
     }
     /**
      * 获取局部边界。
@@ -60,7 +62,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
                 this._cacheRootBone.transform.off(Event.TRANSFORM_CHANGED, this, this._boundChange);
             value.transform.on(Event.TRANSFORM_CHANGED, this, this._boundChange);
             this._cacheRootBone = value;
-            this._boundChange();
+            this._boundChange(Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDSCALE);
         }
     }
     /**
@@ -70,7 +72,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         return this._bones;
     }
     /**
-     * @private
+     * @internal
      */
     _computeSkinnedDataForNative() {
         if (this._cacheMesh && this._cacheAvatar /*兼容*/ || this._cacheMesh && !this._cacheAvatar) {
@@ -106,7 +108,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _computeSubSkinnedData(bindPoses, boneIndices, meshBindPoseInices, data, pathMarks) {
         for (var k = 0, q = boneIndices.length; k < q; k++) {
@@ -132,20 +134,33 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         }
     }
     /**
-     * @private
+     * @internal
      */
-    _boundChange() {
+    _boundChange(flag) {
         this._boundsChange = true;
+        if (this._octreeNode) {
+            if (this._cacheAvatar) { //兼容性 
+                if (this._indexInOctreeMotionList === -1) //_octreeNode表示在八叉树队列中
+                    this._octreeNode._octree.addMotionObject(this);
+            }
+            else {
+                flag &= Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDSCALE; //过滤有用TRANSFORM标记
+                if (flag) {
+                    if (this._indexInOctreeMotionList === -1) //_octreeNode表示在八叉树队列中
+                        this._octreeNode._octree.addMotionObject(this);
+                }
+            }
+        }
     }
     /**
      *@inheritDoc
-     */
+        */
     /*override*/ _createRenderElement() {
         return new RenderElement();
     }
     /**
      *@inheritDoc
-     */
+        */
     /*override*/ _onMeshChange(value) {
         super._onMeshChange(value);
         this._cacheMesh = value;
@@ -162,7 +177,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         (this._cacheAvatar && value) && (this._getCacheAnimationNodes()); //[兼容性]
     }
     /**
-     * @private
+     * @internal
      */
     _setCacheAnimator(animator) {
         this._cacheAnimator = animator;
@@ -252,14 +267,25 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         }
     }
     /**
-     * @private
+     * 获取包围盒,只读,不允许修改其值。
+     * @return 包围盒。
+     */
+    get bounds() {
+        if (this._boundsChange || this._cacheAvatar) { //有this._cacheAvatar会导致裁剪后动画不更新。动画不更新包围不更新。包围盒不更新就永远裁掉了
+            this._calculateBoundingBox();
+            this._boundsChange = false;
+        }
+        return this._bounds;
+    }
+    /**
+     * @internal
      */
     _setRootBone(name) {
         this._rootBone = name;
         this._setRootNode(); //[兼容性API]
     }
     /**
-     * @private
+     * @internal
      */
     _setRootNode() {
         var rootNode;
@@ -268,7 +294,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         else
             rootNode = null;
         if (this._cacheRootAnimationNode != rootNode) {
-            this._boundChange();
+            this._boundChange(Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDSCALE);
             if (this._cacheRootAnimationNode)
                 this._cacheRootAnimationNode.transform.off(Event.TRANSFORM_CHANGED, this, this._boundChange);
             (rootNode) && (rootNode.transform.on(Event.TRANSFORM_CHANGED, this, this._boundChange));
@@ -276,7 +302,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _getCacheAnimationNodes() {
         var meshBoneNames = this._cacheMesh._boneNames;
@@ -300,7 +326,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _setCacheAvatar(value) {
         if (this._cacheAvatar !== value) {
@@ -318,11 +344,11 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         }
     }
     /**
-     * @private [NATIVE]
+     * @internal [NATIVE]
      */
     _computeSubSkinnedDataNative(worldMatrixs, cacheAnimationNodeIndices, inverseBindPosesBuffer, boneIndices, bindPoseInices, data) {
         LayaGL.instance.computeSubSkinnedData(worldMatrixs, cacheAnimationNodeIndices, inverseBindPosesBuffer, boneIndices, bindPoseInices, data);
     }
 }
-/**@private */
+/**@internal */
 SkinnedMeshRenderer._tempMatrix4x4 = new Matrix4x4();

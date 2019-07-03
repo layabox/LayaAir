@@ -1,5 +1,5 @@
-import { KeyframeNode } from "././KeyframeNode";
-import { AnimationEvent } from "././AnimationEvent";
+import { KeyframeNode } from "./KeyframeNode";
+import { AnimationEvent } from "./AnimationEvent";
 import { FloatKeyframe } from "../core/FloatKeyframe";
 import { QuaternionKeyframe } from "../core/QuaternionKeyframe";
 import { Vector3Keyframe } from "../core/Vector3Keyframe";
@@ -10,19 +10,13 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { Render } from "../../renders/Render";
 /**
- * @private
+ * @internal
  */
 export class AnimationClipParser04 {
-    /**
-     * @private
-     */
     static READ_DATA() {
         AnimationClipParser04._DATA.offset = AnimationClipParser04._reader.getUint32();
         AnimationClipParser04._DATA.size = AnimationClipParser04._reader.getUint32();
     }
-    /**
-     * @private
-     */
     static READ_BLOCK() {
         var count = AnimationClipParser04._BLOCK.count = AnimationClipParser04._reader.getUint16();
         var blockStarts = AnimationClipParser04._BLOCK.blockStarts = [];
@@ -32,9 +26,6 @@ export class AnimationClipParser04 {
             blockLengths.push(AnimationClipParser04._reader.getUint32());
         }
     }
-    /**
-     * @private
-     */
     static READ_STRINGS() {
         var offset = AnimationClipParser04._reader.getUint32();
         var count = AnimationClipParser04._reader.getUint16();
@@ -45,7 +36,7 @@ export class AnimationClipParser04 {
         AnimationClipParser04._reader.pos = prePos;
     }
     /**
-     * @private
+     * @internal
      */
     static parse(clip, reader, version) {
         AnimationClipParser04._animationClip = clip;
@@ -68,7 +59,7 @@ export class AnimationClipParser04 {
         AnimationClipParser04._animationClip = null;
     }
     /**
-     * @private
+     * @internal
      */
     static READ_ANIMATIONS() {
         var i, j;
@@ -316,9 +307,6 @@ export class AnimationClipParser04 {
         }
     }
 }
-/**@private */
 AnimationClipParser04._strings = [];
-/**@private */
 AnimationClipParser04._BLOCK = { count: 0 };
-/**@private */
 AnimationClipParser04._DATA = { offset: 0, size: 0 };

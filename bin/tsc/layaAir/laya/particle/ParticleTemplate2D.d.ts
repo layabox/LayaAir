@@ -1,5 +1,5 @@
-import { ParticleTemplateWebGL } from "././ParticleTemplateWebGL";
-import { ParticleSetting } from "././ParticleSetting";
+import { ParticleTemplateWebGL } from "./ParticleTemplateWebGL";
+import { ParticleSetting } from "./ParticleSetting";
 import { ISubmit } from "../webgl/submit/ISubmit";
 import { ParticleShaderValue } from "./shader/value/ParticleShaderValue";
 import { MeshParticle2D } from "../webgl/utils/MeshParticle2D";
@@ -13,7 +13,6 @@ export declare class ParticleTemplate2D extends ParticleTemplateWebGL implements
     protected _blendFn: Function;
     sv: ParticleShaderValue;
     private _startTime;
-    _key: any;
     constructor(parSetting: ParticleSetting);
     getRenderType(): number;
     releaseRender(): void;

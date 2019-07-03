@@ -1,7 +1,7 @@
 import { AnimationNode } from "../animation/AnimationNode";
 import { Render } from "../../renders/Render";
 import { Resource } from "../../resource/Resource";
-import { Laya } from "../../../Laya";
+import { ILaya } from "../../../ILaya";
 /**
  * <code>Avatar</code> 类用于创建Avatar。
  */
@@ -11,9 +11,9 @@ export class Avatar extends Resource {
      */
     constructor() {
         super();
-        /**@private [NATIVE]*/
+        /** [NATIVE]*/
         this._nativeNodeCount = 0;
-        /**@private [NATIVE]*/
+        /**@internal [NATIVE]*/
         this._nativeCurCloneCount = 0;
     }
     /**
@@ -36,19 +36,13 @@ export class Avatar extends Resource {
      * @param complete 完成回掉。
      */
     static load(url, complete) {
-        Laya.loader.create(url, complete, null, Avatar.AVATAR);
+        ILaya.loader.create(url, complete, null, Avatar.AVATAR);
     }
-    /**
-     * @private
-     */
     _initCloneToAnimator(destNode, destAnimator) {
         destAnimator._avatarNodeMap[destNode.name] = destNode;
         for (var i = 0, n = destNode.getChildCount(); i < n; i++)
             this._initCloneToAnimator(destNode.getChildByIndex(i), destAnimator);
     }
-    /**
-     * @private
-     */
     _parseNode(nodaData, node) {
         var name = nodaData.props.name;
         node.name = name;
@@ -113,7 +107,7 @@ export class Avatar extends Resource {
         return dest;
     }
     /**
-     * @private [NATIVE]
+     * @internal [NATIVE]
      */
     _cloneDatasToAnimatorNative(destAnimator) {
         var animationNodeLocalPositions = new Float32Array(this._nativeNodeCount * 3);

@@ -1,7 +1,7 @@
-import { TextInput } from "././TextInput";
-import { VScrollBar } from "././VScrollBar";
-import { HScrollBar } from "././HScrollBar";
-import { Styles } from "././Styles";
+import { TextInput } from "./TextInput";
+import { VScrollBar } from "./VScrollBar";
+import { HScrollBar } from "./HScrollBar";
+import { Styles } from "./Styles";
 import { Event } from "../events/Event";
 import { ILaya } from "../../ILaya";
 /**

@@ -1,5 +1,5 @@
-import { GraphicsBounds } from "././GraphicsBounds";
-import { SpriteConst } from "././SpriteConst";
+import { GraphicsBounds } from "./GraphicsBounds";
+import { SpriteConst } from "./SpriteConst";
 import { AlphaCmd } from "./cmd/AlphaCmd";
 import { ClipRectCmd } from "./cmd/ClipRectCmd";
 import { Draw9GridTexture } from "./cmd/Draw9GridTexture";
@@ -41,11 +41,11 @@ import { ILaya } from "../../ILaya";
  */
 export class Graphics {
     constructor() {
-        /**@private */
+        /**@internal */
         this._sp = null;
-        /**@private */
+        /**@internal */
         this._one = null;
-        /**@private */
+        /**@internal */
         this._render = this._renderEmpty;
         /**@private */
         this._cmds = null;
@@ -57,13 +57,13 @@ export class Graphics {
         this.autoDestroy = false;
         this._createData();
     }
-    /**@private */
+    /**@internal */
     _createData() {
     }
-    /**@private */
+    /**@internal */
     _clearData() {
     }
-    /**@private */
+    /**@internal */
     _destroyData() {
     }
     /**
@@ -134,14 +134,14 @@ export class Graphics {
         }
     }
     /**
-     * @private
+     * @internal
      * 重绘此对象。
      */
     _repaint() {
         this._clearBoundsCache();
         this._sp && this._sp.repaint();
     }
-    /**@private */
+    /**@internal */
     //TODO:coverage
     _isOnlyOne() {
         return !this._cmds || this._cmds.length === 0;
@@ -237,7 +237,7 @@ export class Graphics {
      * @param color		（可选）颜色滤镜。
      * @param blendMode （可选）混合模式。
      */
-    drawTexture(texture, x = 0, y = 0, width = 0, height = 0, matrix = null, alpha = 1, color = null, blendMode = null) {
+    drawTexture(texture, x = 0, y = 0, width = 0, height = 0, matrix = null, alpha = 1, color = null, blendMode = null, uv) {
         if (!texture || alpha < 0.01)
             return null;
         if (!texture.getIsReady())
@@ -261,7 +261,7 @@ export class Graphics {
             this._sp._setRenderType(this._sp._renderType);
         }
         // canvas 模式不支持
-        var args = DrawTextureCmd.create.call(this, texture, x, y, width, height, matrix, alpha, color, blendMode);
+        var args = DrawTextureCmd.create.call(this, texture, x, y, width, height, matrix, alpha, color, blendMode, uv);
         this._repaint();
         return this._saveToCmd(null, args);
     }
@@ -309,7 +309,7 @@ export class Graphics {
             return null;
     }
     /**
-     * @private
+     * @internal
      * 保存到命令流。
      */
     _saveToCmd(fun, args) {
@@ -538,12 +538,12 @@ export class Graphics {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _renderEmpty(sprite, context, x, y) {
     }
     /**
-     * @private
+     * @internal
      */
     _renderAll(sprite, context, x, y) {
         var cmds = this._cmds;
@@ -552,14 +552,14 @@ export class Graphics {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _renderOne(sprite, context, x, y) {
         context.sprite = sprite;
         this._one.run(context, x, y);
     }
     /**
-     * @private
+     * @internal
      */
     _renderOneImg(sprite, context, x, y) {
         context.sprite = sprite;

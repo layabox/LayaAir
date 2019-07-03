@@ -1,4 +1,4 @@
-import { Image } from "././Image";
+import { Image } from "./Image";
 /**
  * 广告插件
  * @author 小松

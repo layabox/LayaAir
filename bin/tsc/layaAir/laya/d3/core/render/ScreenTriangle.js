@@ -6,7 +6,6 @@ import { VertexElementFormat } from "../../graphics/VertexElementFormat";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Resource } from "../../../resource/Resource";
 import { Stat } from "../../../utils/Stat";
-import { WebGLContext } from "../../../webgl/WebGLContext";
 /**
  * <code>ScreenTriangle</code> 类用于创建全屏三角形。
  */
@@ -16,45 +15,45 @@ export class ScreenTriangle extends Resource {
      */
     constructor() {
         super();
-        /** @private */
+        /** @internal */
         this._bufferState = new BufferState();
-        /** @private */
+        /** @internal */
         this._bufferStateInvertUV = new BufferState();
-        this._vertexBuffer = new VertexBuffer3D(12 * 4, WebGLContext.STATIC_DRAW, false);
+        this._vertexBuffer = new VertexBuffer3D(12 * 4, WebGL2RenderingContext.STATIC_DRAW, false);
         this._vertexBuffer.vertexDeclaration = ScreenTriangle._vertexDeclaration;
-        this._vertexBuffer.setData(ScreenTriangle._vertices);
+        this._vertexBuffer.setData(ScreenTriangle._vertices.buffer);
         this._bufferState.bind();
         this._bufferState.applyVertexBuffer(this._vertexBuffer);
         this._bufferState.unBind();
-        this._vertexBufferInvertUV = new VertexBuffer3D(12 * 4, WebGLContext.STATIC_DRAW, false);
+        this._vertexBufferInvertUV = new VertexBuffer3D(12 * 4, WebGL2RenderingContext.STATIC_DRAW, false);
         this._vertexBufferInvertUV.vertexDeclaration = ScreenTriangle._vertexDeclaration;
-        this._vertexBufferInvertUV.setData(ScreenTriangle._verticesInvertUV);
+        this._vertexBufferInvertUV.setData(ScreenTriangle._verticesInvertUV.buffer);
         this._bufferStateInvertUV.bind();
         this._bufferStateInvertUV.applyVertexBuffer(this._vertexBufferInvertUV);
         this._bufferStateInvertUV.unBind();
         this._setGPUMemory(this._vertexBuffer._byteLength + this._vertexBufferInvertUV._byteLength);
     }
     /**
-     * @private
+     * @internal
      */
     static __init__() {
         ScreenTriangle.instance = new ScreenTriangle();
         ScreenTriangle.instance.lock = true;
     }
     /**
-     * @private
+     * @internal
      */
     render() {
         this._bufferState.bind();
-        LayaGL.instance.drawArrays(WebGLContext.TRIANGLES, 0, 3);
+        LayaGL.instance.drawArrays(WebGL2RenderingContext.TRIANGLES, 0, 3);
         Stat.renderBatches++;
     }
     /**
-     * @private
+     * @internal
      */
     renderInvertUV() {
         this._bufferStateInvertUV.bind();
-        LayaGL.instance.drawArrays(WebGLContext.TRIANGLES, 0, 3);
+        LayaGL.instance.drawArrays(WebGL2RenderingContext.TRIANGLES, 0, 3);
         Stat.renderBatches++;
     }
     /**
@@ -69,11 +68,11 @@ export class ScreenTriangle extends Resource {
         this._setGPUMemory(0);
     }
 }
-/** @private */
+/** @internal */
 ScreenTriangle.SCREENTRIANGLE_POSITION_UV = 0;
-/** @private */
+/** @internal */
 ScreenTriangle._vertexDeclaration = new VertexDeclaration(16, [new VertexElement(0, VertexElementFormat.Vector4, ScreenTriangle.SCREENTRIANGLE_POSITION_UV)]);
-/** @private */
+/** @internal */
 ScreenTriangle._vertices = new Float32Array([-1, -1, 0, 1, -1, 3, 0, -1, 3, -1, 2, 1]);
-/** @private */
+/** @internal */
 ScreenTriangle._verticesInvertUV = new Float32Array([-1, -1, 0, 0, -1, 3, 0, 2, 3, -1, 2, 0]);

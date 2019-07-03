@@ -1,13 +1,10 @@
-import { ColliderShape } from "././ColliderShape";
+import { ColliderShape } from "./ColliderShape";
 /**
  * <code>ConeColliderShape</code> 类用于创建圆柱碰撞器。
  */
 export declare class ConeColliderShape extends ColliderShape {
-    /**@private */
     private _orientation;
-    /**@private */
     private _radius;
-    /**@private */
     private _height;
     /**
      * 获取半径。

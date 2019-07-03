@@ -1,4 +1,4 @@
-import { Value2D } from "././Value2D";
+import { Value2D } from "./Value2D";
 export declare class TextureSV extends Value2D {
     u_colorMatrix: any[];
     strength: number;

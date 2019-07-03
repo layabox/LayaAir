@@ -1,4 +1,4 @@
-import { ConchVector4 } from "././ConchVector4";
+import { ConchVector4 } from "./ConchVector4";
 import { MathUtils3D } from "../MathUtils3D";
 /**
  * <code>Vector3</code> 类用于创建三维向量。
@@ -430,7 +430,7 @@ export class ConchVector3 {
     }
 }
 /*[FILEINDEX:10000]*/
-/**@private	*/
+/**@internal	*/
 ConchVector3._tempVector4 = new ConchVector4();
 /**零向量，禁止修改*/
 ConchVector3.ZERO = new ConchVector3(0.0, 0.0, 0.0);

@@ -1,7 +1,6 @@
 import { Rectangle } from "../../maths/Rectangle";
 import { Dragging } from "../../utils/Dragging";
 /**
- * @private
  * 元素样式
  */
 export declare class SpriteStyle {

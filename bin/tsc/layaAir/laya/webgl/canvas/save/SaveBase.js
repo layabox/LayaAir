@@ -2,11 +2,13 @@ import { SubmitBase } from "../../submit/SubmitBase";
 export class SaveBase {
     constructor() {
     }
+    /**@internal */
     static _createArray() {
         var value = [];
         value._length = 0;
         return value;
     }
+    /**@internal */
     static _init() {
         var namemap = SaveBase._namemap = {};
         namemap[SaveBase.TYPE_ALPHA] = "ALPHA";

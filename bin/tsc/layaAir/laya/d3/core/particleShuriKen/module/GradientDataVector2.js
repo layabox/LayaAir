@@ -6,7 +6,6 @@ export class GradientDataVector2 {
      * 创建一个 <code>GradientDataVector2</code> 实例。
      */
     constructor() {
-        /**@private */
         this._currentLength = 0;
         this._elements = new Float32Array(12);
     }

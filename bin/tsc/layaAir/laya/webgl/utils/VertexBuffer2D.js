@@ -1,13 +1,12 @@
-import { Buffer2D } from "././Buffer2D";
+import { Buffer2D } from "./Buffer2D";
 import { LayaGL } from "../../layagl/LayaGL";
-import { WebGLContext } from "../WebGLContext";
 import { Buffer } from "./Buffer";
 export class VertexBuffer2D extends Buffer2D {
     constructor(vertexStride, bufferUsage) {
         super();
         this._vertexStride = vertexStride;
         this._bufferUsage = bufferUsage;
-        this._bufferType = WebGLContext.ARRAY_BUFFER;
+        this._bufferType = WebGL2RenderingContext.ARRAY_BUFFER;
         this._buffer = new ArrayBuffer(8);
         this._floatArray32 = new Float32Array(this._buffer);
         this._uint32Array = new Uint32Array(this._buffer);
@@ -42,14 +41,14 @@ export class VertexBuffer2D extends Buffer2D {
      * @inheritDoc
      */
     /*override*/ _bindForVAO() {
-        LayaGL.instance.bindBuffer(WebGLContext.ARRAY_BUFFER, this._glBuffer);
+        LayaGL.instance.bindBuffer(WebGL2RenderingContext.ARRAY_BUFFER, this._glBuffer);
     }
     /**
      * @inheritDoc
      */
     /*override*/ bind() {
         if (Buffer._bindedVertexBuffer !== this._glBuffer) {
-            LayaGL.instance.bindBuffer(WebGLContext.ARRAY_BUFFER, this._glBuffer);
+            LayaGL.instance.bindBuffer(WebGL2RenderingContext.ARRAY_BUFFER, this._glBuffer);
             Buffer._bindedVertexBuffer = this._glBuffer;
             return true;
         }

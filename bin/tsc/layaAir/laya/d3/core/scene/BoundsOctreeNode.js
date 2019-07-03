@@ -1,10 +1,10 @@
+import { Stat } from "../../../utils/Stat";
 import { BoundBox } from "../../math/BoundBox";
 import { CollisionUtils } from "../../math/CollisionUtils";
 import { Color } from "../../math/Color";
 import { ContainmentType } from "../../math/ContainmentType";
 import { Vector3 } from "../../math/Vector3";
 import { Utils3D } from "../../utils/Utils3D";
-import { Stat } from "../../../utils/Stat";
 /**
  * <code>BoundsOctreeNode</code> 类用于创建八叉树节点。
  */
@@ -17,26 +17,26 @@ export class BoundsOctreeNode {
      * @param center  节点的中心位置。
      */
     constructor(octree, parent, baseLength, center) {
-        /**@private AABB包围盒*/
+        /**@internal AABB包围盒*/
         this._bounds = new BoundBox(new Vector3(), new Vector3());
-        /**@private */
+        /**@internal */
         this._objects = [];
-        /**@private [Debug]*/
+        /**@internal [Debug]*/
         this._isContaion = false;
-        /**@private	[只读]*/
+        /**@internal	[只读]*/
         this.center = new Vector3();
-        /**@private	[只读]*/
+        /**@internal	[只读]*/
         this.baseLength = 0.0;
         this._setValues(octree, parent, baseLength, center);
     }
     /**
-     * @private
+     * @internal
      */
     static _encapsulates(outerBound, innerBound) {
         return CollisionUtils.boxContainsBox(outerBound, innerBound) == ContainmentType.Contains;
     }
     /**
-     * @private
+     * @internal
      */
     _setValues(octree, parent, baseLength, center) {
         this._octree = octree;
@@ -50,7 +50,7 @@ export class BoundsOctreeNode {
         max.setValue(center.x + halfSize, center.y + halfSize, center.z + halfSize);
     }
     /**
-     * @private
+     * @internal
      */
     _getChildBound(index) {
         if (this._children != null && this._children[index]) {
@@ -133,7 +133,7 @@ export class BoundsOctreeNode {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _getChildCenter(index) {
         if (this._children != null) {
@@ -189,7 +189,7 @@ export class BoundsOctreeNode {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _getChild(index) {
         var quarter = this.baseLength / 4;
@@ -216,7 +216,7 @@ export class BoundsOctreeNode {
         }
     }
     /**
-     * @private
+     * @internal
      * 是否合并判断(如果该节点和子节点包含的物体小于_NUM_OBJECTS_ALLOWED则应将子节点合并到该节点)
      */
     _shouldMerge() {
@@ -232,7 +232,7 @@ export class BoundsOctreeNode {
         return objectCount <= BoundsOctreeNode._NUM_OBJECTS_ALLOWED;
     }
     /**
-     * @private
+     * @internal
      */
     _mergeChildren() {
         for (var i = 0; i < 8; i++) {
@@ -250,7 +250,7 @@ export class BoundsOctreeNode {
         this._children = null;
     }
     /**
-     * @private
+     * @internal
      */
     _merge() {
         if (this._children === null) {
@@ -262,7 +262,7 @@ export class BoundsOctreeNode {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _checkAddNode(object) {
         //始终将物体放入可能的最深层子节点，如果有子节点可以跳过检查
@@ -287,7 +287,7 @@ export class BoundsOctreeNode {
             return this;
     }
     /**
-     * @private
+     * @internal
      */
     _add(object) {
         var addNode = this._checkAddNode(object);
@@ -295,7 +295,7 @@ export class BoundsOctreeNode {
         object._setOctreeNode(addNode);
     }
     /**
-     * @private
+     * @internal
      */
     _remove(object) {
         var index = this._objects.indexOf(object);
@@ -304,7 +304,7 @@ export class BoundsOctreeNode {
         this._merge();
     }
     /**
-     * @private
+     * @internal
      */
     _addUp(object) {
         if ((CollisionUtils.boxContainsBox(this._bounds, object.bounds._getBoundBox()) === ContainmentType.Contains)) {
@@ -319,9 +319,9 @@ export class BoundsOctreeNode {
         }
     }
     /**
-     * @private
+     * @internal
      */
-    _getCollidingWithFrustum(context, frustum, testVisible, camPos) {
+    _getCollidingWithFrustum(context, frustum, testVisible, camPos, customShader, replacementTag) {
         //if (_children === null && _objects.length == 0) {//无用末级节不需要检查，调试用
         //debugger;
         //return;
@@ -349,14 +349,7 @@ export class BoundsOctreeNode {
                 var elements = render._renderElements;
                 for (var j = 0, m = elements.length; j < m; j++) {
                     var element = elements[j];
-                    var material = element.material;
-                    if (material) {
-                        var renderQueue = scene._getRenderQueue(material.renderQueue);
-                        if (renderQueue.isTransparent)
-                            element.addToTransparentRenderQueue(context, renderQueue);
-                        else
-                            element.addToOpaqueRenderQueue(context, renderQueue);
-                    }
+                    element._update(scene, context, customShader, replacementTag);
                 }
             }
         }
@@ -364,12 +357,12 @@ export class BoundsOctreeNode {
         if (this._children != null) {
             for (i = 0; i < 8; i++) {
                 var child = this._children[i];
-                child && child._getCollidingWithFrustum(context, frustum, testVisible, camPos);
+                child && child._getCollidingWithFrustum(context, frustum, testVisible, camPos, customShader, replacementTag);
             }
         }
     }
     /**
-     * @private
+     * @internal
      */
     _getCollidingWithBoundBox(checkBound, testVisible, result) {
         //if (_children === null && _objects.length == 0){//无用末级节不需要检查，调试用
@@ -401,13 +394,13 @@ export class BoundsOctreeNode {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _bestFitChild(boundCenter) {
         return (boundCenter.x <= this.center.x ? 0 : 1) + (boundCenter.y >= this.center.y ? 0 : 4) + (boundCenter.z <= this.center.z ? 0 : 2);
     }
     /**
-     * @private
+     * @internal
      * @return 是否需要扩充根节点
      */
     _update(object) {
@@ -579,10 +572,10 @@ export class BoundsOctreeNode {
      * 	@param	ray 射线。.
      * 	@param	result 相交物体列表。
      */
-    getCollidingWithFrustum(context) {
+    getCollidingWithFrustum(context, customShader, replacementTag) {
         var cameraPos = context.camera.transform.position;
         var boundFrustum = context.camera.boundFrustum;
-        this._getCollidingWithFrustum(context, boundFrustum, true, cameraPos);
+        this._getCollidingWithFrustum(context, boundFrustum, true, cameraPos, customShader, replacementTag);
     }
     /**
      * 获取是否与指定包围盒相交。
@@ -643,7 +636,7 @@ export class BoundsOctreeNode {
         return this._bounds;
     }
     /**
-     * @private
+     * @internal
      * [Debug]
      */
     drawAllBounds(debugLine, currentDepth, maxDepth) {
@@ -672,7 +665,7 @@ export class BoundsOctreeNode {
         }
     }
     /**
-     * @private
+     * @internal
      * [Debug]
      */
     drawAllObjects(debugLine, currentDepth, maxDepth) {
@@ -700,15 +693,15 @@ export class BoundsOctreeNode {
         }
     }
 }
-/**@private */
+/**@internal */
 BoundsOctreeNode._tempVector3 = new Vector3();
-/**@private */
+/**@internal */
 BoundsOctreeNode._tempVector30 = new Vector3();
-/**@private */
+/**@internal */
 BoundsOctreeNode._tempVector31 = new Vector3();
-/**@private */
+/**@internal */
 BoundsOctreeNode._tempColor0 = new Color();
-/**@private */
+/**@internal */
 BoundsOctreeNode._tempBoundBox = new BoundBox(new Vector3(), new Vector3());
-/**@private */
+/**@internal */
 BoundsOctreeNode._NUM_OBJECTS_ALLOWED = 8;

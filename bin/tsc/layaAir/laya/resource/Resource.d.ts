@@ -1,8 +1,7 @@
-import { ICreateResource } from "././ICreateResource";
-import { IDestroy } from "././IDestroy";
 import { EventDispatcher } from "../events/EventDispatcher";
+import { ICreateResource } from "./ICreateResource";
+import { IDestroy } from "./IDestroy";
 /**
- * @private
  * <code>Resource</code> 资源存取类。
  */
 export declare class Resource extends EventDispatcher implements ICreateResource, IDestroy {
@@ -24,18 +23,6 @@ export declare class Resource extends EventDispatcher implements ICreateResource
      * 当前显存，以字节为单位。
      */
     static readonly gpuMemory: number;
-    /**
-     * @private
-     */
-    static _addCPUMemory(size: number): void;
-    /**
-     * @private
-     */
-    static _addGPUMemory(size: number): void;
-    /**
-     * @private
-     */
-    static _addMemory(cpuSize: number, gpuSize: number): void;
     /**
      * 通过资源ID返回已载入资源。
      * @param id 资源ID
@@ -100,29 +87,8 @@ export declare class Resource extends EventDispatcher implements ICreateResource
      */
     constructor();
     /**
-     * @private
-     */
-    _setCPUMemory(value: number): void;
-    /**
-     * @private
-     */
-    _setGPUMemory(value: number): void;
-    /**
-     * @private
      */
     _setCreateURL(url: string): void;
-    /**
-     * @private
-     */
-    _addReference(count?: number): void;
-    /**
-     * @private
-     */
-    _removeReference(count?: number): void;
-    /**
-     * @private
-     */
-    _clearReference(): void;
     /**
      * @private
      */

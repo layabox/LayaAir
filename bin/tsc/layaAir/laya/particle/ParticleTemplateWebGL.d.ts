@@ -1,5 +1,5 @@
-import { ParticleTemplateBase } from "././ParticleTemplateBase";
-import { ParticleSetting } from "././ParticleSetting";
+import { ParticleTemplateBase } from "./ParticleTemplateBase";
+import { ParticleSetting } from "./ParticleSetting";
 import { MeshParticle2D } from "../webgl/utils/MeshParticle2D";
 import { Context } from "../resource/Context";
 /**
@@ -14,7 +14,6 @@ export declare class ParticleTemplateWebGL extends ParticleTemplateBase {
     protected _firstNewElement: number;
     protected _firstFreeElement: number;
     protected _firstRetiredElement: number;
-    _currentTime: number;
     protected _drawCounter: number;
     constructor(parSetting: ParticleSetting);
     reUse(context: Context, pos: number): number;

@@ -10,7 +10,7 @@ import { TextureGenerator } from "../resource/TextureGenerator";
  */
 export class Utils3D {
     /**
-     * @private
+     * @internal
      */
     static _convertToLayaVec3(bVector, out, inverseX) {
         out.x = inverseX ? -bVector.x() : bVector.x();
@@ -18,7 +18,7 @@ export class Utils3D {
         out.z = bVector.z();
     }
     /**
-     * @private
+     * @internal
      */
     static _convertToBulletVec3(lVector, out, inverseX) {
         out.setValue(inverseX ? -lVector.x : lVector.x, lVector.y, lVector.z);
@@ -97,7 +97,7 @@ export class Utils3D {
             outArray[i + outOffset + 12] = ai0 * se[12] + ai1 * se[13] + ai2 * se[14] + ai3 * se[15];
         }
     }
-    /** @private */
+    /** @internal */
     static _computeBoneAndAnimationDatasByBindPoseMatrxix(bones, curData, inverGlobalBindPose, outBonesDatas, outAnimationDatas, boneIndexToMesh) {
         var offset = 0;
         var matOffset = 0;
@@ -118,12 +118,12 @@ export class Utils3D {
             Utils3D.mulMatrixByArrayAndMatrixFast(outBonesDatas, boneIndexToMesh[i] * 16, inverGlobalBindPose[i], outAnimationDatas, i * 16); //TODO:-1处理
         }
     }
-    /** @private */
+    /** @internal */
     static _computeAnimationDatasByArrayAndMatrixFast(inverGlobalBindPose, bonesDatas, outAnimationDatas, boneIndexToMesh) {
         for (var i = 0, n = inverGlobalBindPose.length; i < n; i++) //将绝对矩阵乘以反置矩阵
             Utils3D.mulMatrixByArrayAndMatrixFast(bonesDatas, boneIndexToMesh[i] * 16, inverGlobalBindPose[i], outAnimationDatas, i * 16); //TODO:-1处理
     }
-    /** @private */
+    /** @internal */
     static _computeBoneAndAnimationDatasByBindPoseMatrxixOld(bones, curData, inverGlobalBindPose, outBonesDatas, outAnimationDatas) {
         var offset = 0;
         var matOffset = 0;
@@ -145,7 +145,7 @@ export class Utils3D {
             Utils3D.mulMatrixByArrayAndMatrixFast(outBonesDatas, arrayOffset, inverGlobalBindPose[i], outAnimationDatas, arrayOffset);
         }
     }
-    /** @private */
+    /** @internal */
     static _computeAnimationDatasByArrayAndMatrixFastOld(inverGlobalBindPose, bonesDatas, outAnimationDatas) {
         var n = inverGlobalBindPose.length;
         for (var i = 0; i < n; i++) //将绝对矩阵乘以反置矩阵................................................
@@ -154,7 +154,7 @@ export class Utils3D {
             Utils3D.mulMatrixByArrayAndMatrixFast(bonesDatas, arrayOffset, inverGlobalBindPose[i], outAnimationDatas, arrayOffset);
         }
     }
-    /** @private */
+    /** @internal */
     static _computeRootAnimationData(bones, curData, animationDatas) {
         for (var i = 0, offset = 0, matOffset = 0, boneLength = bones.length; i < boneLength; offset += bones[i].keyframeWidth, matOffset += 16, i++)
             Utils3D.createAffineTransformationArray(curData[offset + 0], curData[offset + 1], curData[offset + 2], curData[offset + 3], curData[offset + 4], curData[offset + 5], curData[offset + 6], curData[offset + 7], curData[offset + 8], curData[offset + 9], animationDatas, matOffset);
@@ -311,7 +311,7 @@ export class Utils3D {
         result[resultOffset + 2] = (coordinateX * transformElem[2]) + (coordinateY * transformElem[6]) + (coordinateZ * transformElem[10]) + transformElem[14] / w;
     }
     /**
-     * @private
+     * @internal
      */
     static transformLightingMapTexcoordArray(source, sourceOffset, lightingMapScaleOffset, result, resultOffset) {
         result[resultOffset + 0] = source[sourceOffset + 0] * lightingMapScaleOffset.x + lightingMapScaleOffset.z;
@@ -327,7 +327,7 @@ export class Utils3D {
         return index >= 0 ? url.substr(index) : null;
     }
     /**
-     * @private
+     * @internal
      */
     static _createAffineTransformationArray(trans, rot, scale, outE) {
         var x = rot.x, y = rot.y, z = rot.z, w = rot.w, x2 = x + x, y2 = y + y, z2 = z + z;
@@ -351,7 +351,7 @@ export class Utils3D {
         outE[15] = 1;
     }
     /**
-     * @private
+     * @internal
      */
     static _mulMatrixArray(leftMatrixE, rightMatrix, outArray, outOffset) {
         var i, ai0, ai1, ai2, ai3;
@@ -410,7 +410,7 @@ export class Utils3D {
         e.w = f.w;
     }
     /**
-     * @private
+     * @internal
      */
     static quaternionConjugate(value, result) {
         result.x = -value.x;
@@ -419,7 +419,7 @@ export class Utils3D {
         result.w = value.w;
     }
     /**
-     * @private
+     * @internal
      */
     static scaleWeight(s, w, out) {
         var sX = s.x, sY = s.y, sZ = s.z;
@@ -428,7 +428,7 @@ export class Utils3D {
         out.z = sZ > 0 ? Math.pow(Math.abs(sZ), w) : -Math.pow(Math.abs(sZ), w);
     }
     /**
-     * @private
+     * @internal
      */
     static scaleBlend(sa, sb, w, out) {
         var saw = Utils3D._tempVector3_0;
@@ -470,7 +470,7 @@ export class Utils3D {
         Utils3D.matrix4x4MultiplyFFF(left.elements, right, out.elements);
     }
     /**
-     * @private
+     * @internal
      */
     static _buildTexture2D(width, height, format, colorFunc, mipmaps = false) {
         var texture = new Texture2D(width, height, format, mipmaps, true);
@@ -480,7 +480,7 @@ export class Utils3D {
         return texture;
     }
     /**
-     * @private
+     * @internal
      */
     static _drawBound(debugLine, boundBox, color) {
         if (debugLine.lineCount + 12 > debugLine.maxLineCount)
@@ -526,11 +526,11 @@ export class Utils3D {
         end.setValue(max.x, max.y, max.z);
         debugLine.addLine(start, end, color, color);
     }
-    ///**@private */
+    ///**@internal */
     //private static var _tempHierarchyID:int = 0;
     //
     ///**
-    //* @private
+    //* @internal
     //*/
     //public static function _getSpritesHierarchyID(sprite:Sprite3D, checkSprites:Array, outIDs:Array):void {
     //var index:int = checkSprites.indexOf(sprite);
@@ -542,7 +542,7 @@ export class Utils3D {
     //_getSpritesHierarchyID(children[i], checkSprites, outIDs);
     //}
     /**
-     * @private
+     * @internal
      */
     static _getHierarchyPath(rootSprite, checkSprite, path) {
         path.length = 0;
@@ -558,7 +558,7 @@ export class Utils3D {
         return path;
     }
     /**
-     * @private
+     * @internal
      */
     static _getNodeByHierarchyPath(rootSprite, invPath) {
         var sprite = rootSprite;
@@ -568,22 +568,15 @@ export class Utils3D {
         return sprite;
     }
 }
-/** @private */
 Utils3D._tempVector3_0 = new Vector3();
-/** @private */
 Utils3D._tempVector3_1 = new Vector3();
-/** @private */
 Utils3D._tempVector3_2 = new Vector3();
-/**@private */
 Utils3D._tempColor0 = new Color();
 Utils3D._tempArray16_0 = new Float32Array(16);
-/** @private */
 Utils3D._tempArray16_1 = new Float32Array(16);
-/** @private */
 Utils3D._tempArray16_2 = new Float32Array(16);
-/** @private */
 Utils3D._tempArray16_3 = new Float32Array(16);
 /**
- * @private
+ * @internal
  */
 Utils3D._compIdToNode = new Object();

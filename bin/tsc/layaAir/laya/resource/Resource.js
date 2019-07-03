@@ -1,8 +1,7 @@
+import { ILaya } from "../../ILaya";
 import { EventDispatcher } from "../events/EventDispatcher";
 import { URL } from "../net/URL";
-import { ILaya } from "../../ILaya";
 /**
- * @private
  * <code>Resource</code> 资源存取类。
  */
 export class Resource extends EventDispatcher {
@@ -46,19 +45,19 @@ export class Resource extends EventDispatcher {
         return Resource._gpuMemory;
     }
     /**
-     * @private
+     * @internal
      */
     static _addCPUMemory(size) {
         Resource._cpuMemory += size;
     }
     /**
-     * @private
+     * @internal
      */
     static _addGPUMemory(size) {
         Resource._gpuMemory += size;
     }
     /**
-     * @private
+     * @internal
      */
     static _addMemory(cpuSize, gpuSize) {
         Resource._cpuMemory += cpuSize;
@@ -109,13 +108,13 @@ export class Resource extends EventDispatcher {
      * 内存大小。
      */
     get cpuMemory() {
-        return Resource._cpuMemory;
+        return this._cpuMemory;
     }
     /**
      * 显存大小。
      */
     get gpuMemory() {
-        return Resource._gpuMemory;
+        return this._gpuMemory;
     }
     /**
      * 是否已处理。
@@ -130,23 +129,22 @@ export class Resource extends EventDispatcher {
         return this._referenceCount;
     }
     /**
-     * @private
+     * @internal
      */
     _setCPUMemory(value) {
-        var offsetValue = value - Resource._cpuMemory;
-        Resource._cpuMemory = value;
+        var offsetValue = value - this._cpuMemory;
+        this._cpuMemory = value;
         Resource._addCPUMemory(offsetValue);
     }
     /**
-     * @private
+     * @internal
      */
     _setGPUMemory(value) {
-        var offsetValue = value - Resource._gpuMemory;
-        Resource._gpuMemory = value;
+        var offsetValue = value - this._gpuMemory;
+        this._gpuMemory = value;
         Resource._addGPUMemory(offsetValue);
     }
     /**
-     * @private
      */
     _setCreateURL(url) {
         url = URL.formatURL(url); //需要序列化为绝对路径
@@ -166,19 +164,19 @@ export class Resource extends EventDispatcher {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _addReference(count = 1) {
         this._referenceCount += count;
     }
     /**
-     * @private
+     * @internal
      */
     _removeReference(count = 1) {
         this._referenceCount -= count;
     }
     /**
-     * @private
+     * @internal
      */
     _clearReference() {
         this._referenceCount = 0;

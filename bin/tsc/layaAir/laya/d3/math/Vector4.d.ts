@@ -1,4 +1,4 @@
-import { Matrix4x4 } from "././Matrix4x4";
+import { Matrix4x4 } from "./Matrix4x4";
 import { IClone } from "../core/IClone";
 /**
  * <code>Vector4</code> 类用于创建四维向量。

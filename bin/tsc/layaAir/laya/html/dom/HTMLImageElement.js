@@ -51,7 +51,7 @@ export class HTMLImageElement extends HTMLElement {
         }
         this.repaint();
     }
-    //TODO:coverage
+    /**@internal */
     /*override*/ _addToLayout(out) {
         var style = this._style;
         !style.absolute && out.push(this);

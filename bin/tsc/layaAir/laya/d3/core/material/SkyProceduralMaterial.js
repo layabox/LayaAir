@@ -1,7 +1,7 @@
 import { Vector4 } from "../../math/Vector4";
 import { Shader3D } from "../../shader/Shader3D";
 import { ShaderDefines } from "../../shader/ShaderDefines";
-import { BaseMaterial } from "././BaseMaterial";
+import { BaseMaterial } from "./BaseMaterial";
 /**
  * <code>SkyProceduralMaterial</code> 类用于实现SkyProceduralMaterial材质。
  */
@@ -21,7 +21,7 @@ export class SkyProceduralMaterial extends BaseMaterial {
         this.exposure = 1.3;
     }
     /**
-     * @private
+     * @internal
      */
     static __initDefine__() {
         SkyProceduralMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
@@ -162,17 +162,17 @@ SkyProceduralMaterial.SUN_NODE = 0;
 SkyProceduralMaterial.SUN_SIMPLE = 1;
 /** 太阳_高质量*/
 SkyProceduralMaterial.SUN_HIGH_QUALITY = 2;
-/**@private */
+/**@internal */
 SkyProceduralMaterial.SUNSIZE = Shader3D.propertyNameToID("u_SunSize");
-/**@private */
+/**@internal */
 SkyProceduralMaterial.SUNSIZECONVERGENCE = Shader3D.propertyNameToID("u_SunSizeConvergence");
-/**@private */
+/**@internal */
 SkyProceduralMaterial.ATMOSPHERETHICKNESS = Shader3D.propertyNameToID("u_AtmosphereThickness");
-/**@private */
+/**@internal */
 SkyProceduralMaterial.SKYTINT = Shader3D.propertyNameToID("u_SkyTint");
-/**@private */
+/**@internal */
 SkyProceduralMaterial.GROUNDTINT = Shader3D.propertyNameToID("u_GroundTint");
-/**@private */
+/**@internal */
 SkyProceduralMaterial.EXPOSURE = Shader3D.propertyNameToID("u_Exposure");
-/**@private */
+/**@internal */
 SkyProceduralMaterial.shaderDefines = null;

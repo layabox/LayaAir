@@ -3,10 +3,7 @@ import { IClone } from "../../IClone";
  * <code>GradientDataInt</code> 类用于创建整形渐变。
  */
 export declare class GradientDataInt implements IClone {
-    /**@private */
     private _currentLength;
-    /**@private 开发者禁止修改。*/
-    _elements: Float32Array;
     /**整形渐变数量。*/
     readonly gradientCount: number;
     /**

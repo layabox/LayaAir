@@ -14,6 +14,7 @@ export class CustomTerrainMaterial extends BaseMaterial {
      * @private
      */
     static __init__() {
+        CustomTerrainMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
         CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM1 = CustomTerrainMaterial.shaderDefines.registerDefine("CUSTOM_DETAIL_NUM1");
         CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM2 = CustomTerrainMaterial.shaderDefines.registerDefine("CUSTOM_DETAIL_NUM2");
         CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM3 = CustomTerrainMaterial.shaderDefines.registerDefine("CUSTOM_DETAIL_NUM3");
@@ -176,4 +177,4 @@ CustomTerrainMaterial.DIFFUSESCALE3 = Shader3D.propertyNameToID("u_DiffuseScale3
 CustomTerrainMaterial.DIFFUSESCALE4 = Shader3D.propertyNameToID("u_DiffuseScale4");
 CustomTerrainMaterial.DIFFUSESCALE5 = Shader3D.propertyNameToID("u_DiffuseScale5");
 /**@private */
-CustomTerrainMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
+CustomTerrainMaterial.shaderDefines = null;

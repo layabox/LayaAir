@@ -4,10 +4,10 @@ import { Stat } from "../../utils/Stat";
 import { Color } from "../math/Color";
 import { Vector3 } from "../math/Vector3";
 import { Utils3D } from "../utils/Utils3D";
-import { DynamicBatchManager } from "././DynamicBatchManager";
-import { StaticBatchManager } from "././StaticBatchManager";
+import { DynamicBatchManager } from "./DynamicBatchManager";
+import { StaticBatchManager } from "./StaticBatchManager";
 /**
- * @private
+ * @internal
  * <code>FrustumCulling</code> 类用于裁剪。
  */
 export class FrustumCulling {
@@ -17,7 +17,7 @@ export class FrustumCulling {
     constructor() {
     }
     /**
-     * @private
+     * @internal
      */
     static __init__() {
         if (Render.supportWebGLPlusCulling) { //[NATIVE]
@@ -26,7 +26,7 @@ export class FrustumCulling {
         }
     }
     /**
-     * @private
+     * @internal
      */
     static _drawTraversalCullingBound(renderList, debugTool) {
         var validCount = renderList.length;
@@ -41,9 +41,9 @@ export class FrustumCulling {
         }
     }
     /**
-     * @private
+     * @internal
      */
-    static _traversalCulling(camera, scene, context, renderList) {
+    static _traversalCulling(camera, scene, context, renderList, customShader, replacementTag) {
         var validCount = renderList.length;
         var renders = renderList.elements;
         var boundFrustum = camera.boundFrustum;
@@ -54,20 +54,10 @@ export class FrustumCulling {
                 Stat.frustumCulling++;
                 if (!camera.useOcclusionCulling || render._needRender(boundFrustum)) {
                     render._visible = true;
-                    var bounds = render.bounds;
-                    render._distanceForSort = Vector3.distance(bounds.getCenter(), camPos); //TODO:合并计算浪费,或者合并后取平均值
+                    render._distanceForSort = Vector3.distance(render.bounds.getCenter(), camPos); //TODO:合并计算浪费,或者合并后取平均值
                     var elements = render._renderElements;
-                    for (var j = 0, m = elements.length; j < m; j++) {
-                        var element = elements[j];
-                        var material = element.material;
-                        if (material) { //材质可能为空
-                            var renderQueue = scene._getRenderQueue(material.renderQueue);
-                            if (renderQueue.isTransparent)
-                                element.addToTransparentRenderQueue(context, renderQueue);
-                            else
-                                element.addToOpaqueRenderQueue(context, renderQueue);
-                        }
-                    }
+                    for (var j = 0, m = elements.length; j < m; j++)
+                        elements[j]._update(scene, context, customShader, replacementTag);
                 }
                 else {
                     render._visible = false;
@@ -79,9 +69,9 @@ export class FrustumCulling {
         }
     }
     /**
-     * @private
+     * @internal
      */
-    static renderObjectCulling(camera, scene, context, renderList) {
+    static renderObjectCulling(camera, scene, context, renderList, customShader, replacementTag) {
         var i, n, j, m;
         var opaqueQueue = scene._opaqueQueue;
         var transparentQueue = scene._transparentQueue;
@@ -97,11 +87,11 @@ export class FrustumCulling {
         if (octree) {
             octree.updateMotionObjects();
             octree.shrinkRootIfPossible();
-            octree.getCollidingWithFrustum(context);
+            octree.getCollidingWithFrustum(context, customShader, replacementTag);
         }
-        else {
-            FrustumCulling._traversalCulling(camera, scene, context, renderList);
-        }
+        //else {//包围盒不完善的节点走遍历裁剪
+        FrustumCulling._traversalCulling(camera, scene, context, renderList, customShader, replacementTag);
+        //}
         if (FrustumCulling.debugFrustumCulling) {
             var debugTool = scene._debugTool;
             debugTool.clear();
@@ -109,9 +99,9 @@ export class FrustumCulling {
                 octree.drawAllBounds(debugTool);
                 octree.drawAllObjects(debugTool);
             }
-            else {
-                FrustumCulling._drawTraversalCullingBound(renderList, debugTool);
-            }
+            //else {//包围盒不完善的节点走遍历裁剪
+            FrustumCulling._drawTraversalCullingBound(renderList, debugTool);
+            //}
         }
         var count = opaqueQueue.elements.length;
         (count > 0) && (opaqueQueue._quickSort(0, count - 1));
@@ -119,9 +109,9 @@ export class FrustumCulling {
         (count > 0) && (transparentQueue._quickSort(0, count - 1));
     }
     /**
-     * @private [NATIVE]
+     * @internal [NATIVE]
      */
-    static renderObjectCullingNative(camera, scene, context, renderList) {
+    static renderObjectCullingNative(camera, scene, context, renderList, customShader, replacementTag) {
         var i, n, j, m;
         var opaqueQueue = scene._opaqueQueue;
         var transparentQueue = scene._transparentQueue;
@@ -149,11 +139,7 @@ export class FrustumCulling {
                 var elements = render._renderElements;
                 for (j = 0, m = elements.length; j < m; j++) {
                     var element = elements[j];
-                    var renderQueue = scene._getRenderQueue(element.material.renderQueue);
-                    if (renderQueue.isTransparent)
-                        element.addToTransparentRenderQueue(context, renderQueue);
-                    else
-                        element.addToOpaqueRenderQueue(context, renderQueue);
+                    element._update(scene, context, customShader, replacementTag);
                 }
             }
             else {
@@ -166,15 +152,15 @@ export class FrustumCulling {
         (count > 0) && (transparentQueue._quickSort(0, count - 1));
     }
     /**
-     * @private [NATIVE]
+     * @internal [NATIVE]
      */
     static cullingNative(boundFrustumBuffer, cullingBuffer, cullingBufferIndices, cullingCount, cullingBufferResult) {
         return LayaGL.instance.culling(boundFrustumBuffer, cullingBuffer, cullingBufferIndices, cullingCount, cullingBufferResult);
     }
 }
-/**@private */
+/**@internal */
 FrustumCulling._tempVector3 = new Vector3();
-/**@private */
+/**@internal */
 FrustumCulling._tempColor0 = new Color();
-/**@private */
+/**@internal */
 FrustumCulling.debugFrustumCulling = false;

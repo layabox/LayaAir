@@ -1,7 +1,6 @@
 import { Pool } from "../../utils/Pool";
 /**
  * 绘制边框
- * @private
  */
 export class FillBorderWordsCmd {
     /**@private */

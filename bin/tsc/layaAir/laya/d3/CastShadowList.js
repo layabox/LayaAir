@@ -11,7 +11,7 @@ export class CastShadowList extends SingletonList {
         super();
     }
     /**
-     * @private
+     * @internal
      */
     add(element) {
         var index = element._indexInCastShadowList;
@@ -21,7 +21,7 @@ export class CastShadowList extends SingletonList {
         element._indexInCastShadowList = this.length++;
     }
     /**
-     * @private
+     * @internal
      */
     remove(element) {
         var index = element._indexInCastShadowList;

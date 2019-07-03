@@ -1,4 +1,4 @@
-import { Pool } from "././Pool";
+import { Pool } from "./Pool";
 import { Const } from "../Const";
 import { Component } from "../components/Component";
 import { FrameAnimation } from "../display/FrameAnimation";

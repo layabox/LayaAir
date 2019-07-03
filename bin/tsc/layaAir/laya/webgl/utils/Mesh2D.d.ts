@@ -1,6 +1,6 @@
-import { VertexBuffer2D } from "././VertexBuffer2D";
-import { IndexBuffer2D } from "././IndexBuffer2D";
-import { WebGLContext } from "../WebGLContext";
+/// <reference types="webgl2" />
+import { VertexBuffer2D } from "./VertexBuffer2D";
+import { IndexBuffer2D } from "./IndexBuffer2D";
 /**
  * Mesh2d只是保存数据。描述attribute用的。本身不具有渲染功能。
  */
@@ -66,7 +66,7 @@ export declare class Mesh2D {
      * 应用这个mesh
      * @param	gl
      */
-    useMesh(gl: WebGLContext): void;
+    useMesh(gl: WebGL2RenderingContext): void;
     getEleNum(): number;
     /**
      * 子类实现。用来把自己放到对应的回收池中，以便复用。

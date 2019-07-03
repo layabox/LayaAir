@@ -4,28 +4,12 @@
 export declare class LayaGPU {
     /**@private */
     private static _extentionVendorPrefixes;
-    /**
-     * @private
-     */
-    static _forceSupportVAOPlatform(): boolean;
     /**@private */
     private _gl;
     /**@private */
     private _vaoExt;
     /**@private */
     private _angleInstancedArrays;
-    /**@private */
-    _isWebGL2: boolean;
-    /**@private */
-    _oesTextureHalfFloat: any;
-    /**@private */
-    _extTextureFilterAnisotropic: any;
-    /**@private */
-    _compressedTextureS3tc: any;
-    /**@private */
-    _compressedTexturePvrtc: any;
-    /**@private */
-    _compressedTextureEtc1: any;
     /**
      * @private
      */

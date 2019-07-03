@@ -31,7 +31,7 @@ export class PBRSpecularMaterial extends BaseMaterial {
         this.renderMode = PBRSpecularMaterial.RENDERMODE_OPAQUE;
     }
     /**
-     * @private
+     * @internal
      */
     static __initDefine__() {
         PBRSpecularMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
@@ -47,225 +47,225 @@ export class PBRSpecularMaterial extends BaseMaterial {
         PBRSpecularMaterial.SHADERDEFINE_ALPHAPREMULTIPLY = PBRSpecularMaterial.shaderDefines.registerDefine("ALPHAPREMULTIPLY");
     }
     /**
-     * @private
+     * @internal
      */
     get _ColorR() {
         return this._albedoColor.x;
     }
     /**
-     * @private
+     * @internal
      */
     set _ColorR(value) {
         this._albedoColor.x = value;
         this.albedoColor = this._albedoColor;
     }
     /**
-     * @private
+     * @internal
      */
     get _ColorG() {
         return this._albedoColor.y;
     }
     /**
-     * @private
+     * @internal
      */
     set _ColorG(value) {
         this._albedoColor.y = value;
         this.albedoColor = this._albedoColor;
     }
     /**
-     * @private
+     * @internal
      */
     get _ColorB() {
         return this._albedoColor.z;
     }
     /**
-     * @private
+     * @internal
      */
     set _ColorB(value) {
         this._albedoColor.z = value;
         this.albedoColor = this._albedoColor;
     }
     /**
-     * @private
+     * @internal
      */
     get _ColorA() {
         return this._albedoColor.w;
     }
     /**
-     * @private
+     * @internal
      */
     set _ColorA(value) {
         this._albedoColor.w = value;
         this.albedoColor = this._albedoColor;
     }
     /**
-     * @private
+     * @internal
      */
     get _SpecColorR() {
         return this._specularColor.x;
     }
     /**
-     * @private
+     * @internal
      */
     set _SpecColorR(value) {
         this._specularColor.x = value;
         this.specularColor = this._specularColor;
     }
     /**
-     * @private
+     * @internal
      */
     get _SpecColorG() {
         return this._specularColor.y;
     }
     /**
-     * @private
+     * @internal
      */
     set _SpecColorG(value) {
         this._specularColor.y = value;
         this.specularColor = this._specularColor;
     }
     /**
-     * @private
+     * @internal
      */
     get _SpecColorB() {
         return this._specularColor.z;
     }
     /**
-     * @private
+     * @internal
      */
     set _SpecColorB(value) {
         this._specularColor.z = value;
         this.specularColor = this._specularColor;
     }
     /**
-     * @private
+     * @internal
      */
     get _SpecColorA() {
         return this._specularColor.w;
     }
     /**
-     * @private
+     * @internal
      */
     set _SpecColorA(value) {
         this._specularColor.w = value;
         this.specularColor = this._specularColor;
     }
     /**
-     * @private
+     * @internal
      */
     get _Glossiness() {
         return this._shaderValues.getNumber(PBRSpecularMaterial.SMOOTHNESS);
     }
     /**
-     * @private
+     * @internal
      */
     set _Glossiness(value) {
         this._shaderValues.setNumber(PBRSpecularMaterial.SMOOTHNESS, value);
     }
     /**
-     * @private
+     * @internal
      */
     get _GlossMapScale() {
         return this._shaderValues.getNumber(PBRSpecularMaterial.SMOOTHNESSSCALE);
     }
     /**
-     * @private
+     * @internal
      */
     set _GlossMapScale(value) {
         this._shaderValues.setNumber(PBRSpecularMaterial.SMOOTHNESSSCALE, value);
     }
     /**
-     * @private
+     * @internal
      */
     get _BumpScale() {
         return this._shaderValues.getNumber(PBRSpecularMaterial.NORMALSCALE);
     }
     /**
-     * @private
+     * @internal
      */
     set _BumpScale(value) {
         this._shaderValues.setNumber(PBRSpecularMaterial.NORMALSCALE, value);
     }
-    /**@private */
+    /**@internal */
     get _Parallax() {
         return this._shaderValues.getNumber(PBRSpecularMaterial.PARALLAXSCALE);
     }
     /**
-     * @private
+     * @internal
      */
     set _Parallax(value) {
         this._shaderValues.setNumber(PBRSpecularMaterial.PARALLAXSCALE, value);
     }
-    /**@private */
+    /**@internal */
     get _OcclusionStrength() {
         return this._shaderValues.getNumber(PBRSpecularMaterial.OCCLUSIONSTRENGTH);
     }
     /**
-     * @private
+     * @internal
      */
     set _OcclusionStrength(value) {
         this._shaderValues.setNumber(PBRSpecularMaterial.OCCLUSIONSTRENGTH, value);
     }
     /**
-     * @private
+     * @internal
      */
     get _EmissionColorR() {
         return this._emissionColor.x;
     }
     /**
-     * @private
+     * @internal
      */
     set _EmissionColorR(value) {
         this._emissionColor.x = value;
         this.emissionColor = this._emissionColor;
     }
     /**
-     * @private
+     * @internal
      */
     get _EmissionColorG() {
         return this._emissionColor.y;
     }
     /**
-     * @private
+     * @internal
      */
     set _EmissionColorG(value) {
         this._emissionColor.y = value;
         this.emissionColor = this._emissionColor;
     }
     /**
-     * @private
+     * @internal
      */
     get _EmissionColorB() {
         return this._emissionColor.z;
     }
     /**
-     * @private
+     * @internal
      */
     set _EmissionColorB(value) {
         this._emissionColor.z = value;
         this.emissionColor = this._emissionColor;
     }
     /**
-     * @private
+     * @internal
      */
     get _EmissionColorA() {
         return this._emissionColor.w;
     }
     /**
-     * @private
+     * @internal
      */
     set _EmissionColorA(value) {
         this._emissionColor.w = value;
         this.emissionColor = this._emissionColor;
     }
     /**
-     * @private
+     * @internal
      */
     get _MainTex_STX() {
         return this._shaderValues.getVector(PBRSpecularMaterial.TILINGOFFSET).x;
     }
     /**
-     * @private
+     * @internal
      */
     set _MainTex_STX(x) {
         var tilOff = this._shaderValues.getVector(PBRSpecularMaterial.TILINGOFFSET);
@@ -273,13 +273,13 @@ export class PBRSpecularMaterial extends BaseMaterial {
         this.tilingOffset = tilOff;
     }
     /**
-     * @private
+     * @internal
      */
     get _MainTex_STY() {
         return this._shaderValues.getVector(PBRSpecularMaterial.TILINGOFFSET).y;
     }
     /**
-     * @private
+     * @internal
      */
     set _MainTex_STY(y) {
         var tilOff = this._shaderValues.getVector(PBRSpecularMaterial.TILINGOFFSET);
@@ -287,13 +287,13 @@ export class PBRSpecularMaterial extends BaseMaterial {
         this.tilingOffset = tilOff;
     }
     /**
-     * @private
+     * @internal
      */
     get _MainTex_STZ() {
         return this._shaderValues.getVector(PBRSpecularMaterial.TILINGOFFSET).z;
     }
     /**
-     * @private
+     * @internal
      */
     set _MainTex_STZ(z) {
         var tilOff = this._shaderValues.getVector(PBRSpecularMaterial.TILINGOFFSET);
@@ -301,13 +301,13 @@ export class PBRSpecularMaterial extends BaseMaterial {
         this.tilingOffset = tilOff;
     }
     /**
-     * @private
+     * @internal
      */
     get _MainTex_STW() {
         return this._shaderValues.getVector(PBRSpecularMaterial.TILINGOFFSET).w;
     }
     /**
-     * @private
+     * @internal
      */
     set _MainTex_STW(w) {
         var tilOff = this._shaderValues.getVector(PBRSpecularMaterial.TILINGOFFSET);
@@ -315,13 +315,13 @@ export class PBRSpecularMaterial extends BaseMaterial {
         this.tilingOffset = tilOff;
     }
     /**
-     * @private
+     * @internal
      */
     get _Cutoff() {
         return this.alphaTestValue;
     }
     /**
-     * @private
+     * @internal
      */
     set _Cutoff(value) {
         this.alphaTestValue = value;
@@ -996,5 +996,5 @@ PBRSpecularMaterial.BLEND_SRC = Shader3D.propertyNameToID("s_BlendSrc");
 PBRSpecularMaterial.BLEND_DST = Shader3D.propertyNameToID("s_BlendDst");
 PBRSpecularMaterial.DEPTH_TEST = Shader3D.propertyNameToID("s_DepthTest");
 PBRSpecularMaterial.DEPTH_WRITE = Shader3D.propertyNameToID("s_DepthWrite");
-/**@private */
+/**@internal */
 PBRSpecularMaterial.shaderDefines = null;

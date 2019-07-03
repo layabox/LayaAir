@@ -1,5 +1,4 @@
 export declare class ShaderDefinesBase {
-    _value: number;
     private _name2int;
     private _int2name;
     private _int2nameMap;

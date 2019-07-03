@@ -1,11 +1,11 @@
 import { Physics } from "../Physics";
-import { ColliderShape } from "././ColliderShape";
+import { ColliderShape } from "./ColliderShape";
 /**
  * <code>BoxColliderShape</code> 类用于创建盒子形状碰撞器。
  */
 export class BoxColliderShape extends ColliderShape {
     /**
-    * @private
+    * @internal
     */
     static __init__() {
         BoxColliderShape._nativeSize = new Physics._physics3D.btVector3(0, 0, 0);

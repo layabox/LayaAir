@@ -361,7 +361,7 @@ this._long = long;
 		 * @param	miplevel 层级
 		 */
 		private setSubPixsByImage(x:number, y:number, image:any, miplevel:number = 0):void {
-			var gl:WebGLContext = LayaGL.instance;
+			var gl:WebGL2RenderingContext = LayaGL.instance;
 			var textureType:number = ((<any>this._texture2D ))._glTextureType;
 			WebGLContext.bindTexture(gl, textureType, ((<any>this._texture2D ))._glTexture);
 			var glFormat:number =  ((<any>this._texture2D ))._getGLFormat();

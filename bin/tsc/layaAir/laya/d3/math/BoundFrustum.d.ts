@@ -1,28 +1,12 @@
-import { Vector3 } from "././Vector3";
-import { Matrix4x4 } from "././Matrix4x4";
-import { Plane } from "././Plane";
-import { BoundBox } from "././BoundBox";
-import { BoundSphere } from "././BoundSphere";
+import { Vector3 } from "./Vector3";
+import { Matrix4x4 } from "./Matrix4x4";
+import { Plane } from "./Plane";
+import { BoundBox } from "./BoundBox";
+import { BoundSphere } from "./BoundSphere";
 /**
      * <code>BoundFrustum</code> 类用于创建锥截体。
      */
 export declare class BoundFrustum {
-    /** @private */
-    private static _tempV30;
-    /** @private */
-    private static _tempV31;
-    /** @private */
-    private static _tempV32;
-    /** @private */
-    private static _tempV33;
-    /** @private */
-    private static _tempV34;
-    /** @private */
-    private static _tempV35;
-    /** @private */
-    private static _tempV36;
-    /** @private */
-    private static _tempV37;
     /**4x4矩阵*/
     private _matrix;
     /**近平面*/

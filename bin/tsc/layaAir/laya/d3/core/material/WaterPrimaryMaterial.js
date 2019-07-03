@@ -14,7 +14,7 @@ export class WaterPrimaryMaterial extends BaseMaterial {
         this._shaderValues.setVector(WaterPrimaryMaterial.WAVESPEED, new Vector4(19, 9, -16, -7));
     }
     /**
-     * @private
+     * @internal
      */
     static __initDefine__() {
         WaterPrimaryMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
@@ -114,5 +114,5 @@ WaterPrimaryMaterial.MAINTEXTURE = Shader3D.propertyNameToID("u_MainTexture");
 WaterPrimaryMaterial.NORMALTEXTURE = Shader3D.propertyNameToID("u_NormalTexture");
 WaterPrimaryMaterial.WAVESCALE = Shader3D.propertyNameToID("u_WaveScale");
 WaterPrimaryMaterial.WAVESPEED = Shader3D.propertyNameToID("u_WaveSpeed");
-/**@private */
+/**@internal */
 WaterPrimaryMaterial.shaderDefines = null;

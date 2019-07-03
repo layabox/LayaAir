@@ -1,4 +1,4 @@
-import { ShaderDefines2D } from "././ShaderDefines2D";
+import { ShaderDefines2D } from "./ShaderDefines2D";
 import { DrawStyle } from "../../canvas/DrawStyle";
 import { Shader } from "../Shader";
 export declare class Shader2D {

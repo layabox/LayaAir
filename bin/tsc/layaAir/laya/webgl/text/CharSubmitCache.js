@@ -13,6 +13,7 @@ export class CharSubmitCache {
         this._ndata = 0;
         this._clipid = -1;
         this._clipMatrix = new Matrix();
+        /**@internal */
         this._enbale = false;
     }
     clear() {

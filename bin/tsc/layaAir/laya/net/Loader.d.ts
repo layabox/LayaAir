@@ -1,4 +1,4 @@
-import { HttpRequest } from "././HttpRequest";
+import { HttpRequest } from "./HttpRequest";
 import { EventDispatcher } from "../events/EventDispatcher";
 /**
  * 加载进度发生改变时调度。
@@ -86,26 +86,14 @@ export declare class Loader extends EventDispatcher {
      * @return 数据类型。
      */
     static getTypeFromUrl(url: string): string;
-    /**@private 加载后的数据对象，只读*/
-    _data: any;
     /**@private */
     protected _url: string;
     /**@private */
     protected _type: string;
     /**@private */
-    _cache: boolean;
-    /**@private */
     protected _http: HttpRequest;
     /**@private */
     protected _useWorkerLoader: boolean;
-    /**@private 自定义解析不派发complete事件，但会派发loaded事件，手动调用endLoad方法再派发complete事件*/
-    _customParse: boolean;
-    /**@private */
-    _constructParams: any[];
-    /**@private */
-    _propertyParams: any;
-    /**@private */
-    _createCache: boolean;
     /**
      * 加载资源。加载错误会派发 Event.ERROR 事件，参数为错误信息。
      * @param	url			资源地址。

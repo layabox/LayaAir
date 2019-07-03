@@ -1,12 +1,12 @@
-import { AnimationClipParser03 } from "././AnimationClipParser03";
-import { AnimationClipParser04 } from "././AnimationClipParser04";
-import { KeyframeNodeList } from "././KeyframeNodeList";
+import { AnimationClipParser03 } from "./AnimationClipParser03";
+import { AnimationClipParser04 } from "./AnimationClipParser04";
+import { KeyframeNodeList } from "./KeyframeNodeList";
 import { Quaternion } from "../math/Quaternion";
 import { Utils3D } from "../utils/Utils3D";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Resource } from "../../resource/Resource";
 import { Byte } from "../../utils/Byte";
-import { Laya } from "../../../Laya";
+import { ILaya } from "../../../ILaya";
 /**
  * <code>AnimationClip</code> 类用于动画片段资源。
  */
@@ -16,7 +16,7 @@ export class AnimationClip extends Resource {
      */
     constructor() {
         super();
-        /**@private */
+        /**@internal */
         this._nodes = new KeyframeNodeList();
         this._animationEvents = [];
     }
@@ -46,7 +46,7 @@ export class AnimationClip extends Resource {
      * @param complete  完成回掉。
      */
     static load(url, complete) {
-        Laya.loader.create(url, complete, null, AnimationClip.ANIMATIONCLIP);
+        ILaya.loader.create(url, complete, null, AnimationClip.ANIMATIONCLIP);
     }
     /**
      * 获取动画片段时长。
@@ -54,9 +54,6 @@ export class AnimationClip extends Resource {
     duration() {
         return this._duration;
     }
-    /**
-     * @private
-     */
     _hermiteInterpolate(frame, nextFrame, t, dur) {
         var t0 = frame.outTangent, t1 = nextFrame.inTangent;
         if (Number.isFinite(t0) && Number.isFinite(t1)) {
@@ -71,9 +68,6 @@ export class AnimationClip extends Resource {
         else
             return frame.value;
     }
-    /**
-     * @private
-     */
     _hermiteInterpolateVector3(frame, nextFrame, t, dur, out) {
         var p0 = frame.value;
         var tan0 = frame.outTangent;
@@ -101,9 +95,6 @@ export class AnimationClip extends Resource {
         else
             out.z = p0.z;
     }
-    /**
-     * @private
-     */
     _hermiteInterpolateQuaternion(frame, nextFrame, t, dur, out) {
         var p0 = frame.value;
         var tan0 = frame.outTangent;
@@ -137,7 +128,7 @@ export class AnimationClip extends Resource {
             out.w = p0.w;
     }
     /**
-     * @private
+     * @internal
      */
     _evaluateClipDatasRealTime(nodes, playCurTime, realTimeCurrentFrameIndexes, addtive, frontPlay) {
         for (var i = 0, n = nodes.count; i < n; i++) {
@@ -240,9 +231,6 @@ export class AnimationClip extends Resource {
     _evaluateClipDatasRealTimeForNative(nodes, playCurTime, realTimeCurrentFrameIndexes, addtive) {
         LayaGL.instance.evaluateClipDatasRealTime(nodes._nativeObj, playCurTime, realTimeCurrentFrameIndexes, addtive);
     }
-    /**
-     * @private
-     */
     _evaluateFrameNodeVector3DatasRealTime(keyFrames, frameIndex, isEnd, playCurTime, outDatas) {
         if (frameIndex !== -1) {
             var frame = keyFrames[frameIndex];
@@ -271,9 +259,6 @@ export class AnimationClip extends Resource {
             outDatas.z = firstFrameDatas.z;
         }
     }
-    /**
-     * @private
-     */
     _evaluateFrameNodeQuaternionDatasRealTime(keyFrames, frameIndex, isEnd, playCurTime, outDatas) {
         if (frameIndex !== -1) {
             var frame = keyFrames[frameIndex];
@@ -304,9 +289,6 @@ export class AnimationClip extends Resource {
             outDatas.w = firstFrameDatas.w;
         }
     }
-    /**
-     * @private
-     */
     _binarySearchEventIndex(time) {
         var start = 0;
         var end = this._animationEvents.length - 1;
@@ -340,5 +322,5 @@ export class AnimationClip extends Resource {
 }
 /**AnimationClip资源。*/
 AnimationClip.ANIMATIONCLIP = "ANIMATIONCLIP";
-/**@private	*/
+/**@internal	*/
 AnimationClip._tempQuaternion0 = new Quaternion();

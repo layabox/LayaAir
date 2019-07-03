@@ -1,6 +1,6 @@
-import { TextInput } from "././TextInput";
-import { VScrollBar } from "././VScrollBar";
-import { HScrollBar } from "././HScrollBar";
+import { TextInput } from "./TextInput";
+import { VScrollBar } from "./VScrollBar";
+import { HScrollBar } from "./HScrollBar";
 import { Event } from "../events/Event";
 /**
  * <code>TextArea</code> 类用于创建显示对象以显示和输入文本。

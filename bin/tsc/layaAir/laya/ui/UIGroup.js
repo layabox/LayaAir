@@ -1,4 +1,4 @@
-import { Box } from "././Box";
+import { Box } from "./Box";
 import { Event } from "../events/Event";
 import { Loader } from "../net/Loader";
 import { Handler } from "../utils/Handler";
@@ -102,6 +102,7 @@ export class UIGroup extends Box {
             }
         }
     }
+    /**@internal */
     _afterInited() {
         this.initItems();
     }

@@ -1,9 +1,8 @@
-import { ColliderShape } from "././ColliderShape";
+import { ColliderShape } from "./ColliderShape";
 /**
  * <code>SphereColliderShape</code> 类用于创建球形碰撞器。
  */
 export declare class SphereColliderShape extends ColliderShape {
-    /**@private */
     private _radius;
     /**
      * 获取半径。

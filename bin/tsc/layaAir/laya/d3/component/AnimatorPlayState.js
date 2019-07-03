@@ -21,7 +21,7 @@ export class AnimatorPlayState {
         /*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
     }
     /**
-     * @private
+     * @internal
      */
     _resetPlayState(startTime) {
         this._finish = false;
@@ -31,7 +31,7 @@ export class AnimatorPlayState {
         this._lastIsFront = true;
     }
     /**
-     * @private
+     * @internal
      */
     _cloneTo(dest) {
         dest._finish = this._finish;

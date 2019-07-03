@@ -1,4 +1,4 @@
-import { Widget } from "././Widget";
+import { Widget } from "./Widget";
 import { Animation } from "../display/Animation";
 import { Scene } from "../display/Scene";
 import { Text } from "../display/Text";
@@ -39,13 +39,18 @@ import { ILaya } from "../../ILaya";
 export class View extends Scene {
     constructor() {
         super();
-        /**@private */
+        /**@internal */
         this._watchMap = {};
         /**X锚点，值为0-1，设置anchorX值最终通过pivotX值来改变节点轴心点。*/
         this._anchorX = NaN;
         /**Y锚点，值为0-1，设置anchorY值最终通过pivotY值来改变节点轴心点。*/
         this._anchorY = NaN;
         this._widget = Widget.EMPTY;
+    }
+    static __init__() {
+        ILaya.ClassUtils.regShortClassName([ViewStack, Button, TextArea, ColorPicker, Box, ScaleBox, CheckBox, Clip, ComboBox, UIComponent,
+            HScrollBar, HSlider, Image, Label, List, Panel, ProgressBar, Radio, RadioGroup, ScrollBar, Slider, Tab, TextInput, View,
+            VScrollBar, VSlider, Tree, HBox, VBox, Animation, Text, FontClip]);
     }
     /**
      * @private 兼容老版本
@@ -216,7 +221,4 @@ export class View extends Scene {
 /**@private 兼容老版本*/
 View.uiMap = {};
 ILaya.regClass(View);
-ILaya.ClassUtils.regShortClassName([ViewStack, Button, TextArea, ColorPicker, Box, ScaleBox, CheckBox, Clip, ComboBox, UIComponent,
-    HScrollBar, HSlider, Image, Label, List, Panel, ProgressBar, Radio, RadioGroup, ScrollBar, Slider, Tab, TextInput, View,
-    VScrollBar, VSlider, Tree, HBox, VBox, Animation, Text, FontClip]);
 //dialog 依赖于view，放到这里的话，谁在前都会报错，所以不能放到这里了

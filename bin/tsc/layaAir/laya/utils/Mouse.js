@@ -1,4 +1,4 @@
-import { Browser } from "././Browser";
+import { Browser } from "./Browser";
 /**
      * <code>Mouse</code> 类用于控制鼠标光标样式。
      */

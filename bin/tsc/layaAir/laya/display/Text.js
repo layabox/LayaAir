@@ -1,5 +1,5 @@
-import { Sprite } from "././Sprite";
-import { SpriteConst } from "././SpriteConst";
+import { Sprite } from "./Sprite";
+import { SpriteConst } from "./SpriteConst";
 import { TextStyle } from "./css/TextStyle";
 import { Event } from "../events/Event";
 import { Point } from "../maths/Point";
@@ -120,11 +120,11 @@ export class Text extends Sprite {
         this._charSize = {};
         /**@private */
         this._valign = "top";
-        /**@private */
+        /**@internal */
         this._fontSize = Text.defaultFontSize;
-        /**@private */
+        /**@internal */
         this._font = Text.defaultFont;
-        /**@private */
+        /**@internal */
         this._color = "#000000";
         /**@private */
         this._singleCharRender = false; // 拆分渲染
@@ -190,7 +190,7 @@ export class Text extends Sprite {
         this._charSize = null;
     }
     /**
-     * @private
+     * @internal
      * @inheritDoc
      */
     /*override*/ _getBoundPointsM(ifRotate = false) {
@@ -224,7 +224,7 @@ export class Text extends Sprite {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _getCSSStyle() {
         return this._style;

@@ -1,4 +1,4 @@
-import { TextTexture } from "././TextTexture";
+import { TextTexture } from "./TextTexture";
 import { Point } from "../../maths/Point";
 /**
  *  文字贴图的大图集。

@@ -1,5 +1,4 @@
-import { Mesh2D } from "././Mesh2D";
-import { WebGLContext } from "../WebGLContext";
+import { Mesh2D } from "./Mesh2D";
 /**
  * drawImage，fillRect等会用到的简单的mesh。每次添加必然是一个四边形。
  */
@@ -94,7 +93,7 @@ export class MeshQuadTexture extends Mesh2D {
 }
 MeshQuadTexture.const_stride = 24; // 48;  24是不带clip的
 MeshQuadTexture._maxIB = 16 * 1024;
-MeshQuadTexture._fixattriInfo = [WebGLContext.FLOAT, 4, 0,
-    WebGLContext.UNSIGNED_BYTE, 4, 16,
-    WebGLContext.UNSIGNED_BYTE, 4, 20];
+MeshQuadTexture._fixattriInfo = [WebGL2RenderingContext.FLOAT, 4, 0,
+    WebGL2RenderingContext.UNSIGNED_BYTE, 4, 16,
+    WebGL2RenderingContext.UNSIGNED_BYTE, 4, 20];
 MeshQuadTexture._POOL = [];

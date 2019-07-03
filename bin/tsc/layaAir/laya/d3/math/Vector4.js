@@ -1,5 +1,5 @@
-import { MathUtils3D } from "././MathUtils3D";
-import { Vector2 } from "././Vector2";
+import { MathUtils3D } from "./MathUtils3D";
+import { Vector2 } from "./Vector2";
 /**
  * <code>Vector4</code> 类用于创建四维向量。
  */

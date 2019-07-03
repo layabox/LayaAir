@@ -1,4 +1,3 @@
-import { Laya } from "../../../../Laya";
 import { Sprite } from "../../../display/Sprite";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Loader } from "../../../net/Loader";
@@ -32,9 +31,10 @@ import { PixelLineMaterial } from "../pixelLine/PixelLineMaterial";
 import { PixelLineSprite3D } from "../pixelLine/PixelLineSprite3D";
 import { RenderQueue } from "../render/RenderQueue";
 import { RenderableSprite3D } from "../RenderableSprite3D";
-import { BoundsOctree } from "././BoundsOctree";
+import { BoundsOctree } from "./BoundsOctree";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
 import { Physics } from "../../physics/Physics";
+import { ILaya } from "../../../../ILaya";
 /**
  * <code>Scene3D</code> 类用于实现场景。
  */
@@ -44,48 +44,48 @@ export class Scene3D extends Sprite {
      */
     constructor() {
         super();
-        /** @private */
+        /** @internal */
         this._lights = [];
-        /** @private */
+        /** @internal */
         this._lightmaps = [];
-        /** @private */
+        /** @internal */
         this._skyRenderer = new SkyRenderer();
-        /** @private */
+        /** @internal */
         this._reflectionMode = 1;
-        /** @private */
+        /** @internal */
         this._enableLightCount = 3;
-        /**@private */
+        /**@internal */
         this._input = new Input3D();
-        /**@private */
-        this._timer = Laya.timer;
-        /** @private 只读,不允许修改。*/
+        /**@internal */
+        this._timer = ILaya.timer;
+        /** @internal 只读,不允许修改。*/
         this._collsionTestList = [];
-        /** @private */
+        /** @internal */
         this._renders = new SimpleSingletonList();
-        /** @private */
+        /** @internal */
         this._opaqueQueue = new RenderQueue(false);
-        /** @private */
+        /** @internal */
         this._transparentQueue = new RenderQueue(true);
-        /** @private 相机的对象池*/
+        /** @internal 相机的对象池*/
         this._cameraPool = [];
-        /**@private */
+        /**@internal */
         this._animatorPool = new SimpleSingletonList();
-        /**@private */
+        /**@internal */
         this._scriptPool = new Array();
-        /**@private */
+        /**@internal */
         this._tempScriptPool = new Array();
-        /**@private */
+        /**@internal */
         this._needClearScriptPool = false;
-        /** @private */
+        /** @internal */
         this._castShadowRenders = new CastShadowList();
         /** 当前创建精灵所属遮罩层。*/
         this.currentCreationLayer = Math.pow(2, 0);
         /** 是否启用灯光。*/
         this.enableLight = true;
-        /**@private */
+        /**@internal */
         this._key = new SubmitKey();
         this._time = 0;
-        /**@private [Editer]*/
+        /**@internal [Editer]*/
         this._pickIdToSprite = new Object();
         if (Physics._enbalePhysics)
             this._physicsSimulation = new PhysicsSimulation(Scene3D.physicsSettings);
@@ -125,7 +125,7 @@ export class Scene3D extends Sprite {
         }
     }
     /**
-     * @private
+     * @internal
      */
     static __init__() {
         Scene3DShaderDeclaration.SHADERDEFINE_FOG = Shader3D.registerPublicDefine("FOG");
@@ -148,10 +148,10 @@ export class Scene3D extends Sprite {
      * @param complete 完成回调。
      */
     static load(url, complete) {
-        Laya.loader.create(url, complete, null, Scene3D.HIERARCHY);
+        ILaya.loader.create(url, complete, null, Scene3D.HIERARCHY);
     }
     /**
-     * @private
+     * @internal
      * [Editer]
      */
     _allotPickColorByID(id, pickColor) {
@@ -166,7 +166,7 @@ export class Scene3D extends Sprite {
         pickColor.w = 1.0;
     }
     /**
-     * @private
+     * @internal
      * [Editer]
      */
     _searchIDByPickColor(pickColor) {
@@ -338,7 +338,7 @@ export class Scene3D extends Sprite {
         return this._input;
     }
     /**
-     * @private
+     * @internal
      */
     _setLightmapToChildNode(sprite) {
         if (sprite instanceof RenderableSprite3D)
@@ -348,7 +348,7 @@ export class Scene3D extends Sprite {
             this._setLightmapToChildNode(children[i]);
     }
     /**
-     *@private
+     *@internal
      */
     _update() {
         var delta = this.timer._delta / 1000;
@@ -375,7 +375,7 @@ export class Scene3D extends Sprite {
         this._lateUpdateScript();
     }
     /**
-     * @private
+     * @internal
      */
     _binarySearchIndexInCameraPool(camera) {
         var start = 0;
@@ -394,25 +394,24 @@ export class Scene3D extends Sprite {
         return start;
     }
     /**
-     * @private
      */
     _setCreateURL(url) {
         this._url = URL.formatURL(url);
     }
     /**
-     * @private
+     * @internal
      */
     _getGroup() {
         return this._group;
     }
     /**
-     * @private
+     * @internal
      */
     _setGroup(value) {
         this._group = value;
     }
     /**
-     * @private
+     * @internal
      */
     _clearScript() {
         if (this._needClearScriptPool) {
@@ -431,7 +430,7 @@ export class Scene3D extends Sprite {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _updateScript() {
         var scripts = this._scriptPool;
@@ -441,7 +440,7 @@ export class Scene3D extends Sprite {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _lateUpdateScript() {
         var scripts = this._scriptPool;
@@ -451,7 +450,7 @@ export class Scene3D extends Sprite {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _addScript(script) {
         var scripts = this._scriptPool;
@@ -459,7 +458,7 @@ export class Scene3D extends Sprite {
         scripts.push(script);
     }
     /**
-     * @private
+     * @internal
      */
     _removeScript(script) {
         this._scriptPool[script._indexInPool] = null;
@@ -467,7 +466,7 @@ export class Scene3D extends Sprite {
         this._needClearScriptPool = true;
     }
     /**
-     * @private
+     * @internal
      */
     _preRenderScript() {
         var scripts = this._scriptPool;
@@ -477,7 +476,7 @@ export class Scene3D extends Sprite {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _postRenderScript() {
         var scripts = this._scriptPool;
@@ -487,7 +486,7 @@ export class Scene3D extends Sprite {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _prepareSceneToRender() {
         var lightCount = this._lights.length;
@@ -503,7 +502,7 @@ export class Scene3D extends Sprite {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _addCamera(camera) {
         var index = this._binarySearchIndexInCameraPool(camera);
@@ -514,19 +513,19 @@ export class Scene3D extends Sprite {
         this._cameraPool.splice(index, 0, camera);
     }
     /**
-     * @private
+     * @internal
      */
     _removeCamera(camera) {
         this._cameraPool.splice(this._cameraPool.indexOf(camera), 1);
     }
     /**
-     * @private
+     * @internal
      */
-    _preCulling(context, camera) {
-        FrustumCulling.renderObjectCulling(camera, this, context, this._renders);
+    _preCulling(context, camera, shader, replacementTag) {
+        FrustumCulling.renderObjectCulling(camera, this, context, this._renders, shader, replacementTag);
     }
     /**
-     * @private
+     * @internal
      */
     _clear(gl, state) {
         var viewport = state.viewport;
@@ -544,57 +543,57 @@ export class Scene3D extends Sprite {
         switch (clearFlag) {
             case BaseCamera.CLEARFLAG_SOLIDCOLOR:
                 var clearColor = camera.clearColor;
-                gl.enable(WebGLContext.SCISSOR_TEST);
+                gl.enable(WebGL2RenderingContext.SCISSOR_TEST);
                 gl.scissor(vpX, vpY, vpW, vpH);
                 if (clearColor)
                     gl.clearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
                 else
                     gl.clearColor(0, 0, 0, 0);
                 if (renderTexture) {
-                    flag = WebGLContext.COLOR_BUFFER_BIT;
+                    flag = WebGL2RenderingContext.COLOR_BUFFER_BIT;
                     switch (renderTexture.depthStencilFormat) {
                         case BaseTexture.FORMAT_DEPTH_16:
-                            flag |= WebGLContext.DEPTH_BUFFER_BIT;
+                            flag |= WebGL2RenderingContext.DEPTH_BUFFER_BIT;
                             break;
                         case BaseTexture.FORMAT_STENCIL_8:
-                            flag |= WebGLContext.STENCIL_BUFFER_BIT;
+                            flag |= WebGL2RenderingContext.STENCIL_BUFFER_BIT;
                             break;
                         case BaseTexture.FORMAT_DEPTHSTENCIL_16_8:
-                            flag |= WebGLContext.DEPTH_BUFFER_BIT;
-                            flag |= WebGLContext.STENCIL_BUFFER_BIT;
+                            flag |= WebGL2RenderingContext.DEPTH_BUFFER_BIT;
+                            flag |= WebGL2RenderingContext.STENCIL_BUFFER_BIT;
                             break;
                     }
                 }
                 else {
-                    flag = WebGLContext.COLOR_BUFFER_BIT | WebGLContext.DEPTH_BUFFER_BIT;
+                    flag = WebGL2RenderingContext.COLOR_BUFFER_BIT | WebGL2RenderingContext.DEPTH_BUFFER_BIT;
                 }
                 WebGLContext.setDepthMask(gl, true);
                 gl.clear(flag);
-                gl.disable(WebGLContext.SCISSOR_TEST);
+                gl.disable(WebGL2RenderingContext.SCISSOR_TEST);
                 break;
             case BaseCamera.CLEARFLAG_SKY:
             case BaseCamera.CLEARFLAG_DEPTHONLY:
-                gl.enable(WebGLContext.SCISSOR_TEST);
+                gl.enable(WebGL2RenderingContext.SCISSOR_TEST);
                 gl.scissor(vpX, vpY, vpW, vpH);
                 if (renderTexture) {
                     switch (renderTexture.depthStencilFormat) {
                         case BaseTexture.FORMAT_DEPTH_16:
-                            flag = WebGLContext.DEPTH_BUFFER_BIT;
+                            flag = WebGL2RenderingContext.DEPTH_BUFFER_BIT;
                             break;
                         case BaseTexture.FORMAT_STENCIL_8:
-                            flag = WebGLContext.STENCIL_BUFFER_BIT;
+                            flag = WebGL2RenderingContext.STENCIL_BUFFER_BIT;
                             break;
                         case BaseTexture.FORMAT_DEPTHSTENCIL_16_8:
-                            flag = WebGLContext.DEPTH_BUFFER_BIT | WebGLContext.STENCIL_BUFFER_BIT;
+                            flag = WebGL2RenderingContext.DEPTH_BUFFER_BIT | WebGL2RenderingContext.STENCIL_BUFFER_BIT;
                             break;
                     }
                 }
                 else {
-                    flag = WebGLContext.DEPTH_BUFFER_BIT;
+                    flag = WebGL2RenderingContext.DEPTH_BUFFER_BIT;
                 }
                 WebGLContext.setDepthMask(gl, true);
                 gl.clear(flag);
-                gl.disable(WebGLContext.SCISSOR_TEST);
+                gl.disable(WebGL2RenderingContext.SCISSOR_TEST);
                 break;
             case BaseCamera.CLEARFLAG_NONE:
                 break;
@@ -603,24 +602,24 @@ export class Scene3D extends Sprite {
         }
     }
     /**
-     * @private
+     * @internal
      */
-    _renderScene(gl, state, customShader = null, replacementTag = null) {
-        var camera = state.camera;
-        var position = camera.transform.position;
+    _renderScene(context) {
+        var camera = context.camera;
         var renderTar = camera._renderTexture || camera._offScreenRenderTexture;
-        renderTar ? this._opaqueQueue._render(state, true, customShader, replacementTag) : this._opaqueQueue._render(state, false, customShader, replacementTag); //非透明队列
+        renderTar ? this._opaqueQueue._render(context, true) : this._opaqueQueue._render(context, false); //非透明队列
         if (camera.clearFlag === BaseCamera.CLEARFLAG_SKY) {
             if (camera.skyRenderer._isAvailable())
-                camera.skyRenderer._render(state);
+                camera.skyRenderer._render(context);
             else if (this._skyRenderer._isAvailable())
-                this._skyRenderer._render(state);
+                this._skyRenderer._render(context);
         }
-        renderTar ? this._transparentQueue._render(state, true, customShader, replacementTag) : this._transparentQueue._render(state, false, customShader, replacementTag); //透明队列
+        renderTar ? this._transparentQueue._render(context, true) : this._transparentQueue._render(context, false); //透明队列
         if (FrustumCulling.debugFrustumCulling) {
             var renderElements = this._debugTool._render._renderElements;
             for (var i = 0, n = renderElements.length; i < n; i++) {
-                renderElements[i]._render(state, false, customShader, replacementTag);
+                renderElements[i]._update(this, context, null, null);
+                renderElements[i]._render(context, false);
             }
         }
     }
@@ -673,35 +672,35 @@ export class Scene3D extends Sprite {
      */
     /*override*/ _onActive() {
         super._onActive();
-        Laya.stage._scene3Ds.push(this);
+        ILaya.stage._scene3Ds.push(this);
     }
     /**
      * @inheritDoc
      */
     /*override*/ _onInActive() {
         super._onInActive();
-        var scenes = Laya.stage._scene3Ds;
+        var scenes = ILaya.stage._scene3Ds;
         scenes.splice(scenes.indexOf(this), 1);
     }
     /**
-     * @private
+     * @internal
      */
     _addLight(light) {
         if (this._lights.indexOf(light) < 0)
             this._lights.push(light);
     }
     /**
-     * @private
+     * @internal
      */
     _removeLight(light) {
         var index = this._lights.indexOf(light);
         index >= 0 && (this._lights.splice(index, 1));
     }
     /**
-     * @private
+     * @internal
      */
     _addRenderObject(render) {
-        if (this._octree) {
+        if (this._octree && render._supportOctree) {
             this._octree.add(render);
         }
         else {
@@ -722,10 +721,10 @@ export class Scene3D extends Sprite {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _removeRenderObject(render) {
-        if (this._octree) {
+        if (this._octree && render._supportOctree) {
             this._octree.remove(render);
         }
         else {
@@ -740,7 +739,7 @@ export class Scene3D extends Sprite {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _addShadowCastRenderObject(render) {
         if (this._octree) {
@@ -752,7 +751,7 @@ export class Scene3D extends Sprite {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _removeShadowCastRenderObject(render) {
         if (this._octree) {
@@ -764,7 +763,7 @@ export class Scene3D extends Sprite {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _getRenderQueue(index) {
         if (index <= 2500) //2500作为队列临界点
@@ -832,7 +831,7 @@ export class Scene3D extends Sprite {
         this._children.length > 0 && ctx.addRenderObject(this);
     }
     /**
-     * @private
+     *
      */
     renderSubmit() {
         var gl = LayaGL.instance;
@@ -848,18 +847,18 @@ export class Scene3D extends Sprite {
         return 1;
     }
     /**
-     * @private
+     *
      */
     getRenderType() {
         return 0;
     }
     /**
-     * @private
+     *
      */
     releaseRender() {
     }
     /**
-     * @private
+     *
      */
     reUse(context, pos) {
         return 0;
@@ -867,7 +866,7 @@ export class Scene3D extends Sprite {
 }
 /**Hierarchy资源。*/
 Scene3D.HIERARCHY = "HIERARCHY";
-/**@private */
+/**@internal */
 Scene3D.physicsSettings = new PhysicsSettings();
 /** 是否开启八叉树裁剪。*/
 Scene3D.octreeCulling = false;
@@ -879,9 +878,7 @@ Scene3D.octreeInitialCenter = new Vector3(0, 0, 0);
 Scene3D.octreeMinNodeSize = 2.0;
 /** 八叉树松散值。*/
 Scene3D.octreeLooseness = 1.25;
-/**@private */
 Scene3D.REFLECTIONMODE_SKYBOX = 0;
-/**@private */
 Scene3D.REFLECTIONMODE_CUSTOM = 1;
 Scene3D.FOGCOLOR = Shader3D.propertyNameToID("u_FogColor");
 Scene3D.FOGSTART = Shader3D.propertyNameToID("u_FogStart");

@@ -1,4 +1,4 @@
-import { Component } from "././Component";
+import { Component } from "./Component";
 import { Event } from "../events/Event";
 import { ILaya } from "../../ILaya";
 /**
@@ -101,7 +101,7 @@ export class Script extends Component {
         ILaya.lateTimer.clearAll(this);
     }
     /**
-     * @inheritDoc
+     * @internal
      */
     /*override*/ _isScript() {
         return true;

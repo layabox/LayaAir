@@ -1,14 +1,9 @@
-import { Vector3 } from "././Vector3";
-import { Matrix4x4 } from "././Matrix4x4";
+import { Vector3 } from "./Vector3";
 import { IClone } from "../core/IClone";
 /**
  * <code>BoundBox</code> 类用于创建包围盒。
  */
 export declare class BoundBox implements IClone {
-    /**@private */
-    private static _tempVector30;
-    /**@private */
-    private static _tempVector31;
     /**最小顶点。*/
     min: Vector3;
     /**最大顶点。*/
@@ -19,10 +14,6 @@ export declare class BoundBox implements IClone {
      * @param	max 包围盒的最大顶点。
      */
     constructor(min: Vector3, max: Vector3);
-    /**
-     * @private
-     */
-    private _rotateExtents;
     /**
      * 获取包围盒的8个角顶点。
      * @param	corners 返回顶点的输出队列。
@@ -43,10 +34,6 @@ export declare class BoundBox implements IClone {
      * @param	center
      */
     setCenterAndExtent(center: Vector3, extent: Vector3): void;
-    /**
-     * @private
-     */
-    tranform(matrix: Matrix4x4, out: BoundBox): void;
     toDefault(): void;
     /**
      * 从顶点生成包围盒。

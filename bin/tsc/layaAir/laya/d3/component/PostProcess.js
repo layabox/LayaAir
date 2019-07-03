@@ -14,19 +14,16 @@ export class PostProcess {
      * 创建一个 <code>PostProcess</code> 实例。
      */
     constructor() {
-        /**@private */
         this._compositeShader = Shader3D.find("PostProcessComposite");
-        /**@private */
         this._compositeShaderData = new ShaderData();
-        /**@private */
+        /**@internal */
         this._context = null;
-        /**@private */
         this._effects = [];
         this._context = new PostProcessRenderContext();
         this._context.compositeShaderData = this._compositeShaderData;
     }
     /**
-     * @private
+     * @internal
      */
     static __init__() {
         PostProcess.SHADERDEFINE_BLOOM_LOW = PostProcess.shaderDefines.registerDefine("BLOOM_LOW");
@@ -34,14 +31,14 @@ export class PostProcess {
         PostProcess.SHADERDEFINE_FINALPASS = PostProcess.shaderDefines.registerDefine("FINALPASS");
     }
     /**
-     *@private
+     *@internal
      */
     _init(camera, command) {
         this._context.camera = camera;
         this._context.command = command;
     }
     /**
-     * @private
+     * @internal
      */
     _render() {
         var camera = this._context.camera;
@@ -85,21 +82,21 @@ export class PostProcess {
             this._effects.splice(index, 1);
     }
 }
-/**@private */
+/**@internal */
 PostProcess.SHADERVALUE_MAINTEX = Shader3D.propertyNameToID("u_MainTex");
-/**@private */
+/**@internal */
 PostProcess.SHADERVALUE_BLOOMTEX = Shader3D.propertyNameToID("u_BloomTex");
-/**@private */
+/**@internal */
 PostProcess.SHADERVALUE_AUTOEXPOSURETEX = Shader3D.propertyNameToID("u_AutoExposureTex");
-/**@private */
+/**@internal */
 PostProcess.SHADERVALUE_BLOOM_DIRTTEX = Shader3D.propertyNameToID("u_Bloom_DirtTex");
-/**@private */
+/**@internal */
 PostProcess.SHADERVALUE_BLOOMTEX_TEXELSIZE = Shader3D.propertyNameToID("u_BloomTex_TexelSize");
-/**@private */
+/**@internal */
 PostProcess.SHADERVALUE_BLOOM_DIRTTILEOFFSET = Shader3D.propertyNameToID("u_Bloom_DirtTileOffset");
-/**@private */
+/**@internal */
 PostProcess.SHADERVALUE_BLOOM_SETTINGS = Shader3D.propertyNameToID("u_Bloom_Settings");
-/**@private */
+/**@internal */
 PostProcess.SHADERVALUE_BLOOM_COLOR = Shader3D.propertyNameToID("u_Bloom_Color");
-/**@private */
+/**@internal */
 PostProcess.shaderDefines = new ShaderDefines();

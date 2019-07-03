@@ -1,16 +1,11 @@
-import { BaseShape } from "././BaseShape";
+import { BaseShape } from "./BaseShape";
 import { BoundBox } from "../../../../math/BoundBox";
 import { Rand } from "../../../../math/Rand";
-import { Vector2 } from "../../../../math/Vector2";
 import { Vector3 } from "../../../../math/Vector3";
 /**
  * <code>ConeShape</code> 类用于创建锥形粒子形状。
  */
 export declare class ConeShape extends BaseShape {
-    /** @private */
-    protected static _tempPositionPoint: Vector2;
-    /** @private */
-    protected static _tempDirectionPoint: Vector2;
     /**发射角度。*/
     angle: number;
     /**发射器半径。*/

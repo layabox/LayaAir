@@ -1,5 +1,5 @@
 /**
- * @private
+ * @internal
  * <code>RenderQuene</code> 类用于实现渲染队列。
  */
 export class RenderQueue {
@@ -7,11 +7,18 @@ export class RenderQueue {
      * 创建一个 <code>RenderQuene</code> 实例。
      */
     constructor(isTransparent = false) {
+        /** @internal [只读]*/
+        this.isTransparent = false;
+        /** @internal */
+        this.elements = new Array();
+        /** @internal */
+        this.lastTransparentRenderElement = null;
+        /** @internal */
+        this.lastTransparentBatched = false;
         this.isTransparent = isTransparent;
-        this.elements = [];
     }
     /**
-     * @private
+     * @internal
      */
     _compare(left, right) {
         var renderQueue = left.material.renderQueue - right.material.renderQueue;
@@ -24,7 +31,7 @@ export class RenderQueue {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _partitionRenderObject(left, right) {
         var pivot = this.elements[Math.floor((right + left) / 2)];
@@ -48,7 +55,7 @@ export class RenderQueue {
         return left;
     }
     /**
-     * @private
+     * @internal
      */
     _quickSort(left, right) {
         if (this.elements.length > 1) {
@@ -61,14 +68,14 @@ export class RenderQueue {
         }
     }
     /**
-     * @private
+     * @internal
      */
-    _render(context, isTarget, customShader = null, replacementTag = null) {
+    _render(context, isTarget) {
         for (var i = 0, n = this.elements.length; i < n; i++)
-            this.elements[i]._render(context, isTarget, customShader, replacementTag);
+            this.elements[i]._render(context, isTarget);
     }
     /**
-     * @private
+     * @internal
      */
     clear() {
         this.elements.length = 0;

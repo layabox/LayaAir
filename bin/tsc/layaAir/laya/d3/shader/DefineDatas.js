@@ -9,19 +9,19 @@ export class DefineDatas {
         this.value = 0;
     }
     /**
-     * @private
+     * @internal
      */
     add(define) {
         this.value |= define;
     }
     /**
-     * @private
+     * @internal
      */
     remove(define) {
         this.value &= ~define;
     }
     /**
-     * @private
+     * @internal
      */
     has(define) {
         return (this.value & define) > 0;

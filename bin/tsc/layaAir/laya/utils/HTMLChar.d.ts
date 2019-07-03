@@ -44,8 +44,4 @@ export declare class HTMLChar {
      * 创建
      */
     static create(): HTMLChar;
-    /** @private */
-    _isChar(): boolean;
-    /** @private */
-    _getCSSStyle(): any;
 }

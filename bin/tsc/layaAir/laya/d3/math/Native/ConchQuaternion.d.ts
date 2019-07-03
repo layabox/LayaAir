@@ -1,4 +1,4 @@
-import { ConchVector3 } from "././ConchVector3";
+import { ConchVector3 } from "./ConchVector3";
 import { IClone } from "../../core/IClone";
 import { Matrix3x3 } from "../Matrix3x3";
 import { Matrix4x4 } from "../Matrix4x4";
@@ -6,36 +6,10 @@ import { Matrix4x4 } from "../Matrix4x4";
  * <code>Quaternion</code> 类用于创建四元数。
  */
 export declare class ConchQuaternion implements IClone {
-    /**@private */
-    static TEMPVector30: ConchVector3;
-    /**@private */
-    static TEMPVector31: ConchVector3;
-    /**@private */
-    static TEMPVector32: ConchVector3;
-    /**@private */
-    static TEMPVector33: ConchVector3;
-    /**@private */
-    static TEMPMatrix0: Matrix4x4;
-    /**@private */
-    static TEMPMatrix1: Matrix4x4;
-    /**@private */
-    static _tempMatrix3x3: Matrix3x3;
     /**默认矩阵,禁止修改*/
     static DEFAULT: ConchQuaternion;
     /**无效矩阵,禁止修改*/
     static NAN: ConchQuaternion;
-    /**
-     * @private
-     */
-    static _dotArray(l: Float32Array, r: Float32Array): number;
-    /**
-     * @private
-     */
-    static _normalizeArray(f: Float32Array, o: Float32Array): void;
-    /**
-     * @private
-     */
-    static _lerpArray(l: Float32Array, r: Float32Array, amount: number, o: Float32Array): void;
     /**
      *  从欧拉角生成四元数（顺序为Yaw、Pitch、Roll）
      * @param	yaw yaw值

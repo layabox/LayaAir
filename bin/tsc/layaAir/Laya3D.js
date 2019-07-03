@@ -72,6 +72,7 @@ import { Rigidbody3D } from "./laya/d3/physics/Rigidbody3D";
 import { Animator } from "./laya/d3/component/Animator";
 import { Command } from "./laya/d3/core/render/command/Command";
 import { ClassUtils } from "./laya/utils/ClassUtils";
+import { StaticPlaneColliderShape } from "./laya/d3/physics/shape/StaticPlaneColliderShape";
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
  */
@@ -139,6 +140,7 @@ export class Laya3D {
         SubMeshDynamicBatch.__init__();
         Physics._physics3D = window.Physics3D;
         if (Physics._physics3D) {
+            StaticPlaneColliderShape.__init__();
             ColliderShape.__init__();
             CompoundColliderShape.__init__();
             PhysicsComponent.__init__();
@@ -307,7 +309,7 @@ export class Laya3D {
             }
         }
         WebGL.shaderHighPrecision = false;
-        var precisionFormat = LayaGL.instance.getShaderPrecisionFormat(WebGLContext.FRAGMENT_SHADER, WebGLContext.HIGH_FLOAT);
+        var precisionFormat = LayaGL.instance.getShaderPrecisionFormat(WebGL2RenderingContext.FRAGMENT_SHADER, WebGL2RenderingContext.HIGH_FLOAT);
         precisionFormat.precision ? WebGL.shaderHighPrecision = true : WebGL.shaderHighPrecision = false;
     }
     /**

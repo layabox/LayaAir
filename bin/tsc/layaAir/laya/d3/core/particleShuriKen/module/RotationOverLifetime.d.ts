@@ -1,10 +1,9 @@
-import { GradientAngularVelocity } from "././GradientAngularVelocity";
+import { GradientAngularVelocity } from "./GradientAngularVelocity";
 import { IClone } from "../../IClone";
 /**
  * <code>RotationOverLifetime</code> 类用于粒子的生命周期旋转。
  */
 export declare class RotationOverLifetime implements IClone {
-    /**@private */
     private _angularVelocity;
     /**是否启用*/
     enbale: boolean;

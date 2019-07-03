@@ -1,4 +1,4 @@
-import { ColliderShape } from "././ColliderShape";
+import { ColliderShape } from "./ColliderShape";
 import { Physics } from "../Physics";
 /**
  * <code>SphereColliderShape</code> 类用于创建球形碰撞器。

@@ -8,7 +8,7 @@ export class SkyMesh {
     constructor() {
     }
     /**
-     * @private
+     * @internal
      */
     _render(state) {
     }

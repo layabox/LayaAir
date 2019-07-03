@@ -1,12 +1,10 @@
-import { RenderableSprite3D } from "././RenderableSprite3D";
+import { RenderableSprite3D } from "./RenderableSprite3D";
 import { Mesh } from "../resource/models/Mesh";
 /**
  * <code>MeshFilter</code> 类用于创建网格过滤器。
  */
 export declare class MeshFilter {
-    /** @private */
     private _owner;
-    /** @private */
     private _sharedMesh;
     /**
      * 获取共享网格。
@@ -22,9 +20,6 @@ export declare class MeshFilter {
      * @param owner 所属网格精灵。
      */
     constructor(owner: RenderableSprite3D);
-    /**
-     * @private
-     */
     private _getMeshDefine;
     /**
      * @inheritDoc

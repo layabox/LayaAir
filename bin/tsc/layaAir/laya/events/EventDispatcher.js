@@ -67,7 +67,7 @@ export class EventDispatcher {
     once(type, caller, listener, args = null) {
         return this._createListener(type, caller, listener, args, true);
     }
-    /**@private */
+    /**@internal */
     _createListener(type, caller, listener, args, once, offBefore = true) {
         //移除之前相同的监听
         offBefore && this.off(type, caller, listener, once);

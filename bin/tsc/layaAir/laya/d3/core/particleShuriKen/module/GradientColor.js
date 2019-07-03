@@ -6,19 +6,12 @@ export class GradientColor {
      * 创建一个 <code>GradientColor,不允许new，请使用静态创建函数。</code> 实例。
      */
     constructor() {
-        /**@private */
         this._type = 0;
-        /**@private */
         this._constant = null;
-        /**@private */
         this._constantMin = null;
-        /**@private */
         this._constantMax = null;
-        /**@private */
         this._gradient = null;
-        /**@private */
         this._gradientMin = null;
-        /**@private */
         this._gradientMax = null;
     }
     /**

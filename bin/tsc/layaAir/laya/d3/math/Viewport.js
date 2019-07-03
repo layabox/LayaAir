@@ -1,5 +1,5 @@
-import { Matrix4x4 } from "././Matrix4x4";
-import { Vector3 } from "././Vector3";
+import { Matrix4x4 } from "./Matrix4x4";
+import { Vector3 } from "./Vector3";
 /**
      * <code>Viewport</code> 类用于创建视口。
      */
@@ -12,7 +12,7 @@ export class Viewport {
      * @param	height 高度。
      */
     constructor(x, y, width, height) {
-        this.minDepth = 0.0; //TODO:待确认，-1。
+        this.minDepth = 0.0;
         this.maxDepth = 1.0;
         this.x = x;
         this.y = y;
@@ -38,21 +38,6 @@ export class Viewport {
         out.x = (((out.x + 1.0) * 0.5) * this.width) + this.x;
         out.y = (((-out.y + 1.0) * 0.5) * this.height) + this.y;
         out.z = (out.z * (this.maxDepth - this.minDepth)) + this.minDepth;
-    }
-    project1(source, matrix, out) {
-        var v4 = Vector3._tempVector4;
-        Vector3.transformV3ToV4(source, matrix, v4);
-        //v4e[3]是z，是相对于摄像机的位置。注意有时候可能为0
-        var dist = v4.w;
-        if (dist < 1e-1 && dist > -1e-6)
-            dist = 1e-6;
-        v4.x /= dist;
-        v4.y /= dist;
-        v4.z /= dist;
-        out.x = (v4.x + 1) * this.width / 2 + this.x;
-        out.y = (-v4.y + 1) * this.height / 2 + this.y;
-        out.z = v4.w;
-        return;
     }
     /**
      * 反变换一个三维向量。

@@ -1,9 +1,9 @@
-import { AnimationContent } from "././AnimationContent";
-import { AnimationNodeContent } from "././AnimationNodeContent";
-import { KeyFramesContent } from "././KeyFramesContent";
+import { AnimationContent } from "./AnimationContent";
+import { AnimationNodeContent } from "./AnimationNodeContent";
+import { KeyFramesContent } from "./KeyFramesContent";
 import { IAniLib } from "./AniLibPack";
 /**
- * @private
+ * @internal
  */
 export class AnimationParser02 {
     /**

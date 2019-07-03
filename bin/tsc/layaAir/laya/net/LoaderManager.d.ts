@@ -70,10 +70,6 @@ export declare class LoaderManager extends EventDispatcher {
     /**
      * @private
      */
-    _create(url: any, mainResou: boolean, complete?: Handler, progress?: Handler, type?: string, constructParams?: any[], propertyParams?: any, priority?: number, cache?: boolean): void;
-    /**
-     * @private
-     */
     private _createOne;
     /**
      * <p>加载资源。资源加载错误时，本对象会派发 Event.ERROR 事件，事件回调参数值为加载出错的资源地址。</p>
@@ -91,10 +87,6 @@ export declare class LoaderManager extends EventDispatcher {
      */
     load(url: any, complete?: Handler, progress?: Handler, type?: string, priority?: number, cache?: boolean, group?: string, ignoreCache?: boolean, useWorkerLoader?: boolean): LoaderManager;
     private _resInfoLoaded;
-    /**
-     * @private
-     */
-    _createLoad(url: any, complete?: Handler, progress?: Handler, type?: string, constructParams?: any[], propertyParams?: any, priority?: number, cache?: boolean, ignoreCache?: boolean): LoaderManager;
     private _next;
     private _doLoad;
     private _endLoad;

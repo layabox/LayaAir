@@ -1,16 +1,13 @@
-import { Burst } from "././Burst";
+import { Burst } from "./Burst";
 import { IClone } from "../../IClone";
 import { IDestroy } from "../../../../resource/IDestroy";
 /**
  * <code>Emission</code> 类用于粒子发射器。
  */
 export declare class Emission implements IClone, IDestroy {
-    /**@private */
     private _destroyed;
-    /**@private 粒子发射速率,每秒发射的个数。*/
+    /** 粒子发射速率,每秒发射的个数。*/
     private _emissionRate;
-    /**@private 粒子的爆裂,不允许修改。*/
-    _bursts: Burst[];
     /**是否启用。*/
     enbale: boolean;
     /**
@@ -31,10 +28,6 @@ export declare class Emission implements IClone, IDestroy {
      * 创建一个 <code>Emission</code> 实例。
      */
     constructor();
-    /**
-     * @private
-     */
-    destroy(): void;
     /**
      * 获取粒子爆裂个数。
      * @return 粒子爆裂个数。

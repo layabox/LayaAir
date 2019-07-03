@@ -1,7 +1,4 @@
 import { Texture } from "../../resource/Texture";
-/**
- * @private
- */
 export class SkinSlotDisplayData {
     createTexture(currTexture) {
         if (this.texture)

@@ -1,4 +1,4 @@
-import { AtlasInfoManager } from "././AtlasInfoManager";
+import { AtlasInfoManager } from "./AtlasInfoManager";
 import { Event } from "../events/Event";
 import { EventDispatcher } from "../events/EventDispatcher";
 import { Loader } from "./Loader";
@@ -83,7 +83,7 @@ export class LoaderManager extends EventDispatcher {
         this._create(url, true, complete, progress, type, constructParams, propertyParams, priority, cache);
     }
     /**
-     * @private
+     * @internal
      */
     _create(url, mainResou, complete = null, progress = null, type = null, constructParams = null, propertyParams = null, priority = 1, cache = true) {
         if (url instanceof Array) {
@@ -235,7 +235,7 @@ export class LoaderManager extends EventDispatcher {
         complete.runWith(Loader.getRes(original));
     }
     /**
-     * @private
+     * @internal
      */
     _createLoad(url, complete = null, progress = null, type = null, constructParams = null, propertyParams = null, priority = 1, cache = true, ignoreCache = false) {
         if (url instanceof Array)
@@ -259,6 +259,7 @@ export class LoaderManager extends EventDispatcher {
                 info.cache = false;
                 info.ignoreCache = ignoreCache;
                 info.originalUrl = null;
+                info.group = null;
                 info.createCache = cache;
                 info.createConstructParams = constructParams;
                 info.createPropertyParams = propertyParams;

@@ -1,4 +1,4 @@
-import { Pool } from "././Pool";
+import { Pool } from "./Pool";
 /**
      * @private
      * <code>HTMLChar</code> 是一个 HTML 字符类。
@@ -51,11 +51,11 @@ export class HTMLChar {
     static create() {
         return Pool.getItemByClass("HTMLChar", HTMLChar);
     }
-    /** @private */
+    /** @internal */
     _isChar() {
         return true;
     }
-    /** @private */
+    /** @internal */
     _getCSSStyle() {
         return this.style;
     }

@@ -1,11 +1,10 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { Stat } from "../../utils/Stat";
-import { WebGLContext } from "../../webgl/WebGLContext";
 import { GeometryElement } from "../core/GeometryElement";
-import { VertexBuffer3D } from "././VertexBuffer3D";
+import { VertexBuffer3D } from "./VertexBuffer3D";
 import { VertexMesh } from "./Vertex/VertexMesh";
 /**
- * @private
+ * @internal
  */
 export class SubMeshInstanceBatch extends GeometryElement {
     /**
@@ -13,21 +12,21 @@ export class SubMeshInstanceBatch extends GeometryElement {
      */
     constructor() {
         super();
-        /** @private */
+        /** @internal */
         this.maxInstanceCount = 1024;
-        /** @private */
+        /** @internal */
         this.instanceWorldMatrixData = new Float32Array(this.maxInstanceCount * 16);
-        /** @private */
+        /** @internal */
         this.instanceMVPMatrixData = new Float32Array(this.maxInstanceCount * 16);
-        /** @private */
-        this.instanceWorldMatrixBuffer = new VertexBuffer3D(this.instanceWorldMatrixData.length * 4, WebGLContext.DYNAMIC_DRAW);
-        /** @private */
-        this.instanceMVPMatrixBuffer = new VertexBuffer3D(this.instanceMVPMatrixData.length * 4, WebGLContext.DYNAMIC_DRAW);
+        /** @internal */
+        this.instanceWorldMatrixBuffer = new VertexBuffer3D(this.instanceWorldMatrixData.length * 4, WebGL2RenderingContext.DYNAMIC_DRAW);
+        /** @internal */
+        this.instanceMVPMatrixBuffer = new VertexBuffer3D(this.instanceMVPMatrixData.length * 4, WebGL2RenderingContext.DYNAMIC_DRAW);
         this.instanceWorldMatrixBuffer.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
         this.instanceMVPMatrixBuffer.vertexDeclaration = VertexMesh.instanceMVPMatrixDeclaration;
     }
     /**
-     * @private
+     * @internal
      */
     static __init__() {
         SubMeshInstanceBatch.instance = new SubMeshInstanceBatch();
@@ -41,7 +40,7 @@ export class SubMeshInstanceBatch extends GeometryElement {
         var count = element.instanceBatchElementList.length;
         var indexCount = subMesh._indexCount;
         subMesh._mesh._instanceBufferState.bind();
-        LayaGL.layaGPUInstance.drawElementsInstanced(WebGLContext.TRIANGLES, indexCount, WebGLContext.UNSIGNED_SHORT, subMesh._indexStart * 2, count);
+        LayaGL.layaGPUInstance.drawElementsInstanced(WebGL2RenderingContext.TRIANGLES, indexCount, WebGL2RenderingContext.UNSIGNED_SHORT, subMesh._indexStart * 2, count);
         Stat.renderBatches++;
         Stat.savedRenderBatches += count - 1;
         Stat.trianglesFaces += indexCount * count / 3;

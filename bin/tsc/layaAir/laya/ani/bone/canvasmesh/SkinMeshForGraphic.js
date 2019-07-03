@@ -1,8 +1,4 @@
 import { MeshData } from "./MeshData";
-/**
- * ...
- * @author ww
- */
 export class SkinMeshForGraphic extends MeshData {
     //TODO:coverage
     constructor() {

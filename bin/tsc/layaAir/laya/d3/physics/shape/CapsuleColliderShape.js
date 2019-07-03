@@ -1,6 +1,6 @@
 import { Vector3 } from "../../math/Vector3";
 import { Physics } from "../Physics";
-import { ColliderShape } from "././ColliderShape";
+import { ColliderShape } from "./ColliderShape";
 /**
  * <code>CapsuleColliderShape</code> 类用于创建胶囊形状碰撞器。
  */
@@ -81,5 +81,5 @@ export class CapsuleColliderShape extends ColliderShape {
         return dest;
     }
 }
-/** @private */
+/** @internal */
 CapsuleColliderShape._tempVector30 = new Vector3();

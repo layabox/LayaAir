@@ -1,6 +1,3 @@
-/**
- * @private
- */
 export class SlotData {
     constructor() {
         this.displayArr = [];

@@ -20,11 +20,6 @@ export declare class WorkerLoader extends EventDispatcher {
     protected _useWorkerLoader: boolean;
     constructor();
     /**
-     * 尝试使用Work加载Image
-     * @return 是否启动成功
-     */
-    static __init__(): boolean;
-    /**
      * 是否支持worker
      * @return 是否支持worker
      */

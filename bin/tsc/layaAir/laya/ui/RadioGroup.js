@@ -1,4 +1,4 @@
-import { UIGroup } from "././UIGroup";
+import { UIGroup } from "./UIGroup";
 import { Radio } from "./Radio";
 import { ILaya } from "../../ILaya";
 /**

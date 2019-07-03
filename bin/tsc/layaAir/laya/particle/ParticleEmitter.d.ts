@@ -1,4 +1,4 @@
-import { ParticleTemplateBase } from "././ParticleTemplateBase";
+import { ParticleTemplateBase } from "./ParticleTemplateBase";
 /**
  *  @private
  */

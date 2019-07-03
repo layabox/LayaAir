@@ -1,7 +1,6 @@
 /**
-     * @private
-     * <code>IReferenceCounter</code> 引用计数器接口。
-     */
+* <code>IReferenceCounter</code> 引用计数器接口。
+*/
 export interface IReferenceCounter {
     _getReferenceCount(): number;
     _addReference(count: number): void;

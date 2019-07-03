@@ -6,15 +6,14 @@ export class AnimatorState {
      * 创建一个 <code>AnimatorState</code> 实例。
      */
     constructor() {
-        /**@private */
         this._referenceCount = 0;
-        /**@private */
+        /**@internal */
         this._clip = null;
-        /**@private */
+        /**@internal */
         this._nodeOwners = []; //TODO:提出去
-        /**@private */
+        /**@internal */
         this._currentFrameIndices = null;
-        /**@private */
+        /**@internal */
         this._scripts = null;
         /**动画播放速度,1.0为正常播放速度。*/
         this.speed = 1.0;
@@ -47,14 +46,12 @@ export class AnimatorState {
         }
     }
     /**
-     * @private
      * [实现IReferenceCounter接口]
      */
     _getReferenceCount() {
         return this._referenceCount;
     }
     /**
-     * @private
      * [实现IReferenceCounter接口]
      */
     _addReference(count = 1) {
@@ -62,7 +59,6 @@ export class AnimatorState {
         this._referenceCount += count;
     }
     /**
-     * @private
      * [实现IReferenceCounter接口]
      */
     _removeReference(count = 1) {
@@ -70,14 +66,13 @@ export class AnimatorState {
         this._referenceCount -= count;
     }
     /**
-     * @private
      * [实现IReferenceCounter接口]
      */
     _clearReference() {
         this._removeReference(-this._referenceCount);
     }
     /**
-     * @private
+     * @internal
      */
     _resetFrameIndices() {
         for (var i = 0, n = this._currentFrameIndices.length; i < n; i++)

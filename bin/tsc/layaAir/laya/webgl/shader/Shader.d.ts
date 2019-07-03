@@ -1,9 +1,8 @@
 import { StringKey } from "../../utils/StringKey";
-import { BaseShader } from "././BaseShader";
-import { ShaderValue } from "././ShaderValue";
+import { BaseShader } from "./BaseShader";
+import { ShaderValue } from "./ShaderValue";
 export declare class Shader extends BaseShader {
     private static _count;
-    static _preCompileShader: any;
     private _attribInfo;
     static SHADERNAME2ID: number;
     static nameKey: StringKey;
@@ -50,11 +49,6 @@ export declare class Shader extends BaseShader {
     private _curActTexIndex;
     private _reCompile;
     tag: any;
-    _vshader: any;
-    _pshader: any;
-    _program: any;
-    _params: any[];
-    _paramsMap: any;
     /**
      * 根据vs和ps信息生成shader对象
      * 把自己存储在 sharders 数组中

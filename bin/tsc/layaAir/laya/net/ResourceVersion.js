@@ -1,5 +1,5 @@
-import { Loader } from "././Loader";
-import { URL } from "././URL";
+import { Loader } from "./Loader";
+import { URL } from "./URL";
 import { Handler } from "../utils/Handler";
 import { ILaya } from "../../ILaya";
 /**

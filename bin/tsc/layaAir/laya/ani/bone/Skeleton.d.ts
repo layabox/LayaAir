@@ -1,5 +1,5 @@
-import { Bone } from "././Bone";
-import { BoneSlot } from "././BoneSlot";
+import { Bone } from "./Bone";
+import { BoneSlot } from "./BoneSlot";
 import { AnimationPlayer } from "../AnimationPlayer";
 import { GraphicsAni } from "../GraphicsAni";
 import { Sprite } from "../../display/Sprite";
@@ -33,7 +33,6 @@ export declare class Skeleton extends Sprite {
     protected _curOriginalData: Float32Array;
     private _boneMatrixArray;
     private _lastTime;
-    private _currAniName;
     private _currAniIndex;
     private _pause;
     /** @private */
@@ -51,7 +50,6 @@ export declare class Skeleton extends Sprite {
     private _total;
     private _indexControl;
     private _aniPath;
-    private _texturePath;
     private _complete;
     private _loadAniMode;
     private _yReverseMatrix;

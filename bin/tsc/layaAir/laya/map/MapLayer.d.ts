@@ -9,15 +9,10 @@ import { TiledMap } from "./TiledMap";
  */
 export declare class MapLayer extends Sprite {
     private _map;
-    _mapData: any[];
     private _tileWidthHalf;
     private _tileHeightHalf;
     private _mapWidthHalf;
     private _mapHeightHalf;
-    /**
-     * @private
-     */
-    _gridSpriteArray: any[];
     private _objDic;
     private _dataDic;
     private _tempMapPos;

@@ -4,14 +4,13 @@ import { VertexBuffer3D } from "../graphics/VertexBuffer3D";
 import { HalfFloatUtils } from "../math/HalfFloatUtils";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { SubMesh } from "../resource/models/SubMesh";
-import { WebGLContext } from "../../webgl/WebGLContext";
 /**
- * @private
+ * @internal
  * <code>LoadModelV05</code> 类用于模型加载。
  */
 export class LoadModelV05 {
     /**
-     * @private
+     * @internal
      */
     static parse(readData, version, mesh, subMeshes) {
         LoadModelV05._mesh = mesh;
@@ -40,20 +39,20 @@ export class LoadModelV05 {
         LoadModelV05._subMeshes = null;
     }
     /**
-     * @private
+     * @internal
      */
     static _readString() {
         return LoadModelV05._strings[LoadModelV05._readData.getUint16()];
     }
     /**
-     * @private
+     * @internal
      */
     static READ_DATA() {
         LoadModelV05._DATA.offset = LoadModelV05._readData.getUint32();
         LoadModelV05._DATA.size = LoadModelV05._readData.getUint32();
     }
     /**
-     * @private
+     * @internal
      */
     static READ_BLOCK() {
         var count = LoadModelV05._BLOCK.count = LoadModelV05._readData.getUint16();
@@ -65,7 +64,7 @@ export class LoadModelV05 {
         }
     }
     /**
-     * @private
+     * @internal
      */
     static READ_STRINGS() {
         var offset = LoadModelV05._readData.getUint32();
@@ -77,7 +76,7 @@ export class LoadModelV05 {
         LoadModelV05._readData.pos = prePos;
     }
     /**
-     * @private
+     * @internal
      */
     static READ_MESH() {
         var i, n;
@@ -92,18 +91,22 @@ export class LoadModelV05 {
             var vertexFlag = LoadModelV05._readString();
             var vertexDeclaration = VertexMesh.getVertexDeclaration(vertexFlag, false);
             var vertexStride = vertexDeclaration.vertexStride;
-            var vertexData = new ArrayBuffer(vertexStride * vertexCount);
-            var floatData = new Float32Array(vertexData);
+            var vertexData;
+            var floatData;
+            var uint8Data;
             var subVertexFlags = vertexFlag.split(",");
             var subVertexCount = subVertexFlags.length;
             switch (LoadModelV05._version) {
                 case "LAYAMODEL:05":
-                    floatData = new Float32Array(arrayBuffer.slice(vbStart, vbStart + vertexCount * vertexStride));
+                    vertexData = arrayBuffer.slice(vbStart, vbStart + vertexCount * vertexStride);
+                    floatData = new Float32Array(vertexData);
+                    uint8Data = new Uint8Array(vertexData);
                     break;
                 case "LAYAMODEL:COMPRESSION_05":
-                    var lastPosition = LoadModelV05._readData.pos;
+                    vertexData = new ArrayBuffer(vertexStride * vertexCount);
                     floatData = new Float32Array(vertexData);
-                    var uint8Data = new Uint8Array(vertexData);
+                    uint8Data = new Uint8Array(vertexData);
+                    var lastPosition = LoadModelV05._readData.pos;
                     LoadModelV05._readData.pos = vbStart;
                     for (var j = 0; j < vertexCount; j++) {
                         var subOffset;
@@ -173,20 +176,20 @@ export class LoadModelV05 {
                     LoadModelV05._readData.pos = lastPosition;
                     break;
             }
-            var vertexBuffer = new VertexBuffer3D(vertexData.byteLength, WebGLContext.STATIC_DRAW, true);
+            var vertexBuffer = new VertexBuffer3D(vertexData.byteLength, WebGL2RenderingContext.STATIC_DRAW, true);
             vertexBuffer.vertexDeclaration = vertexDeclaration;
-            vertexBuffer.setData(floatData);
-            LoadModelV05._mesh._vertexBuffers.push(vertexBuffer);
+            vertexBuffer.setData(vertexData);
+            LoadModelV05._mesh._vertexBuffer = vertexBuffer;
             LoadModelV05._mesh._vertexCount += vertexBuffer.vertexCount;
             memorySize += floatData.length * 4;
         }
         var ibStart = offset + LoadModelV05._readData.getUint32();
         var ibLength = LoadModelV05._readData.getUint32();
         var ibDatas = new Uint16Array(arrayBuffer.slice(ibStart, ibStart + ibLength));
-        var indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, ibLength / 2, WebGLContext.STATIC_DRAW, true);
+        var indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, ibLength / 2, WebGL2RenderingContext.STATIC_DRAW, true);
         indexBuffer.setData(ibDatas);
         LoadModelV05._mesh._indexBuffer = indexBuffer;
-        LoadModelV05._mesh._setBuffer(LoadModelV05._mesh._vertexBuffers, indexBuffer);
+        LoadModelV05._mesh._setBuffer(LoadModelV05._mesh._vertexBuffer, indexBuffer);
         memorySize += indexBuffer.indexCount * 2;
         LoadModelV05._mesh._setCPUMemory(memorySize);
         LoadModelV05._mesh._setGPUMemory(memorySize);
@@ -209,12 +212,12 @@ export class LoadModelV05 {
         return true;
     }
     /**
-     * @private
+     * @internal
      */
     static READ_SUBMESH() {
         var arrayBuffer = LoadModelV05._readData.__getBuffer();
         var submesh = new SubMesh(LoadModelV05._mesh);
-        var vbIndex = LoadModelV05._readData.getInt16();
+        LoadModelV05._readData.getInt16(); //TODO:vbIndex
         var ibStart = LoadModelV05._readData.getUint32();
         var ibCount = LoadModelV05._readData.getUint32();
         var indexBuffer = LoadModelV05._mesh._indexBuffer;
@@ -222,7 +225,7 @@ export class LoadModelV05 {
         submesh._indexStart = ibStart;
         submesh._indexCount = ibCount;
         submesh._indices = new Uint16Array(indexBuffer.getData().buffer, ibStart * 2, ibCount);
-        var vertexBuffer = LoadModelV05._mesh._vertexBuffers[vbIndex];
+        var vertexBuffer = LoadModelV05._mesh._vertexBuffer;
         submesh._vertexBuffer = vertexBuffer;
         var offset = LoadModelV05._DATA.offset;
         var subIndexBufferStart = submesh._subIndexBufferStart;
@@ -258,11 +261,11 @@ export class LoadModelV05 {
         return true;
     }
 }
-/**@private */
+/**@internal */
 LoadModelV05._BLOCK = { count: 0 };
-/**@private */
+/**@internal */
 LoadModelV05._DATA = { offset: 0, size: 0 };
-/**@private */
+/**@internal */
 LoadModelV05._strings = [];
-/**@private */
+/**@internal */
 LoadModelV05._bindPoseIndices = [];

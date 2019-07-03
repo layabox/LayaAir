@@ -80,6 +80,7 @@ export class RenderSprite {
         }
         this.onCreate(type);
     }
+    /** @internal */
     static __init__() {
         LayaGLQuickRunner.__init__();
         var i, len;
@@ -121,6 +122,7 @@ export class RenderSprite {
     }
     onCreate(type) {
     }
+    /**@internal */
     _style(sprite, context, x, y) {
         //现在只有Text会走这里，Html已经不走这里了
         var style = sprite._style;
@@ -129,13 +131,15 @@ export class RenderSprite {
         var next = this._next;
         next._fun.call(next, sprite, context, x, y);
     }
+    /**@internal */
     _no(sprite, context, x, y) {
     }
-    //TODO:coverage
+    /**@internal */
     _custom(sprite, context, x, y) {
         sprite.customRender(context, x, y);
         this._next._fun.call(this._next, sprite, context, x - sprite.pivotX, y - sprite.pivotY);
     }
+    /**@internal */
     _clip(sprite, context, x, y) {
         var next = this._next;
         if (next == RenderSprite.NORENDER)
@@ -161,6 +165,7 @@ export class RenderSprite {
         context.globalCompositeOperation = "source-over";
     }
     */
+    /**@internal */
     _texture(sprite, context, x, y) {
         var tex = sprite.texture;
         if (tex._getSource())
@@ -169,6 +174,7 @@ export class RenderSprite {
         if (next != RenderSprite.NORENDER)
             next._fun.call(next, sprite, context, x, y);
     }
+    /**@internal */
     _graphics(sprite, context, x, y) {
         var style = sprite._style;
         var g = sprite._graphics;
@@ -177,16 +183,17 @@ export class RenderSprite {
         if (next != RenderSprite.NORENDER)
             next._fun.call(next, sprite, context, x, y);
     }
-    //TODO:coverage
+    /**@internal */
     _image(sprite, context, x, y) {
         var style = sprite._style;
         context.drawTexture2(x, y, style.pivotX, style.pivotY, sprite.transform, sprite._graphics._one);
     }
-    //TODO:coverage
+    /**@internal */
     _image2(sprite, context, x, y) {
         var style = sprite._style;
         context.drawTexture2(x, y, style.pivotX, style.pivotY, sprite.transform, sprite._graphics._one);
     }
+    /**@internal */
     //TODO:coverage
     _alpha(sprite, context, x, y) {
         var style = sprite._style;
@@ -199,6 +206,7 @@ export class RenderSprite {
             context.globalAlpha = temp;
         }
     }
+    /**@internal */
     _transform(sprite, context, x, y) {
         var transform = sprite.transform, _next = this._next;
         var style = sprite._style;
@@ -213,6 +221,7 @@ export class RenderSprite {
                 _next._fun.call(_next, sprite, context, x, y);
         }
     }
+    /**@internal */
     _children(sprite, context, x, y) {
         var style = sprite._style;
         var childs = sprite._children, n = childs.length, ele;
@@ -238,6 +247,7 @@ export class RenderSprite {
         }
         textLastRender && context.drawCallOptimize(false);
     }
+    /**@internal */
     _canvas(sprite, context, x, y) {
         var _cacheStyle = sprite._cacheStyle;
         var _next = this._next;
@@ -282,6 +292,7 @@ export class RenderSprite {
         //Stage._dbgSprite.graphics.drawRect(x, y, 30,30, null, 'red');
         context.drawCanvas(_cacheStyle.canvas, x + tRec.x, y + tRec.y, tRec.width, tRec.height);
     }
+    /**@internal */
     _canvas_repaint(sprite, context, x, y) {
         var _cacheStyle = sprite._cacheStyle;
         var _next = this._next;
@@ -342,6 +353,7 @@ export class RenderSprite {
             _cacheStyle.reCache = false;
         Stat.canvasReCache++;
     }
+    /**@internal */
     _canvas_webgl_normal_repaint(sprite, context) {
         var _cacheStyle = sprite._cacheStyle;
         var _next = this._next;
@@ -359,6 +371,7 @@ export class RenderSprite {
         canvas['endRec']();
         //context.drawCanvas(canvas, x , y , 1, 1); // 这种情况下宽高没用
     }
+    /**@internal */
     _blend(sprite, context, x, y) {
         var style = sprite._style;
         var next = this._next;
@@ -373,6 +386,7 @@ export class RenderSprite {
         }
     }
     /**
+     * @internal
      * mask的渲染。 sprite有mask属性的情况下，来渲染这个sprite
      * @param	sprite
      * @param	context
@@ -467,7 +481,7 @@ export class RenderSprite {
 //public static const CUSTOM:int = 0x400;
 /** @private */
 //public static const CHILDS:int = 0x800;
-/** @private */
+/** @internal */
 RenderSprite.INIT = 0x11111;
 /** @private */
 RenderSprite.renders = [];

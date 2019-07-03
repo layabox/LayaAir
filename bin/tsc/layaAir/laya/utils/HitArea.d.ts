@@ -27,16 +27,6 @@ export declare class HitArea {
      */
     static _isHitGraphic(x: number, y: number, graphic: Graphics): boolean;
     /**
-     * @private
-     * 是否击中绘图指令
-     */
-    static _isHitCmd(x: number, y: number, cmd: any): boolean;
-    /**
-     * @private
-     * 坐标是否在多边形内
-     */
-    static _ptInPolygon(x: number, y: number, areaPoints: any[]): boolean;
-    /**
      * 可点击区域，可以设置绘制一系列矢量图作为点击区域（目前只支持圆形，矩形，多边形）
      */
     hit: Graphics;

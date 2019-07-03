@@ -20,8 +20,8 @@ import { VertexMesh } from "../graphics/Vertex/VertexMesh";
 import { VertexShuriKenParticle } from "../graphics/Vertex/VertexShuriKenParticle";
 import { TextureGenerator } from "../resource/TextureGenerator";
 import { Utils3D } from "../utils/Utils3D";
-import { Shader3D } from "././Shader3D";
-import { SubShader } from "././SubShader";
+import { Shader3D } from "./Shader3D";
+import { SubShader } from "./SubShader";
 import BlitScreenPS from "./files/BlitScreen.fs";
 import BlitScreenVS from "./files/BlitScreen.vs";
 import EffectPS from "./files/Effect.fs";
@@ -67,7 +67,7 @@ import UnlitVS from "./files/Unlit.vs";
 import WaterPrimaryPS from "./files/WaterPrimary.fs";
 import WaterPrimaryVS from "./files/WaterPrimary.vs";
 /**
- * @private
+ * @internal
  * <code>ShaderInit</code> 类用于初始化内置Shader。
  */
 export class ShaderInit3D {
@@ -77,7 +77,7 @@ export class ShaderInit3D {
     constructor() {
     }
     /**
-     * @private
+     * @internal
      */
     static __init__() {
         ShaderInit3D._rangeAttenTex = Utils3D._buildTexture2D(1024, 1, BaseTexture.FORMAT_ALPHA8, TextureGenerator.lightAttenTexture); //TODO:移动位置
@@ -481,7 +481,7 @@ export class ShaderInit3D {
             'u_Exposure': Shader3D.PERIOD_MATERIAL,
             'u_Rotation': Shader3D.PERIOD_MATERIAL,
             'u_CubeTexture': Shader3D.PERIOD_MATERIAL,
-            'u_MvpMatrix': Shader3D.PERIOD_CAMERA
+            'u_ViewProjection': Shader3D.PERIOD_CAMERA
         }; //TODO:优化
         shader = Shader3D.add("SkyBox");
         subShader = new SubShader(attributeMap, uniformMap);
@@ -497,7 +497,7 @@ export class ShaderInit3D {
             'u_SkyTint': Shader3D.PERIOD_MATERIAL,
             'u_GroundTint': Shader3D.PERIOD_MATERIAL,
             'u_Exposure': Shader3D.PERIOD_MATERIAL,
-            'u_MvpMatrix': Shader3D.PERIOD_CAMERA,
+            'u_ViewProjection': Shader3D.PERIOD_CAMERA,
             'u_DirectionLight.Direction': Shader3D.PERIOD_SCENE,
             'u_DirectionLight.Color': Shader3D.PERIOD_SCENE
         };

@@ -64,7 +64,7 @@ export class URL {
         return URL._basePath + url;
     }
     /**
-     * @private
+     * @internal
      * 格式化相对路径。
      */
     static _formatRelativePath(value) {

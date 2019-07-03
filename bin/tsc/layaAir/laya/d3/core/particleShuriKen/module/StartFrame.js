@@ -6,13 +6,9 @@ export class StartFrame {
      * 创建一个 <code>StartFrame,不允许new，请使用静态创建函数。</code> 实例。
      */
     constructor() {
-        /**@private */
         this._type = 0;
-        /**@private */
         this._constant = 0;
-        /**@private */
         this._constantMin = 0;
-        /**@private */
         this._constantMax = 0;
     }
     /**

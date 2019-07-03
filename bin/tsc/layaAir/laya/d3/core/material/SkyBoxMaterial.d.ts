@@ -1,6 +1,6 @@
 import { Vector4 } from "../../math/Vector4";
 import { TextureCube } from "../../resource/TextureCube";
-import { BaseMaterial } from "././BaseMaterial";
+import { BaseMaterial } from "./BaseMaterial";
 /**
  * <code>SkyBoxMaterial</code> 类用于实现SkyBoxMaterial材质。
  */
@@ -11,10 +11,6 @@ export declare class SkyBoxMaterial extends BaseMaterial {
     static TEXTURECUBE: number;
     /** 默认材质，禁止修改*/
     static defaultMaterial: SkyBoxMaterial;
-    /**
-    * @private
-    */
-    static __initDefine__(): void;
     /**
      * 获取颜色。
      * @return  颜色。

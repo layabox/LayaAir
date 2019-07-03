@@ -12,7 +12,7 @@ export class PixelLineMaterial extends BaseMaterial {
         this._shaderValues.setVector(PixelLineMaterial.COLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
     }
     /**
-    * @private
+    * @internal
     */
     static __initDefine__() {
         PixelLineMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
@@ -126,7 +126,7 @@ export class PixelLineMaterial extends BaseMaterial {
     }
 }
 PixelLineMaterial.COLOR = Shader3D.propertyNameToID("u_Color");
-/**@private */
+/**@internal */
 PixelLineMaterial.shaderDefines = null;
 PixelLineMaterial.CULL = Shader3D.propertyNameToID("s_Cull");
 PixelLineMaterial.BLEND = Shader3D.propertyNameToID("s_Blend");

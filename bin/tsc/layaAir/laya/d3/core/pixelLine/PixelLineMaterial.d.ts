@@ -1,5 +1,4 @@
 import { Vector4 } from "../../math/Vector4";
-import { ShaderDefines } from "../../shader/ShaderDefines";
 import { BaseMaterial } from "../material/BaseMaterial";
 /**
  * <code>PixelLineMaterial</code> 类用于实现像素线材质。
@@ -8,18 +7,12 @@ export declare class PixelLineMaterial extends BaseMaterial {
     static COLOR: number;
     /** 默认材质，禁止修改*/
     static defaultMaterial: PixelLineMaterial;
-    /**@private */
-    static shaderDefines: ShaderDefines;
     static CULL: number;
     static BLEND: number;
     static BLEND_SRC: number;
     static BLEND_DST: number;
     static DEPTH_TEST: number;
     static DEPTH_WRITE: number;
-    /**
-    * @private
-    */
-    static __initDefine__(): void;
     /**
      * 获取颜色。
      * @return 颜色。

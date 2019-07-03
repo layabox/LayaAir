@@ -14,33 +14,33 @@ export class Transform3D extends EventDispatcher {
      */
     constructor(owner) {
         super();
-        /** @private */
+        /** @internal */
         this._localPosition = new Vector3(0, 0, 0);
-        /** @private */
+        /** @internal */
         this._localRotation = new Quaternion(0, 0, 0, 1);
-        /** @private */
+        /** @internal */
         this._localScale = new Vector3(1, 1, 1);
-        /**@private */
+        /**@internal */
         this._localRotationEuler = new Vector3(0, 0, 0);
-        /** @private */
+        /** @internal */
         this._localMatrix = new Matrix4x4();
-        /** @private */
+        /** @internal */
         this._position = new Vector3(0, 0, 0);
-        /** @private */
+        /** @internal */
         this._rotation = new Quaternion(0, 0, 0, 1);
-        /** @private */
+        /** @internal */
         this._scale = new Vector3(1, 1, 1);
-        /**@private */
+        /**@internal */
         this._rotationEuler = new Vector3(0, 0, 0);
-        /** @private */
+        /** @internal */
         this._worldMatrix = new Matrix4x4();
-        /** @private */
+        /** @internal */
         this._children = null;
-        /** @private */
+        /** @internal */
         this._parent = null;
-        /**@private */
+        /**@internal */
         this._dummy = null;
-        /**@private */
+        /**@internal */
         this._transformFlag = 0;
         this._owner = owner;
         this._children = [];
@@ -48,7 +48,7 @@ export class Transform3D extends EventDispatcher {
         this._setTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDEULER | Transform3D.TRANSFORM_WORLDSCALE | Transform3D.TRANSFORM_WORLDMATRIX, true);
     }
     /**
-     * @private
+     * @internal
      */
     get _isFrontFaceInvert() {
         var scale = this.scale;
@@ -544,7 +544,7 @@ export class Transform3D extends EventDispatcher {
         this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX, false);
     }
     /**
-     * @private
+     * @internal
      */
     _setTransformFlag(type, value) {
         if (value)
@@ -553,13 +553,13 @@ export class Transform3D extends EventDispatcher {
             this._transformFlag &= ~type;
     }
     /**
-     * @private
+     * @internal
      */
     _getTransformFlag(type) {
         return (this._transformFlag & type) != 0;
     }
     /**
-     * @private
+     * @internal
      */
     _setParent(value) {
         if (this._parent !== value) {
@@ -576,13 +576,13 @@ export class Transform3D extends EventDispatcher {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _updateLocalMatrix() {
         Matrix4x4.createAffineTransformation(this._localPosition, this.localRotation, this._localScale, this._localMatrix);
     }
     /**
-     * @private
+     * @internal
      */
     _onWorldPositionRotationTransform() {
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDEULER)) {
@@ -593,7 +593,7 @@ export class Transform3D extends EventDispatcher {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _onWorldPositionScaleTransform() {
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
@@ -604,7 +604,7 @@ export class Transform3D extends EventDispatcher {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _onWorldPositionTransform() {
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION)) {
@@ -615,7 +615,7 @@ export class Transform3D extends EventDispatcher {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _onWorldRotationTransform() {
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDEULER)) {
@@ -626,7 +626,7 @@ export class Transform3D extends EventDispatcher {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _onWorldScaleTransform() {
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
@@ -637,7 +637,7 @@ export class Transform3D extends EventDispatcher {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _onWorldTransform() {
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDEULER) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
@@ -746,33 +746,33 @@ export class Transform3D extends EventDispatcher {
         }
     }
 }
-/** @private */
+/** @internal */
 Transform3D._tempVector30 = new Vector3();
-/** @private */
+/** @internal */
 Transform3D._tempVector31 = new Vector3();
-/** @private */
+/** @internal */
 Transform3D._tempVector32 = new Vector3();
-/** @private */
+/** @internal */
 Transform3D._tempVector33 = new Vector3();
-/** @private */
+/** @internal */
 Transform3D._tempQuaternion0 = new Quaternion();
-/** @private */
+/** @internal */
 Transform3D._tempMatrix0 = new Matrix4x4();
-/**@private */
+/**@internal */
 Transform3D.TRANSFORM_LOCALQUATERNION = 0x01;
-/**@private */
+/**@internal */
 Transform3D.TRANSFORM_LOCALEULER = 0x02;
-/**@private */
+/**@internal */
 Transform3D.TRANSFORM_LOCALMATRIX = 0x04;
-/**@private */
+/**@internal */
 Transform3D.TRANSFORM_WORLDPOSITION = 0x08;
-/**@private */
+/**@internal */
 Transform3D.TRANSFORM_WORLDQUATERNION = 0x10;
-/**@private */
+/**@internal */
 Transform3D.TRANSFORM_WORLDSCALE = 0x20;
-/**@private */
+/**@internal */
 Transform3D.TRANSFORM_WORLDMATRIX = 0x40;
-/**@private */
+/**@internal */
 Transform3D.TRANSFORM_WORLDEULER = 0x80;
-/**@private */
+/**@internal */
 Transform3D._angleToRandin = 180 / Math.PI;

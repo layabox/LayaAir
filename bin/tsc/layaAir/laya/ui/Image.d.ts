@@ -1,5 +1,4 @@
 import { Texture } from "../resource/Texture";
-import { AutoBitmap } from "./AutoBitmap";
 import { UIComponent } from "./UIComponent";
 /**
  * 资源加载完成后调度。
@@ -78,8 +77,6 @@ import { UIComponent } from "./UIComponent";
  * @see laya.ui.AutoBitmap
  */
 export declare class Image extends UIComponent {
-    /**@private */
-    _bitmap: AutoBitmap;
     /**@private */
     protected _skin: string;
     /**@private */

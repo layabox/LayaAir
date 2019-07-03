@@ -13,7 +13,6 @@ export class BlinnPhongMaterial extends BaseMaterial {
      */
     constructor() {
         super();
-        /**@private */
         this._enableVertexColor = false;
         this.setShaderName("BLINNPHONG");
         this._albedoIntensity = 1.0;
@@ -28,7 +27,7 @@ export class BlinnPhongMaterial extends BaseMaterial {
         this.renderMode = BlinnPhongMaterial.RENDERMODE_OPAQUE;
     }
     /**
-     * @private
+     * @internal
      */
     static __initDefine__() {
         BlinnPhongMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
@@ -39,111 +38,111 @@ export class BlinnPhongMaterial extends BaseMaterial {
         BlinnPhongMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR = BlinnPhongMaterial.shaderDefines.registerDefine("ENABLEVERTEXCOLOR");
     }
     /**
-     * @private
+     * @internal
      */
     get _ColorR() {
         return this._albedoColor.x;
     }
     /**
-     * @private
+     * @internal
      */
     set _ColorR(value) {
         this._albedoColor.x = value;
         this.albedoColor = this._albedoColor;
     }
     /**
-     * @private
+     * @internal
      */
     get _ColorG() {
         return this._albedoColor.y;
     }
     /**
-     * @private
+     * @internal
      */
     set _ColorG(value) {
         this._albedoColor.y = value;
         this.albedoColor = this._albedoColor;
     }
     /**
-     * @private
+     * @internal
      */
     get _ColorB() {
         return this._albedoColor.z;
     }
     /**
-     * @private
+     * @internal
      */
     set _ColorB(value) {
         this._albedoColor.z = value;
         this.albedoColor = this._albedoColor;
     }
-    /**@private */
+    /**@internal */
     get _ColorA() {
         return this._albedoColor.w;
     }
     /**
-     * @private
+     * @internal
      */
     set _ColorA(value) {
         this._albedoColor.w = value;
         this.albedoColor = this._albedoColor;
     }
     /**
-     * @private
+     * @internal
      */
     get _SpecColorR() {
         return this._shaderValues.getVector(BlinnPhongMaterial.MATERIALSPECULAR).x;
     }
     /**
-     * @private
+     * @internal
      */
     set _SpecColorR(value) {
         this._shaderValues.getVector(BlinnPhongMaterial.MATERIALSPECULAR).x = value;
     }
     /**
-     * @private
+     * @internal
      */
     get _SpecColorG() {
         return this._shaderValues.getVector(BlinnPhongMaterial.MATERIALSPECULAR).y;
     }
     /**
-     * @private
+     * @internal
      */
     set _SpecColorG(value) {
         this._shaderValues.getVector(BlinnPhongMaterial.MATERIALSPECULAR).y = value;
     }
     /**
-     * @private
+     * @internal
      */
     get _SpecColorB() {
         return this._shaderValues.getVector(BlinnPhongMaterial.MATERIALSPECULAR).z;
     }
     /**
-     * @private
+     * @internal
      */
     set _SpecColorB(value) {
         this._shaderValues.getVector(BlinnPhongMaterial.MATERIALSPECULAR).z = value;
     }
     /**
-     * @private
+     * @internal
      */
     get _SpecColorA() {
         return this._shaderValues.getVector(BlinnPhongMaterial.MATERIALSPECULAR).w;
     }
     /**
-     * @private
+     * @internal
      */
     set _SpecColorA(value) {
         this._shaderValues.getVector(BlinnPhongMaterial.MATERIALSPECULAR).w = value;
     }
     /**
-     * @private
+     * @internal
      */
     get _AlbedoIntensity() {
         return this._albedoIntensity;
     }
     /**
-     * @private
+     * @internal
      */
     set _AlbedoIntensity(value) {
         if (this._albedoIntensity !== value) {
@@ -154,26 +153,26 @@ export class BlinnPhongMaterial extends BaseMaterial {
         }
     }
     /**
-     * @private
+     * @internal
      */
     get _Shininess() {
         return this._shaderValues.getNumber(BlinnPhongMaterial.SHININESS);
     }
     /**
-     * @private
+     * @internal
      */
     set _Shininess(value) {
         value = Math.max(0.0, Math.min(1.0, value));
         this._shaderValues.setNumber(BlinnPhongMaterial.SHININESS, value);
     }
     /**
-     * @private
+     * @internal
      */
     get _MainTex_STX() {
         return this._shaderValues.getVector(BlinnPhongMaterial.TILINGOFFSET).x;
     }
     /**
-     * @private
+     * @internal
      */
     set _MainTex_STX(x) {
         var tilOff = this._shaderValues.getVector(BlinnPhongMaterial.TILINGOFFSET);
@@ -181,13 +180,13 @@ export class BlinnPhongMaterial extends BaseMaterial {
         this.tilingOffset = tilOff;
     }
     /**
-     * @private
+     * @internal
      */
     get _MainTex_STY() {
         return this._shaderValues.getVector(BlinnPhongMaterial.TILINGOFFSET).y;
     }
     /**
-     * @private
+     * @internal
      */
     set _MainTex_STY(y) {
         var tilOff = this._shaderValues.getVector(BlinnPhongMaterial.TILINGOFFSET);
@@ -195,13 +194,13 @@ export class BlinnPhongMaterial extends BaseMaterial {
         this.tilingOffset = tilOff;
     }
     /**
-     * @private
+     * @internal
      */
     get _MainTex_STZ() {
         return this._shaderValues.getVector(BlinnPhongMaterial.TILINGOFFSET).z;
     }
     /**
-     * @private
+     * @internal
      */
     set _MainTex_STZ(z) {
         var tilOff = this._shaderValues.getVector(BlinnPhongMaterial.TILINGOFFSET);
@@ -209,13 +208,13 @@ export class BlinnPhongMaterial extends BaseMaterial {
         this.tilingOffset = tilOff;
     }
     /**
-     * @private
+     * @internal
      */
     get _MainTex_STW() {
         return this._shaderValues.getVector(BlinnPhongMaterial.TILINGOFFSET).w;
     }
     /**
-     * @private
+     * @internal
      */
     set _MainTex_STW(w) {
         var tilOff = this._shaderValues.getVector(BlinnPhongMaterial.TILINGOFFSET);
@@ -223,13 +222,13 @@ export class BlinnPhongMaterial extends BaseMaterial {
         this.tilingOffset = tilOff;
     }
     /**
-     * @private
+     * @internal
      */
     get _Cutoff() {
         return this.alphaTestValue;
     }
     /**
-     * @private
+     * @internal
      */
     set _Cutoff(value) {
         this.alphaTestValue = value;
@@ -736,5 +735,5 @@ BlinnPhongMaterial.BLEND_SRC = Shader3D.propertyNameToID("s_BlendSrc");
 BlinnPhongMaterial.BLEND_DST = Shader3D.propertyNameToID("s_BlendDst");
 BlinnPhongMaterial.DEPTH_TEST = Shader3D.propertyNameToID("s_DepthTest");
 BlinnPhongMaterial.DEPTH_WRITE = Shader3D.propertyNameToID("s_DepthWrite");
-/**@private */
+/**@internal */
 BlinnPhongMaterial.shaderDefines = null;

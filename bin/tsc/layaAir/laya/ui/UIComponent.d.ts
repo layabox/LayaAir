@@ -1,4 +1,4 @@
-import { Widget } from "././Widget";
+import { Widget } from "./Widget";
 import { Node } from "../display/Node";
 import { Sprite } from "../display/Sprite";
 /**
@@ -29,21 +29,6 @@ export declare class UIComponent extends Sprite {
     /**@inheritDoc */
     destroy(destroyChild?: boolean): void;
     /**
-     * <p>预初始化。</p>
-     * @internal 子类可在此函数内设置、修改属性默认值
-     */
-    protected preinitialize(): void;
-    /**
-     * <p>创建并添加控件子节点。</p>
-     * @internal 子类可在此函数内创建并添加子节点。
-     */
-    protected createChildren(): void;
-    /**
-     * <p>控件初始化。</p>
-     * @internal 在此子对象已被创建，可以对子对象进行修改。
-     */
-    protected initialize(): void;
-    /**
      * <p>表示显示对象的宽度，以像素为单位。</p>
      * <p><b>注：</b>当值为0时，宽度为自适应大小。</p>
      */
@@ -54,13 +39,6 @@ export declare class UIComponent extends Sprite {
      * <p>显示对象的实际显示区域宽度（以像素为单位）。</p>
      */
     protected measureWidth(): number;
-    /**
-     * <p>立即执行影响宽高度量的延迟调用函数。</p>
-     * @internal <p>使用 <code>runCallLater</code> 函数，立即执行影响宽高度量的延迟运行函数(使用 <code>callLater</code> 设置延迟执行函数)。</p>
-     * @see #callLater()
-     * @see #runCallLater()
-     */
-    protected commitMeasure(): void;
     /**
      * <p>表示显示对象的高度，以像素为单位。</p>
      * <p><b>注：</b>当值为0时，高度为自适应大小。</p>
@@ -113,11 +91,6 @@ export declare class UIComponent extends Sprite {
      */
     centerY: number;
     protected _sizeChanged(): void;
-    /**
-     * <p>对象的标签。</p>
-     * @internal 冗余字段，可以用来储存数据。
-     */
-    tag: any;
     /**
      * <p>鼠标悬停提示。</p>
      * <p>可以赋值为文本 <code>String</code> 或函数 <code>Handler</code> ，用来实现自定义样式的鼠标提示和参数携带等。</p>

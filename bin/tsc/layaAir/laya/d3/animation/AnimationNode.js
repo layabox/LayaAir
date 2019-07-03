@@ -1,4 +1,4 @@
-import { AnimationTransform3D } from "././AnimationTransform3D";
+import { AnimationTransform3D } from "./AnimationTransform3D";
 /**
  * <code>BoneNode</code> 类用于实现骨骼节点。
  */
@@ -86,7 +86,7 @@ export class AnimationNode {
         return dest;
     }
     /**
-     * @private [NATIVE]
+     * @internal [NATIVE]
      */
     _cloneNative(localPositions, localRotations, localScales, animationNodeWorldMatrixs, animationNodeParentIndices, parentIndex, avatar) {
         var curID = avatar._nativeCurCloneCount;
@@ -101,7 +101,7 @@ export class AnimationNode {
         return dest;
     }
     /**
-     * @private [NATIVE]
+     * @internal [NATIVE]
      */
     _cloneToNative(destObject, localPositions, localRotations, localScales, animationNodeWorldMatrixs, animationNodeParentIndices, parentIndex, avatar) {
         var destNode = destObject;

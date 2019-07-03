@@ -1,5 +1,5 @@
 /**
- * @private
+ * @internal
  * <code>DynamicBatchManager</code> 类用于管理动态批处理。
  */
 export class DynamicBatchManager {
@@ -10,28 +10,28 @@ export class DynamicBatchManager {
         this._batchRenderElementPool = [];
     }
     /**
-     * @private
+     * @internal
      */
     static _registerManager(manager) {
         DynamicBatchManager._managers.push(manager);
     }
     /**
-     * @private
+     * @internal
      */
     _clear() {
         this._batchRenderElementPoolIndex = 0;
     }
     /**
-     * @private
+     * @internal
      */
     _getBatchRenderElementFromPool() {
         throw "StaticBatch:must override this function.";
     }
     /**
-     * @private
+     * @internal
      */
     dispose() {
     }
 }
-/** @private [只读]*/
+/** @internal [只读]*/
 DynamicBatchManager._managers = [];

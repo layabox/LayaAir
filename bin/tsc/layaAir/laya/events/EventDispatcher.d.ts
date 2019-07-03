@@ -37,8 +37,6 @@ export declare class EventDispatcher {
      * @return 此 EventDispatcher 对象。
      */
     once(type: string, caller: any, listener: Function, args?: any[]): EventDispatcher;
-    /**@private */
-    _createListener(type: string, caller: any, listener: Function, args: any[], once: boolean, offBefore?: boolean): EventDispatcher;
     /**
      * 从 EventDispatcher 对象中删除侦听器。
      * @param type		事件的类型。

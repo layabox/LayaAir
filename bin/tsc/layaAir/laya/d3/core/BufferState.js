@@ -2,7 +2,7 @@ import { LayaGL } from "../../layagl/LayaGL";
 import { Render } from "../../renders/Render";
 import { BufferStateBase } from "../../webgl/BufferStateBase";
 /**
- * @private
+ * @internal
  * <code>BufferState</code> 类用于实现渲染所需的Buffer状态集合。
  */
 export class BufferState extends BufferStateBase {
@@ -13,7 +13,7 @@ export class BufferState extends BufferStateBase {
         super();
     }
     /**
-     * @private
+     * @internal
      * vertexBuffer的vertexDeclaration不能为空,该函数比较消耗性能，建议初始化时使用。
      */
     applyVertexBuffer(vertexBuffer) {
@@ -38,7 +38,7 @@ export class BufferState extends BufferStateBase {
         }
     }
     /**
-     * @private
+     * @internal
      * vertexBuffers中的vertexDeclaration不能为空,该函数比较消耗性能，建议初始化时使用。
      */
     applyVertexBuffers(vertexBuffers) {
@@ -66,7 +66,7 @@ export class BufferState extends BufferStateBase {
         }
     }
     /**
-     * @private
+     * @internal
      */
     applyInstanceVertexBuffer(vertexBuffer) {
         if (LayaGL.layaGPUInstance.supportInstance()) { //判断是否支持Instance
@@ -93,7 +93,7 @@ export class BufferState extends BufferStateBase {
         }
     }
     /**
-     * @private
+     * @internal
      */
     applyIndexBuffer(indexBuffer) {
         if (BufferStateBase._curBindedBufferState === this) {

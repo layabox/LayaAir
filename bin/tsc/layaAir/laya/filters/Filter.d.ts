@@ -1,4 +1,4 @@
-import { IFilter } from "././IFilter";
+import { IFilter } from "./IFilter";
 /**
  * <code>Filter</code> 是滤镜基类。
  */
@@ -9,8 +9,6 @@ export declare class Filter implements IFilter {
     static COLOR: number;
     /**@private 发光滤镜。*/
     static GLOW: number;
-    /** @private*/
-    _glRender: any;
     /**
      * 创建一个 <code>Filter</code> 实例。
      * */

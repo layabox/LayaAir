@@ -19,15 +19,11 @@ export declare class AudioSound extends EventDispatcher {
      * 是否已加载完成
      */
     loaded: boolean;
-    /**@private */
-    static _musicAudio: HTMLAudioElement;
     /**
      * 释放声音
      *
      */
     dispose(): void;
-    /**@private */
-    static _initMusicAudio(): void;
     /**@private */
     private static _makeMusicOK;
     /**

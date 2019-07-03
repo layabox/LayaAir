@@ -3,7 +3,7 @@ import { Rectangle } from "../../maths/Rectangle";
 import { HTMLCanvas } from "../../resource/HTMLCanvas";
 import { Pool } from "../../utils/Pool";
 /**
- * @private
+ * @internal
  * 存储cache相关
  */
 export class CacheStyle {
@@ -97,6 +97,9 @@ export class CacheStyle {
     static create() {
         return Pool.getItemByClass("SpriteCache", CacheStyle);
     }
+    /**
+    * @internal
+    */
     _calculateCacheRect(sprite, tCacheType, x, y) {
         var _cacheStyle = sprite._cacheStyle;
         if (!_cacheStyle.cacheRect)

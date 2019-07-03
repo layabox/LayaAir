@@ -1,4 +1,4 @@
-import { SubShader } from "././SubShader";
+import { SubShader } from "./SubShader";
 /**
  * <code>Shader3D</code> 类用于创建Shader3D。
  */
@@ -41,22 +41,6 @@ export declare class Shader3D {
     static PERIOD_CAMERA: number;
     /**shader变量提交周期，逐场景。*/
     static PERIOD_SCENE: number;
-    /**@private */
-    static SHADERDEFINE_HIGHPRECISION: number;
-    /**@private */
-    private static _propertyNameCounter;
-    /**@private */
-    private static _propertyNameMap;
-    /**@private */
-    private static _publicCounter;
-    /**@private */
-    _attributeMap: any;
-    /**@private */
-    _uniformMap: any;
-    /**@private */
-    static _globleDefines: any[];
-    /**@private */
-    static _preCompileShader: any;
     /**是否开启调试模式。 */
     static debugMode: boolean;
     /**
@@ -65,14 +49,6 @@ export declare class Shader3D {
      * @return 唯一ID。
      */
     static propertyNameToID(name: string): number;
-    /**
-     * @private
-     */
-    static addInclude(fileName: string, txt: string): void;
-    /**
-     * @private
-     */
-    static registerPublicDefine(name: string): number;
     /**
      * 编译shader。
      * @param	name Shader名称。
@@ -84,7 +60,6 @@ export declare class Shader3D {
      */
     static compileShader(name: string, subShaderIndex: number, passIndex: number, publicDefine: number, spriteDefine: number, materialDefine: number): void;
     /**
-     * @private
      * 添加预编译shader文件，主要是处理宏定义
      */
     static add(name: string, attributeMap?: any, uniformMap?: any, enableInstancing?: boolean): Shader3D;
@@ -94,12 +69,6 @@ export declare class Shader3D {
      * @return ShaderCompile3D。
      */
     static find(name: string): Shader3D;
-    /**@private */
-    _name: string;
-    /**@private */
-    _enableInstancing: boolean;
-    /**@private */
-    _subShaders: SubShader[];
     /**
      * 创建一个 <code>Shader3D</code> 实例。
      */

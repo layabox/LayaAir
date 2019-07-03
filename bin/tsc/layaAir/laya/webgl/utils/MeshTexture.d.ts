@@ -1,4 +1,4 @@
-import { Mesh2D } from "././Mesh2D";
+import { Mesh2D } from "./Mesh2D";
 import { Matrix } from "../../maths/Matrix";
 /**
  * 与MeshQuadTexture基本相同。不过index不是固定的

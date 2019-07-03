@@ -3,13 +3,13 @@ import { Vector3 } from "../../math/Vector3";
 import { Vector4 } from "../../math/Vector4";
 import { MathUtil } from "../../../maths/MathUtil";
 /**
- *  @private
+ *  @internal
  */
 export class ShurikenParticleData {
     constructor() {
     }
     /**
-     * @private
+     * @internal
      */
     static _getStartLifetimeFromGradient(startLifeTimeGradient, emissionTime) {
         for (var i = 1, n = startLifeTimeGradient.gradientCount; i < n; i++) {
@@ -23,7 +23,7 @@ export class ShurikenParticleData {
         throw new Error("ShurikenParticleData: can't get value foam startLifeTimeGradient.");
     }
     /**
-     * @private
+     * @internal
      */
     static _randomInvertRoationArray(rotatonE, outE, randomizeRotationDirection, rand, randomSeeds) {
         var randDic;
@@ -47,7 +47,7 @@ export class ShurikenParticleData {
         }
     }
     /**
-     * @private
+     * @internal
      */
     static _randomInvertRoation(rotaton, randomizeRotationDirection, rand, randomSeeds) {
         var randDic;
@@ -64,7 +64,7 @@ export class ShurikenParticleData {
         return rotaton;
     }
     /**
-     * @private
+     * @internal
      */
     static create(particleSystem, particleRender, transform) {
         var autoRandomSeed = particleSystem.autoRandomSeed;
@@ -395,9 +395,9 @@ export class ShurikenParticleData {
         }
     }
 }
-/**@private */
+/**@internal */
 ShurikenParticleData._tempVector30 = new Vector3();
-/**@private */
+/**@internal */
 ShurikenParticleData._tempQuaternion = new Quaternion();
 ShurikenParticleData.startColor = new Vector4();
 ShurikenParticleData.startSize = new Float32Array(3);

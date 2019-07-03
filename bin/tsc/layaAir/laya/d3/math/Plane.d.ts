@@ -1,10 +1,8 @@
-import { Vector3 } from "././Vector3";
+import { Vector3 } from "./Vector3";
 /**
      * <code>Plane</code> 类用于创建平面。
      */
 export declare class Plane {
-    /** @private */
-    private static _TEMPVec3;
     /**平面的向量*/
     normal: Vector3;
     /**平面到坐标系原点的距离*/

@@ -4,10 +4,6 @@ import { Vector3 } from "../math/Vector3";
  * <code>ContactPoint</code> 类用于创建物理碰撞信息。
  */
 export declare class ContactPoint {
-    /**@private */
-    _idCounter: number;
-    /**@private */
-    _id: number;
     /**碰撞器A。*/
     colliderA: PhysicsComponent;
     /**碰撞器B。*/

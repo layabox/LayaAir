@@ -1,17 +1,17 @@
 /**
- * @private
+ * @internal
  */
 export class MouseTouch {
     constructor() {
-        /**@private */
+        /**@internal */
         this._pressedSprite = null;
-        /**@private */
+        /**@internal */
         this._pressedLoopCount = -1;
-        /**@private */
+        /**@internal */
         this.sprite = null;
-        /**@private */
+        /**@internal */
         this.mousePositionX = 0;
-        /**@private */
+        /**@internal */
         this.mousePositionY = 0;
     }
 }

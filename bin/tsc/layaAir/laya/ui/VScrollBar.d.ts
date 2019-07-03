@@ -1,4 +1,4 @@
-import { ScrollBar } from "././ScrollBar";
+import { ScrollBar } from "./ScrollBar";
 /**
      *
      * 使用 <code>VScrollBar</code> （垂直 <code>ScrollBar</code> ）控件，可以在因数据太多而不能在显示区域完全显示时控制显示的数据部分。

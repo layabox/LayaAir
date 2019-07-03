@@ -8,13 +8,13 @@ export class Shader3D {
      * 创建一个 <code>Shader3D</code> 实例。
      */
     constructor(name, attributeMap, uniformMap, enableInstancing) {
-        /**@private */
+        /**@internal */
         this._attributeMap = null;
-        /**@private */
+        /**@internal */
         this._uniformMap = null;
-        /**@private */
+        /**@internal */
         this._enableInstancing = false;
-        /**@private */
+        /**@internal */
         this._subShaders = [];
         this._name = name;
         this._attributeMap = attributeMap;
@@ -37,14 +37,14 @@ export class Shader3D {
         }
     }
     /**
-     * @private
+     * @internal
      */
     static addInclude(fileName, txt) {
         txt = txt.replace(ShaderCompile._clearCR, ""); //CRLF风格需要先去掉“\r",否则切分字符会出错导致宏定义编译错误等
         ShaderCompile.addInclude(fileName, txt);
     }
     /**
-     * @private
+     * @internal
      */
     static registerPublicDefine(name) {
         var value = Math.pow(2, Shader3D._publicCounter++); //TODO:超界处理
@@ -85,7 +85,6 @@ export class Shader3D {
         }
     }
     /**
-     * @private
      * 添加预编译shader文件，主要是处理宏定义
      */
     static add(name, attributeMap = null, uniformMap = null, enableInstancing = false) {
@@ -154,15 +153,15 @@ Shader3D.PERIOD_SPRITE = 2;
 Shader3D.PERIOD_CAMERA = 3;
 /**shader变量提交周期，逐场景。*/
 Shader3D.PERIOD_SCENE = 4;
-/**@private */
+/**@internal */
 Shader3D._propertyNameCounter = 0;
-/**@private */
+/**@internal */
 Shader3D._propertyNameMap = {};
-/**@private */
+/**@internal */
 Shader3D._publicCounter = 0;
-/**@private */
+/**@internal */
 Shader3D._globleDefines = [];
-/**@private */
+/**@internal */
 Shader3D._preCompileShader = {};
 /**是否开启调试模式。 */
 Shader3D.debugMode = true;

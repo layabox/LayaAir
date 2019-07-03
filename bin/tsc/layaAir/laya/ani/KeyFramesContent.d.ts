@@ -1,7 +1,3 @@
-/**
- * @private
- * @author ...
- */
 export declare class KeyFramesContent {
     startTime: number;
     duration: number;

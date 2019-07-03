@@ -1,111 +1,18 @@
 import { Quaternion } from "../math/Quaternion";
 import { Ray } from "../math/Ray";
 import { Vector3 } from "../math/Vector3";
-import { CharacterController } from "././CharacterController";
-import { PhysicsUpdateList } from "././PhysicsUpdateList";
 import { Constraint3D } from "./Constraint3D";
 import { HitResult } from "./HitResult";
-import { PhysicsCollider } from "./PhysicsCollider";
-import { PhysicsSettings } from "./PhysicsSettings";
-import { Rigidbody3D } from "./Rigidbody3D";
 import { ColliderShape } from "./shape/ColliderShape";
 /**
  * <code>Simulation</code> 类用于创建物理模拟器。
  */
 export declare class PhysicsSimulation {
-    /** @private */
-    static PHYSICSENGINEFLAGS_NONE: number;
-    /** @private */
-    static PHYSICSENGINEFLAGS_COLLISIONSONLY: number;
-    /** @private */
-    static PHYSICSENGINEFLAGS_SOFTBODYSUPPORT: number;
-    /** @private */
-    static PHYSICSENGINEFLAGS_MULTITHREADED: number;
-    /** @private */
-    static PHYSICSENGINEFLAGS_USEHARDWAREWHENPOSSIBLE: number;
-    /** @private */
-    static SOLVERMODE_RANDMIZE_ORDER: number;
-    /** @private */
-    static SOLVERMODE_FRICTION_SEPARATE: number;
-    /** @private */
-    static SOLVERMODE_USE_WARMSTARTING: number;
-    /** @private */
-    static SOLVERMODE_USE_2_FRICTION_DIRECTIONS: number;
-    /** @private */
-    static SOLVERMODE_ENABLE_FRICTION_DIRECTION_CACHING: number;
-    /** @private */
-    static SOLVERMODE_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION: number;
-    /** @private */
-    static SOLVERMODE_CACHE_FRIENDLY: number;
-    /** @private */
-    static SOLVERMODE_SIMD: number;
-    /** @private */
-    static SOLVERMODE_INTERLEAVE_CONTACT_AND_FRICTION_CONSTRAINTS: number;
-    /** @private */
-    static SOLVERMODE_ALLOW_ZERO_LENGTH_FRICTION_DIRECTIONS: number;
-    /** @private */
-    private static _nativeTempVector30;
-    /** @private */
-    private static _nativeTempVector31;
-    /** @private */
-    private static _nativeTempQuaternion0;
-    /** @private */
-    private static _nativeTempQuaternion1;
-    /** @private */
-    private static _nativeTempTransform0;
-    /** @private */
-    private static _nativeTempTransform1;
-    /**@private */
-    private static _tempVector30;
     static disableSimulation: boolean;
-    /**
-    * @private
-    */
-    static __init__(): void;
     /**
      * 创建限制刚体运动的约束条件。
      */
     static createConstraint(): void;
-    /**@private	*/
-    private _nativeDiscreteDynamicsWorld;
-    /**@private	*/
-    private _nativeCollisionWorld;
-    /**@private	*/
-    private _nativeDispatcher;
-    /**@private	*/
-    private _nativeCollisionConfiguration;
-    /**@private	*/
-    private _nativeBroadphase;
-    /**@private	*/
-    private _nativeSolverInfo;
-    /**@private	*/
-    private _nativeDispatchInfo;
-    /**@private	*/
-    private _gravity;
-    /** @private */
-    private _nativeVector3Zero;
-    /** @private */
-    private _nativeDefaultQuaternion;
-    /**@private */
-    private _nativeClosestRayResultCallback;
-    /**@private */
-    private _nativeAllHitsRayResultCallback;
-    /**@private */
-    private _nativeClosestConvexResultCallback;
-    /**@private */
-    private _nativeAllConvexResultCallback;
-    /**@private	*/
-    private _collisionsUtils;
-    /**@private	*/
-    private _previousFrameCollisions;
-    /**@private	*/
-    private _currentFrameCollisions;
-    /**@private	*/
-    _physicsUpdateList: PhysicsUpdateList;
-    /**@private	*/
-    _characters: CharacterController[];
-    /**@private	*/
-    _updatedRigidbodies: number;
     /**物理引擎在一帧中用于补偿减速的最大次数：模拟器每帧允许的最大模拟次数，如果引擎运行缓慢,可能需要增加该次数，否则模拟器会丢失“时间",引擎间隔时间小于maxSubSteps*fixedTimeStep非常重要。*/
     maxSubSteps: number;
     /**物理模拟器帧的间隔时间:通过减少fixedTimeStep可增加模拟精度，默认是1.0 / 60.0。*/
@@ -126,50 +33,6 @@ export declare class PhysicsSimulation {
     * 设置重力。
     */
     gravity: Vector3;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    speculativeContactRestitution: boolean;
-    /**
-     * @private
-     * 创建一个 <code>Simulation</code> 实例。
-     */
-    constructor(configuration: PhysicsSettings, flags?: number);
-    /**
-     * @private
-     */
-    _simulate(deltaTime: number): void;
-    /**
-     * @private
-     */
-    _destroy(): void;
-    /**
-     * @private
-     */
-    _addPhysicsCollider(component: PhysicsCollider, group: number, mask: number): void;
-    /**
-     * @private
-     */
-    _removePhysicsCollider(component: PhysicsCollider): void;
-    /**
-     * @private
-     */
-    _addRigidBody(rigidBody: Rigidbody3D, group: number, mask: number): void;
-    /**
-     * @private
-     */
-    _removeRigidBody(rigidBody: Rigidbody3D): void;
-    /**
-     * @private
-     */
-    _addCharacter(character: CharacterController, group: number, mask: number): void;
-    /**
-     * @private
-     */
-    _removeCharacter(character: CharacterController): void;
     /**
      * 射线检测第一个碰撞物体。
      * @param	from 起始位置。
@@ -246,22 +109,6 @@ export declare class PhysicsSimulation {
      * 移除刚体运动的约束条件。
      */
     removeConstraint(constraint: Constraint3D): void;
-    /**
-     * @private
-     */
-    _updatePhysicsTransformFromRender(): void;
-    /**
-     * @private
-     */
-    _updateCharacters(): void;
-    /**
-     * @private
-     */
-    _updateCollisions(): void;
-    /**
-     * @private
-     */
-    _eventScripts(): void;
     /**
      * 清除力。
      */

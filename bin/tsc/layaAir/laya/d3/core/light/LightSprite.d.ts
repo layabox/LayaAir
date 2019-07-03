@@ -1,7 +1,5 @@
 import { Sprite3D } from "../Sprite3D";
 import { Vector3 } from "../../math/Vector3";
-import { ParallelSplitShadowMap } from "../../shadowMap/ParallelSplitShadowMap";
-import { Node } from "../../../display/Node";
 /**
  * <code>LightSprite</code> 类用于创建灯光的父类。
  */
@@ -12,24 +10,6 @@ export declare class LightSprite extends Sprite3D {
     static LIGHTMAPBAKEDTYPE_MIXED: number;
     /** 灯光烘培类型-烘焙。*/
     static LIGHTMAPBAKEDTYPE_BAKED: number;
-    /** @private */
-    protected _intensityColor: Vector3;
-    /** @private */
-    protected _intensity: number;
-    /** @private */
-    protected _shadow: boolean;
-    /** @private */
-    protected _shadowFarPlane: number;
-    /** @private */
-    protected _shadowMapSize: number;
-    /** @private */
-    protected _shadowMapCount: number;
-    /** @private */
-    protected _shadowMapPCFType: number;
-    /** @private */
-    _parallelSplitShadowMap: ParallelSplitShadowMap;
-    /** @private */
-    _lightmapBakedType: number;
     /** 灯光颜色。 */
     color: Vector3;
     /**
@@ -114,10 +94,6 @@ export declare class LightSprite extends Sprite3D {
      * @param state 渲染状态参数。
      */
     _prepareToScene(): boolean;
-    /**
-     * @private
-     */
-    protected _create(): Node;
     /**
      * 获取灯光的漫反射颜色。
      * @return 灯光的漫反射颜色。

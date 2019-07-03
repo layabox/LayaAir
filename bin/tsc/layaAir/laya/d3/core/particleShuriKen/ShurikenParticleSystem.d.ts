@@ -1,4 +1,4 @@
-import { ShuriKenParticle3D } from "././ShuriKenParticle3D";
+import { ShuriKenParticle3D } from "./ShuriKenParticle3D";
 import { GeometryElement } from "../GeometryElement";
 import { IClone } from "../IClone";
 import { ColorOverLifetime } from "./module/ColorOverLifetime";
@@ -12,147 +12,12 @@ import { BaseShape } from "./module/shape/BaseShape";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
-import { BoundBox } from "../../math/BoundBox";
-import { BoundSphere } from "../../math/BoundSphere";
-import { Rand } from "../../math/Rand";
 import { Vector3 } from "../../math/Vector3";
 import { Vector4 } from "../../math/Vector4";
 /**
  * <code>ShurikenParticleSystem</code> 类用于创建3D粒子数据模板。
  */
 export declare class ShurikenParticleSystem extends GeometryElement implements IClone {
-    /** @private 0:Burst,1:预留,2:StartDelay,3:StartColor,4:StartSize,5:StartRotation,6:randomizeRotationDirection,7:StartLifetime,8:StartSpeed,9:VelocityOverLifetime,10:ColorOverLifetime,11:SizeOverLifetime,12:RotationOverLifetime,13-15:TextureSheetAnimation,16-17:Shape*/
-    static _RANDOMOFFSET: Uint32Array;
-    /** @private */
-    private static halfKSqrtOf2;
-    /** @private */
-    static _maxElapsedTime: number;
-    /**@private */
-    private static _tempVector30;
-    /**@private */
-    private static _tempVector31;
-    /**@private */
-    private static _tempVector32;
-    /**@private */
-    private static _tempVector33;
-    /**@private */
-    private static _tempVector34;
-    /**@private */
-    private static _tempVector35;
-    /**@private */
-    private static _tempVector36;
-    /**@private */
-    private static _tempVector37;
-    /**@private */
-    private static _tempVector38;
-    /**@private */
-    private static _tempVector39;
-    /** @private */
-    private static _tempPosition;
-    /** @private */
-    private static _tempDirection;
-    /**@private */
-    private static _type;
-    /** @private */
-    private _tempRotationMatrix;
-    /** @private */
-    _boundingSphere: BoundSphere;
-    /** @private */
-    _boundingBox: BoundBox;
-    /** @private */
-    _boundingBoxCorners: Vector3[];
-    /** @private */
-    private _owner;
-    /** @private */
-    private _ownerRender;
-    /**@private */
-    private _vertices;
-    /**@private */
-    private _floatCountPerVertex;
-    /**@private */
-    private _startLifeTimeIndex;
-    /**@private */
-    private _timeIndex;
-    /**@private */
-    private _simulateUpdate;
-    /**@private */
-    private _firstActiveElement;
-    /**@private */
-    private _firstNewElement;
-    /**@private */
-    private _firstFreeElement;
-    /**@private */
-    private _firstRetiredElement;
-    /**@private */
-    private _drawCounter;
-    /**@private */
-    private _bufferMaxParticles;
-    /**@private */
-    private _emission;
-    /**@private */
-    private _shape;
-    /**@private */
-    private _isEmitting;
-    /**@private */
-    private _isPlaying;
-    /**@private */
-    private _isPaused;
-    /**@private */
-    private _playStartDelay;
-    /**@private 发射的累计时间。*/
-    private _frameRateTime;
-    /**@private 一次循环内的累计时间。*/
-    private _emissionTime;
-    /**@private */
-    private _totalDelayTime;
-    /**@private */
-    private _burstsIndex;
-    /**@private */
-    private _velocityOverLifetime;
-    /**@private */
-    private _colorOverLifetime;
-    /**@private */
-    private _sizeOverLifetime;
-    /**@private */
-    private _rotationOverLifetime;
-    /**@private */
-    private _textureSheetAnimation;
-    /**@private */
-    private _startLifetimeType;
-    /**@private */
-    private _startLifetimeConstant;
-    /**@private */
-    private _startLifeTimeGradient;
-    /**@private */
-    private _startLifetimeConstantMin;
-    /**@private */
-    private _startLifetimeConstantMax;
-    /**@private */
-    private _startLifeTimeGradientMin;
-    /**@private */
-    private _startLifeTimeGradientMax;
-    /**@private */
-    private _maxStartLifetime;
-    /** @private */
-    private _uvLength;
-    /** @private */
-    private _vertexStride;
-    /** @private */
-    private _indexStride;
-    /**@private */
-    private _vertexBuffer;
-    /**@private */
-    private _indexBuffer;
-    /** @private */
-    private _bufferState;
-    /**@private */
-    _currentTime: number;
-    /**@private */
-    _startUpdateLoopCount: number;
-    /**@private */
-    _rand: Rand;
-    /**@private */
-    _randomSeeds: Uint32Array;
     /**粒子运行的总时长，单位为秒。*/
     duration: number;
     /**是否循环。*/
@@ -368,50 +233,6 @@ export declare class ShurikenParticleSystem extends GeometryElement implements I
     _getIndexBuffer(): IndexBuffer3D;
     constructor(owner: ShuriKenParticle3D);
     /**
-     * @private
-     */
-    _generateBoundingSphere(): void;
-    /**
-     * @private
-     */
-    _generateBoundingBox(): void;
-    /**
-     * @private
-     */
-    private _updateEmission;
-    /**
-     * @private
-     */
-    private _updateParticles;
-    /**
-     * @private
-     */
-    private _updateParticlesSimulationRestart;
-    /**
-     * @private
-     */
-    private _retireActiveParticles;
-    /**
-     * @private
-     */
-    private _freeRetiredParticles;
-    /**
-     * @private
-     */
-    private _burst;
-    /**
-     * @private
-     */
-    private _advanceTime;
-    /**
-     * @private
-     */
-    _initBufferDatas(): void;
-    /**
-     * @private
-     */
-    destroy(): void;
-    /**
      * 发射一个粒子。
      */
     emit(time: number): boolean;
@@ -419,16 +240,14 @@ export declare class ShurikenParticleSystem extends GeometryElement implements I
     addNewParticlesToVertexBuffer(): void;
     /**
      * @inheritDoc
+     * @override
      */
     _getType(): number;
     /**
      * @inheritDoc
+     * @override
      */
     _prepareRender(state: RenderContext3D): boolean;
-    /**
-     * @private
-     */
-    _render(state: RenderContext3D): void;
     /**
      * 开始发射粒子。
      */

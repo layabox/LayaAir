@@ -1,5 +1,4 @@
 /**
- * @private
  * <code>GeometryElement</code> 类用于实现几何体元素,该类为抽象类。
  */
 export class GeometryElement {
@@ -23,14 +22,14 @@ export class GeometryElement {
         throw "GeometryElement:must override it.";
     }
     /**
-     * @private
+     * @internal
      * @return  是否需要渲染。
      */
     _prepareRender(state) {
         return true;
     }
     /**
-     * @private
+     * @internal
      */
     _render(state) {
         throw "GeometryElement:must override it.";
@@ -44,5 +43,5 @@ export class GeometryElement {
         this._destroyed = true;
     }
 }
-/**@private */
+/**@internal */
 GeometryElement._typeCounter = 0;

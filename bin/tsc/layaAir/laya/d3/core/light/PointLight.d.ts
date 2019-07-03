@@ -1,13 +1,10 @@
-import { LightSprite } from "././LightSprite";
+import { LightSprite } from "./LightSprite";
 /**
  * <code>PointLight</code> 类用于创建点光。
  */
 export declare class PointLight extends LightSprite {
-    /** @private */
     private static _tempMatrix0;
-    /** @private */
     private _range;
-    /** @private */
     private _lightMatrix;
     /**
      * 创建一个 <code>PointLight</code> 实例。

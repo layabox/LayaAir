@@ -1,8 +1,8 @@
 import { ILaya } from "./../../ILaya";
-import { Loader } from "././Loader";
+import { Loader } from "./Loader";
 import { Handler } from "../utils/Handler";
 /**
- * @private
+ * @internal
  */
 export class AtlasInfoManager {
     static enable(infoFile, callback = null) {

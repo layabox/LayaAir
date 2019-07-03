@@ -1,6 +1,3 @@
-/**
- * @private
- */
 export declare class SlotData {
     name: string;
     displayArr: any[];

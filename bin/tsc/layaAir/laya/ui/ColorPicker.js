@@ -1,7 +1,7 @@
-import { UIComponent } from "././UIComponent";
-import { Box } from "././Box";
-import { Button } from "././Button";
-import { UIUtils } from "././UIUtils";
+import { UIComponent } from "./UIComponent";
+import { Box } from "./Box";
+import { Button } from "./Button";
+import { UIUtils } from "./UIUtils";
 import { Input } from "../display/Input";
 import { Sprite } from "../display/Sprite";
 import { Event } from "../events/Event";

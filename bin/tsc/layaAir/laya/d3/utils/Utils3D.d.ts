@@ -1,39 +1,18 @@
-import { Node } from "../../display/Node";
-import { Texture2D } from "../../resource/Texture2D";
-import { PixelLineSprite3D } from "../core/pixelLine/PixelLineSprite3D";
-import { BoundBox } from "../math/BoundBox";
-import { Color } from "../math/Color";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { Vector4 } from "../math/Vector4";
 /**
  * <code>Utils3D</code> 类用于创建3D工具。
  */
 export declare class Utils3D {
-    /** @private */
     private static _tempVector3_0;
-    /** @private */
     private static _tempVector3_1;
-    /** @private */
     private static _tempVector3_2;
-    /**@private */
     private static _tempColor0;
     private static _tempArray16_0;
-    /** @private */
     private static _tempArray16_1;
-    /** @private */
     private static _tempArray16_2;
-    /** @private */
     private static _tempArray16_3;
-    /**
-     * @private
-     */
-    static _convertToLayaVec3(bVector: any, out: Vector3, inverseX: boolean): void;
-    /**
-     * @private
-     */
-    static _convertToBulletVec3(lVector: Vector3, out: any, inverseX: boolean): void;
     /**
      *通过数平移、旋转、缩放值计算到结果矩阵数组,骨骼动画专用。
      * @param tx left矩阵数组。
@@ -50,20 +29,6 @@ export declare class Utils3D {
      * @param outOffset 结果矩阵数组的偏移。
      */
     private static _rotationTransformScaleSkinAnimation;
-    /**
-     * @private
-     */
-    static _compIdToNode: any;
-    /** @private */
-    static _computeBoneAndAnimationDatasByBindPoseMatrxix(bones: any, curData: Float32Array, inverGlobalBindPose: Matrix4x4[], outBonesDatas: Float32Array, outAnimationDatas: Float32Array, boneIndexToMesh: number[]): void;
-    /** @private */
-    static _computeAnimationDatasByArrayAndMatrixFast(inverGlobalBindPose: Matrix4x4[], bonesDatas: Float32Array, outAnimationDatas: Float32Array, boneIndexToMesh: number[]): void;
-    /** @private */
-    static _computeBoneAndAnimationDatasByBindPoseMatrxixOld(bones: any, curData: Float32Array, inverGlobalBindPose: Matrix4x4[], outBonesDatas: Float32Array, outAnimationDatas: Float32Array): void;
-    /** @private */
-    static _computeAnimationDatasByArrayAndMatrixFastOld(inverGlobalBindPose: Matrix4x4[], bonesDatas: Float32Array, outAnimationDatas: Float32Array): void;
-    /** @private */
-    static _computeRootAnimationData(bones: any, curData: Float32Array, animationDatas: Float32Array): void;
     /**
      * 根据四元数旋转三维向量。
      * @param	source 源三维向量。
@@ -126,56 +91,16 @@ export declare class Utils3D {
      */
     static transformVector3ArrayToVector3ArrayCoordinate(source: Float32Array, sourceOffset: number, transform: Matrix4x4, result: Float32Array, resultOffset: number): void;
     /**
-     * @private
-     */
-    static transformLightingMapTexcoordArray(source: Float32Array, sourceOffset: number, lightingMapScaleOffset: Vector4, result: Float32Array, resultOffset: number): void;
-    /**
      * 获取URL版本字符。
      * @param	url
      * @return
      */
     static getURLVerion(url: string): string;
-    /**
-     * @private
-     */
-    static _createAffineTransformationArray(trans: Vector3, rot: Quaternion, scale: Vector3, outE: Float32Array): void;
-    /**
-     * @private
-     */
-    static _mulMatrixArray(leftMatrixE: Float32Array, rightMatrix: Matrix4x4, outArray: Float32Array, outOffset: number): void;
     private static arcTanAngle;
     private static angleTo;
     static transformQuat(source: Vector3, rotation: Float32Array, out: Vector3): void;
     static quaternionWeight(f: Quaternion, weight: number, e: Quaternion): void;
-    /**
-     * @private
-     */
-    static quaternionConjugate(value: Quaternion, result: Quaternion): void;
-    /**
-     * @private
-     */
-    static scaleWeight(s: Vector3, w: number, out: Vector3): void;
-    /**
-     * @private
-     */
-    static scaleBlend(sa: Vector3, sb: Vector3, w: number, out: Vector3): void;
     static matrix4x4MultiplyFFF(a: Float32Array, b: Float32Array, e: Float32Array): void;
     static matrix4x4MultiplyFFFForNative(a: Float32Array, b: Float32Array, e: Float32Array): void;
     static matrix4x4MultiplyMFM(left: Matrix4x4, right: Float32Array, out: Matrix4x4): void;
-    /**
-     * @private
-     */
-    static _buildTexture2D(width: number, height: number, format: number, colorFunc: Function, mipmaps?: boolean): Texture2D;
-    /**
-     * @private
-     */
-    static _drawBound(debugLine: PixelLineSprite3D, boundBox: BoundBox, color: Color): void;
-    /**
-     * @private
-     */
-    static _getHierarchyPath(rootSprite: Node, checkSprite: Node, path: any[]): any[];
-    /**
-     * @private
-     */
-    static _getNodeByHierarchyPath(rootSprite: Node, invPath: any[]): Node;
 }

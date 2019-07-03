@@ -1,4 +1,4 @@
-import { SoundChannel } from "././SoundChannel";
+import { SoundChannel } from "./SoundChannel";
 import { EventDispatcher } from "../events/EventDispatcher";
 /**
  * <code>Sound</code> 类是用来播放控制声音的类。

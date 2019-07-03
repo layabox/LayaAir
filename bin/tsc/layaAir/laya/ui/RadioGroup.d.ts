@@ -1,4 +1,4 @@
-import { UIGroup } from "././UIGroup";
+import { UIGroup } from "./UIGroup";
 import { Sprite } from "../display/Sprite";
 /**
  * 当 <code>Group</code> 实例的 <code>selectedIndex</code> 属性发生变化时调度。

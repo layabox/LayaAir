@@ -1,4 +1,4 @@
-import { URL } from "././URL";
+import { URL } from "./URL";
 import { Event } from "../events/Event";
 import { EventDispatcher } from "../events/EventDispatcher";
 import { Utils } from "../utils/Utils";

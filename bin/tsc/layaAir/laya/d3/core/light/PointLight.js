@@ -1,7 +1,7 @@
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Vector3 } from "../../math/Vector3";
 import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
-import { LightSprite } from "././LightSprite";
+import { LightSprite } from "./LightSprite";
 import { ILaya3D } from "../../../../ILaya3D";
 /**
  * <code>PointLight</code> 类用于创建点光。
@@ -12,7 +12,6 @@ export class PointLight extends LightSprite {
      */
     constructor() {
         super();
-        /** @private */
         this._lightMatrix = new Matrix4x4();
         this._range = 6.0;
     }
@@ -78,5 +77,4 @@ export class PointLight extends LightSprite {
         this.range = data.range;
     }
 }
-/** @private */
 PointLight._tempMatrix0 = new Matrix4x4();

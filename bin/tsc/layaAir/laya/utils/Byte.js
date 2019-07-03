@@ -377,7 +377,7 @@ export class Byte {
         this._pos_++;
     }
     /**
-     * @private
+     * @internal
      * 从字节流的指定字节偏移量位置处读取一个 Uint8 值。
      * @param	pos	字节读取位置。
      * @return Uint8 值。
@@ -387,7 +387,7 @@ export class Byte {
         return this._readUInt8(pos);
     }
     /**
-     * @private
+     * @internal
      * 从字节流的指定字节偏移量位置处读取一个 Uint8 值。
      * @param	pos	字节读取位置。
      * @return Uint8 值。
@@ -397,7 +397,7 @@ export class Byte {
         return this._d_.getUint8(pos);
     }
     /**
-     * @private
+     * @internal
      * 从字节流的指定字节偏移量位置处读取一个 Uint16 值。
      * @param	pos	字节读取位置。
      * @return Uint16 值。
@@ -407,7 +407,7 @@ export class Byte {
         return this._readUint16(pos);
     }
     /**
-     * @private
+     * @internal
      * 从字节流的指定字节偏移量位置处读取一个 Uint16 值。
      * @param	pos	字节读取位置。
      * @return Uint16 值。
@@ -417,7 +417,7 @@ export class Byte {
         return this._d_.getUint16(pos, this._xd_);
     }
     /**
-     * @private
+     * @internal
      * 使用 getFloat32() 读取6个值，用于创建并返回一个 Matrix 对象。
      * @return  Matrix 对象。
      */
@@ -426,7 +426,7 @@ export class Byte {
         return this._readMatrix();
     }
     /**
-     * @private
+     * @internal
      * 使用 getFloat32() 读取6个值，用于创建并返回一个 Matrix 对象。
      * @return  Matrix 对象。
      */
@@ -541,7 +541,7 @@ export class Byte {
         this.length = 0;
     }
     /**
-     * @private
+     * @internal
      * 获取此对象的 ArrayBuffer 引用。
      * @return
      */
@@ -664,7 +664,7 @@ export class Byte {
         return this.readByte();
     }
     /**
-     * @private
+     * @internal
      * <p>保证该字节流的可用长度不小于 <code>lengthToEnsure</code> 参数指定的值。</p>
      * @param	lengthToEnsure	指定的长度。
      */

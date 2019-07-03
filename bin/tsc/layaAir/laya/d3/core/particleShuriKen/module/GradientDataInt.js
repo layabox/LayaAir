@@ -6,7 +6,6 @@ export class GradientDataInt {
      * 创建一个 <code>GradientDataInt</code> 实例。
      */
     constructor() {
-        /**@private */
         this._currentLength = 0;
         this._elements = new Float32Array(8);
     }

@@ -1,4 +1,4 @@
-import { Event } from "././Event";
+import { Event } from "./Event";
 import { ILaya } from "../../ILaya";
 /**
  * <p><code>KeyBoardManager</code> 是键盘事件管理类。该类从浏览器中接收键盘事件，并派发该事件。</p>

@@ -86,11 +86,11 @@ export class HTMLElement {
         this._x = this._y = this._width = this._height = 0;
         return this;
     }
-    /**@private */
+    /**@internal */
     _getCSSStyle() {
         return this._style;
     }
-    /**@private */
+    /**@internal */
     _addChildsToLayout(out) {
         var words = this._getWords();
         if (words == null && (!this._children || this._children.length == 0))
@@ -107,7 +107,7 @@ export class HTMLElement {
             });
         return true;
     }
-    /**@private */
+    /**@internal */
     _addToLayout(out) {
         if (!this._style)
             return;
@@ -207,6 +207,7 @@ export class HTMLElement {
     get style() {
         return this._style;
     }
+    /**@internal */
     _getWords() {
         if (!this._text)
             return null;
@@ -227,10 +228,12 @@ export class HTMLElement {
         }
         return words;
     }
+    /**@internal */
     //TODO:coverage
     _isChar() {
         return false;
     }
+    /**@internal */
     _layoutLater() {
         var style = this.style;
         if ((style._type & HTMLStyle.ADDLAYOUTED))
@@ -279,6 +282,7 @@ export class HTMLElement {
             this.repaint();
         }
     }
+    /**@internal */
     _setAttributes(name, value) {
         switch (name) {
             case 'style':

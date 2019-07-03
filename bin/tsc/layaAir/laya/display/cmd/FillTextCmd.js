@@ -8,7 +8,7 @@ import { ILaya } from "../../../ILaya";
  */
 export class FillTextCmd {
     constructor() {
-        /**@private */
+        /**@internal */
         this._textIsWorldText = false;
         this._fontColor = 0xffffffff;
         this._strokeColor = 0;

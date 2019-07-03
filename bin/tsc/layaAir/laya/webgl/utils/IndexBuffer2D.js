@@ -1,12 +1,11 @@
-import { Buffer2D } from "././Buffer2D";
+import { Buffer2D } from "./Buffer2D";
 import { LayaGL } from "../../layagl/LayaGL";
-import { WebGLContext } from "../WebGLContext";
 import { Buffer } from "./Buffer";
 export class IndexBuffer2D extends Buffer2D {
     constructor(bufferUsage = 0x88e4 /* WebGLContext.STATIC_DRAW*/) {
         super();
         this._bufferUsage = bufferUsage;
-        this._bufferType = WebGLContext.ELEMENT_ARRAY_BUFFER;
+        this._bufferType = WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER;
         this._buffer = new ArrayBuffer(8);
     }
     /*override*/ _checkArrayUse() {
@@ -19,14 +18,14 @@ export class IndexBuffer2D extends Buffer2D {
      * @inheritDoc
      */
     /*override*/ _bindForVAO() {
-        LayaGL.instance.bindBuffer(WebGLContext.ELEMENT_ARRAY_BUFFER, this._glBuffer);
+        LayaGL.instance.bindBuffer(WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER, this._glBuffer);
     }
     /**
      * @inheritDoc
      */
     /*override*/ bind() {
         if (Buffer._bindedIndexBuffer !== this._glBuffer) {
-            LayaGL.instance.bindBuffer(WebGLContext.ELEMENT_ARRAY_BUFFER, this._glBuffer);
+            LayaGL.instance.bindBuffer(WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER, this._glBuffer);
             Buffer._bindedIndexBuffer = this._glBuffer;
             return true;
         }

@@ -7,7 +7,7 @@ export class ContactPoint {
      * 创建一个 <code>ContactPoint</code> 实例。
      */
     constructor() {
-        /**@private */
+        /**@internal */
         this._idCounter = 0;
         /**碰撞器A。*/
         this.colliderA = null;

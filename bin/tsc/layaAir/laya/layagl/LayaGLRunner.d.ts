@@ -1,4 +1,4 @@
-import { CommandEncoder } from "././CommandEncoder";
+import { CommandEncoder } from "./CommandEncoder";
 import { LayaGL } from "./LayaGL";
 /**
  * @private

@@ -1,5 +1,5 @@
-import { CacheManger } from "././CacheManger";
-import { Utils } from "././Utils";
+import { CacheManger } from "./CacheManger";
+import { Utils } from "./Utils";
 import { Pool } from "./Pool";
 /**
      * @private

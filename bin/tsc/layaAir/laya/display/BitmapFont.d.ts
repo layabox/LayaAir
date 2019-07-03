@@ -1,4 +1,3 @@
-import { Sprite } from "././Sprite";
 import { Texture } from "../resource/Texture";
 import { Handler } from "../utils/Handler";
 /**
@@ -78,9 +77,4 @@ export declare class BitmapFont {
      * 获取最大字符高度。
      */
     getMaxHeight(): number;
-    /**
-     * @private
-     * 将指定的文本绘制到指定的显示对象上。
-     */
-    _drawText(text: string, sprite: Sprite, drawX: number, drawY: number, align: string, width: number): void;
 }

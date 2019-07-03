@@ -1,4 +1,4 @@
-import { VertexShuriKenParticle } from "././VertexShuriKenParticle";
+import { VertexShuriKenParticle } from "./VertexShuriKenParticle";
 import { VertexDeclaration } from "../VertexDeclaration";
 import { VertexElement } from "../VertexElement";
 import { VertexElementFormat } from "../VertexElementFormat";
@@ -69,7 +69,7 @@ export class VertexShurikenParticleBillboard extends VertexShuriKenParticle {
         return this._simulationWorldPostion;
     }
 }
-/**@private */
+/**@internal */
 VertexShurikenParticleBillboard._vertexDeclaration = new VertexDeclaration(152, [new VertexElement(0, VertexElementFormat.Vector4, VertexShuriKenParticle.PARTICLE_CORNERTEXTURECOORDINATE0),
     new VertexElement(16, VertexElementFormat.Vector4, VertexShuriKenParticle.PARTICLE_SHAPEPOSITIONSTARTLIFETIME),
     new VertexElement(32, VertexElementFormat.Vector4, VertexShuriKenParticle.PARTICLE_DIRECTIONTIME),

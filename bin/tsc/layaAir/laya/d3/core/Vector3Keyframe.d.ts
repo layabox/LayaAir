@@ -1,4 +1,4 @@
-import { Keyframe } from "././Keyframe";
+import { Keyframe } from "./Keyframe";
 import { Vector3 } from "../math/Vector3";
 /**
  * <code>Vector3Keyframe</code> 类用于创建三维向量关键帧实例。

@@ -1,7 +1,6 @@
-import { VertexElementFormat } from "././VertexElementFormat";
+import { VertexElementFormat } from "./VertexElementFormat";
 import { ShaderData } from "../shader/ShaderData";
 /**
- * @private
  * <code>VertexDeclaration</code> 类用于生成顶点声明。
  */
 export class VertexDeclaration {
@@ -14,20 +13,20 @@ export class VertexDeclaration {
         this._id = ++VertexDeclaration._uniqueIDCounter;
         this._vertexElementsDic = {};
         this._vertexStride = vertexStride;
-        this.vertexElements = vertexElements;
+        this._vertexElements = vertexElements;
         var count = vertexElements.length;
         this._shaderValues = new ShaderData(null);
         for (var j = 0; j < count; j++) {
             var vertexElement = vertexElements[j];
-            var name = vertexElement.elementUsage;
+            var name = vertexElement._elementUsage;
             this._vertexElementsDic[name] = vertexElement;
             var value = new Int32Array(5);
-            var elmentInfo = VertexElementFormat.getElementInfos(vertexElement.elementFormat);
+            var elmentInfo = VertexElementFormat.getElementInfos(vertexElement._elementFormat);
             value[0] = elmentInfo[0];
             value[1] = elmentInfo[1];
             value[2] = elmentInfo[2];
             value[3] = this._vertexStride;
-            value[4] = vertexElement.offset;
+            value[4] = vertexElement._offset;
             this._shaderValues.setAttribute(name, value);
         }
     }
@@ -39,22 +38,30 @@ export class VertexDeclaration {
         return this._id;
     }
     /**
-     * @private
+     * 顶点跨度，以字节为单位。
      */
     get vertexStride() {
         return this._vertexStride;
     }
     /**
-     * @private
+     * 顶点元素的数量。
+     */
+    get vertexElementCount() {
+        return this._vertexElements.length;
+    }
+    /**
+     * 通过索引获取顶点元素。
+     * @param index 索引。
+     */
+    getVertexElementByIndex(index) {
+        return this._vertexElements[index];
+    }
+    /**
+     * @internal
      */
     getVertexElementByUsage(usage) {
         return this._vertexElementsDic[usage];
     }
-    /**
-     * @private
-     */
-    unBinding() {
-    }
 }
-/**@private */
+/**@internal */
 VertexDeclaration._uniqueIDCounter = 1;

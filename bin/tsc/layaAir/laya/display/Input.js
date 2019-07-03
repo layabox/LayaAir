@@ -1,4 +1,4 @@
-import { Text } from "././Text";
+import { Text } from "./Text";
 import { Event } from "../events/Event";
 import { Utils } from "../utils/Utils";
 import { ILaya } from "../../ILaya";

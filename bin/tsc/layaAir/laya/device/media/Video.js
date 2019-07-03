@@ -1,4 +1,4 @@
-import { WebGLVideo } from "././WebGLVideo";
+import { WebGLVideo } from "./WebGLVideo";
 import { Sprite } from "../../display/Sprite";
 import { Texture } from "../../resource/Texture";
 import { ILaya } from "../../../ILaya";

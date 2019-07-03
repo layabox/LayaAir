@@ -1,6 +1,5 @@
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Vector4 } from "../../math/Vector4";
-import { ShaderDefines } from "../../shader/ShaderDefines";
 import { BaseMaterial } from "../material/BaseMaterial";
 /**
  * <code>TrailMaterial</code> 类用于实现拖尾材质。
@@ -24,68 +23,6 @@ export declare class TrailMaterial extends BaseMaterial {
     static BLEND_DST: number;
     static DEPTH_TEST: number;
     static DEPTH_WRITE: number;
-    /**@private */
-    static shaderDefines: ShaderDefines;
-    /**
-     * @private
-     */
-    static __initDefine__(): void;
-    /**@private */
-    private _color;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _TintColorR: number;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _TintColorG: number;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _TintColorB: number;
-    /**@private */
-    /**
-    * @private
-    */
-    _TintColorA: number;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _MainTex_STX: number;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _MainTex_STY: number;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _MainTex_STZ: number;
-    /**
-     * @private
-     */
-    /**
-    * @private
-    */
-    _MainTex_STW: number;
     /**
      * 设置渲染模式。
      * @return 渲染模式。

@@ -1,16 +1,16 @@
-import { Command } from "././Command";
+import { Command } from "./Command";
 /**
- * @private
+ * @internal
  * <code>SetRenderTargetCMD</code> 类用于创建设置渲染目标指令。
  */
 export class SetRenderTargetCMD extends Command {
     constructor() {
         super(...arguments);
-        /**@private */
+        /**@internal */
         this._renderTexture = null;
     }
     /**
-     * @private
+     * @internal
      */
     static create(renderTexture) {
         var cmd;
@@ -32,5 +32,5 @@ export class SetRenderTargetCMD extends Command {
         this._renderTexture = null;
     }
 }
-/**@private */
+/**@internal */
 SetRenderTargetCMD._pool = [];

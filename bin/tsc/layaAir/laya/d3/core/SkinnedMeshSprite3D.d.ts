@@ -1,27 +1,16 @@
 import { Node } from "../../display/Node";
 import { Animator } from "../component/Animator";
 import { Mesh } from "../resource/models/Mesh";
-import { ShaderDefines } from "../shader/ShaderDefines";
-import { Avatar } from "././Avatar";
-import { MeshFilter } from "././MeshFilter";
-import { RenderableSprite3D } from "././RenderableSprite3D";
-import { SkinnedMeshRenderer } from "././SkinnedMeshRenderer";
+import { Avatar } from "./Avatar";
+import { MeshFilter } from "./MeshFilter";
+import { RenderableSprite3D } from "./RenderableSprite3D";
+import { SkinnedMeshRenderer } from "./SkinnedMeshRenderer";
 /**
  * <code>SkinnedMeshSprite3D</code> 类用于创建网格。
  */
 export declare class SkinnedMeshSprite3D extends RenderableSprite3D {
-    /**@private */
-    static _tempArray0: any[];
     /**着色器变量名，蒙皮动画。*/
     static BONES: number;
-    /**@private */
-    static shaderDefines: ShaderDefines;
-    /**
-     * @private
-     */
-    static __init__(): void;
-    /** @private */
-    private _meshFilter;
     /**
      * 获取网格过滤器。
      * @return  网格过滤器。
@@ -58,8 +47,4 @@ export declare class SkinnedMeshSprite3D extends RenderableSprite3D {
      * @inheritDoc
      */
     destroy(destroyChild?: boolean): void;
-    /**
-     * @private
-     */
-    protected _create(): Node;
 }

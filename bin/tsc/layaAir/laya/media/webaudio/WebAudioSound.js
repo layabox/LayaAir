@@ -1,4 +1,4 @@
-import { WebAudioSoundChannel } from "././WebAudioSoundChannel";
+import { WebAudioSoundChannel } from "./WebAudioSoundChannel";
 import { Event } from "../../events/Event";
 import { EventDispatcher } from "../../events/EventDispatcher";
 //import { SoundManager } from "../SoundManager"

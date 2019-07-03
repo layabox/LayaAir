@@ -1,4 +1,4 @@
-import { Bitmap } from "././Bitmap";
+import { Bitmap } from "./Bitmap";
 /**
  * @private
  * <p> <code>HTMLImage</code> 用于创建 HTML Image 元素。</p>

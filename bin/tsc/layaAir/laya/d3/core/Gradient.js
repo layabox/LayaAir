@@ -1,4 +1,4 @@
-import { GradientMode } from "././GradientMode";
+import { GradientMode } from "./GradientMode";
 /**
  * <code>Gradient</code> 类用于创建颜色渐变。
  */
@@ -9,19 +9,14 @@ export class Gradient {
      * @param maxColorAlphaKeyCount 最大Alpha帧个数。
      */
     constructor(maxColorRGBKeyCount, maxColorAlphaKeyCount) {
-        /**@private */
         this._mode = 0;
-        /**@private */
         this._maxColorRGBKeysCount = 0;
-        /**@private */
         this._maxColorAlphaKeysCount = 0;
-        /**@private */
         this._colorRGBKeysCount = 0;
-        /**@private */
         this._colorAlphaKeysCount = 0;
-        /**@private */
+        /**@internal */
         this._alphaElements = null;
-        /**@private */
+        /**@internal */
         this._rgbElements = null;
         this._maxColorRGBKeysCount = maxColorRGBKeyCount;
         this._maxColorAlphaKeysCount = maxColorAlphaKeyCount;

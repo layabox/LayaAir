@@ -16,63 +16,63 @@ import { RenderTexture } from "../resource/RenderTexture";
  */
 export class ParallelSplitShadowMap {
     constructor() {
-        /**@private */
+        /**@internal */
         this._spiltDistance = [];
-        /**@private */
+        /**@internal */
         this._currentPSSM = -1;
-        /**@private */
+        /**@internal */
         this._shadowMapCount = 3;
-        /**@private */
+        /**@internal */
         this._maxDistance = 200.0;
-        /**@private */
+        /**@internal */
         this._ratioOfDistance = 1.0 / this._shadowMapCount;
-        /**@private */
+        /**@internal */
         this._globalParallelLightDir = new Vector3(0, -1, 0);
-        /**@private */
+        /**@internal */
         this._statesDirty = true;
-        /**@private */
+        /**@internal */
         this._shadowMapTextureSize = 1024;
-        /**@private */
+        /**@internal */
         this._scene = null;
-        /**@private */
+        /**@internal */
         this._boundingSphere = new Array(ParallelSplitShadowMap.MAX_PSSM_COUNT + 1);
-        /**@private */
+        /**@internal */
         this._boundingBox = new Array(ParallelSplitShadowMap.MAX_PSSM_COUNT + 1);
-        /**@private */
+        /**@internal */
         this._frustumPos = new Array((ParallelSplitShadowMap.MAX_PSSM_COUNT + 1) * 4);
-        /**@private */
+        /**@internal */
         this._uniformDistance = new Array(ParallelSplitShadowMap.MAX_PSSM_COUNT + 1);
-        /**@private */
+        /**@internal */
         this._logDistance = new Array(ParallelSplitShadowMap.MAX_PSSM_COUNT + 1);
-        /**@private */
+        /**@internal */
         this._dimension = new Array(ParallelSplitShadowMap.MAX_PSSM_COUNT + 1);
-        /** @private */
+        /** @internal */
         this._PCFType = 0;
-        /** @private */
+        /** @internal */
         this._tempLookAt3 = new Vector3();
-        /** @private */
+        /** @internal */
         this._tempLookAt4 = new Vector4();
-        /** @private */
+        /** @internal */
         this._tempValue = new Vector4();
-        /** @private */
+        /** @internal */
         this._tempPos = new Vector3();
-        /** @private */
+        /** @internal */
         this._tempLightUp = new Vector3();
-        /** @private */
+        /** @internal */
         this._tempMin = new Vector4();
-        /** @private */
+        /** @internal */
         this._tempMax = new Vector4();
-        /** @private */
+        /** @internal */
         this._tempMatrix44 = new Matrix4x4;
-        /**@private */
+        /**@internal */
         this._splitFrustumCulling = new BoundFrustum(Matrix4x4.DEFAULT);
-        /** @private */
+        /** @internal */
         this._tempScaleMatrix44 = new Matrix4x4();
-        /** @private */
+        /** @internal */
         this._shadowPCFOffset = new Vector2(1.0 / 1024.0, 1.0 / 1024.0);
-        /** @private */
+        /** @internal */
         this._shaderValueDistance = new Vector4();
-        /** @private */
+        /** @internal */
         this._shaderValueLightVP = null;
         this.cameras = [];
         this._shaderValueVPs = [];
@@ -172,9 +172,6 @@ export class ParallelSplitShadowMap {
     get shadowMapCount() {
         return this._shadowMapCount;
     }
-    /**
-     * @private
-     */
     _beginSampler(index, sceneCamera) {
         if (index < 0 || index > this._shadowMapCount) //TODO:
             throw new Error("ParallelSplitShadowMap: beginSample invalid index");
@@ -182,13 +179,13 @@ export class ParallelSplitShadowMap {
         this._update(sceneCamera);
     }
     /**
-     * @private
+     * @internal
      */
     endSampler(sceneCamera) {
         this._currentPSSM = -1;
     }
     /**
-     * @private
+     * @internal
      */
     _calcAllLightCameraInfo(sceneCamera) {
         if (this._shadowMapCount === 1) {
@@ -203,7 +200,7 @@ export class ParallelSplitShadowMap {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _recalculate(nearPlane, fieldOfView, aspectRatio) {
         this._calcSplitDistance(nearPlane);
@@ -211,7 +208,7 @@ export class ParallelSplitShadowMap {
         this._rebuildRenderInfo();
     }
     /**
-     * @private
+     * @internal
      */
     _update(sceneCamera) {
         var nearPlane = sceneCamera.nearPlane;
@@ -229,7 +226,7 @@ export class ParallelSplitShadowMap {
         this._calcLightViewProject(sceneCamera);
     }
     /**
-     * @private
+     * @internal
      */
     _uploadShaderValue() {
         var sceneSV = this._scene._shaderValues;
@@ -269,7 +266,7 @@ export class ParallelSplitShadowMap {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _calcSplitDistance(nearPlane) {
         var far = this._maxDistance;
@@ -292,7 +289,7 @@ export class ParallelSplitShadowMap {
         this._shaderValueDistance.w = 0.0; //_spiltDistance[4]为undefine 微信小游戏
     }
     /**
-     * @private
+     * @internal
      */
     _calcBoundingBox(fieldOfView, aspectRatio) {
         var fov = 3.1415926 * fieldOfView / 180.0;
@@ -371,7 +368,7 @@ export class ParallelSplitShadowMap {
         this._splitFrustumCulling.matrix = this._tempMatrix44;
     }
     /**
-     * @private
+     * @internal
      */
     _rebuildRenderInfo() {
         var nNum = this._shadowMapCount + 1;
@@ -394,7 +391,7 @@ export class ParallelSplitShadowMap {
         }
     }
     /**
-     * @private
+     * @internal
      */
     _calcLightViewProject(sceneCamera) {
         var boundSphere = this._boundingSphere[this._currentPSSM];
@@ -534,7 +531,7 @@ export class ParallelSplitShadowMap {
         }
     }
 }
-/**@private */
+/**@internal */
 ParallelSplitShadowMap.MAX_PSSM_COUNT = 3;
-/**@private */
+/**@internal */
 ParallelSplitShadowMap._tempVector30 = new Vector3();

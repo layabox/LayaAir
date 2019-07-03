@@ -1,30 +1,12 @@
-import { ColliderShape } from "././ColliderShape";
+import { ColliderShape } from "./ColliderShape";
 /**
  * <code>CompoundColliderShape</code> 类用于创建盒子形状碰撞器。
  */
 export declare class CompoundColliderShape extends ColliderShape {
-    /**@private */
-    private static _nativeVector3One;
-    /**@private */
-    private static _nativeTransform;
-    /**@private */
-    private static _nativeOffset;
-    /**@private */
-    private static _nativRotation;
-    /**
-     * @private
-     */
-    static __init__(): void;
-    /**@private */
-    private _childColliderShapes;
     /**
      * 创建一个新的 <code>CompoundColliderShape</code> 实例。
      */
     constructor();
-    /**
-     * @private
-     */
-    private _clearChildShape;
     /**
      * @inheritDoc
      */
@@ -33,10 +15,6 @@ export declare class CompoundColliderShape extends ColliderShape {
      * @inheritDoc
      */
     _removeReference(): void;
-    /**
-     * @private
-     */
-    _updateChildTransform(shape: ColliderShape): void;
     /**
      * 添加子碰撞器形状。
      * @param	shape 子碰撞器形状。

@@ -1,4 +1,4 @@
-import { AnimationBase } from "././AnimationBase";
+import { AnimationBase } from "./AnimationBase";
 import { MathUtil } from "../maths/MathUtil";
 import { Ease } from "../utils/Ease";
 /**
@@ -22,7 +22,7 @@ export class FrameAnimation extends AnimationBase {
         }
     }
     /**
-     * @private
+     * @internal
      * 初始化动画数据
      * @param targetDic 节点ID索引
      * @param animationData 动画数据

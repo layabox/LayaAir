@@ -1,6 +1,6 @@
-import { Vector4 } from "././Vector4";
-import { MathUtils3D } from "././MathUtils3D";
-import { Vector2 } from "././Vector2";
+import { Vector4 } from "./Vector4";
+import { MathUtils3D } from "./MathUtils3D";
+import { Vector2 } from "./Vector2";
 /**
  * <code>Vector3</code> 类用于创建三维向量。
  */
@@ -341,23 +341,23 @@ export class Vector3 {
         Vector2.rewriteNumProperty(this, "z", 2);
     }
 }
-/**@private	*/
+/**@internal	*/
 Vector3._tempVector4 = new Vector4();
-/**@private	*/
+/**@internal	*/
 Vector3._ZERO = new Vector3(0.0, 0.0, 0.0);
-/**@private	*/
+/**@internal	*/
 Vector3._ONE = new Vector3(1.0, 1.0, 1.0);
-/**@private	*/
+/**@internal	*/
 Vector3._NegativeUnitX = new Vector3(-1, 0, 0);
-/**@private	*/
+/**@internal	*/
 Vector3._UnitX = new Vector3(1, 0, 0);
-/**@private	*/
+/**@internal	*/
 Vector3._UnitY = new Vector3(0, 1, 0);
-/**@private	*/
+/**@internal	*/
 Vector3._UnitZ = new Vector3(0, 0, 1);
-/**@private	*/
+/**@internal	*/
 Vector3._ForwardRH = new Vector3(0, 0, -1);
-/**@private	*/
+/**@internal	*/
 Vector3._ForwardLH = new Vector3(0, 0, 1);
-/**@private	*/
+/**@internal	*/
 Vector3._Up = new Vector3(0, 1, 0);

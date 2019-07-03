@@ -185,7 +185,7 @@ export class BitmapFont {
         return this.fontSize;
     }
     /**
-     * @private
+     * @internal
      * 将指定的文本绘制到指定的显示对象上。
      */
     _drawText(text, sprite, drawX, drawY, align, width) {

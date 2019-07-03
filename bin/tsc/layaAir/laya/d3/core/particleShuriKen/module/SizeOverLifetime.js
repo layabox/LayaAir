@@ -1,4 +1,4 @@
-import { GradientSize } from "././GradientSize";
+import { GradientSize } from "./GradientSize";
 /**
  * <code>SizeOverLifetime</code> 类用于粒子的生命周期尺寸。
  */

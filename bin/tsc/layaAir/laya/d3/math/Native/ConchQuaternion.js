@@ -1,4 +1,4 @@
-import { ConchVector3 } from "././ConchVector3";
+import { ConchVector3 } from "./ConchVector3";
 import { MathUtils3D } from "../MathUtils3D";
 import { Matrix3x3 } from "../Matrix3x3";
 import { Matrix4x4 } from "../Matrix4x4";
@@ -28,13 +28,13 @@ export class ConchQuaternion {
         this.elements = v;
     }
     /**
-     * @private
+     * @internal
      */
     static _dotArray(l, r) {
         return l[0] * r[0] + l[1] * r[1] + l[2] * r[2] + l[3] * r[3];
     }
     /**
-     * @private
+     * @internal
      */
     static _normalizeArray(f, o) {
         var x = f[0], y = f[1], z = f[2], w = f[3];
@@ -48,7 +48,7 @@ export class ConchQuaternion {
         }
     }
     /**
-     * @private
+     * @internal
      */
     static _lerpArray(l, r, amount, o) {
         var inverse = 1.0 - amount;
@@ -646,19 +646,19 @@ export class ConchQuaternion {
     }
 }
 /*[FILEINDEX:10000]*/
-/**@private */
+/**@internal */
 ConchQuaternion.TEMPVector30 = new ConchVector3();
-/**@private */
+/**@internal */
 ConchQuaternion.TEMPVector31 = new ConchVector3();
-/**@private */
+/**@internal */
 ConchQuaternion.TEMPVector32 = new ConchVector3();
-/**@private */
+/**@internal */
 ConchQuaternion.TEMPVector33 = new ConchVector3();
-/**@private */
+/**@internal */
 ConchQuaternion.TEMPMatrix0 = new Matrix4x4();
-/**@private */
+/**@internal */
 ConchQuaternion.TEMPMatrix1 = new Matrix4x4();
-/**@private */
+/**@internal */
 ConchQuaternion._tempMatrix3x3 = new Matrix3x3();
 /**默认矩阵,禁止修改*/
 ConchQuaternion.DEFAULT = new ConchQuaternion();

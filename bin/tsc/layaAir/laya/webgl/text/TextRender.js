@@ -1,5 +1,5 @@
-import { TextAtlas } from "././TextAtlas";
-import { TextTexture } from "././TextTexture";
+import { TextAtlas } from "./TextAtlas";
+import { TextTexture } from "./TextTexture";
 import { Point } from "../../maths/Point";
 import { RenderInfo } from "../../renders/RenderInfo";
 import { Texture } from "../../resource/Texture";

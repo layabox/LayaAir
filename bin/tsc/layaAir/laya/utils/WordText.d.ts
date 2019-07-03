@@ -6,7 +6,6 @@ export declare class WordText {
     save: any[];
     toUpperCase: string;
     changed: boolean;
-    _text: string;
     width: number;
     pageChars: any[];
     startID: number;

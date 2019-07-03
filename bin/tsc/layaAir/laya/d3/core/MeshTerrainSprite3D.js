@@ -1,5 +1,5 @@
-import { MeshSprite3D } from "././MeshSprite3D";
-import { HeightMap } from "././HeightMap";
+import { MeshSprite3D } from "./MeshSprite3D";
+import { HeightMap } from "./HeightMap";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Vector2 } from "../math/Vector2";
 import { Vector3 } from "../math/Vector3";
@@ -73,9 +73,6 @@ export class MeshTerrainSprite3D extends MeshSprite3D {
     get depth() {
         return (this._heightMap.height - 1) * this._cellSize.y * this._getScaleZ();
     }
-    /**
-     * @private
-     */
     _disableRotation() {
         var rotation = this.transform.rotation;
         rotation.x = 0;
@@ -84,9 +81,6 @@ export class MeshTerrainSprite3D extends MeshSprite3D {
         rotation.w = 1;
         this.transform.rotation = rotation;
     }
-    /**
-     * @private
-     */
     _getScaleX() {
         var worldMat = this.transform.worldMatrix;
         var worldMatE = worldMat.elements;
@@ -95,9 +89,6 @@ export class MeshTerrainSprite3D extends MeshSprite3D {
         var m13 = worldMatE[2];
         return Math.sqrt((m11 * m11) + (m12 * m12) + (m13 * m13));
     }
-    /**
-     * @private
-     */
     _getScaleZ() {
         var worldMat = this.transform.worldMatrix;
         var worldMatE = worldMat.elements;
@@ -106,9 +97,6 @@ export class MeshTerrainSprite3D extends MeshSprite3D {
         var m33 = worldMatE[10];
         return Math.sqrt((m31 * m31) + (m32 * m32) + (m33 * m33));
     }
-    /**
-     * @private
-     */
     _initCreateFromMesh(heightMapWidth, heightMapHeight) {
         this._heightMap = HeightMap.creatFromMesh(this.meshFilter.sharedMesh, heightMapWidth, heightMapHeight, this._cellSize);
         var boundingBox = this.meshFilter.sharedMesh.bounds;
@@ -117,9 +105,6 @@ export class MeshTerrainSprite3D extends MeshSprite3D {
         this._minX = min.x;
         this._minZ = min.z;
     }
-    /**
-     * @private
-     */
     _initCreateFromMeshHeightMap(texture, minHeight, maxHeight) {
         var boundingBox = this.meshFilter.sharedMesh.bounds;
         this._heightMap = HeightMap.createFromImage(texture, minHeight, maxHeight);
@@ -129,9 +114,6 @@ export class MeshTerrainSprite3D extends MeshSprite3D {
         this._minX = min.x;
         this._minZ = min.z;
     }
-    /**
-     * @private
-     */
     _computeCellSize(boundingBox) {
         var min = boundingBox.getMin();
         var max = boundingBox.getMax();
@@ -145,7 +127,7 @@ export class MeshTerrainSprite3D extends MeshSprite3D {
         this._cellSize.y = heightSize / (this._heightMap.height - 1);
     }
     /**
-     * @private
+     * @internal
      */
     _update(state) {
         this._disableRotation();
@@ -202,7 +184,5 @@ export class MeshTerrainSprite3D extends MeshSprite3D {
         }
     }
 }
-/** @private */
 MeshTerrainSprite3D._tempVector3 = new Vector3();
-/** @private */
 MeshTerrainSprite3D._tempMatrix4x4 = new Matrix4x4();

@@ -73,8 +73,6 @@ export declare class Browser {
     private static fontMap;
     /**@private */
     static measureText: Function;
-    /**@private */
-    static __init__(): any;
     /**
      * 创建浏览器原生节点。
      * @param	type 节点类型。

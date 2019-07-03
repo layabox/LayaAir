@@ -1,17 +1,11 @@
-import { ISubmit } from "././ISubmit";
-import { SubmitKey } from "././SubmitKey";
+import { ISubmit } from "./ISubmit";
 import { Context } from "../../resource/Context";
 import { RenderTexture2D } from "../../resource/RenderTexture2D";
 import { Value2D } from "../shader/d2/value/Value2D";
 import { Mesh2D } from "../utils/Mesh2D";
 export declare class SubmitTarget implements ISubmit {
-    _mesh: Mesh2D;
-    _startIdx: number;
-    _numEle: number;
     shaderValue: Value2D;
     blendType: number;
-    _ref: number;
-    _key: SubmitKey;
     srcRT: RenderTexture2D;
     constructor();
     static POOL: any;

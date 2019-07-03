@@ -1,4 +1,4 @@
-import { TileTexSet } from "././TileTexSet";
+import { TileTexSet } from "./TileTexSet";
 import { Sprite } from "../display/Sprite";
 /**
  * TildMap的动画显示对象（一个动画（TileTexSet），可以绑定多个动画显示对象（TileAniSprite））

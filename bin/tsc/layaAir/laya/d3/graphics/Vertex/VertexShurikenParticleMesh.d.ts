@@ -1,4 +1,4 @@
-import { VertexShuriKenParticle } from "././VertexShuriKenParticle";
+import { VertexShuriKenParticle } from "./VertexShuriKenParticle";
 import { VertexDeclaration } from "../VertexDeclaration";
 import { Vector3 } from "../../math/Vector3";
 import { Vector4 } from "../../math/Vector4";
@@ -7,37 +7,7 @@ import { Vector4 } from "../../math/Vector4";
      * <code>VertexShurikenParticle</code> 类用于创建粒子顶点结构。
      */
 export declare class VertexShurikenParticleMesh extends VertexShuriKenParticle {
-    /**@private */
-    private static _vertexDeclaration;
     static readonly vertexDeclaration: VertexDeclaration;
-    /**@private */
-    private _cornerTextureCoordinate;
-    /**@private */
-    private _positionStartLifeTime;
-    /**@private */
-    private _velocity;
-    /**@private */
-    private _startColor;
-    /**@private */
-    private _startSize;
-    /**@private */
-    private _startRotation0;
-    /**@private */
-    private _startRotation1;
-    /**@private */
-    private _startRotation2;
-    /**@private */
-    private _startLifeTime;
-    /**@private */
-    private _time;
-    /**@private */
-    private _startSpeed;
-    /**@private */
-    private _randoms0;
-    /**@private */
-    private _randoms1;
-    /**@private */
-    private _simulationWorldPostion;
     readonly cornerTextureCoordinate: Vector4;
     readonly position: Vector4;
     readonly velocity: Vector3;

@@ -1,4 +1,4 @@
-import { PostProcessEffect } from "././PostProcessEffect";
+import { PostProcessEffect } from "./PostProcessEffect";
 import { PostProcess } from "../../component/PostProcess";
 import { Color } from "../../math/Color";
 import { Vector4 } from "../../math/Vector4";
@@ -16,35 +16,35 @@ export class BloomEffect extends PostProcessEffect {
      */
     constructor() {
         super();
-        /**@private */
+        /**@internal */
         this._shader = null;
-        /**@private */
+        /**@internal */
         this._shaderData = new ShaderData();
-        /**@private */
+        /**@internal */
         this._linearColor = new Color();
-        /**@private */
+        /**@internal */
         this._bloomTextureTexelSize = new Vector4();
-        /**@private */
+        /**@internal */
         this._shaderThreshold = new Vector4();
-        /**@private */
+        /**@internal */
         this._shaderParams = new Vector4();
-        /**@private */
+        /**@internal */
         this._pyramid = null;
-        /**@private */
+        /**@internal */
         this._intensity = 0.0;
-        /**@private */
+        /**@internal */
         this._threshold = 1.0;
-        /**@private */
+        /**@internal */
         this._softKnee = 0.5;
-        /**@private */
+        /**@internal */
         this._diffusion = 7.0;
-        /**@private */
+        /**@internal */
         this._anamorphicRatio = 0.0;
-        /**@private */
+        /**@internal */
         this._dirtIntensity = 0.0;
-        /**@private */
+        /**@internal */
         this._shaderSetting = new Vector4();
-        /**@private */
+        /**@internal */
         this._dirtTileOffset = new Vector4();
         /**限制泛光像素的数量,该值在伽马空间。*/
         this.clamp = 65472.0;
@@ -239,29 +239,29 @@ export class BloomEffect extends PostProcessEffect {
         context.deferredReleaseTextures.push(lastUpTexture); //TODO:是否需要改机制
     }
 }
-/** @private */
+/** @internal */
 BloomEffect.SHADERVALUE_MAINTEX = Shader3D.propertyNameToID("u_MainTex");
-/**@private */
+/**@internal */
 BloomEffect.SHADERVALUE_AUTOEXPOSURETEX = Shader3D.propertyNameToID("u_AutoExposureTex");
-/**@private */
+/**@internal */
 BloomEffect.SHADERVALUE_SAMPLESCALE = Shader3D.propertyNameToID("u_SampleScale");
-/**@private */
+/**@internal */
 BloomEffect.SHADERVALUE_THRESHOLD = Shader3D.propertyNameToID("u_Threshold");
-/**@private */
+/**@internal */
 BloomEffect.SHADERVALUE_PARAMS = Shader3D.propertyNameToID("u_Params");
-/**@private */
+/**@internal */
 BloomEffect.SHADERVALUE_BLOOMTEX = Shader3D.propertyNameToID("u_BloomTex");
-/**@private */
+/**@internal */
 BloomEffect.SUBSHADER_PREFILTER13 = 0;
-/**@private */
+/**@internal */
 BloomEffect.SUBSHADER_PREFILTER4 = 1;
-/**@private */
+/**@internal */
 BloomEffect.SUBSHADER_DOWNSAMPLE13 = 2;
-/**@private */
+/**@internal */
 BloomEffect.SUBSHADER_DOWNSAMPLE4 = 3;
-/**@private */
+/**@internal */
 BloomEffect.SUBSHADER_UPSAMPLETENT = 4;
-/**@private */
+/**@internal */
 BloomEffect.SUBSHADER_UPSAMPLEBOX = 5;
-/**@private */
+/**@internal */
 BloomEffect.MAXPYRAMIDSIZE = 16; // Just to make sure we handle 64k screens... Future-proof!

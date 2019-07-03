@@ -1,4 +1,3 @@
-import { WebGLContext } from "./WebGLContext";
 import { WebGL } from "./WebGL";
 import { ILaya } from "../../ILaya";
 import { VertexArrayObject } from "../../laya/webgl/VertexArrayObject";
@@ -16,22 +15,22 @@ export class LayaGPU {
         this._vaoExt = null;
         /**@private */
         this._angleInstancedArrays = null;
-        /**@private */
+        /**@internal */
         this._isWebGL2 = false;
-        /**@private */
+        /**@internal */
         this._oesTextureHalfFloat = null;
-        /**@private */
+        /**@internal */
         this._extTextureFilterAnisotropic = null;
-        /**@private */
+        /**@internal */
         this._compressedTextureS3tc = null;
-        /**@private */
+        /**@internal */
         this._compressedTexturePvrtc = null;
-        /**@private */
+        /**@internal */
         this._compressedTextureEtc1 = null;
         this._gl = gl;
         this._isWebGL2 = isWebGL2;
         try { //某些浏览器中未实现此函数，使用try catch增强兼容性。
-            var precisionFormat = gl.getShaderPrecisionFormat(WebGLContext.FRAGMENT_SHADER, WebGLContext.HIGH_FLOAT);
+            var precisionFormat = gl.getShaderPrecisionFormat(WebGL2RenderingContext.FRAGMENT_SHADER, WebGL2RenderingContext.HIGH_FLOAT);
             precisionFormat.precision ? (WebGL.shaderHighPrecision = true) : WebGL.shaderHighPrecision = false;
         }
         catch (e) {
@@ -66,7 +65,7 @@ export class LayaGPU {
         this._compressedTextureEtc1 = this._getExtension("WEBGL_compressed_texture_etc1");
     }
     /**
-     * @private
+     * @internal
      */
     static _forceSupportVAOPlatform() {
         let Browser = ILaya.Browser;

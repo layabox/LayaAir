@@ -1,4 +1,3 @@
-import { HTMLStyle } from "././HTMLStyle";
 /**
      * @private
      *  <code>ILayout</code> 类是显示对象的布局接口。
@@ -8,6 +7,4 @@ export interface ILayout {
     y: number;
     width: number;
     height: number;
-    _isChar(): boolean;
-    _getCSSStyle(): HTMLStyle;
 }

@@ -1,7 +1,4 @@
 import { Matrix } from "../../maths/Matrix";
-/**
- * @private
- */
 export class Transform {
     constructor() {
         this.skX = 0; // 旋转？

@@ -3,7 +3,6 @@
  * CommandEncoder
  */
 export declare class CommandEncoder {
-    _idata: any[];
     constructor(layagl: any, reserveSize: number, adjustSize: number, isSyncToRenderThread: boolean);
     getArrayData(): any[];
     getPtrID(): number;

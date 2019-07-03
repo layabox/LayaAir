@@ -1,13 +1,11 @@
 import { Vector3 } from "../../math/Vector3";
 import { Mesh } from "../../resource/models/Mesh";
-import { ColliderShape } from "././ColliderShape";
+import { ColliderShape } from "./ColliderShape";
 /**
  * <code>MeshColliderShape</code> 类用于创建网格碰撞器。
  */
 export declare class MeshColliderShape extends ColliderShape {
-    /**@private */
     private _mesh;
-    /**@private */
     private _convex;
     /**
      * 获取网格。

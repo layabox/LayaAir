@@ -1,13 +1,13 @@
 /**
- * @private
+ * @internal
  */
 export class BatchMark {
     constructor() {
-        /**@private */
+        /**@internal */
         this.updateMark = -1;
-        /**@private */
+        /**@internal */
         this.indexInList = -1;
-        /**@private */
+        /**@internal */
         this.batched = false;
     }
 }

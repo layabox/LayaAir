@@ -1,4 +1,4 @@
-import { ColliderShape } from "././ColliderShape";
+import { ColliderShape } from "./ColliderShape";
 import { Physics } from "../Physics";
 /**
  * <code>ConeColliderShape</code> 类用于创建圆柱碰撞器。
@@ -11,9 +11,7 @@ export class ConeColliderShape extends ColliderShape {
      */
     constructor(radius = 0.5, height = 1.0, orientation = ColliderShape.SHAPEORIENTATION_UPY) {
         super();
-        /**@private */
         this._radius = 1;
-        /**@private */
         this._height = 0.5;
         this._radius = radius;
         this._height = height;

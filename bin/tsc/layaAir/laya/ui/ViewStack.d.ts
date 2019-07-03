@@ -1,4 +1,4 @@
-import { IItem } from "././IItem";
+import { IItem } from "./IItem";
 /**
  * Morn UI Version 3.0 http://www.mornui.com/
  * Feedback yung http://weibo.com/newyung
@@ -21,13 +21,6 @@ export declare class ViewStack extends Box implements IItem {
      * @param views 视图对象数组。
      */
     setItems(views: any[]): void;
-    /**
-     * 添加视图。
-     * @internal 添加视图对象，并设置此视图对象的<code>name</code> 属性。
-     * @param view 需要添加的视图对象。
-     */
-    addItem(view: Node): void;
-    _afterInited(): void;
     /**
      * 初始化视图对象集合。
      */

@@ -1,5 +1,5 @@
-import { LoadModelV04 } from "././LoadModelV04";
-import { LoadModelV05 } from "././LoadModelV05";
+import { LoadModelV04 } from "./LoadModelV04";
+import { LoadModelV05 } from "./LoadModelV05";
 import { Byte } from "../../utils/Byte";
 /**
  * ...

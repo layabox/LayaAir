@@ -2,11 +2,12 @@ import { Const } from "../Const";
 import { SpriteConst } from "../display/SpriteConst";
 import { Matrix } from "../maths/Matrix";
 /**
- * @private
+ * @internal
  * 快速节点命令执行器
  * 多个指令组合才有意义，单个指令没必要在下面加
  */
 export class LayaGLQuickRunner {
+    /**@internal */
     static __init__() {
         /*
            glQuickMap["drawNode;"] = drawNode;

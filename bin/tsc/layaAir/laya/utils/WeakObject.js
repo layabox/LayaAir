@@ -1,5 +1,5 @@
-import { Browser } from "././Browser";
-import { Utils } from "././Utils";
+import { Browser } from "./Browser";
+import { Utils } from "./Utils";
 var supportWeakMap = !!WeakMap;
 /**
      * 封装弱引用WeakMap
@@ -12,7 +12,7 @@ export class WeakObject {
         if (!WeakObject.supportWeakMap)
             WeakObject._maps.push(this);
     }
-    /**@private */
+    /**@internal */
     static __init__() {
         //WeakObject.supportWeakMap = Browser.window.WeakMap != null;
         //如果不支持，10分钟回收一次

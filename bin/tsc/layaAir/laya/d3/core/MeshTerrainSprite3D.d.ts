@@ -1,15 +1,12 @@
-import { MeshSprite3D } from "././MeshSprite3D";
-import { HeightMap } from "././HeightMap";
-import { RenderContext3D } from "./render/RenderContext3D";
+import { MeshSprite3D } from "./MeshSprite3D";
+import { HeightMap } from "./HeightMap";
 import { Mesh } from "../resource/models/Mesh";
 import { Texture2D } from "../../resource/Texture2D";
 /**
  * <code>TerrainMeshSprite3D</code> 类用于创建网格。
  */
 export declare class MeshTerrainSprite3D extends MeshSprite3D {
-    /** @private */
     private static _tempVector3;
-    /** @private */
     private static _tempMatrix4x4;
     /**
      * 从网格创建一个TerrainMeshSprite3D实例和其高度图属性。
@@ -26,13 +23,9 @@ export declare class MeshTerrainSprite3D extends MeshSprite3D {
      * @param name 名字。
      */
     static createFromMeshAndHeightMap(mesh: Mesh, texture: Texture2D, minHeight: number, maxHeight: number, name?: string): MeshTerrainSprite3D;
-    /** @private */
     private _minX;
-    /** @private */
     private _minZ;
-    /** @private */
     private _cellSize;
-    /** @private */
     private _heightMap;
     /**
      * 获取地形X轴最小位置。
@@ -61,34 +54,12 @@ export declare class MeshTerrainSprite3D extends MeshSprite3D {
      * @param name 名字。
      */
     constructor(mesh: Mesh, heightMap: HeightMap, name?: string);
-    /**
-     * @private
-     */
     private _disableRotation;
-    /**
-     * @private
-     */
     private _getScaleX;
-    /**
-     * @private
-     */
     private _getScaleZ;
-    /**
-     * @private
-     */
     private _initCreateFromMesh;
-    /**
-     * @private
-     */
     private _initCreateFromMeshHeightMap;
-    /**
-     * @private
-     */
     private _computeCellSize;
-    /**
-     * @private
-     */
-    _update(state: RenderContext3D): void;
     /**
      * 获取地形高度。
      * @param x X轴坐标。
