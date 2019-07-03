@@ -137,11 +137,15 @@ export class Mesh extends Resource implements IClone {
 	}
 
 	/**
-	 * 获取边界
-	 * @return 边界。
+	 * 边界。
 	 */
 	get bounds(): Bounds {
 		return this._bounds;
+	}
+
+	set bounds(value: Bounds) {
+		if (this._bounds !== value)
+			value.cloneTo(this._bounds);
 	}
 
 	/**
