@@ -829,3 +829,5 @@ export class Laya3D {
 
 }
 
+(window as any).Laya3D = Laya3D;
+

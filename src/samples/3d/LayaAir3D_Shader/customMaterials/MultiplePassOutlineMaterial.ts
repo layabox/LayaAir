@@ -7,10 +7,10 @@ import { ShaderDefines } from "laya/d3/shader/ShaderDefines";
 import { ShaderPass } from "laya/d3/shader/ShaderPass";
 import { SubShader } from "laya/d3/shader/SubShader";
 import { BaseTexture } from "laya/resource/BaseTexture";
-import OutlineVS from "../customShader/outline.vs";
 import OutlineFS from "../customShader/outline.fs";
-import Outline02VS from "../customShader/outline02.vs";
+import OutlineVS from "../customShader/outline.vs";
 import Outline02FS from "../customShader/outline02.fs";
+import Outline02VS from "../customShader/outline02.vs";
 
 /**
  * ...
