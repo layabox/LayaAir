@@ -80,7 +80,7 @@ export class Mesh extends Resource implements IClone {
 
 
 	/** @internal */
-	protected _bounds: Bounds;
+	protected _bounds: Bounds = new Bounds(new Vector3(), new Vector3());
 
 	/** @internal */
 	_isReadable: boolean;
@@ -172,34 +172,7 @@ export class Mesh extends Resource implements IClone {
 		return null;
 	}
 
-	/**
-	 * @internal
-	 */
-	private _generateBoundingObject(): void {
-		var min: Vector3 = this._tempVector30;
-		var max: Vector3 = this._tempVector31;
-		min.x = min.y = min.z = Number.MAX_VALUE;
-		max.x = max.y = max.z = -Number.MAX_VALUE;
 
-		var vertexBuffer: VertexBuffer3D = this._vertexBuffer;
-		var positionElement: VertexElement = this._getPositionElement(vertexBuffer);
-		var verticesData: Float32Array = vertexBuffer.getFloat32Data();
-		var floatCount: number = vertexBuffer.vertexDeclaration.vertexStride / 4;
-		var posOffset: number = positionElement._offset / 4;
-		for (var j: number = 0, m: number = verticesData.length; j < m; j += floatCount) {
-			var ofset: number = j + posOffset;
-			var pX: number = verticesData[ofset];
-			var pY: number = verticesData[ofset + 1];
-			var pZ: number = verticesData[ofset + 2];
-			min.x = Math.min(min.x, pX);
-			min.y = Math.min(min.y, pY);
-			min.z = Math.min(min.z, pZ);
-			max.x = Math.max(max.x, pX);
-			max.y = Math.max(max.y, pY);
-			max.z = Math.max(max.z, pZ);
-		}
-		this._bounds = new Bounds(min, max);
-	}
 
 	private _getVerticeElementData(data: Array<Vector2 | Vector3 | Vector4 | Color>, elementUsage: number): void {
 		data.length = this._vertexCount;
@@ -358,7 +331,7 @@ export class Mesh extends Resource implements IClone {
 
 		for (var i: number = 0, n: number = subMeshes.length; i < n; i++)
 			subMeshes[i]._indexInMesh = i;
-		this._generateBoundingObject();
+		this.calculateBounds();
 	}
 
 
@@ -667,7 +640,7 @@ export class Mesh extends Resource implements IClone {
 		if (this._isReadable)
 			return this._indexBuffer.getData().slice();
 		else
-			throw "SubMesh:can't get indices on subMesh,mesh's isReadable must be true.";
+			throw "Mesh:can't get indices on subMesh,mesh's isReadable must be true.";
 	}
 
 	/**
@@ -676,6 +649,43 @@ export class Mesh extends Resource implements IClone {
 	 */
 	setIndices(indices: Uint16Array): void {
 		this._indexBuffer.setData(indices);
+	}
+
+
+	/**
+	 * 从模型位置数据生成包围盒。
+	 */
+	calculateBounds(): void {
+		if (this._isReadable) {
+			//TODO:做脏标记防呆
+			var min: Vector3 = this._tempVector30;
+			var max: Vector3 = this._tempVector31;
+			min.x = min.y = min.z = Number.MAX_VALUE;
+			max.x = max.y = max.z = -Number.MAX_VALUE;
+
+			var vertexBuffer: VertexBuffer3D = this._vertexBuffer;
+			var positionElement: VertexElement = this._getPositionElement(vertexBuffer);
+			var verticesData: Float32Array = vertexBuffer.getFloat32Data();
+			var floatCount: number = vertexBuffer.vertexDeclaration.vertexStride / 4;
+			var posOffset: number = positionElement._offset / 4;
+			for (var j: number = 0, m: number = verticesData.length; j < m; j += floatCount) {
+				var ofset: number = j + posOffset;
+				var pX: number = verticesData[ofset];
+				var pY: number = verticesData[ofset + 1];
+				var pZ: number = verticesData[ofset + 2];
+				min.x = Math.min(min.x, pX);
+				min.y = Math.min(min.y, pY);
+				min.z = Math.min(min.z, pZ);
+				max.x = Math.max(max.x, pX);
+				max.y = Math.max(max.y, pY);
+				max.z = Math.max(max.z, pZ);
+			}
+			this._bounds.setMin(min);
+			this._bounds.setMax(max);
+		}
+		else {
+			throw "Mesh:can't calculate bounds on subMesh,mesh's isReadable must be true.";
+		}
 	}
 
 
