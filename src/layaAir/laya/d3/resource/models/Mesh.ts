@@ -122,6 +122,13 @@ export class Mesh extends Resource implements IClone {
 	}
 
 	/**
+	 * 获取索引个数。
+	 */
+	get indexCount(): number {
+		return this._indexBuffer.indexCount;
+	}
+
+	/**
 	 * 获取SubMesh的个数。
 	 * @return SubMesh的个数。
 	 */
@@ -647,6 +654,24 @@ export class Mesh extends Resource implements IClone {
 	*/
 	setVertices(vertices: ArrayBuffer): void {
 		return this._vertexBuffer.setData(vertices);
+	}
+
+	/**
+	 * 拷贝并获取网格索引数据的副本。
+	 */
+	getIndices(): Uint16Array {
+		if (this._isReadable)
+			return this._indexBuffer.getData().slice();
+		else
+			throw "SubMesh:can't get indices on subMesh,mesh's isReadable must be true.";
+	}
+
+	/**
+	 * 设置网格索引。
+	 * @param indices 
+	 */
+	setIndices(indices: Uint16Array): void {
+		this._indexBuffer.setData(indices);
 	}
 
 

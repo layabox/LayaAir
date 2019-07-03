@@ -50,6 +50,13 @@ export class SubMesh extends GeometryElement {
 	_id: number;
 
 	/**
+	 * 获取索引数量。
+	 */
+	get indexCount(): number {
+		return this._indexCount;
+	}
+
+	/**
 	 * 创建一个 <code>SubMesh</code> 实例。
 	 * @param	mesh  网格数据模板。
 	 */
@@ -110,15 +117,10 @@ export class SubMesh extends GeometryElement {
 		Stat.renderBatches++;
 	}
 
-	/**
-	 * 获取索引数量。
-	 */
-	getIndicesCount(): number {
-		return this._indexCount;
-	}
+
 
 	/**
-	 * 拷贝并获取索引数据的副本。
+	 * 拷贝并获取子网格索引数据的副本。
 	 */
 	getIndices(): Uint16Array {
 		if (this._mesh._isReadable)

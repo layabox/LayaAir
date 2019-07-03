@@ -1,7 +1,6 @@
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { PixelLineSprite3D } from "laya/d3/core/pixelLine/PixelLineSprite3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
-import { VertexBuffer3D } from "laya/d3/graphics/VertexBuffer3D";
 import { BoundBox } from "laya/d3/math/BoundBox";
 import { Color } from "laya/d3/math/Color";
 import { Vector3 } from "laya/d3/math/Vector3";
@@ -13,56 +12,33 @@ import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
  * @author
  */
 export class Tool {
+	private static transVertex0: Vector3 = new Vector3();
+	private static transVertex1: Vector3 = new Vector3();
+	private static transVertex2: Vector3 = new Vector3();
 	private static corners: Vector3[] = [];
-	private static lineWidth: number = 0.1;
 	static linearModel(sprite3D: Sprite3D, lineSprite3D: PixelLineSprite3D, color: Color): void {
-		var vertex1: Vector3 = new Vector3();
-		var vertex2: Vector3 = new Vector3();
-		var vertex3: Vector3 = new Vector3();
-		var lineCount: number = 0;
 		if (sprite3D instanceof MeshSprite3D) {
-			var meshSprite3D: MeshSprite3D = (<MeshSprite3D>sprite3D);
-			var mesh: Mesh = (<Mesh>meshSprite3D.meshFilter.sharedMesh);
+			var meshSprite3D: MeshSprite3D = <MeshSprite3D>sprite3D;
+			var mesh: Mesh = meshSprite3D.meshFilter.sharedMesh;
+			var positions: Array<Vector3> = [];
+			mesh.getPositions(positions);
+			var indices: Uint16Array = mesh.getSubMesh(0).getIndices();
 
-			var vbBuffer: VertexBuffer3D = mesh._vertexBuffer;
-
-			var vbBufferData: Float32Array = vbBuffer.getFloat32Data();
-			var ibBufferData: Uint16Array = mesh._indexBuffer.getData();
-			var vertexStrideCount: number = vbBuffer.vertexDeclaration.vertexStride / 4;
-			var loopCount: number = 0;
-			var index: number = 0;
-
-			for (var i: number = 0; i < ibBufferData.length; i += 3) {
-				loopCount = 0;
-				index = 0;
-				vertex1.x = vbBufferData[ibBufferData[i + loopCount] * vertexStrideCount + index++];
-				vertex1.y = vbBufferData[ibBufferData[i + loopCount] * vertexStrideCount + index++];
-				vertex1.z = vbBufferData[ibBufferData[i + loopCount] * vertexStrideCount + index++];
-				loopCount++;
-
-				index = 0;
-				vertex2.x = vbBufferData[ibBufferData[i + loopCount] * vertexStrideCount + index++];
-				vertex2.y = vbBufferData[ibBufferData[i + loopCount] * vertexStrideCount + index++];
-				vertex2.z = vbBufferData[ibBufferData[i + loopCount] * vertexStrideCount + index++];
-				loopCount++;
-
-				index = 0;
-				vertex3.x = vbBufferData[ibBufferData[i + loopCount] * vertexStrideCount + index++];
-				vertex3.y = vbBufferData[ibBufferData[i + loopCount] * vertexStrideCount + index++];
-				vertex3.z = vbBufferData[ibBufferData[i + loopCount] * vertexStrideCount + index++];
-				loopCount++;
-				Vector3.transformCoordinate(vertex1, meshSprite3D.transform.worldMatrix, vertex1);
-				Vector3.transformCoordinate(vertex2, meshSprite3D.transform.worldMatrix, vertex2);
-				Vector3.transformCoordinate(vertex3, meshSprite3D.transform.worldMatrix, vertex3);
-				lineSprite3D.addLine(vertex1, vertex2, color, color);
-				lineSprite3D.addLine(vertex2, vertex3, color, color);
-				lineSprite3D.addLine(vertex3, vertex1, color, color);
+			for (var i: number = 0; i < indices.length; i += 3) {
+				var vertex0: Vector3 = positions[indices[i]];
+				var vertex1: Vector3 = positions[indices[i + 1]];
+				var vertex2: Vector3 = positions[indices[i + 2]];
+				Vector3.transformCoordinate(vertex0, meshSprite3D.transform.worldMatrix, this.transVertex0);
+				Vector3.transformCoordinate(vertex1, meshSprite3D.transform.worldMatrix, this.transVertex1);
+				Vector3.transformCoordinate(vertex2, meshSprite3D.transform.worldMatrix, this.transVertex2);
+				lineSprite3D.addLine(this.transVertex0, this.transVertex1, color, color);
+				lineSprite3D.addLine(this.transVertex1, this.transVertex2, color, color);
+				lineSprite3D.addLine(this.transVertex2, this.transVertex0, color, color);
 			}
 		}
 
 		for (var i: number = 0, n: number = sprite3D.numChildren; i < n; i++)
 			Tool.linearModel((<Sprite3D>sprite3D.getChildAt(i)), lineSprite3D, color);
-
 	}
 
 	static DrawBoundingBox(sprite3D: Sprite3D, sprite: Sprite3D, color: Color): void {
