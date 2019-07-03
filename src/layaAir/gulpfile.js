@@ -20,29 +20,3 @@ gulp.task('Copy Shaders', () => {
 
 gulp.task('Build', gulp.series('Copy Shaders', 'LayaAir'));
 
-
-
-
-
-
-
-//E:\layaairTS\src\layaAir\laya\d3\shader\files
-// gulp.task('Copy Shaders', ['Build'], function(){
-//   console.log('Copying Shaders...');
-//   return gulp.src(['src/**/*.vs', 'src/**/*.ps',  'src/**/*.glsl'])
-//   .pipe(gulp.dest('dist'))
-
-// });
-
-
-// gulp.task('default', gulp.series('Build', 'Copy Shaders', function() {
-//   //console.log("Default task that cleans, builds and runs the application [END]");
-//   //done();
-// }));
-
-
-
-
-
-
-
