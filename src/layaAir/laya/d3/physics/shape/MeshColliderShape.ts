@@ -1,7 +1,7 @@
 import { Vector3 } from "../../math/Vector3";
 import { Mesh } from "../../resource/models/Mesh";
 import { ColliderShape } from "./ColliderShape";
-import { Physics } from "../Physics";
+import { Physics3D } from "../Physics3D";
 
 /**
  * <code>MeshColliderShape</code> 类用于创建网格碰撞器。
@@ -24,12 +24,12 @@ export class MeshColliderShape extends ColliderShape {
 	 */
 	set mesh(value: Mesh) {
 		if (this._mesh !== value) {
-			var physics3D: any = Physics._physics3D;
+			var physics3D: any = Physics3D._physics3D;
 			if (this._mesh) {
 				physics3D.destroy(this._nativeShape);
 			}
 			if (value) {
-				this._nativeShape = new Physics._physics3D.btGImpactMeshShape(value._getPhysicMesh());
+				this._nativeShape = new Physics3D._physics3D.btGImpactMeshShape(value._getPhysicMesh());
 				this._nativeShape.updateBound();
 			}
 			this._mesh = value;
@@ -98,7 +98,7 @@ export class MeshColliderShape extends ColliderShape {
 		 */
 		/*override*/  destroy(): void {
 		if (this._nativeShape) {
-			var physics3D: any = Physics._physics3D;
+			var physics3D: any = Physics3D._physics3D;
 			physics3D.destroy(this._nativeShape);
 			this._nativeShape = null;
 		}

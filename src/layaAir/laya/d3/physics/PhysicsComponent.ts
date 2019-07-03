@@ -9,7 +9,7 @@ import { Matrix4x4 } from "../math/Matrix4x4";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { Physics3DUtils } from "../utils/Physics3DUtils";
-import { Physics } from "./Physics";
+import { Physics3D } from "./Physics3D";
 import { PhysicsSimulation } from "./PhysicsSimulation";
 import { BoxColliderShape } from "./shape/BoxColliderShape";
 import { CapsuleColliderShape } from "./shape/CapsuleColliderShape";
@@ -72,15 +72,15 @@ export class PhysicsComponent extends Component {
 	* @internal
 	*/
 	static __init__(): void {
-		PhysicsComponent._nativeVector30 = new Physics._physics3D.btVector3(0, 0, 0);
-		PhysicsComponent._nativeQuaternion0 = new Physics._physics3D.btQuaternion(0, 0, 0, 1);
+		PhysicsComponent._nativeVector30 = new Physics3D._physics3D.btVector3(0, 0, 0);
+		PhysicsComponent._nativeQuaternion0 = new Physics3D._physics3D.btQuaternion(0, 0, 0, 1);
 	}
 
 	/**
 	 * @internal
 	 */
 	private static _createAffineTransformationArray(tranX: number, tranY: number, tranZ: number, rotX: number, rotY: number, rotZ: number, rotW: number, scale: Float32Array, outE: Float32Array): void {
-		
+
 		var x2: number = rotX + rotX, y2: number = rotY + rotY, z2: number = rotZ + rotZ;
 		var xx: number = rotX * x2, xy: number = rotX * y2, xz: number = rotX * z2, yy: number = rotY * y2, yz: number = rotY * z2, zz: number = rotZ * z2;
 		var wx: number = rotW * x2, wy: number = rotW * y2, wz: number = rotW * z2, sx: number = scale[0], sy: number = scale[1], sz: number = scale[2];
@@ -159,7 +159,7 @@ export class PhysicsComponent extends Component {
 	 * @internal
 	 */
 	private static physicQuaternionMultiply(lx: number, ly: number, lz: number, lw: number, right: Quaternion, out: Quaternion): void {
-		
+
 		var rx: number = right.x;
 		var ry: number = right.y;
 		var rz: number = right.z;
@@ -413,7 +413,7 @@ export class PhysicsComponent extends Component {
 	 * @param canCollideWith 可产生碰撞的碰撞组。
 	 */
 	constructor(collisionGroup: number, canCollideWith: number) {
-		
+
 		super();
 		this._collisionGroup = collisionGroup;
 		this._canCollideWith = canCollideWith;
@@ -644,7 +644,7 @@ export class PhysicsComponent extends Component {
 		 * @inheritDoc
 		 */
 		/*override*/ protected _onDestroy(): void {
-		var physics3D: any = Physics._physics3D;
+		var physics3D: any = Physics3D._physics3D;
 		delete PhysicsComponent._physicObjectsMap[this.id];
 		physics3D.destroy(this._nativeColliderObject);
 		this._colliderShape.destroy();

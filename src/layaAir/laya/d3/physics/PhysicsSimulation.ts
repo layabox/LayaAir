@@ -18,7 +18,7 @@ import { PhysicsSettings } from "./PhysicsSettings";
 import { PhysicsTriggerComponent } from "./PhysicsTriggerComponent";
 import { Rigidbody3D } from "./Rigidbody3D";
 import { ColliderShape } from "./shape/ColliderShape";
-import { Physics } from "./Physics";
+import { Physics3D } from "./Physics3D";
 	
 	/**
 	 * <code>Simulation</code> 类用于创建物理模拟器。
@@ -78,12 +78,12 @@ import { Physics } from "./Physics";
 		 * @internal
 		 */
 		static __init__():void {
-			PhysicsSimulation._nativeTempVector30 = new Physics._physics3D.btVector3(0, 0, 0);
-			PhysicsSimulation._nativeTempVector31 = new Physics._physics3D.btVector3(0, 0, 0);
-			PhysicsSimulation._nativeTempQuaternion0 = new Physics._physics3D.btQuaternion(0, 0, 0, 1);
-			PhysicsSimulation._nativeTempQuaternion1 = new Physics._physics3D.btQuaternion(0, 0, 0, 1);
-			PhysicsSimulation._nativeTempTransform0 = new Physics._physics3D.btTransform();
-			PhysicsSimulation._nativeTempTransform1 = new Physics._physics3D.btTransform();
+			PhysicsSimulation._nativeTempVector30 = new Physics3D._physics3D.btVector3(0, 0, 0);
+			PhysicsSimulation._nativeTempVector31 = new Physics3D._physics3D.btVector3(0, 0, 0);
+			PhysicsSimulation._nativeTempQuaternion0 = new Physics3D._physics3D.btQuaternion(0, 0, 0, 1);
+			PhysicsSimulation._nativeTempQuaternion1 = new Physics3D._physics3D.btQuaternion(0, 0, 0, 1);
+			PhysicsSimulation._nativeTempTransform0 = new Physics3D._physics3D.btTransform();
+			PhysicsSimulation._nativeTempTransform1 = new Physics3D._physics3D.btTransform();
 		}
 		
 		/**
@@ -111,9 +111,9 @@ import { Physics } from "./Physics";
 		private _gravity:Vector3 = new Vector3(0, -10, 0);
 		
 		/** @internal */
-		private _nativeVector3Zero:any = new Physics._physics3D.btVector3(0, 0, 0);
+		private _nativeVector3Zero:any = new Physics3D._physics3D.btVector3(0, 0, 0);
 		/** @internal */
-		private _nativeDefaultQuaternion:any = new Physics._physics3D.btQuaternion(0, 0, 0, -1);
+		private _nativeDefaultQuaternion:any = new Physics3D._physics3D.btQuaternion(0, 0, 0, -1);
 		/**@internal */
 		private _nativeClosestRayResultCallback:any;
 		/**@internal */
@@ -206,7 +206,7 @@ import { Physics } from "./Physics";
 			this.maxSubSteps = configuration.maxSubSteps;
 			this.fixedTimeStep = configuration.fixedTimeStep;
 			
-			var physics3D:any = Physics._physics3D;
+			var physics3D:any = Physics3D._physics3D;
 			this._nativeCollisionConfiguration = new physics3D.btDefaultCollisionConfiguration();
 			this._nativeDispatcher = new physics3D.btCollisionDispatcher(this._nativeCollisionConfiguration);
 			this._nativeBroadphase = new physics3D.btDbvtBroadphase();
@@ -253,7 +253,7 @@ import { Physics } from "./Physics";
 		 * @internal
 		 */
 		 _destroy():void {
-			var physics3D:any = Physics._physics3D;
+			var physics3D:any = Physics3D._physics3D;
 			if (this._nativeDiscreteDynamicsWorld) {
 				physics3D.destroy(this._nativeDiscreteDynamicsWorld);
 				this._nativeDiscreteDynamicsWorld = null;

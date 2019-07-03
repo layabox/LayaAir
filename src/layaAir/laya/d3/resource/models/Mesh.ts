@@ -1,5 +1,5 @@
 import { ILaya } from "../../../../ILaya";
-import { Physics } from "../../../d3/physics/Physics";
+import { Physics3D } from "../../../d3/physics/Physics3D";
 import { Resource } from "../../../resource/Resource";
 import { Handler } from "../../../utils/Handler";
 import { Bounds } from "../../core/Bounds";
@@ -45,7 +45,7 @@ export class Mesh extends Resource implements IClone {
  	* @internal
  	*/
 	static __init__(): void {
-		var physics3D: any = Physics._physics3D;
+		var physics3D: any = Physics3D._physics3D;
 		if (physics3D) {
 			Mesh._nativeTempVector30 = new physics3D.btVector3(0, 0, 0);
 			Mesh._nativeTempVector31 = new physics3D.btVector3(0, 0, 0);

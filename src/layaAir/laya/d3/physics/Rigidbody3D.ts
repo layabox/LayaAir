@@ -3,7 +3,7 @@ import { Vector3 } from "../math/Vector3";
 import { Physics3DUtils } from "../utils/Physics3DUtils";
 import { Utils3D } from "../utils/Utils3D";
 import { PhysicsComponent } from "./PhysicsComponent";
-import { Physics } from "./Physics";
+import { Physics3D } from "./Physics3D";
 import { PhysicsTriggerComponent } from "./PhysicsTriggerComponent";
 import { ColliderShape } from "./shape/ColliderShape";
 
@@ -53,13 +53,13 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	 * @internal
 	 */
 	static __init__(): void {
-		Rigidbody3D._nativeTempVector30 = new Physics._physics3D.btVector3(0, 0, 0);
-		Rigidbody3D._nativeTempVector31 = new Physics._physics3D.btVector3(0, 0, 0);
-		Rigidbody3D._nativeVector3Zero = new Physics._physics3D.btVector3(0, 0, 0);
-		Rigidbody3D._nativeInertia = new Physics._physics3D.btVector3(0, 0, 0);
-		Rigidbody3D._nativeImpulse = new Physics._physics3D.btVector3(0, 0, 0);
-		Rigidbody3D._nativeImpulseOffset = new Physics._physics3D.btVector3(0, 0, 0);
-		Rigidbody3D._nativeGravity = new Physics._physics3D.btVector3(0, 0, 0);
+		Rigidbody3D._nativeTempVector30 = new Physics3D._physics3D.btVector3(0, 0, 0);
+		Rigidbody3D._nativeTempVector31 = new Physics3D._physics3D.btVector3(0, 0, 0);
+		Rigidbody3D._nativeVector3Zero = new Physics3D._physics3D.btVector3(0, 0, 0);
+		Rigidbody3D._nativeInertia = new Physics3D._physics3D.btVector3(0, 0, 0);
+		Rigidbody3D._nativeImpulse = new Physics3D._physics3D.btVector3(0, 0, 0);
+		Rigidbody3D._nativeImpulseOffset = new Physics3D._physics3D.btVector3(0, 0, 0);
+		Rigidbody3D._nativeGravity = new Physics3D._physics3D.btVector3(0, 0, 0);
 	}
 
 	/** @internal */
@@ -463,7 +463,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	private _delegateMotionStateSetWorldTransform(worldTransPointer: number): void {
 		var rigidBody: Rigidbody3D = (<any>this)._rigidbody;
 		rigidBody._simulation._updatedRigidbodies++;
-		var physics3D: any = Physics._physics3D;
+		var physics3D: any = Physics3D._physics3D;
 		var worldTrans: any = physics3D.wrapPointer(worldTransPointer, physics3D.btTransform);
 		rigidBody._updateTransformComponent(worldTrans);
 	}
@@ -495,7 +495,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	private _delegateMotionStateSetWorldTransformNative(rigidBody3D: Rigidbody3D, worldTransPointer: number): void {
 		var rigidBody: Rigidbody3D = rigidBody3D;
 		rigidBody._simulation._updatedRigidbodies++;
-		var physics3D: any = Physics._physics3D;
+		var physics3D: any = Physics3D._physics3D;
 		var worldTrans: any = physics3D.wrapPointer(worldTransPointer, physics3D.btTransform);
 		rigidBody._updateTransformComponent(worldTrans);
 	}
@@ -519,7 +519,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		 * @inheritDoc
 		 */
 		/*override*/  _onAdded(): void {
-		var physics3D: any = Physics._physics3D;
+		var physics3D: any = Physics3D._physics3D;
 		var motionState: any = new physics3D.LayaMotionState();
 		var isConchApp: boolean = ((<any>window).conch != null);
 		if (isConchApp && physics3D.LayaMotionState.prototype.setRigidbody) {
@@ -590,7 +590,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		 * @inheritDoc
 		 */
 		/*override*/ protected _onDestroy(): void {
-		var physics3D: any = Physics._physics3D;
+		var physics3D: any = Physics3D._physics3D;
 		this._nativeMotionState.clear();
 		physics3D.destroy(this._nativeMotionState);
 

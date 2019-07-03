@@ -14,7 +14,7 @@ import { Vector3 } from "./math/Vector3";
 import { Viewport } from "./math/Viewport";
 import { HitResult } from "./physics/HitResult";
 import { PhysicsSimulation } from "./physics/PhysicsSimulation";
-import { Physics } from "./physics/Physics";
+import { Physics3D } from "./physics/Physics3D";
 import { ILaya } from "../../ILaya";
 
 /**
@@ -276,7 +276,7 @@ export class Input3D {
 	 * @internal
 	 */
 	_update(): void {
-		var enablePhysics: boolean = Physics._enbalePhysics && !PhysicsSimulation.disableSimulation;
+		var enablePhysics: boolean = Physics3D._enbalePhysics && !PhysicsSimulation.disableSimulation;
 		var i: number, n: number, j: number, m: number;
 		n = this._eventList.length;
 		var cameras: BaseCamera[] = this._scene._cameraPool;

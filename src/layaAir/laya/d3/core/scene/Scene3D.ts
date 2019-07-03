@@ -51,7 +51,7 @@ import { RenderableSprite3D } from "../RenderableSprite3D";
 import { Sprite3D } from "../Sprite3D";
 import { BoundsOctree } from "./BoundsOctree";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
-import { Physics } from "../../physics/Physics";
+import { Physics3D } from "../../physics/Physics3D";
 import { ILaya } from "../../../../ILaya";
 
 
@@ -432,7 +432,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 */
 	constructor() {
 		super();
-		if (Physics._enbalePhysics)
+		if (Physics3D._enbalePhysics)
 			this._physicsSimulation = new PhysicsSimulation(Scene3D.physicsSettings);
 
 		this._shaderValues = new ShaderData(null);
@@ -499,7 +499,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this._shaderValues.setNumber(Scene3D.TIME, this._time);
 
 		var simulation: PhysicsSimulation = this._physicsSimulation;
-		if (Physics._enbalePhysics && !PhysicsSimulation.disableSimulation) {
+		if (Physics3D._enbalePhysics && !PhysicsSimulation.disableSimulation) {
 			simulation._updatePhysicsTransformFromRender();
 			PhysicsComponent._addUpdateList = false;//物理模拟器会触发_updateTransformComponent函数,不加入更新队列
 			//simulate physics

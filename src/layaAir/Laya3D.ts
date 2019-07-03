@@ -7,7 +7,7 @@ import { MeshRenderStaticBatchManager } from "./laya/d3/graphics/MeshRenderStati
 import { SubMeshDynamicBatch } from "./laya/d3/graphics/SubMeshDynamicBatch";
 import { SubMeshInstanceBatch } from "./laya/d3/graphics/SubMeshInstanceBatch";
 import { Matrix4x4 } from "./laya/d3/math/Matrix4x4";
-import { Physics } from "./laya/d3/physics/Physics";
+import { Physics3D } from "./laya/d3/physics/Physics3D";
 import { PhysicsComponent } from "./laya/d3/physics/PhysicsComponent";
 import { PhysicsSimulation } from "./laya/d3/physics/PhysicsSimulation";
 import { BoxColliderShape } from "./laya/d3/physics/shape/BoxColliderShape";
@@ -125,7 +125,7 @@ export class Laya3D {
 	 * @param 是否启用物理。
 	 */
 	static get enbalePhysics(): any {
-		return Physics._enbalePhysics;
+		return Physics3D._enbalePhysics;
 	}
 
 	/**
@@ -184,8 +184,8 @@ export class Laya3D {
 		SubMeshInstanceBatch.__init__();
 		SubMeshDynamicBatch.__init__();
 
-		Physics._physics3D=(window as any).Physics3D;
-		if (Physics._physics3D) {
+		Physics3D._physics3D=(window as any).Physics3D;
+		if (Physics3D._physics3D) {
 			StaticPlaneColliderShape.__init__();
 			ColliderShape.__init__();
 			CompoundColliderShape.__init__();
@@ -809,11 +809,11 @@ export class Laya3D {
 
 		var physics3D: Function = (window as any).Physics3D;
 		if (physics3D == null) {
-			Physics._enbalePhysics = false;
+			Physics3D._enbalePhysics = false;
 			Laya3D.__init__(width, height, Laya3D._config);
 			compolete && compolete.run();
 		} else {
-			Physics._enbalePhysics = true;
+			Physics3D._enbalePhysics = true;
 			physics3D(Laya3D._config.defaultPhysicsMemory * 1024 * 1024).then(function (): void {
 				Laya3D.__init__(width, height, Laya3D._config);
 				compolete && compolete.run();

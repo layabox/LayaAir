@@ -1,6 +1,6 @@
-import { Rigidbody3D } from "../Rigidbody3D"
-import { Physics } from "../Physics";
 import { Component } from "../../../components/Component";
+import { Rigidbody3D } from "../Rigidbody3D";
+import { Physics3D } from "../Physics3D";
 
 /**
  * <code>ConstraintComponent</code> 类用于创建约束的父类。
@@ -87,7 +87,7 @@ export class ConstraintComponent extends Component {
 		 * @inheritDoc
 		 */
 		/*override*/ protected _onDestroy(): void {
-		var physics3D: any = Physics._physics3D;
+		var physics3D: any = Physics3D._physics3D;
 		physics3D.destroy(this._nativeConstraint);
 		this._nativeConstraint = null;
 	}
