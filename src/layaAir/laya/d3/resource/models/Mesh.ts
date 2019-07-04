@@ -77,6 +77,8 @@ export class Mesh extends Resource implements IClone {
 	private _minVerticesUpdate: number = Number.MAX_VALUE;
 	/** @internal */
 	private _maxVerticesUpdate: number = Number.MIN_VALUE;
+	/** @internal */
+	private _needUpdateBounds: boolean = true;
 
 
 	/** @internal */
@@ -432,10 +434,13 @@ export class Mesh extends Resource implements IClone {
 	 * @param positions 位置。
 	 */
 	setPositions(positions: Vector3[]): void {
-		if (this._isReadable)
+		if (this._isReadable) {
 			this._setVerticeElementData(positions, VertexMesh.MESH_POSITION0);
-		else
+			this._needUpdateBounds = true;
+		}
+		else {
 			throw "Mesh:setPosition() need isReadable must be true or use setVertices().";
+		}
 	}
 
 	/**
@@ -627,10 +632,11 @@ export class Mesh extends Resource implements IClone {
 
 	/**
 	* 设置顶点数据。
-	* @param boneWeights 骨骼权重。
+	* @param vertices 顶点数据。
 	*/
 	setVertices(vertices: ArrayBuffer): void {
-		return this._vertexBuffer.setData(vertices);
+		this._vertexBuffer.setData(vertices);
+		this._needUpdateBounds = true;
 	}
 
 	/**
@@ -657,31 +663,33 @@ export class Mesh extends Resource implements IClone {
 	 */
 	calculateBounds(): void {
 		if (this._isReadable) {
-			//TODO:做脏标记防呆
-			var min: Vector3 = this._tempVector30;
-			var max: Vector3 = this._tempVector31;
-			min.x = min.y = min.z = Number.MAX_VALUE;
-			max.x = max.y = max.z = -Number.MAX_VALUE;
+			if (this._needUpdateBounds) {
+				var min: Vector3 = this._tempVector30;
+				var max: Vector3 = this._tempVector31;
+				min.x = min.y = min.z = Number.MAX_VALUE;
+				max.x = max.y = max.z = -Number.MAX_VALUE;
 
-			var vertexBuffer: VertexBuffer3D = this._vertexBuffer;
-			var positionElement: VertexElement = this._getPositionElement(vertexBuffer);
-			var verticesData: Float32Array = vertexBuffer.getFloat32Data();
-			var floatCount: number = vertexBuffer.vertexDeclaration.vertexStride / 4;
-			var posOffset: number = positionElement._offset / 4;
-			for (var j: number = 0, m: number = verticesData.length; j < m; j += floatCount) {
-				var ofset: number = j + posOffset;
-				var pX: number = verticesData[ofset];
-				var pY: number = verticesData[ofset + 1];
-				var pZ: number = verticesData[ofset + 2];
-				min.x = Math.min(min.x, pX);
-				min.y = Math.min(min.y, pY);
-				min.z = Math.min(min.z, pZ);
-				max.x = Math.max(max.x, pX);
-				max.y = Math.max(max.y, pY);
-				max.z = Math.max(max.z, pZ);
+				var vertexBuffer: VertexBuffer3D = this._vertexBuffer;
+				var positionElement: VertexElement = this._getPositionElement(vertexBuffer);
+				var verticesData: Float32Array = vertexBuffer.getFloat32Data();
+				var floatCount: number = vertexBuffer.vertexDeclaration.vertexStride / 4;
+				var posOffset: number = positionElement._offset / 4;
+				for (var j: number = 0, m: number = verticesData.length; j < m; j += floatCount) {
+					var ofset: number = j + posOffset;
+					var pX: number = verticesData[ofset];
+					var pY: number = verticesData[ofset + 1];
+					var pZ: number = verticesData[ofset + 2];
+					min.x = Math.min(min.x, pX);
+					min.y = Math.min(min.y, pY);
+					min.z = Math.min(min.z, pZ);
+					max.x = Math.max(max.x, pX);
+					max.y = Math.max(max.y, pY);
+					max.z = Math.max(max.z, pZ);
+				}
+				this._bounds.setMin(min);
+				this._bounds.setMax(max);
+				this._needUpdateBounds = false;
 			}
-			this._bounds.setMin(min);
-			this._bounds.setMax(max);
 		}
 		else {
 			throw "Mesh:can't calculate bounds on subMesh,mesh's isReadable must be true.";
