@@ -74,9 +74,9 @@ export class Mesh extends Resource implements IClone {
 	/** @internal */
 	private _nativeTriangleMesh: any;
 	/** @internal */
-	private _minVerticesUpdate: number = Number.MAX_VALUE;
+	private _minVerticesUpdate: number = -1;
 	/** @internal */
-	private _maxVerticesUpdate: number = Number.MIN_VALUE;
+	private _maxVerticesUpdate: number = -1;
 	/** @internal */
 	private _needUpdateBounds: boolean = true;
 
@@ -406,10 +406,11 @@ export class Mesh extends Resource implements IClone {
 	_uploadVerticesData(): void {
 		var min: number = this._minVerticesUpdate;
 		var max: number = this._maxVerticesUpdate;
-		if (min !== Number.MAX_VALUE && this._maxVerticesUpdate !== Number.MIN_VALUE) {
-			this._vertexBuffer.setData(this._vertexBuffer.getUint8Data().buffer, min * 4, min * 4, (max - min) * 4);
-			this._minVerticesUpdate = Number.MAX_VALUE;
-			this._maxVerticesUpdate = Number.MIN_VALUE;
+		if (min !== -1 && max !== -1) {
+			var offset: number = min * 4;
+			this._vertexBuffer.setData(this._vertexBuffer.getUint8Data().buffer, offset, offset, (max - min) * 4);
+			this._minVerticesUpdate = -1;
+			this._maxVerticesUpdate = -1;
 		}
 	}
 
