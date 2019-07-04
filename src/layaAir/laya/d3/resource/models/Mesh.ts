@@ -92,9 +92,9 @@ export class Mesh extends Resource implements IClone {
 	_instanceBufferState: BufferState = new BufferState();
 	/** @internal */
 	_subMeshes: SubMesh[];
-	/** */
+	/** @internal */
 	_vertexBuffer: VertexBuffer3D = null;
-	/** */
+	/** @internal */
 	_indexBuffer: IndexBuffer3D = null;
 
 	/** @internal */
@@ -175,7 +175,9 @@ export class Mesh extends Resource implements IClone {
 	}
 
 
-
+	/**
+	 * @internal
+	 */
 	private _getVerticeElementData(data: Array<Vector2 | Vector3 | Vector4 | Color>, elementUsage: number): void {
 		data.length = this._vertexCount;
 		var verDec: VertexDeclaration = this._vertexBuffer.vertexDeclaration;
@@ -228,7 +230,9 @@ export class Mesh extends Resource implements IClone {
 		}
 	}
 
-
+	/**
+	 * @internal
+	 */
 	private _setVerticeElementData(data: Array<Vector2 | Vector3 | Vector4 | Color>, elementUsage: number): void {
 		var verDec: VertexDeclaration = this._vertexBuffer.vertexDeclaration;
 		var element: VertexElement = verDec.getVertexElementByUsage(elementUsage);
