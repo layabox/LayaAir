@@ -1,4 +1,4 @@
-import { BMiniAdapter } from "././BMiniAdapter";
+import { BMiniAdapter } from "./BMiniAdapter";
 import { EventDispatcher } from "../../../../../../core/src/laya/events/EventDispatcher"
 	
 	/**@private **/

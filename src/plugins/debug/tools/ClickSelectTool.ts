@@ -1,7 +1,7 @@
-import { Notice } from "././Notice";
-import { DisplayHook } from "././DisplayHook";
+import { Notice } from "./Notice";
+import { DisplayHook } from "./DisplayHook";
 import { Laya } from "./../../../../../../core/src/Laya";
-import { DebugConsts } from "././DebugConsts";
+import { DebugConsts } from "./DebugConsts";
 import { DebugTool } from "../DebugTool"
 	import { DebugInfoLayer } from "../view/nodeInfo/DebugInfoLayer"
 	import { NodeUtils } from "../view/nodeInfo/NodeUtils"

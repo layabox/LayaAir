@@ -1,4 +1,4 @@
-import { HeapFunction } from "././HeapFunction";
+import { HeapFunction } from "./HeapFunction";
 /**
 	 * ...
 	 * @author dongketao

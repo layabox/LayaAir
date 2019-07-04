@@ -1,5 +1,5 @@
-import { TiledMap } from "././TiledMap";
-import { TileAniSprite } from "././TileAniSprite";
+import { TiledMap } from "./TiledMap";
+import { TileAniSprite } from "./TileAniSprite";
 import { Sprite } from "../../../../../core/src/laya/display/Sprite"
 	import { Browser } from "../../../../../core/src/laya/utils/Browser"
 	

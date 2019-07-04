@@ -1,4 +1,4 @@
-import { QGMiniAdapter } from "././QGMiniAdapter";
+import { QGMiniAdapter } from "./QGMiniAdapter";
 /** @private **/
 	export class MiniLocalStorage
 	{

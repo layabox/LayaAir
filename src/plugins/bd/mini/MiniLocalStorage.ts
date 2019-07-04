@@ -1,4 +1,4 @@
-import { BMiniAdapter } from "././BMiniAdapter";
+import { BMiniAdapter } from "./BMiniAdapter";
 /** @private **/
 	export class MiniLocalStorage
 	{

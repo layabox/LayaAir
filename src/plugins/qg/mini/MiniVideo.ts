@@ -1,4 +1,4 @@
-import { QGMiniAdapter } from "././QGMiniAdapter";
+import { QGMiniAdapter } from "./QGMiniAdapter";
 /**
 	 * 视频类 
 	 * @author xiaosong

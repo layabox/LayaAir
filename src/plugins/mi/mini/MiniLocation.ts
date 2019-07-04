@@ -1,4 +1,4 @@
-import { KGMiniAdapter } from "././KGMiniAdapter";
+import { KGMiniAdapter } from "./KGMiniAdapter";
 import { Laya } from "./../../../../../../core/src/Laya";
 import { Browser } from "../../../../../../core/src/laya/utils/Browser"
 	/**@private **/

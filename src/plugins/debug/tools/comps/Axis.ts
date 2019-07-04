@@ -1,5 +1,5 @@
-import { ArrowLine } from "././ArrowLine";
-import { Rect } from "././Rect";
+import { ArrowLine } from "./ArrowLine";
+import { Rect } from "./Rect";
 import { Laya } from "./../../../../../../../core/src/Laya";
 ///////////////////////////////////////////////////////////
 //  Axis.as

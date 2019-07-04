@@ -1,4 +1,4 @@
-import { QGMiniAdapter } from "././QGMiniAdapter";
+import { QGMiniAdapter } from "./QGMiniAdapter";
 import { EventDispatcher } from "../../../../../../core/src/laya/events/EventDispatcher"
 	
 	/**@private **/

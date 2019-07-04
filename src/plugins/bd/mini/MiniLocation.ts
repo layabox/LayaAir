@@ -1,4 +1,4 @@
-import { BMiniAdapter } from "././BMiniAdapter";
+import { BMiniAdapter } from "./BMiniAdapter";
 import { Laya } from "./../../../../../../core/src/Laya";
 import { Browser } from "../../../../../../core/src/laya/utils/Browser"
 	/**@private **/

@@ -1,6 +1,6 @@
-import { CountTool } from "././CountTool";
-import { TraceTool } from "././TraceTool";
-import { DTrace } from "././DTrace";
+import { CountTool } from "./CountTool";
+import { TraceTool } from "./TraceTool";
+import { DTrace } from "./DTrace";
 ///////////////////////////////////////////////////////////
 //  CreateProfile.as
 //  Macromedia ActionScript Implementation of the Class CreateProfile

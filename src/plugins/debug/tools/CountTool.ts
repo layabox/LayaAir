@@ -1,4 +1,4 @@
-import { TraceTool } from "././TraceTool";
+import { TraceTool } from "./ool";
 ///////////////////////////////////////////////////////////
 //  CountTool.as
 //  Macromedia ActionScript Implementation of the Class CountTool

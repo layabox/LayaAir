@@ -1,4 +1,4 @@
-import { Video } from "././Video";
+import { Video } from "./Video";
 import { Bitmap } from "../../../../../../core/src/laya/resource/Bitmap"
 	import { Browser } from "../../../../../../core/src/laya/utils/Browser"
 	

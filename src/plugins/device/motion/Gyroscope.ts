@@ -1,4 +1,4 @@
-import { RotationInfo } from "././RotationInfo";
+import { RotationInfo } from "./RotationInfo";
 import { Event } from "../../../../../../core/src/laya/events/Event"
 	import { EventDispatcher } from "../../../../../../core/src/laya/events/EventDispatcher"
 	import { Browser } from "../../../../../../core/src/laya/utils/Browser"

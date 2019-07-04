@@ -1,4 +1,4 @@
-import { ByteEx } from "././ByteEx";
+import { ByteEx } from "./ByteEx";
 /**
 	 * base64编码解码类
 	 * @author ww

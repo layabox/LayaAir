@@ -1,7 +1,7 @@
-import { ObjectTools } from "././ObjectTools";
-import { IDTools } from "././IDTools";
+import { ObjectTools } from "./jectTools";
+import { IDTools } from "./Tools";
 import { Laya } from "./../../../../../../core/src/Laya";
-import { ClassTool } from "././ClassTool";
+import { ClassTool } from "./assTool";
 import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
 	import { Matrix } from "../../../../../../core/src/laya/maths/Matrix"
 	import { Point } from "../../../../../../core/src/laya/maths/Point"

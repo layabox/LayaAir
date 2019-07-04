@@ -1,4 +1,4 @@
-import { NodeInfosItem } from "././NodeInfosItem";
+import { NodeInfosItem } from "./NodeInfosItem";
 import { Sprite } from "../../../../../../../core/src/laya/display/Sprite"
 	import { Point } from "../../../../../../../core/src/laya/maths/Point"
 	import { DisControlTool } from "../../tools/DisControlTool"

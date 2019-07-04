@@ -1,5 +1,5 @@
 import { Laya } from "./../../../../../core/src/Laya";
-import { TileTexSet } from "././TileTexSet";
+import { TileTexSet } from "./TileTexSet";
 import { Sprite } from "../../../../../core/src/laya/display/Sprite"
 	import { GridSprite } from "./GridSprite"
 	import { TileAniSprite } from "./TileAniSprite"

@@ -1,6 +1,6 @@
-import { BMiniAdapter } from "././BMiniAdapter";
+import { BMiniAdapter } from "./BMiniAdapter";
 import { MiniFileMgr } from "./../../../../../../openData/src/laya/wx/mini/MiniFileMgr";
-import { MiniSoundChannel } from "././MiniSoundChannel";
+import { MiniSoundChannel } from "./MiniSoundChannel";
 import { Event } from "../../../../../../core/src/laya/events/Event"
 	import { EventDispatcher } from "../../../../../../core/src/laya/events/EventDispatcher"
 	import { SoundManager } from "../../../../../../core/src/laya/media/SoundManager"

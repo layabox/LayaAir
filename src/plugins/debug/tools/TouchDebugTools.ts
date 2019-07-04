@@ -1,4 +1,4 @@
-import { DebugTxt } from "././DebugTxt";
+import { DebugTxt } from "./DebugTxt";
 /**
 	 * ...
 	 * @author ww

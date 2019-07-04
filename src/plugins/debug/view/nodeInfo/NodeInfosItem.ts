@@ -1,4 +1,4 @@
-import { DebugInfoLayer } from "././DebugInfoLayer";
+import { DebugInfoLayer } from "./DebugInfoLayer";
 import { Laya } from "./../../../../../../../core/src/Laya";
 import { Graphics } from "../../../../../../../core/src/laya/display/Graphics"
 	import { Node } from "../../../../../../../core/src/laya/display/Node"

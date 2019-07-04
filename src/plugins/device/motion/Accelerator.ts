@@ -1,5 +1,5 @@
-import { AccelerationInfo } from "././AccelerationInfo";
-import { RotationInfo } from "././RotationInfo";
+import { AccelerationInfo } from "./AccelerationInfo";
+import { RotationInfo } from "./RotationInfo";
 import { Laya } from "./../../../../../../core/src/Laya";
 import { Event } from "../../../../../../core/src/laya/events/Event"
 	import { EventDispatcher } from "../../../../../../core/src/laya/events/EventDispatcher"

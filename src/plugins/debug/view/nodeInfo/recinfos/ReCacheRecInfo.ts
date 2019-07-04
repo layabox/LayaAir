@@ -1,4 +1,4 @@
-import { NodeRecInfo } from "././NodeRecInfo";
+import { NodeRecInfo } from "./deRecInfo";
 import { Laya } from "./../../../../../../../../core/src/Laya";
 import { ClassTool } from "../../../tools/ClassTool"
 	/**

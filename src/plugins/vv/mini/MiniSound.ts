@@ -1,4 +1,4 @@
-import { VVMiniAdapter } from "././VVMiniAdapter";
+import { VVMiniAdapter } from "./VVMiniAdapter";
 import { MiniFileMgr } from "./../../../../../../openData/src/laya/wx/mini/MiniFileMgr";
 import { MiniSoundChannel } from "./../../../../../bd/src/laya/bd/mini/MiniSoundChannel";
 import { Event } from "../../../../../../core/src/laya/events/Event"

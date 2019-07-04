@@ -1,5 +1,5 @@
 import { Laya } from "./../../../../../../core/src/Laya";
-import { VVMiniAdapter } from "././VVMiniAdapter";
+import { VVMiniAdapter } from "./VVMiniAdapter";
 import { MiniSound } from "./../../../../../bd/src/laya/bd/mini/MiniSound";
 import { Input } from "../../../../../../core/src/laya/display/Input"
 	import { Event } from "../../../../../../core/src/laya/events/Event"

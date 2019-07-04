@@ -1,4 +1,4 @@
-import { TileTexSet } from "././TileTexSet";
+import { TileTexSet } from "./TileTexSet";
 import { Sprite } from "../../../../../core/src/laya/display/Sprite"
 	
 	/**

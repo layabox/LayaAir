@@ -1,6 +1,6 @@
 import { Laya } from "./../../../../../../core/src/Laya";
-import { BMiniAdapter } from "././BMiniAdapter";
-import { MiniSound } from "././MiniSound";
+import { BMiniAdapter } from "./BMiniAdapter";
+import { MiniSound } from "./MiniSound";
 import { Input } from "../../../../../../core/src/laya/display/Input"
 	import { Event } from "../../../../../../core/src/laya/events/Event"
 	import { Matrix } from "../../../../../../core/src/laya/maths/Matrix"

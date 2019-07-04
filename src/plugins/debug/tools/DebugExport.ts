@@ -1,4 +1,4 @@
-import { Watcher } from "././Watcher";
+import { Watcher } from "./Watcher";
 ///////////////////////////////////////////////////////////
 //  DebugExport.as
 //  Macromedia ActionScript Implementation of the Class DebugExport

@@ -1,6 +1,6 @@
-import { TiledMap } from "././TiledMap";
-import { TileTexSet } from "././TileTexSet";
-import { TileAniSprite } from "././TileAniSprite";
+import { TiledMap } from "./TiledMap";
+import { TileTexSet } from "./TileTexSet";
+import { TileAniSprite } from "./TileAniSprite";
 import { Sprite } from "../../../../../core/src/laya/display/Sprite"
 	import { GridSprite } from "./GridSprite"
 	import { Point } from "../../../../../core/src/laya/maths/Point"

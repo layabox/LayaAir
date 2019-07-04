@@ -1,5 +1,5 @@
 import { Laya } from "./../../../../../../core/src/Laya";
-import { Notice } from "././Notice";
+import { Notice } from "./Notice";
 import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
 	import { Stage } from "../../../../../../core/src/laya/display/Stage"
 	import { Render } from "../../../../../../core/src/laya/renders/Render"

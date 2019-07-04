@@ -1,4 +1,4 @@
-import { VVMiniAdapter } from "././VVMiniAdapter";
+import { VVMiniAdapter } from "./VVMiniAdapter";
 /**
 	 * 视频类 
 	 * @author xiaosong

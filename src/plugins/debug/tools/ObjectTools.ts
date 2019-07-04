@@ -1,4 +1,4 @@
-import { StringTool } from "././StringTool";
+import { StringTool } from "./ringTool";
 ///////////////////////////////////////////////////////////
 //  ObjectTools.as
 //  Macromedia ActionScript Implementation of the Class ObjectTools
