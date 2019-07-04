@@ -364,7 +364,7 @@ export class TrailGeometry extends GeometryElement {
 				var up: Vector3 = TrailGeometry._tempVector33;
 				var side: Vector3 = TrailGeometry._tempVector34;
 
-				pos.setValue(this._vertices1[posOffset + 0], this._vertices1[posOffset + 2], this._vertices1[posOffset + 2]);
+				pos.setValue(this._vertices1[posOffset + 0], this._vertices1[posOffset + 1], this._vertices1[posOffset + 2]);
 				up.setValue(this._vertices1[posOffset + 3], this._vertices1[posOffset + 4], this._vertices1[posOffset + 5]);
 
 				Vector3.add(pos, up, side);
