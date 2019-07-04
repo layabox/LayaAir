@@ -1,6 +1,6 @@
 import { Laya } from "./../../../../../../core/src/Laya";
-import { Base64ImageTool } from "././Base64ImageTool";
-import { ObjectTools } from "././ObjectTools";
+import { Base64ImageTool } from "./Base64ImageTool";
+import { ObjectTools } from "./ObjectTools";
 import { Loader } from "../../../../../../core/src/laya/net/Loader"
 	import { Texture } from "../../../../../../core/src/laya/resource/Texture"
 	import { Handler } from "../../../../../../core/src/laya/utils/Handler"

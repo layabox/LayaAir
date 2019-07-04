@@ -1,6 +1,6 @@
 import { MiniFileMgr } from "./../../../../../../openData/src/laya/wx/mini/MiniFileMgr";
 import { Laya } from "./../../../../../../core/src/Laya";
-import { MiniInput } from "././MiniInput";
+import { MiniInput } from "./MiniInput";
 import { MiniLoader } from "./../../../../../../openData/src/laya/wx/mini/MiniLoader";
 import { MiniImage } from "./../../../../../../openData/src/laya/wx/mini/MiniImage";
 import { MiniLocalStorage } from "./../../../../../../openData/src/laya/wx/mini/MiniLocalStorage";

@@ -1,4 +1,4 @@
-import { GeolocationInfo } from "././GeolocationInfo";
+import { GeolocationInfo } from "./GeolocationInfo";
 import { Browser } from "../../../../../../core/src/laya/utils/Browser"
 	import { Handler } from "../../../../../../core/src/laya/utils/Handler"
 

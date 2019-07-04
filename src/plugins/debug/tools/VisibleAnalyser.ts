@@ -1,8 +1,8 @@
 import { Laya } from "./../../../../../../core/src/Laya";
-import { CanvasTools } from "././CanvasTools";
-import { WalkTools } from "././WalkTools";
-import { ClassTool } from "././ClassTool";
-import { ColorTool } from "././ColorTool";
+import { CanvasTools } from "./CanvasTools";
+import { WalkTools } from "./WalkTools";
+import { ClassTool } from "./ClassTool";
+import { ColorTool } from "./ColorTool";
 import { DebugInfoLayer } from "../view/nodeInfo/DebugInfoLayer"
 	import { NodeUtils } from "../view/nodeInfo/NodeUtils"
 	import { Sprite } from "../../../../../../core/src/laya/display/Sprite"

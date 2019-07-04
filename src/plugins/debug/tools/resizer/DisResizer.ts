@@ -1,4 +1,4 @@
-import { AutoFillRec } from "././AutoFillRec";
+import { AutoFillRec } from "./AutoFillRec";
 import { Laya } from "./../../../../../../../core/src/Laya";
 import { Sprite } from "../../../../../../../core/src/laya/display/Sprite"
 	import { Event } from "../../../../../../../core/src/laya/events/Event"

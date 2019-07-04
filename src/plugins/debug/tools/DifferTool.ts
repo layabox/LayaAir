@@ -1,4 +1,4 @@
-import { ObjectTools } from "././ObjectTools";
+import { ObjectTools } from "./ObjectTools";
 ///////////////////////////////////////////////////////////
 //  DifferTool.as
 //  Macromedia ActionScript Implementation of the Class DifferTool

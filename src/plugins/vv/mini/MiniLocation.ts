@@ -1,4 +1,4 @@
-import { VVMiniAdapter } from "././VVMiniAdapter";
+import { VVMiniAdapter } from "./VVMiniAdapter";
 import { Laya } from "./../../../../../../core/src/Laya";
 import { Browser } from "../../../../../../core/src/laya/utils/Browser"
 	/**@private **/

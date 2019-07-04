@@ -1,4 +1,4 @@
-import { JumpPointFinderBase } from "././JumpPointFinderBase";
+import { JumpPointFinderBase } from "./JumpPointFinderBase";
 import { DiagonalMovement } from "../core/DiagonalMovement"
 	import { Grid } from "../core/Grid"
 	import { Node } from "../../../../../core/src/laya/display/Node"

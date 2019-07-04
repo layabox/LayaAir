@@ -26,6 +26,7 @@ import { AlphaCmd } from "./cmd/AlphaCmd"
 	import { Pool } from "../utils/Pool"
 	import { Utils } from "../utils/Utils"
 import { Graphics } from "./Graphics";
+import { DrawTrianglesCmd } from "./cmd/DrawTrianglesCmd";
 	
 	/**
 	 * @private
@@ -274,7 +275,10 @@ import { Graphics } from "./Graphics";
 					break;
 				case DrawPieCmd.ID://drawPie
 					GraphicsBounds._addPointArrToRst(rst, this._getPiePoints(cmd.x, cmd.y, cmd.radius, cmd.startAngle, cmd.endAngle), tMatrix);
-					break;
+                    break;
+                case DrawTrianglesCmd.ID:
+                    GraphicsBounds._addPointArrToRst(rst, this._getTriAngBBXPoints( (cmd as DrawTrianglesCmd).vertices), tMatrix);
+                    break;
 				}
 			}
 			if (rst.length > 200) {
@@ -363,7 +367,26 @@ import { Graphics } from "./Graphics";
 				angle += step;
 			}		
 			*/
-		}
+        }
+        
+        private _getTriAngBBXPoints(vert:Float32Array){
+            var vnum = vert.length;
+            if(vnum<2) return [];
+            var minx = vert[0];
+            var miny = vert[1];
+            var maxx=minx;
+            var maxy=miny;
+            for(var i=2; i<vnum;){
+                var cx = vert[i++];
+                var cy = vert[i++];
+                if(minx>cx)minx=cx;
+                if(miny>cy)miny=cy;
+                if(maxx<cx)maxx=cx;
+                if(maxy<cy)maxy=cy;
+            }
+
+            return [minx,miny, maxx,miny, maxx,maxy, minx,maxy];
+        }
 		
 		private _getPathPoints(paths:any[]):any[] {
 			var i:number, len:number;

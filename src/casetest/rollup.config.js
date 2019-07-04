@@ -50,7 +50,7 @@ export default {
             //abortOnError:false
             check: false
         }),
-        testPlug(),
+        //testPlug(),
         glsl({
 			// By default, everything gets included
 			include: /\.glsl$/,

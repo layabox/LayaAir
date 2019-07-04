@@ -1,4 +1,4 @@
-import { KGMiniAdapter } from "././KGMiniAdapter";
+import { KGMiniAdapter } from "./KGMiniAdapter";
 /** @private **/
 	export class MiniLocalStorage
 	{

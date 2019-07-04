@@ -1,4 +1,4 @@
-import { QGMiniAdapter } from "././QGMiniAdapter";
+import { QGMiniAdapter } from "./QGMiniAdapter";
 import { Laya } from "./../../../../../../core/src/Laya";
 import { Loader } from "../../../../../../core/src/laya/net/Loader"
 	import { URL } from "../../../../../../core/src/laya/net/URL"

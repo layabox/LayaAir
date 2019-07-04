@@ -1,4 +1,4 @@
-import { BMiniAdapter } from "././BMiniAdapter";
+import { BMiniAdapter } from "./BMiniAdapter";
 import { Laya } from "./../../../../../../core/src/Laya";
 import { Loader } from "../../../../../../core/src/laya/net/Loader"
 	import { URL } from "../../../../../../core/src/laya/net/URL"

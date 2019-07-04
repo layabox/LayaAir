@@ -1,4 +1,4 @@
-import { DisControlTool } from "././DisControlTool";
+import { DisControlTool } from "./sControlTool";
 ///////////////////////////////////////////////////////////
 //  WalkTools.as
 //  Macromedia ActionScript Implementation of the Class WalkTools

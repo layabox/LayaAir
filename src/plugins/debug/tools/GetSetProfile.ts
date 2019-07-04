@@ -1,6 +1,6 @@
-import { ClassTool } from "././ClassTool";
-import { IDTools } from "././IDTools";
-import { ObjectTools } from "././ObjectTools";
+import { ClassTool } from "./ClassTool";
+import { IDTools } from "./IDTools";
+import { ObjectTools } from "./ObjectTools";
 import { FunHook } from "./hook/FunHook"
 	import { Node } from "../../../../../../core/src/laya/display/Node"
 	import { MathUtil } from "../../../../../../core/src/laya/maths/MathUtil"

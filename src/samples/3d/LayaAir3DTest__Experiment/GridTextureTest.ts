@@ -11,7 +11,7 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
-import { TextureExpandSprite } from "././TextureExpandSprite";
+import { TextureExpandSprite } from "./TextureExpandSprite";
 import { Config3D } from "./Config3D";
 import { PixGridSprite } from "./PixGridSprite";
 

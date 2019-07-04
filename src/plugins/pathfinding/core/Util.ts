@@ -1,5 +1,5 @@
 import { Node } from "./../../../../../core/src/laya/display/Node";
-import { Grid } from "././Grid";
+import { Grid } from "./Grid";
 /**
 	 * ...
 	 * @author dongketao

@@ -1,5 +1,5 @@
-import { RecInfo } from "././RecInfo";
-import { DisControlTool } from "././DisControlTool";
+import { RecInfo } from "./RecInfo";
+import { DisControlTool } from "./DisControlTool";
 import { Laya } from "./../../../../../../core/src/Laya";
 ///////////////////////////////////////////////////////////
 //  DisController.as

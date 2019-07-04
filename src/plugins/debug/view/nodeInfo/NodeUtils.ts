@@ -1,5 +1,5 @@
 import { Laya } from "./../../../../../../../core/src/Laya";
-import { DebugInfoLayer } from "././DebugInfoLayer";
+import { DebugInfoLayer } from "./DebugInfoLayer";
 import { ClassTool } from "../../tools/ClassTool"
 	import { RenderAnalyser } from "../../tools/RenderAnalyser"
 	import { StringTool } from "../../tools/StringTool"

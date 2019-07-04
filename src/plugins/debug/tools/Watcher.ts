@@ -1,4 +1,4 @@
-import { DifferTool } from "././DifferTool";
+import { DifferTool } from "./DifferTool";
 ///////////////////////////////////////////////////////////
 //  Watcher.as
 //  Macromedia ActionScript Implementation of the Class Watcher

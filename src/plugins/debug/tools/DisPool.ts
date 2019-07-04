@@ -1,4 +1,4 @@
-import { ClassTool } from "././ClassTool";
+import { ClassTool } from "./ClassTool";
 ///////////////////////////////////////////////////////////
 //  DisPool.as
 //  Macromedia ActionScript Implementation of the Class DisPool

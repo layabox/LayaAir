@@ -1,4 +1,4 @@
-import { Layouter } from "././Layouter";
+import { Layouter } from "./Layouter";
 import { Sprite } from "../../../../../../../core/src/laya/display/Sprite"
 	
 	/**

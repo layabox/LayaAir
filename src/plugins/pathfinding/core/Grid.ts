@@ -1,5 +1,5 @@
 import { Node } from "./../../../../../core/src/laya/display/Node";
-import { DiagonalMovement } from "././DiagonalMovement";
+import { DiagonalMovement } from "./DiagonalMovement";
 /**
 	 * ...
 	 * @author dongketao

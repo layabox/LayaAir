@@ -1,9 +1,8 @@
 {
     "compilerOptions": {
-        "target": "es6",
+        "target": "es2018",
         "module": "esnext",
-        "outDir": "../../bin",
-        "moduleResolution": "classic",
+        "outDir": "../../bin/tsc/casetest",
         "baseUrl": "../layaAir",
     },
     "references": [

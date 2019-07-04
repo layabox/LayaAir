@@ -1,4 +1,4 @@
-import { TraceTool } from "././TraceTool";
+import { TraceTool } from "./TraceTool";
 ///////////////////////////////////////////////////////////
 //  DTrace.as
 //  Macromedia ActionScript Implementation of the Class DTrace

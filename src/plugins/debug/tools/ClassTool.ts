@@ -1,4 +1,4 @@
-import { ObjectTools } from "././ObjectTools";
+import { ObjectTools } from "./ObjectTools";
 import { Laya } from "./../../../../../../core/src/Laya";
 ///////////////////////////////////////////////////////////
 //  ClassTool.as
