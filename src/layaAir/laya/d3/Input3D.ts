@@ -53,34 +53,43 @@ export class Input3D {
 			return false;
 		}
 
-		canvas.addEventListener('mousedown', function (e: any): void {
-			e.preventDefault();
-			list.push(e);
-		});
-		canvas.addEventListener('mouseup', function (e: any): void {
-			e.preventDefault();
-			list.push(e);
-		}, true);
-		canvas.addEventListener('mousemove', function (e: any): void {
-			e.preventDefault();
-			list.push(e);
-		}, true);
-		canvas.addEventListener("touchstart", function (e: any): void {
-			e.preventDefault();
-			list.push(e);
-		});
-		canvas.addEventListener("touchend", function (e: any): void {
-			e.preventDefault();
-			list.push(e);
-		}, true);
-		canvas.addEventListener("touchmove", function (e: any): void {
-			e.preventDefault();
-			list.push(e);
-		}, true);
-		canvas.addEventListener("touchcancel", function (e: any): void {
-			//e.preventDefault()会导致debugger中断后touchcancel无法执行,抛异常
-			list.push(e);
-		}, true);
+
+	}
+
+	/**
+	 * @internal
+	 */
+	private _pushEventList(e: any): void {
+		e.preventDefault();
+		this._eventList.push(e);
+	}
+
+	/**
+	 * @internal
+	 */
+	_onCanvasEvent(canvas: any): void {
+		canvas.addEventListener('mousedown', this._pushEventList);
+		canvas.addEventListener('mouseup', this._pushEventList, true);
+		canvas.addEventListener('mousemove', this._pushEventList, true);
+		canvas.addEventListener("touchstart", this._pushEventList);
+		canvas.addEventListener("touchend", this._pushEventList, true);
+		canvas.addEventListener("touchmove", this._pushEventList, true);
+		canvas.addEventListener("touchcancel", this._pushEventList, true);
+		//e.preventDefault()会导致debugger中断后touchcancel无法执行,抛异常
+	}
+
+	/**
+	 * @internal
+	 */
+	_offCanvasEvent(canvas: any): void {
+		canvas.removeEventListener('mousedown', this._pushEventList);
+		canvas.removeEventListener('mouseup', this._pushEventList, true);
+		canvas.removeEventListener('mousemove', this._pushEventList, true);
+		canvas.removeEventListener("touchstart", this._pushEventList);
+		canvas.removeEventListener("touchend", this._pushEventList, true);
+		canvas.removeEventListener("touchmove", this._pushEventList, true);
+		canvas.removeEventListener("touchcancel", this._pushEventList, true);
+		this._eventList.length = 0;
 	}
 
 	/**

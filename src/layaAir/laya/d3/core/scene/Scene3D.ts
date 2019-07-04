@@ -542,6 +542,23 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		return start;
 	}
 
+
+	/**
+	 * @internal
+	 * @override
+	 */
+	onEnable(): void {
+		this._input._onCanvasEvent(Render.canvas);
+	}
+
+	/**
+	 * @internal
+	 * @override
+	 */
+	onDisable(): void {
+		this._input._offCanvasEvent(Render.canvas);
+	}
+
 	/**
 	 */
 	_setCreateURL(url: string): void {
@@ -783,7 +800,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		if (FrustumCulling.debugFrustumCulling) {
 			var renderElements: RenderElement[] = this._debugTool._render._renderElements;
 			for (var i: number = 0, n: number = renderElements.length; i < n; i++) {
-				renderElements[i]._update(this,context,null,null);
+				renderElements[i]._update(this, context, null, null);
 				renderElements[i]._render(context, false);
 			}
 		}
@@ -874,7 +891,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	_addRenderObject(render: BaseRender): void {
-		if (this._octree&&render._supportOctree) {
+		if (this._octree && render._supportOctree) {
 			this._octree.add(render);
 		} else {
 			this._renders.add(render);
@@ -898,7 +915,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	_removeRenderObject(render: BaseRender): void {
-		if (this._octree&&render._supportOctree) {
+		if (this._octree && render._supportOctree) {
 			this._octree.remove(render);
 		} else {
 			var endRender: BaseRender;
