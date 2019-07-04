@@ -538,7 +538,8 @@ import { ILaya } from "../../ILaya";
 		 */
 		 getSelfBounds():Rectangle {
 			if (this._boundStyle && this._boundStyle.userBounds) return this._boundStyle.userBounds;
-			if (!this._graphics && this._children.length === 0&&!this._texture) return Rectangle.TEMP.setTo(0, 0, 0, 0);
+            if (!this._graphics && this._children.length === 0&&!this._texture) 
+                return Rectangle.TEMP.setTo(0, 0, this.width, this.height); // 如果没有graphics则取对象指定的大小。原来是0000
 			//if (_renderType === (SpriteConst.IMAGE | SpriteConst.GRAPHICS)) {
 				//_getBoundsStyle();
 				//if (!_boundStyle.bounds) _boundStyle.bounds = Rectangle.create();
@@ -1209,6 +1210,17 @@ import { ILaya } from "../../ILaya";
 		 drawToTexture(canvasWidth:number, canvasHeight:number, offsetX:number, offsetY:number):Texture {
 			return Sprite.drawToTexture(this, this._renderType, canvasWidth, canvasHeight, offsetX, offsetY);
         }
+
+        /**
+         * 把当前对象渲染到指定的贴图上。贴图由外部指定，避免每次都创建。
+         * @param offx 
+         * @param offy 
+         * @param tex 输出渲染结果
+         */
+        drawToTexture3D(offx:number, offy:number, tex:Texture2D){
+            throw 'not implement'
+        }
+
         
 		/**
 		 * @private
@@ -1257,7 +1269,7 @@ import { ILaya } from "../../ILaya";
 		 * @private 
 		 * 
 		 */
-		 static drawToTexture:Function=function(sprite:Sprite, _renderType:number, canvasWidth:number, canvasHeight:number, offsetX:number, offsetY:number):Texture {
+		 static drawToTexture=function(sprite:Sprite, _renderType:number, canvasWidth:number, canvasHeight:number, offsetX:number, offsetY:number):Texture {
 			offsetX -= sprite.x;
 			offsetY -= sprite.y;
 			offsetX |= 0;
@@ -1275,8 +1287,8 @@ import { ILaya } from "../../ILaya";
 			var rtex:Texture = new Texture( ((<Texture2D>(ctx._targets as any) )),Texture.INV_UV);
 			ctx.destroy(true);// 保留 _targets
 			return rtex;
-		}
-		
+        }
+        
 		/**
 		 * <p>自定义更新、呈现显示对象。一般用来扩展渲染模式，请合理使用，可能会导致在加速器上无法渲染。</p>
 		 * <p><b>注意</b>不要在此函数内增加或删除树节点，否则会对树节点遍历造成影响。</p>
