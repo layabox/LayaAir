@@ -1,23 +1,22 @@
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Resource } from "../../../resource/Resource";
 import { Stat } from "../../../utils/Stat";
-import { WebGLContext } from "../../../webgl/WebGLContext";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { VertexDeclaration } from "../../graphics/VertexDeclaration";
 import { Color } from "../../math/Color";
 import { MathUtils3D } from "../../math/MathUtils3D";
+import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Vector3 } from "../../math/Vector3";
+import { Bounds } from "../Bounds";
 import { BufferState } from "../BufferState";
 import { Camera } from "../Camera";
 import { GeometryElement } from "../GeometryElement";
 import { Gradient } from "../Gradient";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { TextureMode } from "../TextureMode";
+import { TrailAlignment } from "./TrailAlignment";
 import { TrailFilter } from "./TrailFilter";
 import { VertexTrail } from "./VertexTrail";
-import { Matrix4x4 } from "../../math/Matrix4x4";
-import { TrailAlignment } from "./TrailAlignment";
-import { Bounds } from "../Bounds";
 
 /**
  * <code>TrailGeometry</code> 类用于创建拖尾渲染单元。
