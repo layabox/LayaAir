@@ -1,7 +1,7 @@
 import { Laya } from "Laya";
+import { Geolocation } from "laya/device/geolocation/Geolocation";
 import { Stage } from "laya/display/Stage";
 import { Text } from "laya/display/Text";
-import { Geolocation } from "laya/device/geolocation/Geolocation";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 /**

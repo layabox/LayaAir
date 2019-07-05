@@ -23,6 +23,7 @@ import { Rectangle } from "../maths/Rectangle";
 import { Render } from "../renders/Render";
 import { Pool } from "../utils/Pool";
 import { Utils } from "../utils/Utils";
+import { DrawTrianglesCmd } from "./cmd/DrawTrianglesCmd";
 /**
  * @private
  * Graphic bounds数据类
@@ -245,6 +246,9 @@ export class GraphicsBounds {
                 case DrawPieCmd.ID: //drawPie
                     GraphicsBounds._addPointArrToRst(rst, this._getPiePoints(cmd.x, cmd.y, cmd.radius, cmd.startAngle, cmd.endAngle), tMatrix);
                     break;
+                case DrawTrianglesCmd.ID:
+                    GraphicsBounds._addPointArrToRst(rst, this._getTriAngBBXPoints(cmd.vertices), tMatrix);
+                    break;
             }
         }
         if (rst.length > 200) {
@@ -326,6 +330,28 @@ export class GraphicsBounds {
             angle += step;
         }
         */
+    }
+    _getTriAngBBXPoints(vert) {
+        var vnum = vert.length;
+        if (vnum < 2)
+            return [];
+        var minx = vert[0];
+        var miny = vert[1];
+        var maxx = minx;
+        var maxy = miny;
+        for (var i = 2; i < vnum;) {
+            var cx = vert[i++];
+            var cy = vert[i++];
+            if (minx > cx)
+                minx = cx;
+            if (miny > cy)
+                miny = cy;
+            if (maxx < cx)
+                maxx = cx;
+            if (maxy < cy)
+                maxy = cy;
+        }
+        return [minx, miny, maxx, miny, maxx, maxy, minx, maxy];
     }
     _getPathPoints(paths) {
         var i, len;

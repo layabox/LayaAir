@@ -1,6 +1,4 @@
-import { Laya3D } from "Laya3D";
 import { Laya } from "Laya";
-import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Vector3 } from "laya/d3/math/Vector3";
@@ -11,6 +9,8 @@ import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
+import { Laya3D } from "Laya3D";
+import { CameraMoveScript } from "../common/CameraMoveScript";
 /**
  * ...
  * @author LayaAir3D Team

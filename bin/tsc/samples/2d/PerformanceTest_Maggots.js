@@ -1,9 +1,9 @@
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
+import { Rectangle } from "laya/maths/Rectangle";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Rectangle } from "laya/maths/Rectangle";
 import { WebGL } from "laya/webgl/WebGL";
 export class PerformanceTest_Maggots {
     constructor(maincls) {

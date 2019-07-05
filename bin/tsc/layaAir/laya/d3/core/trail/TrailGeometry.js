@@ -8,8 +8,8 @@ import { Vector3 } from "../../math/Vector3";
 import { BufferState } from "../BufferState";
 import { GeometryElement } from "../GeometryElement";
 import { TextureMode } from "../TextureMode";
-import { VertexTrail } from "././VertexTrail";
 import { TrailAlignment } from "./TrailAlignment";
+import { VertexTrail } from "./VertexTrail";
 /**
  * <code>TrailGeometry</code> 类用于创建拖尾渲染单元。
  */
@@ -39,10 +39,19 @@ export class TrailGeometry extends GeometryElement {
         /** @internal */
         this._bufferState = new BufferState();
         this.tmpColor = new Color();
+        /** @private */
+        this._disappearBoundsMode = false;
         this._owner = owner;
         //初始化_segementCount
         this._segementCount = this._increaseSegementCount;
         this._resizeData(this._segementCount, this._bufferState);
+        var bounds = this._owner._owner.trailRenderer.bounds;
+        var min = bounds.getMin();
+        var max = bounds.getMax();
+        min.setValue(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
+        max.setValue(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
+        bounds.setMin(min);
+        bounds.setMax(max);
     }
     /**
      * @internal
@@ -204,6 +213,21 @@ export class TrailGeometry extends GeometryElement {
         this._vertices1[vertexOffset + 13] = pointAtoBVector3.z;
         this._vertices1[vertexOffset + 14] = curtime;
         this._vertices1[vertexOffset + 15] = 0.0;
+        //添加新的顶点时，需要更新包围盒
+        var bounds = this._owner._owner.trailRenderer.bounds;
+        var min = bounds.getMin();
+        var max = bounds.getMax();
+        var up = TrailGeometry._tempVector35;
+        var down = TrailGeometry._tempVector36;
+        var out = TrailGeometry._tempVector32;
+        Vector3.add(position, pointAtoBVector3, up);
+        Vector3.subtract(position, pointAtoBVector3, down);
+        Vector3.min(down, up, out);
+        Vector3.min(min, out, min);
+        bounds.setMin(min);
+        Vector3.max(up, down, out);
+        Vector3.max(max, out, max);
+        bounds.setMax(max);
         var floatCount = this._floatCountPerVertices1 * 2;
         this._vertexBuffer1.setData(this._vertices1.buffer, vertexOffset * 4, vertexOffset * 4, floatCount * 4);
     }
@@ -221,6 +245,15 @@ export class TrailGeometry extends GeometryElement {
      * 更新VertexBuffer2数据
      */
     _updateVertexBufferUV() {
+        var bounds;
+        var min, max;
+        if (this._disappearBoundsMode) { //如果有顶点消失时候，需要重新计算包围盒
+            bounds = this._owner._owner.trailRenderer.bounds;
+            min = bounds.getMin();
+            max = bounds.getMax();
+            min.setValue(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
+            max.setValue(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
+        }
         var vertexCount = this._endIndex;
         var curLength = 0;
         var gradient = this._owner.colorGradient;
@@ -253,6 +286,25 @@ export class TrailGeometry extends GeometryElement {
             this._vertices2[index + 7] = this.tmpColor.g;
             this._vertices2[index + 8] = this.tmpColor.b;
             this._vertices2[index + 9] = this.tmpColor.a;
+            if (this._disappearBoundsMode) {
+                var posOffset = this._floatCountPerVertices1 * 2 * i;
+                var pos = TrailGeometry._tempVector32;
+                var up = TrailGeometry._tempVector33;
+                var side = TrailGeometry._tempVector34;
+                pos.setValue(this._vertices1[posOffset + 0], this._vertices1[posOffset + 1], this._vertices1[posOffset + 2]);
+                up.setValue(this._vertices1[posOffset + 3], this._vertices1[posOffset + 4], this._vertices1[posOffset + 5]);
+                Vector3.add(pos, up, side);
+                Vector3.min(side, min, min);
+                Vector3.max(side, max, max);
+                Vector3.subtract(pos, up, side);
+                Vector3.min(side, min, min);
+                Vector3.max(side, max, max);
+            }
+        }
+        if (this._disappearBoundsMode) {
+            bounds.setMin(min);
+            bounds.setMax(max);
+            this._disappearBoundsMode = false;
         }
         var offset = this._activeIndex * stride;
         this._vertexBuffer2.setData(this._vertices2.buffer, offset * 4, offset * 4, (vertexCount * stride - offset) * 4);
@@ -276,6 +328,7 @@ export class TrailGeometry extends GeometryElement {
                     this._isTempEndVertex = false;
                 }
                 this._activeIndex++;
+                this._disappearBoundsMode = true;
             }
             else {
                 break;
@@ -323,6 +376,7 @@ export class TrailGeometry extends GeometryElement {
         this._subBirthTime = null;
         this._subDistance = null;
         this._lastFixedVertexPosition = null;
+        this._disappearBoundsMode = false;
     }
 }
 /** 轨迹准线_面向摄像机。*/
@@ -339,5 +393,9 @@ TrailGeometry._tempVector32 = new Vector3();
 TrailGeometry._tempVector33 = new Vector3();
 /**@internal */
 TrailGeometry._tempVector34 = new Vector3();
+/**@internal */
+TrailGeometry._tempVector35 = new Vector3();
+/**@internal */
+TrailGeometry._tempVector36 = new Vector3();
 /**@internal */
 TrailGeometry._type = GeometryElement._typeCounter++;

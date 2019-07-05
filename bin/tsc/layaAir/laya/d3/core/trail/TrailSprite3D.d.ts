@@ -1,5 +1,5 @@
-import { TrailFilter } from "././TrailFilter";
-import { TrailRenderer } from "././TrailRenderer";
+import { TrailFilter } from "./TrailFilter";
+import { TrailRenderer } from "./TrailRenderer";
 import { RenderableSprite3D } from "../RenderableSprite3D";
 import { Node } from "../../../display/Node";
 /**

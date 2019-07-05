@@ -1,8 +1,8 @@
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
+import { HTMLDivElement } from "laya/html/dom/HTMLDivElement";
 import { Browser } from "laya/utils/Browser";
 import { WebGL } from "laya/webgl/WebGL";
-import { HTMLDivElement } from "laya/html/dom/HTMLDivElement";
 export class Text_HTML {
     constructor(maincls) {
         this.Main = null;

@@ -1,6 +1,4 @@
-import { Laya3D } from "Laya3D";
 import { Laya } from "Laya";
-import { CameraMoveScript } from "../common/CameraMoveScript";
 import { PBRStandardMaterial } from "laya/d3/core/material/PBRStandardMaterial";
 import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
@@ -9,6 +7,8 @@ import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
+import { Laya3D } from "Laya3D";
+import { CameraMoveScript } from "../common/CameraMoveScript";
 /**
  * ...
  * @author ...

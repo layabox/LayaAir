@@ -9,42 +9,22 @@ export class Tool {
     constructor() {
     }
     static linearModel(sprite3D, lineSprite3D, color) {
-        var vertex1 = new Vector3();
-        var vertex2 = new Vector3();
-        var vertex3 = new Vector3();
-        var lineCount = 0;
         if (sprite3D instanceof MeshSprite3D) {
             var meshSprite3D = sprite3D;
             var mesh = meshSprite3D.meshFilter.sharedMesh;
-            var vbBuffer = mesh._vertexBuffer;
-            var vbBufferData = vbBuffer.getFloat32Data();
-            var ibBufferData = mesh._indexBuffer.getData();
-            var vertexStrideCount = vbBuffer.vertexDeclaration.vertexStride / 4;
-            var loopCount = 0;
-            var index = 0;
-            for (var i = 0; i < ibBufferData.length; i += 3) {
-                loopCount = 0;
-                index = 0;
-                vertex1.x = vbBufferData[ibBufferData[i + loopCount] * vertexStrideCount + index++];
-                vertex1.y = vbBufferData[ibBufferData[i + loopCount] * vertexStrideCount + index++];
-                vertex1.z = vbBufferData[ibBufferData[i + loopCount] * vertexStrideCount + index++];
-                loopCount++;
-                index = 0;
-                vertex2.x = vbBufferData[ibBufferData[i + loopCount] * vertexStrideCount + index++];
-                vertex2.y = vbBufferData[ibBufferData[i + loopCount] * vertexStrideCount + index++];
-                vertex2.z = vbBufferData[ibBufferData[i + loopCount] * vertexStrideCount + index++];
-                loopCount++;
-                index = 0;
-                vertex3.x = vbBufferData[ibBufferData[i + loopCount] * vertexStrideCount + index++];
-                vertex3.y = vbBufferData[ibBufferData[i + loopCount] * vertexStrideCount + index++];
-                vertex3.z = vbBufferData[ibBufferData[i + loopCount] * vertexStrideCount + index++];
-                loopCount++;
-                Vector3.transformCoordinate(vertex1, meshSprite3D.transform.worldMatrix, vertex1);
-                Vector3.transformCoordinate(vertex2, meshSprite3D.transform.worldMatrix, vertex2);
-                Vector3.transformCoordinate(vertex3, meshSprite3D.transform.worldMatrix, vertex3);
-                lineSprite3D.addLine(vertex1, vertex2, color, color);
-                lineSprite3D.addLine(vertex2, vertex3, color, color);
-                lineSprite3D.addLine(vertex3, vertex1, color, color);
+            var positions = [];
+            mesh.getPositions(positions);
+            var indices = mesh.getSubMesh(0).getIndices();
+            for (var i = 0; i < indices.length; i += 3) {
+                var vertex0 = positions[indices[i]];
+                var vertex1 = positions[indices[i + 1]];
+                var vertex2 = positions[indices[i + 2]];
+                Vector3.transformCoordinate(vertex0, meshSprite3D.transform.worldMatrix, this.transVertex0);
+                Vector3.transformCoordinate(vertex1, meshSprite3D.transform.worldMatrix, this.transVertex1);
+                Vector3.transformCoordinate(vertex2, meshSprite3D.transform.worldMatrix, this.transVertex2);
+                lineSprite3D.addLine(this.transVertex0, this.transVertex1, color, color);
+                lineSprite3D.addLine(this.transVertex1, this.transVertex2, color, color);
+                lineSprite3D.addLine(this.transVertex2, this.transVertex0, color, color);
             }
         }
         for (var i = 0, n = sprite3D.numChildren; i < n; i++)
@@ -114,5 +94,7 @@ export class Tool {
         cylinder.transform.position = cylPos;
     }
 }
+Tool.transVertex0 = new Vector3();
+Tool.transVertex1 = new Vector3();
+Tool.transVertex2 = new Vector3();
 Tool.corners = [];
-Tool.lineWidth = 0.1;

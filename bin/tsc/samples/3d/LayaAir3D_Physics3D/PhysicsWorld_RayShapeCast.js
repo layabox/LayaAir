@@ -1,10 +1,8 @@
-import { Laya3D } from "Laya3D";
 import { Laya } from "Laya";
-import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Camera } from "laya/d3/core/Camera";
-import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
+import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { PixelLineSprite3D } from "laya/d3/core/pixelLine/PixelLineSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Color } from "laya/d3/math/Color";
@@ -20,11 +18,13 @@ import { SphereColliderShape } from "laya/d3/physics/shape/SphereColliderShape";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
+import { Texture2D } from "laya/resource/Texture2D";
 import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Texture2D } from "laya/resource/Texture2D";
+import { Laya3D } from "Laya3D";
+import { CameraMoveScript } from "../common/CameraMoveScript";
 export class PhysicsWorld_RayShapeCast {
     constructor() {
         //声明一些使用到的全局变量

@@ -1,12 +1,12 @@
-import { Laya3D } from "Laya3D";
 import { Laya } from "Laya";
-import { CameraMoveScript } from "../common/CameraMoveScript";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Stage } from "laya/display/Stage";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
+import { Laya3D } from "Laya3D";
+import { CameraMoveScript } from "../common/CameraMoveScript";
 /**
  * ...
  * @author ...

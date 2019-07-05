@@ -415,7 +415,7 @@ export class Context {
 	_clipInCache: boolean = false; 	// 当前记录的clipinfo是在cacheas normal后赋值的，因为cacheas normal会去掉当前矩阵的tx，ty，所以需要记录一下，以便在是shader中恢复
 	/**@internal */
 	_clipInfoID: number = 0;					//用来区分是不是clipinfo已经改变了
-	private static _clipID_Gen: number = 0;			//生成clipid的，原来是  _clipInfoID=++_clipInfoID 这样会有问题，导致兄弟clip的id都相同
+	private _clipID_Gen: number = 0;			//生成clipid的，原来是  _clipInfoID=++_clipInfoID 这样会有问题，导致兄弟clip的id都相同
 	/**@internal */
 	_curMat: Matrix = null;
 
@@ -1767,9 +1767,9 @@ export class Context {
 			this._clipRect.x = x;
 			this._clipRect.y = y;
 		}
-		Context._clipID_Gen++;
-		Context._clipID_Gen %= 10000;
-		this._clipInfoID = Context._clipID_Gen;
+		this._clipID_Gen++;
+		this._clipID_Gen %= 10000;
+		this._clipInfoID = this._clipID_Gen;
 		var cm: Matrix = this._globalClipMatrix;
 		//TEMP 处理clip交集问题，这里有点问题，无法处理旋转，翻转 是临时瞎写的
 		var minx: number = cm.tx;
@@ -1829,8 +1829,6 @@ export class Context {
 			}
 		}
 		//TEMP end
-
-
 	}
 
 	/**
@@ -1885,6 +1883,7 @@ export class Context {
 	}
 
 	flush(): number {
+        this._clipID_Gen=0;
 		var ret: number = this.submitElement(0, this._submits._length);
 		this._path && this._path.reset();
 		SkinMeshBuffer.instance && SkinMeshBuffer.getInstance().reset();

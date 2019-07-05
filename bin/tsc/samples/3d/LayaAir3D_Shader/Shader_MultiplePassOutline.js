@@ -1,19 +1,19 @@
-import { Laya3D } from "Laya3D";
 import { Laya } from "Laya";
-import { MultiplePassOutlineMaterial } from "./customMaterials/MultiplePassOutlineMaterial";
-import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Camera } from "laya/d3/core/Camera";
-import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
+import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Quaternion } from "laya/d3/math/Quaternion";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Mesh } from "laya/d3/resource/models/Mesh";
 import { Shader3D } from "laya/d3/shader/Shader3D";
 import { Stage } from "laya/display/Stage";
+import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Texture2D } from "laya/resource/Texture2D";
+import { Laya3D } from "Laya3D";
+import { CameraMoveScript } from "../common/CameraMoveScript";
+import { MultiplePassOutlineMaterial } from "./customMaterials/MultiplePassOutlineMaterial";
 export class Shader_MultiplePassOutline {
     constructor() {
         this.rotation = new Vector3(0, 0.01, 0);

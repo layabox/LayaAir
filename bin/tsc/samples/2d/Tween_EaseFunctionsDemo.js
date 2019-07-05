@@ -4,6 +4,8 @@ import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
 import { Text } from "laya/display/Text";
 import { Event } from "laya/events/Event";
+import { Box } from "laya/ui/Box";
+import { Label } from "laya/ui/Label";
 import { List } from "laya/ui/List";
 import { Ease } from "laya/utils/Ease";
 import { Handler } from "laya/utils/Handler";
@@ -97,8 +99,6 @@ export class Tween_EaseFunctionsDemo {
         }
     }
 }
-import { Box } from "laya/ui/Box";
-import { Label } from "laya/ui/Label";
 class ListItemRender extends Box {
     constructor() {
         super();

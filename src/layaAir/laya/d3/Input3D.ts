@@ -48,21 +48,18 @@ export class Input3D {
 	 */
 	__init__(canvas: any, scene: Scene3D): void {
 		this._scene = scene;
-		var list: any[] = this._eventList;
 		canvas.oncontextmenu = function (e: any): any {
 			return false;
 		}
-
-
 	}
 
 	/**
 	 * @internal
 	 */
-	private _pushEventList(e: any): void {
+	private _pushEventList: Function = ((e: any) => {
 		e.preventDefault();
 		this._eventList.push(e);
-	}
+	}).bind(this);
 
 	/**
 	 * @internal
@@ -90,6 +87,7 @@ export class Input3D {
 		canvas.removeEventListener("touchmove", this._pushEventList, true);
 		canvas.removeEventListener("touchcancel", this._pushEventList, true);
 		this._eventList.length = 0;
+		this._touches.length = 0;
 	}
 
 	/**

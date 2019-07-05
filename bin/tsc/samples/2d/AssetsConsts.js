@@ -1,8 +1,8 @@
 /**
-     * 配置文件管理
-     * ...
-     * @author anling
-     */
+ * 配置文件管理
+ * ...
+ * @author anling
+ */
 export class AssetsConsts {
     /*
      * 图片资源

@@ -1,7 +1,6 @@
 import { Utils } from "laya/utils/Utils";
 export class Network_XML {
     constructor() {
-        //			Laya.init(550, 400);
         this.setup();
     }
     setup() {

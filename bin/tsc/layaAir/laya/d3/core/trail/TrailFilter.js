@@ -5,8 +5,8 @@ import { Gradient } from "../Gradient";
 import { GradientMode } from "../GradientMode";
 import { RenderElement } from "../render/RenderElement";
 import { TextureMode } from "../TextureMode";
-import { TrailGeometry } from "././TrailGeometry";
-import { TrailMaterial } from "././TrailMaterial";
+import { TrailGeometry } from "./TrailGeometry";
+import { TrailMaterial } from "./TrailMaterial";
 import { Shader3D } from "../../../d3/shader/Shader3D";
 /**
  * <code>TrailFilter</code> 类用于创建拖尾过滤器。

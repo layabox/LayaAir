@@ -1,6 +1,4 @@
-import { Laya3D } from "Laya3D";
 import { Laya } from "Laya";
-import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Camera } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
@@ -9,6 +7,8 @@ import { Stage } from "laya/display/Stage";
 import { Loader } from "laya/net/Loader";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
+import { Laya3D } from "Laya3D";
+import { CameraMoveScript } from "../common/CameraMoveScript";
 export class SkinnedMeshSprite3DDemo {
     constructor() {
         //初始化引擎

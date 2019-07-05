@@ -1,9 +1,8 @@
 import { AnimatorStateScript } from "laya/d3/animation/AnimatorStateScript";
 /**
- * ...
+ * 继承自AnimatorStateScript(动画状态脚本)
  * @author ...
  */
-//继承自AnimatorStateScript(动画状态脚本)
 export class AnimatorStateScriptTest extends AnimatorStateScript {
     constructor() {
         super();
@@ -16,8 +15,8 @@ export class AnimatorStateScriptTest extends AnimatorStateScript {
         this._text = value;
     }
     /**
-    * 动画状态开始时执行。
-    */
+     * 动画状态开始时执行。
+     */
     /*override*/ onStateEnter() {
         console.log("动画开始播放了");
         this._text.text = "动画状态：动画开始播放";

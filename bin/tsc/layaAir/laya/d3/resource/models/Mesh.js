@@ -32,16 +32,20 @@ export class Mesh extends Resource {
         /** @internal */
         this._tempVector32 = new Vector3();
         /** @internal */
-        this._minVerticesUpdate = Number.MAX_VALUE;
+        this._minVerticesUpdate = -1;
         /** @internal */
-        this._maxVerticesUpdate = Number.MIN_VALUE;
+        this._maxVerticesUpdate = -1;
+        /** @internal */
+        this._needUpdateBounds = true;
+        /** @internal */
+        this._bounds = new Bounds(new Vector3(), new Vector3());
         /** @internal */
         this._bufferState = new BufferState();
         /** @internal */
         this._instanceBufferState = new BufferState();
-        /** */
+        /** @internal */
         this._vertexBuffer = null;
-        /** */
+        /** @internal */
         this._indexBuffer = null;
         /** @internal */
         this._vertexCount = 0;
@@ -103,11 +107,14 @@ export class Mesh extends Resource {
         return this._subMeshes.length;
     }
     /**
-     * 获取边界
-     * @return 边界。
+     * 边界。
      */
     get bounds() {
         return this._bounds;
+    }
+    set bounds(value) {
+        if (this._bounds !== value)
+            value.cloneTo(this._bounds);
     }
     /**
      * @internal
@@ -124,30 +131,6 @@ export class Mesh extends Resource {
     /**
      * @internal
      */
-    _generateBoundingObject() {
-        var min = this._tempVector30;
-        var max = this._tempVector31;
-        min.x = min.y = min.z = Number.MAX_VALUE;
-        max.x = max.y = max.z = -Number.MAX_VALUE;
-        var vertexBuffer = this._vertexBuffer;
-        var positionElement = this._getPositionElement(vertexBuffer);
-        var verticesData = vertexBuffer.getFloat32Data();
-        var floatCount = vertexBuffer.vertexDeclaration.vertexStride / 4;
-        var posOffset = positionElement._offset / 4;
-        for (var j = 0, m = verticesData.length; j < m; j += floatCount) {
-            var ofset = j + posOffset;
-            var pX = verticesData[ofset];
-            var pY = verticesData[ofset + 1];
-            var pZ = verticesData[ofset + 2];
-            min.x = Math.min(min.x, pX);
-            min.y = Math.min(min.y, pY);
-            min.z = Math.min(min.z, pZ);
-            max.x = Math.max(max.x, pX);
-            max.y = Math.max(max.y, pY);
-            max.z = Math.max(max.z, pZ);
-        }
-        this._bounds = new Bounds(min, max);
-    }
     _getVerticeElementData(data, elementUsage) {
         data.length = this._vertexCount;
         var verDec = this._vertexBuffer.vertexDeclaration;
@@ -198,6 +181,9 @@ export class Mesh extends Resource {
             }
         }
     }
+    /**
+     * @internal
+     */
     _setVerticeElementData(data, elementUsage) {
         var verDec = this._vertexBuffer.vertexDeclaration;
         var element = verDec.getVertexElementByUsage(elementUsage);
@@ -299,7 +285,7 @@ export class Mesh extends Resource {
         this._subMeshes = subMeshes;
         for (var i = 0, n = subMeshes.length; i < n; i++)
             subMeshes[i]._indexInMesh = i;
-        this._generateBoundingObject();
+        this.calculateBounds();
     }
     /**
      * @internal
@@ -359,10 +345,11 @@ export class Mesh extends Resource {
     _uploadVerticesData() {
         var min = this._minVerticesUpdate;
         var max = this._maxVerticesUpdate;
-        if (min !== Number.MAX_VALUE && this._maxVerticesUpdate !== Number.MIN_VALUE) {
-            this._vertexBuffer.setData(this._vertexBuffer.getUint8Data().buffer, min * 4, min * 4, (max - min) * 4);
-            this._minVerticesUpdate = Number.MAX_VALUE;
-            this._maxVerticesUpdate = Number.MIN_VALUE;
+        if (min !== -1 && max !== -1) {
+            var offset = min * 4;
+            this._vertexBuffer.setData(this._vertexBuffer.getUint8Data().buffer, offset, offset, (max - min) * 4);
+            this._minVerticesUpdate = -1;
+            this._maxVerticesUpdate = -1;
         }
     }
     /**
@@ -388,10 +375,13 @@ export class Mesh extends Resource {
      * @param positions 位置。
      */
     setPositions(positions) {
-        if (this._isReadable)
+        if (this._isReadable) {
             this._setVerticeElementData(positions, VertexMesh.MESH_POSITION0);
-        else
+            this._needUpdateBounds = true;
+        }
+        else {
             throw "Mesh:setPosition() need isReadable must be true or use setVertices().";
+        }
     }
     /**
      * 拷贝并填充颜色数据至数组。
@@ -566,10 +556,11 @@ export class Mesh extends Resource {
     }
     /**
     * 设置顶点数据。
-    * @param boneWeights 骨骼权重。
+    * @param vertices 顶点数据。
     */
     setVertices(vertices) {
-        return this._vertexBuffer.setData(vertices);
+        this._vertexBuffer.setData(vertices);
+        this._needUpdateBounds = true;
     }
     /**
      * 拷贝并获取网格索引数据的副本。
@@ -578,7 +569,7 @@ export class Mesh extends Resource {
         if (this._isReadable)
             return this._indexBuffer.getData().slice();
         else
-            throw "SubMesh:can't get indices on subMesh,mesh's isReadable must be true.";
+            throw "Mesh:can't get indices on subMesh,mesh's isReadable must be true.";
     }
     /**
      * 设置网格索引。
@@ -586,6 +577,42 @@ export class Mesh extends Resource {
      */
     setIndices(indices) {
         this._indexBuffer.setData(indices);
+    }
+    /**
+     * 从模型位置数据生成包围盒。
+     */
+    calculateBounds() {
+        if (this._isReadable) {
+            if (this._needUpdateBounds) {
+                var min = this._tempVector30;
+                var max = this._tempVector31;
+                min.x = min.y = min.z = Number.MAX_VALUE;
+                max.x = max.y = max.z = -Number.MAX_VALUE;
+                var vertexBuffer = this._vertexBuffer;
+                var positionElement = this._getPositionElement(vertexBuffer);
+                var verticesData = vertexBuffer.getFloat32Data();
+                var floatCount = vertexBuffer.vertexDeclaration.vertexStride / 4;
+                var posOffset = positionElement._offset / 4;
+                for (var j = 0, m = verticesData.length; j < m; j += floatCount) {
+                    var ofset = j + posOffset;
+                    var pX = verticesData[ofset];
+                    var pY = verticesData[ofset + 1];
+                    var pZ = verticesData[ofset + 2];
+                    min.x = Math.min(min.x, pX);
+                    min.y = Math.min(min.y, pY);
+                    min.z = Math.min(min.z, pZ);
+                    max.x = Math.max(max.x, pX);
+                    max.y = Math.max(max.y, pY);
+                    max.z = Math.max(max.z, pZ);
+                }
+                this._bounds.setMin(min);
+                this._bounds.setMax(max);
+                this._needUpdateBounds = false;
+            }
+        }
+        else {
+            throw "Mesh:can't calculate bounds on subMesh,mesh's isReadable must be true.";
+        }
     }
     /**
      * 克隆。

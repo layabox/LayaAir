@@ -15,7 +15,6 @@ import { FrustumCulling } from "../../graphics/FrustumCulling"
 export class TrailRenderer extends BaseRender {
 	constructor(owner: TrailSprite3D) {
 		super(owner);
-		this._supportOctree = false;
 	}
 
 	/**

@@ -2,8 +2,6 @@ import { Resource } from "../../../resource/Resource";
 import { Handler } from "../../../utils/Handler";
 import { Bounds } from "../../core/Bounds";
 import { IClone } from "../../core/IClone";
-import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
-import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { VertexDeclaration } from "../../graphics/VertexDeclaration";
 import { Color } from "../../math/Color";
 import { Matrix4x4 } from "../../math/Matrix4x4";
@@ -23,10 +21,6 @@ export declare class Mesh extends Resource implements IClone {
      * @param complete 完成回掉。
      */
     static load(url: string, complete: Handler): void;
-    /** */
-    _vertexBuffer: VertexBuffer3D;
-    /** */
-    _indexBuffer: IndexBuffer3D;
     /**
      * 获取网格的全局默认绑定动作逆矩阵。
      * @return  网格的全局默认绑定动作逆矩阵。
@@ -46,17 +40,14 @@ export declare class Mesh extends Resource implements IClone {
      */
     readonly subMeshCount: number;
     /**
-     * 获取边界
-     * @return 边界。
+     * 边界。
      */
-    readonly bounds: Bounds;
+    bounds: Bounds;
     /**
      * 创建一个 <code>Mesh</code> 实例,禁止使用。
      * @param isReadable 是否可读。
      */
     constructor(isReadable?: boolean);
-    private _getVerticeElementData;
-    private _setVerticeElementData;
     /**
      * @inheritDoc
      * @override
@@ -158,7 +149,7 @@ export declare class Mesh extends Resource implements IClone {
     getVertices(): ArrayBuffer;
     /**
     * 设置顶点数据。
-    * @param boneWeights 骨骼权重。
+    * @param vertices 顶点数据。
     */
     setVertices(vertices: ArrayBuffer): void;
     /**
@@ -170,6 +161,10 @@ export declare class Mesh extends Resource implements IClone {
      * @param indices
      */
     setIndices(indices: Uint16Array): void;
+    /**
+     * 从模型位置数据生成包围盒。
+     */
+    calculateBounds(): void;
     /**
      * 克隆。
      * @param	destObject 克隆源。

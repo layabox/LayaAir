@@ -1,7 +1,7 @@
 import { Laya } from "Laya";
-import { Main } from "./../Main";
 import { URL } from "laya/net/URL";
 import { Browser } from "laya/utils/Browser";
+import { Main } from "./../Main";
 export class Network_ProtocolBuffer {
     constructor(maincls) {
         this.ProtoBuf = Browser.window.protobuf;

@@ -1,7 +1,7 @@
 import { Vector3 } from "../../math/Vector3";
 import { FloatKeyframe } from "../FloatKeyframe";
 import { Gradient } from "../Gradient";
-import { TrailSprite3D } from "././TrailSprite3D";
+import { TrailSprite3D } from "./TrailSprite3D";
 /**
  * <code>TrailFilter</code> 类用于创建拖尾过滤器。
  */

@@ -10,6 +10,7 @@ import { Context } from "../resource/Context";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { Texture } from "../resource/Texture";
 import { Handler } from "../utils/Handler";
+import { Texture2D } from "../resource/Texture2D";
 /**在显示对象上按下后调度。
  * @eventType Event.MOUSE_DOWN
  * */
@@ -419,6 +420,13 @@ export declare class Sprite extends Node {
      */
     drawToTexture(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number): Texture;
     /**
+     * 把当前对象渲染到指定的贴图上。贴图由外部指定，避免每次都创建。
+     * @param offx
+     * @param offy
+     * @param tex 输出渲染结果
+     */
+    drawToTexture3D(offx: number, offy: number, tex: Texture2D): void;
+    /**
      * @private
      * 绘制到画布。
      */
@@ -427,7 +435,7 @@ export declare class Sprite extends Node {
      * @private
      *
      */
-    static drawToTexture: Function;
+    static drawToTexture: (sprite: Sprite, _renderType: number, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number) => Texture;
     /**
      * <p>自定义更新、呈现显示对象。一般用来扩展渲染模式，请合理使用，可能会导致在加速器上无法渲染。</p>
      * <p><b>注意</b>不要在此函数内增加或删除树节点，否则会对树节点遍历造成影响。</p>

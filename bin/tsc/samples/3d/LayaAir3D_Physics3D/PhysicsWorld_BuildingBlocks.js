@@ -1,9 +1,8 @@
 import { Laya } from "Laya";
-import { Laya3D } from "Laya3D";
 import { Camera } from "laya/d3/core/Camera";
-import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
+import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Ray } from "laya/d3/math/Ray";
 import { Vector2 } from "laya/d3/math/Vector2";
@@ -17,9 +16,10 @@ import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
 import { MouseManager } from "laya/events/MouseManager";
+import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Texture2D } from "laya/resource/Texture2D";
+import { Laya3D } from "Laya3D";
 export class PhysicsWorld_BuildingBlocks {
     constructor() {
         this.ray = new Ray(new Vector3(0, 0, 0), new Vector3(0, 0, 0));

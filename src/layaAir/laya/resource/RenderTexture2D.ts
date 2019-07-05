@@ -311,7 +311,7 @@ import { ILaya } from "../../ILaya";
 		/**
 		 * @inheritDoc
 		 */
-		/*override*/ protected _disposeResource():void {
+		/*override*/ _disposeResource():void {
 			if (this._frameBuffer) {
 				var gl:WebGL2RenderingContext = LayaGL.instance;
 				gl.deleteTexture(this._glTexture);

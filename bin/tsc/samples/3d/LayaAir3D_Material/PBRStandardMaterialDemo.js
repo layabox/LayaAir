@@ -1,6 +1,4 @@
-import { Laya3D } from "Laya3D";
 import { Laya } from "Laya";
-import { CameraMoveScript } from "../common/CameraMoveScript";
 import { BaseCamera } from "laya/d3/core/BaseCamera";
 import { BaseMaterial } from "laya/d3/core/material/BaseMaterial";
 import { PBRStandardMaterial } from "laya/d3/core/material/PBRStandardMaterial";
@@ -9,9 +7,11 @@ import { Vector4 } from "laya/d3/math/Vector4";
 import { SkyBox } from "laya/d3/resource/models/SkyBox";
 import { Shader3D } from "laya/d3/shader/Shader3D";
 import { Stage } from "laya/display/Stage";
+import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Texture2D } from "laya/resource/Texture2D";
+import { Laya3D } from "Laya3D";
+import { CameraMoveScript } from "../common/CameraMoveScript";
 /**
  * ...
  * @author ...

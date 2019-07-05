@@ -1,10 +1,8 @@
-import { Laya3D } from "Laya3D";
 import { Laya } from "Laya";
-import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Camera } from "laya/d3/core/Camera";
-import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
+import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Vector4 } from "laya/d3/math/Vector4";
@@ -16,9 +14,11 @@ import { SphereColliderShape } from "laya/d3/physics/shape/SphereColliderShape";
 import { Mesh } from "laya/d3/resource/models/Mesh";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
+import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Texture2D } from "laya/resource/Texture2D";
+import { Laya3D } from "Laya3D";
+import { CameraMoveScript } from "../common/CameraMoveScript";
 export class PhysicsWorld_CompoundCollider {
     constructor() {
         this.tmpVector = new Vector3(0, 0, 0);

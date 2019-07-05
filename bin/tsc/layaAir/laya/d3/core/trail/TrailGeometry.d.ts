@@ -1,6 +1,6 @@
 import { GeometryElement } from "../GeometryElement";
 import { RenderContext3D } from "../render/RenderContext3D";
-import { TrailFilter } from "././TrailFilter";
+import { TrailFilter } from "./TrailFilter";
 /**
  * <code>TrailGeometry</code> 类用于创建拖尾渲染单元。
  */
@@ -10,6 +10,8 @@ export declare class TrailGeometry extends GeometryElement {
     /** 轨迹准线_面向运动方向。*/
     static ALIGNMENT_TRANSFORM_Z: number;
     private tmpColor;
+    /** @private */
+    private _disappearBoundsMode;
     constructor(owner: TrailFilter);
     /**
      * @inheritDoc
