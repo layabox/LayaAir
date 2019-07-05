@@ -48,35 +48,30 @@ export class Input3D {
 	 */
 	__init__(canvas: any, scene: Scene3D): void {
 		this._scene = scene;
-		var list: any[] = this._eventList;
 		canvas.oncontextmenu = function (e: any): any {
 			return false;
 		}
-
-
 	}
-
-	private _pushEventListThis: Function = this._pushEventList.bind(this);
 
 	/**
 	 * @internal
 	 */
-	private _pushEventList(e: any): void {
+	private _pushEventList: Function = ((e: any) => {
 		e.preventDefault();
 		this._eventList.push(e);
-	}
+	}).bind(this);
 
 	/**
 	 * @internal
 	 */
 	_onCanvasEvent(canvas: any): void {
-		canvas.addEventListener('mousedown', this._pushEventListThis);
-		canvas.addEventListener('mouseup', this._pushEventListThis, true);
-		canvas.addEventListener('mousemove', this._pushEventListThis, true);
-		canvas.addEventListener("touchstart", this._pushEventListThis);
-		canvas.addEventListener("touchend", this._pushEventListThis, true);
-		canvas.addEventListener("touchmove", this._pushEventListThis, true);
-		canvas.addEventListener("touchcancel", this._pushEventListThis, true);
+		canvas.addEventListener('mousedown', this._pushEventList);
+		canvas.addEventListener('mouseup', this._pushEventList, true);
+		canvas.addEventListener('mousemove', this._pushEventList, true);
+		canvas.addEventListener("touchstart", this._pushEventList);
+		canvas.addEventListener("touchend", this._pushEventList, true);
+		canvas.addEventListener("touchmove", this._pushEventList, true);
+		canvas.addEventListener("touchcancel", this._pushEventList, true);
 		//e.preventDefault()会导致debugger中断后touchcancel无法执行,抛异常
 	}
 
@@ -84,13 +79,13 @@ export class Input3D {
 	 * @internal
 	 */
 	_offCanvasEvent(canvas: any): void {
-		canvas.removeEventListener('mousedown', this._pushEventListThis);
-		canvas.removeEventListener('mouseup', this._pushEventListThis, true);
-		canvas.removeEventListener('mousemove', this._pushEventListThis, true);
-		canvas.removeEventListener("touchstart", this._pushEventListThis);
-		canvas.removeEventListener("touchend", this._pushEventListThis, true);
-		canvas.removeEventListener("touchmove", this._pushEventListThis, true);
-		canvas.removeEventListener("touchcancel", this._pushEventListThis, true);
+		canvas.removeEventListener('mousedown', this._pushEventList);
+		canvas.removeEventListener('mouseup', this._pushEventList, true);
+		canvas.removeEventListener('mousemove', this._pushEventList, true);
+		canvas.removeEventListener("touchstart", this._pushEventList);
+		canvas.removeEventListener("touchend", this._pushEventList, true);
+		canvas.removeEventListener("touchmove", this._pushEventList, true);
+		canvas.removeEventListener("touchcancel", this._pushEventList, true);
 		this._eventList.length = 0;
 	}
 
