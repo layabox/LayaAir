@@ -12,7 +12,7 @@ export class PerformanceTest_Cartoon {
         this.Main = null;
         this.Main = maincls;
         // 不支持WebGL时自动切换至Canvas
-        //			Laya.init(Browser.width, Browser.height, WebGL);
+        // Laya.init(Browser.width, Browser.height, WebGL);
         Laya.stage.bgColor = "#232628";
         Stat.show();
         Laya.loader.load("res/cartoonCharacters/cartoonCharactors.json", Handler.create(this, this.createCharacters), null, Loader.ATLAS);

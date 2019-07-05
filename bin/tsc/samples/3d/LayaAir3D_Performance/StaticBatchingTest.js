@@ -1,10 +1,10 @@
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Loader } from "laya/net/Loader";
+import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
-import { Handler } from "laya/utils/Handler";
 /**
  * ...
  * @author ...

@@ -1,12 +1,10 @@
-import { Laya3D } from "Laya3D";
 import { Laya } from "Laya";
-import { Tool } from "../common/Tool";
 import { Camera } from "laya/d3/core/Camera";
-import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
-import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
+import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { PixelLineSprite3D } from "laya/d3/core/pixelLine/PixelLineSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Color } from "laya/d3/math/Color";
 import { Quaternion } from "laya/d3/math/Quaternion";
 import { Vector3 } from "laya/d3/math/Vector3";
@@ -18,6 +16,8 @@ import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
+import { Laya3D } from "Laya3D";
+import { Tool } from "../common/Tool";
 /**
  * ...
  * @author

@@ -30,44 +30,48 @@ export class Input3D {
         this._touches = new SimpleSingletonList();
         /**@internal */
         this._multiTouchEnabled = true;
+        /**
+         * @internal
+         */
+        this._pushEventList = ((e) => {
+            e.preventDefault();
+            this._eventList.push(e);
+        }).bind(this);
     }
     /**
      *@internal
      */
     __init__(canvas, scene) {
         this._scene = scene;
-        var list = this._eventList;
         canvas.oncontextmenu = function (e) {
             return false;
         };
-        canvas.addEventListener('mousedown', function (e) {
-            e.preventDefault();
-            list.push(e);
-        });
-        canvas.addEventListener('mouseup', function (e) {
-            e.preventDefault();
-            list.push(e);
-        }, true);
-        canvas.addEventListener('mousemove', function (e) {
-            e.preventDefault();
-            list.push(e);
-        }, true);
-        canvas.addEventListener("touchstart", function (e) {
-            e.preventDefault();
-            list.push(e);
-        });
-        canvas.addEventListener("touchend", function (e) {
-            e.preventDefault();
-            list.push(e);
-        }, true);
-        canvas.addEventListener("touchmove", function (e) {
-            e.preventDefault();
-            list.push(e);
-        }, true);
-        canvas.addEventListener("touchcancel", function (e) {
-            //e.preventDefault()会导致debugger中断后touchcancel无法执行,抛异常
-            list.push(e);
-        }, true);
+    }
+    /**
+     * @internal
+     */
+    _onCanvasEvent(canvas) {
+        canvas.addEventListener('mousedown', this._pushEventList);
+        canvas.addEventListener('mouseup', this._pushEventList, true);
+        canvas.addEventListener('mousemove', this._pushEventList, true);
+        canvas.addEventListener("touchstart", this._pushEventList);
+        canvas.addEventListener("touchend", this._pushEventList, true);
+        canvas.addEventListener("touchmove", this._pushEventList, true);
+        canvas.addEventListener("touchcancel", this._pushEventList, true);
+        //e.preventDefault()会导致debugger中断后touchcancel无法执行,抛异常
+    }
+    /**
+     * @internal
+     */
+    _offCanvasEvent(canvas) {
+        canvas.removeEventListener('mousedown', this._pushEventList);
+        canvas.removeEventListener('mouseup', this._pushEventList, true);
+        canvas.removeEventListener('mousemove', this._pushEventList, true);
+        canvas.removeEventListener("touchstart", this._pushEventList);
+        canvas.removeEventListener("touchend", this._pushEventList, true);
+        canvas.removeEventListener("touchmove", this._pushEventList, true);
+        canvas.removeEventListener("touchcancel", this._pushEventList, true);
+        this._eventList.length = 0;
     }
     /**
      * 获取触摸点个数。

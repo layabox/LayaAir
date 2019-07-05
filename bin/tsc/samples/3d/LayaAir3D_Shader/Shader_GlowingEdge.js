@@ -17,8 +17,8 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { CustomMaterial } from "./customMaterials/CustomMaterial";
-import GlowingEdgeShaderVS from "./customShader/glowingEdgeShader.vs";
 import GlowingEdgeShaderFS from "./customShader/glowingEdgeShader.fs";
+import GlowingEdgeShaderVS from "./customShader/glowingEdgeShader.vs";
 /**
  * ...
  * @author

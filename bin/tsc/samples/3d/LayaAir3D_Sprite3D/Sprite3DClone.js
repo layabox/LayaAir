@@ -1,13 +1,13 @@
-import { Laya3D } from "Laya3D";
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
-import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Stage } from "laya/display/Stage";
 import { Loader } from "laya/net/Loader";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
+import { Laya3D } from "Laya3D";
 export class Sprite3DClone {
     constructor() {
         //初始化引擎

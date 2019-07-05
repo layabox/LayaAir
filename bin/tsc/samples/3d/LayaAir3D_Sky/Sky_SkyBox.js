@@ -1,6 +1,4 @@
-import { Laya3D } from "Laya3D";
 import { Laya } from "Laya";
-import { CameraMoveScript } from "../common/CameraMoveScript";
 import { BaseCamera } from "laya/d3/core/BaseCamera";
 import { Camera } from "laya/d3/core/Camera";
 import { BaseMaterial } from "laya/d3/core/material/BaseMaterial";
@@ -10,6 +8,8 @@ import { SkyBox } from "laya/d3/resource/models/SkyBox";
 import { Stage } from "laya/display/Stage";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
+import { Laya3D } from "Laya3D";
+import { CameraMoveScript } from "../common/CameraMoveScript";
 export class Sky_SkyBox {
     constructor() {
         //初始化引擎

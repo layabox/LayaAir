@@ -1,8 +1,8 @@
-import { Laya } from "Laya";
 import { ILaya } from "ILaya";
+import { Laya } from "Laya";
+import { TiledMap } from "laya/map/TiledMap";
 import { Rectangle } from "laya/maths/Rectangle";
 import { Handler } from "laya/utils/Handler";
-import { TiledMap } from "laya/map/TiledMap";
 export class TiledMap_PerspectiveWall {
     constructor(maincls) {
         this.Main = null;

@@ -1,5 +1,5 @@
-import { TrailFilter } from "././TrailFilter";
-import { TrailRenderer } from "././TrailRenderer";
+import { TrailFilter } from "./TrailFilter";
+import { TrailRenderer } from "./TrailRenderer";
 import { FloatKeyframe } from "../FloatKeyframe";
 import { Gradient } from "../Gradient";
 import { RenderableSprite3D } from "../RenderableSprite3D";

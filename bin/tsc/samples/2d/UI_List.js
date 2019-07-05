@@ -1,6 +1,7 @@
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Box } from "laya/ui/Box";
+import { Image } from "laya/ui/Image";
 import { List } from "laya/ui/List";
 import { Handler } from "laya/utils/Handler";
 import { WebGL } from "laya/webgl/WebGL";
@@ -78,7 +79,6 @@ export class UI_List {
         console.log("当前选择的索引：" + index);
     }
 }
-import { Image } from "laya/ui/Image";
 class Item extends Box {
     constructor(maincls) {
         super();

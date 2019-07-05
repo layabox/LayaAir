@@ -5,10 +5,10 @@ import { Vector4 } from "laya/d3/math/Vector4";
 import { Shader3D } from "laya/d3/shader/Shader3D";
 import { ShaderDefines } from "laya/d3/shader/ShaderDefines";
 import { SubShader } from "laya/d3/shader/SubShader";
-import OutlineVS from "../customShader/outline.vs";
 import OutlineFS from "../customShader/outline.fs";
-import Outline02VS from "../customShader/outline02.vs";
+import OutlineVS from "../customShader/outline.vs";
 import Outline02FS from "../customShader/outline02.fs";
+import Outline02VS from "../customShader/outline02.vs";
 /**
  * ...
  * @author ...

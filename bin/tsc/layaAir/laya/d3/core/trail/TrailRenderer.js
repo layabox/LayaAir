@@ -10,22 +10,13 @@ export class TrailRenderer extends BaseRender {
     constructor(owner) {
         super(owner);
         this._projectionViewWorldMatrix = new Matrix4x4();
-        this._supportOctree = false;
     }
     /**
      * @inheritDoc
+     * @override
      */
-    /*override*/ _calculateBoundingBox() {
-        var min = this._bounds.getMin();
-        min.x = -Number.MAX_VALUE;
-        min.y = -Number.MAX_VALUE;
-        min.z = -Number.MAX_VALUE;
-        this._bounds.setMin(min);
-        var max = this._bounds.getMax();
-        max.x = Number.MAX_VALUE;
-        max.y = Number.MAX_VALUE;
-        max.z = Number.MAX_VALUE;
-        this._bounds.setMax(max);
+    _calculateBoundingBox() {
+        //TODO:无需转换,直接计算出的包围体就是世界的
         if (Render.supportWebGLPlusCulling) { //[NATIVE]
             var min = this._bounds.getMin();
             var max = this._bounds.getMax();

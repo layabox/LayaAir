@@ -1,5 +1,6 @@
 import { Laya } from "Laya";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
+import { Shader3D } from "laya/d3/shader/Shader3D";
 import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
 import { Loader } from "laya/net/Loader";
@@ -8,7 +9,6 @@ import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
-import { Shader3D } from "laya/d3/shader/Shader3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 /**
  * ...

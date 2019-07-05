@@ -502,7 +502,7 @@ export class Sprite extends Node {
         if (this._boundStyle && this._boundStyle.userBounds)
             return this._boundStyle.userBounds;
         if (!this._graphics && this._children.length === 0 && !this._texture)
-            return Rectangle.TEMP.setTo(0, 0, 0, 0);
+            return Rectangle.TEMP.setTo(0, 0, this.width, this.height); // 如果没有graphics则取对象指定的大小。原来是0000
         //if (_renderType === (SpriteConst.IMAGE | SpriteConst.GRAPHICS)) {
         //_getBoundsStyle();
         //if (!_boundStyle.bounds) _boundStyle.bounds = Rectangle.create();
@@ -1107,6 +1107,15 @@ export class Sprite extends Node {
      */
     drawToTexture(canvasWidth, canvasHeight, offsetX, offsetY) {
         return Sprite.drawToTexture(this, this._renderType, canvasWidth, canvasHeight, offsetX, offsetY);
+    }
+    /**
+     * 把当前对象渲染到指定的贴图上。贴图由外部指定，避免每次都创建。
+     * @param offx
+     * @param offy
+     * @param tex 输出渲染结果
+     */
+    drawToTexture3D(offx, offy, tex) {
+        throw 'not implement';
     }
     /**
      * <p>自定义更新、呈现显示对象。一般用来扩展渲染模式，请合理使用，可能会导致在加速器上无法渲染。</p>

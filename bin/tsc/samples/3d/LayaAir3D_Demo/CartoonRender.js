@@ -3,13 +3,13 @@ import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Vector4 } from "laya/d3/math/Vector4";
+import { CartoonMaterial } from "laya/d3Extend/cartoonMaterial/CartoonMaterial";
 import { Stage } from "laya/display/Stage";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
-import { CartoonMaterial } from "laya/d3Extend/cartoonMaterial/CartoonMaterial";
 /**
  * ...
  * @author

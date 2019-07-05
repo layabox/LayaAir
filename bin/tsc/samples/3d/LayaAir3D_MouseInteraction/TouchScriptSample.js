@@ -1,9 +1,9 @@
-import { Laya3D } from "Laya3D";
 import { Laya } from "Laya";
+import { Script3D } from "laya/d3/component/Script3D";
 import { Camera } from "laya/d3/core/Camera";
-import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
+import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Vector4 } from "laya/d3/math/Vector4";
@@ -16,6 +16,7 @@ import { Stage } from "laya/display/Stage";
 import { Text } from "laya/display/Text";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
+import { Laya3D } from "Laya3D";
 /**
  * ...
  * @author ...
@@ -95,7 +96,6 @@ export class TouchScriptSample {
         script.text = this.text;
     }
 }
-import { Script3D } from "laya/d3/component/Script3D";
 class TouchScript extends Script3D {
     constructor() {
         super(...arguments);

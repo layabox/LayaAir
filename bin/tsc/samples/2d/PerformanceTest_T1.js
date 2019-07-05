@@ -1,4 +1,6 @@
 import { Laya } from "Laya";
+import { Animation } from "laya/display/Animation";
+import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
 import { Text } from "laya/display/Text";
 import { Stat } from "laya/utils/Stat";
@@ -78,8 +80,6 @@ export class PerformanceTest_T1 {
         }
     }
 }
-import { Animation } from "laya/display/Animation";
-import { Sprite } from "laya/display/Sprite";
 class Character extends Sprite {
     constructor(images) {
         super();

@@ -1,15 +1,15 @@
-import { Laya3D } from "Laya3D";
 import { Laya } from "Laya";
-import { CameraMoveScript } from "../common/CameraMoveScript";
+import { Script3D } from "laya/d3/component/Script3D";
 import { Camera } from "laya/d3/core/Camera";
-import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
-import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
+import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Quaternion } from "laya/d3/math/Quaternion";
 import { Ray } from "laya/d3/math/Ray";
 import { Vector2 } from "laya/d3/math/Vector2";
 import { Vector3 } from "laya/d3/math/Vector3";
+import { Vector4 } from "laya/d3/math/Vector4";
 import { HitResult } from "laya/d3/physics/HitResult";
 import { PhysicsCollider } from "laya/d3/physics/PhysicsCollider";
 import { MeshColliderShape } from "laya/d3/physics/shape/MeshColliderShape";
@@ -19,6 +19,8 @@ import { MouseManager } from "laya/events/MouseManager";
 import { Loader } from "laya/net/Loader";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
+import { Laya3D } from "Laya3D";
+import { CameraMoveScript } from "../common/CameraMoveScript";
 /**
  * ...
  * @author ...
@@ -164,8 +166,6 @@ export class MouseInteraction {
         }
     }
 }
-import { Script3D } from "laya/d3/component/Script3D";
-import { Vector4 } from "laya/d3/math/Vector4";
 class SceneScript extends Script3D {
     constructor() {
         super();

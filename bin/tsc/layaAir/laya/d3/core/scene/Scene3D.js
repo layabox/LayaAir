@@ -394,6 +394,20 @@ export class Scene3D extends Sprite {
         return start;
     }
     /**
+     * @internal
+     * @override
+     */
+    onEnable() {
+        this._input._onCanvasEvent(Render.canvas);
+    }
+    /**
+     * @internal
+     * @override
+     */
+    onDisable() {
+        this._input._offCanvasEvent(Render.canvas);
+    }
+    /**
      */
     _setCreateURL(url) {
         this._url = URL.formatURL(url);

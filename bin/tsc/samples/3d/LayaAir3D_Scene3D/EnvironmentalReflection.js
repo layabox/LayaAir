@@ -1,20 +1,20 @@
-import { Laya3D } from "Laya3D";
 import { Laya } from "Laya";
-import { CameraMoveScript } from "../common/CameraMoveScript";
 import { BaseCamera } from "laya/d3/core/BaseCamera";
 import { Camera } from "laya/d3/core/Camera";
-import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BaseMaterial } from "laya/d3/core/material/BaseMaterial";
 import { PBRStandardMaterial } from "laya/d3/core/material/PBRStandardMaterial";
+import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Vector3 } from "laya/d3/math/Vector3";
+import { Mesh } from "laya/d3/resource/models/Mesh";
 import { SkyBox } from "laya/d3/resource/models/SkyBox";
 import { Stage } from "laya/display/Stage";
+import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Texture2D } from "laya/resource/Texture2D";
-import { Mesh } from "laya/d3/resource/models/Mesh";
+import { Laya3D } from "Laya3D";
+import { CameraMoveScript } from "../common/CameraMoveScript";
 export class EnvironmentalReflection {
     constructor() {
         this.rotation = new Vector3(0, 0.01, 0);

@@ -15,8 +15,8 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { CustomMaterial } from "./customMaterials/CustomMaterial";
-import SimpleShaderVS from "./customShader/simpleShader.vs";
 import SimpleShaderFS from "./customShader/simpleShader.fs";
+import SimpleShaderVS from "./customShader/simpleShader.vs";
 /**
  * ...
  * @author ...

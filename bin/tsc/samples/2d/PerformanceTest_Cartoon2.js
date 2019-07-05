@@ -1,4 +1,6 @@
 import { Laya } from "Laya";
+import { Animation } from "laya/display/Animation";
+import { Sprite } from "laya/display/Sprite";
 import { Text } from "laya/display/Text";
 import { Stat } from "laya/utils/Stat";
 import { WebGL } from "laya/webgl/WebGL";
@@ -80,8 +82,6 @@ export class PerformanceTest_Cartoon2 {
         Laya.timer.clear(this, this.gameLoop);
     }
 }
-import { Animation } from "laya/display/Animation";
-import { Sprite } from "laya/display/Sprite";
 class Character extends Sprite {
     constructor(images) {
         super();

@@ -60,5 +60,6 @@ export declare class GraphicsBounds {
      * @return
      */
     private _getPiePoints;
+    private _getTriAngBBXPoints;
     private _getPathPoints;
 }

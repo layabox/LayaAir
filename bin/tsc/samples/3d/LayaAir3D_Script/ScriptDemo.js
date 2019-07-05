@@ -1,16 +1,18 @@
-import { Laya3D } from "Laya3D";
 import { Laya } from "Laya";
+import { Script3D } from "laya/d3/component/Script3D";
 import { Camera } from "laya/d3/core/Camera";
-import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { PBRSpecularMaterial } from "laya/d3/core/material/PBRSpecularMaterial";
+import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Vector3 } from "laya/d3/math/Vector3";
+import { Vector4 } from "laya/d3/math/Vector4";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
+import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Texture2D } from "laya/resource/Texture2D";
+import { Laya3D } from "Laya3D";
 export class ScriptDemo {
     constructor() {
         this._translate = new Vector3(0, 3, 3);
@@ -70,8 +72,6 @@ export class ScriptDemo {
         //boxContro.enabled = false;
     }
 }
-import { Script3D } from "laya/d3/component/Script3D";
-import { Vector4 } from "laya/d3/math/Vector4";
 class BoxControlScript extends Script3D {
     constructor() {
         super();
