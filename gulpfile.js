@@ -35,6 +35,13 @@ gulp.task('LayaAir', () => {
 		'!src/layaAir/laya/d3Extend/vox/**/*.ts', '!src/layaAir/laya/d3Extend/worldMaker/**/*.ts']).pipe(tsProject()).pipe(gulp.dest('bin/tsc/layaAir'));
 });
 
+// 在 shell 中执行一个命令
+var exec = require('child_process').exec;
+gulp.task('BuildSamples', () => {
+	return exec('tsc -p src/samples/tsconfig.json', function() {
+	});
+});
+
 gulp.task('Copy Shaders', () => {
 	return gulp.src([
 		'src/**/*.vs',
@@ -43,5 +50,6 @@ gulp.task('Copy Shaders', () => {
 		.pipe(gulp.dest('bin/tsc'));
 });
 
-gulp.task('Build', gulp.series('Copy Shaders', 'LayaAir'));
+//gulp.task('Build', gulp.series('Copy Shaders', 'LayaAir'));
+gulp.task('Build', gulp.series('Copy Shaders', 'BuildSamples'));
 
