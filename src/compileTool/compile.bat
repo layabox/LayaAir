@@ -1,0 +1,2 @@
+cd ..\layaAir
+gulp Build
