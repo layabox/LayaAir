@@ -15,9 +15,9 @@ gulp.task('default', function () {
 		cache: {},
 		packageCache: {}
 	})
-        //使用tsify插件编译ts
-        .transform(browserifyShader)
-		.plugin(tsify,{project:'tsconfig.browserify.json'})
+		//使用tsify插件编译ts
+		.transform(browserifyShader)
+		.plugin(tsify, { project: 'tsconfig.browserify.json' })
 		.bundle()
 		//使用source把输出文件命名为bundle.js
 		.pipe(source('bundle.js'))
@@ -30,20 +30,17 @@ var ts = require('gulp-typescript');
 var tsProject = ts.createProject('src/layaAir/tsconfig.json');
 
 gulp.task('LayaAir', () => {
-      return new Promise(function (resolve, reject) {
-            gulp.src(['src/layaAir/**/*.ts', '!src/layaAir/laya/d3Extend/Cube/**/*.ts', '!src/layaAir/laya/d3Extend/D3UI/**/*.ts',
-				  '!src/layaAir/laya/d3Extend/lineRender/**/*.ts', '!src/layaAir/laya/d3Extend/physics/**/*.ts', 
-				  '!src/layaAir/laya/d3Extend/vox/**/*.ts', '!src/layaAir/laya/d3Extend/worldMaker/**/*.ts']).pipe(tsProject()).pipe(gulp.dest('bin/tsc/layaAir'));
-            resolve();
-      });
+	return gulp.src(['src/layaAir/**/*.ts', '!src/layaAir/laya/d3Extend/Cube/**/*.ts', '!src/layaAir/laya/d3Extend/D3UI/**/*.ts',
+		'!src/layaAir/laya/d3Extend/lineRender/**/*.ts', '!src/layaAir/laya/d3Extend/physics/**/*.ts',
+		'!src/layaAir/laya/d3Extend/vox/**/*.ts', '!src/layaAir/laya/d3Extend/worldMaker/**/*.ts']).pipe(tsProject()).pipe(gulp.dest('bin/tsc/layaAir'));
 });
 
 gulp.task('Copy Shaders', () => {
-      return new Promise(function (resolve, reject) {
-            gulp.src(['/src/layaAir/laya/d3/shader/files/**/*.vs', '/src/layaAir/laya/d3/shader/files/**/*.ps', '/src/layaAir/d3/shader/files/**/*.glsl'])
-                  .pipe(gulp.dest('bin/tsc/layaAir/laya/d3/shader/files'));
-            resolve();
-      });
+	return gulp.src([
+		'src/**/*.vs',
+		'src/**/*.ps',
+		'src/**/*.glsl'], { base: "src" })
+		.pipe(gulp.dest('bin/tsc'));
 });
 
 gulp.task('Build', gulp.series('Copy Shaders', 'LayaAir'));
