@@ -51,5 +51,5 @@ gulp.task('Copy Shaders', () => {
 });
 
 //gulp.task('Build', gulp.series('Copy Shaders', 'LayaAir'));
-gulp.task('Build', gulp.series('Copy Shaders', 'BuildSamples'));
+gulp.task('Build LayaAir', gulp.series('Copy Shaders', 'BuildSamples'));
 
