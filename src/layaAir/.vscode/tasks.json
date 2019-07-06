@@ -4,11 +4,6 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "type": "gulp",
-            "task": "Build",
-            "problemMatcher": []
-        },
-        {
             "type": "typescript",
             "tsconfig": "tsconfig.json",
             "problemMatcher": [
