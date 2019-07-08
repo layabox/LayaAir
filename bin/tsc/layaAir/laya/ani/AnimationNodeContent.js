@@ -1,5 +1,0 @@
-/**
- * @internal
- */
-export class AnimationNodeContent {
-}
