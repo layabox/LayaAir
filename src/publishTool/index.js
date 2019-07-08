@@ -14,6 +14,9 @@ const path = require("path");
 const emiter_1 = require("./emiter");
 var BaseURL;
 var outfile = "../../build/as/declare/";
+//输出的JS TS目录，相对as文件夹
+var outfileTS = "../../ts/libs/declare/";
+var outfileJS = "../../js/libs/declare/";
 /**加载与写入计数 */
 var complete = 0;
 var progress = 0;
@@ -202,13 +205,12 @@ function checkComplete() {
             console.log("文件转换完成!!!", complete, progress);
             let layaObj = "declare module Laya {\n" + emiter_1.emiter.dtsData + "\n}\n";
             dtsObj += layaObj;
-            createDir("../../ts/libs/");
-            createDir("../../js/libs/");
+            createDir(outfileJS);
+            createDir(outfileTS);
             // if (!fs.existsSync(out))
             //     fs.mkdirSync(out);
-            let jsout,tsout ;
-            jsout = path.join(outfile, "../../js/libs/") + "LayaAir.d.ts";
-            tsout = path.join(outfile, "../../ts/libs/") + "LayaAir.d.ts";
+            let jsout = path.join(outfile, outfileJS) + "LayaAir.d.ts";
+            let tsout = path.join(outfile, outfileTS) + "LayaAir.d.ts";
             fs.writeFile(tsout, dtsObj, err => {
                 if (err)
                     console.log("生成d.ts失败");
