@@ -5,6 +5,15 @@ import { BaseTexture } from "../../resource/BaseTexture"
 import { LayaGL } from "../../layagl/LayaGL";
 import { ILaya } from "../../../ILaya";
 
+// export enum TextureCubeFace {
+// 	PositiveX,
+// 	NegativeX,
+// 	PositiveY,
+// 	NegativeY,
+// 	PositiveZ,
+// 	NegativeZ
+// }
+
 /**
  * <code>TextureCube</code> 类用于生成立方体纹理。
  */
