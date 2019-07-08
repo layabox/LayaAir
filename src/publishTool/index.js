@@ -13,7 +13,10 @@ const fs = require("fs");
 const path = require("path");
 const emiter_1 = require("./emiter");
 var BaseURL;
-var outfile = "./as/";
+var outfile = "../../build/as/declare/";
+//输出的JS TS目录，相对as文件夹
+var outfileTS = "../../ts_compatible/declare/";
+var outfileJS = "../../js/declare/";
 /**加载与写入计数 */
 var complete = 0;
 var progress = 0;
@@ -91,15 +94,21 @@ function readDir(fileUrl) {
         });
     });
 }
+
+var a = 0;
 /**
  * 创建文件夹
  * @param filePath
  */
 function createDir(filePath) {
     // filePath = filePath.replace(BaseURL,'');
-    let url = path.join(outfile, filePath);
-    if (!fs.existsSync(url))
+    let url = path.resolve(outfile, filePath);
+    if (!fs.existsSync(url)){
+        let topUrl = path.join(url,"../");
+        // console.log("_没有这一级检测上一级",topUrl);
+        createDir(topUrl);//创建上一级
         fs.mkdirSync(url);
+    }
 }
 /**
  * 读取文件
@@ -196,14 +205,20 @@ function checkComplete() {
             console.log("文件转换完成!!!", complete, progress);
             let layaObj = "declare module Laya {\n" + emiter_1.emiter.dtsData + "\n}\n";
             dtsObj += layaObj;
-            let out = path.join(outfile, "../ts/");
-            if (!fs.existsSync(out))
-                fs.mkdirSync(out);
-            out += "LayaAir.d.ts";
-            fs.writeFile(out, dtsObj, err => {
+            createDir(outfileJS);
+            createDir(outfileTS);
+            // if (!fs.existsSync(out))
+            //     fs.mkdirSync(out);
+            let jsout = path.join(outfile, outfileJS) + "LayaAir.d.ts";
+            let tsout = path.join(outfile, outfileTS) + "LayaAir.d.ts";
+            fs.writeFile(tsout, dtsObj, err => {
                 if (err)
                     console.log("生成d.ts失败");
-                console.log("生成d.ts成功");
+                fs.writeFile(jsout, dtsObj, err => {
+                    if (err)
+                        console.log("生成d.ts失败");
+                    console.log("生成d.ts成功");
+                });
             });
         }
         else {

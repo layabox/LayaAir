@@ -27,6 +27,7 @@ import { AlphaCmd } from "./cmd/AlphaCmd"
 	import { Utils } from "../utils/Utils"
 import { Graphics } from "./Graphics";
 import { DrawTrianglesCmd } from "./cmd/DrawTrianglesCmd";
+import { Draw9GridTexture } from "./cmd/Draw9GridTexture";
 	
 	/**
 	 * @private
@@ -279,6 +280,9 @@ import { DrawTrianglesCmd } from "./cmd/DrawTrianglesCmd";
                 case DrawTrianglesCmd.ID:
                     GraphicsBounds._addPointArrToRst(rst, this._getTriAngBBXPoints( (cmd as DrawTrianglesCmd).vertices), tMatrix);
                     break;
+                case Draw9GridTexture.ID:
+                    GraphicsBounds._addPointArrToRst(rst, this._getDraw9GridBBXPoints( cmd as Draw9GridTexture), tMatrix);
+                    break;
 				}
 			}
 			if (rst.length > 200) {
@@ -387,7 +391,15 @@ import { DrawTrianglesCmd } from "./cmd/DrawTrianglesCmd";
 
             return [minx,miny, maxx,miny, maxx,maxy, minx,maxy];
         }
-		
+        
+        private _getDraw9GridBBXPoints( cmd:Draw9GridTexture){
+            var minx=0; 
+            var miny=0;
+            var maxx = cmd.width;
+            var maxy = cmd.height;
+            return [minx,miny, maxx,miny, maxx,maxy, minx,maxy];
+        }
+        
 		private _getPathPoints(paths:any[]):any[] {
 			var i:number, len:number;
 			var rst:any[] = GraphicsBounds._tempPoints;
