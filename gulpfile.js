@@ -3,7 +3,7 @@ let gulp = require('gulp');
 
 // 在 shell 中执行一个命令
 var exec = require('child_process').exec;
-gulp.task('CompileTypeScript', () => {
+gulp.task('tsc', () => {
 	return exec('tsc -b src/samples/tsconfig.json', function() {
 	});
 });
@@ -16,5 +16,5 @@ gulp.task('CopyNoneTSFile', () => {
 		.pipe(gulp.dest('bin/tsc'));
 });
 
-gulp.task('Build LayaAir', gulp.series('CompileTypeScript','CopyNoneTSFile'));
+gulp.task('Build LayaAir', gulp.series('tsc','CopyNoneTSFile'));
 
