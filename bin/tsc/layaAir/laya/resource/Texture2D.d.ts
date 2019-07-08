@@ -22,12 +22,6 @@ export declare class Texture2D extends BaseTexture {
     private _canRead;
     /** @private */
     private _pixels;
-    /** @private */
-    private _mipmapCount;
-    /**
-     * 获取mipmap数量。
-     */
-    readonly mipmapCount: number;
     /**
      * @inheritDoc
      */
@@ -41,10 +35,6 @@ export declare class Texture2D extends BaseTexture {
      * @param	canRead 是否可读像素,如果为true,会在内存保留像素数据。
      */
     constructor(width?: number, height?: number, format?: number, mipmap?: boolean, canRead?: boolean);
-    /**
-     * @private
-     */
-    private _getFormatByteCount;
     /**
      * @private
      */
@@ -94,6 +84,7 @@ export declare class Texture2D extends BaseTexture {
     setCompressData(data: ArrayBuffer): void;
     /**
      * @inheritDoc
+     * @override
      */
     protected _recoverResource(): void;
     /**

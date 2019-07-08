@@ -1,127 +1,127 @@
 {
   "program": {
     "fileInfos": {
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es6.d.ts": {
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es6.d.ts": {
         "version": "c180f01a2aaac7d733001fa1db20f881dc83cf33096b674a1546ca26762e69da",
         "signature": "c180f01a2aaac7d733001fa1db20f881dc83cf33096b674a1546ca26762e69da"
       },
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es5.d.ts": {
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es5.d.ts": {
         "version": "1f753cee573dea40df8a9dc873fef5566957b19ad513874f6643d8dfb14842d0",
         "signature": "1f753cee573dea40df8a9dc873fef5566957b19ad513874f6643d8dfb14842d0"
       },
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.d.ts": {
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.d.ts": {
         "version": "7994d44005046d1413ea31d046577cdda33b8b2470f30281fd9c8b3c99fe2d96",
         "signature": "7994d44005046d1413ea31d046577cdda33b8b2470f30281fd9c8b3c99fe2d96"
       },
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2016.d.ts": {
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2016.d.ts": {
         "version": "5f217838d25704474d9ef93774f04164889169ca31475fe423a9de6758f058d1",
         "signature": "5f217838d25704474d9ef93774f04164889169ca31475fe423a9de6758f058d1"
       },
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2017.d.ts": {
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2017.d.ts": {
         "version": "459097c7bdd88fc5731367e56591e4f465f2c9de81a35427a7bd473165c34743",
         "signature": "459097c7bdd88fc5731367e56591e4f465f2c9de81a35427a7bd473165c34743"
       },
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2018.d.ts": {
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2018.d.ts": {
         "version": "2edd3ddf436ef8e12df876dcae4ecd6a8748577944c477bf4b20d5596e0c9843",
         "signature": "2edd3ddf436ef8e12df876dcae4ecd6a8748577944c477bf4b20d5596e0c9843"
       },
-      "c:/work/layaairts/node_modules/typescript/lib/lib.dom.d.ts": {
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.dom.d.ts": {
         "version": "973df4e41aea3780ce77073777d37dd5896f684124f4c42409f3a832133837a4",
         "signature": "973df4e41aea3780ce77073777d37dd5896f684124f4c42409f3a832133837a4"
       },
-      "c:/work/layaairts/node_modules/typescript/lib/lib.dom.iterable.d.ts": {
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.dom.iterable.d.ts": {
         "version": "eb843da29336c7d5840bb439b24cf68a4a1652fd01c6e4e66ec74d8b136e944a",
         "signature": "eb843da29336c7d5840bb439b24cf68a4a1652fd01c6e4e66ec74d8b136e944a"
       },
-      "c:/work/layaairts/node_modules/typescript/lib/lib.webworker.importscripts.d.ts": {
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.webworker.importscripts.d.ts": {
         "version": "fe4e59403e34c7ff747abe4ff6abbc7718229556d7c1a5b93473fb53156c913b",
         "signature": "fe4e59403e34c7ff747abe4ff6abbc7718229556d7c1a5b93473fb53156c913b"
       },
-      "c:/work/layaairts/node_modules/typescript/lib/lib.scripthost.d.ts": {
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.scripthost.d.ts": {
         "version": "b9faa17292f17d2ad75e34fac77dd63a6403af1dba02d39cd0cbb9ffdf3de8b9",
         "signature": "b9faa17292f17d2ad75e34fac77dd63a6403af1dba02d39cd0cbb9ffdf3de8b9"
       },
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.core.d.ts": {
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.core.d.ts": {
         "version": "2a0390a665763bcc90f0670e43c587928d8fefe2a94a11209c1e22cba7b09f52",
         "signature": "2a0390a665763bcc90f0670e43c587928d8fefe2a94a11209c1e22cba7b09f52"
       },
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.collection.d.ts": {
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.collection.d.ts": {
         "version": "dd94d8ef48c562389eb58af8df3a3a34d11367f7c818192aa5f16470d469e3f0",
         "signature": "dd94d8ef48c562389eb58af8df3a3a34d11367f7c818192aa5f16470d469e3f0"
       },
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.generator.d.ts": {
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.generator.d.ts": {
         "version": "828413486bdcaa342558e8e4570b1b287b776cb61b4b70b0214bd10c5d9a94c3",
         "signature": "828413486bdcaa342558e8e4570b1b287b776cb61b4b70b0214bd10c5d9a94c3"
       },
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.iterable.d.ts": {
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.iterable.d.ts": {
         "version": "6c9f73334f8bf47aea685ca5b46a8f7e992a223e96fbceb030f26a4d2324ba21",
         "signature": "6c9f73334f8bf47aea685ca5b46a8f7e992a223e96fbceb030f26a4d2324ba21"
       },
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.promise.d.ts": {
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.promise.d.ts": {
         "version": "e6b8ff2798f8ebd7a1c7afd8671f2cb67ee1901c422f5964d74b0b34c6574ea2",
         "signature": "e6b8ff2798f8ebd7a1c7afd8671f2cb67ee1901c422f5964d74b0b34c6574ea2"
       },
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.proxy.d.ts": {
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.proxy.d.ts": {
         "version": "5e72f949a89717db444e3bd9433468890068bb21a5638d8ab15a1359e05e54fe",
         "signature": "5e72f949a89717db444e3bd9433468890068bb21a5638d8ab15a1359e05e54fe"
       },
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.reflect.d.ts": {
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.reflect.d.ts": {
         "version": "f5b242136ae9bfb1cc99a5971cccc44e99947ae6b5ef6fd8aa54b5ade553b976",
         "signature": "f5b242136ae9bfb1cc99a5971cccc44e99947ae6b5ef6fd8aa54b5ade553b976"
       },
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.symbol.d.ts": {
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.symbol.d.ts": {
         "version": "9ae2860252d6b5f16e2026d8a2c2069db7b2a3295e98b6031d01337b96437230",
         "signature": "9ae2860252d6b5f16e2026d8a2c2069db7b2a3295e98b6031d01337b96437230"
       },
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts": {
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts": {
         "version": "3e0a459888f32b42138d5a39f706ff2d55d500ab1031e0988b5568b0f67c2303",
         "signature": "3e0a459888f32b42138d5a39f706ff2d55d500ab1031e0988b5568b0f67c2303"
       },
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2016.array.include.d.ts": {
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2016.array.include.d.ts": {
         "version": "3f96f1e570aedbd97bf818c246727151e873125d0512e4ae904330286c721bc0",
         "signature": "3f96f1e570aedbd97bf818c246727151e873125d0512e4ae904330286c721bc0"
       },
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2017.object.d.ts": {
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2017.object.d.ts": {
         "version": "ff8ad203e83338289b0f5defc1a5b5c253fb7d251b464db497383f915a0df3f4",
         "signature": "ff8ad203e83338289b0f5defc1a5b5c253fb7d251b464db497383f915a0df3f4"
       },
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2017.sharedmemory.d.ts": {
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2017.sharedmemory.d.ts": {
         "version": "b8667586a618c5cf64523d4e500ae39e781428abfb28f3de441fc66b56144b6f",
         "signature": "b8667586a618c5cf64523d4e500ae39e781428abfb28f3de441fc66b56144b6f"
       },
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2017.string.d.ts": {
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2017.string.d.ts": {
         "version": "21df2e0059f14dcb4c3a0e125859f6b6ff01332ee24b0065a741d121250bc71c",
         "signature": "21df2e0059f14dcb4c3a0e125859f6b6ff01332ee24b0065a741d121250bc71c"
       },
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2017.intl.d.ts": {
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2017.intl.d.ts": {
         "version": "c1759cb171c7619af0d2234f2f8fb2a871ee88e956e2ed91bb61778e41f272c6",
         "signature": "c1759cb171c7619af0d2234f2f8fb2a871ee88e956e2ed91bb61778e41f272c6"
       },
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2017.typedarrays.d.ts": {
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2017.typedarrays.d.ts": {
         "version": "28569d59e07d4378cb3d54979c4c60f9f06305c9bb6999ffe6cab758957adc46",
         "signature": "28569d59e07d4378cb3d54979c4c60f9f06305c9bb6999ffe6cab758957adc46"
       },
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2018.asynciterable.d.ts": {
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2018.asynciterable.d.ts": {
         "version": "42102aaeb1bfec213be1e9777466a6d551eeba8567fed18c0cdbca8c35e3c6e4",
         "signature": "42102aaeb1bfec213be1e9777466a6d551eeba8567fed18c0cdbca8c35e3c6e4"
       },
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2018.intl.d.ts": {
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2018.intl.d.ts": {
         "version": "1b820b57379c726f94af50cd60053674af53ff9d079c1563cc70071e8b757dd0",
         "signature": "1b820b57379c726f94af50cd60053674af53ff9d079c1563cc70071e8b757dd0"
       },
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2018.promise.d.ts": {
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2018.promise.d.ts": {
         "version": "efe049114bad1035b0aa9a4a0359f50ab776e3897c411521e51d3013079cbd62",
         "signature": "efe049114bad1035b0aa9a4a0359f50ab776e3897c411521e51d3013079cbd62"
       },
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2018.regexp.d.ts": {
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2018.regexp.d.ts": {
         "version": "e7780d04cd4120ee554c665829db2bbdd6b947cbaa3c150b7d9ea74df3beb2e8",
         "signature": "e7780d04cd4120ee554c665829db2bbdd6b947cbaa3c150b7d9ea74df3beb2e8"
       },
-      "c:/work/layaairts/node_modules/typescript/lib/lib.esnext.intl.d.ts": {
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.esnext.intl.d.ts": {
         "version": "f6e0c89daaf72eac38dfb1d5ef0972183f7f26a68da15bfe5bcb7cfccf0c7db8",
         "signature": "f6e0c89daaf72eac38dfb1d5ef0972183f7f26a68da15bfe5bcb7cfccf0c7db8"
       },
-      "c:/work/layaairts/node_modules/typescript/lib/lib.esnext.bigint.d.ts": {
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.esnext.bigint.d.ts": {
         "version": "63b66918290d794f73832a6d0325be5026236674fe8c0cb0b68d162000d7bbe8",
         "signature": "63b66918290d794f73832a6d0325be5026236674fe8c0cb0b68d162000d7bbe8"
       },
@@ -486,12 +486,12 @@
         "signature": "e3cc6b8c1e79b7d25ef8ad47c54e56276ff652ac1d72034746d821c92cca925c"
       },
       "c:/work/layaairts/src/layaair/laya/resource/basetexture.ts": {
-        "version": "d40b3d50e0cb9e876b92a813bbb324ac885893d326e7bee9d3a4ab35ec6cb5de",
-        "signature": "85dcb8989fdfb53e09f218b5227b0d84cfe493ccc8d5b8b5864da5ef8ed28db0"
+        "version": "cea56038c9f2b8e8dc463316314f14ef1d748c2dedc7c73a99e8827d2f44a7d1",
+        "signature": "df1e4ed28cc00971fb476c91fbb16718ece12b7a4b3507f04d9a1c3b1f140505"
       },
       "c:/work/layaairts/src/layaair/laya/resource/rendertexture2d.ts": {
-        "version": "6342c9688e4a9b7aa9dce883ba2d0c4e719fe9a236dd6b10872bb7b6f55ad668",
-        "signature": "b3e8928ce634a00c3d72c66a5c26f25388ff81e53beac793fe5e307152ffdae7"
+        "version": "b277e82616d386add7f878cb118494bd41463f5867439a090d04fac19be0fe29",
+        "signature": "34059c5e5225d4cc362121aee9f5aacc2f32dc0746cfeac2274e8c1d72c0e6f5"
       },
       "c:/work/layaairts/src/layaair/laya/resource/webglrtmgr.ts": {
         "version": "b5f6cb3c71d6e4c2c8ed72f02157a6906b64667b94e7b85c8c4dd79c40d41f9d",
@@ -642,8 +642,8 @@
         "signature": "e633ab12f7cdfbe5bf71662f10415bdd3ed7ffef2202a8cf59caff8ee990356a"
       },
       "c:/work/layaairts/src/layaair/laya/resource/context.ts": {
-        "version": "bc5ab7d349dea52521dea2ee20da8dfdee378a1af8391c9e84e6553a65b7dfbd",
-        "signature": "0c35eda527cf3a3a80adbd7fdc4a012c4d1a51076a19d6b2627a0efdae9a6eca"
+        "version": "48224ab4884526f26627b4e0d5b22a584b3e9e4e5208ad0237f223572e3990c9",
+        "signature": "92d927f7e29ac69cb15b15ad61d80db1f8fb96edd1e07c074fb2da97e83e8a77"
       },
       "c:/work/layaairts/src/layaair/laya/resource/htmlcanvas.ts": {
         "version": "cf00c64b87373cc950b307affb7fb3b5c38ace27bfd29fc75745a190064d25f9",
@@ -802,8 +802,8 @@
         "signature": "2c1151121a5c71a00a1a6654a4c64990f87346e590fdd2feb0d7d971ad9fb1b8"
       },
       "c:/work/layaairts/src/layaair/laya/resource/texture2d.ts": {
-        "version": "5c27489a3f1356df236ea5bf39d73ba688eab959b850954ce4aff0bd0261bcdb",
-        "signature": "cdf6acf9ef2d7e2b929722359045d3f3df85ef07678966fbdc1e975ed1039eaa"
+        "version": "069b0316f6f11e7613d7651c8f40ac56793c84baba5b944e392d58841ab253b4",
+        "signature": "4eab8bafcd89d5f16bd73819c527523dda0e562354713cad26e0ff815f1f4eef"
       },
       "c:/work/layaairts/src/layaair/laya/resource/texture.ts": {
         "version": "5c5c39f5af072d8150a4532586a46d2568d3df8ca160779d25bada083ac27113",
@@ -1342,7 +1342,7 @@
         "signature": "f761c91419d0a89422a0004ef1a92929dd4d2d5e5c16758654d8b0467d1998c6"
       },
       "c:/work/layaairts/src/layaair/laya/d3/shader/shaderpass.ts": {
-        "version": "c3c454e64dcc66653d6660b72d5cda925840b5a7c0be34876aa798a546b3fff3",
+        "version": "7ccc7453afe9f8dd831803ea51de206050549542f550476bf239ce5e62b5c368",
         "signature": "f06b477e964bb5d1112978ca7819bd35b819636d60dbebc7d54b02b3c7ea083f"
       },
       "c:/work/layaairts/src/layaair/laya/d3/shader/subshader.ts": {
@@ -1418,7 +1418,7 @@
         "signature": "874740dbbcb6d11e580989cdd607560eea0fd26cd16b46fd15ed12fa14246de3"
       },
       "c:/work/layaairts/src/layaair/laya/d3/resource/models/skyrenderer.ts": {
-        "version": "5c60b1c40027c6e184df0763886adc30353f945d7dcc966231fbb5bd9007a147",
+        "version": "4f3451a815735ed0f02ed799fdcd814b9c869a71672c39706508c9ba2f1dfcd0",
         "signature": "d496385c818d13b7b7a0fef4d5570e36e3b6ab92ef12e631d792283f1e0239d8"
       },
       "c:/work/layaairts/src/layaair/laya/d3/core/basecamera.ts": {
@@ -1450,7 +1450,7 @@
         "signature": "63d9f4740ab7005eb9630dc638781262a710a4096379098c54b2c732ac329f03"
       },
       "c:/work/layaairts/src/layaair/laya/d3/input3d.ts": {
-        "version": "0ca655a9b2dcc56863c5b628db31a3b68c2735002ab694dc4dde6267b38da57c",
+        "version": "237d83814a64398ba5dbdec6be927f80f2c7cc1f0d285cf82d794ce69213dec0",
         "signature": "2a68f5457145d1d15a634f23d584bf3d80e16fe2eaae9ca58f0ced950f83a65a"
       },
       "c:/work/layaairts/src/layaair/laya/d3/graphics/ivertex.ts": {
@@ -1466,8 +1466,8 @@
         "signature": "cb91542d4a878d865afbc67f3c2fe19ff5b6885a76322e3069bce0e80c854f99"
       },
       "c:/work/layaairts/src/layaair/laya/d3/resource/texturecube.ts": {
-        "version": "3a3e12fa0577019f91d9ff6cbdc1ec4bbf224d51f2965bbdcefc0c147124452a",
-        "signature": "b01cbbe7aefececccbd6c644f5eeb0760b63efda86adf03e4eb77fc07a0d081b"
+        "version": "afdd5aea8c69890328362a68a3ca500664b30bea04ea66a42579037d976112d9",
+        "signature": "5c8155a9caf5020bf65226a91741a80008cc8c67e4af789bfda5909e088ef448"
       },
       "c:/work/layaairts/src/layaair/laya/d3/core/material/effectmaterial.ts": {
         "version": "f87ef432d3bbe5f187cbef01e059db6b4b01df07d532d1249fde8e4f7e25b965",
@@ -1744,6 +1744,22 @@
       "c:/work/layaairts/src/layaair/glsl.d.ts": {
         "version": "983e6aff1d05bd3ada2ea5f55dd255d60332ef92243b7616165ca51eec34c81b",
         "signature": "983e6aff1d05bd3ada2ea5f55dd255d60332ef92243b7616165ca51eec34c81b"
+      },
+      "c:/work/layaairts/src/layaair/jslibs/layaair.d.ts": {
+        "version": "dd7c31ee85d16f1941380a12eec7699879255162cd56759cd243c4e5a841df7f",
+        "signature": "dd7c31ee85d16f1941380a12eec7699879255162cd56759cd243c4e5a841df7f"
+      },
+      "c:/work/layaairts/src/layaair/jslibs/layaair.minigame.d.ts": {
+        "version": "ed5e6817bd0113da3a29eb726e7d033d1e94e966cc4f4ec136124c7797e140f1",
+        "signature": "ed5e6817bd0113da3a29eb726e7d033d1e94e966cc4f4ec136124c7797e140f1"
+      },
+      "c:/work/layaairts/src/layaair/jslibs/union.d.ts": {
+        "version": "1e2dcb38c1e4f29bc060f1c9a387d520b7d894a55ec449eaa99fad02151e5c68",
+        "signature": "1e2dcb38c1e4f29bc060f1c9a387d520b7d894a55ec449eaa99fad02151e5c68"
+      },
+      "c:/work/layaairts/src/layaair/jslibs/wx.d.ts": {
+        "version": "ca52d11592742ffa6e2d9f53c93b4462a6d18e4ccbd453b79e517ec14b29fd22",
+        "signature": "ca52d11592742ffa6e2d9f53c93b4462a6d18e4ccbd453b79e517ec14b29fd22"
       },
       "c:/work/layaairts/src/layaair/laya/ani/bone/transform.ts": {
         "version": "f27c6307fbe11138fbc8205b43200cc87bb3f5d9928b44e9679d9b974f425822",
@@ -2777,133 +2793,133 @@
     "options": {
       "target": 2,
       "module": 6,
-      "outDir": "c:/Work/LayaAirTS/bin/tsc/layaAir",
+      "outDir": "C:/Work/LayaAirTS/bin/tsc/layaAir",
       "composite": true,
       "stripInternal": true,
-      "configFilePath": "c:/Work/LayaAirTS/src/layaAir/tsconfig.json"
+      "configFilePath": "C:/Work/LayaAirTS/src/layaAir/tsconfig.json"
     },
     "referencedMap": {
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es6.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es6.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es5.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es5.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2016.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2016.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2017.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2017.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2018.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2018.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.dom.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.dom.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.dom.iterable.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.dom.iterable.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.webworker.importscripts.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.webworker.importscripts.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.scripthost.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.scripthost.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.core.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.core.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.collection.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.collection.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.generator.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.generator.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.iterable.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.iterable.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.promise.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.promise.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.proxy.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.proxy.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.reflect.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.reflect.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.symbol.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.symbol.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2016.array.include.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2016.array.include.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2017.object.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2017.object.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2017.sharedmemory.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2017.sharedmemory.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2017.string.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2017.string.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2017.intl.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2017.intl.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2017.typedarrays.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2017.typedarrays.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2018.asynciterable.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2018.asynciterable.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2018.intl.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2018.intl.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2018.promise.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2018.promise.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2018.regexp.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2018.regexp.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.esnext.intl.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.esnext.intl.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.esnext.bigint.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.esnext.bigint.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
@@ -6987,6 +7003,22 @@
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
+      "c:/work/layaairts/src/layaair/jslibs/layaair.d.ts": [
+        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
+        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
+      ],
+      "c:/work/layaairts/src/layaair/jslibs/layaair.minigame.d.ts": [
+        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
+        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
+      ],
+      "c:/work/layaairts/src/layaair/jslibs/union.d.ts": [
+        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
+        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
+      ],
+      "c:/work/layaairts/src/layaair/jslibs/wx.d.ts": [
+        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
+        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
+      ],
       "c:/work/layaairts/src/layaair/laya/ani/bone/transform.ts": [
         "c:/work/layaairts/src/layaair/laya/maths/matrix.ts",
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
@@ -9158,127 +9190,127 @@
       ]
     },
     "exportedModulesMap": {
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es6.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es6.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es5.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es5.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2016.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2016.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2017.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2017.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2018.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2018.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.dom.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.dom.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.dom.iterable.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.dom.iterable.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.webworker.importscripts.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.webworker.importscripts.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.scripthost.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.scripthost.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.core.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.core.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.collection.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.collection.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.generator.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.generator.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.iterable.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.iterable.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.promise.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.promise.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.proxy.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.proxy.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.reflect.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.reflect.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.symbol.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.symbol.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2016.array.include.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2016.array.include.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2017.object.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2017.object.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2017.sharedmemory.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2017.sharedmemory.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2017.string.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2017.string.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2017.intl.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2017.intl.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2017.typedarrays.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2017.typedarrays.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2018.asynciterable.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2018.asynciterable.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2018.intl.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2018.intl.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2018.promise.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2018.promise.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2018.regexp.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2018.regexp.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.esnext.intl.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.esnext.intl.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
-      "c:/work/layaairts/node_modules/typescript/lib/lib.esnext.bigint.d.ts": [
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.esnext.bigint.d.ts": [
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
@@ -10667,6 +10699,22 @@
         "c:/work/layaairts/node_modules/@types/node/util.d.ts",
         "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
       ],
+      "c:/work/layaairts/src/layaair/jslibs/layaair.d.ts": [
+        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
+        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
+      ],
+      "c:/work/layaairts/src/layaair/jslibs/layaair.minigame.d.ts": [
+        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
+        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
+      ],
+      "c:/work/layaairts/src/layaair/jslibs/union.d.ts": [
+        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
+        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
+      ],
+      "c:/work/layaairts/src/layaair/jslibs/wx.d.ts": [
+        "c:/work/layaairts/node_modules/@types/node/util.d.ts",
+        "c:/work/layaairts/node_modules/@types/node/ts3.2/util.d.ts"
+      ],
       "c:/work/layaairts/src/layaair/laya/ani/bone/transform.ts": [
         "c:/work/layaairts/src/layaair/laya/maths/matrix.ts"
       ],
@@ -11799,37 +11847,37 @@
       ]
     },
     "semanticDiagnosticsPerFile": [
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es6.d.ts",
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es5.d.ts",
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.d.ts",
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2016.d.ts",
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2017.d.ts",
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2018.d.ts",
-      "c:/work/layaairts/node_modules/typescript/lib/lib.dom.d.ts",
-      "c:/work/layaairts/node_modules/typescript/lib/lib.dom.iterable.d.ts",
-      "c:/work/layaairts/node_modules/typescript/lib/lib.webworker.importscripts.d.ts",
-      "c:/work/layaairts/node_modules/typescript/lib/lib.scripthost.d.ts",
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.core.d.ts",
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.collection.d.ts",
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.generator.d.ts",
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.iterable.d.ts",
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.promise.d.ts",
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.proxy.d.ts",
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.reflect.d.ts",
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.symbol.d.ts",
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2016.array.include.d.ts",
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2017.object.d.ts",
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2017.sharedmemory.d.ts",
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2017.string.d.ts",
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2017.intl.d.ts",
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2017.typedarrays.d.ts",
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2018.asynciterable.d.ts",
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2018.intl.d.ts",
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2018.promise.d.ts",
-      "c:/work/layaairts/node_modules/typescript/lib/lib.es2018.regexp.d.ts",
-      "c:/work/layaairts/node_modules/typescript/lib/lib.esnext.intl.d.ts",
-      "c:/work/layaairts/node_modules/typescript/lib/lib.esnext.bigint.d.ts",
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es6.d.ts",
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es5.d.ts",
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.d.ts",
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2016.d.ts",
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2017.d.ts",
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2018.d.ts",
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.dom.d.ts",
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.dom.iterable.d.ts",
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.webworker.importscripts.d.ts",
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.scripthost.d.ts",
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.core.d.ts",
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.collection.d.ts",
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.generator.d.ts",
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.iterable.d.ts",
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.promise.d.ts",
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.proxy.d.ts",
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.reflect.d.ts",
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.symbol.d.ts",
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2016.array.include.d.ts",
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2017.object.d.ts",
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2017.sharedmemory.d.ts",
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2017.string.d.ts",
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2017.intl.d.ts",
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2017.typedarrays.d.ts",
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2018.asynciterable.d.ts",
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2018.intl.d.ts",
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2018.promise.d.ts",
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.es2018.regexp.d.ts",
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.esnext.intl.d.ts",
+      "c:/users/gl333/appdata/roaming/npm/node_modules/typescript/lib/lib.esnext.bigint.d.ts",
       "c:/work/layaairts/src/layaair/config.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/iclone.ts",
       "c:/work/layaairts/src/layaair/laya/d3/math/vector2.ts",
@@ -11846,51 +11894,22 @@
       "c:/work/layaairts/src/layaair/laya/webgl/shader/shaderdefinesbase.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/shaderdefines2d.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/utils/renderstate2d.ts",
-      "c:/work/layaairts/src/layaair/laya/events/event.ts",
       "c:/work/layaairts/src/layaair/laya/utils/handler.ts",
       "c:/work/layaairts/src/layaair/laya/events/eventdispatcher.ts",
-      "c:/work/layaairts/src/layaair/laya/net/url.ts",
       "c:/work/layaairts/src/layaair/laya/resource/icreateresource.ts",
-      "c:/work/layaairts/src/layaair/laya/resource/resource.ts",
       "c:/work/layaairts/src/layaair/laya/resource/bitmap.ts",
       "c:/work/layaairts/src/layaair/laya/filters/ifilter.ts",
-      "c:/work/layaairts/src/layaair/laya/display/css/cachestyle.ts",
-      "c:/work/layaairts/src/layaair/laya/display/css/spritestyle.ts",
-      "c:/work/layaairts/src/layaair/laya/display/css/textstyle.ts",
-      "c:/work/layaairts/src/layaair/laya/display/cmd/alphacmd.ts",
-      "c:/work/layaairts/src/layaair/laya/display/cmd/drawcirclecmd.ts",
-      "c:/work/layaairts/src/layaair/laya/display/cmd/drawcurvescmd.ts",
-      "c:/work/layaairts/src/layaair/laya/display/cmd/drawimagecmd.ts",
-      "c:/work/layaairts/src/layaair/laya/display/cmd/drawlinecmd.ts",
-      "c:/work/layaairts/src/layaair/laya/display/cmd/drawlinescmd.ts",
-      "c:/work/layaairts/src/layaair/laya/display/cmd/drawpathcmd.ts",
-      "c:/work/layaairts/src/layaair/laya/display/cmd/drawpiecmd.ts",
-      "c:/work/layaairts/src/layaair/laya/display/cmd/drawpolycmd.ts",
-      "c:/work/layaairts/src/layaair/laya/display/cmd/drawrectcmd.ts",
-      "c:/work/layaairts/src/layaair/laya/display/cmd/drawtexturecmd.ts",
-      "c:/work/layaairts/src/layaair/laya/display/cmd/filltexturecmd.ts",
-      "c:/work/layaairts/src/layaair/laya/display/cmd/restorecmd.ts",
-      "c:/work/layaairts/src/layaair/laya/display/cmd/rotatecmd.ts",
-      "c:/work/layaairts/src/layaair/laya/display/cmd/scalecmd.ts",
-      "c:/work/layaairts/src/layaair/laya/display/cmd/transformcmd.ts",
-      "c:/work/layaairts/src/layaair/laya/display/cmd/translatecmd.ts",
       "c:/work/layaairts/src/layaair/laya/maths/bezier.ts",
-      "c:/work/layaairts/src/layaair/laya/maths/grahamscan.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/canvas/blendmode.ts",
-      "c:/work/layaairts/src/layaair/laya/utils/colorutils.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/canvas/drawstyle.ts",
       "c:/work/layaairts/src/layaair/laya/utils/istatrender.ts",
       "c:/work/layaairts/src/layaair/laya/utils/stat.ts",
       "c:/work/layaairts/src/layaair/laya/utils/stringkey.ts",
-      "c:/work/layaairts/src/layaair/laya/webgl/utils/inlcudefile.ts",
-      "c:/work/layaairts/src/layaair/laya/webgl/utils/shadernode.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/utils/shadercompile.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/shader/baseshader.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/shader/shadervalue.ts",
-      "c:/work/layaairts/src/layaair/laya/webgl/shader/shader.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/shader2d.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/shader2x.ts",
-      "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/value/value2d.ts",
       "c:/work/layaairts/src/layaair/laya/renders/renderinfo.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/utils/buffer.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/utils/buffer2d.ts",
@@ -11901,129 +11920,40 @@
       "c:/work/layaairts/src/layaair/laya/webgl/bufferstatebase.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/bufferstate2d.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/utils/mesh2d.ts",
-      "c:/work/layaairts/src/layaair/laya/webgl/submit/submitbase.ts",
-      "c:/work/layaairts/src/layaair/laya/renders/render.ts",
-      "c:/work/layaairts/src/layaair/laya/display/cmd/drawtrianglescmd.ts",
-      "c:/work/layaairts/src/layaair/laya/display/graphicsbounds.ts",
       "c:/work/layaairts/src/layaair/laya/display/spriteconst.ts",
-      "c:/work/layaairts/src/layaair/laya/display/cmd/cliprectcmd.ts",
-      "c:/work/layaairts/src/layaair/laya/display/cmd/draw9gridtexture.ts",
-      "c:/work/layaairts/src/layaair/laya/display/cmd/drawtexturescmd.ts",
-      "c:/work/layaairts/src/layaair/laya/display/cmd/fillbordertextcmd.ts",
-      "c:/work/layaairts/src/layaair/laya/display/cmd/fillborderwordscmd.ts",
       "c:/work/layaairts/src/layaair/laya/utils/fontinfo.ts",
       "c:/work/layaairts/src/layaair/laya/utils/wordtext.ts",
-      "c:/work/layaairts/src/layaair/laya/display/cmd/filltextcmd.ts",
-      "c:/work/layaairts/src/layaair/laya/display/cmd/fillwordscmd.ts",
-      "c:/work/layaairts/src/layaair/laya/display/cmd/savecmd.ts",
-      "c:/work/layaairts/src/layaair/laya/display/cmd/stroketextcmd.ts",
-      "c:/work/layaairts/src/layaair/laya/utils/cachemanger.ts",
       "c:/work/layaairts/src/layaair/laya/utils/vectorgraphmanager.ts",
-      "c:/work/layaairts/src/layaair/laya/display/graphics.ts",
-      "c:/work/layaairts/src/layaair/laya/resource/basetexture.ts",
-      "c:/work/layaairts/src/layaair/laya/resource/rendertexture2d.ts",
-      "c:/work/layaairts/src/layaair/laya/resource/webglrtmgr.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/utils/const3d2d.ts",
-      "c:/work/layaairts/src/layaair/laya/webgl/submit/submit.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/utils/meshquadtexture.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/utils/meshtexture.ts",
-      "c:/work/layaairts/src/layaair/laya/webgl/utils/meshvg.ts",
-      "c:/work/layaairts/src/layaair/laya/webgl/canvas/webglcacheasnormalcanvas.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/submit/submitcmd.ts",
-      "c:/work/layaairts/src/layaair/laya/renders/layaglquickrunner.ts",
-      "c:/work/layaairts/src/layaair/laya/renders/rendersprite.ts",
-      "c:/work/layaairts/src/layaair/laya/filters/filter.ts",
-      "c:/work/layaairts/src/layaair/laya/filters/colorfilter.ts",
       "c:/work/layaairts/src/layaair/laya/utils/htmlchar.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/canvas/path.ts",
-      "c:/work/layaairts/src/layaair/laya/webgl/canvas/save/isavedata.ts",
-      "c:/work/layaairts/src/layaair/laya/webgl/canvas/save/savebase.ts",
-      "c:/work/layaairts/src/layaair/laya/webgl/canvas/save/savecliprect.ts",
-      "c:/work/layaairts/src/layaair/laya/webgl/canvas/save/savemark.ts",
-      "c:/work/layaairts/src/layaair/laya/webgl/canvas/save/savetransform.ts",
-      "c:/work/layaairts/src/layaair/laya/webgl/canvas/save/savetranslate.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/skinanishader/skinmeshbuffer.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/shapes/basepoly.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/shapes/earcutnode.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/shapes/earcut.ts",
-      "c:/work/layaairts/src/layaair/laya/webgl/submit/submitcanvas.ts",
-      "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/value/texturesv.ts",
-      "c:/work/layaairts/src/layaair/laya/webgl/submit/submittarget.ts",
-      "c:/work/layaairts/src/layaair/laya/webgl/submit/submittexture.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/text/charrenderinfo.ts",
-      "c:/work/layaairts/src/layaair/laya/webgl/text/charsubmitcache.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/text/atlasgrid.ts",
-      "c:/work/layaairts/src/layaair/laya/webgl/text/texttexture.ts",
-      "c:/work/layaairts/src/layaair/laya/webgl/text/textatlas.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/text/icharrender.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/text/charrender_canvas.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/text/charrender_native.ts",
-      "c:/work/layaairts/src/layaair/laya/webgl/text/textrender.ts",
-      "c:/work/layaairts/src/layaair/laya/resource/context.ts",
-      "c:/work/layaairts/src/layaair/laya/resource/htmlcanvas.ts",
-      "c:/work/layaairts/src/layaair/laya/utils/browser.ts",
-      "c:/work/layaairts/src/layaair/laya/events/touchmanager.ts",
-      "c:/work/layaairts/src/layaair/laya/events/mousemanager.ts",
       "c:/work/layaairts/src/layaair/laya/utils/ease.ts",
-      "c:/work/layaairts/src/layaair/laya/utils/tween.ts",
-      "c:/work/layaairts/src/layaair/laya/utils/dragging.ts",
-      "c:/work/layaairts/src/layaair/laya/utils/calllater.ts",
-      "c:/work/layaairts/src/layaair/laya/utils/timer.ts",
-      "c:/work/layaairts/src/layaair/laya/net/httprequest.ts",
-      "c:/work/layaairts/src/layaair/laya/components/prefab.ts",
       "c:/work/layaairts/src/layaair/laya/media/soundchannel.ts",
       "c:/work/layaairts/src/layaair/laya/media/sound.ts",
-      "c:/work/layaairts/src/layaair/laya/media/h5audio/audiosoundchannel.ts",
-      "c:/work/layaairts/src/layaair/laya/media/h5audio/audiosound.ts",
-      "c:/work/layaairts/src/layaair/laya/media/webaudio/webaudiosoundchannel.ts",
-      "c:/work/layaairts/src/layaair/laya/media/webaudio/webaudiosound.ts",
-      "c:/work/layaairts/src/layaair/laya/net/atlasinfomanager.ts",
-      "c:/work/layaairts/src/layaair/laya/net/loadermanager.ts",
-      "c:/work/layaairts/src/layaair/laya/media/soundmanager.ts",
       "c:/work/layaairts/src/layaair/laya/utils/byte.ts",
-      "c:/work/layaairts/src/layaair/laya/net/ttfloader.ts",
-      "c:/work/layaairts/src/layaair/laya/net/loader.ts",
-      "c:/work/layaairts/src/layaair/laya/utils/hitarea.ts",
-      "c:/work/layaairts/src/layaair/laya/utils/classutils.ts",
-      "c:/work/layaairts/src/layaair/laya/display/animationbase.ts",
       "c:/work/layaairts/src/layaair/laya/maths/mathutil.ts",
-      "c:/work/layaairts/src/layaair/laya/display/frameanimation.ts",
-      "c:/work/layaairts/src/layaair/laya/utils/weakobject.ts",
-      "c:/work/layaairts/src/layaair/laya/net/sceneloader.ts",
-      "c:/work/layaairts/src/layaair/laya/display/scene.ts",
-      "c:/work/layaairts/src/layaair/laya/utils/sceneutils.ts",
-      "c:/work/layaairts/src/layaair/laya/net/workerloader.ts",
-      "c:/work/layaairts/src/layaair/ilaya.ts",
-      "c:/work/layaairts/src/layaair/laya/webgl/webglcontext.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/webgl.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/vertexarrayobject.ts",
-      "c:/work/layaairts/src/layaair/laya/webgl/layagpu.ts",
       "c:/work/layaairts/src/layaair/laya/layagl/layagl.ts",
-      "c:/work/layaairts/src/layaair/laya/resource/texture2d.ts",
-      "c:/work/layaairts/src/layaair/laya/resource/texture.ts",
-      "c:/work/layaairts/src/layaair/laya/display/bitmapfont.ts",
-      "c:/work/layaairts/src/layaair/laya/display/text.ts",
-      "c:/work/layaairts/src/layaair/laya/display/input.ts",
       "c:/work/layaairts/src/layaair/laya/utils/rundriver.ts",
-      "c:/work/layaairts/src/layaair/laya/display/stage.ts",
-      "c:/work/layaairts/src/layaair/laya/utils/utils.ts",
-      "c:/work/layaairts/src/layaair/laya/components/component.ts",
-      "c:/work/layaairts/src/layaair/laya/display/node.ts",
       "c:/work/layaairts/src/layaair/laya/display/css/boundsstyle.ts",
-      "c:/work/layaairts/src/layaair/laya/display/sprite.ts",
       "c:/work/layaairts/src/layaair/laya/d3/component/singletonlist.ts",
-      "c:/work/layaairts/src/layaair/laya/events/keyboardmanager.ts",
       "c:/work/layaairts/src/layaair/laya/layagl/layaglrunner.ts",
       "c:/work/layaairts/src/layaair/laya/net/localstorage.ts",
-      "c:/work/layaairts/src/layaair/laya/utils/statui.ts",
-      "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/skinanishader/skinsv.ts",
-      "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/value/primitivesv.ts",
-      "c:/work/layaairts/src/layaair/laya.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/resource/rendertexture.ts",
       "c:/work/layaairts/src/layaair/laya/d3/shader/definedatas.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/shader/shaderdata.ts",
       "c:/work/layaairts/src/layaair/laya/d3/shader/shaderdefines.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/material/basematerial.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/material/renderstate.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/keyframe.ts",
       "c:/work/layaairts/src/layaair/laya/d3/animation/keyframenode.ts",
@@ -12035,146 +11965,47 @@
       "c:/work/layaairts/src/layaair/laya/d3/math/native/conchvector4.ts",
       "c:/work/layaairts/src/layaair/laya/d3/math/native/conchvector3.ts",
       "c:/work/layaairts/src/layaair/laya/d3/math/native/conchquaternion.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/animation/animationclipparser03.ts",
       "c:/work/layaairts/src/layaair/laya/d3/math/halffloatutils.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/animation/animationclipparser04.ts",
       "c:/work/layaairts/src/layaair/laya/d3/graphics/vertexelement.ts",
       "c:/work/layaairts/src/layaair/laya/d3/graphics/vertexelementformat.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/graphics/vertexdeclaration.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/graphics/vertex/vertexmesh.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/pixelline/pixellinevertex.ts",
       "c:/work/layaairts/src/layaair/laya/d3/math/color.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/pixelline/pixellinedata.ts",
       "c:/work/layaairts/src/layaair/laya/d3/graphics/indexbuffer3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/graphics/vertexbuffer3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/bufferstate.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/geometryelement.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/pixelline/pixellinefilter.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/utils/physics3dutils.ts",
       "c:/work/layaairts/src/layaair/laya/d3/physics/physics3d.ts",
       "c:/work/layaairts/src/layaair/laya/d3/math/ray.ts",
       "c:/work/layaairts/src/layaair/laya/d3/physics/shape/compoundcollidershape.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/shape/collidershape.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/charactercontroller.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/physicsupdatelist.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/hitresult.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/collisiontool.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/physicstriggercomponent.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/rigidbody3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/constraint3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/physicscollider.ts",
       "c:/work/layaairts/src/layaair/laya/d3/physics/physicssettings.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/physicssimulation.ts",
       "c:/work/layaairts/src/layaair/laya/d3/physics/shape/boxcollidershape.ts",
       "c:/work/layaairts/src/layaair/laya/d3/physics/shape/capsulecollidershape.ts",
       "c:/work/layaairts/src/layaair/laya/d3/physics/shape/conecollidershape.ts",
       "c:/work/layaairts/src/layaair/laya/d3/physics/shape/cylindercollidershape.ts",
       "c:/work/layaairts/src/layaair/laya/d3/math/boundbox.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/bounds.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/graphics/dynamicbatchmanager.ts",
       "c:/work/layaairts/src/layaair/laya/d3/component/simplesingletonlist.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/render/renderqueue.ts",
       "c:/work/layaairts/src/layaair/laya/d3/math/plane.ts",
       "c:/work/layaairts/src/layaair/laya/d3/math/boundsphere.ts",
       "c:/work/layaairts/src/layaair/laya/d3/math/containmenttype.ts",
       "c:/work/layaairts/src/layaair/laya/d3/math/collisionutils.ts",
       "c:/work/layaairts/src/layaair/laya/d3/math/boundfrustum.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/scene/ioctreeobject.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/scene/boundsoctreenode.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/scene/octreemotionlist.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/scene/boundsoctree.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/renderablesprite3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/graphics/staticbatchmanager.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/graphics/frustumculling.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/meshsprite3dshaderdeclaration.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/meshfilter.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/meshsprite3d.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/render/batchmark.ts",
       "c:/work/layaairts/src/layaair/laya/resource/idispose.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/graphics/submeshstaticbatch.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/graphics/meshrenderstaticbatchmanager.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/scene/scene3dshaderdeclaration.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/material/blinnphongmaterial.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/meshrenderer.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/skinnedmeshsprite3dshaderdeclaration.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/skinnedmeshrenderer.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/skinnedmeshsprite3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/resource/models/submesh.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/graphics/submeshdynamicbatch.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/graphics/meshrenderdynamicbatchmanager.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/render/submeshrenderelement.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/graphics/submeshinstancebatch.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/loaders/loadmodelv04.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/loaders/loadmodelv05.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/loaders/meshreader.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/resource/models/mesh.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/shape/meshcollidershape.ts",
       "c:/work/layaairts/src/layaair/laya/d3/physics/shape/spherecollidershape.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/physicscomponent.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/contactpoint.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/collision.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/component/script3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/sprite3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/pixelline/pixellinerenderer.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/pixelline/pixellinematerial.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/pixelline/pixellinesprite3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/resource/texturegenerator.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/utils/utils3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/animation/animationclip.ts",
       "c:/work/layaairts/src/layaair/laya/d3/animation/animatorstatescript.ts",
       "c:/work/layaairts/src/layaair/laya/d3/component/keyframenodeowner.ts",
       "c:/work/layaairts/src/layaair/laya/d3/resource/ireferencecounter.ts",
       "c:/work/layaairts/src/layaair/laya/d3/component/animatorstate.ts",
       "c:/work/layaairts/src/layaair/laya/d3/component/animatorplaystate.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/component/animatorcontrollerlayer.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/component/animator.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/avatar.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/animation/animationnode.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/animation/animationtransform3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/transform3d.ts",
       "c:/work/layaairts/src/layaair/laya/d3/shader/shadervariable.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/shader/shaderinstance.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/shader/shaderpass.ts",
       "c:/work/layaairts/src/layaair/laya/d3/shader/subshader.ts",
       "c:/work/layaairts/src/layaair/laya/d3/shader/shader3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/render/screenquad.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/render/screentriangle.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/render/command/command.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/render/command/blitscreenquadcmd.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/render/command/setrendertargetcmd.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/render/command/setshaderdatatexturecmd.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/render/command/commandbuffer.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/render/postprocessrendercontext.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/render/postprocesseffect.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/component/postprocess.ts",
       "c:/work/layaairts/src/layaair/laya/d3/math/viewport.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/shadowmap/parallelsplitshadowmap.ts",
       "c:/work/layaairts/src/layaair/laya/d3/utils/picker.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/camera.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/resource/models/skymesh.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/resource/models/skybox.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/resource/models/skyrenderer.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/basecamera.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/render/rendercontext3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/render/renderelement.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/render/baserender.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/castshadowlist.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/mousetouch.ts",
       "c:/work/layaairts/src/layaair/laya/d3/touch.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/graphics/ivertex.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/graphics/vertex/vertexpositiontexture0.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/resource/models/skydome.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/resource/texturecube.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/material/effectmaterial.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/material/extendterrainmaterial.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/material/pbrspecularmaterial.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/material/pbrstandardmaterial.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/material/skyproceduralmaterial.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/material/unlitmaterial.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/material/waterprimarymaterial.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/gradientmode.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/gradient.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/shurikenparticlematerial.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/gradientcolor.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/coloroverlifetime.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/gradientdataint.ts",
@@ -12185,7 +12016,6 @@
       "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/startframe.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/texturesheetanimation.ts",
       "c:/work/layaairts/src/layaair/laya/d3/math/rand.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/shurikenparticledata.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/burst.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/emission.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/gradientangularvelocity.ts",
@@ -12194,53 +12024,31 @@
       "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/velocityoverlifetime.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/shape/baseshape.ts",
       "c:/work/layaairts/src/layaair/laya/d3/graphics/vertex/vertexshurikenparticle.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/graphics/vertex/vertexshurikenparticlebillboard.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/graphics/vertex/vertexshurikenparticlemesh.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/shurikenparticle3dshaderdeclaration.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/shurikenparticlesystem.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/shurikenparticlerenderer.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/shape/shapeutils.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/shape/boxshape.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/shape/circleshape.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/shape/coneshape.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/shape/hemisphereshape.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/shape/sphereshape.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/shurikenparticle3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/trail/trailmaterial.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/texturemode.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/trail/trailalignment.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/trail/vertextrail.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/trail/trailgeometry.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/trail/trailrenderer.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/trail/trailfilter.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/trail/trailsprite3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/shader/shaderinit3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/light/lightsprite.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/scene/scene3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/light/directionlight.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/light/pointlight.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/light/spotlight.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/utils/scene3dutils.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/material/skyboxmaterial.ts",
       "c:/work/layaairts/src/layaair/laya/d3/physics/shape/staticplanecollidershape.ts",
-      "c:/work/layaairts/src/layaair/laya3d.ts",
-      "c:/work/layaairts/src/layaair/ilaya3d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/math/quaternion.ts",
       "c:/work/layaairts/src/layaair/laya/d3/math/matrix4x4.ts",
       "c:/work/layaairts/src/layaair/laya/d3/math/vector4.ts",
       "c:/work/layaairts/src/layaair/laya/d3/math/vector3.ts",
       "c:/work/layaairts/src/layaair/config3d.ts",
-      "c:/work/layaairts/src/layaair/gcanvas.ts",
       "c:/work/layaairts/src/layaair/packagemgr.ts",
       "c:/work/layaairts/src/layaair/uiconfig.ts",
       "c:/work/layaairts/src/layaair/glsl.d.ts",
+      "c:/work/layaairts/src/layaair/jslibs/layaair.d.ts",
+      "c:/work/layaairts/src/layaair/jslibs/layaair.minigame.d.ts",
+      "c:/work/layaairts/src/layaair/jslibs/union.d.ts",
+      "c:/work/layaairts/src/layaair/jslibs/wx.d.ts",
       "c:/work/layaairts/src/layaair/laya/ani/bone/transform.ts",
-      "c:/work/layaairts/src/layaair/laya/ani/bone/bone.ts",
       "c:/work/layaairts/src/layaair/laya/ani/bone/ikconstraintdata.ts",
-      "c:/work/layaairts/src/layaair/laya/ani/bone/ikconstraint.ts",
       "c:/work/layaairts/src/layaair/laya/ani/bone/pathconstraintdata.ts",
       "c:/work/layaairts/src/layaair/laya/ani/bone/tfconstraintdata.ts",
-      "c:/work/layaairts/src/layaair/laya/ani/bone/deformslotdisplaydata.ts",
       "c:/work/layaairts/src/layaair/laya/ani/bone/deformslotdata.ts",
       "c:/work/layaairts/src/layaair/laya/ani/bone/deformanidata.ts",
       "c:/work/layaairts/src/layaair/laya/ani/bone/draworderdata.ts",
@@ -12248,178 +12056,32 @@
       "c:/work/layaairts/src/layaair/laya/ani/keyframescontent.ts",
       "c:/work/layaairts/src/layaair/laya/ani/animationnodecontent.ts",
       "c:/work/layaairts/src/layaair/laya/ani/animationcontent.ts",
-      "c:/work/layaairts/src/layaair/laya/ani/animationparser01.ts",
-      "c:/work/layaairts/src/layaair/laya/ani/animationparser02.ts",
       "c:/work/layaairts/src/layaair/laya/ani/math/bezierlerp.ts",
-      "c:/work/layaairts/src/layaair/laya/ani/animationtemplet.ts",
       "c:/work/layaairts/src/layaair/laya/ani/bone/skindata.ts",
-      "c:/work/layaairts/src/layaair/laya/ani/bone/skinslotdisplaydata.ts",
-      "c:/work/layaairts/src/layaair/laya/ani/bone/slotdata.ts",
-      "c:/work/layaairts/src/layaair/laya/ani/bone/templet.ts",
-      "c:/work/layaairts/src/layaair/laya/ani/bone/uvtools.ts",
-      "c:/work/layaairts/src/layaair/laya/ani/bone/canvasmesh/meshdata.ts",
-      "c:/work/layaairts/src/layaair/laya/ani/bone/canvasmesh/skinmeshforgraphic.ts",
-      "c:/work/layaairts/src/layaair/laya/ani/graphicsani.ts",
-      "c:/work/layaairts/src/layaair/laya/ani/bone/boneslot.ts",
-      "c:/work/layaairts/src/layaair/laya/ani/bone/pathconstraint.ts",
-      "c:/work/layaairts/src/layaair/laya/ani/bone/tfconstraint.ts",
       "c:/work/layaairts/src/layaair/laya/ani/animationstate.ts",
-      "c:/work/layaairts/src/layaair/laya/ani/animationplayer.ts",
-      "c:/work/layaairts/src/layaair/laya/ani/bone/skeleton.ts",
-      "c:/work/layaairts/src/layaair/laya/ani/anilibpack.ts",
-      "c:/work/layaairts/src/layaair/laya/ani/swf/movieclip.ts",
-      "c:/work/layaairts/src/layaair/laya/components/commonscript.ts",
-      "c:/work/layaairts/src/layaair/laya/components/script.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/heightmap.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/meshterrainsprite3d.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/module/gradientdatavector2.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/core/render/bloomeffect.ts",
       "c:/work/layaairts/src/layaair/laya/d3/core/scene/scenemanager.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/graphics/vertex/vertexpositionterrain.ts",
       "c:/work/layaairts/src/layaair/laya/d3/math/randx.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/physics/constraints/constraintcomponent.ts",
       "c:/work/layaairts/src/layaair/laya/d3/physics/constraints/point2pointconstraint.ts",
       "c:/work/layaairts/src/layaair/laya/d3/physics/shape/heightfieldcollidershape.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/resource/models/primitivemesh.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/text/textmesh.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/utils/size.ts",
-      "c:/work/layaairts/src/layaair/laya/d3extend/filesaver.ts",
-      "c:/work/layaairts/src/layaair/laya/d3extend/cartoonmaterial/cartoonmaterial.ts",
       "c:/work/layaairts/src/layaair/laya/device/motion/accelerationinfo.ts",
       "c:/work/layaairts/src/layaair/laya/device/motion/rotationinfo.ts",
-      "c:/work/layaairts/src/layaair/laya/device/motion/accelerator.ts",
-      "c:/work/layaairts/src/layaair/laya/device/shake.ts",
       "c:/work/layaairts/src/layaair/laya/device/geolocation/geolocationinfo.ts",
-      "c:/work/layaairts/src/layaair/laya/device/geolocation/geolocation.ts",
-      "c:/work/layaairts/src/layaair/laya/device/media/webglvideo.ts",
-      "c:/work/layaairts/src/layaair/laya/device/media/video.ts",
-      "c:/work/layaairts/src/layaair/laya/device/media/htmlvideo.ts",
-      "c:/work/layaairts/src/layaair/laya/device/media/media.ts",
-      "c:/work/layaairts/src/layaair/laya/device/motion/gyroscope.ts",
-      "c:/work/layaairts/src/layaair/laya/utils/graphicanimation.ts",
-      "c:/work/layaairts/src/layaair/laya/display/animation.ts",
-      "c:/work/layaairts/src/layaair/laya/display/effectanimation.ts",
       "c:/work/layaairts/src/layaair/laya/display/cmd/drawcanvascmd.ts",
-      "c:/work/layaairts/src/layaair/laya/display/cmd/drawparticlecmd.ts",
       "c:/work/layaairts/src/layaair/laya/events/keylocation.ts",
       "c:/work/layaairts/src/layaair/laya/events/keyboard.ts",
-      "c:/work/layaairts/src/layaair/laya/filters/blurfilterglrender.ts",
-      "c:/work/layaairts/src/layaair/laya/filters/blurfilter.ts",
-      "c:/work/layaairts/src/layaair/laya/filters/glowfilterglrender.ts",
-      "c:/work/layaairts/src/layaair/laya/filters/glowfilter.ts",
       "c:/work/layaairts/src/layaair/laya/html/utils/htmlextendstyle.ts",
-      "c:/work/layaairts/src/layaair/laya/html/utils/htmlstyle.ts",
-      "c:/work/layaairts/src/layaair/laya/html/dom/htmldocument.ts",
       "c:/work/layaairts/src/layaair/laya/html/dom/htmlhitrect.ts",
-      "c:/work/layaairts/src/layaair/laya/html/utils/ilayout.ts",
-      "c:/work/layaairts/src/layaair/laya/html/dom/htmlstyleelement.ts",
-      "c:/work/layaairts/src/layaair/laya/html/dom/htmllinkelement.ts",
-      "c:/work/layaairts/src/layaair/laya/html/dom/htmldivparser.ts",
-      "c:/work/layaairts/src/layaair/laya/html/utils/htmlparse.ts",
-      "c:/work/layaairts/src/layaair/laya/html/dom/htmldivelement.ts",
-      "c:/work/layaairts/src/layaair/laya/html/dom/htmlimageelement.ts",
-      "c:/work/layaairts/src/layaair/laya/html/utils/ihtml.ts",
-      "c:/work/layaairts/src/layaair/laya/html/utils/layoutline.ts",
-      "c:/work/layaairts/src/layaair/laya/html/utils/layout.ts",
-      "c:/work/layaairts/src/layaair/laya/html/dom/htmlelement.ts",
-      "c:/work/layaairts/src/layaair/laya/html/dom/htmlbrelement.ts",
-      "c:/work/layaairts/src/layaair/laya/html/dom/htmliframeelement.ts",
-      "c:/work/layaairts/src/layaair/laya/layagl/quicktesttool.ts",
-      "c:/work/layaairts/src/layaair/laya/map/tileanisprite.ts",
-      "c:/work/layaairts/src/layaair/laya/map/tiletexset.ts",
-      "c:/work/layaairts/src/layaair/laya/map/imap.ts",
-      "c:/work/layaairts/src/layaair/laya/map/maplayer.ts",
-      "c:/work/layaairts/src/layaair/laya/map/tiledmap.ts",
-      "c:/work/layaairts/src/layaair/laya/map/gridsprite.ts",
-      "c:/work/layaairts/src/layaair/laya/media/soundnode.ts",
-      "c:/work/layaairts/src/layaair/laya/net/resourceversion.ts",
-      "c:/work/layaairts/src/layaair/laya/net/socket.ts",
       "c:/work/layaairts/src/layaair/laya/particle/particlesetting.ts",
-      "c:/work/layaairts/src/layaair/laya/particle/particletemplatebase.ts",
       "c:/work/layaairts/src/layaair/laya/particle/particledata.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/utils/meshparticle2d.ts",
-      "c:/work/layaairts/src/layaair/laya/particle/particletemplatewebgl.ts",
       "c:/work/layaairts/src/layaair/laya/particle/shader/particleshader.ts",
-      "c:/work/layaairts/src/layaair/laya/particle/shader/value/particleshadervalue.ts",
-      "c:/work/layaairts/src/layaair/laya/particle/particletemplate2d.ts",
-      "c:/work/layaairts/src/layaair/laya/particle/emitter/emitterbase.ts",
-      "c:/work/layaairts/src/layaair/laya/particle/emitter/emitter2d.ts",
-      "c:/work/layaairts/src/layaair/laya/particle/particle2d.ts",
-      "c:/work/layaairts/src/layaair/laya/particle/particleemitter.ts",
-      "c:/work/layaairts/src/layaair/laya/physics/chaincollider.ts",
-      "c:/work/layaairts/src/layaair/laya/physics/circlecollider.ts",
-      "c:/work/layaairts/src/layaair/laya/physics/polygoncollider.ts",
-      "c:/work/layaairts/src/layaair/laya/physics/physicsdebugdraw.ts",
-      "c:/work/layaairts/src/layaair/laya/physics/joint/jointbase.ts",
-      "c:/work/layaairts/src/layaair/laya/physics/joint/distancejoint.ts",
-      "c:/work/layaairts/src/layaair/laya/physics/joint/gearjoint.ts",
-      "c:/work/layaairts/src/layaair/laya/physics/joint/motorjoint.ts",
-      "c:/work/layaairts/src/layaair/laya/physics/joint/mousejoint.ts",
-      "c:/work/layaairts/src/layaair/laya/physics/joint/prismaticjoint.ts",
-      "c:/work/layaairts/src/layaair/laya/physics/joint/pulleyjoint.ts",
-      "c:/work/layaairts/src/layaair/laya/physics/joint/revolutejoint.ts",
-      "c:/work/layaairts/src/layaair/laya/physics/joint/ropejoint.ts",
-      "c:/work/layaairts/src/layaair/laya/physics/joint/weldjoint.ts",
-      "c:/work/layaairts/src/layaair/laya/physics/joint/wheeljoint.ts",
-      "c:/work/layaairts/src/layaair/laya/physics/physics.ts",
-      "c:/work/layaairts/src/layaair/laya/physics/rigidbody.ts",
-      "c:/work/layaairts/src/layaair/laya/physics/colliderbase.ts",
-      "c:/work/layaairts/src/layaair/laya/physics/boxcollider.ts",
-      "c:/work/layaairts/src/layaair/laya/resource/htmlimage.ts",
       "c:/work/layaairts/src/layaair/laya/system/system.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/styles.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/autobitmap.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/widget.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/uievent.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/uiutils.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/uicomponent.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/image.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/advimage.ts",
       "c:/work/layaairts/src/layaair/laya/ui/ibox.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/box.ts",
       "c:/work/layaairts/src/layaair/laya/ui/iselect.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/button.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/checkbox.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/clip.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/colorpicker.ts",
       "c:/work/layaairts/src/layaair/laya/ui/irender.ts",
       "c:/work/layaairts/src/layaair/laya/ui/iitem.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/label.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/slider.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/scrollbar.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/vscrollbar.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/hscrollbar.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/list.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/combobox.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/progressbar.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/radio.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/uigroup.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/radiogroup.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/tab.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/viewstack.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/textinput.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/textarea.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/scalebox.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/hslider.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/panel.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/vslider.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/tree.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/layoutbox.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/hbox.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/vbox.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/fontclip.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/view.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/iui.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/dialogmanager.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/dialog.ts",
-      "c:/work/layaairts/src/layaair/laya/ui/tipmanager.ts",
       "c:/work/layaairts/src/layaair/laya/ui/uilib.ts",
-      "c:/work/layaairts/src/layaair/laya/utils/log.ts",
-      "c:/work/layaairts/src/layaair/laya/utils/mouse.ts",
-      "c:/work/layaairts/src/layaair/laya/utils/perfhud.ts",
-      "c:/work/layaairts/src/layaair/laya/utils/perfdata.ts",
-      "c:/work/layaairts/src/layaair/laya/utils/poolcache.ts",
-      "c:/work/layaairts/src/layaair/laya/utils/timeline.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/native.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/text/arabicreshaper.ts",
       "c:/work/layaairts/src/layaair/laya/webgl/utils/matirxarray.ts",
@@ -12491,7 +12153,397 @@
       "c:/work/layaairts/node_modules/@types/resolve/index.d.ts",
       "c:/work/layaairts/node_modules/@types/shelljs/index.d.ts",
       "c:/work/layaairts/node_modules/@types/webgl2/index.d.ts",
-      "c:/work/layaairts/src/layaair/laya/d3/input3d.ts"
+      "c:/work/layaairts/src/layaair/laya/events/event.ts",
+      "c:/work/layaairts/src/layaair/laya/net/url.ts",
+      "c:/work/layaairts/src/layaair/laya/resource/resource.ts",
+      "c:/work/layaairts/src/layaair/laya/display/css/cachestyle.ts",
+      "c:/work/layaairts/src/layaair/laya/display/css/spritestyle.ts",
+      "c:/work/layaairts/src/layaair/laya/display/css/textstyle.ts",
+      "c:/work/layaairts/src/layaair/laya/display/cmd/alphacmd.ts",
+      "c:/work/layaairts/src/layaair/laya/display/cmd/drawcirclecmd.ts",
+      "c:/work/layaairts/src/layaair/laya/display/cmd/drawcurvescmd.ts",
+      "c:/work/layaairts/src/layaair/laya/display/cmd/drawimagecmd.ts",
+      "c:/work/layaairts/src/layaair/laya/display/cmd/drawlinecmd.ts",
+      "c:/work/layaairts/src/layaair/laya/display/cmd/drawlinescmd.ts",
+      "c:/work/layaairts/src/layaair/laya/display/cmd/drawpathcmd.ts",
+      "c:/work/layaairts/src/layaair/laya/display/cmd/drawpiecmd.ts",
+      "c:/work/layaairts/src/layaair/laya/display/cmd/drawpolycmd.ts",
+      "c:/work/layaairts/src/layaair/laya/display/cmd/drawrectcmd.ts",
+      "c:/work/layaairts/src/layaair/laya/display/cmd/drawtexturecmd.ts",
+      "c:/work/layaairts/src/layaair/laya/display/cmd/filltexturecmd.ts",
+      "c:/work/layaairts/src/layaair/laya/display/cmd/restorecmd.ts",
+      "c:/work/layaairts/src/layaair/laya/display/cmd/rotatecmd.ts",
+      "c:/work/layaairts/src/layaair/laya/display/cmd/scalecmd.ts",
+      "c:/work/layaairts/src/layaair/laya/display/cmd/transformcmd.ts",
+      "c:/work/layaairts/src/layaair/laya/display/cmd/translatecmd.ts",
+      "c:/work/layaairts/src/layaair/laya/maths/grahamscan.ts",
+      "c:/work/layaairts/src/layaair/laya/utils/colorutils.ts",
+      "c:/work/layaairts/src/layaair/laya/webgl/utils/inlcudefile.ts",
+      "c:/work/layaairts/src/layaair/laya/webgl/utils/shadernode.ts",
+      "c:/work/layaairts/src/layaair/laya/webgl/shader/shader.ts",
+      "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/value/value2d.ts",
+      "c:/work/layaairts/src/layaair/laya/webgl/submit/submitbase.ts",
+      "c:/work/layaairts/src/layaair/laya/renders/render.ts",
+      "c:/work/layaairts/src/layaair/laya/display/cmd/drawtrianglescmd.ts",
+      "c:/work/layaairts/src/layaair/laya/display/graphicsbounds.ts",
+      "c:/work/layaairts/src/layaair/laya/display/cmd/cliprectcmd.ts",
+      "c:/work/layaairts/src/layaair/laya/display/cmd/draw9gridtexture.ts",
+      "c:/work/layaairts/src/layaair/laya/display/cmd/drawtexturescmd.ts",
+      "c:/work/layaairts/src/layaair/laya/display/cmd/fillbordertextcmd.ts",
+      "c:/work/layaairts/src/layaair/laya/display/cmd/fillborderwordscmd.ts",
+      "c:/work/layaairts/src/layaair/laya/display/cmd/filltextcmd.ts",
+      "c:/work/layaairts/src/layaair/laya/display/cmd/fillwordscmd.ts",
+      "c:/work/layaairts/src/layaair/laya/display/cmd/savecmd.ts",
+      "c:/work/layaairts/src/layaair/laya/display/cmd/stroketextcmd.ts",
+      "c:/work/layaairts/src/layaair/laya/utils/cachemanger.ts",
+      "c:/work/layaairts/src/layaair/laya/display/graphics.ts",
+      "c:/work/layaairts/src/layaair/laya/resource/basetexture.ts",
+      "c:/work/layaairts/src/layaair/laya/resource/rendertexture2d.ts",
+      "c:/work/layaairts/src/layaair/laya/resource/webglrtmgr.ts",
+      "c:/work/layaairts/src/layaair/laya/webgl/submit/submit.ts",
+      "c:/work/layaairts/src/layaair/laya/webgl/utils/meshvg.ts",
+      "c:/work/layaairts/src/layaair/laya/webgl/canvas/webglcacheasnormalcanvas.ts",
+      "c:/work/layaairts/src/layaair/laya/renders/layaglquickrunner.ts",
+      "c:/work/layaairts/src/layaair/laya/renders/rendersprite.ts",
+      "c:/work/layaairts/src/layaair/laya/filters/filter.ts",
+      "c:/work/layaairts/src/layaair/laya/filters/colorfilter.ts",
+      "c:/work/layaairts/src/layaair/laya/webgl/canvas/save/isavedata.ts",
+      "c:/work/layaairts/src/layaair/laya/webgl/canvas/save/savebase.ts",
+      "c:/work/layaairts/src/layaair/laya/webgl/canvas/save/savecliprect.ts",
+      "c:/work/layaairts/src/layaair/laya/webgl/canvas/save/savemark.ts",
+      "c:/work/layaairts/src/layaair/laya/webgl/canvas/save/savetransform.ts",
+      "c:/work/layaairts/src/layaair/laya/webgl/canvas/save/savetranslate.ts",
+      "c:/work/layaairts/src/layaair/laya/webgl/submit/submitcanvas.ts",
+      "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/value/texturesv.ts",
+      "c:/work/layaairts/src/layaair/laya/webgl/submit/submittarget.ts",
+      "c:/work/layaairts/src/layaair/laya/webgl/submit/submittexture.ts",
+      "c:/work/layaairts/src/layaair/laya/webgl/text/charsubmitcache.ts",
+      "c:/work/layaairts/src/layaair/laya/webgl/text/texttexture.ts",
+      "c:/work/layaairts/src/layaair/laya/webgl/text/textatlas.ts",
+      "c:/work/layaairts/src/layaair/laya/webgl/text/textrender.ts",
+      "c:/work/layaairts/src/layaair/laya/resource/context.ts",
+      "c:/work/layaairts/src/layaair/laya/resource/htmlcanvas.ts",
+      "c:/work/layaairts/src/layaair/laya/utils/browser.ts",
+      "c:/work/layaairts/src/layaair/laya/events/touchmanager.ts",
+      "c:/work/layaairts/src/layaair/laya/events/mousemanager.ts",
+      "c:/work/layaairts/src/layaair/laya/utils/tween.ts",
+      "c:/work/layaairts/src/layaair/laya/utils/dragging.ts",
+      "c:/work/layaairts/src/layaair/laya/utils/calllater.ts",
+      "c:/work/layaairts/src/layaair/laya/utils/timer.ts",
+      "c:/work/layaairts/src/layaair/laya/net/httprequest.ts",
+      "c:/work/layaairts/src/layaair/laya/components/prefab.ts",
+      "c:/work/layaairts/src/layaair/laya/media/h5audio/audiosoundchannel.ts",
+      "c:/work/layaairts/src/layaair/laya/media/h5audio/audiosound.ts",
+      "c:/work/layaairts/src/layaair/laya/media/webaudio/webaudiosoundchannel.ts",
+      "c:/work/layaairts/src/layaair/laya/media/webaudio/webaudiosound.ts",
+      "c:/work/layaairts/src/layaair/laya/net/atlasinfomanager.ts",
+      "c:/work/layaairts/src/layaair/laya/net/loadermanager.ts",
+      "c:/work/layaairts/src/layaair/laya/media/soundmanager.ts",
+      "c:/work/layaairts/src/layaair/laya/net/ttfloader.ts",
+      "c:/work/layaairts/src/layaair/laya/net/loader.ts",
+      "c:/work/layaairts/src/layaair/laya/utils/hitarea.ts",
+      "c:/work/layaairts/src/layaair/laya/utils/classutils.ts",
+      "c:/work/layaairts/src/layaair/laya/display/animationbase.ts",
+      "c:/work/layaairts/src/layaair/laya/display/frameanimation.ts",
+      "c:/work/layaairts/src/layaair/laya/utils/weakobject.ts",
+      "c:/work/layaairts/src/layaair/laya/net/sceneloader.ts",
+      "c:/work/layaairts/src/layaair/laya/display/scene.ts",
+      "c:/work/layaairts/src/layaair/laya/utils/sceneutils.ts",
+      "c:/work/layaairts/src/layaair/laya/net/workerloader.ts",
+      "c:/work/layaairts/src/layaair/ilaya.ts",
+      "c:/work/layaairts/src/layaair/laya/webgl/webglcontext.ts",
+      "c:/work/layaairts/src/layaair/laya/webgl/layagpu.ts",
+      "c:/work/layaairts/src/layaair/laya/resource/texture2d.ts",
+      "c:/work/layaairts/src/layaair/laya/resource/texture.ts",
+      "c:/work/layaairts/src/layaair/laya/display/bitmapfont.ts",
+      "c:/work/layaairts/src/layaair/laya/display/text.ts",
+      "c:/work/layaairts/src/layaair/laya/display/input.ts",
+      "c:/work/layaairts/src/layaair/laya/display/stage.ts",
+      "c:/work/layaairts/src/layaair/laya/utils/utils.ts",
+      "c:/work/layaairts/src/layaair/laya/components/component.ts",
+      "c:/work/layaairts/src/layaair/laya/display/node.ts",
+      "c:/work/layaairts/src/layaair/laya/display/sprite.ts",
+      "c:/work/layaairts/src/layaair/laya/events/keyboardmanager.ts",
+      "c:/work/layaairts/src/layaair/laya/utils/statui.ts",
+      "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/skinanishader/skinsv.ts",
+      "c:/work/layaairts/src/layaair/laya/webgl/shader/d2/value/primitivesv.ts",
+      "c:/work/layaairts/src/layaair/laya.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/resource/rendertexture.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/shader/shaderdata.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/material/basematerial.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/animation/animationclipparser03.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/animation/animationclipparser04.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/graphics/vertexdeclaration.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/graphics/vertex/vertexmesh.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/pixelline/pixellinevertex.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/graphics/vertexbuffer3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/bufferstate.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/geometryelement.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/pixelline/pixellinefilter.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/utils/physics3dutils.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/shape/collidershape.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/charactercontroller.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/physicsupdatelist.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/hitresult.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/collisiontool.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/physicstriggercomponent.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/rigidbody3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/constraint3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/physicscollider.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/physicssimulation.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/graphics/dynamicbatchmanager.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/render/renderqueue.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/scene/ioctreeobject.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/scene/boundsoctreenode.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/scene/octreemotionlist.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/scene/boundsoctree.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/renderablesprite3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/graphics/staticbatchmanager.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/graphics/frustumculling.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/meshfilter.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/meshsprite3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/graphics/submeshstaticbatch.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/graphics/meshrenderstaticbatchmanager.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/material/blinnphongmaterial.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/meshrenderer.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/skinnedmeshrenderer.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/skinnedmeshsprite3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/resource/models/submesh.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/graphics/submeshdynamicbatch.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/graphics/meshrenderdynamicbatchmanager.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/render/submeshrenderelement.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/graphics/submeshinstancebatch.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/loaders/loadmodelv04.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/loaders/loadmodelv05.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/loaders/meshreader.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/resource/models/mesh.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/shape/meshcollidershape.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/physicscomponent.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/contactpoint.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/collision.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/component/script3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/sprite3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/pixelline/pixellinerenderer.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/pixelline/pixellinematerial.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/pixelline/pixellinesprite3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/resource/texturegenerator.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/utils/utils3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/animation/animationclip.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/component/animatorcontrollerlayer.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/component/animator.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/avatar.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/animation/animationnode.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/animation/animationtransform3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/transform3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/shader/shaderinstance.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/shader/shaderpass.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/render/screenquad.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/render/screentriangle.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/render/command/command.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/render/command/blitscreenquadcmd.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/render/command/setrendertargetcmd.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/render/command/setshaderdatatexturecmd.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/render/command/commandbuffer.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/render/postprocessrendercontext.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/render/postprocesseffect.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/component/postprocess.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/shadowmap/parallelsplitshadowmap.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/camera.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/resource/models/skymesh.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/resource/models/skybox.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/resource/models/skyrenderer.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/basecamera.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/render/rendercontext3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/render/renderelement.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/render/baserender.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/castshadowlist.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/mousetouch.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/input3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/graphics/ivertex.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/graphics/vertex/vertexpositiontexture0.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/resource/models/skydome.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/resource/texturecube.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/material/effectmaterial.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/material/extendterrainmaterial.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/material/pbrspecularmaterial.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/material/pbrstandardmaterial.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/material/skyproceduralmaterial.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/material/unlitmaterial.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/material/waterprimarymaterial.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/shurikenparticlematerial.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/shurikenparticledata.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/graphics/vertex/vertexshurikenparticlebillboard.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/graphics/vertex/vertexshurikenparticlemesh.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/shurikenparticlesystem.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/shurikenparticlerenderer.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/particleshuriken/shurikenparticle3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/trail/trailmaterial.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/trail/vertextrail.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/trail/trailgeometry.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/trail/trailrenderer.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/trail/trailfilter.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/trail/trailsprite3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/shader/shaderinit3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/light/lightsprite.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/scene/scene3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/light/directionlight.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/light/pointlight.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/light/spotlight.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/utils/scene3dutils.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/material/skyboxmaterial.ts",
+      "c:/work/layaairts/src/layaair/laya3d.ts",
+      "c:/work/layaairts/src/layaair/ilaya3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/math/quaternion.ts",
+      "c:/work/layaairts/src/layaair/gcanvas.ts",
+      "c:/work/layaairts/src/layaair/laya/ani/bone/bone.ts",
+      "c:/work/layaairts/src/layaair/laya/ani/bone/ikconstraint.ts",
+      "c:/work/layaairts/src/layaair/laya/ani/bone/deformslotdisplaydata.ts",
+      "c:/work/layaairts/src/layaair/laya/ani/animationparser01.ts",
+      "c:/work/layaairts/src/layaair/laya/ani/animationparser02.ts",
+      "c:/work/layaairts/src/layaair/laya/ani/animationtemplet.ts",
+      "c:/work/layaairts/src/layaair/laya/ani/bone/skinslotdisplaydata.ts",
+      "c:/work/layaairts/src/layaair/laya/ani/bone/slotdata.ts",
+      "c:/work/layaairts/src/layaair/laya/ani/bone/templet.ts",
+      "c:/work/layaairts/src/layaair/laya/ani/bone/uvtools.ts",
+      "c:/work/layaairts/src/layaair/laya/ani/bone/canvasmesh/meshdata.ts",
+      "c:/work/layaairts/src/layaair/laya/ani/bone/canvasmesh/skinmeshforgraphic.ts",
+      "c:/work/layaairts/src/layaair/laya/ani/graphicsani.ts",
+      "c:/work/layaairts/src/layaair/laya/ani/bone/boneslot.ts",
+      "c:/work/layaairts/src/layaair/laya/ani/bone/pathconstraint.ts",
+      "c:/work/layaairts/src/layaair/laya/ani/bone/tfconstraint.ts",
+      "c:/work/layaairts/src/layaair/laya/ani/animationplayer.ts",
+      "c:/work/layaairts/src/layaair/laya/ani/bone/skeleton.ts",
+      "c:/work/layaairts/src/layaair/laya/ani/anilibpack.ts",
+      "c:/work/layaairts/src/layaair/laya/ani/swf/movieclip.ts",
+      "c:/work/layaairts/src/layaair/laya/components/commonscript.ts",
+      "c:/work/layaairts/src/layaair/laya/components/script.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/heightmap.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/meshterrainsprite3d.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/core/render/bloomeffect.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/graphics/vertex/vertexpositionterrain.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/physics/constraints/constraintcomponent.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/resource/models/primitivemesh.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/text/textmesh.ts",
+      "c:/work/layaairts/src/layaair/laya/d3/utils/size.ts",
+      "c:/work/layaairts/src/layaair/laya/d3extend/filesaver.ts",
+      "c:/work/layaairts/src/layaair/laya/d3extend/cartoonmaterial/cartoonmaterial.ts",
+      "c:/work/layaairts/src/layaair/laya/device/motion/accelerator.ts",
+      "c:/work/layaairts/src/layaair/laya/device/shake.ts",
+      "c:/work/layaairts/src/layaair/laya/device/geolocation/geolocation.ts",
+      "c:/work/layaairts/src/layaair/laya/device/media/webglvideo.ts",
+      "c:/work/layaairts/src/layaair/laya/device/media/video.ts",
+      "c:/work/layaairts/src/layaair/laya/device/media/htmlvideo.ts",
+      "c:/work/layaairts/src/layaair/laya/device/media/media.ts",
+      "c:/work/layaairts/src/layaair/laya/device/motion/gyroscope.ts",
+      "c:/work/layaairts/src/layaair/laya/utils/graphicanimation.ts",
+      "c:/work/layaairts/src/layaair/laya/display/animation.ts",
+      "c:/work/layaairts/src/layaair/laya/display/effectanimation.ts",
+      "c:/work/layaairts/src/layaair/laya/display/cmd/drawparticlecmd.ts",
+      "c:/work/layaairts/src/layaair/laya/filters/blurfilterglrender.ts",
+      "c:/work/layaairts/src/layaair/laya/filters/blurfilter.ts",
+      "c:/work/layaairts/src/layaair/laya/filters/glowfilterglrender.ts",
+      "c:/work/layaairts/src/layaair/laya/filters/glowfilter.ts",
+      "c:/work/layaairts/src/layaair/laya/html/utils/htmlstyle.ts",
+      "c:/work/layaairts/src/layaair/laya/html/dom/htmldocument.ts",
+      "c:/work/layaairts/src/layaair/laya/html/utils/ilayout.ts",
+      "c:/work/layaairts/src/layaair/laya/html/dom/htmlstyleelement.ts",
+      "c:/work/layaairts/src/layaair/laya/html/dom/htmllinkelement.ts",
+      "c:/work/layaairts/src/layaair/laya/html/dom/htmldivparser.ts",
+      "c:/work/layaairts/src/layaair/laya/html/utils/htmlparse.ts",
+      "c:/work/layaairts/src/layaair/laya/html/dom/htmldivelement.ts",
+      "c:/work/layaairts/src/layaair/laya/html/dom/htmlimageelement.ts",
+      "c:/work/layaairts/src/layaair/laya/html/utils/ihtml.ts",
+      "c:/work/layaairts/src/layaair/laya/html/utils/layoutline.ts",
+      "c:/work/layaairts/src/layaair/laya/html/utils/layout.ts",
+      "c:/work/layaairts/src/layaair/laya/html/dom/htmlelement.ts",
+      "c:/work/layaairts/src/layaair/laya/html/dom/htmlbrelement.ts",
+      "c:/work/layaairts/src/layaair/laya/html/dom/htmliframeelement.ts",
+      "c:/work/layaairts/src/layaair/laya/layagl/quicktesttool.ts",
+      "c:/work/layaairts/src/layaair/laya/map/tileanisprite.ts",
+      "c:/work/layaairts/src/layaair/laya/map/tiletexset.ts",
+      "c:/work/layaairts/src/layaair/laya/map/imap.ts",
+      "c:/work/layaairts/src/layaair/laya/map/maplayer.ts",
+      "c:/work/layaairts/src/layaair/laya/map/tiledmap.ts",
+      "c:/work/layaairts/src/layaair/laya/map/gridsprite.ts",
+      "c:/work/layaairts/src/layaair/laya/media/soundnode.ts",
+      "c:/work/layaairts/src/layaair/laya/net/resourceversion.ts",
+      "c:/work/layaairts/src/layaair/laya/net/socket.ts",
+      "c:/work/layaairts/src/layaair/laya/particle/particletemplatebase.ts",
+      "c:/work/layaairts/src/layaair/laya/particle/particletemplatewebgl.ts",
+      "c:/work/layaairts/src/layaair/laya/particle/shader/value/particleshadervalue.ts",
+      "c:/work/layaairts/src/layaair/laya/particle/particletemplate2d.ts",
+      "c:/work/layaairts/src/layaair/laya/particle/emitter/emitterbase.ts",
+      "c:/work/layaairts/src/layaair/laya/particle/emitter/emitter2d.ts",
+      "c:/work/layaairts/src/layaair/laya/particle/particle2d.ts",
+      "c:/work/layaairts/src/layaair/laya/particle/particleemitter.ts",
+      "c:/work/layaairts/src/layaair/laya/physics/chaincollider.ts",
+      "c:/work/layaairts/src/layaair/laya/physics/circlecollider.ts",
+      "c:/work/layaairts/src/layaair/laya/physics/polygoncollider.ts",
+      "c:/work/layaairts/src/layaair/laya/physics/physicsdebugdraw.ts",
+      "c:/work/layaairts/src/layaair/laya/physics/joint/jointbase.ts",
+      "c:/work/layaairts/src/layaair/laya/physics/joint/distancejoint.ts",
+      "c:/work/layaairts/src/layaair/laya/physics/joint/gearjoint.ts",
+      "c:/work/layaairts/src/layaair/laya/physics/joint/motorjoint.ts",
+      "c:/work/layaairts/src/layaair/laya/physics/joint/mousejoint.ts",
+      "c:/work/layaairts/src/layaair/laya/physics/joint/prismaticjoint.ts",
+      "c:/work/layaairts/src/layaair/laya/physics/joint/pulleyjoint.ts",
+      "c:/work/layaairts/src/layaair/laya/physics/joint/revolutejoint.ts",
+      "c:/work/layaairts/src/layaair/laya/physics/joint/ropejoint.ts",
+      "c:/work/layaairts/src/layaair/laya/physics/joint/weldjoint.ts",
+      "c:/work/layaairts/src/layaair/laya/physics/joint/wheeljoint.ts",
+      "c:/work/layaairts/src/layaair/laya/physics/physics.ts",
+      "c:/work/layaairts/src/layaair/laya/physics/rigidbody.ts",
+      "c:/work/layaairts/src/layaair/laya/physics/colliderbase.ts",
+      "c:/work/layaairts/src/layaair/laya/physics/boxcollider.ts",
+      "c:/work/layaairts/src/layaair/laya/resource/htmlimage.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/styles.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/autobitmap.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/widget.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/uievent.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/uiutils.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/uicomponent.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/image.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/advimage.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/box.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/button.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/checkbox.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/clip.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/colorpicker.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/label.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/slider.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/scrollbar.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/vscrollbar.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/hscrollbar.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/list.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/combobox.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/progressbar.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/radio.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/uigroup.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/radiogroup.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/tab.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/viewstack.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/textinput.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/textarea.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/scalebox.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/hslider.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/panel.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/vslider.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/tree.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/layoutbox.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/hbox.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/vbox.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/fontclip.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/view.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/iui.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/dialogmanager.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/dialog.ts",
+      "c:/work/layaairts/src/layaair/laya/ui/tipmanager.ts",
+      "c:/work/layaairts/src/layaair/laya/utils/log.ts",
+      "c:/work/layaairts/src/layaair/laya/utils/mouse.ts",
+      "c:/work/layaairts/src/layaair/laya/utils/perfhud.ts",
+      "c:/work/layaairts/src/layaair/laya/utils/perfdata.ts",
+      "c:/work/layaairts/src/layaair/laya/utils/poolcache.ts",
+      "c:/work/layaairts/src/layaair/laya/utils/timeline.ts"
     ]
   },
   "version": "3.5.1"

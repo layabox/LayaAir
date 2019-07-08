@@ -10,7 +10,6 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { IndexView2D } from "./view/IndexView2D";
 import { IndexView3D } from "./view/IndexView3D";
-import { Config3D } from "Config3D";
 export class Main {
     constructor() {
         /**false 2d；true 3d**/
@@ -25,9 +24,7 @@ export class Main {
             Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
         }
         else {
-            var c = new Config3D();
-            c.debugFrustumCulling = true;
-            Laya3D.init(0, 0, c);
+            Laya3D.init(0, 0);
             Laya.stage.scaleMode = Stage.SCALE_FULL;
             Laya.stage.screenMode = Stage.SCREEN_NONE;
         }

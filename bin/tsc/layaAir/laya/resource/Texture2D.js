@@ -25,7 +25,7 @@ export class Texture2D extends BaseTexture {
         this._setFilterMode(this._filterMode); //TODO:重置宽高需要调整
         this._setAnisotropy(this._anisoLevel);
         if (this._mipmap) {
-            this._mipmapCount = Math.max(Math.ceil(Math.log2(width)) + 1, Math.ceil(Math.log2(2)) + 1);
+            this._mipmapCount = Math.max(Math.ceil(Math.log2(width)) + 1, Math.ceil(Math.log2(height)) + 1);
             for (var i = 0; i < this._mipmapCount; i++)
                 this._setPixels(null, i, Math.max(width >> i, 1), Math.max(height >> i, 1)); //初始化各级mipmap
             this._setGPUMemory(width * height * 4 * (1 + 1 / 3));
@@ -98,31 +98,10 @@ export class Texture2D extends BaseTexture {
         ILaya.loader.create(url, complete, null, ILaya.Loader.TEXTURE2D);
     }
     /**
-     * 获取mipmap数量。
-     */
-    get mipmapCount() {
-        return this._mipmapCount;
-    }
-    /**
      * @inheritDoc
      */
     /*override*/ get defaulteTexture() {
         return Texture2D.grayTexture;
-    }
-    /**
-     * @private
-     */
-    _getFormatByteCount() {
-        switch (this._format) {
-            case BaseTexture.FORMAT_R8G8B8:
-                return 3;
-            case BaseTexture.FORMAT_R8G8B8A8:
-                return 4;
-            case BaseTexture.FORMAT_ALPHA8:
-                return 1;
-            default:
-                throw "Texture2D: unknown format.";
-        }
     }
     /**
      * @private
@@ -436,8 +415,9 @@ export class Texture2D extends BaseTexture {
     }
     /**
      * @inheritDoc
+     * @override
      */
-    /*override*/ _recoverResource() {
+    _recoverResource() {
         //TODO:补充
     }
     /**

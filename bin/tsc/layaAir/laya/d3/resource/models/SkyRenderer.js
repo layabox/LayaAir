@@ -106,9 +106,7 @@ export class SkyRenderer {
             this._mesh._render(state);
             WebGLContext.setDepthFunc(gl, WebGL2RenderingContext.LESS);
             WebGLContext.setDepthMask(gl, true);
-            if (camera.orthographic) {
-                camera._applyViewProject(state, camera.viewMatrix, camera.projectionMatrix, renderTar ? true : false);
-            }
+            camera._applyViewProject(state, camera.viewMatrix, camera.projectionMatrix, renderTar ? true : false);
         }
     }
     /**

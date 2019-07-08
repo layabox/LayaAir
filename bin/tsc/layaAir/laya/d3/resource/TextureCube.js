@@ -12,9 +12,21 @@ export class TextureCube extends BaseTexture {
      * @param	format 贴图格式。
      * @param	mipmap 是否生成mipmap。
      */
-    constructor(format = BaseTexture.FORMAT_R8G8B8, mipmap = false) {
+    constructor(size, format = BaseTexture.FORMAT_R8G8B8, mipmap = false) {
         super(format, mipmap);
         this._glTextureType = WebGL2RenderingContext.TEXTURE_CUBE_MAP;
+        this._width = size;
+        this._height = size;
+        if (this._mipmap) {
+            this._mipmapCount = Math.ceil(Math.log2(size));
+            for (var i = 0; i < this._mipmapCount; i++)
+                this._setPixels([], i, Math.max(size >> i, 1), Math.max(size >> i, 1)); //初始化各级mipmap
+            this._setGPUMemory(size * size * 4 * (1 + 1 / 3) * 6);
+        }
+        else {
+            this._mipmapCount = 1;
+            this._setGPUMemory(size * size * 4 * 6);
+        }
     }
     /**
      * @internal
@@ -24,15 +36,15 @@ export class TextureCube extends BaseTexture {
         pixels[0] = 128;
         pixels[1] = 128;
         pixels[2] = 128;
-        TextureCube.grayTexture = new TextureCube(BaseTexture.FORMAT_R8G8B8, false);
-        TextureCube.grayTexture.setSixSidePixels(1, 1, [pixels, pixels, pixels, pixels, pixels, pixels]);
+        TextureCube.grayTexture = new TextureCube(1, BaseTexture.FORMAT_R8G8B8, false);
+        TextureCube.grayTexture.setSixSidePixels([pixels, pixels, pixels, pixels, pixels, pixels]);
         TextureCube.grayTexture.lock = true; //锁住资源防止被资源管理释放
     }
     /**
      * @inheritDoc
      */
     static _parse(data, propertyParams = null, constructParams = null) {
-        var texture = constructParams ? new TextureCube(constructParams[0], constructParams[1]) : new TextureCube();
+        var texture = constructParams ? new TextureCube(0, constructParams[0], constructParams[1]) : new TextureCube(0);
         texture.setSixSideImageSources(data);
         return texture;
     }
@@ -46,9 +58,37 @@ export class TextureCube extends BaseTexture {
     }
     /**
      * @inheritDoc
+     * @override
      */
-    /*override*/ get defaulteTexture() {
+    get defaulteTexture() {
         return TextureCube.grayTexture;
+    }
+    /**
+    * @private
+    */
+    _setPixels(pixels, miplevel, width, height) {
+        var gl = LayaGL.instance;
+        var textureType = this._glTextureType;
+        var glFormat = this._getGLFormat();
+        WebGLContext.bindTexture(gl, textureType, this._glTexture);
+        if (this.format === BaseTexture.FORMAT_R8G8B8) {
+            gl.pixelStorei(WebGL2RenderingContext.UNPACK_ALIGNMENT, 1); //字节对齐
+            gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_POSITIVE_Z, miplevel, glFormat, width, height, 0, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels[0]); //back
+            gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_Z, miplevel, glFormat, width, height, 0, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels[1]); //front
+            gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X, miplevel, glFormat, width, height, 0, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels[2]); //right
+            gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_X, miplevel, glFormat, width, height, 0, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels[3]); //left
+            gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_POSITIVE_Y, miplevel, glFormat, width, height, 0, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels[4]); //up
+            gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_Y, miplevel, glFormat, width, height, 0, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels[5]); //down
+            gl.pixelStorei(WebGL2RenderingContext.UNPACK_ALIGNMENT, 4);
+        }
+        else {
+            gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_POSITIVE_Z, miplevel, glFormat, width, height, 0, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels[0]); //back
+            gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_Z, miplevel, glFormat, width, height, 0, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels[1]); //front
+            gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X, miplevel, glFormat, width, height, 0, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels[2]); //right
+            gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_X, miplevel, glFormat, width, height, 0, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels[3]); //left
+            gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_POSITIVE_Y, miplevel, glFormat, width, height, 0, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels[4]); //up
+            gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_Y, miplevel, glFormat, width, height, 0, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels[5]); //down
+        }
     }
     /**
      * 通过六张图片源填充纹理。
@@ -122,39 +162,23 @@ export class TextureCube extends BaseTexture {
      * 通过六张图片源填充纹理。
      * @param 图片源数组。
      */
-    setSixSidePixels(width, height, pixels) {
-        if (width <= 0 || height <= 0)
-            throw new Error("TextureCube:width or height must large than 0.");
+    setSixSidePixels(pixels, miplevel = 0) {
         if (!pixels)
             throw new Error("TextureCube:pixels can't be null.");
-        this._width = width;
-        this._height = height;
-        var gl = LayaGL.instance;
-        WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
-        var glFormat = this._getGLFormat();
-        gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_POSITIVE_Z, 0, glFormat, width, height, 0, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels[0]); //back
-        gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, glFormat, width, height, 0, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels[1]); //front
-        gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X, 0, glFormat, width, height, 0, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels[2]); //right
-        gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_X, 0, glFormat, width, height, 0, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels[3]); //left
-        gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_POSITIVE_Y, 0, glFormat, width, height, 0, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels[4]); //up
-        gl.texImage2D(WebGL2RenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, glFormat, width, height, 0, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels[5]); //down
-        if (this._mipmap && this._isPot(width) && this._isPot(height)) {
-            gl.generateMipmap(this._glTextureType);
-            this._setGPUMemory(width * height * 4 * (1 + 1 / 3) * 6);
-        }
-        else {
-            this._setGPUMemory(width * height * 4 * 6);
-        }
-        this._setWarpMode(WebGL2RenderingContext.TEXTURE_WRAP_S, this._wrapModeU);
-        this._setWarpMode(WebGL2RenderingContext.TEXTURE_WRAP_T, this._wrapModeV);
-        this._setFilterMode(this._filterMode);
+        var width = Math.max(this._width >> miplevel, 1);
+        var height = Math.max(this._height >> miplevel, 1);
+        //var pixelsCount: number = width * height * this._getFormatByteCount();
+        //if (pixels.length < pixelsCount)
+        //	throw "TextureCube:pixels length should at least " + pixelsCount + ".";
+        this._setPixels(pixels, miplevel, width, height);
         this._readyed = true;
         this._activeResource();
     }
     /**
      * @inheritDoc
+     * @override
      */
-    /*override*/ _recoverResource() {
+    _recoverResource() {
         //TODO:补充
     }
 }

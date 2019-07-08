@@ -196,7 +196,7 @@ export class ShaderPass extends ShaderCompile {
                 materialDefGroupStr += key + " ";
             if (!WebGL.shaderHighPrecision)
                 publicDefine += Shader3D.SHADERDEFINE_HIGHPRECISION; //输出宏定义要保持设备无关性
-            console.log("%cShader3DDebugMode---(Name:" + this._owner._owner._name + " PassIndex:" + this._owner._passes.indexOf(this) + " PublicDefine:" + publicDefine + " SpriteDefine:" + spriteDefine + " MaterialDefine:" + materialDefine + " PublicDefineGroup:" + publicDefGroupStr + " SpriteDefineGroup:" + spriteDefGroupStr + "MaterialDefineGroup: " + materialDefGroupStr + ")---ShaderCompile3DDebugMode", "color:green");
+            console.log("%cShader3DDebugMode---(Name:" + this._owner._owner._name + " SubShaderIndex:" + this._owner._owner._subShaders.indexOf(this._owner) + " PassIndex:" + this._owner._passes.indexOf(this) + " PublicDefine:" + publicDefine + " SpriteDefine:" + spriteDefine + " MaterialDefine:" + materialDefine + " PublicDefineGroup:" + publicDefGroupStr + " SpriteDefineGroup:" + spriteDefGroupStr + "MaterialDefineGroup: " + materialDefGroupStr + ")---ShaderCompile3DDebugMode", "color:green");
         }
         var defMap = {};
         var defineStr = "";

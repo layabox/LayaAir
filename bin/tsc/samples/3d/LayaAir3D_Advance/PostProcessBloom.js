@@ -1,14 +1,17 @@
 import { Laya } from "Laya";
+import { PostProcess } from "laya/d3/component/PostProcess";
+import { BloomEffect } from "laya/d3/core/render/BloomEffect";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Color } from "laya/d3/math/Color";
 import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
+import { Texture2D } from "laya/resource/Texture2D";
 import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
-import { Config3D } from "Config3D";
 export class PostProcessBloom {
     /**
      *@private
@@ -16,9 +19,7 @@ export class PostProcessBloom {
     constructor() {
         this.camera = null;
         //初始化引擎
-        var c = new Config3D();
-        c.debugFrustumCulling = true;
-        Laya3D.init(0, 0, c);
+        Laya3D.init(0, 0);
         Stat.show();
         Laya.stage.scaleMode = Stage.SCALE_FULL;
         Laya.stage.screenMode = Stage.SCREEN_NONE;
@@ -29,28 +30,27 @@ export class PostProcessBloom {
             this.camera = scene.getChildByName("Main Camera");
             //加入摄像机移动控制脚本
             this.camera.addComponent(CameraMoveScript);
-            this.camera.enableHDR = false;
-            // //增加后期处理
-            // var postProcess: PostProcess = new PostProcess();
-            // //增加后期处理泛光效果
-            // var bloom: BloomEffect = new BloomEffect();
-            // postProcess.addEffect(bloom);
-            // this.camera.postProcess = postProcess;
-            // this.camera.enableHDR = true;
-            // //设置泛光参数
-            // bloom.intensity = 5;
-            // bloom.threshold = 0.9;
-            // bloom.softKnee = 0.5;
-            // bloom.clamp = 65472;
-            // bloom.diffusion = 5;
-            // bloom.anamorphicRatio = 0.0;
-            // bloom.color = new Color(1, 1, 1, 1);
-            // bloom.fastMode = true;
+            //增加后期处理
+            var postProcess = new PostProcess();
+            //增加后期处理泛光效果
+            var bloom = new BloomEffect();
+            postProcess.addEffect(bloom);
+            this.camera.postProcess = postProcess;
+            this.camera.enableHDR = true;
+            //设置泛光参数
+            bloom.intensity = 5;
+            bloom.threshold = 0.9;
+            bloom.softKnee = 0.5;
+            bloom.clamp = 65472;
+            bloom.diffusion = 5;
+            bloom.anamorphicRatio = 0.0;
+            bloom.color = new Color(1, 1, 1, 1);
+            bloom.fastMode = true;
             //增加污渍纹理参数
-            // Texture2D.load("res/threeDimen/scene/LayaScene_BloomScene/Conventional/Assets/LensDirt01.png", Handler.create(null, function (tex: Texture2D): void {
-            // 	bloom.dirtTexture = tex;
-            // 	bloom.dirtIntensity = 2.0;
-            // }));
+            Texture2D.load("res/threeDimen/scene/LayaScene_BloomScene/Conventional/Assets/LensDirt01.png", Handler.create(null, function (tex) {
+                bloom.dirtTexture = tex;
+                bloom.dirtIntensity = 2.0;
+            }));
             //加载UI
             this.loadUI();
         }));

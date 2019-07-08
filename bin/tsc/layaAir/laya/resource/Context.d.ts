@@ -76,7 +76,7 @@ export declare class Context {
     meshlist: any[];
     private _transedPoints;
     private _temp4Points;
-    private static _clipID_Gen;
+    private _clipID_Gen;
     private _lastMat_a;
     private _lastMat_b;
     private _lastMat_c;

@@ -72,6 +72,7 @@ export class Input3D {
         canvas.removeEventListener("touchmove", this._pushEventList, true);
         canvas.removeEventListener("touchcancel", this._pushEventList, true);
         this._eventList.length = 0;
+        this._touches.length = 0;
     }
     /**
      * 获取触摸点个数。

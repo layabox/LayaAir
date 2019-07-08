@@ -88,6 +88,7 @@ export class Context {
         this._clipInCache = false; // 当前记录的clipinfo是在cacheas normal后赋值的，因为cacheas normal会去掉当前矩阵的tx，ty，所以需要记录一下，以便在是shader中恢复
         /**@internal */
         this._clipInfoID = 0; //用来区分是不是clipinfo已经改变了
+        this._clipID_Gen = 0; //生成clipid的，原来是  _clipInfoID=++_clipInfoID 这样会有问题，导致兄弟clip的id都相同
         /**@internal */
         this._curMat = null;
         //计算矩阵缩放的缓存
@@ -1594,9 +1595,9 @@ export class Context {
             this._clipRect.x = x;
             this._clipRect.y = y;
         }
-        Context._clipID_Gen++;
-        Context._clipID_Gen %= 10000;
-        this._clipInfoID = Context._clipID_Gen;
+        this._clipID_Gen++;
+        this._clipID_Gen %= 10000;
+        this._clipInfoID = this._clipID_Gen;
         var cm = this._globalClipMatrix;
         //TEMP 处理clip交集问题，这里有点问题，无法处理旋转，翻转 是临时瞎写的
         var minx = cm.tx;
@@ -1710,6 +1711,7 @@ export class Context {
         return ret;
     }
     flush() {
+        this._clipID_Gen = 0;
         var ret = this.submitElement(0, this._submits._length);
         this._path && this._path.reset();
         SkinMeshBuffer.instance && SkinMeshBuffer.getInstance().reset();
@@ -2452,7 +2454,6 @@ Context.SEGNUM = 32;
 Context._contextcount = 0;
 /**Math.PI*2的结果缓存 */
 Context.PI2 = 2 * Math.PI;
-Context._clipID_Gen = 0; //生成clipid的，原来是  _clipInfoID=++_clipInfoID 这样会有问题，导致兄弟clip的id都相同
 Context._textRender = null; // new TextRender();
 //=============新增==================	
 /* 下面的方式是有bug的。canvas是直接save，restore，现在是为了优化，但是有bug，所以先不重载了

@@ -95,10 +95,31 @@ export class BaseTexture extends Bitmap {
         }
     }
     /**
+     * 获取mipmap数量。
+     */
+    get mipmapCount() {
+        return this._mipmapCount;
+    }
+    /**
      * 获取默认纹理资源。
      */
     get defaulteTexture() {
         throw "BaseTexture:must override it.";
+    }
+    /**
+     * @private
+     */
+    _getFormatByteCount() {
+        switch (this._format) {
+            case BaseTexture.FORMAT_R8G8B8:
+                return 3;
+            case BaseTexture.FORMAT_R8G8B8A8:
+                return 4;
+            case BaseTexture.FORMAT_ALPHA8:
+                return 1;
+            default:
+                throw "Texture2D: unknown format.";
+        }
     }
     /**
      * @private

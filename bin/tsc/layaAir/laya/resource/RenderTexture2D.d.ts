@@ -101,5 +101,5 @@ export declare class RenderTexture2D extends BaseTexture {
     /**
      * @inheritDoc
      */
-    protected _disposeResource(): void;
+    _disposeResource(): void;
 }

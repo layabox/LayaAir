@@ -20,6 +20,7 @@ export declare class TextureCube extends BaseTexture {
     static load(url: string, complete: Handler): void;
     /**
      * @inheritDoc
+     * @override
      */
     readonly defaulteTexture: BaseTexture;
     /**
@@ -27,7 +28,11 @@ export declare class TextureCube extends BaseTexture {
      * @param	format 贴图格式。
      * @param	mipmap 是否生成mipmap。
      */
-    constructor(format?: number, mipmap?: boolean);
+    constructor(size: number, format?: number, mipmap?: boolean);
+    /**
+    * @private
+    */
+    private _setPixels;
     /**
      * 通过六张图片源填充纹理。
      * @param 图片源数组。
@@ -37,9 +42,10 @@ export declare class TextureCube extends BaseTexture {
      * 通过六张图片源填充纹理。
      * @param 图片源数组。
      */
-    setSixSidePixels(width: number, height: number, pixels: any[]): void;
+    setSixSidePixels(pixels: any[], miplevel?: number): void;
     /**
      * @inheritDoc
+     * @override
      */
     protected _recoverResource(): void;
 }

@@ -60,6 +60,8 @@ export declare class BaseTexture extends Bitmap {
     protected _filterMode: number;
     /** @private */
     protected _anisoLevel: number;
+    /** @private */
+    protected _mipmapCount: number;
     /**
      * 是否使用mipLevel
      */
@@ -97,6 +99,10 @@ export declare class BaseTexture extends Bitmap {
     */
     anisoLevel: number;
     /**
+     * 获取mipmap数量。
+     */
+    readonly mipmapCount: number;
+    /**
      * 获取默认纹理资源。
      */
     readonly defaulteTexture: BaseTexture;
@@ -104,6 +110,10 @@ export declare class BaseTexture extends Bitmap {
      * 创建一个 <code>BaseTexture</code> 实例。
      */
     constructor(format: number, mipMap: boolean);
+    /**
+     * @private
+     */
+    protected _getFormatByteCount(): number;
     /**
      * @private
      */
