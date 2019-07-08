@@ -46,9 +46,6 @@ export class TextureCube extends BaseTexture {
 		ILaya.loader.create(url, complete, null, TextureCube.TEXTURECUBE);
 	}
 
-	/** @internal */
-	private _premultiplyAlpha: number;
-
 	/**
 	 * @inheritDoc
 	 * @override
