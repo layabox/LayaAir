@@ -13,7 +13,7 @@ const fs = require("fs");
 const path = require("path");
 const emiter_1 = require("./emiter");
 var BaseURL;
-var outfile = "./bin/as/declare/";
+var outfile = "../../build/as/declare/";
 /**加载与写入计数 */
 var complete = 0;
 var progress = 0;
