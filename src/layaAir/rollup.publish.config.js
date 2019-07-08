@@ -29,7 +29,7 @@ var packsDef={
             './laya/utils/**/*.*',
             './laya/webgl/**/*.*'
         ],
-        'out':'../publishTool/bin/js/laya.core.js'
+        'out':'../../build/js/laya.core.js'
     },
     'd3':{
         'input':[
@@ -38,45 +38,45 @@ var packsDef={
             './ILaya3D.ts',
             './Laya3D.ts'
         ],
-        'out':'../publishTool/bin/js/laya.d3.js'
+        'out':'../../build/js/laya.d3.js'
     },
     'device':{
         'input':[
             './laya/device/**/*.*'
         ],
-        'out':'../publishTool/bin/js/laya.device.js'
+        'out':'../../build/js/laya.device.js'
     },
     'html':{
         'input':[
             './laya/html/**/*.*'
         ],
-        'out':'../publishTool/bin/js/laya.html.js' 
+        'out':'../../build/js/laya.html.js' 
     },
     'particle':{
         'input':[
             './laya/particle/**/*.*'
         ],
-        'out':'../publishTool/bin/js/laya.particle.js'
+        'out':'../../build/js/laya.particle.js'
     },
 
     'physics':{
         'input':[
             './laya/physics/**/*.*'
         ],
-        'out':'../publishTool/bin/js/laya.physics.js' 
+        'out':'../../build/js/laya.physics.js' 
     },
     'ui':{
         'input':[
             './laya/ui/**/*.*'
         ],
-        'out':'../publishTool/bin/js/laya.ui.js'
+        'out':'../../build/js/laya.ui.js'
     },
 
     'ani':{
         'input':[
             './laya/ani/**/*.*'
         ],
-        'out':'../publishTool/bin/js/laya.ani.js'
+        'out':'../../build/js/laya.ani.js'
     }
 
 };
