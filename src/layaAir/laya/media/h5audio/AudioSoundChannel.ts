@@ -125,7 +125,8 @@ import { ILaya } from "../../../ILaya";
 			}		
 			Browser.removeElement(this._audio);
 			this._audio = null;
-		
+			if (ILaya.SoundManager.autoReleaseSound)
+			ILaya.SoundManager.disposeSoundLater(this.url);
 		}
 		
 		/*override*/  pause():void 
@@ -134,6 +135,8 @@ import { ILaya } from "../../../ILaya";
 			ILaya.SoundManager.removeChannel(this);
 			if("pause" in this._audio)
 			this._audio.pause();
+			if (ILaya.SoundManager.autoReleaseSound)
+			ILaya.SoundManager.disposeSoundLater(this.url);
 		}
 		
 		/*override*/  resume():void 

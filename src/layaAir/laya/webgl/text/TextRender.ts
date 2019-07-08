@@ -426,7 +426,7 @@ import { ILaya } from "../../../ILaya";
 			this.charRender.scale(this.fontScaleX, this.fontScaleY);
 			ri.char = str;
 			ri.height = font._size;
-			var margin:number = font._size / 3 |0;	// 凑的。 注意这里不能乘以缩放，因为ctx会自动处理
+			var margin:number = ILaya.Render.isConchApp?0:(font._size / 3 |0);	// 凑的。 注意这里不能乘以缩放，因为ctx会自动处理
 			// 如果不存在，就要插入已有的，或者创建新的
 			var imgdt:ImageData = null;
 			// 先大约测量文字宽度 

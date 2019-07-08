@@ -14,7 +14,6 @@ export function delay(duration:number) {
 export function loadRes(url:string){
     return new Promise(resolve=>{
         Laya.loader.load(url, Handler.create(this,()=>{
-            console.log('kkkk')
             resolve();}));
     });
 }
