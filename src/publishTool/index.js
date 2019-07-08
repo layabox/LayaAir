@@ -15,8 +15,8 @@ const emiter_1 = require("./emiter");
 var BaseURL;
 var outfile = "../../build/as/declare/";
 //输出的JS TS目录，相对as文件夹
-var outfileTS = "../../ts/libs/declare/";
-var outfileJS = "../../js/libs/declare/";
+var outfileTS = "../../ts/declare/";
+var outfileJS = "../../js/declare/";
 /**加载与写入计数 */
 var complete = 0;
 var progress = 0;
