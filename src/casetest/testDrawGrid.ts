@@ -1,9 +1,10 @@
 
-import {delay, loadRes} from './delay.js'
-import { Laya } from 'Laya.js';
-import { Sprite } from 'laya/display/Sprite.js';
-import { Loader } from 'laya/net/Loader.js';
-import { Image } from 'laya/ui/Image.js';
+import {delay, loadRes} from './delay'
+import { Laya } from 'Laya';
+import { Sprite } from 'laya/display/Sprite';
+import { Loader } from 'laya/net/Loader';
+import { Image } from 'laya/ui/Image';
+import { GlowFilter } from 'laya/filters/GlowFilter';
 
 /**
  * autobitmap 的drawgrid实现
@@ -17,9 +18,6 @@ class Main {
         this.test1();
     }
     
-    /**
-     * 扇形mask ，角度减少的时候，会出错
-     */
     async test1(){
         await loadRes('res/atlas/comp.atlas');
 
@@ -36,7 +34,8 @@ class Main {
         img.sizeGrid='40,10,10,10,1';
         img.skin = 'comp/bg.png';
         Laya.stage.addChild(img);
-        
+
+        // 加上mask的效果
         var img2 = new Image();
         img2.pos(0,300)
         img2.size(200,200);
@@ -48,6 +47,20 @@ class Main {
         //img2.cacheAs='bitmap'
         Laya.stage.addChild(img2);
 
+        var img3 = new Image();
+        img3.pos(300,300)
+        img3.size(200,200);
+        img3.sizeGrid='40,10,10,10,1';
+        img3.skin = 'comp/bg.png';
+        img2.mask=mask;
+        Laya.stage.addChild(img3);
+
+        // 加glow，减glow
+        var glowFilter = new GlowFilter("#ffff00", 10, 0, 0);
+        img3.filters=[glowFilter];
+        await delay(10);
+        img3.filters=null;
+        //img2.mask=null;
        
         delay(10);
         (window as any).testEnd=true;   // 告诉测试程序可以停止了
