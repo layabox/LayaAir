@@ -1,7 +1,6 @@
 //import { terser } from 'rollup-plugin-terser';
 import typescript from 'rollup-plugin-typescript2';
 import glsl from 'rollup-plugin-glsl';
-import cleanup from 'rollup-plugin-cleanup'
 const path = require('path');
 const fs = require('fs');
 var matched = require('matched');
@@ -182,9 +181,6 @@ export default [
                 include: /\.glsl$/,
                 sourceMap: false
             }),   
-            cleanup({
-                comments:'none'
-            })         // cleanup here    
         ]
     },
     {
@@ -210,9 +206,7 @@ export default [
                 include: /\.glsl$/,
                 sourceMap: false
             }),   
-            cleanup({
-                comments:'none'
-            })         // cleanup here         
+      
         ]
 
     },
@@ -237,12 +231,7 @@ export default [
             glsl({
                 include: /.*(.glsl|.vs|.fs)$/,
                 sourceMap: false
-            }),    
-            cleanup({
-                comments:'ts',
-                include:'../publishTool/bin/laya.d3.js',
-                extensions:['js', 'jsx', 'tag']
-            })         // cleanup here        
+            }),     
         ]
     },
     {
