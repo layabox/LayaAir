@@ -55,6 +55,7 @@ import { ILaya } from "../../ILaya";
 			}
 			var frame:number = this.currFrame = this.currFrame + this.scale;
 			var now:number = Date.now();
+			var awake:boolean = (now - this._lastTimer) > 30000;
 			this._delta = (now - this._lastTimer) * this.scale;
 			var timer:number = this.currTimer = this.currTimer + this._delta;
 			this._lastTimer = now;
@@ -68,7 +69,7 @@ import { ILaya } from "../../ILaya";
 					var t:number = handler.userFrame ? frame : timer;
 					if (t >= handler.exeTime) {
 						if (handler.repeat) {
-							if (!handler.jumpFrame) {
+							if (!handler.jumpFrame || awake) {
 								handler.exeTime += handler.delay;
 								handler.run(false);
 								if (t > handler.exeTime) {

@@ -1,6 +1,7 @@
 //import { terser } from 'rollup-plugin-terser';
 import typescript from 'rollup-plugin-typescript2';
 import glsl from 'rollup-plugin-glsl';
+import cleanup from 'rollup-plugin-cleanup'
 const path = require('path');
 const fs = require('fs');
 var matched = require('matched');
@@ -28,7 +29,7 @@ var packsDef={
             './laya/utils/**/*.*',
             './laya/webgl/**/*.*'
         ],
-        'out':'../publishTool/bin/laya.core.js'
+        'out':'../publishTool/bin/js/laya.core.js'
     },
     'd3':{
         'input':[
@@ -37,45 +38,45 @@ var packsDef={
             './ILaya3D.ts',
             './Laya3D.ts'
         ],
-        'out':'../publishTool/bin/laya.d3.js'
+        'out':'../publishTool/bin/js/laya.d3.js'
     },
     'device':{
         'input':[
             './laya/device/**/*.*'
         ],
-        'out':'../publishTool/bin/laya.device.js'
+        'out':'../publishTool/bin/js/laya.device.js'
     },
     'html':{
         'input':[
             './laya/html/**/*.*'
         ],
-        'out':'../publishTool/bin/laya.html.js' 
+        'out':'../publishTool/bin/js/laya.html.js' 
     },
     'particle':{
         'input':[
             './laya/particle/**/*.*'
         ],
-        'out':'../publishTool/bin/laya.particle.js'
+        'out':'../publishTool/bin/js/laya.particle.js'
     },
 
     'physics':{
         'input':[
             './laya/physics/**/*.*'
         ],
-        'out':'../publishTool/bin/laya.physics.js' 
+        'out':'../publishTool/bin/js/laya.physics.js' 
     },
     'ui':{
         'input':[
             './laya/ui/**/*.*'
         ],
-        'out':'../publishTool/bin/laya.ui.js'
+        'out':'../publishTool/bin/js/laya.ui.js'
     },
 
     'ani':{
         'input':[
             './laya/ani/**/*.*'
         ],
-        'out':'../publishTool/bin/laya.ani.js'
+        'out':'../publishTool/bin/js/laya.ani.js'
     }
 
 };
@@ -180,7 +181,10 @@ export default [
             glsl({
                 include: /\.glsl$/,
                 sourceMap: false
-            }),        
+            }),   
+            cleanup({
+                comments:'none'
+            })         // cleanup here    
         ]
     },
     {
@@ -205,7 +209,10 @@ export default [
             glsl({
                 include: /\.glsl$/,
                 sourceMap: false
-            }),        
+            }),   
+            cleanup({
+                comments:'none'
+            })         // cleanup here         
         ]
 
     },
@@ -230,7 +237,12 @@ export default [
             glsl({
                 include: /.*(.glsl|.vs|.fs)$/,
                 sourceMap: false
-            }),        
+            }),    
+            cleanup({
+                comments:'ts',
+                include:'../publishTool/bin/laya.d3.js',
+                extensions:['js', 'jsx', 'tag']
+            })         // cleanup here        
         ]
     },
     {
