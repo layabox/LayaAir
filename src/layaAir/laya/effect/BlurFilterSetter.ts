@@ -1,5 +1,5 @@
 import { FilterSetterBase } from "././FilterSetterBase";
-import { BlurFilter } from "../../../../core/src/laya/filters/BlurFilter"
+import { BlurFilter } from "../filters/BlurFilter";
 	/**
 	 * ...
 	 * @author ww

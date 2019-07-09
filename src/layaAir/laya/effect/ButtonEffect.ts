@@ -1,8 +1,9 @@
-import { Sprite } from "../../../../core/src/laya/display/Sprite"
-	import { Event } from "../../../../core/src/laya/events/Event"
-	import { Ease } from "../../../../core/src/laya/utils/Ease"
-	import { Handler } from "../../../../core/src/laya/utils/Handler"
-	import { Tween } from "../../../../core/src/laya/utils/Tween"
+import { Sprite } from "../display/Sprite";
+import { Tween } from "../utils/Tween";
+import { Event } from "../events/Event";
+import { Ease } from "../utils/Ease";
+import { Handler } from "../utils/Handler";
+
 	/**
 	 * @Script {name:ButtonEffect}
 	 * @author ww
