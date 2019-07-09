@@ -160,25 +160,34 @@ function myMultiInput(){
     );
 }
 
+
+gulp.task('CopyJSLibsToJS', () => {
+	return gulp.src([
+		'./jsLibs/*.js'], )
+		.pipe(gulp.dest('../../build/js'));
+});
+
 gulp.task('CopyJSFileToTSCompatible', () => {
 	return gulp.src([
-		'../../build/js/*.js'], )
+		'../../build/js/**/*.js'], )
 		.pipe(gulp.dest('../../build/ts_compatible'));
 });
 
 
 gulp.task('CopyJSFileToAS', () => {
 	return gulp.src([
-		'../../build/js/*.js', '!./declare/*ts'], )
+		'../../build/js/**/*.js', '!./declare/*ts'], )
 		.pipe(gulp.dest('../../build/as'));
 });
 
 gulp.task('CopyTSFileToTS', () => {
 	return gulp.src([
 		'./*.ts',
-        './**/*.ts', '!./jsLibs/*.ts'], )
+        './**/*.ts', './**/*.js'], )
 		.pipe(gulp.dest('../../build/ts/'));
 });
+
+
 
 
 gulp.task('buildJS', async function () {
@@ -400,4 +409,4 @@ gulp.task('buildJS', async function () {
 
   });
 
-  gulp.task('build', gulp.series('buildJS','buildJS2','CopyTSFileToTS','CopyJSFileToAS', 'CopyJSFileToTSCompatible'));
+  gulp.task('build', gulp.series('buildJS','buildJS2','CopyJSLibsToJS','CopyTSFileToTS','CopyJSFileToAS', 'CopyJSFileToTSCompatible'));

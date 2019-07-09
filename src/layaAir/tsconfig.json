@@ -6,7 +6,6 @@
         "composite":true,
         "stripInternal": true,
         "removeComments": true
-
     },
     "exclude": [
         "laya/d3Extend/Cube",
