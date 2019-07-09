@@ -1,11 +1,12 @@
-//import { terser } from 'rollup-plugin-terser';
-import typescript from 'rollup-plugin-typescript2';
-import glsl from 'rollup-plugin-glsl';
+
+const typescript =  require('rollup-plugin-typescript2');
+const glsl = require('rollup-plugin-glsl');
 const path = require('path');
 const fs = require('fs');
 var matched = require('matched');
 const production = !process.env.ROLLUP_WATCH;
-
+const gulp = require('gulp');
+const rollup = require('rollup');
 
 var packsDef={
     'core':{
@@ -79,7 +80,6 @@ var packsDef={
     }
 
 };
-
 
 var curPackFiles=null;  //当前包的所有的文件
 var mentry = 'multientry:entry-point';
@@ -160,209 +160,244 @@ function myMultiInput(){
     );
 }
 
+gulp.task('CopyJSFileToTSCompatible', () => {
+	return gulp.src([
+		'../../build/js/*.js'], )
+		.pipe(gulp.dest('../../build/ts_compatible'));
+});
 
-export default [
-    { //core
-        input:packsDef.core.input,
-        output: {
-            file: packsDef.core.out,
-            format: 'iife', // immediately-invoked function expression — suitable for <script> tags
-            sourcemap: false,
-            name:'Laya',
-            //indent: false
-        },
-        plugins: [
-            myMultiInput(),
-            typescript({
-                //abortOnError:false
-                check: false
-            }),
-            glsl({
-                include: /\.glsl$/,
-                sourceMap: false
-            }),   
-        ]
-    },
-    {
-        //ani
+
+gulp.task('CopyJSFileToAS', () => {
+	return gulp.src([
+		'../../build/js/*.js', '!./declare/*ts'], )
+		.pipe(gulp.dest('../../build/as'));
+});
+
+gulp.task('CopyTSFileToTS', () => {
+	return gulp.src([
+		'./*.ts',
+        './**/*.ts', '!./jsLibs/*.ts'], )
+		.pipe(gulp.dest('../../build/ts/'));
+});
+
+
+gulp.task('buildJS', async function () {
+
+    const ani = await rollup.rollup({
         input:packsDef.ani.input,
         output: {
-            file: packsDef.ani.out,
-            format: 'iife', // immediately-invoked function expression — suitable for <script> tags
-            sourcemap: false,
-            name:'Laya',
             extend:true,
             globals:{'Laya':'Laya'}
-            //indent: false
         },
         external:['Laya'],
         plugins: [
             myMultiInput(),
             typescript({
-                //abortOnError:false
+                tsconfig:"tsconfig.json",
                 check: false
             }),
             glsl({
                 include: /\.glsl$/,
                 sourceMap: false
             }),   
-      
         ]
+    });
+  
+    await ani.write({
+      file: packsDef.ani.out,
+      format: 'iife',
+      name: 'Laya',
+      sourcemap: false
+    });
 
-    },
-    { //d3
+
+    const core = await rollup.rollup({
+        input:packsDef.core.input,
+        plugins: [
+            myMultiInput(),
+            typescript({
+                tsconfig:"tsconfig.json",
+                check: false
+            }),
+            glsl({
+                include: /\.glsl$/,
+                sourceMap: false
+            }),   
+        ]
+    });
+  
+    await core.write({
+      file: packsDef.core.out,
+      format: 'iife',
+      name: 'Laya',
+      sourcemap: false
+    });
+
+    const d3 = await rollup.rollup({
         input:packsDef.d3.input,
         output: {
-            file: packsDef.d3.out,
-            format: 'iife', // immediately-invoked function expression — suitable for <script> tags
-            sourcemap: false,
-            name:'Laya',
             extend:true,
             globals:{'Laya':'Laya'}
-            //indent: false
         },
         external:['Laya'],
         plugins: [
             myMultiInput(),
             typescript({
-                //abortOnError:false
+                tsconfig:"tsconfig.json",
                 check: false
             }),
             glsl({
                 include: /.*(.glsl|.vs|.fs)$/,
                 sourceMap: false
-            }),     
+            }),   
         ]
-    },
-    {
-        //device
+    });
+  
+    await d3.write({
+      file: packsDef.d3.out,
+      format: 'iife',
+      name: 'Laya',
+      sourcemap: false
+    });
+
+    const device = await rollup.rollup({
         input:packsDef.device.input,
         output: {
-            file: packsDef.device.out,
-            format: 'iife', // immediately-invoked function expression — suitable for <script> tags
-            sourcemap: false,
-            name:'Laya',
             extend:true,
             globals:{'Laya':'Laya'}
-            //indent: false
         },
         external:['Laya'],
         plugins: [
             myMultiInput(),
             typescript({
-                //abortOnError:false
+                tsconfig:"tsconfig.json",
                 check: false
             }),
             glsl({
                 include: /\.glsl$/,
                 sourceMap: false
-            }),        
+            }),   
         ]
+    });
+  
+    await device.write({
+      file: packsDef.device.out,
+      format: 'iife',
+      name: 'Laya',
+      sourcemap: false
+    });
 
-    },
-    {
-        //html
+    const html = await rollup.rollup({
         input:packsDef.html.input,
         output: {
-            file: packsDef.html.out,
-            format: 'iife', // immediately-invoked function expression — suitable for <script> tags
-            sourcemap: false,
-            name:'Laya',
             extend:true,
             globals:{'Laya':'Laya'}
-            //indent: false
         },
         external:['Laya'],
         plugins: [
             myMultiInput(),
             typescript({
-                //abortOnError:false
+                tsconfig:"tsconfig.json",
                 check: false
             }),
             glsl({
                 include: /\.glsl$/,
                 sourceMap: false
-            }),        
+            }),   
         ]
+    });
+  
+    await html.write({
+      file: packsDef.html.out,
+      format: 'iife',
+      name: 'Laya',
+      sourcemap: false
+    });
 
-    },
-    {
-        //particle
+    const particle = await rollup.rollup({
         input:packsDef.particle.input,
         output: {
-            file: packsDef.particle.out,
-            format: 'iife', // immediately-invoked function expression — suitable for <script> tags
-            sourcemap: false,
-            name:'Laya',
             extend:true,
             globals:{'Laya':'Laya'}
-            //indent: false
         },
         external:['Laya'],
         plugins: [
             myMultiInput(),
             typescript({
-                //abortOnError:false
+                tsconfig:"tsconfig.json",
                 check: false
             }),
             glsl({
                 include: /\.glsl$/,
                 sourceMap: false
-            }),        
+            }),   
         ]
+    });
+  
+    await particle.write({
+      file: packsDef.particle.out,
+      format: 'iife',
+      name: 'Laya',
+      sourcemap: false
+    });
 
-    },
-    {
-        //physics
+  });
+
+  gulp.task('buildJS2', async function () {
+    const physics = await rollup.rollup({
         input:packsDef.physics.input,
         output: {
-            file: packsDef.physics.out,
-            format: 'iife', // immediately-invoked function expression — suitable for <script> tags
-            sourcemap: false,
-            name:'Laya',
             extend:true,
             globals:{'Laya':'Laya'}
-            //indent: false
         },
         external:['Laya'],
         plugins: [
             myMultiInput(),
             typescript({
-                //abortOnError:false
+                tsconfig:"tsconfig.json",
                 check: false
             }),
             glsl({
                 include: /\.glsl$/,
                 sourceMap: false
-            }),        
+            }),   
         ]
+    });
+  
+    await physics.write({
+      file: packsDef.physics.out,
+      format: 'iife',
+      name: 'Laya',
+      sourcemap: false
+    });
 
-    },
-    {
-        //ui
+    const ui = await rollup.rollup({
         input:packsDef.ui.input,
         output: {
-            file: packsDef.ui.out,
-            format: 'iife', // immediately-invoked function expression — suitable for <script> tags
-            sourcemap: false,
-            name:'Laya',
             extend:true,
             globals:{'Laya':'Laya'}
-            //indent: false
         },
         external:['Laya'],
         plugins: [
             myMultiInput(),
             typescript({
-                //abortOnError:false
+                tsconfig:"tsconfig.json",
                 check: false
             }),
             glsl({
                 include: /\.glsl$/,
                 sourceMap: false
-            }),        
+            }),   
         ]
+    });
+  
+    await ui.write({
+      file: packsDef.ui.out,
+      format: 'iife',
+      name: 'Laya',
+      sourcemap: false
+    });
 
-    }
+  });
 
-];
+  gulp.task('build', gulp.series('buildJS','buildJS2','CopyJSFileToTS','CopyJSFileToAS', 'CopyJSFileToTSCompatible'));
