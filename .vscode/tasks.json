@@ -7,6 +7,16 @@
             "type": "gulp",
             "task": "Build LayaAir",
             "problemMatcher": []
+        },
+        {
+            "type": "gulp",
+            "task": "Build LayaAir-RollUp",
+            "problemMatcher": []
+        },
+        {
+            "type": "gulp",
+            "task": "Build xx",
+            "problemMatcher": []
         }
     ]
 }
