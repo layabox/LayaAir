@@ -1,8 +1,8 @@
-import { Component } from "../../../../core/src/laya/components/Component"
-	import { Sprite } from "../../../../core/src/laya/display/Sprite"
-	import { Handler } from "../../../../core/src/laya/utils/Handler"
-	import { Tween } from "../../../../core/src/laya/utils/Tween"
-	
+import { Handler } from "../utils/Handler";
+import { Sprite } from "../display/Sprite";
+import { Tween } from "../utils/Tween";
+import { Component } from "../components/Component";
+
 	/**
 	 * 效果插件基类，基于对象池管理
 	 */

@@ -27,7 +27,8 @@ var packsDef={
             './laya/resource/**/*.*',
             './laya/system/**/*.*',
             './laya/utils/**/*.*',
-            './laya/webgl/**/*.*'
+            './laya/webgl/**/*.*',
+            './laya/effect/**/*.*'
         ],
         'out':'../../build/js/laya.core.js'
     },

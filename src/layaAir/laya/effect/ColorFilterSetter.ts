@@ -1,9 +1,7 @@
-import { FilterSetterBase } from "././FilterSetterBase";
-import { Node } from "../../../../core/src/laya/display/Node"
-	import { Sprite } from "../../../../core/src/laya/display/Sprite"
-	import { ColorFilter } from "../../../../core/src/laya/filters/ColorFilter"
-	import { ColorUtils } from "../../../../core/src/laya/utils/ColorUtils"
-	import { Utils } from "../../../../core/src/laya/utils/Utils"
+import { FilterSetterBase } from "./FilterSetterBase";
+import { ColorFilter } from "../filters/ColorFilter";
+import { ColorUtils } from "../utils/ColorUtils";
+
 	/**
 	 * ...
 	 * @author ww
