@@ -10,8 +10,6 @@
   "license": "ISC",
   "dependencies": {
     "@types/webgl2": "0.0.4",
-    "rollup-plugin-commonjs": "^9.3.4",
-    "rollup-plugin-terser": "^5.0.0",
     "typedoc": "^0.14.2"
   },
   "devDependencies": {
