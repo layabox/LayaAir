@@ -202,7 +202,8 @@ function checkComplete() {
     setTimeout(() => {
         let keys = Object.keys(Testobj);
         if (!keys.length) {
-            console.log("文件转换完成!!!", complete, progress);
+            //console.log("文件转换完成!!!", complete, progress);
+            console.log("ts--------->as succeed!", complete, progress);
             let layaObj = "declare module Laya {\n" + emiter_1.emiter.dtsData + "\n}\n";
             dtsObj += layaObj;
             createDir(outfileJS);
@@ -213,11 +214,12 @@ function checkComplete() {
             let tsout = path.join(outfile, outfileTS) + "LayaAir.d.ts";
             fs.writeFile(tsout, dtsObj, err => {
                 if (err)
-                    console.log("生成d.ts失败");
+                    //console.log("生成d.ts失败");
+                    console.log("build d.ts failure!");
                 fs.writeFile(jsout, dtsObj, err => {
                     if (err)
-                        console.log("生成d.ts失败");
-                    console.log("生成d.ts成功");
+                        console.log("build d.ts failure!");
+                    console.log("build d.ts succeed!");
                 });
             });
         }
