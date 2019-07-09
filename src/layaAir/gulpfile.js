@@ -184,7 +184,7 @@ gulp.task('CopyJSFileToAS', () => {
 gulp.task('CopyTSFileToTS', () => {
 	return gulp.src([
 		'./*.ts',
-        './**/*.ts', './**/*.js'], )
+        './**/*.ts', './**/*.js', '!gulpfile.js'], )
 		.pipe(gulp.dest('../../build/ts/'));
 });
 
