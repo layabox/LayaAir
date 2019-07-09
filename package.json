@@ -11,7 +11,6 @@
   "dependencies": {
     "@types/webgl2": "0.0.4",
     "rollup-plugin-commonjs": "^9.3.4",
-    "rollup-plugin-node-resolve": "^4.0.1",
     "rollup-plugin-terser": "^5.0.0",
     "typedoc": "^0.14.2"
   },
