@@ -1,8 +1,7 @@
-import {delay} from './delay.js'
-import { Laya } from 'Laya.js';
-import { Text } from 'laya/display/Text.js';
-import { ILaya } from 'ILaya.js';
-import { TextRender } from 'laya/webgl/text/TextRender.js';
+import {delay} from './delay'
+import { Laya } from 'Laya';
+import { Text } from 'laya/display/Text';
+import { TextRender } from 'laya/webgl/text/TextRender';
 
 export class Main {
 	constructor() {
