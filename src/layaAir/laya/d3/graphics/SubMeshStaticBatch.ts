@@ -298,11 +298,12 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 	_render(state: RenderContext3D): void {
 		this._bufferState.bind();
 		var element: RenderElement = state.renderElement;
-		var batchElementList: Array<SubMeshRenderElement> = ((<SubMeshRenderElement>element)).staticBatchElementList.elements;
+		var staticBatchElementList:SingletonList<SubMeshRenderElement>=(<SubMeshRenderElement>element).staticBatchElementList;
+		var batchElementList: Array<SubMeshRenderElement> = staticBatchElementList.elements;
 		/*合并drawcall版本:合并几率不大*/
 		var from: number = 0;
 		var end: number = 0;
-		var count: number = batchElementList.length;
+		var count: number = staticBatchElementList.length;
 		for (var i: number = 1; i < count; i++) {
 			var lastElement: SubMeshRenderElement = batchElementList[i - 1];
 			if (lastElement.staticBatchIndexEnd === batchElementList[i].staticBatchIndexStart) {
