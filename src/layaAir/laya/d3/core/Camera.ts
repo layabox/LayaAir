@@ -404,7 +404,7 @@ export class Camera extends BaseCamera {
 		if (createRenderTexture) //需要强制配置渲染纹理的条件
 			this._renderTexture = RenderTexture.createFromPool(RenderContext3D.clientWidth, RenderContext3D.clientHeight, this._getRenderTextureFormat(), BaseTexture.FORMAT_DEPTH_16, BaseTexture.FILTERMODE_BILINEAR);
 
-		var gl: WebGL2RenderingContext = LayaGL.instance;
+		var gl: WebGLRenderingContext = LayaGL.instance;
 		var context: RenderContext3D = RenderContext3D._instance;
 		var scene: Scene3D = context.scene = (<Scene3D>this._scene);
 		if (scene.parallelSplitShadowMaps[0]) {//TODO:SM

@@ -5,16 +5,16 @@ import { Mesh2D } from "./Mesh2D";
 	 */
 	export class MeshParticle2D extends Mesh2D {
 		 static const_stride:number = 116;
-		private static _fixattriInfo:any[] = [WebGL2RenderingContext.FLOAT, 4, 0,	//CornerTextureCoordinate
-				WebGL2RenderingContext.FLOAT, 3, 16,//pos
-				WebGL2RenderingContext.FLOAT, 3, 28,//vel
-				WebGL2RenderingContext.FLOAT, 4, 40,//start color
-				WebGL2RenderingContext.FLOAT, 4, 56,//end color
-				WebGL2RenderingContext.FLOAT, 3, 72,//size,rot
-				WebGL2RenderingContext.FLOAT, 2, 84,//radius
-				WebGL2RenderingContext.FLOAT, 4, 92,//radian
-				WebGL2RenderingContext.FLOAT, 1, 108,//AgeAddScale
-				WebGL2RenderingContext.FLOAT, 1, 112];
+		private static _fixattriInfo:any[] = [WebGLRenderingContext.FLOAT, 4, 0,	//CornerTextureCoordinate
+				WebGLRenderingContext.FLOAT, 3, 16,//pos
+				WebGLRenderingContext.FLOAT, 3, 28,//vel
+				WebGLRenderingContext.FLOAT, 4, 40,//start color
+				WebGLRenderingContext.FLOAT, 4, 56,//end color
+				WebGLRenderingContext.FLOAT, 3, 72,//size,rot
+				WebGLRenderingContext.FLOAT, 2, 84,//radius
+				WebGLRenderingContext.FLOAT, 4, 92,//radian
+				WebGLRenderingContext.FLOAT, 1, 108,//AgeAddScale
+				WebGLRenderingContext.FLOAT, 1, 112];
 		private static _POOL:any[] = [];
 		//TODO:coverage
 		constructor(maxNum:number) {

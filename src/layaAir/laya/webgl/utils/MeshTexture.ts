@@ -8,9 +8,9 @@ import { IndexBuffer2D } from "./IndexBuffer2D";
 	 */
 	export class MeshTexture extends Mesh2D {
 		 static const_stride:number = 24;
-		private static _fixattriInfo:any[] = [WebGL2RenderingContext.FLOAT, 4, 0,	//pos,uv
-			WebGL2RenderingContext.UNSIGNED_BYTE, 4, 16,	//color alpha
-			WebGL2RenderingContext.UNSIGNED_BYTE,4,20];
+		private static _fixattriInfo:any[] = [WebGLRenderingContext.FLOAT, 4, 0,	//pos,uv
+			WebGLRenderingContext.UNSIGNED_BYTE, 4, 16,	//color alpha
+			WebGLRenderingContext.UNSIGNED_BYTE,4,20];
 		private static _POOL:any[] = [];
 		constructor() {
 			super(MeshTexture.const_stride,4,4);	//x,y,u,v,rgba

@@ -201,10 +201,10 @@ import { ILaya } from "../../ILaya";
 				var delay:string = Stat.FPS > 0 ? Math.floor(1000 / Stat.FPS).toString() : " ";
 				Stat._fpsStr = Stat.FPS + (Stat.renderSlow ? " slow" : "") + " " + delay;
 				
-				if (this._useCanvas)
-					Stat._spriteStr = (Stat.spriteCount - 1) + (Stat.spriteRenderUseCacheCount ? ("/" + Stat.spriteRenderUseCacheCount) : '');
-				else
-					Stat._spriteStr = (Stat.spriteCount - 4) + (Stat.spriteRenderUseCacheCount ? ("/" + Stat.spriteRenderUseCacheCount) : '');
+				// if (this._useCanvas)
+					// Stat._spriteStr = (Stat.spriteCount - 1) + (Stat.spriteRenderUseCacheCount ? ("/" + Stat.spriteRenderUseCacheCount) : '');
+				// else
+				Stat._spriteStr = Stat.spriteCount  + (Stat.spriteRenderUseCacheCount ? ("/" + Stat.spriteRenderUseCacheCount) : '');
 				
 				Stat._canvasStr = Stat.canvasReCache + "/" + Stat.canvasNormal + "/" + Stat.canvasBitmap;
 				Stat.cpuMemory = Resource.cpuMemory;

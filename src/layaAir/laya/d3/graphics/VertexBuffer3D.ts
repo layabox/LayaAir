@@ -66,7 +66,7 @@ export class VertexBuffer3D extends Buffer {
 		super();
 		this._vertexCount = -1;
 		this._bufferUsage = bufferUsage;
-		this._bufferType = WebGL2RenderingContext.ARRAY_BUFFER;
+		this._bufferType = WebGLRenderingContext.ARRAY_BUFFER;
 		this._canRead = canRead;
 
 		this._byteLength = byteLength;
@@ -84,7 +84,7 @@ export class VertexBuffer3D extends Buffer {
 	 */
 	bind(): boolean {
 		if (Buffer._bindedVertexBuffer !== this._glBuffer) {
-			LayaGL.instance.bindBuffer(WebGL2RenderingContext.ARRAY_BUFFER, this._glBuffer);
+			LayaGL.instance.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, this._glBuffer);
 			Buffer._bindedVertexBuffer = this._glBuffer;
 			return true;
 		} else {

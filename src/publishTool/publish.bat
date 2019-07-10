@@ -1,6 +1,10 @@
-cd ..\layaAir
-rollup -c rollup.publish.config.js
-
-cd ..\publishTool
+@echo off
+if exist ..\..\build (
+   rmdir /s/q ..\..\build
+) 
 node index.js
+
+cd ..\layaAir
+gulp build
+
 @pause

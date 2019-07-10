@@ -108,10 +108,10 @@ export class SubMesh extends GeometryElement {
 			var boneIndicesListCount: number = this._boneIndicesList.length;
 			for (var i: number = 0; i < boneIndicesListCount; i++) {
 				state.shader.uploadCustomUniform(SkinnedMeshSprite3D.BONES, subSkinnedDatas[i]);
-				LayaGL.instance.drawElements(WebGL2RenderingContext.TRIANGLES, this._subIndexBufferCount[i], WebGL2RenderingContext.UNSIGNED_SHORT, this._subIndexBufferStart[i] * 2);
+				LayaGL.instance.drawElements(WebGLRenderingContext.TRIANGLES, this._subIndexBufferCount[i], WebGLRenderingContext.UNSIGNED_SHORT, this._subIndexBufferStart[i] * 2);
 			}
 		} else {
-			LayaGL.instance.drawElements(WebGL2RenderingContext.TRIANGLES, this._indexCount, WebGL2RenderingContext.UNSIGNED_SHORT, this._indexStart * 2);
+			LayaGL.instance.drawElements(WebGLRenderingContext.TRIANGLES, this._indexCount, WebGLRenderingContext.UNSIGNED_SHORT, this._indexStart * 2);
 		}
 		Stat.trianglesFaces += this._indexCount / 3;
 		Stat.renderBatches++;

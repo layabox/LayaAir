@@ -212,7 +212,7 @@ export class LoadModelV05 {
 					break;
 			}
 
-			var vertexBuffer: VertexBuffer3D = new VertexBuffer3D(vertexData.byteLength, WebGL2RenderingContext.STATIC_DRAW, true);
+			var vertexBuffer: VertexBuffer3D = new VertexBuffer3D(vertexData.byteLength, WebGLRenderingContext.STATIC_DRAW, true);
 			vertexBuffer.vertexDeclaration = vertexDeclaration;
 			vertexBuffer.setData(vertexData);
 			LoadModelV05._mesh._vertexBuffer = vertexBuffer;
@@ -223,7 +223,7 @@ export class LoadModelV05 {
 		var ibStart: number = offset + LoadModelV05._readData.getUint32();
 		var ibLength: number = LoadModelV05._readData.getUint32();
 		var ibDatas: Uint16Array = new Uint16Array(arrayBuffer.slice(ibStart, ibStart + ibLength));
-		var indexBuffer: IndexBuffer3D = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, ibLength / 2, WebGL2RenderingContext.STATIC_DRAW, true);
+		var indexBuffer: IndexBuffer3D = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, ibLength / 2, WebGLRenderingContext.STATIC_DRAW, true);
 		indexBuffer.setData(ibDatas);
 		LoadModelV05._mesh._indexBuffer = indexBuffer;
 
