@@ -51,7 +51,7 @@ class emiter {
             //没有在module内
             this.copyTSdata = this.copyTSdata.replace("class", "declare class");
         }
-        return this.outString;
+        return "/*[IF-FLASH]*/\n"+this.outString;
     }
     /**
      * 生成import
@@ -84,7 +84,7 @@ class emiter {
             return ["\r\n", ""];
         classPath = classPath.replace(new RegExp("\\\\", "g"), ".");
         this.importArr[importName] = classPath;
-        return ["\timprot " + classPath + ";\r\n", ""];
+        return ["\timport " + classPath + ";\r\n", ""];
     }
     /**
      * 生成class
