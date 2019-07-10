@@ -76,6 +76,7 @@ import { IClone } from "./laya/d3/core/IClone"
 			destConfig3D.isStencil = this.isStencil;
 			destConfig3D.octreeCulling = this.octreeCulling;
 			this.octreeInitialCenter.cloneTo(destConfig3D.octreeInitialCenter);
+			destConfig3D.octreeInitialSize=this.octreeInitialSize;
 			destConfig3D.octreeMinNodeSize = this.octreeMinNodeSize;
 			destConfig3D.octreeLooseness = this.octreeLooseness;
 			destConfig3D.debugFrustumCulling = this.debugFrustumCulling;
