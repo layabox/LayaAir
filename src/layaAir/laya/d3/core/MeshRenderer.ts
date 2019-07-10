@@ -20,6 +20,7 @@ import { RenderElement } from "./render/RenderElement";
 import { SubMeshRenderElement } from "./render/SubMeshRenderElement";
 import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration";
 import { Render } from "../../renders/Render";
+import { SingletonList } from "../component/SingletonList";
 
 /**
  * <code>MeshRenderer</code> 类用于网格渲染器。
@@ -124,7 +125,7 @@ export class MeshRenderer extends BaseRender {
 				break;
 			case RenderElement.RENDERTYPE_INSTANCEBATCH:
 				var worldMatrixData: Float32Array = SubMeshInstanceBatch.instance.instanceWorldMatrixData;
-				var insBatches: SubMeshRenderElement[] = element.instanceBatchElementList;
+				var insBatches:  SingletonList<SubMeshRenderElement> = element.instanceBatchElementList;
 				var count: number = insBatches.length;
 				for (var i: number = 0; i < count; i++)
 					worldMatrixData.set(insBatches[i]._transform.worldMatrix.elements, i * 16);
@@ -153,7 +154,7 @@ export class MeshRenderer extends BaseRender {
 				break;
 			case RenderElement.RENDERTYPE_INSTANCEBATCH:
 				var mvpMatrixData: Float32Array = SubMeshInstanceBatch.instance.instanceMVPMatrixData;
-				var insBatches: SubMeshRenderElement[] = element.instanceBatchElementList;
+				var insBatches:SingletonList<SubMeshRenderElement> = element.instanceBatchElementList;
 				var count: number = insBatches.length;
 				for (var i: number = 0; i < count; i++) {
 					var worldMat: Matrix4x4 = insBatches[i]._transform.worldMatrix;
@@ -193,7 +194,7 @@ export class MeshRenderer extends BaseRender {
 				break;
 			case RenderElement.RENDERTYPE_INSTANCEBATCH:
 				var mvpMatrixData: Float32Array = SubMeshInstanceBatch.instance.instanceMVPMatrixData;
-				var insBatches: SubMeshRenderElement[] = element.instanceBatchElementList;
+				var insBatches:  SingletonList<SubMeshRenderElement> = element.instanceBatchElementList;
 				var count: number = insBatches.length;
 				for (var i: number = 0; i < count; i++) {
 					var worldMat: Matrix4x4 = insBatches[i]._transform.worldMatrix;

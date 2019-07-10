@@ -3,9 +3,9 @@ import { ISingletonElement } from "../../resource/ISingletonElement"
 /**
  * <code>SingletonList</code> 类用于实现单例队列。
  */
-export class SingletonList {
+export class SingletonList<T> {
 	/**@internal [只读]*/
-	elements: ISingletonElement[] = [];
+	elements: Array<T> = [];
 	/** @internal [只读]*/
 	length: number = 0;
 
@@ -18,11 +18,22 @@ export class SingletonList {
 	/**
 	 * @internal
 	 */
-	protected _add(element: any): void {
+	protected _add(element: T): void {
 		if (this.length === this.elements.length)
 			this.elements.push(element);
 		else
 			this.elements[this.length] = element;
+	}
+
+	/**
+	 * @internal
+	 */
+	public add(element: T): void {
+		if (this.length === this.elements.length)
+			this.elements.push(element);
+		else
+			this.elements[this.length] = element;
+		this.length++;
 	}
 
 }

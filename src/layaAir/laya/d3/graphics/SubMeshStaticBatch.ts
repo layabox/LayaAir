@@ -26,6 +26,7 @@ import { IDispose } from "../../resource/IDispose"
 import { Resource } from "../../resource/Resource"
 import { Stat } from "../../utils/Stat"
 import { WebGLContext } from "../../webgl/WebGLContext"
+import { SingletonList } from "../component/SingletonList";
 
 /**
  * @internal
@@ -290,13 +291,14 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 		this._bufferState.unBind();
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _render(state: RenderContext3D): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_render(state: RenderContext3D): void {
 		this._bufferState.bind();
 		var element: RenderElement = state.renderElement;
-		var batchElementList: SubMeshRenderElement[] = ((<SubMeshRenderElement>element)).staticBatchElementList;
+		var batchElementList: Array<SubMeshRenderElement> = ((<SubMeshRenderElement>element)).staticBatchElementList.elements;
 		/*合并drawcall版本:合并几率不大*/
 		var from: number = 0;
 		var end: number = 0;
