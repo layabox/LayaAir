@@ -75,6 +75,7 @@ import { Animator } from "./laya/d3/component/Animator";
 import { Command } from "./laya/d3/core/render/command/Command";
 import { ClassUtils } from "./laya/utils/ClassUtils";
 import { StaticPlaneColliderShape } from "./laya/d3/physics/shape/StaticPlaneColliderShape";
+import { PrimitiveMesh } from "./laya/d3/resource/models/PrimitiveMesh";
 
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
@@ -198,6 +199,7 @@ export class Laya3D {
 		}
 
 		Mesh.__init__();
+		PrimitiveMesh.__init__();
 		Sprite3D.__init__();
 		RenderableSprite3D.__init__();
 		MeshSprite3D.__init__();

@@ -13,6 +13,10 @@ import { SubMesh } from "./SubMesh";
  */
 export class PrimitiveMesh {
 
+	static __init__(): void {
+	
+	}
+
 	/**
 	 * @internal
 	 */
