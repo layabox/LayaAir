@@ -28,7 +28,7 @@ export class Submit extends SubmitBase {
 			this.shaderValue.texture = source;
 		}
 
-		var gl: WebGL2RenderingContext = WebGLContext.mainContext;
+		var gl: WebGLRenderingContext = WebGLContext.mainContext;
 		this._mesh.useMesh(gl);
 		//_ib._bind_upload() || _ib._bind();
 		//_vb._bind_upload() || _vb._bind();
@@ -40,7 +40,7 @@ export class Submit extends SubmitBase {
 			this._blendFn(gl);
 			BlendMode.activeBlendFunction = this._blendFn;
 		}
-		gl.drawElements(WebGL2RenderingContext.TRIANGLES, this._numEle, WebGL2RenderingContext.UNSIGNED_SHORT, this._startIdx);
+		gl.drawElements(WebGLRenderingContext.TRIANGLES, this._numEle, WebGLRenderingContext.UNSIGNED_SHORT, this._startIdx);
 
 		Stat.renderBatches++;
 		Stat.trianglesFaces += this._numEle / 3;

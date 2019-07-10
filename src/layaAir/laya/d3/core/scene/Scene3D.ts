@@ -708,7 +708,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/**
 	 * @internal
 	 */
-	_clear(gl: WebGL2RenderingContext, state: RenderContext3D): void {
+	_clear(gl: WebGLRenderingContext, state: RenderContext3D): void {
 		var viewport: Viewport = state.viewport;
 		var camera: Camera = (<Camera>state.camera);
 		var renderTexture: RenderTexture = camera._renderTexture || camera._offScreenRenderTexture;
@@ -725,55 +725,55 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		switch (clearFlag) {
 			case BaseCamera.CLEARFLAG_SOLIDCOLOR:
 				var clearColor: Vector4 = camera.clearColor;
-				gl.enable(WebGL2RenderingContext.SCISSOR_TEST);
+				gl.enable(WebGLRenderingContext.SCISSOR_TEST);
 				gl.scissor(vpX, vpY, vpW, vpH);
 				if (clearColor)
 					gl.clearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
 				else
 					gl.clearColor(0, 0, 0, 0);
 				if (renderTexture) {
-					flag = WebGL2RenderingContext.COLOR_BUFFER_BIT;
+					flag = WebGLRenderingContext.COLOR_BUFFER_BIT;
 					switch (renderTexture.depthStencilFormat) {
 						case BaseTexture.FORMAT_DEPTH_16:
-							flag |= WebGL2RenderingContext.DEPTH_BUFFER_BIT;
+							flag |= WebGLRenderingContext.DEPTH_BUFFER_BIT;
 							break;
 						case BaseTexture.FORMAT_STENCIL_8:
-							flag |= WebGL2RenderingContext.STENCIL_BUFFER_BIT;
+							flag |= WebGLRenderingContext.STENCIL_BUFFER_BIT;
 							break;
 						case BaseTexture.FORMAT_DEPTHSTENCIL_16_8:
-							flag |= WebGL2RenderingContext.DEPTH_BUFFER_BIT;
-							flag |= WebGL2RenderingContext.STENCIL_BUFFER_BIT;
+							flag |= WebGLRenderingContext.DEPTH_BUFFER_BIT;
+							flag |= WebGLRenderingContext.STENCIL_BUFFER_BIT;
 							break;
 					}
 				} else {
-					flag = WebGL2RenderingContext.COLOR_BUFFER_BIT | WebGL2RenderingContext.DEPTH_BUFFER_BIT;
+					flag = WebGLRenderingContext.COLOR_BUFFER_BIT | WebGLRenderingContext.DEPTH_BUFFER_BIT;
 				}
 				WebGLContext.setDepthMask(gl, true);
 				gl.clear(flag);
-				gl.disable(WebGL2RenderingContext.SCISSOR_TEST);
+				gl.disable(WebGLRenderingContext.SCISSOR_TEST);
 				break;
 			case BaseCamera.CLEARFLAG_SKY:
 			case BaseCamera.CLEARFLAG_DEPTHONLY:
-				gl.enable(WebGL2RenderingContext.SCISSOR_TEST);
+				gl.enable(WebGLRenderingContext.SCISSOR_TEST);
 				gl.scissor(vpX, vpY, vpW, vpH);
 				if (renderTexture) {
 					switch (renderTexture.depthStencilFormat) {
 						case BaseTexture.FORMAT_DEPTH_16:
-							flag = WebGL2RenderingContext.DEPTH_BUFFER_BIT;
+							flag = WebGLRenderingContext.DEPTH_BUFFER_BIT;
 							break;
 						case BaseTexture.FORMAT_STENCIL_8:
-							flag = WebGL2RenderingContext.STENCIL_BUFFER_BIT;
+							flag = WebGLRenderingContext.STENCIL_BUFFER_BIT;
 							break;
 						case BaseTexture.FORMAT_DEPTHSTENCIL_16_8:
-							flag = WebGL2RenderingContext.DEPTH_BUFFER_BIT | WebGL2RenderingContext.STENCIL_BUFFER_BIT;
+							flag = WebGLRenderingContext.DEPTH_BUFFER_BIT | WebGLRenderingContext.STENCIL_BUFFER_BIT;
 							break;
 					}
 				} else {
-					flag = WebGL2RenderingContext.DEPTH_BUFFER_BIT;
+					flag = WebGLRenderingContext.DEPTH_BUFFER_BIT;
 				}
 				WebGLContext.setDepthMask(gl, true);
 				gl.clear(flag);
-				gl.disable(WebGL2RenderingContext.SCISSOR_TEST);
+				gl.disable(WebGLRenderingContext.SCISSOR_TEST);
 				break;
 			case BaseCamera.CLEARFLAG_NONE:
 				break;

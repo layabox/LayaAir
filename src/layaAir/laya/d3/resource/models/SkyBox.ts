@@ -40,9 +40,9 @@ export class SkyBox extends SkyMesh {
 			0, 4, 5, 5, 1, 0]);//后
 
 		var verDec: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION");
-		this._vertexBuffer = new VertexBuffer3D(verDec.vertexStride * 8, WebGL2RenderingContext.STATIC_DRAW, false);
+		this._vertexBuffer = new VertexBuffer3D(verDec.vertexStride * 8, WebGLRenderingContext.STATIC_DRAW, false);
 		this._vertexBuffer.vertexDeclaration = verDec;
-		this._indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_UBYTE, 36, WebGL2RenderingContext.STATIC_DRAW, false);
+		this._indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_UBYTE, 36, WebGLRenderingContext.STATIC_DRAW, false);
 		this._vertexBuffer.setData(vertices.buffer);
 		this._indexBuffer.setData(indices);
 
@@ -58,7 +58,7 @@ export class SkyBox extends SkyMesh {
 		 * @inheritDoc
 		 */
 		/*override*/  _render(state: RenderContext3D): void {
-		LayaGL.instance.drawElements(WebGL2RenderingContext.TRIANGLES, 36, WebGL2RenderingContext.UNSIGNED_BYTE, 0);
+		LayaGL.instance.drawElements(WebGLRenderingContext.TRIANGLES, 36, WebGLRenderingContext.UNSIGNED_BYTE, 0);
 		Stat.trianglesFaces += 12;
 		Stat.renderBatches++;
 	}

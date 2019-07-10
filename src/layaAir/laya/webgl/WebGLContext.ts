@@ -2,12 +2,12 @@ import { ILaya } from "../../ILaya";
 
 export class WebGLContext {
 	/**@private */
-	static mainContext: WebGL2RenderingContext = null;
+	static mainContext: WebGLRenderingContext = null;
 
 	/**@internal */
 	static _activeTextures: any[] = new Array(8);
 	/**@internal */
-	static _glTextureIDs: any[] = [WebGL2RenderingContext.TEXTURE0, WebGL2RenderingContext.TEXTURE1, WebGL2RenderingContext.TEXTURE2, WebGL2RenderingContext.TEXTURE3, WebGL2RenderingContext.TEXTURE4, WebGL2RenderingContext.TEXTURE5, WebGL2RenderingContext.TEXTURE6, WebGL2RenderingContext.TEXTURE7];
+	static _glTextureIDs: any[] = [WebGLRenderingContext.TEXTURE0, WebGLRenderingContext.TEXTURE1, WebGLRenderingContext.TEXTURE2, WebGLRenderingContext.TEXTURE3, WebGLRenderingContext.TEXTURE4, WebGLRenderingContext.TEXTURE5, WebGLRenderingContext.TEXTURE6, WebGLRenderingContext.TEXTURE7];
 	/**@internal */
 	static _useProgram: any = null;
 	/**@internal */
@@ -15,32 +15,32 @@ export class WebGLContext {
 	/**@internal */
 	static _depthMask: boolean = true;
 	/**@internal */
-	static _depthFunc: number = WebGL2RenderingContext.LESS;
+	static _depthFunc: number = WebGLRenderingContext.LESS;
 
 	/**@internal */
 	static _blend: boolean = false;
 	/**@internal */
-	static _sFactor: number = WebGL2RenderingContext.ONE;//待确认
+	static _sFactor: number = WebGLRenderingContext.ONE;//待确认
 	/**@internal */
-	static _dFactor: number = WebGL2RenderingContext.ZERO;//待确认
+	static _dFactor: number = WebGLRenderingContext.ZERO;//待确认
 	/**@internal */
-	static _srcAlpha: number = WebGL2RenderingContext.ONE;//待确认
+	static _srcAlpha: number = WebGLRenderingContext.ONE;//待确认
 	/**@internal */
-	static _dstAlpha: number = WebGL2RenderingContext.ZERO;//待确认
+	static _dstAlpha: number = WebGLRenderingContext.ZERO;//待确认
 
 	/**@internal */
 	static _cullFace: boolean = false;
 	/**@internal */
-	static _frontFace: number = WebGL2RenderingContext.CCW;
+	static _frontFace: number = WebGLRenderingContext.CCW;
 	/**@internal */
-	static _activedTextureID: number = WebGL2RenderingContext.TEXTURE0;//默认激活纹理区为0
+	static _activedTextureID: number = WebGLRenderingContext.TEXTURE0;//默认激活纹理区为0
 
 
 
 	/**
 	 * @private
 	 */
-	static useProgram(gl: WebGL2RenderingContext, program: any): boolean {
+	static useProgram(gl: WebGLRenderingContext, program: any): boolean {
 		if (WebGLContext._useProgram === program)
 			return false;
 		gl.useProgram(program);
@@ -53,15 +53,15 @@ export class WebGLContext {
 	 * @private
 	 */
 	//TODO:coverage
-	static setDepthTest(gl: WebGL2RenderingContext, value: boolean): void {
-		value !== WebGLContext._depthTest && (WebGLContext._depthTest = value, value ? gl.enable(WebGL2RenderingContext.DEPTH_TEST) : gl.disable(WebGL2RenderingContext.DEPTH_TEST));
+	static setDepthTest(gl: WebGLRenderingContext, value: boolean): void {
+		value !== WebGLContext._depthTest && (WebGLContext._depthTest = value, value ? gl.enable(WebGLRenderingContext.DEPTH_TEST) : gl.disable(WebGLRenderingContext.DEPTH_TEST));
 	}
 
 	/**
 	 * @private
 	 */
 	//TODO:coverage
-	static setDepthMask(gl: WebGL2RenderingContext, value: boolean): void {
+	static setDepthMask(gl: WebGLRenderingContext, value: boolean): void {
 		value !== WebGLContext._depthMask && (WebGLContext._depthMask = value, gl.depthMask(value));
 	}
 
@@ -69,28 +69,28 @@ export class WebGLContext {
 	 * @private
 	 */
 	//TODO:coverage
-	static setDepthFunc(gl: WebGL2RenderingContext, value: number): void {
+	static setDepthFunc(gl: WebGLRenderingContext, value: number): void {
 		value !== WebGLContext._depthFunc && (WebGLContext._depthFunc = value, gl.depthFunc(value));
 	}
 
 	/**
 	 * @private
 	 */
-	static setBlend(gl: WebGL2RenderingContext, value: boolean): void {
-		value !== WebGLContext._blend && (WebGLContext._blend = value, value ? gl.enable(WebGL2RenderingContext.BLEND) : gl.disable(WebGL2RenderingContext.BLEND));
+	static setBlend(gl: WebGLRenderingContext, value: boolean): void {
+		value !== WebGLContext._blend && (WebGLContext._blend = value, value ? gl.enable(WebGLRenderingContext.BLEND) : gl.disable(WebGLRenderingContext.BLEND));
 	}
 
 	/**
 	 * @private
 	 */
-	static setBlendFunc(gl: WebGL2RenderingContext, sFactor: number, dFactor: number): void {
+	static setBlendFunc(gl: WebGLRenderingContext, sFactor: number, dFactor: number): void {
 		(sFactor !== WebGLContext._sFactor || dFactor !== WebGLContext._dFactor) && (WebGLContext._sFactor = WebGLContext._srcAlpha = sFactor, WebGLContext._dFactor = WebGLContext._dstAlpha = dFactor, gl.blendFunc(sFactor, dFactor));
 	}
 
 	/**
 	 * @private
 	 */
-	static setBlendFuncSeperate(gl: WebGL2RenderingContext, srcRGB: number, dstRGB: number, srcAlpha: number, dstAlpha: number): void {
+	static setBlendFuncSeperate(gl: WebGLRenderingContext, srcRGB: number, dstRGB: number, srcAlpha: number, dstAlpha: number): void {
 		if (srcRGB !== WebGLContext._sFactor || dstRGB !== WebGLContext._dFactor || srcAlpha !== WebGLContext._srcAlpha || dstAlpha !== WebGLContext._dstAlpha) {
 			WebGLContext._sFactor = srcRGB;
 			WebGLContext._dFactor = dstRGB;
@@ -104,15 +104,15 @@ export class WebGLContext {
 	 * @private
 	 */
 	//TODO:coverage
-	static setCullFace(gl: WebGL2RenderingContext, value: boolean): void {
-		value !== WebGLContext._cullFace && (WebGLContext._cullFace = value, value ? gl.enable(WebGL2RenderingContext.CULL_FACE) : gl.disable(WebGL2RenderingContext.CULL_FACE));
+	static setCullFace(gl: WebGLRenderingContext, value: boolean): void {
+		value !== WebGLContext._cullFace && (WebGLContext._cullFace = value, value ? gl.enable(WebGLRenderingContext.CULL_FACE) : gl.disable(WebGLRenderingContext.CULL_FACE));
 	}
 
 	/**
 	 * @private
 	 */
 	//TODO:coverage
-	static setFrontFace(gl: WebGL2RenderingContext, value: number): void {
+	static setFrontFace(gl: WebGLRenderingContext, value: number): void {
 		value !== WebGLContext._frontFace && (WebGLContext._frontFace = value, gl.frontFace(value));
 	}
 
@@ -120,7 +120,7 @@ export class WebGLContext {
 	/**
 	 * @private
 	 */
-	static activeTexture(gl: WebGL2RenderingContext, textureID: number): void {
+	static activeTexture(gl: WebGLRenderingContext, textureID: number): void {
 		if (WebGLContext._activedTextureID !== textureID) {
 			gl.activeTexture(textureID);
 			WebGLContext._activedTextureID = textureID;
@@ -130,10 +130,10 @@ export class WebGLContext {
 	/**
 	 * @private
 	 */
-	static bindTexture(gl: WebGL2RenderingContext, target: any, texture: any): void {
-		if (WebGLContext._activeTextures[WebGLContext._activedTextureID - WebGL2RenderingContext.TEXTURE0] !== texture) {
+	static bindTexture(gl: WebGLRenderingContext, target: any, texture: any): void {
+		if (WebGLContext._activeTextures[WebGLContext._activedTextureID - WebGLRenderingContext.TEXTURE0] !== texture) {
 			gl.bindTexture(target, texture);
-			WebGLContext._activeTextures[WebGLContext._activedTextureID - WebGL2RenderingContext.TEXTURE0] = texture;
+			WebGLContext._activeTextures[WebGLContext._activedTextureID - WebGLRenderingContext.TEXTURE0] = texture;
 		}
 	}
 
@@ -162,7 +162,7 @@ export class WebGLContext {
 	 * @private
 	 */
 	//TODO:coverage
-	static useProgramForNative(gl: WebGL2RenderingContext, program: any): boolean {
+	static useProgramForNative(gl: WebGLRenderingContext, program: any): boolean {
 		gl.useProgram(program);
 		return true;
 	}
@@ -172,16 +172,16 @@ export class WebGLContext {
 	 * @private
 	 */
 	//TODO:coverage
-	static setDepthTestForNative(gl: WebGL2RenderingContext, value: boolean): void {
-		if (value) gl.enable(WebGL2RenderingContext.DEPTH_TEST);
-		else gl.disable(WebGL2RenderingContext.DEPTH_TEST);
+	static setDepthTestForNative(gl: WebGLRenderingContext, value: boolean): void {
+		if (value) gl.enable(WebGLRenderingContext.DEPTH_TEST);
+		else gl.disable(WebGLRenderingContext.DEPTH_TEST);
 	}
 
 	/**
 	 * @private
 	 */
 	//TODO:coverage
-	static setDepthMaskForNative(gl: WebGL2RenderingContext, value: boolean): void {
+	static setDepthMaskForNative(gl: WebGLRenderingContext, value: boolean): void {
 		gl.depthMask(value);
 	}
 
@@ -189,7 +189,7 @@ export class WebGLContext {
 	 * @private
 	 */
 	//TODO:coverage
-	static setDepthFuncForNative(gl: WebGL2RenderingContext, value: number): void {
+	static setDepthFuncForNative(gl: WebGLRenderingContext, value: number): void {
 		gl.depthFunc(value);
 	}
 
@@ -197,16 +197,16 @@ export class WebGLContext {
 	 * @private
 	 */
 	//TODO:coverage
-	static setBlendForNative(gl: WebGL2RenderingContext, value: boolean): void {
-		if (value) gl.enable(WebGL2RenderingContext.BLEND);
-		else gl.disable(WebGL2RenderingContext.BLEND);
+	static setBlendForNative(gl: WebGLRenderingContext, value: boolean): void {
+		if (value) gl.enable(WebGLRenderingContext.BLEND);
+		else gl.disable(WebGLRenderingContext.BLEND);
 	}
 
 	/**
 	 * @private
 	 */
 	//TODO:coverage
-	static setBlendFuncForNative(gl: WebGL2RenderingContext, sFactor: number, dFactor: number): void {
+	static setBlendFuncForNative(gl: WebGLRenderingContext, sFactor: number, dFactor: number): void {
 		gl.blendFunc(sFactor, dFactor);
 	}
 
@@ -214,16 +214,16 @@ export class WebGLContext {
 	 * @private
 	 */
 	//TODO:coverage
-	static setCullFaceForNative(gl: WebGL2RenderingContext, value: boolean): void {
-		if (value) gl.enable(WebGL2RenderingContext.CULL_FACE)
-		else gl.disable(WebGL2RenderingContext.CULL_FACE);
+	static setCullFaceForNative(gl: WebGLRenderingContext, value: boolean): void {
+		if (value) gl.enable(WebGLRenderingContext.CULL_FACE)
+		else gl.disable(WebGLRenderingContext.CULL_FACE);
 	}
 
 	/**
 	 * @private
 	 */
 	//TODO:coverage
-	static setFrontFaceForNative(gl: WebGL2RenderingContext, value: number): void {
+	static setFrontFaceForNative(gl: WebGLRenderingContext, value: number): void {
 		gl.frontFace(value);
 	}
 
@@ -232,7 +232,7 @@ export class WebGLContext {
 	 * @private
 	 */
 	//TODO:coverage
-	static activeTextureForNative(gl: WebGL2RenderingContext, textureID: number): void {
+	static activeTextureForNative(gl: WebGLRenderingContext, textureID: number): void {
 		gl.activeTexture(textureID);
 	}
 
@@ -240,7 +240,7 @@ export class WebGLContext {
 	 * @private
 	 */
 	//TODO:coverage
-	static bindTextureForNative(gl: WebGL2RenderingContext, target: any, texture: any): void {
+	static bindTextureForNative(gl: WebGLRenderingContext, target: any, texture: any): void {
 		gl.bindTexture(target, texture);
 	}
 

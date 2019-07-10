@@ -99,9 +99,9 @@ this._stacks = stacks;
 				}
 			}
 			
-			this._vertexBuffer = new VertexBuffer3D(vertices.length * 4, WebGL2RenderingContext.STATIC_DRAW, false);
+			this._vertexBuffer = new VertexBuffer3D(vertices.length * 4, WebGLRenderingContext.STATIC_DRAW, false);
 			this._vertexBuffer.vertexDeclaration = vertexDeclaration;
-			this._indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, indices.length, WebGL2RenderingContext.STATIC_DRAW, false);
+			this._indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, indices.length, WebGLRenderingContext.STATIC_DRAW, false);
 			this._vertexBuffer.setData(vertices.buffer);
 			this._indexBuffer.setData(indices);
 			
@@ -115,7 +115,7 @@ this._stacks = stacks;
 		
 		/*override*/  _render(state:RenderContext3D):void {
 			var indexCount:number = this._indexBuffer.indexCount;
-			LayaGL.instance.drawElements(WebGL2RenderingContext.TRIANGLES, indexCount, WebGL2RenderingContext.UNSIGNED_SHORT, 0);
+			LayaGL.instance.drawElements(WebGLRenderingContext.TRIANGLES, indexCount, WebGLRenderingContext.UNSIGNED_SHORT, 0);
 			Stat.trianglesFaces += indexCount / 3;
 			Stat.renderBatches++;
 		}

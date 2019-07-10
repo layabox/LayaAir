@@ -29,7 +29,7 @@ import { Config } from "./../../../Config";
 		 */
 		constructor(stride:number,vballoc:number, iballoc:number) {
 			this._stride = stride;
-			this._vb = new VertexBuffer2D(stride, WebGL2RenderingContext.DYNAMIC_DRAW);
+			this._vb = new VertexBuffer2D(stride, WebGLRenderingContext.DYNAMIC_DRAW);
 			if (vballoc) {
 				this._vb._resizeBuffer(vballoc,false);
 			}else{
@@ -136,7 +136,7 @@ import { Config } from "./../../../Config";
 		 * 初始化VAO的配置，只需要执行一次。以后使用的时候直接bind就行
 		 * @param	gl
 		 */
-		private configVAO(gl:WebGL2RenderingContext):void {
+		private configVAO(gl:WebGLRenderingContext):void {
 			if (this._applied)
 				return;
 			this._applied = true;
@@ -172,7 +172,7 @@ import { Config } from "./../../../Config";
 		 * 应用这个mesh
 		 * @param	gl
 		 */
-		 useMesh(gl:WebGL2RenderingContext):void {
+		 useMesh(gl:WebGLRenderingContext):void {
 			//要先bind，在bufferData
 			this._applied || this.configVAO(gl);
 			

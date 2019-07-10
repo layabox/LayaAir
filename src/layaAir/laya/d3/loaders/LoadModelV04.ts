@@ -138,7 +138,7 @@ export class LoadModelV04 {
 			if (!vertexDeclaration)
 				throw new Error("LoadModelV03: unknown vertexDeclaration.");
 
-			var vertexBuffer: VertexBuffer3D = new VertexBuffer3D(vbDatas.length * 4, WebGL2RenderingContext.STATIC_DRAW, true);
+			var vertexBuffer: VertexBuffer3D = new VertexBuffer3D(vbDatas.length * 4, WebGLRenderingContext.STATIC_DRAW, true);
 			vertexBuffer.vertexDeclaration = vertexDeclaration;
 			vertexBuffer.setData(vbDatas.buffer);
 			LoadModelV04._mesh._vertexBuffer = vertexBuffer;
@@ -149,7 +149,7 @@ export class LoadModelV04 {
 		var ibStart: number = offset + LoadModelV04._readData.getUint32();
 		var ibLength: number = LoadModelV04._readData.getUint32();
 		var ibDatas: Uint16Array = new Uint16Array(arrayBuffer.slice(ibStart, ibStart + ibLength));
-		var indexBuffer: IndexBuffer3D = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, ibLength / 2, WebGL2RenderingContext.STATIC_DRAW, true);
+		var indexBuffer: IndexBuffer3D = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, ibLength / 2, WebGLRenderingContext.STATIC_DRAW, true);
 		indexBuffer.setData(ibDatas);
 		LoadModelV04._mesh._indexBuffer = indexBuffer;
 		memorySize += indexBuffer.indexCount * 2;

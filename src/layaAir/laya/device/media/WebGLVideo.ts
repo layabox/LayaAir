@@ -8,7 +8,7 @@ import { ILaya } from "../../../ILaya";
 	 */
 	export class WebGLVideo extends HtmlVideo
 	{
-		private gl:WebGL2RenderingContext;
+		private gl:WebGLRenderingContext;
 		
 		private static curBindSource:any;
 		
@@ -23,14 +23,14 @@ import { ILaya } from "../../../ILaya";
 			//preTarget = WebGLContext.curBindTexTarget; 
 			//preTexture = WebGLContext.curBindTexValue;
 			
-			WebGLContext.bindTexture(this.gl, WebGL2RenderingContext.TEXTURE_2D, this._source);
+			WebGLContext.bindTexture(this.gl, WebGLRenderingContext.TEXTURE_2D, this._source);
 			
-			this.gl.texParameteri(WebGL2RenderingContext.TEXTURE_2D, WebGL2RenderingContext.TEXTURE_WRAP_S, WebGL2RenderingContext.CLAMP_TO_EDGE);
-			this.gl.texParameteri(WebGL2RenderingContext.TEXTURE_2D, WebGL2RenderingContext.TEXTURE_WRAP_T, WebGL2RenderingContext.CLAMP_TO_EDGE);
-			this.gl.texParameteri(WebGL2RenderingContext.TEXTURE_2D, WebGL2RenderingContext.TEXTURE_MAG_FILTER, WebGL2RenderingContext.LINEAR);
-			this.gl.texParameteri(WebGL2RenderingContext.TEXTURE_2D, WebGL2RenderingContext.TEXTURE_MIN_FILTER, WebGL2RenderingContext.LINEAR);
+			this.gl.texParameteri(WebGLRenderingContext.TEXTURE_2D, WebGLRenderingContext.TEXTURE_WRAP_S, WebGLRenderingContext.CLAMP_TO_EDGE);
+			this.gl.texParameteri(WebGLRenderingContext.TEXTURE_2D, WebGLRenderingContext.TEXTURE_WRAP_T, WebGLRenderingContext.CLAMP_TO_EDGE);
+			this.gl.texParameteri(WebGLRenderingContext.TEXTURE_2D, WebGLRenderingContext.TEXTURE_MAG_FILTER, WebGLRenderingContext.LINEAR);
+			this.gl.texParameteri(WebGLRenderingContext.TEXTURE_2D, WebGLRenderingContext.TEXTURE_MIN_FILTER, WebGLRenderingContext.LINEAR);
 			
-			WebGLContext.bindTexture(this.gl, WebGL2RenderingContext.TEXTURE_2D, null);
+			WebGLContext.bindTexture(this.gl, WebGLRenderingContext.TEXTURE_2D, null);
 
 			//(preTarget && preTexture) && (WebGLContext.bindTexture(gl, preTarget, preTexture));
 		}
@@ -40,9 +40,9 @@ import { ILaya } from "../../../ILaya";
 			if(!ILaya.Render.isConchApp && ILaya.Browser.onIPhone)
 				return;
 			
- 			WebGLContext.bindTexture(this.gl, WebGL2RenderingContext.TEXTURE_2D, this._source);
+ 			WebGLContext.bindTexture(this.gl, WebGLRenderingContext.TEXTURE_2D, this._source);
 			
-			this.gl.texImage2D(WebGL2RenderingContext.TEXTURE_2D, 0, WebGL2RenderingContext.RGB, WebGL2RenderingContext.RGB, WebGL2RenderingContext.UNSIGNED_BYTE, this.video);
+			this.gl.texImage2D(WebGLRenderingContext.TEXTURE_2D, 0, WebGLRenderingContext.RGB, WebGLRenderingContext.RGB, WebGLRenderingContext.UNSIGNED_BYTE, this.video);
 			
 			WebGLVideo.curBindSource = this._source;
 		}
@@ -59,7 +59,7 @@ import { ILaya } from "../../../ILaya";
 				
 				if (WebGLVideo.curBindSource == this._source)
 				{
-					WebGLContext.bindTexture(this.gl, WebGL2RenderingContext.TEXTURE_2D, null);
+					WebGLContext.bindTexture(this.gl, WebGLRenderingContext.TEXTURE_2D, null);
 					WebGLVideo.curBindSource = null;
 				}
 
