@@ -512,7 +512,7 @@ export class Context {
 		}
 		this._submits.length = 0;
 		this._submits._length = 0;
-		//this._submits = null;     // 不能这样，否则上面的clear会有泄露
+		this._submits = null; 
 		this._curSubmit = null;
 
 		this._path = null;
