@@ -92,10 +92,10 @@ export class ShaderInstance extends Resource {
 	 *@internal
 	 */
 	private _create(): void {
-		var gl: WebGL2RenderingContext = LayaGL.instance;
+		var gl: WebGLRenderingContext = LayaGL.instance;
 		this._program = gl.createProgram();
-		this._vshader = this._createShader(gl, this._vs, WebGL2RenderingContext.VERTEX_SHADER);
-		this._pshader = this._createShader(gl, this._ps, WebGL2RenderingContext.FRAGMENT_SHADER);
+		this._vshader = this._createShader(gl, this._vs, WebGLRenderingContext.VERTEX_SHADER);
+		this._pshader = this._createShader(gl, this._ps, WebGLRenderingContext.FRAGMENT_SHADER);
 		gl.attachShader(this._program, this._vshader);
 		gl.attachShader(this._program, this._pshader);
 
@@ -103,7 +103,7 @@ export class ShaderInstance extends Resource {
 			gl.bindAttribLocation(this._program, this._attributeMap[k], k);
 
 		gl.linkProgram(this._program);
-		if (!Render.isConchApp && Shader3D.debugMode && !gl.getProgramParameter(this._program, WebGL2RenderingContext.LINK_STATUS))
+		if (!Render.isConchApp && Shader3D.debugMode && !gl.getProgramParameter(this._program, WebGLRenderingContext.LINK_STATUS))
 			throw gl.getProgramInfoLog(this._program);
 
 		var sceneParms: any[] = [];
@@ -113,7 +113,7 @@ export class ShaderInstance extends Resource {
 		var customParms: any[] = [];
 		this._customUniformParamsMap = [];
 
-		var nUniformNum: number = gl.getProgramParameter(this._program, WebGL2RenderingContext.ACTIVE_UNIFORMS);
+		var nUniformNum: number = gl.getProgramParameter(this._program, WebGLRenderingContext.ACTIVE_UNIFORMS);
 		WebGLContext.useProgram(gl, this._program);
 		this._curActTexIndex = 0;
 		var one: ShaderVariable, i: number, n: number;
@@ -212,44 +212,44 @@ export class ShaderInstance extends Resource {
 	 * @internal
 	 */
 	_addShaderUnifiormFun(one: ShaderVariable): void {
-		var gl: WebGL2RenderingContext = LayaGL.instance;
+		var gl: WebGLRenderingContext = LayaGL.instance;
 		one.caller = this;
 		var isArray: boolean = one.isArray;
 		switch (one.type) {
-			case WebGL2RenderingContext.BOOL:
+			case WebGLRenderingContext.BOOL:
 				one.fun = this._uniform1i;
 				one.uploadedValue = new Array(1);
 				break;
-			case WebGL2RenderingContext.INT:
+			case WebGLRenderingContext.INT:
 				one.fun = isArray ? this._uniform1iv : this._uniform1i;//TODO:优化
 				one.uploadedValue = new Array(1);
 				break;
-			case WebGL2RenderingContext.FLOAT:
+			case WebGLRenderingContext.FLOAT:
 				one.fun = isArray ? this._uniform1fv : this._uniform1f;
 				one.uploadedValue = new Array(1);
 				break;
-			case WebGL2RenderingContext.FLOAT_VEC2:
+			case WebGLRenderingContext.FLOAT_VEC2:
 				one.fun = isArray ? this._uniform_vec2v : this._uniform_vec2;
 				one.uploadedValue = new Array(2);
 				break;
-			case WebGL2RenderingContext.FLOAT_VEC3:
+			case WebGLRenderingContext.FLOAT_VEC3:
 				one.fun = isArray ? this._uniform_vec3v : this._uniform_vec3;
 				one.uploadedValue = new Array(3);
 				break;
-			case WebGL2RenderingContext.FLOAT_VEC4:
+			case WebGLRenderingContext.FLOAT_VEC4:
 				one.fun = isArray ? this._uniform_vec4v : this._uniform_vec4;
 				one.uploadedValue = new Array(4);
 				break;
-			case WebGL2RenderingContext.FLOAT_MAT2:
+			case WebGLRenderingContext.FLOAT_MAT2:
 				one.fun = this._uniformMatrix2fv;
 				break;
-			case WebGL2RenderingContext.FLOAT_MAT3:
+			case WebGLRenderingContext.FLOAT_MAT3:
 				one.fun = this._uniformMatrix3fv;
 				break;
-			case WebGL2RenderingContext.FLOAT_MAT4:
+			case WebGLRenderingContext.FLOAT_MAT4:
 				one.fun = isArray ? this._uniformMatrix4fv : this._uniformMatrix4f;
 				break;
-			case WebGL2RenderingContext.SAMPLER_2D:
+			case WebGLRenderingContext.SAMPLER_2D:
 				gl.uniform1i(one.location, this._curActTexIndex);
 				one.textureID = WebGLContext._glTextureIDs[this._curActTexIndex++];
 				one.fun = this._uniform_sampler2D;
@@ -259,7 +259,7 @@ export class ShaderInstance extends Resource {
 				one.textureID = WebGLContext._glTextureIDs[this._curActTexIndex++];
 				one.fun = this._uniform_sampler3D;
 				break;
-			case WebGL2RenderingContext.SAMPLER_CUBE:
+			case WebGLRenderingContext.SAMPLER_CUBE:
 				gl.uniform1i(one.location, this._curActTexIndex);
 				one.textureID = WebGLContext._glTextureIDs[this._curActTexIndex++];
 				one.fun = this._uniform_samplerCube;
@@ -273,11 +273,11 @@ export class ShaderInstance extends Resource {
 	/**
 	 * @internal
 	 */
-	private _createShader(gl: WebGL2RenderingContext, str: string, type: any): any {
+	private _createShader(gl: WebGLRenderingContext, str: string, type: any): any {
 		var shader: any = gl.createShader(type);
 		gl.shaderSource(shader, str);
 		gl.compileShader(shader);
-		if (Shader3D.debugMode && !gl.getShaderParameter(shader, WebGL2RenderingContext.COMPILE_STATUS))
+		if (Shader3D.debugMode && !gl.getShaderParameter(shader, WebGLRenderingContext.COMPILE_STATUS))
 			throw gl.getShaderInfoLog(shader);
 
 		return shader;
@@ -507,15 +507,15 @@ export class ShaderInstance extends Resource {
 	 */
 	_uniform_sampler2D(one: any, texture: BaseTexture): number {//TODO:TEXTURTE ARRAY
 		var value: any = texture._getSource() || texture.defaulteTexture._getSource();
-		var gl: WebGL2RenderingContext = LayaGL.instance;
+		var gl: WebGLRenderingContext = LayaGL.instance;
 		WebGLContext.activeTexture(gl, one.textureID);
-		WebGLContext.bindTexture(gl, WebGL2RenderingContext.TEXTURE_2D, value);
+		WebGLContext.bindTexture(gl, WebGLRenderingContext.TEXTURE_2D, value);
 		return 0;
 	}
 
 	_uniform_sampler3D(one: any, texture: BaseTexture): number {//TODO:TEXTURTE ARRAY
 		var value: any = texture._getSource() || texture.defaulteTexture._getSource();
-		var gl: WebGL2RenderingContext = LayaGL.instance;
+		var gl: WebGLRenderingContext = LayaGL.instance;
 		WebGLContext.activeTexture(gl, one.textureID);
 		WebGLContext.bindTexture(gl, WebGL2RenderingContext.TEXTURE_3D, value);
 		return 0;
@@ -526,9 +526,9 @@ export class ShaderInstance extends Resource {
 	 */
 	_uniform_samplerCube(one: any, texture: BaseTexture): number {//TODO:TEXTURTECUBE ARRAY
 		var value: any = texture._getSource() || texture.defaulteTexture._getSource();
-		var gl: WebGL2RenderingContext = LayaGL.instance;
+		var gl: WebGLRenderingContext = LayaGL.instance;
 		WebGLContext.activeTexture(gl, one.textureID);
-		WebGLContext.bindTexture(gl, WebGL2RenderingContext.TEXTURE_CUBE_MAP, value);
+		WebGLContext.bindTexture(gl, WebGLRenderingContext.TEXTURE_CUBE_MAP, value);
 		return 0;
 	}
 
@@ -550,7 +550,7 @@ export class ShaderInstance extends Resource {
 	 * @internal
 	 */
 	uploadRenderStateBlendDepth(shaderDatas: ShaderData): void {
-		var gl: WebGL2RenderingContext = LayaGL.instance;
+		var gl: WebGLRenderingContext = LayaGL.instance;
 		var renderState: RenderState = this._shaderPass.renderState;
 		var datas: any = shaderDatas.getData();
 
@@ -600,7 +600,7 @@ export class ShaderInstance extends Resource {
 	 * @internal
 	 */
 	uploadRenderStateFrontFace(shaderDatas: ShaderData, isTarget: boolean, invertFront: boolean): void {
-		var gl: WebGL2RenderingContext = LayaGL.instance;
+		var gl: WebGLRenderingContext = LayaGL.instance;
 		var renderState: RenderState = this._shaderPass.renderState;
 		var datas: any = shaderDatas.getData();
 
@@ -617,14 +617,14 @@ export class ShaderInstance extends Resource {
 				//forntFace = isTarget ? invertFront ? WebGLContext.CCW : WebGLContext.CW : invertFront ? WebGLContext.CW : WebGLContext.CCW;
 				if (isTarget) {
 					if (invertFront)
-						forntFace = WebGL2RenderingContext.CCW;
+						forntFace = WebGLRenderingContext.CCW;
 					else
-						forntFace = WebGL2RenderingContext.CW;
+						forntFace = WebGLRenderingContext.CW;
 				} else {
 					if (invertFront)
-						forntFace = WebGL2RenderingContext.CW;
+						forntFace = WebGLRenderingContext.CW;
 					else
-						forntFace = WebGL2RenderingContext.CCW;
+						forntFace = WebGLRenderingContext.CCW;
 				}
 				WebGLContext.setFrontFace(gl, forntFace);
 				break;
@@ -632,14 +632,14 @@ export class ShaderInstance extends Resource {
 				WebGLContext.setCullFace(gl, true);
 				if (isTarget) {
 					if (invertFront)
-						forntFace = WebGL2RenderingContext.CW;
+						forntFace = WebGLRenderingContext.CW;
 					else
-						forntFace = WebGL2RenderingContext.CCW;
+						forntFace = WebGLRenderingContext.CCW;
 				} else {
 					if (invertFront)
-						forntFace = WebGL2RenderingContext.CCW;
+						forntFace = WebGLRenderingContext.CCW;
 					else
-						forntFace = WebGL2RenderingContext.CW;
+						forntFace = WebGLRenderingContext.CW;
 				}
 				WebGLContext.setFrontFace(gl, forntFace);
 				break;

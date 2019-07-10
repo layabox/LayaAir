@@ -8,9 +8,9 @@ import { VertexBuffer2D } from "./VertexBuffer2D";
 		 static const_stride:number = 24;// 48;  24是不带clip的
 		private static _fixib:IndexBuffer2D;
 		private static _maxIB:number = 16 * 1024;
-		private static _fixattriInfo:any[] = [WebGL2RenderingContext.FLOAT, 4, 0,	//pos,uv
-			WebGL2RenderingContext.UNSIGNED_BYTE, 4, 16,	//color alpha
-			WebGL2RenderingContext.UNSIGNED_BYTE,4,20];
+		private static _fixattriInfo:any[] = [WebGLRenderingContext.FLOAT, 4, 0,	//pos,uv
+			WebGLRenderingContext.UNSIGNED_BYTE, 4, 16,	//color alpha
+			WebGLRenderingContext.UNSIGNED_BYTE,4,20];
 		private static _POOL:any[] = [];
 		//private static var _num;
 		constructor() {

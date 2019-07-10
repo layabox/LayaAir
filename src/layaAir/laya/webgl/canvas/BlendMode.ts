@@ -25,85 +25,85 @@ import { WebGLContext } from "../WebGLContext"
 			BlendMode.targetFns = [BlendMode.BlendNormalTarget, BlendMode.BlendAddTarget, BlendMode.BlendMultiplyTarget, BlendMode.BlendScreenTarget, BlendMode.BlendOverlayTarget, BlendMode.BlendLightTarget,BlendMode.BlendMask,BlendMode.BlendDestinationOut];
 		}
 		
-		 static BlendNormal(gl:WebGL2RenderingContext):void
+		 static BlendNormal(gl:WebGLRenderingContext):void
 		{
 			//为了避免黑边，和canvas作为贴图的黑边
-			WebGLContext.setBlendFunc(gl, WebGL2RenderingContext.ONE, WebGL2RenderingContext.ONE_MINUS_SRC_ALPHA);
+			WebGLContext.setBlendFunc(gl, WebGLRenderingContext.ONE, WebGLRenderingContext.ONE_MINUS_SRC_ALPHA);
 		}
 
-		 static BlendAdd(gl:WebGL2RenderingContext):void
+		 static BlendAdd(gl:WebGLRenderingContext):void
 		{
-			WebGLContext.setBlendFunc(gl, WebGL2RenderingContext.ONE, WebGL2RenderingContext.DST_ALPHA);
+			WebGLContext.setBlendFunc(gl, WebGLRenderingContext.ONE, WebGLRenderingContext.DST_ALPHA);
 		}
 		
 		//TODO:coverage
-		 static BlendMultiply(gl:WebGL2RenderingContext):void
+		 static BlendMultiply(gl:WebGLRenderingContext):void
 		{
-			WebGLContext.setBlendFunc(gl, WebGL2RenderingContext.DST_COLOR, WebGL2RenderingContext.ONE_MINUS_SRC_ALPHA);
+			WebGLContext.setBlendFunc(gl, WebGLRenderingContext.DST_COLOR, WebGLRenderingContext.ONE_MINUS_SRC_ALPHA);
 		}
 		
 		//TODO:coverage
-		 static BlendScreen(gl:WebGL2RenderingContext):void
+		 static BlendScreen(gl:WebGLRenderingContext):void
 		{
-			WebGLContext.setBlendFunc(gl, WebGL2RenderingContext.ONE, WebGL2RenderingContext.ONE);
+			WebGLContext.setBlendFunc(gl, WebGLRenderingContext.ONE, WebGLRenderingContext.ONE);
 		}
 		
 		//TODO:coverage
-		 static BlendOverlay(gl:WebGL2RenderingContext):void
+		 static BlendOverlay(gl:WebGLRenderingContext):void
 		{
-			WebGLContext.setBlendFunc(gl, WebGL2RenderingContext.ONE, WebGL2RenderingContext.ONE_MINUS_SRC_COLOR);
+			WebGLContext.setBlendFunc(gl, WebGLRenderingContext.ONE, WebGLRenderingContext.ONE_MINUS_SRC_COLOR);
 		}
 		
 		//TODO:coverage
-		 static BlendLight(gl:WebGL2RenderingContext):void
+		 static BlendLight(gl:WebGLRenderingContext):void
 		{
-			WebGLContext.setBlendFunc(gl, WebGL2RenderingContext.ONE, WebGL2RenderingContext.ONE);
+			WebGLContext.setBlendFunc(gl, WebGLRenderingContext.ONE, WebGLRenderingContext.ONE);
 		}
 	
-		 static BlendNormalTarget(gl:WebGL2RenderingContext):void
+		 static BlendNormalTarget(gl:WebGLRenderingContext):void
 		{
-			WebGLContext.setBlendFunc(gl,WebGL2RenderingContext.ONE, WebGL2RenderingContext.ONE_MINUS_SRC_ALPHA);
+			WebGLContext.setBlendFunc(gl,WebGLRenderingContext.ONE, WebGLRenderingContext.ONE_MINUS_SRC_ALPHA);
 		}
 		
 		//TODO:coverage
-		 static BlendAddTarget(gl:WebGL2RenderingContext):void
+		 static BlendAddTarget(gl:WebGLRenderingContext):void
 		{
-			WebGLContext.setBlendFunc(gl, WebGL2RenderingContext.ONE, WebGL2RenderingContext.DST_ALPHA);
+			WebGLContext.setBlendFunc(gl, WebGLRenderingContext.ONE, WebGLRenderingContext.DST_ALPHA);
 		}
 		
 		//TODO:coverage
-		 static BlendMultiplyTarget(gl:WebGL2RenderingContext):void
+		 static BlendMultiplyTarget(gl:WebGLRenderingContext):void
 		{
-			WebGLContext.setBlendFunc(gl, WebGL2RenderingContext.DST_COLOR, WebGL2RenderingContext.ONE_MINUS_SRC_ALPHA);
+			WebGLContext.setBlendFunc(gl, WebGLRenderingContext.DST_COLOR, WebGLRenderingContext.ONE_MINUS_SRC_ALPHA);
 		}
 		
 		//TODO:coverage
-		 static BlendScreenTarget(gl:WebGL2RenderingContext):void
+		 static BlendScreenTarget(gl:WebGLRenderingContext):void
 		{
-			WebGLContext.setBlendFunc(gl, WebGL2RenderingContext.ONE, WebGL2RenderingContext.ONE);
+			WebGLContext.setBlendFunc(gl, WebGLRenderingContext.ONE, WebGLRenderingContext.ONE);
 		}
 		
 		//TODO:coverage
-		 static BlendOverlayTarget(gl:WebGL2RenderingContext):void
+		 static BlendOverlayTarget(gl:WebGLRenderingContext):void
 		{
-			WebGLContext.setBlendFunc(gl, WebGL2RenderingContext.ONE, WebGL2RenderingContext.ONE_MINUS_SRC_COLOR);
+			WebGLContext.setBlendFunc(gl, WebGLRenderingContext.ONE, WebGLRenderingContext.ONE_MINUS_SRC_COLOR);
 		}
 
 		//TODO:coverage
-		 static BlendLightTarget(gl:WebGL2RenderingContext):void
+		 static BlendLightTarget(gl:WebGLRenderingContext):void
 		{
-			WebGLContext.setBlendFunc(gl, WebGL2RenderingContext.ONE, WebGL2RenderingContext.ONE);
+			WebGLContext.setBlendFunc(gl, WebGLRenderingContext.ONE, WebGLRenderingContext.ONE);
 		}
 		
-		 static BlendMask(gl:WebGL2RenderingContext):void
+		 static BlendMask(gl:WebGLRenderingContext):void
 		{
-			WebGLContext.setBlendFunc(gl, WebGL2RenderingContext.ZERO, WebGL2RenderingContext.SRC_ALPHA);
+			WebGLContext.setBlendFunc(gl, WebGLRenderingContext.ZERO, WebGLRenderingContext.SRC_ALPHA);
 		}
 		
 		//TODO:coverage
-		 static BlendDestinationOut(gl:WebGL2RenderingContext):void
+		 static BlendDestinationOut(gl:WebGLRenderingContext):void
 		{
-			WebGLContext.setBlendFunc(gl, WebGL2RenderingContext.ZERO, WebGL2RenderingContext.ZERO);
+			WebGLContext.setBlendFunc(gl, WebGLRenderingContext.ZERO, WebGLRenderingContext.ZERO);
 		}
 	}
 

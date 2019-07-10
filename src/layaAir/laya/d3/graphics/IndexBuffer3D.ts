@@ -65,7 +65,7 @@ import { Buffer } from "../../webgl/utils/Buffer"
 			this._indexType = indexType;
 			this._indexCount = indexCount;
 			this._bufferUsage = bufferUsage;
-			this._bufferType = WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER;
+			this._bufferType = WebGLRenderingContext.ELEMENT_ARRAY_BUFFER;
 			this._canRead = canRead;
 			
 			var byteLength:number;
@@ -108,7 +108,7 @@ import { Buffer } from "../../webgl/utils/Buffer"
 		 */
 		/*override*/  _bindForVAO():void {
 			if (BufferStateBase._curBindedBufferState) {
-				LayaGL.instance.bindBuffer(WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER, this._glBuffer);
+				LayaGL.instance.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, this._glBuffer);
 			} else {
 				throw "IndexBuffer3D: must bind current BufferState.";
 			}
@@ -122,7 +122,7 @@ import { Buffer } from "../../webgl/utils/Buffer"
 				throw "IndexBuffer3D: must unbind current BufferState.";
 			} else {
 				if (Buffer._bindedIndexBuffer !== this._glBuffer) {
-					LayaGL.instance.bindBuffer(WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER, this._glBuffer);
+					LayaGL.instance.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, this._glBuffer);
 					Buffer._bindedIndexBuffer = this._glBuffer;
 					return true;
 				} else {

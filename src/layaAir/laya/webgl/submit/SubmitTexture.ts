@@ -41,7 +41,7 @@ import { ColorFilter } from "../../filters/ColorFilter"
 				if (!source) return 1;
 			}
 			
-			var gl:WebGL2RenderingContext = WebGLContext.mainContext;
+			var gl:WebGLRenderingContext = WebGLContext.mainContext;
 
 			this._mesh.useMesh(gl);	
 			//如果shader参数都相同，只要提交texture就行了
@@ -66,7 +66,7 @@ import { ColorFilter } from "../../filters/ColorFilter"
 				this.shaderValue.upload();
 			}
 			
-			gl.drawElements(WebGL2RenderingContext.TRIANGLES, this._numEle, WebGL2RenderingContext.UNSIGNED_SHORT, this._startIdx);
+			gl.drawElements(WebGLRenderingContext.TRIANGLES, this._numEle, WebGLRenderingContext.UNSIGNED_SHORT, this._startIdx);
 			
 			Stat.renderBatches++;
 			Stat.trianglesFaces += this._numEle / 3;

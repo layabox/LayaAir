@@ -123,7 +123,7 @@ import { Stat } from "../utils/Stat";
 				
 				if (this._firstActiveElement != this._firstFreeElement)
 				{
-					var gl:WebGL2RenderingContext = WebGLContext.mainContext;
+					var gl:WebGLRenderingContext = WebGLContext.mainContext;
 					this._mesh.useMesh(gl);
 					//_vertexBuffer2D.bind();
 					//_indexBuffer2D.bind();
@@ -133,13 +133,13 @@ import { Stat } from "../utils/Stat";
 						
 					if (this._firstActiveElement < this._firstFreeElement)
 					{
-						WebGLContext.mainContext.drawElements(WebGL2RenderingContext.TRIANGLES, (this._firstFreeElement - this._firstActiveElement) * 6, WebGL2RenderingContext.UNSIGNED_SHORT, this._firstActiveElement * 6 * 2);
+						WebGLContext.mainContext.drawElements(WebGLRenderingContext.TRIANGLES, (this._firstFreeElement - this._firstActiveElement) * 6, WebGLRenderingContext.UNSIGNED_SHORT, this._firstActiveElement * 6 * 2);
 					}
 					else
 					{
-						WebGLContext.mainContext.drawElements(WebGL2RenderingContext.TRIANGLES, (this.settings.maxPartices - this._firstActiveElement) * 6, WebGL2RenderingContext.UNSIGNED_SHORT, this._firstActiveElement * 6 * 2);
+						WebGLContext.mainContext.drawElements(WebGLRenderingContext.TRIANGLES, (this.settings.maxPartices - this._firstActiveElement) * 6, WebGLRenderingContext.UNSIGNED_SHORT, this._firstActiveElement * 6 * 2);
 						if (this._firstFreeElement > 0)
-							WebGLContext.mainContext.drawElements(WebGL2RenderingContext.TRIANGLES, this._firstFreeElement * 6, WebGL2RenderingContext.UNSIGNED_SHORT, 0);
+							WebGLContext.mainContext.drawElements(WebGLRenderingContext.TRIANGLES, this._firstFreeElement * 6, WebGLRenderingContext.UNSIGNED_SHORT, 0);
 					}
 					
 					Stat.renderBatches++;
@@ -201,8 +201,8 @@ import { Stat } from "../utils/Stat";
 		{
 			if (BlendMode.activeBlendFunction !== this._blendFn)
 			{
-				var gl:WebGL2RenderingContext= WebGLContext.mainContext;
-				gl.enable( WebGL2RenderingContext.BLEND );
+				var gl:WebGLRenderingContext= WebGLContext.mainContext;
+				gl.enable( WebGLRenderingContext.BLEND );
 				this._blendFn(gl);
 				BlendMode.activeBlendFunction = this._blendFn;
 			}

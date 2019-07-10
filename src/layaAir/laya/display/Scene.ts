@@ -407,3 +407,4 @@ import { ILaya } from "../../ILaya";
 		}
 	}
 
+	ILaya.regClass(Scene);

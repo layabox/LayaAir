@@ -20,7 +20,7 @@ export class ShaderCompile {
 	static _splitToWordExps: RegExp = new RegExp("[(\".*\")]+|[('.*')]+|([ \\t=\\+\\-*/&%!<>!%\(\),;])", "g");
 
 	static includes: any = {};
-	static shaderParamsMap: any = { "float": WebGL2RenderingContext.FLOAT, "int": WebGL2RenderingContext.INT, "bool": WebGL2RenderingContext.BOOL, "vec2": WebGL2RenderingContext.FLOAT_VEC2, "vec3": WebGL2RenderingContext.FLOAT_VEC3, "vec4": WebGL2RenderingContext.FLOAT_VEC4, "ivec2": WebGL2RenderingContext.INT_VEC2, "ivec3": WebGL2RenderingContext.INT_VEC3, "ivec4": WebGL2RenderingContext.INT_VEC4, "bvec2": WebGL2RenderingContext.BOOL_VEC2, "bvec3": WebGL2RenderingContext.BOOL_VEC3, "bvec4": WebGL2RenderingContext.BOOL_VEC4, "mat2": WebGL2RenderingContext.FLOAT_MAT2, "mat3": WebGL2RenderingContext.FLOAT_MAT3, "mat4": WebGL2RenderingContext.FLOAT_MAT4, "sampler2D": WebGL2RenderingContext.SAMPLER_2D, "samplerCube": WebGL2RenderingContext.SAMPLER_CUBE };
+	static shaderParamsMap: any = { "float": WebGLRenderingContext.FLOAT, "int": WebGLRenderingContext.INT, "bool": WebGLRenderingContext.BOOL, "vec2": WebGLRenderingContext.FLOAT_VEC2, "vec3": WebGLRenderingContext.FLOAT_VEC3, "vec4": WebGLRenderingContext.FLOAT_VEC4, "ivec2": WebGLRenderingContext.INT_VEC2, "ivec3": WebGLRenderingContext.INT_VEC3, "ivec4": WebGLRenderingContext.INT_VEC4, "bvec2": WebGLRenderingContext.BOOL_VEC2, "bvec3": WebGLRenderingContext.BOOL_VEC3, "bvec4": WebGLRenderingContext.BOOL_VEC4, "mat2": WebGLRenderingContext.FLOAT_MAT2, "mat3": WebGLRenderingContext.FLOAT_MAT3, "mat4": WebGLRenderingContext.FLOAT_MAT4, "sampler2D": WebGLRenderingContext.SAMPLER_2D, "samplerCube": WebGLRenderingContext.SAMPLER_CUBE };
 
 	private _nameMap: any;
 	protected _VS: ShaderNode;

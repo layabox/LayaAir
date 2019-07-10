@@ -108,13 +108,13 @@ export class Texture2D extends BaseTexture {
 	constructor(width: number = 0, height: number = 0, format: number = BaseTexture.FORMAT_R8G8B8A8, mipmap: boolean = true, canRead: boolean = false) {
 
 		super(format, mipmap);
-		this._glTextureType = WebGL2RenderingContext.TEXTURE_2D;
+		this._glTextureType = WebGLRenderingContext.TEXTURE_2D;
 		this._width = width;
 		this._height = height;
 		this._canRead = canRead;
 
-		this._setWarpMode(WebGL2RenderingContext.TEXTURE_WRAP_S, this._wrapModeU);//TODO:重置宽高需要调整
-		this._setWarpMode(WebGL2RenderingContext.TEXTURE_WRAP_T, this._wrapModeV);//TODO:重置宽高需要调整
+		this._setWarpMode(WebGLRenderingContext.TEXTURE_WRAP_S, this._wrapModeU);//TODO:重置宽高需要调整
+		this._setWarpMode(WebGLRenderingContext.TEXTURE_WRAP_T, this._wrapModeV);//TODO:重置宽高需要调整
 		this._setFilterMode(this._filterMode);//TODO:重置宽高需要调整
 		this._setAnisotropy(this._anisoLevel);
 
@@ -135,16 +135,16 @@ export class Texture2D extends BaseTexture {
 	 * @private
 	 */
 	private _setPixels(pixels: Uint8Array, miplevel: number, width: number, height: number): void {
-		var gl: WebGL2RenderingContext = LayaGL.instance;
+		var gl: WebGLRenderingContext = LayaGL.instance;
 		var textureType: number = this._glTextureType;
 		var glFormat: number = this._getGLFormat();
 		WebGLContext.bindTexture(gl, textureType, this._glTexture);
 		if (this.format === BaseTexture.FORMAT_R8G8B8) {
-			gl.pixelStorei(WebGL2RenderingContext.UNPACK_ALIGNMENT, 1);//字节对齐
-			gl.texImage2D(textureType, miplevel, glFormat, width, height, 0, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels);
-			gl.pixelStorei(WebGL2RenderingContext.UNPACK_ALIGNMENT, 4);
+			gl.pixelStorei(WebGLRenderingContext.UNPACK_ALIGNMENT, 1);//字节对齐
+			gl.texImage2D(textureType, miplevel, glFormat, width, height, 0, glFormat, WebGLRenderingContext.UNSIGNED_BYTE, pixels);
+			gl.pixelStorei(WebGLRenderingContext.UNPACK_ALIGNMENT, 4);
 		} else {
-			gl.texImage2D(textureType, miplevel, glFormat, width, height, 0, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels);
+			gl.texImage2D(textureType, miplevel, glFormat, width, height, 0, glFormat, WebGLRenderingContext.UNSIGNED_BYTE, pixels);
 		}
 	}
 
@@ -315,7 +315,7 @@ export class Texture2D extends BaseTexture {
 	 * @internal
 	 */
 	_upLoadCompressedTexImage2D(data: ArrayBuffer, width: number, height: number, miplevelCount: number, dataOffset: number, imageSizeOffset: number): void {
-		var gl: WebGL2RenderingContext = LayaGL.instance;
+		var gl: WebGLRenderingContext = LayaGL.instance;
 		var textureType: number = this._glTextureType;
 		WebGLContext.bindTexture(gl, textureType, this._glTexture);
 		var glFormat: number = this._getGLFormat();
@@ -349,11 +349,11 @@ export class Texture2D extends BaseTexture {
 		this._height = height;
 		if (!(this._isPot(width) && this._isPot(height)))
 			this._mipmap = false;
-		this._setWarpMode(WebGL2RenderingContext.TEXTURE_WRAP_S, this._wrapModeU);//宽高变化后需要重新设置
-		this._setWarpMode(WebGL2RenderingContext.TEXTURE_WRAP_T, this._wrapModeV);//宽高变化后需要重新设置
+		this._setWarpMode(WebGLRenderingContext.TEXTURE_WRAP_S, this._wrapModeU);//宽高变化后需要重新设置
+		this._setWarpMode(WebGLRenderingContext.TEXTURE_WRAP_T, this._wrapModeV);//宽高变化后需要重新设置
 		this._setFilterMode(this._filterMode);//宽高变化后需要重新设置
 
-		var gl: WebGL2RenderingContext = LayaGL.instance;
+		var gl: WebGLRenderingContext = LayaGL.instance;
 
 		WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
 		var glFormat: number = this._getGLFormat();
@@ -362,11 +362,11 @@ export class Texture2D extends BaseTexture {
 			if (source.setPremultiplyAlpha) {
 				source.setPremultiplyAlpha(premultiplyAlpha);
 			}
-			gl.texImage2D(this._glTextureType, 0, WebGL2RenderingContext.RGBA, WebGL2RenderingContext.RGBA, WebGL2RenderingContext.UNSIGNED_BYTE, source);
+			gl.texImage2D(this._glTextureType, 0, WebGLRenderingContext.RGBA, WebGLRenderingContext.RGBA, WebGLRenderingContext.UNSIGNED_BYTE, source);
 		} else {
-			(premultiplyAlpha) && (gl.pixelStorei(WebGL2RenderingContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true));
-			gl.texImage2D(this._glTextureType, 0, glFormat, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, source);
-			(premultiplyAlpha) && (gl.pixelStorei(WebGL2RenderingContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false));
+			(premultiplyAlpha) && (gl.pixelStorei(WebGLRenderingContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true));
+			gl.texImage2D(this._glTextureType, 0, glFormat, glFormat, WebGLRenderingContext.UNSIGNED_BYTE, source);
+			(premultiplyAlpha) && (gl.pixelStorei(WebGLRenderingContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false));
 		}
 		if (this._mipmap) {
 			gl.generateMipmap(this._glTextureType);
@@ -424,17 +424,17 @@ export class Texture2D extends BaseTexture {
 		if (!pixels)
 			throw "Texture2D:pixels can't be null.";
 
-		var gl: WebGL2RenderingContext = LayaGL.instance;
+		var gl: WebGLRenderingContext = LayaGL.instance;
 		var textureType: number = this._glTextureType;
 		WebGLContext.bindTexture(gl, textureType, this._glTexture);
 		var glFormat: number = this._getGLFormat();
 
 		if (this._format === BaseTexture.FORMAT_R8G8B8) {
-			gl.pixelStorei(WebGL2RenderingContext.UNPACK_ALIGNMENT, 1);//字节对齐
-			gl.texSubImage2D(textureType, miplevel, x, y, width, height, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels);
-			gl.pixelStorei(WebGL2RenderingContext.UNPACK_ALIGNMENT, 4);
+			gl.pixelStorei(WebGLRenderingContext.UNPACK_ALIGNMENT, 1);//字节对齐
+			gl.texSubImage2D(textureType, miplevel, x, y, width, height, glFormat, WebGLRenderingContext.UNSIGNED_BYTE, pixels);
+			gl.pixelStorei(WebGLRenderingContext.UNPACK_ALIGNMENT, 4);
 		} else {
-			gl.texSubImage2D(textureType, miplevel, x, y, width, height, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, pixels);
+			gl.texSubImage2D(textureType, miplevel, x, y, width, height, glFormat, WebGLRenderingContext.UNSIGNED_BYTE, pixels);
 		}
 
 		//if (_canRead)
