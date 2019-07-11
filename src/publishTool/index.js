@@ -13,10 +13,11 @@ const fs = require("fs");
 const path = require("path");
 const emiter_1 = require("./emiter");
 var BaseURL;
-var outfile = "../../build/as/declare/";
-//输出的JS TS目录，相对as文件夹
-var outfileTS = "../../ts_compatible/declare/";
-var outfileJS = "../../js/declare/";
+var outfile;
+var outfileAS = "./as/declare/";
+var outfileTS = "./ts_compatible/declare/";
+var outfileJS = "./js/declare/";
+var createAS;
 /**加载与写入计数 */
 var complete = 0;
 var progress = 0;
@@ -25,24 +26,31 @@ var Testobj = {};
 var dtsObj = "";
 /** Laya头 */
 var isTimeOut = false;
-checkAllDir("../../bin/tsc/layaAir/");
+start();
+function start() {
+    return __awaiter(this, void 0, void 0, function* () {
+        let json = JSON.parse(fs.readFileSync("outConfig.json"));
+        BaseURL = emiter_1.emiter.BaseURL = json.from;
+        outfile = json.out;
+        createAS = json.createAS;
+        checkAllDir("");
+    });
+}
+// checkAllDir("./bin/layaAir/");
+// tstoas("laya\\d3\\physics\\CharacterController.d.ts", null, "laya\\d3\\physics");
+// tstoas("laya\\d3\\physics\\PhysicsUpdateList.d.ts",null,"laya\\d3\\physics");
+// tstoas("laya\\d3\\component\\SingletonList.d.ts",null,"laya\\d3\\component");
 function checkAllDir(url) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!BaseURL) {
-            // outfile = path.join(url, "../as/");
-            BaseURL = emiter_1.emiter.BaseURL = url;
-            url = "";
-        }
         let fileData = yield readDir(url);
         if (fileData) {
-            createDir(url);
+            createAS && createDir(outfileAS + url);
             ergodic(fileData, url);
         }
         else
             console.log("readdir fail", url);
     });
 }
-exports.default = checkAllDir;
 /**
  * 给节点加上名字，便于调试
  * @param node
@@ -86,7 +94,7 @@ function readDir(fileUrl) {
     return new Promise(resolve => {
         fs.readdir(formatUrl(fileUrl), (err, files) => {
             if (err) {
-                console.error("readDir fial", fileUrl);
+                console.error("readDir fail", fileUrl);
                 return resolve(0);
             }
             // console.log("readDir success",fileUrl);
@@ -94,8 +102,6 @@ function readDir(fileUrl) {
         });
     });
 }
-
-var a = 0;
 /**
  * 创建文件夹
  * @param filePath
@@ -103,10 +109,10 @@ var a = 0;
 function createDir(filePath) {
     // filePath = filePath.replace(BaseURL,'');
     let url = path.resolve(outfile, filePath);
-    if (!fs.existsSync(url)){
-        let topUrl = path.join(url,"../");
+    if (!fs.existsSync(url)) {
+        let topUrl = path.join(url, "../");
         // console.log("_没有这一级检测上一级",topUrl);
-        createDir(topUrl);//创建上一级
+        createDir(topUrl); //创建上一级
         fs.mkdirSync(url);
     }
 }
@@ -122,7 +128,7 @@ function readFile(fileUrl) {
                 return resolve(0);
             }
             complete++;
-            Testobj[fileUrl] = "state";
+            Testobj[outfileAS + fileUrl] = "reading";
             // console.log("readfile success",fileUrl);
             resolve(files);
         });
@@ -148,22 +154,32 @@ function checkIsFile(url) {
  * @param data 数据
  */
 function writeFile(url, data) {
-    let outUrl = url.replace(new RegExp("(d.ts)", "g"), "as");
-    outUrl = outfile + outUrl;
-    return new Promise(resolve => {
-        fs.writeFile(outUrl, data, err => {
-            if (err) {
-                console.log("write file fail", url, err);
-            }
-            progress++;
-            delete Testobj[url];
-            if (!isTimeOut) {
-                isTimeOut = true;
-                checkComplete();
-            }
-            resolve();
+    if (createAS) {
+        let outUrl = url.replace(new RegExp("(d.ts)", "g"), "as");
+        outUrl = outfile + outUrl;
+        return new Promise(resolve => {
+            fs.writeFile(outUrl, data, err => {
+                if (err) {
+                    console.log("write file fail", url, err);
+                }
+                progress++;
+                delete Testobj[url];
+                if (!isTimeOut) {
+                    isTimeOut = true;
+                    checkComplete();
+                }
+                resolve();
+            });
         });
-    });
+    }
+    else {
+        progress++;
+        delete Testobj[url];
+        if (!isTimeOut) {
+            isTimeOut = true;
+            checkComplete();
+        }
+    }
 }
 /**
  * 遍历文件夹
@@ -189,7 +205,7 @@ function ergodic(files, url) {
                     //     layaObj += "\n\tclass " + files[i].replace(".d.ts","") + " extends " + fileUrl.replace(new RegExp("\\\\","g"),".").replace(".d.ts","") + " {}\n";
                     // }
                     //写入文件
-                    yield writeFile(fileUrl, asdata);
+                    yield writeFile(outfileAS + fileUrl, asdata);
                 }
             }
         }
@@ -202,8 +218,7 @@ function checkComplete() {
     setTimeout(() => {
         let keys = Object.keys(Testobj);
         if (!keys.length) {
-            //console.log("文件转换完成!!!", complete, progress);
-            console.log("ts--------->as succeed!", complete, progress);
+            console.log("文件转换完成!!!", complete, progress);
             let layaObj = "declare module Laya {\n" + emiter_1.emiter.dtsData + "\n}\n";
             dtsObj += layaObj;
             createDir(outfileJS);
@@ -214,12 +229,11 @@ function checkComplete() {
             let tsout = path.join(outfile, outfileTS) + "LayaAir.d.ts";
             fs.writeFile(tsout, dtsObj, err => {
                 if (err)
-                    //console.log("生成d.ts失败");
-                    console.log("build d.ts failure!");
+                    console.log("生成d.ts失败");
                 fs.writeFile(jsout, dtsObj, err => {
                     if (err)
-                        console.log("build d.ts failure!");
-                    console.log("build d.ts succeed!");
+                        console.log("生成d.ts失败");
+                    console.log("生成d.ts成功");
                 });
             });
         }
