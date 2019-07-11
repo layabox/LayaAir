@@ -13,6 +13,7 @@ import { Matrix } from "laya/maths/Matrix";
 import {LocalStorage} from "laya/net/LocalStorage";
 import { MiniLocalStorage } from "./MiniLocalStorage";
 import { Stage } from "laya/display/Stage";
+import { URL } from "laya/net/URL";
 
 	export class MiniAdpter {
 		/**@private  包装对象**/

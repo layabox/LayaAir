@@ -25,7 +25,7 @@ import { Event } from "laya/events/Event";
 			Laya.stage.on("resize", null, MiniInput._onStageResize);
 			
 			MiniAdpter.window.wx.onWindowResize && MiniAdpter.window.wx.onWindowResize(function(res:any):void {
-				MiniAdpter.window.dispatchEvent && window.dispatchEvent("resize");
+				// MiniAdpter.window.dispatchEvent && window.dispatchEvent("resize");
 			});
 			
 			//替换声音

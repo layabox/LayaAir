@@ -7,6 +7,7 @@ import { SoundManager } from "laya/media/SoundManager";
 import { Utils } from "laya/utils/Utils";
 import { Sound } from "laya/media/Sound";
 import { URL } from "laya/net/URL";	
+import { Event } from "laya/events/Event";
 	/** @private **/
 	export class MiniLoader  extends EventDispatcher  {
 		constructor(){
