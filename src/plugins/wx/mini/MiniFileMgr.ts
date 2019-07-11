@@ -1,4 +1,4 @@
-// import { MiniAdpter } from "./MiniAdpter";
+import { MiniAdpter } from "./MiniAdpter";
 import { Handler } from "laya/utils/Handler";
 import { Laya } from "../../../../bin/tsc/layaAir/Laya";
 import { Browser } from "laya/utils/Browser";
