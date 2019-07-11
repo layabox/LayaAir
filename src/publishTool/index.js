@@ -13,6 +13,7 @@ const fs = require("fs");
 const path = require("path");
 const emiter_1 = require("./emiter");
 var BaseURL;
+// var BaseURL = emiter_1.emiter.BaseURL= "./bin/layaAir/";
 var outfile;
 var outfileAS = "./as/declare/";
 var outfileTS = "./ts_compatible/declare/";
@@ -37,7 +38,7 @@ function start() {
     });
 }
 // checkAllDir("./bin/layaAir/");
-// tstoas("laya\\d3\\physics\\CharacterController.d.ts", null, "laya\\d3\\physics");
+// tstoas("laya\\ui\\Widget.d.ts", null, "laya\\ui");
 // tstoas("laya\\d3\\physics\\PhysicsUpdateList.d.ts",null,"laya\\d3\\physics");
 // tstoas("laya\\d3\\component\\SingletonList.d.ts",null,"laya\\d3\\component");
 function checkAllDir(url) {
@@ -94,7 +95,7 @@ function readDir(fileUrl) {
     return new Promise(resolve => {
         fs.readdir(formatUrl(fileUrl), (err, files) => {
             if (err) {
-                console.error("readDir fail", fileUrl);
+                console.error("readDir fial", fileUrl);
                 return resolve(0);
             }
             // console.log("readDir success",fileUrl);
@@ -154,7 +155,7 @@ function checkIsFile(url) {
  * @param data 数据
  */
 function writeFile(url, data) {
-    if (createAS) {
+    if (createAS && data != "") {
         let outUrl = url.replace(new RegExp("(d.ts)", "g"), "as");
         outUrl = outfile + outUrl;
         return new Promise(resolve => {
@@ -218,7 +219,7 @@ function checkComplete() {
     setTimeout(() => {
         let keys = Object.keys(Testobj);
         if (!keys.length) {
-            console.log("文件转换完成!!!", complete, progress);
+            console.log("TS to AS complete!!!", complete, progress);
             let layaObj = "declare module Laya {\n" + emiter_1.emiter.dtsData + "\n}\n";
             dtsObj += layaObj;
             createDir(outfileJS);
@@ -229,11 +230,11 @@ function checkComplete() {
             let tsout = path.join(outfile, outfileTS) + "LayaAir.d.ts";
             fs.writeFile(tsout, dtsObj, err => {
                 if (err)
-                    console.log("生成d.ts失败");
+                    console.log("create ts d.ts fail");
                 fs.writeFile(jsout, dtsObj, err => {
                     if (err)
-                        console.log("生成d.ts失败");
-                    console.log("生成d.ts成功");
+                        console.log("create js d.ts fail");
+                    console.log("create d.ts success");
                 });
             });
         }
