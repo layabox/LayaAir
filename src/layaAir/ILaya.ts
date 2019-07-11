@@ -27,8 +27,6 @@ import { Graphics } from "./laya/display/Graphics";
 import { Submit } from "./laya/webgl/submit/Submit";
 import { Resource } from "./laya/resource/Resource";
 
-console.log('--------------------')
-
 /**
  * 使用全局类的时候，避免引用其他模块
  */
