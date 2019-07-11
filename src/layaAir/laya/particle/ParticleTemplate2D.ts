@@ -13,7 +13,7 @@ import { Stat } from "../utils/Stat";
 
 
 	/**
-	 *  @private 
+	 *  @internal 
 	 */
 	export class ParticleTemplate2D extends ParticleTemplateWebGL implements ISubmit
 	{

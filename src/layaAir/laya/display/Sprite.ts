@@ -1269,7 +1269,7 @@ import { ILaya } from "../../ILaya";
 		 * @private 
 		 * 
 		 */
-		 static drawToTexture=function(sprite:Sprite, _renderType:number, canvasWidth:number, canvasHeight:number, offsetX:number, offsetY:number):Texture {
+		 static drawToTexture:Function=function(sprite:Sprite, _renderType:number, canvasWidth:number, canvasHeight:number, offsetX:number, offsetY:number):Texture {
 			offsetX -= sprite.x;
 			offsetY -= sprite.y;
 			offsetX |= 0;

@@ -6,6 +6,7 @@ import { SubMeshDynamicBatch } from "./laya/d3/graphics/SubMeshDynamicBatch";
 import { Laya3D } from "./Laya3D";
 
 /**
+ * @internal
  * 使用全局类的时候，避免引用其他模块
  */
 export class ILaya3D {
