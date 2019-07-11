@@ -20,6 +20,7 @@ import { RenderContext3D } from "./RenderContext3D";
 import { RenderElement } from "./RenderElement";
 import { RenderQueue } from "./RenderQueue";
 import { ILaya3D } from "../../../../ILaya3D";
+import { SingletonList } from "../../component/SingletonList";
 
 /**
  * @internal
@@ -44,15 +45,15 @@ export class SubMeshRenderElement extends RenderElement {
 	/** @internal */
 	staticBatchIndexEnd: number;
 	/** @internal */
-	staticBatchElementList: SubMeshRenderElement[];
+	staticBatchElementList: SingletonList<SubMeshRenderElement>;
 
 	/** @internal */
 	instanceSubMesh: SubMesh;
 	/** @internal */
-	instanceBatchElementList: SubMeshRenderElement[];
+	instanceBatchElementList: SingletonList<SubMeshRenderElement>;
 
 	/** @internal */
-	vertexBatchElementList: SubMeshRenderElement[];
+	vertexBatchElementList: SingletonList<SubMeshRenderElement>;
 	/** @internal */
 	vertexBatchVertexDeclaration: VertexDeclaration;
 
@@ -139,14 +140,15 @@ export class SubMeshRenderElement extends RenderElement {
 	 */
 	/*override*/  addToOpaqueRenderQueue(context: RenderContext3D, queue: RenderQueue): void {
 		var subMeshStaticBatch: SubMeshStaticBatch = (<SubMeshStaticBatch>this.staticBatch);
-		var elements: any[] = queue.elements;
+		var queueElements: SingletonList<RenderElement> = queue.elements;
+		var elements: any[] = queueElements.elements;
 		if (subMeshStaticBatch) {
 			var staManager: MeshRenderStaticBatchManager = ILaya3D.MeshRenderStaticBatchManager.instance;
 			var staBatchMarks: BatchMark = staManager.getBatchOpaquaMark(this.render.lightmapIndex + 1, this.render.receiveShadow, this.material.id, subMeshStaticBatch._batchID);
 			if (staManager._updateCountMark === staBatchMarks.updateMark) {
 				var staBatchIndex: number = staBatchMarks.indexInList;
 				if (staBatchMarks.batched) {
-					elements[staBatchIndex].staticBatchElementList.push(this);
+					elements[staBatchIndex].staticBatchElementList.add(this);
 				} else {
 					var staOriElement: SubMeshRenderElement = elements[staBatchIndex];
 					var staOriRender: BaseRender = staOriElement.render;
@@ -159,18 +161,18 @@ export class SubMeshRenderElement extends RenderElement {
 					staBatchElement.setTransform(staBatchTransform);
 					staBatchElement.render = staOriRender;
 					staBatchElement.renderSubShader = staOriElement.renderSubShader;
-					var staBatchList: SubMeshRenderElement[] = staBatchElement.staticBatchElementList;
+					var staBatchList: SingletonList<SubMeshRenderElement> = staBatchElement.staticBatchElementList;
 					staBatchList.length = 0;
-					staBatchList.push((<SubMeshRenderElement>staOriElement));
-					staBatchList.push(this);
+					staBatchList.add((<SubMeshRenderElement>staOriElement));
+					staBatchList.add(this);
 					elements[staBatchIndex] = staBatchElement;
 					staBatchMarks.batched = true;
 				}
 			} else {
 				staBatchMarks.updateMark = staManager._updateCountMark;
-				staBatchMarks.indexInList = elements.length;
+				staBatchMarks.indexInList = queueElements.length;
 				staBatchMarks.batched = false;//是否已有大于两个的元素可合并
-				elements.push(this);
+				queueElements.add(this);
 			}
 		} else if (this.renderSubShader._owner._enableInstancing && LayaGL.layaGPUInstance.supportInstance() && this.render.lightmapIndex < 0) {//需要支持Instance渲染才可用,暂不支持光照贴图
 			var subMesh: SubMesh = (<SubMesh>this._geometry);
@@ -179,14 +181,14 @@ export class SubMeshRenderElement extends RenderElement {
 			if (insManager._updateCountMark === insBatchMarks.updateMark) {
 				var insBatchIndex: number = insBatchMarks.indexInList;
 				if (insBatchMarks.batched) {
-					var instanceBatchElementList: SubMeshRenderElement[] = elements[insBatchIndex].instanceBatchElementList;
+					var instanceBatchElementList: SingletonList<SubMeshRenderElement> = elements[insBatchIndex].instanceBatchElementList;
 					if (instanceBatchElementList.length === SubMeshInstanceBatch.instance.maxInstanceCount) {
 						insBatchMarks.updateMark = insManager._updateCountMark;
-						insBatchMarks.indexInList = elements.length;
+						insBatchMarks.indexInList = queueElements.length;
 						insBatchMarks.batched = false;//是否已有大于两个的元素可合并
-						elements.push(this);
+						queueElements.add(this);
 					} else {
-						instanceBatchElementList.push(this);
+						instanceBatchElementList.add(this);
 					}
 				} else {
 					var insOriElement: SubMeshRenderElement = elements[insBatchIndex];
@@ -199,18 +201,18 @@ export class SubMeshRenderElement extends RenderElement {
 					insBatchElement.render = insOriRender;
 					insBatchElement.instanceSubMesh = subMesh;
 					insBatchElement.renderSubShader = insOriElement.renderSubShader;
-					var insBatchList: SubMeshRenderElement[] = insBatchElement.instanceBatchElementList;
+					var insBatchList: SingletonList<SubMeshRenderElement> = insBatchElement.instanceBatchElementList;
 					insBatchList.length = 0;
-					insBatchList.push((<SubMeshRenderElement>insOriElement));
-					insBatchList.push(this);
+					insBatchList.add((<SubMeshRenderElement>insOriElement));
+					insBatchList.add(this);
 					elements[insBatchIndex] = insBatchElement;
 					insBatchMarks.batched = true;
 				}
 			} else {
 				insBatchMarks.updateMark = insManager._updateCountMark;
-				insBatchMarks.indexInList = elements.length;
+				insBatchMarks.indexInList = queueElements.length;
 				insBatchMarks.batched = false;//是否已有大于两个的元素可合并
-				elements.push(this);
+				queueElements.add(this);
 			}
 		} else if (this._dynamicVertexBatch) {
 			var verDec: VertexDeclaration = ((<SubMesh>this._geometry))._vertexBuffer.vertexDeclaration;
@@ -219,7 +221,7 @@ export class SubMeshRenderElement extends RenderElement {
 			if (dynManager._updateCountMark === dynBatchMarks.updateMark) {
 				var dynBatchIndex: number = dynBatchMarks.indexInList;
 				if (dynBatchMarks.batched) {
-					elements[dynBatchIndex].vertexBatchElementList.push(this);
+					elements[dynBatchIndex].vertexBatchElementList.add(this);
 				} else {
 					var dynOriElement: SubMeshRenderElement = elements[dynBatchIndex];
 					var dynOriRender: BaseRender = dynOriElement.render;
@@ -231,21 +233,21 @@ export class SubMeshRenderElement extends RenderElement {
 					dynBatchElement.render = dynOriRender;
 					dynBatchElement.vertexBatchVertexDeclaration = verDec;
 					dynBatchElement.renderSubShader = dynOriElement.renderSubShader;
-					var dynBatchList: SubMeshRenderElement[] = dynBatchElement.vertexBatchElementList;
+					var dynBatchList: SingletonList<SubMeshRenderElement> = dynBatchElement.vertexBatchElementList;
 					dynBatchList.length = 0;
-					dynBatchList.push((<SubMeshRenderElement>dynOriElement));
-					dynBatchList.push(this);
+					dynBatchList.add((<SubMeshRenderElement>dynOriElement));
+					dynBatchList.add(this);
 					elements[dynBatchIndex] = dynBatchElement;
 					dynBatchMarks.batched = true;
 				}
 			} else {
 				dynBatchMarks.updateMark = dynManager._updateCountMark;
-				dynBatchMarks.indexInList = elements.length;
+				dynBatchMarks.indexInList = queueElements.length;
 				dynBatchMarks.batched = false;//是否已有大于两个的元素可合并
-				elements.push(this);
+				queueElements.add(this);
 			}
 		} else {
-			elements.push(this);
+			queueElements.add(this);
 		}
 	}
 
@@ -254,18 +256,19 @@ export class SubMeshRenderElement extends RenderElement {
 	 */
 	/*override*/  addToTransparentRenderQueue(context: RenderContext3D, queue: RenderQueue): void {
 		var subMeshStaticBatch: SubMeshStaticBatch = (<SubMeshStaticBatch>this.staticBatch);
-		var elements: any[] = queue.elements;
+		var queueElements: SingletonList<RenderElement> = queue.elements;
+		var elements: any[] = queueElements.elements;
 		if (subMeshStaticBatch) {
 			var staManager: MeshRenderStaticBatchManager = ILaya3D.MeshRenderStaticBatchManager.instance;
 			var staLastElement: RenderElement = queue.lastTransparentRenderElement;
 			if (staLastElement) {
 				var staLastRender: BaseRender = staLastElement.render;
 				if (staLastElement._geometry._getType() !== this._geometry._getType() || staLastElement.staticBatch !== subMeshStaticBatch || staLastElement.material !== this.material || staLastRender.receiveShadow !== this.render.receiveShadow || staLastRender.lightmapIndex !== this.render.lightmapIndex) {
-					elements.push(this);
+					queueElements.add(this);
 					queue.lastTransparentBatched = false;
 				} else {
 					if (queue.lastTransparentBatched) {
-						((<SubMeshRenderElement>elements[elements.length - 1])).staticBatchElementList.push((this));
+						((<SubMeshRenderElement>elements[elements.length - 1])).staticBatchElementList.add((this));
 					} else {
 						var staBatchElement: SubMeshRenderElement = (<SubMeshRenderElement>staManager._getBatchRenderElementFromPool());
 						staBatchElement.renderType = RenderElement.RENDERTYPE_STATICBATCH;
@@ -276,16 +279,16 @@ export class SubMeshRenderElement extends RenderElement {
 						staBatchElement.setTransform(staBatchTransform);
 						staBatchElement.render = this.render;
 						staBatchElement.renderSubShader = staLastElement.renderSubShader;
-						var staBatchList: SubMeshRenderElement[] = staBatchElement.staticBatchElementList;
+						var staBatchList: SingletonList<SubMeshRenderElement> = staBatchElement.staticBatchElementList;
 						staBatchList.length = 0;
-						staBatchList.push((<SubMeshRenderElement>staLastElement));
-						staBatchList.push(this);
+						staBatchList.add((<SubMeshRenderElement>staLastElement));
+						staBatchList.add(this);
 						elements[elements.length - 1] = staBatchElement;
 					}
 					queue.lastTransparentBatched = true;
 				}
 			} else {
-				elements.push(this);
+				queueElements.add(this);
 				queue.lastTransparentBatched = false;
 			}
 		} else if (this.renderSubShader._owner._enableInstancing && LayaGL.layaGPUInstance.supportInstance() && this.render.lightmapIndex < 0) {//需要支持Instance渲染才可用，暂不支持光照贴图
@@ -295,11 +298,11 @@ export class SubMeshRenderElement extends RenderElement {
 			if (insLastElement) {
 				var insLastRender: BaseRender = insLastElement.render;
 				if (insLastElement._geometry._getType() !== this._geometry._getType() || ((<SubMesh>insLastElement._geometry)) !== subMesh || insLastElement.material !== this.material || insLastRender.receiveShadow !== this.render.receiveShadow) {
-					elements.push(this);
+					queueElements.add(this);
 					queue.lastTransparentBatched = false;
 				} else {
 					if (queue.lastTransparentBatched) {
-						((<SubMeshRenderElement>elements[elements.length - 1])).instanceBatchElementList.push((this));
+						((<SubMeshRenderElement>elements[elements.length - 1])).instanceBatchElementList.add((this));
 					} else {
 						var insBatchElement: SubMeshRenderElement = (<SubMeshRenderElement>insManager._getBatchRenderElementFromPool());
 						insBatchElement.renderType = RenderElement.RENDERTYPE_INSTANCEBATCH;
@@ -309,16 +312,16 @@ export class SubMeshRenderElement extends RenderElement {
 						insBatchElement.render = this.render;
 						insBatchElement.instanceSubMesh = subMesh;
 						insBatchElement.renderSubShader = insLastElement.renderSubShader;
-						var insBatchList: SubMeshRenderElement[] = insBatchElement.instanceBatchElementList;
+						var insBatchList: SingletonList<SubMeshRenderElement> = insBatchElement.instanceBatchElementList;
 						insBatchList.length = 0;
-						insBatchList.push((<SubMeshRenderElement>insLastElement));
-						insBatchList.push(this);
+						insBatchList.add((<SubMeshRenderElement>insLastElement));
+						insBatchList.add(this);
 						elements[elements.length - 1] = insBatchElement;
 					}
 					queue.lastTransparentBatched = true;
 				}
 			} else {
-				elements.push(this);
+				queueElements.add(this);
 				queue.lastTransparentBatched = false;
 			}
 
@@ -329,11 +332,11 @@ export class SubMeshRenderElement extends RenderElement {
 			if (dynLastElement) {
 				var dynLastRender: BaseRender = dynLastElement.render;
 				if (dynLastElement._geometry._getType() !== this._geometry._getType() || ((<SubMesh>dynLastElement._geometry))._vertexBuffer._vertexDeclaration !== verDec || dynLastElement.material !== this.material || dynLastRender.receiveShadow !== this.render.receiveShadow || dynLastRender.lightmapIndex !== this.render.lightmapIndex) {
-					elements.push(this);
+					queueElements.add(this);
 					queue.lastTransparentBatched = false;
 				} else {
 					if (queue.lastTransparentBatched) {
-						((<SubMeshRenderElement>elements[elements.length - 1])).vertexBatchElementList.push((this));
+						((<SubMeshRenderElement>elements[elements.length - 1])).vertexBatchElementList.add((this));
 					} else {
 						var dynBatchElement: SubMeshRenderElement = (<SubMeshRenderElement>dynManager._getBatchRenderElementFromPool());
 						dynBatchElement.renderType = RenderElement.RENDERTYPE_VERTEXBATCH;
@@ -343,20 +346,20 @@ export class SubMeshRenderElement extends RenderElement {
 						dynBatchElement.render = this.render;
 						dynBatchElement.vertexBatchVertexDeclaration = verDec;
 						dynBatchElement.renderSubShader = dynLastElement.renderSubShader;
-						var dynBatchList: SubMeshRenderElement[] = dynBatchElement.vertexBatchElementList;
+						var dynBatchList:SingletonList<SubMeshRenderElement> = dynBatchElement.vertexBatchElementList;
 						dynBatchList.length = 0;
-						dynBatchList.push((<SubMeshRenderElement>dynLastElement));
-						dynBatchList.push(this);
+						dynBatchList.add((<SubMeshRenderElement>dynLastElement));
+						dynBatchList.add(this);
 						elements[elements.length - 1] = dynBatchElement;
 					}
 					queue.lastTransparentBatched = true;
 				}
 			} else {
-				elements.push(this);
+				queueElements.add(this);
 				queue.lastTransparentBatched = false;
 			}
 		} else {
-			elements.push(this);
+			queueElements.add(this);
 		}
 		queue.lastTransparentRenderElement = this;
 	}

@@ -361,17 +361,17 @@ this._long = long;
 		 * @param	miplevel 层级
 		 */
 		private setSubPixsByImage(x:number, y:number, image:any, miplevel:number = 0):void {
-			var gl:WebGL2RenderingContext = LayaGL.instance;
+			var gl:WebGLRenderingContext = LayaGL.instance;
 			var textureType:number = ((<any>this._texture2D ))._glTextureType;
 			WebGLContext.bindTexture(gl, textureType, ((<any>this._texture2D ))._glTexture);
 			var glFormat:number =  ((<any>this._texture2D ))._getGLFormat();
 			var format:number = this._texture2D.format;
 			if (format === BaseTexture.FORMAT_R8G8B8) {
-				gl.pixelStorei(WebGL2RenderingContext.UNPACK_ALIGNMENT, 1);//字节对齐
-				gl.texSubImage2D(textureType, miplevel, x, y, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, image);
-				gl.pixelStorei(WebGL2RenderingContext.UNPACK_ALIGNMENT, 4);
+				gl.pixelStorei(WebGLRenderingContext.UNPACK_ALIGNMENT, 1);//字节对齐
+				gl.texSubImage2D(textureType, miplevel, x, y, glFormat, WebGLRenderingContext.UNSIGNED_BYTE, image);
+				gl.pixelStorei(WebGLRenderingContext.UNPACK_ALIGNMENT, 4);
 			} else {
-				gl.texSubImage2D(textureType, miplevel, x, y, glFormat, WebGL2RenderingContext.UNSIGNED_BYTE, image);
+				gl.texSubImage2D(textureType, miplevel, x, y, glFormat, WebGLRenderingContext.UNSIGNED_BYTE, image);
 			}
 			
 			((<any>this._texture2D ))._readyed = true;

@@ -52,7 +52,7 @@ export class FrustumCulling {
 	/**
 	 * @internal
 	 */
-	private static _drawTraversalCullingBound(renderList: SingletonList, debugTool: PixelLineSprite3D): void {
+	private static _drawTraversalCullingBound(renderList: SingletonList<ISingletonElement>, debugTool: PixelLineSprite3D): void {
 		var validCount: number = renderList.length;
 		var renders: ISingletonElement[] = renderList.elements;
 		for (var i: number = 0, n: number = renderList.length; i < n; i++) {
@@ -68,7 +68,7 @@ export class FrustumCulling {
 	/**
 	 * @internal
 	 */
-	private static _traversalCulling(camera: Camera, scene: Scene3D, context: RenderContext3D, renderList: SingletonList, customShader: Shader3D, replacementTag: string): void {
+	private static _traversalCulling(camera: Camera, scene: Scene3D, context: RenderContext3D, renderList: SingletonList<ISingletonElement>, customShader: Shader3D, replacementTag: string): void {
 		var validCount: number = renderList.length;
 		var renders: ISingletonElement[] = renderList.elements;
 		var boundFrustum: BoundFrustum = camera.boundFrustum;
@@ -96,7 +96,7 @@ export class FrustumCulling {
 	/**
 	 * @internal
 	 */
-	static renderObjectCulling(camera: Camera, scene: Scene3D, context: RenderContext3D, renderList: SingletonList, customShader: Shader3D, replacementTag: string): void {
+	static renderObjectCulling(camera: Camera, scene: Scene3D, context: RenderContext3D, renderList: SingletonList<ISingletonElement>, customShader: Shader3D, replacementTag: string): void {
 		var i: number, n: number, j: number, m: number;
 		var opaqueQueue: RenderQueue = scene._opaqueQueue;
 		var transparentQueue: RenderQueue = scene._transparentQueue;

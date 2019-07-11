@@ -1,6 +1,8 @@
 import { RigidBody } from "./RigidBody";
 import { Laya } from "../../Laya";
-import { Component } from "../components/Component"
+import { ILaya } from "../../ILaya";
+import { Component } from "../components/Component";
+import { IPhysics } from "./IPhysics";
 	
 	/**
 	 * 碰撞体基类
@@ -46,7 +48,7 @@ import { Component } from "../components/Component"
 		
 		private _checkRigidBody():void {
 			if (!this.rigidBody) {
-				var comp:RigidBody = this.owner.getComponent(RigidBody);
+				var comp:RigidBody = this.owner.getComponent(IPhysics.RigidBody);
 				if (comp) {
 					this.rigidBody = comp;
 					this.refresh();

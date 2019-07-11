@@ -75,14 +75,14 @@ export class RenderElement {
 	 * @internal
 	 */
 	addToOpaqueRenderQueue(context: RenderContext3D, queue: RenderQueue): void {
-		queue.elements.push(this);
+		queue.elements.add(this);
 	}
 
 	/**
 	 * @internal
 	 */
 	addToTransparentRenderQueue(context: RenderContext3D, queue: RenderQueue): void {
-		queue.elements.push(this);
+		queue.elements.add(this);
 		queue.lastTransparentBatched = false;
 		queue.lastTransparentRenderElement = this;
 	}

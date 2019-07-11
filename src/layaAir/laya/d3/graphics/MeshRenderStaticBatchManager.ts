@@ -10,6 +10,7 @@ import { StaticBatchManager } from "./StaticBatchManager";
 import { SubMeshStaticBatch } from "./SubMeshStaticBatch";
 import { VertexDeclaration } from "./VertexDeclaration";
 import { VertexMesh } from "./Vertex/VertexMesh";
+import { SingletonList } from "../component/SingletonList";
 
 /**
  * @internal
@@ -72,7 +73,7 @@ export class MeshRenderStaticBatchManager extends StaticBatchManager {
 		if (!renderElement) {
 			renderElement = new SubMeshRenderElement();
 			this._batchRenderElementPool[this._batchRenderElementPoolIndex - 1] = renderElement;
-			renderElement.staticBatchElementList = [];
+			renderElement.staticBatchElementList = new SingletonList<SubMeshRenderElement>();
 		}
 		return renderElement;
 	}

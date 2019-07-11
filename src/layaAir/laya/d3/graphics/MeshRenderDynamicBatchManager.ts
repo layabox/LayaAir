@@ -6,6 +6,7 @@ import { BufferState } from "../core/BufferState"
 import { BatchMark } from "../core/render/BatchMark"
 import { RenderElement } from "../core/render/RenderElement"
 import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement"
+import { SingletonList } from "../component/SingletonList";
 
 /**
  * @internal
@@ -80,8 +81,8 @@ export class MeshRenderDynamicBatchManager extends DynamicBatchManager {
 		if (!renderElement) {
 			renderElement = new SubMeshRenderElement();
 			this._batchRenderElementPool[this._batchRenderElementPoolIndex - 1] = renderElement;
-			renderElement.vertexBatchElementList = [];
-			renderElement.instanceBatchElementList = [];
+			renderElement.vertexBatchElementList =new SingletonList<SubMeshRenderElement>();
+			renderElement.instanceBatchElementList = new SingletonList<SubMeshRenderElement>();
 		}
 		return renderElement;
 	}

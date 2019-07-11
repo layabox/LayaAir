@@ -4,7 +4,7 @@ import { ISingletonElement } from "../../resource/ISingletonElement"
 /**
  * <code>SimpleSingletonList</code> 类用于实现单例队列。
  */
-export class SimpleSingletonList extends SingletonList {
+export class SimpleSingletonList extends SingletonList<ISingletonElement> {
 	/**
 	 * 创建一个新的 <code>SimpleSingletonList</code> 实例。
 	 */

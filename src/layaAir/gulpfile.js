@@ -208,7 +208,8 @@ gulp.task('buildJS', async function () {
             }),
             glsl({
                 include: /\.glsl$/,
-                sourceMap: false
+                sourceMap: false,
+                compress:false
             }),   
         ]
     });
@@ -217,7 +218,9 @@ gulp.task('buildJS', async function () {
       file: packsDef.ani.out,
       format: 'iife',
       name: 'Laya',
-      sourcemap: false
+      sourcemap: false,
+      extend:true,
+      globals:{'Laya':'Laya'}
     });
 
 
@@ -231,7 +234,8 @@ gulp.task('buildJS', async function () {
             }),
             glsl({
                 include: /\.glsl$/,
-                sourceMap: false
+                sourceMap: false,
+                compress:false
             }),   
         ]
     });
@@ -258,7 +262,8 @@ gulp.task('buildJS', async function () {
             }),
             glsl({
                 include: /.*(.glsl|.vs|.fs)$/,
-                sourceMap: false
+                sourceMap: false,
+                compress:false
             }),   
         ]
     });
@@ -267,7 +272,9 @@ gulp.task('buildJS', async function () {
       file: packsDef.d3.out,
       format: 'iife',
       name: 'Laya',
-      sourcemap: false
+      sourcemap: false,
+      extend:true,
+      globals:{'Laya':'Laya'}
     });
 
     const device = await rollup.rollup({
@@ -285,7 +292,8 @@ gulp.task('buildJS', async function () {
             }),
             glsl({
                 include: /\.glsl$/,
-                sourceMap: false
+                sourceMap: false,
+                compress:false
             }),   
         ]
     });
@@ -294,12 +302,18 @@ gulp.task('buildJS', async function () {
       file: packsDef.device.out,
       format: 'iife',
       name: 'Laya',
-      sourcemap: false
+      sourcemap: false,
+      extend:true,
+      globals:{'Laya':'Laya'}
     });
 
     const html = await rollup.rollup({
         input:packsDef.html.input,
         output: {
+            file: packsDef.html.out,
+            format: 'iife',
+            name: 'Laya',
+            sourcemap: false,
             extend:true,
             globals:{'Laya':'Laya'}
         },
@@ -312,7 +326,8 @@ gulp.task('buildJS', async function () {
             }),
             glsl({
                 include: /\.glsl$/,
-                sourceMap: false
+                sourceMap: false,
+                compress:false
             }),   
         ]
     });
@@ -321,7 +336,9 @@ gulp.task('buildJS', async function () {
       file: packsDef.html.out,
       format: 'iife',
       name: 'Laya',
-      sourcemap: false
+      sourcemap: false,
+      extend:true,
+      globals:{'Laya':'Laya'}
     });
 
     const particle = await rollup.rollup({
@@ -339,7 +356,8 @@ gulp.task('buildJS', async function () {
             }),
             glsl({
                 include: /\.glsl$/,
-                sourceMap: false
+                sourceMap: false,
+                compress:false
             }),   
         ]
     });
@@ -348,7 +366,9 @@ gulp.task('buildJS', async function () {
       file: packsDef.particle.out,
       format: 'iife',
       name: 'Laya',
-      sourcemap: false
+      sourcemap: false,
+      extend:true,
+      globals:{'Laya':'Laya'}
     });
 
   });
@@ -369,7 +389,8 @@ gulp.task('buildJS', async function () {
             }),
             glsl({
                 include: /\.glsl$/,
-                sourceMap: false
+                sourceMap: false,
+                compress:false
             }),   
         ]
     });
@@ -378,7 +399,9 @@ gulp.task('buildJS', async function () {
       file: packsDef.physics.out,
       format: 'iife',
       name: 'Laya',
-      sourcemap: false
+      sourcemap: false,
+      extend:true,
+      globals:{'Laya':'Laya'}
     });
 
     const ui = await rollup.rollup({
@@ -396,7 +419,8 @@ gulp.task('buildJS', async function () {
             }),
             glsl({
                 include: /\.glsl$/,
-                sourceMap: false
+                sourceMap: false,
+                compress:false
             }),   
         ]
     });
@@ -405,7 +429,9 @@ gulp.task('buildJS', async function () {
       file: packsDef.ui.out,
       format: 'iife',
       name: 'Laya',
-      sourcemap: false
+      sourcemap: false,
+      extend:true,
+      globals:{'Laya':'Laya'}
     });
 
   });

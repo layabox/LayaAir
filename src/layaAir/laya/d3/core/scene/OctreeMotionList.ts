@@ -1,10 +1,11 @@
 import { IOctreeObject } from "./IOctreeObject";
 import { SingletonList } from "../../component/SingletonList"
+import { ISingletonElement } from "../../../resource/ISingletonElement";
 
 /**
  * <code>OctreeMotionList</code> 类用于实现物理更新队列。
  */
-export class OctreeMotionList extends SingletonList {
+export class OctreeMotionList extends SingletonList<IOctreeObject> {
 
 	/**
 	 * 创建一个新的 <code>OctreeMotionList</code> 实例。

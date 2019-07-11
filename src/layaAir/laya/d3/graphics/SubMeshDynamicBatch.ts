@@ -15,6 +15,7 @@ import { VertexDeclaration } from "./VertexDeclaration";
 import { VertexElement } from "./VertexElement";
 import { VertexMesh } from "./Vertex/VertexMesh";
 import { ILaya3D } from "../../../ILaya3D";
+import { SingletonList } from "../component/SingletonList";
 	/**
 	 * @internal
 	 * <code>SubMeshDynamicBatch</code> 类用于网格动态合并。
@@ -237,7 +238,7 @@ import { ILaya3D } from "../../../ILaya3D";
 			this._bufferState.bind();
 			var element:SubMeshRenderElement = (<SubMeshRenderElement>context.renderElement );
 			var vertexDeclaration:VertexDeclaration = element.vertexBatchVertexDeclaration;
-			var batchElements:SubMeshRenderElement[] = element.vertexBatchElementList;
+			var batchElements:SingletonList<SubMeshRenderElement> = element.vertexBatchElementList;
 			
 			var batchVertexCount:number = 0;
 			var batchIndexCount:number = 0;

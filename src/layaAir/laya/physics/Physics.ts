@@ -20,6 +20,7 @@ import { Sprite } from "../display/Sprite"
 	import { WeldJoint } from "./joint/WeldJoint"
 	import { WheelJoint } from "./joint/WheelJoint"
 	import { ClassUtils } from "../utils/ClassUtils"
+	import { IPhysics } from "./IPhysics";
 	
 	/**
 	 * 2D物理引擎，使用Box2d驱动
@@ -52,10 +53,6 @@ import { Sprite } from "../display/Sprite"
 		 static get I():Physics {
 			return Physics._I || (Physics._I = new Physics());
 		}
-
-		static __init__():void {
-			ClassUtils.regShortClassName([BoxCollider, ChainCollider, CircleCollider, PolygonCollider, RigidBody, DistanceJoint, GearJoint, MotorJoint, MouseJoint, PrismaticJoint, PulleyJoint, RevoluteJoint, RopeJoint, WeldJoint, WheelJoint, PhysicsDebugDraw]);
-		}
 		
 		constructor() {
 			super();
@@ -70,6 +67,8 @@ import { Sprite } from "../display/Sprite"
 		 */
 		 static enable(options:any = null):void {
 			Physics.I.start(options);
+			IPhysics.RigidBody = RigidBody;
+			IPhysics.Physics = this;
 		}
 		
 		/**

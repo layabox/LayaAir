@@ -173,7 +173,7 @@ export class BoundsOctree {
 	 * 更新所有运动物体。
 	 */
 	updateMotionObjects(): void {
-		var elements: ISingletonElement[] = this._motionObjects.elements;
+		var elements: IOctreeObject[] = this._motionObjects.elements;
 		for (var i: number = 0, n: number = this._motionObjects.length; i < n; i++) {
 			var object: IOctreeObject = <any>elements[i];
 			this.update(object);
