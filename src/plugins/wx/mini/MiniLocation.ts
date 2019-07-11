@@ -1,6 +1,7 @@
-import { MiniAdpter } from "./../../../../../../openData/src/laya/wx/mini/MiniAdpter";
-import { Laya } from "./../../../../../../core/src/Laya";
-import { Browser } from "../../../../../../core/src/laya/utils/Browser"
+import { MiniAdpter } from "./MiniAdpter";
+import { Browser } from "laya/utils/Browser";
+import { Laya } from "layaAir/Laya";
+
 	/**@private **/
 	export class MiniLocation 
 	{

@@ -1,7 +1,8 @@
-import { Laya } from "./../../../../../../core/src/Laya";
-import { Event } from "../../../../../../core/src/laya/events/Event"
-	import { SoundChannel } from "../../../../../../core/src/laya/media/SoundChannel"
-	import { SoundManager } from "../../../../../../core/src/laya/media/SoundManager"
+import { MiniSound } from "./MiniSound";
+import { SoundChannel } from "laya/media/SoundChannel";
+import { Laya } from "Laya";
+import { SoundManager } from "laya/media/SoundManager";
+import { Event } from "laya/events/Event";
 	
 	/** @private **/
 	export class MiniSoundChannel extends SoundChannel {

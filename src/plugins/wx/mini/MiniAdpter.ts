@@ -1,20 +1,19 @@
-import { Laya } from "./../../../../../../core/src/Laya";
-import { MiniFileMgr } from "./../../../../../../openData/src/laya/wx/mini/MiniFileMgr";
-import { MiniInput } from "./../../../../../bd/src/laya/bd/mini/MiniInput";
-import { MiniLoader } from "./../../../../../../openData/src/laya/wx/mini/MiniLoader";
-import { MiniImage } from "./../../../../../../openData/src/laya/wx/mini/MiniImage";
-import { MiniLocalStorage } from "./../../../../../../openData/src/laya/wx/mini/MiniLocalStorage";
-import { Input } from "../../../../../../core/src/laya/display/Input"
-	import { Stage } from "../../../../../../core/src/laya/display/Stage"
-	import { Matrix } from "../../../../../../core/src/laya/maths/Matrix"
-	import { Loader } from "../../../../../../core/src/laya/net/Loader"
-	import { LocalStorage } from "../../../../../../core/src/laya/net/LocalStorage"
-	import { URL } from "../../../../../../core/src/laya/net/URL"
-	import { Browser } from "../../../../../../core/src/laya/utils/Browser"
-	import { Handler } from "../../../../../../core/src/laya/utils/Handler"
-	import { RunDriver } from "../../../../../../core/src/laya/utils/RunDriver"
-	import { Utils } from "../../../../../../core/src/laya/utils/Utils"
-	
+
+import { MiniFileMgr } from "./MiniFileMgr";	
+import { Laya } from "../../../../bin/tsc/layaAir/Laya";
+import { Handler } from "laya/utils/Handler";
+import { Browser } from "laya/utils/Browser";
+import { MiniInput } from "./MiniInput";
+import { MiniLoader } from "./MiniLoader";
+import { Loader } from "laya/net/Loader"; 
+import { Input } from "laya/display/Input";
+import {RunDriver} from "laya/utils/RunDriver";
+import {Utils} from "laya/utils/Utils";
+import { Matrix } from "laya/maths/Matrix";
+import {LocalStorage} from "laya/net/LocalStorage";
+import { MiniLocalStorage } from "./MiniLocalStorage";
+import { Stage } from "laya/display/Stage";
+
 	export class MiniAdpter {
 		/**@private  包装对象**/
 		 static EnvConfig:any;
@@ -77,7 +76,7 @@ import { Input } from "../../../../../../core/src/laya/display/Input"
 				MiniFileMgr.setNativeFileDir("/layaairGame");
 				MiniFileMgr.existDir(MiniFileMgr.fileNativeDir, Handler.create(MiniAdpter, MiniAdpter.onMkdirCallBack));
 			}
-			MiniAdpter.systemInfo = wx.getSystemInfoSync();
+			MiniAdpter.systemInfo = MiniAdpter.window.wx.getSystemInfoSync();
 			
 			MiniAdpter.window.focus = function():void {
 			};
@@ -115,11 +114,18 @@ import { Input } from "../../../../../../core/src/laya/display/Input"
 			Input['_createInputElement'] = MiniInput['_createInputElement'];
 			
 			//修改文件加载
-			MiniAdpter.EnvConfig.load = Loader.prototype.load;
+			// MiniAdpter.EnvConfig.load = Loader.prototype.load;
 			//文件加载处理
-			Loader.prototype.load = MiniLoader.prototype.load;
+			// Loader.prototype.load = MiniLoader.prototype.load;
 			//修改图片加载
-			Loader.prototype._loadImage = MiniImage.prototype._loadImage;
+			// Loader.prototype._loadImage = MiniImage.prototype._loadImage;
+
+			//新调整-xiaosong20190709
+			// MiniAdpter.EnvConfig.load = Loader.prototype._loadResourceFilter;
+			Loader.prototype._loadResourceFilter = MiniLoader.prototype._loadResourceFilter;
+			Loader.prototype._loadSound = MiniLoader.prototype._loadSound;
+			Loader.prototype._loadHttpRequestWhat = MiniLoader.prototype._loadHttpRequestWhat;
+			
 			//本地缓存类
 			LocalStorage._baseClass = MiniLocalStorage;
 			MiniLocalStorage.__init__();
@@ -261,7 +267,7 @@ import { Input } from "../../../../../../core/src/laya/display/Input"
 			var Parser:any;
 			value = value.replace(/>\s+</g, '><');
 			try {
-				rst=(new window.Parser.DOMParser()).parseFromString(value,'text/xml');
+				rst=(new MiniAdpter.window.Parser.DOMParser()).parseFromString(value,'text/xml');
 			} catch (error) {
 				throw "需要引入xml解析库文件";
 			}
@@ -276,13 +282,13 @@ import { Input } from "../../../../../../core/src/laya/display/Input"
 				var _source:any;
 				if (MiniAdpter.idx == 1) {
 					if (MiniAdpter.isZiYu) {
-						_source = sharedCanvas;
+						_source = MiniAdpter.window.sharedCanvas;
 						_source.style = {};
 					} else {
-						_source = window.canvas;
+						_source = MiniAdpter.window.canvas;
 					}
 				} else {
-					_source = window.wx.createCanvas();
+					_source = MiniAdpter.window.wx.createCanvas();
 				}
 				MiniAdpter.idx++;
 				return _source;
@@ -382,7 +388,7 @@ import { Input } from "../../../../../../core/src/laya/display/Input"
 				fileNativeUrl = textureUrl;//4M包使用
 			}
 			if (fileNativeUrl) {
-				wx.postMessage({url: url, atlasdata: postData, imgNativeUrl: fileNativeUrl, imgReadyUrl: textureUrl, isLoad: "opendatacontext"});
+				MiniAdpter.window.wx.postMessage({url: url, atlasdata: postData, imgNativeUrl: fileNativeUrl, imgReadyUrl: textureUrl, isLoad: "opendatacontext"});
 			} else {
 				throw "获取图集的磁盘url路径不存在！";
 			}
@@ -403,7 +409,7 @@ import { Input } from "../../../../../../core/src/laya/display/Input"
 				fileNativeUrl = url;//4M包使用
 			}
 			if (fileNativeUrl) {
-				wx.postMessage({url: url, imgNativeUrl: fileNativeUrl, imgReadyUrl: url, isLoad: "openJsondatacontextPic"});
+				MiniAdpter.window.wx.postMessage({url: url, imgNativeUrl: fileNativeUrl, imgReadyUrl: url, isLoad: "openJsondatacontextPic"});
 			} else {
 				throw "获取图集的磁盘url路径不存在！";
 			}
@@ -417,7 +423,7 @@ import { Input } from "../../../../../../core/src/laya/display/Input"
 			if (!MiniAdpter.isZiYu) {
 				var atlasJson:any = Loader.getRes(url);
 				if (atlasJson) {
-					wx.postMessage({url: url, atlasdata: atlasJson, isLoad: "openJsondatacontext"});
+					MiniAdpter.window.wx.postMessage({url: url, atlasdata: atlasJson, isLoad: "openJsondatacontext"});
 				} else {
 					throw "传递的url没有获取到对应的图集数据信息，请确保图集已经过！";
 				}

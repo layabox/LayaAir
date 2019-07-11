@@ -1,11 +1,10 @@
-import { MiniAdpter } from "./../../../../../../openData/src/laya/wx/mini/MiniAdpter";
-import { MiniFileMgr } from "./../../../../../../openData/src/laya/wx/mini/MiniFileMgr";
-import { Event } from "../../../../../../core/src/laya/events/Event"
-	import { URL } from "../../../../../../core/src/laya/net/URL"
-	import { HTMLImage } from "../../../../../../core/src/laya/resource/HTMLImage"
-	import { Browser } from "../../../../../../core/src/laya/utils/Browser"
-	import { Handler } from "../../../../../../core/src/laya/utils/Handler"
-	
+import { MiniAdpter } from "./MiniAdpter";
+import { MiniFileMgr } from "./MiniFileMgr";
+import { Handler } from "laya/utils/Handler";
+import { Browser } from "laya/utils/Browser";
+import { HTMLImage } from "laya/resource/HTMLImage";
+import  {URL} from "laya/net/URL";	
+import {Event} from "laya/events/Event";
 	/** @private **/
 	export class MiniImage {
 		

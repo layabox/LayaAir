@@ -1,3 +1,5 @@
+import { MiniAdpter } from "./MiniAdpter";
+
 /** @private **/
 	export class MiniLocalStorage
 	{
@@ -24,11 +26,11 @@
 
 			try
 			{
-				wx.setStorageSync(key,value);//安卓系统 4.4.4有bug，临时采用异步设置缓存的方式
+				MiniAdpter.window.wx.setStorageSync(key,value);//安卓系统 4.4.4有bug，临时采用异步设置缓存的方式
 			} 
 			catch(error) 
 			{
-				wx.setStorage({
+				MiniAdpter.window.wx.setStorage({
 					key:key,
 					data:value
 				});
@@ -41,7 +43,7 @@
 		 * @return 字符串型值。
 		 */
 		 static getItem(key:string):string {
-			return wx.getStorageSync(key);
+			return MiniAdpter.window.wx.getStorageSync(key);
 		}
 		
 		/**
@@ -67,21 +69,21 @@
 		 * @param key 键名。
 		 */
 		 static removeItem(key:string):void {
-			wx.removeStorageSync(key);
+			MiniAdpter.window.wx.removeStorageSync(key);
 		}
 		
 		/**
 		 * 清除本地存储信息。
 		 */
 		 static clear():void {
-			wx.clearStorageSync();
+			MiniAdpter.window.wx.clearStorageSync();
 		}
 		
 		/**同步获取当前storage的相关信息**/
 		 static getStorageInfoSync():any
 		{
 			try {
-				var res:any = wx.getStorageInfoSync()
+				var res:any = MiniAdpter.window.wx.getStorageInfoSync()
 				console.log(res.keys)
 				console.log(res.currentSize)
 				console.log(res.limitSize)

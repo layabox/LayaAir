@@ -1,11 +1,10 @@
-import { MiniAdpter } from "./../../../../../../openData/src/laya/wx/mini/MiniAdpter";
-import { MiniFileMgr } from "./../../../../../../openData/src/laya/wx/mini/MiniFileMgr";
-import { MiniSoundChannel } from "./../../../../../bd/src/laya/bd/mini/MiniSoundChannel";
-import { Event } from "../../../../../../core/src/laya/events/Event"
-	import { EventDispatcher } from "../../../../../../core/src/laya/events/EventDispatcher"
-	import { SoundManager } from "../../../../../../core/src/laya/media/SoundManager"
-	import { URL } from "../../../../../../core/src/laya/net/URL"
-	import { Handler } from "../../../../../../core/src/laya/utils/Handler"
+import { EventDispatcher } from "laya/events/EventDispatcher";
+import { MiniAdpter } from "./MiniAdpter";
+import { MiniFileMgr } from "./MiniFileMgr";
+import { Handler } from "laya/utils/Handler";
+import { MiniSoundChannel } from "./MiniSoundChannel";
+import { SoundManager } from "laya/media/SoundManager";
+
 	
 	/** @private **/
 	export class MiniSound extends EventDispatcher {
@@ -245,7 +244,7 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 			{
 				tSound.src = this.url;
 			}
-			var channel:MiniSoundChannel = new MiniSoundChannel(tSound,this);
+			var channel:any = new MiniSoundChannel(tSound,this);
 			channel.url = this.url;
 			channel.loops = loops;
 			channel.loop = (loops === 0 ? true : false);

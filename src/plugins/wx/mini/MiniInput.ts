@@ -1,13 +1,11 @@
-import { Laya } from "./../../../../../../core/src/Laya";
-import { MiniSound } from "./../../../../../bd/src/laya/bd/mini/MiniSound";
-import { MiniAdpter } from "./../../../../../../openData/src/laya/wx/mini/MiniAdpter";
-import { Input } from "../../../../../../core/src/laya/display/Input"
-	import { Event } from "../../../../../../core/src/laya/events/Event"
-	import { Matrix } from "../../../../../../core/src/laya/maths/Matrix"
-	import { SoundManager } from "../../../../../../core/src/laya/media/SoundManager"
-	import { Render } from "../../../../../../core/src/laya/renders/Render"
-	import { Browser } from "../../../../../../core/src/laya/utils/Browser"
-	import { RunDriver } from "../../../../../../core/src/laya/utils/RunDriver"
+import { Browser } from "laya/utils/Browser";
+import { Input } from "laya/display/Input";
+import { MiniAdpter } from "./MiniAdpter";
+import { SoundManager } from "laya/media/SoundManager";
+import { MiniSound } from "./MiniSound";
+import { Matrix } from "laya/maths/Matrix";
+import { Render } from "laya/renders/Render";
+import { Laya } from "Laya";
 	
 	/** @private **/
 	export class MiniInput {
@@ -26,8 +24,8 @@ import { Input } from "../../../../../../core/src/laya/display/Input"
 			
 			Laya.stage.on("resize", null, MiniInput._onStageResize);
 			
-			wx.onWindowResize && wx.onWindowResize(function(res:any):void {
-				window.dispatchEvent && window.dispatchEvent("resize");
+			MiniAdpter.window.wx.onWindowResize && MiniAdpter.window.wx.onWindowResize(function(res:any):void {
+				MiniAdpter.window.dispatchEvent && window.dispatchEvent("resize");
 			});
 			
 			//替换声音
