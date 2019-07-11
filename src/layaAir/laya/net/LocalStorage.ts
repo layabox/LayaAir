@@ -4,7 +4,7 @@
 	export class LocalStorage {
 		
         //基础类
-         static _baseClass: typeof Storage;
+         static _baseClass: any;
 		/**
 		 *  数据列表。
 		 */

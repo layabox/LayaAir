@@ -209,9 +209,9 @@ import { ILaya } from "../../ILaya";
 		 _x:number = 0;
 		/**@internal */
 		 _y:number = 0;
-		/**@internal */
+		/**@private */
 		 _width:number = 0;
-		/**@internal */
+		/**@private */
 		 _height:number = 0;
 		/**@internal */
 		 _visible:boolean = true;
