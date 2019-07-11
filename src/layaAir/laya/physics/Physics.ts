@@ -52,10 +52,6 @@ import { Sprite } from "../display/Sprite"
 		 static get I():Physics {
 			return Physics._I || (Physics._I = new Physics());
 		}
-
-		static __init__():void {
-			ClassUtils.regShortClassName([BoxCollider, ChainCollider, CircleCollider, PolygonCollider, RigidBody, DistanceJoint, GearJoint, MotorJoint, MouseJoint, PrismaticJoint, PulleyJoint, RevoluteJoint, RopeJoint, WeldJoint, WheelJoint, PhysicsDebugDraw]);
-		}
 		
 		constructor() {
 			super();
