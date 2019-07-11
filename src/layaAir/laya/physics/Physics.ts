@@ -20,6 +20,7 @@ import { Sprite } from "../display/Sprite"
 	import { WeldJoint } from "./joint/WeldJoint"
 	import { WheelJoint } from "./joint/WheelJoint"
 	import { ClassUtils } from "../utils/ClassUtils"
+	import { IPhysics } from "./IPhysics";
 	
 	/**
 	 * 2D物理引擎，使用Box2d驱动
@@ -66,6 +67,8 @@ import { Sprite } from "../display/Sprite"
 		 */
 		 static enable(options:any = null):void {
 			Physics.I.start(options);
+			IPhysics.RigidBody = RigidBody;
+			IPhysics.Physics = this;
 		}
 		
 		/**

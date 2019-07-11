@@ -1,4 +1,4 @@
-import { Physics } from "./Physics";
+import { IPhysics } from "./IPhysics";
 import { Laya } from "../../Laya";
 import { ColliderBase } from "./ColliderBase";
 import { Component } from "../components/Component"
@@ -65,8 +65,8 @@ import { Component } from "../components/Component"
 			var sp:Sprite = (<Sprite>this.owner );
 			var box2d:any = (<any>window).box2d;
 			var def:any = new box2d.b2BodyDef();
-			var point:Point = (<Sprite>this.owner).localToGlobal(Point.TEMP.setTo(0, 0), false, Physics.I.worldRoot);
-			def.position.Set(point.x / Physics.PIXEL_RATIO, point.y / Physics.PIXEL_RATIO);
+			var point:Point = (<Sprite>this.owner).localToGlobal(Point.TEMP.setTo(0, 0), false, IPhysics.Physics.I.worldRoot);
+			def.position.Set(point.x / IPhysics.Physics.PIXEL_RATIO, point.y / IPhysics.Physics.PIXEL_RATIO);
 			def.angle = Utils.toRadian(sp.rotation);
 			def.allowSleep = this._allowSleep;
 			def.angularDamping = this._angularDamping;
@@ -82,7 +82,7 @@ import { Component } from "../components/Component"
 			def.type = box2d.b2BodyType["b2_" + this._type + "Body"];
 			//def.userData = label;
 			
-			this._body = Physics.I._createBody(def);
+			this._body = IPhysics.Physics.I._createBody(def);
 			//trace(body);
 			
 			//查找碰撞体
@@ -179,11 +179,11 @@ import { Component } from "../components/Component"
 				this.accessGetSetFunc(sp, "rotation", "set")(Utils.toAngle(ang) - (<Sprite>sp.parent).globalRotation);
 				
 				if (ang == 0) {
-					var point:Point = sp.parent.globalToLocal(Point.TEMP.setTo(pos.x * Physics.PIXEL_RATIO + sp.pivotX, pos.y * Physics.PIXEL_RATIO + sp.pivotY), false, Physics.I.worldRoot);
+					var point:Point = sp.parent.globalToLocal(Point.TEMP.setTo(pos.x * IPhysics.Physics.PIXEL_RATIO + sp.pivotX, pos.y * IPhysics.Physics.PIXEL_RATIO + sp.pivotY), false, IPhysics.Physics.I.worldRoot);
 					this.accessGetSetFunc(sp, "x", "set")(point.x);
 					this.accessGetSetFunc(sp, "y", "set")(point.y);
 				} else {
-					point = sp.globalToLocal(Point.TEMP.setTo(pos.x * Physics.PIXEL_RATIO, pos.y * Physics.PIXEL_RATIO), false, Physics.I.worldRoot);
+					point = sp.globalToLocal(Point.TEMP.setTo(pos.x * IPhysics.Physics.PIXEL_RATIO, pos.y * IPhysics.Physics.PIXEL_RATIO), false, IPhysics.Physics.I.worldRoot);
 					point.x += sp.pivotX;
 					point.y += sp.pivotY;
 					point = sp.toParentPoint(point);
@@ -197,15 +197,15 @@ import { Component } from "../components/Component"
 		private _sysNodeToPhysic():void {
 			var sp:Sprite = <Sprite>this.owner;
 			this._body.SetAngle(Utils.toRadian(sp.rotation));
-			var p:Point = sp.localToGlobal(Point.TEMP.setTo(0, 0), false, Physics.I.worldRoot);
-			this._body.SetPositionXY(p.x / Physics.PIXEL_RATIO, p.y / Physics.PIXEL_RATIO);
+			var p:Point = sp.localToGlobal(Point.TEMP.setTo(0, 0), false, IPhysics.Physics.I.worldRoot);
+			this._body.SetPositionXY(p.x / IPhysics.Physics.PIXEL_RATIO, p.y / IPhysics.Physics.PIXEL_RATIO);
 		}
 		
 		/**@private 同步节点坐标到物理世界*/
 		private _sysPosToPhysic():void {
 			var sp:Sprite = <Sprite>this.owner;
-			var p:Point = sp.localToGlobal(Point.TEMP.setTo(0, 0), false, Physics.I.worldRoot);
-			this._body.SetPositionXY(p.x / Physics.PIXEL_RATIO, p.y / Physics.PIXEL_RATIO);
+			var p:Point = sp.localToGlobal(Point.TEMP.setTo(0, 0), false, IPhysics.Physics.I.worldRoot);
+			this._body.SetPositionXY(p.x / IPhysics.Physics.PIXEL_RATIO, p.y / IPhysics.Physics.PIXEL_RATIO);
 		}
 		
 		/**@private */
@@ -216,7 +216,7 @@ import { Component } from "../components/Component"
 		/*override*/ protected _onDisable():void {
 			//添加到物理世界
 			Laya.physicsTimer.clear(this, this._sysPhysicToNode);
-			Physics.I._removeBody(this._body);
+			IPhysics.Physics.I._removeBody(this._body);
 			this._body = null;
 			
 			var owner:any = this.owner;
@@ -319,8 +319,8 @@ import { Component } from "../components/Component"
 		 getCenter():any {
 			if (!this._body) this._onAwake();
 			var p:Point = this._body.GetLocalCenter();
-			p.x = p.x * Physics.PIXEL_RATIO;
-			p.y = p.y * Physics.PIXEL_RATIO;
+			p.x = p.x * IPhysics.Physics.PIXEL_RATIO;
+			p.y = p.y * IPhysics.Physics.PIXEL_RATIO;
 			return p;
 		}
 		
@@ -330,8 +330,8 @@ import { Component } from "../components/Component"
 		 getWorldCenter():any {
 			if (!this._body) this._onAwake();
 			var p:Point = this._body.GetWorldCenter();
-			p.x = p.x * Physics.PIXEL_RATIO;
-			p.y = p.y * Physics.PIXEL_RATIO;
+			p.x = p.x * IPhysics.Physics.PIXEL_RATIO;
+			p.y = p.y * IPhysics.Physics.PIXEL_RATIO;
 			return p;
 		}
 		
