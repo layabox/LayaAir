@@ -1,0 +1,5 @@
+{
+  "from":"../../bin/tsc/layaAir/",
+  "out":"../../build/",
+  "createAS":true
+}

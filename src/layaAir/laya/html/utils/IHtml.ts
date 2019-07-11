@@ -5,6 +5,9 @@ import { HTMLDivParser } from "../dom/HTMLDivParser";
 import { HTMLParse } from "./HTMLParse";
 import { HTMLElementType } from "../dom/HTMLElement";
 
+/**
+ * @internal
+ */
 export class IHtml {
     static HTMLDivElement: typeof HTMLDivElement = null;
     static HTMLImageElement: typeof HTMLImageElement = null;

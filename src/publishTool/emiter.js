@@ -51,7 +51,12 @@ class emiter {
             //没有在module内
             this.copyTSdata = this.copyTSdata.replace("class", "declare class");
         }
-        return "/*[IF-FLASH]*/\n"+this.outString;
+        // if(Object.keys(this.importArr).length){
+        //     for(let key in this.importArr){
+        //         this.copyTSdata.replace(new RegExp(key,"g"),this.importArr[key]);
+        //     }
+        // }
+        return this.outString;
     }
     /**
      * 生成import
@@ -80,11 +85,12 @@ class emiter {
                 importName = _node.namedBindings.elements[0].getText();
             }
         }
-        if (classPath.indexOf("\\") == -1)
+        if (classPath.indexOf("\\") == -1 && classPath.indexOf("/") == -1)
             return ["\r\n", ""];
         classPath = classPath.replace(new RegExp("\\\\", "g"), ".");
+        classPath = classPath.replace(new RegExp("/", "g"), ".");
         this.importArr[importName] = classPath;
-        return ["\timport " + classPath + ";\r\n", ""];
+        return ["\timprot " + classPath + ";\r\n", ""];
     }
     /**
      * 生成class
@@ -110,26 +116,48 @@ class emiter {
                 let nodeChild = node.heritageClauses[i];
                 let kind = nodeChild.getText();
                 let nodetext = "";
+                let nodetextAS = "";
                 for (let j = 0; j < nodeChild.types.length; j++) {
                     let type = nodeChild.types[j];
-                    let typeText = type.getText();
+                    //对主类型判断
+                    let typeText = type.expression.getText();
                     if (this.importArr[typeText])
                         typeText = this.importArr[typeText];
-                    nodetext += (j ? "," : "") + typeText;
+                    let argtext = "";
+                    //如果有进行检测 加
+                    if (type.typeArguments) {
+                        for (let n = 0; n < type.typeArguments.length; n++) {
+                            let typenode = type.typeArguments[n].getText();
+                            if (this.importArr[typenode])
+                                typenode = this.importArr[typenode];
+                            argtext += (n ? "|" : "<") + typenode;
+                        }
+                        argtext += ">";
+                    }
+                    nodetextAS += (j ? "," : "") + typeText;
+                    nodetext += (j ? "," : "") + typeText + argtext;
                 }
                 if (kind.indexOf("extends") == -1)
                     kind = "implements ";
                 else
                     kind = "extends ";
-                extendstr += kind + nodetext + " ";
+                extendstr += kind + nodetextAS + " ";
                 tsExtend += kind + nodetext + " ";
             }
         }
+        let typestr = "";
+        if (node.typeParameters) {
+            for (i = 0; i < node.typeParameters.length; i++) {
+                let typenode = node.typeParameters[i];
+                typestr += (i ? "|" : "<") + typenode.getText();
+            }
+            typestr += ">";
+        }
         str = "\tpublic class " + nodeName + " " + extendstr + "{\r\n" + str + "\t}\r\n";
-        tstr = "\tclass " + nodeName + " " + tsExtend + " {\r\n" + tstr + "\t}\r\n";
+        tstr = "\tclass " + nodeName + typestr + " " + tsExtend + " {\r\n" + tstr + "\t}\r\n";
         let note = this.changeIndex(node, "\r\n\t");
         if (this.url != "")
-            emiter.dtsData += note + "\r\n\tclass " + nodeName + " extends " + this.url.replace(new RegExp("\\\\", "g"), ".") + "." + nodeName + " {}\r\n";
+            emiter.dtsData += note + "\r\n\tclass " + nodeName + typestr + " extends " + this.url.replace(new RegExp("\\\\", "g"), ".") + "." + nodeName + typestr + " {}\r\n";
         return [note + str, note + tstr];
     }
     /**
