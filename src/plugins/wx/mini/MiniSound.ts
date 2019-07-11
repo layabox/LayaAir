@@ -5,7 +5,7 @@ import { Handler } from "laya/utils/Handler";
 import { MiniSoundChannel } from "./MiniSoundChannel";
 import { SoundManager } from "laya/media/SoundManager";
 import { Event } from "laya/events/Event";
-	
+import { URL } from "laya/net/URL";	
 	/** @private **/
 	export class MiniSound extends EventDispatcher {
 		/**@private **/
