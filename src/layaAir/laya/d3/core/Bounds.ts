@@ -132,7 +132,7 @@ export class Bounds implements IClone {
 		this._setUpdateFlag(Bounds._UPDATE_CENTER | Bounds._UPDATE_EXTENT, true);
 	}
 
-	
+
 	private _getUpdateFlag(type: number): boolean {
 		return (this._updateFlag & type) != 0;
 	}
@@ -195,13 +195,13 @@ export class Bounds implements IClone {
 	 * @internal
 	 */
 	_getBoundBox(): BoundBox {
-		var min: Vector3 = this._boundBox.min;
-		if (this._getUpdateFlag(Bounds._UPDATE_MIN)) {
+		if (this._updateFlag & Bounds._UPDATE_MIN) {
+			var min: Vector3 = this._boundBox.min;
 			this._getMin(this.getCenter(), this.getExtent(), min);
 			this._setUpdateFlag(Bounds._UPDATE_MIN, false);
 		}
-		var max: Vector3 = this._boundBox.max;
-		if (this._getUpdateFlag(Bounds._UPDATE_MAX)) {
+		if (this._updateFlag & Bounds._UPDATE_MAX) {
+			var max: Vector3 = this._boundBox.max;
 			this._getMax(this.getCenter(), this.getExtent(), max);
 			this._setUpdateFlag(Bounds._UPDATE_MAX, false);
 		}
