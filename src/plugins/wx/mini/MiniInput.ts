@@ -6,7 +6,7 @@ import { MiniSound } from "./MiniSound";
 import { Matrix } from "laya/maths/Matrix";
 import { Render } from "laya/renders/Render";
 import { Laya } from "Laya";
-	
+import { Event } from "laya/events/Event";	
 	/** @private **/
 	export class MiniInput {
 		constructor(){
