@@ -106,13 +106,16 @@ import { Sprite } from "../display/Sprite"
 		}
 		
 		/**@private */
-		private static _funMap:WeakObject = new WeakObject();
+		private static _funMap:WeakObject = null;//new WeakObject();
 		
 		/**
 		 * @private 根据字符串，返回函数表达式
 		 */
 		//TODO:coverage
 		 static getBindFun(value:string):Function {
+			 if( !UIUtils._funMap){
+				 UIUtils._funMap = new WeakObject():
+			 }
 			var fun:Function = UIUtils._funMap.get(value);
 			if (fun == null) {
 				var temp:string = "\"" + value + "\"";

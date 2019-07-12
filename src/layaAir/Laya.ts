@@ -362,8 +362,7 @@ if (libs) {
 }
 
 
-
-(window as any).Laya=Laya;
+//(window as any).Laya=Laya;
 
 function regClassToEngine(cls:any){
     if(cls.name){

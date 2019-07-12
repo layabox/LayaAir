@@ -115,7 +115,7 @@ import { ILaya } from "../../ILaya";
 		
 		//TODO:coverage
 		private _createDiv():void {
-			this._div = document.createElement("div");
+			this._div = Browser.createElement("div");
 			this._div.innerHTML = "laya";
 			var _style:any = this._div.style;
 			_style.fontFamily = this.fontName;
@@ -128,12 +128,12 @@ import { ILaya } from "../../ILaya";
 		//TODO:coverage
 		private _loadWithCSS():void {
 			
-			var fontStyle:any = document.createElement("style");
+			var fontStyle:any = Browser.createElement("style");
 			fontStyle.type = "text/css";
 			document.body.appendChild(fontStyle);
 			fontStyle.textContent = "@font-face { font-family:'" + this.fontName + "'; src:url('" + this._url + "');}";	
 			this._fontTxt = "40px " + this.fontName;
-			this._txtWidth = ILaya.Browser.measureText(TTFLoader._testString, this._fontTxt).width;
+			this._txtWidth = Browser.measureText(TTFLoader._testString, this._fontTxt).width;
 			
 			var self:TTFLoader = this;
 			fontStyle.onload = function():void {
