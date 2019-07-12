@@ -1,9 +1,8 @@
 import { AccelerationInfo } from "./AccelerationInfo";
 import { RotationInfo } from "./RotationInfo";
-import { Laya } from "./../../../../../../core/src/Laya";
-import { Event } from "../../../../../../core/src/laya/events/Event"
-	import { EventDispatcher } from "../../../../../../core/src/laya/events/EventDispatcher"
-	import { Browser } from "../../../../../../core/src/laya/utils/Browser"
+import { EventDispatcher } from "laya/events/EventDispatcher";
+import { Browser } from "laya/utils/Browser";
+import { Laya } from "Laya";
 	
 	/**
 	 * Accelerator.instance获取唯一的Accelerator引用，请勿调用构造函数。
@@ -115,7 +114,7 @@ this.onDeviceOrientationChange = this.onDeviceOrientationChange.bind(this);
 				interval *= 1000;
 			}
 			
-			this.event(Event.CHANGE, [Accelerator.acceleration, Accelerator.accelerationIncludingGravity, Accelerator.rotationRate, interval]);
+			//this.event(Event.CHANGE, [Accelerator.acceleration, Accelerator.accelerationIncludingGravity, Accelerator.rotationRate, interval]);
 		}
 		
 		private static transformedAcceleration:AccelerationInfo;

@@ -1,16 +1,15 @@
-import { MiniAdpter } from "./../../../../../../openData/src/laya/wx/mini/MiniAdpter";
-import { Laya } from "./../../../../../../core/src/Laya";
-import { Loader } from "../../../../../../core/src/laya/net/Loader"
-	import { URL } from "../../../../../../core/src/laya/net/URL"
-	import { Browser } from "../../../../../../core/src/laya/utils/Browser"
-	import { Handler } from "../../../../../../core/src/laya/utils/Handler"
-	
+import { MiniAdpter } from "./MiniAdpter";
+import { Handler } from "laya/utils/Handler";
+import { Laya } from "../../../../bin/tsc/layaAir/Laya";
+import { Browser } from "laya/utils/Browser";
+import { Loader} from "laya/net/Loader";
+import { URL } from "laya/net/URL";
 	/** @private **/
 	export class MiniFileMgr{
 		/**@private 读取文件操作接口**/
-		private static fs:any = wx.getFileSystemManager();
+		private static fs:any = (<any>window).wx.getFileSystemManager();
 		/**@private 下载文件接口**/
-		private static wxdown:any = wx.downloadFile;
+		private static wxdown:any = (<any>window).wx.downloadFile;
 		/**@private 文件缓存列表**/
 		 static filesListObj:any = {};
 		/**@private 文件磁盘路径**/
@@ -33,7 +32,7 @@ import { Loader } from "../../../../../../core/src/laya/net/Loader"
 		 * @param url
 		 * @return 
 		 */		
-		 static  isLocalNativeFile(url:string):boolean
+		 static isLocalNativeFile(url:string):boolean
 		{
 			for(var i:number = 0,sz:number = MiniAdpter.nativefiles.length;i<sz;i++)
 			{
@@ -422,7 +421,7 @@ import { Loader } from "../../../../../../core/src/laya/net/Loader"
 			//主域向子域传递消息
 			if(!MiniAdpter.isZiYu &&MiniAdpter.isPosMsgYu)
 			{
-				wx.postMessage({url:fileurlkey,data:MiniFileMgr.filesListObj[fileurlkey],isLoad:"filenative",isAdd:isAdd});
+				MiniAdpter.window.wx.postMessage({url:fileurlkey,data:MiniFileMgr.filesListObj[fileurlkey],isLoad:"filenative",isAdd:isAdd});
 			}
 		}
 		
@@ -486,7 +485,7 @@ import { Loader } from "../../../../../../core/src/laya/net/Loader"
 		 * @return
 		 */
 		 static setNativeFileDir(value:string):void {
-			MiniFileMgr.fileNativeDir = wx.env.USER_DATA_PATH + value;
+			MiniFileMgr.fileNativeDir = MiniAdpter.window.wx.env.USER_DATA_PATH + value;
 		}
 	}
 

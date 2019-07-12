@@ -1,4 +1,6 @@
-import { MiniAdpter } from "./../../../../../../openData/src/laya/wx/mini/MiniAdpter";
+import { MiniAdpter } from "./MiniAdpter";
+import { Video } from "laya/device/media/Video";
+
 /**
 	 * 视频类 
 	 * @author xiaosong
@@ -17,7 +19,7 @@ import { MiniAdpter } from "./../../../../../../openData/src/laya/wx/mini/MiniAd
 		
 		 static __init__():void
 		{
-			laya.device.media.Video = MiniVideo;
+			//Video = MiniVideo;
 		}
 		
 		 onPlayFunc:Function;

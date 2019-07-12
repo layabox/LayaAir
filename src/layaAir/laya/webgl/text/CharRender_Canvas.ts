@@ -1,5 +1,6 @@
 import { CharRenderInfo } from "./CharRenderInfo"
 	import { ICharRender } from "./ICharRender"
+import { Browser } from "../../utils/Browser";
 	export class CharRender_Canvas extends ICharRender {
 		private static canvas:any= null;// HTMLCanvasElement;
 		private ctx:any= null;
@@ -19,7 +20,7 @@ import { CharRenderInfo } from "./CharRenderInfo"
 			this.supportImageData = useImageData;
 			this.showDbgInfo = showdbg;
 			if (!CharRender_Canvas.canvas) {
-				CharRender_Canvas.canvas = window.document.createElement('canvas');
+				CharRender_Canvas.canvas = Browser.createElement('canvas');
 				CharRender_Canvas.canvas.width = 1024;
 				CharRender_Canvas.canvas.height = 512;
 				//这个canvas是用来获取字体渲染结果的。由于不可见canvas的字体不能小于12，所以要加到body上
