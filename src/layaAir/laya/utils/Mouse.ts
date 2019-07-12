@@ -4,7 +4,7 @@ import { Browser } from "./Browser";
 	 */
 	export class Mouse {
 		/**@private */
-		private static _style:any = Browser.document.body.style;
+		private static _style:any;
 		/**@private */
 		private static _preCursor:string;
 		
@@ -24,6 +24,11 @@ import { Browser } from "./Browser";
 		
 		 static get cursor():string {
 			return Mouse._style.cursor;
+		}
+
+		static __init__():any
+		{
+			//Mouse._style = Browser.document.body.style;
 		}
 		
 		/**
