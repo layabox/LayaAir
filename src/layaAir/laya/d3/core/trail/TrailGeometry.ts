@@ -107,6 +107,7 @@ export class TrailGeometry extends GeometryElement {
 		this._subBirthTime = new Float32Array(segementCount);
 		this._subDistance = new Float64Array(segementCount);
 
+		var gl: WebGLRenderingContext = LayaGL.instance;
 		var vertexCount: number = segementCount * 2;
 		var vertexDeclaration1: VertexDeclaration = VertexTrail.vertexDeclaration1;
 		var vertexDeclaration2: VertexDeclaration = VertexTrail.vertexDeclaration2;
@@ -116,9 +117,9 @@ export class TrailGeometry extends GeometryElement {
 		var memorySize: number = vertexbuffer1Size + vertexbuffer2Size;
 		this._vertices1 = new Float32Array(vertexCount * this._floatCountPerVertices1);
 		this._vertices2 = new Float32Array(vertexCount * this._floatCountPerVertices2);
-		this._vertexBuffer1 = new VertexBuffer3D(vertexbuffer1Size, WebGLRenderingContext.STATIC_DRAW, false);
+		this._vertexBuffer1 = new VertexBuffer3D(vertexbuffer1Size, gl.STATIC_DRAW, false);
 		this._vertexBuffer1.vertexDeclaration = vertexDeclaration1;
-		this._vertexBuffer2 = new VertexBuffer3D(vertexbuffer2Size, WebGLRenderingContext.DYNAMIC_DRAW, false);
+		this._vertexBuffer2 = new VertexBuffer3D(vertexbuffer2Size, gl.DYNAMIC_DRAW, false);
 		this._vertexBuffer2.vertexDeclaration = vertexDeclaration2;
 
 		vertexBuffers.push(this._vertexBuffer1);
@@ -430,9 +431,10 @@ export class TrailGeometry extends GeometryElement {
 		 */
 		/*override*/  _render(state: RenderContext3D): void {
 		this._bufferState.bind();
+		var gl: WebGLRenderingContext = LayaGL.instance;
 		var start: number = this._activeIndex * 2;
 		var count: number = this._endIndex * 2 - start;
-		LayaGL.instance.drawArrays(WebGLRenderingContext.TRIANGLE_STRIP, start, count);
+		gl.drawArrays(gl.TRIANGLE_STRIP, start, count);
 		Stat.renderBatches++;
 		Stat.trianglesFaces += count - 2;
 	}

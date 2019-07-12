@@ -133,13 +133,14 @@ import { Stat } from "../utils/Stat";
 						
 					if (this._firstActiveElement < this._firstFreeElement)
 					{
-						WebGLContext.mainContext.drawElements(WebGLRenderingContext.TRIANGLES, (this._firstFreeElement - this._firstActiveElement) * 6, WebGLRenderingContext.UNSIGNED_SHORT, this._firstActiveElement * 6 * 2);
+						gl.drawElements(gl.TRIANGLES, (this._firstFreeElement - this._firstActiveElement) * 6, gl.UNSIGNED_SHORT, this._firstActiveElement * 6 * 2);
 					}
 					else
 					{
-						WebGLContext.mainContext.drawElements(WebGLRenderingContext.TRIANGLES, (this.settings.maxPartices - this._firstActiveElement) * 6, WebGLRenderingContext.UNSIGNED_SHORT, this._firstActiveElement * 6 * 2);
+
+						WebGLContext.mainContext.drawElements(gl.TRIANGLES, (this.settings.maxPartices - this._firstActiveElement) * 6, gl.UNSIGNED_SHORT, this._firstActiveElement * 6 * 2);
 						if (this._firstFreeElement > 0)
-							WebGLContext.mainContext.drawElements(WebGLRenderingContext.TRIANGLES, this._firstFreeElement * 6, WebGLRenderingContext.UNSIGNED_SHORT, 0);
+						gl.drawElements(gl.TRIANGLES, this._firstFreeElement * 6, gl.UNSIGNED_SHORT, 0);
 					}
 					
 					Stat.renderBatches++;
@@ -202,7 +203,7 @@ import { Stat } from "../utils/Stat";
 			if (BlendMode.activeBlendFunction !== this._blendFn)
 			{
 				var gl:WebGLRenderingContext= WebGLContext.mainContext;
-				gl.enable( WebGLRenderingContext.BLEND );
+				gl.enable( gl.BLEND );
 				this._blendFn(gl);
 				BlendMode.activeBlendFunction = this._blendFn;
 			}

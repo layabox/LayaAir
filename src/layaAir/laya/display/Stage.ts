@@ -22,6 +22,7 @@ import { WebGLContext } from "../webgl/WebGLContext";
 import { Stat } from "../utils/Stat";
 import { Timer } from "../utils/Timer";
 import { ILaya } from "../../ILaya";
+import { LayaGL } from "../layagl/LayaGL";
 	
 	/**
 	 * stage大小经过重新调整时进行调度。
@@ -645,7 +646,8 @@ import { ILaya } from "../../ILaya";
 		 static clear:Function = function(value:string):void {
 			//修改需要同步到上面的native实现中
 			Context.set2DRenderConfig();//渲染2D前要还原2D状态,否则可能受3D影响
-			RenderState2D.worldScissorTest && WebGLContext.mainContext.disable(WebGLRenderingContext.SCISSOR_TEST);
+			var gl:WebGLRenderingContext=LayaGL.instance;
+			RenderState2D.worldScissorTest && gl.disable(gl.SCISSOR_TEST);
 			var ctx:Context = Render.context;
 			//兼容浏览器
 			var c:any[] = (ctx._submits._length == 0 || Config.preserveDrawingBuffer) ? ColorUtils.create(value).arrColor : ((<any>window )).Laya.stage._wgColor;

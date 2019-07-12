@@ -64,14 +64,15 @@ export class VertexBuffer3D extends Buffer {
 	 */
 	constructor(byteLength: number, bufferUsage: number, canRead: boolean = false) {
 		super();
+		var gl: WebGLRenderingContext = LayaGL.instance;
 		this._vertexCount = -1;
 		this._bufferUsage = bufferUsage;
-		this._bufferType = WebGLRenderingContext.ARRAY_BUFFER;
+		this._bufferType = gl.ARRAY_BUFFER;
 		this._canRead = canRead;
 
 		this._byteLength = byteLength;
 		this.bind();
-		LayaGL.instance.bufferData(this._bufferType, this._byteLength, this._bufferUsage);
+		gl.bufferData(this._bufferType, this._byteLength, this._bufferUsage);
 		if (canRead) {
 			this._buffer = new Uint8Array(byteLength);
 			this._float32Reader = new Float32Array(this._buffer.buffer);
@@ -84,7 +85,8 @@ export class VertexBuffer3D extends Buffer {
 	 */
 	bind(): boolean {
 		if (Buffer._bindedVertexBuffer !== this._glBuffer) {
-			LayaGL.instance.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, this._glBuffer);
+			var gl: WebGLRenderingContext = LayaGL.instance;
+			gl.bindBuffer(gl.ARRAY_BUFFER, this._glBuffer);
 			Buffer._bindedVertexBuffer = this._glBuffer;
 			return true;
 		} else {
@@ -100,7 +102,6 @@ export class VertexBuffer3D extends Buffer {
 	 * @param	dataCount 顶点数据的长度,以字节为单位。
 	 */
 	setData(buffer: ArrayBuffer, bufferOffset: number = 0, dataStartIndex: number = 0, dataCount: number = 4294967295/*uint.MAX_VALUE*/): void {
-		;
 		this.bind();
 		var needSubData: boolean = dataStartIndex !== 0 || dataCount !== 4294967295/*uint.MAX_VALUE*/;
 		if (needSubData) {

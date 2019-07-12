@@ -3,6 +3,7 @@ import { IndexBuffer2D } from "./IndexBuffer2D";
 import { Config } from "./../../../Config";
 	import { BufferState2D } from "../BufferState2D"
 	import { WebGLContext } from "../WebGLContext"
+import { LayaGL } from "../../layagl/LayaGL";
 
 	/**
 	 * Mesh2d只是保存数据。描述attribute用的。本身不具有渲染功能。
@@ -29,7 +30,7 @@ import { Config } from "./../../../Config";
 		 */
 		constructor(stride:number,vballoc:number, iballoc:number) {
 			this._stride = stride;
-			this._vb = new VertexBuffer2D(stride, WebGLRenderingContext.DYNAMIC_DRAW);
+			this._vb = new VertexBuffer2D(stride, LayaGL.instance.DYNAMIC_DRAW);
 			if (vballoc) {
 				this._vb._resizeBuffer(vballoc,false);
 			}else{

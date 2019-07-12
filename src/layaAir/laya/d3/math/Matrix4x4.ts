@@ -263,7 +263,7 @@ import { LayaGL } from "../../layagl/LayaGL"
 		}
 		
 		 static multiplyForNative(left:Matrix4x4, right:Matrix4x4, out:Matrix4x4):void {
-			LayaGL.instance.matrix4x4Multiply(left.elements, right.elements, out.elements);
+			(<any>LayaGL.instance).matrix4x4Multiply(left.elements, right.elements, out.elements);
 		}
 		
 		/**

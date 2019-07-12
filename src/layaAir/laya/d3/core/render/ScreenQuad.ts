@@ -46,14 +46,15 @@ export class ScreenQuad extends Resource {
 	 */
 	constructor() {
 		super();
-		this._vertexBuffer = new VertexBuffer3D(16 * 4, WebGLRenderingContext.STATIC_DRAW, false);
+		var gl:WebGLRenderingContext=LayaGL.instance;
+		this._vertexBuffer = new VertexBuffer3D(16 * 4, gl.STATIC_DRAW, false);
 		this._vertexBuffer.vertexDeclaration = ScreenQuad._vertexDeclaration;
 		this._vertexBuffer.setData(ScreenQuad._vertices.buffer);
 		this._bufferState.bind();
 		this._bufferState.applyVertexBuffer(this._vertexBuffer);
 		this._bufferState.unBind();
 
-		this._vertexBufferInvertUV = new VertexBuffer3D(16 * 4, WebGLRenderingContext.STATIC_DRAW, false);
+		this._vertexBufferInvertUV = new VertexBuffer3D(16 * 4, gl.STATIC_DRAW, false);
 		this._vertexBufferInvertUV.vertexDeclaration = ScreenQuad._vertexDeclaration;
 		this._vertexBufferInvertUV.setData(ScreenQuad._verticesInvertUV.buffer);
 		this._bufferStateInvertUV.bind();
@@ -67,8 +68,9 @@ export class ScreenQuad extends Resource {
 	 * @internal
 	 */
 	render(): void {
+		var gl:WebGLRenderingContext=LayaGL.instance;
 		this._bufferState.bind();
-		LayaGL.instance.drawArrays(WebGLRenderingContext.TRIANGLE_STRIP, 0, 4);
+		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 		Stat.renderBatches++;
 	}
 
@@ -76,8 +78,9 @@ export class ScreenQuad extends Resource {
 	 * @internal
 	 */
 	renderInvertUV(): void {
+		var gl:WebGLRenderingContext=LayaGL.instance;
 		this._bufferStateInvertUV.bind();
-		LayaGL.instance.drawArrays(WebGLRenderingContext.TRIANGLE_STRIP, 0, 4);
+		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 		Stat.renderBatches++;
 	}
 

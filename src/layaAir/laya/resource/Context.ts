@@ -292,7 +292,7 @@ export class Context {
 	}
 
 	//矢量方法	
-	/**@internal */	
+	/**@internal */
 	_drawPie(x: number, y: number, radius: number, startAngle: number, endAngle: number, fillColor: any, lineColor: any, lineWidth: number, vid: number): void {
 		//移动中心点
 		//ctx.translate(x + args[0], y + args[1]);
@@ -362,13 +362,13 @@ export class Context {
 	}
 
 	static set2DRenderConfig(): void {
-		var gl: any = LayaGL.instance;
+		var gl: WebGLRenderingContext = LayaGL.instance;
 		WebGLContext.setBlend(gl, true);//还原2D设置
-		WebGLContext.setBlendFunc(gl, WebGLRenderingContext.ONE, WebGLRenderingContext.ONE_MINUS_SRC_ALPHA);
+		WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 		WebGLContext.setDepthTest(gl, false);
 		WebGLContext.setCullFace(gl, false);
 		WebGLContext.setDepthMask(gl, true);
-		WebGLContext.setFrontFace(gl, WebGLRenderingContext.CCW);
+		WebGLContext.setFrontFace(gl, gl.CCW);
 		gl.viewport(0, 0, RenderState2D.width, RenderState2D.height);//还原2D视口
 	}
 
@@ -438,7 +438,7 @@ export class Context {
 	_charSubmitCache: CharSubmitCache = null;
 	/**@internal */
 	_saveMark: SaveMark = null;
-	/**@internal */	
+	/**@internal */
 	_shader2D: Shader2D = new Shader2D();	//
 
 	/**
@@ -484,7 +484,7 @@ export class Context {
 	clearBG(r: number, g: number, b: number, a: number): void {
 		var gl: WebGLRenderingContext = WebGLContext.mainContext;
 		gl.clearColor(r, g, b, a);
-		gl.clear(WebGLRenderingContext.COLOR_BUFFER_BIT);
+		gl.clear(gl.COLOR_BUFFER_BIT);
 	}
 
 	//TODO:coverage
@@ -512,7 +512,7 @@ export class Context {
 		}
 		this._submits.length = 0;
 		this._submits._length = 0;
-		this._submits = null; 
+		this._submits = null;
 		this._curSubmit = null;
 
 		this._path = null;
@@ -1481,7 +1481,7 @@ export class Context {
 	 * @param	ty
 	 * @param	alpha
 	 */
-	drawTextureWithTransform(tex: Texture, x: number, y: number, width: number, height: number, transform: Matrix, tx: number, ty: number, alpha: number, blendMode: string, colorfilter: ColorFilter = null,uv?:number[]): void {
+	drawTextureWithTransform(tex: Texture, x: number, y: number, width: number, height: number, transform: Matrix, tx: number, ty: number, alpha: number, blendMode: string, colorfilter: ColorFilter = null, uv?: number[]): void {
 		var oldcomp: string = null;
 		var curMat: Matrix = this._curMat;
 		if (blendMode) {
@@ -1538,7 +1538,8 @@ export class Context {
 		//var preworldClipRect:Rectangle = RenderState2D.worldClipRect;
 		//裁剪不用考虑，现在是在context内部自己维护，不会乱窜
 		RenderState2D.worldScissorTest = false;
-		WebGLContext.mainContext.disable(WebGLRenderingContext.SCISSOR_TEST);
+		var gl:WebGLRenderingContext=LayaGL.instance;
+		gl.disable(gl.SCISSOR_TEST);
 
 		var preAlpha: number = RenderState2D.worldAlpha;
 		var preMatrix4: any[] = RenderState2D.worldMatrix4;
@@ -1883,7 +1884,7 @@ export class Context {
 	}
 
 	flush(): number {
-        this._clipID_Gen=0;
+		this._clipID_Gen = 0;
 		var ret: number = this.submitElement(0, this._submits._length);
 		this._path && this._path.reset();
 		SkinMeshBuffer.instance && SkinMeshBuffer.getInstance().reset();

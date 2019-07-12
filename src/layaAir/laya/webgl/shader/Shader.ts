@@ -171,8 +171,8 @@ export class Shader extends BaseShader {
 			result = ILaya.ShaderCompile.preGetParams(this._vs, this._ps);
 		var gl: WebGLRenderingContext = WebGLContext.mainContext;
 		this._program = gl.createProgram();
-		this._vshader = Shader._createShader(gl, this._vs, WebGLRenderingContext.VERTEX_SHADER);
-		this._pshader = Shader._createShader(gl, this._ps, WebGLRenderingContext.FRAGMENT_SHADER);
+		this._vshader = Shader._createShader(gl, this._vs, gl.VERTEX_SHADER);
+		this._pshader = Shader._createShader(gl, this._ps, gl.FRAGMENT_SHADER);
 
 		gl.attachShader(this._program, this._vshader);
 		gl.attachShader(this._program, this._pshader);
@@ -187,7 +187,7 @@ export class Shader extends BaseShader {
 		}
 
 		gl.linkProgram(this._program);
-		if (!this.customCompile && !gl.getProgramParameter(this._program, WebGLRenderingContext.LINK_STATUS)) {
+		if (!this.customCompile && !gl.getProgramParameter(this._program, gl.LINK_STATUS)) {
 			throw gl.getProgramInfoLog(this._program);
 		}
 		//trace(_vs);
@@ -203,7 +203,7 @@ export class Shader extends BaseShader {
 			_params.push(one);
 		}
 		*/
-		var nUniformNum: number = this.customCompile ? result.uniforms.length : gl.getProgramParameter(this._program, WebGLRenderingContext.ACTIVE_UNIFORMS); //个数
+		var nUniformNum: number = this.customCompile ? result.uniforms.length : gl.getProgramParameter(this._program, gl.ACTIVE_UNIFORMS); //个数
 
 		for (i = 0; i < nUniformNum; i++) {
 			var uniform: any = this.customCompile ? result.uniforms[i] : gl.getActiveUniform(this._program, i);//得到uniform对象，包括名字等信息 {name,type,size}
@@ -229,36 +229,36 @@ export class Shader extends BaseShader {
 			one.uploadedValue = [];
 
 			switch (one.type) {
-				case WebGLRenderingContext.INT:
+				case gl.INT:
 					one.fun = one.isArray ? this._uniform1iv : this._uniform1i;
 					break;
-				case WebGLRenderingContext.FLOAT:
+				case gl.FLOAT:
 					one.fun = one.isArray ? this._uniform1fv : this._uniform1f;
 					break;
-				case WebGLRenderingContext.FLOAT_VEC2:
+				case gl.FLOAT_VEC2:
 					one.fun = one.isArray ? this._uniform_vec2v : this._uniform_vec2;
 					break;
-				case WebGLRenderingContext.FLOAT_VEC3:
+				case gl.FLOAT_VEC3:
 					one.fun = one.isArray ? this._uniform_vec3v : this._uniform_vec3;
 					break;
-				case WebGLRenderingContext.FLOAT_VEC4:
+				case gl.FLOAT_VEC4:
 					one.fun = one.isArray ? this._uniform_vec4v : this._uniform_vec4;
 					break;
-				case WebGLRenderingContext.SAMPLER_2D:
+				case gl.SAMPLER_2D:
 					one.fun = this._uniform_sampler2D;
 					break;
-				case WebGLRenderingContext.SAMPLER_CUBE:
+				case gl.SAMPLER_CUBE:
 					one.fun = this._uniform_samplerCube;
 					break;
-				case WebGLRenderingContext.FLOAT_MAT4:
+				case gl.FLOAT_MAT4:
 					one.glfun = gl.uniformMatrix4fv;
 					one.fun = this._uniformMatrix4fv;
 					break;
-				case WebGLRenderingContext.BOOL:
+				case gl.BOOL:
 					one.fun = this._uniform1i;
 					break;
-				case WebGLRenderingContext.FLOAT_MAT2:
-				case WebGLRenderingContext.FLOAT_MAT3:
+				case gl.FLOAT_MAT2:
+				case gl.FLOAT_MAT3:
 					//TODO 这个有人会用的。
 					throw new Error("compile shader err!");
 				default:
@@ -271,7 +271,7 @@ export class Shader extends BaseShader {
 		var shader: any = gl.createShader(type);
 		gl.shaderSource(shader, str);
 		gl.compileShader(shader);
-		if (gl.getShaderParameter(shader, WebGLRenderingContext.COMPILE_STATUS)) {
+		if (gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
 			return shader;
 		} else {
 			console.log(gl.getShaderInfoLog(shader));
@@ -463,13 +463,13 @@ export class Shader extends BaseShader {
 		if (uploadedValue[0] == null) {
 			uploadedValue[0] = this._curActTexIndex;
 			gl.uniform1i(one.location, this._curActTexIndex);
-			WebGLContext.activeTexture(gl, WebGLRenderingContext.TEXTURE0 + this._curActTexIndex);
-			WebGLContext.bindTexture(gl, WebGLRenderingContext.TEXTURE_2D, value);
+			WebGLContext.activeTexture(gl, gl.TEXTURE0 + this._curActTexIndex);
+			WebGLContext.bindTexture(gl, gl.TEXTURE_2D, value);
 			this._curActTexIndex++;
 			return 1;
 		} else {
-			WebGLContext.activeTexture(gl, WebGLRenderingContext.TEXTURE0 + uploadedValue[0]);
-			WebGLContext.bindTexture(gl, WebGLRenderingContext.TEXTURE_2D, value);
+			WebGLContext.activeTexture(gl, gl.TEXTURE0 + uploadedValue[0]);
+			WebGLContext.bindTexture(gl, gl.TEXTURE_2D, value);
 			return 0;
 		}
 	}
@@ -481,13 +481,13 @@ export class Shader extends BaseShader {
 		if (uploadedValue[0] == null) {
 			uploadedValue[0] = this._curActTexIndex;
 			gl.uniform1i(one.location, this._curActTexIndex);
-			WebGLContext.activeTexture(gl, WebGLRenderingContext.TEXTURE0 + this._curActTexIndex);
-			WebGLContext.bindTexture(gl, WebGLRenderingContext.TEXTURE_CUBE_MAP, value);
+			WebGLContext.activeTexture(gl, gl.TEXTURE0 + this._curActTexIndex);
+			WebGLContext.bindTexture(gl, gl.TEXTURE_CUBE_MAP, value);
 			this._curActTexIndex++;
 			return 1;
 		} else {
-			WebGLContext.activeTexture(gl, WebGLRenderingContext.TEXTURE0 + uploadedValue[0]);
-			WebGLContext.bindTexture(gl, WebGLRenderingContext.TEXTURE_CUBE_MAP, value);
+			WebGLContext.activeTexture(gl, gl.TEXTURE0 + uploadedValue[0]);
+			WebGLContext.bindTexture(gl, gl.TEXTURE_CUBE_MAP, value);
 			return 0;
 		}
 	}
@@ -514,7 +514,7 @@ export class Shader extends BaseShader {
 		var CTX: any = WebGLContext;
 
 		if (CTX._activeTextures[0] !== value) {
-			CTX.bindTexture(WebGLContext.mainContext, WebGLRenderingContext.TEXTURE_2D, value);
+			CTX.bindTexture(WebGLContext.mainContext, CTX.TEXTURE_2D, value);
 			CTX._activeTextures[0] = value;
 		}
 	}

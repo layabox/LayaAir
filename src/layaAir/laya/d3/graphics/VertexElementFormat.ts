@@ -1,3 +1,4 @@
+import { LayaGL } from "../../layagl/LayaGL";
 
 
 /**
@@ -20,20 +21,25 @@ export class VertexElementFormat {
 
 
 	/** @internal [组数量,数据类型,是否归一化:0为false]。*/
-	private static _elementInfos: any = {
-		"single": [1, WebGLRenderingContext.FLOAT, 0],
-		"vector2": [2, WebGLRenderingContext.FLOAT, 0],
-		"vector3": [3, WebGLRenderingContext.FLOAT, 0],
-		"vector4": [4, WebGLRenderingContext.FLOAT, 0],
-		"color": [4, WebGLRenderingContext.FLOAT, 0],
-		"byte4": [4, WebGLRenderingContext.UNSIGNED_BYTE, 0],
-		"short2": [2, WebGLRenderingContext.FLOAT, 0],
-		"short4": [4, WebGLRenderingContext.FLOAT, 0],
-		"normalizedshort2": [2, WebGLRenderingContext.FLOAT, 0],
-		"normalizedshort4": [4, WebGLRenderingContext.FLOAT, 0],
-		"halfvector2": [2, WebGLRenderingContext.FLOAT, 0],
-		"halfvector4": [4, WebGLRenderingContext.FLOAT, 0]
-	};
+	private static _elementInfos: any;
+	static __init__(): void {
+		var gl: WebGLRenderingContext = LayaGL.instance;
+		VertexElementFormat._elementInfos = {
+			"single": [1, gl.FLOAT, 0],
+			"vector2": [2, gl.FLOAT, 0],
+			"vector3": [3, gl.FLOAT, 0],
+			"vector4": [4, gl.FLOAT, 0],
+			"color": [4, gl.FLOAT, 0],
+			"byte4": [4, gl.UNSIGNED_BYTE, 0],
+			"short2": [2, gl.FLOAT, 0],
+			"short4": [4, gl.FLOAT, 0],
+			"normalizedshort2": [2, gl.FLOAT, 0],
+			"normalizedshort4": [4, gl.FLOAT, 0],
+			"halfvector2": [2, gl.FLOAT, 0],
+			"halfvector4": [4, gl.FLOAT, 0]
+		};
+
+	}
 
 	/**
 	 * 获取顶点元素格式信息。

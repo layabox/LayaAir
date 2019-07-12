@@ -40,7 +40,7 @@ export class Submit extends SubmitBase {
 			this._blendFn(gl);
 			BlendMode.activeBlendFunction = this._blendFn;
 		}
-		gl.drawElements(WebGLRenderingContext.TRIANGLES, this._numEle, WebGLRenderingContext.UNSIGNED_SHORT, this._startIdx);
+		gl.drawElements(gl.TRIANGLES, this._numEle, gl.UNSIGNED_SHORT, this._startIdx);
 
 		Stat.renderBatches++;
 		Stat.trianglesFaces += this._numEle / 3;

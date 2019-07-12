@@ -1,4 +1,5 @@
 import { ILaya } from "../../ILaya";
+import { LayaGL } from "../layagl/LayaGL";
 
 export class WebGLContext {
 	/**@private */
@@ -7,7 +8,7 @@ export class WebGLContext {
 	/**@internal */
 	static _activeTextures: any[] = new Array(8);
 	/**@internal */
-	static _glTextureIDs: any[] = [WebGLRenderingContext.TEXTURE0, WebGLRenderingContext.TEXTURE1, WebGLRenderingContext.TEXTURE2, WebGLRenderingContext.TEXTURE3, WebGLRenderingContext.TEXTURE4, WebGLRenderingContext.TEXTURE5, WebGLRenderingContext.TEXTURE6, WebGLRenderingContext.TEXTURE7];
+	static _glTextureIDs: any[];
 	/**@internal */
 	static _useProgram: any = null;
 	/**@internal */
@@ -15,27 +16,40 @@ export class WebGLContext {
 	/**@internal */
 	static _depthMask: boolean = true;
 	/**@internal */
-	static _depthFunc: number = WebGLRenderingContext.LESS;
+	static _depthFunc: number;
 
 	/**@internal */
 	static _blend: boolean = false;
 	/**@internal */
-	static _sFactor: number = WebGLRenderingContext.ONE;//待确认
+	static _sFactor: number;
 	/**@internal */
-	static _dFactor: number = WebGLRenderingContext.ZERO;//待确认
+	static _dFactor: number;
 	/**@internal */
-	static _srcAlpha: number = WebGLRenderingContext.ONE;//待确认
+	static _srcAlpha: number;
 	/**@internal */
-	static _dstAlpha: number = WebGLRenderingContext.ZERO;//待确认
+	static _dstAlpha: number;
 
 	/**@internal */
 	static _cullFace: boolean = false;
 	/**@internal */
-	static _frontFace: number = WebGLRenderingContext.CCW;
+	static _frontFace: number;
 	/**@internal */
-	static _activedTextureID: number = WebGLRenderingContext.TEXTURE0;//默认激活纹理区为0
+	static _activedTextureID: number;
 
 
+	/**
+	 * @internal
+	 */
+	static __init__(): void {
+		var gl: WebGLRenderingContext = LayaGL.instance;
+		WebGLContext._depthFunc = gl.LESS;
+		WebGLContext._sFactor = gl.ONE;//待确认
+		WebGLContext._dFactor = gl.ZERO;//待确认
+		WebGLContext._srcAlpha = gl.ONE;//待确认
+		WebGLContext._dstAlpha = gl.ZERO;//待确认
+		WebGLContext._activedTextureID = gl.TEXTURE0;//默认激活纹理区为0
+		WebGLContext._glTextureIDs = [gl.TEXTURE0, gl.TEXTURE1, gl.TEXTURE2, gl.TEXTURE3, gl.TEXTURE4, gl.TEXTURE5, gl.TEXTURE6, gl.TEXTURE7];
+	}
 
 	/**
 	 * @private
@@ -54,7 +68,7 @@ export class WebGLContext {
 	 */
 	//TODO:coverage
 	static setDepthTest(gl: WebGLRenderingContext, value: boolean): void {
-		value !== WebGLContext._depthTest && (WebGLContext._depthTest = value, value ? gl.enable(WebGLRenderingContext.DEPTH_TEST) : gl.disable(WebGLRenderingContext.DEPTH_TEST));
+		value !== WebGLContext._depthTest && (WebGLContext._depthTest = value, value ? gl.enable(gl.DEPTH_TEST) : gl.disable(gl.DEPTH_TEST));
 	}
 
 	/**
@@ -77,7 +91,7 @@ export class WebGLContext {
 	 * @private
 	 */
 	static setBlend(gl: WebGLRenderingContext, value: boolean): void {
-		value !== WebGLContext._blend && (WebGLContext._blend = value, value ? gl.enable(WebGLRenderingContext.BLEND) : gl.disable(WebGLRenderingContext.BLEND));
+		value !== WebGLContext._blend && (WebGLContext._blend = value, value ? gl.enable(gl.BLEND) : gl.disable(gl.BLEND));
 	}
 
 	/**
@@ -105,7 +119,7 @@ export class WebGLContext {
 	 */
 	//TODO:coverage
 	static setCullFace(gl: WebGLRenderingContext, value: boolean): void {
-		value !== WebGLContext._cullFace && (WebGLContext._cullFace = value, value ? gl.enable(WebGLRenderingContext.CULL_FACE) : gl.disable(WebGLRenderingContext.CULL_FACE));
+		value !== WebGLContext._cullFace && (WebGLContext._cullFace = value, value ? gl.enable(gl.CULL_FACE) : gl.disable(gl.CULL_FACE));
 	}
 
 	/**
@@ -131,9 +145,9 @@ export class WebGLContext {
 	 * @private
 	 */
 	static bindTexture(gl: WebGLRenderingContext, target: any, texture: any): void {
-		if (WebGLContext._activeTextures[WebGLContext._activedTextureID - WebGLRenderingContext.TEXTURE0] !== texture) {
+		if (WebGLContext._activeTextures[WebGLContext._activedTextureID - gl.TEXTURE0] !== texture) {
 			gl.bindTexture(target, texture);
-			WebGLContext._activeTextures[WebGLContext._activedTextureID - WebGLRenderingContext.TEXTURE0] = texture;
+			WebGLContext._activeTextures[WebGLContext._activedTextureID - gl.TEXTURE0] = texture;
 		}
 	}
 
@@ -173,8 +187,8 @@ export class WebGLContext {
 	 */
 	//TODO:coverage
 	static setDepthTestForNative(gl: WebGLRenderingContext, value: boolean): void {
-		if (value) gl.enable(WebGLRenderingContext.DEPTH_TEST);
-		else gl.disable(WebGLRenderingContext.DEPTH_TEST);
+		if (value) gl.enable(gl.DEPTH_TEST);
+		else gl.disable(gl.DEPTH_TEST);
 	}
 
 	/**
@@ -198,8 +212,8 @@ export class WebGLContext {
 	 */
 	//TODO:coverage
 	static setBlendForNative(gl: WebGLRenderingContext, value: boolean): void {
-		if (value) gl.enable(WebGLRenderingContext.BLEND);
-		else gl.disable(WebGLRenderingContext.BLEND);
+		if (value) gl.enable(gl.BLEND);
+		else gl.disable(gl.BLEND);
 	}
 
 	/**
@@ -215,8 +229,8 @@ export class WebGLContext {
 	 */
 	//TODO:coverage
 	static setCullFaceForNative(gl: WebGLRenderingContext, value: boolean): void {
-		if (value) gl.enable(WebGLRenderingContext.CULL_FACE)
-		else gl.disable(WebGLRenderingContext.CULL_FACE);
+		if (value) gl.enable(gl.CULL_FACE)
+		else gl.disable(gl.CULL_FACE);
 	}
 
 	/**

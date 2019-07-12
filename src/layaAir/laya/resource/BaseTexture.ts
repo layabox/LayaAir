@@ -105,7 +105,7 @@ export class BaseTexture extends Bitmap {
 	set wrapModeU(value: number) {
 		if (this._wrapModeU !== value) {
 			this._wrapModeU = value;
-			(this._width !== -1) && (this._setWarpMode(WebGLRenderingContext.TEXTURE_WRAP_S, value));
+			(this._width !== -1) && (this._setWarpMode(LayaGL.instance.TEXTURE_WRAP_S, value));
 		}
 	}
 
@@ -122,7 +122,7 @@ export class BaseTexture extends Bitmap {
 	set wrapModeV(value: number) {
 		if (this._wrapModeV !== value) {
 			this._wrapModeV = value;
-			(this._height !== -1) && (this._setWarpMode(WebGLRenderingContext.TEXTURE_WRAP_T, value));
+			(this._height !== -1) && (this._setWarpMode(LayaGL.instance.TEXTURE_WRAP_T, value));
 		}
 	}
 
@@ -222,16 +222,17 @@ export class BaseTexture extends Bitmap {
 	 */
 	protected _getGLFormat(): number {
 		var glFormat: number;
-		let gpu = LayaGL.layaGPUInstance;
+		var gl = LayaGL.instance;
+		var gpu = LayaGL.layaGPUInstance;
 		switch (this._format) {
 			case BaseTexture.FORMAT_R8G8B8:
-				glFormat = WebGLRenderingContext.RGB;
+				glFormat = gl.RGB;
 				break;
 			case BaseTexture.FORMAT_R8G8B8A8:
-				glFormat = WebGLRenderingContext.RGBA;
+				glFormat = gl.RGBA;
 				break;
 			case BaseTexture.FORMAT_ALPHA8:
-				glFormat = WebGLRenderingContext.ALPHA;
+				glFormat = gl.ALPHA;
 				break;
 			case BaseTexture.FORMAT_DXT1:
 				if (gpu._compressedTextureS3tc)
@@ -290,24 +291,24 @@ export class BaseTexture extends Bitmap {
 		switch (value) {
 			case BaseTexture.FILTERMODE_POINT:
 				if (this._mipmap)
-					gl.texParameteri(this._glTextureType, WebGLRenderingContext.TEXTURE_MIN_FILTER, WebGLRenderingContext.NEAREST_MIPMAP_NEAREST);
+					gl.texParameteri(this._glTextureType, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_NEAREST);
 				else
-					gl.texParameteri(this._glTextureType, WebGLRenderingContext.TEXTURE_MIN_FILTER, WebGLRenderingContext.NEAREST);
-				gl.texParameteri(this._glTextureType, WebGLRenderingContext.TEXTURE_MAG_FILTER, WebGLRenderingContext.NEAREST);
+					gl.texParameteri(this._glTextureType, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+				gl.texParameteri(this._glTextureType, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 				break;
 			case BaseTexture.FILTERMODE_BILINEAR:
 				if (this._mipmap)
-					gl.texParameteri(this._glTextureType, WebGLRenderingContext.TEXTURE_MIN_FILTER, WebGLRenderingContext.LINEAR_MIPMAP_NEAREST);
+					gl.texParameteri(this._glTextureType, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
 				else
-					gl.texParameteri(this._glTextureType, WebGLRenderingContext.TEXTURE_MIN_FILTER, WebGLRenderingContext.LINEAR);
-				gl.texParameteri(this._glTextureType, WebGLRenderingContext.TEXTURE_MAG_FILTER, WebGLRenderingContext.LINEAR);
+					gl.texParameteri(this._glTextureType, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+				gl.texParameteri(this._glTextureType, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 				break;
 			case BaseTexture.FILTERMODE_TRILINEAR:
 				if (this._mipmap)
-					gl.texParameteri(this._glTextureType, WebGLRenderingContext.TEXTURE_MIN_FILTER, WebGLRenderingContext.LINEAR_MIPMAP_LINEAR);
+					gl.texParameteri(this._glTextureType, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
 				else
-					gl.texParameteri(this._glTextureType, WebGLRenderingContext.TEXTURE_MIN_FILTER, WebGLRenderingContext.LINEAR);
-				gl.texParameteri(this._glTextureType, WebGLRenderingContext.TEXTURE_MAG_FILTER, WebGLRenderingContext.LINEAR);
+					gl.texParameteri(this._glTextureType, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+				gl.texParameteri(this._glTextureType, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 				break;
 			default:
 				throw new Error("BaseTexture:unknown filterMode value.");
@@ -323,14 +324,14 @@ export class BaseTexture extends Bitmap {
 		if (this._isPot(this._width) && this._isPot(this._height)) {
 			switch (mode) {
 				case BaseTexture.WARPMODE_REPEAT:
-					gl.texParameteri(this._glTextureType, orientation, WebGLRenderingContext.REPEAT);
+					gl.texParameteri(this._glTextureType, orientation, gl.REPEAT);
 					break;
 				case BaseTexture.WARPMODE_CLAMP:
-					gl.texParameteri(this._glTextureType, orientation, WebGLRenderingContext.CLAMP_TO_EDGE);
+					gl.texParameteri(this._glTextureType, orientation, gl.CLAMP_TO_EDGE);
 					break;
 			}
 		} else {
-			gl.texParameteri(this._glTextureType, orientation, WebGLRenderingContext.CLAMP_TO_EDGE);
+			gl.texParameteri(this._glTextureType, orientation, gl.CLAMP_TO_EDGE);
 		}
 	}
 

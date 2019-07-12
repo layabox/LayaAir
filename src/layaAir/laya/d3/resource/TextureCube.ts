@@ -70,7 +70,7 @@ export class TextureCube extends BaseTexture {
 	 */
 	constructor(size: number, format: number = BaseTexture.FORMAT_R8G8B8, mipmap: boolean = false) {
 		super(format, mipmap);
-		this._glTextureType = WebGLRenderingContext.TEXTURE_CUBE_MAP;
+		this._glTextureType = LayaGL.instance.TEXTURE_CUBE_MAP;
 		this._width = size;
 		this._height = size;
 
@@ -94,21 +94,21 @@ export class TextureCube extends BaseTexture {
 		var glFormat: number = this._getGLFormat();
 		WebGLContext.bindTexture(gl, textureType, this._glTexture);
 		if (this.format === BaseTexture.FORMAT_R8G8B8) {
-			gl.pixelStorei(WebGLRenderingContext.UNPACK_ALIGNMENT, 1);//字节对齐
-			gl.texImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_POSITIVE_Z, miplevel, glFormat, width, height, 0, glFormat, WebGLRenderingContext.UNSIGNED_BYTE, pixels[0]);//back
-			gl.texImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_Z, miplevel, glFormat, width, height, 0, glFormat, WebGLRenderingContext.UNSIGNED_BYTE, pixels[1]);//front
-			gl.texImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X, miplevel, glFormat, width, height, 0, glFormat, WebGLRenderingContext.UNSIGNED_BYTE, pixels[2]);//right
-			gl.texImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_X, miplevel, glFormat, width, height, 0, glFormat, WebGLRenderingContext.UNSIGNED_BYTE, pixels[3]);//left
-			gl.texImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_POSITIVE_Y, miplevel, glFormat, width, height, 0, glFormat, WebGLRenderingContext.UNSIGNED_BYTE, pixels[4]);//up
-			gl.texImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_Y, miplevel, glFormat, width, height, 0, glFormat, WebGLRenderingContext.UNSIGNED_BYTE, pixels[5]);//down
-			gl.pixelStorei(WebGLRenderingContext.UNPACK_ALIGNMENT, 4);
+			gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);//字节对齐
+			gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Z, miplevel, glFormat, width, height, 0, glFormat, gl.UNSIGNED_BYTE, pixels[0]);//back
+			gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, miplevel, glFormat, width, height, 0, glFormat, gl.UNSIGNED_BYTE, pixels[1]);//front
+			gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X, miplevel, glFormat, width, height, 0, glFormat, gl.UNSIGNED_BYTE, pixels[2]);//right
+			gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_X, miplevel, glFormat, width, height, 0, glFormat, gl.UNSIGNED_BYTE, pixels[3]);//left
+			gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Y, miplevel, glFormat, width, height, 0, glFormat, gl.UNSIGNED_BYTE, pixels[4]);//up
+			gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, miplevel, glFormat, width, height, 0, glFormat, gl.UNSIGNED_BYTE, pixels[5]);//down
+			gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
 		} else {
-			gl.texImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_POSITIVE_Z, miplevel, glFormat, width, height, 0, glFormat, WebGLRenderingContext.UNSIGNED_BYTE, pixels[0]);//back
-			gl.texImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_Z, miplevel, glFormat, width, height, 0, glFormat, WebGLRenderingContext.UNSIGNED_BYTE, pixels[1]);//front
-			gl.texImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X, miplevel, glFormat, width, height, 0, glFormat, WebGLRenderingContext.UNSIGNED_BYTE, pixels[2]);//right
-			gl.texImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_X, miplevel, glFormat, width, height, 0, glFormat, WebGLRenderingContext.UNSIGNED_BYTE, pixels[3]);//left
-			gl.texImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_POSITIVE_Y, miplevel, glFormat, width, height, 0, glFormat, WebGLRenderingContext.UNSIGNED_BYTE, pixels[4]);//up
-			gl.texImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_Y, miplevel, glFormat, width, height, 0, glFormat, WebGLRenderingContext.UNSIGNED_BYTE, pixels[5]);//down
+			gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Z, miplevel, glFormat, width, height, 0, glFormat, gl.UNSIGNED_BYTE, pixels[0]);//back
+			gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, miplevel, glFormat, width, height, 0, glFormat, gl.UNSIGNED_BYTE, pixels[1]);//front
+			gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X, miplevel, glFormat, width, height, 0, glFormat, gl.UNSIGNED_BYTE, pixels[2]);//right
+			gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_X, miplevel, glFormat, width, height, 0, glFormat, gl.UNSIGNED_BYTE, pixels[3]);//left
+			gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Y, miplevel, glFormat, width, height, 0, glFormat, gl.UNSIGNED_BYTE, pixels[4]);//up
+			gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, miplevel, glFormat, width, height, 0, glFormat, gl.UNSIGNED_BYTE, pixels[5]);//down
 		}
 	}
 
@@ -150,25 +150,25 @@ export class TextureCube extends BaseTexture {
 		var glFormat: number = this._getGLFormat();
 
 		if (!Render.isConchApp) {
-			(premultiplyAlpha) && (gl.pixelStorei(WebGLRenderingContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true));
-			gl.texImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_POSITIVE_Z, 0, glFormat, glFormat, WebGLRenderingContext.UNSIGNED_BYTE, source[0]);//back
-			gl.texImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, glFormat, glFormat, WebGLRenderingContext.UNSIGNED_BYTE, source[1]);//front
-			gl.texImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X, 0, glFormat, glFormat, WebGLRenderingContext.UNSIGNED_BYTE, source[2]);//right
-			gl.texImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_X, 0, glFormat, glFormat, WebGLRenderingContext.UNSIGNED_BYTE, source[3]);//left
-			gl.texImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_POSITIVE_Y, 0, glFormat, glFormat, WebGLRenderingContext.UNSIGNED_BYTE, source[4]);//up
-			gl.texImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, glFormat, glFormat, WebGLRenderingContext.UNSIGNED_BYTE, source[5]);//down
-			(premultiplyAlpha) && (gl.pixelStorei(WebGLRenderingContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false));
+			(premultiplyAlpha) && (gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true));
+			gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Z, 0, glFormat, glFormat, gl.UNSIGNED_BYTE, source[0]);//back
+			gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, glFormat, glFormat, gl.UNSIGNED_BYTE, source[1]);//front
+			gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X, 0, glFormat, glFormat, gl.UNSIGNED_BYTE, source[2]);//right
+			gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_X, 0, glFormat, glFormat, gl.UNSIGNED_BYTE, source[3]);//left
+			gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Y, 0, glFormat, glFormat, gl.UNSIGNED_BYTE, source[4]);//up
+			gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, glFormat, glFormat, gl.UNSIGNED_BYTE, source[5]);//down
+			(premultiplyAlpha) && (gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false));
 		} else {
 			if (premultiplyAlpha == true) {
 				for (var j: number = 0; j < 6; j++)
 					source[j].setPremultiplyAlpha(premultiplyAlpha);
 			}
-			gl.texImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_POSITIVE_Z, 0, WebGLRenderingContext.RGBA, WebGLRenderingContext.RGBA, WebGLRenderingContext.UNSIGNED_BYTE, source[0]);//back
-			gl.texImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, WebGLRenderingContext.RGBA, WebGLRenderingContext.RGBA, WebGLRenderingContext.UNSIGNED_BYTE, source[1]);//front
-			gl.texImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X, 0, WebGLRenderingContext.RGBA, WebGLRenderingContext.RGBA, WebGLRenderingContext.UNSIGNED_BYTE, source[2]);//right
-			gl.texImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_X, 0, WebGLRenderingContext.RGBA, WebGLRenderingContext.RGBA, WebGLRenderingContext.UNSIGNED_BYTE, source[3]);//left
-			gl.texImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_POSITIVE_Y, 0, WebGLRenderingContext.RGBA, WebGLRenderingContext.RGBA, WebGLRenderingContext.UNSIGNED_BYTE, source[4]);//up
-			gl.texImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, WebGLRenderingContext.RGBA, WebGLRenderingContext.RGBA, WebGLRenderingContext.UNSIGNED_BYTE, source[5]);//down
+			gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Z, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source[0]);//back
+			gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source[1]);//front
+			gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source[2]);//right
+			gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_X, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source[3]);//left
+			gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Y, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source[4]);//up
+			gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source[5]);//down
 		}
 		if (this._mipmap && this._isPot(width) && this._isPot(height)) {
 			gl.generateMipmap(this._glTextureType);
@@ -177,8 +177,8 @@ export class TextureCube extends BaseTexture {
 			this._setGPUMemory(width * height * 4 * 6);
 		}
 
-		this._setWarpMode(WebGLRenderingContext.TEXTURE_WRAP_S, this._wrapModeU);
-		this._setWarpMode(WebGLRenderingContext.TEXTURE_WRAP_T, this._wrapModeV);
+		this._setWarpMode(gl.TEXTURE_WRAP_S, this._wrapModeU);
+		this._setWarpMode(gl.TEXTURE_WRAP_T, this._wrapModeV);
 		this._setFilterMode(this._filterMode);
 		this._readyed = true;
 		this._activeResource();

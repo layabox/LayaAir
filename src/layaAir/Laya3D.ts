@@ -168,7 +168,7 @@ export class Laya3D {
 		Laya.init(width, height);
 		if (!Render.supportWebGLPlusRendering) {
 			LayaGL.instance = WebGLContext.mainContext;
-			LayaGL.instance.createCommandEncoder = function (reserveSize: number = 128, adjustSize: number = 64, isSyncToRenderThread: boolean = false): CommandEncoder {
+			(<any>LayaGL.instance).createCommandEncoder = function (reserveSize: number = 128, adjustSize: number = 64, isSyncToRenderThread: boolean = false): CommandEncoder {
 				return new CommandEncoder(this, reserveSize, adjustSize, isSyncToRenderThread);
 			}
 		}
@@ -370,7 +370,8 @@ export class Laya3D {
 			}
 		}
 		WebGL.shaderHighPrecision = false;
-		var precisionFormat: any = LayaGL.instance.getShaderPrecisionFormat(WebGLRenderingContext.FRAGMENT_SHADER, WebGLRenderingContext.HIGH_FLOAT);
+		var gl: WebGLRenderingContext = LayaGL.instance;
+		var precisionFormat: any = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT);
 		precisionFormat.precision ? WebGL.shaderHighPrecision = true : WebGL.shaderHighPrecision = false;
 	}
 

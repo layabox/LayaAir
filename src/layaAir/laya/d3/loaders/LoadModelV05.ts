@@ -7,6 +7,7 @@ import { Matrix4x4 } from "../math/Matrix4x4"
 import { Mesh } from "../resource/models/Mesh"
 import { SubMesh } from "../resource/models/SubMesh"
 import { Byte } from "../../utils/Byte"
+import { LayaGL } from "../../layagl/LayaGL";
 
 
 /**
@@ -110,6 +111,7 @@ export class LoadModelV05 {
 	 * @internal
 	 */
 	private static READ_MESH(): boolean {
+		var gl: WebGLRenderingContext = LayaGL.instance;
 		var i: number, n: number;
 		var memorySize: number = 0;
 		var name: string = LoadModelV05._readString();
@@ -212,7 +214,7 @@ export class LoadModelV05 {
 					break;
 			}
 
-			var vertexBuffer: VertexBuffer3D = new VertexBuffer3D(vertexData.byteLength, WebGLRenderingContext.STATIC_DRAW, true);
+			var vertexBuffer: VertexBuffer3D = new VertexBuffer3D(vertexData.byteLength, gl.STATIC_DRAW, true);
 			vertexBuffer.vertexDeclaration = vertexDeclaration;
 			vertexBuffer.setData(vertexData);
 			LoadModelV05._mesh._vertexBuffer = vertexBuffer;
@@ -223,7 +225,7 @@ export class LoadModelV05 {
 		var ibStart: number = offset + LoadModelV05._readData.getUint32();
 		var ibLength: number = LoadModelV05._readData.getUint32();
 		var ibDatas: Uint16Array = new Uint16Array(arrayBuffer.slice(ibStart, ibStart + ibLength));
-		var indexBuffer: IndexBuffer3D = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, ibLength / 2, WebGLRenderingContext.STATIC_DRAW, true);
+		var indexBuffer: IndexBuffer3D = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, ibLength / 2, gl.STATIC_DRAW, true);
 		indexBuffer.setData(ibDatas);
 		LoadModelV05._mesh._indexBuffer = indexBuffer;
 
@@ -265,7 +267,7 @@ export class LoadModelV05 {
 		var ibCount: number = LoadModelV05._readData.getUint32();
 		var indexBuffer: IndexBuffer3D = LoadModelV05._mesh._indexBuffer;
 		subMesh._indexBuffer = indexBuffer;
-		subMesh._setIndexRange(ibStart,ibCount);
+		subMesh._setIndexRange(ibStart, ibCount);
 		var vertexBuffer: VertexBuffer3D = LoadModelV05._mesh._vertexBuffer;
 		subMesh._vertexBuffer = vertexBuffer;
 

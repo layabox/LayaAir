@@ -29,15 +29,18 @@ import { VertexMesh } from "./Vertex/VertexMesh";
 		/** @internal */
 		 instanceMVPMatrixData:Float32Array = new Float32Array(this.maxInstanceCount * 16);
 		/** @internal */
-		 instanceWorldMatrixBuffer:VertexBuffer3D = new VertexBuffer3D(this.instanceWorldMatrixData.length * 4, WebGLRenderingContext.DYNAMIC_DRAW);
+		 instanceWorldMatrixBuffer:VertexBuffer3D;
 		/** @internal */
-		 instanceMVPMatrixBuffer:VertexBuffer3D = new VertexBuffer3D(this.instanceMVPMatrixData.length * 4, WebGLRenderingContext.DYNAMIC_DRAW);
+		 instanceMVPMatrixBuffer:VertexBuffer3D;
 		
 		/**
 		 * 创建一个 <code>InstanceSubMesh</code> 实例。
 		 */
 		constructor(){
 			super();
+			var gl: WebGLRenderingContext = LayaGL.instance;
+			this.instanceWorldMatrixBuffer = new VertexBuffer3D(this.instanceWorldMatrixData.length * 4, gl.DYNAMIC_DRAW);
+			this.instanceMVPMatrixBuffer = new VertexBuffer3D(this.instanceMVPMatrixData.length * 4, gl.DYNAMIC_DRAW);
 			this.instanceWorldMatrixBuffer.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
 			this.instanceMVPMatrixBuffer.vertexDeclaration = VertexMesh.instanceMVPMatrixDeclaration;
 		}
@@ -46,12 +49,13 @@ import { VertexMesh } from "./Vertex/VertexMesh";
 		 * @inheritDoc
 		 */
 		/*override*/  _render(state:RenderContext3D):void {
+			var gl: WebGLRenderingContext = LayaGL.instance;
 			var element:SubMeshRenderElement = (<SubMeshRenderElement>state.renderElement );
 			var subMesh:SubMesh = element.instanceSubMesh;
 			var count:number = element.instanceBatchElementList.length;
 			var indexCount:number = subMesh._indexCount;
 			subMesh._mesh._instanceBufferState.bind();
-			LayaGL.layaGPUInstance.drawElementsInstanced(WebGLRenderingContext.TRIANGLES, indexCount, WebGLRenderingContext.UNSIGNED_SHORT, subMesh._indexStart * 2, count);
+			LayaGL.layaGPUInstance.drawElementsInstanced(gl.TRIANGLES, indexCount, gl.UNSIGNED_SHORT, subMesh._indexStart * 2, count);
 			Stat.renderBatches++;
 			Stat.savedRenderBatches += count - 1;
 			Stat.trianglesFaces += indexCount * count / 3;

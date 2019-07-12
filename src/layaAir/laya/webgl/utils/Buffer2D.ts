@@ -255,20 +255,22 @@ export class Buffer2D extends Buffer {
 
 	//TODO:coverage
 	upload(): boolean {
+		var gl:WebGLRenderingContext=LayaGL.instance;
 		var scuess: boolean = this._bind_upload();
-		LayaGL.instance.bindBuffer(this._bufferType, null);
-		if (this._bufferType == WebGLRenderingContext.ARRAY_BUFFER) Buffer._bindedVertexBuffer = null;
-		if (this._bufferType == WebGLRenderingContext.ELEMENT_ARRAY_BUFFER) Buffer._bindedIndexBuffer = null;
+		gl.bindBuffer(this._bufferType, null);
+		if (this._bufferType == gl.ARRAY_BUFFER) Buffer._bindedVertexBuffer = null;
+		if (this._bufferType == gl.ELEMENT_ARRAY_BUFFER) Buffer._bindedIndexBuffer = null;
 		BaseShader.activeShader = null
 		return scuess;
 	}
 
 	//TODO:coverage
 	subUpload(offset: number = 0, dataStart: number = 0, dataLength: number = 0): boolean {
+		var gl:WebGLRenderingContext=LayaGL.instance;
 		var scuess: boolean = this._bind_subUpload();
-		LayaGL.instance.bindBuffer(this._bufferType, null);
-		if (this._bufferType == WebGLRenderingContext.ARRAY_BUFFER) Buffer._bindedVertexBuffer = null;
-		if (this._bufferType == WebGLRenderingContext.ELEMENT_ARRAY_BUFFER) Buffer._bindedIndexBuffer = null;
+		gl.bindBuffer(this._bufferType, null);
+		if (this._bufferType == gl.ARRAY_BUFFER) Buffer._bindedVertexBuffer = null;
+		if (this._bufferType == gl.ELEMENT_ARRAY_BUFFER) Buffer._bindedIndexBuffer = null;
 		BaseShader.activeShader = null
 		return scuess;
 	}

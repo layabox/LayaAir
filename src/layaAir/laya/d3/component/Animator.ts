@@ -1326,7 +1326,7 @@ export class Animator extends Component {
 	 * [NATIVE]
 	 */
 	_updateAnimationNodeWorldMatix(localPositions: Float32Array, localRotations: Float32Array, localScales: Float32Array, worldMatrixs: Float32Array, parentIndices: Int16Array): void {
-		LayaGL.instance.updateAnimationNodeWorldMatix(localPositions, localRotations, localScales, parentIndices, worldMatrixs);
+		(<any>LayaGL.instance).updateAnimationNodeWorldMatix(localPositions, localRotations, localScales, parentIndices, worldMatrixs);
 	}
 }
 

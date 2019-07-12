@@ -45,7 +45,7 @@ export class PixelLineFilter extends GeometryElement {
 		this._owner = owner;
 		this._maxLineCount = maxLineCount;
 		this._vertices = new Float32Array(pointCount * this._floatCountPerVertices);
-		this._vertexBuffer = new VertexBuffer3D(PixelLineVertex.vertexDeclaration.vertexStride * pointCount, WebGLRenderingContext.STATIC_DRAW, false);
+		this._vertexBuffer = new VertexBuffer3D(PixelLineVertex.vertexDeclaration.vertexStride * pointCount, LayaGL.instance.STATIC_DRAW, false);
 		this._vertexBuffer.vertexDeclaration = PixelLineVertex.vertexDeclaration;
 
 		this._bufferState.bind();
@@ -73,7 +73,7 @@ export class PixelLineFilter extends GeometryElement {
 
 		var vertexCount: number = pointCount * this._floatCountPerVertices;
 		this._vertices = new Float32Array(vertexCount);
-		this._vertexBuffer = new VertexBuffer3D(PixelLineVertex.vertexDeclaration.vertexStride * pointCount, WebGLRenderingContext.STATIC_DRAW, false);
+		this._vertexBuffer = new VertexBuffer3D(PixelLineVertex.vertexDeclaration.vertexStride * pointCount, LayaGL.instance.STATIC_DRAW, false);
 		this._vertexBuffer.vertexDeclaration = PixelLineVertex.vertexDeclaration;
 
 		if (vertexCount < lastVertices.length) {//取最小长度,拷贝旧数据
@@ -209,7 +209,8 @@ export class PixelLineFilter extends GeometryElement {
 
 		if (this._lineCount > 0) {
 			this._bufferState.bind();
-			LayaGL.instance.drawArrays(WebGLRenderingContext.LINES, 0, this._lineCount * 2);
+			var gl:WebGLRenderingContext=LayaGL.instance;
+			gl.drawArrays(gl.LINES, 0, this._lineCount * 2);
 			Stat.renderBatches++;
 		}
 	}

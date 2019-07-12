@@ -101,6 +101,7 @@ export class SubMesh extends GeometryElement {
 	 * @override
 	 */
 	_render(state: RenderContext3D): void {
+		var gl: WebGLRenderingContext = LayaGL.instance;
 		this._mesh._bufferState.bind();
 		var skinnedDatas: any[] = ((<SkinnedMeshRenderer>state.renderElement.render))._skinnedData;
 		if (skinnedDatas) {
@@ -108,10 +109,10 @@ export class SubMesh extends GeometryElement {
 			var boneIndicesListCount: number = this._boneIndicesList.length;
 			for (var i: number = 0; i < boneIndicesListCount; i++) {
 				state.shader.uploadCustomUniform(SkinnedMeshSprite3D.BONES, subSkinnedDatas[i]);
-				LayaGL.instance.drawElements(WebGLRenderingContext.TRIANGLES, this._subIndexBufferCount[i], WebGLRenderingContext.UNSIGNED_SHORT, this._subIndexBufferStart[i] * 2);
+				gl.drawElements(gl.TRIANGLES, this._subIndexBufferCount[i], gl.UNSIGNED_SHORT, this._subIndexBufferStart[i] * 2);
 			}
 		} else {
-			LayaGL.instance.drawElements(WebGLRenderingContext.TRIANGLES, this._indexCount, WebGLRenderingContext.UNSIGNED_SHORT, this._indexStart * 2);
+			gl.drawElements(gl.TRIANGLES, this._indexCount, gl.UNSIGNED_SHORT, this._indexStart * 2);
 		}
 		Stat.trianglesFaces += this._indexCount / 3;
 		Stat.renderBatches++;

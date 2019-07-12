@@ -95,7 +95,7 @@ import { ILaya } from "../../ILaya";
 		constructor(width:number, height:number, format:number = BaseTexture.FORMAT_R8G8B8, depthStencilFormat:number = BaseTexture.FORMAT_DEPTH_16){//TODO:待老郭清理
 			
 			super(format, false);
-			this._glTextureType = WebGLRenderingContext.TEXTURE_2D;
+			this._glTextureType = LayaGL.instance.TEXTURE_2D;
 			this._width = width;
 			this._height = height;
 			this._depthStencilFormat = depthStencilFormat;
@@ -111,36 +111,36 @@ import { ILaya } from "../../ILaya";
 			this._frameBuffer = gl.createFramebuffer();
 			WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
 			var glFormat:number = this._getGLFormat();
-			gl.texImage2D(this._glTextureType, 0, glFormat, width, height, 0, glFormat, WebGLRenderingContext.UNSIGNED_BYTE, null);
+			gl.texImage2D(this._glTextureType, 0, glFormat, width, height, 0, glFormat, gl.UNSIGNED_BYTE, null);
 			this._setGPUMemory(width * height * 4);
-			gl.bindFramebuffer(WebGLRenderingContext.FRAMEBUFFER, this._frameBuffer);
-			gl.framebufferTexture2D(WebGLRenderingContext.FRAMEBUFFER, WebGLRenderingContext.COLOR_ATTACHMENT0, WebGLRenderingContext.TEXTURE_2D, this._glTexture, 0);
+			gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
+			gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this._glTexture, 0);
 			if (this._depthStencilFormat !== BaseTexture.FORMAT_DEPTHSTENCIL_NONE) {
 				this._depthStencilBuffer = gl.createRenderbuffer();
-				gl.bindRenderbuffer(WebGLRenderingContext.RENDERBUFFER, this._depthStencilBuffer);
+				gl.bindRenderbuffer(gl.RENDERBUFFER, this._depthStencilBuffer);
 				switch (this._depthStencilFormat) {
 				case BaseTexture.FORMAT_DEPTH_16: 
-					gl.renderbufferStorage(WebGLRenderingContext.RENDERBUFFER, WebGLRenderingContext.DEPTH_COMPONENT16, width, height);
-					gl.framebufferRenderbuffer(WebGLRenderingContext.FRAMEBUFFER, WebGLRenderingContext.DEPTH_ATTACHMENT, WebGLRenderingContext.RENDERBUFFER, this._depthStencilBuffer);
+					gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height);
+					gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this._depthStencilBuffer);
 					break;
 				case BaseTexture.FORMAT_STENCIL_8: 
-					gl.renderbufferStorage(WebGLRenderingContext.RENDERBUFFER, WebGLRenderingContext.STENCIL_INDEX8, width, height);
-					gl.framebufferRenderbuffer(WebGLRenderingContext.FRAMEBUFFER, WebGLRenderingContext.STENCIL_ATTACHMENT, WebGLRenderingContext.RENDERBUFFER, this._depthStencilBuffer);
+					gl.renderbufferStorage(gl.RENDERBUFFER, gl.STENCIL_INDEX8, width, height);
+					gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.STENCIL_ATTACHMENT, gl.RENDERBUFFER, this._depthStencilBuffer);
 					break;
 				case BaseTexture.FORMAT_DEPTHSTENCIL_16_8: 
-					gl.renderbufferStorage(WebGLRenderingContext.RENDERBUFFER, WebGLRenderingContext.DEPTH_STENCIL, width, height);
-					gl.framebufferRenderbuffer(WebGLRenderingContext.FRAMEBUFFER, WebGLRenderingContext.DEPTH_STENCIL_ATTACHMENT, WebGLRenderingContext.RENDERBUFFER, this._depthStencilBuffer);
+					gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_STENCIL, width, height);
+					gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT, gl.RENDERBUFFER, this._depthStencilBuffer);
 					break;
 				default: 
 					//console.log("RenderTexture: unkonw depth format.");//2d并不需要depthbuffer
 				}
 			}
 			
-			gl.bindFramebuffer(WebGLRenderingContext.FRAMEBUFFER, null);
-			gl.bindRenderbuffer(WebGLRenderingContext.RENDERBUFFER, null);
+			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+			gl.bindRenderbuffer(gl.RENDERBUFFER, null);
 			
-			this._setWarpMode(WebGLRenderingContext.TEXTURE_WRAP_S, this._wrapModeU);
-			this._setWarpMode(WebGLRenderingContext.TEXTURE_WRAP_T, this._wrapModeV);
+			this._setWarpMode(gl.TEXTURE_WRAP_S, this._wrapModeU);
+			this._setWarpMode(gl.TEXTURE_WRAP_T, this._wrapModeV);
 			this._setFilterMode(this._filterMode);
 			this._setAnisotropy(this._anisoLevel);
 			
@@ -177,7 +177,7 @@ import { ILaya } from "../../ILaya";
 			var top:any = RenderTexture2D.rtStack.pop();
 			if (top) {
 				if (RenderTexture2D._currentActive != top.rt) {
-					LayaGL.instance.bindFramebuffer(WebGLRenderingContext.FRAMEBUFFER,  top.rt?top.rt._frameBuffer:null);
+					LayaGL.instance.bindFramebuffer(gl.FRAMEBUFFER,  top.rt?top.rt._frameBuffer:null);
 					RenderTexture2D._currentActive = top.rt;
 				}
 				gl.viewport(0, 0, top.w,top.h);
@@ -191,7 +191,7 @@ import { ILaya } from "../../ILaya";
 		 start():void {
 			var gl:WebGLRenderingContext = LayaGL.instance;
 			//(memorySize == 0) && recreateResource();
-			LayaGL.instance.bindFramebuffer(WebGLRenderingContext.FRAMEBUFFER, this._frameBuffer);
+			LayaGL.instance.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
 			this._lastRT = RenderTexture2D._currentActive;
 			RenderTexture2D._currentActive = this;
 			this._readyed = true;
@@ -218,7 +218,8 @@ import { ILaya } from "../../ILaya";
 		 * 结束绑定。
 		 */
 		 end():void {
-			LayaGL.instance.bindFramebuffer(WebGLRenderingContext.FRAMEBUFFER, null);
+			var gl:WebGLRenderingContext = LayaGL.instance;
+			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 			RenderTexture2D._currentActive = null;
 			this._readyed = true;
 		}
@@ -229,7 +230,7 @@ import { ILaya } from "../../ILaya";
 		 restore():void {
 			var gl:WebGLRenderingContext = LayaGL.instance;
 			if (this._lastRT != RenderTexture2D._currentActive) {
-				LayaGL.instance.bindFramebuffer(WebGLRenderingContext.FRAMEBUFFER,  this._lastRT?this._lastRT._frameBuffer:null);
+				LayaGL.instance.bindFramebuffer(gl.FRAMEBUFFER,  this._lastRT?this._lastRT._frameBuffer:null);
 				RenderTexture2D._currentActive = this._lastRT;
 			}
 			this._readyed = true;
@@ -247,19 +248,19 @@ import { ILaya } from "../../ILaya";
 		 clear(r:number = 0.0, g:number = 0.0, b:number = 0.0, a:number = 1.0):void {
 			var gl:WebGLRenderingContext = LayaGL.instance;
 			gl.clearColor(r, g, b, a);
-			var clearFlag:number = WebGLRenderingContext.COLOR_BUFFER_BIT;
+			var clearFlag:number = gl.COLOR_BUFFER_BIT;
 			switch (this._depthStencilFormat) {
 			//case WebGLContext.DEPTH_COMPONENT: 
-			case WebGLRenderingContext.DEPTH_COMPONENT16: 
-				clearFlag |= WebGLRenderingContext.DEPTH_BUFFER_BIT;
+			case gl.DEPTH_COMPONENT16: 
+				clearFlag |= gl.DEPTH_BUFFER_BIT;
 				break;
 			//case WebGLContext.STENCIL_INDEX:
-			case WebGLRenderingContext.STENCIL_INDEX8: 
-				clearFlag |= WebGLRenderingContext.STENCIL_BUFFER_BIT;
+			case gl.STENCIL_INDEX8: 
+				clearFlag |= gl.STENCIL_BUFFER_BIT;
 				break;
-			case WebGLRenderingContext.DEPTH_STENCIL: 
-				clearFlag |= WebGLRenderingContext.DEPTH_BUFFER_BIT;
-				clearFlag |= WebGLRenderingContext.STENCIL_BUFFER_BIT
+			case gl.DEPTH_STENCIL: 
+				clearFlag |= gl.DEPTH_BUFFER_BIT;
+				clearFlag |= gl.STENCIL_BUFFER_BIT
 				break;
 			}
 			gl.clear(clearFlag);
@@ -279,18 +280,18 @@ import { ILaya } from "../../ILaya";
 				throw "native 2 thread mode use getDataAsync";
 			}
 			var gl:WebGLRenderingContext = LayaGL.instance;
-			gl.bindFramebuffer(WebGLRenderingContext.FRAMEBUFFER, this._frameBuffer);
-			var canRead:boolean = (gl.checkFramebufferStatus(WebGLRenderingContext.FRAMEBUFFER) === WebGLRenderingContext.FRAMEBUFFER_COMPLETE);
+			gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
+			var canRead:boolean = (gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE);
 			
 			if (!canRead) {
-				gl.bindFramebuffer(WebGLRenderingContext.FRAMEBUFFER, null);
+				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 				return null;
 			}
 			
 			var pixels:Uint8Array = new Uint8Array(this._width * this._height * 4);
 			var glFormat:number = this._getGLFormat();
-			gl.readPixels(x, y, width, height, glFormat, WebGLRenderingContext.UNSIGNED_BYTE, pixels);
-			gl.bindFramebuffer(WebGLRenderingContext.FRAMEBUFFER, null);
+			gl.readPixels(x, y, width, height, glFormat, gl.UNSIGNED_BYTE, pixels);
+			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 			return pixels;
 		}
 		/**
@@ -298,11 +299,11 @@ import { ILaya } from "../../ILaya";
 		 */
 		 getDataAsync(x:number, y:number, width:number, height:number, callBack:Function):void {
 			var gl:any = LayaGL.instance;
-			gl.bindFramebuffer(WebGLRenderingContext.FRAMEBUFFER, this._frameBuffer);
-			gl.readPixelsAsync(x, y, width, height, WebGLRenderingContext.RGBA, WebGLRenderingContext.UNSIGNED_BYTE, function(data:ArrayBuffer):void {
+			gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
+			gl.readPixelsAsync(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, function(data:ArrayBuffer):void {
 				callBack(new Uint8Array(data));
 			});
-			gl.bindFramebuffer(WebGLRenderingContext.FRAMEBUFFER, null);
+			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 		}
 		 recycle():void {
 			

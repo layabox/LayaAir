@@ -562,7 +562,7 @@ export class Utils3D {
 	}
 
 	static matrix4x4MultiplyFFFForNative(a: Float32Array, b: Float32Array, e: Float32Array): void {
-		LayaGL.instance.matrix4x4Multiply(a, b, e);
+		(<any>LayaGL.instance).matrix4x4Multiply(a, b, e);
 	}
 
 	static matrix4x4MultiplyMFM(left: Matrix4x4, right: Float32Array, out: Matrix4x4): void {

@@ -52,7 +52,7 @@ import { LayaGL } from "../layagl/LayaGL"
 		 * @private
 		 */
 		 bindForNative():void {
-			LayaGL.instance.bindVertexArray(this._nativeVertexArrayObject);
+			(<any>LayaGL.instance).bindVertexArray(this._nativeVertexArrayObject);
 			BufferStateBase._curBindedBufferState = this;
 		}
 		
@@ -60,7 +60,7 @@ import { LayaGL } from "../layagl/LayaGL"
 		 * @private
 		 */
 		 unBindForNative():void {
-			LayaGL.instance.bindVertexArray(null);
+			(<any>LayaGL.instance).bindVertexArray(null);
 			BufferStateBase._curBindedBufferState = null;
 		}
 	

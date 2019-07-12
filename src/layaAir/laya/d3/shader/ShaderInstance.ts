@@ -94,8 +94,8 @@ export class ShaderInstance extends Resource {
 	private _create(): void {
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		this._program = gl.createProgram();
-		this._vshader = this._createShader(gl, this._vs, WebGLRenderingContext.VERTEX_SHADER);
-		this._pshader = this._createShader(gl, this._ps, WebGLRenderingContext.FRAGMENT_SHADER);
+		this._vshader = this._createShader(gl, this._vs, gl.VERTEX_SHADER);
+		this._pshader = this._createShader(gl, this._ps, gl.FRAGMENT_SHADER);
 		gl.attachShader(this._program, this._vshader);
 		gl.attachShader(this._program, this._pshader);
 
@@ -103,7 +103,7 @@ export class ShaderInstance extends Resource {
 			gl.bindAttribLocation(this._program, this._attributeMap[k], k);
 
 		gl.linkProgram(this._program);
-		if (!Render.isConchApp && Shader3D.debugMode && !gl.getProgramParameter(this._program, WebGLRenderingContext.LINK_STATUS))
+		if (!Render.isConchApp && Shader3D.debugMode && !gl.getProgramParameter(this._program, gl.LINK_STATUS))
 			throw gl.getProgramInfoLog(this._program);
 
 		var sceneParms: any[] = [];
@@ -113,7 +113,7 @@ export class ShaderInstance extends Resource {
 		var customParms: any[] = [];
 		this._customUniformParamsMap = [];
 
-		var nUniformNum: number = gl.getProgramParameter(this._program, WebGLRenderingContext.ACTIVE_UNIFORMS);
+		var nUniformNum: number = gl.getProgramParameter(this._program, gl.ACTIVE_UNIFORMS);
 		WebGLContext.useProgram(gl, this._program);
 		this._curActTexIndex = 0;
 		var one: ShaderVariable, i: number, n: number;
@@ -158,19 +158,19 @@ export class ShaderInstance extends Resource {
 		}
 
 		//Native版本分别存入funid、webglFunid,location、type、offset, +4是因为第一个存长度了 所以是*4*5+4
-		this._sceneUniformParamsMap = LayaGL.instance.createCommandEncoder(sceneParms.length * 4 * 5 + 4, 64, true);
+		this._sceneUniformParamsMap = (<any>LayaGL.instance).createCommandEncoder(sceneParms.length * 4 * 5 + 4, 64, true);
 		for (i = 0, n = sceneParms.length; i < n; i++)
 			this._sceneUniformParamsMap.addShaderUniform(sceneParms[i]);
 
-		this._cameraUniformParamsMap = LayaGL.instance.createCommandEncoder(cameraParms.length * 4 * 5 + 4, 64, true);
+		this._cameraUniformParamsMap = (<any>LayaGL.instance).createCommandEncoder(cameraParms.length * 4 * 5 + 4, 64, true);
 		for (i = 0, n = cameraParms.length; i < n; i++)
 			this._cameraUniformParamsMap.addShaderUniform(cameraParms[i]);
 
-		this._spriteUniformParamsMap = LayaGL.instance.createCommandEncoder(spriteParms.length * 4 * 5 + 4, 64, true);
+		this._spriteUniformParamsMap = (<any>LayaGL.instance).createCommandEncoder(spriteParms.length * 4 * 5 + 4, 64, true);
 		for (i = 0, n = spriteParms.length; i < n; i++)
 			this._spriteUniformParamsMap.addShaderUniform(spriteParms[i]);
 
-		this._materialUniformParamsMap = LayaGL.instance.createCommandEncoder(materialParms.length * 4 * 5 + 4, 64, true);
+		this._materialUniformParamsMap = (<any>LayaGL.instance).createCommandEncoder(materialParms.length * 4 * 5 + 4, 64, true);
 		for (i = 0, n = materialParms.length; i < n; i++)
 			this._materialUniformParamsMap.addShaderUniform(materialParms[i]);
 
@@ -216,40 +216,40 @@ export class ShaderInstance extends Resource {
 		one.caller = this;
 		var isArray: boolean = one.isArray;
 		switch (one.type) {
-			case WebGLRenderingContext.BOOL:
+			case gl.BOOL:
 				one.fun = this._uniform1i;
 				one.uploadedValue = new Array(1);
 				break;
-			case WebGLRenderingContext.INT:
+			case gl.INT:
 				one.fun = isArray ? this._uniform1iv : this._uniform1i;//TODO:优化
 				one.uploadedValue = new Array(1);
 				break;
-			case WebGLRenderingContext.FLOAT:
+			case gl.FLOAT:
 				one.fun = isArray ? this._uniform1fv : this._uniform1f;
 				one.uploadedValue = new Array(1);
 				break;
-			case WebGLRenderingContext.FLOAT_VEC2:
+			case gl.FLOAT_VEC2:
 				one.fun = isArray ? this._uniform_vec2v : this._uniform_vec2;
 				one.uploadedValue = new Array(2);
 				break;
-			case WebGLRenderingContext.FLOAT_VEC3:
+			case gl.FLOAT_VEC3:
 				one.fun = isArray ? this._uniform_vec3v : this._uniform_vec3;
 				one.uploadedValue = new Array(3);
 				break;
-			case WebGLRenderingContext.FLOAT_VEC4:
+			case gl.FLOAT_VEC4:
 				one.fun = isArray ? this._uniform_vec4v : this._uniform_vec4;
 				one.uploadedValue = new Array(4);
 				break;
-			case WebGLRenderingContext.FLOAT_MAT2:
+			case gl.FLOAT_MAT2:
 				one.fun = this._uniformMatrix2fv;
 				break;
-			case WebGLRenderingContext.FLOAT_MAT3:
+			case gl.FLOAT_MAT3:
 				one.fun = this._uniformMatrix3fv;
 				break;
-			case WebGLRenderingContext.FLOAT_MAT4:
+			case gl.FLOAT_MAT4:
 				one.fun = isArray ? this._uniformMatrix4fv : this._uniformMatrix4f;
 				break;
-			case WebGLRenderingContext.SAMPLER_2D:
+			case gl.SAMPLER_2D:
 				gl.uniform1i(one.location, this._curActTexIndex);
 				one.textureID = WebGLContext._glTextureIDs[this._curActTexIndex++];
 				one.fun = this._uniform_sampler2D;
@@ -259,7 +259,7 @@ export class ShaderInstance extends Resource {
 				one.textureID = WebGLContext._glTextureIDs[this._curActTexIndex++];
 				one.fun = this._uniform_sampler3D;
 				break;
-			case WebGLRenderingContext.SAMPLER_CUBE:
+			case gl.SAMPLER_CUBE:
 				gl.uniform1i(one.location, this._curActTexIndex);
 				one.textureID = WebGLContext._glTextureIDs[this._curActTexIndex++];
 				one.fun = this._uniform_samplerCube;
@@ -277,7 +277,7 @@ export class ShaderInstance extends Resource {
 		var shader: any = gl.createShader(type);
 		gl.shaderSource(shader, str);
 		gl.compileShader(shader);
-		if (Shader3D.debugMode && !gl.getShaderParameter(shader, WebGLRenderingContext.COMPILE_STATUS))
+		if (Shader3D.debugMode && !gl.getShaderParameter(shader, gl.COMPILE_STATUS))
 			throw gl.getShaderInfoLog(shader);
 
 		return shader;
@@ -509,7 +509,7 @@ export class ShaderInstance extends Resource {
 		var value: any = texture._getSource() || texture.defaulteTexture._getSource();
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		WebGLContext.activeTexture(gl, one.textureID);
-		WebGLContext.bindTexture(gl, WebGLRenderingContext.TEXTURE_2D, value);
+		WebGLContext.bindTexture(gl, gl.TEXTURE_2D, value);
 		return 0;
 	}
 
@@ -528,7 +528,7 @@ export class ShaderInstance extends Resource {
 		var value: any = texture._getSource() || texture.defaulteTexture._getSource();
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		WebGLContext.activeTexture(gl, one.textureID);
-		WebGLContext.bindTexture(gl, WebGLRenderingContext.TEXTURE_CUBE_MAP, value);
+		WebGLContext.bindTexture(gl, gl.TEXTURE_CUBE_MAP, value);
 		return 0;
 	}
 
@@ -543,7 +543,7 @@ export class ShaderInstance extends Resource {
 	 * @internal
 	 */
 	uploadUniforms(shaderUniform: CommandEncoder, shaderDatas: ShaderData, uploadUnTexture: boolean): void {
-		Stat.shaderCall += LayaGLRunner.uploadShaderUniforms(LayaGL.instance, shaderUniform, shaderDatas, uploadUnTexture);
+		Stat.shaderCall += LayaGLRunner.uploadShaderUniforms((<any>LayaGL.instance), shaderUniform, shaderDatas, uploadUnTexture);
 	}
 
 	/**
@@ -617,14 +617,14 @@ export class ShaderInstance extends Resource {
 				//forntFace = isTarget ? invertFront ? WebGLContext.CCW : WebGLContext.CW : invertFront ? WebGLContext.CW : WebGLContext.CCW;
 				if (isTarget) {
 					if (invertFront)
-						forntFace = WebGLRenderingContext.CCW;
+						forntFace = gl.CCW;
 					else
-						forntFace = WebGLRenderingContext.CW;
+						forntFace = gl.CW;
 				} else {
 					if (invertFront)
-						forntFace = WebGLRenderingContext.CW;
+						forntFace = gl.CW;
 					else
-						forntFace = WebGLRenderingContext.CCW;
+						forntFace = gl.CCW;
 				}
 				WebGLContext.setFrontFace(gl, forntFace);
 				break;
@@ -632,14 +632,14 @@ export class ShaderInstance extends Resource {
 				WebGLContext.setCullFace(gl, true);
 				if (isTarget) {
 					if (invertFront)
-						forntFace = WebGLRenderingContext.CW;
+						forntFace = gl.CW;
 					else
-						forntFace = WebGLRenderingContext.CCW;
+						forntFace = gl.CCW;
 				} else {
 					if (invertFront)
-						forntFace = WebGLRenderingContext.CCW;
+						forntFace = gl.CCW;
 					else
-						forntFace = WebGLRenderingContext.CW;
+						forntFace = gl.CW;
 				}
 				WebGLContext.setFrontFace(gl, forntFace);
 				break;
@@ -650,7 +650,7 @@ export class ShaderInstance extends Resource {
 	 * @internal
 	 */
 	uploadCustomUniform(index: number, data: any): void {
-		Stat.shaderCall += LayaGLRunner.uploadCustomUniform(LayaGL.instance, this._customUniformParamsMap, index, data);
+		Stat.shaderCall += LayaGLRunner.uploadCustomUniform((<any>LayaGL.instance), this._customUniformParamsMap, index, data);
 	}
 
 	/**
@@ -658,7 +658,7 @@ export class ShaderInstance extends Resource {
 	 * [NATIVE]
 	 */
 	_uniformMatrix2fvForNative(one: any, value: any): number {
-		LayaGL.instance.uniformMatrix2fvEx(one.location, false, value);
+		(<any>LayaGL.instance).uniformMatrix2fvEx(one.location, false, value);
 		return 1;
 	}
 
@@ -667,7 +667,7 @@ export class ShaderInstance extends Resource {
 	 * [NATIVE]
 	 */
 	_uniformMatrix3fvForNative(one: any, value: any): number {
-		LayaGL.instance.uniformMatrix3fvEx(one.location, false, value);
+		(<any>LayaGL.instance).uniformMatrix3fvEx(one.location, false, value);
 		return 1;
 	}
 
@@ -676,7 +676,7 @@ export class ShaderInstance extends Resource {
 	 * [NATIVE]
 	 */
 	_uniformMatrix4fvForNative(one: any, m: Float32Array): number {
-		LayaGL.instance.uniformMatrix4fvEx(one.location, false, m);
+		(<any>LayaGL.instance).uniformMatrix4fvEx(one.location, false, m);
 		return 1;
 	}
 }

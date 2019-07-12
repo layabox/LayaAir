@@ -21,7 +21,7 @@ import { Buffer } from "./Buffer";
 			super();
 			this._vertexStride = vertexStride;
 			this._bufferUsage = bufferUsage;
-			this._bufferType = WebGLRenderingContext.ARRAY_BUFFER;
+			this._bufferType = LayaGL.instance.ARRAY_BUFFER;
 			this._buffer = new ArrayBuffer(8);
 			this._floatArray32 = new Float32Array(this._buffer);
 			this._uint32Array = new Uint32Array(this._buffer);
@@ -58,7 +58,8 @@ import { Buffer } from "./Buffer";
 		 * @inheritDoc
 		 */
 		/*override*/  _bindForVAO():void {
-			LayaGL.instance.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, this._glBuffer);
+			var gl: WebGLRenderingContext = LayaGL.instance;
+			gl.bindBuffer(gl.ARRAY_BUFFER, this._glBuffer);
 		}
 		
 		/**
@@ -66,7 +67,8 @@ import { Buffer } from "./Buffer";
 		 */
 		/*override*/  bind():boolean {
 			if (Buffer._bindedVertexBuffer !== this._glBuffer) {
-				LayaGL.instance.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, this._glBuffer);
+				var gl: WebGLRenderingContext = LayaGL.instance;
+				gl.bindBuffer(gl.ARRAY_BUFFER, this._glBuffer);
 				Buffer._bindedVertexBuffer = this._glBuffer;
 				return true;
 			}

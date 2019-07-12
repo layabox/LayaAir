@@ -22,7 +22,7 @@ import { LayaGPU } from "../webgl/LayaGPU";
 		 static UPLOAD_SHADER_UNIFORM_TYPE_ID:number = 0;      //data按照ID传入
 		 static UPLOAD_SHADER_UNIFORM_TYPE_DATA:number = 1;    //data按照数据传入
 		
-		 static instance:any;
+		 static instance:WebGLRenderingContext;
 		 static layaGPUInstance:LayaGPU;
 		
 		//TODO:coverage

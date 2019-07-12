@@ -49,19 +49,19 @@ import { ILaya } from "../../../ILaya";
 		 recreateResource():void {
 			if (this._source)
                 return;
-			var gl:WebGLRenderingContext = ILaya.Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
+			var gl:WebGLRenderingContext = ILaya.Render.isConchApp?(<any>LayaGL.instance).getDefaultCommandEncoder():WebGLContext.mainContext;
 			var glTex:any = this._source = gl.createTexture();
 			this.bitmap._glTexture = glTex;
 			
-			WebGLContext.bindTexture(gl, WebGLRenderingContext.TEXTURE_2D, glTex);
+			WebGLContext.bindTexture(gl, gl.TEXTURE_2D, glTex);
 			//gl.bindTexture(WebGLContext.TEXTURE_2D, glTex);
 			//var sz:int = _width * _height * 4;
 			//分配显存。
-			gl.texImage2D(WebGLRenderingContext.TEXTURE_2D, 0, WebGLRenderingContext.RGBA, this._texW, this._texH, 0, WebGLRenderingContext.RGBA, WebGLRenderingContext.UNSIGNED_BYTE, null);
-			gl.texParameteri(WebGLRenderingContext.TEXTURE_2D, WebGLRenderingContext.TEXTURE_MIN_FILTER, WebGLRenderingContext.LINEAR);	//不能用点采样，否则旋转的时候，非常难看
-			gl.texParameteri(WebGLRenderingContext.TEXTURE_2D, WebGLRenderingContext.TEXTURE_MAG_FILTER, WebGLRenderingContext.LINEAR);
-			gl.texParameteri(WebGLRenderingContext.TEXTURE_2D, WebGLRenderingContext.TEXTURE_WRAP_S, WebGLRenderingContext.CLAMP_TO_EDGE);
-			gl.texParameteri(WebGLRenderingContext.TEXTURE_2D, WebGLRenderingContext.TEXTURE_WRAP_T, WebGLRenderingContext.CLAMP_TO_EDGE);
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this._texW, this._texH, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);	//不能用点采样，否则旋转的时候，非常难看
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 			
 			//TODO 预乘alpha
 			if (TextTexture.gTextRender.debugUV) {
@@ -83,14 +83,14 @@ import { ILaya } from "../../../ILaya";
 				return this.addCharCanvas(data , x, y, uv);
 			}
 			!this._source && this.recreateResource();
-			var gl:WebGLRenderingContext = ILaya.Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
-			WebGLContext.bindTexture(gl, WebGLRenderingContext.TEXTURE_2D, this._source);
-			!ILaya.Render.isConchApp && gl.pixelStorei( WebGLRenderingContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+			var gl:WebGLRenderingContext = ILaya.Render.isConchApp?(<any>LayaGL.instance).getDefaultCommandEncoder():WebGLContext.mainContext;
+			WebGLContext.bindTexture(gl, gl.TEXTURE_2D, this._source);
+			!ILaya.Render.isConchApp && gl.pixelStorei( gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 			var dt:any = data.data;
 			if ( data.data instanceof Uint8ClampedArray ) 
 				dt = new Uint8Array(dt.buffer);
-			gl.texSubImage2D(WebGLRenderingContext.TEXTURE_2D, 0, x, y, data.width, data.height, WebGLRenderingContext.RGBA, WebGLRenderingContext.UNSIGNED_BYTE, dt);
-			!ILaya.Render.isConchApp && gl.pixelStorei( WebGLRenderingContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+			gl.texSubImage2D(gl.TEXTURE_2D, 0, x, y, data.width, data.height, gl.RGBA, gl.UNSIGNED_BYTE, dt);
+			!ILaya.Render.isConchApp && gl.pixelStorei( gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
 			var u0:number;
 			var v0:number;
 			var u1:number;
@@ -122,11 +122,11 @@ import { ILaya } from "../../../ILaya";
 		 */
 		 addCharCanvas(canv:any, x:number, y:number,uv:any[]=null):any[] {
 			!this._source && this.recreateResource();
-			var gl:WebGLRenderingContext = ILaya.Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
-			WebGLContext.bindTexture(gl, WebGLRenderingContext.TEXTURE_2D, this._source);
-			!ILaya.Render.isConchApp && gl.pixelStorei( WebGLRenderingContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-			gl.texSubImage2D(WebGLRenderingContext.TEXTURE_2D, 0, x, y, WebGLRenderingContext.RGBA, WebGLRenderingContext.UNSIGNED_BYTE, canv);
-			!ILaya.Render.isConchApp && gl.pixelStorei( WebGLRenderingContext.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+			var gl:WebGLRenderingContext = ILaya.Render.isConchApp?(<any>LayaGL.instance).getDefaultCommandEncoder():WebGLContext.mainContext;
+			WebGLContext.bindTexture(gl, gl.TEXTURE_2D, this._source);
+			!ILaya.Render.isConchApp && gl.pixelStorei( gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+			gl.texSubImage2D(gl.TEXTURE_2D, 0, x, y, gl.RGBA, gl.UNSIGNED_BYTE, canv);
+			!ILaya.Render.isConchApp && gl.pixelStorei( gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
 			var u0:number;
 			var v0:number;
 			var u1:number;
@@ -155,10 +155,10 @@ import { ILaya } from "../../../ILaya";
 		 */
 		 fillWhite():void {
 			!this._source && this.recreateResource();
-			var gl:WebGLRenderingContext = ILaya.Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
+			var gl:WebGLRenderingContext = ILaya.Render.isConchApp?(<any>LayaGL.instance).getDefaultCommandEncoder():WebGLContext.mainContext;
 			var dt:Uint8Array = new Uint8Array(this._texW * this._texH * 4);
 			((<any>dt )).fill(0xff);
-			gl.texSubImage2D(WebGLRenderingContext.TEXTURE_2D, 0, 0, 0, this._texW, this._texH, WebGLRenderingContext.RGBA, WebGLRenderingContext.UNSIGNED_BYTE, dt);
+			gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this._texW, this._texH, gl.RGBA, gl.UNSIGNED_BYTE, dt);
 		}
 		
 		 discard():void {
@@ -192,7 +192,7 @@ import { ILaya } from "../../../ILaya";
 		/*override*/  destroy():void {		
 			//console.log('destroy TextTexture');
 			this.__destroyed = true;
-			var gl:WebGLRenderingContext = ILaya.Render.isConchApp?LayaGL.instance.getDefaultCommandEncoder():WebGLContext.mainContext;
+			var gl:WebGLRenderingContext = ILaya.Render.isConchApp?(<any>LayaGL.instance).getDefaultCommandEncoder():WebGLContext.mainContext;
 			this._source && gl.deleteTexture(this._source);
 			this._source = null;
 		}		
