@@ -13,7 +13,7 @@ var supportWeakMap = !!WeakMap;
 		/**如果不支持WeakMap，则多少时间清理一次缓存，默认10分钟清理一次*/
 		 static delInterval:number = 10 * 60 * 1000;
 		/**全局WeakObject单例*/
-		 static I:WeakObject = new WeakObject();
+		 static I:WeakObject;
 		/**@private */
 		private static _keys:any = {};
 		/**@private */
@@ -23,6 +23,7 @@ var supportWeakMap = !!WeakMap;
 		
 		/**@internal */
 		 static __init__():void {
+			 WeakObject.I=new WeakObject();
 			//WeakObject.supportWeakMap = Browser.window.WeakMap != null;
 			//如果不支持，10分钟回收一次
 			if (!WeakObject.supportWeakMap) (window as any).Laya.systemTimer.loop(WeakObject.delInterval, null, WeakObject.clearCache);

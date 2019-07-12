@@ -1,10 +1,9 @@
 import { AccelerationInfo } from "./AccelerationInfo";
 import { RotationInfo } from "./RotationInfo";
-import { Laya } from "./../../../../../../core/src/Laya";
-import { Event } from "../../../../../../core/src/laya/events/Event"
-	import { EventDispatcher } from "../../../../../../core/src/laya/events/EventDispatcher"
-	import { Browser } from "../../../../../../core/src/laya/utils/Browser"
-	
+import { Browser } from "laya/utils/Browser";
+import { EventDispatcher } from "laya/events/EventDispatcher";
+import { Laya } from "Laya";
+import { Event} from	 "laya/events/Event";
 	/**
 	 * Accelerator.instance获取唯一的Accelerator引用，请勿调用构造函数。
 	 *
