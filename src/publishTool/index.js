@@ -15,9 +15,9 @@ const emiter_1 = require("./emiter");
 var BaseURL;
 // var BaseURL = emiter_1.emiter.BaseURL= "./bin/layaAir/";
 var outfile;
-var outfileAS = "./as/declare/";
-var outfileTS = "./ts_compatible/declare/";
-var outfileJS = "./js/declare/";
+var outfileAS = "./as/libs/src/";
+var outfileTS = "./ts/ts/";
+var outfileJS = "./js/ts/";
 var createAS;
 /**加载与写入计数 */
 var complete = 0;
