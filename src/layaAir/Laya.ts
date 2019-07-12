@@ -54,8 +54,6 @@ import { Mouse } from "./laya/utils/Mouse";
 import { MeshVG } from "./laya/webgl/utils/MeshVG";
 import { MeshParticle2D } from "./laya/webgl/utils/MeshParticle2D";
 import { MeshQuadTexture } from "./laya/webgl/utils/MeshQuadTexture";
-import { VertexElement } from "./laya/d3/graphics/VertexElement";
-import { VertexElementFormat } from "./laya/d3/graphics/VertexElementFormat";
 import { MeshTexture } from "./laya/webgl/utils/MeshTexture";
 
 /**
@@ -155,7 +153,7 @@ export class Laya {
 		loader = ILaya.loader = Laya.loader;
 
 		WeakObject.__init__();
-		
+
 		SceneUtils.__init();
 		Mouse.__init__();
 
@@ -177,17 +175,18 @@ export class Laya {
 
 		Utils.gStage = Laya.stage;
 		URL.rootPath = URL._basePath = Laya._getUrlPath();
+		MeshQuadTexture.__int__();
+		MeshVG.__init__();
+		MeshTexture.__init__();
 		Laya.render = new Render(0, 0, Browser.mainCanvas);
 		render = Laya.render;
 		Laya.stage.size(width, height);
 		((<any>window)).stage = Laya.stage;
 
 		WebGLContext.__init__();
-		VertexElementFormat.__init__();
-		MeshQuadTexture.__int__();
-		MeshTexture.__init__();
+
 		MeshParticle2D.__init__();
-		MeshVG.__init__();
+		
 		ShaderCompile.__init__();
 		RenderSprite.__init__();
 		KeyBoardManager.__init__();

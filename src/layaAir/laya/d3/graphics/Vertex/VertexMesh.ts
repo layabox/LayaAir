@@ -25,20 +25,29 @@ export class VertexMesh {
 	static MESH_MVPMATRIX_ROW2: number = 14;
 	static MESH_MVPMATRIX_ROW3: number = 15;
 
-	static instanceWorldMatrixDeclaration: VertexDeclaration = new VertexDeclaration(64,
-		[new VertexElement(0, VertexElementFormat.Vector4, VertexMesh.MESH_WORLDMATRIX_ROW0),
-		new VertexElement(16, VertexElementFormat.Vector4, VertexMesh.MESH_WORLDMATRIX_ROW1),
-		new VertexElement(32, VertexElementFormat.Vector4, VertexMesh.MESH_WORLDMATRIX_ROW2),
-		new VertexElement(48, VertexElementFormat.Vector4, VertexMesh.MESH_WORLDMATRIX_ROW3)]);
+	static instanceWorldMatrixDeclaration: VertexDeclaration;
 
-	static instanceMVPMatrixDeclaration: VertexDeclaration = new VertexDeclaration(64,
-		[new VertexElement(0, VertexElementFormat.Vector4, VertexMesh.MESH_MVPMATRIX_ROW0),
-		new VertexElement(16, VertexElementFormat.Vector4, VertexMesh.MESH_MVPMATRIX_ROW1),
-		new VertexElement(32, VertexElementFormat.Vector4, VertexMesh.MESH_MVPMATRIX_ROW2),
-		new VertexElement(48, VertexElementFormat.Vector4, VertexMesh.MESH_MVPMATRIX_ROW3)]);
+	static instanceMVPMatrixDeclaration: VertexDeclaration;
 
 	/**@internal */
 	private static _vertexDeclarationMap: any = {};
+
+	/**
+	 * @internal
+	 */
+	static __init__(): void {
+		VertexMesh.instanceWorldMatrixDeclaration = new VertexDeclaration(64,
+			[new VertexElement(0, VertexElementFormat.Vector4, VertexMesh.MESH_WORLDMATRIX_ROW0),
+			new VertexElement(16, VertexElementFormat.Vector4, VertexMesh.MESH_WORLDMATRIX_ROW1),
+			new VertexElement(32, VertexElementFormat.Vector4, VertexMesh.MESH_WORLDMATRIX_ROW2),
+			new VertexElement(48, VertexElementFormat.Vector4, VertexMesh.MESH_WORLDMATRIX_ROW3)]);
+
+		VertexMesh.instanceMVPMatrixDeclaration = new VertexDeclaration(64,
+			[new VertexElement(0, VertexElementFormat.Vector4, VertexMesh.MESH_MVPMATRIX_ROW0),
+			new VertexElement(16, VertexElementFormat.Vector4, VertexMesh.MESH_MVPMATRIX_ROW1),
+			new VertexElement(32, VertexElementFormat.Vector4, VertexMesh.MESH_MVPMATRIX_ROW2),
+			new VertexElement(48, VertexElementFormat.Vector4, VertexMesh.MESH_MVPMATRIX_ROW3)]);
+	}
 
 	/**
 	 * 获取顶点声明。

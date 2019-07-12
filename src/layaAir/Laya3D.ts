@@ -76,6 +76,14 @@ import { Command } from "./laya/d3/core/render/command/Command";
 import { ClassUtils } from "./laya/utils/ClassUtils";
 import { StaticPlaneColliderShape } from "./laya/d3/physics/shape/StaticPlaneColliderShape";
 import { PrimitiveMesh } from "./laya/d3/resource/models/PrimitiveMesh";
+import { verify } from "crypto";
+import { VertexMesh } from "./laya/d3/graphics/Vertex/VertexMesh";
+import { VertexElementFormat } from "./laya/d3/graphics/VertexElementFormat";
+import { VertexShurikenParticleBillboard } from "./laya/d3/graphics/Vertex/VertexShurikenParticleBillboard";
+import { VertexShurikenParticleMesh } from "./laya/d3/graphics/Vertex/VertexShurikenParticleMesh";
+import { VertexPositionTexture0 } from "./laya/d3/graphics/Vertex/VertexPositionTexture0";
+import { VertexTrail } from "./laya/d3/core/trail/VertexTrail";
+import { PixelLineVertex } from "./laya/d3/core/pixelLine/PixelLineVertex";
 
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
@@ -182,10 +190,17 @@ export class Laya3D {
 		//函数里面会有判断isConchApp
 		Laya3D.enableNative3D();
 
+		VertexElementFormat.__init__();
+		VertexMesh.__init__();
+		VertexShurikenParticleBillboard.__init__();
+		VertexShurikenParticleMesh.__init__();
+		VertexPositionTexture0.__init__();
+		VertexTrail.__init__();
+		PixelLineVertex.__init__();
 		SubMeshInstanceBatch.__init__();
 		SubMeshDynamicBatch.__init__();
 
-		Physics3D._physics3D=(window as any).Physics3D;
+		Physics3D._physics3D = (window as any).Physics3D;
 		if (Physics3D._physics3D) {
 			StaticPlaneColliderShape.__init__();
 			ColliderShape.__init__();
@@ -197,7 +212,7 @@ export class Laya3D {
 			CharacterController.__init__();
 			Rigidbody3D.__init__();
 		}
-
+		
 		Mesh.__init__();
 		PrimitiveMesh.__init__();
 		Sprite3D.__init__();
@@ -208,7 +223,8 @@ export class Laya3D {
 		TrailSprite3D.__init__();
 		PostProcess.__init__();
 		Scene3D.__init__();
-		
+		MeshRenderStaticBatchManager.__init__();
+
 		BaseMaterial.__initDefine__();
 		BlinnPhongMaterial.__initDefine__();
 		PBRStandardMaterial.__initDefine__();
@@ -223,39 +239,39 @@ export class Laya3D {
 		PixelLineMaterial.__initDefine__();
 		SkyBoxMaterial.__initDefine__();
 		ShaderInit3D.__init__();
-		
+
 		Command.__init__();
 
 		//注册类命,解析的时候需要
-		ClassUtils.regClass("Laya.BlinnPhongMaterial",BlinnPhongMaterial);
-		ClassUtils.regClass("Laya.SkyProceduralMaterial",SkyProceduralMaterial);
-		ClassUtils.regClass("Laya.PBRStandardMaterial",PBRStandardMaterial);
-		ClassUtils.regClass("Laya.PBRSpecularMaterial",PBRSpecularMaterial);
-		ClassUtils.regClass("Laya.SkyBoxMaterial",SkyBoxMaterial);
-		ClassUtils.regClass("Laya.WaterPrimaryMaterial",WaterPrimaryMaterial);
-		ClassUtils.regClass("Laya.ExtendTerrainMaterial",ExtendTerrainMaterial);
-		ClassUtils.regClass("Laya.ShurikenParticleMaterial",ShurikenParticleMaterial);
-		ClassUtils.regClass("Laya.TrailMaterial",TrailMaterial);
-		ClassUtils.regClass("Laya.PhysicsCollider",PhysicsCollider);
-		ClassUtils.regClass("Laya.CharacterController",CharacterController);
-		ClassUtils.regClass("Laya.Animator",Animator);
+		ClassUtils.regClass("Laya.BlinnPhongMaterial", BlinnPhongMaterial);
+		ClassUtils.regClass("Laya.SkyProceduralMaterial", SkyProceduralMaterial);
+		ClassUtils.regClass("Laya.PBRStandardMaterial", PBRStandardMaterial);
+		ClassUtils.regClass("Laya.PBRSpecularMaterial", PBRSpecularMaterial);
+		ClassUtils.regClass("Laya.SkyBoxMaterial", SkyBoxMaterial);
+		ClassUtils.regClass("Laya.WaterPrimaryMaterial", WaterPrimaryMaterial);
+		ClassUtils.regClass("Laya.ExtendTerrainMaterial", ExtendTerrainMaterial);
+		ClassUtils.regClass("Laya.ShurikenParticleMaterial", ShurikenParticleMaterial);
+		ClassUtils.regClass("Laya.TrailMaterial", TrailMaterial);
+		ClassUtils.regClass("Laya.PhysicsCollider", PhysicsCollider);
+		ClassUtils.regClass("Laya.CharacterController", CharacterController);
+		ClassUtils.regClass("Laya.Animator", Animator);
 
-		ClassUtils.regClass("PhysicsCollider",PhysicsCollider);//兼容
-		ClassUtils.regClass("CharacterController",CharacterController);//兼容
-		ClassUtils.regClass("Animator",Animator);//兼容
+		ClassUtils.regClass("PhysicsCollider", PhysicsCollider);//兼容
+		ClassUtils.regClass("CharacterController", CharacterController);//兼容
+		ClassUtils.regClass("Animator", Animator);//兼容
 
 
-		PixelLineMaterial.defaultMaterial=new PixelLineMaterial();
-		BlinnPhongMaterial.defaultMaterial=new BlinnPhongMaterial();
-		EffectMaterial.defaultMaterial=new EffectMaterial();
-		PBRStandardMaterial.defaultMaterial=new PBRStandardMaterial();
-		PBRSpecularMaterial.defaultMaterial=new PBRSpecularMaterial();
-		UnlitMaterial.defaultMaterial=new UnlitMaterial();
-		ShurikenParticleMaterial.defaultMaterial=new ShurikenParticleMaterial();
-		TrailMaterial.defaultMaterial=new TrailMaterial();
-		SkyProceduralMaterial.defaultMaterial=new SkyProceduralMaterial();
-		SkyBoxMaterial.defaultMaterial=new SkyBoxMaterial();
-		WaterPrimaryMaterial.defaultMaterial=new WaterPrimaryMaterial();
+		PixelLineMaterial.defaultMaterial = new PixelLineMaterial();
+		BlinnPhongMaterial.defaultMaterial = new BlinnPhongMaterial();
+		EffectMaterial.defaultMaterial = new EffectMaterial();
+		PBRStandardMaterial.defaultMaterial = new PBRStandardMaterial();
+		PBRSpecularMaterial.defaultMaterial = new PBRSpecularMaterial();
+		UnlitMaterial.defaultMaterial = new UnlitMaterial();
+		ShurikenParticleMaterial.defaultMaterial = new ShurikenParticleMaterial();
+		TrailMaterial.defaultMaterial = new TrailMaterial();
+		SkyProceduralMaterial.defaultMaterial = new SkyProceduralMaterial();
+		SkyBoxMaterial.defaultMaterial = new SkyBoxMaterial();
+		WaterPrimaryMaterial.defaultMaterial = new WaterPrimaryMaterial();
 
 		PixelLineMaterial.defaultMaterial.lock = true;//todo:
 		BlinnPhongMaterial.defaultMaterial.lock = true;

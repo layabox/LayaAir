@@ -14,15 +14,9 @@ export class VertexTrail implements IVertex {
 	static TRAIL_TEXTURECOORDINATE0X: number = 4;
 	static TRAIL_COLOR: number = 5;
 
-	private static _vertexDeclaration1: VertexDeclaration = new VertexDeclaration(32,
-		[new VertexElement(0, VertexElementFormat.Vector3, VertexTrail.TRAIL_POSITION0),
-		new VertexElement(12, VertexElementFormat.Vector3, VertexTrail.TRAIL_OFFSETVECTOR),
-		new VertexElement(24, VertexElementFormat.Single, VertexTrail.TRAIL_TIME0),
-		new VertexElement(28, VertexElementFormat.Single, VertexTrail.TRAIL_TEXTURECOORDINATE0Y)]);
+	private static _vertexDeclaration1;
 
-	private static _vertexDeclaration2: VertexDeclaration = new VertexDeclaration(20,
-		[new VertexElement(0, VertexElementFormat.Single, VertexTrail.TRAIL_TEXTURECOORDINATE0X),
-		new VertexElement(4, VertexElementFormat.Color, VertexTrail.TRAIL_COLOR)]);
+	private static _vertexDeclaration2;
 
 	static get vertexDeclaration1(): VertexDeclaration {
 		return VertexTrail._vertexDeclaration1;
@@ -34,6 +28,20 @@ export class VertexTrail implements IVertex {
 
 	get vertexDeclaration(): VertexDeclaration {
 		return VertexTrail._vertexDeclaration1;
+	}
+
+	/**
+	 * @internal
+	 */
+	static __init__(): void {
+		VertexTrail._vertexDeclaration1 = new VertexDeclaration(32,
+			[new VertexElement(0, VertexElementFormat.Vector3, VertexTrail.TRAIL_POSITION0),
+			new VertexElement(12, VertexElementFormat.Vector3, VertexTrail.TRAIL_OFFSETVECTOR),
+			new VertexElement(24, VertexElementFormat.Single, VertexTrail.TRAIL_TIME0),
+			new VertexElement(28, VertexElementFormat.Single, VertexTrail.TRAIL_TEXTURECOORDINATE0Y)]);
+		VertexTrail._vertexDeclaration2 = new VertexDeclaration(20,
+			[new VertexElement(0, VertexElementFormat.Single, VertexTrail.TRAIL_TEXTURECOORDINATE0X),
+			new VertexElement(4, VertexElementFormat.Color, VertexTrail.TRAIL_COLOR)]);
 	}
 
 	constructor() {

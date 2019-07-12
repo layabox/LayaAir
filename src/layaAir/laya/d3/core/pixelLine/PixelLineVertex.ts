@@ -7,12 +7,19 @@ import { VertexElementFormat } from "../../graphics/VertexElementFormat"
  * @author 
  */
 export class PixelLineVertex {
-	private static _vertexDeclaration: VertexDeclaration = new VertexDeclaration(28,
-		[new VertexElement(0, VertexElementFormat.Vector3, VertexMesh.MESH_POSITION0),
-		new VertexElement(12, VertexElementFormat.Vector4, VertexMesh.MESH_COLOR0)]);
+	private static _vertexDeclaration: VertexDeclaration;
 
 	static get vertexDeclaration(): VertexDeclaration {
 		return PixelLineVertex._vertexDeclaration;
+	}
+
+	/**
+	 * @internal
+	 */
+	static __init__(): void {
+		PixelLineVertex._vertexDeclaration = new VertexDeclaration(28,
+			[new VertexElement(0, VertexElementFormat.Vector3, VertexMesh.MESH_POSITION0),
+			new VertexElement(12, VertexElementFormat.Vector4, VertexMesh.MESH_COLOR0)]);
 	}
 
 	get vertexDeclaration(): VertexDeclaration {

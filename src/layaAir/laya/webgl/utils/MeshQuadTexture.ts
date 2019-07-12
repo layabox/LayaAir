@@ -14,10 +14,10 @@ export class MeshQuadTexture extends Mesh2D {
 	//private static var _num;
 
 	static __int__(): void {
-		var gl: WebGLRenderingContext = LayaGL.instance;
-		MeshQuadTexture._fixattriInfo = [gl.FLOAT, 4, 0,	//pos,uv
-		gl.UNSIGNED_BYTE, 4, 16,	//color alpha
-		gl.UNSIGNED_BYTE, 4, 20];
+		//var gl: WebGLRenderingContext = LayaGL.instance;
+		MeshQuadTexture._fixattriInfo = [5126/*gl.FLOAT*/, 4, 0,	//pos,uv
+		5121/*gl.UNSIGNED_BYTE*/, 4, 16,	//color alpha
+		5121/*gl.UNSIGNED_BYTE*/, 4, 20];
 	}
 
 

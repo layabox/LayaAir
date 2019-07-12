@@ -5,6 +5,7 @@ import { ShaderCompile } from "../utils/ShaderCompile";
 import { WebGLContext } from "../WebGLContext";
 import { BaseShader } from "./BaseShader";
 import { ShaderValue } from "./ShaderValue";
+import { LayaGL } from "../../layagl/LayaGL";
 
 export class Shader extends BaseShader {
 
@@ -514,7 +515,7 @@ export class Shader extends BaseShader {
 		var CTX: any = WebGLContext;
 
 		if (CTX._activeTextures[0] !== value) {
-			CTX.bindTexture(WebGLContext.mainContext, CTX.TEXTURE_2D, value);
+			CTX.bindTexture(WebGLContext.mainContext, LayaGL.instance.TEXTURE_2D, value);
 			CTX._activeTextures[0] = value;
 		}
 	}

@@ -15,7 +15,7 @@ export class ScreenTriangle extends Resource {
 	/** @internal */
 	static SCREENTRIANGLE_POSITION_UV: number = 0;
 	/** @internal */
-	private static _vertexDeclaration: VertexDeclaration = new VertexDeclaration(16, [new VertexElement(0, VertexElementFormat.Vector4, ScreenTriangle.SCREENTRIANGLE_POSITION_UV)]);
+	private static _vertexDeclaration: VertexDeclaration;
 	/** @internal */
 	private static _vertices: Float32Array = new Float32Array([-1, -1, 0, 1, -1, 3, 0, -1, 3, -1, 2, 1]);
 	/** @internal */
@@ -28,6 +28,7 @@ export class ScreenTriangle extends Resource {
 	 * @internal
 	 */
 	static __init__(): void {
+		ScreenTriangle._vertexDeclaration = new VertexDeclaration(16, [new VertexElement(0, VertexElementFormat.Vector4, ScreenTriangle.SCREENTRIANGLE_POSITION_UV)]);
 		ScreenTriangle.instance = new ScreenTriangle();
 		ScreenTriangle.instance.lock = true;
 	}
@@ -46,7 +47,7 @@ export class ScreenTriangle extends Resource {
 	 */
 	constructor() {
 		super();
-		var gl:WebGLRenderingContext=LayaGL.instance;
+		var gl: WebGLRenderingContext = LayaGL.instance;
 		this._vertexBuffer = new VertexBuffer3D(12 * 4, gl.STATIC_DRAW, false);
 		this._vertexBuffer.vertexDeclaration = ScreenTriangle._vertexDeclaration;
 		this._vertexBuffer.setData(ScreenTriangle._vertices.buffer);
@@ -68,7 +69,7 @@ export class ScreenTriangle extends Resource {
 	 * @internal
 	 */
 	render(): void {
-		var gl:WebGLRenderingContext=LayaGL.instance;
+		var gl: WebGLRenderingContext = LayaGL.instance;
 		this._bufferState.bind();
 		gl.drawArrays(gl.TRIANGLES, 0, 3);
 		Stat.renderBatches++;
@@ -78,7 +79,7 @@ export class ScreenTriangle extends Resource {
 	 * @internal
 	 */
 	renderInvertUV(): void {
-		var gl:WebGLRenderingContext=LayaGL.instance;
+		var gl: WebGLRenderingContext = LayaGL.instance;
 		this._bufferStateInvertUV.bind();
 		gl.drawArrays(gl.TRIANGLES, 0, 3);
 		Stat.renderBatches++;

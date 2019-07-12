@@ -16,9 +16,9 @@ export class MeshTexture extends Mesh2D {
 
 	static __init__(): void {
 		var gl:WebGLRenderingContext=LayaGL.instance;
-		MeshTexture._fixattriInfo = [gl.FLOAT, 4, 0,	//pos,uv
-		gl.UNSIGNED_BYTE, 4, 16,	//color alpha
-		gl.UNSIGNED_BYTE, 4, 20];
+		MeshTexture._fixattriInfo = [5126/*gl.FLOAT*/, 4, 0,	//pos,uv
+		5121/*gl.UNSIGNED_BYTE*/, 4, 16,	//color alpha
+		5121/*gl.UNSIGNED_BYTE*/, 4, 20];
 	}
 
 	constructor() {

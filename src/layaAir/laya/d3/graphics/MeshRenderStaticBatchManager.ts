@@ -18,9 +18,16 @@ import { SingletonList } from "../component/SingletonList";
  */
 export class MeshRenderStaticBatchManager extends StaticBatchManager {
 	/** @internal */
-	static _verDec: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,COLOR,UV,UV1,TANGENT");
+	static _verDec: VertexDeclaration;
 	/** @internal */
 	static instance: MeshRenderStaticBatchManager = new MeshRenderStaticBatchManager();
+
+	/**
+	 * @internal
+	 */
+	static __init__(): void {
+		MeshRenderStaticBatchManager._verDec = VertexMesh.getVertexDeclaration("POSITION,NORMAL,COLOR,UV,UV1,TANGENT");
+	}
 
 	/**@internal */
 	_opaqueBatchMarks: any[] = [];
