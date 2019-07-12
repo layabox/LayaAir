@@ -102,8 +102,7 @@ import { Mouse } from "./laya/utils/Mouse";
 			if (Laya._isinit) return;
 			Laya._isinit = true;
             ArrayBuffer.prototype.slice || (ArrayBuffer.prototype.slice = Laya._arrayBufferSlice);
-			
-			
+			Browser.__init__();
             // 创建主画布
 			//这个其实在Render中感觉更合理，但是runtime要求第一个canvas是主画布，所以必须在下面的那个离线画布之前
 			var mainCanv:HTMLCanvas = Browser.mainCanvas = new HTMLCanvas(true);                                                                   
@@ -149,7 +148,7 @@ import { Mouse } from "./laya/utils/Mouse";
             loader = ILaya.loader = Laya.loader;
 
 			WeakObject.__init__();
-			Browser.__init__();
+			
 			SceneUtils.__init();
 			Mouse.__init__();
 			
