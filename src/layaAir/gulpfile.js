@@ -30,7 +30,7 @@ var packsDef={
             './laya/webgl/**/*.*',
             './laya/effect/**/*.*'
         ],
-        'out':'../../build/js/laya.core.js'
+        'out':'../../build/js/libs/laya.core.js'
     },
     'd3':{
         'input':[
@@ -39,45 +39,45 @@ var packsDef={
             './ILaya3D.ts',
             './Laya3D.ts'
         ],
-        'out':'../../build/js/laya.d3.js'
+        'out':'../../build/js/libs/laya.d3.js'
     },
     'device':{
         'input':[
             './laya/device/**/*.*'
         ],
-        'out':'../../build/js/laya.device.js'
+        'out':'../../build/js/libs/laya.device.js'
     },
     'html':{
         'input':[
             './laya/html/**/*.*'
         ],
-        'out':'../../build/js/laya.html.js' 
+        'out':'../../build/js/libs/laya.html.js' 
     },
     'particle':{
         'input':[
             './laya/particle/**/*.*'
         ],
-        'out':'../../build/js/laya.particle.js'
+        'out':'../../build/js/libs/laya.particle.js'
     },
 
     'physics':{
         'input':[
             './laya/physics/**/*.*'
         ],
-        'out':'../../build/js/laya.physics.js' 
+        'out':'../../build/js/libs/laya.physics.js' 
     },
     'ui':{
         'input':[
             './laya/ui/**/*.*'
         ],
-        'out':'../../build/js/laya.ui.js'
+        'out':'../../build/js/libs/laya.ui.js'
     },
 
     'ani':{
         'input':[
             './laya/ani/**/*.*'
         ],
-        'out':'../../build/js/laya.ani.js'
+        'out':'../../build/js/libs/laya.ani.js'
     }
 
 };
@@ -165,27 +165,27 @@ function myMultiInput(){
 gulp.task('CopyJSLibsToJS', () => {
 	return gulp.src([
 		'./jsLibs/*.js'], )
-		.pipe(gulp.dest('../../build/js'));
+		.pipe(gulp.dest('../../build/js/libs'));
 });
 
 gulp.task('CopyJSFileToTSCompatible', () => {
 	return gulp.src([
-		'../../build/js/**/*.js'], )
-		.pipe(gulp.dest('../../build/ts_compatible'));
+		'../../build/js/libs/**/*.js'], )
+		.pipe(gulp.dest('../../build/ts/libs'));
 });
 
 
 gulp.task('CopyJSFileToAS', () => {
 	return gulp.src([
-		'../../build/js/**/*.js', '!./declare/*ts'], )
-		.pipe(gulp.dest('../../build/as'));
+		'../../build/js/libs/**/*.js', '!./declare/*ts'], )
+		.pipe(gulp.dest('../../build/as/jslibs'));
 });
 
 gulp.task('CopyTSFileToTS', () => {
 	return gulp.src([
 		'./*.ts',
         './**/*.ts', './**/*.js', '!gulpfile.js'], )
-		.pipe(gulp.dest('../../build/ts/'));
+		.pipe(gulp.dest('../../build/ts_new/'));
 });
 
 

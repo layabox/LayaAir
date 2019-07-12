@@ -58,4 +58,4 @@ import { ILaya } from "../../ILaya";
 	}
 
 
-ILaya.regClass(Styles);    
+//ILaya.regClass(Styles);    
