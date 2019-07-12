@@ -114,7 +114,7 @@ import { Sprite } from "../display/Sprite"
 		//TODO:coverage
 		 static getBindFun(value:string):Function {
 			 if( !UIUtils._funMap){
-				 UIUtils._funMap = new WeakObject():
+				 UIUtils._funMap = new WeakObject();
 			 }
 			var fun:Function = UIUtils._funMap.get(value);
 			if (fun == null) {
