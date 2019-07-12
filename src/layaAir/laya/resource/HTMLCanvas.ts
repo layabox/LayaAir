@@ -3,6 +3,7 @@ import { Texture } from "./Texture";
 import { Texture2D } from "./Texture2D";
 import { Context } from "./Context";
 import { ILaya } from "../../ILaya";
+import { Browser } from "../utils/Browser";
 
 
 	/**
@@ -32,7 +33,7 @@ import { ILaya } from "../../ILaya";
 		constructor(createCanvas:boolean = false){
 			super();
             if(createCanvas )	//webgl模式下不建立。除非强制指，例如绘制文字部分
-				this._source = document.createElement("canvas");
+				this._source = Browser.createElement("canvas");
 			else {
 				this._source = this;
 			}
@@ -122,7 +123,7 @@ import { ILaya } from "../../ILaya";
 				this._height = h;
 				this._setCPUMemory(w * h * 4);
 				this._ctx && this._ctx.size && this._ctx.size(w, h);
-				if(this._source && this._source instanceof HTMLCanvasElement){
+				if(this._source){// && this._source instanceof HTMLCanvasElement){
                     this._source.height = h, this._source.width = w
                 }
 				if (this._texture)
