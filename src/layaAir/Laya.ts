@@ -362,7 +362,7 @@ if (libs) {
 }
 
 
-//(window as any).Laya=Laya;
+(window as any).Laya=Laya;// 给tsc模式下用
 
 function regClassToEngine(cls:any){
     if(cls.name){
