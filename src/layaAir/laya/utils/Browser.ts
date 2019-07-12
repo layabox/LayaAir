@@ -99,12 +99,15 @@ import { ILaya } from "../../ILaya";
          
 		/**@internal */
 		 static __init__():any {
-             var Laya:any = (window as any).Laya;
+			var Laya:any = ILaya.Laya;
+
+			if(!Laya)return;
+
 			if (Browser._window) return Browser._window;
 			var win:any = Browser._window = window;
 			var doc:any = Browser._document = win.document;
 			var u:string = Browser.userAgent = win.navigator.userAgent;
-			
+
 			//微信小游戏
 			if (u.indexOf("MiniGame") > -1 && "wx" in Browser.window) {
 				if (!Laya["MiniAdpter"]) {

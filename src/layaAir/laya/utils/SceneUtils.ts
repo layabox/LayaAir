@@ -10,13 +10,19 @@ import { Const } from "../Const"
 	 */
 	export class SceneUtils {
 		/**@private */
-		private static _funMap:WeakObject = new WeakObject();
+		private static _funMap:WeakObject;
 		/**@private */
 		private static _parseWatchData:RegExp = /\${(.*?)}/g;
 		/**@private */
 		private static _parseKeyWord:RegExp = /[a-zA-Z_][a-zA-Z0-9_]*(?:(?:\.[a-zA-Z_][a-zA-Z0-9_]*)+)/g;
 		/**@internal */
 		 static _sheet:any;
+
+
+		static __init():void
+		 {
+			SceneUtils._funMap= new WeakObject();
+		 }
 		
 		/**
 		 * @private 根据字符串，返回函数表达式
