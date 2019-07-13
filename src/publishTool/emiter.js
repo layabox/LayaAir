@@ -42,6 +42,8 @@ class emiter {
                 this.outString = "package " + _url.replace(new RegExp("\\\\", "g"), ".") + " {\r\n" + this.outString + "\r\n}\r\n";
             }
         }
+        if (this.outString == "" && this.copyTSdata == "")
+            return "";
         //对ts构成重写
         if (_url != "") {
             let packageUrl = _url.replace(new RegExp("\\\\", "g"), ".");
@@ -266,8 +268,11 @@ class emiter {
         if (node.parameters) {
             for (let i = 0; i < node.parameters.length; i++) {
                 let param = node.parameters[i];
-                paramstr += (i ? "," : "") + param.name.getText() + ":" + this.emitType(param.type) + (param.questionToken ? " = null" : "");
-                tsparam += (i ? "," : "") + param.name.getText() + (param.questionToken ? "?" : "") + ":" + this.emitTsType(param.type);
+                let isdotdotdot = false;
+                if(param.dotDotDotToken)
+                    isdotdotdot = true;
+                paramstr += (i ? "," : "") + (isdotdotdot?"...":"") + param.name.getText() + (isdotdotdot?"":( ":" + this.emitType(param.type) + (param.questionToken ? " = null" : "")));
+                tsparam += (i ? "," : "") + (isdotdotdot?"...":"") + param.name.getText() + (param.questionToken ? "?" : "") + ":" + this.emitTsType(param.type);
             }
         }
         methodstr += node.name.getText() + "(" + paramstr + "):" + this.emitType(node.type) + "{}";
