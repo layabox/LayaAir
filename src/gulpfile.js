@@ -170,18 +170,18 @@ function myMultiInput(){
 }
 
 gulp.task('ModifierJs', () => {
-	// gulp.src([
-    //     '../build/js/libs/laya.core.js'], )
-    //     .pipe(through.obj(function (file, encode, cb) {
-    //         var srcContents = file.contents.toString();
-    //         var destContents = srcContents.replace(/var Laya /, "windows.laya");
-    //         // 再次转为Buffer对象，并赋值给文件内容
-    //         file.contents = new Buffer(destContents)
-    //         // 以下是例行公事
-    //         this.push(file)
-    //         cb()
-    //     }))
-    //     .pipe(gulp.dest('../build/js/libs/'));
+	    gulp.src([
+            '../build/js/libs/laya.core.js'], )
+            .pipe(through.obj(function (file, encode, cb) {
+                var srcContents = file.contents.toString();
+                var destContents = srcContents.replace(/var Laya /, "windows.laya");
+                // 再次转为Buffer对象，并赋值给文件内容
+                file.contents = new Buffer(destContents)
+                // 以下是例行公事
+                this.push(file)
+            cb()
+        }))
+        .pipe(gulp.dest('../build/js/libs/'));
         return gulp.src([
             '../build/js/libs/laya.wxmini.js'], )
             .pipe(through.obj(function (file, encode, cb) {
@@ -514,4 +514,4 @@ gulp.task('buildJS', async function () {
 
   });
 
-  gulp.task('build', gulp.series('buildJS','buildJS2','ModifierJs', 'CopyJSLibsToJS','CopyTSFileToTS','CopyJSFileToAS','CopyTSJSLibsFileToTS', 'CopyJSFileToTSCompatible'));
+  gulp.task('build', gulp.series('buildJS','buildJS2','ModifierJs', 'CopyJSLibsToJS','CopyTSFileToTS','CopyJSFileToAS','CopyTSJSLibsFileToTS', 'CopyJSFileToTSCompatible','CopyDTS'));
