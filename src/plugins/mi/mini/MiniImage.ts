@@ -1,11 +1,10 @@
 import { KGMiniAdapter } from "./KGMiniAdapter";
-import { MiniFileMgr } from "./../../../../../../openData/src/laya/wx/mini/MiniFileMgr";
-import { Event } from "../../../../../../core/src/laya/events/Event"
-	import { URL } from "../../../../../../core/src/laya/net/URL"
-	import { HTMLImage } from "../../../../../../core/src/laya/resource/HTMLImage"
-	import { Browser } from "../../../../../../core/src/laya/utils/Browser"
-	import { Handler } from "../../../../../../core/src/laya/utils/Handler"
-	
+import { MiniFileMgr } from "./MiniFileMgr";
+import { Handler } from "laya/utils/Handler";
+import { Browser } from "laya/utils/Browser";
+import { HTMLImage } from "laya/resource/HTMLImage";
+import  {URL} from "laya/net/URL";	
+import {Event} from "laya/events/Event";
 	/** @private **/
 	export class MiniImage {
 		
@@ -26,14 +25,14 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 				url = URL.formatURL(url);
 			}else
 			{
-				if (url.indexOf("http://") != -1 || url.indexOf("https://") != -1)
+				if (url.indexOf("http://usr/") == -1&&(url.indexOf("http://") != -1 || url.indexOf("https://") != -1))
 				{
 					if(MiniFileMgr.loadPath != "")
 					{
 						url = url.split(MiniFileMgr.loadPath)[1];//去掉http头
 					}else
 					{
-						var tempStr:string = URL.rootPath != "" ? URL.rootPath : URL.basePath;
+						var tempStr:string = URL.rootPath != "" ? URL.rootPath : URL._basePath;
 						var tempUrl:string = url;
 						if(tempStr != "")
 							url = url.split(tempStr)[1];//去掉http头
@@ -42,6 +41,7 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 							url = tempUrl;
 						}
 					}
+					
 				}
 				if (KGMiniAdapter.subNativeFiles && KGMiniAdapter.subNativeheads.length == 0)
 				{
@@ -66,8 +66,9 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 					}
 				}
 			}
-			if (!MiniFileMgr.getFileInfo(url)) {
-				if (url.indexOf("http://") != -1 || url.indexOf("https://") != -1)
+			if (!MiniFileMgr.getFileInfo(url)) 
+			{
+				if (url.indexOf('http://usr/') == -1&&(url.indexOf("http://") != -1 || url.indexOf("https://") != -1))
 				{
 					//小游戏在子域里不能远端加载图片资源
 					if(KGMiniAdapter.isZiYu)
@@ -110,6 +111,7 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 		 * @param tempFilePath 加载的临时地址
 		 */
 		private static onCreateImage(sourceUrl:string, thisLoader:any, isLocal:boolean = false,tempFilePath:string= ""):void {
+			
 			var fileNativeUrl:string;
 			if(KGMiniAdapter.autoCacheFile)
 			{
@@ -144,7 +146,8 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 			}
 			if (thisLoader._imgCache == null)
 				thisLoader._imgCache = {};
-			
+				
+			//sourceUrl = URL.formatURL(url);
 			var image:any;
 			function clear():void {
 				var img:any = thisLoader._imgCache[fileNativeUrl];
@@ -154,6 +157,7 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 					delete thisLoader._imgCache[fileNativeUrl];
 				}
 			}
+			
 			var onerror:Function = function():void {
 				clear();
 				thisLoader.event(Event.ERROR, "Load image failed");
@@ -161,6 +165,8 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 			if (thisLoader._type == "nativeimage") {
 				var onload:Function = function():void {
 					clear();
+					//xiaosong20190301
+					//thisLoader._url = URL.formatURL(thisLoader._url);
 					thisLoader.onLoaded(image);
 				};
 				image = new Browser.window.Image();
@@ -173,9 +179,12 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 			} else {
 				var imageSource:any = new Browser.window.Image();
 				onload = function():void {
+					//xiaosong20190301
+					//thisLoader._url = URL.formatURL(thisLoader._url);
 					image = HTMLImage.create(imageSource.width, imageSource.height);
 					image.loadImageSource(imageSource, true);
 					image._setCreateURL(fileNativeUrl);
+//					image._setUrl(fileNativeUrl);
 					clear();
 					thisLoader.onLoaded(image);
 				};
@@ -187,5 +196,6 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 			}
 		}
 	}
+
 
 

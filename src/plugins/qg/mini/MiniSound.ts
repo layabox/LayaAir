@@ -1,12 +1,11 @@
+import { EventDispatcher } from "laya/events/EventDispatcher";
 import { QGMiniAdapter } from "./QGMiniAdapter";
-import { MiniFileMgr } from "./../../../../../../openData/src/laya/wx/mini/MiniFileMgr";
-import { MiniSoundChannel } from "./../../../../../bd/src/laya/bd/mini/MiniSoundChannel";
-import { Event } from "../../../../../../core/src/laya/events/Event"
-	import { EventDispatcher } from "../../../../../../core/src/laya/events/EventDispatcher"
-	import { SoundManager } from "../../../../../../core/src/laya/media/SoundManager"
-	import { URL } from "../../../../../../core/src/laya/net/URL"
-	import { Handler } from "../../../../../../core/src/laya/utils/Handler"
-	
+import { MiniFileMgr } from "./MiniFileMgr";
+import { Handler } from "laya/utils/Handler";
+import { MiniSoundChannel } from "./MiniSoundChannel";
+import { SoundManager } from "laya/media/SoundManager";
+import { Event } from "laya/events/Event";
+import { URL } from "laya/net/URL";	
 	/** @private **/
 	export class MiniSound extends EventDispatcher {
 		/**@private **/
@@ -32,12 +31,13 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 		
 		constructor(){super();
 
+			//_sound = _createSound();
 		}
 		
 		/** @private **/
 		private static _createSound():any {
 			MiniSound._id++;
-			return QGMiniAdapter.window.qg.createInnerAudioContext();
+			return QGMiniAdapter.window.wx.createInnerAudioContext();
 		}
 		
 		/**
@@ -58,7 +58,7 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 						url = url.split(MiniFileMgr.loadPath)[1];//去掉http头
 					}else
 					{
-						var tempStr:string = URL.rootPath != "" ? URL.rootPath : URL.basePath;
+						var tempStr:string = URL.rootPath != "" ? URL.rootPath : URL._basePath;
 						if(tempStr != "")
 							url = url.split(tempStr)[1];//去掉http头
 					}
@@ -82,7 +82,7 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 				{
                     if (MiniFileMgr.isLocalNativeFile(url))
 					{
-						tempStr = URL.rootPath != "" ? URL.rootPath : URL.basePath;
+						tempStr = URL.rootPath != "" ? URL.rootPath : URL._basePath;
                         var tempUrl:string = url;
                         if(tempStr != "")
                             url = url.split(tempStr)[1];//去掉http头
@@ -127,40 +127,44 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 		}
 		
 		/**@private **/
-		private onDownLoadCallBack(sourceUrl:string,errorCode:number):void
+		private onDownLoadCallBack(sourceUrl:string,errorCode:number,tempFilePath:string = null):void
 		{
 			if (!errorCode)
 			{
 				var fileNativeUrl:string;
 				if(QGMiniAdapter.autoCacheFile)
 				{
-					if (MiniFileMgr.isLocalNativeFile(sourceUrl)) {
-						var tempStr:string = URL.rootPath != "" ? URL.rootPath : URL.basePath;
-						var tempUrl:string = sourceUrl;
-						if(tempStr != "" && (sourceUrl.indexOf("http://") != -1 || sourceUrl.indexOf("https://") != -1))
-							fileNativeUrl = sourceUrl.split(tempStr)[1];//去掉http头
-						if(!fileNativeUrl)
-						{
-							fileNativeUrl = tempUrl;
-						}
-					}else
-					{
-						var fileObj:any = MiniFileMgr.getFileInfo(sourceUrl);
-						if(fileObj && fileObj.md5)
-						{
-							var fileMd5Name:string = fileObj.md5;
-							fileNativeUrl = MiniFileMgr.getFileNativePath(fileMd5Name);
+					if(!tempFilePath){
+						if (MiniFileMgr.isLocalNativeFile(sourceUrl)) {
+							var tempStr:string = URL.rootPath != "" ? URL.rootPath : URL._basePath;
+							var tempUrl:string = sourceUrl;
+							if(tempStr != "" && (sourceUrl.indexOf("http://") != -1 || sourceUrl.indexOf("https://") != -1))
+								fileNativeUrl = sourceUrl.split(tempStr)[1];//去掉http头
+							if(!fileNativeUrl)
+							{
+								fileNativeUrl = tempUrl;
+							}
 						}else
 						{
-							fileNativeUrl = sourceUrl;
+							var fileObj:any = MiniFileMgr.getFileInfo(sourceUrl);
+							if(fileObj && fileObj.md5)
+							{
+								var fileMd5Name:string = fileObj.md5;
+								fileNativeUrl = MiniFileMgr.getFileNativePath(fileMd5Name);
+							}else
+							{
+								fileNativeUrl = sourceUrl;
+							}
 						}
+					}else{
+						fileNativeUrl = tempFilePath;
 					}
 					this._sound = MiniSound._createSound();
 					this._sound.src = this.url =  fileNativeUrl;
 				}else
 				{
 					this._sound = MiniSound._createSound();
-					this._sound.src = sourceUrl;
+					this._sound.src = this.url = sourceUrl;
 				}
 				
 				this._sound.onCanplay(MiniSound.bindToThis(this.onCanPlay,this));
@@ -193,6 +197,7 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 		{
 			this.loaded = true;
 			this.event(Event.COMPLETE);
+			//_audioCache[this.readyUrl] = this;
 			this._sound.offCanplay(null);
 		}
 		
@@ -243,7 +248,7 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 			{
 				tSound.src = this.url;
 			}
-			var channel:MiniSoundChannel = new MiniSoundChannel(tSound,this);
+			var channel:any = new MiniSoundChannel(tSound,this);
 			channel.url = this.url;
 			channel.loops = loops;
 			channel.loop = (loops === 0 ? true : false);
@@ -277,6 +282,12 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 					ad =null;
 				}
 				delete MiniSound._audioCache[this.readyUrl];
+			}
+			if(this._sound)
+			{
+				this._sound.destroy();
+				this._sound = null;
+				this.readyUrl = this.url = null;
 			}
 		}
 	}

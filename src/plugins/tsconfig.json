@@ -9,14 +9,11 @@
         {"path":"../layaAir/"}
     ],
     "exclude": [
-        "bd",
         "device",
         "debug",
         "map",
-        "mi",
         "pathfinding",
-        "qg",
-        "vv"
+        "vv2"
     ]
 
 }

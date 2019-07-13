@@ -1,149 +1,218 @@
+import { EventDispatcher } from "laya/events/EventDispatcher";
+import { MiniFileMgr } from "./MiniFileMgr";
 import { BMiniAdapter } from "./BMiniAdapter";
-import { MiniFileMgr } from "./../../../../../../openData/src/laya/wx/mini/MiniFileMgr";
-import { Event } from "../../../../../../core/src/laya/events/Event"
-	import { EventDispatcher } from "../../../../../../core/src/laya/events/EventDispatcher"
-	import { Loader } from "../../../../../../core/src/laya/net/Loader"
-	import { URL } from "../../../../../../core/src/laya/net/URL"
-	import { Handler } from "../../../../../../core/src/laya/utils/Handler"
-	import { Utils } from "../../../../../../core/src/laya/utils/Utils"
-	
+import { Handler } from "laya/utils/Handler";
+import { Loader } from "laya/net/Loader";
+import { SoundManager } from "laya/media/SoundManager";
+import { Utils } from "laya/utils/Utils";
+import { Sound } from "laya/media/Sound";
+import { URL } from "laya/net/URL";	
+import { Event } from "laya/events/Event";
 	/** @private **/
 	export class MiniLoader  extends EventDispatcher  {
-		/**@private 加载文件列表**/
-		private static _fileTypeArr:any[] = ['png', 'jpg', 'bmp', 'jpeg', 'gif'];
-		
-		constructor(){super();
+		constructor(){
+			super();
+		}
 
-		}
-		
 		/**
-		 * @private 
+		 * @private
+		 * @param type 
 		 * @param url
-		 * @param type
-		 * @param cache
-		 * @param group
-		 * @param ignoreCache
 		 */
-		private load(url:string, type:string = null, cache:boolean = true, group:string = null, ignoreCache:boolean = false):void {
+		_loadResourceFilter(type: string, url: string): void {
 			var thisLoader:any = this;
-			thisLoader._url = url;
-			if (!url)
+			
+			//url转义处理
+			if (url.indexOf("http://usr/") == -1&&(url.indexOf("http://") != -1 || url.indexOf("https://") != -1))
 			{
-				thisLoader.onLoaded(null);
-				return;
-			}
-			url = URL.customFormat(url);
-			if (url.indexOf("data:image") === 0) thisLoader._type = type = Loader.IMAGE;
-			else {
-				thisLoader._type = type || (type = Loader.getTypeFromUrl(thisLoader._url));
-			}
-			thisLoader._cache = cache;
-			thisLoader._data = null;
-			
-			if (!ignoreCache && Loader.loadedMap[URL.formatURL(url)]) {
-				thisLoader._data = Loader.loadedMap[URL.formatURL(url)];
-				this.event(Event.PROGRESS, 1);
-				this.event(Event.COMPLETE, thisLoader._data);
-				return;
-			}
-			
-			//如果自定义了解析器，则自己解析
-			if (Loader.parserMap[type] != null) {
-				thisLoader._customParse = true;
-				if (Loader.parserMap[type] instanceof Handler) Loader.parserMap[type].runWith(this);
-				else Loader.parserMap[type].call(null, this);
-				return;
-			}
-			var contentType:string;
-			switch (type) {
-				case Loader.ATLAS: 
-				case Loader.PREFAB: 
-				case Loader.PLF: 
-					contentType = Loader.JSON;
-					break;
-				case Loader.FONT: 
-					contentType = Loader.XML;
-					break;
-				case Loader.PLFB:
-					contentType = Loader.BUFFER;
-					break;
-				default: 
-					contentType = type;
-			}
-			if (Loader.preLoadedMap[URL.formatURL(url)]) {
-				thisLoader.onLoaded(Loader.preLoadedMap[URL.formatURL(url)]);
-				return;
-			} 
-			var encoding:string = BMiniAdapter.getUrlEncode(url,contentType);
-			var urlType:string = Utils.getFileExtension(url);
-			if ((MiniLoader._fileTypeArr.indexOf(urlType) != -1)) {
-				//图片通过miniImage去加载
-				BMiniAdapter.EnvConfig.load.call(this, url, type, cache, group, ignoreCache);
-			} else {
-				//如果是子域就直接去缓存里检出子域
-				if(BMiniAdapter.isZiYu && MiniFileMgr.ziyuFileData[url])
+				if(MiniFileMgr.loadPath != "")
 				{
-					var tempData:any = MiniFileMgr.ziyuFileData[url];
-					thisLoader.onLoaded(tempData);
-					return;
+					url = url.split(MiniFileMgr.loadPath)[1];//去掉http头
+				}else
+				{
+					var tempStr:string = URL.rootPath != "" ? URL.rootPath : URL._basePath;
+					var tempUrl:string = url;
+					if(tempStr != "")
+						url = url.split(tempStr)[1];//去掉http头
+					if(!url)
+					{
+						url = tempUrl;
+					}
 				}
-				if (!MiniFileMgr.getFileInfo(url)) {
-					if (MiniFileMgr.isLocalNativeFile(url)) {
-						
-						if (BMiniAdapter.subNativeFiles && BMiniAdapter.subNativeheads.length == 0)
-						{
-							for (var key  in BMiniAdapter.subNativeFiles)
-							{
-								var tempArr:any[] = BMiniAdapter.subNativeFiles[key];
-								BMiniAdapter.subNativeheads = BMiniAdapter.subNativeheads.concat(tempArr);
-								for (var aa:number = 0; aa < tempArr.length;aa++)
-								{
-									BMiniAdapter.subMaps[tempArr[aa]] = key + "/" + tempArr[aa];
-								}
-							}
-						}
-						//判断当前的url是否为分包映射路径
-						if(BMiniAdapter.subNativeFiles && url.indexOf("/") != -1)
-						{
-							debugger;
-							var curfileHead:string = url.split("/")[0]  +"/";//文件头
-							if(curfileHead && BMiniAdapter.subNativeheads.indexOf(curfileHead) != -1)
-							{
-								var newfileHead:string = BMiniAdapter.subMaps[curfileHead];
-								url = url.replace(curfileHead,newfileHead);
-							}
-						}
-						//xiaosong add 20190105
-						var tempStr:string = URL.rootPath != "" ? URL.rootPath : URL.basePath;
-						var tempUrl:string = url;
-						if (tempStr != "")
-							url = url.split(tempStr)[1];
-						if (!url) {
-							url = tempUrl;
-						}
-						//临时，因为微信不支持以下文件格式
-						//直接读取本地，非网络加载缓存的资源
-						MiniFileMgr.read(url,encoding,new Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [encoding, url, type, cache, group, ignoreCache, thisLoader]));
-						return;
+			}
+			//分包映射url处理
+			if (BMiniAdapter.subNativeFiles && BMiniAdapter.subNativeheads.length == 0)
+			{
+				for (var key  in BMiniAdapter.subNativeFiles)
+				{
+					var tempArr:any[] = BMiniAdapter.subNativeFiles[key];
+					BMiniAdapter.subNativeheads = BMiniAdapter.subNativeheads.concat(tempArr);
+					for (var aa:number = 0; aa < tempArr.length;aa++)
+					{
+						BMiniAdapter.subMaps[tempArr[aa]] = key + "/" + tempArr[aa];
 					}
-					//xiaosong20190301修复资源版本管理的bug
-					var tempurl:string=URL.formatURL(url);
-					if (tempurl.indexOf("http://usr/") == -1&& (tempurl.indexOf("http://") != -1 || tempurl.indexOf("https://") != -1) && !BMiniAdapter.AutoCacheDownFile) {
-						//远端文件加载走xmlhttprequest
-						BMiniAdapter.EnvConfig.load.call(thisLoader, url, type, cache, group, ignoreCache);
-					} else {
-						//读取本地磁盘非写入的文件，只是检测文件是否需要本地读取还是外围加载
-						MiniFileMgr.readFile(url, encoding, new Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [encoding, url, type, cache, group, ignoreCache, thisLoader]), url);
-					}
-				} else {
-					//读取本地磁盘非写入的文件，只是检测文件是否需要本地读取还是外围加载
-					var fileObj:any = MiniFileMgr.getFileInfo(url);
-					fileObj.encoding = fileObj.encoding == null ? "utf8" : fileObj.encoding;
-					MiniFileMgr.readFile(url, fileObj.encoding, new Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [encoding, url, type, cache, group, ignoreCache, thisLoader]), url);
+				}
+			}
+			//判断当前的url是否为分包映射路径
+			if(BMiniAdapter.subNativeFiles && url.indexOf("/") != -1)
+			{
+				var curfileHead:string = url.split("/")[0] + "/";//文件头
+				if(curfileHead && BMiniAdapter.subNativeheads.indexOf(curfileHead) != -1)
+				{
+					var newfileHead:string = BMiniAdapter.subMaps[curfileHead];
+					url = url.replace(curfileHead,newfileHead);
+				}
+			}
+			switch (type) {
+				case Loader.IMAGE:
+				case "htmlimage": //内部类型
+				case "nativeimage": //内部类型
+					MiniLoader._transformImgUrl(url,type,thisLoader);
+					break;
+				case Loader.SOUND:
+					thisLoader._loadSound(url);
+					break;
+				default:
+					thisLoader._loadResource(type, url);
+			}
+		}
+
+		/**
+		 * private
+		 * @param url
+		 **/ 
+		_loadSound(url:string):void
+		{
+			var thisLoader:any = this;
+			var fileNativeUrl:String;
+			if (MiniFileMgr.isLocalNativeFile(url)) {
+				var tempStr:any = URL.rootPath != "" ? URL.rootPath : URL._basePath;
+				var tempUrl:String = url;
+				if(tempStr != "" && (url.indexOf("http://") != -1 || url.indexOf("https://") != -1))
+					fileNativeUrl = url.split(tempStr)[1];//去掉http头
+				if(!fileNativeUrl)
+				{
+					fileNativeUrl = tempUrl;
+				}
+				MiniLoader.onDownLoadCallBack(url,thisLoader,0);//直接创建声音实例
+			}else
+			{
+				var tempurl:string = URL.formatURL(url);
+				if (!MiniFileMgr.isLocalNativeFile(url) &&  (tempurl.indexOf("http://") == -1 && tempurl.indexOf("https://") == -1) || (tempurl.indexOf("http://usr/") != -1)) 
+				{
+					MiniLoader.onDownLoadCallBack(url,thisLoader, 0);
+				}else
+				{
+					MiniFileMgr.downOtherFiles(tempurl, Handler.create(MiniLoader, MiniLoader.onDownLoadCallBack, [tempurl,thisLoader]), tempurl);
 				}
 			}
 		}
-		
+
+		/**
+		 * private
+		 * @param sourceUrl
+		 * @param errorCode
+		 * @param tempFilePath
+		 * 
+		 **/
+		static onDownLoadCallBack(sourceUrl:string,thisLoader:any,errorCode:number,tempFilePath:string = null):void
+		{
+			if (!errorCode)
+			{
+				var fileNativeUrl:string;
+				if(BMiniAdapter.autoCacheFile)
+				{
+					if(!tempFilePath){
+						if (MiniFileMgr.isLocalNativeFile(sourceUrl)) {
+							var tempStr:any = URL.rootPath != "" ? URL.rootPath : URL._basePath;
+							var tempUrl:string = sourceUrl;
+							if(tempStr != "" && (sourceUrl.indexOf("http://") != -1 || sourceUrl.indexOf("https://") != -1))
+								fileNativeUrl = sourceUrl.split(tempStr)[1];//去掉http头
+							if(!fileNativeUrl)
+							{
+								fileNativeUrl = tempUrl;
+							}
+						}else
+						{
+							var fileObj:any = MiniFileMgr.getFileInfo(sourceUrl);
+							if(fileObj && fileObj.md5)
+							{
+								var fileMd5Name:string = fileObj.md5;
+								fileNativeUrl = MiniFileMgr.getFileNativePath(fileMd5Name);
+							}else
+							{
+								fileNativeUrl = sourceUrl;
+							}
+						}
+					}else{
+						fileNativeUrl = tempFilePath;
+					}
+				}
+				sourceUrl = fileNativeUrl;
+				//需要测试这个方式是否可行
+				var sound: Sound = (<Sound>(new SoundManager._soundClass()));
+				sound.load(sourceUrl);
+				thisLoader.onLoaded(sound);
+			}else
+			{
+				thisLoader.event(Event.ERROR,"Load sound failed");
+			}
+		}
+
+		/**
+		 * @private
+		 * 给传入的函数绑定作用域，返回绑定后的函数。
+		 * @param	fun 函数对象。
+		 * @param	scope 函数作用域。
+		 * @return 绑定后的函数。
+		 */
+		static bindToThis(fun:Function, scope:any):Function {
+			var rst:Function = fun;
+			rst=fun.bind(scope);;
+			return rst;
+		}
+
+		/**
+		 * @private
+		 */
+		_loadHttpRequestWhat(url:string, contentType:string):void {
+			var thisLoader:any = this;
+			var encoding:string = BMiniAdapter.getUrlEncode(url,contentType);
+			if (Loader.preLoadedMap[url])
+				thisLoader.onLoaded(Loader.preLoadedMap[url]);
+			else
+			{
+				var tempurl:string = URL.formatURL(url);
+				if (url.indexOf("http://usr/") == -1&& (tempurl.indexOf("http://") != -1 || tempurl.indexOf("https://") != -1) && !BMiniAdapter.AutoCacheDownFile) 
+				{
+					thisLoader._loadHttpRequest(tempurl, contentType, thisLoader, thisLoader.onLoaded, thisLoader, thisLoader.onProgress, thisLoader, thisLoader.onError);
+				}else
+				{
+					//调用微信加载文件接口承载加载
+					//读取本地磁盘非写入的文件，只是检测文件是否需要本地读取还是外围加载
+					var fileObj:any = MiniFileMgr.getFileInfo(URL.formatURL(url));
+					if(fileObj)
+					{
+						fileObj.encoding = fileObj.encoding == null ? "utf8" : fileObj.encoding;
+						MiniFileMgr.readFile(fileObj.url, encoding, new Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), url);
+					} else if (thisLoader.type == "image" || thisLoader.type == "htmlimage")
+					{
+						thisLoader._transformUrl(url, contentType);
+					}
+					else
+					{
+						if((tempurl.indexOf("http://") == -1 && tempurl.indexOf("https://") == -1) || MiniFileMgr.isLocalNativeFile(url))
+						{
+							MiniFileMgr.readFile(url, encoding, new Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType,  thisLoader]), url);
+						}else
+						{
+							MiniFileMgr.downFiles(tempurl, encoding, new Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType,  thisLoader]), tempurl,true);
+						}
+					}
+				}
+			}
+		}
+
 		/**
 		 * @private 
 		 * @param url
@@ -152,7 +221,7 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 		 * @param data
 		 *
 		 */
-		private static onReadNativeCallBack(encoding:string, url:string, type:string = null, cache:boolean = true, group:string = null, ignoreCache:boolean = false, thisLoader:any = null, errorCode:number = 0, data:any = null):void {
+		private static onReadNativeCallBack(url:string, type:string = null, thisLoader:any = null, errorCode:number = 0, data:any = null):void {
 			if (!errorCode) {
 				//文本文件读取本地存在
 				var tempData:any;
@@ -166,13 +235,111 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 				//主域向子域派发数据
 				if(!BMiniAdapter.isZiYu &&BMiniAdapter.isPosMsgYu && type  != Loader.BUFFER)
 				{
-					BMiniAdapter.window.swan.postMessage({url:url,data:tempData,isLoad:"filedata"});
+					BMiniAdapter.window.wx.postMessage({url:url,data:tempData,isLoad:"filedata"});
 				}
 				thisLoader.onLoaded(tempData);
 			} else if (errorCode == 1) {
 				//远端文件加载走xmlhttprequest
-				BMiniAdapter.EnvConfig.load.call(thisLoader, url, type, cache, group, ignoreCache);
+				thisLoader._loadHttpRequest(url, type, thisLoader, thisLoader.onLoaded, thisLoader, thisLoader.onProgress, thisLoader, thisLoader.onError);
 			}
+		}
+
+		/**
+		 * @private
+		 * @param url
+		 * @param type
+		 * @param thisLoader
+		 ***/
+		private static _transformImgUrl(url:string,type:string,thisLoader:any):void
+		{
+			//这里要预处理磁盘文件的读取,带layanative目录标识的视为本地磁盘文件，不进行路径转换操作
+			if (BMiniAdapter.isZiYu)
+			{
+				thisLoader._loadImage(url);//直接读取本地文件，非加载缓存的图片
+				return;
+			}
+			
+			if (!MiniFileMgr.getFileInfo(url)) 
+			{
+				var tempUrl:string = URL.formatURL(url);
+				if (url.indexOf('http://usr/') == -1&&(tempUrl.indexOf("http://") != -1 || tempUrl.indexOf("https://") != -1))
+				{
+					//小游戏在子域里不能远端加载图片资源
+					if(BMiniAdapter.isZiYu)
+					{
+						thisLoader._loadImage(url);//直接读取本地文件，非加载缓存的图片
+					}else
+					{
+						MiniFileMgr.downOtherFiles(tempUrl, new Handler(MiniLoader, MiniLoader.onDownImgCallBack, [url, thisLoader]), tempUrl);
+					}
+				}
+				else
+					thisLoader._loadImage(url);//直接读取本地文件，非加载缓存的图片
+			} else 
+			{
+				thisLoader._loadImage(url);//外网图片加载
+			}
+		}
+
+		/**
+		 * @private 
+		 * 下载图片文件回调处理
+		 * @param sourceUrl 图片实际加载地址
+		 * @param thisLoader 加载对象
+		 * @param errorCode 回调状态码，0成功 1失败
+		 * @param tempFilePath 加载返回的临时地址 
+		 */
+		private static onDownImgCallBack(sourceUrl:string, thisLoader:any, errorCode:number,tempFilePath:string= ""):void {
+			if (!errorCode)
+				MiniLoader.onCreateImage(sourceUrl, thisLoader,false,tempFilePath);
+			else {
+				thisLoader.onError(null);
+			}
+		}
+
+		/**
+		 * @private 
+		 * 创建图片对象
+		 * @param sourceUrl
+		 * @param thisLoader
+		 * @param isLocal 本地图片(没有经过存储的,实际存在的图片，需要开发者自己管理更新)
+		 * @param tempFilePath 加载的临时地址
+		 */
+		private static onCreateImage(sourceUrl:string, thisLoader:any, isLocal:boolean = false,tempFilePath:string= ""):void {
+			var fileNativeUrl:string;
+			if(BMiniAdapter.autoCacheFile)
+			{
+				if (!isLocal) {
+					if(tempFilePath != "")
+					{
+						fileNativeUrl = tempFilePath;
+					}else
+					{
+						var fileObj:any = MiniFileMgr.getFileInfo(sourceUrl);
+						var fileMd5Name:string = fileObj.md5;
+						fileNativeUrl = MiniFileMgr.getFileNativePath(fileMd5Name);
+					}
+				} else
+					if(BMiniAdapter.isZiYu)
+					{
+						//子域里需要读取主域透传过来的信息，然后这里获取一个本地磁盘图片路径，然后赋值给fileNativeUrl
+						var tempUrl:string = URL.formatURL(sourceUrl);
+						if(MiniFileMgr.ziyuFileTextureData[tempUrl])
+						{
+							fileNativeUrl = MiniFileMgr.ziyuFileTextureData[tempUrl];
+						}else
+							fileNativeUrl = sourceUrl;
+					}else
+						fileNativeUrl = sourceUrl;
+			}else
+			{
+				if(!isLocal)
+					fileNativeUrl = tempFilePath;
+				else
+					fileNativeUrl = sourceUrl;
+			}
+			//将url传递给引擎层
+			thisLoader._loadImage(fileNativeUrl);
 		}
 	}
 

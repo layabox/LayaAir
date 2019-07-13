@@ -1,6 +1,6 @@
 
 import { MiniFileMgr } from "./MiniFileMgr";	
-import { Laya } from "../../../../bin/tsc/layaAir/Laya";
+import { Laya } from "Laya";
 import { Handler } from "laya/utils/Handler";
 import { Browser } from "laya/utils/Browser";
 import { MiniInput } from "./MiniInput";

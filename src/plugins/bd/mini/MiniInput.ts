@@ -1,13 +1,12 @@
-import { Laya } from "./../../../../../../core/src/Laya";
+import { Browser } from "laya/utils/Browser";
+import { Input } from "laya/display/Input";
 import { BMiniAdapter } from "./BMiniAdapter";
+import { SoundManager } from "laya/media/SoundManager";
 import { MiniSound } from "./MiniSound";
-import { Input } from "../../../../../../core/src/laya/display/Input"
-	import { Event } from "../../../../../../core/src/laya/events/Event"
-	import { Matrix } from "../../../../../../core/src/laya/maths/Matrix"
-	import { SoundManager } from "../../../../../../core/src/laya/media/SoundManager"
-	import { Render } from "../../../../../../core/src/laya/renders/Render"
-	import { Browser } from "../../../../../../core/src/laya/utils/Browser"
-	
+import { Matrix } from "laya/maths/Matrix";
+import { Render } from "laya/renders/Render";
+import { Laya } from "Laya";
+import { Event } from "laya/events/Event";	
 	/** @private **/
 	export class MiniInput {
 		constructor(){
@@ -26,7 +25,7 @@ import { Input } from "../../../../../../core/src/laya/display/Input"
 			Laya.stage.on("resize", null, MiniInput._onStageResize);
 			
 			BMiniAdapter.window.swan.onWindowResize && BMiniAdapter.window.swan.onWindowResize(function(res:any):void {
-				window.dispatchEvent && window.dispatchEvent("resize");
+				//BMiniAdapter.window.dispatchEvent && window.dispatchEvent("resize");
 			});
 			
 			//替换声音
@@ -64,7 +63,7 @@ import { Input } from "../../../../../../core/src/laya/display/Input"
 			}
 			BMiniAdapter.window.swan.offKeyboardConfirm();
 			BMiniAdapter.window.swan.offKeyboardInput();
-			BMiniAdapter.window.swan.showKeyboard({defaultValue: _inputTarget.text, maxLength: _inputTarget.maxChars, multiple: _inputTarget.multiline, confirmHold: true, confirmType: 'done', success: function(res:any):void {
+			BMiniAdapter.window.swan.showKeyboard({defaultValue: _inputTarget.text, maxLength: _inputTarget.maxChars, multiple: _inputTarget.multiline, confirmHold: true, confirmType: _inputTarget["confirmType"]||'done', success: function(res:any):void {
 			}, fail: function(res:any):void {
 			}});
 			
@@ -81,6 +80,7 @@ import { Input } from "../../../../../../core/src/laya/display/Input"
 				_inputTarget.text = str;
 				_inputTarget.event(Event.INPUT);
 				MiniInput.inputEnter();
+				_inputTarget.event("confirm");
 			})
 			BMiniAdapter.window.swan.onKeyboardInput(function(res:any):void {
 				var str:string = res ? res.value : "";

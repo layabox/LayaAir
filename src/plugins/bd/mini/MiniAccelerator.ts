@@ -1,5 +1,6 @@
+import { EventDispatcher } from "laya/events/EventDispatcher"
+import { Accelerator } from "device/motion/Accelerator";
 import { BMiniAdapter } from "./BMiniAdapter";
-import { EventDispatcher } from "../../../../../../core/src/laya/events/EventDispatcher"
 	
 	/**@private **/
 	export class MiniAccelerator extends EventDispatcher
@@ -15,7 +16,7 @@ import { EventDispatcher } from "../../../../../../core/src/laya/events/EventDis
 			try
 			{
 				var Acc:any;
-				Acc = laya.device.motion.Accelerator;
+				Acc = Accelerator;
 				if (!Acc) return;
 				Acc["prototype"]["on"] = MiniAccelerator["prototype"]["on"];
 				Acc["prototype"]["off"] = MiniAccelerator["prototype"]["off"];

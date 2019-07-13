@@ -1,12 +1,11 @@
+import { EventDispatcher } from "laya/events/EventDispatcher";
 import { KGMiniAdapter } from "./KGMiniAdapter";
-import { MiniFileMgr } from "./../../../../../../openData/src/laya/wx/mini/MiniFileMgr";
-import { MiniSoundChannel } from "./../../../../../bd/src/laya/bd/mini/MiniSoundChannel";
-import { Event } from "../../../../../../core/src/laya/events/Event"
-	import { EventDispatcher } from "../../../../../../core/src/laya/events/EventDispatcher"
-	import { SoundManager } from "../../../../../../core/src/laya/media/SoundManager"
-	import { URL } from "../../../../../../core/src/laya/net/URL"
-	import { Handler } from "../../../../../../core/src/laya/utils/Handler"
-	
+import { MiniFileMgr } from "./MiniFileMgr";
+import { Handler } from "laya/utils/Handler";
+import { MiniSoundChannel } from "./MiniSoundChannel";
+import { SoundManager } from "laya/media/SoundManager";
+import { Event } from "laya/events/Event";
+import { URL } from "laya/net/URL";	
 	/** @private **/
 	export class MiniSound extends EventDispatcher {
 		/**@private **/
@@ -38,7 +37,7 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 		/** @private **/
 		private static _createSound():any {
 			MiniSound._id++;
-			return KGMiniAdapter.window.qg.createInnerAudioContext();
+			return KGMiniAdapter.window.wx.createInnerAudioContext();
 		}
 		
 		/**
@@ -59,7 +58,7 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 						url = url.split(MiniFileMgr.loadPath)[1];//去掉http头
 					}else
 					{
-						var tempStr:string = URL.rootPath != "" ? URL.rootPath : URL.basePath;
+						var tempStr:string = URL.rootPath != "" ? URL.rootPath : URL._basePath;
 						if(tempStr != "")
 							url = url.split(tempStr)[1];//去掉http头
 					}
@@ -83,7 +82,7 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 				{
                     if (MiniFileMgr.isLocalNativeFile(url))
 					{
-						tempStr = URL.rootPath != "" ? URL.rootPath : URL.basePath;
+						tempStr = URL.rootPath != "" ? URL.rootPath : URL._basePath;
                         var tempUrl:string = url;
                         if(tempStr != "")
                             url = url.split(tempStr)[1];//去掉http头
@@ -121,7 +120,8 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 						}else
 						{
 							MiniFileMgr.downOtherFiles(url, Handler.create(this, this.onDownLoadCallBack, [url]), url);
-						}					}
+						}
+					}
 				}
 			}
 		}
@@ -134,26 +134,37 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 				var fileNativeUrl:string;
 				if(KGMiniAdapter.autoCacheFile)
 				{
-					var fileObj:any = MiniFileMgr.getFileInfo(sourceUrl);
-					if(fileObj && fileObj.md5)
-					{
-						var fileMd5Name:string = fileObj.md5;
-						fileNativeUrl = MiniFileMgr.getFileNativePath(fileMd5Name);
+					if (MiniFileMgr.isLocalNativeFile(sourceUrl)) {
+						var tempStr:string = URL.rootPath != "" ? URL.rootPath : URL._basePath;
+						var tempUrl:string = sourceUrl;
+						if(tempStr != "" && (sourceUrl.indexOf("http://") != -1 || sourceUrl.indexOf("https://") != -1))
+							fileNativeUrl = sourceUrl.split(tempStr)[1];//去掉http头
+						if(!fileNativeUrl)
+						{
+							fileNativeUrl = tempUrl;
+						}
 					}else
 					{
-						fileNativeUrl = sourceUrl;
+						var fileObj:any = MiniFileMgr.getFileInfo(sourceUrl);
+						if(fileObj && fileObj.md5)
+						{
+							var fileMd5Name:string = fileObj.md5;
+							fileNativeUrl = MiniFileMgr.getFileNativePath(fileMd5Name);
+						}else
+						{
+							fileNativeUrl = sourceUrl;
+						}
 					}
 					this._sound = MiniSound._createSound();
 					this._sound.src = this.url =  fileNativeUrl;
 				}else
 				{
 					this._sound = MiniSound._createSound();
-					this._sound.src = sourceUrl;
+					this._sound.src = this.url = sourceUrl;
 				}
-				if(!this._sound)
-					debugger;
-				this._sound.oncanplay= this.onCanPlay.bind(this);//xiaosong20190305
-				this._sound.onerror= this.onError.bind(this);//xiaosong20190305
+				
+				this._sound.onCanplay(MiniSound.bindToThis(this.onCanPlay,this));
+				this._sound.onError(MiniSound.bindToThis(this.onError,this));
 			}else
 			{
 				this.event(Event.ERROR);
@@ -163,8 +174,18 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 		/**@private **/
 		private onError(error:any):void
 		{
+			try
+			{
+				console.log("-----1---------------minisound-----id:" + MiniSound._id);
+				console.log(error);
+			} 
+			catch(error) 
+			{
+				console.log("-----2---------------minisound-----id:" + MiniSound._id);
+				console.log(error);
+			}
 			this.event(Event.ERROR);
-			this._sound.offerror && (this._sound.offerror(null));
+			this._sound.offError(null);
 		}
 			
 		/**@private **/
@@ -172,7 +193,8 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 		{
 			this.loaded = true;
 			this.event(Event.COMPLETE);
-			this._sound.offcanplay && (this._sound.offcanplay(null));
+			//_audioCache[this.readyUrl] = this;
+			this._sound.offCanplay(null);
 		}
 		
 		/**
@@ -198,7 +220,7 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 		 */
 		 play(startTime:number = 0, loops:number = 0):MiniSoundChannel {
 			var tSound:any;
-			if (this.url == SoundManager._tMusic) {
+			if (this.url == SoundManager._bgMusic) {
 				if (!MiniSound._musicAudio) MiniSound._musicAudio = MiniSound._createSound();
 				tSound = MiniSound._musicAudio;
 			} else {
@@ -211,7 +233,7 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 				}
 			}
 			if(!tSound)
-				return null;	//修复声音加载失败报错的bug
+				return null;
 			if(KGMiniAdapter.autoCacheFile&&MiniFileMgr.getFileInfo(this.url))
 			{
 				var fileNativeUrl:string;
@@ -222,7 +244,7 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 			{
 				tSound.src = this.url;
 			}
-			var channel:MiniSoundChannel = new MiniSoundChannel(tSound,this);
+			var channel:any = new MiniSoundChannel(tSound,this);
 			channel.url = this.url;
 			channel.loops = loops;
 			channel.loop = (loops === 0 ? true : false);
@@ -251,11 +273,17 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 				ad.src = "";
 				if(ad._sound)
 				{
-					ad._sound.destroy && ad._sound.destroy();	
+					ad._sound.destroy();	
 					ad._sound =null;
 					ad =null;
 				}
 				delete MiniSound._audioCache[this.readyUrl];
+			}
+			if(this._sound)
+			{
+				this._sound.destroy();
+				this._sound = null;
+				this.readyUrl = this.url = null;
 			}
 		}
 	}

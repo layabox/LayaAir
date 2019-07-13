@@ -1,10 +1,9 @@
 import { QGMiniAdapter } from "./QGMiniAdapter";
-import { Laya } from "./../../../../../../core/src/Laya";
-import { Loader } from "../../../../../../core/src/laya/net/Loader"
-	import { URL } from "../../../../../../core/src/laya/net/URL"
-	import { Browser } from "../../../../../../core/src/laya/utils/Browser"
-	import { Handler } from "../../../../../../core/src/laya/utils/Handler"
-	
+import { Browser } from "laya/utils/Browser";
+import { Handler } from "laya/utils/Handler";
+import {URL} from "laya/net/URL";	
+import { Loader } from "laya/net/Loader";
+import { Laya } from "Laya";
 	/** @private **/
 	export class MiniFileMgr{
 		/**@private 读取文件操作接口**/
@@ -13,6 +12,8 @@ import { Loader } from "../../../../../../core/src/laya/net/Loader"
 		private static wxdown:any = QGMiniAdapter.window.qg.downloadFile;
 		/**@private 文件缓存列表**/
 		 static filesListObj:any = {};
+		/**@private 本局游戏使用的本地资源地址列表**/
+		static fakeObj:any = {};
 		/**@private 文件磁盘路径**/
 		 static fileNativeDir:string;
 		/**@private 存储在磁盘的文件列表名称**/
@@ -52,7 +53,7 @@ import { Loader } from "../../../../../../core/src/laya/net/Loader"
 		 */
 		 static getFileInfo(fileUrl:string):any {
 			var fileNativePath:string = fileUrl;//.split("?")[0];?????这里好像不需要
-			var fileObj:any = MiniFileMgr.filesListObj[fileNativePath];//这里要去除?好的完整路径
+			var fileObj:any = MiniFileMgr.fakeObj[fileNativePath];//这里要去除?好的完整路径
 			if (fileObj == null)
 				return null;
 			else
@@ -70,7 +71,7 @@ import { Loader } from "../../../../../../core/src/laya/net/Loader"
 		 * @param isSaveFile 是否自动缓存下载的文件,只有在开发者自己单独加载时生效
 		 * @param fileType 文件类型
 		 */
-		 static read(filePath:string, encoding:string = "ascill", callBack:Handler = null, readyUrl:string = "",isSaveFile:boolean = false,fileType:string = ""):void {
+		 static read(filePath:string, encoding:string = "utf8", callBack:Handler = null, readyUrl:string = "",isSaveFile:boolean = false,fileType:string = ""):void {
 			var fileUrl:string;
 			if(readyUrl!= "" && (readyUrl.indexOf("http://") != -1 || readyUrl.indexOf("https://") != -1))
 			{
@@ -131,14 +132,15 @@ import { Loader } from "../../../../../../core/src/laya/net/Loader"
 		 * @param isSaveFile 是否自动缓存下载的文件,只有在开发者自己单独加载时生效
 		 * @param fileType 文件类型
 		 */
-		 static readFile(filePath:string, encoding:string = "ascill", callBack:Handler = null, readyUrl:string = "", isSaveFile:boolean = false, fileType:string = "", isAutoClear:boolean = true):void {
+		 static readFile(filePath:string, encoding:string = "utf8", callBack:Handler = null, readyUrl:string = "", isSaveFile:boolean = false, fileType:string = "", isAutoClear:boolean = true):void {
 			filePath = URL.getAdptedFilePath(filePath);
 			MiniFileMgr.fs.readFile({filePath: filePath, encoding: encoding, success: function(data:any):void {
 				if (filePath.indexOf("http://") != -1 || filePath.indexOf("https://") != -1)
 				{
 					if(QGMiniAdapter.autoCacheFile || isSaveFile)
 					{
-						MiniFileMgr.copyFile(filePath, readyUrl, callBack,encoding,isAutoClear);
+						callBack != null && callBack.runWith([0, data]);
+						MiniFileMgr.copyFile(filePath, readyUrl, null,encoding,isAutoClear);
 					}
 				}
 				else
@@ -162,7 +164,10 @@ import { Loader } from "../../../../../../core/src/laya/net/Loader"
 			MiniFileMgr.wxdown({url: fileUrl, success: function(data:any):void {
 				if (data.statusCode === 200) {
 					if((QGMiniAdapter.autoCacheFile || isSaveFile )&& readyUrl.indexOf("qlogo.cn")== -1 && readyUrl.indexOf(".php") == -1)
-						MiniFileMgr.copyFile(data.tempFilePath, readyUrl, callBack,"",isAutoClear);
+					{
+						callBack != null && callBack.runWith([0, data.tempFilePath]);
+						MiniFileMgr.copyFile(data.tempFilePath, readyUrl, null,"",isAutoClear);
+					}
 					else
 						callBack != null && callBack.runWith([0, data.tempFilePath]);
 				}else
@@ -170,7 +175,6 @@ import { Loader } from "../../../../../../core/src/laya/net/Loader"
 					callBack != null && callBack.runWith([1, data]);//修复下载文件返回非200状态码的bug
 				}
 			}, fail: function(data:any):void {
-				console.log("====downloadfile  fail：" + JSON.stringify(data));
 				callBack != null && callBack.runWith([1, data]);
 			}});
 		}
@@ -181,7 +185,7 @@ import { Loader } from "../../../../../../core/src/laya/net/Loader"
 		 * @param fileUrl 文件远端地址
 		 * @param fileType 文件类型(image、text、json、xml、arraybuffer、sound、atlas、font)
 		 * @param callBack 文件加载回调,回调内容[errorCode码(0成功,1失败,2加载进度)
-		 * @param encoding 文件编码默认 ascill，非图片文件加载需要设置相应的编码，二进制编码为空字符串
+		 * @param encoding 文件编码默认 utf8，非图片文件加载需要设置相应的编码，二进制编码为空字符串
 		 */				
 		 static downLoadFile(fileUrl:string, fileType:string = "",callBack:Handler = null,encoding:string = "ascii"):void
 		{
@@ -211,6 +215,8 @@ import { Loader } from "../../../../../../core/src/laya/net/Loader"
 			var fileurlkey:string = readyUrl;//.split("?")[0];
 			var fileObj:any = MiniFileMgr.getFileInfo(readyUrl);
 			var saveFilePath:string = MiniFileMgr.getFileNativePath(tempFileName);
+			
+			MiniFileMgr.fakeObj[fileurlkey] = {md5: tempFileName, readyUrl: readyUrl,size:0,times:Browser.now(),encoding:encoding};
 			
 			//这里存储图片文件到磁盘里，需要检查磁盘空间容量是否已满50M，如果超过50M就需要清理掉不用的资源
 			var totalSize:number = 50 * 1024 * 1024;//总量50M
@@ -456,7 +462,7 @@ import { Loader } from "../../../../../../core/src/laya/net/Loader"
 		 * @param callBack 回调处理
 		 * @param readyUrl 文件请求加载地址
 		 */
-		 static readSync(filePath:string, encoding:string = "ascill", callBack:Handler = null, readyUrl:string = ""):void {
+		 static readSync(filePath:string, encoding:string = "utf8", callBack:Handler = null, readyUrl:string = ""):void {
 			var fileUrl:string = MiniFileMgr.getFileNativePath(filePath);
 			var filesListStr:string
 			try

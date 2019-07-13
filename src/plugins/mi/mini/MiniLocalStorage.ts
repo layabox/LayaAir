@@ -1,4 +1,5 @@
 import { KGMiniAdapter } from "./KGMiniAdapter";
+
 /** @private **/
 	export class MiniLocalStorage
 	{
@@ -22,7 +23,18 @@ import { KGMiniAdapter } from "./KGMiniAdapter";
 		 * @param value 键值。
 		 */
 		 static setItem(key:string, value:any):void {
-			KGMiniAdapter.window.qg.storage.setSync({key: key,value: value})
+
+			try
+			{
+				KGMiniAdapter.window.qg.setStorageSync(key,value);
+			} 
+			catch(error) 
+			{
+				KGMiniAdapter.window.qg.setStorage({
+					key:key,
+					data:value
+				});
+			}
 		}
 		
 		/**
@@ -30,9 +42,8 @@ import { KGMiniAdapter } from "./KGMiniAdapter";
 		 * @param key 键名。
 		 * @return 字符串型值。
 		 */
-		 static getItem(key:string):any {
-			var tempData:any = KGMiniAdapter.window.qg.storage.getSync({key:key})
-			return  tempData;
+		 static getItem(key:string):string {
+			return KGMiniAdapter.window.qg.getStorageSync(key);
 		}
 		
 		/**
@@ -41,14 +52,7 @@ import { KGMiniAdapter } from "./KGMiniAdapter";
 		 * @param value 键值。是 <code>Object</code> 类型，此致会被转化为 JSON 字符串存储。
 		 */
 		 static setJSON(key:string, value:any):void {
-			try
-			{
-				MiniLocalStorage.setItem(key, JSON.stringify(value));
-			} 
-			catch(error) 
-			{
-				MiniLocalStorage.setItem(key, value);
-			}
+			MiniLocalStorage.setItem(key, value);
 		}
 		
 		/**
@@ -57,15 +61,7 @@ import { KGMiniAdapter } from "./KGMiniAdapter";
 		 * @return <code>Object</code> 类型值
 		 */
 		 static getJSON(key:string):any {
-			var tempData:any = MiniLocalStorage.getItem(key);
-			try
-			{
-				return JSON.parse(tempData);
-			} 
-			catch(error) 
-			{
-				return tempData;
-			}
+			return MiniLocalStorage.getItem(key);
 		}
 		
 		/**
@@ -73,38 +69,27 @@ import { KGMiniAdapter } from "./KGMiniAdapter";
 		 * @param key 键名。
 		 */
 		 static removeItem(key:string):void {
-			KGMiniAdapter.window.qg.storage.delete({
-				key: key,
-				success: function(data) :void
-				{
-					console.log('handling success')
-				},
-				fail: function(data, code) :void
-				{
-					console.log("====removeItem data fail code:" + code);
-				}
-			})
+			KGMiniAdapter.window.qg.removeStorageSync(key);
 		}
 		
 		/**
 		 * 清除本地存储信息。
 		 */
 		 static clear():void {
-			KGMiniAdapter.window.qg.storage.clear({
-				success: function(data) :void
-				{
-					console.log('handling success')
-				},
-				fail: function(data, code) :void
-				{
-					console.log("====clear data fail code:" + code);
-				}
-			})
+			KGMiniAdapter.window.qg.clearStorageSync();
 		}
 		
 		/**同步获取当前storage的相关信息**/
 		 static getStorageInfoSync():any
 		{
+			try {
+				var res:any = KGMiniAdapter.window.qg.getStorageInfoSync()
+				console.log(res.keys)
+				console.log(res.currentSize)
+				console.log(res.limitSize)
+				return res;
+			} catch (e) {
+			}
 			return null;
 		}
 	}

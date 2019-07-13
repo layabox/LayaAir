@@ -1,13 +1,10 @@
-import { Laya } from "./../../../../../../core/src/Laya";
 import { QGMiniAdapter } from "./QGMiniAdapter";
-import { MiniSound } from "./../../../../../bd/src/laya/bd/mini/MiniSound";
-import { Input } from "../../../../../../core/src/laya/display/Input"
-	import { Event } from "../../../../../../core/src/laya/events/Event"
-	import { Matrix } from "../../../../../../core/src/laya/maths/Matrix"
-	import { SoundManager } from "../../../../../../core/src/laya/media/SoundManager"
-	import { Render } from "../../../../../../core/src/laya/renders/Render"
-	import { Browser } from "../../../../../../core/src/laya/utils/Browser"
-	
+import { Browser } from "laya/utils/Browser";
+import { Input } from "laya/display/Input";
+import { Laya } from "Laya";
+import { SoundManager } from "laya/media/SoundManager";
+import { MiniSound } from "./MiniSound";
+import {Event} from "laya/events/Event";
 	/** @private **/
 	export class MiniInput {
 		constructor(){
@@ -26,7 +23,7 @@ import { Input } from "../../../../../../core/src/laya/display/Input"
 			Laya.stage.on("resize", null, MiniInput._onStageResize);
 			
 			QGMiniAdapter.window.qg.onWindowResize && QGMiniAdapter.window.qg.onWindowResize(function(res:any):void {
-				QGMiniAdapter.window.dispatchEvent && QGMiniAdapter.window.dispatchEvent("resize");
+				//QGMiniAdapter.window.dispatchEvent && QGMiniAdapter.window.dispatchEvent("resize");
 			});
 			
 			//替换声音
@@ -62,11 +59,26 @@ import { Input } from "../../../../../../core/src/laya/display/Input"
 			if (_inputTarget && !_inputTarget.editable) {
 				return;//非输入编辑模式
 			}
-			QGMiniAdapter.window.qg.offKeyboardConfirm();
-			QGMiniAdapter.window.qg.offKeyboardInput();
 			QGMiniAdapter.window.qg.showKeyboard({defaultValue: _inputTarget.text, maxLength: _inputTarget.maxChars, multiple: _inputTarget.multiline, confirmHold: true, confirmType: _inputTarget["confirmType"]||'done', success: function(res:any):void {
 			}, fail: function(res:any):void {
 			}});
+
+			//键盘收齐事件
+			QGMiniAdapter.window.qg.onKeyboardComplete(function(res){
+				QGMiniAdapter.window.qg.offKeyboardComplete();
+				var str = res ? res.value : "";
+				// 对输入字符进行限制
+				if (_inputTarget._restrictPattern) {
+					// 部分输入法兼容
+					str = str.replace(/\u2006|\x27/g, "");
+					if (_inputTarget._restrictPattern.test(str)) {
+						str = str.replace(_inputTarget._restrictPattern, "");
+					}
+				}
+				_inputTarget.text = str;
+				_inputTarget.event(Event.INPUT);
+				MiniInput.inputEnter(true);
+			})
 			
 			QGMiniAdapter.window.qg.onKeyboardConfirm(function(res:any):void {
 				var str:string = res ? res.value : "";

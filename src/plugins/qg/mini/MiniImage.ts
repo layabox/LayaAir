@@ -1,11 +1,10 @@
 import { QGMiniAdapter } from "./QGMiniAdapter";
-import { MiniFileMgr } from "./../../../../../../openData/src/laya/wx/mini/MiniFileMgr";
-import { Event } from "../../../../../../core/src/laya/events/Event"
-	import { URL } from "../../../../../../core/src/laya/net/URL"
-	import { HTMLImage } from "../../../../../../core/src/laya/resource/HTMLImage"
-	import { Browser } from "../../../../../../core/src/laya/utils/Browser"
-	import { Handler } from "../../../../../../core/src/laya/utils/Handler"
-	
+import { MiniFileMgr } from "./MiniFileMgr";
+import {URL} from "laya/net/URL";	
+import { Handler } from "laya/utils/Handler";
+import { Browser } from "laya/utils/Browser";
+import { HTMLImage } from "laya/resource/HTMLImage";
+import {Event} from "laya/events/Event";
 	/** @private **/
 	export class MiniImage {
 		

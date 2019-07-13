@@ -1,17 +1,19 @@
 import { KGMiniAdapter } from "./KGMiniAdapter";
-import { Laya } from "./../../../../../../core/src/Laya";
-import { Loader } from "../../../../../../core/src/laya/net/Loader"
-	import { Browser } from "../../../../../../core/src/laya/utils/Browser"
-	import { Handler } from "../../../../../../core/src/laya/utils/Handler"
-	
+import { Handler } from "laya/utils/Handler";
+import { Laya } from "../../../../bin/tsc/layaAir/Laya";
+import { Browser } from "laya/utils/Browser";
+import { Loader} from "laya/net/Loader";
+import { URL } from "laya/net/URL";
 	/** @private **/
 	export class MiniFileMgr{
 		/**@private 读取文件操作接口**/
-		private static fs:any =  KGMiniAdapter.window.qg.getFileSystemManager();
+		private static fs:any = (<any>window).qg.getFileSystemManager();
 		/**@private 下载文件接口**/
-		private static wxdown:any = KGMiniAdapter.window.qg.downloadFile;
+		private static wxdown:any = (<any>window).qg.downloadFile;
 		/**@private 文件缓存列表**/
 		 static filesListObj:any = {};
+		 /**@private 本局游戏使用的本地资源地址列表**/
+		 static fakeObj:any = {};
 		/**@private 文件磁盘路径**/
 		 static fileNativeDir:string;
 		/**@private 存储在磁盘的文件列表名称**/
@@ -32,11 +34,11 @@ import { Loader } from "../../../../../../core/src/laya/net/Loader"
 		 * @param url
 		 * @return 
 		 */		
-		 static  isLocalNativeFile(url:string):boolean
+		 static isLocalNativeFile(url:string):boolean
 		{
 			for(var i:number = 0,sz:number = KGMiniAdapter.nativefiles.length;i<sz;i++)
 			{
-				//这里不嫩改成 ==0 因为是模糊匹配
+				//优化调整  if(url.indexOf(KGMiniAdapter.nativefiles[i]) == 0)
 				if(url.indexOf(KGMiniAdapter.nativefiles[i]) != -1)
 					return true;
 			}
@@ -50,8 +52,8 @@ import { Loader } from "../../../../../../core/src/laya/net/Loader"
 		 * @return
 		 */
 		 static getFileInfo(fileUrl:string):any {
-			var fileNativePath:string = fileUrl;//.split("?")[0];?????这里好像不需要
-			var fileObj:any = MiniFileMgr.filesListObj[fileNativePath];//这里要去除?好的完整路径
+			var fileNativePath:string = fileUrl;
+			var fileObj:any = MiniFileMgr.fakeObj[fileNativePath];
 			if (fileObj == null)
 				return null;
 			else
@@ -78,6 +80,7 @@ import { Loader } from "../../../../../../core/src/laya/net/Loader"
 			{
 				fileUrl = filePath;
 			}
+			fileUrl = URL.getAdptedFilePath(fileUrl);
 			MiniFileMgr.fs.readFile({filePath: fileUrl, encoding: encoding, success: function(data:any):void {
 				callBack != null && callBack.runWith([0, data]);
 			}, fail: function(data:any):void {
@@ -99,7 +102,7 @@ import { Loader } from "../../../../../../core/src/laya/net/Loader"
 		 * @param fileType 文件类型
 		 */
 		 static downFiles(fileUrl:string, encoding:string = "utf8", callBack:Handler = null, readyUrl:string = "",isSaveFile:boolean = false,fileType:string = "",isAutoClear:boolean =true):void {
-			var downloadTask:any = qg.downloadFile({url: fileUrl, success: function(data:any):void {
+			var downloadTask:any = MiniFileMgr.wxdown({url: fileUrl, success: function(data:any):void {
 				if (data.statusCode === 200)
 					MiniFileMgr.readFile(data.tempFilePath, encoding, callBack, readyUrl,isSaveFile,fileType,isAutoClear);
 				else
@@ -129,7 +132,8 @@ import { Loader } from "../../../../../../core/src/laya/net/Loader"
 		 * @param isSaveFile 是否自动缓存下载的文件,只有在开发者自己单独加载时生效
 		 * @param fileType 文件类型
 		 */
-		 static readFile(filePath:string, encoding:string = "ascill", callBack:Handler = null, readyUrl:string = "",isSaveFile:boolean = false,fileType:string = "",isAutoClear:boolean =true):void {
+		 static readFile(filePath:string, encoding:string = "ascill", callBack:Handler = null, readyUrl:string = "", isSaveFile:boolean = false, fileType:string = "", isAutoClear:boolean = true):void {
+			filePath = URL.getAdptedFilePath(filePath);
 			MiniFileMgr.fs.readFile({filePath: filePath, encoding: encoding, success: function(data:any):void {
 				if (filePath.indexOf("http://") != -1 || filePath.indexOf("https://") != -1)
 				{
@@ -156,10 +160,13 @@ import { Loader } from "../../../../../../core/src/laya/net/Loader"
 		 * @param isSaveFile 是否自动缓存下载的文件,只有在开发者自己单独加载时生效
 		 */
 		 static downOtherFiles(fileUrl:string, callBack:Handler = null, readyUrl:string = "",isSaveFile:boolean = false,isAutoClear:boolean = true):void {
-			qg.downloadFile({url: fileUrl, success: function(data:any):void {
+			MiniFileMgr.wxdown({url: fileUrl, success: function(data:any):void {
 				if (data.statusCode === 200) {
 					if((KGMiniAdapter.autoCacheFile || isSaveFile )&& readyUrl.indexOf("qlogo.cn")== -1 && readyUrl.indexOf(".php") == -1)
-						MiniFileMgr.copyFile(data.tempFilePath, readyUrl, callBack,"",isAutoClear);
+					{
+						callBack != null && callBack.runWith([0, data.tempFilePath]);
+						MiniFileMgr.copyFile(data.tempFilePath, readyUrl, null,"",isAutoClear);
+					}
 					else
 						callBack != null && callBack.runWith([0, data.tempFilePath]);
 				}else
@@ -181,7 +188,7 @@ import { Loader } from "../../../../../../core/src/laya/net/Loader"
 		 */				
 		 static downLoadFile(fileUrl:string, fileType:string = "",callBack:Handler = null,encoding:string = "utf8"):void
 		{
-			if(KGMiniAdapter.window.navigator.userAgent.indexOf('QuickGame') <0)
+			if(window.navigator.userAgent.indexOf('QuickGame') <0)
 			{
 				Laya.loader.load(fileUrl,callBack);
 			}else
@@ -208,6 +215,8 @@ import { Loader } from "../../../../../../core/src/laya/net/Loader"
 			var fileObj:any = MiniFileMgr.getFileInfo(readyUrl);
 			var saveFilePath:string = MiniFileMgr.getFileNativePath(tempFileName);
 			
+			MiniFileMgr.fakeObj[fileurlkey] = {md5: tempFileName, readyUrl: readyUrl,size:0,times:Browser.now(),encoding:encoding};
+
 			//这里存储图片文件到磁盘里，需要检查磁盘空间容量是否已满50M，如果超过50M就需要清理掉不用的资源
 			var totalSize:number = 50 * 1024 * 1024;//总量50M
 			var chaSize:number = 4 * 1024 * 1024;//差值4M(预留加载缓冲空间,给文件列表用)
@@ -412,7 +421,7 @@ import { Loader } from "../../../../../../core/src/laya/net/Loader"
 			//主域向子域传递消息
 			if(!KGMiniAdapter.isZiYu &&KGMiniAdapter.isPosMsgYu)
 			{
-				KGMiniAdapter.window.kg && KGMiniAdapter.window.kg.postMessage && KGMiniAdapter.window.kg.postMessage({url:fileurlkey,data:MiniFileMgr.filesListObj[fileurlkey],isLoad:"filenative",isAdd:isAdd});
+				KGMiniAdapter.window.qg.postMessage({url:fileurlkey,data:MiniFileMgr.filesListObj[fileurlkey],isLoad:"filenative",isAdd:isAdd});
 			}
 		}
 		

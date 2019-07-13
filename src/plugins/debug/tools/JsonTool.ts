@@ -103,7 +103,7 @@
 			rst="["+split+preStr+valueStrArr.join(","+split+preStr)+"]";
 			return rst;
 		}
-		 static escapable:RegExp = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
+		 static escapable:RegExp = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
 			
 			meta:any = {    // table of character substitutions
 				'\b': '\\b',
@@ -132,7 +132,7 @@
 		}
 		private static getValueStr(tValue:any,singleLine:boolean=true,split:string="\n",depth:number=0,Width:number=0):string
 		{
-			var rst:string;
+			var rst:any;
 			if(typeof(tValue) == 'string' )
 			{
 //				rst="\""+tValue+"\"";

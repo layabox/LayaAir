@@ -1,4 +1,6 @@
-import { VVMiniAdapter } from "./VVMiniAdapter";
+import { BMiniAdapter } from "./BMiniAdapter";
+import { Video } from "laya/device/media/Video";
+
 /**
 	 * 视频类 
 	 * @author xiaosong
@@ -12,7 +14,7 @@ import { VVMiniAdapter } from "./VVMiniAdapter";
 		 videoElement:any;
 		
 		constructor(width:number = 320, height:number = 240){
-			this.videoElement = VVMiniAdapter.window.qg.createVideo({width:width,height:height,autoplay:true});
+			this.videoElement = BMiniAdapter.window.swan.createVideo({width:width,height:height,autoplay:true});
 		}
 		
 		 static __init__():void

@@ -1,17 +1,19 @@
-import { MiniFileMgr } from "./../../../../../../openData/src/laya/wx/mini/MiniFileMgr";
-import { Laya } from "./../../../../../../core/src/Laya";
+
+import {Laya} from "Laya";
+import {MiniFileMgr} from "./MiniFileMgr";
+import { Handler } from "laya/utils/Handler";
+import { Browser } from "laya/utils/Browser";
+import { RunDriver } from "laya/utils/RunDriver";
 import { MiniInput } from "./MiniInput";
-import { MiniLoader } from "./../../../../../../openData/src/laya/wx/mini/MiniLoader";
-import { MiniImage } from "./../../../../../../openData/src/laya/wx/mini/MiniImage";
-import { MiniLocalStorage } from "./../../../../../../openData/src/laya/wx/mini/MiniLocalStorage";
-import { Input } from "../../../../../../core/src/laya/display/Input"
-	import { Loader } from "../../../../../../core/src/laya/net/Loader"
-	import { LocalStorage } from "../../../../../../core/src/laya/net/LocalStorage"
-	import { Browser } from "../../../../../../core/src/laya/utils/Browser"
-	import { Handler } from "../../../../../../core/src/laya/utils/Handler"
-	import { RunDriver } from "../../../../../../core/src/laya/utils/RunDriver"
-	import { Utils } from "../../../../../../core/src/laya/utils/Utils"
-	
+import { Input } from "laya/display/Input";
+import { Utils } from "laya/utils/Utils";
+import { MiniLoader } from "./MiniLoader";
+import { Loader } from "laya/net/Loader";
+import { LocalStorage } from "laya/net/LocalStorage";
+import { MiniLocalStorage } from "./MiniLocalStorage";
+import { Matrix } from "laya/maths/Matrix";
+import { Stage } from "laya/display/Stage";
+import {URL} from "laya/net/URL";
 	export class BMiniAdapter {
 		/**@private  包装对象**/
 		 static EnvConfig:any;
@@ -31,15 +33,18 @@ import { Input } from "../../../../../../core/src/laya/display/Input"
 		/**是否自动缓存下载的图片跟声音文件，默认为true**/
 		 static autoCacheFile:boolean = true;
 		/**50M缓存容量满时每次清理容量值,默认每次清理5M**/
-		 static minClearSize:number = (5 * 1024 * 1024); 
+		 static minClearSize:number = (5 * 1024 * 1024);
 		/**本地资源列表**/
 		 static nativefiles:any[] = ["layaNativeDir", "wxlocal"];
-		/**本地分包资源头映射表**/
-		 static subNativeFiles:any;	
+		/**本地分包资源表**/
+		 static subNativeFiles:any = [];
+		/**本地分包文件目录数组**/
 		 static subNativeheads:any[] = [];
+		/**本地分包文件目录映射表**/
 		 static subMaps:any[] = [];
 		/**@private 是否自动缓存非图片声音文件(这里要确保文件编码最好一致)**/
 		 static AutoCacheDownFile:boolean = false;
+		
 		/**@private **/
 		 static getJson(data:string):any {
 			return JSON.parse(data);
@@ -47,7 +52,7 @@ import { Input } from "../../../../../../core/src/laya/display/Input"
 		
 		/**激活微信小游戏适配器*/
 		 static enable():void {
-			BMiniAdapter.init();
+			BMiniAdapter.init(Laya.isWXPosMsg, Laya.isWXOpenDataContext);
 		}
 		
 		/**
@@ -55,22 +60,23 @@ import { Input } from "../../../../../../core/src/laya/display/Input"
 		 * @param isPosMsg 是否需要在主域中自动将加载的文本数据自动传递到子域，默认 false
 		 * @param isSon 是否是子域，默认为false
 		 */
-		 static init(isPosMsg:boolean = false,isSon:boolean = false):void {
+		 static init(isPosMsg:boolean = false, isSon:boolean = false):void {
 			if (BMiniAdapter._inited) return;
 			BMiniAdapter._inited = true;
 			BMiniAdapter.window = window;
-			if(BMiniAdapter.window.navigator.userAgent.indexOf('SwanGame') <0) return;
+			if(!BMiniAdapter.window.hasOwnProperty("swan"))
+				return;
+			if(BMiniAdapter.window.navigator.userAgent.indexOf('SwanGame') <0 ) return;
 			BMiniAdapter.isZiYu = isSon;
 			BMiniAdapter.isPosMsgYu = isPosMsg;
 			BMiniAdapter.EnvConfig = {};
 			
 			//设置资源存储目录
-			if(!BMiniAdapter.isZiYu)
-			{
+			if (!BMiniAdapter.isZiYu) {
 				MiniFileMgr.setNativeFileDir("/layaairGame");
 				MiniFileMgr.existDir(MiniFileMgr.fileNativeDir, Handler.create(BMiniAdapter, BMiniAdapter.onMkdirCallBack));
 			}
-			BMiniAdapter.systemInfo =BMiniAdapter.window.swan.getSystemInfoSync();
+			BMiniAdapter.systemInfo = BMiniAdapter.window.swan.getSystemInfoSync();
 			
 			BMiniAdapter.window.focus = function():void {
 			};
@@ -94,8 +100,8 @@ import { Input } from "../../../../../../core/src/laya/display/Input"
 			};
 			//获取手机的设备像素比
 			BMiniAdapter.EnvConfig.pixelRatioInt = 0;
-//			RunDriver.getPixelRatio = pixelRatio;
-			Browser["_pixelRatio"]=BMiniAdapter.pixelRatio();
+			//			RunDriver.getPixelRatio = pixelRatio;
+			Browser["_pixelRatio"] = BMiniAdapter.pixelRatio();
 			//适配HTMLCanvas中的Browser.createElement("canvas")
 			BMiniAdapter._preCreateElement = Browser.createElement;
 			//获取小程序pixel值
@@ -108,43 +114,80 @@ import { Input } from "../../../../../../core/src/laya/display/Input"
 			Input['_createInputElement'] = MiniInput['_createInputElement'];
 			
 			//修改文件加载
-			BMiniAdapter.EnvConfig.load = Loader.prototype.load;
+			// BMiniAdapter.EnvConfig.load = Loader.prototype.load;
 			//文件加载处理
-			Loader.prototype.load = MiniLoader.prototype.load;
+			// Loader.prototype.load = MiniLoader.prototype.load;
 			//修改图片加载
-			Loader.prototype._loadImage = MiniImage.prototype._loadImage;
+			// Loader.prototype._loadImage = MiniImage.prototype._loadImage;
+
+			//新调整-xiaosong20190709
+			// BMiniAdapter.EnvConfig.load = Loader.prototype._loadResourceFilter;
+			Loader.prototype._loadResourceFilter = MiniLoader.prototype._loadResourceFilter;
+			Loader.prototype._loadSound = MiniLoader.prototype._loadSound;
+			Loader.prototype._loadHttpRequestWhat = MiniLoader.prototype._loadHttpRequestWhat;
+			
 			//本地缓存类
-			MiniLocalStorage.__init__();
 			LocalStorage._baseClass = MiniLocalStorage;
+			MiniLocalStorage.__init__();
+//			MiniVideo.__init__();
+//			MiniAccelerator.__init__();
+//			MiniLocation.__init__();
+			BMiniAdapter.window.swan.onMessage(BMiniAdapter._onMessage);
+		}
+		
+		private static _onMessage(data:any):void {
+			switch (data.type) {
+			case "changeMatrix": 
+				Laya.stage.transform.identity();
+				Laya.stage._width = data.w;
+				Laya.stage._height = data.h;
+				Laya.stage._canvasTransform = new Matrix(data.a, data.b, data.c, data.d, data.tx, data.ty);
+				break;
+			case "display": 
+				Laya.stage.frameRate = data.rate || Stage.FRAME_FAST;
+				break;
+			case "undisplay": 
+				Laya.stage.frameRate = Stage.FRAME_SLEEP;
+				break;
+			}
+			if (data['isLoad'] == "opendatacontext") {
+				if (data.url) {
+					MiniFileMgr.ziyuFileData[data.url] = data.atlasdata;//图集配置数据
+					MiniFileMgr.ziyuFileTextureData[data.imgReadyUrl] = data.imgNativeUrl;//imgNativeUrl 为本地磁盘地址;imgReadyUrl为外网路径
+				}
+			} else if (data['isLoad'] == "openJsondatacontext") {
+				if (data.url) {
+					MiniFileMgr.ziyuFileData[data.url] = data.atlasdata;//json配置数据信息
+				}
+			} else if (data['isLoad'] == "openJsondatacontextPic") {
+				MiniFileMgr.ziyuFileTextureData[data.imgReadyUrl] = data.imgNativeUrl;//imgNativeUrl 为本地磁盘地址;imgReadyUrl为外网路径
+			}
 		}
 		
 		/**
-		 * 获取url对应的encoding值 
+		 * 获取url对应的encoding值
 		 * @param url 文件路径
 		 * @param type 文件类型
-		 * @return 
-		 */		
-		 static getUrlEncode(url:string,type:string):string
-		{
-			if(type == "arraybuffer")
+		 * @return
+		 */
+		 static getUrlEncode(url:string, type:string):string {
+			if (type == "arraybuffer")
 				return "";
 			return "utf8";
 		}
-			
+		
 		/**
-		 * 下载文件 
+		 * 下载文件
 		 * @param fileUrl 文件地址(全路径)
 		 * @param fileType 文件类型(image、text、json、xml、arraybuffer、sound、atlas、font)
 		 * @param callBack 文件加载回调,回调内容[errorCode码(0成功,1失败,2加载进度)
 		 * @param encoding 文件编码默认utf8，非图片文件加载需要设置相应的编码，二进制编码为空字符串
-		 */				
-		 static downLoadFile(fileUrl:string, fileType:string = "",callBack:Handler = null,encoding:string = "utf8"):void
-		{
+		 */
+		 static downLoadFile(fileUrl:string, fileType:string = "", callBack:Handler = null, encoding:string = "utf8"):void {
 			var fileObj:any = MiniFileMgr.getFileInfo(fileUrl);
-			if(!fileObj)
-				MiniFileMgr.downLoadFile(fileUrl,fileType,callBack,encoding);
-			else
-			{
+			if (!fileObj)
+				MiniFileMgr.downLoadFile(fileUrl, fileType, callBack, encoding);
+			else {
 				callBack != null && callBack.runWith([0]);
 			}
 		}
@@ -155,24 +198,22 @@ import { Input } from "../../../../../../core/src/laya/display/Input"
 		 * @param callBack 回调处理，在存储图片时用到
 		 */
 		 static remove(fileUrl:string, callBack:Handler = null):void {
-			MiniFileMgr.deleteFile("",fileUrl,callBack,"",0);
+			MiniFileMgr.deleteFile("", fileUrl, callBack, "", 0);
 		}
 		
 		/**
-		 * 清空缓存空间文件内容 
-		 */		
-		 static removeAll():void
-		{
+		 * 清空缓存空间文件内容
+		 */
+		 static removeAll():void {
 			MiniFileMgr.deleteAll();
 		}
 		
 		/**
 		 * 判断是否是4M包文件
 		 * @param fileUrl 文件地址(全路径)
-		 * @return 
-		 */		
-		 static  hasNativeFile(fileUrl:string):boolean
-		{
+		 * @return
+		 */
+		 static hasNativeFile(fileUrl:string):boolean {
 			return MiniFileMgr.isLocalNativeFile(fileUrl);
 		}
 		
@@ -189,21 +230,15 @@ import { Input } from "../../../../../../core/src/laya/display/Input"
 		 * 获取缓存文件列表
 		 * @return
 		 */
-		 static getFileList():any
-		{
+		 static getFileList():any {
 			return MiniFileMgr.filesListObj;
-		}
-		
-		/**@private 退出小游戏**/
-		 static exitMiniProgram():void
-		{
-			BMiniAdapter.window.swan.exitMiniProgram();
 		}
 		
 		/**@private **/
 		private static onMkdirCallBack(errorCode:number, data:any):void {
 			if (!errorCode)
 				MiniFileMgr.filesListObj = JSON.parse(data.data);
+				MiniFileMgr.fakeObj = MiniFileMgr.filesListObj;
 		}
 		
 		/**@private 设备像素比。*/
@@ -218,7 +253,7 @@ import { Input } from "../../../../../../core/src/laya/display/Input"
 			return BMiniAdapter.EnvConfig.pixelRatioInt;
 		}
 		/**
-		 * @private 
+		 * @private
 		 * 将字符串解析成 XML 对象。
 		 * @param value 需要解析的字符串。
 		 * @return js原生的XML对象。
@@ -228,7 +263,7 @@ import { Input } from "../../../../../../core/src/laya/display/Input"
 			var Parser:any;
 			value = value.replace(/>\s+</g, '><');
 			try {
-				rst=(new window.Parser.DOMParser()).parseFromString(value,'text/xml');
+				rst=(new BMiniAdapter.window.Parser.DOMParser()).parseFromString(value,'text/xml');
 			} catch (error) {
 				throw "需要引入xml解析库文件";
 			}
@@ -236,21 +271,20 @@ import { Input } from "../../../../../../core/src/laya/display/Input"
 		}
 		/**@private **/
 		private static idx:number = 1;
+		
 		/**@private **/
 		 static createElement(type:string):any {
 			if (type == "canvas") {
 				var _source:any;
 				if (BMiniAdapter.idx == 1) {
-					if(BMiniAdapter.isZiYu)
-					{
-						_source = sharedCanvas;
+					if (BMiniAdapter.isZiYu) {
+						_source = BMiniAdapter.window.sharedCanvas;
 						_source.style = {};
-					}else
-					{
-						_source = window.canvas;
+					} else {
+						_source = BMiniAdapter.window.canvas;
 					}
 				} else {
-					_source =BMiniAdapter.window.swan.createCanvas();
+					_source = BMiniAdapter.window.swan.createCanvas();
 				}
 				BMiniAdapter.idx++;
 				return _source;
@@ -264,10 +298,12 @@ import { Input } from "../../../../../../core/src/laya/display/Input"
 				node.removeChild = function(value:string):void {
 				};
 				return node;
-			} else {
+			} 
+			else {
 				return BMiniAdapter._preCreateElement(type);
 			}
 		}
+		
 		/**@private **/
 		private static onCreateInput(type:any):any {
 			var node:any = BMiniAdapter._preCreateElement(type);
@@ -301,6 +337,93 @@ import { Input } from "../../../../../../core/src/laya/display/Input"
 				return this[conditionScript.replace("this.", "")];
 			}
 			return func;
+		}
+		
+		/**
+		 * 传递图集url地址到
+		 * @param url 为绝对地址
+		 */
+		 static sendAtlasToOpenDataContext(url:string):void {
+			if (!BMiniAdapter.isZiYu) {
+				var atlasJson:any = Loader.getRes(URL.formatURL(url));
+				if (atlasJson) {
+					var textureArr:any[] = ((<string>atlasJson.meta.image )).split(",");
+					
+					//构造加载图片信息
+					if (atlasJson.meta && atlasJson.meta.image) {
+						//带图片信息的类型
+						var toloadPics:any[] = atlasJson.meta.image.split(",");
+						var split:string = url.indexOf("/") >= 0 ? "/" : "\\";
+						var idx:number = url.lastIndexOf(split);
+						var folderPath:string = idx >= 0 ? url.substr(0, idx + 1) : "";
+						for (var i:number = 0, len:number = toloadPics.length; i < len; i++) {
+							toloadPics[i] = folderPath + toloadPics[i];
+						}
+					} else {
+						//不带图片信息
+						toloadPics = [url.replace(".json", ".png")];
+					}
+					for (i = 0; i < toloadPics.length; i++) {
+						var tempAtlasPngUrl:string = toloadPics[i];
+						BMiniAdapter.postInfoToContext(url, tempAtlasPngUrl, atlasJson);
+					}
+				} else {
+					throw "传递的url没有获取到对应的图集数据信息，请确保图集已经过！";
+				}
+			}
+		}
+		
+		private static postInfoToContext(url:string, atlaspngUrl:string, atlasJson:any):void {
+			var postData:any = {"frames": atlasJson.frames, "meta": atlasJson.meta};
+			var textureUrl:string = atlaspngUrl;
+			var fileObj:any = MiniFileMgr.getFileInfo(URL.formatURL(atlaspngUrl));
+			if (fileObj) {
+				var fileMd5Name:string = fileObj.md5;
+				var fileNativeUrl:string = MiniFileMgr.getFileNativePath(fileMd5Name);
+			} else {
+				fileNativeUrl = textureUrl;//4M包使用
+			}
+			if (fileNativeUrl) {
+				BMiniAdapter.window.swan.postMessage({url: url, atlasdata: postData, imgNativeUrl: fileNativeUrl, imgReadyUrl: textureUrl, isLoad: "opendatacontext"});
+			} else {
+				throw "获取图集的磁盘url路径不存在！";
+			}
+		}
+		
+		/**
+		 * 发送单张图片到开放数据域
+		 * @param url
+		 */
+		 static sendSinglePicToOpenDataContext(url:string):void {
+			var tempTextureUrl:string = URL.formatURL(url);
+			var fileObj:any = MiniFileMgr.getFileInfo(tempTextureUrl);
+			if (fileObj) {
+				var fileMd5Name:string = fileObj.md5;
+				var fileNativeUrl:string = MiniFileMgr.getFileNativePath(fileMd5Name);
+				url = tempTextureUrl;
+			} else {
+				fileNativeUrl = url;//4M包使用
+			}
+			if (fileNativeUrl) {
+				BMiniAdapter.window.swan.postMessage({url: url, imgNativeUrl: fileNativeUrl, imgReadyUrl: url, isLoad: "openJsondatacontextPic"});
+			} else {
+				throw "获取图集的磁盘url路径不存在！";
+			}
+		}
+		
+		/**
+		 * 传递json配置数据到开放数据域
+		 * @param url 为绝对地址
+		 */
+		 static sendJsonDataToDataContext(url:string):void {
+			if (!BMiniAdapter.isZiYu) {
+				var atlasJson:any = Loader.getRes(url);
+				if (atlasJson) {
+					BMiniAdapter.window.swan.postMessage({url: url, atlasdata: atlasJson, isLoad: "openJsondatacontext"});
+				} else {
+					throw "传递的url没有获取到对应的图集数据信息，请确保图集已经过！";
+				}
+			}
 		}
 	}
 

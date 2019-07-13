@@ -19,7 +19,8 @@ import { QGMiniAdapter } from "./QGMiniAdapter";
 		
 		 static __init__():void
 		{
-			laya.device.media.Video = MiniVideo;
+			//xiaosong 2019-07-13
+			//Video = MiniVideo;
 		}
 		
 		 onPlayFunc:Function;

@@ -127,33 +127,37 @@ import { URL } from "laya/net/URL";
 		}
 		
 		/**@private **/
-		private onDownLoadCallBack(sourceUrl:string,errorCode:number):void
+		private onDownLoadCallBack(sourceUrl:string,errorCode:number,tempFilePath:string = null):void
 		{
 			if (!errorCode)
 			{
 				var fileNativeUrl:string;
 				if(MiniAdpter.autoCacheFile)
 				{
-					if (MiniFileMgr.isLocalNativeFile(sourceUrl)) {
-						var tempStr:string = URL.rootPath != "" ? URL.rootPath : URL._basePath;
-						var tempUrl:string = sourceUrl;
-						if(tempStr != "" && (sourceUrl.indexOf("http://") != -1 || sourceUrl.indexOf("https://") != -1))
-							fileNativeUrl = sourceUrl.split(tempStr)[1];//去掉http头
-						if(!fileNativeUrl)
-						{
-							fileNativeUrl = tempUrl;
-						}
-					}else
-					{
-						var fileObj:any = MiniFileMgr.getFileInfo(sourceUrl);
-						if(fileObj && fileObj.md5)
-						{
-							var fileMd5Name:string = fileObj.md5;
-							fileNativeUrl = MiniFileMgr.getFileNativePath(fileMd5Name);
+					if(!tempFilePath){
+						if (MiniFileMgr.isLocalNativeFile(sourceUrl)) {
+							var tempStr:string = URL.rootPath != "" ? URL.rootPath : URL._basePath;
+							var tempUrl:string = sourceUrl;
+							if(tempStr != "" && (sourceUrl.indexOf("http://") != -1 || sourceUrl.indexOf("https://") != -1))
+								fileNativeUrl = sourceUrl.split(tempStr)[1];//去掉http头
+							if(!fileNativeUrl)
+							{
+								fileNativeUrl = tempUrl;
+							}
 						}else
 						{
-							fileNativeUrl = sourceUrl;
+							var fileObj:any = MiniFileMgr.getFileInfo(sourceUrl);
+							if(fileObj && fileObj.md5)
+							{
+								var fileMd5Name:string = fileObj.md5;
+								fileNativeUrl = MiniFileMgr.getFileNativePath(fileMd5Name);
+							}else
+							{
+								fileNativeUrl = sourceUrl;
+							}
 						}
+					}else{
+						fileNativeUrl = tempFilePath;
 					}
 					this._sound = MiniSound._createSound();
 					this._sound.src = this.url =  fileNativeUrl;
