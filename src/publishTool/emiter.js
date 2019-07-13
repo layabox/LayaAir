@@ -188,29 +188,29 @@ class emiter {
         let methodstr = "\t\tfunction ";
         let tsMethod = "\t\t";
         // let paramstr = "";
-        // if (node.parameters && node.parameters.length) {
-        //     for (let i = 0; i < node.parameters.length; i++) {
-        //         let param = node.parameters[i];
-        //         paramstr += (i ? "," : "") + param.name.getText() + ":" + this.emitType(param.type);
+        // if(node.parameters&&node.parameters.length){
+        //     for(let i = 0;i<node.parameters.length;i++){
+        //         let param = node.parameters[i] as ts.ParameterDeclaration;
+        //         paramstr += (i?",":"") + param.name.getText() + ":" + this.emitType(param.type);
         //     }
         // }
-        // methodstr += node.name.getText() + "(" + paramstr + "):" + this.emitType(node.type);
+        // methodstr +=  node.name.getText() + "(" + paramstr + "):" + this.emitType(node.type);
         let paramstr = "";
         let tsparam = "";
         if (node.parameters) {
             for (let i = 0; i < node.parameters.length; i++) {
                 let param = node.parameters[i];
                 let isdotdotdot = false;
-                if(param.dotDotDotToken)
+                if (param.dotDotDotToken)
                     isdotdotdot = true;
-                paramstr += (i ? "," : "") + (isdotdotdot?"...":"") + param.name.getText() + (isdotdotdot?"":( ":" + this.emitType(param.type) + (param.questionToken ? " = null" : "")));
-                tsparam += (i ? "," : "") + (isdotdotdot?"...":"") + param.name.getText() + (param.questionToken ? "?" : "") + ":" + this.emitTsType(param.type);
+                paramstr += (i ? "," : "") + (isdotdotdot ? "..." : "") + param.name.getText() + (isdotdotdot ? "" : (":" + this.emitType(param.type) + (param.questionToken ? " = null" : "")));
+                tsparam += (i ? "," : "") + (isdotdotdot ? "..." : "") + param.name.getText() + (param.questionToken ? "?" : "") + ":" + this.emitTsType(param.type);
             }
         }
-        methodstr += node.name.getText() + "(" + paramstr + "):" + this.emitType(node.type) + "{}";
-        tsmethod += node.name.getText() + "(" + tsparam + "):" + this.emitTsType(node.type) + ";";
+        methodstr += node.name.getText() + "(" + paramstr + "):" + this.emitType(node.type) + ";";
+        tsMethod += node.name.getText() + "(" + tsparam + "):" + this.emitTsType(node.type) + ";";
         let note = this.changeIndex(node, "\r\n\t\t");
-        return [note + methodstr + "\r\n", note + "\r\n\t\t" + tsMethod];
+        return [note + methodstr + "\r\n", note + tsMethod + "\r\n"];
     }
     /**
      * 生成属性
@@ -283,10 +283,10 @@ class emiter {
             for (let i = 0; i < node.parameters.length; i++) {
                 let param = node.parameters[i];
                 let isdotdotdot = false;
-                if(param.dotDotDotToken)
+                if (param.dotDotDotToken)
                     isdotdotdot = true;
-                paramstr += (i ? "," : "") + (isdotdotdot?"...":"") + param.name.getText() + (isdotdotdot?"":( ":" + this.emitType(param.type) + (param.questionToken ? " = null" : "")));
-                tsparam += (i ? "," : "") + (isdotdotdot?"...":"") + param.name.getText() + (param.questionToken ? "?" : "") + ":" + this.emitTsType(param.type);
+                paramstr += (i ? "," : "") + (isdotdotdot ? "..." : "") + param.name.getText() + (isdotdotdot ? "" : (":" + this.emitType(param.type) + (param.questionToken ? " = null" : "")));
+                tsparam += (i ? "," : "") + (isdotdotdot ? "..." : "") + param.name.getText() + (param.questionToken ? "?" : "") + ":" + this.emitTsType(param.type);
             }
         }
         methodstr += node.name.getText() + "(" + paramstr + "):" + this.emitType(node.type) + "{}";
