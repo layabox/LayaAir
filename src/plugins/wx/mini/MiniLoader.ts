@@ -67,7 +67,7 @@ import { Event } from "laya/events/Event";
 				case Loader.IMAGE:
 				case "htmlimage": //内部类型
 				case "nativeimage": //内部类型
-					MiniLoader._transformImgUrl(url,type);
+					MiniLoader._transformImgUrl(url,type,thisLoader);
 					break;
 				case Loader.SOUND:
 					thisLoader._loadSound(url);
@@ -97,12 +97,13 @@ import { Event } from "laya/events/Event";
 				MiniLoader.onDownLoadCallBack(url,thisLoader,0);//直接创建声音实例
 			}else
 			{
-				if (!MiniFileMgr.isLocalNativeFile(url) &&  (url.indexOf("http://") == -1 && url.indexOf("https://") == -1) || (url.indexOf("http://usr/") != -1)) 
+				var tempurl:string = URL.formatURL(url);
+				if (!MiniFileMgr.isLocalNativeFile(url) &&  (tempurl.indexOf("http://") == -1 && tempurl.indexOf("https://") == -1) || (tempurl.indexOf("http://usr/") != -1)) 
 				{
 					MiniLoader.onDownLoadCallBack(url,thisLoader, 0);
 				}else
 				{
-					MiniFileMgr.downOtherFiles(url, Handler.create(MiniLoader, MiniLoader.onDownLoadCallBack, [url,thisLoader]), url);
+					MiniFileMgr.downOtherFiles(tempurl, Handler.create(MiniLoader, MiniLoader.onDownLoadCallBack, [tempurl,thisLoader]), tempurl);
 				}
 			}
 		}
@@ -181,14 +182,15 @@ import { Event } from "laya/events/Event";
 				thisLoader.onLoaded(Loader.preLoadedMap[url]);
 			else
 			{
-				if (url.indexOf("http://usr/") == -1&& (url.indexOf("http://") != -1 || url.indexOf("https://") != -1) && !MiniAdpter.AutoCacheDownFile) 
+				var tempurl:string = URL.formatURL(url);
+				if (url.indexOf("http://usr/") == -1&& (tempurl.indexOf("http://") != -1 || tempurl.indexOf("https://") != -1) && !MiniAdpter.AutoCacheDownFile) 
 				{
-					thisLoader._loadHttpRequest(url, contentType, thisLoader, thisLoader.onLoaded, thisLoader, thisLoader.onProgress, thisLoader, thisLoader.onError);
+					thisLoader._loadHttpRequest(tempurl, contentType, thisLoader, thisLoader.onLoaded, thisLoader, thisLoader.onProgress, thisLoader, thisLoader.onError);
 				}else
 				{
 					//调用微信加载文件接口承载加载
 					//读取本地磁盘非写入的文件，只是检测文件是否需要本地读取还是外围加载
-					var fileObj:any = MiniFileMgr.getFileInfo(url);
+					var fileObj:any = MiniFileMgr.getFileInfo(URL.formatURL(url));
 					if(fileObj)
 					{
 						fileObj.encoding = fileObj.encoding == null ? "utf8" : fileObj.encoding;
@@ -199,13 +201,12 @@ import { Event } from "laya/events/Event";
 					}
 					else
 					{
-						url = URL.formatURL(url);
-						if((url.indexOf("http://") == -1 && url.indexOf("https://") == -1) || MiniFileMgr.isLocalNativeFile(url))
+						if((tempurl.indexOf("http://") == -1 && tempurl.indexOf("https://") == -1) || MiniFileMgr.isLocalNativeFile(url))
 						{
 							MiniFileMgr.readFile(url, encoding, new Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType,  thisLoader]), url);
 						}else
 						{
-							MiniFileMgr.downFiles(url, encoding, new Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType,  thisLoader]), url,true);
+							MiniFileMgr.downFiles(tempurl, encoding, new Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType,  thisLoader]), tempurl,true);
 						}
 					}
 				}
@@ -247,10 +248,10 @@ import { Event } from "laya/events/Event";
 		 * @private
 		 * @param url
 		 * @param type
+		 * @param thisLoader
 		 ***/
-		private static _transformImgUrl(url:string,type:string):void
+		private static _transformImgUrl(url:string,type:string,thisLoader:any):void
 		{
-			var thisLoader:any = this;
 			//这里要预处理磁盘文件的读取,带layanative目录标识的视为本地磁盘文件，不进行路径转换操作
 			if (MiniAdpter.isZiYu)
 			{
@@ -260,7 +261,8 @@ import { Event } from "laya/events/Event";
 			
 			if (!MiniFileMgr.getFileInfo(url)) 
 			{
-				if (url.indexOf('http://usr/') == -1&&(url.indexOf("http://") != -1 || url.indexOf("https://") != -1))
+				var tempUrl:string = URL.formatURL(url);
+				if (url.indexOf('http://usr/') == -1&&(tempUrl.indexOf("http://") != -1 || tempUrl.indexOf("https://") != -1))
 				{
 					//小游戏在子域里不能远端加载图片资源
 					if(MiniAdpter.isZiYu)
@@ -268,7 +270,7 @@ import { Event } from "laya/events/Event";
 						thisLoader._loadImage(url);//直接读取本地文件，非加载缓存的图片
 					}else
 					{
-						MiniFileMgr.downOtherFiles(url, new Handler(MiniLoader, MiniLoader.onDownImgCallBack, [url, thisLoader]), url);
+						MiniFileMgr.downOtherFiles(tempUrl, new Handler(MiniLoader, MiniLoader.onDownImgCallBack, [url, thisLoader]), tempUrl);
 					}
 				}
 				else

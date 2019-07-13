@@ -38,7 +38,7 @@ import { URL } from "laya/net/URL";
 		/**本地资源列表**/
 		 static nativefiles:any[] = ["layaNativeDir", "wxlocal"];
 		/**本地分包资源表**/
-		 static subNativeFiles:any;
+		 static subNativeFiles:any = [];
 		/**本地分包文件目录数组**/
 		 static subNativeheads:any[] = [];
 		/**本地分包文件目录映射表**/
@@ -244,6 +244,7 @@ import { URL } from "laya/net/URL";
 		private static onMkdirCallBack(errorCode:number, data:any):void {
 			if (!errorCode)
 				MiniFileMgr.filesListObj = JSON.parse(data.data);
+				MiniFileMgr.fakeObj = MiniFileMgr.filesListObj;
 		}
 		
 		/**@private 设备像素比。*/

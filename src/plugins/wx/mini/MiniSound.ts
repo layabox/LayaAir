@@ -160,7 +160,7 @@ import { URL } from "laya/net/URL";
 				}else
 				{
 					this._sound = MiniSound._createSound();
-					this._sound.src = sourceUrl;
+					this._sound.src = this.url = sourceUrl;
 				}
 				
 				this._sound.onCanplay(MiniSound.bindToThis(this.onCanPlay,this));
@@ -278,6 +278,12 @@ import { URL } from "laya/net/URL";
 					ad =null;
 				}
 				delete MiniSound._audioCache[this.readyUrl];
+			}
+			if(this._sound)
+			{
+				this._sound.destroy();
+				this._sound = null;
+				this.readyUrl = this.url = null;
 			}
 		}
 	}

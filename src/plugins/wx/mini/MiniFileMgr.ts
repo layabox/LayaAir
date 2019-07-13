@@ -12,6 +12,8 @@ import { URL } from "laya/net/URL";
 		private static wxdown:any = (<any>window).wx.downloadFile;
 		/**@private 文件缓存列表**/
 		 static filesListObj:any = {};
+		 /**@private 本局游戏使用的本地资源地址列表**/
+		 static fakeObj:any = {};
 		/**@private 文件磁盘路径**/
 		 static fileNativeDir:string;
 		/**@private 存储在磁盘的文件列表名称**/
@@ -50,8 +52,8 @@ import { URL } from "laya/net/URL";
 		 * @return
 		 */
 		 static getFileInfo(fileUrl:string):any {
-			var fileNativePath:string = fileUrl;//.split("?")[0];?????这里好像不需要
-			var fileObj:any = MiniFileMgr.filesListObj[fileNativePath];//这里要去除?好的完整路径
+			var fileNativePath:string = fileUrl;
+			var fileObj:any = MiniFileMgr.fakeObj[fileNativePath];
 			if (fileObj == null)
 				return null;
 			else
@@ -161,7 +163,10 @@ import { URL } from "laya/net/URL";
 			MiniFileMgr.wxdown({url: fileUrl, success: function(data:any):void {
 				if (data.statusCode === 200) {
 					if((MiniAdpter.autoCacheFile || isSaveFile )&& readyUrl.indexOf("qlogo.cn")== -1 && readyUrl.indexOf(".php") == -1)
-						MiniFileMgr.copyFile(data.tempFilePath, readyUrl, callBack,"",isAutoClear);
+					{
+						callBack != null && callBack.runWith([0, data.tempFilePath]);
+						MiniFileMgr.copyFile(data.tempFilePath, readyUrl, null,"",isAutoClear);
+					}
 					else
 						callBack != null && callBack.runWith([0, data.tempFilePath]);
 				}else
@@ -210,6 +215,8 @@ import { URL } from "laya/net/URL";
 			var fileObj:any = MiniFileMgr.getFileInfo(readyUrl);
 			var saveFilePath:string = MiniFileMgr.getFileNativePath(tempFileName);
 			
+			MiniFileMgr.fakeObj[fileurlkey] = {md5: tempFileName, readyUrl: readyUrl,size:0,times:Browser.now(),encoding:encoding};
+
 			//这里存储图片文件到磁盘里，需要检查磁盘空间容量是否已满50M，如果超过50M就需要清理掉不用的资源
 			var totalSize:number = 50 * 1024 * 1024;//总量50M
 			var chaSize:number = 4 * 1024 * 1024;//差值4M(预留加载缓冲空间,给文件列表用)
