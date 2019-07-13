@@ -346,7 +346,7 @@ export class SubMeshRenderElement extends RenderElement {
 						dynBatchElement.render = this.render;
 						dynBatchElement.vertexBatchVertexDeclaration = verDec;
 						dynBatchElement.renderSubShader = dynLastElement.renderSubShader;
-						var dynBatchList:SingletonList<SubMeshRenderElement> = dynBatchElement.vertexBatchElementList;
+						var dynBatchList: SingletonList<SubMeshRenderElement> = dynBatchElement.vertexBatchElementList;
 						dynBatchList.length = 0;
 						dynBatchList.add((<SubMeshRenderElement>dynLastElement));
 						dynBatchList.add(this);
@@ -368,14 +368,12 @@ export class SubMeshRenderElement extends RenderElement {
 		switch (this.renderType) {
 			case RenderElement.RENDERTYPE_NORMAL:
 				return this._transform._isFrontFaceInvert;
-				break;
 			case RenderElement.RENDERTYPE_STATICBATCH:
 			case RenderElement.RENDERTYPE_VERTEXBATCH:
 				return false;
-				break;
 			case RenderElement.RENDERTYPE_INSTANCEBATCH:
-				return this.instanceBatchElementList[0]._transform._isFrontFaceInvert;
-				break;
+				return this.instanceBatchElementList.elements[0]._transform._isFrontFaceInvert;
+			default:
 				throw "SubMeshRenderElement: unknown renderType";
 		}
 	}

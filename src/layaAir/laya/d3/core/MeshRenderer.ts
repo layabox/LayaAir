@@ -102,10 +102,11 @@ export class MeshRenderer extends BaseRender {
 			return true;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _renderUpdate(context: RenderContext3D, transform: Transform3D): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_renderUpdate(context: RenderContext3D, transform: Transform3D): void {
 		var element: SubMeshRenderElement = (<SubMeshRenderElement>context.renderElement);
 		switch (element.renderType) {
 			case RenderElement.RENDERTYPE_NORMAL:
@@ -125,20 +126,22 @@ export class MeshRenderer extends BaseRender {
 				break;
 			case RenderElement.RENDERTYPE_INSTANCEBATCH:
 				var worldMatrixData: Float32Array = SubMeshInstanceBatch.instance.instanceWorldMatrixData;
-				var insBatches:  SingletonList<SubMeshRenderElement> = element.instanceBatchElementList;
+				var insBatches: SingletonList<SubMeshRenderElement> = element.instanceBatchElementList;
+				var elements: SubMeshRenderElement[] = insBatches.elements;
 				var count: number = insBatches.length;
 				for (var i: number = 0; i < count; i++)
-					worldMatrixData.set(insBatches[i]._transform.worldMatrix.elements, i * 16);
-				SubMeshInstanceBatch.instance.instanceWorldMatrixBuffer.setData(worldMatrixData.buffer, 0, 0, count * 16*4);
+					worldMatrixData.set(elements[i]._transform.worldMatrix.elements, i * 16);
+				SubMeshInstanceBatch.instance.instanceWorldMatrixBuffer.setData(worldMatrixData.buffer, 0, 0, count * 16 * 4);
 				this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
 				break;
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {
 		var projectionView: Matrix4x4 = context.projectionViewMatrix;
 		var element: SubMeshRenderElement = (<SubMeshRenderElement>context.renderElement);
 		switch (element.renderType) {
@@ -154,13 +157,14 @@ export class MeshRenderer extends BaseRender {
 				break;
 			case RenderElement.RENDERTYPE_INSTANCEBATCH:
 				var mvpMatrixData: Float32Array = SubMeshInstanceBatch.instance.instanceMVPMatrixData;
-				var insBatches:SingletonList<SubMeshRenderElement> = element.instanceBatchElementList;
+				var insBatches: SingletonList<SubMeshRenderElement> = element.instanceBatchElementList;
+				var elements: SubMeshRenderElement[] = insBatches.elements;
 				var count: number = insBatches.length;
 				for (var i: number = 0; i < count; i++) {
-					var worldMat: Matrix4x4 = insBatches[i]._transform.worldMatrix;
+					var worldMat: Matrix4x4 = elements[i]._transform.worldMatrix;
 					Utils3D.mulMatrixByArray(projectionView.elements, 0, worldMat.elements, 0, mvpMatrixData, i * 16);
 				}
-				SubMeshInstanceBatch.instance.instanceMVPMatrixBuffer.setData(mvpMatrixData.buffer, 0, 0, count * 16*4);
+				SubMeshInstanceBatch.instance.instanceMVPMatrixBuffer.setData(mvpMatrixData.buffer, 0, 0, count * 16 * 4);
 				break;
 		}
 	}
@@ -194,22 +198,23 @@ export class MeshRenderer extends BaseRender {
 				break;
 			case RenderElement.RENDERTYPE_INSTANCEBATCH:
 				var mvpMatrixData: Float32Array = SubMeshInstanceBatch.instance.instanceMVPMatrixData;
-				var insBatches:  SingletonList<SubMeshRenderElement> = element.instanceBatchElementList;
-				var elements:SubMeshRenderElement[]=insBatches.elements;
+				var insBatches: SingletonList<SubMeshRenderElement> = element.instanceBatchElementList;
+				var elements: SubMeshRenderElement[] = insBatches.elements;
 				var count: number = insBatches.length;
 				for (var i: number = 0; i < count; i++) {
 					var worldMat: Matrix4x4 = elements[i]._transform.worldMatrix;
 					Utils3D.mulMatrixByArray(projectionView.elements, 0, worldMat.elements, 0, mvpMatrixData, i * 16);
 				}
-				SubMeshInstanceBatch.instance.instanceMVPMatrixBuffer.setData(mvpMatrixData.buffer, 0, 0, count * 16*4);
+				SubMeshInstanceBatch.instance.instanceMVPMatrixBuffer.setData(mvpMatrixData.buffer, 0, 0, count * 16 * 4);
 				break;
 		}
 	}
 
-		/**
-		 * @internal
-		 */
-		/*override*/  _revertBatchRenderUpdate(context: RenderContext3D): void {
+	/**
+	 * @internal
+	 * @override
+	 */
+	_revertBatchRenderUpdate(context: RenderContext3D): void {
 		var element: SubMeshRenderElement = (<SubMeshRenderElement>context.renderElement);
 		switch (element.renderType) {
 			case RenderElement.RENDERTYPE_STATICBATCH:
@@ -221,10 +226,11 @@ export class MeshRenderer extends BaseRender {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _destroy(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_destroy(): void {
 		(this._isPartOfStaticBatch) && (MeshRenderStaticBatchManager.instance._destroyRenderSprite(this._owner));
 		super._destroy();
 	}
