@@ -189,12 +189,23 @@ gulp.task('CopyJSFileToAS', () => {
 
 gulp.task('CopyTSFileToTS', () => {
 	return gulp.src([
-		'./*.ts',
-        './**/*.ts', './**/*.js', '!gulpfile.js'], )
-		.pipe(gulp.dest('../../build/ts_new/'));
+        './**/*.*', '!./jsLibs/**/*.*', '!gulpfile.js', '!tsconfig.json'], )
+		.pipe(gulp.dest('../../build/ts_new/libs'));
 });
 
+gulp.task('CopyTSJSLibsFileToTS', () => {
+	return gulp.src([
+        './jsLibs/**/*.*'], )
+		.pipe(gulp.dest('../../build/ts_new/jslibs'));
+});
 
+gulp.task('CopyDTS', () => {
+	return gulp.src([
+        '../../tslibs/*.*'], )
+		.pipe(gulp.dest('../../build/js/ts'))
+		.pipe(gulp.dest('../../build/ts/ts'))
+		.pipe(gulp.dest('../../build/ts_new/libs'))
+});
 
 
 gulp.task('buildJS', async function () {
@@ -471,4 +482,4 @@ gulp.task('buildJS', async function () {
 
   });
 
-  gulp.task('build', gulp.series('buildJS','buildJS2','CopyJSLibsToJS','CopyTSFileToTS','CopyJSFileToAS', 'CopyJSFileToTSCompatible'));
+  gulp.task('build', gulp.series('buildJS','buildJS2','CopyJSLibsToJS','CopyTSFileToTS', "CopyTSJSLibsFileToTS", 'CopyJSFileToAS', 'CopyJSFileToTSCompatible', 'CopyDTS'));
