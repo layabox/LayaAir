@@ -195,9 +195,10 @@ export class MeshRenderer extends BaseRender {
 			case RenderElement.RENDERTYPE_INSTANCEBATCH:
 				var mvpMatrixData: Float32Array = SubMeshInstanceBatch.instance.instanceMVPMatrixData;
 				var insBatches:  SingletonList<SubMeshRenderElement> = element.instanceBatchElementList;
+				var elements:SubMeshRenderElement[]=insBatches.elements;
 				var count: number = insBatches.length;
 				for (var i: number = 0; i < count; i++) {
-					var worldMat: Matrix4x4 = insBatches[i]._transform.worldMatrix;
+					var worldMat: Matrix4x4 = elements[i]._transform.worldMatrix;
 					Utils3D.mulMatrixByArray(projectionView.elements, 0, worldMat.elements, 0, mvpMatrixData, i * 16);
 				}
 				SubMeshInstanceBatch.instance.instanceMVPMatrixBuffer.setData(mvpMatrixData.buffer, 0, 0, count * 16*4);
