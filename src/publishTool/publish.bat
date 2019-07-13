@@ -4,7 +4,7 @@ if exist ..\..\build (
 ) 
 node index.js
 
-cd ..\layaAir
+cd ..\
 gulp build
 
 @pause

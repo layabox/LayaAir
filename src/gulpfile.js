@@ -7,77 +7,85 @@ var matched = require('matched');
 const production = !process.env.ROLLUP_WATCH;
 const gulp = require('gulp');
 const rollup = require('rollup');
+//处理文件流使用的插件
+var through = require('through2');
 
 var packsDef={
     'core':{
         'input':[
-            './Config.ts',
-            './laya/Const.ts',
-            './ILaya.ts',
-            './Laya.ts',
-            './laya/components/**/*.*',
-            './laya/display/**/*.*',
-            './laya/events/**/*.*',
-            './laya/filters/**/*.*', 
-            './laya/layagl/**/*.*',
-            './laya/maths/**/*.*',
-            './laya/media/**/*.*',
-            './laya/net/**/*.*',
-            './laya/renders/**/*.*',
-            './laya/resource/**/*.*',
-            './laya/system/**/*.*',
-            './laya/utils/**/*.*',
-            './laya/webgl/**/*.*',
-            './laya/effect/**/*.*'
+            './layaAir/Config.ts',
+            './layaAir/laya/Const.ts',
+            './layaAir/ILaya.ts',
+            './layaAir/Laya.ts',
+            './layaAir/laya/components/**/*.*',
+            './layaAir/laya/display/**/*.*',
+            './layaAir/laya/events/**/*.*',
+            './layaAir/laya/filters/**/*.*', 
+            './layaAir/laya/layagl/**/*.*',
+            './layaAir/laya/maths/**/*.*',
+            './layaAir/laya/media/**/*.*',
+            './layaAir/laya/net/**/*.*',
+            './layaAir/laya/renders/**/*.*',
+            './layaAir/laya/resource/**/*.*',
+            './layaAir/laya/system/**/*.*',
+            './layaAir/laya/utils/**/*.*',
+            './layaAir/laya/webgl/**/*.*',
+            './layaAir/laya/effect/**/*.*'
         ],
-        'out':'../../build/js/libs/laya.core.js'
+        'out':'../build/js/libs/laya.core.js'
     },
     'd3':{
         'input':[
-            './laya/d3/**/*.*',
-            './Config3D.ts',
-            './ILaya3D.ts',
-            './Laya3D.ts'
+            './layaAir/laya/d3/**/*.*',
+            './layaAir/Config3D.ts',
+            './layaAir/ILaya3D.ts',
+            './layaAir/Laya3D.ts'
         ],
-        'out':'../../build/js/libs/laya.d3.js'
+        'out':'../build/js/libs/laya.d3.js'
     },
     'device':{
         'input':[
-            './laya/device/**/*.*'
+            './layaAir/laya/device/**/*.*'
         ],
-        'out':'../../build/js/libs/laya.device.js'
+        'out':'../build/js/libs/laya.device.js'
     },
     'html':{
         'input':[
-            './laya/html/**/*.*'
+            './layaAir/laya/html/**/*.*'
         ],
-        'out':'../../build/js/libs/laya.html.js' 
+        'out':'../build/js/libs/laya.html.js' 
     },
     'particle':{
         'input':[
-            './laya/particle/**/*.*'
+            './layaAir/laya/particle/**/*.*'
         ],
-        'out':'../../build/js/libs/laya.particle.js'
+        'out':'../build/js/libs/laya.particle.js'
     },
 
     'physics':{
         'input':[
-            './laya/physics/**/*.*'
+            './layaAir/laya/physics/**/*.*'
         ],
-        'out':'../../build/js/libs/laya.physics.js' 
+        'out':'../build/js/libs/laya.physics.js' 
     },
     'ui':{
         'input':[
-            './laya/ui/**/*.*'
+            './layaAir/laya/ui/**/*.*'
         ],
-        'out':'../../build/js/libs/laya.ui.js'
+        'out':'../build/js/libs/laya.ui.js'
     },
 
     'ani':{
         'input':[
-            './laya/ani/**/*.*'
+            './layaAir/laya/ani/**/*.*'
         ],
-        'out':'../../build/js/libs/laya.ani.js'
+        'out':'../build/js/libs/laya.ani.js'
+    },
+    'wx':{
+        'input':[
+            './plugins/wx/**/*.*'
+        ],
+        'out':'../build/js/libs/laya.wxmini.js'
     }
 
 };
@@ -161,31 +169,72 @@ function myMultiInput(){
     );
 }
 
+gulp.task('ModifierJs', () => {
+	    gulp.src([
+            '../build/js/libs/laya.core.js'], )
+            .pipe(through.obj(function (file, encode, cb) {
+                var srcContents = file.contents.toString();
+                var destContents = srcContents.replace(/var Laya /, "windows.laya");
+                // 再次转为Buffer对象，并赋值给文件内容
+                file.contents = new Buffer(destContents)
+                // 以下是例行公事
+                this.push(file)
+            cb()
+        }))
+        .pipe(gulp.dest('../build/js/libs/'));
+        return gulp.src([
+            '../build/js/libs/laya.wxmini.js'], )
+            .pipe(through.obj(function (file, encode, cb) {
+                var srcContents = file.contents.toString();
+                var tempContents = srcContents.replace(/\(/, "window.wxMiniGame = ");
+                var destContents = tempContents.replace(/\(this.Laya = this.Laya \|\| {}, Laya\)\);/, " ");
+                // 再次转为Buffer对象，并赋值给文件内容
+                file.contents = new Buffer(destContents)
+                // 以下是例行公事
+                this.push(file)
+                cb()
+            }))
+            .pipe(gulp.dest('../build/js/libs/'));
+});
 
 gulp.task('CopyJSLibsToJS', () => {
 	return gulp.src([
-		'./jsLibs/*.js'], )
-		.pipe(gulp.dest('../../build/js/libs'));
+		'./layaAir/jsLibs/*.js'], )
+		.pipe(gulp.dest('../build/js/libs'));
 });
 
 gulp.task('CopyJSFileToTSCompatible', () => {
 	return gulp.src([
-		'../../build/js/libs/**/*.js'], )
-		.pipe(gulp.dest('../../build/ts/libs'));
+		'../build/js/libs/**/*.js'], )
+		.pipe(gulp.dest('../build/ts/libs'));
 });
 
 
 gulp.task('CopyJSFileToAS', () => {
 	return gulp.src([
-		'../../build/js/libs/**/*.js', '!./declare/*ts'], )
-		.pipe(gulp.dest('../../build/as/jslibs'));
+		'../build/js/libs/**/*.js', '!../build/js/declare/*ts'], )
+		.pipe(gulp.dest('../build/as/jslibs'));
 });
 
 gulp.task('CopyTSFileToTS', () => {
 	return gulp.src([
-		'./*.ts',
-        './**/*.ts', './**/*.js', '!gulpfile.js'], )
-		.pipe(gulp.dest('../../build/ts_new/'));
+        './layaAir/**/*.*', '!./layaAir/jsLibs/**/*.*', '!./layaAir/gulpfile.js', '!./layaAir/tsconfig.json'], )
+		.pipe(gulp.dest('../build/ts_new/libs'));
+});
+
+//拷贝第三方库至ts库(未来在数组中补充需要的其他第三方库)
+gulp.task('CopyTSJSLibsFileToTS', () => {
+	return gulp.src([
+        './layaAir/jsLibs/**/*.*', '../build/js/libs/laya.wxmini.js'], )
+		.pipe(gulp.dest('../build/ts_new/jslibs'));
+});
+
+gulp.task('CopyDTS', () => {
+	return gulp.src([
+        '../tslibs/*.*'], )
+		.pipe(gulp.dest('../build/js/ts'))
+		.pipe(gulp.dest('../build/ts/ts'))
+		.pipe(gulp.dest('../build/ts_new/libs'))
 });
 
 
@@ -203,7 +252,7 @@ gulp.task('buildJS', async function () {
         plugins: [
             myMultiInput(),
             typescript({
-                tsconfig:"tsconfig.json",
+                tsconfig:"./layaAir/tsconfig.json",
                 check: false
             }),
             glsl({
@@ -229,7 +278,7 @@ gulp.task('buildJS', async function () {
         plugins: [
             myMultiInput(),
             typescript({
-                tsconfig:"tsconfig.json",
+                tsconfig:"./layaAir/tsconfig.json",
                 check: false
             }),
             glsl({
@@ -257,7 +306,7 @@ gulp.task('buildJS', async function () {
         plugins: [
             myMultiInput(),
             typescript({
-                tsconfig:"tsconfig.json",
+                tsconfig:"./layaAir/tsconfig.json",
                 check: false
             }),
             glsl({
@@ -287,7 +336,7 @@ gulp.task('buildJS', async function () {
         plugins: [
             myMultiInput(),
             typescript({
-                tsconfig:"tsconfig.json",
+                tsconfig:"./layaAir/tsconfig.json",
                 check: false
             }),
             glsl({
@@ -321,7 +370,7 @@ gulp.task('buildJS', async function () {
         plugins: [
             myMultiInput(),
             typescript({
-                tsconfig:"tsconfig.json",
+                tsconfig:"./layaAir/tsconfig.json",
                 check: false
             }),
             glsl({
@@ -351,7 +400,7 @@ gulp.task('buildJS', async function () {
         plugins: [
             myMultiInput(),
             typescript({
-                tsconfig:"tsconfig.json",
+                tsconfig:"./layaAir/tsconfig.json",
                 check: false
             }),
             glsl({
@@ -371,6 +420,35 @@ gulp.task('buildJS', async function () {
       globals:{'Laya':'Laya'}
     });
 
+    const wx = await rollup.rollup({
+        input:packsDef.wx.input,
+        output: {
+            extend:true,
+            globals:{'Laya':'Laya'}
+        },
+        external:['Laya'],
+        plugins: [
+            myMultiInput(),
+            typescript({
+                tsconfig:"./layaAir/tsconfig.json",
+                check: false
+            }),
+            glsl({
+                include: /.*(.glsl|.vs|.fs)$/,
+                sourceMap: false
+            })   
+        ]
+    });
+
+    await wx.write({
+        file: packsDef.wx.out,
+        format: 'iife',
+        name: 'Laya',
+        sourcemap: false,
+        extend:true,
+        globals:{'Laya':'Laya'}
+      });
+
   });
 
   gulp.task('buildJS2', async function () {
@@ -384,7 +462,7 @@ gulp.task('buildJS', async function () {
         plugins: [
             myMultiInput(),
             typescript({
-                tsconfig:"tsconfig.json",
+                tsconfig:"./layaAir/tsconfig.json",
                 check: false
             }),
             glsl({
@@ -414,7 +492,7 @@ gulp.task('buildJS', async function () {
         plugins: [
             myMultiInput(),
             typescript({
-                tsconfig:"tsconfig.json",
+                tsconfig:"./layaAir/tsconfig.json",
                 check: false
             }),
             glsl({
@@ -436,4 +514,4 @@ gulp.task('buildJS', async function () {
 
   });
 
-  gulp.task('build', gulp.series('buildJS','buildJS2','CopyJSLibsToJS','CopyTSFileToTS','CopyJSFileToAS', 'CopyJSFileToTSCompatible'));
+  gulp.task('build', gulp.series('buildJS','buildJS2','ModifierJs', 'CopyJSLibsToJS','CopyTSFileToTS','CopyJSFileToAS','CopyTSJSLibsFileToTS', 'CopyJSFileToTSCompatible','CopyDTS'));
