@@ -501,4 +501,4 @@ gulp.task('buildJS', async function () {
 
   });
 
-  gulp.task('build', gulp.series('buildJS','buildJS2','ModifierJs', 'CopyJSLibsToJS','CopyTSFileToTS','CopyJSFileToAS', 'CopyJSFileToTSCompatible'));
+  gulp.task('build', gulp.series('buildJS','buildJS2','ModifierJs', 'CopyJSLibsToJS','CopyTSFileToTS', 'CopyTSJSLibsFileToTS', 'CopyJSFileToAS', 'CopyJSFileToTSCompatible', 'CopyDTS'));
