@@ -11,14 +11,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const ts = require("typescript");
 const fs = require("fs");
 const path = require("path");
+const gulp = require("gulp");
 const emiter_1 = require("./emiter");
 var BaseURL;
-// var BaseURL = emiter_1.emiter.BaseURL= "./bin/layaAir/";
 var outfile;
-var outfileAS = "./as/libs/src/";
-var outfileTS = "./ts/ts/";
-var outfileJS = "./js/ts/";
+var outfileAS = "./as/declare/";
+var outfileTS = "./ts_compatible/declare/";
+var outfileJS = "./js/declare/";
 var createAS;
+//***LayajS exe 所在文件夹 */
+var layajsURL;
 /**加载与写入计数 */
 var complete = 0;
 var progress = 0;
@@ -34,11 +36,12 @@ function start() {
         BaseURL = emiter_1.emiter.BaseURL = json.from;
         outfile = json.out;
         createAS = json.createAS;
+        layajsURL = json.layajsURL;
         checkAllDir("");
     });
 }
 // checkAllDir("./bin/layaAir/");
-// tstoas("laya\\ui\\Widget.d.ts", null, "laya\\ui");
+// tstoas("laya\\d3\\physics\\CharacterController.d.ts", null, "laya\\d3\\physics");
 // tstoas("laya\\d3\\physics\\PhysicsUpdateList.d.ts",null,"laya\\d3\\physics");
 // tstoas("laya\\d3\\component\\SingletonList.d.ts",null,"laya\\d3\\component");
 function checkAllDir(url) {
@@ -231,11 +234,14 @@ function checkComplete() {
             fs.writeFile(tsout, dtsObj, err => {
                 if (err)
                     console.log("create ts d.ts fail");
-                fs.writeFile(jsout, dtsObj, err => {
+                fs.writeFile(jsout, dtsObj, (err) => __awaiter(this, void 0, void 0, function* () {
                     if (err)
                         console.log("create js d.ts fail");
                     console.log("create d.ts success");
-                });
+                    console.log("start copy layajs.exe");
+                    yield gulp.src(layajsURL).pipe(gulp.dest(path.join(outfile, outfileAS, "../")));
+                    console.log("copy suc!");
+                }));
             });
         }
         else {
