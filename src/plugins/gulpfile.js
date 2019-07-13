@@ -159,7 +159,9 @@ gulp.task('buildJS', async function () {
       file: packsDef.wx.out,
       format: 'iife',
       name: 'Laya',
-      sourcemap: false
+      sourcemap: false,
+      extend:true,
+      globals:{'Laya':'Laya'}
     });
 
 
