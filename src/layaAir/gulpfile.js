@@ -78,6 +78,12 @@ var packsDef={
             './laya/ani/**/*.*'
         ],
         'out':'../../build/js/libs/laya.ani.js'
+    },
+    'wx':{
+        'input':[
+            '../plugins/wx/**/*.*'
+        ],
+        'out':'../../build/js/laya.wxmini.js'
     }
 
 };
@@ -370,6 +376,35 @@ gulp.task('buildJS', async function () {
       extend:true,
       globals:{'Laya':'Laya'}
     });
+
+    const wx = await rollup.rollup({
+        input:packsDef.wx.input,
+        output: {
+            extend:true,
+            globals:{'Laya':'Laya'}
+        },
+        external:['Laya'],
+        plugins: [
+            myMultiInput(),
+            typescript({
+                tsconfig:"tsconfig.json",
+                check: false
+            }),
+            glsl({
+                include: /.*(.glsl|.vs|.fs)$/,
+                sourceMap: false
+            })   
+        ]
+    });
+
+    await wx.write({
+        file: packsDef.wx.out,
+        format: 'iife',
+        name: 'Laya',
+        sourcemap: false,
+        extend:true,
+        globals:{'Laya':'Laya'}
+      });
 
   });
 
