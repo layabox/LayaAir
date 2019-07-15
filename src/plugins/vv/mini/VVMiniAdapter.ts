@@ -1,21 +1,19 @@
-import { Laya } from "./../../../../../../core/src/Laya";
-import { MiniFileMgr } from "./../../../../../../openData/src/laya/wx/mini/MiniFileMgr";
-import { MiniInput } from "./../../../../../bd/src/laya/bd/mini/MiniInput";
-import { MiniLoader } from "./../../../../../../openData/src/laya/wx/mini/MiniLoader";
-import { MiniImage } from "./../../../../../../openData/src/laya/wx/mini/MiniImage";
-import { MiniLocalStorage } from "./../../../../../../openData/src/laya/wx/mini/MiniLocalStorage";
-import { Config } from "./../../../../../../core/src/Config";
-import { Input } from "../../../../../../core/src/laya/display/Input"
-	import { Stage } from "../../../../../../core/src/laya/display/Stage"
-	import { Matrix } from "../../../../../../core/src/laya/maths/Matrix"
-	import { Loader } from "../../../../../../core/src/laya/net/Loader"
-	import { LocalStorage } from "../../../../../../core/src/laya/net/LocalStorage"
-	import { URL } from "../../../../../../core/src/laya/net/URL"
-	import { Browser } from "../../../../../../core/src/laya/utils/Browser"
-	import { Handler } from "../../../../../../core/src/laya/utils/Handler"
-	import { RunDriver } from "../../../../../../core/src/laya/utils/RunDriver"
-	import { Utils } from "../../../../../../core/src/laya/utils/Utils"
-	
+import { Laya } from "Laya";
+import { MiniFileMgr } from "./MiniFileMgr";
+import { Handler } from "laya/utils/Handler";
+import { Browser } from "laya/utils/Browser";
+import { RunDriver } from "laya/utils/RunDriver";
+import { MiniInput } from "./MiniInput";
+import { MiniLoader } from "./MiniLoader";
+import { Loader } from "laya/net/Loader";
+import { MiniLocalStorage } from "./MiniLocalStorage";
+import { LocalStorage } from "laya/net/LocalStorage";
+import { Matrix } from "laya/maths/Matrix";
+import { Stage } from "laya/display/Stage";
+import { Input } from "laya/display/Input";
+import { Utils } from "laya/utils/Utils";
+import {Config} from "Config";
+import {URL} from "laya/net/URL";	
 	export class VVMiniAdapter {
 		/**@private  包装对象**/
 		 static EnvConfig:any;
@@ -122,18 +120,12 @@ import { Input } from "../../../../../../core/src/laya/display/Input"
 			//文本输入框
 			Input['_createInputElement'] = MiniInput['_createInputElement'];
 			
-			//修改文件加载
-			VVMiniAdapter.EnvConfig.load = Loader.prototype.load;
-			//文件加载处理
-			Loader.prototype.load = MiniLoader.prototype.load;
-			//修改图片加载
-			Loader.prototype._loadImage = MiniImage.prototype._loadImage;
+			Loader.prototype._loadResourceFilter = MiniLoader.prototype._loadResourceFilter;
+			Loader.prototype._loadSound = MiniLoader.prototype._loadSound;
+			Loader.prototype._loadHttpRequestWhat = MiniLoader.prototype._loadHttpRequestWhat;
 			//本地缓存类
 			LocalStorage._baseClass = MiniLocalStorage;
 			MiniLocalStorage.__init__();
-//			MiniVideo.__init__();
-//			MiniAccelerator.__init__();
-//			MiniLocation.__init__();
 			VVMiniAdapter.window.qg.onMessage && VVMiniAdapter.window.qg.onMessage(VVMiniAdapter._onMessage);
 			Config.useRetinalCanvas = true;
 		}
@@ -246,6 +238,7 @@ import { Input } from "../../../../../../core/src/laya/display/Input"
 		private static onMkdirCallBack(errorCode:number, data:any):void {
 			if (!errorCode)
 				MiniFileMgr.filesListObj = JSON.parse(data.data);
+				MiniFileMgr.fakeObj = MiniFileMgr.filesListObj;
 		}
 		
 		/**@private 设备像素比。*/
@@ -271,7 +264,7 @@ import { Input } from "../../../../../../core/src/laya/display/Input"
 			var Parser:any;
 			value = value.replace(/>\s+</g, '><');
 			try {
-				rst=(new window.Parser.DOMParser()).parseFromString(value,'text/xml');
+				rst=(new (window as any).Parser.DOMParser()).parseFromString(value,'text/xml');
 			} catch (error) {
 				throw "需要引入xml解析库文件";
 			}

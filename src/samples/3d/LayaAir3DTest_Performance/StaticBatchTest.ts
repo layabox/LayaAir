@@ -19,7 +19,7 @@ export class StaticBatchTest {
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
 
-		Scene3D.load("Test/LayaScene_city01/Conventional/city01.ls", Handler.create(null, function (scene: Scene3D): void {
+		Scene3D.load("res/threeDimen/scene/LayaScene_city01/Conventional/city01.ls", Handler.create(null, function (scene: Scene3D): void {
 			(<Scene3D>Laya.stage.addChild(scene));
 			scene.getChildAt(0).addComponent(CameraMoveScript);
 		}))

@@ -1,7 +1,8 @@
-import { Laya } from "./../../../../../../core/src/Laya";
-import { Event } from "../../../../../../core/src/laya/events/Event"
-	import { SoundChannel } from "../../../../../../core/src/laya/media/SoundChannel"
-	import { SoundManager } from "../../../../../../core/src/laya/media/SoundManager"
+import { SoundChannel } from "laya/media/SoundChannel";
+import { MiniSound } from "./MiniSound";
+import { Laya } from "Laya";
+import { SoundManager } from "laya/media/SoundManager";
+import {Event} from "laya/events/Event";
 	
 	/** @private **/
 	export class MiniSoundChannel extends SoundChannel {
@@ -13,7 +14,7 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 		private _miniSound:MiniSound;
 		constructor(audio:any,miniSound:MiniSound){
 			super();
-this._audio = audio;
+			this._audio = audio;
 			this._miniSound = miniSound;
 			this._onEnd = MiniSoundChannel.bindToThis(this.__onEnd, this);
 			audio.onEnded(this._onEnd);
@@ -33,7 +34,7 @@ this._audio = audio;
 		
 		/**@private **/
 		private __onEnd():void {
-			MiniSound._audioCache[this.url] = this._miniSound;
+			//MiniSound._audioCache[this.url] = this._miniSound;
 			if (this.loops == 1) {
 				if (this.completeHandler) {
 					Laya.systemTimer.once(10, this, this.__runComplete, [this.completeHandler], false);
@@ -124,11 +125,14 @@ this._audio = audio;
 			if (!this._audio)
 				return;
 			this._audio.stop();//停止播放
-			this._audio.offEnded(null);
-			this._miniSound.dispose();
-			this._audio = null;
-			this._miniSound = null;
-			this._onEnd = null;
+			if(!this.loop)
+			{
+				this._audio.offEnded(null);
+				this._miniSound.dispose();
+				this._audio = null;
+				this._miniSound = null;
+				this._onEnd = null;
+			}
 		}
 		
 		/**@private **/

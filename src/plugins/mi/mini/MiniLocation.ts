@@ -1,6 +1,7 @@
 import { KGMiniAdapter } from "./KGMiniAdapter";
-import { Laya } from "./../../../../../../core/src/Laya";
-import { Browser } from "../../../../../../core/src/laya/utils/Browser"
+import { Browser } from "laya/utils/Browser";
+import { Laya } from "layaAir/Laya";
+
 	/**@private **/
 	export class MiniLocation 
 	{
@@ -28,7 +29,7 @@ import { Browser } from "../../../../../../core/src/laya/utils/Browser"
 			paramO = { };
 			paramO.success = getSuccess;
 			paramO.fail = error;
-			KGMiniAdapter.window.wx.getLocation(paramO);
+			KGMiniAdapter.window.qg.getLocation(paramO);
 			function getSuccess(res:any):void
 			{
 				if (success != null)
@@ -47,7 +48,7 @@ import { Browser } from "../../../../../../core/src/laya/utils/Browser"
 			curWatchO.success = success;
 			curWatchO.error = error;
 			MiniLocation._watchDic[MiniLocation._curID] = curWatchO;
-			Laya.timer.loop(1000, null, MiniLocation._myLoop);
+			Laya.systemTimer.loop(1000, null, MiniLocation._myLoop);
 			return MiniLocation._curID;
 		}
 		/**@private **/
@@ -56,7 +57,7 @@ import { Browser } from "../../../../../../core/src/laya/utils/Browser"
 			delete MiniLocation._watchDic[id];
 			if (!MiniLocation._hasWatch())
 			{
-				Laya.timer.clear(null, MiniLocation._myLoop);
+				Laya.systemTimer.clear(null, MiniLocation._myLoop);
 			}
 		}
 		/**@private **/

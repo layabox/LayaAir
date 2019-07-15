@@ -1,18 +1,19 @@
-import { MiniAdpter } from "./../../../../../../openData/src/laya/wx/mini/MiniAdpter";
-import { Laya } from "./../../../../../../core/src/Laya";
-import { Loader } from "../../../../../../core/src/laya/net/Loader"
-	import { URL } from "../../../../../../core/src/laya/net/URL"
-	import { Browser } from "../../../../../../core/src/laya/utils/Browser"
-	import { Handler } from "../../../../../../core/src/laya/utils/Handler"
-	
+import { MiniAdpter } from "./MiniAdpter";
+import { Handler } from "laya/utils/Handler";
+import { Laya } from "../../../../bin/tsc/layaAir/Laya";
+import { Browser } from "laya/utils/Browser";
+import { Loader} from "laya/net/Loader";
+import { URL } from "laya/net/URL";
 	/** @private **/
 	export class MiniFileMgr{
 		/**@private 读取文件操作接口**/
-		private static fs:any = wx.getFileSystemManager();
+		private static fs:any = (<any>window).wx.getFileSystemManager();
 		/**@private 下载文件接口**/
-		private static wxdown:any = wx.downloadFile;
+		private static wxdown:any = (<any>window).wx.downloadFile;
 		/**@private 文件缓存列表**/
 		 static filesListObj:any = {};
+		 /**@private 本局游戏使用的本地资源地址列表**/
+		 static fakeObj:any = {};
 		/**@private 文件磁盘路径**/
 		 static fileNativeDir:string;
 		/**@private 存储在磁盘的文件列表名称**/
@@ -33,7 +34,7 @@ import { Loader } from "../../../../../../core/src/laya/net/Loader"
 		 * @param url
 		 * @return 
 		 */		
-		 static  isLocalNativeFile(url:string):boolean
+		 static isLocalNativeFile(url:string):boolean
 		{
 			for(var i:number = 0,sz:number = MiniAdpter.nativefiles.length;i<sz;i++)
 			{
@@ -51,8 +52,8 @@ import { Loader } from "../../../../../../core/src/laya/net/Loader"
 		 * @return
 		 */
 		 static getFileInfo(fileUrl:string):any {
-			var fileNativePath:string = fileUrl;//.split("?")[0];?????这里好像不需要
-			var fileObj:any = MiniFileMgr.filesListObj[fileNativePath];//这里要去除?好的完整路径
+			var fileNativePath:string = fileUrl;
+			var fileObj:any = MiniFileMgr.fakeObj[fileNativePath];
 			if (fileObj == null)
 				return null;
 			else
@@ -162,7 +163,10 @@ import { Loader } from "../../../../../../core/src/laya/net/Loader"
 			MiniFileMgr.wxdown({url: fileUrl, success: function(data:any):void {
 				if (data.statusCode === 200) {
 					if((MiniAdpter.autoCacheFile || isSaveFile )&& readyUrl.indexOf("qlogo.cn")== -1 && readyUrl.indexOf(".php") == -1)
-						MiniFileMgr.copyFile(data.tempFilePath, readyUrl, callBack,"",isAutoClear);
+					{
+						callBack != null && callBack.runWith([0, data.tempFilePath]);
+						MiniFileMgr.copyFile(data.tempFilePath, readyUrl, null,"",isAutoClear);
+					}
 					else
 						callBack != null && callBack.runWith([0, data.tempFilePath]);
 				}else
@@ -211,6 +215,8 @@ import { Loader } from "../../../../../../core/src/laya/net/Loader"
 			var fileObj:any = MiniFileMgr.getFileInfo(readyUrl);
 			var saveFilePath:string = MiniFileMgr.getFileNativePath(tempFileName);
 			
+			MiniFileMgr.fakeObj[fileurlkey] = {md5: tempFileName, readyUrl: readyUrl,size:0,times:Browser.now(),encoding:encoding};
+
 			//这里存储图片文件到磁盘里，需要检查磁盘空间容量是否已满50M，如果超过50M就需要清理掉不用的资源
 			var totalSize:number = 50 * 1024 * 1024;//总量50M
 			var chaSize:number = 4 * 1024 * 1024;//差值4M(预留加载缓冲空间,给文件列表用)
@@ -422,7 +428,7 @@ import { Loader } from "../../../../../../core/src/laya/net/Loader"
 			//主域向子域传递消息
 			if(!MiniAdpter.isZiYu &&MiniAdpter.isPosMsgYu)
 			{
-				wx.postMessage({url:fileurlkey,data:MiniFileMgr.filesListObj[fileurlkey],isLoad:"filenative",isAdd:isAdd});
+				MiniAdpter.window.wx.postMessage({url:fileurlkey,data:MiniFileMgr.filesListObj[fileurlkey],isLoad:"filenative",isAdd:isAdd});
 			}
 		}
 		
@@ -486,7 +492,7 @@ import { Loader } from "../../../../../../core/src/laya/net/Loader"
 		 * @return
 		 */
 		 static setNativeFileDir(value:string):void {
-			MiniFileMgr.fileNativeDir = wx.env.USER_DATA_PATH + value;
+			MiniFileMgr.fileNativeDir = MiniAdpter.window.wx.env.USER_DATA_PATH + value;
 		}
 	}
 

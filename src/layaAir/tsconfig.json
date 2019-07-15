@@ -4,8 +4,8 @@
         "module": "esnext",
         "outDir": "../../bin/tsc/layaAir",
         "composite":true,
-        "stripInternal": true
-
+        "stripInternal": true,
+        "removeComments": true
     },
     "exclude": [
         "laya/d3Extend/Cube",
@@ -15,4 +15,5 @@
         "laya/d3Extend/vox",
         "laya/d3Extend/worldMaker"
     ]
+
 }

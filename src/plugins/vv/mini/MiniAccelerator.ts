@@ -1,4 +1,7 @@
-import { EventDispatcher } from "../../../../../../core/src/laya/events/EventDispatcher"
+import { EventDispatcher } from "laya/events/EventDispatcher";
+import { Accelerator } from "../../device/motion/Accelerator";
+import { VVMiniAdapter } from "./VVMiniAdapter";
+
 	
 	/**@private **/
 	export class MiniAccelerator extends EventDispatcher
@@ -14,7 +17,7 @@ import { EventDispatcher } from "../../../../../../core/src/laya/events/EventDis
 			try
 			{
 				var Acc:any;
-				Acc = laya.device.motion.Accelerator;
+				Acc = Accelerator;
 				if (!Acc) return;
 				Acc["prototype"]["on"] = MiniAccelerator["prototype"]["on"];
 				Acc["prototype"]["off"] = MiniAccelerator["prototype"]["off"];
@@ -35,7 +38,7 @@ import { EventDispatcher } from "../../../../../../core/src/laya/events/EventDis
 			MiniAccelerator._isListening = true;
 			try
 			{
-				wx.onAccelerometerChange(MiniAccelerator.onAccelerometerChange);
+				VVMiniAdapter.window.qg.onAccelerometerChange(MiniAccelerator.onAccelerometerChange);
 			}catch(e){}
 			
 		}
@@ -46,7 +49,7 @@ import { EventDispatcher } from "../../../../../../core/src/laya/events/EventDis
 			MiniAccelerator._isListening = false;
 			try
 			{
-				wx.stopAccelerometer({});
+				VVMiniAdapter.window.qg.stopAccelerometer({});
 			}catch(e){}
 			
 		}

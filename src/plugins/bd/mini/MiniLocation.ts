@@ -1,6 +1,7 @@
 import { BMiniAdapter } from "./BMiniAdapter";
-import { Laya } from "./../../../../../../core/src/Laya";
-import { Browser } from "../../../../../../core/src/laya/utils/Browser"
+import { Browser } from "laya/utils/Browser";
+import { Laya } from "layaAir/Laya";
+
 	/**@private **/
 	export class MiniLocation 
 	{

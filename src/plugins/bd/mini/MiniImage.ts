@@ -1,11 +1,10 @@
 import { BMiniAdapter } from "./BMiniAdapter";
-import { MiniFileMgr } from "./../../../../../../openData/src/laya/wx/mini/MiniFileMgr";
-import { Event } from "../../../../../../core/src/laya/events/Event"
-	import { URL } from "../../../../../../core/src/laya/net/URL"
-	import { HTMLImage } from "../../../../../../core/src/laya/resource/HTMLImage"
-	import { Browser } from "../../../../../../core/src/laya/utils/Browser"
-	import { Handler } from "../../../../../../core/src/laya/utils/Handler"
-	
+import { MiniFileMgr } from "./MiniFileMgr";
+import { Handler } from "laya/utils/Handler";
+import { Browser } from "laya/utils/Browser";
+import { HTMLImage } from "laya/resource/HTMLImage";
+import  {URL} from "laya/net/URL";	
+import {Event} from "laya/events/Event";
 	/** @private **/
 	export class MiniImage {
 		
@@ -33,7 +32,7 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 						url = url.split(MiniFileMgr.loadPath)[1];//去掉http头
 					}else
 					{
-						var tempStr:string = URL.rootPath != "" ? URL.rootPath : URL.basePath;
+						var tempStr:string = URL.rootPath != "" ? URL.rootPath : URL._basePath;
 						var tempUrl:string = url;
 						if(tempStr != "")
 							url = url.split(tempStr)[1];//去掉http头
@@ -59,7 +58,6 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 				//判断当前的url是否为分包映射路径
 				if(BMiniAdapter.subNativeFiles && url.indexOf("/") != -1)
 				{
-					debugger;
 					var curfileHead:string = url.split("/")[0] + "/";//文件头
 					if(curfileHead && BMiniAdapter.subNativeheads.indexOf(curfileHead) != -1)
 					{
@@ -68,7 +66,8 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 					}
 				}
 			}
-			if (!MiniFileMgr.getFileInfo(url)) {
+			if (!MiniFileMgr.getFileInfo(url)) 
+			{
 				if (url.indexOf('http://usr/') == -1&&(url.indexOf("http://") != -1 || url.indexOf("https://") != -1))
 				{
 					//小游戏在子域里不能远端加载图片资源
@@ -127,7 +126,17 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 						fileNativeUrl = MiniFileMgr.getFileNativePath(fileMd5Name);
 					}
 				} else
-					fileNativeUrl = sourceUrl;
+					if(BMiniAdapter.isZiYu)
+					{
+						//子域里需要读取主域透传过来的信息，然后这里获取一个本地磁盘图片路径，然后赋值给fileNativeUrl
+						var tempUrl:string = URL.formatURL(sourceUrl);
+						if(MiniFileMgr.ziyuFileTextureData[tempUrl])
+						{
+							fileNativeUrl = MiniFileMgr.ziyuFileTextureData[tempUrl];
+						}else
+							fileNativeUrl = sourceUrl;
+					}else
+						fileNativeUrl = sourceUrl;
 			}else
 			{
 				if(!isLocal)
@@ -175,6 +184,7 @@ import { Event } from "../../../../../../core/src/laya/events/Event"
 					image = HTMLImage.create(imageSource.width, imageSource.height);
 					image.loadImageSource(imageSource, true);
 					image._setCreateURL(fileNativeUrl);
+//					image._setUrl(fileNativeUrl);
 					clear();
 					thisLoader.onLoaded(image);
 				};

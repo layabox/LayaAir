@@ -1,4 +1,5 @@
 import { BMiniAdapter } from "./BMiniAdapter";
+
 /** @private **/
 	export class MiniLocalStorage
 	{
@@ -22,7 +23,18 @@ import { BMiniAdapter } from "./BMiniAdapter";
 		 * @param value 键值。
 		 */
 		 static setItem(key:string, value:any):void {
-			BMiniAdapter.window.swan.setStorageSync(key,value);
+
+			try
+			{
+				BMiniAdapter.window.swan.setStorageSync(key,value);
+			} 
+			catch(error) 
+			{
+				BMiniAdapter.window.swan.setStorage({
+					key:key,
+					data:value
+				});
+			}
 		}
 		
 		/**
@@ -71,7 +83,7 @@ import { BMiniAdapter } from "./BMiniAdapter";
 		 static getStorageInfoSync():any
 		{
 			try {
-				var res:any =BMiniAdapter.window.swan.getStorageInfoSync();
+				var res:any = BMiniAdapter.window.swan.getStorageInfoSync()
 				console.log(res.keys)
 				console.log(res.currentSize)
 				console.log(res.limitSize)

@@ -1,6 +1,6 @@
 import { QGMiniAdapter } from "./QGMiniAdapter";
-import { Laya } from "./../../../../../../core/src/Laya";
-import { Browser } from "../../../../../../core/src/laya/utils/Browser"
+import { Laya } from "Laya";
+import { Browser } from "laya/utils/Browser";
 
 	/**@private **/
 	export class MiniLocation 

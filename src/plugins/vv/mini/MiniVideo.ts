@@ -17,7 +17,7 @@ import { VVMiniAdapter } from "./VVMiniAdapter";
 		
 		 static __init__():void
 		{
-			laya.device.media.Video = MiniVideo;
+			//Video = MiniVideo;
 		}
 		
 		 onPlayFunc:Function;

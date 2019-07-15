@@ -158,7 +158,6 @@ export class MouseInteraction {
 		//添加鼠标事件
 		this.addMouseEvent();
 
-		debugger;
 		//显示文本显示框
 		this.text.name = "text";
 		this.text.overflow = Text.HIDDEN;
