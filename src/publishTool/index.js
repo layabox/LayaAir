@@ -12,8 +12,10 @@ const ts = require("typescript");
 const fs = require("fs");
 const path = require("path");
 const gulp = require("gulp");
+const child_process = require("child_process");
 const emiter_1 = require("./emiter");
 var BaseURL;
+/***导出相关 */
 var outfile;
 var outfileAS = "./as/libs/src/";
 var outfileTS = "./ts/ts/";
@@ -29,6 +31,8 @@ var Testobj = {};
 var dtsObj = "";
 /** Laya头 */
 var isTimeOut = false;
+/**执行的目录tsConfig */
+var tsCongfig;
 start();
 function start() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -37,7 +41,23 @@ function start() {
         outfile = json.out;
         createAS = json.createAS;
         layajsURL = json.layajsURL;
-        checkAllDir("");
+        tsCongfig = json.tsConfig;
+        if (yield compile()) { //确认编译结果
+            checkAllDir("");
+        }
+    });
+}
+function compile() {
+    console.log("start compile!");
+    return new Promise(reslove => {
+        child_process.exec("tsc -b " + tsCongfig, (error, stdout, stderr) => {
+            if (error) {
+                console.log("compile error! ", error);
+                reslove(false);
+            }
+            console.log("compile success!");
+            reslove(true);
+        });
     });
 }
 // checkAllDir("./bin/layaAir/");
