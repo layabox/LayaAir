@@ -33,7 +33,7 @@ export class Input3D {
 	/**@internal */
 	private _scene: Scene3D;
 	/**@internal */
-	private _eventList: any[] = [];
+	private _eventList: UIEvent[] = [];
 	/**@internal */
 	private _mouseTouch: MouseTouch = new MouseTouch();
 	/**@internal */
@@ -56,7 +56,7 @@ export class Input3D {
 	/**
 	 * @internal
 	 */
-	private _pushEventList: Function = ((e: any) => {
+	private _pushEventList: Function = ((e: UIEvent) => {
 		e.preventDefault();
 		this._eventList.push(e);
 	}).bind(this);
@@ -234,7 +234,7 @@ export class Input3D {
 	 * @internal
 	 * @param flag 0:add、1:remove、2:change
 	 */
-	_changeTouches(changedTouches: any[], flag: number): void {
+	_changeTouches(changedTouches: TouchList, flag: number): void {
 		var offsetX: number = 0, offsetY: number = 0;
 		var lastCount: number = this._touches.length;
 		for (var j: number = 0, m: number = changedTouches.length; j < m; j++) {
@@ -288,8 +288,9 @@ export class Input3D {
 		n = this._eventList.length;
 		var cameras: BaseCamera[] = this._scene._cameraPool;
 		if (n > 0) {
+			var rayCast: boolean = false;
 			for (i = 0; i < n; i++) {
-				var e: any = this._eventList[i];
+				var e: UIEvent = this._eventList[i];
 				switch (e.type) {
 					case "mousedown":
 						(enablePhysics) && (this._mouseTouchDown());
@@ -299,33 +300,34 @@ export class Input3D {
 						break;
 					case "mousemove":
 						var mousePoint: Point = Input3D._tempPoint;
-						mousePoint.setTo(e.pageX, e.pageY);
+						mousePoint.setTo((<MouseEvent>e).pageX, (<MouseEvent>e).pageY);
 						ILaya.stage._canvasTransform.invertTransformPoint(mousePoint);//考虑画布缩放
 						this._mouseTouch.mousePositionX = mousePoint.x;
 						this._mouseTouch.mousePositionY = mousePoint.y;
-						(enablePhysics) && (this._mouseTouchRayCast(cameras));
+						(enablePhysics) && (rayCast = true);
 						break;
 					case "touchstart":
 						var lastLength: number = this._touches.length;//需要在_changeTouches()之前获取
-						this._changeTouches(e.changedTouches, 0);
+						this._changeTouches((<TouchEvent>e).changedTouches, 0);
 						if (enablePhysics) {
-							this._mouseTouchRayCast(cameras);//触摸点击时touchMove不会触发,需要调用_touchRayCast()函数
+							rayCast = true;//触摸点击时touchMove不会触发,需要调用_touchRayCast()函数
 							(lastLength === 0) && (this._mouseTouchDown());
 						}
 						break;
 					case "touchend":
 					case "touchcancel":
-						this._changeTouches(e.changedTouches, 1);
+						this._changeTouches((<TouchEvent>e).changedTouches, 1);
 						(enablePhysics && this._touches.length === 0) && (this._mouseTouchUp());
 						break;
 					case "touchmove":
-						this._changeTouches(e.changedTouches, 2);
-						(enablePhysics) && (this._mouseTouchRayCast(cameras));
+						this._changeTouches((<TouchEvent>e).changedTouches, 2);
+						(enablePhysics) && (rayCast = true);
 						break;
 					default:
 						throw "Input3D:unkonwn event type.";
 				}
 			}
+			(rayCast) && (this._mouseTouchRayCast(cameras));//延迟射线检测,否则mouseMove每帧可能触发多次
 			this._eventList.length = 0;
 		}
 
