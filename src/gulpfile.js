@@ -201,15 +201,16 @@ gulp.task('ModifierJs', () => {
 });
 
 //合并physics 和 box2d
-gulp.task('ConcatBox2dPhysics', () => {
-    return pump([
+gulp.task('ConcatBox2dPhysics', function (cb) {
+    pump([
         gulp.src([
-        './layaAir/jsLibs/box2d.js', 
-        '../build/js/libs/laya.physics.js']),
+            './layaAir/jsLibs/box2d.js', 
+            '../build/js/libs/laya.physics.js']),
         concat('laya.physics.js'),//合并后的文件名
-        gulp.dest('../build/js/libs/')
-    ]);
+        gulp.dest('../build/js/libs/'),
+    ], cb);
 });
+
 
 gulp.task('CopyJSLibsToJS', () => {
 	return gulp.src([
@@ -528,4 +529,4 @@ gulp.task('buildJS', async function () {
 
   });
 
-  gulp.task('build', gulp.series('buildJS','buildJS2','ModifierJs', 'CopyJSLibsToJS','CopyTSFileToTS','CopyJSFileToAS','CopyTSJSLibsFileToTS', 'CopyJSFileToTSCompatible','CopyDTS'));
+  gulp.task('build', gulp.series('buildJS','buildJS2','ModifierJs', 'ConcatBox2dPhysics', 'CopyJSLibsToJS','CopyTSFileToTS','CopyJSFileToAS','CopyTSJSLibsFileToTS', 'CopyJSFileToTSCompatible','CopyDTS'));
