@@ -9,6 +9,9 @@ const gulp = require('gulp');
 const rollup = require('rollup');
 //处理文件流使用的插件
 var through = require('through2');
+//合并文件
+var concat = require('gulp-concat'),
+    pump   = require('pump');
 
 var packsDef={
     'core':{
@@ -174,7 +177,7 @@ gulp.task('ModifierJs', () => {
             '../build/js/libs/laya.core.js'], )
             .pipe(through.obj(function (file, encode, cb) {
                 var srcContents = file.contents.toString();
-                var destContents = srcContents.replace(/var Laya /, "window.laya");
+                var destContents = srcContents.replace(/var Laya /, "window.Laya");
                 // 再次转为Buffer对象，并赋值给文件内容
                 file.contents = new Buffer(destContents)
                 // 以下是例行公事
@@ -196,6 +199,18 @@ gulp.task('ModifierJs', () => {
             }))
             .pipe(gulp.dest('../build/js/libs/'));
 });
+
+//合并physics 和 box2d
+gulp.task('ConcatBox2dPhysics', function (cb) {
+    pump([
+        gulp.src([
+            './layaAir/jsLibs/box2d.js', 
+            '../build/js/libs/laya.physics.js']),
+        concat('laya.physics.js'),//合并后的文件名
+        gulp.dest('../build/js/libs/'),
+    ], cb);
+});
+
 
 gulp.task('CopyJSLibsToJS', () => {
 	return gulp.src([
@@ -239,7 +254,7 @@ gulp.task('CopyDTS', () => {
 
 
 
-
+//在这个任务中由于机器的配置可能会出现堆栈溢出的情况，解决方案一可以将其中的某些库移送至buildJS2编译，若buildJS2也堆栈溢出，则可以再新建一个任务buildJS3
 gulp.task('buildJS', async function () {
 
     const ani = await rollup.rollup({
@@ -420,35 +435,6 @@ gulp.task('buildJS', async function () {
       globals:{'Laya':'Laya'}
     });
 
-    const wx = await rollup.rollup({
-        input:packsDef.wx.input,
-        output: {
-            extend:true,
-            globals:{'Laya':'Laya'}
-        },
-        external:['Laya'],
-        plugins: [
-            myMultiInput(),
-            typescript({
-                tsconfig:"./layaAir/tsconfig.json",
-                check: false
-            }),
-            glsl({
-                include: /.*(.glsl|.vs|.fs)$/,
-                sourceMap: false
-            })   
-        ]
-    });
-
-    await wx.write({
-        file: packsDef.wx.out,
-        format: 'iife',
-        name: 'Laya',
-        sourcemap: false,
-        extend:true,
-        globals:{'Laya':'Laya'}
-      });
-
   });
 
   gulp.task('buildJS2', async function () {
@@ -512,6 +498,35 @@ gulp.task('buildJS', async function () {
       globals:{'Laya':'Laya'}
     });
 
+    const wx = await rollup.rollup({
+        input:packsDef.wx.input,
+        output: {
+            extend:true,
+            globals:{'Laya':'Laya'}
+        },
+        external:['Laya'],
+        plugins: [
+            myMultiInput(),
+            typescript({
+                tsconfig:"./layaAir/tsconfig.json",
+                check: false
+            }),
+            glsl({
+                include: /.*(.glsl|.vs|.fs)$/,
+                sourceMap: false
+            })   
+        ]
+    });
+
+    await wx.write({
+        file: packsDef.wx.out,
+        format: 'iife',
+        name: 'Laya',
+        sourcemap: false,
+        extend:true,
+        globals:{'Laya':'Laya'}
+      });
+
   });
 
-  gulp.task('build', gulp.series('buildJS','buildJS2','ModifierJs', 'CopyJSLibsToJS','CopyTSFileToTS','CopyJSFileToAS','CopyTSJSLibsFileToTS', 'CopyJSFileToTSCompatible','CopyDTS'));
+  gulp.task('build', gulp.series('buildJS','buildJS2','ModifierJs', 'ConcatBox2dPhysics', 'CopyJSLibsToJS','CopyTSFileToTS','CopyJSFileToAS','CopyTSJSLibsFileToTS', 'CopyJSFileToTSCompatible','CopyDTS'));
