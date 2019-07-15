@@ -88,7 +88,7 @@ void main_normal()
 		gl_Position = u_MvpMatrix * position;
 	#endif
 	
-	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(RECEIVESHADOW)
+	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(RECEIVESHADOW)||defined(REFLECTMAP)
 		mat4 worldMat;
 		#ifdef GPU_INSTANCE
 			worldMat = a_WorldMat;
@@ -97,7 +97,7 @@ void main_normal()
 		#endif
 	#endif
 	
-	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
+	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(REFLECTMAP)
 		mat3 worldInvMat;
 		#ifdef BONE
 			worldInvMat=inverse(mat3(worldMat*skinTransform));
@@ -112,12 +112,12 @@ void main_normal()
 	#endif
 	
 	
-	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(RECEIVESHADOW)
+	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(RECEIVESHADOW)||defined(REFLECTMAP)
 		v_PositionWorld=(worldMat*position).xyz;
 	#endif
 	
   
-	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
+	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(REFLECTMAP)
 		v_ViewDir=u_CameraPos-v_PositionWorld;
 	#endif
 

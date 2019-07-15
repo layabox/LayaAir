@@ -140,7 +140,11 @@ void main_normal()
 		color.a = 0.0;
 		color += PBRSpecularSpotLight(albedoColor, sg.rgb, sg.a, normal, viewDir, u_SpotLight, v_PositionWorld, gi);
 	#endif
-	
+
+	#ifdef REFLECTMAP
+	 	color += LayaAirSpecularReflect(albedoColor,sg.rgb,sg.a,gi);
+	#endif
+
 	#ifdef EMISSION
 		vec4 emissionColor = u_EmissionColor;
 		#ifdef EMISSIONTEXTURE
