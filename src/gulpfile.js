@@ -254,7 +254,7 @@ gulp.task('CopyDTS', () => {
 
 
 
-
+//在这个任务中由于机器的配置可能会出现堆栈溢出的情况，解决方案一可以将其中的某些库移送至buildJS2编译，若buildJS2也堆栈溢出，则可以再新建一个任务buildJS3
 gulp.task('buildJS', async function () {
 
     const ani = await rollup.rollup({
@@ -435,35 +435,6 @@ gulp.task('buildJS', async function () {
       globals:{'Laya':'Laya'}
     });
 
-    const wx = await rollup.rollup({
-        input:packsDef.wx.input,
-        output: {
-            extend:true,
-            globals:{'Laya':'Laya'}
-        },
-        external:['Laya'],
-        plugins: [
-            myMultiInput(),
-            typescript({
-                tsconfig:"./layaAir/tsconfig.json",
-                check: false
-            }),
-            glsl({
-                include: /.*(.glsl|.vs|.fs)$/,
-                sourceMap: false
-            })   
-        ]
-    });
-
-    await wx.write({
-        file: packsDef.wx.out,
-        format: 'iife',
-        name: 'Laya',
-        sourcemap: false,
-        extend:true,
-        globals:{'Laya':'Laya'}
-      });
-
   });
 
   gulp.task('buildJS2', async function () {
@@ -526,6 +497,35 @@ gulp.task('buildJS', async function () {
       extend:true,
       globals:{'Laya':'Laya'}
     });
+
+    const wx = await rollup.rollup({
+        input:packsDef.wx.input,
+        output: {
+            extend:true,
+            globals:{'Laya':'Laya'}
+        },
+        external:['Laya'],
+        plugins: [
+            myMultiInput(),
+            typescript({
+                tsconfig:"./layaAir/tsconfig.json",
+                check: false
+            }),
+            glsl({
+                include: /.*(.glsl|.vs|.fs)$/,
+                sourceMap: false
+            })   
+        ]
+    });
+
+    await wx.write({
+        file: packsDef.wx.out,
+        format: 'iife',
+        name: 'Laya',
+        sourcemap: false,
+        extend:true,
+        globals:{'Laya':'Laya'}
+      });
 
   });
 
