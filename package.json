@@ -10,7 +10,10 @@
   "license": "ISC",
   "dependencies": {
     "@types/webgl2": "0.0.4",
-    "typedoc": "^0.14.2"
+    "gulp-concat": "^2.6.1",
+    "matched": "^4.0.0",
+    "typedoc": "^0.14.2",
+    "typescript": "^3.5.3"
   },
   "devDependencies": {
     "gulp": "^4.0.2",

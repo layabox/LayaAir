@@ -9,6 +9,9 @@ const gulp = require('gulp');
 const rollup = require('rollup');
 //处理文件流使用的插件
 var through = require('through2');
+//合并文件
+var concat = require('gulp-concat'),
+    pump   = require('pump');
 
 var packsDef={
     'core':{
@@ -174,7 +177,7 @@ gulp.task('ModifierJs', () => {
             '../build/js/libs/laya.core.js'], )
             .pipe(through.obj(function (file, encode, cb) {
                 var srcContents = file.contents.toString();
-                var destContents = srcContents.replace(/var Laya /, "window.laya");
+                var destContents = srcContents.replace(/var Laya /, "window.Laya");
                 // 再次转为Buffer对象，并赋值给文件内容
                 file.contents = new Buffer(destContents)
                 // 以下是例行公事
@@ -195,6 +198,17 @@ gulp.task('ModifierJs', () => {
                 cb()
             }))
             .pipe(gulp.dest('../build/js/libs/'));
+});
+
+//合并physics 和 box2d
+gulp.task('ConcatBox2dPhysics', () => {
+    return pump([
+        gulp.src([
+        './layaAir/jsLibs/box2d.js', 
+        '../build/js/libs/laya.physics.js']),
+        concat('laya.physics.js'),//合并后的文件名
+        gulp.dest('../build/js/libs/')
+    ]);
 });
 
 gulp.task('CopyJSLibsToJS', () => {
