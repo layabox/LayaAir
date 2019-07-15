@@ -2,5 +2,6 @@
   "from":"../../bin/tsc/layaAir/",
   "out":"../../build/",
   "layajsURL":"./as/layajs.exe",
+  "tsConfig":"../layaAir/tsconfig.json",
   "createAS":true
 }
