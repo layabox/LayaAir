@@ -76,7 +76,6 @@ import { Command } from "./laya/d3/core/render/command/Command";
 import { ClassUtils } from "./laya/utils/ClassUtils";
 import { StaticPlaneColliderShape } from "./laya/d3/physics/shape/StaticPlaneColliderShape";
 import { PrimitiveMesh } from "./laya/d3/resource/models/PrimitiveMesh";
-import { verify } from "crypto";
 import { VertexMesh } from "./laya/d3/graphics/Vertex/VertexMesh";
 import { VertexElementFormat } from "./laya/d3/graphics/VertexElementFormat";
 import { VertexShurikenParticleBillboard } from "./laya/d3/graphics/Vertex/VertexShurikenParticleBillboard";
