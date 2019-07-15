@@ -174,7 +174,7 @@ gulp.task('ModifierJs', () => {
             '../build/js/libs/laya.core.js'], )
             .pipe(through.obj(function (file, encode, cb) {
                 var srcContents = file.contents.toString();
-                var destContents = srcContents.replace(/var Laya /, "windows.laya");
+                var destContents = srcContents.replace(/var Laya /, "window.laya");
                 // 再次转为Buffer对象，并赋值给文件内容
                 file.contents = new Buffer(destContents)
                 // 以下是例行公事

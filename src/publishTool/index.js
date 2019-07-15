@@ -15,9 +15,9 @@ const gulp = require("gulp");
 const emiter_1 = require("./emiter");
 var BaseURL;
 var outfile;
-var outfileAS = "./as/declare/";
-var outfileTS = "./ts_compatible/declare/";
-var outfileJS = "./js/declare/";
+var outfileAS = "./as/libs/src/";
+var outfileTS = "./ts/ts/";
+var outfileJS = "./js/ts/";
 var createAS;
 //***LayajS exe 所在文件夹 */
 var layajsURL;
@@ -239,7 +239,7 @@ function checkComplete() {
                         console.log("create js d.ts fail");
                     console.log("create d.ts success");
                     console.log("start copy layajs.exe");
-                    yield gulp.src(layajsURL).pipe(gulp.dest(path.join(outfile, outfileAS, "../")));
+                    yield gulp.src(layajsURL).pipe(gulp.dest(path.join(outfile, outfileAS, "../../")));
                     console.log("copy suc!");
                 }));
             });
