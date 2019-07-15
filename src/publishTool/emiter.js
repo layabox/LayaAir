@@ -42,6 +42,8 @@ class emiter {
                 this.outString = "package " + _url.replace(new RegExp("\\\\", "g"), ".") + " {\r\n" + this.outString + "\r\n}\r\n";
             }
         }
+        if (this.outString == "" && this.copyTSdata == "")
+            return "";
         //对ts构成重写
         if (_url != "") {
             let packageUrl = _url.replace(new RegExp("\\\\", "g"), ".");
@@ -56,7 +58,7 @@ class emiter {
         //         this.copyTSdata.replace(new RegExp(key,"g"),this.importArr[key]);
         //     }
         // }
-        return this.outString;
+        return "/*[IF-FLASH]*/\n" + this.outString;
     }
     /**
      * 生成import
@@ -185,16 +187,30 @@ class emiter {
     emitMethodSig(node) {
         let methodstr = "\t\tfunction ";
         let tsMethod = "\t\t";
+        // let paramstr = "";
+        // if(node.parameters&&node.parameters.length){
+        //     for(let i = 0;i<node.parameters.length;i++){
+        //         let param = node.parameters[i] as ts.ParameterDeclaration;
+        //         paramstr += (i?",":"") + param.name.getText() + ":" + this.emitType(param.type);
+        //     }
+        // }
+        // methodstr +=  node.name.getText() + "(" + paramstr + "):" + this.emitType(node.type);
         let paramstr = "";
-        if (node.parameters && node.parameters.length) {
+        let tsparam = "";
+        if (node.parameters) {
             for (let i = 0; i < node.parameters.length; i++) {
                 let param = node.parameters[i];
-                paramstr += (i ? "," : "") + param.name.getText() + ":" + this.emitType(param.type);
+                let isdotdotdot = false;
+                if (param.dotDotDotToken)
+                    isdotdotdot = true;
+                paramstr += (i ? "," : "") + (isdotdotdot ? "..." : "") + param.name.getText() + (isdotdotdot ? "" : (":" + this.emitType(param.type) + (param.questionToken ? " = null" : "")));
+                tsparam += (i ? "," : "") + (isdotdotdot ? "..." : "") + param.name.getText() + (param.questionToken ? "?" : "") + ":" + this.emitTsType(param.type);
             }
         }
-        methodstr += node.name.getText() + "(" + paramstr + "):" + this.emitType(node.type);
+        methodstr += node.name.getText() + "(" + paramstr + "):" + this.emitType(node.type) + ";";
+        tsMethod += node.name.getText() + "(" + tsparam + "):" + this.emitTsType(node.type) + ";";
         let note = this.changeIndex(node, "\r\n\t\t");
-        return [note + methodstr + "\r\n", note + "\r\n\t\t" + tsMethod];
+        return [note + methodstr + "\r\n", note + tsMethod + "\r\n"];
     }
     /**
      * 生成属性
@@ -266,8 +282,11 @@ class emiter {
         if (node.parameters) {
             for (let i = 0; i < node.parameters.length; i++) {
                 let param = node.parameters[i];
-                paramstr += (i ? "," : "") + param.name.getText() + ":" + this.emitType(param.type) + (param.questionToken ? " = null" : "");
-                tsparam += (i ? "," : "") + param.name.getText() + (param.questionToken ? "?" : "") + ":" + this.emitTsType(param.type);
+                let isdotdotdot = false;
+                if (param.dotDotDotToken)
+                    isdotdotdot = true;
+                paramstr += (i ? "," : "") + (isdotdotdot ? "..." : "") + param.name.getText() + (isdotdotdot ? "" : (":" + this.emitType(param.type) + (param.questionToken ? " = null" : "")));
+                tsparam += (i ? "," : "") + (isdotdotdot ? "..." : "") + param.name.getText() + (param.questionToken ? "?" : "") + ":" + this.emitTsType(param.type);
             }
         }
         methodstr += node.name.getText() + "(" + paramstr + "):" + this.emitType(node.type) + "{}";
