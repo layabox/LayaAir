@@ -58,7 +58,7 @@ class emiter {
         //         this.copyTSdata.replace(new RegExp(key,"g"),this.importArr[key]);
         //     }
         // }
-        return this.outString;
+        return "/*[IF-FLASH]*/\n" + this.outString;
     }
     /**
      * 生成import
