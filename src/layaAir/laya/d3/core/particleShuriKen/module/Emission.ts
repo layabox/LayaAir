@@ -53,7 +53,7 @@ export class Emission implements IClone, IDestroy {
 	}
 
 	/**
-	 * @internal
+	 * @private
 	 */
 	destroy(): void {
 		this._bursts = null;
