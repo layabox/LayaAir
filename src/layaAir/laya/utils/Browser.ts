@@ -47,8 +47,6 @@ import { ILaya } from "../../ILaya";
 		/** @private */
 		 static onVVMiniGame:boolean;
 		/** @private */
-		 static onLimixiu:boolean;
-		/** @private */
 		 static onFirefox:boolean;//TODO:求补充
 		/** @private */
 		 static onEdge:boolean;//TODO:求补充
@@ -210,7 +208,6 @@ import { ILaya } from "../../ILaya";
 				Browser.onQGMiniGame = true;//OPPO环境判断
 				Browser.onMiniGame = false;
 			}	
-			Browser.onLimixiu =  u.indexOf('limixiu') > -1;
 			Browser.onVVMiniGame =  u.indexOf('VVGame') > -1;//vivo
 			//小米运行环境判断
 			Browser.onKGMiniGame =  u.indexOf('QuickGame') > -1;//小米环境判断

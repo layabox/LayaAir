@@ -86,7 +86,6 @@ import { ILaya } from "../../../ILaya";
 				bugIOS = miniadp.systemInfo.system.toLowerCase() === 'ios 10.1.1';
             }
 			if (ILaya.Browser.onMiniGame /*&& !Browser.onAndroid*/ && !bugIOS ) TextRender.isWan1Wan = true; //android 微信下 字边缘发黑，所以不用getImageData了
-			if (ILaya.Browser.onLimixiu) TextRender.isWan1Wan = true;
 			//isWan1Wan = true;
 			this.charRender = ILaya.Render.isConchApp ? (new CharRender_Native()) : (new CharRender_Canvas(TextRender.atlasWidth,TextRender.atlasWidth,TextRender.scaleFontWithCtx,!TextRender.isWan1Wan,false));			
 			TextRender.textRenderInst = this;
