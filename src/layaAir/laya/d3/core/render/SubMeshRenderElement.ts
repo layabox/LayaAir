@@ -308,10 +308,11 @@ export class SubMeshRenderElement extends RenderElement {
 					if (queue.lastTransparentBatched) {
 						var instanceBatchElementList: SingletonList<SubMeshRenderElement> = elements[elements.length - 1].instanceBatchElementList;
 						if (instanceBatchElementList.length === SubMeshInstanceBatch.instance.maxInstanceCount) {
-							queue.lastTransparentBatched = false;
 							queueElements.add(this);
+							queue.lastTransparentBatched = false;
 						} else {
 							instanceBatchElementList.add(this);
+							queue.lastTransparentBatched = true;
 						}
 					} else {
 						var insBatchElement: SubMeshRenderElement = (<SubMeshRenderElement>insManager._getBatchRenderElementFromPool());
@@ -327,8 +328,8 @@ export class SubMeshRenderElement extends RenderElement {
 						insBatchList.add((<SubMeshRenderElement>insLastElement));
 						insBatchList.add(this);
 						elements[elements.length - 1] = insBatchElement;
+						queue.lastTransparentBatched = true;
 					}
-					queue.lastTransparentBatched = true;
 				}
 			} else {
 				queueElements.add(this);
