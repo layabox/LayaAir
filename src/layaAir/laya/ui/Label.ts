@@ -4,6 +4,7 @@ import { Event } from "../events/Event"
 import { UIComponent } from "./UIComponent"
 import { UIUtils } from "./UIUtils"
 import { ILaya } from "../../ILaya";
+import { ClassUtils } from "../utils/ClassUtils";
 	
 	/**
 	 * 文本内容发生改变后调度。
@@ -435,3 +436,5 @@ import { ILaya } from "../../ILaya";
 	}
 
 ILaya.regClass(Label);
+	ClassUtils.regClass("laya.ui.Label", Label);
+	ClassUtils.regClass("Laya.Label", Label);

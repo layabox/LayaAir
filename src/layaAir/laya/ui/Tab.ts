@@ -2,6 +2,7 @@ import { Sprite } from "../display/Sprite"
 import { Button } from "./Button"
 import { UIGroup } from "./UIGroup"
 import { ILaya } from "../../ILaya";
+import { ClassUtils } from "../utils/ClassUtils";
 	
 	/**
 	 * 当 <code>Group</code> 实例的 <code>selectedIndex</code> 属性发生变化时调度。
@@ -93,3 +94,5 @@ import { ILaya } from "../../ILaya";
 	}
 
 ILaya.regClass(Tab);
+	ClassUtils.regClass("laya.ui.Tab", Tab);
+	ClassUtils.regClass("Laya.Tab", Tab);

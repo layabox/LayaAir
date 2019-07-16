@@ -1,5 +1,6 @@
 import { ColliderBase } from "./ColliderBase";
 import { Physics } from "./Physics";
+import { ClassUtils } from "../utils/ClassUtils";
 /**
 	 * 2D多边形碰撞体，暂时不支持凹多边形，如果是凹多边形，先手动拆分为多个凸多边形
 	 * 节点个数最多是b2_maxPolygonVertices，这数值默认是8，所以点的数量不建议超过8个，也不能小于3个
@@ -67,3 +68,6 @@ import { Physics } from "./Physics";
 			if (this._shape) this._setShape();
 		}
 	}
+
+	ClassUtils.regClass("laya.physics.PolygonCollider", PolygonCollider);
+	ClassUtils.regClass("Laya.PolygonCollider", PolygonCollider);

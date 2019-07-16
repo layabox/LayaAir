@@ -252,6 +252,8 @@ import { Sprite } from "../display/Sprite"
 		}
 	}
 
+	ClassUtils.regClass("laya.physics.Physics", Physics);
+	ClassUtils.regClass("Laya.Physics", Physics);
 
 // import { Physics } from "./Physics"
 

@@ -2,6 +2,7 @@ import { Component } from "../components/Component"
 import { Sprite } from "../display/Sprite"
 import { Event } from "../events/Event"
 import { ILaya } from "../../ILaya";
+import { ClassUtils } from "../utils/ClassUtils";
 	
 	/**
 	 * 相对布局插件
@@ -191,3 +192,5 @@ import { ILaya } from "../../ILaya";
 ILaya.regClass(Widget);
 
 Widget.EMPTY=new Widget();
+	ClassUtils.regClass("laya.ui.Widget", Widget);
+	ClassUtils.regClass("Laya.Widget", Widget);

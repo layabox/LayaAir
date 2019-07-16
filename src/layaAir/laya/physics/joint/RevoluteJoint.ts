@@ -3,6 +3,7 @@ import { Sprite } from "../../display/Sprite"
 	import { Point } from "../../maths/Point"
 	import { Physics } from "../Physics"
 	import { RigidBody } from "../RigidBody"
+import { ClassUtils } from "../../utils/ClassUtils";
 	
 	/**
 	 * 旋转关节强制两个物体共享一个锚点，两个物体相对旋转
@@ -116,3 +117,6 @@ import { Sprite } from "../../display/Sprite"
 			if (this._joint) this._joint.SetLimits(this._lowerAngle, value);
 		}
 	}
+
+	ClassUtils.regClass("laya.physics.RevoluteJoint", RevoluteJoint);
+	ClassUtils.regClass("Laya.RevoluteJoint", RevoluteJoint);

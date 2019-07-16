@@ -11,6 +11,7 @@ import { Ease } from "../utils/Ease"
 import { Handler } from "../utils/Handler"
 import { Tween } from "../utils/Tween"
 import { ILaya } from "../../ILaya";
+import { ClassUtils } from "../utils/ClassUtils";
 	
 	/**
 	 * 滚动条滑块位置发生变化后调度。
@@ -709,3 +710,5 @@ import { ILaya } from "../../ILaya";
 	}
 
 ILaya.regClass(ScrollBar);
+	ClassUtils.regClass("laya.ui.ScrollBar", ScrollBar);
+	ClassUtils.regClass("Laya.ScrollBar", ScrollBar);

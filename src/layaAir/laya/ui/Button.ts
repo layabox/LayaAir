@@ -12,6 +12,7 @@ import { Handler } from "../utils/Handler"
 import { Utils } from "../utils/Utils"
 import { WeakObject } from "../utils/WeakObject"
 import { ILaya } from "../../ILaya";
+import { ClassUtils } from "../utils/ClassUtils";
 	
 	/**
 	 * 当按钮的选中状态（ <code>selected</code> 属性）发生改变时调度。
@@ -695,3 +696,5 @@ import { ILaya } from "../../ILaya";
 	}
 
 ILaya.regClass(Button);
+	ClassUtils.regClass("laya.ui.Button", Button);
+	ClassUtils.regClass("Laya.Button", Button);

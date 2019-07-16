@@ -5,6 +5,7 @@ import { GraphicAnimation } from "../utils/GraphicAnimation"
 import { Handler } from "../utils/Handler"
 import { Utils } from "../utils/Utils"
 import { ILaya } from "../../ILaya";
+import { ClassUtils } from "../utils/ClassUtils";
 
 	/**
 	 * 动画播放完毕后调度。
@@ -412,3 +413,5 @@ import { ILaya } from "../../ILaya";
 	}
 
 ILaya.regClass(Animation);
+	ClassUtils.regClass("laya.display.Animation", Animation);
+	ClassUtils.regClass("Laya.Animation", Animation);

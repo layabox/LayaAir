@@ -6,6 +6,7 @@ import { Clip } from "./Clip";
 import { Event } from "../events/Event"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
+import { ClassUtils } from "../utils/ClassUtils";
 	
 	/**
 	 * 实例的 <code>selectedIndex</code> 属性发生变化时调度。
@@ -676,3 +677,5 @@ import { ILaya } from "../../ILaya";
 	}
 
 ILaya.regClass(Tree);
+	ClassUtils.regClass("laya.ui.Tree", Tree);
+	ClassUtils.regClass("Laya.Tree", Tree);

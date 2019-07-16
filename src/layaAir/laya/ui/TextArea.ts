@@ -4,6 +4,7 @@ import { HScrollBar } from "./HScrollBar";
 import { Styles } from "./Styles";
 import { Event } from "../events/Event"
 import { ILaya } from "../../ILaya";
+import { ClassUtils } from "../utils/ClassUtils";
 	
 	/**
 	 * <code>TextArea</code> 类用于创建显示对象以显示和输入文本。
@@ -248,3 +249,5 @@ import { ILaya } from "../../ILaya";
 	}
 
 ILaya.regClass(TextArea);
+	ClassUtils.regClass("laya.ui.TextArea", TextArea);
+	ClassUtils.regClass("Laya.TextArea", TextArea);

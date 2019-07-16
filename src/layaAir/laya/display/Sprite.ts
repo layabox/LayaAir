@@ -24,6 +24,7 @@ import { Texture2D } from "../resource/Texture2D";
 import { Timer } from "../utils/Timer";
 import { Dragging } from "../utils/Dragging";
 import { ILaya } from "../../ILaya";
+import { ClassUtils } from "../utils/ClassUtils";
 
 	
 	/**在显示对象上按下后调度。
@@ -1903,3 +1904,6 @@ import { ILaya } from "../../ILaya";
 		}
 	}
 
+
+	ClassUtils.regClass("laya.display.Sprite", Sprite);
+	ClassUtils.regClass("Laya.Sprite", Sprite);

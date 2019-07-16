@@ -9,6 +9,7 @@ import { Const } from "../Const"
 	import { Handler } from "../utils/Handler"
 	import { Tween } from "../utils/Tween"
 import { IUI } from "./IUI";
+import { ClassUtils } from "../utils/ClassUtils";
 	
 	/**打开任意窗口后调度。
 	 * @eventType Event.OPEN
@@ -237,3 +238,6 @@ import { IUI } from "./IUI";
 		}
 	}
 
+
+	ClassUtils.regClass("laya.ui.DialogManager", DialogManager);
+	ClassUtils.regClass("Laya.DialogManager", DialogManager);

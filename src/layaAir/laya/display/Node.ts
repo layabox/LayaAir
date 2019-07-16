@@ -7,6 +7,7 @@ import { Stat } from "../utils/Stat"
 import { Timer } from "../utils/Timer"
 import { Sprite } from "./Sprite";
 import { ILaya } from "../../ILaya";
+import { ClassUtils } from "../utils/ClassUtils";
 	
 	/**
 	 * 添加到父对象后调度。
@@ -978,3 +979,5 @@ import { ILaya } from "../../ILaya";
 		}
 	}
 
+	ClassUtils.regClass("laya.display.Node", Node);
+	ClassUtils.regClass("Laya.Node", Node);
