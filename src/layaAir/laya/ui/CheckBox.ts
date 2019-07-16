@@ -1,5 +1,6 @@
 import { Button } from "./Button"
 import { ILaya } from "../../ILaya";
+import { ClassUtils } from "../utils/ClassUtils";
 	
 	/**
 	 * 当按钮的选中状态（ <code>selected</code> 属性）发生改变时调度。
@@ -124,3 +125,5 @@ import { ILaya } from "../../ILaya";
 	}
 
 ILaya.regClass(CheckBox);
+	ClassUtils.regClass("laya.ui.CheckBox", CheckBox);
+	ClassUtils.regClass("Laya.CheckBox", CheckBox);

@@ -23,6 +23,7 @@ import { Stat } from "../utils/Stat";
 import { Timer } from "../utils/Timer";
 import { ILaya } from "../../ILaya";
 import { LayaGL } from "../layagl/LayaGL";
+import { ClassUtils } from "../utils/ClassUtils";
 	
 	/**
 	 * stage大小经过重新调整时进行调度。
@@ -878,3 +879,6 @@ import { LayaGL } from "../layagl/LayaGL";
 		}
 	}
 
+
+	ClassUtils.regClass("laya.display.Stage", Stage);
+	ClassUtils.regClass("Laya.Stage", Stage);

@@ -1,6 +1,7 @@
 import { Graphics } from "../display/Graphics"
 	import { Texture } from "../resource/Texture"
 	import { Utils } from "../utils/Utils"
+import { ClassUtils } from "../utils/ClassUtils";
 	
 	/**
 	 * <code>AutoBitmap</code> 类是用于表示位图图像或绘制图形的显示对象。
@@ -190,3 +191,5 @@ import { Graphics } from "../display/Graphics"
 		//}
 	}
 
+	ClassUtils.regClass("laya.ui.AutoBitmap", AutoBitmap);
+	ClassUtils.regClass("Laya.AutoBitmap", AutoBitmap);

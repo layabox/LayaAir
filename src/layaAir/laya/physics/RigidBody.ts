@@ -5,6 +5,7 @@ import { Component } from "../components/Component"
 	import { Sprite } from "..//display/Sprite"
 	import { Point } from "../maths/Point"
 	import { Utils } from "../utils/Utils"
+	import { ClassUtils } from "../utils/ClassUtils"	
 	
 	/**
 	 * 2D刚体，显示对象通过RigidBody和物理世界进行绑定，保持物理和显示对象之间的位置同步
@@ -439,3 +440,6 @@ import { Component } from "../components/Component"
 			if (this._body) this._body.SetBullet(value);
 		}
 	}
+
+	ClassUtils.regClass("laya.physics.RigidBody", RigidBody);
+	ClassUtils.regClass("Laya.RigidBody", RigidBody);

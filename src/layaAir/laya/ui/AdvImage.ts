@@ -3,6 +3,7 @@ import { Event } from "../events/Event"
 	import { LocalStorage } from "../net/LocalStorage"
 	import { Browser } from "../utils/Browser"
 import { ILaya } from "../../ILaya";
+import { ClassUtils } from "../utils/ClassUtils";
 
 	/**
 	 * 广告插件 
@@ -336,3 +337,5 @@ import { ILaya } from "../../ILaya";
 		}
 	}
 
+	ClassUtils.regClass("laya.ui.AdvImage", AdvImage);
+	ClassUtils.regClass("Laya.AdvImage", AdvImage);

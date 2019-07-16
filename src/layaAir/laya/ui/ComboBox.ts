@@ -11,6 +11,7 @@ import { Event } from "../events/Event"
 import { Point } from "../maths/Point"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
+import { ClassUtils } from "../utils/ClassUtils";
 	
 	/**
 	 * 当用户更改 <code>ComboBox</code> 组件中的选定内容时调度。
@@ -634,3 +635,5 @@ import { ILaya } from "../../ILaya";
 	}
 
 ILaya.regClass(ComboBox);
+	ClassUtils.regClass("laya.ui.ComboBox", ComboBox);
+	ClassUtils.regClass("Laya.ComboBox", ComboBox);

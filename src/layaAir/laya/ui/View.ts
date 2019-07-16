@@ -34,6 +34,7 @@ import { HBox } from "./HBox";
 import { VBox } from "./VBox";
 import { FontClip } from "./FontClip";
 import { ILaya } from "../../ILaya";
+import { ClassUtils } from "../utils/ClassUtils";
 
     
     
@@ -253,6 +254,7 @@ import { ILaya } from "../../ILaya";
 	}
 
 ILaya.regClass(View);
-
+	ClassUtils.regClass("laya.ui.View", View);
+	ClassUtils.regClass("Laya.View", View);
 		
     //dialog 依赖于view，放到这里的话，谁在前都会报错，所以不能放到这里了

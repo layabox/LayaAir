@@ -1,5 +1,6 @@
 import { Event } from "../events/Event"
 import { ILaya } from "../../ILaya";
+import { ClassUtils } from "../utils/ClassUtils";
 
 /**
  * <code>UIEvent</code> 类用来定义UI组件类的事件类型。
@@ -16,3 +17,5 @@ export class UIEvent extends Event {
 }
 
 ILaya.regClass(UIEvent);
+	ClassUtils.regClass("laya.ui.UIEvent", UIEvent);
+	ClassUtils.regClass("Laya.UIEvent", UIEvent);

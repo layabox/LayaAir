@@ -7,6 +7,7 @@ import { UIComponent } from "./UIComponent"
 import { UIUtils } from "./UIUtils"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
+import { ClassUtils } from "../utils/ClassUtils";
 	
 	/**
 	 * 资源加载完成后调度。
@@ -245,3 +246,5 @@ import { ILaya } from "../../ILaya";
 
 
 ILaya.regClass(Image);    
+	ClassUtils.regClass("laya.ui.Image", Image);
+	ClassUtils.regClass("Laya.Image", Image);

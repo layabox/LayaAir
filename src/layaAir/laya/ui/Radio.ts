@@ -1,6 +1,7 @@
 import { Event } from "../events/Event"
 	import { Button } from "./Button"
 import { ILaya } from "../../ILaya";
+import { ClassUtils } from "../utils/ClassUtils";
 	
 	
 	/**
@@ -72,3 +73,5 @@ import { ILaya } from "../../ILaya";
 
 
 ILaya.regClass(Radio);    
+	ClassUtils.regClass("laya.ui.Radio", Radio);
+	ClassUtils.regClass("Laya.Radio", Radio);

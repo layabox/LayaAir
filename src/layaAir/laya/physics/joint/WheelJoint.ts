@@ -3,6 +3,7 @@ import { Sprite } from "../../display/Sprite"
 	import { Point } from "../../maths/Point"
 	import { Physics } from "../Physics"
 	import { RigidBody } from "../RigidBody"
+import { ClassUtils } from "../../utils/ClassUtils";
 	
 	/**
 	 * 轮子关节：围绕节点旋转，包含弹性属性，使得刚体在节点位置发生弹性偏移
@@ -105,3 +106,6 @@ import { Sprite } from "../../display/Sprite"
 			if (this._joint) this._joint.SetMaxMotorTorque(value);
 		}
 	}
+
+	ClassUtils.regClass("laya.physics.WheelJoint", WheelJoint);
+	ClassUtils.regClass("Laya.WheelJoint", WheelJoint);

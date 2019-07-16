@@ -193,3 +193,6 @@ import { ClassUtils } from "../utils/ClassUtils"
 		}
 	}
 
+
+	ClassUtils.regClass("laya.display.EffectAnimation", EffectAnimation);
+	ClassUtils.regClass("Laya.EffectAnimation", EffectAnimation);

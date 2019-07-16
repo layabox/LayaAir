@@ -7,6 +7,7 @@ import { Styles } from "./Styles"
 import { UIUtils } from "./UIUtils"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
+import { ClassUtils } from "../utils/ClassUtils";
 	
 	/**
 	 * 输入文本后调度。
@@ -378,3 +379,5 @@ import { ILaya } from "../../ILaya";
 	}
 
 ILaya.regClass(TextInput);
+	ClassUtils.regClass("laya.ui.TextInput", TextInput);
+	ClassUtils.regClass("Laya.TextInput", TextInput);
