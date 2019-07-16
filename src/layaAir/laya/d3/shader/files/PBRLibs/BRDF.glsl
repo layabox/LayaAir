@@ -21,6 +21,8 @@ vec4 LayaAirBRDF(in vec3 diffuseColor, in vec3 specularColor, in float oneMinusR
 	float roughness = PerceptualRoughnessToRoughness(perceptualRoughness);
 	
 	//#if UNITY_BRDF_GGX
+	 // GGX with roughtness to 0 would mean no specular at all, using max(roughness, 0.002) here to match HDrenderloop roughtness remapping.
+	roughness = max(roughness,0.014);
 	float V = SmithJointGGXVisibilityTerm(nl, nv, roughness);
 	float D = GGXTerm(nh, roughness);
 	
