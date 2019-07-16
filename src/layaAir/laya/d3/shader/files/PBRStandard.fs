@@ -138,6 +138,10 @@ void main_normal()
 		color += PBRStandardSpotLight(albedoColor, mg.r, mg.g, normal, viewDir, u_SpotLight, v_PositionWorld, gi);
 	#endif
 	
+	#ifdef REFLECTMAP
+	 	color += LayaAirStandardReflect(albedoColor,mg.r,mg.g,gi);
+	#endif
+
 	#ifdef EMISSION
 		vec4 emissionColor = u_EmissionColor;
 		#ifdef EMISSIONTEXTURE

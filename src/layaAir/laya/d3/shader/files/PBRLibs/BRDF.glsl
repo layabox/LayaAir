@@ -33,9 +33,45 @@ vec4 LayaAirBRDF(in vec3 diffuseColor, in vec3 specularColor, in float oneMinusR
 	float grazingTerm = clamp(smoothness + (1.0 - oneMinusReflectivity), 0.0, 1.0);
 	
 	vec4 color;
-	color.rgb = diffuseColor * (gi.diffuse + lightColor * diffuseTerm) 
-			  + specularTerm * lightColor * FresnelTerm (specularColor, lh)
-			  + surfaceReduction * gi.specular * FresnelLerp(specularColor, vec3(grazingTerm), nv);
+	color.rgb = diffuseColor * (gi.diffuse+lightColor * diffuseTerm) 
+			  + specularTerm * lightColor * FresnelTerm (specularColor, lh);
+			  //+ surfaceReduction * gi.specular * FresnelLerp(specularColor, vec3(grazingTerm), nv);
 	
+	return color;
+}
+vec4 LayaAirStandardReflect(in vec4 albedoColor,in float metallic,in float smoothness,in LayaGI gi)
+{
+	vec3 diffuseColor;
+	vec3 specularColor;
+	float alpha;
+	float oneMinusReflectivity;
+	diffuseColor = DiffuseAndSpecularFromMetallic (albedoColor.rgb, metallic, specularColor, oneMinusReflectivity);
+	diffuseColor = LayaPreMultiplyAlpha(diffuseColor, albedoColor.a, oneMinusReflectivity, alpha);
+	float perceptualRoughness = SmoothnessToPerceptualRoughness(smoothness);
+	float roughness = PerceptualRoughnessToRoughness(perceptualRoughness);
+	float surfaceReduction = 1.0 - 0.28 * roughness * perceptualRoughness;
+	vec4 color;
+	color.rgb = surfaceReduction * gi.specular;
+	color.a = alpha;
+	return color;
+
+}
+
+vec4 LayaAirSpecularReflect(in vec4 albedoColor,in vec3 specularColor,in float smoothness,in LayaGI gi)
+{
+	float oneMinusReflectivity;
+	vec3 diffuseColor;
+	float alpha;
+	
+	diffuseColor = EnergyConservationBetweenDiffuseAndSpecular (albedoColor.rgb, specularColor, oneMinusReflectivity);
+	
+	diffuseColor = LayaPreMultiplyAlpha(diffuseColor, albedoColor.a, oneMinusReflectivity, alpha);
+
+	float perceptualRoughness = SmoothnessToPerceptualRoughness(smoothness);
+	float roughness = PerceptualRoughnessToRoughness(perceptualRoughness);
+	float surfaceReduction = 1.0 - 0.28 * roughness * perceptualRoughness;
+	vec4 color;
+	color.rgb = surfaceReduction * gi.specular;
+	color.a = alpha;
 	return color;
 }
