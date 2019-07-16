@@ -28,6 +28,7 @@ import { AlphaCmd } from "./cmd/AlphaCmd"
 import { Graphics } from "./Graphics";
 import { DrawTrianglesCmd } from "./cmd/DrawTrianglesCmd";
 import { Draw9GridTexture } from "./cmd/Draw9GridTexture";
+import { ClassUtils } from "../utils/ClassUtils";
 	
 	/**
 	 * @private
@@ -419,3 +420,6 @@ import { Draw9GridTexture } from "./cmd/Draw9GridTexture";
 		}
 	}
 
+
+	ClassUtils.regClass("laya.display.GraphicsBounds", GraphicsBounds);
+	ClassUtils.regClass("Laya.GraphicsBounds", GraphicsBounds);

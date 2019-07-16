@@ -1,5 +1,6 @@
 import { ScrollBar } from "./ScrollBar";
 import { ILaya } from "../../ILaya";
+import { ClassUtils } from "../utils/ClassUtils";
 /**
 	 *
 	 * 使用 <code>VScrollBar</code> （垂直 <code>ScrollBar</code> ）控件，可以在因数据太多而不能在显示区域完全显示时控制显示的数据部分。
@@ -79,3 +80,5 @@ export class VScrollBar extends ScrollBar {
 }
 
 ILaya.regClass(VScrollBar);
+	ClassUtils.regClass("laya.ui.VScrollBar", VScrollBar);
+	ClassUtils.regClass("Laya.VScrollBar", VScrollBar);

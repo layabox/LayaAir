@@ -2,6 +2,7 @@ import { UIComponent } from "./UIComponent";
 import { IBox } from "./IBox";
 import { Event } from "../events/Event"
 import { ILaya } from "../../ILaya";
+import { ClassUtils } from "../utils/ClassUtils";
 	
 	/**
 	 * <code>Box</code> 类是一个控件容器类。
@@ -46,3 +47,5 @@ import { ILaya } from "../../ILaya";
 	}
 
 ILaya.regClass(Box);    
+	ClassUtils.regClass("laya.ui.Box", Box);
+	ClassUtils.regClass("Laya.Box", Box);

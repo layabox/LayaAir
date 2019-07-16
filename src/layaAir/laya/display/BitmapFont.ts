@@ -3,6 +3,7 @@ import { Rectangle } from "../maths/Rectangle"
 	import { Texture } from "../resource/Texture"
 	import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
+import { ClassUtils } from "../utils/ClassUtils";
 	/**
 	 * <code>BitmapFont</code> 是位图字体类，用于定义位图字体信息。
 	 * 字体制作及使用方法，请参考文章
@@ -230,3 +231,6 @@ import { ILaya } from "../../ILaya";
 		}
 	}
 
+
+	ClassUtils.regClass("laya.display.BitmapFont", BitmapFont);
+	ClassUtils.regClass("Laya.BitmapFont", BitmapFont);

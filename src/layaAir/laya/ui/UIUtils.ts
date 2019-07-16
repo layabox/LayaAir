@@ -3,6 +3,7 @@ import { Sprite } from "../display/Sprite"
 	import { IFilter } from "../filters/IFilter"
 	import { Utils } from "../utils/Utils"
 	import { WeakObject } from "../utils/WeakObject"
+import { ClassUtils } from "../utils/ClassUtils";
 	
 	/**
 	 * <code>UIUtils</code> 是文本工具集。
@@ -128,3 +129,5 @@ import { Sprite } from "../display/Sprite"
 		}
 	}
 
+	ClassUtils.regClass("laya.ui.UIUtils", UIUtils);
+	ClassUtils.regClass("Laya.UIUtils", UIUtils);

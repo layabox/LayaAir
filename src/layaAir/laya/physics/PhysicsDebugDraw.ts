@@ -4,6 +4,7 @@ import { Graphics } from "../display/Graphics"
 	import { Context } from "../resource/Context"
 	import { Browser } from "../utils/Browser"
 import { Physics } from "./Physics";
+import { ClassUtils } from "../utils/ClassUtils";
 	
 	/**
 	 * 物理辅助线，调用PhysicsDebugDraw.enable()开启，或者通过IDE设置打开
@@ -238,3 +239,6 @@ if (!PhysicsDebugDraw._inited) {
 			return debug;
 		}
 	}
+
+	ClassUtils.regClass("laya.physics.PhysicsDebugDraw", PhysicsDebugDraw);
+	ClassUtils.regClass("Laya.PhysicsDebugDraw", PhysicsDebugDraw);

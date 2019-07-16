@@ -14,6 +14,7 @@ import { Handler } from "../utils/Handler"
 import { SceneUtils } from "../utils/SceneUtils"
 import { Tween } from "../utils/Tween"
 import { ILaya } from "../../ILaya";
+import { ClassUtils } from "../utils/ClassUtils";
 	
 	/**
 	 * 当对象的 <code>selectedIndex</code> 属性发生变化时调度。
@@ -1073,3 +1074,5 @@ import { ILaya } from "../../ILaya";
 	}
 
 ILaya.regClass(List);
+	ClassUtils.regClass("laya.ui.List", List);
+	ClassUtils.regClass("Laya.List", List);

@@ -47,8 +47,6 @@ import { ILaya } from "../../ILaya";
 		/** @private */
 		 static onVVMiniGame:boolean;
 		/** @private */
-		 static onLimixiu:boolean;
-		/** @private */
 		 static onFirefox:boolean;//TODO:求补充
 		/** @private */
 		 static onEdge:boolean;//TODO:求补充
@@ -107,6 +105,7 @@ import { ILaya } from "../../ILaya";
 
 			//微信小游戏
 			if (u.indexOf("MiniGame") > -1 && "wx" in Browser.window) {
+				(window as any).wxMiniGame(Laya,Laya);
 				if (!Laya["MiniAdpter"]) {
 					console.error("请先添加小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?nav=zh-ts-5-0-0");
 						//TODO 教程要改
@@ -210,7 +209,6 @@ import { ILaya } from "../../ILaya";
 				Browser.onQGMiniGame = true;//OPPO环境判断
 				Browser.onMiniGame = false;
 			}	
-			Browser.onLimixiu =  u.indexOf('limixiu') > -1;
 			Browser.onVVMiniGame =  u.indexOf('VVGame') > -1;//vivo
 			//小米运行环境判断
 			Browser.onKGMiniGame =  u.indexOf('QuickGame') > -1;//小米环境判断

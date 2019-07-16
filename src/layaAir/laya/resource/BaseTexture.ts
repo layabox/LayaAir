@@ -340,7 +340,7 @@ export class BaseTexture extends Bitmap {
 	 */
 	protected _setAnisotropy(value: number): void {
 		var anisotropic: any = LayaGL.layaGPUInstance._extTextureFilterAnisotropic;
-		if (anisotropic && !ILaya.Browser.onLimixiu) {
+		if (anisotropic) {
 			value = Math.max(value, 1);
 			var gl: WebGLRenderingContext = LayaGL.instance;
 			WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);

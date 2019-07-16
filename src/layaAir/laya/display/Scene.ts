@@ -8,6 +8,7 @@ import { Const } from "../Const"
 	import { SceneUtils } from "../utils/SceneUtils"
 	import { Timer } from "../utils/Timer"
 import { ILaya } from "../../ILaya";
+import { ClassUtils } from "../utils/ClassUtils";
 	
 	/**
 	 * 场景类，负责场景创建，加载，销毁等功能
@@ -408,3 +409,5 @@ import { ILaya } from "../../ILaya";
 	}
 
 	ILaya.regClass(Scene);
+	ClassUtils.regClass("laya.display.Scene", Scene);
+	ClassUtils.regClass("Laya.Scene", Scene);

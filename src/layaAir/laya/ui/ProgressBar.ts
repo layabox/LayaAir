@@ -4,6 +4,7 @@ import { UIComponent } from "./UIComponent"
 import { Image } from "./Image"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
+import { ClassUtils } from "../utils/ClassUtils";
 	
 	/**
 	 * 值发生改变后调度。
@@ -287,3 +288,5 @@ import { ILaya } from "../../ILaya";
 	}
 
 ILaya.regClass(ProgressBar);
+	ClassUtils.regClass("laya.ui.ProgressBar", ProgressBar);
+	ClassUtils.regClass("Laya.ProgressBar", ProgressBar);

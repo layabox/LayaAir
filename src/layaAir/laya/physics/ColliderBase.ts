@@ -3,6 +3,7 @@ import { Laya } from "../../Laya";
 import { ILaya } from "../../ILaya";
 import { Component } from "../components/Component";
 import { IPhysics } from "./IPhysics";
+import { ClassUtils } from "../utils/ClassUtils";
 	
 	/**
 	 * 碰撞体基类
@@ -163,3 +164,5 @@ import { IPhysics } from "./IPhysics";
 		}
 	}
 
+	ClassUtils.regClass("laya.physics.ColliderBase", ColliderBase);
+	ClassUtils.regClass("Laya.ColliderBase", ColliderBase);

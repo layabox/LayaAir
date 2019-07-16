@@ -241,7 +241,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	get totalForce(): Vector3 {
 		if (this._nativeColliderObject) {
 			var nativeTotalForce: any = this._nativeColliderObject.getTotalForce();
-			Utils3D._convertToLayaVec3(this._totalForce, nativeTotalForce, true);
+			Utils3D._convertToLayaVec3(nativeTotalForce, this._totalForce, true);
 			return this._totalForce;
 		}
 		return null;

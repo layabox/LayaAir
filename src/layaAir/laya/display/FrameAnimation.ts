@@ -1,6 +1,7 @@
 import { AnimationBase } from "./AnimationBase";
 import { MathUtil } from "../maths/MathUtil"
 	import { Ease } from "../utils/Ease"
+import { ClassUtils } from "../utils/ClassUtils";
 	
 	/**
 	 * 动画播放完毕后调度。
@@ -258,3 +259,6 @@ import { MathUtil } from "../maths/MathUtil"
 		}
 	}
 
+
+	ClassUtils.regClass("laya.display.FrameAnimation", FrameAnimation);
+	ClassUtils.regClass("Laya.FrameAnimation", FrameAnimation);
