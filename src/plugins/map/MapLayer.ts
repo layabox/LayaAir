@@ -1,9 +1,9 @@
 import { TileTexSet } from "./TileTexSet";
 import { TileAniSprite } from "./TileAniSprite";
-import { Sprite } from "../display/Sprite";
-import { Point } from "../maths/Point";
+import { Sprite } from "laya/display/Sprite";
+import { Point } from "laya/maths/Point";
 import { GridSprite } from "./GridSprite";
-import { Texture } from "../resource/Texture";
+import { Texture } from "laya/resource/Texture";
 import { IMap } from "./IMap";
 import { TiledMap } from "./TiledMap";
 
@@ -330,7 +330,7 @@ import { TiledMap } from "./TiledMap";
 			var tSprite:GridSprite;
 			for (var i:number = 0; i < this._gridSpriteArray.length; i++) {
 				tSprite = this._gridSpriteArray[i];
-				if ((tSprite._visible || tSprite.isAloneObject) && tSprite.drawImageNum > 0) {
+				if ((tSprite.visible || tSprite.isAloneObject) && tSprite.drawImageNum > 0) {
 					tSprite.updatePos();
 				}
 			}

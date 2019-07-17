@@ -1,10 +1,10 @@
 import { HtmlVideo } from "./HtmlVideo";
 import { WebGLVideo } from "./WebGLVideo";
-import { Sprite } from "../../display/Sprite";
-import { Texture } from "../../resource/Texture";
-import { Stage } from "../../display/Stage";
-import { Rectangle } from "../../maths/Rectangle";
-import { ILaya } from "../../../ILaya";
+import { Sprite } from "laya/display/Sprite";
+import { Texture } from "laya/resource/Texture";
+import { Stage } from "laya/display/Stage";
+import { Rectangle } from "laya/maths/Rectangle";
+import { ILaya } from "ILaya";
 	
 	/**
 	 * <code>Video</code>将视频显示到Canvas上。<code>Video</code>可能不会在所有浏览器有效。

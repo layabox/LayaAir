@@ -1,6 +1,6 @@
 import { TiledMap } from "./TiledMap";
 import { TileAniSprite } from "./TileAniSprite";
-import { Sprite } from "../display/Sprite";
+import { Sprite } from "laya/display/Sprite";
 
 
 	/**
@@ -50,7 +50,7 @@ import { Sprite } from "../display/Sprite";
 		 * 显示当前GridSprite，并把上面的动画全部显示
 		 */
 		 show():void {
-			if (!this._visible) {
+			if (!this.visible) {
 				this.visible = true;
 				if (this.aniSpriteArray == null) {
 					return;
@@ -67,7 +67,7 @@ import { Sprite } from "../display/Sprite";
 		 * 隐藏当前GridSprite，并把上面绑定的动画全部移除
 		 */
 		 hide():void {
-			if (this._visible) {
+			if (this.visible) {
 				this.visible = false;
 				if (this.aniSpriteArray == null) {
 					return;
@@ -89,7 +89,7 @@ import { Sprite } from "../display/Sprite";
 					this.x = this.relativeX - this._map._viewPortX;
 					this.y = this.relativeY - this._map._viewPortY;
 				}
-				if (this._x < 0 || this._x > this._map.viewPortWidth || this._y < 0 || this._y > this._map.viewPortHeight) {
+				if (this.x < 0 || this.x > this._map.viewPortWidth || this.y < 0 || this.y > this._map.viewPortHeight) {
 					this.hide();
 				} else {
 					this.show();

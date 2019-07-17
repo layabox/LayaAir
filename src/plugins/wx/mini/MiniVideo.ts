@@ -1,5 +1,4 @@
 import { MiniAdpter } from "./MiniAdpter";
-import { Video } from "laya/device/media/Video";
 
 /**
 	 * 视频类 

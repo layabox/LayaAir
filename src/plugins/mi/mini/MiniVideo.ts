@@ -1,5 +1,4 @@
 import { KGMiniAdapter } from "./KGMiniAdapter";
-import { Video } from "laya/device/media/Video";
 
 /**
 	 * 视频类 

@@ -1,5 +1,4 @@
 import { BMiniAdapter } from "./BMiniAdapter";
-import { Video } from "laya/device/media/Video";
 
 /**
 	 * 视频类 

@@ -1,6 +1,6 @@
-import { Texture } from "../resource/Texture";
+import { Texture } from "laya/resource/Texture";
 import { TileAniSprite } from "./TileAniSprite";
-import { ILaya } from "../../ILaya";
+import { ILaya } from "ILaya";
 
 	
 	/**
