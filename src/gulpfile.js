@@ -92,7 +92,7 @@ var packsDef={
     },
     'wx':{
         'input':[
-            './plugins/wx/**/*.*'
+            './platform/wx/**/*.*'
         ],
         'out':'../build/js/libs/laya.wxmini.js'
     }
@@ -178,6 +178,7 @@ function myMultiInput(){
     );
 }
 
+//修改核心库core和微信适配库
 gulp.task('ModifierJs', () => {
 	    gulp.src([
             '../build/js/libs/laya.core.js'], )
@@ -217,32 +218,34 @@ gulp.task('ConcatBox2dPhysics', function (cb) {
     ], cb);
 });
 
-
+//拷贝引擎的第三方js库
 gulp.task('CopyJSLibsToJS', () => {
 	return gulp.src([
 		'./layaAir/jsLibs/*.js'], )
 		.pipe(gulp.dest('../build/js/libs'));
 });
 
+//拷贝js库至ts库
 gulp.task('CopyJSFileToTSCompatible', () => {
 	return gulp.src([
 		'../build/js/libs/**/*.js'], )
 		.pipe(gulp.dest('../build/ts/libs'));
 });
 
-
+//拷贝js库至as库
 gulp.task('CopyJSFileToAS', () => {
 	return gulp.src([
 		'../build/js/libs/**/*.js', '!../build/js/declare/*ts'], )
 		.pipe(gulp.dest('../build/as/jslibs'));
 });
 
+//拷贝引擎ts源码至ts库
 gulp.task('CopyTSFileToTS', () => {
     gulp.src([
-        './plugins/device/**/*.*'], )
+        './extensions/device/**/*.*'], )
         .pipe(gulp.dest('../build/ts_new/libs/laya/device'));
     gulp.src([
-        './plugins/map/**/*.*'], )
+        './extensions/map/**/*.*'], )
         .pipe(gulp.dest('../build/ts_new/libs/laya/map'));
 	return gulp.src([
         './layaAir/**/*.*', '!./layaAir/jsLibs/**/*.*', '!./layaAir/gulpfile.js', '!./layaAir/tsconfig.json'], )
