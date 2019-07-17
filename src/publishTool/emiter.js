@@ -58,7 +58,7 @@ class emiter {
         //         this.copyTSdata.replace(new RegExp(key,"g"),this.importArr[key]);
         //     }
         // }
-        return "/*[IF-FLASH]*/\n" + this.outString;
+        return this.outString;
     }
     /**
      * 生成import
@@ -92,7 +92,7 @@ class emiter {
         classPath = classPath.replace(new RegExp("\\\\", "g"), ".");
         classPath = classPath.replace(new RegExp("/", "g"), ".");
         this.importArr[importName] = classPath;
-        return ["\timprot " + classPath + ";\r\n", ""];
+        return ["\timport " + classPath + ";\r\n", ""];
     }
     /**
      * 生成class
