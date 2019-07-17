@@ -1,4 +1,3 @@
-import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
@@ -6,14 +5,13 @@ import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Vector4 } from "laya/d3/math/Vector4";
-import { Shader3D } from "laya/d3/shader/Shader3D";
+import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
+import { HTMLCanvas } from "laya/resource/HTMLCanvas";
 import { Texture2D } from "laya/resource/Texture2D";
-import { Browser } from "laya/utils/Browser";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
-import { HTMLCanvas } from "laya/resource/HTMLCanvas";
 
 
 export class DrawTextTexture {
@@ -22,7 +20,6 @@ export class DrawTextTexture {
     private mat: UnlitMaterial;
     private texture2D: Texture2D;
     constructor() {
-        Shader3D.debugMode = true;
         Laya3D.init(0, 0);
         Laya.stage.scaleMode = Stage.SCALE_FULL;
         Laya.stage.screenMode = Stage.SCREEN_NONE;
@@ -37,36 +34,34 @@ export class DrawTextTexture {
 
         //设置一个面板用来渲染
         this.plane = new MeshSprite3D(PrimitiveMesh.createPlane(10, 10));
-        this.plane.transform.rotate(new Vector3(90,0,0),true,true);
+        this.plane.transform.rotate(new Vector3(90, 0, 0), true, true);
         scene.addChild(this.plane);
         //材质
         this.mat = new UnlitMaterial();
         this.plane.meshRenderer.sharedMaterial = this.mat;
-       // this.cav = Browser.canvas;
-       //画布cavans
-       this.cav = new HTMLCanvas(true); 
-       this.cav.size(256,256);
+
+        //画布cavans
+        this.cav = new HTMLCanvas(true);
+        this.cav.size(256, 256);
         if (this.cav) {
-            
+
             var cxt = this.cav.getContext("2d");
-            cxt.fillStyle = 'rgb(' +'132' + ',' +'240' + ',109)';
+            cxt.fillStyle = 'rgb(' + '132' + ',' + '240' + ',109)';
             cxt.font = "bold 50px 宋体";
             cxt.textAlign = "center";//文本的对齐方式
             cxt.textBaseline = "center";//文本相对于起点的位置
             //设置文字,位置
-            cxt.fillText("LayaAir", 100, 50,200);//有填充cxt.font="bold 60px 宋体";
-           
+            cxt.fillText("LayaAir", 100, 50, 200);//有填充cxt.font="bold 60px 宋体";
 
-            cxt.strokeStyle =  'rgb(' +'200' + ',' +'125' + ',0)';
+            cxt.strokeStyle = 'rgb(' + '200' + ',' + '125' + ',0)';
             cxt.font = "bold 40px 黑体";
             cxt.strokeText("runtime", 100, 100, 200);//只有边框
 
-            
             //文字边框结合
-            cxt.strokeStyle = 'rgb(' +'255' + ',' +'240' + ',109)';
+            cxt.strokeStyle = 'rgb(' + '255' + ',' + '240' + ',109)';
             cxt.font = "bold 30px 黑体";
             cxt.fillText("LayaBox", 100, 150, 200);
-            
+
             cxt.strokeStyle = "yellow";
             cxt.font = "bold 30px 黑体";
             cxt.strokeText("LayaBox", 100, 150, 200);//只有边框
