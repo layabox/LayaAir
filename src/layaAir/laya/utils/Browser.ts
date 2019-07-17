@@ -36,16 +36,18 @@ import { ILaya } from "../../ILaya";
 		 static onWeiXin:boolean;
 		/** 表示是否在 PC 端。*/
 		 static onPC:boolean;
-		/** @private */
+		/** 微信小游戏 **/
 		 static onMiniGame:boolean;
-		/** @private */
+		/** 百度小游戏 **/
 		 static onBDMiniGame:boolean;
-		/** @private */
+		/** 小米戏小游戏 **/
 		 static onKGMiniGame:boolean;
-		/** @private */
+		/** OPPO小游戏 **/
 		 static onQGMiniGame:boolean;
-		/** @private */
+		/** VIVO小游戏 **/
 		 static onVVMiniGame:boolean;
+		 /** 阿里小游戏 **/
+		 static onAlipayMiniGame:boolean;
 		/** @private */
 		 static onFirefox:boolean;//TODO:求补充
 		/** @private */
@@ -103,8 +105,20 @@ import { ILaya } from "../../ILaya";
 			var doc:any = Browser._document = win.document;
 			var u:string = Browser.userAgent = win.navigator.userAgent;
 
+			//阿里小游戏
+			if (u.indexOf('AlipayMiniGame') > -1 && "my" in Browser.window) {
+				//这里需要手动初始化阿里适配库
+				(window as any).aliPayMiniGame(Laya,Laya);
+				if (!Laya["ALIMiniAdapter"]) {
+					console.error("请先添加阿里小游戏适配库");
+					//TODO 教程要改
+				} else {
+					Laya["ALIMiniAdapter"].enable();
+				}
+			}
+
 			//微信小游戏
-			if (u.indexOf("MiniGame") > -1 && "wx" in Browser.window) {
+			if (u.indexOf("MiniGame") > -1 && "wx" in Browser.window && !("my" in Browser.window)) {
 				(window as any).wxMiniGame(Laya,Laya);
 				if (!Laya["MiniAdpter"]) {
 					console.error("请先添加小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?nav=zh-ts-5-0-0");
@@ -210,9 +224,13 @@ import { ILaya } from "../../ILaya";
 				Browser.onMiniGame = false;
 			}	
 			Browser.onVVMiniGame =  u.indexOf('VVGame') > -1;//vivo
-			//小米运行环境判断
-			Browser.onKGMiniGame =  u.indexOf('QuickGame') > -1;//小米环境判断
 			
+			Browser.onKGMiniGame =  u.indexOf('QuickGame') > -1;//小米运行环境判断
+			if(u.indexOf('AlipayMiniGame') > -1)
+			{
+				Browser.onAlipayMiniGame = true;//阿里小游戏环境判断
+				Browser.onMiniGame = false;
+			}
 			return win;
 		}
 		

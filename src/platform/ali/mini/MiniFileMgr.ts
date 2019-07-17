@@ -1,4 +1,4 @@
-import { KGMiniAdapter } from "./KGMiniAdapter";
+import { ALIMiniAdapter } from "./ALIMiniAdapter";
 import { Handler } from "laya/utils/Handler";
 import { Laya } from "../../../../bin/tsc/layaAir/Laya";
 import { Browser } from "laya/utils/Browser";
@@ -7,9 +7,9 @@ import { URL } from "laya/net/URL";
 	/** @private **/
 	export class MiniFileMgr{
 		/**@private 读取文件操作接口**/
-		private static fs:any = (<any>window).qg.getFileSystemManager();
+		private static fs:any = (<any>window).my.getFileSystemManager();
 		/**@private 下载文件接口**/
-		private static wxdown:any = (<any>window).qg.downloadFile;
+		private static wxdown:any = (<any>window).my.downloadFile;
 		/**@private 文件缓存列表**/
 		 static filesListObj:any = {};
 		 /**@private 本局游戏使用的本地资源地址列表**/
@@ -36,10 +36,10 @@ import { URL } from "laya/net/URL";
 		 */		
 		 static isLocalNativeFile(url:string):boolean
 		{
-			for(var i:number = 0,sz:number = KGMiniAdapter.nativefiles.length;i<sz;i++)
+			for(var i:number = 0,sz:number = ALIMiniAdapter.nativefiles.length;i<sz;i++)
 			{
-				//优化调整  if(url.indexOf(KGMiniAdapter.nativefiles[i]) == 0)
-				if(url.indexOf(KGMiniAdapter.nativefiles[i]) != -1)
+				//优化调整  if(url.indexOf(ALIMiniAdapter.nativefiles[i]) == 0)
+				if(url.indexOf(ALIMiniAdapter.nativefiles[i]) != -1)
 					return true;
 			}
 			return false;
@@ -71,7 +71,7 @@ import { URL } from "laya/net/URL";
 		 * @param isSaveFile 是否自动缓存下载的文件,只有在开发者自己单独加载时生效
 		 * @param fileType 文件类型
 		 */
-		 static read(filePath:string, encoding:string = "ascill", callBack:Handler = null, readyUrl:string = "",isSaveFile:boolean = false,fileType:string = ""):void {
+		 static read(filePath:string, encoding:string = "utf8", callBack:Handler = null, readyUrl:string = "",isSaveFile:boolean = false,fileType:string = ""):void {
 			var fileUrl:string;
 			if(readyUrl!= "" && (readyUrl.indexOf("http://") != -1 || readyUrl.indexOf("https://") != -1))
 			{
@@ -103,8 +103,12 @@ import { URL } from "laya/net/URL";
 		 */
 		 static downFiles(fileUrl:string, encoding:string = "utf8", callBack:Handler = null, readyUrl:string = "",isSaveFile:boolean = false,fileType:string = "",isAutoClear:boolean =true):void {
 			var downloadTask:any = MiniFileMgr.wxdown({url: fileUrl, success: function(data:any):void {
+				if(!data.hasOwnProperty("statusCode"))
+				{
+					data.statusCode = 200;//xiaosong add
+				}
 				if (data.statusCode === 200)
-					MiniFileMgr.readFile(data.tempFilePath, encoding, callBack, readyUrl,isSaveFile,fileType,isAutoClear);
+					MiniFileMgr.readFile(data.apFilePath, encoding, callBack, readyUrl,isSaveFile,fileType,isAutoClear);
 				else
 					if(data.statusCode === 403)
 					{
@@ -132,14 +136,15 @@ import { URL } from "laya/net/URL";
 		 * @param isSaveFile 是否自动缓存下载的文件,只有在开发者自己单独加载时生效
 		 * @param fileType 文件类型
 		 */
-		 static readFile(filePath:string, encoding:string = "ascill", callBack:Handler = null, readyUrl:string = "", isSaveFile:boolean = false, fileType:string = "", isAutoClear:boolean = true):void {
+		 static readFile(filePath:string, encoding:string = "utf8", callBack:Handler = null, readyUrl:string = "", isSaveFile:boolean = false, fileType:string = "", isAutoClear:boolean = true):void {
 			filePath = URL.getAdptedFilePath(filePath);
 			MiniFileMgr.fs.readFile({filePath: filePath, encoding: encoding, success: function(data:any):void {
 				if (filePath.indexOf("http://") != -1 || filePath.indexOf("https://") != -1)
 				{
-					if(KGMiniAdapter.autoCacheFile || isSaveFile)
+					if(ALIMiniAdapter.autoCacheFile || isSaveFile)
 					{
-						MiniFileMgr.copyFile(filePath, readyUrl, callBack,encoding,isAutoClear);
+						callBack != null && callBack.runWith([0, data]);
+						MiniFileMgr.copyFile(filePath, readyUrl, null,encoding,isAutoClear);
 					}
 				}
 				else
@@ -161,14 +166,16 @@ import { URL } from "laya/net/URL";
 		 */
 		 static downOtherFiles(fileUrl:string, callBack:Handler = null, readyUrl:string = "",isSaveFile:boolean = false,isAutoClear:boolean = true):void {
 			MiniFileMgr.wxdown({url: fileUrl, success: function(data:any):void {
+				if(!data.hasOwnProperty("statusCode"))
+					data.statusCode = 200;//xiaosong add 2019-06-13
 				if (data.statusCode === 200) {
-					if((KGMiniAdapter.autoCacheFile || isSaveFile )&& readyUrl.indexOf("qlogo.cn")== -1 && readyUrl.indexOf(".php") == -1)
+					if((ALIMiniAdapter.autoCacheFile || isSaveFile )&& readyUrl.indexOf("qlogo.cn")== -1 && readyUrl.indexOf(".php") == -1)
 					{
-						callBack != null && callBack.runWith([0, data.tempFilePath]);
-						MiniFileMgr.copyFile(data.tempFilePath, readyUrl, null,"",isAutoClear);
+						callBack != null && callBack.runWith([0, data.apFilePath]);
+						MiniFileMgr.copyFile(data.apFilePath, readyUrl, null,"",isAutoClear);
 					}
 					else
-						callBack != null && callBack.runWith([0, data.tempFilePath]);
+						callBack != null && callBack.runWith([0, data.apFilePath]);
 				}else
 				{
 					callBack != null && callBack.runWith([1, data]);//修复下载文件返回非200状态码的bug
@@ -184,11 +191,11 @@ import { URL } from "laya/net/URL";
 		 * @param fileUrl 文件远端地址
 		 * @param fileType 文件类型(image、text、json、xml、arraybuffer、sound、atlas、font)
 		 * @param callBack 文件加载回调,回调内容[errorCode码(0成功,1失败,2加载进度)
-		 * @param encoding 文件编码默认 ascill，非图片文件加载需要设置相应的编码，二进制编码为空字符串
+		 * @param encoding 文件编码默认 utf8，非图片文件加载需要设置相应的编码，二进制编码为空字符串
 		 */				
 		 static downLoadFile(fileUrl:string, fileType:string = "",callBack:Handler = null,encoding:string = "utf8"):void
 		{
-			if(window.navigator.userAgent.indexOf('QuickGame') <0)
+			if(window.navigator.userAgent.indexOf('AlipayMiniGame') <0)
 			{
 				Laya.loader.load(fileUrl,callBack);
 			}else
@@ -230,8 +237,8 @@ import { URL } from "laya/net/URL";
 						{
 							if((isAutoClear && (fileUseSize + chaSize + data.size) >= totalSize))
 							{
-								if(data.size > KGMiniAdapter.minClearSize)
-									KGMiniAdapter.minClearSize = data.size;
+								if(data.size > ALIMiniAdapter.minClearSize)
+									ALIMiniAdapter.minClearSize = data.size;
 								MiniFileMgr.onClearCacheRes();//如果存储满了需要清理资源,检查没用的资源清理，然后在做存储
 							}
 							MiniFileMgr.deleteFile(tempFileName, readyUrl, callBack,encoding,data.size);
@@ -251,8 +258,8 @@ import { URL } from "laya/net/URL";
 					{
 						if((isAutoClear &&  (fileUseSize + chaSize + data.size) >= totalSize))
 						{
-							if(data.size > KGMiniAdapter.minClearSize)
-								KGMiniAdapter.minClearSize = data.size;
+							if(data.size > ALIMiniAdapter.minClearSize)
+								ALIMiniAdapter.minClearSize = data.size;
 							MiniFileMgr.onClearCacheRes();//如果存储满了需要清理资源,检查没用的资源清理，然后在做存储
 						}
 						MiniFileMgr.fs.copyFile({srcPath: tempFilePath, destPath: saveFilePath, success: function(data2:any):void {
@@ -274,7 +281,7 @@ import { URL } from "laya/net/URL";
 		 */		
 		private static onClearCacheRes():void
 		{
-			var memSize:number = KGMiniAdapter.minClearSize;
+			var memSize:number = ALIMiniAdapter.minClearSize;
 			var  tempFileListArr:any[] = [];
 			for(var key  in MiniFileMgr.filesListObj)
 			{
@@ -420,10 +427,11 @@ import { URL } from "laya/net/URL";
 			MiniFileMgr.fs.writeFile({filePath: listFilesPath, encoding: 'utf8', data: filesListStr, success: function(data:any):void {
 			}, fail: function(data:any):void {
 			}});
+
 			//主域向子域传递消息
-			if(!KGMiniAdapter.isZiYu &&KGMiniAdapter.isPosMsgYu)
+			if(!ALIMiniAdapter.isZiYu &&ALIMiniAdapter.isPosMsgYu)
 			{
-				KGMiniAdapter.window.qg.postMessage({url:fileurlkey,data:MiniFileMgr.filesListObj[fileurlkey],isLoad:"filenative",isAdd:isAdd});
+				ALIMiniAdapter.window.my.postMessage({url:fileurlkey,data:MiniFileMgr.filesListObj[fileurlkey],isLoad:"filenative",isAdd:isAdd});
 			}
 		}
 		
@@ -448,7 +456,7 @@ import { URL } from "laya/net/URL";
 			MiniFileMgr.fs.mkdir({dirPath: dirPath, success: function(data:any):void {
 				callBack != null && callBack.runWith([0, {data: JSON.stringify({})}]);
 			}, fail: function(data:any):void {
-				if (data.errMsg.indexOf("file already exists") != -1)
+				if (data.error == 10025)
 					MiniFileMgr.readSync(MiniFileMgr.fileListName, "utf8", callBack);
 				else
 					callBack != null && callBack.runWith([1, data]);
@@ -463,13 +471,24 @@ import { URL } from "laya/net/URL";
 		 * @param callBack 回调处理
 		 * @param readyUrl 文件请求加载地址
 		 */
-		 static readSync(filePath:string, encoding:string = "ascill", callBack:Handler = null, readyUrl:string = ""):void {
+		 static readSync(filePath:string, encoding:string = "utf8", callBack:Handler = null, readyUrl:string = ""):void {
 			var fileUrl:string = MiniFileMgr.getFileNativePath(filePath);
 			var filesListStr:string
 			try
 			{
-				filesListStr = MiniFileMgr.fs.readFileSync(fileUrl, encoding);
-				callBack != null && callBack.runWith([0, {data: filesListStr}]);
+				//filesListStr = MiniFileMgr.fs.readFileSync(fileUrl, encoding);
+				//callBack != null && callBack.runWith([0, {data: filesListStr}]);
+				MiniFileMgr.fs.readFile({
+					filePath:fileUrl,
+					encoding:encoding,
+					success:function(data:any){
+						filesListStr = data.data;
+						callBack != null && callBack.runWith([0, {data: filesListStr}]);
+					},
+					fail:function(){
+						callBack != null && callBack.runWith([1]);
+					}
+				});
 			} 
 			catch(error) 
 			{
@@ -485,7 +504,7 @@ import { URL } from "laya/net/URL";
 		 * @return
 		 */
 		 static setNativeFileDir(value:string):void {
-			MiniFileMgr.fileNativeDir = KGMiniAdapter.window.qg.env.USER_DATA_PATH + value;
+			MiniFileMgr.fileNativeDir = ALIMiniAdapter.window.my.env.USER_DATA_PATH + value;
 		}
 	}
 

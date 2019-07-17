@@ -117,7 +117,7 @@ export class Laya {
 		style.top = style.left = "0px";
 		style.background = "#000000";
 
-		if (!Browser.onKGMiniGame) {
+		if (!Browser.onKGMiniGame && !Browser.onAlipayMiniGame) {
 			Browser.container.appendChild(mainCanv.source);//xiaosong add
 		}
 
