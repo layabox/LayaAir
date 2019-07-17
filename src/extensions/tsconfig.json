@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "module": "es6",
+        "baseUrl": "../layaAir",
+        "outDir": "../../bin/tsc/plugins"
+    },
+    "references": [
+        {"path":"../layaAir"}
+    ],
+    "exclude": [
+        "debug",
+        "pathfinding",
+    ]
+
+}
