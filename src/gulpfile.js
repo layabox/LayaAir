@@ -48,9 +48,15 @@ var packsDef={
     },
     'device':{
         'input':[
-            './layaAir/laya/device/**/*.*'
+            './plugins/device/**/*.*'
         ],
         'out':'../build/js/libs/laya.device.js'
+    },
+    'tiledmap':{
+        'input':[
+            './plugins/map/**/*.*'
+        ],
+        'out':'../build/js/libs/laya.tiledmap.js'
     },
     'html':{
         'input':[
@@ -232,6 +238,12 @@ gulp.task('CopyJSFileToAS', () => {
 });
 
 gulp.task('CopyTSFileToTS', () => {
+    gulp.src([
+        './plugins/device/**/*.*'], )
+        .pipe(gulp.dest('../build/ts_new/libs/laya/device'));
+    gulp.src([
+        './plugins/map/**/*.*'], )
+        .pipe(gulp.dest('../build/ts_new/libs/laya/map'));
 	return gulp.src([
         './layaAir/**/*.*', '!./layaAir/jsLibs/**/*.*', '!./layaAir/gulpfile.js', '!./layaAir/tsconfig.json'], )
 		.pipe(gulp.dest('../build/ts_new/libs'));
@@ -491,6 +503,36 @@ gulp.task('buildJS', async function () {
   
     await ui.write({
       file: packsDef.ui.out,
+      format: 'iife',
+      name: 'Laya',
+      sourcemap: false,
+      extend:true,
+      globals:{'Laya':'Laya'}
+    });
+
+    const tiledmap = await rollup.rollup({
+        input:packsDef.tiledmap.input,
+        output: {
+            extend:true,
+            globals:{'Laya':'Laya'}
+        },
+        external:['Laya'],
+        plugins: [
+            myMultiInput(),
+            typescript({
+                tsconfig:"./layaAir/tsconfig.json",
+                check: false
+            }),
+            glsl({
+                include: /\.glsl$/,
+                sourceMap: false,
+                compress:false
+            }),   
+        ]
+    });
+  
+    await tiledmap.write({
+      file: packsDef.tiledmap.out,
       format: 'iife',
       name: 'Laya',
       sourcemap: false,
