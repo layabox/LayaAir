@@ -6,7 +6,8 @@
         "outDir": "../../bin/tsc/samples"
     },
     "references": [
-        {"path":"../layaAir"}
+        {"path":"../layaAir"},
+        {"path":"../extensions"}
     ],
     "exclude": [
         "3d/LayaAir3DTest__Voxel",
