@@ -3,5 +3,6 @@
   "out":"../../build/",
   "layajsURL":"./as/layajs.exe",
   "tsConfig":"../layaAir/tsconfig.json",
+  "filter":[],
   "createAS":true
 }

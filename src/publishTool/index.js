@@ -33,6 +33,8 @@ var dtsObj = "";
 var isTimeOut = false;
 /**执行的目录tsConfig */
 var tsCongfig;
+/**过滤文件夹名数组 */
+var filterArr;
 start();
 function start() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -42,20 +44,21 @@ function start() {
         createAS = json.createAS;
         layajsURL = json.layajsURL;
         tsCongfig = json.tsConfig;
+        filterArr = json.filter;
         if (yield compile()) { //确认编译结果
             checkAllDir("");
         }
     });
 }
 function compile() {
-    console.log("start compile!");
     return new Promise(reslove => {
         child_process.exec("tsc -b " + tsCongfig, (error, stdout, stderr) => {
             if (error) {
                 console.log("compile error! ", error);
                 reslove(false);
+                return;
             }
-            console.log("compile success!");
+            console.log("compile success!", stdout, stderr);
             reslove(true);
         });
     });
@@ -74,6 +77,69 @@ function checkAllDir(url) {
         else
             console.log("readdir fail", url);
     });
+}
+/**
+ * 遍历文件夹
+ * @param {*} files 列表
+ * @param {*} url 该文件夹所在位置
+ */
+function ergodic(files, url) {
+    return __awaiter(this, void 0, void 0, function* () {
+        for (let i = 0; i < files.length; i++) {
+            let fileUrl = path.join(url, files[i]);
+            let isFile = yield checkIsFile(fileUrl);
+            if (isFile) {
+                if (filterArr.indexOf(files[i]) == -1)
+                    checkAllDir(fileUrl);
+            }
+            else {
+                if (fileUrl.indexOf(".d.ts") != -1) {
+                    //读取文件
+                    let tsdata = yield readFile(fileUrl);
+                    // debugger
+                    let asdata = yield tstoas(fileUrl, tsdata, url);
+                    //写入文件
+                    writeFile(outfileAS + fileUrl, asdata);
+                }
+            }
+        }
+    });
+}
+/**
+ * 检测读写完成
+ */
+function checkComplete() {
+    setTimeout(() => {
+        let keys = Object.keys(Testobj);
+        if (!keys.length) {
+            console.log("TS to AS complete!!!", complete, progress);
+            let layaObj = "declare module Laya {\n" + emiter_1.emiter.dtsData + "\n}\n";
+            dtsObj += layaObj;
+            createDir(outfileJS);
+            createDir(outfileTS);
+            let jsout = path.join(outfile, outfileJS) + "LayaAir.d.ts";
+            let tsout = path.join(outfile, outfileTS) + "LayaAir.d.ts";
+            fs.writeFile(tsout, dtsObj, err => {
+                if (err) {
+                    console.log("create ts d.ts fail");
+                    return;
+                }
+                fs.writeFile(jsout, dtsObj, (err) => __awaiter(this, void 0, void 0, function* () {
+                    if (err) {
+                        console.log("create js d.ts fail");
+                        return;
+                    }
+                    console.log("create d.ts success");
+                    console.log("start copy layajs.exe");
+                    yield gulp.src(layajsURL).pipe(gulp.dest(path.join(outfile, outfileAS, "../../")));
+                    console.log("copy suc!");
+                }));
+            });
+        }
+        else {
+            checkComplete();
+        }
+    }, 1000);
 }
 /**
  * 给节点加上名字，便于调试
@@ -99,21 +165,15 @@ function tstoas(infile, code, fileurl) {
         let em = new emiter_1.emiter();
         let asCode = em.createCode(sc, code, fileurl);
         dtsObj += em.copyTSdata;
-        //测试
-        // fs.writeFile("tst.as",asCode,err=>{
-        //     if(err)console.log("writeFail");
-        //     console.log("writeSuccess");
-        // });
         // console.log(asCode);
         //测试 查看copyTsdata
         // console.log(em.copyTSdata);
-        // debugger
         return asCode;
     });
 }
 /**
  * 读取文件夹
- *  */
+ **/
 function readDir(fileUrl) {
     return new Promise(resolve => {
         fs.readdir(formatUrl(fileUrl), (err, files) => {
@@ -204,70 +264,6 @@ function writeFile(url, data) {
             checkComplete();
         }
     }
-}
-/**
- * 遍历文件夹
- * @param {*} files 列表
- * @param {*} url 该文件夹所在位置
- */
-function ergodic(files, url) {
-    return __awaiter(this, void 0, void 0, function* () {
-        for (let i = 0; i < files.length; i++) {
-            let fileUrl = path.join(url, files[i]);
-            let isFile = yield checkIsFile(fileUrl);
-            if (isFile) {
-                checkAllDir(fileUrl);
-            }
-            else {
-                if (fileUrl.indexOf(".d.ts") != -1) {
-                    //读取文件
-                    let tsdata = yield readFile(fileUrl);
-                    // debugger
-                    let asdata = yield tstoas(fileUrl, tsdata, url);
-                    //写一份extend
-                    // if(url != ""){
-                    //     layaObj += "\n\tclass " + files[i].replace(".d.ts","") + " extends " + fileUrl.replace(new RegExp("\\\\","g"),".").replace(".d.ts","") + " {}\n";
-                    // }
-                    //写入文件
-                    yield writeFile(outfileAS + fileUrl, asdata);
-                }
-            }
-        }
-    });
-}
-/**
- * 检测读写完成
- */
-function checkComplete() {
-    setTimeout(() => {
-        let keys = Object.keys(Testobj);
-        if (!keys.length) {
-            console.log("TS to AS complete!!!", complete, progress);
-            let layaObj = "declare module Laya {\n" + emiter_1.emiter.dtsData + "\n}\n";
-            dtsObj += layaObj;
-            createDir(outfileJS);
-            createDir(outfileTS);
-            // if (!fs.existsSync(out))
-            //     fs.mkdirSync(out);
-            let jsout = path.join(outfile, outfileJS) + "LayaAir.d.ts";
-            let tsout = path.join(outfile, outfileTS) + "LayaAir.d.ts";
-            fs.writeFile(tsout, dtsObj, err => {
-                if (err)
-                    console.log("create ts d.ts fail");
-                fs.writeFile(jsout, dtsObj, (err) => __awaiter(this, void 0, void 0, function* () {
-                    if (err)
-                        console.log("create js d.ts fail");
-                    console.log("create d.ts success");
-                    console.log("start copy layajs.exe");
-                    yield gulp.src(layajsURL).pipe(gulp.dest(path.join(outfile, outfileAS, "../../")));
-                    console.log("copy suc!");
-                }));
-            });
-        }
-        else {
-            checkComplete();
-        }
-    }, 1000);
 }
 /**
  *  格式化url
