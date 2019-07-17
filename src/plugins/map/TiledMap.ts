@@ -1,17 +1,17 @@
-import { Laya } from "./../../../../../core/src/Laya";
+import { MapLayer } from "./MapLayer"
+import { Rectangle } from "../maths/Rectangle";
+import { Sprite } from "../display/Sprite";
+import { Loader } from "../net/Loader";
+import { Handler } from "../utils/Handler";
+import { Point } from "../maths/Point";
+import { ILaya } from "../../ILaya";
+import { Texture } from "../resource/Texture";
 import { TileTexSet } from "./TileTexSet";
-import { Sprite } from "../../../../../core/src/laya/display/Sprite"
-	import { GridSprite } from "./GridSprite"
-	import { TileAniSprite } from "./TileAniSprite"
-	import { Point } from "../../../../../core/src/laya/maths/Point"
-	import { Rectangle } from "../../../../../core/src/laya/maths/Rectangle"
-	import { Loader } from "../../../../../core/src/laya/net/Loader"
-	import { Render } from "../../../../../core/src/laya/renders/Render"
-	import { Context } from "../../../../../core/src/laya/resource/Context"
-	import { HTMLCanvas } from "../../../../../core/src/laya/resource/HTMLCanvas"
-	import { Texture } from "../../../../../core/src/laya/resource/Texture"
-	import { Handler } from "../../../../../core/src/laya/utils/Handler"
-	import { MapLayer } from "./MapLayer"
+import { GridSprite } from "./GridSprite";
+import { TileAniSprite } from "./TileAniSprite";
+import { HTMLCanvas } from "../resource/HTMLCanvas";
+import { Context } from "../resource/Context";
+import { IMap } from "./IMap";
 	
 	/**
 	 * tiledMap是整个地图的核心
@@ -101,9 +101,9 @@ import { Sprite } from "../../../../../core/src/laya/display/Sprite"
 		private _pivotScaleY:number = 0.5;
 		private _centerX:number = 0;
 		private _centerY:number = 0;
-		/**@private */
+		/**@internal */
 		 _viewPortX:number = 0;
-		/**@private */
+		/**@internal */
 		 _viewPortY:number = 0;
 		private _viewPortWidth:number = 0;
 		private _viewPortHeight:number = 0;
@@ -199,8 +199,8 @@ import { Sprite } from "../../../../../core/src/laya/display/Sprite"
 		 * @param	e JSON数据
 		 */
 		private onJsonComplete(e:any):void {
-			this._mapSprite = new Sprite();
-			Laya.stage.addChild(this._mapSprite);
+            this._mapSprite = new Sprite();
+			ILaya.stage.addChild(this._mapSprite);
 			var tJsonData:any = this._jsonData = e;
 			
 			this._properties = tJsonData.properties;
@@ -315,8 +315,8 @@ import { Sprite } from "../../../../../core/src/laya/display/Sprite"
 			var json:any = this._jsonData;
 			var tTexture:Texture = e;
 			if (!this._enableLinear) {
-				tTexture.bitmap.minFifter = 0x2600;
-				tTexture.bitmap.magFifter = 0x2600;
+				(tTexture.bitmap as any).minFifter = 0x2600; //TODO any
+				(tTexture.bitmap as any).magFifter = 0x2600; // TODO any
 			}
 			this._texArray.push(tTexture);
 			var tSubTexture:Texture = null;
@@ -368,11 +368,12 @@ import { Sprite } from "../../../../../core/src/laya/display/Sprite"
 			var pY:number = tex.uv[1];
 			var pY1:number = tex.uv[7];
 			var dW:number = 1 / tex.bitmap.width;
-			var dH:number = 1 / tex.bitmap.height;
-			tex.uv[0] = tex.uv[6] = pX + dW;
-			tex.uv[2] = tex.uv[4] = pX1 - dW;
-			tex.uv[1] = tex.uv[3] = pY + dH;
-			tex.uv[5] = tex.uv[7] = pY1 - dH;
+            var dH:number = 1 / tex.bitmap.height;
+            var Tex:any = tex;
+			Tex.uv[0] = Tex.uv[6] = pX + dW;
+			Tex.uv[2] = Tex.uv[4] = pX1 - dW;
+			Tex.uv[1] = Tex.uv[3] = pY + dH;
+			Tex.uv[5] = Tex.uv[7] = pY1 - dH;
 		}
 		
 		/**
@@ -910,8 +911,8 @@ import { Sprite } from "../../../../../core/src/laya/display/Sprite"
 				{
 					tx=TiledMap._tempCanvas.getContext('2d');	//如果是webGL的话，这个会返回WebGLContext2D
 					
-					tx.__tx = 0;
-					tx.__ty = 0;
+					//tx.__tx = 0;
+					//tx.__ty = 0;
 				}		
 			}
 			canvas = TiledMap._tempCanvas;
@@ -1506,3 +1507,5 @@ class TileSet {
 		}
 	}
 }
+
+IMap.TiledMap=TiledMap;

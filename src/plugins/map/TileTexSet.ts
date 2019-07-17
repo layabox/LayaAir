@@ -1,7 +1,7 @@
-import { Laya } from "./../../../../../core/src/Laya";
-import { TileAniSprite } from "./TileAniSprite"
-	import { Texture } from "../../../../../core/src/laya/resource/Texture"
-	import { Browser } from "../../../../../core/src/laya/utils/Browser"
+import { Texture } from "../resource/Texture";
+import { TileAniSprite } from "./TileAniSprite";
+import { ILaya } from "../../ILaya";
+
 	
 	/**
 	 * 此类是子纹理类，也包括同类动画的管理
@@ -52,9 +52,9 @@ import { TileAniSprite } from "./TileAniSprite"
 				this._aniDic = {};
 			}
 			if (this._spriteNum == 0) {
-				//每3帧刷新一下吧，每帧刷新可能太耗了
-				Laya.timer.frameLoop(3, this, this.animate);
-				this._preFrameTime = Browser.now();
+                //每3帧刷新一下吧，每帧刷新可能太耗了
+				ILaya.timer.frameLoop(3, this, this.animate);
+				this._preFrameTime = ILaya.Browser.now();
 				this._frameIndex = 0;
 				this._time = 0;
 				this._interval = 0;
@@ -72,7 +72,7 @@ import { TileAniSprite } from "./TileAniSprite"
 		 */
 		private animate():void {
 			if (this.textureArray && this.textureArray.length > 0 && this.durationTimeArray && this.durationTimeArray.length > 0) {
-				var tNow:number = Browser.now();
+				var tNow:number = ILaya.Browser.now();
 				this._interval = tNow - this._preFrameTime;
 				this._preFrameTime = tNow;
 				if (this._interval > this.animationTotalTime) {
@@ -112,7 +112,7 @@ import { TileAniSprite } from "./TileAniSprite"
 				delete this._aniDic[_name];
 				this._spriteNum--
 				if (this._spriteNum == 0) {
-					Laya.timer.clear(this, this.animate);
+					ILaya.timer.clear(this, this.animate);
 				}
 			}
 		}

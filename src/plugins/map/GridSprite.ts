@@ -1,8 +1,8 @@
 import { TiledMap } from "./TiledMap";
 import { TileAniSprite } from "./TileAniSprite";
-import { Sprite } from "../../../../../core/src/laya/display/Sprite"
-	import { Browser } from "../../../../../core/src/laya/utils/Browser"
-	
+import { Sprite } from "../display/Sprite";
+
+
 	/**
 	 * 地图的每层都会分块渲染处理
 	 * 本类就是地图的块数据

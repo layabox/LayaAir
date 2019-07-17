@@ -1,11 +1,12 @@
-import { TiledMap } from "./TiledMap";
 import { TileTexSet } from "./TileTexSet";
 import { TileAniSprite } from "./TileAniSprite";
-import { Sprite } from "../../../../../core/src/laya/display/Sprite"
-	import { GridSprite } from "./GridSprite"
-	import { Point } from "../../../../../core/src/laya/maths/Point"
-	import { Rectangle } from "../../../../../core/src/laya/maths/Rectangle"
-	import { Texture } from "../../../../../core/src/laya/resource/Texture"
+import { Sprite } from "../display/Sprite";
+import { Point } from "../maths/Point";
+import { GridSprite } from "./GridSprite";
+import { Texture } from "../resource/Texture";
+import { IMap } from "./IMap";
+import { TiledMap } from "./TiledMap";
+
 	
 	/**
 	 * 地图支持多层渲染（例如，地表层，植被层，建筑层等）
@@ -15,6 +16,7 @@ import { Sprite } from "../../../../../core/src/laya/display/Sprite"
 	export class MapLayer extends Sprite {
 		
 		private _map:TiledMap;
+		/**@internal */
 		 _mapData:any[] = null;
 		
 		private _tileWidthHalf:number = 0;
@@ -24,7 +26,7 @@ import { Sprite } from "../../../../../core/src/laya/display/Sprite"
 		private _mapHeightHalf:number = 0;
 		
 		/**
-		 * @private
+		 * @internal
 		 */
 		 _gridSpriteArray:any[] = [];
 		private _objDic:any = null;//用来做字典，方便查询
@@ -89,26 +91,26 @@ import { Sprite } from "../../../../../core/src/laya/display/Sprite"
 						var tSprite:GridSprite = map.getSprite(tObjectData.gid, tObjWidth, tObjHeight);
 						if (tSprite != null) {
 							switch (this._map.orientation) {
-							case TiledMap.ORIENTATION_ISOMETRIC:
+							case IMap.TiledMap.ORIENTATION_ISOMETRIC:
 								this.getScreenPositionByTilePos(tObjectData.x / tTileH, tObjectData.y / tTileH, Point.TEMP);
 								tSprite.pivot(tObjWidth / 2, tObjHeight / 2);
 								tSprite.rotation = tObjectData.rotation;
 								tSprite.x = tSprite.relativeX = Point.TEMP.x + this._map.viewPortX;
 								tSprite.y = tSprite.relativeY = Point.TEMP.y + this._map.viewPortY - tObjHeight / 2;
 								break;
-							case TiledMap.ORIENTATION_STAGGERED://对象旋转后坐标计算的不对。。
+							case IMap.TiledMap.ORIENTATION_STAGGERED://对象旋转后坐标计算的不对。。
 								tSprite.pivot(tObjWidth / 2, tObjHeight / 2);
 								tSprite.rotation = tObjectData.rotation;
 								tSprite.x = tSprite.relativeX = tObjectData.x + tObjWidth / 2;
 								tSprite.y = tSprite.relativeY = tObjectData.y - tObjHeight / 2;
 								break;
-							case TiledMap.ORIENTATION_ORTHOGONAL: 
+							case IMap.TiledMap.ORIENTATION_ORTHOGONAL: 
 								tSprite.pivot(tObjWidth / 2, tObjHeight / 2);
 								tSprite.rotation = tObjectData.rotation;
 								tSprite.x = tSprite.relativeX = tObjectData.x + tObjWidth / 2;
 								tSprite.y = tSprite.relativeY = tObjectData.y - tObjHeight / 2;
 								break;
-							case TiledMap.ORIENTATION_HEXAGONAL://待测试
+							case IMap.TiledMap.ORIENTATION_HEXAGONAL://待测试
 								tSprite.x = tSprite.relativeX = tObjectData.x;
 								tSprite.y = tSprite.relativeY = tObjectData.y;
 								break;
@@ -189,21 +191,21 @@ import { Sprite } from "../../../../../core/src/laya/display/Sprite"
 		 getScreenPositionByTilePos(tileX:number, tileY:number, screenPos:Point = null):void {
 			if (screenPos) {
 				switch (this._map.orientation) {
-				case TiledMap.ORIENTATION_ISOMETRIC: 
+				case IMap.TiledMap.ORIENTATION_ISOMETRIC: 
 					screenPos.x = this._map.width / 2 - (tileY - tileX) * this._tileWidthHalf;
 					screenPos.y = (tileY + tileX) * this._tileHeightHalf;
 					break;
-				case TiledMap.ORIENTATION_STAGGERED:
+				case IMap.TiledMap.ORIENTATION_STAGGERED:
 					tileX = Math.floor(tileX);
 					tileY = Math.floor(tileY);
 					screenPos.x = tileX * this._map.tileWidth + (tileY & 1) * this._tileWidthHalf;
 					screenPos.y = tileY * this._tileHeightHalf;
 					break;
-				case TiledMap.ORIENTATION_ORTHOGONAL: 
+				case IMap.TiledMap.ORIENTATION_ORTHOGONAL: 
 					screenPos.x = tileX * this._map.tileWidth;
 					screenPos.y = tileY * this._map.tileHeight;
 					break;
-				case TiledMap.ORIENTATION_HEXAGONAL: 
+				case IMap.TiledMap.ORIENTATION_HEXAGONAL: 
 					tileX = Math.floor(tileX);
 					tileY = Math.floor(tileY);
 					var tTileHeight:number = this._map.tileHeight * 2 / 3;
@@ -248,7 +250,7 @@ import { Sprite } from "../../../../../core/src/laya/display/Sprite"
 			var tV:number = 0;
 			var tU:number = 0;
 			switch (this._map.orientation) {
-			case TiledMap.ORIENTATION_ISOMETRIC://45度角
+			case IMap.TiledMap.ORIENTATION_ISOMETRIC://45度角
 				var tDirX:number = screenX - this._map.width / 2;
 				var tDirY:number = screenY;
 				tV = -(tDirX / tTileW - tDirY / tTileH);
@@ -259,7 +261,7 @@ import { Sprite } from "../../../../../core/src/laya/display/Sprite"
 				}
 				return true;
 				break;
-			case TiledMap.ORIENTATION_STAGGERED://45度交错地图
+			case IMap.TiledMap.ORIENTATION_STAGGERED://45度交错地图
 				if (result) {
 					var cx:number, cy:number, rx:number, ry:number;
 					cx = Math.floor(screenX / tTileW) * tTileW + tTileW / 2;        //计算出当前X所在的以tileWidth为宽的矩形的中心的X坐标
@@ -282,7 +284,7 @@ import { Sprite } from "../../../../../core/src/laya/display/Sprite"
 				}
 				return true;
 				break;
-			case TiledMap.ORIENTATION_ORTHOGONAL://直角
+			case IMap.TiledMap.ORIENTATION_ORTHOGONAL://直角
 				tU = screenX / tTileW;
 				tV = screenY / tTileH;
 				if (result) {
@@ -291,7 +293,7 @@ import { Sprite } from "../../../../../core/src/laya/display/Sprite"
 				}
 				return true;
 				break;
-			case TiledMap.ORIENTATION_HEXAGONAL://六边形
+			case IMap.TiledMap.ORIENTATION_HEXAGONAL://六边形
 				var tTileHeight:number = tTileH * 2 / 3;
 				tV = screenY / tTileHeight;
 				tU = (screenX - tV % 2 * this._tileWidthHalf) / tTileW;
@@ -354,19 +356,19 @@ import { Sprite } from "../../../../../core/src/laya/display/Sprite"
 							var tY:number = 0;
 							var tTexture:Texture = tTileTexSet.texture;
 							switch (this._map.orientation) {
-							case TiledMap.ORIENTATION_STAGGERED://45度交错地图
+							case IMap.TiledMap.ORIENTATION_STAGGERED://45度交错地图
 								tX = tileX * this._map.tileWidth % this._map.gridWidth + (tileY & 1) * this._tileWidthHalf;
 								tY = tileY * this._tileHeightHalf % this._map.gridHeight;
 								break;
-							case TiledMap.ORIENTATION_ORTHOGONAL://直角
+							case IMap.TiledMap.ORIENTATION_ORTHOGONAL://直角
 								tX = tileX * this._map.tileWidth % this._map.gridWidth;
 								tY = tileY * this._map.tileHeight % this._map.gridHeight;
 								break;
-							case TiledMap.ORIENTATION_ISOMETRIC://45度角
+							case IMap.TiledMap.ORIENTATION_ISOMETRIC://45度角
 								tX = (this._mapWidthHalf + (tileX - tileY) * this._tileWidthHalf) % this._map.gridWidth;
 								tY = ((tileX + tileY) * this._tileHeightHalf) % this._map.gridHeight;
 								break;
-							case TiledMap.ORIENTATION_HEXAGONAL://六边形
+							case IMap.TiledMap.ORIENTATION_HEXAGONAL://六边形
 								var tTileHeight:number = this._map.tileHeight * 2 / 3;
 								tX = (tileX * this._map.tileWidth + tileY % 2 * this._tileWidthHalf) % this._map.gridWidth;
 								tY = (tileY * tTileHeight) % this._map.gridHeight;
