@@ -38,6 +38,7 @@ import { AlphaCmd } from "./cmd/AlphaCmd"
 	import { Utils } from "../utils/Utils"
 	import { VectorGraphManager } from "../utils/VectorGraphManager"
 import { ILaya } from "../../ILaya";
+import { ClassUtils } from "../utils/ClassUtils";
 
 	/**
 	 * <code>Graphics</code> 类用于创建绘图显示对象。Graphics可以同时绘制多个位图或者矢量图，还可以结合save，restore，transform，scale，rotate，translate，alpha等指令对绘图效果进行变化。
@@ -745,3 +746,6 @@ import { ILaya } from "../../ILaya";
 		}
 	}
 
+
+	ClassUtils.regClass("laya.display.Graphics", Graphics);
+	ClassUtils.regClass("Laya.Graphics", Graphics);

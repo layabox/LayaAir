@@ -3,6 +3,7 @@ import { Event } from "../events/Event"
 import { Matrix } from "../maths/Matrix"
 import { Utils } from "../utils/Utils"
 import { ILaya } from "../../ILaya";
+import { ClassUtils } from "../utils/ClassUtils";
 	/**
 	 * 用户输入一个或多个文本字符时后调度。
 	 * @eventType Event.INPUT
@@ -608,3 +609,5 @@ import { ILaya } from "../../ILaya";
 		}
 	}
 
+	ClassUtils.regClass("laya.display.Input", Input);
+	ClassUtils.regClass("Laya.Input", Input);

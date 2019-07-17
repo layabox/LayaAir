@@ -1,5 +1,6 @@
 import { ColliderBase } from "./ColliderBase";
 import { Physics } from "./Physics";
+import { ClassUtils } from "../utils/ClassUtils";
 /**
 	 * 2D圆形碰撞体
 	 */
@@ -65,3 +66,6 @@ import { Physics } from "./Physics";
 			this._setShape();
 		}
 	}
+
+	ClassUtils.regClass("laya.physics.CircleCollider", CircleCollider);
+	ClassUtils.regClass("Laya.CircleCollider", CircleCollider);

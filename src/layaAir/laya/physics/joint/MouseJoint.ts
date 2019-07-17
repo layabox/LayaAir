@@ -5,6 +5,7 @@ import { Sprite } from "../../display/Sprite"
 	import { Point } from "../../maths/Point"
 	import { Physics } from "../Physics"
 	import { RigidBody } from "../RigidBody"
+import { ClassUtils } from "../../utils/ClassUtils";
 	
 	/**
 	 * 鼠标关节：鼠标关节用于通过鼠标来操控物体。它试图将物体拖向当前鼠标光标的位置。而在旋转方面就没有限制。
@@ -106,3 +107,5 @@ import { Sprite } from "../../display/Sprite"
 		}
 	}
 
+	ClassUtils.regClass("laya.physics.MouseJoint", MouseJoint);
+	ClassUtils.regClass("Laya.MouseJoint", MouseJoint);

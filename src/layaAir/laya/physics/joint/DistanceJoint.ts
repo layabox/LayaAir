@@ -1,6 +1,7 @@
 import { JointBase } from "./JointBase";
 import { Physics } from "../Physics"
 	import { RigidBody } from "../RigidBody"
+import { ClassUtils } from "../../utils/ClassUtils";
 	
 	/**
 	 * 距离关节：两个物体上面各自有一点，两点之间的距离固定不变
@@ -78,3 +79,6 @@ import { Physics } from "../Physics"
 			if (this._joint) this._joint.SetDampingRatio(value);
 		}
 	}
+
+	ClassUtils.regClass("laya.physics.DistanceJoint", DistanceJoint);
+	ClassUtils.regClass("Laya.DistanceJoint", DistanceJoint);

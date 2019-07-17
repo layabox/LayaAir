@@ -100,8 +100,9 @@ export class SubMeshRenderElement extends RenderElement {
 
 	/**
 	 * @inheritDoc
+	 * @override
 	 */
-	/*override*/  setTransform(transform: Transform3D): void {
+	setTransform(transform: Transform3D): void {
 		if (this._transform !== transform) {
 			(this._transform) && (this._transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatrixChanged));
 			(transform) && (transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatrixChanged));
@@ -112,8 +113,9 @@ export class SubMeshRenderElement extends RenderElement {
 
 	/**
 	 * @inheritDoc
+	 * @override
 	 */
-	/*override*/  setGeometry(geometry: GeometryElement): void {
+	setGeometry(geometry: GeometryElement): void {
 		if (this._geometry !== geometry) {
 			var subMesh: SubMesh = (<SubMesh>geometry);
 			var mesh: Mesh = subMesh._mesh;
@@ -137,8 +139,9 @@ export class SubMeshRenderElement extends RenderElement {
 
 	/**
 	 * @inheritDoc
+	 * @override
 	 */
-	/*override*/  addToOpaqueRenderQueue(context: RenderContext3D, queue: RenderQueue): void {
+	addToOpaqueRenderQueue(context: RenderContext3D, queue: RenderQueue): void {
 		var subMeshStaticBatch: SubMeshStaticBatch = (<SubMeshStaticBatch>this.staticBatch);
 		var queueElements: SingletonList<RenderElement> = queue.elements;
 		var elements: any[] = queueElements.elements;
@@ -253,8 +256,9 @@ export class SubMeshRenderElement extends RenderElement {
 
 	/**
 	 * @inheritDoc
+	 * @override
 	 */
-	/*override*/  addToTransparentRenderQueue(context: RenderContext3D, queue: RenderQueue): void {
+	addToTransparentRenderQueue(context: RenderContext3D, queue: RenderQueue): void {
 		var subMeshStaticBatch: SubMeshStaticBatch = (<SubMeshStaticBatch>this.staticBatch);
 		var queueElements: SingletonList<RenderElement> = queue.elements;
 		var elements: any[] = queueElements.elements;
@@ -268,7 +272,7 @@ export class SubMeshRenderElement extends RenderElement {
 					queue.lastTransparentBatched = false;
 				} else {
 					if (queue.lastTransparentBatched) {
-						((<SubMeshRenderElement>elements[elements.length - 1])).staticBatchElementList.add((this));
+						(<SubMeshRenderElement>elements[elements.length - 1]).staticBatchElementList.add((this));
 					} else {
 						var staBatchElement: SubMeshRenderElement = (<SubMeshRenderElement>staManager._getBatchRenderElementFromPool());
 						staBatchElement.renderType = RenderElement.RENDERTYPE_STATICBATCH;
@@ -302,7 +306,14 @@ export class SubMeshRenderElement extends RenderElement {
 					queue.lastTransparentBatched = false;
 				} else {
 					if (queue.lastTransparentBatched) {
-						((<SubMeshRenderElement>elements[elements.length - 1])).instanceBatchElementList.add((this));
+						var instanceBatchElementList: SingletonList<SubMeshRenderElement> = elements[elements.length - 1].instanceBatchElementList;
+						if (instanceBatchElementList.length === SubMeshInstanceBatch.instance.maxInstanceCount) {
+							queueElements.add(this);
+							queue.lastTransparentBatched = false;
+						} else {
+							instanceBatchElementList.add(this);
+							queue.lastTransparentBatched = true;
+						}
 					} else {
 						var insBatchElement: SubMeshRenderElement = (<SubMeshRenderElement>insManager._getBatchRenderElementFromPool());
 						insBatchElement.renderType = RenderElement.RENDERTYPE_INSTANCEBATCH;
@@ -317,8 +328,8 @@ export class SubMeshRenderElement extends RenderElement {
 						insBatchList.add((<SubMeshRenderElement>insLastElement));
 						insBatchList.add(this);
 						elements[elements.length - 1] = insBatchElement;
+						queue.lastTransparentBatched = true;
 					}
-					queue.lastTransparentBatched = true;
 				}
 			} else {
 				queueElements.add(this);
@@ -380,8 +391,9 @@ export class SubMeshRenderElement extends RenderElement {
 
 	/**
 	 * @inheritDoc
+	 * @override
 	 */
-	/*override*/  destroy(): void {
+	destroy(): void {
 		super.destroy();
 		this._dynamicWorldPositions = null;
 		this._dynamicWorldNormals = null;

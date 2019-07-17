@@ -1,5 +1,6 @@
 import { Component } from "../../components/Component"
 	import { Physics } from "../Physics"
+import { ClassUtils } from "../../utils/ClassUtils";
 	
 	/**
 	 * 关节基类
@@ -33,3 +34,5 @@ import { Component } from "../../components/Component"
 		}
 	}
 
+	ClassUtils.regClass("laya.physics.JointBase", JointBase);
+	ClassUtils.regClass("Laya.JointBase", JointBase);

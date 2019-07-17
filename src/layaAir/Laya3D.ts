@@ -76,7 +76,6 @@ import { Command } from "./laya/d3/core/render/command/Command";
 import { ClassUtils } from "./laya/utils/ClassUtils";
 import { StaticPlaneColliderShape } from "./laya/d3/physics/shape/StaticPlaneColliderShape";
 import { PrimitiveMesh } from "./laya/d3/resource/models/PrimitiveMesh";
-import { verify } from "crypto";
 import { VertexMesh } from "./laya/d3/graphics/Vertex/VertexMesh";
 import { VertexElementFormat } from "./laya/d3/graphics/VertexElementFormat";
 import { VertexShurikenParticleBillboard } from "./laya/d3/graphics/Vertex/VertexShurikenParticleBillboard";
@@ -84,6 +83,7 @@ import { VertexShurikenParticleMesh } from "./laya/d3/graphics/Vertex/VertexShur
 import { VertexPositionTexture0 } from "./laya/d3/graphics/Vertex/VertexPositionTexture0";
 import { VertexTrail } from "./laya/d3/core/trail/VertexTrail";
 import { PixelLineVertex } from "./laya/d3/core/pixelLine/PixelLineVertex";
+import { VertexPositionTerrain } from "./laya/d3/graphics/Vertex/VertexPositionTerrain";
 
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
@@ -196,6 +196,7 @@ export class Laya3D {
 		VertexShurikenParticleMesh.__init__();
 		VertexPositionTexture0.__init__();
 		VertexTrail.__init__();
+		VertexPositionTerrain.__init__();
 		PixelLineVertex.__init__();
 		SubMeshInstanceBatch.__init__();
 		SubMeshDynamicBatch.__init__();

@@ -1,5 +1,6 @@
 import { ColliderBase } from "./ColliderBase";
 import { Physics } from "./Physics";
+import { ClassUtils } from "../utils/ClassUtils";
 /**
 	 * 2D线形碰撞体
 	 */
@@ -77,3 +78,6 @@ import { Physics } from "./Physics";
 			if (this._shape) this._setShape();
 		}
 	}
+
+	ClassUtils.regClass("laya.physics.ChainCollider", ChainCollider);
+	ClassUtils.regClass("Laya.ChainCollider", ChainCollider);
