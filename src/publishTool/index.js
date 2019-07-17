@@ -52,15 +52,35 @@ function start() {
 }
 function compile() {
     return new Promise(reslove => {
-        child_process.exec("tsc -b " + tsCongfig, (error, stdout, stderr) => {
-            if (error) {
-                console.log("compile error! ", error);
-                reslove(false);
-                return;
+        let mark = 0;
+        let _result = 0;
+        let start = function (result) {
+            mark--;
+            _result += result;
+            if (!mark) {
+                if (!_result) {
+                    //进程全部执行完毕
+                    console.log("complie success!");
+                    reslove(true);
+                }
+                else {
+                    reslove(false);
+                }
             }
-            console.log("compile success!", stdout, stderr);
-            reslove(true);
-        });
+        };
+        console.log("start complie!");
+        //检测数组
+        for (let i = 0; i < tsCongfig.length; i++) {
+            mark++;
+            let tsConfigUrl = tsCongfig[i];
+            let tscLayaAir = child_process.exec("tsc -b " + tsConfigUrl);
+            //等待完成
+            tscLayaAir.on("exit", (err) => {
+                if (err)
+                    console.log("tsc fail ", tsConfigUrl);
+                start(err);
+            });
+        }
     });
 }
 // checkAllDir("./bin/layaAir/");
