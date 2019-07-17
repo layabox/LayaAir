@@ -7,8 +7,8 @@ import { Vector3 } from "laya/d3/math/Vector3";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
-import { HTMLCanvas } from "laya/resource/HTMLCanvas";
 import { Texture2D } from "laya/resource/Texture2D";
+import { Browser } from "laya/utils/Browser";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
@@ -41,34 +41,33 @@ export class DrawTextTexture {
         this.plane.meshRenderer.sharedMaterial = this.mat;
 
         //画布cavans
-        this.cav = new HTMLCanvas(true);
-        this.cav.size(256, 256);
-        if (this.cav) {
+        this.cav = Browser.createElement("canvas");
+        var cxt = this.cav.getContext("2d");
+        this.cav.width = 256;
+        this.cav.height = 256;
+        cxt.fillStyle = 'rgb(' + '132' + ',' + '240' + ',109)';
+        cxt.font = "bold 50px 宋体";
+        cxt.textAlign = "center";//文本的对齐方式
+        cxt.textBaseline = "center";//文本相对于起点的位置
+        //设置文字,位置
+        cxt.fillText("LayaAir", 100, 50, 200);//有填充cxt.font="bold 60px 宋体";
 
-            var cxt = this.cav.getContext("2d");
-            cxt.fillStyle = 'rgb(' + '132' + ',' + '240' + ',109)';
-            cxt.font = "bold 50px 宋体";
-            cxt.textAlign = "center";//文本的对齐方式
-            cxt.textBaseline = "center";//文本相对于起点的位置
-            //设置文字,位置
-            cxt.fillText("LayaAir", 100, 50, 200);//有填充cxt.font="bold 60px 宋体";
+        cxt.strokeStyle = 'rgb(' + '200' + ',' + '125' + ',0)';
+        cxt.font = "bold 40px 黑体";
+        cxt.strokeText("runtime", 100, 100, 200);//只有边框
 
-            cxt.strokeStyle = 'rgb(' + '200' + ',' + '125' + ',0)';
-            cxt.font = "bold 40px 黑体";
-            cxt.strokeText("runtime", 100, 100, 200);//只有边框
+        //文字边框结合
+        cxt.strokeStyle = 'rgb(' + '255' + ',' + '240' + ',109)';
+        cxt.font = "bold 30px 黑体";
+        cxt.fillText("LayaBox", 100, 150, 200);
 
-            //文字边框结合
-            cxt.strokeStyle = 'rgb(' + '255' + ',' + '240' + ',109)';
-            cxt.font = "bold 30px 黑体";
-            cxt.fillText("LayaBox", 100, 150, 200);
+        cxt.strokeStyle = "yellow";
+        cxt.font = "bold 30px 黑体";
+        cxt.strokeText("LayaBox", 100, 150, 200);//只有边框
+        this.texture2D = new Texture2D(256, 256);
+        this.texture2D.loadImageSource(this.cav);
+        this.mat.renderMode = UnlitMaterial.RENDERMODE_TRANSPARENT;
 
-            cxt.strokeStyle = "yellow";
-            cxt.font = "bold 30px 黑体";
-            cxt.strokeText("LayaBox", 100, 150, 200);//只有边框
-            this.texture2D = new Texture2D(256, 256);
-            this.texture2D.loadImageSource(this.cav.source);
-            this.mat.renderMode = UnlitMaterial.RENDERMODE_TRANSPARENT;
-        }
         //给材质贴图
         this.mat.albedoTexture = this.texture2D;
     }
