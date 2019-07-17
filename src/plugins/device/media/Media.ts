@@ -1,5 +1,6 @@
-import { Browser } from "../../../../../../core/src/laya/utils/Browser"
-	import { Handler } from "../../../../../../core/src/laya/utils/Handler"
+import { ILaya } from "../../../ILaya";
+import { Handler } from "../../utils/Handler";
+
 	
 	/**
 	 * Media用于捕捉摄像头和麦克风。可以捕捉任意之一，或者同时捕捉两者。<code>getCamera</code>前可以使用<code>supported()</code>检查当前浏览器是否支持。
@@ -17,7 +18,7 @@ import { Browser } from "../../../../../../core/src/laya/utils/Browser"
 		 */
 		 static supported():boolean
 		{
-			return !!Browser.window.navigator.getUserMedia;
+			return !!ILaya.Browser.window.navigator.getUserMedia;
 		}
 		
 		/**
@@ -28,11 +29,11 @@ import { Browser } from "../../../../../../core/src/laya/utils/Browser"
 		 */
 		 static getMedia(options:any, onSuccess:Handler, onError:Handler):void
 		{
-			if (Browser.window.navigator.getUserMedia)
+			if (ILaya.Browser.window.navigator.getUserMedia)
 			{
-				Browser.window.navigator.getUserMedia(options, function(stream:string):void
+				ILaya.Browser.window.navigator.getUserMedia(options, function(stream:string):void
 				{
-					onSuccess.runWith(Browser.window.URL.createObjectURL(stream));
+					onSuccess.runWith(ILaya.Browser.window.URL.createObjectURL(stream));
 				}, function(err:Error):void
 				{
 					onError.runWith(err);
