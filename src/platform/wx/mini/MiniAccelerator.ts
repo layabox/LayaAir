@@ -1,5 +1,5 @@
 import { EventDispatcher } from "laya/events/EventDispatcher"
-import { Accelerator } from "device/motion/Accelerator";
+import { Accelerator } from "laya/device/motion/Accelerator";
 import { MiniAdpter } from "./MiniAdpter";
 	
 	/**@private **/

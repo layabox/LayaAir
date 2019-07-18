@@ -1,5 +1,5 @@
 import { EventDispatcher } from "laya/events/EventDispatcher"
-// import { Accelerator } from "device/motion/Accelerator";
+import { Accelerator } from "laya/device/motion/Accelerator";
 import { ALIMiniAdapter } from "./ALIMiniAdapter";
 	
 	/**@private **/
@@ -16,7 +16,7 @@ import { ALIMiniAdapter } from "./ALIMiniAdapter";
 			try
 			{
 				var Acc:any;
-				// Acc = Accelerator;
+				Acc = Accelerator;
 				if (!Acc) return;
 				Acc["prototype"]["on"] = MiniAccelerator["prototype"]["on"];
 				Acc["prototype"]["off"] = MiniAccelerator["prototype"]["off"];

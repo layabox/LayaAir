@@ -1,5 +1,4 @@
 import { MiniAdpter } from "./MiniAdpter";
-
 /**
 	 * 视频类 
 	 * @author xiaosong
