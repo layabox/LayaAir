@@ -1,6 +1,7 @@
 import { Laya } from "Laya";
 import { Laya3D } from "Laya3D";
 import { SkinAnimationPerformance } from "../3d/LayaAir3DTest_Performance/SkinAnimationPerformance";
+import { AStarFindPath } from "../3d/LayaAir3D_Advance/test"
 import { Laya3DCombineHtml } from "../3d/LayaAir3D_Advance/Laya3DCombineHtml";
 import { Scene2DPlayer3D } from "../3d/LayaAir3D_Advance/Scene2DPlayer3D";
 import { Secne3DPlayer2D } from "../3d/LayaAir3D_Advance/Secne3DPlayer2D";
@@ -107,8 +108,8 @@ import { DynamicBatchTest } from "../3d/LayaAir3D_Performance/DynamicBatchTest";
 		private _comboxBigArr2:any[] = ['高级应用', '动画', '摄影机', '灯光', '材质', '网格', 'mouseLnteraction', '粒子系统', 'performance', '物理系统', 'resource', 'scene3D',
 											'script','shader','sky','sprite3D','texture','trail'];
 		//var s:Secne3DPlayer2D
-		private _advanceClsArr:any[] = [PostProcessBloom,Laya3DCombineHtml,Scene2DPlayer3D,Secne3DPlayer2D];
-		private _advanceArr:any[] = ['后期处理之泛光','Laya3D与网页混合','2D坐标转3D坐标','3D坐标转2D坐标'];
+		private _advanceClsArr:any[] = [PostProcessBloom,AStarFindPath,Laya3DCombineHtml,Scene2DPlayer3D,Secne3DPlayer2D];
+		private _advanceArr:any[] = ['后期处理之泛光','寻路示例','Laya3D与网页混合','2D坐标转3D坐标','3D坐标转2D坐标'];
 		
 		private _animationClsArr:any[] = [AnimatorDemo,AnimatorStateScriptDemo,CameraAnimation,MaterialAnimation,SkinAnimationSample,AnimationEventByUnity,AnimationLayerBlend,BoneLinkSprite3D,RigidbodyAnimationDemo];//AnimationEventByUnity,AnimationLayerBlend,BoneLinkSprite3D,RigidbodyAnimationDemo
 		private _animationArr:any[] = ['Animator',"AnimatorStateScript","CameraAnimation","MaterialAnimation","SkinAnimationSample","AnimationEventByUnity","AnimationLayerBlend","BoneLinkSprite3D","RigidbodyAnimation"];
