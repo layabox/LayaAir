@@ -419,7 +419,3 @@ import { ClassUtils } from "../utils/ClassUtils";
 			return rst;
 		}
 	}
-
-
-	ClassUtils.regClass("laya.display.GraphicsBounds", GraphicsBounds);
-	ClassUtils.regClass("Laya.GraphicsBounds", GraphicsBounds);
