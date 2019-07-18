@@ -92,13 +92,14 @@ export class MeshRenderer extends BaseRender {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _needRender(boundFrustum: BoundFrustum): boolean {
-		if (boundFrustum)
-			return boundFrustum.containsBoundBox(this.bounds._getBoundBox()) !== ContainmentType.Disjoint;
-		else
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_needRender(boundFrustum: BoundFrustum): boolean {
+		if (boundFrustum) 
+			return boundFrustum.intersects(this.bounds._getBoundBox());
+		else 
 			return true;
 	}
 
