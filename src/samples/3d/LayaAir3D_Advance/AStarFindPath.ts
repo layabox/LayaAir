@@ -1,28 +1,30 @@
-import { Laya3D } from "Laya3D";
-import { Laya } from "Laya";
-import { Animator } from "laya/d3/component/Animator"
-import { AnimatorState } from "laya/d3/component/AnimatorState"
-import { PathFind } from "laya/d3/component/PathFind"
-import { Camera } from "laya/d3/core/Camera"
-import { MeshSprite3D } from "laya/d3/core/MeshSprite3D"
-import { MeshTerrainSprite3D } from "laya/d3/core/MeshTerrainSprite3D"
-import { SkinnedMeshSprite3D } from "laya/d3/core/SkinnedMeshSprite3D"
-import { Sprite3D } from "laya/d3/core/Sprite3D"
-import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial"
-import { Scene3D } from "laya/d3/core/scene/Scene3D"
-import { Quaternion } from "laya/d3/math/Quaternion"
-import { Vector3 } from "laya/d3/math/Vector3"
-import { Mesh } from "laya/d3/resource/models/Mesh"
-import { Stage } from "laya/display/Stage"
-import { Event } from "laya/events/Event"
-import { Loader } from "laya/net/Loader"
-import { Texture2D } from "laya/resource/Texture2D"
-import { Handler } from "laya/utils/Handler"
-import { Stat } from "laya/utils/Stat"
-import { Tween } from "laya/utils/Tween"
 
-export class AStarFindPath {
-	private terrainSprite: MeshTerrainSprite3D;
+import { Laya } from "Laya";
+import { Animator } from "laya/d3/component/Animator";
+import { AnimatorState } from "laya/d3/component/AnimatorState";
+import { Camera } from "laya/d3/core/Camera";
+import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
+import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
+import { MeshTerrainSprite3D } from "laya/d3/core/MeshTerrainSprite3D";
+import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { SkinnedMeshSprite3D } from "laya/d3/core/SkinnedMeshSprite3D";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { Vector3 } from "laya/d3/math/Vector3";
+import { Mesh } from "laya/d3/resource/models/Mesh";
+import { Stage } from "laya/display/Stage";
+import { Event } from "laya/events/Event";
+import { Loader } from "laya/net/Loader";
+import { Texture2D } from "laya/resource/Texture2D";
+import { Handler } from "laya/utils/Handler";
+import { Stat } from "laya/utils/Stat";
+import { Tween } from "laya/utils/Tween";
+import { Laya3D } from "Laya3D";
+import { CameraMoveScript } from "../common/CameraMoveScript";
+
+
+export class AStarFindPath{
+
+    private terrainSprite: MeshTerrainSprite3D;
 	private layaMonkey: Sprite3D;
 	private path: Vector3[];
 	private _everyPath: any[];
@@ -40,11 +42,12 @@ export class AStarFindPath {
 	private scene: Scene3D;
 
 	//寻路使用的变量
-	private aStarMap:any;
-	private graph:any;
-
-	constructor() {
-		//初始化引擎
+	private aStarMap: any;
+    private graph: any;
+    private opts: any;
+    private resPath:any;
+    constructor(){
+        //初始化引擎
 		Laya3D.init(0, 0);
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
@@ -60,9 +63,9 @@ export class AStarFindPath {
 		{ url: "res/threeDimen/scene/TerrainScene/Assets/AStarMap.png", clas: Texture2D, priority: 1, constructParams: [64, 64, 1, false, true] }];
 
 		Laya.loader.create(resource, Handler.create(this, this.onLoadFinish));
-	}
+    }
 
-	private onLoadFinish(): void {
+    private onLoadFinish(): void {
 		//初始化3D场景
 		this.scene = (<Scene3D>Laya.stage.addChild(Loader.getRes("res/threeDimen/scene/TerrainScene/XunLongShi.ls")));
 
@@ -80,18 +83,19 @@ export class AStarFindPath {
 		this.terrainSprite.transform.worldMatrix = meshSprite3D.transform.worldMatrix;
 
 		//读取墙壁的数据
-		this.aStarMap = Laya.Loader.getRes("res/threeDimen/scene/TerrainScene/Assets/AStarMap.png");
+		this.aStarMap = Loader.getRes("res/threeDimen/scene/TerrainScene/Assets/AStarMap.png");
 
 		//使用astar组织数据
-		var aStarArr = this.createGridFromAStarMap( this.aStarMap);
-		this.graph = new Graph(aStarArr);
-		let opts:any = [];
-		opts.closest = true;
-		opts.heuristic = astar.heuristics.diagonal;
+		var aStarArr = this.createGridFromAStarMap(this.aStarMap);
+		this.graph = new (window as any).Graph(aStarArr);
+		this.opts = [];
+		this.opts.closest = true;
+		this.opts.heuristic = (window as any).astar.heuristics.diagonal;
 
 		//初始化移动单元
 		this.moveSprite3D = (<Sprite3D>this.scene.addChild(new Sprite3D()));
-		this.moveSprite3D.transform.position = this.path[0];
+        this.moveSprite3D.transform.position = this.path[0];
+       
 
 		//初始化小猴子
 		this.layaMonkey = (<Sprite3D>this.moveSprite3D.addChild(Loader.getRes("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh")));
@@ -126,39 +130,36 @@ export class AStarFindPath {
 
 		//初始化相机
 		var moveCamera: Camera = (<Camera>this.moveSprite3D.addChild(new Camera()));
-		var tmpLocalPosition: Vector3 = moveCamera.transform.localPosition;
-		tmpLocalPosition.setValue(-1.912066, 10.07926, -10.11014);
-
-		//_rotation.setValue( -0.01462472, -0.9652351, -0.2550373);
-		moveCamera.transform.rotate(this._rotation, true, false);
+        moveCamera.transform.rotate(this._rotation, true, false);
+        moveCamera.addComponent(CameraMoveScript);
 
 		//设置鼠标弹起事件响应
 		Laya.stage.on(Event.MOUSE_UP, this, function (): void {
 			this.index = 0;
-        	//获取每次生成路径
-        	var x = this.path[this.curPathIndex % this.pointCount].x;
-        	var startPoint = this.getGridIndex(this.path[this.curPathIndex % this.pointCount].x, 
-                                                  this.path[this.curPathIndex++ % this.pointCount].z);
-        	var endPoint = this.getGridIndex(this.path[this.nextPathIndex % this.pointCount].x, 
-                                                  this.path[this.nextPathIndex++ % this.pointCount].z);
-        	var start = this.graph.grid[startPoint.x][startPoint.z];   
-        	var end = this.graph.grid[endPoint.x][endPoint.z];                  
-        	this._everyPath2 = astar.search(this.graph, start, end, {
-         	 closest: this.opts.closest
-        });
-        if(this._everyPath2 && this._everyPath2.length > 0){
-          this.resPath = this.getRealPosition(start,this._everyPath2); 
-        }
+			//获取每次生成路径
+			var startPoint = this.getGridIndex(this.path[this.curPathIndex % this.pointCount].x,
+				this.path[this.curPathIndex++ % this.pointCount].z);
+			var endPoint = this.getGridIndex(this.path[this.nextPathIndex % this.pointCount].x,
+				this.path[this.nextPathIndex++ % this.pointCount].z);
+			var start = this.graph.grid[startPoint.x][startPoint.z];
+            var end = this.graph.grid[endPoint.x][endPoint.z];
+            
+			this._everyPath = (window as any).astar.search(this.graph, start, end, {
+				closest: this.opts.closest
+			});
+			if (this._everyPath && this._everyPath.length > 0) {
+				this.resPath = this.getRealPosition(start, this._everyPath);
+			}
 		});
 		//开启定时重复执行
 		Laya.timer.loop(40, this, this.loopfun);
-	}
-
-	private loopfun(): void {
-		if (this._everyPath && this.index < this._everyPath.length) {
+    }
+    
+    private loopfun(): void {
+		if (this.resPath && this.index < this.resPath.length) {
 			//AStar寻路位置
-			this._position.x = this._everyPath[this.index][0];
-			this._position.z = this._everyPath[this.index++][1];
+			this._position.x = this.resPath[this.index].x;
+			this._position.z = this.resPath[this.index++].z;
 			//HeightMap获取高度数据
 			this._position.y = this.terrainSprite.getHeight(this._position.x, this._position.z);
 			if (isNaN(this._position.y)) {
@@ -184,92 +185,90 @@ export class AStarFindPath {
 			var str: string = "path" + i;
 			this.path.push(((<MeshSprite3D>scene.getChildByName('Scenes').getChildByName('Area').getChildByName(str))).transform.localPosition);
 		}
-	}
-
-	 /**
-	 * 得到整数的网格索引
-	 */   
-	private getGridIndex(x, z):any{
-		var minX=this.terrainSprite.minX;
-		var minZ=this.terrainSprite.minZ;
-		var cellX=this.terrainSprite.width / this.aStarMap.width;
-		var cellZ=this.terrainSprite.depth / this.aStarMap.height;
-		var gridX=Math.floor((x-minX)/ cellX);
-		var gridZ=Math.floor((z-minZ)/ cellZ);
-		var boundWidth=this.aStarMap.width-1;
-		var boundHeight=this.aStarMap.height-1;
-		(gridX > boundWidth)&& (gridX=boundWidth);
-		(gridZ > boundHeight)&& (gridZ=boundHeight);
-		(gridX < 0)&& (gridX=0);
-		(gridZ < 0)&& (gridZ=0);
-		var res:any = [];
+    }
+    
+    /**
+	* 得到整数的网格索引
+	*/
+	private getGridIndex(x, z): any {
+		var minX = this.terrainSprite.minX;
+		var minZ = this.terrainSprite.minZ;
+		var cellX = this.terrainSprite.width / this.aStarMap.width;
+		var cellZ = this.terrainSprite.depth / this.aStarMap.height;
+		var gridX = Math.floor((x - minX) / cellX);
+		var gridZ = Math.floor((z - minZ) / cellZ);
+		var boundWidth = this.aStarMap.width - 1;
+		var boundHeight = this.aStarMap.height - 1;
+		(gridX > boundWidth) && (gridX = boundWidth);
+		(gridZ > boundHeight) && (gridZ = boundHeight);
+		(gridX < 0) && (gridX = 0);
+		(gridZ < 0) && (gridZ = 0);
+		var res: any = [];
 		res.x = gridX;
 		res.z = gridZ;
 		return res;
-	}
-
-  /**
-   * 得到世界坐标系下的真实坐标
-   */
-  private getRealPosition(start,path):any{
+    }
+    
+    /**
+	 * 得到世界坐标系下的真实坐标
+	 */
+	private getRealPosition(start, path): any {
 		var resPath = [];
-		var minX=this.terrainSprite.minX;
-		var minZ=this.terrainSprite.minZ;
-		var cellX=this.terrainSprite.width /  this.aStarMap.width;
-		var cellZ=this.terrainSprite.depth /  this.aStarMap.height;
-		var halfCellX=cellX / 2;
-		var halfCellZ=cellZ / 2;
+		var minX = this.terrainSprite.minX;
+		var minZ = this.terrainSprite.minZ;
+		var cellX = this.terrainSprite.width / this.aStarMap.width;
+		var cellZ = this.terrainSprite.depth / this.aStarMap.height;
+		var halfCellX = cellX / 2;
+		var halfCellZ = cellZ / 2;
 		resPath[0] = [];
-		resPath[0].x = start.x *cellX+halfCellX+minX;
-		resPath[0].z = start.y *cellZ+halfCellZ+minZ;
-		for (var i = 1;i < path.length;i++){
-			var gridPos=path[i];
+		resPath[0].x = start.x * cellX + halfCellX + minX;
+		resPath[0].z = start.y * cellZ + halfCellZ + minZ;
+		for (var i = 1; i < path.length; i++) {
+			var gridPos = path[i];
 			resPath[i] = [];
-			resPath[i].x = gridPos.x *cellX+halfCellX+minX;
-			resPath[i].z = gridPos.y *cellZ+halfCellZ+minZ;
+			resPath[i].x = gridPos.x * cellX + halfCellX + minX;
+			resPath[i].z = gridPos.y * cellZ + halfCellZ + minZ;
 		}
 		return resPath;
-	}
-
-  /**
-   * 通过图片数据计算得到AStart网格
-   */
-  private createGridFromAStarMap(texture):any{
-		var textureWidth=texture.width;
-		var textureHeight=texture.height;
-		var pixelsInfo=texture.getPixels();
-		var aStarArr=[];
-		var index=0;
-		for (var w=0;w < textureWidth;w++){
-			var colaStarArr=aStarArr[w]=[];
-			for (var h=0;h < textureHeight;h++){
-				var r=pixelsInfo[index++];
-				var g=pixelsInfo[index++];
-				var b=pixelsInfo[index++];
-				var a=pixelsInfo[index++];
-				if (r==255 && g==255 && b==255 && a==255)
-					colaStarArr[h]=1;
+    }
+    
+    /**
+	 * 通过图片数据计算得到AStart网格
+	 */
+	private createGridFromAStarMap(texture): any {
+		var textureWidth = texture.width;
+		var textureHeight = texture.height;
+		var pixelsInfo = texture.getPixels();
+		var aStarArr = [];
+		var index = 0;
+		for (var w = 0; w < textureWidth; w++) {
+			var colaStarArr = aStarArr[w] = [];
+			for (var h = 0; h < textureHeight; h++) {
+				var r = pixelsInfo[index++];
+				var g = pixelsInfo[index++];
+				var b = pixelsInfo[index++];
+				var a = pixelsInfo[index++];
+				if (r == 255 && g == 255 && b == 255 && a == 255)
+					colaStarArr[h] = 1;
 				else {
-					colaStarArr[h]=0;
+					colaStarArr[h] = 0;
 				}
 			}
 		};
 		return aStarArr;
+    }
+    createPath() {
+		// for(let i = 0; i != 64; ++i){
+		//   for(let j = 0; j != 64; ++j){
+		//     let point = this.graph.grid[i][j];  
+		//     if(point.weight === 0){
+		//       var resultPoint = this.pathFingding.getRealPositionB(point);  
+		//       var box = this.scene.addChild(new Laya.MeshSprite3D(Laya.PrimitiveMesh.createBox(0.76, 0.76, 0.76)));
+		//       box.transform.position = new Laya.Vector3(resultPoint.x, this.moveSprite3D.transform.position.y, resultPoint.z);
+		//       box.meshRenderer.material = new Laya.BlinnPhongMaterial();
+		//       box.meshRenderer.material.albedoColor = new Laya.Vector4(1.0,0.0,0.0,1.0);
+		//     }  
+		//   }
+		// }
 	}
-
-  createPath(){
-    // for(let i = 0; i != 64; ++i){
-    //   for(let j = 0; j != 64; ++j){
-    //     let point = this.graph.grid[i][j];  
-    //     if(point.weight === 0){
-    //       var resultPoint = this.pathFingding.getRealPositionB(point);  
-    //       var box = this.scene.addChild(new Laya.MeshSprite3D(Laya.PrimitiveMesh.createBox(0.76, 0.76, 0.76)));
-    //       box.transform.position = new Laya.Vector3(resultPoint.x, this.moveSprite3D.transform.position.y, resultPoint.z);
-    //       box.meshRenderer.material = new Laya.BlinnPhongMaterial();
-    //       box.meshRenderer.material.albedoColor = new Laya.Vector4(1.0,0.0,0.0,1.0);
-    //     }  
-    //   }
-    // }
-  }
 }
-
