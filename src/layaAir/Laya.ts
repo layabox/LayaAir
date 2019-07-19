@@ -97,8 +97,8 @@ export class Laya {
 	static __classmap: Object = null;
 
 	/**
-	 * 兼容as3编译工具
-	 * @internal 
+	 * @private
+	 * 兼容as3编译工具 
 	 */
 	static __init(_classs: any): void {
 		_classs.forEach(function (o) { o.__init$ && o.__init$(); });
