@@ -20,7 +20,9 @@ import { Tween } from "laya/utils/Tween";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 
-
+/**
+ * Based upon https://github.com/bgrins/javascript-astar
+ */
 export class AStarFindPath {
 
 	private terrainSprite: MeshTerrainSprite3D;
@@ -129,6 +131,9 @@ export class AStarFindPath {
 
 		//初始化相机
 		var moveCamera: Camera = (<Camera>this.moveSprite3D.addChild(new Camera()));
+		var tmpLocalPosition:Vector3 = moveCamera.transform.localPosition;
+		tmpLocalPosition.setValue(-1.912066, 10.07926, -10.11014);
+		moveCamera.transform.localPosition = tmpLocalPosition;
 		moveCamera.transform.rotate(this._rotation, true, false);
 		moveCamera.addComponent(CameraMoveScript);
 

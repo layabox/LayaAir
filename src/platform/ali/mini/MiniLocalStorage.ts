@@ -23,18 +23,7 @@ import { ALIMiniAdapter } from "./ALIMiniAdapter";
 		 * @param value 键值。
 		 */
 		 static setItem(key:string, value:any):void {
-
-			try
-			{
-				ALIMiniAdapter.window.my.setStorageSync(key,value);//安卓系统 4.4.4有bug，临时采用异步设置缓存的方式
-			} 
-			catch(error) 
-			{
-				ALIMiniAdapter.window.my.setStorage({
-					key:key,
-					data:value
-				});
-			}
+			ALIMiniAdapter.window.my.setStorageSync(key,value);
 		}
 		
 		/**
@@ -52,7 +41,12 @@ import { ALIMiniAdapter } from "./ALIMiniAdapter";
 		 * @param value 键值。是 <code>Object</code> 类型，此致会被转化为 JSON 字符串存储。
 		 */
 		 static setJSON(key:string, value:any):void {
-			MiniLocalStorage.setItem(key, value);
+			try{
+				MiniLocalStorage.setItem(key, JSON.stringify(value));
+			}catch(e)
+			{
+				console.warn("set localStorage failed", e);
+			}
 		}
 		
 		/**
@@ -61,7 +55,7 @@ import { ALIMiniAdapter } from "./ALIMiniAdapter";
 		 * @return <code>Object</code> 类型值
 		 */
 		 static getJSON(key:string):any {
-			return MiniLocalStorage.getItem(key);
+			return JSON.parse(MiniLocalStorage.getItem(key));
 		}
 		
 		/**

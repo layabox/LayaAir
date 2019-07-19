@@ -121,7 +121,6 @@ import {Config} from "Config";
 			Loader.prototype._loadResourceFilter = MiniLoader.prototype._loadResourceFilter;
 			Loader.prototype._loadSound = MiniLoader.prototype._loadSound;
 			Loader.prototype._loadHttpRequestWhat = MiniLoader.prototype._loadHttpRequestWhat;
-			//本地缓存类
 			Config.useRetinalCanvas = true;
 			QGMiniAdapter.window.qg.onMessage && QGMiniAdapter.window.qg.onMessage(QGMiniAdapter._onMessage);
 		}
