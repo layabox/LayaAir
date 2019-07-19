@@ -1,4 +1,3 @@
-
 import { Laya } from "Laya";
 import { Animator } from "laya/d3/component/Animator";
 import { AnimatorState } from "laya/d3/component/AnimatorState";
@@ -22,9 +21,9 @@ import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 
 
-export class AStarFindPath{
+export class AStarFindPath {
 
-    private terrainSprite: MeshTerrainSprite3D;
+	private terrainSprite: MeshTerrainSprite3D;
 	private layaMonkey: Sprite3D;
 	private path: Vector3[];
 	private _everyPath: any[];
@@ -43,11 +42,11 @@ export class AStarFindPath{
 
 	//寻路使用的变量
 	private aStarMap: any;
-    private graph: any;
-    private opts: any;
-    private resPath:any;
-    constructor(){
-        //初始化引擎
+	private graph: any;
+	private opts: any;
+	private resPath: any;
+	constructor() {
+		//初始化引擎
 		Laya3D.init(0, 0);
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
@@ -63,9 +62,9 @@ export class AStarFindPath{
 		{ url: "res/threeDimen/scene/TerrainScene/Assets/AStarMap.png", clas: Texture2D, priority: 1, constructParams: [64, 64, 1, false, true] }];
 
 		Laya.loader.create(resource, Handler.create(this, this.onLoadFinish));
-    }
+	}
 
-    private onLoadFinish(): void {
+	private onLoadFinish(): void {
 		//初始化3D场景
 		this.scene = (<Scene3D>Laya.stage.addChild(Loader.getRes("res/threeDimen/scene/TerrainScene/XunLongShi.ls")));
 
@@ -94,8 +93,8 @@ export class AStarFindPath{
 
 		//初始化移动单元
 		this.moveSprite3D = (<Sprite3D>this.scene.addChild(new Sprite3D()));
-        this.moveSprite3D.transform.position = this.path[0];
-       
+		this.moveSprite3D.transform.position = this.path[0];
+
 
 		//初始化小猴子
 		this.layaMonkey = (<Sprite3D>this.moveSprite3D.addChild(Loader.getRes("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh")));
@@ -130,20 +129,18 @@ export class AStarFindPath{
 
 		//初始化相机
 		var moveCamera: Camera = (<Camera>this.moveSprite3D.addChild(new Camera()));
-        moveCamera.transform.rotate(this._rotation, true, false);
-        moveCamera.addComponent(CameraMoveScript);
+		moveCamera.transform.rotate(this._rotation, true, false);
+		moveCamera.addComponent(CameraMoveScript);
 
 		//设置鼠标弹起事件响应
 		Laya.stage.on(Event.MOUSE_UP, this, function (): void {
 			this.index = 0;
 			//获取每次生成路径
-			var startPoint = this.getGridIndex(this.path[this.curPathIndex % this.pointCount].x,
-				this.path[this.curPathIndex++ % this.pointCount].z);
-			var endPoint = this.getGridIndex(this.path[this.nextPathIndex % this.pointCount].x,
-				this.path[this.nextPathIndex++ % this.pointCount].z);
+			var startPoint = this.getGridIndex(this.path[this.curPathIndex % this.pointCount].x, this.path[this.curPathIndex++ % this.pointCount].z);
+			var endPoint = this.getGridIndex(this.path[this.nextPathIndex % this.pointCount].x, this.path[this.nextPathIndex++ % this.pointCount].z);
 			var start = this.graph.grid[startPoint.x][startPoint.z];
-            var end = this.graph.grid[endPoint.x][endPoint.z];
-            
+			var end = this.graph.grid[endPoint.x][endPoint.z];
+
 			this._everyPath = (window as any).astar.search(this.graph, start, end, {
 				closest: this.opts.closest
 			});
@@ -153,9 +150,9 @@ export class AStarFindPath{
 		});
 		//开启定时重复执行
 		Laya.timer.loop(40, this, this.loopfun);
-    }
-    
-    private loopfun(): void {
+	}
+
+	private loopfun(): void {
 		if (this.resPath && this.index < this.resPath.length) {
 			//AStar寻路位置
 			this._position.x = this.resPath[this.index].x;
@@ -185,8 +182,8 @@ export class AStarFindPath{
 			var str: string = "path" + i;
 			this.path.push(((<MeshSprite3D>scene.getChildByName('Scenes').getChildByName('Area').getChildByName(str))).transform.localPosition);
 		}
-    }
-    
+	}
+
     /**
 	* 得到整数的网格索引
 	*/
@@ -207,8 +204,8 @@ export class AStarFindPath{
 		res.x = gridX;
 		res.z = gridZ;
 		return res;
-    }
-    
+	}
+
     /**
 	 * 得到世界坐标系下的真实坐标
 	 */
@@ -230,8 +227,8 @@ export class AStarFindPath{
 			resPath[i].z = gridPos.y * cellZ + halfCellZ + minZ;
 		}
 		return resPath;
-    }
-    
+	}
+
     /**
 	 * 通过图片数据计算得到AStart网格
 	 */
@@ -256,19 +253,5 @@ export class AStarFindPath{
 			}
 		};
 		return aStarArr;
-    }
-    createPath() {
-		// for(let i = 0; i != 64; ++i){
-		//   for(let j = 0; j != 64; ++j){
-		//     let point = this.graph.grid[i][j];  
-		//     if(point.weight === 0){
-		//       var resultPoint = this.pathFingding.getRealPositionB(point);  
-		//       var box = this.scene.addChild(new Laya.MeshSprite3D(Laya.PrimitiveMesh.createBox(0.76, 0.76, 0.76)));
-		//       box.transform.position = new Laya.Vector3(resultPoint.x, this.moveSprite3D.transform.position.y, resultPoint.z);
-		//       box.meshRenderer.material = new Laya.BlinnPhongMaterial();
-		//       box.meshRenderer.material.albedoColor = new Laya.Vector4(1.0,0.0,0.0,1.0);
-		//     }  
-		//   }
-		// }
 	}
 }

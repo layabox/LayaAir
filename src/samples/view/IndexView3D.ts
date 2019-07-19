@@ -1,7 +1,7 @@
 import { Laya } from "Laya";
 import { Laya3D } from "Laya3D";
 import { SkinAnimationPerformance } from "../3d/LayaAir3DTest_Performance/SkinAnimationPerformance";
-import { AStarFindPath } from "../3d/LayaAir3D_Advance/test"
+import { AStarFindPath } from "../3d/LayaAir3D_Advance/AStarFindPath"
 import { Laya3DCombineHtml } from "../3d/LayaAir3D_Advance/Laya3DCombineHtml";
 import { Scene2DPlayer3D } from "../3d/LayaAir3D_Advance/Scene2DPlayer3D";
 import { Secne3DPlayer2D } from "../3d/LayaAir3D_Advance/Secne3DPlayer2D";
