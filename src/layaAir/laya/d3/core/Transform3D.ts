@@ -419,10 +419,9 @@ export class Transform3D extends EventDispatcher {
 	 */
 	get localMatrix(): Matrix4x4 {
 		if (this._getTransformFlag(Transform3D.TRANSFORM_LOCALMATRIX)) {
-			this._updateLocalMatrix();
+			Matrix4x4.createAffineTransformation(this._localPosition, this.localRotation, this._localScale, this._localMatrix);
 			this._setTransformFlag(Transform3D.TRANSFORM_LOCALMATRIX, false);
 		}
-
 		return this._localMatrix;
 	}
 
@@ -665,13 +664,6 @@ export class Transform3D extends EventDispatcher {
 			}
 			this._parent = value;
 		}
-	}
-
-	/**
-	 * @internal
-	 */
-	private _updateLocalMatrix(): void {
-		Matrix4x4.createAffineTransformation(this._localPosition, this.localRotation, this._localScale, this._localMatrix);
 	}
 
 	/**
