@@ -48,13 +48,13 @@ var packsDef={
     },
     'device':{
         'input':[
-            './plugins/device/**/*.*'
+            './layaAir/laya/device/**/*.*'
         ],
         'out':'../build/js/libs/laya.device.js'
     },
     'tiledmap':{
         'input':[
-            './plugins/map/**/*.*'
+            './layaAir/laya/map/**/*.*'
         ],
         'out':'../build/js/libs/laya.tiledmap.js'
     },
@@ -241,12 +241,12 @@ gulp.task('CopyJSFileToAS', () => {
 
 //拷贝引擎ts源码至ts库
 gulp.task('CopyTSFileToTS', () => {
-    gulp.src([
-        './extensions/device/**/*.*'], )
-        .pipe(gulp.dest('../build/ts_new/libs/laya/device'));
-    gulp.src([
-        './extensions/map/**/*.*'], )
-        .pipe(gulp.dest('../build/ts_new/libs/laya/map'));
+    // gulp.src([
+    //     './extensions/device/**/*.*'], )
+    //     .pipe(gulp.dest('../build/ts_new/libs/laya/device'));
+    // gulp.src([
+    //     './extensions/map/**/*.*'], )
+    //     .pipe(gulp.dest('../build/ts_new/libs/laya/map'));
 	return gulp.src([
         './layaAir/**/*.*', '!./layaAir/jsLibs/**/*.*', '!./layaAir/gulpfile.js', '!./layaAir/tsconfig.json'], )
 		.pipe(gulp.dest('../build/ts_new/libs'));
