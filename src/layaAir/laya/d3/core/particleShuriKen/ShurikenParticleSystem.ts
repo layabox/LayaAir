@@ -238,7 +238,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	/**最大三维开始尺寸，2模式。*/
 	startSizeConstantMaxSeparate: Vector3 = null;
 
-	/**3D开始旋转，暂不支持*/
+	/**3D开始旋转。*/
 	threeDStartRotation: boolean = false;
 	/**开始旋转模式,0为恒定尺寸，2为两个恒定旋转的随机插值,缺少2种模式,和对应的四种3D模式。*/
 	startRotationType: number = 0;
