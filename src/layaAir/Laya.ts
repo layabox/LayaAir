@@ -95,6 +95,15 @@ export class Laya {
 
 	/**@private @internal*/
 	static __classmap: Object = null;
+
+	/**
+	 * @private
+	 * 兼容as3编译工具 
+	 */
+	static __init(_classs: any): void {
+		_classs.forEach(function (o) { o.__init$ && o.__init$(); });
+	}
+
 	/**
 	 * 初始化引擎。使用引擎需要先初始化引擎，否则可能会报错。
 	 * @param	width 初始化的游戏窗口宽度，又称设计宽度。
@@ -186,7 +195,7 @@ export class Laya {
 		WebGLContext.__init__();
 
 		MeshParticle2D.__init__();
-		
+
 		ShaderCompile.__init__();
 		RenderSprite.__init__();
 		KeyBoardManager.__init__();
@@ -399,7 +408,8 @@ regClassToEngine(WebGL);
 
 
 
-export var init = Laya.init;
+export var __init = Laya.__init;
+export var init = Laya.init;	
 export var stage;
 export var systemTimer;
 export var startTimer;

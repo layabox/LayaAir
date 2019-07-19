@@ -14,12 +14,6 @@ export class Transform3D extends EventDispatcher {
 	/** @internal */
 	private static _tempVector30: Vector3 = new Vector3();
 	/** @internal */
-	private static _tempVector31: Vector3 = new Vector3();
-	/** @internal */
-	private static _tempVector32: Vector3 = new Vector3();
-	/** @internal */
-	private static _tempVector33: Vector3 = new Vector3();
-	/** @internal */
 	private static _tempQuaternion0: Quaternion = new Quaternion();
 	/** @internal */
 	private static _tempMatrix0: Matrix4x4 = new Matrix4x4();
@@ -425,10 +419,9 @@ export class Transform3D extends EventDispatcher {
 	 */
 	get localMatrix(): Matrix4x4 {
 		if (this._getTransformFlag(Transform3D.TRANSFORM_LOCALMATRIX)) {
-			this._updateLocalMatrix();
+			Matrix4x4.createAffineTransformation(this._localPosition, this.localRotation, this._localScale, this._localMatrix);
 			this._setTransformFlag(Transform3D.TRANSFORM_LOCALMATRIX, false);
 		}
-
 		return this._localMatrix;
 	}
 
@@ -440,6 +433,7 @@ export class Transform3D extends EventDispatcher {
 		if (this._localMatrix !== value)
 			value.cloneTo(this._localMatrix);
 		this._localMatrix.decomposeTransRotScale(this._localPosition, this._localRotation, this._localScale);
+		this._setTransformFlag(Transform3D.TRANSFORM_LOCALEULER, true);
 		this._setTransformFlag(Transform3D.TRANSFORM_LOCALMATRIX, false);
 		this._onWorldTransform();
 	}
@@ -670,13 +664,6 @@ export class Transform3D extends EventDispatcher {
 			}
 			this._parent = value;
 		}
-	}
-
-	/**
-	 * @internal
-	 */
-	private _updateLocalMatrix(): void {
-		Matrix4x4.createAffineTransformation(this._localPosition, this.localRotation, this._localScale, this._localMatrix);
 	}
 
 	/**
