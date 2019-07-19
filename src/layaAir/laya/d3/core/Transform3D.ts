@@ -14,12 +14,6 @@ export class Transform3D extends EventDispatcher {
 	/** @internal */
 	private static _tempVector30: Vector3 = new Vector3();
 	/** @internal */
-	private static _tempVector31: Vector3 = new Vector3();
-	/** @internal */
-	private static _tempVector32: Vector3 = new Vector3();
-	/** @internal */
-	private static _tempVector33: Vector3 = new Vector3();
-	/** @internal */
 	private static _tempQuaternion0: Quaternion = new Quaternion();
 	/** @internal */
 	private static _tempMatrix0: Matrix4x4 = new Matrix4x4();
@@ -440,6 +434,7 @@ export class Transform3D extends EventDispatcher {
 		if (this._localMatrix !== value)
 			value.cloneTo(this._localMatrix);
 		this._localMatrix.decomposeTransRotScale(this._localPosition, this._localRotation, this._localScale);
+		this._setTransformFlag(Transform3D.TRANSFORM_LOCALEULER, true);
 		this._setTransformFlag(Transform3D.TRANSFORM_LOCALMATRIX, false);
 		this._onWorldTransform();
 	}
