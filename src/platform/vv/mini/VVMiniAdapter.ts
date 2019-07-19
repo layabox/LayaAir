@@ -6,8 +6,6 @@ import { RunDriver } from "laya/utils/RunDriver";
 import { MiniInput } from "./MiniInput";
 import { MiniLoader } from "./MiniLoader";
 import { Loader } from "laya/net/Loader";
-import { MiniLocalStorage } from "./MiniLocalStorage";
-import { LocalStorage } from "laya/net/LocalStorage";
 import { Matrix } from "laya/maths/Matrix";
 import { Stage } from "laya/display/Stage";
 import { Input } from "laya/display/Input";
@@ -123,9 +121,6 @@ import {URL} from "laya/net/URL";
 			Loader.prototype._loadResourceFilter = MiniLoader.prototype._loadResourceFilter;
 			Loader.prototype._loadSound = MiniLoader.prototype._loadSound;
 			Loader.prototype._loadHttpRequestWhat = MiniLoader.prototype._loadHttpRequestWhat;
-			//本地缓存类
-			LocalStorage._baseClass = MiniLocalStorage;
-			MiniLocalStorage.__init__();
 			VVMiniAdapter.window.qg.onMessage && VVMiniAdapter.window.qg.onMessage(VVMiniAdapter._onMessage);
 			Config.useRetinalCanvas = true;
 		}
