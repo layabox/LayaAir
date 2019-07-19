@@ -446,9 +446,10 @@ export class Transform3D extends EventDispatcher {
 		if (this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION)) {
 			if (this._parent != null) {
 				var parentPosition: Vector3 = this._parent.position;//放到下面会影响_tempVector30计算，造成混乱
-				Vector3.multiply(this._localPosition, this._parent.scale, Transform3D._tempVector30);
-				Vector3.transformQuat(Transform3D._tempVector30, this._parent.rotation, Transform3D._tempVector30);
-				Vector3.add(parentPosition, Transform3D._tempVector30, this._position);
+				var transLocalPos:Vector3=Transform3D._tempVector30;
+				Vector3.transformQuat(this._localPosition, this._parent.rotation, transLocalPos);//先处理旋转再缩放
+				Vector3.multiply(transLocalPos, this._parent.scale, transLocalPos);
+				Vector3.add(parentPosition, transLocalPos, this._position);
 			} else {
 				this._localPosition.cloneTo(this._position);
 			}
