@@ -1,6 +1,6 @@
 import { EventDispatcher } from "laya/events/EventDispatcher"
 import { Accelerator } from "laya/device/motion/Accelerator";
-import { MiniAdpter } from "./MiniAdpter";
+import { ALIMiniAdapter } from "./ALIMiniAdapter";
 	
 	/**@private **/
 	export class MiniAccelerator extends EventDispatcher
@@ -37,7 +37,7 @@ import { MiniAdpter } from "./MiniAdpter";
 			MiniAccelerator._isListening = true;
 			try
 			{
-				MiniAdpter.window.wx.onAccelerometerChange(MiniAccelerator.onAccelerometerChange);
+				ALIMiniAdapter.window.my.onAccelerometerChange(MiniAccelerator.onAccelerometerChange);
 			}catch(e){}
 			
 		}
@@ -48,7 +48,7 @@ import { MiniAdpter } from "./MiniAdpter";
 			MiniAccelerator._isListening = false;
 			try
 			{
-				MiniAdpter.window.wx.stopAccelerometer({});
+				ALIMiniAdapter.window.my.stopAccelerometer({});
 			}catch(e){}
 			
 		}

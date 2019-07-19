@@ -181,12 +181,13 @@ export class ShurikenParticleRenderer extends BaseRender {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _needRender(boundFrustum: BoundFrustum): boolean {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_needRender(boundFrustum: BoundFrustum): boolean {
 		if (boundFrustum) {
-			if (boundFrustum.containsBoundBox(this.bounds._getBoundBox()) !== ContainmentType.Disjoint) {
+			if (boundFrustum.intersects(this.bounds._getBoundBox())) {
 				if (((<ShuriKenParticle3D>this._owner)).particleSystem.isAlive)
 					return true;
 				else

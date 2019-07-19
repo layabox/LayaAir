@@ -279,7 +279,8 @@ import { Laya } from "Laya";
 			var  tempFileListArr:any[] = [];
 			for(var key  in MiniFileMgr.filesListObj)
 			{
-				tempFileListArr.push(MiniFileMgr.filesListObj[key]);
+				if(key!="fileUsedSize")
+					tempFileListArr.push(MiniFileMgr.filesListObj[key]);
 			}
 			MiniFileMgr.sortOn(tempFileListArr,"times",MiniFileMgr.NUMERIC);//按时间进行排序
 			var clearSize:number = 0;
@@ -356,7 +357,8 @@ import { Laya } from "Laya";
 			var  tempFileListArr:any[] = [];
 			for(var key  in MiniFileMgr.filesListObj)
 			{
-				tempFileListArr.push(MiniFileMgr.filesListObj[key]);
+				if(key!="fileUsedSize")
+					tempFileListArr.push(MiniFileMgr.filesListObj[key]);
 			}
 			for(var i:number = 1,sz:number = tempFileListArr.length;i<sz;i++)
 			{

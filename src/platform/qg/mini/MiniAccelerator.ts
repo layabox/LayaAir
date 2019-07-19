@@ -1,6 +1,6 @@
 import { QGMiniAdapter } from "./QGMiniAdapter";
 import { EventDispatcher } from "laya/events/EventDispatcher";
-import { Accelerator } from "../../device/motion/Accelerator";
+import { Accelerator } from "laya/device/motion/Accelerator";
 	
 	/**@private **/
 	export class MiniAccelerator extends EventDispatcher

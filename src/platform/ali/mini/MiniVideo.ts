@@ -1,4 +1,5 @@
-import { MiniAdpter } from "./MiniAdpter";
+import { ALIMiniAdapter } from "./ALIMiniAdapter";
+
 /**
 	 * 视频类 
 	 * @author xiaosong
@@ -12,7 +13,7 @@ import { MiniAdpter } from "./MiniAdpter";
 		 videoElement:any;
 		
 		constructor(width:number = 320, height:number = 240){
-			this.videoElement = MiniAdpter.window.wx.createVideo({width:width,height:height,autoplay:true});
+			this.videoElement = ALIMiniAdapter.window.my.createVideo({width:width,height:height,autoplay:true});
 		}
 		
 		 static __init__():void

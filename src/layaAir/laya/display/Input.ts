@@ -131,7 +131,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 			if (ILaya.Browser.onMobile)
 			{
 				var isTrue:boolean = false;
-				if(ILaya.Browser.onMiniGame || ILaya.Browser.onBDMiniGame || ILaya.Browser.onQGMiniGame || ILaya.Browser.onKGMiniGame || ILaya.Browser.onVVMiniGame)
+				if(ILaya.Browser.onMiniGame || ILaya.Browser.onBDMiniGame || ILaya.Browser.onQGMiniGame || ILaya.Browser.onKGMiniGame || ILaya.Browser.onVVMiniGame|| ILaya.Browser.onAlipayMiniGame)
 				{
 					isTrue = true;
 				}
@@ -356,7 +356,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 			if (ILaya.Browser.onPC) input.focus();
 			
 			// PC浏览器隐藏文字
-			if(!ILaya.Browser.onMiniGame && !ILaya.Browser.onBDMiniGame && !ILaya.Browser.onQGMiniGame && !ILaya.Browser.onKGMiniGame && !ILaya.Browser.onVVMiniGame)
+			if(!ILaya.Browser.onMiniGame && !ILaya.Browser.onBDMiniGame && !ILaya.Browser.onQGMiniGame && !ILaya.Browser.onKGMiniGame && !ILaya.Browser.onVVMiniGame && !ILaya.Browser.onAlipayMiniGame)
 			{
 				var temp:string = this._text;
 				this._text = null;
