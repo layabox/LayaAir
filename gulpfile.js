@@ -19,5 +19,5 @@ gulp.task('CopyNoneTSFile', () => {
 		.pipe(gulp.dest('bin/tsc'));
 });
 
-gulp.task('Build LayaAir', gulp.series('tsc','CopyNoneTSFile'));
+gulp.task('BuildLayaAir', gulp.series('tsc','CopyNoneTSFile'));
 

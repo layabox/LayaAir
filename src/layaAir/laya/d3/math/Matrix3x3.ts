@@ -2,6 +2,7 @@ import { Vector3 } from "./Vector3";
 import { Vector2 } from "./Vector2";
 import { Matrix4x4 } from "./Matrix4x4";
 import { IClone } from "../core/IClone"
+import { Quaternion } from "./Quaternion";
 
 /**
  * <code>Matrix3x3</code> 类用于创建3x3矩阵。
@@ -17,6 +18,40 @@ export class Matrix3x3 implements IClone {
 	private static _tempV31: Vector3 = new Vector3();
 	/** @internal */
 	private static _tempV32: Vector3 = new Vector3();
+
+	/**
+	 * 通过四元数创建旋转矩阵。
+	 * @param rotation 旋转四元数。
+	 * @param out 旋转矩阵。
+	 */
+
+	static createRotationQuaternion(rotation: Quaternion, out: Matrix3x3) {
+		var rotX: number = rotation.x;
+		var rotY: number = rotation.y;
+		var rotZ: number = rotation.z;
+		var rotW: number = rotation.w;
+
+		var xx: number = rotX * rotX;
+		var yy: number = rotY * rotY;
+		var zz: number = rotZ * rotZ;
+		var xy: number = rotX * rotY;
+		var zw: number = rotZ * rotW;
+		var zx: number = rotZ * rotX;
+		var yw: number = rotY * rotW;
+		var yz: number = rotY * rotZ;
+		var xw: number = rotX * rotW;
+
+		var resultE: Float32Array = out.elements;
+		resultE[0] = 1.0 - (2.0 * (yy + zz));
+		resultE[1] = 2.0 * (xy + zw);
+		resultE[2] = 2.0 * (zx - yw);
+		resultE[3] = 2.0 * (xy - zw);
+		resultE[4] = 1.0 - (2.0 * (zz + xx));
+		resultE[5] = 2.0 * (yz + xw);
+		resultE[6] = 2.0 * (zx + yw);
+		resultE[7] = 2.0 * (yz - xw);
+		resultE[8] = 1.0 - (2.0 * (yy + xx));
+	}
 
 	/**
 	 * 根据指定平移生成3x3矩阵
@@ -65,7 +100,7 @@ export class Matrix3x3 implements IClone {
 	 * @param	scale 缩放值
 	 * @param	out 输出矩阵
 	 */
-	static createFromScaling(scale: Vector2, out: Matrix3x3): void {
+	static createFromScaling(scale: Vector3, out: Matrix3x3): void {
 		var e: Float32Array = out.elements;
 
 		e[0] = scale.x;
@@ -78,7 +113,7 @@ export class Matrix3x3 implements IClone {
 
 		e[6] = 0;
 		e[7] = 0;
-		e[8] = 1;
+		e[8] = scale.z;
 	}
 
 	/**
@@ -87,15 +122,17 @@ export class Matrix3x3 implements IClone {
 	 * @param	out 3x3输出矩阵
 	 */
 	static createFromMatrix4x4(sou: Matrix4x4, out: Matrix3x3): void {
-		out[0] = sou[0];
-		out[1] = sou[1];
-		out[2] = sou[2];
-		out[3] = sou[4];
-		out[4] = sou[5];
-		out[5] = sou[6];
-		out[6] = sou[8];
-		out[7] = sou[9];
-		out[8] = sou[10];
+		var souE: Float32Array = sou.elements;
+		var outE: Float32Array = out.elements;
+		outE[0] = souE[0];
+		outE[1] = souE[1];
+		outE[2] = souE[2];
+		outE[3] = souE[4];
+		outE[4] = souE[5];
+		outE[5] = souE[6];
+		outE[6] = souE[8];
+		outE[7] = souE[9];
+		outE[8] = souE[10];
 	}
 
 	/**
@@ -105,29 +142,29 @@ export class Matrix3x3 implements IClone {
 	 * @param	out  输出矩阵
 	 */
 	static multiply(left: Matrix3x3, right: Matrix3x3, out: Matrix3x3): void {
+		var l: Float32Array = left.elements;
+		var r: Float32Array = right.elements;
 		var e: Float32Array = out.elements;
-		var f: Float32Array = left.elements;
-		var g: Float32Array = right.elements;
 
-		var a00: number = f[0], a01: number = f[1], a02: number = f[2];
-		var a10: number = f[3], a11: number = f[4], a12: number = f[5];
-		var a20: number = f[6], a21: number = f[7], a22: number = f[8];
+		var l11: number = l[0], l12: number = l[1], l13: number = l[2];
+		var l21: number = l[3], l22: number = l[4], l23: number = l[5];
+		var l31: number = l[6], l32: number = l[7], l33: number = l[8];
 
-		var b00: number = g[0], b01: number = g[1], b02: number = g[2];
-		var b10: number = g[3], b11: number = g[4], b12: number = g[5];
-		var b20: number = g[6], b21: number = g[7], b22: number = g[8];
+		var r11: number = r[0], r12: number = r[1], r13: number = r[2];
+		var r21: number = r[3], r22: number = r[4], r23: number = r[5];
+		var r31: number = r[6], r32: number = r[7], r33: number = r[8];
 
-		e[0] = b00 * a00 + b01 * a10 + b02 * a20;
-		e[1] = b00 * a01 + b01 * a11 + b02 * a21;
-		e[2] = b00 * a02 + b01 * a12 + b02 * a22;
+		e[0] = r11 * l11 + r12 * l21 + r13 * l31;
+		e[1] = r11 * l12 + r12 * l22 + r13 * r32;
+		e[2] = r11 * l13 + r12 * l23 + r13 * l33;
 
-		e[3] = b10 * a00 + b11 * a10 + b12 * a20;
-		e[4] = b10 * a01 + b11 * a11 + b12 * a21;
-		e[5] = b10 * a02 + b11 * a12 + b12 * a22;
+		e[3] = r21 * l11 + r22 * l21 + r23 * l31;
+		e[4] = r21 * l12 + r22 * l22 + r23 * l32;
+		e[5] = r21 * l13 + r22 * l23 + r23 * l33;
 
-		e[6] = b20 * a00 + b21 * a10 + b22 * a20;
-		e[7] = b20 * a01 + b21 * a11 + b22 * a21;
-		e[8] = b20 * a02 + b21 * a12 + b22 * a22;
+		e[6] = r31 * l11 + r32 * l21 + r33 * l31;
+		e[7] = r31 * l12 + r32 * l22 + r33 * l32;
+		e[8] = r31 * l13 + r32 * l23 + r33 * l33;
 	}
 
 	/**矩阵元素数组*/

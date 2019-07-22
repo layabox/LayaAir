@@ -1,5 +1,6 @@
 import { CharRenderInfo } from "./CharRenderInfo";
 export class ICharRender {
+        fontsz=16;
 		 getWidth(font:string, str:string):number{return 0; }
 		
 		 scale(sx:number, sy:number):void {

@@ -5,7 +5,7 @@
     "tasks": [
         {
             "type": "gulp",
-            "task": "Build LayaAir",
+            "task": "BuildLayaAir",
             "problemMatcher": []
         }
     ]
