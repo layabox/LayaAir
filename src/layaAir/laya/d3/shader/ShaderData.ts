@@ -429,7 +429,7 @@ export class ShaderData implements IClone {
 		this._data = new ArrayBuffer(length * 4);
 		this._int32Data = new Int32Array(this._data);
 		this._float32Data = new Float32Array(this._data);
-		LayaGL.createArrayBufferRef(this._data, LayaGL.ARRAY_BUFFER_TYPE_DATA, true);
+		(<any>LayaGL.instance).createArrayBufferRef(this._data, LayaGL.ARRAY_BUFFER_TYPE_DATA, true);
 	}
 
 	needRenewArrayBufferForNative(index: number): void {
@@ -627,9 +627,9 @@ export class ShaderData implements IClone {
 	setAttributeForNative(index: number, value: Int32Array): void {//[NATIVE]
 		this._nativeArray[index] = value;//保存引用
 		if (!value["_ptrID"]) {
-			LayaGL.createArrayBufferRef(value, LayaGL.ARRAY_BUFFER_TYPE_DATA, true);
+			(<any>LayaGL.instance).createArrayBufferRef(value, LayaGL.ARRAY_BUFFER_TYPE_DATA, true);
 		}
-		LayaGL.syncBufferToRenderThread(value);
+		(<any>LayaGL.instance).syncBufferToRenderThread(value);
 		this._int32Data[index] = value["_ptrID"];
 	}
 
@@ -661,17 +661,17 @@ export class ShaderData implements IClone {
 		var nRefID: number = 0;
 		var nPtrID: number = 0;
 		if (ShaderData._SET_RUNTIME_VALUE_MODE_REFERENCE_) {
-			LayaGL.createArrayBufferRefs(value, LayaGL.ARRAY_BUFFER_TYPE_DATA, true, LayaGL.ARRAY_BUFFER_REF_REFERENCE);
+			(<any>LayaGL.instance).createArrayBufferRefs(value, LayaGL.ARRAY_BUFFER_TYPE_DATA, true, LayaGL.ARRAY_BUFFER_REF_REFERENCE);
 			nRefID = 0;
 			nPtrID = value.getPtrID(nRefID);
 		} else {
-			LayaGL.createArrayBufferRefs(value, LayaGL.ARRAY_BUFFER_TYPE_DATA, true, LayaGL.ARRAY_BUFFER_REF_COPY);
+			(<any>LayaGL.instance).createArrayBufferRefs(value, LayaGL.ARRAY_BUFFER_TYPE_DATA, true, LayaGL.ARRAY_BUFFER_REF_COPY);
 			nRefID = value.getRefNum() - 1;
 			nPtrID = value.getPtrID(nRefID);
 			//TODO 应该只用到value
 			this._runtimeCopyValues.push({ "obj": value, "refID": nRefID, "ptrID": nPtrID });
 		}
-		LayaGL.syncBufferToRenderThread(value, nRefID);
+		(<any>LayaGL.instance).syncBufferToRenderThread(value, nRefID);
 		return nPtrID;
 	}
 
@@ -680,7 +680,7 @@ export class ShaderData implements IClone {
 	}
 
 	clearRuntimeCopyArray(): void {
-		var currentFrame: number = LayaGL.getFrameCount();
+		var currentFrame: number = (<any>LayaGL.instance).getFrameCount();
 		if (this._frameCount != currentFrame) {
 			this._frameCount = currentFrame;
 			for (var i: number = 0, n: number = this._runtimeCopyValues.length; i < n; i++) {

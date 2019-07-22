@@ -331,7 +331,6 @@ export class Laya3D {
 
 	private static enableNative3D(): void {
 		if (Render.isConchApp) {
-			//LayaGL = (window as any).LayaGLContext;
 			var shaderData: any = ShaderData;
 			var shader3D: any = ShaderInstance;
 			var skinnedMeshRender: any = SkinnedMeshRenderer;

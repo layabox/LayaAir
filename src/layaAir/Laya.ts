@@ -339,9 +339,6 @@ export class Laya {
 
 		if (Render.supportWebGLPlusRendering) {
 			((<any>LayaGLRunner)).uploadShaderUniforms = LayaGLRunner.uploadShaderUniformsForNative;
-			//替换buffer的函数
-			(window as any).CommandEncoder = (window as any).GLCommandEncoder;
-			(window as any).LayaGL = (window as any).LayaGLContext;
 		}
 
 	}
