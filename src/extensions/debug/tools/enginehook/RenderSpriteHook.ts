@@ -63,7 +63,6 @@ import { CacheAnalyser } from "../CacheAnalyser"
 
 		 _canvas(sprite:Sprite, context:Context, x:number, y:number):void {
 			//trace("hooked canvas");
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 			var _cacheStyle:CacheStyle = sprite._cacheStyle;
 			var _next:RenderSprite = this._next;
 			var _repaint:boolean ;
