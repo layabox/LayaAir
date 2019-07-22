@@ -36,7 +36,6 @@ export class Quaternion implements IClone {
 	 * @param	out 输出四元数
 	 */
 	static createFromYawPitchRoll(yaw: number, pitch: number, roll: number, out: Quaternion): void {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		var halfRoll: number = roll * 0.5;
 		var halfPitch: number = pitch * 0.5;
 		var halfYaw: number = yaw * 0.5;
@@ -62,7 +61,6 @@ export class Quaternion implements IClone {
 	 * @param	out 输出四元数
 	 */
 	static multiply(left: Quaternion, right: Quaternion, out: Quaternion): void {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		var lx: number = left.x;
 		var ly: number = left.y;
 		var lz: number = left.z;
@@ -82,7 +80,6 @@ export class Quaternion implements IClone {
 	}
 
 	private static arcTanAngle(x: number, y: number): number {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		if (x == 0) {
 			if (y == 1)
 				return Math.PI / 2;
@@ -99,7 +96,6 @@ export class Quaternion implements IClone {
 	}
 
 	private static angleTo(from: Vector3, location: Vector3, angle: Vector3): void {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		Vector3.subtract(location, from, Quaternion.TEMPVector30);
 		Vector3.normalize(Quaternion.TEMPVector30, Quaternion.TEMPVector30);
 
@@ -129,7 +125,6 @@ export class Quaternion implements IClone {
 	 * @param	out  输出四元数
 	 */
 	static createFromMatrix4x4(mat: Matrix4x4, out: Quaternion): void {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		var me: Float32Array = mat.elements;
 
 		var sqrt: number;
@@ -181,7 +176,6 @@ export class Quaternion implements IClone {
 	 * @return   输出Float32Array
 	 */
 	static slerp(left: Quaternion, right: Quaternion, t: number, out: Quaternion): Quaternion {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		var ax: number = left.x, ay: number = left.y, az: number = left.z, aw: number = left.w, bx: number = right.x, by: number = right.y, bz: number = right.z, bw: number = right.w;
 
 		var omega: number, cosom: number, sinom: number, scale0: number, scale1: number;
@@ -304,7 +298,6 @@ export class Quaternion implements IClone {
 	 * @param	out 输出四元数
 	 */
 	normalize(out: Quaternion): void {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		var len: number = this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w;
 		if (len > 0) {
 			len = 1 / Math.sqrt(len);
@@ -320,7 +313,6 @@ export class Quaternion implements IClone {
 	 * @return  长度
 	 */
 	length(): number {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
 	}
 
@@ -330,7 +322,6 @@ export class Quaternion implements IClone {
 	 * @param	out 输出四元数
 	 */
 	rotateX(rad: number, out: Quaternion): void {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		rad *= 0.5;
 
 		var bx: number = Math.sin(rad), bw: number = Math.cos(rad);
@@ -347,7 +338,6 @@ export class Quaternion implements IClone {
 	 * @param	out 输出四元数
 	 */
 	rotateY(rad: number, out: Quaternion): void {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		rad *= 0.5;
 
 		var by: number = Math.sin(rad), bw: number = Math.cos(rad);
@@ -364,7 +354,6 @@ export class Quaternion implements IClone {
 	 * @param	out 输出四元数
 	 */
 	rotateZ(rad: number, out: Quaternion): void {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		rad *= 0.5;
 		var bz: number = Math.sin(rad), bw: number = Math.cos(rad);
 
@@ -380,7 +369,7 @@ export class Quaternion implements IClone {
 	 * @param	out 欧拉角值
 	 */
 	getYawPitchRoll(out: Vector3): void {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
+
 		Vector3.transformQuat(Vector3._ForwardRH, this, Quaternion.TEMPVector31/*forwarldRH*/);
 
 		Vector3.transformQuat(Vector3._Up, this, Quaternion.TEMPVector32/*up*/);
@@ -427,7 +416,6 @@ export class Quaternion implements IClone {
 	 * @param	out  输出四元数
 	 */
 	invert(out: Quaternion): void {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		var a0: number = this.x, a1: number = this.y, a2: number = this.z, a3: number = this.w;
 		var dot: number = a0 * a0 + a1 * a1 + a2 * a2 + a3 * a3;
 		var invDot: number = dot ? 1.0 / dot : 0;
@@ -467,7 +455,6 @@ export class Quaternion implements IClone {
 	 * @param	destObject 克隆源。
 	 */
 	cloneTo(destObject: any): void {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		if (this === destObject) {
 			return;
 		}

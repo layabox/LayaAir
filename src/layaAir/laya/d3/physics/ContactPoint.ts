@@ -28,7 +28,6 @@ export class ContactPoint {
 	 * 创建一个 <code>ContactPoint</code> 实例。
 	 */
 	constructor() {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		this._id = ++this._idCounter;
 	}
 

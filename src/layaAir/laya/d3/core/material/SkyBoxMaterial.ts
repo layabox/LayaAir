@@ -98,7 +98,6 @@ export class SkyBoxMaterial extends BaseMaterial {
 	 * 创建一个 <code>SkyBoxMaterial</code> 实例。
 	 */
 	constructor() {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		super();
 		this.setShaderName("SkyBox");
 	}

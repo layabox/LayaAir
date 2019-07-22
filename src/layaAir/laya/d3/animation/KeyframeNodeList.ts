@@ -27,7 +27,6 @@ export class KeyframeNodeList {
 	 * 创建一个 <code>KeyframeNodeList</code> 实例。
 	 */
 	constructor() {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 	}
 
 	/**
