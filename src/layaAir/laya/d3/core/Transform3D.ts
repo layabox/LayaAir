@@ -472,8 +472,8 @@ export class Transform3D extends EventDispatcher {
 	 */
 	set position(value: Vector3) {
 		if (this._parent != null) {
-			var parentInvMat: Matrix4x4 = this._parent.worldMatrix;
-			parentInvMat.invert(parentInvMat);
+			var parentInvMat: Matrix4x4 = Transform3D._tempMatrix0;
+			this._parent.worldMatrix.invert(parentInvMat);
 			Vector3.transformCoordinate(value, parentInvMat, this._localPosition);
 		}
 		else {
@@ -523,31 +523,27 @@ export class Transform3D extends EventDispatcher {
 
 
 	/**
-	 * 获取世界缩放,该缩放值可能不正确。
+	 * 世界缩放。
+	 * 某种条件下获取该和设置该值可能不正确（例如：父节点有缩放，子节点有旋转），缩放会倾斜，无法使用Vector3正确表示,必须使用Matrix3x3矩阵才能正确表示。
 	 * @return	世界缩放。
 	 */
 	get scale(): Vector3 {
-		if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE))
-			return this._scale;
-		if (this._parent !== null) {
-			var scaMatE = this._getScaleMatrix().elements;
-			this._scale.x = scaMatE[0];
-			this._scale.y = scaMatE[4];
-			this._scale.z = scaMatE[8];
+		if (this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
+			if (this._parent !== null) {
+				var scaMatE = this._getScaleMatrix().elements;
+				this._scale.x = scaMatE[0];
+				this._scale.y = scaMatE[4];
+				this._scale.z = scaMatE[8];
+			}
+			else {
+				this._localScale.cloneTo(this._scale);
+			}
+			this._setTransformFlag(Transform3D.TRANSFORM_WORLDSCALE, false);
 		}
-		else {
-			this._localScale.cloneTo(this._scale);
-		}
-
-		this._setTransformFlag(Transform3D.TRANSFORM_WORLDSCALE, false);
 		return this._scale;
 	}
 
-	/**
-	 * 设置世界缩放,该缩放值可能不正确。
-	 * @param value	世界缩放。
-	 */
-	set scale(value: Vector3) {//TODO:
+	set scale(value: Vector3) {
 		if (this._parent !== null) {
 			var scaleMat: Matrix3x3 = Transform3D._tempMatrix3x33;
 			var localScaleMat: Matrix3x3 = Transform3D._tempMatrix3x33;
