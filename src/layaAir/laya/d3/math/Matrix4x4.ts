@@ -233,8 +233,8 @@ export class Matrix4x4 implements IClone {
 	 * @param	out  输出矩阵
 	 */
 	static multiply(left: Matrix4x4, right: Matrix4x4, out: Matrix4x4): void {
-		var l: Float32Array = left.elements;
-		var r: Float32Array = right.elements;
+		var l: Float32Array = right.elements;
+		var r: Float32Array = left.elements;
 		var e: Float32Array = out.elements;
 
 		var l11: number = l[0], l12: number = l[1], l13: number = l[2], l14: number = l[3];
