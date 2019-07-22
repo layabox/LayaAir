@@ -1,5 +1,5 @@
+import { Handler } from "./laya/utils/Handler";
 declare module laya.wx.mini {
-    import Handler = laya.utils.Handler;
     class MiniAdpter {
         static EnvConfig: any;
         /**全局window对象**/
@@ -93,7 +93,6 @@ declare module laya.wx.mini {
     }
 }
 declare module laya.bd.mini {
-    import Handler = laya.utils.Handler;
     class BMiniAdapter {
         static EnvConfig: any;
         /**全局window对象**/
@@ -187,7 +186,6 @@ declare module laya.bd.mini {
     }
 }
 declare module laya.mi.mini {
-    import Handler = laya.utils.Handler;
     class KGMiniAdapter {
         static EnvConfig: any;
         /**全局window对象**/
@@ -281,7 +279,6 @@ declare module laya.mi.mini {
     }
 }
 declare module laya.qg.mini {
-    import Handler = laya.utils.Handler;
     class QGMiniAdapter {
         static EnvConfig: any;
         /**全局window对象**/
@@ -376,7 +373,6 @@ declare module laya.qg.mini {
 }
 
 declare module laya.vv.mini {
-    import Handler = laya.utils.Handler;
     class VVMiniAdapter {
         static EnvConfig: any;
         /**全局window对象**/
@@ -471,7 +467,6 @@ declare module laya.vv.mini {
 }
 
 declare module laya.bili.mini {
-    import Handler = laya.utils.Handler;
     class BLMiniAdapter {
         static EnvConfig: any;
         /**全局window对象**/
