@@ -1,5 +1,5 @@
 import {Browser} from "laya/utils/Browser";
-import { Laya, isWXPosMsg, isWXOpenDataContext } from "Laya";
+import { Laya } from "Laya";
 import { MiniFileMgr } from "./MiniFileMgr";
 import { Handler } from "laya/utils/Handler";
 import { RunDriver } from "laya/utils/RunDriver";
@@ -50,7 +50,7 @@ import {Config} from "Config";
 		
 		/**激活微信小游戏适配器*/
 		 static enable():void {
-			QGMiniAdapter.init(isWXPosMsg, isWXOpenDataContext);
+			QGMiniAdapter.init(Laya.isWXPosMsg, Laya.isWXOpenDataContext);
 		}
 		
 		/**

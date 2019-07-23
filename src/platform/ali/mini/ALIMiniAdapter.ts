@@ -1,6 +1,5 @@
 
 import { MiniFileMgr } from "./MiniFileMgr";	
-import { Laya, isWXPosMsg, isWXOpenDataContext } from "Laya";
 import { Handler } from "laya/utils/Handler";
 import { Browser } from "laya/utils/Browser";
 import { MiniInput } from "./MiniInput";
@@ -15,6 +14,7 @@ import { MiniLocalStorage } from "./MiniLocalStorage";
 import { Stage } from "laya/display/Stage";
 import { URL } from "laya/net/URL";
 import { Config } from "Config";
+import { Laya } from "Laya";
 
 	export class ALIMiniAdapter {
 		/**@private  包装对象**/
@@ -54,7 +54,7 @@ import { Config } from "Config";
 		
 		/**激活微信小游戏适配器*/
 		 static enable():void {
-			ALIMiniAdapter.init(isWXPosMsg, isWXOpenDataContext);
+			ALIMiniAdapter.init(Laya.isWXPosMsg, Laya.isWXOpenDataContext);
 		}
 		
 		/**
