@@ -61,14 +61,16 @@ export class AnimatorState implements IReferenceCounter, IClone {
 	}
 
 	/**
-	 * [实现IReferenceCounter接口]
+	 * @internal
+	 * @implements IReferenceCounter
 	 */
 	_getReferenceCount(): number {
 		return this._referenceCount;
 	}
 
 	/**
-	 * [实现IReferenceCounter接口]
+	 * @internal
+	 * @implements IReferenceCounter
 	 */
 	_addReference(count: number = 1): void {
 		(this._clip) && (this._clip._addReference(count));
@@ -76,7 +78,8 @@ export class AnimatorState implements IReferenceCounter, IClone {
 	}
 
 	/**
-	 * [实现IReferenceCounter接口]
+	 * @internal
+	 * @implements IReferenceCounter
 	 */
 	_removeReference(count: number = 1): void {
 		(this._clip) && (this._clip._removeReference(count));
@@ -84,7 +87,8 @@ export class AnimatorState implements IReferenceCounter, IClone {
 	}
 
 	/**
-	 * [实现IReferenceCounter接口]
+	 * @internal
+	 * @implements IReferenceCounter
 	 */
 	_clearReference(): void {
 		this._removeReference(-this._referenceCount);

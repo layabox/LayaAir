@@ -1081,6 +1081,7 @@ export class PBRStandardMaterial extends BaseMaterial {
 	/**
 	 * 克隆。
 	 * @return	 克隆副本。
+	 * @override
 	 */
 	clone(): any {
 		var dest: PBRStandardMaterial = new PBRStandardMaterial();

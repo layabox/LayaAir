@@ -1120,6 +1120,7 @@ export class PBRSpecularMaterial extends BaseMaterial {
 	/**
 	 * 克隆。
 	 * @return	 克隆副本。
+	 * @override
 	 */
 	clone(): any {
 		var dest: PBRSpecularMaterial = new PBRSpecularMaterial();
