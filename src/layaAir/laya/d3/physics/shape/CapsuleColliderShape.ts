@@ -94,6 +94,7 @@ export class CapsuleColliderShape extends ColliderShape {
 
 	/**
 	 * @inheritDoc
+	 * @override
 	 */
 	clone(): any {
 		var dest: CapsuleColliderShape = new CapsuleColliderShape(this._radius, this._length, this._orientation);

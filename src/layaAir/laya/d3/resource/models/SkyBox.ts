@@ -58,6 +58,7 @@ export class SkyBox extends SkyMesh {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_render(state: RenderContext3D): void {
 		var gl: WebGLRenderingContext = LayaGL.instance;

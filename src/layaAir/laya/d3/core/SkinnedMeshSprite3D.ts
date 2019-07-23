@@ -140,6 +140,7 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_cloneTo(destObject: any, srcRoot: Node, dstRoot: Node): void {
 		var meshSprite3D: MeshSprite3D = (<MeshSprite3D>destObject);

@@ -188,6 +188,7 @@ export class CharacterController extends PhysicsComponent {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_onShapeChange(colShape: ColliderShape): void {
 		super._onShapeChange(colShape);

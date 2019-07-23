@@ -54,6 +54,7 @@ export class TrailSprite3D extends RenderableSprite3D {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_parse(data: any, spriteMap: any): void {
 		super._parse(data, spriteMap);
@@ -117,6 +118,7 @@ export class TrailSprite3D extends RenderableSprite3D {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_cloneTo(destObject: any, srcSprite: Node, dstSprite: Node): void {
 		super._cloneTo(destObject, srcSprite, dstSprite);
