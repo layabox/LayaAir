@@ -1,4 +1,4 @@
-import { Video } from "./Video";
+import { VIDEOTYPE } from "./Video";
 import { Bitmap } from "../../resource/Bitmap";
 import { ILaya } from "../../../ILaya";
 
@@ -45,9 +45,9 @@ import { ILaya } from "../../../ILaya";
 			while(this.video.childElementCount)
 				this.video.firstChild.remove();
 			
-			if (extension & Video.MP4)
+			if (extension & VIDEOTYPE.MP4)
 				this.appendSource(url, "video/mp4");
-			if (extension & Video.OGG)
+			if (extension & VIDEOTYPE.OGG)
 				this.appendSource(url + ".ogg", "video/ogg");
 		}
 		
@@ -59,7 +59,7 @@ import { ILaya } from "../../../ILaya";
 			this.video.appendChild(sourceElement);
 		}
 		
-		 getVideo():any
+		getVideo():any
 		{
 			return this.video;
 		}
