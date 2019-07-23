@@ -521,10 +521,6 @@ export class Transform3D extends EventDispatcher {
 	}
 
 
-
-
-
-
 	/**
 	 * 获取世界空间的旋转角度。
 	 * @return	欧拉角的旋转值，顺序为x、y、z。
@@ -875,11 +871,11 @@ export class Transform3D extends EventDispatcher {
 
 	//----------------------------------------Discard-------------------------------------------------
 	get scale(): Vector3 {
-		console.warn("Transfrm3D: discard function,please use getLossyWorldScale instead.");
+		console.warn("Transfrm3D: discard function,please use getWorldLossyScale instead.");
 		return this.getWorldLossyScale();
 	}
 	set scale(value: Vector3) {
-		console.warn("Transfrm3D: discard function,please use setLossyWorldScale instead.");
+		console.warn("Transfrm3D: discard function,please use setWorldLossyScale instead.");
 		this.setWorldLossyScale(value);
 	}
 

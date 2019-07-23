@@ -30,17 +30,19 @@ export class SetShaderDataTextureCMD extends Command {
 		return cmd;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  run(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	run(): void {
 		this._shaderData.setTexture(this._nameID, this._texture);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  recover(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	recover(): void {
 		SetShaderDataTextureCMD._pool.push(this);
 		this._shaderData = null;
 		this._nameID = 0;

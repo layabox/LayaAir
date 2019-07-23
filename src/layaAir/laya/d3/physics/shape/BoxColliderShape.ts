@@ -52,7 +52,7 @@ export class BoxColliderShape extends ColliderShape {
 	 * @param sizeZ 盒子Z轴尺寸。
 	 */
 	constructor(sizeX: number = 1.0, sizeY: number = 1.0, sizeZ: number = 1.0) {
-		
+
 		super();
 		this._sizeX = sizeX;
 		this._sizeY = sizeY;
@@ -65,8 +65,9 @@ export class BoxColliderShape extends ColliderShape {
 
 	/**
 	 * @inheritDoc
+	 * @override
 	 */
-	clone(): any {/*override*/
+	clone(): any {
 		var dest: BoxColliderShape = new BoxColliderShape(this._sizeX, this._sizeY, this._sizeZ);
 		this.cloneTo(dest);
 		return dest;

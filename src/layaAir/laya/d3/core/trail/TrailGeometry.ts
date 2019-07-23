@@ -412,24 +412,27 @@ export class TrailGeometry extends GeometryElement {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _getType(): number {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_getType(): number {
 		return TrailGeometry._type;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _prepareRender(state: RenderContext3D): boolean {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_prepareRender(state: RenderContext3D): boolean {
 		return this._endIndex - this._activeIndex > 1;//当前分段为0或1时不渲染
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _render(state: RenderContext3D): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_render(state: RenderContext3D): void {
 		this._bufferState.bind();
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		var start: number = this._activeIndex * 2;
@@ -439,10 +442,11 @@ export class TrailGeometry extends GeometryElement {
 		Stat.trianglesFaces += count - 2;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  destroy(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	destroy(): void {
 		super.destroy();
 		var memorySize: number = this._vertexBuffer1._byteLength + this._vertexBuffer2._byteLength;
 		Resource._addMemory(-memorySize, -memorySize);

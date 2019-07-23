@@ -36,26 +36,29 @@ export class TrailRenderer extends BaseRender {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _needRender(boundFrustum: BoundFrustum): boolean {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_needRender(boundFrustum: BoundFrustum): boolean {
 		return true;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _renderUpdate(state: RenderContext3D, transform: Transform3D): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_renderUpdate(state: RenderContext3D, transform: Transform3D): void {
 		super._renderUpdate(state, transform);
 		((<TrailSprite3D>this._owner)).trailFilter._update(state);
 	}
 	protected _projectionViewWorldMatrix: Matrix4x4 = new Matrix4x4();
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {
 		var projectionView: Matrix4x4 = context.projectionViewMatrix;
 		if (transform) {
 			Matrix4x4.multiply(projectionView, transform.worldMatrix, this._projectionViewWorldMatrix);

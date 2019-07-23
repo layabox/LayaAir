@@ -37,11 +37,11 @@ export class MeshRenderDynamicBatchManager extends DynamicBatchManager {
 	/**
 	 * @internal
 	 */
-	getInstanceBatchOpaquaMark(receiveShadow: boolean, materialID: number, subMeshID: number,invertFace:boolean): BatchMark {
+	getInstanceBatchOpaquaMark(receiveShadow: boolean, materialID: number, subMeshID: number, invertFace: boolean): BatchMark {
 		var instanceReceiveShadowMarks: any[] = (this._instanceBatchOpaqueMarks[receiveShadow ? 0 : 1]) || (this._instanceBatchOpaqueMarks[receiveShadow ? 0 : 1] = []);
 		var instanceMaterialMarks: any[] = (instanceReceiveShadowMarks[materialID]) || (instanceReceiveShadowMarks[materialID] = []);
-		var instancSubMeshMarks: BatchMark[]=(instanceMaterialMarks[subMeshID]) || (instanceMaterialMarks[subMeshID] = []);
-		return instancSubMeshMarks[invertFace?1:0] || (instancSubMeshMarks[invertFace?1:0] = new BatchMark());
+		var instancSubMeshMarks: BatchMark[] = (instanceMaterialMarks[subMeshID]) || (instanceMaterialMarks[subMeshID] = []);
+		return instancSubMeshMarks[invertFace ? 1 : 0] || (instancSubMeshMarks[invertFace ? 1 : 0] = new BatchMark());
 	}
 
 	/**
@@ -73,24 +73,26 @@ export class MeshRenderDynamicBatchManager extends DynamicBatchManager {
 		return bufferState;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _getBatchRenderElementFromPool(): RenderElement {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_getBatchRenderElementFromPool(): RenderElement {
 		var renderElement: SubMeshRenderElement = (<SubMeshRenderElement>this._batchRenderElementPool[this._batchRenderElementPoolIndex++]);
 		if (!renderElement) {
 			renderElement = new SubMeshRenderElement();
 			this._batchRenderElementPool[this._batchRenderElementPoolIndex - 1] = renderElement;
-			renderElement.vertexBatchElementList =new SingletonList<SubMeshRenderElement>();
+			renderElement.vertexBatchElementList = new SingletonList<SubMeshRenderElement>();
 			renderElement.instanceBatchElementList = new SingletonList<SubMeshRenderElement>();
 		}
 		return renderElement;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _clear(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_clear(): void {
 		super._clear();
 		this._updateCountMark++;
 	}

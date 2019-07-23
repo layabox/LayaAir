@@ -157,7 +157,7 @@ export class BaseMaterial extends Resource implements IClone {
 	_disablePublicDefineDatas: DefineDatas;//TODO:移除
 	/** @internal */
 	_shader: Shader3D;
-	
+
 	_shaderValues: ShaderData = null;//TODO:剥离贴图ShaderValue
 
 	/** 所属渲染队列. */
@@ -221,8 +221,9 @@ export class BaseMaterial extends Resource implements IClone {
 
 	/**
 	 * @inheritDoc
+	 * @override
 	 */
-	/*override*/  _addReference(count: number = 1): void {
+	_addReference(count: number = 1): void {
 		super._addReference(count);
 		var data: any = this._shaderValues.getData();
 		for (var k in data) {
@@ -234,16 +235,18 @@ export class BaseMaterial extends Resource implements IClone {
 
 	/**
 	 * @inheritDoc
+	 * @override
 	 */
-	/*override*/  _removeReference(count: number = 1): void {
+	_removeReference(count: number = 1): void {
 		super._removeReference(count);
 		this._removeTetxureReference();
 	}
 
 	/**
 	 * @inheritDoc
+	 * @override
 	 */
-	/*override*/ protected _disposeResource(): void {
+	protected _disposeResource(): void {
 		if (this._referenceCount > 0)
 			this._removeTetxureReference();
 		this._shaderValues = null;

@@ -74,10 +74,11 @@ export class ShaderPass extends ShaderCompile {
 		return o;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _compileToTree(parent: ShaderNode, lines: any[], start: number, includefiles: any[], defs: any): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _compileToTree(parent: ShaderNode, lines: any[], start: number, includefiles: any[], defs: any): void {
 		var node: ShaderNode, preNode: ShaderNode;
 		var text: string, name: string, fname: string;
 		var ofs: number, words: any[], noUseNode: ShaderNode;

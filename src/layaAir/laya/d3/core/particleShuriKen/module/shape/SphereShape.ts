@@ -23,32 +23,35 @@ export class SphereShape extends BaseShape {
 		this.randomDirection = false;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _getShapeBoundBox(boundBox: BoundBox): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _getShapeBoundBox(boundBox: BoundBox): void {
 		var min: Vector3 = boundBox.min;
 		min.x = min.y = min.z = -this.radius;
 		var max: Vector3 = boundBox.max;
 		max.x = max.y = max.z = this.radius;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _getSpeedBoundBox(boundBox: BoundBox): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _getSpeedBoundBox(boundBox: BoundBox): void {
 		var min: Vector3 = boundBox.min;
 		min.x = min.y = min.z = -1;
 		var max: Vector3 = boundBox.max;
 		max.x = max.y = max.z = 1;
 	}
 
-		/**
-		 *  用于生成粒子初始位置和方向。
-		 * @param	position 粒子位置。
-		 * @param	direction 粒子方向。
-		 */
-		/*override*/  generatePositionAndDirection(position: Vector3, direction: Vector3, rand: Rand = null, randomSeeds: Uint32Array = null): void {
+	/**
+	 *  用于生成粒子初始位置和方向。
+	 * @param	position 粒子位置。
+	 * @param	direction 粒子方向。
+	 * @override
+	 */
+	generatePositionAndDirection(position: Vector3, direction: Vector3, rand: Rand = null, randomSeeds: Uint32Array = null): void {
 		if (rand) {
 			rand.seed = randomSeeds[16];
 			if (this.emitFromShell)
@@ -78,7 +81,10 @@ export class SphereShape extends BaseShape {
 		}
 	}
 
-		/*override*/  cloneTo(destObject: any): void {
+	/**
+	 * @override
+	 */
+	cloneTo(destObject: any): void {
 		super.cloneTo(destObject);
 		var destShape: SphereShape = (<SphereShape>destObject);
 		destShape.radius = this.radius;

@@ -115,13 +115,15 @@ function ergodic(files, url) {
                     checkAllDir(fileUrl);
             }
             else {
-                if (fileUrl.indexOf(".d.ts") != -1) {
-                    //读取文件
-                    let tsdata = yield readFile(fileUrl);
-                    // debugger
-                    let asdata = yield tstoas(fileUrl, tsdata, url);
-                    //写入文件
-                    writeFile(outfileAS + fileUrl, asdata);
+                if (filterArr.indexOf(files[i]) == -1) {
+                    if (fileUrl.indexOf(".d.ts") != -1) {
+                        //读取文件
+                        let tsdata = yield readFile(fileUrl);
+                        // debugger
+                        let asdata = yield tstoas(fileUrl, tsdata, url);
+                        //写入文件
+                        writeFile(outfileAS + fileUrl, asdata);
+                    }
                 }
             }
         }
@@ -154,6 +156,8 @@ function checkComplete() {
                     console.log("create d.ts success");
                     console.log("start copy layajs.exe");
                     yield gulp.src(layajsURL).pipe(gulp.dest(path.join(outfile, outfileAS, "../../")));
+                    console.log("start copy jsc");
+                    yield gulp.src("./jsc/**/*.*").pipe(gulp.dest(path.join(outfile, outfileAS)));
                     console.log("copy suc!");
                 }));
             });

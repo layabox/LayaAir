@@ -51,10 +51,11 @@ export class TrailSprite3D extends RenderableSprite3D {
 		this._geometryFilter = new TrailFilter(this);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _parse(data: any, spriteMap: any): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_parse(data: any, spriteMap: any): void {
 		super._parse(data, spriteMap);
 		var render: TrailRenderer = (<TrailRenderer>this._render);
 		var filter: TrailFilter = (<TrailFilter>this._geometryFilter);
@@ -104,18 +105,20 @@ export class TrailSprite3D extends RenderableSprite3D {
 		filter.colorGradient = colorGradient;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _onActive(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _onActive(): void {
 		super._onActive();
 		this._transform.position.cloneTo(this._geometryFilter._lastPosition);//激活时需要重置上次位置
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _cloneTo(destObject: any, srcSprite: Node, dstSprite: Node): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_cloneTo(destObject: any, srcSprite: Node, dstSprite: Node): void {
 		super._cloneTo(destObject, srcSprite, dstSprite);
 		var i: number, j: number;
 		var destTrailSprite3D: TrailSprite3D = (<TrailSprite3D>destObject);
@@ -143,11 +146,12 @@ export class TrailSprite3D extends RenderableSprite3D {
 		destTrailRender.sharedMaterial = this.trailRenderer.sharedMaterial;
 	}
 
-		/**
-		 * <p>销毁此对象。</p>
-		 * @param	destroyChild 是否同时销毁子节点，若值为true,则销毁子节点，否则不销毁子节点。
-		 */
-		/*override*/  destroy(destroyChild: boolean = true): void {
+	/**
+	 * <p>销毁此对象。</p>
+	 * @param	destroyChild 是否同时销毁子节点，若值为true,则销毁子节点，否则不销毁子节点。
+	 * @override
+	 */
+	destroy(destroyChild: boolean = true): void {
 		if (this.destroyed)
 			return;
 		super.destroy(destroyChild);

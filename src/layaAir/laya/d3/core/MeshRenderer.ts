@@ -70,10 +70,11 @@ export class MeshRenderer extends BaseRender {
 		this._boundsChange = true;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _calculateBoundingBox(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _calculateBoundingBox(): void {
 		var sharedMesh: Mesh = ((<MeshSprite3D>this._owner)).meshFilter.sharedMesh;
 		if (sharedMesh) {
 			var worldMat: Matrix4x4 = ((<MeshSprite3D>this._owner)).transform.worldMatrix;
@@ -97,9 +98,9 @@ export class MeshRenderer extends BaseRender {
 	 * @override
 	 */
 	_needRender(boundFrustum: BoundFrustum): boolean {
-		if (boundFrustum) 
+		if (boundFrustum)
 			return boundFrustum.intersects(this.bounds._getBoundBox());
-		else 
+		else
 			return true;
 	}
 

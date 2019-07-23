@@ -15,17 +15,19 @@ export class ConstraintComponent extends Component {
 	/**@internal */
 	private _feedbackEnabled: boolean = false;
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  get enabled(): boolean {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	get enabled(): boolean {
 		return super.enabled;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  set enabled(value: boolean) {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	set enabled(value: boolean) {
 		this._nativeConstraint.IsEnabled = value;
 		super.enabled = value;
 	}
@@ -83,10 +85,11 @@ export class ConstraintComponent extends Component {
 
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _onDestroy(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _onDestroy(): void {
 		var physics3D: any = Physics3D._physics3D;
 		physics3D.destroy(this._nativeConstraint);
 		this._nativeConstraint = null;

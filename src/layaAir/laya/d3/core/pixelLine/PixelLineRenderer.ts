@@ -20,13 +20,14 @@ export class PixelLineRenderer extends BaseRender {
 	constructor(owner: PixelLineSprite3D) {
 		super(owner);
 		this._projectionViewWorldMatrix = new Matrix4x4();
-		this._supportOctree=false;
+		this._supportOctree = false;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _calculateBoundingBox(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _calculateBoundingBox(): void {
 		var min: Vector3 = this._bounds.getMin();
 		min.x = -Number.MAX_VALUE;
 		min.y = -Number.MAX_VALUE;
@@ -51,10 +52,11 @@ export class PixelLineRenderer extends BaseRender {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {//TODO:整理_renderUpdate
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {//TODO:整理_renderUpdate
 		var projectionView: Matrix4x4 = context.projectionViewMatrix;
 		var sv: ShaderData = this._shaderValues;
 		if (transform) {

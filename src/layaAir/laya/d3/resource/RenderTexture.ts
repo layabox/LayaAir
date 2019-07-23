@@ -68,10 +68,11 @@ export class RenderTexture extends BaseTexture {
 		return this._depthStencilFormat;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  get defaulteTexture(): BaseTexture {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	get defaulteTexture(): BaseTexture {
 		return Texture2D.grayTexture;
 	}
 
@@ -222,10 +223,11 @@ export class RenderTexture extends BaseTexture {
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _disposeResource(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _disposeResource(): void {
 		if (this._frameBuffer) {
 			var gl: WebGLRenderingContext = LayaGL.instance;
 			gl.deleteTexture(this._glTexture);

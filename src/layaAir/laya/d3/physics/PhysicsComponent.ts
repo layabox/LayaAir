@@ -298,10 +298,11 @@ export class PhysicsComponent extends Component {
 		return this._nativeColliderObject ? this._nativeColliderObject.isActive() : false;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  set enabled(value: boolean) {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	set enabled(value: boolean) {
 		if (this._simulation && this._colliderShape) {
 			if (value) {
 				this._derivePhysicsTransformation(true);
@@ -427,10 +428,11 @@ export class PhysicsComponent extends Component {
 		return this._simulation && this._colliderShape && this._enabled;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _parse(data: any): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_parse(data: any): void {
 		(data.collisionGroup != null) && (this.collisionGroup = data.collisionGroup);
 		(data.canCollideWith != null) && (this.canCollideWith = data.canCollideWith);
 		(data.ccdMotionThreshold != null) && (this.ccdMotionThreshold = data.ccdMotionThreshold);
@@ -589,10 +591,11 @@ export class PhysicsComponent extends Component {
 		transform.rotation = rotation;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _onEnable(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _onEnable(): void {
 		this._simulation = ((<Scene3D>this.owner._scene)).physicsSimulation;
 		this._nativeColliderObject.setContactProcessingThreshold(1e30);
 		if (this._colliderShape && this._enabled) {
@@ -601,10 +604,11 @@ export class PhysicsComponent extends Component {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _onDisable(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _onDisable(): void {
 		if (this._colliderShape && this._enabled) {
 			this._removeFromSimulation();
 			(this._inPhysicUpdateListIndex !== -1) && (this._simulation._physicsUpdateList.remove(this));//销毁前一定会调用 _onDisable()
@@ -627,10 +631,11 @@ export class PhysicsComponent extends Component {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _onAdded(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_onAdded(): void {
 		this.enabled = this._enabled;
 		this.restitution = this._restitution;
 		this.friction = this._friction;
@@ -640,10 +645,11 @@ export class PhysicsComponent extends Component {
 		((<Sprite3D>this.owner)).transform.on(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _onDestroy(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _onDestroy(): void {
 		var physics3D: any = Physics3D._physics3D;
 		delete PhysicsComponent._physicObjectsMap[this.id];
 		physics3D.destroy(this._nativeColliderObject);
@@ -670,10 +676,11 @@ export class PhysicsComponent extends Component {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _cloneTo(dest: Component): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_cloneTo(dest: Component): void {
 		var destPhysicsComponent: PhysicsComponent = (<PhysicsComponent>dest);
 		destPhysicsComponent.restitution = this._restitution;
 		destPhysicsComponent.friction = this._friction;

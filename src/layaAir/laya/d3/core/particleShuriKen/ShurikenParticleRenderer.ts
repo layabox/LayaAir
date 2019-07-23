@@ -145,10 +145,11 @@ export class ShurikenParticleRenderer extends BaseRender {
 		this._supportOctree = false;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _calculateBoundingBox(): void {//TODO:日后需要计算包围盒的更新
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _calculateBoundingBox(): void {//TODO:日后需要计算包围盒的更新
 		//var particleSystem:ShurikenParticleSystem = (_owner as ShuriKenParticle3D).particleSystem;
 		//particleSystem._generateBoundingBox();
 		//var rotation:Quaternion = _owner.transform.rotation;
@@ -200,10 +201,11 @@ export class ShurikenParticleRenderer extends BaseRender {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _renderUpdate(context: RenderContext3D, transfrom: Transform3D): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_renderUpdate(context: RenderContext3D, transfrom: Transform3D): void {
 		var particleSystem: ShurikenParticleSystem = ((<ShuriKenParticle3D>this._owner)).particleSystem;
 		var sv: ShaderData = this._shaderValues;
 		var transform: Transform3D = this._owner.transform;
@@ -245,10 +247,11 @@ export class ShurikenParticleRenderer extends BaseRender {
 		sv.setNumber(ShuriKenParticle3DShaderDeclaration.CURRENTTIME, particleSystem._currentTime);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  get bounds(): Bounds {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	get bounds(): Bounds {
 		//if (!(_owner as ShuriKenParticle3DShaderDeclaration).particleSystem.isAlive) {
 		//return _defaultBoundBox;
 		//} else {
@@ -260,10 +263,11 @@ export class ShurikenParticleRenderer extends BaseRender {
 		//}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _destroy(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_destroy(): void {
 		super._destroy();
 		(this._mesh) && (this._mesh._removeReference(), this._mesh = null);
 	}

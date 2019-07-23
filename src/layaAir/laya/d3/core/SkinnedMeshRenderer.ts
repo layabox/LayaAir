@@ -180,15 +180,17 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 
 	/**
 	 *@inheritDoc
-		*/
-	/*override*/  _createRenderElement(): RenderElement {
+	 *@override
+	 */
+	_createRenderElement(): RenderElement {
 		return new RenderElement();
 	}
 
 	/**
-	 *@inheritDoc
-		*/
-	/*override*/  _onMeshChange(value: Mesh): void {
+	*@inheritDoc
+	*@override
+	*/
+	_onMeshChange(value: Mesh): void {
 		super._onMeshChange(value);
 		this._cacheMesh = (<Mesh>value);
 
@@ -217,8 +219,9 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 
 	/**
 	 * @inheritDoc
+	 * @override
 	 */
-	/*override*/ protected _calculateBoundingBox(): void {//TODO:是否可直接在boundingSphere属性计算优化
+	protected _calculateBoundingBox(): void {//TODO:是否可直接在boundingSphere属性计算优化
 		if (!this._cacheAvatar) {
 			if (this._cacheRootBone)
 				this._localBounds._tranform(this._cacheRootBone.transform.worldMatrix, this._bounds);
@@ -249,8 +252,9 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 
 	/**
 	 * @inheritDoc
+	 * @override
 	 */
-	/*override*/  _renderUpdate(context: RenderContext3D, transform: Transform3D): void {
+	_renderUpdate(context: RenderContext3D, transform: Transform3D): void {
 		if (this._cacheAnimator) {
 			this._computeSkinnedData();
 			if (!this._cacheAvatar) {
@@ -266,8 +270,9 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 
 	/**
 	 * @inheritDoc
+	 * @override
 	 */
-	/*override*/  _renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {
+	_renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {
 		var projectionView: Matrix4x4 = context.projectionViewMatrix;
 		if (!this._cacheAvatar) {
 			this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, projectionView);
@@ -284,8 +289,9 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 
 	/**
 	 * @inheritDoc
+	 * @override
 	 */
-	/*override*/  _destroy(): void {
+	_destroy(): void {
 		super._destroy();
 		if (!this._cacheAvatar) {
 			(this._cacheRootBone && !this._cacheRootBone.destroyed) && (this._cacheRootBone.transform.off(Event.TRANSFORM_CHANGED, this, this._boundChange));
@@ -311,7 +317,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	 * @return 包围盒。
 	 */
 	get bounds(): Bounds {
-		if (this._boundsChange||this._cacheAvatar) {//有this._cacheAvatar会导致裁剪后动画不更新。动画不更新包围不更新。包围盒不更新就永远裁掉了
+		if (this._boundsChange || this._cacheAvatar) {//有this._cacheAvatar会导致裁剪后动画不更新。动画不更新包围不更新。包围盒不更新就永远裁掉了
 			this._calculateBoundingBox();
 			this._boundsChange = false;
 		}
@@ -338,7 +344,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 
 		if (this._cacheRootAnimationNode != rootNode) {
 			this._boundChange(Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDSCALE);
-			if (this._cacheRootAnimationNode) 
+			if (this._cacheRootAnimationNode)
 				this._cacheRootAnimationNode.transform.off(Event.TRANSFORM_CHANGED, this, this._boundChange);
 			(rootNode) && (rootNode.transform.on(Event.TRANSFORM_CHANGED, this, this._boundChange));
 			this._cacheRootAnimationNode = rootNode;

@@ -70,8 +70,9 @@ export class CylinderColliderShape extends ColliderShape {
 
 	/**
 	 * @inheritDoc
+	 * @override
 	 */
-	/*override*/  clone(): any {
+	clone(): any {
 		var dest: CylinderColliderShape = new CylinderColliderShape(this._radius, this._height, this._orientation);
 		this.cloneTo(dest);
 		return dest;

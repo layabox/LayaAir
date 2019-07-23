@@ -243,10 +243,11 @@ export class Sprite3D extends Node implements ICreateResource {
 	protected _changeAnimatorAvatar(avatar: Avatar): void {
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _onAdded(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _onAdded(): void {
 		if (this._parent instanceof Sprite3D) {
 			var parent3D: Sprite3D = (<Sprite3D>this._parent);
 			this.transform._setParent(parent3D.transform);
@@ -258,10 +259,11 @@ export class Sprite3D extends Node implements ICreateResource {
 		super._onAdded();
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _onRemoved(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _onRemoved(): void {
 		super._onRemoved();
 
 		if (this._parent instanceof Sprite3D) {
@@ -274,10 +276,11 @@ export class Sprite3D extends Node implements ICreateResource {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _parse(data: any, spriteMap: any): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_parse(data: any, spriteMap: any): void {
 		(data.isStatic !== undefined) && (this._isStatic = data.isStatic);
 		(data.active !== undefined) && (this.active = data.active);
 		(data.name != undefined) && (this.name = data.name);
@@ -311,8 +314,9 @@ export class Sprite3D extends Node implements ICreateResource {
 	/**
 	 * 克隆。
 	 * @param	destObject 克隆源。
+	 * @override
 	 */
-	/*override*/ _cloneTo(destObject: any, srcRoot: Node, dstRoot: Node): void {
+	_cloneTo(destObject: any, srcRoot: Node, dstRoot: Node): void {
 		if (this.destroyed)
 			throw new Error("Sprite3D: Can't be cloned if the Sprite3D has destroyed.");
 
@@ -377,8 +381,9 @@ export class Sprite3D extends Node implements ICreateResource {
 
 	/**
 	 * @inheritDoc
+	 * @override
 	 */
-	/*override*/  destroy(destroyChild: boolean = true): void {
+	destroy(destroyChild: boolean = true): void {
 		if (this.destroyed)
 			return;
 

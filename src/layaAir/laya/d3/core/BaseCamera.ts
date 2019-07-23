@@ -293,68 +293,71 @@ export class BaseCamera extends Sprite3D {
 		this._calculateProjectionMatrix();
 	}
 
-		//public void BoundingFrustumViewSpace(Vector3[] cornersViewSpace)
-		//{
-		//if (cornersViewSpace.Length != 4)
-		//throw new ArgumentOutOfRangeException("cornersViewSpace");
-		//boundingFrustum.Matrix = ViewMatrix * ProjectionMatrix;
-		//boundingFrustum.GetCorners(cornersWorldSpace);
-		//// Transform form world space to view space
-		//for (int i = 0; i < 4; i++)
-		//{
-		//cornersViewSpace[i] = Vector3.Transform(cornersWorldSpace[i + 4], ViewMatrix);
-		//}
-		//
-		//// Swap the last 2 values.
-		//Vector3 temp = cornersViewSpace[3];
-		//cornersViewSpace[3] = cornersViewSpace[2];
-		//cornersViewSpace[2] = temp;
-		//} // BoundingFrustumViewSpace
+	//public void BoundingFrustumViewSpace(Vector3[] cornersViewSpace)
+	//{
+	//if (cornersViewSpace.Length != 4)
+	//throw new ArgumentOutOfRangeException("cornersViewSpace");
+	//boundingFrustum.Matrix = ViewMatrix * ProjectionMatrix;
+	//boundingFrustum.GetCorners(cornersWorldSpace);
+	//// Transform form world space to view space
+	//for (int i = 0; i < 4; i++)
+	//{
+	//cornersViewSpace[i] = Vector3.Transform(cornersWorldSpace[i + 4], ViewMatrix);
+	//}
+	//
+	//// Swap the last 2 values.
+	//Vector3 temp = cornersViewSpace[3];
+	//cornersViewSpace[3] = cornersViewSpace[2];
+	//cornersViewSpace[2] = temp;
+	//} // BoundingFrustumViewSpace
 
-		//public void BoundingFrustumWorldSpace(Vector3[] cornersWorldSpaceResult)
-		//{
-		//if (cornersWorldSpaceResult.Length != 4)
-		//throw new ArgumentOutOfRangeException("cornersViewSpace");
-		//boundingFrustum.Matrix = ViewMatrix * ProjectionMatrix;
-		//boundingFrustum.GetCorners(cornersWorldSpace);
-		//// Transform form world space to view space
-		//for (int i = 0; i < 4; i++)
-		//{
-		//cornersWorldSpaceResult[i] = cornersWorldSpace[i + 4];
-		//}
-		//
-		//// Swap the last 2 values.
-		//Vector3 temp = cornersWorldSpaceResult[3];
-		//cornersWorldSpaceResult[3] = cornersWorldSpaceResult[2];
-		//cornersWorldSpaceResult[2] = temp;
-		//} // BoundingFrustumWorldSpace
+	//public void BoundingFrustumWorldSpace(Vector3[] cornersWorldSpaceResult)
+	//{
+	//if (cornersWorldSpaceResult.Length != 4)
+	//throw new ArgumentOutOfRangeException("cornersViewSpace");
+	//boundingFrustum.Matrix = ViewMatrix * ProjectionMatrix;
+	//boundingFrustum.GetCorners(cornersWorldSpace);
+	//// Transform form world space to view space
+	//for (int i = 0; i < 4; i++)
+	//{
+	//cornersWorldSpaceResult[i] = cornersWorldSpace[i + 4];
+	//}
+	//
+	//// Swap the last 2 values.
+	//Vector3 temp = cornersWorldSpaceResult[3];
+	//cornersWorldSpaceResult[3] = cornersWorldSpaceResult[2];
+	//cornersWorldSpaceResult[2] = temp;
+	//} // BoundingFrustumWorldSpace
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _onActive(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _onActive(): void {
 		((<Scene3D>this._scene))._addCamera(this);
 		super._onActive();
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _onInActive(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _onInActive(): void {
 		((<Scene3D>this._scene))._removeCamera(this);
 		super._onInActive();
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _parse(data: any, spriteMap: any): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_parse(data: any, spriteMap: any): void {
 		super._parse(data, spriteMap);
 		var clearFlagData: any = data.clearFlag;
 		(clearFlagData !== undefined) && (this.clearFlag = clearFlagData);
 
 		this.orthographic = data.orthographic;
-		(data.orthographicVerticalSize!==undefined)&&(this.orthographicVerticalSize = data.orthographicVerticalSize);
+		(data.orthographicVerticalSize !== undefined) && (this.orthographicVerticalSize = data.orthographicVerticalSize);
 		(data.fieldOfView !== undefined) && (this.fieldOfView = data.fieldOfView);
 		this.nearPlane = data.nearPlane;
 		this.farPlane = data.farPlane;
@@ -367,10 +370,11 @@ export class BaseCamera extends Sprite3D {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  destroy(destroyChild: boolean = true): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	destroy(destroyChild: boolean = true): void {
 		//postProcess = null;
 		//AmbientLight = null;
 		this._skyRenderer.destroy();

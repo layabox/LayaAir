@@ -26,10 +26,11 @@ export class BoxShape extends BaseShape {
 		this.randomDirection = false;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _getShapeBoundBox(boundBox: BoundBox): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _getShapeBoundBox(boundBox: BoundBox): void {
 		var min: Vector3 = boundBox.min;
 		min.x = -this.x * 0.5;
 		min.y = -this.y * 0.5;
@@ -40,10 +41,11 @@ export class BoxShape extends BaseShape {
 		max.z = this.z * 0.5;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _getSpeedBoundBox(boundBox: BoundBox): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _getSpeedBoundBox(boundBox: BoundBox): void {
 		var min: Vector3 = boundBox.min;
 		min.x = 0.0;
 		min.y = 0.0;
@@ -54,12 +56,13 @@ export class BoxShape extends BaseShape {
 		max.z = 0.0;
 	}
 
-		/**
-		 *  用于生成粒子初始位置和方向。
-		 * @param	position 粒子位置。
-		 * @param	direction 粒子方向。
-		 */
-		/*override*/  generatePositionAndDirection(position: Vector3, direction: Vector3, rand: Rand = null, randomSeeds: Uint32Array = null): void {
+	/**
+	 *  用于生成粒子初始位置和方向。
+	 * @param	position 粒子位置。
+	 * @param	direction 粒子方向。
+	 * @override
+	 */
+	generatePositionAndDirection(position: Vector3, direction: Vector3, rand: Rand = null, randomSeeds: Uint32Array = null): void {
 		if (rand) {
 			rand.seed = randomSeeds[16];
 			ShapeUtils._randomPointInsideHalfUnitBox(position, rand);
@@ -85,7 +88,11 @@ export class BoxShape extends BaseShape {
 		}
 	}
 
-		/*override*/  cloneTo(destObject: any): void {
+	/**
+	 * @param destObject 
+	 * @override
+	 */
+	cloneTo(destObject: any): void {
 		super.cloneTo(destObject);
 		var destShape: BoxShape = (<BoxShape>destObject);
 		destShape.x = this.x;

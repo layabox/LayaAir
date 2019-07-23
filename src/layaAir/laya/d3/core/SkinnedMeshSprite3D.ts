@@ -16,7 +16,7 @@ import { SkinnedMeshRenderer } from "./SkinnedMeshRenderer";
 import { Sprite3D } from "./Sprite3D";
 import { BaseMaterial } from "./material/BaseMaterial";
 import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
-	
+
 
 
 /**
@@ -71,10 +71,11 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
 		(mesh) && (this._meshFilter.sharedMesh = mesh);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _parse(data: any, spriteMap: any): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_parse(data: any, spriteMap: any): void {
 		super._parse(data, spriteMap);
 		var render: SkinnedMeshRenderer = this.skinnedMeshRenderer;
 		var lightmapIndex: any = data.lightmapIndex;
@@ -117,25 +118,28 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _changeHierarchyAnimator(animator: Animator): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _changeHierarchyAnimator(animator: Animator): void {
 		super._changeHierarchyAnimator(animator);
 		this.skinnedMeshRenderer._setCacheAnimator(animator);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _changeAnimatorAvatar(avatar: Avatar): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _changeAnimatorAvatar(avatar: Avatar): void {
 		this.skinnedMeshRenderer._setCacheAvatar(avatar);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _cloneTo(destObject: any, srcRoot: Node, dstRoot: Node): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_cloneTo(destObject: any, srcRoot: Node, dstRoot: Node): void {
 		var meshSprite3D: MeshSprite3D = (<MeshSprite3D>destObject);
 		meshSprite3D.meshFilter.sharedMesh = this.meshFilter.sharedMesh;
 		var meshRender: SkinnedMeshRenderer = (<SkinnedMeshRenderer>this._render);
@@ -176,10 +180,11 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
 		super._cloneTo(destObject, srcRoot, dstRoot);//父类函数在最后,组件应该最后赋值，否则获取材质默认值等相关函数会有问题
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  destroy(destroyChild: boolean = true): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	destroy(destroyChild: boolean = true): void {
 		if (this.destroyed)
 			return;
 		super.destroy(destroyChild);
