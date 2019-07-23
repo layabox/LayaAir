@@ -142,7 +142,6 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
 	}
 
 	/**
-	 * @internal
 	 * @implements IReferenceCounter
 	 */
 	_clearReference(): void {
