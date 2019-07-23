@@ -231,10 +231,10 @@ class emiter {
             propertystr += "public ";
         }
         let isGetset = propertystr.indexOf("function get") != -1;
-        propertystr += (isGetset ? "" : "var ") + node.name.getText() + (isGetset ? "()" : "") + ":" + this.emitType(node.type) + (isGetset ? "{}" : "");
+        propertystr += (isGetset ? "" : "var ") + node.name.getText() + (isGetset ? "()" : "") + ":" + this.emitType(node.type) + (isGetset ? "{\r\n\t\t\t\treturn null;\r\n\t\t}" : ";");
         tspropert += node.name.getText() + ":" + this.emitTsType(node.type) + ";";
         let note = this.changeIndex(node, "\r\n\t\t");
-        return [note + propertystr + ";\r\n", note + tspropert + "\r\n"];
+        return [note + propertystr + "\r\n", note + tspropert + "\r\n"];
     }
     /**
      * 生成接口类型属性
