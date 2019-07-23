@@ -127,3 +127,8 @@ export class KeyframeNode {
 	}
 }
 
+// native
+if((window as any).conch  && (window as any).conchKeyframeNode){
+    //@ts-ignore
+    KeyframeNode=(window as any).conchKeyframeNode;
+}
