@@ -133,7 +133,7 @@ import { URL } from "laya/net/URL";
 //			MiniVideo.__init__();
 //			MiniAccelerator.__init__();
 //			MiniLocation.__init__();
-			MiniAdpter.window.wx.onMessage(MiniAdpter._onMessage);
+			MiniAdpter.window.wx.onMessage && MiniAdpter.window.wx.onMessage(MiniAdpter._onMessage);
 		}
 		
 		private static _onMessage(data:any):void {
