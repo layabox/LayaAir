@@ -132,7 +132,7 @@ import {URL} from "laya/net/URL";
 //			MiniVideo.__init__();
 //			MiniAccelerator.__init__();
 //			MiniLocation.__init__();
-			KGMiniAdapter.window.qg.onMessage(KGMiniAdapter._onMessage);
+			KGMiniAdapter.window.qg.onMessage && KGMiniAdapter.window.qg.onMessage(KGMiniAdapter._onMessage);
 		}
 		
 		private static _onMessage(data:any):void {

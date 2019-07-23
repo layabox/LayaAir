@@ -132,7 +132,7 @@ import { Laya } from "Laya";
 //			MiniVideo.__init__();
 //			MiniAccelerator.__init__();
 //			MiniLocation.__init__();
-			BMiniAdapter.window.swan.onMessage(BMiniAdapter._onMessage);
+			BMiniAdapter.window.swan.onMessage && BMiniAdapter.window.swan.onMessage(BMiniAdapter._onMessage);
 		}
 		
 		private static _onMessage(data:any):void {

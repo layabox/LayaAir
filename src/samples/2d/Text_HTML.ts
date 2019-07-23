@@ -27,11 +27,10 @@ export class Text_HTML {
 	}
 	private createParagraph(): void {
 		var p: HTMLDivElement = new HTMLDivElement();
-		// compile error
-		// Main.box2D.addChild(p);
-		// p.zOrder = 90000;
-		// p.style.font = "Impact";
-		// p.style.fontSize = 30;
+		this.Main.box2D.addChild(p);
+		p.zOrder = 90000;
+		p.style.font = "Impact";
+		p.style.fontSize = 30;
 
 		var html: string = "<span color='#e3d26a'>使用</span>";
 		html += "<span style='color:#FFFFFF;font-weight:bold'>HTMLDivElement</span>";

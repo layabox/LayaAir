@@ -170,6 +170,7 @@ import { LayaGL } from "../../layagl/LayaGL";
 		}
 		
 		/**
+		 * @internal
 		 * 应用这个mesh
 		 * @param	gl
 		 */
