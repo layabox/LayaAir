@@ -37,9 +37,9 @@ import { ClassUtils } from "../utils/ClassUtils";
 		}
 		
 		/**
-		 * @inheritDoc 
-		 * @override*/	
-		/*override*/ protected preinitialize():void {
+		 * @internal
+		 */	
+		 protected preinitialize():void {
 			super.preinitialize();
 			this.toggle = false;
 			this._autoSize = false;

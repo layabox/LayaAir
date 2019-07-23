@@ -116,8 +116,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		}
 		
 		/**
-		 * @inheritDoc 
-		 * @override
+		 * @internal 
 		*/
 		 protected createChildren():void {
 			this.addChild(this.slider = new Slider());
@@ -127,8 +126,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		}
 		
 		/**
-		 * @inheritDoc 
-		 * @override
+		 * @internal 
 		*/
 		 protected initialize():void {
 			this.slider.showLabel = false;

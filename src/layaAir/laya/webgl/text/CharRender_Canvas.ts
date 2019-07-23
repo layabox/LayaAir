@@ -32,15 +32,18 @@ import { Browser } from "../../utils/Browser";
 			}
 		}
 		/**
+		 * @internal
 		 * @override
 		 */
-		/*override*/  get canvasWidth():number {
+		  get canvasWidth():number {
 			return CharRender_Canvas.canvas.width;
 		}
+		
 		/**
+		 * @internal
 		 * @override
 		 */
-		/*override*/  set canvasWidth(w:number) {
+		  set canvasWidth(w:number) {
 			if (CharRender_Canvas.canvas.width == w )
 				return;
 			CharRender_Canvas.canvas.width = w;
