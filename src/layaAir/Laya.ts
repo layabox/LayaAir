@@ -61,6 +61,7 @@ import { Handler } from "./laya/utils/Handler";
 import { RunDriver } from "./laya/utils/RunDriver";
 import { Matrix } from "./laya/maths/Matrix";
 import { HTMLImage } from "./laya/resource/HTMLImage";
+import { Event } from "./laya/events/Event";
 
 /**
  * <code>Laya</code> 是全局对象的引用入口集。
