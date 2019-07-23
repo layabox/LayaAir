@@ -10,7 +10,7 @@ import { Handler } from "../utils/Handler";
 import { ILaya } from "../../ILaya";
 import { Texture } from "../resource/Texture";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
-import { Context } from "vm";
+import { Context } from "../resource/Context";
 import { Point } from "../maths/Point";
 	
 	/**
