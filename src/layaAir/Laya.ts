@@ -401,6 +401,7 @@ function regClassToEngine(cls: any) {
 
 }
 
+regClassToEngine(Laya);
 regClassToEngine(TextRender);
 regClassToEngine(Stage);
 regClassToEngine(Render);
