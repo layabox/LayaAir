@@ -5,7 +5,7 @@
         "outDir": "../../bin/tsc/layaAir",
         "composite":true,
         "stripInternal": true,
-        "removeComments": true
+        "removeComments": false
     }
 
 }
