@@ -955,9 +955,9 @@ import { ClassUtils } from "../utils/ClassUtils";
 			var lines:any[] = this._lines;
 			
 			var maybeIndex:number = 0;
-			var charsWidth:number;
-			var wordWidth:number;
-			var startIndex:number;
+			var charsWidth:number = 0;
+			var wordWidth:number = 0;
+			var startIndex:number = 0;
 			
 			charsWidth = this._getTextWidth(line);
 			//优化1，如果一行小于宽度，则直接跳过遍历
