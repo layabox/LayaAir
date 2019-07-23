@@ -61,7 +61,6 @@ export class AnimatorState implements IReferenceCounter, IClone {
 	}
 
 	/**
-	 * @internal
 	 * @implements IReferenceCounter
 	 */
 	_getReferenceCount(): number {
@@ -69,7 +68,6 @@ export class AnimatorState implements IReferenceCounter, IClone {
 	}
 
 	/**
-	 * @internal
 	 * @implements IReferenceCounter
 	 */
 	_addReference(count: number = 1): void {
@@ -78,7 +76,6 @@ export class AnimatorState implements IReferenceCounter, IClone {
 	}
 
 	/**
-	 * @internal
 	 * @implements IReferenceCounter
 	 */
 	_removeReference(count: number = 1): void {
@@ -87,7 +84,6 @@ export class AnimatorState implements IReferenceCounter, IClone {
 	}
 
 	/**
-	 * @internal
 	 * @implements IReferenceCounter
 	 */
 	_clearReference(): void {
