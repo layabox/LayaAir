@@ -832,6 +832,7 @@ export class BlinnPhongMaterial extends BaseMaterial {
 	/**
 	 * 克隆。
 	 * @return	 克隆副本。
+	 * @override
 	 */
 	clone(): any {
 		var dest: BlinnPhongMaterial = new BlinnPhongMaterial();

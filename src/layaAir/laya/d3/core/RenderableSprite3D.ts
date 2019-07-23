@@ -97,6 +97,7 @@ export class RenderableSprite3D extends Sprite3D {
 
 	/**
 	 * @inheritDoc
+	 * @internal
 	 * @override
 	 */
 	_setBelongScene(scene: Node): void {
@@ -106,6 +107,7 @@ export class RenderableSprite3D extends Sprite3D {
 
 	/**
 	 * @inheritDoc
+	 * @internal
 	 * @override
 	 */
 	_setUnBelongScene(): void {
@@ -115,6 +117,7 @@ export class RenderableSprite3D extends Sprite3D {
 
 	/**
 	 * @inheritDoc
+	 * @internal
 	 * @override
 	 */
 	protected _changeHierarchyAnimator(animator: Animator): void {
