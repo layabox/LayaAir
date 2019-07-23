@@ -311,7 +311,8 @@ import { Laya } from "Laya";
 			node.blur = MiniInput.wxinputblur;
 			node.style = {};
 			node.value = 0;//文本内容
-			node.parentElement = {};
+			if(!node.parentElement)
+				node.parentElement = {};//百度突然游戏值了？？？
 			node.placeholder = {};
 			node.type = {};
 			node.setColor = function(value:string):void {

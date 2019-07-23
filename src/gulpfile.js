@@ -368,7 +368,7 @@ gulp.task('ModifierJs', () => {
             '../build/js/libs/laya.xmmini.js'], )
             .pipe(through.obj(function (file, encode, cb) {
                 var srcContents = file.contents.toString();
-                var tempContents = srcContents.replace(/\(/, "window.xmMiniGame = ");
+                var tempContents = srcContents.replace(/\(/, "window.miMiniGame = ");
                 var destContents = tempContents.replace(/\(this.Laya = this.Laya \|\| {}, Laya\)\);/, " ");
                 // 再次转为Buffer对象，并赋值给文件内容
                 file.contents = new Buffer(destContents)
