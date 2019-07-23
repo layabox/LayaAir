@@ -11,6 +11,8 @@ class emiter {
         this.importArr = {};
         /**内部类的引用 */
         this.innerImportStr = "";
+        /** 当前类名 */
+        this.classNameNow = "";
         this.VISITORS = {
             "ImportDeclaration": this.emitImport,
             "ClassDeclaration": this.emitClass,
@@ -37,8 +39,10 @@ class emiter {
             node = nodes[i];
             let str = this.checkNodes(node);
             //内部类
-            if (this.innerClass && str[0].indexOf("public class") != -1) {
-                str[0] = this.innerImportStr + "\n" + str[0];
+            if (this.innerClass && nodes[i - 1]) {
+                let lastnodetype = ts.SyntaxKind[nodes[i - 1].kind];
+                if ("ImportDeclaration" != lastnodetype && str[0].indexOf("\tclass ") != -1)
+                    str[0] = this.innerImportStr + "\n" + str[0];
             }
             this.outString += str[0];
             this.copyTSdata += str[1];
@@ -104,7 +108,7 @@ class emiter {
      * @param node
      */
     emitClass(node) {
-        let nodeName = node.name.getText();
+        let nodeName = this.classNameNow = node.name.getText();
         this.importArr[nodeName] = nodeName;
         let nodes = node.members;
         let str = "";
@@ -160,7 +164,7 @@ class emiter {
             }
             typestr += ">";
         }
-        str = "\tpublic class " + nodeName + " " + extendstr + "{\r\n" + str + "\t}\r\n";
+        str = (this.innerClass ? "\tclass " : "\tpublic class ") + nodeName + " " + extendstr + "{\r\n" + str + "\t}\r\n";
         tstr = "\tclass " + nodeName + typestr + " " + tsExtend + " {\r\n" + tstr + "\t}\r\n";
         let note = this.changeIndex(node, "\r\n\t");
         if (this.url != "")
@@ -388,9 +392,9 @@ class emiter {
                 if (emiter.enumType.indexOf(type) != -1)
                     return "*";
                 //如果是内部类且有引用
-                if (this.innerClass && this.importArr[type]) {
+                if (this.innerClass && this.importArr[type] && this.classNameNow != type) {
                     if (this.innerImportStr.indexOf(this.importArr[type]) == -1)
-                        this.innerImportStr += "\r\n\timport " + this.importArr[type];
+                        this.innerImportStr += "\r\n\timport " + this.importArr[type] + ";";
                 }
                 return type;
             case "ConstructorType":
