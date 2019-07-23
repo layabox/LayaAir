@@ -30,4 +30,9 @@ import { Vector4 } from "../math/Vector4"
 		}
 	}
 
-
+// native
+if((window as any).conch  && (window as any).conchFloatArrayKeyframe){
+    //@ts-ignore
+    QuaternionKeyframe=(window as any).conchFloatArrayKeyframe;
+}
+    

@@ -29,4 +29,8 @@ import { Vector3 } from "../math/Vector3"
 		}
 	}
 
-
+// native
+if((window as any).conch  && (window as any).conchFloatArrayKeyframe){
+    //@ts-ignore
+    Vector3Keyframe=(window as any).conchFloatArrayKeyframe;
+}

@@ -6,6 +6,7 @@ import { Matrix4x4 } from "../math/Matrix4x4";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { Sprite3D } from "./Sprite3D";
+import { Matrix3x3 } from "../math/Matrix3x3";
 
 /**
  * <code>Transform3D</code> 类用于实现3D变换。
@@ -17,6 +18,14 @@ export class Transform3D extends EventDispatcher {
 	private static _tempQuaternion0: Quaternion = new Quaternion();
 	/** @internal */
 	private static _tempMatrix0: Matrix4x4 = new Matrix4x4();
+	/** @internal */
+	private static _tempMatrix3x30: Matrix3x3 = new Matrix3x3();
+	/** @internal */
+	private static _tempMatrix3x31: Matrix3x3 = new Matrix3x3();
+	/** @internal */
+	private static _tempMatrix3x32: Matrix3x3 = new Matrix3x3();
+	/** @internal */
+	private static _tempMatrix3x33: Matrix3x3 = new Matrix3x3();
 
 	/**@internal */
 	static TRANSFORM_LOCALQUATERNION: number = 0x01;
@@ -445,10 +454,10 @@ export class Transform3D extends EventDispatcher {
 	get position(): Vector3 {
 		if (this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION)) {
 			if (this._parent != null) {
-				var parentPosition: Vector3 = this._parent.position;//放到下面会影响_tempVector30计算，造成混乱
-				Vector3.multiply(this._localPosition, this._parent.scale, Transform3D._tempVector30);
-				Vector3.transformQuat(Transform3D._tempVector30, this._parent.rotation, Transform3D._tempVector30);
-				Vector3.add(parentPosition, Transform3D._tempVector30, this._position);
+				var worldMatE = this.worldMatrix.elements;
+				this._position.x = worldMatE[12];
+				this._position.y = worldMatE[13];
+				this._position.z = worldMatE[14];
 			} else {
 				this._localPosition.cloneTo(this._position);
 			}
@@ -463,20 +472,11 @@ export class Transform3D extends EventDispatcher {
 	 */
 	set position(value: Vector3) {
 		if (this._parent != null) {
-			Vector3.subtract(value, this._parent.position, this._localPosition);
-			var parentScale: Vector3 = this._parent.scale;
-			var psX: number = parentScale.x, psY: number = parentScale.y, psZ: number = parentScale.z;
-			if (psX !== 1.0 || psY !== 1.0 || psZ !== 1.0) {
-				var invertScale: Vector3 = Transform3D._tempVector30;
-				invertScale.x = 1.0 / psX;
-				invertScale.y = 1.0 / psY;
-				invertScale.z = 1.0 / psZ;
-				Vector3.multiply(this._localPosition, invertScale, this._localPosition);
-			}
-			var parentRotation: Quaternion = this._parent.rotation;
-			parentRotation.invert(Transform3D._tempQuaternion0);
-			Vector3.transformQuat(this._localPosition, Transform3D._tempQuaternion0, this._localPosition);
-		} else {
+			var parentInvMat: Matrix4x4 = Transform3D._tempMatrix0;
+			this._parent.worldMatrix.invert(parentInvMat);
+			Vector3.transformCoordinate(value, parentInvMat, this._localPosition);
+		}
+		else {
 			value.cloneTo(this._localPosition);
 		}
 		this.localPosition = this._localPosition;
@@ -484,6 +484,8 @@ export class Transform3D extends EventDispatcher {
 			value.cloneTo(this._position);
 		this._setTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION, false);
 	}
+
+
 
 	/**
 	 * 获取世界旋转。
@@ -518,42 +520,10 @@ export class Transform3D extends EventDispatcher {
 		this._setTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION, false);
 	}
 
-	/**
-	 * 获取世界缩放。
-	 * @return	世界缩放。
-	 */
-	get scale(): Vector3 {
-		if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE))
-			return this._scale;
-		if (this._parent !== null)
-			Vector3.multiply(this._parent.scale, this._localScale, this._scale);
-		else
-			this._localScale.cloneTo(this._scale);
 
-		this._setTransformFlag(Transform3D.TRANSFORM_WORLDSCALE, false);
-		return this._scale;
-	}
 
-	/**
-	 * 设置世界缩放。
-	 * @param value	世界缩放。
-	 */
-	set scale(value: Vector3) {
-		if (this._parent !== null) {
-			var parScale: Vector3 = this._parent.scale;
-			var invParScale: Vector3 = Transform3D._tempVector30;
-			invParScale.x = 1.0 / parScale.x;
-			invParScale.y = 1.0 / parScale.y;
-			invParScale.z = 1.0 / parScale.z;
-			Vector3.multiply(value, Transform3D._tempVector30, this._localScale);
-		} else {
-			value.cloneTo(this._localScale);
-		}
-		this.localScale = this._localScale;
-		if (this._scale !== value)
-			value.cloneTo(this._scale);
-		this._setTransformFlag(Transform3D.TRANSFORM_WORLDSCALE, false);
-	}
+
+
 
 	/**
 	 * 获取世界空间的旋转角度。
@@ -629,6 +599,21 @@ export class Transform3D extends EventDispatcher {
 		this._children = [];
 		this._setTransformFlag(Transform3D.TRANSFORM_LOCALQUATERNION | Transform3D.TRANSFORM_LOCALEULER | Transform3D.TRANSFORM_LOCALMATRIX, false);
 		this._setTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDEULER | Transform3D.TRANSFORM_WORLDSCALE | Transform3D.TRANSFORM_WORLDMATRIX, true);
+	}
+
+	/**
+	 * @internal
+	 */
+	private _getScaleMatrix(): Matrix3x3 {
+		var invRotation: Quaternion = Transform3D._tempQuaternion0;
+		var invRotationMat: Matrix3x3 = Transform3D._tempMatrix3x30;
+		var worldRotScaMat: Matrix3x3 = Transform3D._tempMatrix3x31;
+		var scaMat: Matrix3x3 = Transform3D._tempMatrix3x32;
+		Matrix3x3.createFromMatrix4x4(this.worldMatrix, worldRotScaMat)
+		this.rotation.invert(invRotation);
+		Matrix3x3.createRotationQuaternion(invRotation, invRotationMat);
+		Matrix3x3.multiply(invRotationMat, worldRotScaMat, scaMat);
+		return scaMat;
 	}
 
 	/**
@@ -839,6 +824,63 @@ export class Transform3D extends EventDispatcher {
 			this._rotation.invert(this._rotation);
 			this.rotation = this._rotation;
 		}
+	}
+
+	/**
+	 * 世界缩放。
+	 * 某种条件下获取该值可能不正确（例如：父节点有缩放，子节点有旋转），缩放会倾斜，无法使用Vector3正确表示,必须使用Matrix3x3矩阵才能正确表示。
+	 * @return	世界缩放。
+	 */
+	getLossyWorldScale(): Vector3 {
+		if (this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
+			if (this._parent !== null) {
+				var scaMatE = this._getScaleMatrix().elements;
+				this._scale.x = scaMatE[0];
+				this._scale.y = scaMatE[4];
+				this._scale.z = scaMatE[8];
+			}
+			else {
+				this._localScale.cloneTo(this._scale);
+			}
+			this._setTransformFlag(Transform3D.TRANSFORM_WORLDSCALE, false);
+		}
+		return this._scale;
+	}
+
+	/**
+	 * 设置世界缩放。
+	 * 某种条件下设置该值可能不正确（例如：父节点有缩放，子节点有旋转），缩放会倾斜，无法使用Vector3正确表示,必须使用Matrix3x3矩阵才能正确表示。
+	 * @return	世界缩放。
+	 */
+	setLossyWorldScale(value: Vector3) {
+		if (this._parent !== null) {
+			var scaleMat: Matrix3x3 = Transform3D._tempMatrix3x33;
+			var localScaleMat: Matrix3x3 = Transform3D._tempMatrix3x33;
+			var localScaleMatE: Float32Array = localScaleMat.elements;
+			var parInvScaleMat: Matrix3x3 = this._parent._getScaleMatrix();
+			parInvScaleMat.invert(parInvScaleMat);
+			Matrix3x3.createFromScaling(value, scaleMat);
+			Matrix3x3.multiply(parInvScaleMat, scaleMat, localScaleMat);
+			this._localScale.x = localScaleMatE[0];
+			this._localScale.y = localScaleMatE[4];
+			this._localScale.z = localScaleMatE[8];
+		} else {
+			value.cloneTo(this._localScale);
+		}
+		this.localScale = this._localScale;
+		if (this._scale !== value)
+			value.cloneTo(this._scale);
+		this._setTransformFlag(Transform3D.TRANSFORM_WORLDSCALE, false);
+	}
+
+	//----------------------------------------Discard-------------------------------------------------
+	get scale(): Vector3 {
+		console.warn("Transfrm3D: discard function,please use getLossyWorldScale instead.");
+		return this.getLossyWorldScale();
+	}
+	set scale(value: Vector3) {
+		console.warn("Transfrm3D: discard function,please use setLossyWorldScale instead.");
+		this.setLossyWorldScale(value);
 	}
 
 }

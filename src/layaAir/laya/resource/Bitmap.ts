@@ -16,6 +16,10 @@ import { Resource } from "./Resource";
 			return this._width;
 		}
 		
+		set width(width:number) {
+			this._width = width;
+		}
+
 		/***
 		 * 获取高度。
 		 */
@@ -23,6 +27,9 @@ import { Resource } from "./Resource";
 			return this._height;
 		}
 		
+		set height(height:number) {
+			this._height = height;
+		}
 		/**
 		 * 创建一个 <code>Bitmap</code> 实例。
 		 */

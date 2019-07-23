@@ -1,4 +1,4 @@
-﻿import { ILaya } from "./ILaya";
+import { ILaya } from "./ILaya";
 import { Graphics } from "./laya/display/Graphics";
 import { GraphicsBounds } from "./laya/display/GraphicsBounds";
 import { Input } from "./laya/display/Input";
@@ -55,6 +55,13 @@ import { MeshVG } from "./laya/webgl/utils/MeshVG";
 import { MeshParticle2D } from "./laya/webgl/utils/MeshParticle2D";
 import { MeshQuadTexture } from "./laya/webgl/utils/MeshQuadTexture";
 import { MeshTexture } from "./laya/webgl/utils/MeshTexture";
+import { SoundChannel } from "./laya/media/SoundChannel";
+import { EventDispatcher } from "./laya/events/EventDispatcher";
+import { Handler } from "./laya/utils/Handler";
+import { RunDriver } from "./laya/utils/RunDriver";
+import { Matrix } from "./laya/maths/Matrix";
+import { HTMLImage } from "./laya/resource/HTMLImage";
+import { Event } from "./laya/events/Event";
 
 /**
  * <code>Laya</code> 是全局对象的引用入口集。
@@ -339,9 +346,6 @@ export class Laya {
 
 		if (Render.supportWebGLPlusRendering) {
 			((<any>LayaGLRunner)).uploadShaderUniforms = LayaGLRunner.uploadShaderUniformsForNative;
-			//替换buffer的函数
-			(window as any).CommandEncoder = (window as any).GLCommandEncoder;
-			(window as any).LayaGL = (window as any).LayaGLContext;
 		}
 
 	}
@@ -405,6 +409,19 @@ regClassToEngine(Sprite);
 regClassToEngine(Node);
 regClassToEngine(Context);
 regClassToEngine(WebGL);
+regClassToEngine(SoundChannel);
+regClassToEngine(EventDispatcher);
+regClassToEngine(Handler);
+regClassToEngine(RunDriver);
+regClassToEngine(Utils);
+regClassToEngine(Input);
+regClassToEngine(Loader);
+regClassToEngine(LocalStorage);
+regClassToEngine(SoundManager);
+regClassToEngine(URL);
+regClassToEngine(Event);
+regClassToEngine(Matrix);
+regClassToEngine(HTMLImage);
 
 
 

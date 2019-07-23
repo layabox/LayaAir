@@ -39,7 +39,6 @@ export class AnimatorPlayState {
 	 * 创建一个 <code>AnimatorPlayState</code> 实例。
 	 */
 	constructor() {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 	}
 
 	/**

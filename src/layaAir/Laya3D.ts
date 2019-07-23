@@ -244,6 +244,7 @@ export class Laya3D {
 		Command.__init__();
 
 		//注册类命,解析的时候需要
+		ClassUtils.regClass("Laya.UnlitMaterial", UnlitMaterial);
 		ClassUtils.regClass("Laya.BlinnPhongMaterial", BlinnPhongMaterial);
 		ClassUtils.regClass("Laya.SkyProceduralMaterial", SkyProceduralMaterial);
 		ClassUtils.regClass("Laya.PBRStandardMaterial", PBRStandardMaterial);
@@ -330,7 +331,6 @@ export class Laya3D {
 
 	private static enableNative3D(): void {
 		if (Render.isConchApp) {
-			//LayaGL = (window as any).LayaGLContext;
 			var shaderData: any = ShaderData;
 			var shader3D: any = ShaderInstance;
 			var skinnedMeshRender: any = SkinnedMeshRenderer;
@@ -376,11 +376,11 @@ export class Laya3D {
 
 			if (Render.supportWebGLPlusAnimation) {
 				avatar.prototype._cloneDatasToAnimator = avatar.prototype._cloneDatasToAnimatorNative;
-				(window as any).FloatKeyframe = (window as any).conchFloatKeyframe;
-				(window as any).Vector3Keyframe = (window as any).conchFloatArrayKeyframe;
-				(window as any).QuaternionKeyframe = (window as any).conchFloatArrayKeyframe;
-				(window as any).KeyframeNode = (window as any).conchKeyframeNode;
-				(window as any).KeyframeNodeList = (window as any).conchKeyframeNodeList;
+				//(window as any).FloatKeyframe = (window as any).conchFloatKeyframe;
+				//(window as any).Vector3Keyframe = (window as any).conchFloatArrayKeyframe;
+				//(window as any).QuaternionKeyframe = (window as any).conchFloatArrayKeyframe;
+				//(window as any).KeyframeNode = (window as any).conchKeyframeNode;
+				//(window as any).KeyframeNodeList = (window as any).conchKeyframeNodeList;
 				var animationClip: any = AnimationClip;
 				animationClip.prototype._evaluateClipDatasRealTime = animationClip.prototype._evaluateClipDatasRealTimeForNative;
 				skinnedMeshRender.prototype.supportWebGLPlusAnimation = skinnedMeshRender.prototype.supportWebGLPlusAnimationForNative;

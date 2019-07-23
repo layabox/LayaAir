@@ -48,7 +48,7 @@ import { LayaGL } from "./LayaGL";
 				nType = LayaGL.UPLOAD_SHADER_UNIFORM_TYPE_DATA;
 			}
 			var data:any = shaderData._data;
-			return layaGL.uploadShaderUniforms(commandEncoder, data, nType);
+			return (<any>LayaGL.instance).uploadShaderUniforms(commandEncoder, data, nType);
 		}
 	
 	}

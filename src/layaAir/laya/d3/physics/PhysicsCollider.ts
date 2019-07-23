@@ -16,28 +16,31 @@ export class PhysicsCollider extends PhysicsTriggerComponent {
 	 * @param canCollideWith 可产生碰撞的碰撞组。
 	 */
 	constructor(collisionGroup: number = Physics3DUtils.COLLISIONFILTERGROUP_DEFAULTFILTER, canCollideWith: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER) {
-
 		super(collisionGroup, canCollideWith);
+		this._enableProcessCollisions = false;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _addToSimulation(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_addToSimulation(): void {
 		this._simulation._addPhysicsCollider(this, this._collisionGroup, this._canCollideWith);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _removeFromSimulation(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_removeFromSimulation(): void {
 		this._simulation._removePhysicsCollider(this);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _onTransformChanged(flag: number): void {//需要移除父类_addUpdateList保护,否则刚体带着碰撞器移动无效 TODO:是否本帧再更新一次队列
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_onTransformChanged(flag: number): void {//需要移除父类_addUpdateList保护,否则刚体带着碰撞器移动无效 TODO:是否本帧再更新一次队列
 		flag &= Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDSCALE;//过滤有用TRANSFORM标记
 		if (flag) {
 			this._transformFlag |= flag;
@@ -46,10 +49,11 @@ export class PhysicsCollider extends PhysicsTriggerComponent {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _parse(data: any): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_parse(data: any): void {
 		(data.friction != null) && (this.friction = data.friction);
 		(data.rollingFriction != null) && (this.rollingFriction = data.rollingFriction);
 		(data.restitution != null) && (this.restitution = data.restitution);
@@ -58,10 +62,11 @@ export class PhysicsCollider extends PhysicsTriggerComponent {
 		this._parseShape(data.shapes);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _onAdded(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_onAdded(): void {
 		var physics3D: any = Physics3D._physics3D;
 		var btColObj: any = new physics3D.btCollisionObject();
 		btColObj.setUserIndex(this.id);

@@ -86,7 +86,7 @@ import { ILaya } from "../../../ILaya";
 				bugIOS = miniadp.systemInfo.system.toLowerCase() === 'ios 10.1.1';
             }
 			if (ILaya.Browser.onMiniGame /*&& !Browser.onAndroid*/ && !bugIOS ) TextRender.isWan1Wan = true; //android 微信下 字边缘发黑，所以不用getImageData了
-			//isWan1Wan = true;
+			//TextRender.isWan1Wan = true;
 			this.charRender = ILaya.Render.isConchApp ? (new CharRender_Native()) : (new CharRender_Canvas(TextRender.atlasWidth,TextRender.atlasWidth,TextRender.scaleFontWithCtx,!TextRender.isWan1Wan,false));			
 			TextRender.textRenderInst = this;
 			ILaya.Laya['textRender'] = this;
@@ -434,7 +434,8 @@ import { ILaya } from "../../../ILaya";
 				this.charRender.canvasWidth = Math.min(2048, w1+ margin * 2);
 			}
 			if (isoTexture) {
-				// 独立贴图
+                // 独立贴图
+                this.charRender.fontsz=font._size;
 				imgdt = this.charRender.getCharBmp(str, this.fontStr, lineWidth, color, strokeColor, ri, margin, margin, margin, margin, null);
 				// 这里可以直接
 				var tex:TextTexture = TextTexture.getTextTexture(imgdt.width, imgdt.height);
@@ -463,7 +464,8 @@ import { ILaya } from "../../../ILaya";
 					// 多个字符的处理
 					TextRender.imgdtRect[2] = -1;	// -1 表示宽度要测量
 					TextRender.imgdtRect[3] = fh; 	// TODO 如果被裁剪了，可以考虑把这个加大一点点
-				}
+                }
+                this.charRender.fontsz=font._size;
 				imgdt = this.charRender.getCharBmp(str, this.fontStr, lineWidth, color, strokeColor, ri, 
 						margin, margin, margin, margin, TextRender.imgdtRect);
 				atlas = this.addBmpData(imgdt, ri);
@@ -746,7 +748,8 @@ import { ILaya } from "../../../ILaya";
 			var marginr:number = 16;
 			var marginb:number = 16;
 			this.charRender.scale(1, 1);
-			TextRender.tmpRI.height = TextRender.standardFontSize;
+            TextRender.tmpRI.height = TextRender.standardFontSize;
+            this.charRender.fontsz=TextRender.standardFontSize;
 			var bmpdt:ImageData = this.charRender.getCharBmp('g', fontstr, 0, 'red', null, TextRender.tmpRI, orix, oriy, marginr, marginb);
 			// native 返回的是 textBitmap。 data直接是ArrayBuffer 
 			if (ILaya.Render.isConchApp) {

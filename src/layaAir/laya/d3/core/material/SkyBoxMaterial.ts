@@ -98,9 +98,11 @@ export class SkyBoxMaterial extends BaseMaterial {
 	 * 创建一个 <code>SkyBoxMaterial</code> 实例。
 	 */
 	constructor() {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 		super();
 		this.setShaderName("SkyBox");
+		this.tintColor = new Vector4(0.5, 0.5, 0.5, 0.5);
+		this.exposure = 1.0;
+		this.rotation = 0;
 	}
 
 }

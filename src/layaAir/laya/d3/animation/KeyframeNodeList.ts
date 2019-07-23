@@ -27,7 +27,6 @@ export class KeyframeNodeList {
 	 * 创建一个 <code>KeyframeNodeList</code> 实例。
 	 */
 	constructor() {
-		/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 	}
 
 	/**
@@ -50,4 +49,8 @@ export class KeyframeNodeList {
 
 }
 
-
+// native
+if((window as any).conch  && (window as any).conchKeyframeNodeList){
+    //@ts-ignore
+    KeyframeNodeList=(window as any).conchKeyframeNodeList;
+}

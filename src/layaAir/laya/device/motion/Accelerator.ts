@@ -1,8 +1,8 @@
 import { AccelerationInfo } from "./AccelerationInfo";
 import { RotationInfo } from "./RotationInfo";
-import { EventDispatcher } from "laya/events/EventDispatcher";
-import { ILaya } from "ILaya";
-import { Event } from "laya/events/Event";
+import { EventDispatcher } from "../../events/EventDispatcher";
+import { ILaya } from "../../../ILaya";
+import { Event } from "../../events/Event";
 
 	/**
 	 * Accelerator.instance获取唯一的Accelerator引用，请勿调用构造函数。
@@ -44,7 +44,6 @@ import { Event } from "laya/events/Event";
 		private static acceleration:AccelerationInfo = new AccelerationInfo();
 		private static accelerationIncludingGravity:AccelerationInfo = new AccelerationInfo();
 		private static rotationRate:RotationInfo = new RotationInfo();
-		private static onChrome:boolean = (ILaya.Browser.userAgent.indexOf("Chrome") > -1);
 		
 		constructor(singleton:number){
 			super();
@@ -92,7 +91,7 @@ import { Event } from "laya/events/Event";
 			
 			if (ILaya.Browser.onAndroid)
 			{
-				if (Accelerator.onChrome)
+				if (ILaya.Browser.userAgent.indexOf("Chrome") > -1)
 				{
 					Accelerator.rotationRate.alpha *= 180 / Math.PI;
 					Accelerator.rotationRate.beta *= 180 / Math.PI;

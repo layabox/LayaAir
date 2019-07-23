@@ -86,7 +86,8 @@ import { Browser } from "../../utils/Browser";
 			if (!this.supportImageData)
 				return this.getCharCanvas(char, font, lineWidth, colStr, strokeColStr, cri, margin_left, margin_top, margin_right, margin_bottom);
 			var ctx:any = this.ctx;
-				
+                
+			var sz=this.fontsz;
 			//ctx.save();
 			//由于大家公用一个canvas，所以需要在选中的时候做一些配置。
 			//跟_lastFont比较容易出错，所以比较ctx.font
@@ -115,20 +116,20 @@ import { Browser } from "../../utils/Browser";
 			ctx.clearRect(0, 0, clearW, clearH);
 			ctx.save();
 			//ctx.textAlign = "end";
-			ctx.textBaseline = "top";
+			ctx.textBaseline = "middle";
 			//ctx.translate(CborderSize, CborderSize);
 			//ctx.scale(xs, ys);
 			if (lineWidth > 0) { 
 				ctx.strokeStyle = strokeColStr;
 				ctx.lineWidth = lineWidth;
-				ctx.strokeText(char, margin_left, margin_top);
+				ctx.strokeText(char, margin_left, margin_top+sz/2);
 			}
 			ctx.fillStyle = colStr;
-			ctx.fillText(char, margin_left, margin_top);
+			ctx.fillText(char, margin_left, margin_top+sz/2);
 		
 			if ( this.showDbgInfo) {
 				ctx.strokeStyle = '#ff0000';
-				ctx.strokeRect(0, 0, w, h);
+				ctx.strokeRect(1, 1, w-2, h-2);
 				ctx.strokeStyle = '#00ff00';
 				ctx.strokeRect(margin_left, margin_top, cri.width, cri.height);//原始大小，没有缩放的
 			}
@@ -176,8 +177,10 @@ import { Browser } from "../../utils/Browser";
 				ctx.scale(this.lastScaleX, this.lastScaleY);
 			}
 			ctx.translate(margin_left, margin_top);
-			ctx.textAlign = "left";
-			ctx.textBaseline = "top";
+            ctx.textAlign = "left";
+            
+			var sz=this.fontsz;
+			ctx.textBaseline = "middle";
 			//ctx.translate(CborderSize, CborderSize);
 			//ctx.scale(xs, ys);
 			if (lineWidth > 0) { 
@@ -187,15 +190,15 @@ import { Browser } from "../../utils/Browser";
 				//ctx.strokeText(char, margin_left, margin_top);
 				if (ctx.fillAndStrokeText)
 				{
-					ctx.fillAndStrokeText(char, 0, 0);
+					ctx.fillAndStrokeText(char, 0, sz/2);
 				}else
 				{
-					ctx.strokeText(char, 0, 0);
-					ctx.fillText(char, 0, 0);
+					ctx.strokeText(char, 0, sz/2);
+					ctx.fillText(char, 0, sz/2);
 				}		
 			} else {
 				ctx.fillStyle = colStr;
-				ctx.fillText(char, 0, 0);
+				ctx.fillText(char, 0, sz/2);
 			}
 			if ( this.showDbgInfo) {
 				ctx.strokeStyle = '#ff0000';
