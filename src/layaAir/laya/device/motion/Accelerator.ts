@@ -44,7 +44,6 @@ import { Event } from "../../events/Event";
 		private static acceleration:AccelerationInfo = new AccelerationInfo();
 		private static accelerationIncludingGravity:AccelerationInfo = new AccelerationInfo();
 		private static rotationRate:RotationInfo = new RotationInfo();
-		private static onChrome:boolean = (ILaya.Browser.userAgent.indexOf("Chrome") > -1);
 		
 		constructor(singleton:number){
 			super();
@@ -92,7 +91,7 @@ import { Event } from "../../events/Event";
 			
 			if (ILaya.Browser.onAndroid)
 			{
-				if (Accelerator.onChrome)
+				if (ILaya.Browser.userAgent.indexOf("Chrome") > -1)
 				{
 					Accelerator.rotationRate.alpha *= 180 / Math.PI;
 					Accelerator.rotationRate.beta *= 180 / Math.PI;
