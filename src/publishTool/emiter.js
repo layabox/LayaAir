@@ -315,7 +315,7 @@ class emiter {
         if (node.parameters && node.parameters.length) {
             for (let i = 0; i < node.parameters.length; i++) {
                 let param = node.parameters[i];
-                asstr += (i ? "," : "") + param.name.getText() + ":" + this.emitType(param.type) + (param.questionToken ? " = null" : "");
+                asstr += (i ? "," : "") + param.name.getText() + ":" + this.emitType(param.type) + " = undefined";
                 tsstr += (i ? "," : "") + param.name.getText() + (param.questionToken ? "?" : "") + ":" + this.emitTsType(param.type);
             }
         }
