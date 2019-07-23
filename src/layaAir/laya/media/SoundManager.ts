@@ -339,7 +339,7 @@ import { ILaya } from "../../ILaya";
 				if (SoundManager._soundMuted) return null;
 			}
 			var tSound:Sound;
-			if (!ILaya.Browser.onMiniGame)
+			if (!ILaya.Browser.onBDMiniGame && !ILaya.Browser.onMiniGame && !ILaya.Browser.onKGMiniGame && !ILaya.Browser.onQGMiniGame && !ILaya.Browser.onVVMiniGame && !ILaya.Browser.onAlipayMiniGame)
 			{
 				tSound= ILaya.loader.getRes(url);
 			}
@@ -347,7 +347,7 @@ import { ILaya } from "../../ILaya";
 			if (!tSound) {
 				tSound = new soundClass();
 				tSound.load(url);
-				if (!ILaya.Browser.onMiniGame)
+				if (!ILaya.Browser.onBDMiniGame && !ILaya.Browser.onMiniGame && !ILaya.Browser.onKGMiniGame && !ILaya.Browser.onQGMiniGame && !ILaya.Browser.onVVMiniGame && !ILaya.Browser.onAlipayMiniGame)
 				{
 					ILaya.Loader.cacheRes(url, tSound);
 				}	

@@ -142,7 +142,7 @@ import { ILaya } from "../../ILaya";
 			
 			//小米小游戏
 			if(u.indexOf('QuickGame') > -1){
-				(window as any).miMiniGame(Laya,Laya);
+				(window as any).xmMiniGame(Laya,Laya);
 				if (!Laya["KGMiniAdapter"]) {
 					console.error("请先添加小米小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?nav=zh-ts-5-0-0");
 					//TODO 教程要改
