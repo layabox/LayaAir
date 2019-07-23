@@ -265,6 +265,10 @@ class emiter {
     emitMethod(node) {
         let methodstr = "\t\t";
         let tsmethod = "\t\t";
+        let note = this.changeIndex(node, "\r\n\t\t");
+        if (note.indexOf("@override") != -1) {
+            methodstr += "override ";
+        }
         if (node.modifiers) {
             for (let i = 0; i < node.modifiers.length; i++) {
                 let childnode = node.modifiers[i];
@@ -289,9 +293,9 @@ class emiter {
                 tsparam += (i ? "," : "") + (isdotdotdot ? "..." : "") + param.name.getText() + (param.questionToken ? "?" : "") + ":" + this.emitTsType(param.type);
             }
         }
-        methodstr += node.name.getText() + "(" + paramstr + "):" + this.emitType(node.type) + "{}";
+        let nodetype = this.emitType(node.type);
+        methodstr += node.name.getText() + "(" + paramstr + "):" + nodetype + "{" + (["*", "void"].indexOf(nodetype) != -1 ? "" : ("\r\n\t\t\tnew " + nodetype + "();\r\n\t\t")) + "}";
         tsmethod += node.name.getText() + "(" + tsparam + "):" + this.emitTsType(node.type) + ";";
-        let note = this.changeIndex(node, "\r\n\t\t");
         return [note + methodstr + "\r\n", note + tsmethod + "\r\n"];
     }
     /**
