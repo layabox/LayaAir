@@ -88,6 +88,7 @@ export class PointLight extends LightSprite {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_parse(data: any, spriteMap: any): void {
 		super._parse(data, spriteMap);

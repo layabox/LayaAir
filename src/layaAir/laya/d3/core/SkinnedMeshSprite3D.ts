@@ -74,6 +74,7 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_parse(data: any, spriteMap: any): void {
 		super._parse(data, spriteMap);

@@ -342,6 +342,7 @@ export class Camera extends BaseCamera {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_parse(data: any, spriteMap: any): void {
 		super._parse(data, spriteMap);
