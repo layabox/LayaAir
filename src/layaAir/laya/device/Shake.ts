@@ -1,10 +1,10 @@
 import { AccelerationInfo } from "./motion/AccelerationInfo"
 import { Accelerator } from "./motion/Accelerator"
 import { RotationInfo } from "./motion/RotationInfo"
-import { EventDispatcher } from "laya/events/EventDispatcher";
-import { Handler } from "laya/utils/Handler";
-import { Event } from "laya/events/Event";
-import { ILaya } from "ILaya";
+import { EventDispatcher } from "../events/EventDispatcher";
+import { Handler } from "../utils/Handler";
+import { Event } from "../events/Event";
+import { ILaya } from "../../ILaya";
 
 
 	/**

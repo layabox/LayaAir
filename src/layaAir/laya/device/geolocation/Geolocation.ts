@@ -1,6 +1,7 @@
 import { GeolocationInfo } from "./GeolocationInfo";
-import { ILaya } from "ILaya";
-import { Handler } from "laya/utils/Handler";
+import { ILaya } from "../../../ILaya";
+import { Handler } from "../../utils/Handler";
+
 
 	/**
 	 * 使用前可用<code>supported</code>查看浏览器支持。
