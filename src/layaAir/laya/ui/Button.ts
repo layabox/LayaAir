@@ -238,8 +238,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this.label = label;
 		}
 		
-		/**@inheritDoc */
-		/*override*/  destroy(destroyChild:boolean = true):void {
+		/**@inheritDoc 
+		 * @override
+		*/
+		  destroy(destroyChild:boolean = true):void {
 			super.destroy(destroyChild);
 			this._bitmap && this._bitmap.destroy();
 			this._text && this._text.destroy(destroyChild);
@@ -249,8 +251,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this._labelColors = this._sources = this._strokeColors = null;
 		}
 		
-		/**@inheritDoc */
-		/*override*/ protected createChildren():void {
+		/**@inheritDoc 
+		 * @override
+		*/
+		 protected createChildren():void {
 			this.graphics = this._bitmap = new AutoBitmap();
 		}
 		
@@ -266,8 +270,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			}
 		}
 		
-		/**@inheritDoc */
-		/*override*/ protected initialize():void {
+		/**@inheritDoc 
+		 * @override
+		*/
+		 protected initialize():void {
 			if (this._mouseState !== 1) {
 				this.mouseEnabled = true;
 				this._setBit(Const.HAS_MOUSE, true);
@@ -403,8 +409,9 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc
+		 * @override
 		 */
-		/*override*/ protected measureWidth():number {
+		 protected measureWidth():number {
 			this.runCallLater(this.changeClips);
 			if (this._autoSize) return this._bitmap.width;
 			this.runCallLater(this.changeState);
@@ -413,8 +420,9 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc
+		 * @override
 		 */
-		/*override*/ protected measureHeight():number {
+		 protected measureHeight():number {
 			this.runCallLater(this.changeClips);
 			return this._text ? Math.max(this._bitmap.height, this._text.height) : this._bitmap.height;
 		}
@@ -639,8 +647,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this._bitmap.sizeGrid = UIUtils.fillArray(Styles.defaultSizeGrid, value, Number);
 		}
 		
-		/**@inheritDoc */
-		/*override*/  set width(value:number) {
+		/**@inheritDoc 
+		 * @override
+		*/
+		  set width(value:number) {
 			super.set_width(value);
 			if (this._autoSize) {
 				this._bitmap.width = value;
@@ -652,8 +662,11 @@ import { ClassUtils } from "../utils/ClassUtils";
             return super.get_width();
         }
 		
-		/**@inheritDoc */
-		/*override*/  set height(value:number) {
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
+		  set height(value:number) {
 			super.set_height(value);
 			if (this._autoSize) {
 				this._bitmap.height = value;
@@ -665,8 +678,11 @@ import { ClassUtils } from "../utils/ClassUtils";
             return super.get_height();
         }
 		
-		/**@inheritDoc */
-		/*override*/  set dataSource(value:any) {
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
+		  set dataSource(value:any) {
 			this._dataSource = value;
 			if (typeof(value)=='number' || typeof(value)=='string') this.label = value + "";
 			else super.set_dataSource(value);

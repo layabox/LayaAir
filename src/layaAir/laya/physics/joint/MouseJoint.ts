@@ -24,13 +24,19 @@ import { ClassUtils } from "../../utils/ClassUtils";
 		private _frequency:number = 5;
 		/**刚体在回归到节点过程中受到的阻尼，取值0~1*/
 		private _damping:number = 0.7;
-		
-		/*override*/ protected _onEnable():void {
+		/**
+		 * @override
+		 * 
+		 */
+		 protected _onEnable():void {
 			//super._onEnable();
 			(<Sprite>this.owner).on(Event.MOUSE_DOWN, this, this.onMouseDown);
 		}
-		
-		/*override*/ protected _onAwake():void {
+		/**
+		 * @override
+		 * 
+		 */
+		 protected _onAwake():void {
 		}
 		
 		private onMouseDown():void {
@@ -38,8 +44,11 @@ import { ClassUtils } from "../../utils/ClassUtils";
 			Laya.stage.on(Event.MOUSE_MOVE, this, this.onMouseMove);
 			Laya.stage.once(Event.MOUSE_UP, this, this.onStageMouseUp);
 		}
-		
-		/*override*/ protected _createJoint():void {
+		/**
+		 * @override
+		 * 
+		 */
+		 protected _createJoint():void {
 			if (!this._joint) {
 				this.selfBody =this.selfBody|| this.owner.getComponent(RigidBody);
 				if (!this.selfBody) throw "selfBody can not be empty";
@@ -70,8 +79,11 @@ import { ClassUtils } from "../../utils/ClassUtils";
 		private onMouseMove():void {
 			this._joint.SetTarget(new (<any>window).box2d.b2Vec2(Physics.I.worldRoot.mouseX / Physics.PIXEL_RATIO, Physics.I.worldRoot.mouseY / Physics.PIXEL_RATIO));
 		}
-		
-		/*override*/ protected _onDisable():void {
+		/**
+		 * @override
+		 * 
+		 */
+		 protected _onDisable():void {
 			(<Sprite>this.owner).off(Event.MOUSE_DOWN, this, this.onMouseDown);
 			super._onDisable();
 		}

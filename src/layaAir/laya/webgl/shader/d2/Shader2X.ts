@@ -11,7 +11,10 @@
 		}
 		
 		//TODO:coverage
-		/*override*/ protected _disposeResource():void {
+		/**
+		 * @override
+		 */
+		 protected _disposeResource():void {
 			super._disposeResource();
 			this._params2dQuick2 = null;
 		}

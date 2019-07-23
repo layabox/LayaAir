@@ -41,7 +41,9 @@ import { ClassUtils } from "../utils/ClassUtils";
 			if (skin) this.skin = skin;
 			if (sheet) this.sheet = sheet;
 		}
-		
+		/**
+		 * @override
+		 */
 		/*override*/ protected createChildren():void {
 			this._bitmap = new AutoBitmap();
 			this.on(Event.LOADED, this, this._onClipLoaded);
@@ -196,6 +198,9 @@ import { ClassUtils } from "../utils/ClassUtils";
 				this.callLater(this._sizeChanged);
 			}
 		}
+		/**
+		 * @override
+		 */
 		/*override*/  set width(value:number) 
 		{
 			super.width = value;
@@ -205,7 +210,9 @@ import { ClassUtils } from "../utils/ClassUtils";
         get width(){
             return super.width;
         }
-		
+		/**
+		 * @override
+		 */
 		/*override*/  set height(value:number) 
 		{
 			super.height = value;
@@ -215,17 +222,25 @@ import { ClassUtils } from "../utils/ClassUtils";
         get height(){
             return super.height;
         }
-		
+		/**
+		 * @override
+		 */
 		/*override*/ protected measureWidth():number 
 		{
 			return this._wordsW;
 		}
-		
+		/**
+		 * @override
+		 */
 		/*override*/ protected measureHeight():number 
 		{
 			return this._wordsH;
 		}
-		
+		/**
+		 * 
+		 * @param destroyChild 
+		 * @override
+		 */
 		/*override*/  destroy(destroyChild:boolean = true):void {
 			this._valueArr = null;
 			this._indexMap = null;

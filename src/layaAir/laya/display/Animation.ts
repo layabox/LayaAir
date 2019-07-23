@@ -108,8 +108,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this._setControlNode(this);
 		}
 		
-		/** @inheritDoc */
-		/*override*/  destroy(destroyChild:boolean = true):void {
+		/** @inheritDoc
+		 *  @override
+		 */
+		destroy(destroyChild:boolean = true):void {
 			this.stop();
 			super.destroy(destroyChild);
 			this._frames = null;
@@ -123,8 +125,9 @@ import { ClassUtils } from "../utils/ClassUtils";
 		 * @param	start	（可选）指定动画播放开始的索引(int)或帧标签(String)。帧标签可以通过addLabel(...)和removeLabel(...)进行添加和删除。
 		 * @param	loop	（可选）是否循环播放。
 		 * @param	name	（可选）动画模板在动画模版缓存池中的key，也可认为是动画名称。如果name为空，则播放当前动画序列帧；如果不为空，则在动画模版缓存池中寻找key值为name的动画模版，如果存在则用此动画模版初始化当前序列帧并播放，如果不存在，则仍然播放当前动画序列帧；如果没有当前动画的帧数据，则不播放，但该实例仍然处于播放状态。
+		 * @override
 		 */
-		/*override*/  play(start:any = 0, loop:boolean = true, name:string = ""):void {
+		play(start:any = 0, loop:boolean = true, name:string = ""):void {
 			if (name) this._setFramesFromCache(name, true);
 			super.play(start, loop, name);
 		}
@@ -168,15 +171,19 @@ import { ClassUtils } from "../utils/ClassUtils";
 			return rst;
 		}
 		
-		/**@private */
-		/*override*/ protected _frameLoop():void {
+		/**@private 
+		*  @override
+		*/
+		protected _frameLoop():void {
 			if (this._visible && this._style.alpha > 0.01 && this._frames) {
 				super._frameLoop();
 			}
 		}
 		
-		/**@private */
-		/*override*/ protected _displayToIndex(value:number):void {
+		/**@private 
+		 * @override
+		*/
+		protected _displayToIndex(value:number):void {
 			if (this._frames) this.graphics = this._frames[value];
 		}
 		
@@ -228,8 +235,9 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * 停止动画播放，并清理对象属性。之后可存入对象池，方便对象复用。
+		 * @override
 		 */
-		/*override*/  clear():AnimationBase {
+		clear():AnimationBase {
 			super.clear();
 			this.stop();
 			this.graphics = null;

@@ -44,8 +44,9 @@ export class GlowFilter extends Filter {
 		/**
 		 * @private
 		 * 滤镜类型
+		 * @override
 		 */
-		/*override*/  get type(): number {
+		get type(): number {
 		return BlurFilter.GLOW;
 	}
 

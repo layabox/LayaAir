@@ -16,7 +16,9 @@ export class Submit extends SubmitBase {
 	constructor(renderType: number = SubmitBase.TYPE_2D) {
 		super(renderType);
 	}
-
+		/**
+		 * @override
+		 */
 		 /*override*/ renderSubmit(): number {
 		if (this._numEle === 0 || !this._mesh || this._numEle == 0) return 1;//怎么会有_numEle是0的情况?
 
@@ -47,7 +49,9 @@ export class Submit extends SubmitBase {
 
 		return 1;
 	}
-
+		/**
+		 * @override
+		 */
 		 /*override*/ releaseRender(): void {
 		if (SubmitBase.RENDERBASE == this)
 			return;

@@ -17,16 +17,22 @@ import { ClassUtils } from "../utils/ClassUtils";
 		private _right:number = NaN;
 		private _centerX:number = NaN;
 		private _centerY:number = NaN;
-		
+		/**
+		 * @override
+		 */
 		/*override*/  onReset():void {
 			this._top = this._bottom = this._left = this._right = this._centerX = this._centerY = NaN;
 		}
-		
+		/**
+		 * @override
+		 */
 		/*override*/ protected _onEnable():void {
 			if (this.owner.parent) this._onAdded();
 			else this.owner.once(Event.ADDED, this, this._onAdded);
 		}
-		
+		/**
+		 * @override
+		 */
 		/*override*/ protected _onDisable():void {
 			this.owner.off(Event.ADDED, this, this._onAdded);
 			if (this.owner.parent) this.owner.parent.off(Event.RESIZE, this, this._onParentResize);
@@ -35,6 +41,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		/**
 		 * @internal
 		 * 对象被添加到显示列表的事件侦听处理函数。
+		 * @override
 		 */
 		/*override*/  _onAdded():void {
 			if (this.owner.parent)

@@ -61,16 +61,20 @@ import { ClassUtils } from "../utils/ClassUtils";
 			}
 		}
 		
-		/**@inheritDoc */
-		/*override*/  clear():AnimationBase {
+		/**@inheritDoc 
+		 * @override
+		*/
+		clear():AnimationBase {
 			super.clear();
 			this._targetDic = null;
 			this._animationData = null;
 			return this;
 		}
 		
-		/**@inheritDoc */
-		/*override*/ protected _displayToIndex(value:number):void {
+		/**@inheritDoc 
+		 * @override
+		*/
+		protected _displayToIndex(value:number):void {
 			if (!this._animationData) return;
 			if (value < 0) value = 0;
 			if (value > this._count) value = this._count;

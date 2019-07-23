@@ -161,7 +161,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 		/** @private */
 		protected _panelChanged:boolean;
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/  destroy(destroyChild:boolean = true):void {
 			super.destroy(destroyChild);
 			this._colorPanel && this._colorPanel.destroy(destroyChild);
@@ -175,7 +178,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this.changeHandler = null;
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/ protected createChildren():void {
 			this.addChild(this._colorButton = new Button());
 			this._colorPanel = new Box();
@@ -185,7 +191,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this._colorPanel.addChild(this._colorInput = new Input());
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/ protected initialize():void {
 			this._colorButton.on(Event.CLICK, this, this.onColorButtonClick);
 			

@@ -24,8 +24,10 @@ import { ILaya } from "../../../ILaya";
 		private _boundsRec:Rectangle;
 		/** 重绘回调 */
 		 repaintHandler:Handler = null;
-		
-		/*override*/  reset():HTMLElement {
+		/**
+		 * @override
+		 */
+		reset():HTMLElement {
 			HTMLStyleElement;
 			HTMLLinkElement;
 			super.reset();
@@ -46,8 +48,10 @@ import { ILaya } from "../../../ILaya";
 			this.destroyChildren();
 			this.appendHTML(text);
 		}
-		
-		/*override*/  set width(value:number) {
+		/**
+		 * @override
+		 */
+		set width(value:number) {
 			var changed:boolean;
 			if (value === 0) {
 				changed = value != this._width;
@@ -71,8 +75,9 @@ import { ILaya } from "../../../ILaya";
 		 * @internal
 		 * @param	out
 		 * @return
+		 * @override
 		 */
-		/*override*/  _addChildsToLayout(out:ILayout[]):boolean {
+		_addChildsToLayout(out:ILayout[]):boolean {
 			var words:HTMLChar[] = this._getWords();
 			if (words == null && (!this._children||this._children.length == 0)) return false;
 			words && words.forEach(function(o:any):void {
@@ -96,9 +101,10 @@ import { ILaya } from "../../../ILaya";
 		/**
 		 * @internal
 		 * @param	out
+		 * @override
 		 */
 		//TODO:coverage
-		/*override*/  _addToLayout(out:ILayout[]):void {
+		_addToLayout(out:ILayout[]):void {
 			this.layout();
 			!this.style.absolute && out.push(this);
 		}
@@ -112,8 +118,10 @@ import { ILaya } from "../../../ILaya";
 			if (!this._boundsRec) this._boundsRec = Rectangle.create();
 			return this._boundsRec.copyFrom(this._htmlBounds);
 		}
-		
-		/*override*/  parentRepaint(recreate:boolean=false):void {
+		/**
+		 * @override
+		 */
+		parentRepaint(recreate:boolean=false):void {
 			super.parentRepaint();
 			if (this.repaintHandler) this.repaintHandler.runWith(recreate);
 		}
@@ -136,8 +144,9 @@ import { ILaya } from "../../../ILaya";
 		
 		/**
 		 * 获取对象的高
+		 * @override
 		 */
-		/*override*/  get height():number {
+		get height():number {
 			if (this._height) return this._height;
 			return this.contextHeight;
 		}
@@ -148,8 +157,9 @@ import { ILaya } from "../../../ILaya";
         
 		/**
 		 * 获取对象的宽
+		 * @override
 		 */
-		/*override*/  get width():number {
+		get width():number {
 			if (this._width) return this._width;
 			return this.contextWidth;
 		}	

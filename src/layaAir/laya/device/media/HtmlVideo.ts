@@ -65,14 +65,18 @@ import { ILaya } from "../../../ILaya";
 		}
 		/**
 		 * @internal
+		 * @override
 		 */
-		/*override*/  _getSource():any
+		_getSource():any
 		{
 			// TODO Auto Generated method stub
 			return this._source;
 		}
-		
-		 /*override*/ destroy():void {
+
+		/**
+		 * @override
+		 */
+		destroy():void {
 			super.destroy();
 
 			var isConchApp:boolean = ILaya.Render.isConchApp;

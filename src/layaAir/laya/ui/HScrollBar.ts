@@ -76,8 +76,11 @@ import { ClassUtils } from "../utils/ClassUtils";
 	 */
 	export class HScrollBar extends ScrollBar {
 		
-		/**@inheritDoc */
-		/*override*/ protected initialize():void {
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
+		protected initialize():void {
 			super.initialize();
 			this.slider.isVertical = false;
 		}

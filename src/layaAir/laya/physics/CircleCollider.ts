@@ -13,8 +13,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 		private _y:number = 0;
 		/**圆形半径，必须为正数*/
 		private _radius:number = 50;
-		
-		/*override*/ protected getDef():any {
+		/**
+		 * @override
+		 */
+		 protected getDef():any {
 			if (!this._shape) {
 				this._shape = new (<any>window).box2d.b2CircleShape();
 				this._setShape(false);
@@ -61,8 +63,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			if (this._shape) this._setShape();
 		}
 		
-		/**@private 重置形状*/
-		/*override*/  resetShape(re:boolean = true):void {
+		/**@private 重置形状
+		 * @override
+		*/
+		  resetShape(re:boolean = true):void {
 			this._setShape();
 		}
 	}

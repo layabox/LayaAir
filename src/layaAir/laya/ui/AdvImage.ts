@@ -237,8 +237,11 @@ export class AdvImage extends Image {
 		var http: any = this._http;
 		http.onerror = http.onabort = http.onprogress = http.onload = null;
 	}
-
-		/*override*/  destroy(destroyChild: boolean = true): void {
+	/**
+	 * 
+	 * @param destroyChild 
+	 */
+ 	destroy(destroyChild: boolean = true): void {
 		ILaya.timer.clear(this, this.onLunbo);
 		super.destroy(true);
 		this.clear();

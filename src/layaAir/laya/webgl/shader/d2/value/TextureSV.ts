@@ -13,8 +13,10 @@ import { WebGL } from "../../../WebGL"
 			super(ShaderDefines2D.TEXTURE2D, subID);
 			this._attribLocation = ['posuv', 0, 'attribColor', 1, 'attribFlags', 2];// , 'clipDir', 3, 'clipRect', 4];
 		}
-		
-		/*override*/  clear():void
+		/**
+		 * @override
+		 */
+		  clear():void
 		{
 			this.texture = null;
 			this.shader = null;

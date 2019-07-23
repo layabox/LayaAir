@@ -34,7 +34,10 @@ import { ClassUtils } from "../../utils/ClassUtils";
 		/**启用马达后，可以施加的最大扭距，如果最大扭矩太小，会导致不旋转*/
 		private _maxMotorTorque:number = 10000;
 		
-		/*override*/ protected _createJoint():void {
+		/**
+		 * 
+		 */
+		protected _createJoint():void {
 			if (!this._joint) {
 				if (!this.otherBody) throw "otherBody can not be empty";
 				this.selfBody =this.selfBody|| this.owner.getComponent(RigidBody);

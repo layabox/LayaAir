@@ -69,8 +69,10 @@ import { BitmapFont } from "../BitmapFont"
 		 underlineColor:string;
 		/**当前使用的位置字体。*/
 		 currBitmapFont:BitmapFont;
-		
-		/*override*/  reset():SpriteStyle {
+		/**
+		 * @override
+		 */
+		reset():SpriteStyle {
 			super.reset();
 			this.italic = false;
 			this.align = "left";
@@ -88,8 +90,10 @@ import { BitmapFont } from "../BitmapFont"
 			this.currBitmapFont = null;
 			return this;
 		}
-		
-		/*override*/  recover():void {
+		/**
+		 * @override
+		 */
+		recover():void {
 			if (this === TextStyle.EMPTY)
 				return;
 			Pool.recover("TextStyle", this.reset());

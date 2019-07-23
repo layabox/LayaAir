@@ -28,8 +28,10 @@ import { ClassUtils } from "../../utils/ClassUtils";
 		 ratio:number = 1.5;
 		/**[首次设置有效]两个刚体是否可以发生碰撞，默认为false*/
 		 collideConnected:boolean = false;
-		
-		/*override*/ protected _createJoint():void {
+		/**
+		 * @override
+		 */
+		protected _createJoint():void {
 			if (!this._joint) {
 				if (!this.otherBody) throw "otherBody can not be empty";
 				this.selfBody =this.selfBody|| this.owner.getComponent(RigidBody);

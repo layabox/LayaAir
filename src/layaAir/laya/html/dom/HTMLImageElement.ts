@@ -18,8 +18,11 @@ import { ILaya } from "../../../ILaya";
 		constructor(){
             super();
             this.eletype=HTMLElementType.IMAGE;
-        }
-		/*override*/  reset():HTMLElement {
+		}
+		/**
+		 * @override
+		 */
+		reset():HTMLElement {
 			super.reset();
 			if (this._tex) {
 				this._tex.off(Event.LOADED, this, this.onloaded);
@@ -63,14 +66,23 @@ import { ILaya } from "../../../ILaya";
 			this.repaint();
 		}
 		
-		/**@internal */
-		 /*override*/ _addToLayout(out:ILayout[]):void {
+		/**@internal 
+		 * @override
+		*/
+		_addToLayout(out:ILayout[]):void {
 			var style:HTMLStyle = (<HTMLStyle>this._style );
 			!style.absolute && out.push(this);
 		}
 		
-		//TODO:coverage
-		/*override*/  renderSelfToGraphic(graphic:Graphics, gX:number, gY:number, recList:any[]):void {
+		/**
+		 * 
+		 * @param graphic 
+		 * @param gX 
+		 * @param gY 
+		 * @param recList 
+		 * @override
+		 */
+		renderSelfToGraphic(graphic:Graphics, gX:number, gY:number, recList:any[]):void {
 			if (!this._tex) return;		
 			graphic.drawImage(this._tex, gX, gY, this.width || this._tex.width, this.height || this._tex.height);
 		}

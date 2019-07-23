@@ -42,8 +42,9 @@ import { ILaya } from "../../../ILaya";
 		/**
 		 * 监视陀螺仪运动。
 		 * @param	observer	回调函数接受一个Boolean类型的<code>absolute</code>和<code>GyroscopeInfo</code>类型参数。
+		 * @override
 		 */
-		/*override*/  on(type:string, caller:any, listener:Function, args:any[] = null):EventDispatcher 
+		on(type:string, caller:any, listener:Function, args:any[] = null):EventDispatcher 
 		{
 			super.on(type, caller, listener, args);
 			ILaya.Browser.window.addEventListener('deviceorientation', this.onDeviceOrientationChange);
@@ -53,8 +54,9 @@ import { ILaya } from "../../../ILaya";
 		/**
 		 * 取消指定处理器对陀螺仪的监视。
 		 * @param	observer
+		 * @override
 		 */
-		/*override*/  off(type:string, caller:any, listener:Function, onceOnly:boolean = false):EventDispatcher 
+		off(type:string, caller:any, listener:Function, onceOnly:boolean = false):EventDispatcher 
 		{
 			if (!this.hasListener(type))
             ILaya.Browser.window.removeEventListener('deviceorientation', this.onDeviceOrientationChange);

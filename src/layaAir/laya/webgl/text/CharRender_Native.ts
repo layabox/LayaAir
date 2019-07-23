@@ -9,6 +9,12 @@ import { ICharRender } from "./ICharRender"
 		}
 		
 		//TODO:coverage
+		/**
+		 * 
+		 * @param font 
+		 * @param str 
+		 * @override
+		 */
 		 /*override*/ getWidth(font:string, str:string):number {
 			if (!(window as any).conchTextCanvas) return 0;
 			//TODO 先取消判断，保证字体信息一致
@@ -20,7 +26,12 @@ import { ICharRender } from "./ICharRender"
 			//getTextBitmapData
 			return (window as any).conchTextCanvas.measureText(str).width;
 		}
-		
+		/**
+		 * 
+		 * @param sx 
+		 * @param sy 
+		 * @override
+		 */
 		 /*override*/ scale(sx:number, sy:number):void {
 			
 		}
@@ -30,6 +41,7 @@ import { ICharRender } from "./ICharRender"
 		 * @param	font
 		 * @param	size  返回宽高
 		 * @return
+		 * @override
 		 */
 		//TODO:coverage
 		 /*override*/ getCharBmp( char:string, font:string, lineWidth:number, colStr:string, strokeColStr:string, size:CharRenderInfo, 

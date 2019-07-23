@@ -110,14 +110,17 @@ export class MovieClip extends Sprite {
 		/**
 		 * <p>销毁此对象。以及销毁引用的Texture</p>
 		 * @param	destroyChild 是否同时销毁子节点，若值为true,则销毁子节点，否则不销毁子节点。
+		 * @override
 		 */
-		/*override*/  destroy(destroyChild: boolean = true): void {
+		destroy(destroyChild: boolean = true): void {
 		this._clear();
 		super.destroy(destroyChild);
 	}
 
-	/**@internal */
-	/*override*/  _setDisplay(value: boolean): void {
+	/**@internal 
+	 * @override
+	*/
+	_setDisplay(value: boolean): void {
 		super._setDisplay(value);
 		if (this._isRoot) {
 			this._onDisplay(value);

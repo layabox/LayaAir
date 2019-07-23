@@ -94,6 +94,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 *@inheritDoc
+		 @override
 		 */
 		/*override*/  destroy(destroyChild:boolean = true):void {
 			super.destroy(destroyChild);
@@ -106,13 +107,19 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this.changeHandler = null;
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/ protected createChildren():void {
 			this.addChild(this._bg = new Image());
 			this.addChild(this._bar = new Button());
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/ protected initialize():void {
 			this._bar.on(Event.MOUSE_DOWN, this, this.onBarMouseDown);
 			this._bg.sizeGrid = this._bar.sizeGrid = "4,4,4,4,0";
@@ -276,12 +283,18 @@ import { ClassUtils } from "../utils/ClassUtils";
 			return Math.max(this._bg.width, this._bar.width);
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/ protected measureHeight():number {
 			return Math.max(this._bg.height, this._bar.height);
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/ protected _sizeChanged():void {
 			super._sizeChanged();
 			if (this.isVertical) this._bg.height = this.height;
@@ -430,7 +443,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			else this.value = point.x / (this.width - this._bar.width) * (this._max - this._min) + this._min;
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/  set dataSource(value:any) {
 			this._dataSource = value;
 			if (typeof(value)=='number' || typeof(value)=='string') this.value = Number(value);

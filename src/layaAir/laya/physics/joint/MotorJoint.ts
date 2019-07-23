@@ -26,8 +26,11 @@ import { ClassUtils } from "../../utils/ClassUtils";
 		private _maxTorque:number = 1000;
 		/**selfBody向目标位置移动时的缓动因子，取值0~1，值越大速度越快*/
 		private _correctionFactor:number = 0.3;
-		
-		/*override*/ protected _createJoint():void {
+		/**
+		 * @override
+		 * 
+		 */
+		 protected _createJoint():void {
 			if (!this._joint) {
 				if (!this.otherBody) throw "otherBody can not be empty";
 				this.selfBody =this.selfBody|| this.owner.getComponent(RigidBody);

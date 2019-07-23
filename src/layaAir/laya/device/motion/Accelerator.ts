@@ -53,8 +53,9 @@ import { Event } from "../../events/Event";
 		/**
 		 * 侦听加速器运动。
 		 * @param observer	回调函数接受4个参数，见类说明。
+		 * @override
 		 */
-		/*override*/  on(type:string, caller:any, listener:Function, args:any[] = null):EventDispatcher
+		on(type:string, caller:any, listener:Function, args:any[] = null):EventDispatcher
 		{
 			super.on(type, caller, listener, args);
 			ILaya.Browser.window.addEventListener('devicemotion', this.onDeviceOrientationChange);
@@ -64,8 +65,9 @@ import { Event } from "../../events/Event";
 		/**
 		 * 取消侦听加速器。
 		 * @param	handle	侦听加速器所用处理器。
+		 * @override
 		 */
-		/*override*/  off(type:string, caller:any, listener:Function, onceOnly:boolean = false):EventDispatcher
+		off(type:string, caller:any, listener:Function, onceOnly:boolean = false):EventDispatcher
 		{
 			if (!this.hasListener(type))
             ILaya.Browser.window.removeEventListener('devicemotion', this.onDeviceOrientationChange)

@@ -8,13 +8,17 @@ import { ClassUtils } from "../utils/ClassUtils";
 	export class ScaleBox extends Box {
 		private _oldW:number = 0;
 		private _oldH:number = 0;
-		
-		/*override*/  onEnable():void {
+		/**
+		 * @override
+		 */
+		  onEnable():void {
 			(window as any).Laya.stage.on("resize", this, this.onResize);
 			this.onResize();
 		}
-		
-		/*override*/  onDisable():void {
+		/**
+		 * @override
+		 */
+		  onDisable():void {
 			(window as any).Laya.stage.off("resize", this, this.onResize);
 		}
 		
@@ -27,8 +31,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 				this.scale(scale, scale);
 			}
 		}
-		
-		/*override*/  set width(value:number) {
+		/**
+		 * @override
+		 */
+		  set width(value:number) {
 			super.width = value;
 			this._oldW = value;
 		}
@@ -36,8 +42,10 @@ import { ClassUtils } from "../utils/ClassUtils";
         get width(){
             return super.width;
         }
-        
-		/*override*/  set height(value:number) {
+        /**
+		 * @override
+		 */
+		  set height(value:number) {
 			super.height = value;
 			this._oldH = value;
         }

@@ -262,8 +262,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 		 */
 		 hitTestPrior:boolean = false;
 		
-		/**@inheritDoc */
-		/*override*/  destroy(destroyChild:boolean = true):void {
+		/**@inheritDoc 
+		 * @override
+		*/
+		destroy(destroyChild:boolean = true):void {
 			super.destroy(destroyChild);
 			this._style && this._style.recover();
 			this._cacheStyle && this._cacheStyle.recover();
@@ -1486,8 +1488,9 @@ import { ClassUtils } from "../utils/ClassUtils";
 		 * @param listener	事件侦听函数。
 		 * @param args		（可选）事件侦听函数的回调参数。
 		 * @return 此 EventDispatcher 对象。
+		 * @override
 		 */
-		/*override*/  on(type:string, caller:any, listener:Function, args:any[] = null):EventDispatcher {
+		on(type:string, caller:any, listener:Function, args:any[] = null):EventDispatcher {
 			//如果是鼠标事件，则设置自己和父对象为可接受鼠标交互事件
 			if (this._mouseState !== 1 && this.isMouseEvent(type)) {
 				this.mouseEnabled = true;
@@ -1508,8 +1511,9 @@ import { ClassUtils } from "../utils/ClassUtils";
 		 * @param listener	事件侦听函数。
 		 * @param args		（可选）事件侦听函数的回调参数。
 		 * @return 此 EventDispatcher 对象。
+		 * @override
 		 */
-		/*override*/  once(type:string, caller:any, listener:Function, args:any[] = null):EventDispatcher {
+		once(type:string, caller:any, listener:Function, args:any[] = null):EventDispatcher {
 			//如果是鼠标事件，则设置自己和父对象为可接受鼠标交互事件
 			if (this._mouseState !== 1 && this.isMouseEvent(type)) {
 				this.mouseEnabled = true;
@@ -1536,8 +1540,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			}
 		}
 		
-		/**@private */
-		/*override*/ protected _setParent(value:Node):void {
+		/**@private 
+		 * @override
+		*/
+		protected _setParent(value:Node):void {
 			super._setParent(value);
 			if (value && this._getBit(Const.HAS_MOUSE)) {
 				this._onDisplay();
@@ -1605,8 +1611,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			return (this._repaint&SpriteConst.REPAINT_CACHE) && this._cacheStyle.enableCanvasRender && this._cacheStyle.reCache;
 		}
 		
-		/**@private	*/
-		/*override*/ protected _childChanged(child:Node = null):void {
+		/**@private	
+		 * @override
+		*/
+		protected _childChanged(child:Node = null):void {
 			if (this._children.length) this._renderType |= SpriteConst.CHILDS;
 			else this._renderType &= ~SpriteConst.CHILDS;
 			this._setRenderType(this._renderType);
@@ -1703,8 +1711,11 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this._style.dragging && this._style.dragging.stop();
 		}
 		
-		/**@internal */
-		/*override*/  _setDisplay(value:boolean):void {
+		/**
+		 * @internal 
+		 * @override
+		*/
+		_setDisplay(value:boolean):void {
 			if (!value) {
 				if (this._cacheStyle)
 				{

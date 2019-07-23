@@ -54,8 +54,13 @@ import { Stat } from "../utils/Stat";
 		 getRenderType():number{return -111}
 		
 		 releaseRender():void{}
-		
-		/*override*/  addParticleArray(position:Float32Array, velocity:Float32Array):void
+		/**
+		 * 
+		 * @param position 
+		 * @param velocity 
+		 * @override
+		 */
+		  addParticleArray(position:Float32Array, velocity:Float32Array):void
 		{
 			// TODO Auto Generated method stub
 			position[0]+=this.x;
@@ -83,8 +88,10 @@ import { Stat } from "../utils/Stat";
 			_indexBuffer2D.upload();
 		}
 		*/
-		
-		/*override*/  addNewParticlesToVertexBuffer():void {
+		/**
+		 * @override
+		 */
+		  addNewParticlesToVertexBuffer():void {
 			var _vertexBuffer2D:VertexBuffer2D = this._mesh._vb;
 			_vertexBuffer2D.clear();
 			_vertexBuffer2D.append(this._vertices);

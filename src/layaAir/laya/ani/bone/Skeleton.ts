@@ -1057,8 +1057,9 @@ export class Skeleton extends Sprite {
 
 		/**
 		 * 销毁当前动画
+		 * @override
 		 */
-		/*override*/  destroy(destroyChild: boolean = true): void {
+		destroy(destroyChild: boolean = true): void {
 		super.destroy(destroyChild);
 		this._templet._removeReference(1);
 		this._templet = null;//动画解析器

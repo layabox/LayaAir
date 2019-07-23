@@ -431,8 +431,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			}
 		}
 		
-		/**@inheritDoc */
-		/*override*/  set text(value:string) {
+		/**@inheritDoc 
+		 * @override
+		*/
+		set text(value:string) {
 			super.set_color( this._originColor);
 			
 			value += '';
@@ -455,15 +457,21 @@ import { ClassUtils } from "../utils/ClassUtils";
 				}
 			}
 		}
-		
-		/*override*/  get text():string {
+		/**
+		 * @override
+		 */
+		get text():string {
 			if (this._focus)
 				return this.nativeInput.value;
 			else
 				return this._content || "";
 		}
-		
-		/*override*/  changeText(text:string):void {
+		/**
+		 * 
+		 * @param text 
+		 * @override
+		 */
+		changeText(text:string):void {
 			this._content = text;
 			
 			if (this._focus) {
@@ -473,8 +481,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 				super.changeText(text);
 		}
 		
-		/**@inheritDoc */
-		/*override*/  set color(value:string) {
+		/**@inheritDoc 
+		 * @override
+		*/
+		set color(value:string) {
 			if (this._focus)
 				this.nativeInput.setColor(value);
 			
@@ -486,8 +496,10 @@ import { ClassUtils } from "../utils/ClassUtils";
             return super.color;
         }
 		
-		/**@inheritDoc */
-		/*override*/  set bgColor(value:string) {
+		/**@inheritDoc 
+		 * @override
+		*/
+		set bgColor(value:string) {
 			super.set_bgColor( value);
 			if(ILaya.Render.isConchApp)
 				this.nativeInput.setBgColor(value);

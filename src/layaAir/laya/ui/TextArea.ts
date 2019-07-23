@@ -104,7 +104,11 @@ import { ClassUtils } from "../utils/ClassUtils";
 		{
 			this.callLater(this.changeScroll);
 		}
-		
+		/**
+		 * 
+		 * @param destroyChild 
+		 * @override
+		 */
 		/*override*/  destroy(destroyChild:boolean = true):void {
 			super.destroy(destroyChild);
 			this._vScrollBar && this._vScrollBar.destroy();
@@ -112,14 +116,18 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this._vScrollBar = null;
 			this._hScrollBar = null;
 		}
-		
+		/**
+		 * @override
+		 */
 		/*override*/ protected initialize():void {
 			this.width = 180;
 			this.height = 150;
 			this._tf.wordWrap = true;
 			this.multiline = true;
 		}
-		
+		/**
+		 * @override
+		 */
 		/*override*/  set width(value:number) {
 			super.width = value;
 			this.callLater(this.changeScroll);
@@ -128,7 +136,9 @@ import { ClassUtils } from "../utils/ClassUtils";
         get width(){
             return super.width;
         }
-        
+        /**
+		 * @override
+		 */
 		/*override*/  set height(value:number) {
 			super.height = value;
 			this.callLater(this.changeScroll);

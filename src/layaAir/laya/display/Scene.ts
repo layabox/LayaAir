@@ -127,8 +127,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			//trace("onClosed");
 		}
 		
-		/**@inheritDoc */
-		/*override*/  destroy(destroyChild:boolean = true):void {
+		/**@inheritDoc 
+		 * @override
+		*/
+		destroy(destroyChild:boolean = true):void {
 			this._idMap = null;
 			super.destroy(destroyChild);
 			var list:any[] = Scene.unDestroyedScenes;
@@ -140,8 +142,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			}
 		}
 		
-		/**@inheritDoc */
-		/*override*/  set scaleX(value:number) {
+		/**@inheritDoc 
+		 * @override
+		*/
+		set scaleX(value:number) {
 			if (super.get_scaleX() == value) return;
 			super.set_scaleX(value);
 			this.event(Event.RESIZE);
@@ -151,8 +155,10 @@ import { ClassUtils } from "../utils/ClassUtils";
             return super.scaleX;
         }
 		
-		/**@inheritDoc */
-		/*override*/  set scaleY(value:number) {
+		/**@inheritDoc 
+		 * @override
+		*/
+		set scaleY(value:number) {
 			if (super.get_scaleY() == value) return;
 			super.set_scaleY(value);
 			this.event(Event.RESIZE);
@@ -162,8 +168,10 @@ import { ClassUtils } from "../utils/ClassUtils";
             return super.scaleY;
         }
 		
-		/**@inheritDoc */
-		/*override*/  get width():number {
+		/**@inheritDoc 
+		 * @override
+		*/
+		get width():number {
 			if (this._width) return this._width;
 			var max:number = 0;
 			for (var i:number = this.numChildren - 1; i > -1; i--) {
@@ -175,15 +183,19 @@ import { ClassUtils } from "../utils/ClassUtils";
 			return max;
 		}
 		
-		/**@inheritDoc */
-		/*override*/  set width(value:number) {
+		/**@inheritDoc 
+		 * @override
+		*/
+		set width(value:number) {
 			if (super.get_width() == value) return;
 			super.set_width(value);
 			this.callLater(this._sizeChanged);
 		}
 		
-		/**@inheritDoc */
-		/*override*/  get height():number {
+		/**@inheritDoc 
+		 * @override
+		*/
+		get height():number {
 			if (this._height) return this._height;
 			var max:number = 0;
 			for (var i:number = this.numChildren - 1; i > -1; i--) {
@@ -195,8 +207,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			return max;
 		}
 		
-		/**@inheritDoc */
-		/*override*/  set height(value:number) {
+		/**@inheritDoc 
+		 * @override
+		*/
+		set height(value:number) {
 			if (super.get_height() == value) return;
 			super.set_height(value);
 			this.callLater(this._sizeChanged);
@@ -224,8 +238,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			return Scene._root;
 		}
 		
-		/**场景时钟*/
-		/*override*/  get timer():Timer {
+		/**场景时钟
+		 * @override
+		*/
+		get timer():Timer {
 			return this._timer || ILaya.timer;
 		}
 		

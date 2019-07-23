@@ -127,19 +127,28 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this.skin = this.skin;
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/ protected preinitialize():void {
 			this.mouseEnabled = true;
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/  destroy(destroyChild:boolean = true):void {
 			super.destroy(destroyChild);
 			this._bg && this._bg.destroy();
 			this._bg = null;
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/ protected createChildren():void {
 			this.addChild(this._tf = new Input());
 			this._tf.padding = Styles.inputLabelPadding;
@@ -177,7 +186,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this.event(Event.ENTER, this);
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/ protected initialize():void {
 			this.width = 128;
 			this.height = 22;
@@ -242,6 +254,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		/**
 		 * 当前文本内容字符串。
 		 * @see laya.display.Text.text
+		 * @override
 		 */
 		/*override*/  set text(value:string) 
 		{
@@ -256,7 +269,10 @@ import { ClassUtils } from "../utils/ClassUtils";
             return super.text;
         }
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/  set width(value:number) {
 			super.width = value;
 			this._bg && (this._bg.width = value);
@@ -266,7 +282,10 @@ import { ClassUtils } from "../utils/ClassUtils";
             return super.width;
         }
         
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/  set height(value:number) {
 			super.height = value;
 			this._bg && (this._bg.height = value);

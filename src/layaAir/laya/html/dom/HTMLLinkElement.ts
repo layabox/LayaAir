@@ -14,15 +14,27 @@ import { ILaya } from "../../../ILaya";
 		static _cuttingStyle:RegExp = new RegExp("((@keyframes[\\s\\t]+|)(.+))[\\t\\n\\r\\\s]*{", "g");
 		type:string;
 		private _loader:Loader;
-		
-		/*override*/ protected _creates():void 
+		/**
+		 * @override
+		 */
+		protected _creates():void 
 		{
 		}
-		
-		/*override*/  drawToGraphic(graphic:Graphics, gX:number, gY:number, recList:any[]):void 
+		/**
+		 * 
+		 * @param graphic 
+		 * @param gX 
+		 * @param gY 
+		 * @param recList 
+		 * @override
+		 */
+		drawToGraphic(graphic:Graphics, gX:number, gY:number, recList:any[]):void 
 		{
-        }
-		/*override*/  reset():HTMLElement {
+		}
+		/**
+		 * @override
+		 */
+		reset():HTMLElement {
 			if (this._loader) this._loader.off(Event.COMPLETE, this, this._onload);
 			this._loader = null;
 			return this;
@@ -38,8 +50,10 @@ import { ILaya } from "../../../ILaya";
 			}
 			this.repaint(true);
 		}
-		
-		/*override*/  set href(url:string) {
+		/**
+		 * @override
+		 */
+		set href(url:string) {
 			if (!url) return;
             url = this.formatURL(url);
 			this.URI = new URL(url);

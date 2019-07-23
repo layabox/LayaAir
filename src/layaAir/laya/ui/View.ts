@@ -98,7 +98,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			(window as any).Laya.loader.cacheRes(url, json);
 		}
 		
-		/** @inheritDoc */
+		/** 
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/  destroy(destroyChild:boolean = true):void {
 			this._watchMap = null;
 			super.destroy(destroyChild);
@@ -216,7 +219,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			}
 		}
 		
-		/**@private */
+		/**
+		 * @private 
+		 * @override
+		*/
 		/*override*/ protected _sizeChanged():void {
 			if (!isNaN(this._anchorX)) this.pivotX = this.anchorX * this.width;
 			if (!isNaN(this._anchorY)) this.pivotY = this.anchorY * this.height;

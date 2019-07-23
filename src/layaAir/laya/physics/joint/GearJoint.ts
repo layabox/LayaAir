@@ -18,8 +18,11 @@ import { ClassUtils } from "../../utils/ClassUtils";
 		
 		/**两个齿轮角速度比例，默认1*/
 		private _ratio:number = 1;
-		
-		/*override*/ protected _createJoint():void {
+		/**
+		 * @override
+		 * 
+		 */
+		 protected _createJoint():void {
 			if (!this._joint) {
 				if (!this.joint1) throw "Joint1 can not be empty";
 				if (!this.joint2) throw "Joint2 can not be empty";

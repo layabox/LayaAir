@@ -24,8 +24,10 @@ import { Component } from "../components/Component";
 		
 		protected _comlete:Handler;
 		protected _tween:Tween;
-		
-		/*override*/ protected _onAwake():void {
+		/**
+		 * @override
+		 */
+		protected _onAwake():void {
 			this.target =this.target|| (<Sprite>this.owner );
 			if (this.autoDestroyAtComplete) this._comlete = Handler.create(this.target, this.target.destroy, null, false);
 			if (this.eventName) this.owner.on(this.eventName, this, this._exeTween);
@@ -40,8 +42,10 @@ import { Component } from "../components/Component";
 		protected _doTween():Tween {
 			return null;
 		}
-		
-		/*override*/  onReset():void {
+		/**
+		 * @override
+		 */
+		onReset():void {
 			this.duration = 1000;
 			this.delay = 0;
 			this.repeat = 0;

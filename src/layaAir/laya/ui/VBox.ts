@@ -22,8 +22,10 @@ export class VBox extends LayoutBox {
 	 * 右对齐。
 	 */
 	static RIGHT: string = "right";
-
-		/*override*/  set width(value: number) {
+		/**
+		 * @override
+		 */
+		  set width(value: number) {
 		if (this._width != value) {
 			super.width = value;
 			this.callLater(this.changeItems);
@@ -33,8 +35,11 @@ export class VBox extends LayoutBox {
 		return super.width;
 	}
 
-		/** @inheritDoc	*/
-		/*override*/ protected changeItems(): void {
+		/** 
+		 * @inheritDoc	
+		 * @override
+		*/
+		 protected changeItems(): void {
 		this._itemChanged = false;
 		var items: any[] = [];
 		var maxWidth: number = 0;

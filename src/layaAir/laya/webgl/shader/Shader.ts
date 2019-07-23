@@ -144,7 +144,10 @@ export class Shader extends BaseShader {
 	}
 
 		//TODO:coverage
-		/*override*/ protected _disposeResource(): void {
+		/**
+		 * @override
+		 */
+		 protected _disposeResource(): void {
 		WebGLContext.mainContext.deleteShader(this._vshader);
 		WebGLContext.mainContext.deleteShader(this._pshader);
 		WebGLContext.mainContext.deleteProgram(this._program);

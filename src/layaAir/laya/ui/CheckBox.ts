@@ -95,15 +95,21 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this._autoSize = false;
 		}
 		
-		/**@inheritDoc */
-		/*override*/ protected preinitialize():void {
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
+		 protected preinitialize():void {
 			super.preinitialize();
 			this.toggle = true;
 			this._autoSize = false;
 		}
 		
-		/**@inheritDoc */
-		/*override*/ protected initialize():void {
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
+		 protected initialize():void {
 			super.initialize();
 			this.createText();
 			this._text.align = "left";
@@ -111,8 +117,11 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this._text.width = 0;
 		}
 		
-		/**@inheritDoc */
-		/*override*/  set dataSource(value:any) {
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
+		  set dataSource(value:any) {
 			this._dataSource = value;
 			if (value instanceof Boolean) this.selected = value as boolean;
 			else if (typeof(value)=='string') this.selected = value === "true";

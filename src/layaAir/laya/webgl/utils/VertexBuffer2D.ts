@@ -43,7 +43,9 @@ import { Buffer } from "./Buffer";
 			vbdata.set(data, oldoff);
 			this._upload = true;
 		}
-		
+		/**
+		 * @override
+		 */
 		/*override*/ protected _checkArrayUse():void {
 			this._floatArray32 && (this._floatArray32 = new Float32Array(this._buffer));
 			this._uint32Array && (this._uint32Array = new Uint32Array(this._buffer));
@@ -56,6 +58,7 @@ import { Buffer } from "./Buffer";
 		
 		/**
 		 * @inheritDoc
+		 * @override
 		 */
 		/*override*/  _bindForVAO():void {
 			var gl: WebGLRenderingContext = LayaGL.instance;
@@ -64,6 +67,7 @@ import { Buffer } from "./Buffer";
 		
 		/**
 		 * @inheritDoc
+		 * @override
 		 */
 		/*override*/  bind():boolean {
 			if (Buffer._bindedVertexBuffer !== this._glBuffer) {
@@ -74,7 +78,9 @@ import { Buffer } from "./Buffer";
 			}
 			return false;
 		}
-		
+		/**
+		 * @override
+		 */
 		/*override*/  destroy():void {
 			super.destroy();
 			this._byteLength = 0;

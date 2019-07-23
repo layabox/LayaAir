@@ -87,8 +87,9 @@ import { ClassUtils } from "../utils/ClassUtils";
 		/**
 		 * @private
 		 * @inheritDoc
+		 * @override
 		 */
-		/*override*/ protected createItem(skin:string, label:string):Sprite {
+		 protected createItem(skin:string, label:string):Sprite {
 			return new Button(skin, label);
 		}
 	}

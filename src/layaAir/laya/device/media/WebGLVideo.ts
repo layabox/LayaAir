@@ -50,8 +50,10 @@ export class WebGLVideo extends HtmlVideo {
 	get _glTexture(): any {
 		return this._source;
 	}
-
-		 /*override*/ destroy(): void {
+		/**
+		 * @override
+		 */
+		destroy(): void {
 		if (this._source) {
 			this.gl = ILaya.Render.isConchApp ? (window as any).LayaGLContext.instance : WebGLContext.mainContext;
 

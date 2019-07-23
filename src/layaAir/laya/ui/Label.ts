@@ -134,13 +134,19 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this.text = text;
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/  destroy(destroyChild:boolean = true):void {
 			super.destroy(destroyChild);
 			this._tf = null;
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/ protected createChildren():void {
 			this.addChild(this._tf = new Text());
 		}
@@ -337,6 +343,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc
+		 * @override
 		 */
 		/*override*/ protected measureWidth():number {
 			return this._tf.width;
@@ -344,6 +351,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc
+		 * @override
 		 */
 		/*override*/ protected measureHeight():number {
 			return this._tf.height;
@@ -351,6 +359,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc
+		 * @override
 		 */
 		/*override*/  get width():number {
 			if (this._width || this._tf.text) return super.width;
@@ -359,6 +368,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc
+		 * @override
 		 */
 		/*override*/  set width(value:number) {
 			super.width = value;
@@ -367,6 +377,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc
+		 * @override
 		 */
 		/*override*/  get height():number {
 			if (this._height || this._tf.text) return super.height;
@@ -375,13 +386,17 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc
+		 * @override
 		 */
 		/*override*/  set height(value:number) {
 			super.height = value;
 			this._tf.height = value;
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/  set dataSource(value:any) {
 			this._dataSource = value;
 			if (typeof(value) =='number' || typeof(value)=='string') this.text = value + "";

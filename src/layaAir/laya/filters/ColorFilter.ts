@@ -82,8 +82,11 @@ import { ColorUtils } from "../utils/ColorUtils"
 			return this;
 		}
 		
-		/**@private */
-		/*override*/  get type():number {
+		/**
+		 * @private 
+		 * @override
+		*/
+		  get type():number {
             return Filter.COLOR;
 		}
 		

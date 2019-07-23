@@ -35,8 +35,11 @@ import { ClassUtils } from "../../utils/ClassUtils";
 		private _lowerTranslation:number = 0;
 		/**启用约束后，刚体移动范围的上限，是距离anchor的偏移量*/
 		private _upperTranslation:number = 0;
-		
-		/*override*/ protected _createJoint():void {
+		/**
+		 * @override
+		 * 
+		 */
+		 protected _createJoint():void {
 			if (!this._joint) {
 				//if (!otherBody) throw "otherBody can not be empty";
 				this.selfBody =this.selfBody|| this.owner.getComponent(RigidBody);

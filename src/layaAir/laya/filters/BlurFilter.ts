@@ -23,8 +23,9 @@ import { BlurFilterGLRender } from "./BlurFilterGLRender";
 		/**
 		 * @private
 		 * 当前滤镜的类型
+		 * @override
 		 */
-		/*override*/  get type():number {
+		get type():number {
 			return Filter.BLUR;
 		}
 		

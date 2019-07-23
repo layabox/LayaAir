@@ -98,8 +98,11 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this.max = 1;
 		}
 		
-		/**@inheritDoc */
-		/*override*/  destroy(destroyChild:boolean = true):void {
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
+		  destroy(destroyChild:boolean = true):void {
 			this.stopScroll();
 			this.target = null;
 			super.destroy(destroyChild);
@@ -112,16 +115,22 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this._offsets = null;
 		}
 		
-		/**@inheritDoc */
-		/*override*/ protected createChildren():void {
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
+		 protected createChildren():void {
 			this.addChild(this.slider = new Slider());
 			//TODO:
 			this.addChild(this.upButton = new Button());
 			this.addChild(this.downButton = new Button());
 		}
 		
-		/**@inheritDoc */
-		/*override*/ protected initialize():void {
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
+		 protected initialize():void {
 			this.slider.showLabel = false;
 			this.slider.tick = 0;
 			this.slider.on(Event.CHANGE, this, this.onSliderChange);
@@ -217,8 +226,11 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this.repaint();
 		}
 		
-		/**@inheritDoc */
-		/*override*/ protected _sizeChanged():void {
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
+		 protected _sizeChanged():void {
 			super._sizeChanged();
 			this.repaint();
 			this.resetPositions();
@@ -240,14 +252,20 @@ import { ClassUtils } from "../utils/ClassUtils";
 			else this.downButton.x = this.slider._x + this.slider.width;
 		}
 		
-		/**@inheritDoc */
-		/*override*/ protected measureWidth():number {
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
+		 protected measureWidth():number {
 			if (this.slider.isVertical) return this.slider.width;
 			return 100;
 		}
 		
-		/**@inheritDoc */
-		/*override*/ protected measureHeight():number {
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
+		 protected measureHeight():number {
 			if (this.slider.isVertical) return 100;
 			return this.slider.height;
 		}
@@ -346,8 +364,11 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this._scrollSize = value;
 		}
 		
-		/**@inheritDoc */
-		/*override*/  set dataSource(value:any) {
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
+		  set dataSource(value:any) {
 			this._dataSource = value;
 			if (typeof(value)=='number' || typeof(value)=='string') this.value = Number(value);
 			else super.dataSource = value;

@@ -62,8 +62,10 @@ import { HTMLParse } from "../utils/HTMLParse";
 			this.on(Event.CLICK, this, this._onMouseClick);
 		}
 		
-		/**@private */
-		/*override*/  destroy(destroyChild:boolean = true):void {
+		/**@private 
+		 * @override
+		*/
+		destroy(destroyChild:boolean = true):void {
 			if (this._element) this._element.reset();
 			this._element = null;
 			this._doClears();

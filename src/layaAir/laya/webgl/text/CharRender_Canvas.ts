@@ -31,11 +31,15 @@ import { Browser } from "../../utils/Browser";
 				this.ctx = CharRender_Canvas.canvas.getContext('2d');
 			}
 		}
-		
+		/**
+		 * @override
+		 */
 		/*override*/  get canvasWidth():number {
 			return CharRender_Canvas.canvas.width;
 		}
-		
+		/**
+		 * @override
+		 */
 		/*override*/  set canvasWidth(w:number) {
 			if (CharRender_Canvas.canvas.width == w )
 				return;
@@ -48,7 +52,12 @@ import { Browser } from "../../utils/Browser";
 			this.ctx.scale(this.lastScaleX, this.lastScaleY);
 		}
 		
-		
+		/**
+		 * 
+		 * @param font 
+		 * @param str 
+		 * @override
+		 */
 		 /*override*/ getWidth(font:string, str:string):number {
 			if (!this.ctx) return 0;
 			//由于大家公用一个canvas，所以需要在选中的时候做一些配置。
@@ -59,7 +68,12 @@ import { Browser } from "../../utils/Browser";
 			}					
 			return this.ctx.measureText(str).width;
 		}
-		
+		/**
+		 * 
+		 * @param sx 
+		 * @param sy 
+		 * @override
+		 */
 		 /*override*/ scale(sx:number, sy:number):void {
 			if ( !this.supportImageData ) {// supportImageData==false表示用 getCharCanvas，这个自己管理缩放
 				this.lastScaleX = sx;
@@ -80,6 +94,7 @@ import { Browser } from "../../utils/Browser";
 		 * @param	font
 		 * @param	cri  修改里面的width。
 		 * @return
+		 * @override
 		 */
 		 /*override*/ getCharBmp( char:string, font:string, lineWidth:number, colStr:string, strokeColStr:string, cri:CharRenderInfo, 
 				margin_left:number, margin_top:number, margin_right:number, margin_bottom:number, rect:any[]=null):ImageData {

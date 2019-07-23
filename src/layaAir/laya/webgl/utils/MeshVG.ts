@@ -71,8 +71,9 @@ export class MeshVG extends Mesh2D {
 
 		/**
 		 * 把本对象放到回收池中，以便getMesh能用。
+		 * @override
 		 */
-		 /*override*/ releaseMesh(): void {
+		  releaseMesh(): void {
 		this._vb.setByteLength(0);
 		this._ib.setByteLength(0);
 		this.vertNum = 0;
@@ -80,8 +81,10 @@ export class MeshVG extends Mesh2D {
 		//_applied = false;
 		MeshVG._POOL.push(this);
 	}
-
-		 /*override*/ destroy(): void {
+/**
+ * @override
+ */
+		  destroy(): void {
 		this._ib.destroy();
 		this._vb.destroy();
 		this._ib.disposeResource();

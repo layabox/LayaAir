@@ -125,7 +125,13 @@ import { Context } from "../resource/Context";
 		}
 		
 		//由于循环队列判断算法，当下一个freeParticle等于retiredParticle时不添加例子，意味循环队列中永远有一个空位。（由于此判断算法快速、简单，所以放弃了使循环队列饱和的复杂算法（需判断freeParticle在retiredParticle前、后两种情况并不同处理））
-		 /*override*/ addParticleArray(position:Float32Array, velocity:Float32Array):void {
+		/**
+		 * 
+		 * @param position 
+		 * @param velocity 
+		 * @override
+		 */
+		 addParticleArray(position:Float32Array, velocity:Float32Array):void {
 			var nextFreeParticle:number = this._firstFreeElement + 1;
 			
 			if (nextFreeParticle >= this.settings.maxPartices)

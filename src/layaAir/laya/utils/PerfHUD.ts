@@ -89,7 +89,14 @@ import { Sprite } from "../display/Sprite"
 		}
 				
 		//TODO:coverage
-		/*override*/  customRender(ctx:Context, x:number, y:number):void {
+		/**
+		 * 
+		 * @param ctx 
+		 * @param x 
+		 * @param y 
+		 * @override
+		 */
+		  customRender(ctx:Context, x:number, y:number):void {
 			var now:number = performance.now();;
 			if (PerfHUD._lastTm <= 0) PerfHUD._lastTm = now;
 			this.updateValue(0, now - PerfHUD._lastTm);

@@ -231,7 +231,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 		/**@private */
 		protected _elasticEnabled:boolean = false;
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/  destroy(destroyChild:boolean = true):void {
 			this._content && this._content.destroy(destroyChild);
 			this._scrollBar && this._scrollBar.destroy(destroyChild);
@@ -244,12 +247,18 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this.selectHandler = this.renderHandler = this.mouseHandler = null;
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/ protected createChildren():void {
 			this.addChild(this._content = new Box());
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/  set cacheAs(value:string) {
 			super.cacheAs = value;
 			if (this._scrollBar) {
@@ -365,7 +374,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			}
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/  set width(value:number) {
 			if (value != this._width) {
 				super.width = value;
@@ -377,7 +389,10 @@ import { ClassUtils } from "../utils/ClassUtils";
             return super.width;
         }
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/  set height(value:number) {
 			if (value != this._height) {
 				super.height = value;
@@ -639,7 +654,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			}
 		}
 		
-		/** @inheritDoc */
+		/** 
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/ protected _sizeChanged():void {
 			super._sizeChanged();
 			this.setContentSize(this.width, this.height);
@@ -914,7 +932,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			return this._array ? this._array.length : 0;
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/  set dataSource(value:any) {
 			this._dataSource = value;
 			if ( typeof(value) == 'number' || typeof(value)=='string') this.selectedIndex = parseInt(value as string);
@@ -1067,7 +1088,9 @@ import { ClassUtils } from "../utils/ClassUtils";
 				this.callLater(this.changeCells);
 			}
 		}
-		
+		/**
+		 * @override
+		 */
 		/*override*/ protected commitMeasure():void {
 			this.runCallLater(this.changeCells);
 		}

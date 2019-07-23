@@ -48,8 +48,9 @@ import { ILaya } from "../../ILaya";
 		
 		/**
 		 * @inheritDoc
+		 * @override
 		 */
-		/*override*/  get defaulteTexture():BaseTexture {
+		  get defaulteTexture():BaseTexture {
 			return Texture2D.grayTexture;
 		}
 		
@@ -150,8 +151,9 @@ import { ILaya } from "../../ILaya";
 		
 		/**
 		 * 生成mipMap。
+		 * @override
 		 */
-		/*override*/  generateMipmap():void {
+		  generateMipmap():void {
 			if (this._isPot(this.width) && this._isPot(this.height)) {
 				this._mipmap = true;
 				LayaGL.instance.generateMipmap(this._glTextureType);
@@ -311,8 +313,9 @@ import { ILaya } from "../../ILaya";
 		
 		/**
 		 * @inheritDoc
+		 * @override
 		 */
-		/*override*/ _disposeResource():void {
+		 _disposeResource():void {
 			if (this._frameBuffer) {
 				var gl:WebGLRenderingContext = LayaGL.instance;
 				gl.deleteTexture(this._glTexture);

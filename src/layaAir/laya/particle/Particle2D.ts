@@ -115,7 +115,14 @@ import { DrawParticleCmd } from "../display/cmd/DrawParticleCmd"
 			}
         }
 		
-		 /*override*/ customRender(context:Context, x:number, y:number):void {
+		/**
+		 * 
+		 * @param context 
+		 * @param x 
+		 * @param y 
+		 * @override
+		 */
+		  customRender(context:Context, x:number, y:number):void {
 			this._matrix4[0] = context._curMat.a;
 			this._matrix4[1] = context._curMat.b;
 			this._matrix4[4] = context._curMat.c;
@@ -129,8 +136,12 @@ import { DrawParticleCmd } from "../display/cmd/DrawParticleCmd"
 				this._canvasTemplate.render(context, x, y);
 			}
 		}
-		
-		/*override*/  destroy(destroyChild:boolean = true):void 
+		/**
+		 * 
+		 * @param destroyChild 
+		 * @override
+		 */
+		  destroy(destroyChild:boolean = true):void 
 		{
 			if ( this._particleTemplate  instanceof ParticleTemplate2D)
 			 ((<ParticleTemplate2D>this._particleTemplate  )).dispose();

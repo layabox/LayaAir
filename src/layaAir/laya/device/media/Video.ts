@@ -324,8 +324,9 @@ import { Stage } from "../../display/Stage";
 		
 		/**
 		 * 设置视频的x坐标
+		 * @override
 		 */
-		 /*override*/ set x(val:number)
+		set x(val:number)
 		{
 			super.x = val;
 			if (ILaya.Render.isConchApp)
@@ -341,8 +342,9 @@ import { Stage } from "../../display/Stage";
 		
 		/**
 		 * 设置视频的y坐标
+		 * @override
 		 */
-		 /*override*/ set y(val:number)
+		set y(val:number)
 		{
 			super.y = val;
 			if (ILaya.Render.isConchApp)
@@ -432,8 +434,13 @@ import { Stage } from "../../display/Stage";
 		{
 			return this.videoElement.seeking;
 		}
-		
-		/*override*/  size(width:number, height:number):Sprite
+		/**
+		 * 
+		 * @param width 
+		 * @param height 
+		 * @override
+		 */
+		size(width:number, height:number):Sprite
 		{
 			super.size(width, height)
 			
@@ -450,8 +457,10 @@ import { Stage } from "../../display/Stage";
 			if (this.paused) this.renderCanvas();
 			return this;
 		}
-		
-		/*override*/  set width(value:number)
+		/**
+		 * @override
+		 */
+		set width(value:number)
 		{
 			if (ILaya.Render.isConchApp)
 			{
@@ -470,8 +479,10 @@ import { Stage } from "../../display/Stage";
         get width(){
             return super.width;
         }
-		
-		/*override*/  set height(value:number)
+		/**
+		 * @override
+		 */
+		set height(value:number)
 		{
 			if (ILaya.Render.isConchApp)
 			{
@@ -492,8 +503,9 @@ import { Stage } from "../../display/Stage";
         
 		/**
 		 * 销毁内部事件绑定。
+		 * @override
 		 */
-		/*override*/  destroy(detroyChildren:boolean = true):void
+		destroy(detroyChildren:boolean = true):void
 		{
 			super.destroy(detroyChildren);
 			

@@ -10,8 +10,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 	export class Box extends UIComponent implements IBox {
 		private _bgColor:string;
 		
-		/**@inheritDoc */
-		/*override*/  set dataSource(value:any) {
+		/**@inheritDoc 
+		 * @override
+		*/
+		set dataSource(value:any) {
 			this._dataSource = value;
 			for (var name  in value) {
 				var comp:UIComponent = (<UIComponent>this.getChildByName(name) );

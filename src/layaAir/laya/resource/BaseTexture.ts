@@ -351,8 +351,9 @@ export class BaseTexture extends Bitmap {
 
 		/**
 		 * @inheritDoc
+		 * @override
 		 */
-		/*override*/ protected _disposeResource(): void {
+		 protected _disposeResource(): void {
 		if (this._glTexture) {
 			LayaGL.instance.deleteTexture(this._glTexture);
 			this._glTexture = null;
@@ -363,8 +364,9 @@ export class BaseTexture extends Bitmap {
 		/**
 		 * @internal
 		 * 获取纹理资源。
+		 * @override
 		 */
-		/*override*/  _getSource(): any {
+		  _getSource(): any {
 		if (this._readyed)
 			return this._glTexture;
 		else

@@ -58,8 +58,9 @@ import { ILaya } from "../../../ILaya";
 		
 		/**
 		 * 播放
+		 * @override
 		 */
-		/*override*/  play():void {
+		play():void {
 			this.isStopped = false;
 			try {
 				this._audio.playbackRate = ILaya.SoundManager.playbackRate;
@@ -77,9 +78,10 @@ import { ILaya } from "../../../ILaya";
 		/**
 		 * 当前播放到的位置
 		 * @return
+		 * @override
 		 *
 		 */
-		/*override*/  get position():number {
+		get position():number {
 			if (!this._audio)
 				return 0;
 			return this._audio.currentTime;
@@ -87,8 +89,9 @@ import { ILaya } from "../../../ILaya";
 		
 		/**
 		 * 获取总时间。
+		 * @override
 		 */
-		/*override*/  get duration():number 
+		get duration():number 
 		{
 			if (!this._audio)
 				return 0;
@@ -97,9 +100,9 @@ import { ILaya } from "../../../ILaya";
 		
 		/**
 		 * 停止播放
-		 *
+		 * @override
 		 */
-		/*override*/  stop():void {
+		stop():void {
 			//trace("stop and remove event");
 			super.stop();
 			this.isStopped = true;
@@ -128,8 +131,10 @@ import { ILaya } from "../../../ILaya";
 			if (ILaya.SoundManager.autoReleaseSound)
 			ILaya.SoundManager.disposeSoundLater(this.url);
 		}
-		
-		/*override*/  pause():void 
+		/**
+		 * @override
+		 */
+		pause():void 
 		{
 			this.isStopped = true;
 			ILaya.SoundManager.removeChannel(this);
@@ -138,8 +143,10 @@ import { ILaya } from "../../../ILaya";
 			if (ILaya.SoundManager.autoReleaseSound)
 			ILaya.SoundManager.disposeSoundLater(this.url);
 		}
-		
-		/*override*/  resume():void 
+		/**
+		 * @override
+		 */
+		resume():void 
 		{		
 			if (!this._audio)
 				return;
@@ -152,9 +159,10 @@ import { ILaya } from "../../../ILaya";
 		/**
 		 * 设置音量
 		 * @param v
+		 * @override
 		 *
 		 */
-		/*override*/  set volume(v:number) {
+		set volume(v:number) {
 			if (!this._audio) return;
 			this._audio.volume = v;
 		}
@@ -162,9 +170,10 @@ import { ILaya } from "../../../ILaya";
 		/**
 		 * 获取音量
 		 * @return
+		 * @override
 		 *
 		 */
-		/*override*/  get volume():number {
+		get volume():number {
 			if (!this._audio) return 1;
 			return this._audio.volume;
 		}

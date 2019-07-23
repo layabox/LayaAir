@@ -161,8 +161,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			}
 		}
 		
-		/**@internal */
-		/*override*/  _setDisplay(value:boolean):void {
+		/**@internal 
+		 * @override
+		*/
+		_setDisplay(value:boolean):void {
 			super._setDisplay(value);
 			this._resumePlay();
 		}

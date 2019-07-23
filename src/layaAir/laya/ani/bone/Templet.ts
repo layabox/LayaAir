@@ -160,8 +160,9 @@ export class Templet extends AnimationTemplet {
 		 * 解析动画
 		 * @param	data			解析的二进制数据
 		 * @param	playbackRate	帧率
+		 * @override
 		 */
-		/*override*/  parse(data: ArrayBuffer): void {
+		parse(data: ArrayBuffer): void {
 		super.parse(data);
 		//_loaded = true;
 		this.event(Event.LOADED, this);
@@ -726,9 +727,9 @@ export class Templet extends AnimationTemplet {
 
 	/**
 	 * @internal
+	 * @override
 	 */
-
-		/*override*/  _setCreateURL(url: string): void {
+	_setCreateURL(url: string): void {
 		this._relativeUrl = url;
 		super._setCreateURL(url);
 	}
@@ -753,8 +754,9 @@ export class Templet extends AnimationTemplet {
 	}
 		/**
 		 * 释放纹理
+		 * @override
 		 */
-		/*override*/  destroy(): void {
+		destroy(): void {
 		this._isDestroyed = true;
 		var tTexture: any;
 		for (tTexture in this.subTextureDic) {

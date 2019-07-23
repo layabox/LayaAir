@@ -33,8 +33,10 @@ import { ClassUtils } from "../../utils/ClassUtils";
 		private _lowerAngle:number = 0;
 		/**启用约束后，刚体旋转范围的上限弧度*/
 		private _upperAngle:number = 0;
-		
-		/*override*/ protected _createJoint():void {
+		/**
+		 * @override
+		 */
+		protected _createJoint():void {
 			if (!this._joint) {
 				//if (!otherBody) throw "otherBody can not be empty";
 				this.selfBody =this.selfBody|| this.owner.getComponent(RigidBody);

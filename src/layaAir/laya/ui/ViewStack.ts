@@ -136,7 +136,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			return this._items;
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/  set dataSource(value:any) {
 			this._dataSource = value;
 			if (typeof(value)=='number' || typeof(value)=='string') {

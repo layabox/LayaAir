@@ -38,8 +38,10 @@ import { ShaderValue } from "../../../webgl/shader/ShaderValue";
 									'a_EndColor',4,'a_SizeRotation',5,'a_Radius',6,'a_Radian',7,'a_AgeAddScale',8,'a_Time',9];
 			*/
 		}
-		
-		/*override*/  upload():void
+		/**
+		 * @override
+		 */
+		  upload():void
 		{
 			var size:any[] = this.size;
 			size[0] = RenderState2D.width;

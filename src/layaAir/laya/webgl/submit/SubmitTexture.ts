@@ -20,7 +20,9 @@ import { ColorFilter } from "../../filters/ColorFilter"
 		constructor(renderType:number = SubmitBase.TYPE_2D){
 			super(renderType);
 		}
-		
+		/**
+		 * @override
+		 */
 		 /*override*/ releaseRender():void{
 			if ((--this._ref) < 1){
 				SubmitTexture.POOL[SubmitTexture._poolSize++] = this;
@@ -30,7 +32,9 @@ import { ColorFilter } from "../../filters/ColorFilter"
 				this._parent && (this._parent.releaseRender(), this._parent = null);
 			}
 		}
-		
+		/**
+		 * @override
+		 */
 		 /*override*/ renderSubmit():number{
 			if (this._numEle === 0)
 				return 1;

@@ -92,8 +92,9 @@ export class Texture2D extends BaseTexture {
 
 		/**
 		 * @inheritDoc
+		 * @override
 		 */
-		/*override*/  get defaulteTexture(): BaseTexture {
+		  get defaulteTexture(): BaseTexture {
 		return Texture2D.grayTexture;
 	}
 

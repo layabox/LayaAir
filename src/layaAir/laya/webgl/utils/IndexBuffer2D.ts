@@ -16,8 +16,10 @@ import { Buffer } from "./Buffer";
 			this._bufferType = LayaGL.instance.ELEMENT_ARRAY_BUFFER;
 			this._buffer = new ArrayBuffer(8);
 		}
-		
-		/*override*/ protected _checkArrayUse():void {
+		/**
+		 * @override
+		 */
+		 protected _checkArrayUse():void {
 			this._uint16Array && (this._uint16Array = new Uint16Array(this._buffer));
 		}
 		
@@ -27,16 +29,18 @@ import { Buffer } from "./Buffer";
 		
 		/**
 		 * @inheritDoc
+		 * @override
 		 */
-		/*override*/  _bindForVAO():void {
+		  _bindForVAO():void {
 			var gl:WebGLRenderingContext=LayaGL.instance;
 			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._glBuffer);
 		}
 		
 		/**
 		 * @inheritDoc
+		 * @override
 		 */
-		/*override*/  bind():boolean {
+		  bind():boolean {
 			if (Buffer._bindedIndexBuffer !== this._glBuffer) {
 				var gl:WebGLRenderingContext=LayaGL.instance;
 				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._glBuffer);

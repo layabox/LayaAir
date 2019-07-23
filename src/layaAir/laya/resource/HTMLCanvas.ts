@@ -22,8 +22,10 @@ import { Browser } from "../utils/Browser";
 		  get source():any {
 			return this._source;
 		}
-		/**@internal */
-		/*override*/  _getSource():any 
+		/**@internal 
+		 * @override
+		*/
+		  _getSource():any 
 		{
 			return this._source;
 		}
@@ -54,8 +56,9 @@ import { Browser } from "../utils/Browser";
 		
 		/**
 		 * 销毁。
+		 * @override
 		 */
-		/*override*/  destroy():void {
+		  destroy():void {
 			super.destroy();
 			this._setCPUMemory(0);
 			this._ctx && this._ctx.destroy && this._ctx.destroy();

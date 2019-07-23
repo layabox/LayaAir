@@ -190,8 +190,9 @@ import { ClassUtils } from "../utils/ClassUtils";
 		 * @private
 		 * 获取样式。
 		 * @return  样式 Style 。
+		 * @override
 		 */
-		/*override*/  getStyle():SpriteStyle {
+		getStyle():SpriteStyle {
 			this._style === TextStyle.EMPTY && (this._style = TextStyle.create());
 			return this._style;
 		}
@@ -226,8 +227,11 @@ import { ClassUtils } from "../utils/ClassUtils";
 			}
 		}
 		
-		/**@inheritDoc */
-		/*override*/  destroy(destroyChild:boolean = true):void {
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
+		destroy(destroyChild:boolean = true):void {
 			super.destroy(destroyChild);
 			this._clipPoint = null;
 			this._lines = null;
@@ -245,8 +249,9 @@ import { ClassUtils } from "../utils/ClassUtils";
 		/**
 		 * @internal
 		 * @inheritDoc
+		 * @override
 		 */
-		/*override*/  _getBoundPointsM(ifRotate:boolean = false):any[] {
+		_getBoundPointsM(ifRotate:boolean = false):any[] {
 			var rec:Rectangle = Rectangle.TEMP;
 			rec.setTo(0, 0, this.width, this.height);
 			return rec._getBoundPoints();
@@ -254,8 +259,9 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc
+		 * @override
 		 */
-		/*override*/  getGraphicBounds(realSize:boolean = false):Rectangle {
+		getGraphicBounds(realSize:boolean = false):Rectangle {
 			var rec:Rectangle = Rectangle.TEMP;
 			rec.setTo(0, 0, this.width, this.height);
 			return rec;
@@ -263,13 +269,16 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc
+		 * @override
 		 */
-		/*override*/  get width():number {
+		get width():number {
 			if (this._width) return this._width;
 			return this.textWidth + this.padding[1] + this.padding[3];
 		}
-		
-		/*override*/  set width(value:number) {
+		/**
+		 * @override
+		 */
+		set width(value:number) {
 			if (value != this._width) {
 				super.set_width(value);
 				this.isChanged = true;
@@ -288,13 +297,16 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc
+		 * @override
 		 */
-		/*override*/  get height():number {
+		get height():number {
 			if (this._height) return this._height;
 			return this.textHeight;
 		}
-		
-		/*override*/  set height(value:number) {
+		/**
+		 * @override
+		 */
+		set height(value:number) {
 			if (value != this._height) {
 				super.set_height(value);
 				this.isChanged = true;

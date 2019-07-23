@@ -27,7 +27,10 @@ import { ClassUtils } from "../../utils/ClassUtils";
 		/**刚体在回归到节点过程中受到的阻尼，建议取值0~1*/
 		private _damping:number = 0;
 		
-		/*override*/ protected _createJoint():void {
+		/**
+		 * @override
+		 */
+		 protected _createJoint():void {
 			if (!this._joint) {
 				this.selfBody =this.selfBody|| this.owner.getComponent(RigidBody);
 				if (!this.selfBody) throw "selfBody can not be empty";

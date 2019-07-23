@@ -67,8 +67,10 @@ if (!PhysicsDebugDraw._inited) {
 			this.addChild(this._textSp);
 		}
 		
-		/**@private */
-		/*override*/  render(ctx:Context, x:number, y:number):void {
+		/**@private 
+		 * @override
+		*/
+		render(ctx:Context, x:number, y:number):void {
 			this._renderToGraphic();
 			super.render(ctx, x, y);
 		}

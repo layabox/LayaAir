@@ -13,8 +13,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 		private _points:string = "0,0,100,0";
 		/**是否是闭环，注意不要有自相交的链接形状，它可能不能正常工作*/
 		private _loop:boolean = false;
-		
-		/*override*/ protected getDef():any {
+		/**
+		 * @override
+		 */
+		protected getDef():any {
 			if (!this._shape) {
 				this._shape = new (<any>window).box2d.b2ChainShape();
 				this._setShape(false);

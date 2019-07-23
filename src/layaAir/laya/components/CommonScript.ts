@@ -6,8 +6,9 @@ export class CommonScript extends Component {
 
 		/**
 		 * @inheritDoc
+		 * @override
 		 */
-		/*override*/  get isSingleton(): boolean {
+		  get isSingleton(): boolean {
 		return false;
 	}
 

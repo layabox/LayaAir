@@ -165,7 +165,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this.labels = labels;
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/  destroy(destroyChild:boolean = true):void {
 			super.destroy(destroyChild);
 			this._button && this._button.destroy(destroyChild);
@@ -177,7 +180,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this._selectHandler = null;
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/ protected createChildren():void {
 			this.addChild(this._button = new Button());
 			this._button.text.align = "left";
@@ -227,12 +233,18 @@ import { ClassUtils } from "../utils/ClassUtils";
 			}
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/ protected measureWidth():number {
 			return this._button.width;
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/ protected measureHeight():number {
 			return this._button.height;
 		}
@@ -290,7 +302,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this.isOpen = !this._isOpen;
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/  set width(value:number) {
 			super.width = value;
 			this._button.width = this._width;
@@ -302,7 +317,10 @@ import { ClassUtils } from "../utils/ClassUtils";
             return super.width;
         }
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/  set height(value:number) {
 			super.height = value;
 			this._button.height = this._height;
@@ -548,7 +566,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			}
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/  set dataSource(value:any) {
 			this._dataSource = value;
 			if (typeof(value)=='number' || typeof(value)=='string') this.selectedIndex = parseInt(value as string);

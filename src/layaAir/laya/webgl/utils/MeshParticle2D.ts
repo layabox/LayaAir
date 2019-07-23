@@ -52,6 +52,7 @@ export class MeshParticle2D extends Mesh2D {
 
 		/**
 		 * 把本对象放到回收池中，以便getMesh能用。
+		 * @override
 		 */
 		//TODO:coverage
 		 /*override*/ releaseMesh(): void {
@@ -64,6 +65,9 @@ export class MeshParticle2D extends Mesh2D {
 	}
 
 		//TODO:coverage
+		/**
+		 * @override
+		 */
 		 /*override*/ destroy(): void {
 		this._ib.destroy();
 		this._vb.destroy();

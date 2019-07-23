@@ -85,8 +85,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 	 * }
 	 */
 	export class RadioGroup extends UIGroup {
-		/**@inheritDoc */
-		/*override*/ protected createItem(skin:string, label:string):Sprite {
+		/**@inheritDoc 
+		 * @override
+		*/
+		 protected createItem(skin:string, label:string):Sprite {
 			return new Radio(skin, label);
 		}
 	}

@@ -25,8 +25,10 @@ export class GlowFilterSetter extends FilterSetterBase {
 		super();
 		this._filter = new GlowFilter(this._color);
 	}
-
-		/*override*/ protected buildFilter(): void {
+	/**
+ 	* @override
+	 */
+	protected buildFilter(): void {
 
 		this._filter = new GlowFilter(this.color, this.blur, this.offX, this.offY);
 		super.buildFilter();

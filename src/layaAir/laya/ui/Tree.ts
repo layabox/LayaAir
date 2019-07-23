@@ -255,8 +255,11 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this.width = this.height = 200;
 		}
 		
-		/**@inheritDoc */
-		/*override*/  destroy(destroyChild:boolean = true):void {
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
+		  destroy(destroyChild:boolean = true):void {
 			super.destroy(destroyChild);
 			this._list && this._list.destroy(destroyChild);
 			this._list = null;
@@ -264,8 +267,11 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this._renderHandler = null;
 		}
 		
-		/**@inheritDoc */
-		/*override*/ protected createChildren():void {
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
+		 protected createChildren():void {
 			this.addChild(this._list = new List());
 			this._list.renderHandler = Handler.create(this, this.renderItem, null, false);
 			this._list.repeatX = 1;
@@ -425,8 +431,9 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc
+		 * @override
 		 */
-		/*override*/  set width(value:number) {
+		  set width(value:number) {
 			super.width = value;
 			this._list.width = value;
         }
@@ -435,8 +442,11 @@ import { ClassUtils } from "../utils/ClassUtils";
             return super.width;
         }
 		
-		/**@inheritDoc */
-		/*override*/  set height(value:number) {
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
+		  set height(value:number) {
 			super.height = value;
 			this._list.height = value;
         }
@@ -551,8 +561,11 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this.repaint();
 		}
 		
-		/**@inheritDoc */
-		/*override*/  set dataSource(value:any) {
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
+		  set dataSource(value:any) {
 			this._dataSource = value;
 			//if (value is XmlDom) xml = value as XmlDom;
 			super.dataSource = value;

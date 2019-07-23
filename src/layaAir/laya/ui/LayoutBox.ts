@@ -15,7 +15,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 		/**@private */
 		protected _itemChanged:boolean = false;
 		
-		/** @inheritDoc	*/
+		/** 
+		 * @inheritDoc	
+		 * @override
+		*/
 		/*override*/  addChild(child:Node):Node {
 			child.on(Event.RESIZE, this, this.onResize);
 			this._setItemChanged();
@@ -26,14 +29,20 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this._setItemChanged();
 		}
 		
-		/** @inheritDoc	*/
+		/** 
+		 * @inheritDoc	
+		 * @override
+		*/
 		/*override*/  addChildAt(child:Node, index:number):Node {
 			child.on(Event.RESIZE, this, this.onResize);
 			this._setItemChanged();
 			return super.addChildAt(child, index);
 		}
 		
-		/** @inheritDoc	*/
+		/**
+		 *  @inheritDoc	
+		 * @override
+		*/
 		/*override*/  removeChildAt(index:number):Node {
 			this.getChildAt(index).off(Event.RESIZE, this, this.onResize);
 			this._setItemChanged();

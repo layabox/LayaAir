@@ -182,8 +182,11 @@ import { FrameAnimation } from "../display/FrameAnimation"
 			}
 		}
 		
-		/**@private */
-		/*override*/ protected _calculateKeyFrames(node:any):void {
+		/**
+		 * @private 
+		 * @override
+		*/
+		 protected _calculateKeyFrames(node:any):void {
 			super._calculateKeyFrames(node);
 			this._nodeIDAniDic[node.target] = node;
 		}

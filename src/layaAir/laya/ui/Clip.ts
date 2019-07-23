@@ -165,7 +165,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this.skin = url;
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/  destroy(destroyChild:boolean = true):void {
 			super.destroy(true);
 			this._bitmap && this._bitmap.destroy();
@@ -181,7 +184,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			(window as any).Laya.loader.clearRes(this._skin);
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/ protected createChildren():void {
 			this.graphics = this._bitmap = new AutoBitmap();
 		}
@@ -345,7 +351,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this._group = value;
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/  set width(value:number) {
 			super.width = value;
 			this._bitmap.width = value;
@@ -355,7 +364,10 @@ import { ClassUtils } from "../utils/ClassUtils";
             return super.width;
         }
         
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		 * */
 		/*override*/  set height(value:number) {
 			super.height = value;
 			this._bitmap.height = value;
@@ -365,13 +377,19 @@ import { ClassUtils } from "../utils/ClassUtils";
             return super.height;
         }
         
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/ protected measureWidth():number {
 			this.runCallLater(this.changeClip);
 			return this._bitmap.width;
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/ protected measureHeight():number {
 			this.runCallLater(this.changeClip);
 			return this._bitmap.height;
@@ -491,7 +509,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this.event(Event.COMPLETE);
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/  set dataSource(value:any) {
 			this._dataSource = value;
 			if (typeof(value)=='number' || typeof(value)=='string') this.index = parseInt(value as string);

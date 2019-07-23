@@ -11,8 +11,10 @@ import { BlurFilter } from "../filters/BlurFilter";
 			super();
 			this._filter = new BlurFilter(this.strength);
 		}
-		
-		/*override*/ protected buildFilter():void 
+		/**
+		 * @override
+		 */
+		protected buildFilter():void 
 		{
 			this._filter = new BlurFilter(this.strength);
 			super.buildFilter();

@@ -134,8 +134,11 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this.skin = skin;
 		}
 		
-		/**@inheritDoc */
-		/*override*/  destroy(destroyChild:boolean = true):void {
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
+		  destroy(destroyChild:boolean = true):void {
 			super.destroy(destroyChild);
 			this._bg && this._bg.destroy(destroyChild);
 			this._bar && this._bar.destroy(destroyChild);
@@ -143,8 +146,11 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this.changeHandler = null;
 		}
 		
-		/**@inheritDoc */
-		/*override*/ protected createChildren():void {
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
+		 protected createChildren():void {
 			this.addChild(this._bg = new Image());
 			this.addChild(this._bar = new Image());
 			this._bar._bitmap.autoCacheCmd = false;
@@ -179,13 +185,19 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this.event(Event.LOADED);
 		}
 		
-		/**@inheritDoc */
-		/*override*/ protected measureWidth():number {
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
+		 protected measureWidth():number {
 			return this._bg.width;
 		}
 		
-		/**@inheritDoc */
-		/*override*/ protected measureHeight():number {
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
+		 protected measureHeight():number {
 			return this._bg.height;
 		}
 		
@@ -253,8 +265,11 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this._bg.sizeGrid = this._bar.sizeGrid = value;
 		}
 		
-		/**@inheritDoc */
-		/*override*/  set width(value:number) {
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
+		  set width(value:number) {
 			super.width = value;
 			this._bg.width = this._width;
 			this.callLater(this.changeValue);
@@ -264,8 +279,11 @@ import { ClassUtils } from "../utils/ClassUtils";
             return super.width;
         }
 		
-		/**@inheritDoc */
-		/*override*/  set height(value:number) {
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
+		  set height(value:number) {
 			super.height = value;
 			this._bg.height = this._height;
 			this._bar.height = this._height;
@@ -275,8 +293,11 @@ import { ClassUtils } from "../utils/ClassUtils";
             return super.height;
         }
         
-		/**@inheritDoc */
-		/*override*/  set dataSource(value:any) {
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
+		  set dataSource(value:any) {
 			this._dataSource = value;
 			if (typeof(value)=='number' || typeof(value)=='string') this.value = Number(value);
 			else super.dataSource = value;

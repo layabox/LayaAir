@@ -89,12 +89,16 @@ import { Component } from "../components/Component"
 			//查找碰撞体
 			this.resetCollider(false);
 		}
-		
-		/*override*/ protected _onAwake():void {
+		/**
+		 * @override
+		 */
+		 protected _onAwake():void {
 			this._createBody();
 		}
-		
-		/*override*/ protected _onEnable():void {
+		/**
+		 * @override
+		 */
+		 protected _onEnable():void {
 			var _$this = this;
 			this._createBody();
 			//实时同步物理到节点
@@ -213,8 +217,10 @@ import { Component } from "../components/Component"
 		private _overSet(sp:Sprite, prop:string, getfun:any):void {
 			Object.defineProperty(sp, prop, {get: this.accessGetSetFunc(sp, prop, "get") , set: getfun, enumerable: false, configurable: true});;
 		}
-		
-		/*override*/ protected _onDisable():void {
+		/**
+		 * @override
+		 */
+		 protected _onDisable():void {
 			//添加到物理世界
 			Laya.physicsTimer.clear(this, this._sysPhysicToNode);
 			IPhysics.Physics.I._removeBody(this._body);

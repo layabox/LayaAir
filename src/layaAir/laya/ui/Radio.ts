@@ -27,20 +27,28 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this._autoSize = false;
 		}
 		
-		/**@inheritDoc */	
+		/**
+		 * @inheritDoc 
+		 * @override
+		 * */	
 		/*override*/  destroy(destroyChild:boolean = true):void {
 			super.destroy(destroyChild);
 			this._value = null;
 		}
 		
-		/**@inheritDoc */	
+		/**
+		 * @inheritDoc 
+		 * @override*/	
 		/*override*/ protected preinitialize():void {
 			super.preinitialize();
 			this.toggle = false;
 			this._autoSize = false;
 		}
 		
-		/**@inheritDoc */	
+		/**
+		 * @inheritDoc 
+		 * @override
+		 * */	
 		/*override*/ protected initialize():void {
 			super.initialize();
 			this.createText();

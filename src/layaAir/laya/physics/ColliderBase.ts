@@ -42,8 +42,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			}
 			return this._def;
 		}
-		
-		/*override*/ protected _onEnable():void {
+		/**
+		 * @override
+		 */
+		 protected _onEnable():void {
 			this.rigidBody || Laya.systemTimer.callLater(this, this._checkRigidBody);
 		}
 		
@@ -56,8 +58,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 				}
 			}
 		}
-		
-		/*override*/ protected _onDestroy():void {
+		/**
+		 * @override
+		 */
+		 protected _onDestroy():void {
 			if (this.rigidBody) {
 				if (this.fixture) {
 					if (this.fixture.GetBody() == this.rigidBody.body) {
@@ -158,8 +162,9 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * 获取是否为单实例组件。
+		 * @override
 		 */
-		/*override*/  get isSingleton():boolean {
+		  get isSingleton():boolean {
 			return false;
 		}
 	}

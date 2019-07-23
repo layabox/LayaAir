@@ -35,7 +35,10 @@ export class SubmitCanvas extends SubmitBase {
 		this.shaderValue = new Value2D(0, 0);
 	}
 
-		 /*override*/ renderSubmit(): number {
+	/**
+	 * @override
+	 */
+		  renderSubmit(): number {
 		// 下面主要是为了给canvas设置矩阵。因为canvas保存的是没有偏移的。
 		var preAlpha: number = RenderState2D.worldAlpha;
 		var preMatrix4: any[] = RenderState2D.worldMatrix4;
@@ -73,8 +76,10 @@ export class SubmitCanvas extends SubmitBase {
 		RenderState2D.worldShaderDefines = preWorldShaderDefines;
 		return 1;
 	}
-
-		 /*override*/ releaseRender(): void {
+		/**
+		 * @override
+		 */
+		  releaseRender(): void {
 		if ((--this._ref) < 1) {
 			var cache: any = SubmitCanvas.POOL;
 			//_vb = null;
@@ -82,8 +87,10 @@ export class SubmitCanvas extends SubmitBase {
 			cache[cache._length++] = this;
 		}
 	}
-
-		 /*override*/ getRenderType(): number {
+		/**
+		 * @override
+		 */
+		  getRenderType(): number {
 		return SubmitBase.TYPE_CANVAS;
 	}
 

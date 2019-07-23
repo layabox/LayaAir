@@ -50,8 +50,10 @@ import { ColorUtils } from "../utils/ColorUtils";
 			super();
 this._filter = new ColorFilter();
 		}
-		
-		/*override*/ protected buildFilter():void
+		/**
+		 * @override
+		 */
+		protected buildFilter():void
 		{
 			this._filter.reset();
 			//_filter = new ColorFilter();

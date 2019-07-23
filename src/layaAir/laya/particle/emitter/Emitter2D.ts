@@ -37,7 +37,10 @@ import { ParticleTemplateBase } from "../ParticleTemplateBase"
 		{
 			return this._particleTemplate;
 		}
-		/*override*/  emit():void
+		/**
+		 * @override
+		 */
+		  emit():void
 		{
 			super.emit();
 			if(this._emitFun!=null)

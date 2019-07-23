@@ -26,8 +26,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 		///**@private */
 		//private var _key:String;
 		
-		/**@inheritDoc */
-		/*override*/  destroy():void {
+		/**@inheritDoc 
+		 * @override
+		*/
+		destroy():void {
 			super.destroy();
 			this._source = null;
 			this._sizeGrid = null;

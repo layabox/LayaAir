@@ -16,7 +16,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 		/**矩形高度*/
 		private _height:number = 100;
 		
-		/*override*/ protected getDef():any {
+		/**
+		 * @override
+		 */
+		 protected getDef():any {
 			if (!this._shape) {
 				this._shape = new (<any>window).box2d.b2PolygonShape();
 				this._setShape(false);
@@ -74,8 +77,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			if (this._shape) this._setShape();
 		}
 		
-		/**@private 重置形状*/
-		/*override*/  resetShape(re:boolean = true):void {
+		/**@private 重置形状
+		 * @override
+		*/
+		resetShape(re:boolean = true):void {
 			this._setShape();
 		}
 	}

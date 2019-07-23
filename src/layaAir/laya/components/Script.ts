@@ -9,15 +9,17 @@ import { ILaya } from "../../ILaya";
 export class Script extends Component {
 		/**
 		 * @inheritDoc
+		 * @override
 		 */
-		/*override*/  get isSingleton(): boolean {
+		  get isSingleton(): boolean {
 		return false;
 	}
 
 	/**
 	 * @inheritDoc
+	 * @override
 	 */
-	/*override*/ protected _onAwake(): void {
+	protected _onAwake(): void {
 		this.onAwake();
 		if (this.onStart !== Script.prototype.onStart) {
 			ILaya.startTimer.callLater(this, this.onStart);
@@ -26,8 +28,9 @@ export class Script extends Component {
 
 		/**
 		 * @inheritDoc
+		 * @override
 		 */
-		/*override*/ protected _onEnable(): void {
+		protected _onEnable(): void {
 		var proto: any = Script.prototype;
 		if (this.onTriggerEnter !== proto.onTriggerEnter) {
 			this.owner.on(Event.TRIGGER_ENTER, this, this.onTriggerEnter);
@@ -97,8 +100,9 @@ export class Script extends Component {
 
 		/**
 		 * @inheritDoc
+		 * @override
 		 */
-		/*override*/ protected _onDisable(): void {
+		protected _onDisable(): void {
 		this.owner.offAllCaller(this);
 		ILaya.stage.offAllCaller(this);
 		ILaya.startTimer.clearAll(this);
@@ -108,15 +112,17 @@ export class Script extends Component {
 
 		/**
 		 * @internal
+		 * @override
 		 */
-		/*override*/  _isScript(): boolean {
+		 _isScript(): boolean {
 		return true;
 	}
 
 		/**
 		 * @inheritDoc
+		 * @override
 		 */
-		/*override*/ protected _onDestroy(): void {
+		protected _onDestroy(): void {
 		this.onDestroy();
 	}
 

@@ -73,13 +73,19 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this.labels = labels;
 		}
 		
-		/**@inheritDoc */
-		/*override*/ protected preinitialize():void {
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
+		 protected preinitialize():void {
 			this.mouseEnabled = true;
 		}
 		
-		/**@inheritDoc */
-		/*override*/  destroy(destroyChild:boolean = true):void {
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
+		  destroy(destroyChild:boolean = true):void {
 			super.destroy(destroyChild);
 			this._items && (this._items.length = 0);
 			this._items = null;
@@ -460,8 +466,11 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this._sizeChanged();
 		}
 		
-		/**@inheritDoc */
-		/*override*/ protected commitMeasure():void {
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
+		 protected commitMeasure():void {
 			this.runCallLater(this.changeLabels);
 		}
 		
@@ -483,8 +492,11 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this.selectedIndex = this._items.indexOf(value);
 		}
 		
-		/**@inheritDoc */
-		/*override*/  set dataSource(value:any) {
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
+		  set dataSource(value:any) {
 			this._dataSource = value;
 			if (typeof(value)=='number' || typeof(value)=='string') this.selectedIndex = parseInt(value as string);
 			else if (value instanceof Array) this.labels = ((<any[]>value )).join(",");

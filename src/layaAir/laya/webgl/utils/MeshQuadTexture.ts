@@ -51,16 +51,19 @@ export class MeshQuadTexture extends Mesh2D {
 
 		/**
 		 * 把本对象放到回收池中，以便getMesh能用。
+		 * @override
 		 */
-		 /*override*/ releaseMesh(): void {
+		  releaseMesh(): void {
 		this._vb.setByteLength(0);
 		this.vertNum = 0;
 		this.indexNum = 0;
 		//_applied = false;
 		MeshQuadTexture._POOL.push(this);
 	}
-
-		 /*override*/ destroy(): void {
+		/**
+		 * @override
+		 */
+		  destroy(): void {
 		//_ib.destroy(); ib是公用的。
 		this._vb.destroy();
 		this._vb.deleteBuffer();

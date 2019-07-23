@@ -188,8 +188,10 @@ import { ILaya } from "../../../ILaya";
 			}
 			return new TextTexture(w, h);
 		}
-		
-		/*override*/  destroy():void {		
+		/**
+		 * @override
+		 */
+		  destroy():void {		
 			//console.log('destroy TextTexture');
 			this.__destroyed = true;
 			var gl:WebGLRenderingContext = ILaya.Render.isConchApp?(<any>LayaGL.instance).getDefaultCommandEncoder():WebGLContext.mainContext;

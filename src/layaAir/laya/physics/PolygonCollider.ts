@@ -12,8 +12,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 		private _y:number = 0;
 		/**用逗号隔开的点的集合，格式：x,y,x,y ...*/
 		private _points:string = "50,0,100,100,0,100";
-		
-		/*override*/ protected getDef():any {
+		/**
+		 * @override
+		 */
+		protected getDef():any {
 			if (!this._shape) {
 				this._shape = new (<any>window).box2d.b2PolygonShape();
 				this._setShape(false);

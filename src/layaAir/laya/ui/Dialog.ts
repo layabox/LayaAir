@@ -267,7 +267,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			}
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/  open(closeOther:boolean = true, param:any = null):void {
 			this._dealDragArea();
 			this._param = param;
@@ -278,13 +281,17 @@ import { ClassUtils } from "../utils/ClassUtils";
 		/**
 		 * 关闭对话框。
 		 * @param type 关闭的原因，会传递给onClosed函数
+		 * @override
 		 */
 		/*override*/  close(type:string = null):void {
 			this.closeType = type;
 			Dialog.manager.close(this);
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/  destroy(destroyChild:boolean = true):void {
 			this.closeHandler = null;
 			this.popupEffect = null;
@@ -324,7 +331,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			return this.parent != null;
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/  set zOrder(value:number) {
 			super.zOrder = value;
 			Dialog.manager._checkMask();

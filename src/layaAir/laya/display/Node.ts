@@ -103,8 +103,9 @@ import { ClassUtils } from "../utils/ClassUtils";
 		 * @param	listener	事件侦听函数。
 		 * @param	args		（可选）事件侦听函数的回调参数。
 		 * @return 此 EventDispatcher 对象。
+		 * @override
 		 */
-		/*override*/  on(type:string, caller:any, listener:Function, args:any[] = null):EventDispatcher {
+		on(type:string, caller:any, listener:Function, args:any[] = null):EventDispatcher {
 			if (type === Event.DISPLAY || type === Event.UNDISPLAY) {
 				if (!this._getBit(Const.DISPLAY)) this._setBitUp(Const.DISPLAY);
 			}
@@ -119,8 +120,9 @@ import { ClassUtils } from "../utils/ClassUtils";
 		 * @param	listener	事件侦听函数。
 		 * @param	args		（可选）事件侦听函数的回调参数。
 		 * @return 此 EventDispatcher 对象。
+		 * @override
 		 */
-		/*override*/  once(type:string, caller:any, listener:Function, args:any[] = null):EventDispatcher {
+		once(type:string, caller:any, listener:Function, args:any[] = null):EventDispatcher {
 			if (type === Event.DISPLAY || type === Event.UNDISPLAY) {
 				if (!this._getBit(Const.DISPLAY)) this._setBitUp(Const.DISPLAY);
 			}

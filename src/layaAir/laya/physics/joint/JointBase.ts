@@ -14,19 +14,28 @@ import { ClassUtils } from "../../utils/ClassUtils";
 			if (!this._joint) this._createJoint();
 			return this._joint;
 		}
-		
-		/*override*/ protected _onEnable():void {
+		/**
+		 * @override
+		 * 
+		 */
+		 protected _onEnable():void {
 			this._createJoint();
 		}
-		
-		/*override*/ protected _onAwake():void {
+		/**
+		 * @override
+		 * 
+		 */
+		 protected _onAwake():void {
 			this._createJoint();
 		}
 		
 		protected _createJoint():void {
 		}
-		
-		/*override*/ protected _onDisable():void {
+		/**
+		 * @override
+		 * 
+		 */
+		 protected _onDisable():void {
 			if (this._joint) {
 				Physics.I._removeJoint(this._joint);
 				this._joint = null;

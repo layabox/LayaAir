@@ -39,7 +39,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this.initialize();
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/  destroy(destroyChild:boolean = true):void {
 			super.destroy(destroyChild);
 			this._dataSource = null;
@@ -71,8 +74,8 @@ import { ClassUtils } from "../utils/ClassUtils";
 		/**
 		 * <p>表示显示对象的宽度，以像素为单位。</p>
 		 * <p><b>注：</b>当值为0时，宽度为自适应大小。</p>
-		 */
-		/*override*/  get width():number {
+		*@override
+		*/  get width():number {
             return this.get_width();
         }
         
@@ -108,6 +111,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		/**
 		 * <p>表示显示对象的高度，以像素为单位。</p>
 		 * <p><b>注：</b>当值为0时，高度为自适应大小。</p>
+		 * @override
 		 */
 		/*override*/  get height():number {
             return this.get_height();
@@ -361,7 +365,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			return this._widget;
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/  set scaleX(value:number) {
             this.set_scaleX(value);
         }
@@ -376,7 +383,10 @@ import { ClassUtils } from "../utils/ClassUtils";
             return super.scaleX;
         }
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/  set scaleY(value:number) {
             this.set_scaleY(value);
         }
@@ -396,7 +406,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this._sizeChanged();
 		}
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/  set width(value:number) {
             this.set_width(value);
         }
@@ -407,7 +420,10 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this.callLater(this._sizeChanged);
         }
 		
-		/**@inheritDoc */
+		/**
+		 * @inheritDoc 
+		 * @override
+		*/
 		/*override*/  set height(value:number) {
             this.set_height(value);
 		}
@@ -457,7 +473,11 @@ import { ClassUtils } from "../utils/ClassUtils";
 				this.callLater(this._sizeChanged);
 			}
         }
-                
+        /**
+		 * 
+		 * @param child 
+		 * @override
+		 */   
 		/*override*/ protected _childChanged(child:Node = null):void {
 			this.callLater(this._sizeChanged);
 			super._childChanged(child);

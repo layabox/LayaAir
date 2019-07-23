@@ -66,8 +66,13 @@ import { ClassUtils } from "../utils/ClassUtils"
 		private _onPlayAction():void {
 			this.play(0, false);
 		}
-		
-		/*override*/  play(start:any = 0, loop:boolean = true, name:string = ""):void 
+		/**
+		 * @param start 
+		 * @param loop 
+		 * @param name 
+		 * @override
+		 */
+		play(start:any = 0, loop:boolean = true, name:string = ""):void 
 		{
 			if (!this._target)
 				return;
@@ -126,8 +131,10 @@ import { ClassUtils } from "../utils/ClassUtils"
 			}
 		}
 		
-		/**@private */
-		/*override*/ protected _displayToIndex(value:number):void {
+		/**@private 
+		 * @override
+		*/
+		protected _displayToIndex(value:number):void {
 			if (!this._animationData) return;
 			if (value < 0) value = 0;
 			if (value > this._count) value = this._count;
@@ -138,8 +145,10 @@ import { ClassUtils } from "../utils/ClassUtils"
 			}
 		}
 		
-		/**@private */
-		/*override*/ protected _displayNodeToFrame(node:any, frame:number, targetDic:any = null):void {
+		/**@private 
+		 * @override
+		*/
+		protected _displayNodeToFrame(node:any, frame:number, targetDic:any = null):void {
 			if (!this._target) return;
 			var target:any = this._target;
 			var frames:any = node.frames, key:string, propFrames:any[], value:any;
@@ -178,8 +187,10 @@ import { ClassUtils } from "../utils/ClassUtils"
 			}
 		}
 		
-		/**@private */
-		/*override*/ protected _calculateKeyFrames(node:any):void {
+		/**@private 
+		 * @override
+		*/
+		protected _calculateKeyFrames(node:any):void {
 			super._calculateKeyFrames(node);
 			var keyFrames:any = node.keyframes, key:string, tKeyFrames:any[], target:number = node.target;
 			

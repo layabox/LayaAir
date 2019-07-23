@@ -204,8 +204,10 @@ class EventHandler extends Handler {
 	constructor(caller:any, method:Function, args:any[], once:boolean){
 		super(caller, method, args, once);
 	}
-	
-	/*override*/  recover():void {
+	/**
+	 * @override
+	 */
+	recover():void {
 		if (this._id > 0) {
 			this._id = 0;
 			EventHandler._pool.push(this.clear());

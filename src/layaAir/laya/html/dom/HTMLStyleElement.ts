@@ -8,23 +8,36 @@ import { ILaya } from "../../../ILaya";
 	 */
 	export class HTMLStyleElement extends HTMLElement {
 		
-		
-		/*override*/ protected _creates():void 
+		/**
+		 * @override
+		 */
+		protected _creates():void 
 		{
 		}
-		
-		/*override*/  drawToGraphic(graphic:Graphics, gX:number, gY:number, recList:any[]):void 
+		/**
+		 * 
+		 * @param graphic 
+		 * @param gX 
+		 * @param gY 
+		 * @param recList 
+		 * @override
+		 */
+		drawToGraphic(graphic:Graphics, gX:number, gY:number, recList:any[]):void 
 		{
 		}
 		//TODO:coverage
-		/*override*/  reset():HTMLElement {
+		/**
+		 * @override
+		 */
+		reset():HTMLElement {
 			return this;
 		}
 		
 		/**
 		 * 解析样式
+		 * @override
 		 */
-		/*override*/  set innerTEXT(value:string) {
+		set innerTEXT(value:string) {
 			HTMLStyle.parseCSS(value, null);
         }
         

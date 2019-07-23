@@ -22,8 +22,10 @@ import { ClassUtils } from "../../utils/ClassUtils";
 		
 		/**selfAnchor和otherAnchor之间的最大距离*/
 		private _maxLength:number = 1;
-		
-		/*override*/ protected _createJoint():void {
+		/**
+		 * @override
+		 */
+		protected _createJoint():void {
 			if (!this._joint) {
 				//if (!otherBody) throw "otherBody can not be empty";
 				this.selfBody =this.selfBody|| this.owner.getComponent(RigidBody);

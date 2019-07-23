@@ -61,8 +61,9 @@ import { ILaya } from "../../../ILaya";
 		}
 		/**
 		 * 播放声音
+		 * @override
 		 */
-		/*override*/  play():void {
+		play():void {
 			ILaya.SoundManager.addChannel(this);
 			this.isStopped = false;
 			this._clearBufferSource();
@@ -118,15 +119,18 @@ import { ILaya } from "../../../ILaya";
 		
 		/**
 		 * 获取当前播放位置
+		 * @override
 		 */
-		/*override*/  get position():number {
+		get position():number {
 			if (this.bufferSource) {
 				return (Browser.now() - this._startTime) / 1000 + this.startTime;
 			}
 			return 0;
 		}
-		
-		/*override*/  get duration():number 
+		/**
+		 * @override
+		 */
+		get duration():number 
 		{
 			if (this.audioBuffer) {
 				return this.audioBuffer.duration;
@@ -168,8 +172,9 @@ import { ILaya } from "../../../ILaya";
 		
 		/**
 		 * 停止播放
+		 * @override
 		 */
-		/*override*/  stop():void {
+		stop():void {
 			super.stop();
             this._clearBufferSource();
 			this.audioBuffer = null;
@@ -181,8 +186,10 @@ import { ILaya } from "../../../ILaya";
 			if (ILaya.SoundManager.autoReleaseSound)
 			ILaya.SoundManager.disposeSoundLater(this.url);
 		}
-		
-		/*override*/  pause():void 
+		/**
+		 * @override
+		 */
+		pause():void 
 		{
 			if (!this.isStopped)
 			{
@@ -196,8 +203,10 @@ import { ILaya } from "../../../ILaya";
 			if (ILaya.SoundManager.autoReleaseSound)
 			ILaya.SoundManager.disposeSoundLater(this.url);
 		}
-		
-		/*override*/  resume():void 
+		/**
+		 * @override
+		 */
+		resume():void 
 		{
 			this.startTime = this._pauseTime;
 			this.play();
@@ -205,8 +214,9 @@ import { ILaya } from "../../../ILaya";
 		
 		/**
 		 * 设置音量
+		 * @override
 		 */
-		/*override*/  set volume(v:number) {
+		  set volume(v:number) {
 			this._volume = v;
 			if (this.isStopped) {
 				return;
@@ -220,8 +230,9 @@ import { ILaya } from "../../../ILaya";
 		
 		/**
 		 * 获取音量
+		 * @override
 		 */
-		/*override*/  get volume():number {
+		  get volume():number {
 			return this._volume;
 		}
 	
