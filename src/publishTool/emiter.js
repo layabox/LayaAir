@@ -9,6 +9,8 @@ class emiter {
         this.copyTSdata = "";
         //import待替换结构
         this.importArr = {};
+        /**内部类的引用 */
+        this.innerImportStr = "";
         this.VISITORS = {
             "ImportDeclaration": this.emitImport,
             "ClassDeclaration": this.emitClass,
@@ -30,15 +32,18 @@ class emiter {
         this.tsData = data;
         //遍历节点
         let nodes = source.statements;
-        let isAdd = false;
         let node;
         for (let i = 0; i < nodes.length; i++) {
             node = nodes[i];
             let str = this.checkNodes(node);
+            //内部类
+            if (this.innerClass && str[0].indexOf("public class") != -1) {
+                str[0] = this.innerImportStr + "\n" + str[0];
+            }
             this.outString += str[0];
             this.copyTSdata += str[1];
-            if (!isAdd && str[0].indexOf("public class") != -1 || str[0].indexOf("interface") != -1) {
-                isAdd = true;
+            if (!this.innerClass && str[0].indexOf("public class") != -1 || str[0].indexOf("interface") != -1) {
+                this.innerClass = 1;
                 this.outString = "package " + _url.replace(new RegExp("\\\\", "g"), ".") + " {\r\n" + this.outString + "\r\n}\r\n";
             }
         }
@@ -382,6 +387,11 @@ class emiter {
                 //检测是否是枚举类型
                 if (emiter.enumType.indexOf(type) != -1)
                     return "*";
+                //如果是内部类且有引用
+                if (this.innerClass && this.importArr[type]) {
+                    if (this.innerImportStr.indexOf(this.importArr[type]) == -1)
+                        this.innerImportStr += "\r\n\timport " + this.importArr[type];
+                }
                 return type;
             case "ConstructorType":
                 return "Class";
