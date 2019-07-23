@@ -1139,7 +1139,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
 		switch (this.scaleMode) {
 			case 0:
-				var scale: Vector3 = transform.scale;
+				var scale: Vector3 = transform.getWorldLossyScale();
 				positionScale = scale;
 				sizeScale.x = scale.x;
 				sizeScale.y = scale.z;
@@ -1155,7 +1155,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 				(renderMode === 1) && (velocityScale = localScale);
 				break;
 			case 2:
-				positionScale = transform.scale;
+				positionScale = transform.getWorldLossyScale();
 				sizeScale.x = sizeScale.y = sizeScale.z = 1;
 				(renderMode === 1) && (velocityScale = Vector3._ONE);
 				break;

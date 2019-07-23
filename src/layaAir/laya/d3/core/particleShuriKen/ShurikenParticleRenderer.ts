@@ -220,7 +220,7 @@ export class ShurikenParticleRenderer extends BaseRender {
 
 		switch (particleSystem.scaleMode) {
 			case 0:
-				var scale: Vector3 = transform.scale;
+				var scale: Vector3 = transform.getWorldLossyScale();
 				sv.setVector3(ShuriKenParticle3DShaderDeclaration.POSITIONSCALE, scale);
 				sv.setVector3(ShuriKenParticle3DShaderDeclaration.SIZESCALE, scale);
 				break;
@@ -230,7 +230,7 @@ export class ShurikenParticleRenderer extends BaseRender {
 				sv.setVector3(ShuriKenParticle3DShaderDeclaration.SIZESCALE, localScale);
 				break;
 			case 2:
-				sv.setVector3(ShuriKenParticle3DShaderDeclaration.POSITIONSCALE, transform.scale);
+				sv.setVector3(ShuriKenParticle3DShaderDeclaration.POSITIONSCALE, transform.getWorldLossyScale());
 				sv.setVector3(ShuriKenParticle3DShaderDeclaration.SIZESCALE, Vector3._ONE);
 				break;
 		}

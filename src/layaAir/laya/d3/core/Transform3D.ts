@@ -85,7 +85,7 @@ export class Transform3D extends EventDispatcher {
 	 * @internal
 	 */
 	get _isFrontFaceInvert(): boolean {
-		var scale: Vector3 = this.scale;
+		var scale: Vector3 = this.getWorldLossyScale();
 		var isInvert: boolean = scale.x < 0;
 		(scale.y < 0) && (isInvert = !isInvert);
 		(scale.z < 0) && (isInvert = !isInvert);
@@ -831,7 +831,7 @@ export class Transform3D extends EventDispatcher {
 	 * 某种条件下获取该值可能不正确（例如：父节点有缩放，子节点有旋转），缩放会倾斜，无法使用Vector3正确表示,必须使用Matrix3x3矩阵才能正确表示。
 	 * @return	世界缩放。
 	 */
-	getLossyWorldScale(): Vector3 {
+	getWorldLossyScale(): Vector3 {
 		if (this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
 			if (this._parent !== null) {
 				var scaMatE = this._getScaleMatrix().elements;
@@ -852,7 +852,7 @@ export class Transform3D extends EventDispatcher {
 	 * 某种条件下设置该值可能不正确（例如：父节点有缩放，子节点有旋转），缩放会倾斜，无法使用Vector3正确表示,必须使用Matrix3x3矩阵才能正确表示。
 	 * @return	世界缩放。
 	 */
-	setLossyWorldScale(value: Vector3) {
+	setWorldLossyScale(value: Vector3) {
 		if (this._parent !== null) {
 			var scaleMat: Matrix3x3 = Transform3D._tempMatrix3x33;
 			var localScaleMat: Matrix3x3 = Transform3D._tempMatrix3x33;
@@ -876,11 +876,11 @@ export class Transform3D extends EventDispatcher {
 	//----------------------------------------Discard-------------------------------------------------
 	get scale(): Vector3 {
 		console.warn("Transfrm3D: discard function,please use getLossyWorldScale instead.");
-		return this.getLossyWorldScale();
+		return this.getWorldLossyScale();
 	}
 	set scale(value: Vector3) {
 		console.warn("Transfrm3D: discard function,please use setLossyWorldScale instead.");
-		this.setLossyWorldScale(value);
+		this.setWorldLossyScale(value);
 	}
 
 }

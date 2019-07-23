@@ -153,7 +153,7 @@ export class Camera extends BaseCamera {
 	 */
 	get viewMatrix(): Matrix4x4 {
 		if (this._updateViewMatrix) {
-			var scale: Vector3 = this.transform.scale;
+			var scale: Vector3 = this.transform.getWorldLossyScale();
 			var scaleX: number = scale.x;
 			var scaleY: number = scale.y;
 			var scaleZ: number = scale.z;
