@@ -15,22 +15,22 @@ export class ConstraintComponent extends Component {
 	/**@internal */
 	private _feedbackEnabled: boolean = false;
 
-	/**
-	 * @inheritDoc
-	 * @override
-	 */
-	get enabled(): boolean {
-		return super.enabled;
-	}
+	// /**
+	//  * @inheritDoc
+	//  * @override
+	//  */
+	// get enabled(): boolean {
+	// 	return super.enabled;
+	// }
 
-	/**
-	 * @inheritDoc
-	 * @override
-	 */
-	set enabled(value: boolean) {
-		this._nativeConstraint.IsEnabled = value;
-		super.enabled = value;
-	}
+	// /**
+	//  * @inheritDoc
+	//  * @override
+	//  */
+	// set enabled(value: boolean) {
+	// 	this._nativeConstraint.IsEnabled = value;
+	// 	super.enabled = value;
+	// }
 
 	/**
 	 * 获取打破冲力阈值。
