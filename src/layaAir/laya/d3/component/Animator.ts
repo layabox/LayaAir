@@ -687,6 +687,7 @@ export class Animator extends Component {
 
 	/**
 	 * @inheritDoc
+	 * @internal
 	 * @override
 	 */
 	_onAdded(): void {
@@ -754,6 +755,7 @@ export class Animator extends Component {
 
 	/**
 	 * @inheritDoc
+	 * @internal
 	 * @override
 	 */
 	_parse(data: any): void {

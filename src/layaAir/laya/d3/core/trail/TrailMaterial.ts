@@ -495,9 +495,9 @@ export class TrailMaterial extends BaseMaterial {
 	}
 
 	/**
- * 克隆。
- * @return	 克隆副本。
- */
+	 * @inheritdoc
+	 * @override
+	 */
 	clone(): any {
 		var dest: TrailMaterial = new TrailMaterial();
 		this.cloneTo(dest);
