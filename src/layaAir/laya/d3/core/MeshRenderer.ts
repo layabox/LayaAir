@@ -73,6 +73,7 @@ export class MeshRenderer extends BaseRender {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	protected _calculateBoundingBox(): void {
 		var sharedMesh: Mesh = ((<MeshSprite3D>this._owner)).meshFilter.sharedMesh;
@@ -96,6 +97,7 @@ export class MeshRenderer extends BaseRender {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_needRender(boundFrustum: BoundFrustum): boolean {
 		if (boundFrustum)
@@ -107,6 +109,7 @@ export class MeshRenderer extends BaseRender {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_renderUpdate(context: RenderContext3D, transform: Transform3D): void {
 		var element: SubMeshRenderElement = (<SubMeshRenderElement>context.renderElement);
@@ -142,6 +145,7 @@ export class MeshRenderer extends BaseRender {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {
 		var projectionView: Matrix4x4 = context.projectionViewMatrix;
@@ -231,6 +235,7 @@ export class MeshRenderer extends BaseRender {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_destroy(): void {
 		(this._isPartOfStaticBatch) && (MeshRenderStaticBatchManager.instance._destroyRenderSprite(this._owner));

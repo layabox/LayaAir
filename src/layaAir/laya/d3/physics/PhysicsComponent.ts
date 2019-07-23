@@ -634,6 +634,7 @@ export class PhysicsComponent extends Component {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_onAdded(): void {
 		this.enabled = this._enabled;
@@ -679,6 +680,7 @@ export class PhysicsComponent extends Component {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_cloneTo(dest: Component): void {
 		var destPhysicsComponent: PhysicsComponent = (<PhysicsComponent>dest);
