@@ -35,7 +35,7 @@ import { HTMLLinkElement } from "../dom/HTMLLinkElement";
 			var rst:any = Pool.getItem(HTMLParse._htmlClassMapShort[type]);
 			if (!rst) {
 				rst =ClassUtils.getInstance(type);
-			}
+            }
 			return rst;
 		}
 		
@@ -177,3 +177,13 @@ import { HTMLLinkElement } from "../dom/HTMLLinkElement";
 	}
 
 IHtml.HTMLParse=HTMLParse;
+ClassUtils.regClass('div', HTMLDivParser);
+ClassUtils.regClass('p', HTMLElement);
+ClassUtils.regClass('img', HTMLImageElement);
+ClassUtils.regClass('span', HTMLElement);
+ClassUtils.regClass('br', HTMLBrElement);
+ClassUtils.regClass('style', HTMLStyleElement);
+ClassUtils.regClass('font', HTMLElement);
+ClassUtils.regClass('a', HTMLElement);
+ClassUtils.regClass('#text', HTMLElement);
+ClassUtils.regClass('link', HTMLLinkElement);
