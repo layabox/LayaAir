@@ -147,6 +147,7 @@ export class ShurikenParticleRenderer extends BaseRender {
 
 	/**
 	 * @inheritDoc
+	 * @internal
 	 * @override
 	 */
 	protected _calculateBoundingBox(): void {//TODO:日后需要计算包围盒的更新
@@ -184,6 +185,7 @@ export class ShurikenParticleRenderer extends BaseRender {
 
 	/**
 	 * @inheritDoc
+	 * @internal
 	 * @override
 	 */
 	_needRender(boundFrustum: BoundFrustum): boolean {
@@ -203,6 +205,7 @@ export class ShurikenParticleRenderer extends BaseRender {
 
 	/**
 	 * @inheritDoc
+	 * @internal
 	 * @override
 	 */
 	_renderUpdate(context: RenderContext3D, transfrom: Transform3D): void {
@@ -265,6 +268,7 @@ export class ShurikenParticleRenderer extends BaseRender {
 
 	/**
 	 * @inheritDoc
+	 * @internal
 	 * @override
 	 */
 	_destroy(): void {

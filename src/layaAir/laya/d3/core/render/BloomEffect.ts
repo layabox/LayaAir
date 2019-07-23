@@ -193,6 +193,7 @@ export class BloomEffect extends PostProcessEffect {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	render(context: PostProcessRenderContext): void {
 		var cmd: CommandBuffer = context.command;

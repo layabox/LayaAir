@@ -131,9 +131,10 @@ export class WaterPrimaryMaterial extends BaseMaterial {
 	}
 
 	/**
- * 克隆。
- * @return	 克隆副本。
- */
+	 * 克隆。
+	 * @return	 克隆副本。
+	 * @override
+	 */
 	clone(): any {
 		var dest: WaterPrimaryMaterial = new WaterPrimaryMaterial();
 		this.cloneTo(dest);

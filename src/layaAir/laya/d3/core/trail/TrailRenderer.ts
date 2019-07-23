@@ -19,6 +19,7 @@ export class TrailRenderer extends BaseRender {
 
 	/**
 	 * @inheritDoc
+	 * @internal
 	 * @override
 	 */
 	protected _calculateBoundingBox(): void {
@@ -38,6 +39,7 @@ export class TrailRenderer extends BaseRender {
 
 	/**
 	 * @inheritDoc
+	 * @internal
 	 * @override
 	 */
 	_needRender(boundFrustum: BoundFrustum): boolean {
@@ -46,6 +48,7 @@ export class TrailRenderer extends BaseRender {
 
 	/**
 	 * @inheritDoc
+	 * @internal
 	 * @override
 	 */
 	_renderUpdate(state: RenderContext3D, transform: Transform3D): void {
@@ -56,6 +59,7 @@ export class TrailRenderer extends BaseRender {
 
 	/**
 	 * @inheritDoc
+	 * @internal
 	 * @override
 	 */
 	_renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {

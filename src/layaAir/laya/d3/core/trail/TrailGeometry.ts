@@ -422,6 +422,7 @@ export class TrailGeometry extends GeometryElement {
 
 	/**
 	 * @inheritDoc
+	 * @internal
 	 * @override
 	 */
 	_prepareRender(state: RenderContext3D): boolean {
@@ -430,6 +431,7 @@ export class TrailGeometry extends GeometryElement {
 
 	/**
 	 * @inheritDoc
+	 * @internal
 	 * @override
 	 */
 	_render(state: RenderContext3D): void {

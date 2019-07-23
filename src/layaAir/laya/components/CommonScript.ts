@@ -4,11 +4,11 @@ import { Component } from "./Component";
  */
 export class CommonScript extends Component {
 
-		/**
-		 * @inheritDoc
-		 * @override
-		 */
-		  get isSingleton(): boolean {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	get isSingleton(): boolean {
 		return false;
 	}
 

@@ -219,21 +219,27 @@ class emiter {
     emitProperty(node) {
         let propertystr = "\t\t";
         let tspropert = "\t\t";
+        let asText = "";
         if (node.modifiers) {
             for (let i = 0; i < node.modifiers.length; i++) {
                 let childnode = node.modifiers[i];
                 let type = ts.SyntaxKind[childnode.kind];
-                propertystr += this.resolvingModifier(type, i, childnode);
+                asText += this.resolvingModifier(type, i, childnode);
                 tspropert += childnode.getText() + " ";
             }
         }
         else {
-            propertystr += "public ";
+            asText += "public ";
         }
-        let isGetset = propertystr.indexOf("function get") != -1;
+        let isGetset = asText.indexOf("function get") != -1;
+        let note = this.changeIndex(node, "\r\n\t\t");
+        if (isGetset && note.indexOf("@override") != -1) {
+            propertystr += "override " + asText;
+        }
+        else
+            propertystr += asText;
         propertystr += (isGetset ? "" : "var ") + node.name.getText() + (isGetset ? "()" : "") + ":" + this.emitType(node.type) + (isGetset ? "{\r\n\t\t\t\treturn null;\r\n\t\t}" : ";");
         tspropert += node.name.getText() + ":" + this.emitTsType(node.type) + ";";
-        let note = this.changeIndex(node, "\r\n\t\t");
         return [note + propertystr + "\r\n", note + tspropert + "\r\n"];
     }
     /**
@@ -253,9 +259,9 @@ class emiter {
             }
         }
         let isGetset = propertystr.indexOf("function get") != -1;
+        let note = this.changeIndex(node, "\r\n\t\t");
         propertystr += (isGetset ? "" : "var ") + node.name.getText() + (isGetset ? "()" : "") + ":" + this.emitType(node.type);
         tspro += node.name.getText() + ":" + this.emitTsType(node.type);
-        let note = this.changeIndex(node, "\r\n\t\t");
         return [note + propertystr + ";\r\n", note + tspro + ";\r\n"];
     }
     /**
@@ -309,7 +315,7 @@ class emiter {
         if (node.parameters && node.parameters.length) {
             for (let i = 0; i < node.parameters.length; i++) {
                 let param = node.parameters[i];
-                asstr += (i ? "," : "") + param.name.getText() + ":" + this.emitType(param.type) + (param.questionToken ? " = null" : "");
+                asstr += (i ? "," : "") + param.name.getText() + ":" + this.emitType(param.type) + " = undefined";
                 tsstr += (i ? "," : "") + param.name.getText() + (param.questionToken ? "?" : "") + ":" + this.emitTsType(param.type);
             }
         }

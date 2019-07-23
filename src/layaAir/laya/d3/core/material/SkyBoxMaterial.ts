@@ -85,9 +85,10 @@ export class SkyBoxMaterial extends BaseMaterial {
 	}
 
 	/**
- * 克隆。
- * @return	 克隆副本。
- */
+	 * 克隆。
+	 * @return	 克隆副本。
+	 * @override
+	 */
 	clone(): any {
 		var dest: SkyBoxMaterial = new SkyBoxMaterial();
 		this.cloneTo(dest);

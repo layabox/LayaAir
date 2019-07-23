@@ -501,9 +501,10 @@ export class ShurikenParticleMaterial extends BaseMaterial {
 	}
 
 	/**
-* 克隆。
-* @return	 克隆副本。
-*/
+	* 克隆。
+	* @return	 克隆副本。
+	* @override
+	*/
 	clone(): any {
 		var dest: ShurikenParticleMaterial = new ShurikenParticleMaterial();
 		this.cloneTo(dest);

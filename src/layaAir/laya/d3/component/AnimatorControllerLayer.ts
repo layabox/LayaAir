@@ -117,15 +117,16 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
 	}
 
 	/**
-	 * 
-	 * [实现IReferenceCounter接口]
+	 * @internal
+	 * @implements IReferenceCounter
 	 */
 	_getReferenceCount(): number {
 		return this._referenceCount;
 	}
 
 	/**
-	 * [实现IReferenceCounter接口]
+	 * @internal
+	 * @implements IReferenceCounter
 	 */
 	_addReference(count: number = 1): void {
 		for (var i: number = 0, n: number = this._states.length; i < n; i++)
@@ -134,7 +135,8 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
 	}
 
 	/**
-	 * [实现IReferenceCounter接口]
+	 * @internal
+	 * @implements IReferenceCounter
 	 */
 	_removeReference(count: number = 1): void {
 		for (var i: number = 0, n: number = this._states.length; i < n; i++)
@@ -143,7 +145,8 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
 	}
 
 	/**
-	 * [实现IReferenceCounter接口]
+	 * @internal
+	 * @implements IReferenceCounter
 	 */
 	_clearReference(): void {
 		this._removeReference(-this._referenceCount);
