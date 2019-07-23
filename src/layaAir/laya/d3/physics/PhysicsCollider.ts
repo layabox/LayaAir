@@ -23,6 +23,7 @@ export class PhysicsCollider extends PhysicsTriggerComponent {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_addToSimulation(): void {
 		this._simulation._addPhysicsCollider(this, this._collisionGroup, this._canCollideWith);
@@ -31,6 +32,7 @@ export class PhysicsCollider extends PhysicsTriggerComponent {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_removeFromSimulation(): void {
 		this._simulation._removePhysicsCollider(this);
@@ -39,6 +41,7 @@ export class PhysicsCollider extends PhysicsTriggerComponent {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_onTransformChanged(flag: number): void {//需要移除父类_addUpdateList保护,否则刚体带着碰撞器移动无效 TODO:是否本帧再更新一次队列
 		flag &= Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDSCALE;//过滤有用TRANSFORM标记

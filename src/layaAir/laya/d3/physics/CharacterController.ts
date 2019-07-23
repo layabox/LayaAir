@@ -214,6 +214,7 @@ export class CharacterController extends PhysicsComponent {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_addToSimulation(): void {
 		this._simulation._characters.push(this);
@@ -223,6 +224,7 @@ export class CharacterController extends PhysicsComponent {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_removeFromSimulation(): void {
 		this._simulation._removeCharacter(this);
@@ -233,6 +235,7 @@ export class CharacterController extends PhysicsComponent {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_cloneTo(dest: Component): void {
 		super._cloneTo(dest);

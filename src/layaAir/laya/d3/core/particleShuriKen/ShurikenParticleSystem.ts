@@ -1950,6 +1950,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_prepareRender(state: RenderContext3D): boolean {
 		this._updateEmission();

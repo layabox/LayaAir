@@ -181,6 +181,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	/**
 	 *@inheritDoc
 	 *@override
+	 *@internal
 	 */
 	_createRenderElement(): RenderElement {
 		return new RenderElement();
@@ -189,6 +190,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	/**
 	*@inheritDoc
 	*@override
+	*@internal
 	*/
 	_onMeshChange(value: Mesh): void {
 		super._onMeshChange(value);

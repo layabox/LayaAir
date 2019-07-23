@@ -93,6 +93,7 @@ export class MeshSprite3D extends RenderableSprite3D {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_addToInitStaticBatchManager(): void {
 		if (this.meshFilter.sharedMesh)//无sharedMesh精灵会报错

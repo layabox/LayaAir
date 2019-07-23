@@ -121,6 +121,7 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	protected _changeHierarchyAnimator(animator: Animator): void {
 		super._changeHierarchyAnimator(animator);
@@ -130,6 +131,7 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	protected _changeAnimatorAvatar(avatar: Avatar): void {
 		this.skinnedMeshRenderer._setCacheAvatar(avatar);

@@ -33,7 +33,6 @@ export class CompoundColliderShape extends ColliderShape {
 	 * 创建一个新的 <code>CompoundColliderShape</code> 实例。
 	 */
 	constructor() {
-
 		super();
 		this._type = ColliderShape.SHAPETYPES_COMPOUND;
 		this._nativeShape = new Physics3D._physics3D.btCompoundShape();
@@ -51,6 +50,7 @@ export class CompoundColliderShape extends ColliderShape {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_addReference(): void {
 		//TODO:
@@ -59,6 +59,7 @@ export class CompoundColliderShape extends ColliderShape {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_removeReference(): void {
 		//TODO:

@@ -1023,6 +1023,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 	/**
 	 * @inheritDoc
+	 * @override
+	 * @internal
 	 */
 	render(ctx: Context, x: number, y: number): void {
 		//TODO:外层应该设计为接口调用

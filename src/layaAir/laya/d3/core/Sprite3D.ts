@@ -279,6 +279,7 @@ export class Sprite3D extends Node implements ICreateResource {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_parse(data: any, spriteMap: any): void {
 		(data.isStatic !== undefined) && (this._isStatic = data.isStatic);
@@ -312,9 +313,10 @@ export class Sprite3D extends Node implements ICreateResource {
 	}
 
 	/**
+	 * @override
+	 * @internal
 	 * 克隆。
 	 * @param	destObject 克隆源。
-	 * @override
 	 */
 	_cloneTo(destObject: any, srcRoot: Node, dstRoot: Node): void {
 		if (this.destroyed)

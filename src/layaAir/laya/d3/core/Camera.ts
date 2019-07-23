@@ -354,6 +354,7 @@ export class Camera extends BaseCamera {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	protected _calculateProjectionMatrix(): void {
 		if (!this._useUserProjectionMatrix) {
@@ -397,6 +398,7 @@ export class Camera extends BaseCamera {
 
 	/**
 	 * @inheritDoc
+	 * @internal
 	 */
 	render(shader: Shader3D = null, replacementTag: string = null): void {
 		if (!this._scene) //自定义相机渲染需要加保护判断是否在场景中,否则报错
