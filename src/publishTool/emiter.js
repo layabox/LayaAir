@@ -219,21 +219,27 @@ class emiter {
     emitProperty(node) {
         let propertystr = "\t\t";
         let tspropert = "\t\t";
+        let asText = "";
         if (node.modifiers) {
             for (let i = 0; i < node.modifiers.length; i++) {
                 let childnode = node.modifiers[i];
                 let type = ts.SyntaxKind[childnode.kind];
-                propertystr += this.resolvingModifier(type, i, childnode);
+                asText += this.resolvingModifier(type, i, childnode);
                 tspropert += childnode.getText() + " ";
             }
         }
         else {
-            propertystr += "public ";
+            asText += "public ";
         }
-        let isGetset = propertystr.indexOf("function get") != -1;
+        let isGetset = asText.indexOf("function get") != -1;
+        let note = this.changeIndex(node, "\r\n\t\t");
+        if (isGetset && note.indexOf("@override") != -1) {
+            propertystr += "override " + asText;
+        }
+        else
+            propertystr += asText;
         propertystr += (isGetset ? "" : "var ") + node.name.getText() + (isGetset ? "()" : "") + ":" + this.emitType(node.type) + (isGetset ? "{\r\n\t\t\t\treturn null;\r\n\t\t}" : ";");
         tspropert += node.name.getText() + ":" + this.emitTsType(node.type) + ";";
-        let note = this.changeIndex(node, "\r\n\t\t");
         return [note + propertystr + "\r\n", note + tspropert + "\r\n"];
     }
     /**
@@ -243,23 +249,17 @@ class emiter {
     emitPropertySing(node) {
         let propertystr = "\t\t";
         let tspro = "\t\t";
-        let asText = "";
         if (node.modifiers) {
             for (let i = 0; i < node.modifiers.length; i++) {
                 let childnode = node.modifiers[i];
                 let type = ts.SyntaxKind[childnode.kind];
                 // i + 1确保不会加public
-                asText += this.resolvingModifier(type, i + 1, childnode);
+                propertystr += this.resolvingModifier(type, i + 1, childnode);
                 tspro += childnode.getText() + " ";
             }
         }
-        let isGetset = asText.indexOf("function get") != -1;
+        let isGetset = propertystr.indexOf("function get") != -1;
         let note = this.changeIndex(node, "\r\n\t\t");
-        if (isGetset && note.indexOf("@override") != -1) {
-            propertystr += "override " + asText;
-        }
-        else
-            propertystr += asText;
         propertystr += (isGetset ? "" : "var ") + node.name.getText() + (isGetset ? "()" : "") + ":" + this.emitType(node.type);
         tspro += node.name.getText() + ":" + this.emitTsType(node.type);
         return [note + propertystr + ";\r\n", note + tspro + ";\r\n"];
