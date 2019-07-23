@@ -46,7 +46,7 @@ function start() {
         layajsURL = json.layajsURL;
         tsCongfig = json.tsConfig;
         filterArr = json.filter;
-        if (!filterArr.length || (yield compile())) { //确认编译结果
+        if (!tsCongfig.length || (yield compile())) { //确认编译结果
             checkAllDir("");
         }
     });

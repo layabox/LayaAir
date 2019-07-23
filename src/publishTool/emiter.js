@@ -294,7 +294,7 @@ class emiter {
             }
         }
         let nodetype = this.emitType(node.type);
-        methodstr += node.name.getText() + "(" + paramstr + "):" + nodetype + "{" + (["*", "void"].indexOf(nodetype) != -1 ? "" : ("\r\n\t\t\tnew " + nodetype + "();\r\n\t\t")) + "}";
+        methodstr += node.name.getText() + "(" + paramstr + "):" + nodetype + "{" + (["*", "void"].indexOf(nodetype) != -1 ? "" : ("\r\n\t\t\treturn null;\r\n\t\t")) + "}";
         tsmethod += node.name.getText() + "(" + tsparam + "):" + this.emitTsType(node.type) + ";";
         return [note + methodstr + "\r\n", note + tsmethod + "\r\n"];
     }
