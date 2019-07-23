@@ -49,4 +49,8 @@ export class KeyframeNodeList {
 
 }
 
-
+// native
+if((window as any).conch  && (window as any).conchKeyframeNodeList){
+    //@ts-ignore
+    KeyframeNodeList=(window as any).conchKeyframeNodeList;
+}

@@ -60,8 +60,8 @@ import { MeshTexture } from "./laya/webgl/utils/MeshTexture";
  import { Handler } from "./laya/utils/Handler";
  import { RunDriver } from "./laya/utils/RunDriver";
 import { Matrix } from "./laya/maths/Matrix";
-import { Accelerator } from "./laya/device/motion/Accelerator";
 import { HTMLImage } from "./laya/resource/HTMLImage";
+import { Event } from "./laya/events/Event";
 
 /**
  * <code>Laya</code> 是全局对象的引用入口集。
@@ -421,7 +421,6 @@ regClassToEngine(SoundManager);
 regClassToEngine(URL);
 regClassToEngine(Event);
 regClassToEngine(Matrix);
-regClassToEngine(Accelerator);
 regClassToEngine(HTMLImage);
 
 
