@@ -1,4 +1,4 @@
-import { ILaya } from "./ILaya";
+﻿import { ILaya } from "./ILaya";
 import { Graphics } from "./laya/display/Graphics";
 import { GraphicsBounds } from "./laya/display/GraphicsBounds";
 import { Input } from "./laya/display/Input";
@@ -287,8 +287,8 @@ export class Laya {
 
 		WebGLContext.__init_native();
 		Shader.prototype.uploadTexture2D = function (value: any): void {
-			var CTX: any = WebGLContext;
-			CTX.bindTexture(WebGLContext.mainContext, CTX.TEXTURE_2D, value);
+			var gl: WebGLRenderingContext = LayaGL.instance;
+			gl.bindTexture(gl.TEXTURE_2D, (<WebGLTexture>value));
 		}
 		RenderState2D.width = Browser.window.innerWidth;
 		RenderState2D.height = Browser.window.innerHeight;
@@ -401,6 +401,7 @@ function regClassToEngine(cls: any) {
 
 }
 
+regClassToEngine(Laya);
 regClassToEngine(TextRender);
 regClassToEngine(Stage);
 regClassToEngine(Render);

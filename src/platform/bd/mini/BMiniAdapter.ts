@@ -1,5 +1,4 @@
 
-import {Laya, isWXPosMsg, isWXOpenDataContext} from "Laya";
 import {MiniFileMgr} from "./MiniFileMgr";
 import { Handler } from "laya/utils/Handler";
 import { Browser } from "laya/utils/Browser";
@@ -14,6 +13,7 @@ import { MiniLocalStorage } from "./MiniLocalStorage";
 import { Matrix } from "laya/maths/Matrix";
 import { Stage } from "laya/display/Stage";
 import {URL} from "laya/net/URL";
+import { Laya } from "Laya";
 	export class BMiniAdapter {
 		/**@private  包装对象**/
 		 static EnvConfig:any;
@@ -52,7 +52,7 @@ import {URL} from "laya/net/URL";
 		
 		/**激活微信小游戏适配器*/
 		 static enable():void {
-			BMiniAdapter.init(isWXPosMsg, isWXOpenDataContext);
+			BMiniAdapter.init(Laya.isWXPosMsg, Laya.isWXOpenDataContext);
 		}
 		
 		/**
