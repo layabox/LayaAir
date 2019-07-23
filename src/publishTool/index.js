@@ -14,6 +14,7 @@ const path = require("path");
 const gulp = require("gulp");
 const child_process = require("child_process");
 const emiter_1 = require("./emiter");
+// var BaseURL = emiter_1.emiter.BaseURL ="./bin/layaAir/";
 var BaseURL;
 /***导出相关 */
 var outfile;
@@ -45,7 +46,7 @@ function start() {
         layajsURL = json.layajsURL;
         tsCongfig = json.tsConfig;
         filterArr = json.filter;
-        if (yield compile()) { //确认编译结果
+        if (!filterArr.length || (yield compile())) { //确认编译结果
             checkAllDir("");
         }
     });
@@ -84,6 +85,7 @@ function compile() {
     });
 }
 // checkAllDir("./bin/layaAir/");
+// tstoas("laya\\d3\\physics\\PhysicsCollider.d.ts",null,"laya\\d3\\physics");
 // tstoas("laya\\d3\\physics\\CharacterController.d.ts", null, "laya\\d3\\physics");
 // tstoas("laya\\d3\\physics\\PhysicsUpdateList.d.ts",null,"laya\\d3\\physics");
 // tstoas("laya\\d3\\component\\SingletonList.d.ts",null,"laya\\d3\\component");
