@@ -243,19 +243,25 @@ class emiter {
     emitPropertySing(node) {
         let propertystr = "\t\t";
         let tspro = "\t\t";
+        let asText = "";
         if (node.modifiers) {
             for (let i = 0; i < node.modifiers.length; i++) {
                 let childnode = node.modifiers[i];
                 let type = ts.SyntaxKind[childnode.kind];
                 // i + 1确保不会加public
-                propertystr += this.resolvingModifier(type, i + 1, childnode);
+                asText += this.resolvingModifier(type, i + 1, childnode);
                 tspro += childnode.getText() + " ";
             }
         }
-        let isGetset = propertystr.indexOf("function get") != -1;
+        let isGetset = asText.indexOf("function get") != -1;
+        let note = this.changeIndex(node, "\r\n\t\t");
+        if (isGetset && note.indexOf("@override") != -1) {
+            propertystr += "override " + asText;
+        }
+        else
+            propertystr += asText;
         propertystr += (isGetset ? "" : "var ") + node.name.getText() + (isGetset ? "()" : "") + ":" + this.emitType(node.type);
         tspro += node.name.getText() + ":" + this.emitTsType(node.type);
-        let note = this.changeIndex(node, "\r\n\t\t");
         return [note + propertystr + ";\r\n", note + tspro + ";\r\n"];
     }
     /**
