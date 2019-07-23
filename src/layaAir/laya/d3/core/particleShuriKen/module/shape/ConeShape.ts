@@ -35,10 +35,11 @@ export class ConeShape extends BaseShape {
 		this.randomDirection = false;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _getShapeBoundBox(boundBox: BoundBox): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _getShapeBoundBox(boundBox: BoundBox): void {
 		const coneRadius2: number = this.radius + this.length * Math.sin(this.angle);
 		const coneLength: number = this.length * Math.cos(this.angle);
 
@@ -51,10 +52,11 @@ export class ConeShape extends BaseShape {
 		max.z = coneLength;//TODO:是否为负
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _getSpeedBoundBox(boundBox: BoundBox): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _getSpeedBoundBox(boundBox: BoundBox): void {
 		const sinA: number = Math.sin(this.angle);
 		var min: Vector3 = boundBox.min;
 		min.x = min.y = -sinA;
@@ -64,12 +66,13 @@ export class ConeShape extends BaseShape {
 		max.z = 1;
 	}
 
-		/**
-		 *  用于生成粒子初始位置和方向。
-		 * @param	position 粒子位置。
-		 * @param	direction 粒子方向。
-		 */
-		/*override*/  generatePositionAndDirection(position: Vector3, direction: Vector3, rand: Rand = null, randomSeeds: Uint32Array = null): void {
+	/**
+	 *  用于生成粒子初始位置和方向。
+	 * @param	position 粒子位置。
+	 * @param	direction 粒子方向。
+	 * @override
+	 */
+	generatePositionAndDirection(position: Vector3, direction: Vector3, rand: Rand = null, randomSeeds: Uint32Array = null): void {
 		var positionPointE: Vector2 = ConeShape._tempPositionPoint;
 		var positionX: number;
 		var positionY: number;
@@ -222,7 +225,10 @@ export class ConeShape extends BaseShape {
 		}
 	}
 
-		/*override*/  cloneTo(destObject: any): void {
+	/**
+	 * @override
+	 */
+	cloneTo(destObject: any): void {
 		super.cloneTo(destObject);
 		var destShape: ConeShape = (<ConeShape>destObject);
 		destShape.angle = this.angle;

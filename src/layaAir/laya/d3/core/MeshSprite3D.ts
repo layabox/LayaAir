@@ -64,10 +64,11 @@ export class MeshSprite3D extends RenderableSprite3D {
 		(mesh) && (this._meshFilter.sharedMesh = mesh);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _parse(data: any, spriteMap: any): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_parse(data: any, spriteMap: any): void {
 		super._parse(data, spriteMap);
 		var render: MeshRenderer = this.meshRenderer;
 		var lightmapIndex: any = data.lightmapIndex;
@@ -91,16 +92,18 @@ export class MeshSprite3D extends RenderableSprite3D {
 
 	/**
 	 * @inheritDoc
+	 * @override
 	 */
-	/*override*/  _addToInitStaticBatchManager(): void {
-		if(this.meshFilter.sharedMesh)//无sharedMesh精灵会报错
+	_addToInitStaticBatchManager(): void {
+		if (this.meshFilter.sharedMesh)//无sharedMesh精灵会报错
 			MeshRenderStaticBatchManager.instance._addBatchSprite(this);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _cloneTo(destObject: any, rootSprite: Node, dstSprite: Node): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_cloneTo(destObject: any, rootSprite: Node, dstSprite: Node): void {
 		var meshSprite3D: MeshSprite3D = (<MeshSprite3D>destObject);
 		meshSprite3D._meshFilter.sharedMesh = this._meshFilter.sharedMesh;
 		var meshRender: MeshRenderer = (<MeshRenderer>this._render);
@@ -116,10 +119,11 @@ export class MeshSprite3D extends RenderableSprite3D {
 		super._cloneTo(destObject, rootSprite, dstSprite);//父类函数在最后,组件应该最后赋值，否则获取材质默认值等相关函数会有问题
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  destroy(destroyChild: boolean = true): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	destroy(destroyChild: boolean = true): void {
 		if (this.destroyed)
 			return;
 		super.destroy(destroyChild);

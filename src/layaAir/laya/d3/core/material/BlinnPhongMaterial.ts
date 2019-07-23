@@ -841,8 +841,9 @@ export class BlinnPhongMaterial extends BaseMaterial {
 
 	/**
 	 * @inheritDoc
+	 * @override
 	 */
-	cloneTo(destObject: any): void {/*override*/
+	cloneTo(destObject: any): void {
 		super.cloneTo(destObject);
 		var destMaterial: BlinnPhongMaterial = (<BlinnPhongMaterial>destObject);
 		destMaterial._enableLighting = this._enableLighting;

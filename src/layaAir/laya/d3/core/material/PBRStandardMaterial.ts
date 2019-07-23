@@ -1079,19 +1079,20 @@ export class PBRStandardMaterial extends BaseMaterial {
 	}
 
 	/**
- * 克隆。
- * @return	 克隆副本。
- */
+	 * 克隆。
+	 * @return	 克隆副本。
+	 */
 	clone(): any {
 		var dest: PBRStandardMaterial = new PBRStandardMaterial();
 		this.cloneTo(dest);
 		return dest;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  cloneTo(destObject: any): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	cloneTo(destObject: any): void {
 		super.cloneTo(destObject);
 		var destMaterial: PBRStandardMaterial = (<PBRStandardMaterial>destObject);
 		this._albedoColor.cloneTo(destMaterial._albedoColor);

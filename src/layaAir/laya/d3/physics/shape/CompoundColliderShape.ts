@@ -48,17 +48,19 @@ export class CompoundColliderShape extends ColliderShape {
 		shape._indexInCompound = -1;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _addReference(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_addReference(): void {
 		//TODO:
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _removeReference(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_removeReference(): void {
 		//TODO:
 	}
 
@@ -140,29 +142,32 @@ export class CompoundColliderShape extends ColliderShape {
 		return this._childColliderShapes.length;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  cloneTo(destObject: any): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	cloneTo(destObject: any): void {
 		var destCompoundColliderShape: CompoundColliderShape = (<CompoundColliderShape>destObject);
 		destCompoundColliderShape.clearChildShape();
 		for (var i: number = 0, n: number = this._childColliderShapes.length; i < n; i++)
 			destCompoundColliderShape.addChildShape(this._childColliderShapes[i].clone());
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  clone(): any {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	clone(): any {
 		var dest: CompoundColliderShape = new CompoundColliderShape();
 		this.cloneTo(dest);
 		return dest;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  destroy(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	destroy(): void {
 		super.destroy();
 		for (var i: number = 0, n: number = this._childColliderShapes.length; i < n; i++) {
 			var childShape: ColliderShape = this._childColliderShapes[i];

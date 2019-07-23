@@ -204,10 +204,11 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 		return overTimeFrame;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _parse(data: any, spriteMap: any): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_parse(data: any, spriteMap: any): void {
 		super._parse(data, spriteMap);
 		const anglelToRad: number = Math.PI / 180.0;
 		var i: number, n: number;
@@ -584,26 +585,29 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _activeHierarchy(activeChangeComponents: any[]): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_activeHierarchy(activeChangeComponents: any[]): void {
 		super._activeHierarchy(activeChangeComponents);
 		(this.particleSystem.playOnAwake) && (this.particleSystem.play());
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _inActiveHierarchy(activeChangeComponents: any[]): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_inActiveHierarchy(activeChangeComponents: any[]): void {
 		super._inActiveHierarchy(activeChangeComponents);
 		(this.particleSystem.isAlive) && (this.particleSystem.simulate(0, true));
 	}
 
-		/**
-		 * @internal
-		 */
-		/*override*/  _cloneTo(destObject: any, srcSprite: Node, dstSprite: Node): void {
+	/**
+	 * @internal
+	 * @override
+	 */
+	_cloneTo(destObject: any, srcSprite: Node, dstSprite: Node): void {
 		var destShuriKenParticle3D: ShuriKenParticle3D = (<ShuriKenParticle3D>destObject);
 		var destParticleSystem: ShurikenParticleSystem = destShuriKenParticle3D._particleSystem;
 		this._particleSystem.cloneTo(destParticleSystem);
@@ -620,11 +624,12 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 		super._cloneTo(destObject, srcSprite, dstSprite);//父类函数在最后,组件应该最后赋值，否则获取材质默认值等相关函数会有问题
 	}
 
-		/**
-		 * <p>销毁此对象。</p>
-		 * @param	destroyChild 是否同时销毁子节点，若值为true,则销毁子节点，否则不销毁子节点。
-		 */
-		/*override*/  destroy(destroyChild: boolean = true): void {
+	/**
+	 * <p>销毁此对象。</p>
+	 * @param	destroyChild 是否同时销毁子节点，若值为true,则销毁子节点，否则不销毁子节点。
+	 * @override
+	 */
+	destroy(destroyChild: boolean = true): void {
 		if (this.destroyed)
 			return;
 		super.destroy(destroyChild);

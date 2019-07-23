@@ -14,10 +14,11 @@ export class FloatKeyframe extends Keyframe {
 		super();
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  cloneTo(destObject: any): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	cloneTo(destObject: any): void {
 		super.cloneTo(destObject);
 		var destKeyFrame: FloatKeyframe = (<FloatKeyframe>destObject);
 		destKeyFrame.inTangent = this.inTangent;
@@ -28,9 +29,9 @@ export class FloatKeyframe extends Keyframe {
 }
 
 // native
-if((window as any).conch  && (window as any).conchFloatKeyframe){
-    //@ts-ignore
-    FloatKeyframe=(window as any).conchFloatKeyframe;
+if ((window as any).conch && (window as any).conchFloatKeyframe) {
+	//@ts-ignore
+	FloatKeyframe = (window as any).conchFloatKeyframe;
 }
 
 

@@ -36,7 +36,7 @@ export class ConeColliderShape extends ColliderShape {
 	 * @param radius 半径。
 	 */
 	constructor(radius: number = 0.5, height: number = 1.0, orientation: number = ColliderShape.SHAPEORIENTATION_UPY) {
-		
+
 		super();
 		this._radius = radius;
 		this._height = height;
@@ -57,10 +57,11 @@ export class ConeColliderShape extends ColliderShape {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  clone(): any {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	clone(): any {
 		var dest: ConeColliderShape = new ConeColliderShape(this._radius, this._height, this._orientation);
 		this.cloneTo(dest);
 		return dest;

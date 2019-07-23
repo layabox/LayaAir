@@ -16,8 +16,9 @@ export class Script3D extends Component {
 
 	/**
 	 * @inheritDoc
+	 * @override
 	 */
-	/*override*/  get isSingleton(): boolean {
+	get isSingleton(): boolean {
 		return false;
 	}
 
@@ -45,8 +46,9 @@ export class Script3D extends Component {
 
 	/**
 	 * @inheritDoc
+	 * @override
 	 */
-	/*override*/ protected _onAwake(): void {
+	protected _onAwake(): void {
 		this.onAwake();
 		if (this.onStart !== Script3D.prototype.onStart)
 			Laya.startTimer.callLater(this, this.onStart);
@@ -54,8 +56,9 @@ export class Script3D extends Component {
 
 	/**
 	 * @inheritDoc
+	 * @override
 	 */
-	/*override*/ protected _onEnable(): void {
+	protected _onEnable(): void {
 		(<Scene3D>this.owner._scene)._addScript(this);
 		var proto: any = Script3D.prototype;
 		if (this.onKeyDown !== proto.onKeyDown) {
@@ -71,8 +74,9 @@ export class Script3D extends Component {
 
 	/**
 	 * @inheritDoc
+	 * @override
 	 */
-	/*override*/ protected _onDisable(): void {
+	protected _onDisable(): void {
 		(<Scene3D>this.owner._scene)._removeScript(this);
 		this.owner.offAllCaller(this);
 		Laya.stage.offAllCaller(this);
@@ -80,15 +84,17 @@ export class Script3D extends Component {
 
 	/**
 	 * @inheritDoc
+	 * @override
 	 */
-	/*override*/  _isScript(): boolean {
+	_isScript(): boolean {
 		return true;
 	}
 
 	/**
 	 * @inheritDoc
+	 * @override
 	 */
-	/*override*/  _onAdded(): void {
+	_onAdded(): void {
 		var sprite: Sprite3D = (<Sprite3D>this.owner);
 		var scripts: Script3D[] = sprite._scripts;
 		scripts || (sprite._scripts = scripts = []);
@@ -103,8 +109,9 @@ export class Script3D extends Component {
 
 	/**
 	 * @inheritDoc
+	 * @override
 	 */
-	/*override*/ protected _onDestroy(): void {
+	protected _onDestroy(): void {
 		var scripts: Script3D[] = ((<Sprite3D>this.owner))._scripts;
 		scripts.splice(scripts.indexOf(this), 1);
 

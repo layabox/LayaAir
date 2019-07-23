@@ -55,10 +55,11 @@ export class BlitScreenQuadCMD extends Command {
 		return cmd;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  run(): void {//TODO:相机的UV
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	run(): void {//TODO:相机的UV
 		var shader: Shader3D = this._shader || Command._screenShader;
 		var shaderData: ShaderData = this._shaderData || Command._screenShaderData;
 		var dest: RenderTexture = this._dest;
@@ -92,10 +93,11 @@ export class BlitScreenQuadCMD extends Command {
 		(dest) && (dest._end());
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  recover(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	recover(): void {
 		BlitScreenQuadCMD._pool.push(this);
 		this._dest = null;
 		this._shader = null;

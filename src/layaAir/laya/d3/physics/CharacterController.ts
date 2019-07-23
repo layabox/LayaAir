@@ -162,7 +162,7 @@ export class CharacterController extends PhysicsComponent {
 	 * @param canCollideWith 可产生碰撞的碰撞组。
 	 */
 	constructor(stepheight: number = 0.1, upAxis: Vector3 = null, collisionGroup: number = Physics3DUtils.COLLISIONFILTERGROUP_DEFAULTFILTER, canCollideWith: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER) {
-		
+
 		super(collisionGroup, canCollideWith);
 		this._stepHeight = stepheight;
 		(upAxis) && (this._upAxis = upAxis);
@@ -185,18 +185,20 @@ export class CharacterController extends PhysicsComponent {
 		this.gravity = this._gravity;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _onShapeChange(colShape: ColliderShape): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_onShapeChange(colShape: ColliderShape): void {
 		super._onShapeChange(colShape);
 		this._constructCharacter();
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _onAdded(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_onAdded(): void {
 		var physics3D: any = Physics3D._physics3D;
 		var ghostObject: any = new physics3D.btPairCachingGhostObject();
 		ghostObject.setUserIndex(this.id);
@@ -209,27 +211,30 @@ export class CharacterController extends PhysicsComponent {
 		super._onAdded();
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _addToSimulation(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_addToSimulation(): void {
 		this._simulation._characters.push(this);
 		this._simulation._addCharacter(this, this._collisionGroup, this._canCollideWith);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _removeFromSimulation(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_removeFromSimulation(): void {
 		this._simulation._removeCharacter(this);
 		var characters: CharacterController[] = this._simulation._characters;
 		characters.splice(characters.indexOf(this), 1);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _cloneTo(dest: Component): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_cloneTo(dest: Component): void {
 		super._cloneTo(dest);
 		var destCharacterController: CharacterController = (<CharacterController>dest);
 		destCharacterController.stepHeight = this._stepHeight;
@@ -240,10 +245,11 @@ export class CharacterController extends PhysicsComponent {
 		destCharacterController.gravity = this._gravity;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _onDestroy(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _onDestroy(): void {
 		Physics3D._physics3D.destroy(this._nativeKinematicCharacter);
 		super._onDestroy();
 		this._nativeKinematicCharacter = null;

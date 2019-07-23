@@ -339,10 +339,11 @@ export class Camera extends BaseCamera {
 		this._viewport.height = pixelRightY - pixelLeftY;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _parse(data: any, spriteMap: any): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_parse(data: any, spriteMap: any): void {
 		super._parse(data, spriteMap);
 		var viewport: any[] = data.viewport;
 		this.normalizedViewport = new Viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
@@ -350,10 +351,11 @@ export class Camera extends BaseCamera {
 		(enableHDR !== undefined) && (this.enableHDR = enableHDR);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _calculateProjectionMatrix(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _calculateProjectionMatrix(): void {
 		if (!this._useUserProjectionMatrix) {
 			if (this._orthographic) {
 				var halfWidth: number = this.orthographicVerticalSize * this.aspectRatio * 0.5;
@@ -564,10 +566,11 @@ export class Camera extends BaseCamera {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  destroy(destroyChild: boolean = true): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	destroy(destroyChild: boolean = true): void {
 		this._offScreenRenderTexture = null;
 		this.transform.off(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
 		super.destroy(destroyChild);

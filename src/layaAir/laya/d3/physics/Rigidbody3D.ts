@@ -500,10 +500,11 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		rigidBody._updateTransformComponent(worldTrans);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _onScaleChange(scale: Vector3): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _onScaleChange(scale: Vector3): void {
 		super._onScaleChange(scale);
 		this._updateMass(this._isKinematic ? 0 : this._mass);//修改缩放需要更新惯性
 	}
@@ -515,10 +516,11 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		(<any>this)._rigidbody = null;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _onAdded(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_onAdded(): void {
 		var physics3D: any = Physics3D._physics3D;
 		var motionState: any = new physics3D.LayaMotionState();
 		var isConchApp: boolean = ((<any>window).conch != null);
@@ -550,10 +552,11 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		physics3D.destroy(constructInfo);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _onShapeChange(colShape: ColliderShape): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_onShapeChange(colShape: ColliderShape): void {
 		super._onShapeChange(colShape);
 		//TODO:此时已经加入场景,只影响mass为0,函数内部设置的flas是否为static无效			
 		if (this._isKinematic) {
@@ -564,10 +567,11 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _parse(data: any): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_parse(data: any): void {
 		(data.friction != null) && (this.friction = data.friction);
 		(data.rollingFriction != null) && (this.rollingFriction = data.rollingFriction);
 		(data.restitution != null) && (this.restitution = data.restitution);
@@ -586,10 +590,11 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		this._parseShape(data.shapes);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _onDestroy(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _onDestroy(): void {
 		var physics3D: any = Physics3D._physics3D;
 		this._nativeMotionState.clear();
 		physics3D.destroy(this._nativeMotionState);
@@ -619,24 +624,27 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		this._angularFactor = null;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _addToSimulation(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_addToSimulation(): void {
 		this._simulation._addRigidBody(this, this._collisionGroup, this._detectCollisions ? this._canCollideWith : 0);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _removeFromSimulation(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_removeFromSimulation(): void {
 		this._simulation._removeRigidBody(this);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _cloneTo(dest: Component): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_cloneTo(dest: Component): void {
 		super._cloneTo(dest);
 		var destRigidbody3D: Rigidbody3D = (<Rigidbody3D>dest);
 		destRigidbody3D.isKinematic = this._isKinematic;

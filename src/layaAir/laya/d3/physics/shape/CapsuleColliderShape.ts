@@ -44,7 +44,7 @@ export class CapsuleColliderShape extends ColliderShape {
 	 * @param orientation 胶囊体方向。
 	 */
 	constructor(radius: number = 0.5, length: number = 1.25, orientation: number = ColliderShape.SHAPEORIENTATION_UPY) {
-		
+
 		super();
 		this._radius = radius;
 		this._length = length;
@@ -66,10 +66,11 @@ export class CapsuleColliderShape extends ColliderShape {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _setScale(value: Vector3): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_setScale(value: Vector3): void {
 		var fixScale: Vector3 = CapsuleColliderShape._tempVector30;
 		switch (this.orientation) {
 			case ColliderShape.SHAPEORIENTATION_UPX:
@@ -90,10 +91,10 @@ export class CapsuleColliderShape extends ColliderShape {
 		super._setScale(fixScale);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  clone(): any {
+	/**
+	 * @inheritDoc
+	 */
+	clone(): any {
 		var dest: CapsuleColliderShape = new CapsuleColliderShape(this._radius, this._length, this._orientation);
 		this.cloneTo(dest);
 		return dest;

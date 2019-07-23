@@ -44,8 +44,9 @@ export class MeshRenderStaticBatchManager extends StaticBatchManager {
 
 	/**
 	 * @inheritDoc
+	 * @override
 	 */
-	/*override*/ protected _compare(left: RenderableSprite3D, right: RenderableSprite3D): number {
+	protected _compare(left: RenderableSprite3D, right: RenderableSprite3D): number {
 		//按照合并条件排序，增加初始状态合并几率
 		var lRender: BaseRender = left._render, rRender: BaseRender = right._render;
 		var leftGeo: Mesh = (<Mesh>((<MeshSprite3D>left)).meshFilter.sharedMesh), rightGeo: Mesh = (<Mesh>((<MeshSprite3D>right)).meshFilter.sharedMesh);
@@ -72,10 +73,11 @@ export class MeshRenderStaticBatchManager extends StaticBatchManager {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _getBatchRenderElementFromPool(): RenderElement {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_getBatchRenderElementFromPool(): RenderElement {
 		var renderElement: SubMeshRenderElement = this._batchRenderElementPool[this._batchRenderElementPoolIndex++];
 		if (!renderElement) {
 			renderElement = new SubMeshRenderElement();
@@ -97,8 +99,9 @@ export class MeshRenderStaticBatchManager extends StaticBatchManager {
 
 	/**
 	 * @inheritDoc
+	 * @override
 	 */
-	/*override*/ protected _initStaticBatchs(rootOwner: Sprite3D): void {
+	protected _initStaticBatchs(rootOwner: Sprite3D): void {
 		this._quickSort(this._initBatchSprites, 0, this._initBatchSprites.length - 1);
 		var lastCanMerage: boolean = false;
 		var curStaticBatch: SubMeshStaticBatch;
@@ -155,18 +158,20 @@ export class MeshRenderStaticBatchManager extends StaticBatchManager {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _clear(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_clear(): void {
 		super._clear();
 		this._updateCountMark++;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _garbageCollection(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_garbageCollection(): void {
 		for (var key in this._staticBatches) {
 			var batches: any[] = this._staticBatches[key];
 			for (var i: number = 0, n: number = batches.length; i < n; i++) {

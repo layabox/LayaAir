@@ -22,17 +22,19 @@ export class SetRenderTargetCMD extends Command {
 		return cmd;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  run(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	run(): void {
 		this._renderTexture._start();
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  recover(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	recover(): void {
 		SetRenderTargetCMD._pool.push(this);
 		this._renderTexture = null;
 	}

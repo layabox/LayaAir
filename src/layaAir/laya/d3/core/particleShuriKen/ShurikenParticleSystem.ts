@@ -1508,7 +1508,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 			this._vertexBuffer.destroy();
 			this._indexBuffer.destroy();
 		}
-		var gl:WebGLRenderingContext=LayaGL.instance;
+		var gl: WebGLRenderingContext = LayaGL.instance;
 		var render: ShurikenParticleRenderer = this._ownerRender;
 		var renderMode: number = render.renderMode;
 		if (renderMode !== -1 && this.maxParticles > 0) {
@@ -1627,10 +1627,11 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		}
 	}
 
-		/**
-		 * @internal
-		 */
-		 /*override*/  destroy(): void {
+	/**
+	 * @internal
+	 * @override
+	 */
+	destroy(): void {
 		super.destroy();
 		var memorySize: number = this._vertexBuffer._byteLength + this._indexBuffer.indexCount * 2;
 		Resource._addMemory(-memorySize, -memorySize);

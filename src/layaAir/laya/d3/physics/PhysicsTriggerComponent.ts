@@ -40,22 +40,24 @@ export class PhysicsTriggerComponent extends PhysicsComponent {
 	 * @param canCollideWith 可产生碰撞的碰撞组。
 	 */
 	constructor(collisionGroup: number, canCollideWith: number) {
-		
+
 		super(collisionGroup, canCollideWith);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _onAdded(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_onAdded(): void {
 		super._onAdded();
 		this.isTrigger = this._isTrigger;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _cloneTo(dest: Component): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_cloneTo(dest: Component): void {
 		super._cloneTo(dest);
 		((<PhysicsTriggerComponent>dest)).isTrigger = this._isTrigger;
 	}

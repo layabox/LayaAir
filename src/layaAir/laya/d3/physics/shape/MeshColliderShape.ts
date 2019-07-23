@@ -61,10 +61,11 @@ export class MeshColliderShape extends ColliderShape {
 
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _setScale(value: Vector3): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_setScale(value: Vector3): void {
 		if (this._compoundParent) {//TODO:待查,这里有问题
 			this.updateLocalTransformations();//TODO:
 		} else {
@@ -74,29 +75,32 @@ export class MeshColliderShape extends ColliderShape {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  cloneTo(destObject: any): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	cloneTo(destObject: any): void {
 		var destMeshCollider: MeshColliderShape = (<MeshColliderShape>destObject);
 		destMeshCollider.convex = this._convex;
 		destMeshCollider.mesh = this._mesh;
 		super.cloneTo(destObject);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  clone(): any {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	clone(): any {
 		var dest: MeshColliderShape = new MeshColliderShape();
 		this.cloneTo(dest);
 		return dest;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  destroy(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	destroy(): void {
 		if (this._nativeShape) {
 			var physics3D: any = Physics3D._physics3D;
 			physics3D.destroy(this._nativeShape);

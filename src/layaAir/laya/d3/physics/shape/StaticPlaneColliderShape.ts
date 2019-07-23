@@ -16,7 +16,7 @@ export class StaticPlaneColliderShape extends ColliderShape {
 	 * @internal
 	 */
 	static __init__(): void {
-		StaticPlaneColliderShape._nativeNormal= new Physics3D._physics3D.btVector3(0, 0, 0);
+		StaticPlaneColliderShape._nativeNormal = new Physics3D._physics3D.btVector3(0, 0, 0);
 	}
 
 	/**
@@ -32,10 +32,11 @@ export class StaticPlaneColliderShape extends ColliderShape {
 		this._nativeShape = new Physics3D._physics3D.btStaticPlaneShape(StaticPlaneColliderShape._nativeNormal, offset);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  clone(): any {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	clone(): any {
 		var dest: StaticPlaneColliderShape = new StaticPlaneColliderShape(this._normal, this._offset);
 		this.cloneTo(dest);
 		return dest;

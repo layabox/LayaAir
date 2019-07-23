@@ -407,8 +407,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 	/**
 	 * 获取场景时钟。
+	 * @override
 	 */
-	/*override*/  get timer(): Timer {
+	get timer(): Timer {
 		return this._timer;
 	}
 
@@ -808,8 +809,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 	/**
 	 * @inheritDoc
+	 * @override
 	 */
-	/*override*/  _parse(data: any, spriteMap: any): void {
+	_parse(data: any, spriteMap: any): void {
 		var lightMapsData: any[] = data.lightmaps;
 		if (lightMapsData) {
 			var lightMapCount: number = lightMapsData.length;
@@ -855,18 +857,20 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _onActive(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _onActive(): void {
 		super._onActive();
 		ILaya.stage._scene3Ds.push(this);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _onInActive(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _onInActive(): void {
 		super._onInActive();
 		var scenes: any[] = ILaya.stage._scene3Ds;
 		scenes.splice(scenes.indexOf(this), 1);
@@ -994,10 +998,11 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		return this._lightmaps.slice();//slice()防止修改数组内容
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  destroy(destroyChild: boolean = true): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	destroy(destroyChild: boolean = true): void {
 		if (this.destroyed)
 			return;
 		super.destroy(destroyChild);
@@ -1016,10 +1021,10 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		Loader.clearRes(this.url);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  render(ctx: Context, x: number, y: number): void {
+	/**
+	 * @inheritDoc
+	 */
+	render(ctx: Context, x: number, y: number): void {
 		//TODO:外层应该设计为接口调用
 		ctx._curSubmit = SubmitBase.RENDERBASE;//打断2D合并的renderKey
 		this._children.length > 0 && ctx.addRenderObject(this);

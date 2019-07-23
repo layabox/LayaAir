@@ -368,10 +368,11 @@ export class AnimationClip extends Resource {
 		this._animationEvents.splice(index, 0, event);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _disposeResource(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _disposeResource(): void {
 		this._nodes = null;
 		this._nodesMap = null;
 	}

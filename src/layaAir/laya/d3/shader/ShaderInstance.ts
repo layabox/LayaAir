@@ -196,10 +196,11 @@ export class ShaderInstance extends Resource {
 			return shaderDatas[stateID];
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _disposeResource(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _disposeResource(): void {
 		LayaGL.instance.deleteShader(this._vshader);
 		LayaGL.instance.deleteShader(this._pshader);
 		LayaGL.instance.deleteProgram(this._program);

@@ -12,10 +12,11 @@ import { ILaya3D } from "../../../../ILaya3D";
 export class DirectionLight extends LightSprite {
 	private _direction: Vector3;
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  set shadow(value: boolean) {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	set shadow(value: boolean) {
 		if (this._shadow !== value) {
 			this._shadow = value;
 			(this.scene) && (this._initShadow());
@@ -30,7 +31,7 @@ export class DirectionLight extends LightSprite {
 		this._direction = new Vector3();
 	}
 
-	
+
 	private _initShadow(): void {
 		if (this._shadow) {
 			this._parallelSplitShadowMap = new ParallelSplitShadowMap();
@@ -50,28 +51,31 @@ export class DirectionLight extends LightSprite {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _onActive(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _onActive(): void {
 		super._onActive();
 		this._shadow && (this._initShadow());
 		(this._lightmapBakedType !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED) && (((<Scene3D>this._scene))._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT));
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _onInActive(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _onInActive(): void {
 		super._onInActive();
 		(this._lightmapBakedType !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED) && (((<Scene3D>this._scene))._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT));
 	}
 
-		/**
-		 * 更新平行光相关渲染状态参数。
-		 * @param state 渲染状态参数。
-		 */
-		 /*override*/ _prepareToScene(): boolean {
+	/**
+	 * 更新平行光相关渲染状态参数。
+	 * @param state 渲染状态参数。
+	 * @override
+	 */
+	_prepareToScene(): boolean {
 		var scene: Scene3D = (<Scene3D>this._scene);
 		if (scene.enableLight && this.activeInHierarchy) {
 			var shaderValue: ShaderData = scene._shaderValues;

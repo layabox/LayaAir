@@ -177,10 +177,11 @@ export class LightSprite extends Sprite3D {
 		this._lightmapBakedType = LightSprite.LIGHTMAPBAKEDTYPE_REALTIME;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _parse(data: any, spriteMap: any): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_parse(data: any, spriteMap: any): void {
 		super._parse(data, spriteMap);
 		var colorData: any[] = data.color;
 		this.color.fromArray(colorData);
@@ -188,18 +189,20 @@ export class LightSprite extends Sprite3D {
 		this.lightmapBakedType = data.lightmapBakedType;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _onActive(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _onActive(): void {
 		super._onActive();
 		(this.lightmapBakedType !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED) && (((<Scene3D>this._scene))._addLight(this));
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _onInActive(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _onInActive(): void {
 		super._onInActive();
 		(this.lightmapBakedType !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED) && (((<Scene3D>this._scene))._removeLight(this));
 	}

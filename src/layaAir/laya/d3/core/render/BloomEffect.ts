@@ -190,10 +190,11 @@ export class BloomEffect extends PostProcessEffect {
 		this._pyramid = new Array(BloomEffect.MAXPYRAMIDSIZE * 2);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  render(context: PostProcessRenderContext): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	render(context: PostProcessRenderContext): void {
 		var cmd: CommandBuffer = context.command;
 		var viewport: Viewport = context.camera.viewport;
 

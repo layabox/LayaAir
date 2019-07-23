@@ -85,10 +85,11 @@ export class ScreenTriangle extends Resource {
 		Stat.renderBatches++;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  destroy(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	destroy(): void {
 		super.destroy();
 		this._bufferState.destroy();
 		this._vertexBuffer.destroy();

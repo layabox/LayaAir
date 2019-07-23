@@ -19,7 +19,7 @@ export class SphereColliderShape extends ColliderShape {
 	 * @param radius 半径。
 	 */
 	constructor(radius: number = 0.5) {//TODO:球形旋转无效，需要优化
-		
+
 		super();
 		this._radius = radius;
 		this._type = ColliderShape.SHAPETYPES_SPHERE;
@@ -27,10 +27,11 @@ export class SphereColliderShape extends ColliderShape {
 		this._nativeShape = new Physics3D._physics3D.btSphereShape(radius);
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  clone(): any {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	clone(): any {
 		var dest: SphereColliderShape = new SphereColliderShape(this._radius);
 		this.cloneTo(dest);
 		return dest;

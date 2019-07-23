@@ -39,27 +39,30 @@ export class PointLight extends LightSprite {
 		this._range = value;
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _onActive(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _onActive(): void {
 		super._onActive();
 		(this._lightmapBakedType !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED) && (((<Scene3D>this._scene))._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT));
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/ protected _onInActive(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _onInActive(): void {
 		super._onInActive();
 		(this._lightmapBakedType !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED) && (((<Scene3D>this._scene))._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT));
 	}
 
-		/**
-		 * 更新点光相关渲染状态参数。
-		 * @param state 渲染状态参数。
-		 */
-		 /*override*/ _prepareToScene(): boolean {
+	/**
+	 * 更新点光相关渲染状态参数。
+	 * @param state 渲染状态参数。
+	 * @override
+	 */
+	_prepareToScene(): boolean {
 		var scene: Scene3D = (<Scene3D>this._scene);
 		if (scene.enableLight && this.activeInHierarchy) {
 			var shaderValue: ShaderData = scene._shaderValues;
@@ -82,10 +85,11 @@ export class PointLight extends LightSprite {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 */
-		/*override*/  _parse(data: any, spriteMap: any): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	_parse(data: any, spriteMap: any): void {
 		super._parse(data, spriteMap);
 		this.range = data.range;
 	}
