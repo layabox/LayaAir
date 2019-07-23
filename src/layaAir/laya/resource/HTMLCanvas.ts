@@ -124,8 +124,8 @@ import { Browser } from "../utils/Browser";
 				this._setCPUMemory(w * h * 4);
 				this._ctx && this._ctx.size && this._ctx.size(w, h);
 				if(this._source){// && this._source instanceof HTMLCanvasElement){
-					this._source.height = h;
-					this._source.width = w;
+					this._source._height = h;
+					this._source._width = w;
                 }
 				if (this._texture)
 				{
