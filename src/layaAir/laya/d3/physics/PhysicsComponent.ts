@@ -539,7 +539,7 @@ export class PhysicsComponent extends Component {
 		}
 
 		if (force || this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
-			this._onScaleChange(transform.scale);
+			this._onScaleChange(transform.getWorldLossyScale());
 			this._setTransformFlag(Transform3D.TRANSFORM_WORLDSCALE, false);
 		}
 	}

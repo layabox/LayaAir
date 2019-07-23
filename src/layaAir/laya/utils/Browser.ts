@@ -108,6 +108,7 @@ import { ILaya } from "../../ILaya";
 			//阿里小游戏
 			if (u.indexOf('AlipayMiniGame') > -1 && "my" in Browser.window) {
 				//这里需要手动初始化阿里适配库
+				(window as any).aliMiniGame(Laya,Laya);
 				(window as any).aliPayMiniGame(Laya,Laya);
 				if (!Laya["ALIMiniAdapter"]) {
 					console.error("请先添加阿里小游戏适配库");
@@ -118,7 +119,7 @@ import { ILaya } from "../../ILaya";
 			}
 
 			//微信小游戏
-			if (u.indexOf("MiniGame") > -1 && "wx" in Browser.window && !("my" in Browser.window)) {
+			if (u.indexOf('OPPO') == -1 && u.indexOf("MiniGame") > -1 && "wx" in Browser.window && !("my" in Browser.window)) {
 				(window as any).wxMiniGame(Laya,Laya);
 				if (!Laya["MiniAdpter"]) {
 					console.error("请先添加小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?nav=zh-ts-5-0-0");
@@ -130,6 +131,7 @@ import { ILaya } from "../../ILaya";
 			
 			//百度小游戏
 			if (u.indexOf("SwanGame") > -1) {
+				(window as any).bdMiniGame(Laya,Laya);
 				if (!Laya["BMiniAdapter"]) {
 					console.error("请先添加百度小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?nav=zh-ts-5-0-0");
 						//TODO 教程要改
@@ -139,7 +141,8 @@ import { ILaya } from "../../ILaya";
 			}
 			
 			//小米小游戏
-			if((window as any).getApp instanceof Function){
+			if(u.indexOf('QuickGame') > -1){
+				(window as any).miMiniGame(Laya,Laya);
 				if (!Laya["KGMiniAdapter"]) {
 					console.error("请先添加小米小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?nav=zh-ts-5-0-0");
 					//TODO 教程要改
@@ -150,6 +153,7 @@ import { ILaya } from "../../ILaya";
 			
 			//OPPO小游戏
 			if (u.indexOf('OPPO') > -1 && u.indexOf('MiniGame') > -1) {
+				(window as any).qgMiniGame(Laya,Laya);
 				if (!Laya["QGMiniAdapter"]) {
 					console.error("请先添加OPPO小游戏适配库");
 					//TODO 教程要改
@@ -160,6 +164,7 @@ import { ILaya } from "../../ILaya";
 			
 			//VIVO小游戏
 			if (u.indexOf('VVGame') > -1) {
+				(window as any).vvMiniGame(Laya,Laya);
 				if (!Laya["VVMiniAdapter"]) {
 					console.error("请先添加VIVO小游戏适配库");
 					//TODO 教程要改
