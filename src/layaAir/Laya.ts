@@ -60,7 +60,6 @@ import { EventDispatcher } from "./laya/events/EventDispatcher";
 import { Handler } from "./laya/utils/Handler";
 import { RunDriver } from "./laya/utils/RunDriver";
 import { Matrix } from "./laya/maths/Matrix";
-import { Accelerator } from "./laya/device/motion/Accelerator";
 import { HTMLImage } from "./laya/resource/HTMLImage";
 
 /**
@@ -421,7 +420,6 @@ regClassToEngine(SoundManager);
 regClassToEngine(URL);
 regClassToEngine(Event);
 regClassToEngine(Matrix);
-regClassToEngine(Accelerator);
 regClassToEngine(HTMLImage);
 
 
