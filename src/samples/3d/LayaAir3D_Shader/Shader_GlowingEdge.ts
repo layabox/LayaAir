@@ -21,6 +21,7 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 import { CustomMaterial } from "./customMaterials/CustomMaterial";
 import GlowingEdgeShaderFS from "./customShader/glowingEdgeShader.fs";
 import GlowingEdgeShaderVS from "./customShader/glowingEdgeShader.vs";
+import { GlowingEdgeMaterial } from "./customMaterials/GlowingEdgeMaterial";
 
 
 
@@ -61,37 +62,37 @@ export class Shader_GlowingEdge {
 			scene.addChild(dude);
 
 			//使用自定义的材质
-			var customMaterial1: CustomMaterial = new CustomMaterial();
+			var glowingEdgeMaterial1: GlowingEdgeMaterial = new GlowingEdgeMaterial();
 			//加载纹理
 			Texture2D.load("res/threeDimen/skinModel/dude/Assets/dude/head.png", Handler.create(this, function (tex: Texture2D): void {
-				customMaterial1.diffuseTexture = tex;
+				glowingEdgeMaterial1.diffuseTexture = tex;
 			}));
 			//设置边缘颜色
-			customMaterial1.marginalColor = new Vector3(1, 0.7, 0);
+			glowingEdgeMaterial1.marginalColor = new Vector3(1, 0.7, 0);
 
-			var customMaterial2: CustomMaterial = new CustomMaterial();
+			var glowingEdgeMaterial2: GlowingEdgeMaterial = new GlowingEdgeMaterial();
 			Texture2D.load("res/threeDimen/skinModel/dude/Assets/dude/jacket.png", Handler.create(this, function (tex: Texture2D): void {
-				customMaterial2.diffuseTexture = tex;
+				glowingEdgeMaterial2.diffuseTexture = tex;
 			}));
-			customMaterial2.marginalColor = new Vector3(1, 0.7, 0);
+			glowingEdgeMaterial2.marginalColor = new Vector3(1, 0.7, 0);
 
-			var customMaterial3: CustomMaterial = new CustomMaterial();
+			var glowingEdgeMaterial3: GlowingEdgeMaterial = new GlowingEdgeMaterial();
 			Texture2D.load("res/threeDimen/skinModel/dude/Assets/dude/pants.png", Handler.create(this, function (tex: Texture2D): void {
-				customMaterial3.diffuseTexture = tex;
+				glowingEdgeMaterial3.diffuseTexture = tex;
 			}));
-			customMaterial3.marginalColor = new Vector3(1, 0.7, 0);
+			glowingEdgeMaterial3.marginalColor = new Vector3(1, 0.7, 0);
 
-			var customMaterial4: CustomMaterial = new CustomMaterial();
+			var glowingEdgeMaterial4: GlowingEdgeMaterial = new GlowingEdgeMaterial();
 			Texture2D.load("res/threeDimen/skinModel/dude/Assets/dude/upBodyC.png", Handler.create(this, function (tex: Texture2D): void {
-				customMaterial4.diffuseTexture = tex;
+				glowingEdgeMaterial4.diffuseTexture = tex;
 			}))
-			customMaterial4.marginalColor = new Vector3(1, 0.7, 0);
+			glowingEdgeMaterial4.marginalColor = new Vector3(1, 0.7, 0);
 
 			var baseMaterials: BaseMaterial[] = [];
-			baseMaterials[0] = customMaterial1;
-			baseMaterials[1] = customMaterial2;
-			baseMaterials[2] = customMaterial3;
-			baseMaterials[3] = customMaterial4;
+			baseMaterials[0] = glowingEdgeMaterial1;
+			baseMaterials[1] = glowingEdgeMaterial2;
+			baseMaterials[2] = glowingEdgeMaterial3;
+			baseMaterials[3] = glowingEdgeMaterial4;
 
 			((<SkinnedMeshSprite3D>dude.getChildAt(0).getChildAt(0))).skinnedMeshRenderer.sharedMaterials = baseMaterials;
 			dude.transform.position = new Vector3(0, 0.5, 0);
@@ -102,12 +103,12 @@ export class Shader_GlowingEdge {
 		//加载地球精灵
 		var earth: MeshSprite3D = (<MeshSprite3D>scene.addChild(new MeshSprite3D(PrimitiveMesh.createSphere(0.5, 128, 128))));
 
-		var customMaterial: CustomMaterial = new CustomMaterial();
+		var glowingEdgeMaterial: GlowingEdgeMaterial = new GlowingEdgeMaterial();
 		Texture2D.load("res/threeDimen/texture/earth.png", Handler.create(this, function (tex: Texture2D): void {
-			customMaterial.diffuseTexture = tex;
+			glowingEdgeMaterial.diffuseTexture = tex;
 		}));
-		customMaterial.marginalColor = new Vector3(0.0, 0.3, 1.0);
-		earth.meshRenderer.sharedMaterial = customMaterial;
+		glowingEdgeMaterial.marginalColor = new Vector3(0.0, 0.3, 1.0);
+		earth.meshRenderer.sharedMaterial = glowingEdgeMaterial;
 
 		Laya.timer.frameLoop(1, this, function (): void {
 			earth.transform.rotate(this.rotation, true);
@@ -119,13 +120,12 @@ export class Shader_GlowingEdge {
 		var attributeMap: any = { 'a_Position': VertexMesh.MESH_POSITION0, 'a_Normal': VertexMesh.MESH_NORMAL0, 'a_Texcoord': VertexMesh.MESH_TEXTURECOORDINATE0, 'a_BoneWeights': VertexMesh.MESH_BLENDWEIGHT0, 'a_BoneIndices': VertexMesh.MESH_BLENDINDICES0 };
 		var uniformMap: any = { 'u_Bones': Shader3D.PERIOD_CUSTOM, 'u_CameraPos': Shader3D.PERIOD_CAMERA, 'u_MvpMatrix': Shader3D.PERIOD_SPRITE, 'u_WorldMat': Shader3D.PERIOD_SPRITE, 'u_texture': Shader3D.PERIOD_MATERIAL, 'u_marginalColor': Shader3D.PERIOD_MATERIAL, 'u_DirectionLight.Direction': Shader3D.PERIOD_SCENE, 'u_DirectionLight.Color': Shader3D.PERIOD_SCENE };
 		//创建自定义shader
-		var customShader: Shader3D = Shader3D.add("CustomShader");
+		var glowingEdgeShader: Shader3D = Shader3D.add("GlowingEdgeMaterial");
 		//为当前自定义的shader添加SubShader
 		var subShader: SubShader = new SubShader(attributeMap, uniformMap, SkinnedMeshSprite3D.shaderDefines);
-		customShader.addSubShader(subShader);
+		glowingEdgeShader.addSubShader(subShader);
 		//SubShader添加ShaderPass
 		(<ShaderPass>subShader.addShaderPass(GlowingEdgeShaderVS, GlowingEdgeShaderFS));
-		//Shader3D.compileShader("CustomShader", 0, 0, 5, 0, 0);
 	}
 }
 

@@ -1,6 +1,7 @@
 import { TiledMap } from "./TiledMap";
 import { TileAniSprite } from "./TileAniSprite";
-import { Sprite } from "laya/display/Sprite";
+import { Sprite } from "../display/Sprite";
+
 
 
 	/**

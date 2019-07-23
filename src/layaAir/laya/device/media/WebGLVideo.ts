@@ -1,7 +1,7 @@
-import { HtmlVideo } from "./HtmlVideo"
-import { WebGLContext } from "laya/webgl/WebGLContext";
-import { ILaya } from "ILaya";
-import { LayaGL } from "laya/layagl/LayaGL";
+import { HtmlVideo } from "./HtmlVideo";
+import { LayaGL } from "../../layagl/LayaGL";
+import { ILaya } from "../../../ILaya";
+import { WebGLContext } from "../../webgl/WebGLContext";
 
 
 /**

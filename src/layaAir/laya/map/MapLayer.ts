@@ -1,11 +1,11 @@
 import { TileTexSet } from "./TileTexSet";
 import { TileAniSprite } from "./TileAniSprite";
-import { Sprite } from "laya/display/Sprite";
-import { Point } from "laya/maths/Point";
 import { GridSprite } from "./GridSprite";
-import { Texture } from "laya/resource/Texture";
 import { IMap } from "./IMap";
 import { TiledMap } from "./TiledMap";
+import { Sprite } from "../display/Sprite";
+import { Point } from "../maths/Point";
+import { Texture } from "../resource/Texture";
 
 	
 	/**

@@ -1,5 +1,5 @@
-import { ILaya } from "ILaya";
-import { Handler } from "laya/utils/Handler";
+import { ILaya } from "../../../ILaya";
+import { Handler } from "../../utils/Handler";
 
 	
 	/**

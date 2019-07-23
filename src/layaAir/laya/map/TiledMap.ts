@@ -1,17 +1,17 @@
 import { MapLayer } from "./MapLayer"
-import { Rectangle } from "laya/maths/Rectangle";
-import { Sprite } from "laya/display/Sprite";
-import { Loader } from "laya/net/Loader";
-import { Handler } from "laya/utils/Handler";
-import { Point } from "laya/maths/Point";
-import { ILaya } from "ILaya";
-import { Texture } from "laya/resource/Texture";
 import { TileTexSet } from "./TileTexSet";
 import { GridSprite } from "./GridSprite";
 import { TileAniSprite } from "./TileAniSprite";
-import { HTMLCanvas } from "laya/resource/HTMLCanvas";
-import { Context } from "laya/resource/Context";
 import { IMap } from "./IMap";
+import { Rectangle } from "../maths/Rectangle";
+import { Sprite } from "../display/Sprite";
+import { Loader } from "../net/Loader";
+import { Handler } from "../utils/Handler";
+import { ILaya } from "../../ILaya";
+import { Texture } from "../resource/Texture";
+import { HTMLCanvas } from "../resource/HTMLCanvas";
+import { Context } from "vm";
+import { Point } from "../maths/Point";
 	
 	/**
 	 * tiledMap是整个地图的核心
