@@ -383,7 +383,7 @@ export class Laya3D {
 				//(window as any).KeyframeNodeList = (window as any).conchKeyframeNodeList;
 				var animationClip: any = AnimationClip;
 				animationClip.prototype._evaluateClipDatasRealTime = animationClip.prototype._evaluateClipDatasRealTimeForNative;
-				skinnedMeshRender.prototype.supportWebGLPlusAnimation = skinnedMeshRender.prototype.supportWebGLPlusAnimationForNative;
+				skinnedMeshRender.prototype._computeSkinnedData = skinnedMeshRender.prototype._computeSkinnedDataForNative;
 			}
 		}
 		WebGL.shaderHighPrecision = false;
