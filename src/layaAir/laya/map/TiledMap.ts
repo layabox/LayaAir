@@ -10,8 +10,8 @@ import { Handler } from "../utils/Handler";
 import { ILaya } from "../../ILaya";
 import { Texture } from "../resource/Texture";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
-import { Context } from "vm";
 import { Point } from "../maths/Point";
+import { Context } from "../resource/Context";
 	
 	/**
 	 * tiledMap是整个地图的核心
