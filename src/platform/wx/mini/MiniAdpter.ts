@@ -1,6 +1,6 @@
 
 import { MiniFileMgr } from "./MiniFileMgr";	
-import { Laya } from "Laya";
+import { Laya, isWXPosMsg, isWXOpenDataContext } from "Laya";
 import { Handler } from "laya/utils/Handler";
 import { Browser } from "laya/utils/Browser";
 import { MiniInput } from "./MiniInput";
@@ -53,7 +53,7 @@ import { URL } from "laya/net/URL";
 		
 		/**激活微信小游戏适配器*/
 		 static enable():void {
-			MiniAdpter.init(Laya.isWXPosMsg, Laya.isWXOpenDataContext);
+			MiniAdpter.init(isWXPosMsg, isWXOpenDataContext);
 		}
 		
 		/**
