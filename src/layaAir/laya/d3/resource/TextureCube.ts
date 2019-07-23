@@ -74,6 +74,12 @@ export class TextureCube extends BaseTexture {
 		this._width = size;
 		this._height = size;
 
+		var gl: WebGLRenderingContext = LayaGL.instance;
+		this._setWarpMode(gl.TEXTURE_WRAP_S, this._wrapModeU);
+		this._setWarpMode(gl.TEXTURE_WRAP_T, this._wrapModeV);
+		this._setFilterMode(this._filterMode);
+		this._setAnisotropy(this._anisoLevel);
+
 		if (this._mipmap) {
 			this._mipmapCount = Math.ceil(Math.log2(size));
 			for (var i: number = 0; i < this._mipmapCount; i++)
@@ -90,9 +96,8 @@ export class TextureCube extends BaseTexture {
  	*/
 	private _setPixels(pixels: any[], miplevel: number, width: number, height: number): void {
 		var gl: WebGLRenderingContext = LayaGL.instance;
-		var textureType: number = this._glTextureType;
 		var glFormat: number = this._getGLFormat();
-		WebGLContext.bindTexture(gl, textureType, this._glTexture);
+		WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
 		if (this.format === BaseTexture.FORMAT_R8G8B8) {
 			gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);//字节对齐
 			gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Z, miplevel, glFormat, width, height, 0, glFormat, gl.UNSIGNED_BYTE, pixels[0]);//back
@@ -188,16 +193,20 @@ export class TextureCube extends BaseTexture {
 	 * 通过六张图片源填充纹理。
 	 * @param 图片源数组。
 	 */
-	setSixSidePixels(pixels: any[], miplevel: number = 0): void {
+	setSixSidePixels(pixels: Array<Uint8Array>, miplevel: number = 0): void {
 		if (!pixels)
 			throw new Error("TextureCube:pixels can't be null.");
 		var width: number = Math.max(this._width >> miplevel, 1);
 		var height: number = Math.max(this._height >> miplevel, 1);
-		//var pixelsCount: number = width * height * this._getFormatByteCount();
-		//if (pixels.length < pixelsCount)
-		//	throw "TextureCube:pixels length should at least " + pixelsCount + ".";
+		var pixelsCount: number = width * height * this._getFormatByteCount();
+		if (pixels[0].length < pixelsCount)//TODO:只判断了0层
+			throw "TextureCube:pixels length should at least " + pixelsCount + ".";
 		this._setPixels(pixels, miplevel, width, height);
-
+		if (miplevel === 0) {
+			var gl: WebGLRenderingContext = LayaGL.instance;
+			this._setWarpMode(gl.TEXTURE_WRAP_S, this._wrapModeU);
+			this._setWarpMode(gl.TEXTURE_WRAP_T, this._wrapModeV);
+		}
 		this._readyed = true;
 		this._activeResource();
 	}
