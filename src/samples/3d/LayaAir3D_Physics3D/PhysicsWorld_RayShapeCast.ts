@@ -43,8 +43,10 @@ export class PhysicsWorld_RayShapeCast {
 	private to: Vector3 = new Vector3(0, 1, -5);
 	private _albedoColor: Vector4 = new Vector4(1.0, 1.0, 1.0, 0.5);
 	private _position: Vector3 = new Vector3(0, 0, 0);
-	private mat1: BlinnPhongMaterial;
-	private mat3: BlinnPhongMaterial;
+	//private mat1: BlinnPhongMaterial;
+	//private mat3: BlinnPhongMaterial;
+	private tex: Texture2D;
+	private tex1: Texture2D;
 	constructor() {
 		//初始化引擎
 		Laya3D.init(0, 0);
@@ -84,15 +86,12 @@ export class PhysicsWorld_RayShapeCast {
 		planeMat.tilingOffset = tilingOffset;
 		plane.meshRenderer.material = planeMat;
 
-
-		this.mat1 = new BlinnPhongMaterial();
-		this.mat3 = new BlinnPhongMaterial();
 		//加载纹理资源
 		Texture2D.load("res/threeDimen/Physics/rocks.jpg", Handler.create(this, function (tex: Texture2D): void {
-			this.mat1.albedoTexture = tex;
+			this.tex = tex;
 		}));
 		Texture2D.load("res/threeDimen/Physics/wood.jpg", Handler.create(this, function (tex: Texture2D): void {
-			this.mat3.albedoTexture = tex;
+			this.tex1 = tex;
 		}));
 
 		//为地面创建物理碰撞器
@@ -273,6 +272,10 @@ export class PhysicsWorld_RayShapeCast {
 	}
 
 	addBox(): void {
+		var mat1:BlinnPhongMaterial = new BlinnPhongMaterial();
+		Texture2D.load("res/threeDimen/Physics/rocks.jpg", Handler.create(this, function(tex:Texture2D):void {
+			mat1.albedoTexture = tex;
+		}));
 		//随机生成盒子的位置
 		var sX: number = Math.random() * 0.75 + 0.25;
 		var sY: number = Math.random() * 0.75 + 0.25;
@@ -280,7 +283,7 @@ export class PhysicsWorld_RayShapeCast {
 		//创建盒子 MeshSprite3D
 		var box: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createBox(sX, sY, sZ))));
 		//设置盒子的材质
-		box.meshRenderer.material = this.mat1;
+		box.meshRenderer.material = mat1;
 		var transform: Transform3D = box.transform;
 		var pos: Vector3 = transform.position;
 		pos.setValue(Math.random() * 4 - 2, 2, Math.random() * 4 - 2);
@@ -300,13 +303,18 @@ export class PhysicsWorld_RayShapeCast {
 	}
 
 	addCapsule(): void {
+		var mat:BlinnPhongMaterial = new BlinnPhongMaterial();
+		Texture2D.load("res/threeDimen/Physics/wood.jpg", Handler.create(this, function(tex:Texture2D):void {
+			mat.albedoTexture = tex;
+		}));
+			
 		//随机生成胶囊的半径和高度
 		var raidius: number = Math.random() * 0.2 + 0.2;
 		var height: number = Math.random() * 0.5 + 0.8;
 		//创建胶囊MeshSprite3D精灵
 		var capsule: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createCapsule(raidius, height))));
 		//为胶囊精灵设置材质
-		capsule.meshRenderer.material = this.mat3;
+		capsule.meshRenderer.material = mat;
 		var transform: Transform3D = capsule.transform;
 		var pos: Vector3 = transform.position;
 		pos.setValue(Math.random() * 4 - 2, 2, Math.random() * 4 - 2);
