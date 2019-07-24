@@ -226,14 +226,11 @@ class emiter {
      * @param node
      */
     emitProperty(node) {
-        let propertystr = "\t\t";
+        let propertystr = "";
         let tspropert = "\t\t";
         let asText = "";
-        let isGetset = false;
         let note = this.changeIndex(node, "\r\n\t\t");
-        if (note.indexOf("@override") != -1) {
-            isGetset = true;
-            propertystr += "override public function get ";
+        if (note.indexOf("@override") != -1) { //属性重写直接忽略
             if (node.modifiers) {
                 for (let i = 0; i < node.modifiers.length; i++) {
                     let childnode = node.modifiers[i];
@@ -242,6 +239,7 @@ class emiter {
             }
         }
         else {
+            propertystr = "\t\t";
             if (node.modifiers) {
                 for (let i = 0; i < node.modifiers.length; i++) {
                     let childnode = node.modifiers[i];
@@ -254,13 +252,13 @@ class emiter {
                 asText += "public ";
             }
             propertystr += asText;
+            let isGetset = asText.indexOf("function get") != -1;
+            propertystr += (isGetset ? "" : "var ") + node.name.getText() + (isGetset ? "()" : "") + ":" + this.emitType(node.type) + (isGetset ? "{\r\n\t\t\t\treturn null;\r\n\t\t}" : ";");
+            propertystr = note + propertystr + "\r\n";
         }
         //再次检测
-        if (!isGetset)
-            isGetset = asText.indexOf("function get") != -1;
-        propertystr += (isGetset ? "" : "var ") + node.name.getText() + (isGetset ? "()" : "") + ":" + this.emitType(node.type) + (isGetset ? "{\r\n\t\t\t\treturn null;\r\n\t\t}" : ";");
         tspropert += node.name.getText() + ":" + this.emitTsType(node.type) + ";";
-        return [note + propertystr + "\r\n", note + tspropert + "\r\n"];
+        return [propertystr, note + tspropert + "\r\n"];
     }
     /**
      * 生成接口类型属性
@@ -272,15 +270,16 @@ class emiter {
         if (node.modifiers) {
             for (let i = 0; i < node.modifiers.length; i++) {
                 let childnode = node.modifiers[i];
-                let type = ts.SyntaxKind[childnode.kind];
+                // let type = ts.SyntaxKind[childnode.kind];
                 // i + 1确保不会加public
-                propertystr += this.resolvingModifier(type, i + 1, childnode);
+                // propertystr += this.resolvingModifier(type,i + 1,childnode);
                 tspro += childnode.getText() + " ";
             }
         }
-        let isGetset = propertystr.indexOf("function get") != -1;
+        propertystr += "function get ";
+        // let isGetset = propertystr.indexOf("function get") != -1;
         let note = this.changeIndex(node, "\r\n\t\t");
-        propertystr += (isGetset ? "" : "var ") + node.name.getText() + (isGetset ? "()" : "") + ":" + this.emitType(node.type);
+        propertystr += node.name.getText() + "():" + this.emitType(node.type);
         tspro += node.name.getText() + ":" + this.emitTsType(node.type);
         return [note + propertystr + ";\r\n", note + tspro + ";\r\n"];
     }
