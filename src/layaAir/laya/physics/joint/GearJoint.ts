@@ -50,5 +50,5 @@ import { ClassUtils } from "../../utils/ClassUtils";
 		}
 	}
 
-	ClassUtils.regClass("laya.physics.GearJoint", GearJoint);
+	ClassUtils.regClass("laya.physics.joint.GearJoint", GearJoint);
 	ClassUtils.regClass("Laya.GearJoint", GearJoint);

@@ -120,5 +120,5 @@ import { ClassUtils } from "../../utils/ClassUtils";
 		}
 	}
 
-	ClassUtils.regClass("laya.physics.RevoluteJoint", RevoluteJoint);
+	ClassUtils.regClass("laya.physics.joint.RevoluteJoint", RevoluteJoint);
 	ClassUtils.regClass("Laya.RevoluteJoint", RevoluteJoint);

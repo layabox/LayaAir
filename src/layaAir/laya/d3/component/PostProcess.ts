@@ -9,6 +9,7 @@ import { ShaderData } from "../shader/ShaderData"
 import { ShaderDefines } from "../shader/ShaderDefines"
 import { BaseTexture } from "../../resource/BaseTexture"
 import { Texture2D } from "../../resource/Texture2D"
+import { ILaya } from "../../../ILaya";
 
 /**
  * <code>PostProcess</code> 类用于创建后期处理组件。
@@ -76,7 +77,7 @@ export class PostProcess {
 	 */
 	_render(): void {
 		var noteValue:boolean = ShaderData._SET_RUNTIME_VALUE_MODE_REFERENCE_;
-		ShaderData.setRuntimeValueMode(false);
+		ILaya.Render.isConchApp && ShaderData.setRuntimeValueMode(false);
 
 		var camera: Camera = this._context.camera;
 
@@ -112,7 +113,7 @@ export class PostProcess {
 			RenderTexture.recoverToPool(tempRenderTextures[i]);
 		tempRenderTextures.length = 0;
 
-		ShaderData.setRuntimeValueMode(noteValue);
+		ILaya.Render.isConchApp && ShaderData.setRuntimeValueMode(noteValue);
 	}
 
 	/**

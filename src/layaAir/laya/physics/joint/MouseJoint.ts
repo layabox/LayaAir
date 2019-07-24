@@ -119,5 +119,5 @@ import { ClassUtils } from "../../utils/ClassUtils";
 		}
 	}
 
-	ClassUtils.regClass("laya.physics.MouseJoint", MouseJoint);
+	ClassUtils.regClass("laya.physics.joint.MouseJoint", MouseJoint);
 	ClassUtils.regClass("Laya.MouseJoint", MouseJoint);
