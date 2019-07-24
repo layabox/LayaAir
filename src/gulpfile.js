@@ -124,7 +124,7 @@ var packsDef={
         'input':[
             './platform/vv/**/*.*'
         ],
-        'out':'../build/js/libs/laya.vvminigame.js'
+        'out':'../build/js/libs/laya.vvmini.js'
     },
 
 
@@ -393,7 +393,7 @@ gulp.task('ModifierJs', () => {
         .pipe(gulp.dest('../build/js/libs/'));
 
         return gulp.src([
-            '../build/js/libs/laya.vvminigame.js'], )
+            '../build/js/libs/laya.vvmini.js'], )
             .pipe(through.obj(function (file, encode, cb) {
                 var srcContents = file.contents.toString();
                 var tempContents = srcContents.replace(/\(/, "window.vvMiniGame = ");
@@ -460,7 +460,7 @@ gulp.task('CopyTSJSLibsFileToTS', () => {
         '../build/js/libs/laya.bdmini.js',
         '../build/js/libs/laya.xmmini.js',
         '../build/js/libs/laya.quickgamemini.js',
-        '../build/js/libs/laya.vvminigame.js'], )
+        '../build/js/libs/laya.vvmini.js'], )
 		.pipe(gulp.dest('../build/ts_new/jslibs'));
 });
 
