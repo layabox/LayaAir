@@ -75,6 +75,9 @@ export class PostProcess {
 	 * @internal
 	 */
 	_render(): void {
+		var noteValue:boolean = ShaderData._SET_RUNTIME_VALUE_MODE_REFERENCE_;
+		ShaderData.setRuntimeValueMode(false);
+
 		var camera: Camera = this._context.camera;
 
 		var screenTexture: RenderTexture = RenderTexture.createFromPool(RenderContext3D.clientWidth, RenderContext3D.clientHeight, camera._getRenderTextureFormat(), BaseTexture.FORMAT_DEPTHSTENCIL_NONE);
@@ -108,6 +111,8 @@ export class PostProcess {
 		for (i = 0, n = tempRenderTextures.length; i < n; i++)
 			RenderTexture.recoverToPool(tempRenderTextures[i]);
 		tempRenderTextures.length = 0;
+
+		ShaderData.setRuntimeValueMode(noteValue);
 	}
 
 	/**
