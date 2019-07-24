@@ -520,6 +520,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_onAdded(): void {
 		var physics3D: any = Physics3D._physics3D;
@@ -572,6 +573,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_parse(data: any): void {
 		(data.friction != null) && (this.friction = data.friction);
@@ -647,6 +649,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_cloneTo(dest: Component): void {
 		super._cloneTo(dest);
