@@ -13,7 +13,6 @@ import { Command } from "./Command";
 import { LayaGL } from "../../../../layagl/LayaGL";
 
 /**
- * @internal
  * <code>BlitCMD</code> 类用于创建从一张渲染目标输出到另外一张渲染目标指令。
  */
 export class BlitScreenQuadCMD extends Command {
@@ -41,7 +40,7 @@ export class BlitScreenQuadCMD extends Command {
 	private _screenType: number = 0;
 
 	/**
-	 * @internal
+	 * 
 	 */
 	static create(source: BaseTexture, dest: RenderTexture, shader: Shader3D = null, shaderData: ShaderData = null, subShader: number = 0, screenType: number = BlitScreenQuadCMD._SCREENTYPE_QUAD): BlitScreenQuadCMD {
 		var cmd: BlitScreenQuadCMD;

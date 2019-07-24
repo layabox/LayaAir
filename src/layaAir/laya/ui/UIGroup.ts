@@ -463,7 +463,7 @@ export class UIGroup extends Box implements IItem {
 
 	/**
 	 * @inheritDoc 
-	 * @override
+	 * @internal
 	*/
 	protected commitMeasure(): void {
 		this.runCallLater(this.changeLabels);

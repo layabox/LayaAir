@@ -42,7 +42,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 			if (sheet) this.sheet = sheet;
 		}
 		/**
-		 * @override
+		 * @internal
 		 */
 		/*override*/ protected createChildren():void {
 			this._bitmap = new AutoBitmap();

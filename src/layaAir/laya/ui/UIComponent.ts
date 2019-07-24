@@ -43,7 +43,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		 * @inheritDoc 
 		 * @override
 		*/
-		/*override*/  destroy(destroyChild:boolean = true):void {
+		destroy(destroyChild:boolean = true):void {
 			super.destroy(destroyChild);
 			this._dataSource = null;
 			this._tag = null;
@@ -74,11 +74,14 @@ import { ClassUtils } from "../utils/ClassUtils";
 		/**
 		 * <p>表示显示对象的宽度，以像素为单位。</p>
 		 * <p><b>注：</b>当值为0时，宽度为自适应大小。</p>
-		*@override
-		*/  get width():number {
+		 *@override
+		 */  
+		get width():number {
             return this.get_width();
         }
-        
+        /**
+		 * @override
+		 */
         get_width():number{
 			if (this._width) return this._width;
 			return this.measureWidth();
@@ -113,10 +116,12 @@ import { ClassUtils } from "../utils/ClassUtils";
 		 * <p><b>注：</b>当值为0时，高度为自适应大小。</p>
 		 * @override
 		 */
-		/*override*/  get height():number {
+		get height():number {
             return this.get_height();
         }
-        
+        /**
+		 * @override
+		 */
         get_height():number{
 			if (this._height) return this._height;
 			return this.measureHeight();
@@ -169,7 +174,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		/**
 		 * <p>从组件顶边到其内容区域顶边之间的垂直距离（以像素为单位）。</p>
 		 */
-		 get top():number {
+		get top():number {
              return this.get_top();
         }
         
@@ -177,7 +182,7 @@ import { ClassUtils } from "../utils/ClassUtils";
             return this._widget.top;
         }
 		
-		 set top(value:number) {
+		set top(value:number) {
              this.set_top(value);
 		}
         
@@ -190,7 +195,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		/**
 		 * <p>从组件底边到其内容区域底边之间的垂直距离（以像素为单位）。</p>
 		 */
-		 get bottom():number {
+		get bottom():number {
 			return this.get_bottom();
         }
         
@@ -333,11 +338,11 @@ import { ClassUtils } from "../utils/ClassUtils";
 		}
 		
 		/** 是否变灰。*/
-		 get gray():boolean {
+		get gray():boolean {
 			return this._gray;
 		}
 		
-		 set gray(value:boolean) {
+		set gray(value:boolean) {
 			if (value !== this._gray) {
 				this._gray = value;
 				UIUtils.gray(this, value);
@@ -345,11 +350,11 @@ import { ClassUtils } from "../utils/ClassUtils";
 		}
 		
 		/** 是否禁用页面，设置为true后，会变灰并且禁用鼠标。*/
-		 get disabled():boolean {
+		get disabled():boolean {
 			return this._disabled;
 		}
 		
-		 set disabled(value:boolean) {
+		set disabled(value:boolean) {
 			if (value !== this._disabled) {
 				this.gray = this._disabled = value;
 				this.mouseEnabled = !value;
@@ -369,10 +374,12 @@ import { ClassUtils } from "../utils/ClassUtils";
 		 * @inheritDoc 
 		 * @override
 		*/
-		/*override*/  set scaleX(value:number) {
+		set scaleX(value:number) {
             this.set_scaleX(value);
         }
-        
+        /**
+		 * @override
+		 */
         set_scaleX(value:number){
 			if (super.get_scaleX() == value) return;
 			super.set_scaleX(value);
@@ -387,10 +394,12 @@ import { ClassUtils } from "../utils/ClassUtils";
 		 * @inheritDoc 
 		 * @override
 		*/
-		/*override*/  set scaleY(value:number) {
+		set scaleY(value:number) {
             this.set_scaleY(value);
         }
-        
+        /**
+		 * @override
+		 */	
         set_scaleY(value:number){
 			if (super.get_scaleY() == value) return;
 			super.set_scaleY(value);
@@ -410,10 +419,12 @@ import { ClassUtils } from "../utils/ClassUtils";
 		 * @inheritDoc 
 		 * @override
 		*/
-		/*override*/  set width(value:number) {
+		set width(value:number) {
             this.set_width(value);
         }
-        
+        /**
+		 * @override
+		 */
         set_width(value:number){
 			if (super.get_width() == value) return;
 			super.set_width(value);
@@ -424,10 +435,12 @@ import { ClassUtils } from "../utils/ClassUtils";
 		 * @inheritDoc 
 		 * @override
 		*/
-		/*override*/  set height(value:number) {
+		set height(value:number) {
             this.set_height(value);
 		}
-        
+        /**
+		 * @override
+		 */
         set_height(value:number){
 			if (super.get_height() == value) return;
 			super.set_height(value);
@@ -443,7 +456,7 @@ import { ClassUtils } from "../utils/ClassUtils";
             return this._anchorX;
         }
 
-		 set anchorX(value:number) {
+		set anchorX(value:number) {
              this.set_anchorX(value);
         }
         
@@ -455,7 +468,7 @@ import { ClassUtils } from "../utils/ClassUtils";
         }
 		
 		/**Y锚点，值为0-1，设置anchorY值最终通过pivotY值来改变节点轴心点。*/
-		 get anchorY():number {
+		get anchorY():number {
 			return this.get_anchorY();
         }
         
@@ -463,7 +476,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 			return this._anchorY;
         }
 		
-		 set anchorY(value:number) {
+		set anchorY(value:number) {
              this.set_anchorY(value);
 		}
         
@@ -478,7 +491,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		 * @param child 
 		 * @override
 		 */   
-		/*override*/ protected _childChanged(child:Node = null):void {
+		protected _childChanged(child:Node = null):void {
 			this.callLater(this._sizeChanged);
 			super._childChanged(child);
 		}

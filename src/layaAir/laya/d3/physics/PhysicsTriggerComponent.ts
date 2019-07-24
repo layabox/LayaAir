@@ -47,6 +47,7 @@ export class PhysicsTriggerComponent extends PhysicsComponent {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_onAdded(): void {
 		super._onAdded();
@@ -56,6 +57,7 @@ export class PhysicsTriggerComponent extends PhysicsComponent {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_cloneTo(dest: Component): void {
 		super._cloneTo(dest);

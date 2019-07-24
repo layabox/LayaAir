@@ -37,8 +37,8 @@ import { ClassUtils } from "../utils/ClassUtils";
 			//_content.optimizeScrollRect = true;
 		}
 		
-		/**@inheritDoc */
-		/*override*/  destroy(destroyChild:boolean = true):void {
+		/**@inheritDoc @override*/  
+		destroy(destroyChild:boolean = true):void {
 			super.destroy(destroyChild);
 			this._content && this._content.destroy(destroyChild);
 			this._vScrollBar && this._vScrollBar.destroy(destroyChild);
@@ -48,18 +48,18 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this._content = null;
 		}
 		
-		/**@inheritDoc */
-		/*override*/  destroyChildren():void {
+		/**@inheritDoc @override*/  
+		destroyChildren():void {
 			this._content.destroyChildren();
 		}
 		
-		/**@inheritDoc */
-		/*override*/ protected createChildren():void {
+		/**@inheritDoc @internal*/ 
+		protected createChildren():void {
 			super.addChild(this._content = new Box());
 		}
 		
-		/**@inheritDoc */
-		/*override*/  addChild(child:Node):Node {
+		/**@inheritDoc @override*/  
+		addChild(child:Node):Node {
 			child.on(Event.RESIZE, this, this.onResize);
 			this._setScrollChanged();
 			return this._content.addChild(child);
@@ -73,51 +73,51 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this._setScrollChanged();
 		}
 		
-		/**@inheritDoc */
-		/*override*/  addChildAt(child:Node, index:number):Node {
+		/**@inheritDoc @override*/  
+		addChildAt(child:Node, index:number):Node {
 			child.on(Event.RESIZE, this, this.onResize);
 			this._setScrollChanged();
 			return this._content.addChildAt(child, index);
 		}
 		
-		/**@inheritDoc */
-		/*override*/  removeChild(child:Node):Node {
+		/**@inheritDoc @override*/  
+		removeChild(child:Node):Node {
 			child.off(Event.RESIZE, this, this.onResize);
 			this._setScrollChanged();
 			return this._content.removeChild(child);
 		}
 		
-		/**@inheritDoc */
-		/*override*/  removeChildAt(index:number):Node {
+		/**@inheritDoc @override*/  
+		removeChildAt(index:number):Node {
 			this.getChildAt(index).off(Event.RESIZE, this, this.onResize);
 			this._setScrollChanged();
 			return this._content.removeChildAt(index);
 		}
 		
-		/**@inheritDoc */
-		/*override*/  removeChildren(beginIndex:number = 0, endIndex:number = 0x7fffffff):Node {
+		/**@inheritDoc @override*/  
+		removeChildren(beginIndex:number = 0, endIndex:number = 0x7fffffff):Node {
 			this._content.removeChildren(beginIndex, endIndex);
 			this._setScrollChanged();
 			return this;
 		}
 		
-		/**@inheritDoc */
-		/*override*/  getChildAt(index:number):Node {
+		/**@inheritDoc @override*/  
+		getChildAt(index:number):Node {
 			return this._content.getChildAt(index);
 		}
 		
-		/**@inheritDoc */
-		/*override*/  getChildByName(name:string):Node {
+		/**@inheritDoc @override*/  
+		getChildByName(name:string):Node {
 			return this._content.getChildByName(name);
 		}
 		
-		/**@inheritDoc */
-		/*override*/  getChildIndex(child:Node):number {
+		/**@inheritDoc @override*/  
+		getChildIndex(child:Node):number {
 			return this._content.getChildIndex(child);
 		}
 		
-		/**@inheritDoc */
-		/*override*/  get numChildren():number {
+		/**@inheritDoc @override*/  
+		get numChildren():number {
 			return this._content.numChildren;
 		}
 		
@@ -153,8 +153,8 @@ import { ClassUtils } from "../utils/ClassUtils";
 			}
 		}
 		
-		/**@inheritDoc */
-		/*override*/ protected _sizeChanged():void {
+		/**@inheritDoc @override*/ 
+		protected _sizeChanged():void {
 			super._sizeChanged();
 			this.setContentSize(this._width, this._height);
 		}
@@ -202,8 +202,9 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc
+		 * @override
 		 */
-		/*override*/  set width(value:number) {
+		set width(value:number) {
 			super.width = value;
 			this._setScrollChanged();
         }
@@ -212,8 +213,8 @@ import { ClassUtils } from "../utils/ClassUtils";
             return super.width;
         }
 		
-		/**@inheritDoc */
-		/*override*/  set height(value:number) {
+		/**@inheritDoc @override*/  
+		set height(value:number) {
 			super.height = value;
 			this._setScrollChanged();
 		}
@@ -311,8 +312,8 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this.changeScroll();
 		}
 		
-		/**@inheritDoc */
-		/*override*/  set cacheAs(value:string) {
+		/**@inheritDoc @override*/  
+		set cacheAs(value:string) {
 			super.cacheAs = value;
 			this._usedCache = null;
 			if (value !== "none") {

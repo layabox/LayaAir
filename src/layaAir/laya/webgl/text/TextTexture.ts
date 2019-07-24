@@ -1,19 +1,11 @@
 //import { TextAtlas } from "./TextAtlas";
 import { LayaGL } from "../../layagl/LayaGL"
-	import { RenderInfo } from "../../renders/RenderInfo"
-	import { Resource } from "../../resource/Resource"
-	import { WebGLContext } from "../WebGLContext"
-    import { CharRenderInfo } from "./CharRenderInfo"
+import { RenderInfo } from "../../renders/RenderInfo"
+import { Resource } from "../../resource/Resource"
+import { WebGLContext } from "../WebGLContext"
+import { CharRenderInfo } from "./CharRenderInfo"
 import { ILaya } from "../../../ILaya";
     
-    interface ITextRender{
-        atlasWidth:number;
-        checkCleanTextureDt:number;
-        debugUV:boolean;
-        isWan1Wan:boolean;
-        destroyUnusedTextureDt:number;
-    }
-
 	export class TextTexture  extends Resource {
         static gTextRender:ITextRender = null;
 
@@ -247,4 +239,10 @@ import { ILaya } from "../../../ILaya";
 		}
 	}
 
-	
+	interface ITextRender{
+        atlasWidth:number;
+        checkCleanTextureDt:number;
+        debugUV:boolean;
+        isWan1Wan:boolean;
+        destroyUnusedTextureDt:number;
+    }

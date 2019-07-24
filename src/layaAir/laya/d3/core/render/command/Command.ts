@@ -3,7 +3,6 @@ import { ShaderData } from "../../../../d3/shader/ShaderData";
 import { CommandBuffer } from "./CommandBuffer";
 
 /**
- * @internal
  * <code>Command</code> 类用于创建指令。
  */
 export class Command {

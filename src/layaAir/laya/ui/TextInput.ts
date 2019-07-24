@@ -129,7 +129,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc 
-		 * @override
+		 * @internal
 		*/
 		/*override*/ protected preinitialize():void {
 			this.mouseEnabled = true;
@@ -147,9 +147,9 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc 
-		 * @override
+		 * @internal
 		*/
-		/*override*/ protected createChildren():void {
+		protected createChildren():void {
 			this.addChild(this._tf = new Input());
 			this._tf.padding = Styles.inputLabelPadding;
 			this._tf.on(Event.INPUT, this, this._onInput);
@@ -188,9 +188,9 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc 
-		 * @override
+		 * @internal
 		*/
-		/*override*/ protected initialize():void {
+		protected initialize():void {
 			this.width = 128;
 			this.height = 22;
 		}

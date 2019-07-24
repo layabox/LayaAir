@@ -182,7 +182,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc 
-		 * @override
+		 * @internal
 		*/
 		/*override*/ protected createChildren():void {
 			this.addChild(this._button = new Button());

@@ -238,7 +238,7 @@ export class AdvImage extends Image {
 		http.onerror = http.onabort = http.onprogress = http.onload = null;
 	}
 	/**
-	 * 
+	 * @override
 	 * @param destroyChild 
 	 */
  	destroy(destroyChild: boolean = true): void {

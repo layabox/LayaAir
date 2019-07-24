@@ -296,14 +296,14 @@ import { ClassUtils } from "../utils/ClassUtils";
 			return this._keepStatus;
 		}
 		
-		 set keepStatus(value:boolean) {
+		set keepStatus(value:boolean) {
 			this._keepStatus = value;
 		}
 		
 		/**
 		 * 列表数据源，只包含当前可视节点数据。
 		 */
-		 get array():any[] {
+		get array():any[] {
 			return this._list.array;
 		}
 		
@@ -318,7 +318,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		/**
 		 * 数据源，全部节点数据。
 		 */
-		 get source():any[] {
+		get source():any[] {
 			return this._source;
 		}
 		
@@ -336,6 +336,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		 * <li>单元格类对象。</li>
 		 * <li> UI 的 JSON 描述。</li>
 		 * </ol></p>
+		 * @implements
 		 */
 		 get itemRender():any {
 			return this._list.itemRender;
