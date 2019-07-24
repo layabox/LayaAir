@@ -113,6 +113,7 @@ export class Skeleton extends Sprite {
 	constructor(templet: Templet = null, aniMode: number = 0) {
 		super();
 		if (templet) this.init(templet, aniMode);
+		Templet; // 解决UI编辑器使用动画的问题，不要删掉
 	}
 
 	/**
