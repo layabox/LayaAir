@@ -68,7 +68,7 @@ import { ILaya } from "../../../ILaya";
 			this.isStopped = false;
 			this._clearBufferSource();
 			if (!this.audioBuffer) return;
-			if (this.startTime >= this.duration) return;
+			if (this.startTime >= this.duration)  return stop();
 			var context:any = this.context;
 			var gain:any = this.gain;
 			var bufferSource:any = context.createBufferSource();
