@@ -310,9 +310,7 @@ import { ILaya } from "../../ILaya";
 				Browser.__init__();
 				if (Browser.userAgent.indexOf("Mozilla/6.0(Linux; Android 6.0; HUAWEI NXT-AL10 Build/HUAWEINXT-AL10)") > -1) Browser._pixelRatio = 2;
 				else {
-					var ctx:any = Browser.context;
-					var backingStore:number = ctx.backingStorePixelRatio || ctx.webkitBackingStorePixelRatio || ctx.mozBackingStorePixelRatio || ctx.msBackingStorePixelRatio || ctx.oBackingStorePixelRatio || ctx.backingStorePixelRatio || 1;
-					Browser._pixelRatio = (Browser._window.devicePixelRatio || 1) / backingStore;
+					Browser._pixelRatio = (Browser._window.devicePixelRatio || 1) ;
 					if (Browser._pixelRatio < 1) Browser._pixelRatio = 1;
 				}
 			}
