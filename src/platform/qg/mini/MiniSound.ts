@@ -37,7 +37,7 @@ import { URL } from "laya/net/URL";
 		/** @private **/
 		private static _createSound():any {
 			MiniSound._id++;
-			return QGMiniAdapter.window.wx.createInnerAudioContext();
+			return QGMiniAdapter.window.qg.createInnerAudioContext();
 		}
 		
 		/**
