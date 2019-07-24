@@ -39,14 +39,14 @@ export class Command {
 	}
 
 	/**
-	 *@internal
+	 *
 	 */
 	run(): void {
 
 	}
 
 	/**
-	 *@internal
+	 *
 	 */
 	recover(): void {
 		this._commandBuffer = null;

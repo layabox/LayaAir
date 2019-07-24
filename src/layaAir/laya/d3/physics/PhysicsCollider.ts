@@ -55,6 +55,7 @@ export class PhysicsCollider extends PhysicsTriggerComponent {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_parse(data: any): void {
 		(data.friction != null) && (this.friction = data.friction);
@@ -68,6 +69,7 @@ export class PhysicsCollider extends PhysicsTriggerComponent {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_onAdded(): void {
 		var physics3D: any = Physics3D._physics3D;
