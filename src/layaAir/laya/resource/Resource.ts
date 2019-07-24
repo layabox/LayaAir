@@ -199,21 +199,21 @@ export class Resource extends EventDispatcher implements ICreateResource, IDestr
 	}
 
 	/**
-	 * @internal
+	 * @implements IReferenceCounter
 	 */
 	_addReference(count: number = 1): void {
 		this._referenceCount += count;
 	}
 
 	/**
-	 * @internal
+	 * @implements IReferenceCounter
 	 */
 	_removeReference(count: number = 1): void {
 		this._referenceCount -= count;
 	}
 
 	/**
-	 * @internal
+	 * @implements IReferenceCounter
 	 */
 	_clearReference(): void {
 		this._referenceCount = 0;

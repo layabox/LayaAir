@@ -503,6 +503,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	protected _onScaleChange(scale: Vector3): void {
 		super._onScaleChange(scale);
@@ -555,6 +556,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_onShapeChange(colShape: ColliderShape): void {
 		super._onShapeChange(colShape);
@@ -627,6 +629,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_addToSimulation(): void {
 		this._simulation._addRigidBody(this, this._collisionGroup, this._detectCollisions ? this._canCollideWith : 0);
@@ -635,6 +638,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_removeFromSimulation(): void {
 		this._simulation._removeRigidBody(this);

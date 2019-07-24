@@ -26,6 +26,7 @@ export class SphereShape extends BaseShape {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	protected _getShapeBoundBox(boundBox: BoundBox): void {
 		var min: Vector3 = boundBox.min;
@@ -37,6 +38,7 @@ export class SphereShape extends BaseShape {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	protected _getSpeedBoundBox(boundBox: BoundBox): void {
 		var min: Vector3 = boundBox.min;

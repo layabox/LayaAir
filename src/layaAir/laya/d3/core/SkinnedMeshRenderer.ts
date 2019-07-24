@@ -181,6 +181,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	/**
 	 *@inheritDoc
 	 *@override
+	 *@internal
 	 */
 	_createRenderElement(): RenderElement {
 		return new RenderElement();
@@ -189,6 +190,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	/**
 	*@inheritDoc
 	*@override
+	*@internal
 	*/
 	_onMeshChange(value: Mesh): void {
 		super._onMeshChange(value);
@@ -313,6 +315,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	private _cacheAnimationNode: AnimationNode[] = [];//[兼容性]
 
 	/**
+	 * @override
 	 * 获取包围盒,只读,不允许修改其值。
 	 * @return 包围盒。
 	 */

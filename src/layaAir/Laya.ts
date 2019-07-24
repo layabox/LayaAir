@@ -62,6 +62,7 @@ import { MeshTexture } from "./laya/webgl/utils/MeshTexture";
 import { Matrix } from "./laya/maths/Matrix";
 import { HTMLImage } from "./laya/resource/HTMLImage";
 import { Event } from "./laya/events/Event";
+import { Config } from "./Config";
 
 /**
  * <code>Laya</code> 是全局对象的引用入口集。
@@ -401,6 +402,7 @@ function regClassToEngine(cls: any) {
 
 }
 
+regClassToEngine(Config);
 regClassToEngine(Laya);
 regClassToEngine(TextRender);
 regClassToEngine(Stage);

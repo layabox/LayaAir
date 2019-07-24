@@ -26,6 +26,7 @@ export class PixelLineRenderer extends BaseRender {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	protected _calculateBoundingBox(): void {
 		var min: Vector3 = this._bounds.getMin();
@@ -55,6 +56,7 @@ export class PixelLineRenderer extends BaseRender {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {//TODO:整理_renderUpdate
 		var projectionView: Matrix4x4 = context.projectionViewMatrix;

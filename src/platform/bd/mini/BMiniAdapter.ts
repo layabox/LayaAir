@@ -132,7 +132,7 @@ import { Laya } from "Laya";
 //			MiniVideo.__init__();
 //			MiniAccelerator.__init__();
 //			MiniLocation.__init__();
-			BMiniAdapter.window.swan.onMessage(BMiniAdapter._onMessage);
+			BMiniAdapter.window.swan.onMessage && BMiniAdapter.window.swan.onMessage(BMiniAdapter._onMessage);
 		}
 		
 		private static _onMessage(data:any):void {
@@ -311,7 +311,8 @@ import { Laya } from "Laya";
 			node.blur = MiniInput.wxinputblur;
 			node.style = {};
 			node.value = 0;//文本内容
-			node.parentElement = {};
+			if(!node.parentElement)
+				node.parentElement = {};//百度突然游戏值了？？？
 			node.placeholder = {};
 			node.type = {};
 			node.setColor = function(value:string):void {

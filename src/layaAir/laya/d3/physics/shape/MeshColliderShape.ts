@@ -64,6 +64,7 @@ export class MeshColliderShape extends ColliderShape {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_setScale(value: Vector3): void {
 		if (this._compoundParent) {//TODO:待查,这里有问题
@@ -99,6 +100,7 @@ export class MeshColliderShape extends ColliderShape {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	destroy(): void {
 		if (this._nativeShape) {

@@ -148,9 +148,10 @@ export class PixelLineMaterial extends BaseMaterial {
 	}
 
 	/**
- * 克隆。
- * @return	 克隆副本。
- */
+	 * @internal
+	 * 克隆。
+	 * @return	 克隆副本。
+	 */
 	clone(): any {
 		var dest: PixelLineMaterial = new PixelLineMaterial();
 		this.cloneTo(dest);

@@ -222,7 +222,7 @@ export class ColliderShape implements IClone {
 	}
 
 	/**
-	 * @internal
+	 * 销毁。
 	 */
 	destroy(): void {
 		if (this._nativeShape) {

@@ -69,6 +69,7 @@ export class CapsuleColliderShape extends ColliderShape {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_setScale(value: Vector3): void {
 		var fixScale: Vector3 = CapsuleColliderShape._tempVector30;
@@ -93,6 +94,7 @@ export class CapsuleColliderShape extends ColliderShape {
 
 	/**
 	 * @inheritDoc
+	 * @override
 	 */
 	clone(): any {
 		var dest: CapsuleColliderShape = new CapsuleColliderShape(this._radius, this._length, this._orientation);

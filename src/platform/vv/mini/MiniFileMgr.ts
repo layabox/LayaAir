@@ -8,9 +8,9 @@ import { Browser } from "laya/utils/Browser";
 	/** @private **/
 	export class MiniFileMgr{
 		/**@private 读取文件操作接口**/
-		private static fs:any = VVMiniAdapter.window.qg;
+		private static fs:any = (<any>window).qg.getFileSystemManager();
 		/**@private 下载文件接口**/
-		 static wxdown:any = VVMiniAdapter.window.qg.download;
+		 static wxdown:any = (<any>window).qg.download;
 		/**@private 文件缓存列表**/
 		 static filesListObj:any = {};
 		/**@private 本局游戏使用的本地资源地址列表**/

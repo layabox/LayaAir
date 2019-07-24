@@ -74,6 +74,7 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_parse(data: any, spriteMap: any): void {
 		super._parse(data, spriteMap);
@@ -121,6 +122,7 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	protected _changeHierarchyAnimator(animator: Animator): void {
 		super._changeHierarchyAnimator(animator);
@@ -130,6 +132,7 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	protected _changeAnimatorAvatar(avatar: Avatar): void {
 		this.skinnedMeshRenderer._setCacheAvatar(avatar);
@@ -138,6 +141,7 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_cloneTo(destObject: any, srcRoot: Node, dstRoot: Node): void {
 		var meshSprite3D: MeshSprite3D = (<MeshSprite3D>destObject);

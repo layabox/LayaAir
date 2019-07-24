@@ -207,6 +207,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_parse(data: any, spriteMap: any): void {
 		super._parse(data, spriteMap);
@@ -588,6 +589,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_activeHierarchy(activeChangeComponents: any[]): void {
 		super._activeHierarchy(activeChangeComponents);
@@ -597,6 +599,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_inActiveHierarchy(activeChangeComponents: any[]): void {
 		super._inActiveHierarchy(activeChangeComponents);

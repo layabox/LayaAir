@@ -85,6 +85,7 @@ function compile() {
     });
 }
 // checkAllDir("./bin/layaAir/");
+// tstoas("laya\\utils\\GraphicAnimation.d.ts",null,"laya\\utils");
 // tstoas("laya\\d3\\physics\\PhysicsCollider.d.ts",null,"laya\\d3\\physics");
 // tstoas("laya\\d3\\physics\\CharacterController.d.ts", null, "laya\\d3\\physics");
 // tstoas("laya\\d3\\physics\\PhysicsUpdateList.d.ts",null,"laya\\d3\\physics");

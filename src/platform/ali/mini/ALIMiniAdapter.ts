@@ -135,7 +135,7 @@ import { Laya } from "Laya";
 //			MiniVideo.__init__();
 //			MiniAccelerator.__init__();
 //			MiniLocation.__init__();
-			ALIMiniAdapter.window.my.onMessage(ALIMiniAdapter._onMessage);
+			ALIMiniAdapter.window.my.onMessage && ALIMiniAdapter.window.my.onMessage(ALIMiniAdapter._onMessage);
 		}
 		
 		private static _onMessage(data:any):void {

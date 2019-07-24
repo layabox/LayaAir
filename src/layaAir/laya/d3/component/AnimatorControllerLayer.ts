@@ -117,7 +117,6 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
 	}
 
 	/**
-	 * @internal
 	 * @implements IReferenceCounter
 	 */
 	_getReferenceCount(): number {
@@ -125,7 +124,6 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
 	}
 
 	/**
-	 * @internal
 	 * @implements IReferenceCounter
 	 */
 	_addReference(count: number = 1): void {
@@ -135,7 +133,6 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
 	}
 
 	/**
-	 * @internal
 	 * @implements IReferenceCounter
 	 */
 	_removeReference(count: number = 1): void {
@@ -145,7 +142,6 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
 	}
 
 	/**
-	 * @internal
 	 * @implements IReferenceCounter
 	 */
 	_clearReference(): void {

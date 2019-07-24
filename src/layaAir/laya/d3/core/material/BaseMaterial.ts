@@ -220,7 +220,6 @@ export class BaseMaterial extends Resource implements IClone {
 	}
 
 	/**
-	 * @internal
 	 * @implements IReferenceCounter
 	 * @override
 	 */
@@ -235,7 +234,6 @@ export class BaseMaterial extends Resource implements IClone {
 	}
 
 	/**
-	 * @internal
 	 * @implements IReferenceCounter
 	 * @override
 	 */

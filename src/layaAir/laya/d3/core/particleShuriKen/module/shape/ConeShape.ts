@@ -38,6 +38,7 @@ export class ConeShape extends BaseShape {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	protected _getShapeBoundBox(boundBox: BoundBox): void {
 		const coneRadius2: number = this.radius + this.length * Math.sin(this.angle);
@@ -55,6 +56,7 @@ export class ConeShape extends BaseShape {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	protected _getSpeedBoundBox(boundBox: BoundBox): void {
 		const sinA: number = Math.sin(this.angle);

@@ -810,6 +810,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_parse(data: any, spriteMap: any): void {
 		var lightMapsData: any[] = data.lightmaps;
@@ -1023,6 +1024,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 	/**
 	 * @inheritDoc
+	 * @override
+	 * @internal
 	 */
 	render(ctx: Context, x: number, y: number): void {
 		//TODO:外层应该设计为接口调用

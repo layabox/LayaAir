@@ -84,7 +84,7 @@ export class Script3D extends Component {
 
 	/**
 	 * @inheritDoc
-	 * @ineternal
+	 * @internal
 	 * @override
 	 */
 	_isScript(): boolean {
@@ -93,7 +93,7 @@ export class Script3D extends Component {
 
 	/**
 	 * @inheritDoc
-	 * @ineternal
+	 * @internal
 	 * @override
 	 */
 	_onAdded(): void {
