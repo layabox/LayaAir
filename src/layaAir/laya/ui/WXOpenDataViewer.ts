@@ -18,13 +18,17 @@ export class WXOpenDataViewer extends UIComponent {
         tex.bitmap = new Texture2D();
         this.texture = tex;
     }
-    
-    /*override*/  onEnable():void {
+    /**
+     * @override
+     */
+    onEnable():void {
         this.postMsg({type: "display",rate:Laya.stage.frameRate});
         if ((window as any).wx && (window as any).sharedCanvas) Laya.timer.frameLoop(1, this, this._onLoop);
     }
-    
-    /*override*/  onDisable():void {
+    /**
+     * @override
+     */ 
+    onDisable():void {
         this.postMsg({type: "undisplay"});
         Laya.timer.clear(this, this._onLoop);
     }
@@ -33,24 +37,36 @@ export class WXOpenDataViewer extends UIComponent {
         (this.texture.bitmap as Texture2D).loadImageSource((window as any).sharedCanvas);
     }
     
-    /*override*/  set width(value:number) {
+    /**
+     * @override
+     */
+    set width(value:number) {
         super.width = value;
         if ((window as any).sharedCanvas) (window as any).sharedCanvas.width = value;
         this.callLater(this._postMsg);
     }
-    
-    /*override*/  set height(value:number) {
+
+    /**
+     * @override
+     */
+    set height(value:number) {
         super.height = value;
         if ((window as any).sharedCanvas) (window as any).sharedCanvas.height = value;
         this.callLater(this._postMsg);
     }
-    
-    /*override*/  set x(value:number) {
+
+    /**
+     * @override
+     */
+    set x(value:number) {
         super.x = value;
         this.callLater(this._postMsg);
     }
-    
-    /*override*/  set y(value:number) {
+
+    /**
+     * @override
+     */
+    set y(value:number) {
         super.y = value;
         this.callLater(this._postMsg);
     }

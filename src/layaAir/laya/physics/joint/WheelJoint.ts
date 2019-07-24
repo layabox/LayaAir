@@ -35,7 +35,7 @@ import { ClassUtils } from "../../utils/ClassUtils";
 		private _maxMotorTorque:number = 10000;
 		
 		/**
-		 * 
+		 * @override
 		 */
 		protected _createJoint():void {
 			if (!this._joint) {

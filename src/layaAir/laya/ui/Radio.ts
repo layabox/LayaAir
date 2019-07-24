@@ -47,9 +47,9 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc 
-		 * @override
+		 * @internal
 		 * */	
-		/*override*/ protected initialize():void {
+		protected initialize():void {
 			super.initialize();
 			this.createText();
 			this._text.align = "left";

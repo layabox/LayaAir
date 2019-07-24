@@ -139,12 +139,16 @@ export class StatUI extends IStatRender {
 		this.loop();
 	}
 
-	/**激活性能统计*/
+	/**
+	 * @override
+	 * 激活性能统计
+	 * */
 	enable(): void {
 		ILaya.systemTimer.frameLoop(1, this, this.loop);
 	}
 
 	/**
+	 * @override
 	 * 隐藏性能统计信息。
 	 */
 	hide(): void {
@@ -156,6 +160,7 @@ export class StatUI extends IStatRender {
 	}
 
 	/**
+	 * @override
 	 * 点击性能统计显示区域的处理函数。
 	 */
 	set_onclick(fn: Function): void {
@@ -254,10 +259,17 @@ export class StatUI extends IStatRender {
 		this._txt.text = text;
 	}
 
+	/**
+	 * @override
+	 */
 	isCanvasRender(): boolean {
 		return this._useCanvas;
 	}
-	// 非canvas模式的渲染
+	
+	/**
+	 * @override
+	 * 非canvas模式的渲染
+	 * */ 
 	renderNotCanvas(ctx: any, x: number, y: number) {
 		this._show && this._sp && this._sp.render(ctx, 0, 0);
 	}

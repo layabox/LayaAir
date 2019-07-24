@@ -313,7 +313,7 @@ import { ILaya } from "../../ILaya";
 		
 		/**
 		 * @inheritDoc
-		 * @override
+		 * @internal
 		 */
 		 _disposeResource():void {
 			if (this._frameBuffer) {

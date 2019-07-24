@@ -118,8 +118,9 @@ import { ClassUtils } from "../utils/ClassUtils";
 		}
 		/**
 		 * @override
+		 * @internal
 		 */
-		/*override*/ protected initialize():void {
+		protected initialize():void {
 			this.width = 180;
 			this.height = 150;
 			this._tf.wordWrap = true;

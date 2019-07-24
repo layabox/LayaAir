@@ -78,8 +78,8 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc 
-		 * @override
-		*/
+		 * @internal
+		 */
 		protected initialize():void {
 			super.initialize();
 			this.slider.isVertical = false;

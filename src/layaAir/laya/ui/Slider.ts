@@ -109,7 +109,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc 
-		 * @override
+		 * @internal
 		*/
 		/*override*/ protected createChildren():void {
 			this.addChild(this._bg = new Image());
@@ -118,7 +118,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc 
-		 * @override
+		 * @internal
 		*/
 		/*override*/ protected initialize():void {
 			this._bar.on(Event.MOUSE_DOWN, this, this.onBarMouseDown);
@@ -278,8 +278,8 @@ import { ClassUtils } from "../utils/ClassUtils";
 			else this._bar.y = Math.round((this._bg.height - this._bar.height) * 0.5);
 		}
 		
-		/**@inheritDoc */
-		/*override*/ protected measureWidth():number {
+		/**@inheritDoc @override*/ 
+		protected measureWidth():number {
 			return Math.max(this._bg.width, this._bar.width);
 		}
 		

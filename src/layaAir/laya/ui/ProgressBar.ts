@@ -148,7 +148,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc 
-		 * @override
+		 * @internal
 		*/
 		 protected createChildren():void {
 			this.addChild(this._bg = new Image());

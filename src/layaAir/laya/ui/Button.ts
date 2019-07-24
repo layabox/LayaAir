@@ -253,6 +253,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**@inheritDoc 
 		 * @override
+		 * @internal
 		*/
 		 protected createChildren():void {
 			this.graphics = this._bitmap = new AutoBitmap();
@@ -272,6 +273,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**@inheritDoc 
 		 * @override
+		 * @internal
 		*/
 		 protected initialize():void {
 			if (this._mouseState !== 1) {
@@ -447,12 +449,13 @@ import { ClassUtils } from "../utils/ClassUtils";
 		/**
 		 * 表示按钮的选中状态。
 		 * <p>如果值为true，表示该对象处于选中状态。否则该对象处于未选中状态。</p>
+		 * @implements
 		 */
-		 get selected():boolean {
+		get selected():boolean {
 			return this._selected;
 		}
 		
-		 set selected(value:boolean) {
+		set selected(value:boolean) {
 			if (this._selected != value) {
 				this._selected = value;
 				this.state = this._selected ? 2 : 0;
@@ -615,6 +618,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * 对象的点击事件处理器函数（无默认参数）。
+		 * @implements
 		 */
 		 get clickHandler():Handler {
 			return this._clickHandler;

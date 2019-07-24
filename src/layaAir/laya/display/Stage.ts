@@ -267,33 +267,32 @@ export class Stage extends Sprite {
 		return (Browser.onMobile && Input.isInputting);
 	}
 
-		/**@inheritDoc */
-		/*override*/  set width(value: number) {
+	/**@inheritDoc @override*/  
+	set width(value: number) {
 		this.designWidth = value;
 		super.set_width(value);
 		ILaya.systemTimer.callLater(this, this._changeCanvasSize);
 	}
 
-		/*override*/  get width(): number {
+	get width(): number {
 		return super.get_width();
 	}
 
-		/**@inheritDoc */
-		/*override*/  set height(value: number) {
+	/**@inheritDoc @override */
+	set height(value: number) {
 		this.designHeight = value;
 		super.set_height(value);
 		ILaya.systemTimer.callLater(this, this._changeCanvasSize);
 	}
 
-		/*override*/  get height(): number {
+		/** @override*/  get height(): number {
 		return super.get_height();
 	}
 
-		/*override*/  set transform(value: Matrix) {
+		/**@override*/  set transform(value: Matrix) {
 		super.set_transform(value);
 	}
-		/**@inheritDoc */
-		/*override*/  get transform(): Matrix {
+		/**@inheritDoc @override*/  get transform(): Matrix {
 		if (this._tfChanged) this._adjustTransform();
 		return (this._transform = this._transform || this._createTransform());
 	}
@@ -552,18 +551,18 @@ export class Stage extends Sprite {
 		}
 	}
 
-		/**鼠标在 Stage 上的 X 轴坐标。*/
-		/*override*/  get mouseX(): number {
+	/**鼠标在 Stage 上的 X 轴坐标。@override*/  
+	get mouseX(): number {
 		return Math.round(MouseManager.instance.mouseX / this.clientScaleX);
 	}
 
-		/**鼠标在 Stage 上的 Y 轴坐标。*/
-		/*override*/  get mouseY(): number {
+	/**鼠标在 Stage 上的 Y 轴坐标。@override*/  
+	get mouseY(): number {
 		return Math.round(MouseManager.instance.mouseY / this.clientScaleY);
 	}
 
-		/**@inheritDoc */
-		/*override*/  getMousePoint(): Point {
+	/**@inheritDoc @override*/  
+	getMousePoint(): Point {
 		return Point.TEMP.setTo(this.mouseX, this.mouseY);
 	}
 
@@ -593,13 +592,13 @@ export class Stage extends Sprite {
 		this._screenMode = value;
 	}
 
-		/**@inheritDoc */
-		/*override*/  repaint(type: number = SpriteConst.REPAINT_CACHE): void {
+		/**@inheritDoc @override*/  
+		repaint(type: number = SpriteConst.REPAINT_CACHE): void {
 		this._repaint |= type;
 	}
 
-		/**@inheritDoc */
-		/*override*/  parentRepaint(type: number = SpriteConst.REPAINT_CACHE): void {
+		/**@inheritDoc @override*/  
+		parentRepaint(type: number = SpriteConst.REPAINT_CACHE): void {
 	}
 
 	/**@internal */
@@ -628,8 +627,8 @@ export class Stage extends Sprite {
 		return Browser.now() - this._frameStartTime;
 	}
 
-		/**@inheritDoc */
-		/*override*/  set visible(value: boolean) {
+	/**@inheritDoc @override*/  
+	set visible(value: boolean) {
 		if (this.visible !== value) {
 			super.set_visible(value);
 			var style: any = Render._mainCanvas.source.style;
@@ -658,8 +657,8 @@ export class Stage extends Sprite {
 	};
 
 
-		/**@inheritDoc */
-		/*override*/  render(context: Context, x: number, y: number): void {
+	/**@inheritDoc @override*/  
+	render(context: Context, x: number, y: number): void {
 		if (((<any>window)).conch) {
 			this.renderToNative(context, x, y);
 			return;

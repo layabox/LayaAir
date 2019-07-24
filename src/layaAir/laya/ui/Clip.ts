@@ -186,13 +186,13 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc 
-		 * @override
+		 * @internal
 		*/
 		/*override*/ protected createChildren():void {
 			this.graphics = this._bitmap = new AutoBitmap();
 		}
 		
-		/**@private	 */
+		/**@private	 @override*/
 		protected _onDisplay(e?:boolean):void {
 			if (this._isPlaying) {
 				if (this._getBit(Const.DISPLAYED_INSTAGE)) this.play();

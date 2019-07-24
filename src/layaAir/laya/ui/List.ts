@@ -249,9 +249,9 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc 
-		 * @override
-		*/
-		/*override*/ protected createChildren():void {
+		 * @internal
+		 */
+		protected createChildren():void {
 			this.addChild(this._content = new Box());
 		}
 		
@@ -357,6 +357,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		 * <li>单元格类对象。</li>
 		 * <li> UI 的 JSON 描述。</li>
 		 * </ol></p>
+		 * @implements
 		 */
 		 get itemRender():any {
 			return this._itemRender;
@@ -1089,9 +1090,9 @@ import { ClassUtils } from "../utils/ClassUtils";
 			}
 		}
 		/**
-		 * @override
+		 * @internal
 		 */
-		/*override*/ protected commitMeasure():void {
+		protected commitMeasure():void {
 			this.runCallLater(this.changeCells);
 		}
 	}

@@ -138,16 +138,16 @@ import { ClassUtils } from "../utils/ClassUtils";
 		 * @inheritDoc 
 		 * @override
 		*/
-		/*override*/  destroy(destroyChild:boolean = true):void {
+		destroy(destroyChild:boolean = true):void {
 			super.destroy(destroyChild);
 			this._tf = null;
 		}
 		
 		/**
 		 * @inheritDoc 
-		 * @override
+		 * @internal
 		*/
-		/*override*/ protected createChildren():void {
+		protected createChildren():void {
 			this.addChild(this._tf = new Text());
 		}
 		
