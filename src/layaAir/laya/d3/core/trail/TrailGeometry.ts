@@ -330,6 +330,7 @@ export class TrailGeometry extends GeometryElement {
 		var startColorIndex: number = gradient.colorRGBKeysCount - 1;
 
 		var totalLength: number = this._owner._totalLength;
+		var stride: number = this._floatCountPerVertices2 * 2;
 		for (var i: number = this._activeIndex; i < vertexCount; i++) {
 			(i !== this._activeIndex) && (curLength += this._subDistance[i]);
 			var uvX: number;
@@ -345,7 +346,6 @@ export class TrailGeometry extends GeometryElement {
 			startColorIndex = gradient.evaluateColorRGB(lerpFactor, this.tmpColor, startColorIndex, true);
 			startAlphaIndex = gradient.evaluateColorAlpha(lerpFactor, this.tmpColor, startAlphaIndex, true);
 
-			var stride: number = this._floatCountPerVertices2 * 2;
 			var index: number = i * stride;
 			this._vertices2[index + 0] = uvX;
 			this._vertices2[index + 1] = this.tmpColor.r;
