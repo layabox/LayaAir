@@ -46,7 +46,7 @@ class emiter {
             }
             this.outString += str[0];
             this.copyTSdata += str[1];
-            if (!this.innerClass && str[0].indexOf("public class") != -1 || str[0].indexOf("interface") != -1) {
+            if (!this.innerClass && (str[0].indexOf("public class") != -1 || str[0].indexOf("interface") != -1)) {
                 this.innerClass = 1;
                 this.outString = "package " + _url.replace(new RegExp("\\\\", "g"), ".") + " {\r\n" + this.outString + "\r\n}\r\n";
             }
@@ -184,7 +184,7 @@ class emiter {
             str += result[0];
             tstr += result[1];
         }
-        str = "\tpublic interface " + node.name.getText() + " {\r\n" + str + "\t}\r\n";
+        str = (this.innerClass ? "\tinterface " : "\tpublic interface ") + node.name.getText() + " {\r\n" + str + "\t}\r\n";
         tstr = "\tinterface " + node.name.getText() + "{\r\n" + tstr + "\t}\r\n";
         let note = this.changeIndex(node, "\r\n\t");
         return [note + str, note + tstr];
@@ -230,29 +230,34 @@ class emiter {
         let tspropert = "\t\t";
         let asText = "";
         let note = this.changeIndex(node, "\r\n\t\t");
-        if (note.indexOf("@override") != -1) { //属性重写直接忽略
-            if (node.modifiers) {
-                for (let i = 0; i < node.modifiers.length; i++) {
-                    let childnode = node.modifiers[i];
-                    tspropert += childnode.getText() + " ";
-                }
+        if (node.modifiers) { //单独处理ts
+            for (let i = 0; i < node.modifiers.length; i++) {
+                let childnode = node.modifiers[i];
+                tspropert += childnode.getText() + " ";
             }
         }
-        else {
+        if (note.indexOf("@override") == -1) { //属性重写直接忽略
             propertystr = "\t\t";
-            if (node.modifiers) {
-                for (let i = 0; i < node.modifiers.length; i++) {
-                    let childnode = node.modifiers[i];
-                    let type = ts.SyntaxKind[childnode.kind];
-                    asText += this.resolvingModifier(type, i, childnode);
-                    tspropert += childnode.getText() + " ";
-                }
+            //检测是否重写接口
+            let isGetset = false;
+            if (note.indexOf("@implements") != -1) { //如果是实现接口
+                isGetset = true;
+                propertystr += "public function get ";
             }
             else {
-                asText += "public ";
+                if (node.modifiers) {
+                    for (let i = 0; i < node.modifiers.length; i++) {
+                        let childnode = node.modifiers[i];
+                        let type = ts.SyntaxKind[childnode.kind];
+                        asText += this.resolvingModifier(type, i, childnode);
+                    }
+                }
+                else {
+                    asText += "public ";
+                }
+                propertystr += asText;
+                isGetset = asText.indexOf("function get") != -1;
             }
-            propertystr += asText;
-            let isGetset = asText.indexOf("function get") != -1;
             propertystr += (isGetset ? "" : "var ") + node.name.getText() + (isGetset ? "()" : "") + ":" + this.emitType(node.type) + (isGetset ? "{\r\n\t\t\t\treturn null;\r\n\t\t}" : ";");
             propertystr = note + propertystr + "\r\n";
         }
