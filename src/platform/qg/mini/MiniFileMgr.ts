@@ -7,9 +7,9 @@ import { Laya } from "Laya";
 	/** @private **/
 	export class MiniFileMgr{
 		/**@private 读取文件操作接口**/
-		private static fs:any = QGMiniAdapter.window.qg.getFileSystemManager();
+		private static fs:any = (<any>window).qg.getFileSystemManager();
 		/**@private 下载文件接口**/
-		private static wxdown:any = QGMiniAdapter.window.qg.downloadFile;
+		private static wxdown:any =(<any>window).qg.downloadFile;
 		/**@private 文件缓存列表**/
 		 static filesListObj:any = {};
 		/**@private 本局游戏使用的本地资源地址列表**/
