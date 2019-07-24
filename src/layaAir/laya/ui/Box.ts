@@ -12,7 +12,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**@inheritDoc 
 		 * @override
-		*/
+		 */
 		set dataSource(value:any) {
 			this._dataSource = value;
 			for (var name  in value) {

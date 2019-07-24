@@ -255,7 +255,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		 * @inheritDoc 
 		 * @override
 		*/
-		/*override*/  set dataSource(value:any) {
+		set dataSource(value:any) {
 			this._dataSource = value;
 			if (typeof(value)=='string') this.skin = value as string;
 			else super.dataSource = value;

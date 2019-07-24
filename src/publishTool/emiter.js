@@ -236,6 +236,7 @@ class emiter {
                 tspropert += childnode.getText() + " ";
             }
         }
+        let isReadonlyKeyword = false;
         if (note.indexOf("@override") == -1) { //属性重写直接忽略
             propertystr = "\t\t";
             //检测是否重写接口
@@ -249,6 +250,8 @@ class emiter {
                     for (let i = 0; i < node.modifiers.length; i++) {
                         let childnode = node.modifiers[i];
                         let type = ts.SyntaxKind[childnode.kind];
+                        if (type == "ReadonlyKeyword")
+                            isReadonlyKeyword = true;
                         asText += this.resolvingModifier(type, i, childnode);
                     }
                 }
@@ -259,6 +262,8 @@ class emiter {
                 isGetset = asText.indexOf("function get") != -1;
             }
             propertystr += (isGetset ? "" : "var ") + node.name.getText() + (isGetset ? "()" : "") + ":" + this.emitType(node.type) + (isGetset ? "{\r\n\t\t\t\treturn null;\r\n\t\t}" : ";");
+            if (isGetset && !isReadonlyKeyword) //检测是geset 简单写一个set
+                propertystr += "\r\n\t\tpublic " + (asText.indexOf(" static ") != -1 ? "static" : "") + " function set " + node.name.getText() + "(value:" + this.emitType(node.type) + "):void" + "{}";
             propertystr = note + propertystr + "\r\n";
         }
         //再次检测

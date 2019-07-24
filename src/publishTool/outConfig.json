@@ -6,6 +6,8 @@
   "filter":["AniLibPack.d.ts","ILaya.d.ts","GCanvas.d.ts","IPhysics.d.ts","IUI.d.ts","IMap.d.ts"],
   "createAS":true,
   "jscObj":{
+    "WebGLRenderingContext":"*",
+    "CanvasRenderingContext2D":"*",
     "HTMLAudioElement":"Audio",
     "XMLDocument":"XmlDom",
     "ChildNode":"XmlDom"
