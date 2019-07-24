@@ -198,6 +198,7 @@ export class CharacterController extends PhysicsComponent {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_onAdded(): void {
 		var physics3D: any = Physics3D._physics3D;

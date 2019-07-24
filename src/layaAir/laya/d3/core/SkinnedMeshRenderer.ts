@@ -222,6 +222,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	protected _calculateBoundingBox(): void {//TODO:是否可直接在boundingSphere属性计算优化
 		if (!this._cacheAvatar) {
@@ -255,6 +256,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_renderUpdate(context: RenderContext3D, transform: Transform3D): void {
 		if (this._cacheAnimator) {
@@ -273,6 +275,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {
 		var projectionView: Matrix4x4 = context.projectionViewMatrix;
@@ -292,6 +295,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_destroy(): void {
 		super._destroy();

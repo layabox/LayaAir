@@ -431,6 +431,7 @@ export class PhysicsComponent extends Component {
 	/**
 	 * @inheritDoc
 	 * @override
+	 * @internal
 	 */
 	_parse(data: any): void {
 		(data.collisionGroup != null) && (this.collisionGroup = data.collisionGroup);
