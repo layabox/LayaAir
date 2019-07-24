@@ -8,7 +8,7 @@ import { Browser } from "laya/utils/Browser";
 	/** @private **/
 	export class MiniFileMgr{
 		/**@private 读取文件操作接口**/
-		private static fs:any = (<any>window).qg.getFileSystemManager();
+		private static fs:any = (<any>window).qg;
 		/**@private 下载文件接口**/
 		 static wxdown:any = (<any>window).qg.download;
 		/**@private 文件缓存列表**/
