@@ -67,5 +67,5 @@ import { ClassUtils } from "../../utils/ClassUtils";
 		}
 	}
 
-	ClassUtils.regClass("laya.physics.WeldJoint", WeldJoint);
+	ClassUtils.regClass("laya.physics.joint.WeldJoint", WeldJoint);
 	ClassUtils.regClass("Laya.WeldJoint", WeldJoint);

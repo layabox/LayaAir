@@ -43,5 +43,5 @@ import { ClassUtils } from "../../utils/ClassUtils";
 		}
 	}
 
-	ClassUtils.regClass("laya.physics.JointBase", JointBase);
+	ClassUtils.regClass("laya.physics.joint.JointBase", JointBase);
 	ClassUtils.regClass("Laya.JointBase", JointBase);

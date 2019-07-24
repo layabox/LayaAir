@@ -123,5 +123,5 @@ import { ClassUtils } from "../../utils/ClassUtils";
 		}
 	}
 
-	ClassUtils.regClass("laya.physics.PrismaticJoint", PrismaticJoint);
+	ClassUtils.regClass("laya.physics.joint.PrismaticJoint", PrismaticJoint);
 	ClassUtils.regClass("Laya.PrismaticJoint", PrismaticJoint);
