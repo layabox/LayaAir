@@ -64,8 +64,8 @@ import {URL} from "laya/net/URL";
 			if (KGMiniAdapter._inited) return;
 			KGMiniAdapter._inited = true;
 			KGMiniAdapter.window = window;
-			if(!KGMiniAdapter.window.hasOwnProperty("qg"))
-				return;
+			//if(!KGMiniAdapter.window.hasOwnProperty("qg"))
+			//	return;
 			if(KGMiniAdapter.window.navigator.userAgent.indexOf('QuickGame') <0 ) return;
 			KGMiniAdapter.isZiYu = isSon;
 			KGMiniAdapter.isPosMsgYu = isPosMsg;
