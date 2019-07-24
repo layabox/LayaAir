@@ -143,6 +143,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		}
 		
 		/**
+		 * @implements
 		 * <p>数据赋值，通过对UI赋值来控制UI显示逻辑。</p>
 		 * <p>简单赋值会更改组件的默认属性，使用大括号可以指定组件的任意属性进行赋值。</p>
 		 * @example
@@ -151,14 +152,15 @@ import { ClassUtils } from "../utils/ClassUtils";
 		   //任意属性赋值
 		   dataSource = {label2: {text:"改变了label",size:14}, checkbox2: {selected:true,x:10}};
 		 */
-		 get dataSource():any {
+		get dataSource():any {
 			return this.get_dataSource();
 		}
         
         get_dataSource():any{
             return this._dataSource;
-        }
-		 set dataSource(value:any) {
+		}
+		
+		set dataSource(value:any) {
              this.set_dataSource(value);
 		}
         

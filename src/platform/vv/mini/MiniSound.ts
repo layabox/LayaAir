@@ -6,6 +6,7 @@ import { Handler } from "laya/utils/Handler";
 import { MiniSoundChannel } from "./MiniSoundChannel";
 import { SoundManager } from "laya/media/SoundManager";
 import {Event} from "laya/events/Event";	
+import { Laya } from "Laya";
 	/** @private **/
 	export class MiniSound extends EventDispatcher {
 		/**@private **/
@@ -166,14 +167,31 @@ import {Event} from "laya/events/Event";
 					this._sound = MiniSound._createSound();
 					this._sound.src = sourceUrl;
 				}
-				
-				this._sound.onCanplay(MiniSound.bindToThis(this.onCanPlay,this));
-				this._sound.onError(MiniSound.bindToThis(this.onError,this));
+				//vivo版本兼容处理
+				if(this._sound.onCanplay)
+				{
+					this._sound.onCanplay(MiniSound.bindToThis(this.onCanPlay,this));
+					this._sound.onError(MiniSound.bindToThis(this.onError,this));
+				}else
+				{
+					Laya.timer.clear(this,this.onCheckComplete);
+					Laya.timer.frameLoop(2,this,this.onCheckComplete);
+				}
 			}else
 			{
 				this.event(Event.ERROR);
 			}
 		}
+
+		private onCheckComplete():void
+		{
+			if(this._sound.duration && this._sound.duration > 0)
+			{
+				Laya.timer.clear(this,this.onCheckComplete);
+				this.onCanPlay();
+			}
+		}
+
 		
 		/**@private **/
 		private onError(error:any):void
@@ -197,8 +215,10 @@ import {Event} from "laya/events/Event";
 		{
 			this.loaded = true;
 			this.event(Event.COMPLETE);
-			//_audioCache[this.readyUrl] = this;
-			this._sound.offCanplay(null);
+			if(this._sound.offCanpla)
+			{
+				this._sound.offCanplay(null);
+			}
 		}
 		
 		/**

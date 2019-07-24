@@ -392,6 +392,7 @@ export class Skeleton extends Sprite {
 
 		// 自定义事件的检查
 		var tEventArr: EventData[] = this._templet.eventAniArr[this._aniClipIndex];
+		var _soundChannel: SoundChannel;
 		if (tEventArr && this._eventIndex < tEventArr.length) {
 			var tEventData: EventData = tEventArr[this._eventIndex];
 			if (tEventData.time >= this._player.playStart && tEventData.time <= this._player.playEnd) {
@@ -399,10 +400,16 @@ export class Skeleton extends Sprite {
 					this.event(Event.LABEL, tEventData);
 					this._eventIndex++;
 					if (this._playAudio && tEventData.audioValue && tEventData.audioValue !== "null") {
-						var _soundChannel: SoundChannel = SoundManager.playSound((this._player.templet as any)._path + tEventData.audioValue, 1, Handler.create(this, this._onAniSoundStoped));
+						_soundChannel = SoundManager.playSound((this._player.templet as any)._path + tEventData.audioValue, 1, Handler.create(this, this._onAniSoundStoped));
+						SoundManager.playbackRate = this._player.playbackRate;
 						_soundChannel && this._soundChannelArr.push(_soundChannel);
 					}
 				}
+			} else if (tEventData.time < this._player.playStart && this._playAudio && tEventData.audioValue && tEventData.audioValue !== "null" && (this._player.playEnd - this._player.currentPlayTime) > 0.1) {
+					this._eventIndex++;
+					_soundChannel = SoundManager.playSound((this._player.templet as any)._path + tEventData.audioValue, 1, Handler.create(this, this._onAniSoundStoped), null,  (this._player.currentPlayTime - tEventData.time) / 1000);
+					SoundManager.playbackRate = this._player.playbackRate;
+					_soundChannel && this._soundChannelArr.push(_soundChannel);
 			} else {
 				this._eventIndex++;
 			}

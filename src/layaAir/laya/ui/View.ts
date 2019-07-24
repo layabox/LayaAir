@@ -244,12 +244,15 @@ import { ClassUtils } from "../utils/ClassUtils";
 			View.uiMap && this.createView(uiView);
 		}
 		
-		/**@see  laya.ui.UIComponent#dataSource*/
-		 get dataSource():any {
+		/**
+		 * @implements
+		 * laya.ui.UIComponent#dataSource
+		 * */
+		get dataSource():any {
 			return this._dataSource;
 		}
 		
-		 set dataSource(value:any) {
+		set dataSource(value:any) {
 			this._dataSource = value;
 			for (var name  in value) {
 				var comp:any = this.getChildByName(name);
