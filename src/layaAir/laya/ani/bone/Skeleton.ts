@@ -405,9 +405,9 @@ export class Skeleton extends Sprite {
 						_soundChannel && this._soundChannelArr.push(_soundChannel);
 					}
 				}
-			} else if (tEventData.time < this._player.playStart && this._playAudio && tEventData.audioValue && tEventData.audioValue !== "null" && this._player.currentPlayTime === this._player.playStart) {
+			} else if (tEventData.time < this._player.playStart && this._playAudio && tEventData.audioValue && tEventData.audioValue !== "null" && (this._player.playEnd - this._player.currentPlayTime) > 0.1) {
 					this._eventIndex++;
-					_soundChannel = SoundManager.playSound((this._player.templet as any)._path + tEventData.audioValue, 1, Handler.create(this, this._onAniSoundStoped), null,  (this._player.playStart - tEventData.time) / 1000);
+					_soundChannel = SoundManager.playSound((this._player.templet as any)._path + tEventData.audioValue, 1, Handler.create(this, this._onAniSoundStoped), null,  (this._player.currentPlayTime - tEventData.time) / 1000);
 					SoundManager.playbackRate = this._player.playbackRate;
 					_soundChannel && this._soundChannelArr.push(_soundChannel);
 			} else {
