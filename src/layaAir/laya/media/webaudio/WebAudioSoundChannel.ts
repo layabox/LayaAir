@@ -68,6 +68,7 @@ import { ILaya } from "../../../ILaya";
 			this.isStopped = false;
 			this._clearBufferSource();
 			if (!this.audioBuffer) return;
+			if (this.startTime >= this.duration) return;
 			var context:any = this.context;
 			var gain:any = this.gain;
 			var bufferSource:any = context.createBufferSource();
@@ -78,7 +79,7 @@ import { ILaya } from "../../../ILaya";
 				gain.disconnect();
 			gain.connect(context.destination);
 			bufferSource.onended = this._onPlayEnd;
-			if (this.startTime >= this.duration) this.startTime = 0;
+			// if (this.startTime >= this.duration) this.startTime = 0;
 			this._startTime = Browser.now();
 			if (this.gain.gain.setTargetAtTime)
 			{
