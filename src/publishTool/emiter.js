@@ -229,24 +229,35 @@ class emiter {
         let propertystr = "\t\t";
         let tspropert = "\t\t";
         let asText = "";
-        if (node.modifiers) {
-            for (let i = 0; i < node.modifiers.length; i++) {
-                let childnode = node.modifiers[i];
-                let type = ts.SyntaxKind[childnode.kind];
-                asText += this.resolvingModifier(type, i, childnode);
-                tspropert += childnode.getText() + " ";
+        let isGetset = false;
+        let note = this.changeIndex(node, "\r\n\t\t");
+        if (note.indexOf("@override") != -1) {
+            isGetset = true;
+            propertystr += "override public function get ";
+            if (node.modifiers) {
+                for (let i = 0; i < node.modifiers.length; i++) {
+                    let childnode = node.modifiers[i];
+                    tspropert += childnode.getText() + " ";
+                }
             }
         }
         else {
-            asText += "public ";
-        }
-        let isGetset = asText.indexOf("function get") != -1;
-        let note = this.changeIndex(node, "\r\n\t\t");
-        if (isGetset && note.indexOf("@override") != -1) {
-            propertystr += "override " + asText;
-        }
-        else
+            if (node.modifiers) {
+                for (let i = 0; i < node.modifiers.length; i++) {
+                    let childnode = node.modifiers[i];
+                    let type = ts.SyntaxKind[childnode.kind];
+                    asText += this.resolvingModifier(type, i, childnode);
+                    tspropert += childnode.getText() + " ";
+                }
+            }
+            else {
+                asText += "public ";
+            }
             propertystr += asText;
+        }
+        //再次检测
+        if (!isGetset)
+            isGetset = asText.indexOf("function get") != -1;
         propertystr += (isGetset ? "" : "var ") + node.name.getText() + (isGetset ? "()" : "") + ":" + this.emitType(node.type) + (isGetset ? "{\r\n\t\t\t\treturn null;\r\n\t\t}" : ";");
         tspropert += node.name.getText() + ":" + this.emitTsType(node.type) + ";";
         return [note + propertystr + "\r\n", note + tspropert + "\r\n"];
@@ -298,13 +309,17 @@ class emiter {
         }
         let paramstr = "";
         let tsparam = "";
+        let isImplements = false;
+        //检测是否重写接口
+        if (note.indexOf("@implements") != -1)
+            isImplements = true;
         if (node.parameters) {
             for (let i = 0; i < node.parameters.length; i++) {
                 let param = node.parameters[i];
                 let isdotdotdot = false;
                 if (param.dotDotDotToken)
                     isdotdotdot = true;
-                paramstr += (i ? "," : "") + (isdotdotdot ? "..." : "") + param.name.getText() + (isdotdotdot ? "" : (":" + this.emitType(param.type) + (param.questionToken ? " = null" : "")));
+                paramstr += (i ? "," : "") + (isdotdotdot ? "..." : "") + param.name.getText() + (isdotdotdot ? "" : (":" + this.emitType(param.type) + (!isImplements && param.questionToken ? " = null" : "")));
                 tsparam += (i ? "," : "") + (isdotdotdot ? "..." : "") + param.name.getText() + (param.questionToken ? "?" : "") + ":" + this.emitTsType(param.type);
             }
         }
