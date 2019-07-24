@@ -55,5 +55,5 @@ import { ClassUtils } from "../../utils/ClassUtils";
 		}
 	}
 
-	ClassUtils.regClass("laya.physics.PulleyJoint", PulleyJoint);
+	ClassUtils.regClass("laya.physics.joint.PulleyJoint", PulleyJoint);
 	ClassUtils.regClass("Laya.PulleyJoint", PulleyJoint);

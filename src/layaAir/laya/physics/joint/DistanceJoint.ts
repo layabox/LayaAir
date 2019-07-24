@@ -83,5 +83,5 @@ import { ClassUtils } from "../../utils/ClassUtils";
 		}
 	}
 
-	ClassUtils.regClass("laya.physics.DistanceJoint", DistanceJoint);
+	ClassUtils.regClass("laya.physics.joint.DistanceJoint", DistanceJoint);
 	ClassUtils.regClass("Laya.DistanceJoint", DistanceJoint);

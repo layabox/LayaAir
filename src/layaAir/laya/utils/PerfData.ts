@@ -1,10 +1,11 @@
-import { PerfHUD } from "./PerfHUD";
+//import { PerfHUD } from "./PerfHUD";
+let DATANUM = 300;
 export class PerfData {
 		 id:number;
 		 name:string;
 		 color:number;
 		 scale:number=1.0;
-		 datas:any[] = new Array(PerfHUD.DATANUM);
+		 datas:any[] = new Array(DATANUM);
 		 datapos:number = 0;
 		constructor(id:number, color:number, name:string, scale:number){
 			this.id = id;
@@ -15,7 +16,7 @@ export class PerfData {
 		 addData(v:number):void {
 			this.datas[this.datapos] = v;
 			this.datapos++;
-			this.datapos %= PerfHUD.DATANUM;
+			this.datapos %= DATANUM;
 		}
 	}
 

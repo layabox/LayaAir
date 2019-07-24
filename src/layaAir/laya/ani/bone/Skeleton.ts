@@ -25,6 +25,7 @@ import { Texture } from "../../resource/Texture";
 import { IAniLib } from "../AniLibPack";
 import { Templet } from "../../ani/bone/Templet";
 import { ILaya } from "../../../ILaya";
+import { ClassUtils } from "../../utils/ClassUtils";
 
 
 /**动画开始播放调度
@@ -1125,3 +1126,5 @@ export class Skeleton extends Sprite {
 
 IAniLib.Skeleton = Skeleton;
 ILaya.regClass(Skeleton);
+ClassUtils.regClass("laya.ani.bone.Skeleton", Skeleton);
+ClassUtils.regClass("Laya.Skeleton", Skeleton);

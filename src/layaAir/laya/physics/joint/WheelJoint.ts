@@ -110,5 +110,5 @@ import { ClassUtils } from "../../utils/ClassUtils";
 		}
 	}
 
-	ClassUtils.regClass("laya.physics.WheelJoint", WheelJoint);
+	ClassUtils.regClass("laya.physics.joint.WheelJoint", WheelJoint);
 	ClassUtils.regClass("Laya.WheelJoint", WheelJoint);

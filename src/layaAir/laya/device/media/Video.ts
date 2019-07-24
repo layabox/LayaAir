@@ -6,6 +6,12 @@ import { ILaya } from "../../../ILaya";
 import { Rectangle } from "../../maths/Rectangle";
 import { Stage } from "../../display/Stage";
 
+export const enum VIDEOTYPE{
+	MP4=1,
+	OGG=2,
+	CAMERA=4,
+	WEBM=8,
+}
 	
 	/**
 	 * <code>Video</code>将视频显示到Canvas上。<code>Video</code>可能不会在所有浏览器有效。
@@ -19,11 +25,6 @@ import { Stage } from "../../display/Stage";
 	 */
 	export class Video extends Sprite
 	{
-		 static MP4:number = 1;
-		 static OGG:number = 2;
-		 static CAMERA:number = 4;
-		 static WEBM:number = 8;
-		
 		/** 表示最有可能支持。 */
 		 static SUPPORT_PROBABLY:string = "probably";
 		/** 表示可能支持。*/
@@ -136,7 +137,7 @@ import { Stage } from "../../display/Stage";
 			if (url.indexOf("blob:") == 0)
 				this.videoElement.src = url;
 			else
-				this.htmlVideo.setSource(url, Video.MP4);
+				this.htmlVideo.setSource(url, VIDEOTYPE.MP4);
 		}
 		
 		/**
@@ -181,13 +182,13 @@ import { Stage } from "../../display/Stage";
 			var typeString:string;
 			switch (type)
 			{
-			case Video.MP4: 
+			case VIDEOTYPE.MP4: 
 				typeString = "video/mp4";
 				break;
-			case Video.OGG: 
+			case VIDEOTYPE.OGG: 
 				typeString = "video/ogg";
 				break;
-			case Video.WEBM: 
+			case VIDEOTYPE.WEBM: 
 				typeString = "video/webm";
 				break;
 			}

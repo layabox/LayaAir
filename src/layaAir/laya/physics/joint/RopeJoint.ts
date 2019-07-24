@@ -55,5 +55,5 @@ import { ClassUtils } from "../../utils/ClassUtils";
 		}
 	}
 
-	ClassUtils.regClass("laya.physics.RopeJoint", RopeJoint);
+	ClassUtils.regClass("laya.physics.joint.RopeJoint", RopeJoint);
 	ClassUtils.regClass("Laya.RopeJoint", RopeJoint);
