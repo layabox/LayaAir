@@ -7,7 +7,7 @@ class emiter {
         this.outString = "";
         //中转用ts 数据
         this.copyTSdata = "";
-        //import待替换结构
+        /**import待替换结构 */
         this.importArr = {};
         /**内部类的引用 */
         this.innerImportStr = "";
@@ -415,10 +415,14 @@ class emiter {
                     if (this.innerImportStr.indexOf(this.importArr[type]) == -1)
                         this.innerImportStr += "\r\n\timport " + this.importArr[type] + ";";
                 }
+                //检测tsc类型
+                if (emiter.jscObj && emiter.jscObj[type])
+                    type = emiter.jscObj[type];
                 return type;
             case "ConstructorType":
                 return "Class";
             case "TypeQuery":
+                // console.log("console test:",node.exprName.getText());
                 return node.exprName.getText();
             case "UnionType":
                 return "*";
@@ -568,6 +572,8 @@ emiter._typeArr = ["VariableStatement", "ExportDeclaration", "Uint16Array", "Flo
  * 枚举类型
  */
 emiter.enumType = [];
+/**jsc对应的astype */
+emiter.jscObj = {};
 /**构成的d.ts数据 */
 emiter.dtsData = "";
 exports.emiter = emiter;

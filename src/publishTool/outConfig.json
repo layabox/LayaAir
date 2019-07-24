@@ -4,5 +4,10 @@
   "layajsURL":"./as/layajs.exe",
   "tsConfig":["../layaAir/tsconfig.json"],
   "filter":["AniLibPack.d.ts","ILaya.d.ts","GCanvas.d.ts","IPhysics.d.ts","IUI.d.ts","IMap.d.ts"],
-  "createAS":true
+  "createAS":true,
+  "jscObj":{
+    "HTMLAudioElement":"Audio",
+    "XMLDocument":"XmlDom",
+    "ChildNode":"XmlDom"
+  }
 }
