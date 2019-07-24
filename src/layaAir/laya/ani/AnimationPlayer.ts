@@ -405,12 +405,13 @@ export class AnimationPlayer extends EventDispatcher implements IDestroy {
 		// 如果设置了总播放时间，并且超过总播放时间了，就发送stop事件
 		// 如果没有设置_overallDuration，且播放时间超过的动画总时间，也发送stop事件？  也就是说单次播放不会发出complete事件？
 		// 如果设置了loop播放，则会设置 _overallDuration 
-		if ((this._overallDuration !== 0 && this._elapsedPlaybackTime >= this._overallDuration) || (this._overallDuration === 0 && this._elapsedPlaybackTime >= currentAniClipPlayDuration)) {
+		time += this._currentTime;
+		if ((this._overallDuration !== 0 && this._elapsedPlaybackTime >= this._overallDuration) || (this._overallDuration === 0 && this._elapsedPlaybackTime >= currentAniClipPlayDuration
+			|| (this._overallDuration === 0 && time >= this.playEnd))) {
 			this._setPlayParamsWhenStop(currentAniClipPlayDuration, cacheFrameInterval);	// (总播放时间,缓存帧的时间间隔(33.33))
 			this.event(Event.STOPPED);
 			return;
 		}
-		time += this._currentTime;
 		if (currentAniClipPlayDuration > 0) {// 如果设置了 总动画时间，一般都设置了把，就是动画文件本身记录的时间
 			if (time >= currentAniClipPlayDuration) {	// 如果超出了总动画时间
 				if (this._stopWhenCircleFinish) {// 如果只播放一次，就发送stop事件
