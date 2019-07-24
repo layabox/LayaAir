@@ -382,8 +382,10 @@ export class AnimationPlayer extends EventDispatcher implements IDestroy {
 	 * 动画停止了对应的参数。目前都是设置时间为最后
 	 * @private
 	 */
-	private _setPlayParamsWhenStop(currentAniClipPlayDuration: number, cacheFrameInterval: number): void {
+	private _setPlayParamsWhenStop(currentAniClipPlayDuration: number, cacheFrameInterval: number, playEnd: number = -1): void {
 		this._currentTime = currentAniClipPlayDuration;
+		var endTime: number = playEnd > 0 ? playEnd : currentAniClipPlayDuration;
+		this._currentKeyframeIndex = Math.floor(endTime / cacheFrameInterval + 0.01);
 		this._currentKeyframeIndex = Math.floor(currentAniClipPlayDuration / cacheFrameInterval + 0.01);
 		this._currentFrameTime = this._currentKeyframeIndex * cacheFrameInterval;
 		this._currentAnimationClipIndex = -1;//动画结束	
@@ -408,7 +410,7 @@ export class AnimationPlayer extends EventDispatcher implements IDestroy {
 		time += this._currentTime;
 		if ((this._overallDuration !== 0 && this._elapsedPlaybackTime >= this._overallDuration) || (this._overallDuration === 0 && this._elapsedPlaybackTime >= currentAniClipPlayDuration
 			|| (this._overallDuration === 0 && time >= this.playEnd))) {
-			this._setPlayParamsWhenStop(currentAniClipPlayDuration, cacheFrameInterval);	// (总播放时间,缓存帧的时间间隔(33.33))
+			this._setPlayParamsWhenStop(currentAniClipPlayDuration, cacheFrameInterval, this.playEnd);	// (总播放时间,缓存帧的时间间隔(33.33))
 			this.event(Event.STOPPED);
 			return;
 		}
