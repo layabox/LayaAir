@@ -77,7 +77,7 @@ export class FrustumCulling {
 			var render: BaseRender = (<BaseRender>renders[i]);
 			if (camera._isLayerVisible(render._owner._layer) && render._enable) {
 				Stat.frustumCulling++;
-				if (!camera.useOcclusionCulling || render._needRender(boundFrustum)) {
+				if (!camera.useOcclusionCulling || render._needRender(boundFrustum,context)) {
 					render._visible = true;
 					render._distanceForSort = Vector3.distance(render.bounds.getCenter(), camPos);//TODO:合并计算浪费,或者合并后取平均值
 
