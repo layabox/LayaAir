@@ -392,7 +392,7 @@ export class BoundsOctreeNode {
 			if (camera._isLayerVisible(render._owner.layer) && render._enable) {
 				if (testVisible) {
 					Stat.frustumCulling++;
-					if (!render._needRender(frustum))
+					if (!render._needRender(frustum,context))
 						continue;
 				}
 

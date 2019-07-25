@@ -473,7 +473,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	 * @internal
 	 * @param boundFrustum 如果boundFrustum为空则为摄像机不裁剪模式。
 	 */
-	_needRender(boundFrustum: BoundFrustum): boolean {
+	_needRender(boundFrustum: BoundFrustum,context: RenderContext3D): boolean {
 		return true;
 	}
 
