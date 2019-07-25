@@ -136,11 +136,14 @@ export class SkyRenderer {
 
 			this._mesh._bufferState.bind();
 			this._mesh._render(state);
+			
+			ILaya.Render.supportWebGLPlusRendering && ShaderData.setRuntimeValueMode(noteValue);
+			
 			WebGLContext.setDepthFunc(gl, gl.LESS);
 			WebGLContext.setDepthMask(gl, true);
 			(<Camera>camera)._applyViewProject(state, (<Camera>camera).viewMatrix, (<Camera>camera).projectionMatrix, renderTar ? true : false);
 
-			ILaya.Render.supportWebGLPlusRendering && ShaderData.setRuntimeValueMode(noteValue);
+			
 		}
 	}
 
