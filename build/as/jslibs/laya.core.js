@@ -32339,6 +32339,52 @@ window.Laya= (function (exports) {
 	QuickTestTool._i = 0;
 
 	/**
+	 * <p>资源版本的生成由layacmd或IDE完成，使用 <code>ResourceVersion</code> 简化使用过程。</p>
+	 * <p>调用 <code>enable</code> 启用资源版本管理。</p>
+	 */
+	class ResourceVersion {
+	    /**
+	     * <p>启用资源版本管理。</p>
+	     * <p>由于只有发布版本需要资源管理。因此没有资源管理文件时，可以设置manifestFile为null或者不存在的路径。</p>
+	     * @param	manifestFile	清单（json）文件的路径。
+	     * @param   callback		清单（json）文件加载完成后执行。
+	     * @param   type			FOLDER_VERSION为基于文件夹管理方式（老版本IDE默认类型），FILENAME_VERSION为基于文件名映射管理（新版本IDE默认类型
+	     */
+	    static enable(manifestFile, callback, type = 2) {
+	        ResourceVersion.type = type;
+	        ILaya.loader.load(manifestFile, Handler.create(null, ResourceVersion.onManifestLoaded, [callback]), null, Loader.JSON);
+	        URL.customFormat = ResourceVersion.addVersionPrefix;
+	    }
+	    static onManifestLoaded(callback, data) {
+	        ResourceVersion.manifest = data;
+	        callback.run();
+	        if (!data) {
+	            console.warn("资源版本清单文件不存在，不使用资源版本管理。忽略ERR_FILE_NOT_FOUND错误。");
+	        }
+	    }
+	    /**
+	     * 为加载路径添加版本前缀。
+	     * @param	originURL	源路径。
+	     * @return 格式化后的新路径。
+	     */
+	    static addVersionPrefix(originURL) {
+	        originURL = URL.getAdptedFilePath(originURL);
+	        if (ResourceVersion.manifest && ResourceVersion.manifest[originURL]) {
+	            if (ResourceVersion.type == ResourceVersion.FILENAME_VERSION)
+	                return ResourceVersion.manifest[originURL];
+	            return ResourceVersion.manifest[originURL] + "/" + originURL;
+	        }
+	        return originURL;
+	    }
+	}
+	/**基于文件夹的资源管理方式（老版本IDE默认类型）*/
+	ResourceVersion.FOLDER_VERSION = 1;
+	/**基于文件名映射管理方式（新版本IDE默认类型）*/
+	ResourceVersion.FILENAME_VERSION = 2;
+	/**当前使用的版本管理类型*/
+	ResourceVersion.type = ResourceVersion.FOLDER_VERSION;
+
+	/**
 	 * @private
 	 * 场景资源加载器
 	 */
@@ -32452,52 +32498,6 @@ window.Laya= (function (exports) {
 	}
 	SceneLoader.LoadableExtensions = { "scene": Loader.JSON, "scene3d": Loader.JSON, "ani": Loader.JSON, "ui": Loader.JSON, "prefab": Loader.PREFAB };
 	SceneLoader.No3dLoadTypes = { "png": true, "jpg": true, "txt": true };
-
-	/**
-	 * <p>资源版本的生成由layacmd或IDE完成，使用 <code>ResourceVersion</code> 简化使用过程。</p>
-	 * <p>调用 <code>enable</code> 启用资源版本管理。</p>
-	 */
-	class ResourceVersion {
-	    /**
-	     * <p>启用资源版本管理。</p>
-	     * <p>由于只有发布版本需要资源管理。因此没有资源管理文件时，可以设置manifestFile为null或者不存在的路径。</p>
-	     * @param	manifestFile	清单（json）文件的路径。
-	     * @param   callback		清单（json）文件加载完成后执行。
-	     * @param   type			FOLDER_VERSION为基于文件夹管理方式（老版本IDE默认类型），FILENAME_VERSION为基于文件名映射管理（新版本IDE默认类型
-	     */
-	    static enable(manifestFile, callback, type = 2) {
-	        ResourceVersion.type = type;
-	        ILaya.loader.load(manifestFile, Handler.create(null, ResourceVersion.onManifestLoaded, [callback]), null, Loader.JSON);
-	        URL.customFormat = ResourceVersion.addVersionPrefix;
-	    }
-	    static onManifestLoaded(callback, data) {
-	        ResourceVersion.manifest = data;
-	        callback.run();
-	        if (!data) {
-	            console.warn("资源版本清单文件不存在，不使用资源版本管理。忽略ERR_FILE_NOT_FOUND错误。");
-	        }
-	    }
-	    /**
-	     * 为加载路径添加版本前缀。
-	     * @param	originURL	源路径。
-	     * @return 格式化后的新路径。
-	     */
-	    static addVersionPrefix(originURL) {
-	        originURL = URL.getAdptedFilePath(originURL);
-	        if (ResourceVersion.manifest && ResourceVersion.manifest[originURL]) {
-	            if (ResourceVersion.type == ResourceVersion.FILENAME_VERSION)
-	                return ResourceVersion.manifest[originURL];
-	            return ResourceVersion.manifest[originURL] + "/" + originURL;
-	        }
-	        return originURL;
-	    }
-	}
-	/**基于文件夹的资源管理方式（老版本IDE默认类型）*/
-	ResourceVersion.FOLDER_VERSION = 1;
-	/**基于文件名映射管理方式（新版本IDE默认类型）*/
-	ResourceVersion.FILENAME_VERSION = 2;
-	/**当前使用的版本管理类型*/
-	ResourceVersion.type = ResourceVersion.FOLDER_VERSION;
 
 	/**
 	 * 连接建立成功后调度。
@@ -33951,6 +33951,112 @@ window.Laya= (function (exports) {
 	}
 
 	/**
+	 * @Script {name:ButtonEffect}
+	 * @author ww
+	 */
+	class ButtonEffect {
+	    constructor() {
+	        this._curState = 0;
+	        /**
+	         * effectScale
+	         * @prop {name:effectScale,type:number, tips:"缩放值",default:"1.5"}
+	         */
+	        this.effectScale = 1.5;
+	        /**
+	         * tweenTime
+	         * @prop {name:tweenTime,type:number, tips:"缓动时长",default:"300"}
+	         */
+	        this.tweenTime = 300;
+	    }
+	    /**
+	     * 设置控制对象
+	     * @param tar
+	     */
+	    set target(tar) {
+	        this._tar = tar;
+	        tar.on(Event.MOUSE_DOWN, this, this.toChangedState);
+	        tar.on(Event.MOUSE_UP, this, this.toInitState);
+	        tar.on(Event.MOUSE_OUT, this, this.toInitState);
+	    }
+	    toChangedState() {
+	        this._curState = 1;
+	        if (this._curTween)
+	            Tween.clear(this._curTween);
+	        this._curTween = Tween.to(this._tar, { scaleX: this.effectScale, scaleY: this.effectScale }, this.tweenTime, Ease[this.effectEase], Handler.create(this, this.tweenComplete));
+	    }
+	    toInitState() {
+	        if (this._curState == 2)
+	            return;
+	        if (this._curTween)
+	            Tween.clear(this._curTween);
+	        this._curState = 2;
+	        this._curTween = Tween.to(this._tar, { scaleX: 1, scaleY: 1 }, this.tweenTime, Ease[this.backEase], Handler.create(this, this.tweenComplete));
+	    }
+	    tweenComplete() {
+	        this._curState = 0;
+	        this._curTween = null;
+	    }
+	}
+
+	/**
+	 * 效果插件基类，基于对象池管理
+	 */
+	class EffectBase extends Component {
+	    constructor() {
+	        super(...arguments);
+	        /**动画持续时间，单位为毫秒*/
+	        this.duration = 1000;
+	        /**动画延迟时间，单位为毫秒*/
+	        this.delay = 0;
+	        /**重复次数，默认为播放一次*/
+	        this.repeat = 0;
+	        /**效果结束后，是否自动移除节点*/
+	        this.autoDestroyAtComplete = true;
+	    }
+	    /**
+	     * @override
+	     */
+	    _onAwake() {
+	        this.target = this.target || this.owner;
+	        if (this.autoDestroyAtComplete)
+	            this._comlete = Handler.create(this.target, this.target.destroy, null, false);
+	        if (this.eventName)
+	            this.owner.on(this.eventName, this, this._exeTween);
+	        else
+	            this._exeTween();
+	    }
+	    _exeTween() {
+	        this._tween = this._doTween();
+	        this._tween.repeat = this.repeat;
+	    }
+	    _doTween() {
+	        return null;
+	    }
+	    /**
+	     * @override
+	     */
+	    onReset() {
+	        this.duration = 1000;
+	        this.delay = 0;
+	        this.repeat = 0;
+	        this.ease = null;
+	        this.target = null;
+	        if (this.eventName) {
+	            this.owner.off(this.eventName, this, this._exeTween);
+	            this.eventName = null;
+	        }
+	        if (this._comlete) {
+	            this._comlete.recover();
+	            this._comlete = null;
+	        }
+	        if (this._tween) {
+	            this._tween.clear();
+	            this._tween = null;
+	        }
+	    }
+	}
+
+	/**
 	 * ...
 	 * @author ww
 	 */
@@ -34017,112 +34123,6 @@ window.Laya= (function (exports) {
 	    }
 	    set strength(value) {
 	        this._strength = value;
-	    }
-	}
-
-	/**
-	 * 效果插件基类，基于对象池管理
-	 */
-	class EffectBase extends Component {
-	    constructor() {
-	        super(...arguments);
-	        /**动画持续时间，单位为毫秒*/
-	        this.duration = 1000;
-	        /**动画延迟时间，单位为毫秒*/
-	        this.delay = 0;
-	        /**重复次数，默认为播放一次*/
-	        this.repeat = 0;
-	        /**效果结束后，是否自动移除节点*/
-	        this.autoDestroyAtComplete = true;
-	    }
-	    /**
-	     * @override
-	     */
-	    _onAwake() {
-	        this.target = this.target || this.owner;
-	        if (this.autoDestroyAtComplete)
-	            this._comlete = Handler.create(this.target, this.target.destroy, null, false);
-	        if (this.eventName)
-	            this.owner.on(this.eventName, this, this._exeTween);
-	        else
-	            this._exeTween();
-	    }
-	    _exeTween() {
-	        this._tween = this._doTween();
-	        this._tween.repeat = this.repeat;
-	    }
-	    _doTween() {
-	        return null;
-	    }
-	    /**
-	     * @override
-	     */
-	    onReset() {
-	        this.duration = 1000;
-	        this.delay = 0;
-	        this.repeat = 0;
-	        this.ease = null;
-	        this.target = null;
-	        if (this.eventName) {
-	            this.owner.off(this.eventName, this, this._exeTween);
-	            this.eventName = null;
-	        }
-	        if (this._comlete) {
-	            this._comlete.recover();
-	            this._comlete = null;
-	        }
-	        if (this._tween) {
-	            this._tween.clear();
-	            this._tween = null;
-	        }
-	    }
-	}
-
-	/**
-	 * @Script {name:ButtonEffect}
-	 * @author ww
-	 */
-	class ButtonEffect {
-	    constructor() {
-	        this._curState = 0;
-	        /**
-	         * effectScale
-	         * @prop {name:effectScale,type:number, tips:"缩放值",default:"1.5"}
-	         */
-	        this.effectScale = 1.5;
-	        /**
-	         * tweenTime
-	         * @prop {name:tweenTime,type:number, tips:"缓动时长",default:"300"}
-	         */
-	        this.tweenTime = 300;
-	    }
-	    /**
-	     * 设置控制对象
-	     * @param tar
-	     */
-	    set target(tar) {
-	        this._tar = tar;
-	        tar.on(Event.MOUSE_DOWN, this, this.toChangedState);
-	        tar.on(Event.MOUSE_UP, this, this.toInitState);
-	        tar.on(Event.MOUSE_OUT, this, this.toInitState);
-	    }
-	    toChangedState() {
-	        this._curState = 1;
-	        if (this._curTween)
-	            Tween.clear(this._curTween);
-	        this._curTween = Tween.to(this._tar, { scaleX: this.effectScale, scaleY: this.effectScale }, this.tweenTime, Ease[this.effectEase], Handler.create(this, this.tweenComplete));
-	    }
-	    toInitState() {
-	        if (this._curState == 2)
-	            return;
-	        if (this._curTween)
-	            Tween.clear(this._curTween);
-	        this._curState = 2;
-	        this._curTween = Tween.to(this._tar, { scaleX: 1, scaleY: 1 }, this.tweenTime, Ease[this.backEase], Handler.create(this, this.tweenComplete));
-	    }
-	    tweenComplete() {
-	        this._curState = 0;
-	        this._curTween = null;
 	    }
 	}
 
@@ -35555,6 +35555,48 @@ window.Laya= (function (exports) {
 	    }
 	}
 
+	class MatirxArray {
+	    /**
+	     * 4*4矩阵数组相乘。
+	     * o=a*b;
+	     * @param	a 4*4矩阵数组。
+	     * @param	b 4*4矩阵数组。
+	     * @param	o 4*4矩阵数组。
+	     */
+	    //TODO:coverage
+	    static ArrayMul(a, b, o) {
+	        if (!a) {
+	            MatirxArray.copyArray(b, o);
+	            return;
+	        }
+	        if (!b) {
+	            MatirxArray.copyArray(a, o);
+	            return;
+	        }
+	        var ai0, ai1, ai2, ai3;
+	        for (var i = 0; i < 4; i++) {
+	            ai0 = a[i];
+	            ai1 = a[i + 4];
+	            ai2 = a[i + 8];
+	            ai3 = a[i + 12];
+	            o[i] = ai0 * b[0] + ai1 * b[1] + ai2 * b[2] + ai3 * b[3];
+	            o[i + 4] = ai0 * b[4] + ai1 * b[5] + ai2 * b[6] + ai3 * b[7];
+	            o[i + 8] = ai0 * b[8] + ai1 * b[9] + ai2 * b[10] + ai3 * b[11];
+	            o[i + 12] = ai0 * b[12] + ai1 * b[13] + ai2 * b[14] + ai3 * b[15];
+	        }
+	    }
+	    //TODO:coverage
+	    static copyArray(f, t) {
+	        if (!f)
+	            return;
+	        if (!t)
+	            return;
+	        for (var i = 0; i < f.length; i++) {
+	            t[i] = f[i];
+	        }
+	    }
+	}
+
 	/**
 	 * 阿拉伯文的转码。把unicode的阿拉伯文字母编码转成他们的老的能描述不同写法的编码。
 	 *  这个是从GitHub上 Javascript-Arabic-Reshaper 项目转来的
@@ -35799,48 +35841,6 @@ window.Laya= (function (exports) {
 	    0x06EB,
 	    0x06EC,
 	    0x06ED];
-
-	class MatirxArray {
-	    /**
-	     * 4*4矩阵数组相乘。
-	     * o=a*b;
-	     * @param	a 4*4矩阵数组。
-	     * @param	b 4*4矩阵数组。
-	     * @param	o 4*4矩阵数组。
-	     */
-	    //TODO:coverage
-	    static ArrayMul(a, b, o) {
-	        if (!a) {
-	            MatirxArray.copyArray(b, o);
-	            return;
-	        }
-	        if (!b) {
-	            MatirxArray.copyArray(a, o);
-	            return;
-	        }
-	        var ai0, ai1, ai2, ai3;
-	        for (var i = 0; i < 4; i++) {
-	            ai0 = a[i];
-	            ai1 = a[i + 4];
-	            ai2 = a[i + 8];
-	            ai3 = a[i + 12];
-	            o[i] = ai0 * b[0] + ai1 * b[1] + ai2 * b[2] + ai3 * b[3];
-	            o[i + 4] = ai0 * b[4] + ai1 * b[5] + ai2 * b[6] + ai3 * b[7];
-	            o[i + 8] = ai0 * b[8] + ai1 * b[9] + ai2 * b[10] + ai3 * b[11];
-	            o[i + 12] = ai0 * b[12] + ai1 * b[13] + ai2 * b[14] + ai3 * b[15];
-	        }
-	    }
-	    //TODO:coverage
-	    static copyArray(f, t) {
-	        if (!f)
-	            return;
-	        if (!t)
-	            return;
-	        for (var i = 0; i < f.length; i++) {
-	            t[i] = f[i];
-	        }
-	    }
-	}
 
 	exports.AlphaCmd = AlphaCmd;
 	exports.Animation = Animation;

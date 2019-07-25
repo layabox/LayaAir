@@ -326,37 +326,6 @@
 	Geolocation.maximumAge = 0;
 
 	/**
-	 * Media用于捕捉摄像头和麦克风。可以捕捉任意之一，或者同时捕捉两者。<code>getCamera</code>前可以使用<code>supported()</code>检查当前浏览器是否支持。
-	 * <b>NOTE:</b>
-	 * <p>目前Media在移动平台只支持Android，不支持IOS。只可在FireFox完整地使用，Chrome测试时无法捕捉视频。</p>
-	 */
-	class Media {
-	    constructor() {
-	    }
-	    /**
-	     * 检查浏览器兼容性。
-	     */
-	    static supported() {
-	        return !!Laya.ILaya.Browser.window.navigator.getUserMedia;
-	    }
-	    /**
-	     * 获取用户媒体。
-	     * @param	options	简单的可选项可以使<code>{ audio:true, video:true }</code>表示同时捕捉两者。详情见<i>https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia</i>。
-	     * @param	onSuccess 获取成功的处理器，唯一参数返回媒体的Blob地址，可以将其传给Video。
-	     * @param	onError	获取失败的处理器，唯一参数是Error。
-	     */
-	    static getMedia(options, onSuccess, onError) {
-	        if (Laya.ILaya.Browser.window.navigator.getUserMedia) {
-	            Laya.ILaya.Browser.window.navigator.getUserMedia(options, function (stream) {
-	                onSuccess.runWith(Laya.ILaya.Browser.window.URL.createObjectURL(stream));
-	            }, function (err) {
-	                onError.runWith(err);
-	            });
-	        }
-	    }
-	}
-
-	/**
 	 * @internal
 	 */
 	class HtmlVideo extends Laya.Bitmap {
@@ -416,6 +385,96 @@
 	HtmlVideo.create = function () {
 	    return new HtmlVideo();
 	};
+
+	/**
+	 * Media用于捕捉摄像头和麦克风。可以捕捉任意之一，或者同时捕捉两者。<code>getCamera</code>前可以使用<code>supported()</code>检查当前浏览器是否支持。
+	 * <b>NOTE:</b>
+	 * <p>目前Media在移动平台只支持Android，不支持IOS。只可在FireFox完整地使用，Chrome测试时无法捕捉视频。</p>
+	 */
+	class Media {
+	    constructor() {
+	    }
+	    /**
+	     * 检查浏览器兼容性。
+	     */
+	    static supported() {
+	        return !!Laya.ILaya.Browser.window.navigator.getUserMedia;
+	    }
+	    /**
+	     * 获取用户媒体。
+	     * @param	options	简单的可选项可以使<code>{ audio:true, video:true }</code>表示同时捕捉两者。详情见<i>https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia</i>。
+	     * @param	onSuccess 获取成功的处理器，唯一参数返回媒体的Blob地址，可以将其传给Video。
+	     * @param	onError	获取失败的处理器，唯一参数是Error。
+	     */
+	    static getMedia(options, onSuccess, onError) {
+	        if (Laya.ILaya.Browser.window.navigator.getUserMedia) {
+	            Laya.ILaya.Browser.window.navigator.getUserMedia(options, function (stream) {
+	                onSuccess.runWith(Laya.ILaya.Browser.window.URL.createObjectURL(stream));
+	            }, function (err) {
+	                onError.runWith(err);
+	            });
+	        }
+	    }
+	}
+
+	/**
+	 * 使用Gyroscope.instance获取唯一的Gyroscope引用，请勿调用构造函数。
+	 *
+	 * <p>
+	 * listen()的回调处理器接受两个参数：
+	 * <code>function onOrientationChange(absolute:Boolean, info:RotationInfo):void</code>
+	 * <ol>
+	 * <li><b>absolute</b>: 指示设备是否可以提供绝对方位数据（指向地球坐标系），或者设备决定的任意坐标系。关于坐标系参见<i>https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Orientation_and_motion_data_explained</i>。</li>
+	 * <li><b>info</b>: <code>RotationInfo</code>类型参数，保存设备的旋转值。</li>
+	 * </ol>
+	 * </p>
+	 *
+	 * <p>
+	 * 浏览器兼容性参见：<i>http://caniuse.com/#search=deviceorientation</i>
+	 * </p>
+	 */
+	class Gyroscope extends Laya.EventDispatcher {
+	    constructor(singleton) {
+	        super();
+	        this.onDeviceOrientationChange = this.onDeviceOrientationChange.bind(this);
+	    }
+	    static get instance() {
+	        Gyroscope._instance = Gyroscope._instance || new Gyroscope(0);
+	        return Gyroscope._instance;
+	    }
+	    /**
+	     * 监视陀螺仪运动。
+	     * @param	observer	回调函数接受一个Boolean类型的<code>absolute</code>和<code>GyroscopeInfo</code>类型参数。
+	     * @override
+	     */
+	    on(type, caller, listener, args = null) {
+	        super.on(type, caller, listener, args);
+	        Laya.ILaya.Browser.window.addEventListener('deviceorientation', this.onDeviceOrientationChange);
+	        return this;
+	    }
+	    /**
+	     * 取消指定处理器对陀螺仪的监视。
+	     * @param	observer
+	     * @override
+	     */
+	    off(type, caller, listener, onceOnly = false) {
+	        if (!this.hasListener(type))
+	            Laya.ILaya.Browser.window.removeEventListener('deviceorientation', this.onDeviceOrientationChange);
+	        return super.off(type, caller, listener, onceOnly);
+	    }
+	    onDeviceOrientationChange(e) {
+	        Gyroscope.info.alpha = e.alpha;
+	        Gyroscope.info.beta = e.beta;
+	        Gyroscope.info.gamma = e.gamma;
+	        // 在Safari中
+	        if (e.webkitCompassHeading) {
+	            Gyroscope.info.alpha = e.webkitCompassHeading * -1;
+	            Gyroscope.info.compassAccuracy = e.webkitCompassAccuracy;
+	        }
+	        this.event(Laya.Event.CHANGE, [e.absolute, Gyroscope.info]);
+	    }
+	}
+	Gyroscope.info = new RotationInfo();
 
 	/**
 	 * @internal
@@ -882,65 +941,6 @@
 	Video.SUPPORT_MAYBY = "maybe";
 	/** 表示不支持。 */
 	Video.SUPPORT_NO = "";
-
-	/**
-	 * 使用Gyroscope.instance获取唯一的Gyroscope引用，请勿调用构造函数。
-	 *
-	 * <p>
-	 * listen()的回调处理器接受两个参数：
-	 * <code>function onOrientationChange(absolute:Boolean, info:RotationInfo):void</code>
-	 * <ol>
-	 * <li><b>absolute</b>: 指示设备是否可以提供绝对方位数据（指向地球坐标系），或者设备决定的任意坐标系。关于坐标系参见<i>https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Orientation_and_motion_data_explained</i>。</li>
-	 * <li><b>info</b>: <code>RotationInfo</code>类型参数，保存设备的旋转值。</li>
-	 * </ol>
-	 * </p>
-	 *
-	 * <p>
-	 * 浏览器兼容性参见：<i>http://caniuse.com/#search=deviceorientation</i>
-	 * </p>
-	 */
-	class Gyroscope extends Laya.EventDispatcher {
-	    constructor(singleton) {
-	        super();
-	        this.onDeviceOrientationChange = this.onDeviceOrientationChange.bind(this);
-	    }
-	    static get instance() {
-	        Gyroscope._instance = Gyroscope._instance || new Gyroscope(0);
-	        return Gyroscope._instance;
-	    }
-	    /**
-	     * 监视陀螺仪运动。
-	     * @param	observer	回调函数接受一个Boolean类型的<code>absolute</code>和<code>GyroscopeInfo</code>类型参数。
-	     * @override
-	     */
-	    on(type, caller, listener, args = null) {
-	        super.on(type, caller, listener, args);
-	        Laya.ILaya.Browser.window.addEventListener('deviceorientation', this.onDeviceOrientationChange);
-	        return this;
-	    }
-	    /**
-	     * 取消指定处理器对陀螺仪的监视。
-	     * @param	observer
-	     * @override
-	     */
-	    off(type, caller, listener, onceOnly = false) {
-	        if (!this.hasListener(type))
-	            Laya.ILaya.Browser.window.removeEventListener('deviceorientation', this.onDeviceOrientationChange);
-	        return super.off(type, caller, listener, onceOnly);
-	    }
-	    onDeviceOrientationChange(e) {
-	        Gyroscope.info.alpha = e.alpha;
-	        Gyroscope.info.beta = e.beta;
-	        Gyroscope.info.gamma = e.gamma;
-	        // 在Safari中
-	        if (e.webkitCompassHeading) {
-	            Gyroscope.info.alpha = e.webkitCompassHeading * -1;
-	            Gyroscope.info.compassAccuracy = e.webkitCompassAccuracy;
-	        }
-	        this.event(Laya.Event.CHANGE, [e.absolute, Gyroscope.info]);
-	    }
-	}
-	Gyroscope.info = new RotationInfo();
 
 	exports.AccelerationInfo = AccelerationInfo;
 	exports.Accelerator = Accelerator;

@@ -2418,6 +2418,76 @@ window.box2d=box2d;
     Laya.ClassUtils.regClass("Laya.BoxCollider", BoxCollider);
 
     /**
+         * 2D圆形碰撞体
+         */
+    class CircleCollider extends ColliderBase {
+        constructor() {
+            super(...arguments);
+            /**相对节点的x轴偏移*/
+            this._x = 0;
+            /**相对节点的y轴偏移*/
+            this._y = 0;
+            /**圆形半径，必须为正数*/
+            this._radius = 50;
+        }
+        /**
+         * @override
+         */
+        getDef() {
+            if (!this._shape) {
+                this._shape = new window.box2d.b2CircleShape();
+                this._setShape(false);
+            }
+            this.label = (this.label || "CircleCollider");
+            return super.getDef();
+        }
+        _setShape(re = true) {
+            var scale = this.owner["scaleX"] || 1;
+            this._shape.m_radius = this._radius / Physics.PIXEL_RATIO * scale;
+            this._shape.m_p.Set((this._radius + this._x) / Physics.PIXEL_RATIO * scale, (this._radius + this._y) / Physics.PIXEL_RATIO * scale);
+            if (re)
+                this.refresh();
+        }
+        /**相对节点的x轴偏移*/
+        get x() {
+            return this._x;
+        }
+        set x(value) {
+            this._x = value;
+            if (this._shape)
+                this._setShape();
+        }
+        /**相对节点的y轴偏移*/
+        get y() {
+            return this._y;
+        }
+        set y(value) {
+            this._y = value;
+            if (this._shape)
+                this._setShape();
+        }
+        /**圆形半径，必须为正数*/
+        get radius() {
+            return this._radius;
+        }
+        set radius(value) {
+            if (value <= 0)
+                throw "CircleCollider radius cannot be less than 0";
+            this._radius = value;
+            if (this._shape)
+                this._setShape();
+        }
+        /**@private 重置形状
+         * @override
+        */
+        resetShape(re = true) {
+            this._setShape();
+        }
+    }
+    Laya.ClassUtils.regClass("laya.physics.CircleCollider", CircleCollider);
+    Laya.ClassUtils.regClass("Laya.CircleCollider", CircleCollider);
+
+    /**
          * 2D线形碰撞体
          */
     class ChainCollider extends ColliderBase {
@@ -2497,76 +2567,6 @@ window.box2d=box2d;
     }
     Laya.ClassUtils.regClass("laya.physics.ChainCollider", ChainCollider);
     Laya.ClassUtils.regClass("Laya.ChainCollider", ChainCollider);
-
-    /**
-         * 2D圆形碰撞体
-         */
-    class CircleCollider extends ColliderBase {
-        constructor() {
-            super(...arguments);
-            /**相对节点的x轴偏移*/
-            this._x = 0;
-            /**相对节点的y轴偏移*/
-            this._y = 0;
-            /**圆形半径，必须为正数*/
-            this._radius = 50;
-        }
-        /**
-         * @override
-         */
-        getDef() {
-            if (!this._shape) {
-                this._shape = new window.box2d.b2CircleShape();
-                this._setShape(false);
-            }
-            this.label = (this.label || "CircleCollider");
-            return super.getDef();
-        }
-        _setShape(re = true) {
-            var scale = this.owner["scaleX"] || 1;
-            this._shape.m_radius = this._radius / Physics.PIXEL_RATIO * scale;
-            this._shape.m_p.Set((this._radius + this._x) / Physics.PIXEL_RATIO * scale, (this._radius + this._y) / Physics.PIXEL_RATIO * scale);
-            if (re)
-                this.refresh();
-        }
-        /**相对节点的x轴偏移*/
-        get x() {
-            return this._x;
-        }
-        set x(value) {
-            this._x = value;
-            if (this._shape)
-                this._setShape();
-        }
-        /**相对节点的y轴偏移*/
-        get y() {
-            return this._y;
-        }
-        set y(value) {
-            this._y = value;
-            if (this._shape)
-                this._setShape();
-        }
-        /**圆形半径，必须为正数*/
-        get radius() {
-            return this._radius;
-        }
-        set radius(value) {
-            if (value <= 0)
-                throw "CircleCollider radius cannot be less than 0";
-            this._radius = value;
-            if (this._shape)
-                this._setShape();
-        }
-        /**@private 重置形状
-         * @override
-        */
-        resetShape(re = true) {
-            this._setShape();
-        }
-    }
-    Laya.ClassUtils.regClass("laya.physics.CircleCollider", CircleCollider);
-    Laya.ClassUtils.regClass("Laya.CircleCollider", CircleCollider);
 
     /**
      * 物理辅助线，调用PhysicsDebugDraw.enable()开启，或者通过IDE设置打开
@@ -3440,102 +3440,6 @@ window.box2d=box2d;
     Laya.ClassUtils.regClass("Laya.RevoluteJoint", RevoluteJoint);
 
     /**
-     * 轮子关节：围绕节点旋转，包含弹性属性，使得刚体在节点位置发生弹性偏移
-     */
-    class WheelJoint extends JointBase {
-        constructor() {
-            super(...arguments);
-            /**[首次设置有效]关节的链接点，是相对于自身刚体的左上角位置偏移*/
-            this.anchor = [0, 0];
-            /**[首次设置有效]两个刚体是否可以发生碰撞，默认为false*/
-            this.collideConnected = false;
-            /**[首次设置有效]一个向量值，描述运动方向，比如1,0是沿X轴向右*/
-            this.axis = [1, 0];
-            /**弹簧系统的震动频率，可以视为弹簧的弹性系数*/
-            this._frequency = 5;
-            /**刚体在回归到节点过程中受到的阻尼，取值0~1*/
-            this._damping = 0.7;
-            /**是否开启马达，开启马达可使目标刚体运动*/
-            this._enableMotor = false;
-            /**启用马达后，可以达到的最大旋转速度*/
-            this._motorSpeed = 0;
-            /**启用马达后，可以施加的最大扭距，如果最大扭矩太小，会导致不旋转*/
-            this._maxMotorTorque = 10000;
-        }
-        /**
-         * @override
-         */
-        _createJoint() {
-            if (!this._joint) {
-                if (!this.otherBody)
-                    throw "otherBody can not be empty";
-                this.selfBody = this.selfBody || this.owner.getComponent(RigidBody);
-                if (!this.selfBody)
-                    throw "selfBody can not be empty";
-                var box2d = window.box2d;
-                var def = WheelJoint._temp || (WheelJoint._temp = new box2d.b2WheelJointDef());
-                var anchorPos = this.selfBody.owner.localToGlobal(Laya.Point.TEMP.setTo(this.anchor[0], this.anchor[1]), false, Physics.I.worldRoot);
-                var anchorVec = new box2d.b2Vec2(anchorPos.x / Physics.PIXEL_RATIO, anchorPos.y / Physics.PIXEL_RATIO);
-                def.Initialize(this.otherBody.getBody(), this.selfBody.getBody(), anchorVec, new box2d.b2Vec2(this.axis[0], this.axis[1]));
-                def.enableMotor = this._enableMotor;
-                def.motorSpeed = this._motorSpeed;
-                def.maxMotorTorque = this._maxMotorTorque;
-                def.frequencyHz = this._frequency;
-                def.dampingRatio = this._damping;
-                def.collideConnected = this.collideConnected;
-                this._joint = Physics.I._createJoint(def);
-            }
-        }
-        /**弹簧系统的震动频率，可以视为弹簧的弹性系数*/
-        get frequency() {
-            return this._frequency;
-        }
-        set frequency(value) {
-            this._frequency = value;
-            if (this._joint)
-                this._joint.SetSpringFrequencyHz(value);
-        }
-        /**刚体在回归到节点过程中受到的阻尼，取值0~1*/
-        get damping() {
-            return this._damping;
-        }
-        set damping(value) {
-            this._damping = value;
-            if (this._joint)
-                this._joint.SetSpringDampingRatio(value);
-        }
-        /**是否开启马达，开启马达可使目标刚体运动*/
-        get enableMotor() {
-            return this._enableMotor;
-        }
-        set enableMotor(value) {
-            this._enableMotor = value;
-            if (this._joint)
-                this._joint.EnableMotor(value);
-        }
-        /**启用马达后，可以达到的最大旋转速度*/
-        get motorSpeed() {
-            return this._motorSpeed;
-        }
-        set motorSpeed(value) {
-            this._motorSpeed = value;
-            if (this._joint)
-                this._joint.SetMotorSpeed(value);
-        }
-        /**启用马达后，可以施加的最大扭距，如果最大扭矩太小，会导致不旋转*/
-        get maxMotorTorque() {
-            return this._maxMotorTorque;
-        }
-        set maxMotorTorque(value) {
-            this._maxMotorTorque = value;
-            if (this._joint)
-                this._joint.SetMaxMotorTorque(value);
-        }
-    }
-    Laya.ClassUtils.regClass("laya.physics.joint.WheelJoint", WheelJoint);
-    Laya.ClassUtils.regClass("Laya.WheelJoint", WheelJoint);
-
-    /**
      * 绳索关节：限制了两个点之间的最大距离。它能够阻止连接的物体之间的拉伸，即使在很大的负载下
      */
     class RopeJoint extends JointBase {
@@ -3640,6 +3544,102 @@ window.box2d=box2d;
     }
     Laya.ClassUtils.regClass("laya.physics.joint.WeldJoint", WeldJoint);
     Laya.ClassUtils.regClass("Laya.WeldJoint", WeldJoint);
+
+    /**
+     * 轮子关节：围绕节点旋转，包含弹性属性，使得刚体在节点位置发生弹性偏移
+     */
+    class WheelJoint extends JointBase {
+        constructor() {
+            super(...arguments);
+            /**[首次设置有效]关节的链接点，是相对于自身刚体的左上角位置偏移*/
+            this.anchor = [0, 0];
+            /**[首次设置有效]两个刚体是否可以发生碰撞，默认为false*/
+            this.collideConnected = false;
+            /**[首次设置有效]一个向量值，描述运动方向，比如1,0是沿X轴向右*/
+            this.axis = [1, 0];
+            /**弹簧系统的震动频率，可以视为弹簧的弹性系数*/
+            this._frequency = 5;
+            /**刚体在回归到节点过程中受到的阻尼，取值0~1*/
+            this._damping = 0.7;
+            /**是否开启马达，开启马达可使目标刚体运动*/
+            this._enableMotor = false;
+            /**启用马达后，可以达到的最大旋转速度*/
+            this._motorSpeed = 0;
+            /**启用马达后，可以施加的最大扭距，如果最大扭矩太小，会导致不旋转*/
+            this._maxMotorTorque = 10000;
+        }
+        /**
+         * @override
+         */
+        _createJoint() {
+            if (!this._joint) {
+                if (!this.otherBody)
+                    throw "otherBody can not be empty";
+                this.selfBody = this.selfBody || this.owner.getComponent(RigidBody);
+                if (!this.selfBody)
+                    throw "selfBody can not be empty";
+                var box2d = window.box2d;
+                var def = WheelJoint._temp || (WheelJoint._temp = new box2d.b2WheelJointDef());
+                var anchorPos = this.selfBody.owner.localToGlobal(Laya.Point.TEMP.setTo(this.anchor[0], this.anchor[1]), false, Physics.I.worldRoot);
+                var anchorVec = new box2d.b2Vec2(anchorPos.x / Physics.PIXEL_RATIO, anchorPos.y / Physics.PIXEL_RATIO);
+                def.Initialize(this.otherBody.getBody(), this.selfBody.getBody(), anchorVec, new box2d.b2Vec2(this.axis[0], this.axis[1]));
+                def.enableMotor = this._enableMotor;
+                def.motorSpeed = this._motorSpeed;
+                def.maxMotorTorque = this._maxMotorTorque;
+                def.frequencyHz = this._frequency;
+                def.dampingRatio = this._damping;
+                def.collideConnected = this.collideConnected;
+                this._joint = Physics.I._createJoint(def);
+            }
+        }
+        /**弹簧系统的震动频率，可以视为弹簧的弹性系数*/
+        get frequency() {
+            return this._frequency;
+        }
+        set frequency(value) {
+            this._frequency = value;
+            if (this._joint)
+                this._joint.SetSpringFrequencyHz(value);
+        }
+        /**刚体在回归到节点过程中受到的阻尼，取值0~1*/
+        get damping() {
+            return this._damping;
+        }
+        set damping(value) {
+            this._damping = value;
+            if (this._joint)
+                this._joint.SetSpringDampingRatio(value);
+        }
+        /**是否开启马达，开启马达可使目标刚体运动*/
+        get enableMotor() {
+            return this._enableMotor;
+        }
+        set enableMotor(value) {
+            this._enableMotor = value;
+            if (this._joint)
+                this._joint.EnableMotor(value);
+        }
+        /**启用马达后，可以达到的最大旋转速度*/
+        get motorSpeed() {
+            return this._motorSpeed;
+        }
+        set motorSpeed(value) {
+            this._motorSpeed = value;
+            if (this._joint)
+                this._joint.SetMotorSpeed(value);
+        }
+        /**启用马达后，可以施加的最大扭距，如果最大扭矩太小，会导致不旋转*/
+        get maxMotorTorque() {
+            return this._maxMotorTorque;
+        }
+        set maxMotorTorque(value) {
+            this._maxMotorTorque = value;
+            if (this._joint)
+                this._joint.SetMaxMotorTorque(value);
+        }
+    }
+    Laya.ClassUtils.regClass("laya.physics.joint.WheelJoint", WheelJoint);
+    Laya.ClassUtils.regClass("Laya.WheelJoint", WheelJoint);
 
     exports.BoxCollider = BoxCollider;
     exports.ChainCollider = ChainCollider;
