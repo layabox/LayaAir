@@ -99,7 +99,7 @@ export class MeshRenderer extends BaseRender {
 	 * @override
 	 * @internal
 	 */
-	_needRender(boundFrustum: BoundFrustum): boolean {
+	_needRender(boundFrustum: BoundFrustum,context: RenderContext3D): boolean {
 		if (boundFrustum)
 			return boundFrustum.intersects(this.bounds._getBoundBox());
 		else
