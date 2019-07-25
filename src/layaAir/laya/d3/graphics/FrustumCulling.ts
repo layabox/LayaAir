@@ -159,6 +159,7 @@ export class FrustumCulling {
 		var renders: ISingletonElement[] = renderList.elements;
 		for (i = 0; i < validCount; i++) {
 			((<BaseRender>renders[i])).bounds;
+			(<any>renders[i])._updateForNative && (<any>renders[i])._updateForNative(context);
 		}
 		var boundFrustum: BoundFrustum = camera.boundFrustum;
 		FrustumCulling.cullingNative(camera._boundFrustumBuffer, FrustumCulling._cullingBuffer, scene._cullingBufferIndices, validCount, scene._cullingBufferResult);
