@@ -43,7 +43,10 @@ export class TrailRenderer extends BaseRender {
 	 * @override
 	 */
 	_needRender(boundFrustum: BoundFrustum): boolean {
-		return true;
+		if (boundFrustum)
+			return boundFrustum.intersects(this.bounds._getBoundBox());
+		else
+			return true;
 	}
 
 	/**
