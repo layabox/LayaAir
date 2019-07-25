@@ -14,17 +14,17 @@ import { ClassUtils } from "../utils/ClassUtils";
 	 */
 	export class FontClip extends Clip {
 		/**数值*/
-		protected _valueArr:string;
+		protected _valueArr:string='';
 		/**文字内容数组**/
-		protected _indexMap:any;
+		protected _indexMap:any=null;
 		/**位图字体内容**/
-		protected _sheet:string;
+		protected _sheet:string=null;
 		/**@private */
 		protected _direction:string = "horizontal";
 		/**X方向间隙*/
-		protected _spaceX:number;
+		protected _spaceX:number=0;
 		/**Y方向间隙*/
-		protected _spaceY:number;
+		protected _spaceY:number=0;
 		/**@private 水平对齐方式*/
 		private _align:string = "left";
 		/**@private 显示文字宽*/
