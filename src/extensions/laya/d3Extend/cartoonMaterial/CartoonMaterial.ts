@@ -296,7 +296,8 @@ export class CartoonMaterial extends BaseMaterial {
 		this._shaderValues.setNumber(CartoonMaterial.OUTLINELIGHTNESS, 1);
 	}
 
-		/**
+	/**
+	 * @override
 	 * 克隆。
 	 * @return	 克隆副本。
 	 */

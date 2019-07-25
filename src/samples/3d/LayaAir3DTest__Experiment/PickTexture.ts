@@ -730,7 +730,6 @@ import { BrushTextureScript } from "../common/BrushTextureScript"
 		 * @return   射线距离三角形的距离，返回Number.NaN则不相交。
 		 */
 		 static rayIntersectsTriangle(ray:Ray, vertex1:Vector3, vertex2:Vector3, vertex3:Vector3):any {
-			/*[DISABLE-ADD-VARIABLE-DEFAULT-VALUE]*/
 			var result:any = new Object;
 			// Compute vectors along two edges of the triangle.
 			var edge1:Vector3 = PickTexture._tempVector30;
