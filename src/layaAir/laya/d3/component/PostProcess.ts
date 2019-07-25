@@ -77,7 +77,7 @@ export class PostProcess {
 	 */
 	_render(): void {
 		var noteValue:boolean = ShaderData._SET_RUNTIME_VALUE_MODE_REFERENCE_;
-		ILaya.Render.isConchApp && ShaderData.setRuntimeValueMode(false);
+		ILaya.Render.supportWebGLPlusRendering && ShaderData.setRuntimeValueMode(false);
 
 		var camera: Camera = this._context.camera;
 
@@ -113,7 +113,7 @@ export class PostProcess {
 			RenderTexture.recoverToPool(tempRenderTextures[i]);
 		tempRenderTextures.length = 0;
 
-		ILaya.Render.isConchApp && ShaderData.setRuntimeValueMode(noteValue);
+		ILaya.Render.supportWebGLPlusRendering && ShaderData.setRuntimeValueMode(noteValue);
 	}
 
 	/**

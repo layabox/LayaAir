@@ -27,11 +27,7 @@ export class BufferState extends BufferStateBase {
 		if (BufferStateBase._curBindedBufferState === this) {
 			var gl: any = LayaGL.instance;
 			var verDec: VertexDeclaration = vertexBuffer.vertexDeclaration;
-			var valueData: any = null;
-			if (Render.supportWebGLPlusRendering)
-				valueData = verDec._shaderValues._nativeArray;
-			else
-				valueData = verDec._shaderValues.getData();
+			var valueData: any = verDec._shaderValues.getData();
 			vertexBuffer.bind();
 			for (var k in valueData) {
 				var loc: number = parseInt(k);
@@ -54,11 +50,7 @@ export class BufferState extends BufferStateBase {
 			for (var i: number = 0, n: number = vertexBuffers.length; i < n; i++) {
 				var verBuf: VertexBuffer3D = vertexBuffers[i];
 				var verDec: VertexDeclaration = verBuf.vertexDeclaration;
-				var valueData: any = null;
-				if (Render.supportWebGLPlusRendering)
-					valueData = verDec._shaderValues._nativeArray;
-				else
-					valueData = verDec._shaderValues.getData();
+				var valueData: any = verDec._shaderValues.getData();
 				verBuf.bind();
 				for (var k in valueData) {
 					var loc: number = parseInt(k);
@@ -80,11 +72,7 @@ export class BufferState extends BufferStateBase {
 			if (BufferStateBase._curBindedBufferState === this) {
 				var gl: any = LayaGL.instance;
 				var verDec: VertexDeclaration = vertexBuffer.vertexDeclaration;
-				var valueData: any = null;
-				if (Render.supportWebGLPlusRendering)
-					valueData = verDec._shaderValues._nativeArray;
-				else
-					valueData = verDec._shaderValues.getData();
+				var valueData: any = verDec._shaderValues.getData();
 				vertexBuffer.bind();
 				for (var k in valueData) {
 					var loc: number = parseInt(k);

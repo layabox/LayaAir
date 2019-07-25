@@ -11,7 +11,8 @@ import { ShaderInstance } from "../../shader/ShaderInstance";
 import { RenderTexture } from "../RenderTexture";
 import { SkyBox } from "./SkyBox";
 import { SkyMesh } from "./SkyMesh";
-
+import { ShaderData } from "../../shader/ShaderData";
+import { ILaya } from "../../../../ILaya";
 
 /**
  * <code>SkyRenderer</code> 类用于实现天空渲染器。
@@ -88,6 +89,9 @@ export class SkyRenderer {
 			var scene: Scene3D = state.scene;
 			var camera: Camera = <Camera>state.camera;
 
+			var noteValue:boolean = ShaderData._SET_RUNTIME_VALUE_MODE_REFERENCE_;
+			ILaya.Render.supportWebGLPlusRendering && ShaderData.setRuntimeValueMode(false);
+			
 			WebGLContext.setCullFace(gl, false);
 			WebGLContext.setDepthFunc(gl, gl.LEQUAL);
 			WebGLContext.setDepthMask(gl, false);
@@ -132,10 +136,14 @@ export class SkyRenderer {
 
 			this._mesh._bufferState.bind();
 			this._mesh._render(state);
+			
+			ILaya.Render.supportWebGLPlusRendering && ShaderData.setRuntimeValueMode(noteValue);
+			
 			WebGLContext.setDepthFunc(gl, gl.LESS);
 			WebGLContext.setDepthMask(gl, true);
 			(<Camera>camera)._applyViewProject(state, (<Camera>camera).viewMatrix, (<Camera>camera).projectionMatrix, renderTar ? true : false);
 
+			
 		}
 	}
 
