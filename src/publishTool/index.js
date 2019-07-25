@@ -62,7 +62,7 @@ function compile() {
             if (!mark) {
                 if (!_result) {
                     //进程全部执行完毕
-                    console.log("complie success!");
+                    console.log("compile success!");
                     reslove(true);
                 }
                 else {
@@ -70,7 +70,7 @@ function compile() {
                 }
             }
         };
-        console.log("start complie!");
+        console.log("start compile!");
         //检测数组
         for (let i = 0; i < tsCongfig.length; i++) {
             mark++;
