@@ -51,6 +51,7 @@ import { ILaya } from "../../ILaya";
 		 _update():void {
 			if (this.scale <= 0) {
 				this._lastTimer = Date.now();
+				this._delta=0;
 				return;
 			}
 			var frame:number = this.currFrame = this.currFrame + this.scale;

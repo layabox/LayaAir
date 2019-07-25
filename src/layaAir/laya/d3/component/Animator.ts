@@ -120,7 +120,7 @@ export class Animator extends Component {
 		this._updateMark = 0;
 	}
 
-	
+
 	private _linkToSprites(linkSprites: any): void {
 		for (var k in linkSprites) {
 			var nodeOwner: Sprite3D = (<Sprite3D>this.owner);
@@ -605,7 +605,7 @@ export class Animator extends Component {
 		}
 	}
 
-	
+
 	private _setFixedCrossClipDatasToNode(controllerLayer: AnimatorControllerLayer, destState: AnimatorState, crossWeight: number, isFirstLayer: boolean): void {
 		var nodeOwners: KeyframeNodeOwner[] = controllerLayer._crossNodesOwners;
 		var ownerCount: number = controllerLayer._crossNodesOwnersCount;
@@ -809,7 +809,9 @@ export class Animator extends Component {
 	 * @internal
 	 */
 	_update(): void {
-		if (this._speed === 0)
+		var timer: Timer = ((<Scene3D>this.owner._scene)).timer;
+		var delta: number = timer._delta / 1000.0;//Laya.timer.delta已结包含Laya.timer.scale
+		if (this._speed === 0 || delta === 0)//delta为0无需更新,可能造成crossWeight计算值为NaN
 			return;
 		var needRender: boolean;
 		if (this.cullingMode === Animator.CULLINGMODE_CULLCOMPLETELY) {//所有渲染精灵不可见时
@@ -824,8 +826,6 @@ export class Animator extends Component {
 			needRender = true;
 		}
 		this._updateMark++;
-		var timer: Timer = ((<Scene3D>this.owner._scene)).timer;
-		var delta: number = timer._delta / 1000.0;//Laya.timer.delta已结包含Laya.timer.scale
 		var timerScale: number = timer.scale;
 		for (i = 0, n = this._controllerLayers.length; i < n; i++) {
 			var controllerLayer: AnimatorControllerLayer = this._controllerLayers[i];
@@ -1060,8 +1060,8 @@ export class Animator extends Component {
 			var destAnimatorState: AnimatorState = controllerLayer._statesMap[name];
 			if (destAnimatorState) {
 				var playType: number = controllerLayer._playType;
-				if (playType === -1) {
-					this.play(name, layerIndex, normalizedTime);//如果未层调用过play则回滚到play方法
+				if (playType === -1) {//如果未曾调用过play则回滚到play方法
+					this.play(name, layerIndex, normalizedTime);
 					return;
 				}
 
