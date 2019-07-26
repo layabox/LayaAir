@@ -12,6 +12,7 @@ import { Value2D } from "../webgl/shader/d2/value/Value2D"
 import { Buffer2D } from "../webgl/utils/Buffer2D"
 import { SubmitBase } from "../webgl/submit/SubmitBase";
 import { LayaGPU } from "../webgl/LayaGPU";
+import { Browser } from "../utils/Browser";
 	
 	/**
 	 * <code>Render</code> 是渲染管理类。它是一个单例，可以使用 Laya.render 访问。
@@ -71,7 +72,7 @@ import { LayaGPU } from "../webgl/LayaGPU";
 				function getWebGLContext(canvas:any):WebGLRenderingContext {
 					var gl:WebGLRenderingContext;
 					var names:any[] = ["webgl2", "webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
-					if (!Config.useWebGL2) {
+					if (!Config.useWebGL2||Browser.onBDMiniGame) {
 						names.shift();
 					}
 					for (var i:number = 0; i < names.length; i++) {

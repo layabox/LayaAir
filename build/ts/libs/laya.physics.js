@@ -1785,30 +1785,30 @@ window.box2d=box2d;
             //监听节点变化，同步到物理世界
             var sp = this.owner;
             //如果节点发生变化，则同步到物理世界（仅限节点本身，父节点发生变化不会自动同步）
-            if ( /** sp._$set_x */("x" in sp) && !sp._changeByRigidBody) {
+            if (this.accessGetSetFunc(sp, "x", "set") && !sp._changeByRigidBody) {
                 sp._changeByRigidBody = true;
                 function setX(value) {
-                    sp.x = value;
+                    _$this.accessGetSetFunc(sp, "x", "set")(value);
                     _$this._sysPosToPhysic();
                 }
                 this._overSet(sp, "x", setX);
                 function setY(value) {
-                    sp.y = value;
+                    _$this.accessGetSetFunc(sp, "y", "set")(value);
                     _$this._sysPosToPhysic();
                 }
                 this._overSet(sp, "y", setY);
                 function setRotation(value) {
-                    sp.rotation = value;
+                    _$this.accessGetSetFunc(sp, "rotation", "set")(value);
                     _$this._sysNodeToPhysic();
                 }
                 this._overSet(sp, "rotation", setRotation);
                 function setScaleX(value) {
-                    sp.scaleX = value;
+                    _$this.accessGetSetFunc(sp, "scaleX", "set")(value);
                     _$this.resetCollider(true);
                 }
                 this._overSet(sp, "scaleX", setScaleX);
                 function setScaleY(value) {
-                    sp.scaleY = value;
+                    _$this.accessGetSetFunc(sp, "scaleY", "set")(value);
                     _$this.resetCollider(true);
                 }
                 this._overSet(sp, "scaleY", setScaleY);
@@ -1825,8 +1825,21 @@ window.box2d=box2d;
             if (["get", "set"].indexOf(accessor) === -1) { // includes
                 return;
             }
-            let propertyDes = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(obj), prop);
-            return propertyDes && propertyDes[accessor].bind(obj);
+            let privateProp = `_$${accessor}_${prop}`;
+            if (obj[privateProp]) {
+                return obj[privateProp];
+            }
+            let ObjConstructor = obj.constructor;
+            let des;
+            while (ObjConstructor) {
+                des = Object.getOwnPropertyDescriptor(ObjConstructor.prototype, prop);
+                if (des && des[accessor]) { // 构造函数(包括原型的构造函数)有该属性
+                    obj[privateProp] = des[accessor].bind(obj);
+                    break;
+                }
+                ObjConstructor = Object.getPrototypeOf(ObjConstructor);
+            }
+            return obj[privateProp];
         }
         /**
          * 重置Collider
@@ -1853,19 +1866,19 @@ window.box2d=box2d;
                 var ang = this._body.GetAngle();
                 var sp = this.owner;
                 //if (label == "tank") console.log("get",ang);
-                sp.rotation = Laya.Utils.toAngle(ang) - sp.parent.globalRotation;
+                this.accessGetSetFunc(sp, "rotation", "set")(Laya.Utils.toAngle(ang) - sp.parent.globalRotation);
                 if (ang == 0) {
                     var point = sp.parent.globalToLocal(Laya.Point.TEMP.setTo(pos.x * IPhysics.Physics.PIXEL_RATIO + sp.pivotX, pos.y * IPhysics.Physics.PIXEL_RATIO + sp.pivotY), false, IPhysics.Physics.I.worldRoot);
-                    sp.x = point.x;
-                    sp.y = point.y;
+                    this.accessGetSetFunc(sp, "x", "set")(point.x);
+                    this.accessGetSetFunc(sp, "y", "set")(point.y);
                 }
                 else {
                     point = sp.globalToLocal(Laya.Point.TEMP.setTo(pos.x * IPhysics.Physics.PIXEL_RATIO, pos.y * IPhysics.Physics.PIXEL_RATIO), false, IPhysics.Physics.I.worldRoot);
                     point.x += sp.pivotX;
                     point.y += sp.pivotY;
                     point = sp.toParentPoint(point);
-                    sp.x = point.x;
-                    sp.y = point.y;
+                    this.accessGetSetFunc(sp, "x", "set")(point.x);
+                    this.accessGetSetFunc(sp, "y", "set")(point.y);
                 }
             }
         }
@@ -2335,89 +2348,6 @@ window.box2d=box2d;
     }
 
     /**
-         * 2D矩形碰撞体
-         */
-    class BoxCollider extends ColliderBase {
-        constructor() {
-            super(...arguments);
-            /**相对节点的x轴偏移*/
-            this._x = 0;
-            /**相对节点的y轴偏移*/
-            this._y = 0;
-            /**矩形宽度*/
-            this._width = 100;
-            /**矩形高度*/
-            this._height = 100;
-        }
-        /**
-         * @override
-         */
-        getDef() {
-            if (!this._shape) {
-                this._shape = new window.box2d.b2PolygonShape();
-                this._setShape(false);
-            }
-            this.label = (this.label || "BoxCollider");
-            return super.getDef();
-        }
-        _setShape(re = true) {
-            var scaleX = (this.owner["scaleX"] || 1);
-            var scaleY = (this.owner["scaleY"] || 1);
-            this._shape.SetAsBox(this._width / 2 / Physics.PIXEL_RATIO * scaleX, this._height / 2 / Physics.PIXEL_RATIO * scaleY, new window.box2d.b2Vec2((this._width / 2 + this._x) / Physics.PIXEL_RATIO * scaleX, (this._height / 2 + this._y) / Physics.PIXEL_RATIO * scaleY));
-            if (re)
-                this.refresh();
-        }
-        /**相对节点的x轴偏移*/
-        get x() {
-            return this._x;
-        }
-        set x(value) {
-            this._x = value;
-            if (this._shape)
-                this._setShape();
-        }
-        /**相对节点的y轴偏移*/
-        get y() {
-            return this._y;
-        }
-        set y(value) {
-            this._y = value;
-            if (this._shape)
-                this._setShape();
-        }
-        /**矩形宽度*/
-        get width() {
-            return this._width;
-        }
-        set width(value) {
-            if (value <= 0)
-                throw "BoxCollider size cannot be less than 0";
-            this._width = value;
-            if (this._shape)
-                this._setShape();
-        }
-        /**矩形高度*/
-        get height() {
-            return this._height;
-        }
-        set height(value) {
-            if (value <= 0)
-                throw "BoxCollider size cannot be less than 0";
-            this._height = value;
-            if (this._shape)
-                this._setShape();
-        }
-        /**@private 重置形状
-         * @override
-        */
-        resetShape(re = true) {
-            this._setShape();
-        }
-    }
-    Laya.ClassUtils.regClass("laya.physics.BoxCollider", BoxCollider);
-    Laya.ClassUtils.regClass("Laya.BoxCollider", BoxCollider);
-
-    /**
          * 2D圆形碰撞体
          */
     class CircleCollider extends ColliderBase {
@@ -2752,6 +2682,89 @@ window.box2d=box2d;
     Laya.ClassUtils.regClass("Laya.PhysicsDebugDraw", PhysicsDebugDraw);
 
     /**
+         * 2D矩形碰撞体
+         */
+    class BoxCollider extends ColliderBase {
+        constructor() {
+            super(...arguments);
+            /**相对节点的x轴偏移*/
+            this._x = 0;
+            /**相对节点的y轴偏移*/
+            this._y = 0;
+            /**矩形宽度*/
+            this._width = 100;
+            /**矩形高度*/
+            this._height = 100;
+        }
+        /**
+         * @override
+         */
+        getDef() {
+            if (!this._shape) {
+                this._shape = new window.box2d.b2PolygonShape();
+                this._setShape(false);
+            }
+            this.label = (this.label || "BoxCollider");
+            return super.getDef();
+        }
+        _setShape(re = true) {
+            var scaleX = (this.owner["scaleX"] || 1);
+            var scaleY = (this.owner["scaleY"] || 1);
+            this._shape.SetAsBox(this._width / 2 / Physics.PIXEL_RATIO * scaleX, this._height / 2 / Physics.PIXEL_RATIO * scaleY, new window.box2d.b2Vec2((this._width / 2 + this._x) / Physics.PIXEL_RATIO * scaleX, (this._height / 2 + this._y) / Physics.PIXEL_RATIO * scaleY));
+            if (re)
+                this.refresh();
+        }
+        /**相对节点的x轴偏移*/
+        get x() {
+            return this._x;
+        }
+        set x(value) {
+            this._x = value;
+            if (this._shape)
+                this._setShape();
+        }
+        /**相对节点的y轴偏移*/
+        get y() {
+            return this._y;
+        }
+        set y(value) {
+            this._y = value;
+            if (this._shape)
+                this._setShape();
+        }
+        /**矩形宽度*/
+        get width() {
+            return this._width;
+        }
+        set width(value) {
+            if (value <= 0)
+                throw "BoxCollider size cannot be less than 0";
+            this._width = value;
+            if (this._shape)
+                this._setShape();
+        }
+        /**矩形高度*/
+        get height() {
+            return this._height;
+        }
+        set height(value) {
+            if (value <= 0)
+                throw "BoxCollider size cannot be less than 0";
+            this._height = value;
+            if (this._shape)
+                this._setShape();
+        }
+        /**@private 重置形状
+         * @override
+        */
+        resetShape(re = true) {
+            this._setShape();
+        }
+    }
+    Laya.ClassUtils.regClass("laya.physics.BoxCollider", BoxCollider);
+    Laya.ClassUtils.regClass("Laya.BoxCollider", BoxCollider);
+
+    /**
          * 2D多边形碰撞体，暂时不支持凹多边形，如果是凹多边形，先手动拆分为多个凸多边形
          * 节点个数最多是b2_maxPolygonVertices，这数值默认是8，所以点的数量不建议超过8个，也不能小于3个
          */
@@ -2865,51 +2878,6 @@ window.box2d=box2d;
     Laya.ClassUtils.regClass("Laya.JointBase", JointBase);
 
     /**
-     * 齿轮关节：用来模拟两个齿轮间的约束关系，齿轮旋转时，产生的动量有两种输出方式，一种是齿轮本身的角速度，另一种是齿轮表面的线速度
-     */
-    class GearJoint extends JointBase {
-        constructor() {
-            super(...arguments);
-            /**[首次设置有效]两个刚体是否可以发生碰撞，默认为false*/
-            this.collideConnected = false;
-            /**两个齿轮角速度比例，默认1*/
-            this._ratio = 1;
-        }
-        /**
-         * @override
-         *
-         */
-        _createJoint() {
-            if (!this._joint) {
-                if (!this.joint1)
-                    throw "Joint1 can not be empty";
-                if (!this.joint2)
-                    throw "Joint2 can not be empty";
-                var box2d = window.box2d;
-                var def = GearJoint._temp || (GearJoint._temp = new box2d.b2GearJointDef());
-                def.bodyA = this.joint1.owner.getComponent(RigidBody).getBody();
-                def.bodyB = this.joint2.owner.getComponent(RigidBody).getBody();
-                def.joint1 = this.joint1.joint;
-                def.joint2 = this.joint2.joint;
-                def.ratio = this._ratio;
-                def.collideConnected = this.collideConnected;
-                this._joint = Physics.I._createJoint(def);
-            }
-        }
-        /**两个齿轮角速度比例，默认1*/
-        get ratio() {
-            return this._ratio;
-        }
-        set ratio(value) {
-            this._ratio = value;
-            if (this._joint)
-                this._joint.SetRatio(value);
-        }
-    }
-    Laya.ClassUtils.regClass("laya.physics.joint.GearJoint", GearJoint);
-    Laya.ClassUtils.regClass("Laya.GearJoint", GearJoint);
-
-    /**
      * 距离关节：两个物体上面各自有一点，两点之间的距离固定不变
      */
     class DistanceJoint extends JointBase {
@@ -2983,23 +2951,15 @@ window.box2d=box2d;
     Laya.ClassUtils.regClass("Laya.DistanceJoint", DistanceJoint);
 
     /**
-     * 马达关节：用来限制两个刚体，使其相对位置和角度保持不变
+     * 齿轮关节：用来模拟两个齿轮间的约束关系，齿轮旋转时，产生的动量有两种输出方式，一种是齿轮本身的角速度，另一种是齿轮表面的线速度
      */
-    class MotorJoint extends JointBase {
+    class GearJoint extends JointBase {
         constructor() {
             super(...arguments);
             /**[首次设置有效]两个刚体是否可以发生碰撞，默认为false*/
             this.collideConnected = false;
-            /**基于otherBody坐标位置的偏移量，也是selfBody的目标位置*/
-            this._linearOffset = [0, 0];
-            /**基于otherBody的角度偏移量，也是selfBody的目标角度*/
-            this._angularOffset = 0;
-            /**当selfBody偏离目标位置时，为使其恢复到目标位置，马达关节所施加的最大作用力*/
-            this._maxForce = 1000;
-            /**当selfBody角度与目标角度不同时，为使其达到目标角度，马达关节施加的最大扭力*/
-            this._maxTorque = 1000;
-            /**selfBody向目标位置移动时的缓动因子，取值0~1，值越大速度越快*/
-            this._correctionFactor = 0.3;
+            /**两个齿轮角速度比例，默认1*/
+            this._ratio = 1;
         }
         /**
          * @override
@@ -3007,179 +2967,33 @@ window.box2d=box2d;
          */
         _createJoint() {
             if (!this._joint) {
-                if (!this.otherBody)
-                    throw "otherBody can not be empty";
-                this.selfBody = this.selfBody || this.owner.getComponent(RigidBody);
-                if (!this.selfBody)
-                    throw "selfBody can not be empty";
+                if (!this.joint1)
+                    throw "Joint1 can not be empty";
+                if (!this.joint2)
+                    throw "Joint2 can not be empty";
                 var box2d = window.box2d;
-                var def = MotorJoint._temp || (MotorJoint._temp = new box2d.b2MotorJointDef());
-                def.Initialize(this.otherBody.getBody(), this.selfBody.getBody());
-                def.linearOffset = new box2d.b2Vec2(this._linearOffset[0] / Physics.PIXEL_RATIO, this._linearOffset[1] / Physics.PIXEL_RATIO);
-                def.angularOffset = this._angularOffset;
-                def.maxForce = this._maxForce;
-                def.maxTorque = this._maxTorque;
-                def.correctionFactor = this._correctionFactor;
+                var def = GearJoint._temp || (GearJoint._temp = new box2d.b2GearJointDef());
+                def.bodyA = this.joint1.owner.getComponent(RigidBody).getBody();
+                def.bodyB = this.joint2.owner.getComponent(RigidBody).getBody();
+                def.joint1 = this.joint1.joint;
+                def.joint2 = this.joint2.joint;
+                def.ratio = this._ratio;
                 def.collideConnected = this.collideConnected;
                 this._joint = Physics.I._createJoint(def);
             }
         }
-        /**基于otherBody坐标位置的偏移量，也是selfBody的目标位置*/
-        get linearOffset() {
-            return this._linearOffset;
+        /**两个齿轮角速度比例，默认1*/
+        get ratio() {
+            return this._ratio;
         }
-        set linearOffset(value) {
-            this._linearOffset = value;
+        set ratio(value) {
+            this._ratio = value;
             if (this._joint)
-                this._joint.SetLinearOffset(new window.box2d.b2Vec2(value[0] / Physics.PIXEL_RATIO, value[1] / Physics.PIXEL_RATIO));
-        }
-        /**基于otherBody的角度偏移量，也是selfBody的目标角度*/
-        get angularOffset() {
-            return this._angularOffset;
-        }
-        set angularOffset(value) {
-            this._angularOffset = value;
-            if (this._joint)
-                this._joint.SetAngularOffset(value);
-        }
-        /**当selfBody偏离目标位置时，为使其恢复到目标位置，马达关节所施加的最大作用力*/
-        get maxForce() {
-            return this._maxForce;
-        }
-        set maxForce(value) {
-            this._maxForce = value;
-            if (this._joint)
-                this._joint.SetMaxForce(value);
-        }
-        /**当selfBody角度与目标角度不同时，为使其达到目标角度，马达关节施加的最大扭力*/
-        get maxTorque() {
-            return this._maxTorque;
-        }
-        set maxTorque(value) {
-            this._maxTorque = value;
-            if (this._joint)
-                this._joint.SetMaxTorque(value);
-        }
-        /**selfBody向目标位置移动时的缓动因子，取值0~1，值越大速度越快*/
-        get correctionFactor() {
-            return this._correctionFactor;
-        }
-        set correctionFactor(value) {
-            this._correctionFactor = value;
-            if (this._joint)
-                this._joint.SetCorrectionFactor(value);
+                this._joint.SetRatio(value);
         }
     }
-    Laya.ClassUtils.regClass("laya.physics.joint.MotorJoint", MotorJoint);
-    Laya.ClassUtils.regClass("Laya.MotorJoint", MotorJoint);
-
-    /**
-     * 平移关节：移动关节允许两个物体沿指定轴相对移动，它会阻止相对旋转
-     */
-    class PrismaticJoint extends JointBase {
-        constructor() {
-            super(...arguments);
-            /**[首次设置有效]关节的控制点，是相对于自身刚体的左上角位置偏移*/
-            this.anchor = [0, 0];
-            /**[首次设置有效]一个向量值，描述运动方向，比如1,0是沿X轴向右*/
-            this.axis = [1, 0];
-            /**[首次设置有效]两个刚体是否可以发生碰撞，默认为false*/
-            this.collideConnected = false;
-            /**是否开启马达，开启马达可使目标刚体运动*/
-            this._enableMotor = false;
-            /**启用马达后，在axis坐标轴上移动可以达到的最大速度*/
-            this._motorSpeed = 0;
-            /**启用马达后，可以施加的最大作用力*/
-            this._maxMotorForce = 10000;
-            /**是否对刚体的移动范围加以约束*/
-            this._enableLimit = false;
-            /**启用约束后，刚体移动范围的下限，是距离anchor的偏移量*/
-            this._lowerTranslation = 0;
-            /**启用约束后，刚体移动范围的上限，是距离anchor的偏移量*/
-            this._upperTranslation = 0;
-        }
-        /**
-         * @override
-         *
-         */
-        _createJoint() {
-            if (!this._joint) {
-                //if (!otherBody) throw "otherBody can not be empty";
-                this.selfBody = this.selfBody || this.owner.getComponent(RigidBody);
-                if (!this.selfBody)
-                    throw "selfBody can not be empty";
-                var box2d = window.box2d;
-                var def = PrismaticJoint._temp || (PrismaticJoint._temp = new box2d.b2PrismaticJointDef());
-                var anchorPos = this.selfBody.owner.localToGlobal(Laya.Point.TEMP.setTo(this.anchor[0], this.anchor[1]), false, Physics.I.worldRoot);
-                var anchorVec = new box2d.b2Vec2(anchorPos.x / Physics.PIXEL_RATIO, anchorPos.y / Physics.PIXEL_RATIO);
-                def.Initialize(this.otherBody ? this.otherBody.getBody() : Physics.I._emptyBody, this.selfBody.getBody(), anchorVec, new box2d.b2Vec2(this.axis[0], this.axis[1]));
-                def.enableMotor = this._enableMotor;
-                def.motorSpeed = this._motorSpeed;
-                def.maxMotorForce = this._maxMotorForce;
-                def.enableLimit = this._enableLimit;
-                def.lowerTranslation = this._lowerTranslation / Physics.PIXEL_RATIO;
-                def.upperTranslation = this._upperTranslation / Physics.PIXEL_RATIO;
-                def.collideConnected = this.collideConnected;
-                this._joint = Physics.I._createJoint(def);
-            }
-        }
-        /**是否开启马达，开启马达可使目标刚体运动*/
-        get enableMotor() {
-            return this._enableMotor;
-        }
-        set enableMotor(value) {
-            this._enableMotor = value;
-            if (this._joint)
-                this._joint.EnableMotor(value);
-        }
-        /**启用马达后，在axis坐标轴上移动可以达到的最大速度*/
-        get motorSpeed() {
-            return this._motorSpeed;
-        }
-        set motorSpeed(value) {
-            this._motorSpeed = value;
-            if (this._joint)
-                this._joint.SetMotorSpeed(value);
-        }
-        /**启用马达后，可以施加的最大作用力*/
-        get maxMotorForce() {
-            return this._maxMotorForce;
-        }
-        set maxMotorForce(value) {
-            this._maxMotorForce = value;
-            if (this._joint)
-                this._joint.SetMaxMotorForce(value);
-        }
-        /**是否对刚体的移动范围加以约束*/
-        get enableLimit() {
-            return this._enableLimit;
-        }
-        set enableLimit(value) {
-            this._enableLimit = value;
-            if (this._joint)
-                this._joint.EnableLimit(value);
-        }
-        /**启用约束后，刚体移动范围的下限，是距离anchor的偏移量*/
-        get lowerTranslation() {
-            return this._lowerTranslation;
-        }
-        set lowerTranslation(value) {
-            this._lowerTranslation = value;
-            if (this._joint)
-                this._joint.SetLimits(value, this._upperTranslation);
-        }
-        /**启用约束后，刚体移动范围的上限，是距离anchor的偏移量*/
-        get upperTranslation() {
-            return this._upperTranslation;
-        }
-        set upperTranslation(value) {
-            this._upperTranslation = value;
-            if (this._joint)
-                this._joint.SetLimits(this._lowerTranslation, value);
-        }
-    }
-    Laya.ClassUtils.regClass("laya.physics.joint.PrismaticJoint", PrismaticJoint);
-    Laya.ClassUtils.regClass("Laya.PrismaticJoint", PrismaticJoint);
+    Laya.ClassUtils.regClass("laya.physics.joint.GearJoint", GearJoint);
+    Laya.ClassUtils.regClass("Laya.GearJoint", GearJoint);
 
     /**
      * 鼠标关节：鼠标关节用于通过鼠标来操控物体。它试图将物体拖向当前鼠标光标的位置。而在旋转方面就没有限制。
@@ -3335,6 +3149,97 @@ window.box2d=box2d;
     Laya.ClassUtils.regClass("Laya.PulleyJoint", PulleyJoint);
 
     /**
+     * 马达关节：用来限制两个刚体，使其相对位置和角度保持不变
+     */
+    class MotorJoint extends JointBase {
+        constructor() {
+            super(...arguments);
+            /**[首次设置有效]两个刚体是否可以发生碰撞，默认为false*/
+            this.collideConnected = false;
+            /**基于otherBody坐标位置的偏移量，也是selfBody的目标位置*/
+            this._linearOffset = [0, 0];
+            /**基于otherBody的角度偏移量，也是selfBody的目标角度*/
+            this._angularOffset = 0;
+            /**当selfBody偏离目标位置时，为使其恢复到目标位置，马达关节所施加的最大作用力*/
+            this._maxForce = 1000;
+            /**当selfBody角度与目标角度不同时，为使其达到目标角度，马达关节施加的最大扭力*/
+            this._maxTorque = 1000;
+            /**selfBody向目标位置移动时的缓动因子，取值0~1，值越大速度越快*/
+            this._correctionFactor = 0.3;
+        }
+        /**
+         * @override
+         *
+         */
+        _createJoint() {
+            if (!this._joint) {
+                if (!this.otherBody)
+                    throw "otherBody can not be empty";
+                this.selfBody = this.selfBody || this.owner.getComponent(RigidBody);
+                if (!this.selfBody)
+                    throw "selfBody can not be empty";
+                var box2d = window.box2d;
+                var def = MotorJoint._temp || (MotorJoint._temp = new box2d.b2MotorJointDef());
+                def.Initialize(this.otherBody.getBody(), this.selfBody.getBody());
+                def.linearOffset = new box2d.b2Vec2(this._linearOffset[0] / Physics.PIXEL_RATIO, this._linearOffset[1] / Physics.PIXEL_RATIO);
+                def.angularOffset = this._angularOffset;
+                def.maxForce = this._maxForce;
+                def.maxTorque = this._maxTorque;
+                def.correctionFactor = this._correctionFactor;
+                def.collideConnected = this.collideConnected;
+                this._joint = Physics.I._createJoint(def);
+            }
+        }
+        /**基于otherBody坐标位置的偏移量，也是selfBody的目标位置*/
+        get linearOffset() {
+            return this._linearOffset;
+        }
+        set linearOffset(value) {
+            this._linearOffset = value;
+            if (this._joint)
+                this._joint.SetLinearOffset(new window.box2d.b2Vec2(value[0] / Physics.PIXEL_RATIO, value[1] / Physics.PIXEL_RATIO));
+        }
+        /**基于otherBody的角度偏移量，也是selfBody的目标角度*/
+        get angularOffset() {
+            return this._angularOffset;
+        }
+        set angularOffset(value) {
+            this._angularOffset = value;
+            if (this._joint)
+                this._joint.SetAngularOffset(value);
+        }
+        /**当selfBody偏离目标位置时，为使其恢复到目标位置，马达关节所施加的最大作用力*/
+        get maxForce() {
+            return this._maxForce;
+        }
+        set maxForce(value) {
+            this._maxForce = value;
+            if (this._joint)
+                this._joint.SetMaxForce(value);
+        }
+        /**当selfBody角度与目标角度不同时，为使其达到目标角度，马达关节施加的最大扭力*/
+        get maxTorque() {
+            return this._maxTorque;
+        }
+        set maxTorque(value) {
+            this._maxTorque = value;
+            if (this._joint)
+                this._joint.SetMaxTorque(value);
+        }
+        /**selfBody向目标位置移动时的缓动因子，取值0~1，值越大速度越快*/
+        get correctionFactor() {
+            return this._correctionFactor;
+        }
+        set correctionFactor(value) {
+            this._correctionFactor = value;
+            if (this._joint)
+                this._joint.SetCorrectionFactor(value);
+        }
+    }
+    Laya.ClassUtils.regClass("laya.physics.joint.MotorJoint", MotorJoint);
+    Laya.ClassUtils.regClass("Laya.MotorJoint", MotorJoint);
+
+    /**
      * 旋转关节强制两个物体共享一个锚点，两个物体相对旋转
      */
     class RevoluteJoint extends JointBase {
@@ -3438,6 +3343,114 @@ window.box2d=box2d;
     }
     Laya.ClassUtils.regClass("laya.physics.joint.RevoluteJoint", RevoluteJoint);
     Laya.ClassUtils.regClass("Laya.RevoluteJoint", RevoluteJoint);
+
+    /**
+     * 平移关节：移动关节允许两个物体沿指定轴相对移动，它会阻止相对旋转
+     */
+    class PrismaticJoint extends JointBase {
+        constructor() {
+            super(...arguments);
+            /**[首次设置有效]关节的控制点，是相对于自身刚体的左上角位置偏移*/
+            this.anchor = [0, 0];
+            /**[首次设置有效]一个向量值，描述运动方向，比如1,0是沿X轴向右*/
+            this.axis = [1, 0];
+            /**[首次设置有效]两个刚体是否可以发生碰撞，默认为false*/
+            this.collideConnected = false;
+            /**是否开启马达，开启马达可使目标刚体运动*/
+            this._enableMotor = false;
+            /**启用马达后，在axis坐标轴上移动可以达到的最大速度*/
+            this._motorSpeed = 0;
+            /**启用马达后，可以施加的最大作用力*/
+            this._maxMotorForce = 10000;
+            /**是否对刚体的移动范围加以约束*/
+            this._enableLimit = false;
+            /**启用约束后，刚体移动范围的下限，是距离anchor的偏移量*/
+            this._lowerTranslation = 0;
+            /**启用约束后，刚体移动范围的上限，是距离anchor的偏移量*/
+            this._upperTranslation = 0;
+        }
+        /**
+         * @override
+         *
+         */
+        _createJoint() {
+            if (!this._joint) {
+                //if (!otherBody) throw "otherBody can not be empty";
+                this.selfBody = this.selfBody || this.owner.getComponent(RigidBody);
+                if (!this.selfBody)
+                    throw "selfBody can not be empty";
+                var box2d = window.box2d;
+                var def = PrismaticJoint._temp || (PrismaticJoint._temp = new box2d.b2PrismaticJointDef());
+                var anchorPos = this.selfBody.owner.localToGlobal(Laya.Point.TEMP.setTo(this.anchor[0], this.anchor[1]), false, Physics.I.worldRoot);
+                var anchorVec = new box2d.b2Vec2(anchorPos.x / Physics.PIXEL_RATIO, anchorPos.y / Physics.PIXEL_RATIO);
+                def.Initialize(this.otherBody ? this.otherBody.getBody() : Physics.I._emptyBody, this.selfBody.getBody(), anchorVec, new box2d.b2Vec2(this.axis[0], this.axis[1]));
+                def.enableMotor = this._enableMotor;
+                def.motorSpeed = this._motorSpeed;
+                def.maxMotorForce = this._maxMotorForce;
+                def.enableLimit = this._enableLimit;
+                def.lowerTranslation = this._lowerTranslation / Physics.PIXEL_RATIO;
+                def.upperTranslation = this._upperTranslation / Physics.PIXEL_RATIO;
+                def.collideConnected = this.collideConnected;
+                this._joint = Physics.I._createJoint(def);
+            }
+        }
+        /**是否开启马达，开启马达可使目标刚体运动*/
+        get enableMotor() {
+            return this._enableMotor;
+        }
+        set enableMotor(value) {
+            this._enableMotor = value;
+            if (this._joint)
+                this._joint.EnableMotor(value);
+        }
+        /**启用马达后，在axis坐标轴上移动可以达到的最大速度*/
+        get motorSpeed() {
+            return this._motorSpeed;
+        }
+        set motorSpeed(value) {
+            this._motorSpeed = value;
+            if (this._joint)
+                this._joint.SetMotorSpeed(value);
+        }
+        /**启用马达后，可以施加的最大作用力*/
+        get maxMotorForce() {
+            return this._maxMotorForce;
+        }
+        set maxMotorForce(value) {
+            this._maxMotorForce = value;
+            if (this._joint)
+                this._joint.SetMaxMotorForce(value);
+        }
+        /**是否对刚体的移动范围加以约束*/
+        get enableLimit() {
+            return this._enableLimit;
+        }
+        set enableLimit(value) {
+            this._enableLimit = value;
+            if (this._joint)
+                this._joint.EnableLimit(value);
+        }
+        /**启用约束后，刚体移动范围的下限，是距离anchor的偏移量*/
+        get lowerTranslation() {
+            return this._lowerTranslation;
+        }
+        set lowerTranslation(value) {
+            this._lowerTranslation = value;
+            if (this._joint)
+                this._joint.SetLimits(value, this._upperTranslation);
+        }
+        /**启用约束后，刚体移动范围的上限，是距离anchor的偏移量*/
+        get upperTranslation() {
+            return this._upperTranslation;
+        }
+        set upperTranslation(value) {
+            this._upperTranslation = value;
+            if (this._joint)
+                this._joint.SetLimits(this._lowerTranslation, value);
+        }
+    }
+    Laya.ClassUtils.regClass("laya.physics.joint.PrismaticJoint", PrismaticJoint);
+    Laya.ClassUtils.regClass("Laya.PrismaticJoint", PrismaticJoint);
 
     /**
      * 绳索关节：限制了两个点之间的最大距离。它能够阻止连接的物体之间的拉伸，即使在很大的负载下

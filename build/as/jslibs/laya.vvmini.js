@@ -1647,6 +1647,76 @@ window.vvMiniGame = function (exports, Laya) {
 	/**@private **/
 	MiniFileMgr.NUMERIC = 16;
 
+	/**@private **/
+	class MiniAccelerator extends Laya.EventDispatcher {
+	    constructor() {
+	        super();
+	    }
+	    /**@private **/
+	    static __init__() {
+	        try {
+	            var Acc;
+	            Acc = Laya.Accelerator;
+	            if (!Acc)
+	                return;
+	            Acc["prototype"]["on"] = MiniAccelerator["prototype"]["on"];
+	            Acc["prototype"]["off"] = MiniAccelerator["prototype"]["off"];
+	        }
+	        catch (e) {
+	        }
+	    }
+	    /**@private **/
+	    static startListen(callBack) {
+	        MiniAccelerator._callBack = callBack;
+	        if (MiniAccelerator._isListening)
+	            return;
+	        MiniAccelerator._isListening = true;
+	        try {
+	            VVMiniAdapter.window.qg.onAccelerometerChange(MiniAccelerator.onAccelerometerChange);
+	        }
+	        catch (e) { }
+	    }
+	    /**@private **/
+	    static stopListen() {
+	        MiniAccelerator._isListening = false;
+	        try {
+	            VVMiniAdapter.window.qg.stopAccelerometer({});
+	        }
+	        catch (e) { }
+	    }
+	    /**@private **/
+	    static onAccelerometerChange(res) {
+	        var e;
+	        e = {};
+	        e.acceleration = res;
+	        e.accelerationIncludingGravity = res;
+	        e.rotationRate = {};
+	        if (MiniAccelerator._callBack != null) {
+	            MiniAccelerator._callBack(e);
+	        }
+	    }
+	    /**
+	     * 侦听加速器运动。
+	     * @param observer	回调函数接受4个参数，见类说明。
+	     */
+	    /*override*/ on(type, caller, listener, args = null) {
+	        super.on(type, caller, listener, args);
+	        MiniAccelerator.startListen(this["onDeviceOrientationChange"]);
+	        return this;
+	    }
+	    /**
+	     * 取消侦听加速器。
+	     * @param	handle	侦听加速器所用处理器。
+	     */
+	    /*override*/ off(type, caller, listener, onceOnly = false) {
+	        if (!this.hasListener(type))
+	            MiniAccelerator.stopListen();
+	        return super.off(type, caller, listener, onceOnly);
+	    }
+	}
+	/**@private **/
+	MiniAccelerator._isListening = false;
+
 	/** @private **/
 	class MiniImage {
 	    /**@private **/
@@ -1818,76 +1888,6 @@ window.vvMiniGame = function (exports, Laya) {
 	        }
 	    }
 	}
-
-	/**@private **/
-	class MiniAccelerator extends Laya.EventDispatcher {
-	    constructor() {
-	        super();
-	    }
-	    /**@private **/
-	    static __init__() {
-	        try {
-	            var Acc;
-	            Acc = Laya.Accelerator;
-	            if (!Acc)
-	                return;
-	            Acc["prototype"]["on"] = MiniAccelerator["prototype"]["on"];
-	            Acc["prototype"]["off"] = MiniAccelerator["prototype"]["off"];
-	        }
-	        catch (e) {
-	        }
-	    }
-	    /**@private **/
-	    static startListen(callBack) {
-	        MiniAccelerator._callBack = callBack;
-	        if (MiniAccelerator._isListening)
-	            return;
-	        MiniAccelerator._isListening = true;
-	        try {
-	            VVMiniAdapter.window.qg.onAccelerometerChange(MiniAccelerator.onAccelerometerChange);
-	        }
-	        catch (e) { }
-	    }
-	    /**@private **/
-	    static stopListen() {
-	        MiniAccelerator._isListening = false;
-	        try {
-	            VVMiniAdapter.window.qg.stopAccelerometer({});
-	        }
-	        catch (e) { }
-	    }
-	    /**@private **/
-	    static onAccelerometerChange(res) {
-	        var e;
-	        e = {};
-	        e.acceleration = res;
-	        e.accelerationIncludingGravity = res;
-	        e.rotationRate = {};
-	        if (MiniAccelerator._callBack != null) {
-	            MiniAccelerator._callBack(e);
-	        }
-	    }
-	    /**
-	     * 侦听加速器运动。
-	     * @param observer	回调函数接受4个参数，见类说明。
-	     */
-	    /*override*/ on(type, caller, listener, args = null) {
-	        super.on(type, caller, listener, args);
-	        MiniAccelerator.startListen(this["onDeviceOrientationChange"]);
-	        return this;
-	    }
-	    /**
-	     * 取消侦听加速器。
-	     * @param	handle	侦听加速器所用处理器。
-	     */
-	    /*override*/ off(type, caller, listener, onceOnly = false) {
-	        if (!this.hasListener(type))
-	            MiniAccelerator.stopListen();
-	        return super.off(type, caller, listener, onceOnly);
-	    }
-	}
-	/**@private **/
-	MiniAccelerator._isListening = false;
 
 	/**@private **/
 	class MiniLocation {
