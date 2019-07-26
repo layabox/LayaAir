@@ -1313,6 +1313,45 @@
 	IHtml.HTMLElementType = exports.HTMLElementType;
 
 	/**
+	 * @internal
+	 */
+	class HTMLBrElement {
+	    /**@internal */
+	    _addToLayout(out) {
+	        out.push(this);
+	    }
+	    //TODO:coverage
+	    reset() {
+	        return this;
+	    }
+	    destroy() {
+	        Laya.Pool.recover(HTMLElement.getClassName(this), this.reset());
+	    }
+	    _setParent(value) {
+	    }
+	    set parent(value) {
+	    }
+	    set URI(value) {
+	    }
+	    set href(value) {
+	    }
+	    /**@internal */
+	    //TODO:coverage
+	    _getCSSStyle() {
+	        if (!HTMLBrElement.brStyle) {
+	            HTMLBrElement.brStyle = new HTMLStyle();
+	            HTMLBrElement.brStyle.setLineElement(true);
+	            HTMLBrElement.brStyle.block = true;
+	        }
+	        return HTMLBrElement.brStyle;
+	    }
+	    renderSelfToGraphic(graphic, gX, gY, recList) {
+	    }
+	}
+	IHtml.HTMLBrElement = HTMLBrElement;
+	Laya.ILaya.regClass(HTMLBrElement);
+
+	/**
 	 * @private
 	 */
 	class HTMLStyleElement extends HTMLElement {
@@ -1566,45 +1605,6 @@
 	}
 	IHtml.HTMLDivParser = HTMLDivParser;
 	Laya.ILaya.regClass(HTMLDivParser);
-
-	/**
-	 * @internal
-	 */
-	class HTMLBrElement {
-	    /**@internal */
-	    _addToLayout(out) {
-	        out.push(this);
-	    }
-	    //TODO:coverage
-	    reset() {
-	        return this;
-	    }
-	    destroy() {
-	        Laya.Pool.recover(HTMLElement.getClassName(this), this.reset());
-	    }
-	    _setParent(value) {
-	    }
-	    set parent(value) {
-	    }
-	    set URI(value) {
-	    }
-	    set href(value) {
-	    }
-	    /**@internal */
-	    //TODO:coverage
-	    _getCSSStyle() {
-	        if (!HTMLBrElement.brStyle) {
-	            HTMLBrElement.brStyle = new HTMLStyle();
-	            HTMLBrElement.brStyle.setLineElement(true);
-	            HTMLBrElement.brStyle.block = true;
-	        }
-	        return HTMLBrElement.brStyle;
-	    }
-	    renderSelfToGraphic(graphic, gX, gY, recList) {
-	    }
-	}
-	IHtml.HTMLBrElement = HTMLBrElement;
-	Laya.ILaya.regClass(HTMLBrElement);
 
 	/**
 	 * @private

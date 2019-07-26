@@ -413,6 +413,7 @@ export class ShaderData implements IClone {
 				}
 			}
 		}
+		this._defineDatas.cloneTo(dest._defineDatas);
 	}
 
 	/**
