@@ -421,7 +421,7 @@ gulp.task('ConcatBox2dPhysics', function (cb) {
 //拷贝引擎的第三方js库
 gulp.task('CopyJSLibsToJS', () => {
 	return gulp.src([
-		'./layaAir/jsLibs/*.js'], )
+		'./layaAir/jsLibs/*.js', '!./layaAir/jsLibs/box2d.js', '!./layaAir/jsLibs/laya.physics.js'], )
 		.pipe(gulp.dest('../build/js/libs'));
 });
 
@@ -488,7 +488,8 @@ gulp.task('buildJS', async function () {
             myMultiInput(),
             typescript({
                 tsconfig:"./layaAir/tsconfig.json",
-                check: false
+                check: false,
+                tsconfigOverride:{compilerOptions:{removeComments: true}}
             }),
             glsl({
                 include: /\.glsl$/,
@@ -514,7 +515,8 @@ gulp.task('buildJS', async function () {
             myMultiInput(),
             typescript({
                 tsconfig:"./layaAir/tsconfig.json",
-                check: false
+                check: false,
+                tsconfigOverride:{compilerOptions:{removeComments: true}}
             }),
             glsl({
                 include: /\.glsl$/,
@@ -542,7 +544,8 @@ gulp.task('buildJS', async function () {
             myMultiInput(),
             typescript({
                 tsconfig:"./layaAir/tsconfig.json",
-                check: false
+                check: false,
+                tsconfigOverride:{compilerOptions:{removeComments: true}}
             }),
             glsl({
                 include: /.*(.glsl|.vs|.fs)$/,
@@ -572,7 +575,8 @@ gulp.task('buildJS', async function () {
             myMultiInput(),
             typescript({
                 tsconfig:"./layaAir/tsconfig.json",
-                check: false
+                check: false,
+                tsconfigOverride:{compilerOptions:{removeComments: true}}
             }),
             glsl({
                 include: /\.glsl$/,
@@ -606,7 +610,8 @@ gulp.task('buildJS', async function () {
             myMultiInput(),
             typescript({
                 tsconfig:"./layaAir/tsconfig.json",
-                check: false
+                check: false,
+                tsconfigOverride:{compilerOptions:{removeComments: true}}
             }),
             glsl({
                 include: /\.glsl$/,
@@ -636,7 +641,8 @@ gulp.task('buildJS', async function () {
             myMultiInput(),
             typescript({
                 tsconfig:"./layaAir/tsconfig.json",
-                check: false
+                check: false,
+                tsconfigOverride:{compilerOptions:{removeComments: true}}
             }),
             glsl({
                 include: /\.glsl$/,
@@ -669,7 +675,8 @@ gulp.task('buildJS', async function () {
             myMultiInput(),
             typescript({
                 tsconfig:"./layaAir/tsconfig.json",
-                check: false
+                check: false,
+                tsconfigOverride:{compilerOptions:{removeComments: true}}
             }),
             glsl({
                 include: /\.glsl$/,
@@ -699,7 +706,8 @@ gulp.task('buildJS', async function () {
             myMultiInput(),
             typescript({
                 tsconfig:"./layaAir/tsconfig.json",
-                check: false
+                check: false,
+                tsconfigOverride:{compilerOptions:{removeComments: true}}
             }),
             glsl({
                 include: /\.glsl$/,
@@ -729,7 +737,8 @@ gulp.task('buildJS', async function () {
             myMultiInput(),
             typescript({
                 tsconfig:"./layaAir/tsconfig.json",
-                check: false
+                check: false,
+                tsconfigOverride:{compilerOptions:{removeComments: true}}
             }),
             glsl({
                 include: /\.glsl$/,
@@ -762,7 +771,8 @@ gulp.task('buildJS', async function () {
             myMultiInput(),
             typescript({
                 tsconfig:"./layaAir/tsconfig.json",
-                check: false
+                check: false,
+                tsconfigOverride:{compilerOptions:{removeComments: true}}
             }),
             glsl({
                 include: /.*(.glsl|.vs|.fs)$/,
@@ -792,7 +802,8 @@ gulp.task('buildJS', async function () {
             myMultiInput(),
             typescript({
                 tsconfig:"./layaAir/tsconfig.json",
-                check: false
+                check: false,
+                tsconfigOverride:{compilerOptions:{removeComments: true}}
             }),
             glsl({
                 include: /.*(.glsl|.vs|.fs)$/,
@@ -821,7 +832,8 @@ gulp.task('buildJS', async function () {
             myMultiInput(),
             typescript({
                 tsconfig:"./layaAir/tsconfig.json",
-                check: false
+                check: false,
+                tsconfigOverride:{compilerOptions:{removeComments: true}}
             }),
             glsl({
                 include: /.*(.glsl|.vs|.fs)$/,
@@ -850,7 +862,8 @@ gulp.task('buildJS', async function () {
             myMultiInput(),
             typescript({
                 tsconfig:"./layaAir/tsconfig.json",
-                check: false
+                check: false,
+                tsconfigOverride:{compilerOptions:{removeComments: true}}
             }),
             glsl({
                 include: /.*(.glsl|.vs|.fs)$/,
@@ -879,7 +892,8 @@ gulp.task('buildJS', async function () {
             myMultiInput(),
             typescript({
                 tsconfig:"./layaAir/tsconfig.json",
-                check: false
+                check: false,
+                tsconfigOverride:{compilerOptions:{removeComments: true}}
             }),
             glsl({
                 include: /.*(.glsl|.vs|.fs)$/,
