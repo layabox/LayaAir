@@ -33172,6 +33172,72 @@ window.Laya= (function (exports) {
 	}
 
 	/**
+	     * <code>Log</code> 类用于在界面内显示日志记录信息。
+	     * 注意：在加速器内不可使用
+	     */
+	class Log {
+	    /**
+	     * 激活Log系统，使用方法Laya.init(800,600,Laya.Log);
+	     */
+	    static enable() {
+	        if (!Log._logdiv) {
+	            Log._logdiv = Browser.createElement('div');
+	            Log._logdiv.style.cssText = "border:white;padding:4px;overflow-y:auto;z-index:1000000;background:rgba(100,100,100,0.6);color:white;position: absolute;left:0px;top:0px;width:50%;height:50%;";
+	            Browser.document.body.appendChild(Log._logdiv);
+	            Log._btn = Browser.createElement("button");
+	            Log._btn.innerText = "Hide";
+	            Log._btn.style.cssText = "z-index:1000001;position: absolute;left:10px;top:10px;";
+	            Log._btn.onclick = Log.toggle;
+	            Browser.document.body.appendChild(Log._btn);
+	        }
+	    }
+	    /**隐藏/显示日志面板*/
+	    static toggle() {
+	        var style = Log._logdiv.style;
+	        if (style.display === "") {
+	            Log._btn.innerText = "Show";
+	            style.display = "none";
+	        }
+	        else {
+	            Log._btn.innerText = "Hide";
+	            style.display = "";
+	        }
+	    }
+	    /**
+	     * 增加日志内容。
+	     * @param	value 需要增加的日志内容。
+	     */
+	    static print(value) {
+	        if (Log._logdiv) {
+	            //内容太多清理掉
+	            if (Log._count >= Log.maxCount)
+	                Log.clear();
+	            Log._count++;
+	            Log._logdiv.innerText += value + "\n";
+	            //自动滚动
+	            if (Log.autoScrollToBottom) {
+	                if (Log._logdiv.scrollHeight - Log._logdiv.scrollTop - Log._logdiv.clientHeight < 50) {
+	                    Log._logdiv.scrollTop = Log._logdiv.scrollHeight;
+	                }
+	            }
+	        }
+	    }
+	    /**
+	     * 清理日志
+	     */
+	    static clear() {
+	        Log._logdiv.innerText = "";
+	        Log._count = 0;
+	    }
+	}
+	/**@private */
+	Log._count = 0;
+	/**最大打印数量，超过这个数量，则自动清理一次，默认为50次*/
+	Log.maxCount = 50;
+	/**是否自动滚动到底部，默认为true*/
+	Log.autoScrollToBottom = true;
+
+	/**
 	     * @private
 	     * <code>HTMLChar</code> 是一个 HTML 字符类。
 	     */
@@ -33250,118 +33316,6 @@ window.Laya= (function (exports) {
 	        this.datas[this.datapos] = v;
 	        this.datapos++;
 	        this.datapos %= DATANUM;
-	    }
-	}
-
-	/**
-	     * <code>Log</code> 类用于在界面内显示日志记录信息。
-	     * 注意：在加速器内不可使用
-	     */
-	class Log {
-	    /**
-	     * 激活Log系统，使用方法Laya.init(800,600,Laya.Log);
-	     */
-	    static enable() {
-	        if (!Log._logdiv) {
-	            Log._logdiv = Browser.createElement('div');
-	            Log._logdiv.style.cssText = "border:white;padding:4px;overflow-y:auto;z-index:1000000;background:rgba(100,100,100,0.6);color:white;position: absolute;left:0px;top:0px;width:50%;height:50%;";
-	            Browser.document.body.appendChild(Log._logdiv);
-	            Log._btn = Browser.createElement("button");
-	            Log._btn.innerText = "Hide";
-	            Log._btn.style.cssText = "z-index:1000001;position: absolute;left:10px;top:10px;";
-	            Log._btn.onclick = Log.toggle;
-	            Browser.document.body.appendChild(Log._btn);
-	        }
-	    }
-	    /**隐藏/显示日志面板*/
-	    static toggle() {
-	        var style = Log._logdiv.style;
-	        if (style.display === "") {
-	            Log._btn.innerText = "Show";
-	            style.display = "none";
-	        }
-	        else {
-	            Log._btn.innerText = "Hide";
-	            style.display = "";
-	        }
-	    }
-	    /**
-	     * 增加日志内容。
-	     * @param	value 需要增加的日志内容。
-	     */
-	    static print(value) {
-	        if (Log._logdiv) {
-	            //内容太多清理掉
-	            if (Log._count >= Log.maxCount)
-	                Log.clear();
-	            Log._count++;
-	            Log._logdiv.innerText += value + "\n";
-	            //自动滚动
-	            if (Log.autoScrollToBottom) {
-	                if (Log._logdiv.scrollHeight - Log._logdiv.scrollTop - Log._logdiv.clientHeight < 50) {
-	                    Log._logdiv.scrollTop = Log._logdiv.scrollHeight;
-	                }
-	            }
-	        }
-	    }
-	    /**
-	     * 清理日志
-	     */
-	    static clear() {
-	        Log._logdiv.innerText = "";
-	        Log._count = 0;
-	    }
-	}
-	/**@private */
-	Log._count = 0;
-	/**最大打印数量，超过这个数量，则自动清理一次，默认为50次*/
-	Log.maxCount = 50;
-	/**是否自动滚动到底部，默认为true*/
-	Log.autoScrollToBottom = true;
-
-	/**
-	     * @private
-	     * 基于个数的对象缓存管理器
-	     */
-	class PoolCache {
-	    constructor() {
-	        /**
-	         * 允许缓存的最大数量
-	         */
-	        this.maxCount = 1000;
-	    }
-	    /**
-	     * 获取缓存的对象列表
-	     * @return
-	     *
-	     */
-	    getCacheList() {
-	        return Pool.getPoolBySign(this.sign);
-	    }
-	    /**
-	     * 尝试清理缓存
-	     * @param force 是否强制清理
-	     *
-	     */
-	    tryDispose(force) {
-	        var list;
-	        list = Pool.getPoolBySign(this.sign);
-	        if (list.length > this.maxCount) {
-	            list.splice(this.maxCount, list.length - this.maxCount);
-	        }
-	    }
-	    /**
-	     * 添加对象缓存管理
-	     * @param sign 对象在Pool中的标识
-	     * @param maxCount 允许缓存的最大数量
-	     *
-	     */
-	    static addPoolCacheManager(sign, maxCount = 100) {
-	        var cache;
-	        cache = new PoolCache();
-	        cache.sign = sign;
-	        cache.maxCount = maxCount;
-	        CacheManger.regCacheByFunction(Utils.bind(cache.tryDispose, cache), Utils.bind(cache.getCacheList, cache));
 	    }
 	}
 
@@ -33506,6 +33460,52 @@ window.Laya= (function (exports) {
 	PerfHUD._now = null;
 	PerfHUD.DATANUM = 300;
 	PerfHUD.drawTexTm = 0;
+
+	/**
+	     * @private
+	     * 基于个数的对象缓存管理器
+	     */
+	class PoolCache {
+	    constructor() {
+	        /**
+	         * 允许缓存的最大数量
+	         */
+	        this.maxCount = 1000;
+	    }
+	    /**
+	     * 获取缓存的对象列表
+	     * @return
+	     *
+	     */
+	    getCacheList() {
+	        return Pool.getPoolBySign(this.sign);
+	    }
+	    /**
+	     * 尝试清理缓存
+	     * @param force 是否强制清理
+	     *
+	     */
+	    tryDispose(force) {
+	        var list;
+	        list = Pool.getPoolBySign(this.sign);
+	        if (list.length > this.maxCount) {
+	            list.splice(this.maxCount, list.length - this.maxCount);
+	        }
+	    }
+	    /**
+	     * 添加对象缓存管理
+	     * @param sign 对象在Pool中的标识
+	     * @param maxCount 允许缓存的最大数量
+	     *
+	     */
+	    static addPoolCacheManager(sign, maxCount = 100) {
+	        var cache;
+	        cache = new PoolCache();
+	        cache.sign = sign;
+	        cache.maxCount = maxCount;
+	        CacheManger.regCacheByFunction(Utils.bind(cache.tryDispose, cache), Utils.bind(cache.getCacheList, cache));
+	    }
+	}
 
 	/**
 	 * 整个缓动结束的时候会调度
@@ -34021,6 +34021,125 @@ window.Laya= (function (exports) {
 	}
 
 	/**
+	 * 效果插件基类，基于对象池管理
+	 */
+	class EffectBase extends Component {
+	    constructor() {
+	        super(...arguments);
+	        /**动画持续时间，单位为毫秒*/
+	        this.duration = 1000;
+	        /**动画延迟时间，单位为毫秒*/
+	        this.delay = 0;
+	        /**重复次数，默认为播放一次*/
+	        this.repeat = 0;
+	        /**效果结束后，是否自动移除节点*/
+	        this.autoDestroyAtComplete = true;
+	    }
+	    /**
+	     * @override
+	     */
+	    _onAwake() {
+	        this.target = this.target || this.owner;
+	        if (this.autoDestroyAtComplete)
+	            this._comlete = Handler.create(this.target, this.target.destroy, null, false);
+	        if (this.eventName)
+	            this.owner.on(this.eventName, this, this._exeTween);
+	        else
+	            this._exeTween();
+	    }
+	    _exeTween() {
+	        this._tween = this._doTween();
+	        this._tween.repeat = this.repeat;
+	    }
+	    _doTween() {
+	        return null;
+	    }
+	    /**
+	     * @override
+	     */
+	    onReset() {
+	        this.duration = 1000;
+	        this.delay = 0;
+	        this.repeat = 0;
+	        this.ease = null;
+	        this.target = null;
+	        if (this.eventName) {
+	            this.owner.off(this.eventName, this, this._exeTween);
+	            this.eventName = null;
+	        }
+	        if (this._comlete) {
+	            this._comlete.recover();
+	            this._comlete = null;
+	        }
+	        if (this._tween) {
+	            this._tween.clear();
+	            this._tween = null;
+	        }
+	    }
+	}
+
+	/**
+	 * 淡入效果
+	 */
+	class FadeIn extends EffectBase {
+	    /**
+	     * @override
+	     */
+	    _doTween() {
+	        this.target.alpha = 0;
+	        return Tween.to(this.target, { alpha: 1 }, this.duration, Ease[this.ease], this._comlete, this.delay);
+	    }
+	}
+
+	/**
+	 * @Script {name:ButtonEffect}
+	 * @author ww
+	 */
+	class ButtonEffect {
+	    constructor() {
+	        this._curState = 0;
+	        /**
+	         * effectScale
+	         * @prop {name:effectScale,type:number, tips:"缩放值",default:"1.5"}
+	         */
+	        this.effectScale = 1.5;
+	        /**
+	         * tweenTime
+	         * @prop {name:tweenTime,type:number, tips:"缓动时长",default:"300"}
+	         */
+	        this.tweenTime = 300;
+	    }
+	    /**
+	     * 设置控制对象
+	     * @param tar
+	     */
+	    set target(tar) {
+	        this._tar = tar;
+	        tar.on(Event.MOUSE_DOWN, this, this.toChangedState);
+	        tar.on(Event.MOUSE_UP, this, this.toInitState);
+	        tar.on(Event.MOUSE_OUT, this, this.toInitState);
+	    }
+	    toChangedState() {
+	        this._curState = 1;
+	        if (this._curTween)
+	            Tween.clear(this._curTween);
+	        this._curTween = Tween.to(this._tar, { scaleX: this.effectScale, scaleY: this.effectScale }, this.tweenTime, Ease[this.effectEase], Handler.create(this, this.tweenComplete));
+	    }
+	    toInitState() {
+	        if (this._curState == 2)
+	            return;
+	        if (this._curTween)
+	            Tween.clear(this._curTween);
+	        this._curState = 2;
+	        this._curTween = Tween.to(this._tar, { scaleX: 1, scaleY: 1 }, this.tweenTime, Ease[this.backEase], Handler.create(this, this.tweenComplete));
+	    }
+	    tweenComplete() {
+	        this._curState = 0;
+	        this._curTween = null;
+	    }
+	}
+
+	/**
 	 * ...
 	 * @author ww
 	 */
@@ -34141,125 +34260,6 @@ window.Laya= (function (exports) {
 	    set alpha(value) {
 	        this._alpha = value;
 	        this.paramChanged();
-	    }
-	}
-
-	/**
-	 * 效果插件基类，基于对象池管理
-	 */
-	class EffectBase extends Component {
-	    constructor() {
-	        super(...arguments);
-	        /**动画持续时间，单位为毫秒*/
-	        this.duration = 1000;
-	        /**动画延迟时间，单位为毫秒*/
-	        this.delay = 0;
-	        /**重复次数，默认为播放一次*/
-	        this.repeat = 0;
-	        /**效果结束后，是否自动移除节点*/
-	        this.autoDestroyAtComplete = true;
-	    }
-	    /**
-	     * @override
-	     */
-	    _onAwake() {
-	        this.target = this.target || this.owner;
-	        if (this.autoDestroyAtComplete)
-	            this._comlete = Handler.create(this.target, this.target.destroy, null, false);
-	        if (this.eventName)
-	            this.owner.on(this.eventName, this, this._exeTween);
-	        else
-	            this._exeTween();
-	    }
-	    _exeTween() {
-	        this._tween = this._doTween();
-	        this._tween.repeat = this.repeat;
-	    }
-	    _doTween() {
-	        return null;
-	    }
-	    /**
-	     * @override
-	     */
-	    onReset() {
-	        this.duration = 1000;
-	        this.delay = 0;
-	        this.repeat = 0;
-	        this.ease = null;
-	        this.target = null;
-	        if (this.eventName) {
-	            this.owner.off(this.eventName, this, this._exeTween);
-	            this.eventName = null;
-	        }
-	        if (this._comlete) {
-	            this._comlete.recover();
-	            this._comlete = null;
-	        }
-	        if (this._tween) {
-	            this._tween.clear();
-	            this._tween = null;
-	        }
-	    }
-	}
-
-	/**
-	 * 淡入效果
-	 */
-	class FadeIn extends EffectBase {
-	    /**
-	     * @override
-	     */
-	    _doTween() {
-	        this.target.alpha = 0;
-	        return Tween.to(this.target, { alpha: 1 }, this.duration, Ease[this.ease], this._comlete, this.delay);
-	    }
-	}
-
-	/**
-	 * @Script {name:ButtonEffect}
-	 * @author ww
-	 */
-	class ButtonEffect {
-	    constructor() {
-	        this._curState = 0;
-	        /**
-	         * effectScale
-	         * @prop {name:effectScale,type:number, tips:"缩放值",default:"1.5"}
-	         */
-	        this.effectScale = 1.5;
-	        /**
-	         * tweenTime
-	         * @prop {name:tweenTime,type:number, tips:"缓动时长",default:"300"}
-	         */
-	        this.tweenTime = 300;
-	    }
-	    /**
-	     * 设置控制对象
-	     * @param tar
-	     */
-	    set target(tar) {
-	        this._tar = tar;
-	        tar.on(Event.MOUSE_DOWN, this, this.toChangedState);
-	        tar.on(Event.MOUSE_UP, this, this.toInitState);
-	        tar.on(Event.MOUSE_OUT, this, this.toInitState);
-	    }
-	    toChangedState() {
-	        this._curState = 1;
-	        if (this._curTween)
-	            Tween.clear(this._curTween);
-	        this._curTween = Tween.to(this._tar, { scaleX: this.effectScale, scaleY: this.effectScale }, this.tweenTime, Ease[this.effectEase], Handler.create(this, this.tweenComplete));
-	    }
-	    toInitState() {
-	        if (this._curState == 2)
-	            return;
-	        if (this._curTween)
-	            Tween.clear(this._curTween);
-	        this._curState = 2;
-	        this._curTween = Tween.to(this._tar, { scaleX: 1, scaleY: 1 }, this.tweenTime, Ease[this.backEase], Handler.create(this, this.tweenComplete));
-	    }
-	    tweenComplete() {
-	        this._curState = 0;
-	        this._curTween = null;
 	    }
 	}
 
@@ -35550,11 +35550,6 @@ window.Laya= (function (exports) {
 	    }
 	}
 
-	class ShaderValue {
-	    constructor() {
-	    }
-	}
-
 	/**
 	 * 阿拉伯文的转码。把unicode的阿拉伯文字母编码转成他们的老的能描述不同写法的编码。
 	 *  这个是从GitHub上 Javascript-Arabic-Reshaper 项目转来的
@@ -35799,6 +35794,11 @@ window.Laya= (function (exports) {
 	    0x06EB,
 	    0x06EC,
 	    0x06ED];
+
+	class ShaderValue {
+	    constructor() {
+	    }
+	}
 
 	class MatirxArray {
 	    /**
