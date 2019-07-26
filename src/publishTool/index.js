@@ -96,12 +96,13 @@ function checkAllDir(url) {
         let fileData = yield readDir(url);
         if (fileData) {
             createAS && createDir(outfileAS + url);
-            ergodic(fileData, url);
+            yield ergodic(fileData, url);
         }
         else
             console.log("readdir fail", url);
     });
 }
+// var testArr = [];
 /**
  * 遍历文件夹
  * @param {*} files 列表
@@ -113,12 +114,14 @@ function ergodic(files, url) {
             let fileUrl = path.join(url, files[i]);
             let isFile = yield checkIsFile(fileUrl);
             if (isFile) {
+                // testArr.push(files[i]);
                 if (filterArr.indexOf(files[i]) == -1)
-                    checkAllDir(fileUrl);
+                    yield checkAllDir(fileUrl);
             }
             else {
                 if (filterArr.indexOf(files[i]) == -1) {
                     if (fileUrl.indexOf(".d.ts") != -1) {
+                        // testArr.push(files[i]);
                         //读取文件
                         let tsdata = yield readFile(fileUrl);
                         // debugger
@@ -160,7 +163,10 @@ function checkComplete() {
                     yield gulp.src(layajsURL).pipe(gulp.dest(path.join(outfile, outfileAS, "../../")));
                     console.log("start copy jsc");
                     yield gulp.src("./jsc/**/*.*").pipe(gulp.dest(path.join(outfile, outfileAS)));
-                    console.log("copy suc!");
+                    console.log("copy success!");
+                    // fs.writeFile("tst.txt",JSON.stringify(testArr),err=>{
+                    //     console.log("end");
+                    // });
                 }));
             });
         }

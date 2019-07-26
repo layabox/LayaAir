@@ -105,8 +105,8 @@ import { DynamicBatchTest } from "../3d/LayaAir3D_Performance/DynamicBatchTest";
 		private b_length:number;
 		private m_length:number;
 		
-		private _comboxBigArr2:any[] = ['高级应用', '动画', '摄影机', '灯光', '材质', '网格', 'mouseLnteraction', '粒子系统', 'performance', '物理系统', 'resource', 'scene3D',
-											'script','shader','sky','sprite3D','texture','trail'];
+		private _comboxBigArr2:any[] = ['高级应用', '动画', '摄影机', '灯光', '材质', '网格', '鼠标交互', '粒子系统', '性能测试', '物理系统', '资源加载', '3D场景',
+											'脚本','Shader','天空盒','3D精灵','纹理','拖尾'];
 		//var s:Secne3DPlayer2D
 		private _advanceClsArr:any[] = [PostProcessBloom,AStarFindPath,Laya3DCombineHtml,Scene2DPlayer3D,Secne3DPlayer2D];
 		private _advanceArr:any[] = ['后期处理之泛光','寻路示例','Laya3D与网页混合','2D坐标转3D坐标','3D坐标转2D坐标'];
