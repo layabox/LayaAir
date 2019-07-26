@@ -31426,6 +31426,64 @@ window.Laya= (function (exports) {
 	var enableDebugPanel = Laya.enableDebugPanel;
 
 	/**
+	 * <code>CommonScript</code> 类用于创建公共脚本类。
+	 */
+	class CommonScript extends Component {
+	    /**
+	     * @inheritDoc
+	     * @override
+	     */
+	    get isSingleton() {
+	        return false;
+	    }
+	    constructor() {
+	        super();
+	    }
+	    /**
+	     * 创建后只执行一次
+	     * 此方法为虚方法，使用时重写覆盖即可
+	     */
+	    onAwake() {
+	    }
+	    /**
+	     * 每次启动后执行
+	     * 此方法为虚方法，使用时重写覆盖即可
+	     */
+	    onEnable() {
+	    }
+	    /**
+	     * 第一次执行update之前执行，只会执行一次
+	     * 此方法为虚方法，使用时重写覆盖即可
+	     */
+	    onStart() {
+	    }
+	    /**
+	     * 每帧更新时执行
+	     * 此方法为虚方法，使用时重写覆盖即可
+	     */
+	    onUpdate() {
+	    }
+	    /**
+	     * 每帧更新时执行，在update之后执行
+	     * 此方法为虚方法，使用时重写覆盖即可
+	     */
+	    onLateUpdate() {
+	    }
+	    /**
+	     * 禁用时执行
+	     * 此方法为虚方法，使用时重写覆盖即可
+	     */
+	    onDisable() {
+	    }
+	    /**
+	     * 销毁时执行
+	     * 此方法为虚方法，使用时重写覆盖即可
+	     */
+	    onDestroy() {
+	    }
+	}
+
+	/**
 	 * <code>Script</code> 类用于创建脚本的父类，该类为抽象类，不允许实例。
 	 * 组件的生命周期
 	 */
@@ -31700,64 +31758,6 @@ window.Laya= (function (exports) {
 	    }
 	    /**
 	     * 手动调用节点销毁时执行
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
-	    onDestroy() {
-	    }
-	}
-
-	/**
-	 * <code>CommonScript</code> 类用于创建公共脚本类。
-	 */
-	class CommonScript extends Component {
-	    /**
-	     * @inheritDoc
-	     * @override
-	     */
-	    get isSingleton() {
-	        return false;
-	    }
-	    constructor() {
-	        super();
-	    }
-	    /**
-	     * 创建后只执行一次
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
-	    onAwake() {
-	    }
-	    /**
-	     * 每次启动后执行
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
-	    onEnable() {
-	    }
-	    /**
-	     * 第一次执行update之前执行，只会执行一次
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
-	    onStart() {
-	    }
-	    /**
-	     * 每帧更新时执行
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
-	    onUpdate() {
-	    }
-	    /**
-	     * 每帧更新时执行，在update之后执行
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
-	    onLateUpdate() {
-	    }
-	    /**
-	     * 禁用时执行
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
-	    onDisable() {
-	    }
-	    /**
-	     * 销毁时执行
 	     * 此方法为虚方法，使用时重写覆盖即可
 	     */
 	    onDestroy() {
@@ -32339,6 +32339,52 @@ window.Laya= (function (exports) {
 	QuickTestTool._i = 0;
 
 	/**
+	 * <p>资源版本的生成由layacmd或IDE完成，使用 <code>ResourceVersion</code> 简化使用过程。</p>
+	 * <p>调用 <code>enable</code> 启用资源版本管理。</p>
+	 */
+	class ResourceVersion {
+	    /**
+	     * <p>启用资源版本管理。</p>
+	     * <p>由于只有发布版本需要资源管理。因此没有资源管理文件时，可以设置manifestFile为null或者不存在的路径。</p>
+	     * @param	manifestFile	清单（json）文件的路径。
+	     * @param   callback		清单（json）文件加载完成后执行。
+	     * @param   type			FOLDER_VERSION为基于文件夹管理方式（老版本IDE默认类型），FILENAME_VERSION为基于文件名映射管理（新版本IDE默认类型
+	     */
+	    static enable(manifestFile, callback, type = 2) {
+	        ResourceVersion.type = type;
+	        ILaya.loader.load(manifestFile, Handler.create(null, ResourceVersion.onManifestLoaded, [callback]), null, Loader.JSON);
+	        URL.customFormat = ResourceVersion.addVersionPrefix;
+	    }
+	    static onManifestLoaded(callback, data) {
+	        ResourceVersion.manifest = data;
+	        callback.run();
+	        if (!data) {
+	            console.warn("资源版本清单文件不存在，不使用资源版本管理。忽略ERR_FILE_NOT_FOUND错误。");
+	        }
+	    }
+	    /**
+	     * 为加载路径添加版本前缀。
+	     * @param	originURL	源路径。
+	     * @return 格式化后的新路径。
+	     */
+	    static addVersionPrefix(originURL) {
+	        originURL = URL.getAdptedFilePath(originURL);
+	        if (ResourceVersion.manifest && ResourceVersion.manifest[originURL]) {
+	            if (ResourceVersion.type == ResourceVersion.FILENAME_VERSION)
+	                return ResourceVersion.manifest[originURL];
+	            return ResourceVersion.manifest[originURL] + "/" + originURL;
+	        }
+	        return originURL;
+	    }
+	}
+	/**基于文件夹的资源管理方式（老版本IDE默认类型）*/
+	ResourceVersion.FOLDER_VERSION = 1;
+	/**基于文件名映射管理方式（新版本IDE默认类型）*/
+	ResourceVersion.FILENAME_VERSION = 2;
+	/**当前使用的版本管理类型*/
+	ResourceVersion.type = ResourceVersion.FOLDER_VERSION;
+
+	/**
 	 * @private
 	 * 场景资源加载器
 	 */
@@ -32452,52 +32498,6 @@ window.Laya= (function (exports) {
 	}
 	SceneLoader.LoadableExtensions = { "scene": Loader.JSON, "scene3d": Loader.JSON, "ani": Loader.JSON, "ui": Loader.JSON, "prefab": Loader.PREFAB };
 	SceneLoader.No3dLoadTypes = { "png": true, "jpg": true, "txt": true };
-
-	/**
-	 * <p>资源版本的生成由layacmd或IDE完成，使用 <code>ResourceVersion</code> 简化使用过程。</p>
-	 * <p>调用 <code>enable</code> 启用资源版本管理。</p>
-	 */
-	class ResourceVersion {
-	    /**
-	     * <p>启用资源版本管理。</p>
-	     * <p>由于只有发布版本需要资源管理。因此没有资源管理文件时，可以设置manifestFile为null或者不存在的路径。</p>
-	     * @param	manifestFile	清单（json）文件的路径。
-	     * @param   callback		清单（json）文件加载完成后执行。
-	     * @param   type			FOLDER_VERSION为基于文件夹管理方式（老版本IDE默认类型），FILENAME_VERSION为基于文件名映射管理（新版本IDE默认类型
-	     */
-	    static enable(manifestFile, callback, type = 2) {
-	        ResourceVersion.type = type;
-	        ILaya.loader.load(manifestFile, Handler.create(null, ResourceVersion.onManifestLoaded, [callback]), null, Loader.JSON);
-	        URL.customFormat = ResourceVersion.addVersionPrefix;
-	    }
-	    static onManifestLoaded(callback, data) {
-	        ResourceVersion.manifest = data;
-	        callback.run();
-	        if (!data) {
-	            console.warn("资源版本清单文件不存在，不使用资源版本管理。忽略ERR_FILE_NOT_FOUND错误。");
-	        }
-	    }
-	    /**
-	     * 为加载路径添加版本前缀。
-	     * @param	originURL	源路径。
-	     * @return 格式化后的新路径。
-	     */
-	    static addVersionPrefix(originURL) {
-	        originURL = URL.getAdptedFilePath(originURL);
-	        if (ResourceVersion.manifest && ResourceVersion.manifest[originURL]) {
-	            if (ResourceVersion.type == ResourceVersion.FILENAME_VERSION)
-	                return ResourceVersion.manifest[originURL];
-	            return ResourceVersion.manifest[originURL] + "/" + originURL;
-	        }
-	        return originURL;
-	    }
-	}
-	/**基于文件夹的资源管理方式（老版本IDE默认类型）*/
-	ResourceVersion.FOLDER_VERSION = 1;
-	/**基于文件名映射管理方式（新版本IDE默认类型）*/
-	ResourceVersion.FILENAME_VERSION = 2;
-	/**当前使用的版本管理类型*/
-	ResourceVersion.type = ResourceVersion.FOLDER_VERSION;
 
 	/**
 	 * 连接建立成功后调度。
@@ -33234,6 +33234,25 @@ window.Laya= (function (exports) {
 	}
 	HTMLChar._isWordRegExp = new RegExp("[\\w\.]", "");
 
+	//import { PerfHUD } from "./PerfHUD";
+	let DATANUM = 300;
+	class PerfData {
+	    constructor(id, color, name, scale) {
+	        this.scale = 1.0;
+	        this.datas = new Array(DATANUM);
+	        this.datapos = 0;
+	        this.id = id;
+	        this.color = color;
+	        this.name = name;
+	        this.scale = scale;
+	    }
+	    addData(v) {
+	        this.datas[this.datapos] = v;
+	        this.datapos++;
+	        this.datapos %= DATANUM;
+	    }
+	}
+
 	/**
 	     * <code>Log</code> 类用于在界面内显示日志记录信息。
 	     * 注意：在加速器内不可使用
@@ -33300,22 +33319,49 @@ window.Laya= (function (exports) {
 	/**是否自动滚动到底部，默认为true*/
 	Log.autoScrollToBottom = true;
 
-	//import { PerfHUD } from "./PerfHUD";
-	let DATANUM = 300;
-	class PerfData {
-	    constructor(id, color, name, scale) {
-	        this.scale = 1.0;
-	        this.datas = new Array(DATANUM);
-	        this.datapos = 0;
-	        this.id = id;
-	        this.color = color;
-	        this.name = name;
-	        this.scale = scale;
+	/**
+	     * @private
+	     * 基于个数的对象缓存管理器
+	     */
+	class PoolCache {
+	    constructor() {
+	        /**
+	         * 允许缓存的最大数量
+	         */
+	        this.maxCount = 1000;
 	    }
-	    addData(v) {
-	        this.datas[this.datapos] = v;
-	        this.datapos++;
-	        this.datapos %= DATANUM;
+	    /**
+	     * 获取缓存的对象列表
+	     * @return
+	     *
+	     */
+	    getCacheList() {
+	        return Pool.getPoolBySign(this.sign);
+	    }
+	    /**
+	     * 尝试清理缓存
+	     * @param force 是否强制清理
+	     *
+	     */
+	    tryDispose(force) {
+	        var list;
+	        list = Pool.getPoolBySign(this.sign);
+	        if (list.length > this.maxCount) {
+	            list.splice(this.maxCount, list.length - this.maxCount);
+	        }
+	    }
+	    /**
+	     * 添加对象缓存管理
+	     * @param sign 对象在Pool中的标识
+	     * @param maxCount 允许缓存的最大数量
+	     *
+	     */
+	    static addPoolCacheManager(sign, maxCount = 100) {
+	        var cache;
+	        cache = new PoolCache();
+	        cache.sign = sign;
+	        cache.maxCount = maxCount;
+	        CacheManger.regCacheByFunction(Utils.bind(cache.tryDispose, cache), Utils.bind(cache.getCacheList, cache));
 	    }
 	}
 
@@ -33460,52 +33506,6 @@ window.Laya= (function (exports) {
 	PerfHUD._now = null;
 	PerfHUD.DATANUM = 300;
 	PerfHUD.drawTexTm = 0;
-
-	/**
-	     * @private
-	     * 基于个数的对象缓存管理器
-	     */
-	class PoolCache {
-	    constructor() {
-	        /**
-	         * 允许缓存的最大数量
-	         */
-	        this.maxCount = 1000;
-	    }
-	    /**
-	     * 获取缓存的对象列表
-	     * @return
-	     *
-	     */
-	    getCacheList() {
-	        return Pool.getPoolBySign(this.sign);
-	    }
-	    /**
-	     * 尝试清理缓存
-	     * @param force 是否强制清理
-	     *
-	     */
-	    tryDispose(force) {
-	        var list;
-	        list = Pool.getPoolBySign(this.sign);
-	        if (list.length > this.maxCount) {
-	            list.splice(this.maxCount, list.length - this.maxCount);
-	        }
-	    }
-	    /**
-	     * 添加对象缓存管理
-	     * @param sign 对象在Pool中的标识
-	     * @param maxCount 允许缓存的最大数量
-	     *
-	     */
-	    static addPoolCacheManager(sign, maxCount = 100) {
-	        var cache;
-	        cache = new PoolCache();
-	        cache.sign = sign;
-	        cache.maxCount = maxCount;
-	        CacheManger.regCacheByFunction(Utils.bind(cache.tryDispose, cache), Utils.bind(cache.getCacheList, cache));
-	    }
-	}
 
 	/**
 	 * 整个缓动结束的时候会调度
@@ -33951,54 +33951,6 @@ window.Laya= (function (exports) {
 	}
 
 	/**
-	 * @Script {name:ButtonEffect}
-	 * @author ww
-	 */
-	class ButtonEffect {
-	    constructor() {
-	        this._curState = 0;
-	        /**
-	         * effectScale
-	         * @prop {name:effectScale,type:number, tips:"缩放值",default:"1.5"}
-	         */
-	        this.effectScale = 1.5;
-	        /**
-	         * tweenTime
-	         * @prop {name:tweenTime,type:number, tips:"缓动时长",default:"300"}
-	         */
-	        this.tweenTime = 300;
-	    }
-	    /**
-	     * 设置控制对象
-	     * @param tar
-	     */
-	    set target(tar) {
-	        this._tar = tar;
-	        tar.on(Event.MOUSE_DOWN, this, this.toChangedState);
-	        tar.on(Event.MOUSE_UP, this, this.toInitState);
-	        tar.on(Event.MOUSE_OUT, this, this.toInitState);
-	    }
-	    toChangedState() {
-	        this._curState = 1;
-	        if (this._curTween)
-	            Tween.clear(this._curTween);
-	        this._curTween = Tween.to(this._tar, { scaleX: this.effectScale, scaleY: this.effectScale }, this.tweenTime, Ease[this.effectEase], Handler.create(this, this.tweenComplete));
-	    }
-	    toInitState() {
-	        if (this._curState == 2)
-	            return;
-	        if (this._curTween)
-	            Tween.clear(this._curTween);
-	        this._curState = 2;
-	        this._curTween = Tween.to(this._tar, { scaleX: 1, scaleY: 1 }, this.tweenTime, Ease[this.backEase], Handler.create(this, this.tweenComplete));
-	    }
-	    tweenComplete() {
-	        this._curState = 0;
-	        this._curTween = null;
-	    }
-	}
-
-	/**
 	 * ...
 	 * @author ww
 	 */
@@ -34040,6 +33992,31 @@ window.Laya= (function (exports) {
 	            this._target = value;
 	            this.paramChanged();
 	        }
+	    }
+	}
+
+	/**
+	 * ...
+	 * @author ww
+	 */
+	class BlurFilterSetter extends FilterSetterBase {
+	    constructor() {
+	        super();
+	        this._strength = 4;
+	        this._filter = new BlurFilter(this.strength);
+	    }
+	    /**
+	     * @override
+	     */
+	    buildFilter() {
+	        this._filter = new BlurFilter(this.strength);
+	        super.buildFilter();
+	    }
+	    get strength() {
+	        return this._strength;
+	    }
+	    set strength(value) {
+	        this._strength = value;
 	    }
 	}
 
@@ -34226,31 +34203,6 @@ window.Laya= (function (exports) {
 	}
 
 	/**
-	 * ...
-	 * @author ww
-	 */
-	class BlurFilterSetter extends FilterSetterBase {
-	    constructor() {
-	        super();
-	        this._strength = 4;
-	        this._filter = new BlurFilter(this.strength);
-	    }
-	    /**
-	     * @override
-	     */
-	    buildFilter() {
-	        this._filter = new BlurFilter(this.strength);
-	        super.buildFilter();
-	    }
-	    get strength() {
-	        return this._strength;
-	    }
-	    set strength(value) {
-	        this._strength = value;
-	    }
-	}
-
-	/**
 	 * 淡入效果
 	 */
 	class FadeIn extends EffectBase {
@@ -34260,6 +34212,54 @@ window.Laya= (function (exports) {
 	    _doTween() {
 	        this.target.alpha = 0;
 	        return Tween.to(this.target, { alpha: 1 }, this.duration, Ease[this.ease], this._comlete, this.delay);
+	    }
+	}
+
+	/**
+	 * @Script {name:ButtonEffect}
+	 * @author ww
+	 */
+	class ButtonEffect {
+	    constructor() {
+	        this._curState = 0;
+	        /**
+	         * effectScale
+	         * @prop {name:effectScale,type:number, tips:"缩放值",default:"1.5"}
+	         */
+	        this.effectScale = 1.5;
+	        /**
+	         * tweenTime
+	         * @prop {name:tweenTime,type:number, tips:"缓动时长",default:"300"}
+	         */
+	        this.tweenTime = 300;
+	    }
+	    /**
+	     * 设置控制对象
+	     * @param tar
+	     */
+	    set target(tar) {
+	        this._tar = tar;
+	        tar.on(Event.MOUSE_DOWN, this, this.toChangedState);
+	        tar.on(Event.MOUSE_UP, this, this.toInitState);
+	        tar.on(Event.MOUSE_OUT, this, this.toInitState);
+	    }
+	    toChangedState() {
+	        this._curState = 1;
+	        if (this._curTween)
+	            Tween.clear(this._curTween);
+	        this._curTween = Tween.to(this._tar, { scaleX: this.effectScale, scaleY: this.effectScale }, this.tweenTime, Ease[this.effectEase], Handler.create(this, this.tweenComplete));
+	    }
+	    toInitState() {
+	        if (this._curState == 2)
+	            return;
+	        if (this._curTween)
+	            Tween.clear(this._curTween);
+	        this._curState = 2;
+	        this._curTween = Tween.to(this._tar, { scaleX: 1, scaleY: 1 }, this.tweenTime, Ease[this.backEase], Handler.create(this, this.tweenComplete));
+	    }
+	    tweenComplete() {
+	        this._curState = 0;
+	        this._curTween = null;
 	    }
 	}
 

@@ -2,449 +2,6 @@ window.wxMiniGame = function (exports, Laya) {
 	'use strict';
 
 	/** @private **/
-	class MiniFileMgr {
-	    /**
-	     * @private
-	     * 是否是本地4M包文件
-	     * @param url
-	     * @return
-	     */
-	    static isLocalNativeFile(url) {
-	        for (var i = 0, sz = MiniAdpter.nativefiles.length; i < sz; i++) {
-	            //优化调整  if(url.indexOf(MiniAdpter.nativefiles[i]) == 0)
-	            if (url.indexOf(MiniAdpter.nativefiles[i]) != -1)
-	                return true;
-	        }
-	        return false;
-	    }
-	    /**
-	     * @private
-	     * 判断缓存里是否存在文件
-	     * @param fileUrl
-	     * @return
-	     */
-	    static getFileInfo(fileUrl) {
-	        var fileNativePath = fileUrl;
-	        var fileObj = MiniFileMgr.fakeObj[fileNativePath];
-	        if (fileObj == null)
-	            return null;
-	        else
-	            return fileObj;
-	        return null;
-	    }
-	    /**
-	     * @private
-	     * 本地读取
-	     * @param filePath 文件磁盘路径
-	     * @param encoding 文件读取的编码格式
-	     * @param callBack 回调处理
-	     * @param readyUrl 文件请求加载地址
-	     * @param isSaveFile 是否自动缓存下载的文件,只有在开发者自己单独加载时生效
-	     * @param fileType 文件类型
-	     */
-	    static read(filePath, encoding = "ascill", callBack = null, readyUrl = "", isSaveFile = false, fileType = "") {
-	        var fileUrl;
-	        if (readyUrl != "" && (readyUrl.indexOf("http://") != -1 || readyUrl.indexOf("https://") != -1)) {
-	            fileUrl = MiniFileMgr.getFileNativePath(filePath);
-	        }
-	        else {
-	            fileUrl = filePath;
-	        }
-	        fileUrl = Laya.URL.getAdptedFilePath(fileUrl);
-	        MiniFileMgr.fs.readFile({ filePath: fileUrl, encoding: encoding, success: function (data) {
-	                callBack != null && callBack.runWith([0, data]);
-	            }, fail: function (data) {
-	                if (data && readyUrl != "")
-	                    MiniFileMgr.downFiles(readyUrl, encoding, callBack, readyUrl, isSaveFile, fileType);
-	                else
-	                    callBack != null && callBack.runWith([1]);
-	            } });
-	    }
-	    /**
-	     * @private
-	     * 下载远端文件(非图片跟声音文件)
-	     * @param fileUrl  文件远端下载地址
-	     * @param encode 文件编码
-	     * @param callBack 完成回调
-	     * @param readyUrl 文件真实下载地址
-	     * @param isSaveFile 是否自动缓存下载的文件,只有在开发者自己单独加载时生效
-	     * @param fileType 文件类型
-	     */
-	    static downFiles(fileUrl, encoding = "ascii", callBack = null, readyUrl = "", isSaveFile = false, fileType = "", isAutoClear = true) {
-	        var downloadTask = MiniFileMgr.wxdown({ url: fileUrl, success: function (data) {
-	                if (data.statusCode === 200)
-	                    MiniFileMgr.readFile(data.tempFilePath, encoding, callBack, readyUrl, isSaveFile, fileType, isAutoClear);
-	                else if (data.statusCode === 403) {
-	                    callBack != null && callBack.runWith([0, fileUrl]); //修复本地加载非本地列表的配置文件处理
-	                }
-	                else {
-	                    callBack != null && callBack.runWith([1, data]);
-	                }
-	            }, fail: function (data) {
-	                callBack != null && callBack.runWith([1, data]);
-	            } });
-	        //获取加载进度
-	        downloadTask.onProgressUpdate(function (data) {
-	            callBack != null && callBack.runWith([2, data.progress]);
-	        });
-	    }
-	    /**
-	     * @private
-	     * 本地本地磁盘文件读取
-	     * @param filePath 文件磁盘临时地址
-	     * @param encoding 文件设定读取的编码格式
-	     * @param callBack 完成回调
-	     * @param readyUrl 真实的下载地址
-	     * @param isSaveFile 是否自动缓存下载的文件,只有在开发者自己单独加载时生效
-	     * @param fileType 文件类型
-	     */
-	    static readFile(filePath, encoding = "ascill", callBack = null, readyUrl = "", isSaveFile = false, fileType = "", isAutoClear = true) {
-	        filePath = Laya.URL.getAdptedFilePath(filePath);
-	        MiniFileMgr.fs.readFile({ filePath: filePath, encoding: encoding, success: function (data) {
-	                if (filePath.indexOf("http://") != -1 || filePath.indexOf("https://") != -1) {
-	                    if (MiniAdpter.autoCacheFile || isSaveFile) {
-	                        MiniFileMgr.copyFile(filePath, readyUrl, callBack, encoding, isAutoClear);
-	                    }
-	                }
-	                else
-	                    callBack != null && callBack.runWith([0, data]);
-	            }, fail: function (data) {
-	                if (data)
-	                    callBack != null && callBack.runWith([1, data]);
-	            } });
-	    }
-	    /**
-	     * @private
-	     * 下载远端文件(图片跟声音文件)
-	     * @param fileUrl  文件远端下载地址
-	     * @param encode 文件编码
-	     * @param callBack 完成回调
-	     * @param readyUrl 文件真实下载地址
-	     * @param isSaveFile 是否自动缓存下载的文件,只有在开发者自己单独加载时生效
-	     */
-	    static downOtherFiles(fileUrl, callBack = null, readyUrl = "", isSaveFile = false, isAutoClear = true) {
-	        MiniFileMgr.wxdown({ url: fileUrl, success: function (data) {
-	                if (data.statusCode === 200) {
-	                    if ((MiniAdpter.autoCacheFile || isSaveFile) && readyUrl.indexOf("qlogo.cn") == -1 && readyUrl.indexOf(".php") == -1) {
-	                        callBack != null && callBack.runWith([0, data.tempFilePath]);
-	                        MiniFileMgr.copyFile(data.tempFilePath, readyUrl, null, "", isAutoClear);
-	                    }
-	                    else
-	                        callBack != null && callBack.runWith([0, data.tempFilePath]);
-	                }
-	                else {
-	                    callBack != null && callBack.runWith([1, data]); //修复下载文件返回非200状态码的bug
-	                }
-	            }, fail: function (data) {
-	                callBack != null && callBack.runWith([1, data]);
-	            } });
-	    }
-	    /**
-	     * @private
-	     * 下载文件
-	     * @param fileUrl 文件远端地址
-	     * @param fileType 文件类型(image、text、json、xml、arraybuffer、sound、atlas、font)
-	     * @param callBack 文件加载回调,回调内容[errorCode码(0成功,1失败,2加载进度)
-	     * @param encoding 文件编码默认 ascill，非图片文件加载需要设置相应的编码，二进制编码为空字符串
-	     */
-	    static downLoadFile(fileUrl, fileType = "", callBack = null, encoding = "ascii") {
-	        if (window.navigator.userAgent.indexOf('MiniGame') < 0) {
-	            Laya.Laya.loader.load(fileUrl, callBack);
-	        }
-	        else {
-	            if (fileType == Laya.Loader.IMAGE || fileType == Laya.Loader.SOUND)
-	                MiniFileMgr.downOtherFiles(fileUrl, callBack, fileUrl, true, false);
-	            else
-	                MiniFileMgr.downFiles(fileUrl, encoding, callBack, fileUrl, true, fileType, false);
-	        }
-	    }
-	    /**
-	     * @private
-	     * 别名处理文件
-	     * @param tempFilePath
-	     * @param readyUrl
-	     * @param callBack
-	     * @param encoding 编码
-	     */
-	    static copyFile(tempFilePath, readyUrl, callBack, encoding = "", isAutoClear = true) {
-	        var temp = tempFilePath.split("/");
-	        var tempFileName = temp[temp.length - 1];
-	        var fileurlkey = readyUrl; //.split("?")[0];
-	        var fileObj = MiniFileMgr.getFileInfo(readyUrl);
-	        var saveFilePath = MiniFileMgr.getFileNativePath(tempFileName);
-	        MiniFileMgr.fakeObj[fileurlkey] = { md5: tempFileName, readyUrl: readyUrl, size: 0, times: Laya.Browser.now(), encoding: encoding };
-	        //这里存储图片文件到磁盘里，需要检查磁盘空间容量是否已满50M，如果超过50M就需要清理掉不用的资源
-	        var totalSize = 50 * 1024 * 1024; //总量50M
-	        var chaSize = 4 * 1024 * 1024; //差值4M(预留加载缓冲空间,给文件列表用)
-	        var fileUseSize = MiniFileMgr.getCacheUseSize(); //目前使用量
-	        if (fileObj) {
-	            if (fileObj.readyUrl != readyUrl) {
-	                MiniFileMgr.fs.getFileInfo({
-	                    filePath: tempFilePath,
-	                    success: function (data) {
-	                        if ((isAutoClear && (fileUseSize + chaSize + data.size) >= totalSize)) {
-	                            if (data.size > MiniAdpter.minClearSize)
-	                                MiniAdpter.minClearSize = data.size;
-	                            MiniFileMgr.onClearCacheRes(); //如果存储满了需要清理资源,检查没用的资源清理，然后在做存储
-	                        }
-	                        MiniFileMgr.deleteFile(tempFileName, readyUrl, callBack, encoding, data.size);
-	                    },
-	                    fail: function (data) {
-	                        callBack != null && callBack.runWith([1, data]);
-	                    }
-	                });
-	            }
-	            else
-	                callBack != null && callBack.runWith([0]);
-	        }
-	        else {
-	            MiniFileMgr.fs.getFileInfo({
-	                filePath: tempFilePath,
-	                success: function (data) {
-	                    if ((isAutoClear && (fileUseSize + chaSize + data.size) >= totalSize)) {
-	                        if (data.size > MiniAdpter.minClearSize)
-	                            MiniAdpter.minClearSize = data.size;
-	                        MiniFileMgr.onClearCacheRes(); //如果存储满了需要清理资源,检查没用的资源清理，然后在做存储
-	                    }
-	                    MiniFileMgr.fs.copyFile({ srcPath: tempFilePath, destPath: saveFilePath, success: function (data2) {
-	                            MiniFileMgr.onSaveFile(readyUrl, tempFileName, true, encoding, callBack, data.size);
-	                        }, fail: function (data) {
-	                            callBack != null && callBack.runWith([1, data]);
-	                        } });
-	                },
-	                fail: function (data) {
-	                    callBack != null && callBack.runWith([1, data]);
-	                }
-	            });
-	        }
-	    }
-	    /**
-	     * @private
-	     * 清理缓存到磁盘的图片,每次释放默认5M，可以配置
-	     */
-	    static onClearCacheRes() {
-	        var memSize = MiniAdpter.minClearSize;
-	        var tempFileListArr = [];
-	        for (var key in MiniFileMgr.filesListObj) {
-	            if (key != "fileUsedSize")
-	                tempFileListArr.push(MiniFileMgr.filesListObj[key]);
-	        }
-	        MiniFileMgr.sortOn(tempFileListArr, "times", MiniFileMgr.NUMERIC); //按时间进行排序
-	        var clearSize = 0;
-	        for (var i = 1, sz = tempFileListArr.length; i < sz; i++) {
-	            var fileObj = tempFileListArr[i];
-	            if (clearSize >= memSize)
-	                break; //清理容量超过设置值就跳出清理操作
-	            clearSize += fileObj.size;
-	            MiniFileMgr.deleteFile("", fileObj.readyUrl);
-	        }
-	    }
-	    /**
-	     * @private
-	     * 数组排序
-	     * @param array
-	     * @param name
-	     * @param options
-	     * @return
-	     */
-	    static sortOn(array, name, options = 0) {
-	        if (options == MiniFileMgr.NUMERIC)
-	            return array.sort(function (a, b) { return a[name] - b[name]; });
-	        if (options == (MiniFileMgr.NUMERIC | MiniFileMgr.DESCENDING))
-	            return array.sort(function (a, b) { return b[name] - a[name]; });
-	        return array.sort(function (a, b) { return a[name] - b[name]; });
-	    }
-	    /**
-	     * @private
-	     * 获取文件磁盘的路径(md5)
-	     * @param fileName
-	     * @return
-	     */
-	    static getFileNativePath(fileName) {
-	        return MiniFileMgr.fileNativeDir + "/" + fileName;
-	    }
-	    /**
-	     * @private
-	     * 从本地删除文件
-	     * @param tempFileName 文件临时地址 ,为空字符串时就会从文件列表删除
-	     * @param readyUrl 文件真实下载地址
-	     * @param callBack 回调处理，在存储图片时用到
-	     * @param encoding  文件编码
-	     * @param fileSize 文件大小
-	     */
-	    static deleteFile(tempFileName, readyUrl = "", callBack = null, encoding = "", fileSize = 0) {
-	        var fileObj = MiniFileMgr.getFileInfo(readyUrl);
-	        var deleteFileUrl = MiniFileMgr.getFileNativePath(fileObj.md5);
-	        MiniFileMgr.fs.unlink({ filePath: deleteFileUrl, success: function (data) {
-	                var isAdd = tempFileName != "" ? true : false;
-	                if (tempFileName != "") {
-	                    var saveFilePath = MiniFileMgr.getFileNativePath(tempFileName);
-	                    MiniFileMgr.fs.copyFile({ srcPath: tempFileName, destPath: saveFilePath, success: function (data) {
-	                            MiniFileMgr.onSaveFile(readyUrl, tempFileName, isAdd, encoding, callBack, data.size);
-	                        }, fail: function (data) {
-	                            callBack != null && callBack.runWith([1, data]);
-	                        } });
-	                }
-	                else {
-	                    MiniFileMgr.onSaveFile(readyUrl, tempFileName, isAdd, encoding, callBack, fileSize); //清理文件列表
-	                }
-	            }, fail: function (data) {
-	            } });
-	    }
-	    /**
-	     * @private
-	     * 清空缓存空间文件内容
-	     */
-	    static deleteAll() {
-	        var tempFileListArr = [];
-	        for (var key in MiniFileMgr.filesListObj) {
-	            if (key != "fileUsedSize")
-	                tempFileListArr.push(MiniFileMgr.filesListObj[key]);
-	        }
-	        for (var i = 1, sz = tempFileListArr.length; i < sz; i++) {
-	            var fileObj = tempFileListArr[i];
-	            MiniFileMgr.deleteFile("", fileObj.readyUrl);
-	        }
-	        //清理
-	        if (MiniFileMgr.filesListObj && MiniFileMgr.filesListObj.fileUsedSize) {
-	            MiniFileMgr.filesListObj.fileUsedSize = 0;
-	        }
-	        MiniFileMgr.writeFilesList("", JSON.stringify({}), false);
-	    }
-	    /**
-	     * @private
-	     * 存储更新文件列表
-	     * @param readyUrl
-	     * @param md5Name
-	     * @param isAdd
-	     * @param encoding
-	     * @param callBack
-	     * @param fileSize 文件大小
-	     */
-	    static onSaveFile(readyUrl, md5Name, isAdd = true, encoding = "", callBack = null, fileSize = 0) {
-	        var fileurlkey = readyUrl; //.split("?")[0];
-	        if (MiniFileMgr.filesListObj['fileUsedSize'] == null)
-	            MiniFileMgr.filesListObj['fileUsedSize'] = 0;
-	        if (isAdd) {
-	            var fileNativeName = MiniFileMgr.getFileNativePath(md5Name);
-	            //获取文件大小为异步操作，如果放到完成回调里可能会出现文件列表获取没有内容
-	            MiniFileMgr.filesListObj[fileurlkey] = { md5: md5Name, readyUrl: readyUrl, size: fileSize, times: Laya.Browser.now(), encoding: encoding };
-	            MiniFileMgr.filesListObj['fileUsedSize'] = parseInt(MiniFileMgr.filesListObj['fileUsedSize']) + fileSize;
-	            MiniFileMgr.writeFilesList(fileurlkey, JSON.stringify(MiniFileMgr.filesListObj), true);
-	            callBack != null && callBack.runWith([0]);
-	        }
-	        else {
-	            if (MiniFileMgr.filesListObj[fileurlkey]) {
-	                var deletefileSize = parseInt(MiniFileMgr.filesListObj[fileurlkey].size);
-	                MiniFileMgr.filesListObj['fileUsedSize'] = parseInt(MiniFileMgr.filesListObj['fileUsedSize']) - deletefileSize;
-	                delete MiniFileMgr.filesListObj[fileurlkey];
-	                MiniFileMgr.writeFilesList(fileurlkey, JSON.stringify(MiniFileMgr.filesListObj), false);
-	                callBack != null && callBack.runWith([0]);
-	            }
-	        }
-	    }
-	    /**
-	     * @private
-	     * 写入文件列表数据
-	     * @param fileurlkey
-	     * @param filesListStr
-	     */
-	    static writeFilesList(fileurlkey, filesListStr, isAdd) {
-	        var listFilesPath = MiniFileMgr.fileNativeDir + "/" + MiniFileMgr.fileListName;
-	        MiniFileMgr.fs.writeFile({ filePath: listFilesPath, encoding: 'utf8', data: filesListStr, success: function (data) {
-	            }, fail: function (data) {
-	            } });
-	        //			__JS__('wx').setStorage({key:listFilesPath,data:filesListStr,success:function(data:Object):void{
-	        //				trace("-----setStorage--success------------");
-	        //				trace(data);
-	        //			},fail:function(data:Object):void{
-	        //				trace("-----setStorage--fail------------");
-	        //				trace(data);
-	        //			}});
-	        //主域向子域传递消息
-	        if (!MiniAdpter.isZiYu && MiniAdpter.isPosMsgYu) {
-	            MiniAdpter.window.wx.postMessage({ url: fileurlkey, data: MiniFileMgr.filesListObj[fileurlkey], isLoad: "filenative", isAdd: isAdd });
-	        }
-	    }
-	    /**
-	     * @private
-	     *获取当前缓存使用的空间大小(字节数，除以1024 再除以1024可以换算成M)
-	     * @return
-	     */
-	    static getCacheUseSize() {
-	        if (MiniFileMgr.filesListObj && MiniFileMgr.filesListObj['fileUsedSize'])
-	            return MiniFileMgr.filesListObj['fileUsedSize'];
-	        return 0;
-	    }
-	    /**
-	     * @private
-	     * 判断资源目录是否存在
-	     * @param dirPath 磁盘设定路径
-	     * @param callBack 回调处理
-	     */
-	    static existDir(dirPath, callBack) {
-	        MiniFileMgr.fs.mkdir({ dirPath: dirPath, success: function (data) {
-	                callBack != null && callBack.runWith([0, { data: JSON.stringify({}) }]);
-	            }, fail: function (data) {
-	                if (data.errMsg.indexOf("file already exists") != -1)
-	                    MiniFileMgr.readSync(MiniFileMgr.fileListName, "utf8", callBack);
-	                else
-	                    callBack != null && callBack.runWith([1, data]);
-	            } });
-	    }
-	    /**
-	     * @private
-	     * 本地读取
-	     * @param filePath 文件磁盘路径
-	     * @param encoding 文件读取的编码格式
-	     * @param callBack 回调处理
-	     * @param readyUrl 文件请求加载地址
-	     */
-	    static readSync(filePath, encoding = "ascill", callBack = null, readyUrl = "") {
-	        var fileUrl = MiniFileMgr.getFileNativePath(filePath);
-	        var filesListStr;
-	        try {
-	            filesListStr = MiniFileMgr.fs.readFileSync(fileUrl, encoding);
-	            //				var tempFilesListStr:String = __JS__('wx').getStorageSync(fileUrl);
-	            //				trace("--------tempFilesListStr:" + tempFilesListStr);
-	            callBack != null && callBack.runWith([0, { data: filesListStr }]);
-	        }
-	        catch (error) {
-	            callBack != null && callBack.runWith([1]);
-	        }
-	    }
-	    /**
-	     * @private
-	     * 设置磁盘文件存储路径
-	     * @param value 磁盘路径
-	     * @return
-	     */
-	    static setNativeFileDir(value) {
-	        MiniFileMgr.fileNativeDir = MiniAdpter.window.wx.env.USER_DATA_PATH + value;
-	    }
-	}
-	/**@private 读取文件操作接口**/
-	MiniFileMgr.fs = window.wx.getFileSystemManager();
-	/**@private 下载文件接口**/
-	MiniFileMgr.wxdown = window.wx.downloadFile;
-	/**@private 文件缓存列表**/
-	MiniFileMgr.filesListObj = {};
-	/**@private 本局游戏使用的本地资源地址列表**/
-	MiniFileMgr.fakeObj = {};
-	/**@private 存储在磁盘的文件列表名称**/
-	MiniFileMgr.fileListName = "layaairfiles.txt";
-	/**@private 子域数据存储对象**/
-	MiniFileMgr.ziyuFileData = {};
-	/**子域图片磁盘缓存路径存储对象**/
-	MiniFileMgr.ziyuFileTextureData = {};
-	/**加载路径设定(相当于URL.rootPath)**/
-	MiniFileMgr.loadPath = "";
-	/**@private **/
-	MiniFileMgr.DESCENDING = 2;
-	/**@private **/
-	MiniFileMgr.NUMERIC = 16;
-
-	/** @private **/
 	class MiniSoundChannel extends Laya.SoundChannel {
 	    constructor(audio, miniSound) {
 	        super();
@@ -1712,75 +1269,448 @@ window.wxMiniGame = function (exports, Laya) {
 	/**@private **/
 	MiniAdpter.idx = 1;
 
-	/**@private **/
-	class MiniAccelerator extends Laya.EventDispatcher {
-	    constructor() {
-	        super();
-	    }
-	    /**@private **/
-	    static __init__() {
-	        try {
-	            var Acc;
-	            Acc = Laya.Accelerator;
-	            if (!Acc)
-	                return;
-	            Acc["prototype"]["on"] = MiniAccelerator["prototype"]["on"];
-	            Acc["prototype"]["off"] = MiniAccelerator["prototype"]["off"];
+	/** @private **/
+	class MiniFileMgr {
+	    /**
+	     * @private
+	     * 是否是本地4M包文件
+	     * @param url
+	     * @return
+	     */
+	    static isLocalNativeFile(url) {
+	        for (var i = 0, sz = MiniAdpter.nativefiles.length; i < sz; i++) {
+	            //优化调整  if(url.indexOf(MiniAdpter.nativefiles[i]) == 0)
+	            if (url.indexOf(MiniAdpter.nativefiles[i]) != -1)
+	                return true;
 	        }
-	        catch (e) {
-	        }
+	        return false;
 	    }
-	    /**@private **/
-	    static startListen(callBack) {
-	        MiniAccelerator._callBack = callBack;
-	        if (MiniAccelerator._isListening)
-	            return;
-	        MiniAccelerator._isListening = true;
-	        try {
-	            MiniAdpter.window.wx.onAccelerometerChange(MiniAccelerator.onAccelerometerChange);
-	        }
-	        catch (e) { }
+	    /**
+	     * @private
+	     * 判断缓存里是否存在文件
+	     * @param fileUrl
+	     * @return
+	     */
+	    static getFileInfo(fileUrl) {
+	        var fileNativePath = fileUrl;
+	        var fileObj = MiniFileMgr.fakeObj[fileNativePath];
+	        if (fileObj == null)
+	            return null;
+	        else
+	            return fileObj;
+	        return null;
 	    }
-	    /**@private **/
-	    static stopListen() {
-	        MiniAccelerator._isListening = false;
-	        try {
-	            MiniAdpter.window.wx.stopAccelerometer({});
+	    /**
+	     * @private
+	     * 本地读取
+	     * @param filePath 文件磁盘路径
+	     * @param encoding 文件读取的编码格式
+	     * @param callBack 回调处理
+	     * @param readyUrl 文件请求加载地址
+	     * @param isSaveFile 是否自动缓存下载的文件,只有在开发者自己单独加载时生效
+	     * @param fileType 文件类型
+	     */
+	    static read(filePath, encoding = "ascill", callBack = null, readyUrl = "", isSaveFile = false, fileType = "") {
+	        var fileUrl;
+	        if (readyUrl != "" && (readyUrl.indexOf("http://") != -1 || readyUrl.indexOf("https://") != -1)) {
+	            fileUrl = MiniFileMgr.getFileNativePath(filePath);
 	        }
-	        catch (e) { }
+	        else {
+	            fileUrl = filePath;
+	        }
+	        fileUrl = Laya.URL.getAdptedFilePath(fileUrl);
+	        MiniFileMgr.fs.readFile({ filePath: fileUrl, encoding: encoding, success: function (data) {
+	                callBack != null && callBack.runWith([0, data]);
+	            }, fail: function (data) {
+	                if (data && readyUrl != "")
+	                    MiniFileMgr.downFiles(readyUrl, encoding, callBack, readyUrl, isSaveFile, fileType);
+	                else
+	                    callBack != null && callBack.runWith([1]);
+	            } });
 	    }
-	    /**@private **/
-	    static onAccelerometerChange(res) {
-	        var e;
-	        e = {};
-	        e.acceleration = res;
-	        e.accelerationIncludingGravity = res;
-	        e.rotationRate = {};
-	        if (MiniAccelerator._callBack != null) {
-	            MiniAccelerator._callBack(e);
+	    /**
+	     * @private
+	     * 下载远端文件(非图片跟声音文件)
+	     * @param fileUrl  文件远端下载地址
+	     * @param encode 文件编码
+	     * @param callBack 完成回调
+	     * @param readyUrl 文件真实下载地址
+	     * @param isSaveFile 是否自动缓存下载的文件,只有在开发者自己单独加载时生效
+	     * @param fileType 文件类型
+	     */
+	    static downFiles(fileUrl, encoding = "ascii", callBack = null, readyUrl = "", isSaveFile = false, fileType = "", isAutoClear = true) {
+	        var downloadTask = MiniFileMgr.wxdown({ url: fileUrl, success: function (data) {
+	                if (data.statusCode === 200)
+	                    MiniFileMgr.readFile(data.tempFilePath, encoding, callBack, readyUrl, isSaveFile, fileType, isAutoClear);
+	                else if (data.statusCode === 403) {
+	                    callBack != null && callBack.runWith([0, fileUrl]); //修复本地加载非本地列表的配置文件处理
+	                }
+	                else {
+	                    callBack != null && callBack.runWith([1, data]);
+	                }
+	            }, fail: function (data) {
+	                callBack != null && callBack.runWith([1, data]);
+	            } });
+	        //获取加载进度
+	        downloadTask.onProgressUpdate(function (data) {
+	            callBack != null && callBack.runWith([2, data.progress]);
+	        });
+	    }
+	    /**
+	     * @private
+	     * 本地本地磁盘文件读取
+	     * @param filePath 文件磁盘临时地址
+	     * @param encoding 文件设定读取的编码格式
+	     * @param callBack 完成回调
+	     * @param readyUrl 真实的下载地址
+	     * @param isSaveFile 是否自动缓存下载的文件,只有在开发者自己单独加载时生效
+	     * @param fileType 文件类型
+	     */
+	    static readFile(filePath, encoding = "ascill", callBack = null, readyUrl = "", isSaveFile = false, fileType = "", isAutoClear = true) {
+	        filePath = Laya.URL.getAdptedFilePath(filePath);
+	        MiniFileMgr.fs.readFile({ filePath: filePath, encoding: encoding, success: function (data) {
+	                if (filePath.indexOf("http://") != -1 || filePath.indexOf("https://") != -1) {
+	                    if (MiniAdpter.autoCacheFile || isSaveFile) {
+	                        MiniFileMgr.copyFile(filePath, readyUrl, callBack, encoding, isAutoClear);
+	                    }
+	                }
+	                else
+	                    callBack != null && callBack.runWith([0, data]);
+	            }, fail: function (data) {
+	                if (data)
+	                    callBack != null && callBack.runWith([1, data]);
+	            } });
+	    }
+	    /**
+	     * @private
+	     * 下载远端文件(图片跟声音文件)
+	     * @param fileUrl  文件远端下载地址
+	     * @param encode 文件编码
+	     * @param callBack 完成回调
+	     * @param readyUrl 文件真实下载地址
+	     * @param isSaveFile 是否自动缓存下载的文件,只有在开发者自己单独加载时生效
+	     */
+	    static downOtherFiles(fileUrl, callBack = null, readyUrl = "", isSaveFile = false, isAutoClear = true) {
+	        MiniFileMgr.wxdown({ url: fileUrl, success: function (data) {
+	                if (data.statusCode === 200) {
+	                    if ((MiniAdpter.autoCacheFile || isSaveFile) && readyUrl.indexOf("qlogo.cn") == -1 && readyUrl.indexOf(".php") == -1) {
+	                        callBack != null && callBack.runWith([0, data.tempFilePath]);
+	                        MiniFileMgr.copyFile(data.tempFilePath, readyUrl, null, "", isAutoClear);
+	                    }
+	                    else
+	                        callBack != null && callBack.runWith([0, data.tempFilePath]);
+	                }
+	                else {
+	                    callBack != null && callBack.runWith([1, data]); //修复下载文件返回非200状态码的bug
+	                }
+	            }, fail: function (data) {
+	                callBack != null && callBack.runWith([1, data]);
+	            } });
+	    }
+	    /**
+	     * @private
+	     * 下载文件
+	     * @param fileUrl 文件远端地址
+	     * @param fileType 文件类型(image、text、json、xml、arraybuffer、sound、atlas、font)
+	     * @param callBack 文件加载回调,回调内容[errorCode码(0成功,1失败,2加载进度)
+	     * @param encoding 文件编码默认 ascill，非图片文件加载需要设置相应的编码，二进制编码为空字符串
+	     */
+	    static downLoadFile(fileUrl, fileType = "", callBack = null, encoding = "ascii") {
+	        if (window.navigator.userAgent.indexOf('MiniGame') < 0) {
+	            Laya.Laya.loader.load(fileUrl, callBack);
+	        }
+	        else {
+	            if (fileType == Laya.Loader.IMAGE || fileType == Laya.Loader.SOUND)
+	                MiniFileMgr.downOtherFiles(fileUrl, callBack, fileUrl, true, false);
+	            else
+	                MiniFileMgr.downFiles(fileUrl, encoding, callBack, fileUrl, true, fileType, false);
 	        }
 	    }
 	    /**
-	     * 侦听加速器运动。
-	     * @param observer	回调函数接受4个参数，见类说明。
+	     * @private
+	     * 别名处理文件
+	     * @param tempFilePath
+	     * @param readyUrl
+	     * @param callBack
+	     * @param encoding 编码
 	     */
-	    /*override*/ on(type, caller, listener, args = null) {
-	        super.on(type, caller, listener, args);
-	        MiniAccelerator.startListen(this["onDeviceOrientationChange"]);
-	        return this;
+	    static copyFile(tempFilePath, readyUrl, callBack, encoding = "", isAutoClear = true) {
+	        var temp = tempFilePath.split("/");
+	        var tempFileName = temp[temp.length - 1];
+	        var fileurlkey = readyUrl; //.split("?")[0];
+	        var fileObj = MiniFileMgr.getFileInfo(readyUrl);
+	        var saveFilePath = MiniFileMgr.getFileNativePath(tempFileName);
+	        MiniFileMgr.fakeObj[fileurlkey] = { md5: tempFileName, readyUrl: readyUrl, size: 0, times: Laya.Browser.now(), encoding: encoding };
+	        //这里存储图片文件到磁盘里，需要检查磁盘空间容量是否已满50M，如果超过50M就需要清理掉不用的资源
+	        var totalSize = 50 * 1024 * 1024; //总量50M
+	        var chaSize = 4 * 1024 * 1024; //差值4M(预留加载缓冲空间,给文件列表用)
+	        var fileUseSize = MiniFileMgr.getCacheUseSize(); //目前使用量
+	        if (fileObj) {
+	            if (fileObj.readyUrl != readyUrl) {
+	                MiniFileMgr.fs.getFileInfo({
+	                    filePath: tempFilePath,
+	                    success: function (data) {
+	                        if ((isAutoClear && (fileUseSize + chaSize + data.size) >= totalSize)) {
+	                            if (data.size > MiniAdpter.minClearSize)
+	                                MiniAdpter.minClearSize = data.size;
+	                            MiniFileMgr.onClearCacheRes(); //如果存储满了需要清理资源,检查没用的资源清理，然后在做存储
+	                        }
+	                        MiniFileMgr.deleteFile(tempFileName, readyUrl, callBack, encoding, data.size);
+	                    },
+	                    fail: function (data) {
+	                        callBack != null && callBack.runWith([1, data]);
+	                    }
+	                });
+	            }
+	            else
+	                callBack != null && callBack.runWith([0]);
+	        }
+	        else {
+	            MiniFileMgr.fs.getFileInfo({
+	                filePath: tempFilePath,
+	                success: function (data) {
+	                    if ((isAutoClear && (fileUseSize + chaSize + data.size) >= totalSize)) {
+	                        if (data.size > MiniAdpter.minClearSize)
+	                            MiniAdpter.minClearSize = data.size;
+	                        MiniFileMgr.onClearCacheRes(); //如果存储满了需要清理资源,检查没用的资源清理，然后在做存储
+	                    }
+	                    MiniFileMgr.fs.copyFile({ srcPath: tempFilePath, destPath: saveFilePath, success: function (data2) {
+	                            MiniFileMgr.onSaveFile(readyUrl, tempFileName, true, encoding, callBack, data.size);
+	                        }, fail: function (data) {
+	                            callBack != null && callBack.runWith([1, data]);
+	                        } });
+	                },
+	                fail: function (data) {
+	                    callBack != null && callBack.runWith([1, data]);
+	                }
+	            });
+	        }
 	    }
 	    /**
-	     * 取消侦听加速器。
-	     * @param	handle	侦听加速器所用处理器。
+	     * @private
+	     * 清理缓存到磁盘的图片,每次释放默认5M，可以配置
 	     */
-	    /*override*/ off(type, caller, listener, onceOnly = false) {
-	        if (!this.hasListener(type))
-	            MiniAccelerator.stopListen();
-	        return super.off(type, caller, listener, onceOnly);
+	    static onClearCacheRes() {
+	        var memSize = MiniAdpter.minClearSize;
+	        var tempFileListArr = [];
+	        for (var key in MiniFileMgr.filesListObj) {
+	            if (key != "fileUsedSize")
+	                tempFileListArr.push(MiniFileMgr.filesListObj[key]);
+	        }
+	        MiniFileMgr.sortOn(tempFileListArr, "times", MiniFileMgr.NUMERIC); //按时间进行排序
+	        var clearSize = 0;
+	        for (var i = 1, sz = tempFileListArr.length; i < sz; i++) {
+	            var fileObj = tempFileListArr[i];
+	            if (clearSize >= memSize)
+	                break; //清理容量超过设置值就跳出清理操作
+	            clearSize += fileObj.size;
+	            MiniFileMgr.deleteFile("", fileObj.readyUrl);
+	        }
+	    }
+	    /**
+	     * @private
+	     * 数组排序
+	     * @param array
+	     * @param name
+	     * @param options
+	     * @return
+	     */
+	    static sortOn(array, name, options = 0) {
+	        if (options == MiniFileMgr.NUMERIC)
+	            return array.sort(function (a, b) { return a[name] - b[name]; });
+	        if (options == (MiniFileMgr.NUMERIC | MiniFileMgr.DESCENDING))
+	            return array.sort(function (a, b) { return b[name] - a[name]; });
+	        return array.sort(function (a, b) { return a[name] - b[name]; });
+	    }
+	    /**
+	     * @private
+	     * 获取文件磁盘的路径(md5)
+	     * @param fileName
+	     * @return
+	     */
+	    static getFileNativePath(fileName) {
+	        return MiniFileMgr.fileNativeDir + "/" + fileName;
+	    }
+	    /**
+	     * @private
+	     * 从本地删除文件
+	     * @param tempFileName 文件临时地址 ,为空字符串时就会从文件列表删除
+	     * @param readyUrl 文件真实下载地址
+	     * @param callBack 回调处理，在存储图片时用到
+	     * @param encoding  文件编码
+	     * @param fileSize 文件大小
+	     */
+	    static deleteFile(tempFileName, readyUrl = "", callBack = null, encoding = "", fileSize = 0) {
+	        var fileObj = MiniFileMgr.getFileInfo(readyUrl);
+	        var deleteFileUrl = MiniFileMgr.getFileNativePath(fileObj.md5);
+	        MiniFileMgr.fs.unlink({ filePath: deleteFileUrl, success: function (data) {
+	                var isAdd = tempFileName != "" ? true : false;
+	                if (tempFileName != "") {
+	                    var saveFilePath = MiniFileMgr.getFileNativePath(tempFileName);
+	                    MiniFileMgr.fs.copyFile({ srcPath: tempFileName, destPath: saveFilePath, success: function (data) {
+	                            MiniFileMgr.onSaveFile(readyUrl, tempFileName, isAdd, encoding, callBack, data.size);
+	                        }, fail: function (data) {
+	                            callBack != null && callBack.runWith([1, data]);
+	                        } });
+	                }
+	                else {
+	                    MiniFileMgr.onSaveFile(readyUrl, tempFileName, isAdd, encoding, callBack, fileSize); //清理文件列表
+	                }
+	            }, fail: function (data) {
+	            } });
+	    }
+	    /**
+	     * @private
+	     * 清空缓存空间文件内容
+	     */
+	    static deleteAll() {
+	        var tempFileListArr = [];
+	        for (var key in MiniFileMgr.filesListObj) {
+	            if (key != "fileUsedSize")
+	                tempFileListArr.push(MiniFileMgr.filesListObj[key]);
+	        }
+	        for (var i = 1, sz = tempFileListArr.length; i < sz; i++) {
+	            var fileObj = tempFileListArr[i];
+	            MiniFileMgr.deleteFile("", fileObj.readyUrl);
+	        }
+	        //清理
+	        if (MiniFileMgr.filesListObj && MiniFileMgr.filesListObj.fileUsedSize) {
+	            MiniFileMgr.filesListObj.fileUsedSize = 0;
+	        }
+	        MiniFileMgr.writeFilesList("", JSON.stringify({}), false);
+	    }
+	    /**
+	     * @private
+	     * 存储更新文件列表
+	     * @param readyUrl
+	     * @param md5Name
+	     * @param isAdd
+	     * @param encoding
+	     * @param callBack
+	     * @param fileSize 文件大小
+	     */
+	    static onSaveFile(readyUrl, md5Name, isAdd = true, encoding = "", callBack = null, fileSize = 0) {
+	        var fileurlkey = readyUrl; //.split("?")[0];
+	        if (MiniFileMgr.filesListObj['fileUsedSize'] == null)
+	            MiniFileMgr.filesListObj['fileUsedSize'] = 0;
+	        if (isAdd) {
+	            var fileNativeName = MiniFileMgr.getFileNativePath(md5Name);
+	            //获取文件大小为异步操作，如果放到完成回调里可能会出现文件列表获取没有内容
+	            MiniFileMgr.filesListObj[fileurlkey] = { md5: md5Name, readyUrl: readyUrl, size: fileSize, times: Laya.Browser.now(), encoding: encoding };
+	            MiniFileMgr.filesListObj['fileUsedSize'] = parseInt(MiniFileMgr.filesListObj['fileUsedSize']) + fileSize;
+	            MiniFileMgr.writeFilesList(fileurlkey, JSON.stringify(MiniFileMgr.filesListObj), true);
+	            callBack != null && callBack.runWith([0]);
+	        }
+	        else {
+	            if (MiniFileMgr.filesListObj[fileurlkey]) {
+	                var deletefileSize = parseInt(MiniFileMgr.filesListObj[fileurlkey].size);
+	                MiniFileMgr.filesListObj['fileUsedSize'] = parseInt(MiniFileMgr.filesListObj['fileUsedSize']) - deletefileSize;
+	                delete MiniFileMgr.filesListObj[fileurlkey];
+	                MiniFileMgr.writeFilesList(fileurlkey, JSON.stringify(MiniFileMgr.filesListObj), false);
+	                callBack != null && callBack.runWith([0]);
+	            }
+	        }
+	    }
+	    /**
+	     * @private
+	     * 写入文件列表数据
+	     * @param fileurlkey
+	     * @param filesListStr
+	     */
+	    static writeFilesList(fileurlkey, filesListStr, isAdd) {
+	        var listFilesPath = MiniFileMgr.fileNativeDir + "/" + MiniFileMgr.fileListName;
+	        MiniFileMgr.fs.writeFile({ filePath: listFilesPath, encoding: 'utf8', data: filesListStr, success: function (data) {
+	            }, fail: function (data) {
+	            } });
+	        //			__JS__('wx').setStorage({key:listFilesPath,data:filesListStr,success:function(data:Object):void{
+	        //				trace("-----setStorage--success------------");
+	        //				trace(data);
+	        //			},fail:function(data:Object):void{
+	        //				trace("-----setStorage--fail------------");
+	        //				trace(data);
+	        //			}});
+	        //主域向子域传递消息
+	        if (!MiniAdpter.isZiYu && MiniAdpter.isPosMsgYu) {
+	            MiniAdpter.window.wx.postMessage({ url: fileurlkey, data: MiniFileMgr.filesListObj[fileurlkey], isLoad: "filenative", isAdd: isAdd });
+	        }
+	    }
+	    /**
+	     * @private
+	     *获取当前缓存使用的空间大小(字节数，除以1024 再除以1024可以换算成M)
+	     * @return
+	     */
+	    static getCacheUseSize() {
+	        if (MiniFileMgr.filesListObj && MiniFileMgr.filesListObj['fileUsedSize'])
+	            return MiniFileMgr.filesListObj['fileUsedSize'];
+	        return 0;
+	    }
+	    /**
+	     * @private
+	     * 判断资源目录是否存在
+	     * @param dirPath 磁盘设定路径
+	     * @param callBack 回调处理
+	     */
+	    static existDir(dirPath, callBack) {
+	        MiniFileMgr.fs.mkdir({ dirPath: dirPath, success: function (data) {
+	                callBack != null && callBack.runWith([0, { data: JSON.stringify({}) }]);
+	            }, fail: function (data) {
+	                if (data.errMsg.indexOf("file already exists") != -1)
+	                    MiniFileMgr.readSync(MiniFileMgr.fileListName, "utf8", callBack);
+	                else
+	                    callBack != null && callBack.runWith([1, data]);
+	            } });
+	    }
+	    /**
+	     * @private
+	     * 本地读取
+	     * @param filePath 文件磁盘路径
+	     * @param encoding 文件读取的编码格式
+	     * @param callBack 回调处理
+	     * @param readyUrl 文件请求加载地址
+	     */
+	    static readSync(filePath, encoding = "ascill", callBack = null, readyUrl = "") {
+	        var fileUrl = MiniFileMgr.getFileNativePath(filePath);
+	        var filesListStr;
+	        try {
+	            filesListStr = MiniFileMgr.fs.readFileSync(fileUrl, encoding);
+	            //				var tempFilesListStr:String = __JS__('wx').getStorageSync(fileUrl);
+	            //				trace("--------tempFilesListStr:" + tempFilesListStr);
+	            callBack != null && callBack.runWith([0, { data: filesListStr }]);
+	        }
+	        catch (error) {
+	            callBack != null && callBack.runWith([1]);
+	        }
+	    }
+	    /**
+	     * @private
+	     * 设置磁盘文件存储路径
+	     * @param value 磁盘路径
+	     * @return
+	     */
+	    static setNativeFileDir(value) {
+	        MiniFileMgr.fileNativeDir = MiniAdpter.window.wx.env.USER_DATA_PATH + value;
 	    }
 	}
+	/**@private 读取文件操作接口**/
+	MiniFileMgr.fs = window.wx.getFileSystemManager();
+	/**@private 下载文件接口**/
+	MiniFileMgr.wxdown = window.wx.downloadFile;
+	/**@private 文件缓存列表**/
+	MiniFileMgr.filesListObj = {};
+	/**@private 本局游戏使用的本地资源地址列表**/
+	MiniFileMgr.fakeObj = {};
+	/**@private 存储在磁盘的文件列表名称**/
+	MiniFileMgr.fileListName = "layaairfiles.txt";
+	/**@private 子域数据存储对象**/
+	MiniFileMgr.ziyuFileData = {};
+	/**子域图片磁盘缓存路径存储对象**/
+	MiniFileMgr.ziyuFileTextureData = {};
+	/**加载路径设定(相当于URL.rootPath)**/
+	MiniFileMgr.loadPath = "";
 	/**@private **/
-	MiniAccelerator._isListening = false;
+	MiniFileMgr.DESCENDING = 2;
+	/**@private **/
+	MiniFileMgr.NUMERIC = 16;
 
 	/** @private **/
 	class MiniImage {
@@ -1953,6 +1883,76 @@ window.wxMiniGame = function (exports, Laya) {
 	        }
 	    }
 	}
+
+	/**@private **/
+	class MiniAccelerator extends Laya.EventDispatcher {
+	    constructor() {
+	        super();
+	    }
+	    /**@private **/
+	    static __init__() {
+	        try {
+	            var Acc;
+	            Acc = Laya.Accelerator;
+	            if (!Acc)
+	                return;
+	            Acc["prototype"]["on"] = MiniAccelerator["prototype"]["on"];
+	            Acc["prototype"]["off"] = MiniAccelerator["prototype"]["off"];
+	        }
+	        catch (e) {
+	        }
+	    }
+	    /**@private **/
+	    static startListen(callBack) {
+	        MiniAccelerator._callBack = callBack;
+	        if (MiniAccelerator._isListening)
+	            return;
+	        MiniAccelerator._isListening = true;
+	        try {
+	            MiniAdpter.window.wx.onAccelerometerChange(MiniAccelerator.onAccelerometerChange);
+	        }
+	        catch (e) { }
+	    }
+	    /**@private **/
+	    static stopListen() {
+	        MiniAccelerator._isListening = false;
+	        try {
+	            MiniAdpter.window.wx.stopAccelerometer({});
+	        }
+	        catch (e) { }
+	    }
+	    /**@private **/
+	    static onAccelerometerChange(res) {
+	        var e;
+	        e = {};
+	        e.acceleration = res;
+	        e.accelerationIncludingGravity = res;
+	        e.rotationRate = {};
+	        if (MiniAccelerator._callBack != null) {
+	            MiniAccelerator._callBack(e);
+	        }
+	    }
+	    /**
+	     * 侦听加速器运动。
+	     * @param observer	回调函数接受4个参数，见类说明。
+	     */
+	    /*override*/ on(type, caller, listener, args = null) {
+	        super.on(type, caller, listener, args);
+	        MiniAccelerator.startListen(this["onDeviceOrientationChange"]);
+	        return this;
+	    }
+	    /**
+	     * 取消侦听加速器。
+	     * @param	handle	侦听加速器所用处理器。
+	     */
+	    /*override*/ off(type, caller, listener, onceOnly = false) {
+	        if (!this.hasListener(type))
+	            MiniAccelerator.stopListen();
+	        return super.off(type, caller, listener, onceOnly);
+	    }
+	}
+	/**@private **/
+	MiniAccelerator._isListening = false;
 
 	/**@private **/
 	class MiniLocation {
