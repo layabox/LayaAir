@@ -31765,30 +31765,6 @@ window.Laya= (function (exports) {
 	}
 
 	/**
-	     * <p><code>KeyLocation</code> 类包含表示在键盘或类似键盘的输入设备上按键位置的常量。</p>
-	     * <p><code>KeyLocation</code> 常数用在键盘事件对象的 <code>keyLocation </code>属性中。</p>
-	     */
-	class KeyLocation {
-	}
-	/**
-	 * 表示激活的键不区分位于左侧还是右侧，也不区分是否位于数字键盘（或者是使用对应于数字键盘的虚拟键激活的）。
-	 */
-	KeyLocation.STANDARD = 0;
-	/**
-	 * 表示激活的键在左侧键位置（此键有多个可能的位置）。
-	 */
-	KeyLocation.LEFT = 1;
-	/**
-	 * 表示激活的键在右侧键位置（此键有多个可能的位置）。
-	 */
-	KeyLocation.RIGHT = 2;
-	/**
-	 * <p>表示激活的键位于数字键盘或者是使用对应于数字键盘的虚拟键激活的。</p>
-	 * <p>注意：此属性只在flash模式下有效。</p>
-	 * */
-	KeyLocation.NUM_PAD = 3;
-
-	/**
 	     * <code>Keyboard</code> 类的属性是一些常数，这些常数表示控制游戏时最常用的键。
 	     */
 	class Keyboard {
@@ -31991,6 +31967,30 @@ window.Laya= (function (exports) {
 	Keyboard.TAB = 9;
 	/** 与 Insert 的键控代码值 (45) 关联的常数。*/
 	Keyboard.INSERT = 45;
+
+	/**
+	     * <p><code>KeyLocation</code> 类包含表示在键盘或类似键盘的输入设备上按键位置的常量。</p>
+	     * <p><code>KeyLocation</code> 常数用在键盘事件对象的 <code>keyLocation </code>属性中。</p>
+	     */
+	class KeyLocation {
+	}
+	/**
+	 * 表示激活的键不区分位于左侧还是右侧，也不区分是否位于数字键盘（或者是使用对应于数字键盘的虚拟键激活的）。
+	 */
+	KeyLocation.STANDARD = 0;
+	/**
+	 * 表示激活的键在左侧键位置（此键有多个可能的位置）。
+	 */
+	KeyLocation.LEFT = 1;
+	/**
+	 * 表示激活的键在右侧键位置（此键有多个可能的位置）。
+	 */
+	KeyLocation.RIGHT = 2;
+	/**
+	 * <p>表示激活的键位于数字键盘或者是使用对应于数字键盘的虚拟键激活的。</p>
+	 * <p>注意：此属性只在flash模式下有效。</p>
+	 * */
+	KeyLocation.NUM_PAD = 3;
 
 	/**
 	 * @private
@@ -32339,6 +32339,167 @@ window.Laya= (function (exports) {
 	QuickTestTool._i = 0;
 
 	/**
+	 * @private
+	 * 场景资源加载器
+	 */
+	class SceneLoader extends EventDispatcher {
+	    constructor() {
+	        super();
+	        this._completeHandler = new Handler(this, this.onOneLoadComplete);
+	        this.reset();
+	    }
+	    reset() {
+	        this._toLoadList = [];
+	        this._isLoading = false;
+	        this.totalCount = 0;
+	    }
+	    get leftCount() {
+	        if (this._isLoading)
+	            return this._toLoadList.length + 1;
+	        return this._toLoadList.length;
+	    }
+	    get loadedCount() {
+	        return this.totalCount - this.leftCount;
+	    }
+	    load(url, is3D = false, ifCheck = true) {
+	        if (url instanceof Array) {
+	            var i, len;
+	            len = url.length;
+	            for (i = 0; i < len; i++) {
+	                this._addToLoadList(url[i], is3D);
+	            }
+	        }
+	        else {
+	            this._addToLoadList(url, is3D);
+	        }
+	        if (ifCheck)
+	            this._checkNext();
+	    }
+	    _addToLoadList(url, is3D = false) {
+	        if (this._toLoadList.indexOf(url) >= 0)
+	            return;
+	        if (Loader.getRes(url))
+	            return;
+	        if (is3D) {
+	            this._toLoadList.push({ url: url });
+	        }
+	        else
+	            this._toLoadList.push(url);
+	        this.totalCount++;
+	    }
+	    _checkNext() {
+	        if (!this._isLoading) {
+	            if (this._toLoadList.length == 0) {
+	                this.event(Event.COMPLETE);
+	                return;
+	            }
+	            var tItem;
+	            tItem = this._toLoadList.pop();
+	            if (typeof (tItem) == 'string') {
+	                this.loadOne(tItem);
+	            }
+	            else {
+	                this.loadOne(tItem.url, true);
+	            }
+	        }
+	    }
+	    loadOne(url, is3D = false) {
+	        this._curUrl = url;
+	        var type = Utils.getFileExtension(this._curUrl);
+	        if (is3D) {
+	            ILaya.loader.create(url, this._completeHandler);
+	        }
+	        else if (SceneLoader.LoadableExtensions[type]) {
+	            ILaya.loader.load(url, this._completeHandler, null, SceneLoader.LoadableExtensions[type]);
+	        }
+	        else if (url != AtlasInfoManager.getFileLoadPath(url) || SceneLoader.No3dLoadTypes[type] || !LoaderManager.createMap[type]) {
+	            ILaya.loader.load(url, this._completeHandler);
+	        }
+	        else {
+	            ILaya.loader.create(url, this._completeHandler);
+	        }
+	    }
+	    onOneLoadComplete() {
+	        this._isLoading = false;
+	        if (!Loader.getRes(this._curUrl)) {
+	            console.log("Fail to load:", this._curUrl);
+	        }
+	        var type = Utils.getFileExtension(this._curUrl);
+	        if (SceneLoader.LoadableExtensions[type]) {
+	            var dataO;
+	            dataO = Loader.getRes(this._curUrl);
+	            if (dataO && (dataO instanceof Prefab)) {
+	                dataO = dataO.json;
+	            }
+	            if (dataO) {
+	                if (dataO.loadList) {
+	                    this.load(dataO.loadList, false, false);
+	                }
+	                if (dataO.loadList3D) {
+	                    this.load(dataO.loadList3D, true, false);
+	                }
+	            }
+	        }
+	        if (type == "sk") {
+	            this.load(this._curUrl.replace(".sk", ".png"), false, false);
+	        }
+	        this.event(Event.PROGRESS, this.getProgress());
+	        this._checkNext();
+	    }
+	    getProgress() {
+	        return this.loadedCount / this.totalCount;
+	    }
+	}
+	SceneLoader.LoadableExtensions = { "scene": Loader.JSON, "scene3d": Loader.JSON, "ani": Loader.JSON, "ui": Loader.JSON, "prefab": Loader.PREFAB };
+	SceneLoader.No3dLoadTypes = { "png": true, "jpg": true, "txt": true };
+
+	/**
+	 * <p>资源版本的生成由layacmd或IDE完成，使用 <code>ResourceVersion</code> 简化使用过程。</p>
+	 * <p>调用 <code>enable</code> 启用资源版本管理。</p>
+	 */
+	class ResourceVersion {
+	    /**
+	     * <p>启用资源版本管理。</p>
+	     * <p>由于只有发布版本需要资源管理。因此没有资源管理文件时，可以设置manifestFile为null或者不存在的路径。</p>
+	     * @param	manifestFile	清单（json）文件的路径。
+	     * @param   callback		清单（json）文件加载完成后执行。
+	     * @param   type			FOLDER_VERSION为基于文件夹管理方式（老版本IDE默认类型），FILENAME_VERSION为基于文件名映射管理（新版本IDE默认类型
+	     */
+	    static enable(manifestFile, callback, type = 2) {
+	        ResourceVersion.type = type;
+	        ILaya.loader.load(manifestFile, Handler.create(null, ResourceVersion.onManifestLoaded, [callback]), null, Loader.JSON);
+	        URL.customFormat = ResourceVersion.addVersionPrefix;
+	    }
+	    static onManifestLoaded(callback, data) {
+	        ResourceVersion.manifest = data;
+	        callback.run();
+	        if (!data) {
+	            console.warn("资源版本清单文件不存在，不使用资源版本管理。忽略ERR_FILE_NOT_FOUND错误。");
+	        }
+	    }
+	    /**
+	     * 为加载路径添加版本前缀。
+	     * @param	originURL	源路径。
+	     * @return 格式化后的新路径。
+	     */
+	    static addVersionPrefix(originURL) {
+	        originURL = URL.getAdptedFilePath(originURL);
+	        if (ResourceVersion.manifest && ResourceVersion.manifest[originURL]) {
+	            if (ResourceVersion.type == ResourceVersion.FILENAME_VERSION)
+	                return ResourceVersion.manifest[originURL];
+	            return ResourceVersion.manifest[originURL] + "/" + originURL;
+	        }
+	        return originURL;
+	    }
+	}
+	/**基于文件夹的资源管理方式（老版本IDE默认类型）*/
+	ResourceVersion.FOLDER_VERSION = 1;
+	/**基于文件名映射管理方式（新版本IDE默认类型）*/
+	ResourceVersion.FILENAME_VERSION = 2;
+	/**当前使用的版本管理类型*/
+	ResourceVersion.type = ResourceVersion.FOLDER_VERSION;
+
+	/**
 	 * 连接建立成功后调度。
 	 * @eventType Event.OPEN
 	 * */
@@ -32583,167 +32744,6 @@ window.Laya= (function (exports) {
 	 * <p> LITTLE_ENDIAN ：小端字节序，地址低位存储值的低位，地址高位存储值的高位。</p>
 	 */
 	Socket.BIG_ENDIAN = "bigEndian";
-
-	/**
-	 * <p>资源版本的生成由layacmd或IDE完成，使用 <code>ResourceVersion</code> 简化使用过程。</p>
-	 * <p>调用 <code>enable</code> 启用资源版本管理。</p>
-	 */
-	class ResourceVersion {
-	    /**
-	     * <p>启用资源版本管理。</p>
-	     * <p>由于只有发布版本需要资源管理。因此没有资源管理文件时，可以设置manifestFile为null或者不存在的路径。</p>
-	     * @param	manifestFile	清单（json）文件的路径。
-	     * @param   callback		清单（json）文件加载完成后执行。
-	     * @param   type			FOLDER_VERSION为基于文件夹管理方式（老版本IDE默认类型），FILENAME_VERSION为基于文件名映射管理（新版本IDE默认类型
-	     */
-	    static enable(manifestFile, callback, type = 2) {
-	        ResourceVersion.type = type;
-	        ILaya.loader.load(manifestFile, Handler.create(null, ResourceVersion.onManifestLoaded, [callback]), null, Loader.JSON);
-	        URL.customFormat = ResourceVersion.addVersionPrefix;
-	    }
-	    static onManifestLoaded(callback, data) {
-	        ResourceVersion.manifest = data;
-	        callback.run();
-	        if (!data) {
-	            console.warn("资源版本清单文件不存在，不使用资源版本管理。忽略ERR_FILE_NOT_FOUND错误。");
-	        }
-	    }
-	    /**
-	     * 为加载路径添加版本前缀。
-	     * @param	originURL	源路径。
-	     * @return 格式化后的新路径。
-	     */
-	    static addVersionPrefix(originURL) {
-	        originURL = URL.getAdptedFilePath(originURL);
-	        if (ResourceVersion.manifest && ResourceVersion.manifest[originURL]) {
-	            if (ResourceVersion.type == ResourceVersion.FILENAME_VERSION)
-	                return ResourceVersion.manifest[originURL];
-	            return ResourceVersion.manifest[originURL] + "/" + originURL;
-	        }
-	        return originURL;
-	    }
-	}
-	/**基于文件夹的资源管理方式（老版本IDE默认类型）*/
-	ResourceVersion.FOLDER_VERSION = 1;
-	/**基于文件名映射管理方式（新版本IDE默认类型）*/
-	ResourceVersion.FILENAME_VERSION = 2;
-	/**当前使用的版本管理类型*/
-	ResourceVersion.type = ResourceVersion.FOLDER_VERSION;
-
-	/**
-	 * @private
-	 * 场景资源加载器
-	 */
-	class SceneLoader extends EventDispatcher {
-	    constructor() {
-	        super();
-	        this._completeHandler = new Handler(this, this.onOneLoadComplete);
-	        this.reset();
-	    }
-	    reset() {
-	        this._toLoadList = [];
-	        this._isLoading = false;
-	        this.totalCount = 0;
-	    }
-	    get leftCount() {
-	        if (this._isLoading)
-	            return this._toLoadList.length + 1;
-	        return this._toLoadList.length;
-	    }
-	    get loadedCount() {
-	        return this.totalCount - this.leftCount;
-	    }
-	    load(url, is3D = false, ifCheck = true) {
-	        if (url instanceof Array) {
-	            var i, len;
-	            len = url.length;
-	            for (i = 0; i < len; i++) {
-	                this._addToLoadList(url[i], is3D);
-	            }
-	        }
-	        else {
-	            this._addToLoadList(url, is3D);
-	        }
-	        if (ifCheck)
-	            this._checkNext();
-	    }
-	    _addToLoadList(url, is3D = false) {
-	        if (this._toLoadList.indexOf(url) >= 0)
-	            return;
-	        if (Loader.getRes(url))
-	            return;
-	        if (is3D) {
-	            this._toLoadList.push({ url: url });
-	        }
-	        else
-	            this._toLoadList.push(url);
-	        this.totalCount++;
-	    }
-	    _checkNext() {
-	        if (!this._isLoading) {
-	            if (this._toLoadList.length == 0) {
-	                this.event(Event.COMPLETE);
-	                return;
-	            }
-	            var tItem;
-	            tItem = this._toLoadList.pop();
-	            if (typeof (tItem) == 'string') {
-	                this.loadOne(tItem);
-	            }
-	            else {
-	                this.loadOne(tItem.url, true);
-	            }
-	        }
-	    }
-	    loadOne(url, is3D = false) {
-	        this._curUrl = url;
-	        var type = Utils.getFileExtension(this._curUrl);
-	        if (is3D) {
-	            ILaya.loader.create(url, this._completeHandler);
-	        }
-	        else if (SceneLoader.LoadableExtensions[type]) {
-	            ILaya.loader.load(url, this._completeHandler, null, SceneLoader.LoadableExtensions[type]);
-	        }
-	        else if (url != AtlasInfoManager.getFileLoadPath(url) || SceneLoader.No3dLoadTypes[type] || !LoaderManager.createMap[type]) {
-	            ILaya.loader.load(url, this._completeHandler);
-	        }
-	        else {
-	            ILaya.loader.create(url, this._completeHandler);
-	        }
-	    }
-	    onOneLoadComplete() {
-	        this._isLoading = false;
-	        if (!Loader.getRes(this._curUrl)) {
-	            console.log("Fail to load:", this._curUrl);
-	        }
-	        var type = Utils.getFileExtension(this._curUrl);
-	        if (SceneLoader.LoadableExtensions[type]) {
-	            var dataO;
-	            dataO = Loader.getRes(this._curUrl);
-	            if (dataO && (dataO instanceof Prefab)) {
-	                dataO = dataO.json;
-	            }
-	            if (dataO) {
-	                if (dataO.loadList) {
-	                    this.load(dataO.loadList, false, false);
-	                }
-	                if (dataO.loadList3D) {
-	                    this.load(dataO.loadList3D, true, false);
-	                }
-	            }
-	        }
-	        if (type == "sk") {
-	            this.load(this._curUrl.replace(".sk", ".png"), false, false);
-	        }
-	        this.event(Event.PROGRESS, this.getProgress());
-	        this._checkNext();
-	    }
-	    getProgress() {
-	        return this.loadedCount / this.totalCount;
-	    }
-	}
-	SceneLoader.LoadableExtensions = { "scene": Loader.JSON, "scene3d": Loader.JSON, "ani": Loader.JSON, "ui": Loader.JSON, "prefab": Loader.PREFAB };
-	SceneLoader.No3dLoadTypes = { "png": true, "jpg": true, "txt": true };
 
 	/**
 	 * @private
@@ -33234,25 +33234,6 @@ window.Laya= (function (exports) {
 	}
 	HTMLChar._isWordRegExp = new RegExp("[\\w\.]", "");
 
-	//import { PerfHUD } from "./PerfHUD";
-	let DATANUM = 300;
-	class PerfData {
-	    constructor(id, color, name, scale) {
-	        this.scale = 1.0;
-	        this.datas = new Array(DATANUM);
-	        this.datapos = 0;
-	        this.id = id;
-	        this.color = color;
-	        this.name = name;
-	        this.scale = scale;
-	    }
-	    addData(v) {
-	        this.datas[this.datapos] = v;
-	        this.datapos++;
-	        this.datapos %= DATANUM;
-	    }
-	}
-
 	/**
 	     * <code>Log</code> 类用于在界面内显示日志记录信息。
 	     * 注意：在加速器内不可使用
@@ -33319,49 +33300,22 @@ window.Laya= (function (exports) {
 	/**是否自动滚动到底部，默认为true*/
 	Log.autoScrollToBottom = true;
 
-	/**
-	     * @private
-	     * 基于个数的对象缓存管理器
-	     */
-	class PoolCache {
-	    constructor() {
-	        /**
-	         * 允许缓存的最大数量
-	         */
-	        this.maxCount = 1000;
+	//import { PerfHUD } from "./PerfHUD";
+	let DATANUM = 300;
+	class PerfData {
+	    constructor(id, color, name, scale) {
+	        this.scale = 1.0;
+	        this.datas = new Array(DATANUM);
+	        this.datapos = 0;
+	        this.id = id;
+	        this.color = color;
+	        this.name = name;
+	        this.scale = scale;
 	    }
-	    /**
-	     * 获取缓存的对象列表
-	     * @return
-	     *
-	     */
-	    getCacheList() {
-	        return Pool.getPoolBySign(this.sign);
-	    }
-	    /**
-	     * 尝试清理缓存
-	     * @param force 是否强制清理
-	     *
-	     */
-	    tryDispose(force) {
-	        var list;
-	        list = Pool.getPoolBySign(this.sign);
-	        if (list.length > this.maxCount) {
-	            list.splice(this.maxCount, list.length - this.maxCount);
-	        }
-	    }
-	    /**
-	     * 添加对象缓存管理
-	     * @param sign 对象在Pool中的标识
-	     * @param maxCount 允许缓存的最大数量
-	     *
-	     */
-	    static addPoolCacheManager(sign, maxCount = 100) {
-	        var cache;
-	        cache = new PoolCache();
-	        cache.sign = sign;
-	        cache.maxCount = maxCount;
-	        CacheManger.regCacheByFunction(Utils.bind(cache.tryDispose, cache), Utils.bind(cache.getCacheList, cache));
+	    addData(v) {
+	        this.datas[this.datapos] = v;
+	        this.datapos++;
+	        this.datapos %= DATANUM;
 	    }
 	}
 
@@ -33506,6 +33460,52 @@ window.Laya= (function (exports) {
 	PerfHUD._now = null;
 	PerfHUD.DATANUM = 300;
 	PerfHUD.drawTexTm = 0;
+
+	/**
+	     * @private
+	     * 基于个数的对象缓存管理器
+	     */
+	class PoolCache {
+	    constructor() {
+	        /**
+	         * 允许缓存的最大数量
+	         */
+	        this.maxCount = 1000;
+	    }
+	    /**
+	     * 获取缓存的对象列表
+	     * @return
+	     *
+	     */
+	    getCacheList() {
+	        return Pool.getPoolBySign(this.sign);
+	    }
+	    /**
+	     * 尝试清理缓存
+	     * @param force 是否强制清理
+	     *
+	     */
+	    tryDispose(force) {
+	        var list;
+	        list = Pool.getPoolBySign(this.sign);
+	        if (list.length > this.maxCount) {
+	            list.splice(this.maxCount, list.length - this.maxCount);
+	        }
+	    }
+	    /**
+	     * 添加对象缓存管理
+	     * @param sign 对象在Pool中的标识
+	     * @param maxCount 允许缓存的最大数量
+	     *
+	     */
+	    static addPoolCacheManager(sign, maxCount = 100) {
+	        var cache;
+	        cache = new PoolCache();
+	        cache.sign = sign;
+	        cache.maxCount = maxCount;
+	        CacheManger.regCacheByFunction(Utils.bind(cache.tryDispose, cache), Utils.bind(cache.getCacheList, cache));
+	    }
+	}
 
 	/**
 	 * 整个缓动结束的时候会调度
@@ -33951,54 +33951,6 @@ window.Laya= (function (exports) {
 	}
 
 	/**
-	 * @Script {name:ButtonEffect}
-	 * @author ww
-	 */
-	class ButtonEffect {
-	    constructor() {
-	        this._curState = 0;
-	        /**
-	         * effectScale
-	         * @prop {name:effectScale,type:number, tips:"缩放值",default:"1.5"}
-	         */
-	        this.effectScale = 1.5;
-	        /**
-	         * tweenTime
-	         * @prop {name:tweenTime,type:number, tips:"缓动时长",default:"300"}
-	         */
-	        this.tweenTime = 300;
-	    }
-	    /**
-	     * 设置控制对象
-	     * @param tar
-	     */
-	    set target(tar) {
-	        this._tar = tar;
-	        tar.on(Event.MOUSE_DOWN, this, this.toChangedState);
-	        tar.on(Event.MOUSE_UP, this, this.toInitState);
-	        tar.on(Event.MOUSE_OUT, this, this.toInitState);
-	    }
-	    toChangedState() {
-	        this._curState = 1;
-	        if (this._curTween)
-	            Tween.clear(this._curTween);
-	        this._curTween = Tween.to(this._tar, { scaleX: this.effectScale, scaleY: this.effectScale }, this.tweenTime, Ease[this.effectEase], Handler.create(this, this.tweenComplete));
-	    }
-	    toInitState() {
-	        if (this._curState == 2)
-	            return;
-	        if (this._curTween)
-	            Tween.clear(this._curTween);
-	        this._curState = 2;
-	        this._curTween = Tween.to(this._tar, { scaleX: 1, scaleY: 1 }, this.tweenTime, Ease[this.backEase], Handler.create(this, this.tweenComplete));
-	    }
-	    tweenComplete() {
-	        this._curState = 0;
-	        this._curTween = null;
-	    }
-	}
-
-	/**
 	 * ...
 	 * @author ww
 	 */
@@ -34039,89 +33991,6 @@ window.Laya= (function (exports) {
 	            //addFilter(value as Sprite);
 	            this._target = value;
 	            this.paramChanged();
-	        }
-	    }
-	}
-
-	/**
-	 * ...
-	 * @author ww
-	 */
-	class BlurFilterSetter extends FilterSetterBase {
-	    constructor() {
-	        super();
-	        this._strength = 4;
-	        this._filter = new BlurFilter(this.strength);
-	    }
-	    /**
-	     * @override
-	     */
-	    buildFilter() {
-	        this._filter = new BlurFilter(this.strength);
-	        super.buildFilter();
-	    }
-	    get strength() {
-	        return this._strength;
-	    }
-	    set strength(value) {
-	        this._strength = value;
-	    }
-	}
-
-	/**
-	 * 效果插件基类，基于对象池管理
-	 */
-	class EffectBase extends Component {
-	    constructor() {
-	        super(...arguments);
-	        /**动画持续时间，单位为毫秒*/
-	        this.duration = 1000;
-	        /**动画延迟时间，单位为毫秒*/
-	        this.delay = 0;
-	        /**重复次数，默认为播放一次*/
-	        this.repeat = 0;
-	        /**效果结束后，是否自动移除节点*/
-	        this.autoDestroyAtComplete = true;
-	    }
-	    /**
-	     * @override
-	     */
-	    _onAwake() {
-	        this.target = this.target || this.owner;
-	        if (this.autoDestroyAtComplete)
-	            this._comlete = Handler.create(this.target, this.target.destroy, null, false);
-	        if (this.eventName)
-	            this.owner.on(this.eventName, this, this._exeTween);
-	        else
-	            this._exeTween();
-	    }
-	    _exeTween() {
-	        this._tween = this._doTween();
-	        this._tween.repeat = this.repeat;
-	    }
-	    _doTween() {
-	        return null;
-	    }
-	    /**
-	     * @override
-	     */
-	    onReset() {
-	        this.duration = 1000;
-	        this.delay = 0;
-	        this.repeat = 0;
-	        this.ease = null;
-	        this.target = null;
-	        if (this.eventName) {
-	            this.owner.off(this.eventName, this, this._exeTween);
-	            this.eventName = null;
-	        }
-	        if (this._comlete) {
-	            this._comlete.recover();
-	            this._comlete = null;
-	        }
-	        if (this._tween) {
-	            this._tween.clear();
-	            this._tween = null;
 	        }
 	    }
 	}
@@ -34251,6 +34120,137 @@ window.Laya= (function (exports) {
 	}
 
 	/**
+	 * @Script {name:ButtonEffect}
+	 * @author ww
+	 */
+	class ButtonEffect {
+	    constructor() {
+	        this._curState = 0;
+	        /**
+	         * effectScale
+	         * @prop {name:effectScale,type:number, tips:"缩放值",default:"1.5"}
+	         */
+	        this.effectScale = 1.5;
+	        /**
+	         * tweenTime
+	         * @prop {name:tweenTime,type:number, tips:"缓动时长",default:"300"}
+	         */
+	        this.tweenTime = 300;
+	    }
+	    /**
+	     * 设置控制对象
+	     * @param tar
+	     */
+	    set target(tar) {
+	        this._tar = tar;
+	        tar.on(Event.MOUSE_DOWN, this, this.toChangedState);
+	        tar.on(Event.MOUSE_UP, this, this.toInitState);
+	        tar.on(Event.MOUSE_OUT, this, this.toInitState);
+	    }
+	    toChangedState() {
+	        this._curState = 1;
+	        if (this._curTween)
+	            Tween.clear(this._curTween);
+	        this._curTween = Tween.to(this._tar, { scaleX: this.effectScale, scaleY: this.effectScale }, this.tweenTime, Ease[this.effectEase], Handler.create(this, this.tweenComplete));
+	    }
+	    toInitState() {
+	        if (this._curState == 2)
+	            return;
+	        if (this._curTween)
+	            Tween.clear(this._curTween);
+	        this._curState = 2;
+	        this._curTween = Tween.to(this._tar, { scaleX: 1, scaleY: 1 }, this.tweenTime, Ease[this.backEase], Handler.create(this, this.tweenComplete));
+	    }
+	    tweenComplete() {
+	        this._curState = 0;
+	        this._curTween = null;
+	    }
+	}
+
+	/**
+	 * 效果插件基类，基于对象池管理
+	 */
+	class EffectBase extends Component {
+	    constructor() {
+	        super(...arguments);
+	        /**动画持续时间，单位为毫秒*/
+	        this.duration = 1000;
+	        /**动画延迟时间，单位为毫秒*/
+	        this.delay = 0;
+	        /**重复次数，默认为播放一次*/
+	        this.repeat = 0;
+	        /**效果结束后，是否自动移除节点*/
+	        this.autoDestroyAtComplete = true;
+	    }
+	    /**
+	     * @override
+	     */
+	    _onAwake() {
+	        this.target = this.target || this.owner;
+	        if (this.autoDestroyAtComplete)
+	            this._comlete = Handler.create(this.target, this.target.destroy, null, false);
+	        if (this.eventName)
+	            this.owner.on(this.eventName, this, this._exeTween);
+	        else
+	            this._exeTween();
+	    }
+	    _exeTween() {
+	        this._tween = this._doTween();
+	        this._tween.repeat = this.repeat;
+	    }
+	    _doTween() {
+	        return null;
+	    }
+	    /**
+	     * @override
+	     */
+	    onReset() {
+	        this.duration = 1000;
+	        this.delay = 0;
+	        this.repeat = 0;
+	        this.ease = null;
+	        this.target = null;
+	        if (this.eventName) {
+	            this.owner.off(this.eventName, this, this._exeTween);
+	            this.eventName = null;
+	        }
+	        if (this._comlete) {
+	            this._comlete.recover();
+	            this._comlete = null;
+	        }
+	        if (this._tween) {
+	            this._tween.clear();
+	            this._tween = null;
+	        }
+	    }
+	}
+
+	/**
+	 * ...
+	 * @author ww
+	 */
+	class BlurFilterSetter extends FilterSetterBase {
+	    constructor() {
+	        super();
+	        this._strength = 4;
+	        this._filter = new BlurFilter(this.strength);
+	    }
+	    /**
+	     * @override
+	     */
+	    buildFilter() {
+	        this._filter = new BlurFilter(this.strength);
+	        super.buildFilter();
+	    }
+	    get strength() {
+	        return this._strength;
+	    }
+	    set strength(value) {
+	        this._strength = value;
+	    }
+	}
+
+	/**
 	 * 淡入效果
 	 */
 	class FadeIn extends EffectBase {
@@ -34260,19 +34260,6 @@ window.Laya= (function (exports) {
 	    _doTween() {
 	        this.target.alpha = 0;
 	        return Tween.to(this.target, { alpha: 1 }, this.duration, Ease[this.ease], this._comlete, this.delay);
-	    }
-	}
-
-	/**
-	 * 淡出效果
-	 */
-	class FadeOut extends EffectBase {
-	    /**
-	     * @override
-	     */
-	    _doTween() {
-	        this.target.alpha = 1;
-	        return Tween.to(this.target, { alpha: 0 }, this.duration, Ease[this.ease], this._comlete, this.delay);
 	    }
 	}
 
@@ -34335,6 +34322,19 @@ window.Laya= (function (exports) {
 	    set offY(value) {
 	        this._offY = value;
 	        this.paramChanged();
+	    }
+	}
+
+	/**
+	 * 淡出效果
+	 */
+	class FadeOut extends EffectBase {
+	    /**
+	     * @override
+	     */
+	    _doTween() {
+	        this.target.alpha = 1;
+	        return Tween.to(this.target, { alpha: 0 }, this.duration, Ease[this.ease], this._comlete, this.delay);
 	    }
 	}
 
