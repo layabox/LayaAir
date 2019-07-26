@@ -119,10 +119,6 @@
 	    }
 	}
 
-	class IMap {
-	}
-	IMap.TiledMap = null;
-
 	/**
 	 * TildMap的动画显示对象（一个动画（TileTexSet），可以绑定多个动画显示对象（TileAniSprite））
 	 * @author ...
@@ -165,6 +161,10 @@
 	        this._aniName = null;
 	    }
 	}
+
+	class IMap {
+	}
+	IMap.TiledMap = null;
 
 	/**
 	 * 地图支持多层渲染（例如，地表层，植被层，建筑层等）
