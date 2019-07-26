@@ -1702,76 +1702,6 @@ window.miMiniGame = function (exports, Laya) {
 	/**@private **/
 	KGMiniAdapter.idx = 1;
 
-	/**@private **/
-	class MiniAccelerator extends Laya.EventDispatcher {
-	    constructor() {
-	        super();
-	    }
-	    /**@private **/
-	    static __init__() {
-	        try {
-	            var Acc;
-	            Acc = Laya.Accelerator;
-	            if (!Acc)
-	                return;
-	            Acc["prototype"]["on"] = MiniAccelerator["prototype"]["on"];
-	            Acc["prototype"]["off"] = MiniAccelerator["prototype"]["off"];
-	        }
-	        catch (e) {
-	        }
-	    }
-	    /**@private **/
-	    static startListen(callBack) {
-	        MiniAccelerator._callBack = callBack;
-	        if (MiniAccelerator._isListening)
-	            return;
-	        MiniAccelerator._isListening = true;
-	        try {
-	            KGMiniAdapter.window.swan.onAccelerometerChange(MiniAccelerator.onAccelerometerChange);
-	        }
-	        catch (e) { }
-	    }
-	    /**@private **/
-	    static stopListen() {
-	        MiniAccelerator._isListening = false;
-	        try {
-	            KGMiniAdapter.window.swan.stopAccelerometer({});
-	        }
-	        catch (e) { }
-	    }
-	    /**@private **/
-	    static onAccelerometerChange(res) {
-	        var e;
-	        e = {};
-	        e.acceleration = res;
-	        e.accelerationIncludingGravity = res;
-	        e.rotationRate = {};
-	        if (MiniAccelerator._callBack != null) {
-	            MiniAccelerator._callBack(e);
-	        }
-	    }
-	    /**
-	     * 侦听加速器运动。
-	     * @param observer	回调函数接受4个参数，见类说明。
-	     */
-	    /*override*/ on(type, caller, listener, args = null) {
-	        super.on(type, caller, listener, args);
-	        MiniAccelerator.startListen(this["onDeviceOrientationChange"]);
-	        return this;
-	    }
-	    /**
-	     * 取消侦听加速器。
-	     * @param	handle	侦听加速器所用处理器。
-	     */
-	    /*override*/ off(type, caller, listener, onceOnly = false) {
-	        if (!this.hasListener(type))
-	            MiniAccelerator.stopListen();
-	        return super.off(type, caller, listener, onceOnly);
-	    }
-	}
-	/**@private **/
-	MiniAccelerator._isListening = false;
-
 	/** @private **/
 	class MiniImage {
 	    /**@private **/
@@ -1943,6 +1873,157 @@ window.miMiniGame = function (exports, Laya) {
 	        }
 	    }
 	}
+
+	/**@private **/
+	class MiniAccelerator extends Laya.EventDispatcher {
+	    constructor() {
+	        super();
+	    }
+	    /**@private **/
+	    static __init__() {
+	        try {
+	            var Acc;
+	            Acc = Laya.Accelerator;
+	            if (!Acc)
+	                return;
+	            Acc["prototype"]["on"] = MiniAccelerator["prototype"]["on"];
+	            Acc["prototype"]["off"] = MiniAccelerator["prototype"]["off"];
+	        }
+	        catch (e) {
+	        }
+	    }
+	    /**@private **/
+	    static startListen(callBack) {
+	        MiniAccelerator._callBack = callBack;
+	        if (MiniAccelerator._isListening)
+	            return;
+	        MiniAccelerator._isListening = true;
+	        try {
+	            KGMiniAdapter.window.swan.onAccelerometerChange(MiniAccelerator.onAccelerometerChange);
+	        }
+	        catch (e) { }
+	    }
+	    /**@private **/
+	    static stopListen() {
+	        MiniAccelerator._isListening = false;
+	        try {
+	            KGMiniAdapter.window.swan.stopAccelerometer({});
+	        }
+	        catch (e) { }
+	    }
+	    /**@private **/
+	    static onAccelerometerChange(res) {
+	        var e;
+	        e = {};
+	        e.acceleration = res;
+	        e.accelerationIncludingGravity = res;
+	        e.rotationRate = {};
+	        if (MiniAccelerator._callBack != null) {
+	            MiniAccelerator._callBack(e);
+	        }
+	    }
+	    /**
+	     * 侦听加速器运动。
+	     * @param observer	回调函数接受4个参数，见类说明。
+	     */
+	    /*override*/ on(type, caller, listener, args = null) {
+	        super.on(type, caller, listener, args);
+	        MiniAccelerator.startListen(this["onDeviceOrientationChange"]);
+	        return this;
+	    }
+	    /**
+	     * 取消侦听加速器。
+	     * @param	handle	侦听加速器所用处理器。
+	     */
+	    /*override*/ off(type, caller, listener, onceOnly = false) {
+	        if (!this.hasListener(type))
+	            MiniAccelerator.stopListen();
+	        return super.off(type, caller, listener, onceOnly);
+	    }
+	}
+	/**@private **/
+	MiniAccelerator._isListening = false;
+
+	/**@private **/
+	class MiniLocation {
+	    constructor() {
+	    }
+	    /**@private **/
+	    static __init__() {
+	        KGMiniAdapter.window.navigator.geolocation.getCurrentPosition = MiniLocation.getCurrentPosition;
+	        KGMiniAdapter.window.navigator.geolocation.watchPosition = MiniLocation.watchPosition;
+	        KGMiniAdapter.window.navigator.geolocation.clearWatch = MiniLocation.clearWatch;
+	    }
+	    /**@private **/
+	    static getCurrentPosition(success = null, error = null, options = null) {
+	        var paramO;
+	        paramO = {};
+	        paramO.success = getSuccess;
+	        paramO.fail = error;
+	        KGMiniAdapter.window.qg.getLocation(paramO);
+	        function getSuccess(res) {
+	            if (success != null) {
+	                success(res);
+	            }
+	        }
+	    }
+	    /**@private **/
+	    static watchPosition(success = null, error = null, options = null) {
+	        MiniLocation._curID++;
+	        var curWatchO;
+	        curWatchO = {};
+	        curWatchO.success = success;
+	        curWatchO.error = error;
+	        MiniLocation._watchDic[MiniLocation._curID] = curWatchO;
+	        Laya.Laya.systemTimer.loop(1000, null, MiniLocation._myLoop);
+	        return MiniLocation._curID;
+	    }
+	    /**@private **/
+	    static clearWatch(id) {
+	        delete MiniLocation._watchDic[id];
+	        if (!MiniLocation._hasWatch()) {
+	            Laya.Laya.systemTimer.clear(null, MiniLocation._myLoop);
+	        }
+	    }
+	    /**@private **/
+	    static _hasWatch() {
+	        var key;
+	        for (key in MiniLocation._watchDic) {
+	            if (MiniLocation._watchDic[key])
+	                return true;
+	        }
+	        return false;
+	    }
+	    /**@private **/
+	    static _myLoop() {
+	        MiniLocation.getCurrentPosition(MiniLocation._mySuccess, MiniLocation._myError);
+	    }
+	    /**@private **/
+	    static _mySuccess(res) {
+	        var rst = {};
+	        rst.coords = res;
+	        rst.timestamp = Laya.Browser.now();
+	        var key;
+	        for (key in MiniLocation._watchDic) {
+	            if (MiniLocation._watchDic[key].success) {
+	                MiniLocation._watchDic[key].success(rst);
+	            }
+	        }
+	    }
+	    /**@private **/
+	    static _myError(res) {
+	        var key;
+	        for (key in MiniLocation._watchDic) {
+	            if (MiniLocation._watchDic[key].error) {
+	                MiniLocation._watchDic[key].error(res);
+	            }
+	        }
+	    }
+	}
+	/**@private **/
+	MiniLocation._watchDic = {};
+	/**@private **/
+	MiniLocation._curID = 0;
 
 	/**
 	     * 视频类
@@ -2176,87 +2257,6 @@ window.miMiniGame = function (exports, Laya) {
 	        this.videoElement.src = this.videourl;
 	    }
 	}
-
-	/**@private **/
-	class MiniLocation {
-	    constructor() {
-	    }
-	    /**@private **/
-	    static __init__() {
-	        KGMiniAdapter.window.navigator.geolocation.getCurrentPosition = MiniLocation.getCurrentPosition;
-	        KGMiniAdapter.window.navigator.geolocation.watchPosition = MiniLocation.watchPosition;
-	        KGMiniAdapter.window.navigator.geolocation.clearWatch = MiniLocation.clearWatch;
-	    }
-	    /**@private **/
-	    static getCurrentPosition(success = null, error = null, options = null) {
-	        var paramO;
-	        paramO = {};
-	        paramO.success = getSuccess;
-	        paramO.fail = error;
-	        KGMiniAdapter.window.qg.getLocation(paramO);
-	        function getSuccess(res) {
-	            if (success != null) {
-	                success(res);
-	            }
-	        }
-	    }
-	    /**@private **/
-	    static watchPosition(success = null, error = null, options = null) {
-	        MiniLocation._curID++;
-	        var curWatchO;
-	        curWatchO = {};
-	        curWatchO.success = success;
-	        curWatchO.error = error;
-	        MiniLocation._watchDic[MiniLocation._curID] = curWatchO;
-	        Laya.Laya.systemTimer.loop(1000, null, MiniLocation._myLoop);
-	        return MiniLocation._curID;
-	    }
-	    /**@private **/
-	    static clearWatch(id) {
-	        delete MiniLocation._watchDic[id];
-	        if (!MiniLocation._hasWatch()) {
-	            Laya.Laya.systemTimer.clear(null, MiniLocation._myLoop);
-	        }
-	    }
-	    /**@private **/
-	    static _hasWatch() {
-	        var key;
-	        for (key in MiniLocation._watchDic) {
-	            if (MiniLocation._watchDic[key])
-	                return true;
-	        }
-	        return false;
-	    }
-	    /**@private **/
-	    static _myLoop() {
-	        MiniLocation.getCurrentPosition(MiniLocation._mySuccess, MiniLocation._myError);
-	    }
-	    /**@private **/
-	    static _mySuccess(res) {
-	        var rst = {};
-	        rst.coords = res;
-	        rst.timestamp = Laya.Browser.now();
-	        var key;
-	        for (key in MiniLocation._watchDic) {
-	            if (MiniLocation._watchDic[key].success) {
-	                MiniLocation._watchDic[key].success(rst);
-	            }
-	        }
-	    }
-	    /**@private **/
-	    static _myError(res) {
-	        var key;
-	        for (key in MiniLocation._watchDic) {
-	            if (MiniLocation._watchDic[key].error) {
-	                MiniLocation._watchDic[key].error(res);
-	            }
-	        }
-	    }
-	}
-	/**@private **/
-	MiniLocation._watchDic = {};
-	/**@private **/
-	MiniLocation._curID = 0;
 
 	exports.KGMiniAdapter = KGMiniAdapter;
 	exports.MiniAccelerator = MiniAccelerator;
