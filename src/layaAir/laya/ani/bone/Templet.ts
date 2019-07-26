@@ -152,7 +152,7 @@ export class Templet extends AnimationTemplet {
 	 * @return
 	 */
 	buildArmature(aniMode: number = 0): Skeleton {
-		return new IAniLib.Skeleton(this, aniMode);
+		return new Skeleton(this, aniMode);
 	}
 
 		/**
