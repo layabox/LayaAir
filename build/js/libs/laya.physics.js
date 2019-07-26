@@ -2348,33 +2348,35 @@ window.box2d=box2d;
     }
 
     /**
-         * 2D圆形碰撞体
+         * 2D矩形碰撞体
          */
-    class CircleCollider extends ColliderBase {
+    class BoxCollider extends ColliderBase {
         constructor() {
             super(...arguments);
             /**相对节点的x轴偏移*/
             this._x = 0;
             /**相对节点的y轴偏移*/
             this._y = 0;
-            /**圆形半径，必须为正数*/
-            this._radius = 50;
+            /**矩形宽度*/
+            this._width = 100;
+            /**矩形高度*/
+            this._height = 100;
         }
         /**
          * @override
          */
         getDef() {
             if (!this._shape) {
-                this._shape = new window.box2d.b2CircleShape();
+                this._shape = new window.box2d.b2PolygonShape();
                 this._setShape(false);
             }
-            this.label = (this.label || "CircleCollider");
+            this.label = (this.label || "BoxCollider");
             return super.getDef();
         }
         _setShape(re = true) {
-            var scale = this.owner["scaleX"] || 1;
-            this._shape.m_radius = this._radius / Physics.PIXEL_RATIO * scale;
-            this._shape.m_p.Set((this._radius + this._x) / Physics.PIXEL_RATIO * scale, (this._radius + this._y) / Physics.PIXEL_RATIO * scale);
+            var scaleX = (this.owner["scaleX"] || 1);
+            var scaleY = (this.owner["scaleY"] || 1);
+            this._shape.SetAsBox(this._width / 2 / Physics.PIXEL_RATIO * scaleX, this._height / 2 / Physics.PIXEL_RATIO * scaleY, new window.box2d.b2Vec2((this._width / 2 + this._x) / Physics.PIXEL_RATIO * scaleX, (this._height / 2 + this._y) / Physics.PIXEL_RATIO * scaleY));
             if (re)
                 this.refresh();
         }
@@ -2396,14 +2398,25 @@ window.box2d=box2d;
             if (this._shape)
                 this._setShape();
         }
-        /**圆形半径，必须为正数*/
-        get radius() {
-            return this._radius;
+        /**矩形宽度*/
+        get width() {
+            return this._width;
         }
-        set radius(value) {
+        set width(value) {
             if (value <= 0)
-                throw "CircleCollider radius cannot be less than 0";
-            this._radius = value;
+                throw "BoxCollider size cannot be less than 0";
+            this._width = value;
+            if (this._shape)
+                this._setShape();
+        }
+        /**矩形高度*/
+        get height() {
+            return this._height;
+        }
+        set height(value) {
+            if (value <= 0)
+                throw "BoxCollider size cannot be less than 0";
+            this._height = value;
             if (this._shape)
                 this._setShape();
         }
@@ -2414,8 +2427,8 @@ window.box2d=box2d;
             this._setShape();
         }
     }
-    Laya.ClassUtils.regClass("laya.physics.CircleCollider", CircleCollider);
-    Laya.ClassUtils.regClass("Laya.CircleCollider", CircleCollider);
+    Laya.ClassUtils.regClass("laya.physics.BoxCollider", BoxCollider);
+    Laya.ClassUtils.regClass("Laya.BoxCollider", BoxCollider);
 
     /**
          * 2D线形碰撞体
@@ -2497,6 +2510,149 @@ window.box2d=box2d;
     }
     Laya.ClassUtils.regClass("laya.physics.ChainCollider", ChainCollider);
     Laya.ClassUtils.regClass("Laya.ChainCollider", ChainCollider);
+
+    /**
+         * 2D圆形碰撞体
+         */
+    class CircleCollider extends ColliderBase {
+        constructor() {
+            super(...arguments);
+            /**相对节点的x轴偏移*/
+            this._x = 0;
+            /**相对节点的y轴偏移*/
+            this._y = 0;
+            /**圆形半径，必须为正数*/
+            this._radius = 50;
+        }
+        /**
+         * @override
+         */
+        getDef() {
+            if (!this._shape) {
+                this._shape = new window.box2d.b2CircleShape();
+                this._setShape(false);
+            }
+            this.label = (this.label || "CircleCollider");
+            return super.getDef();
+        }
+        _setShape(re = true) {
+            var scale = this.owner["scaleX"] || 1;
+            this._shape.m_radius = this._radius / Physics.PIXEL_RATIO * scale;
+            this._shape.m_p.Set((this._radius + this._x) / Physics.PIXEL_RATIO * scale, (this._radius + this._y) / Physics.PIXEL_RATIO * scale);
+            if (re)
+                this.refresh();
+        }
+        /**相对节点的x轴偏移*/
+        get x() {
+            return this._x;
+        }
+        set x(value) {
+            this._x = value;
+            if (this._shape)
+                this._setShape();
+        }
+        /**相对节点的y轴偏移*/
+        get y() {
+            return this._y;
+        }
+        set y(value) {
+            this._y = value;
+            if (this._shape)
+                this._setShape();
+        }
+        /**圆形半径，必须为正数*/
+        get radius() {
+            return this._radius;
+        }
+        set radius(value) {
+            if (value <= 0)
+                throw "CircleCollider radius cannot be less than 0";
+            this._radius = value;
+            if (this._shape)
+                this._setShape();
+        }
+        /**@private 重置形状
+         * @override
+        */
+        resetShape(re = true) {
+            this._setShape();
+        }
+    }
+    Laya.ClassUtils.regClass("laya.physics.CircleCollider", CircleCollider);
+    Laya.ClassUtils.regClass("Laya.CircleCollider", CircleCollider);
+
+    /**
+         * 2D多边形碰撞体，暂时不支持凹多边形，如果是凹多边形，先手动拆分为多个凸多边形
+         * 节点个数最多是b2_maxPolygonVertices，这数值默认是8，所以点的数量不建议超过8个，也不能小于3个
+         */
+    class PolygonCollider extends ColliderBase {
+        constructor() {
+            super(...arguments);
+            /**相对节点的x轴偏移*/
+            this._x = 0;
+            /**相对节点的y轴偏移*/
+            this._y = 0;
+            /**用逗号隔开的点的集合，格式：x,y,x,y ...*/
+            this._points = "50,0,100,100,0,100";
+        }
+        /**
+         * @override
+         */
+        getDef() {
+            if (!this._shape) {
+                this._shape = new window.box2d.b2PolygonShape();
+                this._setShape(false);
+            }
+            this.label = (this.label || "PolygonCollider");
+            return super.getDef();
+        }
+        _setShape(re = true) {
+            var arr = this._points.split(",");
+            var len = arr.length;
+            if (len < 6)
+                throw "PolygonCollider points must be greater than 3";
+            if (len % 2 == 1)
+                throw "PolygonCollider points lenth must a multiplier of 2";
+            var ps = [];
+            for (var i = 0, n = len; i < n; i += 2) {
+                ps.push(new window.box2d.b2Vec2((this._x + parseInt(arr[i])) / Physics.PIXEL_RATIO, (this._y + parseInt(arr[i + 1])) / Physics.PIXEL_RATIO));
+            }
+            this._shape.Set(ps, len / 2);
+            if (re)
+                this.refresh();
+        }
+        /**相对节点的x轴偏移*/
+        get x() {
+            return this._x;
+        }
+        set x(value) {
+            this._x = value;
+            if (this._shape)
+                this._setShape();
+        }
+        /**相对节点的y轴偏移*/
+        get y() {
+            return this._y;
+        }
+        set y(value) {
+            this._y = value;
+            if (this._shape)
+                this._setShape();
+        }
+        /**用逗号隔开的点的集合，格式：x,y,x,y ...*/
+        get points() {
+            return this._points;
+        }
+        set points(value) {
+            if (!value)
+                throw "PolygonCollider points cannot be empty";
+            this._points = value;
+            if (this._shape)
+                this._setShape();
+        }
+    }
+    Laya.ClassUtils.regClass("laya.physics.PolygonCollider", PolygonCollider);
+    Laya.ClassUtils.regClass("Laya.PolygonCollider", PolygonCollider);
 
     /**
      * 物理辅助线，调用PhysicsDebugDraw.enable()开启，或者通过IDE设置打开
@@ -2680,162 +2836,6 @@ window.box2d=box2d;
     PhysicsDebugDraw._inited = false;
     Laya.ClassUtils.regClass("laya.physics.PhysicsDebugDraw", PhysicsDebugDraw);
     Laya.ClassUtils.regClass("Laya.PhysicsDebugDraw", PhysicsDebugDraw);
-
-    /**
-         * 2D矩形碰撞体
-         */
-    class BoxCollider extends ColliderBase {
-        constructor() {
-            super(...arguments);
-            /**相对节点的x轴偏移*/
-            this._x = 0;
-            /**相对节点的y轴偏移*/
-            this._y = 0;
-            /**矩形宽度*/
-            this._width = 100;
-            /**矩形高度*/
-            this._height = 100;
-        }
-        /**
-         * @override
-         */
-        getDef() {
-            if (!this._shape) {
-                this._shape = new window.box2d.b2PolygonShape();
-                this._setShape(false);
-            }
-            this.label = (this.label || "BoxCollider");
-            return super.getDef();
-        }
-        _setShape(re = true) {
-            var scaleX = (this.owner["scaleX"] || 1);
-            var scaleY = (this.owner["scaleY"] || 1);
-            this._shape.SetAsBox(this._width / 2 / Physics.PIXEL_RATIO * scaleX, this._height / 2 / Physics.PIXEL_RATIO * scaleY, new window.box2d.b2Vec2((this._width / 2 + this._x) / Physics.PIXEL_RATIO * scaleX, (this._height / 2 + this._y) / Physics.PIXEL_RATIO * scaleY));
-            if (re)
-                this.refresh();
-        }
-        /**相对节点的x轴偏移*/
-        get x() {
-            return this._x;
-        }
-        set x(value) {
-            this._x = value;
-            if (this._shape)
-                this._setShape();
-        }
-        /**相对节点的y轴偏移*/
-        get y() {
-            return this._y;
-        }
-        set y(value) {
-            this._y = value;
-            if (this._shape)
-                this._setShape();
-        }
-        /**矩形宽度*/
-        get width() {
-            return this._width;
-        }
-        set width(value) {
-            if (value <= 0)
-                throw "BoxCollider size cannot be less than 0";
-            this._width = value;
-            if (this._shape)
-                this._setShape();
-        }
-        /**矩形高度*/
-        get height() {
-            return this._height;
-        }
-        set height(value) {
-            if (value <= 0)
-                throw "BoxCollider size cannot be less than 0";
-            this._height = value;
-            if (this._shape)
-                this._setShape();
-        }
-        /**@private 重置形状
-         * @override
-        */
-        resetShape(re = true) {
-            this._setShape();
-        }
-    }
-    Laya.ClassUtils.regClass("laya.physics.BoxCollider", BoxCollider);
-    Laya.ClassUtils.regClass("Laya.BoxCollider", BoxCollider);
-
-    /**
-         * 2D多边形碰撞体，暂时不支持凹多边形，如果是凹多边形，先手动拆分为多个凸多边形
-         * 节点个数最多是b2_maxPolygonVertices，这数值默认是8，所以点的数量不建议超过8个，也不能小于3个
-         */
-    class PolygonCollider extends ColliderBase {
-        constructor() {
-            super(...arguments);
-            /**相对节点的x轴偏移*/
-            this._x = 0;
-            /**相对节点的y轴偏移*/
-            this._y = 0;
-            /**用逗号隔开的点的集合，格式：x,y,x,y ...*/
-            this._points = "50,0,100,100,0,100";
-        }
-        /**
-         * @override
-         */
-        getDef() {
-            if (!this._shape) {
-                this._shape = new window.box2d.b2PolygonShape();
-                this._setShape(false);
-            }
-            this.label = (this.label || "PolygonCollider");
-            return super.getDef();
-        }
-        _setShape(re = true) {
-            var arr = this._points.split(",");
-            var len = arr.length;
-            if (len < 6)
-                throw "PolygonCollider points must be greater than 3";
-            if (len % 2 == 1)
-                throw "PolygonCollider points lenth must a multiplier of 2";
-            var ps = [];
-            for (var i = 0, n = len; i < n; i += 2) {
-                ps.push(new window.box2d.b2Vec2((this._x + parseInt(arr[i])) / Physics.PIXEL_RATIO, (this._y + parseInt(arr[i + 1])) / Physics.PIXEL_RATIO));
-            }
-            this._shape.Set(ps, len / 2);
-            if (re)
-                this.refresh();
-        }
-        /**相对节点的x轴偏移*/
-        get x() {
-            return this._x;
-        }
-        set x(value) {
-            this._x = value;
-            if (this._shape)
-                this._setShape();
-        }
-        /**相对节点的y轴偏移*/
-        get y() {
-            return this._y;
-        }
-        set y(value) {
-            this._y = value;
-            if (this._shape)
-                this._setShape();
-        }
-        /**用逗号隔开的点的集合，格式：x,y,x,y ...*/
-        get points() {
-            return this._points;
-        }
-        set points(value) {
-            if (!value)
-                throw "PolygonCollider points cannot be empty";
-            this._points = value;
-            if (this._shape)
-                this._setShape();
-        }
-    }
-    Laya.ClassUtils.regClass("laya.physics.PolygonCollider", PolygonCollider);
-    Laya.ClassUtils.regClass("Laya.PolygonCollider", PolygonCollider);
 
     /**
      * 关节基类
@@ -3101,54 +3101,6 @@ window.box2d=box2d;
     Laya.ClassUtils.regClass("Laya.MouseJoint", MouseJoint);
 
     /**
-     * 滑轮关节：它将两个物体接地(ground)并彼此连接，当一个物体上升，另一个物体就会下降
-     */
-    class PulleyJoint extends JointBase {
-        constructor() {
-            super(...arguments);
-            /**[首次设置有效]自身刚体链接点，是相对于自身刚体的左上角位置偏移*/
-            this.selfAnchor = [0, 0];
-            /**[首次设置有效]链接刚体链接点，是相对于otherBody的左上角位置偏移*/
-            this.otherAnchor = [0, 0];
-            /**[首次设置有效]滑轮上与节点selfAnchor相连接的节点，是相对于自身刚体的左上角位置偏移*/
-            this.selfGroundPoint = [0, 0];
-            /**[首次设置有效]滑轮上与节点otherAnchor相连接的节点，是相对于otherBody的左上角位置偏移*/
-            this.otherGroundPoint = [0, 0];
-            /**[首次设置有效]两刚体移动距离比率*/
-            this.ratio = 1.5;
-            /**[首次设置有效]两个刚体是否可以发生碰撞，默认为false*/
-            this.collideConnected = false;
-        }
-        /**
-         * @override
-         */
-        _createJoint() {
-            if (!this._joint) {
-                if (!this.otherBody)
-                    throw "otherBody can not be empty";
-                this.selfBody = this.selfBody || this.owner.getComponent(RigidBody);
-                if (!this.selfBody)
-                    throw "selfBody can not be empty";
-                var box2d = window.box2d;
-                var def = PulleyJoint._temp || (PulleyJoint._temp = new box2d.b2PulleyJointDef());
-                var posA = this.otherBody.owner.localToGlobal(Laya.Point.TEMP.setTo(this.otherAnchor[0], this.otherAnchor[1]), false, Physics.I.worldRoot);
-                var anchorVecA = new box2d.b2Vec2(posA.x / Physics.PIXEL_RATIO, posA.y / Physics.PIXEL_RATIO);
-                var posB = this.selfBody.owner.localToGlobal(Laya.Point.TEMP.setTo(this.selfAnchor[0], this.selfAnchor[1]), false, Physics.I.worldRoot);
-                var anchorVecB = new box2d.b2Vec2(posB.x / Physics.PIXEL_RATIO, posB.y / Physics.PIXEL_RATIO);
-                var groundA = this.otherBody.owner.localToGlobal(Laya.Point.TEMP.setTo(this.otherGroundPoint[0], this.otherGroundPoint[1]), false, Physics.I.worldRoot);
-                var groundVecA = new box2d.b2Vec2(groundA.x / Physics.PIXEL_RATIO, groundA.y / Physics.PIXEL_RATIO);
-                var groundB = this.selfBody.owner.localToGlobal(Laya.Point.TEMP.setTo(this.selfGroundPoint[0], this.selfGroundPoint[1]), false, Physics.I.worldRoot);
-                var groundVecB = new box2d.b2Vec2(groundB.x / Physics.PIXEL_RATIO, groundB.y / Physics.PIXEL_RATIO);
-                def.Initialize(this.otherBody.getBody(), this.selfBody.getBody(), groundVecA, groundVecB, anchorVecA, anchorVecB, this.ratio);
-                def.collideConnected = this.collideConnected;
-                this._joint = Physics.I._createJoint(def);
-            }
-        }
-    }
-    Laya.ClassUtils.regClass("laya.physics.joint.PulleyJoint", PulleyJoint);
-    Laya.ClassUtils.regClass("Laya.PulleyJoint", PulleyJoint);
-
-    /**
      * 马达关节：用来限制两个刚体，使其相对位置和角度保持不变
      */
     class MotorJoint extends JointBase {
@@ -3238,111 +3190,6 @@ window.box2d=box2d;
     }
     Laya.ClassUtils.regClass("laya.physics.joint.MotorJoint", MotorJoint);
     Laya.ClassUtils.regClass("Laya.MotorJoint", MotorJoint);
-
-    /**
-     * 旋转关节强制两个物体共享一个锚点，两个物体相对旋转
-     */
-    class RevoluteJoint extends JointBase {
-        constructor() {
-            super(...arguments);
-            /**[首次设置有效]关节的链接点，是相对于自身刚体的左上角位置偏移*/
-            this.anchor = [0, 0];
-            /**[首次设置有效]两个刚体是否可以发生碰撞，默认为false*/
-            this.collideConnected = false;
-            /**是否开启马达，开启马达可使目标刚体运动*/
-            this._enableMotor = false;
-            /**启用马达后，可以达到的最大旋转速度*/
-            this._motorSpeed = 0;
-            /**启用马达后，可以施加的最大扭距，如果最大扭矩太小，会导致不旋转*/
-            this._maxMotorTorque = 10000;
-            /**是否对刚体的旋转范围加以约束*/
-            this._enableLimit = false;
-            /**启用约束后，刚体旋转范围的下限弧度*/
-            this._lowerAngle = 0;
-            /**启用约束后，刚体旋转范围的上限弧度*/
-            this._upperAngle = 0;
-        }
-        /**
-         * @override
-         */
-        _createJoint() {
-            if (!this._joint) {
-                //if (!otherBody) throw "otherBody can not be empty";
-                this.selfBody = this.selfBody || this.owner.getComponent(RigidBody);
-                if (!this.selfBody)
-                    throw "selfBody can not be empty";
-                var box2d = window.box2d;
-                var def = RevoluteJoint._temp || (RevoluteJoint._temp = new box2d.b2RevoluteJointDef());
-                var anchorPos = this.selfBody.owner.localToGlobal(Laya.Point.TEMP.setTo(this.anchor[0], this.anchor[1]), false, Physics.I.worldRoot);
-                var anchorVec = new box2d.b2Vec2(anchorPos.x / Physics.PIXEL_RATIO, anchorPos.y / Physics.PIXEL_RATIO);
-                def.Initialize(this.otherBody ? this.otherBody.getBody() : Physics.I._emptyBody, this.selfBody.getBody(), anchorVec);
-                def.enableMotor = this._enableMotor;
-                def.motorSpeed = this._motorSpeed;
-                def.maxMotorTorque = this._maxMotorTorque;
-                def.enableLimit = this._enableLimit;
-                def.lowerAngle = this._lowerAngle;
-                def.upperAngle = this._upperAngle;
-                def.collideConnected = this.collideConnected;
-                this._joint = Physics.I._createJoint(def);
-            }
-        }
-        /**是否开启马达，开启马达可使目标刚体运动*/
-        get enableMotor() {
-            return this._enableMotor;
-        }
-        set enableMotor(value) {
-            this._enableMotor = value;
-            if (this._joint)
-                this._joint.EnableMotor(value);
-        }
-        /**启用马达后，可以达到的最大旋转速度*/
-        get motorSpeed() {
-            return this._motorSpeed;
-        }
-        set motorSpeed(value) {
-            this._motorSpeed = value;
-            if (this._joint)
-                this._joint.SetMotorSpeed(value);
-        }
-        /**启用马达后，可以施加的最大扭距，如果最大扭矩太小，会导致不旋转*/
-        get maxMotorTorque() {
-            return this._maxMotorTorque;
-        }
-        set maxMotorTorque(value) {
-            this._maxMotorTorque = value;
-            if (this._joint)
-                this._joint.SetMaxMotorTorque(value);
-        }
-        /**是否对刚体的旋转范围加以约束*/
-        get enableLimit() {
-            return this._enableLimit;
-        }
-        set enableLimit(value) {
-            this._enableLimit = value;
-            if (this._joint)
-                this._joint.EnableLimit(value);
-        }
-        /**启用约束后，刚体旋转范围的下限弧度*/
-        get lowerAngle() {
-            return this._lowerAngle;
-        }
-        set lowerAngle(value) {
-            this._lowerAngle = value;
-            if (this._joint)
-                this._joint.SetLimits(value, this._upperAngle);
-        }
-        /**启用约束后，刚体旋转范围的上限弧度*/
-        get upperAngle() {
-            return this._upperAngle;
-        }
-        set upperAngle(value) {
-            this._upperAngle = value;
-            if (this._joint)
-                this._joint.SetLimits(this._lowerAngle, value);
-        }
-    }
-    Laya.ClassUtils.regClass("laya.physics.joint.RevoluteJoint", RevoluteJoint);
-    Laya.ClassUtils.regClass("Laya.RevoluteJoint", RevoluteJoint);
 
     /**
      * 平移关节：移动关节允许两个物体沿指定轴相对移动，它会阻止相对旋转
@@ -3451,6 +3298,159 @@ window.box2d=box2d;
     }
     Laya.ClassUtils.regClass("laya.physics.joint.PrismaticJoint", PrismaticJoint);
     Laya.ClassUtils.regClass("Laya.PrismaticJoint", PrismaticJoint);
+
+    /**
+     * 旋转关节强制两个物体共享一个锚点，两个物体相对旋转
+     */
+    class RevoluteJoint extends JointBase {
+        constructor() {
+            super(...arguments);
+            /**[首次设置有效]关节的链接点，是相对于自身刚体的左上角位置偏移*/
+            this.anchor = [0, 0];
+            /**[首次设置有效]两个刚体是否可以发生碰撞，默认为false*/
+            this.collideConnected = false;
+            /**是否开启马达，开启马达可使目标刚体运动*/
+            this._enableMotor = false;
+            /**启用马达后，可以达到的最大旋转速度*/
+            this._motorSpeed = 0;
+            /**启用马达后，可以施加的最大扭距，如果最大扭矩太小，会导致不旋转*/
+            this._maxMotorTorque = 10000;
+            /**是否对刚体的旋转范围加以约束*/
+            this._enableLimit = false;
+            /**启用约束后，刚体旋转范围的下限弧度*/
+            this._lowerAngle = 0;
+            /**启用约束后，刚体旋转范围的上限弧度*/
+            this._upperAngle = 0;
+        }
+        /**
+         * @override
+         */
+        _createJoint() {
+            if (!this._joint) {
+                //if (!otherBody) throw "otherBody can not be empty";
+                this.selfBody = this.selfBody || this.owner.getComponent(RigidBody);
+                if (!this.selfBody)
+                    throw "selfBody can not be empty";
+                var box2d = window.box2d;
+                var def = RevoluteJoint._temp || (RevoluteJoint._temp = new box2d.b2RevoluteJointDef());
+                var anchorPos = this.selfBody.owner.localToGlobal(Laya.Point.TEMP.setTo(this.anchor[0], this.anchor[1]), false, Physics.I.worldRoot);
+                var anchorVec = new box2d.b2Vec2(anchorPos.x / Physics.PIXEL_RATIO, anchorPos.y / Physics.PIXEL_RATIO);
+                def.Initialize(this.otherBody ? this.otherBody.getBody() : Physics.I._emptyBody, this.selfBody.getBody(), anchorVec);
+                def.enableMotor = this._enableMotor;
+                def.motorSpeed = this._motorSpeed;
+                def.maxMotorTorque = this._maxMotorTorque;
+                def.enableLimit = this._enableLimit;
+                def.lowerAngle = this._lowerAngle;
+                def.upperAngle = this._upperAngle;
+                def.collideConnected = this.collideConnected;
+                this._joint = Physics.I._createJoint(def);
+            }
+        }
+        /**是否开启马达，开启马达可使目标刚体运动*/
+        get enableMotor() {
+            return this._enableMotor;
+        }
+        set enableMotor(value) {
+            this._enableMotor = value;
+            if (this._joint)
+                this._joint.EnableMotor(value);
+        }
+        /**启用马达后，可以达到的最大旋转速度*/
+        get motorSpeed() {
+            return this._motorSpeed;
+        }
+        set motorSpeed(value) {
+            this._motorSpeed = value;
+            if (this._joint)
+                this._joint.SetMotorSpeed(value);
+        }
+        /**启用马达后，可以施加的最大扭距，如果最大扭矩太小，会导致不旋转*/
+        get maxMotorTorque() {
+            return this._maxMotorTorque;
+        }
+        set maxMotorTorque(value) {
+            this._maxMotorTorque = value;
+            if (this._joint)
+                this._joint.SetMaxMotorTorque(value);
+        }
+        /**是否对刚体的旋转范围加以约束*/
+        get enableLimit() {
+            return this._enableLimit;
+        }
+        set enableLimit(value) {
+            this._enableLimit = value;
+            if (this._joint)
+                this._joint.EnableLimit(value);
+        }
+        /**启用约束后，刚体旋转范围的下限弧度*/
+        get lowerAngle() {
+            return this._lowerAngle;
+        }
+        set lowerAngle(value) {
+            this._lowerAngle = value;
+            if (this._joint)
+                this._joint.SetLimits(value, this._upperAngle);
+        }
+        /**启用约束后，刚体旋转范围的上限弧度*/
+        get upperAngle() {
+            return this._upperAngle;
+        }
+        set upperAngle(value) {
+            this._upperAngle = value;
+            if (this._joint)
+                this._joint.SetLimits(this._lowerAngle, value);
+        }
+    }
+    Laya.ClassUtils.regClass("laya.physics.joint.RevoluteJoint", RevoluteJoint);
+    Laya.ClassUtils.regClass("Laya.RevoluteJoint", RevoluteJoint);
+
+    /**
+     * 滑轮关节：它将两个物体接地(ground)并彼此连接，当一个物体上升，另一个物体就会下降
+     */
+    class PulleyJoint extends JointBase {
+        constructor() {
+            super(...arguments);
+            /**[首次设置有效]自身刚体链接点，是相对于自身刚体的左上角位置偏移*/
+            this.selfAnchor = [0, 0];
+            /**[首次设置有效]链接刚体链接点，是相对于otherBody的左上角位置偏移*/
+            this.otherAnchor = [0, 0];
+            /**[首次设置有效]滑轮上与节点selfAnchor相连接的节点，是相对于自身刚体的左上角位置偏移*/
+            this.selfGroundPoint = [0, 0];
+            /**[首次设置有效]滑轮上与节点otherAnchor相连接的节点，是相对于otherBody的左上角位置偏移*/
+            this.otherGroundPoint = [0, 0];
+            /**[首次设置有效]两刚体移动距离比率*/
+            this.ratio = 1.5;
+            /**[首次设置有效]两个刚体是否可以发生碰撞，默认为false*/
+            this.collideConnected = false;
+        }
+        /**
+         * @override
+         */
+        _createJoint() {
+            if (!this._joint) {
+                if (!this.otherBody)
+                    throw "otherBody can not be empty";
+                this.selfBody = this.selfBody || this.owner.getComponent(RigidBody);
+                if (!this.selfBody)
+                    throw "selfBody can not be empty";
+                var box2d = window.box2d;
+                var def = PulleyJoint._temp || (PulleyJoint._temp = new box2d.b2PulleyJointDef());
+                var posA = this.otherBody.owner.localToGlobal(Laya.Point.TEMP.setTo(this.otherAnchor[0], this.otherAnchor[1]), false, Physics.I.worldRoot);
+                var anchorVecA = new box2d.b2Vec2(posA.x / Physics.PIXEL_RATIO, posA.y / Physics.PIXEL_RATIO);
+                var posB = this.selfBody.owner.localToGlobal(Laya.Point.TEMP.setTo(this.selfAnchor[0], this.selfAnchor[1]), false, Physics.I.worldRoot);
+                var anchorVecB = new box2d.b2Vec2(posB.x / Physics.PIXEL_RATIO, posB.y / Physics.PIXEL_RATIO);
+                var groundA = this.otherBody.owner.localToGlobal(Laya.Point.TEMP.setTo(this.otherGroundPoint[0], this.otherGroundPoint[1]), false, Physics.I.worldRoot);
+                var groundVecA = new box2d.b2Vec2(groundA.x / Physics.PIXEL_RATIO, groundA.y / Physics.PIXEL_RATIO);
+                var groundB = this.selfBody.owner.localToGlobal(Laya.Point.TEMP.setTo(this.selfGroundPoint[0], this.selfGroundPoint[1]), false, Physics.I.worldRoot);
+                var groundVecB = new box2d.b2Vec2(groundB.x / Physics.PIXEL_RATIO, groundB.y / Physics.PIXEL_RATIO);
+                def.Initialize(this.otherBody.getBody(), this.selfBody.getBody(), groundVecA, groundVecB, anchorVecA, anchorVecB, this.ratio);
+                def.collideConnected = this.collideConnected;
+                this._joint = Physics.I._createJoint(def);
+            }
+        }
+    }
+    Laya.ClassUtils.regClass("laya.physics.joint.PulleyJoint", PulleyJoint);
+    Laya.ClassUtils.regClass("Laya.PulleyJoint", PulleyJoint);
 
     /**
      * 绳索关节：限制了两个点之间的最大距离。它能够阻止连接的物体之间的拉伸，即使在很大的负载下
