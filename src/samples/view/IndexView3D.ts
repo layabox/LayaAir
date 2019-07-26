@@ -115,7 +115,7 @@ import { StaticBatchTest } from "../3d/LayaAir3DTest_Performance/StaticBatchTest
 		private m_length:number;
 		
 		private _comboxBigArr2:any[] = ['高级应用', '动画', '摄影机','Demo', '灯光', '材质', '网格', 'mouseLnteraction', '粒子系统', 'performance', '物理系统', 'resource', 'scene3D',
-											'script','shader','sky','sprite3D','texture','trail','testPerformance'];
+											'script','shader','sky','sprite3D','texture','trail'];
 		//var s:Secne3DPlayer2D    
 		private _advanceClsArr:any[] = [DrawTextTexture,Laya3DCombineHtml,Scene2DPlayer3D,Secne3DPlayer2D];//PostProcessBloom,AStarFindPath,
 		private _advanceArr:any[] = ['DrawTextTexture','Laya3D与网页混合','2D坐标转3D坐标','3D坐标转2D坐标'];//'后期处理之泛光','寻路示例',
@@ -174,8 +174,8 @@ import { StaticBatchTest } from "../3d/LayaAir3DTest_Performance/StaticBatchTest
 		private _trailClsArr:any[] = [TrailDemo,TrailRender];
 		private _trailArr:any[] = ['Trail','TrailRender'];
 
-		private _testPerformanceClsArr:any[] = [ArrayObjectPerformance,DataViewPerformance,MemoryTest,SkinAnimationPerformance,StaticBatchTest,];
-		private _testPerformanceArr:any[] = ['ArrayObjectPerformance','DataViewPerformance','MemoryTest','SkinAnimationPerformance','StaticBatchTest'];
+		// private _testPerformanceClsArr:any[] = [ArrayObjectPerformance,DataViewPerformance,MemoryTest,SkinAnimationPerformance,StaticBatchTest,];
+		// private _testPerformanceArr:any[] = ['ArrayObjectPerformance','DataViewPerformance','MemoryTest','SkinAnimationPerformance','StaticBatchTest'];
 
 		
 		constructor(){
@@ -357,10 +357,10 @@ import { StaticBatchTest } from "../3d/LayaAir3DTest_Performance/StaticBatchTest
 						this._oldView = new this._trailClsArr[index];
 						this.b_length = this._trailClsArr.length - 1;
 						break;
-					case 19:
-						this._oldView = new this._testPerformanceClsArr[index];
-						this.b_length = this._testPerformanceClsArr.length - 1;
-						break;
+					// case 19:
+					// 	this._oldView = new this._testPerformanceClsArr[index];
+					// 	this.b_length = this._testPerformanceClsArr.length - 1;
+					// 	break;
 					default: 
 						break;
 				}
@@ -466,9 +466,9 @@ import { StaticBatchTest } from "../3d/LayaAir3DTest_Performance/StaticBatchTest
 				case 18: //advanced
 					labelStr = this._trailArr.toString();
 					break;
-				case 18: //advanced
-					labelStr = this._testPerformanceArr.toString();
-					break;
+				// case 19: //advanced
+				// 	labelStr = this._testPerformanceArr.toString();
+				// 	break;
 				default: 
 					break;
 			}
