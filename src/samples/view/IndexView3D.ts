@@ -89,6 +89,15 @@ import { Main } from "./../Main";
 import { PostProcessBloom } from "../3d/LayaAir3D_Advance/PostProcessBloom";
 import { MultiTouch } from "../3d/LayaAir3D_MouseInteraction/MultiTouch";
 import { DynamicBatchTest } from "../3d/LayaAir3D_Performance/DynamicBatchTest";
+import { DrawTextTexture } from "../3d/LayaAir3D_Advance/DrawTextTexture";
+import { AnimatorStateScriptTest } from "../3d/LayaAir3D_Animation3D/AnimatorStateScriptTest";
+import { CustomAnimatorStateScript } from "../3d/LayaAir3D_Animation3D/CustomAnimatorStateScript";
+import { PickPixel } from "../3d/LayaAir3D_Camera/PickPixel";
+import { PBRDemo } from "../3d/LayaAir3D_Demo/PBRDemo";
+import { ArrayObjectPerformance } from "../3d/LayaAir3DTest_Performance/ArrayObjectPerformance";
+import { DataViewPerformance } from "../3d/LayaAir3DTest_Performance/DataViewPerformance";
+import { MemoryTest } from "../3d/LayaAir3DTest_Performance/MemoryTest";
+import { StaticBatchTest } from "../3d/LayaAir3DTest_Performance/StaticBatchTest";
 	
 	export class IndexView3D extends IndexViewUI
 	{
@@ -105,18 +114,21 @@ import { DynamicBatchTest } from "../3d/LayaAir3D_Performance/DynamicBatchTest";
 		private b_length:number;
 		private m_length:number;
 		
-		private _comboxBigArr2:any[] = ['高级应用', '动画', '摄影机', '灯光', '材质', '网格', '鼠标交互', '粒子系统', '性能测试', '物理系统', '资源加载', '3D场景',
-											'脚本','Shader','天空盒','3D精灵','纹理','拖尾'];
-		//var s:Secne3DPlayer2D
-		private _advanceClsArr:any[] = [PostProcessBloom,AStarFindPath,Laya3DCombineHtml,Scene2DPlayer3D,Secne3DPlayer2D];
-		private _advanceArr:any[] = ['后期处理之泛光','寻路示例','Laya3D与网页混合','2D坐标转3D坐标','3D坐标转2D坐标'];
+		private _comboxBigArr2:any[] = ['高级应用', '动画', '摄影机','Demo', '灯光', '材质', '网格', 'mouseLnteraction', '粒子系统', 'performance', '物理系统', 'resource', 'scene3D',
+											'script','shader','sky','sprite3D','texture','trail'];
+		//var s:Secne3DPlayer2D    
+		private _advanceClsArr:any[] = [DrawTextTexture,Laya3DCombineHtml,Scene2DPlayer3D,Secne3DPlayer2D];//PostProcessBloom,AStarFindPath,
+		private _advanceArr:any[] = ['DrawTextTexture','Laya3D与网页混合','2D坐标转3D坐标','3D坐标转2D坐标'];//'后期处理之泛光','寻路示例',
 		
-		private _animationClsArr:any[] = [AnimatorDemo,AnimatorStateScriptDemo,CameraAnimation,MaterialAnimation,SkinAnimationSample,AnimationEventByUnity,AnimationLayerBlend,BoneLinkSprite3D,RigidbodyAnimationDemo];//AnimationEventByUnity,AnimationLayerBlend,BoneLinkSprite3D,RigidbodyAnimationDemo
-		private _animationArr:any[] = ['Animator',"AnimatorStateScript","CameraAnimation","MaterialAnimation","SkinAnimationSample","AnimationEventByUnity","AnimationLayerBlend","BoneLinkSprite3D","RigidbodyAnimation"];
+		private _animationClsArr:any[] = [AnimationEventByUnity,AnimationLayerBlend,AnimatorDemo,AnimatorStateScriptDemo,BoneLinkSprite3D,CameraAnimation,MaterialAnimation,RigidbodyAnimationDemo,SkinAnimationSample];//AnimationEventByUnity,AnimationLayerBlend,BoneLinkSprite3D,RigidbodyAnimationDemo
+		private _animationArr:any[] = ["AnimationEventByUnity","AnimationLayerBlend",'Animator',"AnimatorStateScript","BoneLinkSprite3D","CameraAnimation","MaterialAnimation","RigidbodyAnimation","SkinAnimationSample"];
 		
-		private _cameraClsArr:any[] = [CameraDemo, CameraLayer, CameraLookAt, CameraRay, D3SpaceToD2Space, MultiCamera, OrthographicCamera, RenderTargetCamera];
-		private _cameraArr:any[] = ['Camera', 'CameraLayer', 'CameraLookAt','CameraRay','D3SpaceToD2Space','MultiCamera','OrthographicCamera','RenderTargetCamera'];
+		private _cameraClsArr:any[] = [CameraDemo, CameraLayer, CameraLookAt, CameraRay, D3SpaceToD2Space, MultiCamera, OrthographicCamera,PickPixel,RenderTargetCamera];
+		private _cameraArr:any[] = ['Camera', 'CameraLayer', 'CameraLookAt','CameraRay','D3SpaceToD2Space','MultiCamera','OrthographicCamera','PickPixel','RenderTargetCamera'];
 		
+		private _demoClsArr:any[] = [PBRDemo];
+		private _demoArr:any[] = ['PBRDemo'];
+
 		private _lightingClsArr:any[] = [DirectionLightDemo,PointLightDemo,RealTimeShadow,SpotLightDemo];
 		private _lightingArr:any[] = ['DirectionLight', 'PointLight', 'RealTimeShadow', 'SpotLight'];
 		
@@ -161,6 +173,9 @@ import { DynamicBatchTest } from "../3d/LayaAir3D_Performance/DynamicBatchTest";
 		
 		private _trailClsArr:any[] = [TrailDemo,TrailRender];
 		private _trailArr:any[] = ['Trail','TrailRender'];
+
+		// private _testPerformanceClsArr:any[] = [ArrayObjectPerformance,DataViewPerformance,MemoryTest,SkinAnimationPerformance,StaticBatchTest,];
+		// private _testPerformanceArr:any[] = ['ArrayObjectPerformance','DataViewPerformance','MemoryTest','SkinAnimationPerformance','StaticBatchTest'];
 
 		
 		constructor(){
@@ -255,11 +270,11 @@ import { DynamicBatchTest } from "../3d/LayaAir3D_Performance/DynamicBatchTest";
 			{
 				if (this.i%2 == 0)
 				{
-					this._oldView = new RenderTargetCamera;
+					this._oldView = new RealTimeShadow;
 				}
 				else
 				{
-					this._oldView = new DynamicBatchTest;
+					this._oldView = new RealTimeShadow;
 				}
 			}
 			else
@@ -279,65 +294,73 @@ import { DynamicBatchTest } from "../3d/LayaAir3D_Performance/DynamicBatchTest";
 						this.b_length = this._cameraClsArr.length - 1;
 						break;
 					case 3:
+						this._oldView = new this._demoClsArr[index];
+						this.b_length = this._demoClsArr.length - 1;
+						break;
+					case 4:
 						this._oldView = new this._lightingClsArr[index];
 						this.b_length = this._lightingClsArr.length - 1;
 						break;
-					case 4:
+					case 5:
 						this._oldView = new this._mterialClsArr[index];
 						this.b_length = this._mterialClsArr.length - 1;
 						break;
-					case 5:
+					case 6:
 						this._oldView = new this._meshClsArr[index];
 						this.b_length = this._meshClsArr.length - 1;
 						break;
-					case 6:
+					case 7:
 						this._oldView = new this._mouseLnteractionClsArr[index];
 						this.b_length = this._mouseLnteractionClsArr.length - 1;
 						break;
-					case 7:
+					case 8:
 						this._oldView = new this._particleClsArr[index];
 						this.b_length = this._particleClsArr.length - 1;
 						break;
-					case 8:
+					case 9:
 						this._oldView = new this._performanceClsArr[index];
 						this.b_length = this._performanceClsArr.length - 1;
 						break;
-					case 9:
+					case 10:
 						this._oldView = new this._physicsClsArr[index];
 						this.b_length = this._physicsClsArr.length - 1;
 						break;
-					case 10:
+					case 11:
 						this._oldView = new this._resourceClsArr[index];
 						this.b_length = this._resourceClsArr.length - 1;
 						break;
-					case 11:
+					case 12:
 						this._oldView = new this._scene3DClsArr[index];
 						this.b_length = this._scene3DClsArr.length - 1;
 						break;
-					case 12:
+					case 13:
 						this._oldView = new this._scriptClsArr[index];
 						this.b_length = this._scriptClsArr.length - 1;
 						break;
-					case 13:
+					case 14:
 						this._oldView = new this._shaderClsArr[index];
 						this.b_length = this._shaderClsArr.length - 1;
 						break;
-					case 14:
+					case 15:
 						this._oldView = new this._skyClsArr[index];
 						this.b_length = this._skyClsArr.length - 1;
 						break;
-					case 15:
+					case 16:
 						this._oldView = new this._sprite3DClsArr[index];
 						this.b_length = this._sprite3DClsArr.length - 1;
 						break;
-					case 16:
+					case 17:
 						this._oldView = new this._textureClsArr[index];
 						this.b_length = this._textureClsArr.length - 1;
 						break;
-					case 17:
+					case 18:
 						this._oldView = new this._trailClsArr[index];
 						this.b_length = this._trailClsArr.length - 1;
 						break;
+					// case 19:
+					// 	this._oldView = new this._testPerformanceClsArr[index];
+					// 	this.b_length = this._testPerformanceClsArr.length - 1;
+					// 	break;
 					default: 
 						break;
 				}
@@ -395,51 +418,57 @@ import { DynamicBatchTest } from "../3d/LayaAir3D_Performance/DynamicBatchTest";
 				case 2: //ligth
 					labelStr = this._cameraArr.toString();
 					break;
-				case 3: //material
+				case 3:
+					labelStr  = this._demoArr.toString();
+					break;
+				case 4: //material
 					labelStr = this._lightingArr.toString();
 					break;
-				case 4: //camera
+				case 5: //camera
 					labelStr = this._materilArr.toString();
 					break;
-				case 5: //SkyBox
+				case 6: //SkyBox
 					labelStr = this._meshArr.toString();
 					break;
-				case 6: //Scene
+				case 7: //Scene
 					labelStr = this._mouseLnteractionArr.toString();
 					break;
-				case 7: //animation
+				case 8: //animation
 					labelStr = this._particleArr.toString();
 					break;
-				case 8: //particle
+				case 9: //particle
 					labelStr = this._performanceArr.toString();
 					break;
-				case 9: //physics
+				case 10: //physics
 					labelStr = this._physicslArr.toString();
 					break;
-				case 10: //shader
+				case 11: //shader
 					labelStr = this._resourceArr.toString();
 					break;
-				case 11: //advanced
+				case 12: //advanced
 					labelStr = this._scene3DArr.toString();
 					break;
-				case 12: //advanced
+				case 13: //advanced
 					labelStr = this._scriptArr.toString();
 					break;
-				case 13: //advanced
+				case 14: //advanced
 					labelStr = this._shaderArr.toString();
 					break;
-				case 14: //advanced
+				case 15: //advanced
 					labelStr = this._skyArr.toString();
 					break;
-				case 15: //advanced
+				case 16: //advanced
 					labelStr = this._sprite3DArr.toString();
 					break;
-				case 16: //advanced
+				case 17: //advanced
 					labelStr = this._textureArr.toString();
 					break;
-				case 17: //advanced
+				case 18: //advanced
 					labelStr = this._trailArr.toString();
 					break;
+				// case 19: //advanced
+				// 	labelStr = this._testPerformanceArr.toString();
+				// 	break;
 				default: 
 					break;
 			}
