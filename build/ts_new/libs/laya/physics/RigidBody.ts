@@ -107,34 +107,34 @@ import { Component } from "../components/Component"
 			//监听节点变化，同步到物理世界
 			var sp:any = <Sprite>this.owner;
 			//如果节点发生变化，则同步到物理世界（仅限节点本身，父节点发生变化不会自动同步）
-			if (this.accessGetSetFunc(sp, "x", "set") && !sp._changeByRigidBody) {
+			if (/** sp._$set_x */("x" in sp) && !sp._changeByRigidBody) {
 				sp._changeByRigidBody = true;
 				function setX(value:any):void {
-					_$this.accessGetSetFunc(sp, "x", "set")(value);
+					sp.x = value;
 					_$this._sysPosToPhysic();
 				}
 				this._overSet(sp, "x", setX);
 				
 				function setY(value:any):void {
-					_$this.accessGetSetFunc(sp, "y", "set")(value);
+					sp.y = value;
 					_$this._sysPosToPhysic();
 				};
 				this._overSet(sp, "y", setY);
 				
 				function setRotation(value:any):void {
-					_$this.accessGetSetFunc(sp, "rotation", "set")(value);
+					sp.rotation = value;
 					_$this._sysNodeToPhysic();
 				};
 				this._overSet(sp, "rotation", setRotation);
 				
 				function setScaleX(value:any):void {
-					_$this.accessGetSetFunc(sp, "scaleX", "set")(value);
+					sp.scaleX = value;
 					_$this.resetCollider(true);
 				};
 				this._overSet(sp, "scaleX", setScaleX);
 				
 				function setScaleY(value:any):void {
-					_$this.accessGetSetFunc(sp, "scaleY", "set")(value);
+					sp.scaleY = value;
 					_$this.resetCollider(true);
 				};
 				this._overSet(sp, "scaleY", setScaleY);
@@ -181,19 +181,19 @@ import { Component } from "../components/Component"
 				var sp:any = (<Sprite>this.owner );
 				
 				//if (label == "tank") console.log("get",ang);
-				this.accessGetSetFunc(sp, "rotation", "set")(Utils.toAngle(ang) - (<Sprite>sp.parent).globalRotation);
+				sp.rotation = Utils.toAngle(ang) - (<Sprite>sp.parent).globalRotation;
 				
 				if (ang == 0) {
 					var point:Point = sp.parent.globalToLocal(Point.TEMP.setTo(pos.x * IPhysics.Physics.PIXEL_RATIO + sp.pivotX, pos.y * IPhysics.Physics.PIXEL_RATIO + sp.pivotY), false, IPhysics.Physics.I.worldRoot);
-					this.accessGetSetFunc(sp, "x", "set")(point.x);
-					this.accessGetSetFunc(sp, "y", "set")(point.y);
+					sp.x = point.x;
+					sp.y = point.y;
 				} else {
 					point = sp.globalToLocal(Point.TEMP.setTo(pos.x * IPhysics.Physics.PIXEL_RATIO, pos.y * IPhysics.Physics.PIXEL_RATIO), false, IPhysics.Physics.I.worldRoot);
 					point.x += sp.pivotX;
 					point.y += sp.pivotY;
 					point = sp.toParentPoint(point);
-					this.accessGetSetFunc(sp, "x", "set")(point.x);
-					this.accessGetSetFunc(sp, "y", "set")(point.y);
+					sp.x = point.x;
+					sp.y = point.y;
 				}
 			}
 		}

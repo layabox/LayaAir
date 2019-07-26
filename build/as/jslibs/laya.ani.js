@@ -2069,6 +2069,11 @@
         }
     }
 
+    class EventData {
+        constructor() {
+        }
+    }
+
     /**
      * @internal
      */
@@ -2399,11 +2404,6 @@
     IkConstraint.radDeg = 180 / Math.PI;
     IkConstraint.degRad = Math.PI / 180;
     IkConstraint._tempMatrix = new Laya.Matrix();
-
-    class EventData {
-        constructor() {
-        }
-    }
 
     /**
      * @internal
