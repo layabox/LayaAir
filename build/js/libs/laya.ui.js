@@ -2082,137 +2082,6 @@
 	Laya.ClassUtils.regClass("Laya.Button", Button);
 
 	/**
-	 * 当按钮的选中状态（ <code>selected</code> 属性）发生改变时调度。
-	 * @eventType laya.events.Event
-	 */
-	/*[Event(name = "change", type = "laya.events.Event")]*/
-	/**
-	 * <code>CheckBox</code> 组件显示一个小方框，该方框内可以有选中标记。
-	 * <code>CheckBox</code> 组件还可以显示可选的文本标签，默认该标签位于 CheckBox 右侧。
-	 * <p><code>CheckBox</code> 使用 <code>dataSource</code>赋值时的的默认属性是：<code>selected</code>。</p>
-	 *
-	 * @example <caption>以下示例代码，创建了一个 <code>CheckBox</code> 实例。</caption>
-	 * package
-	 *	{
-	 *		import laya.ui.CheckBox;
-	 *		import laya.utils.Handler;
-	 *		public class CheckBox_Example
-	 *		{
-	 *			public function CheckBox_Example()
-	 *			{
-	 *				Laya.init(640, 800);//设置游戏画布宽高。
-	 * 				Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
-	 *				Laya.loader.load("resource/ui/check.png", Handler.create(this,onLoadComplete));//加载资源。
-	 *			}
-	 *			private function onLoadComplete():void
-	 *			{
-	 *				trace("资源加载完成！");
-	 *				var checkBox:CheckBox = new CheckBox("resource/ui/check.png", "这个是一个CheckBox组件。");//创建一个 CheckBox 类的实例对象 checkBox ,传入它的皮肤skin和标签label。
-	 *				checkBox.x = 100;//设置 checkBox 对象的属性 x 的值，用于控制 checkBox 对象的显示位置。
-	 *				checkBox.y = 100;//设置 checkBox 对象的属性 y 的值，用于控制 checkBox 对象的显示位置。
-	 *				checkBox.clickHandler = new Handler(this, onClick, [checkBox]);//设置 checkBox 的点击事件处理器。
-	 *				Laya.stage.addChild(checkBox);//将此 checkBox 对象添加到显示列表。
-	 *			}
-	 *			private function onClick(checkBox:CheckBox):void
-	 *			{
-	 *				trace("输出选中状态: checkBox.selected = " + checkBox.selected);
-	 *			}
-	 *		}
-	 *	}
-	 * @example
-	 * Laya.init(640, 800);//设置游戏画布宽高
-	 * Laya.stage.bgColor = "#efefef";//设置画布的背景颜色
-	 * Laya.loader.load("resource/ui/check.png",laya.utils.Handler.create(this,loadComplete));//加载资源
-	 * function loadComplete()
-	 * {
-	 *     console.log("资源加载完成！");
-	 *     var checkBox:laya.ui.CheckBox= new laya.ui.CheckBox("resource/ui/check.png", "这个是一个CheckBox组件。");//创建一个 CheckBox 类的类的实例对象 checkBox ,传入它的皮肤skin和标签label。
-	 *     checkBox.x =100;//设置 checkBox 对象的属性 x 的值，用于控制 checkBox 对象的显示位置。
-	 *     checkBox.y =100;//设置 checkBox 对象的属性 y 的值，用于控制 checkBox 对象的显示位置。
-	 *     checkBox.clickHandler = new laya.utils.Handler(this,this.onClick,[checkBox],false);//设置 checkBox 的点击事件处理器。
-	 *     Laya.stage.addChild(checkBox);//将此 checkBox 对象添加到显示列表。
-	 * }
-	 * function onClick(checkBox)
-	 * {
-	 *     console.log("checkBox.selected = ",checkBox.selected);
-	 * }
-	 * @example
-	 * import CheckBox= laya.ui.CheckBox;
-	 * import Handler=laya.utils.Handler;
-	 * class CheckBox_Example{
-	 *     constructor()
-	 *     {
-	 *         Laya.init(640, 800);
-	 *         Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
-	 *         Laya.loader.load("resource/ui/check.png", Handler.create(this,this.onLoadComplete));//加载资源。
-	 *     }
-	 *     private onLoadComplete()
-	 *     {
-	 *         var checkBox:CheckBox = new CheckBox("resource/ui/check.png", "这个是一个CheckBox组件。");//创建一个 CheckBox 类的实例对象 checkBox ,传入它的皮肤skin和标签label。
-	 *         checkBox.x = 100;//设置 checkBox 对象的属性 x 的值，用于控制 checkBox 对象的显示位置。
-	 *         checkBox.y = 100;//设置 checkBox 对象的属性 y 的值，用于控制 checkBox 对象的显示位置。
-	 *         checkBox.clickHandler = new Handler(this, this.onClick,[checkBox]);//设置 checkBox 的点击事件处理器。
-	 *         Laya.stage.addChild(checkBox);//将此 checkBox 对象添加到显示列表。
-	 *     }
-	 *     private onClick(checkBox:CheckBox):void
-	 *     {
-	 *         console.log("输出选中状态: checkBox.selected = " + checkBox.selected);
-	 *     }
-	 * }
-	 */
-	class CheckBox extends Button {
-	    /**
-	     * 创建一个新的 <code>CheckBox</code> 组件实例。
-	     * @param skin 皮肤资源地址。
-	     * @param label 文本标签的内容。
-	     */
-	    constructor(skin = null, label = "") {
-	        super(skin, label);
-	        this.toggle = true;
-	        this._autoSize = false;
-	    }
-	    /**
-	     * @inheritDoc
-	     * @internal
-	    */
-	    preinitialize() {
-	        super.preinitialize();
-	        this.toggle = true;
-	        this._autoSize = false;
-	    }
-	    /**
-	     * @inheritDoc
-	     * @internal
-	    */
-	    initialize() {
-	        super.initialize();
-	        this.createText();
-	        this._text.align = "left";
-	        this._text.valign = "top";
-	        this._text.width = 0;
-	    }
-	    /**
-	     * @inheritDoc
-	     * @override
-	    */
-	    set dataSource(value) {
-	        this._dataSource = value;
-	        if (value instanceof Boolean)
-	            this.selected = value;
-	        else if (typeof (value) == 'string')
-	            this.selected = value === "true";
-	        else
-	            super.dataSource = value;
-	    }
-	    get dataSource() {
-	        return super.dataSource;
-	    }
-	}
-	Laya.ILaya.regClass(CheckBox);
-	Laya.ClassUtils.regClass("laya.ui.CheckBox", CheckBox);
-	Laya.ClassUtils.regClass("Laya.CheckBox", CheckBox);
-
-	/**
 	 * 选择项改变后调度。
 	 * @eventType laya.events.Event
 	 */
@@ -2599,447 +2468,114 @@
 	Laya.ClassUtils.regClass("Laya.ColorPicker", ColorPicker);
 
 	/**
-	 * 图片加载完成后调度。
-	 * @eventType Event.LOADED
-	 */
-	/*[Event(name = "loaded", type = "laya.events.Event")]*/
-	/**
-	 * 当前帧发生变化后调度。
+	 * 当按钮的选中状态（ <code>selected</code> 属性）发生改变时调度。
 	 * @eventType laya.events.Event
 	 */
 	/*[Event(name = "change", type = "laya.events.Event")]*/
 	/**
-	 * <p> <code>Clip</code> 类是位图切片动画。</p>
-	 * <p> <code>Clip</code> 可将一张图片，按横向分割数量 <code>clipX</code> 、竖向分割数量 <code>clipY</code> ，
-	 * 或横向分割每个切片的宽度 <code>clipWidth</code> 、竖向分割每个切片的高度 <code>clipHeight</code> ，
-	 * 从左向右，从上到下，分割组合为一个切片动画。</p>
-	 * Image和Clip组件是唯一支持异步加载的两个组件，比如clip.skin = "abc/xxx.png"，其他UI组件均不支持异步加载。
+	 * <code>CheckBox</code> 组件显示一个小方框，该方框内可以有选中标记。
+	 * <code>CheckBox</code> 组件还可以显示可选的文本标签，默认该标签位于 CheckBox 右侧。
+	 * <p><code>CheckBox</code> 使用 <code>dataSource</code>赋值时的的默认属性是：<code>selected</code>。</p>
 	 *
-	 * @example <caption>以下示例代码，创建了一个 <code>Clip</code> 实例。</caption>
+	 * @example <caption>以下示例代码，创建了一个 <code>CheckBox</code> 实例。</caption>
 	 * package
 	 *	{
-	 *		import laya.ui.Clip;
-	 *		public class Clip_Example
+	 *		import laya.ui.CheckBox;
+	 *		import laya.utils.Handler;
+	 *		public class CheckBox_Example
 	 *		{
-	 *			private var clip:Clip;
-	 *			public function Clip_Example()
+	 *			public function CheckBox_Example()
 	 *			{
 	 *				Laya.init(640, 800);//设置游戏画布宽高。
-	 *				Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
-	 *				onInit();
+	 * 				Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
+	 *				Laya.loader.load("resource/ui/check.png", Handler.create(this,onLoadComplete));//加载资源。
 	 *			}
-	 *			private function onInit():void
+	 *			private function onLoadComplete():void
 	 *			{
-	 *				clip = new Clip("resource/ui/clip_num.png", 10, 1);//创建一个 Clip 类的实例对象 clip ,传入它的皮肤skin和横向分割数量、竖向分割数量。
-	 *				clip.autoPlay = true;//设置 clip 动画自动播放。
-	 *				clip.interval = 100;//设置 clip 动画的播放时间间隔。
-	 *				clip.x = 100;//设置 clip 对象的属性 x 的值，用于控制 clip 对象的显示位置。
-	 *				clip.y = 100;//设置 clip 对象的属性 y 的值，用于控制 clip 对象的显示位置。
-	 *				clip.on(Event.CLICK, this, onClick);//给 clip 添加点击事件函数侦听。
-	 *				Laya.stage.addChild(clip);//将此 clip 对象添加到显示列表。
+	 *				trace("资源加载完成！");
+	 *				var checkBox:CheckBox = new CheckBox("resource/ui/check.png", "这个是一个CheckBox组件。");//创建一个 CheckBox 类的实例对象 checkBox ,传入它的皮肤skin和标签label。
+	 *				checkBox.x = 100;//设置 checkBox 对象的属性 x 的值，用于控制 checkBox 对象的显示位置。
+	 *				checkBox.y = 100;//设置 checkBox 对象的属性 y 的值，用于控制 checkBox 对象的显示位置。
+	 *				checkBox.clickHandler = new Handler(this, onClick, [checkBox]);//设置 checkBox 的点击事件处理器。
+	 *				Laya.stage.addChild(checkBox);//将此 checkBox 对象添加到显示列表。
 	 *			}
-	 *			private function onClick():void
+	 *			private function onClick(checkBox:CheckBox):void
 	 *			{
-	 *				trace("clip 的点击事件侦听处理函数。clip.total="+ clip.total);
-	 *				if (clip.isPlaying == true)
-	 *				{
-	 *					clip.stop();//停止动画。
-	 *				}else {
-	 *					clip.play();//播放动画。
-	 *				}
+	 *				trace("输出选中状态: checkBox.selected = " + checkBox.selected);
 	 *			}
 	 *		}
 	 *	}
 	 * @example
 	 * Laya.init(640, 800);//设置游戏画布宽高
 	 * Laya.stage.bgColor = "#efefef";//设置画布的背景颜色
-	 * var clip;
-	 * Laya.loader.load("resource/ui/clip_num.png",laya.utils.Handler.create(this,loadComplete));//加载资源
-	 * function loadComplete() {
-	 *     console.log("资源加载完成！");
-	 *     clip = new laya.ui.Clip("resource/ui/clip_num.png",10,1);//创建一个 Clip 类的实例对象 clip ,传入它的皮肤skin和横向分割数量、竖向分割数量。
-	 *     clip.autoPlay = true;//设置 clip 动画自动播放。
-	 *     clip.interval = 100;//设置 clip 动画的播放时间间隔。
-	 *     clip.x =100;//设置 clip 对象的属性 x 的值，用于控制 clip 对象的显示位置。
-	 *     clip.y =100;//设置 clip 对象的属性 y 的值，用于控制 clip 对象的显示位置。
-	 *     clip.on(Event.CLICK,this,onClick);//给 clip 添加点击事件函数侦听。
-	 *     Laya.stage.addChild(clip);//将此 clip 对象添加到显示列表。
-	 * }
-	 * function onClick()
+	 * Laya.loader.load("resource/ui/check.png",laya.utils.Handler.create(this,loadComplete));//加载资源
+	 * function loadComplete()
 	 * {
-	 *     console.log("clip 的点击事件侦听处理函数。");
-	 *     if(clip.isPlaying == true)
-	 *     {
-	 *         clip.stop();
-	 *     }else {
-	 *         clip.play();
-	 *     }
+	 *     console.log("资源加载完成！");
+	 *     var checkBox:laya.ui.CheckBox= new laya.ui.CheckBox("resource/ui/check.png", "这个是一个CheckBox组件。");//创建一个 CheckBox 类的类的实例对象 checkBox ,传入它的皮肤skin和标签label。
+	 *     checkBox.x =100;//设置 checkBox 对象的属性 x 的值，用于控制 checkBox 对象的显示位置。
+	 *     checkBox.y =100;//设置 checkBox 对象的属性 y 的值，用于控制 checkBox 对象的显示位置。
+	 *     checkBox.clickHandler = new laya.utils.Handler(this,this.onClick,[checkBox],false);//设置 checkBox 的点击事件处理器。
+	 *     Laya.stage.addChild(checkBox);//将此 checkBox 对象添加到显示列表。
+	 * }
+	 * function onClick(checkBox)
+	 * {
+	 *     console.log("checkBox.selected = ",checkBox.selected);
 	 * }
 	 * @example
-	 * import Clip = laya.ui.Clip;
-	 * import Handler = laya.utils.Handler;
-	 * class Clip_Example {
-	 *     private clip: Clip;
-	 *     constructor() {
-	 *         Laya.init(640, 800);//设置游戏画布宽高。
+	 * import CheckBox= laya.ui.CheckBox;
+	 * import Handler=laya.utils.Handler;
+	 * class CheckBox_Example{
+	 *     constructor()
+	 *     {
+	 *         Laya.init(640, 800);
 	 *         Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
-	 *         this.onInit();
+	 *         Laya.loader.load("resource/ui/check.png", Handler.create(this,this.onLoadComplete));//加载资源。
 	 *     }
-	 *     private onInit(): void {
-	 *         this.clip = new Clip("resource/ui/clip_num.png", 10, 1);//创建一个 Clip 类的实例对象 clip ,传入它的皮肤skin和横向分割数量、竖向分割数量。
-	 *         this.clip.autoPlay = true;//设置 clip 动画自动播放。
-	 *         this.clip.interval = 100;//设置 clip 动画的播放时间间隔。
-	 *         this.clip.x = 100;//设置 clip 对象的属性 x 的值，用于控制 clip 对象的显示位置。
-	 *         this.clip.y = 100;//设置 clip 对象的属性 y 的值，用于控制 clip 对象的显示位置。
-	 *         this.clip.on(laya.events.Event.CLICK, this, this.onClick);//给 clip 添加点击事件函数侦听。
-	 *         Laya.stage.addChild(this.clip);//将此 clip 对象添加到显示列表。
+	 *     private onLoadComplete()
+	 *     {
+	 *         var checkBox:CheckBox = new CheckBox("resource/ui/check.png", "这个是一个CheckBox组件。");//创建一个 CheckBox 类的实例对象 checkBox ,传入它的皮肤skin和标签label。
+	 *         checkBox.x = 100;//设置 checkBox 对象的属性 x 的值，用于控制 checkBox 对象的显示位置。
+	 *         checkBox.y = 100;//设置 checkBox 对象的属性 y 的值，用于控制 checkBox 对象的显示位置。
+	 *         checkBox.clickHandler = new Handler(this, this.onClick,[checkBox]);//设置 checkBox 的点击事件处理器。
+	 *         Laya.stage.addChild(checkBox);//将此 checkBox 对象添加到显示列表。
 	 *     }
-	 *     private onClick(): void {
-	 *         console.log("clip 的点击事件侦听处理函数。clip.total=" + this.clip.total);
-	 *         if (this.clip.isPlaying == true) {
-	 *             this.clip.stop();//停止动画。
-	 *         } else {
-	 *             this.clip.play();//播放动画。
-	 *         }
+	 *     private onClick(checkBox:CheckBox):void
+	 *     {
+	 *         console.log("输出选中状态: checkBox.selected = " + checkBox.selected);
 	 *     }
 	 * }
-	 *
 	 */
-	class Clip extends UIComponent {
+	class CheckBox extends Button {
 	    /**
-	     * 创建一个新的 <code>Clip</code> 示例。
-	     * @param url 资源类库名或者地址
-	     * @param clipX x方向分割个数
-	     * @param clipY y方向分割个数
+	     * 创建一个新的 <code>CheckBox</code> 组件实例。
+	     * @param skin 皮肤资源地址。
+	     * @param label 文本标签的内容。
 	     */
-	    constructor(url = null, clipX = 1, clipY = 1) {
-	        super();
-	        /**@private */
-	        this._clipX = 1;
-	        /**@private */
-	        this._clipY = 1;
-	        /**@private */
-	        this._clipWidth = 0;
-	        /**@private */
-	        this._clipHeight = 0;
-	        /**@private */
-	        this._interval = 50;
-	        /**@private */
-	        this._index = 0;
-	        /**@private */
-	        this._toIndex = -1;
-	        this._clipX = clipX;
-	        this._clipY = clipY;
-	        this.skin = url;
-	    }
-	    /**
-	     * @inheritDoc
-	     * @override
-	    */
-	    /*override*/ destroy(destroyChild = true) {
-	        super.destroy(true);
-	        this._bitmap && this._bitmap.destroy();
-	        this._bitmap = null;
-	        this._sources = null;
-	    }
-	    /**
-	     * 销毁对象并释放加载的皮肤资源。
-	     */
-	    dispose() {
-	        this.destroy(true);
-	        window.Laya.loader.clearRes(this._skin);
+	    constructor(skin = null, label = "") {
+	        super(skin, label);
+	        this.toggle = true;
+	        this._autoSize = false;
 	    }
 	    /**
 	     * @inheritDoc
 	     * @internal
 	    */
-	    /*override*/ createChildren() {
-	        this.graphics = this._bitmap = new AutoBitmap();
-	    }
-	    /**@private	 @override*/
-	    _onDisplay(e) {
-	        if (this._isPlaying) {
-	            if (this._getBit(Laya.Const.DISPLAYED_INSTAGE))
-	                this.play();
-	            else
-	                this.stop();
-	        }
-	        else if (this._autoPlay) {
-	            this.play();
-	        }
-	    }
-	    /**
-	     * @copy laya.ui.Image#skin
-	     */
-	    get skin() {
-	        return this._skin;
-	    }
-	    set skin(value) {
-	        if (this._skin != value) {
-	            this._skin = value;
-	            if (value) {
-	                if (!Laya.Loader.getRes(value)) {
-	                    window.Laya.loader.load(this._skin, Laya.Handler.create(this, this._skinLoaded), null, Laya.Loader.IMAGE, 1);
-	                }
-	                else {
-	                    this._skinLoaded();
-	                }
-	            }
-	            else {
-	                this._bitmap.source = null;
-	            }
-	        }
-	    }
-	    _skinLoaded() {
-	        this._setClipChanged();
-	        this._sizeChanged();
-	        this.event(Laya.Event.LOADED);
-	    }
-	    /**X轴（横向）切片数量。*/
-	    get clipX() {
-	        return this._clipX;
-	    }
-	    set clipX(value) {
-	        this._clipX = value || 1;
-	        this._setClipChanged();
-	    }
-	    /**Y轴(竖向)切片数量。*/
-	    get clipY() {
-	        return this._clipY;
-	    }
-	    set clipY(value) {
-	        this._clipY = value || 1;
-	        this._setClipChanged();
-	    }
-	    /**
-	     * 横向分割时每个切片的宽度，与 <code>clipX</code> 同时设置时优先级高于 <code>clipX</code> 。
-	     */
-	    get clipWidth() {
-	        return this._clipWidth;
-	    }
-	    set clipWidth(value) {
-	        this._clipWidth = value;
-	        this._setClipChanged();
-	    }
-	    /**
-	     * 竖向分割时每个切片的高度，与 <code>clipY</code> 同时设置时优先级高于 <code>clipY</code> 。
-	     */
-	    get clipHeight() {
-	        return this._clipHeight;
-	    }
-	    set clipHeight(value) {
-	        this._clipHeight = value;
-	        this._setClipChanged();
-	    }
-	    /**
-	     * @private
-	     * 改变切片的资源、切片的大小。
-	     */
-	    changeClip() {
-	        this._clipChanged = false;
-	        if (!this._skin)
-	            return;
-	        var img = Laya.Loader.getRes(this._skin);
-	        if (img) {
-	            this.loadComplete(this._skin, img);
-	        }
-	        else {
-	            window.Laya.loader.load(this._skin, Laya.Handler.create(this, this.loadComplete, [this._skin]));
-	        }
-	    }
-	    /**
-	     * @private
-	     * 加载切片图片资源完成函数。
-	     * @param url 资源地址。
-	     * @param img 纹理。
-	     */
-	    loadComplete(url, img) {
-	        if (url === this._skin && img) {
-	            var w = this._clipWidth || Math.ceil(img.sourceWidth / this._clipX);
-	            var h = this._clipHeight || Math.ceil(img.sourceHeight / this._clipY);
-	            var key = this._skin + w + h;
-	            var clips = Laya.WeakObject.I.get(key);
-	            if (!Laya.Utils.isOkTextureList(clips)) {
-	                clips = null;
-	            }
-	            if (clips)
-	                this._sources = clips;
-	            else {
-	                this._sources = [];
-	                for (var i = 0; i < this._clipY; i++) {
-	                    for (var j = 0; j < this._clipX; j++) {
-	                        this._sources.push(Laya.Texture.createFromTexture(img, w * j, h * i, w, h));
-	                    }
-	                }
-	                Laya.WeakObject.I.set(key, this._sources);
-	            }
-	            this.index = this._index;
-	            this.event(Laya.Event.LOADED);
-	            this.onCompResize();
-	        }
-	    }
-	    /**
-	     * 源数据。
-	     */
-	    get sources() {
-	        return this._sources;
-	    }
-	    set sources(value) {
-	        this._sources = value;
-	        this.index = this._index;
-	        this.event(Laya.Event.LOADED);
-	    }
-	    /**
-	     * 资源分组。
-	     */
-	    get group() {
-	        return this._group;
-	    }
-	    set group(value) {
-	        if (value && this._skin)
-	            Laya.Loader.setGroup(this._skin, value);
-	        this._group = value;
+	    preinitialize() {
+	        super.preinitialize();
+	        this.toggle = true;
+	        this._autoSize = false;
 	    }
 	    /**
 	     * @inheritDoc
-	     * @override
+	     * @internal
 	    */
-	    /*override*/ set width(value) {
-	        super.width = value;
-	        this._bitmap.width = value;
-	    }
-	    get width() {
-	        return super.width;
-	    }
-	    /**
-	     * @inheritDoc
-	     * @override
-	     * */
-	    /*override*/ set height(value) {
-	        super.height = value;
-	        this._bitmap.height = value;
-	    }
-	    get height() {
-	        return super.height;
-	    }
-	    /**
-	     * @inheritDoc
-	     * @override
-	    */
-	    /*override*/ measureWidth() {
-	        this.runCallLater(this.changeClip);
-	        return this._bitmap.width;
-	    }
-	    /**
-	     * @inheritDoc
-	     * @override
-	    */
-	    /*override*/ measureHeight() {
-	        this.runCallLater(this.changeClip);
-	        return this._bitmap.height;
-	    }
-	    /**
-	     * <p>当前实例的位图 <code>AutoImage</code> 实例的有效缩放网格数据。</p>
-	     * <p>数据格式："上边距,右边距,下边距,左边距,是否重复填充(值为0：不重复填充，1：重复填充)"，以逗号分隔。
-	     * <ul><li>例如："4,4,4,4,1"</li></ul></p>
-	     * @see laya.ui.AutoBitmap.sizeGrid
-	     */
-	    get sizeGrid() {
-	        if (this._bitmap.sizeGrid)
-	            return this._bitmap.sizeGrid.join(",");
-	        return null;
-	    }
-	    set sizeGrid(value) {
-	        this._bitmap.sizeGrid = UIUtils.fillArray(Styles.defaultSizeGrid, value, Number);
-	    }
-	    /**
-	     * 当前帧索引。
-	     */
-	    get index() {
-	        return this._index;
-	    }
-	    set index(value) {
-	        this._index = value;
-	        this._bitmap && this._sources && (this._bitmap.source = this._sources[value]);
-	        this.event(Laya.Event.CHANGE);
-	    }
-	    /**
-	     * 切片动画的总帧数。
-	     */
-	    get total() {
-	        this.runCallLater(this.changeClip);
-	        return this._sources ? this._sources.length : 0;
-	    }
-	    /**
-	     * 表示是否自动播放动画，若自动播放值为true,否则值为false;
-	     * <p>可控制切片动画的播放、停止。</p>
-	     */
-	    get autoPlay() {
-	        return this._autoPlay;
-	    }
-	    set autoPlay(value) {
-	        if (this._autoPlay != value) {
-	            this._autoPlay = value;
-	            value ? this.play() : this.stop();
-	        }
-	    }
-	    /**
-	     * 表示动画播放间隔时间(以毫秒为单位)。
-	     */
-	    get interval() {
-	        return this._interval;
-	    }
-	    set interval(value) {
-	        if (this._interval != value) {
-	            this._interval = value;
-	            if (this._isPlaying)
-	                this.play();
-	        }
-	    }
-	    /**
-	     * 表示动画的当前播放状态。
-	     * 如果动画正在播放中，则为true，否则为flash。
-	     */
-	    get isPlaying() {
-	        return this._isPlaying;
-	    }
-	    set isPlaying(value) {
-	        this._isPlaying = value;
-	    }
-	    /**
-	     * 播放动画。
-	     * @param	from	开始索引
-	     * @param	to		结束索引，-1为不限制
-	     */
-	    play(from = 0, to = -1) {
-	        this._isPlaying = true;
-	        this.index = from;
-	        this._toIndex = to;
-	        this._index++;
-	        window.Laya.timer.loop(this.interval, this, this._loop);
-	        this.on(Laya.Event.DISPLAY, this, this._onDisplay);
-	        this.on(Laya.Event.UNDISPLAY, this, this._onDisplay);
-	    }
-	    /**
-	     * @private
-	     */
-	    _loop() {
-	        if (this._visible && this._sources) {
-	            this._index++;
-	            if (this._toIndex > -1 && this._index >= this._toIndex)
-	                this.stop();
-	            else if (this._index >= this._sources.length)
-	                this._index = 0;
-	            this.index = this._index;
-	        }
-	    }
-	    /**
-	     * 停止动画。
-	     */
-	    stop() {
-	        this._isPlaying = false;
-	        window.Laya.timer.clear(this, this._loop);
-	        this.event(Laya.Event.COMPLETE);
+	    initialize() {
+	        super.initialize();
+	        this.createText();
+	        this._text.align = "left";
+	        this._text.valign = "top";
+	        this._text.width = 0;
 	    }
 	    /**
 	     * @inheritDoc
@@ -3047,31 +2583,20 @@
 	    */
 	    set dataSource(value) {
 	        this._dataSource = value;
-	        if (typeof (value) == 'number' || typeof (value) == 'string')
-	            this.index = parseInt(value);
+	        if (value instanceof Boolean)
+	            this.selected = value;
+	        else if (typeof (value) == 'string')
+	            this.selected = value === "true";
 	        else
 	            super.dataSource = value;
 	    }
 	    get dataSource() {
 	        return super.dataSource;
 	    }
-	    /**
-	     * <code>AutoBitmap</code> 位图实例。
-	     */
-	    get bitmap() {
-	        return this._bitmap;
-	    }
-	    /**@private */
-	    _setClipChanged() {
-	        if (!this._clipChanged) {
-	            this._clipChanged = true;
-	            this.callLater(this.changeClip);
-	        }
-	    }
 	}
-	Laya.ILaya.regClass(Clip);
-	Laya.ClassUtils.regClass("laya.ui.Clip", Clip);
-	Laya.ClassUtils.regClass("Laya.Clip", Clip);
+	Laya.ILaya.regClass(CheckBox);
+	Laya.ClassUtils.regClass("laya.ui.CheckBox", CheckBox);
+	Laya.ClassUtils.regClass("Laya.CheckBox", CheckBox);
 
 	/**
 	 * 文本内容发生改变后调度。
@@ -6400,6 +5925,481 @@
 	Laya.ILaya.regClass(ScaleBox);
 	Laya.ClassUtils.regClass("laya.ui.ScaleBox", ScaleBox);
 	Laya.ClassUtils.regClass("Laya.ScaleBox", ScaleBox);
+
+	/**
+	 * 图片加载完成后调度。
+	 * @eventType Event.LOADED
+	 */
+	/*[Event(name = "loaded", type = "laya.events.Event")]*/
+	/**
+	 * 当前帧发生变化后调度。
+	 * @eventType laya.events.Event
+	 */
+	/*[Event(name = "change", type = "laya.events.Event")]*/
+	/**
+	 * <p> <code>Clip</code> 类是位图切片动画。</p>
+	 * <p> <code>Clip</code> 可将一张图片，按横向分割数量 <code>clipX</code> 、竖向分割数量 <code>clipY</code> ，
+	 * 或横向分割每个切片的宽度 <code>clipWidth</code> 、竖向分割每个切片的高度 <code>clipHeight</code> ，
+	 * 从左向右，从上到下，分割组合为一个切片动画。</p>
+	 * Image和Clip组件是唯一支持异步加载的两个组件，比如clip.skin = "abc/xxx.png"，其他UI组件均不支持异步加载。
+	 *
+	 * @example <caption>以下示例代码，创建了一个 <code>Clip</code> 实例。</caption>
+	 * package
+	 *	{
+	 *		import laya.ui.Clip;
+	 *		public class Clip_Example
+	 *		{
+	 *			private var clip:Clip;
+	 *			public function Clip_Example()
+	 *			{
+	 *				Laya.init(640, 800);//设置游戏画布宽高。
+	 *				Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
+	 *				onInit();
+	 *			}
+	 *			private function onInit():void
+	 *			{
+	 *				clip = new Clip("resource/ui/clip_num.png", 10, 1);//创建一个 Clip 类的实例对象 clip ,传入它的皮肤skin和横向分割数量、竖向分割数量。
+	 *				clip.autoPlay = true;//设置 clip 动画自动播放。
+	 *				clip.interval = 100;//设置 clip 动画的播放时间间隔。
+	 *				clip.x = 100;//设置 clip 对象的属性 x 的值，用于控制 clip 对象的显示位置。
+	 *				clip.y = 100;//设置 clip 对象的属性 y 的值，用于控制 clip 对象的显示位置。
+	 *				clip.on(Event.CLICK, this, onClick);//给 clip 添加点击事件函数侦听。
+	 *				Laya.stage.addChild(clip);//将此 clip 对象添加到显示列表。
+	 *			}
+	 *			private function onClick():void
+	 *			{
+	 *				trace("clip 的点击事件侦听处理函数。clip.total="+ clip.total);
+	 *				if (clip.isPlaying == true)
+	 *				{
+	 *					clip.stop();//停止动画。
+	 *				}else {
+	 *					clip.play();//播放动画。
+	 *				}
+	 *			}
+	 *		}
+	 *	}
+	 * @example
+	 * Laya.init(640, 800);//设置游戏画布宽高
+	 * Laya.stage.bgColor = "#efefef";//设置画布的背景颜色
+	 * var clip;
+	 * Laya.loader.load("resource/ui/clip_num.png",laya.utils.Handler.create(this,loadComplete));//加载资源
+	 * function loadComplete() {
+	 *     console.log("资源加载完成！");
+	 *     clip = new laya.ui.Clip("resource/ui/clip_num.png",10,1);//创建一个 Clip 类的实例对象 clip ,传入它的皮肤skin和横向分割数量、竖向分割数量。
+	 *     clip.autoPlay = true;//设置 clip 动画自动播放。
+	 *     clip.interval = 100;//设置 clip 动画的播放时间间隔。
+	 *     clip.x =100;//设置 clip 对象的属性 x 的值，用于控制 clip 对象的显示位置。
+	 *     clip.y =100;//设置 clip 对象的属性 y 的值，用于控制 clip 对象的显示位置。
+	 *     clip.on(Event.CLICK,this,onClick);//给 clip 添加点击事件函数侦听。
+	 *     Laya.stage.addChild(clip);//将此 clip 对象添加到显示列表。
+	 * }
+	 * function onClick()
+	 * {
+	 *     console.log("clip 的点击事件侦听处理函数。");
+	 *     if(clip.isPlaying == true)
+	 *     {
+	 *         clip.stop();
+	 *     }else {
+	 *         clip.play();
+	 *     }
+	 * }
+	 * @example
+	 * import Clip = laya.ui.Clip;
+	 * import Handler = laya.utils.Handler;
+	 * class Clip_Example {
+	 *     private clip: Clip;
+	 *     constructor() {
+	 *         Laya.init(640, 800);//设置游戏画布宽高。
+	 *         Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
+	 *         this.onInit();
+	 *     }
+	 *     private onInit(): void {
+	 *         this.clip = new Clip("resource/ui/clip_num.png", 10, 1);//创建一个 Clip 类的实例对象 clip ,传入它的皮肤skin和横向分割数量、竖向分割数量。
+	 *         this.clip.autoPlay = true;//设置 clip 动画自动播放。
+	 *         this.clip.interval = 100;//设置 clip 动画的播放时间间隔。
+	 *         this.clip.x = 100;//设置 clip 对象的属性 x 的值，用于控制 clip 对象的显示位置。
+	 *         this.clip.y = 100;//设置 clip 对象的属性 y 的值，用于控制 clip 对象的显示位置。
+	 *         this.clip.on(laya.events.Event.CLICK, this, this.onClick);//给 clip 添加点击事件函数侦听。
+	 *         Laya.stage.addChild(this.clip);//将此 clip 对象添加到显示列表。
+	 *     }
+	 *     private onClick(): void {
+	 *         console.log("clip 的点击事件侦听处理函数。clip.total=" + this.clip.total);
+	 *         if (this.clip.isPlaying == true) {
+	 *             this.clip.stop();//停止动画。
+	 *         } else {
+	 *             this.clip.play();//播放动画。
+	 *         }
+	 *     }
+	 * }
+	 *
+	 */
+	class Clip extends UIComponent {
+	    /**
+	     * 创建一个新的 <code>Clip</code> 示例。
+	     * @param url 资源类库名或者地址
+	     * @param clipX x方向分割个数
+	     * @param clipY y方向分割个数
+	     */
+	    constructor(url = null, clipX = 1, clipY = 1) {
+	        super();
+	        /**@private */
+	        this._clipX = 1;
+	        /**@private */
+	        this._clipY = 1;
+	        /**@private */
+	        this._clipWidth = 0;
+	        /**@private */
+	        this._clipHeight = 0;
+	        /**@private */
+	        this._interval = 50;
+	        /**@private */
+	        this._index = 0;
+	        /**@private */
+	        this._toIndex = -1;
+	        this._clipX = clipX;
+	        this._clipY = clipY;
+	        this.skin = url;
+	    }
+	    /**
+	     * @inheritDoc
+	     * @override
+	    */
+	    /*override*/ destroy(destroyChild = true) {
+	        super.destroy(true);
+	        this._bitmap && this._bitmap.destroy();
+	        this._bitmap = null;
+	        this._sources = null;
+	    }
+	    /**
+	     * 销毁对象并释放加载的皮肤资源。
+	     */
+	    dispose() {
+	        this.destroy(true);
+	        window.Laya.loader.clearRes(this._skin);
+	    }
+	    /**
+	     * @inheritDoc
+	     * @internal
+	    */
+	    /*override*/ createChildren() {
+	        this.graphics = this._bitmap = new AutoBitmap();
+	    }
+	    /**@private	 @override*/
+	    _onDisplay(e) {
+	        if (this._isPlaying) {
+	            if (this._getBit(Laya.Const.DISPLAYED_INSTAGE))
+	                this.play();
+	            else
+	                this.stop();
+	        }
+	        else if (this._autoPlay) {
+	            this.play();
+	        }
+	    }
+	    /**
+	     * @copy laya.ui.Image#skin
+	     */
+	    get skin() {
+	        return this._skin;
+	    }
+	    set skin(value) {
+	        if (this._skin != value) {
+	            this._skin = value;
+	            if (value) {
+	                if (!Laya.Loader.getRes(value)) {
+	                    window.Laya.loader.load(this._skin, Laya.Handler.create(this, this._skinLoaded), null, Laya.Loader.IMAGE, 1);
+	                }
+	                else {
+	                    this._skinLoaded();
+	                }
+	            }
+	            else {
+	                this._bitmap.source = null;
+	            }
+	        }
+	    }
+	    _skinLoaded() {
+	        this._setClipChanged();
+	        this._sizeChanged();
+	        this.event(Laya.Event.LOADED);
+	    }
+	    /**X轴（横向）切片数量。*/
+	    get clipX() {
+	        return this._clipX;
+	    }
+	    set clipX(value) {
+	        this._clipX = value || 1;
+	        this._setClipChanged();
+	    }
+	    /**Y轴(竖向)切片数量。*/
+	    get clipY() {
+	        return this._clipY;
+	    }
+	    set clipY(value) {
+	        this._clipY = value || 1;
+	        this._setClipChanged();
+	    }
+	    /**
+	     * 横向分割时每个切片的宽度，与 <code>clipX</code> 同时设置时优先级高于 <code>clipX</code> 。
+	     */
+	    get clipWidth() {
+	        return this._clipWidth;
+	    }
+	    set clipWidth(value) {
+	        this._clipWidth = value;
+	        this._setClipChanged();
+	    }
+	    /**
+	     * 竖向分割时每个切片的高度，与 <code>clipY</code> 同时设置时优先级高于 <code>clipY</code> 。
+	     */
+	    get clipHeight() {
+	        return this._clipHeight;
+	    }
+	    set clipHeight(value) {
+	        this._clipHeight = value;
+	        this._setClipChanged();
+	    }
+	    /**
+	     * @private
+	     * 改变切片的资源、切片的大小。
+	     */
+	    changeClip() {
+	        this._clipChanged = false;
+	        if (!this._skin)
+	            return;
+	        var img = Laya.Loader.getRes(this._skin);
+	        if (img) {
+	            this.loadComplete(this._skin, img);
+	        }
+	        else {
+	            window.Laya.loader.load(this._skin, Laya.Handler.create(this, this.loadComplete, [this._skin]));
+	        }
+	    }
+	    /**
+	     * @private
+	     * 加载切片图片资源完成函数。
+	     * @param url 资源地址。
+	     * @param img 纹理。
+	     */
+	    loadComplete(url, img) {
+	        if (url === this._skin && img) {
+	            var w = this._clipWidth || Math.ceil(img.sourceWidth / this._clipX);
+	            var h = this._clipHeight || Math.ceil(img.sourceHeight / this._clipY);
+	            var key = this._skin + w + h;
+	            var clips = Laya.WeakObject.I.get(key);
+	            if (!Laya.Utils.isOkTextureList(clips)) {
+	                clips = null;
+	            }
+	            if (clips)
+	                this._sources = clips;
+	            else {
+	                this._sources = [];
+	                for (var i = 0; i < this._clipY; i++) {
+	                    for (var j = 0; j < this._clipX; j++) {
+	                        this._sources.push(Laya.Texture.createFromTexture(img, w * j, h * i, w, h));
+	                    }
+	                }
+	                Laya.WeakObject.I.set(key, this._sources);
+	            }
+	            this.index = this._index;
+	            this.event(Laya.Event.LOADED);
+	            this.onCompResize();
+	        }
+	    }
+	    /**
+	     * 源数据。
+	     */
+	    get sources() {
+	        return this._sources;
+	    }
+	    set sources(value) {
+	        this._sources = value;
+	        this.index = this._index;
+	        this.event(Laya.Event.LOADED);
+	    }
+	    /**
+	     * 资源分组。
+	     */
+	    get group() {
+	        return this._group;
+	    }
+	    set group(value) {
+	        if (value && this._skin)
+	            Laya.Loader.setGroup(this._skin, value);
+	        this._group = value;
+	    }
+	    /**
+	     * @inheritDoc
+	     * @override
+	    */
+	    /*override*/ set width(value) {
+	        super.width = value;
+	        this._bitmap.width = value;
+	    }
+	    get width() {
+	        return super.width;
+	    }
+	    /**
+	     * @inheritDoc
+	     * @override
+	     * */
+	    /*override*/ set height(value) {
+	        super.height = value;
+	        this._bitmap.height = value;
+	    }
+	    get height() {
+	        return super.height;
+	    }
+	    /**
+	     * @inheritDoc
+	     * @override
+	    */
+	    /*override*/ measureWidth() {
+	        this.runCallLater(this.changeClip);
+	        return this._bitmap.width;
+	    }
+	    /**
+	     * @inheritDoc
+	     * @override
+	    */
+	    /*override*/ measureHeight() {
+	        this.runCallLater(this.changeClip);
+	        return this._bitmap.height;
+	    }
+	    /**
+	     * <p>当前实例的位图 <code>AutoImage</code> 实例的有效缩放网格数据。</p>
+	     * <p>数据格式："上边距,右边距,下边距,左边距,是否重复填充(值为0：不重复填充，1：重复填充)"，以逗号分隔。
+	     * <ul><li>例如："4,4,4,4,1"</li></ul></p>
+	     * @see laya.ui.AutoBitmap.sizeGrid
+	     */
+	    get sizeGrid() {
+	        if (this._bitmap.sizeGrid)
+	            return this._bitmap.sizeGrid.join(",");
+	        return null;
+	    }
+	    set sizeGrid(value) {
+	        this._bitmap.sizeGrid = UIUtils.fillArray(Styles.defaultSizeGrid, value, Number);
+	    }
+	    /**
+	     * 当前帧索引。
+	     */
+	    get index() {
+	        return this._index;
+	    }
+	    set index(value) {
+	        this._index = value;
+	        this._bitmap && this._sources && (this._bitmap.source = this._sources[value]);
+	        this.event(Laya.Event.CHANGE);
+	    }
+	    /**
+	     * 切片动画的总帧数。
+	     */
+	    get total() {
+	        this.runCallLater(this.changeClip);
+	        return this._sources ? this._sources.length : 0;
+	    }
+	    /**
+	     * 表示是否自动播放动画，若自动播放值为true,否则值为false;
+	     * <p>可控制切片动画的播放、停止。</p>
+	     */
+	    get autoPlay() {
+	        return this._autoPlay;
+	    }
+	    set autoPlay(value) {
+	        if (this._autoPlay != value) {
+	            this._autoPlay = value;
+	            value ? this.play() : this.stop();
+	        }
+	    }
+	    /**
+	     * 表示动画播放间隔时间(以毫秒为单位)。
+	     */
+	    get interval() {
+	        return this._interval;
+	    }
+	    set interval(value) {
+	        if (this._interval != value) {
+	            this._interval = value;
+	            if (this._isPlaying)
+	                this.play();
+	        }
+	    }
+	    /**
+	     * 表示动画的当前播放状态。
+	     * 如果动画正在播放中，则为true，否则为flash。
+	     */
+	    get isPlaying() {
+	        return this._isPlaying;
+	    }
+	    set isPlaying(value) {
+	        this._isPlaying = value;
+	    }
+	    /**
+	     * 播放动画。
+	     * @param	from	开始索引
+	     * @param	to		结束索引，-1为不限制
+	     */
+	    play(from = 0, to = -1) {
+	        this._isPlaying = true;
+	        this.index = from;
+	        this._toIndex = to;
+	        this._index++;
+	        window.Laya.timer.loop(this.interval, this, this._loop);
+	        this.on(Laya.Event.DISPLAY, this, this._onDisplay);
+	        this.on(Laya.Event.UNDISPLAY, this, this._onDisplay);
+	    }
+	    /**
+	     * @private
+	     */
+	    _loop() {
+	        if (this._visible && this._sources) {
+	            this._index++;
+	            if (this._toIndex > -1 && this._index >= this._toIndex)
+	                this.stop();
+	            else if (this._index >= this._sources.length)
+	                this._index = 0;
+	            this.index = this._index;
+	        }
+	    }
+	    /**
+	     * 停止动画。
+	     */
+	    stop() {
+	        this._isPlaying = false;
+	        window.Laya.timer.clear(this, this._loop);
+	        this.event(Laya.Event.COMPLETE);
+	    }
+	    /**
+	     * @inheritDoc
+	     * @override
+	    */
+	    set dataSource(value) {
+	        this._dataSource = value;
+	        if (typeof (value) == 'number' || typeof (value) == 'string')
+	            this.index = parseInt(value);
+	        else
+	            super.dataSource = value;
+	    }
+	    get dataSource() {
+	        return super.dataSource;
+	    }
+	    /**
+	     * <code>AutoBitmap</code> 位图实例。
+	     */
+	    get bitmap() {
+	        return this._bitmap;
+	    }
+	    /**@private */
+	    _setClipChanged() {
+	        if (!this._clipChanged) {
+	            this._clipChanged = true;
+	            this.callLater(this.changeClip);
+	        }
+	    }
+	}
+	Laya.ILaya.regClass(Clip);
+	Laya.ClassUtils.regClass("laya.ui.Clip", Clip);
+	Laya.ClassUtils.regClass("Laya.Clip", Clip);
 
 	/**
 	 * 当对象的 <code>selectedIndex</code> 属性发生变化时调度。
