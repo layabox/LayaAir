@@ -18390,48 +18390,6 @@
 	        }
 	    }
 	    /**
-	     * @inheritDoc
-	     */
-	    _renderUpdateWithCameraForNative(context, transform) {
-	        var projectionView = context.projectionViewMatrix;
-	        var element = context.renderElement;
-	        switch (element.renderType) {
-	            case RenderElement.RENDERTYPE_NORMAL:
-	                if (transform) {
-	                    Matrix4x4.multiply(projectionView, transform.worldMatrix, this._projectionViewWorldMatrix);
-	                    this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, this._projectionViewWorldMatrix);
-	                }
-	                else {
-	                    this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, projectionView);
-	                }
-	                break;
-	            case RenderElement.RENDERTYPE_STATICBATCH:
-	            case RenderElement.RENDERTYPE_VERTEXBATCH:
-	                var noteValue = ShaderData._SET_RUNTIME_VALUE_MODE_REFERENCE_;
-	                ShaderData.setRuntimeValueMode(false); //[Native]
-	                if (transform) {
-	                    Matrix4x4.multiply(projectionView, transform.worldMatrix, this._projectionViewWorldMatrix);
-	                    this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, this._projectionViewWorldMatrix);
-	                }
-	                else {
-	                    this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, projectionView);
-	                }
-	                ShaderData.setRuntimeValueMode(noteValue); //[Native]
-	                break;
-	            case RenderElement.RENDERTYPE_INSTANCEBATCH:
-	                var mvpMatrixData = SubMeshInstanceBatch.instance.instanceMVPMatrixData;
-	                var insBatches = element.instanceBatchElementList;
-	                var elements = insBatches.elements;
-	                var count = insBatches.length;
-	                for (var i = 0; i < count; i++) {
-	                    var worldMat = elements[i]._transform.worldMatrix;
-	                    Utils3D.mulMatrixByArray(projectionView.elements, 0, worldMat.elements, 0, mvpMatrixData, i * 16);
-	                }
-	                SubMeshInstanceBatch.instance.instanceMVPMatrixBuffer.setData(mvpMatrixData.buffer, 0, 0, count * 16 * 4);
-	                break;
-	        }
-	    }
-	    /**
 	     * @internal
 	     * @override
 	     */
@@ -42397,7 +42355,6 @@
 	            var skinnedMeshRender = SkinnedMeshRenderer;
 	            var avatar = Avatar;
 	            var frustumCulling = FrustumCulling;
-	            var meshRender = MeshRenderer;
 	            if (Laya.Render.supportWebGLPlusRendering) {
 	                //替换ShaderData的函数
 	                shaderData.prototype._initData = shaderData.prototype._initDataForNative;
@@ -42428,19 +42385,12 @@
 	                shader3D.prototype._uniformMatrix2fv = shader3D.prototype._uniformMatrix2fvForNative;
 	                shader3D.prototype._uniformMatrix3fv = shader3D.prototype._uniformMatrix3fvForNative;
 	                shader3D.prototype._uniformMatrix4fv = shader3D.prototype._uniformMatrix4fvForNative;
-	                meshRender.prototype._renderUpdateWithCamera = meshRender.prototype._renderUpdateWithCameraForNative;
 	            }
-	            //Matrix4x4.multiply = Matrix4x4.multiplyForNative;
 	            if (Laya.Render.supportWebGLPlusCulling) {
 	                frustumCulling.renderObjectCulling = FrustumCulling.renderObjectCullingNative;
 	            }
 	            if (Laya.Render.supportWebGLPlusAnimation) {
 	                avatar.prototype._cloneDatasToAnimator = avatar.prototype._cloneDatasToAnimatorNative;
-	                //(window as any).FloatKeyframe = (window as any).conchFloatKeyframe;
-	                //(window as any).Vector3Keyframe = (window as any).conchFloatArrayKeyframe;
-	                //(window as any).QuaternionKeyframe = (window as any).conchFloatArrayKeyframe;
-	                //(window as any).KeyframeNode = (window as any).conchKeyframeNode;
-	                //(window as any).KeyframeNodeList = (window as any).conchKeyframeNodeList;
 	                var animationClip = AnimationClip;
 	                animationClip.prototype._evaluateClipDatasRealTime = animationClip.prototype._evaluateClipDatasRealTimeForNative;
 	                skinnedMeshRender.prototype._computeSkinnedData = skinnedMeshRender.prototype._computeSkinnedDataForNative;
@@ -44076,51 +44026,6 @@
 	}
 
 	/**
-	 * <code>Point2PointConstraint</code> 类用于创建物理组件的父类。
-	 */
-	class Point2PointConstraint {
-	    /**
-	     * 创建一个 <code>Point2PointConstraint</code> 实例。
-	     */
-	    constructor() {
-	        /**@internal */
-	        this._pivotInA = new Vector3();
-	        /**@internal */
-	        this._pivotInB = new Vector3();
-	    }
-	    get pivotInA() {
-	        return this._pivotInA;
-	    }
-	    set pivotInA(value) {
-	        this._pivotInA = value;
-	    }
-	    get pivotInB() {
-	        return this._pivotInB;
-	    }
-	    set pivotInB(value) {
-	        this._pivotInB = value;
-	    }
-	    get damping() {
-	        return this._damping;
-	    }
-	    set damping(value) {
-	        this._damping = value;
-	    }
-	    get impulseClamp() {
-	        return this._impulseClamp;
-	    }
-	    set impulseClamp(value) {
-	        this._impulseClamp = value;
-	    }
-	    get tau() {
-	        return this._tau;
-	    }
-	    set tau(value) {
-	        this._tau = value;
-	    }
-	}
-
-	/**
 	 * <code>ConstraintComponent</code> 类用于创建约束的父类。
 	 */
 	class ConstraintComponent extends Laya.Component {
@@ -44194,6 +44099,51 @@
 	        var physics3D = Physics3D._physics3D;
 	        physics3D.destroy(this._nativeConstraint);
 	        this._nativeConstraint = null;
+	    }
+	}
+
+	/**
+	 * <code>Point2PointConstraint</code> 类用于创建物理组件的父类。
+	 */
+	class Point2PointConstraint {
+	    /**
+	     * 创建一个 <code>Point2PointConstraint</code> 实例。
+	     */
+	    constructor() {
+	        /**@internal */
+	        this._pivotInA = new Vector3();
+	        /**@internal */
+	        this._pivotInB = new Vector3();
+	    }
+	    get pivotInA() {
+	        return this._pivotInA;
+	    }
+	    set pivotInA(value) {
+	        this._pivotInA = value;
+	    }
+	    get pivotInB() {
+	        return this._pivotInB;
+	    }
+	    set pivotInB(value) {
+	        this._pivotInB = value;
+	    }
+	    get damping() {
+	        return this._damping;
+	    }
+	    set damping(value) {
+	        this._damping = value;
+	    }
+	    get impulseClamp() {
+	        return this._impulseClamp;
+	    }
+	    set impulseClamp(value) {
+	        this._impulseClamp = value;
+	    }
+	    get tau() {
+	        return this._tau;
+	    }
+	    set tau(value) {
+	        this._tau = value;
 	    }
 	}
 

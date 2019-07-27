@@ -31765,6 +31765,30 @@ window.Laya= (function (exports) {
 	}
 
 	/**
+	     * <p><code>KeyLocation</code> 类包含表示在键盘或类似键盘的输入设备上按键位置的常量。</p>
+	     * <p><code>KeyLocation</code> 常数用在键盘事件对象的 <code>keyLocation </code>属性中。</p>
+	     */
+	class KeyLocation {
+	}
+	/**
+	 * 表示激活的键不区分位于左侧还是右侧，也不区分是否位于数字键盘（或者是使用对应于数字键盘的虚拟键激活的）。
+	 */
+	KeyLocation.STANDARD = 0;
+	/**
+	 * 表示激活的键在左侧键位置（此键有多个可能的位置）。
+	 */
+	KeyLocation.LEFT = 1;
+	/**
+	 * 表示激活的键在右侧键位置（此键有多个可能的位置）。
+	 */
+	KeyLocation.RIGHT = 2;
+	/**
+	 * <p>表示激活的键位于数字键盘或者是使用对应于数字键盘的虚拟键激活的。</p>
+	 * <p>注意：此属性只在flash模式下有效。</p>
+	 * */
+	KeyLocation.NUM_PAD = 3;
+
+	/**
 	     * <code>Keyboard</code> 类的属性是一些常数，这些常数表示控制游戏时最常用的键。
 	     */
 	class Keyboard {
@@ -31969,30 +31993,6 @@ window.Laya= (function (exports) {
 	Keyboard.INSERT = 45;
 
 	/**
-	     * <p><code>KeyLocation</code> 类包含表示在键盘或类似键盘的输入设备上按键位置的常量。</p>
-	     * <p><code>KeyLocation</code> 常数用在键盘事件对象的 <code>keyLocation </code>属性中。</p>
-	     */
-	class KeyLocation {
-	}
-	/**
-	 * 表示激活的键不区分位于左侧还是右侧，也不区分是否位于数字键盘（或者是使用对应于数字键盘的虚拟键激活的）。
-	 */
-	KeyLocation.STANDARD = 0;
-	/**
-	 * 表示激活的键在左侧键位置（此键有多个可能的位置）。
-	 */
-	KeyLocation.LEFT = 1;
-	/**
-	 * 表示激活的键在右侧键位置（此键有多个可能的位置）。
-	 */
-	KeyLocation.RIGHT = 2;
-	/**
-	 * <p>表示激活的键位于数字键盘或者是使用对应于数字键盘的虚拟键激活的。</p>
-	 * <p>注意：此属性只在flash模式下有效。</p>
-	 * */
-	KeyLocation.NUM_PAD = 3;
-
-	/**
 	 * @private
 	 */
 	class BlurFilterGLRender {
@@ -32017,31 +32017,6 @@ window.Laya= (function (exports) {
 	    }
 	}
 	BlurFilterGLRender.blurinfo = new Array(2);
-
-	/**
-	 * @private
-	 */
-	class GlowFilterGLRender {
-	    setShaderInfo(shader, w, h, data) {
-	        shader.defines.add(data.type);
-	        var sv = shader;
-	        sv.u_blurInfo1 = data._sv_blurInfo1; // [data.blur, data.blur, data.offX, -data.offY];
-	        var info2 = data._sv_blurInfo2;
-	        info2[0] = w;
-	        info2[1] = h;
-	        sv.u_blurInfo2 = info2;
-	        sv.u_color = data.getColor();
-	    }
-	    render(rt, ctx, width, height, filter) {
-	        var w = width, h = height;
-	        var svBlur = Value2D.create(ShaderDefines2D.TEXTURE2D, 0);
-	        this.setShaderInfo(svBlur, w, h, filter);
-	        var svCP = Value2D.create(ShaderDefines2D.TEXTURE2D, 0);
-	        var matI = Matrix.TEMP.identity();
-	        ctx.drawTarget(rt, 0, 0, w, h, matI, svBlur); //先画模糊的底
-	        ctx.drawTarget(rt, 0, 0, w, h, matI, svCP); //再画原始图片
-	    }
-	}
 
 	/**
 	 * 模糊滤镜
@@ -32077,6 +32052,31 @@ window.Laya= (function (exports) {
 	        this.strength_sig2_native[2] = 2.0 * sigma2;
 	        this.strength_sig2_native[3] = 1.0 / (2.0 * Math.PI * sigma2);
 	        return this.strength_sig2_native;
+	    }
+	}
+
+	/**
+	 * @private
+	 */
+	class GlowFilterGLRender {
+	    setShaderInfo(shader, w, h, data) {
+	        shader.defines.add(data.type);
+	        var sv = shader;
+	        sv.u_blurInfo1 = data._sv_blurInfo1; // [data.blur, data.blur, data.offX, -data.offY];
+	        var info2 = data._sv_blurInfo2;
+	        info2[0] = w;
+	        info2[1] = h;
+	        sv.u_blurInfo2 = info2;
+	        sv.u_color = data.getColor();
+	    }
+	    render(rt, ctx, width, height, filter) {
+	        var w = width, h = height;
+	        var svBlur = Value2D.create(ShaderDefines2D.TEXTURE2D, 0);
+	        this.setShaderInfo(svBlur, w, h, filter);
+	        var svCP = Value2D.create(ShaderDefines2D.TEXTURE2D, 0);
+	        var matI = Matrix.TEMP.identity();
+	        ctx.drawTarget(rt, 0, 0, w, h, matI, svBlur); //先画模糊的底
+	        ctx.drawTarget(rt, 0, 0, w, h, matI, svCP); //再画原始图片
 	    }
 	}
 
@@ -32385,121 +32385,6 @@ window.Laya= (function (exports) {
 	ResourceVersion.type = ResourceVersion.FOLDER_VERSION;
 
 	/**
-	 * @private
-	 * 场景资源加载器
-	 */
-	class SceneLoader extends EventDispatcher {
-	    constructor() {
-	        super();
-	        this._completeHandler = new Handler(this, this.onOneLoadComplete);
-	        this.reset();
-	    }
-	    reset() {
-	        this._toLoadList = [];
-	        this._isLoading = false;
-	        this.totalCount = 0;
-	    }
-	    get leftCount() {
-	        if (this._isLoading)
-	            return this._toLoadList.length + 1;
-	        return this._toLoadList.length;
-	    }
-	    get loadedCount() {
-	        return this.totalCount - this.leftCount;
-	    }
-	    load(url, is3D = false, ifCheck = true) {
-	        if (url instanceof Array) {
-	            var i, len;
-	            len = url.length;
-	            for (i = 0; i < len; i++) {
-	                this._addToLoadList(url[i], is3D);
-	            }
-	        }
-	        else {
-	            this._addToLoadList(url, is3D);
-	        }
-	        if (ifCheck)
-	            this._checkNext();
-	    }
-	    _addToLoadList(url, is3D = false) {
-	        if (this._toLoadList.indexOf(url) >= 0)
-	            return;
-	        if (Loader.getRes(url))
-	            return;
-	        if (is3D) {
-	            this._toLoadList.push({ url: url });
-	        }
-	        else
-	            this._toLoadList.push(url);
-	        this.totalCount++;
-	    }
-	    _checkNext() {
-	        if (!this._isLoading) {
-	            if (this._toLoadList.length == 0) {
-	                this.event(Event.COMPLETE);
-	                return;
-	            }
-	            var tItem;
-	            tItem = this._toLoadList.pop();
-	            if (typeof (tItem) == 'string') {
-	                this.loadOne(tItem);
-	            }
-	            else {
-	                this.loadOne(tItem.url, true);
-	            }
-	        }
-	    }
-	    loadOne(url, is3D = false) {
-	        this._curUrl = url;
-	        var type = Utils.getFileExtension(this._curUrl);
-	        if (is3D) {
-	            ILaya.loader.create(url, this._completeHandler);
-	        }
-	        else if (SceneLoader.LoadableExtensions[type]) {
-	            ILaya.loader.load(url, this._completeHandler, null, SceneLoader.LoadableExtensions[type]);
-	        }
-	        else if (url != AtlasInfoManager.getFileLoadPath(url) || SceneLoader.No3dLoadTypes[type] || !LoaderManager.createMap[type]) {
-	            ILaya.loader.load(url, this._completeHandler);
-	        }
-	        else {
-	            ILaya.loader.create(url, this._completeHandler);
-	        }
-	    }
-	    onOneLoadComplete() {
-	        this._isLoading = false;
-	        if (!Loader.getRes(this._curUrl)) {
-	            console.log("Fail to load:", this._curUrl);
-	        }
-	        var type = Utils.getFileExtension(this._curUrl);
-	        if (SceneLoader.LoadableExtensions[type]) {
-	            var dataO;
-	            dataO = Loader.getRes(this._curUrl);
-	            if (dataO && (dataO instanceof Prefab)) {
-	                dataO = dataO.json;
-	            }
-	            if (dataO) {
-	                if (dataO.loadList) {
-	                    this.load(dataO.loadList, false, false);
-	                }
-	                if (dataO.loadList3D) {
-	                    this.load(dataO.loadList3D, true, false);
-	                }
-	            }
-	        }
-	        if (type == "sk") {
-	            this.load(this._curUrl.replace(".sk", ".png"), false, false);
-	        }
-	        this.event(Event.PROGRESS, this.getProgress());
-	        this._checkNext();
-	    }
-	    getProgress() {
-	        return this.loadedCount / this.totalCount;
-	    }
-	}
-	SceneLoader.LoadableExtensions = { "scene": Loader.JSON, "scene3d": Loader.JSON, "ani": Loader.JSON, "ui": Loader.JSON, "prefab": Loader.PREFAB };
-	SceneLoader.No3dLoadTypes = { "png": true, "jpg": true, "txt": true };
-
-	/**
 	 * 连接建立成功后调度。
 	 * @eventType Event.OPEN
 	 * */
@@ -32744,6 +32629,121 @@ window.Laya= (function (exports) {
 	 * <p> LITTLE_ENDIAN ：小端字节序，地址低位存储值的低位，地址高位存储值的高位。</p>
 	 */
 	Socket.BIG_ENDIAN = "bigEndian";
+
+	/**
+	 * @private
+	 * 场景资源加载器
+	 */
+	class SceneLoader extends EventDispatcher {
+	    constructor() {
+	        super();
+	        this._completeHandler = new Handler(this, this.onOneLoadComplete);
+	        this.reset();
+	    }
+	    reset() {
+	        this._toLoadList = [];
+	        this._isLoading = false;
+	        this.totalCount = 0;
+	    }
+	    get leftCount() {
+	        if (this._isLoading)
+	            return this._toLoadList.length + 1;
+	        return this._toLoadList.length;
+	    }
+	    get loadedCount() {
+	        return this.totalCount - this.leftCount;
+	    }
+	    load(url, is3D = false, ifCheck = true) {
+	        if (url instanceof Array) {
+	            var i, len;
+	            len = url.length;
+	            for (i = 0; i < len; i++) {
+	                this._addToLoadList(url[i], is3D);
+	            }
+	        }
+	        else {
+	            this._addToLoadList(url, is3D);
+	        }
+	        if (ifCheck)
+	            this._checkNext();
+	    }
+	    _addToLoadList(url, is3D = false) {
+	        if (this._toLoadList.indexOf(url) >= 0)
+	            return;
+	        if (Loader.getRes(url))
+	            return;
+	        if (is3D) {
+	            this._toLoadList.push({ url: url });
+	        }
+	        else
+	            this._toLoadList.push(url);
+	        this.totalCount++;
+	    }
+	    _checkNext() {
+	        if (!this._isLoading) {
+	            if (this._toLoadList.length == 0) {
+	                this.event(Event.COMPLETE);
+	                return;
+	            }
+	            var tItem;
+	            tItem = this._toLoadList.pop();
+	            if (typeof (tItem) == 'string') {
+	                this.loadOne(tItem);
+	            }
+	            else {
+	                this.loadOne(tItem.url, true);
+	            }
+	        }
+	    }
+	    loadOne(url, is3D = false) {
+	        this._curUrl = url;
+	        var type = Utils.getFileExtension(this._curUrl);
+	        if (is3D) {
+	            ILaya.loader.create(url, this._completeHandler);
+	        }
+	        else if (SceneLoader.LoadableExtensions[type]) {
+	            ILaya.loader.load(url, this._completeHandler, null, SceneLoader.LoadableExtensions[type]);
+	        }
+	        else if (url != AtlasInfoManager.getFileLoadPath(url) || SceneLoader.No3dLoadTypes[type] || !LoaderManager.createMap[type]) {
+	            ILaya.loader.load(url, this._completeHandler);
+	        }
+	        else {
+	            ILaya.loader.create(url, this._completeHandler);
+	        }
+	    }
+	    onOneLoadComplete() {
+	        this._isLoading = false;
+	        if (!Loader.getRes(this._curUrl)) {
+	            console.log("Fail to load:", this._curUrl);
+	        }
+	        var type = Utils.getFileExtension(this._curUrl);
+	        if (SceneLoader.LoadableExtensions[type]) {
+	            var dataO;
+	            dataO = Loader.getRes(this._curUrl);
+	            if (dataO && (dataO instanceof Prefab)) {
+	                dataO = dataO.json;
+	            }
+	            if (dataO) {
+	                if (dataO.loadList) {
+	                    this.load(dataO.loadList, false, false);
+	                }
+	                if (dataO.loadList3D) {
+	                    this.load(dataO.loadList3D, true, false);
+	                }
+	            }
+	        }
+	        if (type == "sk") {
+	            this.load(this._curUrl.replace(".sk", ".png"), false, false);
+	        }
+	        this.event(Event.PROGRESS, this.getProgress());
+	        this._checkNext();
+	    }
+	    getProgress() {
+	        return this.loadedCount / this.totalCount;
+	    }
+	}
+	SceneLoader.LoadableExtensions = { "scene": Loader.JSON, "scene3d": Loader.JSON, "ani": Loader.JSON, "ui": Loader.JSON, "prefab": Loader.PREFAB };
+	SceneLoader.No3dLoadTypes = { "png": true, "jpg": true, "txt": true };
 
 	/**
 	 * @private
@@ -33234,25 +33234,6 @@ window.Laya= (function (exports) {
 	}
 	HTMLChar._isWordRegExp = new RegExp("[\\w\.]", "");
 
-	//import { PerfHUD } from "./PerfHUD";
-	let DATANUM = 300;
-	class PerfData {
-	    constructor(id, color, name, scale) {
-	        this.scale = 1.0;
-	        this.datas = new Array(DATANUM);
-	        this.datapos = 0;
-	        this.id = id;
-	        this.color = color;
-	        this.name = name;
-	        this.scale = scale;
-	    }
-	    addData(v) {
-	        this.datas[this.datapos] = v;
-	        this.datapos++;
-	        this.datapos %= DATANUM;
-	    }
-	}
-
 	/**
 	     * <code>Log</code> 类用于在界面内显示日志记录信息。
 	     * 注意：在加速器内不可使用
@@ -33318,6 +33299,25 @@ window.Laya= (function (exports) {
 	Log.maxCount = 50;
 	/**是否自动滚动到底部，默认为true*/
 	Log.autoScrollToBottom = true;
+
+	//import { PerfHUD } from "./PerfHUD";
+	let DATANUM = 300;
+	class PerfData {
+	    constructor(id, color, name, scale) {
+	        this.scale = 1.0;
+	        this.datas = new Array(DATANUM);
+	        this.datapos = 0;
+	        this.id = id;
+	        this.color = color;
+	        this.name = name;
+	        this.scale = scale;
+	    }
+	    addData(v) {
+	        this.datas[this.datapos] = v;
+	        this.datapos++;
+	        this.datapos %= DATANUM;
+	    }
+	}
 
 	class PerfHUD extends Sprite {
 	    //TODO:coverage
@@ -34021,125 +34021,6 @@ window.Laya= (function (exports) {
 	}
 
 	/**
-	 * 效果插件基类，基于对象池管理
-	 */
-	class EffectBase extends Component {
-	    constructor() {
-	        super(...arguments);
-	        /**动画持续时间，单位为毫秒*/
-	        this.duration = 1000;
-	        /**动画延迟时间，单位为毫秒*/
-	        this.delay = 0;
-	        /**重复次数，默认为播放一次*/
-	        this.repeat = 0;
-	        /**效果结束后，是否自动移除节点*/
-	        this.autoDestroyAtComplete = true;
-	    }
-	    /**
-	     * @override
-	     */
-	    _onAwake() {
-	        this.target = this.target || this.owner;
-	        if (this.autoDestroyAtComplete)
-	            this._comlete = Handler.create(this.target, this.target.destroy, null, false);
-	        if (this.eventName)
-	            this.owner.on(this.eventName, this, this._exeTween);
-	        else
-	            this._exeTween();
-	    }
-	    _exeTween() {
-	        this._tween = this._doTween();
-	        this._tween.repeat = this.repeat;
-	    }
-	    _doTween() {
-	        return null;
-	    }
-	    /**
-	     * @override
-	     */
-	    onReset() {
-	        this.duration = 1000;
-	        this.delay = 0;
-	        this.repeat = 0;
-	        this.ease = null;
-	        this.target = null;
-	        if (this.eventName) {
-	            this.owner.off(this.eventName, this, this._exeTween);
-	            this.eventName = null;
-	        }
-	        if (this._comlete) {
-	            this._comlete.recover();
-	            this._comlete = null;
-	        }
-	        if (this._tween) {
-	            this._tween.clear();
-	            this._tween = null;
-	        }
-	    }
-	}
-
-	/**
-	 * 淡入效果
-	 */
-	class FadeIn extends EffectBase {
-	    /**
-	     * @override
-	     */
-	    _doTween() {
-	        this.target.alpha = 0;
-	        return Tween.to(this.target, { alpha: 1 }, this.duration, Ease[this.ease], this._comlete, this.delay);
-	    }
-	}
-
-	/**
-	 * @Script {name:ButtonEffect}
-	 * @author ww
-	 */
-	class ButtonEffect {
-	    constructor() {
-	        this._curState = 0;
-	        /**
-	         * effectScale
-	         * @prop {name:effectScale,type:number, tips:"缩放值",default:"1.5"}
-	         */
-	        this.effectScale = 1.5;
-	        /**
-	         * tweenTime
-	         * @prop {name:tweenTime,type:number, tips:"缓动时长",default:"300"}
-	         */
-	        this.tweenTime = 300;
-	    }
-	    /**
-	     * 设置控制对象
-	     * @param tar
-	     */
-	    set target(tar) {
-	        this._tar = tar;
-	        tar.on(Event.MOUSE_DOWN, this, this.toChangedState);
-	        tar.on(Event.MOUSE_UP, this, this.toInitState);
-	        tar.on(Event.MOUSE_OUT, this, this.toInitState);
-	    }
-	    toChangedState() {
-	        this._curState = 1;
-	        if (this._curTween)
-	            Tween.clear(this._curTween);
-	        this._curTween = Tween.to(this._tar, { scaleX: this.effectScale, scaleY: this.effectScale }, this.tweenTime, Ease[this.effectEase], Handler.create(this, this.tweenComplete));
-	    }
-	    toInitState() {
-	        if (this._curState == 2)
-	            return;
-	        if (this._curTween)
-	            Tween.clear(this._curTween);
-	        this._curState = 2;
-	        this._curTween = Tween.to(this._tar, { scaleX: 1, scaleY: 1 }, this.tweenTime, Ease[this.backEase], Handler.create(this, this.tweenComplete));
-	    }
-	    tweenComplete() {
-	        this._curState = 0;
-	        this._curTween = null;
-	    }
-	}
-
-	/**
 	 * ...
 	 * @author ww
 	 */
@@ -34260,6 +34141,125 @@ window.Laya= (function (exports) {
 	    set alpha(value) {
 	        this._alpha = value;
 	        this.paramChanged();
+	    }
+	}
+
+	/**
+	 * 效果插件基类，基于对象池管理
+	 */
+	class EffectBase extends Component {
+	    constructor() {
+	        super(...arguments);
+	        /**动画持续时间，单位为毫秒*/
+	        this.duration = 1000;
+	        /**动画延迟时间，单位为毫秒*/
+	        this.delay = 0;
+	        /**重复次数，默认为播放一次*/
+	        this.repeat = 0;
+	        /**效果结束后，是否自动移除节点*/
+	        this.autoDestroyAtComplete = true;
+	    }
+	    /**
+	     * @override
+	     */
+	    _onAwake() {
+	        this.target = this.target || this.owner;
+	        if (this.autoDestroyAtComplete)
+	            this._comlete = Handler.create(this.target, this.target.destroy, null, false);
+	        if (this.eventName)
+	            this.owner.on(this.eventName, this, this._exeTween);
+	        else
+	            this._exeTween();
+	    }
+	    _exeTween() {
+	        this._tween = this._doTween();
+	        this._tween.repeat = this.repeat;
+	    }
+	    _doTween() {
+	        return null;
+	    }
+	    /**
+	     * @override
+	     */
+	    onReset() {
+	        this.duration = 1000;
+	        this.delay = 0;
+	        this.repeat = 0;
+	        this.ease = null;
+	        this.target = null;
+	        if (this.eventName) {
+	            this.owner.off(this.eventName, this, this._exeTween);
+	            this.eventName = null;
+	        }
+	        if (this._comlete) {
+	            this._comlete.recover();
+	            this._comlete = null;
+	        }
+	        if (this._tween) {
+	            this._tween.clear();
+	            this._tween = null;
+	        }
+	    }
+	}
+
+	/**
+	 * 淡入效果
+	 */
+	class FadeIn extends EffectBase {
+	    /**
+	     * @override
+	     */
+	    _doTween() {
+	        this.target.alpha = 0;
+	        return Tween.to(this.target, { alpha: 1 }, this.duration, Ease[this.ease], this._comlete, this.delay);
+	    }
+	}
+
+	/**
+	 * @Script {name:ButtonEffect}
+	 * @author ww
+	 */
+	class ButtonEffect {
+	    constructor() {
+	        this._curState = 0;
+	        /**
+	         * effectScale
+	         * @prop {name:effectScale,type:number, tips:"缩放值",default:"1.5"}
+	         */
+	        this.effectScale = 1.5;
+	        /**
+	         * tweenTime
+	         * @prop {name:tweenTime,type:number, tips:"缓动时长",default:"300"}
+	         */
+	        this.tweenTime = 300;
+	    }
+	    /**
+	     * 设置控制对象
+	     * @param tar
+	     */
+	    set target(tar) {
+	        this._tar = tar;
+	        tar.on(Event.MOUSE_DOWN, this, this.toChangedState);
+	        tar.on(Event.MOUSE_UP, this, this.toInitState);
+	        tar.on(Event.MOUSE_OUT, this, this.toInitState);
+	    }
+	    toChangedState() {
+	        this._curState = 1;
+	        if (this._curTween)
+	            Tween.clear(this._curTween);
+	        this._curTween = Tween.to(this._tar, { scaleX: this.effectScale, scaleY: this.effectScale }, this.tweenTime, Ease[this.effectEase], Handler.create(this, this.tweenComplete));
+	    }
+	    toInitState() {
+	        if (this._curState == 2)
+	            return;
+	        if (this._curTween)
+	            Tween.clear(this._curTween);
+	        this._curState = 2;
+	        this._curTween = Tween.to(this._tar, { scaleX: 1, scaleY: 1 }, this.tweenTime, Ease[this.backEase], Handler.create(this, this.tweenComplete));
+	    }
+	    tweenComplete() {
+	        this._curState = 0;
+	        this._curTween = null;
 	    }
 	}
 

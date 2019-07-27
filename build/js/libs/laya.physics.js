@@ -2996,111 +2996,6 @@ window.box2d=box2d;
     Laya.ClassUtils.regClass("Laya.GearJoint", GearJoint);
 
     /**
-     * 鼠标关节：鼠标关节用于通过鼠标来操控物体。它试图将物体拖向当前鼠标光标的位置。而在旋转方面就没有限制。
-     */
-    class MouseJoint extends JointBase {
-        constructor() {
-            super(...arguments);
-            /**鼠标关节在拖曳刚体bodyB时施加的最大作用力*/
-            this._maxForce = 10000;
-            /**弹簧系统的震动频率，可以视为弹簧的弹性系数*/
-            this._frequency = 5;
-            /**刚体在回归到节点过程中受到的阻尼，取值0~1*/
-            this._damping = 0.7;
-        }
-        /**
-         * @override
-         *
-         */
-        _onEnable() {
-            //super._onEnable();
-            this.owner.on(Laya.Event.MOUSE_DOWN, this, this.onMouseDown);
-        }
-        /**
-         * @override
-         *
-         */
-        _onAwake() {
-        }
-        onMouseDown() {
-            this._createJoint();
-            Laya.Laya.stage.on(Laya.Event.MOUSE_MOVE, this, this.onMouseMove);
-            Laya.Laya.stage.once(Laya.Event.MOUSE_UP, this, this.onStageMouseUp);
-        }
-        /**
-         * @override
-         *
-         */
-        _createJoint() {
-            if (!this._joint) {
-                this.selfBody = this.selfBody || this.owner.getComponent(RigidBody);
-                if (!this.selfBody)
-                    throw "selfBody can not be empty";
-                var box2d = window.box2d;
-                var def = MouseJoint._temp || (MouseJoint._temp = new box2d.b2MouseJointDef());
-                if (this.anchor) {
-                    var anchorPos = this.selfBody.owner.localToGlobal(Laya.Point.TEMP.setTo(this.anchor[0], this.anchor[1]), false, Physics.I.worldRoot);
-                }
-                else {
-                    anchorPos = Physics.I.worldRoot.globalToLocal(Laya.Point.TEMP.setTo(Laya.Laya.stage.mouseX, Laya.Laya.stage.mouseY));
-                }
-                var anchorVec = new box2d.b2Vec2(anchorPos.x / Physics.PIXEL_RATIO, anchorPos.y / Physics.PIXEL_RATIO);
-                def.bodyA = Physics.I._emptyBody;
-                def.bodyB = this.selfBody.getBody();
-                def.target = anchorVec;
-                def.frequencyHz = this._frequency;
-                def.damping = this._damping;
-                def.maxForce = this._maxForce;
-                this._joint = Physics.I._createJoint(def);
-            }
-        }
-        onStageMouseUp() {
-            Laya.Laya.stage.off(Laya.Event.MOUSE_MOVE, this, this.onMouseMove);
-            super._onDisable();
-        }
-        onMouseMove() {
-            this._joint.SetTarget(new window.box2d.b2Vec2(Physics.I.worldRoot.mouseX / Physics.PIXEL_RATIO, Physics.I.worldRoot.mouseY / Physics.PIXEL_RATIO));
-        }
-        /**
-         * @override
-         *
-         */
-        _onDisable() {
-            this.owner.off(Laya.Event.MOUSE_DOWN, this, this.onMouseDown);
-            super._onDisable();
-        }
-        /**鼠标关节在拖曳刚体bodyB时施加的最大作用力*/
-        get maxForce() {
-            return this._maxForce;
-        }
-        set maxForce(value) {
-            this._maxForce = value;
-            if (this._joint)
-                this._joint.SetMaxForce(value);
-        }
-        /**弹簧系统的震动频率，可以视为弹簧的弹性系数*/
-        get frequency() {
-            return this._frequency;
-        }
-        set frequency(value) {
-            this._frequency = value;
-            if (this._joint)
-                this._joint.SetFrequency(value);
-        }
-        /**刚体在回归到节点过程中受到的阻尼，取值0~1*/
-        get damping() {
-            return this._damping;
-        }
-        set damping(value) {
-            this._damping = value;
-            if (this._joint)
-                this._joint.SetDampingRatio(value);
-        }
-    }
-    Laya.ClassUtils.regClass("laya.physics.joint.MouseJoint", MouseJoint);
-    Laya.ClassUtils.regClass("Laya.MouseJoint", MouseJoint);
-
-    /**
      * 马达关节：用来限制两个刚体，使其相对位置和角度保持不变
      */
     class MotorJoint extends JointBase {
@@ -3300,6 +3195,111 @@ window.box2d=box2d;
     Laya.ClassUtils.regClass("Laya.PrismaticJoint", PrismaticJoint);
 
     /**
+     * 鼠标关节：鼠标关节用于通过鼠标来操控物体。它试图将物体拖向当前鼠标光标的位置。而在旋转方面就没有限制。
+     */
+    class MouseJoint extends JointBase {
+        constructor() {
+            super(...arguments);
+            /**鼠标关节在拖曳刚体bodyB时施加的最大作用力*/
+            this._maxForce = 10000;
+            /**弹簧系统的震动频率，可以视为弹簧的弹性系数*/
+            this._frequency = 5;
+            /**刚体在回归到节点过程中受到的阻尼，取值0~1*/
+            this._damping = 0.7;
+        }
+        /**
+         * @override
+         *
+         */
+        _onEnable() {
+            //super._onEnable();
+            this.owner.on(Laya.Event.MOUSE_DOWN, this, this.onMouseDown);
+        }
+        /**
+         * @override
+         *
+         */
+        _onAwake() {
+        }
+        onMouseDown() {
+            this._createJoint();
+            Laya.Laya.stage.on(Laya.Event.MOUSE_MOVE, this, this.onMouseMove);
+            Laya.Laya.stage.once(Laya.Event.MOUSE_UP, this, this.onStageMouseUp);
+        }
+        /**
+         * @override
+         *
+         */
+        _createJoint() {
+            if (!this._joint) {
+                this.selfBody = this.selfBody || this.owner.getComponent(RigidBody);
+                if (!this.selfBody)
+                    throw "selfBody can not be empty";
+                var box2d = window.box2d;
+                var def = MouseJoint._temp || (MouseJoint._temp = new box2d.b2MouseJointDef());
+                if (this.anchor) {
+                    var anchorPos = this.selfBody.owner.localToGlobal(Laya.Point.TEMP.setTo(this.anchor[0], this.anchor[1]), false, Physics.I.worldRoot);
+                }
+                else {
+                    anchorPos = Physics.I.worldRoot.globalToLocal(Laya.Point.TEMP.setTo(Laya.Laya.stage.mouseX, Laya.Laya.stage.mouseY));
+                }
+                var anchorVec = new box2d.b2Vec2(anchorPos.x / Physics.PIXEL_RATIO, anchorPos.y / Physics.PIXEL_RATIO);
+                def.bodyA = Physics.I._emptyBody;
+                def.bodyB = this.selfBody.getBody();
+                def.target = anchorVec;
+                def.frequencyHz = this._frequency;
+                def.damping = this._damping;
+                def.maxForce = this._maxForce;
+                this._joint = Physics.I._createJoint(def);
+            }
+        }
+        onStageMouseUp() {
+            Laya.Laya.stage.off(Laya.Event.MOUSE_MOVE, this, this.onMouseMove);
+            super._onDisable();
+        }
+        onMouseMove() {
+            this._joint.SetTarget(new window.box2d.b2Vec2(Physics.I.worldRoot.mouseX / Physics.PIXEL_RATIO, Physics.I.worldRoot.mouseY / Physics.PIXEL_RATIO));
+        }
+        /**
+         * @override
+         *
+         */
+        _onDisable() {
+            this.owner.off(Laya.Event.MOUSE_DOWN, this, this.onMouseDown);
+            super._onDisable();
+        }
+        /**鼠标关节在拖曳刚体bodyB时施加的最大作用力*/
+        get maxForce() {
+            return this._maxForce;
+        }
+        set maxForce(value) {
+            this._maxForce = value;
+            if (this._joint)
+                this._joint.SetMaxForce(value);
+        }
+        /**弹簧系统的震动频率，可以视为弹簧的弹性系数*/
+        get frequency() {
+            return this._frequency;
+        }
+        set frequency(value) {
+            this._frequency = value;
+            if (this._joint)
+                this._joint.SetFrequency(value);
+        }
+        /**刚体在回归到节点过程中受到的阻尼，取值0~1*/
+        get damping() {
+            return this._damping;
+        }
+        set damping(value) {
+            this._damping = value;
+            if (this._joint)
+                this._joint.SetDampingRatio(value);
+        }
+    }
+    Laya.ClassUtils.regClass("laya.physics.joint.MouseJoint", MouseJoint);
+    Laya.ClassUtils.regClass("Laya.MouseJoint", MouseJoint);
+
+    /**
      * 旋转关节强制两个物体共享一个锚点，两个物体相对旋转
      */
     class RevoluteJoint extends JointBase {
@@ -3453,6 +3453,102 @@ window.box2d=box2d;
     Laya.ClassUtils.regClass("Laya.PulleyJoint", PulleyJoint);
 
     /**
+     * 轮子关节：围绕节点旋转，包含弹性属性，使得刚体在节点位置发生弹性偏移
+     */
+    class WheelJoint extends JointBase {
+        constructor() {
+            super(...arguments);
+            /**[首次设置有效]关节的链接点，是相对于自身刚体的左上角位置偏移*/
+            this.anchor = [0, 0];
+            /**[首次设置有效]两个刚体是否可以发生碰撞，默认为false*/
+            this.collideConnected = false;
+            /**[首次设置有效]一个向量值，描述运动方向，比如1,0是沿X轴向右*/
+            this.axis = [1, 0];
+            /**弹簧系统的震动频率，可以视为弹簧的弹性系数*/
+            this._frequency = 5;
+            /**刚体在回归到节点过程中受到的阻尼，取值0~1*/
+            this._damping = 0.7;
+            /**是否开启马达，开启马达可使目标刚体运动*/
+            this._enableMotor = false;
+            /**启用马达后，可以达到的最大旋转速度*/
+            this._motorSpeed = 0;
+            /**启用马达后，可以施加的最大扭距，如果最大扭矩太小，会导致不旋转*/
+            this._maxMotorTorque = 10000;
+        }
+        /**
+         * @override
+         */
+        _createJoint() {
+            if (!this._joint) {
+                if (!this.otherBody)
+                    throw "otherBody can not be empty";
+                this.selfBody = this.selfBody || this.owner.getComponent(RigidBody);
+                if (!this.selfBody)
+                    throw "selfBody can not be empty";
+                var box2d = window.box2d;
+                var def = WheelJoint._temp || (WheelJoint._temp = new box2d.b2WheelJointDef());
+                var anchorPos = this.selfBody.owner.localToGlobal(Laya.Point.TEMP.setTo(this.anchor[0], this.anchor[1]), false, Physics.I.worldRoot);
+                var anchorVec = new box2d.b2Vec2(anchorPos.x / Physics.PIXEL_RATIO, anchorPos.y / Physics.PIXEL_RATIO);
+                def.Initialize(this.otherBody.getBody(), this.selfBody.getBody(), anchorVec, new box2d.b2Vec2(this.axis[0], this.axis[1]));
+                def.enableMotor = this._enableMotor;
+                def.motorSpeed = this._motorSpeed;
+                def.maxMotorTorque = this._maxMotorTorque;
+                def.frequencyHz = this._frequency;
+                def.dampingRatio = this._damping;
+                def.collideConnected = this.collideConnected;
+                this._joint = Physics.I._createJoint(def);
+            }
+        }
+        /**弹簧系统的震动频率，可以视为弹簧的弹性系数*/
+        get frequency() {
+            return this._frequency;
+        }
+        set frequency(value) {
+            this._frequency = value;
+            if (this._joint)
+                this._joint.SetSpringFrequencyHz(value);
+        }
+        /**刚体在回归到节点过程中受到的阻尼，取值0~1*/
+        get damping() {
+            return this._damping;
+        }
+        set damping(value) {
+            this._damping = value;
+            if (this._joint)
+                this._joint.SetSpringDampingRatio(value);
+        }
+        /**是否开启马达，开启马达可使目标刚体运动*/
+        get enableMotor() {
+            return this._enableMotor;
+        }
+        set enableMotor(value) {
+            this._enableMotor = value;
+            if (this._joint)
+                this._joint.EnableMotor(value);
+        }
+        /**启用马达后，可以达到的最大旋转速度*/
+        get motorSpeed() {
+            return this._motorSpeed;
+        }
+        set motorSpeed(value) {
+            this._motorSpeed = value;
+            if (this._joint)
+                this._joint.SetMotorSpeed(value);
+        }
+        /**启用马达后，可以施加的最大扭距，如果最大扭矩太小，会导致不旋转*/
+        get maxMotorTorque() {
+            return this._maxMotorTorque;
+        }
+        set maxMotorTorque(value) {
+            this._maxMotorTorque = value;
+            if (this._joint)
+                this._joint.SetMaxMotorTorque(value);
+        }
+    }
+    Laya.ClassUtils.regClass("laya.physics.joint.WheelJoint", WheelJoint);
+    Laya.ClassUtils.regClass("Laya.WheelJoint", WheelJoint);
+
+    /**
      * 绳索关节：限制了两个点之间的最大距离。它能够阻止连接的物体之间的拉伸，即使在很大的负载下
      */
     class RopeJoint extends JointBase {
@@ -3557,102 +3653,6 @@ window.box2d=box2d;
     }
     Laya.ClassUtils.regClass("laya.physics.joint.WeldJoint", WeldJoint);
     Laya.ClassUtils.regClass("Laya.WeldJoint", WeldJoint);
-
-    /**
-     * 轮子关节：围绕节点旋转，包含弹性属性，使得刚体在节点位置发生弹性偏移
-     */
-    class WheelJoint extends JointBase {
-        constructor() {
-            super(...arguments);
-            /**[首次设置有效]关节的链接点，是相对于自身刚体的左上角位置偏移*/
-            this.anchor = [0, 0];
-            /**[首次设置有效]两个刚体是否可以发生碰撞，默认为false*/
-            this.collideConnected = false;
-            /**[首次设置有效]一个向量值，描述运动方向，比如1,0是沿X轴向右*/
-            this.axis = [1, 0];
-            /**弹簧系统的震动频率，可以视为弹簧的弹性系数*/
-            this._frequency = 5;
-            /**刚体在回归到节点过程中受到的阻尼，取值0~1*/
-            this._damping = 0.7;
-            /**是否开启马达，开启马达可使目标刚体运动*/
-            this._enableMotor = false;
-            /**启用马达后，可以达到的最大旋转速度*/
-            this._motorSpeed = 0;
-            /**启用马达后，可以施加的最大扭距，如果最大扭矩太小，会导致不旋转*/
-            this._maxMotorTorque = 10000;
-        }
-        /**
-         * @override
-         */
-        _createJoint() {
-            if (!this._joint) {
-                if (!this.otherBody)
-                    throw "otherBody can not be empty";
-                this.selfBody = this.selfBody || this.owner.getComponent(RigidBody);
-                if (!this.selfBody)
-                    throw "selfBody can not be empty";
-                var box2d = window.box2d;
-                var def = WheelJoint._temp || (WheelJoint._temp = new box2d.b2WheelJointDef());
-                var anchorPos = this.selfBody.owner.localToGlobal(Laya.Point.TEMP.setTo(this.anchor[0], this.anchor[1]), false, Physics.I.worldRoot);
-                var anchorVec = new box2d.b2Vec2(anchorPos.x / Physics.PIXEL_RATIO, anchorPos.y / Physics.PIXEL_RATIO);
-                def.Initialize(this.otherBody.getBody(), this.selfBody.getBody(), anchorVec, new box2d.b2Vec2(this.axis[0], this.axis[1]));
-                def.enableMotor = this._enableMotor;
-                def.motorSpeed = this._motorSpeed;
-                def.maxMotorTorque = this._maxMotorTorque;
-                def.frequencyHz = this._frequency;
-                def.dampingRatio = this._damping;
-                def.collideConnected = this.collideConnected;
-                this._joint = Physics.I._createJoint(def);
-            }
-        }
-        /**弹簧系统的震动频率，可以视为弹簧的弹性系数*/
-        get frequency() {
-            return this._frequency;
-        }
-        set frequency(value) {
-            this._frequency = value;
-            if (this._joint)
-                this._joint.SetSpringFrequencyHz(value);
-        }
-        /**刚体在回归到节点过程中受到的阻尼，取值0~1*/
-        get damping() {
-            return this._damping;
-        }
-        set damping(value) {
-            this._damping = value;
-            if (this._joint)
-                this._joint.SetSpringDampingRatio(value);
-        }
-        /**是否开启马达，开启马达可使目标刚体运动*/
-        get enableMotor() {
-            return this._enableMotor;
-        }
-        set enableMotor(value) {
-            this._enableMotor = value;
-            if (this._joint)
-                this._joint.EnableMotor(value);
-        }
-        /**启用马达后，可以达到的最大旋转速度*/
-        get motorSpeed() {
-            return this._motorSpeed;
-        }
-        set motorSpeed(value) {
-            this._motorSpeed = value;
-            if (this._joint)
-                this._joint.SetMotorSpeed(value);
-        }
-        /**启用马达后，可以施加的最大扭距，如果最大扭矩太小，会导致不旋转*/
-        get maxMotorTorque() {
-            return this._maxMotorTorque;
-        }
-        set maxMotorTorque(value) {
-            this._maxMotorTorque = value;
-            if (this._joint)
-                this._joint.SetMaxMotorTorque(value);
-        }
-    }
-    Laya.ClassUtils.regClass("laya.physics.joint.WheelJoint", WheelJoint);
-    Laya.ClassUtils.regClass("Laya.WheelJoint", WheelJoint);
 
     exports.BoxCollider = BoxCollider;
     exports.ChainCollider = ChainCollider;
