@@ -76,7 +76,7 @@ export class GradientDataNumber implements IClone {
 	 * @param	destObject 克隆源。
 	 */
 	cloneTo(destObject: any): void {
-		var destGradientDataNumber: GradientDataNumber = (<GradientDataNumber>destObject);
+		var destGradientDataNumber: GradientDataNumber = <GradientDataNumber>destObject;
 		destGradientDataNumber._currentLength = this._currentLength;
 		var destElements: Float32Array = destGradientDataNumber._elements;
 		for (var i: number = 0, n: number = this._elements.length; i < n; i++)
