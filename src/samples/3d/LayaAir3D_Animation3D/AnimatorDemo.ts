@@ -17,7 +17,7 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
-import { CustomAnimatorStateScript } from "././CustomAnimatorStateScript";
+import { CustomAnimatorStateScript } from "../common/CustomAnimatorStateScript";
 
 /**
  * ...

@@ -18,6 +18,58 @@
 	UIConfig.closeDialogOnSide = true;
 
 	/**
+	     * <code>Styles</code> 定义了组件常用的样式属性。
+	     */
+	class Styles {
+	}
+	/**
+	 * 默认九宫格信息。
+	 * @see laya.ui.AutoBitmap#sizeGrid
+	 */
+	Styles.defaultSizeGrid = [4, 4, 4, 4, 0];
+	//-----------------Label-----------------
+	/**
+	 * 标签颜色。
+	 */
+	Styles.labelColor = "#000000";
+	/**
+	 * 标签的边距。
+	 * <p><b>格式：</b>[上边距，右边距，下边距，左边距]。</p>
+	 */
+	Styles.labelPadding = [2, 2, 2, 2];
+	/**
+	 * 标签的边距。
+	 * <p><b>格式：</b>[上边距，右边距，下边距，左边距]。</p>
+	 */
+	Styles.inputLabelPadding = [1, 1, 1, 3];
+	//-----------------Button-----------------
+	/**
+	 * 按钮皮肤的状态数，支持1,2,3三种状态值。
+	 */
+	Styles.buttonStateNum = 3;
+	/**
+	 * 按钮标签颜色。
+	 * <p><b>格式：</b>[upColor,overColor,downColor,disableColor]。</p>
+	 */
+	Styles.buttonLabelColors = ["#32556b", "#32cc6b", "#ff0000", "#C0C0C0"];
+	//-----------------ComboBox-----------------
+	/**
+	 * 下拉框项颜色。
+	 * <p><b>格式：</b>[overBgColor,overLabelColor,outLabelColor,borderColor,bgColor]。</p>
+	 */
+	Styles.comboBoxItemColors = ["#5e95b6", "#ffffff", "#000000", "#8fa4b1", "#ffffff"];
+	//-----------------ScrollBar-----------------
+	/**
+	 * 滚动条的最小值。
+	 */
+	Styles.scrollBarMinNum = 15;
+	/**
+	 * 长按按钮，等待时间，使其可激活连续滚动。
+	 */
+	Styles.scrollBarDelayTime = 500;
+	//ILaya.regClass(Styles);
+
+	/**
 	 * <code>AutoBitmap</code> 类是用于表示位图图像或绘制图形的显示对象。
 	 * <p>封装了位置，宽高及九宫格的处理，供UI组件使用。</p>
 	 */
@@ -964,743 +1016,6 @@
 	Laya.ILaya.regClass(UIComponent);
 	Laya.ClassUtils.regClass("laya.ui.UIComponent", UIComponent);
 	Laya.ClassUtils.regClass("Laya.UIComponent", UIComponent);
-
-	/**
-	     * <code>Styles</code> 定义了组件常用的样式属性。
-	     */
-	class Styles {
-	}
-	/**
-	 * 默认九宫格信息。
-	 * @see laya.ui.AutoBitmap#sizeGrid
-	 */
-	Styles.defaultSizeGrid = [4, 4, 4, 4, 0];
-	//-----------------Label-----------------
-	/**
-	 * 标签颜色。
-	 */
-	Styles.labelColor = "#000000";
-	/**
-	 * 标签的边距。
-	 * <p><b>格式：</b>[上边距，右边距，下边距，左边距]。</p>
-	 */
-	Styles.labelPadding = [2, 2, 2, 2];
-	/**
-	 * 标签的边距。
-	 * <p><b>格式：</b>[上边距，右边距，下边距，左边距]。</p>
-	 */
-	Styles.inputLabelPadding = [1, 1, 1, 3];
-	//-----------------Button-----------------
-	/**
-	 * 按钮皮肤的状态数，支持1,2,3三种状态值。
-	 */
-	Styles.buttonStateNum = 3;
-	/**
-	 * 按钮标签颜色。
-	 * <p><b>格式：</b>[upColor,overColor,downColor,disableColor]。</p>
-	 */
-	Styles.buttonLabelColors = ["#32556b", "#32cc6b", "#ff0000", "#C0C0C0"];
-	//-----------------ComboBox-----------------
-	/**
-	 * 下拉框项颜色。
-	 * <p><b>格式：</b>[overBgColor,overLabelColor,outLabelColor,borderColor,bgColor]。</p>
-	 */
-	Styles.comboBoxItemColors = ["#5e95b6", "#ffffff", "#000000", "#8fa4b1", "#ffffff"];
-	//-----------------ScrollBar-----------------
-	/**
-	 * 滚动条的最小值。
-	 */
-	Styles.scrollBarMinNum = 15;
-	/**
-	 * 长按按钮，等待时间，使其可激活连续滚动。
-	 */
-	Styles.scrollBarDelayTime = 500;
-	//ILaya.regClass(Styles);
-
-	/**
-	 * 当按钮的选中状态（ <code>selected</code> 属性）发生改变时调度。
-	 * @eventType laya.events.Event
-	 */
-	/*[Event(name = "change", type = "laya.events.Event")]*/
-	/**
-	 * <code>Button</code> 组件用来表示常用的多态按钮。 <code>Button</code> 组件可显示文本标签、图标或同时显示两者。	 *
-	 * <p>可以是单态，两态和三态，默认三态(up,over,down)。</p>
-	 *
-	 * @example <caption>以下示例代码，创建了一个 <code>Button</code> 实例。</caption>
-	 * package
-	 *	{
-	 *		import laya.ui.Button;
-	 *		import laya.utils.Handler;
-	 *		public class Button_Example
-	 *		{
-	 *			public function Button_Example()
-	 *			{
-	 *				Laya.init(640, 800);//设置游戏画布宽高。
-	 *				Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
-	 *				Laya.loader.load("resource/ui/button.png", Handler.create(this,onLoadComplete));//加载资源。
-	 *			}
-	 *			private function onLoadComplete():void
-	 *			{
-	 *				trace("资源加载完成！");
-	 *				var button:Button = new Button("resource/ui/button.png","label");//创建一个 Button 类的实例对象 button ,并传入它的皮肤。
-	 *				button.x = 100;//设置 button 对象的属性 x 的值，用于控制 button 对象的显示位置。
-	 *				button.y = 100;//设置 button 对象的属性 y 的值，用于控制 button 对象的显示位置。
-	 *				button.clickHandler = new Handler(this, onClickButton,[button]);//设置 button 的点击事件处理器。
-	 *				Laya.stage.addChild(button);//将此 button 对象添加到显示列表。
-	 *			}
-	 *			private function onClickButton(button:Button):void
-	 *			{
-	 *				trace("按钮button被点击了！");
-	 *			}
-	 *		}
-	 *	}
-	 * @example
-	 * Laya.init(640, 800);//设置游戏画布宽高、渲染模式。
-	 * Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
-	 * Laya.loader.load("resource/ui/button.png",laya.utils.Handler.create(this,loadComplete));//加载资源
-	 * function loadComplete()
-	 * {
-	 *     console.log("资源加载完成！");
-	 *     var button = new laya.ui.Button("resource/ui/button.png","label");//创建一个 Button 类的实例对象 button ,传入它的皮肤skin和标签label。
-	 *     button.x =100;//设置 button 对象的属性 x 的值，用于控制 button 对象的显示位置。
-	 *     button.y =100;//设置 button 对象的属性 y 的值，用于控制 button 对象的显示位置。
-	 *     button.clickHandler = laya.utils.Handler.create(this,onClickButton,[button],false);//设置 button 的点击事件处理函数。
-	 *     Laya.stage.addChild(button);//将此 button 对象添加到显示列表。
-	 * }
-	 * function onClickButton(button)
-	 * {
-	 *     console.log("按钮被点击了。",button);
-	 * }
-	 * @example
-	 * import Button=laya.ui.Button;
-	 * import Handler=laya.utils.Handler;
-	 * class Button_Example{
-	 *     constructor()
-	 *     {
-	 *         Laya.init(640, 800);
-	 *         Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
-	 *         Laya.loader.load("resource/ui/button.png", laya.utils.Handler.create(this,this.onLoadComplete));//加载资源。
-	 *     }
-	 *     private onLoadComplete()
-	 *     {
-	 *         var button:Button = new Button("resource/ui/button.png","label");//创建一个 Button 类的实例对象 button ,并传入它的皮肤。
-	 *         button.x = 100;//设置 button 对象的属性 x 的值，用于控制 button 对象的显示位置。
-	 *         button.y = 100;//设置 button 对象的属性 y 的值，用于控制 button 对象的显示位置。
-	 *         button.clickHandler = new Handler(this, this.onClickButton,[button]);//设置 button 的点击事件处理器。
-	 *         Laya.stage.addChild(button);//将此 button 对象添加到显示列表。
-	 *     }
-	 *     private onClickButton(button:Button):void
-	 *     {
-	 *         console.log("按钮button被点击了！")
-	 *     }
-	 * }
-	 */
-	class Button extends UIComponent {
-	    /**
-	     * 创建一个新的 <code>Button</code> 类实例。
-	     * @param skin 皮肤资源地址。
-	     * @param label 按钮的文本内容。
-	     */
-	    constructor(skin = null, label = "") {
-	        super();
-	        /**
-	         * @private
-	         * 按钮文本标签的颜色值。
-	         */
-	        this._labelColors = Styles.buttonLabelColors;
-	        /**
-	         * @private
-	         * 按钮的状态值。
-	         */
-	        this._state = 0;
-	        /**
-	         * @private
-	         * 指定此显示对象是否自动计算并改变大小等属性。
-	         */
-	        this._autoSize = true; // 注意 由于构造函数执行顺序的区别，这里设置为true真的会导致ts的值为true，as的为false （as的 后调用super）
-	        /**
-	         * @private
-	         * 按钮的状态数。
-	         */
-	        this._stateNum = Styles.buttonStateNum;
-	        /**
-	         * @private
-	         */
-	        this._stateChanged = false;
-	        this.skin = skin;
-	        this.label = label;
-	    }
-	    /**@inheritDoc
-	     * @override
-	    */
-	    destroy(destroyChild = true) {
-	        super.destroy(destroyChild);
-	        this._bitmap && this._bitmap.destroy();
-	        this._text && this._text.destroy(destroyChild);
-	        this._bitmap = null;
-	        this._text = null;
-	        this._clickHandler = null;
-	        this._labelColors = this._sources = this._strokeColors = null;
-	    }
-	    /**@inheritDoc
-	     * @override
-	     * @internal
-	    */
-	    createChildren() {
-	        this.graphics = this._bitmap = new AutoBitmap();
-	    }
-	    /**@private */
-	    createText() {
-	        if (!this._text) {
-	            this._text = new Laya.Text();
-	            this._text.overflow = Laya.Text.HIDDEN;
-	            this._text.align = "center";
-	            this._text.valign = "middle";
-	            this._text.width = this._width;
-	            this._text.height = this._height;
-	        }
-	    }
-	    /**@inheritDoc
-	     * @override
-	     * @internal
-	    */
-	    initialize() {
-	        if (this._mouseState !== 1) {
-	            this.mouseEnabled = true;
-	            this._setBit(Laya.Const.HAS_MOUSE, true);
-	        }
-	        this._createListener(Laya.Event.MOUSE_OVER, this, this.onMouse, null, false, false);
-	        this._createListener(Laya.Event.MOUSE_OUT, this, this.onMouse, null, false, false);
-	        this._createListener(Laya.Event.MOUSE_DOWN, this, this.onMouse, null, false, false);
-	        this._createListener(Laya.Event.MOUSE_UP, this, this.onMouse, null, false, false);
-	        this._createListener(Laya.Event.CLICK, this, this.onMouse, null, false, false);
-	    }
-	    /**
-	     * 对象的 <code>Event.MOUSE_OVER、Event.MOUSE_OUT、Event.MOUSE_DOWN、Event.MOUSE_UP、Event.CLICK</code> 事件侦听处理函数。
-	     * @param e Event 对象。
-	     */
-	    onMouse(e) {
-	        if (this.toggle === false && this._selected)
-	            return;
-	        if (e.type === Laya.Event.CLICK) {
-	            this.toggle && (this.selected = !this._selected);
-	            this._clickHandler && this._clickHandler.run();
-	            return;
-	        }
-	        !this._selected && (this.state = Button.stateMap[e.type]);
-	    }
-	    /**
-	     * <p>对象的皮肤资源地址。</p>
-	     * 支持单态，两态和三态，用 <code>stateNum</code> 属性设置
-	     * <p>对象的皮肤地址，以字符串表示。</p>
-	     * @see #stateNum
-	     */
-	    get skin() {
-	        return this._skin;
-	    }
-	    set skin(value) {
-	        if (this._skin != value) {
-	            this._skin = value;
-	            if (value) {
-	                if (!Laya.Loader.getRes(value)) {
-	                    window.Laya.loader.load(this._skin, Laya.Handler.create(this, this._skinLoaded), null, Laya.Loader.IMAGE, 1); //TODO 
-	                }
-	                else {
-	                    this._skinLoaded();
-	                }
-	            }
-	            else {
-	                this._skinLoaded();
-	            }
-	        }
-	    }
-	    _skinLoaded() {
-	        this.callLater(this.changeClips);
-	        this._setStateChanged();
-	        this._sizeChanged();
-	        this.event(Laya.Event.LOADED);
-	    }
-	    /**
-	     * <p>指定对象的状态值，以数字表示。</p>
-	     * <p>默认值为3。此值决定皮肤资源图片的切割方式。</p>
-	     * <p><b>取值：</b>
-	     * <li>1：单态。图片不做切割，按钮的皮肤状态只有一种。</li>
-	     * <li>2：两态。图片将以竖直方向被等比切割为2部分，从上向下，依次为
-	     * 弹起状态皮肤、
-	     * 按下和经过及选中状态皮肤。</li>
-	     * <li>3：三态。图片将以竖直方向被等比切割为3部分，从上向下，依次为
-	     * 弹起状态皮肤、
-	     * 经过状态皮肤、
-	     * 按下和选中状态皮肤</li>
-	     * </p>
-	     */
-	    get stateNum() {
-	        return this._stateNum;
-	    }
-	    set stateNum(value) {
-	        if (typeof value == 'string') {
-	            value = parseInt(value);
-	        }
-	        if (this._stateNum != value) {
-	            this._stateNum = value < 1 ? 1 : value > 3 ? 3 : value;
-	            this.callLater(this.changeClips);
-	        }
-	    }
-	    /**
-	     * @private
-	     * 对象的资源切片发生改变。
-	     */
-	    changeClips() {
-	        var img = Laya.Loader.getRes(this._skin);
-	        if (!img) {
-	            console.log("lose skin", this._skin);
-	            return;
-	        }
-	        var width = img.sourceWidth;
-	        var height = img.sourceHeight / this._stateNum;
-	        img.$_GID || (img.$_GID = Laya.Utils.getGID());
-	        var key = img.$_GID + "-" + this._stateNum;
-	        var clips = Laya.WeakObject.I.get(key);
-	        if (!Laya.Utils.isOkTextureList(clips)) {
-	            clips = null;
-	        }
-	        if (clips)
-	            this._sources = clips;
-	        else {
-	            this._sources = [];
-	            if (this._stateNum === 1) {
-	                this._sources.push(img);
-	            }
-	            else {
-	                for (var i = 0; i < this._stateNum; i++) {
-	                    this._sources.push(Laya.Texture.createFromTexture(img, 0, height * i, width, height));
-	                }
-	            }
-	            Laya.WeakObject.I.set(key, this._sources);
-	        }
-	        if (this._autoSize) {
-	            this._bitmap.width = this._width || width;
-	            this._bitmap.height = this._height || height;
-	            if (this._text) {
-	                this._text.width = this._bitmap.width;
-	                this._text.height = this._bitmap.height;
-	            }
-	        }
-	        else {
-	            this._text && (this._text.x = width);
-	        }
-	    }
-	    /**
-	     * @inheritDoc
-	     * @override
-	     */
-	    measureWidth() {
-	        this.runCallLater(this.changeClips);
-	        if (this._autoSize)
-	            return this._bitmap.width;
-	        this.runCallLater(this.changeState);
-	        return this._bitmap.width + (this._text ? this._text.width : 0);
-	    }
-	    /**
-	     * @inheritDoc
-	     * @override
-	     */
-	    measureHeight() {
-	        this.runCallLater(this.changeClips);
-	        return this._text ? Math.max(this._bitmap.height, this._text.height) : this._bitmap.height;
-	    }
-	    /**
-	     * 按钮的文本内容。
-	     */
-	    get label() {
-	        return this._text ? this._text.text : null;
-	    }
-	    set label(value) {
-	        if (!this._text && !value)
-	            return;
-	        this.createText();
-	        if (this._text.text != value) {
-	            value && !this._text.parent && this.addChild(this._text);
-	            this._text.text = (value + "").replace(/\\n/g, "\n");
-	            this._setStateChanged();
-	        }
-	    }
-	    /**
-	     * 表示按钮的选中状态。
-	     * <p>如果值为true，表示该对象处于选中状态。否则该对象处于未选中状态。</p>
-	     * @implements
-	     */
-	    get selected() {
-	        return this._selected;
-	    }
-	    set selected(value) {
-	        if (this._selected != value) {
-	            this._selected = value;
-	            this.state = this._selected ? 2 : 0;
-	            this.event(Laya.Event.CHANGE);
-	        }
-	    }
-	    /**
-	     * 对象的状态值。
-	     * @see #stateMap
-	     */
-	    get state() {
-	        return this._state;
-	    }
-	    set state(value) {
-	        if (this._state != value) {
-	            this._state = value;
-	            this._setStateChanged();
-	        }
-	    }
-	    /**
-	     * @private
-	     * 改变对象的状态。
-	     */
-	    changeState() {
-	        this._stateChanged = false;
-	        this.runCallLater(this.changeClips);
-	        var index = this._state < this._stateNum ? this._state : this._stateNum - 1;
-	        this._sources && (this._bitmap.source = this._sources[index]);
-	        if (this.label) {
-	            this._text.color = this._labelColors[index];
-	            if (this._strokeColors)
-	                this._text.strokeColor = this._strokeColors[index];
-	        }
-	    }
-	    /**
-	     * 表示按钮各个状态下的文本颜色。
-	     * <p><b>格式:</b> "upColor,overColor,downColor,disableColor"。</p>
-	     */
-	    get labelColors() {
-	        return this._labelColors.join(",");
-	    }
-	    set labelColors(value) {
-	        this._labelColors = UIUtils.fillArray(Styles.buttonLabelColors, value, String);
-	        this._setStateChanged();
-	    }
-	    /**
-	     * 表示按钮各个状态下的描边颜色。
-	     * <p><b>格式:</b> "upColor,overColor,downColor,disableColor"。</p>
-	     */
-	    get strokeColors() {
-	        return this._strokeColors ? this._strokeColors.join(",") : "";
-	    }
-	    set strokeColors(value) {
-	        this._strokeColors = UIUtils.fillArray(Styles.buttonLabelColors, value, String);
-	        this._setStateChanged();
-	    }
-	    /**
-	     * 表示按钮文本标签的边距。
-	     * <p><b>格式：</b>"上边距,右边距,下边距,左边距"。</p>
-	     */
-	    get labelPadding() {
-	        this.createText();
-	        return this._text.padding.join(",");
-	    }
-	    set labelPadding(value) {
-	        this.createText();
-	        this._text.padding = UIUtils.fillArray(Styles.labelPadding, value, Number);
-	    }
-	    /**
-	     * 表示按钮文本标签的字体大小。
-	     * @see laya.display.Text.fontSize()
-	     */
-	    get labelSize() {
-	        this.createText();
-	        return this._text.fontSize;
-	    }
-	    set labelSize(value) {
-	        this.createText();
-	        this._text.fontSize = value;
-	    }
-	    /**
-	     * <p>描边宽度（以像素为单位）。</p>
-	     * 默认值0，表示不描边。
-	     * @see laya.display.Text.stroke()
-	     */
-	    get labelStroke() {
-	        this.createText();
-	        return this._text.stroke;
-	    }
-	    set labelStroke(value) {
-	        this.createText();
-	        this._text.stroke = value;
-	    }
-	    /**
-	     * <p>描边颜色，以字符串表示。</p>
-	     * 默认值为 "#000000"（黑色）;
-	     * @see laya.display.Text.strokeColor()
-	     */
-	    get labelStrokeColor() {
-	        this.createText();
-	        return this._text.strokeColor;
-	    }
-	    set labelStrokeColor(value) {
-	        this.createText();
-	        this._text.strokeColor = value;
-	    }
-	    /**
-	     * 表示按钮文本标签是否为粗体字。
-	     * @see laya.display.Text.bold()
-	     */
-	    get labelBold() {
-	        this.createText();
-	        return this._text.bold;
-	    }
-	    set labelBold(value) {
-	        this.createText();
-	        this._text.bold = value;
-	    }
-	    /**
-	     * 表示按钮文本标签的字体名称，以字符串形式表示。
-	     * @see laya.display.Text.font()
-	     */
-	    get labelFont() {
-	        this.createText();
-	        return this._text.font;
-	    }
-	    set labelFont(value) {
-	        this.createText();
-	        this._text.font = value;
-	    }
-	    /**标签对齐模式，默认为居中对齐。*/
-	    get labelAlign() {
-	        this.createText();
-	        return this._text.align;
-	    }
-	    set labelAlign(value) {
-	        this.createText();
-	        this._text.align = value;
-	    }
-	    /**
-	     * 对象的点击事件处理器函数（无默认参数）。
-	     * @implements
-	     */
-	    get clickHandler() {
-	        return this._clickHandler;
-	    }
-	    set clickHandler(value) {
-	        this._clickHandler = value;
-	    }
-	    /**
-	     * 按钮文本标签 <code>Text</code> 控件。
-	     */
-	    get text() {
-	        this.createText();
-	        return this._text;
-	    }
-	    /**
-	     * <p>当前实例的位图 <code>AutoImage</code> 实例的有效缩放网格数据。</p>
-	     * <p>数据格式："上边距,右边距,下边距,左边距,是否重复填充(值为0：不重复填充，1：重复填充)"，以逗号分隔。
-	     * <ul><li>例如："4,4,4,4,1"</li></ul></p>
-	     * @see laya.ui.AutoBitmap.sizeGrid
-	     */
-	    get sizeGrid() {
-	        if (this._bitmap.sizeGrid)
-	            return this._bitmap.sizeGrid.join(",");
-	        return null;
-	    }
-	    set sizeGrid(value) {
-	        this._bitmap.sizeGrid = UIUtils.fillArray(Styles.defaultSizeGrid, value, Number);
-	    }
-	    /**@inheritDoc
-	     * @override
-	    */
-	    set width(value) {
-	        super.set_width(value);
-	        if (this._autoSize) {
-	            this._bitmap.width = value;
-	            this._text && (this._text.width = value);
-	        }
-	    }
-	    get width() {
-	        return super.get_width();
-	    }
-	    /**
-	     * @inheritDoc
-	     * @override
-	    */
-	    set height(value) {
-	        super.set_height(value);
-	        if (this._autoSize) {
-	            this._bitmap.height = value;
-	            this._text && (this._text.height = value);
-	        }
-	    }
-	    get height() {
-	        return super.get_height();
-	    }
-	    /**
-	     * @inheritDoc
-	     * @override
-	    */
-	    set dataSource(value) {
-	        this._dataSource = value;
-	        if (typeof (value) == 'number' || typeof (value) == 'string')
-	            this.label = value + "";
-	        else
-	            super.set_dataSource(value);
-	    }
-	    get dataSource() {
-	        return super.get_dataSource();
-	    }
-	    /**图标x,y偏移，格式：100,100*/
-	    get iconOffset() {
-	        return this._bitmap._offset ? this._bitmap._offset.join(",") : null;
-	    }
-	    set iconOffset(value) {
-	        if (value)
-	            this._bitmap._offset = UIUtils.fillArray([1, 1], value, Number);
-	        else
-	            this._bitmap._offset = [];
-	    }
-	    /**@private */
-	    _setStateChanged() {
-	        if (!this._stateChanged) {
-	            this._stateChanged = true;
-	            this.callLater(this.changeState);
-	        }
-	    }
-	}
-	/**
-	 * 按钮状态集。
-	 */
-	Button.stateMap = { "mouseup": 0, "mouseover": 1, "mousedown": 2, "mouseout": 0 };
-	Laya.ILaya.regClass(Button);
-	Laya.ClassUtils.regClass("laya.ui.Button", Button);
-	Laya.ClassUtils.regClass("Laya.Button", Button);
-
-	/**
-	 * 当按钮的选中状态（ <code>selected</code> 属性）发生改变时调度。
-	 * @eventType laya.events.Event
-	 */
-	/*[Event(name = "change", type = "laya.events.Event")]*/
-	/**
-	 * <code>CheckBox</code> 组件显示一个小方框，该方框内可以有选中标记。
-	 * <code>CheckBox</code> 组件还可以显示可选的文本标签，默认该标签位于 CheckBox 右侧。
-	 * <p><code>CheckBox</code> 使用 <code>dataSource</code>赋值时的的默认属性是：<code>selected</code>。</p>
-	 *
-	 * @example <caption>以下示例代码，创建了一个 <code>CheckBox</code> 实例。</caption>
-	 * package
-	 *	{
-	 *		import laya.ui.CheckBox;
-	 *		import laya.utils.Handler;
-	 *		public class CheckBox_Example
-	 *		{
-	 *			public function CheckBox_Example()
-	 *			{
-	 *				Laya.init(640, 800);//设置游戏画布宽高。
-	 * 				Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
-	 *				Laya.loader.load("resource/ui/check.png", Handler.create(this,onLoadComplete));//加载资源。
-	 *			}
-	 *			private function onLoadComplete():void
-	 *			{
-	 *				trace("资源加载完成！");
-	 *				var checkBox:CheckBox = new CheckBox("resource/ui/check.png", "这个是一个CheckBox组件。");//创建一个 CheckBox 类的实例对象 checkBox ,传入它的皮肤skin和标签label。
-	 *				checkBox.x = 100;//设置 checkBox 对象的属性 x 的值，用于控制 checkBox 对象的显示位置。
-	 *				checkBox.y = 100;//设置 checkBox 对象的属性 y 的值，用于控制 checkBox 对象的显示位置。
-	 *				checkBox.clickHandler = new Handler(this, onClick, [checkBox]);//设置 checkBox 的点击事件处理器。
-	 *				Laya.stage.addChild(checkBox);//将此 checkBox 对象添加到显示列表。
-	 *			}
-	 *			private function onClick(checkBox:CheckBox):void
-	 *			{
-	 *				trace("输出选中状态: checkBox.selected = " + checkBox.selected);
-	 *			}
-	 *		}
-	 *	}
-	 * @example
-	 * Laya.init(640, 800);//设置游戏画布宽高
-	 * Laya.stage.bgColor = "#efefef";//设置画布的背景颜色
-	 * Laya.loader.load("resource/ui/check.png",laya.utils.Handler.create(this,loadComplete));//加载资源
-	 * function loadComplete()
-	 * {
-	 *     console.log("资源加载完成！");
-	 *     var checkBox:laya.ui.CheckBox= new laya.ui.CheckBox("resource/ui/check.png", "这个是一个CheckBox组件。");//创建一个 CheckBox 类的类的实例对象 checkBox ,传入它的皮肤skin和标签label。
-	 *     checkBox.x =100;//设置 checkBox 对象的属性 x 的值，用于控制 checkBox 对象的显示位置。
-	 *     checkBox.y =100;//设置 checkBox 对象的属性 y 的值，用于控制 checkBox 对象的显示位置。
-	 *     checkBox.clickHandler = new laya.utils.Handler(this,this.onClick,[checkBox],false);//设置 checkBox 的点击事件处理器。
-	 *     Laya.stage.addChild(checkBox);//将此 checkBox 对象添加到显示列表。
-	 * }
-	 * function onClick(checkBox)
-	 * {
-	 *     console.log("checkBox.selected = ",checkBox.selected);
-	 * }
-	 * @example
-	 * import CheckBox= laya.ui.CheckBox;
-	 * import Handler=laya.utils.Handler;
-	 * class CheckBox_Example{
-	 *     constructor()
-	 *     {
-	 *         Laya.init(640, 800);
-	 *         Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
-	 *         Laya.loader.load("resource/ui/check.png", Handler.create(this,this.onLoadComplete));//加载资源。
-	 *     }
-	 *     private onLoadComplete()
-	 *     {
-	 *         var checkBox:CheckBox = new CheckBox("resource/ui/check.png", "这个是一个CheckBox组件。");//创建一个 CheckBox 类的实例对象 checkBox ,传入它的皮肤skin和标签label。
-	 *         checkBox.x = 100;//设置 checkBox 对象的属性 x 的值，用于控制 checkBox 对象的显示位置。
-	 *         checkBox.y = 100;//设置 checkBox 对象的属性 y 的值，用于控制 checkBox 对象的显示位置。
-	 *         checkBox.clickHandler = new Handler(this, this.onClick,[checkBox]);//设置 checkBox 的点击事件处理器。
-	 *         Laya.stage.addChild(checkBox);//将此 checkBox 对象添加到显示列表。
-	 *     }
-	 *     private onClick(checkBox:CheckBox):void
-	 *     {
-	 *         console.log("输出选中状态: checkBox.selected = " + checkBox.selected);
-	 *     }
-	 * }
-	 */
-	class CheckBox extends Button {
-	    /**
-	     * 创建一个新的 <code>CheckBox</code> 组件实例。
-	     * @param skin 皮肤资源地址。
-	     * @param label 文本标签的内容。
-	     */
-	    constructor(skin = null, label = "") {
-	        super(skin, label);
-	        this.toggle = true;
-	        this._autoSize = false;
-	    }
-	    /**
-	     * @inheritDoc
-	     * @internal
-	    */
-	    preinitialize() {
-	        super.preinitialize();
-	        this.toggle = true;
-	        this._autoSize = false;
-	    }
-	    /**
-	     * @inheritDoc
-	     * @internal
-	    */
-	    initialize() {
-	        super.initialize();
-	        this.createText();
-	        this._text.align = "left";
-	        this._text.valign = "top";
-	        this._text.width = 0;
-	    }
-	    /**
-	     * @inheritDoc
-	     * @override
-	    */
-	    set dataSource(value) {
-	        this._dataSource = value;
-	        if (value instanceof Boolean)
-	            this.selected = value;
-	        else if (typeof (value) == 'string')
-	            this.selected = value === "true";
-	        else
-	            super.dataSource = value;
-	    }
-	    get dataSource() {
-	        return super.dataSource;
-	    }
-	}
-	Laya.ILaya.regClass(CheckBox);
-	Laya.ClassUtils.regClass("laya.ui.CheckBox", CheckBox);
-	Laya.ClassUtils.regClass("Laya.CheckBox", CheckBox);
 
 	/**
 	 * 资源加载完成后调度。
@@ -2686,6 +2001,1077 @@
 	Laya.ILaya.regClass(Clip);
 	Laya.ClassUtils.regClass("laya.ui.Clip", Clip);
 	Laya.ClassUtils.regClass("Laya.Clip", Clip);
+
+	/**
+	 * 当按钮的选中状态（ <code>selected</code> 属性）发生改变时调度。
+	 * @eventType laya.events.Event
+	 */
+	/*[Event(name = "change", type = "laya.events.Event")]*/
+	/**
+	 * <code>Button</code> 组件用来表示常用的多态按钮。 <code>Button</code> 组件可显示文本标签、图标或同时显示两者。	 *
+	 * <p>可以是单态，两态和三态，默认三态(up,over,down)。</p>
+	 *
+	 * @example <caption>以下示例代码，创建了一个 <code>Button</code> 实例。</caption>
+	 * package
+	 *	{
+	 *		import laya.ui.Button;
+	 *		import laya.utils.Handler;
+	 *		public class Button_Example
+	 *		{
+	 *			public function Button_Example()
+	 *			{
+	 *				Laya.init(640, 800);//设置游戏画布宽高。
+	 *				Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
+	 *				Laya.loader.load("resource/ui/button.png", Handler.create(this,onLoadComplete));//加载资源。
+	 *			}
+	 *			private function onLoadComplete():void
+	 *			{
+	 *				trace("资源加载完成！");
+	 *				var button:Button = new Button("resource/ui/button.png","label");//创建一个 Button 类的实例对象 button ,并传入它的皮肤。
+	 *				button.x = 100;//设置 button 对象的属性 x 的值，用于控制 button 对象的显示位置。
+	 *				button.y = 100;//设置 button 对象的属性 y 的值，用于控制 button 对象的显示位置。
+	 *				button.clickHandler = new Handler(this, onClickButton,[button]);//设置 button 的点击事件处理器。
+	 *				Laya.stage.addChild(button);//将此 button 对象添加到显示列表。
+	 *			}
+	 *			private function onClickButton(button:Button):void
+	 *			{
+	 *				trace("按钮button被点击了！");
+	 *			}
+	 *		}
+	 *	}
+	 * @example
+	 * Laya.init(640, 800);//设置游戏画布宽高、渲染模式。
+	 * Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
+	 * Laya.loader.load("resource/ui/button.png",laya.utils.Handler.create(this,loadComplete));//加载资源
+	 * function loadComplete()
+	 * {
+	 *     console.log("资源加载完成！");
+	 *     var button = new laya.ui.Button("resource/ui/button.png","label");//创建一个 Button 类的实例对象 button ,传入它的皮肤skin和标签label。
+	 *     button.x =100;//设置 button 对象的属性 x 的值，用于控制 button 对象的显示位置。
+	 *     button.y =100;//设置 button 对象的属性 y 的值，用于控制 button 对象的显示位置。
+	 *     button.clickHandler = laya.utils.Handler.create(this,onClickButton,[button],false);//设置 button 的点击事件处理函数。
+	 *     Laya.stage.addChild(button);//将此 button 对象添加到显示列表。
+	 * }
+	 * function onClickButton(button)
+	 * {
+	 *     console.log("按钮被点击了。",button);
+	 * }
+	 * @example
+	 * import Button=laya.ui.Button;
+	 * import Handler=laya.utils.Handler;
+	 * class Button_Example{
+	 *     constructor()
+	 *     {
+	 *         Laya.init(640, 800);
+	 *         Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
+	 *         Laya.loader.load("resource/ui/button.png", laya.utils.Handler.create(this,this.onLoadComplete));//加载资源。
+	 *     }
+	 *     private onLoadComplete()
+	 *     {
+	 *         var button:Button = new Button("resource/ui/button.png","label");//创建一个 Button 类的实例对象 button ,并传入它的皮肤。
+	 *         button.x = 100;//设置 button 对象的属性 x 的值，用于控制 button 对象的显示位置。
+	 *         button.y = 100;//设置 button 对象的属性 y 的值，用于控制 button 对象的显示位置。
+	 *         button.clickHandler = new Handler(this, this.onClickButton,[button]);//设置 button 的点击事件处理器。
+	 *         Laya.stage.addChild(button);//将此 button 对象添加到显示列表。
+	 *     }
+	 *     private onClickButton(button:Button):void
+	 *     {
+	 *         console.log("按钮button被点击了！")
+	 *     }
+	 * }
+	 */
+	class Button extends UIComponent {
+	    /**
+	     * 创建一个新的 <code>Button</code> 类实例。
+	     * @param skin 皮肤资源地址。
+	     * @param label 按钮的文本内容。
+	     */
+	    constructor(skin = null, label = "") {
+	        super();
+	        /**
+	         * @private
+	         * 按钮文本标签的颜色值。
+	         */
+	        this._labelColors = Styles.buttonLabelColors;
+	        /**
+	         * @private
+	         * 按钮的状态值。
+	         */
+	        this._state = 0;
+	        /**
+	         * @private
+	         * 指定此显示对象是否自动计算并改变大小等属性。
+	         */
+	        this._autoSize = true; // 注意 由于构造函数执行顺序的区别，这里设置为true真的会导致ts的值为true，as的为false （as的 后调用super）
+	        /**
+	         * @private
+	         * 按钮的状态数。
+	         */
+	        this._stateNum = Styles.buttonStateNum;
+	        /**
+	         * @private
+	         */
+	        this._stateChanged = false;
+	        this.skin = skin;
+	        this.label = label;
+	    }
+	    /**@inheritDoc
+	     * @override
+	    */
+	    destroy(destroyChild = true) {
+	        super.destroy(destroyChild);
+	        this._bitmap && this._bitmap.destroy();
+	        this._text && this._text.destroy(destroyChild);
+	        this._bitmap = null;
+	        this._text = null;
+	        this._clickHandler = null;
+	        this._labelColors = this._sources = this._strokeColors = null;
+	    }
+	    /**@inheritDoc
+	     * @override
+	     * @internal
+	    */
+	    createChildren() {
+	        this.graphics = this._bitmap = new AutoBitmap();
+	    }
+	    /**@private */
+	    createText() {
+	        if (!this._text) {
+	            this._text = new Laya.Text();
+	            this._text.overflow = Laya.Text.HIDDEN;
+	            this._text.align = "center";
+	            this._text.valign = "middle";
+	            this._text.width = this._width;
+	            this._text.height = this._height;
+	        }
+	    }
+	    /**@inheritDoc
+	     * @override
+	     * @internal
+	    */
+	    initialize() {
+	        if (this._mouseState !== 1) {
+	            this.mouseEnabled = true;
+	            this._setBit(Laya.Const.HAS_MOUSE, true);
+	        }
+	        this._createListener(Laya.Event.MOUSE_OVER, this, this.onMouse, null, false, false);
+	        this._createListener(Laya.Event.MOUSE_OUT, this, this.onMouse, null, false, false);
+	        this._createListener(Laya.Event.MOUSE_DOWN, this, this.onMouse, null, false, false);
+	        this._createListener(Laya.Event.MOUSE_UP, this, this.onMouse, null, false, false);
+	        this._createListener(Laya.Event.CLICK, this, this.onMouse, null, false, false);
+	    }
+	    /**
+	     * 对象的 <code>Event.MOUSE_OVER、Event.MOUSE_OUT、Event.MOUSE_DOWN、Event.MOUSE_UP、Event.CLICK</code> 事件侦听处理函数。
+	     * @param e Event 对象。
+	     */
+	    onMouse(e) {
+	        if (this.toggle === false && this._selected)
+	            return;
+	        if (e.type === Laya.Event.CLICK) {
+	            this.toggle && (this.selected = !this._selected);
+	            this._clickHandler && this._clickHandler.run();
+	            return;
+	        }
+	        !this._selected && (this.state = Button.stateMap[e.type]);
+	    }
+	    /**
+	     * <p>对象的皮肤资源地址。</p>
+	     * 支持单态，两态和三态，用 <code>stateNum</code> 属性设置
+	     * <p>对象的皮肤地址，以字符串表示。</p>
+	     * @see #stateNum
+	     */
+	    get skin() {
+	        return this._skin;
+	    }
+	    set skin(value) {
+	        if (this._skin != value) {
+	            this._skin = value;
+	            if (value) {
+	                if (!Laya.Loader.getRes(value)) {
+	                    window.Laya.loader.load(this._skin, Laya.Handler.create(this, this._skinLoaded), null, Laya.Loader.IMAGE, 1); //TODO 
+	                }
+	                else {
+	                    this._skinLoaded();
+	                }
+	            }
+	            else {
+	                this._skinLoaded();
+	            }
+	        }
+	    }
+	    _skinLoaded() {
+	        this.callLater(this.changeClips);
+	        this._setStateChanged();
+	        this._sizeChanged();
+	        this.event(Laya.Event.LOADED);
+	    }
+	    /**
+	     * <p>指定对象的状态值，以数字表示。</p>
+	     * <p>默认值为3。此值决定皮肤资源图片的切割方式。</p>
+	     * <p><b>取值：</b>
+	     * <li>1：单态。图片不做切割，按钮的皮肤状态只有一种。</li>
+	     * <li>2：两态。图片将以竖直方向被等比切割为2部分，从上向下，依次为
+	     * 弹起状态皮肤、
+	     * 按下和经过及选中状态皮肤。</li>
+	     * <li>3：三态。图片将以竖直方向被等比切割为3部分，从上向下，依次为
+	     * 弹起状态皮肤、
+	     * 经过状态皮肤、
+	     * 按下和选中状态皮肤</li>
+	     * </p>
+	     */
+	    get stateNum() {
+	        return this._stateNum;
+	    }
+	    set stateNum(value) {
+	        if (typeof value == 'string') {
+	            value = parseInt(value);
+	        }
+	        if (this._stateNum != value) {
+	            this._stateNum = value < 1 ? 1 : value > 3 ? 3 : value;
+	            this.callLater(this.changeClips);
+	        }
+	    }
+	    /**
+	     * @private
+	     * 对象的资源切片发生改变。
+	     */
+	    changeClips() {
+	        var img = Laya.Loader.getRes(this._skin);
+	        if (!img) {
+	            console.log("lose skin", this._skin);
+	            return;
+	        }
+	        var width = img.sourceWidth;
+	        var height = img.sourceHeight / this._stateNum;
+	        img.$_GID || (img.$_GID = Laya.Utils.getGID());
+	        var key = img.$_GID + "-" + this._stateNum;
+	        var clips = Laya.WeakObject.I.get(key);
+	        if (!Laya.Utils.isOkTextureList(clips)) {
+	            clips = null;
+	        }
+	        if (clips)
+	            this._sources = clips;
+	        else {
+	            this._sources = [];
+	            if (this._stateNum === 1) {
+	                this._sources.push(img);
+	            }
+	            else {
+	                for (var i = 0; i < this._stateNum; i++) {
+	                    this._sources.push(Laya.Texture.createFromTexture(img, 0, height * i, width, height));
+	                }
+	            }
+	            Laya.WeakObject.I.set(key, this._sources);
+	        }
+	        if (this._autoSize) {
+	            this._bitmap.width = this._width || width;
+	            this._bitmap.height = this._height || height;
+	            if (this._text) {
+	                this._text.width = this._bitmap.width;
+	                this._text.height = this._bitmap.height;
+	            }
+	        }
+	        else {
+	            this._text && (this._text.x = width);
+	        }
+	    }
+	    /**
+	     * @inheritDoc
+	     * @override
+	     */
+	    measureWidth() {
+	        this.runCallLater(this.changeClips);
+	        if (this._autoSize)
+	            return this._bitmap.width;
+	        this.runCallLater(this.changeState);
+	        return this._bitmap.width + (this._text ? this._text.width : 0);
+	    }
+	    /**
+	     * @inheritDoc
+	     * @override
+	     */
+	    measureHeight() {
+	        this.runCallLater(this.changeClips);
+	        return this._text ? Math.max(this._bitmap.height, this._text.height) : this._bitmap.height;
+	    }
+	    /**
+	     * 按钮的文本内容。
+	     */
+	    get label() {
+	        return this._text ? this._text.text : null;
+	    }
+	    set label(value) {
+	        if (!this._text && !value)
+	            return;
+	        this.createText();
+	        if (this._text.text != value) {
+	            value && !this._text.parent && this.addChild(this._text);
+	            this._text.text = (value + "").replace(/\\n/g, "\n");
+	            this._setStateChanged();
+	        }
+	    }
+	    /**
+	     * 表示按钮的选中状态。
+	     * <p>如果值为true，表示该对象处于选中状态。否则该对象处于未选中状态。</p>
+	     * @implements
+	     */
+	    get selected() {
+	        return this._selected;
+	    }
+	    set selected(value) {
+	        if (this._selected != value) {
+	            this._selected = value;
+	            this.state = this._selected ? 2 : 0;
+	            this.event(Laya.Event.CHANGE);
+	        }
+	    }
+	    /**
+	     * 对象的状态值。
+	     * @see #stateMap
+	     */
+	    get state() {
+	        return this._state;
+	    }
+	    set state(value) {
+	        if (this._state != value) {
+	            this._state = value;
+	            this._setStateChanged();
+	        }
+	    }
+	    /**
+	     * @private
+	     * 改变对象的状态。
+	     */
+	    changeState() {
+	        this._stateChanged = false;
+	        this.runCallLater(this.changeClips);
+	        var index = this._state < this._stateNum ? this._state : this._stateNum - 1;
+	        this._sources && (this._bitmap.source = this._sources[index]);
+	        if (this.label) {
+	            this._text.color = this._labelColors[index];
+	            if (this._strokeColors)
+	                this._text.strokeColor = this._strokeColors[index];
+	        }
+	    }
+	    /**
+	     * 表示按钮各个状态下的文本颜色。
+	     * <p><b>格式:</b> "upColor,overColor,downColor,disableColor"。</p>
+	     */
+	    get labelColors() {
+	        return this._labelColors.join(",");
+	    }
+	    set labelColors(value) {
+	        this._labelColors = UIUtils.fillArray(Styles.buttonLabelColors, value, String);
+	        this._setStateChanged();
+	    }
+	    /**
+	     * 表示按钮各个状态下的描边颜色。
+	     * <p><b>格式:</b> "upColor,overColor,downColor,disableColor"。</p>
+	     */
+	    get strokeColors() {
+	        return this._strokeColors ? this._strokeColors.join(",") : "";
+	    }
+	    set strokeColors(value) {
+	        this._strokeColors = UIUtils.fillArray(Styles.buttonLabelColors, value, String);
+	        this._setStateChanged();
+	    }
+	    /**
+	     * 表示按钮文本标签的边距。
+	     * <p><b>格式：</b>"上边距,右边距,下边距,左边距"。</p>
+	     */
+	    get labelPadding() {
+	        this.createText();
+	        return this._text.padding.join(",");
+	    }
+	    set labelPadding(value) {
+	        this.createText();
+	        this._text.padding = UIUtils.fillArray(Styles.labelPadding, value, Number);
+	    }
+	    /**
+	     * 表示按钮文本标签的字体大小。
+	     * @see laya.display.Text.fontSize()
+	     */
+	    get labelSize() {
+	        this.createText();
+	        return this._text.fontSize;
+	    }
+	    set labelSize(value) {
+	        this.createText();
+	        this._text.fontSize = value;
+	    }
+	    /**
+	     * <p>描边宽度（以像素为单位）。</p>
+	     * 默认值0，表示不描边。
+	     * @see laya.display.Text.stroke()
+	     */
+	    get labelStroke() {
+	        this.createText();
+	        return this._text.stroke;
+	    }
+	    set labelStroke(value) {
+	        this.createText();
+	        this._text.stroke = value;
+	    }
+	    /**
+	     * <p>描边颜色，以字符串表示。</p>
+	     * 默认值为 "#000000"（黑色）;
+	     * @see laya.display.Text.strokeColor()
+	     */
+	    get labelStrokeColor() {
+	        this.createText();
+	        return this._text.strokeColor;
+	    }
+	    set labelStrokeColor(value) {
+	        this.createText();
+	        this._text.strokeColor = value;
+	    }
+	    /**
+	     * 表示按钮文本标签是否为粗体字。
+	     * @see laya.display.Text.bold()
+	     */
+	    get labelBold() {
+	        this.createText();
+	        return this._text.bold;
+	    }
+	    set labelBold(value) {
+	        this.createText();
+	        this._text.bold = value;
+	    }
+	    /**
+	     * 表示按钮文本标签的字体名称，以字符串形式表示。
+	     * @see laya.display.Text.font()
+	     */
+	    get labelFont() {
+	        this.createText();
+	        return this._text.font;
+	    }
+	    set labelFont(value) {
+	        this.createText();
+	        this._text.font = value;
+	    }
+	    /**标签对齐模式，默认为居中对齐。*/
+	    get labelAlign() {
+	        this.createText();
+	        return this._text.align;
+	    }
+	    set labelAlign(value) {
+	        this.createText();
+	        this._text.align = value;
+	    }
+	    /**
+	     * 对象的点击事件处理器函数（无默认参数）。
+	     * @implements
+	     */
+	    get clickHandler() {
+	        return this._clickHandler;
+	    }
+	    set clickHandler(value) {
+	        this._clickHandler = value;
+	    }
+	    /**
+	     * 按钮文本标签 <code>Text</code> 控件。
+	     */
+	    get text() {
+	        this.createText();
+	        return this._text;
+	    }
+	    /**
+	     * <p>当前实例的位图 <code>AutoImage</code> 实例的有效缩放网格数据。</p>
+	     * <p>数据格式："上边距,右边距,下边距,左边距,是否重复填充(值为0：不重复填充，1：重复填充)"，以逗号分隔。
+	     * <ul><li>例如："4,4,4,4,1"</li></ul></p>
+	     * @see laya.ui.AutoBitmap.sizeGrid
+	     */
+	    get sizeGrid() {
+	        if (this._bitmap.sizeGrid)
+	            return this._bitmap.sizeGrid.join(",");
+	        return null;
+	    }
+	    set sizeGrid(value) {
+	        this._bitmap.sizeGrid = UIUtils.fillArray(Styles.defaultSizeGrid, value, Number);
+	    }
+	    /**@inheritDoc
+	     * @override
+	    */
+	    set width(value) {
+	        super.set_width(value);
+	        if (this._autoSize) {
+	            this._bitmap.width = value;
+	            this._text && (this._text.width = value);
+	        }
+	    }
+	    get width() {
+	        return super.get_width();
+	    }
+	    /**
+	     * @inheritDoc
+	     * @override
+	    */
+	    set height(value) {
+	        super.set_height(value);
+	        if (this._autoSize) {
+	            this._bitmap.height = value;
+	            this._text && (this._text.height = value);
+	        }
+	    }
+	    get height() {
+	        return super.get_height();
+	    }
+	    /**
+	     * @inheritDoc
+	     * @override
+	    */
+	    set dataSource(value) {
+	        this._dataSource = value;
+	        if (typeof (value) == 'number' || typeof (value) == 'string')
+	            this.label = value + "";
+	        else
+	            super.set_dataSource(value);
+	    }
+	    get dataSource() {
+	        return super.get_dataSource();
+	    }
+	    /**图标x,y偏移，格式：100,100*/
+	    get iconOffset() {
+	        return this._bitmap._offset ? this._bitmap._offset.join(",") : null;
+	    }
+	    set iconOffset(value) {
+	        if (value)
+	            this._bitmap._offset = UIUtils.fillArray([1, 1], value, Number);
+	        else
+	            this._bitmap._offset = [];
+	    }
+	    /**@private */
+	    _setStateChanged() {
+	        if (!this._stateChanged) {
+	            this._stateChanged = true;
+	            this.callLater(this.changeState);
+	        }
+	    }
+	}
+	/**
+	 * 按钮状态集。
+	 */
+	Button.stateMap = { "mouseup": 0, "mouseover": 1, "mousedown": 2, "mouseout": 0 };
+	Laya.ILaya.regClass(Button);
+	Laya.ClassUtils.regClass("laya.ui.Button", Button);
+	Laya.ClassUtils.regClass("Laya.Button", Button);
+
+	/**
+	 * 选择项改变后调度。
+	 * @eventType laya.events.Event
+	 */
+	/*[Event(name = "change", type = "laya.events.Event")]*/
+	/**
+	 * <code>ColorPicker</code> 组件将显示包含多个颜色样本的列表，用户可以从中选择颜色。
+	 *
+	 * @example <caption>以下示例代码，创建了一个 <code>ColorPicker</code> 实例。</caption>
+	 * package
+	 *	{
+	 *		import laya.ui.ColorPicker;
+	 *		import laya.utils.Handler;
+	 *		public class ColorPicker_Example
+	 *		{
+	 *			public function ColorPicker_Example()
+	 *			{
+	 *				Laya.init(640, 800);//设置游戏画布宽高。
+	 *				Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
+	 *				Laya.loader.load("resource/ui/color.png", Handler.create(this,onLoadComplete));//加载资源。
+	 *			}
+	 *			private function onLoadComplete():void
+	 *			{
+	 *				trace("资源加载完成！");
+	 *				var colorPicket:ColorPicker = new ColorPicker();//创建一个 ColorPicker 类的实例对象 colorPicket 。
+	 *				colorPicket.skin = "resource/ui/color.png";//设置 colorPicket 的皮肤。
+	 *				colorPicket.x = 100;//设置 colorPicket 对象的属性 x 的值，用于控制 colorPicket 对象的显示位置。
+	 *				colorPicket.y = 100;//设置 colorPicket 对象的属性 y 的值，用于控制 colorPicket 对象的显示位置。
+	 *				colorPicket.changeHandler = new Handler(this, onChangeColor,[colorPicket]);//设置 colorPicket 的颜色改变回调函数。
+	 *				Laya.stage.addChild(colorPicket);//将此 colorPicket 对象添加到显示列表。
+	 *			}
+	 *			private function onChangeColor(colorPicket:ColorPicker):void
+	 *			{
+	 *				trace("当前选择的颜色： " + colorPicket.selectedColor);
+	 *			}
+	 *		}
+	 *	}
+	 * @example
+	 * Laya.init(640, 800);//设置游戏画布宽高
+	 * Laya.stage.bgColor = "#efefef";//设置画布的背景颜色
+	 * Laya.loader.load("resource/ui/color.png",laya.utils.Handler.create(this,loadComplete));//加载资源
+	 * function loadComplete()
+	 * {
+	 *     console.log("资源加载完成！");
+	 *     var colorPicket = new laya.ui.ColorPicker();//创建一个 ColorPicker 类的实例对象 colorPicket 。
+	 *     colorPicket.skin = "resource/ui/color.png";//设置 colorPicket 的皮肤。
+	 *     colorPicket.x = 100;//设置 colorPicket 对象的属性 x 的值，用于控制 colorPicket 对象的显示位置。
+	 *     colorPicket.y = 100;//设置 colorPicket 对象的属性 y 的值，用于控制 colorPicket 对象的显示位置。
+	 *     colorPicket.changeHandler = laya.utils.Handler.create(this, onChangeColor,[colorPicket],false);//设置 colorPicket 的颜色改变回调函数。
+	 *     Laya.stage.addChild(colorPicket);//将此 colorPicket 对象添加到显示列表。
+	 * }
+	 * function onChangeColor(colorPicket)
+	 * {
+	 *     console.log("当前选择的颜色： " + colorPicket.selectedColor);
+	 * }
+	 * @example
+	 * import ColorPicker = laya.ui.ColorPicker;
+	 * import Handler = laya.utils.Handler;
+	 * class ColorPicker_Example {
+	 *     constructor() {
+	 *         Laya.init(640, 800);//设置游戏画布宽高。
+	 *         Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
+	 *         Laya.loader.load("resource/ui/color.png", Handler.create(this, this.onLoadComplete));//加载资源。
+	 *     }
+	 *     private onLoadComplete(): void {
+	 *         console.log("资源加载完成！");
+	 *         var colorPicket: ColorPicker = new ColorPicker();//创建一个 ColorPicker 类的实例对象 colorPicket 。
+	 *         colorPicket.skin = "resource/ui/color.png";//设置 colorPicket 的皮肤。
+	 *         colorPicket.x = 100;//设置 colorPicket 对象的属性 x 的值，用于控制 colorPicket 对象的显示位置。
+	 *         colorPicket.y = 100;//设置 colorPicket 对象的属性 y 的值，用于控制 colorPicket 对象的显示位置。
+	 *         colorPicket.changeHandler = new Handler(this, this.onChangeColor, [colorPicket]);//设置 colorPicket 的颜色改变回调函数。
+	 *         Laya.stage.addChild(colorPicket);//将此 colorPicket 对象添加到显示列表。
+	 *     }
+	 *     private onChangeColor(colorPicket: ColorPicker): void {
+	 *         console.log("当前选择的颜色： " + colorPicket.selectedColor);
+	 *     }
+	 * }
+	 */
+	class ColorPicker extends UIComponent {
+	    constructor() {
+	        super(...arguments);
+	        /**
+	         * @private
+	         * 指定每个正方形的颜色小格子的宽高（以像素为单位）。
+	         */
+	        this._gridSize = 11;
+	        /**
+	         * @private
+	         * 表示颜色样本列表面板的背景颜色值。
+	         */
+	        this._bgColor = "#ffffff";
+	        /**
+	         * @private
+	         * 表示颜色样本列表面板的边框颜色值。
+	         */
+	        this._borderColor = "#000000";
+	        /**
+	         * @private
+	         * 表示颜色样本列表面板选择或输入的颜色值。
+	         */
+	        this._inputColor = "#000000";
+	        /**
+	         * @private
+	         * 表示颜色输入框的背景颜色值。
+	         */
+	        this._inputBgColor = "#efefef";
+	        /**
+	         * @private
+	         * 表示颜色值列表。
+	         */
+	        this._colors = [];
+	        /**
+	         * @private
+	         * 表示选择的颜色值。
+	         */
+	        this._selectedColor = "#000000";
+	    }
+	    /**
+	     * @inheritDoc
+	     * @override
+	    */
+	    /*override*/ destroy(destroyChild = true) {
+	        super.destroy(destroyChild);
+	        this._colorPanel && this._colorPanel.destroy(destroyChild);
+	        this._colorButton && this._colorButton.destroy(destroyChild);
+	        this._colorPanel = null;
+	        this._colorTiles = null;
+	        this._colorBlock = null;
+	        this._colorInput = null;
+	        this._colorButton = null;
+	        this._colors = null;
+	        this.changeHandler = null;
+	    }
+	    /**
+	     * @inheritDoc
+	     * @internal
+	    */
+	    /*override*/ createChildren() {
+	        this.addChild(this._colorButton = new Button());
+	        this._colorPanel = new Box();
+	        this._colorPanel.size(230, 166);
+	        this._colorPanel.addChild(this._colorTiles = new Laya.Sprite());
+	        this._colorPanel.addChild(this._colorBlock = new Laya.Sprite());
+	        this._colorPanel.addChild(this._colorInput = new Laya.Input());
+	    }
+	    /**
+	     * @inheritDoc
+	     * @internal
+	    */
+	    /*override*/ initialize() {
+	        this._colorButton.on(Laya.Event.CLICK, this, this.onColorButtonClick);
+	        this._colorBlock.pos(5, 5);
+	        this._colorInput.pos(60, 5);
+	        this._colorInput.size(60, 20);
+	        this._colorInput.on(Laya.Event.CHANGE, this, this.onColorInputChange);
+	        this._colorInput.on(Laya.Event.KEY_DOWN, this, this.onColorFieldKeyDown);
+	        this._colorTiles.pos(5, 30);
+	        this._colorTiles.on(Laya.Event.MOUSE_MOVE, this, this.onColorTilesMouseMove);
+	        this._colorTiles.on(Laya.Event.CLICK, this, this.onColorTilesClick);
+	        this._colorTiles.size(20 * this._gridSize, 12 * this._gridSize);
+	        this._colorPanel.on(Laya.Event.MOUSE_DOWN, this, this.onPanelMouseDown);
+	        this.bgColor = this._bgColor;
+	    }
+	    onPanelMouseDown(e) {
+	        e.stopPropagation();
+	    }
+	    /**
+	     * 改变颜色样本列表面板。
+	     */
+	    changePanel() {
+	        this._panelChanged = false;
+	        var g = this._colorPanel.graphics;
+	        g.clear(true);
+	        //g.drawRect(0, 0, 230, 166, _bgColor);
+	        g.drawRect(0, 0, 230, 166, this._bgColor, this._borderColor);
+	        this.drawBlock(this._selectedColor);
+	        this._colorInput.borderColor = this._borderColor;
+	        this._colorInput.bgColor = this._inputBgColor;
+	        this._colorInput.color = this._inputColor;
+	        g = this._colorTiles.graphics;
+	        g.clear(true);
+	        var mainColors = [0x000000, 0x333333, 0x666666, 0x999999, 0xCCCCCC, 0xFFFFFF, 0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0x00FFFF, 0xFF00FF];
+	        for (var i = 0; i < 12; i++) {
+	            for (var j = 0; j < 20; j++) {
+	                var color;
+	                if (j === 0)
+	                    color = mainColors[i];
+	                else if (j === 1)
+	                    color = 0x000000;
+	                else
+	                    color = (((i * 3 + j / 6) % 3 << 0) + ((i / 6) << 0) * 3) * 0x33 << 16 | j % 6 * 0x33 << 8 | (i << 0) % 6 * 0x33;
+	                var strColor = UIUtils.toColor(color);
+	                this._colors.push(strColor);
+	                var x = j * this._gridSize;
+	                var y = i * this._gridSize;
+	                g.drawRect(x, y, this._gridSize, this._gridSize, strColor, "#000000");
+	                //g.drawRect(x + 1, y + 1, _gridSize - 1, _gridSize - 1, strColor);
+	            }
+	        }
+	    }
+	    /**
+	     * 颜色样本列表面板的显示按钮的 <code>Event.MOUSE_DOWN</code> 事件侦听处理函数。
+	     */
+	    onColorButtonClick(e) {
+	        if (this._colorPanel.parent)
+	            this.close();
+	        else
+	            this.open();
+	    }
+	    /**
+	     * 打开颜色样本列表面板。
+	     */
+	    open() {
+	        var Laya$1 = window.Laya;
+	        var p = this.localToGlobal(new Laya.Point());
+	        var px = p.x + this._colorPanel.width <= Laya$1.stage.width ? p.x : Laya$1.stage.width - this._colorPanel.width;
+	        var py = p.y + this._colorButton.height;
+	        py = py + this._colorPanel.height <= Laya$1.stage.height ? py : p.y - this._colorPanel.height;
+	        this._colorPanel.pos(px, py);
+	        this._colorPanel.zOrder = 1001;
+	        Laya$1._currentStage.addChild(this._colorPanel);
+	        Laya$1.stage.on(Laya.Event.MOUSE_DOWN, this, this.removeColorBox);
+	    }
+	    /**
+	     * 关闭颜色样本列表面板。
+	     */
+	    close() {
+	        window.Laya.stage.off(Laya.Event.MOUSE_DOWN, this, this.removeColorBox);
+	        this._colorPanel.removeSelf();
+	    }
+	    /**
+	     * 舞台的 <code>Event.MOUSE_DOWN</code> 事件侦听处理函数。
+	     */
+	    removeColorBox(e = null) {
+	        this.close();
+	        //var target:Sprite = e.target as Sprite;
+	        //if (!_colorButton.contains(target) && !_colorPanel.contains(target)) {
+	        //close();
+	        //}
+	    }
+	    /**
+	     * 小格子色块的 <code>Event.KEY_DOWN</code> 事件侦听处理函数。
+	     */
+	    onColorFieldKeyDown(e) {
+	        if (e.keyCode == 13) {
+	            if (this._colorInput.text)
+	                this.selectedColor = this._colorInput.text;
+	            else
+	                this.selectedColor = null;
+	            this.close();
+	            e.stopPropagation();
+	        }
+	    }
+	    /**
+	     * 颜色值输入框 <code>Event.CHANGE</code> 事件侦听处理函数。
+	     */
+	    onColorInputChange(e = null) {
+	        if (this._colorInput.text)
+	            this.drawBlock(this._colorInput.text);
+	        else
+	            this.drawBlock("#FFFFFF");
+	    }
+	    /**
+	     * 小格子色块的 <code>Event.CLICK</code> 事件侦听处理函数。
+	     */
+	    onColorTilesClick(e) {
+	        this.selectedColor = this.getColorByMouse();
+	        this.close();
+	    }
+	    /**
+	     * @private
+	     * 小格子色块的 <code>Event.MOUSE_MOVE</code> 事件侦听处理函数。
+	     */
+	    onColorTilesMouseMove(e) {
+	        this._colorInput.focus = false;
+	        var color = this.getColorByMouse();
+	        this._colorInput.text = color;
+	        this.drawBlock(color);
+	    }
+	    /**
+	     * 通过鼠标位置取对应的颜色块的颜色值。
+	     */
+	    getColorByMouse() {
+	        var point = this._colorTiles.getMousePoint();
+	        var x = Math.floor(point.x / this._gridSize);
+	        var y = Math.floor(point.y / this._gridSize);
+	        return this._colors[y * 20 + x];
+	    }
+	    /**
+	     * 绘制颜色块。
+	     * @param color 需要绘制的颜色块的颜色值。
+	     */
+	    drawBlock(color) {
+	        var g = this._colorBlock.graphics;
+	        g.clear(true);
+	        var showColor = color ? color : "#ffffff";
+	        g.drawRect(0, 0, 50, 20, showColor, this._borderColor);
+	        color || g.drawLine(0, 0, 50, 20, "#ff0000");
+	    }
+	    /**
+	     * 表示选择的颜色值。
+	     */
+	    get selectedColor() {
+	        return this._selectedColor;
+	    }
+	    set selectedColor(value) {
+	        if (this._selectedColor != value) {
+	            this._selectedColor = this._colorInput.text = value;
+	            this.drawBlock(value);
+	            this.changeColor();
+	            this.changeHandler && this.changeHandler.runWith(this._selectedColor);
+	            this.event(Laya.Event.CHANGE, Laya.Event.EMPTY.setTo(Laya.Event.CHANGE, this, this));
+	        }
+	    }
+	    /**
+	     * @copy laya.ui.Button#skin
+	     */
+	    get skin() {
+	        return this._colorButton.skin;
+	    }
+	    set skin(value) {
+	        this._colorButton.once(Laya.Event.LOADED, this, this.changeColor);
+	        this._colorButton.skin = value;
+	        //changeColor();
+	    }
+	    /**
+	     * 改变颜色。
+	     */
+	    changeColor() {
+	        var g = this.graphics;
+	        g.clear(true);
+	        var showColor = this._selectedColor || "#000000";
+	        g.drawRect(0, 0, this._colorButton.width, this._colorButton.height, showColor);
+	    }
+	    /**
+	     * 表示颜色样本列表面板的背景颜色值。
+	     */
+	    get bgColor() {
+	        return this._bgColor;
+	    }
+	    set bgColor(value) {
+	        this._bgColor = value;
+	        this._setPanelChanged();
+	    }
+	    /**
+	     * 表示颜色样本列表面板的边框颜色值。
+	     */
+	    get borderColor() {
+	        return this._borderColor;
+	    }
+	    set borderColor(value) {
+	        this._borderColor = value;
+	        this._setPanelChanged();
+	    }
+	    /**
+	     * 表示颜色样本列表面板选择或输入的颜色值。
+	     */
+	    get inputColor() {
+	        return this._inputColor;
+	    }
+	    set inputColor(value) {
+	        this._inputColor = value;
+	        this._setPanelChanged();
+	    }
+	    /**
+	     * 表示颜色输入框的背景颜色值。
+	     */
+	    get inputBgColor() {
+	        return this._inputBgColor;
+	    }
+	    set inputBgColor(value) {
+	        this._inputBgColor = value;
+	        this._setPanelChanged();
+	    }
+	    /**@private */
+	    _setPanelChanged() {
+	        if (!this._panelChanged) {
+	            this._panelChanged = true;
+	            this.callLater(this.changePanel);
+	        }
+	    }
+	}
+	Laya.ILaya.regClass(ColorPicker);
+	Laya.ClassUtils.regClass("laya.ui.ColorPicker", ColorPicker);
+	Laya.ClassUtils.regClass("Laya.ColorPicker", ColorPicker);
+
+	/**
+	 * 当按钮的选中状态（ <code>selected</code> 属性）发生改变时调度。
+	 * @eventType laya.events.Event
+	 */
+	/*[Event(name = "change", type = "laya.events.Event")]*/
+	/**
+	 * <code>CheckBox</code> 组件显示一个小方框，该方框内可以有选中标记。
+	 * <code>CheckBox</code> 组件还可以显示可选的文本标签，默认该标签位于 CheckBox 右侧。
+	 * <p><code>CheckBox</code> 使用 <code>dataSource</code>赋值时的的默认属性是：<code>selected</code>。</p>
+	 *
+	 * @example <caption>以下示例代码，创建了一个 <code>CheckBox</code> 实例。</caption>
+	 * package
+	 *	{
+	 *		import laya.ui.CheckBox;
+	 *		import laya.utils.Handler;
+	 *		public class CheckBox_Example
+	 *		{
+	 *			public function CheckBox_Example()
+	 *			{
+	 *				Laya.init(640, 800);//设置游戏画布宽高。
+	 * 				Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
+	 *				Laya.loader.load("resource/ui/check.png", Handler.create(this,onLoadComplete));//加载资源。
+	 *			}
+	 *			private function onLoadComplete():void
+	 *			{
+	 *				trace("资源加载完成！");
+	 *				var checkBox:CheckBox = new CheckBox("resource/ui/check.png", "这个是一个CheckBox组件。");//创建一个 CheckBox 类的实例对象 checkBox ,传入它的皮肤skin和标签label。
+	 *				checkBox.x = 100;//设置 checkBox 对象的属性 x 的值，用于控制 checkBox 对象的显示位置。
+	 *				checkBox.y = 100;//设置 checkBox 对象的属性 y 的值，用于控制 checkBox 对象的显示位置。
+	 *				checkBox.clickHandler = new Handler(this, onClick, [checkBox]);//设置 checkBox 的点击事件处理器。
+	 *				Laya.stage.addChild(checkBox);//将此 checkBox 对象添加到显示列表。
+	 *			}
+	 *			private function onClick(checkBox:CheckBox):void
+	 *			{
+	 *				trace("输出选中状态: checkBox.selected = " + checkBox.selected);
+	 *			}
+	 *		}
+	 *	}
+	 * @example
+	 * Laya.init(640, 800);//设置游戏画布宽高
+	 * Laya.stage.bgColor = "#efefef";//设置画布的背景颜色
+	 * Laya.loader.load("resource/ui/check.png",laya.utils.Handler.create(this,loadComplete));//加载资源
+	 * function loadComplete()
+	 * {
+	 *     console.log("资源加载完成！");
+	 *     var checkBox:laya.ui.CheckBox= new laya.ui.CheckBox("resource/ui/check.png", "这个是一个CheckBox组件。");//创建一个 CheckBox 类的类的实例对象 checkBox ,传入它的皮肤skin和标签label。
+	 *     checkBox.x =100;//设置 checkBox 对象的属性 x 的值，用于控制 checkBox 对象的显示位置。
+	 *     checkBox.y =100;//设置 checkBox 对象的属性 y 的值，用于控制 checkBox 对象的显示位置。
+	 *     checkBox.clickHandler = new laya.utils.Handler(this,this.onClick,[checkBox],false);//设置 checkBox 的点击事件处理器。
+	 *     Laya.stage.addChild(checkBox);//将此 checkBox 对象添加到显示列表。
+	 * }
+	 * function onClick(checkBox)
+	 * {
+	 *     console.log("checkBox.selected = ",checkBox.selected);
+	 * }
+	 * @example
+	 * import CheckBox= laya.ui.CheckBox;
+	 * import Handler=laya.utils.Handler;
+	 * class CheckBox_Example{
+	 *     constructor()
+	 *     {
+	 *         Laya.init(640, 800);
+	 *         Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
+	 *         Laya.loader.load("resource/ui/check.png", Handler.create(this,this.onLoadComplete));//加载资源。
+	 *     }
+	 *     private onLoadComplete()
+	 *     {
+	 *         var checkBox:CheckBox = new CheckBox("resource/ui/check.png", "这个是一个CheckBox组件。");//创建一个 CheckBox 类的实例对象 checkBox ,传入它的皮肤skin和标签label。
+	 *         checkBox.x = 100;//设置 checkBox 对象的属性 x 的值，用于控制 checkBox 对象的显示位置。
+	 *         checkBox.y = 100;//设置 checkBox 对象的属性 y 的值，用于控制 checkBox 对象的显示位置。
+	 *         checkBox.clickHandler = new Handler(this, this.onClick,[checkBox]);//设置 checkBox 的点击事件处理器。
+	 *         Laya.stage.addChild(checkBox);//将此 checkBox 对象添加到显示列表。
+	 *     }
+	 *     private onClick(checkBox:CheckBox):void
+	 *     {
+	 *         console.log("输出选中状态: checkBox.selected = " + checkBox.selected);
+	 *     }
+	 * }
+	 */
+	class CheckBox extends Button {
+	    /**
+	     * 创建一个新的 <code>CheckBox</code> 组件实例。
+	     * @param skin 皮肤资源地址。
+	     * @param label 文本标签的内容。
+	     */
+	    constructor(skin = null, label = "") {
+	        super(skin, label);
+	        this.toggle = true;
+	        this._autoSize = false;
+	    }
+	    /**
+	     * @inheritDoc
+	     * @internal
+	    */
+	    preinitialize() {
+	        super.preinitialize();
+	        this.toggle = true;
+	        this._autoSize = false;
+	    }
+	    /**
+	     * @inheritDoc
+	     * @internal
+	    */
+	    initialize() {
+	        super.initialize();
+	        this.createText();
+	        this._text.align = "left";
+	        this._text.valign = "top";
+	        this._text.width = 0;
+	    }
+	    /**
+	     * @inheritDoc
+	     * @override
+	    */
+	    set dataSource(value) {
+	        this._dataSource = value;
+	        if (value instanceof Boolean)
+	            this.selected = value;
+	        else if (typeof (value) == 'string')
+	            this.selected = value === "true";
+	        else
+	            super.dataSource = value;
+	    }
+	    get dataSource() {
+	        return super.dataSource;
+	    }
+	}
+	Laya.ILaya.regClass(CheckBox);
+	Laya.ClassUtils.regClass("laya.ui.CheckBox", CheckBox);
+	Laya.ClassUtils.regClass("Laya.CheckBox", CheckBox);
 
 	/**
 	 * 文本内容发生改变后调度。
@@ -5857,616 +6243,6 @@
 	Laya.ILaya.regClass(ComboBox);
 	Laya.ClassUtils.regClass("laya.ui.ComboBox", ComboBox);
 	Laya.ClassUtils.regClass("Laya.ComboBox", ComboBox);
-
-	/**
-	 * 选择项改变后调度。
-	 * @eventType laya.events.Event
-	 */
-	/*[Event(name = "change", type = "laya.events.Event")]*/
-	/**
-	 * <code>ColorPicker</code> 组件将显示包含多个颜色样本的列表，用户可以从中选择颜色。
-	 *
-	 * @example <caption>以下示例代码，创建了一个 <code>ColorPicker</code> 实例。</caption>
-	 * package
-	 *	{
-	 *		import laya.ui.ColorPicker;
-	 *		import laya.utils.Handler;
-	 *		public class ColorPicker_Example
-	 *		{
-	 *			public function ColorPicker_Example()
-	 *			{
-	 *				Laya.init(640, 800);//设置游戏画布宽高。
-	 *				Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
-	 *				Laya.loader.load("resource/ui/color.png", Handler.create(this,onLoadComplete));//加载资源。
-	 *			}
-	 *			private function onLoadComplete():void
-	 *			{
-	 *				trace("资源加载完成！");
-	 *				var colorPicket:ColorPicker = new ColorPicker();//创建一个 ColorPicker 类的实例对象 colorPicket 。
-	 *				colorPicket.skin = "resource/ui/color.png";//设置 colorPicket 的皮肤。
-	 *				colorPicket.x = 100;//设置 colorPicket 对象的属性 x 的值，用于控制 colorPicket 对象的显示位置。
-	 *				colorPicket.y = 100;//设置 colorPicket 对象的属性 y 的值，用于控制 colorPicket 对象的显示位置。
-	 *				colorPicket.changeHandler = new Handler(this, onChangeColor,[colorPicket]);//设置 colorPicket 的颜色改变回调函数。
-	 *				Laya.stage.addChild(colorPicket);//将此 colorPicket 对象添加到显示列表。
-	 *			}
-	 *			private function onChangeColor(colorPicket:ColorPicker):void
-	 *			{
-	 *				trace("当前选择的颜色： " + colorPicket.selectedColor);
-	 *			}
-	 *		}
-	 *	}
-	 * @example
-	 * Laya.init(640, 800);//设置游戏画布宽高
-	 * Laya.stage.bgColor = "#efefef";//设置画布的背景颜色
-	 * Laya.loader.load("resource/ui/color.png",laya.utils.Handler.create(this,loadComplete));//加载资源
-	 * function loadComplete()
-	 * {
-	 *     console.log("资源加载完成！");
-	 *     var colorPicket = new laya.ui.ColorPicker();//创建一个 ColorPicker 类的实例对象 colorPicket 。
-	 *     colorPicket.skin = "resource/ui/color.png";//设置 colorPicket 的皮肤。
-	 *     colorPicket.x = 100;//设置 colorPicket 对象的属性 x 的值，用于控制 colorPicket 对象的显示位置。
-	 *     colorPicket.y = 100;//设置 colorPicket 对象的属性 y 的值，用于控制 colorPicket 对象的显示位置。
-	 *     colorPicket.changeHandler = laya.utils.Handler.create(this, onChangeColor,[colorPicket],false);//设置 colorPicket 的颜色改变回调函数。
-	 *     Laya.stage.addChild(colorPicket);//将此 colorPicket 对象添加到显示列表。
-	 * }
-	 * function onChangeColor(colorPicket)
-	 * {
-	 *     console.log("当前选择的颜色： " + colorPicket.selectedColor);
-	 * }
-	 * @example
-	 * import ColorPicker = laya.ui.ColorPicker;
-	 * import Handler = laya.utils.Handler;
-	 * class ColorPicker_Example {
-	 *     constructor() {
-	 *         Laya.init(640, 800);//设置游戏画布宽高。
-	 *         Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
-	 *         Laya.loader.load("resource/ui/color.png", Handler.create(this, this.onLoadComplete));//加载资源。
-	 *     }
-	 *     private onLoadComplete(): void {
-	 *         console.log("资源加载完成！");
-	 *         var colorPicket: ColorPicker = new ColorPicker();//创建一个 ColorPicker 类的实例对象 colorPicket 。
-	 *         colorPicket.skin = "resource/ui/color.png";//设置 colorPicket 的皮肤。
-	 *         colorPicket.x = 100;//设置 colorPicket 对象的属性 x 的值，用于控制 colorPicket 对象的显示位置。
-	 *         colorPicket.y = 100;//设置 colorPicket 对象的属性 y 的值，用于控制 colorPicket 对象的显示位置。
-	 *         colorPicket.changeHandler = new Handler(this, this.onChangeColor, [colorPicket]);//设置 colorPicket 的颜色改变回调函数。
-	 *         Laya.stage.addChild(colorPicket);//将此 colorPicket 对象添加到显示列表。
-	 *     }
-	 *     private onChangeColor(colorPicket: ColorPicker): void {
-	 *         console.log("当前选择的颜色： " + colorPicket.selectedColor);
-	 *     }
-	 * }
-	 */
-	class ColorPicker extends UIComponent {
-	    constructor() {
-	        super(...arguments);
-	        /**
-	         * @private
-	         * 指定每个正方形的颜色小格子的宽高（以像素为单位）。
-	         */
-	        this._gridSize = 11;
-	        /**
-	         * @private
-	         * 表示颜色样本列表面板的背景颜色值。
-	         */
-	        this._bgColor = "#ffffff";
-	        /**
-	         * @private
-	         * 表示颜色样本列表面板的边框颜色值。
-	         */
-	        this._borderColor = "#000000";
-	        /**
-	         * @private
-	         * 表示颜色样本列表面板选择或输入的颜色值。
-	         */
-	        this._inputColor = "#000000";
-	        /**
-	         * @private
-	         * 表示颜色输入框的背景颜色值。
-	         */
-	        this._inputBgColor = "#efefef";
-	        /**
-	         * @private
-	         * 表示颜色值列表。
-	         */
-	        this._colors = [];
-	        /**
-	         * @private
-	         * 表示选择的颜色值。
-	         */
-	        this._selectedColor = "#000000";
-	    }
-	    /**
-	     * @inheritDoc
-	     * @override
-	    */
-	    /*override*/ destroy(destroyChild = true) {
-	        super.destroy(destroyChild);
-	        this._colorPanel && this._colorPanel.destroy(destroyChild);
-	        this._colorButton && this._colorButton.destroy(destroyChild);
-	        this._colorPanel = null;
-	        this._colorTiles = null;
-	        this._colorBlock = null;
-	        this._colorInput = null;
-	        this._colorButton = null;
-	        this._colors = null;
-	        this.changeHandler = null;
-	    }
-	    /**
-	     * @inheritDoc
-	     * @internal
-	    */
-	    /*override*/ createChildren() {
-	        this.addChild(this._colorButton = new Button());
-	        this._colorPanel = new Box();
-	        this._colorPanel.size(230, 166);
-	        this._colorPanel.addChild(this._colorTiles = new Laya.Sprite());
-	        this._colorPanel.addChild(this._colorBlock = new Laya.Sprite());
-	        this._colorPanel.addChild(this._colorInput = new Laya.Input());
-	    }
-	    /**
-	     * @inheritDoc
-	     * @internal
-	    */
-	    /*override*/ initialize() {
-	        this._colorButton.on(Laya.Event.CLICK, this, this.onColorButtonClick);
-	        this._colorBlock.pos(5, 5);
-	        this._colorInput.pos(60, 5);
-	        this._colorInput.size(60, 20);
-	        this._colorInput.on(Laya.Event.CHANGE, this, this.onColorInputChange);
-	        this._colorInput.on(Laya.Event.KEY_DOWN, this, this.onColorFieldKeyDown);
-	        this._colorTiles.pos(5, 30);
-	        this._colorTiles.on(Laya.Event.MOUSE_MOVE, this, this.onColorTilesMouseMove);
-	        this._colorTiles.on(Laya.Event.CLICK, this, this.onColorTilesClick);
-	        this._colorTiles.size(20 * this._gridSize, 12 * this._gridSize);
-	        this._colorPanel.on(Laya.Event.MOUSE_DOWN, this, this.onPanelMouseDown);
-	        this.bgColor = this._bgColor;
-	    }
-	    onPanelMouseDown(e) {
-	        e.stopPropagation();
-	    }
-	    /**
-	     * 改变颜色样本列表面板。
-	     */
-	    changePanel() {
-	        this._panelChanged = false;
-	        var g = this._colorPanel.graphics;
-	        g.clear(true);
-	        //g.drawRect(0, 0, 230, 166, _bgColor);
-	        g.drawRect(0, 0, 230, 166, this._bgColor, this._borderColor);
-	        this.drawBlock(this._selectedColor);
-	        this._colorInput.borderColor = this._borderColor;
-	        this._colorInput.bgColor = this._inputBgColor;
-	        this._colorInput.color = this._inputColor;
-	        g = this._colorTiles.graphics;
-	        g.clear(true);
-	        var mainColors = [0x000000, 0x333333, 0x666666, 0x999999, 0xCCCCCC, 0xFFFFFF, 0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0x00FFFF, 0xFF00FF];
-	        for (var i = 0; i < 12; i++) {
-	            for (var j = 0; j < 20; j++) {
-	                var color;
-	                if (j === 0)
-	                    color = mainColors[i];
-	                else if (j === 1)
-	                    color = 0x000000;
-	                else
-	                    color = (((i * 3 + j / 6) % 3 << 0) + ((i / 6) << 0) * 3) * 0x33 << 16 | j % 6 * 0x33 << 8 | (i << 0) % 6 * 0x33;
-	                var strColor = UIUtils.toColor(color);
-	                this._colors.push(strColor);
-	                var x = j * this._gridSize;
-	                var y = i * this._gridSize;
-	                g.drawRect(x, y, this._gridSize, this._gridSize, strColor, "#000000");
-	                //g.drawRect(x + 1, y + 1, _gridSize - 1, _gridSize - 1, strColor);
-	            }
-	        }
-	    }
-	    /**
-	     * 颜色样本列表面板的显示按钮的 <code>Event.MOUSE_DOWN</code> 事件侦听处理函数。
-	     */
-	    onColorButtonClick(e) {
-	        if (this._colorPanel.parent)
-	            this.close();
-	        else
-	            this.open();
-	    }
-	    /**
-	     * 打开颜色样本列表面板。
-	     */
-	    open() {
-	        var Laya$1 = window.Laya;
-	        var p = this.localToGlobal(new Laya.Point());
-	        var px = p.x + this._colorPanel.width <= Laya$1.stage.width ? p.x : Laya$1.stage.width - this._colorPanel.width;
-	        var py = p.y + this._colorButton.height;
-	        py = py + this._colorPanel.height <= Laya$1.stage.height ? py : p.y - this._colorPanel.height;
-	        this._colorPanel.pos(px, py);
-	        this._colorPanel.zOrder = 1001;
-	        Laya$1._currentStage.addChild(this._colorPanel);
-	        Laya$1.stage.on(Laya.Event.MOUSE_DOWN, this, this.removeColorBox);
-	    }
-	    /**
-	     * 关闭颜色样本列表面板。
-	     */
-	    close() {
-	        window.Laya.stage.off(Laya.Event.MOUSE_DOWN, this, this.removeColorBox);
-	        this._colorPanel.removeSelf();
-	    }
-	    /**
-	     * 舞台的 <code>Event.MOUSE_DOWN</code> 事件侦听处理函数。
-	     */
-	    removeColorBox(e = null) {
-	        this.close();
-	        //var target:Sprite = e.target as Sprite;
-	        //if (!_colorButton.contains(target) && !_colorPanel.contains(target)) {
-	        //close();
-	        //}
-	    }
-	    /**
-	     * 小格子色块的 <code>Event.KEY_DOWN</code> 事件侦听处理函数。
-	     */
-	    onColorFieldKeyDown(e) {
-	        if (e.keyCode == 13) {
-	            if (this._colorInput.text)
-	                this.selectedColor = this._colorInput.text;
-	            else
-	                this.selectedColor = null;
-	            this.close();
-	            e.stopPropagation();
-	        }
-	    }
-	    /**
-	     * 颜色值输入框 <code>Event.CHANGE</code> 事件侦听处理函数。
-	     */
-	    onColorInputChange(e = null) {
-	        if (this._colorInput.text)
-	            this.drawBlock(this._colorInput.text);
-	        else
-	            this.drawBlock("#FFFFFF");
-	    }
-	    /**
-	     * 小格子色块的 <code>Event.CLICK</code> 事件侦听处理函数。
-	     */
-	    onColorTilesClick(e) {
-	        this.selectedColor = this.getColorByMouse();
-	        this.close();
-	    }
-	    /**
-	     * @private
-	     * 小格子色块的 <code>Event.MOUSE_MOVE</code> 事件侦听处理函数。
-	     */
-	    onColorTilesMouseMove(e) {
-	        this._colorInput.focus = false;
-	        var color = this.getColorByMouse();
-	        this._colorInput.text = color;
-	        this.drawBlock(color);
-	    }
-	    /**
-	     * 通过鼠标位置取对应的颜色块的颜色值。
-	     */
-	    getColorByMouse() {
-	        var point = this._colorTiles.getMousePoint();
-	        var x = Math.floor(point.x / this._gridSize);
-	        var y = Math.floor(point.y / this._gridSize);
-	        return this._colors[y * 20 + x];
-	    }
-	    /**
-	     * 绘制颜色块。
-	     * @param color 需要绘制的颜色块的颜色值。
-	     */
-	    drawBlock(color) {
-	        var g = this._colorBlock.graphics;
-	        g.clear(true);
-	        var showColor = color ? color : "#ffffff";
-	        g.drawRect(0, 0, 50, 20, showColor, this._borderColor);
-	        color || g.drawLine(0, 0, 50, 20, "#ff0000");
-	    }
-	    /**
-	     * 表示选择的颜色值。
-	     */
-	    get selectedColor() {
-	        return this._selectedColor;
-	    }
-	    set selectedColor(value) {
-	        if (this._selectedColor != value) {
-	            this._selectedColor = this._colorInput.text = value;
-	            this.drawBlock(value);
-	            this.changeColor();
-	            this.changeHandler && this.changeHandler.runWith(this._selectedColor);
-	            this.event(Laya.Event.CHANGE, Laya.Event.EMPTY.setTo(Laya.Event.CHANGE, this, this));
-	        }
-	    }
-	    /**
-	     * @copy laya.ui.Button#skin
-	     */
-	    get skin() {
-	        return this._colorButton.skin;
-	    }
-	    set skin(value) {
-	        this._colorButton.once(Laya.Event.LOADED, this, this.changeColor);
-	        this._colorButton.skin = value;
-	        //changeColor();
-	    }
-	    /**
-	     * 改变颜色。
-	     */
-	    changeColor() {
-	        var g = this.graphics;
-	        g.clear(true);
-	        var showColor = this._selectedColor || "#000000";
-	        g.drawRect(0, 0, this._colorButton.width, this._colorButton.height, showColor);
-	    }
-	    /**
-	     * 表示颜色样本列表面板的背景颜色值。
-	     */
-	    get bgColor() {
-	        return this._bgColor;
-	    }
-	    set bgColor(value) {
-	        this._bgColor = value;
-	        this._setPanelChanged();
-	    }
-	    /**
-	     * 表示颜色样本列表面板的边框颜色值。
-	     */
-	    get borderColor() {
-	        return this._borderColor;
-	    }
-	    set borderColor(value) {
-	        this._borderColor = value;
-	        this._setPanelChanged();
-	    }
-	    /**
-	     * 表示颜色样本列表面板选择或输入的颜色值。
-	     */
-	    get inputColor() {
-	        return this._inputColor;
-	    }
-	    set inputColor(value) {
-	        this._inputColor = value;
-	        this._setPanelChanged();
-	    }
-	    /**
-	     * 表示颜色输入框的背景颜色值。
-	     */
-	    get inputBgColor() {
-	        return this._inputBgColor;
-	    }
-	    set inputBgColor(value) {
-	        this._inputBgColor = value;
-	        this._setPanelChanged();
-	    }
-	    /**@private */
-	    _setPanelChanged() {
-	        if (!this._panelChanged) {
-	            this._panelChanged = true;
-	            this.callLater(this.changePanel);
-	        }
-	    }
-	}
-	Laya.ILaya.regClass(ColorPicker);
-	Laya.ClassUtils.regClass("laya.ui.ColorPicker", ColorPicker);
-	Laya.ClassUtils.regClass("Laya.ColorPicker", ColorPicker);
-
-	class IUI {
-	}
-	//static DialogManager:typeof DialogManager=null;
-	IUI.Dialog = null;
-
-	/**打开任意窗口后调度。
-	 * @eventType Event.OPEN
-	 */
-	/*[Event(name = "open", type = "laya.events.Event")]*/
-	/**关闭任意窗口后调度。
-	 * @eventType Event.CLOSE
-	 */
-	/*[Event(name = "close", type = "laya.events.Event")]*/
-	/**
-	 * <code>DialogManager</code> 对话框管理容器，所有的对话框都在该容器内，并且受管理器管理。
-	 * 任意对话框打开和关闭，都会出发管理类的open和close事件
-	 * 可以通过UIConfig设置弹出框背景透明度，模式窗口点击边缘是否关闭，点击窗口是否切换层次等
-	 * 通过设置对话框的zOrder属性，可以更改弹出的层次
-	 */
-	class DialogManager extends Laya.Sprite {
-	    /**
-	     * 创建一个新的 <code>DialogManager</code> 类实例。
-	     */
-	    constructor() {
-	        super();
-	        /**遮罩层*/
-	        this.maskLayer = new Laya.Sprite();
-	        /**@private 全局默认弹出对话框效果，可以设置一个效果代替默认的弹出效果，如果不想有任何效果，可以赋值为null*/
-	        this.popupEffect = function (dialog) {
-	            var Laya$1 = window.Laya;
-	            dialog.scale(1, 1);
-	            dialog._effectTween = Laya.Tween.from(dialog, { x: Laya$1.stage.width / 2, y: Laya$1.stage.height / 2, scaleX: 0, scaleY: 0 }, 300, Laya.Ease.backOut, Laya.Handler.create(this, this.doOpen, [dialog]), 0, false, false);
-	        };
-	        /**@private 全局默认关闭对话框效果，可以设置一个效果代替默认的关闭效果，如果不想有任何效果，可以赋值为null*/
-	        this.closeEffect = function (dialog) {
-	            var Laya$1 = window.Laya;
-	            dialog._effectTween = Laya.Tween.to(dialog, { x: Laya$1.stage.width / 2, y: Laya$1.stage.height / 2, scaleX: 0, scaleY: 0 }, 300, Laya.Ease.strongOut, Laya.Handler.create(this, this.doClose, [dialog]), 0, false, false);
-	        };
-	        /**全局默认关闭对话框效果，可以设置一个效果代替默认的关闭效果，如果不想有任何效果，可以赋值为null*/
-	        this.popupEffectHandler = new Laya.Handler(this, this.popupEffect);
-	        /**全局默认弹出对话框效果，可以设置一个效果代替默认的弹出效果，如果不想有任何效果，可以赋值为null*/
-	        this.closeEffectHandler = new Laya.Handler(this, this.closeEffect);
-	        this.mouseEnabled = this.maskLayer.mouseEnabled = true;
-	        this.zOrder = 1000;
-	        var Laya$1 = window.Laya;
-	        Laya$1.stage.addChild(this);
-	        Laya$1.stage.on(Laya.Event.RESIZE, this, this._onResize);
-	        if (UIConfig.closeDialogOnSide)
-	            this.maskLayer.on("click", this, this._closeOnSide);
-	        this._onResize(null);
-	    }
-	    _closeOnSide() {
-	        var dialog = this.getChildAt(this.numChildren - 1);
-	        if (dialog instanceof IUI.Dialog)
-	            dialog.close();
-	    }
-	    /**设置锁定界面，如果为空则什么都不显示*/
-	    setLockView(value) {
-	        var Laya = window.Laya;
-	        if (!this.lockLayer) {
-	            this.lockLayer = new Box();
-	            this.lockLayer.mouseEnabled = true;
-	            this.lockLayer.size(Laya.stage.width, Laya.stage.height);
-	        }
-	        this.lockLayer.removeChildren();
-	        if (value) {
-	            value.centerX = value.centerY = 0;
-	            this.lockLayer.addChild(value);
-	        }
-	    }
-	    /**@private */
-	    _onResize(e = null) {
-	        var Laya = window.Laya;
-	        var width = this.maskLayer.width = Laya.stage.width;
-	        var height = this.maskLayer.height = Laya.stage.height;
-	        if (this.lockLayer)
-	            this.lockLayer.size(width, height);
-	        this.maskLayer.graphics.clear(true);
-	        this.maskLayer.graphics.drawRect(0, 0, width, height, UIConfig.popupBgColor);
-	        this.maskLayer.alpha = UIConfig.popupBgAlpha;
-	        for (var i = this.numChildren - 1; i > -1; i--) {
-	            var item = this.getChildAt(i);
-	            if (item.isPopupCenter)
-	                this._centerDialog(item);
-	        }
-	    }
-	    _centerDialog(dialog) {
-	        var Laya = window.Laya;
-	        dialog.x = Math.round(((Laya.stage.width - dialog.width) >> 1) + dialog.pivotX);
-	        dialog.y = Math.round(((Laya.stage.height - dialog.height) >> 1) + dialog.pivotY);
-	    }
-	    /**
-	     * 显示对话框
-	     * @param dialog 需要显示的对象框 <code>Dialog</code> 实例。
-	     * @param closeOther 是否关闭其它对话框，若值为ture，则关闭其它的对话框。
-	     * @param showEffect 是否显示弹出效果
-	     */
-	    open(dialog, closeOther = false, showEffect = false) {
-	        if (closeOther)
-	            this._closeAll();
-	        this._clearDialogEffect(dialog);
-	        if (dialog.isPopupCenter)
-	            this._centerDialog(dialog);
-	        this.addChild(dialog);
-	        if (dialog.isModal || this._getBit(Laya.Const.HAS_ZORDER))
-	            window.Laya.timer.callLater(this, this._checkMask);
-	        if (showEffect && dialog.popupEffect != null)
-	            dialog.popupEffect.runWith(dialog);
-	        else
-	            this.doOpen(dialog);
-	        this.event(Laya.Event.OPEN);
-	    }
-	    /**@private */
-	    _clearDialogEffect(dialog) {
-	        if (dialog._effectTween) {
-	            Laya.Tween.clear(dialog._effectTween);
-	            dialog._effectTween = null;
-	        }
-	    }
-	    /**
-	     * 执行打开对话框。
-	     * @param dialog 需要关闭的对象框 <code>Dialog</code> 实例。
-	     */
-	    doOpen(dialog) {
-	        dialog.onOpened(dialog._param);
-	    }
-	    /**
-	     * 锁定所有层，显示加载条信息，防止双击
-	     */
-	    lock(value) {
-	        if (this.lockLayer) {
-	            if (value)
-	                this.addChild(this.lockLayer);
-	            else
-	                this.lockLayer.removeSelf();
-	        }
-	    }
-	    /**
-	     * 关闭对话框。
-	     * @param dialog 需要关闭的对象框 <code>Dialog</code> 实例。
-	     */
-	    close(dialog) {
-	        this._clearDialogEffect(dialog);
-	        if (dialog.isShowEffect && dialog.closeEffect != null)
-	            dialog.closeEffect.runWith([dialog]);
-	        else
-	            this.doClose(dialog);
-	        this.event(Laya.Event.CLOSE);
-	    }
-	    /**
-	     * 执行关闭对话框。
-	     * @param dialog 需要关闭的对象框 <code>Dialog</code> 实例。
-	     */
-	    doClose(dialog) {
-	        dialog.removeSelf();
-	        dialog.isModal && this._checkMask();
-	        dialog.closeHandler && dialog.closeHandler.runWith(dialog.closeType);
-	        dialog.onClosed(dialog.closeType);
-	        if (dialog.autoDestroyAtClosed)
-	            dialog.destroy();
-	    }
-	    /**
-	     * 关闭所有的对话框。
-	     */
-	    closeAll() {
-	        this._closeAll();
-	        this.event(Laya.Event.CLOSE);
-	    }
-	    /**@private */
-	    _closeAll() {
-	        for (var i = this.numChildren - 1; i > -1; i--) {
-	            var item = this.getChildAt(i);
-	            if (item && item.close != null) {
-	                this.doClose(item);
-	            }
-	        }
-	    }
-	    /**
-	     * 根据组获取所有对话框
-	     * @param	group 组名称
-	     * @return	对话框数组
-	     */
-	    getDialogsByGroup(group) {
-	        var arr = [];
-	        for (var i = this.numChildren - 1; i > -1; i--) {
-	            var item = this.getChildAt(i);
-	            if (item && item.group === group) {
-	                arr.push(item);
-	            }
-	        }
-	        return arr;
-	    }
-	    /**
-	     * 根据组关闭所有弹出框
-	     * @param	group 需要关闭的组名称
-	     * @return	需要关闭的对话框数组
-	     */
-	    closeByGroup(group) {
-	        var arr = [];
-	        for (var i = this.numChildren - 1; i > -1; i--) {
-	            var item = this.getChildAt(i);
-	            if (item && item.group === group) {
-	                item.close();
-	                arr.push(item);
-	            }
-	        }
-	        return arr;
-	    }
-	    /**@internal 发生层次改变后，重新检查遮罩层是否正确*/
-	    _checkMask() {
-	        this.maskLayer.removeSelf();
-	        for (var i = this.numChildren - 1; i > -1; i--) {
-	            var dialog = this.getChildAt(i);
-	            if (dialog && dialog.isModal) {
-	                //trace(numChildren,i);
-	                this.addChildAt(this.maskLayer, i);
-	                return;
-	            }
-	        }
-	    }
-	}
-	Laya.ClassUtils.regClass("laya.ui.DialogManager", DialogManager);
-	Laya.ClassUtils.regClass("Laya.DialogManager", DialogManager);
 
 	/**
 	 * 值发生改变后调度。
@@ -9997,6 +9773,230 @@
 	Laya.ClassUtils.regClass("laya.ui.View", View);
 	Laya.ClassUtils.regClass("Laya.View", View);
 	//dialog 依赖于view，放到这里的话，谁在前都会报错，所以不能放到这里了
+
+	class IUI {
+	}
+	//static DialogManager:typeof DialogManager=null;
+	IUI.Dialog = null;
+
+	/**打开任意窗口后调度。
+	 * @eventType Event.OPEN
+	 */
+	/*[Event(name = "open", type = "laya.events.Event")]*/
+	/**关闭任意窗口后调度。
+	 * @eventType Event.CLOSE
+	 */
+	/*[Event(name = "close", type = "laya.events.Event")]*/
+	/**
+	 * <code>DialogManager</code> 对话框管理容器，所有的对话框都在该容器内，并且受管理器管理。
+	 * 任意对话框打开和关闭，都会出发管理类的open和close事件
+	 * 可以通过UIConfig设置弹出框背景透明度，模式窗口点击边缘是否关闭，点击窗口是否切换层次等
+	 * 通过设置对话框的zOrder属性，可以更改弹出的层次
+	 */
+	class DialogManager extends Laya.Sprite {
+	    /**
+	     * 创建一个新的 <code>DialogManager</code> 类实例。
+	     */
+	    constructor() {
+	        super();
+	        /**遮罩层*/
+	        this.maskLayer = new Laya.Sprite();
+	        /**@private 全局默认弹出对话框效果，可以设置一个效果代替默认的弹出效果，如果不想有任何效果，可以赋值为null*/
+	        this.popupEffect = function (dialog) {
+	            var Laya$1 = window.Laya;
+	            dialog.scale(1, 1);
+	            dialog._effectTween = Laya.Tween.from(dialog, { x: Laya$1.stage.width / 2, y: Laya$1.stage.height / 2, scaleX: 0, scaleY: 0 }, 300, Laya.Ease.backOut, Laya.Handler.create(this, this.doOpen, [dialog]), 0, false, false);
+	        };
+	        /**@private 全局默认关闭对话框效果，可以设置一个效果代替默认的关闭效果，如果不想有任何效果，可以赋值为null*/
+	        this.closeEffect = function (dialog) {
+	            var Laya$1 = window.Laya;
+	            dialog._effectTween = Laya.Tween.to(dialog, { x: Laya$1.stage.width / 2, y: Laya$1.stage.height / 2, scaleX: 0, scaleY: 0 }, 300, Laya.Ease.strongOut, Laya.Handler.create(this, this.doClose, [dialog]), 0, false, false);
+	        };
+	        /**全局默认关闭对话框效果，可以设置一个效果代替默认的关闭效果，如果不想有任何效果，可以赋值为null*/
+	        this.popupEffectHandler = new Laya.Handler(this, this.popupEffect);
+	        /**全局默认弹出对话框效果，可以设置一个效果代替默认的弹出效果，如果不想有任何效果，可以赋值为null*/
+	        this.closeEffectHandler = new Laya.Handler(this, this.closeEffect);
+	        this.mouseEnabled = this.maskLayer.mouseEnabled = true;
+	        this.zOrder = 1000;
+	        var Laya$1 = window.Laya;
+	        Laya$1.stage.addChild(this);
+	        Laya$1.stage.on(Laya.Event.RESIZE, this, this._onResize);
+	        if (UIConfig.closeDialogOnSide)
+	            this.maskLayer.on("click", this, this._closeOnSide);
+	        this._onResize(null);
+	    }
+	    _closeOnSide() {
+	        var dialog = this.getChildAt(this.numChildren - 1);
+	        if (dialog instanceof IUI.Dialog)
+	            dialog.close();
+	    }
+	    /**设置锁定界面，如果为空则什么都不显示*/
+	    setLockView(value) {
+	        var Laya = window.Laya;
+	        if (!this.lockLayer) {
+	            this.lockLayer = new Box();
+	            this.lockLayer.mouseEnabled = true;
+	            this.lockLayer.size(Laya.stage.width, Laya.stage.height);
+	        }
+	        this.lockLayer.removeChildren();
+	        if (value) {
+	            value.centerX = value.centerY = 0;
+	            this.lockLayer.addChild(value);
+	        }
+	    }
+	    /**@private */
+	    _onResize(e = null) {
+	        var Laya = window.Laya;
+	        var width = this.maskLayer.width = Laya.stage.width;
+	        var height = this.maskLayer.height = Laya.stage.height;
+	        if (this.lockLayer)
+	            this.lockLayer.size(width, height);
+	        this.maskLayer.graphics.clear(true);
+	        this.maskLayer.graphics.drawRect(0, 0, width, height, UIConfig.popupBgColor);
+	        this.maskLayer.alpha = UIConfig.popupBgAlpha;
+	        for (var i = this.numChildren - 1; i > -1; i--) {
+	            var item = this.getChildAt(i);
+	            if (item.isPopupCenter)
+	                this._centerDialog(item);
+	        }
+	    }
+	    _centerDialog(dialog) {
+	        var Laya = window.Laya;
+	        dialog.x = Math.round(((Laya.stage.width - dialog.width) >> 1) + dialog.pivotX);
+	        dialog.y = Math.round(((Laya.stage.height - dialog.height) >> 1) + dialog.pivotY);
+	    }
+	    /**
+	     * 显示对话框
+	     * @param dialog 需要显示的对象框 <code>Dialog</code> 实例。
+	     * @param closeOther 是否关闭其它对话框，若值为ture，则关闭其它的对话框。
+	     * @param showEffect 是否显示弹出效果
+	     */
+	    open(dialog, closeOther = false, showEffect = false) {
+	        if (closeOther)
+	            this._closeAll();
+	        this._clearDialogEffect(dialog);
+	        if (dialog.isPopupCenter)
+	            this._centerDialog(dialog);
+	        this.addChild(dialog);
+	        if (dialog.isModal || this._getBit(Laya.Const.HAS_ZORDER))
+	            window.Laya.timer.callLater(this, this._checkMask);
+	        if (showEffect && dialog.popupEffect != null)
+	            dialog.popupEffect.runWith(dialog);
+	        else
+	            this.doOpen(dialog);
+	        this.event(Laya.Event.OPEN);
+	    }
+	    /**@private */
+	    _clearDialogEffect(dialog) {
+	        if (dialog._effectTween) {
+	            Laya.Tween.clear(dialog._effectTween);
+	            dialog._effectTween = null;
+	        }
+	    }
+	    /**
+	     * 执行打开对话框。
+	     * @param dialog 需要关闭的对象框 <code>Dialog</code> 实例。
+	     */
+	    doOpen(dialog) {
+	        dialog.onOpened(dialog._param);
+	    }
+	    /**
+	     * 锁定所有层，显示加载条信息，防止双击
+	     */
+	    lock(value) {
+	        if (this.lockLayer) {
+	            if (value)
+	                this.addChild(this.lockLayer);
+	            else
+	                this.lockLayer.removeSelf();
+	        }
+	    }
+	    /**
+	     * 关闭对话框。
+	     * @param dialog 需要关闭的对象框 <code>Dialog</code> 实例。
+	     */
+	    close(dialog) {
+	        this._clearDialogEffect(dialog);
+	        if (dialog.isShowEffect && dialog.closeEffect != null)
+	            dialog.closeEffect.runWith([dialog]);
+	        else
+	            this.doClose(dialog);
+	        this.event(Laya.Event.CLOSE);
+	    }
+	    /**
+	     * 执行关闭对话框。
+	     * @param dialog 需要关闭的对象框 <code>Dialog</code> 实例。
+	     */
+	    doClose(dialog) {
+	        dialog.removeSelf();
+	        dialog.isModal && this._checkMask();
+	        dialog.closeHandler && dialog.closeHandler.runWith(dialog.closeType);
+	        dialog.onClosed(dialog.closeType);
+	        if (dialog.autoDestroyAtClosed)
+	            dialog.destroy();
+	    }
+	    /**
+	     * 关闭所有的对话框。
+	     */
+	    closeAll() {
+	        this._closeAll();
+	        this.event(Laya.Event.CLOSE);
+	    }
+	    /**@private */
+	    _closeAll() {
+	        for (var i = this.numChildren - 1; i > -1; i--) {
+	            var item = this.getChildAt(i);
+	            if (item && item.close != null) {
+	                this.doClose(item);
+	            }
+	        }
+	    }
+	    /**
+	     * 根据组获取所有对话框
+	     * @param	group 组名称
+	     * @return	对话框数组
+	     */
+	    getDialogsByGroup(group) {
+	        var arr = [];
+	        for (var i = this.numChildren - 1; i > -1; i--) {
+	            var item = this.getChildAt(i);
+	            if (item && item.group === group) {
+	                arr.push(item);
+	            }
+	        }
+	        return arr;
+	    }
+	    /**
+	     * 根据组关闭所有弹出框
+	     * @param	group 需要关闭的组名称
+	     * @return	需要关闭的对话框数组
+	     */
+	    closeByGroup(group) {
+	        var arr = [];
+	        for (var i = this.numChildren - 1; i > -1; i--) {
+	            var item = this.getChildAt(i);
+	            if (item && item.group === group) {
+	                item.close();
+	                arr.push(item);
+	            }
+	        }
+	        return arr;
+	    }
+	    /**@internal 发生层次改变后，重新检查遮罩层是否正确*/
+	    _checkMask() {
+	        this.maskLayer.removeSelf();
+	        for (var i = this.numChildren - 1; i > -1; i--) {
+	            var dialog = this.getChildAt(i);
+	            if (dialog && dialog.isModal) {
+	                //trace(numChildren,i);
+	                this.addChildAt(this.maskLayer, i);
+	                return;
+	            }
+	        }
+	    }
+	}
+	Laya.ClassUtils.regClass("laya.ui.DialogManager", DialogManager);
+	Laya.ClassUtils.regClass("Laya.DialogManager", DialogManager);
 
 	/**
 	 * <code>Dialog</code> 组件是一个弹出对话框，实现对话框弹出，拖动，模式窗口功能。
