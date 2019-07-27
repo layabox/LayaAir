@@ -12,7 +12,7 @@ import { Browser } from "laya/utils/Browser";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
-
+import { ILaya } from "ILaya";
 
 export class DrawTextTexture {
     private cav: any;
@@ -40,6 +40,10 @@ export class DrawTextTexture {
         this.mat = new UnlitMaterial();
         this.plane.meshRenderer.sharedMaterial = this.mat;
 
+        if (ILaya.Render.isConchApp)
+        {
+            return;
+        }
         //画布cavans
         this.cav = Browser.createElement("canvas");
         var cxt = this.cav.getContext("2d");
