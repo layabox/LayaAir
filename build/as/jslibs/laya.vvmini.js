@@ -2,505 +2,466 @@ window.vvMiniGame = function (exports, Laya) {
 	'use strict';
 
 	/** @private **/
-	class MiniSoundChannel extends Laya.SoundChannel {
-	    constructor(audio, miniSound) {
-	        super();
-	        this._audio = audio;
-	        this._miniSound = miniSound;
-	        this._onEnd = MiniSoundChannel.bindToThis(this.__onEnd, this);
-	        audio.onEnded(this._onEnd);
-	    }
+	class MiniFileMgr {
 	    /**
 	     * @private
-	     * 给传入的函数绑定作用域，返回绑定后的函数。
-	     * @param	fun 函数对象。
-	     * @param	scope 函数作用域。
-	     * @return 绑定后的函数。
-	     */
-	    static bindToThis(fun, scope) {
-	        var rst = fun;
-	        rst = fun.bind(scope);
-	        return rst;
-	    }
-	    /**@private **/
-	    __onEnd() {
-	        // MiniSound._audioCache[this.url] = this._miniSound;
-	        if (this.loops == 1) {
-	            if (this.completeHandler) {
-	                Laya.Laya.systemTimer.once(10, this, this.__runComplete, [this.completeHandler], false);
-	                this.completeHandler = null;
-	            }
-	            this.stop();
-	            this.event(Laya.Event.COMPLETE);
-	            return;
-	        }
-	        if (this.loops > 0) {
-	            this.loops--;
-	        }
-	        this.startTime = 0;
-	        this.play();
-	    }
-	    /**
-	     * @private
-	     * 播放
-	     */
-	    /*override*/ play() {
-	        this.isStopped = false;
-	        Laya.SoundManager.addChannel(this);
-	        this._audio.play();
-	    }
-	    /**
-	     * 设置开始时间
-	     * @param time
-	     */
-	    set startTime(time) {
-	        if (this._audio) {
-	            this._audio.startTime = time;
-	        }
-	    }
-	    /**@private  **/
-	    set autoplay(value) {
-	        this._audio.autoplay = value;
-	    }
-	    /**
-	     * @private
-	     * 自动播放
-	     * @param value
-	     */
-	    get autoplay() {
-	        return this._audio.autoplay;
-	    }
-	    /**
-	     * @private
-	     * 当前播放到的位置
-	     * @return
-	     *
-	     */
-	    /*override*/ get position() {
-	        if (!this._audio)
-	            return 0;
-	        return this._audio.currentTime;
-	    }
-	    /**
-	     * @private
-	     * 获取总时间。
-	     */
-	    /*override*/ get duration() {
-	        if (!this._audio)
-	            return 0;
-	        return this._audio.duration;
-	    }
-	    /**
-	     * @private
-	     * 停止播放
-	     *
-	     */
-	    /*override*/ stop() {
-	        this.isStopped = true;
-	        Laya.SoundManager.removeChannel(this);
-	        this.completeHandler = null;
-	        if (!this._audio)
-	            return;
-	        this._audio.stop(); //停止播放
-	        if (!this.loop) {
-	            this._audio.offEnded(null);
-	            this._miniSound.dispose();
-	            this._audio = null;
-	            this._miniSound = null;
-	            this._onEnd = null;
-	        }
-	    }
-	    /**@private **/
-	    /*override*/ pause() {
-	        this.isStopped = true;
-	        this._audio.pause();
-	    }
-	    /**@private **/
-	    get loop() {
-	        return this._audio.loop;
-	    }
-	    /**@private **/
-	    set loop(value) {
-	        this._audio.loop = value;
-	    }
-	    /**@private **/
-	    /*override*/ resume() {
-	        if (!this._audio)
-	            return;
-	        this.isStopped = false;
-	        Laya.SoundManager.addChannel(this);
-	        this._audio.play();
-	    }
-	    /**
-	     * @private
-	     * 设置音量
-	     * @param v
-	     *
-	     */
-	    /*override*/ set volume(v) {
-	        if (!this._audio)
-	            return;
-	        this._audio.volume = v;
-	    }
-	    /**
-	     * @private
-	     * 获取音量
+	     * 是否是本地4M包文件
+	     * @param url
 	     * @return
 	     */
-	    /*override*/ get volume() {
-	        if (!this._audio)
-	            return 1;
-	        return this._audio.volume;
-	    }
-	}
-
-	/** @private **/
-	class MiniSound extends Laya.EventDispatcher {
-	    constructor() {
-	        super();
-	        /**
-	         * @private
-	         * 是否已加载完成
-	         */
-	        this.loaded = false;
-	        //_sound = _createSound();
-	    }
-	    /** @private **/
-	    static _createSound() {
-	        MiniSound._id++;
-	        return VVMiniAdapter.window.qg.createInnerAudioContext();
+	    static isLocalNativeFile(url) {
+	        for (var i = 0, sz = VVMiniAdapter.nativefiles.length; i < sz; i++) {
+	            //优化调整  if(url.indexOf(MiniAdpter.nativefiles[i]) == 0)
+	            if (url.indexOf(VVMiniAdapter.nativefiles[i]) != -1)
+	                return true;
+	        }
+	        return false;
 	    }
 	    /**
 	     * @private
-	     * 加载声音。
-	     * @param url 地址。
-	     *
+	     * 判断缓存里是否存在文件
+	     * @param fileUrl
+	     * @return
 	     */
-	    load(url) {
-	        if (!MiniFileMgr.isLocalNativeFile(url)) {
-	            url = Laya.URL.formatURL(url);
+	    static getFileInfo(fileUrl) {
+	        var fileNativePath = fileUrl; //.split("?")[0];?????这里好像不需要
+	        var fileObj = MiniFileMgr.fakeObj[fileNativePath]; //这里要去除?好的完整路径
+	        if (fileObj == null)
+	            return null;
+	        else
+	            return fileObj;
+	        return null;
+	    }
+	    /**
+	     * @private
+	     * 本地读取
+	     * @param filePath 文件磁盘路径
+	     * @param encoding 文件读取的编码格式
+	     * @param callBack 回调处理
+	     * @param readyUrl 文件请求加载地址
+	     * @param isSaveFile 是否自动缓存下载的文件,只有在开发者自己单独加载时生效
+	     * @param fileType 文件类型
+	     */
+	    static read(filePath, encoding = "ascill", callBack = null, readyUrl = "", isSaveFile = false, fileType = "") {
+	        var fileUrl;
+	        if (readyUrl != "" && (readyUrl.indexOf("http://") != -1 || readyUrl.indexOf("https://") != -1)) {
+	            fileUrl = MiniFileMgr.getFileNativePath(filePath);
 	        }
 	        else {
-	            if (url.indexOf("http://") != -1 || url.indexOf("https://") != -1) {
-	                if (MiniFileMgr.loadPath != "") {
-	                    url = url.split(MiniFileMgr.loadPath)[1]; //去掉http头
+	            fileUrl = filePath;
+	        }
+	        fileUrl = Laya.URL.getAdptedFilePath(fileUrl);
+	        MiniFileMgr.fs.readFile({ uri: fileUrl, encoding: encoding, success: function (data) {
+	                if (!data.data)
+	                    data.data = data.text;
+	                callBack != null && callBack.runWith([0, data]);
+	            }, fail: function (data) {
+	                if (data && readyUrl != "")
+	                    MiniFileMgr.downFiles(readyUrl, encoding, callBack, readyUrl, isSaveFile, fileType);
+	                else
+	                    callBack != null && callBack.runWith([1]);
+	            } });
+	    }
+	    /**
+	     * @private
+	     * 下载远端文件(非图片跟声音文件)
+	     * @param fileUrl  文件远端下载地址
+	     * @param encode 文件编码
+	     * @param callBack 完成回调
+	     * @param readyUrl 文件真实下载地址
+	     * @param isSaveFile 是否自动缓存下载的文件,只有在开发者自己单独加载时生效
+	     * @param fileType 文件类型
+	     */
+	    static downFiles(fileUrl, encoding = "utf8", callBack = null, readyUrl = "", isSaveFile = false, fileType = "", isAutoClear = true) {
+	        var downloadTask = MiniFileMgr.wxdown({ url: fileUrl, success: function (data) {
+	                if (data.errCode == 0)
+	                    data.statusCode = 200;
+	                if (data.statusCode === 200)
+	                    MiniFileMgr.readFile(data.tempFilePath, encoding, callBack, readyUrl, isSaveFile, fileType, isAutoClear);
+	                else if (data.statusCode === 403) {
+	                    callBack != null && callBack.runWith([0, fileUrl]); //修复本地加载非本地列表的配置文件处理
 	                }
 	                else {
-	                    var tempStr = Laya.URL.rootPath != "" ? Laya.URL.rootPath : Laya.URL._basePath;
-	                    if (tempStr != "")
-	                        url = url.split(tempStr)[1]; //去掉http头
+	                    callBack != null && callBack.runWith([1, data]);
 	                }
-	            }
-	        }
-	        this.url = url;
-	        this.readyUrl = url;
-	        if (MiniSound._audioCache[this.readyUrl]) {
-	            this.event(Laya.Event.COMPLETE);
-	            return;
-	        }
-	        if (VVMiniAdapter.autoCacheFile && MiniFileMgr.getFileInfo(url)) {
-	            this.onDownLoadCallBack(url, 0);
-	        }
-	        else {
-	            if (!VVMiniAdapter.autoCacheFile) {
-	                this.onDownLoadCallBack(url, 0);
-	            }
-	            else {
-	                if (MiniFileMgr.isLocalNativeFile(url)) {
-	                    tempStr = Laya.URL.rootPath != "" ? Laya.URL.rootPath : Laya.URL._basePath;
-	                    var tempUrl = url;
-	                    if (tempStr != "")
-	                        url = url.split(tempStr)[1]; //去掉http头
-	                    if (!url) {
-	                        url = tempUrl;
-	                    }
-	                    //分包目录资源加载处理
-	                    if (VVMiniAdapter.subNativeFiles && VVMiniAdapter.subNativeheads.length == 0) {
-	                        for (var key in VVMiniAdapter.subNativeFiles) {
-	                            var tempArr = VVMiniAdapter.subNativeFiles[key];
-	                            VVMiniAdapter.subNativeheads = VVMiniAdapter.subNativeheads.concat(tempArr);
-	                            for (var aa = 0; aa < tempArr.length; aa++) {
-	                                VVMiniAdapter.subMaps[tempArr[aa]] = key + "/" + tempArr[aa];
-	                            }
-	                        }
-	                    }
-	                    //判断当前的url是否为分包映射路径
-	                    if (VVMiniAdapter.subNativeFiles && url.indexOf("/") != -1) {
-	                        var curfileHead = url.split("/")[0] + "/"; //文件头
-	                        if (curfileHead && VVMiniAdapter.subNativeheads.indexOf(curfileHead) != -1) {
-	                            var newfileHead = VVMiniAdapter.subMaps[curfileHead];
-	                            url = url.replace(curfileHead, newfileHead);
-	                        }
-	                    }
-	                    this.onDownLoadCallBack(url, 0);
-	                }
-	                else {
-	                    if (!MiniFileMgr.isLocalNativeFile(url) && (url.indexOf("http://") == -1 && url.indexOf("https://") == -1) || (url.indexOf("http://usr/") != -1)) {
-	                        this.onDownLoadCallBack(url, 0);
+	            }, fail: function (data) {
+	                callBack != null && callBack.runWith([1, data]);
+	            } });
+	        //获取加载进度
+	        downloadTask.onProgressUpdate(function (data) {
+	            callBack != null && callBack.runWith([2, data.progress]);
+	        });
+	    }
+	    /**
+	     * @private
+	     * 本地本地磁盘文件读取
+	     * @param filePath 文件磁盘临时地址
+	     * @param encoding 文件设定读取的编码格式
+	     * @param callBack 完成回调
+	     * @param readyUrl 真实的下载地址
+	     * @param isSaveFile 是否自动缓存下载的文件,只有在开发者自己单独加载时生效
+	     * @param fileType 文件类型
+	     */
+	    static readFile(filePath, encoding = "ascill", callBack = null, readyUrl = "", isSaveFile = false, fileType = "", isAutoClear = true) {
+	        filePath = Laya.URL.getAdptedFilePath(filePath);
+	        MiniFileMgr.fs.readFile({ uri: filePath, encoding: encoding, success: function (data) {
+	                if (filePath.indexOf("http://") != -1 || filePath.indexOf("https://") != -1) {
+	                    if (VVMiniAdapter.autoCacheFile || isSaveFile) {
+	                        if (!data.data)
+	                            data.data = data.text;
+	                        callBack != null && callBack.runWith([0, data]);
+	                        MiniFileMgr.copyFile(filePath, readyUrl, null, encoding, isAutoClear);
 	                    }
 	                    else {
-	                        MiniFileMgr.downOtherFiles(url, Laya.Handler.create(this, this.onDownLoadCallBack, [url]), url);
-	                    }
-	                }
-	            }
-	        }
-	    }
-	    /**@private **/
-	    onDownLoadCallBack(sourceUrl, errorCode, tempFilePath = null) {
-	        if (!errorCode) {
-	            var fileNativeUrl;
-	            if (VVMiniAdapter.autoCacheFile) {
-	                if (!tempFilePath) {
-	                    if (MiniFileMgr.isLocalNativeFile(sourceUrl)) {
-	                        var tempStr = Laya.URL.rootPath != "" ? Laya.URL.rootPath : Laya.URL._basePath;
-	                        var tempUrl = sourceUrl;
-	                        if (tempStr != "" && (sourceUrl.indexOf("http://") != -1 || sourceUrl.indexOf("https://") != -1))
-	                            fileNativeUrl = sourceUrl.split(tempStr)[1]; //去掉http头
-	                        if (!fileNativeUrl) {
-	                            fileNativeUrl = tempUrl;
-	                        }
-	                    }
-	                    else {
-	                        var fileObj = MiniFileMgr.getFileInfo(sourceUrl);
-	                        if (fileObj && fileObj.md5) {
-	                            var fileMd5Name = fileObj.md5;
-	                            fileNativeUrl = MiniFileMgr.getFileNativePath(fileMd5Name);
-	                        }
-	                        else {
-	                            fileNativeUrl = sourceUrl;
-	                        }
+	                        if (!data.data)
+	                            data.data = data.text;
+	                        callBack != null && callBack.runWith([0, data]);
 	                    }
 	                }
 	                else {
-	                    fileNativeUrl = tempFilePath;
+	                    if (!data.data)
+	                        data.data = data.text;
+	                    callBack != null && callBack.runWith([0, data]);
 	                }
-	                this._sound = MiniSound._createSound();
-	                this._sound.src = this.url = fileNativeUrl;
-	            }
-	            else {
-	                this._sound = MiniSound._createSound();
-	                this._sound.src = sourceUrl;
-	            }
-	            //vivo版本兼容处理
-	            if (this._sound.onCanplay) {
-	                this._sound.onCanplay(MiniSound.bindToThis(this.onCanPlay, this));
-	                this._sound.onError(MiniSound.bindToThis(this.onError, this));
-	            }
-	            else {
-	                Laya.Laya.timer.clear(this, this.onCheckComplete);
-	                Laya.Laya.timer.frameLoop(2, this, this.onCheckComplete);
-	            }
+	            }, fail: function (data) {
+	                if (data)
+	                    callBack != null && callBack.runWith([1, data]);
+	            } });
+	    }
+	    /**
+	     * @private
+	     * 下载远端文件(图片跟声音文件)
+	     * @param fileUrl  文件远端下载地址
+	     * @param encode 文件编码
+	     * @param callBack 完成回调
+	     * @param readyUrl 文件真实下载地址
+	     * @param isSaveFile 是否自动缓存下载的文件,只有在开发者自己单独加载时生效
+	     */
+	    static downOtherFiles(fileUrl, callBack = null, readyUrl = "", isSaveFile = false, isAutoClear = true) {
+	        MiniFileMgr.wxdown({ url: fileUrl, success: function (data) {
+	                if (data.errCode == 0)
+	                    data.statusCode = 200;
+	                if (data.statusCode === 200) {
+	                    if ((VVMiniAdapter.autoCacheFile || isSaveFile) && readyUrl.indexOf(".php") == -1) {
+	                        callBack != null && callBack.runWith([0, data.tempFilePath]);
+	                        MiniFileMgr.copyFile(data.tempFilePath, readyUrl, null, "", isAutoClear);
+	                    }
+	                    else
+	                        callBack != null && callBack.runWith([0, data.tempFilePath]);
+	                }
+	                else {
+	                    callBack != null && callBack.runWith([1, data]); //修复下载文件返回非200状态码的bug
+	                }
+	            }, fail: function (data) {
+	                callBack != null && callBack.runWith([1, data]);
+	            } });
+	    }
+	    /**
+	     * @private
+	     * 下载文件
+	     * @param fileUrl 文件远端地址
+	     * @param fileType 文件类型(image、text、json、xml、arraybuffer、sound、atlas、font)
+	     * @param callBack 文件加载回调,回调内容[errorCode码(0成功,1失败,2加载进度)
+	     * @param encoding 文件编码默认 ascill，非图片文件加载需要设置相应的编码，二进制编码为空字符串
+	     */
+	    static downLoadFile(fileUrl, fileType = "", callBack = null, encoding = "utf8") {
+	        if (VVMiniAdapter.window.navigator.userAgent.indexOf('VVGame') < 0) {
+	            Laya.Laya.loader.load(fileUrl, callBack);
 	        }
 	        else {
-	            this.event(Laya.Event.ERROR);
+	            if (fileType == Laya.Loader.IMAGE || fileType == Laya.Loader.SOUND)
+	                MiniFileMgr.downOtherFiles(fileUrl, callBack, fileUrl, true, false);
+	            else
+	                MiniFileMgr.downFiles(fileUrl, encoding, callBack, fileUrl, true, fileType, false);
 	        }
 	    }
-	    onCheckComplete() {
-	        if (this._sound.duration && this._sound.duration > 0) {
-	            Laya.Laya.timer.clear(this, this.onCheckComplete);
-	            this.onCanPlay();
+	    /**
+	     * @private
+	     * 别名处理文件
+	     * @param tempFilePath
+	     * @param readyUrl
+	     * @param callBack
+	     * @param encoding 编码
+	     */
+	    static copyFile(tempFilePath, readyUrl, callBack, encoding = "", isAutoClear = true) {
+	        var temp = tempFilePath.split("/");
+	        var tempFileName = temp[temp.length - 1];
+	        var fileurlkey = readyUrl; //.split("?")[0];
+	        var fileObj = MiniFileMgr.getFileInfo(readyUrl);
+	        var saveFilePath = MiniFileMgr.getFileNativePath(tempFileName);
+	        MiniFileMgr.fakeObj[fileurlkey] = { md5: tempFileName, readyUrl: readyUrl, size: 0, times: Laya.Browser.now(), encoding: encoding };
+	        //这里存储图片文件到磁盘里，需要检查磁盘空间容量是否已满50M，如果超过50M就需要清理掉不用的资源
+	        var totalSize = 50 * 1024 * 1024; //总量50M
+	        var chaSize = 4 * 1024 * 1024; //差值4M(预留加载缓冲空间,给文件列表用)
+	        var fileUseSize = MiniFileMgr.getCacheUseSize(); //目前使用量
+	        if (fileObj) {
+	            if (fileObj.readyUrl != readyUrl) {
+	                MiniFileMgr.fs.getFileInfo({
+	                    uri: tempFilePath,
+	                    success: function (data) {
+	                        if (data.length)
+	                            data.size = data.length;
+	                        if ((isAutoClear && (fileUseSize + chaSize + data.size) >= totalSize)) {
+	                            if (data.size > VVMiniAdapter.minClearSize)
+	                                VVMiniAdapter.minClearSize = data.size;
+	                            MiniFileMgr.onClearCacheRes(); //如果存储满了需要清理资源,检查没用的资源清理，然后在做存储
+	                        }
+	                        MiniFileMgr.deleteFile(tempFileName, readyUrl, callBack, encoding, data.size);
+	                    },
+	                    fail: function (data) {
+	                        callBack != null && callBack.runWith([1, data]);
+	                    }
+	                });
+	            }
+	            else
+	                callBack != null && callBack.runWith([0]);
+	        }
+	        else {
+	            MiniFileMgr.fs.getFileInfo({
+	                uri: tempFilePath,
+	                success: function (data) {
+	                    if (data.length)
+	                        data.size = data.length;
+	                    if ((isAutoClear && (fileUseSize + chaSize + data.size) >= totalSize)) {
+	                        if (data.size > VVMiniAdapter.minClearSize)
+	                            VVMiniAdapter.minClearSize = data.size;
+	                        MiniFileMgr.onClearCacheRes(); //如果存储满了需要清理资源,检查没用的资源清理，然后在做存储
+	                    }
+	                    MiniFileMgr.fs.copyFile({ srcUri: tempFilePath, dstUri: saveFilePath, success: function (data2) {
+	                            MiniFileMgr.onSaveFile(readyUrl, tempFileName, true, encoding, callBack, data.size);
+	                        }, fail: function (data) {
+	                            callBack != null && callBack.runWith([1, data]);
+	                        } });
+	                },
+	                fail: function (data) {
+	                    callBack != null && callBack.runWith([1, data]);
+	                }
+	            });
 	        }
 	    }
-	    /**@private **/
-	    onError(error) {
+	    /**
+	     * @private
+	     * 清理缓存到磁盘的图片,每次释放默认5M，可以配置
+	     */
+	    static onClearCacheRes() {
+	        var memSize = VVMiniAdapter.minClearSize;
+	        var tempFileListArr = [];
+	        for (var key in MiniFileMgr.filesListObj) {
+	            if (key != "fileUsedSize")
+	                tempFileListArr.push(MiniFileMgr.filesListObj[key]);
+	        }
+	        MiniFileMgr.sortOn(tempFileListArr, "times", MiniFileMgr.NUMERIC); //按时间进行排序
+	        var clearSize = 0;
+	        for (var i = 1, sz = tempFileListArr.length; i < sz; i++) {
+	            var fileObj = tempFileListArr[i];
+	            if (clearSize >= memSize)
+	                break; //清理容量超过设置值就跳出清理操作
+	            clearSize += fileObj.size;
+	            MiniFileMgr.deleteFile("", fileObj.readyUrl);
+	        }
+	    }
+	    /**
+	     * @private
+	     * 数组排序
+	     * @param array
+	     * @param name
+	     * @param options
+	     * @return
+	     */
+	    static sortOn(array, name, options = 0) {
+	        if (options == MiniFileMgr.NUMERIC)
+	            return array.sort(function (a, b) { return a[name] - b[name]; });
+	        if (options == (MiniFileMgr.NUMERIC | MiniFileMgr.DESCENDING))
+	            return array.sort(function (a, b) { return b[name] - a[name]; });
+	        return array.sort(function (a, b) { return a[name] - b[name]; });
+	    }
+	    /**
+	     * @private
+	     * 获取文件磁盘的路径(md5)
+	     * @param fileName
+	     * @return
+	     */
+	    static getFileNativePath(fileName) {
+	        return MiniFileMgr.fileNativeDir + "/" + fileName;
+	    }
+	    /**
+	     * @private
+	     * 从本地删除文件
+	     * @param tempFileName 文件临时地址 ,为空字符串时就会从文件列表删除
+	     * @param readyUrl 文件真实下载地址
+	     * @param callBack 回调处理，在存储图片时用到
+	     * @param encoding  文件编码
+	     * @param fileSize 文件大小
+	     */
+	    static deleteFile(tempFileName, readyUrl = "", callBack = null, encoding = "", fileSize = 0) {
+	        var fileObj = MiniFileMgr.getFileInfo(readyUrl);
+	        var deleteFileUrl = MiniFileMgr.getFileNativePath(fileObj.md5);
+	        MiniFileMgr.fs.deleteFile({ uri: deleteFileUrl, success: function (data) {
+	                var isAdd = tempFileName != "" ? true : false;
+	                if (tempFileName != "") {
+	                    var saveFilePath = MiniFileMgr.getFileNativePath(tempFileName);
+	                    MiniFileMgr.fs.copyFile({ srcUri: tempFileName, dstUri: saveFilePath, success: function (data) {
+	                            MiniFileMgr.onSaveFile(readyUrl, tempFileName, isAdd, encoding, callBack, data.size);
+	                        }, fail: function (data) {
+	                            callBack != null && callBack.runWith([1, data]);
+	                        } });
+	                }
+	                else {
+	                    MiniFileMgr.onSaveFile(readyUrl, tempFileName, isAdd, encoding, callBack, fileSize); //清理文件列表
+	                }
+	            }, fail: function (data) {
+	            } });
+	    }
+	    /**
+	     * @private
+	     * 清空缓存空间文件内容
+	     */
+	    static deleteAll() {
+	        var tempFileListArr = [];
+	        for (var key in MiniFileMgr.filesListObj) {
+	            if (key != "fileUsedSize")
+	                tempFileListArr.push(MiniFileMgr.filesListObj[key]);
+	        }
+	        for (var i = 1, sz = tempFileListArr.length; i < sz; i++) {
+	            var fileObj = tempFileListArr[i];
+	            MiniFileMgr.deleteFile("", fileObj.readyUrl);
+	        }
+	        //清理
+	        if (MiniFileMgr.filesListObj && MiniFileMgr.filesListObj.fileUsedSize) {
+	            MiniFileMgr.filesListObj.fileUsedSize = 0;
+	        }
+	        MiniFileMgr.writeFilesList("", JSON.stringify({}), false);
+	    }
+	    /**
+	     * @private
+	     * 存储更新文件列表
+	     * @param readyUrl
+	     * @param md5Name
+	     * @param isAdd
+	     * @param encoding
+	     * @param callBack
+	     * @param fileSize 文件大小
+	     */
+	    static onSaveFile(readyUrl, md5Name, isAdd = true, encoding = "", callBack = null, fileSize = 0) {
+	        var fileurlkey = readyUrl; //.split("?")[0];
+	        if (MiniFileMgr.filesListObj['fileUsedSize'] == null)
+	            MiniFileMgr.filesListObj['fileUsedSize'] = 0;
+	        if (isAdd) {
+	            var fileNativeName = MiniFileMgr.getFileNativePath(md5Name);
+	            //获取文件大小为异步操作，如果放到完成回调里可能会出现文件列表获取没有内容
+	            MiniFileMgr.filesListObj[fileurlkey] = { md5: md5Name, readyUrl: readyUrl, size: fileSize, times: Laya.Browser.now(), encoding: encoding };
+	            MiniFileMgr.filesListObj['fileUsedSize'] = parseInt(MiniFileMgr.filesListObj['fileUsedSize']) + fileSize;
+	            MiniFileMgr.writeFilesList(fileurlkey, JSON.stringify(MiniFileMgr.filesListObj), true);
+	            callBack != null && callBack.runWith([0]);
+	        }
+	        else {
+	            if (MiniFileMgr.filesListObj[fileurlkey]) {
+	                var deletefileSize = parseInt(MiniFileMgr.filesListObj[fileurlkey].size);
+	                MiniFileMgr.filesListObj['fileUsedSize'] = parseInt(MiniFileMgr.filesListObj['fileUsedSize']) - deletefileSize;
+	                delete MiniFileMgr.filesListObj[fileurlkey];
+	                MiniFileMgr.writeFilesList(fileurlkey, JSON.stringify(MiniFileMgr.filesListObj), false);
+	                callBack != null && callBack.runWith([0]);
+	            }
+	        }
+	    }
+	    /**
+	     * @private
+	     * 写入文件列表数据
+	     * @param fileurlkey
+	     * @param filesListStr
+	     */
+	    static writeFilesList(fileurlkey, filesListStr, isAdd) {
+	        var listFilesPath = MiniFileMgr.fileNativeDir + "/" + MiniFileMgr.fileListName;
+	        MiniFileMgr.fs.writeFile({ uri: listFilesPath, encoding: 'utf8', data: filesListStr, success: function (data) {
+	            }, fail: function (data) {
+	            } });
+	        //主域向子域传递消息
+	        if (!VVMiniAdapter.isZiYu && VVMiniAdapter.isPosMsgYu && VVMiniAdapter.window.qg.postMessage) {
+	            VVMiniAdapter.window.qg.postMessage({ url: fileurlkey, data: MiniFileMgr.filesListObj[fileurlkey], isLoad: "filenative", isAdd: isAdd });
+	        }
+	    }
+	    /**
+	     * @private
+	     *获取当前缓存使用的空间大小(字节数，除以1024 再除以1024可以换算成M)
+	     * @return
+	     */
+	    static getCacheUseSize() {
+	        if (MiniFileMgr.filesListObj && MiniFileMgr.filesListObj['fileUsedSize'])
+	            return MiniFileMgr.filesListObj['fileUsedSize'];
+	        return 0;
+	    }
+	    /**
+	     * @private
+	     * 判断资源目录是否存在
+	     * @param dirPath 磁盘设定路径
+	     * @param callBack 回调处理
+	     */
+	    static existDir(dirPath, callBack) {
+	        MiniFileMgr.fs.mkdir({ uri: dirPath, success: function (data) {
+	                callBack != null && callBack.runWith([0, { data: JSON.stringify({}) }]);
+	            }, fail: function (data2, code) {
+	                if (code == 300) {
+	                    var data = {};
+	                    data.errMsg = "file already exists";
+	                }
+	                if (data.errMsg.indexOf("file already exists") != -1)
+	                    MiniFileMgr.readSync(MiniFileMgr.fileListName, "utf8", callBack);
+	                else
+	                    callBack != null && callBack.runWith([1, data]);
+	            } });
+	    }
+	    /**
+	     * @private
+	     * 本地读取
+	     * @param filePath 文件磁盘路径
+	     * @param encoding 文件读取的编码格式
+	     * @param callBack 回调处理
+	     * @param readyUrl 文件请求加载地址
+	     */
+	    static readSync(filePath, encoding = "ascill", callBack = null, readyUrl = "") {
+	        var fileUrl = MiniFileMgr.getFileNativePath(filePath);
+	        var filesListStr;
 	        try {
-	            console.log("-----1---------------minisound-----id:" + MiniSound._id);
-	            console.log(error);
+	            filesListStr = MiniFileMgr.fs.readFileSync({ uri: fileUrl, encoding: encoding });
+	            if (filesListStr.indexOf("No such file or directory") != -1) {
+	                filesListStr = JSON.stringify({});
+	            }
+	            callBack != null && callBack.runWith([0, { data: filesListStr }]);
 	        }
 	        catch (error) {
-	            console.log("-----2---------------minisound-----id:" + MiniSound._id);
-	            console.log(error);
-	        }
-	        this.event(Laya.Event.ERROR);
-	        this._sound.offError(null);
-	    }
-	    /**@private **/
-	    onCanPlay() {
-	        this.loaded = true;
-	        this.event(Laya.Event.COMPLETE);
-	        if (this._sound.offCanpla) {
-	            this._sound.offCanplay(null);
+	            callBack != null && callBack.runWith([1]);
 	        }
 	    }
 	    /**
 	     * @private
-	     * 给传入的函数绑定作用域，返回绑定后的函数。
-	     * @param	fun 函数对象。
-	     * @param	scope 函数作用域。
-	     * @return 绑定后的函数。
+	     * 设置磁盘文件存储路径
+	     * @param value 磁盘路径
+	     * @return
 	     */
-	    static bindToThis(fun, scope) {
-	        var rst = fun;
-	        rst = fun.bind(scope);
-	        return rst;
-	    }
-	    /**
-	     * @private
-	     * 播放声音。
-	     * @param startTime 开始时间,单位秒
-	     * @param loops 循环次数,0表示一直循环
-	     * @return 声道 SoundChannel 对象。
-	     *
-	     */
-	    play(startTime = 0, loops = 0) {
-	        var tSound;
-	        if (this.url == Laya.SoundManager._bgMusic) {
-	            if (!MiniSound._musicAudio)
-	                MiniSound._musicAudio = MiniSound._createSound();
-	            tSound = MiniSound._musicAudio;
-	        }
-	        else {
-	            if (MiniSound._audioCache[this.readyUrl]) {
-	                tSound = MiniSound._audioCache[this.readyUrl]._sound;
-	            }
-	            else {
-	                tSound = MiniSound._createSound();
-	            }
-	        }
-	        if (!tSound)
-	            return null;
-	        if (VVMiniAdapter.autoCacheFile && MiniFileMgr.getFileInfo(this.url)) {
-	            var fileObj = MiniFileMgr.getFileInfo(this.url);
-	            var fileMd5Name = fileObj.md5;
-	            tSound.src = this.url = MiniFileMgr.getFileNativePath(fileMd5Name);
-	        }
-	        else {
-	            tSound.src = this.url;
-	        }
-	        var channel = new MiniSoundChannel(tSound, this);
-	        channel.url = this.url;
-	        channel.loops = loops;
-	        channel.loop = (loops === 0 ? true : false);
-	        channel.startTime = startTime;
-	        channel.play();
-	        Laya.SoundManager.addChannel(channel);
-	        return channel;
-	    }
-	    /**
-	     * @private
-	     * 获取总时间。
-	     */
-	    get duration() {
-	        return this._sound.duration;
-	    }
-	    /**
-	     * @private
-	     * 释放声音资源。
-	     *
-	     */
-	    dispose() {
-	        var ad = MiniSound._audioCache[this.readyUrl];
-	        if (ad) {
-	            ad.src = "";
-	            if (ad._sound) {
-	                ad._sound.destroy();
-	                ad._sound = null;
-	                ad = null;
-	            }
-	            delete MiniSound._audioCache[this.readyUrl];
-	        }
-	        if (this._sound) {
-	            this._sound.destroy();
-	            this._sound = null;
-	            this.readyUrl = this.url = null;
-	        }
+	    static setNativeFileDir(value) {
+	        MiniFileMgr.fileNativeDir = VVMiniAdapter.window.qg.env.USER_DATA_PATH + value;
 	    }
 	}
+	/**@private 读取文件操作接口**/
+	MiniFileMgr.fs = window.qg;
+	/**@private 下载文件接口**/
+	MiniFileMgr.wxdown = window.qg.download;
+	/**@private 文件缓存列表**/
+	MiniFileMgr.filesListObj = {};
+	/**@private 本局游戏使用的本地资源地址列表**/
+	MiniFileMgr.fakeObj = {};
+	/**@private 存储在磁盘的文件列表名称**/
+	MiniFileMgr.fileListName = "layaairfiles.txt";
+	/**@private 子域数据存储对象**/
+	MiniFileMgr.ziyuFileData = {};
+	/**子域图片磁盘缓存路径存储对象**/
+	MiniFileMgr.ziyuFileTextureData = {};
+	/**加载路径设定(相当于URL.rootPath)**/
+	MiniFileMgr.loadPath = "";
 	/**@private **/
-	MiniSound._id = 0;
+	MiniFileMgr.DESCENDING = 2;
 	/**@private **/
-	MiniSound._audioCache = {};
-
-	/** @private **/
-	class MiniInput {
-	    constructor() {
-	    }
-	    static _createInputElement() {
-	        Laya.Input['_initInput'](Laya.Input['area'] = Laya.Browser.createElement("textarea"));
-	        Laya.Input['_initInput'](Laya.Input['input'] = Laya.Browser.createElement("input"));
-	        Laya.Input['inputContainer'] = Laya.Browser.createElement("div");
-	        Laya.Input['inputContainer'].style.position = "absolute";
-	        Laya.Input['inputContainer'].style.zIndex = 1E5;
-	        Laya.Browser.container.appendChild(Laya.Input['inputContainer']);
-	        //[IF-SCRIPT] Input['inputContainer'].setPos = function(x:int, y:int):void { Input['inputContainer'].style.left = x + 'px'; Input['inputContainer'].style.top = y + 'px'; };
-	        Laya.Laya.stage.on("resize", null, MiniInput._onStageResize);
-	        VVMiniAdapter.window.qg.onWindowResize && VVMiniAdapter.window.qg.onWindowResize(function (res) {
-	            //VVMiniAdapter.window.dispatchEvent && VVMiniAdapter.window.dispatchEvent("resize");
-	        });
-	        //替换声音
-	        Laya.SoundManager._soundClass = MiniSound;
-	        Laya.SoundManager._musicClass = MiniSound;
-	        //运行环境判断
-	        Laya.Browser.onAndroid = true;
-	        Laya.Browser.onIPhone = false;
-	        Laya.Browser.onIOS = false;
-	        Laya.Browser.onIPad = false;
-	    }
-	    static _onStageResize() {
-	        var ts = Laya.Laya.stage._canvasTransform.identity();
-	        ts.scale((Laya.Browser.width / Laya.Render.canvas.width / Laya.Browser.pixelRatio), Laya.Browser.height / Laya.Render.canvas.height / Laya.Browser.pixelRatio);
-	    }
-	    static wxinputFocus(e) {
-	        var _inputTarget = Laya.Input['inputElement'].target;
-	        if (_inputTarget && !_inputTarget.editable) {
-	            return; //非输入编辑模式
-	        }
-	        VVMiniAdapter.window.qg.offKeyboardConfirm();
-	        VVMiniAdapter.window.qg.offKeyboardInput();
-	        VVMiniAdapter.window.qg.showKeyboard({ defaultValue: _inputTarget.text, maxLength: _inputTarget.maxChars, multiple: _inputTarget.multiline, confirmHold: true, confirmType: _inputTarget["confirmType"] || 'done', success: function (res) {
-	            }, fail: function (res) {
-	            } });
-	        VVMiniAdapter.window.qg.onKeyboardConfirm(function (res) {
-	            var str = res ? res.value : "";
-	            // 对输入字符进行限制
-	            if (_inputTarget._restrictPattern) {
-	                // 部分输入法兼容
-	                str = str.replace(/\u2006|\x27/g, "");
-	                if (_inputTarget._restrictPattern.test(str)) {
-	                    str = str.replace(_inputTarget._restrictPattern, "");
-	                }
-	            }
-	            _inputTarget.text = str;
-	            _inputTarget.event(Laya.Event.INPUT);
-	            MiniInput.inputEnter();
-	            _inputTarget.event("confirm");
-	        });
-	        VVMiniAdapter.window.qg.onKeyboardInput(function (res) {
-	            var str = res ? res.value : "";
-	            if (!_inputTarget.multiline) {
-	                if (str.indexOf("\n") != -1) {
-	                    MiniInput.inputEnter();
-	                    return;
-	                }
-	            }
-	            // 对输入字符进行限制
-	            if (_inputTarget._restrictPattern) {
-	                // 部分输入法兼容
-	                str = str.replace(/\u2006|\x27/g, "");
-	                if (_inputTarget._restrictPattern.test(str)) {
-	                    str = str.replace(_inputTarget._restrictPattern, "");
-	                }
-	            }
-	            _inputTarget.text = str;
-	            _inputTarget.event(Laya.Event.INPUT);
-	        });
-	    }
-	    static inputEnter() {
-	        Laya.Input['inputElement'].target.focus = false;
-	    }
-	    static wxinputblur() {
-	        MiniInput.hideKeyboard();
-	    }
-	    static hideKeyboard() {
-	        VVMiniAdapter.window.qg.offKeyboardConfirm();
-	        VVMiniAdapter.window.qg.offKeyboardInput();
-	        VVMiniAdapter.window.qg.hideKeyboard({ success: function (res) {
-	                console.log('隐藏键盘');
-	            }, fail: function (res) {
-	                console.log("隐藏键盘出错:" + (res ? res.errMsg : ""));
-	            } });
-	    }
-	}
+	MiniFileMgr.NUMERIC = 16;
 
 	/** @private **/
 	class MiniLoader extends Laya.EventDispatcher {
@@ -1186,466 +1147,505 @@ window.vvMiniGame = function (exports, Laya) {
 	VVMiniAdapter.idx = 1;
 
 	/** @private **/
-	class MiniFileMgr {
-	    /**
-	     * @private
-	     * 是否是本地4M包文件
-	     * @param url
-	     * @return
-	     */
-	    static isLocalNativeFile(url) {
-	        for (var i = 0, sz = VVMiniAdapter.nativefiles.length; i < sz; i++) {
-	            //优化调整  if(url.indexOf(MiniAdpter.nativefiles[i]) == 0)
-	            if (url.indexOf(VVMiniAdapter.nativefiles[i]) != -1)
-	                return true;
-	        }
-	        return false;
+	class MiniSoundChannel extends Laya.SoundChannel {
+	    constructor(audio, miniSound) {
+	        super();
+	        this._audio = audio;
+	        this._miniSound = miniSound;
+	        this._onEnd = MiniSoundChannel.bindToThis(this.__onEnd, this);
+	        audio.onEnded(this._onEnd);
 	    }
 	    /**
 	     * @private
-	     * 判断缓存里是否存在文件
-	     * @param fileUrl
-	     * @return
+	     * 给传入的函数绑定作用域，返回绑定后的函数。
+	     * @param	fun 函数对象。
+	     * @param	scope 函数作用域。
+	     * @return 绑定后的函数。
 	     */
-	    static getFileInfo(fileUrl) {
-	        var fileNativePath = fileUrl; //.split("?")[0];?????这里好像不需要
-	        var fileObj = MiniFileMgr.fakeObj[fileNativePath]; //这里要去除?好的完整路径
-	        if (fileObj == null)
-	            return null;
-	        else
-	            return fileObj;
-	        return null;
+	    static bindToThis(fun, scope) {
+	        var rst = fun;
+	        rst = fun.bind(scope);
+	        return rst;
 	    }
-	    /**
-	     * @private
-	     * 本地读取
-	     * @param filePath 文件磁盘路径
-	     * @param encoding 文件读取的编码格式
-	     * @param callBack 回调处理
-	     * @param readyUrl 文件请求加载地址
-	     * @param isSaveFile 是否自动缓存下载的文件,只有在开发者自己单独加载时生效
-	     * @param fileType 文件类型
-	     */
-	    static read(filePath, encoding = "ascill", callBack = null, readyUrl = "", isSaveFile = false, fileType = "") {
-	        var fileUrl;
-	        if (readyUrl != "" && (readyUrl.indexOf("http://") != -1 || readyUrl.indexOf("https://") != -1)) {
-	            fileUrl = MiniFileMgr.getFileNativePath(filePath);
-	        }
-	        else {
-	            fileUrl = filePath;
-	        }
-	        fileUrl = Laya.URL.getAdptedFilePath(fileUrl);
-	        MiniFileMgr.fs.readFile({ uri: fileUrl, encoding: encoding, success: function (data) {
-	                if (!data.data)
-	                    data.data = data.text;
-	                callBack != null && callBack.runWith([0, data]);
-	            }, fail: function (data) {
-	                if (data && readyUrl != "")
-	                    MiniFileMgr.downFiles(readyUrl, encoding, callBack, readyUrl, isSaveFile, fileType);
-	                else
-	                    callBack != null && callBack.runWith([1]);
-	            } });
-	    }
-	    /**
-	     * @private
-	     * 下载远端文件(非图片跟声音文件)
-	     * @param fileUrl  文件远端下载地址
-	     * @param encode 文件编码
-	     * @param callBack 完成回调
-	     * @param readyUrl 文件真实下载地址
-	     * @param isSaveFile 是否自动缓存下载的文件,只有在开发者自己单独加载时生效
-	     * @param fileType 文件类型
-	     */
-	    static downFiles(fileUrl, encoding = "utf8", callBack = null, readyUrl = "", isSaveFile = false, fileType = "", isAutoClear = true) {
-	        var downloadTask = MiniFileMgr.wxdown({ url: fileUrl, success: function (data) {
-	                if (data.errCode == 0)
-	                    data.statusCode = 200;
-	                if (data.statusCode === 200)
-	                    MiniFileMgr.readFile(data.tempFilePath, encoding, callBack, readyUrl, isSaveFile, fileType, isAutoClear);
-	                else if (data.statusCode === 403) {
-	                    callBack != null && callBack.runWith([0, fileUrl]); //修复本地加载非本地列表的配置文件处理
-	                }
-	                else {
-	                    callBack != null && callBack.runWith([1, data]);
-	                }
-	            }, fail: function (data) {
-	                callBack != null && callBack.runWith([1, data]);
-	            } });
-	        //获取加载进度
-	        downloadTask.onProgressUpdate(function (data) {
-	            callBack != null && callBack.runWith([2, data.progress]);
-	        });
-	    }
-	    /**
-	     * @private
-	     * 本地本地磁盘文件读取
-	     * @param filePath 文件磁盘临时地址
-	     * @param encoding 文件设定读取的编码格式
-	     * @param callBack 完成回调
-	     * @param readyUrl 真实的下载地址
-	     * @param isSaveFile 是否自动缓存下载的文件,只有在开发者自己单独加载时生效
-	     * @param fileType 文件类型
-	     */
-	    static readFile(filePath, encoding = "ascill", callBack = null, readyUrl = "", isSaveFile = false, fileType = "", isAutoClear = true) {
-	        filePath = Laya.URL.getAdptedFilePath(filePath);
-	        MiniFileMgr.fs.readFile({ uri: filePath, encoding: encoding, success: function (data) {
-	                if (filePath.indexOf("http://") != -1 || filePath.indexOf("https://") != -1) {
-	                    if (VVMiniAdapter.autoCacheFile || isSaveFile) {
-	                        if (!data.data)
-	                            data.data = data.text;
-	                        callBack != null && callBack.runWith([0, data]);
-	                        MiniFileMgr.copyFile(filePath, readyUrl, null, encoding, isAutoClear);
-	                    }
-	                    else {
-	                        if (!data.data)
-	                            data.data = data.text;
-	                        callBack != null && callBack.runWith([0, data]);
-	                    }
-	                }
-	                else {
-	                    if (!data.data)
-	                        data.data = data.text;
-	                    callBack != null && callBack.runWith([0, data]);
-	                }
-	            }, fail: function (data) {
-	                if (data)
-	                    callBack != null && callBack.runWith([1, data]);
-	            } });
-	    }
-	    /**
-	     * @private
-	     * 下载远端文件(图片跟声音文件)
-	     * @param fileUrl  文件远端下载地址
-	     * @param encode 文件编码
-	     * @param callBack 完成回调
-	     * @param readyUrl 文件真实下载地址
-	     * @param isSaveFile 是否自动缓存下载的文件,只有在开发者自己单独加载时生效
-	     */
-	    static downOtherFiles(fileUrl, callBack = null, readyUrl = "", isSaveFile = false, isAutoClear = true) {
-	        MiniFileMgr.wxdown({ url: fileUrl, success: function (data) {
-	                if (data.errCode == 0)
-	                    data.statusCode = 200;
-	                if (data.statusCode === 200) {
-	                    if ((VVMiniAdapter.autoCacheFile || isSaveFile) && readyUrl.indexOf(".php") == -1) {
-	                        callBack != null && callBack.runWith([0, data.tempFilePath]);
-	                        MiniFileMgr.copyFile(data.tempFilePath, readyUrl, null, "", isAutoClear);
-	                    }
-	                    else
-	                        callBack != null && callBack.runWith([0, data.tempFilePath]);
-	                }
-	                else {
-	                    callBack != null && callBack.runWith([1, data]); //修复下载文件返回非200状态码的bug
-	                }
-	            }, fail: function (data) {
-	                callBack != null && callBack.runWith([1, data]);
-	            } });
-	    }
-	    /**
-	     * @private
-	     * 下载文件
-	     * @param fileUrl 文件远端地址
-	     * @param fileType 文件类型(image、text、json、xml、arraybuffer、sound、atlas、font)
-	     * @param callBack 文件加载回调,回调内容[errorCode码(0成功,1失败,2加载进度)
-	     * @param encoding 文件编码默认 ascill，非图片文件加载需要设置相应的编码，二进制编码为空字符串
-	     */
-	    static downLoadFile(fileUrl, fileType = "", callBack = null, encoding = "utf8") {
-	        if (VVMiniAdapter.window.navigator.userAgent.indexOf('VVGame') < 0) {
-	            Laya.Laya.loader.load(fileUrl, callBack);
-	        }
-	        else {
-	            if (fileType == Laya.Loader.IMAGE || fileType == Laya.Loader.SOUND)
-	                MiniFileMgr.downOtherFiles(fileUrl, callBack, fileUrl, true, false);
-	            else
-	                MiniFileMgr.downFiles(fileUrl, encoding, callBack, fileUrl, true, fileType, false);
-	        }
-	    }
-	    /**
-	     * @private
-	     * 别名处理文件
-	     * @param tempFilePath
-	     * @param readyUrl
-	     * @param callBack
-	     * @param encoding 编码
-	     */
-	    static copyFile(tempFilePath, readyUrl, callBack, encoding = "", isAutoClear = true) {
-	        var temp = tempFilePath.split("/");
-	        var tempFileName = temp[temp.length - 1];
-	        var fileurlkey = readyUrl; //.split("?")[0];
-	        var fileObj = MiniFileMgr.getFileInfo(readyUrl);
-	        var saveFilePath = MiniFileMgr.getFileNativePath(tempFileName);
-	        MiniFileMgr.fakeObj[fileurlkey] = { md5: tempFileName, readyUrl: readyUrl, size: 0, times: Laya.Browser.now(), encoding: encoding };
-	        //这里存储图片文件到磁盘里，需要检查磁盘空间容量是否已满50M，如果超过50M就需要清理掉不用的资源
-	        var totalSize = 50 * 1024 * 1024; //总量50M
-	        var chaSize = 4 * 1024 * 1024; //差值4M(预留加载缓冲空间,给文件列表用)
-	        var fileUseSize = MiniFileMgr.getCacheUseSize(); //目前使用量
-	        if (fileObj) {
-	            if (fileObj.readyUrl != readyUrl) {
-	                MiniFileMgr.fs.getFileInfo({
-	                    uri: tempFilePath,
-	                    success: function (data) {
-	                        if (data.length)
-	                            data.size = data.length;
-	                        if ((isAutoClear && (fileUseSize + chaSize + data.size) >= totalSize)) {
-	                            if (data.size > VVMiniAdapter.minClearSize)
-	                                VVMiniAdapter.minClearSize = data.size;
-	                            MiniFileMgr.onClearCacheRes(); //如果存储满了需要清理资源,检查没用的资源清理，然后在做存储
-	                        }
-	                        MiniFileMgr.deleteFile(tempFileName, readyUrl, callBack, encoding, data.size);
-	                    },
-	                    fail: function (data) {
-	                        callBack != null && callBack.runWith([1, data]);
-	                    }
-	                });
+	    /**@private **/
+	    __onEnd() {
+	        // MiniSound._audioCache[this.url] = this._miniSound;
+	        if (this.loops == 1) {
+	            if (this.completeHandler) {
+	                Laya.Laya.systemTimer.once(10, this, this.__runComplete, [this.completeHandler], false);
+	                this.completeHandler = null;
 	            }
-	            else
-	                callBack != null && callBack.runWith([0]);
+	            this.stop();
+	            this.event(Laya.Event.COMPLETE);
+	            return;
 	        }
-	        else {
-	            MiniFileMgr.fs.getFileInfo({
-	                uri: tempFilePath,
-	                success: function (data) {
-	                    if (data.length)
-	                        data.size = data.length;
-	                    if ((isAutoClear && (fileUseSize + chaSize + data.size) >= totalSize)) {
-	                        if (data.size > VVMiniAdapter.minClearSize)
-	                            VVMiniAdapter.minClearSize = data.size;
-	                        MiniFileMgr.onClearCacheRes(); //如果存储满了需要清理资源,检查没用的资源清理，然后在做存储
-	                    }
-	                    MiniFileMgr.fs.copyFile({ srcUri: tempFilePath, dstUri: saveFilePath, success: function (data2) {
-	                            MiniFileMgr.onSaveFile(readyUrl, tempFileName, true, encoding, callBack, data.size);
-	                        }, fail: function (data) {
-	                            callBack != null && callBack.runWith([1, data]);
-	                        } });
-	                },
-	                fail: function (data) {
-	                    callBack != null && callBack.runWith([1, data]);
-	                }
-	            });
+	        if (this.loops > 0) {
+	            this.loops--;
 	        }
+	        this.startTime = 0;
+	        this.play();
 	    }
 	    /**
 	     * @private
-	     * 清理缓存到磁盘的图片,每次释放默认5M，可以配置
+	     * 播放
 	     */
-	    static onClearCacheRes() {
-	        var memSize = VVMiniAdapter.minClearSize;
-	        var tempFileListArr = [];
-	        for (var key in MiniFileMgr.filesListObj) {
-	            if (key != "fileUsedSize")
-	                tempFileListArr.push(MiniFileMgr.filesListObj[key]);
+	    /*override*/ play() {
+	        this.isStopped = false;
+	        Laya.SoundManager.addChannel(this);
+	        this._audio.play();
+	    }
+	    /**
+	     * 设置开始时间
+	     * @param time
+	     */
+	    set startTime(time) {
+	        if (this._audio) {
+	            this._audio.startTime = time;
 	        }
-	        MiniFileMgr.sortOn(tempFileListArr, "times", MiniFileMgr.NUMERIC); //按时间进行排序
-	        var clearSize = 0;
-	        for (var i = 1, sz = tempFileListArr.length; i < sz; i++) {
-	            var fileObj = tempFileListArr[i];
-	            if (clearSize >= memSize)
-	                break; //清理容量超过设置值就跳出清理操作
-	            clearSize += fileObj.size;
-	            MiniFileMgr.deleteFile("", fileObj.readyUrl);
-	        }
+	    }
+	    /**@private  **/
+	    set autoplay(value) {
+	        this._audio.autoplay = value;
 	    }
 	    /**
 	     * @private
-	     * 数组排序
-	     * @param array
-	     * @param name
-	     * @param options
+	     * 自动播放
+	     * @param value
+	     */
+	    get autoplay() {
+	        return this._audio.autoplay;
+	    }
+	    /**
+	     * @private
+	     * 当前播放到的位置
+	     * @return
+	     *
+	     */
+	    /*override*/ get position() {
+	        if (!this._audio)
+	            return 0;
+	        return this._audio.currentTime;
+	    }
+	    /**
+	     * @private
+	     * 获取总时间。
+	     */
+	    /*override*/ get duration() {
+	        if (!this._audio)
+	            return 0;
+	        return this._audio.duration;
+	    }
+	    /**
+	     * @private
+	     * 停止播放
+	     *
+	     */
+	    /*override*/ stop() {
+	        this.isStopped = true;
+	        Laya.SoundManager.removeChannel(this);
+	        this.completeHandler = null;
+	        if (!this._audio)
+	            return;
+	        this._audio.stop(); //停止播放
+	        if (!this.loop) {
+	            this._audio.offEnded(null);
+	            this._miniSound.dispose();
+	            this._audio = null;
+	            this._miniSound = null;
+	            this._onEnd = null;
+	        }
+	    }
+	    /**@private **/
+	    /*override*/ pause() {
+	        this.isStopped = true;
+	        this._audio.pause();
+	    }
+	    /**@private **/
+	    get loop() {
+	        return this._audio.loop;
+	    }
+	    /**@private **/
+	    set loop(value) {
+	        this._audio.loop = value;
+	    }
+	    /**@private **/
+	    /*override*/ resume() {
+	        if (!this._audio)
+	            return;
+	        this.isStopped = false;
+	        Laya.SoundManager.addChannel(this);
+	        this._audio.play();
+	    }
+	    /**
+	     * @private
+	     * 设置音量
+	     * @param v
+	     *
+	     */
+	    /*override*/ set volume(v) {
+	        if (!this._audio)
+	            return;
+	        this._audio.volume = v;
+	    }
+	    /**
+	     * @private
+	     * 获取音量
 	     * @return
 	     */
-	    static sortOn(array, name, options = 0) {
-	        if (options == MiniFileMgr.NUMERIC)
-	            return array.sort(function (a, b) { return a[name] - b[name]; });
-	        if (options == (MiniFileMgr.NUMERIC | MiniFileMgr.DESCENDING))
-	            return array.sort(function (a, b) { return b[name] - a[name]; });
-	        return array.sort(function (a, b) { return a[name] - b[name]; });
-	    }
-	    /**
-	     * @private
-	     * 获取文件磁盘的路径(md5)
-	     * @param fileName
-	     * @return
-	     */
-	    static getFileNativePath(fileName) {
-	        return MiniFileMgr.fileNativeDir + "/" + fileName;
-	    }
-	    /**
-	     * @private
-	     * 从本地删除文件
-	     * @param tempFileName 文件临时地址 ,为空字符串时就会从文件列表删除
-	     * @param readyUrl 文件真实下载地址
-	     * @param callBack 回调处理，在存储图片时用到
-	     * @param encoding  文件编码
-	     * @param fileSize 文件大小
-	     */
-	    static deleteFile(tempFileName, readyUrl = "", callBack = null, encoding = "", fileSize = 0) {
-	        var fileObj = MiniFileMgr.getFileInfo(readyUrl);
-	        var deleteFileUrl = MiniFileMgr.getFileNativePath(fileObj.md5);
-	        MiniFileMgr.fs.deleteFile({ uri: deleteFileUrl, success: function (data) {
-	                var isAdd = tempFileName != "" ? true : false;
-	                if (tempFileName != "") {
-	                    var saveFilePath = MiniFileMgr.getFileNativePath(tempFileName);
-	                    MiniFileMgr.fs.copyFile({ srcUri: tempFileName, dstUri: saveFilePath, success: function (data) {
-	                            MiniFileMgr.onSaveFile(readyUrl, tempFileName, isAdd, encoding, callBack, data.size);
-	                        }, fail: function (data) {
-	                            callBack != null && callBack.runWith([1, data]);
-	                        } });
-	                }
-	                else {
-	                    MiniFileMgr.onSaveFile(readyUrl, tempFileName, isAdd, encoding, callBack, fileSize); //清理文件列表
-	                }
-	            }, fail: function (data) {
-	            } });
-	    }
-	    /**
-	     * @private
-	     * 清空缓存空间文件内容
-	     */
-	    static deleteAll() {
-	        var tempFileListArr = [];
-	        for (var key in MiniFileMgr.filesListObj) {
-	            if (key != "fileUsedSize")
-	                tempFileListArr.push(MiniFileMgr.filesListObj[key]);
-	        }
-	        for (var i = 1, sz = tempFileListArr.length; i < sz; i++) {
-	            var fileObj = tempFileListArr[i];
-	            MiniFileMgr.deleteFile("", fileObj.readyUrl);
-	        }
-	        //清理
-	        if (MiniFileMgr.filesListObj && MiniFileMgr.filesListObj.fileUsedSize) {
-	            MiniFileMgr.filesListObj.fileUsedSize = 0;
-	        }
-	        MiniFileMgr.writeFilesList("", JSON.stringify({}), false);
-	    }
-	    /**
-	     * @private
-	     * 存储更新文件列表
-	     * @param readyUrl
-	     * @param md5Name
-	     * @param isAdd
-	     * @param encoding
-	     * @param callBack
-	     * @param fileSize 文件大小
-	     */
-	    static onSaveFile(readyUrl, md5Name, isAdd = true, encoding = "", callBack = null, fileSize = 0) {
-	        var fileurlkey = readyUrl; //.split("?")[0];
-	        if (MiniFileMgr.filesListObj['fileUsedSize'] == null)
-	            MiniFileMgr.filesListObj['fileUsedSize'] = 0;
-	        if (isAdd) {
-	            var fileNativeName = MiniFileMgr.getFileNativePath(md5Name);
-	            //获取文件大小为异步操作，如果放到完成回调里可能会出现文件列表获取没有内容
-	            MiniFileMgr.filesListObj[fileurlkey] = { md5: md5Name, readyUrl: readyUrl, size: fileSize, times: Laya.Browser.now(), encoding: encoding };
-	            MiniFileMgr.filesListObj['fileUsedSize'] = parseInt(MiniFileMgr.filesListObj['fileUsedSize']) + fileSize;
-	            MiniFileMgr.writeFilesList(fileurlkey, JSON.stringify(MiniFileMgr.filesListObj), true);
-	            callBack != null && callBack.runWith([0]);
-	        }
-	        else {
-	            if (MiniFileMgr.filesListObj[fileurlkey]) {
-	                var deletefileSize = parseInt(MiniFileMgr.filesListObj[fileurlkey].size);
-	                MiniFileMgr.filesListObj['fileUsedSize'] = parseInt(MiniFileMgr.filesListObj['fileUsedSize']) - deletefileSize;
-	                delete MiniFileMgr.filesListObj[fileurlkey];
-	                MiniFileMgr.writeFilesList(fileurlkey, JSON.stringify(MiniFileMgr.filesListObj), false);
-	                callBack != null && callBack.runWith([0]);
-	            }
-	        }
-	    }
-	    /**
-	     * @private
-	     * 写入文件列表数据
-	     * @param fileurlkey
-	     * @param filesListStr
-	     */
-	    static writeFilesList(fileurlkey, filesListStr, isAdd) {
-	        var listFilesPath = MiniFileMgr.fileNativeDir + "/" + MiniFileMgr.fileListName;
-	        MiniFileMgr.fs.writeFile({ uri: listFilesPath, encoding: 'utf8', data: filesListStr, success: function (data) {
-	            }, fail: function (data) {
-	            } });
-	        //主域向子域传递消息
-	        if (!VVMiniAdapter.isZiYu && VVMiniAdapter.isPosMsgYu && VVMiniAdapter.window.qg.postMessage) {
-	            VVMiniAdapter.window.qg.postMessage({ url: fileurlkey, data: MiniFileMgr.filesListObj[fileurlkey], isLoad: "filenative", isAdd: isAdd });
-	        }
-	    }
-	    /**
-	     * @private
-	     *获取当前缓存使用的空间大小(字节数，除以1024 再除以1024可以换算成M)
-	     * @return
-	     */
-	    static getCacheUseSize() {
-	        if (MiniFileMgr.filesListObj && MiniFileMgr.filesListObj['fileUsedSize'])
-	            return MiniFileMgr.filesListObj['fileUsedSize'];
-	        return 0;
-	    }
-	    /**
-	     * @private
-	     * 判断资源目录是否存在
-	     * @param dirPath 磁盘设定路径
-	     * @param callBack 回调处理
-	     */
-	    static existDir(dirPath, callBack) {
-	        MiniFileMgr.fs.mkdir({ uri: dirPath, success: function (data) {
-	                callBack != null && callBack.runWith([0, { data: JSON.stringify({}) }]);
-	            }, fail: function (data2, code) {
-	                if (code == 300) {
-	                    var data = {};
-	                    data.errMsg = "file already exists";
-	                }
-	                if (data.errMsg.indexOf("file already exists") != -1)
-	                    MiniFileMgr.readSync(MiniFileMgr.fileListName, "utf8", callBack);
-	                else
-	                    callBack != null && callBack.runWith([1, data]);
-	            } });
-	    }
-	    /**
-	     * @private
-	     * 本地读取
-	     * @param filePath 文件磁盘路径
-	     * @param encoding 文件读取的编码格式
-	     * @param callBack 回调处理
-	     * @param readyUrl 文件请求加载地址
-	     */
-	    static readSync(filePath, encoding = "ascill", callBack = null, readyUrl = "") {
-	        var fileUrl = MiniFileMgr.getFileNativePath(filePath);
-	        var filesListStr;
-	        try {
-	            filesListStr = MiniFileMgr.fs.readFileSync({ uri: fileUrl, encoding: encoding });
-	            if (filesListStr.indexOf("No such file or directory") != -1) {
-	                filesListStr = JSON.stringify({});
-	            }
-	            callBack != null && callBack.runWith([0, { data: filesListStr }]);
-	        }
-	        catch (error) {
-	            callBack != null && callBack.runWith([1]);
-	        }
-	    }
-	    /**
-	     * @private
-	     * 设置磁盘文件存储路径
-	     * @param value 磁盘路径
-	     * @return
-	     */
-	    static setNativeFileDir(value) {
-	        MiniFileMgr.fileNativeDir = VVMiniAdapter.window.qg.env.USER_DATA_PATH + value;
+	    /*override*/ get volume() {
+	        if (!this._audio)
+	            return 1;
+	        return this._audio.volume;
 	    }
 	}
-	/**@private 读取文件操作接口**/
-	MiniFileMgr.fs = window.qg;
-	/**@private 下载文件接口**/
-	MiniFileMgr.wxdown = window.qg.download;
-	/**@private 文件缓存列表**/
-	MiniFileMgr.filesListObj = {};
-	/**@private 本局游戏使用的本地资源地址列表**/
-	MiniFileMgr.fakeObj = {};
-	/**@private 存储在磁盘的文件列表名称**/
-	MiniFileMgr.fileListName = "layaairfiles.txt";
-	/**@private 子域数据存储对象**/
-	MiniFileMgr.ziyuFileData = {};
-	/**子域图片磁盘缓存路径存储对象**/
-	MiniFileMgr.ziyuFileTextureData = {};
-	/**加载路径设定(相当于URL.rootPath)**/
-	MiniFileMgr.loadPath = "";
+
+	/** @private **/
+	class MiniSound extends Laya.EventDispatcher {
+	    constructor() {
+	        super();
+	        /**
+	         * @private
+	         * 是否已加载完成
+	         */
+	        this.loaded = false;
+	        //_sound = _createSound();
+	    }
+	    /** @private **/
+	    static _createSound() {
+	        MiniSound._id++;
+	        return VVMiniAdapter.window.qg.createInnerAudioContext();
+	    }
+	    /**
+	     * @private
+	     * 加载声音。
+	     * @param url 地址。
+	     *
+	     */
+	    load(url) {
+	        if (!MiniFileMgr.isLocalNativeFile(url)) {
+	            url = Laya.URL.formatURL(url);
+	        }
+	        else {
+	            if (url.indexOf("http://") != -1 || url.indexOf("https://") != -1) {
+	                if (MiniFileMgr.loadPath != "") {
+	                    url = url.split(MiniFileMgr.loadPath)[1]; //去掉http头
+	                }
+	                else {
+	                    var tempStr = Laya.URL.rootPath != "" ? Laya.URL.rootPath : Laya.URL._basePath;
+	                    if (tempStr != "")
+	                        url = url.split(tempStr)[1]; //去掉http头
+	                }
+	            }
+	        }
+	        this.url = url;
+	        this.readyUrl = url;
+	        if (MiniSound._audioCache[this.readyUrl]) {
+	            this.event(Laya.Event.COMPLETE);
+	            return;
+	        }
+	        if (VVMiniAdapter.autoCacheFile && MiniFileMgr.getFileInfo(url)) {
+	            this.onDownLoadCallBack(url, 0);
+	        }
+	        else {
+	            if (!VVMiniAdapter.autoCacheFile) {
+	                this.onDownLoadCallBack(url, 0);
+	            }
+	            else {
+	                if (MiniFileMgr.isLocalNativeFile(url)) {
+	                    tempStr = Laya.URL.rootPath != "" ? Laya.URL.rootPath : Laya.URL._basePath;
+	                    var tempUrl = url;
+	                    if (tempStr != "")
+	                        url = url.split(tempStr)[1]; //去掉http头
+	                    if (!url) {
+	                        url = tempUrl;
+	                    }
+	                    //分包目录资源加载处理
+	                    if (VVMiniAdapter.subNativeFiles && VVMiniAdapter.subNativeheads.length == 0) {
+	                        for (var key in VVMiniAdapter.subNativeFiles) {
+	                            var tempArr = VVMiniAdapter.subNativeFiles[key];
+	                            VVMiniAdapter.subNativeheads = VVMiniAdapter.subNativeheads.concat(tempArr);
+	                            for (var aa = 0; aa < tempArr.length; aa++) {
+	                                VVMiniAdapter.subMaps[tempArr[aa]] = key + "/" + tempArr[aa];
+	                            }
+	                        }
+	                    }
+	                    //判断当前的url是否为分包映射路径
+	                    if (VVMiniAdapter.subNativeFiles && url.indexOf("/") != -1) {
+	                        var curfileHead = url.split("/")[0] + "/"; //文件头
+	                        if (curfileHead && VVMiniAdapter.subNativeheads.indexOf(curfileHead) != -1) {
+	                            var newfileHead = VVMiniAdapter.subMaps[curfileHead];
+	                            url = url.replace(curfileHead, newfileHead);
+	                        }
+	                    }
+	                    this.onDownLoadCallBack(url, 0);
+	                }
+	                else {
+	                    if (!MiniFileMgr.isLocalNativeFile(url) && (url.indexOf("http://") == -1 && url.indexOf("https://") == -1) || (url.indexOf("http://usr/") != -1)) {
+	                        this.onDownLoadCallBack(url, 0);
+	                    }
+	                    else {
+	                        MiniFileMgr.downOtherFiles(url, Laya.Handler.create(this, this.onDownLoadCallBack, [url]), url);
+	                    }
+	                }
+	            }
+	        }
+	    }
+	    /**@private **/
+	    onDownLoadCallBack(sourceUrl, errorCode, tempFilePath = null) {
+	        if (!errorCode) {
+	            var fileNativeUrl;
+	            if (VVMiniAdapter.autoCacheFile) {
+	                if (!tempFilePath) {
+	                    if (MiniFileMgr.isLocalNativeFile(sourceUrl)) {
+	                        var tempStr = Laya.URL.rootPath != "" ? Laya.URL.rootPath : Laya.URL._basePath;
+	                        var tempUrl = sourceUrl;
+	                        if (tempStr != "" && (sourceUrl.indexOf("http://") != -1 || sourceUrl.indexOf("https://") != -1))
+	                            fileNativeUrl = sourceUrl.split(tempStr)[1]; //去掉http头
+	                        if (!fileNativeUrl) {
+	                            fileNativeUrl = tempUrl;
+	                        }
+	                    }
+	                    else {
+	                        var fileObj = MiniFileMgr.getFileInfo(sourceUrl);
+	                        if (fileObj && fileObj.md5) {
+	                            var fileMd5Name = fileObj.md5;
+	                            fileNativeUrl = MiniFileMgr.getFileNativePath(fileMd5Name);
+	                        }
+	                        else {
+	                            fileNativeUrl = sourceUrl;
+	                        }
+	                    }
+	                }
+	                else {
+	                    fileNativeUrl = tempFilePath;
+	                }
+	                this._sound = MiniSound._createSound();
+	                this._sound.src = this.url = fileNativeUrl;
+	            }
+	            else {
+	                this._sound = MiniSound._createSound();
+	                this._sound.src = sourceUrl;
+	            }
+	            //vivo版本兼容处理
+	            if (this._sound.onCanplay) {
+	                this._sound.onCanplay(MiniSound.bindToThis(this.onCanPlay, this));
+	                this._sound.onError(MiniSound.bindToThis(this.onError, this));
+	            }
+	            else {
+	                Laya.Laya.timer.clear(this, this.onCheckComplete);
+	                Laya.Laya.timer.frameLoop(2, this, this.onCheckComplete);
+	            }
+	        }
+	        else {
+	            this.event(Laya.Event.ERROR);
+	        }
+	    }
+	    onCheckComplete() {
+	        if (this._sound.duration && this._sound.duration > 0) {
+	            Laya.Laya.timer.clear(this, this.onCheckComplete);
+	            this.onCanPlay();
+	        }
+	    }
+	    /**@private **/
+	    onError(error) {
+	        try {
+	            console.log("-----1---------------minisound-----id:" + MiniSound._id);
+	            console.log(error);
+	        }
+	        catch (error) {
+	            console.log("-----2---------------minisound-----id:" + MiniSound._id);
+	            console.log(error);
+	        }
+	        this.event(Laya.Event.ERROR);
+	        this._sound.offError(null);
+	    }
+	    /**@private **/
+	    onCanPlay() {
+	        this.loaded = true;
+	        this.event(Laya.Event.COMPLETE);
+	        if (this._sound.offCanpla) {
+	            this._sound.offCanplay(null);
+	        }
+	    }
+	    /**
+	     * @private
+	     * 给传入的函数绑定作用域，返回绑定后的函数。
+	     * @param	fun 函数对象。
+	     * @param	scope 函数作用域。
+	     * @return 绑定后的函数。
+	     */
+	    static bindToThis(fun, scope) {
+	        var rst = fun;
+	        rst = fun.bind(scope);
+	        return rst;
+	    }
+	    /**
+	     * @private
+	     * 播放声音。
+	     * @param startTime 开始时间,单位秒
+	     * @param loops 循环次数,0表示一直循环
+	     * @return 声道 SoundChannel 对象。
+	     *
+	     */
+	    play(startTime = 0, loops = 0) {
+	        var tSound;
+	        if (this.url == Laya.SoundManager._bgMusic) {
+	            if (!MiniSound._musicAudio)
+	                MiniSound._musicAudio = MiniSound._createSound();
+	            tSound = MiniSound._musicAudio;
+	        }
+	        else {
+	            if (MiniSound._audioCache[this.readyUrl]) {
+	                tSound = MiniSound._audioCache[this.readyUrl]._sound;
+	            }
+	            else {
+	                tSound = MiniSound._createSound();
+	            }
+	        }
+	        if (!tSound)
+	            return null;
+	        if (VVMiniAdapter.autoCacheFile && MiniFileMgr.getFileInfo(this.url)) {
+	            var fileObj = MiniFileMgr.getFileInfo(this.url);
+	            var fileMd5Name = fileObj.md5;
+	            tSound.src = this.url = MiniFileMgr.getFileNativePath(fileMd5Name);
+	        }
+	        else {
+	            tSound.src = this.url;
+	        }
+	        var channel = new MiniSoundChannel(tSound, this);
+	        channel.url = this.url;
+	        channel.loops = loops;
+	        channel.loop = (loops === 0 ? true : false);
+	        channel.startTime = startTime;
+	        channel.play();
+	        Laya.SoundManager.addChannel(channel);
+	        return channel;
+	    }
+	    /**
+	     * @private
+	     * 获取总时间。
+	     */
+	    get duration() {
+	        return this._sound.duration;
+	    }
+	    /**
+	     * @private
+	     * 释放声音资源。
+	     *
+	     */
+	    dispose() {
+	        var ad = MiniSound._audioCache[this.readyUrl];
+	        if (ad) {
+	            ad.src = "";
+	            if (ad._sound) {
+	                ad._sound.destroy();
+	                ad._sound = null;
+	                ad = null;
+	            }
+	            delete MiniSound._audioCache[this.readyUrl];
+	        }
+	        if (this._sound) {
+	            this._sound.destroy();
+	            this._sound = null;
+	            this.readyUrl = this.url = null;
+	        }
+	    }
+	}
 	/**@private **/
-	MiniFileMgr.DESCENDING = 2;
+	MiniSound._id = 0;
 	/**@private **/
-	MiniFileMgr.NUMERIC = 16;
+	MiniSound._audioCache = {};
+
+	/** @private **/
+	class MiniInput {
+	    constructor() {
+	    }
+	    static _createInputElement() {
+	        Laya.Input['_initInput'](Laya.Input['area'] = Laya.Browser.createElement("textarea"));
+	        Laya.Input['_initInput'](Laya.Input['input'] = Laya.Browser.createElement("input"));
+	        Laya.Input['inputContainer'] = Laya.Browser.createElement("div");
+	        Laya.Input['inputContainer'].style.position = "absolute";
+	        Laya.Input['inputContainer'].style.zIndex = 1E5;
+	        Laya.Browser.container.appendChild(Laya.Input['inputContainer']);
+	        //[IF-SCRIPT] Input['inputContainer'].setPos = function(x:int, y:int):void { Input['inputContainer'].style.left = x + 'px'; Input['inputContainer'].style.top = y + 'px'; };
+	        Laya.Laya.stage.on("resize", null, MiniInput._onStageResize);
+	        VVMiniAdapter.window.qg.onWindowResize && VVMiniAdapter.window.qg.onWindowResize(function (res) {
+	            //VVMiniAdapter.window.dispatchEvent && VVMiniAdapter.window.dispatchEvent("resize");
+	        });
+	        //替换声音
+	        Laya.SoundManager._soundClass = MiniSound;
+	        Laya.SoundManager._musicClass = MiniSound;
+	        //运行环境判断
+	        Laya.Browser.onAndroid = true;
+	        Laya.Browser.onIPhone = false;
+	        Laya.Browser.onIOS = false;
+	        Laya.Browser.onIPad = false;
+	    }
+	    static _onStageResize() {
+	        var ts = Laya.Laya.stage._canvasTransform.identity();
+	        ts.scale((Laya.Browser.width / Laya.Render.canvas.width / Laya.Browser.pixelRatio), Laya.Browser.height / Laya.Render.canvas.height / Laya.Browser.pixelRatio);
+	    }
+	    static wxinputFocus(e) {
+	        var _inputTarget = Laya.Input['inputElement'].target;
+	        if (_inputTarget && !_inputTarget.editable) {
+	            return; //非输入编辑模式
+	        }
+	        VVMiniAdapter.window.qg.offKeyboardConfirm();
+	        VVMiniAdapter.window.qg.offKeyboardInput();
+	        VVMiniAdapter.window.qg.showKeyboard({ defaultValue: _inputTarget.text, maxLength: _inputTarget.maxChars, multiple: _inputTarget.multiline, confirmHold: true, confirmType: _inputTarget["confirmType"] || 'done', success: function (res) {
+	            }, fail: function (res) {
+	            } });
+	        VVMiniAdapter.window.qg.onKeyboardConfirm(function (res) {
+	            var str = res ? res.value : "";
+	            // 对输入字符进行限制
+	            if (_inputTarget._restrictPattern) {
+	                // 部分输入法兼容
+	                str = str.replace(/\u2006|\x27/g, "");
+	                if (_inputTarget._restrictPattern.test(str)) {
+	                    str = str.replace(_inputTarget._restrictPattern, "");
+	                }
+	            }
+	            _inputTarget.text = str;
+	            _inputTarget.event(Laya.Event.INPUT);
+	            MiniInput.inputEnter();
+	            _inputTarget.event("confirm");
+	        });
+	        VVMiniAdapter.window.qg.onKeyboardInput(function (res) {
+	            var str = res ? res.value : "";
+	            if (!_inputTarget.multiline) {
+	                if (str.indexOf("\n") != -1) {
+	                    MiniInput.inputEnter();
+	                    return;
+	                }
+	            }
+	            // 对输入字符进行限制
+	            if (_inputTarget._restrictPattern) {
+	                // 部分输入法兼容
+	                str = str.replace(/\u2006|\x27/g, "");
+	                if (_inputTarget._restrictPattern.test(str)) {
+	                    str = str.replace(_inputTarget._restrictPattern, "");
+	                }
+	            }
+	            _inputTarget.text = str;
+	            _inputTarget.event(Laya.Event.INPUT);
+	        });
+	    }
+	    static inputEnter() {
+	        Laya.Input['inputElement'].target.focus = false;
+	    }
+	    static wxinputblur() {
+	        MiniInput.hideKeyboard();
+	    }
+	    static hideKeyboard() {
+	        VVMiniAdapter.window.qg.offKeyboardConfirm();
+	        VVMiniAdapter.window.qg.offKeyboardInput();
+	        VVMiniAdapter.window.qg.hideKeyboard({ success: function (res) {
+	                console.log('隐藏键盘');
+	            }, fail: function (res) {
+	                console.log("隐藏键盘出错:" + (res ? res.errMsg : ""));
+	            } });
+	    }
+	}
 
 	/**@private **/
 	class MiniAccelerator extends Laya.EventDispatcher {

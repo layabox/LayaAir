@@ -368,20 +368,13 @@ export class Laya3D {
 				shader3D.prototype._uniformMatrix2fv = shader3D.prototype._uniformMatrix2fvForNative;
 				shader3D.prototype._uniformMatrix3fv = shader3D.prototype._uniformMatrix3fvForNative;
 				shader3D.prototype._uniformMatrix4fv = shader3D.prototype._uniformMatrix4fvForNative;
-				meshRender.prototype._renderUpdateWithCamera = meshRender.prototype._renderUpdateWithCameraForNative;
 			}
-			//Matrix4x4.multiply = Matrix4x4.multiplyForNative;
 			if (Render.supportWebGLPlusCulling) {
 				frustumCulling.renderObjectCulling = FrustumCulling.renderObjectCullingNative;
 			}
 
 			if (Render.supportWebGLPlusAnimation) {
 				avatar.prototype._cloneDatasToAnimator = avatar.prototype._cloneDatasToAnimatorNative;
-				//(window as any).FloatKeyframe = (window as any).conchFloatKeyframe;
-				//(window as any).Vector3Keyframe = (window as any).conchFloatArrayKeyframe;
-				//(window as any).QuaternionKeyframe = (window as any).conchFloatArrayKeyframe;
-				//(window as any).KeyframeNode = (window as any).conchKeyframeNode;
-				//(window as any).KeyframeNodeList = (window as any).conchKeyframeNodeList;
 				var animationClip: any = AnimationClip;
 				animationClip.prototype._evaluateClipDatasRealTime = animationClip.prototype._evaluateClipDatasRealTimeForNative;
 				skinnedMeshRender.prototype._computeSkinnedData = skinnedMeshRender.prototype._computeSkinnedDataForNative;

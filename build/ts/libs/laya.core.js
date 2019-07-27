@@ -32019,31 +32019,6 @@ window.Laya= (function (exports) {
 	BlurFilterGLRender.blurinfo = new Array(2);
 
 	/**
-	 * @private
-	 */
-	class GlowFilterGLRender {
-	    setShaderInfo(shader, w, h, data) {
-	        shader.defines.add(data.type);
-	        var sv = shader;
-	        sv.u_blurInfo1 = data._sv_blurInfo1; // [data.blur, data.blur, data.offX, -data.offY];
-	        var info2 = data._sv_blurInfo2;
-	        info2[0] = w;
-	        info2[1] = h;
-	        sv.u_blurInfo2 = info2;
-	        sv.u_color = data.getColor();
-	    }
-	    render(rt, ctx, width, height, filter) {
-	        var w = width, h = height;
-	        var svBlur = Value2D.create(ShaderDefines2D.TEXTURE2D, 0);
-	        this.setShaderInfo(svBlur, w, h, filter);
-	        var svCP = Value2D.create(ShaderDefines2D.TEXTURE2D, 0);
-	        var matI = Matrix.TEMP.identity();
-	        ctx.drawTarget(rt, 0, 0, w, h, matI, svBlur); //先画模糊的底
-	        ctx.drawTarget(rt, 0, 0, w, h, matI, svCP); //再画原始图片
-	    }
-	}
-
-	/**
 	 * 模糊滤镜
 	 */
 	class BlurFilter extends Filter {
@@ -32077,6 +32052,31 @@ window.Laya= (function (exports) {
 	        this.strength_sig2_native[2] = 2.0 * sigma2;
 	        this.strength_sig2_native[3] = 1.0 / (2.0 * Math.PI * sigma2);
 	        return this.strength_sig2_native;
+	    }
+	}
+
+	/**
+	 * @private
+	 */
+	class GlowFilterGLRender {
+	    setShaderInfo(shader, w, h, data) {
+	        shader.defines.add(data.type);
+	        var sv = shader;
+	        sv.u_blurInfo1 = data._sv_blurInfo1; // [data.blur, data.blur, data.offX, -data.offY];
+	        var info2 = data._sv_blurInfo2;
+	        info2[0] = w;
+	        info2[1] = h;
+	        sv.u_blurInfo2 = info2;
+	        sv.u_color = data.getColor();
+	    }
+	    render(rt, ctx, width, height, filter) {
+	        var w = width, h = height;
+	        var svBlur = Value2D.create(ShaderDefines2D.TEXTURE2D, 0);
+	        this.setShaderInfo(svBlur, w, h, filter);
+	        var svCP = Value2D.create(ShaderDefines2D.TEXTURE2D, 0);
+	        var matI = Matrix.TEMP.identity();
+	        ctx.drawTarget(rt, 0, 0, w, h, matI, svBlur); //先画模糊的底
+	        ctx.drawTarget(rt, 0, 0, w, h, matI, svCP); //再画原始图片
 	    }
 	}
 
@@ -33234,25 +33234,6 @@ window.Laya= (function (exports) {
 	}
 	HTMLChar._isWordRegExp = new RegExp("[\\w\.]", "");
 
-	//import { PerfHUD } from "./PerfHUD";
-	let DATANUM = 300;
-	class PerfData {
-	    constructor(id, color, name, scale) {
-	        this.scale = 1.0;
-	        this.datas = new Array(DATANUM);
-	        this.datapos = 0;
-	        this.id = id;
-	        this.color = color;
-	        this.name = name;
-	        this.scale = scale;
-	    }
-	    addData(v) {
-	        this.datas[this.datapos] = v;
-	        this.datapos++;
-	        this.datapos %= DATANUM;
-	    }
-	}
-
 	/**
 	     * <code>Log</code> 类用于在界面内显示日志记录信息。
 	     * 注意：在加速器内不可使用
@@ -33318,6 +33299,25 @@ window.Laya= (function (exports) {
 	Log.maxCount = 50;
 	/**是否自动滚动到底部，默认为true*/
 	Log.autoScrollToBottom = true;
+
+	//import { PerfHUD } from "./PerfHUD";
+	let DATANUM = 300;
+	class PerfData {
+	    constructor(id, color, name, scale) {
+	        this.scale = 1.0;
+	        this.datas = new Array(DATANUM);
+	        this.datapos = 0;
+	        this.id = id;
+	        this.color = color;
+	        this.name = name;
+	        this.scale = scale;
+	    }
+	    addData(v) {
+	        this.datas[this.datapos] = v;
+	        this.datapos++;
+	        this.datapos %= DATANUM;
+	    }
+	}
 
 	class PerfHUD extends Sprite {
 	    //TODO:coverage
@@ -34021,6 +34021,54 @@ window.Laya= (function (exports) {
 	}
 
 	/**
+	 * @Script {name:ButtonEffect}
+	 * @author ww
+	 */
+	class ButtonEffect {
+	    constructor() {
+	        this._curState = 0;
+	        /**
+	         * effectScale
+	         * @prop {name:effectScale,type:number, tips:"缩放值",default:"1.5"}
+	         */
+	        this.effectScale = 1.5;
+	        /**
+	         * tweenTime
+	         * @prop {name:tweenTime,type:number, tips:"缓动时长",default:"300"}
+	         */
+	        this.tweenTime = 300;
+	    }
+	    /**
+	     * 设置控制对象
+	     * @param tar
+	     */
+	    set target(tar) {
+	        this._tar = tar;
+	        tar.on(Event.MOUSE_DOWN, this, this.toChangedState);
+	        tar.on(Event.MOUSE_UP, this, this.toInitState);
+	        tar.on(Event.MOUSE_OUT, this, this.toInitState);
+	    }
+	    toChangedState() {
+	        this._curState = 1;
+	        if (this._curTween)
+	            Tween.clear(this._curTween);
+	        this._curTween = Tween.to(this._tar, { scaleX: this.effectScale, scaleY: this.effectScale }, this.tweenTime, Ease[this.effectEase], Handler.create(this, this.tweenComplete));
+	    }
+	    toInitState() {
+	        if (this._curState == 2)
+	            return;
+	        if (this._curTween)
+	            Tween.clear(this._curTween);
+	        this._curState = 2;
+	        this._curTween = Tween.to(this._tar, { scaleX: 1, scaleY: 1 }, this.tweenTime, Ease[this.backEase], Handler.create(this, this.tweenComplete));
+	    }
+	    tweenComplete() {
+	        this._curState = 0;
+	        this._curTween = null;
+	    }
+	}
+
+	/**
 	 * 效果插件基类，基于对象池管理
 	 */
 	class EffectBase extends Component {
@@ -34088,54 +34136,6 @@ window.Laya= (function (exports) {
 	    _doTween() {
 	        this.target.alpha = 0;
 	        return Tween.to(this.target, { alpha: 1 }, this.duration, Ease[this.ease], this._comlete, this.delay);
-	    }
-	}
-
-	/**
-	 * @Script {name:ButtonEffect}
-	 * @author ww
-	 */
-	class ButtonEffect {
-	    constructor() {
-	        this._curState = 0;
-	        /**
-	         * effectScale
-	         * @prop {name:effectScale,type:number, tips:"缩放值",default:"1.5"}
-	         */
-	        this.effectScale = 1.5;
-	        /**
-	         * tweenTime
-	         * @prop {name:tweenTime,type:number, tips:"缓动时长",default:"300"}
-	         */
-	        this.tweenTime = 300;
-	    }
-	    /**
-	     * 设置控制对象
-	     * @param tar
-	     */
-	    set target(tar) {
-	        this._tar = tar;
-	        tar.on(Event.MOUSE_DOWN, this, this.toChangedState);
-	        tar.on(Event.MOUSE_UP, this, this.toInitState);
-	        tar.on(Event.MOUSE_OUT, this, this.toInitState);
-	    }
-	    toChangedState() {
-	        this._curState = 1;
-	        if (this._curTween)
-	            Tween.clear(this._curTween);
-	        this._curTween = Tween.to(this._tar, { scaleX: this.effectScale, scaleY: this.effectScale }, this.tweenTime, Ease[this.effectEase], Handler.create(this, this.tweenComplete));
-	    }
-	    toInitState() {
-	        if (this._curState == 2)
-	            return;
-	        if (this._curTween)
-	            Tween.clear(this._curTween);
-	        this._curState = 2;
-	        this._curTween = Tween.to(this._tar, { scaleX: 1, scaleY: 1 }, this.tweenTime, Ease[this.backEase], Handler.create(this, this.tweenComplete));
-	    }
-	    tweenComplete() {
-	        this._curState = 0;
-	        this._curTween = null;
 	    }
 	}
 

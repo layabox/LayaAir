@@ -1182,235 +1182,6 @@
     }
     GraphicsAni._caches = [];
 
-    class Transform {
-        constructor() {
-            this.skX = 0; // 旋转？
-            this.skY = 0; // 不知道干什么的
-            this.scX = 1; // 缩放
-            this.scY = 1;
-            this.x = 0; // 偏移
-            this.y = 0;
-            this.skewX = 0; // skew
-            this.skewY = 0;
-        }
-        //TODO:coverage
-        initData(data) {
-            if (data.x != undefined) {
-                this.x = data.x;
-            }
-            if (data.y != undefined) {
-                this.y = data.y;
-            }
-            if (data.skX != undefined) {
-                this.skX = data.skX;
-            }
-            if (data.skY != undefined) {
-                this.skY = data.skY;
-            }
-            if (data.scX != undefined) {
-                this.scX = data.scX;
-            }
-            if (data.scY != undefined) {
-                this.scY = data.scY;
-            }
-        }
-        //TODO:coverage
-        getMatrix() {
-            var tMatrix;
-            if (this.mMatrix) {
-                tMatrix = this.mMatrix;
-            }
-            else {
-                tMatrix = this.mMatrix = new Laya.Matrix();
-            }
-            tMatrix.identity();
-            tMatrix.scale(this.scX, this.scY);
-            if (this.skewX || this.skewY) {
-                this.skew(tMatrix, this.skewX * Math.PI / 180, this.skewY * Math.PI / 180);
-            }
-            tMatrix.rotate(this.skX * Math.PI / 180);
-            tMatrix.translate(this.x, this.y);
-            return tMatrix;
-        }
-        //TODO:coverage
-        skew(m, x, y) {
-            var sinX = Math.sin(y);
-            var cosX = Math.cos(y);
-            var sinY = Math.sin(x);
-            var cosY = Math.cos(x);
-            m.setTo(m.a * cosY - m.b * sinX, m.a * sinY + m.b * cosX, m.c * cosY - m.d * sinX, m.c * sinY + m.d * cosX, m.tx * cosY - m.ty * sinX, m.tx * sinY + m.ty * cosX);
-            return m;
-        }
-    }
-
-    /**
-     * @private
-     */
-    class Bone {
-        constructor() {
-            this.length = 10;
-            this.resultTransform = new Transform();
-            this.resultMatrix = new Laya.Matrix();
-            this.inheritScale = true;
-            this.inheritRotation = true;
-            this.d = -1;
-            this._children = [];
-        }
-        setTempMatrix(matrix) {
-            this._tempMatrix = matrix;
-            var i = 0, n = 0;
-            var tBone;
-            for (i = 0, n = this._children.length; i < n; i++) {
-                tBone = this._children[i];
-                tBone.setTempMatrix(this._tempMatrix);
-            }
-        }
-        //TODO:coverage
-        update(pMatrix = null) {
-            this.rotation = this.transform.skX;
-            var tResultMatrix;
-            if (pMatrix) {
-                tResultMatrix = this.resultTransform.getMatrix();
-                Laya.Matrix.mul(tResultMatrix, pMatrix, this.resultMatrix);
-                this.resultRotation = this.rotation;
-            }
-            else {
-                this.resultRotation = this.rotation + this.parentBone.resultRotation;
-                if (this.parentBone) {
-                    if (this.inheritRotation && this.inheritScale) {
-                        tResultMatrix = this.resultTransform.getMatrix();
-                        Laya.Matrix.mul(tResultMatrix, this.parentBone.resultMatrix, this.resultMatrix);
-                    }
-                    else {
-                        var parent = this.parentBone;
-                        var tAngle;
-                        var cos;
-                        var sin;
-                        var tParentMatrix = this.parentBone.resultMatrix;
-                        //var worldX:Number = tParentMatrix.a * transform.x + tParentMatrix.c * transform.y + tParentMatrix.tx;
-                        //var worldY:Number = tParentMatrix.b * transform.x + tParentMatrix.d * transform.y + tParentMatrix.ty;
-                        //out.tx = ba * atx + bc * aty + btx;
-                        //out.ty = bb * atx + bd * aty + bty;
-                        tResultMatrix = this.resultTransform.getMatrix();
-                        var worldX = tParentMatrix.a * tResultMatrix.tx + tParentMatrix.c * tResultMatrix.ty + tParentMatrix.tx;
-                        var worldY = tParentMatrix.b * tResultMatrix.tx + tParentMatrix.d * tResultMatrix.ty + tParentMatrix.ty;
-                        var tTestMatrix = new Laya.Matrix();
-                        if (this.inheritRotation) {
-                            tAngle = Math.atan2(parent.resultMatrix.b, parent.resultMatrix.a);
-                            cos = Math.cos(tAngle), sin = Math.sin(tAngle);
-                            tTestMatrix.setTo(cos, sin, -sin, cos, 0, 0);
-                            Laya.Matrix.mul(this._tempMatrix, tTestMatrix, Laya.Matrix.TEMP);
-                            Laya.Matrix.TEMP.copyTo(tTestMatrix);
-                            tResultMatrix = this.resultTransform.getMatrix();
-                            Laya.Matrix.mul(tResultMatrix, tTestMatrix, this.resultMatrix);
-                            if (this.resultTransform.scX * this.resultTransform.scY < 0) {
-                                this.resultMatrix.rotate(Math.PI * 0.5);
-                            }
-                            this.resultMatrix.tx = worldX;
-                            this.resultMatrix.ty = worldY;
-                        }
-                        else if (this.inheritScale) {
-                            tResultMatrix = this.resultTransform.getMatrix();
-                            Laya.Matrix.TEMP.identity();
-                            Laya.Matrix.TEMP.d = this.d;
-                            Laya.Matrix.mul(tResultMatrix, Laya.Matrix.TEMP, this.resultMatrix);
-                            this.resultMatrix.tx = worldX;
-                            this.resultMatrix.ty = worldY;
-                        }
-                        else {
-                            tResultMatrix = this.resultTransform.getMatrix();
-                            Laya.Matrix.TEMP.identity();
-                            Laya.Matrix.TEMP.d = this.d;
-                            Laya.Matrix.mul(tResultMatrix, Laya.Matrix.TEMP, this.resultMatrix);
-                            this.resultMatrix.tx = worldX;
-                            this.resultMatrix.ty = worldY;
-                        }
-                    }
-                }
-                else {
-                    tResultMatrix = this.resultTransform.getMatrix();
-                    tResultMatrix.copyTo(this.resultMatrix);
-                }
-            }
-            var i = 0, n = 0;
-            var tBone;
-            for (i = 0, n = this._children.length; i < n; i++) {
-                tBone = this._children[i];
-                tBone.update();
-            }
-        }
-        //TODO:coverage
-        updateChild() {
-            var i = 0, n = 0;
-            var tBone;
-            for (i = 0, n = this._children.length; i < n; i++) {
-                tBone = this._children[i];
-                tBone.update();
-            }
-        }
-        //TODO:coverage
-        setRotation(rd) {
-            if (this._sprite) {
-                this._sprite.rotation = rd * 180 / Math.PI;
-            }
-        }
-        //TODO:coverage
-        updateDraw(x, y) {
-            if (!Bone.ShowBones || Bone.ShowBones[this.name]) {
-                if (this._sprite) {
-                    this._sprite.x = x + this.resultMatrix.tx;
-                    this._sprite.y = y + this.resultMatrix.ty;
-                }
-                else {
-                    this._sprite = new Laya.Sprite();
-                    this._sprite.graphics.drawCircle(0, 0, 5, "#ff0000");
-                    this._sprite.graphics.drawLine(0, 0, this.length, 0, "#00ff00");
-                    this._sprite.graphics.fillText(this.name, 0, 0, "20px Arial", "#00ff00", "center");
-                    Laya.ILaya.stage.addChild(this._sprite);
-                    this._sprite.x = x + this.resultMatrix.tx;
-                    this._sprite.y = y + this.resultMatrix.ty;
-                }
-            }
-            var i = 0, n = 0;
-            var tBone;
-            for (i = 0, n = this._children.length; i < n; i++) {
-                tBone = this._children[i];
-                tBone.updateDraw(x, y);
-            }
-        }
-        addChild(bone) {
-            this._children.push(bone);
-            bone.parentBone = this;
-        }
-        //TODO:coverage
-        findBone(boneName) {
-            if (this.name == boneName) {
-                return this;
-            }
-            else {
-                var i, n;
-                var tBone;
-                var tResult;
-                for (i = 0, n = this._children.length; i < n; i++) {
-                    tBone = this._children[i];
-                    tResult = tBone.findBone(boneName);
-                    if (tResult) {
-                        return tResult;
-                    }
-                }
-            }
-            return null;
-        }
-        //TODO:coverage
-        localToWorld(local) {
-            var localX = local[0];
-            var localY = local[1];
-            local[0] = localX * this.resultMatrix.a + localY * this.resultMatrix.c + this.resultMatrix.tx;
-            local[1] = localX * this.resultMatrix.b + localY * this.resultMatrix.d + this.resultMatrix.ty;
-        }
-    }
-    Bone.ShowBones = {};
-
     /**
      * 用于UV转换的工具类
      * @internal
@@ -1960,6 +1731,235 @@
     BoneSlot.useSameMatrixAndVerticle = true;
     BoneSlot._tempVerticleArr = [];
 
+    class Transform {
+        constructor() {
+            this.skX = 0; // 旋转？
+            this.skY = 0; // 不知道干什么的
+            this.scX = 1; // 缩放
+            this.scY = 1;
+            this.x = 0; // 偏移
+            this.y = 0;
+            this.skewX = 0; // skew
+            this.skewY = 0;
+        }
+        //TODO:coverage
+        initData(data) {
+            if (data.x != undefined) {
+                this.x = data.x;
+            }
+            if (data.y != undefined) {
+                this.y = data.y;
+            }
+            if (data.skX != undefined) {
+                this.skX = data.skX;
+            }
+            if (data.skY != undefined) {
+                this.skY = data.skY;
+            }
+            if (data.scX != undefined) {
+                this.scX = data.scX;
+            }
+            if (data.scY != undefined) {
+                this.scY = data.scY;
+            }
+        }
+        //TODO:coverage
+        getMatrix() {
+            var tMatrix;
+            if (this.mMatrix) {
+                tMatrix = this.mMatrix;
+            }
+            else {
+                tMatrix = this.mMatrix = new Laya.Matrix();
+            }
+            tMatrix.identity();
+            tMatrix.scale(this.scX, this.scY);
+            if (this.skewX || this.skewY) {
+                this.skew(tMatrix, this.skewX * Math.PI / 180, this.skewY * Math.PI / 180);
+            }
+            tMatrix.rotate(this.skX * Math.PI / 180);
+            tMatrix.translate(this.x, this.y);
+            return tMatrix;
+        }
+        //TODO:coverage
+        skew(m, x, y) {
+            var sinX = Math.sin(y);
+            var cosX = Math.cos(y);
+            var sinY = Math.sin(x);
+            var cosY = Math.cos(x);
+            m.setTo(m.a * cosY - m.b * sinX, m.a * sinY + m.b * cosX, m.c * cosY - m.d * sinX, m.c * sinY + m.d * cosX, m.tx * cosY - m.ty * sinX, m.tx * sinY + m.ty * cosX);
+            return m;
+        }
+    }
+
+    /**
+     * @private
+     */
+    class Bone {
+        constructor() {
+            this.length = 10;
+            this.resultTransform = new Transform();
+            this.resultMatrix = new Laya.Matrix();
+            this.inheritScale = true;
+            this.inheritRotation = true;
+            this.d = -1;
+            this._children = [];
+        }
+        setTempMatrix(matrix) {
+            this._tempMatrix = matrix;
+            var i = 0, n = 0;
+            var tBone;
+            for (i = 0, n = this._children.length; i < n; i++) {
+                tBone = this._children[i];
+                tBone.setTempMatrix(this._tempMatrix);
+            }
+        }
+        //TODO:coverage
+        update(pMatrix = null) {
+            this.rotation = this.transform.skX;
+            var tResultMatrix;
+            if (pMatrix) {
+                tResultMatrix = this.resultTransform.getMatrix();
+                Laya.Matrix.mul(tResultMatrix, pMatrix, this.resultMatrix);
+                this.resultRotation = this.rotation;
+            }
+            else {
+                this.resultRotation = this.rotation + this.parentBone.resultRotation;
+                if (this.parentBone) {
+                    if (this.inheritRotation && this.inheritScale) {
+                        tResultMatrix = this.resultTransform.getMatrix();
+                        Laya.Matrix.mul(tResultMatrix, this.parentBone.resultMatrix, this.resultMatrix);
+                    }
+                    else {
+                        var parent = this.parentBone;
+                        var tAngle;
+                        var cos;
+                        var sin;
+                        var tParentMatrix = this.parentBone.resultMatrix;
+                        //var worldX:Number = tParentMatrix.a * transform.x + tParentMatrix.c * transform.y + tParentMatrix.tx;
+                        //var worldY:Number = tParentMatrix.b * transform.x + tParentMatrix.d * transform.y + tParentMatrix.ty;
+                        //out.tx = ba * atx + bc * aty + btx;
+                        //out.ty = bb * atx + bd * aty + bty;
+                        tResultMatrix = this.resultTransform.getMatrix();
+                        var worldX = tParentMatrix.a * tResultMatrix.tx + tParentMatrix.c * tResultMatrix.ty + tParentMatrix.tx;
+                        var worldY = tParentMatrix.b * tResultMatrix.tx + tParentMatrix.d * tResultMatrix.ty + tParentMatrix.ty;
+                        var tTestMatrix = new Laya.Matrix();
+                        if (this.inheritRotation) {
+                            tAngle = Math.atan2(parent.resultMatrix.b, parent.resultMatrix.a);
+                            cos = Math.cos(tAngle), sin = Math.sin(tAngle);
+                            tTestMatrix.setTo(cos, sin, -sin, cos, 0, 0);
+                            Laya.Matrix.mul(this._tempMatrix, tTestMatrix, Laya.Matrix.TEMP);
+                            Laya.Matrix.TEMP.copyTo(tTestMatrix);
+                            tResultMatrix = this.resultTransform.getMatrix();
+                            Laya.Matrix.mul(tResultMatrix, tTestMatrix, this.resultMatrix);
+                            if (this.resultTransform.scX * this.resultTransform.scY < 0) {
+                                this.resultMatrix.rotate(Math.PI * 0.5);
+                            }
+                            this.resultMatrix.tx = worldX;
+                            this.resultMatrix.ty = worldY;
+                        }
+                        else if (this.inheritScale) {
+                            tResultMatrix = this.resultTransform.getMatrix();
+                            Laya.Matrix.TEMP.identity();
+                            Laya.Matrix.TEMP.d = this.d;
+                            Laya.Matrix.mul(tResultMatrix, Laya.Matrix.TEMP, this.resultMatrix);
+                            this.resultMatrix.tx = worldX;
+                            this.resultMatrix.ty = worldY;
+                        }
+                        else {
+                            tResultMatrix = this.resultTransform.getMatrix();
+                            Laya.Matrix.TEMP.identity();
+                            Laya.Matrix.TEMP.d = this.d;
+                            Laya.Matrix.mul(tResultMatrix, Laya.Matrix.TEMP, this.resultMatrix);
+                            this.resultMatrix.tx = worldX;
+                            this.resultMatrix.ty = worldY;
+                        }
+                    }
+                }
+                else {
+                    tResultMatrix = this.resultTransform.getMatrix();
+                    tResultMatrix.copyTo(this.resultMatrix);
+                }
+            }
+            var i = 0, n = 0;
+            var tBone;
+            for (i = 0, n = this._children.length; i < n; i++) {
+                tBone = this._children[i];
+                tBone.update();
+            }
+        }
+        //TODO:coverage
+        updateChild() {
+            var i = 0, n = 0;
+            var tBone;
+            for (i = 0, n = this._children.length; i < n; i++) {
+                tBone = this._children[i];
+                tBone.update();
+            }
+        }
+        //TODO:coverage
+        setRotation(rd) {
+            if (this._sprite) {
+                this._sprite.rotation = rd * 180 / Math.PI;
+            }
+        }
+        //TODO:coverage
+        updateDraw(x, y) {
+            if (!Bone.ShowBones || Bone.ShowBones[this.name]) {
+                if (this._sprite) {
+                    this._sprite.x = x + this.resultMatrix.tx;
+                    this._sprite.y = y + this.resultMatrix.ty;
+                }
+                else {
+                    this._sprite = new Laya.Sprite();
+                    this._sprite.graphics.drawCircle(0, 0, 5, "#ff0000");
+                    this._sprite.graphics.drawLine(0, 0, this.length, 0, "#00ff00");
+                    this._sprite.graphics.fillText(this.name, 0, 0, "20px Arial", "#00ff00", "center");
+                    Laya.ILaya.stage.addChild(this._sprite);
+                    this._sprite.x = x + this.resultMatrix.tx;
+                    this._sprite.y = y + this.resultMatrix.ty;
+                }
+            }
+            var i = 0, n = 0;
+            var tBone;
+            for (i = 0, n = this._children.length; i < n; i++) {
+                tBone = this._children[i];
+                tBone.updateDraw(x, y);
+            }
+        }
+        addChild(bone) {
+            this._children.push(bone);
+            bone.parentBone = this;
+        }
+        //TODO:coverage
+        findBone(boneName) {
+            if (this.name == boneName) {
+                return this;
+            }
+            else {
+                var i, n;
+                var tBone;
+                var tResult;
+                for (i = 0, n = this._children.length; i < n; i++) {
+                    tBone = this._children[i];
+                    tResult = tBone.findBone(boneName);
+                    if (tResult) {
+                        return tResult;
+                    }
+                }
+            }
+            return null;
+        }
+        //TODO:coverage
+        localToWorld(local) {
+            var localX = local[0];
+            var localY = local[1];
+            local[0] = localX * this.resultMatrix.a + localY * this.resultMatrix.c + this.resultMatrix.tx;
+            local[1] = localX * this.resultMatrix.b + localY * this.resultMatrix.d + this.resultMatrix.ty;
+        }
+    }
+    Bone.ShowBones = {};
+
     /**
      * @internal
      */
@@ -1977,6 +1977,16 @@
         //TODO:coverage
         constructor() {
             this.deformSlotDisplayList = [];
+        }
+    }
+
+    /**
+     * @internal
+     */
+    class DrawOrderData {
+        //TODO:coverage
+        constructor() {
+            this.drawOrder = [];
         }
     }
 
@@ -2056,16 +2066,6 @@
                 tVertices[i] = tPrev + (tNextVertices[i] - tPrev) * alpha;
             }
             this.deformData = tVertices;
-        }
-    }
-
-    /**
-     * @internal
-     */
-    class DrawOrderData {
-        //TODO:coverage
-        constructor() {
-            this.drawOrder = [];
         }
     }
 
