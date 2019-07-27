@@ -464,507 +464,6 @@ window.vvMiniGame = function (exports, Laya) {
 	MiniFileMgr.NUMERIC = 16;
 
 	/** @private **/
-	class MiniSoundChannel extends Laya.SoundChannel {
-	    constructor(audio, miniSound) {
-	        super();
-	        this._audio = audio;
-	        this._miniSound = miniSound;
-	        this._onEnd = MiniSoundChannel.bindToThis(this.__onEnd, this);
-	        audio.onEnded(this._onEnd);
-	    }
-	    /**
-	     * @private
-	     * 给传入的函数绑定作用域，返回绑定后的函数。
-	     * @param	fun 函数对象。
-	     * @param	scope 函数作用域。
-	     * @return 绑定后的函数。
-	     */
-	    static bindToThis(fun, scope) {
-	        var rst = fun;
-	        rst = fun.bind(scope);
-	        return rst;
-	    }
-	    /**@private **/
-	    __onEnd() {
-	        // MiniSound._audioCache[this.url] = this._miniSound;
-	        if (this.loops == 1) {
-	            if (this.completeHandler) {
-	                Laya.Laya.systemTimer.once(10, this, this.__runComplete, [this.completeHandler], false);
-	                this.completeHandler = null;
-	            }
-	            this.stop();
-	            this.event(Laya.Event.COMPLETE);
-	            return;
-	        }
-	        if (this.loops > 0) {
-	            this.loops--;
-	        }
-	        this.startTime = 0;
-	        this.play();
-	    }
-	    /**
-	     * @private
-	     * 播放
-	     */
-	    /*override*/ play() {
-	        this.isStopped = false;
-	        Laya.SoundManager.addChannel(this);
-	        this._audio.play();
-	    }
-	    /**
-	     * 设置开始时间
-	     * @param time
-	     */
-	    set startTime(time) {
-	        if (this._audio) {
-	            this._audio.startTime = time;
-	        }
-	    }
-	    /**@private  **/
-	    set autoplay(value) {
-	        this._audio.autoplay = value;
-	    }
-	    /**
-	     * @private
-	     * 自动播放
-	     * @param value
-	     */
-	    get autoplay() {
-	        return this._audio.autoplay;
-	    }
-	    /**
-	     * @private
-	     * 当前播放到的位置
-	     * @return
-	     *
-	     */
-	    /*override*/ get position() {
-	        if (!this._audio)
-	            return 0;
-	        return this._audio.currentTime;
-	    }
-	    /**
-	     * @private
-	     * 获取总时间。
-	     */
-	    /*override*/ get duration() {
-	        if (!this._audio)
-	            return 0;
-	        return this._audio.duration;
-	    }
-	    /**
-	     * @private
-	     * 停止播放
-	     *
-	     */
-	    /*override*/ stop() {
-	        this.isStopped = true;
-	        Laya.SoundManager.removeChannel(this);
-	        this.completeHandler = null;
-	        if (!this._audio)
-	            return;
-	        this._audio.stop(); //停止播放
-	        if (!this.loop) {
-	            this._audio.offEnded(null);
-	            this._miniSound.dispose();
-	            this._audio = null;
-	            this._miniSound = null;
-	            this._onEnd = null;
-	        }
-	    }
-	    /**@private **/
-	    /*override*/ pause() {
-	        this.isStopped = true;
-	        this._audio.pause();
-	    }
-	    /**@private **/
-	    get loop() {
-	        return this._audio.loop;
-	    }
-	    /**@private **/
-	    set loop(value) {
-	        this._audio.loop = value;
-	    }
-	    /**@private **/
-	    /*override*/ resume() {
-	        if (!this._audio)
-	            return;
-	        this.isStopped = false;
-	        Laya.SoundManager.addChannel(this);
-	        this._audio.play();
-	    }
-	    /**
-	     * @private
-	     * 设置音量
-	     * @param v
-	     *
-	     */
-	    /*override*/ set volume(v) {
-	        if (!this._audio)
-	            return;
-	        this._audio.volume = v;
-	    }
-	    /**
-	     * @private
-	     * 获取音量
-	     * @return
-	     */
-	    /*override*/ get volume() {
-	        if (!this._audio)
-	            return 1;
-	        return this._audio.volume;
-	    }
-	}
-
-	/** @private **/
-	class MiniSound extends Laya.EventDispatcher {
-	    constructor() {
-	        super();
-	        /**
-	         * @private
-	         * 是否已加载完成
-	         */
-	        this.loaded = false;
-	        //_sound = _createSound();
-	    }
-	    /** @private **/
-	    static _createSound() {
-	        MiniSound._id++;
-	        return VVMiniAdapter.window.qg.createInnerAudioContext();
-	    }
-	    /**
-	     * @private
-	     * 加载声音。
-	     * @param url 地址。
-	     *
-	     */
-	    load(url) {
-	        if (!MiniFileMgr.isLocalNativeFile(url)) {
-	            url = Laya.URL.formatURL(url);
-	        }
-	        else {
-	            if (url.indexOf("http://") != -1 || url.indexOf("https://") != -1) {
-	                if (MiniFileMgr.loadPath != "") {
-	                    url = url.split(MiniFileMgr.loadPath)[1]; //去掉http头
-	                }
-	                else {
-	                    var tempStr = Laya.URL.rootPath != "" ? Laya.URL.rootPath : Laya.URL._basePath;
-	                    if (tempStr != "")
-	                        url = url.split(tempStr)[1]; //去掉http头
-	                }
-	            }
-	        }
-	        this.url = url;
-	        this.readyUrl = url;
-	        if (MiniSound._audioCache[this.readyUrl]) {
-	            this.event(Laya.Event.COMPLETE);
-	            return;
-	        }
-	        if (VVMiniAdapter.autoCacheFile && MiniFileMgr.getFileInfo(url)) {
-	            this.onDownLoadCallBack(url, 0);
-	        }
-	        else {
-	            if (!VVMiniAdapter.autoCacheFile) {
-	                this.onDownLoadCallBack(url, 0);
-	            }
-	            else {
-	                if (MiniFileMgr.isLocalNativeFile(url)) {
-	                    tempStr = Laya.URL.rootPath != "" ? Laya.URL.rootPath : Laya.URL._basePath;
-	                    var tempUrl = url;
-	                    if (tempStr != "")
-	                        url = url.split(tempStr)[1]; //去掉http头
-	                    if (!url) {
-	                        url = tempUrl;
-	                    }
-	                    //分包目录资源加载处理
-	                    if (VVMiniAdapter.subNativeFiles && VVMiniAdapter.subNativeheads.length == 0) {
-	                        for (var key in VVMiniAdapter.subNativeFiles) {
-	                            var tempArr = VVMiniAdapter.subNativeFiles[key];
-	                            VVMiniAdapter.subNativeheads = VVMiniAdapter.subNativeheads.concat(tempArr);
-	                            for (var aa = 0; aa < tempArr.length; aa++) {
-	                                VVMiniAdapter.subMaps[tempArr[aa]] = key + "/" + tempArr[aa];
-	                            }
-	                        }
-	                    }
-	                    //判断当前的url是否为分包映射路径
-	                    if (VVMiniAdapter.subNativeFiles && url.indexOf("/") != -1) {
-	                        var curfileHead = url.split("/")[0] + "/"; //文件头
-	                        if (curfileHead && VVMiniAdapter.subNativeheads.indexOf(curfileHead) != -1) {
-	                            var newfileHead = VVMiniAdapter.subMaps[curfileHead];
-	                            url = url.replace(curfileHead, newfileHead);
-	                        }
-	                    }
-	                    this.onDownLoadCallBack(url, 0);
-	                }
-	                else {
-	                    if (!MiniFileMgr.isLocalNativeFile(url) && (url.indexOf("http://") == -1 && url.indexOf("https://") == -1) || (url.indexOf("http://usr/") != -1)) {
-	                        this.onDownLoadCallBack(url, 0);
-	                    }
-	                    else {
-	                        MiniFileMgr.downOtherFiles(url, Laya.Handler.create(this, this.onDownLoadCallBack, [url]), url);
-	                    }
-	                }
-	            }
-	        }
-	    }
-	    /**@private **/
-	    onDownLoadCallBack(sourceUrl, errorCode, tempFilePath = null) {
-	        if (!errorCode) {
-	            var fileNativeUrl;
-	            if (VVMiniAdapter.autoCacheFile) {
-	                if (!tempFilePath) {
-	                    if (MiniFileMgr.isLocalNativeFile(sourceUrl)) {
-	                        var tempStr = Laya.URL.rootPath != "" ? Laya.URL.rootPath : Laya.URL._basePath;
-	                        var tempUrl = sourceUrl;
-	                        if (tempStr != "" && (sourceUrl.indexOf("http://") != -1 || sourceUrl.indexOf("https://") != -1))
-	                            fileNativeUrl = sourceUrl.split(tempStr)[1]; //去掉http头
-	                        if (!fileNativeUrl) {
-	                            fileNativeUrl = tempUrl;
-	                        }
-	                    }
-	                    else {
-	                        var fileObj = MiniFileMgr.getFileInfo(sourceUrl);
-	                        if (fileObj && fileObj.md5) {
-	                            var fileMd5Name = fileObj.md5;
-	                            fileNativeUrl = MiniFileMgr.getFileNativePath(fileMd5Name);
-	                        }
-	                        else {
-	                            fileNativeUrl = sourceUrl;
-	                        }
-	                    }
-	                }
-	                else {
-	                    fileNativeUrl = tempFilePath;
-	                }
-	                this._sound = MiniSound._createSound();
-	                this._sound.src = this.url = fileNativeUrl;
-	            }
-	            else {
-	                this._sound = MiniSound._createSound();
-	                this._sound.src = sourceUrl;
-	            }
-	            //vivo版本兼容处理
-	            if (this._sound.onCanplay) {
-	                this._sound.onCanplay(MiniSound.bindToThis(this.onCanPlay, this));
-	                this._sound.onError(MiniSound.bindToThis(this.onError, this));
-	            }
-	            else {
-	                Laya.Laya.timer.clear(this, this.onCheckComplete);
-	                Laya.Laya.timer.frameLoop(2, this, this.onCheckComplete);
-	            }
-	        }
-	        else {
-	            this.event(Laya.Event.ERROR);
-	        }
-	    }
-	    onCheckComplete() {
-	        if (this._sound.duration && this._sound.duration > 0) {
-	            Laya.Laya.timer.clear(this, this.onCheckComplete);
-	            this.onCanPlay();
-	        }
-	    }
-	    /**@private **/
-	    onError(error) {
-	        try {
-	            console.log("-----1---------------minisound-----id:" + MiniSound._id);
-	            console.log(error);
-	        }
-	        catch (error) {
-	            console.log("-----2---------------minisound-----id:" + MiniSound._id);
-	            console.log(error);
-	        }
-	        this.event(Laya.Event.ERROR);
-	        this._sound.offError(null);
-	    }
-	    /**@private **/
-	    onCanPlay() {
-	        this.loaded = true;
-	        this.event(Laya.Event.COMPLETE);
-	        if (this._sound.offCanpla) {
-	            this._sound.offCanplay(null);
-	        }
-	    }
-	    /**
-	     * @private
-	     * 给传入的函数绑定作用域，返回绑定后的函数。
-	     * @param	fun 函数对象。
-	     * @param	scope 函数作用域。
-	     * @return 绑定后的函数。
-	     */
-	    static bindToThis(fun, scope) {
-	        var rst = fun;
-	        rst = fun.bind(scope);
-	        return rst;
-	    }
-	    /**
-	     * @private
-	     * 播放声音。
-	     * @param startTime 开始时间,单位秒
-	     * @param loops 循环次数,0表示一直循环
-	     * @return 声道 SoundChannel 对象。
-	     *
-	     */
-	    play(startTime = 0, loops = 0) {
-	        var tSound;
-	        if (this.url == Laya.SoundManager._bgMusic) {
-	            if (!MiniSound._musicAudio)
-	                MiniSound._musicAudio = MiniSound._createSound();
-	            tSound = MiniSound._musicAudio;
-	        }
-	        else {
-	            if (MiniSound._audioCache[this.readyUrl]) {
-	                tSound = MiniSound._audioCache[this.readyUrl]._sound;
-	            }
-	            else {
-	                tSound = MiniSound._createSound();
-	            }
-	        }
-	        if (!tSound)
-	            return null;
-	        if (VVMiniAdapter.autoCacheFile && MiniFileMgr.getFileInfo(this.url)) {
-	            var fileObj = MiniFileMgr.getFileInfo(this.url);
-	            var fileMd5Name = fileObj.md5;
-	            tSound.src = this.url = MiniFileMgr.getFileNativePath(fileMd5Name);
-	        }
-	        else {
-	            tSound.src = this.url;
-	        }
-	        var channel = new MiniSoundChannel(tSound, this);
-	        channel.url = this.url;
-	        channel.loops = loops;
-	        channel.loop = (loops === 0 ? true : false);
-	        channel.startTime = startTime;
-	        channel.play();
-	        Laya.SoundManager.addChannel(channel);
-	        return channel;
-	    }
-	    /**
-	     * @private
-	     * 获取总时间。
-	     */
-	    get duration() {
-	        return this._sound.duration;
-	    }
-	    /**
-	     * @private
-	     * 释放声音资源。
-	     *
-	     */
-	    dispose() {
-	        var ad = MiniSound._audioCache[this.readyUrl];
-	        if (ad) {
-	            ad.src = "";
-	            if (ad._sound) {
-	                ad._sound.destroy();
-	                ad._sound = null;
-	                ad = null;
-	            }
-	            delete MiniSound._audioCache[this.readyUrl];
-	        }
-	        if (this._sound) {
-	            this._sound.destroy();
-	            this._sound = null;
-	            this.readyUrl = this.url = null;
-	        }
-	    }
-	}
-	/**@private **/
-	MiniSound._id = 0;
-	/**@private **/
-	MiniSound._audioCache = {};
-
-	/** @private **/
-	class MiniInput {
-	    constructor() {
-	    }
-	    static _createInputElement() {
-	        Laya.Input['_initInput'](Laya.Input['area'] = Laya.Browser.createElement("textarea"));
-	        Laya.Input['_initInput'](Laya.Input['input'] = Laya.Browser.createElement("input"));
-	        Laya.Input['inputContainer'] = Laya.Browser.createElement("div");
-	        Laya.Input['inputContainer'].style.position = "absolute";
-	        Laya.Input['inputContainer'].style.zIndex = 1E5;
-	        Laya.Browser.container.appendChild(Laya.Input['inputContainer']);
-	        //[IF-SCRIPT] Input['inputContainer'].setPos = function(x:int, y:int):void { Input['inputContainer'].style.left = x + 'px'; Input['inputContainer'].style.top = y + 'px'; };
-	        Laya.Laya.stage.on("resize", null, MiniInput._onStageResize);
-	        VVMiniAdapter.window.qg.onWindowResize && VVMiniAdapter.window.qg.onWindowResize(function (res) {
-	            //VVMiniAdapter.window.dispatchEvent && VVMiniAdapter.window.dispatchEvent("resize");
-	        });
-	        //替换声音
-	        Laya.SoundManager._soundClass = MiniSound;
-	        Laya.SoundManager._musicClass = MiniSound;
-	        //运行环境判断
-	        Laya.Browser.onAndroid = true;
-	        Laya.Browser.onIPhone = false;
-	        Laya.Browser.onIOS = false;
-	        Laya.Browser.onIPad = false;
-	    }
-	    static _onStageResize() {
-	        var ts = Laya.Laya.stage._canvasTransform.identity();
-	        ts.scale((Laya.Browser.width / Laya.Render.canvas.width / Laya.Browser.pixelRatio), Laya.Browser.height / Laya.Render.canvas.height / Laya.Browser.pixelRatio);
-	    }
-	    static wxinputFocus(e) {
-	        var _inputTarget = Laya.Input['inputElement'].target;
-	        if (_inputTarget && !_inputTarget.editable) {
-	            return; //非输入编辑模式
-	        }
-	        VVMiniAdapter.window.qg.offKeyboardConfirm();
-	        VVMiniAdapter.window.qg.offKeyboardInput();
-	        VVMiniAdapter.window.qg.showKeyboard({ defaultValue: _inputTarget.text, maxLength: _inputTarget.maxChars, multiple: _inputTarget.multiline, confirmHold: true, confirmType: _inputTarget["confirmType"] || 'done', success: function (res) {
-	            }, fail: function (res) {
-	            } });
-	        VVMiniAdapter.window.qg.onKeyboardConfirm(function (res) {
-	            var str = res ? res.value : "";
-	            // 对输入字符进行限制
-	            if (_inputTarget._restrictPattern) {
-	                // 部分输入法兼容
-	                str = str.replace(/\u2006|\x27/g, "");
-	                if (_inputTarget._restrictPattern.test(str)) {
-	                    str = str.replace(_inputTarget._restrictPattern, "");
-	                }
-	            }
-	            _inputTarget.text = str;
-	            _inputTarget.event(Laya.Event.INPUT);
-	            MiniInput.inputEnter();
-	            _inputTarget.event("confirm");
-	        });
-	        VVMiniAdapter.window.qg.onKeyboardInput(function (res) {
-	            var str = res ? res.value : "";
-	            if (!_inputTarget.multiline) {
-	                if (str.indexOf("\n") != -1) {
-	                    MiniInput.inputEnter();
-	                    return;
-	                }
-	            }
-	            // 对输入字符进行限制
-	            if (_inputTarget._restrictPattern) {
-	                // 部分输入法兼容
-	                str = str.replace(/\u2006|\x27/g, "");
-	                if (_inputTarget._restrictPattern.test(str)) {
-	                    str = str.replace(_inputTarget._restrictPattern, "");
-	                }
-	            }
-	            _inputTarget.text = str;
-	            _inputTarget.event(Laya.Event.INPUT);
-	        });
-	    }
-	    static inputEnter() {
-	        Laya.Input['inputElement'].target.focus = false;
-	    }
-	    static wxinputblur() {
-	        MiniInput.hideKeyboard();
-	    }
-	    static hideKeyboard() {
-	        VVMiniAdapter.window.qg.offKeyboardConfirm();
-	        VVMiniAdapter.window.qg.offKeyboardInput();
-	        VVMiniAdapter.window.qg.hideKeyboard({ success: function (res) {
-	                console.log('隐藏键盘');
-	            }, fail: function (res) {
-	                console.log("隐藏键盘出错:" + (res ? res.errMsg : ""));
-	            } });
-	    }
-	}
-
-	/** @private **/
 	class MiniLoader extends Laya.EventDispatcher {
 	    constructor() {
 	        super();
@@ -1646,6 +1145,507 @@ window.vvMiniGame = function (exports, Laya) {
 	};
 	/**@private **/
 	VVMiniAdapter.idx = 1;
+
+	/** @private **/
+	class MiniSoundChannel extends Laya.SoundChannel {
+	    constructor(audio, miniSound) {
+	        super();
+	        this._audio = audio;
+	        this._miniSound = miniSound;
+	        this._onEnd = MiniSoundChannel.bindToThis(this.__onEnd, this);
+	        audio.onEnded(this._onEnd);
+	    }
+	    /**
+	     * @private
+	     * 给传入的函数绑定作用域，返回绑定后的函数。
+	     * @param	fun 函数对象。
+	     * @param	scope 函数作用域。
+	     * @return 绑定后的函数。
+	     */
+	    static bindToThis(fun, scope) {
+	        var rst = fun;
+	        rst = fun.bind(scope);
+	        return rst;
+	    }
+	    /**@private **/
+	    __onEnd() {
+	        // MiniSound._audioCache[this.url] = this._miniSound;
+	        if (this.loops == 1) {
+	            if (this.completeHandler) {
+	                Laya.Laya.systemTimer.once(10, this, this.__runComplete, [this.completeHandler], false);
+	                this.completeHandler = null;
+	            }
+	            this.stop();
+	            this.event(Laya.Event.COMPLETE);
+	            return;
+	        }
+	        if (this.loops > 0) {
+	            this.loops--;
+	        }
+	        this.startTime = 0;
+	        this.play();
+	    }
+	    /**
+	     * @private
+	     * 播放
+	     */
+	    /*override*/ play() {
+	        this.isStopped = false;
+	        Laya.SoundManager.addChannel(this);
+	        this._audio.play();
+	    }
+	    /**
+	     * 设置开始时间
+	     * @param time
+	     */
+	    set startTime(time) {
+	        if (this._audio) {
+	            this._audio.startTime = time;
+	        }
+	    }
+	    /**@private  **/
+	    set autoplay(value) {
+	        this._audio.autoplay = value;
+	    }
+	    /**
+	     * @private
+	     * 自动播放
+	     * @param value
+	     */
+	    get autoplay() {
+	        return this._audio.autoplay;
+	    }
+	    /**
+	     * @private
+	     * 当前播放到的位置
+	     * @return
+	     *
+	     */
+	    /*override*/ get position() {
+	        if (!this._audio)
+	            return 0;
+	        return this._audio.currentTime;
+	    }
+	    /**
+	     * @private
+	     * 获取总时间。
+	     */
+	    /*override*/ get duration() {
+	        if (!this._audio)
+	            return 0;
+	        return this._audio.duration;
+	    }
+	    /**
+	     * @private
+	     * 停止播放
+	     *
+	     */
+	    /*override*/ stop() {
+	        this.isStopped = true;
+	        Laya.SoundManager.removeChannel(this);
+	        this.completeHandler = null;
+	        if (!this._audio)
+	            return;
+	        this._audio.stop(); //停止播放
+	        if (!this.loop) {
+	            this._audio.offEnded(null);
+	            this._miniSound.dispose();
+	            this._audio = null;
+	            this._miniSound = null;
+	            this._onEnd = null;
+	        }
+	    }
+	    /**@private **/
+	    /*override*/ pause() {
+	        this.isStopped = true;
+	        this._audio.pause();
+	    }
+	    /**@private **/
+	    get loop() {
+	        return this._audio.loop;
+	    }
+	    /**@private **/
+	    set loop(value) {
+	        this._audio.loop = value;
+	    }
+	    /**@private **/
+	    /*override*/ resume() {
+	        if (!this._audio)
+	            return;
+	        this.isStopped = false;
+	        Laya.SoundManager.addChannel(this);
+	        this._audio.play();
+	    }
+	    /**
+	     * @private
+	     * 设置音量
+	     * @param v
+	     *
+	     */
+	    /*override*/ set volume(v) {
+	        if (!this._audio)
+	            return;
+	        this._audio.volume = v;
+	    }
+	    /**
+	     * @private
+	     * 获取音量
+	     * @return
+	     */
+	    /*override*/ get volume() {
+	        if (!this._audio)
+	            return 1;
+	        return this._audio.volume;
+	    }
+	}
+
+	/** @private **/
+	class MiniSound extends Laya.EventDispatcher {
+	    constructor() {
+	        super();
+	        /**
+	         * @private
+	         * 是否已加载完成
+	         */
+	        this.loaded = false;
+	        //_sound = _createSound();
+	    }
+	    /** @private **/
+	    static _createSound() {
+	        MiniSound._id++;
+	        return VVMiniAdapter.window.qg.createInnerAudioContext();
+	    }
+	    /**
+	     * @private
+	     * 加载声音。
+	     * @param url 地址。
+	     *
+	     */
+	    load(url) {
+	        if (!MiniFileMgr.isLocalNativeFile(url)) {
+	            url = Laya.URL.formatURL(url);
+	        }
+	        else {
+	            if (url.indexOf("http://") != -1 || url.indexOf("https://") != -1) {
+	                if (MiniFileMgr.loadPath != "") {
+	                    url = url.split(MiniFileMgr.loadPath)[1]; //去掉http头
+	                }
+	                else {
+	                    var tempStr = Laya.URL.rootPath != "" ? Laya.URL.rootPath : Laya.URL._basePath;
+	                    if (tempStr != "")
+	                        url = url.split(tempStr)[1]; //去掉http头
+	                }
+	            }
+	        }
+	        this.url = url;
+	        this.readyUrl = url;
+	        if (MiniSound._audioCache[this.readyUrl]) {
+	            this.event(Laya.Event.COMPLETE);
+	            return;
+	        }
+	        if (VVMiniAdapter.autoCacheFile && MiniFileMgr.getFileInfo(url)) {
+	            this.onDownLoadCallBack(url, 0);
+	        }
+	        else {
+	            if (!VVMiniAdapter.autoCacheFile) {
+	                this.onDownLoadCallBack(url, 0);
+	            }
+	            else {
+	                if (MiniFileMgr.isLocalNativeFile(url)) {
+	                    tempStr = Laya.URL.rootPath != "" ? Laya.URL.rootPath : Laya.URL._basePath;
+	                    var tempUrl = url;
+	                    if (tempStr != "")
+	                        url = url.split(tempStr)[1]; //去掉http头
+	                    if (!url) {
+	                        url = tempUrl;
+	                    }
+	                    //分包目录资源加载处理
+	                    if (VVMiniAdapter.subNativeFiles && VVMiniAdapter.subNativeheads.length == 0) {
+	                        for (var key in VVMiniAdapter.subNativeFiles) {
+	                            var tempArr = VVMiniAdapter.subNativeFiles[key];
+	                            VVMiniAdapter.subNativeheads = VVMiniAdapter.subNativeheads.concat(tempArr);
+	                            for (var aa = 0; aa < tempArr.length; aa++) {
+	                                VVMiniAdapter.subMaps[tempArr[aa]] = key + "/" + tempArr[aa];
+	                            }
+	                        }
+	                    }
+	                    //判断当前的url是否为分包映射路径
+	                    if (VVMiniAdapter.subNativeFiles && url.indexOf("/") != -1) {
+	                        var curfileHead = url.split("/")[0] + "/"; //文件头
+	                        if (curfileHead && VVMiniAdapter.subNativeheads.indexOf(curfileHead) != -1) {
+	                            var newfileHead = VVMiniAdapter.subMaps[curfileHead];
+	                            url = url.replace(curfileHead, newfileHead);
+	                        }
+	                    }
+	                    this.onDownLoadCallBack(url, 0);
+	                }
+	                else {
+	                    if (!MiniFileMgr.isLocalNativeFile(url) && (url.indexOf("http://") == -1 && url.indexOf("https://") == -1) || (url.indexOf("http://usr/") != -1)) {
+	                        this.onDownLoadCallBack(url, 0);
+	                    }
+	                    else {
+	                        MiniFileMgr.downOtherFiles(url, Laya.Handler.create(this, this.onDownLoadCallBack, [url]), url);
+	                    }
+	                }
+	            }
+	        }
+	    }
+	    /**@private **/
+	    onDownLoadCallBack(sourceUrl, errorCode, tempFilePath = null) {
+	        if (!errorCode) {
+	            var fileNativeUrl;
+	            if (VVMiniAdapter.autoCacheFile) {
+	                if (!tempFilePath) {
+	                    if (MiniFileMgr.isLocalNativeFile(sourceUrl)) {
+	                        var tempStr = Laya.URL.rootPath != "" ? Laya.URL.rootPath : Laya.URL._basePath;
+	                        var tempUrl = sourceUrl;
+	                        if (tempStr != "" && (sourceUrl.indexOf("http://") != -1 || sourceUrl.indexOf("https://") != -1))
+	                            fileNativeUrl = sourceUrl.split(tempStr)[1]; //去掉http头
+	                        if (!fileNativeUrl) {
+	                            fileNativeUrl = tempUrl;
+	                        }
+	                    }
+	                    else {
+	                        var fileObj = MiniFileMgr.getFileInfo(sourceUrl);
+	                        if (fileObj && fileObj.md5) {
+	                            var fileMd5Name = fileObj.md5;
+	                            fileNativeUrl = MiniFileMgr.getFileNativePath(fileMd5Name);
+	                        }
+	                        else {
+	                            fileNativeUrl = sourceUrl;
+	                        }
+	                    }
+	                }
+	                else {
+	                    fileNativeUrl = tempFilePath;
+	                }
+	                this._sound = MiniSound._createSound();
+	                this._sound.src = this.url = fileNativeUrl;
+	            }
+	            else {
+	                this._sound = MiniSound._createSound();
+	                this._sound.src = sourceUrl;
+	            }
+	            //vivo版本兼容处理
+	            if (this._sound.onCanplay) {
+	                this._sound.onCanplay(MiniSound.bindToThis(this.onCanPlay, this));
+	                this._sound.onError(MiniSound.bindToThis(this.onError, this));
+	            }
+	            else {
+	                Laya.Laya.timer.clear(this, this.onCheckComplete);
+	                Laya.Laya.timer.frameLoop(2, this, this.onCheckComplete);
+	            }
+	        }
+	        else {
+	            this.event(Laya.Event.ERROR);
+	        }
+	    }
+	    onCheckComplete() {
+	        if (this._sound.duration && this._sound.duration > 0) {
+	            Laya.Laya.timer.clear(this, this.onCheckComplete);
+	            this.onCanPlay();
+	        }
+	    }
+	    /**@private **/
+	    onError(error) {
+	        try {
+	            console.log("-----1---------------minisound-----id:" + MiniSound._id);
+	            console.log(error);
+	        }
+	        catch (error) {
+	            console.log("-----2---------------minisound-----id:" + MiniSound._id);
+	            console.log(error);
+	        }
+	        this.event(Laya.Event.ERROR);
+	        this._sound.offError(null);
+	    }
+	    /**@private **/
+	    onCanPlay() {
+	        this.loaded = true;
+	        this.event(Laya.Event.COMPLETE);
+	        if (this._sound.offCanpla) {
+	            this._sound.offCanplay(null);
+	        }
+	    }
+	    /**
+	     * @private
+	     * 给传入的函数绑定作用域，返回绑定后的函数。
+	     * @param	fun 函数对象。
+	     * @param	scope 函数作用域。
+	     * @return 绑定后的函数。
+	     */
+	    static bindToThis(fun, scope) {
+	        var rst = fun;
+	        rst = fun.bind(scope);
+	        return rst;
+	    }
+	    /**
+	     * @private
+	     * 播放声音。
+	     * @param startTime 开始时间,单位秒
+	     * @param loops 循环次数,0表示一直循环
+	     * @return 声道 SoundChannel 对象。
+	     *
+	     */
+	    play(startTime = 0, loops = 0) {
+	        var tSound;
+	        if (this.url == Laya.SoundManager._bgMusic) {
+	            if (!MiniSound._musicAudio)
+	                MiniSound._musicAudio = MiniSound._createSound();
+	            tSound = MiniSound._musicAudio;
+	        }
+	        else {
+	            if (MiniSound._audioCache[this.readyUrl]) {
+	                tSound = MiniSound._audioCache[this.readyUrl]._sound;
+	            }
+	            else {
+	                tSound = MiniSound._createSound();
+	            }
+	        }
+	        if (!tSound)
+	            return null;
+	        if (VVMiniAdapter.autoCacheFile && MiniFileMgr.getFileInfo(this.url)) {
+	            var fileObj = MiniFileMgr.getFileInfo(this.url);
+	            var fileMd5Name = fileObj.md5;
+	            tSound.src = this.url = MiniFileMgr.getFileNativePath(fileMd5Name);
+	        }
+	        else {
+	            tSound.src = this.url;
+	        }
+	        var channel = new MiniSoundChannel(tSound, this);
+	        channel.url = this.url;
+	        channel.loops = loops;
+	        channel.loop = (loops === 0 ? true : false);
+	        channel.startTime = startTime;
+	        channel.play();
+	        Laya.SoundManager.addChannel(channel);
+	        return channel;
+	    }
+	    /**
+	     * @private
+	     * 获取总时间。
+	     */
+	    get duration() {
+	        return this._sound.duration;
+	    }
+	    /**
+	     * @private
+	     * 释放声音资源。
+	     *
+	     */
+	    dispose() {
+	        var ad = MiniSound._audioCache[this.readyUrl];
+	        if (ad) {
+	            ad.src = "";
+	            if (ad._sound) {
+	                ad._sound.destroy();
+	                ad._sound = null;
+	                ad = null;
+	            }
+	            delete MiniSound._audioCache[this.readyUrl];
+	        }
+	        if (this._sound) {
+	            this._sound.destroy();
+	            this._sound = null;
+	            this.readyUrl = this.url = null;
+	        }
+	    }
+	}
+	/**@private **/
+	MiniSound._id = 0;
+	/**@private **/
+	MiniSound._audioCache = {};
+
+	/** @private **/
+	class MiniInput {
+	    constructor() {
+	    }
+	    static _createInputElement() {
+	        Laya.Input['_initInput'](Laya.Input['area'] = Laya.Browser.createElement("textarea"));
+	        Laya.Input['_initInput'](Laya.Input['input'] = Laya.Browser.createElement("input"));
+	        Laya.Input['inputContainer'] = Laya.Browser.createElement("div");
+	        Laya.Input['inputContainer'].style.position = "absolute";
+	        Laya.Input['inputContainer'].style.zIndex = 1E5;
+	        Laya.Browser.container.appendChild(Laya.Input['inputContainer']);
+	        //[IF-SCRIPT] Input['inputContainer'].setPos = function(x:int, y:int):void { Input['inputContainer'].style.left = x + 'px'; Input['inputContainer'].style.top = y + 'px'; };
+	        Laya.Laya.stage.on("resize", null, MiniInput._onStageResize);
+	        VVMiniAdapter.window.qg.onWindowResize && VVMiniAdapter.window.qg.onWindowResize(function (res) {
+	            //VVMiniAdapter.window.dispatchEvent && VVMiniAdapter.window.dispatchEvent("resize");
+	        });
+	        //替换声音
+	        Laya.SoundManager._soundClass = MiniSound;
+	        Laya.SoundManager._musicClass = MiniSound;
+	        //运行环境判断
+	        Laya.Browser.onAndroid = true;
+	        Laya.Browser.onIPhone = false;
+	        Laya.Browser.onIOS = false;
+	        Laya.Browser.onIPad = false;
+	    }
+	    static _onStageResize() {
+	        var ts = Laya.Laya.stage._canvasTransform.identity();
+	        ts.scale((Laya.Browser.width / Laya.Render.canvas.width / Laya.Browser.pixelRatio), Laya.Browser.height / Laya.Render.canvas.height / Laya.Browser.pixelRatio);
+	    }
+	    static wxinputFocus(e) {
+	        var _inputTarget = Laya.Input['inputElement'].target;
+	        if (_inputTarget && !_inputTarget.editable) {
+	            return; //非输入编辑模式
+	        }
+	        VVMiniAdapter.window.qg.offKeyboardConfirm();
+	        VVMiniAdapter.window.qg.offKeyboardInput();
+	        VVMiniAdapter.window.qg.showKeyboard({ defaultValue: _inputTarget.text, maxLength: _inputTarget.maxChars, multiple: _inputTarget.multiline, confirmHold: true, confirmType: _inputTarget["confirmType"] || 'done', success: function (res) {
+	            }, fail: function (res) {
+	            } });
+	        VVMiniAdapter.window.qg.onKeyboardConfirm(function (res) {
+	            var str = res ? res.value : "";
+	            // 对输入字符进行限制
+	            if (_inputTarget._restrictPattern) {
+	                // 部分输入法兼容
+	                str = str.replace(/\u2006|\x27/g, "");
+	                if (_inputTarget._restrictPattern.test(str)) {
+	                    str = str.replace(_inputTarget._restrictPattern, "");
+	                }
+	            }
+	            _inputTarget.text = str;
+	            _inputTarget.event(Laya.Event.INPUT);
+	            MiniInput.inputEnter();
+	            _inputTarget.event("confirm");
+	        });
+	        VVMiniAdapter.window.qg.onKeyboardInput(function (res) {
+	            var str = res ? res.value : "";
+	            if (!_inputTarget.multiline) {
+	                if (str.indexOf("\n") != -1) {
+	                    MiniInput.inputEnter();
+	                    return;
+	                }
+	            }
+	            // 对输入字符进行限制
+	            if (_inputTarget._restrictPattern) {
+	                // 部分输入法兼容
+	                str = str.replace(/\u2006|\x27/g, "");
+	                if (_inputTarget._restrictPattern.test(str)) {
+	                    str = str.replace(_inputTarget._restrictPattern, "");
+	                }
+	            }
+	            _inputTarget.text = str;
+	            _inputTarget.event(Laya.Event.INPUT);
+	        });
+	    }
+	    static inputEnter() {
+	        Laya.Input['inputElement'].target.focus = false;
+	    }
+	    static wxinputblur() {
+	        MiniInput.hideKeyboard();
+	    }
+	    static hideKeyboard() {
+	        VVMiniAdapter.window.qg.offKeyboardConfirm();
+	        VVMiniAdapter.window.qg.offKeyboardInput();
+	        VVMiniAdapter.window.qg.hideKeyboard({ success: function (res) {
+	                console.log('隐藏键盘');
+	            }, fail: function (res) {
+	                console.log("隐藏键盘出错:" + (res ? res.errMsg : ""));
+	            } });
+	    }
+	}
 
 	/**@private **/
 	class MiniAccelerator extends Laya.EventDispatcher {
