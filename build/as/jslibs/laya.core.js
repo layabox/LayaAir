@@ -32385,121 +32385,6 @@ window.Laya= (function (exports) {
 	ResourceVersion.type = ResourceVersion.FOLDER_VERSION;
 
 	/**
-	 * @private
-	 * 场景资源加载器
-	 */
-	class SceneLoader extends EventDispatcher {
-	    constructor() {
-	        super();
-	        this._completeHandler = new Handler(this, this.onOneLoadComplete);
-	        this.reset();
-	    }
-	    reset() {
-	        this._toLoadList = [];
-	        this._isLoading = false;
-	        this.totalCount = 0;
-	    }
-	    get leftCount() {
-	        if (this._isLoading)
-	            return this._toLoadList.length + 1;
-	        return this._toLoadList.length;
-	    }
-	    get loadedCount() {
-	        return this.totalCount - this.leftCount;
-	    }
-	    load(url, is3D = false, ifCheck = true) {
-	        if (url instanceof Array) {
-	            var i, len;
-	            len = url.length;
-	            for (i = 0; i < len; i++) {
-	                this._addToLoadList(url[i], is3D);
-	            }
-	        }
-	        else {
-	            this._addToLoadList(url, is3D);
-	        }
-	        if (ifCheck)
-	            this._checkNext();
-	    }
-	    _addToLoadList(url, is3D = false) {
-	        if (this._toLoadList.indexOf(url) >= 0)
-	            return;
-	        if (Loader.getRes(url))
-	            return;
-	        if (is3D) {
-	            this._toLoadList.push({ url: url });
-	        }
-	        else
-	            this._toLoadList.push(url);
-	        this.totalCount++;
-	    }
-	    _checkNext() {
-	        if (!this._isLoading) {
-	            if (this._toLoadList.length == 0) {
-	                this.event(Event.COMPLETE);
-	                return;
-	            }
-	            var tItem;
-	            tItem = this._toLoadList.pop();
-	            if (typeof (tItem) == 'string') {
-	                this.loadOne(tItem);
-	            }
-	            else {
-	                this.loadOne(tItem.url, true);
-	            }
-	        }
-	    }
-	    loadOne(url, is3D = false) {
-	        this._curUrl = url;
-	        var type = Utils.getFileExtension(this._curUrl);
-	        if (is3D) {
-	            ILaya.loader.create(url, this._completeHandler);
-	        }
-	        else if (SceneLoader.LoadableExtensions[type]) {
-	            ILaya.loader.load(url, this._completeHandler, null, SceneLoader.LoadableExtensions[type]);
-	        }
-	        else if (url != AtlasInfoManager.getFileLoadPath(url) || SceneLoader.No3dLoadTypes[type] || !LoaderManager.createMap[type]) {
-	            ILaya.loader.load(url, this._completeHandler);
-	        }
-	        else {
-	            ILaya.loader.create(url, this._completeHandler);
-	        }
-	    }
-	    onOneLoadComplete() {
-	        this._isLoading = false;
-	        if (!Loader.getRes(this._curUrl)) {
-	            console.log("Fail to load:", this._curUrl);
-	        }
-	        var type = Utils.getFileExtension(this._curUrl);
-	        if (SceneLoader.LoadableExtensions[type]) {
-	            var dataO;
-	            dataO = Loader.getRes(this._curUrl);
-	            if (dataO && (dataO instanceof Prefab)) {
-	                dataO = dataO.json;
-	            }
-	            if (dataO) {
-	                if (dataO.loadList) {
-	                    this.load(dataO.loadList, false, false);
-	                }
-	                if (dataO.loadList3D) {
-	                    this.load(dataO.loadList3D, true, false);
-	                }
-	            }
-	        }
-	        if (type == "sk") {
-	            this.load(this._curUrl.replace(".sk", ".png"), false, false);
-	        }
-	        this.event(Event.PROGRESS, this.getProgress());
-	        this._checkNext();
-	    }
-	    getProgress() {
-	        return this.loadedCount / this.totalCount;
-	    }
-	}
-	SceneLoader.LoadableExtensions = { "scene": Loader.JSON, "scene3d": Loader.JSON, "ani": Loader.JSON, "ui": Loader.JSON, "prefab": Loader.PREFAB };
-	SceneLoader.No3dLoadTypes = { "png": true, "jpg": true, "txt": true };
-
-	/**
 	 * 连接建立成功后调度。
 	 * @eventType Event.OPEN
 	 * */
@@ -32744,6 +32629,121 @@ window.Laya= (function (exports) {
 	 * <p> LITTLE_ENDIAN ：小端字节序，地址低位存储值的低位，地址高位存储值的高位。</p>
 	 */
 	Socket.BIG_ENDIAN = "bigEndian";
+
+	/**
+	 * @private
+	 * 场景资源加载器
+	 */
+	class SceneLoader extends EventDispatcher {
+	    constructor() {
+	        super();
+	        this._completeHandler = new Handler(this, this.onOneLoadComplete);
+	        this.reset();
+	    }
+	    reset() {
+	        this._toLoadList = [];
+	        this._isLoading = false;
+	        this.totalCount = 0;
+	    }
+	    get leftCount() {
+	        if (this._isLoading)
+	            return this._toLoadList.length + 1;
+	        return this._toLoadList.length;
+	    }
+	    get loadedCount() {
+	        return this.totalCount - this.leftCount;
+	    }
+	    load(url, is3D = false, ifCheck = true) {
+	        if (url instanceof Array) {
+	            var i, len;
+	            len = url.length;
+	            for (i = 0; i < len; i++) {
+	                this._addToLoadList(url[i], is3D);
+	            }
+	        }
+	        else {
+	            this._addToLoadList(url, is3D);
+	        }
+	        if (ifCheck)
+	            this._checkNext();
+	    }
+	    _addToLoadList(url, is3D = false) {
+	        if (this._toLoadList.indexOf(url) >= 0)
+	            return;
+	        if (Loader.getRes(url))
+	            return;
+	        if (is3D) {
+	            this._toLoadList.push({ url: url });
+	        }
+	        else
+	            this._toLoadList.push(url);
+	        this.totalCount++;
+	    }
+	    _checkNext() {
+	        if (!this._isLoading) {
+	            if (this._toLoadList.length == 0) {
+	                this.event(Event.COMPLETE);
+	                return;
+	            }
+	            var tItem;
+	            tItem = this._toLoadList.pop();
+	            if (typeof (tItem) == 'string') {
+	                this.loadOne(tItem);
+	            }
+	            else {
+	                this.loadOne(tItem.url, true);
+	            }
+	        }
+	    }
+	    loadOne(url, is3D = false) {
+	        this._curUrl = url;
+	        var type = Utils.getFileExtension(this._curUrl);
+	        if (is3D) {
+	            ILaya.loader.create(url, this._completeHandler);
+	        }
+	        else if (SceneLoader.LoadableExtensions[type]) {
+	            ILaya.loader.load(url, this._completeHandler, null, SceneLoader.LoadableExtensions[type]);
+	        }
+	        else if (url != AtlasInfoManager.getFileLoadPath(url) || SceneLoader.No3dLoadTypes[type] || !LoaderManager.createMap[type]) {
+	            ILaya.loader.load(url, this._completeHandler);
+	        }
+	        else {
+	            ILaya.loader.create(url, this._completeHandler);
+	        }
+	    }
+	    onOneLoadComplete() {
+	        this._isLoading = false;
+	        if (!Loader.getRes(this._curUrl)) {
+	            console.log("Fail to load:", this._curUrl);
+	        }
+	        var type = Utils.getFileExtension(this._curUrl);
+	        if (SceneLoader.LoadableExtensions[type]) {
+	            var dataO;
+	            dataO = Loader.getRes(this._curUrl);
+	            if (dataO && (dataO instanceof Prefab)) {
+	                dataO = dataO.json;
+	            }
+	            if (dataO) {
+	                if (dataO.loadList) {
+	                    this.load(dataO.loadList, false, false);
+	                }
+	                if (dataO.loadList3D) {
+	                    this.load(dataO.loadList3D, true, false);
+	                }
+	            }
+	        }
+	        if (type == "sk") {
+	            this.load(this._curUrl.replace(".sk", ".png"), false, false);
+	        }
+	        this.event(Event.PROGRESS, this.getProgress());
+	        this._checkNext();
+	    }
+	    getProgress() {
+	        return this.loadedCount / this.totalCount;
+	    }
+	}
+	SceneLoader.LoadableExtensions = { "scene": Loader.JSON, "scene3d": Loader.JSON, "ani": Loader.JSON, "ui": Loader.JSON, "prefab": Loader.PREFAB };
+	SceneLoader.No3dLoadTypes = { "png": true, "jpg": true, "txt": true };
 
 	/**
 	 * @private
@@ -33234,72 +33234,6 @@ window.Laya= (function (exports) {
 	}
 	HTMLChar._isWordRegExp = new RegExp("[\\w\.]", "");
 
-	/**
-	     * <code>Log</code> 类用于在界面内显示日志记录信息。
-	     * 注意：在加速器内不可使用
-	     */
-	class Log {
-	    /**
-	     * 激活Log系统，使用方法Laya.init(800,600,Laya.Log);
-	     */
-	    static enable() {
-	        if (!Log._logdiv) {
-	            Log._logdiv = Browser.createElement('div');
-	            Log._logdiv.style.cssText = "border:white;padding:4px;overflow-y:auto;z-index:1000000;background:rgba(100,100,100,0.6);color:white;position: absolute;left:0px;top:0px;width:50%;height:50%;";
-	            Browser.document.body.appendChild(Log._logdiv);
-	            Log._btn = Browser.createElement("button");
-	            Log._btn.innerText = "Hide";
-	            Log._btn.style.cssText = "z-index:1000001;position: absolute;left:10px;top:10px;";
-	            Log._btn.onclick = Log.toggle;
-	            Browser.document.body.appendChild(Log._btn);
-	        }
-	    }
-	    /**隐藏/显示日志面板*/
-	    static toggle() {
-	        var style = Log._logdiv.style;
-	        if (style.display === "") {
-	            Log._btn.innerText = "Show";
-	            style.display = "none";
-	        }
-	        else {
-	            Log._btn.innerText = "Hide";
-	            style.display = "";
-	        }
-	    }
-	    /**
-	     * 增加日志内容。
-	     * @param	value 需要增加的日志内容。
-	     */
-	    static print(value) {
-	        if (Log._logdiv) {
-	            //内容太多清理掉
-	            if (Log._count >= Log.maxCount)
-	                Log.clear();
-	            Log._count++;
-	            Log._logdiv.innerText += value + "\n";
-	            //自动滚动
-	            if (Log.autoScrollToBottom) {
-	                if (Log._logdiv.scrollHeight - Log._logdiv.scrollTop - Log._logdiv.clientHeight < 50) {
-	                    Log._logdiv.scrollTop = Log._logdiv.scrollHeight;
-	                }
-	            }
-	        }
-	    }
-	    /**
-	     * 清理日志
-	     */
-	    static clear() {
-	        Log._logdiv.innerText = "";
-	        Log._count = 0;
-	    }
-	}
-	/**@private */
-	Log._count = 0;
-	/**最大打印数量，超过这个数量，则自动清理一次，默认为50次*/
-	Log.maxCount = 50;
-	/**是否自动滚动到底部，默认为true*/
-	Log.autoScrollToBottom = true;
-
 	//import { PerfHUD } from "./PerfHUD";
 	let DATANUM = 300;
 	class PerfData {
@@ -33460,6 +33394,72 @@ window.Laya= (function (exports) {
 	PerfHUD._now = null;
 	PerfHUD.DATANUM = 300;
 	PerfHUD.drawTexTm = 0;
+
+	/**
+	     * <code>Log</code> 类用于在界面内显示日志记录信息。
+	     * 注意：在加速器内不可使用
+	     */
+	class Log {
+	    /**
+	     * 激活Log系统，使用方法Laya.init(800,600,Laya.Log);
+	     */
+	    static enable() {
+	        if (!Log._logdiv) {
+	            Log._logdiv = Browser.createElement('div');
+	            Log._logdiv.style.cssText = "border:white;padding:4px;overflow-y:auto;z-index:1000000;background:rgba(100,100,100,0.6);color:white;position: absolute;left:0px;top:0px;width:50%;height:50%;";
+	            Browser.document.body.appendChild(Log._logdiv);
+	            Log._btn = Browser.createElement("button");
+	            Log._btn.innerText = "Hide";
+	            Log._btn.style.cssText = "z-index:1000001;position: absolute;left:10px;top:10px;";
+	            Log._btn.onclick = Log.toggle;
+	            Browser.document.body.appendChild(Log._btn);
+	        }
+	    }
+	    /**隐藏/显示日志面板*/
+	    static toggle() {
+	        var style = Log._logdiv.style;
+	        if (style.display === "") {
+	            Log._btn.innerText = "Show";
+	            style.display = "none";
+	        }
+	        else {
+	            Log._btn.innerText = "Hide";
+	            style.display = "";
+	        }
+	    }
+	    /**
+	     * 增加日志内容。
+	     * @param	value 需要增加的日志内容。
+	     */
+	    static print(value) {
+	        if (Log._logdiv) {
+	            //内容太多清理掉
+	            if (Log._count >= Log.maxCount)
+	                Log.clear();
+	            Log._count++;
+	            Log._logdiv.innerText += value + "\n";
+	            //自动滚动
+	            if (Log.autoScrollToBottom) {
+	                if (Log._logdiv.scrollHeight - Log._logdiv.scrollTop - Log._logdiv.clientHeight < 50) {
+	                    Log._logdiv.scrollTop = Log._logdiv.scrollHeight;
+	                }
+	            }
+	        }
+	    }
+	    /**
+	     * 清理日志
+	     */
+	    static clear() {
+	        Log._logdiv.innerText = "";
+	        Log._count = 0;
+	    }
+	}
+	/**@private */
+	Log._count = 0;
+	/**最大打印数量，超过这个数量，则自动清理一次，默认为50次*/
+	Log.maxCount = 50;
+	/**是否自动滚动到底部，默认为true*/
+	Log.autoScrollToBottom = true;
 
 	/**
 	     * @private
@@ -33951,76 +33951,6 @@ window.Laya= (function (exports) {
 	}
 
 	/**
-	 * ...
-	 * @author ww
-	 */
-	class FilterSetterBase {
-	    constructor() {
-	    }
-	    paramChanged() {
-	        Laya.systemTimer.callLater(this, this.buildFilter);
-	    }
-	    buildFilter() {
-	        if (this._target) {
-	            this.addFilter(this._target);
-	        }
-	    }
-	    addFilter(sprite) {
-	        if (!sprite)
-	            return;
-	        if (!sprite.filters) {
-	            sprite.filters = [this._filter];
-	        }
-	        else {
-	            var preFilters;
-	            preFilters = sprite.filters;
-	            if (preFilters.indexOf(this._filter) < 0) {
-	                preFilters.push(this._filter);
-	                sprite.filters = Utils.copyArray([], preFilters);
-	            }
-	        }
-	    }
-	    removeFilter(sprite) {
-	        if (!sprite)
-	            return;
-	        sprite.filters = null;
-	    }
-	    set target(value) {
-	        if (this._target != value) {
-	            //removeFilter(_target as Sprite);
-	            //addFilter(value as Sprite);
-	            this._target = value;
-	            this.paramChanged();
-	        }
-	    }
-	}
-
-	/**
-	 * ...
-	 * @author ww
-	 */
-	class BlurFilterSetter extends FilterSetterBase {
-	    constructor() {
-	        super();
-	        this._strength = 4;
-	        this._filter = new BlurFilter(this.strength);
-	    }
-	    /**
-	     * @override
-	     */
-	    buildFilter() {
-	        this._filter = new BlurFilter(this.strength);
-	        super.buildFilter();
-	    }
-	    get strength() {
-	        return this._strength;
-	    }
-	    set strength(value) {
-	        this._strength = value;
-	    }
-	}
-
-	/**
 	 * @Script {name:ButtonEffect}
 	 * @author ww
 	 */
@@ -34123,6 +34053,76 @@ window.Laya= (function (exports) {
 	            this._tween.clear();
 	            this._tween = null;
 	        }
+	    }
+	}
+
+	/**
+	 * ...
+	 * @author ww
+	 */
+	class FilterSetterBase {
+	    constructor() {
+	    }
+	    paramChanged() {
+	        Laya.systemTimer.callLater(this, this.buildFilter);
+	    }
+	    buildFilter() {
+	        if (this._target) {
+	            this.addFilter(this._target);
+	        }
+	    }
+	    addFilter(sprite) {
+	        if (!sprite)
+	            return;
+	        if (!sprite.filters) {
+	            sprite.filters = [this._filter];
+	        }
+	        else {
+	            var preFilters;
+	            preFilters = sprite.filters;
+	            if (preFilters.indexOf(this._filter) < 0) {
+	                preFilters.push(this._filter);
+	                sprite.filters = Utils.copyArray([], preFilters);
+	            }
+	        }
+	    }
+	    removeFilter(sprite) {
+	        if (!sprite)
+	            return;
+	        sprite.filters = null;
+	    }
+	    set target(value) {
+	        if (this._target != value) {
+	            //removeFilter(_target as Sprite);
+	            //addFilter(value as Sprite);
+	            this._target = value;
+	            this.paramChanged();
+	        }
+	    }
+	}
+
+	/**
+	 * ...
+	 * @author ww
+	 */
+	class BlurFilterSetter extends FilterSetterBase {
+	    constructor() {
+	        super();
+	        this._strength = 4;
+	        this._filter = new BlurFilter(this.strength);
+	    }
+	    /**
+	     * @override
+	     */
+	    buildFilter() {
+	        this._filter = new BlurFilter(this.strength);
+	        super.buildFilter();
+	    }
+	    get strength() {
+	        return this._strength;
+	    }
+	    set strength(value) {
+	        this._strength = value;
 	    }
 	}
 
@@ -34264,19 +34264,6 @@ window.Laya= (function (exports) {
 	}
 
 	/**
-	 * 淡出效果
-	 */
-	class FadeOut extends EffectBase {
-	    /**
-	     * @override
-	     */
-	    _doTween() {
-	        this.target.alpha = 1;
-	        return Tween.to(this.target, { alpha: 0 }, this.duration, Ease[this.ease], this._comlete, this.delay);
-	    }
-	}
-
-	/**
 	 * ...
 	 * @author ww
 	 */
@@ -34335,6 +34322,19 @@ window.Laya= (function (exports) {
 	    set offY(value) {
 	        this._offY = value;
 	        this.paramChanged();
+	    }
+	}
+
+	/**
+	 * 淡出效果
+	 */
+	class FadeOut extends EffectBase {
+	    /**
+	     * @override
+	     */
+	    _doTween() {
+	        this.target.alpha = 1;
+	        return Tween.to(this.target, { alpha: 0 }, this.duration, Ease[this.ease], this._comlete, this.delay);
 	    }
 	}
 

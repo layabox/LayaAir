@@ -20,275 +20,6 @@
     class AnimationNodeContent {
     }
 
-    class KeyFramesContent {
-    }
-
-    /**
-     * @internal
-     */
-    class AnimationParser01 {
-        /**
-         * @private
-         */
-        static parse(templet, reader) {
-            var data = reader.__getBuffer();
-            var i, j, k, n, l, m, o;
-            //if (head != KeyframesAniTemplet.LAYA_ANIMATION_VISION)
-            //{
-            //trace("[Error] Version " + _aniVersion + " The engine is inconsistent, update to the version " + KeyframesAniTemplet.LAYA_ANIMATION_VISION + " please.");
-            //return;
-            //}
-            var aniClassName = reader.readUTFString(); //字符串(动画播放器类名，缺省为ANI)
-            templet._aniClassName = aniClassName;
-            var strList = reader.readUTFString().split("\n"); //字符串(\n分割 UTF8 )
-            var aniCount = reader.getUint8(); //动画块数:Uint8
-            var publicDataPos = reader.getUint32(); //公用数据POS	
-            var publicExtDataPos = reader.getUint32(); //公用扩展数据POS
-            var publicData; //获取公用数据
-            if (publicDataPos > 0)
-                publicData = data.slice(publicDataPos, publicExtDataPos);
-            var publicRead = new Laya.Byte(publicData);
-            if (publicExtDataPos > 0) //获取公用扩展数据
-                templet._publicExtData = data.slice(publicExtDataPos, data.byteLength);
-            templet._useParent = !!reader.getUint8();
-            templet._anis.length = aniCount;
-            for (i = 0; i < aniCount; i++) {
-                var ani = templet._anis[i] = new AnimationContent();
-                //[IF-SCRIPT] {};//不要删除
-                ani.nodes = [];
-                var name = ani.name = strList[reader.getUint16()]; //获得骨骼名字
-                templet._aniMap[name] = i; //按名字可以取得动画索引
-                ani.bone3DMap = {};
-                ani.playTime = reader.getFloat32(); //本骨骼播放时间
-                var boneCount = ani.nodes.length = reader.getUint8(); //得到本动画骨骼数目
-                ani.totalKeyframeDatasLength = 0;
-                for (j = 0; j < boneCount; j++) {
-                    var node = ani.nodes[j] = new AnimationNodeContent();
-                    //[IF-SCRIPT] {};//不要删除
-                    node.childs = [];
-                    var nameIndex = reader.getInt16();
-                    if (nameIndex >= 0) {
-                        node.name = strList[nameIndex]; //骨骼名字
-                        ani.bone3DMap[node.name] = j;
-                    }
-                    node.keyFrame = [];
-                    node.parentIndex = reader.getInt16(); //父对象编号，相对本动画(INT16,-1表示没有)
-                    node.parentIndex == -1 ? node.parent = null : node.parent = ani.nodes[node.parentIndex];
-                    node.lerpType = reader.getUint8(); //该节点插值类型:0为不插值，1为逐节点插值，2为私有插值
-                    var keyframeParamsOffset = reader.getUint32(); //相对于数据扩展区的偏移地址
-                    publicRead.pos = keyframeParamsOffset; //切换到数据区偏移地址
-                    var keyframeDataCount = node.keyframeWidth = publicRead.getUint16(); //keyframe数据宽度:Uint8		
-                    ani.totalKeyframeDatasLength += keyframeDataCount;
-                    //每个数据的插值方式:Uint8*keyframe数据宽度
-                    if (node.lerpType === 0 || node.lerpType === 1) //是否逐节点插值
-                     {
-                        node.interpolationMethod = [];
-                        node.interpolationMethod.length = keyframeDataCount;
-                        for (k = 0; k < keyframeDataCount; k++)
-                            node.interpolationMethod[k] = IAniLib.AnimationTemplet.interpolation[publicRead.getUint8()];
-                    }
-                    if (node.parent != null)
-                        node.parent.childs.push(node);
-                    var privateDataLen = reader.getUint16(); //"UINT16", [1],//私有数据长度
-                    if (privateDataLen > 0) {
-                        //"BYTE", [1],//私有数据
-                        node.extenData = data.slice(reader.pos, reader.pos + privateDataLen);
-                        reader.pos += privateDataLen;
-                    }
-                    var keyframeCount = reader.getUint16();
-                    node.keyFrame.length = keyframeCount;
-                    var startTime = 0;
-                    var keyFrame;
-                    for (k = 0, n = keyframeCount; k < n; k++) {
-                        keyFrame = node.keyFrame[k] = new KeyFramesContent();
-                        //[IF-SCRIPT] {};//不要删除
-                        keyFrame.duration = reader.getFloat32();
-                        keyFrame.startTime = startTime;
-                        if (node.lerpType === 2) //是否逐帧插值
-                         {
-                            keyFrame.interpolationData = [];
-                            var interDataLength = reader.getUint8(); //插值数据长度
-                            var lerpType;
-                            lerpType = reader.getFloat32();
-                            switch (lerpType) {
-                                case 254: //全线性插值
-                                    keyFrame.interpolationData.length = keyframeDataCount;
-                                    for (o = 0; o < keyframeDataCount; o++)
-                                        keyFrame.interpolationData[o] = 0;
-                                    break;
-                                case 255: //全不插值
-                                    keyFrame.interpolationData.length = keyframeDataCount;
-                                    for (o = 0; o < keyframeDataCount; o++)
-                                        keyFrame.interpolationData[o] = 5;
-                                    break;
-                                default:
-                                    keyFrame.interpolationData.push(lerpType);
-                                    for (m = 1; m < interDataLength; m++) {
-                                        keyFrame.interpolationData.push(reader.getFloat32());
-                                    }
-                            }
-                            //for (m = 0; m < interDataLength; m++) {
-                            //var lerpData:int = read.getFloat32();//插值数据
-                            //switch (lerpData) {
-                            //case 254: //全线性插值
-                            //keyFrame.interpolationData.length = keyframeDataCount;
-                            //for (o = 0; o < keyframeDataCount; o++)
-                            //keyFrame.interpolationData[o] = 0;
-                            //break;
-                            //case 255: //全不插值
-                            //
-                            //keyFrame.interpolationData.length = keyframeDataCount;
-                            //for (o = 0; o < keyframeDataCount; o++)
-                            //keyFrame.interpolationData[o] = 5;
-                            //break;
-                            //default: 
-                            //keyFrame.interpolationData.push(lerpData);
-                            //}
-                            //}
-                        }
-                        keyFrame.data = new Float32Array(keyframeDataCount);
-                        keyFrame.dData = new Float32Array(keyframeDataCount);
-                        keyFrame.nextData = new Float32Array(keyframeDataCount);
-                        for (l = 0; l < keyframeDataCount; l++) {
-                            keyFrame.data[l] = reader.getFloat32();
-                            if (keyFrame.data[l] > -0.00000001 && keyFrame.data[l] < 0.00000001)
-                                keyFrame.data[l] = 0;
-                        }
-                        startTime += keyFrame.duration;
-                    }
-                    keyFrame.startTime = ani.playTime; //因工具BUG，矫正最后一帧startTime
-                    node.playTime = ani.playTime; //节点总时间可能比总时长大，次处修正
-                    templet._calculateKeyFrame(node, keyframeCount, keyframeDataCount);
-                }
-            }
-        }
-    }
-
-    /**
-     * @internal
-     */
-    class AnimationParser02 {
-        /**
-         * @private
-         */
-        static READ_DATA() {
-            AnimationParser02._DATA.offset = AnimationParser02._reader.getUint32();
-            AnimationParser02._DATA.size = AnimationParser02._reader.getUint32();
-        }
-        /**
-         * @private
-         */
-        //TODO:coverage
-        static READ_BLOCK() {
-            var count = AnimationParser02._BLOCK.count = AnimationParser02._reader.getUint16();
-            var blockStarts = AnimationParser02._BLOCK.blockStarts = [];
-            var blockLengths = AnimationParser02._BLOCK.blockLengths = [];
-            for (var i = 0; i < count; i++) {
-                blockStarts.push(AnimationParser02._reader.getUint32());
-                blockLengths.push(AnimationParser02._reader.getUint32());
-            }
-        }
-        /**
-         * @private
-         */
-        //TODO:coverage
-        static READ_STRINGS() {
-            var offset = AnimationParser02._reader.getUint32();
-            var count = AnimationParser02._reader.getUint16();
-            var prePos = AnimationParser02._reader.pos;
-            AnimationParser02._reader.pos = offset + AnimationParser02._DATA.offset;
-            for (var i = 0; i < count; i++)
-                AnimationParser02._strings[i] = AnimationParser02._reader.readUTFString();
-            AnimationParser02._reader.pos = prePos;
-        }
-        /**
-         * @private
-         */
-        //TODO:coverage
-        static parse(templet, reader) {
-            AnimationParser02._templet = templet;
-            AnimationParser02._reader = reader;
-            var arrayBuffer = reader.__getBuffer();
-            AnimationParser02.READ_DATA();
-            AnimationParser02.READ_BLOCK();
-            AnimationParser02.READ_STRINGS();
-            for (var i = 0, n = AnimationParser02._BLOCK.count; i < n; i++) {
-                var index = reader.getUint16();
-                var blockName = AnimationParser02._strings[index];
-                var fn = AnimationParser02["READ_" + blockName];
-                if (fn == null)
-                    throw new Error("model file err,no this function:" + index + " " + blockName);
-                else
-                    fn.call(null);
-            }
-        }
-        //TODO:coverage
-        static READ_ANIMATIONS() {
-            var reader = AnimationParser02._reader;
-            var arrayBuffer = reader.__getBuffer();
-            var i, j, k, n;
-            var keyframeWidth = reader.getUint16();
-            var interpolationMethod = [];
-            interpolationMethod.length = keyframeWidth;
-            for (i = 0; i < keyframeWidth; i++)
-                interpolationMethod[i] = IAniLib.AnimationTemplet.interpolation[reader.getByte()];
-            var aniCount = reader.getUint8();
-            AnimationParser02._templet._anis.length = aniCount;
-            for (i = 0; i < aniCount; i++) {
-                var ani = AnimationParser02._templet._anis[i] = new AnimationContent();
-                ani.nodes = [];
-                var aniName = ani.name = AnimationParser02._strings[reader.getUint16()];
-                AnimationParser02._templet._aniMap[aniName] = i; //按名字可以取得动画索引
-                ani.bone3DMap = {};
-                ani.playTime = reader.getFloat32();
-                var boneCount = ani.nodes.length = reader.getInt16();
-                ani.totalKeyframeDatasLength = 0;
-                for (j = 0; j < boneCount; j++) {
-                    var node = ani.nodes[j] = new AnimationNodeContent();
-                    node.keyframeWidth = keyframeWidth; //TODO:存在骨骼里是否合并，需要优化到动画中更合理。
-                    node.childs = [];
-                    var nameIndex = reader.getUint16();
-                    if (nameIndex >= 0) {
-                        node.name = AnimationParser02._strings[nameIndex]; //骨骼名字
-                        ani.bone3DMap[node.name] = j;
-                    }
-                    node.keyFrame = [];
-                    node.parentIndex = reader.getInt16(); //父对象编号，相对本动画(INT16,-1表示没有)
-                    node.parentIndex == -1 ? node.parent = null : node.parent = ani.nodes[node.parentIndex];
-                    ani.totalKeyframeDatasLength += keyframeWidth;
-                    node.interpolationMethod = interpolationMethod; //TODO:
-                    if (node.parent != null)
-                        node.parent.childs.push(node);
-                    var keyframeCount = reader.getUint16();
-                    node.keyFrame.length = keyframeCount;
-                    var keyFrame = null, lastKeyFrame = null;
-                    for (k = 0, n = keyframeCount; k < n; k++) {
-                        keyFrame = node.keyFrame[k] = new KeyFramesContent();
-                        keyFrame.startTime = reader.getFloat32();
-                        (lastKeyFrame) && (lastKeyFrame.duration = keyFrame.startTime - lastKeyFrame.startTime);
-                        keyFrame.dData = new Float32Array(keyframeWidth);
-                        keyFrame.nextData = new Float32Array(keyframeWidth);
-                        var offset = AnimationParser02._DATA.offset;
-                        var keyframeDataOffset = reader.getUint32();
-                        var keyframeDataLength = keyframeWidth * 4;
-                        var keyframeArrayBuffer = arrayBuffer.slice(offset + keyframeDataOffset, offset + keyframeDataOffset + keyframeDataLength);
-                        keyFrame.data = new Float32Array(keyframeArrayBuffer);
-                        lastKeyFrame = keyFrame;
-                    }
-                    keyFrame.duration = 0;
-                    node.playTime = ani.playTime; //节点总时间可能比总时长大，次处修正
-                    AnimationParser02._templet._calculateKeyFrame(node, keyframeCount, keyframeWidth);
-                }
-            }
-        }
-    }
-    /**@private */
-    AnimationParser02._strings = [];
-    /**@private */
-    AnimationParser02._BLOCK = { count: 0 };
-    /**@private */
-    AnimationParser02._DATA = { offset: 0, size: 0 };
-
     /**
      * @internal
      */
@@ -738,6 +469,275 @@
         }
     }
 
+    class KeyFramesContent {
+    }
+
+    /**
+     * @internal
+     */
+    class AnimationParser01 {
+        /**
+         * @private
+         */
+        static parse(templet, reader) {
+            var data = reader.__getBuffer();
+            var i, j, k, n, l, m, o;
+            //if (head != KeyframesAniTemplet.LAYA_ANIMATION_VISION)
+            //{
+            //trace("[Error] Version " + _aniVersion + " The engine is inconsistent, update to the version " + KeyframesAniTemplet.LAYA_ANIMATION_VISION + " please.");
+            //return;
+            //}
+            var aniClassName = reader.readUTFString(); //字符串(动画播放器类名，缺省为ANI)
+            templet._aniClassName = aniClassName;
+            var strList = reader.readUTFString().split("\n"); //字符串(\n分割 UTF8 )
+            var aniCount = reader.getUint8(); //动画块数:Uint8
+            var publicDataPos = reader.getUint32(); //公用数据POS	
+            var publicExtDataPos = reader.getUint32(); //公用扩展数据POS
+            var publicData; //获取公用数据
+            if (publicDataPos > 0)
+                publicData = data.slice(publicDataPos, publicExtDataPos);
+            var publicRead = new Laya.Byte(publicData);
+            if (publicExtDataPos > 0) //获取公用扩展数据
+                templet._publicExtData = data.slice(publicExtDataPos, data.byteLength);
+            templet._useParent = !!reader.getUint8();
+            templet._anis.length = aniCount;
+            for (i = 0; i < aniCount; i++) {
+                var ani = templet._anis[i] = new AnimationContent();
+                //[IF-SCRIPT] {};//不要删除
+                ani.nodes = [];
+                var name = ani.name = strList[reader.getUint16()]; //获得骨骼名字
+                templet._aniMap[name] = i; //按名字可以取得动画索引
+                ani.bone3DMap = {};
+                ani.playTime = reader.getFloat32(); //本骨骼播放时间
+                var boneCount = ani.nodes.length = reader.getUint8(); //得到本动画骨骼数目
+                ani.totalKeyframeDatasLength = 0;
+                for (j = 0; j < boneCount; j++) {
+                    var node = ani.nodes[j] = new AnimationNodeContent();
+                    //[IF-SCRIPT] {};//不要删除
+                    node.childs = [];
+                    var nameIndex = reader.getInt16();
+                    if (nameIndex >= 0) {
+                        node.name = strList[nameIndex]; //骨骼名字
+                        ani.bone3DMap[node.name] = j;
+                    }
+                    node.keyFrame = [];
+                    node.parentIndex = reader.getInt16(); //父对象编号，相对本动画(INT16,-1表示没有)
+                    node.parentIndex == -1 ? node.parent = null : node.parent = ani.nodes[node.parentIndex];
+                    node.lerpType = reader.getUint8(); //该节点插值类型:0为不插值，1为逐节点插值，2为私有插值
+                    var keyframeParamsOffset = reader.getUint32(); //相对于数据扩展区的偏移地址
+                    publicRead.pos = keyframeParamsOffset; //切换到数据区偏移地址
+                    var keyframeDataCount = node.keyframeWidth = publicRead.getUint16(); //keyframe数据宽度:Uint8		
+                    ani.totalKeyframeDatasLength += keyframeDataCount;
+                    //每个数据的插值方式:Uint8*keyframe数据宽度
+                    if (node.lerpType === 0 || node.lerpType === 1) //是否逐节点插值
+                     {
+                        node.interpolationMethod = [];
+                        node.interpolationMethod.length = keyframeDataCount;
+                        for (k = 0; k < keyframeDataCount; k++)
+                            node.interpolationMethod[k] = IAniLib.AnimationTemplet.interpolation[publicRead.getUint8()];
+                    }
+                    if (node.parent != null)
+                        node.parent.childs.push(node);
+                    var privateDataLen = reader.getUint16(); //"UINT16", [1],//私有数据长度
+                    if (privateDataLen > 0) {
+                        //"BYTE", [1],//私有数据
+                        node.extenData = data.slice(reader.pos, reader.pos + privateDataLen);
+                        reader.pos += privateDataLen;
+                    }
+                    var keyframeCount = reader.getUint16();
+                    node.keyFrame.length = keyframeCount;
+                    var startTime = 0;
+                    var keyFrame;
+                    for (k = 0, n = keyframeCount; k < n; k++) {
+                        keyFrame = node.keyFrame[k] = new KeyFramesContent();
+                        //[IF-SCRIPT] {};//不要删除
+                        keyFrame.duration = reader.getFloat32();
+                        keyFrame.startTime = startTime;
+                        if (node.lerpType === 2) //是否逐帧插值
+                         {
+                            keyFrame.interpolationData = [];
+                            var interDataLength = reader.getUint8(); //插值数据长度
+                            var lerpType;
+                            lerpType = reader.getFloat32();
+                            switch (lerpType) {
+                                case 254: //全线性插值
+                                    keyFrame.interpolationData.length = keyframeDataCount;
+                                    for (o = 0; o < keyframeDataCount; o++)
+                                        keyFrame.interpolationData[o] = 0;
+                                    break;
+                                case 255: //全不插值
+                                    keyFrame.interpolationData.length = keyframeDataCount;
+                                    for (o = 0; o < keyframeDataCount; o++)
+                                        keyFrame.interpolationData[o] = 5;
+                                    break;
+                                default:
+                                    keyFrame.interpolationData.push(lerpType);
+                                    for (m = 1; m < interDataLength; m++) {
+                                        keyFrame.interpolationData.push(reader.getFloat32());
+                                    }
+                            }
+                            //for (m = 0; m < interDataLength; m++) {
+                            //var lerpData:int = read.getFloat32();//插值数据
+                            //switch (lerpData) {
+                            //case 254: //全线性插值
+                            //keyFrame.interpolationData.length = keyframeDataCount;
+                            //for (o = 0; o < keyframeDataCount; o++)
+                            //keyFrame.interpolationData[o] = 0;
+                            //break;
+                            //case 255: //全不插值
+                            //
+                            //keyFrame.interpolationData.length = keyframeDataCount;
+                            //for (o = 0; o < keyframeDataCount; o++)
+                            //keyFrame.interpolationData[o] = 5;
+                            //break;
+                            //default: 
+                            //keyFrame.interpolationData.push(lerpData);
+                            //}
+                            //}
+                        }
+                        keyFrame.data = new Float32Array(keyframeDataCount);
+                        keyFrame.dData = new Float32Array(keyframeDataCount);
+                        keyFrame.nextData = new Float32Array(keyframeDataCount);
+                        for (l = 0; l < keyframeDataCount; l++) {
+                            keyFrame.data[l] = reader.getFloat32();
+                            if (keyFrame.data[l] > -0.00000001 && keyFrame.data[l] < 0.00000001)
+                                keyFrame.data[l] = 0;
+                        }
+                        startTime += keyFrame.duration;
+                    }
+                    keyFrame.startTime = ani.playTime; //因工具BUG，矫正最后一帧startTime
+                    node.playTime = ani.playTime; //节点总时间可能比总时长大，次处修正
+                    templet._calculateKeyFrame(node, keyframeCount, keyframeDataCount);
+                }
+            }
+        }
+    }
+
+    /**
+     * @internal
+     */
+    class AnimationParser02 {
+        /**
+         * @private
+         */
+        static READ_DATA() {
+            AnimationParser02._DATA.offset = AnimationParser02._reader.getUint32();
+            AnimationParser02._DATA.size = AnimationParser02._reader.getUint32();
+        }
+        /**
+         * @private
+         */
+        //TODO:coverage
+        static READ_BLOCK() {
+            var count = AnimationParser02._BLOCK.count = AnimationParser02._reader.getUint16();
+            var blockStarts = AnimationParser02._BLOCK.blockStarts = [];
+            var blockLengths = AnimationParser02._BLOCK.blockLengths = [];
+            for (var i = 0; i < count; i++) {
+                blockStarts.push(AnimationParser02._reader.getUint32());
+                blockLengths.push(AnimationParser02._reader.getUint32());
+            }
+        }
+        /**
+         * @private
+         */
+        //TODO:coverage
+        static READ_STRINGS() {
+            var offset = AnimationParser02._reader.getUint32();
+            var count = AnimationParser02._reader.getUint16();
+            var prePos = AnimationParser02._reader.pos;
+            AnimationParser02._reader.pos = offset + AnimationParser02._DATA.offset;
+            for (var i = 0; i < count; i++)
+                AnimationParser02._strings[i] = AnimationParser02._reader.readUTFString();
+            AnimationParser02._reader.pos = prePos;
+        }
+        /**
+         * @private
+         */
+        //TODO:coverage
+        static parse(templet, reader) {
+            AnimationParser02._templet = templet;
+            AnimationParser02._reader = reader;
+            var arrayBuffer = reader.__getBuffer();
+            AnimationParser02.READ_DATA();
+            AnimationParser02.READ_BLOCK();
+            AnimationParser02.READ_STRINGS();
+            for (var i = 0, n = AnimationParser02._BLOCK.count; i < n; i++) {
+                var index = reader.getUint16();
+                var blockName = AnimationParser02._strings[index];
+                var fn = AnimationParser02["READ_" + blockName];
+                if (fn == null)
+                    throw new Error("model file err,no this function:" + index + " " + blockName);
+                else
+                    fn.call(null);
+            }
+        }
+        //TODO:coverage
+        static READ_ANIMATIONS() {
+            var reader = AnimationParser02._reader;
+            var arrayBuffer = reader.__getBuffer();
+            var i, j, k, n;
+            var keyframeWidth = reader.getUint16();
+            var interpolationMethod = [];
+            interpolationMethod.length = keyframeWidth;
+            for (i = 0; i < keyframeWidth; i++)
+                interpolationMethod[i] = IAniLib.AnimationTemplet.interpolation[reader.getByte()];
+            var aniCount = reader.getUint8();
+            AnimationParser02._templet._anis.length = aniCount;
+            for (i = 0; i < aniCount; i++) {
+                var ani = AnimationParser02._templet._anis[i] = new AnimationContent();
+                ani.nodes = [];
+                var aniName = ani.name = AnimationParser02._strings[reader.getUint16()];
+                AnimationParser02._templet._aniMap[aniName] = i; //按名字可以取得动画索引
+                ani.bone3DMap = {};
+                ani.playTime = reader.getFloat32();
+                var boneCount = ani.nodes.length = reader.getInt16();
+                ani.totalKeyframeDatasLength = 0;
+                for (j = 0; j < boneCount; j++) {
+                    var node = ani.nodes[j] = new AnimationNodeContent();
+                    node.keyframeWidth = keyframeWidth; //TODO:存在骨骼里是否合并，需要优化到动画中更合理。
+                    node.childs = [];
+                    var nameIndex = reader.getUint16();
+                    if (nameIndex >= 0) {
+                        node.name = AnimationParser02._strings[nameIndex]; //骨骼名字
+                        ani.bone3DMap[node.name] = j;
+                    }
+                    node.keyFrame = [];
+                    node.parentIndex = reader.getInt16(); //父对象编号，相对本动画(INT16,-1表示没有)
+                    node.parentIndex == -1 ? node.parent = null : node.parent = ani.nodes[node.parentIndex];
+                    ani.totalKeyframeDatasLength += keyframeWidth;
+                    node.interpolationMethod = interpolationMethod; //TODO:
+                    if (node.parent != null)
+                        node.parent.childs.push(node);
+                    var keyframeCount = reader.getUint16();
+                    node.keyFrame.length = keyframeCount;
+                    var keyFrame = null, lastKeyFrame = null;
+                    for (k = 0, n = keyframeCount; k < n; k++) {
+                        keyFrame = node.keyFrame[k] = new KeyFramesContent();
+                        keyFrame.startTime = reader.getFloat32();
+                        (lastKeyFrame) && (lastKeyFrame.duration = keyFrame.startTime - lastKeyFrame.startTime);
+                        keyFrame.dData = new Float32Array(keyframeWidth);
+                        keyFrame.nextData = new Float32Array(keyframeWidth);
+                        var offset = AnimationParser02._DATA.offset;
+                        var keyframeDataOffset = reader.getUint32();
+                        var keyframeDataLength = keyframeWidth * 4;
+                        var keyframeArrayBuffer = arrayBuffer.slice(offset + keyframeDataOffset, offset + keyframeDataOffset + keyframeDataLength);
+                        keyFrame.data = new Float32Array(keyframeArrayBuffer);
+                        lastKeyFrame = keyFrame;
+                    }
+                    keyFrame.duration = 0;
+                    node.playTime = ani.playTime; //节点总时间可能比总时长大，次处修正
+                    AnimationParser02._templet._calculateKeyFrame(node, keyframeCount, keyframeWidth);
+                }
+            }
+        }
+    }
+    /**@private */
+    AnimationParser02._strings = [];
+    /**@private */
+    AnimationParser02._BLOCK = { count: 0 };
+    /**@private */
+    AnimationParser02._DATA = { offset: 0, size: 0 };
+
     /**
      * @internal
      * ...
@@ -1181,6 +1181,235 @@
         }
     }
     GraphicsAni._caches = [];
+
+    class Transform {
+        constructor() {
+            this.skX = 0; // 旋转？
+            this.skY = 0; // 不知道干什么的
+            this.scX = 1; // 缩放
+            this.scY = 1;
+            this.x = 0; // 偏移
+            this.y = 0;
+            this.skewX = 0; // skew
+            this.skewY = 0;
+        }
+        //TODO:coverage
+        initData(data) {
+            if (data.x != undefined) {
+                this.x = data.x;
+            }
+            if (data.y != undefined) {
+                this.y = data.y;
+            }
+            if (data.skX != undefined) {
+                this.skX = data.skX;
+            }
+            if (data.skY != undefined) {
+                this.skY = data.skY;
+            }
+            if (data.scX != undefined) {
+                this.scX = data.scX;
+            }
+            if (data.scY != undefined) {
+                this.scY = data.scY;
+            }
+        }
+        //TODO:coverage
+        getMatrix() {
+            var tMatrix;
+            if (this.mMatrix) {
+                tMatrix = this.mMatrix;
+            }
+            else {
+                tMatrix = this.mMatrix = new Laya.Matrix();
+            }
+            tMatrix.identity();
+            tMatrix.scale(this.scX, this.scY);
+            if (this.skewX || this.skewY) {
+                this.skew(tMatrix, this.skewX * Math.PI / 180, this.skewY * Math.PI / 180);
+            }
+            tMatrix.rotate(this.skX * Math.PI / 180);
+            tMatrix.translate(this.x, this.y);
+            return tMatrix;
+        }
+        //TODO:coverage
+        skew(m, x, y) {
+            var sinX = Math.sin(y);
+            var cosX = Math.cos(y);
+            var sinY = Math.sin(x);
+            var cosY = Math.cos(x);
+            m.setTo(m.a * cosY - m.b * sinX, m.a * sinY + m.b * cosX, m.c * cosY - m.d * sinX, m.c * sinY + m.d * cosX, m.tx * cosY - m.ty * sinX, m.tx * sinY + m.ty * cosX);
+            return m;
+        }
+    }
+
+    /**
+     * @private
+     */
+    class Bone {
+        constructor() {
+            this.length = 10;
+            this.resultTransform = new Transform();
+            this.resultMatrix = new Laya.Matrix();
+            this.inheritScale = true;
+            this.inheritRotation = true;
+            this.d = -1;
+            this._children = [];
+        }
+        setTempMatrix(matrix) {
+            this._tempMatrix = matrix;
+            var i = 0, n = 0;
+            var tBone;
+            for (i = 0, n = this._children.length; i < n; i++) {
+                tBone = this._children[i];
+                tBone.setTempMatrix(this._tempMatrix);
+            }
+        }
+        //TODO:coverage
+        update(pMatrix = null) {
+            this.rotation = this.transform.skX;
+            var tResultMatrix;
+            if (pMatrix) {
+                tResultMatrix = this.resultTransform.getMatrix();
+                Laya.Matrix.mul(tResultMatrix, pMatrix, this.resultMatrix);
+                this.resultRotation = this.rotation;
+            }
+            else {
+                this.resultRotation = this.rotation + this.parentBone.resultRotation;
+                if (this.parentBone) {
+                    if (this.inheritRotation && this.inheritScale) {
+                        tResultMatrix = this.resultTransform.getMatrix();
+                        Laya.Matrix.mul(tResultMatrix, this.parentBone.resultMatrix, this.resultMatrix);
+                    }
+                    else {
+                        var parent = this.parentBone;
+                        var tAngle;
+                        var cos;
+                        var sin;
+                        var tParentMatrix = this.parentBone.resultMatrix;
+                        //var worldX:Number = tParentMatrix.a * transform.x + tParentMatrix.c * transform.y + tParentMatrix.tx;
+                        //var worldY:Number = tParentMatrix.b * transform.x + tParentMatrix.d * transform.y + tParentMatrix.ty;
+                        //out.tx = ba * atx + bc * aty + btx;
+                        //out.ty = bb * atx + bd * aty + bty;
+                        tResultMatrix = this.resultTransform.getMatrix();
+                        var worldX = tParentMatrix.a * tResultMatrix.tx + tParentMatrix.c * tResultMatrix.ty + tParentMatrix.tx;
+                        var worldY = tParentMatrix.b * tResultMatrix.tx + tParentMatrix.d * tResultMatrix.ty + tParentMatrix.ty;
+                        var tTestMatrix = new Laya.Matrix();
+                        if (this.inheritRotation) {
+                            tAngle = Math.atan2(parent.resultMatrix.b, parent.resultMatrix.a);
+                            cos = Math.cos(tAngle), sin = Math.sin(tAngle);
+                            tTestMatrix.setTo(cos, sin, -sin, cos, 0, 0);
+                            Laya.Matrix.mul(this._tempMatrix, tTestMatrix, Laya.Matrix.TEMP);
+                            Laya.Matrix.TEMP.copyTo(tTestMatrix);
+                            tResultMatrix = this.resultTransform.getMatrix();
+                            Laya.Matrix.mul(tResultMatrix, tTestMatrix, this.resultMatrix);
+                            if (this.resultTransform.scX * this.resultTransform.scY < 0) {
+                                this.resultMatrix.rotate(Math.PI * 0.5);
+                            }
+                            this.resultMatrix.tx = worldX;
+                            this.resultMatrix.ty = worldY;
+                        }
+                        else if (this.inheritScale) {
+                            tResultMatrix = this.resultTransform.getMatrix();
+                            Laya.Matrix.TEMP.identity();
+                            Laya.Matrix.TEMP.d = this.d;
+                            Laya.Matrix.mul(tResultMatrix, Laya.Matrix.TEMP, this.resultMatrix);
+                            this.resultMatrix.tx = worldX;
+                            this.resultMatrix.ty = worldY;
+                        }
+                        else {
+                            tResultMatrix = this.resultTransform.getMatrix();
+                            Laya.Matrix.TEMP.identity();
+                            Laya.Matrix.TEMP.d = this.d;
+                            Laya.Matrix.mul(tResultMatrix, Laya.Matrix.TEMP, this.resultMatrix);
+                            this.resultMatrix.tx = worldX;
+                            this.resultMatrix.ty = worldY;
+                        }
+                    }
+                }
+                else {
+                    tResultMatrix = this.resultTransform.getMatrix();
+                    tResultMatrix.copyTo(this.resultMatrix);
+                }
+            }
+            var i = 0, n = 0;
+            var tBone;
+            for (i = 0, n = this._children.length; i < n; i++) {
+                tBone = this._children[i];
+                tBone.update();
+            }
+        }
+        //TODO:coverage
+        updateChild() {
+            var i = 0, n = 0;
+            var tBone;
+            for (i = 0, n = this._children.length; i < n; i++) {
+                tBone = this._children[i];
+                tBone.update();
+            }
+        }
+        //TODO:coverage
+        setRotation(rd) {
+            if (this._sprite) {
+                this._sprite.rotation = rd * 180 / Math.PI;
+            }
+        }
+        //TODO:coverage
+        updateDraw(x, y) {
+            if (!Bone.ShowBones || Bone.ShowBones[this.name]) {
+                if (this._sprite) {
+                    this._sprite.x = x + this.resultMatrix.tx;
+                    this._sprite.y = y + this.resultMatrix.ty;
+                }
+                else {
+                    this._sprite = new Laya.Sprite();
+                    this._sprite.graphics.drawCircle(0, 0, 5, "#ff0000");
+                    this._sprite.graphics.drawLine(0, 0, this.length, 0, "#00ff00");
+                    this._sprite.graphics.fillText(this.name, 0, 0, "20px Arial", "#00ff00", "center");
+                    Laya.ILaya.stage.addChild(this._sprite);
+                    this._sprite.x = x + this.resultMatrix.tx;
+                    this._sprite.y = y + this.resultMatrix.ty;
+                }
+            }
+            var i = 0, n = 0;
+            var tBone;
+            for (i = 0, n = this._children.length; i < n; i++) {
+                tBone = this._children[i];
+                tBone.updateDraw(x, y);
+            }
+        }
+        addChild(bone) {
+            this._children.push(bone);
+            bone.parentBone = this;
+        }
+        //TODO:coverage
+        findBone(boneName) {
+            if (this.name == boneName) {
+                return this;
+            }
+            else {
+                var i, n;
+                var tBone;
+                var tResult;
+                for (i = 0, n = this._children.length; i < n; i++) {
+                    tBone = this._children[i];
+                    tResult = tBone.findBone(boneName);
+                    if (tResult) {
+                        return tResult;
+                    }
+                }
+            }
+            return null;
+        }
+        //TODO:coverage
+        localToWorld(local) {
+            var localX = local[0];
+            var localY = local[1];
+            local[0] = localX * this.resultMatrix.a + localY * this.resultMatrix.c + this.resultMatrix.tx;
+            local[1] = localX * this.resultMatrix.b + localY * this.resultMatrix.d + this.resultMatrix.ty;
+        }
+    }
+    Bone.ShowBones = {};
 
     /**
      * 用于UV转换的工具类
@@ -1731,235 +1960,6 @@
     BoneSlot.useSameMatrixAndVerticle = true;
     BoneSlot._tempVerticleArr = [];
 
-    class Transform {
-        constructor() {
-            this.skX = 0; // 旋转？
-            this.skY = 0; // 不知道干什么的
-            this.scX = 1; // 缩放
-            this.scY = 1;
-            this.x = 0; // 偏移
-            this.y = 0;
-            this.skewX = 0; // skew
-            this.skewY = 0;
-        }
-        //TODO:coverage
-        initData(data) {
-            if (data.x != undefined) {
-                this.x = data.x;
-            }
-            if (data.y != undefined) {
-                this.y = data.y;
-            }
-            if (data.skX != undefined) {
-                this.skX = data.skX;
-            }
-            if (data.skY != undefined) {
-                this.skY = data.skY;
-            }
-            if (data.scX != undefined) {
-                this.scX = data.scX;
-            }
-            if (data.scY != undefined) {
-                this.scY = data.scY;
-            }
-        }
-        //TODO:coverage
-        getMatrix() {
-            var tMatrix;
-            if (this.mMatrix) {
-                tMatrix = this.mMatrix;
-            }
-            else {
-                tMatrix = this.mMatrix = new Laya.Matrix();
-            }
-            tMatrix.identity();
-            tMatrix.scale(this.scX, this.scY);
-            if (this.skewX || this.skewY) {
-                this.skew(tMatrix, this.skewX * Math.PI / 180, this.skewY * Math.PI / 180);
-            }
-            tMatrix.rotate(this.skX * Math.PI / 180);
-            tMatrix.translate(this.x, this.y);
-            return tMatrix;
-        }
-        //TODO:coverage
-        skew(m, x, y) {
-            var sinX = Math.sin(y);
-            var cosX = Math.cos(y);
-            var sinY = Math.sin(x);
-            var cosY = Math.cos(x);
-            m.setTo(m.a * cosY - m.b * sinX, m.a * sinY + m.b * cosX, m.c * cosY - m.d * sinX, m.c * sinY + m.d * cosX, m.tx * cosY - m.ty * sinX, m.tx * sinY + m.ty * cosX);
-            return m;
-        }
-    }
-
-    /**
-     * @private
-     */
-    class Bone {
-        constructor() {
-            this.length = 10;
-            this.resultTransform = new Transform();
-            this.resultMatrix = new Laya.Matrix();
-            this.inheritScale = true;
-            this.inheritRotation = true;
-            this.d = -1;
-            this._children = [];
-        }
-        setTempMatrix(matrix) {
-            this._tempMatrix = matrix;
-            var i = 0, n = 0;
-            var tBone;
-            for (i = 0, n = this._children.length; i < n; i++) {
-                tBone = this._children[i];
-                tBone.setTempMatrix(this._tempMatrix);
-            }
-        }
-        //TODO:coverage
-        update(pMatrix = null) {
-            this.rotation = this.transform.skX;
-            var tResultMatrix;
-            if (pMatrix) {
-                tResultMatrix = this.resultTransform.getMatrix();
-                Laya.Matrix.mul(tResultMatrix, pMatrix, this.resultMatrix);
-                this.resultRotation = this.rotation;
-            }
-            else {
-                this.resultRotation = this.rotation + this.parentBone.resultRotation;
-                if (this.parentBone) {
-                    if (this.inheritRotation && this.inheritScale) {
-                        tResultMatrix = this.resultTransform.getMatrix();
-                        Laya.Matrix.mul(tResultMatrix, this.parentBone.resultMatrix, this.resultMatrix);
-                    }
-                    else {
-                        var parent = this.parentBone;
-                        var tAngle;
-                        var cos;
-                        var sin;
-                        var tParentMatrix = this.parentBone.resultMatrix;
-                        //var worldX:Number = tParentMatrix.a * transform.x + tParentMatrix.c * transform.y + tParentMatrix.tx;
-                        //var worldY:Number = tParentMatrix.b * transform.x + tParentMatrix.d * transform.y + tParentMatrix.ty;
-                        //out.tx = ba * atx + bc * aty + btx;
-                        //out.ty = bb * atx + bd * aty + bty;
-                        tResultMatrix = this.resultTransform.getMatrix();
-                        var worldX = tParentMatrix.a * tResultMatrix.tx + tParentMatrix.c * tResultMatrix.ty + tParentMatrix.tx;
-                        var worldY = tParentMatrix.b * tResultMatrix.tx + tParentMatrix.d * tResultMatrix.ty + tParentMatrix.ty;
-                        var tTestMatrix = new Laya.Matrix();
-                        if (this.inheritRotation) {
-                            tAngle = Math.atan2(parent.resultMatrix.b, parent.resultMatrix.a);
-                            cos = Math.cos(tAngle), sin = Math.sin(tAngle);
-                            tTestMatrix.setTo(cos, sin, -sin, cos, 0, 0);
-                            Laya.Matrix.mul(this._tempMatrix, tTestMatrix, Laya.Matrix.TEMP);
-                            Laya.Matrix.TEMP.copyTo(tTestMatrix);
-                            tResultMatrix = this.resultTransform.getMatrix();
-                            Laya.Matrix.mul(tResultMatrix, tTestMatrix, this.resultMatrix);
-                            if (this.resultTransform.scX * this.resultTransform.scY < 0) {
-                                this.resultMatrix.rotate(Math.PI * 0.5);
-                            }
-                            this.resultMatrix.tx = worldX;
-                            this.resultMatrix.ty = worldY;
-                        }
-                        else if (this.inheritScale) {
-                            tResultMatrix = this.resultTransform.getMatrix();
-                            Laya.Matrix.TEMP.identity();
-                            Laya.Matrix.TEMP.d = this.d;
-                            Laya.Matrix.mul(tResultMatrix, Laya.Matrix.TEMP, this.resultMatrix);
-                            this.resultMatrix.tx = worldX;
-                            this.resultMatrix.ty = worldY;
-                        }
-                        else {
-                            tResultMatrix = this.resultTransform.getMatrix();
-                            Laya.Matrix.TEMP.identity();
-                            Laya.Matrix.TEMP.d = this.d;
-                            Laya.Matrix.mul(tResultMatrix, Laya.Matrix.TEMP, this.resultMatrix);
-                            this.resultMatrix.tx = worldX;
-                            this.resultMatrix.ty = worldY;
-                        }
-                    }
-                }
-                else {
-                    tResultMatrix = this.resultTransform.getMatrix();
-                    tResultMatrix.copyTo(this.resultMatrix);
-                }
-            }
-            var i = 0, n = 0;
-            var tBone;
-            for (i = 0, n = this._children.length; i < n; i++) {
-                tBone = this._children[i];
-                tBone.update();
-            }
-        }
-        //TODO:coverage
-        updateChild() {
-            var i = 0, n = 0;
-            var tBone;
-            for (i = 0, n = this._children.length; i < n; i++) {
-                tBone = this._children[i];
-                tBone.update();
-            }
-        }
-        //TODO:coverage
-        setRotation(rd) {
-            if (this._sprite) {
-                this._sprite.rotation = rd * 180 / Math.PI;
-            }
-        }
-        //TODO:coverage
-        updateDraw(x, y) {
-            if (!Bone.ShowBones || Bone.ShowBones[this.name]) {
-                if (this._sprite) {
-                    this._sprite.x = x + this.resultMatrix.tx;
-                    this._sprite.y = y + this.resultMatrix.ty;
-                }
-                else {
-                    this._sprite = new Laya.Sprite();
-                    this._sprite.graphics.drawCircle(0, 0, 5, "#ff0000");
-                    this._sprite.graphics.drawLine(0, 0, this.length, 0, "#00ff00");
-                    this._sprite.graphics.fillText(this.name, 0, 0, "20px Arial", "#00ff00", "center");
-                    Laya.ILaya.stage.addChild(this._sprite);
-                    this._sprite.x = x + this.resultMatrix.tx;
-                    this._sprite.y = y + this.resultMatrix.ty;
-                }
-            }
-            var i = 0, n = 0;
-            var tBone;
-            for (i = 0, n = this._children.length; i < n; i++) {
-                tBone = this._children[i];
-                tBone.updateDraw(x, y);
-            }
-        }
-        addChild(bone) {
-            this._children.push(bone);
-            bone.parentBone = this;
-        }
-        //TODO:coverage
-        findBone(boneName) {
-            if (this.name == boneName) {
-                return this;
-            }
-            else {
-                var i, n;
-                var tBone;
-                var tResult;
-                for (i = 0, n = this._children.length; i < n; i++) {
-                    tBone = this._children[i];
-                    tResult = tBone.findBone(boneName);
-                    if (tResult) {
-                        return tResult;
-                    }
-                }
-            }
-            return null;
-        }
-        //TODO:coverage
-        localToWorld(local) {
-            var localX = local[0];
-            var localY = local[1];
-            local[0] = localX * this.resultMatrix.a + localY * this.resultMatrix.c + this.resultMatrix.tx;
-            local[1] = localX * this.resultMatrix.b + localY * this.resultMatrix.d + this.resultMatrix.ty;
-        }
-    }
-    Bone.ShowBones = {};
-
     /**
      * @internal
      */
@@ -1977,16 +1977,6 @@
         //TODO:coverage
         constructor() {
             this.deformSlotDisplayList = [];
-        }
-    }
-
-    /**
-     * @internal
-     */
-    class DrawOrderData {
-        //TODO:coverage
-        constructor() {
-            this.drawOrder = [];
         }
     }
 
@@ -2066,6 +2056,16 @@
                 tVertices[i] = tPrev + (tNextVertices[i] - tPrev) * alpha;
             }
             this.deformData = tVertices;
+        }
+    }
+
+    /**
+     * @internal
+     */
+    class DrawOrderData {
+        //TODO:coverage
+        constructor() {
+            this.drawOrder = [];
         }
     }
 
@@ -2417,6 +2417,15 @@
             this.isSpine = true;
             this.targetBoneIndex = -1;
             this.boneIndexs = [];
+        }
+    }
+
+    /**
+     * @internal
+     */
+    class PathConstraintData {
+        constructor() {
+            this.bones = [];
         }
     }
 
@@ -2856,15 +2865,6 @@
     PathConstraint.BEFORE = -2;
     PathConstraint.AFTER = -3;
     PathConstraint._tempMt = new Laya.Matrix();
-
-    /**
-     * @internal
-     */
-    class PathConstraintData {
-        constructor() {
-            this.bones = [];
-        }
-    }
 
     /**
      * @internal

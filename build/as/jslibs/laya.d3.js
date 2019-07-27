@@ -42271,6 +42271,7 @@
             ShaderInit3D.__init__();
             Command.__init__();
             //注册类命,解析的时候需要
+            Laya.ClassUtils.regClass("Laya.EffectMaterial", EffectMaterial);
             Laya.ClassUtils.regClass("Laya.UnlitMaterial", UnlitMaterial);
             Laya.ClassUtils.regClass("Laya.BlinnPhongMaterial", BlinnPhongMaterial);
             Laya.ClassUtils.regClass("Laya.SkyProceduralMaterial", SkyProceduralMaterial);
@@ -43508,6 +43509,15 @@
     MeshTerrainSprite3D._tempMatrix4x4 = new Matrix4x4();
 
     /**
+     * ...
+     * @author ...
+     */
+    class Constraint3D {
+        constructor() {
+        }
+    }
+
+    /**
          * <code>Rand</code> 类用于通过128位整型种子创建随机数,算法来自:https://github.com/AndreasMadsen/xorshift。
          */
     class RandX {
@@ -43610,15 +43620,6 @@
     RandX._CONVERTION_BUFFER = new DataView(new ArrayBuffer(8));
     /**基于时间种子的随机数。*/
     RandX.defaultRand = new RandX([0, Date.now() / 65536, 0, Date.now() % 65536]);
-
-    /**
-     * ...
-     * @author ...
-     */
-    class Constraint3D {
-        constructor() {
-        }
-    }
 
     /**
      * <code>TextMesh</code> 类用于创建文本网格。
