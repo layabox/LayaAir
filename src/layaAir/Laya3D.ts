@@ -244,6 +244,7 @@ export class Laya3D {
 		Command.__init__();
 
 		//注册类命,解析的时候需要
+		ClassUtils.regClass("Laya.EffectMaterial", EffectMaterial);
 		ClassUtils.regClass("Laya.UnlitMaterial", UnlitMaterial);
 		ClassUtils.regClass("Laya.BlinnPhongMaterial", BlinnPhongMaterial);
 		ClassUtils.regClass("Laya.SkyProceduralMaterial", SkyProceduralMaterial);
