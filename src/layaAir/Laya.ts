@@ -438,7 +438,7 @@ export var updateTimer;
 export var lateTimer;
 export var timer;
 export var loader;
-export var version;
+export var version = Laya.version;
 export var render;
 export var isWXOpenDataContext;
 export var isWXPosMsg;
