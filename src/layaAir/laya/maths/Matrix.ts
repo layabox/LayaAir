@@ -11,7 +11,7 @@ import { Pool } from "../utils/Pool"
 		 static EMPTY:Matrix = new Matrix();
 		/**用于中转使用的 <code>Matrix</code> 对象。*/
 		 static TEMP:Matrix = new Matrix();
-		/**@private */
+		/**@internal */
 		 static _createFun:Function = null;
 		
 		/**缩放或旋转图像时影响像素沿 x 轴定位的值。*/

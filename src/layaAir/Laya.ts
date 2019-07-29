@@ -92,20 +92,20 @@ export class Laya {
 	static version: string = "2.1.0beta";
 	/**@private Render 类的引用。*/
 	static render: Render;
-	/**@private */
+	/**@internal */
 	static _currentStage: Sprite;
-	/**@private */
+	/**@internal */
 	private static _isinit: boolean = false;
 	/**是否是微信小游戏子域，默认为false**/
 	static isWXOpenDataContext: boolean = false;
 	/**微信小游戏是否需要在主域中自动将加载的文本数据自动传递到子域，默认 false**/
 	static isWXPosMsg: boolean = false;
 
-	/**@private @internal*/
+	/**@internal*/
 	static __classmap: Object = null;
 
 	/**
-	 * @private
+	 * @internal
 	 * 兼容as3编译工具 
 	 */
 	static __init(_classs: any): void {
@@ -221,7 +221,7 @@ export class Laya {
 		return Render.canvas;
 	}
 
-	/**@private */
+	/**@internal */
 	static _getUrlPath(): string {
 		var location: any = Browser.window.location;
 		var pathName: string = location.pathname;
@@ -230,7 +230,7 @@ export class Laya {
 		return URL.getPath(location.protocol == "file:" ? pathName : location.protocol + "//" + location.host + location.pathname);
 	}
 
-	/**@private */
+	/**@internal */
 	static _arrayBufferSlice(start: number, end: number): ArrayBuffer {
 		var arr: any = this;
 		var arrU8List: Uint8Array = new Uint8Array(arr, start, end - start);
@@ -254,10 +254,10 @@ export class Laya {
 			Browser.window.onerror = null;
 		}
 	}
-
+	/**@internal */
 	private static _evcode: string = "eva" + "l";
 
-	/**@private */
+	/**@internal */
 	static _runScript(script: string): any {
 		return Browser.window[Laya._evcode](script);
 	}

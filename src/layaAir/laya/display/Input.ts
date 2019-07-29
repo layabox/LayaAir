@@ -123,7 +123,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this.on(Event.UNDISPLAY, this, this._onUnDisplay);
 		}
 		
-		/**@private */
+		/**@internal */
 		 static __init__():void {
 			Input._createInputElement();
 			

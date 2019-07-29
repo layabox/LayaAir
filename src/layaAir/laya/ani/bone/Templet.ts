@@ -42,8 +42,9 @@ export class Templet extends AnimationTemplet {
 	static LAYA_ANIMATION_VISION: string = "LAYAANIMATION:1.7.0";
 	/**@internal */
 	static TEMPLET_DICTIONARY: any;
-
+	/**@internal */
 	private _mainTexture: Texture;
+	/**@internal */
 	private _graphicsCache: any[] = [];
 
 	/** 存放原始骨骼信息 */
@@ -81,16 +82,23 @@ export class Templet extends AnimationTemplet {
 	/** 实际显示对象列表，用于销毁用 */
 	skinSlotDisplayDataArr: SkinSlotDisplayData[] = [];
 
-	/** 是否需要解析audio数据 */
+	/** @internal 是否需要解析audio数据 */
 	private _isParseAudio: boolean = false;
+	/**@internal */
 	private _isDestroyed: boolean = false;
+	/**@internal */
 	private _rate: number = 30;
 	isParserComplete: boolean = false;
 	aniSectionDic: any = {};
+	/**@internal */
 	private _skBufferUrl: string;
+	/**@internal */
 	private _textureDic: any = {};
+	/**@internal */
 	private _loadList: any[];
+	/**@internal */
 	private _path: string;
+	/**@internal */
 	private _relativeUrl: string;
 	/**@private */
 	tMatrixDataLen: number;
@@ -187,6 +195,7 @@ export class Templet extends AnimationTemplet {
 		//}
 	}
 
+	/**@internal */
 	private _parseTexturePath(): void {
 		if (this._isDestroyed) {
 			this.destroy();
@@ -227,6 +236,7 @@ export class Templet extends AnimationTemplet {
 	}
 
 	/**
+	 * @internal
 	 * 纹理加载完成
 	 */
 	private _textureComplete(): void {
@@ -240,6 +250,7 @@ export class Templet extends AnimationTemplet {
 	}
 
 	/**
+	 * @internal
 	 * 解析自定义数据
 	 */
 	private _parsePublicExtData(): void {
