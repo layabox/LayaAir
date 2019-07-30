@@ -179,6 +179,7 @@ export class Resource extends EventDispatcher implements ICreateResource, IDestr
 	}
 
 	/**
+	 * @internal
 	 */
 	_setCreateURL(url: string): void {
 		url = URL.formatURL(url);//需要序列化为绝对路径
@@ -199,6 +200,7 @@ export class Resource extends EventDispatcher implements ICreateResource, IDestr
 	}
 
 	/**
+	 * @internal
 	 * @implements IReferenceCounter
 	 */
 	_addReference(count: number = 1): void {
@@ -206,6 +208,7 @@ export class Resource extends EventDispatcher implements ICreateResource, IDestr
 	}
 
 	/**
+	 * @internal
 	 * @implements IReferenceCounter
 	 */
 	_removeReference(count: number = 1): void {
@@ -213,6 +216,7 @@ export class Resource extends EventDispatcher implements ICreateResource, IDestr
 	}
 
 	/**
+	 * @internal
 	 * @implements IReferenceCounter
 	 */
 	_clearReference(): void {

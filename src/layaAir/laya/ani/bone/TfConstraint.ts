@@ -4,14 +4,16 @@ import { Bone } from "./Bone";
  * @internal
  */
 export class TfConstraint {
-
+	/**@internal */
 	private _data: TfConstraintData;
+	/**@internal */
 	private _bones: Bone[];
 	target: Bone;
 	rotateMix: number;
 	translateMix: number;
 	scaleMix: number;
 	shearMix: number;
+	/**@internal */
 	private _temp: number[] = [];
 
 	//TODO:coverage

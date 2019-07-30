@@ -9,8 +9,11 @@ import { ILaya } from "../../../ILaya";
  */
 export class IkConstraint {
 
+	/**@internal */
 	private _targetBone: Bone;
+	/**@internal */
 	private _bones: Bone[];
+	/**@internal */
 	private _data: IkConstraintData;
 	name: string;
 	mix: number;
@@ -18,6 +21,7 @@ export class IkConstraint {
 	isSpine: boolean = true;
 	static radDeg: number = 180 / Math.PI;
 	static degRad: number = Math.PI / 180;
+	/**@internal */
 	private static _tempMatrix: Matrix = new Matrix();
 
 	//TODO:coverage
@@ -51,6 +55,7 @@ export class IkConstraint {
 	}
 
 	//TODO:coverage
+	/**@internal */
 	private _applyIk1(bone: Bone, targetX: number, targetY: number, alpha: number): void {
 		var pp: Bone = bone.parentBone;
 		var id: number = 1 / (pp.resultMatrix.a * pp.resultMatrix.d - pp.resultMatrix.b * pp.resultMatrix.c);
@@ -68,6 +73,7 @@ export class IkConstraint {
 	}
 
 	//debug相关代码
+	/**@internal */
 	private _sp: Sprite;
 	private isDebug: boolean = false;
 
@@ -79,6 +85,7 @@ export class IkConstraint {
 	}
 
 	//TODO:coverage
+	/**@internal */
 	private _applyIk2(parent: Bone, child: Bone, targetX: number, targetY: number, bendDir: number, alpha: number): void {
 		if (alpha == 0) {
 			return;
@@ -248,6 +255,7 @@ export class IkConstraint {
 	}
 
 	//TODO:coverage
+	/**@internal */
 	private _applyIk3(parent: Bone, child: Bone, targetX: number, targetY: number, bendDir: number, alpha: number): void {
 		if (alpha == 0) {
 			return;

@@ -12,10 +12,10 @@ import { ILaya } from "../../ILaya";
 		
 		/**是否开启键盘事件，默认为true*/
 		 static enabled:boolean = true;
-		/**@private */
+		/**@internal */
 		 static _event:Event = new Event();
 		
-		/**@private */
+		/**@internal */
 		 static __init__():void {
 			KeyBoardManager._addEvent("keydown");
 			KeyBoardManager._addEvent("keypress");

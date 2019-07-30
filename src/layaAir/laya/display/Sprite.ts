@@ -210,9 +210,9 @@ import { ClassUtils } from "../utils/ClassUtils";
 		 _x:number = 0;
 		/**@internal */
 		 _y:number = 0;
-		/**@private */
+		/**@internal */
 		 _width:number = 0;
-		/**@private */
+		/**@internal */
 		 _height:number = 0;
 		/**@internal */
 		 _visible:boolean = true;
@@ -224,11 +224,11 @@ import { ClassUtils } from "../utils/ClassUtils";
 		 _renderType:number = 0;
 		/**@internal */
 		 _transform:Matrix = null;
-		/**@private */
+		/**@internal */
 		protected _tfChanged:boolean = false;
-		/**@private */
+		/**@internal */
 		protected _repaint:number = SpriteConst.REPAINT_NONE;
-		/**@private */
+		/**@internal */
 		private _texture:Texture = null;
 		
 		//以下变量为系统调用，请不要直接使用

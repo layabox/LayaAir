@@ -27,39 +27,39 @@ import { EventDispatcher } from "../events/EventDispatcher";
  * <code>AnimationPlayer</code> 类用于动画播放器。
  */
 export class AnimationPlayer extends EventDispatcher implements IDestroy {
-	/**@private */
+	/**@internal */
 	private _destroyed: boolean;
-	/** 数据模板*/
+	/** @internal 数据模板*/
 	private _templet: AnimationTemplet;
-	/** 当前精确时间，不包括重播时间*/
+	/** @internal 当前精确时间，不包括重播时间*/
 	private _currentTime: number;
-	/** 当前帧时间，不包括重播时间*/
+	/** @internal 当前帧时间，不包括重播时间*/
 	private _currentFrameTime: number;	// 这个是根据当前帧数反向计算的时间。
-	/** 动画播放的起始时间位置*/
+	/** @internal 动画播放的起始时间位置*/
 	private _playStart: number;
-	/** 动画播放的结束时间位置*/
+	/** @internal 动画播放的结束时间位置*/
 	private _playEnd: number;
-	/** 动画播放一次的总时间*/
+	/** @internal 动画播放一次的总时间*/
 	private _playDuration: number;
-	/** 动画播放总时间*/
+	/** @internal 动画播放总时间*/
 	private _overallDuration: number;
-	/** 是否在一次动画结束时停止。 设置这个标志后就不会再发送complete事件了*/
+	/** @internal 是否在一次动画结束时停止。 设置这个标志后就不会再发送complete事件了*/
 	private _stopWhenCircleFinish: boolean;
 	/**@internal 已播放时间，包括重播时间*/
 	_elapsedPlaybackTime: number;
-	/** 播放时帧数*/
+	/** @internal 播放时帧数*/
 	private _startUpdateLoopCount: number;
-	/** 当前动画索引*/
+	/** @internal 当前动画索引*/
 	private _currentAnimationClipIndex: number;
-	/** 当前帧数*/
+	/** @internal 当前帧数*/
 	private _currentKeyframeIndex: number;
-	/** 是否暂停*/
+	/** @internal 是否暂停*/
 	private _paused: boolean;
-	/** 默认帧率,必须大于0*/
+	/** @internal 默认帧率,必须大于0*/
 	private _cacheFrameRate: number;
-	/** 帧率间隔时间*/
+	/** @internal 帧率间隔时间*/
 	private _cacheFrameRateInterval: number;
-	/** 缓存播放速率*/
+	/** @internal 缓存播放速率*/
 	private _cachePlayRate: number;
 
 	/**是否缓存*/
@@ -295,7 +295,7 @@ export class AnimationPlayer extends EventDispatcher implements IDestroy {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _computeFullKeyframeIndices(): void {
 		return;// 先改成实时计算了。否则占用内存太多
@@ -348,14 +348,14 @@ export class AnimationPlayer extends EventDispatcher implements IDestroy {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _onAnimationTempletLoaded(): void {
 		(this.destroyed) || (this._calculatePlayDuration());
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _calculatePlayDuration(): void {
 		if (this.state !== AnimationState.stopped) {//防止动画已停止，异步回调导致BUG
