@@ -44,14 +44,13 @@ export class Viewport {
 	 * @param	vector 输出三维向量。
 	 */
 	project(source: Vector3, matrix: Matrix4x4, out: Vector3): void {
-		
+		var sX: number = source.x;
+		var sY: number = source.y;
+		var sZ: number = source.z;
 		Vector3.transformV3ToV3(source, matrix, out);
-		var matrixEleme: Float32Array = matrix.elements;
-
-		var a: number = (((source.x * matrixEleme[3]) + (source.y * matrixEleme[7])) + (source.z * matrixEleme[11])) + matrixEleme[15];
-
-		if (a !== 1.0)//待优化，经过计算得出的a可能会永远只近似于1，因为是Number类型
-		{
+		var matE: Float32Array = matrix.elements;
+		var a: number = (((sX * matE[3]) + (sY * matE[7])) + (sZ * matE[11])) + matE[15];
+		if (a !== 1.0) {//待优化，经过计算得出的a可能会永远只近似于1，因为是Number类型
 			out.x = out.x / a;
 			out.y = out.y / a;
 			out.z = out.z / a;
@@ -69,7 +68,7 @@ export class Viewport {
 	 * @param	vector 输出三维向量。
 	 */
 	unprojectFromMat(source: Vector3, matrix: Matrix4x4, out: Vector3): void {
-		
+
 		var matrixEleme: Float32Array = matrix.elements;
 
 		out.x = (((source.x - this.x) / (this.width)) * 2.0) - 1.0;
@@ -97,7 +96,7 @@ export class Viewport {
 	 * @param   out 输出向量。
 	 */
 	unprojectFromWVP(source: Vector3, projection: Matrix4x4, view: Matrix4x4, world: Matrix4x4, out: Vector3): void {
-		
+
 		Matrix4x4.multiply(projection, view, Viewport._tempMatrix4x4);
 		(world) && (Matrix4x4.multiply(Viewport._tempMatrix4x4, world, Viewport._tempMatrix4x4));
 		Viewport._tempMatrix4x4.invert(Viewport._tempMatrix4x4);
