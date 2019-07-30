@@ -88,6 +88,9 @@ import { TextureGPUCompression } from "../3d/LayaAir3D_Texture/TextureGPUCompres
 import { TrailDemo } from "../3d/LayaAir3D_Trail/TrailDemo";
 import { TrailRender } from "../3d/LayaAir3D_Trail/TrailRender";
 import { IndexViewUI } from "../ui/IndexViewUI";
+import { PostProcessBloom } from "../3d/LayaAir3D_Advance/PostProcessBloom";
+import { AStarFindPath } from "../3d/LayaAir3D_Advance/AStarFindPath";
+
 
 export class IndexView3D extends IndexViewUI {
 
@@ -106,8 +109,8 @@ export class IndexView3D extends IndexViewUI {
 	private _comboxBigArr2: any[] = ['高级应用', '动画', '摄影机', 'Demo', '灯光', '材质', '网格', 'mouseLnteraction', '粒子系统', 'performance', '物理系统', 'resource', 'scene3D',
 		'script', 'shader', 'sky', 'sprite3D', 'texture', 'trail'];
 	//var s:Secne3DPlayer2D    
-	private _advanceClsArr: any[] = [DrawTextTexture, Laya3DCombineHtml, Scene2DPlayer3D, Secne3DPlayer2D];//PostProcessBloom,AStarFindPath,
-	private _advanceArr: any[] = ['DrawTextTexture', 'Laya3D与网页混合', '2D坐标转3D坐标', '3D坐标转2D坐标'];//'后期处理之泛光','寻路示例',
+	private _advanceClsArr: any[] = [PostProcessBloom,AStarFindPath,DrawTextTexture, Laya3DCombineHtml, Scene2DPlayer3D, Secne3DPlayer2D];//PostProcessBloom,AStarFindPath,
+	private _advanceArr: any[] = ['后期处理之泛光','寻路示例','DrawTextTexture', 'Laya3D与网页混合', '2D坐标转3D坐标', '3D坐标转2D坐标'];//'后期处理之泛光','寻路示例',
 
 	private _animationClsArr: any[] = [AnimationEventByUnity, AnimationLayerBlend, AnimatorDemo, AnimatorStateScriptDemo, BoneLinkSprite3D, CameraAnimation, MaterialAnimation, RigidbodyAnimationDemo, SkinAnimationSample];//AnimationEventByUnity,AnimationLayerBlend,BoneLinkSprite3D,RigidbodyAnimationDemo
 	private _animationArr: any[] = ["AnimationEventByUnity", "AnimationLayerBlend", 'Animator', "AnimatorStateScript", "BoneLinkSprite3D", "CameraAnimation", "MaterialAnimation", "RigidbodyAnimation", "SkinAnimationSample"];
