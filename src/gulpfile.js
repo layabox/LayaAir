@@ -464,12 +464,14 @@ gulp.task('CopyTSJSLibsFileToTS', () => {
 		.pipe(gulp.dest('../build/ts_new/jslibs'));
 });
 
-gulp.task('CopyDTS', () => {
-	return gulp.src([
-        '../tslibs/*.*'], )
+gulp.task('CopyDTS', (cb) => {
+	gulp.src(['../tslibs/ts/*.*'], )
 		.pipe(gulp.dest('../build/js/ts'))
 		.pipe(gulp.dest('../build/ts/ts'))
-		.pipe(gulp.dest('../build/ts_new/libs'))
+
+    gulp.src(['../tslibs/nts/*.*'], )
+        .pipe(gulp.dest('../build/ts_new/libs'))
+    setTimeout(cb, 1000);
 });
 
 
