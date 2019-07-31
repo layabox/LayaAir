@@ -240,6 +240,16 @@ export class ConeShape extends BaseShape {
 		destShape.randomDirection = this.randomDirection;
 	}
 
+	/**
+	 * 克隆。
+	 * @return	 克隆副本。
+	 */
+	clone(): any {
+		var destShape: ConeShape = new ConeShape();
+		this.cloneTo(destShape);
+		return destShape;
+	}
+
 }
 
 

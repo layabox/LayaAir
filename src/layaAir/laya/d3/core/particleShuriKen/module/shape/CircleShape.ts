@@ -112,6 +112,16 @@ export class CircleShape extends BaseShape {
 		destShape.randomDirection = this.randomDirection;
 	}
 
+	/**
+	 * 克隆。
+	 * @return	 克隆副本。
+	 */
+	clone(): any {
+		var destShape: CircleShape = new CircleShape();
+		this.cloneTo(destShape);
+		return destShape;
+	}
+
 }
 
 
