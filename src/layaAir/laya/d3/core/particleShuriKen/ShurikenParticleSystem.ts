@@ -1513,7 +1513,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		var renderMode: number = render.renderMode;
 		if (renderMode !== -1 && this.maxParticles > 0) {
 			var indices: Uint16Array, i: number, j: number, m: number, indexOffset: number, perPartOffset: number, vertexDeclaration: VertexDeclaration;;
-			var vbMemorySize: number, memorySize: number;
+			var vbMemorySize: number = 0, memorySize: number = 0;
 			var mesh: Mesh = render.mesh;
 			if (renderMode === 4) {
 				if (mesh) {
@@ -2122,7 +2122,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		dest.simulationSpace = this.simulationSpace;
 		dest.scaleMode = this.scaleMode;
 		dest.playOnAwake = this.playOnAwake;
-		//dest.autoRandomSeed = autoRandomSeed;
+		dest.autoRandomSeed = this.autoRandomSeed;
+		dest.randomSeed[0] = this.randomSeed[0];
 
 		dest.maxParticles = this.maxParticles;
 

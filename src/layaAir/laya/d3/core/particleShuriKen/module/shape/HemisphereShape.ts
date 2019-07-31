@@ -100,6 +100,16 @@ export class HemisphereShape extends BaseShape {
 		destShape.randomDirection = this.randomDirection;
 	}
 
+	/**
+	 * 克隆。
+	 * @return	 克隆副本。
+	 */
+	clone(): any {
+		var destShape: HemisphereShape = new HemisphereShape();
+		this.cloneTo(destShape);
+		return destShape;
+	}
+
 }
 
 
