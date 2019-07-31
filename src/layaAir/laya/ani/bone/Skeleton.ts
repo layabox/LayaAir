@@ -437,13 +437,13 @@ export class Skeleton extends Sprite {
 				if (this._player.currentPlayTime >= tEventData.time) {
 					this.event(Event.LABEL, tEventData);
 					this._eventIndex++;
-					if (this._playAudio && tEventData.audioValue && tEventData.audioValue !== "null") {
+					if (this._playAudio && tEventData.audioValue && tEventData.audioValue !== "null" && tEventData.audioValue !== "undefined") {
 						_soundChannel = SoundManager.playSound((this._player.templet as any)._path + tEventData.audioValue, 1, Handler.create(this, this._onAniSoundStoped));
 						SoundManager.playbackRate = this._player.playbackRate;
 						_soundChannel && this._soundChannelArr.push(_soundChannel);
 					}
 				}
-			} else if (tEventData.time < this._player.playStart && this._playAudio && tEventData.audioValue && tEventData.audioValue !== "null") {
+			} else if (tEventData.time < this._player.playStart && this._playAudio && tEventData.audioValue && tEventData.audioValue !== "null" && tEventData.audioValue !== "undefined") {
 					this._eventIndex++;
 					_soundChannel = SoundManager.playSound((this._player.templet as any)._path + tEventData.audioValue, 1, Handler.create(this, this._onAniSoundStoped), null,  (this._player.currentPlayTime - tEventData.time) / 1000);
 					SoundManager.playbackRate = this._player.playbackRate;
