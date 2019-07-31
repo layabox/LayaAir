@@ -50,7 +50,9 @@ uniform float u_smoothnessScale;
 
 uniform sampler2D u_RangeTexture;
 //uniform sampler2D u_AngleTexture;
-uniform mat4 u_PointLightMatrix;
+#ifdef POINTLIGHT
+	uniform mat4 u_PointLightMatrix;
+#endif
 //uniform mat4 u_SpotLightMatrix;
 
 #include "PBRStandardLighting.glsl"

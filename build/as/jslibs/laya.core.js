@@ -1,59 +1,25 @@
 window.Laya= (function (exports) {
 	'use strict';
 
-	/**
-	     *  Config 用于配置一些全局参数。如需更改，请在初始化引擎之前设置。
-	     */
 	class Config {
 	}
-	/**
-	 * 动画 Animation 的默认播放时间间隔，单位为毫秒。
-	 */
 	Config.animationInterval = 50;
-	/**
-	 * 设置是否抗锯齿，只对2D(WebGL)、3D有效。
-	 */
 	Config.isAntialias = false;
-	/**
-	 * 设置画布是否透明，只对2D(WebGL)、3D有效。
-	 */
 	Config.isAlpha = false;
-	/**
-	 * 设置画布是否预乘，只对2D(WebGL)、3D有效。
-	 */
 	Config.premultipliedAlpha = true;
-	/**
-	 * 设置画布的是否开启模板缓冲，只对2D(WebGL)、3D有效。
-	 */
 	Config.isStencil = true;
-	/**
-	 * 是否强制WebGL同步刷新。
-	 */
 	Config.preserveDrawingBuffer = false;
-	/**
-	 * 当使用webGL渲染2d的时候，每次创建vb是否直接分配足够64k个顶点的缓存。这样可以提高效率。
-	 */
 	Config.webGL2D_MeshAllocMaxMem = true;
-	/**
-	 * 是否强制使用像素采样。适用于像素风格游戏
-	 */
 	Config.is2DPixelArtGame = false;
-	/**
-	 * 是否使用webgl2
-	 */
 	Config.useWebGL2 = true;
 	Config.useRetinalCanvas = false;
 
-	/**
-	 * 使用全局类的时候，避免引用其他模块
-	 */
 	class ILaya {
 	    static regClass(c) {
 	        ILaya.__classMap[c.name] = c;
 	    }
 	}
 	ILaya.Laya = null;
-	//static classMap:Object=null;
 	ILaya.Timer = null;
 	ILaya.WorkerLoader = null;
 	ILaya.Dragging = null;
@@ -91,42 +57,20 @@ window.Laya= (function (exports) {
 	ILaya.Resource = null;
 	ILaya.__classMap = {};
 
-	/**
-	     * <p> <code>Pool</code> 是对象池类，用于对象的存储、重复使用。</p>
-	     * <p>合理使用对象池，可以有效减少对象创建的开销，避免频繁的垃圾回收，从而优化游戏流畅度。</p>
-	     */
 	class Pool {
-	    /**
-	     * 根据对象类型标识字符，获取对象池。
-	     * @param sign 对象类型标识字符。
-	     * @return 对象池。
-	     */
 	    static getPoolBySign(sign) {
 	        return Pool._poolDic[sign] || (Pool._poolDic[sign] = []);
 	    }
-	    /**
-	     * 清除对象池的对象。
-	     * @param sign 对象类型标识字符。
-	     */
 	    static clearBySign(sign) {
 	        if (Pool._poolDic[sign])
 	            Pool._poolDic[sign].length = 0;
 	    }
-	    /**
-	     * 将对象放到对应类型标识的对象池中。
-	     * @param sign 对象类型标识字符。
-	     * @param item 对象。
-	     */
 	    static recover(sign, item) {
 	        if (item[Pool.POOLSIGN])
 	            return;
 	        item[Pool.POOLSIGN] = true;
 	        Pool.getPoolBySign(sign).push(item);
 	    }
-	    /**
-	     * 根据类名进行回收，如果类有类名才进行回收，没有则不回收
-	     * @param	instance 类的具体实例
-	     */
 	    static recoverByClass(instance) {
 	        if (instance) {
 	            var className = instance["__className"] || instance.constructor._$gid;
@@ -134,9 +78,6 @@ window.Laya= (function (exports) {
 	                Pool.recover(className, instance);
 	        }
 	    }
-	    /**
-	     * 返回类的唯一标识
-	     */
 	    static _getClassSign(cla) {
 	        var className = cla["__className"] || cla["_$gid"];
 	        if (!className) {
@@ -145,20 +86,9 @@ window.Laya= (function (exports) {
 	        }
 	        return className;
 	    }
-	    /**
-	     * 根据类名回收类的实例
-	     * @param	instance 类的具体实例
-	     */
 	    static createByClass(cls) {
 	        return Pool.getItemByClass(Pool._getClassSign(cls), cls);
 	    }
-	    /**
-	     * <p>根据传入的对象类型标识字符，获取对象池中此类型标识的一个对象实例。</p>
-	     * <p>当对象池中无此类型标识的对象时，则根据传入的类型，创建一个新的对象返回。</p>
-	     * @param sign 对象类型标识字符。
-	     * @param cls 用于创建该类型对象的类。
-	     * @return 此类型标识的一个对象。
-	     */
 	    static getItemByClass(sign, cls) {
 	        if (!Pool._poolDic[sign])
 	            return new cls();
@@ -172,25 +102,12 @@ window.Laya= (function (exports) {
 	        }
 	        return rst;
 	    }
-	    /**
-	     * <p>根据传入的对象类型标识字符，获取对象池中此类型标识的一个对象实例。</p>
-	     * <p>当对象池中无此类型标识的对象时，则使用传入的创建此类型对象的函数，新建一个对象返回。</p>
-	     * @param sign 对象类型标识字符。
-	     * @param createFun 用于创建该类型对象的方法。
-	     * @param caller this对象
-	     * @return 此类型标识的一个对象。
-	     */
 	    static getItemByCreateFun(sign, createFun, caller = null) {
 	        var pool = Pool.getPoolBySign(sign);
 	        var rst = pool.length ? pool.pop() : createFun.call(caller);
 	        rst[Pool.POOLSIGN] = false;
 	        return rst;
 	    }
-	    /**
-	     * 根据传入的对象类型标识字符，获取对象池中已存储的此类型的一个对象，如果对象池中无此类型的对象，则返回 null 。
-	     * @param sign 对象类型标识字符。
-	     * @return 对象池中此类型的一个对象，如果对象池中无此类型的对象，则返回 null 。
-	     */
 	    static getItem(sign) {
 	        var pool = Pool.getPoolBySign(sign);
 	        var rst = pool.length ? pool.pop() : null;
@@ -200,45 +117,29 @@ window.Laya= (function (exports) {
 	        return rst;
 	    }
 	}
-	/**@private */
 	Pool._CLSID = 0;
-	/**@private */
 	Pool.POOLSIGN = "__InPool";
-	/**@private  对象存放池。*/
 	Pool._poolDic = {};
 
-	/**
-	 * 透明命令
-	 */
 	class AlphaCmd {
-	    /**@private */
 	    static create(alpha) {
 	        var cmd = Pool.getItemByClass("AlphaCmd", AlphaCmd);
 	        cmd.alpha = alpha;
 	        return cmd;
 	    }
-	    /**
-	     * 回收到对象池
-	     */
 	    recover() {
 	        Pool.recover("AlphaCmd", this);
 	    }
-	    /**@private */
 	    run(context, gx, gy) {
 	        context.alpha(this.alpha);
 	    }
-	    /**@private */
 	    get cmdID() {
 	        return AlphaCmd.ID;
 	    }
 	}
 	AlphaCmd.ID = "Alpha";
 
-	/**
-	 * 绘制圆形
-	 */
 	class DrawCircleCmd {
-	    /**@private */
 	    static create(x, y, radius, fillColor, lineColor, lineWidth, vid) {
 	        var cmd = Pool.getItemByClass("DrawCircleCmd", DrawCircleCmd);
 	        cmd.x = x;
@@ -250,30 +151,21 @@ window.Laya= (function (exports) {
 	        cmd.vid = vid;
 	        return cmd;
 	    }
-	    /**
-	     * 回收到对象池
-	     */
 	    recover() {
 	        this.fillColor = null;
 	        this.lineColor = null;
 	        Pool.recover("DrawCircleCmd", this);
 	    }
-	    /**@private */
 	    run(context, gx, gy) {
 	        context._drawCircle(this.x + gx, this.y + gy, this.radius, this.fillColor, this.lineColor, this.lineWidth, this.vid);
 	    }
-	    /**@private */
 	    get cmdID() {
 	        return DrawCircleCmd.ID;
 	    }
 	}
 	DrawCircleCmd.ID = "DrawCircle";
 
-	/**
-	 * 绘制曲线
-	 */
 	class DrawCurvesCmd {
-	    /**@private */
 	    static create(x, y, points, lineColor, lineWidth) {
 	        var cmd = Pool.getItemByClass("DrawCurvesCmd", DrawCurvesCmd);
 	        cmd.x = x;
@@ -283,30 +175,21 @@ window.Laya= (function (exports) {
 	        cmd.lineWidth = lineWidth;
 	        return cmd;
 	    }
-	    /**
-	     * 回收到对象池
-	     */
 	    recover() {
 	        this.points = null;
 	        this.lineColor = null;
 	        Pool.recover("DrawCurvesCmd", this);
 	    }
-	    /**@private */
 	    run(context, gx, gy) {
 	        context.drawCurves(this.x + gx, this.y + gy, this.points, this.lineColor, this.lineWidth);
 	    }
-	    /**@private */
 	    get cmdID() {
 	        return DrawCurvesCmd.ID;
 	    }
 	}
 	DrawCurvesCmd.ID = "DrawCurves";
 
-	/**
-	 * 绘制图片
-	 */
 	class DrawImageCmd {
-	    /**@private */
 	    static create(texture, x, y, width, height) {
 	        var cmd = Pool.getItemByClass("DrawImageCmd", DrawImageCmd);
 	        cmd.texture = texture;
@@ -317,30 +200,21 @@ window.Laya= (function (exports) {
 	        cmd.height = height;
 	        return cmd;
 	    }
-	    /**
-	     * 回收到对象池
-	     */
 	    recover() {
 	        this.texture._removeReference();
 	        this.texture = null;
 	        Pool.recover("DrawImageCmd", this);
 	    }
-	    /**@private */
 	    run(context, gx, gy) {
 	        context.drawTexture(this.texture, this.x + gx, this.y + gy, this.width, this.height);
 	    }
-	    /**@private */
 	    get cmdID() {
 	        return DrawImageCmd.ID;
 	    }
 	}
 	DrawImageCmd.ID = "DrawImage";
 
-	/**
-	 * 绘制单条曲线
-	 */
 	class DrawLineCmd {
-	    /**@private */
 	    static create(fromX, fromY, toX, toY, lineColor, lineWidth, vid) {
 	        var cmd = Pool.getItemByClass("DrawLineCmd", DrawLineCmd);
 	        cmd.fromX = fromX;
@@ -352,28 +226,19 @@ window.Laya= (function (exports) {
 	        cmd.vid = vid;
 	        return cmd;
 	    }
-	    /**
-	     * 回收到对象池
-	     */
 	    recover() {
 	        Pool.recover("DrawLineCmd", this);
 	    }
-	    /**@private */
 	    run(context, gx, gy) {
 	        context._drawLine(gx, gy, this.fromX, this.fromY, this.toX, this.toY, this.lineColor, this.lineWidth, this.vid);
 	    }
-	    /**@private */
 	    get cmdID() {
 	        return DrawLineCmd.ID;
 	    }
 	}
 	DrawLineCmd.ID = "DrawLine";
 
-	/**
-	 * 绘制连续曲线
-	 */
 	class DrawLinesCmd {
-	    /**@private */
 	    static create(x, y, points, lineColor, lineWidth, vid) {
 	        var cmd = Pool.getItemByClass("DrawLinesCmd", DrawLinesCmd);
 	        cmd.x = x;
@@ -384,30 +249,21 @@ window.Laya= (function (exports) {
 	        cmd.vid = vid;
 	        return cmd;
 	    }
-	    /**
-	     * 回收到对象池
-	     */
 	    recover() {
 	        this.points = null;
 	        this.lineColor = null;
 	        Pool.recover("DrawLinesCmd", this);
 	    }
-	    /**@private */
 	    run(context, gx, gy) {
 	        context._drawLines(this.x + gx, this.y + gy, this.points, this.lineColor, this.lineWidth, this.vid);
 	    }
-	    /**@private */
 	    get cmdID() {
 	        return DrawLinesCmd.ID;
 	    }
 	}
 	DrawLinesCmd.ID = "DrawLines";
 
-	/**
-	 * 根据路径绘制矢量图形
-	 */
 	class DrawPathCmd {
-	    /**@private */
 	    static create(x, y, paths, brush, pen) {
 	        var cmd = Pool.getItemByClass("DrawPathCmd", DrawPathCmd);
 	        cmd.x = x;
@@ -417,31 +273,22 @@ window.Laya= (function (exports) {
 	        cmd.pen = pen;
 	        return cmd;
 	    }
-	    /**
-	     * 回收到对象池
-	     */
 	    recover() {
 	        this.paths = null;
 	        this.brush = null;
 	        this.pen = null;
 	        Pool.recover("DrawPathCmd", this);
 	    }
-	    /**@private */
 	    run(context, gx, gy) {
 	        context._drawPath(this.x + gx, this.y + gy, this.paths, this.brush, this.pen);
 	    }
-	    /**@private */
 	    get cmdID() {
 	        return DrawPathCmd.ID;
 	    }
 	}
 	DrawPathCmd.ID = "DrawPath";
 
-	/**
-	 * 绘制扇形
-	 */
 	class DrawPieCmd {
-	    /**@private */
 	    static create(x, y, radius, startAngle, endAngle, fillColor, lineColor, lineWidth, vid) {
 	        var cmd = Pool.getItemByClass("DrawPieCmd", DrawPieCmd);
 	        cmd.x = x;
@@ -455,34 +302,23 @@ window.Laya= (function (exports) {
 	        cmd.vid = vid;
 	        return cmd;
 	    }
-	    /**
-	     * 回收到对象池
-	     */
 	    recover() {
 	        this.fillColor = null;
 	        this.lineColor = null;
 	        Pool.recover("DrawPieCmd", this);
 	    }
-	    /**@private */
 	    run(context, gx, gy) {
 	        context._drawPie(this.x + gx, this.y + gy, this.radius, this._startAngle, this._endAngle, this.fillColor, this.lineColor, this.lineWidth, this.vid);
 	    }
-	    /**@private */
 	    get cmdID() {
 	        return DrawPieCmd.ID;
 	    }
-	    /**
-	     * 开始角度。
-	     */
 	    get startAngle() {
 	        return this._startAngle * 180 / Math.PI;
 	    }
 	    set startAngle(value) {
 	        this._startAngle = value * Math.PI / 180;
 	    }
-	    /**
-	     * 结束角度。
-	     */
 	    get endAngle() {
 	        return this._endAngle * 180 / Math.PI;
 	    }
@@ -492,11 +328,7 @@ window.Laya= (function (exports) {
 	}
 	DrawPieCmd.ID = "DrawPie";
 
-	/**
-	 * 绘制多边形
-	 */
 	class DrawPolyCmd {
-	    /**@private */
 	    static create(x, y, points, fillColor, lineColor, lineWidth, isConvexPolygon, vid) {
 	        var cmd = Pool.getItemByClass("DrawPolyCmd", DrawPolyCmd);
 	        cmd.x = x;
@@ -509,31 +341,22 @@ window.Laya= (function (exports) {
 	        cmd.vid = vid;
 	        return cmd;
 	    }
-	    /**
-	     * 回收到对象池
-	     */
 	    recover() {
 	        this.points = null;
 	        this.fillColor = null;
 	        this.lineColor = null;
 	        Pool.recover("DrawPolyCmd", this);
 	    }
-	    /**@private */
 	    run(context, gx, gy) {
 	        context._drawPoly(this.x + gx, this.y + gy, this.points, this.fillColor, this.lineColor, this.lineWidth, this.isConvexPolygon, this.vid);
 	    }
-	    /**@private */
 	    get cmdID() {
 	        return DrawPolyCmd.ID;
 	    }
 	}
 	DrawPolyCmd.ID = "DrawPoly";
 
-	/**
-	 * 绘制矩形
-	 */
 	class DrawRectCmd {
-	    /**@private */
 	    static create(x, y, width, height, fillColor, lineColor, lineWidth) {
 	        var cmd = Pool.getItemByClass("DrawRectCmd", DrawRectCmd);
 	        cmd.x = x;
@@ -545,41 +368,22 @@ window.Laya= (function (exports) {
 	        cmd.lineWidth = lineWidth;
 	        return cmd;
 	    }
-	    /**
-	     * 回收到对象池
-	     */
 	    recover() {
 	        this.fillColor = null;
 	        this.lineColor = null;
 	        Pool.recover("DrawRectCmd", this);
 	    }
-	    /**@private */
 	    run(context, gx, gy) {
 	        context.drawRect(this.x + gx, this.y + gy, this.width, this.height, this.fillColor, this.lineColor, this.lineWidth);
 	    }
-	    /**@private */
 	    get cmdID() {
 	        return DrawRectCmd.ID;
 	    }
 	}
 	DrawRectCmd.ID = "DrawRect";
 
-	/**
-	 * <p> <code>Matrix</code> 类表示一个转换矩阵，它确定如何将点从一个坐标空间映射到另一个坐标空间。</p>
-	 * <p>您可以对一个显示对象执行不同的图形转换，方法是设置 Matrix 对象的属性，将该 Matrix 对象应用于 Transform 对象的 matrix 属性，然后应用该 Transform 对象作为显示对象的 transform 属性。这些转换函数包括平移（x 和 y 重新定位）、旋转、缩放和倾斜。</p>
-	 */
 	class Matrix {
-	    /**
-	     * 使用指定参数创建新的 <code>Matrix</code> 对象。
-	     * @param a		（可选）缩放或旋转图像时影响像素沿 x 轴定位的值。
-	     * @param b		（可选）旋转或倾斜图像时影响像素沿 y 轴定位的值。
-	     * @param c		（可选）旋转或倾斜图像时影响像素沿 x 轴定位的值。
-	     * @param d		（可选）缩放或旋转图像时影响像素沿 y 轴定位的值。
-	     * @param tx	（可选）沿 x 轴平移每个点的距离。
-	     * @param ty	（可选）沿 y 轴平移每个点的距离。
-	     */
 	    constructor(a = 1, b = 0, c = 0, d = 1, tx = 0, ty = 0, nums = 0) {
-	        /**@internal 是否有旋转缩放操作*/
 	        this._bTransform = false;
 	        if (Matrix._createFun != null) {
 	            return Matrix._createFun(a, b, c, d, tx, ty, nums);
@@ -592,48 +396,25 @@ window.Laya= (function (exports) {
 	        this.ty = ty;
 	        this._checkTransform();
 	    }
-	    /**
-	     * 将本矩阵设置为单位矩阵。
-	     * @return 返回当前矩形。
-	     */
 	    identity() {
 	        this.a = this.d = 1;
 	        this.b = this.tx = this.ty = this.c = 0;
 	        this._bTransform = false;
 	        return this;
 	    }
-	    /**@internal */
 	    _checkTransform() {
 	        return this._bTransform = (this.a !== 1 || this.b !== 0 || this.c !== 0 || this.d !== 1);
 	    }
-	    /**
-	     * 设置沿 x 、y 轴平移每个点的距离。
-	     * @param	x 沿 x 轴平移每个点的距离。
-	     * @param	y 沿 y 轴平移每个点的距离。
-	     * @return	返回对象本身
-	     */
 	    setTranslate(x, y) {
 	        this.tx = x;
 	        this.ty = y;
 	        return this;
 	    }
-	    /**
-	     * 沿 x 和 y 轴平移矩阵，平移的变化量由 x 和 y 参数指定。
-	     * @param	x 沿 x 轴向右移动的量（以像素为单位）。
-	     * @param	y 沿 y 轴向下移动的量（以像素为单位）。
-	     * @return 返回此矩形对象。
-	     */
 	    translate(x, y) {
 	        this.tx += x;
 	        this.ty += y;
 	        return this;
 	    }
-	    /**
-	     * 对矩阵应用缩放转换。
-	     * @param	x 用于沿 x 轴缩放对象的乘数。
-	     * @param	y 用于沿 y 轴缩放对象的乘数。
-	     * @return	返回矩阵对象本身
-	     */
 	    scale(x, y) {
 	        this.a *= x;
 	        this.d *= y;
@@ -644,11 +425,6 @@ window.Laya= (function (exports) {
 	        this._bTransform = true;
 	        return this;
 	    }
-	    /**
-	     * 对 Matrix 对象应用旋转转换。
-	     * @param	angle 以弧度为单位的旋转角度。
-	     * @return	返回矩阵对象本身
-	     */
 	    rotate(angle) {
 	        var cos = Math.cos(angle);
 	        var sin = Math.sin(angle);
@@ -664,12 +440,6 @@ window.Laya= (function (exports) {
 	        this._bTransform = true;
 	        return this;
 	    }
-	    /**
-	     * 对 Matrix 对象应用倾斜转换。
-	     * @param	x 沿着 X 轴的 2D 倾斜弧度。
-	     * @param	y 沿着 Y 轴的 2D 倾斜弧度。
-	     * @return 当前 Matrix 对象。
-	     */
 	    skew(x, y) {
 	        var tanX = Math.tan(x);
 	        var tanY = Math.tan(y);
@@ -681,11 +451,6 @@ window.Laya= (function (exports) {
 	        this.d += tanX * b1;
 	        return this;
 	    }
-	    /**
-	     * 对指定的点应用当前矩阵的逆转化并返回此点。
-	     * @param	out 待转化的点 Point 对象。
-	     * @return	返回out
-	     */
 	    invertTransformPoint(out) {
 	        var a1 = this.a;
 	        var b1 = this.b;
@@ -701,40 +466,18 @@ window.Laya= (function (exports) {
 	        var ty2 = -(a1 * this.ty - b1 * tx1) / n;
 	        return out.setTo(a2 * out.x + c2 * out.y + tx2, b2 * out.x + d2 * out.y + ty2);
 	    }
-	    /**
-	     * 将 Matrix 对象表示的几何转换应用于指定点。
-	     * @param	out 用来设定输出结果的点。
-	     * @return	返回out
-	     */
 	    transformPoint(out) {
 	        return out.setTo(this.a * out.x + this.c * out.y + this.tx, this.b * out.x + this.d * out.y + this.ty);
 	    }
-	    /**
-	     * 将 Matrix 对象表示的几何转换应用于指定点，忽略tx、ty。
-	     * @param	out 用来设定输出结果的点。
-	     * @return	返回out
-	     */
 	    transformPointN(out) {
-	        return out.setTo(this.a * out.x + this.c * out.y /*+ tx*/, this.b * out.x + this.d * out.y /*+ ty*/);
+	        return out.setTo(this.a * out.x + this.c * out.y, this.b * out.x + this.d * out.y);
 	    }
-	    /**
-	     * 获取 X 轴缩放值。
-	     * @return  X 轴缩放值。
-	     */
 	    getScaleX() {
 	        return this.b === 0 ? this.a : Math.sqrt(this.a * this.a + this.b * this.b);
 	    }
-	    /**
-	     * 获取 Y 轴缩放值。
-	     * @return Y 轴缩放值。
-	     */
 	    getScaleY() {
 	        return this.c === 0 ? this.d : Math.sqrt(this.c * this.c + this.d * this.d);
 	    }
-	    /**
-	     * 执行原始矩阵的逆转换。
-	     * @return 当前矩阵对象。
-	     */
 	    invert() {
 	        var a1 = this.a;
 	        var b1 = this.b;
@@ -750,25 +493,10 @@ window.Laya= (function (exports) {
 	        this.ty = -(a1 * this.ty - b1 * tx1) / n;
 	        return this;
 	    }
-	    /**
-	     *  将 Matrix 的成员设置为指定值。
-	     * @param	a 缩放或旋转图像时影响像素沿 x 轴定位的值。
-	     * @param	b 旋转或倾斜图像时影响像素沿 y 轴定位的值。
-	     * @param	c 旋转或倾斜图像时影响像素沿 x 轴定位的值。
-	     * @param	d 缩放或旋转图像时影响像素沿 y 轴定位的值。
-	     * @param	tx 沿 x 轴平移每个点的距离。
-	     * @param	ty 沿 y 轴平移每个点的距离。
-	     * @return 当前矩阵对象。
-	     */
 	    setTo(a, b, c, d, tx, ty) {
 	        this.a = a, this.b = b, this.c = c, this.d = d, this.tx = tx, this.ty = ty;
 	        return this;
 	    }
-	    /**
-	     * 将指定矩阵与当前矩阵连接，从而将这两个矩阵的几何效果有效地结合在一起。
-	     * @param	matrix 要连接到源矩阵的矩阵。
-	     * @return	当前矩阵。
-	     */
 	    concat(matrix) {
 	        var a = this.a;
 	        var c = this.c;
@@ -781,13 +509,6 @@ window.Laya= (function (exports) {
 	        this.ty = tx * matrix.b + this.ty * matrix.d + matrix.ty;
 	        return this;
 	    }
-	    /**
-	     * 将指定的两个矩阵相乘后的结果赋值给指定的输出对象。
-	     * @param	m1 矩阵一。
-	     * @param	m2 矩阵二。
-	     * @param	out 输出对象。
-	     * @return	结果输出对象 out。
-	     */
 	    static mul(m1, m2, out) {
 	        var aa = m1.a, ab = m1.b, ac = m1.c, ad = m1.d, atx = m1.tx, aty = m1.ty;
 	        var ba = m2.a, bb = m2.b, bc = m2.c, bd = m2.d, btx = m2.tx, bty = m2.ty;
@@ -809,13 +530,6 @@ window.Laya= (function (exports) {
 	        }
 	        return out;
 	    }
-	    /**
-	     * 将指定的两个矩阵相乘，结果赋值给指定的输出数组，长度为16。
-	     * @param m1	矩阵一。
-	     * @param m2	矩阵二。
-	     * @param out	输出对象Array。
-	     * @return 结果输出对象 out。
-	     */
 	    static mul16(m1, m2, out) {
 	        var aa = m1.a, ab = m1.b, ac = m1.c, ad = m1.d, atx = m1.tx, aty = m1.ty;
 	        var ba = m2.a, bb = m2.b, bc = m2.c, bd = m2.d, btx = m2.tx, bty = m2.ty;
@@ -837,12 +551,6 @@ window.Laya= (function (exports) {
 	        }
 	        return out;
 	    }
-	    /**
-	     * @private
-	     * 对矩阵应用缩放转换。反向相乘
-	     * @param	x 用于沿 x 轴缩放对象的乘数。
-	     * @param	y 用于沿 y 轴缩放对象的乘数。
-	     */
 	    scaleEx(x, y) {
 	        var ba = this.a, bb = this.b, bc = this.c, bd = this.d;
 	        if (bb !== 0 || bc !== 0) {
@@ -859,11 +567,6 @@ window.Laya= (function (exports) {
 	        }
 	        this._bTransform = true;
 	    }
-	    /**
-	     * @private
-	     * 对 Matrix 对象应用旋转转换。反向相乘
-	     * @param	angle 以弧度为单位的旋转角度。
-	     */
 	    rotateEx(angle) {
 	        var cos = Math.cos(angle);
 	        var sin = Math.sin(angle);
@@ -882,10 +585,6 @@ window.Laya= (function (exports) {
 	        }
 	        this._bTransform = true;
 	    }
-	    /**
-	     * 返回此 Matrix 对象的副本。
-	     * @return 与原始实例具有完全相同的属性的新 Matrix 实例。
-	     */
 	    clone() {
 	        var dec = Matrix.create();
 	        dec.a = this.a;
@@ -897,11 +596,6 @@ window.Laya= (function (exports) {
 	        dec._bTransform = this._bTransform;
 	        return dec;
 	    }
-	    /**
-	     * 将当前 Matrix 对象中的所有矩阵数据复制到指定的 Matrix 对象中。
-	     * @param	dec 要复制当前矩阵数据的 Matrix 对象。
-	     * @return	已复制当前矩阵数据的 Matrix 对象。
-	     */
 	    copyTo(dec) {
 	        dec.a = this.a;
 	        dec.b = this.b;
@@ -912,99 +606,49 @@ window.Laya= (function (exports) {
 	        dec._bTransform = this._bTransform;
 	        return dec;
 	    }
-	    /**
-	     * 返回列出该 Matrix 对象属性的文本值。
-	     * @return 一个字符串，它包含 Matrix 对象的属性值：a、b、c、d、tx 和 ty。
-	     */
 	    toString() {
 	        return this.a + "," + this.b + "," + this.c + "," + this.d + "," + this.tx + "," + this.ty;
 	    }
-	    /**
-	     * 销毁此对象。
-	     */
 	    destroy() {
 	        this.recover();
 	    }
-	    /**
-	     * 回收到对象池，方便复用
-	     */
 	    recover() {
 	        Pool.recover("Matrix", this.identity());
 	    }
-	    /**
-	     * 从对象池中创建一个 <code>Matrix</code> 对象。
-	     * @return <code>Matrix</code> 对象。
-	     */
 	    static create() {
 	        return Pool.getItemByClass("Matrix", Matrix);
 	    }
 	}
-	/**@private 一个初始化的 <code>Matrix</code> 对象，不允许修改此对象内容。*/
 	Matrix.EMPTY = new Matrix();
-	/**用于中转使用的 <code>Matrix</code> 对象。*/
 	Matrix.TEMP = new Matrix();
-	/**@private */
 	Matrix._createFun = null;
 
-	/**
-	 * <code>Point</code> 对象表示二维坐标系统中的某个位置，其中 x 表示水平轴，y 表示垂直轴。
-	 */
 	class Point {
-	    /**
-	     * 根据指定坐标，创建一个新的 <code>Point</code> 对象。
-	     * @param x	（可选）水平坐标。
-	     * @param y	（可选）垂直坐标。
-	     */
 	    constructor(x = 0, y = 0) {
 	        this.x = x;
 	        this.y = y;
 	    }
-	    /**
-	     * 从对象池创建
-	     */
 	    static create() {
 	        return Pool.getItemByClass("Point", Point);
 	    }
-	    /**
-	     * 将 <code>Point</code> 的成员设置为指定值。
-	     * @param	x 水平坐标。
-	     * @param	y 垂直坐标。
-	     * @return 当前 Point 对象。
-	     */
 	    setTo(x, y) {
 	        this.x = x;
 	        this.y = y;
 	        return this;
 	    }
-	    /**
-	     * 重置
-	     */
 	    reset() {
 	        this.x = this.y = 0;
 	        return this;
 	    }
-	    /**
-	     * 回收到对象池，方便复用
-	     */
 	    recover() {
 	        Pool.recover("Point", this.reset());
 	    }
-	    /**
-	     * 计算当前点和目标点(x，y)的距离。
-	     * @param	x 水平坐标。
-	     * @param	y 垂直坐标。
-	     * @return	返回当前点和目标点之间的距离。
-	     */
 	    distance(x, y) {
 	        return Math.sqrt((this.x - x) * (this.x - x) + (this.y - y) * (this.y - y));
 	    }
-	    /**返回包含 x 和 y 坐标的值的字符串。*/
 	    toString() {
 	        return this.x + "," + this.y;
 	    }
-	    /**
-	     * 标准化向量。
-	     */
 	    normalize() {
 	        var d = Math.sqrt(this.x * this.x + this.y * this.y);
 	        if (d > 0) {
@@ -1013,53 +657,26 @@ window.Laya= (function (exports) {
 	            this.y *= id;
 	        }
 	    }
-	    /**
-	     * copy point坐标
-	     * @param	point 需要被copy的point
-	     */
 	    copy(point) {
 	        return this.setTo(point.x, point.y);
 	    }
 	}
-	/**临时使用的公用对象。*/
 	Point.TEMP = new Point();
-	/**@private 全局空的point对象(x=0，y=0)，不允许修改此对象内容*/
 	Point.EMPTY = new Point();
 
-	/**
-	 * <p><code>Rectangle</code> 对象是按其位置（由它左上角的点 (x, y) 确定）以及宽度和高度定义的区域。</p>
-	 * <p>Rectangle 类的 x、y、width 和 height 属性相互独立；更改一个属性的值不会影响其他属性。</p>
-	 */
 	class Rectangle {
-	    /**
-	     * 创建一个 <code>Rectangle</code> 对象。
-	     * @param	x 矩形左上角的 X 轴坐标。
-	     * @param	y 矩形左上角的 Y 轴坐标。
-	     * @param	width 矩形的宽度。
-	     * @param	height 矩形的高度。
-	     */
 	    constructor(x = 0, y = 0, width = 0, height = 0) {
 	        this.x = x;
 	        this.y = y;
 	        this.width = width;
 	        this.height = height;
 	    }
-	    /** 此矩形右侧的 X 轴坐标。 x 和 width 属性的和。*/
 	    get right() {
 	        return this.x + this.width;
 	    }
-	    /** 此矩形底端的 Y 轴坐标。y 和 height 属性的和。*/
 	    get bottom() {
 	        return this.y + this.height;
 	    }
-	    /**
-	     * 将 Rectangle 的属性设置为指定值。
-	     * @param	x	x 矩形左上角的 X 轴坐标。
-	     * @param	y	x 矩形左上角的 Y 轴坐标。
-	     * @param	width	矩形的宽度。
-	     * @param	height	矩形的高。
-	     * @return	返回属性值修改后的矩形对象本身。
-	     */
 	    setTo(x, y, width, height) {
 	        this.x = x;
 	        this.y = y;
@@ -1067,16 +684,10 @@ window.Laya= (function (exports) {
 	        this.height = height;
 	        return this;
 	    }
-	    /**
-	     * 重置
-	     */
 	    reset() {
 	        this.x = this.y = this.width = this.height = 0;
 	        return this;
 	    }
-	    /**
-	     * 回收
-	     */
 	    recover() {
 	        if (this == Rectangle.TEMP || this == Rectangle.EMPTY) {
 	            console.log("recover Temp or Empty:", this);
@@ -1084,17 +695,9 @@ window.Laya= (function (exports) {
 	        }
 	        Pool.recover("Rectangle", this.reset());
 	    }
-	    /**
-	     * 创建
-	     */
 	    static create() {
 	        return Pool.getItemByClass("Rectangle", Rectangle);
 	    }
-	    /**
-	     * 复制 source 对象的属性值到此矩形对象中。
-	     * @param	sourceRect	源 Rectangle 对象。
-	     * @return	返回属性值修改后的矩形对象本身。
-	     */
 	    copyFrom(source) {
 	        this.x = source.x;
 	        this.y = source.y;
@@ -1102,12 +705,6 @@ window.Laya= (function (exports) {
 	        this.height = source.height;
 	        return this;
 	    }
-	    /**
-	     * 确定由此 Rectangle 对象定义的矩形区域内是否包含指定的点。
-	     * @param x	点的 X 轴坐标值（水平位置）。
-	     * @param y	点的 Y 轴坐标值（垂直位置）。
-	     * @return	如果 Rectangle 对象包含指定的点，则值为 true；否则为 false。
-	     */
 	    contains(x, y) {
 	        if (this.width <= 0 || this.height <= 0)
 	            return false;
@@ -1118,20 +715,9 @@ window.Laya= (function (exports) {
 	        }
 	        return false;
 	    }
-	    /**
-	     * 确定在 rect 参数中指定的对象是否与此 Rectangle 对象相交。此方法检查指定的 Rectangle 对象的 x、y、width 和 height 属性，以查看它是否与此 Rectangle 对象相交。
-	     * @param	rect Rectangle 对象。
-	     * @return	如果传入的矩形对象与此对象相交，则返回 true 值，否则返回 false。
-	     */
 	    intersects(rect) {
 	        return !(rect.x > (this.x + this.width) || (rect.x + rect.width) < this.x || rect.y > (this.y + this.height) || (rect.y + rect.height) < this.y);
 	    }
-	    /**
-	     * 如果在 rect 参数中指定的 Rectangle 对象与此 Rectangle 对象相交，则返回交集区域作为 Rectangle 对象。如果矩形不相交，则此方法返回null。
-	     * @param rect	待比较的矩形区域。
-	     * @param out	（可选）待输出的矩形区域。如果为空则创建一个新的。建议：尽量复用对象，减少对象创建消耗。
-	     * @return	返回相交的矩形区域对象。
-	     */
 	    intersection(rect, out = null) {
 	        if (!this.intersects(rect))
 	            return null;
@@ -1142,13 +728,6 @@ window.Laya= (function (exports) {
 	        out.height = Math.min(this.bottom, rect.bottom) - out.y;
 	        return out;
 	    }
-	    /**
-	     * <p>矩形联合，通过填充两个矩形之间的水平和垂直空间，将这两个矩形组合在一起以创建一个新的 Rectangle 对象。</p>
-	     * <p>注意：union() 方法忽略高度或宽度值为 0 的矩形，如：var rect2:Rectangle = new Rectangle(300,300,50,0);</p>
-	     * @param	要添加到此 Rectangle 对象的 Rectangle 对象。
-	     * @param	out	用于存储输出结果的矩形对象。如果为空，则创建一个新的。建议：尽量复用对象，减少对象创建消耗。Rectangle.TEMP对象用于对象复用。
-	     * @return	充当两个矩形的联合的新 Rectangle 对象。
-	     */
 	    union(source, out = null) {
 	        out || (out = new Rectangle());
 	        this.clone(out);
@@ -1158,11 +737,6 @@ window.Laya= (function (exports) {
 	        out.addPoint(source.right, source.bottom);
 	        return this;
 	    }
-	    /**
-	     * 返回一个 Rectangle 对象，其 x、y、width 和 height 属性的值与当前 Rectangle 对象的对应值相同。
-	     * @param out	（可选）用于存储结果的矩形对象。如果为空，则创建一个新的。建议：尽量复用对象，减少对象创建消耗。。Rectangle.TEMP对象用于对象复用。
-	     * @return Rectangle 对象，其 x、y、width 和 height 属性的值与当前 Rectangle 对象的对应值相同。
-	     */
 	    clone(out = null) {
 	        out || (out = new Rectangle());
 	        out.x = this.x;
@@ -1171,43 +745,23 @@ window.Laya= (function (exports) {
 	        out.height = this.height;
 	        return out;
 	    }
-	    /**
-	     * 当前 Rectangle 对象的水平位置 x 和垂直位置 y 以及高度 width 和宽度 height 以逗号连接成的字符串。
-	     */
 	    toString() {
 	        return this.x + "," + this.y + "," + this.width + "," + this.height;
 	    }
-	    /**
-	     * 检测传入的 Rectangle 对象的属性是否与当前 Rectangle 对象的属性 x、y、width、height 属性值都相等。
-	     * @param	rect 待比较的 Rectangle 对象。
-	     * @return	如果判断的属性都相等，则返回 true ,否则返回 false。
-	     */
 	    equals(rect) {
 	        if (!rect || rect.x !== this.x || rect.y !== this.y || rect.width !== this.width || rect.height !== this.height)
 	            return false;
 	        return true;
 	    }
-	    /**
-	     * <p>为当前矩形对象加一个点，以使当前矩形扩展为包含当前矩形和此点的最小矩形。</p>
-	     * <p>此方法会修改本对象。</p>
-	     * @param x	点的 X 坐标。
-	     * @param y	点的 Y 坐标。
-	     * @return 返回此 Rectangle 对象。
-	     */
 	    addPoint(x, y) {
-	        this.x > x && (this.width += this.x - x, this.x = x); //左边界比较
-	        this.y > y && (this.height += this.y - y, this.y = y); //上边界比较
+	        this.x > x && (this.width += this.x - x, this.x = x);
+	        this.y > y && (this.height += this.y - y, this.y = y);
 	        if (this.width < x - this.x)
-	            this.width = x - this.x; //右边界比较
+	            this.width = x - this.x;
 	        if (this.height < y - this.y)
-	            this.height = y - this.y; //下边界比较
+	            this.height = y - this.y;
 	        return this;
 	    }
-	    /**
-	     * @internal
-	     * 返回代表当前矩形的顶点数据。
-	     * @return 顶点数据。
-	     */
 	    _getBoundPoints() {
 	        var rst = Rectangle._temB;
 	        rst.length = 0;
@@ -1216,10 +770,6 @@ window.Laya= (function (exports) {
 	        rst.push(this.x, this.y, this.x + this.width, this.y, this.x, this.y + this.height, this.x + this.width, this.y + this.height);
 	        return rst;
 	    }
-	    /**
-	     * @internal
-	     * 返回矩形的顶点数据。
-	     */
 	    static _getBoundPointS(x, y, width, height) {
 	        var rst = Rectangle._temA;
 	        rst.length = 0;
@@ -1228,12 +778,6 @@ window.Laya= (function (exports) {
 	        rst.push(x, y, x + width, y, x, y + height, x + width, y + height);
 	        return rst;
 	    }
-	    /**
-	     * @internal
-	     * 返回包含所有点的最小矩形。
-	     * @param pointList 点列表。
-	     * @return 包含所有点的最小矩形矩形对象。
-	     */
 	    static _getWrapRec(pointList, rst = null) {
 	        if (!pointList || pointList.length < 1)
 	            return rst ? rst.setTo(0, 0, 0, 0) : Rectangle.TEMP.setTo(0, 0, 0, 0);
@@ -1251,66 +795,32 @@ window.Laya= (function (exports) {
 	        }
 	        return rst.setTo(minX, minY, maxX - minX, maxY - minY);
 	    }
-	    /**
-	     * 确定此 Rectangle 对象是否为空。
-	     * @return 如果 Rectangle 对象的宽度或高度小于等于 0，则返回 true 值，否则返回 false。
-	     */
 	    isEmpty() {
 	        if (this.width <= 0 || this.height <= 0)
 	            return true;
 	        return false;
 	    }
 	}
-	/**@private 全局空的矩形区域x=0,y=0,width=0,height=0，不允许修改此对象内容*/
 	Rectangle.EMPTY = new Rectangle();
-	/**全局临时的矩形区域，此对象用于全局复用，以减少对象创建*/
 	Rectangle.TEMP = new Rectangle();
-	/** @private */
 	Rectangle._temB = [];
-	/** @private */
 	Rectangle._temA = [];
 
-	/**
-	 * @private
-	 * 封装GL命令
-	 */
 	class LayaGL {
 	}
-	LayaGL.ARRAY_BUFFER_TYPE_DATA = 0; //创建ArrayBuffer时的类型为Data
-	LayaGL.ARRAY_BUFFER_TYPE_CMD = 1; //创建ArrayBuffer时的类型为Command
-	LayaGL.ARRAY_BUFFER_REF_REFERENCE = 0; //创建ArrayBuffer时的类型为引用
-	LayaGL.ARRAY_BUFFER_REF_COPY = 1; //创建ArrayBuffer时的类型为拷贝
-	LayaGL.UPLOAD_SHADER_UNIFORM_TYPE_ID = 0; //data按照ID传入
-	LayaGL.UPLOAD_SHADER_UNIFORM_TYPE_DATA = 1; //data按照数据传入
+	LayaGL.ARRAY_BUFFER_TYPE_DATA = 0;
+	LayaGL.ARRAY_BUFFER_TYPE_CMD = 1;
+	LayaGL.ARRAY_BUFFER_REF_REFERENCE = 0;
+	LayaGL.ARRAY_BUFFER_REF_COPY = 1;
+	LayaGL.UPLOAD_SHADER_UNIFORM_TYPE_ID = 0;
+	LayaGL.UPLOAD_SHADER_UNIFORM_TYPE_DATA = 1;
 
-	/**
-	     * <p><code>Handler</code> 是事件处理器类。</p>
-	     * <p>推荐使用 Handler.create() 方法从对象池创建，减少对象创建消耗。创建的 Handler 对象不再使用后，可以使用 Handler.recover() 将其回收到对象池，回收后不要再使用此对象，否则会导致不可预料的错误。</p>
-	     * <p><b>注意：</b>由于鼠标事件也用本对象池，不正确的回收及调用，可能会影响鼠标事件的执行。</p>
-	     */
 	class Handler {
-	    /**
-	     * 根据指定的属性值，创建一个 <code>Handler</code> 类的实例。
-	     * @param	caller 执行域。
-	     * @param	method 处理函数。
-	     * @param	args 函数参数。
-	     * @param	once 是否只执行一次。
-	     */
 	    constructor(caller = null, method = null, args = null, once = false) {
-	        /** 表示是否只执行一次。如果为true，回调后执行recover()进行回收，回收后会被再利用，默认为false 。*/
 	        this.once = false;
-	        /**@private */
 	        this._id = 0;
 	        this.setTo(caller, method, args, once);
 	    }
-	    /**
-	     * 设置此对象的指定属性值。
-	     * @param	caller 执行域(this)。
-	     * @param	method 回调方法。
-	     * @param	args 携带的参数。
-	     * @param	once 是否只执行一次，如果为true，执行后执行recover()进行回收。
-	     * @return  返回 handler 本身。
-	     */
 	    setTo(caller, method, args, once) {
 	        this._id = Handler._gid++;
 	        this.caller = caller;
@@ -1319,9 +829,6 @@ window.Laya= (function (exports) {
 	        this.once = once;
 	        return this;
 	    }
-	    /**
-	     * 执行处理器。
-	     */
 	    run() {
 	        if (this.method == null)
 	            return null;
@@ -1330,10 +837,6 @@ window.Laya= (function (exports) {
 	        this._id === id && this.once && this.recover();
 	        return result;
 	    }
-	    /**
-	     * 执行处理器，并携带额外数据。
-	     * @param	data 附加的回调数据，可以是单数据或者Array(作为多参)。
-	     */
 	    runWith(data) {
 	        if (this.method == null)
 	            return null;
@@ -1349,63 +852,32 @@ window.Laya= (function (exports) {
 	        this._id === id && this.once && this.recover();
 	        return result;
 	    }
-	    /**
-	     * 清理对象引用。
-	     */
 	    clear() {
 	        this.caller = null;
 	        this.method = null;
 	        this.args = null;
 	        return this;
 	    }
-	    /**
-	     * 清理并回收到 Handler 对象池内。
-	     */
 	    recover() {
 	        if (this._id > 0) {
 	            this._id = 0;
 	            Handler._pool.push(this.clear());
 	        }
 	    }
-	    /**
-	     * 从对象池内创建一个Handler，默认会执行一次并立即回收，如果不需要自动回收，设置once参数为false。
-	     * @param	caller 执行域(this)。
-	     * @param	method 回调方法。
-	     * @param	args 携带的参数。
-	     * @param	once 是否只执行一次，如果为true，回调后执行recover()进行回收，默认为true。
-	     * @return  返回创建的handler实例。
-	     */
 	    static create(caller, method, args = null, once = true) {
 	        if (Handler._pool.length)
 	            return Handler._pool.pop().setTo(caller, method, args, once);
 	        return new Handler(caller, method, args, once);
 	    }
 	}
-	/**@private handler对象池*/
 	Handler._pool = [];
-	/**@private */
 	Handler._gid = 1;
 
-	/**
-	 * <code>EventDispatcher</code> 类是可调度事件的所有类的基类。
-	 */
 	class EventDispatcher {
-	    //[IF-JS]Object.defineProperty(EventDispatcher.prototype, "_events", {enumerable: false,writable:true});
-	    /**
-	     * 检查 EventDispatcher 对象是否为特定事件类型注册了任何侦听器。
-	     * @param	type 事件的类型。
-	     * @return 如果指定类型的侦听器已注册，则值为 true；否则，值为 false。
-	     */
 	    hasListener(type) {
 	        var listener = this._events && this._events[type];
 	        return !!listener;
 	    }
-	    /**
-	     * 派发事件。
-	     * @param type	事件类型。
-	     * @param data	（可选）回调数据。<b>注意：</b>如果是需要传递多个参数 p1,p2,p3,...可以使用数组结构如：[p1,p2,p3,...] ；如果需要回调单个参数 p ，且 p 是一个数组，则需要使用结构如：[p]，其他的单个参数 p ，可以直接传入参数 p。
-	     * @return 此事件类型是否有侦听者，如果有侦听者则值为 true，否则值为 false。
-	     */
 	    event(type, data = null) {
 	        if (!this._events || !this._events[type])
 	            return false;
@@ -1432,37 +904,17 @@ window.Laya= (function (exports) {
 	        }
 	        return true;
 	    }
-	    /**
-	     * 使用 EventDispatcher 对象注册指定类型的事件侦听器对象，以使侦听器能够接收事件通知。
-	     * @param type		事件的类型。
-	     * @param caller	事件侦听函数的执行域。
-	     * @param listener	事件侦听函数。
-	     * @param args		（可选）事件侦听函数的回调参数。
-	     * @return 此 EventDispatcher 对象。
-	     */
 	    on(type, caller, listener, args = null) {
 	        return this._createListener(type, caller, listener, args, false);
 	    }
-	    /**
-	     * 使用 EventDispatcher 对象注册指定类型的事件侦听器对象，以使侦听器能够接收事件通知，此侦听事件响应一次后自动移除。
-	     * @param type		事件的类型。
-	     * @param caller	事件侦听函数的执行域。
-	     * @param listener	事件侦听函数。
-	     * @param args		（可选）事件侦听函数的回调参数。
-	     * @return 此 EventDispatcher 对象。
-	     */
 	    once(type, caller, listener, args = null) {
 	        return this._createListener(type, caller, listener, args, true);
 	    }
-	    /**@internal */
 	    _createListener(type, caller, listener, args, once, offBefore = true) {
-	        //移除之前相同的监听
 	        offBefore && this.off(type, caller, listener, once);
-	        //使用对象池进行创建回收
 	        var handler = EventHandler.create(caller || this, listener, args, once);
 	        this._events || (this._events = {});
 	        var events = this._events;
-	        //默认单个，每个对象只有多个监听才用数组，节省一个数组的消耗
 	        if (!events[type])
 	            events[type] = handler;
 	        else {
@@ -1473,14 +925,6 @@ window.Laya= (function (exports) {
 	        }
 	        return this;
 	    }
-	    /**
-	     * 从 EventDispatcher 对象中删除侦听器。
-	     * @param type		事件的类型。
-	     * @param caller	事件侦听函数的执行域。
-	     * @param listener	事件侦听函数。
-	     * @param onceOnly	（可选）如果值为 true ,则只移除通过 once 方法添加的侦听器。
-	     * @return 此 EventDispatcher 对象。
-	     */
 	    off(type, caller, listener, onceOnly = false) {
 	        if (!this._events || !this._events[type])
 	            return this;
@@ -1506,18 +950,12 @@ window.Laya= (function (exports) {
 	                        item.recover();
 	                    }
 	                }
-	                //如果全部移除，则删除索引
 	                if (count === n)
 	                    delete this._events[type];
 	            }
 	        }
 	        return this;
 	    }
-	    /**
-	     * 从 EventDispatcher 对象中删除指定事件类型的所有侦听器。
-	     * @param type	（可选）事件类型，如果值为 null，则移除本对象所有类型的侦听器。
-	     * @return 此 EventDispatcher 对象。
-	     */
 	    offAll(type = null) {
 	        var events = this._events;
 	        if (!events)
@@ -1534,10 +972,6 @@ window.Laya= (function (exports) {
 	        }
 	        return this;
 	    }
-	    /**
-	     * 移除caller为target的所有事件监听
-	     * @param	caller caller对象
-	     */
 	    offAllCaller(caller) {
 	        if (caller && this._events) {
 	            for (var name in this._events) {
@@ -1561,94 +995,54 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**
-	     * 检测指定事件类型是否是鼠标事件。
-	     * @param	type 事件的类型。
-	     * @return	如果是鼠标事件，则值为 true;否则，值为 false。
-	     */
 	    isMouseEvent(type) {
 	        return EventDispatcher.MOUSE_EVENTS[type] || false;
 	    }
 	}
-	/**@private */
 	EventDispatcher.MOUSE_EVENTS = { "rightmousedown": true, "rightmouseup": true, "rightclick": true, "mousedown": true, "mouseup": true, "mousemove": true, "mouseover": true, "mouseout": true, "click": true, "doubleclick": true };
-	/**@private */
 	class EventHandler extends Handler {
 	    constructor(caller, method, args, once) {
 	        super(caller, method, args, once);
 	    }
-	    /**
-	     * @override
-	     */
 	    recover() {
 	        if (this._id > 0) {
 	            this._id = 0;
 	            EventHandler._pool.push(this.clear());
 	        }
 	    }
-	    /**
-	     * 从对象池内创建一个Handler，默认会执行一次回收，如果不需要自动回收，设置once参数为false。
-	     * @param caller	执行域(this)。
-	     * @param method	回调方法。
-	     * @param args		（可选）携带的参数。
-	     * @param once		（可选）是否只执行一次，如果为true，回调后执行recover()进行回收，默认为true。
-	     * @return 返回创建的handler实例。
-	     */
 	    static create(caller, method, args = null, once = true) {
 	        if (EventHandler._pool.length)
 	            return EventHandler._pool.pop().setTo(caller, method, args, once);
 	        return new EventHandler(caller, method, args, once);
 	    }
 	}
-	/**@private handler对象池*/
 	EventHandler._pool = [];
 
-	/**
-	     * <p><code>URL</code> 提供URL格式化，URL版本管理的类。</p>
-	     * <p>引擎加载资源的时候，会自动调用formatURL函数格式化URL路径</p>
-	     * <p>通过basePath属性可以设置网络基础路径</p>
-	     * <p>通过设置customFormat函数，可以自定义URL格式化的方式</p>
-	     * <p>除了默认的通过增加后缀的格式化外，通过VersionManager类，可以开启IDE提供的，基于目录的管理方式来替代 "?v=" 的管理方式</p>
-	     * @see laya.net.VersionManager
-	     */
 	class URL {
-	    /**创建一个新的 <code>URL</code> 实例。*/
 	    constructor(url) {
 	        this._url = URL.formatURL(url);
 	        this._path = URL.getPath(url);
 	    }
-	    /**格式化后的地址。*/
 	    get url() {
 	        return this._url;
 	    }
-	    /**地址的文件夹路径（不包括文件名）。*/
 	    get path() {
 	        return this._path;
 	    }
 	    static set basePath(value) {
-	        URL._basePath = ILaya.Laya._getUrlPath(); //还原BaseURL为Index目录
+	        URL._basePath = ILaya.Laya._getUrlPath();
 	        URL._basePath = URL.formatURL(value);
 	    }
-	    /**基础路径。如果不设置，默认为当前网页的路径。最终地址将被格式化为 basePath+相对URL地址，*/
 	    static get basePath() {
 	        return URL._basePath;
 	    }
-	    /**
-	     * 格式化指定的地址并返回。
-	     * @param	url 地址。
-	     * @param	base 基础路径，如果没有，则使用basePath。
-	     * @return	格式化处理后的地址。
-	     */
 	    static formatURL(url) {
 	        if (!url)
 	            return "null path";
-	        //如果是全路径，直接返回，提高性能
 	        if (url.indexOf(":") > 0)
 	            return url;
-	        //自定义路径格式化
 	        if (URL.customFormat != null)
 	            url = URL.customFormat(url);
-	        //如果是全路径，直接返回，提高性能
 	        if (url.indexOf(":") > 0)
 	            return url;
 	        var char1 = url.charAt(0);
@@ -1667,10 +1061,6 @@ window.Laya= (function (exports) {
 	        }
 	        return URL._basePath + url;
 	    }
-	    /**
-	     * @internal
-	     * 格式化相对路径。
-	     */
 	    static _formatRelativePath(value) {
 	        var parts = value.split("/");
 	        for (var i = 0, len = parts.length; i < len; i++) {
@@ -1681,28 +1071,14 @@ window.Laya= (function (exports) {
 	        }
 	        return parts.join('/');
 	    }
-	    /**
-	     * 获取指定 URL 的文件夹路径（不包括文件名）。
-	     * <p><b>注意：</b>末尾有斜杠（/）。</p>
-	     * @param	url url地址。
-	     * @return  返回文件夹路径。
-	     */
 	    static getPath(url) {
 	        var ofs = url.lastIndexOf('/');
 	        return ofs > 0 ? url.substr(0, ofs + 1) : "";
 	    }
-	    /**
-	     * 获取指定 URL 的文件名。
-	     * @param	url 地址。
-	     * @return 	返回文件名。
-	     */
 	    static getFileName(url) {
 	        var ofs = url.lastIndexOf('/');
 	        return ofs > 0 ? url.substr(ofs + 1) : url;
 	    }
-	    /**
-	     * @private 兼容微信
-	     */
 	    static getAdptedFilePath(url) {
 	        if (!URL.exportSceneToJson || !url)
 	            return url;
@@ -1716,50 +1092,28 @@ window.Laya= (function (exports) {
 	        return url;
 	    }
 	}
-	/**URL地址版本映射表，比如{"aaa/bb.png":99,"aaa/bb.png":12}，默认情况下，通过formatURL格式化后，会自动生成为"aaa/bb.png?v=99"的一个地址*/
 	URL.version = {};
-	/**兼容微信不支持加载scene后缀场景，设置为true，则会把scene加载替换为json*/
 	URL.exportSceneToJson = false;
-	/**基础路径。如果不设置，默认为当前网页的路径。最终地址将被格式化为 basePath+相对URL地址，*/
 	URL._basePath = "";
-	/**root路径。只针对'~'类型的url路径有效*/
 	URL.rootPath = "";
-	/** 自定义URL格式化的方式。例如： customFormat = function(url:String):String{} */
 	URL.customFormat = function (url) {
 	    var newUrl = URL.version[url];
 	    if (!window.conch && newUrl)
 	        url += "?v=" + newUrl;
 	    return url;
 	};
-	/**
-	 * @private
-	 */
 	URL._adpteTypeList = [[".scene3d", ".json"], [".scene", ".json"], [".taa", ".json"], [".prefab", ".json"]];
 
-	/**
-	 * <code>Resource</code> 资源存取类。
-	 */
 	class Resource extends EventDispatcher {
-	    /**
-	     * 创建一个 <code>Resource</code> 实例。
-	     */
 	    constructor() {
 	        super();
-	        /**@private */
 	        this._id = 0;
-	        /**@private */
 	        this._url = null;
-	        /**@private */
 	        this._cpuMemory = 0;
-	        /**@private */
 	        this._gpuMemory = 0;
-	        /**@private */
 	        this._destroyed = false;
-	        /**@private */
 	        this._referenceCount = 0;
-	        /**是否加锁，如果true为不能使用自动释放机制。*/
 	        this.lock = false;
-	        /**名称。 */
 	        this.name = null;
 	        this._id = ++Resource._uniqueIDCounter;
 	        this._destroyed = false;
@@ -1767,58 +1121,28 @@ window.Laya= (function (exports) {
 	        Resource._idResourcesMap[this.id] = this;
 	        this.lock = false;
 	    }
-	    /**
-	     * 当前内存，以字节为单位。
-	     */
 	    static get cpuMemory() {
 	        return Resource._cpuMemory;
 	    }
-	    /**
-	     * 当前显存，以字节为单位。
-	     */
 	    static get gpuMemory() {
 	        return Resource._gpuMemory;
 	    }
-	    /**
-	     * @internal
-	     */
 	    static _addCPUMemory(size) {
 	        Resource._cpuMemory += size;
 	    }
-	    /**
-	     * @internal
-	     */
 	    static _addGPUMemory(size) {
 	        Resource._gpuMemory += size;
 	    }
-	    /**
-	     * @internal
-	     */
 	    static _addMemory(cpuSize, gpuSize) {
 	        Resource._cpuMemory += cpuSize;
 	        Resource._gpuMemory += gpuSize;
 	    }
-	    /**
-	     * 通过资源ID返回已载入资源。
-	     * @param id 资源ID
-	     * @return 资源 <code>Resource</code> 对象。
-	     */
 	    static getResourceByID(id) {
 	        return Resource._idResourcesMap[id];
 	    }
-	    /**
-	     * 通过url返回已载入资源。
-	     * @param url 资源URL
-	     * @param index 索引
-	     * @return 资源 <code>Resource</code> 对象。
-	     */
 	    static getResourceByURL(url, index = 0) {
 	        return Resource._urlResourcesMap[url][index];
 	    }
-	    /**
-	     * 销毁当前没有被使用的资源,该函数会忽略lock=true的资源。
-	     * @param group 指定分组。
-	     */
 	    static destroyUnusedResources() {
 	        for (var k in Resource._idResourcesMap) {
 	            var res = Resource._idResourcesMap[k];
@@ -1826,63 +1150,36 @@ window.Laya= (function (exports) {
 	                res.destroy();
 	        }
 	    }
-	    /**
-	     * 获取唯一标识ID,通常用于识别。
-	     */
 	    get id() {
 	        return this._id;
 	    }
-	    /**
-	     * 获取资源的URL地址。
-	     * @return URL地址。
-	     */
 	    get url() {
 	        return this._url;
 	    }
-	    /**
-	     * 内存大小。
-	     */
 	    get cpuMemory() {
 	        return this._cpuMemory;
 	    }
-	    /**
-	     * 显存大小。
-	     */
 	    get gpuMemory() {
 	        return this._gpuMemory;
 	    }
-	    /**
-	     * 是否已处理。
-	     */
 	    get destroyed() {
 	        return this._destroyed;
 	    }
-	    /**
-	     * 获取资源的引用计数。
-	     */
 	    get referenceCount() {
 	        return this._referenceCount;
 	    }
-	    /**
-	     * @internal
-	     */
 	    _setCPUMemory(value) {
 	        var offsetValue = value - this._cpuMemory;
 	        this._cpuMemory = value;
 	        Resource._addCPUMemory(offsetValue);
 	    }
-	    /**
-	     * @internal
-	     */
 	    _setGPUMemory(value) {
 	        var offsetValue = value - this._gpuMemory;
 	        this._gpuMemory = value;
 	        Resource._addGPUMemory(offsetValue);
 	    }
-	    /**
-	     */
 	    _setCreateURL(url) {
-	        url = URL.formatURL(url); //需要序列化为绝对路径
+	        url = URL.formatURL(url);
 	        if (this._url !== url) {
 	            var resList;
 	            if (this._url) {
@@ -1898,47 +1195,26 @@ window.Laya= (function (exports) {
 	            this._url = url;
 	        }
 	    }
-	    /**
-	     * @implements IReferenceCounter
-	     */
 	    _addReference(count = 1) {
 	        this._referenceCount += count;
 	    }
-	    /**
-	     * @implements IReferenceCounter
-	     */
 	    _removeReference(count = 1) {
 	        this._referenceCount -= count;
 	    }
-	    /**
-	     * @implements IReferenceCounter
-	     */
 	    _clearReference() {
 	        this._referenceCount = 0;
 	    }
-	    /**
-	     * @private
-	     */
 	    _recoverResource() {
 	    }
-	    /**
-	     * @private
-	     */
 	    _disposeResource() {
 	    }
-	    /**
-	     * @private
-	     */
 	    _activeResource() {
 	    }
-	    /**
-	     * 销毁资源,销毁后资源不能恢复。
-	     */
 	    destroy() {
 	        if (this._destroyed)
 	            return;
 	        this._destroyed = true;
-	        this.lock = false; //解锁资源，强制清理
+	        this.lock = false;
 	        this._disposeResource();
 	        delete Resource._idResourcesMap[this.id];
 	        var resList;
@@ -1953,75 +1229,46 @@ window.Laya= (function (exports) {
 	        }
 	    }
 	}
-	/** @private */
 	Resource._uniqueIDCounter = 0;
-	/** @private */
 	Resource._idResourcesMap = {};
-	/** @private */
 	Resource._urlResourcesMap = {};
-	/** @private 以字节为单位。*/
 	Resource._cpuMemory = 0;
-	/** @private 以字节为单位。*/
 	Resource._gpuMemory = 0;
 
-	/**
-	     * @private
-	     * <code>Bitmap</code> 图片资源类。
-	     */
 	class Bitmap extends Resource {
-	    /**
-	     * 获取宽度。
-	     */
 	    get width() {
 	        return this._width;
 	    }
 	    set width(width) {
 	        this._width = width;
 	    }
-	    /***
-	     * 获取高度。
-	     */
 	    get height() {
 	        return this._height;
 	    }
 	    set height(height) {
 	        this._height = height;
 	    }
-	    /**
-	     * 创建一个 <code>Bitmap</code> 实例。
-	     */
 	    constructor() {
 	        super();
 	        this._width = -1;
 	        this._height = -1;
 	    }
-	    /**
-	     * @internal
-	     * 获取纹理资源。
-	     */
-	    //TODO:coverage
 	    _getSource() {
 	        throw "Bitmap: must override it.";
 	    }
 	}
 
 	class WebGLContext {
-	    /**
-	     * @internal
-	     */
 	    static __init__() {
 	        var gl = LayaGL.instance;
 	        WebGLContext._depthFunc = gl.LESS;
-	        WebGLContext._sFactor = gl.ONE; //待确认
-	        WebGLContext._dFactor = gl.ZERO; //待确认
-	        WebGLContext._srcAlpha = gl.ONE; //待确认
-	        WebGLContext._dstAlpha = gl.ZERO; //待确认
-	        WebGLContext._activedTextureID = gl.TEXTURE0; //默认激活纹理区为0
+	        WebGLContext._sFactor = gl.ONE;
+	        WebGLContext._dFactor = gl.ZERO;
+	        WebGLContext._srcAlpha = gl.ONE;
+	        WebGLContext._dstAlpha = gl.ZERO;
+	        WebGLContext._activedTextureID = gl.TEXTURE0;
 	        WebGLContext._glTextureIDs = [gl.TEXTURE0, gl.TEXTURE1, gl.TEXTURE2, gl.TEXTURE3, gl.TEXTURE4, gl.TEXTURE5, gl.TEXTURE6, gl.TEXTURE7];
 	    }
-	    /**
-	     * @private
-	     */
 	    static useProgram(gl, program) {
 	        if (WebGLContext._useProgram === program)
 	            return false;
@@ -2029,42 +1276,21 @@ window.Laya= (function (exports) {
 	        WebGLContext._useProgram = program;
 	        return true;
 	    }
-	    /**
-	     * @private
-	     */
-	    //TODO:coverage
 	    static setDepthTest(gl, value) {
 	        value !== WebGLContext._depthTest && (WebGLContext._depthTest = value, value ? gl.enable(gl.DEPTH_TEST) : gl.disable(gl.DEPTH_TEST));
 	    }
-	    /**
-	     * @private
-	     */
-	    //TODO:coverage
 	    static setDepthMask(gl, value) {
 	        value !== WebGLContext._depthMask && (WebGLContext._depthMask = value, gl.depthMask(value));
 	    }
-	    /**
-	     * @private
-	     */
-	    //TODO:coverage
 	    static setDepthFunc(gl, value) {
 	        value !== WebGLContext._depthFunc && (WebGLContext._depthFunc = value, gl.depthFunc(value));
 	    }
-	    /**
-	     * @private
-	     */
 	    static setBlend(gl, value) {
 	        value !== WebGLContext._blend && (WebGLContext._blend = value, value ? gl.enable(gl.BLEND) : gl.disable(gl.BLEND));
 	    }
-	    /**
-	     * @private
-	     */
 	    static setBlendFunc(gl, sFactor, dFactor) {
 	        (sFactor !== WebGLContext._sFactor || dFactor !== WebGLContext._dFactor) && (WebGLContext._sFactor = WebGLContext._srcAlpha = sFactor, WebGLContext._dFactor = WebGLContext._dstAlpha = dFactor, gl.blendFunc(sFactor, dFactor));
 	    }
-	    /**
-	     * @private
-	     */
 	    static setBlendFuncSeperate(gl, srcRGB, dstRGB, srcAlpha, dstAlpha) {
 	        if (srcRGB !== WebGLContext._sFactor || dstRGB !== WebGLContext._dFactor || srcAlpha !== WebGLContext._srcAlpha || dstAlpha !== WebGLContext._dstAlpha) {
 	            WebGLContext._sFactor = srcRGB;
@@ -2074,168 +1300,84 @@ window.Laya= (function (exports) {
 	            gl.blendFuncSeparate(srcRGB, dstRGB, srcAlpha, dstAlpha);
 	        }
 	    }
-	    /**
-	     * @private
-	     */
-	    //TODO:coverage
 	    static setCullFace(gl, value) {
 	        value !== WebGLContext._cullFace && (WebGLContext._cullFace = value, value ? gl.enable(gl.CULL_FACE) : gl.disable(gl.CULL_FACE));
 	    }
-	    /**
-	     * @private
-	     */
-	    //TODO:coverage
 	    static setFrontFace(gl, value) {
 	        value !== WebGLContext._frontFace && (WebGLContext._frontFace = value, gl.frontFace(value));
 	    }
-	    /**
-	     * @private
-	     */
 	    static activeTexture(gl, textureID) {
 	        if (WebGLContext._activedTextureID !== textureID) {
 	            gl.activeTexture(textureID);
 	            WebGLContext._activedTextureID = textureID;
 	        }
 	    }
-	    /**
-	     * @private
-	     */
 	    static bindTexture(gl, target, texture) {
 	        if (WebGLContext._activeTextures[WebGLContext._activedTextureID - gl.TEXTURE0] !== texture) {
 	            gl.bindTexture(target, texture);
 	            WebGLContext._activeTextures[WebGLContext._activedTextureID - gl.TEXTURE0] = texture;
 	        }
 	    }
-	    //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	    /**
-	     * @private
-	     */
 	    static __init_native() {
 	        if (!ILaya.Render.supportWebGLPlusRendering)
 	            return;
 	        var webGLContext = WebGLContext;
 	        webGLContext.activeTexture = webGLContext.activeTextureForNative;
 	        webGLContext.bindTexture = webGLContext.bindTextureForNative;
-	        /*webGLContext.useProgram = webGLContext.useProgramForNative;
-	        webGLContext.bindVertexArray = webGLContext.bindVertexArrayForNative;
-	        webGLContext.setDepthTest = webGLContext.setDepthTestForNative;
-	        webGLContext.setDepthMask = webGLContext.setDepthMaskForNative;
-	        webGLContext.setDepthFunc = webGLContext.setDepthFuncForNative;
-	        webGLContext.setBlend = webGLContext.setBlendForNative;
-	        webGLContext.setBlendFunc = webGLContext.setBlendFuncForNative;
-	        webGLContext.setCullFace = webGLContext.setCullFaceForNative;
-	        webGLContext.setFrontFace = webGLContext.setFrontFaceForNative;*/
 	    }
-	    /**
-	     * @private
-	     */
-	    //TODO:coverage
 	    static useProgramForNative(gl, program) {
 	        gl.useProgram(program);
 	        return true;
 	    }
-	    /**
-	     * @private
-	     */
-	    //TODO:coverage
 	    static setDepthTestForNative(gl, value) {
 	        if (value)
 	            gl.enable(gl.DEPTH_TEST);
 	        else
 	            gl.disable(gl.DEPTH_TEST);
 	    }
-	    /**
-	     * @private
-	     */
-	    //TODO:coverage
 	    static setDepthMaskForNative(gl, value) {
 	        gl.depthMask(value);
 	    }
-	    /**
-	     * @private
-	     */
-	    //TODO:coverage
 	    static setDepthFuncForNative(gl, value) {
 	        gl.depthFunc(value);
 	    }
-	    /**
-	     * @private
-	     */
-	    //TODO:coverage
 	    static setBlendForNative(gl, value) {
 	        if (value)
 	            gl.enable(gl.BLEND);
 	        else
 	            gl.disable(gl.BLEND);
 	    }
-	    /**
-	     * @private
-	     */
-	    //TODO:coverage
 	    static setBlendFuncForNative(gl, sFactor, dFactor) {
 	        gl.blendFunc(sFactor, dFactor);
 	    }
-	    /**
-	     * @private
-	     */
-	    //TODO:coverage
 	    static setCullFaceForNative(gl, value) {
 	        if (value)
 	            gl.enable(gl.CULL_FACE);
 	        else
 	            gl.disable(gl.CULL_FACE);
 	    }
-	    /**
-	     * @private
-	     */
-	    //TODO:coverage
 	    static setFrontFaceForNative(gl, value) {
 	        gl.frontFace(value);
 	    }
-	    /**
-	     * @private
-	     */
-	    //TODO:coverage
 	    static activeTextureForNative(gl, textureID) {
 	        gl.activeTexture(textureID);
 	    }
-	    /**
-	     * @private
-	     */
-	    //TODO:coverage
 	    static bindTextureForNative(gl, target, texture) {
 	        gl.bindTexture(target, texture);
 	    }
-	    /**
-	     * @private
-	     */
-	    //TODO:coverage
 	    static bindVertexArrayForNative(gl, vertexArray) {
 	        gl.bindVertexArray(vertexArray);
 	    }
 	}
-	/**@private */
 	WebGLContext.mainContext = null;
-	/**@internal */
 	WebGLContext._activeTextures = new Array(8);
-	/**@internal */
 	WebGLContext._useProgram = null;
-	/**@internal */
 	WebGLContext._depthTest = true;
-	/**@internal */
 	WebGLContext._depthMask = true;
-	/**@internal */
 	WebGLContext._blend = false;
-	/**@internal */
 	WebGLContext._cullFace = false;
 
-	/**
-	 * <code>BaseTexture</code> 纹理的父类，抽象类，不允许实例。
-	 */
 	class BaseTexture extends Bitmap {
-	    /**
-	     * 创建一个 <code>BaseTexture</code> 实例。
-	     */
 	    constructor(format, mipMap) {
 	        super();
 	        this._wrapModeU = BaseTexture.WARPMODE_REPEAT;
@@ -2249,93 +1391,54 @@ window.Laya= (function (exports) {
 	        this._anisoLevel = 1;
 	        this._glTexture = LayaGL.instance.createTexture();
 	    }
-	    /**
-	     * 是否使用mipLevel
-	     */
 	    get mipmap() {
 	        return this._mipmap;
 	    }
-	    /**
-	     * 纹理格式
-	     */
 	    get format() {
 	        return this._format;
 	    }
-	    /**
-	     * 获取纹理横向循环模式。
-	     */
 	    get wrapModeU() {
 	        return this._wrapModeU;
 	    }
-	    /**
-	     * 设置纹理横向循环模式。
-	     */
 	    set wrapModeU(value) {
 	        if (this._wrapModeU !== value) {
 	            this._wrapModeU = value;
 	            (this._width !== -1) && (this._setWarpMode(LayaGL.instance.TEXTURE_WRAP_S, value));
 	        }
 	    }
-	    /**
-	     * 获取纹理纵向循环模式。
-	     */
 	    get wrapModeV() {
 	        return this._wrapModeV;
 	    }
-	    /**
-	     * 设置纹理纵向循环模式。
-	     */
 	    set wrapModeV(value) {
 	        if (this._wrapModeV !== value) {
 	            this._wrapModeV = value;
 	            (this._height !== -1) && (this._setWarpMode(LayaGL.instance.TEXTURE_WRAP_T, value));
 	        }
 	    }
-	    /**
-	     * 缩小过滤器
-	     */
 	    get filterMode() {
 	        return this._filterMode;
 	    }
-	    /**
-	     * 缩小过滤器
-	     */
 	    set filterMode(value) {
 	        if (value !== this._filterMode) {
 	            this._filterMode = value;
 	            ((this._width !== -1) && (this._height !== -1)) && (this._setFilterMode(value));
 	        }
 	    }
-	    /**
-	     * 各向异性等级
-	     */
 	    get anisoLevel() {
 	        return this._anisoLevel;
 	    }
-	    /**
-	     * 各向异性等级
-	     */
 	    set anisoLevel(value) {
 	        if (value !== this._anisoLevel) {
 	            this._anisoLevel = Math.max(1, Math.min(16, value));
 	            ((this._width !== -1) && (this._height !== -1)) && (this._setAnisotropy(value));
 	        }
 	    }
-	    /**
-	     * 获取mipmap数量。
-	     */
 	    get mipmapCount() {
 	        return this._mipmapCount;
 	    }
-	    /**
-	     * 获取默认纹理资源。
-	     */
 	    get defaulteTexture() {
 	        throw "BaseTexture:must override it.";
 	    }
-	    /**
-	     * @private
-	     */
 	    _getFormatByteCount() {
 	        switch (this._format) {
 	            case BaseTexture.FORMAT_R8G8B8:
@@ -2348,15 +1451,9 @@ window.Laya= (function (exports) {
 	                throw "Texture2D: unknown format.";
 	        }
 	    }
-	    /**
-	     * @private
-	     */
 	    _isPot(size) {
 	        return (size & (size - 1)) === 0;
 	    }
-	    /**
-	     * @private
-	     */
 	    _getGLFormat() {
 	        var glFormat;
 	        var gl = LayaGL.instance;
@@ -2418,9 +1515,6 @@ window.Laya= (function (exports) {
 	        }
 	        return glFormat;
 	    }
-	    /**
-	     * @private
-	     */
 	    _setFilterMode(value) {
 	        var gl = LayaGL.instance;
 	        WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
@@ -2450,9 +1544,6 @@ window.Laya= (function (exports) {
 	                throw new Error("BaseTexture:unknown filterMode value.");
 	        }
 	    }
-	    /**
-	     * @private
-	     */
 	    _setWarpMode(orientation, mode) {
 	        var gl = LayaGL.instance;
 	        WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
@@ -2470,9 +1561,6 @@ window.Laya= (function (exports) {
 	            gl.texParameteri(this._glTextureType, orientation, gl.CLAMP_TO_EDGE);
 	        }
 	    }
-	    /**
-	     * @private
-	     */
 	    _setAnisotropy(value) {
 	        var anisotropic = LayaGL.layaGPUInstance._extTextureFilterAnisotropic;
 	        if (anisotropic) {
@@ -2483,10 +1571,6 @@ window.Laya= (function (exports) {
 	            gl.texParameterf(this._glTextureType, anisotropic.TEXTURE_MAX_ANISOTROPY_EXT, value);
 	        }
 	    }
-	    /**
-	     * @inheritDoc
-	     * @override
-	     */
 	    _disposeResource() {
 	        if (this._glTexture) {
 	            LayaGL.instance.deleteTexture(this._glTexture);
@@ -2494,20 +1578,12 @@ window.Laya= (function (exports) {
 	            this._setGPUMemory(0);
 	        }
 	    }
-	    /**
-	     * @internal
-	     * 获取纹理资源。
-	     * @override
-	     */
 	    _getSource() {
 	        if (this._readyed)
 	            return this._glTexture;
 	        else
 	            return null;
 	    }
-	    /**
-	     * 通过基础数据生成mipMap。
-	     */
 	    generateMipmap() {
 	        if (this._isPot(this.width) && this._isPot(this.height))
 	            LayaGL.instance.generateMipmap(this._glTextureType);
@@ -2515,61 +1591,26 @@ window.Laya= (function (exports) {
 	}
 	BaseTexture.WARPMODE_REPEAT = 0;
 	BaseTexture.WARPMODE_CLAMP = 1;
-	/**寻址模式_重复。*/
 	BaseTexture.FILTERMODE_POINT = 0;
-	/**寻址模式_不循环。*/
 	BaseTexture.FILTERMODE_BILINEAR = 1;
-	/**寻址模式_不循环。*/
 	BaseTexture.FILTERMODE_TRILINEAR = 2;
-	/**纹理格式_R8G8B8。*/
 	BaseTexture.FORMAT_R8G8B8 = 0;
-	/**纹理格式_R8G8B8A8。*/
 	BaseTexture.FORMAT_R8G8B8A8 = 1;
-	/**纹理格式_ALPHA8。*/
 	BaseTexture.FORMAT_ALPHA8 = 2;
-	/**纹理格式_DXT1。*/
 	BaseTexture.FORMAT_DXT1 = 3;
-	/**纹理格式_DXT5。*/
 	BaseTexture.FORMAT_DXT5 = 4;
-	/**纹理格式_ETC2RGB。*/
 	BaseTexture.FORMAT_ETC1RGB = 5;
-	///**纹理格式_ETC2RGB。*/
-	//public static const FORMAT_ETC2RGB:int = 6;
-	///**纹理格式_ETC2RGBA。*/
-	//public static const FORMAT_ETC2RGBA:int = 7;
-	/**纹理格式_ETC2RGB_PUNCHTHROUGHALPHA。*/
-	//public static const FORMAT_ETC2RGB_PUNCHTHROUGHALPHA:int = 8;
-	/**纹理格式_PVRTCRGB_2BPPV。*/
 	BaseTexture.FORMAT_PVRTCRGB_2BPPV = 9;
-	/**纹理格式_PVRTCRGBA_2BPPV。*/
 	BaseTexture.FORMAT_PVRTCRGBA_2BPPV = 10;
-	/**纹理格式_PVRTCRGB_4BPPV。*/
 	BaseTexture.FORMAT_PVRTCRGB_4BPPV = 11;
-	/**纹理格式_PVRTCRGBA_4BPPV。*/
 	BaseTexture.FORMAT_PVRTCRGBA_4BPPV = 12;
-	/**渲染纹理格式_16位半精度RGBA浮点格式。*/
 	BaseTexture.RENDERTEXTURE_FORMAT_RGBA_HALF_FLOAT = 14;
-	/**深度格式_DEPTH_16。*/
 	BaseTexture.FORMAT_DEPTH_16 = 0;
-	/**深度格式_STENCIL_8。*/
 	BaseTexture.FORMAT_STENCIL_8 = 1;
-	/**深度格式_DEPTHSTENCIL_16_8。*/
 	BaseTexture.FORMAT_DEPTHSTENCIL_16_8 = 2;
-	/**深度格式_DEPTHSTENCIL_NONE。*/
 	BaseTexture.FORMAT_DEPTHSTENCIL_NONE = 3;
 
-	/**
-	 * <code>Texture2D</code> 类用于生成2D纹理。
-	 */
 	class Texture2D extends BaseTexture {
-	    /**
-	     * 创建一个 <code>Texture2D</code> 实例。
-	     * @param	width 宽。
-	     * @param	height 高。
-	     * @param	format 贴图格式。
-	     * @param	mipmap 是否生成mipmap。
-	     * @param	canRead 是否可读像素,如果为true,会在内存保留像素数据。
-	     */
 	    constructor(width = 0, height = 0, format = BaseTexture.FORMAT_R8G8B8A8, mipmap = true, canRead = false) {
 	        super(format, mipmap);
 	        var gl = LayaGL.instance;
@@ -2577,14 +1618,14 @@ window.Laya= (function (exports) {
 	        this._width = width;
 	        this._height = height;
 	        this._canRead = canRead;
-	        this._setWarpMode(gl.TEXTURE_WRAP_S, this._wrapModeU); //TODO:重置宽高需要调整
-	        this._setWarpMode(gl.TEXTURE_WRAP_T, this._wrapModeV); //TODO:重置宽高需要调整
-	        this._setFilterMode(this._filterMode); //TODO:重置宽高需要调整
+	        this._setWarpMode(gl.TEXTURE_WRAP_S, this._wrapModeU);
+	        this._setWarpMode(gl.TEXTURE_WRAP_T, this._wrapModeV);
+	        this._setFilterMode(this._filterMode);
 	        this._setAnisotropy(this._anisoLevel);
 	        if (this._mipmap) {
 	            this._mipmapCount = Math.max(Math.ceil(Math.log2(width)) + 1, Math.ceil(Math.log2(height)) + 1);
 	            for (var i = 0; i < this._mipmapCount; i++)
-	                this._setPixels(null, i, Math.max(width >> i, 1), Math.max(height >> i, 1)); //初始化各级mipmap
+	                this._setPixels(null, i, Math.max(width >> i, 1), Math.max(height >> i, 1));
 	            this._setGPUMemory(width * height * 4 * (1 + 1 / 3));
 	        }
 	        else {
@@ -2592,9 +1633,6 @@ window.Laya= (function (exports) {
 	            this._setGPUMemory(width * height * 4);
 	        }
 	    }
-	    /**
-	     * @internal
-	     */
 	    static __init__() {
 	        var pixels = new Uint8Array(3);
 	        pixels[0] = 128;
@@ -2602,23 +1640,20 @@ window.Laya= (function (exports) {
 	        pixels[2] = 128;
 	        Texture2D.grayTexture = new Texture2D(1, 1, BaseTexture.FORMAT_R8G8B8, false, false);
 	        Texture2D.grayTexture.setPixels(pixels);
-	        Texture2D.grayTexture.lock = true; //锁住资源防止被资源管理释放
+	        Texture2D.grayTexture.lock = true;
 	        pixels[0] = 255;
 	        pixels[1] = 255;
 	        pixels[2] = 255;
 	        Texture2D.whiteTexture = new Texture2D(1, 1, BaseTexture.FORMAT_R8G8B8, false, false);
 	        Texture2D.whiteTexture.setPixels(pixels);
-	        Texture2D.whiteTexture.lock = true; //锁住资源防止被资源管理释放
+	        Texture2D.whiteTexture.lock = true;
 	        pixels[0] = 0;
 	        pixels[1] = 0;
 	        pixels[2] = 0;
 	        Texture2D.blackTexture = new Texture2D(1, 1, BaseTexture.FORMAT_R8G8B8, false, false);
 	        Texture2D.blackTexture.setPixels(pixels);
-	        Texture2D.blackTexture.lock = true; //锁住资源防止被资源管理释放
+	        Texture2D.blackTexture.lock = true;
 	    }
-	    /**
-	     * @internal
-	     */
 	    static _parse(data, propertyParams = null, constructParams = null) {
 	        var texture = constructParams ? new Texture2D(constructParams[0], constructParams[1], constructParams[2], constructParams[3], constructParams[4]) : new Texture2D(0, 0);
 	        if (propertyParams) {
@@ -2646,31 +1681,19 @@ window.Laya= (function (exports) {
 	        }
 	        return texture;
 	    }
-	    /**
-	     * 加载Texture2D。
-	     * @param url Texture2D地址。
-	     * @param complete 完成回掉。
-	     */
 	    static load(url, complete) {
 	        ILaya.loader.create(url, complete, null, ILaya.Loader.TEXTURE2D);
 	    }
-	    /**
-	     * @inheritDoc
-	     * @override
-	     */
 	    get defaulteTexture() {
 	        return Texture2D.grayTexture;
 	    }
-	    /**
-	     * @private
-	     */
 	    _setPixels(pixels, miplevel, width, height) {
 	        var gl = LayaGL.instance;
 	        var textureType = this._glTextureType;
 	        var glFormat = this._getGLFormat();
 	        WebGLContext.bindTexture(gl, textureType, this._glTexture);
 	        if (this.format === BaseTexture.FORMAT_R8G8B8) {
-	            gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1); //字节对齐
+	            gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 	            gl.texImage2D(textureType, miplevel, glFormat, width, height, 0, glFormat, gl.UNSIGNED_BYTE, pixels);
 	            gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
 	        }
@@ -2678,9 +1701,6 @@ window.Laya= (function (exports) {
 	            gl.texImage2D(textureType, miplevel, glFormat, width, height, 0, glFormat, gl.UNSIGNED_BYTE, pixels);
 	        }
 	    }
-	    /**
-	     * @private
-	     */
 	    _calcualatesCompressedDataSize(format, width, height) {
 	        switch (format) {
 	            case BaseTexture.FORMAT_DXT1:
@@ -2698,9 +1718,6 @@ window.Laya= (function (exports) {
 	                return 0;
 	        }
 	    }
-	    /**
-	     * @private
-	     */
 	    _pharseDDS(arrayBuffer) {
 	        const FOURCC_DXT1 = 827611204;
 	        const FOURCC_DXT5 = 894720068;
@@ -2751,9 +1768,6 @@ window.Laya= (function (exports) {
 	        var dataOffset = header[DDS_HEADER_SIZE] + 4;
 	        this._upLoadCompressedTexImage2D(arrayBuffer, width, height, mipLevels, dataOffset, 0);
 	    }
-	    /**
-	     * @private
-	     */
 	    _pharseKTX(arrayBuffer) {
 	        const ETC_HEADER_LENGTH = 13;
 	        const ETC_HEADER_FORMAT = 4;
@@ -2781,9 +1795,6 @@ window.Laya= (function (exports) {
 	        var dataOffset = 64 + header[ETC_HEADER_METADATA];
 	        this._upLoadCompressedTexImage2D(arrayBuffer, width, height, mipLevels, dataOffset, 4);
 	    }
-	    /**
-	     * @private
-	     */
 	    _pharsePVR(arrayBuffer) {
 	        const PVR_FORMAT_2BPP_RGB = 0;
 	        const PVR_FORMAT_2BPP_RGBA = 1;
@@ -2825,9 +1836,6 @@ window.Laya= (function (exports) {
 	        var dataOffset = header[PVR_HEADER_METADATA] + 52;
 	        this._upLoadCompressedTexImage2D(arrayBuffer, width, height, mipLevels, dataOffset, 0);
 	    }
-	    /**
-	     * @internal
-	     */
 	    _upLoadCompressedTexImage2D(data, width, height, miplevelCount, dataOffset, imageSizeOffset) {
 	        var gl = LayaGL.instance;
 	        var textureType = this._glTextureType;
@@ -2845,15 +1853,9 @@ window.Laya= (function (exports) {
 	        }
 	        var memory = offset;
 	        this._setGPUMemory(memory);
-	        //if (_canRead)
-	        //_pixels = pixels;
 	        this._readyed = true;
 	        this._activeResource();
 	    }
-	    /**
-	     * 通过图片源填充纹理,可为HTMLImageElement、HTMLCanvasElement、HTMLVideoElement、ImageBitmap、ImageData,
-	     * 设置之后纹理宽高可能会发生变化。
-	     */
 	    loadImageSource(source, premultiplyAlpha = false) {
 	        var gl = LayaGL.instance;
 	        var width = source.width;
@@ -2862,12 +1864,12 @@ window.Laya= (function (exports) {
 	        this._height = height;
 	        if (!(this._isPot(width) && this._isPot(height)))
 	            this._mipmap = false;
-	        this._setWarpMode(gl.TEXTURE_WRAP_S, this._wrapModeU); //宽高变化后需要重新设置
-	        this._setWarpMode(gl.TEXTURE_WRAP_T, this._wrapModeV); //宽高变化后需要重新设置
-	        this._setFilterMode(this._filterMode); //宽高变化后需要重新设置
+	        this._setWarpMode(gl.TEXTURE_WRAP_S, this._wrapModeU);
+	        this._setWarpMode(gl.TEXTURE_WRAP_T, this._wrapModeV);
+	        this._setFilterMode(this._filterMode);
 	        WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
 	        var glFormat = this._getGLFormat();
-	        if (ILaya.Render.isConchApp) { //[NATIVE]临时
+	        if (ILaya.Render.isConchApp) {
 	            if (source.setPremultiplyAlpha) {
 	                source.setPremultiplyAlpha(premultiplyAlpha);
 	            }
@@ -2885,25 +1887,20 @@ window.Laya= (function (exports) {
 	        else {
 	            this._setGPUMemory(width * height * 4);
 	        }
-	        if (this._canRead) { //TODO:是否所有图源都可以
+	        if (this._canRead) {
 	            if (ILaya.Render.isConchApp) {
-	                this._pixels = new Uint8Array(source._nativeObj.getImageData(0, 0, width, height)); //TODO:如果为RGB,会错误
+	                this._pixels = new Uint8Array(source._nativeObj.getImageData(0, 0, width, height));
 	            }
 	            else {
 	                ILaya.Browser.canvas.size(width, height);
 	                ILaya.Browser.canvas.clear();
 	                ILaya.Browser.context.drawImage(source, 0, 0, width, height);
-	                this._pixels = new Uint8Array(ILaya.Browser.context.getImageData(0, 0, width, height).data.buffer); //TODO:如果为RGB,会错误
+	                this._pixels = new Uint8Array(ILaya.Browser.context.getImageData(0, 0, width, height).data.buffer);
 	            }
 	        }
 	        this._readyed = true;
 	        this._activeResource();
 	    }
-	    /**
-	     * 通过像素填充纹理。
-	     * @param	pixels 像素。
-	     * @param   miplevel 层级。
-	     */
 	    setPixels(pixels, miplevel = 0) {
 	        if (!pixels)
 	            throw "Texture2D:pixels can't be null.";
@@ -2918,15 +1915,6 @@ window.Laya= (function (exports) {
 	        this._readyed = true;
 	        this._activeResource();
 	    }
-	    /**
-	     * 通过像素填充部分纹理。
-	     * @param  x X轴像素起点。
-	     * @param  y Y轴像素起点。
-	     * @param  width 像素宽度。
-	     * @param  height 像素高度。
-	     * @param  pixels 像素数组。
-	     * @param  miplevel 层级。
-	     */
 	    setSubPixels(x, y, width, height, pixels, miplevel = 0) {
 	        if (!pixels)
 	            throw "Texture2D:pixels can't be null.";
@@ -2935,23 +1923,16 @@ window.Laya= (function (exports) {
 	        WebGLContext.bindTexture(gl, textureType, this._glTexture);
 	        var glFormat = this._getGLFormat();
 	        if (this._format === BaseTexture.FORMAT_R8G8B8) {
-	            gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1); //字节对齐
+	            gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 	            gl.texSubImage2D(textureType, miplevel, x, y, width, height, glFormat, gl.UNSIGNED_BYTE, pixels);
 	            gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
 	        }
 	        else {
 	            gl.texSubImage2D(textureType, miplevel, x, y, width, height, glFormat, gl.UNSIGNED_BYTE, pixels);
 	        }
-	        //if (_canRead)
-	        //_pixels = pixels;//TODO:
 	        this._readyed = true;
 	        this._activeResource();
 	    }
-	    /**
-	     * 通过压缩数据填充纹理。
-	     * @param	data 压缩数据。
-	     * @param   miplevel 层级。
-	     */
 	    setCompressData(data) {
 	        switch (this._format) {
 	            case BaseTexture.FORMAT_DXT1:
@@ -2971,17 +1952,8 @@ window.Laya= (function (exports) {
 	                throw "Texture2D:unkonwn format.";
 	        }
 	    }
-	    /**
-	     * @inheritDoc
-	     * @override
-	     */
 	    _recoverResource() {
-	        //TODO:补充
 	    }
-	    /**
-	     * 返回图片像素。
-	     * @return 图片像素。
-	     */
 	    getPixels() {
 	        if (this._canRead)
 	            return this._pixels;
@@ -2989,19 +1961,11 @@ window.Laya= (function (exports) {
 	            throw new Error("Texture2D: must set texture canRead is true.");
 	    }
 	}
-	/**Texture2D资源。*/
 	Texture2D.TEXTURE2D = "TEXTURE2D";
-	/**纯灰色纹理。*/
 	Texture2D.grayTexture = null;
-	/**纯白色纹理。*/
 	Texture2D.whiteTexture = null;
-	/**纯黑色纹理。*/
 	Texture2D.blackTexture = null;
 
-	/**
-	 * ...
-	 * @author ...
-	 */
 	class BaseShader extends Resource {
 	    constructor() {
 	        super();
@@ -3009,12 +1973,6 @@ window.Laya= (function (exports) {
 	}
 
 	class RenderState2D {
-	    /* 不知道 有什么用，删掉先
-	    public static function getMatrArray():Array {
-	        return [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
-	    }
-	    */
-	    //TODO:coverage
 	    static mat2MatArray(mat, matArray) {
 	        var m = mat;
 	        var m4 = matArray;
@@ -3046,40 +2004,24 @@ window.Laya= (function (exports) {
 	    }
 	    static clear() {
 	        RenderState2D.worldScissorTest = false;
-	        //worldFilters = null;
 	        RenderState2D.worldAlpha = 1;
-	        //worldClipRect.x = worldClipRect.y = 0;
-	        //worldClipRect.width = width;
-	        //worldClipRect.height = height;
 	    }
 	}
 	RenderState2D._MAXSIZE = 99999999;
-	/**@private 一个初始化的 <code>Matrix</code> 对象，不允许修改此对象内容。*/
 	RenderState2D.EMPTYMAT4_ARRAY = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 	RenderState2D.TEMPMAT4_ARRAY = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 	RenderState2D.worldMatrix4 = RenderState2D.TEMPMAT4_ARRAY;
 	RenderState2D.worldMatrix = new Matrix();
-	RenderState2D.matWVP = null; // :Matrix4x4 = Matrix4x4.DEFAULT;		// 3d矩阵
+	RenderState2D.matWVP = null;
 	RenderState2D.worldAlpha = 1.0;
 	RenderState2D.worldScissorTest = false;
 	RenderState2D.width = 0;
 	RenderState2D.height = 0;
 
-	/**
-	 * <code>RenderTexture</code> 类用于创建渲染目标。
-	 */
 	class RenderTexture2D extends BaseTexture {
-	    /**
-	     * @param width  宽度。
-	     * @param height 高度。
-	     * @param format 纹理格式。
-	     * @param depthStencilFormat 深度格式。
-	     * 创建一个 <code>RenderTexture</code> 实例。
-	     */
 	    constructor(width, height, format = BaseTexture.FORMAT_R8G8B8, depthStencilFormat = BaseTexture.FORMAT_DEPTH_16) {
 	        super(format, false);
-	        /**@internal */
-	        this._mgrKey = 0; //给WebGLRTMgr用的
+	        this._mgrKey = 0;
 	        this._glTextureType = LayaGL.instance.TEXTURE_2D;
 	        this._width = width;
 	        this._height = height;
@@ -3087,56 +2029,30 @@ window.Laya= (function (exports) {
 	        this._create(width, height);
 	        this.lock = true;
 	    }
-	    /**
-	     * 获取当前激活的Rendertexture
-	     */
 	    static get currentActive() {
 	        return RenderTexture2D._currentActive;
 	    }
-	    /**
-	     * 获取深度格式。
-	     *@return 深度格式。
-	     */
 	    get depthStencilFormat() {
 	        return this._depthStencilFormat;
 	    }
-	    /**
-	     * @inheritDoc
-	     * @override
-	     */
 	    get defaulteTexture() {
 	        return Texture2D.grayTexture;
 	    }
 	    getIsReady() {
 	        return true;
 	    }
-	    /**
-	     * 获取宽度。
-	     */
 	    get sourceWidth() {
 	        return this._width;
 	    }
-	    /***
-	     * 获取高度。
-	     */
 	    get sourceHeight() {
 	        return this._height;
 	    }
-	    /**
-	     * 获取offsetX。
-	     */
 	    get offsetX() {
 	        return 0;
 	    }
-	    /***
-	     * 获取offsetY
-	     */
 	    get offsetY() {
 	        return 0;
 	    }
-	    /**
-	     * @private
-	     */
 	    _create(width, height) {
 	        var gl = LayaGL.instance;
 	        this._frameBuffer = gl.createFramebuffer();
@@ -3163,7 +2079,6 @@ window.Laya= (function (exports) {
 	                    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT, gl.RENDERBUFFER, this._depthStencilBuffer);
 	                    break;
 	                default:
-	                //console.log("RenderTexture: unkonw depth format.");//2d并不需要depthbuffer
 	            }
 	        }
 	        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -3175,10 +2090,6 @@ window.Laya= (function (exports) {
 	        this._readyed = true;
 	        this._activeResource();
 	    }
-	    /**
-	     * 生成mipMap。
-	     * @override
-	     */
 	    generateMipmap() {
 	        if (this._isPot(this.width) && this._isPot(this.height)) {
 	            this._mipmap = true;
@@ -3191,15 +2102,9 @@ window.Laya= (function (exports) {
 	            this._setGPUMemory(this.width * this.height * 4);
 	        }
 	    }
-	    /**
-	     * 保存当前的RT信息。
-	     */
 	    static pushRT() {
 	        RenderTexture2D.rtStack.push({ rt: RenderTexture2D._currentActive, w: RenderState2D.width, h: RenderState2D.height });
 	    }
-	    /**
-	     * 恢复上次保存的RT信息
-	     */
 	    static popRT() {
 	        var gl = LayaGL.instance;
 	        var top = RenderTexture2D.rtStack.pop();
@@ -3213,45 +2118,25 @@ window.Laya= (function (exports) {
 	            RenderState2D.height = top.h;
 	        }
 	    }
-	    /**
-	     * 开始绑定。
-	     */
 	    start() {
 	        var gl = LayaGL.instance;
-	        //(memorySize == 0) && recreateResource();
 	        LayaGL.instance.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
 	        this._lastRT = RenderTexture2D._currentActive;
 	        RenderTexture2D._currentActive = this;
 	        this._readyed = true;
-	        //var gl:LayaGL = LayaGL.instance;//TODO:这段代码影响2D、3D混合
-	        ////(memorySize == 0) && recreateResource();
-	        //LayaGL.instance.bindFramebuffer(WebGLContext.FRAMEBUFFER, _frameBuffer);
-	        //_lastRT = _currentActive;
-	        //_currentActive = this;
-	        ////_readyed = false;  
-	        //_readyed = true;	//这个没什么用。还会影响流程，比如我有时候并不调用end。所以直接改成true
-	        //
-	        ////if (_type == TYPE2D) {
-	        gl.viewport(0, 0, this._width, this._height); //外部设置
+	        gl.viewport(0, 0, this._width, this._height);
 	        this._lastWidth = RenderState2D.width;
 	        this._lastHeight = RenderState2D.height;
 	        RenderState2D.width = this._width;
 	        RenderState2D.height = this._height;
 	        BaseShader.activeShader = null;
-	        ////}
 	    }
-	    /**
-	     * 结束绑定。
-	     */
 	    end() {
 	        var gl = LayaGL.instance;
 	        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 	        RenderTexture2D._currentActive = null;
 	        this._readyed = true;
 	    }
-	    /**
-	     * 恢复上一次的RenderTarge.由于使用自己保存的，所以如果被外面打断了的话，会出错。
-	     */
 	    restore() {
 	        var gl = LayaGL.instance;
 	        if (this._lastRT != RenderTexture2D._currentActive) {
@@ -3259,25 +2144,19 @@ window.Laya= (function (exports) {
 	            RenderTexture2D._currentActive = this._lastRT;
 	        }
 	        this._readyed = true;
-	        //if (_type == TYPE2D)//待调整
-	        //{
 	        gl.viewport(0, 0, this._lastWidth, this._lastHeight);
 	        RenderState2D.width = this._lastWidth;
 	        RenderState2D.height = this._lastHeight;
 	        BaseShader.activeShader = null;
-	        //} else 
-	        //	gl.viewport(0, 0, Laya.stage.width, Laya.stage.height);
 	    }
 	    clear(r = 0.0, g = 0.0, b = 0.0, a = 1.0) {
 	        var gl = LayaGL.instance;
 	        gl.clearColor(r, g, b, a);
 	        var clearFlag = gl.COLOR_BUFFER_BIT;
 	        switch (this._depthStencilFormat) {
-	            //case WebGLContext.DEPTH_COMPONENT: 
 	            case gl.DEPTH_COMPONENT16:
 	                clearFlag |= gl.DEPTH_BUFFER_BIT;
 	                break;
-	            //case WebGLContext.STENCIL_INDEX:
 	            case gl.STENCIL_INDEX8:
 	                clearFlag |= gl.STENCIL_BUFFER_BIT;
 	                break;
@@ -3288,14 +2167,6 @@ window.Laya= (function (exports) {
 	        }
 	        gl.clear(clearFlag);
 	    }
-	    /**
-	     * 获得像素数据。
-	     * @param x X像素坐标。
-	     * @param y Y像素坐标。
-	     * @param width 宽度。
-	     * @param height 高度。
-	     * @return 像素数据。
-	     */
 	    getData(x, y, width, height) {
 	        if (ILaya.Render.isConchApp && window.conchConfig.threadMode == 2) {
 	            throw "native 2 thread mode use getDataAsync";
@@ -3313,9 +2184,6 @@ window.Laya= (function (exports) {
 	        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 	        return pixels;
 	    }
-	    /**
-	     * native多线程
-	     */
 	    getDataAsync(x, y, width, height, callBack) {
 	        var gl = LayaGL.instance;
 	        gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
@@ -3326,10 +2194,6 @@ window.Laya= (function (exports) {
 	    }
 	    recycle() {
 	    }
-	    /**
-	     * @inheritDoc
-	     * @internal
-	     */
 	    _disposeResource() {
 	        if (this._frameBuffer) {
 	            var gl = LayaGL.instance;
@@ -3343,25 +2207,11 @@ window.Laya= (function (exports) {
 	        }
 	    }
 	}
-	//为push,pop 用的。以后和上面只保留一份。
-	//由于可能递归，所以不能简单的用save，restore
-	RenderTexture2D.rtStack = []; //rt:RenderTexture，w:int，h:int
+	RenderTexture2D.rtStack = [];
 	RenderTexture2D.defuv = [0, 0, 1, 0, 1, 1, 0, 1];
 	RenderTexture2D.flipyuv = [0, 1, 1, 1, 1, 0, 0, 0];
 
-	/**
-	 * WebGLRTMgr 管理WebGLRenderTarget的创建和回收
-	 * TODO 需求不大，管理成本高。先去掉。
-	 */
 	class WebGLRTMgr {
-	    /**
-	     * 获得一个renderTarget
-	     * 暂时先按照严格大小判断。
-	     *
-	     * @param	w
-	     * @param	h
-	     * @return
-	     */
 	    static getRT(w, h) {
 	        w = w | 0;
 	        h = h | 0;
@@ -3369,97 +2219,60 @@ window.Laya= (function (exports) {
 	            console.error('getRT error! w too big');
 	        }
 	        var ret;
-	        /*
-	        var key: number = h * 10000 + w;
-	        var sw: any[] = WebGLRTMgr.dict[key];
-	        if (sw) {
-	            if (sw.length > 0) {
-	                ret = sw.pop();
-	                ret._mgrKey = key;	//只有不再mgr中的才有key
-	                return ret;
-	            }
-	        }
-	        */
 	        ret = new RenderTexture2D(w, h, BaseTexture.FORMAT_R8G8B8A8, -1);
-	        //ret._mgrKey = key;
 	        return ret;
 	    }
-	    /**
-	     * 回收一个renderTarget
-	     * @param	rt
-	     */
 	    static releaseRT(rt) {
-	        rt._disposeResource(); // 直接删除贴图。否则还要管理占用过多的时候的清理。
+	        rt._disposeResource();
 	        return;
-	        /*
-	        //如果_mgrKey<=0表示已经加进来了。
-	        if (rt._mgrKey <= 0)
-	            return;
-	        var sw: any[] = WebGLRTMgr.dict[rt._mgrKey];
-	        !sw && (sw = [], WebGLRTMgr.dict[rt._mgrKey] = sw);
-	        rt._mgrKey = 0;
-	        sw.push(rt);
-	        */
 	    }
 	}
-	WebGLRTMgr.dict = {}; //key=h*10000+w
+	WebGLRTMgr.dict = {};
 
 	class BlendMode {
-	    /**@internal */
 	    static _init_(gl) {
 	        BlendMode.fns = [BlendMode.BlendNormal, BlendMode.BlendAdd, BlendMode.BlendMultiply, BlendMode.BlendScreen, BlendMode.BlendOverlay, BlendMode.BlendLight, BlendMode.BlendMask, BlendMode.BlendDestinationOut];
 	        BlendMode.targetFns = [BlendMode.BlendNormalTarget, BlendMode.BlendAddTarget, BlendMode.BlendMultiplyTarget, BlendMode.BlendScreenTarget, BlendMode.BlendOverlayTarget, BlendMode.BlendLightTarget, BlendMode.BlendMask, BlendMode.BlendDestinationOut];
 	    }
 	    static BlendNormal(gl) {
-	        //为了避免黑边，和canvas作为贴图的黑边
 	        WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 	    }
 	    static BlendAdd(gl) {
 	        WebGLContext.setBlendFunc(gl, gl.ONE, gl.DST_ALPHA);
 	    }
-	    //TODO:coverage
 	    static BlendMultiply(gl) {
 	        WebGLContext.setBlendFunc(gl, gl.DST_COLOR, gl.ONE_MINUS_SRC_ALPHA);
 	    }
-	    //TODO:coverage
 	    static BlendScreen(gl) {
 	        WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE);
 	    }
-	    //TODO:coverage
 	    static BlendOverlay(gl) {
 	        WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE_MINUS_SRC_COLOR);
 	    }
-	    //TODO:coverage
 	    static BlendLight(gl) {
 	        WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE);
 	    }
 	    static BlendNormalTarget(gl) {
 	        WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 	    }
-	    //TODO:coverage
 	    static BlendAddTarget(gl) {
 	        WebGLContext.setBlendFunc(gl, gl.ONE, gl.DST_ALPHA);
 	    }
-	    //TODO:coverage
 	    static BlendMultiplyTarget(gl) {
 	        WebGLContext.setBlendFunc(gl, gl.DST_COLOR, gl.ONE_MINUS_SRC_ALPHA);
 	    }
-	    //TODO:coverage
 	    static BlendScreenTarget(gl) {
 	        WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE);
 	    }
-	    //TODO:coverage
 	    static BlendOverlayTarget(gl) {
 	        WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE_MINUS_SRC_COLOR);
 	    }
-	    //TODO:coverage
 	    static BlendLightTarget(gl) {
 	        WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE);
 	    }
 	    static BlendMask(gl) {
 	        WebGLContext.setBlendFunc(gl, gl.ZERO, gl.SRC_ALPHA);
 	    }
-	    //TODO:coverage
 	    static BlendDestinationOut(gl) {
 	        WebGLContext.setBlendFunc(gl, gl.ZERO, gl.ZERO);
 	    }
@@ -3467,27 +2280,25 @@ window.Laya= (function (exports) {
 	BlendMode.activeBlendFunction = null;
 	BlendMode.NAMES = ["normal", "add", "multiply", "screen", "overlay", "light", "mask", "destination-out"];
 	BlendMode.TOINT = { "normal": 0, "add": 1, "multiply": 2, "screen": 3, "overlay": 4, "light": 5, "mask": 6, "destination-out": 7, "lighter": 1 };
-	BlendMode.NORMAL = "normal"; //0
-	BlendMode.ADD = "add"; //1
-	BlendMode.MULTIPLY = "multiply"; //2
-	BlendMode.SCREEN = "screen"; //3
-	BlendMode.OVERLAY = "overlay"; //4
-	BlendMode.LIGHT = "light"; //5
-	BlendMode.MASK = "mask"; //6
-	BlendMode.DESTINATIONOUT = "destination-out"; //7
-	BlendMode.LIGHTER = "lighter"; //1  等同于加色法
+	BlendMode.NORMAL = "normal";
+	BlendMode.ADD = "add";
+	BlendMode.MULTIPLY = "multiply";
+	BlendMode.SCREEN = "screen";
+	BlendMode.OVERLAY = "overlay";
+	BlendMode.LIGHT = "light";
+	BlendMode.MASK = "mask";
+	BlendMode.DESTINATIONOUT = "destination-out";
+	BlendMode.LIGHTER = "lighter";
 	BlendMode.fns = [];
 	BlendMode.targetFns = [];
 
 	class ShaderDefinesBase {
 	    constructor(name2int, int2name, int2nameMap) {
-	        /**@internal */
 	        this._value = 0;
 	        this._name2int = name2int;
 	        this._int2name = int2name;
 	        this._int2nameMap = int2nameMap;
 	    }
-	    //TODO:coverage
 	    add(value) {
 	        if (typeof (value) == 'string') {
 	            this._value |= this._name2int[value];
@@ -3501,7 +2312,6 @@ window.Laya= (function (exports) {
 	        this._value |= value;
 	        return this._value;
 	    }
-	    //TODO:coverage
 	    remove(value) {
 	        if (typeof (value) == 'string') {
 	            this._value &= ~(this._name2int[value]);
@@ -3511,11 +2321,9 @@ window.Laya= (function (exports) {
 	        }
 	        return this._value;
 	    }
-	    //TODO:coverage
 	    isDefine(def) {
 	        return (this._value & def) === def;
 	    }
-	    //TODO:coverage
 	    getValue() {
 	        return this._value;
 	    }
@@ -3548,7 +2356,6 @@ window.Laya= (function (exports) {
 	        _int2nameMap[value] = o;
 	        return o;
 	    }
-	    //TODO:coverage
 	    static _toInt(names, _name2int) {
 	        var words = names.split('.');
 	        var num = 0;
@@ -3581,11 +2388,9 @@ window.Laya= (function (exports) {
 	    static reg(name, value) {
 	        this._reg(name, value, ShaderDefines2D.__name2int, ShaderDefines2D.__int2name);
 	    }
-	    //TODO:coverage
 	    static toText(value, int2name, int2nameMap) {
 	        return this._toText(value, int2name, int2nameMap);
 	    }
-	    //TODO:coverage
 	    static toInt(names) {
 	        return this._toInt(names, ShaderDefines2D.__name2int);
 	    }
@@ -3601,105 +2406,53 @@ window.Laya= (function (exports) {
 	ShaderDefines2D.SKINMESH = 0x200;
 	ShaderDefines2D.SHADERDEFINE_FSHIGHPRECISION = 0x400;
 	ShaderDefines2D.MVP3D = 0x800;
-	ShaderDefines2D.NOOPTMASK = ShaderDefines2D.FILTERGLOW | ShaderDefines2D.FILTERBLUR | ShaderDefines2D.FILTERCOLOR | ShaderDefines2D.FILLTEXTURE; //有这些定义的不要优化。见submittexture
+	ShaderDefines2D.NOOPTMASK = ShaderDefines2D.FILTERGLOW | ShaderDefines2D.FILTERBLUR | ShaderDefines2D.FILTERCOLOR | ShaderDefines2D.FILLTEXTURE;
 	ShaderDefines2D.__name2int = {};
 	ShaderDefines2D.__int2name = [];
 	ShaderDefines2D.__int2nameMap = [];
 
-	/**
-	     * <p> <code>Stat</code> 是一个性能统计面板，可以实时更新相关的性能参数。</p>
-	     * <p>参与统计的性能参数如下（所有参数都是每大约1秒进行更新）：<br/>
-	     * FPS(Canvas)/FPS(WebGL)：Canvas 模式或者 WebGL 模式下的帧频，也就是每秒显示的帧数，值越高、越稳定，感觉越流畅；<br/>
-	     * Sprite：统计所有渲染节点（包括容器）数量，它的大小会影响引擎进行节点遍历、数据组织和渲染的效率。其值越小，游戏运行效率越高；<br/>
-	     * DrawCall：此值是决定性能的重要指标，其值越小，游戏运行效率越高。Canvas模式下表示每大约1秒的图像绘制次数；WebGL模式下表示每大约1秒的渲染提交批次，每次准备数据并通知GPU渲染绘制的过程称为1次DrawCall，在每次DrawCall中除了在通知GPU的渲染上比较耗时之外，切换材质与shader也是非常耗时的操作；<br/>
-	     * CurMem：Canvas模式下，表示内存占用大小，值越小越好，过高会导致游戏闪退；WebGL模式下，表示内存与显存的占用，值越小越好；<br/>
-	     * Shader：是 WebGL 模式独有的性能指标，表示每大约1秒 Shader 提交次数，值越小越好；<br/>
-	     * Canvas：由三个数值组成，只有设置 CacheAs 后才会有值，默认为0/0/0。从左到右数值的意义分别为：每帧重绘的画布数量 / 缓存类型为"normal"类型的画布数量 / 缓存类型为"bitmap"类型的画布数量。</p>
-	     */
 	class Stat {
-	    /**
-	     * 显示性能统计信息。
-	     * @param	x X轴显示位置。
-	     * @param	y Y轴显示位置。
-	     */
 	    static show(x = 0, y = 0) {
 	        Stat._StatRender.show(x, y);
 	    }
-	    /**激活性能统计*/
 	    static enable() {
 	        Stat._StatRender.enable();
 	    }
-	    /**
-	     * 隐藏性能统计信息。
-	     */
 	    static hide() {
 	        Stat._StatRender.hide();
 	    }
-	    /**
-	     * @private
-	     * 清零性能统计计算相关的数据。
-	     */
 	    static clear() {
 	        Stat.trianglesFaces = Stat.renderBatches = Stat.savedRenderBatches = Stat.shaderCall = Stat.spriteRenderUseCacheCount = Stat.frustumCulling = Stat.octreeNodeCulling = Stat.canvasNormal = Stat.canvasBitmap = Stat.canvasReCache = 0;
 	    }
-	    /**
-	     * 点击性能统计显示区域的处理函数。
-	     */
 	    static set onclick(fn) {
 	        Stat._StatRender.set_onclick(fn);
 	    }
 	}
-	/** 每秒帧数。*/
 	Stat.FPS = 0;
-	/**主舞台 <code>Stage</code> 渲染次数计数。 */
 	Stat.loopCount = 0;
-	/** 着色器请求次数。*/
 	Stat.shaderCall = 0;
-	/** 渲染批次。*/
 	Stat.renderBatches = 0;
-	/** 节省的渲染批次。*/
 	Stat.savedRenderBatches = 0;
-	/** 三角形面数。*/
 	Stat.trianglesFaces = 0;
-	/** 精灵<code>Sprite</code> 的数量。*/
 	Stat.spriteCount = 0;
-	/** 精灵渲染使用缓存<code>Sprite</code> 的数量。*/
 	Stat.spriteRenderUseCacheCount = 0;
-	/** 视锥剔除次数。*/
 	Stat.frustumCulling = 0;
-	/**	八叉树节点剔除次数。*/
 	Stat.octreeNodeCulling = 0;
-	/** 画布 canvas 使用标准渲染的次数。*/
 	Stat.canvasNormal = 0;
-	/** 画布 canvas 使用位图渲染的次数。*/
 	Stat.canvasBitmap = 0;
-	/** 画布 canvas 缓冲区重绘次数。*/
 	Stat.canvasReCache = 0;
-	/** 表示当前使用的是否为慢渲染模式。*/
 	Stat.renderSlow = false;
 	Stat._fpsData = [];
 	Stat._timer = 0;
 	Stat._count = 0;
-	/**@internal*/
 	Stat._StatRender = null;
 
-	/**
-	     * @private
-	     * <code>StringKey</code> 类用于存取字符串对应的数字。
-	     */
 	class StringKey {
 	    constructor() {
 	        this._strsToID = {};
 	        this._idToStrs = [];
 	        this._length = 0;
 	    }
-	    //TODO:
-	    /**
-	     * 添加一个字符。
-	     * @param	str 字符，将作为key 存储相应生成的数字。
-	     * @return 此字符对应的数字。
-	     */
-	    //TODO:coverage
 	    add(str) {
 	        var index = this._strsToID[str];
 	        if (index != null)
@@ -3707,22 +2460,10 @@ window.Laya= (function (exports) {
 	        this._idToStrs[this._length] = str;
 	        return this._strsToID[str] = this._length++;
 	    }
-	    /**
-	     * 获取指定字符对应的ID。
-	     * @param	str 字符。
-	     * @return 此字符对应的ID。
-	     */
-	    //TODO:coverage
 	    getID(str) {
 	        var index = this._strsToID[str];
 	        return index == null ? -1 : index;
 	    }
-	    /**
-	     * 根据指定ID获取对应字符。
-	     * @param  id ID。
-	     * @return 此id对应的字符。
-	     */
-	    //TODO:coverage
 	    getName(id) {
 	        var str = this._idToStrs[id];
 	        return str == null ? undefined : str;
@@ -3730,26 +2471,14 @@ window.Laya= (function (exports) {
 	}
 
 	class Shader extends BaseShader {
-	    /**
-	     * 根据vs和ps信息生成shader对象
-	     * 把自己存储在 sharders 数组中
-	     * @param	vs
-	     * @param	ps
-	     * @param	name:
-	     * @param	nameMap 帮助里要详细解释为什么需要nameMap
-	     */
 	    constructor(vs, ps, saveName = null, nameMap = null, bindAttrib = null) {
 	        super();
 	        this._attribInfo = null;
 	        this.customCompile = false;
 	        this._curActTexIndex = 0;
-	        //存储一些私有变量
 	        this.tag = {};
-	        /**@internal */
 	        this._program = null;
-	        /**@internal */
 	        this._params = null;
-	        /**@internal */
 	        this._paramsMap = {};
 	        if ((!vs) || (!ps))
 	            throw "Shader Error";
@@ -3762,23 +2491,12 @@ window.Laya= (function (exports) {
 	        this.recreateResource();
 	        this.lock = true;
 	    }
-	    //TODO:coverage
 	    static getShader(name) {
 	        return Shader.sharders[name];
 	    }
-	    //TODO:coverage
 	    static create(vs, ps, saveName = null, nameMap = null, bindAttrib = null) {
 	        return new Shader(vs, ps, saveName, nameMap, bindAttrib);
 	    }
-	    /**
-	     * 根据宏动态生成shader文件，支持#include?COLOR_FILTER "parts/ColorFilter_ps_logic.glsl";条件嵌入文件
-	     * @param	name
-	     * @param	vs
-	     * @param	ps
-	     * @param	define 宏定义，格式:{name:value...}
-	     * @return
-	     */
-	    //TODO:coverage
 	    static withCompile(nameID, define, shaderName, createShader) {
 	        if (shaderName && Shader.sharders[shaderName])
 	            return Shader.sharders[shaderName];
@@ -3787,14 +2505,6 @@ window.Laya= (function (exports) {
 	            throw new Error("withCompile shader err!" + nameID);
 	        return pre.createShader(define, shaderName, createShader, null);
 	    }
-	    /**
-	     * 根据宏动态生成shader文件，支持#include?COLOR_FILTER "parts/ColorFilter_ps_logic.glsl";条件嵌入文件
-	     * @param	name
-	     * @param	vs
-	     * @param	ps
-	     * @param	define 宏定义，格式:{name:value...}
-	     * @return
-	     */
 	    static withCompile2D(nameID, mainID, define, shaderName, createShader, bindAttrib = null) {
 	        if (shaderName && Shader.sharders[shaderName])
 	            return Shader.sharders[shaderName];
@@ -3806,35 +2516,18 @@ window.Laya= (function (exports) {
 	    static addInclude(fileName, txt) {
 	        ILaya.ShaderCompile.addInclude(fileName, txt);
 	    }
-	    /**
-	     * 预编译shader文件，主要是处理宏定义
-	     * @param	nameID,一般是特殊宏+shaderNameID*0.0002组成的一个浮点数当做唯一标识
-	     * @param	vs
-	     * @param	ps
-	     */
-	    //TODO:coverage
 	    static preCompile(nameID, vs, ps, nameMap) {
 	        var id = Shader.SHADERNAME2ID * nameID;
 	        Shader._preCompileShader[id] = new ILaya.ShaderCompile(vs, ps, nameMap);
 	    }
-	    /**
-	     * 预编译shader文件，主要是处理宏定义
-	     * @param	nameID,一般是特殊宏+shaderNameID*0.0002组成的一个浮点数当做唯一标识
-	     * @param	vs
-	     * @param	ps
-	     */
 	    static preCompile2D(nameID, mainID, vs, ps, nameMap) {
 	        var id = Shader.SHADERNAME2ID * nameID + mainID;
 	        Shader._preCompileShader[id] = new ILaya.ShaderCompile(vs, ps, nameMap);
 	    }
 	    recreateResource() {
 	        this._compile();
-	        this._setGPUMemory(0); //忽略尺寸尺寸
+	        this._setGPUMemory(0);
 	    }
-	    //TODO:coverage
-	    /**
-	     * @override
-	     */
 	    _disposeResource() {
 	        WebGLContext.mainContext.deleteShader(this._vshader);
 	        WebGLContext.mainContext.deleteShader(this._pshader);
@@ -3848,12 +2541,6 @@ window.Laya= (function (exports) {
 	    _compile() {
 	        if (!this._vs || !this._ps || this._params)
 	            return;
-	        /*
-	        trace("================================");
-	        trace(_vs);
-	        trace(_ps);
-	        trace("\n");
-	        */
 	        this._reCompile = true;
 	        this._params = [];
 	        var result;
@@ -3866,8 +2553,6 @@ window.Laya= (function (exports) {
 	        gl.attachShader(this._program, this._vshader);
 	        gl.attachShader(this._program, this._pshader);
 	        var one, i, n, location;
-	        //属性用指定location的方法，这样更灵活，更方便与vao结合。
-	        //注意注意注意 这个必须放到link前面
 	        var attribDescNum = this._attribInfo ? this._attribInfo.length : 0;
 	        for (i = 0; i < attribDescNum; i += 2) {
 	            gl.bindAttribLocation(this._program, this._attribInfo[i + 1], this._attribInfo[i]);
@@ -3876,22 +2561,10 @@ window.Laya= (function (exports) {
 	        if (!this.customCompile && !gl.getProgramParameter(this._program, gl.LINK_STATUS)) {
 	            throw gl.getProgramInfoLog(this._program);
 	        }
-	        //trace(_vs);
-	        //trace(_ps);
-	        /*
-	        var attribNum:int = customCompile ? result.attributes.length : gl.getProgramParameter(_program, WebGLContext.ACTIVE_ATTRIBUTES); //得到attribute的个数
-	        
-	        for (i = 0; i < attribNum; i++) {
-	            var attrib:* = customCompile ? result.attributes[i] : gl.getActiveAttrib(_program, i); //attrib对象，{name,size,type}
-	            location = gl.getAttribLocation(_program, attrib.name); //用名字来得到location
-	            one = {vartype: "attribute", glfun:null, ivartype: 0, attrib: attrib, location: location, name: attrib.name, type: attrib.type, isArray: false, isSame: false, preValue: null, indexOfParams: 0};
-	            _params.push(one);
-	        }
-	        */
-	        var nUniformNum = this.customCompile ? result.uniforms.length : gl.getProgramParameter(this._program, gl.ACTIVE_UNIFORMS); //个数
+	        var nUniformNum = this.customCompile ? result.uniforms.length : gl.getProgramParameter(this._program, gl.ACTIVE_UNIFORMS);
 	        for (i = 0; i < nUniformNum; i++) {
-	            var uniform = this.customCompile ? result.uniforms[i] : gl.getActiveUniform(this._program, i); //得到uniform对象，包括名字等信息 {name,type,size}
-	            location = gl.getUniformLocation(this._program, uniform.name); //用名字来得到location
+	            var uniform = this.customCompile ? result.uniforms[i] : gl.getActiveUniform(this._program, i);
+	            location = gl.getUniformLocation(this._program, uniform.name);
 	            one = { vartype: "uniform", glfun: null, ivartype: 1, location: location, name: uniform.name, type: uniform.type, isArray: false, isSame: false, preValue: null, indexOfParams: 0 };
 	            if (one.name.indexOf('[0]') > 0) {
 	                one.name = one.name.substr(0, one.name.length - 3);
@@ -3941,7 +2614,6 @@ window.Laya= (function (exports) {
 	                    break;
 	                case gl.FLOAT_MAT2:
 	                case gl.FLOAT_MAT3:
-	                    //TODO 这个有人会用的。
 	                    throw new Error("compile shader err!");
 	                default:
 	                    throw new Error("compile shader err!");
@@ -3960,16 +2632,9 @@ window.Laya= (function (exports) {
 	            return null;
 	        }
 	    }
-	    /**
-	     * 根据变量名字获得
-	     * @param	name
-	     * @return
-	     */
-	    //TODO:coverage
 	    getUniform(name) {
 	        return this._paramsMap[name];
 	    }
-	    //TODO:coverage
 	    _uniform1f(one, value) {
 	        var uploadedValue = one.uploadedValue;
 	        if (uploadedValue[0] !== value) {
@@ -3978,7 +2643,6 @@ window.Laya= (function (exports) {
 	        }
 	        return 0;
 	    }
-	    //TODO:coverage
 	    _uniform1fv(one, value) {
 	        if (value.length < 4) {
 	            var uploadedValue = one.uploadedValue;
@@ -4005,7 +2669,6 @@ window.Laya= (function (exports) {
 	        }
 	        return 0;
 	    }
-	    //TODO:coverage
 	    _uniform_vec2v(one, value) {
 	        if (value.length < 2) {
 	            var uploadedValue = one.uploadedValue;
@@ -4024,7 +2687,6 @@ window.Laya= (function (exports) {
 	            return 1;
 	        }
 	    }
-	    //TODO:coverage
 	    _uniform_vec3(one, value) {
 	        var uploadedValue = one.uploadedValue;
 	        if (uploadedValue[0] !== value[0] || uploadedValue[1] !== value[1] || uploadedValue[2] !== value[2]) {
@@ -4033,7 +2695,6 @@ window.Laya= (function (exports) {
 	        }
 	        return 0;
 	    }
-	    //TODO:coverage
 	    _uniform_vec3v(one, value) {
 	        WebGLContext.mainContext.uniform3fv(one.location, value);
 	        return 1;
@@ -4046,17 +2707,14 @@ window.Laya= (function (exports) {
 	        }
 	        return 0;
 	    }
-	    //TODO:coverage
 	    _uniform_vec4v(one, value) {
 	        WebGLContext.mainContext.uniform4fv(one.location, value);
 	        return 1;
 	    }
-	    //TODO:coverage
 	    _uniformMatrix2fv(one, value) {
 	        WebGLContext.mainContext.uniformMatrix2fv(one.location, false, value);
 	        return 1;
 	    }
-	    //TODO:coverage
 	    _uniformMatrix3fv(one, value) {
 	        WebGLContext.mainContext.uniformMatrix3fv(one.location, false, value);
 	        return 1;
@@ -4065,7 +2723,6 @@ window.Laya= (function (exports) {
 	        WebGLContext.mainContext.uniformMatrix4fv(one.location, false, value);
 	        return 1;
 	    }
-	    //TODO:coverage
 	    _uniform1i(one, value) {
 	        var uploadedValue = one.uploadedValue;
 	        if (uploadedValue[0] !== value) {
@@ -4074,12 +2731,10 @@ window.Laya= (function (exports) {
 	        }
 	        return 0;
 	    }
-	    //TODO:coverage
 	    _uniform1iv(one, value) {
 	        WebGLContext.mainContext.uniform1iv(one.location, value);
 	        return 1;
 	    }
-	    //TODO:coverage
 	    _uniform_ivec2(one, value) {
 	        var uploadedValue = one.uploadedValue;
 	        if (uploadedValue[0] !== value[0] || uploadedValue[1] !== value[1]) {
@@ -4088,12 +2743,10 @@ window.Laya= (function (exports) {
 	        }
 	        return 0;
 	    }
-	    //TODO:coverage
 	    _uniform_ivec2v(one, value) {
 	        WebGLContext.mainContext.uniform2iv(one.location, value);
 	        return 1;
 	    }
-	    //TODO:coverage
 	    _uniform_vec3i(one, value) {
 	        var uploadedValue = one.uploadedValue;
 	        if (uploadedValue[0] !== value[0] || uploadedValue[1] !== value[1] || uploadedValue[2] !== value[2]) {
@@ -4106,7 +2759,6 @@ window.Laya= (function (exports) {
 	        WebGLContext.mainContext.uniform3iv(one.location, value);
 	        return 1;
 	    }
-	    //TODO:coverage
 	    _uniform_vec4i(one, value) {
 	        var uploadedValue = one.uploadedValue;
 	        if (uploadedValue[0] !== value[0] || uploadedValue[1] !== value[1] || uploadedValue[2] !== value[2] || uploadedValue[3] !== value[3]) {
@@ -4115,7 +2767,6 @@ window.Laya= (function (exports) {
 	        }
 	        return 0;
 	    }
-	    //TODO:coverage
 	    _uniform_vec4vi(one, value) {
 	        WebGLContext.mainContext.uniform4iv(one.location, value);
 	        return 1;
@@ -4137,7 +2788,6 @@ window.Laya= (function (exports) {
 	            return 0;
 	        }
 	    }
-	    //TODO:coverage
 	    _uniform_samplerCube(one, value) {
 	        var gl = WebGLContext.mainContext;
 	        var uploadedValue = one.uploadedValue;
@@ -4155,36 +2805,23 @@ window.Laya= (function (exports) {
 	            return 0;
 	        }
 	    }
-	    //TODO:coverage
 	    _noSetValue(one) {
 	        console.log("no....:" + one.name);
-	        //throw new Error("upload shader err,must set value:"+one.name);
 	    }
-	    //TODO:coverage
 	    uploadOne(name, value) {
-	        //activeResource();
 	        WebGLContext.useProgram(WebGLContext.mainContext, this._program);
 	        var one = this._paramsMap[name];
 	        one.fun.call(this, one, value);
 	    }
 	    uploadTexture2D(value) {
-	        //这个可能执行频率非常高，所以这里能省就省点
-	        //Stat.shaderCall++;
-	        //var gl:WebGLContext = WebGLContext.mainContext;
-	        //WebGLContext.activeTexture(gl,WebGLContext.TEXTURE0);	2d必须是active0
 	        var CTX = WebGLContext;
 	        if (CTX._activeTextures[0] !== value) {
 	            CTX.bindTexture(WebGLContext.mainContext, LayaGL.instance.TEXTURE_2D, value);
 	            CTX._activeTextures[0] = value;
 	        }
 	    }
-	    /**
-	     * 提交shader到GPU
-	     * @param	shaderValue
-	     */
 	    upload(shaderValue, params = null) {
 	        BaseShader.activeShader = BaseShader.bindShader = this;
-	        //recreateResource();
 	        var gl = WebGLContext.mainContext;
 	        WebGLContext.useProgram(gl, this._program);
 	        if (this._reCompile) {
@@ -4199,22 +2836,12 @@ window.Laya= (function (exports) {
 	            one = params[i];
 	            if ((value = shaderValue[one.name]) !== null)
 	                shaderCall += one.fun.call(this, one, value);
-	            /*
-	            one.glfun?
-	                one.glfun.call(gl, one.location, false, value):
-	                one.fun.call(this, one, value);*/
 	        }
 	        Stat.shaderCall += shaderCall;
 	    }
-	    /**
-	     * 按数组的定义提交
-	     * @param	shaderValue 数组格式[name,value,...]
-	     */
-	    //TODO:coverage
 	    uploadArray(shaderValue, length, _bufferUsage) {
 	        BaseShader.activeShader = this;
 	        BaseShader.bindShader = this;
-	        //activeResource();
 	        WebGLContext.useProgram(WebGLContext.mainContext, this._program);
 	        var params = this._params, value;
 	        var one, shaderCall = 0;
@@ -4230,31 +2857,18 @@ window.Laya= (function (exports) {
 	        }
 	        Stat.shaderCall += shaderCall;
 	    }
-	    /**
-	     * 得到编译后的变量及相关预定义
-	     * @return
-	     */
-	    //TODO:coverage
 	    getParams() {
 	        return this._params;
 	    }
-	    /**
-	     * 设置shader里面的attribute绑定到哪个location，必须与mesh2d的对应起来，
-	     * 这个必须在编译之前设置。
-	     * @param attribDesc 属性描述，格式是 [attributeName, location, attributeName, location ... ]
-	     */
-	    //TODO:coverage
 	    setAttributesLocation(attribDesc) {
 	        this._attribInfo = attribDesc;
 	    }
 	}
-	//private static var _TEXTURES:Array =  [WebGLContext.TEXTURE0, WebGLContext.TEXTURE1, WebGLContext.TEXTURE2, WebGLContext.TEXTURE3, WebGLContext.TEXTURE4, WebGLContext.TEXTURE5, WebGLContext.TEXTURE6,, WebGLContext.TEXTURE7, WebGLContext.TEXTURE8];
 	Shader._count = 0;
-	/**@internal */
-	Shader._preCompileShader = {}; //存储预编译结果，可以通过名字获得内容,目前不支持#ifdef嵌套和条件
+	Shader._preCompileShader = {};
 	Shader.SHADERNAME2ID = 0.0002;
 	Shader.nameKey = new StringKey();
-	Shader.sharders = new Array(0x20); // (sharders = [], sharders.length = 0x20, sharders);
+	Shader.sharders = new Array(0x20);
 
 	class Shader2X extends Shader {
 	    constructor(vs, ps, saveName = null, nameMap = null, bindAttrib = null) {
@@ -4263,19 +2877,13 @@ window.Laya= (function (exports) {
 	        this._shaderValueWidth = 0;
 	        this._shaderValueHeight = 0;
 	    }
-	    //TODO:coverage
-	    /**
-	     * @override
-	     */
 	    _disposeResource() {
 	        super._disposeResource();
 	        this._params2dQuick2 = null;
 	    }
-	    //TODO:coverage
 	    upload2dQuick2(shaderValue) {
 	        this.upload(shaderValue, this._params2dQuick2 || this._make2dQuick2());
 	    }
-	    //去掉size的所有的uniform
 	    _make2dQuick2() {
 	        if (!this._params2dQuick2) {
 	            this._params2dQuick2 = [];
@@ -4294,26 +2902,22 @@ window.Laya= (function (exports) {
 	}
 
 	class Value2D {
-	    //public var clipDir:Array = [Context._MAXSIZE, 0, 0, Context._MAXSIZE];		//裁剪信息
-	    //public var clipRect:Array = [0, 0];						//裁剪位置
 	    constructor(mainID, subID) {
 	        this.defines = new ShaderDefines2D();
 	        this.size = [0, 0];
-	        this.alpha = 1.0; //这个目前只给setIBVB用。其他的都放到attribute的color中了
-	        this.ALPHA = 1.0; //这个？
+	        this.alpha = 1.0;
+	        this.ALPHA = 1.0;
 	        this.subID = 0;
 	        this.ref = 1;
 	        this._cacheID = 0;
 	        this.clipMatDir = [ILaya.Context._MAXSIZE, 0, 0, ILaya.Context._MAXSIZE];
 	        this.clipMatPos = [0, 0];
-	        this.clipOff = [0, 0]; // 裁剪是否需要加上偏移，cacheas normal用
+	        this.clipOff = [0, 0];
 	        this.mainID = mainID;
 	        this.subID = subID;
 	        this.textureHost = null;
 	        this.texture = null;
-	        //this.fillStyle = null;
 	        this.color = null;
-	        //this.strokeStyle = null;
 	        this.colorAdd = null;
 	        this.u_mmat2 = null;
 	        this._cacheID = mainID | subID;
@@ -4332,17 +2936,12 @@ window.Laya= (function (exports) {
 	    static __init__() {
 	    }
 	    setValue(value) { }
-	    //throw new Error("todo in subclass");
-	    //不知道什么意思，这个名字太难懂，反正只有submitIBVB中用到。直接把代码拷贝到哪里
-	    //public function refresh():ShaderValue
 	    _ShaderWithCompile() {
 	        var ret = Shader.withCompile2D(0, this.mainID, this.defines.toNameDic(), this.mainID | this.defines._value, Shader2X.create, this._attribLocation);
-	        //ret.setAttributesLocation(_attribLocation); 由于上面函数的流程的修改，导致这里已经晚了
 	        return ret;
 	    }
 	    upload() {
 	        var renderstate2d = RenderState2D;
-	        // 如果有矩阵的话，就设置 WORLDMAT 宏
 	        RenderState2D.worldMatrix4 === RenderState2D.TEMPMAT4_ARRAY || this.defines.addInt(ShaderDefines2D.WORLDMAT);
 	        this.mmat = renderstate2d.worldMatrix4;
 	        if (RenderState2D.matWVP) {
@@ -4361,7 +2960,6 @@ window.Laya= (function (exports) {
 	            sd.upload(this, sd._params2dQuick2 || sd._make2dQuick2());
 	        }
 	    }
-	    //TODO:coverage
 	    setFilters(value) {
 	        this.filters = value;
 	        if (!value)
@@ -4370,7 +2968,7 @@ window.Laya= (function (exports) {
 	        for (var i = 0; i < n; i++) {
 	            f = value[i];
 	            if (f) {
-	                this.defines.add(f.type); //搬到setValue中
+	                this.defines.add(f.type);
 	                f.action.setValue(this);
 	            }
 	        }
@@ -4382,8 +2980,6 @@ window.Laya= (function (exports) {
 	    release() {
 	        if ((--this.ref) < 1) {
 	            this._inClassCache && (this._inClassCache[this._inClassCache._length++] = this);
-	            //this.fillStyle = null;
-	            //this.strokeStyle = null;
 	            this.clear();
 	            this.filters = null;
 	            this.ref = 1;
@@ -4402,10 +2998,6 @@ window.Laya= (function (exports) {
 	Value2D._typeClass = [];
 	Value2D.TEMPMAT4_ARRAY = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 
-	/**
-	     * ...
-	     * @author xie
-	     */
 	class SubmitKey {
 	    constructor() {
 	        this.clear();
@@ -4413,48 +3005,33 @@ window.Laya= (function (exports) {
 	    clear() {
 	        this.submitType = -1;
 	        this.blendShader = this.other = 0;
-	        //alpha = 1;
 	    }
-	    //TODO:coverage
 	    copyFrom(src) {
 	        this.other = src.other;
 	        this.blendShader = src.blendShader;
 	        this.submitType = src.submitType;
-	        //alpha = src.alpha;
 	    }
 	    copyFrom2(src, submitType, other) {
-	        //this.blendShader = src.blendShader;
-	        //this.alpha = src.alpha;			
 	        this.other = other;
 	        this.submitType = submitType;
 	    }
-	    //�Ƚ�3�����ⲿ�ṩ2��
-	    //TODO:coverage
 	    equal3_2(next, submitType, other) {
-	        return this.submitType === submitType && this.other === other && this.blendShader === next.blendShader; // && this.alpha === alpha;
+	        return this.submitType === submitType && this.other === other && this.blendShader === next.blendShader;
 	    }
-	    //ȫ�Ƚϡ��ⲿ�ṩ2��
-	    //TODO:coverage
 	    equal4_2(next, submitType, other) {
-	        return this.submitType === submitType && this.other === other && this.blendShader === next.blendShader; // && alpha === next.alpha;
+	        return this.submitType === submitType && this.other === other && this.blendShader === next.blendShader;
 	    }
-	    //�Ƚ�3��
-	    //TODO:coverage
 	    equal_3(next) {
-	        return this.submitType === next.submitType && this.blendShader === next.blendShader; // && alpha === next.alpha;
+	        return this.submitType === next.submitType && this.blendShader === next.blendShader;
 	    }
-	    //ȫ�Ƚϡ�4��
-	    //TODO:coverage
 	    equal(next) {
-	        return this.other === next.other && this.submitType === next.submitType && this.blendShader === next.blendShader; // && alpha === next.alpha;
+	        return this.other === next.other && this.submitType === next.submitType && this.blendShader === next.blendShader;
 	    }
 	}
 
 	class SubmitCMD {
 	    constructor() {
-	        /**@internal */
 	        this._ref = 1;
-	        /**@internal */
 	        this._key = new SubmitKey();
 	    }
 	    renderSubmit() {
@@ -4485,29 +3062,18 @@ window.Laya= (function (exports) {
 	    SubmitCMD.POOL._length = 0;
 	}
 
-	/**
-	 * <code>Filter</code> 是滤镜基类。
-	 */
 	class Filter {
-	    /**
-	     * 创建一个 <code>Filter</code> 实例。
-	     * */
 	    constructor() { }
-	    /**@private 滤镜类型。*/
 	    get type() { return -1; }
 	}
-	/**@private 模糊滤镜。*/
 	Filter.BLUR = 0x10;
-	/**@private 颜色滤镜。*/
 	Filter.COLOR = 0x20;
-	/**@private 发光滤镜。*/
 	Filter.GLOW = 0x08;
 	Filter._filter = function (sprite, context, x, y) {
 	    var webglctx = context;
 	    var next = this._next;
 	    if (next) {
 	        var filters = sprite.filters, len = filters.length;
-	        //如果只有一个滤镜，那么还用原来的方式
 	        if (len == 1 && (filters[0].type == Filter.COLOR)) {
 	            context.save();
 	            context.setColorFilter(filters[0]);
@@ -4515,22 +3081,19 @@ window.Laya= (function (exports) {
 	            context.restore();
 	            return;
 	        }
-	        //思路：依次遍历滤镜，每次滤镜都画到out的RenderTarget上，然后把out画取src的RenderTarget做原图，去叠加新的滤镜
-	        var svCP = Value2D.create(ShaderDefines2D.TEXTURE2D, 0); //拷贝用shaderValue
+	        var svCP = Value2D.create(ShaderDefines2D.TEXTURE2D, 0);
 	        var b;
 	        var p = Point.TEMP;
 	        var tMatrix = webglctx._curMat;
 	        var mat = Matrix.create();
 	        tMatrix.copyTo(mat);
-	        var tPadding = 0; //给glow用
+	        var tPadding = 0;
 	        var tHalfPadding = 0;
 	        var tIsHaveGlowFilter = false;
-	        //这里判断是否存储了out，如果存储了直接用;
 	        var source = null;
 	        var out = sprite._cacheStyle.filterCache || null;
 	        if (!out || sprite.getRepaint() != 0) {
 	            tIsHaveGlowFilter = sprite._isHaveGlowFilter();
-	            //glow需要扩展边缘
 	            if (tIsHaveGlowFilter) {
 	                tPadding = 50;
 	                tHalfPadding = 25;
@@ -4539,13 +3102,12 @@ window.Laya= (function (exports) {
 	            b.copyFrom(sprite.getSelfBounds());
 	            b.x += sprite.x;
 	            b.y += sprite.y;
-	            b.x -= sprite.pivotX + 4; //blur 
-	            b.y -= sprite.pivotY + 4; //blur
+	            b.x -= sprite.pivotX + 4;
+	            b.y -= sprite.pivotY + 4;
 	            var tSX = b.x;
 	            var tSY = b.y;
-	            //重新计算宽和高
-	            b.width += (tPadding + 8); //增加宽度 blur  由于blur系数为9
-	            b.height += (tPadding + 8); //增加高度 blur
+	            b.width += (tPadding + 8);
+	            b.height += (tPadding + 8);
 	            p.x = b.x * mat.a + b.y * mat.c;
 	            p.y = b.y * mat.d + b.x * mat.b;
 	            b.x = p.x;
@@ -4557,35 +3119,28 @@ window.Laya= (function (exports) {
 	            if (b.width <= 0 || b.height <= 0) {
 	                return;
 	            }
-	            out && WebGLRTMgr.releaseRT(out); // out.recycle();
+	            out && WebGLRTMgr.releaseRT(out);
 	            source = WebGLRTMgr.getRT(b.width, b.height);
 	            var outRT = out = WebGLRTMgr.getRT(b.width, b.height);
 	            sprite._getCacheStyle().filterCache = out;
-	            //使用RT
 	            webglctx.pushRT();
 	            webglctx.useRT(source);
 	            var tX = sprite.x - tSX + tHalfPadding;
 	            var tY = sprite.y - tSY + tHalfPadding;
-	            //执行节点的渲染
 	            next._fun.call(next, sprite, context, tX, tY);
 	            webglctx.useRT(outRT);
 	            for (var i = 0; i < len; i++) {
 	                if (i != 0) {
-	                    //把out往src上画。这只是一个拷贝的过程，下面draw(src) to outRT 才是真正的应用filter
-	                    //由于是延迟执行，不能直接在这里swap。 TODO 改成延迟swap
 	                    webglctx.useRT(source);
 	                    webglctx.drawTarget(outRT, 0, 0, b.width, b.height, Matrix.TEMP.identity(), svCP, null, BlendMode.TOINT.overlay);
 	                    webglctx.useRT(outRT);
 	                }
 	                var fil = filters[i];
-	                //把src往out上画
 	                switch (fil.type) {
 	                    case Filter.BLUR:
 	                        fil._glRender && fil._glRender.render(source, context, b.width, b.height, fil);
-	                        //BlurFilterGLRender.render(source, context, b.width, b.height, fil as BlurFilter);
 	                        break;
 	                    case Filter.GLOW:
-	                        //GlowFilterGLRender.render(source, context, b.width, b.height, fil as GlowFilter);
 	                        fil._glRender && fil._glRender.render(source, context, b.width, b.height, fil);
 	                        break;
 	                    case Filter.COLOR:
@@ -4617,7 +3172,6 @@ window.Laya= (function (exports) {
 	            p.y = b.height * mat.d + b.width * mat.b;
 	            b.width = p.x;
 	            b.height = p.y;
-	            //scope.addValue("out", out);
 	        }
 	        x = x - tHalfPadding - sprite.x;
 	        y = y - tHalfPadding - sprite.y;
@@ -4625,10 +3179,7 @@ window.Laya= (function (exports) {
 	        mat.transformPoint(p);
 	        x = p.x + b.x;
 	        y = p.y + b.y;
-	        //把最后的out纹理画出来
 	        webglctx._drawRenderTexture(out, x, y, b.width, b.height, Matrix.TEMP.identity(), 1.0, RenderTexture2D.defuv);
-	        //把对象放回池子中
-	        //var submit:SubmitCMD = SubmitCMD.create([scope], Filter._recycleScope, this);
 	        if (source) {
 	            var submit = SubmitCMD.create([source], function (s) {
 	                s.destroy();
@@ -4640,31 +3191,13 @@ window.Laya= (function (exports) {
 	    }
 	};
 
-	/**
-	 * <code>Utils</code> 是工具类。
-	 */
 	class Utils {
-	    /**
-	     * 角度转弧度。
-	     * @param	angle 角度值。
-	     * @return	返回弧度值。
-	     */
 	    static toRadian(angle) {
 	        return angle * Utils._pi2;
 	    }
-	    /**
-	     * 弧度转换为角度。
-	     * @param	radian 弧度值。
-	     * @return	返回角度值。
-	     */
 	    static toAngle(radian) {
 	        return radian * Utils._pi;
 	    }
-	    /**
-	     * 将传入的 uint 类型颜色值转换为字符串型颜色值。
-	     * @param color 颜色值。
-	     * @return 字符串型颜色值。
-	     */
 	    static toHexColor(color) {
 	        if (color < 0 || isNaN(color))
 	            return null;
@@ -4673,18 +3206,9 @@ window.Laya= (function (exports) {
 	            str = "0" + str;
 	        return "#" + str;
 	    }
-	    /**获取一个全局唯一ID。*/
 	    static getGID() {
 	        return Utils._gid++;
 	    }
-	    /**
-	     * @private
-	     * <p>连接数组。和array的concat相比，此方法不创建新对象</p>
-	     * <b>注意：</b>若 参数 a 不为空，则会改变参数 source 的值为连接后的数组。
-	     * @param	source 待连接的数组目标对象。
-	     * @param	array 待连接的数组对象。
-	     * @return 连接后的数组。
-	     */
 	    static concatArray(source, array) {
 	        if (!array)
 	            return source;
@@ -4696,25 +3220,12 @@ window.Laya= (function (exports) {
 	        }
 	        return source;
 	    }
-	    /**
-	     * @private
-	     * 清空数组对象。
-	     * @param	array 数组。
-	     * @return	清空后的 array 对象。
-	     */
 	    static clearArray(array) {
 	        if (!array)
 	            return array;
 	        array.length = 0;
 	        return array;
 	    }
-	    /**
-	     * @private
-	     * 清空source数组，复制array数组的值。
-	     * @param	source 需要赋值的数组。
-	     * @param	array 新的数组值。
-	     * @return 	复制后的数据 source 。
-	     */
 	    static copyArray(source, array) {
 	        source || (source = []);
 	        if (!array)
@@ -4726,16 +3237,6 @@ window.Laya= (function (exports) {
 	        }
 	        return source;
 	    }
-	    /**
-	     * @private
-	     * 根据传入的显示对象 <code>Sprite</code> 和此显示对象上的 两个点，返回此对象上的两个点在舞台坐标系上组成的最小的矩形区域对象。
-	     * @param	sprite 显示对象 <code>Sprite</code>。
-	     * @param	x0	点一的 X 轴坐标点。
-	     * @param	y0	点一的 Y 轴坐标点。
-	     * @param	x1	点二的 X 轴坐标点。
-	     * @param	y1	点二的 Y 轴坐标点。
-	     * @return 两个点在舞台坐标系组成的矩形对象 <code>Rectangle</code>。
-	     */
 	    static getGlobalRecByPoints(sprite, x0, y0, x1, y1) {
 	        var newLTPoint;
 	        newLTPoint = Point.create().setTo(x0, y0);
@@ -4748,31 +3249,14 @@ window.Laya= (function (exports) {
 	        newRBPoint.recover();
 	        return rst;
 	    }
-	    /**
-	     * 计算传入的显示对象 <code>Sprite</code> 的全局坐标系的坐标和缩放值，返回 <code>Rectangle</code> 对象存放计算出的坐标X值、Y值、ScaleX值、ScaleY值。
-	     * @param	sprite <code>Sprite</code> 对象。
-	     * @return  矩形对象 <code>Rectangle</code>
-	     */
 	    static getGlobalPosAndScale(sprite) {
 	        return Utils.getGlobalRecByPoints(sprite, 0, 0, 1, 1);
 	    }
-	    /**
-	     * 给传入的函数绑定作用域，返回绑定后的函数。
-	     * @param	fun 函数对象。
-	     * @param	scope 函数作用域。
-	     * @return 绑定后的函数。
-	     */
 	    static bind(fun, scope) {
 	        var rst = fun;
 	        rst = fun.bind(scope);
 	        return rst;
 	    }
-	    /**
-	     * @private
-	     * 对传入的数组列表，根据子项的属性 Z 值进行重新排序。返回是否已重新排序的 Boolean 值。
-	     * @param	array 子对象数组。
-	     * @return	Boolean 值，表示是否已重新排序。
-	     */
 	    static updateOrder(array) {
 	        if (!array || array.length < 2)
 	            return false;
@@ -4792,13 +3276,6 @@ window.Laya= (function (exports) {
 	        }
 	        return true;
 	    }
-	    /**
-	     * @private
-	     * 批量移动点坐标。
-	     * @param points 坐标列表。
-	     * @param x x轴偏移量。
-	     * @param y y轴偏移量。
-	     */
 	    static transPointList(points, x, y) {
 	        var i, len = points.length;
 	        for (i = 0; i < len; i += 2) {
@@ -4806,19 +3283,12 @@ window.Laya= (function (exports) {
 	            points[i + 1] += y;
 	        }
 	    }
-	    /**
-	     * 解析一个字符串，并返回一个整数。和JS原生的parseInt不同：如果str为空或者非数字，原生返回NaN，这里返回0。
-	     * @param	str		要被解析的字符串。
-	     * @param	radix	表示要解析的数字的基数。默认值为0，表示10进制，其他值介于 2 ~ 36 之间。如果它以 “0x” 或 “0X” 开头，将以 16 为基数。如果该参数不在上述范围内，则此方法返回 0。
-	     * @return	返回解析后的数字。
-	     */
 	    static parseInt(str, radix = 0) {
 	        var result = parseInt(str, radix);
 	        if (isNaN(result))
 	            return 0;
 	        return result;
 	    }
-	    /**@private */
 	    static getFileExtension(path) {
 	        Utils._extReg.lastIndex = path.lastIndexOf(".");
 	        var result = Utils._extReg.exec(path);
@@ -4827,66 +3297,39 @@ window.Laya= (function (exports) {
 	        }
 	        return null;
 	    }
-	    /**
-	     * 获取指定区域内相对于窗口左上角的transform。
-	     * @param	coordinateSpace	坐标空间，不能是Stage引用
-	     * @param	x				相对于coordinateSpace的x坐标
-	     * @param	y				相对于coordinateSpace的y坐标
-	     * @return
-	     */
 	    static getTransformRelativeToWindow(coordinateSpace, x, y) {
 	        var stage = Utils.gStage;
-	        // coordinateSpace的全局缩放、坐标
 	        var globalTransform = Utils.getGlobalPosAndScale(coordinateSpace);
-	        // canvas的transform矩阵
 	        var canvasMatrix = stage._canvasTransform.clone();
-	        // 在矩阵变化前前记录的canvas的坐标
 	        var canvasLeft = canvasMatrix.tx;
 	        var canvasTop = canvasMatrix.ty;
-	        // 把矩阵转回0度，得到正确的画布缩放比
 	        canvasMatrix.rotate(-Math.PI / 180 * stage.canvasDegree);
-	        // 组合画布缩放和舞台适配缩放
 	        canvasMatrix.scale(stage.clientScaleX, stage.clientScaleY);
-	        // 画布是否处于正常角度的垂直角度，-90或90度
 	        var perpendicular = (stage.canvasDegree % 180 != 0);
 	        var tx, ty;
 	        if (perpendicular) {
-	            // 在舞台上的坐标
 	            tx = y + globalTransform.y;
 	            ty = x + globalTransform.x;
-	            // 在画布上的坐标
 	            tx *= canvasMatrix.d;
 	            ty *= canvasMatrix.a;
-	            // 设置了screenMode = horizontal
 	            if (stage.canvasDegree == 90) {
-	                // 在浏览器窗口上的坐标
-	                // 此时画布的left是视觉上的right，画布的left是视觉上的top
 	                tx = canvasLeft - tx;
 	                ty += canvasTop;
 	            }
-	            // screenMode = vertical并且设备在横屏状态，画布旋转-90度
 	            else {
-	                // 在浏览器窗口上的坐标
-	                // 此时画布的left是视觉上的left，画布的top是视觉上的bottom
 	                tx += canvasLeft;
 	                ty = canvasTop - ty;
 	            }
 	        }
-	        // 没有canvas旋转
 	        else {
-	            // 在舞台上的坐标
 	            tx = x + globalTransform.x;
 	            ty = y + globalTransform.y;
-	            // 在画布上的坐标
 	            tx *= canvasMatrix.a;
 	            ty *= canvasMatrix.d;
-	            // 在浏览器窗口上的坐标
 	            tx += canvasLeft;
 	            ty += canvasTop;
 	        }
-	        // Safari兼容
 	        ty += stage['_safariOffsetY'];
-	        // 组合画布缩放和舞台适配缩放以及显示对象缩放，得到DOM原因的缩放因子
 	        var domScaleX, domScaleY;
 	        if (perpendicular) {
 	            domScaleX = canvasMatrix.d * globalTransform.height;
@@ -4898,15 +3341,6 @@ window.Laya= (function (exports) {
 	        }
 	        return { x: tx, y: ty, scaleX: domScaleX, scaleY: domScaleY };
 	    }
-	    /**
-	     * 使DOM元素使用舞台内的某块区域内。
-	     * @param	dom				DOM元素引用
-	     * @param	coordinateSpace	坐标空间，不能是Stage引用
-	     * @param	x				相对于coordinateSpace的x坐标
-	     * @param	y				相对于coordinateSpace的y坐标
-	     * @param	width			宽度
-	     * @param	height			高度
-	     */
 	    static fitDOMElementInArea(dom, coordinateSpace, x, y, width, height) {
 	        if (!dom._fitLayaAirInitialized) {
 	            dom._fitLayaAirInitialized = true;
@@ -4914,19 +3348,12 @@ window.Laya= (function (exports) {
 	            dom.style.position = "absolute";
 	        }
 	        var transform = Utils.getTransformRelativeToWindow(coordinateSpace, x, y);
-	        // 设置dom样式
 	        dom.style.transform = dom.style.webkitTransform = "scale(" + transform.scaleX + "," + transform.scaleY + ") rotate(" + (Utils.gStage.canvasDegree) + "deg)";
 	        dom.style.width = width + 'px';
 	        dom.style.height = height + 'px';
 	        dom.style.left = transform.x + 'px';
 	        dom.style.top = transform.y + 'px';
 	    }
-	    /**
-	     * @private
-	     * 是否是可用的Texture数组
-	     * @param	textureList
-	     * @return
-	     */
 	    static isOkTextureList(textureList) {
 	        if (!textureList)
 	            return false;
@@ -4939,38 +3366,16 @@ window.Laya= (function (exports) {
 	        }
 	        return true;
 	    }
-	    /**
-	     * @private
-	     * 是否是可用的绘图指令数组
-	     * @param	cmds
-	     * @return
-	     */
 	    static isOKCmdList(cmds) {
-	        //todo 改成适应新版cmd版本
 	        if (!cmds)
 	            return false;
 	        var i, len = cmds.length;
-	        //var context:RenderContext = Render._context;
 	        var cmd;
 	        for (i = 0; i < len; i++) {
 	            cmd = cmds[i];
-	            //switch(cmd.callee)
-	            //{
-	            //case context._drawTexture: 
-	            //case context._fillTexture: 
-	            //case context._drawTextureWithTransform: 
-	            //tex = cmd[0];
-	            //if (!tex || !tex.source) return false;
-	            //
-	            //}
 	        }
 	        return true;
 	    }
-	    /**
-	     * 获得URL参数值
-	     * @param	name 参数名称
-	     * @return	参数值
-	     */
 	    static getQueryString(name) {
 	        if (ILaya.Browser.onMiniGame)
 	            return null;
@@ -4983,21 +3388,11 @@ window.Laya= (function (exports) {
 	        return null;
 	    }
 	}
-	/**@private */
 	Utils.gStage = null;
-	/**@private */
 	Utils._gid = 1;
-	/**@private */
 	Utils._pi = 180 / Math.PI;
-	/**@private */
 	Utils._pi2 = Math.PI / 180;
-	/**@private */
 	Utils._extReg = /\.(\w+)\??/g;
-	/**
-	 * 将字符串解析成 XML 对象。
-	 * @param value 需要解析的字符串。
-	 * @return js原生的XML对象。
-	 */
 	Utils.parseXMLFromString = function (value) {
 	    var rst;
 	    value = value.replace(/>\s+</g, '><');
@@ -5008,18 +3403,8 @@ window.Laya= (function (exports) {
 	    return rst;
 	};
 
-	/**
-	 * @private
-	 * <code>ColorUtils</code> 是一个颜色值处理类。
-	 */
 	class ColorUtils {
-	    /**
-	     * 根据指定的属性值，创建一个 <code>Color</code> 类的实例。
-	     * @param	value 颜色值，可以是字符串："#ff0000"或者16进制颜色 0xff0000。
-	     */
 	    constructor(value) {
-	        /**rgba 取值范围0-1*/
-	        //TODO:delete？
 	        this.arrColor = [];
 	        if (value == null) {
 	            this.strColor = "#00000000";
@@ -5071,35 +3456,27 @@ window.Laya= (function (exports) {
 	            this.strColor = Utils.toHexColor(color);
 	        }
 	        if (this.strColor.indexOf("rgba") >= 0 || this.strColor.length === 9) {
-	            //color:0xrrggbbaa numColor此时为负数
 	            this.arrColor = [((0xFF000000 & color) >>> 24) / 255, ((0xFF0000 & color) >> 16) / 255, ((0xFF00 & color) >> 8) / 255, (0xFF & color) / 255];
-	            this.numColor = (0xff000000 & color) >>> 24 | (color & 0xff0000) >> 8 | (color & 0x00ff00) << 8 | ((color & 0xff) << 24); //to 0xffbbggrr
+	            this.numColor = (0xff000000 & color) >>> 24 | (color & 0xff0000) >> 8 | (color & 0x00ff00) << 8 | ((color & 0xff) << 24);
 	        }
 	        else {
 	            this.arrColor = [((0xFF0000 & color) >> 16) / 255, ((0xFF00 & color) >> 8) / 255, (0xFF & color) / 255, 1];
-	            this.numColor = 0xff000000 | (color & 0xff0000) >> 16 | (color & 0x00ff00) | (color & 0xff) << 16; //to 0xffbbggrr
+	            this.numColor = 0xff000000 | (color & 0xff0000) >> 16 | (color & 0x00ff00) | (color & 0xff) << 16;
 	        }
 	        this.arrColor.__id = ++ColorUtils._COLODID;
 	    }
-	    /**@private */
 	    static _initDefault() {
 	        ColorUtils._DEFAULT = {};
 	        for (var i in ColorUtils._COLOR_MAP)
 	            ColorUtils._SAVE[i] = ColorUtils._DEFAULT[i] = new ColorUtils(ColorUtils._COLOR_MAP[i]);
 	        return ColorUtils._DEFAULT;
 	    }
-	    /**@private 缓存太大，则清理缓存*/
 	    static _initSaveMap() {
 	        ColorUtils._SAVE_SIZE = 0;
 	        ColorUtils._SAVE = {};
 	        for (var i in ColorUtils._DEFAULT)
 	            ColorUtils._SAVE[i] = ColorUtils._DEFAULT[i];
 	    }
-	    /**
-	     * 根据指定的属性值，创建并返回一个 <code>Color</code> 类的实例。
-	     * @param	value 颜色值，可以是字符串："#ff0000"或者16进制颜色 0xff0000。
-	     * @return 一个 <code>Color</code> 类的实例。
-	     */
 	    static create(value) {
 	        var key = value + "";
 	        var color = ColorUtils._SAVE[key];
@@ -5110,27 +3487,13 @@ window.Laya= (function (exports) {
 	        return ColorUtils._SAVE[key] = new ColorUtils(value);
 	    }
 	}
-	/*[FILEINDEX:10000]*/
-	/**@private */
 	ColorUtils._SAVE = {};
-	/**@private */
 	ColorUtils._SAVE_SIZE = 0;
-	/**@private */
 	ColorUtils._COLOR_MAP = { "purple": "#800080", "orange": "#ffa500", "white": '#FFFFFF', "red": '#FF0000', "green": '#00FF00', "blue": '#0000FF', "black": '#000000', "yellow": '#FFFF00', 'gray': '#808080' };
-	/**@private */
 	ColorUtils._DEFAULT = ColorUtils._initDefault();
-	/**@private */
 	ColorUtils._COLODID = 1;
 
-	/**
-	 * <p><code>ColorFilter</code> 是颜色滤镜。使用 ColorFilter 类可以将 4 x 5 矩阵转换应用于输入图像上的每个像素的 RGBA 颜色和 Alpha 值，以生成具有一组新的 RGBA 颜色和 Alpha 值的结果。该类允许饱和度更改、色相旋转、亮度转 Alpha 以及各种其他效果。您可以将滤镜应用于任何显示对象（即，从 Sprite 类继承的对象）。</p>
-	 * <p>注意：对于 RGBA 值，最高有效字节代表红色通道值，其后的有效字节分别代表绿色、蓝色和 Alpha 通道值。</p>
-	 */
 	class ColorFilter extends Filter {
-	    /**
-	     * 创建一个 <code>ColorFilter</code> 实例。
-	     * @param mat	（可选）由 20 个项目（排列成 4 x 5 矩阵）组成的数组，用于颜色转换。
-	     */
 	    constructor(mat = null) {
 	        super();
 	        if (!mat)
@@ -5139,36 +3502,17 @@ window.Laya= (function (exports) {
 	        this._alpha = new Float32Array(4);
 	        this.setByMatrix(mat);
 	    }
-	    /**
-	     * 设置为灰色滤镜
-	     */
 	    gray() {
 	        return this.setByMatrix(ColorFilter.GRAY_MATRIX);
 	    }
-	    /**
-	     * 设置为变色滤镜
-	     * @param red 红色增量,范围:0~255
-	     * @param green 绿色增量,范围:0~255
-	     * @param blue 蓝色增量,范围:0~255
-	     * @param alpha alpha,范围:0~1
-	     */
 	    color(red = 0, green = 0, blue = 0, alpha = 1) {
 	        return this.setByMatrix([1, 0, 0, 0, red, 0, 1, 0, 0, green, 0, 0, 1, 0, blue, 0, 0, 0, 1, alpha]);
 	    }
-	    /**
-	     * 设置滤镜色
-	     * @param	color 颜色值
-	     */
 	    setColor(color) {
 	        var arr = ColorUtils.create(color).arrColor;
 	        var mt = [0, 0, 0, 0, 256 * arr[0], 0, 0, 0, 0, 256 * arr[1], 0, 0, 0, 0, 256 * arr[2], 0, 0, 0, 1, 0];
 	        return this.setByMatrix(mt);
 	    }
-	    /**
-	     * 设置矩阵数据
-	     * @param matrix 由 20 个项目（排列成 4 x 5 矩阵）组成的数组
-	     * @return this
-	     */
 	    setByMatrix(matrix) {
 	        if (this._matrix != matrix)
 	            this._copyMatrix(matrix);
@@ -5184,21 +3528,9 @@ window.Laya= (function (exports) {
 	        }
 	        return this;
 	    }
-	    /**
-	     * @private
-	     * @override
-	    */
 	    get type() {
 	        return Filter.COLOR;
 	    }
-	    /**
-	     * 调整颜色，包括亮度，对比度，饱和度和色调
-	     * @param brightness 亮度,范围:-100~100
-	     * @param contrast 对比度,范围:-100~100
-	     * @param saturation 饱和度,范围:-100~100
-	     * @param hue 色调,范围:-180~180
-	     * @return this
-	     */
 	    adjustColor(brightness, contrast, saturation, hue) {
 	        this.adjustHue(hue);
 	        this.adjustContrast(contrast);
@@ -5206,22 +3538,12 @@ window.Laya= (function (exports) {
 	        this.adjustSaturation(saturation);
 	        return this;
 	    }
-	    /**
-	     * 调整亮度
-	     * @param brightness 亮度,范围:-100~100
-	     * @return this
-	     */
 	    adjustBrightness(brightness) {
 	        brightness = this._clampValue(brightness, 100);
 	        if (brightness == 0 || isNaN(brightness))
 	            return this;
 	        return this._multiplyMatrix([1, 0, 0, 0, brightness, 0, 1, 0, 0, brightness, 0, 0, 1, 0, brightness, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1]);
 	    }
-	    /**
-	     * 调整对比度
-	     * @param contrast 对比度,范围:-100~100
-	     * @return this
-	     */
 	    adjustContrast(contrast) {
 	        contrast = this._clampValue(contrast, 100);
 	        if (contrast == 0 || isNaN(contrast))
@@ -5244,11 +3566,6 @@ window.Laya= (function (exports) {
 	        var x2 = (127 - x) * 0.5;
 	        return this._multiplyMatrix([x1, 0, 0, 0, x2, 0, x1, 0, 0, x2, 0, 0, x1, 0, x2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1]);
 	    }
-	    /**
-	     * 调整饱和度
-	     * @param saturation 饱和度,范围:-100~100
-	     * @return this
-	     */
 	    adjustSaturation(saturation) {
 	        saturation = this._clampValue(saturation, 100);
 	        if (saturation == 0 || isNaN(saturation))
@@ -5260,11 +3577,6 @@ window.Laya= (function (exports) {
 	        var b = 0.0820 * dx;
 	        return this._multiplyMatrix([r + x, g, b, 0, 0, r, g + x, b, 0, 0, r, g, b + x, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1]);
 	    }
-	    /**
-	     * 调整色调
-	     * @param hue 色调,范围:-180~180
-	     * @return this
-	     */
 	    adjustHue(hue) {
 	        hue = this._clampValue(hue, 180) / 180 * Math.PI;
 	        if (hue == 0 || isNaN(hue))
@@ -5276,17 +3588,9 @@ window.Laya= (function (exports) {
 	        var b = 0.072;
 	        return this._multiplyMatrix([r + cos * (1 - r) + sin * (-r), g + cos * (-g) + sin * (-g), b + cos * (-b) + sin * (1 - b), 0, 0, r + cos * (-r) + sin * (0.143), g + cos * (1 - g) + sin * (0.140), b + cos * (-b) + sin * (-0.283), 0, 0, r + cos * (-r) + sin * (-(1 - r)), g + cos * (-g) + sin * (g), b + cos * (1 - b) + sin * (b), 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1]);
 	    }
-	    /**
-	     * 重置成单位矩阵，去除滤镜效果
-	     */
 	    reset() {
 	        return this.setByMatrix(this._copyMatrix(ColorFilter.IDENTITY_MATRIX));
 	    }
-	    /**
-	     * 矩阵乘法
-	     * @param matrix
-	     * @return this
-	     */
 	    _multiplyMatrix(matrix) {
 	        var col = [];
 	        this._matrix = this._fixMatrix(this._matrix);
@@ -5304,18 +3608,9 @@ window.Laya= (function (exports) {
 	        }
 	        return this.setByMatrix(this._matrix);
 	    }
-	    /**
-	     * 规范值的范围
-	     * @param val 当前值
-	     * @param limit 值的范围-limit~limit
-	     */
 	    _clampValue(val, limit) {
 	        return Math.min(limit, Math.max(-limit, val));
 	    }
-	    /**
-	     * 规范矩阵,将矩阵调整到正确的大小
-	     * @param matrix 需要调整的矩阵
-	     */
 	    _fixMatrix(matrix = null) {
 	        if (matrix == null)
 	            return ColorFilter.IDENTITY_MATRIX;
@@ -5325,9 +3620,6 @@ window.Laya= (function (exports) {
 	            matrix = matrix.slice(0, ColorFilter.LENGTH);
 	        return matrix;
 	    }
-	    /**
-	     * 复制矩阵
-	     */
 	    _copyMatrix(matrix) {
 	        var len = ColorFilter.LENGTH;
 	        if (!this._matrix)
@@ -5338,24 +3630,16 @@ window.Laya= (function (exports) {
 	        return this._matrix;
 	    }
 	}
-	/**对比度列表*/
 	ColorFilter.DELTA_INDEX = [0, 0.01, 0.02, 0.04, 0.05, 0.06, 0.07, 0.08, 0.1, 0.11, 0.12, 0.14, 0.15, 0.16, 0.17, 0.18, 0.20, 0.21, 0.22, 0.24, 0.25, 0.27, 0.28, 0.30, 0.32, 0.34, 0.36, 0.38, 0.40, 0.42, 0.44, 0.46, 0.48, 0.5, 0.53, 0.56, 0.59, 0.62, 0.65, 0.68, 0.71, 0.74, 0.77, 0.80, 0.83, 0.86, 0.89, 0.92, 0.95, 0.98, 1.0, 1.06, 1.12, 1.18, 1.24, 1.30, 1.36, 1.42, 1.48, 1.54, 1.60, 1.66, 1.72, 1.78, 1.84, 1.90, 1.96, 2.0, 2.12, 2.25, 2.37, 2.50, 2.62, 2.75, 2.87, 3.0, 3.2, 3.4, 3.6, 3.8, 4.0, 4.3, 4.7, 4.9, 5.0, 5.5, 6.0, 6.5, 6.8, 7.0, 7.3, 7.5, 7.8, 8.0, 8.4, 8.7, 9.0, 9.4, 9.6, 9.8, 10.0];
-	/**灰色矩阵*/
 	ColorFilter.GRAY_MATRIX = [0.3086, 0.6094, 0.082, 0, 0, 0.3086, 0.6094, 0.082, 0, 0, 0.3086, 0.6094, 0.082, 0, 0, 0, 0, 0, 1, 0];
-	/**单位矩阵,表示什么效果都没有*/
 	ColorFilter.IDENTITY_MATRIX = [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1];
-	/**标准矩阵长度*/
 	ColorFilter.LENGTH = 25;
 
-	/**
-	 * 绘制单个贴图
-	 */
 	class DrawTextureCmd {
 	    constructor() {
 	        this.colorFlt = null;
 	        this.uv = null;
 	    }
-	    /**@private */
 	    static create(texture, x, y, width, height, matrix, alpha, color, blendMode, uv) {
 	        var cmd = Pool.getItemByClass("DrawTextureCmd", DrawTextureCmd);
 	        cmd.texture = texture;
@@ -5375,31 +3659,22 @@ window.Laya= (function (exports) {
 	        }
 	        return cmd;
 	    }
-	    /**
-	     * 回收到对象池
-	     */
 	    recover() {
 	        this.texture._removeReference();
 	        this.texture = null;
 	        this.matrix = null;
 	        Pool.recover("DrawTextureCmd", this);
 	    }
-	    /**@private */
 	    run(context, gx, gy) {
 	        context.drawTextureWithTransform(this.texture, this.x, this.y, this.width, this.height, this.matrix, gx, gy, this.alpha, this.blendMode, this.colorFlt, this.uv);
 	    }
-	    /**@private */
 	    get cmdID() {
 	        return DrawTextureCmd.ID;
 	    }
 	}
 	DrawTextureCmd.ID = "DrawTexture";
 
-	/**
-	 * 填充贴图
-	 */
 	class FillTextureCmd {
-	    /**@private */
 	    static create(texture, x, y, width, height, type, offset, other) {
 	        var cmd = Pool.getItemByClass("FillTextureCmd", FillTextureCmd);
 	        cmd.texture = texture;
@@ -5412,57 +3687,39 @@ window.Laya= (function (exports) {
 	        cmd.other = other;
 	        return cmd;
 	    }
-	    /**
-	     * 回收到对象池
-	     */
 	    recover() {
 	        this.texture = null;
 	        this.offset = null;
 	        this.other = null;
 	        Pool.recover("FillTextureCmd", this);
 	    }
-	    /**@private */
 	    run(context, gx, gy) {
 	        context.fillTexture(this.texture, this.x + gx, this.y + gy, this.width, this.height, this.type, this.offset, this.other);
 	    }
-	    /**@private */
 	    get cmdID() {
 	        return FillTextureCmd.ID;
 	    }
 	}
 	FillTextureCmd.ID = "FillTexture";
 
-	/**
-	 * 恢复命令，和save配套使用
-	 */
 	class RestoreCmd {
-	    /**@private */
 	    static create() {
 	        var cmd = Pool.getItemByClass("RestoreCmd", RestoreCmd);
 	        return cmd;
 	    }
-	    /**
-	     * 回收到对象池
-	     */
 	    recover() {
 	        Pool.recover("RestoreCmd", this);
 	    }
-	    /**@private */
 	    run(context, gx, gy) {
 	        context.restore();
 	    }
-	    /**@private */
 	    get cmdID() {
 	        return RestoreCmd.ID;
 	    }
 	}
 	RestoreCmd.ID = "Restore";
 
-	/**
-	 * 旋转命令
-	 */
 	class RotateCmd {
-	    /**@private */
 	    static create(angle, pivotX, pivotY) {
 	        var cmd = Pool.getItemByClass("RotateCmd", RotateCmd);
 	        cmd.angle = angle;
@@ -5470,28 +3727,19 @@ window.Laya= (function (exports) {
 	        cmd.pivotY = pivotY;
 	        return cmd;
 	    }
-	    /**
-	     * 回收到对象池
-	     */
 	    recover() {
 	        Pool.recover("RotateCmd", this);
 	    }
-	    /**@private */
 	    run(context, gx, gy) {
 	        context._rotate(this.angle, this.pivotX + gx, this.pivotY + gy);
 	    }
-	    /**@private */
 	    get cmdID() {
 	        return RotateCmd.ID;
 	    }
 	}
 	RotateCmd.ID = "Rotate";
 
-	/**
-	 * 缩放命令
-	 */
 	class ScaleCmd {
-	    /**@private */
 	    static create(scaleX, scaleY, pivotX, pivotY) {
 	        var cmd = Pool.getItemByClass("ScaleCmd", ScaleCmd);
 	        cmd.scaleX = scaleX;
@@ -5500,28 +3748,19 @@ window.Laya= (function (exports) {
 	        cmd.pivotY = pivotY;
 	        return cmd;
 	    }
-	    /**
-	     * 回收到对象池
-	     */
 	    recover() {
 	        Pool.recover("ScaleCmd", this);
 	    }
-	    /**@private */
 	    run(context, gx, gy) {
 	        context._scale(this.scaleX, this.scaleY, this.pivotX + gx, this.pivotY + gy);
 	    }
-	    /**@private */
 	    get cmdID() {
 	        return ScaleCmd.ID;
 	    }
 	}
 	ScaleCmd.ID = "Scale";
 
-	/**
-	 * 矩阵命令
-	 */
 	class TransformCmd {
-	    /**@private */
 	    static create(matrix, pivotX, pivotY) {
 	        var cmd = Pool.getItemByClass("TransformCmd", TransformCmd);
 	        cmd.matrix = matrix;
@@ -5529,74 +3768,49 @@ window.Laya= (function (exports) {
 	        cmd.pivotY = pivotY;
 	        return cmd;
 	    }
-	    /**
-	     * 回收到对象池
-	     */
 	    recover() {
 	        this.matrix = null;
 	        Pool.recover("TransformCmd", this);
 	    }
-	    /**@private */
 	    run(context, gx, gy) {
 	        context._transform(this.matrix, this.pivotX + gx, this.pivotY + gy);
 	    }
-	    /**@private */
 	    get cmdID() {
 	        return TransformCmd.ID;
 	    }
 	}
 	TransformCmd.ID = "Transform";
 
-	/**
-	 * 位移命令
-	 */
 	class TranslateCmd {
-	    /**@private */
 	    static create(tx, ty) {
 	        var cmd = Pool.getItemByClass("TranslateCmd", TranslateCmd);
 	        cmd.tx = tx;
 	        cmd.ty = ty;
 	        return cmd;
 	    }
-	    /**
-	     * 回收到对象池
-	     */
 	    recover() {
 	        Pool.recover("TranslateCmd", this);
 	    }
-	    /**@private */
 	    run(context, gx, gy) {
 	        context.translate(this.tx, this.ty);
 	    }
-	    /**@private */
 	    get cmdID() {
 	        return TranslateCmd.ID;
 	    }
 	}
 	TranslateCmd.ID = "Translate";
 
-	/**
-	     * @private
-	     * 计算贝塞尔曲线的工具类。
-	     */
 	class Bezier {
 	    constructor() {
-	        /** @private */
 	        this._controlPoints = [new Point(), new Point(), new Point()];
-	        /** @private */
 	        this._calFun = this.getPoint2;
 	    }
-	    /** @private */
 	    _switchPoint(x, y) {
 	        var tPoint = this._controlPoints.shift();
 	        tPoint.setTo(x, y);
 	        this._controlPoints.push(tPoint);
 	    }
-	    /**
-	     * 计算二次贝塞尔点。
-	     */
 	    getPoint2(t, rst) {
-	        //二次贝塞尔曲线公式
 	        var p1 = this._controlPoints[0];
 	        var p2 = this._controlPoints[1];
 	        var p3 = this._controlPoints[2];
@@ -5604,11 +3818,7 @@ window.Laya= (function (exports) {
 	        var lineY = Math.pow((1 - t), 2) * p1.y + 2 * t * (1 - t) * p2.y + Math.pow(t, 2) * p3.y;
 	        rst.push(lineX, lineY);
 	    }
-	    /**
-	     * 计算三次贝塞尔点
-	     */
 	    getPoint3(t, rst) {
-	        //三次贝塞尔曲线公式
 	        var p1 = this._controlPoints[0];
 	        var p2 = this._controlPoints[1];
 	        var p3 = this._controlPoints[2];
@@ -5617,9 +3827,6 @@ window.Laya= (function (exports) {
 	        var lineY = Math.pow((1 - t), 3) * p1.y + 3 * p2.y * t * (1 - t) * (1 - t) + 3 * p3.y * t * t * (1 - t) + p4.y * Math.pow(t, 3);
 	        rst.push(lineX, lineY);
 	    }
-	    /**
-	     * 计算贝塞尔点序列
-	     */
 	    insertPoints(count, rst) {
 	        var i;
 	        count = count > 0 ? count : 5;
@@ -5629,11 +3836,6 @@ window.Laya= (function (exports) {
 	            this._calFun(i, rst);
 	        }
 	    }
-	    /**
-	     * 获取贝塞尔曲线上的点。
-	     * @param pList 控制点[x0,y0,x1,y1...]
-	     * @param inSertCount 每次曲线的插值数量
-	     */
 	    getBezierPoints(pList, inSertCount = 5, count = 2) {
 	        var i, len;
 	        len = pList.length;
@@ -5664,25 +3866,12 @@ window.Laya= (function (exports) {
 	        return rst;
 	    }
 	}
-	/**
-	 * 工具类单例
-	 */
 	Bezier.I = new Bezier();
 
-	/**
-	 * @private
-	 * 凸包算法。
-	 */
 	class GrahamScan {
 	    static multiply(p1, p2, p0) {
 	        return ((p1.x - p0.x) * (p2.y - p0.y) - (p2.x - p0.x) * (p1.y - p0.y));
 	    }
-	    /**
-	     * 计算两个点的距离。
-	     * @param	p1
-	     * @param	p2
-	     * @return
-	     */
 	    static dis(p1, p2) {
 	        return (p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y);
 	    }
@@ -5695,22 +3884,13 @@ window.Laya= (function (exports) {
 	            rst = [];
 	        rst.length = 0;
 	        if (tempUse) {
-	            //				rst=_mPointList.slice(0,count);
 	            GrahamScan.getFrom(rst, GrahamScan._mPointList, count);
 	        }
 	        else {
-	            //				rst=_mPointList.splice(0,count);
 	            GrahamScan.getFromR(rst, GrahamScan._mPointList, count);
 	        }
 	        return rst;
 	    }
-	    /**
-	     * 将数组 src 从索引0位置 依次取 cout 个项添加至 tst 数组的尾部。
-	     * @param	rst 原始数组，用于添加新的子元素。
-	     * @param	src 用于取子元素的数组。
-	     * @param	count 需要取得子元素个数。
-	     * @return 添加完子元素的 rst 对象。
-	     */
 	    static getFrom(rst, src, count) {
 	        var i;
 	        for (i = 0; i < count; i++) {
@@ -5718,13 +3898,6 @@ window.Laya= (function (exports) {
 	        }
 	        return rst;
 	    }
-	    /**
-	     * 将数组 src 从末尾索引位置往头部索引位置方向 依次取 cout 个项添加至 tst 数组的尾部。
-	     * @param	rst 原始数组，用于添加新的子元素。
-	     * @param	src 用于取子元素的数组。
-	     * @param	count 需要取得子元素个数。
-	     * @return 添加完子元素的 rst 对象。
-	     */
 	    static getFromR(rst, src, count) {
 	        var i;
 	        for (i = 0; i < count; i++) {
@@ -5732,11 +3905,6 @@ window.Laya= (function (exports) {
 	        }
 	        return rst;
 	    }
-	    /**
-	     *  [x,y...]列表 转 Point列表
-	     * @param pList Point列表
-	     * @return [x,y...]列表
-	     */
 	    static pListToPointList(pList, tempUse = false) {
 	        var i, len = pList.length / 2, rst = GrahamScan._getPoints(len, tempUse, GrahamScan._tempPointList);
 	        for (i = 0; i < len; i++) {
@@ -5744,11 +3912,6 @@ window.Laya= (function (exports) {
 	        }
 	        return rst;
 	    }
-	    /**
-	     * Point列表转[x,y...]列表
-	     * @param pointList Point列表
-	     * @return [x,y...]列表
-	     */
 	    static pointListToPlist(pointList) {
 	        var i, len = pointList.length, rst = GrahamScan._temPList, tPoint;
 	        rst.length = 0;
@@ -5758,19 +3921,9 @@ window.Laya= (function (exports) {
 	        }
 	        return rst;
 	    }
-	    /**
-	     *  寻找包括所有点的最小多边形顶点集合
-	     * @param pList 形如[x0,y0,x1,y1...]的点列表
-	     * @return  最小多边形顶点集合
-	     */
 	    static scanPList(pList) {
 	        return Utils.copyArray(pList, GrahamScan.pointListToPlist(GrahamScan.scan(GrahamScan.pListToPointList(pList, true))));
 	    }
-	    /**
-	     * 寻找包括所有点的最小多边形顶点集合
-	     * @param PointSet Point列表
-	     * @return 最小多边形顶点集合
-	     */
 	    static scan(PointSet) {
 	        var i, j, k = 0, tmp, n = PointSet.length, ch;
 	        var _tmpDic = {};
@@ -5788,41 +3941,30 @@ window.Laya= (function (exports) {
 	        }
 	        n = ch.length;
 	        Utils.copyArray(PointSet, ch);
-	        //			PointSet=ch;
-	        //			n=PointSet.length;
-	        //找到最下且偏左的那个点  
 	        for (i = 1; i < n; i++)
 	            if ((PointSet[i].y < PointSet[k].y) || ((PointSet[i].y == PointSet[k].y) && (PointSet[i].x < PointSet[k].x)))
 	                k = i;
-	        //将这个点指定为PointSet[0]  
 	        tmp = PointSet[0];
 	        PointSet[0] = PointSet[k];
 	        PointSet[k] = tmp;
-	        //按极角从小到大,距离偏短进行排序  
 	        for (i = 1; i < n - 1; i++) {
 	            k = i;
 	            for (j = i + 1; j < n; j++)
 	                if ((GrahamScan.multiply(PointSet[j], PointSet[k], PointSet[0]) > 0) || ((GrahamScan.multiply(PointSet[j], PointSet[k], PointSet[0]) == 0) && (GrahamScan.dis(PointSet[0], PointSet[j]) < GrahamScan.dis(PointSet[0], PointSet[k]))))
-	                    k = j; //k保存极角最小的那个点,或者相同距离原点最近  
+	                    k = j;
 	            tmp = PointSet[i];
 	            PointSet[i] = PointSet[k];
 	            PointSet[k] = tmp;
 	        }
-	        //第三个点先入栈  
 	        ch = GrahamScan._temArr;
 	        ch.length = 0;
-	        //trace("scan:",PointSet[0],PointSet[1],PointSet[2]);
 	        if (PointSet.length < 3) {
 	            return Utils.copyArray(ch, PointSet);
 	        }
 	        ch.push(PointSet[0], PointSet[1], PointSet[2]);
-	        //ch=[PointSet[0],PointSet[1],PointSet[2]];
-	        //判断与其余所有点的关系  
 	        for (i = 3; i < n; i++) {
-	            //不满足向左转的关系,栈顶元素出栈  
 	            while (ch.length >= 2 && GrahamScan.multiply(PointSet[i], ch[ch.length - 1], ch[ch.length - 2]) >= 0)
 	                ch.pop();
-	            //当前点与栈内所有点满足向左关系,因此入栈.  
 	            PointSet[i] && ch.push(PointSet[i]);
 	        }
 	        return ch;
@@ -5871,19 +4013,15 @@ window.Laya= (function (exports) {
 
 	class Path {
 	    constructor() {
-	        //public var _rect:Rectangle;
-	        /**@internal */
-	        this._lastOriX = 0; //moveto等的原始位置。没有经过内部矩阵变换的
-	        /**@internal */
+	        this._lastOriX = 0;
 	        this._lastOriY = 0;
-	        this.paths = []; //所有的路径。{@type renderPath[] }
+	        this.paths = [];
 	        this._curPath = null;
 	    }
 	    beginPath(convex) {
 	        this.paths.length = 1;
 	        this._curPath = this.paths[0] = new renderPath();
 	        this._curPath.convex = convex;
-	        //_curPath.path = [];
 	    }
 	    closePath() {
 	        this._curPath.loop = true;
@@ -5893,10 +4031,8 @@ window.Laya= (function (exports) {
 	        this.paths.push(this._curPath);
 	    }
 	    addPoint(pointX, pointY) {
-	        //tempArray.push(pointX, pointY);
 	        this._curPath.path.push(pointX, pointY);
 	    }
-	    //直接添加一个完整的path
 	    push(points, convex) {
 	        if (!this._curPath) {
 	            this._curPath = new renderPath();
@@ -5907,16 +4043,16 @@ window.Laya= (function (exports) {
 	            this.paths.push(this._curPath);
 	        }
 	        var rp = this._curPath;
-	        rp.path = points.slice(); //TODO 这个可能多次slice了
+	        rp.path = points.slice();
 	        rp.convex = convex;
 	    }
 	    reset() {
-	        this.paths.length = 0; //TODO 复用
+	        this.paths.length = 0;
 	    }
 	}
 	class renderPath {
 	    constructor() {
-	        this.path = []; //[x,y,x,y,....]的数组
+	        this.path = [];
 	        this.loop = false;
 	        this.convex = false;
 	    }
@@ -5924,26 +4060,16 @@ window.Laya= (function (exports) {
 
 	class SubmitBase {
 	    constructor(renderType = SubmitBase.TYPE_2D) {
-	        this.clipInfoID = -1; //用来比较clipinfo
-	        /**@internal */
-	        this._mesh = null; //代替 _vb,_ib
-	        /**@internal */
+	        this.clipInfoID = -1;
+	        this._mesh = null;
 	        this._blendFn = null;
 	        this._id = 0;
-	        /**@internal */
 	        this._renderType = 0;
-	        /**@internal */
 	        this._parent = null;
-	        //渲染key，通过key判断是否是同一个
-	        /**@internal */
 	        this._key = new SubmitKey();
-	        // 从VB中什么地方开始画，画到哪
-	        /**@internal */
-	        this._startIdx = 0; //indexbuffer 的偏移，单位是byte
-	        /**@internal */
+	        this._startIdx = 0;
 	        this._numEle = 0;
-	        /**@internal */
-	        this._ref = 1; // 其实已经没有用了
+	        this._ref = 1;
 	        this.shaderValue = null;
 	        this._renderType = renderType;
 	        this._id = ++SubmitBase.ID;
@@ -5988,18 +4114,16 @@ window.Laya= (function (exports) {
 	SubmitBase.KEY_VG = 3;
 	SubmitBase.KEY_TRIANGLES = 4;
 	SubmitBase.ID = 1;
-	SubmitBase.preRender = null; //上一个submit，主要用来比较key,以减少uniform的重复提交。
+	SubmitBase.preRender = null;
 
 	class SaveBase {
 	    constructor() {
 	    }
-	    /**@internal */
 	    static _createArray() {
 	        var value = [];
 	        value._length = 0;
 	        return value;
 	    }
-	    /**@internal */
 	    static _init() {
 	        var namemap = SaveBase._namemap = {};
 	        namemap[SaveBase.TYPE_ALPHA] = "ALPHA";
@@ -6036,8 +4160,6 @@ window.Laya= (function (exports) {
 	        }
 	    }
 	}
-	/*[FILEINDEX:1]*/
-	/*[DISBALEOUTCONST-BEGIN]*/
 	SaveBase.TYPE_ALPHA = 0x1;
 	SaveBase.TYPE_FILESTYLE = 0x2;
 	SaveBase.TYPE_FONT = 0x8;
@@ -6057,41 +4179,23 @@ window.Laya= (function (exports) {
 	SaveBase.TYPE_FILTERS = 0x200000;
 	SaveBase.TYPE_FILTERS_TYPE = 0x400000;
 	SaveBase.TYPE_COLORFILTER = 0x800000;
-	/*[DISBALEOUTCONST-END]*/
 	SaveBase.POOL = SaveBase._createArray();
 	SaveBase._namemap = SaveBase._init();
 
 	class SaveClipRect {
 	    constructor() {
-	        //public var _clipSaveRect:Rectangle;
-	        //private var _transedClipInfo:Array = new Array(6);
 	        this._globalClipMatrix = new Matrix();
 	        this._clipInfoID = -1;
-	        /**@internal */
 	        this._clipRect = new Rectangle();
 	        this.incache = false;
 	    }
 	    isSaveMark() { return false; }
 	    restore(context) {
-	        /*
-	        context._transedClipInfo[0] = _transedClipInfo[0];
-	        context._transedClipInfo[1] = _transedClipInfo[1];
-	        context._transedClipInfo[2] = _transedClipInfo[2];
-	        context._transedClipInfo[3] = _transedClipInfo[3];
-	        context._transedClipInfo[4] = _transedClipInfo[4];
-	        context._transedClipInfo[5] = _transedClipInfo[5];
-	        */
 	        this._globalClipMatrix.copyTo(context._globalClipMatrix);
 	        this._clipRect.clone(context._clipRect);
 	        context._clipInfoID = this._clipInfoID;
-	        //context._clipTransed = false;	//ֱ�����¼���
 	        SaveClipRect.POOL[SaveClipRect.POOL._length++] = this;
 	        context._clipInCache = this.incache;
-	        /*
-	        context._clipRect = _clipSaveRect;
-	        context._curSubmit = context._submits[context._submits._length++] = SubmitBase.RENDERBASE;
-	        context._submitKey.submitType=-1;
-	        */
 	    }
 	    static save(context) {
 	        if ((context._saveMark._saveuse & SaveBase.TYPE_CLIPRECT) == SaveBase.TYPE_CLIPRECT)
@@ -6099,18 +4203,7 @@ window.Laya= (function (exports) {
 	        context._saveMark._saveuse |= SaveBase.TYPE_CLIPRECT;
 	        var cache = SaveClipRect.POOL;
 	        var o = cache._length > 0 ? cache[--cache._length] : (new SaveClipRect());
-	        //o._clipSaveRect = context._clipRect;
-	        //context._clipRect = o._clipRect.copyFrom(context._clipRect);
-	        //o._submitScissor = submitScissor;
 	        context._globalClipMatrix.copyTo(o._globalClipMatrix);
-	        /*
-	        o._transedClipInfo[0] = context._transedClipInfo[0];
-	        o._transedClipInfo[1] = context._transedClipInfo[1];
-	        o._transedClipInfo[2] = context._transedClipInfo[2];
-	        o._transedClipInfo[3] = context._transedClipInfo[3];
-	        o._transedClipInfo[4] = context._transedClipInfo[4];
-	        o._transedClipInfo[5] = context._transedClipInfo[5];
-	        */
 	        context._clipRect.clone(o._clipRect);
 	        o._clipInfoID = context._clipInfoID;
 	        o.incache = context._clipInCache;
@@ -6122,7 +4215,6 @@ window.Laya= (function (exports) {
 
 	class SaveMark {
 	    constructor() {
-	        /**@internal */
 	        this._saveuse = 0;
 	    }
 	    isSaveMark() {
@@ -6145,7 +4237,6 @@ window.Laya= (function (exports) {
 
 	class SaveTransform {
 	    constructor() {
-	        /**@internal */
 	        this._matrix = new Matrix();
 	    }
 	    isSaveMark() { return false; }
@@ -6170,7 +4261,6 @@ window.Laya= (function (exports) {
 
 	class SaveTranslate {
 	    constructor() {
-	        /**@internal */
 	        this._mat = new Matrix();
 	    }
 	    isSaveMark() { return false; }
@@ -6188,14 +4278,10 @@ window.Laya= (function (exports) {
 	}
 	SaveTranslate.POOL = SaveBase._createArray();
 
-	/**
-	     *
-	     * @author laya
-	     */
 	class RenderInfo {
 	}
-	RenderInfo.loopStTm = 0; // 当前帧的开始时间
-	RenderInfo.loopCount = 0; //
+	RenderInfo.loopStTm = 0;
+	RenderInfo.loopCount = 0;
 
 	class Buffer {
 	    constructor() {
@@ -6205,21 +4291,11 @@ window.Laya= (function (exports) {
 	    get bufferUsage() {
 	        return this._bufferUsage;
 	    }
-	    /**
-	     * @private
-	     * 绕过全局状态判断,例如VAO局部状态设置
-	     */
 	    _bindForVAO() {
 	    }
-	    /**
-	     * @private
-	     */
 	    bind() {
 	        return false;
 	    }
-	    /**
-	     * @private
-	     */
 	    destroy() {
 	        if (this._glBuffer) {
 	            LayaGL.instance.deleteBuffer(this._glBuffer);
@@ -6235,7 +4311,7 @@ window.Laya= (function (exports) {
 	        this._upload = true;
 	        this._uploadSize = 0;
 	        this._bufferSize = 0;
-	        this._u8Array = null; //反正常常要拷贝老的数据，所以保留这个可以提高效率
+	        this._u8Array = null;
 	    }
 	    static __int__(gl) {
 	    }
@@ -6251,11 +4327,6 @@ window.Laya= (function (exports) {
 	            this._byteLength = value;
 	        }
 	    }
-	    /**
-	     * 在当前的基础上需要多大空间，单位是byte
-	     * @param	sz
-	     * @return  增加大小之前的写位置。单位是byte
-	     */
 	    needSize(sz) {
 	        var old = this._byteLength;
 	        if (sz) {
@@ -6267,9 +4338,8 @@ window.Laya= (function (exports) {
 	    }
 	    _bufferData() {
 	        this._maxsize = Math.max(this._maxsize, this._byteLength);
-	        if (RenderInfo.loopCount % 30 == 0) { //每30帧缩小一下buffer	。TODO 这个有问题。不知道_maxsize和_byteLength是怎么维护的，这里会导致重新分配64字节
+	        if (RenderInfo.loopCount % 30 == 0) {
 	            if (this._buffer.byteLength > (this._maxsize + 64)) {
-	                //_setGPUMemory(_buffer.byteLength);
 	                this._buffer = this._buffer.slice(0, this._maxsize + 64);
 	                this._bufferSize = this._buffer.byteLength;
 	                this._checkArrayUse();
@@ -6279,16 +4349,13 @@ window.Laya= (function (exports) {
 	        if (this._uploadSize < this._buffer.byteLength) {
 	            this._uploadSize = this._buffer.byteLength;
 	            LayaGL.instance.bufferData(this._bufferType, this._uploadSize, this._bufferUsage);
-	            //_setGPUMemory(_uploadSize);
 	        }
 	        LayaGL.instance.bufferSubData(this._bufferType, 0, new Uint8Array(this._buffer, 0, this._byteLength));
 	    }
-	    //TODO:coverage
 	    _bufferSubData(offset = 0, dataStart = 0, dataLength = 0) {
 	        this._maxsize = Math.max(this._maxsize, this._byteLength);
 	        if (RenderInfo.loopCount % 30 == 0) {
 	            if (this._buffer.byteLength > (this._maxsize + 64)) {
-	                //_setGPUMemory(_buffer.byteLength);
 	                this._buffer = this._buffer.slice(0, this._maxsize + 64);
 	                this._bufferSize = this._buffer.byteLength;
 	                this._checkArrayUse();
@@ -6298,7 +4365,6 @@ window.Laya= (function (exports) {
 	        if (this._uploadSize < this._buffer.byteLength) {
 	            this._uploadSize = this._buffer.byteLength;
 	            LayaGL.instance.bufferData(this._bufferType, this._uploadSize, this._bufferUsage);
-	            //_setGPUMemory(_uploadSize);
 	        }
 	        if (dataStart || dataLength) {
 	            var subBuffer = this._buffer.slice(dataStart, dataLength);
@@ -6308,15 +4374,8 @@ window.Laya= (function (exports) {
 	            LayaGL.instance.bufferSubData(this._bufferType, offset, this._buffer);
 	        }
 	    }
-	    /**
-	     * buffer重新分配了，继承类根据需要做相应的处理。
-	     */
 	    _checkArrayUse() {
 	    }
-	    /**
-	     * 给vao使用的 _bind_upload函数。不要与已经绑定的判断是否相同
-	     * @return
-	     */
 	    _bind_uploadForVAO() {
 	        if (!this._upload)
 	            return false;
@@ -6333,7 +4392,6 @@ window.Laya= (function (exports) {
 	        this._bufferData();
 	        return true;
 	    }
-	    //TODO:coverage
 	    _bind_subUpload(offset = 0, dataStart = 0, dataLength = 0) {
 	        if (!this._upload)
 	            return false;
@@ -6342,18 +4400,11 @@ window.Laya= (function (exports) {
 	        this._bufferSubData(offset, dataStart, dataLength);
 	        return true;
 	    }
-	    /**
-	     * 重新分配buffer大小，如果nsz比原来的小则什么都不做。
-	     * @param	nsz		buffer大小，单位是byte。
-	     * @param	copy	是否拷贝原来的buffer的数据。
-	     * @return
-	     */
 	    _resizeBuffer(nsz, copy) {
 	        var buff = this._buffer;
 	        if (nsz <= buff.byteLength)
 	            return this;
 	        var u8buf = this._u8Array;
-	        //_setGPUMemory(nsz);
 	        if (copy && buff && buff.byteLength > 0) {
 	            var newbuffer = new ArrayBuffer(nsz);
 	            var oldU8Arr = (u8buf && u8buf.buffer == buff) ? u8buf : new Uint8Array(buff);
@@ -6390,16 +4441,9 @@ window.Laya= (function (exports) {
 	        this._byteLength += byteLen;
 	        this._checkArrayUse();
 	    }
-	    /**
-	     * 附加Uint16Array的数据。数据长度是len。byte的话要*2
-	     * @param	data
-	     * @param	len
-	     */
 	    appendU16Array(data, len) {
 	        this._resizeBuffer(this._byteLength + len * 2, true);
-	        //(new Uint16Array(_buffer, _byteLength, len)).set(data.slice(0, len));
-	        //下面这种写法比上面的快多了
-	        var u = new Uint16Array(this._buffer, this._byteLength, len); //TODO 怎么能不用new
+	        var u = new Uint16Array(this._buffer, this._byteLength, len);
 	        if (len == 6) {
 	            u[0] = data[0];
 	            u[1] = data[1];
@@ -6419,7 +4463,6 @@ window.Laya= (function (exports) {
 	        this._byteLength += len * 2;
 	        this._checkArrayUse();
 	    }
-	    //TODO:coverage
 	    appendEx(data, type) {
 	        this._upload = true;
 	        var byteLen, n;
@@ -6430,7 +4473,6 @@ window.Laya= (function (exports) {
 	        this._byteLength += byteLen;
 	        this._checkArrayUse();
 	    }
-	    //TODO:coverage
 	    appendEx2(data, type, dataLen, perDataLen = 1) {
 	        this._upload = true;
 	        var byteLen, n;
@@ -6444,18 +4486,15 @@ window.Laya= (function (exports) {
 	        this._byteLength += byteLen;
 	        this._checkArrayUse();
 	    }
-	    //TODO:coverage
 	    getBuffer() {
 	        return this._buffer;
 	    }
 	    setNeedUpload() {
 	        this._upload = true;
 	    }
-	    //TODO:coverage
 	    getNeedUpload() {
 	        return this._upload;
 	    }
-	    //TODO:coverage
 	    upload() {
 	        var gl = LayaGL.instance;
 	        var scuess = this._bind_upload();
@@ -6467,7 +4506,6 @@ window.Laya= (function (exports) {
 	        BaseShader.activeShader = null;
 	        return scuess;
 	    }
-	    //TODO:coverage
 	    subUpload(offset = 0, dataStart = 0, dataLength = 0) {
 	        var gl = LayaGL.instance;
 	        var scuess = this._bind_subUpload();
@@ -6483,9 +4521,6 @@ window.Laya= (function (exports) {
 	        this._upload = true;
 	        this._uploadSize = 0;
 	    }
-	    /**
-	     * 清理数据。保留ArrayBuffer
-	     */
 	    clear() {
 	        this._byteLength = 0;
 	        this._upload = true;
@@ -6510,11 +4545,6 @@ window.Laya= (function (exports) {
 	    getFloat32Array() {
 	        return this._floatArray32;
 	    }
-	    /**
-	     * 在当前位置插入float数组。
-	     * @param	data
-	     * @param	pos
-	     */
 	    appendArray(data) {
 	        var oldoff = this._byteLength >> 2;
 	        this.setByteLength(this._byteLength + data.length * 4);
@@ -6522,30 +4552,18 @@ window.Laya= (function (exports) {
 	        vbdata.set(data, oldoff);
 	        this._upload = true;
 	    }
-	    /**
-	     * @override
-	     */
-	    /*override*/ _checkArrayUse() {
+	    _checkArrayUse() {
 	        this._floatArray32 && (this._floatArray32 = new Float32Array(this._buffer));
 	        this._uint32Array && (this._uint32Array = new Uint32Array(this._buffer));
 	    }
-	    //只删除buffer，不disableVertexAttribArray
 	    deleteBuffer() {
 	        super._disposeResource();
 	    }
-	    /**
-	     * @inheritDoc
-	     * @override
-	     */
-	    /*override*/ _bindForVAO() {
+	    _bindForVAO() {
 	        var gl = LayaGL.instance;
 	        gl.bindBuffer(gl.ARRAY_BUFFER, this._glBuffer);
 	    }
-	    /**
-	     * @inheritDoc
-	     * @override
-	     */
-	    /*override*/ bind() {
+	    bind() {
 	        if (Buffer._bindedVertexBuffer !== this._glBuffer) {
 	            var gl = LayaGL.instance;
 	            gl.bindBuffer(gl.ARRAY_BUFFER, this._glBuffer);
@@ -6554,10 +4572,7 @@ window.Laya= (function (exports) {
 	        }
 	        return false;
 	    }
-	    /**
-	     * @override
-	     */
-	    /*override*/ destroy() {
+	    destroy() {
 	        super.destroy();
 	        this._byteLength = 0;
 	        this._upload = true;
@@ -6565,38 +4580,27 @@ window.Laya= (function (exports) {
 	        this._floatArray32 = null;
 	    }
 	}
-	VertexBuffer2D.create = function (vertexStride, bufferUsage = 0x88e8 /* WebGLContext.DYNAMIC_DRAW*/) {
+	VertexBuffer2D.create = function (vertexStride, bufferUsage = 0x88e8) {
 	    return new VertexBuffer2D(vertexStride, bufferUsage);
 	};
 
 	class IndexBuffer2D extends Buffer2D {
-	    constructor(bufferUsage = 0x88e4 /* WebGLContext.STATIC_DRAW*/) {
+	    constructor(bufferUsage = 0x88e4) {
 	        super();
 	        this._bufferUsage = bufferUsage;
 	        this._bufferType = LayaGL.instance.ELEMENT_ARRAY_BUFFER;
 	        this._buffer = new ArrayBuffer(8);
 	    }
-	    /**
-	     * @override
-	     */
 	    _checkArrayUse() {
 	        this._uint16Array && (this._uint16Array = new Uint16Array(this._buffer));
 	    }
 	    getUint16Array() {
 	        return this._uint16Array || (this._uint16Array = new Uint16Array(this._buffer));
 	    }
-	    /**
-	     * @inheritDoc
-	     * @override
-	     */
 	    _bindForVAO() {
 	        var gl = LayaGL.instance;
 	        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._glBuffer);
 	    }
-	    /**
-	     * @inheritDoc
-	     * @override
-	     */
 	    bind() {
 	        if (Buffer._bindedIndexBuffer !== this._glBuffer) {
 	            var gl = LayaGL.instance;
@@ -6614,30 +4618,20 @@ window.Laya= (function (exports) {
 	        this._disposeResource();
 	    }
 	}
-	IndexBuffer2D.create = function (bufferUsage = 0x88e4 /* WebGLContext.STATIC_DRAW*/) {
+	IndexBuffer2D.create = function (bufferUsage = 0x88e4) {
 	    return new IndexBuffer2D(bufferUsage);
 	};
 
-	/**
-	 * ...
-	 * @author ...
-	 */
 	class BufferStateBase {
 	    constructor() {
 	        this._nativeVertexArrayObject = LayaGL.layaGPUInstance.createVertexArray();
 	    }
-	    /**
-	     * @private
-	     */
 	    bind() {
 	        if (BufferStateBase._curBindedBufferState !== this) {
 	            LayaGL.layaGPUInstance.bindVertexArray(this._nativeVertexArrayObject);
 	            BufferStateBase._curBindedBufferState = this;
 	        }
 	    }
-	    /**
-	     * @private
-	     */
 	    unBind() {
 	        if (BufferStateBase._curBindedBufferState === this) {
 	            LayaGL.layaGPUInstance.bindVertexArray(null);
@@ -6647,56 +4641,33 @@ window.Laya= (function (exports) {
 	            throw "BufferState: must call bind() function first.";
 	        }
 	    }
-	    /**
-	     * @private
-	     */
 	    destroy() {
 	        LayaGL.layaGPUInstance.deleteVertexArray(this._nativeVertexArrayObject);
 	    }
-	    /**
-	     * @private
-	     */
 	    bindForNative() {
 	        LayaGL.instance.bindVertexArray(this._nativeVertexArrayObject);
 	        BufferStateBase._curBindedBufferState = this;
 	    }
-	    /**
-	     * @private
-	     */
 	    unBindForNative() {
 	        LayaGL.instance.bindVertexArray(null);
 	        BufferStateBase._curBindedBufferState = null;
 	    }
 	}
 
-	/**
-	     * ...
-	     * @author ...
-	     */
 	class BufferState2D extends BufferStateBase {
 	    constructor() {
 	        super();
 	    }
 	}
 
-	/**
-	 * Mesh2d只是保存数据。描述attribute用的。本身不具有渲染功能。
-	 */
 	class Mesh2D {
-	    /**
-	     *
-	     * @param	stride
-	     * @param	vballoc  vb预分配的大小。主要是用来提高效率。防止不断的resizebfufer
-	     * @param	iballoc
-	     */
 	    constructor(stride, vballoc, iballoc) {
-	        this._stride = 0; //顶点结构大小。每个mesh的顶点结构是固定的。
-	        this.vertNum = 0; //当前的顶点的个数
-	        this.indexNum = 0; //实际index 个数。例如一个三角形是3个。由于ib本身可能超过实际使用的数量，所以需要一个indexNum
-	        this._applied = false; //是否已经设置给webgl了
+	        this._stride = 0;
+	        this.vertNum = 0;
+	        this.indexNum = 0;
+	        this._applied = false;
 	        this._quadNum = 0;
-	        //public static var meshlist:Array = [];	//活着的mesh对象列表。
-	        this.canReuse = false; //用完以后，是删除还是回收。
+	        this.canReuse = false;
 	        this._stride = stride;
 	        this._vb = new VertexBuffer2D(stride, LayaGL.instance.DYNAMIC_DRAW);
 	        if (vballoc) {
@@ -6709,12 +4680,7 @@ window.Laya= (function (exports) {
 	        if (iballoc) {
 	            this._ib._resizeBuffer(iballoc, false);
 	        }
-	        //meshlist.push(this);
 	    }
-	    /**
-	     * 重新创建一个mesh。复用这个对象的vertex结构，ib对象和attribinfo对象
-	     */
-	    //TODO:coverage
 	    cloneWithNewVB() {
 	        var mesh = new Mesh2D(this._stride, 0, 0);
 	        mesh._ib = this._ib;
@@ -6722,51 +4688,29 @@ window.Laya= (function (exports) {
 	        mesh._attribInfo = this._attribInfo;
 	        return mesh;
 	    }
-	    /**
-	     * 创建一个mesh，使用当前对象的vertex结构。vb和ib自己提供。
-	     * @return
-	     */
-	    //TODO:coverage
 	    cloneWithNewVBIB() {
 	        var mesh = new Mesh2D(this._stride, 0, 0);
 	        mesh._attribInfo = this._attribInfo;
 	        return mesh;
 	    }
-	    /**
-	     * 获得一个可以写的vb对象
-	     */
-	    //TODO:coverage
 	    getVBW() {
 	        this._vb.setNeedUpload();
 	        return this._vb;
 	    }
-	    /**
-	     * 获得一个只读vb
-	     */
-	    //TODO:coverage
 	    getVBR() {
 	        return this._vb;
 	    }
-	    //TODO:coverage
 	    getIBR() {
 	        return this._ib;
 	    }
-	    /**
-	     * 获得一个可写的ib
-	     */
-	    //TODO:coverage
 	    getIBW() {
 	        this._ib.setNeedUpload();
 	        return this._ib;
 	    }
-	    /**
-	     * 直接创建一个固定的ib。按照固定四边形的索引。
-	     * @param	var QuadNum
-	     */
 	    createQuadIB(QuadNum) {
 	        this._quadNum = QuadNum;
-	        this._ib._resizeBuffer(QuadNum * 6 * 2, false); //short类型
-	        this._ib.byteLength = this._ib.bufferLength; //这个我也不知道是什么意思
+	        this._ib._resizeBuffer(QuadNum * 6 * 2, false);
+	        this._ib.byteLength = this._ib.bufferLength;
 	        var bd = this._ib.getUint16Array();
 	        var idx = 0;
 	        var curvert = 0;
@@ -6781,39 +4725,23 @@ window.Laya= (function (exports) {
 	        }
 	        this._ib.setNeedUpload();
 	    }
-	    /**
-	     * 设置mesh的属性。每3个一组，对应的location分别是0,1,2...
-	     * 含义是：type,size,offset
-	     * 不允许多流。因此stride是固定的，offset只是在一个vertex之内。
-	     * @param	attribs
-	     */
 	    setAttributes(attribs) {
 	        this._attribInfo = attribs;
 	        if (this._attribInfo.length % 3 != 0) {
 	            throw 'Mesh2D setAttributes error!';
 	        }
 	    }
-	    /**
-	     * 初始化VAO的配置，只需要执行一次。以后使用的时候直接bind就行
-	     * @param	gl
-	     */
 	    configVAO(gl) {
 	        if (this._applied)
 	            return;
 	        this._applied = true;
 	        if (!this._vao) {
-	            //_vao = __JS__('gl.createVertexArray();');
 	            this._vao = new BufferState2D();
-	            //_vao.dbgid = _gvaoid++;
 	        }
 	        this._vao.bind();
-	        //gl.bindVertexArray(_vao);
 	        this._vb._bindForVAO();
-	        //_vb._bind(); 这个有相同优化，不适用于vao
-	        this._ib.setNeedUpload(); //vao的话，必须要绑定ib。即使是共享的别人的。
+	        this._ib.setNeedUpload();
 	        this._ib._bind_uploadForVAO();
-	        //gl.bindBuffer(WebGLContext.ARRAY_BUFFER,_vb);
-	        //gl.bindBuffer(WebGLContext.ELEMENT_ARRAY_BUFFER, _ib);
 	        var attribNum = this._attribInfo.length / 3;
 	        var idx = 0;
 	        for (var i = 0; i < attribNum; i++) {
@@ -6821,64 +4749,37 @@ window.Laya= (function (exports) {
 	            var _type = this._attribInfo[idx];
 	            var _off = this._attribInfo[idx + 2];
 	            gl.enableVertexAttribArray(i);
-	            gl.vertexAttribPointer(i, _size, _type, false, this._stride, _off); //注意 normalize都设置为false了，想必没人要用这个功能把。
+	            gl.vertexAttribPointer(i, _size, _type, false, this._stride, _off);
 	            idx += 3;
 	        }
 	        this._vao.unBind();
-	        //gl.bindVertexArray(null);
 	    }
-	    /**
-	     * @internal
-	     * 应用这个mesh
-	     * @param	gl
-	     */
 	    useMesh(gl) {
-	        //要先bind，在bufferData
 	        this._applied || this.configVAO(gl);
-	        //var attribNum:int = _attribInfo.length / 3;
-	        //var bindedAttributeBuffer:Array = Buffer._bindedAtributeBuffer;
-	        //for ( var i:int = 0; i < attribNum; i++) 
-	        //(bindedAttributeBuffer[i]) || (gl.enableVertexAttribArray(i), bindedAttributeBuffer[i] = _vb);
-	        //WebGLContext.bindVertexArray(gl, null);
-	        //gl.disableVertexAttribArray(0);
 	        this._vao.bind();
-	        //gl.bindVertexArray(_vao);
-	        this._vb.bind(); //vao必须要再bind vb,否则下面的操作可能是在操作其他的mesh
+	        this._vb.bind();
 	        this._ib._bind_upload() || this._ib.bind();
 	        this._vb._bind_upload() || this._vb.bind();
 	    }
-	    //TODO:coverage
 	    getEleNum() {
 	        return this._ib.getBuffer().byteLength / 2;
 	    }
-	    /**
-	     * 子类实现。用来把自己放到对应的回收池中，以便复用。
-	     */
 	    releaseMesh() { }
-	    /**
-	     * 释放资源。
-	     */
 	    destroy() {
 	    }
-	    /**
-	     * 清理vb数据
-	     */
 	    clearVB() {
 	        this._vb.clear();
 	    }
 	}
 	Mesh2D._gvaoid = 0;
 
-	/**
-	 * drawImage，fillRect等会用到的简单的mesh。每次添加必然是一个四边形。
-	 */
 	class MeshQuadTexture extends Mesh2D {
 	    constructor() {
-	        super(MeshQuadTexture.const_stride, 4, 4); //x,y,u,v,rgba
+	        super(MeshQuadTexture.const_stride, 4, 4);
 	        this.canReuse = true;
 	        this.setAttributes(MeshQuadTexture._fixattriInfo);
 	        if (!MeshQuadTexture._fixib) {
-	            this.createQuadIB(MeshQuadTexture._maxIB); //每个quad 4个顶点。正好达到64k的索引。
+	            this.createQuadIB(MeshQuadTexture._maxIB);
 	            MeshQuadTexture._fixib = this._ib;
 	        }
 	        else {
@@ -6886,60 +4787,35 @@ window.Laya= (function (exports) {
 	            this._quadNum = MeshQuadTexture._maxIB;
 	        }
 	    }
-	    //private static var _num;
 	    static __int__() {
-	        //var gl: WebGLRenderingContext = LayaGL.instance;
-	        MeshQuadTexture._fixattriInfo = [5126 /*gl.FLOAT*/, 4, 0,
-	            5121 /*gl.UNSIGNED_BYTE*/, 4, 16,
-	            5121 /*gl.UNSIGNED_BYTE*/, 4, 20];
+	        MeshQuadTexture._fixattriInfo = [5126, 4, 0,
+	            5121, 4, 16,
+	            5121, 4, 20];
 	    }
-	    /**
-	     *
-	     */
 	    static getAMesh(mainctx) {
-	        //console.log('getmesh');
 	        var ret = null;
 	        if (MeshQuadTexture._POOL.length) {
 	            ret = MeshQuadTexture._POOL.pop();
 	        }
 	        else
 	            ret = new MeshQuadTexture();
-	        // 先分配64k顶点的空间，这样可以避免浪费内存，否则后面增加内存的时候是成倍增加的，当快超过64k的时候，直接变成了128k
 	        mainctx && ret._vb._resizeBuffer(64 * 1024 * MeshQuadTexture.const_stride, false);
 	        return ret;
 	    }
-	    /**
-	     * 把本对象放到回收池中，以便getMesh能用。
-	     * @override
-	     */
 	    releaseMesh() {
 	        this._vb.setByteLength(0);
 	        this.vertNum = 0;
 	        this.indexNum = 0;
-	        //_applied = false;
 	        MeshQuadTexture._POOL.push(this);
 	    }
-	    /**
-	     * @override
-	     */
 	    destroy() {
-	        //_ib.destroy(); ib是公用的。
 	        this._vb.destroy();
 	        this._vb.deleteBuffer();
 	    }
-	    /**
-	     *
-	     * @param	pos
-	     * @param	uv
-	     * @param	color
-	     * @param	clip   ox,oy,xx,xy,yx,yy
-	     * @param 	useTex 是否使用贴图。false的话是给fillRect用的
-	     */
 	    addQuad(pos, uv, color, useTex) {
 	        var vb = this._vb;
-	        var vpos = (vb._byteLength >> 2); //float数组的下标
-	        //x,y,u,v,rgba
-	        vb.setByteLength((vpos + MeshQuadTexture.const_stride) << 2); //是一个四边形的大小，也是这里填充的大小
+	        var vpos = (vb._byteLength >> 2);
+	        vb.setByteLength((vpos + MeshQuadTexture.const_stride) << 2);
 	        var vbdata = vb._floatArray32 || vb.getFloat32Array();
 	        var vbu32Arr = vb._uint32Array;
 	        var cpos = vpos;
@@ -6971,29 +4847,22 @@ window.Laya= (function (exports) {
 	        vb._upload = true;
 	    }
 	}
-	MeshQuadTexture.const_stride = 24; // 48;  24是不带clip的
+	MeshQuadTexture.const_stride = 24;
 	MeshQuadTexture._maxIB = 16 * 1024;
 	MeshQuadTexture._POOL = [];
 
-	/**
-	 * 与MeshQuadTexture基本相同。不过index不是固定的
-	 */
 	class MeshTexture extends Mesh2D {
 	    constructor() {
-	        super(MeshTexture.const_stride, 4, 4); //x,y,u,v,rgba
+	        super(MeshTexture.const_stride, 4, 4);
 	        this.canReuse = true;
 	        this.setAttributes(MeshTexture._fixattriInfo);
 	    }
 	    static __init__() {
-	        MeshTexture._fixattriInfo = [5126 /*gl.FLOAT*/, 4, 0,
-	            5121 /*gl.UNSIGNED_BYTE*/, 4, 16,
-	            5121 /*gl.UNSIGNED_BYTE*/, 4, 20];
+	        MeshTexture._fixattriInfo = [5126, 4, 0,
+	            5121, 4, 16,
+	            5121, 4, 20];
 	    }
-	    /**
-	     *
-	     */
 	    static getAMesh(mainctx) {
-	        //console.log('getmesh');
 	        var ret;
 	        if (MeshTexture._POOL.length) {
 	            ret = MeshTexture._POOL.pop();
@@ -7004,11 +4873,10 @@ window.Laya= (function (exports) {
 	        return ret;
 	    }
 	    addData(vertices, uvs, idx, matrix, rgba) {
-	        //vb
 	        var vb = this._vb;
 	        var ib = this._ib;
 	        var vertsz = vertices.length >> 1;
-	        var startpos = vb.needSize(vertsz * MeshTexture.const_stride); //vb的起点。			
+	        var startpos = vb.needSize(vertsz * MeshTexture.const_stride);
 	        var f32pos = startpos >> 2;
 	        var vbdata = vb._floatArray32 || vb.getFloat32Array();
 	        var vbu32Arr = vb._uint32Array;
@@ -7020,7 +4888,6 @@ window.Laya= (function (exports) {
 	        var tx = matrix.tx;
 	        var ty = matrix.ty;
 	        var i = 0;
-	        //var clipinfo:Array = ctx.getTransedClipInfo();
 	        for (i = 0; i < vertsz; i++) {
 	            var x = vertices[ci], y = vertices[ci + 1];
 	            vbdata[f32pos] = x * m00 + y * m10 + tx;
@@ -7030,9 +4897,6 @@ window.Laya= (function (exports) {
 	            vbu32Arr[f32pos + 4] = rgba;
 	            vbu32Arr[f32pos + 5] = 0xff;
 	            f32pos += 6;
-	            //裁剪信息。
-	            //vbdata[f32pos++] = clipinfo[2] ; vbdata[f32pos++] = clipinfo[3]; vbdata[f32pos++] = clipinfo[4]; vbdata[f32pos++] = clipinfo[5];//cliprect的方向
-	            //vbdata[f32pos++] = clipinfo[0]; vbdata[f32pos++] = clipinfo[1];	//cliprect的位置
 	            ci += 2;
 	        }
 	        vb.setNeedUpload();
@@ -7040,8 +4904,7 @@ window.Laya= (function (exports) {
 	        var sz = idx.length;
 	        var stib = ib.needSize(idx.byteLength);
 	        var cidx = ib.getUint16Array();
-	        //var cidx:Uint16Array = new Uint16Array(__JS__('ib._buffer'), stib);
-	        var stibid = stib >> 1; // indexbuffer的起始位置
+	        var stibid = stib >> 1;
 	        if (vertN > 0) {
 	            var end = stibid + sz;
 	            var si = 0;
@@ -7056,22 +4919,14 @@ window.Laya= (function (exports) {
 	        this.vertNum += vertsz;
 	        this.indexNum += idx.length;
 	    }
-	    /**
-	     * 把本对象放到回收池中，以便getMesh能用。
-	     * @override
-	     */
-	    /*override*/ releaseMesh() {
+	    releaseMesh() {
 	        this._vb.setByteLength(0);
 	        this._ib.setByteLength(0);
 	        this.vertNum = 0;
 	        this.indexNum = 0;
-	        //_applied = false;
 	        MeshTexture._POOL.push(this);
 	    }
-	    /**
-	     * @override
-	     */
-	    /*override*/ destroy() {
+	    destroy() {
 	        this._ib.destroy();
 	        this._vb.destroy();
 	        this._ib.disposeResource();
@@ -7081,21 +4936,17 @@ window.Laya= (function (exports) {
 	MeshTexture.const_stride = 24;
 	MeshTexture._POOL = [];
 
-	/**
-	 * 用来画矢量的mesh。顶点格式固定为 x,y,rgba
-	 */
 	class MeshVG extends Mesh2D {
 	    constructor() {
-	        super(MeshVG.const_stride, 4, 4); //x,y,rgba
+	        super(MeshVG.const_stride, 4, 4);
 	        this.canReuse = true;
 	        this.setAttributes(MeshVG._fixattriInfo);
 	    }
 	    static __init__() {
-	        MeshVG._fixattriInfo = [5126 /*gl.FLOAT*/, 2, 0,
-	            5121 /*gl.UNSIGNED_BYTE*/, 4, 8];
+	        MeshVG._fixattriInfo = [5126, 2, 0,
+	            5121, 4, 8];
 	    }
 	    static getAMesh(mainctx) {
-	        //console.log('getmeshvg');
 	        var ret;
 	        if (MeshVG._POOL.length) {
 	            ret = MeshVG._POOL.pop();
@@ -7105,55 +4956,32 @@ window.Laya= (function (exports) {
 	        mainctx && ret._vb._resizeBuffer(64 * 1024 * MeshVG.const_stride, false);
 	        return ret;
 	    }
-	    /**
-	     * 往矢量mesh中添加顶点和index。会把rgba和points在mesh中合并。
-	     * @param	points	顶点数组，只包含x,y。[x,y,x,y...]
-	     * @param	rgba	rgba颜色
-	     * @param	ib		index数组。
-	     */
 	    addVertAndIBToMesh(ctx, points, rgba, ib) {
-	        var startpos = this._vb.needSize(points.length / 2 * MeshVG.const_stride); //vb的起点。
+	        var startpos = this._vb.needSize(points.length / 2 * MeshVG.const_stride);
 	        var f32pos = startpos >> 2;
 	        var vbdata = this._vb._floatArray32 || this._vb.getFloat32Array();
 	        var vbu32Arr = this._vb._uint32Array;
 	        var ci = 0;
-	        //vb
-	        //var clipinfo:Array = ctx.getTransedClipInfo();
 	        var sz = points.length / 2;
 	        for (var i = 0; i < sz; i++) {
 	            vbdata[f32pos++] = points[ci];
 	            vbdata[f32pos++] = points[ci + 1];
 	            ci += 2;
 	            vbu32Arr[f32pos++] = rgba;
-	            /*
-	            //裁剪信息。
-	            vbdata[f32pos++] = clipinfo[2] ; vbdata[f32pos++] = clipinfo[3]; vbdata[f32pos++] = clipinfo[4]; vbdata[f32pos++] = clipinfo[5];//cliprect的方向
-	            vbdata[f32pos++] = clipinfo[0]; vbdata[f32pos++] = clipinfo[1]; //cliprect的位置
-	            */
 	        }
 	        this._vb.setNeedUpload();
-	        //ib
-	        //TODO 现在这种添加数据的方法效率非常低。而且会引起大量的gc
 	        this._ib.append(new Uint16Array(ib));
 	        this._ib.setNeedUpload();
 	        this.vertNum += sz;
 	        this.indexNum += ib.length;
 	    }
-	    /**
-	     * 把本对象放到回收池中，以便getMesh能用。
-	     * @override
-	     */
 	    releaseMesh() {
 	        this._vb.setByteLength(0);
 	        this._ib.setByteLength(0);
 	        this.vertNum = 0;
 	        this.indexNum = 0;
-	        //_applied = false;
 	        MeshVG._POOL.push(this);
 	    }
-	    /**
-	     * @override
-	     */
 	    destroy() {
 	        this._ib.destroy();
 	        this._vb.destroy();
@@ -7161,48 +4989,37 @@ window.Laya= (function (exports) {
 	        this._vb.deleteBuffer();
 	    }
 	}
-	MeshVG.const_stride = 12; // 36;
+	MeshVG.const_stride = 12;
 	MeshVG._POOL = [];
 
-	/**
-	 * 对象 cacheas normal的时候，本质上只是想把submit缓存起来，以后直接执行
-	 * 为了避免各种各样的麻烦，这里采用复制相应部分的submit的方法。执行环境还是在原来的context中
-	 * 否则包括clip等都非常难以处理
-	 */
 	class WebGLCacheAsNormalCanvas {
 	    constructor(ctx, sp) {
-	        this.submitStartPos = 0; // 对应的context的submit的开始的地方
+	        this.submitStartPos = 0;
 	        this.submitEndPos = 0;
 	        this.context = null;
-	        this.touches = []; //记录的文字信息。cacheas normal的话，文字要能正确touch
-	        this.submits = []; // 从context中剪切的submit
-	        this.sprite = null; // 对应的sprite对象
-	        this.meshlist = []; //本context用到的mesh
-	        // cache的时候对应的clip
-	        this.cachedClipInfo = new Matrix(); // 用来判断是否需要把cache无效
-	        //private var oldMatrix:Matrix = null;				//本地画的时候完全不应用矩阵，所以需要先保存老的，以便恢复		这样会丢失缩放信息，导致文字模糊，所以不用这种方式了
+	        this.touches = [];
+	        this.submits = [];
+	        this.sprite = null;
+	        this.meshlist = [];
+	        this.cachedClipInfo = new Matrix();
 	        this.oldTx = 0;
 	        this.oldTy = 0;
-	        // 创建这个canvas的时候对应的矩阵的逆矩阵。因为要保留矩阵的缩放信息。所以采用逆矩阵的方法。
 	        this.invMat = new Matrix();
 	        this.context = ctx;
 	        this.sprite = sp;
 	        ctx._globalClipMatrix.copyTo(this.cachedClipInfo);
 	    }
 	    startRec() {
-	        // 如果有文字优化，这里要先提交一下
 	        if (this.context._charSubmitCache._enbale) {
 	            this.context._charSubmitCache.enable(false, this.context);
 	            this.context._charSubmitCache.enable(true, this.context);
 	        }
 	        this.context._incache = true;
 	        this.touches.length = 0;
-	        //记录需要touch的文字资源
 	        this.context.touches = this.touches;
 	        this.context._globalClipMatrix.copyTo(this.cachedClipInfo);
 	        this.submits.length = 0;
 	        this.submitStartPos = this.context._submits._length;
-	        // 先把之前的释放掉
 	        for (var i = 0, sz = this.meshlist.length; i < sz; i++) {
 	            var curm = this.meshlist[i];
 	            curm.canReuse ? (curm.releaseMesh()) : (curm.destroy());
@@ -7214,9 +5031,7 @@ window.Laya= (function (exports) {
 	        this.meshlist.push(this._mesh);
 	        this.meshlist.push(this._pathMesh);
 	        this.meshlist.push(this._triangleMesh);
-	        // 打断合并
 	        this.context._curSubmit = SubmitBase.RENDERBASE;
-	        // 接管context中的一些值
 	        this._oldMesh = this.context._mesh;
 	        this._oldPathMesh = this.context._pathMesh;
 	        this._oldTriMesh = this.context._triangleMesh;
@@ -7225,24 +5040,18 @@ window.Laya= (function (exports) {
 	        this.context._pathMesh = this._pathMesh;
 	        this.context._triangleMesh = this._triangleMesh;
 	        this.context.meshlist = this.meshlist;
-	        // 要取消位置，因为以后会再传入位置。这里好乱
 	        this.oldTx = this.context._curMat.tx;
 	        this.oldTy = this.context._curMat.ty;
 	        this.context._curMat.tx = 0;
 	        this.context._curMat.ty = 0;
-	        // 取消缩放等
 	        this.context._curMat.copyTo(this.invMat);
 	        this.invMat.invert();
-	        //oldMatrix = context._curMat;
-	        //context._curMat = matI;
 	    }
 	    endRec() {
-	        // 如果有文字优化，这里要先提交一下
 	        if (this.context._charSubmitCache._enbale) {
 	            this.context._charSubmitCache.enable(false, this.context);
 	            this.context._charSubmitCache.enable(true, this.context);
 	        }
-	        // copy submit
 	        var parsubmits = this.context._submits;
 	        this.submitEndPos = parsubmits._length;
 	        var num = this.submitEndPos - this.submitStartPos;
@@ -7250,24 +5059,16 @@ window.Laya= (function (exports) {
 	            this.submits.push(parsubmits[this.submitStartPos + i]);
 	        }
 	        parsubmits._length -= num;
-	        // 恢复原始context的值
 	        this.context._mesh = this._oldMesh;
 	        this.context._pathMesh = this._oldPathMesh;
 	        this.context._triangleMesh = this._oldTriMesh;
 	        this.context.meshlist = this._oldMeshList;
-	        // 打断合并
 	        this.context._curSubmit = SubmitBase.RENDERBASE;
-	        // 恢复matrix
-	        //context._curMat = oldMatrix;
 	        this.context._curMat.tx = this.oldTx;
 	        this.context._curMat.ty = this.oldTy;
 	        this.context.touches = null;
 	        this.context._incache = false;
 	    }
-	    /**
-	     * 当前缓存是否还有效。例如clip变了就失效了，因为clip太难自动处理
-	     * @return
-	     */
 	    isCacheValid() {
 	        var curclip = this.context._globalClipMatrix;
 	        if (curclip.a != this.cachedClipInfo.a || curclip.b != this.cachedClipInfo.b || curclip.c != this.cachedClipInfo.c
@@ -7322,19 +5123,15 @@ window.Laya= (function (exports) {
 	}
 
 	class SkinMeshBuffer {
-	    //TODO:coverage
 	    constructor() {
 	        var gl = LayaGL.instance;
 	        this.ib = IndexBuffer2D.create(gl.DYNAMIC_DRAW);
 	        this.vb = VertexBuffer2D.create(8);
 	    }
-	    //TODO:coverage
 	    static getInstance() {
 	        return SkinMeshBuffer.instance = SkinMeshBuffer.instance || new SkinMeshBuffer();
 	    }
-	    //TODO:coverage
 	    addSkinMesh(skinMesh) {
-	        //skinMesh.getData(vb, ib, vb.byteLength / 32);
 	        skinMesh.getData2(this.vb, this.ib, this.vb._byteLength / 32);
 	    }
 	    reset() {
@@ -7344,44 +5141,27 @@ window.Laya= (function (exports) {
 	}
 
 	class BasePoly {
-	    /**
-	     * 构造线的三角形数据。根据一个位置数组生成vb和ib
-	     * @param	p
-	     * @param	indices
-	     * @param	lineWidth
-	     * @param	indexBase				顶点开始的值，ib中的索引会加上这个
-	     * @param	outVertex
-	     * @return
-	     */
 	    static createLine2(p, indices, lineWidth, indexBase, outVertex, loop) {
 	        if (p.length < 4)
 	            return null;
-	        var points = BasePoly.tempData.length > (p.length + 2) ? BasePoly.tempData : new Array(p.length + 2); //可能有loop，所以+2
+	        var points = BasePoly.tempData.length > (p.length + 2) ? BasePoly.tempData : new Array(p.length + 2);
 	        points[0] = p[0];
 	        points[1] = p[1];
-	        /*
-	        var points:Array = p.concat();
-	        if (loop) {
-	            points.push(points[0], points[1]);
-	        }
-	        */
-	        var newlen = 2; //points的下标，也是points的实际长度
+	        var newlen = 2;
 	        var i = 0;
 	        var length = p.length;
-	        //先过滤一下太相近的点
 	        for (i = 2; i < length; i += 2) {
-	            if (Math.abs(p[i] - p[i - 2]) + Math.abs(p[i + 1] - p[i - 1]) > 0.01) { //只是判断是否重合，所以不用sqrt
+	            if (Math.abs(p[i] - p[i - 2]) + Math.abs(p[i + 1] - p[i - 1]) > 0.01) {
 	                points[newlen++] = p[i];
 	                points[newlen++] = p[i + 1];
 	            }
 	        }
-	        //如果终点和起点没有重合，且要求loop的情况的处理
 	        if (loop && Math.abs(p[0] - points[newlen - 2]) + Math.abs(p[1] - points[newlen - 1]) > 0.01) {
 	            points[newlen++] = p[0];
 	            points[newlen++] = p[1];
 	        }
 	        var result = outVertex;
-	        length = newlen / 2; //points可能有多余的点，所以要用inew来表示
+	        length = newlen / 2;
 	        var w = lineWidth / 2;
 	        var px, py, p1x, p1y, p2x, p2y, p3x, p3y;
 	        var perpx, perpy, perp2x, perp2y;
@@ -7445,35 +5225,6 @@ window.Laya= (function (exports) {
 	        }
 	        return result;
 	    }
-	    /**
-	     * 相邻的两段线，边界会相交，这些交点可以作为三角形的顶点。有两种可选，一种是采用左左,右右交点，一种是采用 左右，左右交点。当两段线夹角很小的时候，如果采用
-	     * 左左，右右会产生很长很长的交点，这时候就要采用左右左右交点，相当于把尖角截断。
-	     * 当采用左左右右交点的时候，直接用切线的垂线。采用左右左右的时候，用切线
-	     * 切线直接采用两个方向的平均值。不能用3-1的方式，那样垂线和下一段可能都在同一方向（例如都在右方）
-	     * 注意把重合的点去掉
-	     * @param	path
-	     * @param	color
-	     * @param	width
-	     * @param	loop
-	     * @param	outvb
-	     * @param	vbstride  顶点占用几个float,(bytelength/4)
-	     * @param	outib
-	     * test:
-	     * 横线
-	     * [100,100, 400,100]
-	     * 竖线
-	     * [100,100, 100,400]
-	     * 直角
-	     * [100,100, 400,100, 400,400]
-	     * 重合点
-	     * [100,100,100,100,400,100]
-	     * 同一直线上的点
-	     * [100,100,100,200,100,3000]
-	     * 像老式电视的左边不封闭的图形
-	     * [98,176,  163,178, 95,66, 175,177, 198,178, 252,56, 209,178,  248,175,  248,266,  209,266, 227,277, 203,280, 188,271,  150,271, 140,283, 122,283, 131,268, 99,268]
-	     *
-	     */
-	    //TODO:coverage
 	    static createLineTriangle(path, color, width, loop, outvb, vbstride, outib) {
 	        var points = path.slice();
 	        var ptlen = points.length;
@@ -7482,20 +5233,14 @@ window.Laya= (function (exports) {
 	        var len = 0;
 	        var rp = 0;
 	        var dx = 0, dy = 0;
-	        //计算每一段的长度，取出有效数据。保存:长度，方向，拐角，切线
-	        //x,y,len,dx,dy,tx,ty,dot
-	        //数组中每个都表示当前点开始的长度，方向
-	        //x,y,dx,dy
 	        var pointnum = ptlen / 2;
 	        if (pointnum <= 1)
 	            return;
 	        if (pointnum == 2) {
-	            //TODO
 	            return;
 	        }
-	        var tmpData = new Array(pointnum * 4); //TODO 做到外面
-	        var realPtNum = 0; //去掉重复点后的实际点个数。同一直线上的点不做优化
-	        //var segNum:int = pointnum + (loop?1:0);
+	        var tmpData = new Array(pointnum * 4);
+	        var realPtNum = 0;
 	        var ci = 0;
 	        for (var i = 0; i < pointnum - 1; i++) {
 	            p1x = points[ci++], p1y = points[ci++];
@@ -7513,11 +5258,11 @@ window.Laya= (function (exports) {
 	                }
 	            }
 	        }
-	        if (loop) { //loop的话，需要取第一个点来算
+	        if (loop) {
 	            p1x = points[ptlen - 2], p1y = points[ptlen - 1];
 	            p2x = points[0], p2y = points[1];
 	            dx = p2x - p1x, dy = p2y - p1y;
-	            if (dx != 0 && dy != 0) { //如果长度为零的话，最后这个点就不用加了，上一个点就是指向了第一个点。
+	            if (dx != 0 && dy != 0) {
 	                len = Math.sqrt(dx * dx + dy * dy);
 	                if (len > 1e-3) {
 	                    rp = realPtNum * 4;
@@ -7529,7 +5274,7 @@ window.Laya= (function (exports) {
 	                }
 	            }
 	        }
-	        else { //不是loop的话，直接取当前段的朝向，记录在上一个点上
+	        else {
 	            rp = realPtNum * 4;
 	            tmpData[rp] = p1x;
 	            tmpData[rp + 1] = p1y;
@@ -7538,10 +5283,6 @@ window.Laya= (function (exports) {
 	            realPtNum++;
 	        }
 	        ci = 0;
-	        /**
-	         * 根据前后两段的方向，计算垂线的方向，根据这个方向和任意一边的dxdy的垂线的点积为w/2可以得到长度。就可以得到增加的点
-	         */
-	        //如果相邻两段朝向的dot值接近-1，则表示反向了，需要改成切
 	        for (i = 0; i < pointnum; i++) {
 	            p1x = points[ci], p1y = points[ci + 1];
 	            p2x = points[ci + 2], p2y = points[ci + 3];
@@ -7553,20 +5294,14 @@ window.Laya= (function (exports) {
 
 	class EarcutNode {
 	    constructor(i, x, y) {
-	        // vertice index in coordinates array
 	        this.i = i;
-	        // vertex coordinates
 	        this.x = x;
 	        this.y = y;
-	        // previous and next vertice nodes in a polygon ring
 	        this.prev = null;
 	        this.next = null;
-	        // z-order curve value
 	        this.z = null;
-	        // previous and next nodes in z-order
 	        this.prevZ = null;
 	        this.nextZ = null;
-	        // indicates whether this is a steiner point
 	        this.steiner = false;
 	    }
 	}
@@ -7580,7 +5315,6 @@ window.Laya= (function (exports) {
 	        var minX, minY, maxX, maxY, x, y, invSize;
 	        if (hasHoles)
 	            outerNode = Earcut.eliminateHoles(data, holeIndices, outerNode, dim);
-	        // if the shape is not too simple, we'll use z-order curve hash later; calculate polygon bbox
 	        if (data.length > 80 * dim) {
 	            minX = maxX = data[0];
 	            minY = maxY = data[1];
@@ -7596,14 +5330,12 @@ window.Laya= (function (exports) {
 	                if (y > maxY)
 	                    maxY = y;
 	            }
-	            // minX, minY and invSize are later used to transform coords into integers for z-order calculation
 	            invSize = Math.max(maxX - minX, maxY - minY);
 	            invSize = invSize !== 0 ? 1 / invSize : 0;
 	        }
 	        Earcut.earcutLinked(outerNode, triangles, dim, minX, minY, invSize);
 	        return triangles;
 	    }
-	    // create a circular doubly linked list from polygon points in the specified winding order
 	    static linkedList(data, start, end, dim, clockwise) {
 	        var i, last;
 	        if (clockwise === (Earcut.signedArea(data, start, end, dim) > 0)) {
@@ -7620,7 +5352,6 @@ window.Laya= (function (exports) {
 	        }
 	        return last;
 	    }
-	    // eliminate colinear or duplicate points
 	    static filterPoints(start, end) {
 	        if (!start)
 	            return start;
@@ -7642,41 +5373,32 @@ window.Laya= (function (exports) {
 	        } while (again || p !== end);
 	        return end;
 	    }
-	    // main ear slicing loop which triangulates a polygon (given as a linked list)
 	    static earcutLinked(ear, triangles, dim, minX, minY, invSize, pass = null) {
 	        if (!ear)
 	            return;
-	        // interlink polygon nodes in z-order
 	        if (!pass && invSize)
 	            Earcut.indexCurve(ear, minX, minY, invSize);
 	        var stop = ear, prev, next;
-	        // iterate through ears, slicing them one by one
 	        while (ear.prev !== ear.next) {
 	            prev = ear.prev;
 	            next = ear.next;
 	            if (invSize ? Earcut.isEarHashed(ear, minX, minY, invSize) : Earcut.isEar(ear)) {
-	                // cut off the triangle
 	                triangles.push(prev.i / dim);
 	                triangles.push(ear.i / dim);
 	                triangles.push(next.i / dim);
 	                Earcut.removeNode(ear);
-	                // skipping the next vertice leads to less sliver triangles
 	                ear = next.next;
 	                stop = next.next;
 	                continue;
 	            }
 	            ear = next;
-	            // if we looped through the whole remaining polygon and can't find any more ears
 	            if (ear === stop) {
-	                // try filtering points and slicing again
 	                if (!pass) {
 	                    Earcut.earcutLinked(Earcut.filterPoints(ear, null), triangles, dim, minX, minY, invSize, 1);
-	                    // if this didn't work, try curing all small self-intersections locally
 	                }
 	                else if (pass === 1) {
 	                    ear = Earcut.cureLocalIntersections(ear, triangles, dim);
 	                    Earcut.earcutLinked(ear, triangles, dim, minX, minY, invSize, 2);
-	                    // as a last resort, try splitting the remaining polygon into two
 	                }
 	                else if (pass === 2) {
 	                    Earcut.splitEarcut(ear, triangles, dim, minX, minY, invSize);
@@ -7685,12 +5407,10 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    // check whether a polygon node forms a valid ear with adjacent nodes
 	    static isEar(ear) {
 	        var a = ear.prev, b = ear, c = ear.next;
 	        if (Earcut.area(a, b, c) >= 0)
-	            return false; // reflex, can't be an ear
-	        // now make sure we don't have other points inside the potential ear
+	            return false;
 	        var p = ear.next.next;
 	        while (p !== ear.prev) {
 	            if (Earcut.pointInTriangle(a.x, a.y, b.x, b.y, c.x, c.y, p.x, p.y) &&
@@ -7700,16 +5420,12 @@ window.Laya= (function (exports) {
 	        }
 	        return true;
 	    }
-	    //TODO:coverage
 	    static isEarHashed(ear, minX, minY, invSize) {
 	        var a = ear.prev, b = ear, c = ear.next;
 	        if (Earcut.area(a, b, c) >= 0)
-	            return false; // reflex, can't be an ear
-	        // triangle bbox; min & max are calculated like this for speed
+	            return false;
 	        var minTX = a.x < b.x ? (a.x < c.x ? a.x : c.x) : (b.x < c.x ? b.x : c.x), minTY = a.y < b.y ? (a.y < c.y ? a.y : c.y) : (b.y < c.y ? b.y : c.y), maxTX = a.x > b.x ? (a.x > c.x ? a.x : c.x) : (b.x > c.x ? b.x : c.x), maxTY = a.y > b.y ? (a.y > c.y ? a.y : c.y) : (b.y > c.y ? b.y : c.y);
-	        // z-order range for the current triangle bbox;
 	        var minZ = Earcut.zOrder(minTX, minTY, minX, minY, invSize), maxZ = Earcut.zOrder(maxTX, maxTY, minX, minY, invSize);
-	        // first look for points inside the triangle in increasing z-order
 	        var p = ear.nextZ;
 	        while (p && p.z <= maxZ) {
 	            if (p !== ear.prev && p !== ear.next &&
@@ -7718,7 +5434,6 @@ window.Laya= (function (exports) {
 	                return false;
 	            p = p.nextZ;
 	        }
-	        // then look for points in decreasing z-order
 	        p = ear.prevZ;
 	        while (p && p.z >= minZ) {
 	            if (p !== ear.prev && p !== ear.next &&
@@ -7729,8 +5444,6 @@ window.Laya= (function (exports) {
 	        }
 	        return true;
 	    }
-	    // go through all polygon nodes and cure small local self-intersections
-	    //TODO:coverage
 	    static cureLocalIntersections(start, triangles, dim) {
 	        var p = start;
 	        do {
@@ -7739,7 +5452,6 @@ window.Laya= (function (exports) {
 	                triangles.push(a.i / dim);
 	                triangles.push(p.i / dim);
 	                triangles.push(b.i / dim);
-	                // remove two nodes involved
 	                Earcut.removeNode(p);
 	                Earcut.removeNode(p.next);
 	                p = start = b;
@@ -7748,21 +5460,15 @@ window.Laya= (function (exports) {
 	        } while (p !== start);
 	        return p;
 	    }
-	    // try splitting polygon into two and triangulate them independently
-	    //TODO:coverage
 	    static splitEarcut(start, triangles, dim, minX, minY, invSize) {
-	        // look for a valid diagonal that divides the polygon into two
 	        var a = start;
 	        do {
 	            var b = a.next.next;
 	            while (b !== a.prev) {
 	                if (a.i !== b.i && Earcut.isValidDiagonal(a, b)) {
-	                    // split the polygon in two by the diagonal
 	                    var c = Earcut.splitPolygon(a, b);
-	                    // filter colinear points around the cuts
 	                    a = Earcut.filterPoints(a, a.next);
 	                    c = Earcut.filterPoints(c, c.next);
-	                    // run earcut on each half
 	                    Earcut.earcutLinked(a, triangles, dim, minX, minY, invSize);
 	                    Earcut.earcutLinked(c, triangles, dim, minX, minY, invSize);
 	                    return;
@@ -7772,8 +5478,6 @@ window.Laya= (function (exports) {
 	            a = a.next;
 	        } while (a !== start);
 	    }
-	    // link every hole into the outer loop, producing a single-ring polygon without holes
-	    //TODO:coverage
 	    static eliminateHoles(data, holeIndices, outerNode, dim) {
 	        var queue = [], i, len, start, end, list;
 	        for (i = 0, len = holeIndices.length; i < len; i++) {
@@ -7785,19 +5489,15 @@ window.Laya= (function (exports) {
 	            queue.push(Earcut.getLeftmost(list));
 	        }
 	        queue.sort(Earcut.compareX);
-	        // process holes from left to right
 	        for (i = 0; i < queue.length; i++) {
 	            Earcut.eliminateHole(queue[i], outerNode);
 	            outerNode = Earcut.filterPoints(outerNode, outerNode.next);
 	        }
 	        return outerNode;
 	    }
-	    //TODO:coverage
 	    static compareX(a, b) {
 	        return a.x - b.x;
 	    }
-	    // find a bridge between vertices that connects hole with an outer ring and and link it
-	    //TODO:coverage
 	    static eliminateHole(hole, outerNode) {
 	        outerNode = Earcut.findHoleBridge(hole, outerNode);
 	        if (outerNode) {
@@ -7805,12 +5505,8 @@ window.Laya= (function (exports) {
 	            Earcut.filterPoints(b, b.next);
 	        }
 	    }
-	    // David Eberly's algorithm for finding a bridge between hole and outer polygon
-	    //TODO:coverage
 	    static findHoleBridge(hole, outerNode) {
 	        var p = outerNode, hx = hole.x, hy = hole.y, qx = -Infinity, m;
-	        // find a segment intersected by a ray from the hole's leftmost point to the left;
-	        // segment's endpoint with lesser x will be potential connection point
 	        do {
 	            if (hy <= p.y && hy >= p.next.y && p.next.y !== p.y) {
 	                var x = p.x + (hy - p.y) * (p.next.x - p.x) / (p.next.y - p.y);
@@ -7830,16 +5526,13 @@ window.Laya= (function (exports) {
 	        if (!m)
 	            return null;
 	        if (hx === qx)
-	            return m.prev; // hole touches outer segment; pick lower endpoint
-	        // look for points inside the triangle of hole point, segment intersection and endpoint;
-	        // if there are no points found, we have a valid connection;
-	        // otherwise choose the point of the minimum angle with the ray as connection point
+	            return m.prev;
 	        var stop = m, mx = m.x, my = m.y, tanMin = Infinity, tan;
 	        p = m.next;
 	        while (p !== stop) {
 	            if (hx >= p.x && p.x >= mx && hx !== p.x &&
 	                Earcut.pointInTriangle(hy < my ? hx : qx, hy, mx, my, hy < my ? qx : hx, hy, p.x, p.y)) {
-	                tan = Math.abs(hy - p.y) / (hx - p.x); // tangential
+	                tan = Math.abs(hy - p.y) / (hx - p.x);
 	                if ((tan < tanMin || (tan === tanMin && p.x > m.x)) && Earcut.locallyInside(p, hole)) {
 	                    m = p;
 	                    tanMin = tan;
@@ -7849,8 +5542,6 @@ window.Laya= (function (exports) {
 	        }
 	        return m;
 	    }
-	    // interlink polygon nodes in z-order
-	    //TODO:coverage
 	    static indexCurve(start, minX, minY, invSize) {
 	        var p = start;
 	        do {
@@ -7864,9 +5555,6 @@ window.Laya= (function (exports) {
 	        p.prevZ = null;
 	        Earcut.sortLinked(p);
 	    }
-	    // Simon Tatham's linked list merge sort algorithm
-	    // http://www.chiark.greenend.org.uk/~sgtatham/algorithms/listsort.html
-	    //TODO:coverage
 	    static sortLinked(list) {
 	        var i, p, q, e, tail, numMerges, pSize, qSize, inSize = 1;
 	        do {
@@ -7910,10 +5598,7 @@ window.Laya= (function (exports) {
 	        } while (numMerges > 1);
 	        return list;
 	    }
-	    // z-order of a point given coords and inverse of the longer side of data bbox
-	    //TODO:coverage
 	    static zOrder(x, y, minX, minY, invSize) {
-	        // coords are transformed into non-negative 15-bit integer range
 	        x = 32767 * (x - minX) * invSize;
 	        y = 32767 * (y - minY) * invSize;
 	        x = (x | (x << 8)) & 0x00FF00FF;
@@ -7926,8 +5611,6 @@ window.Laya= (function (exports) {
 	        y = (y | (y << 1)) & 0x55555555;
 	        return x | (y << 1);
 	    }
-	    // find the leftmost node of a polygon ring
-	    //TODO:coverage
 	    static getLeftmost(start) {
 	        var p = start, leftmost = start;
 	        do {
@@ -7937,28 +5620,21 @@ window.Laya= (function (exports) {
 	        } while (p !== start);
 	        return leftmost;
 	    }
-	    // check if a point lies within a convex triangle
 	    static pointInTriangle(ax, ay, bx, by, cx, cy, px, py) {
 	        return (cx - px) * (ay - py) - (ax - px) * (cy - py) >= 0 &&
 	            (ax - px) * (by - py) - (bx - px) * (ay - py) >= 0 &&
 	            (bx - px) * (cy - py) - (cx - px) * (by - py) >= 0;
 	    }
-	    // check if a diagonal between two polygon nodes is valid (lies in polygon interior)
-	    //TODO:coverage
 	    static isValidDiagonal(a, b) {
 	        return a.next.i !== b.i && a.prev.i !== b.i && !Earcut.intersectsPolygon(a, b) &&
 	            Earcut.locallyInside(a, b) && Earcut.locallyInside(b, a) && Earcut.middleInside(a, b);
 	    }
-	    // signed area of a triangle
 	    static area(p, q, r) {
 	        return (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
 	    }
-	    // check if two points are equal
 	    static equals(p1, p2) {
 	        return p1.x === p2.x && p1.y === p2.y;
 	    }
-	    // check if two segments intersect
-	    //TODO:coverage
 	    static intersects(p1, q1, p2, q2) {
 	        if ((Earcut.equals(p1, q1) && Earcut.equals(p2, q2)) ||
 	            (Earcut.equals(p1, q2) && Earcut.equals(p2, q1)))
@@ -7966,8 +5642,6 @@ window.Laya= (function (exports) {
 	        return Earcut.area(p1, q1, p2) > 0 !== Earcut.area(p1, q1, q2) > 0 &&
 	            Earcut.area(p2, q2, p1) > 0 !== Earcut.area(p2, q2, q1) > 0;
 	    }
-	    // check if a polygon diagonal intersects any polygon segments
-	    //TODO:coverage
 	    static intersectsPolygon(a, b) {
 	        var p = a;
 	        do {
@@ -7978,15 +5652,11 @@ window.Laya= (function (exports) {
 	        } while (p !== a);
 	        return false;
 	    }
-	    // check if a polygon diagonal is locally inside the polygon
-	    //TODO:coverage
 	    static locallyInside(a, b) {
 	        return Earcut.area(a.prev, a, a.next) < 0 ?
 	            Earcut.area(a, b, a.next) >= 0 && Earcut.area(a, a.prev, b) >= 0 :
 	            Earcut.area(a, b, a.prev) < 0 || Earcut.area(a, a.next, b) < 0;
 	    }
-	    // check if the middle point of a polygon diagonal is inside the polygon
-	    //TODO:coverage
 	    static middleInside(a, b) {
 	        var p = a, inside = false, px = (a.x + b.x) / 2, py = (a.y + b.y) / 2;
 	        do {
@@ -7997,9 +5667,6 @@ window.Laya= (function (exports) {
 	        } while (p !== a);
 	        return inside;
 	    }
-	    // link two polygon vertices with a bridge; if the vertices belong to the same ring, it splits polygon into two;
-	    // if one belongs to the outer ring and another to a hole, it merges it into a single ring
-	    //TODO:coverage
 	    static splitPolygon(a, b) {
 	        var a2 = new EarcutNode(a.i, a.x, a.y), b2 = new EarcutNode(b.i, b.x, b.y), an = a.next, bp = b.prev;
 	        a.next = b;
@@ -8012,7 +5679,6 @@ window.Laya= (function (exports) {
 	        b2.prev = bp;
 	        return b2;
 	    }
-	    // create a node and optionally link it with previous one (in a circular doubly linked list)
 	    static insertNode(i, x, y, last) {
 	        var p = new EarcutNode(i, x, y);
 	        if (!last) {
@@ -8035,34 +5701,6 @@ window.Laya= (function (exports) {
 	        if (p.nextZ)
 	            p.nextZ.prevZ = p.prevZ;
 	    }
-	    // return a percentage difference between the polygon area and its triangulation area;
-	    // used to verify correctness of triangulation
-	    /*earcut.deviation = function (data, holeIndices, dim, triangles) {
-	        var hasHoles = holeIndices && holeIndices.length;
-	        var outerLen = hasHoles ? holeIndices[0] * dim : data.length;
-	    
-	        var polygonArea = Math.abs(signedArea(data, 0, outerLen, dim));
-	        if (hasHoles) {
-	            for (var i = 0, len = holeIndices.length; i < len; i++) {
-	                var start = holeIndices[i] * dim;
-	                var end = i < len - 1 ? holeIndices[i + 1] * dim : data.length;
-	                polygonArea -= Math.abs(signedArea(data, start, end, dim));
-	            }
-	        }
-	    
-	        var trianglesArea = 0;
-	        for (i = 0; i < triangles.length; i += 3) {
-	            var a = triangles[i] * dim;
-	            var b = triangles[i + 1] * dim;
-	            var c = triangles[i + 2] * dim;
-	            trianglesArea += Math.abs(
-	                (data[a] - data[c]) * (data[b + 1] - data[a + 1]) -
-	                (data[a] - data[b]) * (data[c + 1] - data[a + 1]));
-	        }
-	    
-	        return polygonArea === 0 && trianglesArea === 0 ? 0 :
-	            Math.abs((trianglesArea - polygonArea) / polygonArea);
-	    };*/
 	    static signedArea(data, start, end, dim) {
 	        var sum = 0;
 	        for (var i = start, j = end - dim; i < end; i += dim) {
@@ -8088,12 +5726,9 @@ window.Laya= (function (exports) {
 	    constructor(renderType = SubmitBase.TYPE_2D) {
 	        super(renderType);
 	    }
-	    /**
-	     * @override
-	     */
-	    /*override*/ renderSubmit() {
+	    renderSubmit() {
 	        if (this._numEle === 0 || !this._mesh || this._numEle == 0)
-	            return 1; //怎么会有_numEle是0的情况?
+	            return 1;
 	        var _tex = this.shaderValue.textureHost;
 	        if (_tex) {
 	            var source = _tex._getSource();
@@ -8103,8 +5738,6 @@ window.Laya= (function (exports) {
 	        }
 	        var gl = WebGLContext.mainContext;
 	        this._mesh.useMesh(gl);
-	        //_ib._bind_upload() || _ib._bind();
-	        //_vb._bind_upload() || _vb._bind();
 	        this.shaderValue.upload();
 	        if (BlendMode.activeBlendFunction !== this._blendFn) {
 	            WebGLContext.setBlend(gl, true);
@@ -8116,25 +5749,17 @@ window.Laya= (function (exports) {
 	        Stat.trianglesFaces += this._numEle / 3;
 	        return 1;
 	    }
-	    /**
-	     * @override
-	     */
-	    /*override*/ releaseRender() {
+	    releaseRender() {
 	        if (SubmitBase.RENDERBASE == this)
 	            return;
 	        if ((--this._ref) < 1) {
 	            Submit.POOL[Submit._poolSize++] = this;
 	            this.shaderValue.release();
 	            this.shaderValue = null;
-	            //_vb = null;
-	            //_mesh.destroy();
 	            this._mesh = null;
 	            this._parent && (this._parent.releaseRender(), this._parent = null);
 	        }
 	    }
-	    /*
-	       create方法只传对submit设置的值
-	     */
 	    static create(context, mesh, sv) {
 	        var o = Submit._poolSize ? Submit.POOL[--Submit._poolSize] : new Submit();
 	        o._ref = 1;
@@ -8150,15 +5775,6 @@ window.Laya= (function (exports) {
 	        filters && o.shaderValue.setFilters(filters);
 	        return o;
 	    }
-	    /**
-	     * 创建一个矢量submit
-	     * @param	ctx
-	     * @param	mesh
-	     * @param	numEle		对应drawElement的第二个参数:count
-	     * @param	offset		drawElement的时候的ib的偏移。
-	     * @param	sv			Value2D
-	     * @return
-	     */
 	    static createShape(ctx, mesh, numEle, sv) {
 	        var o = Submit._poolSize ? Submit.POOL[--Submit._poolSize] : (new Submit());
 	        o._mesh = mesh;
@@ -8176,15 +5792,10 @@ window.Laya= (function (exports) {
 	Submit._poolSize = 0;
 	Submit.POOL = [];
 
-	/**
-	 * cache as normal 模式下的生成的canvas的渲染。
-	 */
 	class SubmitCanvas extends SubmitBase {
 	    constructor() {
 	        super(SubmitBase.TYPE_2D);
-	        /**@internal */
-	        this._matrix = new Matrix(); // 用来计算当前的世界矩阵
-	        /**@internal */
+	        this._matrix = new Matrix();
 	        this._matrix4 = CONST3D2D.defaultMatrix4.concat();
 	        this.shaderValue = new Value2D(0, 0);
 	    }
@@ -8199,11 +5810,7 @@ window.Laya= (function (exports) {
 	        filters && filters.length && v.setFilters(filters);
 	        return o;
 	    }
-	    /**
-	     * @override
-	     */
 	    renderSubmit() {
-	        // 下面主要是为了给canvas设置矩阵。因为canvas保存的是没有偏移的。
 	        var preAlpha = RenderState2D.worldAlpha;
 	        var preMatrix4 = RenderState2D.worldMatrix4;
 	        var preMatrix = RenderState2D.worldMatrix;
@@ -8236,20 +5843,13 @@ window.Laya= (function (exports) {
 	        RenderState2D.worldShaderDefines = preWorldShaderDefines;
 	        return 1;
 	    }
-	    /**
-	     * @override
-	     */
 	    releaseRender() {
 	        if ((--this._ref) < 1) {
 	            var cache = SubmitCanvas.POOL;
-	            //_vb = null;
 	            this._mesh = null;
 	            cache[cache._length++] = this;
 	        }
 	    }
-	    /**
-	     * @override
-	     */
 	    getRenderType() {
 	        return SubmitBase.TYPE_CANVAS;
 	    }
@@ -8263,16 +5863,14 @@ window.Laya= (function (exports) {
 	class SubmitTarget {
 	    constructor() {
 	        this.blendType = 0;
-	        /**@internal */
 	        this._ref = 1;
-	        /**@internal */
 	        this._key = new SubmitKey();
 	    }
 	    renderSubmit() {
 	        var gl = WebGLContext.mainContext;
 	        this._mesh.useMesh(gl);
 	        var target = this.srcRT;
-	        if (target) { //??为什么会出现为空的情况
+	        if (target) {
 	            this.shaderValue.texture = target._getSource();
 	            this.shaderValue.upload();
 	            this.blend();
@@ -8329,40 +5927,31 @@ window.Laya= (function (exports) {
 	    constructor(renderType = SubmitBase.TYPE_2D) {
 	        super(renderType);
 	    }
-	    /**
-	     * @override
-	     */
-	    /*override*/ releaseRender() {
+	    releaseRender() {
 	        if ((--this._ref) < 1) {
 	            SubmitTexture.POOL[SubmitTexture._poolSize++] = this;
 	            this.shaderValue.release();
-	            //_vb = null;
-	            this._mesh = null; //下次create会重新赋值。既然会重新赋值，那还设置干嘛
+	            this._mesh = null;
 	            this._parent && (this._parent.releaseRender(), this._parent = null);
 	        }
 	    }
-	    /**
-	     * @override
-	     */
-	    /*override*/ renderSubmit() {
+	    renderSubmit() {
 	        if (this._numEle === 0)
 	            return 1;
 	        var tex = this.shaderValue.textureHost;
-	        if (tex) { //现在fillrect也用的这个submit，所以不必要求有texture
+	        if (tex) {
 	            var source = tex ? tex._getSource() : null;
 	            if (!source)
 	                return 1;
 	        }
 	        var gl = WebGLContext.mainContext;
 	        this._mesh.useMesh(gl);
-	        //如果shader参数都相同，只要提交texture就行了
 	        var lastSubmit = SubmitBase.preRender;
 	        var prekey = SubmitBase.preRender._key;
 	        if (this._key.blendShader === 0 && (this._key.submitType === prekey.submitType && this._key.blendShader === prekey.blendShader) && BaseShader.activeShader &&
 	            SubmitBase.preRender.clipInfoID == this.clipInfoID &&
-	            lastSubmit.shaderValue.defines._value === this.shaderValue.defines._value && //shader define要相同. 
-	            (this.shaderValue.defines._value & ShaderDefines2D.NOOPTMASK) == 0 //只有基本类型的shader走这个，像blur，glow，filltexture等都不要这样优化
-	        ) {
+	            lastSubmit.shaderValue.defines._value === this.shaderValue.defines._value &&
+	            (this.shaderValue.defines._value & ShaderDefines2D.NOOPTMASK) == 0) {
 	            BaseShader.activeShader.uploadTexture2D(source);
 	        }
 	        else {
@@ -8379,9 +5968,6 @@ window.Laya= (function (exports) {
 	        Stat.trianglesFaces += this._numEle / 3;
 	        return 1;
 	    }
-	    /*
-	       create方法只传对submit设置的值
-	     */
 	    static create(context, mesh, sv) {
 	        var o = SubmitTexture._poolSize ? SubmitTexture.POOL[--SubmitTexture._poolSize] : new SubmitTexture(SubmitBase.TYPE_TEXTURE);
 	        o._mesh = mesh;
@@ -8394,7 +5980,6 @@ window.Laya= (function (exports) {
 	        o._key.blendShader = blendType;
 	        o._blendFn = context._targets ? BlendMode.targetFns[blendType] : BlendMode.fns[blendType];
 	        o.shaderValue = sv;
-	        //sv.setValue(context._shader2D);
 	        if (context._colorFiler) {
 	            var ft = context._colorFiler;
 	            sv.defines.add(ft.type);
@@ -8407,17 +5992,12 @@ window.Laya= (function (exports) {
 	SubmitTexture._poolSize = 0;
 	SubmitTexture.POOL = [];
 
-	/**
-	 * ...
-	 * @author laoxie
-	 */
 	class CharSubmitCache {
 	    constructor() {
 	        this._data = [];
 	        this._ndata = 0;
 	        this._clipid = -1;
 	        this._clipMatrix = new Matrix();
-	        /**@internal */
 	        this._enbale = false;
 	    }
 	    clear() {
@@ -8489,40 +6069,31 @@ window.Laya= (function (exports) {
 	CharSubmitCache.__posPool = [];
 	CharSubmitCache.__nPosPool = 0;
 
-	// 注意长宽都不要超过256，一个是影响效率，一个是超出表达能力
 	class AtlasGrid {
-	    // TODO type 是否有用
-	    //------------------------------------------------------------------------------
 	    constructor(width = 0, height = 0, id = 0) {
 	        this.atlasID = 0;
 	        this._width = 0;
 	        this._height = 0;
 	        this._texCount = 0;
-	        this._rowInfo = null; // 当前行的最大长度
-	        this._cells = null; // 每个格子的信息。{type,w,h} 相当于一个距离场. type =0 表示空闲的。不为0的情况下填充的是宽高（有什么用呢）
-	        this._used = 0; // 使用率
+	        this._rowInfo = null;
+	        this._cells = null;
+	        this._used = 0;
 	        this._cells = null;
 	        this._rowInfo = null;
 	        this.atlasID = id;
 	        this._init(width, height);
 	    }
-	    //------------------------------------------------------------------
 	    addRect(type, width, height, pt) {
-	        //调用获得应该放在哪 返回值有三个。。bRet是否成功，nX x位置，nY y位置
 	        if (!this._get(width, height, pt))
 	            return false;
-	        //根据获得的x,y填充
 	        this._fill(pt.x, pt.y, width, height, type);
 	        this._texCount++;
-	        //返回是否成功，以及X位置和Y位置
 	        return true;
 	    }
-	    //------------------------------------------------------------------------------
 	    _release() {
 	        this._cells = null;
 	        this._rowInfo = null;
 	    }
-	    //------------------------------------------------------------------------------
 	    _init(width, height) {
 	        this._width = width;
 	        this._height = height;
@@ -8535,22 +6106,16 @@ window.Laya= (function (exports) {
 	        this._clear();
 	        return true;
 	    }
-	    //------------------------------------------------------------------
 	    _get(width, height, pt) {
 	        if (width > this._width || height > this._height) {
 	            return false;
 	        }
-	        //定义返回的x,y的位置
 	        var rx = -1;
 	        var ry = -1;
-	        //为了效率先保存临时变量
 	        var nWidth = this._width;
 	        var nHeight = this._height;
-	        //定义一个变量为了指向 m_pCells
 	        var pCellBox = this._cells;
-	        //遍历查找合适的位置  //TODO 下面的方法应该可以优化
 	        for (var y = 0; y < nHeight; y++) {
-	            //如果该行的空白数 小于 要放入的宽度返回
 	            if (this._rowInfo[y] < width)
 	                continue;
 	            for (var x = 0; x < nWidth;) {
@@ -8561,19 +6126,16 @@ window.Laya= (function (exports) {
 	                }
 	                rx = x;
 	                ry = y;
-	                // 检查当前宽度是否能完全放下，即x方向的每个位置都有足够的高度。
 	                for (var xx = 0; xx < width; xx++) {
 	                    if (pCellBox[3 * xx + tm + 2] < height) {
 	                        rx = -1;
 	                        break;
 	                    }
 	                }
-	                // 不行就x继续前进
 	                if (rx < 0) {
 	                    x += pCellBox[tm + 1];
 	                    continue;
 	                }
-	                // 找到了
 	                pt.x = rx;
 	                pt.y = ry;
 	                return true;
@@ -8581,14 +6143,10 @@ window.Laya= (function (exports) {
 	        }
 	        return false;
 	    }
-	    //------------------------------------------------------------------
 	    _fill(x, y, w, h, type) {
-	        //定义一些临时变量
 	        var nWidth = this._width;
 	        var nHeghit = this._height;
-	        //代码检查
 	        this._check((x + w) <= nWidth && (y + h) <= nHeghit);
-	        //填充
 	        for (var yy = y; yy < (h + y); ++yy) {
 	            this._check(this._rowInfo[yy] >= w);
 	            this._rowInfo[yy] -= w;
@@ -8600,10 +6158,8 @@ window.Laya= (function (exports) {
 	                this._cells[tm + 2] = h;
 	            }
 	        }
-	        //调整我左方相邻空白格子的宽度连续信息描述
 	        if (x > 0) {
 	            for (yy = 0; yy < h; ++yy) {
-	                // TODO 下面应该可以优化
 	                var s = 0;
 	                for (xx = x - 1; xx >= 0; --xx, ++s) {
 	                    if (this._cells[((y + yy) * nWidth + xx) * 3] != 0)
@@ -8615,10 +6171,8 @@ window.Laya= (function (exports) {
 	                }
 	            }
 	        }
-	        //调整我上方相邻空白格子的高度连续信息描述
 	        if (y > 0) {
 	            for (xx = x; xx < (x + w); ++xx) {
-	                // TODO 下面应该可以优化
 	                s = 0;
 	                for (yy = y - 1; yy >= 0; --yy, s++) {
 	                    if (this._cells[(xx + yy * nWidth) * 3] != 0)
@@ -8637,7 +6191,6 @@ window.Laya= (function (exports) {
 	            console.log("xtexMerger 错误啦");
 	        }
 	    }
-	    //------------------------------------------------------------------
 	    _clear() {
 	        this._texCount = 0;
 	        for (var y = 0; y < this._height; y++) {
@@ -8654,29 +6207,23 @@ window.Laya= (function (exports) {
 	    }
 	}
 
-	//import { TextAtlas } from "./TextAtlas";
 	class TextTexture extends Resource {
-	    //public var isIso:Boolean = false;
 	    constructor(textureW, textureH) {
 	        super();
-	        /**@internal */
 	        this._texW = 0;
-	        /**@internal */
 	        this._texH = 0;
-	        /**@internal */
-	        this.__destroyed = false; //父类有，但是private
-	        /**@internal */
-	        this._discardTm = 0; //释放的时间。超过一定时间会被真正删除
-	        this.genID = 0; // 这个对象会重新利用，为了能让引用他的人知道自己引用的是否有效，加个id
-	        this.bitmap = { id: 0, _glTexture: null }; //samekey的判断用的
-	        this.curUsedCovRate = 0; // 当前使用到的使用率。根据面积算的
-	        this.curUsedCovRateAtlas = 0; // 大图集中的占用率。由于大图集分辨率低，所以会浪费一些空间
+	        this.__destroyed = false;
+	        this._discardTm = 0;
+	        this.genID = 0;
+	        this.bitmap = { id: 0, _glTexture: null };
+	        this.curUsedCovRate = 0;
+	        this.curUsedCovRateAtlas = 0;
 	        this.lastTouchTm = 0;
-	        this.ri = null; // 如果是独立文字贴图的话带有这个信息
+	        this.ri = null;
 	        this._texW = textureW || TextTexture.gTextRender.atlasWidth;
 	        this._texH = textureH || TextTexture.gTextRender.atlasWidth;
 	        this.bitmap.id = this.id;
-	        this.lock = true; //防止被资源管理清除
+	        this.lock = true;
 	    }
 	    recreateResource() {
 	        if (this._source)
@@ -8685,29 +6232,16 @@ window.Laya= (function (exports) {
 	        var glTex = this._source = gl.createTexture();
 	        this.bitmap._glTexture = glTex;
 	        WebGLContext.bindTexture(gl, gl.TEXTURE_2D, glTex);
-	        //gl.bindTexture(WebGLContext.TEXTURE_2D, glTex);
-	        //var sz:int = _width * _height * 4;
-	        //分配显存。
 	        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this._texW, this._texH, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-	        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); //不能用点采样，否则旋转的时候，非常难看
+	        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 	        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 	        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 	        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-	        //TODO 预乘alpha
 	        if (TextTexture.gTextRender.debugUV) {
 	            this.fillWhite();
 	        }
 	    }
-	    /**
-	     *
-	     * @param	data
-	     * @param	x			拷贝位置。
-	     * @param	y
-	     * @param  uv
-	     * @return uv数组  如果uv不为空就返回传入的uv，否则new一个数组
-	     */
 	    addChar(data, x, y, uv = null) {
-	        //if (!ILaya.Render.isConchApp &&  !__JS__('(data instanceof ImageData)')) {
 	        if (TextTexture.gTextRender.isWan1Wan) {
 	            return this.addCharCanvas(data, x, y, uv);
 	        }
@@ -8725,15 +6259,15 @@ window.Laya= (function (exports) {
 	        var u1;
 	        var v1;
 	        if (ILaya.Render.isConchApp) {
-	            u0 = x / this._texW; // +1 表示内缩一下，反正文字总是有留白。否则会受到旁边的一个像素的影响
+	            u0 = x / this._texW;
 	            v0 = y / this._texH;
-	            u1 = (x + data.width) / this._texW; // 注意是-1,不是-2
+	            u1 = (x + data.width) / this._texW;
 	            v1 = (y + data.height) / this._texH;
 	        }
 	        else {
-	            u0 = (x + 1) / this._texW; // +1 表示内缩一下，反正文字总是有留白。否则会受到旁边的一个像素的影响
+	            u0 = (x + 1) / this._texW;
 	            v0 = (y) / this._texH;
-	            u1 = (x + data.width - 1) / this._texW; // 注意是-1,不是-2
+	            u1 = (x + data.width - 1) / this._texW;
 	            v1 = (y + data.height - 1) / this._texH;
 	        }
 	        uv = uv || new Array(8);
@@ -8743,12 +6277,6 @@ window.Laya= (function (exports) {
 	        uv[6] = u0, uv[7] = v1;
 	        return uv;
 	    }
-	    /**
-	     * 玩一玩不支持 getImageData
-	     * @param	canv
-	     * @param	x
-	     * @param	y
-	     */
 	    addCharCanvas(canv, x, y, uv = null) {
 	        !this._source && this.recreateResource();
 	        var gl = LayaGL.instance;
@@ -8761,13 +6289,13 @@ window.Laya= (function (exports) {
 	        var u1;
 	        var v1;
 	        if (ILaya.Render.isConchApp) {
-	            u0 = x / this._texW; // +1 表示内缩一下，反正文字总是有留白。否则会受到旁边的一个像素的影响
+	            u0 = x / this._texW;
 	            v0 = y / this._texH;
 	            u1 = (x + canv.width) / this._texW;
 	            v1 = (y + canv.height) / this._texH;
 	        }
 	        else {
-	            u0 = (x + 1) / this._texW; // +1 表示内缩一下，反正文字总是有留白。否则会受到旁边的一个像素的影响
+	            u0 = (x + 1) / this._texW;
 	            v0 = (y + 1) / this._texH;
 	            u1 = (x + canv.width - 1) / this._texW;
 	            v1 = (y + canv.height - 1) / this._texH;
@@ -8779,9 +6307,6 @@ window.Laya= (function (exports) {
 	        uv[6] = u0, uv[7] = v1;
 	        return uv;
 	    }
-	    /**
-	     * 填充白色。调试用。
-	     */
 	    fillWhite() {
 	        !this._source && this.recreateResource();
 	        var gl = LayaGL.instance;
@@ -8790,7 +6315,6 @@ window.Laya= (function (exports) {
 	        gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this._texW, this._texH, gl.RGBA, gl.UNSIGNED_BYTE, dt);
 	    }
 	    discard() {
-	        // 非标准大小不回收。
 	        if (this._texW != TextTexture.gTextRender.atlasWidth || this._texH != TextTexture.gTextRender.atlasWidth) {
 	            this.destroy();
 	            return;
@@ -8805,41 +6329,32 @@ window.Laya= (function (exports) {
 	    static getTextTexture(w, h) {
 	        if (w != TextTexture.gTextRender.atlasWidth || w != TextTexture.gTextRender.atlasWidth)
 	            return new TextTexture(w, h);
-	        // 否则从回收池中取
 	        if (TextTexture.poolLen > 0) {
 	            var ret = TextTexture.pool[--TextTexture.poolLen];
 	            if (TextTexture.poolLen > 0)
-	                TextTexture.clean(); //给个clean的机会。
+	                TextTexture.clean();
 	            return ret;
 	        }
 	        return new TextTexture(w, h);
 	    }
-	    /**
-	     * @override
-	     */
 	    destroy() {
-	        //console.log('destroy TextTexture');
 	        this.__destroyed = true;
 	        var gl = LayaGL.instance;
 	        this._source && gl.deleteTexture(this._source);
 	        this._source = null;
 	    }
-	    /**
-	     * 定期清理
-	     * 为了简单，只有发生 getAPage 或者 discardPage的时候才检测是否需要清理
-	     */
 	    static clean() {
-	        var curtm = RenderInfo.loopStTm; // Laya.stage.getFrameTm();
+	        var curtm = RenderInfo.loopStTm;
 	        if (TextTexture.cleanTm === 0)
 	            TextTexture.cleanTm = curtm;
-	        if (curtm - TextTexture.cleanTm >= TextTexture.gTextRender.checkCleanTextureDt) { //每10秒看看pool中的贴图有没有很老的可以删除的
+	        if (curtm - TextTexture.cleanTm >= TextTexture.gTextRender.checkCleanTextureDt) {
 	            for (var i = 0; i < TextTexture.poolLen; i++) {
 	                var p = TextTexture.pool[i];
-	                if (curtm - p._discardTm >= TextTexture.gTextRender.destroyUnusedTextureDt) { //超过20秒没用的删掉
-	                    p.destroy(); //真正删除贴图
+	                if (curtm - p._discardTm >= TextTexture.gTextRender.destroyUnusedTextureDt) {
+	                    p.destroy();
 	                    TextTexture.pool[i] = TextTexture.pool[TextTexture.poolLen - 1];
 	                    TextTexture.poolLen--;
-	                    i--; //这个还要处理，用来抵消i++
+	                    i--;
 	                }
 	            }
 	            TextTexture.cleanTm = curtm;
@@ -8856,33 +6371,27 @@ window.Laya= (function (exports) {
 	        this.curUsedCovRate += (ri.bmpWidth * ri.bmpHeight) / texw2;
 	        this.curUsedCovRateAtlas += (Math.ceil(ri.bmpWidth / ILaya.TextAtlas.atlasGridW) * Math.ceil(ri.bmpHeight / ILaya.TextAtlas.atlasGridW)) / (texw2 / gridw2);
 	    }
-	    // 为了与当前的文字渲染兼容的补丁
 	    get texture() {
 	        return this;
 	    }
-	    /**@internal */
 	    _getSource() {
 	        return this._source;
 	    }
-	    // for debug
 	    drawOnScreen(x, y) {
 	    }
 	}
 	TextTexture.gTextRender = null;
-	TextTexture.pool = new Array(10); // 回收用
+	TextTexture.pool = new Array(10);
 	TextTexture.poolLen = 0;
 	TextTexture.cleanTm = 0;
 
-	/**
-	 *  文字贴图的大图集。
-	 */
 	class TextAtlas {
 	    constructor() {
 	        this.texWidth = 1024;
 	        this.texHeight = 1024;
 	        this.protectDist = 1;
 	        this.texture = null;
-	        this.charMaps = {}; // 保存文字信息的字典
+	        this.charMaps = {};
 	        this.texHeight = this.texWidth = ILaya.TextRender.atlasWidth;
 	        this.texture = TextTexture.getTextTexture(this.texWidth, this.texHeight);
 	        if (this.texWidth / TextAtlas.atlasGridW > 256) {
@@ -8893,13 +6402,6 @@ window.Laya= (function (exports) {
 	    setProtecteDist(d) {
 	        this.protectDist = d;
 	    }
-	    /**
-	     * 如果返回null，则表示无法加入了
-	     * 分配的时候优先选择最接近自己高度的节点
-	     * @param	w
-	     * @param	h
-	     * @return
-	     */
 	    getAEmpty(w, h, pt) {
 	        var find = this.atlasgrid.addRect(1, Math.ceil(w / TextAtlas.atlasGridW), Math.ceil(h / TextAtlas.atlasGridW), pt);
 	        if (find) {
@@ -8908,18 +6410,9 @@ window.Laya= (function (exports) {
 	        }
 	        return find;
 	    }
-	    /**
-	     * 大图集格子单元的占用率，老的也算上了。只是表示这个大图集还能插入多少东西。
-	     */
 	    get usedRate() {
 	        return this.atlasgrid._used;
 	    }
-	    //data 也可能是canvas
-	    /*
-	    public function pushData(data:ImageData, node:TextAtlasNode):void {
-	        texture.addChar(data, node.x, node.y);
-	    }
-	    */
 	    destroy() {
 	        for (var k in this.charMaps) {
 	            var ri = this.charMaps[k];
@@ -8932,32 +6425,16 @@ window.Laya= (function (exports) {
 	}
 	TextAtlas.atlasGridW = 16;
 
-	/**
-	 * <code>Event</code> 是事件类型的集合。一般当发生事件时，<code>Event</code> 对象将作为参数传递给事件侦听器。
-	 */
 	class Event {
-	    /**
-	     * 设置事件数据。
-	     * @param	type 事件类型。
-	     * @param	currentTarget 事件目标触发对象。
-	     * @param	target 事件当前冒泡对象。
-	     * @return 返回当前 Event 对象。
-	     */
 	    setTo(type, currentTarget, target) {
 	        this.type = type;
 	        this.currentTarget = currentTarget;
 	        this.target = target;
 	        return this;
 	    }
-	    /**
-	     * 阻止对事件流中当前节点的后续节点中的所有事件侦听器进行处理。此方法不会影响当前节点 (currentTarget) 中的任何事件侦听器。
-	     */
 	    stopPropagation() {
 	        this._stoped = true;
 	    }
-	    /**
-	     * 触摸点列表。
-	     */
 	    get touches() {
 	        if (!this.nativeEvent)
 	            return null;
@@ -8976,220 +6453,108 @@ window.Laya= (function (exports) {
 	        }
 	        return arr;
 	    }
-	    /**
-	     * 表示 Alt 键是处于活动状态 (true) 还是非活动状态 (false)。
-	     */
 	    get altKey() {
 	        return this.nativeEvent.altKey;
 	    }
-	    /**
-	     * 表示 Ctrl 键是处于活动状态 (true) 还是非活动状态 (false)。
-	     */
 	    get ctrlKey() {
 	        return this.nativeEvent.ctrlKey;
 	    }
-	    /**
-	     * 表示 Shift 键是处于活动状态 (true) 还是非活动状态 (false)。
-	     */
 	    get shiftKey() {
 	        return this.nativeEvent.shiftKey;
 	    }
-	    /**
-	     * 包含按下或释放的键的字符代码值。字符代码值为英文键盘值。
-	     */
 	    get charCode() {
 	        return this.nativeEvent.charCode;
 	    }
-	    /**
-	     * 表示键在键盘上的位置。这对于区分在键盘上多次出现的键非常有用。<br>
-	     * 例如，您可以根据此属性的值来区分左 Shift 键和右 Shift 键：左 Shift 键的值为 KeyLocation.LEFT，右 Shift 键的值为 KeyLocation.RIGHT。另一个示例是区分标准键盘 (KeyLocation.STANDARD) 与数字键盘 (KeyLocation.NUM_PAD) 上按下的数字键。
-	     */
 	    get keyLocation() {
 	        return this.nativeEvent.location || this.nativeEvent.keyLocation;
 	    }
-	    /**鼠标在 Stage 上的 X 轴坐标*/
 	    get stageX() {
 	        return ILaya.stage.mouseX;
 	    }
-	    /**鼠标在 Stage 上的 Y 轴坐标*/
 	    get stageY() {
 	        return ILaya.stage.mouseY;
 	    }
 	}
-	/** 一个空的 Event 对象。用于事件派发中转使用。*/
 	Event.EMPTY = new Event();
-	/** 定义 mousedown 事件对象的 type 属性值。*/
 	Event.MOUSE_DOWN = "mousedown";
-	/** 定义 mouseup 事件对象的 type 属性值。*/
 	Event.MOUSE_UP = "mouseup";
-	/** 定义 click 事件对象的 type 属性值。*/
 	Event.CLICK = "click";
-	/** 定义 rightmousedown 事件对象的 type 属性值。*/
 	Event.RIGHT_MOUSE_DOWN = "rightmousedown";
-	/** 定义 rightmouseup 事件对象的 type 属性值。*/
 	Event.RIGHT_MOUSE_UP = "rightmouseup";
-	/** 定义 rightclick 事件对象的 type 属性值。*/
 	Event.RIGHT_CLICK = "rightclick";
-	/** 定义 mousemove 事件对象的 type 属性值。*/
 	Event.MOUSE_MOVE = "mousemove";
-	/** 定义 mouseover 事件对象的 type 属性值。*/
 	Event.MOUSE_OVER = "mouseover";
-	/** 定义 mouseout 事件对象的 type 属性值。*/
 	Event.MOUSE_OUT = "mouseout";
-	/** 定义 mousewheel 事件对象的 type 属性值。*/
 	Event.MOUSE_WHEEL = "mousewheel";
-	/** 定义 mouseover 事件对象的 type 属性值。*/
 	Event.ROLL_OVER = "mouseover";
-	/** 定义 mouseout 事件对象的 type 属性值。*/
 	Event.ROLL_OUT = "mouseout";
-	/** 定义 doubleclick 事件对象的 type 属性值。*/
 	Event.DOUBLE_CLICK = "doubleclick";
-	/** 定义 change 事件对象的 type 属性值。*/
 	Event.CHANGE = "change";
-	/** 定义 changed 事件对象的 type 属性值。*/
 	Event.CHANGED = "changed";
-	/** 定义 resize 事件对象的 type 属性值。*/
 	Event.RESIZE = "resize";
-	/** 定义 added 事件对象的 type 属性值。*/
 	Event.ADDED = "added";
-	/** 定义 removed 事件对象的 type 属性值。*/
 	Event.REMOVED = "removed";
-	/** 定义 display 事件对象的 type 属性值。*/
 	Event.DISPLAY = "display";
-	/** 定义 undisplay 事件对象的 type 属性值。*/
 	Event.UNDISPLAY = "undisplay";
-	/** 定义 error 事件对象的 type 属性值。*/
 	Event.ERROR = "error";
-	/** 定义 complete 事件对象的 type 属性值。*/
 	Event.COMPLETE = "complete";
-	/** 定义 loaded 事件对象的 type 属性值。*/
 	Event.LOADED = "loaded";
-	/** 定义 loaded 事件对象的 type 属性值。*/
 	Event.READY = "ready";
-	/** 定义 progress 事件对象的 type 属性值。*/
 	Event.PROGRESS = "progress";
-	/** 定义 input 事件对象的 type 属性值。*/
 	Event.INPUT = "input";
-	/** 定义 render 事件对象的 type 属性值。*/
 	Event.RENDER = "render";
-	/** 定义 open 事件对象的 type 属性值。*/
 	Event.OPEN = "open";
-	/** 定义 message 事件对象的 type 属性值。*/
 	Event.MESSAGE = "message";
-	/** 定义 close 事件对象的 type 属性值。*/
 	Event.CLOSE = "close";
-	/** 定义 keydown 事件对象的 type 属性值。*/
 	Event.KEY_DOWN = "keydown";
-	/** 定义 keypress 事件对象的 type 属性值。*/
 	Event.KEY_PRESS = "keypress";
-	/** 定义 keyup 事件对象的 type 属性值。*/
 	Event.KEY_UP = "keyup";
-	/** 定义 frame 事件对象的 type 属性值。*/
 	Event.FRAME = "enterframe";
-	/** 定义 dragstart 事件对象的 type 属性值。*/
 	Event.DRAG_START = "dragstart";
-	/** 定义 dragmove 事件对象的 type 属性值。*/
 	Event.DRAG_MOVE = "dragmove";
-	/** 定义 dragend 事件对象的 type 属性值。*/
 	Event.DRAG_END = "dragend";
-	/** 定义 enter 事件对象的 type 属性值。*/
 	Event.ENTER = "enter";
-	/** 定义 select 事件对象的 type 属性值。*/
 	Event.SELECT = "select";
-	/** 定义 blur 事件对象的 type 属性值。*/
 	Event.BLUR = "blur";
-	/** 定义 focus 事件对象的 type 属性值。*/
 	Event.FOCUS = "focus";
-	/** 定义 visibilitychange 事件对象的 type 属性值。*/
 	Event.VISIBILITY_CHANGE = "visibilitychange";
-	/** 定义 focuschange 事件对象的 type 属性值。*/
 	Event.FOCUS_CHANGE = "focuschange";
-	/** 定义 played 事件对象的 type 属性值。*/
 	Event.PLAYED = "played";
-	/** 定义 paused 事件对象的 type 属性值。*/
 	Event.PAUSED = "paused";
-	/** 定义 stopped 事件对象的 type 属性值。*/
 	Event.STOPPED = "stopped";
-	/** 定义 start 事件对象的 type 属性值。*/
 	Event.START = "start";
-	/** 定义 end 事件对象的 type 属性值。*/
 	Event.END = "end";
-	/** 定义 componentadded 事件对象的 type 属性值。*/
 	Event.COMPONENT_ADDED = "componentadded";
-	/** 定义 componentremoved 事件对象的 type 属性值。*/
 	Event.COMPONENT_REMOVED = "componentremoved";
-	/** 定义 released 事件对象的 type 属性值。*/
 	Event.RELEASED = "released";
-	/** 定义 link 事件对象的 type 属性值。*/
 	Event.LINK = "link";
-	/** 定义 label 事件对象的 type 属性值。*/
 	Event.LABEL = "label";
-	/**浏览器全屏更改时触发*/
 	Event.FULL_SCREEN_CHANGE = "fullscreenchange";
-	/**显卡设备丢失时触发*/
 	Event.DEVICE_LOST = "devicelost";
-	/**世界矩阵更新时触发。*/
 	Event.TRANSFORM_CHANGED = "transformchanged";
-	/**更换动作时触发。*/
 	Event.ANIMATION_CHANGED = "animationchanged";
-	/**拖尾渲染节点改变时触发。*/
 	Event.TRAIL_FILTER_CHANGE = "trailfilterchange";
-	/**物理碰撞开始*/
 	Event.TRIGGER_ENTER = "triggerenter";
-	/**物理碰撞持续*/
 	Event.TRIGGER_STAY = "triggerstay";
-	/**物理碰撞结束*/
 	Event.TRIGGER_EXIT = "triggerexit";
 
-	/**
-	 * 资源加载完成后调度。
-	 * @eventType Event.READY
-	 */
-	/*[Event(name = "ready", type = "laya.events.Event")]*/
-	/**
-	 * <code>Texture</code> 是一个纹理处理类。
-	 */
 	class Texture extends EventDispatcher {
-	    /**
-	     * 创建一个 <code>Texture</code> 实例。
-	     * @param	bitmap 位图资源。
-	     * @param	uv UV 数据信息。
-	     */
 	    constructor(bitmap = null, uv = null, sourceWidth = 0, sourceHeight = 0) {
 	        super();
-	        /**@private uv的范围*/
-	        this.uvrect = [0, 0, 1, 1]; //startu,startv, urange,vrange
-	        /**@private */
+	        this.uvrect = [0, 0, 1, 1];
 	        this._destroyed = false;
-	        /**@private */
 	        this._referenceCount = 0;
-	        /**@private 唯一ID*/
 	        this.$_GID = 0;
-	        /**沿 X 轴偏移量。*/
 	        this.offsetX = 0;
-	        /**沿 Y 轴偏移量。*/
 	        this.offsetY = 0;
-	        /** @private */
 	        this._w = 0;
-	        /** @private */
 	        this._h = 0;
-	        /**原始宽度（包括被裁剪的透明区域）。*/
 	        this.sourceWidth = 0;
-	        /**原始高度（包括被裁剪的透明区域）。*/
 	        this.sourceHeight = 0;
-	        /**图片地址*/
 	        this.url = null;
-	        /** @private */
 	        this.scaleRate = 1;
 	        this.setTo(bitmap, uv, sourceWidth, sourceHeight);
 	    }
-	    /**
-	     * 平移 UV。
-	     * @param offsetX 沿 X 轴偏移量。
-	     * @param offsetY 沿 Y 轴偏移量。
-	     * @param uv 需要平移操作的的 UV。
-	     * @return 平移后的UV。
-	     */
 	    static moveUV(offsetX, offsetY, uv) {
 	        for (var i = 0; i < 8; i += 2) {
 	            uv[i] += offsetX;
@@ -9197,37 +6562,9 @@ window.Laya= (function (exports) {
 	        }
 	        return uv;
 	    }
-	    /**
-	     *  根据指定资源和坐标、宽高、偏移量等创建 <code>Texture</code> 对象。
-	     * @param	source 绘图资源 Texture2D 或者 Texture对象。
-	     * @param	x 起始绝对坐标 x 。
-	     * @param	y 起始绝对坐标 y 。
-	     * @param	width 宽绝对值。
-	     * @param	height 高绝对值。
-	     * @param	offsetX X 轴偏移量（可选）。	就是[x,y]相对于原始小图片的位置。一般都是正的，表示裁掉了空白边的大小，如果是负的一般表示加了保护边
-	     * @param	offsetY Y 轴偏移量（可选）。
-	     * @param	sourceWidth 原始宽度，包括被裁剪的透明区域（可选）。
-	     * @param	sourceHeight 原始高度，包括被裁剪的透明区域（可选）。
-	     * @return  <code>Texture</code> 对象。
-	     */
 	    static create(source, x, y, width, height, offsetX = 0, offsetY = 0, sourceWidth = 0, sourceHeight = 0) {
 	        return Texture._create(source, x, y, width, height, offsetX, offsetY, sourceWidth, sourceHeight);
 	    }
-	    /**
-	     * @internal
-	     * 根据指定资源和坐标、宽高、偏移量等创建 <code>Texture</code> 对象。
-	     * @param	source 绘图资源 Texture2D 或者 Texture 对象。
-	     * @param	x 起始绝对坐标 x 。
-	     * @param	y 起始绝对坐标 y 。
-	     * @param	width 宽绝对值。
-	     * @param	height 高绝对值。
-	     * @param	offsetX X 轴偏移量（可选）。
-	     * @param	offsetY Y 轴偏移量（可选）。
-	     * @param	sourceWidth 原始宽度，包括被裁剪的透明区域（可选）。
-	     * @param	sourceHeight 原始高度，包括被裁剪的透明区域（可选）。
-	     * @param	outTexture 返回的Texture对象。
-	     * @return  <code>Texture</code> 对象。
-	     */
 	    static _create(source, x, y, width, height, offsetX = 0, offsetY = 0, sourceWidth = 0, sourceHeight = 0, outTexture = null) {
 	        var btex = source instanceof Texture;
 	        var uv = btex ? source.uv : Texture.DEF_UV;
@@ -9274,15 +6611,6 @@ window.Laya= (function (exports) {
 	        }
 	        return tex;
 	    }
-	    /**
-	     * 截取Texture的一部分区域，生成新的Texture，如果两个区域没有相交，则返回null。
-	     * @param	texture	目标Texture。
-	     * @param	x		相对于目标Texture的x位置。
-	     * @param	y		相对于目标Texture的y位置。
-	     * @param	width	截取的宽度。
-	     * @param	height	截取的高度。
-	     * @return 返回一个新的Texture。
-	     */
 	    static createFromTexture(texture, x, y, width, height) {
 	        var texScaleRate = texture.scaleRate;
 	        if (texScaleRate != 1) {
@@ -9309,7 +6637,6 @@ window.Laya= (function (exports) {
 	        this.uvrect[3] = Math.max(value[1], value[3], value[5], value[7]) - this.uvrect[1];
 	        this._uv = value;
 	    }
-	    /** 实际宽度。*/
 	    get width() {
 	        if (this._w)
 	            return this._w;
@@ -9321,7 +6648,6 @@ window.Laya= (function (exports) {
 	        this._w = value;
 	        this.sourceWidth || (this.sourceWidth = value);
 	    }
-	    /** 实际高度。*/
 	    get height() {
 	        if (this._h)
 	            return this._h;
@@ -9333,55 +6659,31 @@ window.Laya= (function (exports) {
 	        this._h = value;
 	        this.sourceHeight || (this.sourceHeight = value);
 	    }
-	    /**
-	     * 获取位图。
-	     * @return 位图。
-	     */
 	    get bitmap() {
 	        return this._bitmap;
 	    }
-	    /**
-	     * 设置位图。
-	     * @param 位图。
-	     */
 	    set bitmap(value) {
 	        this._bitmap && this._bitmap._removeReference(this._referenceCount);
 	        this._bitmap = value;
 	        value && (value._addReference(this._referenceCount));
 	    }
-	    /**
-	     * 获取是否已经销毁。
-	     * @return 是否已经销毁。
-	     */
 	    get destroyed() {
 	        return this._destroyed;
 	    }
-	    /**
-	     * @internal
-	     */
 	    _addReference() {
 	        this._bitmap && this._bitmap._addReference();
 	        this._referenceCount++;
 	    }
-	    /**
-	     * @internal
-	     */
 	    _removeReference() {
 	        this._bitmap && this._bitmap._removeReference();
 	        this._referenceCount--;
 	    }
-	    /**
-	     * @internal
-	     */
 	    _getSource(cb = null) {
 	        if (this._destroyed || !this._bitmap)
 	            return null;
 	        this.recoverBitmap(cb);
 	        return this._bitmap.destroyed ? null : this.bitmap._getSource();
 	    }
-	    /**
-	     * @private
-	     */
 	    _onLoaded(complete, context) {
 	        if (!context) ;
 	        else if (context == this) ;
@@ -9397,17 +6699,9 @@ window.Laya= (function (exports) {
 	        complete && complete.run();
 	        this.event(Event.READY, this);
 	    }
-	    /**
-	     * 获取是否可以使用。
-	     */
 	    getIsReady() {
 	        return this._destroyed ? false : (this._bitmap ? true : false);
 	    }
-	    /**
-	     * 设置此对象的位图资源、UV数据信息。
-	     * @param	bitmap 位图资源
-	     * @param	uv UV数据信息
-	     */
 	    setTo(bitmap = null, uv = null, sourceWidth = 0, sourceHeight = 0) {
 	        this.bitmap = bitmap;
 	        this.sourceWidth = sourceWidth;
@@ -9420,11 +6714,6 @@ window.Laya= (function (exports) {
 	        }
 	        this.uv = uv || Texture.DEF_UV;
 	    }
-	    /**
-	     * 加载指定地址的图片。
-	     * @param	url 图片地址。
-	     * @param	complete 加载完成回调
-	     */
 	    load(url, complete = null) {
 	        if (!this._destroyed)
 	            ILaya.loader.load(url, Handler.create(this, this._onLoaded, [complete]), null, "htmlimage", 1, false, null, true);
@@ -9450,7 +6739,6 @@ window.Laya= (function (exports) {
 	        if (pix) {
 	            if (x == 0 && y == 0 && width == texw && height == texh)
 	                return pix;
-	            //否则只取一部分
 	            var ret = new Uint8Array(width * height * 4);
 	            wstride = texw * 4;
 	            st = x * 4;
@@ -9462,13 +6750,12 @@ window.Laya= (function (exports) {
 	            }
 	            return ret;
 	        }
-	        // 如果无法直接获取，只能先渲染出来
 	        var ctx = new ILaya.Context();
 	        ctx.size(width, height);
 	        ctx.asBitmap = true;
 	        var uv = null;
 	        if (x != 0 || y != 0 || width != texw || height != texh) {
-	            uv = this._uv.slice(); // 复制一份uv
+	            uv = this._uv.slice();
 	            var stu = uv[0];
 	            var stv = uv[1];
 	            var uvw = uv[2] - stu;
@@ -9481,14 +6768,12 @@ window.Laya= (function (exports) {
 	                stu + x * uk, stv + (y + height) * vk];
 	        }
 	        ctx._drawTextureM(this, 0, 0, width, height, null, 1.0, uv);
-	        //ctx.drawTexture(value, -x, -y, x + width, y + height);
 	        ctx._targets.start();
 	        ctx.flush();
 	        ctx._targets.end();
 	        ctx._targets.restore();
 	        var dt = ctx._targets.getData(0, 0, width, height);
 	        ctx.destroy();
-	        // 上下颠倒一下
 	        ret = new Uint8Array(width * height * 4);
 	        st = 0;
 	        dst = (height - 1) * wstride;
@@ -9499,25 +6784,14 @@ window.Laya= (function (exports) {
 	        }
 	        return ret;
 	    }
-	    /**
-	     * 获取Texture上的某个区域的像素点
-	     * @param	x
-	     * @param	y
-	     * @param	width
-	     * @param	height
-	     * @return  返回像素点集合
-	     */
 	    getPixels(x, y, width, height) {
 	        if (window.conch) {
 	            return this._nativeObj.getImageData(x, y, width, height);
 	        }
 	        else {
 	            return this.getTexturePixels(x, y, width, height);
-	        } // canvas 不支持
+	        }
 	    }
-	    /**
-	     * 通过url强制恢复bitmap。
-	     */
 	    recoverBitmap(onok = null) {
 	        var url = this._bitmap.url;
 	        if (!this._destroyed && (!this._bitmap || this._bitmap.destroyed) && url) {
@@ -9527,17 +6801,11 @@ window.Laya= (function (exports) {
 	            }), null, "htmlimage", 1, false, null, true);
 	        }
 	    }
-	    /**
-	     * 强制释放Bitmap,无论是否被引用。
-	     */
 	    disposeBitmap() {
 	        if (!this._destroyed && this._bitmap) {
 	            this._bitmap.destroy();
 	        }
 	    }
-	    /**
-	     * 销毁纹理。
-	     */
 	    destroy(force = false) {
 	        if (!this._destroyed) {
 	            this._destroyed = true;
@@ -9553,15 +6821,10 @@ window.Laya= (function (exports) {
 	        }
 	    }
 	}
-	/**@private 默认 UV 信息。*/
 	Texture.DEF_UV = new Float32Array([0, 0, 1.0, 0, 1.0, 1.0, 0, 1.0]);
-	/**@private */
 	Texture.NO_UV = new Float32Array([0, 0, 0, 0, 0, 0, 0, 0]);
-	/**@private 反转 UV 信息。*/
 	Texture.INV_UV = new Float32Array([0, 1, 1.0, 1, 1.0, 0.0, 0, 0.0]);
-	/**@private */
 	Texture._rect1 = new Rectangle();
-	/**@private */
 	Texture._rect2 = new Rectangle();
 
 	class FontInfo {
@@ -9599,7 +6862,6 @@ window.Laya= (function (exports) {
 	            return;
 	        }
 	        var szpos = -1;
-	        //由于字体可能有空格，例如Microsoft YaHei 所以不能直接取倒数第二个，要先找到px
 	        for (var i = 0; i < l; i++) {
 	            if (_words[i].indexOf('px') > 0 || _words[i].indexOf('pt') > 0) {
 	                szpos = i;
@@ -9611,10 +6873,9 @@ window.Laya= (function (exports) {
 	                break;
 	            }
 	        }
-	        //最后一个是用逗号分开的family
 	        var fpos = szpos + 1;
 	        var familys = _words[fpos];
-	        fpos++; //下一个
+	        fpos++;
 	        for (; fpos < l; fpos++) {
 	            familys += ' ' + _words[fpos];
 	        }
@@ -9628,53 +6889,40 @@ window.Laya= (function (exports) {
 	FontInfo._gfontID = 0;
 	FontInfo._lastFont = '';
 
-	/**
-	     * @private
-	     */
 	class WordText {
 	    constructor() {
 	        this.save = [];
 	        this.toUpperCase = null;
-	        this.width = -1; //整个WordText的长度。-1表示没有计算还。
-	        this.pageChars = []; //把本对象的字符按照texture分组保存的文字信息。里面又是一个数组。具体含义见使用的地方。
-	        this.startID = 0; //上面的是个数组，但是可能前面都是空的，加个起始位置
+	        this.width = -1;
+	        this.pageChars = [];
+	        this.startID = 0;
 	        this.startIDStroke = 0;
-	        this.lastGCCnt = 0; //如果文字gc了，需要检查缓存是否有效，这里记录上次检查对应的gc值。
-	        this.splitRender = false; // 强制拆分渲染
+	        this.lastGCCnt = 0;
+	        this.splitRender = false;
 	    }
 	    setText(txt) {
 	        this.changed = true;
 	        this._text = txt;
 	        this.width = -1;
 	        this.cleanCache();
-	        //pageChars = [];//需要重新更新
 	    }
-	    //TODO:coverage
 	    toString() {
 	        return this._text;
 	    }
 	    get length() {
 	        return this._text ? this._text.length : 0;
 	    }
-	    //TODO:coverage
 	    charCodeAt(i) {
 	        return this._text ? this._text.charCodeAt(i) : NaN;
 	    }
-	    //TODO:coverage
 	    charAt(i) {
 	        return this._text ? this._text.charAt(i) : null;
 	    }
-	    /**
-	     * 自己主动清理缓存，需要把关联的贴图删掉
-	     * 不做也可以，textrender会自动清理不用的
-	     * TODO 重用
-	     */
 	    cleanCache() {
-	        // 如果是独占文字贴图的，需要删掉
 	        this.pageChars.forEach(function (p) {
 	            var tex = p.tex;
 	            var words = p.words;
-	            if (p.words.length == 1 && tex && tex.ri) { // 如果有ri表示是独立贴图
+	            if (p.words.length == 1 && tex && tex.ri) {
 	                tex.destroy();
 	            }
 	        });
@@ -9683,23 +6931,20 @@ window.Laya= (function (exports) {
 	    }
 	}
 
-	/**
-	 * TODO如果占用内存较大,这个结构有很多成员可以临时计算
-	 */
 	class CharRenderInfo {
 	    constructor() {
-	        this.char = ''; // 调试用
-	        this.deleted = false; // 已经被删除了
-	        this.uv = new Array(8); // [0, 0, 1, 1];		//uv
-	        this.pos = 0; //数组下标
-	        this.orix = 0; // 原点位置，通常都是所在区域的左上角
+	        this.char = '';
+	        this.deleted = false;
+	        this.uv = new Array(8);
+	        this.pos = 0;
+	        this.orix = 0;
 	        this.oriy = 0;
-	        this.touchTick = 0; //
-	        this.isSpace = false; //是否是空格，如果是空格，则只有width有效
+	        this.touchTick = 0;
+	        this.isSpace = false;
 	    }
 	    touch() {
 	        var curLoop = RenderInfo.loopCount;
-	        if (this.touchTick != curLoop) { // 这个保证每帧只调用一次
+	        if (this.touchTick != curLoop) {
 	            this.tex.touchRect(this, curLoop);
 	        }
 	        this.touchTick = curLoop;
@@ -9718,23 +6963,12 @@ window.Laya= (function (exports) {
 	    }
 	    set canvasWidth(w) {
 	    }
-	    /**
-	     *TODO stroke
-	     * @param	char
-	     * @param	font
-	     * @param	size  返回宽高
-	     * @return
-	     */
 	    getCharBmp(char, font, lineWidth, colStr, strokeColStr, size, margin_left, margin_top, margin_right, margin_bottom, rect = null) {
 	        return null;
 	    }
 	}
 
-	/**
-	 * <code>Browser</code> 是浏览器代理类。封装浏览器及原生 js 提供的一些功能。
-	 */
 	class Browser {
-	    /**@internal */
 	    static __init__() {
 	        var Laya = window.Laya || ILaya.Laya;
 	        if (Browser._window)
@@ -9742,87 +6976,70 @@ window.Laya= (function (exports) {
 	        var win = Browser._window = window;
 	        var doc = Browser._document = win.document;
 	        var u = Browser.userAgent = win.navigator.userAgent;
-	        //阿里小游戏
 	        if (u.indexOf('AlipayMiniGame') > -1 && "my" in Browser.window) {
-	            //这里需要手动初始化阿里适配库
 	            window.aliMiniGame(Laya, Laya);
 	            window.aliPayMiniGame(Laya, Laya);
 	            if (!Laya["ALIMiniAdapter"]) {
 	                console.error("请先添加阿里小游戏适配库");
-	                //TODO 教程要改
 	            }
 	            else {
 	                Laya["ALIMiniAdapter"].enable();
 	            }
 	        }
-	        //微信小游戏
 	        if (u.indexOf('OPPO') == -1 && u.indexOf("MiniGame") > -1 && "wx" in Browser.window && !("my" in Browser.window)) {
 	            window.wxMiniGame(Laya, Laya);
 	            if (!Laya["MiniAdpter"]) {
 	                console.error("请先添加小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?nav=zh-ts-5-0-0");
-	                //TODO 教程要改
 	            }
 	            else {
 	                Laya["MiniAdpter"].enable();
 	            }
 	        }
-	        //百度小游戏
 	        if (u.indexOf("SwanGame") > -1) {
 	            window.bdMiniGame(Laya, Laya);
 	            if (!Laya["BMiniAdapter"]) {
 	                console.error("请先添加百度小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?nav=zh-ts-5-0-0");
-	                //TODO 教程要改
 	            }
 	            else {
 	                Laya["BMiniAdapter"].enable();
 	            }
 	        }
-	        //小米小游戏
 	        if (u.indexOf('QuickGame') > -1) {
 	            window.miMiniGame(Laya, Laya);
 	            if (!Laya["KGMiniAdapter"]) {
 	                console.error("请先添加小米小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?nav=zh-ts-5-0-0");
-	                //TODO 教程要改
 	            }
 	            else {
 	                Laya["KGMiniAdapter"].enable();
 	            }
 	        }
-	        //OPPO小游戏
 	        if (u.indexOf('OPPO') > -1 && u.indexOf('MiniGame') > -1) {
 	            window.qgMiniGame(Laya, Laya);
 	            if (!Laya["QGMiniAdapter"]) {
 	                console.error("请先添加OPPO小游戏适配库");
-	                //TODO 教程要改
 	            }
 	            else {
 	                Laya["QGMiniAdapter"].enable();
 	            }
 	        }
-	        //VIVO小游戏
 	        if (u.indexOf('VVGame') > -1) {
 	            window.vvMiniGame(Laya, Laya);
 	            if (!Laya["VVMiniAdapter"]) {
 	                console.error("请先添加VIVO小游戏适配库");
-	                //TODO 教程要改
 	            }
 	            else {
 	                Laya["VVMiniAdapter"].enable();
 	            }
 	        }
-	        //新增trace的支持
 	        win.trace = console.log;
-	        //兼容requestAnimationFrame
 	        win.requestAnimationFrame = win.requestAnimationFrame || win.webkitRequestAnimationFrame || win.mozRequestAnimationFrame || win.oRequestAnimationFrame || win.msRequestAnimationFrame || function (fun) {
 	            return win.setTimeout(fun, 1000 / 60);
 	        };
-	        //强制修改body样式
 	        var bodyStyle = doc.body.style;
 	        bodyStyle.margin = 0;
 	        bodyStyle.overflow = 'hidden';
 	        bodyStyle['-webkit-user-select'] = 'none';
 	        bodyStyle['-webkit-tap-highlight-color'] = 'rgba(200,200,200,0)';
-	        //强制修改meta标签，防止开发者写错
 	        var metas = doc.getElementsByTagName('meta');
 	        var i = 0, flag = false, content = 'width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no';
 	        while (i < metas.length) {
@@ -9839,7 +7056,6 @@ window.Laya= (function (exports) {
 	            meta.name = 'viewport', meta.content = content;
 	            doc.getElementsByTagName('head')[0].appendChild(meta);
 	        }
-	        //处理兼容性			
 	        Browser.onMobile = window.isConchApp ? true : u.indexOf("Mobile") > -1;
 	        Browser.onIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
 	        Browser.onIPhone = u.indexOf("iPhone") > -1;
@@ -9857,76 +7073,48 @@ window.Laya= (function (exports) {
 	        Browser.onBDMiniGame = u.indexOf('SwanGame') > -1;
 	        Browser.onLayaRuntime = !!Browser.window.conch;
 	        if (u.indexOf('OPPO') > -1 && u.indexOf('MiniGame') > -1) {
-	            Browser.onQGMiniGame = true; //OPPO环境判断
+	            Browser.onQGMiniGame = true;
 	            Browser.onMiniGame = false;
 	        }
-	        Browser.onVVMiniGame = u.indexOf('VVGame') > -1; //vivo
-	        Browser.onKGMiniGame = u.indexOf('QuickGame') > -1; //小米运行环境判断
+	        Browser.onVVMiniGame = u.indexOf('VVGame') > -1;
+	        Browser.onKGMiniGame = u.indexOf('QuickGame') > -1;
 	        if (u.indexOf('AlipayMiniGame') > -1) {
-	            Browser.onAlipayMiniGame = true; //阿里小游戏环境判断
+	            Browser.onAlipayMiniGame = true;
 	            Browser.onMiniGame = false;
 	        }
 	        return win;
 	    }
-	    /**
-	     * 创建浏览器原生节点。
-	     * @param	type 节点类型。
-	     * @return	创建的节点对象的引用。
-	     */
 	    static createElement(type) {
 	        Browser.__init__();
 	        return Browser._document.createElement(type);
 	    }
-	    /**
-	     * 返回 Document 对象中拥有指定 id 的第一个对象的引用。
-	     * @param	type 节点id。
-	     * @return	节点对象。
-	     */
 	    static getElementById(type) {
 	        Browser.__init__();
 	        return Browser._document.getElementById(type);
 	    }
-	    /**
-	     * 移除指定的浏览器原生节点对象。
-	     * @param	type 节点对象。
-	     */
 	    static removeElement(ele) {
 	        if (ele && ele.parentNode)
 	            ele.parentNode.removeChild(ele);
 	    }
-	    /**
-	     * 获取浏览器当前时间戳，单位为毫秒。
-	     */
 	    static now() {
 	        return Date.now();
 	    }
-	    /**
-	     * 浏览器窗口可视宽度。
-	     * 通过分析浏览器信息获得。浏览器多个属性值优先级为：window.innerWidth(包含滚动条宽度) > document.body.clientWidth(不包含滚动条宽度)，如果前者为0或为空，则选择后者。
-	     */
 	    static get clientWidth() {
 	        Browser.__init__();
 	        return Browser._window.innerWidth || Browser._document.body.clientWidth;
 	    }
-	    /**
-	     * 浏览器窗口可视高度。
-	     * 通过分析浏览器信息获得。浏览器多个属性值优先级为：window.innerHeight(包含滚动条高度) > document.body.clientHeight(不包含滚动条高度) > document.documentElement.clientHeight(不包含滚动条高度)，如果前者为0或为空，则选择后者。
-	     */
 	    static get clientHeight() {
 	        Browser.__init__();
 	        return Browser._window.innerHeight || Browser._document.body.clientHeight || Browser._document.documentElement.clientHeight;
 	    }
-	    /** 浏览器窗口物理宽度。考虑了设备像素比。*/
 	    static get width() {
 	        Browser.__init__();
 	        return ((ILaya.stage && ILaya.stage.canvasRotation) ? Browser.clientHeight : Browser.clientWidth) * Browser.pixelRatio;
 	    }
-	    /** 浏览器窗口物理高度。考虑了设备像素比。*/
 	    static get height() {
 	        Browser.__init__();
 	        return ((ILaya.stage && ILaya.stage.canvasRotation) ? Browser.clientWidth : Browser.clientHeight) * Browser.pixelRatio;
 	    }
-	    /** 获得设备像素比。*/
 	    static get pixelRatio() {
 	        if (Browser._pixelRatio < 0) {
 	            Browser.__init__();
@@ -9940,7 +7128,6 @@ window.Laya= (function (exports) {
 	        }
 	        return Browser._pixelRatio;
 	    }
-	    /**画布容器，用来盛放画布的容器。方便对画布进行控制*/
 	    static get container() {
 	        if (!Browser._container) {
 	            Browser.__init__();
@@ -9953,25 +7140,18 @@ window.Laya= (function (exports) {
 	    static set container(value) {
 	        Browser._container = value;
 	    }
-	    /**浏览器原生 window 对象的引用。*/
 	    static get window() {
 	        return Browser._window || Browser.__init__();
 	    }
-	    /**浏览器原生 document 对象的引用。*/
 	    static get document() {
 	        Browser.__init__();
 	        return Browser._document;
 	    }
 	}
-	/** @private */
 	Browser._pixelRatio = -1;
-	/** @private */
 	Browser.mainCanvas = null;
-	/**@private */
 	Browser.hanzi = new RegExp("^[\u4E00-\u9FA5]$");
-	/**@private */
 	Browser.fontMap = [];
-	/**@private */
 	Browser.measureText = function (txt, font) {
 	    var isChinese = Browser.hanzi.test(txt);
 	    if (isChinese && Browser.fontMap[font]) {
@@ -10006,25 +7186,15 @@ window.Laya= (function (exports) {
 	            CharRender_Canvas.canvas = Browser.createElement('canvas');
 	            CharRender_Canvas.canvas.width = 1024;
 	            CharRender_Canvas.canvas.height = 512;
-	            //这个canvas是用来获取字体渲染结果的。由于不可见canvas的字体不能小于12，所以要加到body上
-	            //为了避免被发现，设一个在屏幕外的绝对位置。
 	            CharRender_Canvas.canvas.style.left = "-10000px";
 	            CharRender_Canvas.canvas.style.position = "absolute";
 	            document.body.appendChild(CharRender_Canvas.canvas);
 	            this.ctx = CharRender_Canvas.canvas.getContext('2d');
 	        }
 	    }
-	    /**
-	     * @internal
-	     * @override
-	     */
 	    get canvasWidth() {
 	        return CharRender_Canvas.canvas.width;
 	    }
-	    /**
-	     * @internal
-	     * @override
-	     */
 	    set canvasWidth(w) {
 	        if (CharRender_Canvas.canvas.width == w)
 	            return;
@@ -10032,68 +7202,41 @@ window.Laya= (function (exports) {
 	        if (w > 2048) {
 	            console.warn("画文字设置的宽度太大，超过2048了");
 	        }
-	        // 重新恢复一下缩放
-	        this.ctx.setTransform(1, 0, 0, 1, 0, 0); // 强制清理缩放			
+	        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
 	        this.ctx.scale(this.lastScaleX, this.lastScaleY);
 	    }
-	    /**
-	     *
-	     * @param font
-	     * @param str
-	     * @override
-	     */
-	    /*override*/ getWidth(font, str) {
+	    getWidth(font, str) {
 	        if (!this.ctx)
 	            return 0;
-	        //由于大家公用一个canvas，所以需要在选中的时候做一些配置。
 	        if (this.ctx._lastFont != font) {
 	            this.ctx.font = font;
 	            this.ctx._lastFont = font;
-	            //console.log('use font ' + font);
 	        }
 	        return this.ctx.measureText(str).width;
 	    }
-	    /**
-	     *
-	     * @param sx
-	     * @param sy
-	     * @override
-	     */
-	    /*override*/ scale(sx, sy) {
-	        if (!this.supportImageData) { // supportImageData==false表示用 getCharCanvas，这个自己管理缩放
+	    scale(sx, sy) {
+	        if (!this.supportImageData) {
 	            this.lastScaleX = sx;
 	            this.lastScaleY = sy;
 	            return;
 	        }
 	        if (this.lastScaleX != sx || this.lastScaleY != sy) {
-	            this.ctx.setTransform(sx, 0, 0, sy, 0, 0); // 强制清理缩放			
+	            this.ctx.setTransform(sx, 0, 0, sy, 0, 0);
 	            this.lastScaleX = sx;
 	            this.lastScaleY = sy;
 	        }
 	    }
-	    /**
-	     *TODO stroke
-	     * @param	char
-	     * @param	font
-	     * @param	cri  修改里面的width。
-	     * @return
-	     * @override
-	     */
-	    /*override*/ getCharBmp(char, font, lineWidth, colStr, strokeColStr, cri, margin_left, margin_top, margin_right, margin_bottom, rect = null) {
+	    getCharBmp(char, font, lineWidth, colStr, strokeColStr, cri, margin_left, margin_top, margin_right, margin_bottom, rect = null) {
 	        if (!this.supportImageData)
 	            return this.getCharCanvas(char, font, lineWidth, colStr, strokeColStr, cri, margin_left, margin_top, margin_right, margin_bottom);
 	        var ctx = this.ctx;
 	        var sz = this.fontsz;
-	        //ctx.save();
-	        //由于大家公用一个canvas，所以需要在选中的时候做一些配置。
-	        //跟_lastFont比较容易出错，所以比较ctx.font
-	        if (ctx.font != font) { // ctx._lastFont != font) {	问题：ctx.font=xx 然后ctx==xx可能返回false，例如可能会给自己加"",当字体有空格的时候
+	        if (ctx.font != font) {
 	            ctx.font = font;
 	            ctx._lastFont = font;
-	            //console.log('use font ' + font);
 	        }
-	        cri.width = ctx.measureText(char).width; //排版用的width是没有缩放的。后面会用矩阵缩放
-	        var w = cri.width * this.lastScaleX; //w h 只是clear用的。所以要缩放
+	        cri.width = ctx.measureText(char).width;
+	        var w = cri.width * this.lastScaleX;
 	        var h = cri.height * this.lastScaleY;
 	        w += (margin_left + margin_right) * this.lastScaleX;
 	        h += (margin_top + margin_bottom) * this.lastScaleY;
@@ -10103,16 +7246,13 @@ window.Laya= (function (exports) {
 	        h = Math.min(h, CharRender_Canvas.canvas.height);
 	        var clearW = w + lineWidth * 2 + 1;
 	        var clearH = h + lineWidth * 2 + 1;
-	        if (rect) { // measureText可能会小于请求的区域。 rect[2]可能为-1
+	        if (rect) {
 	            clearW = Math.max(clearW, rect[0] + rect[2] + 1);
 	            clearH = Math.max(clearH, rect[1] + rect[3] + 1);
 	        }
 	        ctx.clearRect(0, 0, clearW, clearH);
 	        ctx.save();
-	        //ctx.textAlign = "end";
 	        ctx.textBaseline = "middle";
-	        //ctx.translate(CborderSize, CborderSize);
-	        //ctx.scale(xs, ys);
 	        if (lineWidth > 0) {
 	            ctx.strokeStyle = strokeColStr;
 	            ctx.lineWidth = lineWidth;
@@ -10124,12 +7264,11 @@ window.Laya= (function (exports) {
 	            ctx.strokeStyle = '#ff0000';
 	            ctx.strokeRect(1, 1, w - 2, h - 2);
 	            ctx.strokeStyle = '#00ff00';
-	            ctx.strokeRect(margin_left, margin_top, cri.width, cri.height); //原始大小，没有缩放的
+	            ctx.strokeRect(margin_left, margin_top, cri.width, cri.height);
 	        }
-	        //ctx.restore();
 	        if (rect) {
 	            if (rect[2] == -1)
-	                rect[2] = Math.ceil((cri.width + lineWidth * 2) * this.lastScaleX); // 这个没有考虑左右margin
+	                rect[2] = Math.ceil((cri.width + lineWidth * 2) * this.lastScaleX);
 	        }
 	        var imgdt = rect ? (ctx.getImageData(rect[0], rect[1], rect[2], rect[3])) : (ctx.getImageData(0, 0, w, h));
 	        ctx.restore();
@@ -10139,44 +7278,34 @@ window.Laya= (function (exports) {
 	    }
 	    getCharCanvas(char, font, lineWidth, colStr, strokeColStr, cri, margin_left, margin_top, margin_right, margin_bottom) {
 	        var ctx = this.ctx;
-	        //ctx.save();
-	        //由于大家公用一个canvas，所以需要在选中的时候做一些配置。
-	        //跟_lastFont比较容易出错，所以比较ctx.font
-	        if (ctx.font != font) { // ctx._lastFont != font) {	问题：ctx.font=xx 然后ctx==xx可能返回false，例如可能会给自己加"",当字体有空格的时候
+	        if (ctx.font != font) {
 	            ctx.font = font;
 	            ctx._lastFont = font;
-	            //console.log('use font ' + font);
 	        }
-	        cri.width = ctx.measureText(char).width; //排版用的width是没有缩放的。后面会用矩阵缩放
-	        var w = cri.width * this.lastScaleX; //w h 只是clear用的。所以要缩放
+	        cri.width = ctx.measureText(char).width;
+	        var w = cri.width * this.lastScaleX;
 	        var h = cri.height * this.lastScaleY;
 	        w += (margin_left + margin_right) * this.lastScaleX;
-	        h += ((margin_top + margin_bottom) * this.lastScaleY + 1); // 这个+1只是为了让测试能通过。确实应该加点高度，否则会被裁掉一部分，但是加多少还没找到方法。
+	        h += ((margin_top + margin_bottom) * this.lastScaleY + 1);
 	        w = Math.min(w, this.maxTexW);
 	        h = Math.min(h, this.maxTexH);
-	        //if (canvas.width != (w + 1) || canvas.height != (h + 1)) {
 	        CharRender_Canvas.canvas.width = Math.min(w + 1, this.maxTexW);
 	        CharRender_Canvas.canvas.height = Math.min(h + 1, this.maxTexH);
 	        ctx.font = font;
-	        //}
 	        ctx.clearRect(0, 0, w + 1 + lineWidth, h + 1 + lineWidth);
-	        ctx.setTransform(1, 0, 0, 1, 0, 0); // 强制清理缩放
+	        ctx.setTransform(1, 0, 0, 1, 0, 0);
 	        ctx.save();
 	        if (this.scaleFontSize) {
-	            //这里的缩放会导致与上面的缩放同时起作用。所以上面保护
 	            ctx.scale(this.lastScaleX, this.lastScaleY);
 	        }
 	        ctx.translate(margin_left, margin_top);
 	        ctx.textAlign = "left";
 	        var sz = this.fontsz;
 	        ctx.textBaseline = "middle";
-	        //ctx.translate(CborderSize, CborderSize);
-	        //ctx.scale(xs, ys);
 	        if (lineWidth > 0) {
 	            ctx.strokeStyle = strokeColStr;
 	            ctx.fillStyle = colStr;
 	            ctx.lineWidth = lineWidth;
-	            //ctx.strokeText(char, margin_left, margin_top);
 	            if (ctx.fillAndStrokeText) {
 	                ctx.fillAndStrokeText(char, 0, sz / 2);
 	            }
@@ -10193,7 +7322,7 @@ window.Laya= (function (exports) {
 	            ctx.strokeStyle = '#ff0000';
 	            ctx.strokeRect(0, 0, w, h);
 	            ctx.strokeStyle = '#00ff00';
-	            ctx.strokeRect(0, 0, cri.width, cri.height); //原始大小，没有缩放的
+	            ctx.strokeRect(0, 0, cri.width, cri.height);
 	        }
 	        ctx.restore();
 	        cri.bmpWidth = CharRender_Canvas.canvas.width;
@@ -10201,59 +7330,27 @@ window.Laya= (function (exports) {
 	        return CharRender_Canvas.canvas;
 	    }
 	}
-	CharRender_Canvas.canvas = null; // HTMLCanvasElement;
+	CharRender_Canvas.canvas = null;
 
 	class CharRender_Native extends ICharRender {
-	    //TODO:coverage
 	    constructor() {
 	        super();
 	        this.lastFont = '';
 	    }
-	    //TODO:coverage
-	    /**
-	     *
-	     * @param font
-	     * @param str
-	     * @override
-	     */
-	    /*override*/ getWidth(font, str) {
+	    getWidth(font, str) {
 	        if (!window.conchTextCanvas)
 	            return 0;
-	        //TODO 先取消判断，保证字体信息一致
-	        //if (lastFont != font) { 
 	        window.conchTextCanvas.font = font;
 	        this.lastFont = font;
-	        //console.log('use font ' + font);
-	        //}					
-	        //getTextBitmapData
 	        return window.conchTextCanvas.measureText(str).width;
 	    }
-	    /**
-	     *
-	     * @param sx
-	     * @param sy
-	     * @override
-	     */
-	    /*override*/ scale(sx, sy) {
+	    scale(sx, sy) {
 	    }
-	    /**
-	     *TODO stroke
-	     * @param	char
-	     * @param	font
-	     * @param	size  返回宽高
-	     * @return
-	     * @override
-	     */
-	    //TODO:coverage
-	    /*override*/ getCharBmp(char, font, lineWidth, colStr, strokeColStr, size, margin_left, margin_top, margin_right, margin_bottom, rect = null) {
+	    getCharBmp(char, font, lineWidth, colStr, strokeColStr, size, margin_left, margin_top, margin_right, margin_bottom, rect = null) {
 	        if (!window.conchTextCanvas)
 	            return null;
-	        //window.conchTextCanvas.getTextBitmapData();
-	        //TODO 先取消判断，保证字体信息一致
-	        //if(lastFont!=font){
 	        window.conchTextCanvas.font = font;
 	        this.lastFont = font;
-	        //}						
 	        var w = size.width = window.conchTextCanvas.measureText(char).width;
 	        var h = size.height;
 	        w += (margin_left + margin_right);
@@ -10263,89 +7360,46 @@ window.Laya= (function (exports) {
 	        var c2 = ColorUtils.create(colStr);
 	        var nTextColor = c2.numColor;
 	        var textInfo = window.conchTextCanvas.getTextBitmapData(char, nTextColor, lineWidth > 2 ? 2 : lineWidth, nStrokeColor);
-	        //window.Laya.LayaGL.instance.texSubImage2D(1,2,0,0,textInfo.width,textInfo.height,0,0,textInfo.bitmapData);
-	        //var ret = new ImageData();
 	        size.bmpWidth = textInfo.width;
 	        size.bmpHeight = textInfo.height;
 	        return textInfo;
-	        /*
-	        ctx.clearRect(0,0, w, h);
-	        //ctx.textAlign = "end";
-	        ctx.textBaseline = "top";
-	        if (lineWidth > 0) {
-	            ctx.strokeStyle = colStr;
-	            ctx.lineWidth = lineWidth;
-	            ctx.strokeText(char, margin_left, margin_top);
-	        } else {
-	            ctx.fillStyle = colStr;
-	            ctx.fillText(char, margin_left, margin_top);
-	        }
-	        if ( CharBook.debug) {
-	            ctx.strokeStyle = '#ff0000';
-	            ctx.strokeRect(0, 0, w, h);
-	            ctx.strokeStyle = '#00ff00';
-	            ctx.strokeRect(margin_left, margin_top, size.width, size.height);
-	        }
-	        //ctx.restore();
-	        return ctx.getImageData( 0,0, w, h );
-	        */
 	    }
 	}
 
 	class TextRender {
 	    constructor() {
-	        //config
-	        /**
-	         * fontSizeInfo
-	         * 记录每种字体的像素的大小。标准是32px的字体。由4个byte组成，分别表示[xdist,ydist,w,h]。
-	         * xdist,ydist 是像素起点到排版原点的距离，都是正的，表示实际数据往左和上偏多少，如果实际往右和下偏，则算作0，毕竟这个只是一个大概
-	         * 例如 [Arial]=0x00002020, 表示宽高都是32
-	         */
 	        this.fontSizeInfo = {};
 	        this.charRender = null;
-	        this.mapFont = {}; // 把font名称映射到数字
+	        this.mapFont = {};
 	        this.fontID = 0;
-	        this.mapColor = []; // 把color映射到数字
+	        this.mapColor = [];
 	        this.colorID = 0;
-	        this.fontScaleX = 1.0; //临时缩放。
+	        this.fontScaleX = 1.0;
 	        this.fontScaleY = 1.0;
-	        //private var charMaps:Object = {};	// 所有的都放到一起
-	        this._curStrPos = 0; //解开一个字符串的时候用的。表示当前解到什么位置了
-	        this.textAtlases = []; // 所有的大图集
-	        this.isoTextures = []; // 所有的独立贴图
-	        // 当前字体的测量信息。
+	        this._curStrPos = 0;
+	        this.textAtlases = [];
+	        this.isoTextures = [];
 	        this.lastFont = null;
 	        this.fontSizeW = 0;
 	        this.fontSizeH = 0;
 	        this.fontSizeOffX = 0;
 	        this.fontSizeOffY = 0;
-	        this.renderPerChar = true; // 是否是单个字符渲染。这个是结果，上面的是配置
+	        this.renderPerChar = true;
 	        this.tmpAtlasPos = new Point();
-	        this.textureMem = 0; // 当前贴图所占用的内存
+	        this.textureMem = 0;
 	        ILaya.TextAtlas = TextAtlas;
-	        var bugIOS = false; //是否是有bug的ios版本
-	        //在微信下有时候不显示文字，所以采用canvas模式，现在测试微信好像都好了，所以去掉了。
+	        var bugIOS = false;
 	        var miniadp = ILaya.Laya['MiniAdpter'];
 	        if (miniadp && miniadp.systemInfo && miniadp.systemInfo.system) {
 	            bugIOS = miniadp.systemInfo.system.toLowerCase() === 'ios 10.1.1';
 	        }
-	        if (ILaya.Browser.onMiniGame /*&& !Browser.onAndroid*/ && !bugIOS)
-	            TextRender.isWan1Wan = true; //android 微信下 字边缘发黑，所以不用getImageData了
-	        //TextRender.isWan1Wan = true;
+	        if (ILaya.Browser.onMiniGame && !bugIOS)
+	            TextRender.isWan1Wan = true;
 	        this.charRender = ILaya.Render.isConchApp ? (new CharRender_Native()) : (new CharRender_Canvas(TextRender.atlasWidth, TextRender.atlasWidth, TextRender.scaleFontWithCtx, !TextRender.isWan1Wan, false));
 	        TextRender.textRenderInst = this;
 	        ILaya.Laya['textRender'] = this;
 	        TextRender.atlasWidth2 = TextRender.atlasWidth * TextRender.atlasWidth;
-	        //TEST
-	        //forceSplitRender = true;
-	        //noAtlas = true;
-	        //forceWholeRender = true;
-	        //TEST
 	    }
-	    /**
-	     * 设置当前字体，获得字体的大小信息。
-	     * @param	font
-	     */
 	    setFont(font) {
 	        if (this.lastFont == font)
 	            return;
@@ -10360,38 +7414,31 @@ window.Laya= (function (exports) {
 	        this.fontSizeOffY = Math.ceil(offy * k);
 	        this.fontSizeW = Math.ceil(fw * k);
 	        this.fontSizeH = Math.ceil(fh * k);
-	        if (font._font.indexOf('italic') >= 0) { // 先判断一下效率会高一些
+	        if (font._font.indexOf('italic') >= 0) {
 	            this.fontStr = font._font.replace('italic', '');
 	        }
 	        else {
 	            this.fontStr = font._font;
 	        }
 	    }
-	    /**
-	     * 从string中取出一个完整的char，例如emoji的话要多个
-	     * 会修改 _curStrPos
-	     * TODO 由于各种文字中的组合写法，这个需要能扩展，以便支持泰文等
-	     * @param	str
-	     * @param	start	开始位置
-	     */
 	    getNextChar(str) {
 	        var len = str.length;
 	        var start = this._curStrPos;
 	        if (start >= len)
 	            return null;
 	        var i = start;
-	        var state = 0; //0 初始化 1  正常 2 连续中
+	        var state = 0;
 	        for (; i < len; i++) {
 	            var c = str.charCodeAt(i);
-	            if ((c >>> 11) == 0x1b) { //可能是0b110110xx或者0b110111xx。 这都表示2个u16组成一个emoji
+	            if ((c >>> 11) == 0x1b) {
 	                if (state == 1)
-	                    break; //新的字符了，要截断
-	                state = 1; // 其他状态都转成正常读取字符状态，只是一次读两个
-	                i++; //跨过一个。
+	                    break;
+	                state = 1;
+	                i++;
 	            }
 	            else if (c === 0xfe0e || c === 0xfe0f) ;
-	            else if (c == 0x200d) { //zero width joiner
-	                state = 2; // 继续
+	            else if (c == 0x200d) {
+	                state = 2;
 	            }
 	            else {
 	                if (state == 0)
@@ -10406,7 +7453,6 @@ window.Laya= (function (exports) {
 	    filltext(ctx, data, x, y, fontStr, color, strokeColor, lineWidth, textAlign, underLine = 0) {
 	        if (data.length <= 0)
 	            return;
-	        //以后保存到wordtext中
 	        var font = FontInfo.Parse(fontStr);
 	        var nTextAlign = 0;
 	        switch (textAlign) {
@@ -10455,31 +7501,22 @@ window.Laya= (function (exports) {
 	                this.fontScaleY = sy;
 	        }
 	        font._italic && (ctx._italicDeg = 13);
-	        //准备bmp
-	        //拷贝到texture上,得到一个gltexture和uv
 	        var wt = data;
 	        var isWT = !htmlchars && (data instanceof WordText);
 	        var str = data;
 	        var isHtmlChar = !!htmlchars;
-	        /**
-	         * sameTexData
-	         * WordText 中保存了一个数组，这个数组是根据贴图排序的，目的是为了能相同的贴图合并。
-	         * 类型是 {ri:CharRenderInfo,stx:int,sty:int,...}[文字个数][贴图分组]
-	         */
 	        var sameTexData = isWT ? wt.pageChars : [];
-	        //总宽度，下面的对齐需要
 	        var strWidth = 0;
 	        if (isWT) {
 	            str = wt._text;
 	            strWidth = wt.width;
 	            if (strWidth < 0) {
-	                strWidth = wt.width = this.charRender.getWidth(this.fontStr, str); // 字符串长度是原始的。
+	                strWidth = wt.width = this.charRender.getWidth(this.fontStr, str);
 	            }
 	        }
 	        else {
 	            strWidth = str ? this.charRender.getWidth(this.fontStr, str) : 0;
 	        }
-	        //水平对齐方式
 	        switch (textAlign) {
 	            case ILaya.Context.ENUM_TEXTALIGN_CENTER:
 	                x -= strWidth / 2;
@@ -10488,20 +7525,15 @@ window.Laya= (function (exports) {
 	                x -= strWidth;
 	                break;
 	        }
-	        //检查保存的数据是否有的已经被释放了
-	        if (wt && sameTexData) { // TODO 能利用lastGCCnt么
-	            //wt.lastGCCnt = _curPage.gcCnt;
+	        if (wt && sameTexData) {
 	            if (this.hasFreedText(sameTexData)) {
 	                sameTexData = wt.pageChars = [];
 	            }
 	        }
 	        var ri = null;
-	        var splitTex = this.renderPerChar = (!isWT) || TextRender.forceSplitRender || isHtmlChar || (isWT && wt.splitRender); // 拆分字符串渲染，这个优先级高
+	        var splitTex = this.renderPerChar = (!isWT) || TextRender.forceSplitRender || isHtmlChar || (isWT && wt.splitRender);
 	        if (!sameTexData || sameTexData.length < 1) {
-	            // 重新构建缓存的贴图信息
-	            // TODO 还是要ctx.scale么
 	            if (splitTex) {
-	                // 如果要拆分字符渲染
 	                var stx = 0;
 	                var sty = 0;
 	                this._curStrPos = 0;
@@ -10525,55 +7557,43 @@ window.Laya= (function (exports) {
 	                        break;
 	                    ri = this.getCharRenderInfo(curstr, font, color, strokeColor, lineWidth, false);
 	                    if (!ri) {
-	                        // 没有分配到。。。
 	                        break;
 	                    }
 	                    if (ri.isSpace) ;
 	                    else {
-	                        //分组保存
 	                        var add = sameTexData[ri.tex.id];
 	                        if (!add) {
-	                            var o1 = { texgen: ri.tex.genID, tex: ri.tex, words: [] }; // 根据genid来减少是否释放的判断量
+	                            var o1 = { texgen: ri.tex.genID, tex: ri.tex, words: [] };
 	                            sameTexData[ri.tex.id] = o1;
 	                            add = o1.words;
 	                        }
 	                        else {
 	                            add = add.words;
 	                        }
-	                        //不能直接修改ri.bmpWidth, 否则会累积缩放，所以把缩放保存到独立的变量中
 	                        if (ILaya.Render.isConchApp) {
 	                            add.push({ ri: ri, x: stx, y: sty, w: ri.bmpWidth / this.fontScaleX, h: ri.bmpHeight / this.fontScaleY });
 	                        }
 	                        else {
-	                            add.push({ ri: ri, x: stx + 1 / this.fontScaleX, y: sty, w: (ri.bmpWidth - 2) / this.fontScaleX, h: (ri.bmpHeight - 1) / this.fontScaleY }); // 为了避免边缘像素采样错误，内缩一个像素
+	                            add.push({ ri: ri, x: stx + 1 / this.fontScaleX, y: sty, w: (ri.bmpWidth - 2) / this.fontScaleX, h: (ri.bmpHeight - 1) / this.fontScaleY });
 	                        }
-	                        stx += ri.width; // TODO 缩放
+	                        stx += ri.width;
 	                    }
 	                }
 	            }
 	            else {
-	                // 如果要整句话渲染
-	                var isotex = TextRender.noAtlas || strWidth * this.fontScaleX > TextRender.atlasWidth; // 独立贴图还是大图集
+	                var isotex = TextRender.noAtlas || strWidth * this.fontScaleX > TextRender.atlasWidth;
 	                ri = this.getCharRenderInfo(str, font, color, strokeColor, lineWidth, isotex);
-	                // 整句渲染，则只有一个贴图
 	                if (ILaya.Render.isConchApp) {
 	                    sameTexData[0] = { texgen: ri.tex.genID, tex: ri.tex, words: [{ ri: ri, x: 0, y: 0, w: ri.bmpWidth / this.fontScaleX, h: ri.bmpHeight / this.fontScaleY }] };
 	                }
 	                else {
-	                    sameTexData[0] = { texgen: ri.tex.genID, tex: ri.tex, words: [{ ri: ri, x: 1 / this.fontScaleX, y: 0 / this.fontScaleY, w: (ri.bmpWidth - 2) / this.fontScaleX, h: (ri.bmpHeight - 1) / this.fontScaleY }] }; // 为了避免边缘像素采样错误，内缩一个像素
+	                    sameTexData[0] = { texgen: ri.tex.genID, tex: ri.tex, words: [{ ri: ri, x: 1 / this.fontScaleX, y: 0 / this.fontScaleY, w: (ri.bmpWidth - 2) / this.fontScaleX, h: (ri.bmpHeight - 1) / this.fontScaleY }] };
 	                }
 	            }
-	            //TODO getbmp 考虑margin 字体与标准字体的关系
 	        }
 	        this._drawResortedWords(ctx, x, y, sameTexData);
 	        ctx._italicDeg = 0;
 	    }
-	    /**
-	     * 画出重新按照贴图顺序分组的文字。
-	     * @param	samePagesData
-	     * @param  startx 保存的数据是相对位置，所以需要加上这个偏移。用相对位置更灵活一些。
-	     * @param y {int} 因为这个只能画在一行上所以没有必要保存y。所以这里再把y传进来
-	     */
 	    _drawResortedWords(ctx, startx, starty, samePagesData) {
 	        var isLastRender = ctx._charSubmitCache && ctx._charSubmitCache._enbale;
 	        var mat = ctx._curMat;
@@ -10594,7 +7614,6 @@ window.Laya= (function (exports) {
 	                    continue;
 	                ri.touch();
 	                ctx.drawTexAlign = true;
-	                //ctx._drawTextureM(ri.tex.texture as Texture, startx +riSaved.x -ri.orix / fontScaleX , starty + riSaved.y -ri.oriy / fontScaleY , riSaved.w, riSaved.h, null, 1.0, ri.uv);
 	                if (ILaya.Render.isConchApp) {
 	                    ctx._drawTextureM(tex.texture, startx + riSaved.x - ri.orix, starty + riSaved.y - ri.oriy, riSaved.w, riSaved.h, null, 1.0, ri.uv);
 	                }
@@ -10607,15 +7626,7 @@ window.Laya= (function (exports) {
 	                }
 	            }
 	        }
-	        //不要影响别人
-	        //ctx._curSubmit._key.other = -1;
 	    }
-	    /**
-	     * 检查 txts数组中有没有被释放的资源
-	     * @param	txts {{ri:CharRenderInfo,...}[][]}
-	     * @param	startid
-	     * @return
-	     */
 	    hasFreedText(txts) {
 	        var sz = txts.length;
 	        for (var i = 0; i < sz; i++) {
@@ -10634,23 +7645,15 @@ window.Laya= (function (exports) {
 	        if (fid == undefined) {
 	            this.mapFont[font._family] = fid = this.fontID++;
 	        }
-	        /*
-	        var cid:int = mapColor[color];
-	        if (cid == undefined) {
-	            mapColor[color] = cid = colorID++;
-	        }
-	        var scid:int = mapColor[strokeColor];
-	        */
 	        var key = str + '_' + fid + '_' + font._size + '_' + color;
 	        if (lineWidth > 0)
 	            key += '_' + strokeColor + lineWidth;
 	        if (font._bold)
 	            key += 'P';
 	        if (this.fontScaleX != 1 || this.fontScaleY != 1) {
-	            key += (this.fontScaleX * 20 | 0) + '_' + (this.fontScaleY * 20 | 0); // 这个精度可以控制占用资源的大小，精度越高越能细分缩放。
+	            key += (this.fontScaleX * 20 | 0) + '_' + (this.fontScaleY * 20 | 0);
 	        }
 	        var i = 0;
-	        // 遍历所有的大图集看是否存在
 	        var sz = this.textAtlases.length;
 	        var ri = null;
 	        var atlas = null;
@@ -10664,73 +7667,57 @@ window.Laya= (function (exports) {
 	                }
 	            }
 	        }
-	        // 没有找到，要创建一个
 	        ri = new CharRenderInfo();
 	        this.charRender.scale(this.fontScaleX, this.fontScaleY);
 	        ri.char = str;
 	        ri.height = font._size;
-	        var margin = ILaya.Render.isConchApp ? 0 : (font._size / 3 | 0); // 凑的。 注意这里不能乘以缩放，因为ctx会自动处理
-	        // 如果不存在，就要插入已有的，或者创建新的
+	        var margin = ILaya.Render.isConchApp ? 0 : (font._size / 3 | 0);
 	        var imgdt = null;
-	        // 先大约测量文字宽度 
 	        var w1 = Math.ceil(this.charRender.getWidth(this.fontStr, str) * this.fontScaleX);
 	        if (w1 > this.charRender.canvasWidth) {
 	            this.charRender.canvasWidth = Math.min(2048, w1 + margin * 2);
 	        }
 	        if (isoTexture) {
-	            // 独立贴图
 	            this.charRender.fontsz = font._size;
 	            imgdt = this.charRender.getCharBmp(str, this.fontStr, lineWidth, color, strokeColor, ri, margin, margin, margin, margin, null);
-	            // 这里可以直接
 	            var tex = TextTexture.getTextTexture(imgdt.width, imgdt.height);
 	            tex.addChar(imgdt, 0, 0, ri.uv);
 	            ri.tex = tex;
-	            ri.orix = margin; // 这里是原始的，不需要乘scale,因为scale的会创建一个scale之前的rect
+	            ri.orix = margin;
 	            ri.oriy = margin;
 	            tex.ri = ri;
 	            this.isoTextures.push(tex);
 	        }
 	        else {
-	            // 大图集
 	            var len = str.length;
-	            var lineExt = lineWidth * 1; // 这里，包括下面的*2 都尽量用整数。否则在取整以后可能有有偏移。
-	            var fw = Math.ceil((this.fontSizeW + lineExt * 2) * this.fontScaleX); //本来只要 lineWidth就行，但是这样安全一些
+	            var lineExt = lineWidth * 1;
+	            var fw = Math.ceil((this.fontSizeW + lineExt * 2) * this.fontScaleX);
 	            var fh = Math.ceil((this.fontSizeH + lineExt * 2) * this.fontScaleY);
-	            TextRender.imgdtRect[0] = ((margin - this.fontSizeOffX - lineExt) * this.fontScaleX) | 0; // 本来要 lineWidth/2 但是这样一些尖角会有问题，所以大一点
+	            TextRender.imgdtRect[0] = ((margin - this.fontSizeOffX - lineExt) * this.fontScaleX) | 0;
 	            TextRender.imgdtRect[1] = ((margin - this.fontSizeOffY - lineExt) * this.fontScaleY) | 0;
 	            if (this.renderPerChar || len == 1) {
-	                // 单个字符的处理
 	                TextRender.imgdtRect[2] = Math.max(w1, fw);
-	                TextRender.imgdtRect[3] = Math.max(w1, fh); // 高度也要取大的。 例如emoji
+	                TextRender.imgdtRect[3] = Math.max(w1, fh);
 	            }
 	            else {
-	                // 多个字符的处理
-	                TextRender.imgdtRect[2] = -1; // -1 表示宽度要测量
-	                TextRender.imgdtRect[3] = fh; // TODO 如果被裁剪了，可以考虑把这个加大一点点
+	                TextRender.imgdtRect[2] = -1;
+	                TextRender.imgdtRect[3] = fh;
 	            }
 	            this.charRender.fontsz = font._size;
 	            imgdt = this.charRender.getCharBmp(str, this.fontStr, lineWidth, color, strokeColor, ri, margin, margin, margin, margin, TextRender.imgdtRect);
 	            atlas = this.addBmpData(imgdt, ri);
 	            if (TextRender.isWan1Wan) {
-	                // 这时候 imgdtRect 是不好使的，要自己设置
-	                ri.orix = margin; // 不要乘缩放。要不后面也要除。
+	                ri.orix = margin;
 	                ri.oriy = margin;
 	            }
 	            else {
-	                // 取下来的imagedata的原点在哪
-	                ri.orix = (this.fontSizeOffX + lineExt); // 由于是相对于imagedata的，上面会根据包边调整左上角，所以原点也要相应反向调整
+	                ri.orix = (this.fontSizeOffX + lineExt);
 	                ri.oriy = (this.fontSizeOffY + lineExt);
 	            }
 	            atlas.charMaps[key] = ri;
 	        }
 	        return ri;
 	    }
-	    /**
-	     * 添加数据到大图集
-	     * @param	w
-	     * @param	h
-	     * @return
-	     */
 	    addBmpData(data, ri) {
 	        var w = data.width;
 	        var h = data.height;
@@ -10745,14 +7732,12 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	        if (!find) {
-	            // 创建一个新的
 	            atlas = new TextAtlas();
 	            this.textAtlases.push(atlas);
 	            find = atlas.getAEmpty(w, h, this.tmpAtlasPos);
 	            if (!find) {
-	                throw 'err1'; //TODO
+	                throw 'err1';
 	            }
-	            // 清理旧的
 	            this.cleanAtlases();
 	        }
 	        if (find) {
@@ -10761,60 +7746,41 @@ window.Laya= (function (exports) {
 	        }
 	        return atlas;
 	    }
-	    /**
-	     * 清理利用率低的大图集
-	     */
 	    GC() {
 	        var i = 0;
 	        var sz = this.textAtlases.length;
 	        var dt = 0;
 	        var destroyDt = TextRender.destroyAtlasDt;
-	        var totalUsedRate = 0; // 总使用率
+	        var totalUsedRate = 0;
 	        var totalUsedRateAtlas = 0;
 	        var curloop = RenderInfo.loopCount;
-	        //var minUsedRateID:int = -1;
-	        //var minUsedRate:Number = 1;
 	        var maxWasteRateID = -1;
 	        var maxWasteRate = 0;
 	        var tex = null;
 	        var curatlas = null;
-	        // 图集的清理
 	        for (; i < sz; i++) {
 	            curatlas = this.textAtlases[i];
 	            tex = curatlas.texture;
 	            if (tex) {
 	                totalUsedRate += tex.curUsedCovRate;
 	                totalUsedRateAtlas += tex.curUsedCovRateAtlas;
-	                // 浪费掉的图集
-	                // (已经占用的图集和当前使用的图集的差。图集不可局部重用，所以有占用的和使用的的区别)
 	                var waste = curatlas.usedRate - tex.curUsedCovRateAtlas;
-	                // 记录哪个图集浪费的最多
 	                if (maxWasteRate < waste) {
 	                    maxWasteRate = waste;
 	                    maxWasteRateID = i;
 	                }
-	                /*
-	                if (minUsedRate > tex.curUsedCovRate) {
-	                    minUsedRate = tex.curUsedCovRate;
-	                    minUsedRateID = i;
-	                }
-	                */
 	            }
-	            // 如果当前贴图的touch时间超出了指定的间隔（单位是帧，例如），则设置回收
-	            // 可能同时会有多个图集被回收
 	            dt = curloop - curatlas.texture.lastTouchTm;
 	            if (dt > destroyDt) {
 	                TextRender.showLog && console.log('TextRender GC delete atlas ' + tex ? curatlas.texture.id : 'unk');
 	                curatlas.destroy();
-	                this.textAtlases[i] = this.textAtlases[sz - 1]; // 把最后的拿过来冲掉
+	                this.textAtlases[i] = this.textAtlases[sz - 1];
 	                sz--;
 	                i--;
 	                maxWasteRateID = -1;
 	            }
 	        }
-	        // 缩减图集数组的长度
 	        this.textAtlases.length = sz;
-	        // 独立贴图的清理 TODO 如果多的话，要不要分开处理
 	        sz = this.isoTextures.length;
 	        for (i = 0; i < sz; i++) {
 	            tex = this.isoTextures[i];
@@ -10822,7 +7788,6 @@ window.Laya= (function (exports) {
 	            if (dt > TextRender.destroyUnusedTextureDt) {
 	                tex.ri.deleted = true;
 	                tex.ri.tex = null;
-	                // 直接删除，不回收
 	                tex.destroy();
 	                this.isoTextures[i] = this.isoTextures[sz - 1];
 	                sz--;
@@ -10830,8 +7795,7 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	        this.isoTextures.length = sz;
-	        // 如果超出内存需要清理不常用
-	        var needGC = this.textAtlases.length > 1 && this.textAtlases.length - totalUsedRateAtlas >= 2; // 总量浪费了超过2张
+	        var needGC = this.textAtlases.length > 1 && this.textAtlases.length - totalUsedRateAtlas >= 2;
 	        if (TextRender.atlasWidth * TextRender.atlasWidth * 4 * this.textAtlases.length > TextRender.cleanMem || needGC || TextRender.simClean) {
 	            TextRender.simClean = false;
 	            TextRender.showLog && console.log('清理使用率低的贴图。总使用率:', totalUsedRateAtlas, ':', this.textAtlases.length, '最差贴图:' + maxWasteRateID);
@@ -10844,22 +7808,10 @@ window.Laya= (function (exports) {
 	        }
 	        TextTexture.clean();
 	    }
-	    /**
-	     * 尝试清理大图集
-	     */
 	    cleanAtlases() {
-	        // TODO 根据覆盖率决定是否清理
 	    }
 	    getCharBmp(c) {
 	    }
-	    /**
-	     * 检查当前线是否存在数据
-	     * @param	data
-	     * @param	l
-	     * @param	sx
-	     * @param	ex
-	     * @return
-	     */
 	    checkBmpLine(data, l, sx, ex) {
 	        if (this.bmpData32.buffer != data.data.buffer) {
 	            this.bmpData32 = new Uint32Array(data.data.buffer);
@@ -10871,41 +7823,28 @@ window.Laya= (function (exports) {
 	        }
 	        return false;
 	    }
-	    /**
-	     * 根据bmp数据和当前的包围盒，更新包围盒
-	     * 由于选择的文字是连续的，所以可以用二分法
-	     * @param	data
-	     * @param	curbbx 	[l,t,r,b]
-	     * @param   onlyH 不检查左右
-	     */
 	    updateBbx(data, curbbx, onlyH = false) {
 	        var w = data.width;
 	        var h = data.height;
 	        var x = 0;
-	        // top
-	        var sy = curbbx[1]; //从t到0 sy表示有数据的行
+	        var sy = curbbx[1];
 	        var ey = 0;
 	        var y = sy;
 	        if (this.checkBmpLine(data, sy, 0, w)) {
-	            // 如果当前行有数据，就要往上找
 	            while (true) {
-	                y = (sy + ey) / 2 | 0; // 必须是int
-	                if (y + 1 >= sy) { // 
-	                    // 找到了。严格来说还不知道这个是否有像素，不过这里要求不严格，可以认为有
+	                y = (sy + ey) / 2 | 0;
+	                if (y + 1 >= sy) {
 	                    curbbx[1] = y;
 	                    break;
 	                }
 	                if (this.checkBmpLine(data, y, 0, w)) {
-	                    //中间线有数据，搜索上半部分
 	                    sy = y;
 	                }
 	                else {
-	                    //中间线没有有数据，搜索下半部分
 	                    ey = y;
 	                }
 	            }
 	        }
-	        // 下半部分
 	        if (curbbx[3] > h)
 	            curbbx[3] = h;
 	        else {
@@ -10929,9 +7868,8 @@ window.Laya= (function (exports) {
 	        }
 	        if (onlyH)
 	            return;
-	        // 左半部分
 	        var minx = curbbx[0];
-	        var stpos = w * curbbx[1]; //w*cy+0
+	        var stpos = w * curbbx[1];
 	        for (y = curbbx[1]; y < curbbx[3]; y++) {
 	            for (x = 0; x < minx; x++) {
 	                if (this.bmpData32[stpos + x] != 0) {
@@ -10942,9 +7880,8 @@ window.Laya= (function (exports) {
 	            stpos += w;
 	        }
 	        curbbx[0] = minx;
-	        // 右半部分
 	        var maxx = curbbx[2];
-	        stpos = w * curbbx[1]; //w*cy
+	        stpos = w * curbbx[1];
 	        for (y = curbbx[1]; y < curbbx[3]; y++) {
 	            for (x = maxx; x < w; x++) {
 	                if (this.bmpData32[stpos + x] != 0) {
@@ -10962,19 +7899,17 @@ window.Laya= (function (exports) {
 	            return finfo;
 	        var fontstr = 'bold ' + TextRender.standardFontSize + 'px ' + font;
 	        if (TextRender.isWan1Wan) {
-	            // 这时候无法获得imagedata，只能采取保险测量
 	            this.fontSizeW = this.charRender.getWidth(fontstr, '有') * 1.5;
 	            this.fontSizeH = TextRender.standardFontSize * 1.5;
 	            var szinfo = this.fontSizeW << 8 | this.fontSizeH;
 	            this.fontSizeInfo[font] = szinfo;
 	            return szinfo;
 	        }
-	        // bbx初始大小
-	        TextRender.pixelBBX[0] = TextRender.standardFontSize / 2; // 16;
-	        TextRender.pixelBBX[1] = TextRender.standardFontSize / 2; // 16;
-	        TextRender.pixelBBX[2] = TextRender.standardFontSize; // 32;
-	        TextRender.pixelBBX[3] = TextRender.standardFontSize; // 32;
-	        var orix = 16; // 左边留白，也就是x原点的位置
+	        TextRender.pixelBBX[0] = TextRender.standardFontSize / 2;
+	        TextRender.pixelBBX[1] = TextRender.standardFontSize / 2;
+	        TextRender.pixelBBX[2] = TextRender.standardFontSize;
+	        TextRender.pixelBBX[3] = TextRender.standardFontSize;
+	        var orix = 16;
 	        var oriy = 16;
 	        var marginr = 16;
 	        var marginb = 16;
@@ -10982,27 +7917,20 @@ window.Laya= (function (exports) {
 	        TextRender.tmpRI.height = TextRender.standardFontSize;
 	        this.charRender.fontsz = TextRender.standardFontSize;
 	        var bmpdt = this.charRender.getCharBmp('g', fontstr, 0, 'red', null, TextRender.tmpRI, orix, oriy, marginr, marginb);
-	        // native 返回的是 textBitmap。 data直接是ArrayBuffer 
 	        if (ILaya.Render.isConchApp) {
-	            //bmpdt.data.buffer = bmpdt.data;
 	            bmpdt.data = new Uint8ClampedArray(bmpdt.data);
 	        }
 	        this.bmpData32 = new Uint32Array(bmpdt.data.buffer);
-	        //测量宽度是 tmpRI.width
 	        this.updateBbx(bmpdt, TextRender.pixelBBX, false);
-	        bmpdt = this.charRender.getCharBmp('有', fontstr, 0, 'red', null, TextRender.tmpRI, oriy, oriy, marginr, marginb); // '有'比'国'大
+	        bmpdt = this.charRender.getCharBmp('有', fontstr, 0, 'red', null, TextRender.tmpRI, oriy, oriy, marginr, marginb);
 	        if (ILaya.Render.isConchApp) {
-	            //bmpdt.data.buffer = bmpdt.data;
 	            bmpdt.data = new Uint8ClampedArray(bmpdt.data);
 	        }
 	        this.bmpData32 = new Uint32Array(bmpdt.data.buffer);
-	        // 国字的宽度就用系统测量的，不再用像素检测
 	        if (TextRender.pixelBBX[2] < orix + TextRender.tmpRI.width)
 	            TextRender.pixelBBX[2] = orix + TextRender.tmpRI.width;
-	        this.updateBbx(bmpdt, TextRender.pixelBBX, false); //TODO 改成 true
-	        // 原点在 16,16
+	        this.updateBbx(bmpdt, TextRender.pixelBBX, false);
 	        if (ILaya.Render.isConchApp) {
-	            //runtime 的接口好像有问题，不认orix，oriy
 	            orix = 0;
 	            oriy = 0;
 	        }
@@ -11028,7 +7956,7 @@ window.Laya= (function (exports) {
 	        }
 	        var num = 0;
 	        console.log('缓存数据:');
-	        var totalUsedRate = 0; // 总使用率
+	        var totalUsedRate = 0;
 	        var totalUsedRateAtlas = 0;
 	        this.textAtlases.forEach(function (a) {
 	            var id = a.texture.id;
@@ -11049,7 +7977,6 @@ window.Laya= (function (exports) {
 	        });
 	        console.log('总缓存:', num, '总使用率:', totalUsedRate, '总当前图集使用率:', totalUsedRateAtlas);
 	    }
-	    // 在屏幕上显示某个大图集
 	    showAtlas(n, bgcolor, x, y, w, h) {
 	        if (!this.textAtlases[n]) {
 	            console.log('没有这个图集');
@@ -11085,7 +8012,6 @@ window.Laya= (function (exports) {
 	        window.Laya.stage.addChild(sp);
 	        return sp;
 	    }
-	    /////// native ///////
 	    filltext_native(ctx, data, htmlchars, x, y, fontStr, color, strokeColor, lineWidth, textAlign, underLine = 0) {
 	        if (data && data.length <= 0)
 	            return;
@@ -11104,123 +8030,83 @@ window.Laya= (function (exports) {
 	        return this._fast_filltext(ctx, data, htmlchars, x, y, font, color, strokeColor, lineWidth, nTextAlign, underLine);
 	    }
 	}
-	//config
 	TextRender.useOldCharBook = false;
 	TextRender.atlasWidth = 2048;
-	TextRender.noAtlas = false; // 一串文字用独立贴图
-	TextRender.forceSplitRender = false; // 强制把一句话拆开渲染
-	TextRender.forceWholeRender = false; // 强制整句话渲染
-	TextRender.scaleFontWithCtx = true; // 如果有缩放，则修改字体，以保证清晰度
-	TextRender.standardFontSize = 32; // 测量的时候使用的字体大小
-	TextRender.destroyAtlasDt = 10; // 回收图集贴图的时间
-	TextRender.checkCleanTextureDt = 2000; // 检查是否要真正删除纹理的时间。单位是ms
-	TextRender.destroyUnusedTextureDt = 3000; // 长时间不用的纹理删除的时间。单位是ms
-	TextRender.cleanMem = 100 * 1024 * 1024; // 多大内存触发清理图集。这时候占用率低的图集会被清理
+	TextRender.noAtlas = false;
+	TextRender.forceSplitRender = false;
+	TextRender.forceWholeRender = false;
+	TextRender.scaleFontWithCtx = true;
+	TextRender.standardFontSize = 32;
+	TextRender.destroyAtlasDt = 10;
+	TextRender.checkCleanTextureDt = 2000;
+	TextRender.destroyUnusedTextureDt = 3000;
+	TextRender.cleanMem = 100 * 1024 * 1024;
 	TextRender.isWan1Wan = false;
 	TextRender.showLog = false;
-	TextRender.debugUV = false; // 文字纹理需要保护边。当像素没有对齐的时候，可能会采样到旁边的贴图。true则填充texture为白色，模拟干扰
+	TextRender.debugUV = false;
 	TextRender.atlasWidth2 = 2048 * 2048;
 	TextRender.tmpRI = new CharRenderInfo();
 	TextRender.pixelBBX = [0, 0, 0, 0];
-	TextRender.textRenderInst = null; //debug
+	TextRender.textRenderInst = null;
 	TextRender.imgdtRect = [0, 0, 0, 0];
-	TextRender.simClean = false; // 测试用。强制清理占用低的图集
+	TextRender.simClean = false;
 	TextTexture.gTextRender = TextRender;
 
-	/**
-	 * @private
-	 * Context扩展类
-	 */
 	class Context {
 	    constructor() {
-	        /**@internal */
-	        this._tmpMatrix = new Matrix(); // chrome下静态的访问比从this访问要慢
-	        this._drawTexToDrawTri_Vert = new Float32Array(8); // 从速度考虑，不做成static了
+	        this._tmpMatrix = new Matrix();
+	        this._drawTexToDrawTri_Vert = new Float32Array(8);
 	        this._drawTexToDrawTri_Index = new Uint16Array([0, 1, 2, 0, 2, 3]);
 	        this._tempUV = new Float32Array(8);
-	        this._drawTriUseAbsMatrix = false; //drawTriange函数的矩阵是全局的，不用再乘以当前矩阵了。这是一个补丁。
-	        /**@internal */
+	        this._drawTriUseAbsMatrix = false;
 	        this._id = ++Context._COUNT;
 	        this._other = null;
 	        this._renderNextSubmitIndex = 0;
 	        this._path = null;
-	        /**@internal */
 	        this._drawCount = 1;
 	        this._width = Context._MAXSIZE;
 	        this._height = Context._MAXSIZE;
 	        this._renderCount = 0;
-	        this._isConvexCmd = true; //arc等是convex的，moveTo,linTo就不是了
-	        /**@internal */
+	        this._isConvexCmd = true;
 	        this._submits = null;
-	        /**@internal */
 	        this._curSubmit = null;
-	        /**@internal */
-	        this._submitKey = new SubmitKey(); //当前将要使用的设置。用来跟上一次的_curSubmit比较
-	        /**@internal */
-	        this._mesh = null; //用Mesh2D代替_vb,_ib. 当前使用的mesh
-	        /**@internal */
-	        this._pathMesh = null; //矢量专用mesh。
-	        /**@internal */
-	        this._triangleMesh = null; //drawTriangles专用mesh。由于ib不固定，所以不能与_mesh通用
-	        this.meshlist = []; //本context用到的mesh
-	        //public var _vbs:Array = [];	//双buffer管理。TODO 临时删掉，需要mesh中加上
-	        this._transedPoints = new Array(8); //临时的数组，用来计算4个顶点的转换后的位置。
-	        this._temp4Points = new Array(8); //临时数组。用来保存4个顶点的位置。
-	        /**@internal */
+	        this._submitKey = new SubmitKey();
+	        this._mesh = null;
+	        this._pathMesh = null;
+	        this._triangleMesh = null;
+	        this.meshlist = [];
+	        this._transedPoints = new Array(8);
+	        this._temp4Points = new Array(8);
 	        this._clipRect = Context.MAXCLIPRECT;
-	        //public var _transedClipInfo:Array = [0, 0, Context._MAXSIZE, 0, 0, Context._MAXSIZE];	//应用矩阵后的clip。ox,oy, xx,xy,yx,yy 	xx,xy等是缩放*宽高
-	        /**@internal */
-	        this._globalClipMatrix = new Matrix(Context._MAXSIZE, 0, 0, Context._MAXSIZE, 0, 0); //用矩阵描述的clip信息。最终的点投影到这个矩阵上，在0~1之间就可见。
-	        /**@internal */
-	        this._clipInCache = false; // 当前记录的clipinfo是在cacheas normal后赋值的，因为cacheas normal会去掉当前矩阵的tx，ty，所以需要记录一下，以便在是shader中恢复
-	        /**@internal */
-	        this._clipInfoID = 0; //用来区分是不是clipinfo已经改变了
-	        this._clipID_Gen = 0; //生成clipid的，原来是  _clipInfoID=++_clipInfoID 这样会有问题，导致兄弟clip的id都相同
-	        /**@internal */
+	        this._globalClipMatrix = new Matrix(Context._MAXSIZE, 0, 0, Context._MAXSIZE, 0, 0);
+	        this._clipInCache = false;
+	        this._clipInfoID = 0;
+	        this._clipID_Gen = 0;
 	        this._curMat = null;
-	        //计算矩阵缩放的缓存
-	        /**@internal */
 	        this._lastMatScaleX = 1.0;
-	        /**@internal */
 	        this._lastMatScaleY = 1.0;
 	        this._lastMat_a = 1.0;
 	        this._lastMat_b = 0.0;
 	        this._lastMat_c = 0.0;
 	        this._lastMat_d = 1.0;
-	        /**@internal */
 	        this._nBlendType = 0;
-	        /**@internal */
 	        this._save = null;
-	        /**@internal */
 	        this._targets = null;
-	        /**@internal */
 	        this._charSubmitCache = null;
-	        /**@internal */
 	        this._saveMark = null;
-	        /**@internal */
-	        this._shader2D = new Shader2D(); //
-	        /**
-	         * 所cacheAs精灵
-	         * 对于cacheas bitmap的情况，如果图片还没准备好，需要有机会重画，所以要保存sprite。例如在图片
-	         * 加载完成后，调用repaint
-	         */
+	        this._shader2D = new Shader2D();
 	        this.sprite = null;
-	        /**@internal */
-	        this._italicDeg = 0; //文字的倾斜角度
-	        /**@internal */
-	        this._lastTex = null; //上次使用的texture。主要是给fillrect用，假装自己也是一个drawtexture
+	        this._italicDeg = 0;
+	        this._lastTex = null;
 	        this._fillColor = 0;
 	        this._flushCnt = 0;
-	        this.defTexture = null; //给fillrect用
-	        /**@internal */
+	        this.defTexture = null;
 	        this._colorFiler = null;
-	        this.drawTexAlign = false; // 按照像素对齐
-	        /**@internal */
-	        this._incache = false; // 正处在cacheas normal过程中
-	        this.isMain = false; // 是否是主context
+	        this.drawTexAlign = false;
+	        this._incache = false;
+	        this.isMain = false;
 	        Context._contextcount++;
 	        Context._textRender = Context._textRender || new TextRender();
-	        //_ib = IndexBuffer2D.QuadrangleIB;
 	        if (!this.defTexture) {
 	            var defTex2d = new Texture2D(2, 2);
 	            defTex2d.setPixels(new Uint8Array(16));
@@ -11234,67 +8120,41 @@ window.Laya= (function (exports) {
 	        Context.MAXCLIPRECT = new Rectangle(0, 0, Context._MAXSIZE, Context._MAXSIZE);
 	        ContextParams.DEFAULT = new ContextParams();
 	    }
-	    /**@private */
 	    drawImage(...args) {
 	    }
-	    /**@private */
 	    getImageData(...args) {
 	    }
-	    /**@private */
 	    measureText(text) {
 	        return null;
 	    }
-	    /**@private */
 	    setTransform(...args) {
 	    }
-	    /**@private */
 	    $transform(a, b, c, d, tx, ty) {
 	    }
-	    /**@private */
 	    get lineJoin() {
 	        return null;
 	    }
-	    /**@private */
 	    set lineJoin(value) {
 	    }
-	    /**@private */
 	    get lineCap() {
 	        return null;
 	    }
-	    /**@private */
 	    set lineCap(value) {
 	    }
-	    /**@private */
 	    get miterLimit() {
 	        return null;
 	    }
-	    /**@private */
 	    set miterLimit(value) {
 	    }
-	    /**@private */
 	    clearRect(x, y, width, height) {
 	    }
-	    /**@internal */
-	    //TODO:coverage
 	    _drawRect(x, y, width, height, style) {
 	        Stat.renderBatches++;
 	        style && (this.fillStyle = style);
 	        this.fillRect(x, y, width, height, null);
 	    }
-	    ///**@private */
-	    //public function transformByMatrix(value:Matrix):void {
-	    //this.transform(value.a, value.b, value.c, value.d, value.tx, value.ty);
-	    //}
-	    /**@private */
-	    //TODO:coverage
-	    //public function setTransformByMatrix(value:Matrix):void {
-	    //	this.setTransform(value.a, value.b, value.c, value.d, value.tx, value.ty);
-	    //}
-	    /**@private */
-	    //TODO:coverage
 	    drawTexture2(x, y, pivotX, pivotY, m, args2) {
 	    }
-	    //=============新增==================
 	    transformByMatrix(matrix, tx, ty) {
 	        this.transform(matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx + tx, matrix.ty + ty);
 	    }
@@ -11306,12 +8166,10 @@ window.Laya= (function (exports) {
 	    }
 	    drawRect(x, y, width, height, fillColor, lineColor, lineWidth) {
 	        var ctx = this;
-	        //填充矩形
 	        if (fillColor != null) {
 	            ctx.fillStyle = fillColor;
 	            ctx.fillRect(x, y, width, height);
 	        }
-	        //绘制矩形边框
 	        if (lineColor != null) {
 	            ctx.strokeStyle = lineColor;
 	            ctx.lineWidth = lineWidth;
@@ -11321,26 +8179,21 @@ window.Laya= (function (exports) {
 	    alpha(value) {
 	        this.globalAlpha *= value;
 	    }
-	    /**@internal */
-	    //TODO:coverage
 	    _transform(mat, pivotX, pivotY) {
 	        this.translate(pivotX, pivotY);
 	        this.transform(mat.a, mat.b, mat.c, mat.d, mat.tx, mat.ty);
 	        this.translate(-pivotX, -pivotY);
 	    }
-	    /**@internal */
 	    _rotate(angle, pivotX, pivotY) {
 	        this.translate(pivotX, pivotY);
 	        this.rotate(angle);
 	        this.translate(-pivotX, -pivotY);
 	    }
-	    /**@internal */
 	    _scale(scaleX, scaleY, pivotX, pivotY) {
 	        this.translate(pivotX, pivotY);
 	        this.scale(scaleX, scaleY);
 	        this.translate(-pivotX, -pivotY);
 	    }
-	    /**@internal */
 	    _drawLine(x, y, fromX, fromY, toX, toY, lineColor, lineWidth, vid) {
 	        this.beginPath();
 	        this.strokeStyle = lineColor;
@@ -11349,13 +8202,10 @@ window.Laya= (function (exports) {
 	        this.lineTo(x + toX, y + toY);
 	        this.stroke();
 	    }
-	    /**@internal */
 	    _drawLines(x, y, points, lineColor, lineWidth, vid) {
 	        this.beginPath();
-	        //x += args[0], y += args[1];
 	        this.strokeStyle = lineColor;
 	        this.lineWidth = lineWidth;
-	        //var points:Array = args[2];
 	        var n = points.length;
 	        this.addPath(points.slice(), false, false, x, y);
 	        this.stroke();
@@ -11364,8 +8214,6 @@ window.Laya= (function (exports) {
 	        this.beginPath();
 	        this.strokeStyle = lineColor;
 	        this.lineWidth = lineWidth;
-	        //var points:Array = args[2];
-	        //x += args[0], y += args[1];
 	        this.moveTo(x + points[0], y + points[1]);
 	        var i = 2, n = points.length;
 	        while (i < n) {
@@ -11374,58 +8222,39 @@ window.Laya= (function (exports) {
 	        this.stroke();
 	    }
 	    _fillAndStroke(fillColor, strokeColor, lineWidth, isConvexPolygon = false) {
-	        //绘制填充区域
 	        if (fillColor != null) {
 	            this.fillStyle = fillColor;
 	            this.fill();
 	        }
-	        //绘制边框
 	        if (strokeColor != null && lineWidth > 0) {
 	            this.strokeStyle = strokeColor;
 	            this.lineWidth = lineWidth;
 	            this.stroke();
 	        }
 	    }
-	    /**@internal */
 	    _drawCircle(x, y, radius, fillColor, lineColor, lineWidth, vid) {
 	        Stat.renderBatches++;
 	        this.beginPath(true);
 	        this.arc(x, y, radius, 0, Context.PI2);
 	        this.closePath();
-	        //绘制
 	        this._fillAndStroke(fillColor, lineColor, lineWidth);
 	    }
-	    //矢量方法	
-	    /**@internal */
 	    _drawPie(x, y, radius, startAngle, endAngle, fillColor, lineColor, lineWidth, vid) {
-	        //移动中心点
-	        //ctx.translate(x + args[0], y + args[1]);
-	        //形成路径
 	        this.beginPath();
 	        this.moveTo(x, y);
 	        this.arc(x, y, radius, startAngle, endAngle);
 	        this.closePath();
-	        //绘制
 	        this._fillAndStroke(fillColor, lineColor, lineWidth);
-	        //恢复中心点
-	        //ctx.translate(-x - args[0], -y - args[1]);
 	    }
-	    /**@internal */
 	    _drawPoly(x, y, points, fillColor, lineColor, lineWidth, isConvexPolygon, vid) {
-	        //var points:Array = args[2];
 	        var n = points.length;
 	        this.beginPath();
-	        //poly一定是close的
 	        this.addPath(points.slice(), true, isConvexPolygon, x, y);
 	        this.closePath();
 	        this._fillAndStroke(fillColor, lineColor, lineWidth, isConvexPolygon);
 	    }
-	    /**@internal */
 	    _drawPath(x, y, paths, brush, pen) {
-	        //形成路径
 	        this.beginPath();
-	        //x += args[0], y += args[1];
-	        //var paths:Array = args[2];
 	        for (var i = 0, n = paths.length; i < n; i++) {
 	            var path = paths[i];
 	            switch (path[0]) {
@@ -11443,12 +8272,10 @@ window.Laya= (function (exports) {
 	                    break;
 	            }
 	        }
-	        //var brush:Object = args[3];
 	        if (brush != null) {
 	            this.fillStyle = brush.fillStyle;
 	            this.fill();
 	        }
-	        //var pen:Object = args[4];
 	        if (pen != null) {
 	            this.strokeStyle = pen.strokeStyle;
 	            this.lineWidth = pen.lineWidth || 1;
@@ -11460,28 +8287,22 @@ window.Laya= (function (exports) {
 	    }
 	    static set2DRenderConfig() {
 	        var gl = LayaGL.instance;
-	        WebGLContext.setBlend(gl, true); //还原2D设置
+	        WebGLContext.setBlend(gl, true);
 	        WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 	        WebGLContext.setDepthTest(gl, false);
 	        WebGLContext.setCullFace(gl, false);
 	        WebGLContext.setDepthMask(gl, true);
 	        WebGLContext.setFrontFace(gl, gl.CCW);
-	        gl.viewport(0, 0, RenderState2D.width, RenderState2D.height); //还原2D视口
+	        gl.viewport(0, 0, RenderState2D.width, RenderState2D.height);
 	    }
 	    clearBG(r, g, b, a) {
 	        var gl = WebGLContext.mainContext;
 	        gl.clearColor(r, g, b, a);
 	        gl.clear(gl.COLOR_BUFFER_BIT);
 	    }
-	    //TODO:coverage
-	    /**@internal */
 	    _getSubmits() {
 	        return this._submits;
 	    }
-	    /**
-	     * 释放占用内存
-	     * @param	keepRT  是否保留rendertarget
-	     */
 	    _releaseMem(keepRT = false) {
 	        if (!this._submits)
 	            return;
@@ -11498,7 +8319,6 @@ window.Laya= (function (exports) {
 	        this._submits = null;
 	        this._curSubmit = null;
 	        this._path = null;
-	        //_other && (_other.font = null);
 	        this._save = null;
 	        var sz;
 	        for (i = 0, sz = this.meshlist.length; i < sz; i++) {
@@ -11511,48 +8331,37 @@ window.Laya= (function (exports) {
 	            this._targets && (this._targets.destroy());
 	            this._targets = null;
 	        }
-	        //TODO mesh 暂时releaseMem了
 	    }
-	    /**
-	     * 释放所有资源
-	     * @param	keepRT  是否保留rendertarget
-	     */
 	    destroy(keepRT = false) {
 	        --Context._contextcount;
 	        this.sprite = null;
 	        this._releaseMem(keepRT);
 	        this._charSubmitCache.destroy();
-	        //_ib && (_ib != IndexBuffer2D.QuadrangleIB) && _ib.releaseResource();
 	        this._mesh.destroy();
 	        if (!keepRT) {
-	            this._targets && this._targets.destroy(); //用回收么？可能没什么重复利用的价值
+	            this._targets && this._targets.destroy();
 	            this._targets = null;
 	        }
 	    }
 	    clear() {
-	        if (!this._submits) { //第一次
+	        if (!this._submits) {
 	            this._other = ContextParams.DEFAULT;
 	            this._curMat = Matrix.create();
 	            this._charSubmitCache = new CharSubmitCache();
-	            //_vb = _vbs[0] = VertexBuffer2D.create( -1);
 	            this._mesh = MeshQuadTexture.getAMesh(this.isMain);
 	            this.meshlist.push(this._mesh);
 	            this._pathMesh = MeshVG.getAMesh(this.isMain);
 	            this.meshlist.push(this._pathMesh);
 	            this._triangleMesh = MeshTexture.getAMesh(this.isMain);
 	            this.meshlist.push(this._triangleMesh);
-	            //if(Config.smartCache) _vbs[1] = VertexBuffer2D.create( -1);
 	            this._submits = [];
 	            this._save = [SaveMark.Create(this)];
 	            this._save.length = 10;
 	            this._shader2D = new Shader2D();
 	        }
 	        this._submitKey.clear();
-	        //_vb = _vbs[_renderCount%2];
-	        //_vb.clear();
 	        this._mesh.clearVB();
 	        this._renderCount++;
-	        //_targets && (_targets.repaint = true);
 	        this._drawCount = 1;
 	        this._other = ContextParams.DEFAULT;
 	        this._other.lineWidth = this._shader2D.ALPHA = 1.0;
@@ -11570,23 +8379,14 @@ window.Laya= (function (exports) {
 	        this._saveMark = this._save[0];
 	        this._save._length = 1;
 	    }
-	    /**
-	     * 设置ctx的size，这个不允许直接设置，必须是canvas调过来的。所以这个函数里也不用考虑canvas相关的东西
-	     * @param	w
-	     * @param	h
-	     */
 	    size(w, h) {
 	        if (this._width != w || this._height != h) {
 	            this._width = w;
 	            this._height = h;
-	            //TODO 问题：如果是rendertarget 计算内存会有问题，即canvas算一次，rt又算一次,所以这里要修改
-	            //这种情况下canvas应该不占内存
 	            if (this._targets) {
 	                this._targets.destroy();
 	                this._targets = new RenderTexture2D(w, h, BaseTexture.FORMAT_R8G8B8A8, -1);
 	            }
-	            //如果是主画布，要记录窗口大小
-	            //如果不是 TODO
 	            if (this.isMain) {
 	                WebGLContext.mainContext.viewport(0, 0, w, h);
 	                RenderState2D.width = w;
@@ -11596,16 +8396,8 @@ window.Laya= (function (exports) {
 	        if (w === 0 && h === 0)
 	            this._releaseMem();
 	    }
-	    /**
-	     * 当前canvas请求保存渲染结果。
-	     * 实现：
-	     * 如果value==true，就要给_target赋值
-	     * @param value {Boolean}
-	     */
 	    set asBitmap(value) {
 	        if (value) {
-	            //缺省的RGB没有a，不合理把。况且没必要自定义一个常量。
-	            //深度格式为-1表示不用深度缓存。
 	            this._targets || (this._targets = new RenderTexture2D(this._width, this._height, BaseTexture.FORMAT_R8G8B8A8, -1));
 	            if (!this._width || !this._height)
 	                throw Error("asBitmap no size!");
@@ -11615,11 +8407,6 @@ window.Laya= (function (exports) {
 	            this._targets = null;
 	        }
 	    }
-	    /**
-	     * 获得当前矩阵的缩放值
-	     * 避免每次都计算getScaleX
-	     * @return
-	     */
 	    getMatScaleX() {
 	        if (this._lastMat_a == this._curMat.a && this._lastMat_b == this._curMat.b)
 	            return this._lastMatScaleX;
@@ -11636,7 +8423,6 @@ window.Laya= (function (exports) {
 	        this._lastMat_d = this._curMat.d;
 	        return this._lastMatScaleY;
 	    }
-	    //TODO
 	    setFillColor(color) {
 	        this._fillColor = color;
 	    }
@@ -11677,7 +8463,7 @@ window.Laya= (function (exports) {
 	    }
 	    set globalCompositeOperation(value) {
 	        var n = BlendMode.TOINT[value];
-	        n == null || (this._nBlendType === n) || (SaveBase.save(this, SaveBase.TYPE_GLOBALCOMPOSITEOPERATION, this, true), this._curSubmit = SubmitBase.RENDERBASE, this._nBlendType = n /*, _shader2D.ALPHA = 1*/);
+	        n == null || (this._nBlendType === n) || (SaveBase.save(this, SaveBase.TYPE_GLOBALCOMPOSITEOPERATION, this, true), this._curSubmit = SubmitBase.RENDERBASE, this._nBlendType = n);
 	    }
 	    get globalCompositeOperation() {
 	        return BlendMode.NAMES[this._nBlendType];
@@ -11693,10 +8479,6 @@ window.Laya= (function (exports) {
 	            SaveTranslate.save(this);
 	            if (this._curMat._bTransform) {
 	                SaveTransform.save(this);
-	                //_curMat.transformPointN(Point.TEMP.setTo(x, y));
-	                //x = Point.TEMP.x;
-	                //y = Point.TEMP.y;
-	                //translate的话，相当于在当前坐标系下移动x,y，所以直接修改_curMat,然后x,y就消失了。
 	                this._curMat.tx += (x * this._curMat.a + y * this._curMat.c);
 	                this._curMat.ty += (x * this._curMat.b + y * this._curMat.d);
 	            }
@@ -11729,93 +8511,38 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	        if (lastBlend != this._nBlendType) {
-	            //阻止合并
 	            this._curSubmit = SubmitBase.RENDERBASE;
 	        }
 	    }
 	    set font(str) {
-	        //if (str == _other.font.toString())
-	        //	return;
 	        this._other = this._other.make();
 	        SaveBase.save(this, SaveBase.TYPE_FONT, this._other, false);
-	        //_other.font === FontInContext.EMPTY ? (_other.font = new FontInContext(str)) : (_other.font.setFont(str));
 	    }
-	    //TODO:coverage
 	    fillText(txt, x, y, fontStr, color, align) {
 	        this._fillText(txt, null, x, y, fontStr, color, null, 0, null);
 	    }
-	    /**
-	     *
-	     * @param	txt
-	     * @param	words		HTMLChar 数组，是已经在外面排好版的一个数组
-	     * @param	x
-	     * @param	y
-	     * @param	fontStr
-	     * @param	color
-	     * @param	strokeColor
-	     * @param	lineWidth
-	     * @param	textAlign
-	     * @param	underLine
-	     */
 	    _fillText(txt, words, x, y, fontStr, color, strokeColor, lineWidth, textAlign, underLine = 0) {
-	        /*
-	        if (!window.testft) {
-	            //测试文字
-	            var teststr = 'a丠両丢丣两严並丧丨丩个丫丬中丮丯';
-	            _charBook.filltext(this, teststr, 0, 0, 'normal 100 66px 华文行楷', '#ff0000');
-	            window.testft = true;
-	        }
-	        */
 	        if (txt)
 	            Context._textRender.filltext(this, txt, x, y, fontStr, color, strokeColor, lineWidth, textAlign, underLine);
 	        else if (words)
 	            Context._textRender.fillWords(this, words, x, y, fontStr, color, strokeColor, lineWidth);
 	    }
-	    /**@internal */
 	    _fast_filltext(data, x, y, fontObj, color, strokeColor, lineWidth, textAlign, underLine = 0) {
 	        Context._textRender._fast_filltext(this, data, null, x, y, fontObj, color, strokeColor, lineWidth, textAlign, underLine);
 	    }
-	    //TODO:coverage
 	    fillWords(words, x, y, fontStr, color) {
 	        this._fillText(null, words, x, y, fontStr, color, null, -1, null, 0);
 	    }
-	    //TODO:coverage
 	    fillBorderWords(words, x, y, font, color, borderColor, lineWidth) {
 	        this._fillBorderText(null, words, x, y, font, color, borderColor, lineWidth, null);
 	    }
 	    drawText(text, x, y, font, color, textAlign) {
 	        this._fillText(text, null, x, y, font, ColorUtils.create(color).strColor, null, -1, textAlign);
 	    }
-	    //public function fillText(txt:*, x:Number, y:Number, fontStr:String, color:String, textAlign:String):void {
-	    //_fillText(txt, null, x, y, fontStr, color, null, -1, textAlign);
-	    //}
-	    /**
-	     * 只画边框
-	     * @param	text
-	     * @param	x
-	     * @param	y
-	     * @param	font
-	     * @param	color
-	     * @param	lineWidth
-	     * @param	textAlign
-	     */
 	    strokeWord(text, x, y, font, color, lineWidth, textAlign) {
-	        //webgl绘制不了，需要解决
 	        this._fillText(text, null, x, y, font, null, ColorUtils.create(color).strColor, lineWidth || 1, textAlign);
 	    }
-	    /**
-	     * 即画文字又画边框
-	     * @param	txt
-	     * @param	x
-	     * @param	y
-	     * @param	fontStr
-	     * @param	fillColor
-	     * @param	borderColor
-	     * @param	lineWidth
-	     * @param	textAlign
-	     */
 	    fillBorderText(txt, x, y, fontStr, fillColor, borderColor, lineWidth, textAlign) {
-	        //webgl绘制不了，需要解决
 	        this._fillBorderText(txt, null, x, y, fontStr, ColorUtils.create(fillColor).strColor, ColorUtils.create(borderColor).strColor, lineWidth, textAlign);
 	    }
 	    _fillBorderText(txt, words, x, y, fontStr, fillColor, borderColor, lineWidth, textAlign) {
@@ -11825,23 +8552,19 @@ window.Laya= (function (exports) {
 	        var submit = this._curSubmit;
 	        var sameKey = submit && (submit._key.submitType === SubmitBase.KEY_DRAWTEXTURE && submit._key.blendShader === this._nBlendType);
 	        if (this._mesh.vertNum + 4 > Context._MAXVERTNUM) {
-	            this._mesh = MeshQuadTexture.getAMesh(this.isMain); //创建新的mesh  TODO 如果_mesh不是常见格式，这里就不能这么做了。以后把_mesh单独表示成常用模式 
+	            this._mesh = MeshQuadTexture.getAMesh(this.isMain);
 	            this.meshlist.push(this._mesh);
 	            sameKey = false;
 	        }
-	        //clipinfo
 	        sameKey && (sameKey = sameKey && this.isSameClipInfo(submit));
 	        this.transformQuad(x, y, width, height, 0, this._curMat, this._transedPoints);
 	        if (!this.clipedOff(this._transedPoints)) {
 	            this._mesh.addQuad(this._transedPoints, Texture.NO_UV, rgba, false);
-	            //if (GlUtils.fillRectImgVb(_mesh._vb, _clipRect, x, y, width, height, Texture.DEF_UV, _curMat, rgba,this)){
 	            if (!sameKey) {
 	                submit = this._curSubmit = SubmitTexture.create(this, this._mesh, Value2D.create(ShaderDefines2D.TEXTURE2D, 0));
 	                this._submits[this._submits._length++] = submit;
 	                this._copyClipInfo(submit, this._globalClipMatrix);
 	                submit.shaderValue.textureHost = this._lastTex;
-	                //这里有一个问题。例如 clip1, drawTex(tex1), clip2, fillRect, drawTex(tex2)	会被分成3个submit，
-	                //submit._key.copyFrom2(_submitKey, SubmitBase.KEY_DRAWTEXTURE, (_lastTex && _lastTex.bitmap)?_lastTex.bitmap.id: -1);
 	                submit._key.other = (this._lastTex && this._lastTex.bitmap) ? this._lastTex.bitmap.id : -1;
 	                submit._renderType = SubmitBase.TYPE_TEXTURE;
 	            }
@@ -11852,36 +8575,22 @@ window.Laya= (function (exports) {
 	    }
 	    fillRect(x, y, width, height, fillStyle) {
 	        var drawstyle = fillStyle ? DrawStyle.create(fillStyle) : this._shader2D.fillStyle;
-	        //var rgb = drawstyle.toInt() ;
-	        //由于显卡的格式是 rgba，所以需要处理一下
-	        //var rgba:uint = ((rgb & 0xff0000) >> 16) | (rgb & 0x00ff00) | ((rgb & 0xff) << 16) | (_shader2D.ALPHA * 255) << 24;
 	        var rgba = this.mixRGBandAlpha(drawstyle.toInt());
 	        this._fillRect(x, y, width, height, rgba);
 	    }
-	    //TODO:coverage
 	    fillTexture(texture, x, y, width, height, type, offset, other) {
-	        //test
-	        /*
-	        var aa = 95 / 274, bb = 136 / 341, cc = (95 + 41) / 274, dd = (136 + 48) / 341;
-	        texture.uv = [aa,bb, cc,bb, cc,dd, aa,dd];
-	        texture.width = 41;
-	        texture.height = 48;
-	        */
-	        //test
 	        if (!texture._getSource()) {
 	            this.sprite && ILaya.systemTimer.callLater(this, this._repaintSprite);
 	            return;
 	        }
 	        this._fillTexture(texture, texture.width, texture.height, texture.uvrect, x, y, width, height, type, offset.x, offset.y);
 	    }
-	    /**@internal */
 	    _fillTexture(texture, texw, texh, texuvRect, x, y, width, height, type, offsetx, offsety) {
 	        var submit = this._curSubmit;
 	        if (this._mesh.vertNum + 4 > Context._MAXVERTNUM) {
 	            this._mesh = MeshQuadTexture.getAMesh(this.isMain);
 	            this.meshlist.push(this._mesh);
 	        }
-	        //filltexture相关逻辑。计算rect大小以及对应的uv
 	        var repeatx = true;
 	        var repeaty = true;
 	        switch (type) {
@@ -11897,38 +8606,35 @@ window.Laya= (function (exports) {
 	                break;
 	            default: break;
 	        }
-	        //用 _temp4Points 来存计算出来的顶点的uv。这里的uv用0到1表示纹理的uv区域。这样便于计算，直到shader中才真的转成了实际uv
 	        var uv = this._temp4Points;
-	        var stu = 0; //uv起点
+	        var stu = 0;
 	        var stv = 0;
 	        var stx = 0, sty = 0, edx = 0, edy = 0;
 	        if (offsetx < 0) {
 	            stx = x;
-	            stu = (-offsetx % texw) / texw; //有偏移的情况下的u不是从头开始
+	            stu = (-offsetx % texw) / texw;
 	        }
 	        else {
 	            stx = x + offsetx;
 	        }
 	        if (offsety < 0) {
 	            sty = y;
-	            stv = (-offsety % texh) / texh; //有偏移的情况下的v不是从头开始
+	            stv = (-offsety % texh) / texh;
 	        }
 	        else {
 	            sty = y + offsety;
 	        }
 	        edx = x + width;
 	        edy = y + height;
-	        (!repeatx) && (edx = Math.min(edx, x + offsetx + texw)); //x不重复的话，最多只画一个
-	        (!repeaty) && (edy = Math.min(edy, y + offsety + texh)); //y不重复的话，最多只画一个
+	        (!repeatx) && (edx = Math.min(edx, x + offsetx + texw));
+	        (!repeaty) && (edy = Math.min(edy, y + offsety + texh));
 	        if (edx < x || edy < y)
 	            return;
 	        if (stx > edx || sty > edy)
 	            return;
-	        //计算最大uv
 	        var edu = (edx - x - offsetx) / texw;
 	        var edv = (edy - y - offsety) / texh;
 	        this.transformQuad(stx, sty, edx - stx, edy - sty, 0, this._curMat, this._transedPoints);
-	        //四个点对应的uv。必须在transformQuad后面，因为共用了_temp4Points
 	        uv[0] = stu;
 	        uv[1] = stv;
 	        uv[2] = edu;
@@ -11938,16 +8644,9 @@ window.Laya= (function (exports) {
 	        uv[6] = stu;
 	        uv[7] = edv;
 	        if (!this.clipedOff(this._transedPoints)) {
-	            //不依赖于wrapmode了，都走filltexture流程，自己修改纹理坐标
-	            //tex2d.wrapModeU = BaseTexture.WARPMODE_REPEAT;	//这里会有重复判断
-	            //tex2d.wrapModeV = BaseTexture.WARPMODE_REPEAT;
-	            //var rgba:int = mixRGBandAlpha(0xffffffff);
-	            //rgba = _mixRGBandAlpha(rgba, alpha);	这个函数有问题，不能连续调用，输出作为输入
 	            var rgba = this._mixRGBandAlpha(0xffffffff, this._shader2D.ALPHA);
 	            this._mesh.addQuad(this._transedPoints, uv, rgba, true);
 	            var sv = Value2D.create(ShaderDefines2D.TEXTURE2D, 0);
-	            //这个优化先不要了，因为没太弄明白wrapmode的设置，总是不起作用。
-	            //if(texture.uvrect[2]<1.0||texture.uvrect[3]<1.0)//这表示是大图集中的一部分，只有这时候才用特殊shader
 	            sv.defines.add(ShaderDefines2D.FILLTEXTURE);
 	            sv.u_TexRange = texuvRect;
 	            submit = this._curSubmit = SubmitTexture.create(this, this._mesh, sv);
@@ -11959,114 +8658,54 @@ window.Laya= (function (exports) {
 	            this._mesh.indexNum += 6;
 	            this._mesh.vertNum += 4;
 	        }
-	        this.breakNextMerge(); //暂不合并
+	        this.breakNextMerge();
 	    }
-	    /**
-	     * 反正只支持一种filter，就不要叫setFilter了，直接叫setColorFilter
-	     * @param	value
-	     */
 	    setColorFilter(filter) {
 	        SaveBase.save(this, SaveBase.TYPE_COLORFILTER, this, true);
-	        //_shader2D.filters = value;
 	        this._colorFiler = filter;
 	        this._curSubmit = SubmitBase.RENDERBASE;
-	        //_reCalculateBlendShader();
 	    }
 	    drawTexture(tex, x, y, width, height) {
 	        this._drawTextureM(tex, x, y, width, height, null, 1, null);
 	    }
 	    drawTextures(tex, pos, tx, ty) {
-	        if (!tex._getSource()) //source内调用tex.active();
-	         {
+	        if (!tex._getSource()) {
 	            this.sprite && ILaya.systemTimer.callLater(this, this._repaintSprite);
 	            return;
 	        }
-	        //TODO 还没实现
 	        var n = pos.length / 2;
 	        var ipos = 0;
 	        var bmpid = tex.bitmap.id;
 	        for (var i = 0; i < n; i++) {
 	            this._inner_drawTexture(tex, bmpid, pos[ipos++] + tx, pos[ipos++] + ty, 0, 0, null, null, 1.0, false);
 	        }
-	        /*
-	        var pre:Rectangle = _clipRect;
-	        _clipRect = MAXCLIPRECT;
-	        if (!_drawTextureM(tex, pos[0], pos[1], tex.width, tex.height,null, 1)) {
-	            throw "drawTextures err";
-	            return;
-	        }
-	        _clipRect = pre;
-	        
-	        Stat.drawCall++;//= pos.length / 2;
-	        
-	        if (pos.length < 4)
-	            return;
-	        
-	        var finalVB:VertexBuffer2D = _curSubmit._vb || _vb;
-	        var sx:Number = _curMat.a, sy:Number = _curMat.d;
-	        var vpos:int = finalVB._byteLength >> 2;// + Context._RECTVBSIZE;
-	        finalVB.byteLength = finalVB._byteLength + (pos.length / 2 - 1) * Context._RECTVBSIZEBYTE;
-	        var vbdata:Float32Array = finalVB.getFloat32Array();
-	        for (var i:int = 2, sz:int = pos.length; i < sz; i += 2) {
-	            GlUtils.copyPreImgVb(finalVB,vpos, (pos[i] - pos[i - 2]) * sx, (pos[i + 1] - pos[i - 1]) * sy,vbdata);
-	            _curSubmit._numEle += 6;
-	            vpos += Context._RECTVBSIZE;
-	        }
-	        */
 	    }
-	    /**
-	     * 为drawTexture添加一个新的submit。类型是 SubmitTexture
-	     * @param	vbSize
-	     * @param	alpha
-	     * @param	webGLImg
-	     * @param	tex
-	     */
-	    //TODO:coverage
 	    _drawTextureAddSubmit(imgid, tex) {
-	        //var alphaBack:Number = shader.ALPHA;
-	        //shader.ALPHA *= alpha;
 	        var submit = null;
 	        submit = SubmitTexture.create(this, this._mesh, Value2D.create(ShaderDefines2D.TEXTURE2D, 0));
 	        this._submits[this._submits._length++] = submit;
 	        submit.shaderValue.textureHost = tex;
-	        //submit._key.copyFrom2(_submitKey, SubmitBase.KEY_DRAWTEXTURE, imgid);
 	        submit._key.other = imgid;
-	        //submit._key.alpha = shader.ALPHA;
 	        submit._renderType = SubmitBase.TYPE_TEXTURE;
 	        this._curSubmit = submit;
-	        //shader.ALPHA = alphaBack;
 	    }
-	    /**@internal */
 	    _drawTextureM(tex, x, y, width, height, m, alpha, uv) {
-	        // 注意sprite要保存，因为后面会被冲掉
 	        var cs = this.sprite;
 	        if (!tex._getSource(function () {
 	            if (cs) {
-	                cs.repaint(); // 原来是calllater，callater对于cacheas normal是没有机会执行的
+	                cs.repaint();
 	            }
-	        })) { //source内调用tex.active();
+	        })) {
 	            return false;
 	        }
 	        return this._inner_drawTexture(tex, tex.bitmap.id, x, y, width, height, m, uv, alpha, false);
 	    }
-	    /**@internal */
 	    _drawRenderTexture(tex, x, y, width, height, m, alpha, uv) {
 	        return this._inner_drawTexture(tex, -1, x, y, width, height, m, uv, 1.0, false);
 	    }
-	    //TODO:coverage
 	    submitDebugger() {
 	        this._submits[this._submits._length++] = SubmitCMD.create([], function () { debugger; }, this);
 	    }
-	    /*
-	    private function copyClipInfo(submit:Submit, clipInfo:Array):void {
-	        var cd:Array = submit.shaderValue.clipDir;
-	        cd[0] = clipInfo[2]; cd[1] = clipInfo[3]; cd[2] = clipInfo[4]; cd[3] = clipInfo[5];
-	        var cp:Array = submit.shaderValue.clipRect;
-	        cp[0] = clipInfo[0]; cp[1] = clipInfo[1];
-	        submit.clipInfoID = this._clipInfoID;
-	    }
-	    */
-	    /**@internal */
 	    _copyClipInfo(submit, clipInfo) {
 	        var cm = submit.shaderValue.clipMatDir;
 	        cm[0] = clipInfo.a;
@@ -12083,40 +8722,19 @@ window.Laya= (function (exports) {
 	    }
 	    isSameClipInfo(submit) {
 	        return (submit.clipInfoID === this._clipInfoID);
-	        /*
-	        var cd:Array = submit.shaderValue.clipDir;
-	        var cp:Array = submit.shaderValue.clipRect;
-	        
-	        if (clipInfo[0] != cp[0] || clipInfo[1] != cp[1] || clipInfo[2] != cd[0] || clipInfo[3] != cd[1] || clipInfo[4] != cd[2] || clipInfo[5] != cd[3] )
-	            return false;
-	        return true;
-	        */
 	    }
-	    /**
-	     * @internal
-	     * 这个还是会检查是否合并
-	     * @param	tex
-	     * @param	minVertNum
-	     */
 	    _useNewTex2DSubmit(tex, minVertNum) {
-	        //var sameKey:Boolean = tex.bitmap.id >= 0 && preKey.submitType === SubmitBase.KEY_DRAWTEXTURE && preKey.other === tex.bitmap.id ;
 	        if (this._mesh.vertNum + minVertNum > Context._MAXVERTNUM) {
-	            this._mesh = MeshQuadTexture.getAMesh(this.isMain); //创建新的mesh  TODO 如果_mesh不是常见格式，这里就不能这么做了。以后把_mesh单独表示成常用模式 
+	            this._mesh = MeshQuadTexture.getAMesh(this.isMain);
 	            this.meshlist.push(this._mesh);
-	            //sameKey = false;
 	        }
 	        var submit = SubmitTexture.create(this, this._mesh, Value2D.create(ShaderDefines2D.TEXTURE2D, 0));
 	        this._submits[this._submits._length++] = this._curSubmit = submit;
 	        submit.shaderValue.textureHost = tex;
 	        this._copyClipInfo(submit, this._globalClipMatrix);
 	    }
-	    /**
-	     * @internal
-	     * 使用上面的设置（texture，submit，alpha，clip），画一个rect
-	     */
 	    _drawTexRect(x, y, w, h, uv) {
 	        this.transformQuad(x, y, w, h, this._italicDeg, this._curMat, this._transedPoints);
-	        //这个是给文字用的，为了清晰，必须要按照屏幕像素对齐，并且四舍五入。
 	        var ops = this._transedPoints;
 	        ops[0] = (ops[0] + 0.5) | 0;
 	        ops[1] = (ops[1] + 0.5) | 0;
@@ -12137,24 +8755,9 @@ window.Laya= (function (exports) {
 	        this._charSubmitCache.enable(enbale, this);
 	        return enbale;
 	    }
-	    /**
-	     * @internal
-	     * @param	tex {Texture | RenderTexture }
-	     * @param  imgid 图片id用来比较合并的
-	     * @param	x
-	     * @param	y
-	     * @param	width
-	     * @param	height
-	     * @param	m
-	     * @param	alpha
-	     * @param	uv
-	     * @return
-	     */
 	    _inner_drawTexture(tex, imgid, x, y, width, height, m, uv, alpha, lastRender) {
 	        var preKey = this._curSubmit._key;
 	        uv = uv || tex._uv;
-	        //为了优化，如果上次是画三角形，并且贴图相同，会认为他们是一组的，把这个也转成三角形，以便合并。
-	        //因为好多动画是drawTexture和drawTriangle混用的
 	        if (preKey.submitType === SubmitBase.KEY_TRIANGLES && preKey.other === imgid) {
 	            var tv = this._drawTexToDrawTri_Vert;
 	            tv[0] = x;
@@ -12170,18 +8773,17 @@ window.Laya= (function (exports) {
 	            tuv[5] = uv[5];
 	            tuv[6] = uv[6];
 	            tuv[7] = uv[7];
-	            this.drawTriangles(tex, 0, 0, tv, tuv, this._drawTexToDrawTri_Index, m, alpha, null, null); //用tuv而不是uv会提高效率
+	            this.drawTriangles(tex, 0, 0, tv, tuv, this._drawTexToDrawTri_Index, m, alpha, null, null);
 	            this._drawTriUseAbsMatrix = false;
 	            return true;
 	        }
 	        var mesh = this._mesh;
 	        var submit = this._curSubmit;
 	        var ops = lastRender ? this._charSubmitCache.getPos() : this._transedPoints;
-	        //凡是这个都是在_mesh上操作，不用考虑samekey
 	        this.transformQuad(x, y, width || tex.width, height || tex.height, this._italicDeg, m || this._curMat, ops);
 	        if (this.drawTexAlign) {
 	            var round = Math.round;
-	            ops[0] = round(ops[0]); //  (ops[0] + 0.5) | 0;	// 这么计算负的时候会有问题
+	            ops[0] = round(ops[0]);
 	            ops[1] = round(ops[1]);
 	            ops[2] = round(ops[2]);
 	            ops[3] = round(ops[3]);
@@ -12189,23 +8791,21 @@ window.Laya= (function (exports) {
 	            ops[5] = round(ops[5]);
 	            ops[6] = round(ops[6]);
 	            ops[7] = round(ops[7]);
-	            this.drawTexAlign = false; //一次性的
+	            this.drawTexAlign = false;
 	        }
 	        var rgba = this._mixRGBandAlpha(0xffffffff, this._shader2D.ALPHA * alpha);
-	        //lastRender = false;
 	        if (lastRender) {
 	            this._charSubmitCache.add(this, tex, imgid, ops, uv, rgba);
 	            return true;
 	        }
 	        this._drawCount++;
 	        var sameKey = imgid >= 0 && preKey.submitType === SubmitBase.KEY_DRAWTEXTURE && preKey.other === imgid;
-	        //clipinfo
 	        sameKey && (sameKey = sameKey && this.isSameClipInfo(submit));
 	        this._lastTex = tex;
 	        if (mesh.vertNum + 4 > Context._MAXVERTNUM) {
-	            mesh = this._mesh = MeshQuadTexture.getAMesh(this.isMain); //创建新的mesh  TODO 如果_mesh不是常见格式，这里就不能这么做了。以后把_mesh单独表示成常用模式 
+	            mesh = this._mesh = MeshQuadTexture.getAMesh(this.isMain);
 	            this.meshlist.push(mesh);
-	            sameKey = false; //新的mesh不能算samekey了
+	            sameKey = false;
 	        }
 	        {
 	            mesh.addQuad(ops, uv, rgba, true);
@@ -12222,24 +8822,7 @@ window.Laya= (function (exports) {
 	        }
 	        return false;
 	    }
-	    /**
-	     * 转换4个顶点。为了效率这个不做任何检查。需要调用者的配合。
-	     * @param	a		输入。8个元素表示4个点
-	     * @param	out		输出
-	     */
 	    transform4Points(a, m, out) {
-	        /*
-	            out[0] = 846;
-	            out[1] = 656;
-	            out[2] = 881;
-	            out[3] = 657;
-	            out[4] = 880;
-	            out[5] = 732;
-	            out[6] = 844;
-	            out[7] = 731;
-	            return ;
-	        */
-	        //var m:Matrix = _curMat;
 	        var tx = m.tx;
 	        var ty = m.ty;
 	        var ma = m.a;
@@ -12275,33 +8858,12 @@ window.Laya= (function (exports) {
 	            out[7] = a7 + ty;
 	        }
 	    }
-	    /**
-	     * pt所描述的多边形完全在clip外边，整个被裁掉了
-	     * @param	pt
-	     * @return
-	     */
 	    clipedOff(pt) {
-	        //TODO
 	        if (this._clipRect.width <= 0 || this._clipRect.height <= 0)
 	            return true;
 	        return false;
 	    }
-	    /**
-	     * 应用当前矩阵。把转换后的位置放到输出数组中。
-	     * @param	x
-	     * @param	y
-	     * @param	w
-	     * @param	h
-	     * @param   italicDeg 倾斜角度，单位是度。0度无，目前是下面不动。以后要做成可调的
-	     */
 	    transformQuad(x, y, w, h, italicDeg, m, out) {
-	        /*
-	        out[0] = 100.1; out[1] = 100.1;
-	        out[2] = 101.1; out[3] = 100.1;
-	        out[4] = 101.1; out[5] = 101.1;
-	        out[6] = 100.1; out[7] = 101.1;
-	        return;
-	        */
 	        var xoff = 0;
 	        if (italicDeg != 0) {
 	            xoff = Math.tan(italicDeg * Math.PI / 180) * h;
@@ -12350,9 +8912,7 @@ window.Laya= (function (exports) {
 	        this.addRenderObject(SubmitCMD.create(null, RenderTexture2D.popRT, this));
 	        this.breakNextMerge();
 	    }
-	    //TODO:coverage
 	    useRT(rt) {
-	        //这里并没有做cliprect的保存恢复。因为认为调用这个函数的话，就是完全不走context流程了，完全自己控制。
 	        function _use(rt) {
 	            if (!rt) {
 	                throw 'error useRT';
@@ -12365,11 +8925,6 @@ window.Laya= (function (exports) {
 	        this.addRenderObject(SubmitCMD.create([rt], _use, this));
 	        this.breakNextMerge();
 	    }
-	    /**
-	     * 异步执行rt的restore函数
-	     * @param	rt
-	     */
-	    //TODO:coverage
 	    RTRestore(rt) {
 	        function _restore(rt) {
 	            rt.restore();
@@ -12377,29 +8932,12 @@ window.Laya= (function (exports) {
 	        this.addRenderObject(SubmitCMD.create([rt], _restore, this));
 	        this.breakNextMerge();
 	    }
-	    /**
-	     * 强制拒绝submit合并
-	     * 例如切换rt的时候
-	     */
 	    breakNextMerge() {
 	        this._curSubmit = SubmitBase.RENDERBASE;
 	    }
-	    //TODO:coverage
 	    _repaintSprite() {
 	        this.sprite && this.sprite.repaint();
 	    }
-	    /**
-	     *
-	     * @param	tex
-	     * @param	x
-	     * @param	y
-	     * @param	width
-	     * @param	height
-	     * @param	transform	图片本身希望的矩阵
-	     * @param	tx			节点的位置
-	     * @param	ty
-	     * @param	alpha
-	     */
 	    drawTextureWithTransform(tex, x, y, width, height, transform, tx, ty, alpha, blendMode, colorfilter = null, uv) {
 	        var oldcomp = null;
 	        var curMat = this._curMat;
@@ -12422,7 +8960,6 @@ window.Laya= (function (exports) {
 	            return;
 	        }
 	        var tmpMat = this._tmpMatrix;
-	        //克隆transform,因为要应用tx，ty，这里不能修改原始的transform
 	        tmpMat.a = transform.a;
 	        tmpMat.b = transform.b;
 	        tmpMat.c = transform.c;
@@ -12431,13 +8968,11 @@ window.Laya= (function (exports) {
 	        tmpMat.ty = transform.ty + ty;
 	        tmpMat._bTransform = transform._bTransform;
 	        if (transform && curMat._bTransform) {
-	            // 如果当前矩阵不是只有平移，则只能用mul的方式
 	            Matrix.mul(tmpMat, curMat, tmpMat);
 	            transform = tmpMat;
 	            transform._bTransform = true;
 	        }
 	        else {
-	            //如果curmat没有旋转。
 	            tmpMat.tx += curMat.tx;
 	            tmpMat.ty += curMat.ty;
 	            transform = tmpMat;
@@ -12450,15 +8985,7 @@ window.Laya= (function (exports) {
 	            this.setColorFilter(oldColorFilter);
 	        }
 	    }
-	    /**
-	     * * 把ctx中的submits提交。结果渲染到target上
-	     * @param	ctx
-	     * @param	target
-	     */
 	    _flushToTarget(context, target) {
-	        //if (target._destroy) return;
-	        //var preworldClipRect:Rectangle = RenderState2D.worldClipRect;
-	        //裁剪不用考虑，现在是在context内部自己维护，不会乱窜
 	        RenderState2D.worldScissorTest = false;
 	        var gl = LayaGL.instance;
 	        gl.disable(gl.SCISSOR_TEST);
@@ -12469,13 +8996,8 @@ window.Laya= (function (exports) {
 	        RenderState2D.restoreTempArray();
 	        RenderState2D.worldMatrix4 = RenderState2D.TEMPMAT4_ARRAY;
 	        RenderState2D.worldAlpha = 1;
-	        //RenderState2D.worldFilters = null;
-	        //RenderState2D.worldShaderDefines = null;
 	        BaseShader.activeShader = null;
 	        target.start();
-	        // 如果没有命令就不要clear。这么改是因为嵌套cacheas出问题了
-	        // 如果一个sprite cacheas normal ，他的子节点有cacheas bitmap的（包括mask等）就会不断的执行 _flushToTarget和drawCamvase,从而把target上的内容清掉
-	        // 由于cacheas normal 导致 RenderSprite没有机会执行 _cacheStyle.canvas 存在的分支。在
 	        if (context._submits._length > 0)
 	            target.clear(0, 0, 0, 0);
 	        context._curSubmit = SubmitBase.RENDERBASE;
@@ -12483,13 +9005,10 @@ window.Laya= (function (exports) {
 	        context.clear();
 	        target.restore();
 	        context._curSubmit = SubmitBase.RENDERBASE;
-	        //context._canvas
 	        BaseShader.activeShader = null;
 	        RenderState2D.worldAlpha = preAlpha;
 	        RenderState2D.worldMatrix4 = preMatrix4;
 	        RenderState2D.worldMatrix = preMatrix;
-	        //RenderState2D.worldFilters = preFilters;
-	        //RenderState2D.worldShaderDefines = preShaderDefines;
 	    }
 	    drawCanvas(canvas, x, y, width, height) {
 	        if (!canvas)
@@ -12497,29 +9016,12 @@ window.Laya= (function (exports) {
 	        var src = canvas.context;
 	        var submit;
 	        if (src._targets) {
-	            //生成渲染结果到src._targets上
-	            /*
-	            this._submits[this._submits._length++] = SubmitCanvas.create(src, 0, null);
-	            _curSubmit = SubmitBase.RENDERBASE;
-	            //画出src._targets
-	            //drawTexture(src._targets.target.getTexture(), x, y, width, height, 0, 0);
-	            */
-	            //应用并清空canvas中的指令。如果内容需要重画，RenderSprite会给他重新加入submit
 	            if (src._submits._length > 0) {
 	                submit = SubmitCMD.create([src, src._targets], this._flushToTarget, this);
 	                this._submits[this._submits._length++] = submit;
 	            }
-	            //在这之前就已经渲染出结果了。
 	            this._drawRenderTexture(src._targets, x, y, width, height, null, 1.0, RenderTexture2D.flipyuv);
 	            this._curSubmit = SubmitBase.RENDERBASE;
-	            /*
-	            this._submits[this._submits._length++] = SubmitCanvas.create(src, 0, null);
-	            //src._targets.flush(src);
-	            _curSubmit = SubmitBase.RENDERBASE;
-	            //src._targets.drawTo(this, x, y, width, height);
-	            //drawTexture(src._targets.target.getTexture(), x, y, width, height, 0, 0);
-	            _drawRenderTexture(src._targets, x, y, width, height,null,1.0, RenderTexture.flipyuv);
-	            */
 	        }
 	        else {
 	            var canv = canvas;
@@ -12529,16 +9031,12 @@ window.Laya= (function (exports) {
 	            submit = SubmitCanvas.create(canvas, this._shader2D.ALPHA, this._shader2D.filters);
 	            this._submits[this._submits._length++] = submit;
 	            submit._key.clear();
-	            //var sx:Number = width / canvas.width;
-	            //var sy:Number = height / canvas.height;
 	            var mat = submit._matrix;
 	            this._curMat.copyTo(mat);
-	            //sx != 1 && sy != 1 && mat.scale(sx, sy);
-	            // 先加上位置，最后再乘逆
 	            var tx = mat.tx, ty = mat.ty;
 	            mat.tx = mat.ty = 0;
-	            mat.transformPoint(Point.TEMP.setTo(x, y)); // 用当前矩阵变换 (x,y)
-	            mat.translate(Point.TEMP.x + tx, Point.TEMP.y + ty); // 加上原来的 (tx,ty)
+	            mat.transformPoint(Point.TEMP.setTo(x, y));
+	            mat.translate(Point.TEMP.x + tx, Point.TEMP.y + ty);
 	            Matrix.mul(canv.invMat, mat, mat);
 	            this._curSubmit = SubmitBase.RENDERBASE;
 	        }
@@ -12546,14 +9044,12 @@ window.Laya= (function (exports) {
 	    drawTarget(rt, x, y, width, height, m, shaderValue, uv = null, blend = -1) {
 	        this._drawCount++;
 	        if (this._mesh.vertNum + 4 > Context._MAXVERTNUM) {
-	            this._mesh = MeshQuadTexture.getAMesh(this.isMain); //创建新的mesh  TODO 如果_mesh不是常见格式，这里就不能这么做了。以后把_mesh单独表示成常用模式 
+	            this._mesh = MeshQuadTexture.getAMesh(this.isMain);
 	            this.meshlist.push(this._mesh);
 	        }
-	        //凡是这个都是在_mesh上操作，不用考虑samekey
 	        this.transformQuad(x, y, width, height, 0, m || this._curMat, this._transedPoints);
 	        if (!this.clipedOff(this._transedPoints)) {
 	            this._mesh.addQuad(this._transedPoints, uv || Texture.DEF_UV, 0xffffffff, true);
-	            //if (GlUtils.fillRectImgVb( _mesh._vb, _clipRect, x, y, width , height , uv || Texture.DEF_UV, m || _curMat, rgba, this)) {
 	            var submit = this._curSubmit = SubmitTarget.create(this, this._mesh, shaderValue, rt);
 	            submit.blendType = (blend == -1) ? this._nBlendType : blend;
 	            this._copyClipInfo(submit, this._globalClipMatrix);
@@ -12561,30 +9057,26 @@ window.Laya= (function (exports) {
 	            this._mesh.indexNum += 6;
 	            this._mesh.vertNum += 4;
 	            this._submits[this._submits._length++] = submit;
-	            //暂时drawTarget不合并
 	            this._curSubmit = SubmitBase.RENDERBASE;
 	            return true;
 	        }
-	        //暂时drawTarget不合并
 	        this._curSubmit = SubmitBase.RENDERBASE;
 	        return false;
 	    }
 	    drawTriangles(tex, x, y, vertices, uvs, indices, matrix, alpha, color, blendMode) {
-	        if (!tex._getSource()) { //source内调用tex.active();
+	        if (!tex._getSource()) {
 	            if (this.sprite) {
 	                ILaya.systemTimer.callLater(this, this._repaintSprite);
 	            }
 	            return;
 	        }
 	        this._drawCount++;
-	        // 为了提高效率，把一些变量放到这里
 	        var tmpMat = this._tmpMatrix;
 	        var triMesh = this._triangleMesh;
 	        var oldColorFilter = null;
 	        var needRestorFilter = false;
 	        if (color) {
 	            oldColorFilter = this._colorFiler;
-	            //这个不用save，直接修改就行
 	            this._colorFiler = color;
 	            this._curSubmit = SubmitBase.RENDERBASE;
 	            needRestorFilter = oldColorFilter != color;
@@ -12592,15 +9084,12 @@ window.Laya= (function (exports) {
 	        var webGLImg = tex.bitmap;
 	        var preKey = this._curSubmit._key;
 	        var sameKey = preKey.submitType === SubmitBase.KEY_TRIANGLES && preKey.other === webGLImg.id && preKey.blendShader == this._nBlendType;
-	        //var rgba:int = mixRGBandAlpha(0xffffffff);
-	        //rgba = _mixRGBandAlpha(rgba, alpha);	这个函数有问题，不能连续调用，输出作为输入
 	        if (triMesh.vertNum + vertices.length / 2 > Context._MAXVERTNUM) {
-	            triMesh = this._triangleMesh = MeshTexture.getAMesh(this.isMain); //创建新的mesh  TODO 如果_mesh不是常见格式，这里就不能这么做了。以后把_mesh单独表示成常用模式 
+	            triMesh = this._triangleMesh = MeshTexture.getAMesh(this.isMain);
 	            this.meshlist.push(triMesh);
-	            sameKey = false; //新的mesh不能算samekey了
+	            sameKey = false;
 	        }
 	        if (!sameKey) {
-	            //添加一个新的submit
 	            var submit = this._curSubmit = SubmitTexture.create(this, triMesh, Value2D.create(ShaderDefines2D.TEXTURE2D, 0));
 	            submit.shaderValue.textureHost = tex;
 	            submit._renderType = SubmitBase.TYPE_TEXTURE;
@@ -12631,7 +9120,6 @@ window.Laya= (function (exports) {
 	            triMesh.addData(vertices, uvs, indices, tmpMat, rgba);
 	        }
 	        else {
-	            // 这种情况是drawtexture转成的drawTriangle，直接使用matrix就行，传入的xy都是0
 	            triMesh.addData(vertices, uvs, indices, matrix, rgba);
 	        }
 	        this._curSubmit._numEle += indices.length;
@@ -12639,22 +9127,18 @@ window.Laya= (function (exports) {
 	            this._colorFiler = oldColorFilter;
 	            this._curSubmit = SubmitBase.RENDERBASE;
 	        }
-	        //return true;
 	    }
 	    transform(a, b, c, d, tx, ty) {
 	        SaveTransform.save(this);
-	        Matrix.mul(Matrix.TEMP.setTo(a, b, c, d, tx, ty), this._curMat, this._curMat); //TODO 这里会有效率问题。一堆的set
+	        Matrix.mul(Matrix.TEMP.setTo(a, b, c, d, tx, ty), this._curMat, this._curMat);
 	        this._curMat._checkTransform();
 	    }
-	    //TODO:coverage
-	    /**@internal */
 	    _transformByMatrix(matrix, tx, ty) {
 	        matrix.setTranslate(tx, ty);
 	        Matrix.mul(matrix, this._curMat, this._curMat);
 	        matrix.setTranslate(0, 0);
 	        this._curMat._bTransform = true;
 	    }
-	    //TODO:coverage
 	    setTransformByMatrix(value) {
 	        value.copyTo(this._curMat);
 	    }
@@ -12674,7 +9158,6 @@ window.Laya= (function (exports) {
 	        else {
 	            this._clipRect.width = width;
 	            this._clipRect.height = height;
-	            //把xy转换到当前矩阵空间。宽高不用转换，这样在shader中计算的时候就不用把方向normalize了
 	            this._clipRect.x = x;
 	            this._clipRect.y = y;
 	        }
@@ -12682,18 +9165,15 @@ window.Laya= (function (exports) {
 	        this._clipID_Gen %= 10000;
 	        this._clipInfoID = this._clipID_Gen;
 	        var cm = this._globalClipMatrix;
-	        //TEMP 处理clip交集问题，这里有点问题，无法处理旋转，翻转 是临时瞎写的
 	        var minx = cm.tx;
 	        var miny = cm.ty;
 	        var maxx = minx + cm.a;
 	        var maxy = miny + cm.d;
-	        //TEMP end
 	        if (this._clipRect.width >= Context._MAXSIZE) {
 	            cm.a = cm.d = Context._MAXSIZE;
 	            cm.b = cm.c = cm.tx = cm.ty = 0;
 	        }
 	        else {
-	            //其实就是矩阵相乘
 	            if (this._curMat._bTransform) {
 	                cm.tx = this._clipRect.x * this._curMat.a + this._clipRect.y * this._curMat.c + this._curMat.tx;
 	                cm.ty = this._clipRect.x * this._curMat.b + this._clipRect.y * this._curMat.d + this._curMat.ty;
@@ -12713,12 +9193,10 @@ window.Laya= (function (exports) {
 	                this._clipInCache = true;
 	            }
 	        }
-	        //TEMP 处理clip交集问题，这里有点问题，无法处理旋转,翻转
 	        if (cm.a > 0 && cm.d > 0) {
 	            var cmaxx = cm.tx + cm.a;
 	            var cmaxy = cm.ty + cm.d;
 	            if (cmaxx <= minx || cmaxy <= miny || cm.tx >= maxx || cm.ty >= maxy) {
-	                //超出范围了
 	                cm.a = -0.1;
 	                cm.d = -0.1;
 	            }
@@ -12743,36 +9221,13 @@ window.Laya= (function (exports) {
 	                    cm.d = -0.1;
 	            }
 	        }
-	        //TEMP end
 	    }
-	    /**
-	     * 从setIBVB改为drawMesh
-	     * type 参数不知道是干什么的，先删掉。offset好像跟attribute有关，删掉
-	     * @param	x
-	     * @param	y
-	     * @param	ib
-	     * @param	vb
-	     * @param	numElement
-	     * @param	mat
-	     * @param	shader
-	     * @param	shaderValues
-	     * @param	startIndex
-	     * @param	offset
-	     */
-	    //TODO:coverage
 	    drawMesh(x, y, ib, vb, numElement, mat, shader, shaderValues, startIndex = 0) {
 	    }
 	    addRenderObject(o) {
 	        this._submits[this._submits._length++] = o;
 	    }
-	    /**
-	     *
-	     * @param	start
-	     * @param	end
-	     */
 	    submitElement(start, end) {
-	        //_ib._bind_upload() || _ib._bind();
-	        //_vb._bind_upload() || _vb._bind();
 	        var mainCtx = this.isMain;
 	        var renderList = this._submits;
 	        var ret = renderList._length;
@@ -12786,9 +9241,7 @@ window.Laya= (function (exports) {
 	            }
 	            SubmitBase.preRender = submit;
 	            submit = renderList[start];
-	            //只有submitscissor才会返回多个
 	            start += submit.renderSubmit();
-	            //本来做了个优化，如果是主画布，用完立即releaseRender. 但是实际没有什么效果，且由于submit需要用来对比，即使用完也不能修改，所以这个优化又去掉了
 	        }
 	        return ret;
 	    }
@@ -12797,19 +9250,17 @@ window.Laya= (function (exports) {
 	        var ret = this.submitElement(0, this._submits._length);
 	        this._path && this._path.reset();
 	        SkinMeshBuffer.instance && SkinMeshBuffer.getInstance().reset();
-	        //Stat.mesh2DNum += meshlist.length;
 	        this._curSubmit = SubmitBase.RENDERBASE;
 	        for (var i = 0, sz = this.meshlist.length; i < sz; i++) {
 	            var curm = this.meshlist[i];
 	            curm.canReuse ? (curm.releaseMesh()) : (curm.destroy());
 	        }
 	        this.meshlist.length = 0;
-	        this._mesh = MeshQuadTexture.getAMesh(this.isMain); //TODO 不要这样。
+	        this._mesh = MeshQuadTexture.getAMesh(this.isMain);
 	        this._pathMesh = MeshVG.getAMesh(this.isMain);
 	        this._triangleMesh = MeshTexture.getAMesh(this.isMain);
 	        this.meshlist.push(this._mesh, this._pathMesh, this._triangleMesh);
 	        this._flushCnt++;
-	        //charbook gc
 	        if (this._flushCnt % 60 == 0 && this.isMain) {
 	            if (TextRender.textRenderInst) {
 	                TextRender.textRenderInst.GC();
@@ -12817,23 +9268,13 @@ window.Laya= (function (exports) {
 	        }
 	        return ret;
 	    }
-	    /*******************************************start矢量绘制***************************************************/
 	    beginPath(convex = false) {
 	        var tPath = this._getPath();
 	        tPath.beginPath(convex);
 	    }
 	    closePath() {
-	        //_path.closePath = true;
 	        this._path.closePath();
 	    }
-	    /**
-	     * 添加一个path。
-	     * @param	points [x,y,x,y....]	这个会被保存下来，所以调用者需要注意复制。
-	     * @param	close	是否闭合
-	     * @param   convex 是否是凸多边形。convex的优先级是这个最大。fill的时候的次之。其实fill的时候不应该指定convex，因为可以多个path
-	     * @param	dx  需要添加的平移。这个需要在应用矩阵之前应用。
-	     * @param	dy
-	     */
 	    addPath(points, close, convex, dx, dy) {
 	        var ci = 0;
 	        for (var i = 0, sz = points.length / 2; i < sz; i++) {
@@ -12856,14 +9297,12 @@ window.Laya= (function (exports) {
 	        var rgba = this.mixRGBandAlpha(this.fillStyle.toInt());
 	        var curEleNum = 0;
 	        var idx;
-	        //如果有多个path的话，要一起填充mesh，使用相同的颜色和alpha
 	        for (var i = 0, sz = tPath.paths.length; i < sz; i++) {
 	            var p = tPath.paths[i];
 	            var vertNum = p.path.length / 2;
 	            if (vertNum < 3 || (vertNum == 3 && !p.convex))
 	                continue;
 	            var cpath = p.path.concat();
-	            // 应用矩阵转换顶点
 	            var pi = 0;
 	            var xp, yp;
 	            var _x, _y;
@@ -12888,17 +9327,13 @@ window.Laya= (function (exports) {
 	                }
 	            }
 	            if (this._pathMesh.vertNum + vertNum > Context._MAXVERTNUM) {
-	                //;
-	                //顶点数超了，要先提交一次
 	                this._curSubmit._numEle += curEleNum;
 	                curEleNum = 0;
-	                //然后用新的mesh，和新的submit。
 	                this._pathMesh = MeshVG.getAMesh(this.isMain);
 	                this._curSubmit = this.addVGSubmit(this._pathMesh);
 	            }
 	            var curvert = this._pathMesh.vertNum;
-	            //生成 ib
-	            if (p.convex) { //convex的ib比较容易
+	            if (p.convex) {
 	                var faceNum = vertNum - 2;
 	                idx = new Array(faceNum * 3);
 	                var idxpos = 0;
@@ -12909,25 +9344,20 @@ window.Laya= (function (exports) {
 	                }
 	            }
 	            else {
-	                idx = Earcut.earcut(cpath, null, 2); //返回索引
+	                idx = Earcut.earcut(cpath, null, 2);
 	                if (curvert > 0) {
-	                    //修改ib
 	                    for (var ii = 0; ii < idx.length; ii++) {
 	                        idx[ii] += curvert;
 	                    }
 	                }
 	            }
-	            //填充mesh
 	            this._pathMesh.addVertAndIBToMesh(this, cpath, rgba, idx);
 	            curEleNum += idx.length;
 	        }
 	        this._curSubmit._numEle += curEleNum;
 	    }
 	    addVGSubmit(mesh) {
-	        //elenum设为0，后面再加
 	        var submit = Submit.createShape(this, mesh, 0, Value2D.create(ShaderDefines2D.PRIMITIVE, 0));
-	        //submit._key.clear();
-	        //submit._key.blendShader = _submitKey.blendShader;	//TODO 这个在哪里赋值的啊
 	        submit._key.submitType = SubmitBase.KEY_VG;
 	        this._submits[this._submits._length++] = submit;
 	        this._copyClipInfo(submit, this._globalClipMatrix);
@@ -12944,31 +9374,23 @@ window.Laya= (function (exports) {
 	                this._curSubmit = this.addVGSubmit(this._pathMesh);
 	            }
 	            var curEleNum = 0;
-	            //如果有多个path的话，要一起填充mesh，使用相同的颜色和alpha
 	            for (var i = 0, sz = tPath.paths.length; i < sz; i++) {
 	                var p = tPath.paths[i];
 	                if (p.path.length <= 0)
 	                    continue;
 	                var idx = [];
-	                var vertex = []; //x,y
-	                //p.path.loop;
-	                //填充vbib
-	                var maxVertexNum = p.path.length * 2; //最大可能产生的顶点数。这个需要考虑考虑
+	                var vertex = [];
+	                var maxVertexNum = p.path.length * 2;
 	                if (maxVertexNum < 2)
 	                    continue;
 	                if (this._pathMesh.vertNum + maxVertexNum > Context._MAXVERTNUM) {
-	                    //;
-	                    //顶点数超了，要先提交一次
 	                    this._curSubmit._numEle += curEleNum;
 	                    curEleNum = 0;
-	                    //然后用新的mesh，和新的submit。
 	                    this._pathMesh = MeshVG.getAMesh(this.isMain);
 	                    this.meshlist.push(this._pathMesh);
 	                    this._curSubmit = this.addVGSubmit(this._pathMesh);
 	                }
-	                //这个需要放在创建新的mesh的后面，因为需要mesh.vertNum,否则如果先调用这个，再创建mesh，那么ib就不对了
-	                BasePoly.createLine2(p.path, idx, this.lineWidth, this._pathMesh.vertNum, vertex, p.loop); //_pathMesh.vertNum 是要加到生成的ib上的
-	                // 变换所有的点
+	                BasePoly.createLine2(p.path, idx, this.lineWidth, this._pathMesh.vertNum, vertex, p.loop);
 	                var ptnum = vertex.length / 2;
 	                var m = this._curMat;
 	                var pi = 0;
@@ -12994,8 +9416,6 @@ window.Laya= (function (exports) {
 	                        vertex[yp] = _y + m.ty;
 	                    }
 	                }
-	                //this.drawPoly(0, 0, p.path, fillStyle._color.numColor, 0, 0, p.convex);
-	                //填充mesh
 	                this._pathMesh.addVertAndIBToMesh(this, vertex, rgba, idx);
 	                curEleNum += idx.length;
 	            }
@@ -13009,44 +9429,15 @@ window.Laya= (function (exports) {
 	        tPath._lastOriY = y;
 	        tPath.addPoint(x, y);
 	    }
-	    /**
-	     *
-	     * @param	x
-	     * @param	y
-	     * @param	b 是否应用矩阵
-	     */
 	    lineTo(x, y) {
 	        var tPath = this._getPath();
-	        if (Math.abs(x - tPath._lastOriX) < 1e-3 && Math.abs(y - tPath._lastOriY) < 1e-3) //不判断的话，下面的画线算法受不了
+	        if (Math.abs(x - tPath._lastOriX) < 1e-3 && Math.abs(y - tPath._lastOriY) < 1e-3)
 	            return;
 	        tPath._lastOriX = x;
 	        tPath._lastOriY = y;
 	        tPath.addPoint(x, y);
 	    }
-	    /*
-	    public function drawCurves(x:Number, y:Number,points:Array, lineColor:*, lineWidth:Number = 1):void {
-	        //setPathId(-1);
-	        beginPath();
-	        strokeStyle = lineColor;
-	        this.lineWidth = lineWidth;
-	        var points:Array = points;
-	        //movePath(x, y); TODO 这个被去掉了
-	        moveTo(points[0], points[1]);
-	        var i:int = 2, n:int = points.length;
-	        while (i < n) {
-	            quadraticCurveTo(points[i++], points[i++], points[i++], points[i++]);
-	        }
-	        stroke();
-	    }
-	    */
 	    arcTo(x1, y1, x2, y2, r) {
-	        /*
-	        if (mId != -1) {
-	            if (mHaveKey) {
-	                return;
-	            }
-	        }
-	        */
 	        var i = 0;
 	        var x = 0, y = 0;
 	        var dx = this._path._lastOriX - x1;
@@ -13080,7 +9471,6 @@ window.Laya= (function (exports) {
 	        var ptx1 = len1 * ndx + x1;
 	        var pty1 = len1 * ndy + y1;
 	        var orilen = Math.sqrt(len1 * len1 + r * r);
-	        //圆心
 	        var orix = x1 + nOdx * orilen;
 	        var oriy = y1 + nOdy * orilen;
 	        var dir = ndx * ndy2 - ndy * ndx2;
@@ -13099,13 +9489,11 @@ window.Laya= (function (exports) {
 	            sinx = Math.sin(fda);
 	            cosx = Math.cos(fda);
 	        }
-	        //x = _curMat.a * ptx1 + _curMat.c * pty1 /*+ _curMat.tx*/;
-	        //y = _curMat.b * ptx1 + _curMat.d * pty1 /*+ _curMat.ty*/;
-	        var lastx = this._path._lastOriX, lasty = this._path._lastOriY; //没有矩阵转换的上一个点
+	        var lastx = this._path._lastOriX, lasty = this._path._lastOriY;
 	        var _x1 = ptx1, _y1 = pty1;
 	        if (Math.abs(_x1 - this._path._lastOriX) > 0.1 || Math.abs(_y1 - this._path._lastOriY) > 0.1) {
-	            x = _x1; // _curMat.a * _x1 + _curMat.c * _y1 + _curMat.tx;
-	            y = _y1; //_curMat.b * _x1 + _curMat.d * _y1 + _curMat.ty;
+	            x = _x1;
+	            y = _y1;
 	            lastx = _x1;
 	            lasty = _y1;
 	            this._path.addPoint(x, y);
@@ -13117,14 +9505,7 @@ window.Laya= (function (exports) {
 	            var cy = -cvx * sinx + cvy * cosx;
 	            x = cx + orix;
 	            y = cy + oriy;
-	            //x1 = _curMat.a * x + _curMat.c * y /*+ _curMat.tx*/;
-	            //y1 = _curMat.b * x + _curMat.d * y /*+ _curMat.ty*/;
-	            //x = x1;
-	            //y = y1;
 	            if (Math.abs(lastx - x) > 0.1 || Math.abs(lasty - y) > 0.1) {
-	                //var _tx1:Number = x, _ty1:Number = y;
-	                //x = _curMat.a * _tx1 + _curMat.c * _ty1 + _curMat.tx;
-	                //y = _curMat.b * _tx1 + _curMat.d * _ty1 + _curMat.ty;
 	                this._path.addPoint(x, y);
 	                lastx = x;
 	                lasty = y;
@@ -13134,21 +9515,9 @@ window.Laya= (function (exports) {
 	        }
 	    }
 	    arc(cx, cy, r, startAngle, endAngle, counterclockwise = false, b = true) {
-	        /* TODO 缓存还没想好
-	        if (mId != -1) {
-	            var tShape:IShape = VectorGraphManager.getInstance().shapeDic[this.mId];
-	            if (tShape) {
-	                if (mHaveKey && !tShape.needUpdate(_curMat))
-	                    return;
-	            }
-	            cx = 0;
-	            cy = 0;
-	        }
-	        */
 	        var a = 0, da = 0;
 	        var dx = 0, dy = 0, x = 0, y = 0;
 	        var i, ndivs;
-	        // Clamp angles
 	        da = endAngle - startAngle;
 	        if (!counterclockwise) {
 	            if (Math.abs(da) >= Math.PI * 2) {
@@ -13183,9 +9552,6 @@ window.Laya= (function (exports) {
 	            x = cx + dx * r;
 	            y = cy + dy * r;
 	            if (x != this._path._lastOriX || y != this._path._lastOriY) {
-	                //var _tx1:Number = x, _ty1:Number = y;
-	                //x = _curMat.a * _tx1 + _curMat.c * _ty1 + _curMat.tx;
-	                //y = _curMat.b * _tx1 + _curMat.d * _ty1 + _curMat.ty;
 	                tPath.addPoint(x, y);
 	            }
 	        }
@@ -13194,40 +9560,25 @@ window.Laya= (function (exports) {
 	        x = cx + dx * r;
 	        y = cy + dy * r;
 	        if (x != this._path._lastOriX || y != this._path._lastOriY) {
-	            //var _x2:Number = x, _y2:Number = y;
-	            //x = _curMat.a * _x2 + _curMat.c * _y2 + _curMat.tx;
-	            //y = _curMat.b * _x2 + _curMat.d * _y2 + _curMat.ty;
 	            tPath.addPoint(x, y);
 	        }
 	    }
 	    quadraticCurveTo(cpx, cpy, x, y) {
 	        var tBezier = Bezier.I;
-	        //var _x1:Number = x, _y1:Number = y;
-	        //x = _curMat.a * _x1 + _curMat.c * _y1 ;// + _curMat.tx;
-	        //y = _curMat.b * _x1 + _curMat.d * _y1;// + _curMat.ty;
-	        //_x1 = cpx, _y1 = cpy;
-	        //cpx = _curMat.a * _x1 + _curMat.c * _y1;// + _curMat.tx;
-	        //cpy = _curMat.b * _x1 + _curMat.d * _y1;// + _curMat.ty;
 	        var tArray = tBezier.getBezierPoints([this._path._lastOriX, this._path._lastOriY, cpx, cpy, x, y], 30, 2);
 	        for (var i = 0, n = tArray.length / 2; i < n; i++) {
 	            this.lineTo(tArray[i * 2], tArray[i * 2 + 1]);
 	        }
 	        this.lineTo(x, y);
 	    }
-	    /**
-	     * 把颜色跟当前设置的alpha混合
-	     * @return
-	     */
 	    mixRGBandAlpha(color) {
 	        return this._mixRGBandAlpha(color, this._shader2D.ALPHA);
 	    }
-	    /**@internal */
 	    _mixRGBandAlpha(color, alpha) {
 	        if (alpha >= 1) {
 	            return color;
 	        }
 	        var a = ((color & 0xff000000) >>> 24);
-	        //TODO 这里容易出问题，例如颜色的alpha部分虽然为0，但是他的意义就是0，不能假设是没有设置alpha。例如级联多个alpha就会生成这种结果
 	        if (a != 0) {
 	            a *= alpha;
 	        }
@@ -13237,36 +9588,17 @@ window.Laya= (function (exports) {
 	        return (color & 0x00ffffff) | (a << 24);
 	    }
 	    strokeRect(x, y, width, height, parameterLineWidth) {
-	        //line(x - tW, y, x + width + tW, y, parameterLineWidth, _curMat);
-	        //line(x + width, y, x + width, y + height, parameterLineWidth, _curMat);
-	        //line(x, y, x, y + height, parameterLineWidth, _curMat);
-	        //line(x - tW, y + height, x + width + tW, y + height, parameterLineWidth, _curMat);
-	        /**
-	         * p1-------------------------------p2
-	         * |  x,y                      x+w,y|
-	         * |     p4--------------------p3   |
-	         * |     |                     |    |
-	         * |     p6--------------------p7   |
-	         * |  x,y+h                  x+w,y+h|
-	         * p5-------------------------------p8
-	         *
-	         * 不用了
-	         * 这个其实用4个fillrect拼起来更好，能与fillrect合并。虽然多了几个点。
-	         */
-	        //TODO 这里能不能与下面的stroke合并一下
 	        if (this.lineWidth > 0) {
 	            var rgba = this.mixRGBandAlpha(this.strokeStyle._color.numColor);
 	            var hw = this.lineWidth / 2;
-	            this._fillRect(x - hw, y - hw, width + this.lineWidth, this.lineWidth, rgba); //上
-	            this._fillRect(x - hw, y - hw + height, width + this.lineWidth, this.lineWidth, rgba); //下
-	            this._fillRect(x - hw, y + hw, this.lineWidth, height - this.lineWidth, rgba); //左
-	            this._fillRect(x - hw + width, y + hw, this.lineWidth, height - this.lineWidth, rgba); //右
+	            this._fillRect(x - hw, y - hw, width + this.lineWidth, this.lineWidth, rgba);
+	            this._fillRect(x - hw, y - hw + height, width + this.lineWidth, this.lineWidth, rgba);
+	            this._fillRect(x - hw, y + hw, this.lineWidth, height - this.lineWidth, rgba);
+	            this._fillRect(x - hw + width, y + hw, this.lineWidth, height - this.lineWidth, rgba);
 	        }
 	    }
 	    clip() {
 	    }
-	    /*******************************************end矢量绘制***************************************************/
-	    //TODO:coverage
 	    drawParticle(x, y, pt) {
 	        pt.x = x;
 	        pt.y = y;
@@ -13275,22 +9607,9 @@ window.Laya= (function (exports) {
 	    _getPath() {
 	        return this._path || (this._path = new Path());
 	    }
-	    /**获取canvas*/
-	    //注意这个是对外接口
 	    get canvas() {
 	        return this._canvas;
 	    }
-	    /**
-	     * 专用函数。通过循环创建来水平填充
-	     * @param	tex
-	     * @param	bmpid
-	     * @param	uv		希望循环的部分的uv
-	     * @param	oriw
-	     * @param	orih
-	     * @param	x
-	     * @param	y
-	     * @param	w
-	     */
 	    _fillTexture_h(tex, imgid, uv, oriw, orih, x, y, w) {
 	        var stx = x;
 	        var num = Math.floor(w / oriw);
@@ -13299,7 +9618,6 @@ window.Laya= (function (exports) {
 	            this._inner_drawTexture(tex, imgid, stx, y, oriw, orih, this._curMat, uv, 1, false);
 	            stx += oriw;
 	        }
-	        // 最后剩下的
 	        if (left > 0) {
 	            var du = uv[2] - uv[0];
 	            var uvr = uv[0] + du * (left / oriw);
@@ -13315,17 +9633,6 @@ window.Laya= (function (exports) {
 	            this._inner_drawTexture(tex, imgid, stx, y, left, orih, this._curMat, tuv, 1, false);
 	        }
 	    }
-	    /**
-	     * 专用函数。通过循环创建来垂直填充
-	     * @param	tex
-	     * @param	imgid
-	     * @param	uv
-	     * @param	oriw
-	     * @param	orih
-	     * @param	x
-	     * @param	y
-	     * @param	h
-	     */
 	    _fillTexture_v(tex, imgid, uv, oriw, orih, x, y, h) {
 	        var sty = y;
 	        var num = Math.floor(h / orih);
@@ -13334,7 +9641,6 @@ window.Laya= (function (exports) {
 	            this._inner_drawTexture(tex, imgid, x, sty, oriw, orih, this._curMat, uv, 1, false);
 	            sty += orih;
 	        }
-	        // 最后剩下的
 	        if (left > 0) {
 	            var dv = uv[7] - uv[1];
 	            var uvb = uv[1] + dv * (left / orih);
@@ -13372,7 +9678,6 @@ window.Laya= (function (exports) {
 	        if (height == h) {
 	            top = bottom = 0;
 	        }
-	        //处理进度条不好看的问题
 	        if (left + right > width) {
 	            var clipWidth = width;
 	            needClip = true;
@@ -13383,19 +9688,14 @@ window.Laya= (function (exports) {
 	        var imgid = tex.bitmap.id;
 	        var mat = this._curMat;
 	        var tuv = this._tempUV;
-	        // 整图的uv
-	        // 一定是方的，所以uv只要左上右下就行
 	        var uvl = uv[0];
 	        var uvt = uv[1];
 	        var uvr = uv[4];
 	        var uvb = uv[5];
-	        // 小图的uv
 	        var uvl_ = uvl;
 	        var uvt_ = uvt;
 	        var uvr_ = uvr;
 	        var uvb_ = uvb;
-	        //绘制四个角
-	        // 构造uv
 	        if (left && top) {
 	            uvr_ = uvl + d_left;
 	            uvb_ = uvt + d_top;
@@ -13430,7 +9730,6 @@ window.Laya= (function (exports) {
 	                tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
 	            this._inner_drawTexture(tex, imgid, width - right + tx, height - bottom + ty, right, bottom, mat, tuv, 1, false);
 	        }
-	        //绘制上下两个边
 	        if (top) {
 	            uvl_ = uvl + d_left;
 	            uvt_ = uvt;
@@ -13459,7 +9758,6 @@ window.Laya= (function (exports) {
 	                this._inner_drawTexture(tex, imgid, left + tx, height - bottom + ty, width - left - right, bottom, mat, tuv, 1, false);
 	            }
 	        }
-	        //绘制左右两边
 	        if (left) {
 	            uvl_ = uvl;
 	            uvt_ = uvt + d_top;
@@ -13488,7 +9786,6 @@ window.Laya= (function (exports) {
 	                this._inner_drawTexture(tex, imgid, width - right + tx, top + ty, right, height - top - bottom, mat, tuv, 1, false);
 	            }
 	        }
-	        //绘制中间
 	        uvl_ = uvl + d_left;
 	        uvt_ = uvt + d_top;
 	        uvr_ = uvr - d_right;
@@ -13501,7 +9798,6 @@ window.Laya= (function (exports) {
 	            tuvr[1] = uvt_;
 	            tuvr[2] = uvr_ - uvl_;
 	            tuvr[3] = uvb_ - uvt_;
-	            // 这个如果用重复的可能比较多，所以采用filltexture的方法，注意这样会打断合并
 	            this._fillTexture(tex, tex.width - left - right, tex.height - top - bottom, tuvr, left + tx, top + ty, width - left - right, height - top - bottom, 'repeat', 0, 0);
 	        }
 	        else {
@@ -13521,43 +9817,8 @@ window.Laya= (function (exports) {
 	Context._COUNT = 0;
 	Context.SEGNUM = 32;
 	Context._contextcount = 0;
-	/**Math.PI*2的结果缓存 */
 	Context.PI2 = 2 * Math.PI;
-	Context._textRender = null; // new TextRender();
-	//=============新增==================	
-	/* 下面的方式是有bug的。canvas是直接save，restore，现在是为了优化，但是有bug，所以先不重载了
-	public function saveTransform(matrix:Matrix):void {
-	    this._curMat.copyTo(matrix);
-	}
-
-	public function restoreTransform(matrix:Matrix):void {
-	    matrix.copyTo(this._curMat);
-	}
-
-	public function transformByMatrix(matrix:Matrix,tx:Number,ty:Number):void {
-	    var mat:Matrix = _curMat;
-	    matrix.setTranslate(tx, ty);
-	    Matrix.mul(matrix, mat, mat);
-	    matrix.setTranslate(0, 0);
-	    mat._bTransform = true;
-	}
-	*/
-	/* 下面的是错误的。位置没有被缩放
-	public function transformByMatrix(matrix:Matrix, tx:Number, ty:Number):void {
-	    SaveTransform.save(this);
-	    Matrix.mul(matrix, _curMat, _curMat);
-	    _curMat.tx += tx;
-	    _curMat.ty += ty;
-	    _curMat._checkTransform();
-	}
-	        
-	public function transformByMatrixNoSave(matrix:Matrix, tx:Number, ty:Number):void {
-	    Matrix.mul(matrix, _curMat, _curMat);
-	    _curMat.tx += tx;
-	    _curMat.ty += ty;
-	    _curMat._checkTransform();
-	}
-	*/
+	Context._textRender = null;
 	Context.tmpuv1 = [0, 0, 0, 0, 0, 0, 0, 0];
 	Context.tmpUV = [0, 0, 0, 0, 0, 0, 0, 0];
 	Context.tmpUVRect = [0, 0, 0, 0];
@@ -13574,11 +9835,7 @@ window.Laya= (function (exports) {
 	    }
 	}
 
-	/**
-	 * @private
-	 */
 	class WebGL {
-	    //TODO:coverage
 	    static _uint8ArraySlice() {
 	        var _this = this;
 	        var sz = _this.length;
@@ -13587,7 +9844,6 @@ window.Laya= (function (exports) {
 	            dec[i] = _this[i];
 	        return dec;
 	    }
-	    //TODO:coverage
 	    static _float32ArraySlice() {
 	        var _this = this;
 	        var sz = _this.length;
@@ -13596,7 +9852,6 @@ window.Laya= (function (exports) {
 	            dec[i] = _this[i];
 	        return dec;
 	    }
-	    //TODO:coverage
 	    static _uint16ArraySlice(...arg) {
 	        var _this = this;
 	        var sz;
@@ -13625,7 +9880,6 @@ window.Laya= (function (exports) {
 	    }
 	    static _nativeRender_enable() {
 	    }
-	    //使用webgl渲染器
 	    static enable() {
 	        return true;
 	    }
@@ -13944,35 +10198,20 @@ window.Laya= (function (exports) {
 	    };
 	}());
 
-	/**
-	 * @private
-	 */
 	class LayaGPU {
-	    /**
-	     * @private
-	     */
 	    constructor(gl, isWebGL2) {
-	        /**@private */
 	        this._gl = null;
-	        /**@private */
 	        this._vaoExt = null;
-	        /**@private */
 	        this._angleInstancedArrays = null;
-	        /**@internal */
 	        this._isWebGL2 = false;
-	        /**@internal */
 	        this._oesTextureHalfFloat = null;
-	        /**@internal */
 	        this._extTextureFilterAnisotropic = null;
-	        /**@internal */
 	        this._compressedTextureS3tc = null;
-	        /**@internal */
 	        this._compressedTexturePvrtc = null;
-	        /**@internal */
 	        this._compressedTextureEtc1 = null;
 	        this._gl = gl;
 	        this._isWebGL2 = isWebGL2;
-	        try { //某些浏览器中未实现此函数，使用try catch增强兼容性。
+	        try {
 	            var precisionFormat = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT);
 	            precisionFormat.precision ? (WebGL.shaderHighPrecision = true) : WebGL.shaderHighPrecision = false;
 	        }
@@ -13981,7 +10220,7 @@ window.Laya= (function (exports) {
 	        if (!isWebGL2) {
 	            var forceVAO = LayaGPU._forceSupportVAOPlatform();
 	            if (!ILaya.Render.isConchApp) {
-	                if (window._setupVertexArrayObject) { //兼容VAO
+	                if (window._setupVertexArrayObject) {
 	                    if (forceVAO)
 	                        window._forceSetupVertexArrayObject(gl);
 	                    else
@@ -13990,32 +10229,22 @@ window.Laya= (function (exports) {
 	            }
 	            this._vaoExt = this._getExtension("OES_vertex_array_object");
 	            if (!forceVAO)
-	                this._angleInstancedArrays = this._getExtension("ANGLE_instanced_arrays"); //forceVAO会导致Instance有BUG
+	                this._angleInstancedArrays = this._getExtension("ANGLE_instanced_arrays");
 	            this._oesTextureHalfFloat = this._getExtension("OES_texture_half_float");
 	            this._getExtension("OES_texture_half_float_linear");
-	            //_getExtension("OES_texture_float");
-	            //_getExtension("OES_texture_float_linear");
 	        }
 	        else {
 	            this._getExtension("EXT_color_buffer_float");
-	            //_getExtension("OES_texture_float_linear");
 	        }
-	        //_getExtension("EXT_float_blend");
 	        this._extTextureFilterAnisotropic = this._getExtension("EXT_texture_filter_anisotropic");
 	        this._compressedTextureS3tc = this._getExtension("WEBGL_compressed_texture_s3tc");
 	        this._compressedTexturePvrtc = this._getExtension("WEBGL_compressed_texture_pvrtc");
 	        this._compressedTextureEtc1 = this._getExtension("WEBGL_compressed_texture_etc1");
 	    }
-	    /**
-	     * @internal
-	     */
 	    static _forceSupportVAOPlatform() {
 	        let Browser = ILaya.Browser;
 	        return (Browser.onMiniGame && Browser.onIOS) || Browser.onBDMiniGame || Browser.onQGMiniGame;
 	    }
-	    /**
-	     * @private
-	     */
 	    _getExtension(name) {
 	        var prefixes = LayaGPU._extentionVendorPrefixes;
 	        for (var k in prefixes) {
@@ -14025,72 +10254,48 @@ window.Laya= (function (exports) {
 	        }
 	        return null;
 	    }
-	    /**
-	     * @private
-	     */
 	    createVertexArray() {
 	        if (this._isWebGL2)
 	            return this._gl.createVertexArray();
 	        else
 	            return this._vaoExt.createVertexArrayOES();
 	    }
-	    /**
-	     * @private
-	     */
 	    bindVertexArray(vertexArray) {
 	        if (this._isWebGL2)
 	            this._gl.bindVertexArray(vertexArray);
 	        else
 	            this._vaoExt.bindVertexArrayOES(vertexArray);
 	    }
-	    /**
-	     * @private
-	     */
 	    deleteVertexArray(vertexArray) {
 	        if (this._isWebGL2)
 	            this._gl.deleteVertexArray(vertexArray);
 	        else
 	            this._vaoExt.deleteVertexArrayOES(vertexArray);
 	    }
-	    /**
-	     * @private
-	     */
 	    isVertexArray(vertexArray) {
 	        if (this._isWebGL2)
 	            this._gl.isVertexArray(vertexArray);
 	        else
 	            this._vaoExt.isVertexArrayOES(vertexArray);
 	    }
-	    /**
-	     * @private
-	     */
 	    drawElementsInstanced(mode, count, type, offset, instanceCount) {
 	        if (this._isWebGL2)
 	            this._gl.drawElementsInstanced(mode, count, type, offset, instanceCount);
 	        else
 	            this._angleInstancedArrays.drawElementsInstancedANGLE(mode, count, type, offset, instanceCount);
 	    }
-	    /**
-	     * @private
-	     */
 	    drawArraysInstanced(mode, first, count, instanceCount) {
 	        if (this._isWebGL2)
 	            this._gl.drawArraysInstanced(mode, first, count, instanceCount);
 	        else
 	            this._angleInstancedArrays.drawArraysInstancedANGLE(mode, first, count, instanceCount);
 	    }
-	    /**
-	     * @private
-	     */
 	    vertexAttribDivisor(index, divisor) {
 	        if (this._isWebGL2)
 	            this._gl.vertexAttribDivisor(index, divisor);
 	        else
 	            this._angleInstancedArrays.vertexAttribDivisorANGLE(index, divisor);
 	    }
-	    /**
-	     * @private
-	     */
 	    supportInstance() {
 	        if (this._isWebGL2 || this._angleInstancedArrays)
 	            return true;
@@ -14098,23 +10303,12 @@ window.Laya= (function (exports) {
 	            return false;
 	    }
 	}
-	/**@private */
 	LayaGPU._extentionVendorPrefixes = ["", "WEBKIT_", "MOZ_"];
 
-	/**
-	 * <code>Render</code> 是渲染管理类。它是一个单例，可以使用 Laya.render 访问。
-	 */
 	class Render {
-	    /**
-	     * 初始化引擎。
-	     * @param	width 游戏窗口宽度。
-	     * @param	height	游戏窗口高度。
-	     */
 	    constructor(width, height, mainCanv) {
-	        /**@private */
 	        this._timeId = 0;
 	        Render._mainCanvas = mainCanv;
-	        //创建主画布。改到Browser中了，因为为了runtime，主画布必须是第一个
 	        Render._mainCanvas.source.id = "layaCanvas";
 	        Render._mainCanvas.source.width = width;
 	        Render._mainCanvas.source.height = height;
@@ -14129,7 +10323,6 @@ window.Laya= (function (exports) {
 	        }
 	        ILaya.stage.on("visibilitychange", this, this._onVisibilitychange);
 	    }
-	    /**@private */
 	    _onVisibilitychange() {
 	        if (!ILaya.stage.isVisibility) {
 	            this._timeId = window.setInterval(this._enterFrame, 1000);
@@ -14147,7 +10340,7 @@ window.Laya= (function (exports) {
 	            }
 	            for (var i = 0; i < names.length; i++) {
 	                try {
-	                    gl = canvas.getContext(names[i], { stencil: Config.isStencil, alpha: Config.isAlpha, antialias: Config.isAntialias, premultipliedAlpha: Config.premultipliedAlpha, preserveDrawingBuffer: Config.preserveDrawingBuffer }); //antialias为true,premultipliedAlpha为false,IOS和部分安卓QQ浏览器有黑屏或者白屏底色BUG
+	                    gl = canvas.getContext(names[i], { stencil: Config.isStencil, alpha: Config.isAlpha, antialias: Config.isAntialias, premultipliedAlpha: Config.premultipliedAlpha, preserveDrawingBuffer: Config.preserveDrawingBuffer });
 	                }
 	                catch (e) {
 	                }
@@ -14163,14 +10356,13 @@ window.Laya= (function (exports) {
 	            return false;
 	        LayaGL.instance = gl;
 	        LayaGL.layaGPUInstance = new LayaGPU(gl, WebGL._isWebGL2);
-	        canvas.size(w, h); //在ctx之后调用。
+	        canvas.size(w, h);
 	        Context.__init__();
 	        SubmitBase.__init__();
 	        var ctx = new Context();
 	        ctx.isMain = true;
 	        Render._context = ctx;
 	        canvas._setContext(ctx);
-	        //TODO 现在有个问题是 gl.deleteTexture并没有走WebGLContex封装的
 	        ShaderDefines2D.__init__();
 	        Value2D.__init__();
 	        Shader2D.__init__();
@@ -14178,15 +10370,12 @@ window.Laya= (function (exports) {
 	        BlendMode._init_(gl);
 	        return true;
 	    }
-	    /**@private */
 	    _enterFrame(e = null) {
 	        ILaya.stage._loop();
 	    }
-	    /** 目前使用的渲染器。*/
 	    static get context() {
 	        return Render._context;
 	    }
-	    /** 渲染使用的原生画布引用。 */
 	    static get canvas() {
 	        return Render._mainCanvas.source;
 	    }
@@ -14194,7 +10383,6 @@ window.Laya= (function (exports) {
 	Render.supportWebGLPlusCulling = false;
 	Render.supportWebGLPlusAnimation = false;
 	Render.supportWebGLPlusRendering = false;
-	/**是否是加速器 只读*/
 	Render.isConchApp = false;
 	{
 	    Render.isConchApp = (window.conch != null);
@@ -14205,11 +10393,7 @@ window.Laya= (function (exports) {
 	    }
 	}
 
-	/**
-	 * 绘制三角形命令
-	 */
 	class DrawTrianglesCmd {
-	    /**@private */
 	    static create(texture, x, y, vertices, uvs, indices, matrix, alpha, color, blendMode) {
 	        var cmd = Pool.getItemByClass("DrawTrianglesCmd", DrawTrianglesCmd);
 	        cmd.texture = texture;
@@ -14223,14 +10407,11 @@ window.Laya= (function (exports) {
 	        if (color) {
 	            cmd.color = new ColorFilter();
 	            var c = ColorUtils.create(color).arrColor;
-	            cmd.color.color(c[0] * 255, c[1] * 255, c[2] * 255, c[3] * 255); //TODO 这个好像设置的是加色，这样并不合理
+	            cmd.color.color(c[0] * 255, c[1] * 255, c[2] * 255, c[3] * 255);
 	        }
 	        cmd.blendMode = blendMode;
 	        return cmd;
 	    }
-	    /**
-	     * 回收到对象池
-	     */
 	    recover() {
 	        this.texture = null;
 	        this.vertices = null;
@@ -14239,25 +10420,18 @@ window.Laya= (function (exports) {
 	        this.matrix = null;
 	        Pool.recover("DrawTrianglesCmd", this);
 	    }
-	    /**@private */
 	    run(context, gx, gy) {
 	        context.drawTriangles(this.texture, this.x + gx, this.y + gy, this.vertices, this.uvs, this.indices, this.matrix, this.alpha, this.color, this.blendMode);
 	    }
-	    /**@private */
 	    get cmdID() {
 	        return DrawTrianglesCmd.ID;
 	    }
 	}
 	DrawTrianglesCmd.ID = "DrawTriangles";
 
-	/**
-	 * 绘制带九宫格信息的图片
-	 * @internal
-	 */
 	class Draw9GridTexture {
 	    constructor() {
 	    }
-	    /**@private */
 	    static create(texture, x, y, width, height, sizeGrid) {
 	        var cmd = Pool.getItemByClass("Draw9GridTexture", Draw9GridTexture);
 	        cmd.texture = texture;
@@ -14269,36 +10443,23 @@ window.Laya= (function (exports) {
 	        cmd.sizeGrid = sizeGrid;
 	        return cmd;
 	    }
-	    /**
-	     * 回收到对象池
-	     */
 	    recover() {
 	        this.texture._removeReference();
 	        Pool.recover("Draw9GridTexture", this);
 	    }
-	    /**@private */
 	    run(context, gx, gy) {
 	        context.drawTextureWithSizeGrid(this.texture, this.x, this.y, this.width, this.height, this.sizeGrid, gx, gy);
 	    }
-	    /**@private */
 	    get cmdID() {
 	        return Draw9GridTexture.ID;
 	    }
 	}
 	Draw9GridTexture.ID = "Draw9GridTexture";
 
-	/**
-	 * @private
-	 * Graphic bounds数据类
-	 */
 	class GraphicsBounds {
 	    constructor() {
-	        /**@private */
 	        this._cacheBoundsType = false;
 	    }
-	    /**
-	     * 销毁
-	     */
 	    destroy() {
 	        this._graphics = null;
 	        this._cacheBoundsType = false;
@@ -14311,23 +10472,12 @@ window.Laya= (function (exports) {
 	        this._bounds = null;
 	        Pool.recover("GraphicsBounds", this);
 	    }
-	    /**
-	     * 创建
-	     */
 	    static create() {
 	        return Pool.getItemByClass("GraphicsBounds", GraphicsBounds);
 	    }
-	    /**
-	     * 重置数据
-	     */
 	    reset() {
 	        this._temp && (this._temp.length = 0);
 	    }
-	    /**
-	     * 获取位置及宽高信息矩阵(比较耗CPU，频繁使用会造成卡顿，尽量少用)。
-	     * @param realSize	（可选）使用图片的真实大小，默认为false
-	     * @return 位置与宽高组成的 一个 Rectangle 对象。
-	     */
 	    getBounds(realSize = false) {
 	        if (!this._bounds || !this._temp || this._temp.length < 1 || realSize != this._cacheBoundsType) {
 	            this._bounds = Rectangle._getWrapRec(this.getBoundPoints(realSize), this._bounds);
@@ -14335,11 +10485,6 @@ window.Laya= (function (exports) {
 	        this._cacheBoundsType = realSize;
 	        return this._bounds;
 	    }
-	    /**
-	     * @private
-	     * @param realSize	（可选）使用图片的真实大小，默认为false
-	     * 获取端点列表。
-	     */
 	    getBoundPoints(realSize = false) {
 	        if (!this._temp || this._temp.length < 1 || realSize != this._cacheBoundsType)
 	            this._temp = this._getCmdPoints(realSize);
@@ -14368,44 +10513,44 @@ window.Laya= (function (exports) {
 	        for (var i = 0, n = cmds.length; i < n; i++) {
 	            cmd = cmds[i];
 	            switch (cmd.cmdID) {
-	                case AlphaCmd.ID: //save //TODO:是否还需要
+	                case AlphaCmd.ID:
 	                    matrixs.push(tMatrix);
 	                    tMatrix = tMatrix.clone();
 	                    break;
-	                case RestoreCmd.ID: //restore
+	                case RestoreCmd.ID:
 	                    tMatrix = matrixs.pop();
 	                    break;
-	                case ScaleCmd.ID: //scale
+	                case ScaleCmd.ID:
 	                    tempMatrix.identity();
 	                    tempMatrix.translate(-cmd.pivotX, -cmd.pivotY);
 	                    tempMatrix.scale(cmd.scaleX, cmd.scaleY);
 	                    tempMatrix.translate(cmd.pivotX, cmd.pivotY);
 	                    this._switchMatrix(tMatrix, tempMatrix);
 	                    break;
-	                case RotateCmd.ID: //case context._rotate: 
+	                case RotateCmd.ID:
 	                    tempMatrix.identity();
 	                    tempMatrix.translate(-cmd.pivotX, -cmd.pivotY);
 	                    tempMatrix.rotate(cmd.angle);
 	                    tempMatrix.translate(cmd.pivotX, cmd.pivotY);
 	                    this._switchMatrix(tMatrix, tempMatrix);
 	                    break;
-	                case TranslateCmd.ID: //translate
+	                case TranslateCmd.ID:
 	                    tempMatrix.identity();
 	                    tempMatrix.translate(cmd.tx, cmd.ty);
 	                    this._switchMatrix(tMatrix, tempMatrix);
 	                    break;
-	                case TransformCmd.ID: //context._transform:
+	                case TransformCmd.ID:
 	                    tempMatrix.identity();
 	                    tempMatrix.translate(-cmd.pivotX, -cmd.pivotY);
 	                    tempMatrix.concat(cmd.matrix);
 	                    tempMatrix.translate(cmd.pivotX, cmd.pivotY);
 	                    this._switchMatrix(tMatrix, tempMatrix);
 	                    break;
-	                case DrawImageCmd.ID: //case context._drawTexture: 
-	                case FillTextureCmd.ID: //case context._fillTexture
+	                case DrawImageCmd.ID:
+	                case FillTextureCmd.ID:
 	                    GraphicsBounds._addPointArrToRst(rst, Rectangle._getBoundPointS(cmd.x, cmd.y, cmd.width, cmd.height), tMatrix);
 	                    break;
-	                case DrawTextureCmd.ID: //case context._drawTextureTransform: 
+	                case DrawTextureCmd.ID:
 	                    tMatrix.copyTo(tempMatrix);
 	                    if (cmd.matrix)
 	                        tempMatrix.concat(cmd.matrix);
@@ -14474,13 +10619,13 @@ window.Laya= (function (exports) {
 	                        GraphicsBounds._addPointArrToRst(rst, Rectangle._getBoundPointS(cmd.x - offX, cmd.y - offY, oWidth, oHeight), drawMatrix);
 	                    }
 	                    break;
-	                case DrawRectCmd.ID: //case context._drawRect:
+	                case DrawRectCmd.ID:
 	                    GraphicsBounds._addPointArrToRst(rst, Rectangle._getBoundPointS(cmd.x, cmd.y, cmd.width, cmd.height), tMatrix);
 	                    break;
-	                case DrawCircleCmd.ID: //case context._drawCircle
+	                case DrawCircleCmd.ID:
 	                    GraphicsBounds._addPointArrToRst(rst, Rectangle._getBoundPointS(cmd.x - cmd.radius, cmd.y - cmd.radius, cmd.radius + cmd.radius, cmd.radius + cmd.radius), tMatrix);
 	                    break;
-	                case DrawLineCmd.ID: //drawLine
+	                case DrawLineCmd.ID:
 	                    GraphicsBounds._tempPoints.length = 0;
 	                    var lineWidth;
 	                    lineWidth = cmd.lineWidth * 0.5;
@@ -14495,17 +10640,17 @@ window.Laya= (function (exports) {
 	                    }
 	                    GraphicsBounds._addPointArrToRst(rst, GraphicsBounds._tempPoints, tMatrix);
 	                    break;
-	                case DrawCurvesCmd.ID: //context._drawCurves:					
+	                case DrawCurvesCmd.ID:
 	                    GraphicsBounds._addPointArrToRst(rst, Bezier.I.getBezierPoints(cmd.points), tMatrix, cmd.x, cmd.y);
 	                    break;
-	                case DrawLinesCmd.ID: //drawpoly
-	                case DrawPolyCmd.ID: //drawpoly
+	                case DrawLinesCmd.ID:
+	                case DrawPolyCmd.ID:
 	                    GraphicsBounds._addPointArrToRst(rst, cmd.points, tMatrix, cmd.x, cmd.y);
 	                    break;
-	                case DrawPathCmd.ID: //drawPath
+	                case DrawPathCmd.ID:
 	                    GraphicsBounds._addPointArrToRst(rst, this._getPathPoints(cmd.paths), tMatrix, cmd.x, cmd.y);
 	                    break;
-	                case DrawPieCmd.ID: //drawPie
+	                case DrawPieCmd.ID:
 	                    GraphicsBounds._addPointArrToRst(rst, this._getPiePoints(cmd.x, cmd.y, cmd.radius, cmd.startAngle, cmd.endAngle), tMatrix);
 	                    break;
 	                case DrawTrianglesCmd.ID:
@@ -14540,61 +10685,34 @@ window.Laya= (function (exports) {
 	        matrix.transformPoint(_tempPoint);
 	        rst.push(_tempPoint.x, _tempPoint.y);
 	    }
-	    /**
-	     * 获得drawPie命令可能的产生的点。注意 这里只假设用在包围盒计算上。
-	     * @param	x
-	     * @param	y
-	     * @param	radius
-	     * @param	startAngle
-	     * @param	endAngle
-	     * @return
-	     */
 	    _getPiePoints(x, y, radius, startAngle, endAngle) {
 	        var rst = GraphicsBounds._tempPoints;
 	        GraphicsBounds._tempPoints.length = 0;
 	        var k = Math.PI / 180;
 	        var d1 = endAngle - startAngle;
 	        if (d1 >= 360 || d1 <= -360) {
-	            // 如果满了一圈了
 	            rst.push(x - radius, y - radius);
 	            rst.push(x + radius, y - radius);
 	            rst.push(x + radius, y + radius);
 	            rst.push(x - radius, y + radius);
 	            return rst;
 	        }
-	        // 
-	        rst.push(x, y); // 中心
+	        rst.push(x, y);
 	        var delta = d1 % 360;
 	        if (delta < 0)
 	            delta += 360;
-	        // 一定增加，且在360以内的end
 	        var end1 = startAngle + delta;
-	        // 转成弧度
 	        var st = startAngle * k;
 	        var ed = end1 * k;
-	        // 起点
 	        rst.push(x + radius * Math.cos(st), y + radius * Math.sin(st));
-	        // 终点
 	        rst.push(x + radius * Math.cos(ed), y + radius * Math.sin(ed));
-	        // 圆形的四个边界点
-	        // 按照90度对齐，看看会经历几个90度
-	        var s1 = Math.ceil(startAngle / 90) * 90; //开始的。start的下一个90度
-	        var s2 = Math.floor(end1 / 90) * 90; //结束。end的上一个90度
+	        var s1 = Math.ceil(startAngle / 90) * 90;
+	        var s2 = Math.floor(end1 / 90) * 90;
 	        for (var cs = s1; cs <= s2; cs += 90) {
 	            var csr = cs * k;
 	            rst.push(x + radius * Math.cos(csr), y + radius * Math.sin(csr));
 	        }
 	        return rst;
-	        /*
-	        var segnum:int = 32;
-	        var step:Number = delta / segnum;
-	        var i:Number;
-	        var angle:Number = startAngle;
-	        for (i = 0; i <= segnum; i++) {
-	            rst.push(x + radius * Math.cos(angle), y + radius * Math.sin(angle));
-	            angle += step;
-	        }
-	        */
 	    }
 	    _getTriAngBBXPoints(vert) {
 	        var vnum = vert.length;
@@ -14643,64 +10761,34 @@ window.Laya= (function (exports) {
 	        return rst;
 	    }
 	}
-	/**@private */
 	GraphicsBounds._tempMatrix = new Matrix();
-	/**@private */
 	GraphicsBounds._initMatrix = new Matrix();
-	/**@private */
 	GraphicsBounds._tempPoints = [];
-	/**@private */
 	GraphicsBounds._tempMatrixArrays = [];
-	/**@private */
 	GraphicsBounds._tempCmds = [];
 
-	/**
-	     * @private
-	     */
 	class SpriteConst {
 	}
-	/** @private */
 	SpriteConst.ALPHA = 0x01;
-	/** @private */
 	SpriteConst.TRANSFORM = 0x02;
-	/** @private */
 	SpriteConst.BLEND = 0x04;
-	/** @private */
 	SpriteConst.CANVAS = 0x08;
-	/** @private */
 	SpriteConst.FILTERS = 0x10;
-	/** @private */
 	SpriteConst.MASK = 0x20;
-	/** @private */
 	SpriteConst.CLIP = 0x40;
-	/** @private */
 	SpriteConst.STYLE = 0x80;
-	/** @private */
 	SpriteConst.TEXTURE = 0x100;
-	/** @private */
 	SpriteConst.GRAPHICS = 0x200;
-	/** @private */
 	SpriteConst.LAYAGL3D = 0x400;
-	/** @private */
 	SpriteConst.CUSTOM = 0x800;
-	/** @private */
 	SpriteConst.ONECHILD = 0x1000;
-	/** @private */
 	SpriteConst.CHILDS = 0x2000;
-	/** @private */
 	SpriteConst.REPAINT_NONE = 0;
-	/** @private */
 	SpriteConst.REPAINT_NODE = 0x01;
-	/** @private */
 	SpriteConst.REPAINT_CACHE = 0x02;
-	/** @private */
 	SpriteConst.REPAINT_ALL = 0x03;
 
-	/**
-	 * 裁剪命令
-	 */
 	class ClipRectCmd {
-	    /**@private */
 	    static create(x, y, width, height) {
 	        var cmd = Pool.getItemByClass("ClipRectCmd", ClipRectCmd);
 	        cmd.x = x;
@@ -14709,28 +10797,19 @@ window.Laya= (function (exports) {
 	        cmd.height = height;
 	        return cmd;
 	    }
-	    /**
-	     * 回收到对象池
-	     */
 	    recover() {
 	        Pool.recover("ClipRectCmd", this);
 	    }
-	    /**@private */
 	    run(context, gx, gy) {
 	        context.clipRect(this.x + gx, this.y + gy, this.width, this.height);
 	    }
-	    /**@private */
 	    get cmdID() {
 	        return ClipRectCmd.ID;
 	    }
 	}
 	ClipRectCmd.ID = "ClipRect";
 
-	/**
-	 * 根据坐标集合绘制多个贴图
-	 */
 	class DrawTexturesCmd {
-	    /**@private */
 	    static create(texture, pos) {
 	        var cmd = Pool.getItemByClass("DrawTexturesCmd", DrawTexturesCmd);
 	        cmd.texture = texture;
@@ -14738,31 +10817,22 @@ window.Laya= (function (exports) {
 	        cmd.pos = pos;
 	        return cmd;
 	    }
-	    /**
-	     * 回收到对象池
-	     */
 	    recover() {
 	        this.texture._removeReference();
 	        this.texture = null;
 	        this.pos = null;
 	        Pool.recover("DrawTexturesCmd", this);
 	    }
-	    /**@private */
 	    run(context, gx, gy) {
 	        context.drawTextures(this.texture, this.pos, gx, gy);
 	    }
-	    /**@private */
 	    get cmdID() {
 	        return DrawTexturesCmd.ID;
 	    }
 	}
 	DrawTexturesCmd.ID = "DrawTextures";
 
-	/**
-	 * 绘制文本边框
-	 */
 	class FillBorderTextCmd {
-	    /**@private */
 	    static create(text, x, y, font, fillColor, borderColor, lineWidth, textAlign) {
 	        var cmd = Pool.getItemByClass("FillBorderTextCmd", FillBorderTextCmd);
 	        cmd.text = text;
@@ -14775,28 +10845,19 @@ window.Laya= (function (exports) {
 	        cmd.textAlign = textAlign;
 	        return cmd;
 	    }
-	    /**
-	     * 回收到对象池
-	     */
 	    recover() {
 	        Pool.recover("FillBorderTextCmd", this);
 	    }
-	    /**@private */
 	    run(context, gx, gy) {
 	        context.fillBorderText(this.text, this.x + gx, this.y + gy, this.font, this.fillColor, this.borderColor, this.lineWidth, this.textAlign);
 	    }
-	    /**@private */
 	    get cmdID() {
 	        return FillBorderTextCmd.ID;
 	    }
 	}
 	FillBorderTextCmd.ID = "FillBorderText";
 
-	/**
-	 * 绘制边框
-	 */
 	class FillBorderWordsCmd {
-	    /**@private */
 	    static create(words, x, y, font, fillColor, borderColor, lineWidth) {
 	        var cmd = Pool.getItemByClass("FillBorderWordsCmd", FillBorderWordsCmd);
 	        cmd.words = words;
@@ -14808,37 +10869,27 @@ window.Laya= (function (exports) {
 	        cmd.lineWidth = lineWidth;
 	        return cmd;
 	    }
-	    /**
-	     * 回收到对象池
-	     */
 	    recover() {
 	        this.words = null;
 	        Pool.recover("FillBorderWordsCmd", this);
 	    }
-	    /**@private */
 	    run(context, gx, gy) {
 	        context.fillBorderWords(this.words, this.x + gx, this.y + gy, this.font, this.fillColor, this.borderColor, this.lineWidth);
 	    }
-	    /**@private */
 	    get cmdID() {
 	        return FillBorderWordsCmd.ID;
 	    }
 	}
 	FillBorderWordsCmd.ID = "FillBorderWords";
 
-	/**
-	 * 绘制文字
-	 */
 	class FillTextCmd {
 	    constructor() {
-	        /**@internal */
 	        this._textIsWorldText = false;
 	        this._fontColor = 0xffffffff;
 	        this._strokeColor = 0;
 	        this._fontObj = FillTextCmd._defFontObj;
 	        this._nTexAlign = 0;
 	    }
-	    /**@private */
 	    static create(text, x, y, font, color, textAlign) {
 	        var cmd = Pool.getItemByClass("FillTextCmd", FillTextCmd);
 	        cmd.text = text;
@@ -14850,13 +10901,9 @@ window.Laya= (function (exports) {
 	        cmd.textAlign = textAlign;
 	        return cmd;
 	    }
-	    /**
-	     * 回收到对象池
-	     */
 	    recover() {
 	        Pool.recover("FillTextCmd", this);
 	    }
-	    /**@private */
 	    run(context, gx, gy) {
 	        if (ILaya.stage.isGlobalRepaint()) {
 	            this._textIsWorldText && this._text.cleanCache();
@@ -14868,25 +10915,17 @@ window.Laya= (function (exports) {
 	            context.drawText(this._text, this.x + gx, this.y + gy, this._font, this._color, this._textAlign);
 	        }
 	    }
-	    /**@private */
 	    get cmdID() {
 	        return FillTextCmd.ID;
 	    }
-	    /**
-	     * 在画布上输出的文本。
-	     */
 	    get text() {
 	        return this._text;
 	    }
 	    set text(value) {
-	        //TODO 问题。 怎么通知native
 	        this._text = value;
 	        this._textIsWorldText = value instanceof WordText;
 	        this._textIsWorldText && this._text.cleanCache();
 	    }
-	    /**
-	     * 定义字号和字体，比如"20px Arial"。
-	     */
 	    get font() {
 	        return this._font;
 	    }
@@ -14895,9 +10934,6 @@ window.Laya= (function (exports) {
 	        this._fontObj = FontInfo.Parse(value);
 	        this._textIsWorldText && this._text.cleanCache();
 	    }
-	    /**
-	     * 定义文本颜色，比如"#ff0000"。
-	     */
 	    get color() {
 	        return this._color;
 	    }
@@ -14906,9 +10942,6 @@ window.Laya= (function (exports) {
 	        this._fontColor = ColorUtils.create(value).numColor;
 	        this._textIsWorldText && this._text.cleanCache();
 	    }
-	    /**
-	     * 文本对齐方式，可选值："left"，"center"，"right"。
-	     */
 	    get textAlign() {
 	        return this._textAlign;
 	    }
@@ -14930,12 +10963,7 @@ window.Laya= (function (exports) {
 	FillTextCmd.ID = "FillText";
 	FillTextCmd._defFontObj = new FontInfo(null);
 
-	/**
-	 * 填充文字命令
-	 * @private
-	 */
 	class FillWordsCmd {
-	    /**@private */
 	    static create(words, x, y, font, color) {
 	        var cmd = Pool.getItemByClass("FillWordsCmd", FillWordsCmd);
 	        cmd.words = words;
@@ -14945,55 +10973,37 @@ window.Laya= (function (exports) {
 	        cmd.color = color;
 	        return cmd;
 	    }
-	    /**
-	     * 回收到对象池
-	     */
 	    recover() {
 	        this.words = null;
 	        Pool.recover("FillWordsCmd", this);
 	    }
-	    /**@private */
 	    run(context, gx, gy) {
 	        context.fillWords(this.words, this.x + gx, this.y + gy, this.font, this.color);
 	    }
-	    /**@private */
 	    get cmdID() {
 	        return FillWordsCmd.ID;
 	    }
 	}
 	FillWordsCmd.ID = "FillWords";
 
-	/**
-	 * 存储命令，和restore配套使用
-	 */
 	class SaveCmd {
-	    /**@private */
 	    static create() {
 	        var cmd = Pool.getItemByClass("SaveCmd", SaveCmd);
 	        return cmd;
 	    }
-	    /**
-	     * 回收到对象池
-	     */
 	    recover() {
 	        Pool.recover("SaveCmd", this);
 	    }
-	    /**@private */
 	    run(context, gx, gy) {
 	        context.save();
 	    }
-	    /**@private */
 	    get cmdID() {
 	        return SaveCmd.ID;
 	    }
 	}
 	SaveCmd.ID = "Save";
 
-	/**
-	 * 绘制描边文字
-	 */
 	class StrokeTextCmd {
-	    /**@private */
 	    static create(text, x, y, font, color, lineWidth, textAlign) {
 	        var cmd = Pool.getItemByClass("StrokeTextCmd", StrokeTextCmd);
 	        cmd.text = text;
@@ -15005,48 +11015,27 @@ window.Laya= (function (exports) {
 	        cmd.textAlign = textAlign;
 	        return cmd;
 	    }
-	    /**
-	     * 回收到对象池
-	     */
 	    recover() {
 	        Pool.recover("StrokeTextCmd", this);
 	    }
-	    /**@private */
 	    run(context, gx, gy) {
 	        context.strokeWord(this.text, this.x + gx, this.y + gy, this.font, this.color, this.lineWidth, this.textAlign);
 	    }
-	    /**@private */
 	    get cmdID() {
 	        return StrokeTextCmd.ID;
 	    }
 	}
 	StrokeTextCmd.ID = "StrokeText";
 
-	/**
-	     * @private
-	     * 对象缓存统一管理类
-	     */
 	class CacheManger {
 	    constructor() {
 	    }
-	    /**
-	     * 注册cache管理函数
-	     * @param disposeFunction 释放函数 fun(force:Boolean)
-	     * @param getCacheListFunction 获取cache列表函数fun():Array
-	     *
-	     */
 	    static regCacheByFunction(disposeFunction, getCacheListFunction) {
 	        CacheManger.unRegCacheByFunction(disposeFunction, getCacheListFunction);
 	        var cache;
 	        cache = { tryDispose: disposeFunction, getCacheList: getCacheListFunction };
 	        CacheManger._cacheList.push(cache);
 	    }
-	    /**
-	     * 移除cache管理函数
-	     * @param disposeFunction 释放函数 fun(force:Boolean)
-	     * @param getCacheListFunction 获取cache列表函数fun():Array
-	     *
-	     */
 	    static unRegCacheByFunction(disposeFunction, getCacheListFunction) {
 	        var i, len;
 	        len = CacheManger._cacheList.length;
@@ -15057,37 +11046,18 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**
-	     * 强制清理所有管理器
-	     *
-	     */
-	    //TODO:coverage
 	    static forceDispose() {
 	        var i, len = CacheManger._cacheList.length;
 	        for (i = 0; i < len; i++) {
 	            CacheManger._cacheList[i].tryDispose(true);
 	        }
 	    }
-	    /**
-	     * 开始检测循环
-	     * @param waitTime 检测间隔时间
-	     *
-	     */
 	    static beginCheck(waitTime = 15000) {
 	        ILaya.systemTimer.loop(waitTime, null, CacheManger._checkLoop);
 	    }
-	    /**
-	     * 停止检测循环
-	     *
-	     */
-	    //TODO:coverage
 	    static stopCheck() {
 	        ILaya.systemTimer.clear(null, CacheManger._checkLoop);
 	    }
-	    /**
-	     * @private
-	     * 检测函数
-	     */
 	    static _checkLoop() {
 	        var cacheList = CacheManger._cacheList;
 	        if (cacheList.length < 1)
@@ -15106,25 +11076,10 @@ window.Laya= (function (exports) {
 	        }
 	    }
 	}
-	//TODO:
-	/**
-	 * 单次清理检测允许执行的时间，单位ms。
-	 */
 	CacheManger.loopTimeLimit = 2;
-	/**
-	 * @private
-	 */
 	CacheManger._cacheList = [];
-	/**
-	 * @private
-	 * 当前检测的索引
-	 */
 	CacheManger._index = 0;
 
-	/**
-	 * @private
-	 * TODO:
-	 */
 	class VectorGraphManager {
 	    constructor() {
 	        this.useDic = {};
@@ -15138,42 +11093,21 @@ window.Laya= (function (exports) {
 	    static getInstance() {
 	        return VectorGraphManager.instance = VectorGraphManager.instance || new VectorGraphManager();
 	    }
-	    /**
-	     * 得到个空闲的ID
-	     * @return
-	     */
 	    getId() {
-	        //if (_freeIdArray.length > 0) {
-	        //return _freeIdArray.pop();
-	        //}
 	        return this._id++;
 	    }
-	    /**
-	     * 添加一个图形到列表中
-	     * @param	id
-	     * @param	shape
-	     */
 	    addShape(id, shape) {
 	        this.shapeDic[id] = shape;
 	        if (!this.useDic[id]) {
 	            this.useDic[id] = true;
 	        }
 	    }
-	    /**
-	     * 添加一个线图形到列表中
-	     * @param	id
-	     * @param	Line
-	     */
 	    addLine(id, Line) {
 	        this.shapeLineDic[id] = Line;
 	        if (!this.shapeLineDic[id]) {
 	            this.shapeLineDic[id] = true;
 	        }
 	    }
-	    /**
-	     * 检测一个对象是否在使用中
-	     * @param	id
-	     */
 	    getShape(id) {
 	        if (this._checkKey) {
 	            if (this.useDic[id] != null) {
@@ -15181,10 +11115,6 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**
-	     * 删除一个图形对象
-	     * @param	id
-	     */
 	    deleteShape(id) {
 	        if (this.shapeDic[id]) {
 	            this.shapeDic[id] = null;
@@ -15197,12 +11127,7 @@ window.Laya= (function (exports) {
 	        if (this.useDic[id] != null) {
 	            delete this.useDic[id];
 	        }
-	        //_freeIdArray.push(id);
 	    }
-	    /**
-	     * 得到缓存列表
-	     * @return
-	     */
 	    getCacheList() {
 	        var str;
 	        var list = [];
@@ -15214,9 +11139,6 @@ window.Laya= (function (exports) {
 	        }
 	        return list;
 	    }
-	    /**
-	     * 开始清理状态，准备销毁
-	     */
 	    startDispose(key) {
 	        var str;
 	        for (str in this.useDic) {
@@ -15224,9 +11146,6 @@ window.Laya= (function (exports) {
 	        }
 	        this._checkKey = true;
 	    }
-	    /**
-	     * 确认销毁
-	     */
 	    endDispose() {
 	        if (this._checkKey) {
 	            var str;
@@ -15240,41 +11159,23 @@ window.Laya= (function (exports) {
 	    }
 	}
 
-	/**
-	 * <code>Graphics</code> 类用于创建绘图显示对象。Graphics可以同时绘制多个位图或者矢量图，还可以结合save，restore，transform，scale，rotate，translate，alpha等指令对绘图效果进行变化。
-	 * Graphics以命令流方式存储，可以通过cmds属性访问所有命令流。Graphics是比Sprite更轻量级的对象，合理使用能提高应用性能(比如把大量的节点绘图改为一个节点的Graphics命令集合，能减少大量节点创建消耗)。
-	 * @see laya.display.Sprite#graphics
-	 */
 	class Graphics {
 	    constructor() {
-	        /**@internal */
 	        this._sp = null;
-	        /**@internal */
 	        this._one = null;
-	        /**@internal */
 	        this._render = this._renderEmpty;
-	        /**@private */
 	        this._cmds = null;
-	        /**@private */
 	        this._vectorgraphArray = null;
-	        /**@private */
 	        this._graphicBounds = null;
-	        /**@private */
 	        this.autoDestroy = false;
 	        this._createData();
 	    }
-	    /**@internal */
 	    _createData() {
 	    }
-	    /**@internal */
 	    _clearData() {
 	    }
-	    /**@internal */
 	    _destroyData() {
 	    }
-	    /**
-	     * <p>销毁此对象。</p>
-	     */
 	    destroy() {
 	        this.clear(true);
 	        if (this._graphicBounds)
@@ -15288,12 +11189,7 @@ window.Laya= (function (exports) {
 	        }
 	        this._destroyData();
 	    }
-	    /**
-	     * <p>清空绘制命令。</p>
-	     * @param recoverCmds 是否回收绘图指令数组，设置为true，则对指令数组进行回收以节省内存开销，建议设置为true进行回收，但如果手动引用了数组，不建议回收
-	     */
 	    clear(recoverCmds = true) {
-	        //TODO:内存回收all
 	        if (recoverCmds) {
 	            var tCmd = this._one;
 	            if (this._cmds) {
@@ -15314,7 +11210,6 @@ window.Laya= (function (exports) {
 	        this._one = null;
 	        this._render = this._renderEmpty;
 	        this._clearData();
-	        //_sp && (_sp._renderType &= ~SpriteConst.IMAGE);
 	        if (this._sp) {
 	            this._sp._renderType &= ~SpriteConst.GRAPHICS;
 	            this._sp._setRenderType(this._sp._renderType);
@@ -15327,37 +11222,24 @@ window.Laya= (function (exports) {
 	            this._vectorgraphArray.length = 0;
 	        }
 	    }
-	    /**@private */
 	    _clearBoundsCache() {
 	        if (this._graphicBounds)
 	            this._graphicBounds.reset();
 	    }
-	    /**@private */
 	    _initGraphicBounds() {
 	        if (!this._graphicBounds) {
 	            this._graphicBounds = GraphicsBounds.create();
 	            this._graphicBounds._graphics = this;
 	        }
 	    }
-	    /**
-	     * @internal
-	     * 重绘此对象。
-	     */
 	    _repaint() {
 	        this._clearBoundsCache();
 	        this._sp && this._sp.repaint();
 	    }
-	    /**@internal */
-	    //TODO:coverage
 	    _isOnlyOne() {
 	        return !this._cmds || this._cmds.length === 0;
 	    }
-	    /**
-	     * @private
-	     * 命令流。存储了所有绘制命令。
-	     */
 	    get cmds() {
-	        //TODO:单命令不对
 	        return this._cmds;
 	    }
 	    set cmds(value) {
@@ -15369,32 +11251,14 @@ window.Laya= (function (exports) {
 	        this._render = this._renderAll;
 	        this._repaint();
 	    }
-	    /**
-	     * 获取位置及宽高信息矩阵(比较耗CPU，频繁使用会造成卡顿，尽量少用)。
-	     * @param realSize	（可选）使用图片的真实大小，默认为false
-	     * @return 位置与宽高组成的 一个 Rectangle 对象。
-	     */
 	    getBounds(realSize = false) {
 	        this._initGraphicBounds();
 	        return this._graphicBounds.getBounds(realSize);
 	    }
-	    /**
-	     * @private
-	     * @param realSize	（可选）使用图片的真实大小，默认为false
-	     * 获取端点列表。
-	     */
 	    getBoundPoints(realSize = false) {
 	        this._initGraphicBounds();
 	        return this._graphicBounds.getBoundPoints(realSize);
 	    }
-	    /**
-	     * 绘制单独图片
-	     * @param texture		纹理。
-	     * @param x 		（可选）X轴偏移量。
-	     * @param y 		（可选）Y轴偏移量。
-	     * @param width		（可选）宽度。
-	     * @param height	（可选）高度。
-	     */
 	    drawImage(texture, x = 0, y = 0, width = 0, height = 0) {
 	        if (!texture)
 	            return null;
@@ -15420,29 +11284,13 @@ window.Laya= (function (exports) {
 	        if (this._one == null) {
 	            this._one = args;
 	            this._render = this._renderOneImg;
-	            //if(_sp)_sp._renderType |= SpriteConst.IMAGE;
 	        }
 	        else {
 	            this._saveToCmd(null, args);
 	        }
-	        //if (!tex.loaded) {
-	        //tex.once(Event.LOADED, this, _textureLoaded, [tex, args]);
-	        //}
 	        this._repaint();
 	        return args;
 	    }
-	    /**
-	     * 绘制纹理，相比drawImage功能更强大，性能会差一些
-	     * @param texture		纹理。
-	     * @param x 		（可选）X轴偏移量。
-	     * @param y 		（可选）Y轴偏移量。
-	     * @param width		（可选）宽度。
-	     * @param height	（可选）高度。
-	     * @param matrix	（可选）矩阵信息。
-	     * @param alpha		（可选）透明度。
-	     * @param color		（可选）颜色滤镜。
-	     * @param blendMode （可选）混合模式。
-	     */
 	    drawTexture(texture, x = 0, y = 0, width = 0, height = 0, matrix = null, alpha = 1, color = null, blendMode = null, uv) {
 	        if (!texture || alpha < 0.01)
 	            return null;
@@ -15466,58 +11314,24 @@ window.Laya= (function (exports) {
 	            this._sp._renderType |= SpriteConst.GRAPHICS;
 	            this._sp._setRenderType(this._sp._renderType);
 	        }
-	        // canvas 模式不支持
 	        var args = DrawTextureCmd.create.call(this, texture, x, y, width, height, matrix, alpha, color, blendMode, uv);
 	        this._repaint();
 	        return this._saveToCmd(null, args);
 	    }
-	    /**
-	     * 批量绘制同样纹理。
-	     * @param texture 纹理。
-	     * @param pos 绘制次数和坐标。
-	     */
 	    drawTextures(texture, pos) {
 	        if (!texture)
 	            return null;
 	        return this._saveToCmd(Render._context.drawTextures, DrawTexturesCmd.create.call(this, texture, pos));
 	    }
-	    /**
-	     * 绘制一组三角形
-	     * @param texture	纹理。
-	     * @param x			X轴偏移量。
-	     * @param y			Y轴偏移量。
-	     * @param vertices  顶点数组。
-	     * @param indices	顶点索引。
-	     * @param uvData	UV数据。
-	     * @param matrix	缩放矩阵。
-	     * @param alpha		alpha
-	     * @param color		颜色变换
-	     * @param blendMode	blend模式
-	     */
 	    drawTriangles(texture, x, y, vertices, uvs, indices, matrix = null, alpha = 1, color = null, blendMode = null) {
 	        return this._saveToCmd(Render._context.drawTriangles, DrawTrianglesCmd.create.call(this, texture, x, y, vertices, uvs, indices, matrix, alpha, color, blendMode));
 	    }
-	    /**
-	     * 用texture填充。
-	     * @param texture		纹理。
-	     * @param x			X轴偏移量。
-	     * @param y			Y轴偏移量。
-	     * @param width		（可选）宽度。
-	     * @param height	（可选）高度。
-	     * @param type		（可选）填充类型 repeat|repeat-x|repeat-y|no-repeat
-	     * @param offset	（可选）贴图纹理偏移
-	     *
-	     */
 	    fillTexture(texture, x, y, width = 0, height = 0, type = "repeat", offset = null) {
 	        if (texture && texture.getIsReady())
 	            return this._saveToCmd(Render._context._fillTexture, FillTextureCmd.create.call(this, texture, x, y, width, height, type, offset || Point.EMPTY, {}));
 	        else
 	            return null;
 	    }
-	    /**
-	     * @internal
-	     * 保存到命令流。
-	     */
 	    _saveToCmd(fun, args) {
 	        if (this._sp) {
 	            this._sp._renderType |= SpriteConst.GRAPHICS;
@@ -15528,7 +11342,6 @@ window.Laya= (function (exports) {
 	            this._render = this._renderOne;
 	        }
 	        else {
-	            //_sp && (_sp._renderType &= ~SpriteConst.IMAGE);
 	            this._render = this._renderAll;
 	            (this._cmds || (this._cmds = [])).length === 0 && this._cmds.push(this._one);
 	            this._cmds.push(args);
@@ -15536,127 +11349,47 @@ window.Laya= (function (exports) {
 	        this._repaint();
 	        return args;
 	    }
-	    /**
-	     * 设置剪裁区域，超出剪裁区域的坐标不显示。
-	     * @param x X 轴偏移量。
-	     * @param y Y 轴偏移量。
-	     * @param width 宽度。
-	     * @param height 高度。
-	     */
 	    clipRect(x, y, width, height) {
 	        return this._saveToCmd(Render._context.clipRect, ClipRectCmd.create.call(this, x, y, width, height));
 	    }
-	    /**
-	     * 在画布上绘制文本。
-	     * @param text 在画布上输出的文本。
-	     * @param x 开始绘制文本的 x 坐标位置（相对于画布）。
-	     * @param y 开始绘制文本的 y 坐标位置（相对于画布）。
-	     * @param font 定义字号和字体，比如"20px Arial"。
-	     * @param color 定义文本颜色，比如"#ff0000"。
-	     * @param textAlign 文本对齐方式，可选值："left"，"center"，"right"。
-	     */
 	    fillText(text, x, y, font, color, textAlign) {
 	        return this._saveToCmd(Render._context.fillText, FillTextCmd.create.call(this, text, x, y, font || ILaya.Text.defaultFontStr(), color, textAlign));
 	    }
-	    /**
-	     * 在画布上绘制“被填充且镶边的”文本。
-	     * @param text			在画布上输出的文本。
-	     * @param x				开始绘制文本的 x 坐标位置（相对于画布）。
-	     * @param y				开始绘制文本的 y 坐标位置（相对于画布）。
-	     * @param font			定义字体和字号，比如"20px Arial"。
-	     * @param fillColor		定义文本颜色，比如"#ff0000"。
-	     * @param borderColor	定义镶边文本颜色。
-	     * @param lineWidth		镶边线条宽度。
-	     * @param textAlign		文本对齐方式，可选值："left"，"center"，"right"。
-	     */
 	    fillBorderText(text, x, y, font, fillColor, borderColor, lineWidth, textAlign) {
 	        return this._saveToCmd(Render._context.fillBorderText, FillBorderTextCmd.create.call(this, text, x, y, font || ILaya.Text.defaultFontStr(), fillColor, borderColor, lineWidth, textAlign));
 	    }
-	    /*** @private */
 	    fillWords(words, x, y, font, color) {
 	        return this._saveToCmd(Render._context.fillWords, FillWordsCmd.create.call(this, words, x, y, font || ILaya.Text.defaultFontStr(), color));
 	    }
-	    /*** @private */
 	    fillBorderWords(words, x, y, font, fillColor, borderColor, lineWidth) {
 	        return this._saveToCmd(Render._context.fillBorderWords, FillBorderWordsCmd.create.call(this, words, x, y, font || ILaya.Text.defaultFontStr(), fillColor, borderColor, lineWidth));
 	    }
-	    /**
-	     * 在画布上绘制文本（没有填色）。文本的默认颜色是黑色。
-	     * @param text		在画布上输出的文本。
-	     * @param x			开始绘制文本的 x 坐标位置（相对于画布）。
-	     * @param y			开始绘制文本的 y 坐标位置（相对于画布）。
-	     * @param font		定义字体和字号，比如"20px Arial"。
-	     * @param color		定义文本颜色，比如"#ff0000"。
-	     * @param lineWidth	线条宽度。
-	     * @param textAlign	文本对齐方式，可选值："left"，"center"，"right"。
-	     */
 	    strokeText(text, x, y, font, color, lineWidth, textAlign) {
 	        return this._saveToCmd(Render._context.fillBorderText, StrokeTextCmd.create.call(this, text, x, y, font || ILaya.Text.defaultFontStr(), null, color, lineWidth, textAlign));
 	    }
-	    /**
-	     * 设置透明度。
-	     * @param value 透明度。
-	     */
 	    alpha(alpha) {
 	        return this._saveToCmd(Render._context.alpha, AlphaCmd.create.call(this, alpha));
 	    }
-	    /**
-	     * 替换绘图的当前转换矩阵。
-	     * @param mat 矩阵。
-	     * @param pivotX	（可选）水平方向轴心点坐标。
-	     * @param pivotY	（可选）垂直方向轴心点坐标。
-	     */
 	    transform(matrix, pivotX = 0, pivotY = 0) {
 	        return this._saveToCmd(Render._context._transform, TransformCmd.create.call(this, matrix, pivotX, pivotY));
 	    }
-	    /**
-	     * 旋转当前绘图。(推荐使用transform，性能更高)
-	     * @param angle		旋转角度，以弧度计。
-	     * @param pivotX	（可选）水平方向轴心点坐标。
-	     * @param pivotY	（可选）垂直方向轴心点坐标。
-	     */
 	    rotate(angle, pivotX = 0, pivotY = 0) {
 	        return this._saveToCmd(Render._context._rotate, RotateCmd.create.call(this, angle, pivotX, pivotY));
 	    }
-	    /**
-	     * 缩放当前绘图至更大或更小。(推荐使用transform，性能更高)
-	     * @param scaleX	水平方向缩放值。
-	     * @param scaleY	垂直方向缩放值。
-	     * @param pivotX	（可选）水平方向轴心点坐标。
-	     * @param pivotY	（可选）垂直方向轴心点坐标。
-	     */
 	    scale(scaleX, scaleY, pivotX = 0, pivotY = 0) {
 	        return this._saveToCmd(Render._context._scale, ScaleCmd.create.call(this, scaleX, scaleY, pivotX, pivotY));
 	    }
-	    /**
-	     * 重新映射画布上的 (0,0) 位置。
-	     * @param x 添加到水平坐标（x）上的值。
-	     * @param y 添加到垂直坐标（y）上的值。
-	     */
 	    translate(tx, ty) {
 	        return this._saveToCmd(Render._context.translate, TranslateCmd.create.call(this, tx, ty));
 	    }
-	    /**
-	     * 保存当前环境的状态。
-	     */
 	    save() {
 	        return this._saveToCmd(Render._context._save, SaveCmd.create.call(this));
 	    }
-	    /**
-	     * 返回之前保存过的路径状态和属性。
-	     */
 	    restore() {
 	        return this._saveToCmd(Render._context.restore, RestoreCmd.create.call(this));
 	    }
-	    /**
-	     * @private
-	     * 替换文本内容。
-	     * @param text 文本内容。
-	     * @return 替换成功则值为true，否则值为flase。
-	     */
 	    replaceText(text) {
 	        this._repaint();
-	        //todo 该函数现在加速器应该不对
 	        var cmds = this._cmds;
 	        if (!cmds) {
 	            if (this._one && this._isTextCmd(this._one)) {
@@ -15674,16 +11407,10 @@ window.Laya= (function (exports) {
 	        }
 	        return false;
 	    }
-	    /**@private */
 	    _isTextCmd(cmd) {
 	        var cmdID = cmd.cmdID;
 	        return cmdID == FillTextCmd.ID || cmdID == StrokeTextCmd.ID || cmdID == FillBorderTextCmd.ID;
 	    }
-	    /**
-	     * @private
-	     * 替换文本颜色。
-	     * @param color 颜色。
-	     */
 	    replaceTextColor(color) {
 	        this._repaint();
 	        var cmds = this._cmds;
@@ -15700,7 +11427,6 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**@private */
 	    _setTextCmdColor(cmdO, color) {
 	        var cmdID = cmdO.cmdID;
 	        switch (cmdID) {
@@ -15715,15 +11441,6 @@ window.Laya= (function (exports) {
 	                break;
 	        }
 	    }
-	    /**
-	     * 加载并显示一个图片。
-	     * @param url		图片地址。
-	     * @param x			（可选）显示图片的x位置。
-	     * @param y			（可选）显示图片的y位置。
-	     * @param width		（可选）显示图片的宽度，设置为0表示使用图片默认宽度。
-	     * @param height	（可选）显示图片的高度，设置为0表示使用图片默认高度。
-	     * @param complete	（可选）加载完成回调。
-	     */
 	    loadImage(url, x = 0, y = 0, width = 0, height = 0, complete = null) {
 	        var tex = ILaya.Loader.getRes(url);
 	        if (!tex) {
@@ -15743,129 +11460,51 @@ window.Laya= (function (exports) {
 	            tex.getIsReady() ? complete.call(this._sp) : tex.on(Event.READY, this._sp, complete);
 	        }
 	    }
-	    /**
-	     * @internal
-	     */
 	    _renderEmpty(sprite, context, x, y) {
 	    }
-	    /**
-	     * @internal
-	     */
 	    _renderAll(sprite, context, x, y) {
 	        var cmds = this._cmds;
 	        for (var i = 0, n = cmds.length; i < n; i++) {
 	            cmds[i].run(context, x, y);
 	        }
 	    }
-	    /**
-	     * @internal
-	     */
 	    _renderOne(sprite, context, x, y) {
 	        context.sprite = sprite;
 	        this._one.run(context, x, y);
 	    }
-	    /**
-	     * @internal
-	     */
 	    _renderOneImg(sprite, context, x, y) {
 	        context.sprite = sprite;
 	        this._one.run(context, x, y);
 	    }
-	    /**
-	     * 绘制一条线。
-	     * @param fromX		X轴开始位置。
-	     * @param fromY		Y轴开始位置。
-	     * @param toX		X轴结束位置。
-	     * @param toY		Y轴结束位置。
-	     * @param lineColor	颜色。
-	     * @param lineWidth	（可选）线条宽度。
-	     */
 	    drawLine(fromX, fromY, toX, toY, lineColor, lineWidth = 1) {
 	        var offset = (lineWidth < 1 || lineWidth % 2 === 0) ? 0 : 0.5;
 	        return this._saveToCmd(Render._context._drawLine, DrawLineCmd.create.call(this, fromX + offset, fromY + offset, toX + offset, toY + offset, lineColor, lineWidth, 0));
 	    }
-	    /**
-	     * 绘制一系列线段。
-	     * @param x			开始绘制的X轴位置。
-	     * @param y			开始绘制的Y轴位置。
-	     * @param points	线段的点集合。格式:[x1,y1,x2,y2,x3,y3...]。
-	     * @param lineColor	线段颜色，或者填充绘图的渐变对象。
-	     * @param lineWidth	（可选）线段宽度。
-	     */
 	    drawLines(x, y, points, lineColor, lineWidth = 1) {
 	        if (!points || points.length < 4)
 	            return null;
 	        var offset = (lineWidth < 1 || lineWidth % 2 === 0) ? 0 : 0.5;
-	        //TODO 线段需要缓存
 	        return this._saveToCmd(Render._context._drawLines, DrawLinesCmd.create.call(this, x + offset, y + offset, points, lineColor, lineWidth, 0));
 	    }
-	    /**
-	     * 绘制一系列曲线。
-	     * @param x			开始绘制的 X 轴位置。
-	     * @param y			开始绘制的 Y 轴位置。
-	     * @param points	线段的点集合，格式[controlX, controlY, anchorX, anchorY...]。
-	     * @param lineColor	线段颜色，或者填充绘图的渐变对象。
-	     * @param lineWidth	（可选）线段宽度。
-	     */
 	    drawCurves(x, y, points, lineColor, lineWidth = 1) {
 	        return this._saveToCmd(Render._context.drawCurves, DrawCurvesCmd.create.call(this, x, y, points, lineColor, lineWidth));
 	    }
-	    /**
-	     * 绘制矩形。
-	     * @param x			开始绘制的 X 轴位置。
-	     * @param y			开始绘制的 Y 轴位置。
-	     * @param width		矩形宽度。
-	     * @param height	矩形高度。
-	     * @param fillColor	填充颜色，或者填充绘图的渐变对象。
-	     * @param lineColor	（可选）边框颜色，或者填充绘图的渐变对象。
-	     * @param lineWidth	（可选）边框宽度。
-	     */
 	    drawRect(x, y, width, height, fillColor, lineColor = null, lineWidth = 1) {
 	        var offset = (lineWidth >= 1 && lineColor) ? lineWidth / 2 : 0;
 	        var lineOffset = lineColor ? lineWidth : 0;
 	        return this._saveToCmd(Render._context.drawRect, DrawRectCmd.create.call(this, x + offset, y + offset, width - lineOffset, height - lineOffset, fillColor, lineColor, lineWidth));
 	    }
-	    /**
-	     * 绘制圆形。
-	     * @param x			圆点X 轴位置。
-	     * @param y			圆点Y 轴位置。
-	     * @param radius	半径。
-	     * @param fillColor	填充颜色，或者填充绘图的渐变对象。
-	     * @param lineColor	（可选）边框颜色，或者填充绘图的渐变对象。
-	     * @param lineWidth	（可选）边框宽度。
-	     */
 	    drawCircle(x, y, radius, fillColor, lineColor = null, lineWidth = 1) {
 	        var offset = (lineWidth >= 1 && lineColor) ? lineWidth / 2 : 0;
 	        return this._saveToCmd(Render._context._drawCircle, DrawCircleCmd.create.call(this, x, y, radius - offset, fillColor, lineColor, lineWidth, 0));
 	    }
-	    /**
-	     * 绘制扇形。
-	     * @param x				开始绘制的 X 轴位置。
-	     * @param y				开始绘制的 Y 轴位置。
-	     * @param radius		扇形半径。
-	     * @param startAngle	开始角度。
-	     * @param endAngle		结束角度。
-	     * @param fillColor		填充颜色，或者填充绘图的渐变对象。
-	     * @param lineColor		（可选）边框颜色，或者填充绘图的渐变对象。
-	     * @param lineWidth		（可选）边框宽度。
-	     */
 	    drawPie(x, y, radius, startAngle, endAngle, fillColor, lineColor = null, lineWidth = 1) {
 	        var offset = (lineWidth >= 1 && lineColor) ? lineWidth / 2 : 0;
 	        var lineOffset = lineColor ? lineWidth : 0;
 	        return this._saveToCmd(Render._context._drawPie, DrawPieCmd.create.call(this, x + offset, y + offset, radius - lineOffset, Utils.toRadian(startAngle), Utils.toRadian(endAngle), fillColor, lineColor, lineWidth, 0));
 	    }
-	    /**
-	     * 绘制多边形。
-	     * @param x			开始绘制的 X 轴位置。
-	     * @param y			开始绘制的 Y 轴位置。
-	     * @param points	多边形的点集合。
-	     * @param fillColor	填充颜色，或者填充绘图的渐变对象。
-	     * @param lineColor	（可选）边框颜色，或者填充绘图的渐变对象。
-	     * @param lineWidth	（可选）边框宽度。
-	     */
 	    drawPoly(x, y, points, fillColor, lineColor = null, lineWidth = 1) {
 	        var tIsConvexPolygon = false;
-	        //这里加入多加形是否是凸边形
 	        if (points.length > 6) {
 	            tIsConvexPolygon = false;
 	        }
@@ -15873,39 +11512,16 @@ window.Laya= (function (exports) {
 	            tIsConvexPolygon = true;
 	        }
 	        var offset = (lineWidth >= 1 && lineColor) ? (lineWidth % 2 === 0 ? 0 : 0.5) : 0;
-	        //TODO 非凸多边形需要缓存
 	        return this._saveToCmd(Render._context._drawPoly, DrawPolyCmd.create.call(this, x + offset, y + offset, points, fillColor, lineColor, lineWidth, tIsConvexPolygon, 0));
 	    }
-	    /**
-	     * 绘制路径。
-	     * @param x		开始绘制的 X 轴位置。
-	     * @param y		开始绘制的 Y 轴位置。
-	     * @param paths	路径集合，路径支持以下格式：[["moveTo",x,y],["lineTo",x,y],["arcTo",x1,y1,x2,y2,r],["closePath"]]。
-	     * @param brush	（可选）刷子定义，支持以下设置{fillStyle:"#FF0000"}。
-	     * @param pen	（可选）画笔定义，支持以下设置{strokeStyle,lineWidth,lineJoin:"bevel|round|miter",lineCap:"butt|round|square",miterLimit}。
-	     */
 	    drawPath(x, y, paths, brush = null, pen = null) {
 	        return this._saveToCmd(Render._context._drawPath, DrawPathCmd.create.call(this, x, y, paths, brush, pen));
 	    }
-	    /**
-	     * @private
-	     * 绘制带九宫格的图片
-	     * @param	texture
-	     * @param	x
-	     * @param	y
-	     * @param	width
-	     * @param	height
-	     * @param	sizeGrid
-	     */
 	    draw9Grid(texture, x = 0, y = 0, width = 0, height = 0, sizeGrid = null) {
 	        this._saveToCmd(null, Draw9GridTexture.create(texture, x, y, width, height, sizeGrid));
 	    }
 	}
 
-	/**
-	     * @private
-	     * 静态常量集合
-	     */
 	class Const {
 	}
 	Const.NOT_ACTIVE = 0x01;
@@ -15918,26 +11534,12 @@ window.Laya= (function (exports) {
 	Const.DISPLAYED_INSTAGE = 0x80;
 	Const.DRAWCALL_OPTIMIZE = 0x100;
 
-	/**
-	 * 鼠标点击区域，可以设置绘制一系列矢量图作为点击区域和非点击区域（目前只支持圆形，矩形，多边形）
-	 *
-	 */
 	class HitArea {
-	    /**
-	     * 检测对象是否包含指定的点。
-	     * @param	x	点的 X 轴坐标值（水平位置）。
-	     * @param	y	点的 Y 轴坐标值（垂直位置）。
-	     * @return	如果包含指定的点，则值为 true；否则为 false。
-	     */
 	    contains(x, y) {
 	        if (!HitArea._isHitGraphic(x, y, this.hit))
 	            return false;
 	        return !HitArea._isHitGraphic(x, y, this.unHit);
 	    }
-	    /**
-	     * @private
-	     * 是否击中Graphic
-	     */
 	    static _isHitGraphic(x, y, graphic) {
 	        if (!graphic)
 	            return false;
@@ -15966,10 +11568,6 @@ window.Laya= (function (exports) {
 	        }
 	        return false;
 	    }
-	    /**
-	     * @internal
-	     * 是否击中绘图指令
-	     */
 	    static _isHitCmd(x, y, cmd) {
 	        if (!cmd)
 	            return false;
@@ -15994,14 +11592,9 @@ window.Laya= (function (exports) {
 	        }
 	        return rst;
 	    }
-	    /**
-	     * @internal
-	     * 坐标是否在多边形内
-	     */
 	    static _ptInPolygon(x, y, areaPoints) {
 	        var p = HitArea._ptPoint;
 	        p.setTo(x, y);
-	        // 交点个数
 	        var nCross = 0;
 	        var p1x, p1y, p2x, p2y;
 	        var len;
@@ -16011,26 +11604,18 @@ window.Laya= (function (exports) {
 	            p1y = areaPoints[i + 1];
 	            p2x = areaPoints[(i + 2) % len];
 	            p2y = areaPoints[(i + 3) % len];
-	            //var p1:Point = areaPoints[i];
-	            //var p2:Point = areaPoints[(i + 1) % areaPoints.length]; // 最后一个点与第一个点连线
 	            if (p1y == p2y)
 	                continue;
 	            if (p.y < Math.min(p1y, p2y))
 	                continue;
 	            if (p.y >= Math.max(p1y, p2y))
 	                continue;
-	            // 求交点的x坐标
 	            var tx = (p.y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x;
-	            // 只统计p1p2与p向右射线的交点
 	            if (tx > p.x)
 	                nCross++;
 	        }
-	        // 交点为偶数，点在多边形之外
 	        return (nCross % 2 == 1);
 	    }
-	    /**
-	     * 可点击区域，可以设置绘制一系列矢量图作为点击区域（目前只支持圆形，矩形，多边形）
-	     */
 	    get hit() {
 	        if (!this._hit)
 	            this._hit = new ILaya.Graphics();
@@ -16039,9 +11624,6 @@ window.Laya= (function (exports) {
 	    set hit(value) {
 	        this._hit = value;
 	    }
-	    /**
-	     * 不可点击区域，可以设置绘制一系列矢量图作为非点击区域（目前只支持圆形，矩形，多边形）
-	     */
 	    get unHit() {
 	        if (!this._unHit)
 	            this._unHit = new ILaya.Graphics();
@@ -16051,29 +11633,14 @@ window.Laya= (function (exports) {
 	        this._unHit = value;
 	    }
 	}
-	/**@private */
 	HitArea._cmds = [];
-	/**@private */
 	HitArea._rect = new Rectangle();
-	/**@private */
 	HitArea._ptPoint = new Point();
 
-	/**
-	 * <code>ClassUtils</code> 是一个类工具类。
-	 */
 	class ClassUtils {
-	    /**
-	     * 注册 Class 映射，方便在class反射时获取。
-	     * @param	className 映射的名字或者别名。
-	     * @param	classDef 类的全名或者类的引用，全名比如:"laya.display.Sprite"。
-	     */
 	    static regClass(className, classDef) {
 	        ClassUtils._classMap[className] = classDef;
 	    }
-	    /**
-	     * 根据类名短名字注册类，比如传入[Sprite]，功能同regClass("Sprite",Sprite);
-	     * @param	classes 类数组
-	     */
 	    static regShortClassName(classes) {
 	        for (var i = 0; i < classes.length; i++) {
 	            var classDef = classes[i];
@@ -16081,18 +11648,9 @@ window.Laya= (function (exports) {
 	            ClassUtils._classMap[className] = classDef;
 	        }
 	    }
-	    /**
-	     * 返回注册的 Class 映射。
-	     * @param	className 映射的名字。
-	     */
 	    static getRegClass(className) {
 	        return ClassUtils._classMap[className];
 	    }
-	    /**
-	     * 根据名字返回类对象。
-	     * @param	className 类名(比如laya.display.Sprite)或者注册的别名(比如Sprite)。
-	     * @return 类对象
-	     */
 	    static getClass(className) {
 	        var classObject = ClassUtils._classMap[className] || className;
 	        var glaya = ILaya.Laya;
@@ -16100,11 +11658,6 @@ window.Laya= (function (exports) {
 	            return (ILaya.__classMap[classObject] || glaya[className]);
 	        return classObject;
 	    }
-	    /**
-	     * 根据名称创建 Class 实例。
-	     * @param	className 类名(比如laya.display.Sprite)或者注册的别名(比如Sprite)。
-	     * @return	返回类的实例。
-	     */
 	    static getInstance(className) {
 	        var compClass = ClassUtils.getClass(className);
 	        if (compClass)
@@ -16113,39 +11666,6 @@ window.Laya= (function (exports) {
 	            console.warn("[error] Undefined class:", className);
 	        return null;
 	    }
-	    /**
-	     * 根据指定的 json 数据创建节点对象。
-	     * 比如:
-	     * {
-	     * 	"type":"Sprite",
-	     * 	"props":{
-	     * 		"x":100,
-	     * 		"y":50,
-	     * 		"name":"item1",
-	     * 		"scale":[2,2]
-	     * 	},
-	     * 	"customProps":{
-	     * 		"x":100,
-	     * 		"y":50,
-	     * 		"name":"item1",
-	     * 		"scale":[2,2]
-	     * 	},
-	     * 	"child":[
-	     * 		{
-	     * 			"type":"Text",
-	     * 			"props":{
-	     * 				"text":"this is a test",
-	     * 				"var":"label",
-	     * 				"rumtime":""
-	     * 			}
-	     * 		}
-	     * 	]
-	     * }
-	     * @param	json json字符串或者Object对象。
-	     * @param	node node节点，如果为空，则新创建一个。
-	     * @param	root 根节点，用来设置var定义。
-	     * @return	生成的节点。
-	     */
 	    static createByJson(json, node = null, root = null, customHandler = null, instanceHandler = null) {
 	        if (typeof (json) == 'string')
 	            json = JSON.parse(json);
@@ -16209,11 +11729,6 @@ window.Laya= (function (exports) {
 	            node.created();
 	        return node;
 	    }
-	    /**
-	     * @private
-	     * 将graphic对象添加到Sprite上
-	     * @param graphicO graphic对象描述
-	     */
 	    static _addGraphicsToSprite(graphicO, sprite) {
 	        var graphics = graphicO.child;
 	        if (!graphics || graphics.length < 1)
@@ -16237,18 +11752,10 @@ window.Laya= (function (exports) {
 	            g.translate(-ox, -oy);
 	        }
 	    }
-	    /**
-	     * @internal
-	     * 将graphic绘图指令添加到sprite上
-	     * @param graphicO 绘图指令描述
-	     */
 	    static _addGraphicToSprite(graphicO, sprite, isChild = false) {
 	        var g = isChild ? ClassUtils._getGraphicsFromSprite(graphicO, sprite) : sprite.graphics;
 	        ClassUtils._addGraphicToGraphics(graphicO, g);
 	    }
-	    /**
-	     * @private
-	     */
 	    static _getGraphicsFromSprite(dataO, sprite) {
 	        if (!dataO || !dataO.props)
 	            return sprite.graphics;
@@ -16264,9 +11771,6 @@ window.Laya= (function (exports) {
 	            g = sprite.graphics;
 	        return g;
 	    }
-	    /**
-	     * @private
-	     */
 	    static _getTransformData(propsO) {
 	        var m;
 	        if ("pivotX" in propsO || "pivotY" in propsO) {
@@ -16284,9 +11788,6 @@ window.Laya= (function (exports) {
 	        }
 	        return m;
 	    }
-	    /**
-	     * @private
-	     */
 	    static _addGraphicToGraphics(graphicO, graphic) {
 	        var propsO;
 	        propsO = graphicO.props;
@@ -16311,39 +11812,24 @@ window.Laya= (function (exports) {
 	            g.restore();
 	        }
 	    }
-	    /**
-	     * @private
-	     */
 	    static _adptLineData(params) {
 	        params[2] = parseFloat(params[0]) + parseFloat(params[2]);
 	        params[3] = parseFloat(params[1]) + parseFloat(params[3]);
 	        return params;
 	    }
-	    /**
-	     * @private
-	     */
 	    static _adptTextureData(params) {
 	        params[0] = ILaya.Loader.getRes(params[0]);
 	        return params;
 	    }
-	    /**
-	     * @private
-	     */
 	    static _adptLinesData(params) {
 	        params[2] = ClassUtils._getPointListByStr(params[2]);
 	        return params;
 	    }
-	    /**
-	     * @internal
-	     */
 	    static _isDrawType(type) {
 	        if (type === "Image")
 	            return false;
 	        return type in ClassUtils.DrawTypeDic;
 	    }
-	    /**
-	     * @private
-	     */
 	    static _getParams(obj, params, xPos = 0, adptFun = null) {
 	        var rst = ClassUtils._temParam;
 	        rst.length = params.length;
@@ -16370,9 +11856,6 @@ window.Laya= (function (exports) {
 	        }
 	        return rst;
 	    }
-	    /**
-	     * @internal
-	     */
 	    static _getPointListByStr(str) {
 	        var pointArr = str.split(",");
 	        var i, len;
@@ -16382,9 +11865,6 @@ window.Laya= (function (exports) {
 	        }
 	        return pointArr;
 	    }
-	    /**
-	     * @private
-	     */
 	    static _getObjVar(obj, key, noValue) {
 	        if (key in obj) {
 	            return obj[key];
@@ -16392,57 +11872,23 @@ window.Laya= (function (exports) {
 	        return noValue;
 	    }
 	}
-	/**@private */
 	ClassUtils.DrawTypeDic = { "Rect": ["drawRect", [["x", 0], ["y", 0], ["width", 0], ["height", 0], ["fillColor", null], ["lineColor", null], ["lineWidth", 1]]], "Circle": ["drawCircle", [["x", 0], ["y", 0], ["radius", 0], ["fillColor", null], ["lineColor", null], ["lineWidth", 1]]], "Pie": ["drawPie", [["x", 0], ["y", 0], ["radius", 0], ["startAngle", 0], ["endAngle", 0], ["fillColor", null], ["lineColor", null], ["lineWidth", 1]]], "Image": ["drawTexture", [["x", 0], ["y", 0], ["width", 0], ["height", 0]]], "Texture": ["drawTexture", [["skin", null], ["x", 0], ["y", 0], ["width", 0], ["height", 0]], 1, "_adptTextureData"], "FillTexture": ["fillTexture", [["skin", null], ["x", 0], ["y", 0], ["width", 0], ["height", 0], ["repeat", null]], 1, "_adptTextureData"], "FillText": ["fillText", [["text", ""], ["x", 0], ["y", 0], ["font", null], ["color", null], ["textAlign", null]], 1], "Line": ["drawLine", [["x", 0], ["y", 0], ["toX", 0], ["toY", 0], ["lineColor", null], ["lineWidth", 0]], 0, "_adptLineData"], "Lines": ["drawLines", [["x", 0], ["y", 0], ["points", ""], ["lineColor", null], ["lineWidth", 0]], 0, "_adptLinesData"], "Curves": ["drawCurves", [["x", 0], ["y", 0], ["points", ""], ["lineColor", null], ["lineWidth", 0]], 0, "_adptLinesData"], "Poly": ["drawPoly", [["x", 0], ["y", 0], ["points", ""], ["fillColor", null], ["lineColor", null], ["lineWidth", 1]], 0, "_adptLinesData"] };
-	/**@private */
 	ClassUtils._temParam = [];
-	/**@private */
 	ClassUtils._classMap = {};
 
-	/**
-	 * 添加到父对象后调度。
-	 * @eventType Event.ADDED
-	 */
-	/*[Event(name = "added", type = "laya.events.Event")]*/
-	/**
-	 * 被父对象移除后调度。
-	 * @eventType Event.REMOVED
-	 */
-	/*[Event(name = "removed", type = "laya.events.Event")]*/
-	/**
-	 * 加入节点树时调度。
-	 * @eventType Event.DISPLAY
-	 */
-	/*[Event(name = "display", type = "laya.events.Event")]*/
-	/**
-	 * 从节点树移除时调度。
-	 * @eventType Event.UNDISPLAY
-	 */
-	/*[Event(name = "undisplay", type = "laya.events.Event")]*/
-	/**
-	 *  <code>Node</code> 类是可放在显示列表中的所有对象的基类。该显示列表管理 Laya 运行时中显示的所有对象。使用 Node 类排列显示列表中的显示对象。Node 对象可以有子显示对象。
-	 */
 	class Node extends EventDispatcher {
 	    constructor() {
 	        super();
-	        /**@private */
 	        this._bits = 0;
-	        /**@internal 子对象集合，请不要直接修改此对象。*/
 	        this._children = Node.ARRAY_EMPTY;
-	        /**@internal 仅仅用来处理输入事件的,并不是真正意义上的子对象 */
 	        this._extUIChild = Node.ARRAY_EMPTY;
-	        /**@internal 父节点对象*/
 	        this._parent = null;
-	        /**节点名称。*/
 	        this.name = "";
-	        /**[只读]是否已经销毁。对象销毁后不能再使用。*/
 	        this.destroyed = false;
 	        this.createGLBuffer();
 	    }
-	    /**@internal */
 	    createGLBuffer() {
 	    }
-	    /**@internal */
 	    _setBit(type, value) {
 	        if (type === Const.DISPLAY) {
 	            var preValue = this._getBit(type);
@@ -16454,16 +11900,13 @@ window.Laya= (function (exports) {
 	        else
 	            this._bits &= ~type;
 	    }
-	    /**@internal */
 	    _getBit(type) {
 	        return (this._bits & type) != 0;
 	    }
-	    /**@internal */
 	    _setUpNoticeChain() {
 	        if (this._getBit(Const.DISPLAY))
 	            this._setBitUp(Const.DISPLAY);
 	    }
-	    /**@internal */
 	    _setBitUp(type) {
 	        var ele = this;
 	        ele._setBit(type, true);
@@ -16475,16 +11918,6 @@ window.Laya= (function (exports) {
 	            ele = ele._parent;
 	        }
 	    }
-	    /**
-	     * <p>增加事件侦听器，以使侦听器能够接收事件通知。</p>
-	     * <p>如果侦听鼠标事件，则会自动设置自己和父亲节点的属性 mouseEnabled 的值为 true(如果父节点mouseEnabled=false，则停止设置父节点mouseEnabled属性)。</p>
-	     * @param	type		事件的类型。
-	     * @param	caller		事件侦听函数的执行域。
-	     * @param	listener	事件侦听函数。
-	     * @param	args		（可选）事件侦听函数的回调参数。
-	     * @return 此 EventDispatcher 对象。
-	     * @override
-	     */
 	    on(type, caller, listener, args = null) {
 	        if (type === Event.DISPLAY || type === Event.UNDISPLAY) {
 	            if (!this._getBit(Const.DISPLAY))
@@ -16492,16 +11925,6 @@ window.Laya= (function (exports) {
 	        }
 	        return this._createListener(type, caller, listener, args, false);
 	    }
-	    /**
-	     * <p>增加事件侦听器，以使侦听器能够接收事件通知，此侦听事件响应一次后则自动移除侦听。</p>
-	     * <p>如果侦听鼠标事件，则会自动设置自己和父亲节点的属性 mouseEnabled 的值为 true(如果父节点mouseEnabled=false，则停止设置父节点mouseEnabled属性)。</p>
-	     * @param	type		事件的类型。
-	     * @param	caller		事件侦听函数的执行域。
-	     * @param	listener	事件侦听函数。
-	     * @param	args		（可选）事件侦听函数的回调参数。
-	     * @return 此 EventDispatcher 对象。
-	     * @override
-	     */
 	    once(type, caller, listener, args = null) {
 	        if (type === Event.DISPLAY || type === Event.UNDISPLAY) {
 	            if (!this._getBit(Const.DISPLAY))
@@ -16509,16 +11932,10 @@ window.Laya= (function (exports) {
 	        }
 	        return this._createListener(type, caller, listener, args, true);
 	    }
-	    /**
-	     * <p>销毁此对象。destroy对象默认会把自己从父节点移除，并且清理自身引用关系，等待js自动垃圾回收机制回收。destroy后不能再使用。</p>
-	     * <p>destroy时会移除自身的事情监听，自身的timer监听，移除子对象及从父节点移除自己。</p>
-	     * @param destroyChild	（可选）是否同时销毁子节点，若值为true,则销毁子节点，否则不销毁子节点。
-	     */
 	    destroy(destroyChild = true) {
 	        this.destroyed = true;
 	        this._destroyAllComponent();
 	        this._parent && this._parent.removeChild(this);
-	        //销毁子节点
 	        if (this._children) {
 	            if (destroyChild)
 	                this.destroyChildren();
@@ -16527,35 +11944,17 @@ window.Laya= (function (exports) {
 	        }
 	        this.onDestroy();
 	        this._children = null;
-	        //移除所有事件监听
 	        this.offAll();
-	        //移除所有timer
-	        //this.timer.clearAll(this);			
 	    }
-	    /**
-	     * 销毁时执行
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onDestroy() {
-	        //trace("onDestroy node", this.name);
 	    }
-	    /**
-	     * 销毁所有子对象，不销毁自己本身。
-	     */
 	    destroyChildren() {
-	        //销毁子节点
 	        if (this._children) {
-	            //为了保持销毁顺序，所以需要正序销毁
 	            for (var i = 0, n = this._children.length; i < n; i++) {
 	                this._children[0].destroy(true);
 	            }
 	        }
 	    }
-	    /**
-	     * 添加子节点。
-	     * @param	node 节点对象
-	     * @return	返回添加的节点
-	     */
 	    addChild(node) {
 	        if (!node || this.destroyed || node === this)
 	            return node;
@@ -16596,22 +11995,12 @@ window.Laya= (function (exports) {
 	            this._extUIChild.splice(idx, 1);
 	        }
 	    }
-	    /**
-	     * 批量增加子节点
-	     * @param	...args 无数子节点。
-	     */
 	    addChildren(...args) {
 	        var i = 0, n = args.length;
 	        while (i < n) {
 	            this.addChild(args[i++]);
 	        }
 	    }
-	    /**
-	     * 添加子节点到指定的索引位置。
-	     * @param	node 节点对象。
-	     * @param	index 索引位置。
-	     * @return	返回添加的节点。
-	     */
 	    addChildAt(node, index) {
 	        if (!node || this.destroyed || node === this)
 	            return node;
@@ -16636,19 +12025,9 @@ window.Laya= (function (exports) {
 	            throw new Error("appendChildAt:The index is out of bounds");
 	        }
 	    }
-	    /**
-	     * 根据子节点对象，获取子节点的索引位置。
-	     * @param	node 子节点。
-	     * @return	子节点所在的索引位置。
-	     */
 	    getChildIndex(node) {
 	        return this._children.indexOf(node);
 	    }
-	    /**
-	     * 根据子节点的名字，获取子节点对象。
-	     * @param	name 子节点的名字。
-	     * @return	节点对象。
-	     */
 	    getChildByName(name) {
 	        var nodes = this._children;
 	        if (nodes) {
@@ -16660,20 +12039,9 @@ window.Laya= (function (exports) {
 	        }
 	        return null;
 	    }
-	    /**
-	     * 根据子节点的索引位置，获取子节点对象。
-	     * @param	index 索引位置
-	     * @return	子节点
-	     */
 	    getChildAt(index) {
 	        return this._children[index] || null;
 	    }
-	    /**
-	     * 设置子节点的索引位置。
-	     * @param	node 子节点。
-	     * @param	index 新的索引。
-	     * @return	返回子节点本身。
-	     */
 	    setChildIndex(node, index) {
 	        var childs = this._children;
 	        if (index < 0 || index >= childs.length) {
@@ -16687,47 +12055,23 @@ window.Laya= (function (exports) {
 	        this._childChanged();
 	        return node;
 	    }
-	    /**
-	     * 子节点发生改变。
-	     * @private
-	     * @param	child 子节点。
-	     */
 	    _childChanged(child = null) {
 	    }
-	    /**
-	     * 删除子节点。
-	     * @param	node 子节点
-	     * @return	被删除的节点
-	     */
 	    removeChild(node) {
 	        if (!this._children)
 	            return node;
 	        var index = this._children.indexOf(node);
 	        return this.removeChildAt(index);
 	    }
-	    /**
-	     * 从父容器删除自己，如已经被删除不会抛出异常。
-	     * @return 当前节点（ Node ）对象。
-	     */
 	    removeSelf() {
 	        this._parent && this._parent.removeChild(this);
 	        return this;
 	    }
-	    /**
-	     * 根据子节点名字删除对应的子节点对象，如果找不到不会抛出异常。
-	     * @param	name 对象名字。
-	     * @return 查找到的节点（ Node ）对象。
-	     */
 	    removeChildByName(name) {
 	        var node = this.getChildByName(name);
 	        node && this.removeChild(node);
 	        return node;
 	    }
-	    /**
-	     * 根据子节点索引位置，删除对应的子节点对象。
-	     * @param	index 节点索引位置。
-	     * @return	被删除的节点。
-	     */
 	    removeChildAt(index) {
 	        var node = this.getChildAt(index);
 	        if (node) {
@@ -16736,12 +12080,6 @@ window.Laya= (function (exports) {
 	        }
 	        return node;
 	    }
-	    /**
-	     * 删除指定索引区间的所有子对象。
-	     * @param	beginIndex 开始索引。
-	     * @param	endIndex 结束索引。
-	     * @return 当前节点对象。
-	     */
 	    removeChildren(beginIndex = 0, endIndex = 0x7fffffff) {
 	        if (this._children && this._children.length > 0) {
 	            var childs = this._children;
@@ -16758,13 +12096,6 @@ window.Laya= (function (exports) {
 	        }
 	        return this;
 	    }
-	    /**
-	     * 替换子节点。
-	     * @internal 将传入的新节点对象替换到已有子节点索引位置处。
-	     * @param	newNode 新节点。
-	     * @param	oldNode 老节点。
-	     * @return	返回新节点。
-	     */
 	    replaceChild(newNode, oldNode) {
 	        var index = this._children.indexOf(oldNode);
 	        if (index > -1) {
@@ -16775,22 +12106,16 @@ window.Laya= (function (exports) {
 	        }
 	        return null;
 	    }
-	    /**
-	     * 子对象数量。
-	     */
 	    get numChildren() {
 	        return this._children.length;
 	    }
-	    /**父节点。*/
 	    get parent() {
 	        return this._parent;
 	    }
-	    /**@private */
 	    _setParent(value) {
 	        if (this._parent !== value) {
 	            if (value) {
 	                this._parent = value;
-	                //如果父对象可见，则设置子对象可见
 	                this._onAdded();
 	                this.event(Event.ADDED);
 	                if (this._getBit(Const.DISPLAY)) {
@@ -16800,7 +12125,6 @@ window.Laya= (function (exports) {
 	                value._childChanged(this);
 	            }
 	            else {
-	                //设置子对象不可见
 	                this._onRemoved();
 	                this.event(Event.REMOVED);
 	                this._parent._childChanged();
@@ -16810,14 +12134,12 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**表示是否在显示列表中显示。*/
 	    get displayedInStage() {
 	        if (this._getBit(Const.DISPLAY))
 	            return this._getBit(Const.DISPLAYED_INSTAGE);
 	        this._setBitUp(Const.DISPLAY);
 	        return this._getBit(Const.DISPLAYED_INSTAGE);
 	    }
-	    /**@private */
 	    _updateDisplayedInstage() {
 	        var ele;
 	        ele = this;
@@ -16836,7 +12158,6 @@ window.Laya= (function (exports) {
 	        }
 	        this._setBit(Const.DISPLAYED_INSTAGE, displayedInStage);
 	    }
-	    /**@internal */
 	    _setDisplay(value) {
 	        if (this._getBit(Const.DISPLAYED_INSTAGE) !== value) {
 	            this._setBit(Const.DISPLAYED_INSTAGE, value);
@@ -16846,12 +12167,6 @@ window.Laya= (function (exports) {
 	                this.event(Event.UNDISPLAY);
 	        }
 	    }
-	    /**
-	     * 设置指定节点对象是否可见(是否在渲染列表中)。
-	     * @private
-	     * @param	node 节点。
-	     * @param	display 是否可见。
-	     */
 	    _displayChild(node, display) {
 	        var childs = node._children;
 	        if (childs) {
@@ -16869,11 +12184,6 @@ window.Laya= (function (exports) {
 	        }
 	        node._setDisplay(display);
 	    }
-	    /**
-	     * 当前容器是否包含指定的 <code>Node</code> 节点对象 。
-	     * @param	node  指定的 <code>Node</code> 节点对象 。
-	     * @return	一个布尔值表示是否包含指定的 <code>Node</code> 节点对象 。
-	     */
 	    contains(node) {
 	        if (node === this)
 	            return true;
@@ -16884,103 +12194,40 @@ window.Laya= (function (exports) {
 	        }
 	        return false;
 	    }
-	    /**
-	     * 定时重复执行某函数。功能同Laya.timer.timerLoop()。
-	     * @param	delay		间隔时间(单位毫秒)。
-	     * @param	caller		执行域(this)。
-	     * @param	method		结束时的回调方法。
-	     * @param	args		（可选）回调参数。
-	     * @param	coverBefore	（可选）是否覆盖之前的延迟执行，默认为true。
-	     * @param	jumpFrame 时钟是否跳帧。基于时间的循环回调，单位时间间隔内，如能执行多次回调，出于性能考虑，引擎默认只执行一次，设置jumpFrame=true后，则回调会连续执行多次
-	     */
 	    timerLoop(delay, caller, method, args = null, coverBefore = true, jumpFrame = false) {
 	        var timer = this.scene ? this.scene.timer : ILaya.timer;
 	        timer.loop(delay, caller, method, args, coverBefore, jumpFrame);
 	    }
-	    /**
-	     * 定时执行某函数一次。功能同Laya.timer.timerOnce()。
-	     * @param	delay		延迟时间(单位毫秒)。
-	     * @param	caller		执行域(this)。
-	     * @param	method		结束时的回调方法。
-	     * @param	args		（可选）回调参数。
-	     * @param	coverBefore	（可选）是否覆盖之前的延迟执行，默认为true。
-	     */
 	    timerOnce(delay, caller, method, args = null, coverBefore = true) {
 	        var timer = this.scene ? this.scene.timer : ILaya.timer;
 	        timer._create(false, false, delay, caller, method, args, coverBefore);
 	    }
-	    /**
-	     * 定时重复执行某函数(基于帧率)。功能同Laya.timer.frameLoop()。
-	     * @param	delay		间隔几帧(单位为帧)。
-	     * @param	caller		执行域(this)。
-	     * @param	method		结束时的回调方法。
-	     * @param	args		（可选）回调参数。
-	     * @param	coverBefore	（可选）是否覆盖之前的延迟执行，默认为true。
-	     */
 	    frameLoop(delay, caller, method, args = null, coverBefore = true) {
 	        var timer = this.scene ? this.scene.timer : ILaya.timer;
 	        timer._create(true, true, delay, caller, method, args, coverBefore);
 	    }
-	    /**
-	     * 定时执行一次某函数(基于帧率)。功能同Laya.timer.frameOnce()。
-	     * @param	delay		延迟几帧(单位为帧)。
-	     * @param	caller		执行域(this)
-	     * @param	method		结束时的回调方法
-	     * @param	args		（可选）回调参数
-	     * @param	coverBefore	（可选）是否覆盖之前的延迟执行，默认为true
-	     */
 	    frameOnce(delay, caller, method, args = null, coverBefore = true) {
 	        var timer = this.scene ? this.scene.timer : ILaya.timer;
 	        timer._create(true, false, delay, caller, method, args, coverBefore);
 	    }
-	    /**
-	     * 清理定时器。功能同Laya.timer.clearTimer()。
-	     * @param	caller 执行域(this)。
-	     * @param	method 结束时的回调方法。
-	     */
 	    clearTimer(caller, method) {
 	        var timer = this.scene ? this.scene.timer : ILaya.timer;
 	        timer.clear(caller, method);
 	    }
-	    /**
-	     * <p>延迟运行指定的函数。</p>
-	     * <p>在控件被显示在屏幕之前调用，一般用于延迟计算数据。</p>
-	     * @param method 要执行的函数的名称。例如，functionName。
-	     * @param args 传递给 <code>method</code> 函数的可选参数列表。
-	     *
-	     * @see #runCallLater()
-	     */
 	    callLater(method, args = null) {
 	        var timer = this.scene ? this.scene.timer : ILaya.timer;
 	        timer.callLater(this, method, args);
 	    }
-	    /**
-	     * <p>如果有需要延迟调用的函数（通过 <code>callLater</code> 函数设置），则立即执行延迟调用函数。</p>
-	     * @param method 要执行的函数名称。例如，functionName。
-	     * @see #callLater()
-	     */
 	    runCallLater(method) {
 	        var timer = this.scene ? this.scene.timer : ILaya.timer;
 	        timer.runCallLater(this, method);
 	    }
-	    /**
-	     * 获得所属场景。
-	     * @return	场景。
-	     */
 	    get scene() {
 	        return this._scene;
 	    }
-	    /**
-	     * 获取自身是否激活。
-	     *   @return	自身是否激活。
-	     */
 	    get active() {
 	        return !this._getBit(Const.NOT_READY) && !this._getBit(Const.NOT_ACTIVE);
 	    }
-	    /**
-	     * 设置是否激活。
-	     * @param	value 是否激活。
-	     */
 	    set active(value) {
 	        value = !!value;
 	        if (!this._getBit(Const.NOT_ACTIVE) !== value) {
@@ -17003,46 +12250,21 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**
-	     * 获取在场景中是否激活。
-	     *   @return	在场景中是否激活。
-	     */
 	    get activeInHierarchy() {
 	        return this._getBit(Const.ACTIVE_INHIERARCHY);
 	    }
-	    /**
-	     * @private
-	     */
 	    _onActive() {
 	        Stat.spriteCount++;
 	    }
-	    /**
-	     * @private
-	     */
 	    _onInActive() {
 	        Stat.spriteCount--;
 	    }
-	    /**
-	     * @private
-	     */
 	    _onActiveInScene() {
-	        //override it.
 	    }
-	    /**
-	     * @private
-	     */
 	    _onInActiveInScene() {
-	        //override it.
 	    }
-	    /**
-	     * @internal
-	     */
 	    _parse(data, spriteMap) {
-	        //override it.
 	    }
-	    /**
-	     * @internal
-	     */
 	    _setBelongScene(scene) {
 	        if (!this._scene) {
 	            this._scene = scene;
@@ -17051,42 +12273,23 @@ window.Laya= (function (exports) {
 	                this._children[i]._setBelongScene(scene);
 	        }
 	    }
-	    /**
-	     * @internal
-	     */
 	    _setUnBelongScene() {
-	        if (this._scene !== this) { //移除节点本身是scene不继续派发
+	        if (this._scene !== this) {
 	            this._onInActiveInScene();
 	            this._scene = null;
 	            for (var i = 0, n = this._children.length; i < n; i++)
 	                this._children[i]._setUnBelongScene();
 	        }
 	    }
-	    /**
-	     * 组件被激活后执行，此时所有节点和组件均已创建完毕，次方法只执行一次
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onAwake() {
-	        //this.name  && trace("onAwake node ", this.name);
 	    }
-	    /**
-	     * 组件被启用后执行，比如节点被添加到舞台后
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onEnable() {
-	        //this.name  && trace("onEnable node ", this.name);
 	    }
-	    /**
-	     * @internal
-	     */
 	    _processActive() {
 	        (this._activeChangeScripts) || (this._activeChangeScripts = []);
-	        this._activeHierarchy(this._activeChangeScripts); //处理属性,保证属性的正确性和即时性
-	        this._activeScripts(); //延时处理组件
+	        this._activeHierarchy(this._activeChangeScripts);
+	        this._activeScripts();
 	    }
-	    /**
-	     * @internal
-	     */
 	    _activeHierarchy(activeChangeScripts) {
 	        this._setBit(Const.ACTIVE_INHIERARCHY, true);
 	        if (this._components) {
@@ -17107,25 +12310,16 @@ window.Laya= (function (exports) {
 	        }
 	        this.onEnable();
 	    }
-	    /**
-	     * @private
-	     */
 	    _activeScripts() {
 	        for (var i = 0, n = this._activeChangeScripts.length; i < n; i++)
 	            this._activeChangeScripts[i].onEnable();
 	        this._activeChangeScripts.length = 0;
 	    }
-	    /**
-	     * @private
-	     */
 	    _processInActive() {
 	        (this._activeChangeScripts) || (this._activeChangeScripts = []);
-	        this._inActiveHierarchy(this._activeChangeScripts); //处理属性,保证属性的正确性和即时性
-	        this._inActiveScripts(); //延时处理组件
+	        this._inActiveHierarchy(this._activeChangeScripts);
+	        this._inActiveScripts();
 	    }
-	    /**
-	     * @internal
-	     */
 	    _inActiveHierarchy(activeChangeScripts) {
 	        this._onInActive();
 	        if (this._components) {
@@ -17142,24 +12336,13 @@ window.Laya= (function (exports) {
 	        }
 	        this.onDisable();
 	    }
-	    /**
-	     * @private
-	     */
 	    _inActiveScripts() {
 	        for (var i = 0, n = this._activeChangeScripts.length; i < n; i++)
 	            this._activeChangeScripts[i].onDisable();
 	        this._activeChangeScripts.length = 0;
 	    }
-	    /**
-	     * 组件被禁用时执行，比如从节点从舞台移除后
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onDisable() {
-	        //trace("onDisable node", this.name);
 	    }
-	    /**
-	     * @private
-	     */
 	    _onAdded() {
 	        if (this._activeChangeScripts && this._activeChangeScripts.length !== 0) {
 	            throw "Node: can't set the main inActive node active in hierarchy,if the operate is in main inActive node or it's children script's onDisable Event.";
@@ -17170,9 +12353,6 @@ window.Laya= (function (exports) {
 	            (this._parent.activeInHierarchy && this.active) && this._processActive();
 	        }
 	    }
-	    /**
-	     * @private
-	     */
 	    _onRemoved() {
 	        if (this._activeChangeScripts && this._activeChangeScripts.length !== 0) {
 	            throw "Node: can't set the main active node inActive in hierarchy,if the operate is in main active node or it's children script's onEnable Event.";
@@ -17182,9 +12362,6 @@ window.Laya= (function (exports) {
 	            this._parent.scene && this._setUnBelongScene();
 	        }
 	    }
-	    /**
-	     * @internal
-	     */
 	    _addComponentInstance(comp) {
 	        this._components = this._components || [];
 	        this._components.push(comp);
@@ -17195,9 +12372,6 @@ window.Laya= (function (exports) {
 	            (comp._isScript() && comp._enabled) && (comp.onEnable());
 	        }
 	    }
-	    /**
-	     * @internal
-	     */
 	    _destroyComponent(comp) {
 	        if (this._components) {
 	            for (var i = 0, n = this._components.length; i < n; i++) {
@@ -17210,9 +12384,6 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**
-	     * @internal
-	     */
 	    _destroyAllComponent() {
 	        if (this._components) {
 	            for (var i = 0, n = this._components.length; i < n; i++) {
@@ -17222,10 +12393,6 @@ window.Laya= (function (exports) {
 	            this._components.length = 0;
 	        }
 	    }
-	    /**
-	     * @internal 克隆。
-	     * @param	destObject 克隆源。
-	     */
 	    _cloneTo(destObject, srcRoot, dstRoot) {
 	        var destNode = destObject;
 	        if (this._components) {
@@ -17235,11 +12402,6 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**
-	     * 添加组件实例。
-	     * @param	comp 组件实例。
-	     * @return	组件。
-	     */
 	    addComponentIntance(comp) {
 	        if (comp.owner)
 	            throw "Node:the component has belong to other node.";
@@ -17248,11 +12410,6 @@ window.Laya= (function (exports) {
 	        this._addComponentInstance(comp);
 	        return comp;
 	    }
-	    /**
-	     * 添加组件。
-	     * @param	type 组件类型。
-	     * @return	组件。
-	     */
 	    addComponent(type) {
 	        var comp = Pool.createByClass(type);
 	        comp._destroyed = false;
@@ -17261,11 +12418,6 @@ window.Laya= (function (exports) {
 	        this._addComponentInstance(comp);
 	        return comp;
 	    }
-	    /**
-	     * 获得组件实例，如果没有则返回为null
-	     * @param	clas 组建类型
-	     * @return	返回组件
-	     */
 	    getComponent(clas) {
 	        if (this._components) {
 	            for (var i = 0, n = this._components.length; i < n; i++) {
@@ -17276,11 +12428,6 @@ window.Laya= (function (exports) {
 	        }
 	        return null;
 	    }
-	    /**
-	     * 获得组件实例，如果没有则返回为null
-	     * @param	clas 组建类型
-	     * @return	返回组件数组
-	     */
 	    getComponents(clas) {
 	        var arr;
 	        if (this._components) {
@@ -17294,27 +12441,15 @@ window.Laya= (function (exports) {
 	        }
 	        return arr;
 	    }
-	    /**
-	     * @private
-	     * 获取timer
-	     */
 	    get timer() {
 	        return this.scene ? this.scene.timer : ILaya.timer;
 	    }
 	}
-	/**@private */
 	Node.ARRAY_EMPTY = [];
 	ClassUtils.regClass("laya.display.Node", Node);
 	ClassUtils.regClass("Laya.Node", Node);
 
-	/**
-	 * @internal
-	 * Graphic bounds数据类
-	 */
 	class BoundsStyle {
-	    /**
-	     * 重置
-	     */
 	    reset() {
 	        if (this.bounds)
 	            this.bounds.recover();
@@ -17325,51 +12460,30 @@ window.Laya= (function (exports) {
 	        this.temBM = null;
 	        return this;
 	    }
-	    /**
-	     * 回收
-	     */
 	    recover() {
 	        Pool.recover("BoundsStyle", this.reset());
 	    }
-	    /**
-	     * 创建
-	     */
 	    static create() {
 	        return Pool.getItemByClass("BoundsStyle", BoundsStyle);
 	    }
 	}
 
-	/**
-	 * <code>HTMLCanvas</code> 是 Html Canvas 的代理类，封装了 Canvas 的属性和方法。
-	 */
 	class HTMLCanvas extends Bitmap {
-	    /**
-	     * @inheritDoc
-	     */
 	    get source() {
 	        return this._source;
 	    }
-	    /**@internal
-	     * @override
-	    */
 	    _getSource() {
 	        return this._source;
 	    }
-	    /**
-	     * 根据指定的类型，创建一个 <code>HTMLCanvas</code> 实例。
-	     */
 	    constructor(createCanvas = false) {
 	        super();
-	        if (createCanvas) //webgl模式下不建立。除非强制指，例如绘制文字部分
+	        if (createCanvas)
 	            this._source = Browser.createElement("canvas");
 	        else {
 	            this._source = this;
 	        }
 	        this.lock = true;
 	    }
-	    /**
-	     * 清空画布内容。
-	     */
 	    clear() {
 	        this._ctx && this._ctx.clear && this._ctx.clear();
 	        if (this._texture) {
@@ -17377,74 +12491,42 @@ window.Laya= (function (exports) {
 	            this._texture = null;
 	        }
 	    }
-	    /**
-	     * 销毁。
-	     * @override
-	     */
 	    destroy() {
 	        super.destroy();
 	        this._setCPUMemory(0);
 	        this._ctx && this._ctx.destroy && this._ctx.destroy();
 	        this._ctx = null;
 	    }
-	    /**
-	     * 释放。
-	     */
 	    release() {
 	    }
-	    /**
-	     * Canvas 渲染上下文。
-	     */
 	    get context() {
 	        if (this._ctx)
 	            return this._ctx;
-	        if (this._source == this) { //是webgl并且不是真的画布。如果是真的画布，可能真的想要2d context
+	        if (this._source == this) {
 	            this._ctx = new ILaya.Context();
 	        }
 	        else {
 	            this._ctx = this._source.getContext(ILaya.Render.isConchApp ? 'layagl' : '2d');
 	        }
 	        this._ctx._canvas = this;
-	        //if(!Browser.onLimixiu) _ctx.size = function(w:Number, h:Number):void {};	这个是干什么的，会导致ctx的size不好使
 	        return this._ctx;
 	    }
-	    /**
-	     * @internal
-	     * 设置 Canvas 渲染上下文。是webgl用来替换_ctx用的
-	     * @param	context Canvas 渲染上下文。
-	     */
 	    _setContext(context) {
 	        this._ctx = context;
 	    }
-	    /**
-	     * 获取 Canvas 渲染上下文。
-	     * @param	contextID 上下文ID.
-	     * @param	other
-	     * @return  Canvas 渲染上下文 Context 对象。
-	     */
 	    getContext(contextID, other = null) {
 	        return this.context;
 	    }
-	    /**
-	     * 获取内存大小。
-	     * @return 内存大小。
-	     */
-	    //TODO:coverage
 	    getMemSize() {
-	        return 0; //TODO:待调整
+	        return 0;
 	    }
-	    /**
-	     * 设置宽高。
-	     * @param	w 宽度。
-	     * @param	h 高度。
-	     */
 	    size(w, h) {
 	        if (this._width != w || this._height != h || (this._source && (this._source.width != w || this._source.height != h))) {
 	            this._width = w;
 	            this._height = h;
 	            this._setCPUMemory(w * h * 4);
 	            this._ctx && this._ctx.size && this._ctx.size(w, h);
-	            if (this._source) { // && this._source instanceof HTMLCanvasElement){
+	            if (this._source) {
 	                this._source.height = h;
 	                this._source.width = w;
 	            }
@@ -17454,9 +12536,6 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**
-	     * 获取texture实例
-	     */
 	    getTexture() {
 	        if (!this._texture) {
 	            var bitmap = new Texture2D();
@@ -17465,11 +12544,6 @@ window.Laya= (function (exports) {
 	        }
 	        return this._texture;
 	    }
-	    /**
-	     * 把图片转换为base64信息
-	     * @param	type "image/png"
-	     * @param	encoderOptions	质量参数，取值范围为0-1
-	     */
 	    toBase64(type, encoderOptions) {
 	        if (this._source) {
 	            if (ILaya.Render.isConchApp) {
@@ -17488,7 +12562,6 @@ window.Laya= (function (exports) {
 	        }
 	        return null;
 	    }
-	    //native多线程
 	    toBase64Async(type, encoderOptions, callBack) {
 	        var width = this._ctx._targets.sourceWidth;
 	        var height = this._ctx._targets.sourceHeight;
@@ -17500,36 +12573,20 @@ window.Laya= (function (exports) {
 	    }
 	}
 
-	/**
-	 * @internal
-	 * 存储cache相关
-	 */
 	class CacheStyle {
 	    constructor() {
 	        this.reset();
 	    }
-	    /**
-	     * 是否需要Bitmap缓存
-	     * @return
-	     */
 	    needBitmapCache() {
 	        return this.cacheForFilters || !!this.mask;
 	    }
-	    /**
-	     * 是否需要开启canvas渲染
-	     */
 	    needEnableCanvasRender() {
 	        return this.userSetCache != "none" || this.cacheForFilters || !!this.mask;
 	    }
-	    /**
-	     * 释放cache的资源
-	     */
 	    releaseContext() {
 	        if (this.canvas && this.canvas.size) {
 	            Pool.recover("CacheCanvas", this.canvas);
 	            this.canvas.size(0, 0);
-	            // 微信在iphone8和mate20上个bug，size存在但是不起作用，可能是canvas对象不是我们的。
-	            // 为了避免canvas不消失，再强制设置宽高为0 TODO 没有测试
 	            try {
 	                this.canvas.width = 0;
 	                this.canvas.height = 0;
@@ -17544,13 +12601,10 @@ window.Laya= (function (exports) {
 	            this.canvas = Pool.getItem("CacheCanvas") || new HTMLCanvas(false);
 	            var tx = this.canvas.context;
 	            if (!tx) {
-	                tx = this.canvas.getContext('2d'); //如果是webGL的话，这个会返回WebGLContext2D
+	                tx = this.canvas.getContext('2d');
 	            }
 	        }
 	    }
-	    /**
-	     * 释放滤镜资源
-	     */
 	    releaseFilterCache() {
 	        var fc = this.filterCache;
 	        if (fc) {
@@ -17559,17 +12613,11 @@ window.Laya= (function (exports) {
 	            this.filterCache = null;
 	        }
 	    }
-	    /**
-	     * 回收
-	     */
 	    recover() {
 	        if (this === CacheStyle.EMPTY)
 	            return;
 	        Pool.recover("SpriteCache", this.reset());
 	    }
-	    /**
-	     * 重置
-	     */
 	    reset() {
 	        this.releaseContext();
 	        this.releaseFilterCache();
@@ -17589,21 +12637,14 @@ window.Laya= (function (exports) {
 	        this.cacheRect = null;
 	        return this;
 	    }
-	    /**
-	     * 创建一个SpriteCache
-	     */
 	    static create() {
 	        return Pool.getItemByClass("SpriteCache", CacheStyle);
 	    }
-	    /**
-	    * @internal
-	    */
 	    _calculateCacheRect(sprite, tCacheType, x, y) {
 	        var _cacheStyle = sprite._cacheStyle;
 	        if (!_cacheStyle.cacheRect)
 	            _cacheStyle.cacheRect = Rectangle.create();
 	        var tRec;
-	        //计算显示对象的绘图区域
 	        if (tCacheType === "bitmap") {
 	            tRec = sprite.getSelfBounds();
 	            tRec.width = tRec.width + CacheStyle.CANVAS_EXTEND_EDGE * 2;
@@ -17622,7 +12663,6 @@ window.Laya= (function (exports) {
 	            _cacheStyle.cacheRect.setTo(-sprite._style.pivotX, -sprite._style.pivotY, 1, 1);
 	        }
 	        tRec = _cacheStyle.cacheRect;
-	        //处理显示对象的scrollRect偏移
 	        if (sprite._style.scrollRect) {
 	            var scrollRect = sprite._style.scrollRect;
 	            tRec.x -= scrollRect.x;
@@ -17636,16 +12676,10 @@ window.Laya= (function (exports) {
 	CacheStyle._scaleInfo = new Point();
 	CacheStyle.CANVAS_EXTEND_EDGE = 16;
 
-	/**
-	 * 元素样式
-	 */
 	class SpriteStyle {
 	    constructor() {
 	        this.reset();
 	    }
-	    /**
-	     * 重置，方便下次复用
-	     */
 	    reset() {
 	        this.scaleX = this.scaleY = 1;
 	        this.skewX = this.skewY = 0;
@@ -17662,50 +12696,20 @@ window.Laya= (function (exports) {
 	        this.blendMode = null;
 	        return this;
 	    }
-	    /**
-	     * 回收
-	     */
 	    recover() {
 	        if (this === SpriteStyle.EMPTY)
 	            return;
 	        Pool.recover("SpriteStyle", this.reset());
 	    }
-	    /**
-	     * 从对象池中创建
-	     */
 	    static create() {
 	        return Pool.getItemByClass("SpriteStyle", SpriteStyle);
 	    }
 	}
 	SpriteStyle.EMPTY = new SpriteStyle();
 
-	/**
-	 * @internal
-	 * 快速节点命令执行器
-	 * 多个指令组合才有意义，单个指令没必要在下面加
-	 */
 	class LayaGLQuickRunner {
-	    /**@internal */
 	    static __init__() {
-	        /*
-	           glQuickMap["drawNode;"] = drawNode;
-	           glQuickMap["drawNodes;"] = drawNodes;
-	           glQuickMap["drawLayaGL;"] = drawLayaGL;
-	           glQuickMap["drawLayaGL;drawNodes;"] = drawLayaGL_drawNodes;
-	           glQuickMap["save;alpha;drawNode;restore;"] = save_alpha_drawNode_restore;
-	           glQuickMap["save;alpha;drawLayaGL;restore;"] = save_alpha_drawLayaGL_restore;
-	         */
-	        //glQuickMap["save;alpha;drawTextureWithGr;restore;"] = save_alpha_drawTextureWithGr_restore;
-	        //glQuickMap["save;transform;drawTextureWithGr;restore;"] = save_alpha_transform_drawTextureWithGr_restore;
-	        //glQuickMap["save;alpha;transform;drawTextureWithGr;restore;"] = save_alpha_transform_drawTextureWithGr_restore;
-	        //glQuickMap["drawTextureWithGr;"] = drawTextureWithGr;
-	        //glQuickMap["save;transform;drawNodes;restore;"] = save_transform_drawNodes_restore;
-	        //glQuickMap["save;transform;drawLayaGL;restore;"] = save_alpha_transform_drawLayaGL_restore;
-	        //glQuickMap["save;alpha;transform;drawLayaGL;restore;"] = save_alpha_transform_drawLayaGL_restore;
-	        //glQuickMap["save;alpha;transform;drawLayaGL;restore;"] = save_alpha_transform_drawLayaGL_restore;
-	        //map[SpriteConst.TEXTURE] = _drawTexture;
 	        LayaGLQuickRunner.map[SpriteConst.ALPHA | SpriteConst.TRANSFORM | SpriteConst.GRAPHICS] = LayaGLQuickRunner.alpha_transform_drawLayaGL;
-	        //map[ SpriteConst.GRAPHICS] = _drawLayaGL;
 	        LayaGLQuickRunner.map[SpriteConst.ALPHA | SpriteConst.GRAPHICS] = LayaGLQuickRunner.alpha_drawLayaGL;
 	        LayaGLQuickRunner.map[SpriteConst.TRANSFORM | SpriteConst.GRAPHICS] = LayaGLQuickRunner.transform_drawLayaGL;
 	        LayaGLQuickRunner.map[SpriteConst.TRANSFORM | SpriteConst.CHILDS] = LayaGLQuickRunner.transform_drawNodes;
@@ -17717,54 +12721,11 @@ window.Laya= (function (exports) {
 	    static transform_drawTexture(sprite, context, x, y) {
 	        var style = sprite._style;
 	        var tex = sprite.texture;
-	        /*
-	        var ctx:WebGLContext2D = context as WebGLContext2D;
-	        var ctxm:Matrix = ctx._curMat;
-	        ctxm.copyTo(curMat);
-	        //context.saveTransform(curMat);
-	        ctx.transformByMatrixNoSave(sprite.getTransform(), x, y);
-	        ctx.drawTexture(tex, -style.pivotX, -style.pivotY, sprite._width || tex.width, sprite._height || tex.height);
-	        curMat.copyTo(ctxm);
-	        //ctx.restoreTransform(curMat);
-	        */
 	        context.saveTransform(LayaGLQuickRunner.curMat);
 	        context.transformByMatrix(sprite.transform, x, y);
 	        context.drawTexture(tex, -sprite.pivotX, -sprite.pivotY, sprite._width || tex.width, sprite._height || tex.height);
 	        context.restoreTransform(LayaGLQuickRunner.curMat);
-	        /*
-	        context.saveTransform(curMat);
-	        var w:int = sprite._width || tex.width;
-	        var h:int = sprite._height || tex.height;
-	        var mat:Matrix = sprite.transform;// (sprite as Object)._tfChanged?(sprite as Object)._adjustTransform():(sprite as Object)._transform;
-	        mat.tx += x; mat.ty += y;
-	        //(context as WebGLContext2D).drawTextureWithTransform(tex, -style.pivotX, -style.pivotY, w, h,mat,x,y,1,null,null);
-	        
-	        var ctx:WebGLContext2D = context;
-	        var curMat:Matrix = ctx._curMat;
-	        var tmpMat:Matrix = ctx._tmpMatrix;
-	        var transform = mat;
-	        //克隆transform,因为要应用tx，ty，这里不能修改原始的transform
-	        tmpMat.a = transform.a; tmpMat.b = transform.b; tmpMat.c = transform.c; tmpMat.d = transform.d; tmpMat.tx = transform.tx + x; tmpMat.ty = transform.ty + y;
-	        tmpMat._bTransform = transform._bTransform;
-	        if (transform && curMat._bTransform) {
-	            Matrix.mul(tmpMat, curMat, tmpMat);
-	            transform = tmpMat;
-	            transform._bTransform = true;
-	        }else {
-	            //如果curmat没有旋转。
-	            transform = tmpMat;
-	        }
-	        ctx._drawTextureM(tex, x, y, w,h, mat, 1,null);
-	        
-	        //var st = __JS__("performance.now()");
-	        //Laya.stage.perfdt += (__JS__("performance.now()")-st);
-	        context.restoreTransform(curMat);
-	        */
 	    }
-	    //static public function _drawTexture(sprite:Sprite, context:Context, x:Number, y:Number):void {
-	    //var tex:Texture = sprite.texture;
-	    //context.drawTexture(tex, x-sprite.pivotX, y-sprite.pivotY, sprite._width || tex.width, sprite._height || tex.height);
-	    //}
 	    static alpha_drawTexture(sprite, context, x, y) {
 	        var style = sprite._style;
 	        var alpha;
@@ -17813,30 +12774,18 @@ window.Laya= (function (exports) {
 	            context.globalAlpha = temp;
 	        }
 	    }
-	    //static public function _drawLayaGL(sprite:Sprite, context:Context, x:Number, y:Number):void {
-	    //sprite._graphics._render(sprite, context, x, y);
-	    //}		
 	    static transform_drawLayaGL(sprite, context, x, y) {
 	        var style = sprite._style;
-	        //var transform:Matrix = sprite.transform;
-	        //临时
-	        //if (transform) {
 	        context.saveTransform(LayaGLQuickRunner.curMat);
 	        context.transformByMatrix(sprite.transform, x, y);
 	        sprite._graphics && sprite._graphics._render(sprite, context, -style.pivotX, -style.pivotY);
 	        context.restoreTransform(LayaGLQuickRunner.curMat);
-	        //}else {
-	        //sprite._graphics && sprite._graphics._render(sprite, context, -style.pivotX, -style.pivotY);
-	        //}			
 	    }
 	    static transform_drawNodes(sprite, context, x, y) {
-	        //var transform:Matrix = sprite.transform;
 	        var textLastRender = sprite._getBit(Const.DRAWCALL_OPTIMIZE) && context.drawCallOptimize(true);
 	        var style = sprite._style;
 	        context.saveTransform(LayaGLQuickRunner.curMat);
 	        context.transformByMatrix(sprite.transform, x, y);
-	        //x = x-style.pivotX;
-	        //y = y - style.pivotY;
 	        x = -style.pivotX;
 	        y = -style.pivotY;
 	        var childs = sprite._children, n = childs.length, ele;
@@ -17887,14 +12836,9 @@ window.Laya= (function (exports) {
 	        textLastRender && context.drawCallOptimize(false);
 	    }
 	}
-	/*[FILEINDEX:10000]*/
 	LayaGLQuickRunner.map = {};
 	LayaGLQuickRunner.curMat = new Matrix();
 
-	/**
-	 * @private
-	 * 精灵渲染器
-	 */
 	class RenderSprite {
 	    constructor(type, next) {
 	        if (LayaGLQuickRunner.map[type]) {
@@ -17907,9 +12851,6 @@ window.Laya= (function (exports) {
 	            case 0:
 	                this._fun = this._no;
 	                return;
-	            //case SpriteConst.IMAGE: 
-	            //_fun = this._image;
-	            //return;
 	            case SpriteConst.ALPHA:
 	                this._fun = this._alpha;
 	                return;
@@ -17943,12 +12884,6 @@ window.Laya= (function (exports) {
 	            case SpriteConst.TEXTURE:
 	                this._fun = this._texture;
 	                return;
-	            //case SpriteConst.IMAGE | SpriteConst.GRAPHICS: 
-	            //_fun = this._image2;
-	            //return;
-	            //case SpriteConst.IMAGE | SpriteConst.TRANSFORM | SpriteConst.GRAPHICS: 
-	            //_fun = this._image2;
-	            //return;
 	            case SpriteConst.FILTERS:
 	                this._fun = Filter._filter;
 	                return;
@@ -17958,7 +12893,6 @@ window.Laya= (function (exports) {
 	        }
 	        this.onCreate(type);
 	    }
-	    /** @internal */
 	    static __init__() {
 	        LayaGLQuickRunner.__init__();
 	        var i, len;
@@ -17968,11 +12902,6 @@ window.Laya= (function (exports) {
 	        for (i = 0; i < len; i++)
 	            RenderSprite.renders[i] = initRender;
 	        RenderSprite.renders[0] = new RenderSprite(0, null);
-	        //_initSame([SpriteConst.IMAGE, SpriteConst.GRAPHICS, SpriteConst.TRANSFORM, SpriteConst.ALPHA], RunDriver.createRenderSprite(SpriteConst.IMAGE, null));
-	        //
-	        //renders[SpriteConst.IMAGE | SpriteConst.GRAPHICS] = RunDriver.createRenderSprite(SpriteConst.IMAGE | SpriteConst.GRAPHICS, null);
-	        //
-	        //renders[SpriteConst.IMAGE | SpriteConst.TRANSFORM | SpriteConst.GRAPHICS] = RunDriver.createRenderSprite(SpriteConst.IMAGE | SpriteConst.TRANSFORM | SpriteConst.GRAPHICS, null);
 	    }
 	    static _initRenderFun(sprite, context, x, y) {
 	        var type = sprite._renderType;
@@ -17993,24 +12922,19 @@ window.Laya= (function (exports) {
 	    }
 	    onCreate(type) {
 	    }
-	    /**@internal */
 	    _style(sprite, context, x, y) {
-	        //现在只有Text会走这里，Html已经不走这里了
 	        var style = sprite._style;
 	        if (style.render != null)
 	            style.render(sprite, context, x, y);
 	        var next = this._next;
 	        next._fun.call(next, sprite, context, x, y);
 	    }
-	    /**@internal */
 	    _no(sprite, context, x, y) {
 	    }
-	    /**@internal */
 	    _custom(sprite, context, x, y) {
 	        sprite.customRender(context, x, y);
 	        this._next._fun.call(this._next, sprite, context, x - sprite.pivotX, y - sprite.pivotY);
 	    }
-	    /**@internal */
 	    _clip(sprite, context, x, y) {
 	        var next = this._next;
 	        if (next == RenderSprite.NORENDER)
@@ -18021,22 +12945,6 @@ window.Laya= (function (exports) {
 	        next._fun.call(next, sprite, context, x - r.x, y - r.y);
 	        context.restore();
 	    }
-	    /*
-	    public function _mask(sprite:Sprite, context:Context, x:Number, y:Number):void {
-	        var next:RenderSprite = this._next;
-	        next._fun.call(next, sprite, context, x, y);
-	        var mask:Sprite = sprite.mask;
-	        if (mask) {
-	            context.globalCompositeOperation = "destination-in";
-	            if (mask.numChildren > 0 || !mask.graphics._isOnlyOne()) {
-	                mask.cacheAs = "bitmap";
-	            }
-	            mask.render(context, x - sprite._style.pivotX, y - sprite._style.pivotY);
-	        }
-	        context.globalCompositeOperation = "source-over";
-	    }
-	    */
-	    /**@internal */
 	    _texture(sprite, context, x, y) {
 	        var tex = sprite.texture;
 	        if (tex._getSource())
@@ -18045,7 +12953,6 @@ window.Laya= (function (exports) {
 	        if (next != RenderSprite.NORENDER)
 	            next._fun.call(next, sprite, context, x, y);
 	    }
-	    /**@internal */
 	    _graphics(sprite, context, x, y) {
 	        var style = sprite._style;
 	        var g = sprite._graphics;
@@ -18054,18 +12961,14 @@ window.Laya= (function (exports) {
 	        if (next != RenderSprite.NORENDER)
 	            next._fun.call(next, sprite, context, x, y);
 	    }
-	    /**@internal */
 	    _image(sprite, context, x, y) {
 	        var style = sprite._style;
 	        context.drawTexture2(x, y, style.pivotX, style.pivotY, sprite.transform, sprite._graphics._one);
 	    }
-	    /**@internal */
 	    _image2(sprite, context, x, y) {
 	        var style = sprite._style;
 	        context.drawTexture2(x, y, style.pivotX, style.pivotY, sprite.transform, sprite._graphics._one);
 	    }
-	    /**@internal */
-	    //TODO:coverage
 	    _alpha(sprite, context, x, y) {
 	        var style = sprite._style;
 	        var alpha;
@@ -18077,7 +12980,6 @@ window.Laya= (function (exports) {
 	            context.globalAlpha = temp;
 	        }
 	    }
-	    /**@internal */
 	    _transform(sprite, context, x, y) {
 	        var transform = sprite.transform, _next = this._next;
 	        var style = sprite._style;
@@ -18092,7 +12994,6 @@ window.Laya= (function (exports) {
 	                _next._fun.call(_next, sprite, context, x, y);
 	        }
 	    }
-	    /**@internal */
 	    _children(sprite, context, x, y) {
 	        var style = sprite._style;
 	        var childs = sprite._children, n = childs.length, ele;
@@ -18118,7 +13019,6 @@ window.Laya= (function (exports) {
 	        }
 	        textLastRender && context.drawCallOptimize(false);
 	    }
-	    /**@internal */
 	    _canvas(sprite, context, x, y) {
 	        var _cacheStyle = sprite._cacheStyle;
 	        var _next = this._next;
@@ -18127,11 +13027,9 @@ window.Laya= (function (exports) {
 	            return;
 	        }
 	        _cacheStyle.cacheAs === 'bitmap' ? (Stat.canvasBitmap++) : (Stat.canvasNormal++);
-	        //检查保存的文字是否失效了
 	        var cacheNeedRebuild = false;
 	        var textNeedRestore = false;
 	        if (_cacheStyle.canvas) {
-	            // 检查文字是否被释放了，以及clip是否改变了，需要重新cache了
 	            var canv = _cacheStyle.canvas;
 	            var ctx = canv.context;
 	            var charRIs = canv.touches;
@@ -18147,9 +13045,9 @@ window.Laya= (function (exports) {
 	        }
 	        if (sprite._needRepaint() || (!_cacheStyle.canvas) || textNeedRestore || cacheNeedRebuild || window.Laya.stage.isGlobalRepaint()) {
 	            if (_cacheStyle.cacheAs === 'normal') {
-	                if (context._targets) { // 如果有target说明父节点已经是一个cacheas bitmap了，就不再走cacheas normal的流程了
+	                if (context._targets) {
 	                    _next._fun.call(_next, sprite, context, x, y);
-	                    return; //不再继续
+	                    return;
 	                }
 	                else {
 	                    this._canvas_webgl_normal_repaint(sprite, context);
@@ -18160,10 +13058,8 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	        var tRec = _cacheStyle.cacheRect;
-	        //Stage._dbgSprite.graphics.drawRect(x, y, 30,30, null, 'red');
 	        context.drawCanvas(_cacheStyle.canvas, x + tRec.x, y + tRec.y, tRec.width, tRec.height);
 	    }
-	    /**@internal */
 	    _canvas_repaint(sprite, context, x, y) {
 	        var _cacheStyle = sprite._cacheStyle;
 	        var _next = this._next;
@@ -18179,9 +13075,7 @@ window.Laya= (function (exports) {
 	        scaleInfo = _cacheStyle._calculateCacheRect(sprite, tCacheType, x, y);
 	        scaleX = scaleInfo.x;
 	        scaleY = scaleInfo.y;
-	        //显示对象实际的绘图区域
 	        tRec = _cacheStyle.cacheRect;
-	        //计算cache画布的大小
 	        w = tRec.width * scaleX;
 	        h = tRec.height * scaleY;
 	        left = tRec.x;
@@ -18197,16 +13091,13 @@ window.Laya= (function (exports) {
 	            canvas = _cacheStyle.canvas;
 	        }
 	        tx = canvas.context;
-	        //WebGL用
 	        tx.sprite = sprite;
-	        (canvas.width != w || canvas.height != h) && canvas.size(w, h); //asbitmap需要合理的大小，所以size放到前面
+	        (canvas.width != w || canvas.height != h) && canvas.size(w, h);
 	        if (tCacheType === 'bitmap')
 	            tx.asBitmap = true;
 	        else if (tCacheType === 'normal')
 	            tx.asBitmap = false;
-	        //清理画布。之前记录的submit会被全部清掉
 	        tx.clear();
-	        //TODO:测试webgl下是否有缓存模糊
 	        if (scaleX != 1 || scaleY != 1) {
 	            var ctx = tx;
 	            ctx.save();
@@ -18224,7 +13115,6 @@ window.Laya= (function (exports) {
 	            _cacheStyle.reCache = false;
 	        Stat.canvasReCache++;
 	    }
-	    /**@internal */
 	    _canvas_webgl_normal_repaint(sprite, context) {
 	        var _cacheStyle = sprite._cacheStyle;
 	        var _next = this._next;
@@ -18236,13 +13126,11 @@ window.Laya= (function (exports) {
 	        }
 	        var tx = canvas.context;
 	        canvas['startRec']();
-	        _next._fun.call(_next, sprite, tx, sprite.pivotX, sprite.pivotY); // 由于后面的渲染会减去pivot，而cacheas normal并不希望这样，只希望创建一个原始的图像。所以在这里补偿。
+	        _next._fun.call(_next, sprite, tx, sprite.pivotX, sprite.pivotY);
 	        sprite._applyFilters();
 	        Stat.canvasReCache++;
 	        canvas['endRec']();
-	        //context.drawCanvas(canvas, x , y , 1, 1); // 这种情况下宽高没用
 	    }
-	    /**@internal */
 	    _blend(sprite, context, x, y) {
 	        var style = sprite._style;
 	        var next = this._next;
@@ -18256,14 +13144,6 @@ window.Laya= (function (exports) {
 	            next._fun.call(next, sprite, context, x, y);
 	        }
 	    }
-	    /**
-	     * @internal
-	     * mask的渲染。 sprite有mask属性的情况下，来渲染这个sprite
-	     * @param	sprite
-	     * @param	context
-	     * @param	x
-	     * @param	y
-	     */
 	    _mask(sprite, context, x, y) {
 	        var next = this._next;
 	        var mask = sprite.mask;
@@ -18272,7 +13152,6 @@ window.Laya= (function (exports) {
 	            ctx.save();
 	            var preBlendMode = ctx.globalCompositeOperation;
 	            var tRect = new Rectangle();
-	            //裁剪范围是根据mask来定的
 	            tRect.copyFrom(mask.getBounds());
 	            tRect.width = Math.round(tRect.width);
 	            tRect.height = Math.round(tRect.height);
@@ -18283,30 +13162,21 @@ window.Laya= (function (exports) {
 	                var h = tRect.height;
 	                var tmpRT = WebGLRTMgr.getRT(w, h);
 	                ctx.breakNextMerge();
-	                //先把mask画到tmpTarget上
 	                ctx.pushRT();
 	                ctx.addRenderObject(SubmitCMD.create([ctx, tmpRT, w, h], RenderSprite.tmpTarget, this));
 	                mask.render(ctx, -tRect.x, -tRect.y);
 	                ctx.breakNextMerge();
 	                ctx.popRT();
-	                //设置裁剪为mask的大小。要考虑pivot。有pivot的话，可能要从负的开始
 	                ctx.save();
 	                ctx.clipRect(x + tRect.x - sprite.getStyle().pivotX, y + tRect.y - sprite.getStyle().pivotY, w, h);
-	                //画出本节点的内容
 	                next._fun.call(next, sprite, ctx, x, y);
 	                ctx.restore();
-	                //设置混合模式
 	                preBlendMode = ctx.globalCompositeOperation;
 	                ctx.addRenderObject(SubmitCMD.create(["mask"], RenderSprite.setBlendMode, this));
 	                var shaderValue = Value2D.create(ShaderDefines2D.TEXTURE2D, 0);
 	                var uv = Texture.INV_UV;
-	                //这个地方代码不要删除，为了解决在iphone6-plus上的诡异问题
-	                //renderTarget + StencilBuffer + renderTargetSize < 32 就会变得超级卡
-	                //所以增加的限制。王亚伟
-	                //  180725 本段限制代码已经删除，如果出了问题再找王亚伟
 	                ctx.drawTarget(tmpRT, x + tRect.x - sprite.getStyle().pivotX, y + tRect.y - sprite.getStyle().pivotY, w, h, Matrix.TEMP.identity(), shaderValue, uv, 6);
 	                ctx.addRenderObject(SubmitCMD.create([tmpRT], RenderSprite.recycleTarget, this));
-	                //恢复混合模式
 	                ctx.addRenderObject(SubmitCMD.create([preBlendMode], RenderSprite.setBlendMode, this));
 	            }
 	            ctx.restore();
@@ -18327,275 +13197,34 @@ window.Laya= (function (exports) {
 	        BlendMode.targetFns[BlendMode.TOINT[blendMode]](gl);
 	    }
 	}
-	/** @private */
-	//public static const IMAGE:int = 0x01;
-	/** @private */
-	//public static const ALPHA:int = 0x02;
-	/** @private */
-	//public static const TRANSFORM:int = 0x04;
-	/** @private */
-	//public static const BLEND:int = 0x08;
-	/** @private */
-	//public static const CANVAS:int = 0x10;
-	/** @private */
-	//public static const FILTERS:int = 0x20;
-	/** @private */
-	//public static const MASK:int = 0x40;
-	/** @private */
-	//public static const CLIP:int = 0x80;
-	/** @private */
-	//public static const STYLE:int = 0x100;
-	/** @private */
-	//public static const GRAPHICS:int = 0x200;
-	/** @private */
-	//public static const CUSTOM:int = 0x400;
-	/** @private */
-	//public static const CHILDS:int = 0x800;
-	/** @internal */
 	RenderSprite.INIT = 0x11111;
-	/** @private */
 	RenderSprite.renders = [];
-	/** @private */
 	RenderSprite.NORENDER = new RenderSprite(0, null);
 	RenderSprite.tempUV = new Array(8);
 
-	/**在显示对象上按下后调度。
-	 * @eventType Event.MOUSE_DOWN
-	 * */
-	/*[Event(name = "mousedown", type = "laya.events.Event")]*/
-	/**在显示对象抬起后调度。
-	 * @eventType Event.MOUSE_UP
-	 * */
-	/*[Event(name = "mouseup", type = "laya.events.Event")]*/
-	/**鼠标在对象身上进行移动后调度
-	 * @eventType Event.MOUSE_MOVE
-	 * */
-	/*[Event(name = "mousemove", type = "laya.events.Event")]*/
-	/**鼠标经过对象后调度。
-	 * @eventType Event.MOUSE_OVER
-	 * */
-	/*[Event(name = "mouseover", type = "laya.events.Event")]*/
-	/**鼠标离开对象后调度。
-	 * @eventType Event.MOUSE_OUT
-	 * */
-	/*[Event(name = "mouseout", type = "laya.events.Event")]*/
-	/**鼠标点击对象后调度。
-	 * @eventType Event.CLICK
-	 * */
-	/*[Event(name = "click", type = "laya.events.Event")]*/
-	/**开始拖动后调度。
-	 * @eventType Event.DRAG_START
-	 * */
-	/*[Event(name = "dragstart", type = "laya.events.Event")]*/
-	/**拖动中调度。
-	 * @eventType Event.DRAG_MOVE
-	 * */
-	/*[Event(name = "dragmove", type = "laya.events.Event")]*/
-	/**拖动结束后调度。
-	 * @eventType Event.DRAG_END
-	 * */
-	/*[Event(name = "dragend", type = "laya.events.Event")]*/
-	/**
-	 * <p> <code>Sprite</code> 是基本的显示图形的显示列表节点。 <code>Sprite</code> 默认没有宽高，默认不接受鼠标事件。通过 <code>graphics</code> 可以绘制图片或者矢量图，支持旋转，缩放，位移等操作。<code>Sprite</code>同时也是容器类，可用来添加多个子节点。</p>
-	 * <p>注意： <code>Sprite</code> 默认没有宽高，可以通过<code>getBounds</code>函数获取；也可手动设置宽高；还可以设置<code>autoSize=true</code>，然后再获取宽高。<code>Sprite</code>的宽高一般用于进行碰撞检测和排版，并不影响显示图像大小，如果需要更改显示图像大小，请使用 <code>scaleX</code> ， <code>scaleY</code> ， <code>scale</code>。</p>
-	 * <p> <code>Sprite</code> 默认不接受鼠标事件，即<code>mouseEnabled=false</code>，但是只要对其监听任意鼠标事件，会自动打开自己以及所有父对象的<code>mouseEnabled=true</code>。所以一般也无需手动设置<code>mouseEnabled</code>。</p>
-	 * <p>LayaAir引擎API设计精简巧妙。核心显示类只有一个<code>Sprite</code>。<code>Sprite</code>针对不同的情况做了渲染优化，所以保证一个类实现丰富功能的同时，又达到高性能。</p>
-	 *
-	 * @example <caption>创建了一个 <code>Sprite</code> 实例。</caption>
-	 * package
-	 * {
-	 * 	import laya.display.Sprite;
-	 * 	import laya.events.Event;
-	 *
-	 * 	public class Sprite_Example
-	 * 	{
-	 * 		private var sprite:Sprite;
-	 * 		private var shape:Sprite
-	 * 		public function Sprite_Example()
-	 * 		{
-	 * 			Laya.init(640, 800);//设置游戏画布宽高、渲染模式。
-	 * 			Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
-	 * 			onInit();
-	 * 		}
-	 * 		private function onInit():void
-	 * 		{
-	 * 			sprite = new Sprite();//创建一个 Sprite 类的实例对象 sprite 。
-	 * 			sprite.loadImage("resource/ui/bg.png");//加载并显示图片。
-	 * 			sprite.x = 200;//设置 sprite 对象相对于父容器的水平方向坐标值。
-	 * 			sprite.y = 200;//设置 sprite 对象相对于父容器的垂直方向坐标值。
-	 * 			sprite.pivotX = 0;//设置 sprite 对象的水平方法轴心点坐标。
-	 * 			sprite.pivotY = 0;//设置 sprite 对象的垂直方法轴心点坐标。
-	 * 			Laya.stage.addChild(sprite);//将此 sprite 对象添加到显示列表。
-	 * 			sprite.on(Event.CLICK, this, onClickSprite);//给 sprite 对象添加点击事件侦听。
-
-	 * 			shape = new Sprite();//创建一个 Sprite 类的实例对象 sprite 。
-	 * 			shape.graphics.drawRect(0, 0, 100, 100, "#ccff00", "#ff0000", 2);//绘制一个有边框的填充矩形。
-	 * 			shape.x = 400;//设置 shape 对象相对于父容器的水平方向坐标值。
-	 * 			shape.y = 200;//设置 shape 对象相对于父容器的垂直方向坐标值。
-	 * 			shape.width = 100;//设置 shape 对象的宽度。
-	 * 			shape.height = 100;//设置 shape 对象的高度。
-	 * 			shape.pivotX = 50;//设置 shape 对象的水平方法轴心点坐标。
-	 * 			shape.pivotY = 50;//设置 shape 对象的垂直方法轴心点坐标。
-	 * 			Laya.stage.addChild(shape);//将此 shape 对象添加到显示列表。
-	 * 			shape.on(Event.CLICK, this, onClickShape);//给 shape 对象添加点击事件侦听。
-	 * 		}
-	 * 		private function onClickSprite():void
-	 * 		{
-	 * 			trace("点击 sprite 对象。");
-	 * 			sprite.rotation += 5;//旋转 sprite 对象。
-	 * 		}
-	 * 		private function onClickShape():void
-	 * 		{
-	 * 			trace("点击 shape 对象。");
-	 * 			shape.rotation += 5;//旋转 shape 对象。
-	 * 		}
-	 * 	}
-	 * }
-	 *
-	 * @example
-	 * var sprite;
-	 * var shape;
-	 * Sprite_Example();
-	 * function Sprite_Example()
-	 * {
-	 *     Laya.init(640, 800);//设置游戏画布宽高、渲染模式。
-	 *     Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
-	 *     onInit();
-	 * }
-	 * function onInit()
-	 * {
-	 *     sprite = new laya.display.Sprite();//创建一个 Sprite 类的实例对象 sprite 。
-	 *     sprite.loadImage("resource/ui/bg.png");//加载并显示图片。
-	 *     sprite.x = 200;//设置 sprite 对象相对于父容器的水平方向坐标值。
-	 *     sprite.y = 200;//设置 sprite 对象相对于父容器的垂直方向坐标值。
-	 *     sprite.pivotX = 0;//设置 sprite 对象的水平方法轴心点坐标。
-	 *     sprite.pivotY = 0;//设置 sprite 对象的垂直方法轴心点坐标。
-	 *     Laya.stage.addChild(sprite);//将此 sprite 对象添加到显示列表。
-	 *     sprite.on(Event.CLICK, this, onClickSprite);//给 sprite 对象添加点击事件侦听。
-
-	 *     shape = new laya.display.Sprite();//创建一个 Sprite 类的实例对象 sprite 。
-	 *     shape.graphics.drawRect(0, 0, 100, 100, "#ccff00", "#ff0000", 2);//绘制一个有边框的填充矩形。
-	 *     shape.x = 400;//设置 shape 对象相对于父容器的水平方向坐标值。
-	 *     shape.y = 200;//设置 shape 对象相对于父容器的垂直方向坐标值。
-	 *     shape.width = 100;//设置 shape 对象的宽度。
-	 *     shape.height = 100;//设置 shape 对象的高度。
-	 *     shape.pivotX = 50;//设置 shape 对象的水平方法轴心点坐标。
-	 *     shape.pivotY = 50;//设置 shape 对象的垂直方法轴心点坐标。
-	 *     Laya.stage.addChild(shape);//将此 shape 对象添加到显示列表。
-	 *     shape.on(laya.events.Event.CLICK, this, onClickShape);//给 shape 对象添加点击事件侦听。
-	 * }
-	 * function onClickSprite()
-	 * {
-	 *     console.log("点击 sprite 对象。");
-	 *     sprite.rotation += 5;//旋转 sprite 对象。
-	 * }
-	 * function onClickShape()
-	 * {
-	 *     console.log("点击 shape 对象。");
-	 *     shape.rotation += 5;//旋转 shape 对象。
-	 * }
-	 *
-	 * @example
-	 * import Sprite = laya.display.Sprite;
-	 * class Sprite_Example {
-	 *     private sprite: Sprite;
-	 *     private shape: Sprite
-	 *     public Sprite_Example() {
-	 *         Laya.init(640, 800);//设置游戏画布宽高、渲染模式。
-	 *         Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
-	 *         this.onInit();
-	 *     }
-	 *     private onInit(): void {
-	 *         this.sprite = new Sprite();//创建一个 Sprite 类的实例对象 sprite 。
-	 *         this.sprite.loadImage("resource/ui/bg.png");//加载并显示图片。
-	 *         this.sprite.x = 200;//设置 sprite 对象相对于父容器的水平方向坐标值。
-	 *         this.sprite.y = 200;//设置 sprite 对象相对于父容器的垂直方向坐标值。
-	 *         this.sprite.pivotX = 0;//设置 sprite 对象的水平方法轴心点坐标。
-	 *         this.sprite.pivotY = 0;//设置 sprite 对象的垂直方法轴心点坐标。
-	 *         Laya.stage.addChild(this.sprite);//将此 sprite 对象添加到显示列表。
-	 *         this.sprite.on(laya.events.Event.CLICK, this, this.onClickSprite);//给 sprite 对象添加点击事件侦听。
-
-	 *         this.shape = new Sprite();//创建一个 Sprite 类的实例对象 sprite 。
-	 *         this.shape.graphics.drawRect(0, 0, 100, 100, "#ccff00", "#ff0000", 2);//绘制一个有边框的填充矩形。
-	 *         this.shape.x = 400;//设置 shape 对象相对于父容器的水平方向坐标值。
-	 *         this.shape.y = 200;//设置 shape 对象相对于父容器的垂直方向坐标值。
-	 *         this.shape.width = 100;//设置 shape 对象的宽度。
-	 *         this.shape.height = 100;//设置 shape 对象的高度。
-	 *         this.shape.pivotX = 50;//设置 shape 对象的水平方法轴心点坐标。
-	 *         this.shape.pivotY = 50;//设置 shape 对象的垂直方法轴心点坐标。
-	 *         Laya.stage.addChild(this.shape);//将此 shape 对象添加到显示列表。
-	 *         this.shape.on(laya.events.Event.CLICK, this, this.onClickShape);//给 shape 对象添加点击事件侦听。
-	 *     }
-	 *     private onClickSprite(): void {
-	 *         console.log("点击 sprite 对象。");
-	 *         this.sprite.rotation += 5;//旋转 sprite 对象。
-	 *     }
-	 *     private onClickShape(): void {
-	 *         console.log("点击 shape 对象。");
-	 *         this.shape.rotation += 5;//旋转 shape 对象。
-	 *     }
-	 * }
-	 */
 	class Sprite extends Node {
 	    constructor() {
 	        super();
-	        /**@internal */
 	        this._x = 0;
-	        /**@internal */
 	        this._y = 0;
-	        /**@private */
 	        this._width = 0;
-	        /**@private */
 	        this._height = 0;
-	        /**@internal */
 	        this._visible = true;
-	        /**@internal 鼠标状态，0:auto,1:mouseEnabled=false,2:mouseEnabled=true。*/
 	        this._mouseState = 0;
-	        /**@internal z排序，数值越大越靠前。*/
 	        this._zOrder = 0;
-	        /**@internal */
 	        this._renderType = 0;
-	        /**@internal */
 	        this._transform = null;
-	        /**@private */
 	        this._tfChanged = false;
-	        /**@private */
 	        this._repaint = SpriteConst.REPAINT_NONE;
-	        /**@private */
 	        this._texture = null;
-	        //以下变量为系统调用，请不要直接使用
-	        /**@internal */
 	        this._style = SpriteStyle.EMPTY;
-	        /**@internal */
 	        this._cacheStyle = CacheStyle.EMPTY;
-	        /**@internal */
 	        this._boundStyle = null;
-	        /**@internal */
 	        this._graphics = null;
-	        /**
-	         * <p>鼠标事件与此对象的碰撞检测是否可穿透。碰撞检测发生在鼠标事件的捕获阶段，此阶段引擎会从stage开始递归检测stage及其子对象，直到找到命中的目标对象或者未命中任何对象。</p>
-	         * <p>穿透表示鼠标事件发生的位置处于本对象绘图区域内时，才算命中，而与对象宽高和值为Rectangle对象的hitArea属性无关。如果sprite.hitArea值是HitArea对象，表示显式声明了此对象的鼠标事件响应区域，而忽略对象的宽高、mouseThrough属性。</p>
-	         * <p>影响对象鼠标事件响应区域的属性为：width、height、hitArea，优先级顺序为：hitArea(type:HitArea)>hitArea(type:Rectangle)>width/height。</p>
-	         * @default false	不可穿透，此对象的鼠标响应区域由width、height、hitArea属性决定。</p>
-	         */
 	        this.mouseThrough = false;
-	        /**
-	         * <p>指定是否自动计算宽高数据。默认值为 false 。</p>
-	         * <p>Sprite宽高默认为0，并且不会随着绘制内容的变化而变化，如果想根据绘制内容获取宽高，可以设置本属性为true，或者通过getBounds方法获取。设置为true，对性能有一定影响。</p>
-	         */
 	        this.autoSize = false;
-	        /**
-	         * <p>指定鼠标事件检测是优先检测自身，还是优先检测其子对象。鼠标事件检测发生在鼠标事件的捕获阶段，此阶段引擎会从stage开始递归检测stage及其子对象，直到找到命中的目标对象或者未命中任何对象。</p>
-	         * <p>如果为false，优先检测子对象，当有子对象被命中时，中断检测，获得命中目标。如果未命中任何子对象，最后再检测此对象；如果为true，则优先检测本对象，如果本对象没有被命中，直接中断检测，表示没有命中目标；如果本对象被命中，则进一步递归检测其子对象，以确认最终的命中目标。</p>
-	         * <p>合理使用本属性，能减少鼠标事件检测的节点，提高性能。可以设置为true的情况：开发者并不关心此节点的子节点的鼠标事件检测结果，也就是以此节点作为其子节点的鼠标事件检测依据。</p>
-	         * <p>Stage对象和UI的View组件默认为true。</p>
-	         * @default false	优先检测此对象的子对象，当递归检测完所有子对象后，仍然没有找到目标对象，最后再检测此对象。
-	         */
 	        this.hitTestPrior = false;
 	    }
-	    /**@inheritDoc
-	     * @override
-	    */
 	    destroy(destroyChild = true) {
 	        super.destroy(destroyChild);
 	        this._style && this._style.recover();
@@ -18611,24 +13240,16 @@ window.Laya= (function (exports) {
 	        this._graphics = null;
 	        this.texture = null;
 	    }
-	    /**根据zOrder进行重新排序。*/
 	    updateZOrder() {
 	        Utils.updateOrder(this._children) && this.repaint();
 	    }
-	    /**
-	     * @internal
-	     */
 	    _getBoundsStyle() {
 	        if (!this._boundStyle)
 	            this._boundStyle = BoundsStyle.create();
 	        return this._boundStyle;
 	    }
-	    /**@internal */
 	    _setCustomRender() {
 	    }
-	    /**
-	     * 设置是否开启自定义渲染，只有开启自定义渲染，才能使用customRender函数渲染。
-	     */
 	    set customRenderEnable(b) {
 	        if (b) {
 	            this._renderType |= SpriteConst.CUSTOM;
@@ -18636,21 +13257,10 @@ window.Laya= (function (exports) {
 	            this._setCustomRender();
 	        }
 	    }
-	    /**
-	     * <p>指定显示对象是否缓存为静态图像，cacheAs时，子对象发生变化，会自动重新缓存，同时也可以手动调用reCache方法更新缓存。</p>
-	     * <p>建议把不经常变化的“复杂内容”缓存为静态图像，能极大提高渲染性能。cacheAs有"none"，"normal"和"bitmap"三个值可选。
-	     * <li>默认为"none"，不做任何缓存。</li>
-	     * <li>当值为"normal"时，canvas模式下进行画布缓存，webgl模式下进行命令缓存。</li>
-	     * <li>当值为"bitmap"时，canvas模式下进行依然是画布缓存，webgl模式下使用renderTarget缓存。</li></p>
-	     * <p>webgl下renderTarget缓存模式缺点：会额外创建renderTarget对象，增加内存开销，缓存面积有最大2048限制，不断重绘时会增加CPU开销。优点：大幅减少drawcall，渲染性能最高。
-	     * webgl下命令缓存模式缺点：只会减少节点遍历及命令组织，不会减少drawcall数，性能中等。优点：没有额外内存开销，无需renderTarget支持。</p>
-	     */
 	    get cacheAs() {
 	        return this._cacheStyle.cacheAs;
 	    }
-	    /**@internal */
 	    _setCacheAs(value) {
-	        //_dataf32[SpriteConst.POSCACHE] = value == "bitmap"?2:(value == "normal"?1:0);
 	    }
 	    set cacheAs(value) {
 	        if (value === this._cacheStyle.userSetCache)
@@ -18662,9 +13272,6 @@ window.Laya= (function (exports) {
 	        this._checkCanvasEnable();
 	        this.repaint();
 	    }
-	    /**
-	     * 更新_cnavas相关的状态
-	     */
 	    _checkCanvasEnable() {
 	        var tEnable = this._cacheStyle.needEnableCanvasRender();
 	        this._getCacheStyle().enableCanvasRender = tEnable;
@@ -18686,7 +13293,6 @@ window.Laya= (function (exports) {
 	        this._setCacheAs(this._cacheStyle.cacheAs);
 	        this._setRenderType(this._renderType);
 	    }
-	    /**设置cacheAs为非空时此值才有效，staticCache=true时，子对象变化时不会自动更新缓存，只能通过调用reCache方法手动刷新。*/
 	    get staticCache() {
 	        return this._cacheStyle.staticCache;
 	    }
@@ -18695,7 +13301,6 @@ window.Laya= (function (exports) {
 	        if (!value)
 	            this.reCache();
 	    }
-	    /**在设置cacheAs的情况下，调用此方法会重新刷新缓存。*/
 	    reCache() {
 	        this._cacheStyle.reCache = true;
 	        this._repaint |= SpriteConst.REPAINT_CACHE;
@@ -18703,21 +13308,16 @@ window.Laya= (function (exports) {
 	    getRepaint() {
 	        return this._repaint;
 	    }
-	    /**@internal */
 	    _setX(value) {
 	        this._x = value;
 	    }
-	    /**@internal */
 	    _setY(value) {
 	        this._y = value;
 	    }
-	    /**@internal */
 	    _setWidth(texture, value) {
 	    }
-	    /**@internal */
 	    _setHeight(texture, value) {
 	    }
-	    /**表示显示对象相对于父容器的水平方向坐标值。*/
 	    get x() {
 	        return this._x;
 	    }
@@ -18726,7 +13326,6 @@ window.Laya= (function (exports) {
 	            return;
 	        if (this._x !== value) {
 	            this._setX(value);
-	            //_setTranformChange();
 	            this.parentRepaint(SpriteConst.REPAINT_CACHE);
 	            var p = this._cacheStyle.maskParent;
 	            if (p) {
@@ -18734,7 +13333,6 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**表示显示对象相对于父容器的垂直方向坐标值。*/
 	    get y() {
 	        return this._y;
 	    }
@@ -18743,7 +13341,6 @@ window.Laya= (function (exports) {
 	            return;
 	        if (this._y !== value) {
 	            this._setY(value);
-	            //_setTranformChange();
 	            this.parentRepaint(SpriteConst.REPAINT_CACHE);
 	            var p = this._cacheStyle.maskParent;
 	            if (p) {
@@ -18751,24 +13348,17 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**
-	     * <p>显示对象的宽度，单位为像素，默认为0。</p>
-	     * <p>此宽度用于鼠标碰撞检测，并不影响显示对象图像大小。需要对显示对象的图像进行缩放，请使用scale、scaleX、scaleY。</p>
-	     * <p>可以通过getbounds获取显示对象图像的实际宽度。</p>
-	     */
 	    get width() {
 	        return this.get_width();
 	    }
 	    set width(value) {
 	        this.set_width(value);
 	    }
-	    // for ts
 	    set_width(value) {
 	        if (this._width !== value) {
 	            this._width = value;
 	            this._setWidth(this.texture, value);
 	            this._setTranformChange();
-	            //repaint();
 	        }
 	    }
 	    get_width() {
@@ -18780,24 +13370,17 @@ window.Laya= (function (exports) {
 	            return 0;
 	        return this.getSelfBounds().width;
 	    }
-	    /**
-	     * <p>显示对象的高度，单位为像素，默认为0。</p>
-	     * <p>此高度用于鼠标碰撞检测，并不影响显示对象图像大小。需要对显示对象的图像进行缩放，请使用scale、scaleX、scaleY。</p>
-	     * <p>可以通过getbounds获取显示对象图像的实际高度。</p>
-	     */
 	    get height() {
 	        return this.get_height();
 	    }
 	    set height(value) {
 	        this.set_height(value);
 	    }
-	    // for ts
 	    set_height(value) {
 	        if (this._height !== value) {
 	            this._height = value;
 	            this._setHeight(this.texture, value);
 	            this._setTranformChange();
-	            //repaint();
 	        }
 	    }
 	    get_height() {
@@ -18809,58 +13392,25 @@ window.Laya= (function (exports) {
 	            return 0;
 	        return this.getSelfBounds().height;
 	    }
-	    /**
-	     * <p>对象的显示宽度（以像素为单位）。</p>
-	     */
 	    get displayWidth() {
 	        return this.width * this.scaleX;
 	    }
-	    /**
-	     * <p>对象的显示高度（以像素为单位）。</p>
-	     */
 	    get displayHeight() {
 	        return this.height * this.scaleY;
 	    }
-	    /**
-	     * 设置对象bounds大小，如果有设置，则不再通过getBounds计算，合理使用能提高性能。
-	     * @param	bound bounds矩形区域
-	     */
 	    setSelfBounds(bound) {
 	        this._getBoundsStyle().userBounds = bound;
 	    }
-	    /**
-	     * <p>获取本对象在父容器坐标系的矩形显示区域。</p>
-	     * <p><b>注意：</b>计算量较大，尽量少用。</p>
-	     * @return 矩形区域。
-	     */
 	    getBounds() {
 	        return this._getBoundsStyle().bounds = Rectangle._getWrapRec(this._boundPointsToParent());
 	    }
-	    /**
-	     * 获取本对象在自己坐标系的矩形显示区域。
-	     * <p><b>注意：</b>计算量较大，尽量少用。</p>
-	     * @return 矩形区域。
-	     */
 	    getSelfBounds() {
 	        if (this._boundStyle && this._boundStyle.userBounds)
 	            return this._boundStyle.userBounds;
 	        if (!this._graphics && this._children.length === 0 && !this._texture)
-	            return Rectangle.TEMP.setTo(0, 0, this.width, this.height); // 如果没有graphics则取对象指定的大小。原来是0000
-	        //if (_renderType === (SpriteConst.IMAGE | SpriteConst.GRAPHICS)) {
-	        //_getBoundsStyle();
-	        //if (!_boundStyle.bounds) _boundStyle.bounds = Rectangle.create();
-	        //var tDrawCmd:Array = _graphics._one;
-	        //return _boundStyle.bounds.setTo(tDrawCmd[1], tDrawCmd[2], tDrawCmd[3], tDrawCmd[4]);
-	        //}
+	            return Rectangle.TEMP.setTo(0, 0, this.width, this.height);
 	        return this._getBoundsStyle().bounds = Rectangle._getWrapRec(this._getBoundPointsM(false));
 	    }
-	    /**
-	     * @internal
-	     * 获取本对象在父容器坐标系的显示区域多边形顶点列表。
-	     * 当显示对象链中有旋转时，返回多边形顶点列表，无旋转时返回矩形的四个顶点。
-	     * @param ifRotate	（可选）之前的对象链中是否有旋转。
-	     * @return 顶点列表。结构：[x1,y1,x2,y2,x3,y3,...]。
-	     */
 	    _boundPointsToParent(ifRotate = false) {
 	        var pX = 0, pY = 0;
 	        if (this._style) {
@@ -18893,22 +13443,11 @@ window.Laya= (function (exports) {
 	        }
 	        return pList;
 	    }
-	    /**
-	     * 返回此实例中的绘图对象（ <code>Graphics</code> ）的显示区域，不包括子对象。
-	     * @param realSize	（可选）使用图片的真实大小，默认为false
-	     * @return 一个 Rectangle 对象，表示获取到的显示区域。
-	     */
 	    getGraphicBounds(realSize = false) {
 	        if (!this._graphics)
 	            return Rectangle.TEMP.setTo(0, 0, 0, 0);
 	        return this._graphics.getBounds(realSize);
 	    }
-	    /**
-	     * @internal
-	     * 获取自己坐标系的显示区域多边形顶点列表
-	     * @param ifRotate	（可选）当前的显示对象链是否由旋转
-	     * @return 顶点列表。结构：[x1,y1,x2,y2,x3,y3,...]。
-	     */
 	    _getBoundPointsM(ifRotate = false) {
 	        if (this._boundStyle && this._boundStyle.userBounds)
 	            return this._boundStyle.userBounds._getBoundPoints();
@@ -18935,13 +13474,11 @@ window.Laya= (function (exports) {
 	                Utils.concatArray(pList, rec._getBoundPoints());
 	            }
 	        }
-	        //处理子对象区域
 	        var child;
 	        var cList;
 	        var __childs;
 	        __childs = this._children;
 	        for (var i = 0, n = __childs.length; i < n; i++) {
-	            //child = getChildAt(i) as Sprite; 
 	            child = __childs[i];
 	            if (child instanceof Sprite && child._visible === true) {
 	                cList = child._boundPointsToParent(ifRotate);
@@ -18951,51 +13488,32 @@ window.Laya= (function (exports) {
 	        }
 	        return pList;
 	    }
-	    /**
-	     * @internal
-	     * 获取cache数据。
-	     * @return  cache数据 CacheStyle 。
-	     */
 	    _getCacheStyle() {
 	        this._cacheStyle === CacheStyle.EMPTY && (this._cacheStyle = CacheStyle.create());
 	        return this._cacheStyle;
 	    }
-	    /**
-	     * @private
-	     * 获取样式。
-	     * @return  样式 Style 。
-	     */
 	    getStyle() {
 	        this._style === SpriteStyle.EMPTY && (this._style = SpriteStyle.create());
 	        return this._style;
 	    }
-	    /**
-	     * @private
-	     * 设置样式。
-	     * @param	value 样式。
-	     */
 	    setStyle(value) {
 	        this._style = value;
 	    }
-	    /**X轴缩放值，默认值为1。设置为负数，可以实现水平反转效果，比如scaleX=-1。*/
 	    get scaleX() {
 	        return this._style.scaleX;
 	    }
 	    set scaleX(value) {
 	        this.set_scaleX(value);
 	    }
-	    /**@internal */
 	    _setScaleX(value) {
 	        this._style.scaleX = value;
 	    }
-	    /**Y轴缩放值，默认值为1。设置为负数，可以实现垂直反转效果，比如scaleX=-1。*/
 	    get scaleY() {
 	        return this._style.scaleY;
 	    }
 	    set scaleY(value) {
 	        this.set_scaleY(value);
 	    }
-	    /**@internal */
 	    _setScaleY(value) {
 	        this._style.scaleY = value;
 	    }
@@ -19019,7 +13537,6 @@ window.Laya= (function (exports) {
 	    get_scaleY() {
 	        return this._style.scaleY;
 	    }
-	    /**旋转角度，默认值为0。以角度为单位。*/
 	    get rotation() {
 	        return this._style.rotation;
 	    }
@@ -19030,11 +13547,9 @@ window.Laya= (function (exports) {
 	            this._setTranformChange();
 	        }
 	    }
-	    /**@internal */
 	    _setRotation(value) {
 	        this._style.rotation = value;
 	    }
-	    /**水平倾斜角度，默认值为0。以角度为单位。*/
 	    get skewX() {
 	        return this._style.skewX;
 	    }
@@ -19045,11 +13560,9 @@ window.Laya= (function (exports) {
 	            this._setTranformChange();
 	        }
 	    }
-	    /**@internal */
 	    _setSkewX(value) {
 	        this._style.skewX = value;
 	    }
-	    /**垂直倾斜角度，默认值为0。以角度为单位。*/
 	    get skewY() {
 	        return this._style.skewY;
 	    }
@@ -19060,15 +13573,12 @@ window.Laya= (function (exports) {
 	            this._setTranformChange();
 	        }
 	    }
-	    /**@internal */
 	    _setSkewY(value) {
 	        this._style.skewY = value;
 	    }
-	    /**@internal */
 	    _createTransform() {
 	        return Matrix.create();
 	    }
-	    /**@private */
 	    _adjustTransform() {
 	        this._tfChanged = false;
 	        var style = this._style;
@@ -19079,7 +13589,7 @@ window.Laya= (function (exports) {
 	        var m = this._transform || (this._transform = this._createTransform());
 	        if (rot || sx !== 1 || sy !== 1 || sskx !== 0 || ssky !== 0) {
 	            m._bTransform = true;
-	            var skx = (rot - sskx) * 0.0174532922222222; //laya.CONST.PI180;
+	            var skx = (rot - sskx) * 0.0174532922222222;
 	            var sky = (rot + ssky) * 0.0174532922222222;
 	            var cx = Math.cos(sky);
 	            var ssx = Math.sin(sky);
@@ -19098,13 +13608,8 @@ window.Laya= (function (exports) {
 	        }
 	        return m;
 	    }
-	    /**@internal */
 	    _setTransform(value) {
 	    }
-	    /**
-	     * <p>对象的矩阵信息。通过设置矩阵可以实现节点旋转，缩放，位移效果。</p>
-	     * <p>矩阵更多信息请参考 <code>Matrix</code></p>
-	     */
 	    get transform() {
 	        return this._tfChanged ? this._adjustTransform() : this._transform;
 	    }
@@ -19119,7 +13624,6 @@ window.Laya= (function (exports) {
 	        var m = this._transform || (this._transform = this._createTransform());
 	        value.copyTo(m);
 	        this._setTransform(m);
-	        //设置transform时重置x,y
 	        if (value) {
 	            this._x = m.tx;
 	            this._y = m.ty;
@@ -19133,25 +13637,20 @@ window.Laya= (function (exports) {
 	        this._setRenderType(this._renderType);
 	        this.parentRepaint();
 	    }
-	    /**@internal */
 	    _setPivotX(value) {
 	        var style = this.getStyle();
 	        style.pivotX = value;
 	    }
-	    /**@internal */
 	    _getPivotX() {
 	        return this._style.pivotX;
 	    }
-	    /**@internal */
 	    _setPivotY(value) {
 	        var style = this.getStyle();
 	        style.pivotY = value;
 	    }
-	    /**@internal */
 	    _getPivotY() {
 	        return this._style.pivotY;
 	    }
-	    /**X轴 轴心点的位置，单位为像素，默认为0。轴心点会影响对象位置，缩放中心，旋转中心。*/
 	    get pivotX() {
 	        return this._getPivotX();
 	    }
@@ -19159,7 +13658,6 @@ window.Laya= (function (exports) {
 	        this._setPivotX(value);
 	        this.repaint();
 	    }
-	    /**Y轴 轴心点的位置，单位为像素，默认为0。轴心点会影响对象位置，缩放中心，旋转中心。*/
 	    get pivotY() {
 	        return this._getPivotY();
 	    }
@@ -19167,7 +13665,6 @@ window.Laya= (function (exports) {
 	        this._setPivotY(value);
 	        this.repaint();
 	    }
-	    /**@internal */
 	    _setAlpha(value) {
 	        if (this._style.alpha !== value) {
 	            var style = this.getStyle();
@@ -19180,11 +13677,9 @@ window.Laya= (function (exports) {
 	            this.parentRepaint();
 	        }
 	    }
-	    /**@internal */
 	    _getAlpha() {
 	        return this._style.alpha;
 	    }
-	    /**透明度，值为0-1，默认值为1，表示不透明。更改alpha值会影响drawcall。*/
 	    get alpha() {
 	        return this._getAlpha();
 	    }
@@ -19192,7 +13687,6 @@ window.Laya= (function (exports) {
 	        value = value < 0 ? 0 : (value > 1 ? 1 : value);
 	        this._setAlpha(value);
 	    }
-	    /**表示是否可见，默认为true。如果设置不可见，节点将不被渲染。*/
 	    get visible() {
 	        return this.get_visible();
 	    }
@@ -19208,10 +13702,8 @@ window.Laya= (function (exports) {
 	            this.parentRepaint(SpriteConst.REPAINT_ALL);
 	        }
 	    }
-	    /**@internal */
 	    _setBlendMode(value) {
 	    }
-	    /**指定要使用的混合模式。目前只支持"lighter"。*/
 	    get blendMode() {
 	        return this._style.blendMode;
 	    }
@@ -19225,7 +13717,6 @@ window.Laya= (function (exports) {
 	        this._setRenderType(this._renderType);
 	        this.parentRepaint();
 	    }
-	    /**绘图对象。封装了绘制位图和矢量图的接口，Sprite所有的绘图操作都通过Graphics来实现的。*/
 	    get graphics() {
 	        if (!this._graphics) {
 	            this.graphics = new Graphics();
@@ -19233,10 +13724,8 @@ window.Laya= (function (exports) {
 	        }
 	        return this._graphics;
 	    }
-	    /**@internal */
 	    _setGraphics(value) {
 	    }
-	    /**@internal */
 	    _setGraphicsCallBack() {
 	    }
 	    set graphics(value) {
@@ -19254,22 +13743,14 @@ window.Laya= (function (exports) {
 	        this._setRenderType(this._renderType);
 	        this.repaint();
 	    }
-	    /**
-	     * <p>显示对象的滚动矩形范围，具有裁剪效果(如果只想限制子对象渲染区域，请使用viewport)</p>
-	     * <p> srollRect和viewport的区别：<br/>
-	     * 1.srollRect自带裁剪效果，viewport只影响子对象渲染是否渲染，不具有裁剪效果（性能更高）。<br/>
-	     * 2.设置rect的x,y属性均能实现区域滚动效果，但scrollRect会保持0,0点位置不变。</p>
-	     */
 	    get scrollRect() {
 	        return this._style.scrollRect;
 	    }
-	    /**@internal */
 	    _setScrollRect(value) {
 	    }
 	    set scrollRect(value) {
 	        this.getStyle().scrollRect = value;
 	        this._setScrollRect(value);
-	        //viewport = value;
 	        this.repaint();
 	        if (value) {
 	            this._renderType |= SpriteConst.CLIP;
@@ -19279,14 +13760,6 @@ window.Laya= (function (exports) {
 	        }
 	        this._setRenderType(this._renderType);
 	    }
-	    /**
-	     * <p>设置坐标位置。相当于分别设置x和y属性。</p>
-	     * <p>因为返回值为Sprite对象本身，所以可以使用如下语法：spr.pos(...).scale(...);</p>
-	     * @param	x			X轴坐标。
-	     * @param	y			Y轴坐标。
-	     * @param 	speedMode	（可选）是否极速模式，正常是调用this.x=value进行赋值，极速模式直接调用内部函数处理，如果未重写x,y属性，建议设置为急速模式性能更高。
-	     * @return	返回对象本身。
-	     */
 	    pos(x, y, speedMode = false) {
 	        if (this._x !== x || this._y !== y) {
 	            if (this.destroyed)
@@ -19307,38 +13780,16 @@ window.Laya= (function (exports) {
 	        }
 	        return this;
 	    }
-	    /**
-	     * <p>设置轴心点。相当于分别设置pivotX和pivotY属性。</p>
-	     * <p>因为返回值为Sprite对象本身，所以可以使用如下语法：spr.pivot(...).pos(50, 100);</p>
-	     * @param	x X轴心点。
-	     * @param	y Y轴心点。
-	     * @return	返回对象本身。
-	     */
 	    pivot(x, y) {
 	        this.pivotX = x;
 	        this.pivotY = y;
 	        return this;
 	    }
-	    /**
-	     * <p>设置宽高。相当于分别设置width和height属性。</p>
-	     * <p>因为返回值为Sprite对象本身，所以可以使用如下语法：spr.size(...).pos(50, 100);</p>
-	     * @param	width 宽度值。
-	     * @param	hegiht 高度值。
-	     * @return	返回对象本身。
-	     */
 	    size(width, height) {
 	        this.width = width;
 	        this.height = height;
 	        return this;
 	    }
-	    /**
-	     * <p>设置缩放。相当于分别设置scaleX和scaleY属性。</p>
-	     * <p>因为返回值为Sprite对象本身，所以可以使用如下语法：spr.scale(...).pos(50, 100);</p>
-	     * @param	scaleX		X轴缩放比例。
-	     * @param	scaleY		Y轴缩放比例。
-	     * @param 	speedMode	（可选）是否极速模式，正常是调用this.scaleX=value进行赋值，极速模式直接调用内部函数处理，如果未重写scaleX,scaleY属性，建议设置为急速模式性能更高。
-	     * @return	返回对象本身。
-	     */
 	    scale(scaleX, scaleY, speedMode = false) {
 	        var style = this.getStyle();
 	        if (style.scaleX != scaleX || style.scaleY != scaleY) {
@@ -19356,134 +13807,32 @@ window.Laya= (function (exports) {
 	        }
 	        return this;
 	    }
-	    /**
-	     * <p>设置倾斜角度。相当于分别设置skewX和skewY属性。</p>
-	     * <p>因为返回值为Sprite对象本身，所以可以使用如下语法：spr.skew(...).pos(50, 100);</p>
-	     * @param	skewX 水平倾斜角度。
-	     * @param	skewY 垂直倾斜角度。
-	     * @return	返回对象本身
-	     */
 	    skew(skewX, skewY) {
 	        this.skewX = skewX;
 	        this.skewY = skewY;
 	        return this;
 	    }
-	    /**
-	     * 更新、呈现显示对象。由系统调用。
-	     * @param	context 渲染的上下文引用。
-	     * @param	x X轴坐标。
-	     * @param	y Y轴坐标。
-	     */
 	    render(ctx, x, y) {
 	        RenderSprite.renders[this._renderType]._fun(this, ctx, x + this._x, y + this._y);
-	        /*
-	        var rt:int = _renderType;
-	        var style:SpriteStyle = _style;
-	        var oldAlpha:Number = ctx.globalAlpha;
-	        var save:Boolean = false;
-	        if (rt & SpriteConst.TRANSFORM ) {
-	            ctx.save();
-	            save = true;
-	            ctx.transform(transform.a, transform.b, transform.c, transform.d, transform.tx + x+_x, transform.ty + y+_y);
-	        }
-	        
-	        if ( rt & SpriteConst.ALPHA) {
-	            var alpha:Number = style.alpha;
-	            if (alpha > 0.01 || _needRepaint()) {
-	                //var temp:Number = context.globalAlpha;
-	                ctx.globalAlpha *= alpha;
-	                //context.globalAlpha = temp;
-	            }
-	        }
-	        
-	        if ( rt & SpriteConst.TEXTURE ) {
-	            var tex:Texture = texture;
-	            ctx.drawTexture(tex, x-pivotX+_x, y-pivotY+_y, tex.width, tex.height);
-	        }
-	        
-	        if ( rt & SpriteConst.GRAPHICS) {
-	            _graphics && _graphics._render(this, ctx, x-pivotX+_x, y-pivotY+_y);
-	        }
-	        
-	        if (_children.length) {
-	            _children.forEach(function(c:Sprite) {
-	                c._visible && c.render(ctx, x - pivotX+_x, y - pivotY+_y);
-	            } );
-	        }
-	        ctx.globalAlpha = oldAlpha;//TODO 可能慢
-	        if (save) {
-	            ctx.restore();
-	        }
-	        */
 	        this._repaint = 0;
 	    }
-	    /**
-	     * <p>绘制 当前<code>Sprite</code> 到 <code>Canvas</code> 上，并返回一个HtmlCanvas。</p>
-	     * <p>绘制的结果可以当作图片源，再次绘制到其他Sprite里面，示例：</p>
-	     *
-	     * var htmlCanvas:HTMLCanvas = sprite.drawToCanvas(100, 100, 0, 0);//把精灵绘制到canvas上面
-	     * var sp:Sprite = new Sprite();//创建精灵
-	     * sp.graphics.drawTexture(htmlCanvas.getTexture());//把截图绘制到精灵上
-	     * Laya.stage.addChild(sp);//把精灵显示到舞台
-	     *
-	     * <p>也可以获取原始图片数据，分享到网上，从而实现截图效果，示例：</p>
-	     *
-	     * var htmlCanvas:HTMLCanvas = sprite.drawToCanvas(100, 100, 0, 0);//把精灵绘制到canvas上面
-	     * htmlCanvas.toBase64("image/png",0.9);//打印图片base64信息，可以发给服务器或者保存为图片
-	     *
-	     * @param	canvasWidth 画布宽度。
-	     * @param	canvasHeight 画布高度。
-	     * @param	x 绘制的 X 轴偏移量。
-	     * @param	y 绘制的 Y 轴偏移量。
-	     * @return  HTMLCanvas 对象。
-	     */
 	    drawToCanvas(canvasWidth, canvasHeight, offsetX, offsetY) {
-	        //console.log('drawToCanvas is deprecated, please use drawToTexture');
 	        return Sprite.drawToCanvas(this, this._renderType, canvasWidth, canvasHeight, offsetX, offsetY);
 	    }
-	    /**
-	     * 绘制到一个Texture对象
-	     * @param canvasWidth
-	     * @param canvasHeight
-	     * @param offsetX
-	     * @param offsetY
-	     */
 	    drawToTexture(canvasWidth, canvasHeight, offsetX, offsetY) {
 	        return Sprite.drawToTexture(this, this._renderType, canvasWidth, canvasHeight, offsetX, offsetY);
 	    }
-	    /**
-	     * 把当前对象渲染到指定的贴图上。贴图由外部指定，避免每次都创建。
-	     * @param offx
-	     * @param offy
-	     * @param tex 输出渲染结果
-	     */
 	    drawToTexture3D(offx, offy, tex) {
 	        throw 'not implement';
 	    }
-	    /**
-	     * <p>自定义更新、呈现显示对象。一般用来扩展渲染模式，请合理使用，可能会导致在加速器上无法渲染。</p>
-	     * <p><b>注意</b>不要在此函数内增加或删除树节点，否则会对树节点遍历造成影响。</p>
-	     * @param	context  渲染的上下文引用。
-	     * @param	x X轴坐标。
-	     * @param	y Y轴坐标。
-	     */
 	    customRender(context, x, y) {
-	        //_renderType |= SpriteConst.CUSTOM;
-	        //_setRenderType(_renderType);
 	        this._repaint = SpriteConst.REPAINT_ALL;
 	    }
-	    /**
-	     * @internal
-	     * 应用滤镜。
-	     */
 	    _applyFilters() {
-	        // canvas 模式不支持
 	    }
-	    /**滤镜集合。可以设置多个滤镜组合。*/
 	    get filters() {
 	        return this._cacheStyle.filters;
 	    }
-	    /**@internal */
 	    _setColorFilter(value) { }
 	    set filters(value) {
 	        value && value.length === 0 && (value = null);
@@ -19491,7 +13840,6 @@ window.Laya= (function (exports) {
 	            return;
 	        this._getCacheStyle().filters = value ? value.slice() : null;
 	        if (value && value.length) {
-	            //temp TODO 
 	            this._setColorFilter(value[0]);
 	            this._renderType |= SpriteConst.FILTERS;
 	        }
@@ -19517,11 +13865,6 @@ window.Laya= (function (exports) {
 	        this._getCacheStyle().hasGlowFilter = this._isHaveGlowFilter();
 	        this.repaint();
 	    }
-	    /**
-	     * @internal
-	     * 查看当前原件中是否包含发光滤镜。
-	     * @return 一个 Boolean 值，表示当前原件中是否包含发光滤镜。
-	     */
 	    _isHaveGlowFilter() {
 	        var i, len;
 	        if (this.filters) {
@@ -19538,15 +13881,7 @@ window.Laya= (function (exports) {
 	        }
 	        return false;
 	    }
-	    /**
-	     * 把本地坐标转换为相对stage的全局坐标。
-	     * @param point				本地坐标点。
-	     * @param createNewPoint	（可选）是否创建一个新的Point对象作为返回值，默认为false，使用输入的point对象返回，减少对象创建开销。
-	     * @param globalNode		global节点，默认为Laya.stage
-	     * @return 转换后的坐标的点。
-	     */
 	    localToGlobal(point, createNewPoint = false, globalNode = null) {
-	        //if (!_displayedInStage || !point) return point;
 	        if (createNewPoint === true) {
 	            point = new Point(point.x, point.y);
 	        }
@@ -19560,15 +13895,7 @@ window.Laya= (function (exports) {
 	        }
 	        return point;
 	    }
-	    /**
-	     * 把stage的全局坐标转换为本地坐标。
-	     * @param point				全局坐标点。
-	     * @param createNewPoint	（可选）是否创建一个新的Point对象作为返回值，默认为false，使用输入的point对象返回，减少对象创建开销。
-	     * @param globalNode		global节点，默认为Laya.stage
-	     * @return 转换后的坐标的点。
-	     */
 	    globalToLocal(point, createNewPoint = false, globalNode = null) {
-	        //if (!_displayedInStage || !point) return point;
 	        if (createNewPoint) {
 	            point = new Point(point.x, point.y);
 	        }
@@ -19589,11 +13916,6 @@ window.Laya= (function (exports) {
 	        }
 	        return point;
 	    }
-	    /**
-	     * 将本地坐标系坐标转转换到父容器坐标系。
-	     * @param point 本地坐标点。
-	     * @return  转换后的点。
-	     */
 	    toParentPoint(point) {
 	        if (!point)
 	            return point;
@@ -19611,11 +13933,6 @@ window.Laya= (function (exports) {
 	        }
 	        return point;
 	    }
-	    /**
-	     * 将父容器坐标系坐标转换到本地坐标系。
-	     * @param point 父容器坐标点。
-	     * @return  转换后的点。
-	     */
 	    fromParentPoint(point) {
 	        if (!point)
 	            return point;
@@ -19627,34 +13944,16 @@ window.Laya= (function (exports) {
 	            point.y += scroll.y;
 	        }
 	        if (this.transform) {
-	            //_transform.setTranslate(0,0);
 	            this._transform.invertTransformPoint(point);
 	        }
 	        point.x += this.pivotX;
 	        point.y += this.pivotY;
 	        return point;
 	    }
-	    /**
-	     * 将Stage坐标系坐标转换到本地坐标系。
-	     * @param point 父容器坐标点。
-	     * @return  转换后的点。
-	     */
 	    fromStagePoint(point) {
-	        // TODO 没做
 	        return point;
 	    }
-	    /**
-	     * <p>增加事件侦听器，以使侦听器能够接收事件通知。</p>
-	     * <p>如果侦听鼠标事件，则会自动设置自己和父亲节点的属性 mouseEnabled 的值为 true(如果父节点mouseEnabled=false，则停止设置父节点mouseEnabled属性)。</p>
-	     * @param type		事件的类型。
-	     * @param caller	事件侦听函数的执行域。
-	     * @param listener	事件侦听函数。
-	     * @param args		（可选）事件侦听函数的回调参数。
-	     * @return 此 EventDispatcher 对象。
-	     * @override
-	     */
 	    on(type, caller, listener, args = null) {
-	        //如果是鼠标事件，则设置自己和父对象为可接受鼠标交互事件
 	        if (this._mouseState !== 1 && this.isMouseEvent(type)) {
 	            this.mouseEnabled = true;
 	            this._setBit(Const.HAS_MOUSE, true);
@@ -19665,18 +13964,7 @@ window.Laya= (function (exports) {
 	        }
 	        return super.on(type, caller, listener, args);
 	    }
-	    /**
-	     * <p>增加事件侦听器，以使侦听器能够接收事件通知，此侦听事件响应一次后则自动移除侦听。</p>
-	     * <p>如果侦听鼠标事件，则会自动设置自己和父亲节点的属性 mouseEnabled 的值为 true(如果父节点mouseEnabled=false，则停止设置父节点mouseEnabled属性)。</p>
-	     * @param type		事件的类型。
-	     * @param caller	事件侦听函数的执行域。
-	     * @param listener	事件侦听函数。
-	     * @param args		（可选）事件侦听函数的回调参数。
-	     * @return 此 EventDispatcher 对象。
-	     * @override
-	     */
 	    once(type, caller, listener, args = null) {
-	        //如果是鼠标事件，则设置自己和父对象为可接受鼠标交互事件
 	        if (this._mouseState !== 1 && this.isMouseEvent(type)) {
 	            this.mouseEnabled = true;
 	            this._setBit(Const.HAS_MOUSE, true);
@@ -19687,7 +13975,6 @@ window.Laya= (function (exports) {
 	        }
 	        return super.once(type, caller, listener, args);
 	    }
-	    /** @private */
 	    _onDisplay(v) {
 	        if (this._mouseState !== 1) {
 	            var ele = this;
@@ -19701,22 +13988,12 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**@private
-	     * @override
-	    */
 	    _setParent(value) {
 	        super._setParent(value);
 	        if (value && this._getBit(Const.HAS_MOUSE)) {
 	            this._onDisplay();
 	        }
 	    }
-	    /**
-	     * <p>加载并显示一个图片。相当于加载图片后，设置texture属性</p>
-	     * <p>注意：2.0改动：多次调用，只会显示一个图片（1.0会显示多个图片）,x,y,width,height参数取消。</p>
-	     * @param url		图片地址。
-	     * @param complete	（可选）加载完成回调。
-	     * @return	返回精灵对象本身。
-	     */
 	    loadImage(url, complete = null) {
 	        if (!url) {
 	            this.texture = null;
@@ -19741,15 +14018,9 @@ window.Laya= (function (exports) {
 	        }
 	        return this;
 	    }
-	    /**
-	     * 根据图片地址创建一个新的 <code>Sprite</code> 对象用于加载并显示此图片。
-	     * @param	url 图片地址。
-	     * @return	返回新的 <code>Sprite</code> 对象。
-	     */
 	    static fromImage(url) {
 	        return new Sprite().loadImage(url);
 	    }
-	    /**cacheAs后，设置自己和父对象缓存失效。*/
 	    repaint(type = SpriteConst.REPAINT_CACHE) {
 	        if (!(this._repaint & type)) {
 	            this._repaint |= type;
@@ -19759,17 +14030,9 @@ window.Laya= (function (exports) {
 	            this._cacheStyle.maskParent.repaint(type);
 	        }
 	    }
-	    /**
-	     * @internal
-	     * 获取是否重新缓存。
-	     * @return 如果重新缓存值为 true，否则值为 false。
-	     */
 	    _needRepaint() {
 	        return (this._repaint & SpriteConst.REPAINT_CACHE) && this._cacheStyle.enableCanvasRender && this._cacheStyle.reCache;
 	    }
-	    /**@private
-	     * @override
-	    */
 	    _childChanged(child = null) {
 	        if (this._children.length)
 	            this._renderType |= SpriteConst.CHILDS;
@@ -19780,7 +14043,6 @@ window.Laya= (function (exports) {
 	            ILaya.systemTimer.callLater(this, this.updateZOrder);
 	        this.repaint(SpriteConst.REPAINT_ALL);
 	    }
-	    /**cacheAs时，设置所有父对象缓存失效。 */
 	    parentRepaint(type = SpriteConst.REPAINT_CACHE) {
 	        var p = this._parent;
 	        if (p && !(p._repaint & type)) {
@@ -19788,27 +14050,17 @@ window.Laya= (function (exports) {
 	            p.parentRepaint(type);
 	        }
 	    }
-	    /**对舞台 <code>stage</code> 的引用。*/
 	    get stage() {
 	        return ILaya.stage;
 	    }
-	    /**
-	     * <p>可以设置一个Rectangle区域作为点击区域，或者设置一个<code>HitArea</code>实例作为点击区域，HitArea内可以设置可点击和不可点击区域。</p>
-	     * <p>如果不设置hitArea，则根据宽高形成的区域进行碰撞。</p>
-	     */
 	    get hitArea() {
 	        return this._style.hitArea;
 	    }
 	    set hitArea(value) {
 	        this.getStyle().hitArea = value;
 	    }
-	    /**@internal */
 	    _setMask(value) {
 	    }
-	    /**
-	     * <p>遮罩，可以设置一个对象(支持位图和矢量图)，根据对象形状进行遮罩显示。</p>
-	     * <p>【注意】遮罩对象坐标系是相对遮罩对象本身的，和Flash机制不同</p>
-	     */
 	    get mask() {
 	        return this._cacheStyle.mask;
 	    }
@@ -19830,38 +14082,19 @@ window.Laya= (function (exports) {
 	        this._setRenderType(this._renderType);
 	        this.parentRepaint(SpriteConst.REPAINT_ALL);
 	    }
-	    /**
-	     * 是否接受鼠标事件。
-	     * 默认为false，如果监听鼠标事件，则会自动设置本对象及父节点的属性 mouseEnable 的值都为 true（如果父节点手动设置为false，则不会更改）。
-	     * */
 	    get mouseEnabled() {
 	        return this._mouseState > 1;
 	    }
 	    set mouseEnabled(value) {
 	        this._mouseState = value ? 2 : 1;
 	    }
-	    /**
-	     * 开始拖动此对象。
-	     * @param area				（可选）拖动区域，此区域为当前对象注册点活动区域（不包括对象宽高），可选。
-	     * @param hasInertia		（可选）鼠标松开后，是否还惯性滑动，默认为false，可选。
-	     * @param elasticDistance	（可选）橡皮筋效果的距离值，0为无橡皮筋效果，默认为0，可选。
-	     * @param elasticBackTime	（可选）橡皮筋回弹时间，单位为毫秒，默认为300毫秒，可选。
-	     * @param data				（可选）拖动事件携带的数据，可选。
-	     * @param disableMouseEvent	（可选）禁用其他对象的鼠标检测，默认为false，设置为true能提高性能。
-	     * @param ratio				（可选）惯性阻尼系数，影响惯性力度和时长。
-	     */
 	    startDrag(area = null, hasInertia = false, elasticDistance = 0, elasticBackTime = 300, data = null, disableMouseEvent = false, ratio = 0.92) {
 	        this._style.dragging || (this.getStyle().dragging = new ILaya.Dragging());
 	        this._style.dragging.start(this, area, hasInertia, elasticDistance, elasticBackTime, data, disableMouseEvent, ratio);
 	    }
-	    /**停止拖动此对象。*/
 	    stopDrag() {
 	        this._style.dragging && this._style.dragging.stop();
 	    }
-	    /**
-	     * @internal
-	     * @override
-	    */
 	    _setDisplay(value) {
 	        if (!value) {
 	            if (this._cacheStyle) {
@@ -19874,12 +14107,6 @@ window.Laya= (function (exports) {
 	        }
 	        super._setDisplay(value);
 	    }
-	    /**
-	     * 检测某个点是否在此对象内。
-	     * @param	x 全局x坐标。
-	     * @param	y 全局y坐标。
-	     * @return  表示是否在对象内。
-	     */
 	    hitTestPoint(x, y) {
 	        var point = this.globalToLocal(Point.TEMP.setTo(x, y));
 	        x = point.x;
@@ -19887,13 +14114,9 @@ window.Laya= (function (exports) {
 	        var rect = this._style.hitArea ? this._style.hitArea : (this._width > 0 && this._height > 0) ? Rectangle.TEMP.setTo(0, 0, this._width, this._height) : this.getSelfBounds();
 	        return rect.contains(x, y);
 	    }
-	    /**获得相对于本对象上的鼠标坐标信息。*/
 	    getMousePoint() {
 	        return this.globalToLocal(Point.TEMP.setTo(ILaya.stage.mouseX, ILaya.stage.mouseY));
 	    }
-	    /**
-	     * 获得相对于stage的全局X轴缩放值（会叠加父亲节点的缩放值）。
-	     */
 	    get globalScaleX() {
 	        var scale = 1;
 	        var ele = this;
@@ -19905,9 +14128,6 @@ window.Laya= (function (exports) {
 	        }
 	        return scale;
 	    }
-	    /**
-	     * 获得相对于stage的全局旋转值（会叠加父亲节点的旋转值）。
-	     */
 	    get globalRotation() {
 	        var angle = 0;
 	        var ele = this;
@@ -19919,9 +14139,6 @@ window.Laya= (function (exports) {
 	        }
 	        return angle;
 	    }
-	    /**
-	     * 获得相对于stage的全局Y轴缩放值（会叠加父亲节点的缩放值）。
-	     */
 	    get globalScaleY() {
 	        var scale = 1;
 	        var ele = this;
@@ -19933,19 +14150,12 @@ window.Laya= (function (exports) {
 	        }
 	        return scale;
 	    }
-	    /**
-	     * 返回鼠标在此对象坐标系上的 X 轴坐标信息。
-	     */
 	    get mouseX() {
 	        return this.getMousePoint().x;
 	    }
-	    /**
-	     * 返回鼠标在此对象坐标系上的 Y 轴坐标信息。
-	     */
 	    get mouseY() {
 	        return this.getMousePoint().y;
 	    }
-	    /**z排序，更改此值，则会按照值的大小对同一容器的所有对象重新排序。值越大，越靠上。默认为0，则根据添加顺序排序。*/
 	    get zOrder() {
 	        return this._zOrder;
 	    }
@@ -19958,15 +14168,9 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**
-	     * 设置一个Texture实例，并显示此图片（如果之前有其他绘制，则会被清除掉）。
-	     * 等同于graphics.clear();graphics.drawImage()，但性能更高
-	     * 还可以赋值一个图片地址，则会自动加载图片，然后显示
-	     */
 	    get texture() {
 	        return this._texture;
 	    }
-	    /**@internal */
 	    _setTexture(value) {
 	    }
 	    set texture(value) {
@@ -19988,13 +14192,6 @@ window.Laya= (function (exports) {
 	            this.repaint();
 	        }
 	    }
-	    /**
-	     * <p>视口大小，视口外的子对象，将不被渲染(如果想实现裁剪效果，请使用srollRect)，合理使用能提高渲染性能。比如由一个个小图片拼成的地图块，viewport外面的小图片将不渲染</p>
-	     * <p>srollRect和viewport的区别：<br/>
-	     * 1. srollRect自带裁剪效果，viewport只影响子对象渲染是否渲染，不具有裁剪效果（性能更高）。<br/>
-	     * 2. 设置rect的x,y属性均能实现区域滚动效果，但scrollRect会保持0,0点位置不变。</p>
-	     * @default null
-	     */
 	    get viewport() {
 	        return this._style.viewport;
 	    }
@@ -20008,26 +14205,20 @@ window.Laya= (function (exports) {
 	        }
 	        this.getStyle().viewport = value;
 	    }
-	    /**@internal */
 	    _setRenderType(type) {
 	    }
-	    /**@internal */
 	    _setTranformChange() {
 	        this._tfChanged = true;
 	        this._renderType |= SpriteConst.TRANSFORM;
 	        this.parentRepaint(SpriteConst.REPAINT_CACHE);
 	    }
-	    /**@internal */
 	    _setBgStyleColor(x, y, width, height, fillColor) {
 	    }
-	    /**@internal */
 	    _setBorderStyleColor(x, y, width, height, fillColor, borderWidth) {
 	    }
-	    /**@private */
 	    captureMouseEvent(exclusive) {
 	        ILaya.MouseManager.instance.setCapture(this, exclusive);
 	    }
-	    /**@private */
 	    releaseMouseEvent() {
 	        ILaya.MouseManager.instance.releaseCapture();
 	    }
@@ -20038,10 +14229,6 @@ window.Laya= (function (exports) {
 	        return this._getBit(Const.DRAWCALL_OPTIMIZE);
 	    }
 	}
-	/**
-	 * @private
-	 * 绘制到画布。
-	 */
 	Sprite.drawToCanvas = function (sprite, _renderType, canvasWidth, canvasHeight, offsetX, offsetY) {
 	    offsetX -= sprite.x;
 	    offsetY -= sprite.y;
@@ -20060,7 +14247,6 @@ window.Laya= (function (exports) {
 	    var dt = ctx._targets.getData(0, 0, canvasWidth, canvasHeight);
 	    ctx.destroy();
 	    var imgdata = new ImageData(canvasWidth, canvasHeight);
-	    //翻转getData的结果。
 	    var lineLen = canvasWidth * 4;
 	    var dst = imgdata.data;
 	    var y = canvasHeight - 1;
@@ -20071,18 +14257,12 @@ window.Laya= (function (exports) {
 	        off -= lineLen;
 	        srcoff += lineLen;
 	    }
-	    //imgdata.data.set(dt);
-	    //画到2d画布上
 	    var canv = new HTMLCanvas(true);
 	    canv.size(canvasWidth, canvasHeight);
 	    var ctx2d = canv.getContext('2d');
 	    ctx2d.putImageData(imgdata, 0, 0);
 	    return canv;
 	};
-	/**
-	 * @private
-	 *
-	 */
 	Sprite.drawToTexture = function (sprite, _renderType, canvasWidth, canvasHeight, offsetX, offsetY) {
 	    offsetX -= sprite.x;
 	    offsetY -= sprite.y;
@@ -20099,27 +14279,17 @@ window.Laya= (function (exports) {
 	    ctx._targets.end();
 	    ctx._targets.restore();
 	    var rtex = new Texture(ctx._targets, Texture.INV_UV);
-	    ctx.destroy(true); // 保留 _targets
+	    ctx.destroy(true);
 	    return rtex;
 	};
 	ClassUtils.regClass("laya.display.Sprite", Sprite);
 	ClassUtils.regClass("Laya.Sprite", Sprite);
 
-	/**
-	 * 文本的样式类
-	 */
 	class TextStyle extends SpriteStyle {
 	    constructor() {
 	        super(...arguments);
-	        /**
-	         * 表示使用此文本格式的文本是否为斜体。
-	         * @default false
-	         */
 	        this.italic = false;
 	    }
-	    /**
-	     * @override
-	     */
 	    reset() {
 	        super.reset();
 	        this.italic = false;
@@ -20138,168 +14308,41 @@ window.Laya= (function (exports) {
 	        this.currBitmapFont = null;
 	        return this;
 	    }
-	    /**
-	     * @override
-	     */
 	    recover() {
 	        if (this === TextStyle.EMPTY)
 	            return;
 	        Pool.recover("TextStyle", this.reset());
 	    }
-	    /**
-	     * 从对象池中创建
-	     */
 	    static create() {
 	        return Pool.getItemByClass("TextStyle", TextStyle);
 	    }
-	    /**@inheritDoc	 */
 	    render(sprite, context, x, y) {
 	        (this.bgColor || this.borderColor) && context.drawRect(x, y, sprite.width, sprite.height, this.bgColor, this.borderColor, 1);
 	    }
 	}
-	/**
-	* 一个已初始化的 <code>TextStyle</code> 实例。
-	*/
 	TextStyle.EMPTY = new TextStyle();
 
-	/**
-	 * 文本内容发生改变后调度。
-	 * @eventType Event.CHANGE
-	 */
-	/*[Event(name = "change", type = "laya.events.Event")]*/
-	/**
-	 * <p> <code>Text</code> 类用于创建显示对象以显示文本。</p>
-	 * <p>
-	 * 注意：如果运行时系统找不到设定的字体，则用系统默认的字体渲染文字，从而导致显示异常。(通常电脑上显示正常，在一些移动端因缺少设置的字体而显示异常)。
-	 * </p>
-	 * @example
-	 * package
-	 * {
-	 * 	import laya.display.Text;
-	 * 	public class Text_Example
-	 * 	{
-	 * 		public function Text_Example()
-	 * 		{
-	 * 			Laya.init(640, 800);//设置游戏画布宽高、渲染模式。
-	 * 			Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
-	 * 			onInit();
-	 * 		}
-	 * 		private function onInit():void
-	 * 		{
-	 * 			var text:Text = new Text();//创建一个 Text 类的实例对象 text 。
-	 * 			text.text = "这个是一个 Text 文本示例。";
-	 * 			text.color = "#008fff";//设置 text 的文本颜色。
-	 * 			text.font = "Arial";//设置 text 的文本字体。
-	 * 			text.bold = true;//设置 text 的文本显示为粗体。
-	 * 			text.fontSize = 30;//设置 text 的字体大小。
-	 * 			text.wordWrap = true;//设置 text 的文本自动换行。
-	 * 			text.x = 100;//设置 text 对象的属性 x 的值，用于控制 text 对象的显示位置。
-	 * 			text.y = 100;//设置 text 对象的属性 y 的值，用于控制 text 对象的显示位置。
-	 * 			text.width = 300;//设置 text 的宽度。
-	 * 			text.height = 200;//设置 text 的高度。
-	 * 			text.italic = true;//设置 text 的文本显示为斜体。
-	 * 			text.borderColor = "#fff000";//设置 text 的文本边框颜色。
-	 * 			Laya.stage.addChild(text);//将 text 添加到显示列表。
-	 * 		}
-	 * 	}
-	 * }
-	 * @example
-	 * Text_Example();
-	 * function Text_Example()
-	 * {
-	 *     Laya.init(640, 800);//设置游戏画布宽高、渲染模式。
-	 *     Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
-	 *     onInit();
-	 * }
-	 * function onInit()
-	 * {
-	 *     var text = new laya.display.Text();//创建一个 Text 类的实例对象 text 。
-	 *     text.text = "这个是一个 Text 文本示例。";
-	 *     text.color = "#008fff";//设置 text 的文本颜色。
-	 *     text.font = "Arial";//设置 text 的文本字体。
-	 *     text.bold = true;//设置 text 的文本显示为粗体。
-	 *     text.fontSize = 30;//设置 text 的字体大小。
-	 *     text.wordWrap = true;//设置 text 的文本自动换行。
-	 *     text.x = 100;//设置 text 对象的属性 x 的值，用于控制 text 对象的显示位置。
-	 *     text.y = 100;//设置 text 对象的属性 y 的值，用于控制 text 对象的显示位置。
-	 *     text.width = 300;//设置 text 的宽度。
-	 *     text.height = 200;//设置 text 的高度。
-	 *     text.italic = true;//设置 text 的文本显示为斜体。
-	 *     text.borderColor = "#fff000";//设置 text 的文本边框颜色。
-	 *     Laya.stage.addChild(text);//将 text 添加到显示列表。
-	 * }
-	 * @example
-	 * class Text_Example {
-	 *     constructor() {
-	 *         Laya.init(640, 800);//设置游戏画布宽高、渲染模式。
-	 *         Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
-	 *         this.onInit();
-	 *     }
-	 *     private onInit(): void {
-	 *         var text: laya.display.Text = new laya.display.Text();//创建一个 Text 类的实例对象 text 。
-	 *         text.text = "这个是一个 Text 文本示例。";
-	 *         text.color = "#008fff";//设置 text 的文本颜色。
-	 *         text.font = "Arial";//设置 text 的文本字体。
-	 *         text.bold = true;//设置 text 的文本显示为粗体。
-	 *         text.fontSize = 30;//设置 text 的字体大小。
-	 *         text.wordWrap = true;//设置 text 的文本自动换行。
-	 *         text.x = 100;//设置 text 对象的属性 x 的值，用于控制 text 对象的显示位置。
-	 *         text.y = 100;//设置 text 对象的属性 y 的值，用于控制 text 对象的显示位置。
-	 *         text.width = 300;//设置 text 的宽度。
-	 *         text.height = 200;//设置 text 的高度。
-	 *         text.italic = true;//设置 text 的文本显示为斜体。
-	 *         text.borderColor = "#fff000";//设置 text 的文本边框颜色。
-	 *         Laya.stage.addChild(text);//将 text 添加到显示列表。
-	 *     }
-	 * }
-	 */
 	class Text extends Sprite {
-	    /**
-	     * 创建一个新的 <code>Text</code> 实例。
-	     */
 	    constructor() {
 	        super();
-	        /**@private 表示文本的宽度，以像素为单位。*/
 	        this._textWidth = 0;
-	        /**@private 表示文本的高度，以像素为单位。*/
 	        this._textHeight = 0;
-	        /**@private 存储文字行数信息。*/
 	        this._lines = [];
-	        /**@private 保存每行宽度*/
 	        this._lineWidths = [];
-	        /**@private 文本的内容位置 X 轴信息。*/
 	        this._startX = 0;
-	        /**@private 文本的内容位置X轴信息。 */
 	        this._startY = 0;
-	        /**@private */
 	        this._charSize = {};
-	        /**@private */
 	        this._valign = "top";
-	        /**@internal */
 	        this._fontSize = Text.defaultFontSize;
-	        /**@internal */
 	        this._font = Text.defaultFont;
-	        /**@internal */
 	        this._color = "#000000";
-	        /**@private */
-	        this._singleCharRender = false; // 拆分渲染
-	        /**
-	         * <p>overflow 指定文本超出文本域后的行为。其值为"hidden"、"visible"和"scroll"之一。</p>
-	         * <p>性能从高到低依次为：hidden > visible > scroll。</p>
-	         */
+	        this._singleCharRender = false;
 	        this.overflow = Text.VISIBLE;
 	        this._style = TextStyle.EMPTY;
 	    }
-	    /**@private */
 	    static defaultFontStr() {
 	        return Text.defaultFontSize + "px " + Text.defaultFont;
 	    }
-	    /**
-	     * @private
-	     * 获取样式。
-	     * @return  样式 Style 。
-	     * @override
-	     */
 	    getStyle() {
 	        this._style === TextStyle.EMPTY && (this._style = TextStyle.create());
 	        return this._style;
@@ -20310,20 +14353,10 @@ window.Laya= (function (exports) {
 	        }
 	        return this._style;
 	    }
-	    /**
-	     * 注册位图字体。
-	     * @param	name		位图字体的名称。
-	     * @param	bitmapFont	位图字体文件。
-	     */
 	    static registerBitmapFont(name, bitmapFont) {
 	        Text._bitmapFonts || (Text._bitmapFonts = {});
 	        Text._bitmapFonts[name] = bitmapFont;
 	    }
-	    /**
-	     * 移除注册的位图字体文件。
-	     * @param	name		位图字体的名称。
-	     * @param	destroy		是否销毁指定的字体文件。
-	     */
 	    static unregisterBitmapFont(name, destroy = true) {
 	        if (Text._bitmapFonts && Text._bitmapFonts[name]) {
 	            var tBitmapFont = Text._bitmapFonts[name];
@@ -20332,53 +14365,32 @@ window.Laya= (function (exports) {
 	            delete Text._bitmapFonts[name];
 	        }
 	    }
-	    /**
-	     * @inheritDoc
-	     * @override
-	    */
 	    destroy(destroyChild = true) {
 	        super.destroy(destroyChild);
 	        this._clipPoint = null;
 	        this._lines = null;
 	        this._lineWidths = null;
-	        // 注意_words是一个数组（例如有换行）
 	        this._words && this._words.forEach(function (w) {
 	            w.cleanCache();
 	        });
 	        this._words = null;
 	        this._charSize = null;
 	    }
-	    /**
-	     * @internal
-	     * @inheritDoc
-	     * @override
-	     */
 	    _getBoundPointsM(ifRotate = false) {
 	        var rec = Rectangle.TEMP;
 	        rec.setTo(0, 0, this.width, this.height);
 	        return rec._getBoundPoints();
 	    }
-	    /**
-	     * @inheritDoc
-	     * @override
-	     */
 	    getGraphicBounds(realSize = false) {
 	        var rec = Rectangle.TEMP;
 	        rec.setTo(0, 0, this.width, this.height);
 	        return rec;
 	    }
-	    /**
-	     * @inheritDoc
-	     * @override
-	     */
 	    get width() {
 	        if (this._width)
 	            return this._width;
 	        return this.textWidth + this.padding[1] + this.padding[3];
 	    }
-	    /**
-	     * @override
-	     */
 	    set width(value) {
 	        if (value != this._width) {
 	            super.set_width(value);
@@ -20388,24 +14400,14 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**
-	     * @internal
-	     */
 	    _getCSSStyle() {
 	        return this._style;
 	    }
-	    /**
-	     * @inheritDoc
-	     * @override
-	     */
 	    get height() {
 	        if (this._height)
 	            return this._height;
 	        return this.textHeight;
 	    }
-	    /**
-	     * @override
-	     */
 	    set height(value) {
 	        if (value != this._height) {
 	            super.set_height(value);
@@ -20415,25 +14417,17 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**
-	     * 表示文本的宽度，以像素为单位。
-	     */
 	    get textWidth() {
 	        this._isChanged && ILaya.systemTimer.runCallLater(this, this.typeset);
 	        return this._textWidth;
 	    }
-	    /**
-	     * 表示文本的高度，以像素为单位。
-	     */
 	    get textHeight() {
 	        this._isChanged && ILaya.systemTimer.runCallLater(this, this.typeset);
 	        return this._textHeight;
 	    }
-	    /** 当前文本的内容字符串。*/
 	    get text() {
 	        return this._text || "";
 	    }
-	    // 为了转ts。ts不支持super.get set
 	    get_text() {
 	        return this._text || "";
 	    }
@@ -20450,20 +14444,6 @@ window.Laya= (function (exports) {
 	    set text(value) {
 	        this.set_text(value);
 	    }
-	    /**
-	     * <p>根据指定的文本，从语言包中取当前语言的文本内容。并对此文本中的{i}文本进行替换。</p>
-	     * <p>设置Text.langPacks语言包后，即可使用lang获取里面的语言</p>
-	     * <p>例如：
-	     * <li>（1）text 的值为“我的名字”，先取到这个文本对应的当前语言版本里的值“My name”，将“My name”设置为当前文本的内容。</li>
-	     * <li>（2）text 的值为“恭喜你赢得{0}个钻石，{1}经验。”，arg1 的值为100，arg2 的值为200。
-	     * 			则先取到这个文本对应的当前语言版本里的值“Congratulations on your winning {0} diamonds, {1} experience.”，
-	     * 			然后将文本里的{0}、{1}，依据括号里的数字从0开始替换为 arg1、arg2 的值。
-	     * 			将替换处理后的文本“Congratulations on your winning 100 diamonds, 200 experience.”设置为当前文本的内容。
-	     * </li>
-	     * </p>
-	     * @param	text 文本内容。
-	     * @param	...args 文本替换参数。
-	     */
 	    lang(text, arg1 = null, arg2 = null, arg3 = null, arg4 = null, arg5 = null, arg6 = null, arg7 = null, arg8 = null, arg9 = null, arg10 = null) {
 	        text = Text.langPacks && Text.langPacks[text] ? Text.langPacks[text] : text;
 	        if (arguments.length < 2) {
@@ -20476,12 +14456,6 @@ window.Laya= (function (exports) {
 	            this._text = text;
 	        }
 	    }
-	    /**
-	     * <p>文本的字体名称，以字符串形式表示。</p>
-	     * <p>默认值为："Arial"，可以通过Text.defaultFont设置默认字体。</p>
-	     * <p>如果运行时系统找不到设定的字体，则用系统默认的字体渲染文字，从而导致显示异常。(通常电脑上显示正常，在一些移动端因缺少设置的字体而显示异常)。</p>
-	     * @see laya.display.Text#defaultFont
-	     */
 	    get font() {
 	        return this._font;
 	    }
@@ -20496,10 +14470,6 @@ window.Laya= (function (exports) {
 	        this._font = value;
 	        this.isChanged = true;
 	    }
-	    /**
-	     * <p>指定文本的字体大小（以像素为单位）。</p>
-	     * <p>默认为20像素，可以通过 <code>Text.defaultFontSize</code> 设置默认大小。</p>
-	     */
 	    get fontSize() {
 	        return this._fontSize;
 	    }
@@ -20509,10 +14479,6 @@ window.Laya= (function (exports) {
 	            this.isChanged = true;
 	        }
 	    }
-	    /**
-	     * <p>指定文本是否为粗体字。</p>
-	     * <p>默认值为 false，这意味着不使用粗体字。如果值为 true，则文本为粗体字。</p>
-	     */
 	    get bold() {
 	        return this._style.bold;
 	    }
@@ -20520,24 +14486,18 @@ window.Laya= (function (exports) {
 	        this._getTextStyle().bold = value;
 	        this.isChanged = true;
 	    }
-	    /**
-	     * <p>表示文本的颜色值。可以通过 <code>Text.defaultColor</code> 设置默认颜色。</p>
-	     * <p>默认值为黑色。</p>
-	     */
 	    get color() {
 	        return this._color;
 	    }
 	    set color(value) {
 	        this.set_color(value);
 	    }
-	    // for转ts。 ts不支持 super.get/set
 	    get_color() {
 	        return this._color;
 	    }
 	    set_color(value) {
 	        if (this._color != value) {
 	            this._color = value;
-	            //如果仅仅更新颜色，无需重新排版
 	            if (!this._isChanged && this._graphics) {
 	                this._graphics.replaceTextColor(this.color);
 	            }
@@ -20546,10 +14506,6 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**
-	     * <p>表示使用此文本格式的文本是否为斜体。</p>
-	     * <p>默认值为 false，这意味着不使用斜体。如果值为 true，则文本为斜体。</p>
-	     */
 	    get italic() {
 	        return this._style.italic;
 	    }
@@ -20557,14 +14513,6 @@ window.Laya= (function (exports) {
 	        this._getTextStyle().italic = value;
 	        this.isChanged = true;
 	    }
-	    /**
-	     * <p>表示文本的水平显示方式。</p>
-	     * <p><b>取值：</b>
-	     * <li>"left"： 居左对齐显示。</li>
-	     * <li>"center"： 居中对齐显示。</li>
-	     * <li>"right"： 居右对齐显示。</li>
-	     * </p>
-	     */
 	    get align() {
 	        return this._style.align;
 	    }
@@ -20572,14 +14520,6 @@ window.Laya= (function (exports) {
 	        this._getTextStyle().align = value;
 	        this.isChanged = true;
 	    }
-	    /**
-	     * <p>表示文本的垂直显示方式。</p>
-	     * <p><b>取值：</b>
-	     * <li>"top"： 居顶部对齐显示。</li>
-	     * <li>"middle"： 居中对齐显示。</li>
-	     * <li>"bottom"： 居底部对齐显示。</li>
-	     * </p>
-	     */
 	    get valign() {
 	        return this._valign;
 	    }
@@ -20587,10 +14527,6 @@ window.Laya= (function (exports) {
 	        this._valign = value;
 	        this.isChanged = true;
 	    }
-	    /**
-	     * <p>表示文本是否自动换行，默认为false。</p>
-	     * <p>若值为true，则自动换行；否则不自动换行。</p>
-	     */
 	    get wordWrap() {
 	        return this._style.wordWrap;
 	    }
@@ -20598,9 +14534,6 @@ window.Laya= (function (exports) {
 	        this._getTextStyle().wordWrap = value;
 	        this.isChanged = true;
 	    }
-	    /**
-	     * 垂直行间距（以像素为单位）。
-	     */
 	    get leading() {
 	        return this._style.leading;
 	    }
@@ -20608,10 +14541,6 @@ window.Laya= (function (exports) {
 	        this._getTextStyle().leading = value;
 	        this.isChanged = true;
 	    }
-	    /**
-	     * <p>边距信息。</p>
-	     * <p>数据格式：[上边距，右边距，下边距，左边距]（边距以像素为单位）。</p>
-	     */
 	    get padding() {
 	        return this._style.padding;
 	    }
@@ -20632,16 +14561,12 @@ window.Laya= (function (exports) {
 	        this._getTextStyle().padding = value;
 	        this.isChanged = true;
 	    }
-	    /**
-	     * 文本背景颜色，以字符串表示。
-	     */
 	    get bgColor() {
 	        return this._style.bgColor;
 	    }
 	    set bgColor(value) {
 	        this.set_bgColor(value);
 	    }
-	    // fot ts
 	    set_bgColor(value) {
 	        this._getTextStyle().bgColor = value;
 	        this._renderType |= SpriteConst.STYLE;
@@ -20652,9 +14577,6 @@ window.Laya= (function (exports) {
 	    get_bgColor() {
 	        return this._style.bgColor;
 	    }
-	    /**
-	     * 文本边框背景颜色，以字符串表示。
-	     */
 	    get borderColor() {
 	        return this._style.borderColor;
 	    }
@@ -20665,10 +14587,6 @@ window.Laya= (function (exports) {
 	        this._setRenderType(this._renderType);
 	        this.isChanged = true;
 	    }
-	    /**
-	     * <p>描边宽度（以像素为单位）。</p>
-	     * <p>默认值0，表示不描边。</p>
-	     */
 	    get stroke() {
 	        return this._style.stroke;
 	    }
@@ -20676,10 +14594,6 @@ window.Laya= (function (exports) {
 	        this._getTextStyle().stroke = value;
 	        this.isChanged = true;
 	    }
-	    /**
-	     * <p>描边颜色，以字符串表示。</p>
-	     * <p>默认值为 "#000000"（黑色）;</p>
-	     */
 	    get strokeColor() {
 	        return this._style.strokeColor;
 	    }
@@ -20687,25 +14601,15 @@ window.Laya= (function (exports) {
 	        this._getTextStyle().strokeColor = value;
 	        this.isChanged = true;
 	    }
-	    /**
-	     * @private
-	     * 一个布尔值，表示文本的属性是否有改变。若为true表示有改变。
-	     */
 	    set isChanged(value) {
 	        if (this._isChanged !== value) {
 	            this._isChanged = value;
 	            value && ILaya.systemTimer.callLater(this, this.typeset);
 	        }
 	    }
-	    /**
-	     * @private
-	     */
 	    _getContextFont() {
 	        return (this.italic ? "italic " : "") + (this.bold ? "bold " : "") + this.fontSize + "px " + (ILaya.Browser.onIPhone ? (Text.fontFamilyMap[this.font] || this.font) : this.font);
 	    }
-	    /**
-	     * @private
-	     */
 	    _isPassWordMode() {
 	        var style = this._style;
 	        var password = style.asPassword;
@@ -20713,9 +14617,6 @@ window.Laya= (function (exports) {
 	            password = false;
 	        return password;
 	    }
-	    /**
-	     * @private
-	     */
 	    _getPassWordTxt(txt) {
 	        var len = txt.length;
 	        var word;
@@ -20725,16 +14626,9 @@ window.Laya= (function (exports) {
 	        }
 	        return word;
 	    }
-	    /**
-	     * @private
-	     * 渲染文字。
-	     * @param	begin 开始渲染的行索引。
-	     * @param	visibleLineCount 渲染的行数。
-	     */
 	    _renderText() {
 	        var padding = this.padding;
 	        var visibleLineCount = this._lines.length;
-	        // overflow为scroll或visible时会截行
 	        if (this.overflow != Text.VISIBLE) {
 	            visibleLineCount = Math.min(visibleLineCount, Math.floor((this.height - padding[0] - padding[2]) / (this.leading + this._charSize.height)) + 1);
 	        }
@@ -20743,7 +14637,6 @@ window.Laya= (function (exports) {
 	        graphics.clear(true);
 	        var ctxFont = this._getContextFont();
 	        ILaya.Browser.context.font = ctxFont;
-	        //处理垂直对齐
 	        var startX = padding[3];
 	        var textAlgin = "left";
 	        var lines = this._lines;
@@ -20753,7 +14646,6 @@ window.Laya= (function (exports) {
 	            lineHeight = this.leading + tCurrBitmapFont.getMaxHeight();
 	        }
 	        var startY = padding[0];
-	        //处理水平对齐
 	        if ((!tCurrBitmapFont) && this._width > 0 && this._textWidth <= this._width) {
 	            if (this.align == "right") {
 	                textAlgin = "right";
@@ -20772,11 +14664,9 @@ window.Laya= (function (exports) {
 	                startY = this._height - visibleLineCount * lineHeight - padding[2];
 	        }
 	        var style = this._style;
-	        //drawBg(style);
 	        if (tCurrBitmapFont && tCurrBitmapFont.autoScaleSize) {
 	            var bitmapScale = tCurrBitmapFont.fontSize / this.fontSize;
 	        }
-	        //渲染
 	        if (this._clipPoint) {
 	            graphics.save();
 	            if (tCurrBitmapFont && tCurrBitmapFont.autoScaleSize) {
@@ -20794,7 +14684,6 @@ window.Laya= (function (exports) {
 	            this.repaint();
 	        }
 	        var password = style.asPassword;
-	        // 输入框的prompt始终显示明文
 	        if (("prompt" in this) && this['prompt'] == this._text)
 	            password = false;
 	        var x = 0, y = 0;
@@ -20844,13 +14733,6 @@ window.Laya= (function (exports) {
 	        this._startX = startX;
 	        this._startY = startY;
 	    }
-	    /**
-	     * @private
-	     * 绘制下划线
-	     * @param	x 本行坐标
-	     * @param	y 本行坐标
-	     * @param	lineIndex 本行索引
-	     */
 	    _drawUnderline(align, x, y, lineIndex) {
 	        var lineWidth = this._lineWidths[lineIndex];
 	        switch (align) {
@@ -20867,10 +14749,6 @@ window.Laya= (function (exports) {
 	        y += this._charSize.height;
 	        this._graphics.drawLine(x, y, x + lineWidth, y, this.underlineColor || this.color, 1);
 	    }
-	    /**
-	     * <p>排版文本。</p>
-	     * <p>进行宽高计算，渲染、重绘文本。</p>
-	     */
 	    typeset() {
 	        this._isChanged = false;
 	        if (!this._text) {
@@ -20887,26 +14765,21 @@ window.Laya= (function (exports) {
 	        }
 	        this._lines.length = 0;
 	        this._lineWidths.length = 0;
-	        if (this._isPassWordMode()) //如果是password显示状态应该使用密码符号计算
-	         {
+	        if (this._isPassWordMode()) {
 	            this._parseLines(this._getPassWordTxt(this._text));
 	        }
 	        else
 	            this._parseLines(this._text);
 	        this._evalTextSize();
-	        //启用Viewport
 	        if (this._checkEnabledViewportOrNot())
 	            this._clipPoint || (this._clipPoint = new Point(0, 0));
-	        //否则禁用Viewport
 	        else
 	            this._clipPoint = null;
 	        this._renderText();
 	    }
-	    /**@private */
 	    _evalTextSize() {
 	        var nw, nh;
 	        nw = Math.max.apply(this, this._lineWidths);
-	        //计算textHeight
 	        if (this._style.currBitmapFont)
 	            nh = this._lines.length * (this._style.currBitmapFont.getMaxHeight() + this.leading) + this.padding[0] + this.padding[2];
 	        else
@@ -20914,20 +14787,11 @@ window.Laya= (function (exports) {
 	        if (nw != this._textWidth || nh != this._textHeight) {
 	            this._textWidth = nw;
 	            this._textHeight = nh;
-	            //TODO:
-	            //if (!_width || !_height)
-	            //conchModel && conchModel.size(_width || _textWidth, _height || _textHeight);
 	        }
 	    }
-	    /**@private */
 	    _checkEnabledViewportOrNot() {
-	        return this.overflow == Text.SCROLL && ((this._width > 0 && this._textWidth > this._width) || (this._height > 0 && this._textHeight > this._height)); // 设置了宽高并且超出了
+	        return this.overflow == Text.SCROLL && ((this._width > 0 && this._textWidth > this._width) || (this._height > 0 && this._textHeight > this._height));
 	    }
-	    /**
-	     * <p>快速更改显示文本。不进行排版计算，效率较高。</p>
-	     * <p>如果只更改文字内容，不更改文字样式，建议使用此接口，能提高效率。</p>
-	     * @param text 文本内容。
-	     */
 	    changeText(text) {
 	        if (this._text !== text) {
 	            this.lang(text + "");
@@ -20937,12 +14801,7 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**
-	     * @private
-	     * 分析文本换行。
-	     */
 	    _parseLines(text) {
-	        //自动换行和HIDDEN都需要计算换行位置或截断位置
 	        var needWordWrapOrTruncate = this.wordWrap || this.overflow == Text.HIDDEN;
 	        if (needWordWrapOrTruncate) {
 	            var wordWrapWidth = this._getWordWrapWidth();
@@ -20968,8 +14827,6 @@ window.Laya= (function (exports) {
 	        var lines = text.replace(/\r\n/g, "\n").split("\n");
 	        for (var i = 0, n = lines.length; i < n; i++) {
 	            var line = lines[i];
-	            // 开启了自动换行需要计算换行位置
-	            // overflow为hidden需要计算截断位置
 	            if (needWordWrapOrTruncate)
 	                this._parseLine(line, wordWrapWidth);
 	            else {
@@ -20978,12 +14835,6 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**
-	     * @private
-	     * 解析行文本。
-	     * @param	line 某行的文本。
-	     * @param	wordWrapWidth 文本的显示宽度。
-	     */
 	    _parseLine(line, wordWrapWidth) {
 	        var lines = this._lines;
 	        var maybeIndex = 0;
@@ -20991,45 +14842,34 @@ window.Laya= (function (exports) {
 	        var wordWidth = 0;
 	        var startIndex = 0;
 	        charsWidth = this._getTextWidth(line);
-	        //优化1，如果一行小于宽度，则直接跳过遍历
 	        if (charsWidth <= wordWrapWidth) {
 	            lines.push(line);
 	            this._lineWidths.push(charsWidth);
 	            return;
 	        }
 	        charsWidth = this._charSize.width;
-	        //优化2，预算第几个字符会超出，减少遍历及字符宽度度量
 	        maybeIndex = Math.floor(wordWrapWidth / charsWidth);
 	        (maybeIndex == 0) && (maybeIndex = 1);
 	        charsWidth = this._getTextWidth(line.substring(0, maybeIndex));
 	        wordWidth = charsWidth;
 	        for (var j = maybeIndex, m = line.length; j < m; j++) {
-	            // 逐字符测量后加入到总宽度中，在某些情况下自动换行不准确。
-	            // 目前已知在全是字符1的自动换行就会出现这种情况。
-	            // 考虑性能，保留这种非方式。
 	            charsWidth = this._getTextWidth(line.charAt(j));
 	            wordWidth += charsWidth;
 	            if (wordWidth > wordWrapWidth) {
 	                if (this.wordWrap) {
-	                    //截断换行单词
 	                    var newLine = line.substring(startIndex, j);
 	                    if (newLine.charCodeAt(newLine.length - 1) < 255) {
-	                        //按照英文单词字边界截取 因此将会无视中文
 	                        var execResult = /(?:\w|-)+$/.exec(newLine);
 	                        if (execResult) {
 	                            j = execResult.index + startIndex;
-	                            //此行只够容纳这一个单词 强制换行
 	                            if (execResult.index == 0)
 	                                j += newLine.length;
-	                            //此行有多个单词 按单词分行
 	                            else
 	                                newLine = line.substring(startIndex, j);
 	                        }
 	                    }
-	                    //如果自动换行，则另起一行
 	                    lines.push(newLine);
 	                    this._lineWidths.push(wordWidth - charsWidth);
-	                    //如果非自动换行，则只截取字符串
 	                    startIndex = j;
 	                    if (j + maybeIndex < m) {
 	                        j += maybeIndex;
@@ -21038,7 +14878,6 @@ window.Laya= (function (exports) {
 	                        j--;
 	                    }
 	                    else {
-	                        //此处执行将不会在循环结束后再push一次
 	                        lines.push(line.substring(startIndex, m));
 	                        this._lineWidths.push(this._getTextWidth(lines[lines.length - 1]));
 	                        startIndex = -1;
@@ -21057,7 +14896,6 @@ window.Laya= (function (exports) {
 	            this._lineWidths.push(this._getTextWidth(lines[lines.length - 1]));
 	        }
 	    }
-	    /**@private */
 	    _getTextWidth(text) {
 	        var bitmapFont = this._style.currBitmapFont;
 	        if (bitmapFont)
@@ -21070,10 +14908,6 @@ window.Laya= (function (exports) {
 	                return ILaya.Browser.context.measureText(text).width;
 	        }
 	    }
-	    /**
-	     * @private
-	     * 获取换行所需的宽度。
-	     */
 	    _getWordWrapWidth() {
 	        var p = this.padding;
 	        var w;
@@ -21088,12 +14922,6 @@ window.Laya= (function (exports) {
 	        w <= 0 && (w = 100);
 	        return w - p[3] - p[1];
 	    }
-	    /**
-	     * 返回字符在本类实例的父坐标系下的坐标。
-	     * @param charIndex	索引位置。
-	     * @param out		（可选）输出的Point引用。
-	     * @return Point 字符在本类实例的父坐标系下的坐标。如果out参数不为空，则将结果赋值给指定的Point对象，否则创建一个新的Point对象返回。建议使用Point.TEMP作为out参数，可以省去Point对象创建和垃圾回收的开销，尤其是在需要频繁执行的逻辑中，比如帧循环和MOUSE_MOVE事件回调函数里面。
-	     */
 	    getCharPoint(charIndex, out = null) {
 	        this._isChanged && ILaya.systemTimer.runCallLater(this, this.typeset);
 	        var len = 0, lines = this._lines, startIndex = 0;
@@ -21105,17 +14933,12 @@ window.Laya= (function (exports) {
 	            }
 	            startIndex = len;
 	        }
-	        //计算字符的宽度
 	        var ctxFont = (this.italic ? "italic " : "") + (this.bold ? "bold " : "") + this.fontSize + "px " + this.font;
 	        ILaya.Browser.context.font = ctxFont;
 	        var width = this._getTextWidth(this._text.substring(startIndex, charIndex));
 	        var point = out || new Point();
 	        return point.setTo(this._startX + width - (this._clipPoint ? this._clipPoint.x : 0), this._startY + line * (this._charSize.height + this.leading) - (this._clipPoint ? this._clipPoint.y : 0));
 	    }
-	    /**
-	     * <p>设置横向滚动量。</p>
-	     * <p>即使设置超出滚动范围的值，也会被自动限制在可能的最大值处。</p>
-	     */
 	    set scrollX(value) {
 	        if (this.overflow != Text.SCROLL || (this.textWidth < this._width || !this._clipPoint))
 	            return;
@@ -21125,17 +14948,11 @@ window.Laya= (function (exports) {
 	        this._clipPoint.x = value;
 	        this._renderText();
 	    }
-	    /**
-	     * 获取横向滚动量。
-	     */
 	    get scrollX() {
 	        if (!this._clipPoint)
 	            return 0;
 	        return this._clipPoint.x;
 	    }
-	    /**
-	     * 设置纵向滚动量（px)。即使设置超出滚动范围的值，也会被自动限制在可能的最大值处。
-	     */
 	    set scrollY(value) {
 	        if (this.overflow != Text.SCROLL || (this.textHeight < this._height || !this._clipPoint))
 	            return;
@@ -21145,33 +14962,22 @@ window.Laya= (function (exports) {
 	        this._clipPoint.y = value;
 	        this._renderText();
 	    }
-	    /**
-	     * 获取纵向滚动量。
-	     */
 	    get scrollY() {
 	        if (!this._clipPoint)
 	            return 0;
 	        return this._clipPoint.y;
 	    }
-	    /**
-	     * 获取横向可滚动最大值。
-	     */
 	    get maxScrollX() {
 	        return (this.textWidth < this._width) ? 0 : this._textWidth - this._width;
 	    }
-	    /**
-	     * 获取纵向可滚动最大值。
-	     */
 	    get maxScrollY() {
 	        return (this.textHeight < this._height) ? 0 : this._textHeight - this._height;
 	    }
-	    /**返回文字行信息*/
 	    get lines() {
 	        if (this._isChanged)
 	            this.typeset();
 	        return this._lines;
 	    }
-	    /**下划线的颜色，为null则使用字体颜色。*/
 	    get underlineColor() {
 	        return this._style.underlineColor;
 	    }
@@ -21180,14 +14986,12 @@ window.Laya= (function (exports) {
 	        if (!this._isChanged)
 	            this._renderText();
 	    }
-	    /**是否显示下划线。*/
 	    get underline() {
 	        return this._style.underline;
 	    }
 	    set underline(value) {
 	        this._getTextStyle().underline = value;
 	    }
-	    /** 设置是否单个字符渲染，如果Textd的内容一直改变，例如是一个增加的数字，就设置这个，防止无效占用缓存 */
 	    set singleCharRender(value) {
 	        this._singleCharRender = value;
 	    }
@@ -21195,73 +14999,28 @@ window.Laya= (function (exports) {
 	        return this._singleCharRender;
 	    }
 	}
-	/**visible不进行任何裁切。*/
 	Text.VISIBLE = "visible";
-	/**scroll 不显示文本域外的字符像素，并且支持 scroll 接口。*/
 	Text.SCROLL = "scroll";
-	/**hidden 不显示超出文本域的字符。*/
 	Text.HIDDEN = "hidden";
-	/**默认文本大小，默认为12*/
 	Text.defaultFontSize = 12;
-	/**默认文本字体，默认为Arial*/
 	Text.defaultFont = "Arial";
-	/**WebGL下，文字会被拆分为单个字符进行渲染，一些语系不能拆开显示，比如阿拉伯文，这时可以设置isComplexText=true，禁用文字拆分。*/
 	Text.isComplexText = false;
-	/**在IOS下，一些字体会找不到，引擎提供了字体映射功能，比如默认会把 "黑体" 映射为 "黑体-简"，更多映射，可以自己添加*/
 	Text.fontFamilyMap = { "报隶": "报隶-简", "黑体": "黑体-简", "楷体": "楷体-简", "兰亭黑": "兰亭黑-简", "隶变": "隶变-简", "凌慧体": "凌慧体-简", "翩翩体": "翩翩体-简", "苹方": "苹方-简", "手札体": "手札体-简", "宋体": "宋体-简", "娃娃体": "娃娃体-简", "魏碑": "魏碑-简", "行楷": "行楷-简", "雅痞": "雅痞-简", "圆体": "圆体-简" };
-	/**@private 预测长度的文字，用来提升计算效率，不同语言找一个最大的字符即可*/
 	Text._testWord = "游";
-	//TODO:
 	Text.CharacterCache = true;
-	/**是否是从右向左的显示顺序*/
 	Text.RightToLeft = false;
 	ILaya.regClass(Text);
 	ClassUtils.regClass("laya.display.Text", Text);
 	ClassUtils.regClass("Laya.Text", Text);
 
-	/**
-	 * 用户输入一个或多个文本字符时后调度。
-	 * @eventType Event.INPUT
-	 * */
-	/*[Event(name = "input", type = "laya.events.Event")]*/
-	/**
-	 * 文本发生变化后调度。
-	 * @eventType Event.CHANGE
-	 * */
-	/*[Event(name = "change", type = "laya.events.Event")]*/
-	/**
-	 * 用户在输入框内敲回车键后，将会调度 <code>enter</code> 事件。
-	 * @eventType Event.ENTER
-	 * */
-	/*[Event(name = "enter", type = "laya.events.Event")]*/
-	/**
-	 * 显示对象获得焦点后调度。
-	 * @eventType Event.FOCUS
-	 * */
-	/*[Event(name = "focus", type = "laya.events.Event")]*/
-	/**
-	 * 显示对象失去焦点后调度。
-	 * @eventType Event.BLUR
-	 * */
-	/*[Event(name = "blur", type = "laya.events.Event")]*/
-	/**
-	 * <p><code>Input</code> 类用于创建显示对象以显示和输入文本。</p>
-	 * <p>Input 类封装了原生的文本输入框，由于不同浏览器的差异，会导致此对象的默认文本的位置与用户点击输入时的文本的位置有少许的偏差。</p>
-	 */
 	class Input extends Text {
-	    /**创建一个新的 <code>Input</code> 类实例。*/
 	    constructor() {
 	        super();
-	        /**@private */
 	        this._multiline = false;
-	        /**@private */
 	        this._editable = true;
-	        /**@private */
 	        this._maxChars = 1E5;
 	        this._type = "text";
-	        /**输入提示符。*/
 	        this._prompt = '';
-	        /**输入提示符颜色。*/
 	        this._promptColor = "#A9A9A9";
 	        this._originColor = "#000000";
 	        this._content = '';
@@ -21273,10 +15032,8 @@ window.Laya= (function (exports) {
 	        this.on(Event.MOUSE_DOWN, this, this._onMouseDown);
 	        this.on(Event.UNDISPLAY, this, this._onUnDisplay);
 	    }
-	    /**@private */
 	    static __init__() {
 	        Input._createInputElement();
-	        // 移动端通过画布的touchend调用focus
 	        if (ILaya.Browser.onMobile) {
 	            var isTrue = false;
 	            if (ILaya.Browser.onMiniGame || ILaya.Browser.onBDMiniGame || ILaya.Browser.onQGMiniGame || ILaya.Browser.onKGMiniGame || ILaya.Browser.onVVMiniGame || ILaya.Browser.onAlipayMiniGame) {
@@ -21285,13 +15042,10 @@ window.Laya= (function (exports) {
 	            ILaya.Render.canvas.addEventListener(Input.IOS_IFRAME ? (isTrue ? "touchend" : "click") : "touchend", Input._popupInputMethod);
 	        }
 	    }
-	    // 移动平台在单击事件触发后弹出输入法
 	    static _popupInputMethod(e) {
-	        //e.preventDefault();
 	        if (!Input.isInputting)
 	            return;
 	        var input = Input.inputElement;
-	        // 弹出输入法。
 	        input.focus();
 	    }
 	    static _createInputElement() {
@@ -21329,9 +15083,7 @@ window.Laya= (function (exports) {
 	        if (!input)
 	            return;
 	        var value = Input.inputElement.value;
-	        // 对输入字符进行限制
 	        if (input._restrictPattern) {
-	            // 部分输入法兼容
 	            value = value.replace(/\u2006|\x27/g, "");
 	            if (input._restrictPattern.test(value)) {
 	                value = value.replace(input._restrictPattern, "");
@@ -21346,17 +15098,11 @@ window.Laya= (function (exports) {
 	            e.preventDefault();
 	        e.stopPropagation && e.stopPropagation();
 	    }
-	    /**
-	     * 设置光标位置和选取字符。
-	     * @param	startIndex	光标起始位置。
-	     * @param	endIndex	光标结束位置。
-	     */
 	    setSelection(startIndex, endIndex) {
 	        this.focus = true;
 	        Input.inputElement.selectionStart = startIndex;
 	        Input.inputElement.selectionEnd = endIndex;
 	    }
-	    /**表示是否是多行输入框。*/
 	    get multiline() {
 	        return this._multiline;
 	    }
@@ -21364,9 +15110,6 @@ window.Laya= (function (exports) {
 	        this._multiline = value;
 	        this.valign = value ? "top" : "middle";
 	    }
-	    /**
-	     * 获取对输入框的引用实例。
-	     */
 	    get nativeInput() {
 	        return this._multiline ? Input.area : Input.input;
 	    }
@@ -21376,9 +15119,6 @@ window.Laya= (function (exports) {
 	    _onMouseDown(e) {
 	        this.focus = true;
 	    }
-	    /**
-	     * 在输入期间，如果 Input 实例的位置改变，调用_syncInputTransform同步输入框的位置。
-	     */
 	    _syncInputTransform() {
 	        var inputElement = this.nativeInput;
 	        var transform = Utils.getTransformRelativeToWindow(this, this.padding[3], this.padding[0]);
@@ -21397,18 +15137,12 @@ window.Laya= (function (exports) {
 	            Input.inputContainer.style.top = transform.y + 'px';
 	        }
 	    }
-	    /**选中当前实例的所有文本。*/
 	    select() {
 	        this.nativeInput.select();
 	    }
-	    /**
-	     * 表示焦点是否在此实例上。
-	     */
 	    get focus() {
 	        return this._focus;
 	    }
-	    // 移动平台最后单击画布才会调用focus
-	    // 因此 调用focus接口是无法都在移动平台立刻弹出键盘的
 	    set focus(value) {
 	        var input = this.nativeInput;
 	        if (this._focus !== value) {
@@ -21457,23 +15191,19 @@ window.Laya= (function (exports) {
 	        }
 	        input.maxLength = this._maxChars;
 	        var padding = this.padding;
-	        //input.type = this._type;      不知道为什么说这个是只读的。但是as项目就没问题
 	        input.value = this._content;
 	        input.placeholder = this._prompt;
 	        ILaya.stage.off(Event.KEY_DOWN, this, this._onKeyDown);
 	        ILaya.stage.on(Event.KEY_DOWN, this, this._onKeyDown);
 	        ILaya.stage.focus = this;
 	        this.event(Event.FOCUS);
-	        // PC端直接调用focus进入焦点。
 	        if (ILaya.Browser.onPC)
 	            input.focus();
-	        // PC浏览器隐藏文字
 	        if (!ILaya.Browser.onMiniGame && !ILaya.Browser.onBDMiniGame && !ILaya.Browser.onQGMiniGame && !ILaya.Browser.onKGMiniGame && !ILaya.Browser.onVVMiniGame && !ILaya.Browser.onAlipayMiniGame) {
 	            var temp = this._text;
 	            this._text = null;
 	        }
 	        this.typeset();
-	        // PC同步输入框外观。
 	        input.setColor(this._originColor);
 	        input.setFontSize(this.fontSize);
 	        input.setFontFace(ILaya.Browser.onIPhone ? (Text.fontFamilyMap[this.font] || this.font) : this.font);
@@ -21485,24 +15215,19 @@ window.Laya= (function (exports) {
 	        cssStyle.fontWeight = (this.bold ? "bold" : "normal");
 	        cssStyle.textAlign = this.align;
 	        cssStyle.padding = "0 0";
-	        // 输入框重定位。
 	        this._syncInputTransform();
 	        if (!ILaya.Render.isConchApp && ILaya.Browser.onPC)
 	            ILaya.systemTimer.frameLoop(1, this, this._syncInputTransform);
 	    }
-	    // 设置DOM输入框提示符颜色。
 	    _setPromptColor() {
-	        // 创建style标签
 	        Input.promptStyleDOM = ILaya.Browser.getElementById("promptStyle");
 	        if (!Input.promptStyleDOM) {
 	            Input.promptStyleDOM = ILaya.Browser.createElement("style");
 	            Input.promptStyleDOM.setAttribute("id", "promptStyle");
 	            ILaya.Browser.document.head.appendChild(Input.promptStyleDOM);
 	        }
-	        // 设置style标签
 	        Input.promptStyleDOM.innerText = "input::-webkit-input-placeholder, textarea::-webkit-input-placeholder {" + "color:" + this._promptColor + "}" + "input:-moz-placeholder, textarea:-moz-placeholder {" + "color:" + this._promptColor + "}" + "input::-moz-placeholder, textarea::-moz-placeholder {" + "color:" + this._promptColor + "}" + "input:-ms-input-placeholder, textarea:-ms-input-placeholder {" + "color:" + this._promptColor + "}";
 	    }
-	    /**@private */
 	    _focusOut() {
 	        Input.isInputting = false;
 	        this._focus = false;
@@ -21522,21 +15247,15 @@ window.Laya= (function (exports) {
 	        this.event(Event.CHANGE);
 	        if (ILaya.Render.isConchApp)
 	            this.nativeInput.blur();
-	        // 只有PC会注册此事件。
 	        ILaya.Browser.onPC && ILaya.systemTimer.clear(this, this._syncInputTransform);
 	    }
-	    /**@private */
 	    _onKeyDown(e) {
 	        if (e.keyCode === 13) {
-	            // 移动平台单行输入状态下点击回车收回输入法。 
 	            if (ILaya.Browser.onMobile && !this._multiline)
 	                this.focus = false;
 	            this.event(Event.ENTER);
 	        }
 	    }
-	    /**@inheritDoc
-	     * @override
-	    */
 	    set text(value) {
 	        super.set_color(this._originColor);
 	        value += '';
@@ -21545,7 +15264,6 @@ window.Laya= (function (exports) {
 	            this.event(Event.CHANGE);
 	        }
 	        else {
-	            // 单行时不允许换行
 	            if (!this._multiline)
 	                value = value.replace(/\r?\n/g, '');
 	            this._content = value;
@@ -21557,20 +15275,12 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**
-	     * @override
-	     */
 	    get text() {
 	        if (this._focus)
 	            return this.nativeInput.value;
 	        else
 	            return this._content || "";
 	    }
-	    /**
-	     *
-	     * @param text
-	     * @override
-	     */
 	    changeText(text) {
 	        this._content = text;
 	        if (this._focus) {
@@ -21580,9 +15290,6 @@ window.Laya= (function (exports) {
 	        else
 	            super.changeText(text);
 	    }
-	    /**@inheritDoc
-	     * @override
-	    */
 	    set color(value) {
 	        if (this._focus)
 	            this.nativeInput.setColor(value);
@@ -21592,9 +15299,6 @@ window.Laya= (function (exports) {
 	    get color() {
 	        return super.color;
 	    }
-	    /**@inheritDoc
-	     * @override
-	    */
 	    set bgColor(value) {
 	        super.set_bgColor(value);
 	        if (ILaya.Render.isConchApp)
@@ -21603,7 +15307,6 @@ window.Laya= (function (exports) {
 	    get bgColor() {
 	        return super.bgColor;
 	    }
-	    /**限制输入的字符。*/
 	    get restrict() {
 	        if (this._restrictPattern) {
 	            return this._restrictPattern.source;
@@ -21611,10 +15314,8 @@ window.Laya= (function (exports) {
 	        return "";
 	    }
 	    set restrict(pattern) {
-	        // H5保存RegExp
 	        if (pattern) {
 	            pattern = "[^" + pattern + "]";
-	            // 如果pattern为^\00-\FF，则我们需要的正则表达式是\00-\FF
 	            if (pattern.indexOf("^^") > -1)
 	                pattern = pattern.replace("^^", "");
 	            this._restrictPattern = new RegExp(pattern, "g");
@@ -21622,9 +15323,6 @@ window.Laya= (function (exports) {
 	        else
 	            this._restrictPattern = null;
 	    }
-	    /**
-	     * 是否可编辑。
-	     */
 	    set editable(value) {
 	        this._editable = value;
 	        if (ILaya.Render.isConchApp) {
@@ -21634,10 +15332,6 @@ window.Laya= (function (exports) {
 	    get editable() {
 	        return this._editable;
 	    }
-	    /**
-	     * <p>字符数量限制，默认为10000。</p>
-	     * <p>设置字符数量限制时，小于等于0的值将会限制字符数量为10000。</p>
-	     */
 	    get maxChars() {
 	        return this._maxChars;
 	    }
@@ -21646,9 +15340,6 @@ window.Laya= (function (exports) {
 	            value = 1E5;
 	        this._maxChars = value;
 	    }
-	    /**
-	     * 设置输入提示符。
-	     */
 	    get prompt() {
 	        return this._prompt;
 	    }
@@ -21662,9 +15353,6 @@ window.Laya= (function (exports) {
 	            super.set_text(value);
 	        this._prompt = Text.langPacks && Text.langPacks[value] ? Text.langPacks[value] : value;
 	    }
-	    /**
-	     * 设置输入提示符颜色。
-	     */
 	    get promptColor() {
 	        return this._promptColor;
 	    }
@@ -21673,24 +15361,6 @@ window.Laya= (function (exports) {
 	        if (!this._content)
 	            super.set_color(value);
 	    }
-	    /**
-	     * <p>输入框类型为Input静态常量之一。</p>
-	     * <ul>
-	     * <li>TYPE_TEXT</li>
-	     * <li>TYPE_PASSWORD</li>
-	     * <li>TYPE_EMAIL</li>
-	     * <li>TYPE_URL</li>
-	     * <li>TYPE_NUMBER</li>
-	     * <li>TYPE_RANGE</li>
-	     * <li>TYPE_DATE</li>
-	     * <li>TYPE_MONTH</li>
-	     * <li>TYPE_WEEK</li>
-	     * <li>TYPE_TIME</li>
-	     * <li>TYPE_DATE_TIME</li>
-	     * <li>TYPE_DATE_TIME_LOCAL</li>
-	     * </ul>
-	     * <p>平台兼容性参见http://www.w3school.com.cn/html5/html_5_form_input_types.asp。</p>
-	     */
 	    get type() {
 	        return this._type;
 	    }
@@ -21702,70 +15372,31 @@ window.Laya= (function (exports) {
 	        this._type = value;
 	    }
 	}
-	/** 常规文本域。*/
 	Input.TYPE_TEXT = "text";
-	/** password 类型用于密码域输入。*/
 	Input.TYPE_PASSWORD = "password";
-	/** email 类型用于应该包含 e-mail 地址的输入域。*/
 	Input.TYPE_EMAIL = "email";
-	/** url 类型用于应该包含 URL 地址的输入域。*/
 	Input.TYPE_URL = "url";
-	/** number 类型用于应该包含数值的输入域。*/
 	Input.TYPE_NUMBER = "number";
-	/**
-	 * <p>range 类型用于应该包含一定范围内数字值的输入域。</p>
-	 * <p>range 类型显示为滑动条。</p>
-	 * <p>您还能够设定对所接受的数字的限定。</p>
-	 */
 	Input.TYPE_RANGE = "range";
-	/**  选取日、月、年。*/
 	Input.TYPE_DATE = "date";
-	/** month - 选取月、年。*/
 	Input.TYPE_MONTH = "month";
-	/** week - 选取周和年。*/
 	Input.TYPE_WEEK = "week";
-	/** time - 选取时间（小时和分钟）。*/
 	Input.TYPE_TIME = "time";
-	/** datetime - 选取时间、日、月、年（UTC 时间）。*/
 	Input.TYPE_DATE_TIME = "datetime";
-	/** datetime-local - 选取时间、日、月、年（本地时间）。*/
 	Input.TYPE_DATE_TIME_LOCAL = "datetime-local";
-	/**
-	 * <p>search 类型用于搜索域，比如站点搜索或 Google 搜索。</p>
-	 * <p>search 域显示为常规的文本域。</p>
-	 */
 	Input.TYPE_SEARCH = "search";
-	/**@private */
 	Input.IOS_IFRAME = false;
 	Input.inputHeight = 45;
-	/**表示是否处于输入状态。*/
 	Input.isInputting = false;
 	ClassUtils.regClass("laya.display.Input", Input);
 	ClassUtils.regClass("Laya.Input", Input);
 
-	/**
-	 * @private
-	 * Touch事件管理类，处理多点触控下的鼠标事件
-	 */
 	class TouchManager {
 	    constructor() {
-	        /**
-	         * 当前over的touch表
-	         */
 	        this.preOvers = [];
-	        /**
-	         * 当前down的touch表
-	         */
 	        this.preDowns = [];
 	        this.preRightDowns = [];
-	        /**
-	         * 是否启用
-	         */
 	        this.enable = true;
-	        /**
-	         * @internal
-	         * 用于派发事件用的Event对象
-	         */
 	        this._event = new Event();
 	        this._lastClickTime = 0;
 	    }
@@ -21774,13 +15405,6 @@ window.Laya= (function (exports) {
 	        TouchManager._newArr.length = 0;
 	        TouchManager._tEleArr.length = 0;
 	    }
-	    /**
-	     * 从touch表里查找对应touchID的数据
-	     * @param touchID touch ID
-	     * @param arr touch表
-	     * @return
-	     *
-	     */
 	    getTouchFromArr(touchID, arr) {
 	        var i, len;
 	        len = arr.length;
@@ -21793,29 +15417,14 @@ window.Laya= (function (exports) {
 	        }
 	        return null;
 	    }
-	    /**
-	     * 从touch表里移除一个元素
-	     * @param touchID touch ID
-	     * @param arr touch表
-	     *
-	     */
 	    removeTouchFromArr(touchID, arr) {
-	        //DebugTxt.dTrace("removeTouch:"+touchID);
 	        var i;
 	        for (i = arr.length - 1; i >= 0; i--) {
 	            if (arr[i].id == touchID) {
-	                //DebugTxt.dTrace("removeedTouch:"+touchID);
 	                arr.splice(i, 1);
 	            }
 	        }
 	    }
-	    /**
-	     * 创建一个touch数据
-	     * @param ele 当前的根节点
-	     * @param touchID touchID
-	     * @return
-	     *
-	     */
 	    createTouchO(ele, touchID) {
 	        var rst;
 	        rst = Pool.getItem("TouchData") || {};
@@ -21823,12 +15432,6 @@ window.Laya= (function (exports) {
 	        rst.tar = ele;
 	        return rst;
 	    }
-	    /**
-	     * 处理touchStart
-	     * @param ele		根节点
-	     * @param touchID	touchID
-	     * @param isLeft	（可选）是否为左键
-	     */
 	    onMouseDown(ele, touchID, isLeft = false) {
 	        if (!this.enable)
 	            return;
@@ -21842,7 +15445,6 @@ window.Laya= (function (exports) {
 	            this.preOvers.push(tO);
 	        }
 	        else {
-	            //理论上不会发生，相同触摸事件必然不会在end之前再次出发
 	            preO.tar = ele;
 	        }
 	        if (Browser.onMobile)
@@ -21855,17 +15457,11 @@ window.Laya= (function (exports) {
 	            preDowns.push(tO);
 	        }
 	        else {
-	            //理论上不会发生，相同触摸事件必然不会在end之前再次出发
 	            preO.tar = ele;
 	        }
 	        this.sendEvents(arrs, isLeft ? Event.MOUSE_DOWN : Event.RIGHT_MOUSE_DOWN);
 	        this._clearTempArrs();
 	    }
-	    /**
-	     * 派发事件。
-	     * @param eles		对象列表。
-	     * @param type		事件类型。
-	     */
 	    sendEvents(eles, type) {
 	        var i, len;
 	        len = eles.length;
@@ -21881,13 +15477,6 @@ window.Laya= (function (exports) {
 	                break;
 	        }
 	    }
-	    /**
-	     * 获取对象列表。
-	     * @param start	起始节点。
-	     * @param end	结束节点。
-	     * @param rst	返回值。如果此值不为空，则将其赋值为计算结果，从而避免创建新数组；如果此值为空，则创建新数组返回。
-	     * @return Array 返回节点列表。
-	     */
 	    getEles(start, end = null, rst = null) {
 	        if (!rst) {
 	            rst = [];
@@ -21901,12 +15490,6 @@ window.Laya= (function (exports) {
 	        }
 	        return rst;
 	    }
-	    /**
-	     * touchMove时处理out事件和over时间。
-	     * @param eleNew	新的根节点。
-	     * @param elePre	旧的根节点。
-	     * @param touchID	（可选）touchID，默认为0。
-	     */
 	    checkMouseOutAndOverOfMove(eleNew, elePre, touchID = 0) {
 	        if (elePre == eleNew)
 	            return;
@@ -21922,7 +15505,6 @@ window.Laya= (function (exports) {
 	            this.sendEvents(arrs, Event.MOUSE_OUT);
 	        }
 	        else {
-	            //arrs = getEles(elePre);
 	            arrs = TouchManager._tEleArr;
 	            arrs.length = 0;
 	            var oldArr;
@@ -21950,21 +15532,13 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**
-	     * 处理TouchMove事件
-	     * @param ele 根节点
-	     * @param touchID touchID
-	     *
-	     */
 	    onMouseMove(ele, touchID) {
 	        if (!this.enable)
 	            return;
-	        //DebugTxt.dTrace("onMouseMove:"+touchID);
 	        var preO;
 	        preO = this.getTouchFromArr(touchID, this.preOvers);
 	        var arrs;
 	        if (!preO) {
-	            //理论上不会发生，因为必然先有touchstart再有touchMove
 	            arrs = this.getEles(ele, null, TouchManager._tEleArr);
 	            this.sendEvents(arrs, Event.MOUSE_OVER);
 	            this.preOvers.push(this.createTouchO(ele, touchID));
@@ -21991,12 +15565,6 @@ window.Laya= (function (exports) {
 	        this.preOvers.length = 0;
 	        this.sendEvents(lastOvers, Event.MOUSE_OUT);
 	    }
-	    /**
-	     * 处理TouchEnd事件
-	     * @param ele		根节点
-	     * @param touchID	touchID
-	     * @param isLeft	是否为左键
-	     */
 	    onMouseUp(ele, touchID, isLeft = false) {
 	        if (!this.enable)
 	            return;
@@ -22007,10 +15575,8 @@ window.Laya= (function (exports) {
 	        var tar;
 	        var sendArr;
 	        var onMobile = Browser.onMobile;
-	        //处理up
 	        arrs = this.getEles(ele, null, TouchManager._tEleArr);
 	        this.sendEvents(arrs, isLeft ? Event.MOUSE_UP : Event.RIGHT_MOUSE_UP);
-	        //处理click
 	        var preDowns;
 	        preDowns = isLeft ? this.preDowns : this.preRightDowns;
 	        preO = this.getTouchFromArr(touchID, preDowns);
@@ -22045,7 +15611,6 @@ window.Laya= (function (exports) {
 	            preO.tar = null;
 	            Pool.recover("TouchData", preO);
 	        }
-	        //处理out
 	        preO = this.getTouchFromArr(touchID, this.preOvers);
 	        if (!preO) ;
 	        else {
@@ -22067,34 +15632,17 @@ window.Laya= (function (exports) {
 	TouchManager._newArr = [];
 	TouchManager._tEleArr = [];
 
-	/**
-	 * <p><code>MouseManager</code> 是鼠标、触摸交互管理器。</p>
-	 * <p>鼠标事件流包括捕获阶段、目标阶段、冒泡阶段。<br/>
-	 * 捕获阶段：此阶段引擎会从stage开始递归检测stage及其子对象，直到找到命中的目标对象或者未命中任何对象；<br/>
-	 * 目标阶段：找到命中的目标对象；<br/>
-	 * 冒泡阶段：事件离开目标对象，按节点层级向上逐层通知，直到到达舞台的过程。</p>
-	 */
 	class MouseManager {
 	    constructor() {
-	        /** canvas 上的鼠标X坐标。*/
 	        this.mouseX = 0;
-	        /** canvas 上的鼠标Y坐标。*/
 	        this.mouseY = 0;
-	        /** 是否禁用除 stage 以外的鼠标事件检测。*/
 	        this.disableMouseEvent = false;
-	        /** 鼠标按下的时间。单位为毫秒。*/
 	        this.mouseDownTime = 0;
-	        /** 鼠标移动精度。*/
 	        this.mouseMoveAccuracy = 2;
-	        /** @internal */
 	        this._event = new Event();
-	        /** @private 希望capture鼠标事件的对象。*/
 	        this._captureSp = null;
-	        /** @private 现在不支持直接把绝对坐标转到本地坐标，只能一级一级做下去，因此记录一下这个链*/
 	        this._captureChain = [];
-	        /** @private capture对象独占消息 */
 	        this._captureExlusiveMode = false;
-	        /** @private 在发送事件的过程中，是否发送给了_captureSp */
 	        this._hitCaputreSp = false;
 	        this._point = new Point();
 	        this._rect = new Rectangle();
@@ -22104,14 +15652,9 @@ window.Laya= (function (exports) {
 	        this._curTouchID = NaN;
 	        this._id = 1;
 	    }
-	    /**
-	     * @private
-	     * 初始化。
-	     */
 	    __init__(stage, canvas) {
 	        this._stage = stage;
 	        var _this = this;
-	        //var canvas:* = Render.canvas;
 	        canvas.oncontextmenu = function (e) {
 	            if (MouseManager.enabled)
 	                return false;
@@ -22219,19 +15762,14 @@ window.Laya= (function (exports) {
 	            var ele = _lastOvers[i];
 	            ele.event(Event.MOUSE_WHEEL, this._event.setTo(Event.MOUSE_WHEEL, ele, this._target));
 	        }
-	        //			_stage.event(Event.MOUSE_WHEEL, _event.setTo(Event.MOUSE_WHEEL, _stage, _target));
 	    }
 	    onMouseMove(ele) {
 	        TouchManager.I.onMouseMove(ele, this._tTouchID);
 	    }
 	    onMouseDown(ele) {
 	        if (Input.isInputting && ILaya.stage.focus && ILaya.stage.focus["focus"] && !ILaya.stage.focus.contains(this._target)) {
-	            // 从UI Input组件中取得Input引用
-	            // _tf 是TextInput的属性
 	            var pre_input = ILaya.stage.focus['_tf'] || ILaya.stage.focus;
 	            var new_input = ele['_tf'] || ele;
-	            // 新的焦点是Input的情况下，不需要blur；
-	            // 不过如果是Input和TextArea之间的切换，还是需要重新弹出输入法；
 	            if (new_input instanceof Input && new_input.multiline == pre_input.multiline)
 	                pre_input['_focusOut']();
 	            else
@@ -22247,30 +15785,23 @@ window.Laya= (function (exports) {
 	        sp.fromParentPoint(this._point);
 	        mouseX = this._point.x;
 	        mouseY = this._point.y;
-	        //如果有裁剪，则先判断是否在裁剪范围内
 	        var scrollRect = sp._style.scrollRect;
 	        if (scrollRect) {
 	            this._rect.setTo(scrollRect.x, scrollRect.y, scrollRect.width, scrollRect.height);
 	            if (!this._rect.contains(mouseX, mouseY))
 	                return false;
 	        }
-	        //先判定子对象是否命中
 	        if (!this.disableMouseEvent) {
-	            //优先判断父对象
-	            //默认情况下，hitTestPrior=mouseThrough=false，也就是优先check子对象
-	            //$NEXTBIG:下个重大版本将sp.mouseThrough从此逻辑中去除，从而使得sp.mouseThrough只负责目标对象的穿透
 	            if (sp.hitTestPrior && !sp.mouseThrough && !this.hitTest(sp, mouseX, mouseY)) {
 	                return false;
 	            }
 	            for (var i = sp._children.length - 1; i > -1; i--) {
 	                var child = sp._children[i];
-	                //只有接受交互事件的，才进行处理
 	                if (!child.destroyed && child._mouseState > 1 && child._visible) {
 	                    if (this.check(child, mouseX, mouseY, callBack))
 	                        return true;
 	                }
 	            }
-	            // 检查逻辑子对象
 	            for (i = sp._extUIChild.length - 1; i >= 0; i--) {
 	                var c = sp._extUIChild[i];
 	                if (!c.destroyed && c._mouseState > 1 && c._visible) {
@@ -22279,7 +15810,6 @@ window.Laya= (function (exports) {
 	                }
 	            }
 	        }
-	        //避免重复进行碰撞检测，考虑了判断条件的命中率。
 	        var isHit = (sp.hitTestPrior && !sp.mouseThrough && !this.disableMouseEvent) ? true : this.hitTest(sp, mouseX, mouseY);
 	        if (isHit) {
 	            this._target = sp;
@@ -22289,7 +15819,6 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	        else if (callBack === this.onMouseUp && sp === this._stage) {
-	            //如果stage外mouseUP
 	            this._target = this._stage;
 	            callBack.call(this, this._target);
 	        }
@@ -22306,13 +15835,10 @@ window.Laya= (function (exports) {
 	            return hitArea.contains(mouseX, mouseY);
 	        }
 	        if (sp.width > 0 && sp.height > 0 || sp.mouseThrough || hitArea) {
-	            //判断是否在矩形区域内
 	            if (!sp.mouseThrough) {
-	                //MOD by liuzihao: saved call of 'hitRect' and 'this._rect' when 'sp.hitArea' is not null.
 	                isHit = (hitArea ? hitArea : this._rect.setTo(0, 0, sp.width, sp.height)).contains(mouseX, mouseY);
 	            }
 	            else {
-	                //如果可穿透，则根据子对象实际大小进行碰撞
 	                isHit = sp.getGraphicBounds().contains(mouseX, mouseY);
 	            }
 	        }
@@ -22323,16 +15849,8 @@ window.Laya= (function (exports) {
 	        if (ret)
 	            return true;
 	        ret = this.check(this._stage, this.mouseX, this.mouseY, callback);
-	        //ret = check3DUI(mousex,mousey,callback) || ret;		//在这里调结果不对，好像不会调用click
 	        return this.handleCapture(this.mouseX, this.mouseY, callback) || ret;
 	    }
-	    /**
-	     * 处理3d界面。
-	     * @param	mousex
-	     * @param	mousey
-	     * @param	callback
-	     * @return
-	     */
 	    check3DUI(mousex, mousey, callback) {
 	        var uis = this._stage._3dUI;
 	        var i = 0;
@@ -22350,7 +15868,6 @@ window.Laya= (function (exports) {
 	    handleExclusiveCapture(mousex, mousey, callback) {
 	        if (this._captureExlusiveMode && this._captureSp && this._captureChain.length > 0) {
 	            var cursp;
-	            // 坐标转到capture对象的相对坐标
 	            this._point.setTo(mousex, mousey);
 	            for (var i = 0; i < this._captureChain.length; i++) {
 	                cursp = this._captureChain[i];
@@ -22365,7 +15882,6 @@ window.Laya= (function (exports) {
 	    handleCapture(mousex, mousey, callback) {
 	        if (!this._hitCaputreSp && this._captureSp && this._captureChain.length > 0) {
 	            var cursp;
-	            // 坐标转到capture对象的相对坐标
 	            this._point.setTo(mousex, mousey);
 	            for (var i = 0; i < this._captureChain.length; i++) {
 	                cursp = this._captureChain[i];
@@ -22377,9 +15893,6 @@ window.Laya= (function (exports) {
 	        }
 	        return false;
 	    }
-	    /**
-	     * 执行事件处理。
-	     */
 	    runEvent(evt) {
 	        var i, n, touch;
 	        if (evt.type !== 'mousemove')
@@ -22406,7 +15919,6 @@ window.Laya= (function (exports) {
 	                    this._prePoint.y = evt.clientY;
 	                    this.initEvent(evt);
 	                    this._checkAllBaseUI(this.mouseX, this.mouseY, this.onMouseMove);
-	                    //						checkMouseOut();
 	                }
 	                break;
 	            case "touchstart":
@@ -22415,10 +15927,8 @@ window.Laya= (function (exports) {
 	                var touches = evt.changedTouches;
 	                for (i = 0, n = touches.length; i < n; i++) {
 	                    touch = touches[i];
-	                    //是否禁用多点触控
 	                    if (MouseManager.multiTouchEnabled || isNaN(this._curTouchID)) {
 	                        this._curTouchID = touch.identifier;
-	                        //200次点击清理一下id资源
 	                        if (this._id % 200 === 0)
 	                            this._touchIDs = {};
 	                        this._touchIDs[touch.identifier] = this._id++;
@@ -22434,7 +15944,6 @@ window.Laya= (function (exports) {
 	                var touchends = evt.changedTouches;
 	                for (i = 0, n = touchends.length; i < n; i++) {
 	                    touch = touchends[i];
-	                    //是否禁用多点触控
 	                    if (MouseManager.multiTouchEnabled || touch.identifier == this._curTouchID) {
 	                        this._curTouchID = NaN;
 	                        this.initEvent(touch, evt);
@@ -22450,7 +15959,6 @@ window.Laya= (function (exports) {
 	                var touchemoves = evt.changedTouches;
 	                for (i = 0, n = touchemoves.length; i < n; i++) {
 	                    touch = touchemoves[i];
-	                    //是否禁用多点触控
 	                    if (MouseManager.multiTouchEnabled || touch.identifier == this._curTouchID) {
 	                        this.initEvent(touch, evt);
 	                        this._checkAllBaseUI(this.mouseX, this.mouseY, this.onMouseMove);
@@ -22463,7 +15971,6 @@ window.Laya= (function (exports) {
 	                this.checkMouseWheel(evt);
 	                break;
 	            case "mouseout":
-	                //_stage.event(Event.MOUSE_OUT, _event.setTo(Event.MOUSE_OUT, _stage, _stage));
 	                TouchManager.I.stageMouseOut();
 	                break;
 	            case "mouseover":
@@ -22471,11 +15978,6 @@ window.Laya= (function (exports) {
 	                break;
 	        }
 	    }
-	    /**
-	     *
-	     * @param	sp
-	     * @param	exlusive  是否是独占模式
-	     */
 	    setCapture(sp, exclusive = false) {
 	        this._captureSp = sp;
 	        this._captureExlusiveMode = exclusive;
@@ -22498,32 +16000,17 @@ window.Laya= (function (exports) {
 	        this._captureSp = null;
 	    }
 	}
-	/**
-	 * MouseManager 单例引用。
-	 */
 	MouseManager.instance = new MouseManager();
-	/**是否开启鼠标检测，默认为true*/
 	MouseManager.enabled = true;
-	/**是否开启多点触控*/
 	MouseManager.multiTouchEnabled = true;
 	MouseManager._isFirstTouch = true;
 
-	/**
-	     * @private
-	     */
 	class CallLater {
 	    constructor() {
-	        /**@private */
 	        this._pool = [];
-	        /**@private */
 	        this._map = [];
-	        /**@private */
 	        this._laters = [];
 	    }
-	    /**
-	     * @internal
-	     * 帧循环处理函数。
-	     */
 	    _update() {
 	        var laters = this._laters;
 	        var len = laters.length;
@@ -22541,42 +16028,27 @@ window.Laya= (function (exports) {
 	            laters.length = 0;
 	        }
 	    }
-	    /** @private */
 	    _getHandler(caller, method) {
 	        var cid = caller ? caller.$_GID || (caller.$_GID = ILaya.Utils.getGID()) : 0;
 	        var mid = method.$_TID || (method.$_TID = (ILaya.Timer._mid++) * 100000);
 	        return this._map[cid + mid];
 	    }
-	    /**
-	     * 延迟执行。
-	     * @param	caller 执行域(this)。
-	     * @param	method 定时器回调函数。
-	     * @param	args 回调参数。
-	     */
 	    callLater(caller, method, args = null) {
 	        if (this._getHandler(caller, method) == null) {
 	            if (this._pool.length)
 	                var handler = this._pool.pop();
 	            else
 	                handler = new LaterHandler();
-	            //设置属性
 	            handler.caller = caller;
 	            handler.method = method;
 	            handler.args = args;
-	            //索引handler
 	            var cid = caller ? caller.$_GID : 0;
 	            var mid = method["$_TID"];
 	            handler.key = cid + mid;
 	            this._map[handler.key] = handler;
-	            //插入队列
 	            this._laters.push(handler);
 	        }
 	    }
-	    /**
-	     * 立即执行 callLater 。
-	     * @param	caller 执行域(this)。
-	     * @param	method 定时器回调函数。
-	     */
 	    runCallLater(caller, method) {
 	        var handler = this._getHandler(caller, method);
 	        if (handler && handler.method != null) {
@@ -22587,7 +16059,6 @@ window.Laya= (function (exports) {
 	    }
 	}
 	CallLater.I = new CallLater();
-	/** @private */
 	class LaterHandler {
 	    clear() {
 	        this.caller = null;
@@ -22606,118 +16077,46 @@ window.Laya= (function (exports) {
 	    }
 	}
 
-	/**
-	 * @private
-	 */
 	class RunDriver {
 	}
-	//TODO:coverage
 	RunDriver.createShaderCondition = function (conditionScript) {
 	    var fn = "(function() {return " + conditionScript + ";})";
-	    return window.Laya._runScript(fn); //生成条件判断函数
+	    return window.Laya._runScript(fn);
 	};
-	/**
-	 * 用于改变 WebGL宽高信息。
-	 */
 	RunDriver.changeWebGLSize = function (w, h) {
 	    WebGL.onStageResize(w, h);
 	};
 
-	/**
-	 * stage大小经过重新调整时进行调度。
-	 * @eventType Event.RESIZE
-	 */
-	/*[Event(name = "resize", type = "laya.events.Event")]*/
-	/**
-	 * 舞台获得焦点时调度。比如浏览器或者当前标签处于后台，重新切换回来时进行调度。
-	 * @eventType Event.FOCUS
-	 */
-	/*[Event(name = "focus", type = "laya.events.Event")]*/
-	/**
-	 * 舞台失去焦点时调度。比如浏览器或者当前标签被切换到后台后调度。
-	 * @eventType Event.BLUR
-	 */
-	/*[Event(name = "blur", type = "laya.events.Event")]*/
-	/**
-	 * 舞台焦点变化时调度，使用Laya.stage.isFocused可以获取当前舞台是否获得焦点。
-	 * @eventType Event.FOCUS_CHANGE
-	 */
-	/*[Event(name = "focuschange", type = "laya.events.Event")]*/
-	/**
-	 * 舞台可见性发生变化时调度（比如浏览器或者当前标签被切换到后台后调度），使用Laya.stage.isVisibility可以获取当前是否处于显示状态。
-	 * @eventType Event.VISIBILITY_CHANGE
-	 */
-	/*[Event(name = "visibilitychange", type = "laya.events.Event")]*/
-	/**
-	 * 浏览器全屏更改时调度，比如进入全屏或者退出全屏。
-	 * @eventType Event.FULL_SCREEN_CHANGE
-	 */
-	/*[Event(name = "fullscreenchange", type = "laya.events.Event")]*/
-	/**
-	 * <p> <code>Stage</code> 是舞台类，显示列表的根节点，所有显示对象都在舞台上显示。通过 Laya.stage 单例访问。</p>
-	 * <p>Stage提供几种适配模式，不同的适配模式会产生不同的画布大小，画布越大，渲染压力越大，所以要选择合适的适配方案。</p>
-	 * <p>Stage提供不同的帧率模式，帧率越高，渲染压力越大，越费电，合理使用帧率甚至动态更改帧率有利于改进手机耗电。</p>
-	 */
 	class Stage extends Sprite {
-	    /**场景类，引擎中只有一个stage实例，此实例可以通过Laya.stage访问。*/
 	    constructor() {
 	        super();
-	        /**@private 相对浏览器左上角的偏移，弃用，请使用_canvasTransform。*/
 	        this.offset = new Point();
-	        /**帧率类型，支持三种模式：fast-60帧(默认)，slow-30帧，mouse-30帧（鼠标活动后会自动加速到60，鼠标不动2秒后降低为30帧，以节省消耗），sleep-1帧。*/
 	        this._frameRate = "fast";
-	        /**设计宽度（初始化时设置的宽度Laya.init(width,height)）*/
 	        this.designWidth = 0;
-	        /**设计高度（初始化时设置的高度Laya.init(width,height)）*/
 	        this.designHeight = 0;
-	        /**画布是否发生翻转。*/
 	        this.canvasRotation = false;
-	        /**画布的旋转角度。*/
 	        this.canvasDegree = 0;
-	        /**
-	         * <p>设置是否渲染，设置为false，可以停止渲染，画面会停留到最后一次渲染上，减少cpu消耗，此设置不影响时钟。</p>
-	         * <p>比如非激活状态，可以设置renderingEnabled=false以节省消耗。</p>
-	         * */
 	        this.renderingEnabled = true;
-	        /**是否启用屏幕适配，可以适配后，在某个时候关闭屏幕适配，防止某些操作导致的屏幕意外改变*/
 	        this.screenAdaptationEnabled = true;
 	        this._canvasTransform = new Matrix();
-	        /**@private */
 	        this._screenMode = "none";
-	        /**@private */
 	        this._scaleMode = "noscale";
-	        /**@private */
 	        this._alignV = "top";
-	        /**@private */
 	        this._alignH = "left";
-	        /**@private */
 	        this._bgColor = "black";
-	        /**@private */
 	        this._mouseMoveTime = 0;
-	        /**@private */
 	        this._renderCount = 0;
-	        /**@private */
 	        this._safariOffsetY = 0;
-	        /**@private */
 	        this._frameStartTime = 0;
-	        /**@private */
 	        this._previousOrientation = Browser.window.orientation;
-	        /**@internal webgl Color*/
 	        this._wgColor = [0, 0, 0, 1];
-	        /**@internal */
 	        this._scene3Ds = [];
-	        /**@private */
-	        this._globalRepaintSet = false; // 设置全局重画标志。这个是给IDE用的。IDE的Image无法在onload的时候通知对应的sprite重画。
-	        /**@private */
-	        this._globalRepaintGet = false; // 一个get一个set是为了把标志延迟到下一帧的开始，防止部分对象接收不到。
-	        /**@internal */
+	        this._globalRepaintSet = false;
+	        this._globalRepaintGet = false;
 	        this._3dUI = [];
-	        /**@internal */
-	        this._curUIBase = null; // 给鼠标事件capture用的。用来找到自己的根。因为3d界面的根不是stage（界面链会被3d对象打断）
-	        /**使用物理分辨率作为canvas大小，会改进渲染效果，但是会降低性能*/
+	        this._curUIBase = null;
 	        this.useRetinalCanvas = false;
 	        super.set_transform(this._createTransform());
-	        //重置默认值，请不要修改
 	        this.mouseEnabled = true;
 	        this.hitTestPrior = true;
 	        this.autoSize = false;
@@ -22725,10 +16124,9 @@ window.Laya= (function (exports) {
 	        this._setBit(Const.ACTIVE_INHIERARCHY, true);
 	        this._isFocused = true;
 	        this._isVisibility = true;
-	        //this.drawCallOptimize=true;
 	        this.useRetinalCanvas = Config.useRetinalCanvas;
 	        var window = Browser.window;
-	        var _me = this; //for TS 。 TS的_this是有特殊用途的
+	        var _me = this;
 	        window.addEventListener("focus", function () {
 	            this._isFocused = true;
 	            _me.event(Event.FOCUS);
@@ -22741,7 +16139,6 @@ window.Laya= (function (exports) {
 	            if (_me._isInputting())
 	                Input["inputElement"].target.focus = false;
 	        });
-	        // 各种浏览器兼容
 	        var state = "visibilityState", visibilityChange = "visibilitychange";
 	        var document = window.document;
 	        if (typeof document.hidden !== "undefined") {
@@ -22774,21 +16171,17 @@ window.Laya= (function (exports) {
 	            _me.event(Event.VISIBILITY_CHANGE);
 	        }
 	        window.addEventListener("resize", function () {
-	            // 处理屏幕旋转。旋转后收起输入法。
 	            var orientation = Browser.window.orientation;
 	            if (orientation != null && orientation != this._previousOrientation && _me._isInputting()) {
 	                Input["inputElement"].target.focus = false;
 	            }
 	            this._previousOrientation = orientation;
-	            // 弹出输入法不应对画布进行resize。
 	            if (_me._isInputting())
 	                return;
-	            // Safari横屏工具栏偏移
 	            if (Browser.onSafari)
 	                _me._safariOffsetY = (Browser.window.__innerHeight || Browser.document.body.clientHeight || Browser.document.documentElement.clientHeight) - Browser.window.innerHeight;
 	            _me._resetCanvas();
 	        });
-	        // 微信的iframe不触发orientationchange。
 	        window.addEventListener("orientationchange", function (e) {
 	            _me._resetCanvas();
 	        });
@@ -22796,14 +16189,9 @@ window.Laya= (function (exports) {
 	        if (Browser.onMobile)
 	            this.on(Event.MOUSE_DOWN, this, this._onmouseMove);
 	    }
-	    /**
-	     * @private
-	     * 在移动端输入时，输入法弹出期间不进行画布尺寸重置。
-	     */
 	    _isInputting() {
 	        return (Browser.onMobile && Input.isInputting);
 	    }
-	    /**@inheritDoc @override*/
 	    set width(value) {
 	        this.designWidth = value;
 	        super.set_width(value);
@@ -22812,64 +16200,42 @@ window.Laya= (function (exports) {
 	    get width() {
 	        return super.get_width();
 	    }
-	    /**@inheritDoc @override */
 	    set height(value) {
 	        this.designHeight = value;
 	        super.set_height(value);
 	        ILaya.systemTimer.callLater(this, this._changeCanvasSize);
 	    }
-	    /** @override*/ get height() {
+	    get height() {
 	        return super.get_height();
 	    }
-	    /**@override*/ set transform(value) {
+	    set transform(value) {
 	        super.set_transform(value);
 	    }
-	    /**@inheritDoc @override*/ get transform() {
+	    get transform() {
 	        if (this._tfChanged)
 	            this._adjustTransform();
 	        return (this._transform = this._transform || this._createTransform());
 	    }
-	    /**
-	     * 舞台是否获得焦点。
-	     */
 	    get isFocused() {
 	        return this._isFocused;
 	    }
-	    /**
-	     * 舞台是否处于可见状态(是否进入后台)。
-	     */
 	    get isVisibility() {
 	        return this._isVisibility;
 	    }
-	    /**@private */
 	    _changeCanvasSize() {
 	        this.setScreenSize(Browser.clientWidth * Browser.pixelRatio, Browser.clientHeight * Browser.pixelRatio);
 	    }
-	    /**@private */
 	    _resetCanvas() {
 	        if (!this.screenAdaptationEnabled)
 	            return;
-	        //var canvas:HTMLCanvas = Render._mainCanvas;
-	        //var canvasStyle:* = canvas.source.style;
-	        //canvas.size(1, 1);
-	        //canvasStyle.transform = canvasStyle.webkitTransform = canvasStyle.msTransform = canvasStyle.mozTransform = canvasStyle.oTransform = "";
-	        //visible = false;
-	        //Laya.timer.once(100, this, this._changeCanvasSize);
 	        this._changeCanvasSize();
 	    }
-	    /**
-	     * 设置屏幕大小，场景会根据屏幕大小进行适配。可以动态调用此方法，来更改游戏显示的大小。
-	     * @param	screenWidth		屏幕宽度。
-	     * @param	screenHeight	屏幕高度。
-	     */
 	    setScreenSize(screenWidth, screenHeight) {
-	        //计算是否旋转
 	        var rotation = false;
 	        if (this._screenMode !== Stage.SCREEN_NONE) {
 	            var screenType = screenWidth / screenHeight < 1 ? Stage.SCREEN_VERTICAL : Stage.SCREEN_HORIZONTAL;
 	            rotation = screenType !== this._screenMode;
 	            if (rotation) {
-	                //宽高互换
 	                var temp = screenHeight;
 	                screenHeight = screenWidth;
 	                screenWidth = temp;
@@ -22889,7 +16255,6 @@ window.Laya= (function (exports) {
 	        var pixelRatio = Browser.pixelRatio;
 	        this._width = this.designWidth;
 	        this._height = this.designHeight;
-	        //处理缩放模式
 	        switch (scaleMode) {
 	            case Stage.SCALE_NOSCALE:
 	                scaleX = scaleY = 1;
@@ -22934,7 +16299,6 @@ window.Laya= (function (exports) {
 	            canvasWidth = screenWidth;
 	            canvasHeight = screenHeight;
 	        }
-	        //根据不同尺寸缩放stage画面
 	        scaleX *= this.scaleX;
 	        scaleY *= this.scaleY;
 	        if (scaleX === 1 && scaleY === 1) {
@@ -22944,31 +16308,26 @@ window.Laya= (function (exports) {
 	            this.transform.a = this._formatData(scaleX / (realWidth / canvasWidth));
 	            this.transform.d = this._formatData(scaleY / (realHeight / canvasHeight));
 	        }
-	        //处理canvas大小			
 	        canvas.size(canvasWidth, canvasHeight);
 	        RunDriver.changeWebGLSize(canvasWidth, canvasHeight);
 	        mat.scale(realWidth / canvasWidth / pixelRatio, realHeight / canvasHeight / pixelRatio);
-	        //处理水平对齐
 	        if (this._alignH === Stage.ALIGN_LEFT)
 	            this.offset.x = 0;
 	        else if (this._alignH === Stage.ALIGN_RIGHT)
 	            this.offset.x = screenWidth - realWidth;
 	        else
 	            this.offset.x = (screenWidth - realWidth) * 0.5 / pixelRatio;
-	        //处理垂直对齐
 	        if (this._alignV === Stage.ALIGN_TOP)
 	            this.offset.y = 0;
 	        else if (this._alignV === Stage.ALIGN_BOTTOM)
 	            this.offset.y = screenHeight - realHeight;
 	        else
 	            this.offset.y = (screenHeight - realHeight) * 0.5 / pixelRatio;
-	        //处理用户自行设置的画布偏移
 	        this.offset.x = Math.round(this.offset.x);
 	        this.offset.y = Math.round(this.offset.y);
 	        mat.translate(this.offset.x, this.offset.y);
 	        if (this._safariOffsetY)
 	            mat.translate(0, this._safariOffsetY);
-	        //处理横竖屏
 	        this.canvasDegree = 0;
 	        if (rotation) {
 	            if (this._screenMode === Stage.SCREEN_HORIZONTAL) {
@@ -22989,7 +16348,6 @@ window.Laya= (function (exports) {
 	        super.set_transform(this.transform);
 	        canvasStyle.transformOrigin = canvasStyle.webkitTransformOrigin = canvasStyle.msTransformOrigin = canvasStyle.mozTransformOrigin = canvasStyle.oTransformOrigin = "0px 0px 0px";
 	        canvasStyle.transform = canvasStyle.webkitTransform = canvasStyle.msTransform = canvasStyle.mozTransform = canvasStyle.oTransform = "matrix(" + mat.toString() + ")";
-	        //修正用户自行设置的偏移
 	        if (this._safariOffsetY)
 	            mat.translate(0, -this._safariOffsetY);
 	        mat.translate(parseInt(canvasStyle.left) || 0, parseInt(canvasStyle.top) || 0);
@@ -22997,7 +16355,6 @@ window.Laya= (function (exports) {
 	        this._repaint |= SpriteConst.REPAINT_CACHE;
 	        this.event(Event.RESIZE);
 	    }
-	    /**@private */
 	    _formatData(value) {
 	        if (Math.abs(value) < 0.000001)
 	            return 0;
@@ -23005,19 +16362,6 @@ window.Laya= (function (exports) {
 	            return value > 0 ? 1 : -1;
 	        return value;
 	    }
-	    /**
-	     * <p>缩放模式。默认值为 "noscale"。</p>
-	     * <p><ul>取值范围：
-	     * <li>"noscale" ：不缩放；</li>
-	     * <li>"exactfit" ：全屏不等比缩放；</li>
-	     * <li>"showall" ：最小比例缩放；</li>
-	     * <li>"noborder" ：最大比例缩放；</li>
-	     * <li>"full" ：不缩放，stage的宽高等于屏幕宽高；</li>
-	     * <li>"fixedwidth" ：宽度不变，高度根据屏幕比缩放；</li>
-	     * <li>"fixedheight" ：高度不变，宽度根据屏幕比缩放；</li>
-	     * <li>"fixedauto" ：根据宽高比，自动选择使用fixedwidth或fixedheight；</li>
-	     * </ul></p>
-	     */
 	    get scaleMode() {
 	        return this._scaleMode;
 	    }
@@ -23025,14 +16369,6 @@ window.Laya= (function (exports) {
 	        this._scaleMode = value;
 	        ILaya.systemTimer.callLater(this, this._changeCanvasSize);
 	    }
-	    /**
-	     * <p>水平对齐方式。默认值为"left"。</p>
-	     * <p><ul>取值范围：
-	     * <li>"left" ：居左对齐；</li>
-	     * <li>"center" ：居中对齐；</li>
-	     * <li>"right" ：居右对齐；</li>
-	     * </ul></p>
-	     */
 	    get alignH() {
 	        return this._alignH;
 	    }
@@ -23040,14 +16376,6 @@ window.Laya= (function (exports) {
 	        this._alignH = value;
 	        ILaya.systemTimer.callLater(this, this._changeCanvasSize);
 	    }
-	    /**
-	     * <p>垂直对齐方式。默认值为"top"。</p>
-	     * <p><ul>取值范围：
-	     * <li>"top" ：居顶部对齐；</li>
-	     * <li>"middle" ：居中对齐；</li>
-	     * <li>"bottom" ：居底部对齐；</li>
-	     * </ul></p>
-	     */
 	    get alignV() {
 	        return this._alignV;
 	    }
@@ -23055,7 +16383,6 @@ window.Laya= (function (exports) {
 	        this._alignV = value;
 	        ILaya.systemTimer.callLater(this, this._changeCanvasSize);
 	    }
-	    /**舞台的背景颜色，默认为黑色，null为透明。*/
 	    get bgColor() {
 	        return this._bgColor;
 	    }
@@ -23072,70 +16399,47 @@ window.Laya= (function (exports) {
 	            Render.canvas.style.background = "none";
 	        }
 	    }
-	    /**鼠标在 Stage 上的 X 轴坐标。@override*/
 	    get mouseX() {
 	        return Math.round(MouseManager.instance.mouseX / this.clientScaleX);
 	    }
-	    /**鼠标在 Stage 上的 Y 轴坐标。@override*/
 	    get mouseY() {
 	        return Math.round(MouseManager.instance.mouseY / this.clientScaleY);
 	    }
-	    /**@inheritDoc @override*/
 	    getMousePoint() {
 	        return Point.TEMP.setTo(this.mouseX, this.mouseY);
 	    }
-	    /**当前视窗由缩放模式导致的 X 轴缩放系数。*/
 	    get clientScaleX() {
 	        return this._transform ? this._transform.getScaleX() : 1;
 	    }
-	    /**当前视窗由缩放模式导致的 Y 轴缩放系数。*/
 	    get clientScaleY() {
 	        return this._transform ? this._transform.getScaleY() : 1;
 	    }
-	    /**
-	     * <p>场景布局类型。</p>
-	     * <p><ul>取值范围：
-	     * <li>"none" ：不更改屏幕</li>
-	     * <li>"horizontal" ：自动横屏</li>
-	     * <li>"vertical" ：自动竖屏</li>
-	     * </ul></p>
-	     */
 	    get screenMode() {
 	        return this._screenMode;
 	    }
 	    set screenMode(value) {
 	        this._screenMode = value;
 	    }
-	    /**@inheritDoc @override*/
 	    repaint(type = SpriteConst.REPAINT_CACHE) {
 	        this._repaint |= type;
 	    }
-	    /**@inheritDoc @override*/
 	    parentRepaint(type = SpriteConst.REPAINT_CACHE) {
 	    }
-	    /**@internal */
 	    _loop() {
 	        this._globalRepaintGet = this._globalRepaintSet;
 	        this._globalRepaintSet = false;
 	        this.render(Render._context, 0, 0);
 	        return true;
 	    }
-	    /**@private */
 	    getFrameTm() {
 	        return this._frameStartTime;
 	    }
-	    /**@private */
 	    _onmouseMove(e) {
 	        this._mouseMoveTime = Browser.now();
 	    }
-	    /**
-	     * <p>获得距当前帧开始后，过了多少时间，单位为毫秒。</p>
-	     * <p>可以用来判断函数内时间消耗，通过合理控制每帧函数处理消耗时长，避免一帧做事情太多，对复杂计算分帧处理，能有效降低帧率波动。</p>
-	     */
 	    getTimeFromFrameStart() {
 	        return Browser.now() - this._frameStartTime;
 	    }
-	    /**@inheritDoc @override*/
 	    set visible(value) {
 	        if (this.visible !== value) {
 	            super.set_visible(value);
@@ -23146,13 +16450,11 @@ window.Laya= (function (exports) {
 	    get visible() {
 	        return super.visible;
 	    }
-	    /**@inheritDoc @override*/
 	    render(context, x, y) {
 	        if (window.conch) {
 	            this.renderToNative(context, x, y);
 	            return;
 	        }
-	        //临时
 	        Stage._dbgSprite.graphics.clear();
 	        if (this._frameRate === Stage.FRAME_SLEEP) {
 	            var now = Browser.now();
@@ -23185,7 +16487,7 @@ window.Laya= (function (exports) {
 	            Stat.loopCount++;
 	            RenderInfo.loopCount = Stat.loopCount;
 	            if (this.renderingEnabled) {
-	                for (var i = 0, n = this._scene3Ds.length; i < n; i++) //更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
+	                for (var i = 0, n = this._scene3Ds.length; i < n; i++)
 	                    this._scene3Ds[i]._update();
 	                context.clear();
 	                super.render(context, x, y);
@@ -23213,19 +16515,16 @@ window.Laya= (function (exports) {
 	            }
 	            return;
 	        }
-	        //update
 	        CallLater.I._update();
 	        Stat.loopCount++;
 	        RenderInfo.loopCount = Stat.loopCount;
-	        //render
 	        if (this.renderingEnabled) {
-	            for (var i = 0, n = this._scene3Ds.length; i < n; i++) //更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
+	            for (var i = 0, n = this._scene3Ds.length; i < n; i++)
 	                this._scene3Ds[i]._update();
 	            context.clear();
 	            super.render(context, x, y);
 	            Stat._StatRender.renderNotCanvas(context, x, y);
 	        }
-	        //commit submit
 	        if (this.renderingEnabled) {
 	            Stage.clear(this._bgColor);
 	            context.flush();
@@ -23241,10 +16540,6 @@ window.Laya= (function (exports) {
 	        ILaya.lateTimer._update();
 	        ILaya.timer._update();
 	    }
-	    /**
-	     * <p>是否开启全屏，用户点击后进入全屏。</p>
-	     * <p>兼容性提示：部分浏览器不允许点击进入全屏，比如Iphone等。</p>
-	     */
 	    set fullScreenEnabled(value) {
 	        var document = Browser.document;
 	        var canvas = Render.canvas;
@@ -23296,7 +16591,6 @@ window.Laya= (function (exports) {
 	            this._frameRateNative = value;
 	        }
 	    }
-	    /**@private */
 	    _requestFullscreen() {
 	        var element = Browser.document.documentElement;
 	        if (element.requestFullscreen) {
@@ -23312,11 +16606,9 @@ window.Laya= (function (exports) {
 	            element.msRequestFullscreen();
 	        }
 	    }
-	    /**@private */
 	    _fullScreenChanged() {
 	        ILaya.stage.event(Event.FULL_SCREEN_CHANGE);
 	    }
-	    /**退出全屏模式*/
 	    exitFullscreen() {
 	        var document = Browser.document;
 	        if (document.exitFullscreen) {
@@ -23329,22 +16621,18 @@ window.Laya= (function (exports) {
 	            document.webkitExitFullscreen();
 	        }
 	    }
-	    /**@private */
 	    isGlobalRepaint() {
 	        return this._globalRepaintGet;
 	    }
-	    /**@private */
 	    setGlobalRepaint() {
 	        this._globalRepaintSet = true;
 	    }
-	    /**@private */
 	    add3DUI(uibase) {
 	        var uiroot = uibase.rootView;
 	        if (this._3dUI.indexOf(uiroot) >= 0)
 	            return;
 	        this._3dUI.push(uiroot);
 	    }
-	    /**@private */
 	    remove3DUI(uibase) {
 	        var uiroot = uibase.rootView;
 	        var p = this._3dUI.indexOf(uiroot);
@@ -23355,58 +16643,33 @@ window.Laya= (function (exports) {
 	        return false;
 	    }
 	}
-	/**应用保持设计宽高不变，不缩放不变形，stage的宽高等于设计宽高。*/
 	Stage.SCALE_NOSCALE = "noscale";
-	/**应用根据屏幕大小铺满全屏，非等比缩放会变形，stage的宽高等于设计宽高。*/
 	Stage.SCALE_EXACTFIT = "exactfit";
-	/**应用显示全部内容，按照最小比率缩放，等比缩放不变形，一边可能会留空白，stage的宽高等于设计宽高。*/
 	Stage.SCALE_SHOWALL = "showall";
-	/**应用按照最大比率缩放显示，宽或高方向会显示一部分，等比缩放不变形，stage的宽高等于设计宽高。*/
 	Stage.SCALE_NOBORDER = "noborder";
-	/**应用保持设计宽高不变，不缩放不变形，stage的宽高等于屏幕宽高。*/
 	Stage.SCALE_FULL = "full";
-	/**应用保持设计宽度不变，高度根据屏幕比缩放，stage的宽度等于设计高度，高度根据屏幕比率大小而变化*/
 	Stage.SCALE_FIXED_WIDTH = "fixedwidth";
-	/**应用保持设计高度不变，宽度根据屏幕比缩放，stage的高度等于设计宽度，宽度根据屏幕比率大小而变化*/
 	Stage.SCALE_FIXED_HEIGHT = "fixedheight";
-	/**应用保持设计比例不变，全屏显示全部内容(类似showall，但showall非全屏，会有黑边)，根据屏幕长宽比，自动选择使用SCALE_FIXED_WIDTH或SCALE_FIXED_HEIGHT*/
 	Stage.SCALE_FIXED_AUTO = "fixedauto";
-	/**画布水平居左对齐。*/
 	Stage.ALIGN_LEFT = "left";
-	/**画布水平居右对齐。*/
 	Stage.ALIGN_RIGHT = "right";
-	/**画布水平居中对齐。*/
 	Stage.ALIGN_CENTER = "center";
-	/**画布垂直居上对齐。*/
 	Stage.ALIGN_TOP = "top";
-	/**画布垂直居中对齐。*/
 	Stage.ALIGN_MIDDLE = "middle";
-	/**画布垂直居下对齐。*/
 	Stage.ALIGN_BOTTOM = "bottom";
-	/**不更改屏幕。*/
 	Stage.SCREEN_NONE = "none";
-	/**自动横屏。*/
 	Stage.SCREEN_HORIZONTAL = "horizontal";
-	/**自动竖屏。*/
 	Stage.SCREEN_VERTICAL = "vertical";
-	/**全速模式，以60的帧率运行。*/
 	Stage.FRAME_FAST = "fast";
-	/**慢速模式，以30的帧率运行。*/
 	Stage.FRAME_SLOW = "slow";
-	/**自动模式，以30的帧率运行，但鼠标活动后会自动加速到60，鼠标不动2秒后降低为30帧，以节省消耗。*/
 	Stage.FRAME_MOUSE = "mouse";
-	/**休眠模式，以1的帧率运行*/
 	Stage.FRAME_SLEEP = "sleep";
-	/**@private */
 	Stage._dbgSprite = new Sprite();
-	/** @private */
 	Stage.clear = function (value) {
-	    //修改需要同步到上面的native实现中
-	    Context.set2DRenderConfig(); //渲染2D前要还原2D状态,否则可能受3D影响
+	    Context.set2DRenderConfig();
 	    var gl = LayaGL.instance;
 	    RenderState2D.worldScissorTest && gl.disable(gl.SCISSOR_TEST);
 	    var ctx = Render.context;
-	    //兼容浏览器
 	    var c = (ctx._submits._length == 0 || Config.preserveDrawingBuffer) ? ColorUtils.create(value).arrColor : window.Laya.stage._wgColor;
 	    if (c)
 	        ctx.clearBG(c[0], c[1], c[2], c[3]);
@@ -23417,14 +16680,7 @@ window.Laya= (function (exports) {
 	ClassUtils.regClass("laya.display.Stage", Stage);
 	ClassUtils.regClass("Laya.Stage", Stage);
 
-	/**
-	 * <p><code>KeyBoardManager</code> 是键盘事件管理类。该类从浏览器中接收键盘事件，并派发该事件。</p>
-	 * <p>派发事件时若 Stage.focus 为空则只从 Stage 上派发该事件，否则将从 Stage.focus 对象开始一直冒泡派发该事件。所以在 Laya.stage 上监听键盘事件一定能够收到，如果在其他地方监听，则必须处在Stage.focus的冒泡链上才能收到该事件。</p>
-	 * <p>用户可以通过代码 Laya.stage.focus=someNode 的方式来设置focus对象。</p>
-	 * <p>用户可统一的根据事件对象中 e.keyCode 来判断按键类型，该属性兼容了不同浏览器的实现。</p>
-	 */
 	class KeyBoardManager {
-	    /**@private */
 	    static __init__() {
 	        KeyBoardManager._addEvent("keydown");
 	        KeyBoardManager._addEvent("keypress");
@@ -23441,7 +16697,6 @@ window.Laya= (function (exports) {
 	        KeyBoardManager._event._stoped = false;
 	        KeyBoardManager._event.nativeEvent = e;
 	        KeyBoardManager._event.keyCode = e.keyCode || e.which || e.charCode;
-	        //判断同时按下的键
 	        if (type === "keydown")
 	            KeyBoardManager._pressKeys[KeyBoardManager._event.keyCode] = true;
 	        else if (type === "keyup")
@@ -23453,37 +16708,22 @@ window.Laya= (function (exports) {
 	            ct = ct.parent;
 	        }
 	    }
-	    /**
-	     * 返回指定键是否被按下。
-	     * @param	key 键值。
-	     * @return 是否被按下。
-	     */
 	    static hasKeyDown(key) {
 	        return KeyBoardManager._pressKeys[key];
 	    }
 	}
 	KeyBoardManager._pressKeys = {};
-	/**是否开启键盘事件，默认为true*/
 	KeyBoardManager.enabled = true;
-	/**@private */
 	KeyBoardManager._event = new Event();
 
-	/**
-	 * @private
-	 * 普通命令执行器
-	 */
 	class LayaGLRunner {
-	    /**
-	     * @private
-	     * 批量上传ShaderUniforms。
-	     */
 	    static uploadShaderUniforms(layaGL, commandEncoder, shaderData, uploadUnTexture) {
 	        var data = shaderData._data;
 	        var shaderUniform = commandEncoder.getArrayData();
 	        var shaderCall = 0;
 	        for (var i = 0, n = shaderUniform.length; i < n; i++) {
 	            var one = shaderUniform[i];
-	            if (uploadUnTexture || one.textureID !== -1) { //如uniform为纹理切换Shader时需要重新上传
+	            if (uploadUnTexture || one.textureID !== -1) {
 	                var value = data[one.dataOffset];
 	                if (value != null)
 	                    shaderCall += one.fun.call(one.caller, one, value);
@@ -23491,10 +16731,6 @@ window.Laya= (function (exports) {
 	        }
 	        return shaderCall;
 	    }
-	    /**
-	     * @private
-	     * 上传ShaderUniform。
-	     */
 	    static uploadCustomUniform(layaGL, custom, index, data) {
 	        var shaderCall = 0;
 	        var one = custom[index];
@@ -23502,10 +16738,6 @@ window.Laya= (function (exports) {
 	            shaderCall += one.fun.call(one.caller, one, data);
 	        return shaderCall;
 	    }
-	    /**
-	     * @private
-	     * 批量上传ShaderUniforms。
-	     */
 	    static uploadShaderUniformsForNative(layaGL, commandEncoder, shaderData) {
 	        var nType = LayaGL.UPLOAD_SHADER_UNIFORM_TYPE_ID;
 	        if (shaderData._runtimeCopyValues.length > 0) {
@@ -23516,63 +16748,32 @@ window.Laya= (function (exports) {
 	    }
 	}
 
-	/**
-	 * <p> <code>SoundChannel</code> 用来控制程序中的声音。每个声音均分配给一个声道，而且应用程序可以具有混合在一起的多个声道。</p>
-	 * <p> <code>SoundChannel</code> 类包含控制声音的播放、暂停、停止、音量的方法，以及获取声音的播放状态、总时间、当前播放时间、总循环次数、播放地址等信息的方法。</p>
-	 */
 	class SoundChannel extends EventDispatcher {
 	    constructor() {
 	        super(...arguments);
-	        /**
-	         * 表示声音是否已暂停。
-	         */
 	        this.isStopped = false;
 	    }
-	    /**
-	     * 音量范围从 0（静音）至 1（最大音量）。
-	     */
 	    set volume(v) {
 	    }
 	    get volume() {
 	        return 1;
 	    }
-	    /**
-	     * 获取当前播放时间，单位是秒。
-	     */
 	    get position() {
 	        return 0;
 	    }
-	    /**
-	     * 获取总时间，单位是秒。
-	     */
 	    get duration() {
 	        return 0;
 	    }
-	    /**
-	     * 播放声音。
-	     */
 	    play() {
 	    }
-	    /**
-	     * 停止播放。
-	     */
 	    stop() {
 	        if (this.completeHandler)
 	            this.completeHandler.run();
 	    }
-	    /**
-	     * 暂停播放。
-	     */
 	    pause() {
 	    }
-	    /**
-	     * 继续播放。
-	     */
 	    resume() {
 	    }
-	    /**
-	     * private
-	     */
 	    __runComplete(handler) {
 	        if (handler) {
 	            handler.run();
@@ -23580,16 +16781,9 @@ window.Laya= (function (exports) {
 	    }
 	}
 
-	/**
-	 * @private
-	 * audio标签播放声音的音轨控制
-	 */
 	class AudioSoundChannel extends SoundChannel {
 	    constructor(audio) {
 	        super();
-	        /**
-	         * 播放用的audio标签
-	         */
 	        this._audio = null;
 	        this._onEnd = this.__onEnd.bind(this);
 	        this._resumePlay = this.__resumePlay.bind(this);
@@ -23623,14 +16817,9 @@ window.Laya= (function (exports) {
 	            this._audio.play();
 	        }
 	        catch (e) {
-	            //this.audio.play();
 	            this.event(Event.ERROR);
 	        }
 	    }
-	    /**
-	     * 播放
-	     * @override
-	     */
 	    play() {
 	        this.isStopped = false;
 	        try {
@@ -23646,32 +16835,17 @@ window.Laya= (function (exports) {
 	        if ("play" in this._audio)
 	            this._audio.play();
 	    }
-	    /**
-	     * 当前播放到的位置
-	     * @return
-	     * @override
-	     *
-	     */
 	    get position() {
 	        if (!this._audio)
 	            return 0;
 	        return this._audio.currentTime;
 	    }
-	    /**
-	     * 获取总时间。
-	     * @override
-	     */
 	    get duration() {
 	        if (!this._audio)
 	            return 0;
 	        return this._audio.duration;
 	    }
-	    /**
-	     * 停止播放
-	     * @override
-	     */
 	    stop() {
-	        //trace("stop and remove event");
 	        super.stop();
 	        this.isStopped = true;
 	        ILaya.SoundManager.removeChannel(this);
@@ -23679,14 +16853,12 @@ window.Laya= (function (exports) {
 	        if (!this._audio)
 	            return;
 	        if ("pause" in this._audio)
-	            //理论上应该全部使用stop，但是不知为什么，使用pause，为了安全我只修改在加速器模式下再调用一次stop
 	            if (ILaya.Render.isConchApp) {
 	                this._audio.stop();
 	            }
 	        this._audio.pause();
 	        this._audio.removeEventListener("ended", this._onEnd);
 	        this._audio.removeEventListener("canplay", this._resumePlay);
-	        //ie下使用对象池可能会导致后面的声音播放不出来
 	        if (!ILaya.Browser.onIE) {
 	            if (this._audio != ILaya.AudioSound._musicAudio) {
 	                ILaya.Pool.recover("audio:" + this.url, this._audio);
@@ -23697,9 +16869,6 @@ window.Laya= (function (exports) {
 	        if (ILaya.SoundManager.autoReleaseSound)
 	            ILaya.SoundManager.disposeSoundLater(this.url);
 	    }
-	    /**
-	     * @override
-	     */
 	    pause() {
 	        this.isStopped = true;
 	        ILaya.SoundManager.removeChannel(this);
@@ -23708,9 +16877,6 @@ window.Laya= (function (exports) {
 	        if (ILaya.SoundManager.autoReleaseSound)
 	            ILaya.SoundManager.disposeSoundLater(this.url);
 	    }
-	    /**
-	     * @override
-	     */
 	    resume() {
 	        if (!this._audio)
 	            return;
@@ -23719,23 +16885,11 @@ window.Laya= (function (exports) {
 	        if ("play" in this._audio)
 	            this._audio.play();
 	    }
-	    /**
-	     * 设置音量
-	     * @param v
-	     * @override
-	     *
-	     */
 	    set volume(v) {
 	        if (!this._audio)
 	            return;
 	        this._audio.volume = v;
 	    }
-	    /**
-	     * 获取音量
-	     * @return
-	     * @override
-	     *
-	     */
 	    get volume() {
 	        if (!this._audio)
 	            return 1;
@@ -23743,22 +16897,11 @@ window.Laya= (function (exports) {
 	    }
 	}
 
-	/**
-	 * @private
-	 * 使用Audio标签播放声音
-	 */
 	class AudioSound extends EventDispatcher {
 	    constructor() {
 	        super(...arguments);
-	        /**
-	         * 是否已加载完成
-	         */
 	        this.loaded = false;
 	    }
-	    /**
-	     * 释放声音
-	     *
-	     */
 	    dispose() {
 	        var ad = AudioSound._audioCache[this.url];
 	        Pool.clearBySign("audio:" + this.url);
@@ -23769,7 +16912,6 @@ window.Laya= (function (exports) {
 	            delete AudioSound._audioCache[this.url];
 	        }
 	    }
-	    /**@internal */
 	    static _initMusicAudio() {
 	        if (AudioSound._musicAudio)
 	            return;
@@ -23779,7 +16921,6 @@ window.Laya= (function (exports) {
 	            Browser.document.addEventListener("mousedown", AudioSound._makeMusicOK);
 	        }
 	    }
-	    /**@private */
 	    static _makeMusicOK() {
 	        Browser.document.removeEventListener("mousedown", AudioSound._makeMusicOK);
 	        if (!AudioSound._musicAudio.src) {
@@ -23790,11 +16931,6 @@ window.Laya= (function (exports) {
 	            AudioSound._musicAudio.play();
 	        }
 	    }
-	    /**
-	     * 加载声音
-	     * @param url
-	     *
-	     */
 	    load(url) {
 	        url = URL.formatURL(url);
 	        this.url = url;
@@ -23850,15 +16986,7 @@ window.Laya= (function (exports) {
 	            onErr();
 	        }
 	    }
-	    /**
-	     * 播放声音
-	     * @param startTime 起始时间
-	     * @param loops 循环次数
-	     * @return
-	     *
-	     */
 	    play(startTime = 0, loops = 0) {
-	        //trace("playAudioSound");
 	        if (!this.url)
 	            return null;
 	        var ad;
@@ -23896,9 +17024,6 @@ window.Laya= (function (exports) {
 	        ILaya.SoundManager.addChannel(channel);
 	        return channel;
 	    }
-	    /**
-	     * 获取总时间。
-	     */
 	    get duration() {
 	        var ad;
 	        ad = AudioSound._audioCache[this.url];
@@ -23907,37 +17032,16 @@ window.Laya= (function (exports) {
 	        return ad.duration;
 	    }
 	}
-	/**@private */
 	AudioSound._audioCache = {};
 
-	//import { WebAudioSound } from "./WebAudioSound";
-	/**
-	 * @private
-	 * web audio api方式播放声音的音轨控制
-	 */
 	class WebAudioSoundChannel extends SoundChannel {
 	    constructor() {
 	        super();
-	        /**
-	         * 播放用的数据
-	         */
 	        this.bufferSource = null;
-	        /**
-	         * 当前时间
-	         */
 	        this._currentTime = 0;
-	        /**
-	         * 当前音量
-	         */
 	        this._volume = 1;
-	        /**
-	         * 播放开始时的时间戳
-	         */
 	        this._startTime = 0;
 	        this._pauseTime = 0;
-	        /**
-	         * 播放设备
-	         */
 	        this.context = ILaya.WebAudioSound.ctx;
 	        this._onPlayEnd = Utils.bind(this.__onPlayEnd, this);
 	        if (this.context["createGain"]) {
@@ -23947,10 +17051,6 @@ window.Laya= (function (exports) {
 	            this.gain = this.context["createGainNode"]();
 	        }
 	    }
-	    /**
-	     * 播放声音
-	     * @override
-	     */
 	    play() {
 	        ILaya.SoundManager.addChannel(this);
 	        this.isStopped = false;
@@ -23969,7 +17069,6 @@ window.Laya= (function (exports) {
 	            gain.disconnect();
 	        gain.connect(context.destination);
 	        bufferSource.onended = this._onPlayEnd;
-	        // if (this.startTime >= this.duration) this.startTime = 0;
 	        this._startTime = Browser.now();
 	        if (this.gain.gain.setTargetAtTime) {
 	            this.gain.gain.setTargetAtTime(this._volume, this.context.currentTime, WebAudioSoundChannel.SetTargetDelay);
@@ -24003,19 +17102,12 @@ window.Laya= (function (exports) {
 	        this.startTime = 0;
 	        this.play();
 	    }
-	    /**
-	     * 获取当前播放位置
-	     * @override
-	     */
 	    get position() {
 	        if (this.bufferSource) {
 	            return (Browser.now() - this._startTime) / 1000 + this.startTime;
 	        }
 	        return 0;
 	    }
-	    /**
-	     * @override
-	     */
 	    get duration() {
 	        if (this.audioBuffer) {
 	            return this.audioBuffer.duration;
@@ -24055,10 +17147,6 @@ window.Laya= (function (exports) {
 	            WebAudioSoundChannel._tryCleanFailed = true;
 	        }
 	    }
-	    /**
-	     * 停止播放
-	     * @override
-	     */
 	    stop() {
 	        super.stop();
 	        this._clearBufferSource();
@@ -24071,9 +17159,6 @@ window.Laya= (function (exports) {
 	        if (ILaya.SoundManager.autoReleaseSound)
 	            ILaya.SoundManager.disposeSoundLater(this.url);
 	    }
-	    /**
-	     * @override
-	     */
 	    pause() {
 	        if (!this.isStopped) {
 	            this._pauseTime = this.position;
@@ -24086,17 +17171,10 @@ window.Laya= (function (exports) {
 	        if (ILaya.SoundManager.autoReleaseSound)
 	            ILaya.SoundManager.disposeSoundLater(this.url);
 	    }
-	    /**
-	     * @override
-	     */
 	    resume() {
 	        this.startTime = this._pauseTime;
 	        this.play();
 	    }
-	    /**
-	     * 设置音量
-	     * @override
-	     */
 	    set volume(v) {
 	        this._volume = v;
 	        if (this.isStopped) {
@@ -24108,10 +17186,6 @@ window.Laya= (function (exports) {
 	        else
 	            this.gain.gain.value = v;
 	    }
-	    /**
-	     * 获取音量
-	     * @override
-	     */
 	    get volume() {
 	        return this._volume;
 	    }
@@ -24119,26 +17193,12 @@ window.Laya= (function (exports) {
 	WebAudioSoundChannel._tryCleanFailed = false;
 	WebAudioSoundChannel.SetTargetDelay = 0.001;
 
-	/**
-	 * @private
-	 * web audio api方式播放声音
-	 */
 	class WebAudioSound extends EventDispatcher {
 	    constructor() {
 	        super(...arguments);
-	        /**
-	         * 是否已加载完成
-	         */
 	        this.loaded = false;
-	        /**
-	         * @private
-	         */
 	        this._disposed = false;
 	    }
-	    /**
-	     * 解码声音文件
-	     *
-	     */
 	    static decode() {
 	        if (WebAudioSound.buffs.length <= 0 || WebAudioSound.isDecoding) {
 	            return;
@@ -24147,30 +17207,16 @@ window.Laya= (function (exports) {
 	        WebAudioSound.tInfo = WebAudioSound.buffs.shift();
 	        WebAudioSound.ctx.decodeAudioData(WebAudioSound.tInfo["buffer"], WebAudioSound._done, WebAudioSound._fail);
 	    }
-	    /**
-	     * 解码成功回调
-	     * @param audioBuffer
-	     *
-	     */
 	    static _done(audioBuffer) {
 	        WebAudioSound.e.event("loaded:" + WebAudioSound.tInfo.url, audioBuffer);
 	        WebAudioSound.isDecoding = false;
 	        WebAudioSound.decode();
 	    }
-	    /**
-	     * 解码失败回调
-	     * @return
-	     *
-	     */
 	    static _fail() {
 	        WebAudioSound.e.event("err:" + WebAudioSound.tInfo.url, null);
 	        WebAudioSound.isDecoding = false;
 	        WebAudioSound.decode();
 	    }
-	    /**
-	     * 播放声音以解锁IOS的声音
-	     *
-	     */
 	    static _playEmptySound() {
 	        if (WebAudioSound.ctx == null) {
 	            return;
@@ -24180,10 +17226,6 @@ window.Laya= (function (exports) {
 	        source.connect(WebAudioSound.ctx.destination);
 	        source.start(0, 0, 0);
 	    }
-	    /**
-	     * 尝试解锁声音
-	     *
-	     */
 	    static _unlock() {
 	        if (WebAudioSound._unlocked) {
 	            return;
@@ -24196,20 +17238,14 @@ window.Laya= (function (exports) {
 	            WebAudioSound._unlocked = true;
 	        }
 	    }
-	    /*;*/
 	    static initWebAudio() {
 	        if (WebAudioSound.ctx.state != "running") {
-	            WebAudioSound._unlock(); // When played inside of a touch event, this will enable audio on iOS immediately.
+	            WebAudioSound._unlock();
 	            window.document.addEventListener("mousedown", WebAudioSound._unlock, true);
 	            window.document.addEventListener("touchend", WebAudioSound._unlock, true);
 	            window.document.addEventListener("touchstart", WebAudioSound._unlock, true);
 	        }
 	    }
-	    /**
-	     * 加载声音
-	     * @param url
-	     *
-	     */
 	    load(url) {
 	        var me = this;
 	        url = URL.formatURL(url);
@@ -24277,13 +17313,6 @@ window.Laya= (function (exports) {
 	        }
 	        this.__toPlays.length = 0;
 	    }
-	    /**
-	     * 播放声音
-	     * @param startTime 起始时间
-	     * @param loops 循环次数
-	     * @return
-	     *
-	     */
 	    play(startTime = 0, loops = 0, channel = null) {
 	        channel = channel ? channel : new WebAudioSoundChannel();
 	        if (!this.audioBuffer) {
@@ -24319,46 +17348,16 @@ window.Laya= (function (exports) {
 	    }
 	}
 	WebAudioSound._dataCache = {};
-	/**
-	 * 是否支持web audio api
-	 */
 	WebAudioSound.webAudioEnabled = window["AudioContext"] || window["webkitAudioContext"] || window["mozAudioContext"];
-	/**
-	 * 播放设备
-	 */
 	WebAudioSound.ctx = WebAudioSound.webAudioEnabled ? new (window["AudioContext"] || window["webkitAudioContext"] || window["mozAudioContext"])() : undefined;
-	/**
-	 * 当前要解码的声音文件列表
-	 */
 	WebAudioSound.buffs = [];
-	/**
-	 * 是否在解码中
-	 */
 	WebAudioSound.isDecoding = false;
-	/**
-	 * 用于播放解锁声音以及解决Ios9版本的内存释放
-	 */
 	WebAudioSound._miniBuffer = WebAudioSound.ctx ? WebAudioSound.ctx.createBuffer(1, 1, 22050) : undefined;
-	/**
-	 * 事件派发器，用于处理加载解码完成事件的广播
-	 */
 	WebAudioSound.e = new EventDispatcher();
-	/**
-	 * 是否已解锁声音播放
-	 */
 	WebAudioSound._unlocked = false;
 	WebAudioSound.__loadingSound = {};
 
-	/**
-	 * <code>SoundManager</code> 是一个声音管理类。提供了对背景音乐、音效的播放控制方法。
-	 * 引擎默认有两套声音方案：WebAudio和H5Audio
-	 * 播放音效，优先使用WebAudio播放声音，如果WebAudio不可用，则用H5Audio播放，H5Audio在部分机器上有兼容问题（比如不能混音，播放有延迟等）。
-	 * 播放背景音乐，则使用H5Audio播放（使用WebAudio会增加特别大的内存，并且要等加载完毕后才能播放，有延迟）
-	 * 建议背景音乐用mp3类型，音效用wav或者mp3类型（如果打包为app，音效只能用wav格式）。
-	 * 详细教程及声音格式请参考：http://ldc2.layabox.com/doc/?nav=ch-as-1-7-0
-	 */
 	class SoundManager {
-	    /**@private */
 	    static __init__() {
 	        var win = ILaya.Browser.window;
 	        var supportWebAudio = win["AudioContext"] || win["webkitAudioContext"] || win["mozAudioContext"] ? true : false;
@@ -24369,19 +17368,11 @@ window.Laya= (function (exports) {
 	        SoundManager._musicClass = AudioSound;
 	        return supportWebAudio;
 	    }
-	    /**
-	     * 添加播放的声音实例。
-	     * @param channel <code>SoundChannel</code> 对象。
-	     */
 	    static addChannel(channel) {
 	        if (SoundManager._channels.indexOf(channel) >= 0)
 	            return;
 	        SoundManager._channels.push(channel);
 	    }
-	    /**
-	     * 移除播放的声音实例。
-	     * @param channel <code>SoundChannel</code> 对象。
-	     */
 	    static removeChannel(channel) {
 	        var i;
 	        for (i = SoundManager._channels.length - 1; i >= 0; i--) {
@@ -24390,7 +17381,6 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**@private */
 	    static disposeSoundLater(url) {
 	        SoundManager._lastSoundUsedTimeDic[url] = ILaya.Browser.now();
 	        if (!SoundManager._isCheckingDispose) {
@@ -24398,7 +17388,6 @@ window.Laya= (function (exports) {
 	            ILaya.timer.loop(5000, null, SoundManager._checkDisposeSound);
 	        }
 	    }
-	    /**@private */
 	    static _checkDisposeSound() {
 	        var key;
 	        var tTime = ILaya.Browser.now();
@@ -24417,7 +17406,6 @@ window.Laya= (function (exports) {
 	            ILaya.timer.clear(null, SoundManager._checkDisposeSound);
 	        }
 	    }
-	    /**@private */
 	    static disposeSoundIfNotUsed(url) {
 	        var i;
 	        for (i = SoundManager._channels.length - 1; i >= 0; i--) {
@@ -24427,11 +17415,6 @@ window.Laya= (function (exports) {
 	        }
 	        SoundManager.destroySound(url);
 	    }
-	    /**
-	     * 失去焦点后是否自动停止背景音乐。
-	     * @param v Boolean 失去焦点后是否自动停止背景音乐。
-	     *
-	     */
 	    static set autoStopMusic(v) {
 	        ILaya.stage.off(Event.BLUR, null, SoundManager._stageOnBlur);
 	        ILaya.stage.off(Event.FOCUS, null, SoundManager._stageOnFocus);
@@ -24443,9 +17426,6 @@ window.Laya= (function (exports) {
 	            ILaya.stage.on(Event.VISIBILITY_CHANGE, null, SoundManager._visibilityChange);
 	        }
 	    }
-	    /**
-	     * 失去焦点后是否自动停止背景音乐。
-	     */
 	    static get autoStopMusic() {
 	        return SoundManager._autoStopMusic;
 	    }
@@ -24483,9 +17463,6 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**
-	     * 背景音乐和所有音效是否静音。
-	     */
 	    static set muted(value) {
 	        if (value == SoundManager._muted)
 	            return;
@@ -24498,18 +17475,12 @@ window.Laya= (function (exports) {
 	    static get muted() {
 	        return SoundManager._muted;
 	    }
-	    /**
-	     * 所有音效（不包括背景音乐）是否静音。
-	     */
 	    static set soundMuted(value) {
 	        SoundManager._soundMuted = value;
 	    }
 	    static get soundMuted() {
 	        return SoundManager._soundMuted;
 	    }
-	    /**
-	     * 背景音乐（不包括音效）是否静音。
-	     */
 	    static set musicMuted(value) {
 	        if (value == SoundManager._musicMuted)
 	            return;
@@ -24563,15 +17534,6 @@ window.Laya= (function (exports) {
 	            SoundManager._musicClass = null;
 	        }
 	    }
-	    /**
-	     * 播放音效。音效可以同时播放多个。
-	     * @param url			声音文件地址。
-	     * @param loops			循环次数,0表示无限循环。
-	     * @param complete		声音播放完成回调  Handler对象。
-	     * @param soundClass	使用哪个声音类进行播放，null表示自动选择。
-	     * @param startTime		声音播放起始时间。
-	     * @return SoundChannel对象，通过此对象可以对声音进行控制，以及获取声音信息。
-	     */
 	    static playSound(url, loops = 1, complete = null, soundClass = null, startTime = 0) {
 	        if (!SoundManager._isActive || !url)
 	            return null;
@@ -24616,10 +17578,6 @@ window.Laya= (function (exports) {
 	        channel.completeHandler = complete;
 	        return channel;
 	    }
-	    /**
-	     * 释放声音资源。
-	     * @param url	声音播放地址。
-	     */
 	    static destroySound(url) {
 	        var tSound = ILaya.loader.getRes(url);
 	        if (tSound) {
@@ -24627,14 +17585,6 @@ window.Laya= (function (exports) {
 	            tSound.dispose();
 	        }
 	    }
-	    /**
-	     * 播放背景音乐。背景音乐同时只能播放一个，如果在播放背景音乐时再次调用本方法，会先停止之前的背景音乐，再播发当前的背景音乐。
-	     * @param url		声音文件地址。
-	     * @param loops		循环次数,0表示无限循环。
-	     * @param complete	声音播放完成回调。
-	     * @param startTime	声音播放起始时间。
-	     * @return SoundChannel对象，通过此对象可以对声音进行控制，以及获取声音信息。
-	     */
 	    static playMusic(url, loops = 0, complete = null, startTime = 0) {
 	        url = URL.formatURL(url);
 	        SoundManager._bgMusic = url;
@@ -24642,10 +17592,6 @@ window.Laya= (function (exports) {
 	            SoundManager._musicChannel.stop();
 	        return SoundManager._musicChannel = SoundManager.playSound(url, loops, complete, SoundManager._musicClass, startTime);
 	    }
-	    /**
-	     * 停止声音播放。此方法能够停止任意声音的播放（包括背景音乐和音效），只需传入对应的声音播放地址。
-	     * @param url  声音文件地址。
-	     */
 	    static stopSound(url) {
 	        url = URL.formatURL(url);
 	        var i;
@@ -24657,9 +17603,6 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**
-	     * 停止播放所有声音（包括背景音乐和音效）。
-	     */
 	    static stopAll() {
 	        SoundManager._bgMusic = null;
 	        var i;
@@ -24669,9 +17612,6 @@ window.Laya= (function (exports) {
 	            channel.stop();
 	        }
 	    }
-	    /**
-	     * 停止播放所有音效（不包括背景音乐）。
-	     */
 	    static stopAllSound() {
 	        var i;
 	        var channel;
@@ -24682,20 +17622,11 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**
-	     * 停止播放背景音乐（不包括音效）。
-	     * @param url  声音文件地址。
-	     */
 	    static stopMusic() {
 	        if (SoundManager._musicChannel)
 	            SoundManager._musicChannel.stop();
 	        SoundManager._bgMusic = null;
 	    }
-	    /**
-	     * 设置声音音量。根据参数不同，可以分别设置指定声音（背景音乐或音效）音量或者所有音效（不包括背景音乐）音量。
-	     * @param volume	音量。初始值为1。音量范围从 0（静音）至 1（最大音量）。
-	     * @param url		(default = null)声音播放地址。默认为null。为空表示设置所有音效（不包括背景音乐）的音量，不为空表示设置指定声音（背景音乐或音效）的音量。
-	     */
 	    static setSoundVolume(volume, url = null) {
 	        if (url) {
 	            url = URL.formatURL(url);
@@ -24713,19 +17644,10 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**
-	     * 设置背景音乐音量。音量范围从 0（静音）至 1（最大音量）。
-	     * @param volume	音量。初始值为1。音量范围从 0（静音）至 1（最大音量）。
-	     */
 	    static setMusicVolume(volume) {
 	        SoundManager.musicVolume = volume;
 	        SoundManager._setVolume(SoundManager._bgMusic, volume);
 	    }
-	    /**
-	     * 设置指定声音的音量。
-	     * @param url		声音文件url
-	     * @param volume	音量。初始值为1。
-	     */
 	    static _setVolume(url, volume) {
 	        url = URL.formatURL(url);
 	        var i;
@@ -24738,92 +17660,33 @@ window.Laya= (function (exports) {
 	        }
 	    }
 	}
-	/**
-	 * 背景音乐音量。
-	 * @default 1
-	 */
 	SoundManager.musicVolume = 1;
-	/**
-	 * 音效音量。
-	 * @default 1
-	 */
 	SoundManager.soundVolume = 1;
-	/**
-	 * 声音播放速率。
-	 * @default 1
-	 */
 	SoundManager.playbackRate = 1;
-	/**
-	 * 背景音乐使用Audio标签播放。
-	 * @default true
-	 */
 	SoundManager._useAudioMusic = true;
-	/**@private 是否静音，默认为false。*/
 	SoundManager._muted = false;
-	/**@private 是否音效静音，默认为false。*/
 	SoundManager._soundMuted = false;
-	/**@private 是否背景音乐静音，默认为false。*/
 	SoundManager._musicMuted = false;
-	/**@private 当前背景音乐url。*/
 	SoundManager._bgMusic = null;
-	/**@private 当前背景音乐声道。*/
 	SoundManager._musicChannel = null;
-	/**@private 当前播放的Channel列表。*/
 	SoundManager._channels = [];
-	/**@private */
 	SoundManager._blurPaused = false;
-	/**@private */
 	SoundManager._isActive = true;
-	/**@private */
 	SoundManager._lastSoundUsedTimeDic = {};
-	/**@private */
 	SoundManager._isCheckingDispose = false;
-	/**
-	 * 音效播放后自动删除。
-	 * @default true
-	 */
 	SoundManager.autoReleaseSound = true;
 
-	/**
-	 * 请求进度改变时调度。
-	 * @eventType Event.PROGRESS
-	 * */
-	/*[Event(name = "progress", type = "laya.events.Event")]*/
-	/**
-	 * 请求结束后调度。
-	 * @eventType Event.COMPLETE
-	 * */
-	/*[Event(name = "complete", type = "laya.events.Event")]*/
-	/**
-	 * 请求出错时调度。
-	 * @eventType Event.ERROR
-	 * */
-	/*[Event(name = "error", type = "laya.events.Event")]*/
-	/**
-	 * <p> <code>HttpRequest</code> 通过封装 HTML <code>XMLHttpRequest</code> 对象提供了对 HTTP 协议的完全的访问，包括做出 POST 和 HEAD 请求以及普通的 GET 请求的能力。 <code>HttpRequest</code> 只提供以异步的形式返回 Web 服务器的响应，并且能够以文本或者二进制的形式返回内容。</p>
-	 * <p><b>注意：</b>建议每次请求都使用新的 <code>HttpRequest</code> 对象，因为每次调用该对象的send方法时，都会清空之前设置的数据，并重置 HTTP 请求的状态，这会导致之前还未返回响应的请求被重置，从而得不到之前请求的响应结果。</p>
-	 */
 	class HttpRequest extends EventDispatcher {
 	    constructor() {
 	        super(...arguments);
-	        /**@private */
 	        this._http = new XMLHttpRequest();
 	    }
-	    /**
-	     * 发送 HTTP 请求。
-	     * @param	url				请求的地址。大多数浏览器实施了一个同源安全策略，并且要求这个 URL 与包含脚本的文本具有相同的主机名和端口。
-	     * @param	data			(default = null)发送的数据。
-	     * @param	method			(default = "get")用于请求的 HTTP 方法。值包括 "get"、"post"、"head"。
-	     * @param	responseType	(default = "text")Web 服务器的响应类型，可设置为 "text"、"json"、"xml"、"arraybuffer"。
-	     * @param	headers			(default = null) HTTP 请求的头部信息。参数形如key-value数组：key是头部的名称，不应该包括空白、冒号或换行；value是头部的值，不应该包括换行。比如["Content-Type", "application/json"]。
-	     */
 	    send(url, data = null, method = "get", responseType = "text", headers = null) {
 	        this._responseType = responseType;
 	        this._data = null;
 	        this._url = url;
 	        var _this = this;
 	        var http = this._http;
-	        //临时，因为微信不支持以下文件格式
 	        url = URL.getAdptedFilePath(url);
 	        http.open(method, url, true);
 	        if (headers) {
@@ -24837,7 +17700,11 @@ window.Laya= (function (exports) {
 	            else
 	                http.setRequestHeader("Content-Type", "application/json");
 	        }
-	        http.responseType = responseType !== "arraybuffer" ? "text" : "arraybuffer";
+	        let restype = responseType !== "arraybuffer" ? "text" : "arraybuffer";
+	        http.responseType = restype;
+	        if (http.dataType) {
+	            http.dataType = restype;
+	        }
 	        http.onerror = function (e) {
 	            _this._onError(e);
 	        };
@@ -24852,36 +17719,16 @@ window.Laya= (function (exports) {
 	        };
 	        http.send(data);
 	    }
-	    /**
-	     * @private
-	     * 请求进度的侦听处理函数。
-	     * @param	e 事件对象。
-	     */
 	    _onProgress(e) {
 	        if (e && e.lengthComputable)
 	            this.event(Event.PROGRESS, e.loaded / e.total);
 	    }
-	    /**
-	     * @private
-	     * 请求中断的侦听处理函数。
-	     * @param	e 事件对象。
-	     */
 	    _onAbort(e) {
 	        this.error("Request was aborted by user");
 	    }
-	    /**
-	     * @private
-	     * 请求出错侦的听处理函数。
-	     * @param	e 事件对象。
-	     */
 	    _onError(e) {
 	        this.error("Request failed Status:" + this._http.status + " text:" + this._http.statusText);
 	    }
-	    /**
-	     * @private
-	     * 请求消息返回的侦听处理函数。
-	     * @param	e 事件对象。
-	     */
 	    _onLoad(e) {
 	        var http = this._http;
 	        var status = http.status !== undefined ? http.status : 200;
@@ -24892,20 +17739,11 @@ window.Laya= (function (exports) {
 	            this.error("[" + http.status + "]" + http.statusText + ":" + http.responseURL);
 	        }
 	    }
-	    /**
-	     * @private
-	     * 请求错误的处理函数。
-	     * @param	message 错误信息。
-	     */
 	    error(message) {
 	        this.clear();
 	        console.warn(this.url, message);
 	        this.event(Event.ERROR, message);
 	    }
-	    /**
-	     * @private
-	     * 请求成功完成的处理函数。
-	     */
 	    complete() {
 	        this.clear();
 	        var flag = true;
@@ -24926,53 +17764,31 @@ window.Laya= (function (exports) {
 	        }
 	        flag && this.event(Event.COMPLETE, this._data instanceof Array ? [this._data] : this._data);
 	    }
-	    /**
-	     * @private
-	     * 清除当前请求。
-	     */
 	    clear() {
 	        var http = this._http;
 	        http.onerror = http.onabort = http.onprogress = http.onload = null;
 	    }
-	    /** 请求的地址。*/
 	    get url() {
 	        return this._url;
 	    }
-	    /** 返回的数据。*/
 	    get data() {
 	        return this._data;
 	    }
-	    /**
-	     * 本对象所封装的原生 XMLHttpRequest 引用。
-	     */
 	    get http() {
 	        return this._http;
 	    }
 	}
 
-	/**
-	 * <code>BitmapFont</code> 是位图字体类，用于定义位图字体信息。
-	 * 字体制作及使用方法，请参考文章
-	 * @see http://ldc2.layabox.com/doc/?nav=ch-js-1-2-5
-	 */
 	class BitmapFont {
 	    constructor() {
 	        this._fontCharDic = {};
 	        this._fontWidthMap = {};
 	        this._maxWidth = 0;
 	        this._spaceWidth = 10;
-	        /**当前位图字体字号，使用时，如果字号和设置不同，并且autoScaleSize=true，则按照设置字号比率进行缩放显示。*/
 	        this.fontSize = 12;
-	        /**表示是否根据实际使用的字体大小缩放位图字体大小。*/
 	        this.autoScaleSize = false;
-	        /**字符间距（以像素为单位）。*/
 	        this.letterSpacing = 0;
 	    }
-	    /**
-	     * 通过指定位图字体文件路径，加载位图字体文件，加载完成后会自动解析。
-	     * @param	path		位图字体文件的路径。
-	     * @param	complete	加载并解析完成的回调。
-	     */
 	    loadFont(path, complete) {
 	        this._path = path;
 	        this._complete = complete;
@@ -24982,18 +17798,10 @@ window.Laya= (function (exports) {
 	        }
 	        ILaya.loader.load([{ url: path, type: ILaya.Loader.XML }, { url: path.replace(".fnt", ".png"), type: ILaya.Loader.IMAGE }], Handler.create(this, this._onLoaded));
 	    }
-	    /**
-	     * @private
-	     */
 	    _onLoaded() {
 	        this.parseFont(ILaya.Loader.getRes(this._path), ILaya.Loader.getRes(this._path.replace(".fnt", ".png")));
 	        this._complete && this._complete.run();
 	    }
-	    /**
-	     * 解析字体文件。
-	     * @param	xml			字体文件XML。
-	     * @param	texture		字体的纹理。
-	     */
 	    parseFont(xml, texture) {
 	        if (xml == null || texture == null)
 	            return;
@@ -25026,11 +17834,6 @@ window.Laya= (function (exports) {
 	            this._fontWidthMap[tId] = xAdvance;
 	        }
 	    }
-	    /**
-	     * 解析字体文件。
-	     * @param	xml			字体文件XML。
-	     * @param	texture		字体的纹理。
-	     */
 	    parseFont2(xml, texture) {
 	        if (xml == null || texture == null)
 	            return;
@@ -25060,17 +17863,9 @@ window.Laya= (function (exports) {
 	            this._fontWidthMap[tId] = xAdvance;
 	        }
 	    }
-	    /**
-	     * 获取指定字符的字体纹理对象。
-	     * @param	char 字符。
-	     * @return 指定的字体纹理对象。
-	     */
 	    getCharTexture(char) {
 	        return this._fontCharDic[char.charCodeAt(0)];
 	    }
-	    /**
-	     * 销毁位图字体，调用Text.unregisterBitmapFont 时，默认会销毁。
-	     */
 	    destroy() {
 	        if (this._texture) {
 	            for (var p in this._fontCharDic) {
@@ -25086,18 +17881,9 @@ window.Laya= (function (exports) {
 	            this._padding = null;
 	        }
 	    }
-	    /**
-	     * 设置空格的宽（如果字体库有空格，这里就可以不用设置了）。
-	     * @param	spaceWidth 宽度，单位为像素。
-	     */
 	    setSpaceWidth(spaceWidth) {
 	        this._spaceWidth = spaceWidth;
 	    }
-	    /**
-	     * 获取指定字符的宽度。
-	     * @param	char 字符。
-	     * @return  宽度。
-	     */
 	    getCharWidth(char) {
 	        var code = char.charCodeAt(0);
 	        if (this._fontWidthMap[code])
@@ -25106,11 +17892,6 @@ window.Laya= (function (exports) {
 	            return this._spaceWidth + this.letterSpacing;
 	        return 0;
 	    }
-	    /**
-	     * 获取指定文本内容的宽度。
-	     * @param	text 文本内容。
-	     * @return  宽度。
-	     */
 	    getTextWidth(text) {
 	        var tWidth = 0;
 	        for (var i = 0, n = text.length; i < n; i++) {
@@ -25118,22 +17899,12 @@ window.Laya= (function (exports) {
 	        }
 	        return tWidth;
 	    }
-	    /**
-	     * 获取最大字符宽度。
-	     */
 	    getMaxWidth() {
 	        return this._maxWidth;
 	    }
-	    /**
-	     * 获取最大字符高度。
-	     */
 	    getMaxHeight() {
 	        return this.fontSize;
 	    }
-	    /**
-	     * @internal
-	     * 将指定的文本绘制到指定的显示对象上。
-	     */
 	    _drawText(text, sprite, drawX, drawY, align, width) {
 	        var tWidth = this.getTextWidth(text);
 	        var tTexture;
@@ -25153,13 +17924,7 @@ window.Laya= (function (exports) {
 	ClassUtils.regClass("laya.display.BitmapFont", BitmapFont);
 	ClassUtils.regClass("Laya.BitmapFont", BitmapFont);
 
-	/**
-	 * 模板，预制件
-	 */
 	class Prefab {
-	    /**
-	     * 通过预制创建实例
-	     */
 	    create() {
 	        if (this.json)
 	            return ILaya.SceneUtils.createByData(null, this.json);
@@ -25167,23 +17932,11 @@ window.Laya= (function (exports) {
 	    }
 	}
 
-	/**
-	 * <p> <code>Byte</code> 类提供用于优化读取、写入以及处理二进制数据的方法和属性。</p>
-	 * <p> <code>Byte</code> 类适用于需要在字节层访问数据的高级开发人员。</p>
-	 */
 	class Byte {
-	    /**
-	     * 创建一个 <code>Byte</code> 类的实例。
-	     * @param	data	用于指定初始化的元素数目，或者用于初始化的TypedArray对象、ArrayBuffer对象。如果为 null ，则预分配一定的内存空间，当可用空间不足时，优先使用这部分内存，如果还不够，则重新分配所需内存。
-	     */
 	    constructor(data = null) {
-	        /**@private 是否为小端数据。*/
 	        this._xd_ = true;
-	        /**@private */
 	        this._allocated_ = 8;
-	        /**@private */
 	        this._pos_ = 0;
-	        /**@private */
 	        this._length = 0;
 	        if (data) {
 	            this._u8d_ = new Uint8Array(data);
@@ -25194,13 +17947,6 @@ window.Laya= (function (exports) {
 	            this._resizeBuffer(this._allocated_);
 	        }
 	    }
-	    /**
-	     * <p>获取当前主机的字节序。</p>
-	     * <p>主机字节序，是 CPU 存放数据的两种不同顺序，包括小端字节序和大端字节序。</p>
-	     * <p> <code>BIG_ENDIAN</code> ：大端字节序，地址低位存储值的高位，地址高位存储值的低位。有时也称之为网络字节序。<br/>
-	     * <code>LITTLE_ENDIAN</code> ：小端字节序，地址低位存储值的低位，地址高位存储值的高位。</p>
-	     * @return 当前系统的字节序。
-	     */
 	    static getSystemEndian() {
 	        if (!Byte._sysEndian) {
 	            var buffer = new ArrayBuffer(2);
@@ -25209,32 +17955,18 @@ window.Laya= (function (exports) {
 	        }
 	        return Byte._sysEndian;
 	    }
-	    /**
-	     * 获取此对象的 ArrayBuffer 数据，数据只包含有效数据部分。
-	     */
 	    get buffer() {
 	        var rstBuffer = this._d_.buffer;
 	        if (rstBuffer.byteLength === this._length)
 	            return rstBuffer;
 	        return rstBuffer.slice(0, this._length);
 	    }
-	    /**
-	     * <p> <code>Byte</code> 实例的字节序。取值为：<code>BIG_ENDIAN</code> 或 <code>BIG_ENDIAN</code> 。</p>
-	     * <p>主机字节序，是 CPU 存放数据的两种不同顺序，包括小端字节序和大端字节序。通过 <code>getSystemEndian</code> 可以获取当前系统的字节序。</p>
-	     * <p> <code>BIG_ENDIAN</code> ：大端字节序，地址低位存储值的高位，地址高位存储值的低位。有时也称之为网络字节序。<br/>
-	     *  <code>LITTLE_ENDIAN</code> ：小端字节序，地址低位存储值的低位，地址高位存储值的高位。</p>
-	     */
 	    get endian() {
 	        return this._xd_ ? Byte.LITTLE_ENDIAN : Byte.BIG_ENDIAN;
 	    }
 	    set endian(value) {
 	        this._xd_ = (value === Byte.LITTLE_ENDIAN);
 	    }
-	    /**
-	     * <p> <code>Byte</code> 对象的长度（以字节为单位）。</p>
-	     * <p>如果将长度设置为大于当前长度的值，则用零填充字节数组的右侧；如果将长度设置为小于当前长度的值，将会截断该字节数组。</p>
-	     * <p>如果要设置的长度大于当前已分配的内存空间的字节长度，则重新分配内存空间，大小为以下两者较大者：要设置的长度、当前已分配的长度的2倍，并将原有数据拷贝到新的内存空间中；如果要设置的长度小于当前已分配的内存空间的字节长度，也会重新分配内存空间，大小为要设置的长度，并将原有数据从头截断为要设置的长度存入新的内存空间中。</p>
-	     */
 	    set length(value) {
 	        if (this._allocated_ < value)
 	            this._resizeBuffer(this._allocated_ = Math.floor(Math.max(value, this._allocated_ * 2)));
@@ -25245,7 +17977,6 @@ window.Laya= (function (exports) {
 	    get length() {
 	        return this._length;
 	    }
-	    /**@private */
 	    _resizeBuffer(len) {
 	        try {
 	            var newByteView = new Uint8Array(len);
@@ -25262,40 +17993,15 @@ window.Laya= (function (exports) {
 	            throw "Invalid typed array length:" + len;
 	        }
 	    }
-	    /**
-	     * @private
-	     * <p>常用于解析固定格式的字节流。</p>
-	     * <p>先从字节流的当前字节偏移位置处读取一个 <code>Uint16</code> 值，然后以此值为长度，读取此长度的字符串。</p>
-	     * @return 读取的字符串。
-	     */
 	    getString() {
 	        return this.readString();
 	    }
-	    /**
-	     * <p>常用于解析固定格式的字节流。</p>
-	     * <p>先从字节流的当前字节偏移位置处读取一个 <code>Uint16</code> 值，然后以此值为长度，读取此长度的字符串。</p>
-	     * @return 读取的字符串。
-	     */
 	    readString() {
 	        return this._rUTF(this.getUint16());
 	    }
-	    /**
-	     * @private
-	     * <p>从字节流中 <code>start</code> 参数指定的位置开始，读取 <code>len</code> 参数指定的字节数的数据，用于创建一个 <code>Float32Array</code> 对象并返回此对象。</p>
-	     * <p><b>注意：</b>返回的 Float32Array 对象，在 JavaScript 环境下，是原生的 HTML5 Float32Array 对象，对此对象的读取操作都是基于运行此程序的当前主机字节序，此顺序可能与实际数据的字节序不同，如果使用此对象进行读取，需要用户知晓实际数据的字节序和当前主机字节序，如果相同，可正常读取，否则需要用户对实际数据(Float32Array.buffer)包装一层 DataView ，使用 DataView 对象可按照指定的字节序进行读取。</p>
-	     * @param	start	开始位置。
-	     * @param	len		需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
-	     * @return  读取的 Float32Array 对象。
-	     */
 	    getFloat32Array(start, len) {
 	        return this.readFloat32Array(start, len);
 	    }
-	    /**
-	     * 从字节流中 <code>start</code> 参数指定的位置开始，读取 <code>len</code> 参数指定的字节数的数据，用于创建一个 <code>Float32Array</code> 对象并返回此对象。
-	     * @param	start	开始位置。
-	     * @param	len		需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
-	     * @return  读取的 Float32Array 对象。
-	     */
 	    readFloat32Array(start, len) {
 	        var end = start + len;
 	        end = (end > this._length) ? this._length : end;
@@ -25303,22 +18009,9 @@ window.Laya= (function (exports) {
 	        this._pos_ = end;
 	        return v;
 	    }
-	    /**
-	     * @private
-	     * 从字节流中 <code>start</code> 参数指定的位置开始，读取 <code>len</code> 参数指定的字节数的数据，用于创建一个 <code>Uint8Array</code> 对象并返回此对象。
-	     * @param	start	开始位置。
-	     * @param	len		需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
-	     * @return  读取的 Uint8Array 对象。
-	     */
 	    getUint8Array(start, len) {
 	        return this.readUint8Array(start, len);
 	    }
-	    /**
-	     * 从字节流中 <code>start</code> 参数指定的位置开始，读取 <code>len</code> 参数指定的字节数的数据，用于创建一个 <code>Uint8Array</code> 对象并返回此对象。
-	     * @param	start	开始位置。
-	     * @param	len		需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
-	     * @return  读取的 Uint8Array 对象。
-	     */
 	    readUint8Array(start, len) {
 	        var end = start + len;
 	        end = (end > this._length) ? this._length : end;
@@ -25326,23 +18019,9 @@ window.Laya= (function (exports) {
 	        this._pos_ = end;
 	        return v;
 	    }
-	    /**
-	     * @private
-	     * <p>从字节流中 <code>start</code> 参数指定的位置开始，读取 <code>len</code> 参数指定的字节数的数据，用于创建一个 <code>Int16Array</code> 对象并返回此对象。</p>
-	     * <p><b>注意：</b>返回的 Int16Array 对象，在 JavaScript 环境下，是原生的 HTML5 Int16Array 对象，对此对象的读取操作都是基于运行此程序的当前主机字节序，此顺序可能与实际数据的字节序不同，如果使用此对象进行读取，需要用户知晓实际数据的字节序和当前主机字节序，如果相同，可正常读取，否则需要用户对实际数据(Int16Array.buffer)包装一层 DataView ，使用 DataView 对象可按照指定的字节序进行读取。</p>
-	     * @param	start	开始读取的字节偏移量位置。
-	     * @param	len		需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
-	     * @return  读取的 Int16Array 对象。
-	     */
 	    getInt16Array(start, len) {
 	        return this.readInt16Array(start, len);
 	    }
-	    /**
-	     * 从字节流中 <code>start</code> 参数指定的位置开始，读取 <code>len</code> 参数指定的字节数的数据，用于创建一个 <code>Int16Array</code> 对象并返回此对象。
-	     * @param	start	开始读取的字节偏移量位置。
-	     * @param	len		需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
-	     * @return  读取的 Uint8Array 对象。
-	     */
 	    readInt16Array(start, len) {
 	        var end = start + len;
 	        end = (end > this._length) ? this._length : end;
@@ -25350,18 +18029,9 @@ window.Laya= (function (exports) {
 	        this._pos_ = end;
 	        return v;
 	    }
-	    /**
-	     * @private
-	     * 从字节流的当前字节偏移位置处读取一个 IEEE 754 单精度（32 位）浮点数。
-	     * @return 单精度（32 位）浮点数。
-	     */
 	    getFloat32() {
 	        return this.readFloat32();
 	    }
-	    /**
-	     * 从字节流的当前字节偏移位置处读取一个 IEEE 754 单精度（32 位）浮点数。
-	     * @return 单精度（32 位）浮点数。
-	     */
 	    readFloat32() {
 	        if (this._pos_ + 4 > this._length)
 	            throw "getFloat32 error - Out of bounds";
@@ -25369,18 +18039,9 @@ window.Laya= (function (exports) {
 	        this._pos_ += 4;
 	        return v;
 	    }
-	    /**
-	     * @private
-	     * 从字节流的当前字节偏移量位置处读取一个 IEEE 754 双精度（64 位）浮点数。
-	     * @return 双精度（64 位）浮点数。
-	     */
 	    getFloat64() {
 	        return this.readFloat64();
 	    }
-	    /**
-	     * 从字节流的当前字节偏移量位置处读取一个 IEEE 754 双精度（64 位）浮点数。
-	     * @return 双精度（64 位）浮点数。
-	     */
 	    readFloat64() {
 	        if (this._pos_ + 8 > this._length)
 	            throw "getFloat64 error - Out of bounds";
@@ -25388,36 +18049,19 @@ window.Laya= (function (exports) {
 	        this._pos_ += 8;
 	        return v;
 	    }
-	    /**
-	     * 在字节流的当前字节偏移量位置处写入一个 IEEE 754 单精度（32 位）浮点数。
-	     * @param	value	单精度（32 位）浮点数。
-	     */
 	    writeFloat32(value) {
 	        this._ensureWrite(this._pos_ + 4);
 	        this._d_.setFloat32(this._pos_, value, this._xd_);
 	        this._pos_ += 4;
 	    }
-	    /**
-	     * 在字节流的当前字节偏移量位置处写入一个 IEEE 754 双精度（64 位）浮点数。
-	     * @param	value	双精度（64 位）浮点数。
-	     */
 	    writeFloat64(value) {
 	        this._ensureWrite(this._pos_ + 8);
 	        this._d_.setFloat64(this._pos_, value, this._xd_);
 	        this._pos_ += 8;
 	    }
-	    /**
-	     * @private
-	     * 从字节流的当前字节偏移量位置处读取一个 Int32 值。
-	     * @return Int32 值。
-	     */
 	    getInt32() {
 	        return this.readInt32();
 	    }
-	    /**
-	     * 从字节流的当前字节偏移量位置处读取一个 Int32 值。
-	     * @return Int32 值。
-	     */
 	    readInt32() {
 	        if (this._pos_ + 4 > this._length)
 	            throw "getInt32 error - Out of bounds";
@@ -25425,18 +18069,9 @@ window.Laya= (function (exports) {
 	        this._pos_ += 4;
 	        return float;
 	    }
-	    /**
-	     * @private
-	     * 从字节流的当前字节偏移量位置处读取一个 Uint32 值。
-	     * @return Uint32 值。
-	     */
 	    getUint32() {
 	        return this.readUint32();
 	    }
-	    /**
-	     * 从字节流的当前字节偏移量位置处读取一个 Uint32 值。
-	     * @return Uint32 值。
-	     */
 	    readUint32() {
 	        if (this._pos_ + 4 > this._length)
 	            throw "getUint32 error - Out of bounds";
@@ -25444,36 +18079,19 @@ window.Laya= (function (exports) {
 	        this._pos_ += 4;
 	        return v;
 	    }
-	    /**
-	     * 在字节流的当前字节偏移量位置处写入指定的 Int32 值。
-	     * @param	value	需要写入的 Int32 值。
-	     */
 	    writeInt32(value) {
 	        this._ensureWrite(this._pos_ + 4);
 	        this._d_.setInt32(this._pos_, value, this._xd_);
 	        this._pos_ += 4;
 	    }
-	    /**
-	     * 在字节流的当前字节偏移量位置处写入 Uint32 值。
-	     * @param	value	需要写入的 Uint32 值。
-	     */
 	    writeUint32(value) {
 	        this._ensureWrite(this._pos_ + 4);
 	        this._d_.setUint32(this._pos_, value, this._xd_);
 	        this._pos_ += 4;
 	    }
-	    /**
-	     * @private
-	     * 从字节流的当前字节偏移量位置处读取一个 Int16 值。
-	     * @return Int16 值。
-	     */
 	    getInt16() {
 	        return this.readInt16();
 	    }
-	    /**
-	     * 从字节流的当前字节偏移量位置处读取一个 Int16 值。
-	     * @return Int16 值。
-	     */
 	    readInt16() {
 	        if (this._pos_ + 2 > this._length)
 	            throw "getInt16 error - Out of bounds";
@@ -25481,18 +18099,9 @@ window.Laya= (function (exports) {
 	        this._pos_ += 2;
 	        return us;
 	    }
-	    /**
-	     * @private
-	     * 从字节流的当前字节偏移量位置处读取一个 Uint16 值。
-	     * @return Uint16 值。
-	     */
 	    getUint16() {
 	        return this.readUint16();
 	    }
-	    /**
-	     * 从字节流的当前字节偏移量位置处读取一个 Uint16 值。
-	     * @return Uint16 值。
-	     */
 	    readUint16() {
 	        if (this._pos_ + 2 > this._length)
 	            throw "getUint16 error - Out of bounds";
@@ -25500,115 +18109,48 @@ window.Laya= (function (exports) {
 	        this._pos_ += 2;
 	        return us;
 	    }
-	    /**
-	     * 在字节流的当前字节偏移量位置处写入指定的 Uint16 值。
-	     * @param	value	需要写入的Uint16 值。
-	     */
 	    writeUint16(value) {
 	        this._ensureWrite(this._pos_ + 2);
 	        this._d_.setUint16(this._pos_, value, this._xd_);
 	        this._pos_ += 2;
 	    }
-	    /**
-	     * 在字节流的当前字节偏移量位置处写入指定的 Int16 值。
-	     * @param	value	需要写入的 Int16 值。
-	     */
 	    writeInt16(value) {
 	        this._ensureWrite(this._pos_ + 2);
 	        this._d_.setInt16(this._pos_, value, this._xd_);
 	        this._pos_ += 2;
 	    }
-	    /**
-	     * @private
-	     * 从字节流的当前字节偏移量位置处读取一个 Uint8 值。
-	     * @return Uint8 值。
-	     */
 	    getUint8() {
 	        return this.readUint8();
 	    }
-	    /**
-	     * 从字节流的当前字节偏移量位置处读取一个 Uint8 值。
-	     * @return Uint8 值。
-	     */
 	    readUint8() {
 	        if (this._pos_ + 1 > this._length)
 	            throw "getUint8 error - Out of bounds";
 	        return this._u8d_[this._pos_++];
 	    }
-	    /**
-	     * 在字节流的当前字节偏移量位置处写入指定的 Uint8 值。
-	     * @param	value	需要写入的 Uint8 值。
-	     */
 	    writeUint8(value) {
 	        this._ensureWrite(this._pos_ + 1);
 	        this._d_.setUint8(this._pos_, value);
 	        this._pos_++;
 	    }
-	    /**
-	     * @internal
-	     * 从字节流的指定字节偏移量位置处读取一个 Uint8 值。
-	     * @param	pos	字节读取位置。
-	     * @return Uint8 值。
-	     */
-	    //TODO:coverage
 	    _getUInt8(pos) {
 	        return this._readUInt8(pos);
 	    }
-	    /**
-	     * @internal
-	     * 从字节流的指定字节偏移量位置处读取一个 Uint8 值。
-	     * @param	pos	字节读取位置。
-	     * @return Uint8 值。
-	     */
-	    //TODO:coverage
 	    _readUInt8(pos) {
 	        return this._d_.getUint8(pos);
 	    }
-	    /**
-	     * @internal
-	     * 从字节流的指定字节偏移量位置处读取一个 Uint16 值。
-	     * @param	pos	字节读取位置。
-	     * @return Uint16 值。
-	     */
-	    //TODO:coverage
 	    _getUint16(pos) {
 	        return this._readUint16(pos);
 	    }
-	    /**
-	     * @internal
-	     * 从字节流的指定字节偏移量位置处读取一个 Uint16 值。
-	     * @param	pos	字节读取位置。
-	     * @return Uint16 值。
-	     */
-	    //TODO:coverage
 	    _readUint16(pos) {
 	        return this._d_.getUint16(pos, this._xd_);
 	    }
-	    /**
-	     * @internal
-	     * 使用 getFloat32() 读取6个值，用于创建并返回一个 Matrix 对象。
-	     * @return  Matrix 对象。
-	     */
-	    //TODO:coverage
 	    _getMatrix() {
 	        return this._readMatrix();
 	    }
-	    /**
-	     * @internal
-	     * 使用 getFloat32() 读取6个值，用于创建并返回一个 Matrix 对象。
-	     * @return  Matrix 对象。
-	     */
-	    //TODO:coverage
 	    _readMatrix() {
 	        var rst = new Matrix(this.getFloat32(), this.getFloat32(), this.getFloat32(), this.getFloat32(), this.getFloat32(), this.getFloat32());
 	        return rst;
 	    }
-	    /**
-	     * @private
-	     * 读取指定长度的 UTF 型字符串。
-	     * @param	len 需要读取的长度。
-	     * @return 读取的字符串。
-	     */
 	    _rUTF(len) {
 	        var max = this._pos_ + len, c, c2, c3, f = String.fromCharCode;
 	        var u = this._u8d_;
@@ -25619,46 +18161,27 @@ window.Laya= (function (exports) {
 	            c = u[this._pos_++];
 	            if (c < 0x80) {
 	                if (c != 0)
-	                    //v += f(c);\
 	                    strs[n++] = f(c);
 	            }
 	            else if (c < 0xE0) {
-	                //v += f(((c & 0x3F) << 6) | (u[_pos_++] & 0x7F));
 	                strs[n++] = f(((c & 0x3F) << 6) | (u[this._pos_++] & 0x7F));
 	            }
 	            else if (c < 0xF0) {
 	                c2 = u[this._pos_++];
-	                //v += f(((c & 0x1F) << 12) | ((c2 & 0x7F) << 6) | (u[_pos_++] & 0x7F));
 	                strs[n++] = f(((c & 0x1F) << 12) | ((c2 & 0x7F) << 6) | (u[this._pos_++] & 0x7F));
 	            }
 	            else {
 	                c2 = u[this._pos_++];
 	                c3 = u[this._pos_++];
-	                //v += f(((c & 0x0F) << 18) | ((c2 & 0x7F) << 12) | ((c3 << 6) & 0x7F) | (u[_pos_++] & 0x7F));
 	                strs[n++] = f(((c & 0x0F) << 18) | ((c2 & 0x7F) << 12) | ((c3 << 6) & 0x7F) | (u[this._pos_++] & 0x7F));
 	            }
 	        }
 	        strs.length = n;
 	        return strs.join('');
-	        //return v;
 	    }
-	    /**
-	     * @private
-	     * 读取 <code>len</code> 参数指定的长度的字符串。
-	     * @param	len	要读取的字符串的长度。
-	     * @return 指定长度的字符串。
-	     */
-	    //TODO:coverage
 	    getCustomString(len) {
 	        return this.readCustomString(len);
 	    }
-	    /**
-	     * @private
-	     * 读取 <code>len</code> 参数指定的长度的字符串。
-	     * @param	len	要读取的字符串的长度。
-	     * @return 指定长度的字符串。
-	     */
-	    //TODO:coverage
 	    readCustomString(len) {
 	        var v = "", ulen = 0, c, c2, f = String.fromCharCode;
 	        var u = this._u8d_;
@@ -25683,46 +18206,23 @@ window.Laya= (function (exports) {
 	        }
 	        return v;
 	    }
-	    /**
-	     * 移动或返回 Byte 对象的读写指针的当前位置（以字节为单位）。下一次调用读取方法时将在此位置开始读取，或者下一次调用写入方法时将在此位置开始写入。
-	     */
 	    get pos() {
 	        return this._pos_;
 	    }
 	    set pos(value) {
 	        this._pos_ = value;
-	        //$MOD byteOffset是只读的，这里进行赋值没有意义。
-	        //_d_.byteOffset = value;
 	    }
-	    /**
-	     * 可从字节流的当前位置到末尾读取的数据的字节数。
-	     */
 	    get bytesAvailable() {
 	        return this._length - this._pos_;
 	    }
-	    /**
-	     * 清除字节数组的内容，并将 length 和 pos 属性重置为 0。调用此方法将释放 Byte 实例占用的内存。
-	     */
 	    clear() {
 	        this._pos_ = 0;
 	        this.length = 0;
 	    }
-	    /**
-	     * @internal
-	     * 获取此对象的 ArrayBuffer 引用。
-	     * @return
-	     */
 	    __getBuffer() {
-	        //this._d_.buffer.byteLength = this.length;
 	        return this._d_.buffer;
 	    }
-	    /**
-	     * <p>将 UTF-8 字符串写入字节流。类似于 writeUTF() 方法，但 writeUTFBytes() 不使用 16 位长度的字为字符串添加前缀。</p>
-	     * <p>对应的读取方法为： getUTFBytes 。</p>
-	     * @param value 要写入的字符串。
-	     */
 	    writeUTFBytes(value) {
-	        // utf8-decode
 	        value = value + "";
 	        for (var i = 0, sz = value.length; i < sz; i++) {
 	            var c = value.charCodeAt(i);
@@ -25730,7 +18230,6 @@ window.Laya= (function (exports) {
 	                this.writeByte(c);
 	            }
 	            else if (c <= 0x7FF) {
-	                //优化为直接写入多个字节，而不必重复调用writeByte，免去额外的调用和逻辑开销。
 	                this._ensureWrite(this._pos_ + 2);
 	                this._u8d_.set([0xC0 | (c >> 6), 0x80 | (c & 0x3F)], this._pos_);
 	                this._pos_ += 2;
@@ -25747,44 +18246,19 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**
-	     * <p>将 UTF-8 字符串写入字节流。先写入以字节表示的 UTF-8 字符串长度（作为 16 位整数），然后写入表示字符串字符的字节。</p>
-	     * <p>对应的读取方法为： getUTFString 。</p>
-	     * @param	value 要写入的字符串值。
-	     */
 	    writeUTFString(value) {
 	        var tPos = this.pos;
 	        this.writeUint16(1);
 	        this.writeUTFBytes(value);
 	        var dPos = this.pos - tPos - 2;
-	        //trace("writeLen:",dPos,"pos:",tPos);
 	        this._d_.setUint16(tPos, dPos, this._xd_);
 	    }
-	    /**
-	     * @private
-	     * 读取 UTF-8 字符串。
-	     * @return 读取的字符串。
-	     */
 	    readUTFString() {
-	        //var tPos:int = pos;
-	        //var len:int = getUint16();
-	        ////trace("readLen:"+len,"pos,",tPos);
 	        return this.readUTFBytes(this.getUint16());
 	    }
-	    /**
-	     * <p>从字节流中读取一个 UTF-8 字符串。假定字符串的前缀是一个无符号的短整型（以此字节表示要读取的长度）。</p>
-	     * <p>对应的写入方法为： writeUTFString 。</p>
-	     * @return 读取的字符串。
-	     */
 	    getUTFString() {
 	        return this.readUTFString();
 	    }
-	    /**
-	     * @private
-	     * 读字符串，必须是 writeUTFBytes 方法写入的字符串。
-	     * @param len	要读的buffer长度，默认将读取缓冲区全部数据。
-	     * @return 读取的字符串。
-	     */
 	    readUTFBytes(len = -1) {
 	        if (len === 0)
 	            return "";
@@ -25794,61 +18268,28 @@ window.Laya= (function (exports) {
 	        len = len > 0 ? len : lastBytes;
 	        return this._rUTF(len);
 	    }
-	    /**
-	     * <p>从字节流中读取一个由 length 参数指定的长度的 UTF-8 字节序列，并返回一个字符串。</p>
-	     * <p>一般读取的是由 writeUTFBytes 方法写入的字符串。</p>
-	     * @param len	要读的buffer长度，默认将读取缓冲区全部数据。
-	     * @return 读取的字符串。
-	     */
 	    getUTFBytes(len = -1) {
 	        return this.readUTFBytes(len);
 	    }
-	    /**
-	     * <p>在字节流中写入一个字节。</p>
-	     * <p>使用参数的低 8 位。忽略高 24 位。</p>
-	     * @param	value
-	     */
 	    writeByte(value) {
 	        this._ensureWrite(this._pos_ + 1);
 	        this._d_.setInt8(this._pos_, value);
 	        this._pos_ += 1;
 	    }
-	    /**
-	     * <p>从字节流中读取带符号的字节。</p>
-	     * <p>返回值的范围是从 -128 到 127。</p>
-	     * @return 介于 -128 和 127 之间的整数。
-	     */
 	    readByte() {
 	        if (this._pos_ + 1 > this._length)
 	            throw "readByte error - Out of bounds";
 	        return this._d_.getInt8(this._pos_++);
 	    }
-	    /**
-	     * @private
-	     * 从字节流中读取带符号的字节。
-	     */
 	    getByte() {
 	        return this.readByte();
 	    }
-	    /**
-	     * @internal
-	     * <p>保证该字节流的可用长度不小于 <code>lengthToEnsure</code> 参数指定的值。</p>
-	     * @param	lengthToEnsure	指定的长度。
-	     */
 	    _ensureWrite(lengthToEnsure) {
 	        if (this._length < lengthToEnsure)
 	            this._length = lengthToEnsure;
 	        if (this._allocated_ < lengthToEnsure)
 	            this.length = lengthToEnsure;
 	    }
-	    /**
-	     * <p>将指定 arraybuffer 对象中的以 offset 为起始偏移量， length 为长度的字节序列写入字节流。</p>
-	     * <p>如果省略 length 参数，则使用默认长度 0，该方法将从 offset 开始写入整个缓冲区；如果还省略了 offset 参数，则写入整个缓冲区。</p>
-	     * <p>如果 offset 或 length 小于0，本函数将抛出异常。</p>
-	     * @param	arraybuffer	需要写入的 Arraybuffer 对象。
-	     * @param	offset		Arraybuffer 对象的索引的偏移量（以字节为单位）
-	     * @param	length		从 Arraybuffer 对象写入到 Byte 对象的长度（以字节为单位）
-	     */
 	    writeArrayBuffer(arraybuffer, offset = 0, length = 0) {
 	        if (offset < 0 || length < 0)
 	            throw "writeArrayBuffer error - Out of bounds";
@@ -25859,11 +18300,6 @@ window.Laya= (function (exports) {
 	        this._u8d_.set(uint8array.subarray(offset, offset + length), this._pos_);
 	        this._pos_ += length;
 	    }
-	    /**
-	     * 读取ArrayBuffer数据
-	     * @param	length
-	     * @return
-	     */
 	    readArrayBuffer(length) {
 	        var rst;
 	        rst = this._u8d_.buffer.slice(this._pos_, this._pos_ + length);
@@ -25871,50 +18307,15 @@ window.Laya= (function (exports) {
 	        return rst;
 	    }
 	}
-	/**
-	 * <p>主机字节序，是 CPU 存放数据的两种不同顺序，包括小端字节序和大端字节序。通过 <code>getSystemEndian</code> 可以获取当前系统的字节序。</p>
-	 * <p> <code>BIG_ENDIAN</code> ：大端字节序，地址低位存储值的高位，地址高位存储值的低位。有时也称之为网络字节序。<br/>
-	 * <code>LITTLE_ENDIAN</code> ：小端字节序，地址低位存储值的低位，地址高位存储值的高位。</p>
-	 */
 	Byte.BIG_ENDIAN = "bigEndian";
-	/**
-	 * <p>主机字节序，是 CPU 存放数据的两种不同顺序，包括小端字节序和大端字节序。通过 <code>getSystemEndian</code> 可以获取当前系统的字节序。</p>
-	 * <p> <code>LITTLE_ENDIAN</code> ：小端字节序，地址低位存储值的低位，地址高位存储值的高位。<br/>
-	 * <code>BIG_ENDIAN</code> ：大端字节序，地址低位存储值的高位，地址高位存储值的低位。有时也称之为网络字节序。</p>
-	 */
 	Byte.LITTLE_ENDIAN = "littleEndian";
-	/**@private */
 	Byte._sysEndian = null;
 
-	/**
-	 * 加载进度发生改变时调度。
-	 * @eventType Event.PROGRESS
-	 * */
-	/*[Event(name = "progress", type = "laya.events.Event")]*/
-	/**
-	 * 加载完成后调度。
-	 * @eventType Event.COMPLETE
-	 * */
-	/*[Event(name = "complete", type = "laya.events.Event")]*/
-	/**
-	 * 加载出错时调度。
-	 * @eventType Event.ERROR
-	 * */
-	/*[Event(name = "error", type = "laya.events.Event")]*/
-	/**
-	 * <code>Loader</code> 类可用来加载文本、JSON、XML、二进制、图像等资源。
-	 */
 	class Loader extends EventDispatcher {
 	    constructor() {
 	        super(...arguments);
-	        /**@internal 自定义解析不派发complete事件，但会派发loaded事件，手动调用endLoad方法再派发complete事件*/
 	        this._customParse = false;
 	    }
-	    /**
-	     * 获取指定资源地址的数据类型。
-	     * @param	url 资源地址。
-	     * @return 数据类型。
-	     */
 	    static getTypeFromUrl(url) {
 	        var type = Utils.getFileExtension(url);
 	        if (type)
@@ -25922,15 +18323,6 @@ window.Laya= (function (exports) {
 	        console.warn("Not recognize the resources suffix", url);
 	        return "text";
 	    }
-	    /**
-	     * 加载资源。加载错误会派发 Event.ERROR 事件，参数为错误信息。
-	     * @param	url			资源地址。
-	     * @param	type		(default = null)资源类型。可选值为：Loader.TEXT、Loader.JSON、Loader.XML、Loader.BUFFER、Loader.IMAGE、Loader.SOUND、Loader.ATLAS、Loader.FONT。如果为null，则根据文件后缀分析类型。
-	     * @param	cache		(default = true)是否缓存数据。
-	     * @param	group		(default = null)分组名称。
-	     * @param	ignoreCache (default = false)是否忽略缓存，强制重新加载。
-	     * @param	useWorkerLoader(default = false)是否使用worker加载（只针对IMAGE类型和ATLAS类型，并且浏览器支持的情况下生效）
-	     */
 	    load(url, type = null, cache = true, group = null, ignoreCache = false, useWorkerLoader = ILaya.WorkerLoader.enable) {
 	        if (!url) {
 	            this.onLoaded(null);
@@ -25956,7 +18348,6 @@ window.Laya= (function (exports) {
 	        }
 	        if (group)
 	            Loader.setGroup(url, group);
-	        //如果自定义了解析器，则自己解析，自定义解析不派发complete事件，但会派发loaded事件，手动调用endLoad方法再派发complete事件
 	        if (Loader.parserMap[type] != null) {
 	            this._customParse = true;
 	            if (Loader.parserMap[type] instanceof Handler)
@@ -25967,20 +18358,14 @@ window.Laya= (function (exports) {
 	        }
 	        this._loadResourceFilter(type, url);
 	    }
-	    /**
-	     * @private
-	     */
 	    _loadResourceFilter(type, url) {
 	        this._loadResource(type, url);
 	    }
-	    /**
-	     * @internal
-	     */
 	    _loadResource(type, url) {
 	        switch (type) {
 	            case Loader.IMAGE:
-	            case "htmlimage": //内部类型
-	            case "nativeimage": //内部类型
+	            case "htmlimage":
+	            case "nativeimage":
 	                this._loadImage(url);
 	                break;
 	            case Loader.SOUND:
@@ -26004,13 +18389,9 @@ window.Laya= (function (exports) {
 	                this._loadHttpRequestWhat(url, type);
 	        }
 	    }
-	    /**
-	     * @private
-	     * onload、onprocess、onerror必须写在本类
-	     */
 	    _loadHttpRequest(url, contentType, onLoadCaller, onLoad, onProcessCaller, onProcess, onErrorCaller, onError) {
 	        if (Browser.onVVMiniGame) {
-	            this._http = new HttpRequest(); //临时修复vivo复用xmlhttprequest的bug
+	            this._http = new HttpRequest();
 	        }
 	        else {
 	            if (!this._http)
@@ -26021,9 +18402,6 @@ window.Laya= (function (exports) {
 	        this._http.on(Event.ERROR, onErrorCaller, onError);
 	        this._http.send(url, null, "get", contentType);
 	    }
-	    /**
-	     * @private
-	     */
 	    _loadHtmlImage(url, onLoadCaller, onLoad, onErrorCaller, onError) {
 	        var image;
 	        function clear() {
@@ -26045,31 +18423,20 @@ window.Laya= (function (exports) {
 	        image.onload = onload;
 	        image.onerror = onerror;
 	        image.src = url;
-	        Loader._imgCache[url] = image; //增加引用，防止垃圾回收
+	        Loader._imgCache[url] = image;
 	    }
-	    /**
-	     * @private
-	     */
 	    _loadHttpRequestWhat(url, contentType) {
 	        if (Loader.preLoadedMap[url])
 	            this.onLoaded(Loader.preLoadedMap[url]);
 	        else
 	            this._loadHttpRequest(url, contentType, this, this.onLoaded, this, this.onProgress, this, this.onError);
 	    }
-	    /**
-	     * @private
-	     * 加载TTF资源。
-	     * @param	url 资源地址。
-	     */
 	    _loadTTF(url) {
 	        url = URL.formatURL(url);
 	        var ttfLoader = new ILaya.TTFLoader();
 	        ttfLoader.complete = Handler.create(this, this.onLoaded);
 	        ttfLoader.load(url);
 	    }
-	    /**
-	     * @private
-	     */
 	    _loadImage(url) {
 	        var _this = this;
 	        url = URL.formatURL(url);
@@ -26090,10 +18457,10 @@ window.Laya= (function (exports) {
 	                    var format;
 	                    switch (ext) {
 	                        case "ktx":
-	                            format = /*BaseTexture.FORMAT_ETC1RGB*/ 5;
+	                            format = 5;
 	                            break;
 	                        case "pvr":
-	                            format = /*BaseTexture.FORMAT_PVRTCRGBA_4BPPV*/ 12;
+	                            format = 12;
 	                            break;
 	                    }
 	                    var tex = new Texture2D(0, 0, format, false, false);
@@ -26118,11 +18485,6 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**
-	     * @private
-	     * 加载声音资源。
-	     * @param	url 资源地址。
-	     */
 	    _loadSound(url) {
 	        var sound = (new SoundManager._soundClass());
 	        var _this = this;
@@ -26142,21 +18504,15 @@ window.Laya= (function (exports) {
 	            sound.offAll();
 	        }
 	    }
-	    /**@private */
 	    onProgress(value) {
 	        if (this._type === Loader.ATLAS)
 	            this.event(Event.PROGRESS, value * 0.3);
 	        else
 	            this.event(Event.PROGRESS, value);
 	    }
-	    /**@private */
 	    onError(message) {
 	        this.event(Event.ERROR, message);
 	    }
-	    /**
-	     * 资源加载完成的处理函数。
-	     * @param	data 数据。
-	     */
 	    onLoaded(data = null) {
 	        var type = this._type;
 	        if (type == Loader.PLFB) {
@@ -26176,13 +18532,10 @@ window.Laya= (function (exports) {
 	            this.complete(data);
 	        }
 	        else if (type === Loader.ATLAS) {
-	            //处理图集
 	            if (!(data instanceof Texture2D)) {
 	                if (!this._data) {
 	                    this._data = data;
-	                    //构造加载图片信息
 	                    if (data.meta && data.meta.image) {
-	                        //带图片信息的类型
 	                        var toloadPics = data.meta.image.split(",");
 	                        var split = this._url.indexOf("/") >= 0 ? "/" : "\\";
 	                        var idx = this._url.lastIndexOf(split);
@@ -26194,9 +18547,6 @@ window.Laya= (function (exports) {
 	                        if (Browser.onIOS && data.meta.compressTextureIOS) {
 	                            changeType = ".pvr";
 	                        }
-	                        //idx = _url.indexOf("?");
-	                        //var ver:String;
-	                        //ver = idx >= 0 ? _url.substr(idx) : "";
 	                        for (var i = 0, len = toloadPics.length; i < len; i++) {
 	                            if (changeType) {
 	                                toloadPics[i] = folderPath + toloadPics[i].replace(".png", changeType);
@@ -26207,10 +18557,8 @@ window.Laya= (function (exports) {
 	                        }
 	                    }
 	                    else {
-	                        //不带图片信息
 	                        toloadPics = [this._url.replace(".json", ".png")];
 	                    }
-	                    //保证图集的正序加载
 	                    toloadPics.reverse();
 	                    data.toLoads = toloadPics;
 	                    data.pics = [];
@@ -26222,7 +18570,6 @@ window.Laya= (function (exports) {
 	                this._data.pics.push(data);
 	                if (this._data.toLoads.length > 0) {
 	                    this.event(Event.PROGRESS, 0.3 + 1 / this._data.toLoads.length * 0.6);
-	                    //有图片未加载
 	                    return this._loadImage(this._data.toLoads.pop());
 	                }
 	                var frames = this._data.frames;
@@ -26236,8 +18583,8 @@ window.Laya= (function (exports) {
 	                if (this._data.meta && this._data.meta.scale && this._data.meta.scale != 1) {
 	                    scaleRate = parseFloat(this._data.meta.scale);
 	                    for (var name in frames) {
-	                        var obj = frames[name]; //取对应的图
-	                        var tPic = pics[obj.frame.idx ? obj.frame.idx : 0]; //是否释放
+	                        var obj = frames[name];
+	                        var tPic = pics[obj.frame.idx ? obj.frame.idx : 0];
 	                        var url = URL.formatURL(directory + name);
 	                        tPic.scaleRate = scaleRate;
 	                        var tTexture;
@@ -26249,8 +18596,8 @@ window.Laya= (function (exports) {
 	                }
 	                else {
 	                    for (name in frames) {
-	                        obj = frames[name]; //取对应的图
-	                        tPic = pics[obj.frame.idx ? obj.frame.idx : 0]; //是否释放
+	                        obj = frames[name];
+	                        tPic = pics[obj.frame.idx ? obj.frame.idx : 0];
 	                        url = URL.formatURL(directory + name);
 	                        tTexture = Texture._create(tPic, obj.frame.x, obj.frame.y, obj.frame.w, obj.frame.h, obj.spriteSourceSize.x, obj.spriteSourceSize.y, obj.sourceSize.w, obj.sourceSize.h, Loader.getRes(url));
 	                        Loader.cacheRes(url, tTexture);
@@ -26263,7 +18610,6 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	        else if (type === Loader.FONT) {
-	            //处理位图字体
 	            if (!data._source) {
 	                this._data = data;
 	                this.event(Event.PROGRESS, 0.5);
@@ -26326,10 +18672,6 @@ window.Laya= (function (exports) {
 	        fileData = byte.readArrayBuffer(fileLen);
 	        Loader.preLoadedMap[URL.formatURL(fileName)] = fileData;
 	    }
-	    /**
-	     * 加载完成。
-	     * @param	data 加载的数据。
-	     */
 	    complete(data) {
 	        this._data = data;
 	        if (this._customParse) {
@@ -26341,7 +18683,6 @@ window.Laya= (function (exports) {
 	                Loader.checkNext();
 	        }
 	    }
-	    /**@private */
 	    static checkNext() {
 	        Loader._isWorking = true;
 	        var startTimer = Browser.now();
@@ -26360,10 +18701,6 @@ window.Laya= (function (exports) {
 	        Loader._startIndex = 0;
 	        Loader._isWorking = false;
 	    }
-	    /**
-	     * 结束加载，处理是否缓存及派发完成事件 <code>Event.COMPLETE</code> 。
-	     * @param	content 加载后的数据
-	     */
 	    endLoad(content = null) {
 	        content && (this._data = content);
 	        if (this._cache)
@@ -26371,29 +18708,20 @@ window.Laya= (function (exports) {
 	        this.event(Event.PROGRESS, 1);
 	        this.event(Event.COMPLETE, this.data instanceof Array ? [this.data] : this.data);
 	    }
-	    /**加载地址。*/
 	    get url() {
 	        return this._url;
 	    }
-	    /**加载类型。*/
 	    get type() {
 	        return this._type;
 	    }
-	    /**是否缓存。*/
 	    get cache() {
 	        return this._cache;
 	    }
-	    /**返回的数据。*/
 	    get data() {
 	        return this._data;
 	    }
-	    /**
-	     * 清理指定资源地址的缓存。
-	     * @param	url 资源地址。
-	     */
 	    static clearRes(url) {
 	        url = URL.formatURL(url);
-	        //删除图集
 	        var arr = Loader.getAtlas(url);
 	        if (arr) {
 	            for (var i = 0, n = arr.length; i < n; i++) {
@@ -26416,16 +18744,8 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**
-	     * 销毁Texture使用的图片资源，保留texture壳，如果下次渲染的时候，发现texture使用的图片资源不存在，则会自动恢复
-	     * 相比clearRes，clearTextureRes只是清理texture里面使用的图片资源，并不销毁texture，再次使用到的时候会自动恢复图片资源
-	     * 而clearRes会彻底销毁texture，导致不能再使用；clearTextureRes能确保立即销毁图片资源，并且不用担心销毁错误，clearRes则采用引用计数方式销毁
-	     * 【注意】如果图片本身在自动合集里面（默认图片小于512*512），内存是不能被销毁的，此图片被大图合集管理器管理
-	     * @param	url	图集地址或者texture地址，比如 Loader.clearTextureRes("res/atlas/comp.atlas"); Loader.clearTextureRes("hall/bg.jpg");
-	     */
 	    static clearTextureRes(url) {
 	        url = URL.formatURL(url);
-	        //删除图集
 	        var arr = Loader.getAtlas(url);
 	        if (arr && arr.length > 0) {
 	            arr.forEach(function (t) {
@@ -26442,27 +18762,12 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**
-	     * 获取指定资源地址的资源。
-	     * @param	url 资源地址。
-	     * @return	返回资源。
-	     */
 	    static getRes(url) {
 	        return Loader.loadedMap[URL.formatURL(url)];
 	    }
-	    /**
-	     * 获取指定资源地址的图集地址列表。
-	     * @param	url 图集地址。
-	     * @return	返回地址集合。
-	     */
 	    static getAtlas(url) {
 	        return Loader.atlasMap[URL.formatURL(url)];
 	    }
-	    /**
-	     * 缓存资源。
-	     * @param	url 资源地址。
-	     * @param	data 要缓存的内容。
-	     */
 	    static cacheRes(url, data) {
 	        url = URL.formatURL(url);
 	        if (Loader.loadedMap[url] != null) {
@@ -26472,20 +18777,11 @@ window.Laya= (function (exports) {
 	            Loader.loadedMap[url] = data;
 	        }
 	    }
-	    /**
-	     * 设置资源分组。
-	     * @param url 资源地址。
-	     * @param group 分组名。
-	     */
 	    static setGroup(url, group) {
 	        if (!Loader.groupMap[group])
 	            Loader.groupMap[group] = [];
 	        Loader.groupMap[group].push(url);
 	    }
-	    /**
-	     * 根据分组清理资源。
-	     * @param group 分组名。
-	     */
 	    static clearResByGroup(group) {
 	        if (!Loader.groupMap[group])
 	            return;
@@ -26496,79 +18792,43 @@ window.Laya= (function (exports) {
 	        arr.length = 0;
 	    }
 	}
-	/**文本类型，加载完成后返回文本。*/
 	Loader.TEXT = "text";
-	/**JSON 类型，加载完成后返回json数据。*/
 	Loader.JSON = "json";
-	/**prefab 类型，加载完成后返回Prefab实例。*/
 	Loader.PREFAB = "prefab";
-	/**XML 类型，加载完成后返回domXML。*/
 	Loader.XML = "xml";
-	/**二进制类型，加载完成后返回arraybuffer二进制数据。*/
 	Loader.BUFFER = "arraybuffer";
-	/**纹理类型，加载完成后返回Texture。*/
 	Loader.IMAGE = "image";
-	/**声音类型，加载完成后返回sound。*/
 	Loader.SOUND = "sound";
-	/**图集类型，加载完成后返回图集json信息(并创建图集内小图Texture)。*/
 	Loader.ATLAS = "atlas";
-	/**位图字体类型，加载完成后返回BitmapFont，加载后，会根据文件名自动注册为位图字体。*/
 	Loader.FONT = "font";
-	/** TTF字体类型，加载完成后返回null。*/
 	Loader.TTF = "ttf";
-	/** 预加载文件类型，加载完成后自动解析到preLoadedMap。*/
 	Loader.PLF = "plf";
-	/** 二进制预加载文件类型，加载完成后自动解析到preLoadedMap。*/
 	Loader.PLFB = "plfb";
-	/**Hierarchy资源。*/
 	Loader.HIERARCHY = "HIERARCHY";
-	/**Mesh资源。*/
 	Loader.MESH = "MESH";
-	/**Material资源。*/
 	Loader.MATERIAL = "MATERIAL";
-	/**Texture2D资源。*/
 	Loader.TEXTURE2D = "TEXTURE2D";
-	/**TextureCube资源。*/
 	Loader.TEXTURECUBE = "TEXTURECUBE";
-	/**AnimationClip资源。*/
 	Loader.ANIMATIONCLIP = "ANIMATIONCLIP";
-	/**Avatar资源。*/
 	Loader.AVATAR = "AVATAR";
-	/**Terrain资源。*/
 	Loader.TERRAINHEIGHTDATA = "TERRAINHEIGHTDATA";
-	/**Terrain资源。*/
 	Loader.TERRAINRES = "TERRAIN";
-	/**文件后缀和类型对应表。*/
 	Loader.typeMap = { "ttf": "ttf", "png": "image", "jpg": "image", "jpeg": "image", "ktx": "image", "pvr": "image", "txt": "text", "json": "json", "prefab": "prefab", "xml": "xml", "als": "atlas", "atlas": "atlas", "mp3": "sound", "ogg": "sound", "wav": "sound", "part": "json", "fnt": "font", "plf": "plf", "plfb": "plfb", "scene": "json", "ani": "json", "sk": "arraybuffer" };
-	/**资源解析函数对应表，用来扩展更多类型的资源加载解析。*/
 	Loader.parserMap = {};
-	/**每帧加载完成回调使用的最大超时时间，如果超时，则下帧再处理，防止帧卡顿。*/
 	Loader.maxTimeOut = 100;
-	/**资源分组对应表。*/
 	Loader.groupMap = {};
-	/**已加载的资源池。*/
 	Loader.loadedMap = {};
-	/**已加载的图集资源池。*/
 	Loader.atlasMap = {};
-	/** @private 已加载的数据文件。*/
 	Loader.preLoadedMap = {};
-	/**@private 引用image对象，防止垃圾回收*/
 	Loader._imgCache = {};
-	/**@private */
 	Loader._loaders = [];
-	/**@private */
 	Loader._isWorking = false;
-	/**@private */
 	Loader._startIndex = 0;
 
-	/**
-	 * @private
-	 */
 	class AtlasInfoManager {
 	    static enable(infoFile, callback = null) {
 	        ILaya.loader.load(infoFile, Handler.create(null, AtlasInfoManager._onInfoLoaded, [callback]), null, Loader.JSON);
 	    }
-	    /**@private */
 	    static _onInfoLoaded(callback, data) {
 	        var tKey;
 	        var tPrefix;
@@ -26591,84 +18851,31 @@ window.Laya= (function (exports) {
 	}
 	AtlasInfoManager._fileLoadDic = {};
 
-	/**
-	 * 所有资源加载完成时调度。
-	 * @eventType Event.COMPLETE
-	 * */
-	/*[Event(name = "complete", type = "laya.events.Event")]*/
-	/**
-	 * 任何资源加载出错时调度。
-	 * @eventType Event.ERROR
-	 * */
-	/*[Event(name = "error", type = "laya.events.Event")]*/
-	/**
-	 * <p> <code>LoaderManager</code> 类用于用于批量加载资源。此类是单例，不要手动实例化此类，请通过Laya.loader访问。</p>
-	 * <p>全部队列加载完成，会派发 Event.COMPLETE 事件；如果队列中任意一个加载失败，会派发 Event.ERROR 事件，事件回调参数值为加载出错的资源地址。</p>
-	 * <p> <code>LoaderManager</code> 类提供了以下几种功能：<br/>
-	 * 多线程：默认5个加载线程，可以通过maxLoader属性修改线程数量；<br/>
-	 * 多优先级：有0-4共5个优先级，优先级高的优先加载。0最高，4最低；<br/>
-	 * 重复过滤：自动过滤重复加载（不会有多个相同地址的资源同时加载）以及复用缓存资源，防止重复加载；<br/>
-	 * 错误重试：资源加载失败后，会重试加载（以最低优先级插入加载队列），retryNum设定加载失败后重试次数，retryDelay设定加载重试的时间间隔。</p>
-	 * @see laya.net.Loader
-	 */
 	class LoaderManager extends EventDispatcher {
-	    /**
-	     * <p>创建一个新的 <code>LoaderManager</code> 实例。</p>
-	     * <p><b>注意：</b>请使用Laya.loader加载资源，这是一个单例，不要手动实例化此类，否则会导致不可预料的问题。</p>
-	     */
 	    constructor() {
 	        super();
-	        /** 加载出错后的重试次数，默认重试一次*/
 	        this.retryNum = 1;
-	        /** 延迟时间多久再进行错误重试，默认立即重试*/
 	        this.retryDelay = 0;
-	        /** 最大下载线程，默认为5个*/
 	        this.maxLoader = 5;
-	        /**@private */
 	        this._loaders = [];
-	        /**@private */
 	        this._loaderCount = 0;
-	        /**@private */
 	        this._resInfos = [];
-	        /**@private */
 	        this._infoPool = [];
-	        /**@private */
 	        this._maxPriority = 5;
-	        /**@private */
 	        this._failRes = {};
-	        /**@private */
 	        this._statInfo = { count: 1, loaded: 1 };
 	        for (var i = 0; i < this._maxPriority; i++)
 	            this._resInfos[i] = [];
 	    }
-	    /**@private */
 	    getProgress() {
 	        return this._statInfo.loaded / this._statInfo.count;
 	    }
-	    /**@private */
 	    resetProgress() {
 	        this._statInfo.count = this._statInfo.loaded = 1;
 	    }
-	    /**
-	     * <p>根据clas类型创建一个未初始化资源的对象，随后进行异步加载，资源加载完成后，初始化对象的资源，并通过此对象派发 Event.LOADED 事件，事件回调参数值为此对象本身。套嵌资源的子资源会保留资源路径"?"后的部分。</p>
-	     * <p>如果url为数组，返回true；否则返回指定的资源类对象，可以通过侦听此对象的 Event.LOADED 事件来判断资源是否已经加载完毕。</p>
-	     * <p><b>注意：</b>cache参数只能对文件后缀为atlas的资源进行缓存控制，其他资源会忽略缓存，强制重新加载。</p>
-	     * @param	url			资源地址或者数组。如果url和clas同时指定了资源类型，优先使用url指定的资源类型。参数形如：[{url:xx,clas:xx,priority:xx,params:xx},{url:xx,clas:xx,priority:xx,params:xx}]。
-	     * @param	complete	加载结束回调。根据url类型不同分为2种情况：1. url为String类型，也就是单个资源地址，如果加载成功，则回调参数值为加载完成的资源，否则为null；2. url为数组类型，指定了一组要加载的资源，如果全部加载成功，则回调参数值为true，否则为false。
-	     * @param	progress	资源加载进度回调，回调参数值为当前资源加载的进度信息(0-1)。
-	     * @param	type	资源类型。
-	     * @param	constructParams		资源构造函数参数。
-	     * @param	propertyParams		资源属性参数。
-	     * @param	priority	(default = 1)加载的优先级，优先级高的优先加载。有0-4共5个优先级，0最高，4最低。
-	     * @param	cache		是否缓存加载的资源。
-	     * @return	如果url为数组，返回true；否则返回指定的资源类对象。
-	     */
 	    create(url, complete = null, progress = null, type = null, constructParams = null, propertyParams = null, priority = 1, cache = true) {
 	        this._create(url, true, complete, progress, type, constructParams, propertyParams, priority, cache);
 	    }
-	    /**
-	     * @internal
-	     */
 	    _create(url, mainResou, complete = null, progress = null, type = null, constructParams = null, propertyParams = null, priority = 1, cache = true) {
 	        if (url instanceof Array) {
 	            var allScuess = true;
@@ -26699,7 +18906,7 @@ window.Laya= (function (exports) {
 	                var completeHandler = (progress || complete) ? Handler.create(null, function (item, content = null) {
 	                    loadedCount++;
 	                    item.progress = 1;
-	                    content || (allScuess = false); //资源加载失败
+	                    content || (allScuess = false);
 	                    if (loadedCount === itemCount && complete) {
 	                        complete.runWith(allScuess);
 	                    }
@@ -26711,9 +18918,6 @@ window.Laya= (function (exports) {
 	            this._createOne(url, mainResou, complete, progress, type, constructParams, propertyParams, priority, cache);
 	        }
 	    }
-	    /**
-	     * @private
-	     */
 	    _createOne(url, mainResou, complete = null, progress = null, type = null, constructParams = null, propertyParams = null, priority = 1, cache = true) {
 	        var item = this.getRes(url);
 	        if (!item) {
@@ -26724,7 +18928,7 @@ window.Laya= (function (exports) {
 	                return;
 	            }
 	            var parserMap = Loader.parserMap;
-	            if (!parserMap[type]) { //not custom parse type
+	            if (!parserMap[type]) {
 	                this.load(url, complete, progress, type, priority, cache);
 	                return;
 	            }
@@ -26745,30 +18949,14 @@ window.Laya= (function (exports) {
 	            complete && complete.runWith(item);
 	        }
 	    }
-	    /**
-	     * <p>加载资源。资源加载错误时，本对象会派发 Event.ERROR 事件，事件回调参数值为加载出错的资源地址。</p>
-	     * <p>因为返回值为 LoaderManager 对象本身，所以可以使用如下语法：loaderManager.load(...).load(...);</p>
-	     * @param	url			要加载的单个资源地址或资源信息数组。比如：简单数组：["a.png","b.png"]；复杂数组[{url:"a.png",type:Loader.IMAGE,size:100,priority:1},{url:"b.json",type:Loader.JSON,size:50,priority:1}]。
-	     * @param	complete	加载结束回调。根据url类型不同分为2种情况：1. url为String类型，也就是单个资源地址，如果加载成功，则回调参数值为加载完成的资源，否则为null；2. url为数组类型，指定了一组要加载的资源，如果全部加载成功，则回调参数值为true，否则为false。
-	     * @param	progress	加载进度回调。回调参数值为当前资源的加载进度信息(0-1)。
-	     * @param	type		资源类型。比如：Loader.IMAGE。
-	     * @param	priority	(default = 1)加载的优先级，优先级高的优先加载。有0-4共5个优先级，0最高，4最低。
-	     * @param	cache		是否缓存加载结果。
-	     * @param	group		分组，方便对资源进行管理。
-	     * @param	ignoreCache	是否忽略缓存，强制重新加载。
-	     * @param	useWorkerLoader(default = false)是否使用worker加载（只针对IMAGE类型和ATLAS类型，并且浏览器支持的情况下生效）
-	     * @return 此 LoaderManager 对象本身。
-	     */
 	    load(url, complete = null, progress = null, type = null, priority = 1, cache = true, group = null, ignoreCache = false, useWorkerLoader = ILaya.WorkerLoader.enable) {
 	        if (url instanceof Array)
 	            return this._loadAssets(url, complete, progress, type, priority, cache, group);
 	        var content = Loader.getRes(url);
 	        if (!ignoreCache && content != null) {
-	            //增加延迟回掉，防止快速回掉导致执行顺序错误
 	            ILaya.systemTimer.frameOnce(1, this, function () {
 	                progress && progress.runWith(1);
 	                complete && complete.runWith(content instanceof Array ? [content] : content);
-	                //判断是否全部加载，如果是则抛出complete事件
 	                this._loaderCount || this.event(Event.COMPLETE);
 	            });
 	        }
@@ -26818,19 +19006,14 @@ window.Laya= (function (exports) {
 	    _resInfoLoaded(original, complete) {
 	        complete.runWith(Loader.getRes(original));
 	    }
-	    /**
-	     * @internal
-	     */
 	    _createLoad(url, complete = null, progress = null, type = null, constructParams = null, propertyParams = null, priority = 1, cache = true, ignoreCache = false) {
 	        if (url instanceof Array)
 	            return this._loadAssets(url, complete, progress, type, priority, cache);
 	        var content = Loader.getRes(url);
 	        if (content != null) {
-	            //增加延迟回掉
 	            ILaya.systemTimer.frameOnce(1, this, function () {
 	                progress && progress.runWith(1);
 	                complete && complete.runWith(content);
-	                //判断是否全部加载，如果是则抛出complete事件
 	                this._loaderCount || this.event(Event.COMPLETE);
 	            });
 	        }
@@ -26902,7 +19085,6 @@ window.Laya= (function (exports) {
 	        loader.load(resInfo.url, resInfo.type, resInfo.cache, resInfo.group, resInfo.ignoreCache, resInfo.useWorkerLoader);
 	    }
 	    _endLoad(resInfo, content) {
-	        //如果加载后为空，放入队列末尾重试
 	        var url = resInfo.url;
 	        if (content == null) {
 	            var errorCount = this._failRes[url] || 0;
@@ -26913,7 +19095,7 @@ window.Laya= (function (exports) {
 	                return;
 	            }
 	            else {
-	                Loader.clearRes(url); //使用create加载失败需要清除资源
+	                Loader.clearRes(url);
 	                console.warn("[error]Failed to load:", url);
 	                this.event(Event.ERROR, url);
 	            }
@@ -26934,66 +19116,28 @@ window.Laya= (function (exports) {
 	        this._resInfos[this._maxPriority - 1].push(resInfo);
 	        this._next();
 	    }
-	    /**
-	     * 清理指定资源地址缓存。
-	     * @param	url 资源地址。
-	     */
 	    clearRes(url) {
 	        Loader.clearRes(url);
 	    }
-	    /**
-	     * 销毁Texture使用的图片资源，保留texture壳，如果下次渲染的时候，发现texture使用的图片资源不存在，则会自动恢复
-	     * 相比clearRes，clearTextureRes只是清理texture里面使用的图片资源，并不销毁texture，再次使用到的时候会自动恢复图片资源
-	     * 而clearRes会彻底销毁texture，导致不能再使用；clearTextureRes能确保立即销毁图片资源，并且不用担心销毁错误，clearRes则采用引用计数方式销毁
-	     * 【注意】如果图片本身在自动合集里面（默认图片小于512*512），内存是不能被销毁的，此图片被大图合集管理器管理
-	     * @param	url	图集地址或者texture地址，比如 Loader.clearTextureRes("res/atlas/comp.atlas"); Loader.clearTextureRes("hall/bg.jpg");
-	     */
 	    clearTextureRes(url) {
 	        Loader.clearTextureRes(url);
 	    }
-	    /**
-	     * 获取指定资源地址的资源。
-	     * @param	url 资源地址。
-	     * @return	返回资源。
-	     */
 	    getRes(url) {
 	        return Loader.getRes(url);
 	    }
-	    /**
-	     * 缓存资源。
-	     * @param	url 资源地址。
-	     * @param	data 要缓存的内容。
-	     */
 	    cacheRes(url, data) {
 	        Loader.cacheRes(url, data);
 	    }
-	    /**
-	     * 设置资源分组。
-	     * @param url 资源地址。
-	     * @param group 分组名
-	     */
 	    setGroup(url, group) {
 	        Loader.setGroup(url, group);
 	    }
-	    /**
-	     * 根据分组清理资源。
-	     * @param group 分组名
-	     */
 	    clearResByGroup(group) {
 	        Loader.clearResByGroup(group);
 	    }
-	    /**
-	     * @private
-	     * 缓存资源。
-	     * @param	url 资源地址。
-	     * @param	data 要缓存的内容。
-	     */
 	    static cacheRes(url, data) {
 	        Loader.cacheRes(url, data);
 	    }
-	    /** 清理当前未完成的加载，所有未加载的内容全部停止加载。*/
 	    clearUnLoaded() {
-	        //回收Handler
 	        for (var i = 0; i < this._maxPriority; i++) {
 	            var infos = this._resInfos[i];
 	            for (var j = infos.length - 1; j > -1; j--) {
@@ -27008,10 +19152,6 @@ window.Laya= (function (exports) {
 	        this._loaderCount = 0;
 	        LoaderManager._resMap = {};
 	    }
-	    /**
-	     * 根据地址集合清理掉未加载的内容
-	     * @param	urls 资源地址集合
-	     */
 	    cancelLoadByUrls(urls) {
 	        if (!urls)
 	            return;
@@ -27019,10 +19159,6 @@ window.Laya= (function (exports) {
 	            this.cancelLoadByUrl(urls[i]);
 	        }
 	    }
-	    /**
-	     * 根据地址清理掉未加载的内容
-	     * @param	url 资源地址
-	     */
 	    cancelLoadByUrl(url) {
 	        for (var i = 0; i < this._maxPriority; i++) {
 	            var infos = this._resInfos[i];
@@ -27038,10 +19174,6 @@ window.Laya= (function (exports) {
 	        if (LoaderManager._resMap[url])
 	            delete LoaderManager._resMap[url];
 	    }
-	    /**
-	     * @private
-	     * 加载数组里面的资源。
-	     * @param arr 简单：["a.png","b.png"]，复杂[{url:"a.png",type:Loader.IMAGE,size:100,priority:1,useWorkerLoader:true},{url:"b.json",type:Loader.JSON,size:50,priority:1}]*/
 	    _loadAssets(arr, complete = null, progress = null, type = null, priority = 1, cache = true, group = null) {
 	        var itemCount = arr.length;
 	        var loadedCount = 0;
@@ -27084,18 +19216,10 @@ window.Laya= (function (exports) {
 	        }
 	        return this;
 	    }
-	    /**
-	     * 解码Texture或者图集
-	     * @param	urls texture地址或者图集地址集合
-	     */
-	    //TODO:TESTs
 	    decodeBitmaps(urls) {
 	        var i, len = urls.length;
 	        var ctx;
-	        //ctx = Browser.context;
 	        ctx = ILaya.Render._context;
-	        //经测试需要画到主画布上才能只解码一次
-	        //当前用法下webgl模式会报错
 	        for (i = 0; i < len; i++) {
 	            var atlas;
 	            atlas = Loader.getAtlas(urls[i]);
@@ -27124,16 +19248,11 @@ window.Laya= (function (exports) {
 	        }
 	    }
 	}
-	/**@private */
 	LoaderManager._resMap = {};
-	/**@private */
 	LoaderManager.createMap = { atlas: [null, Loader.ATLAS] };
 	class ResInfo extends EventDispatcher {
 	}
 
-	/**
-	     * <p> <code>LocalStorage</code> 类用于没有时间限制的数据存储。</p>
-	     */
 	class LocalStorage {
 	    static __init__() {
 	        if (!LocalStorage._baseClass) {
@@ -27144,55 +19263,25 @@ window.Laya= (function (exports) {
 	        LocalStorage.support = LocalStorage._baseClass.support;
 	        return LocalStorage.support;
 	    }
-	    /**
-	     * 存储指定键名和键值，字符串类型。
-	     * @param key 键名。
-	     * @param value 键值。
-	     */
 	    static setItem(key, value) {
 	        LocalStorage._baseClass.setItem(key, value);
 	    }
-	    /**
-	     * 获取指定键名的值。
-	     * @param key 键名。
-	     * @return 字符串型值。
-	     */
 	    static getItem(key) {
 	        return LocalStorage._baseClass.getItem(key);
 	    }
-	    /**
-	     * 存储指定键名及其对应的 <code>Object</code> 类型值。
-	     * @param key 键名。
-	     * @param value 键值。是 <code>Object</code> 类型，此致会被转化为 JSON 字符串存储。
-	     */
 	    static setJSON(key, value) {
 	        LocalStorage._baseClass.setJSON(key, value);
 	    }
-	    /**
-	     * 获取指定键名对应的 <code>Object</code> 类型值。
-	     * @param key 键名。
-	     * @return <code>Object</code> 类型值
-	     */
 	    static getJSON(key) {
 	        return LocalStorage._baseClass.getJSON(key);
 	    }
-	    /**
-	     * 删除指定键名的信息。
-	     * @param key 键名。
-	     */
 	    static removeItem(key) {
 	        LocalStorage._baseClass.removeItem(key);
 	    }
-	    /**
-	     * 清除本地存储信息。
-	     */
 	    static clear() {
 	        LocalStorage._baseClass.clear();
 	    }
 	}
-	/**
-	 * 表示是否支持  <code>LocalStorage</code>。
-	 */
 	LocalStorage.support = false;
 	class Storage {
 	    static init() {
@@ -27208,11 +19297,6 @@ window.Laya= (function (exports) {
 	        if (!Storage.support)
 	            console.log('LocalStorage is not supprot or browser is private mode.');
 	    }
-	    /**
-	     * 存储指定键名和键值，字符串类型。
-	     * @param key 键名。
-	     * @param value 键值。
-	     */
 	    static setItem(key, value) {
 	        try {
 	            Storage.support && Storage.items.setItem(key, value);
@@ -27221,19 +19305,9 @@ window.Laya= (function (exports) {
 	            console.warn("set localStorage failed", e);
 	        }
 	    }
-	    /**
-	     * 获取指定键名的值。
-	     * @param key 键名。
-	     * @return 字符串型值。
-	     */
 	    static getItem(key) {
 	        return Storage.support ? Storage.items.getItem(key) : null;
 	    }
-	    /**
-	     * 存储指定键名和它的 <code>Object</code> 类型值。
-	     * @param key 键名。
-	     * @param value 键值。是 <code>Object</code> 类型，此致会被转化为 JSON 字符串存储。
-	     */
 	    static setJSON(key, value) {
 	        try {
 	            Storage.support && Storage.items.setItem(key, JSON.stringify(value));
@@ -27242,38 +19316,19 @@ window.Laya= (function (exports) {
 	            console.warn("set localStorage failed", e);
 	        }
 	    }
-	    /**
-	     * 获取指定键名的 <code>Object</code> 类型值。
-	     * @param key 键名。
-	     * @return <code>Object</code> 类型值
-	     */
 	    static getJSON(key) {
 	        return JSON.parse(Storage.support ? Storage.items.getItem(key) : null);
 	    }
-	    /**
-	     * 删除指定键名的信息。
-	     * @param key 键名。
-	     */
 	    static removeItem(key) {
 	        Storage.support && Storage.items.removeItem(key);
 	    }
-	    /**
-	     * 清除本地存储信息。
-	     */
 	    static clear() {
 	        Storage.support && Storage.items.clear();
 	    }
 	}
-	/**
-	 * 表示是否支持  <code>LocalStorage</code>。
-	 */
 	Storage.support = false;
 
-	/**
-	 * @private
-	 */
 	class TTFLoader {
-	    //TODO:coverage
 	    load(fontPath) {
 	        this._url = fontPath;
 	        var tArr = fontPath.split(".ttf")[0].split("/");
@@ -27288,20 +19343,17 @@ window.Laya= (function (exports) {
 	            this._loadWithCSS();
 	        }
 	    }
-	    //TODO:coverage
 	    _loadConch() {
 	        this._http = new HttpRequest();
 	        this._http.on(Event.ERROR, this, this._onErr);
 	        this._http.on(Event.COMPLETE, this, this._onHttpLoaded);
 	        this._http.send(this._url, null, "get", Loader.BUFFER);
 	    }
-	    //TODO:coverage
 	    _onHttpLoaded(data = null) {
 	        window["conchTextCanvas"].setFontFaceFromBuffer(this.fontName, data);
 	        this._clearHttp();
 	        this._complete();
 	    }
-	    //TODO:coverage
 	    _clearHttp() {
 	        if (this._http) {
 	            this._http.off(Event.ERROR, this, this._onErr);
@@ -27309,7 +19361,6 @@ window.Laya= (function (exports) {
 	            this._http = null;
 	        }
 	    }
-	    //TODO:coverage
 	    _onErr() {
 	        this._clearHttp();
 	        if (this.err) {
@@ -27317,7 +19368,6 @@ window.Laya= (function (exports) {
 	            this.err = null;
 	        }
 	    }
-	    //TODO:coverage
 	    _complete() {
 	        ILaya.systemTimer.clear(this, this._complete);
 	        ILaya.systemTimer.clear(this, this._checkComplete);
@@ -27330,13 +19380,11 @@ window.Laya= (function (exports) {
 	            this.complete = null;
 	        }
 	    }
-	    //TODO:coverage
 	    _checkComplete() {
 	        if (ILaya.Browser.measureText(TTFLoader._testString, this._fontTxt).width != this._txtWidth) {
 	            this._complete();
 	        }
 	    }
-	    //TODO:coverage
 	    _loadWithFontFace() {
 	        var fontFace = new window.FontFace(this.fontName, "url('" + this._url + "')");
 	        document.fonts.add(fontFace);
@@ -27344,10 +19392,8 @@ window.Laya= (function (exports) {
 	        fontFace.loaded.then((function () {
 	            self._complete();
 	        }));
-	        //_createDiv();
 	        fontFace.load();
 	    }
-	    //TODO:coverage
 	    _createDiv() {
 	        this._div = Browser.createElement("div");
 	        this._div.innerHTML = "laya";
@@ -27358,7 +19404,6 @@ window.Laya= (function (exports) {
 	        _style.top = "-100px";
 	        document.body.appendChild(this._div);
 	    }
-	    //TODO:coverage
 	    _loadWithCSS() {
 	        var fontStyle = Browser.createElement("style");
 	        fontStyle.type = "text/css";
@@ -27376,90 +19421,28 @@ window.Laya= (function (exports) {
 	}
 	TTFLoader._testString = "LayaTTFFont";
 
-	/**
-	     * <code>Ease</code> 类定义了缓动函数，以便实现 <code>Tween</code> 动画的缓动效果。
-	     */
 	class Ease {
-	    /**
-	     * 定义无加速持续运动。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static linearNone(t, b, c, d) {
 	        return c * t / d + b;
 	    }
-	    /**
-	     * 定义无加速持续运动。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static linearIn(t, b, c, d) {
 	        return c * t / d + b;
 	    }
-	    /**
-	     * 定义无加速持续运动。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static linearInOut(t, b, c, d) {
 	        return c * t / d + b;
 	    }
-	    /**
-	     * 定义无加速持续运动。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static linearOut(t, b, c, d) {
 	        return c * t / d + b;
 	    }
-	    /**
-	     * 方法以零速率开始运动，然后在执行时加快运动速度。
-	     * 它的运动是类似一个球落向地板又弹起后，几次逐渐减小的回弹运动。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static bounceIn(t, b, c, d) {
 	        return c - Ease.bounceOut(d - t, 0, c, d) + b;
 	    }
-	    /**
-	     * 开始运动时速率为零，先对运动进行加速，再减速直到速率为零。
-	     * 它的运动是类似一个球落向地板又弹起后，几次逐渐减小的回弹运动。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static bounceInOut(t, b, c, d) {
 	        if (t < d * 0.5)
 	            return Ease.bounceIn(t * 2, 0, c, d) * .5 + b;
 	        else
 	            return Ease.bounceOut(t * 2 - d, 0, c, d) * .5 + c * .5 + b;
 	    }
-	    /**
-	     * 以较快速度开始运动，然后在执行时减慢运动速度，直至速率为零。
-	     * 它的运动是类似一个球落向地板又弹起后，几次逐渐减小的回弹运动。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static bounceOut(t, b, c, d) {
 	        if ((t /= d) < (1 / 2.75))
 	            return c * (7.5625 * t * t) + b;
@@ -27470,55 +19453,17 @@ window.Laya= (function (exports) {
 	        else
 	            return c * (7.5625 * (t -= (2.625 / 2.75)) * t + .984375) + b;
 	    }
-	    /**
-	     * 开始时往后运动，然后反向朝目标移动。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @param	s 指定过冲量，此处数值越大，过冲越大。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static backIn(t, b, c, d, s = 1.70158) {
 	        return c * (t /= d) * t * ((s + 1) * t - s) + b;
 	    }
-	    /**
-	     * 开始运动时是向后跟踪，再倒转方向并朝目标移动，稍微过冲目标，然后再次倒转方向，回来朝目标移动。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @param	s 指定过冲量，此处数值越大，过冲越大。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static backInOut(t, b, c, d, s = 1.70158) {
 	        if ((t /= d * 0.5) < 1)
 	            return c * 0.5 * (t * t * (((s *= (1.525)) + 1) * t - s)) + b;
 	        return c / 2 * ((t -= 2) * t * (((s *= (1.525)) + 1) * t + s) + 2) + b;
 	    }
-	    /**
-	     * 开始运动时是朝目标移动，稍微过冲，再倒转方向回来朝着目标。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @param	s 指定过冲量，此处数值越大，过冲越大。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static backOut(t, b, c, d, s = 1.70158) {
 	        return c * ((t = t / d - 1) * t * ((s + 1) * t + s) + 1) + b;
 	    }
-	    /**
-	     * 方法以零速率开始运动，然后在执行时加快运动速度。
-	     * 其中的运动由按照指数方式衰减的正弦波来定义。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @param	a 指定正弦波的幅度。
-	     * @param	p 指定正弦波的周期。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static elasticIn(t, b, c, d, a = 0, p = 0) {
 	        var s;
 	        if (t == 0)
@@ -27535,17 +19480,6 @@ window.Laya= (function (exports) {
 	            s = p / Ease.PI2 * Math.asin(c / a);
 	        return -(a * Math.pow(2, 10 * (t -= 1)) * Math.sin((t * d - s) * Ease.PI2 / p)) + b;
 	    }
-	    /**
-	     * 开始运动时速率为零，先对运动进行加速，再减速直到速率为零。
-	     * 其中的运动由按照指数方式衰减的正弦波来定义。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @param	a 指定正弦波的幅度。
-	     * @param	p 指定正弦波的周期。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static elasticInOut(t, b, c, d, a = 0, p = 0) {
 	        var s;
 	        if (t == 0)
@@ -27564,17 +19498,6 @@ window.Laya= (function (exports) {
 	            return -.5 * (a * Math.pow(2, 10 * (t -= 1)) * Math.sin((t * d - s) * Ease.PI2 / p)) + b;
 	        return a * Math.pow(2, -10 * (t -= 1)) * Math.sin((t * d - s) * Ease.PI2 / p) * .5 + c + b;
 	    }
-	    /**
-	     * 以较快速度开始运动，然后在执行时减慢运动速度，直至速率为零。
-	     * 其中的运动由按照指数方式衰减的正弦波来定义。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @param	a 指定正弦波的幅度。
-	     * @param	p 指定正弦波的周期。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static elasticOut(t, b, c, d, a = 0, p = 0) {
 	        var s;
 	        if (t == 0)
@@ -27591,250 +19514,73 @@ window.Laya= (function (exports) {
 	            s = p / Ease.PI2 * Math.asin(c / a);
 	        return (a * Math.pow(2, -10 * t) * Math.sin((t * d - s) * Ease.PI2 / p) + c + b);
 	    }
-	    /**
-	     * 以零速率开始运动，然后在执行时加快运动速度。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static strongIn(t, b, c, d) {
 	        return c * (t /= d) * t * t * t * t + b;
 	    }
-	    /**
-	     * 开始运动时速率为零，先对运动进行加速，再减速直到速率为零。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static strongInOut(t, b, c, d) {
 	        if ((t /= d * 0.5) < 1)
 	            return c * 0.5 * t * t * t * t * t + b;
 	        return c * 0.5 * ((t -= 2) * t * t * t * t + 2) + b;
 	    }
-	    /**
-	     * 以较快速度开始运动，然后在执行时减慢运动速度，直至速率为零。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static strongOut(t, b, c, d) {
 	        return c * ((t = t / d - 1) * t * t * t * t + 1) + b;
 	    }
-	    /**
-	     * 开始运动时速率为零，先对运动进行加速，再减速直到速率为零。
-	     * Sine 缓动方程中的运动加速度小于 Quad 方程中的运动加速度。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static sineInOut(t, b, c, d) {
 	        return -c * 0.5 * (Math.cos(Math.PI * t / d) - 1) + b;
 	    }
-	    /**
-	     * 以零速率开始运动，然后在执行时加快运动速度。
-	     * Sine 缓动方程中的运动加速度小于 Quad 方程中的运动加速度。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static sineIn(t, b, c, d) {
 	        return -c * Math.cos(t / d * Ease.HALF_PI) + c + b;
 	    }
-	    /**
-	     * 以较快速度开始运动，然后在执行时减慢运动速度，直至速率为零。
-	     * Sine 缓动方程中的运动加速度小于 Quad 方程中的运动加速度。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static sineOut(t, b, c, d) {
 	        return c * Math.sin(t / d * Ease.HALF_PI) + b;
 	    }
-	    /**
-	     * 以零速率开始运动，然后在执行时加快运动速度。
-	     * Quint 缓动方程的运动加速大于 Quart 缓动方程。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static quintIn(t, b, c, d) {
 	        return c * (t /= d) * t * t * t * t + b;
 	    }
-	    /**
-	     * 开始运动时速率为零，先对运动进行加速，再减速直到速率为零。
-	     * Quint 缓动方程的运动加速大于 Quart 缓动方程。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static quintInOut(t, b, c, d) {
 	        if ((t /= d * 0.5) < 1)
 	            return c * 0.5 * t * t * t * t * t + b;
 	        return c * 0.5 * ((t -= 2) * t * t * t * t + 2) + b;
 	    }
-	    /**
-	     * 以较快速度开始运动，然后在执行时减慢运动速度，直至速率为零。
-	     * Quint 缓动方程的运动加速大于 Quart 缓动方程。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static quintOut(t, b, c, d) {
 	        return c * ((t = t / d - 1) * t * t * t * t + 1) + b;
 	    }
-	    /**
-	     * 方法以零速率开始运动，然后在执行时加快运动速度。
-	     * Quart 缓动方程的运动加速大于 Cubic 缓动方程。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static quartIn(t, b, c, d) {
 	        return c * (t /= d) * t * t * t + b;
 	    }
-	    /**
-	     * 开始运动时速率为零，先对运动进行加速，再减速直到速率为零。
-	     * Quart 缓动方程的运动加速大于 Cubic 缓动方程。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static quartInOut(t, b, c, d) {
 	        if ((t /= d * 0.5) < 1)
 	            return c * 0.5 * t * t * t * t + b;
 	        return -c * 0.5 * ((t -= 2) * t * t * t - 2) + b;
 	    }
-	    /**
-	     * 以较快速度开始运动，然后在执行时减慢运动速度，直至速率为零。
-	     * Quart 缓动方程的运动加速大于 Cubic 缓动方程。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static quartOut(t, b, c, d) {
 	        return -c * ((t = t / d - 1) * t * t * t - 1) + b;
 	    }
-	    /**
-	     * 方法以零速率开始运动，然后在执行时加快运动速度。
-	     * Cubic 缓动方程的运动加速大于 Quad 缓动方程。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static cubicIn(t, b, c, d) {
 	        return c * (t /= d) * t * t + b;
 	    }
-	    /**
-	     * 开始运动时速率为零，先对运动进行加速，再减速直到速率为零。
-	     * Cubic 缓动方程的运动加速大于 Quad 缓动方程。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static cubicInOut(t, b, c, d) {
 	        if ((t /= d * 0.5) < 1)
 	            return c * 0.5 * t * t * t + b;
 	        return c * 0.5 * ((t -= 2) * t * t + 2) + b;
 	    }
-	    /**
-	     * 以较快速度开始运动，然后在执行时减慢运动速度，直至速率为零。
-	     * Cubic 缓动方程的运动加速大于 Quad 缓动方程。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static cubicOut(t, b, c, d) {
 	        return c * ((t = t / d - 1) * t * t + 1) + b;
 	    }
-	    /**
-	     * 方法以零速率开始运动，然后在执行时加快运动速度。
-	     * Quad 缓动方程中的运动加速度等于 100% 缓动的时间轴补间的运动加速度，并且显著小于 Cubic 缓动方程中的运动加速度。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static quadIn(t, b, c, d) {
 	        return c * (t /= d) * t + b;
 	    }
-	    /**
-	     * 开始运动时速率为零，先对运动进行加速，再减速直到速率为零。
-	     * Quad 缓动方程中的运动加速度等于 100% 缓动的时间轴补间的运动加速度，并且显著小于 Cubic 缓动方程中的运动加速度。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static quadInOut(t, b, c, d) {
 	        if ((t /= d * 0.5) < 1)
 	            return c * 0.5 * t * t + b;
 	        return -c * 0.5 * ((--t) * (t - 2) - 1) + b;
 	    }
-	    /**
-	     * 以较快速度开始运动，然后在执行时减慢运动速度，直至速率为零。
-	     * Quad 缓动方程中的运动加速度等于 100% 缓动的时间轴补间的运动加速度，并且显著小于 Cubic 缓动方程中的运动加速度。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static quadOut(t, b, c, d) {
 	        return -c * (t /= d) * (t - 2) + b;
 	    }
-	    /**
-	     * 方法以零速率开始运动，然后在执行时加快运动速度。
-	     * 其中每个时间间隔是剩余距离减去一个固定比例部分。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static expoIn(t, b, c, d) {
 	        return (t == 0) ? b : c * Math.pow(2, 10 * (t / d - 1)) + b - c * 0.001;
 	    }
-	    /**
-	     * 开始运动时速率为零，先对运动进行加速，再减速直到速率为零。
-	     * 其中每个时间间隔是剩余距离减去一个固定比例部分。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static expoInOut(t, b, c, d) {
 	        if (t == 0)
 	            return b;
@@ -27844,133 +19590,42 @@ window.Laya= (function (exports) {
 	            return c * 0.5 * Math.pow(2, 10 * (t - 1)) + b;
 	        return c * 0.5 * (-Math.pow(2, -10 * --t) + 2) + b;
 	    }
-	    /**
-	     * 以较快速度开始运动，然后在执行时减慢运动速度，直至速率为零。
-	     * 其中每个时间间隔是剩余距离减去一个固定比例部分。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static expoOut(t, b, c, d) {
 	        return (t == d) ? b + c : c * (-Math.pow(2, -10 * t / d) + 1) + b;
 	    }
-	    /**
-	     * 方法以零速率开始运动，然后在执行时加快运动速度。
-	     * 缓动方程的运动加速会产生突然的速率变化。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static circIn(t, b, c, d) {
 	        return -c * (Math.sqrt(1 - (t /= d) * t) - 1) + b;
 	    }
-	    /**
-	     * 开始运动时速率为零，先对运动进行加速，再减速直到速率为零。
-	     * 缓动方程的运动加速会产生突然的速率变化。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static circInOut(t, b, c, d) {
 	        if ((t /= d * 0.5) < 1)
 	            return -c * 0.5 * (Math.sqrt(1 - t * t) - 1) + b;
 	        return c * 0.5 * (Math.sqrt(1 - (t -= 2) * t) + 1) + b;
 	    }
-	    /**
-	     * 以较快速度开始运动，然后在执行时减慢运动速度，直至速率为零。
-	     * 缓动方程的运动加速会产生突然的速率变化。
-	     * @param	t 指定当前时间，介于 0 和持续时间之间（包括二者）。
-	     * @param	b 指定动画属性的初始值。
-	     * @param	c 指定动画属性的更改总计。
-	     * @param	d 指定运动的持续时间。
-	     * @return 指定时间的插补属性的值。
-	     */
 	    static circOut(t, b, c, d) {
 	        return c * Math.sqrt(1 - (t = t / d - 1) * t) + b;
 	    }
 	}
-	/**@private */
 	Ease.HALF_PI = Math.PI * 0.5;
-	/**@private */
 	Ease.PI2 = Math.PI * 2;
 
-	/**
-	     * <code>Tween</code>  是一个缓动类。使用此类能够实现对目标对象属性的渐变。
-	     */
 	class Tween {
 	    constructor() {
-	        /**@private 唯一标识，TimeLintLite用到*/
 	        this.gid = 0;
-	        /**重播次数，如果repeat=0，则表示无限循环播放*/
 	        this.repeat = 1;
-	        /**当前播放次数*/
 	        this._count = 0;
 	    }
-	    /**
-	     * 缓动对象的props属性到目标值。
-	     * @param	target 目标对象(即将更改属性值的对象)。
-	     * @param	props 变化的属性列表，比如{x:100,y:20,ease:Ease.backOut,complete:Handler.create(this,onComplete),update:new Handler(this,onComplete)}。
-	     * @param	duration 花费的时间，单位毫秒。
-	     * @param	ease 缓动类型，默认为匀速运动。
-	     * @param	complete 结束回调函数。
-	     * @param	delay 延迟执行时间。
-	     * @param	coverBefore 是否覆盖之前的缓动。
-	     * @param	autoRecover 是否自动回收，默认为true，缓动结束之后自动回收到对象池。
-	     * @return	返回Tween对象。
-	     */
 	    static to(target, props, duration, ease = null, complete = null, delay = 0, coverBefore = false, autoRecover = true) {
 	        return Pool.getItemByClass("tween", Tween)._create(target, props, duration, ease, complete, delay, coverBefore, true, autoRecover, true);
 	    }
-	    /**
-	     * 从props属性，缓动到当前状态。
-	     * @param	target 目标对象(即将更改属性值的对象)。
-	     * @param	props 变化的属性列表，比如{x:100,y:20,ease:Ease.backOut,complete:Handler.create(this,onComplete),update:new Handler(this,onComplete)}。
-	     * @param	duration 花费的时间，单位毫秒。
-	     * @param	ease 缓动类型，默认为匀速运动。
-	     * @param	complete 结束回调函数。
-	     * @param	delay 延迟执行时间。
-	     * @param	coverBefore 是否覆盖之前的缓动。
-	     * @param	autoRecover 是否自动回收，默认为true，缓动结束之后自动回收到对象池。
-	     * @return	返回Tween对象。
-	     */
 	    static from(target, props, duration, ease = null, complete = null, delay = 0, coverBefore = false, autoRecover = true) {
 	        return Pool.getItemByClass("tween", Tween)._create(target, props, duration, ease, complete, delay, coverBefore, false, autoRecover, true);
 	    }
-	    /**
-	     * 缓动对象的props属性到目标值。
-	     * @param	target 目标对象(即将更改属性值的对象)。
-	     * @param	props 变化的属性列表，比如{x:100,y:20,ease:Ease.backOut,complete:Handler.create(this,onComplete),update:new Handler(this,onComplete)}。
-	     * @param	duration 花费的时间，单位毫秒。
-	     * @param	ease 缓动类型，默认为匀速运动。
-	     * @param	complete 结束回调函数。
-	     * @param	delay 延迟执行时间。
-	     * @param	coverBefore 是否覆盖之前的缓动。
-	     * @return	返回Tween对象。
-	     */
 	    to(target, props, duration, ease = null, complete = null, delay = 0, coverBefore = false) {
 	        return this._create(target, props, duration, ease, complete, delay, coverBefore, true, false, true);
 	    }
-	    /**
-	     * 从props属性，缓动到当前状态。
-	     * @param	target 目标对象(即将更改属性值的对象)。
-	     * @param	props 变化的属性列表，比如{x:100,y:20,ease:Ease.backOut,complete:Handler.create(this,onComplete),update:new Handler(this,onComplete)}。
-	     * @param	duration 花费的时间，单位毫秒。
-	     * @param	ease 缓动类型，默认为匀速运动。
-	     * @param	complete 结束回调函数。
-	     * @param	delay 延迟执行时间。
-	     * @param	coverBefore 是否覆盖之前的缓动。
-	     * @return	返回Tween对象。
-	     */
 	    from(target, props, duration, ease = null, complete = null, delay = 0, coverBefore = false) {
 	        return this._create(target, props, duration, ease, complete, delay, coverBefore, false, false, true);
 	    }
-	    /** @internal */
 	    _create(target, props, duration, ease, complete, delay, coverBefore, isTo, usePool, runNow) {
 	        if (!target)
 	            throw new Error("Tween:target is null");
@@ -27985,7 +19640,6 @@ window.Laya= (function (exports) {
 	        this._usedPool = usePool;
 	        this._delayParam = null;
 	        this.update = props.update;
-	        //判断是否覆盖			
 	        var gid = (target.$_GID || (target.$_GID = Utils.getGID()));
 	        if (!Tween.tweenMap[gid]) {
 	            Tween.tweenMap[gid] = [this];
@@ -28018,7 +19672,6 @@ window.Laya= (function (exports) {
 	        this._beginLoop();
 	    }
 	    _initProps(target, props, isTo) {
-	        //初始化属性
 	        for (var p in props) {
 	            if (typeof (target[p]) == 'number') {
 	                var start = isTo ? target[p] : props[p];
@@ -28032,16 +19685,13 @@ window.Laya= (function (exports) {
 	    _beginLoop() {
 	        ILaya.timer.frameLoop(1, this, this._doEase);
 	    }
-	    /**执行缓动**/
 	    _doEase() {
 	        this._updateEase(Browser.now());
 	    }
-	    /**@internal */
 	    _updateEase(time) {
 	        var target = this._target;
 	        if (!target)
 	            return;
-	        //如果对象被销毁，则立即停止缓动
 	        if (target.destroyed)
 	            return Tween.clearTween(target);
 	        var usedTimer = this._usedTimer = time - this._startTimer - this._delay;
@@ -28058,24 +19708,17 @@ window.Laya= (function (exports) {
 	        if (this.update)
 	            this.update.run();
 	    }
-	    /**设置当前执行比例**/
 	    set progress(v) {
 	        var uTime = v * this._duration;
 	        this._startTimer = Browser.now() - this._delay - uTime;
 	    }
-	    /**
-	     * 立即结束缓动并到终点。
-	     */
 	    complete() {
 	        if (!this._target)
 	            return;
-	        //立即执行初始化
 	        ILaya.timer.runTimer(this, this.firstStart);
-	        //缓存当前属性
 	        var target = this._target;
 	        var props = this._props;
 	        var handler = this._complete;
-	        //设置终点属性
 	        for (var i = 0, n = props.length; i < n; i++) {
 	            var prop = props[i];
 	            target[prop[0]] = prop[1] + prop[2];
@@ -28084,18 +19727,13 @@ window.Laya= (function (exports) {
 	            this.update.run();
 	        this._count++;
 	        if (this.repeat != 0 && this._count >= this.repeat) {
-	            //清理
 	            this.clear();
-	            //回调
 	            handler && handler.run();
 	        }
 	        else {
 	            this.restart();
 	        }
 	    }
-	    /**
-	     * 暂停缓动，可以通过resume或restart重新开始。
-	     */
 	    pause() {
 	        ILaya.timer.clear(this, this._beginLoop);
 	        ILaya.timer.clear(this, this._doEase);
@@ -28107,17 +19745,9 @@ window.Laya= (function (exports) {
 	            this._usedTimer = dTime;
 	        }
 	    }
-	    /**
-	     * 设置开始时间。
-	     * @param	startTime 开始时间。
-	     */
 	    setStartTime(startTime) {
 	        this._startTimer = startTime;
 	    }
-	    /**
-	     * 清理指定目标对象上的所有缓动。
-	     * @param	target 目标对象。
-	     */
 	    static clearAll(target) {
 	        if (!target || !target.$_GID)
 	            return;
@@ -28129,29 +19759,18 @@ window.Laya= (function (exports) {
 	            tweens.length = 0;
 	        }
 	    }
-	    /**
-	     * 清理某个缓动。
-	     * @param	tween 缓动对象。
-	     */
 	    static clear(tween) {
 	        tween.clear();
 	    }
-	    /**@private 同clearAll，废弃掉，尽量别用。*/
 	    static clearTween(target) {
 	        Tween.clearAll(target);
 	    }
-	    /**
-	     * 停止并清理当前缓动。
-	     */
 	    clear() {
 	        if (this._target) {
 	            this._remove();
 	            this._clear();
 	        }
 	    }
-	    /**
-	     * @internal
-	     */
 	    _clear() {
 	        this.pause();
 	        ILaya.timer.clear(this, this.firstStart);
@@ -28165,7 +19784,6 @@ window.Laya= (function (exports) {
 	            Pool.recover("tween", this);
 	        }
 	    }
-	    /** 回收到对象池。*/
 	    recover() {
 	        this._usedPool = true;
 	        this._clear();
@@ -28181,9 +19799,6 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**
-	     * 重新开始暂停的缓动。
-	     */
 	    restart() {
 	        this.pause();
 	        this._usedTimer = 0;
@@ -28199,9 +19814,6 @@ window.Laya= (function (exports) {
 	        }
 	        ILaya.timer.once(this._delay, this, this._beginLoop);
 	    }
-	    /**
-	     * 恢复暂停的缓动。
-	     */
 	    resume() {
 	        if (this._usedTimer >= this._duration)
 	            return;
@@ -28222,33 +19834,15 @@ window.Laya= (function (exports) {
 	        return c * t / d + b;
 	    }
 	}
-	/**@private */
 	Tween.tweenMap = [];
 
-	/**
-	 * @private
-	 * <code>Dragging</code> 类是触摸滑动控件。
-	 */
 	class Dragging {
 	    constructor() {
-	        /** 缓动衰减系数。*/
 	        this.ratio = 0.92;
-	        /** 单帧最大偏移量。*/
 	        this.maxOffset = 60;
 	        this._dragging = false;
 	        this._clickOnly = true;
 	    }
-	    /**
-	     * 开始拖拽。
-	     * @param	target 待拖拽的 <code>Sprite</code> 对象。
-	     * @param	area 滑动范围。
-	     * @param	hasInertia 拖动是否有惯性。
-	     * @param	elasticDistance 橡皮筋最大值。
-	     * @param	elasticBackTime 橡皮筋回弹时间，单位为毫秒。
-	     * @param	data 事件携带数据。
-	     * @param	disableMouseEvent 鼠标事件是否有效。
-	     * @param	ratio 惯性阻尼系数
-	     */
 	    start(target, area, hasInertia, elasticDistance, elasticBackTime, data, disableMouseEvent, ratio = 0.92) {
 	        this.clearTimer();
 	        this.target = target;
@@ -28267,12 +19861,8 @@ window.Laya= (function (exports) {
 	        this._lastY = this._parent.mouseY;
 	        ILaya.stage.on(Event.MOUSE_UP, this, this.onStageMouseUp);
 	        ILaya.stage.on(Event.MOUSE_OUT, this, this.onStageMouseUp);
-	        //Laya.stage.on(Event.MOUSE_MOVE, this, onStageMouseMove);
 	        ILaya.systemTimer.frameLoop(1, this, this.loop);
 	    }
-	    /**
-	     * 清除计时器。
-	     */
 	    clearTimer() {
 	        ILaya.systemTimer.clear(this, this.loop);
 	        ILaya.systemTimer.clear(this, this.tweenMove);
@@ -28281,9 +19871,6 @@ window.Laya= (function (exports) {
 	            this._tween = null;
 	        }
 	    }
-	    /**
-	     * 停止拖拽。
-	     */
 	    stop() {
 	        if (this._dragging) {
 	            MouseManager.instance.disableMouseEvent = false;
@@ -28294,9 +19881,6 @@ window.Laya= (function (exports) {
 	            this.clear();
 	        }
 	    }
-	    /**
-	     * 拖拽的循环处理函数。
-	     */
 	    loop() {
 	        var point = this._parent.getMousePoint();
 	        var mouseX = point.x;
@@ -28310,8 +19894,6 @@ window.Laya= (function (exports) {
 	                this._offsets.length = 0;
 	                this.target.event(Event.DRAG_START, this.data);
 	                MouseManager.instance.disableMouseEvent = this._disableMouseEvent;
-	                //TODO:
-	                //target._set$P("$_MOUSEDOWN", false);
 	            }
 	            else
 	                return;
@@ -28328,9 +19910,6 @@ window.Laya= (function (exports) {
 	        this.area && this.checkArea();
 	        this.target.event(Event.DRAG_MOVE, this.data);
 	    }
-	    /**
-	     * 拖拽区域检测。
-	     */
 	    checkArea() {
 	        if (this.elasticDistance <= 0) {
 	            this.backToArea();
@@ -28358,28 +19937,18 @@ window.Laya= (function (exports) {
 	            this._elasticRateY = Math.max(0, 1 - (offsetY / this.elasticDistance));
 	        }
 	    }
-	    /**
-	     * 移动至设定的拖拽区域。
-	     */
 	    backToArea() {
 	        this.target.x = Math.min(Math.max(this.target._x, this.area.x), this.area.x + this.area.width);
 	        this.target.y = Math.min(Math.max(this.target._y, this.area.y), this.area.y + this.area.height);
 	    }
-	    /**
-	     * 舞台的抬起事件侦听函数。
-	     * @param	e Event 对象。
-	     */
 	    onStageMouseUp(e) {
 	        MouseManager.instance.disableMouseEvent = false;
 	        ILaya.stage.off(Event.MOUSE_UP, this, this.onStageMouseUp);
 	        ILaya.stage.off(Event.MOUSE_OUT, this, this.onStageMouseUp);
-	        //Laya.stage.off(Event.MOUSE_MOVE, this, onStageMouseMove);
 	        ILaya.systemTimer.clear(this, this.loop);
 	        if (this._clickOnly || !this.target)
 	            return;
-	        //target.mouseEnabled = true;
 	        if (this.hasInertia) {
-	            //计算平均值
 	            if (this._offsets.length < 1) {
 	                this._offsets.push(this._parent.mouseX - this._lastX, this._parent.mouseY - this._lastY);
 	            }
@@ -28406,9 +19975,6 @@ window.Laya= (function (exports) {
 	            this.clear();
 	        }
 	    }
-	    /**
-	     * 橡皮筋效果检测。
-	     */
 	    checkElastic() {
 	        var tx = NaN;
 	        var ty = NaN;
@@ -28432,9 +19998,6 @@ window.Laya= (function (exports) {
 	            this.clear();
 	        }
 	    }
-	    /**
-	     * 移动。
-	     */
 	    tweenMove() {
 	        this._offsetX *= this.ratio * this._elasticRateX;
 	        this._offsetY *= this.ratio * this._elasticRateY;
@@ -28450,9 +20013,6 @@ window.Laya= (function (exports) {
 	                this.clear();
 	        }
 	    }
-	    /**
-	     * 结束拖拽。
-	     */
 	    clear() {
 	        if (this.target) {
 	            this.clearTimer();
@@ -28464,26 +20024,14 @@ window.Laya= (function (exports) {
 	    }
 	}
 
-	/**
-	 * <code>Component</code> 类用于创建组件的基类。
-	 */
 	class Component {
-	    /**
-	     * 创建一个新的 <code>Component</code> 实例。
-	     */
 	    constructor() {
 	        this._id = Utils.getGID();
 	        this._resetComp();
 	    }
-	    /**
-	     * 获取唯一标识ID。
-	     */
 	    get id() {
 	        return this._id;
 	    }
-	    /**
-	     * 获取是否启用组件。
-	     */
 	    get enabled() {
 	        return this._enabled;
 	    }
@@ -28496,104 +20044,43 @@ window.Laya= (function (exports) {
 	                this.owner.activeInHierarchy && this._onDisable();
 	        }
 	    }
-	    /**
-	     * 获取是否为单实例组件。
-	     */
 	    get isSingleton() {
 	        return true;
 	    }
-	    /**
-	     * 获取是否已经销毁 。
-	     */
 	    get destroyed() {
-	        //[实现IListPool接口]
 	        return this._destroyed;
 	    }
-	    /**
-	     * @internal
-	     */
 	    _isScript() {
 	        return false;
 	    }
-	    /**
-	     * @private
-	     */
 	    _resetComp() {
 	        this._indexInList = -1;
 	        this._enabled = true;
 	        this._awaked = false;
 	        this.owner = null;
 	    }
-	    /**
-	     * [实现IListPool接口]
-	     */
 	    _getIndexInList() {
 	        return this._indexInList;
 	    }
-	    /**
-	     * [实现IListPool接口]
-	     */
 	    _setIndexInList(index) {
 	        this._indexInList = index;
 	    }
-	    /**
-	     * 被添加到节点后调用，可根据需要重写此方法
-	     * @internal
-	     */
 	    _onAdded() {
-	        //override it.
 	    }
-	    /**
-	     * 被激活后调用，可根据需要重写此方法
-	     * @private
-	     */
 	    _onAwake() {
-	        //override it.
 	    }
-	    /**
-	     * 被激活后调用，可根据需要重写此方法
-	     * @private
-	     */
 	    _onEnable() {
-	        //override it.
 	    }
-	    /**
-	     * 被禁用时调用，可根据需要重写此方法
-	     * @private
-	     */
 	    _onDisable() {
-	        //override it.
 	    }
-	    /**
-	     * 被销毁时调用，可根据需要重写此方法
-	     * @private
-	     */
 	    _onDestroy() {
-	        //override it.
 	    }
-	    /**
-	     * 重置组件参数到默认值，如果实现了这个函数，则组件会被重置并且自动回收到对象池，方便下次复用
-	     * 如果没有重置，则不进行回收复用
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onReset() {
-	        //override it.
 	    }
-	    /**
-	     * @internal
-	     */
 	    _parse(data) {
-	        //override it.
 	    }
-	    /**
-	     * @internal
-	     */
 	    _cloneTo(dest) {
-	        //override it.
 	    }
-	    /**
-	     * @internal
-	     */
 	    _setActive(value) {
 	        if (value) {
 	            if (!this._awaked) {
@@ -28606,16 +20093,10 @@ window.Laya= (function (exports) {
 	            this._enabled && this._onDisable();
 	        }
 	    }
-	    /**
-	     * 销毁组件
-	     */
 	    destroy() {
 	        if (this.owner)
 	            this.owner._destroyComponent(this);
 	    }
-	    /**
-	     * @internal
-	     */
 	    _destroy() {
 	        if (this.owner.activeInHierarchy && this._enabled) {
 	            this._setActive(false);
@@ -28634,43 +20115,15 @@ window.Laya= (function (exports) {
 	    }
 	}
 
-	/**
-	 * 动画播放完毕后调度。
-	 * @eventType Event.COMPLETE
-	 */
-	/*[Event(name = "complete", type = "laya.events.Event")]*/
-	/**
-	 * 播放到某标签后调度。
-	 * @eventType Event.LABEL
-	 */
-	/*[Event(name = "label", type = "laya.events.Event")]*/
-	/**
-	 * <p>动画基类，提供了基础的动画播放控制方法和帧标签事件相关功能。</p>
-	 * <p>可以继承此类，但不要直接实例化此类，因为有些方法需要由子类实现。</p>
-	 */
 	class AnimationBase extends Sprite {
-	    /**
-	     * 可以继承此类，但不要直接实例化此类，因为有些方法需要由子类实现。
-	     */
 	    constructor() {
 	        super();
-	        /**播放顺序类型：AnimationBase.WRAP_POSITIVE为正序播放(默认值)，AnimationBase.WRAP_REVERSE为倒序播放，AnimationBase.WRAP_PINGPONG为pingpong播放(当按指定顺序播放完结尾后，如果继续播发，则会改变播放顺序)。*/
 	        this.wrapMode = 0;
-	        /**@private 播放间隔(单位：毫秒)。*/
 	        this._interval = Config.animationInterval;
-	        /**是否是逆序播放*/
 	        this._isReverse = false;
-	        /**@private */
 	        this._frameRateChanged = false;
 	        this._setBitUp(Const.DISPLAY);
 	    }
-	    /**
-	     * <p>开始播放动画。play(...)方法被设计为在创建实例后的任何时候都可以被调用，当相应的资源加载完毕、调用动画帧填充方法(set frames)或者将实例显示在舞台上时，会判断是否正在播放中，如果是，则进行播放。</p>
-	     * <p>配合wrapMode属性，可设置动画播放顺序类型。</p>
-	     * @param	start	（可选）指定动画播放开始的索引(int)或帧标签(String)。帧标签可以通过addLabel(...)和removeLabel(...)进行添加和删除。
-	     * @param	loop	（可选）是否循环播放。
-	     * @param	name	（可选）动画名称。
-	     */
 	    play(start = 0, loop = true, name = "") {
 	        this._isPlaying = true;
 	        this._actionName = name;
@@ -28683,10 +20136,6 @@ window.Laya= (function (exports) {
 	        if (this.interval > 0)
 	            this.timerLoop(this.interval, this, this._frameLoop, null, true, true);
 	    }
-	    /**
-	     * <p>动画播放的帧间隔时间(单位：毫秒)。默认值依赖于Config.animationInterval=50，通过Config.animationInterval可以修改默认帧间隔时间。</p>
-	     * <p>要想为某动画设置独立的帧间隔时间，可以使用set interval，注意：如果动画正在播放，设置后会重置帧循环定时器的起始时间为当前时间，也就是说，如果频繁设置interval，会导致动画帧更新的时间间隔会比预想的要慢，甚至不更新。</p>
-	     */
 	    get interval() {
 	        return this._interval;
 	    }
@@ -28699,7 +20148,6 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**@private */
 	    _getFrameByLabel(label) {
 	        for (var i = 0; i < this._count; i++) {
 	            var item = this._labels[i];
@@ -28708,7 +20156,6 @@ window.Laya= (function (exports) {
 	        }
 	        return 0;
 	    }
-	    /**@private */
 	    _frameLoop() {
 	        if (this._isReverse) {
 	            this._index--;
@@ -28754,7 +20201,6 @@ window.Laya= (function (exports) {
 	        }
 	        this.index = this._index;
 	    }
-	    /**@internal */
 	    _setControlNode(node) {
 	        if (this._controlNode) {
 	            this._controlNode.off(Event.DISPLAY, this, this._resumePlay);
@@ -28766,14 +20212,10 @@ window.Laya= (function (exports) {
 	            node.on(Event.UNDISPLAY, this, this._resumePlay);
 	        }
 	    }
-	    /**@internal
-	     * @override
-	    */
 	    _setDisplay(value) {
 	        super._setDisplay(value);
 	        this._resumePlay();
 	    }
-	    /**@private */
 	    _resumePlay() {
 	        if (this._isPlaying) {
 	            if (this._controlNode.displayedInStage)
@@ -28782,24 +20224,13 @@ window.Laya= (function (exports) {
 	                this.clearTimer(this, this._frameLoop);
 	        }
 	    }
-	    /**
-	     * 停止动画播放。
-	     */
 	    stop() {
 	        this._isPlaying = false;
 	        this.clearTimer(this, this._frameLoop);
 	    }
-	    /**
-	     * 是否正在播放中。
-	     */
 	    get isPlaying() {
 	        return this._isPlaying;
 	    }
-	    /**
-	     * 增加一个帧标签到指定索引的帧上。当动画播放到此索引的帧时会派发Event.LABEL事件，派发事件是在完成当前帧画面更新之后。
-	     * @param	label	帧标签名称
-	     * @param	index	帧索引
-	     */
 	    addLabel(label, index) {
 	        if (!this._labels)
 	            this._labels = {};
@@ -28807,10 +20238,6 @@ window.Laya= (function (exports) {
 	            this._labels[index] = [];
 	        this._labels[index].push(label);
 	    }
-	    /**
-	     * 删除指定的帧标签。
-	     * @param	label 帧标签名称。注意：如果为空，则删除所有帧标签！
-	     */
 	    removeLabel(label) {
 	        if (!label)
 	            this._labels = null;
@@ -28820,7 +20247,6 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**@private */
 	    _removeLabelFromList(list, label) {
 	        if (!list)
 	            return;
@@ -28830,17 +20256,10 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**
-	     * 将动画切换到指定帧并停在那里。
-	     * @param	position 帧索引或帧标签
-	     */
 	    gotoAndStop(position) {
 	        this.index = (typeof (position) == 'string') ? this._getFrameByLabel(position) : position;
 	        this.stop();
 	    }
-	    /**
-	     * 动画当前帧的索引。
-	     */
 	    get index() {
 	        return this._index;
 	    }
@@ -28854,42 +20273,23 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**
-	     * @private
-	     * 显示到某帧
-	     * @param value 帧索引
-	     */
 	    _displayToIndex(value) {
 	    }
-	    /**
-	     * 当前动画中帧的总数。
-	     */
 	    get count() {
 	        return this._count;
 	    }
-	    /**
-	     * 停止动画播放，并清理对象属性。之后可存入对象池，方便对象复用。
-	     * @return 返回对象本身
-	     */
 	    clear() {
 	        this.stop();
 	        this._labels = null;
 	        return this;
 	    }
 	}
-	/**动画播放顺序类型：正序播放。 */
 	AnimationBase.WRAP_POSITIVE = 0;
-	/**动画播放顺序类型：逆序播放。 */
 	AnimationBase.WRAP_REVERSE = 1;
-	/**动画播放顺序类型：pingpong播放(当按指定顺序播放完结尾后，如果继续播放，则会改变播放顺序)。 */
 	AnimationBase.WRAP_PINGPONG = 2;
 	ClassUtils.regClass("laya.display.AnimationBase", AnimationBase);
 	ClassUtils.regClass("Laya.AnimationBase", AnimationBase);
 
-	/**
-	     * @private
-	     * <code>MathUtil</code> 是一个数据处理工具类。
-	     */
 	class MathUtil {
 	    static subtractVector3(l, r, o) {
 	        o[0] = l[0] - r[0];
@@ -28920,9 +20320,7 @@ window.Laya= (function (exports) {
 	    static slerpQuaternionArray(a, Offset1, b, Offset2, t, out, Offset3) {
 	        var ax = a[Offset1 + 0], ay = a[Offset1 + 1], az = a[Offset1 + 2], aw = a[Offset1 + 3], bx = b[Offset2 + 0], by = b[Offset2 + 1], bz = b[Offset2 + 2], bw = b[Offset2 + 3];
 	        var omega, cosom, sinom, scale0, scale1;
-	        // calc cosine 
 	        cosom = ax * bx + ay * by + az * bz + aw * bw;
-	        // adjust signs (if necessary) 
 	        if (cosom < 0.0) {
 	            cosom = -cosom;
 	            bx = -bx;
@@ -28930,85 +20328,41 @@ window.Laya= (function (exports) {
 	            bz = -bz;
 	            bw = -bw;
 	        }
-	        // calculate coefficients 
 	        if ((1.0 - cosom) > 0.000001) {
-	            // standard case (slerp) 
 	            omega = Math.acos(cosom);
 	            sinom = Math.sin(omega);
 	            scale0 = Math.sin((1.0 - t) * omega) / sinom;
 	            scale1 = Math.sin(t * omega) / sinom;
 	        }
 	        else {
-	            // "from" and "to" quaternions are very close  
-	            //  ... so we can do a linear interpolation 
 	            scale0 = 1.0 - t;
 	            scale1 = t;
 	        }
-	        // calculate final values 
 	        out[Offset3 + 0] = scale0 * ax + scale1 * bx;
 	        out[Offset3 + 1] = scale0 * ay + scale1 * by;
 	        out[Offset3 + 2] = scale0 * az + scale1 * bz;
 	        out[Offset3 + 3] = scale0 * aw + scale1 * bw;
 	        return out;
 	    }
-	    /**
-	     * 获取指定的两个点组成的线段的弧度值。
-	     * @param	x0 点一的 X 轴坐标值。
-	     * @param	y0 点一的 Y 轴坐标值。
-	     * @param	x1 点二的 X 轴坐标值。
-	     * @param	y1 点二的 Y 轴坐标值。
-	     * @return 弧度值。
-	     */
 	    static getRotation(x0, y0, x1, y1) {
 	        return Math.atan2(y1 - y0, x1 - x0) / Math.PI * 180;
 	    }
-	    /**
-	     * 一个用来确定数组元素排序顺序的比较函数。
-	     * @param	a 待比较数字。
-	     * @param	b 待比较数字。
-	     * @return 如果a等于b 则值为0；如果b>a则值为1；如果b<则值为-1。
-	     */
 	    static sortBigFirst(a, b) {
 	        if (a == b)
 	            return 0;
 	        return b > a ? 1 : -1;
 	    }
-	    /**
-	     * 一个用来确定数组元素排序顺序的比较函数。
-	     * @param	a 待比较数字。
-	     * @param	b 待比较数字。
-	     * @return 如果a等于b 则值为0；如果b>a则值为-1；如果b<则值为1。
-	     */
 	    static sortSmallFirst(a, b) {
 	        if (a == b)
 	            return 0;
 	        return b > a ? -1 : 1;
 	    }
-	    /**
-	     * 将指定的元素转为数字进行比较。
-	     * @param	a 待比较元素。
-	     * @param	b 待比较元素。
-	     * @return b、a转化成数字的差值 (b-a)。
-	     */
 	    static sortNumBigFirst(a, b) {
 	        return parseFloat(b) - parseFloat(a);
 	    }
-	    /**
-	     * 将指定的元素转为数字进行比较。
-	     * @param	a 待比较元素。
-	     * @param	b 待比较元素。
-	     * @return a、b转化成数字的差值 (a-b)。
-	     */
 	    static sortNumSmallFirst(a, b) {
 	        return parseFloat(a) - parseFloat(b);
 	    }
-	    /**
-	     * 返回根据对象指定的属性进行排序的比较函数。
-	     * @param	key 排序要依据的元素属性名。
-	     * @param	bigFirst 如果值为true，则按照由大到小的顺序进行排序，否则按照由小到大的顺序进行排序。
-	     * @param	forceNum 如果值为true，则将排序的元素转为数字进行比较。
-	     * @return 排序函数。
-	     */
 	    static sortByKey(key, bigFirst = false, forceNum = true) {
 	        var _sortFun;
 	        if (bigFirst) {
@@ -29023,19 +20377,6 @@ window.Laya= (function (exports) {
 	    }
 	}
 
-	/**
-	 * 动画播放完毕后调度。
-	 * @eventType Event.COMPLETE
-	 */
-	/*[Event(name = "complete", type = "laya.events.Event")]*/
-	/**
-	 * 播放到某标签后调度。
-	 * @eventType Event.LABEL
-	 */
-	/*[Event(name = "label", type = "laya.events.Event")]*/
-	/**
-	 * 节点关键帧动画播放类。解析播放IDE内制作的节点动画。
-	 */
 	class FrameAnimation extends AnimationBase {
 	    constructor() {
 	        super();
@@ -29043,12 +20384,6 @@ window.Laya= (function (exports) {
 	            FrameAnimation._sortIndexFun = MathUtil.sortByKey("index", false, true);
 	        }
 	    }
-	    /**
-	     * @internal
-	     * 初始化动画数据
-	     * @param targetDic 节点ID索引
-	     * @param animationData 动画数据
-	     */
 	    _setUp(targetDic, animationData) {
 	        this._targetDic = targetDic;
 	        this._animationData = animationData;
@@ -29067,18 +20402,12 @@ window.Laya= (function (exports) {
 	            animationData.animationNewFrames = this._usedFrames;
 	        }
 	    }
-	    /**@inheritDoc
-	     * @override
-	    */
 	    clear() {
 	        super.clear();
 	        this._targetDic = null;
 	        this._animationData = null;
 	        return this;
 	    }
-	    /**@inheritDoc
-	     * @override
-	    */
 	    _displayToIndex(value) {
 	        if (!this._animationData)
 	            return;
@@ -29091,19 +20420,11 @@ window.Laya= (function (exports) {
 	            this._displayNodeToFrame(nodes[i], value);
 	        }
 	    }
-	    /**
-	     * @private
-	     * 将节点设置到某一帧的状态
-	     * @param node 节点ID
-	     * @param frame
-	     * @param targetDic 节点表
-	     */
 	    _displayNodeToFrame(node, frame, targetDic = null) {
 	        if (!targetDic)
 	            targetDic = this._targetDic;
 	        var target = targetDic[node.target];
 	        if (!target) {
-	            //trace("loseTarget:",node.target);
 	            return;
 	        }
 	        var frames = node.frames, key, propFrames, value;
@@ -29132,10 +20453,6 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**
-	     * @private
-	     * 计算帧数据
-	     */
 	    _calculateDatas() {
 	        if (!this._animationData)
 	            return;
@@ -29147,10 +20464,6 @@ window.Laya= (function (exports) {
 	        }
 	        this._count += 1;
 	    }
-	    /**
-	     * @private
-	     * 计算某个节点的帧数据
-	     */
 	    _calculateKeyFrames(node) {
 	        var keyFrames = node.keyframes, key, tKeyFrames, target = node.target;
 	        if (!node.frames)
@@ -29193,9 +20506,6 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**
-	     * 重置节点，使节点恢复到动画之前的状态，方便其他动画控制
-	     */
 	    resetNodes() {
 	        if (!this._targetDic)
 	            return;
@@ -29218,10 +20528,6 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**
-	     * @private
-	     * 计算节点某个属性的帧数据
-	     */
 	    _calculateNodePropFrames(keyframes, frames, key, target) {
 	        var i, len = keyframes.length - 1;
 	        frames.length = keyframes[len].index + 1;
@@ -29236,17 +20542,10 @@ window.Laya= (function (exports) {
 	        }
 	        this._dealKeyFrame(keyframes[i]);
 	    }
-	    /**
-	     * @private
-	     */
 	    _dealKeyFrame(keyFrame) {
 	        if (keyFrame.label && keyFrame.label != "")
 	            this.addLabel(keyFrame.label, keyFrame.index);
 	    }
-	    /**
-	     * @private
-	     * 计算两个关键帧直接的帧数据
-	     */
 	    _calculateFrameValues(startFrame, endFrame, result) {
 	        var i, easeFun;
 	        var start = startFrame.index, end = endFrame.index;
@@ -29282,38 +20581,23 @@ window.Laya= (function (exports) {
 	ClassUtils.regClass("Laya.FrameAnimation", FrameAnimation);
 
 	var supportWeakMap = !!WeakMap;
-	/**
-	     * 封装弱引用WeakMap
-	     * 如果支持WeakMap，则使用WeakMap，如果不支持，则用Object代替
-	     * 注意：如果采用Object，为了防止内存泄漏，则采用定时清理缓存策略
-	     */
 	class WeakObject {
 	    constructor() {
 	        this._obj = WeakObject.supportWeakMap ? new Browser.window.WeakMap() : {};
 	        if (!WeakObject.supportWeakMap)
 	            WeakObject._maps.push(this);
 	    }
-	    /**@internal */
 	    static __init__() {
 	        WeakObject.I = new WeakObject();
-	        //WeakObject.supportWeakMap = Browser.window.WeakMap != null;
-	        //如果不支持，10分钟回收一次
 	        if (!WeakObject.supportWeakMap)
 	            window.Laya.systemTimer.loop(WeakObject.delInterval, null, WeakObject.clearCache);
 	    }
-	    /**清理缓存，回收内存*/
-	    //TODO:coverage
 	    static clearCache() {
 	        for (var i = 0, n = WeakObject._maps.length; i < n; i++) {
 	            var obj = WeakObject._maps[i];
 	            obj._obj = {};
 	        }
 	    }
-	    /**
-	     * 设置缓存
-	     * @param	key kye对象，可被回收
-	     * @param	value object对象，可被回收
-	     */
 	    set(key, value) {
 	        if (key == null)
 	            return;
@@ -29336,10 +20620,6 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**
-	     * 获取缓存
-	     * @param	key kye对象，可被回收
-	     */
 	    get(key) {
 	        if (key == null)
 	            return null;
@@ -29355,10 +20635,6 @@ window.Laya= (function (exports) {
 	            return this._obj[key.$_GID];
 	        }
 	    }
-	    /**
-	     * 删除缓存
-	     */
-	    //TODO:coverage
 	    del(key) {
 	        if (key == null)
 	            return;
@@ -29375,10 +20651,6 @@ window.Laya= (function (exports) {
 	                delete this._obj[this._obj.$_GID];
 	        }
 	    }
-	    /**
-	     * 是否有缓存
-	     */
-	    //TODO:coverage
 	    has(key) {
 	        if (key == null)
 	            return false;
@@ -29393,27 +20665,15 @@ window.Laya= (function (exports) {
 	        }
 	    }
 	}
-	/**是否支持WeakMap*/
 	WeakObject.supportWeakMap = supportWeakMap;
-	/**如果不支持WeakMap，则多少时间清理一次缓存，默认10分钟清理一次*/
 	WeakObject.delInterval = 10 * 60 * 1000;
-	/**@private */
 	WeakObject._keys = {};
-	/**@private */
 	WeakObject._maps = [];
-	//WeakObject.__init__();
 
-	/**
-	 * @private 场景辅助类
-	 */
 	class SceneUtils {
 	    static __init() {
 	        SceneUtils._funMap = new WeakObject();
 	    }
-	    /**
-	     * @private 根据字符串，返回函数表达式
-	     */
-	    //TODO:coverage
 	    static getBindFun(value) {
 	        var fun = SceneUtils._funMap.get(value);
 	        if (fun == null) {
@@ -29425,21 +20685,13 @@ window.Laya= (function (exports) {
 	        }
 	        return fun;
 	    }
-	    /**
-	     * @private
-	     * 通过视图数据创建视图。
-	     * @param uiView 视图数据信息。
-	     */
-	    //TODO:coverage
 	    static createByData(root, uiView) {
 	        var tInitTool = InitTool.create();
-	        //递归创建节点
 	        root = SceneUtils.createComp(uiView, root, root, null, tInitTool);
 	        root._setBit(Const.NOT_READY, true);
 	        if ("_idMap" in root) {
 	            root["_idMap"] = tInitTool._idMap;
 	        }
-	        //处理动画信息
 	        if (uiView.animations) {
 	            var anilist = [];
 	            var animations = uiView.animations;
@@ -29464,23 +20716,14 @@ window.Laya= (function (exports) {
 	            }
 	            root._aniList = anilist;
 	        }
-	        //设置页面穿透
 	        if (root._$componentType === "Scene" && root._width > 0 && uiView.props.hitTestPrior == null && !root.mouseThrough)
 	            root.hitTestPrior = true;
-	        //设置组件
 	        tInitTool.beginLoad(root);
 	        return root;
 	    }
 	    static createInitTool() {
 	        return InitTool.create();
 	    }
-	    /**
-	     * 根据UI数据实例化组件。
-	     * @param uiView UI数据。
-	     * @param comp 组件本体，如果为空，会新创建一个。
-	     * @param view 组件所在的视图实例，用来注册var全局变量，如果值为空则不注册。
-	     * @return 一个 Component 对象。
-	     */
 	    static createComp(uiView, comp = null, view = null, dataMap = null, initTool = null) {
 	        if (uiView.type == "Scene3D" || uiView.type == "Sprite3D") {
 	            var outBatchSprits = [];
@@ -29505,11 +20748,9 @@ window.Laya= (function (exports) {
 	            for (var i = 0, n = child.length; i < n; i++) {
 	                var node = child[i];
 	                if ('itemRender' in comp && (node.props.name == "render" || node.props.renderType === "render")) {
-	                    //如果list的itemRender
 	                    comp["itemRender"] = node;
 	                }
 	                else if (node.type == "Graphic") {
-	                    //绘制矢量图
 	                    ILaya.ClassUtils._addGraphicsToSprite(node, comp);
 	                }
 	                else if (ILaya.ClassUtils._isDrawType(node.type)) {
@@ -29517,7 +20758,6 @@ window.Laya= (function (exports) {
 	                }
 	                else {
 	                    if (isList) {
-	                        //收集数据绑定信息
 	                        var arr = [];
 	                        var tChild = SceneUtils.createComp(node, null, view, arr, initTool);
 	                        if (arr.length)
@@ -29526,13 +20766,11 @@ window.Laya= (function (exports) {
 	                    else {
 	                        tChild = SceneUtils.createComp(node, null, view, dataMap, initTool);
 	                    }
-	                    //处理脚本
 	                    if (node.type == "Script") {
 	                        if (tChild instanceof Component) {
 	                            comp._addComponentInstance(tChild);
 	                        }
 	                        else {
-	                            //兼容老版本
 	                            if ("owner" in tChild) {
 	                                tChild["owner"] = comp;
 	                            }
@@ -29562,44 +20800,28 @@ window.Laya= (function (exports) {
 	                SceneUtils.setCompValue(comp, prop, value, view, dataMap);
 	        }
 	        if (comp._afterInited) {
-	            //if (initTool) {
-	            //initTool.addInitItem(comp);
-	            //} else {
 	            comp._afterInited();
-	            //}
 	        }
 	        if (uiView.compId && initTool && initTool._idMap) {
 	            initTool._idMap[uiView.compId] = comp;
 	        }
 	        return comp;
 	    }
-	    /**
-	     * @private
-	     * 设置组件的属性值。
-	     * @param comp 组件实例。
-	     * @param prop 属性名称。
-	     * @param value 属性值。
-	     * @param view 组件所在的视图实例，用来注册var全局变量，如果值为空则不注册。
-	     */
 	    static setCompValue(comp, prop, value, view = null, dataMap = null) {
-	        //处理数据绑定
 	        if (typeof (value) == 'string' && value.indexOf("${") > -1) {
 	            SceneUtils._sheet || (SceneUtils._sheet = ILaya.ClassUtils.getClass("laya.data.Table"));
 	            if (!SceneUtils._sheet) {
 	                console.warn("Can not find class Sheet");
 	                return;
 	            }
-	            //list的item处理
 	            if (dataMap) {
 	                dataMap.push(comp, prop, value);
 	            }
 	            else if (view) {
 	                if (value.indexOf("].") == -1) {
-	                    //TODO
 	                    value = value.replace(".", "[0].");
 	                }
 	                var watcher = new DataWatcher(comp, prop, value);
-	                //执行第一次数据赋值
 	                watcher.exe(view);
 	                var one, temp;
 	                var str = value.replace(/\[.*?\]\./g, ".");
@@ -29609,15 +20831,12 @@ window.Laya= (function (exports) {
 	                        var key2 = temp[0];
 	                        var arr = (view._watchMap[key2] || (view._watchMap[key2] = []));
 	                        arr.push(watcher);
-	                        //监听数据变化
 	                        SceneUtils._sheet.I.notifer.on(key2, view, view.changeData, [key2]);
 	                    }
-	                    //TODO
 	                    arr = (view._watchMap[key1] || (view._watchMap[key1] = []));
 	                    arr.push(watcher);
 	                    SceneUtils._sheet.I.notifer.on(key1, view, view.changeData, [key1]);
 	                }
-	                //trace(view._watchMap);
 	            }
 	            return;
 	        }
@@ -29628,12 +20847,6 @@ window.Laya= (function (exports) {
 	            comp[prop] = (value === "true" ? true : (value === "false" ? false : value));
 	        }
 	    }
-	    /**
-	     * @private
-	     * 通过组建UI数据，获取组件实例。
-	     * @param json UI数据。
-	     * @return Component 对象。
-	     */
 	    static getCompInstance(json) {
 	        if (json.type == "UIView") {
 	            if (json.props && json.props.pageData) {
@@ -29657,15 +20870,9 @@ window.Laya= (function (exports) {
 	        return new compClass();
 	    }
 	}
-	/**@private */
 	SceneUtils._parseWatchData = /\${(.*?)}/g;
-	/**@private */
 	SceneUtils._parseKeyWord = /[a-zA-Z_][a-zA-Z0-9_]*(?:(?:\.[a-zA-Z_][a-zA-Z0-9_]*)+)/g;
-	/**
-	 * @private 场景辅助类
-	 */
 	class DataWatcher {
-	    //TODO:coverage
 	    constructor(comp, prop, value) {
 	        this.comp = comp;
 	        this.prop = prop;
@@ -29676,11 +20883,7 @@ window.Laya= (function (exports) {
 	        this.comp[this.prop] = fun.call(this, view);
 	    }
 	}
-	/**
-	 * @private 场景辅助类
-	 */
 	class InitTool {
-	    //TODO:coverage
 	    reset() {
 	        this._nodeRefList = null;
 	        this._initList = null;
@@ -29688,7 +20891,6 @@ window.Laya= (function (exports) {
 	        this._loadList = null;
 	        this._scene = null;
 	    }
-	    //TODO:coverage
 	    recover() {
 	        this.reset();
 	        Pool.recover("InitTool", this);
@@ -29698,7 +20900,6 @@ window.Laya= (function (exports) {
 	        tool._idMap = [];
 	        return tool;
 	    }
-	    //TODO:coverage
 	    addLoadRes(url, type = null) {
 	        if (!this._loadList)
 	            this._loadList = [];
@@ -29709,8 +20910,6 @@ window.Laya= (function (exports) {
 	            this._loadList.push({ url: url, type: type });
 	        }
 	    }
-	    /**@private */
-	    //TODO:coverage
 	    addNodeRef(node, prop, referStr) {
 	        if (!this._nodeRefList)
 	            this._nodeRefList = [];
@@ -29719,8 +20918,6 @@ window.Laya= (function (exports) {
 	            this.addLoadRes(referStr.replace("@Prefab:", ""), Loader.PREFAB);
 	        }
 	    }
-	    /**@private */
-	    //TODO:coverage
 	    setNodeRef() {
 	        if (!this._nodeRefList)
 	            return;
@@ -29737,8 +20934,6 @@ window.Laya= (function (exports) {
 	        }
 	        this._nodeRefList = null;
 	    }
-	    /**@private */
-	    //TODO:coverage
 	    getReferData(referStr) {
 	        if (referStr.indexOf("@Prefab:") >= 0) {
 	            var prefab;
@@ -29767,22 +20962,16 @@ window.Laya= (function (exports) {
 	            return this._idMap[referStr.replace("@node:", "")];
 	        }
 	    }
-	    /**@private */
-	    //TODO:coverage
 	    addInitItem(item) {
 	        if (!this._initList)
 	            this._initList = [];
 	        this._initList.push(item);
 	    }
-	    /**@private */
-	    //TODO:coverage
 	    doInits() {
 	        if (!this._initList)
 	            return;
 	        this._initList = null;
 	    }
-	    /**@private */
-	    //TODO:coverage
 	    finish() {
 	        this.setNodeRef();
 	        this.doInits();
@@ -29792,8 +20981,6 @@ window.Laya= (function (exports) {
 	        this._scene.event("onViewCreated");
 	        this.recover();
 	    }
-	    /**@private */
-	    //TODO:coverage
 	    beginLoad(scene) {
 	        this._scene = scene;
 	        if (!this._loadList || this._loadList.length < 1) {
@@ -29805,57 +20992,29 @@ window.Laya= (function (exports) {
 	    }
 	}
 
-	/**
-	     * @author laya
-	     */
 	class IStatRender {
-	    /**
-	     * 显示性能统计信息。
-	     * @param	x X轴显示位置。
-	     * @param	y Y轴显示位置。
-	     */
 	    show(x = 0, y = 0) {
 	    }
-	    /**激活性能统计*/
 	    enable() {
 	    }
-	    /**
-	     * 隐藏性能统计信息。
-	     */
 	    hide() {
 	    }
-	    /**
-	     * 点击性能统计显示区域的处理函数。
-	     */
 	    set_onclick(fn) {
 	    }
 	    isCanvasRender() {
 	        return true;
 	    }
-	    // 非canvas模式的渲染
 	    renderNotCanvas(ctx, x, y) { }
 	}
 
-	/**
-	 * 显示Stat的结果。由于stat会引入很多的循环引用，所以把显示部分拆开
-	 * @author laya
-	 */
 	class StatUI extends IStatRender {
 	    constructor() {
 	        super(...arguments);
-	        /**@internal */
 	        this._show = false;
-	        /**@internal */
 	        this._useCanvas = false;
 	        this._height = 100;
 	        this._view = [];
 	    }
-	    /**
-	     * @override
-	     * 显示性能统计信息。
-	     * @param	x X轴显示位置。
-	     * @param	y Y轴显示位置。
-	     */
 	    show(x = 0, y = 0) {
 	        if (!Browser.onMiniGame && !ILaya.Render.isConchApp && !Browser.onBDMiniGame && !Browser.onKGMiniGame && !Browser.onQGMiniGame)
 	            this._useCanvas = true;
@@ -29932,7 +21091,6 @@ window.Laya= (function (exports) {
 	            text += one.title + "\n";
 	        }
 	        this._leftText.text = text;
-	        //调整为合适大小和字体			
 	        var width = pixel * 138;
 	        var height = pixel * (this._view.length * 12 + 3 * pixel) + 4;
 	        this._txt.fontSize = StatUI._fontSize * pixel;
@@ -29944,17 +21102,9 @@ window.Laya= (function (exports) {
 	        stat.graphics.alpha(2);
 	        this.loop();
 	    }
-	    /**
-	     * @override
-	     * 激活性能统计
-	     * */
 	    enable() {
 	        ILaya.systemTimer.frameLoop(1, this, this.loop);
 	    }
-	    /**
-	     * @override
-	     * 隐藏性能统计信息。
-	     */
 	    hide() {
 	        this._show = false;
 	        ILaya.systemTimer.clear(this, this.loop);
@@ -29962,10 +21112,6 @@ window.Laya= (function (exports) {
 	            Browser.removeElement(this._canvas.source);
 	        }
 	    }
-	    /**
-	     * @override
-	     * 点击性能统计显示区域的处理函数。
-	     */
 	    set_onclick(fn) {
 	        if (this._sp) {
 	            this._sp.on("click", this._sp, fn);
@@ -29975,20 +21121,14 @@ window.Laya= (function (exports) {
 	            this._canvas.source.style.pointerEvents = '';
 	        }
 	    }
-	    /**
-	     * @private
-	     * 性能统计参数计算循环处理函数。
-	     */
 	    loop() {
 	        Stat._count++;
 	        var timer = Browser.now();
 	        if (timer - Stat._timer < 1000)
 	            return;
 	        var count = Stat._count;
-	        //计算更精确的FPS值
 	        Stat.FPS = Math.round((count * 1000) / (timer - Stat._timer));
 	        if (this._show) {
-	            //计算平均值
 	            Stat.trianglesFaces = Math.round(Stat.trianglesFaces / count);
 	            if (!this._useCanvas) {
 	                Stat.renderBatches = Math.round(Stat.renderBatches / count) - 1;
@@ -30006,9 +21146,6 @@ window.Laya= (function (exports) {
 	            Stat.octreeNodeCulling = Math.round(Stat.octreeNodeCulling / count);
 	            var delay = Stat.FPS > 0 ? Math.floor(1000 / Stat.FPS).toString() : " ";
 	            Stat._fpsStr = Stat.FPS + (Stat.renderSlow ? " slow" : "") + " " + delay;
-	            // if (this._useCanvas)
-	            // Stat._spriteStr = (Stat.spriteCount - 1) + (Stat.spriteRenderUseCacheCount ? ("/" + Stat.spriteRenderUseCacheCount) : '');
-	            // else
 	            Stat._spriteStr = Stat.spriteCount + (Stat.spriteRenderUseCacheCount ? ("/" + Stat.spriteRenderUseCacheCount) : '');
 	            Stat._canvasStr = Stat.canvasReCache + "/" + Stat.canvasNormal + "/" + Stat.canvasBitmap;
 	            Stat.cpuMemory = Resource.cpuMemory;
@@ -30032,7 +21169,6 @@ window.Laya= (function (exports) {
 	            ctx.clearRect(this._first ? 0 : this._vx, 0, this._width, this._height);
 	            for (i = 0; i < this._view.length; i++) {
 	                one = this._view[i];
-	                //只有第一次才渲染标题文字，减少文字渲染次数
 	                if (this._first) {
 	                    ctx.fillStyle = "white";
 	                    ctx.fillText(one.title, one.x, one.y);
@@ -30055,58 +21191,31 @@ window.Laya= (function (exports) {
 	        }
 	        this._txt.text = text;
 	    }
-	    /**
-	     * @override
-	     */
 	    isCanvasRender() {
 	        return this._useCanvas;
 	    }
-	    /**
-	     * @override
-	     * 非canvas模式的渲染
-	     * */
 	    renderNotCanvas(ctx, x, y) {
 	        this._show && this._sp && this._sp.render(ctx, 0, 0);
 	    }
 	}
 	StatUI._fontSize = 12;
 
-	/**
-	     * <code>Timer</code> 是时钟管理类。它是一个单例，不要手动实例化此类，应该通过 Laya.timer 访问。
-	     */
 	class Timer {
-	    /**
-	     * 创建 <code>Timer</code> 类的一个实例。
-	     */
 	    constructor(autoActive = true) {
-	        /** 时针缩放。*/
 	        this.scale = 1;
-	        /** 当前帧开始的时间。*/
 	        this.currTimer = Date.now();
-	        /** 当前的帧数。*/
 	        this.currFrame = 0;
-	        /**@internal 两帧之间的时间间隔,单位毫秒。*/
 	        this._delta = 0;
-	        /**@internal */
 	        this._lastTimer = Date.now();
-	        /**@private */
 	        this._map = [];
-	        /**@private */
 	        this._handlers = [];
-	        /**@private */
 	        this._temp = [];
-	        /**@private */
 	        this._count = 0;
 	        autoActive && Timer.gSysTimer && Timer.gSysTimer.frameLoop(1, this, this._update);
 	    }
-	    /**两帧之间的时间间隔,单位毫秒。*/
 	    get delta() {
 	        return this._delta;
 	    }
-	    /**
-	     * @internal
-	     * 帧循环处理函数。
-	     */
 	    _update() {
 	        if (this.scale <= 0) {
 	            this._lastTimer = Date.now();
@@ -30119,7 +21228,6 @@ window.Laya= (function (exports) {
 	        this._delta = (now - this._lastTimer) * this.scale;
 	        var timer = this.currTimer = this.currTimer + this._delta;
 	        this._lastTimer = now;
-	        //处理handler
 	        var handlers = this._handlers;
 	        this._count = 0;
 	        for (var i = 0, n = handlers.length; i < n; i++) {
@@ -30132,7 +21240,6 @@ window.Laya= (function (exports) {
 	                            handler.exeTime += handler.delay;
 	                            handler.run(false);
 	                            if (t > handler.exeTime) {
-	                                //如果执行一次后还能再执行，做跳出处理，如果想用多次执行，需要设置jumpFrame=true
 	                                handler.exeTime += Math.ceil((t - handler.exeTime) / handler.delay) * handler.delay;
 	                            }
 	                        }
@@ -30155,7 +21262,6 @@ window.Laya= (function (exports) {
 	        if (this._count > 30 || frame % 200 === 0)
 	            this._clearHandlers();
 	    }
-	    /** @private */
 	    _clearHandlers() {
 	        var handlers = this._handlers;
 	        for (var i = 0, n = handlers.length; i < n; i++) {
@@ -30169,21 +21275,17 @@ window.Laya= (function (exports) {
 	        handlers.length = 0;
 	        this._temp = handlers;
 	    }
-	    /** @private */
 	    _recoverHandler(handler) {
 	        if (this._map[handler.key] == handler)
 	            this._map[handler.key] = null;
 	        handler.clear();
 	        Timer._pool.push(handler);
 	    }
-	    /** @internal */
 	    _create(useFrame, repeat, delay, caller, method, args, coverBefore) {
-	        //如果延迟为0，则立即执行
 	        if (!delay) {
 	            method.apply(caller, args);
 	            return null;
 	        }
-	        //先覆盖相同函数的计时
 	        if (coverBefore) {
 	            var handler = this._getHandler(caller, method);
 	            if (handler) {
@@ -30197,7 +21299,6 @@ window.Laya= (function (exports) {
 	                return handler;
 	            }
 	        }
-	        //找到一个空闲的timerHandler
 	        handler = Timer._pool.length > 0 ? Timer._pool.pop() : new TimerHandler();
 	        handler.repeat = repeat;
 	        handler.userFrame = useFrame;
@@ -30206,13 +21307,10 @@ window.Laya= (function (exports) {
 	        handler.method = method;
 	        handler.args = args;
 	        handler.exeTime = delay + (useFrame ? this.currFrame : this.currTimer + Date.now() - this._lastTimer);
-	        //索引handler
 	        this._indexHandler(handler);
-	        //插入数组
 	        this._handlers.push(handler);
 	        return handler;
 	    }
-	    /** @private */
 	    _indexHandler(handler) {
 	        var caller = handler.caller;
 	        var method = handler.method;
@@ -30221,62 +21319,23 @@ window.Laya= (function (exports) {
 	        handler.key = cid + mid;
 	        this._map[handler.key] = handler;
 	    }
-	    /**
-	     * 定时执行一次。
-	     * @param	delay	延迟时间(单位为毫秒)。
-	     * @param	caller	执行域(this)。
-	     * @param	method	定时器回调函数。
-	     * @param	args	回调参数。
-	     * @param	coverBefore	是否覆盖之前的延迟执行，默认为 true 。
-	     */
 	    once(delay, caller, method, args = null, coverBefore = true) {
 	        this._create(false, false, delay, caller, method, args, coverBefore);
 	    }
-	    /**
-	     * 定时重复执行。
-	     * @param	delay	间隔时间(单位毫秒)。
-	     * @param	caller	执行域(this)。
-	     * @param	method	定时器回调函数。
-	     * @param	args	回调参数。
-	     * @param	coverBefore	是否覆盖之前的延迟执行，默认为 true 。
-	     * @param	jumpFrame 时钟是否跳帧。基于时间的循环回调，单位时间间隔内，如能执行多次回调，出于性能考虑，引擎默认只执行一次，设置jumpFrame=true后，则回调会连续执行多次
-	     */
 	    loop(delay, caller, method, args = null, coverBefore = true, jumpFrame = false) {
 	        var handler = this._create(false, true, delay, caller, method, args, coverBefore);
 	        if (handler)
 	            handler.jumpFrame = jumpFrame;
 	    }
-	    /**
-	     * 定时执行一次(基于帧率)。
-	     * @param	delay	延迟几帧(单位为帧)。
-	     * @param	caller	执行域(this)。
-	     * @param	method	定时器回调函数。
-	     * @param	args	回调参数。
-	     * @param	coverBefore	是否覆盖之前的延迟执行，默认为 true 。
-	     */
 	    frameOnce(delay, caller, method, args = null, coverBefore = true) {
 	        this._create(true, false, delay, caller, method, args, coverBefore);
 	    }
-	    /**
-	     * 定时重复执行(基于帧率)。
-	     * @param	delay	间隔几帧(单位为帧)。
-	     * @param	caller	执行域(this)。
-	     * @param	method	定时器回调函数。
-	     * @param	args	回调参数。
-	     * @param	coverBefore	是否覆盖之前的延迟执行，默认为 true 。
-	     */
 	    frameLoop(delay, caller, method, args = null, coverBefore = true) {
 	        this._create(true, true, delay, caller, method, args, coverBefore);
 	    }
-	    /** 返回统计信息。*/
 	    toString() {
 	        return " handlers:" + this._handlers.length + " pool:" + Timer._pool.length;
 	    }
-	    /**
-	     * 清理定时器。
-	     * @param	caller 执行域(this)。
-	     * @param	method 定时器回调函数。
-	     */
 	    clear(caller, method) {
 	        var handler = this._getHandler(caller, method);
 	        if (handler) {
@@ -30285,10 +21344,6 @@ window.Laya= (function (exports) {
 	            handler.clear();
 	        }
 	    }
-	    /**
-	     * 清理对象身上的所有定时器。
-	     * @param	caller 执行域(this)。
-	     */
 	    clearAll(caller) {
 	        if (!caller)
 	            return;
@@ -30301,34 +21356,17 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /** @private */
 	    _getHandler(caller, method) {
 	        var cid = caller ? caller.$_GID || (caller.$_GID = ILaya.Utils.getGID()) : 0;
 	        var mid = method.$_TID || (method.$_TID = (Timer._mid++) * 100000);
 	        return this._map[cid + mid];
 	    }
-	    /**
-	     * 延迟执行。
-	     * @param	caller 执行域(this)。
-	     * @param	method 定时器回调函数。
-	     * @param	args 回调参数。
-	     */
 	    callLater(caller, method, args = null) {
 	        CallLater.I.callLater(caller, method, args);
 	    }
-	    /**
-	     * 立即执行 callLater 。
-	     * @param	caller 执行域(this)。
-	     * @param	method 定时器回调函数。
-	     */
 	    runCallLater(caller, method) {
 	        CallLater.I.runCallLater(caller, method);
 	    }
-	    /**
-	     * 立即提前执行定时器，执行之后从队列中删除
-	     * @param	caller 执行域(this)。
-	     * @param	method 定时器回调函数。
-	     */
 	    runTimer(caller, method) {
 	        var handler = this._getHandler(caller, method);
 	        if (handler && handler.method != null) {
@@ -30336,26 +21374,16 @@ window.Laya= (function (exports) {
 	            handler.run(true);
 	        }
 	    }
-	    /**
-	     * 暂停时钟
-	     */
 	    pause() {
 	        this.scale = 0;
 	    }
-	    /**
-	     * 恢复时钟
-	     */
 	    resume() {
 	        this.scale = 1;
 	    }
 	}
-	/**@private */
 	Timer.gSysTimer = null;
-	/**@private */
 	Timer._pool = [];
-	/**@private */
 	Timer._mid = 1;
-	/** @private */
 	class TimerHandler {
 	    clear() {
 	        this.caller = null;
@@ -30376,7 +21404,6 @@ window.Laya= (function (exports) {
 	}
 
 	class SkinSV extends Value2D {
-	    //TODO:coverage
 	    constructor(type) {
 	        super(ShaderDefines2D.SKINMESH, 0);
 	        this.offsetX = 300;
@@ -30392,7 +21419,7 @@ window.Laya= (function (exports) {
 	class PrimitiveSV extends Value2D {
 	    constructor(args) {
 	        super(ShaderDefines2D.PRIMITIVE, 0);
-	        this._attribLocation = ['position', 0, 'attribColor', 1]; // , 'clipDir', 2, 'clipRect', 3];
+	        this._attribLocation = ['position', 0, 'attribColor', 1];
 	    }
 	}
 
@@ -30403,23 +21430,15 @@ window.Laya= (function (exports) {
 	        this.blurInfo = null;
 	        this.colorMat = null;
 	        this.colorAlpha = null;
-	        this._attribLocation = ['posuv', 0, 'attribColor', 1, 'attribFlags', 2]; // , 'clipDir', 3, 'clipRect', 4];
+	        this._attribLocation = ['posuv', 0, 'attribColor', 1, 'attribFlags', 2];
 	    }
-	    /**
-	     * @override
-	     */
 	    clear() {
 	        this.texture = null;
 	        this.shader = null;
 	        this.defines._value = this.subID + (WebGL.shaderHighPrecision ? ShaderDefines2D.SHADERDEFINE_FSHIGHPRECISION : 0);
-	        //defines.setValue(0);
 	    }
 	}
-	// 放在这里容易导致这个文件被排除
-	//Value2D._initone(ShaderDefines2D.TEXTURE2D, TextureSV);
-	//Value2D._initone(ShaderDefines2D.TEXTURE2D | ShaderDefines2D.FILTERGLOW, TextureSV);
 
-	//import { ShaderCompile } from "./ShaderCompile";
 	class InlcudeFile {
 	    constructor(txt) {
 	        this.codes = {};
@@ -30450,8 +21469,7 @@ window.Laya= (function (exports) {
 	            if (words[1] == 'code') {
 	                this.codes[words[2]] = txt.substr(ofs + 1, end - ofs - 1);
 	            }
-	            else if (words[1] == 'function') //#begin function void test()
-	             {
+	            else if (words[1] == 'function') {
 	                ofs = txt.indexOf("function", begin);
 	                ofs += "function".length;
 	                this.funs[words[3]] = txt.substr(ofs + 1, end - ofs - 1);
@@ -30478,7 +21496,6 @@ window.Laya= (function (exports) {
 	    }
 	}
 
-	//	import { ShaderCompile } from "./ShaderCompile"
 	class ShaderNode {
 	    constructor(includefiles) {
 	        this.childs = [];
@@ -30522,7 +21539,6 @@ window.Laya= (function (exports) {
 	        if (this.includefiles.length > 0 && this.useFuns.length > 0) {
 	            var funsCode;
 	            for (var i = 0, n = this.includefiles.length; i < n; i++) {
-	                //如果已经加入了，就不要再加
 	                if (this.includefiles[i].curUseID == id) {
 	                    continue;
 	                }
@@ -30538,22 +21554,17 @@ window.Laya= (function (exports) {
 	}
 	ShaderNode.__id = 1;
 
-	/**
-	 * @private
-	 * <code>ShaderCompile</code> 类用于实现Shader编译。
-	 */
 	class ShaderCompile {
 	    constructor(vs, ps, nameMap) {
 	        this.defs = {};
 	        let _this = this;
 	        function _compile(script) {
-	            script = script.replace(ShaderCompile._clearCR, ""); //CRLF风格需要先去掉“\r",否则切分字符会出错导致宏定义编译错误等
+	            script = script.replace(ShaderCompile._clearCR, "");
 	            var includefiles = [];
 	            var top = new ShaderNode(includefiles);
 	            _this._compileToTree(top, script.split('\n'), 0, includefiles, _this.defs);
 	            return top;
 	        }
-	        //先要去掉注释,还没有完成
 	        var startTime = Date.now();
 	        this._VS = _compile(vs);
 	        this._PS = _compile(ps);
@@ -30561,14 +21572,10 @@ window.Laya= (function (exports) {
 	        if ((Date.now() - startTime) > 2)
 	            console.log("ShaderCompile use time:" + (Date.now() - startTime) + "  size:" + vs.length + "/" + ps.length);
 	    }
-	    /**
-	     * @internal
-	     */
 	    static __init__() {
 	        var gl = LayaGL.instance;
 	        ShaderCompile.shaderParamsMap = { "float": gl.FLOAT, "int": gl.INT, "bool": gl.BOOL, "vec2": gl.FLOAT_VEC2, "vec3": gl.FLOAT_VEC3, "vec4": gl.FLOAT_VEC4, "ivec2": gl.INT_VEC2, "ivec3": gl.INT_VEC3, "ivec4": gl.INT_VEC4, "bvec2": gl.BOOL_VEC2, "bvec3": gl.BOOL_VEC3, "bvec4": gl.BOOL_VEC4, "mat2": gl.FLOAT_MAT2, "mat3": gl.FLOAT_MAT3, "mat4": gl.FLOAT_MAT4, "sampler2D": gl.SAMPLER_2D, "samplerCube": gl.SAMPLER_CUBE };
 	    }
-	    //TODO:coverage
 	    static _parseOne(attributes, uniforms, words, i, word, b) {
 	        var one = { type: ShaderCompile.shaderParamsMap[words[i + 1]], name: words[i + 2], size: isNaN(parseInt(words[i + 3])) ? 1 : parseInt(words[i + 3]) };
 	        if (b) {
@@ -30593,7 +21600,6 @@ window.Laya= (function (exports) {
 	            throw new Error("add shader include file err, has add:" + fileName);
 	        ShaderCompile.includes[fileName] = new InlcudeFile(txt);
 	    }
-	    //TODO:coverage
 	    static preGetParams(vs, ps) {
 	        var text = [vs, ps];
 	        var result = {};
@@ -30649,11 +21655,6 @@ window.Laya= (function (exports) {
 	    }
 	    static splitToWords(str, block) {
 	        var out = [];
-	        /*
-	           var words:Array = str.split(_splitToWordExps);
-	           trace(str);
-	           trace(words);
-	         */
 	        var c;
 	        var ofs = -1;
 	        var word;
@@ -30691,9 +21692,6 @@ window.Laya= (function (exports) {
 	        }
 	        return out;
 	    }
-	    /**
-	     * @private
-	     */
 	    _compileToTree(parent, lines, start, includefiles, defs) {
 	        var node, preNode;
 	        var text, name, fname;
@@ -30779,7 +21777,7 @@ window.Laya= (function (exports) {
 	                        }
 	                        node.setParent(parent);
 	                        continue;
-	                    case "#include": //这里有问题,主要是空格
+	                    case "#include":
 	                        words = ShaderCompile.splitToWords(text, null);
 	                        var inlcudeFile = ShaderCompile.includes[words[1]];
 	                        if (!inlcudeFile) {
@@ -30840,24 +21838,14 @@ window.Laya= (function (exports) {
 	ShaderCompile._clearCR = new RegExp("\r", "g");
 	ShaderCompile._splitToWordExps3 = new RegExp("[ \\t=\\+\\-*/&%!<>!%\(\),;\\|]", "g");
 
-	/**
-	 * @private
-	 * Worker Image加载器
-	 */
 	class WorkerLoader extends EventDispatcher {
 	    constructor() {
 	        super();
 	        this.worker = new Worker(WorkerLoader.workerPath);
 	        this.worker.onmessage = function (evt) {
-	            //接收worker传过来的数据函数
 	            this.workerMessage(evt.data);
 	        };
 	    }
-	    /**
-	     * @internal
-	     * 尝试使用Work加载Image
-	     * @return 是否启动成功
-	     */
 	    static __init__() {
 	        if (WorkerLoader._preLoadFun != null)
 	            return false;
@@ -30869,25 +21857,15 @@ window.Laya= (function (exports) {
 	            WorkerLoader.I = new WorkerLoader();
 	        return true;
 	    }
-	    /**
-	     * 是否支持worker
-	     * @return 是否支持worker
-	     */
 	    static workerSupported() {
 	        return Worker ? true : false;
 	    }
-	    /**
-	     * 尝试启用WorkerLoader,只有第一次调用有效
-	     */
 	    static enableWorkerLoader() {
 	        if (!WorkerLoader._tryEnabled) {
 	            WorkerLoader.enable = true;
 	            WorkerLoader._tryEnabled = true;
 	        }
 	    }
-	    /**
-	     * 是否启用。
-	     */
 	    static set enable(value) {
 	        if (WorkerLoader._enable != value) {
 	            WorkerLoader._enable = value;
@@ -30898,9 +21876,6 @@ window.Laya= (function (exports) {
 	    static get enable() {
 	        return WorkerLoader._enable;
 	    }
-	    /**
-	     * @private
-	     */
 	    workerMessage(data) {
 	        if (data) {
 	            switch (data.type) {
@@ -30913,33 +21888,20 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	    }
-	    /**
-	     * @private
-	     */
 	    imageLoaded(data) {
 	        if (!data.dataType || data.dataType != "imageBitmap") {
 	            this.event(data.url, null);
 	            return;
 	        }
-	        var imageData = data.imageBitmap; // imageBitmap
+	        var imageData = data.imageBitmap;
 	        var tex = new Texture2D();
 	        tex.loadImageSource(imageData);
 	        console.log("load:", data.url);
-	        //canvas = tex;
 	        this.event(data.url, tex);
 	    }
-	    /**
-	     * 加载图片
-	     * @param	url 图片地址
-	     */
 	    loadImage(url) {
 	        this.worker.postMessage(url);
 	    }
-	    /**
-	     * @private
-	     * 加载图片资源。
-	     * @param	url 资源地址。
-	     */
 	    _loadImage(url) {
 	        var _this = this;
 	        if (!this._useWorkerLoader || !WorkerLoader._enable) {
@@ -30956,7 +21918,6 @@ window.Laya= (function (exports) {
 	                _this["onLoaded"](image);
 	            }
 	            else {
-	                //失败之后使用原版的加载函数加载重试
 	                WorkerLoader._preLoadFun.call(_this, url);
 	            }
 	        };
@@ -30964,27 +21925,11 @@ window.Laya= (function (exports) {
 	        WorkerLoader.I.loadImage(url);
 	    }
 	}
-	/**worker.js的路径 */
 	WorkerLoader.workerPath = "libs/workerloader.js";
-	/**@private */
 	WorkerLoader._enable = false;
-	/**@private */
 	WorkerLoader._tryEnabled = false;
 
-	/**
-	     * <code>Mouse</code> 类用于控制鼠标光标样式。
-	     */
 	class Mouse {
-	    /**
-	     * 设置鼠标样式
-	     * @param cursorStr
-	     * 例如auto move no-drop col-resize
-	     * all-scroll pointer not-allowed row-resize
-	     * crosshair progress e-resize ne-resize
-	     * default text n-resize nw-resize
-	     * help vertical-text s-resize se-resize
-	     * inherit wait w-resize sw-resize
-	     */
 	    static set cursor(cursorStr) {
 	        Mouse._style.cursor = cursorStr;
 	    }
@@ -30992,20 +21937,13 @@ window.Laya= (function (exports) {
 	        return Mouse._style.cursor;
 	    }
 	    static __init__() {
-	        //Mouse._style = Browser.document.body.style;
 	    }
-	    /**
-	     * 隐藏鼠标
-	     */
 	    static hide() {
 	        if (Mouse.cursor != "none") {
 	            Mouse._preCursor = Mouse.cursor;
 	            Mouse.cursor = "none";
 	        }
 	    }
-	    /**
-	     * 显示鼠标
-	     */
 	    static show() {
 	        if (Mouse.cursor == "none") {
 	            if (Mouse._preCursor) {
@@ -31018,13 +21956,9 @@ window.Laya= (function (exports) {
 	    }
 	}
 
-	/**
-	 * drawImage，fillRect等会用到的简单的mesh。每次添加必然是一个四边形。
-	 */
 	class MeshParticle2D extends Mesh2D {
-	    //TODO:coverage
 	    constructor(maxNum) {
-	        super(MeshParticle2D.const_stride, maxNum * 4 * MeshParticle2D.const_stride, 4); //ib 先4
+	        super(MeshParticle2D.const_stride, maxNum * 4 * MeshParticle2D.const_stride, 4);
 	        this.canReuse = true;
 	        this.setAttributes(MeshParticle2D._fixattriInfo);
 	        this.createQuadIB(maxNum);
@@ -31047,12 +21981,7 @@ window.Laya= (function (exports) {
 	        this._vb._resizeBuffer(maxNum * 4 * MeshParticle2D.const_stride, false);
 	        this.createQuadIB(maxNum);
 	    }
-	    /**
-	     *
-	     */
-	    //TODO:coverage
 	    static getAMesh(maxNum) {
-	        //console.log('getmesh');
 	        if (MeshParticle2D._POOL.length) {
 	            var ret = MeshParticle2D._POOL.pop();
 	            ret.setMaxParticleNum(maxNum);
@@ -31060,45 +21989,23 @@ window.Laya= (function (exports) {
 	        }
 	        return new MeshParticle2D(maxNum);
 	    }
-	    /**
-	     * 把本对象放到回收池中，以便getMesh能用。
-	     * @override
-	     */
-	    //TODO:coverage
-	    /*override*/ releaseMesh() {
+	    releaseMesh() {
 	        this._vb.setByteLength(0);
 	        this.vertNum = 0;
 	        this.indexNum = 0;
-	        //_applied = false;
 	        MeshParticle2D._POOL.push(this);
 	    }
-	    //TODO:coverage
-	    /**
-	     * @override
-	     */
-	    /*override*/ destroy() {
+	    destroy() {
 	        this._ib.destroy();
 	        this._vb.destroy();
 	        this._vb.deleteBuffer();
-	        //ib用deletebuffer么
 	    }
 	}
 	MeshParticle2D.const_stride = 116;
 	MeshParticle2D._POOL = [];
 
-	/**
-	 * @private
-	 * <p> <code>HTMLImage</code> 用于创建 HTML Image 元素。</p>
-	 * <p>请使用 <code>HTMLImage.create()<code>获取新实例，不要直接使用 <code>new HTMLImage<code> 。</p>
-	 */
 	class HTMLImage extends Bitmap {
 	}
-	/**
-	 * <p><b>不支持canvas了，所以备Texture2D替换了</p>
-	 * <p>创建一个 <code>HTMLImage</code> 实例。</p>
-	 * <p>请使用 <code>HTMLImage.create()<code>创建实例，不要直接使用 <code>new HTMLImage<code> 。</p>
-	 *
-	 */
 	HTMLImage.create = function (width, height, format) {
 	    var tex = new Texture2D(width, height, format, false, false);
 	    tex.wrapModeU = BaseTexture.WARPMODE_CLAMP;
@@ -31106,49 +22013,28 @@ window.Laya= (function (exports) {
 	    return tex;
 	};
 
-	/**
-	 * <code>Laya</code> 是全局对象的引用入口集。
-	 * Laya类引用了一些常用的全局对象，比如Laya.stage：舞台，Laya.timer：时间管理器，Laya.loader：加载管理器，使用时注意大小写。
-	 */
 	class Laya {
-	    /**
-	     * @private
-	     * 兼容as3编译工具
-	     */
 	    static __init(_classs) {
 	        _classs.forEach(function (o) { o.__init$ && o.__init$(); });
 	    }
-	    /**
-	     * 初始化引擎。使用引擎需要先初始化引擎，否则可能会报错。
-	     * @param	width 初始化的游戏窗口宽度，又称设计宽度。
-	     * @param	height	初始化的游戏窗口高度，又称设计高度。
-	     * @param	plugins 插件列表，比如 WebGL（使用WebGL方式渲染）。
-	     * @return	返回原生canvas引用，方便对canvas属性进行修改
-	     */
 	    static init(width, height, ...plugins) {
 	        if (Laya._isinit)
 	            return;
 	        Laya._isinit = true;
 	        ArrayBuffer.prototype.slice || (ArrayBuffer.prototype.slice = Laya._arrayBufferSlice);
 	        Browser.__init__();
-	        // 创建主画布
-	        //这个其实在Render中感觉更合理，但是runtime要求第一个canvas是主画布，所以必须在下面的那个离线画布之前
 	        var mainCanv = Browser.mainCanvas = new HTMLCanvas(true);
-	        //Render._mainCanvas = mainCanv;
 	        var style = mainCanv.source.style;
 	        style.position = 'absolute';
 	        style.top = style.left = "0px";
 	        style.background = "#000000";
 	        if (!Browser.onKGMiniGame && !Browser.onAlipayMiniGame) {
-	            Browser.container.appendChild(mainCanv.source); //xiaosong add
+	            Browser.container.appendChild(mainCanv.source);
 	        }
-	        // 创建离屏画布
-	        //创建离线画布
 	        Browser.canvas = new HTMLCanvas(true);
 	        Browser.context = Browser.canvas.getContext('2d');
 	        Browser.supportWebAudio = SoundManager.__init__();
 	        Browser.supportLocalStorage = LocalStorage.__init__();
-	        //temp TODO 以后分包
 	        Laya.systemTimer = new Timer(false);
 	        exports.systemTimer = Timer.gSysTimer = Laya.systemTimer;
 	        Laya.startTimer = new Timer(false);
@@ -31204,15 +22090,12 @@ window.Laya= (function (exports) {
 	        Value2D._initone(ShaderDefines2D.SKINMESH, SkinSV);
 	        return Render.canvas;
 	    }
-	    /**@private */
 	    static _getUrlPath() {
 	        var location = Browser.window.location;
 	        var pathName = location.pathname;
-	        // 索引为2的字符如果是':'就是windows file协议
 	        pathName = pathName.charAt(2) == ':' ? pathName.substring(1) : pathName;
 	        return URL.getPath(location.protocol == "file:" ? pathName : location.protocol + "//" + location.host + location.pathname);
 	    }
-	    /**@private */
 	    static _arrayBufferSlice(start, end) {
 	        var arr = this;
 	        var arrU8List = new Uint8Array(arr, start, end - start);
@@ -31220,10 +22103,6 @@ window.Laya= (function (exports) {
 	        newU8List.set(arrU8List);
 	        return newU8List.buffer;
 	    }
-	    /**
-	     * 表示是否捕获全局错误并弹出提示。默认为false。
-	     * 适用于移动设备等不方便调试的时候，设置为true后，如有未知错误，可以弹窗抛出详细错误堆栈。
-	     */
 	    static set alertGlobalError(value) {
 	        var erralert = 0;
 	        if (value) {
@@ -31236,14 +22115,9 @@ window.Laya= (function (exports) {
 	            Browser.window.onerror = null;
 	        }
 	    }
-	    /**@private */
 	    static _runScript(script) {
 	        return Browser.window[Laya._evcode](script);
 	    }
-	    /**
-	     * 开启DebugPanel
-	     * @param	debugJsPath laya.debugtool.js文件路径
-	     */
 	    static enableDebugPanel(debugJsPath = "libs/laya.debugtool.js") {
 	        if (!Laya["DebugPanel"]) {
 	            var script = Browser.createElement("script");
@@ -31257,7 +22131,6 @@ window.Laya= (function (exports) {
 	            Laya["DebugPanel"].enable();
 	        }
 	    }
-	    /**@private */
 	    static enableNative() {
 	        if (Laya.isNativeRender_enable)
 	            return;
@@ -31274,7 +22147,7 @@ window.Laya= (function (exports) {
 	            return window["conchTextCanvas"].measureText(txt);
 	        };
 	        Stage.clear = function (color) {
-	            Context.set2DRenderConfig(); //渲染2D前要还原2D状态,否则可能受3D影响
+	            Context.set2DRenderConfig();
 	            var c = ColorUtils.create(color).arrColor;
 	            var gl = LayaGL.instance;
 	            if (c)
@@ -31300,7 +22173,6 @@ window.Laya= (function (exports) {
 	            ctx._targets.restore();
 	            return canv;
 	        };
-	        //RenderTexture2D.prototype._uv = RenderTexture2D.flipyuv;
 	        Object["defineProperty"](RenderTexture2D.prototype, "uv", {
 	            "get": function () {
 	                return this._uv;
@@ -31322,32 +22194,18 @@ window.Laya= (function (exports) {
 	        }
 	    }
 	}
-	/*[COMPILER OPTIONS:normal]*/
-	/** 舞台对象的引用。*/
 	Laya.stage = null;
-	/**@private 系统时钟管理器，引擎内部使用*/
 	Laya.systemTimer = null;
-	/**@private 组件的start时钟管理器*/
 	Laya.startTimer = null;
-	/**@private 组件的物理时钟管理器*/
 	Laya.physicsTimer = null;
-	/**@private 组件的update时钟管理器*/
 	Laya.updateTimer = null;
-	/**@private 组件的lateUpdate时钟管理器*/
 	Laya.lateTimer = null;
-	/**游戏主时针，同时也是管理场景，动画，缓动等效果时钟，通过控制本时针缩放，达到快进慢播效果*/
 	Laya.timer = null;
-	/** 加载管理器的引用。*/
 	Laya.loader = null;
-	/** 当前引擎版本。*/
 	Laya.version = "2.2.0beta";
-	/**@private */
 	Laya._isinit = false;
-	/**是否是微信小游戏子域，默认为false**/
 	Laya.isWXOpenDataContext = false;
-	/**微信小游戏是否需要在主域中自动将加载的文本数据自动传递到子域，默认 false**/
 	Laya.isWXPosMsg = false;
-	/**@private @internal*/
 	Laya.__classmap = null;
 	Laya._evcode = "eva" + "l";
 	Laya.isNativeRender_enable = false;
@@ -31378,7 +22236,6 @@ window.Laya= (function (exports) {
 	ILaya.Stage = Stage;
 	ILaya.Resource = Resource;
 	ILaya.WorkerLoader = WorkerLoader;
-	//初始化引擎库
 	var libs = window._layalibs;
 	if (libs) {
 	    libs.sort(function (a, b) {
@@ -31388,7 +22245,7 @@ window.Laya= (function (exports) {
 	        libs[j].f(window, window.document, Laya);
 	    }
 	}
-	window.Laya = Laya; // 给tsc模式下用
+	window.Laya = Laya;
 	function regClassToEngine(cls) {
 	    if (cls.name) {
 	        Laya[cls.name] = cls;
@@ -31419,96 +22276,45 @@ window.Laya= (function (exports) {
 	regClassToEngine(HTMLImage);
 	var __init = Laya.__init;
 	var init = Laya.init;
-	var version;
+	var version = Laya.version;
 	var isWXOpenDataContext;
 	var isWXPosMsg;
 	var alertGlobalError = Laya.alertGlobalError;
 	var enableDebugPanel = Laya.enableDebugPanel;
 
-	/**
-	 * <code>CommonScript</code> 类用于创建公共脚本类。
-	 */
 	class CommonScript extends Component {
-	    /**
-	     * @inheritDoc
-	     * @override
-	     */
 	    get isSingleton() {
 	        return false;
 	    }
 	    constructor() {
 	        super();
 	    }
-	    /**
-	     * 创建后只执行一次
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onAwake() {
 	    }
-	    /**
-	     * 每次启动后执行
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onEnable() {
 	    }
-	    /**
-	     * 第一次执行update之前执行，只会执行一次
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onStart() {
 	    }
-	    /**
-	     * 每帧更新时执行
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onUpdate() {
 	    }
-	    /**
-	     * 每帧更新时执行，在update之后执行
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onLateUpdate() {
 	    }
-	    /**
-	     * 禁用时执行
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onDisable() {
 	    }
-	    /**
-	     * 销毁时执行
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onDestroy() {
 	    }
 	}
 
-	/**
-	 * <code>Script</code> 类用于创建脚本的父类，该类为抽象类，不允许实例。
-	 * 组件的生命周期
-	 */
 	class Script extends Component {
-	    /**
-	     * @inheritDoc
-	     * @override
-	     */
 	    get isSingleton() {
 	        return false;
 	    }
-	    /**
-	     * @inheritDoc
-	     * @override
-	     */
 	    _onAwake() {
 	        this.onAwake();
 	        if (this.onStart !== Script.prototype.onStart) {
 	            ILaya.startTimer.callLater(this, this.onStart);
 	        }
 	    }
-	    /**
-	     * @inheritDoc
-	     * @override
-	     */
 	    _onEnable() {
 	        var proto = Script.prototype;
 	        if (this.onTriggerEnter !== proto.onTriggerEnter) {
@@ -31575,10 +22381,6 @@ window.Laya= (function (exports) {
 	            ILaya.lateTimer.frameLoop(1, this, this.onPreRender);
 	        }
 	    }
-	    /**
-	     * @inheritDoc
-	     * @override
-	     */
 	    _onDisable() {
 	        this.owner.offAllCaller(this);
 	        ILaya.stage.offAllCaller(this);
@@ -31586,1054 +22388,853 @@ window.Laya= (function (exports) {
 	        ILaya.updateTimer.clearAll(this);
 	        ILaya.lateTimer.clearAll(this);
 	    }
-	    /**
-	     * @internal
-	     * @override
-	     */
 	    _isScript() {
 	        return true;
 	    }
-	    /**
-	     * @inheritDoc
-	     * @override
-	     */
 	    _onDestroy() {
 	        this.onDestroy();
 	    }
-	    /**
-	     * 组件被激活后执行，此时所有节点和组件均已创建完毕，次方法只执行一次
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onAwake() {
 	    }
-	    /**
-	     * 组件被启用后执行，比如节点被添加到舞台后
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onEnable() {
 	    }
-	    /**
-	     * 第一次执行update之前执行，只会执行一次
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onStart() {
 	    }
-	    /**
-	     * 开始碰撞时执行
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onTriggerEnter(other, self, contact) {
 	    }
-	    /**
-	     * 持续碰撞时执行
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onTriggerStay(other, self, contact) {
 	    }
-	    /**
-	     * 结束碰撞时执行
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onTriggerExit(other, self, contact) {
 	    }
-	    /**
-	     * 鼠标按下时执行
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onMouseDown(e) {
 	    }
-	    /**
-	     * 鼠标抬起时执行
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onMouseUp(e) {
 	    }
-	    /**
-	     * 鼠标点击时执行
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onClick(e) {
 	    }
-	    /**
-	     * 鼠标在舞台按下时执行
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onStageMouseDown(e) {
 	    }
-	    /**
-	     * 鼠标在舞台抬起时执行
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onStageMouseUp(e) {
 	    }
-	    /**
-	     * 鼠标在舞台点击时执行
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onStageClick(e) {
 	    }
-	    /**
-	     * 鼠标在舞台移动时执行
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onStageMouseMove(e) {
 	    }
-	    /**
-	     * 鼠标双击时执行
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onDoubleClick(e) {
 	    }
-	    /**
-	     * 鼠标右键点击时执行
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onRightClick(e) {
 	    }
-	    /**
-	     * 鼠标移动时执行
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onMouseMove(e) {
 	    }
-	    /**
-	     * 鼠标经过节点时触发
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onMouseOver(e) {
 	    }
-	    /**
-	     * 鼠标离开节点时触发
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onMouseOut(e) {
 	    }
-	    /**
-	     * 键盘按下时执行
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onKeyDown(e) {
 	    }
-	    /**
-	     * 键盘产生一个字符时执行
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onKeyPress(e) {
 	    }
-	    /**
-	     * 键盘抬起时执行
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onKeyUp(e) {
 	    }
-	    /**
-	     * 每帧更新时执行，尽量不要在这里写大循环逻辑或者使用getComponent方法
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onUpdate() {
 	    }
-	    /**
-	     * 每帧更新时执行，在update之后执行，尽量不要在这里写大循环逻辑或者使用getComponent方法
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onLateUpdate() {
 	    }
-	    /**
-	     * 渲染之前执行
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onPreRender() {
 	    }
-	    /**
-	     * 渲染之后执行
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onPostRender() {
 	    }
-	    /**
-	     * 组件被禁用时执行，比如从节点从舞台移除后
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onDisable() {
 	    }
-	    /**
-	     * 手动调用节点销毁时执行
-	     * 此方法为虚方法，使用时重写覆盖即可
-	     */
 	    onDestroy() {
 	    }
 	}
 
-	/**
-	     * <code>Keyboard</code> 类的属性是一些常数，这些常数表示控制游戏时最常用的键。
-	     */
-	class Keyboard {
-	}
-	/** 与 0 的键控代码值 (48) 关联的常数。*/
-	Keyboard.NUMBER_0 = 48;
-	/** 与 1 的键控代码值 (49) 关联的常数。*/
-	Keyboard.NUMBER_1 = 49;
-	/** 与 2 的键控代码值 (50) 关联的常数。*/
-	Keyboard.NUMBER_2 = 50;
-	/** 与 3 的键控代码值 (51) 关联的常数。*/
-	Keyboard.NUMBER_3 = 51;
-	/** 与 4 的键控代码值 (52) 关联的常数。*/
-	Keyboard.NUMBER_4 = 52;
-	/** 与 5 的键控代码值 (53) 关联的常数。*/
-	Keyboard.NUMBER_5 = 53;
-	/** 与 6 的键控代码值 (54) 关联的常数。*/
-	Keyboard.NUMBER_6 = 54;
-	/** 与 7 的键控代码值 (55) 关联的常数。*/
-	Keyboard.NUMBER_7 = 55;
-	/** 与 8 的键控代码值 (56) 关联的常数。*/
-	Keyboard.NUMBER_8 = 56;
-	/** 与 9 的键控代码值 (57) 关联的常数。*/
-	Keyboard.NUMBER_9 = 57;
-	/** 与 A 键的键控代码值 (65) 关联的常数。*/
-	Keyboard.A = 65;
-	/** 与 B 键的键控代码值 (66) 关联的常数。*/
-	Keyboard.B = 66;
-	/** 与 C 键的键控代码值 (67) 关联的常数。*/
-	Keyboard.C = 67;
-	/** 与 D 键的键控代码值 (68) 关联的常数。*/
-	Keyboard.D = 68;
-	/** 与 E 键的键控代码值 (69) 关联的常数。*/
-	Keyboard.E = 69;
-	/** 与 F 键的键控代码值 (70) 关联的常数。*/
-	Keyboard.F = 70;
-	/** 与 G 键的键控代码值 (71) 关联的常数。*/
-	Keyboard.G = 71;
-	/** 与 H 键的键控代码值 (72) 关联的常数。*/
-	Keyboard.H = 72;
-	/** 与 I 键的键控代码值 (73) 关联的常数。*/
-	Keyboard.I = 73;
-	/** 与 J 键的键控代码值 (74) 关联的常数。*/
-	Keyboard.J = 74;
-	/** 与 K 键的键控代码值 (75) 关联的常数。*/
-	Keyboard.K = 75;
-	/** 与 L 键的键控代码值 (76) 关联的常数。*/
-	Keyboard.L = 76;
-	/** 与 M 键的键控代码值 (77) 关联的常数。*/
-	Keyboard.M = 77;
-	/** 与 N 键的键控代码值 (78) 关联的常数。*/
-	Keyboard.N = 78;
-	/** 与 O 键的键控代码值 (79) 关联的常数。*/
-	Keyboard.O = 79;
-	/** 与 P 键的键控代码值 (80) 关联的常数。*/
-	Keyboard.P = 80;
-	/** 与 Q 键的键控代码值 (81) 关联的常数。*/
-	Keyboard.Q = 81;
-	/** 与 R 键的键控代码值 (82) 关联的常数。*/
-	Keyboard.R = 82;
-	/** 与 S 键的键控代码值 (83) 关联的常数。*/
-	Keyboard.S = 83;
-	/** 与 T 键的键控代码值 (84) 关联的常数。*/
-	Keyboard.T = 84;
-	/** 与 U 键的键控代码值 (85) 关联的常数。*/
-	Keyboard.U = 85;
-	/** 与 V 键的键控代码值 (86) 关联的常数。*/
-	Keyboard.V = 86;
-	/** 与 W 键的键控代码值 (87) 关联的常数。*/
-	Keyboard.W = 87;
-	/** 与 X 键的键控代码值 (88) 关联的常数。*/
-	Keyboard.X = 88;
-	/** 与 Y 键的键控代码值 (89) 关联的常数。*/
-	Keyboard.Y = 89;
-	/** 与 Z 键的键控代码值 (90) 关联的常数。*/
-	Keyboard.Z = 90;
-	/** 与 F1 的键控代码值 (112) 关联的常数。*/
-	Keyboard.F1 = 112;
-	/** 与 F2 的键控代码值 (113) 关联的常数。*/
-	Keyboard.F2 = 113;
-	/** 与 F3 的键控代码值 (114) 关联的常数。*/
-	Keyboard.F3 = 114;
-	/** 与 F4 的键控代码值 (115) 关联的常数。*/
-	Keyboard.F4 = 115;
-	/** 与 F5 的键控代码值 (116) 关联的常数。*/
-	Keyboard.F5 = 116;
-	/** 与 F6 的键控代码值 (117) 关联的常数。*/
-	Keyboard.F6 = 117;
-	/** 与 F7 的键控代码值 (118) 关联的常数。*/
-	Keyboard.F7 = 118;
-	/** 与 F8 的键控代码值 (119) 关联的常数。*/
-	Keyboard.F8 = 119;
-	/** 与 F9 的键控代码值 (120) 关联的常数。*/
-	Keyboard.F9 = 120;
-	/** 与 F10 的键控代码值 (121) 关联的常数。*/
-	Keyboard.F10 = 121;
-	/** 与 F11 的键控代码值 (122) 关联的常数。*/
-	Keyboard.F11 = 122;
-	/** 与 F12 的键控代码值 (123) 关联的常数。*/
-	Keyboard.F12 = 123;
-	/** 与 F13 的键控代码值 (124) 关联的常数。*/
-	Keyboard.F13 = 124;
-	/** 与 F14 的键控代码值 (125) 关联的常数。*/
-	Keyboard.F14 = 125;
-	/** 与 F15 的键控代码值 (126) 关联的常数。*/
-	Keyboard.F15 = 126;
-	/** 与数字键盘的伪键控代码 (21) 关联的常数。*/
-	Keyboard.NUMPAD = 21;
-	/** 与数字键盘上的数字 0 的键控代码值 (96) 关联的常数。*/
-	Keyboard.NUMPAD_0 = 96;
-	/** 与数字键盘上的数字 1 的键控代码值 (97) 关联的常数。*/
-	Keyboard.NUMPAD_1 = 97;
-	/** 与数字键盘上的数字 2 的键控代码值 (98) 关联的常数。*/
-	Keyboard.NUMPAD_2 = 98;
-	/** 与数字键盘上的数字 3 的键控代码值 (99) 关联的常数。*/
-	Keyboard.NUMPAD_3 = 99;
-	/** 与数字键盘上的数字 4 的键控代码值 (100) 关联的常数。*/
-	Keyboard.NUMPAD_4 = 100;
-	/** 与数字键盘上的数字 5 的键控代码值 (101) 关联的常数。*/
-	Keyboard.NUMPAD_5 = 101;
-	/** 与数字键盘上的数字 6 的键控代码值 (102) 关联的常数。*/
-	Keyboard.NUMPAD_6 = 102;
-	/** 与数字键盘上的数字 7 的键控代码值 (103) 关联的常数。*/
-	Keyboard.NUMPAD_7 = 103;
-	/** 与数字键盘上的数字 8 的键控代码值 (104) 关联的常数。*/
-	Keyboard.NUMPAD_8 = 104;
-	/** 与数字键盘上的数字 9 的键控代码值 (105) 关联的常数。*/
-	Keyboard.NUMPAD_9 = 105;
-	/** 与数字键盘上的加号 (+) 的键控代码值 (107) 关联的常数。*/
-	Keyboard.NUMPAD_ADD = 107;
-	/** 与数字键盘上的小数点 (.) 的键控代码值 (110) 关联的常数。*/
-	Keyboard.NUMPAD_DECIMAL = 110;
-	/** 与数字键盘上的除号 (/) 的键控代码值 (111) 关联的常数。*/
-	Keyboard.NUMPAD_DIVIDE = 111;
-	/** 与数字键盘上的 Enter 的键控代码值 (108) 关联的常数。*/
-	Keyboard.NUMPAD_ENTER = 108;
-	/** 与数字键盘上的乘号 (*) 的键控代码值 (106) 关联的常数。*/
-	Keyboard.NUMPAD_MULTIPLY = 106;
-	/** 与数字键盘上的减号 (-) 的键控代码值 (109) 关联的常数。*/
-	Keyboard.NUMPAD_SUBTRACT = 109;
-	/** 与 ; 键的键控代码值 (186) 关联的常数。*/
-	Keyboard.SEMICOLON = 186;
-	/** 与 = 键的键控代码值 (187) 关联的常数。*/
-	Keyboard.EQUAL = 187;
-	/** 与 F15 的键控代码值 (188) 关联的常数。*/
-	Keyboard.COMMA = 188;
-	/** 与 - 键的键控代码值 (189) 关联的常数。*/
-	Keyboard.MINUS = 189;
-	/** 与 . 键的键控代码值 (190) 关联的常数。*/
-	Keyboard.PERIOD = 190;
-	/** 与 / 键的键控代码值 (191) 关联的常数。*/
-	Keyboard.SLASH = 191;
-	/** 与 ` 键的键控代码值 (192) 关联的常数。*/
-	Keyboard.BACKQUOTE = 192;
-	/** 与 [ 键的键控代码值 (219) 关联的常数。*/
-	Keyboard.LEFTBRACKET = 219;
-	/** 与 \ 键的键控代码值 (220) 关联的常数。*/
-	Keyboard.BACKSLASH = 220;
-	/** 与 ] 键的键控代码值 (221) 关联的常数。*/
-	Keyboard.RIGHTBRACKET = 221;
-	/** 与 ' 键的键控代码值 (222) 关联的常数。*/
-	Keyboard.QUOTE = 222;
-	/** 与 Alternate (Option) 键的键控代码值 (18) 关联的常数。*/
-	Keyboard.ALTERNATE = 18;
-	/** 与 Backspace 的键控代码值 (8) 关联的常数。*/
-	Keyboard.BACKSPACE = 8;
-	/** 与 Caps Lock 的键控代码值 (20) 关联的常数。*/
-	Keyboard.CAPS_LOCK = 20;
-	/** 与 Mac 命令键 (15) 关联的常数。*/
-	Keyboard.COMMAND = 15;
-	/** 与 Ctrl 的键控代码值 (17) 关联的常数。*/
-	Keyboard.CONTROL = 17;
-	/** 与 Delete 的键控代码值 (46) 关联的常数。*/
-	Keyboard.DELETE = 46;
-	/** 与 Enter 的键控代码值 (13) 关联的常数。*/
-	Keyboard.ENTER = 13;
-	/** 与 Esc 的键控代码值 (27) 关联的常数。*/
-	Keyboard.ESCAPE = 27;
-	/** 与 Page Up 的键控代码值 (33) 关联的常数。*/
-	Keyboard.PAGE_UP = 33;
-	/** 与 Page Down 的键控代码值 (34) 关联的常数。*/
-	Keyboard.PAGE_DOWN = 34;
-	/** 与 End 的键控代码值 (35) 关联的常数。*/
-	Keyboard.END = 35;
-	/** 与 Home 的键控代码值 (36) 关联的常数。*/
-	Keyboard.HOME = 36;
-	/** 与向左箭头键的键控代码值 (37) 关联的常数。*/
-	Keyboard.LEFT = 37;
-	/** 与向上箭头键的键控代码值 (38) 关联的常数。*/
-	Keyboard.UP = 38;
-	/** 与向右箭头键的键控代码值 (39) 关联的常数。*/
-	Keyboard.RIGHT = 39;
-	/** 与向下箭头键的键控代码值 (40) 关联的常数。*/
-	Keyboard.DOWN = 40;
-	/** 与 Shift 的键控代码值 (16) 关联的常数。*/
-	Keyboard.SHIFT = 16;
-	/** 与空格键的键控代码值 (32) 关联的常数。*/
-	Keyboard.SPACE = 32;
-	/** 与 Tab 的键控代码值 (9) 关联的常数。*/
-	Keyboard.TAB = 9;
-	/** 与 Insert 的键控代码值 (45) 关联的常数。*/
-	Keyboard.INSERT = 45;
-
-	/**
-	     * <p><code>KeyLocation</code> 类包含表示在键盘或类似键盘的输入设备上按键位置的常量。</p>
-	     * <p><code>KeyLocation</code> 常数用在键盘事件对象的 <code>keyLocation </code>属性中。</p>
-	     */
-	class KeyLocation {
-	}
-	/**
-	 * 表示激活的键不区分位于左侧还是右侧，也不区分是否位于数字键盘（或者是使用对应于数字键盘的虚拟键激活的）。
-	 */
-	KeyLocation.STANDARD = 0;
-	/**
-	 * 表示激活的键在左侧键位置（此键有多个可能的位置）。
-	 */
-	KeyLocation.LEFT = 1;
-	/**
-	 * 表示激活的键在右侧键位置（此键有多个可能的位置）。
-	 */
-	KeyLocation.RIGHT = 2;
-	/**
-	 * <p>表示激活的键位于数字键盘或者是使用对应于数字键盘的虚拟键激活的。</p>
-	 * <p>注意：此属性只在flash模式下有效。</p>
-	 * */
-	KeyLocation.NUM_PAD = 3;
-
-	/**
-	 * @private
-	 */
-	class BlurFilterGLRender {
-	    render(rt, ctx, width, height, filter) {
-	        var shaderValue = Value2D.create(ShaderDefines2D.TEXTURE2D, 0);
-	        this.setShaderInfo(shaderValue, filter, rt.width, rt.height);
-	        ctx.drawTarget(rt, 0, 0, width, height, Matrix.EMPTY.identity(), shaderValue);
-	    }
-	    setShaderInfo(shader, filter, w, h) {
-	        shader.defines.add(Filter.BLUR);
-	        var sv = shader;
-	        BlurFilterGLRender.blurinfo[0] = w;
-	        BlurFilterGLRender.blurinfo[1] = h;
-	        sv.blurInfo = BlurFilterGLRender.blurinfo;
-	        var sigma = filter.strength / 3.0; //3σ以外影响很小。即当σ=1的时候，半径为3;
-	        var sigma2 = sigma * sigma;
-	        filter.strength_sig2_2sig2_gauss1[0] = filter.strength;
-	        filter.strength_sig2_2sig2_gauss1[1] = sigma2; //做一些预计算传给shader，提高效率
-	        filter.strength_sig2_2sig2_gauss1[2] = 2.0 * sigma2;
-	        filter.strength_sig2_2sig2_gauss1[3] = 1.0 / (2.0 * Math.PI * sigma2);
-	        sv.strength_sig2_2sig2_gauss1 = filter.strength_sig2_2sig2_gauss1;
-	    }
-	}
-	BlurFilterGLRender.blurinfo = new Array(2);
-
-	/**
-	 * 模糊滤镜
-	 */
-	class BlurFilter extends Filter {
-	    /**
-	     * 模糊滤镜
-	     * @param	strength	模糊滤镜的强度值
-	     */
-	    constructor(strength = 4) {
-	        super();
-	        this.strength_sig2_2sig2_gauss1 = []; //给shader用的。避免创建对象
-	        this.strength = strength;
-	        this._glRender = new BlurFilterGLRender();
-	    }
-	    /**
-	     * @private
-	     * 当前滤镜的类型
-	     * @override
-	     */
-	    get type() {
-	        return Filter.BLUR;
-	    }
-	    getStrenth_sig2_2sig2_native() {
-	        if (!this.strength_sig2_native) {
-	            this.strength_sig2_native = new Float32Array(4);
-	        }
-	        //TODO James 不要每次进行计算
-	        var sigma = this.strength / 3.0;
-	        var sigma2 = sigma * sigma;
-	        this.strength_sig2_native[0] = this.strength;
-	        this.strength_sig2_native[1] = sigma2;
-	        this.strength_sig2_native[2] = 2.0 * sigma2;
-	        this.strength_sig2_native[3] = 1.0 / (2.0 * Math.PI * sigma2);
-	        return this.strength_sig2_native;
-	    }
-	}
-
-	/**
-	 * @private
-	 */
-	class GlowFilterGLRender {
-	    setShaderInfo(shader, w, h, data) {
-	        shader.defines.add(data.type);
-	        var sv = shader;
-	        sv.u_blurInfo1 = data._sv_blurInfo1; // [data.blur, data.blur, data.offX, -data.offY];
-	        var info2 = data._sv_blurInfo2;
-	        info2[0] = w;
-	        info2[1] = h;
-	        sv.u_blurInfo2 = info2;
-	        sv.u_color = data.getColor();
-	    }
-	    render(rt, ctx, width, height, filter) {
-	        var w = width, h = height;
-	        var svBlur = Value2D.create(ShaderDefines2D.TEXTURE2D, 0);
-	        this.setShaderInfo(svBlur, w, h, filter);
-	        var svCP = Value2D.create(ShaderDefines2D.TEXTURE2D, 0);
-	        var matI = Matrix.TEMP.identity();
-	        ctx.drawTarget(rt, 0, 0, w, h, matI, svBlur); //先画模糊的底
-	        ctx.drawTarget(rt, 0, 0, w, h, matI, svCP); //再画原始图片
-	    }
-	}
-
-	/**
-	 *  发光滤镜(也可以当成阴影滤使用）
-	 */
-	class GlowFilter extends Filter {
-	    /**
-	     * 创建发光滤镜
-	     * @param	color	滤镜的颜色
-	     * @param	blur	边缘模糊的大小
-	     * @param	offX	X轴方向的偏移
-	     * @param	offY	Y轴方向的偏移
-	     */
-	    constructor(color, blur = 4, offX = 6, offY = 6) {
-	        super();
-	        /**数据的存储，顺序R,G,B,A,blurWidth,offX,offY;*/
-	        this._elements = new Float32Array(9);
-	        /**@internal */
-	        this._sv_blurInfo1 = new Array(4); //给shader用
-	        /**@internal */
-	        this._sv_blurInfo2 = [0, 0, 1, 0];
-	        this._color = new ColorUtils(color);
-	        //限制最大效果为20
-	        this.blur = Math.min(blur, 20);
-	        this.offX = offX;
-	        this.offY = offY;
-	        this._sv_blurInfo1[0] = this._sv_blurInfo1[1] = this.blur;
-	        this._sv_blurInfo1[2] = offX;
-	        this._sv_blurInfo1[3] = -offY;
-	        this._glRender = new GlowFilterGLRender();
-	    }
-	    /**
-	     * @private
-	     * 滤镜类型
-	     * @override
-	     */
-	    get type() {
-	        return BlurFilter.GLOW;
-	    }
-	    /**@private */
-	    get offY() {
-	        return this._elements[6];
-	    }
-	    /**@private */
-	    set offY(value) {
-	        this._elements[6] = value;
-	        this._sv_blurInfo1[3] = -value;
-	    }
-	    /**@private */
-	    get offX() {
-	        return this._elements[5];
-	    }
-	    /**@private */
-	    set offX(value) {
-	        this._elements[5] = value;
-	        this._sv_blurInfo1[2] = value;
-	    }
-	    /**@private */
-	    getColor() {
-	        return this._color.arrColor;
-	    }
-	    /**@private */
-	    get blur() {
-	        return this._elements[4];
-	    }
-	    /**@private */
-	    set blur(value) {
-	        this._elements[4] = value;
-	        this._sv_blurInfo1[0] = this._sv_blurInfo1[1] = value;
-	    }
-	    getColorNative() {
-	        if (!this._color_native) {
-	            this._color_native = new Float32Array(4);
-	        }
-	        //TODO James 不用每次赋值
-	        var color = this.getColor();
-	        this._color_native[0] = color[0];
-	        this._color_native[1] = color[1];
-	        this._color_native[2] = color[2];
-	        this._color_native[3] = color[3];
-	        return this._color_native;
-	    }
-	    getBlurInfo1Native() {
-	        if (!this._blurInof1_native) {
-	            this._blurInof1_native = new Float32Array(4);
-	        }
-	        //TODO James 不用每次赋值
-	        this._blurInof1_native[0] = this._blurInof1_native[1] = this.blur;
-	        this._blurInof1_native[2] = this.offX;
-	        this._blurInof1_native[3] = this.offY;
-	        return this._blurInof1_native;
-	    }
-	    getBlurInfo2Native() {
-	        if (!this._blurInof2_native) {
-	            this._blurInof2_native = new Float32Array(4);
-	        }
-	        //TODO James 不用每次赋值
-	        this._blurInof2_native[2] = 1;
-	        return this._blurInof2_native;
-	    }
-	}
-
-	/**
-	 * @private
-	 * CommandEncoder
-	 */
-	class CommandEncoder {
-	    //TODO:coverage
-	    constructor(layagl, reserveSize, adjustSize, isSyncToRenderThread) {
-	        /**@internal */
-	        this._idata = [];
-	    }
-	    //TODO:coverage
-	    getArrayData() {
-	        return this._idata;
-	    }
-	    //TODO:coverage
-	    getPtrID() {
-	        return 0;
-	    }
-	    beginEncoding() {
-	    }
-	    endEncoding() {
-	    }
-	    //TODO:coverage
-	    clearEncoding() {
-	        this._idata.length = 0;
-	    }
-	    //TODO:coverage
-	    getCount() {
-	        return this._idata.length;
-	    }
-	    //TODO:coverage
-	    add_ShaderValue(o) {
-	        this._idata.push(o);
-	    }
-	    //TODO:coverage
-	    addShaderUniform(one) {
-	        this.add_ShaderValue(one);
-	    }
-	}
-
-	/**
-	 * ...
-	 * @author ww
-	 */
-	class QuickTestTool {
-	    //TODO:coverage
+	class GraphicAnimation extends FrameAnimation {
 	    constructor() {
+	        super(...arguments);
+	        this._nodeIDAniDic = {};
 	    }
-	    //TODO:coverage
-	    static getMCDName(type) {
-	        return QuickTestTool._typeToNameDic[type];
+	    _parseNodeList(uiView) {
+	        if (!this._nodeList)
+	            this._nodeList = [];
+	        this._nodeDefaultProps[uiView.compId] = uiView.props;
+	        if (uiView.compId)
+	            this._nodeList.push(uiView.compId);
+	        var childs = uiView.child;
+	        if (childs) {
+	            var i, len = childs.length;
+	            for (i = 0; i < len; i++) {
+	                this._parseNodeList(childs[i]);
+	            }
+	        }
 	    }
-	    //TODO:coverage
-	    static showRenderTypeInfo(type, force = false) {
-	        if (!force && QuickTestTool.showedDic[type])
+	    _calGraphicData(aniData) {
+	        this._setUp(null, aniData);
+	        this._createGraphicData();
+	        if (this._nodeIDAniDic) {
+	            var key;
+	            for (key in this._nodeIDAniDic) {
+	                this._nodeIDAniDic[key] = null;
+	            }
+	        }
+	    }
+	    _createGraphicData() {
+	        var gList = [];
+	        var i, len = this.count;
+	        var animationDataNew = this._usedFrames;
+	        if (!animationDataNew)
+	            animationDataNew = [];
+	        var preGraphic;
+	        for (i = 0; i < len; i++) {
+	            if (animationDataNew[i] || !preGraphic) {
+	                preGraphic = this._createFrameGraphic(i);
+	            }
+	            gList.push(preGraphic);
+	        }
+	        this._gList = gList;
+	    }
+	    _createFrameGraphic(frame) {
+	        var g = new Graphics();
+	        if (!GraphicAnimation._rootMatrix)
+	            GraphicAnimation._rootMatrix = new Matrix();
+	        this._updateNodeGraphic(this._rootNode, frame, GraphicAnimation._rootMatrix, g);
+	        return g;
+	    }
+	    _updateNodeGraphic(node, frame, parentTransfrom, g, alpha = 1) {
+	        var tNodeG;
+	        tNodeG = this._nodeGDic[node.compId] = this._getNodeGraphicData(node.compId, frame, this._nodeGDic[node.compId]);
+	        if (!tNodeG.resultTransform)
+	            tNodeG.resultTransform = new Matrix();
+	        var tResultTransform;
+	        tResultTransform = tNodeG.resultTransform;
+	        Matrix.mul(tNodeG.transform, parentTransfrom, tResultTransform);
+	        var tTex;
+	        var tGraphicAlpha = tNodeG.alpha * alpha;
+	        if (tGraphicAlpha < 0.01)
 	            return;
-	        QuickTestTool.showedDic[type] = true;
-	        if (!QuickTestTool._rendertypeToStrDic[type]) {
-	            var arr = [];
-	            var tType;
-	            tType = 1;
-	            while (tType <= type) {
-	                if (tType & type) {
-	                    arr.push(QuickTestTool.getMCDName(tType & type));
+	        if (tNodeG.skin) {
+	            tTex = this._getTextureByUrl(tNodeG.skin);
+	            if (tTex) {
+	                if (tResultTransform._checkTransform()) {
+	                    g.drawTexture(tTex, 0, 0, tNodeG.width, tNodeG.height, tResultTransform, tGraphicAlpha);
+	                    tNodeG.resultTransform = null;
 	                }
-	                tType = tType << 1;
+	                else {
+	                    g.drawTexture(tTex, tResultTransform.tx, tResultTransform.ty, tNodeG.width, tNodeG.height, null, tGraphicAlpha);
+	                }
 	            }
-	            QuickTestTool._rendertypeToStrDic[type] = arr.join(",");
 	        }
-	        console.log("cmd:", QuickTestTool._rendertypeToStrDic[type]);
-	    }
-	    //TODO:coverage
-	    static __init__() {
-	        QuickTestTool._typeToNameDic[SpriteConst.ALPHA] = "ALPHA";
-	        QuickTestTool._typeToNameDic[SpriteConst.TRANSFORM] = "TRANSFORM";
-	        QuickTestTool._typeToNameDic[SpriteConst.TEXTURE] = "TEXTURE";
-	        QuickTestTool._typeToNameDic[SpriteConst.GRAPHICS] = "GRAPHICS";
-	        QuickTestTool._typeToNameDic[SpriteConst.ONECHILD] = "ONECHILD";
-	        QuickTestTool._typeToNameDic[SpriteConst.CHILDS] = "CHILDS";
-	        QuickTestTool._typeToNameDic[SpriteConst.TRANSFORM | SpriteConst.ALPHA] = "TRANSFORM|ALPHA";
-	        QuickTestTool._typeToNameDic[SpriteConst.CANVAS] = "CANVAS";
-	        QuickTestTool._typeToNameDic[SpriteConst.BLEND] = "BLEND";
-	        QuickTestTool._typeToNameDic[SpriteConst.FILTERS] = "FILTERS";
-	        QuickTestTool._typeToNameDic[SpriteConst.MASK] = "MASK";
-	        QuickTestTool._typeToNameDic[SpriteConst.CLIP] = "CLIP";
-	        QuickTestTool._typeToNameDic[SpriteConst.LAYAGL3D] = "LAYAGL3D";
-	    }
-	    /**
-	     * 更新、呈现显示对象。由系统调用。
-	     * @param	context 渲染的上下文引用。
-	     * @param	x X轴坐标。
-	     * @param	y Y轴坐标。
-	     */
-	    //TODO:coverage
-	    render(context, x, y) {
-	        QuickTestTool._addType(this._renderType);
-	        QuickTestTool.showRenderTypeInfo(this._renderType);
-	        //if (_renderType == (SpriteConst.IMAGE | SpriteConst.GRAPHICS | SpriteConst.CHILDS))
-	        //{
-	        //debugger;
-	        //}
-	        RenderSprite.renders[this._renderType]._fun(this, context, x + this._x, y + this._y);
-	        this._repaint = 0;
-	    }
-	    /**@internal */
-	    //TODO:coverage
-	    _stageRender(context, x, y) {
-	        QuickTestTool._countStart();
-	        QuickTestTool._PreStageRender.call(window.Laya.stage, context, x, y); //TODO TS
-	        QuickTestTool._countEnd();
-	    }
-	    //TODO:coverage
-	    static _countStart() {
-	        var key;
-	        for (key in QuickTestTool._countDic) {
-	            QuickTestTool._countDic[key] = 0;
+	        var childs = node.child;
+	        if (!childs)
+	            return;
+	        var i, len;
+	        len = childs.length;
+	        for (i = 0; i < len; i++) {
+	            this._updateNodeGraphic(childs[i], frame, tResultTransform, g, tGraphicAlpha);
 	        }
 	    }
-	    //TODO:coverage
-	    static _countEnd() {
-	        QuickTestTool._i++;
-	        if (QuickTestTool._i > 60) {
-	            QuickTestTool.showCountInfo();
-	            QuickTestTool._i = 0;
-	        }
-	    }
-	    /**@internal */
-	    static _addType(type) {
-	        if (!QuickTestTool._countDic[type]) {
-	            QuickTestTool._countDic[type] = 1;
+	    _updateNoChilds(tNodeG, g) {
+	        if (!tNodeG.skin)
+	            return;
+	        var tTex = this._getTextureByUrl(tNodeG.skin);
+	        if (!tTex)
+	            return;
+	        var tTransform = tNodeG.transform;
+	        tTransform._checkTransform();
+	        var onlyTranslate;
+	        onlyTranslate = !tTransform._bTransform;
+	        if (!onlyTranslate) {
+	            g.drawTexture(tTex, 0, 0, tNodeG.width, tNodeG.height, tTransform.clone(), tNodeG.alpha);
 	        }
 	        else {
-	            QuickTestTool._countDic[type] += 1;
+	            g.drawTexture(tTex, tTransform.tx, tTransform.ty, tNodeG.width, tNodeG.height, null, tNodeG.alpha);
 	        }
 	    }
-	    //TODO:coverage
-	    static showCountInfo() {
-	        console.log("===================");
-	        var key;
-	        for (key in QuickTestTool._countDic) {
-	            console.log("count:" + QuickTestTool._countDic[key]);
-	            QuickTestTool.showRenderTypeInfo(key, true);
+	    _updateNodeGraphic2(node, frame, g) {
+	        var tNodeG;
+	        tNodeG = this._nodeGDic[node.compId] = this._getNodeGraphicData(node.compId, frame, this._nodeGDic[node.compId]);
+	        if (!node.child) {
+	            this._updateNoChilds(tNodeG, g);
+	            return;
 	        }
-	    }
-	    //TODO:coverage
-	    static enableQuickTest() {
-	        QuickTestTool.__init__();
-	        Sprite["prototype"]["render"] = QuickTestTool["prototype"]["render"];
-	        QuickTestTool._PreStageRender = Stage["prototype"]["render"];
-	        Stage["prototype"]["render"] = QuickTestTool["prototype"]["_stageRender"];
-	    }
-	}
-	QuickTestTool.showedDic = {};
-	QuickTestTool._rendertypeToStrDic = {};
-	QuickTestTool._typeToNameDic = {};
-	QuickTestTool._countDic = {};
-	QuickTestTool._i = 0;
-
-	/**
-	 * <p>资源版本的生成由layacmd或IDE完成，使用 <code>ResourceVersion</code> 简化使用过程。</p>
-	 * <p>调用 <code>enable</code> 启用资源版本管理。</p>
-	 */
-	class ResourceVersion {
-	    /**
-	     * <p>启用资源版本管理。</p>
-	     * <p>由于只有发布版本需要资源管理。因此没有资源管理文件时，可以设置manifestFile为null或者不存在的路径。</p>
-	     * @param	manifestFile	清单（json）文件的路径。
-	     * @param   callback		清单（json）文件加载完成后执行。
-	     * @param   type			FOLDER_VERSION为基于文件夹管理方式（老版本IDE默认类型），FILENAME_VERSION为基于文件名映射管理（新版本IDE默认类型
-	     */
-	    static enable(manifestFile, callback, type = 2) {
-	        ResourceVersion.type = type;
-	        ILaya.loader.load(manifestFile, Handler.create(null, ResourceVersion.onManifestLoaded, [callback]), null, Loader.JSON);
-	        URL.customFormat = ResourceVersion.addVersionPrefix;
-	    }
-	    static onManifestLoaded(callback, data) {
-	        ResourceVersion.manifest = data;
-	        callback.run();
-	        if (!data) {
-	            console.warn("资源版本清单文件不存在，不使用资源版本管理。忽略ERR_FILE_NOT_FOUND错误。");
+	        var tTransform = tNodeG.transform;
+	        tTransform._checkTransform();
+	        var onlyTranslate;
+	        onlyTranslate = !tTransform._bTransform;
+	        var hasTrans;
+	        hasTrans = onlyTranslate && (tTransform.tx != 0 || tTransform.ty != 0);
+	        var ifSave;
+	        ifSave = (tTransform._bTransform) || tNodeG.alpha != 1;
+	        if (ifSave)
+	            g.save();
+	        if (tNodeG.alpha != 1)
+	            g.alpha(tNodeG.alpha);
+	        if (!onlyTranslate)
+	            g.transform(tTransform.clone());
+	        else if (hasTrans)
+	            g.translate(tTransform.tx, tTransform.ty);
+	        var childs = node.child;
+	        var tTex;
+	        if (tNodeG.skin) {
+	            tTex = this._getTextureByUrl(tNodeG.skin);
+	            if (tTex) {
+	                g.drawImage(tTex, 0, 0, tNodeG.width, tNodeG.height);
+	            }
 	        }
-	    }
-	    /**
-	     * 为加载路径添加版本前缀。
-	     * @param	originURL	源路径。
-	     * @return 格式化后的新路径。
-	     */
-	    static addVersionPrefix(originURL) {
-	        originURL = URL.getAdptedFilePath(originURL);
-	        if (ResourceVersion.manifest && ResourceVersion.manifest[originURL]) {
-	            if (ResourceVersion.type == ResourceVersion.FILENAME_VERSION)
-	                return ResourceVersion.manifest[originURL];
-	            return ResourceVersion.manifest[originURL] + "/" + originURL;
+	        if (childs) {
+	            var i, len;
+	            len = childs.length;
+	            for (i = 0; i < len; i++) {
+	                this._updateNodeGraphic2(childs[i], frame, g);
+	            }
 	        }
-	        return originURL;
-	    }
-	}
-	/**基于文件夹的资源管理方式（老版本IDE默认类型）*/
-	ResourceVersion.FOLDER_VERSION = 1;
-	/**基于文件名映射管理方式（新版本IDE默认类型）*/
-	ResourceVersion.FILENAME_VERSION = 2;
-	/**当前使用的版本管理类型*/
-	ResourceVersion.type = ResourceVersion.FOLDER_VERSION;
-
-	/**
-	 * 连接建立成功后调度。
-	 * @eventType Event.OPEN
-	 * */
-	/*[Event(name = "open", type = "laya.events.Event")]*/
-	/**
-	 * 接收到数据后调度。
-	 * @eventType Event.MESSAGE
-	 * */
-	/*[Event(name = "message", type = "laya.events.Event")]*/
-	/**
-	 * 连接被关闭后调度。
-	 * @eventType Event.CLOSE
-	 * */
-	/*[Event(name = "close", type = "laya.events.Event")]*/
-	/**
-	 * 出现异常后调度。
-	 * @eventType Event.ERROR
-	 * */
-	/*[Event(name = "error", type = "laya.events.Event")]*/
-	/**
-	 * <p> <code>Socket</code> 封装了 HTML5 WebSocket ，允许服务器端与客户端进行全双工（full-duplex）的实时通信，并且允许跨域通信。在建立连接后，服务器和 Browser/Client Agent 都能主动的向对方发送或接收文本和二进制数据。</p>
-	 * <p>要使用 <code>Socket</code> 类的方法，请先使用构造函数 <code>new Socket</code> 创建一个 <code>Socket</code> 对象。 <code>Socket</code> 以异步方式传输和接收数据。</p>
-	 */
-	class Socket extends EventDispatcher {
-	    /**
-	     * <p>创建新的 Socket 对象。默认字节序为 Socket.BIG_ENDIAN 。若未指定参数，将创建一个最初处于断开状态的套接字。若指定了有效参数，则尝试连接到指定的主机和端口。</p>
-	     * @param host		服务器地址。
-	     * @param port		服务器端口。
-	     * @param byteClass	用于接收和发送数据的 Byte 类。如果为 null ，则使用 Byte 类，也可传入 Byte 类的子类。
-	     * @param protocols	子协议名称。子协议名称字符串，或由多个子协议名称字符串构成的数组
-	     * @see laya.utils.Byte
-	     */
-	    constructor(host = null, port = 0, byteClass = null, protocols = null) {
-	        super();
-	        /**
-	         * 不再缓存服务端发来的数据，如果传输的数据为字符串格式，建议设置为true，减少二进制转换消耗。
-	         */
-	        this.disableInput = false;
-	        /**
-	         * <p>子协议名称。子协议名称字符串，或由多个子协议名称字符串构成的数组。必须在调用 connect 或者 connectByUrl 之前进行赋值，否则无效。</p>
-	         * <p>指定后，只有当服务器选择了其中的某个子协议，连接才能建立成功，否则建立失败，派发 Event.ERROR 事件。</p>
-	         * @see https://html.spec.whatwg.org/multipage/comms.html#dom-websocket
-	         */
-	        this.protocols = [];
-	        this._byteClass = byteClass ? byteClass : Byte;
-	        this.protocols = protocols;
-	        this.endian = Socket.BIG_ENDIAN;
-	        if (host && port > 0 && port < 65535)
-	            this.connect(host, port);
-	    }
-	    /**
-	     * 缓存的服务端发来的数据。
-	     */
-	    get input() {
-	        return this._input;
-	    }
-	    /**
-	     * 表示需要发送至服务端的缓冲区中的数据。
-	     */
-	    get output() {
-	        return this._output;
-	    }
-	    /**
-	     * 表示此 Socket 对象目前是否已连接。
-	     */
-	    get connected() {
-	        return this._connected;
-	    }
-	    /**
-	     * <p>主机字节序，是 CPU 存放数据的两种不同顺序，包括小端字节序和大端字节序。</p>
-	     * <p> LITTLE_ENDIAN ：小端字节序，地址低位存储值的低位，地址高位存储值的高位。</p>
-	     * <p> BIG_ENDIAN ：大端字节序，地址低位存储值的高位，地址高位存储值的低位。</p>
-	     */
-	    get endian() {
-	        return this._endian;
-	    }
-	    set endian(value) {
-	        this._endian = value;
-	        if (this._input != null)
-	            this._input.endian = value;
-	        if (this._output != null)
-	            this._output.endian = value;
-	    }
-	    /**
-	     * <p>连接到指定的主机和端口。</p>
-	     * <p>连接成功派发 Event.OPEN 事件；连接失败派发 Event.ERROR 事件；连接被关闭派发 Event.CLOSE 事件；接收到数据派发 Event.MESSAGE 事件； 除了 Event.MESSAGE 事件参数为数据内容，其他事件参数都是原生的 HTML DOM Event 对象。</p>
-	     * @param host	服务器地址。
-	     * @param port	服务器端口。
-	     */
-	    connect(host, port) {
-	        var url = "ws://" + host + ":" + port;
-	        this.connectByUrl(url);
-	    }
-	    /**
-	     * <p>连接到指定的服务端 WebSocket URL。 URL 类似 ws://yourdomain:port。</p>
-	     * <p>连接成功派发 Event.OPEN 事件；连接失败派发 Event.ERROR 事件；连接被关闭派发 Event.CLOSE 事件；接收到数据派发 Event.MESSAGE 事件； 除了 Event.MESSAGE 事件参数为数据内容，其他事件参数都是原生的 HTML DOM Event 对象。</p>
-	     * @param url	要连接的服务端 WebSocket URL。 URL 类似 ws://yourdomain:port。
-	     */
-	    connectByUrl(url) {
-	        if (this._socket != null)
-	            this.close();
-	        this._socket && this.cleanSocket();
-	        if (!this.protocols || this.protocols.length == 0) {
-	            this._socket = new Browser.window.WebSocket(url);
+	        if (ifSave) {
+	            g.restore();
 	        }
 	        else {
-	            this._socket = new Browser.window.WebSocket(url, this.protocols);
-	        }
-	        this._socket.binaryType = "arraybuffer";
-	        this._output = new this._byteClass();
-	        this._output.endian = this.endian;
-	        this._input = new this._byteClass();
-	        this._input.endian = this.endian;
-	        this._addInputPosition = 0;
-	        this._socket.onopen = (e) => {
-	            this._onOpen(e);
-	        };
-	        this._socket.onmessage = (msg) => {
-	            this._onMessage(msg);
-	        };
-	        this._socket.onclose = (e) => {
-	            this._onClose(e);
-	        };
-	        this._socket.onerror = (e) => {
-	            this._onError(e);
-	        };
-	    }
-	    /**
-	     * 清理Socket：关闭Socket链接，关闭事件监听，重置Socket
-	     */
-	    cleanSocket() {
-	        this.close();
-	        this._connected = false;
-	        this._socket.onopen = null;
-	        this._socket.onmessage = null;
-	        this._socket.onclose = null;
-	        this._socket.onerror = null;
-	        this._socket = null;
-	    }
-	    /**
-	     * 关闭连接。
-	     */
-	    close() {
-	        if (this._socket != null) {
-	            try {
-	                this._socket.close();
+	            if (!onlyTranslate) {
+	                g.transform(tTransform.clone().invert());
 	            }
-	            catch (e) {
+	            else if (hasTrans) {
+	                g.translate(-tTransform.tx, -tTransform.ty);
 	            }
 	        }
 	    }
-	    /**
-	     * @private
-	     * 连接建立成功 。
-	     */
-	    _onOpen(e) {
-	        this._connected = true;
-	        this.event(Event.OPEN, e);
+	    _calculateKeyFrames(node) {
+	        super._calculateKeyFrames(node);
+	        this._nodeIDAniDic[node.target] = node;
 	    }
-	    /**
-	     * @private
-	     * 接收到数据处理方法。
-	     * @param msg 数据。
-	     */
-	    _onMessage(msg) {
-	        if (!msg || !msg.data)
-	            return;
-	        var data = msg.data;
-	        if (this.disableInput && data) {
-	            this.event(Event.MESSAGE, data);
-	            return;
+	    getNodeDataByID(nodeID) {
+	        return this._nodeIDAniDic[nodeID];
+	    }
+	    _getParams(obj, params, frame, obj2) {
+	        var rst = GraphicAnimation._temParam;
+	        rst.length = params.length;
+	        var i, len = params.length;
+	        for (i = 0; i < len; i++) {
+	            rst[i] = this._getObjVar(obj, params[i][0], frame, params[i][1], obj2);
 	        }
-	        if (this._input.length > 0 && this._input.bytesAvailable < 1) {
-	            this._input.clear();
-	            this._addInputPosition = 0;
+	        return rst;
+	    }
+	    _getObjVar(obj, key, frame, noValue, obj2) {
+	        if (key in obj) {
+	            var vArr = obj[key];
+	            if (frame >= vArr.length)
+	                frame = vArr.length - 1;
+	            return obj[key][frame];
 	        }
-	        var pre = this._input.pos;
-	        !this._addInputPosition && (this._addInputPosition = 0);
-	        this._input.pos = this._addInputPosition;
-	        if (data) {
-	            if (typeof (data) == 'string') {
-	                this._input.writeUTFBytes(data);
+	        if (key in obj2) {
+	            return obj2[key];
+	        }
+	        return noValue;
+	    }
+	    _getNodeGraphicData(nodeID, frame, rst) {
+	        if (!rst)
+	            rst = new GraphicNode();
+	        if (!rst.transform) {
+	            rst.transform = new Matrix();
+	        }
+	        else {
+	            rst.transform.identity();
+	        }
+	        var node = this.getNodeDataByID(nodeID);
+	        if (!node)
+	            return rst;
+	        var frameData = node.frames;
+	        var params = this._getParams(frameData, GraphicAnimation._drawTextureCmd, frame, this._nodeDefaultProps[nodeID]);
+	        var url = params[0];
+	        var width, height;
+	        var px = params[5], py = params[6];
+	        var aX = params[13], aY = params[14];
+	        var sx = params[7], sy = params[8];
+	        var rotate = params[9];
+	        var skewX = params[11], skewY = params[12];
+	        width = params[3];
+	        height = params[4];
+	        if (width == 0 || height == 0)
+	            url = null;
+	        if (width == -1)
+	            width = 0;
+	        if (height == -1)
+	            height = 0;
+	        var tex;
+	        rst.skin = url;
+	        rst.width = width;
+	        rst.height = height;
+	        if (url) {
+	            tex = this._getTextureByUrl(url);
+	            if (tex) {
+	                if (!width)
+	                    width = tex.sourceWidth;
+	                if (!height)
+	                    height = tex.sourceHeight;
 	            }
 	            else {
-	                this._input.writeArrayBuffer(data);
+	                console.warn("lost skin:", url, ",you may load pics first");
 	            }
-	            this._addInputPosition = this._input.pos;
-	            this._input.pos = pre;
 	        }
-	        this.event(Event.MESSAGE, data);
+	        rst.alpha = params[10];
+	        var m = rst.transform;
+	        if (aX != 0) {
+	            px = aX * width;
+	        }
+	        if (aY != 0) {
+	            py = aY * height;
+	        }
+	        if (px != 0 || py != 0) {
+	            m.translate(-px, -py);
+	        }
+	        var tm = null;
+	        if (rotate || sx !== 1 || sy !== 1 || skewX || skewY) {
+	            tm = GraphicAnimation._tempMt;
+	            tm.identity();
+	            tm._bTransform = true;
+	            var skx = (rotate - skewX) * 0.0174532922222222;
+	            var sky = (rotate + skewY) * 0.0174532922222222;
+	            var cx = Math.cos(sky);
+	            var ssx = Math.sin(sky);
+	            var cy = Math.sin(skx);
+	            var ssy = Math.cos(skx);
+	            tm.a = sx * cx;
+	            tm.b = sx * ssx;
+	            tm.c = -sy * cy;
+	            tm.d = sy * ssy;
+	            tm.tx = tm.ty = 0;
+	        }
+	        if (tm) {
+	            m = Matrix.mul(m, tm, m);
+	        }
+	        m.translate(params[1], params[2]);
+	        return rst;
 	    }
-	    /**
-	     * @private
-	     * 连接被关闭处理方法。
-	     */
-	    _onClose(e) {
-	        this._connected = false;
-	        this.event(Event.CLOSE, e);
+	    _getTextureByUrl(url) {
+	        return Loader.getRes(url);
 	    }
-	    /**
-	     * @private
-	     * 出现异常处理方法。
-	     */
-	    _onError(e) {
-	        this.event(Event.ERROR, e);
-	    }
-	    /**
-	     * 发送数据到服务器。
-	     * @param	data 需要发送的数据，可以是String或者ArrayBuffer。
-	     */
-	    send(data) {
-	        this._socket.send(data);
-	    }
-	    /**
-	     * 发送缓冲区中的数据到服务器。
-	     */
-	    flush() {
-	        if (this._output && this._output.length > 0) {
-	            var evt;
-	            try {
-	                this._socket && this._socket.send(this._output.__getBuffer().slice(0, this._output.length));
+	    setAniData(uiView, aniName = null) {
+	        if (uiView.animations) {
+	            this._nodeDefaultProps = {};
+	            this._nodeGDic = {};
+	            if (this._nodeList)
+	                this._nodeList.length = 0;
+	            this._rootNode = uiView;
+	            this._parseNodeList(uiView);
+	            var aniDic = {};
+	            var anilist = [];
+	            var animations = uiView.animations;
+	            var i, len = animations.length;
+	            var tAniO;
+	            for (i = 0; i < len; i++) {
+	                tAniO = animations[i];
+	                this._labels = null;
+	                if (aniName && aniName != tAniO.name) {
+	                    continue;
+	                }
+	                if (!tAniO)
+	                    continue;
+	                try {
+	                    this._calGraphicData(tAniO);
+	                }
+	                catch (e) {
+	                    console.warn("parse animation fail:" + tAniO.name + ",empty animation created");
+	                    this._gList = [];
+	                }
+	                var frameO = {};
+	                frameO.interval = 1000 / tAniO["frameRate"];
+	                frameO.frames = this._gList;
+	                frameO.labels = this._labels;
+	                frameO.name = tAniO.name;
+	                anilist.push(frameO);
+	                aniDic[tAniO.name] = frameO;
 	            }
-	            catch (e) {
-	                evt = e;
+	            this.animationList = anilist;
+	            this.animationDic = aniDic;
+	        }
+	        GraphicAnimation._temParam.length = 0;
+	    }
+	    parseByData(aniData) {
+	        var rootNode, aniO;
+	        rootNode = aniData.nodeRoot;
+	        aniO = aniData.aniO;
+	        delete aniData.nodeRoot;
+	        delete aniData.aniO;
+	        this._nodeDefaultProps = {};
+	        this._nodeGDic = {};
+	        if (this._nodeList)
+	            this._nodeList.length = 0;
+	        this._rootNode = rootNode;
+	        this._parseNodeList(rootNode);
+	        this._labels = null;
+	        try {
+	            this._calGraphicData(aniO);
+	        }
+	        catch (e) {
+	            console.warn("parse animation fail:" + aniO.name + ",empty animation created");
+	            this._gList = [];
+	        }
+	        var frameO = aniData;
+	        frameO.interval = 1000 / aniO["frameRate"];
+	        frameO.frames = this._gList;
+	        frameO.labels = this._labels;
+	        frameO.name = aniO.name;
+	        return frameO;
+	    }
+	    setUpAniData(uiView) {
+	        if (uiView.animations) {
+	            var aniDic = {};
+	            var anilist = [];
+	            var animations = uiView.animations;
+	            var i, len = animations.length;
+	            var tAniO;
+	            for (i = 0; i < len; i++) {
+	                tAniO = animations[i];
+	                if (!tAniO)
+	                    continue;
+	                var frameO = {};
+	                frameO.name = tAniO.name;
+	                frameO.aniO = tAniO;
+	                frameO.nodeRoot = uiView;
+	                anilist.push(frameO);
+	                aniDic[tAniO.name] = frameO;
 	            }
-	            this._output.endian = this.endian;
-	            this._output.clear();
-	            if (evt)
-	                this.event(Event.ERROR, evt);
+	            this.animationList = anilist;
+	            this.animationDic = aniDic;
+	        }
+	    }
+	    _clear() {
+	        this.animationList = null;
+	        this.animationDic = null;
+	        this._gList = null;
+	        this._nodeGDic = null;
+	    }
+	    static parseAnimationByData(animationObject) {
+	        if (!GraphicAnimation._I)
+	            GraphicAnimation._I = new GraphicAnimation();
+	        var rst;
+	        rst = GraphicAnimation._I.parseByData(animationObject);
+	        GraphicAnimation._I._clear();
+	        return rst;
+	    }
+	    static parseAnimationData(aniData) {
+	        if (!GraphicAnimation._I)
+	            GraphicAnimation._I = new GraphicAnimation();
+	        GraphicAnimation._I.setUpAniData(aniData);
+	        var rst;
+	        rst = {};
+	        rst.animationList = GraphicAnimation._I.animationList;
+	        rst.animationDic = GraphicAnimation._I.animationDic;
+	        GraphicAnimation._I._clear();
+	        return rst;
+	    }
+	}
+	GraphicAnimation._drawTextureCmd = [["skin", null], ["x", 0], ["y", 0], ["width", -1], ["height", -1], ["pivotX", 0], ["pivotY", 0], ["scaleX", 1], ["scaleY", 1], ["rotation", 0], ["alpha", 1], ["skewX", 0], ["skewY", 0], ["anchorX", 0], ["anchorY", 0]];
+	GraphicAnimation._temParam = [];
+	GraphicAnimation._tempMt = new Matrix();
+	class GraphicNode {
+	    constructor() {
+	        this.alpha = 1;
+	    }
+	}
+
+	class Animation extends AnimationBase {
+	    constructor() {
+	        super();
+	        this._setControlNode(this);
+	    }
+	    destroy(destroyChild = true) {
+	        this.stop();
+	        super.destroy(destroyChild);
+	        this._frames = null;
+	        this._labels = null;
+	    }
+	    play(start = 0, loop = true, name = "") {
+	        if (name)
+	            this._setFramesFromCache(name, true);
+	        super.play(start, loop, name);
+	    }
+	    _setFramesFromCache(name, showWarn = false) {
+	        if (this._url)
+	            name = this._url + "#" + name;
+	        if (name && Animation.framesMap[name]) {
+	            var tAniO = Animation.framesMap[name];
+	            if (tAniO instanceof Array) {
+	                this._frames = Animation.framesMap[name];
+	                this._count = this._frames.length;
+	            }
+	            else {
+	                if (tAniO.nodeRoot) {
+	                    Animation.framesMap[name] = GraphicAnimation.parseAnimationByData(tAniO);
+	                    tAniO = Animation.framesMap[name];
+	                }
+	                this._frames = tAniO.frames;
+	                this._count = this._frames.length;
+	                if (!this._frameRateChanged)
+	                    this._interval = tAniO.interval;
+	                this._labels = this._copyLabels(tAniO.labels);
+	            }
+	            return true;
+	        }
+	        else {
+	            if (showWarn)
+	                console.log("ani not found:", name);
+	        }
+	        return false;
+	    }
+	    _copyLabels(labels) {
+	        if (!labels)
+	            return null;
+	        var rst;
+	        rst = {};
+	        var key;
+	        for (key in labels) {
+	            rst[key] = Utils.copyArray([], labels[key]);
+	        }
+	        return rst;
+	    }
+	    _frameLoop() {
+	        if (this._visible && this._style.alpha > 0.01 && this._frames) {
+	            super._frameLoop();
+	        }
+	    }
+	    _displayToIndex(value) {
+	        if (this._frames)
+	            this.graphics = this._frames[value];
+	    }
+	    get frames() {
+	        return this._frames;
+	    }
+	    set frames(value) {
+	        this._frames = value;
+	        if (value) {
+	            this._count = value.length;
+	            if (this._actionName)
+	                this._setFramesFromCache(this._actionName, true);
+	            this.index = this._index;
+	        }
+	    }
+	    set source(value) {
+	        if (value.indexOf(".ani") > -1)
+	            this.loadAnimation(value);
+	        else if (value.indexOf(".json") > -1 || value.indexOf("als") > -1 || value.indexOf("atlas") > -1)
+	            this.loadAtlas(value);
+	        else
+	            this.loadImages(value.split(","));
+	    }
+	    set autoAnimation(value) {
+	        this.play(0, true, value);
+	    }
+	    set autoPlay(value) {
+	        if (value)
+	            this.play();
+	        else
+	            this.stop();
+	    }
+	    clear() {
+	        super.clear();
+	        this.stop();
+	        this.graphics = null;
+	        this._frames = null;
+	        this._labels = null;
+	        return this;
+	    }
+	    loadImages(urls, cacheName = "") {
+	        this._url = "";
+	        if (!this._setFramesFromCache(cacheName)) {
+	            this.frames = Animation.framesMap[cacheName] ? Animation.framesMap[cacheName] : Animation.createFrames(urls, cacheName);
+	        }
+	        return this;
+	    }
+	    loadAtlas(url, loaded = null, cacheName = "") {
+	        this._url = "";
+	        var _this = this;
+	        if (!_this._setFramesFromCache(cacheName)) {
+	            function onLoaded(loadUrl) {
+	                if (url === loadUrl) {
+	                    _this.frames = Animation.framesMap[cacheName] ? Animation.framesMap[cacheName] : Animation.createFrames(url, cacheName);
+	                    if (loaded)
+	                        loaded.run();
+	                }
+	            }
+	            if (Loader.getAtlas(url))
+	                onLoaded(url);
+	            else
+	                ILaya.loader.load(url, Handler.create(null, onLoaded, [url]), null, Loader.ATLAS);
+	        }
+	        return this;
+	    }
+	    loadAnimation(url, loaded = null, atlas = null) {
+	        this._url = url;
+	        var _this = this;
+	        if (!this._actionName)
+	            this._actionName = "";
+	        if (!_this._setFramesFromCache(this._actionName)) {
+	            if (!atlas || Loader.getAtlas(atlas)) {
+	                this._loadAnimationData(url, loaded, atlas);
+	            }
+	            else {
+	                ILaya.loader.load(atlas, Handler.create(this, this._loadAnimationData, [url, loaded, atlas]), null, Loader.ATLAS);
+	            }
+	        }
+	        else {
+	            _this._setFramesFromCache(this._actionName, true);
+	            this.index = 0;
+	            if (loaded)
+	                loaded.run();
+	        }
+	        return this;
+	    }
+	    _loadAnimationData(url, loaded = null, atlas = null) {
+	        if (atlas && !Loader.getAtlas(atlas)) {
+	            console.warn("atlas load fail:" + atlas);
+	            return;
+	        }
+	        var _this = this;
+	        function onLoaded(loadUrl) {
+	            if (!Loader.getRes(loadUrl)) {
+	                if (Animation.framesMap[url + "#"]) {
+	                    _this._setFramesFromCache(this._actionName, true);
+	                    _this.index = 0;
+	                    _this._resumePlay();
+	                    if (loaded)
+	                        loaded.run();
+	                }
+	                return;
+	            }
+	            if (url === loadUrl) {
+	                var tAniO;
+	                if (!Animation.framesMap[url + "#"]) {
+	                    var aniData = GraphicAnimation.parseAnimationData(Loader.getRes(url));
+	                    if (!aniData)
+	                        return;
+	                    var aniList = aniData.animationList;
+	                    var i, len = aniList.length;
+	                    var defaultO;
+	                    for (i = 0; i < len; i++) {
+	                        tAniO = aniList[i];
+	                        Animation.framesMap[url + "#" + tAniO.name] = tAniO;
+	                        if (!defaultO)
+	                            defaultO = tAniO;
+	                    }
+	                    if (defaultO) {
+	                        Animation.framesMap[url + "#"] = defaultO;
+	                        _this._setFramesFromCache(_this._actionName, true);
+	                        _this.index = 0;
+	                    }
+	                    _this._resumePlay();
+	                }
+	                else {
+	                    _this._setFramesFromCache(_this._actionName, true);
+	                    _this.index = 0;
+	                    _this._resumePlay();
+	                }
+	                if (loaded)
+	                    loaded.run();
+	            }
+	            Loader.clearRes(url);
+	        }
+	        if (Loader.getRes(url))
+	            onLoaded(url);
+	        else
+	            ILaya.loader.load(url, Handler.create(null, onLoaded, [url]), null, Loader.JSON);
+	    }
+	    static createFrames(url, name) {
+	        var arr;
+	        if (typeof (url) == 'string') {
+	            var atlas = Loader.getAtlas(url);
+	            if (atlas && atlas.length) {
+	                arr = [];
+	                for (var i = 0, n = atlas.length; i < n; i++) {
+	                    var g = new Graphics();
+	                    g.drawImage(Loader.getRes(atlas[i]), 0, 0);
+	                    arr.push(g);
+	                }
+	            }
+	        }
+	        else if (url instanceof Array) {
+	            arr = [];
+	            for (i = 0, n = url.length; i < n; i++) {
+	                g = new Graphics();
+	                g.loadImage(url[i], 0, 0);
+	                arr.push(g);
+	            }
+	        }
+	        if (name)
+	            Animation.framesMap[name] = arr;
+	        return arr;
+	    }
+	    static clearCache(key) {
+	        var cache = Animation.framesMap;
+	        var val;
+	        var key2 = key + "#";
+	        for (val in cache) {
+	            if (val === key || val.indexOf(key2) === 0) {
+	                delete Animation.framesMap[val];
+	            }
 	        }
 	    }
 	}
-	/**
-	 * <p>主机字节序，是 CPU 存放数据的两种不同顺序，包括小端字节序和大端字节序。</p>
-	 * <p> LITTLE_ENDIAN ：小端字节序，地址低位存储值的低位，地址高位存储值的高位。</p>
-	 * <p> BIG_ENDIAN ：大端字节序，地址低位存储值的高位，地址高位存储值的低位。有时也称之为网络字节序。</p>
-	 */
-	Socket.LITTLE_ENDIAN = "littleEndian";
-	/**
-	 * <p>主机字节序，是 CPU 存放数据的两种不同顺序，包括小端字节序和大端字节序。</p>
-	 * <p> BIG_ENDIAN ：大端字节序，地址低位存储值的高位，地址高位存储值的低位。有时也称之为网络字节序。</p>
-	 * <p> LITTLE_ENDIAN ：小端字节序，地址低位存储值的低位，地址高位存储值的高位。</p>
-	 */
-	Socket.BIG_ENDIAN = "bigEndian";
+	Animation.framesMap = {};
+	ILaya.regClass(Animation);
+	ClassUtils.regClass("laya.display.Animation", Animation);
+	ClassUtils.regClass("Laya.Animation", Animation);
 
-	/**
-	 * @private
-	 * 场景资源加载器
-	 */
+	class EffectAnimation extends FrameAnimation {
+	    constructor() {
+	        super(...arguments);
+	        this._initData = {};
+	    }
+	    set target(v) {
+	        if (this._target)
+	            this._target.off(EffectAnimation.EFFECT_BEGIN, this, this._onOtherBegin);
+	        this._target = v;
+	        if (this._target)
+	            this._target.on(EffectAnimation.EFFECT_BEGIN, this, this._onOtherBegin);
+	        this._addEvent();
+	    }
+	    get target() {
+	        return this._target;
+	    }
+	    _onOtherBegin(effect) {
+	        if (effect === this)
+	            return;
+	        this.stop();
+	    }
+	    set playEvent(event) {
+	        this._playEvent = event;
+	        if (!event)
+	            return;
+	        this._addEvent();
+	    }
+	    _addEvent() {
+	        if (!this._target || !this._playEvent)
+	            return;
+	        this._setControlNode(this._target);
+	        this._target.on(this._playEvent, this, this._onPlayAction);
+	    }
+	    _onPlayAction() {
+	        this.play(0, false);
+	    }
+	    play(start = 0, loop = true, name = "") {
+	        if (!this._target)
+	            return;
+	        this._target.event(EffectAnimation.EFFECT_BEGIN, [this]);
+	        this._recordInitData();
+	        super.play(start, loop, name);
+	    }
+	    _recordInitData() {
+	        if (!this._aniKeys)
+	            return;
+	        var i, len;
+	        len = this._aniKeys.length;
+	        var key;
+	        for (i = 0; i < len; i++) {
+	            key = this._aniKeys[i];
+	            this._initData[key] = this._target[key];
+	        }
+	    }
+	    set effectClass(classStr) {
+	        this._effectClass = ClassUtils.getClass(classStr);
+	        if (this._effectClass) {
+	            var uiData = this._effectClass["uiView"];
+	            if (uiData) {
+	                var aniData = uiData["animations"];
+	                if (aniData && aniData[0]) {
+	                    var data = aniData[0];
+	                    this._setUp({}, data);
+	                    if (data.nodes && data.nodes[0]) {
+	                        this._aniKeys = data.nodes[0].keys;
+	                    }
+	                }
+	            }
+	        }
+	    }
+	    set effectData(uiData) {
+	        if (uiData) {
+	            var aniData = uiData["animations"];
+	            if (aniData && aniData[0]) {
+	                var data = aniData[0];
+	                this._setUp({}, data);
+	                if (data.nodes && data.nodes[0]) {
+	                    this._aniKeys = data.nodes[0].keys;
+	                }
+	            }
+	        }
+	    }
+	    _displayToIndex(value) {
+	        if (!this._animationData)
+	            return;
+	        if (value < 0)
+	            value = 0;
+	        if (value > this._count)
+	            value = this._count;
+	        var nodes = this._animationData.nodes, i, len = nodes.length;
+	        len = len > 1 ? 1 : len;
+	        for (i = 0; i < len; i++) {
+	            this._displayNodeToFrame(nodes[i], value);
+	        }
+	    }
+	    _displayNodeToFrame(node, frame, targetDic = null) {
+	        if (!this._target)
+	            return;
+	        var target = this._target;
+	        var frames = node.frames, key, propFrames, value;
+	        var keys = node.keys, i, len = keys.length;
+	        var secondFrames = node.secondFrames;
+	        var tSecondFrame;
+	        var easeFun;
+	        var tKeyFrames;
+	        var startFrame;
+	        var endFrame;
+	        for (i = 0; i < len; i++) {
+	            key = keys[i];
+	            propFrames = frames[key];
+	            tSecondFrame = secondFrames[key];
+	            if (tSecondFrame == -1) {
+	                value = this._initData[key];
+	            }
+	            else {
+	                if (frame < tSecondFrame) {
+	                    tKeyFrames = node.keyframes[key];
+	                    startFrame = tKeyFrames[0];
+	                    if (startFrame.tween) {
+	                        easeFun = Ease[startFrame.tweenMethod];
+	                        if (easeFun == null)
+	                            easeFun = Ease.linearNone;
+	                        endFrame = tKeyFrames[1];
+	                        value = easeFun(frame, this._initData[key], endFrame.value - this._initData[key], endFrame.index);
+	                    }
+	                    else {
+	                        value = this._initData[key];
+	                    }
+	                }
+	                else {
+	                    if (propFrames.length > frame)
+	                        value = propFrames[frame];
+	                    else
+	                        value = propFrames[propFrames.length - 1];
+	                }
+	            }
+	            target[key] = value;
+	        }
+	    }
+	    _calculateKeyFrames(node) {
+	        super._calculateKeyFrames(node);
+	        var keyFrames = node.keyframes, key, tKeyFrames, target = node.target;
+	        var secondFrames = {};
+	        node.secondFrames = secondFrames;
+	        for (key in keyFrames) {
+	            tKeyFrames = keyFrames[key];
+	            if (tKeyFrames.length <= 1)
+	                secondFrames[key] = -1;
+	            else
+	                secondFrames[key] = tKeyFrames[1].index;
+	        }
+	    }
+	}
+	EffectAnimation.EFFECT_BEGIN = "effectbegin";
+	ClassUtils.regClass("laya.display.EffectAnimation", EffectAnimation);
+	ClassUtils.regClass("Laya.EffectAnimation", EffectAnimation);
+
 	class SceneLoader extends EventDispatcher {
 	    constructor() {
 	        super();
@@ -32745,1321 +23346,317 @@ window.Laya= (function (exports) {
 	SceneLoader.LoadableExtensions = { "scene": Loader.JSON, "scene3d": Loader.JSON, "ani": Loader.JSON, "ui": Loader.JSON, "prefab": Loader.PREFAB };
 	SceneLoader.No3dLoadTypes = { "png": true, "jpg": true, "txt": true };
 
-	/**
-	 * @private
-	 */
-	class System {
-	    /**
-	     * 替换指定名称的定义。用来动态更改类的定义。
-	     * @param	name 属性名。
-	     * @param	classObj 属性值。
-	     */
-	    //TODO:coverage
-	    static changeDefinition(name, classObj) {
-	        window.Laya[name] = classObj;
-	        var str = name + "=classObj";
-	        window['eval'](str);
-	    }
-	}
-
-	/**
-	 * Graphics动画解析器
-	 * @private
-	 */
-	class GraphicAnimation extends FrameAnimation {
-	    constructor() {
-	        super(...arguments);
-	        /**@private */
-	        this._nodeIDAniDic = {};
-	    }
-	    /**@private */
-	    _parseNodeList(uiView) {
-	        if (!this._nodeList)
-	            this._nodeList = [];
-	        this._nodeDefaultProps[uiView.compId] = uiView.props;
-	        if (uiView.compId)
-	            this._nodeList.push(uiView.compId);
-	        var childs = uiView.child;
-	        if (childs) {
-	            var i, len = childs.length;
-	            for (i = 0; i < len; i++) {
-	                this._parseNodeList(childs[i]);
-	            }
-	        }
-	    }
-	    /**@private */
-	    _calGraphicData(aniData) {
-	        this._setUp(null, aniData);
-	        this._createGraphicData();
-	        if (this._nodeIDAniDic) {
-	            var key;
-	            for (key in this._nodeIDAniDic) {
-	                this._nodeIDAniDic[key] = null;
-	            }
-	        }
-	    }
-	    /**@private */
-	    _createGraphicData() {
-	        var gList = [];
-	        var i, len = this.count;
-	        var animationDataNew = this._usedFrames;
-	        if (!animationDataNew)
-	            animationDataNew = [];
-	        var preGraphic;
-	        for (i = 0; i < len; i++) {
-	            if (animationDataNew[i] || !preGraphic) {
-	                preGraphic = this._createFrameGraphic(i);
-	            }
-	            gList.push(preGraphic);
-	        }
-	        this._gList = gList;
-	    }
-	    /**@private */
-	    _createFrameGraphic(frame) {
-	        var g = new Graphics();
-	        if (!GraphicAnimation._rootMatrix)
-	            GraphicAnimation._rootMatrix = new Matrix();
-	        this._updateNodeGraphic(this._rootNode, frame, GraphicAnimation._rootMatrix, g);
-	        //_updateNodeGraphic2(_rootNode, frame, g);
-	        return g;
-	    }
-	    _updateNodeGraphic(node, frame, parentTransfrom, g, alpha = 1) {
-	        var tNodeG;
-	        tNodeG = this._nodeGDic[node.compId] = this._getNodeGraphicData(node.compId, frame, this._nodeGDic[node.compId]);
-	        if (!tNodeG.resultTransform)
-	            tNodeG.resultTransform = new Matrix();
-	        var tResultTransform;
-	        tResultTransform = tNodeG.resultTransform;
-	        Matrix.mul(tNodeG.transform, parentTransfrom, tResultTransform);
-	        var tTex;
-	        var tGraphicAlpha = tNodeG.alpha * alpha;
-	        if (tGraphicAlpha < 0.01)
-	            return;
-	        if (tNodeG.skin) {
-	            tTex = this._getTextureByUrl(tNodeG.skin);
-	            if (tTex) {
-	                if (tResultTransform._checkTransform()) {
-	                    g.drawTexture(tTex, 0, 0, tNodeG.width, tNodeG.height, tResultTransform, tGraphicAlpha);
-	                    tNodeG.resultTransform = null;
-	                }
-	                else {
-	                    g.drawTexture(tTex, tResultTransform.tx, tResultTransform.ty, tNodeG.width, tNodeG.height, null, tGraphicAlpha);
-	                }
-	            }
-	        }
-	        var childs = node.child;
-	        if (!childs)
-	            return;
-	        var i, len;
-	        len = childs.length;
-	        for (i = 0; i < len; i++) {
-	            this._updateNodeGraphic(childs[i], frame, tResultTransform, g, tGraphicAlpha);
-	        }
-	    }
-	    _updateNoChilds(tNodeG, g) {
-	        if (!tNodeG.skin)
-	            return;
-	        var tTex = this._getTextureByUrl(tNodeG.skin);
-	        if (!tTex)
-	            return;
-	        var tTransform = tNodeG.transform;
-	        tTransform._checkTransform();
-	        var onlyTranslate;
-	        onlyTranslate = !tTransform._bTransform;
-	        if (!onlyTranslate) {
-	            g.drawTexture(tTex, 0, 0, tNodeG.width, tNodeG.height, tTransform.clone(), tNodeG.alpha);
-	        }
-	        else {
-	            g.drawTexture(tTex, tTransform.tx, tTransform.ty, tNodeG.width, tNodeG.height, null, tNodeG.alpha);
-	        }
-	    }
-	    _updateNodeGraphic2(node, frame, g) {
-	        var tNodeG;
-	        tNodeG = this._nodeGDic[node.compId] = this._getNodeGraphicData(node.compId, frame, this._nodeGDic[node.compId]);
-	        if (!node.child) {
-	            this._updateNoChilds(tNodeG, g);
-	            return;
-	        }
-	        var tTransform = tNodeG.transform;
-	        tTransform._checkTransform();
-	        var onlyTranslate;
-	        onlyTranslate = !tTransform._bTransform;
-	        var hasTrans;
-	        hasTrans = onlyTranslate && (tTransform.tx != 0 || tTransform.ty != 0);
-	        var ifSave;
-	        ifSave = (tTransform._bTransform) || tNodeG.alpha != 1;
-	        if (ifSave)
-	            g.save();
-	        if (tNodeG.alpha != 1)
-	            g.alpha(tNodeG.alpha);
-	        if (!onlyTranslate)
-	            g.transform(tTransform.clone());
-	        else if (hasTrans)
-	            g.translate(tTransform.tx, tTransform.ty);
-	        var childs = node.child;
-	        var tTex;
-	        if (tNodeG.skin) {
-	            tTex = this._getTextureByUrl(tNodeG.skin);
-	            if (tTex) {
-	                g.drawImage(tTex, 0, 0, tNodeG.width, tNodeG.height);
-	            }
-	        }
-	        if (childs) {
-	            var i, len;
-	            len = childs.length;
-	            for (i = 0; i < len; i++) {
-	                this._updateNodeGraphic2(childs[i], frame, g);
-	            }
-	        }
-	        if (ifSave) {
-	            g.restore();
-	        }
-	        else {
-	            if (!onlyTranslate) {
-	                g.transform(tTransform.clone().invert());
-	            }
-	            else if (hasTrans) {
-	                g.translate(-tTransform.tx, -tTransform.ty);
-	            }
-	        }
-	    }
-	    /**
-	     * @private
-	     * @override
-	    */
-	    _calculateKeyFrames(node) {
-	        super._calculateKeyFrames(node);
-	        this._nodeIDAniDic[node.target] = node;
-	    }
-	    /**@private */
-	    getNodeDataByID(nodeID) {
-	        return this._nodeIDAniDic[nodeID];
-	    }
-	    /**@private */
-	    _getParams(obj, params, frame, obj2) {
-	        var rst = GraphicAnimation._temParam;
-	        rst.length = params.length;
-	        var i, len = params.length;
-	        for (i = 0; i < len; i++) {
-	            rst[i] = this._getObjVar(obj, params[i][0], frame, params[i][1], obj2);
-	        }
-	        return rst;
-	    }
-	    /**@private */
-	    _getObjVar(obj, key, frame, noValue, obj2) {
-	        if (key in obj) {
-	            var vArr = obj[key];
-	            if (frame >= vArr.length)
-	                frame = vArr.length - 1;
-	            return obj[key][frame];
-	        }
-	        if (key in obj2) {
-	            return obj2[key];
-	        }
-	        return noValue;
-	    }
-	    _getNodeGraphicData(nodeID, frame, rst) {
-	        if (!rst)
-	            rst = new GraphicNode();
-	        if (!rst.transform) {
-	            rst.transform = new Matrix();
-	        }
-	        else {
-	            rst.transform.identity();
-	        }
-	        var node = this.getNodeDataByID(nodeID);
-	        if (!node)
-	            return rst;
-	        var frameData = node.frames;
-	        var params = this._getParams(frameData, GraphicAnimation._drawTextureCmd, frame, this._nodeDefaultProps[nodeID]);
-	        var url = params[0];
-	        var width, height;
-	        var px = params[5], py = params[6];
-	        var aX = params[13], aY = params[14];
-	        var sx = params[7], sy = params[8];
-	        var rotate = params[9];
-	        var skewX = params[11], skewY = params[12];
-	        width = params[3];
-	        height = params[4];
-	        if (width == 0 || height == 0)
-	            url = null;
-	        if (width == -1)
-	            width = 0;
-	        if (height == -1)
-	            height = 0;
-	        var tex;
-	        rst.skin = url;
-	        rst.width = width;
-	        rst.height = height;
-	        if (url) {
-	            tex = this._getTextureByUrl(url);
-	            if (tex) {
-	                if (!width)
-	                    width = tex.sourceWidth;
-	                if (!height)
-	                    height = tex.sourceHeight;
-	            }
-	            else {
-	                console.warn("lost skin:", url, ",you may load pics first");
-	            }
-	        }
-	        rst.alpha = params[10];
-	        var m = rst.transform;
-	        if (aX != 0) {
-	            px = aX * width;
-	        }
-	        if (aY != 0) {
-	            py = aY * height;
-	        }
-	        if (px != 0 || py != 0) {
-	            m.translate(-px, -py);
-	        }
-	        var tm = null;
-	        if (rotate || sx !== 1 || sy !== 1 || skewX || skewY) {
-	            tm = GraphicAnimation._tempMt;
-	            tm.identity();
-	            tm._bTransform = true;
-	            var skx = (rotate - skewX) * 0.0174532922222222; //laya.CONST.PI180;
-	            var sky = (rotate + skewY) * 0.0174532922222222;
-	            var cx = Math.cos(sky);
-	            var ssx = Math.sin(sky);
-	            var cy = Math.sin(skx);
-	            var ssy = Math.cos(skx);
-	            tm.a = sx * cx;
-	            tm.b = sx * ssx;
-	            tm.c = -sy * cy;
-	            tm.d = sy * ssy;
-	            tm.tx = tm.ty = 0;
-	        }
-	        if (tm) {
-	            m = Matrix.mul(m, tm, m);
-	        }
-	        m.translate(params[1], params[2]);
-	        return rst;
-	    }
-	    /**@private */
-	    _getTextureByUrl(url) {
-	        return Loader.getRes(url);
-	    }
-	    /**@private */
-	    setAniData(uiView, aniName = null) {
-	        if (uiView.animations) {
-	            this._nodeDefaultProps = {};
-	            this._nodeGDic = {};
-	            if (this._nodeList)
-	                this._nodeList.length = 0;
-	            this._rootNode = uiView;
-	            this._parseNodeList(uiView);
-	            var aniDic = {};
-	            var anilist = [];
-	            var animations = uiView.animations;
-	            var i, len = animations.length;
-	            var tAniO;
-	            for (i = 0; i < len; i++) {
-	                tAniO = animations[i];
-	                this._labels = null;
-	                if (aniName && aniName != tAniO.name) {
-	                    continue;
-	                }
-	                if (!tAniO)
-	                    continue;
-	                try {
-	                    this._calGraphicData(tAniO);
-	                }
-	                catch (e) {
-	                    console.warn("parse animation fail:" + tAniO.name + ",empty animation created");
-	                    this._gList = [];
-	                }
-	                var frameO = {};
-	                frameO.interval = 1000 / tAniO["frameRate"];
-	                frameO.frames = this._gList;
-	                frameO.labels = this._labels;
-	                frameO.name = tAniO.name;
-	                anilist.push(frameO);
-	                aniDic[tAniO.name] = frameO;
-	            }
-	            this.animationList = anilist;
-	            this.animationDic = aniDic;
-	        }
-	        GraphicAnimation._temParam.length = 0;
-	    }
-	    parseByData(aniData) {
-	        var rootNode, aniO;
-	        rootNode = aniData.nodeRoot;
-	        aniO = aniData.aniO;
-	        delete aniData.nodeRoot;
-	        delete aniData.aniO;
-	        this._nodeDefaultProps = {};
-	        this._nodeGDic = {};
-	        if (this._nodeList)
-	            this._nodeList.length = 0;
-	        this._rootNode = rootNode;
-	        this._parseNodeList(rootNode);
-	        this._labels = null;
-	        try {
-	            this._calGraphicData(aniO);
-	        }
-	        catch (e) {
-	            console.warn("parse animation fail:" + aniO.name + ",empty animation created");
-	            this._gList = [];
-	        }
-	        var frameO = aniData;
-	        frameO.interval = 1000 / aniO["frameRate"];
-	        frameO.frames = this._gList;
-	        frameO.labels = this._labels;
-	        frameO.name = aniO.name;
-	        return frameO;
-	    }
-	    /**@private */
-	    setUpAniData(uiView) {
-	        if (uiView.animations) {
-	            var aniDic = {};
-	            var anilist = [];
-	            var animations = uiView.animations;
-	            var i, len = animations.length;
-	            var tAniO;
-	            for (i = 0; i < len; i++) {
-	                tAniO = animations[i];
-	                if (!tAniO)
-	                    continue;
-	                var frameO = {};
-	                frameO.name = tAniO.name;
-	                frameO.aniO = tAniO;
-	                frameO.nodeRoot = uiView;
-	                anilist.push(frameO);
-	                aniDic[tAniO.name] = frameO;
-	            }
-	            this.animationList = anilist;
-	            this.animationDic = aniDic;
-	        }
-	    }
-	    /**@private */
-	    _clear() {
-	        this.animationList = null;
-	        this.animationDic = null;
-	        this._gList = null;
-	        this._nodeGDic = null;
-	    }
-	    static parseAnimationByData(animationObject) {
-	        if (!GraphicAnimation._I)
-	            GraphicAnimation._I = new GraphicAnimation();
-	        var rst;
-	        rst = GraphicAnimation._I.parseByData(animationObject);
-	        GraphicAnimation._I._clear();
-	        return rst;
-	    }
-	    static parseAnimationData(aniData) {
-	        if (!GraphicAnimation._I)
-	            GraphicAnimation._I = new GraphicAnimation();
-	        GraphicAnimation._I.setUpAniData(aniData);
-	        var rst;
-	        rst = {};
-	        rst.animationList = GraphicAnimation._I.animationList;
-	        rst.animationDic = GraphicAnimation._I.animationDic;
-	        GraphicAnimation._I._clear();
-	        return rst;
-	    }
-	}
-	/**@private */
-	GraphicAnimation._drawTextureCmd = [["skin", null], ["x", 0], ["y", 0], ["width", -1], ["height", -1], ["pivotX", 0], ["pivotY", 0], ["scaleX", 1], ["scaleY", 1], ["rotation", 0], ["alpha", 1], ["skewX", 0], ["skewY", 0], ["anchorX", 0], ["anchorY", 0]];
-	/**@private */
-	GraphicAnimation._temParam = [];
-	GraphicAnimation._tempMt = new Matrix();
-	class GraphicNode {
-	    constructor() {
-	        this.alpha = 1;
-	    }
-	}
-
-	/**
-	     * @private
-	     * <code>HTMLChar</code> 是一个 HTML 字符类。
-	     */
-	class HTMLChar {
-	    /**
-	     * 创建实例
-	     */
-	    constructor() {
-	        this.reset();
-	    }
-	    /**
-	     * 根据指定的字符、宽高、样式，创建一个 <code>HTMLChar</code> 类的实例。
-	     * @param	char 字符。
-	     * @param	w 宽度。
-	     * @param	h 高度。
-	     * @param	style CSS 样式。
-	     */
-	    setData(char, w, h, style) {
-	        this.char = char;
-	        this.charNum = char.charCodeAt(0);
-	        this.x = this.y = 0;
-	        this.width = w;
-	        this.height = h;
-	        this.style = style;
-	        this.isWord = !HTMLChar._isWordRegExp.test(char);
-	        return this;
-	    }
-	    /**
-	     * 重置
-	     */
-	    reset() {
-	        this.x = this.y = this.width = this.height = 0;
-	        this.isWord = false;
-	        this.char = null;
-	        this.charNum = 0;
-	        this.style = null;
-	        return this;
-	    }
-	    /**
-	     * 回收
-	     */
-	    //TODO:coverage
-	    recover() {
-	        Pool.recover("HTMLChar", this.reset());
-	    }
-	    /**
-	     * 创建
-	     */
-	    static create() {
-	        return Pool.getItemByClass("HTMLChar", HTMLChar);
-	    }
-	    /** @internal */
-	    _isChar() {
-	        return true;
-	    }
-	    /** @internal */
-	    _getCSSStyle() {
-	        return this.style;
-	    }
-	}
-	HTMLChar._isWordRegExp = new RegExp("[\\w\.]", "");
-
-	//import { PerfHUD } from "./PerfHUD";
-	let DATANUM = 300;
-	class PerfData {
-	    constructor(id, color, name, scale) {
-	        this.scale = 1.0;
-	        this.datas = new Array(DATANUM);
-	        this.datapos = 0;
-	        this.id = id;
-	        this.color = color;
-	        this.name = name;
-	        this.scale = scale;
-	    }
-	    addData(v) {
-	        this.datas[this.datapos] = v;
-	        this.datapos++;
-	        this.datapos %= DATANUM;
-	    }
-	}
-
-	class PerfHUD extends Sprite {
-	    //TODO:coverage
+	class Scene extends Sprite {
 	    constructor() {
 	        super();
-	        this.datas = [];
-	        this.xdata = new Array(PerfHUD.DATANUM);
-	        this.ydata = new Array(PerfHUD.DATANUM);
-	        this.hud_width = 800;
-	        this.hud_height = 200;
-	        this.gMinV = 0;
-	        this.gMaxV = 100;
-	        this.textSpace = 40; //留给刻度文字的
-	        this.sttm = 0;
-	        PerfHUD.inst = this;
-	        this._renderType |= SpriteConst.CUSTOM;
-	        this._setRenderType(this._renderType);
-	        this._setCustomRender();
-	        this.addDataDef(0, 0xffffff, 'frame', 1.0);
-	        this.addDataDef(1, 0x00ff00, 'update', 1.0);
-	        this.addDataDef(2, 0xff0000, 'flush', 1.0);
-	        PerfHUD._now = performance ? performance.now.bind(performance) : Date.now;
+	        this.autoDestroyAtClosed = false;
+	        this.url = null;
+	        this._viewCreated = false;
+	        this._$componentType = "Scene";
+	        this._setBit(Const.NOT_READY, true);
+	        Scene.unDestroyedScenes.push(this);
+	        this._scene = this;
+	        this.createChildren();
 	    }
-	    //TODO:coverage
-	    now() {
-	        return PerfHUD._now();
+	    createChildren() {
 	    }
-	    //TODO:coverage
-	    start() {
-	        this.sttm = PerfHUD._now();
-	    }
-	    //TODO:coverage
-	    end(i) {
-	        var dt = PerfHUD._now() - this.sttm;
-	        this.updateValue(i, dt);
-	    }
-	    //TODO:coverage
-	    config(w, h) {
-	        this.hud_width = w;
-	        this.hud_height = h;
-	    }
-	    //TODO:coverage
-	    addDataDef(id, color, name, scale) {
-	        this.datas[id] = new PerfData(id, color, name, scale);
-	    }
-	    //TODO:coverage
-	    updateValue(id, v) {
-	        this.datas[id].addData(v);
-	    }
-	    //TODO:coverage
-	    v2y(v) {
-	        var bb = this._y + this.hud_height * (1 - (v - this.gMinV) / this.gMaxV);
-	        return this._y + this.hud_height * (1 - (v - this.gMinV) / this.gMaxV);
-	    }
-	    //TODO:coverage
-	    drawHLine(ctx, v, color, text) {
-	        var sx = this._x;
-	        var ex = this._x + this.hud_width;
-	        var sy = this.v2y(v);
-	        ctx.fillText(text, sx, sy - 6, null, 'green', null);
-	        sx += this.textSpace;
-	        ctx.fillStyle = color;
-	        ctx.fillRect(sx, sy, this._x + this.hud_width, 1, null);
-	    }
-	    //TODO:coverage
-	    /**
-	     *
-	     * @param ctx
-	     * @param x
-	     * @param y
-	     * @override
-	     */
-	    customRender(ctx, x, y) {
-	        var now = performance.now();
-	        if (PerfHUD._lastTm <= 0)
-	            PerfHUD._lastTm = now;
-	        this.updateValue(0, now - PerfHUD._lastTm);
-	        PerfHUD._lastTm = now;
-	        ctx.save();
-	        ctx.fillRect(this._x, this._y, this.hud_width, this.hud_height + 4, '#000000cc');
-	        ctx.globalAlpha = 0.9;
-	        /*
-	        for ( var i = 0; i < gMaxV; i+=30) {
-	            drawHLine(ctx, i, 'green', '' + i);// '' + Math.round(1000 / (i + 1)));
-	        }
-	        */
-	        this.drawHLine(ctx, 0, 'green', '    0');
-	        this.drawHLine(ctx, 10, 'green', '  10');
-	        this.drawHLine(ctx, 16.667, 'red', ' ');
-	        this.drawHLine(ctx, 20, 'green', '50|20');
-	        this.drawHLine(ctx, 16.667 * 2, 'yellow', '');
-	        this.drawHLine(ctx, 16.667 * 3, 'yellow', '');
-	        this.drawHLine(ctx, 16.667 * 4, 'yellow', '');
-	        this.drawHLine(ctx, 50, 'green', '20|50');
-	        this.drawHLine(ctx, 100, 'green', '10|100');
-	        //数据
-	        for (var di = 0, sz = this.datas.length; di < sz; di++) {
-	            var cd = this.datas[di];
-	            if (!cd)
-	                continue;
-	            var dtlen = cd.datas.length;
-	            var dx = (this.hud_width - this.textSpace) / dtlen;
-	            var cx = cd.datapos;
-	            var _cx = this._x + this.textSpace;
-	            ctx.fillStyle = cd.color;
-	            //开始部分
-	            /*
-	            ctx.beginPath();
-	            ctx.strokeStyle = cd.color;
-	            ctx.moveTo(_cx, v2y(cd.datas[cx]* cd.scale) );
-	            cx++;
-	            _cx += dx;
-	            for ( var dtsz:int = dtlen; cx < dtsz; cx++) {
-	                ctx.lineTo(_cx, v2y(cd.datas[cx]* cd.scale) );
-	                _cx += dx;
-	            }
-	            //剩下的
-	            for (cx = 0; cx < cd.datapos; cx++) {
-	                ctx.lineTo(_cx, v2y(cd.datas[cx] * cd.scale));
-	                _cx += dx;
-	            }
-	            ctx.stroke();
-	            */
-	            for (var dtsz = dtlen; cx < dtsz; cx++) {
-	                var sty = this.v2y(cd.datas[cx] * cd.scale);
-	                ctx.fillRect(_cx, sty, dx, this.hud_height + this._y - sty, null);
-	                _cx += dx;
-	            }
-	            //剩下的
-	            for (cx = 0; cx < cd.datapos; cx++) {
-	                sty = this.v2y(cd.datas[cx] * cd.scale);
-	                ctx.fillRect(_cx, sty, dx, this.hud_height + this._y - sty, null);
-	                _cx += dx;
-	            }
-	        }
-	        ctx.restore();
-	    }
-	}
-	PerfHUD._lastTm = 0; //perf Data
-	PerfHUD._now = null;
-	PerfHUD.DATANUM = 300;
-	PerfHUD.drawTexTm = 0;
-
-	/**
-	     * <code>Log</code> 类用于在界面内显示日志记录信息。
-	     * 注意：在加速器内不可使用
-	     */
-	class Log {
-	    /**
-	     * 激活Log系统，使用方法Laya.init(800,600,Laya.Log);
-	     */
-	    static enable() {
-	        if (!Log._logdiv) {
-	            Log._logdiv = Browser.createElement('div');
-	            Log._logdiv.style.cssText = "border:white;padding:4px;overflow-y:auto;z-index:1000000;background:rgba(100,100,100,0.6);color:white;position: absolute;left:0px;top:0px;width:50%;height:50%;";
-	            Browser.document.body.appendChild(Log._logdiv);
-	            Log._btn = Browser.createElement("button");
-	            Log._btn.innerText = "Hide";
-	            Log._btn.style.cssText = "z-index:1000001;position: absolute;left:10px;top:10px;";
-	            Log._btn.onclick = Log.toggle;
-	            Browser.document.body.appendChild(Log._btn);
-	        }
-	    }
-	    /**隐藏/显示日志面板*/
-	    static toggle() {
-	        var style = Log._logdiv.style;
-	        if (style.display === "") {
-	            Log._btn.innerText = "Show";
-	            style.display = "none";
+	    loadScene(path) {
+	        var url = path.indexOf(".") > -1 ? path : path + ".scene";
+	        var view = ILaya.loader.getRes(url);
+	        if (view) {
+	            this.createView(view);
 	        }
 	        else {
-	            Log._btn.innerText = "Hide";
-	            style.display = "";
+	            ILaya.loader.resetProgress();
+	            var loader = new SceneLoader();
+	            loader.on(Event.COMPLETE, this, this._onSceneLoaded, [url]);
+	            loader.load(url);
 	        }
 	    }
-	    /**
-	     * 增加日志内容。
-	     * @param	value 需要增加的日志内容。
-	     */
-	    static print(value) {
-	        if (Log._logdiv) {
-	            //内容太多清理掉
-	            if (Log._count >= Log.maxCount)
-	                Log.clear();
-	            Log._count++;
-	            Log._logdiv.innerText += value + "\n";
-	            //自动滚动
-	            if (Log.autoScrollToBottom) {
-	                if (Log._logdiv.scrollHeight - Log._logdiv.scrollTop - Log._logdiv.clientHeight < 50) {
-	                    Log._logdiv.scrollTop = Log._logdiv.scrollHeight;
-	                }
-	            }
+	    _onSceneLoaded(url) {
+	        this.createView(ILaya.Loader.getRes(url));
+	    }
+	    createView(view) {
+	        if (view && !this._viewCreated) {
+	            this._viewCreated = true;
+	            SceneUtils.createByData(this, view);
 	        }
 	    }
-	    /**
-	     * 清理日志
-	     */
-	    static clear() {
-	        Log._logdiv.innerText = "";
-	        Log._count = 0;
+	    getNodeByID(id) {
+	        if (this._idMap)
+	            return this._idMap[id];
+	        return null;
 	    }
-	}
-	/**@private */
-	Log._count = 0;
-	/**最大打印数量，超过这个数量，则自动清理一次，默认为50次*/
-	Log.maxCount = 50;
-	/**是否自动滚动到底部，默认为true*/
-	Log.autoScrollToBottom = true;
-
-	/**
-	     * @private
-	     * 基于个数的对象缓存管理器
-	     */
-	class PoolCache {
-	    constructor() {
-	        /**
-	         * 允许缓存的最大数量
-	         */
-	        this.maxCount = 1000;
+	    open(closeOther = true, param = null) {
+	        if (closeOther)
+	            Scene.closeAll();
+	        Scene.root.addChild(this);
+	        this.onOpened(param);
 	    }
-	    /**
-	     * 获取缓存的对象列表
-	     * @return
-	     *
-	     */
-	    getCacheList() {
-	        return Pool.getPoolBySign(this.sign);
+	    onOpened(param) {
 	    }
-	    /**
-	     * 尝试清理缓存
-	     * @param force 是否强制清理
-	     *
-	     */
-	    tryDispose(force) {
-	        var list;
-	        list = Pool.getPoolBySign(this.sign);
-	        if (list.length > this.maxCount) {
-	            list.splice(this.maxCount, list.length - this.maxCount);
-	        }
+	    close(type = null) {
+	        this.onClosed(type);
+	        if (this.autoDestroyAtClosed)
+	            this.destroy();
+	        else
+	            this.removeSelf();
 	    }
-	    /**
-	     * 添加对象缓存管理
-	     * @param sign 对象在Pool中的标识
-	     * @param maxCount 允许缓存的最大数量
-	     *
-	     */
-	    static addPoolCacheManager(sign, maxCount = 100) {
-	        var cache;
-	        cache = new PoolCache();
-	        cache.sign = sign;
-	        cache.maxCount = maxCount;
-	        CacheManger.regCacheByFunction(Utils.bind(cache.tryDispose, cache), Utils.bind(cache.getCacheList, cache));
+	    onClosed(type = null) {
 	    }
-	}
-
-	/**
-	 * 整个缓动结束的时候会调度
-	 * @eventType Event.COMPLETE
-	 */
-	/*[Event(name = "complete", type = "laya.events.Event")]*/
-	/**
-	 * 当缓动到达标签时会调度。
-	 * @eventType Event.LABEL
-	 */
-	/*[Event(name = "label", type = "laya.events.Event")]*/
-	/**
-	 * <code>TimeLine</code> 是一个用来创建时间轴动画的类。
-	 */
-	class TimeLine extends EventDispatcher {
-	    constructor() {
-	        super(...arguments);
-	        this._tweenDic = {};
-	        this._tweenDataList = [];
-	        this._currTime = 0;
-	        this._lastTime = 0;
-	        this._startTime = 0;
-	        /**当前动画数据播放到第几个了*/
-	        this._index = 0;
-	        /**为TWEEN创建属于自己的唯一标识，方便管理*/
-	        this._gidIndex = 0;
-	        /**保留所有对象第一次注册动画时的状态（根据时间跳转时，需要把对象的恢复，再计算接下来的状态）*/
-	        this._firstTweenDic = {};
-	        /**是否需要排序*/
-	        this._startTimeSort = false;
-	        this._endTimeSort = false;
-	        /**是否循环*/
-	        this._loopKey = false;
-	        /** 缩放动画播放的速度。*/
-	        this.scale = 1;
-	        this._frameRate = 60;
-	        this._frameIndex = 0;
-	        this._total = 0;
-	    }
-	    /**
-	     * 控制一个对象，从当前点移动到目标点。
-	     * @param	target		要控制的对象。
-	     * @param	props		要控制对象的属性。
-	     * @param	duration	对象TWEEN的时间。
-	     * @param	ease		缓动类型
-	     * @param	offset		相对于上一个对象，偏移多长时间（单位：毫秒）。
-	     */
-	    static to(target, props, duration, ease = null, offset = 0) {
-	        return (new TimeLine()).to(target, props, duration, ease, offset);
-	    }
-	    /**
-	     * 从 props 属性，缓动到当前状态。
-	     * @param	target		target 目标对象(即将更改属性值的对象)
-	     * @param	props		要控制对象的属性
-	     * @param	duration	对象TWEEN的时间
-	     * @param	ease		缓动类型
-	     * @param	offset		相对于上一个对象，偏移多长时间（单位：毫秒）
-	     */
-	    static from(target, props, duration, ease = null, offset = 0) {
-	        return (new TimeLine()).from(target, props, duration, ease, offset);
-	    }
-	    /**
-	     * 控制一个对象，从当前点移动到目标点。
-	     * @param	target		要控制的对象。
-	     * @param	props		要控制对象的属性。
-	     * @param	duration	对象TWEEN的时间。
-	     * @param	ease		缓动类型
-	     * @param	offset		相对于上一个对象，偏移多长时间（单位：毫秒）。
-	     */
-	    to(target, props, duration, ease = null, offset = 0) {
-	        return this._create(target, props, duration, ease, offset, true);
-	    }
-	    /**
-	     * 从 props 属性，缓动到当前状态。
-	     * @param	target		target 目标对象(即将更改属性值的对象)
-	     * @param	props		要控制对象的属性
-	     * @param	duration	对象TWEEN的时间
-	     * @param	ease		缓动类型
-	     * @param	offset		相对于上一个对象，偏移多长时间（单位：毫秒）
-	     */
-	    from(target, props, duration, ease = null, offset = 0) {
-	        return this._create(target, props, duration, ease, offset, false);
-	    }
-	    /** @private */
-	    _create(target, props, duration, ease, offset, isTo) {
-	        var tTweenData = Pool.getItemByClass("tweenData", tweenData);
-	        tTweenData.isTo = isTo;
-	        tTweenData.type = 0;
-	        tTweenData.target = target;
-	        tTweenData.duration = duration;
-	        tTweenData.data = props;
-	        tTweenData.startTime = this._startTime + offset;
-	        tTweenData.endTime = tTweenData.startTime + tTweenData.duration;
-	        tTweenData.ease = ease;
-	        this._startTime = Math.max(tTweenData.endTime, this._startTime);
-	        this._tweenDataList.push(tTweenData);
-	        this._startTimeSort = true;
-	        this._endTimeSort = true;
-	        return this;
-	    }
-	    /**
-	     * 在时间队列中加入一个标签。
-	     * @param	label	标签名称。
-	     * @param	offset	标签相对于上个动画的偏移时间(单位：毫秒)。
-	     */
-	    addLabel(label, offset) {
-	        var tTweenData = Pool.getItemByClass("tweenData", tweenData);
-	        tTweenData.type = 1;
-	        tTweenData.data = label;
-	        tTweenData.endTime = tTweenData.startTime = this._startTime + offset;
-	        this._labelDic || (this._labelDic = {});
-	        this._labelDic[label] = tTweenData;
-	        this._tweenDataList.push(tTweenData);
-	        return this;
-	    }
-	    /**
-	     * 移除指定的标签
-	     * @param	label
-	     */
-	    removeLabel(label) {
-	        if (this._labelDic && this._labelDic[label]) {
-	            var tTweenData = this._labelDic[label];
-	            if (tTweenData) {
-	                var tIndex = this._tweenDataList.indexOf(tTweenData);
-	                if (tIndex > -1) {
-	                    this._tweenDataList.splice(tIndex, 1);
-	                }
-	            }
-	            delete this._labelDic[label];
-	        }
-	    }
-	    /**
-	     * 动画从整个动画的某一时间开始。
-	     * @param	time(单位：毫秒)。
-	     */
-	    gotoTime(time) {
-	        if (this._tweenDataList == null || this._tweenDataList.length == 0)
-	            return;
-	        var tTween;
-	        var tObject;
-	        for (var p in this._firstTweenDic) {
-	            tObject = this._firstTweenDic[p];
-	            if (tObject) {
-	                for (var tDataP in tObject) {
-	                    if (tDataP in tObject.diyTarget) {
-	                        tObject.diyTarget[tDataP] = tObject[tDataP];
-	                    }
-	                }
-	            }
-	        }
-	        for (p in this._tweenDic) {
-	            tTween = this._tweenDic[p];
-	            tTween.clear();
-	            delete this._tweenDic[p];
-	        }
-	        this._index = 0;
-	        this._gidIndex = 0;
-	        this._currTime = time;
-	        this._lastTime = Browser.now();
-	        var tTweenDataCopyList;
-	        if (this._endTweenDataList == null || this._endTimeSort) {
-	            this._endTimeSort = false;
-	            this._endTweenDataList = tTweenDataCopyList = this._tweenDataList.concat();
-	            //对数据排序
-	            function Compare(paraA, paraB) {
-	                if (paraA.endTime > paraB.endTime) {
-	                    return 1;
-	                }
-	                else if (paraA.endTime < paraB.endTime) {
-	                    return -1;
-	                }
-	                else {
-	                    return 0;
-	                }
-	            }
-	            tTweenDataCopyList.sort(Compare);
-	        }
-	        else {
-	            tTweenDataCopyList = this._endTweenDataList;
-	        }
-	        var tTweenData;
-	        //叠加已经经过的关键帧数据
-	        for (var i = 0, n = tTweenDataCopyList.length; i < n; i++) {
-	            tTweenData = tTweenDataCopyList[i];
-	            if (tTweenData.type == 0) {
-	                if (time >= tTweenData.endTime) {
-	                    this._index = Math.max(this._index, i + 1);
-	                    //把经历过的属性加入到对象中
-	                    var props = tTweenData.data;
-	                    if (tTweenData.isTo) {
-	                        for (var tP in props) {
-	                            tTweenData.target[tP] = props[tP];
-	                        }
-	                    }
-	                }
-	                else {
-	                    break;
-	                }
-	            }
-	        }
-	        //创建当前正在行动的TWEEN;
-	        for (i = 0, n = this._tweenDataList.length; i < n; i++) {
-	            tTweenData = this._tweenDataList[i];
-	            if (tTweenData.type == 0) {
-	                if (time >= tTweenData.startTime && time < tTweenData.endTime) {
-	                    this._index = Math.max(this._index, i + 1);
-	                    this._gidIndex++;
-	                    tTween = Pool.getItemByClass("tween", Tween);
-	                    tTween._create(tTweenData.target, tTweenData.data, tTweenData.duration, tTweenData.ease, Handler.create(this, this._animComplete, [this._gidIndex]), 0, false, tTweenData.isTo, true, false);
-	                    tTween.setStartTime(this._currTime - (time - tTweenData.startTime));
-	                    tTween._updateEase(this._currTime);
-	                    tTween.gid = this._gidIndex;
-	                    this._tweenDic[this._gidIndex] = tTween;
-	                }
-	            }
-	        }
-	    }
-	    /**
-	     * 从指定的标签开始播。
-	     * @param	Label 标签名。
-	     */
-	    gotoLabel(Label) {
-	        if (this._labelDic == null)
-	            return;
-	        var tLabelData = this._labelDic[Label];
-	        if (tLabelData)
-	            this.gotoTime(tLabelData.startTime);
-	    }
-	    /**
-	     * 暂停整个动画。
-	     */
-	    pause() {
-	        ILaya.timer.clear(this, this._update);
-	    }
-	    /**
-	     * 恢复暂停动画的播放。
-	     */
-	    resume() {
-	        this.play(this._currTime, this._loopKey);
-	    }
-	    /**
-	     * 播放动画。
-	     * @param	timeOrLabel 开启播放的时间点或标签名。
-	     * @param	loop 是否循环播放。
-	     */
-	    play(timeOrLabel = 0, loop = false) {
-	        if (!this._tweenDataList)
-	            return;
-	        if (this._startTimeSort) {
-	            this._startTimeSort = false;
-	            //对数据排序
-	            function Compare(paraA, paraB) {
-	                if (paraA.startTime > paraB.startTime) {
-	                    return 1;
-	                }
-	                else if (paraA.startTime < paraB.startTime) {
-	                    return -1;
-	                }
-	                else {
-	                    return 0;
-	                }
-	            }
-	            this._tweenDataList.sort(Compare);
-	            for (var i = 0, n = this._tweenDataList.length; i < n; i++) {
-	                var tTweenData = this._tweenDataList[i];
-	                if (tTweenData != null && tTweenData.type == 0) {
-	                    var tTarget = tTweenData.target;
-	                    var gid = (tTarget.$_GID || (tTarget.$_GID = Utils.getGID()));
-	                    var tSrcData = null;
-	                    //把对象的初始属性保留下来，方便跳转时，回复到初始状态
-	                    if (this._firstTweenDic[gid] == null) {
-	                        tSrcData = {};
-	                        tSrcData.diyTarget = tTarget;
-	                        this._firstTweenDic[gid] = tSrcData;
-	                    }
-	                    else {
-	                        tSrcData = this._firstTweenDic[gid];
-	                    }
-	                    for (var p in tTweenData.data) {
-	                        if (tSrcData[p] == null) {
-	                            tSrcData[p] = tTarget[p];
-	                        }
-	                    }
-	                }
-	            }
-	        }
-	        if (typeof (timeOrLabel) == 'string') {
-	            this.gotoLabel(timeOrLabel);
-	        }
-	        else {
-	            this.gotoTime(timeOrLabel);
-	        }
-	        this._loopKey = loop;
-	        this._lastTime = Browser.now();
-	        ILaya.timer.frameLoop(1, this, this._update);
-	    }
-	    /**
-	     * 更新当前动画。
-	     */
-	    _update() {
-	        if (this._currTime >= this._startTime) {
-	            if (this._loopKey) {
-	                this._complete();
-	                if (!this._tweenDataList)
-	                    return;
-	                this.gotoTime(0);
-	            }
-	            else {
-	                for (var p in this._tweenDic) {
-	                    tTween = this._tweenDic[p];
-	                    tTween.complete();
-	                }
-	                this._complete();
-	                this.pause();
+	    destroy(destroyChild = true) {
+	        this._idMap = null;
+	        super.destroy(destroyChild);
+	        var list = Scene.unDestroyedScenes;
+	        for (var i = list.length - 1; i > -1; i--) {
+	            if (list[i] === this) {
+	                list.splice(i, 1);
 	                return;
 	            }
 	        }
-	        var tNow = Browser.now();
-	        var tFrameTime = tNow - this._lastTime;
-	        var tCurrTime = this._currTime += tFrameTime * this.scale;
-	        this._lastTime = tNow;
-	        for (p in this._tweenDic) {
-	            tTween = this._tweenDic[p];
-	            tTween._updateEase(tCurrTime);
+	    }
+	    set scaleX(value) {
+	        if (super.get_scaleX() == value)
+	            return;
+	        super.set_scaleX(value);
+	        this.event(Event.RESIZE);
+	    }
+	    get scaleX() {
+	        return super.scaleX;
+	    }
+	    set scaleY(value) {
+	        if (super.get_scaleY() == value)
+	            return;
+	        super.set_scaleY(value);
+	        this.event(Event.RESIZE);
+	    }
+	    get scaleY() {
+	        return super.scaleY;
+	    }
+	    get width() {
+	        if (this._width)
+	            return this._width;
+	        var max = 0;
+	        for (var i = this.numChildren - 1; i > -1; i--) {
+	            var comp = this.getChildAt(i);
+	            if (comp._visible) {
+	                max = Math.max(comp._x + comp.width * comp.scaleX, max);
+	            }
 	        }
-	        var tTween;
-	        if (this._tweenDataList.length != 0 && this._index < this._tweenDataList.length) {
-	            var tTweenData = this._tweenDataList[this._index];
-	            if (tCurrTime >= tTweenData.startTime) {
-	                this._index++;
-	                //创建TWEEN
-	                if (tTweenData.type == 0) {
-	                    this._gidIndex++;
-	                    tTween = Pool.getItemByClass("tween", Tween);
-	                    tTween._create(tTweenData.target, tTweenData.data, tTweenData.duration, tTweenData.ease, Handler.create(this, this._animComplete, [this._gidIndex]), 0, false, tTweenData.isTo, true, false);
-	                    tTween.setStartTime(tCurrTime);
-	                    tTween.gid = this._gidIndex;
-	                    this._tweenDic[this._gidIndex] = tTween;
-	                    tTween._updateEase(tCurrTime);
+	        return max;
+	    }
+	    set width(value) {
+	        if (super.get_width() == value)
+	            return;
+	        super.set_width(value);
+	        this.callLater(this._sizeChanged);
+	    }
+	    get height() {
+	        if (this._height)
+	            return this._height;
+	        var max = 0;
+	        for (var i = this.numChildren - 1; i > -1; i--) {
+	            var comp = this.getChildAt(i);
+	            if (comp._visible) {
+	                max = Math.max(comp._y + comp.height * comp.scaleY, max);
+	            }
+	        }
+	        return max;
+	    }
+	    set height(value) {
+	        if (super.get_height() == value)
+	            return;
+	        super.set_height(value);
+	        this.callLater(this._sizeChanged);
+	    }
+	    _sizeChanged() {
+	        this.event(Event.RESIZE);
+	    }
+	    static get root() {
+	        if (!Scene._root) {
+	            Scene._root = ILaya.stage.addChild(new Sprite());
+	            Scene._root.name = "root";
+	            ILaya.stage.on("resize", null, () => {
+	                Scene._root.size(ILaya.stage.width, ILaya.stage.height);
+	                Scene._root.event(Event.RESIZE);
+	            });
+	            Scene._root.size(ILaya.stage.width, ILaya.stage.height);
+	            Scene._root.event(Event.RESIZE);
+	        }
+	        return Scene._root;
+	    }
+	    get timer() {
+	        return this._timer || ILaya.timer;
+	    }
+	    set timer(value) {
+	        this._timer = value;
+	    }
+	    static load(url, complete = null, progress = null) {
+	        ILaya.loader.resetProgress();
+	        var loader = new SceneLoader();
+	        loader.on(Event.PROGRESS, null, onProgress);
+	        loader.once(Event.COMPLETE, null, create);
+	        loader.load(url);
+	        function onProgress(value) {
+	            if (Scene._loadPage)
+	                Scene._loadPage.event("progress", value);
+	            progress && progress.runWith(value);
+	        }
+	        function create() {
+	            loader.off(Event.PROGRESS, null, onProgress);
+	            var obj = ILaya.Loader.getRes(url);
+	            if (!obj)
+	                throw "Can not find scene:" + url;
+	            if (!obj.props)
+	                throw "Scene data is error:" + url;
+	            var runtime = obj.props.runtime ? obj.props.runtime : obj.type;
+	            var clas = ILaya.ClassUtils.getClass(runtime);
+	            if (obj.props.renderType == "instance") {
+	                var scene = clas.instance || (clas.instance = new clas());
+	            }
+	            else {
+	                scene = new clas();
+	            }
+	            if (scene && scene instanceof Node) {
+	                scene.url = url;
+	                if (!scene._getBit(Const.NOT_READY)) {
+	                    complete && complete.runWith(scene);
 	                }
 	                else {
-	                    this.event(Event.LABEL, tTweenData.data);
+	                    scene.on("onViewCreated", null, function () {
+	                        complete && complete.runWith(scene);
+	                    });
+	                    scene.createView(obj);
 	                }
+	                Scene.hideLoadingPage();
+	            }
+	            else {
+	                throw "Can not find scene:" + runtime;
 	            }
 	        }
 	    }
-	    /**
-	     * 指定的动画索引处的动画播放完成后，把此动画从列表中删除。
-	     * @param	index
-	     */
-	    _animComplete(index) {
-	        var tTween = this._tweenDic[index];
-	        if (tTween)
-	            delete this._tweenDic[index];
+	    static open(url, closeOther = true, param = null, complete = null, progress = null) {
+	        if (param instanceof Handler) {
+	            var temp = complete;
+	            complete = param;
+	            param = temp;
+	        }
+	        Scene.showLoadingPage();
+	        Scene.load(url, Handler.create(null, this._onSceneLoaded, [closeOther, complete, param]), progress);
 	    }
-	    /** @private */
-	    _complete() {
-	        this.event(Event.COMPLETE);
+	    static _onSceneLoaded(closeOther, complete, param, scene) {
+	        scene.open(closeOther, param);
+	        if (complete)
+	            complete.runWith(scene);
 	    }
-	    /**
-	     * @private
-	     * 得到帧索引
-	     */
-	    get index() {
-	        return this._frameIndex;
-	    }
-	    /**
-	     * @private
-	     * 设置帧索引
-	     */
-	    set index(value) {
-	        this._frameIndex = value;
-	        this.gotoTime(this._frameIndex / this._frameRate * 1000);
-	    }
-	    /**
-	     * 得到总帧数。
-	     */
-	    get total() {
-	        this._total = Math.floor(this._startTime / 1000 * this._frameRate);
-	        return this._total;
-	    }
-	    /**
-	     * 重置所有对象，复用对象的时候使用。
-	     */
-	    reset() {
-	        var p;
-	        if (this._labelDic) {
-	            for (p in this._labelDic) {
-	                delete this._labelDic[p];
+	    static close(url, name = "") {
+	        var flag = false;
+	        var list = Scene.unDestroyedScenes;
+	        for (var i = 0, n = list.length; i < n; i++) {
+	            var scene = list[i];
+	            if (scene && scene.parent && scene.url === url && scene.name == name) {
+	                scene.close();
+	                flag = true;
 	            }
 	        }
-	        var tTween;
-	        for (p in this._tweenDic) {
-	            tTween = this._tweenDic[p];
-	            tTween.clear();
-	            delete this._tweenDic[p];
+	        return flag;
+	    }
+	    static closeAll() {
+	        var root = Scene.root;
+	        for (var i = 0, n = root.numChildren; i < n; i++) {
+	            var scene = root.getChildAt(0);
+	            if (scene instanceof Scene)
+	                scene.close();
+	            else
+	                scene.removeSelf();
 	        }
-	        for (p in this._firstTweenDic) {
-	            delete this._firstTweenDic[p];
-	        }
-	        this._endTweenDataList = null;
-	        if (this._tweenDataList && this._tweenDataList.length) {
-	            var i, len;
-	            len = this._tweenDataList.length;
-	            for (i = 0; i < len; i++) {
-	                if (this._tweenDataList[i])
-	                    this._tweenDataList[i].destroy();
+	    }
+	    static destroy(url, name = "") {
+	        var flag = false;
+	        var list = Scene.unDestroyedScenes;
+	        for (var i = 0, n = list.length; i < n; i++) {
+	            var scene = list[i];
+	            if (scene.url === url && scene.name == name) {
+	                scene.destroy();
+	                flag = true;
 	            }
 	        }
-	        this._tweenDataList.length = 0;
-	        this._currTime = 0;
-	        this._lastTime = 0;
-	        this._startTime = 0;
-	        this._index = 0;
-	        this._gidIndex = 0;
-	        this.scale = 1;
-	        ILaya.timer.clear(this, this._update);
+	        return flag;
 	    }
-	    /**
-	     * 彻底销毁此对象。
-	     */
-	    destroy() {
-	        this.reset();
-	        this._labelDic = null;
-	        this._tweenDic = null;
-	        this._tweenDataList = null;
-	        this._firstTweenDic = null;
+	    static gc() {
+	        Resource.destroyUnusedResources();
+	    }
+	    static setLoadingPage(loadPage) {
+	        if (Scene._loadPage != loadPage) {
+	            Scene._loadPage = loadPage;
+	        }
+	    }
+	    static showLoadingPage(param = null, delay = 500) {
+	        if (Scene._loadPage) {
+	            ILaya.systemTimer.clear(null, Scene._showLoading);
+	            ILaya.systemTimer.clear(null, Scene._hideLoading);
+	            ILaya.systemTimer.once(delay, null, Scene._showLoading, [param], false);
+	        }
+	    }
+	    static _showLoading(param) {
+	        ILaya.stage.addChild(Scene._loadPage);
+	        Scene._loadPage.onOpened(param);
+	    }
+	    static _hideLoading() {
+	        Scene._loadPage.close();
+	    }
+	    static hideLoadingPage(delay = 500) {
+	        if (Scene._loadPage) {
+	            ILaya.systemTimer.clear(null, Scene._showLoading);
+	            ILaya.systemTimer.clear(null, Scene._hideLoading);
+	            ILaya.systemTimer.once(delay, null, Scene._hideLoading);
+	        }
 	    }
 	}
-	class tweenData {
-	    constructor() {
-	        this.type = 0; //0代表TWEEN,1代表标签
-	        this.isTo = true;
-	    }
-	    destroy() {
-	        this.target = null;
-	        this.ease = null;
-	        this.data = null;
-	        this.isTo = true;
-	        this.type = 0;
-	        Pool.recover("tweenData", this);
-	    }
-	}
+	Scene.unDestroyedScenes = [];
+	ILaya.regClass(Scene);
+	ClassUtils.regClass("laya.display.Scene", Scene);
+	ClassUtils.regClass("Laya.Scene", Scene);
 
-	/**
-	 * @Script {name:ButtonEffect}
-	 * @author ww
-	 */
-	class ButtonEffect {
+	class DrawCanvasCmd {
 	    constructor() {
-	        this._curState = 0;
-	        /**
-	         * effectScale
-	         * @prop {name:effectScale,type:number, tips:"缩放值",default:"1.5"}
-	         */
-	        this.effectScale = 1.5;
-	        /**
-	         * tweenTime
-	         * @prop {name:tweenTime,type:number, tips:"缓动时长",default:"300"}
-	         */
-	        this.tweenTime = 300;
+	        this._paramData = null;
 	    }
-	    /**
-	     * 设置控制对象
-	     * @param tar
-	     */
-	    set target(tar) {
-	        this._tar = tar;
-	        tar.on(Event.MOUSE_DOWN, this, this.toChangedState);
-	        tar.on(Event.MOUSE_UP, this, this.toInitState);
-	        tar.on(Event.MOUSE_OUT, this, this.toInitState);
-	    }
-	    toChangedState() {
-	        this._curState = 1;
-	        if (this._curTween)
-	            Tween.clear(this._curTween);
-	        this._curTween = Tween.to(this._tar, { scaleX: this.effectScale, scaleY: this.effectScale }, this.tweenTime, Ease[this.effectEase], Handler.create(this, this.tweenComplete));
-	    }
-	    toInitState() {
-	        if (this._curState == 2)
-	            return;
-	        if (this._curTween)
-	            Tween.clear(this._curTween);
-	        this._curState = 2;
-	        this._curTween = Tween.to(this._tar, { scaleX: 1, scaleY: 1 }, this.tweenTime, Ease[this.backEase], Handler.create(this, this.tweenComplete));
-	    }
-	    tweenComplete() {
-	        this._curState = 0;
-	        this._curTween = null;
-	    }
-	}
-
-	/**
-	 * 效果插件基类，基于对象池管理
-	 */
-	class EffectBase extends Component {
-	    constructor() {
-	        super(...arguments);
-	        /**动画持续时间，单位为毫秒*/
-	        this.duration = 1000;
-	        /**动画延迟时间，单位为毫秒*/
-	        this.delay = 0;
-	        /**重复次数，默认为播放一次*/
-	        this.repeat = 0;
-	        /**效果结束后，是否自动移除节点*/
-	        this.autoDestroyAtComplete = true;
-	    }
-	    /**
-	     * @override
-	     */
-	    _onAwake() {
-	        this.target = this.target || this.owner;
-	        if (this.autoDestroyAtComplete)
-	            this._comlete = Handler.create(this.target, this.target.destroy, null, false);
-	        if (this.eventName)
-	            this.owner.on(this.eventName, this, this._exeTween);
-	        else
-	            this._exeTween();
-	    }
-	    _exeTween() {
-	        this._tween = this._doTween();
-	        this._tween.repeat = this.repeat;
-	    }
-	    _doTween() {
+	    static create(texture, x, y, width, height) {
 	        return null;
 	    }
-	    /**
-	     * @override
-	     */
-	    onReset() {
-	        this.duration = 1000;
-	        this.delay = 0;
-	        this.repeat = 0;
-	        this.ease = null;
-	        this.target = null;
-	        if (this.eventName) {
-	            this.owner.off(this.eventName, this, this._exeTween);
-	            this.eventName = null;
-	        }
-	        if (this._comlete) {
-	            this._comlete.recover();
-	            this._comlete = null;
-	        }
-	        if (this._tween) {
-	            this._tween.clear();
-	            this._tween = null;
-	        }
+	    recover() {
+	        this._graphicsCmdEncoder = null;
+	        Pool.recover("DrawCanvasCmd", this);
+	    }
+	    get cmdID() {
+	        return DrawCanvasCmd.ID;
 	    }
 	}
+	DrawCanvasCmd.ID = "DrawCanvasCmd";
+	DrawCanvasCmd._DRAW_IMAGE_CMD_ENCODER_ = null;
+	DrawCanvasCmd._PARAM_TEXTURE_POS_ = 2;
+	DrawCanvasCmd._PARAM_VB_POS_ = 5;
 
-	/**
-	 * ...
-	 * @author ww
-	 */
+	class DrawParticleCmd {
+	    static create(_temp) {
+	        var cmd = Pool.getItemByClass("DrawParticleCmd", DrawParticleCmd);
+	        cmd._templ = _temp;
+	        return cmd;
+	    }
+	    recover() {
+	        this._templ = null;
+	        Pool.recover("DrawParticleCmd", this);
+	    }
+	    run(context, gx, gy) {
+	        context.drawParticle(gx, gy, this._templ);
+	    }
+	    get cmdID() {
+	        return DrawParticleCmd.ID;
+	    }
+	}
+	DrawParticleCmd.ID = "DrawParticleCmd";
+
 	class FilterSetterBase {
 	    constructor() {
 	    }
@@ -34093,27 +23690,65 @@ window.Laya= (function (exports) {
 	    }
 	    set target(value) {
 	        if (this._target != value) {
-	            //removeFilter(_target as Sprite);
-	            //addFilter(value as Sprite);
 	            this._target = value;
 	            this.paramChanged();
 	        }
 	    }
 	}
 
-	/**
-	 * ...
-	 * @author ww
-	 */
+	class BlurFilterGLRender {
+	    render(rt, ctx, width, height, filter) {
+	        var shaderValue = Value2D.create(ShaderDefines2D.TEXTURE2D, 0);
+	        this.setShaderInfo(shaderValue, filter, rt.width, rt.height);
+	        ctx.drawTarget(rt, 0, 0, width, height, Matrix.EMPTY.identity(), shaderValue);
+	    }
+	    setShaderInfo(shader, filter, w, h) {
+	        shader.defines.add(Filter.BLUR);
+	        var sv = shader;
+	        BlurFilterGLRender.blurinfo[0] = w;
+	        BlurFilterGLRender.blurinfo[1] = h;
+	        sv.blurInfo = BlurFilterGLRender.blurinfo;
+	        var sigma = filter.strength / 3.0;
+	        var sigma2 = sigma * sigma;
+	        filter.strength_sig2_2sig2_gauss1[0] = filter.strength;
+	        filter.strength_sig2_2sig2_gauss1[1] = sigma2;
+	        filter.strength_sig2_2sig2_gauss1[2] = 2.0 * sigma2;
+	        filter.strength_sig2_2sig2_gauss1[3] = 1.0 / (2.0 * Math.PI * sigma2);
+	        sv.strength_sig2_2sig2_gauss1 = filter.strength_sig2_2sig2_gauss1;
+	    }
+	}
+	BlurFilterGLRender.blurinfo = new Array(2);
+
+	class BlurFilter extends Filter {
+	    constructor(strength = 4) {
+	        super();
+	        this.strength_sig2_2sig2_gauss1 = [];
+	        this.strength = strength;
+	        this._glRender = new BlurFilterGLRender();
+	    }
+	    get type() {
+	        return Filter.BLUR;
+	    }
+	    getStrenth_sig2_2sig2_native() {
+	        if (!this.strength_sig2_native) {
+	            this.strength_sig2_native = new Float32Array(4);
+	        }
+	        var sigma = this.strength / 3.0;
+	        var sigma2 = sigma * sigma;
+	        this.strength_sig2_native[0] = this.strength;
+	        this.strength_sig2_native[1] = sigma2;
+	        this.strength_sig2_native[2] = 2.0 * sigma2;
+	        this.strength_sig2_native[3] = 1.0 / (2.0 * Math.PI * sigma2);
+	        return this.strength_sig2_native;
+	    }
+	}
+
 	class BlurFilterSetter extends FilterSetterBase {
 	    constructor() {
 	        super();
 	        this._strength = 4;
 	        this._filter = new BlurFilter(this.strength);
 	    }
-	    /**
-	     * @override
-	     */
 	    buildFilter() {
 	        this._filter = new BlurFilter(this.strength);
 	        super.buildFilter();
@@ -34126,66 +23761,53 @@ window.Laya= (function (exports) {
 	    }
 	}
 
-	/**
-	 * 淡入效果
-	 */
-	class FadeIn extends EffectBase {
-	    /**
-	     * @override
-	     */
-	    _doTween() {
-	        this.target.alpha = 0;
-	        return Tween.to(this.target, { alpha: 1 }, this.duration, Ease[this.ease], this._comlete, this.delay);
+	class ButtonEffect {
+	    constructor() {
+	        this._curState = 0;
+	        this.effectScale = 1.5;
+	        this.tweenTime = 300;
+	    }
+	    set target(tar) {
+	        this._tar = tar;
+	        tar.on(Event.MOUSE_DOWN, this, this.toChangedState);
+	        tar.on(Event.MOUSE_UP, this, this.toInitState);
+	        tar.on(Event.MOUSE_OUT, this, this.toInitState);
+	    }
+	    toChangedState() {
+	        this._curState = 1;
+	        if (this._curTween)
+	            Tween.clear(this._curTween);
+	        this._curTween = Tween.to(this._tar, { scaleX: this.effectScale, scaleY: this.effectScale }, this.tweenTime, Ease[this.effectEase], Handler.create(this, this.tweenComplete));
+	    }
+	    toInitState() {
+	        if (this._curState == 2)
+	            return;
+	        if (this._curTween)
+	            Tween.clear(this._curTween);
+	        this._curState = 2;
+	        this._curTween = Tween.to(this._tar, { scaleX: 1, scaleY: 1 }, this.tweenTime, Ease[this.backEase], Handler.create(this, this.tweenComplete));
+	    }
+	    tweenComplete() {
+	        this._curState = 0;
+	        this._curTween = null;
 	    }
 	}
 
-	/**
-	 * ...
-	 * @author ww
-	 */
 	class ColorFilterSetter extends FilterSetterBase {
 	    constructor() {
 	        super();
-	        /**
-	         * brightness 亮度,范围:-100~100
-	         */
 	        this._brightness = 0;
-	        /**
-	         * contrast 对比度,范围:-100~100
-	         */
 	        this._contrast = 0;
-	        /**
-	         * saturation 饱和度,范围:-100~100
-	         */
 	        this._saturation = 0;
-	        /**
-	         * hue 色调,范围:-180~180
-	         */
 	        this._hue = 0;
-	        /**
-	         * red red增量,范围:0~255
-	         */
 	        this._red = 0;
-	        /**
-	         * green green增量,范围:0~255
-	         */
 	        this._green = 0;
-	        /**
-	         * blue blue增量,范围:0~255
-	         */
 	        this._blue = 0;
-	        /**
-	         * alpha alpha增量,范围:0~255
-	         */
 	        this._alpha = 0;
 	        this._filter = new ColorFilter();
 	    }
-	    /**
-	     * @override
-	     */
 	    buildFilter() {
 	        this._filter.reset();
-	        //_filter = new ColorFilter();
 	        this._filter.color(this.red, this.green, this.blue, this.alpha);
 	        this._filter.adjustHue(this.hue);
 	        this._filter.adjustContrast(this.contrast);
@@ -34263,34 +23885,167 @@ window.Laya= (function (exports) {
 	    }
 	}
 
-	/**
-	 * ...
-	 * @author ww
-	 */
+	class EffectBase extends Component {
+	    constructor() {
+	        super(...arguments);
+	        this.duration = 1000;
+	        this.delay = 0;
+	        this.repeat = 0;
+	        this.autoDestroyAtComplete = true;
+	    }
+	    _onAwake() {
+	        this.target = this.target || this.owner;
+	        if (this.autoDestroyAtComplete)
+	            this._comlete = Handler.create(this.target, this.target.destroy, null, false);
+	        if (this.eventName)
+	            this.owner.on(this.eventName, this, this._exeTween);
+	        else
+	            this._exeTween();
+	    }
+	    _exeTween() {
+	        this._tween = this._doTween();
+	        this._tween.repeat = this.repeat;
+	    }
+	    _doTween() {
+	        return null;
+	    }
+	    onReset() {
+	        this.duration = 1000;
+	        this.delay = 0;
+	        this.repeat = 0;
+	        this.ease = null;
+	        this.target = null;
+	        if (this.eventName) {
+	            this.owner.off(this.eventName, this, this._exeTween);
+	            this.eventName = null;
+	        }
+	        if (this._comlete) {
+	            this._comlete.recover();
+	            this._comlete = null;
+	        }
+	        if (this._tween) {
+	            this._tween.clear();
+	            this._tween = null;
+	        }
+	    }
+	}
+
+	class FadeIn extends EffectBase {
+	    _doTween() {
+	        this.target.alpha = 0;
+	        return Tween.to(this.target, { alpha: 1 }, this.duration, Ease[this.ease], this._comlete, this.delay);
+	    }
+	}
+
+	class FadeOut extends EffectBase {
+	    _doTween() {
+	        this.target.alpha = 1;
+	        return Tween.to(this.target, { alpha: 0 }, this.duration, Ease[this.ease], this._comlete, this.delay);
+	    }
+	}
+
+	class GlowFilterGLRender {
+	    setShaderInfo(shader, w, h, data) {
+	        shader.defines.add(data.type);
+	        var sv = shader;
+	        sv.u_blurInfo1 = data._sv_blurInfo1;
+	        var info2 = data._sv_blurInfo2;
+	        info2[0] = w;
+	        info2[1] = h;
+	        sv.u_blurInfo2 = info2;
+	        sv.u_color = data.getColor();
+	    }
+	    render(rt, ctx, width, height, filter) {
+	        var w = width, h = height;
+	        var svBlur = Value2D.create(ShaderDefines2D.TEXTURE2D, 0);
+	        this.setShaderInfo(svBlur, w, h, filter);
+	        var svCP = Value2D.create(ShaderDefines2D.TEXTURE2D, 0);
+	        var matI = Matrix.TEMP.identity();
+	        ctx.drawTarget(rt, 0, 0, w, h, matI, svBlur);
+	        ctx.drawTarget(rt, 0, 0, w, h, matI, svCP);
+	    }
+	}
+
+	class GlowFilter extends Filter {
+	    constructor(color, blur = 4, offX = 6, offY = 6) {
+	        super();
+	        this._elements = new Float32Array(9);
+	        this._sv_blurInfo1 = new Array(4);
+	        this._sv_blurInfo2 = [0, 0, 1, 0];
+	        this._color = new ColorUtils(color);
+	        this.blur = Math.min(blur, 20);
+	        this.offX = offX;
+	        this.offY = offY;
+	        this._sv_blurInfo1[0] = this._sv_blurInfo1[1] = this.blur;
+	        this._sv_blurInfo1[2] = offX;
+	        this._sv_blurInfo1[3] = -offY;
+	        this._glRender = new GlowFilterGLRender();
+	    }
+	    get type() {
+	        return BlurFilter.GLOW;
+	    }
+	    get offY() {
+	        return this._elements[6];
+	    }
+	    set offY(value) {
+	        this._elements[6] = value;
+	        this._sv_blurInfo1[3] = -value;
+	    }
+	    get offX() {
+	        return this._elements[5];
+	    }
+	    set offX(value) {
+	        this._elements[5] = value;
+	        this._sv_blurInfo1[2] = value;
+	    }
+	    getColor() {
+	        return this._color.arrColor;
+	    }
+	    get blur() {
+	        return this._elements[4];
+	    }
+	    set blur(value) {
+	        this._elements[4] = value;
+	        this._sv_blurInfo1[0] = this._sv_blurInfo1[1] = value;
+	    }
+	    getColorNative() {
+	        if (!this._color_native) {
+	            this._color_native = new Float32Array(4);
+	        }
+	        var color = this.getColor();
+	        this._color_native[0] = color[0];
+	        this._color_native[1] = color[1];
+	        this._color_native[2] = color[2];
+	        this._color_native[3] = color[3];
+	        return this._color_native;
+	    }
+	    getBlurInfo1Native() {
+	        if (!this._blurInof1_native) {
+	            this._blurInof1_native = new Float32Array(4);
+	        }
+	        this._blurInof1_native[0] = this._blurInof1_native[1] = this.blur;
+	        this._blurInof1_native[2] = this.offX;
+	        this._blurInof1_native[3] = this.offY;
+	        return this._blurInof1_native;
+	    }
+	    getBlurInfo2Native() {
+	        if (!this._blurInof2_native) {
+	            this._blurInof2_native = new Float32Array(4);
+	        }
+	        this._blurInof2_native[2] = 1;
+	        return this._blurInof2_native;
+	    }
+	}
+
 	class GlowFilterSetter extends FilterSetterBase {
 	    constructor() {
 	        super();
-	        /**
-	         * 滤镜的颜色
-	         */
 	        this._color = "#ff0000";
-	        /**
-	         * 边缘模糊的大小 0~20
-	         */
 	        this._blur = 4;
-	        /**
-	         * X轴方向的偏移
-	         */
 	        this._offX = 6;
-	        /**
-	         * Y轴方向的偏移
-	         */
 	        this._offY = 6;
 	        this._filter = new GlowFilter(this._color);
 	    }
-	    /**
-	    * @override
-	     */
 	    buildFilter() {
 	        this._filter = new GlowFilter(this.color, this.blur, this.offX, this.offY);
 	        super.buildFilter();
@@ -34325,1125 +24080,248 @@ window.Laya= (function (exports) {
 	    }
 	}
 
-	/**
-	 * 淡出效果
-	 */
-	class FadeOut extends EffectBase {
-	    /**
-	     * @override
-	     */
-	    _doTween() {
-	        this.target.alpha = 1;
-	        return Tween.to(this.target, { alpha: 0 }, this.duration, Ease[this.ease], this._comlete, this.delay);
+	class KeyLocation {
+	}
+	KeyLocation.STANDARD = 0;
+	KeyLocation.LEFT = 1;
+	KeyLocation.RIGHT = 2;
+	KeyLocation.NUM_PAD = 3;
+
+	class Keyboard {
+	}
+	Keyboard.NUMBER_0 = 48;
+	Keyboard.NUMBER_1 = 49;
+	Keyboard.NUMBER_2 = 50;
+	Keyboard.NUMBER_3 = 51;
+	Keyboard.NUMBER_4 = 52;
+	Keyboard.NUMBER_5 = 53;
+	Keyboard.NUMBER_6 = 54;
+	Keyboard.NUMBER_7 = 55;
+	Keyboard.NUMBER_8 = 56;
+	Keyboard.NUMBER_9 = 57;
+	Keyboard.A = 65;
+	Keyboard.B = 66;
+	Keyboard.C = 67;
+	Keyboard.D = 68;
+	Keyboard.E = 69;
+	Keyboard.F = 70;
+	Keyboard.G = 71;
+	Keyboard.H = 72;
+	Keyboard.I = 73;
+	Keyboard.J = 74;
+	Keyboard.K = 75;
+	Keyboard.L = 76;
+	Keyboard.M = 77;
+	Keyboard.N = 78;
+	Keyboard.O = 79;
+	Keyboard.P = 80;
+	Keyboard.Q = 81;
+	Keyboard.R = 82;
+	Keyboard.S = 83;
+	Keyboard.T = 84;
+	Keyboard.U = 85;
+	Keyboard.V = 86;
+	Keyboard.W = 87;
+	Keyboard.X = 88;
+	Keyboard.Y = 89;
+	Keyboard.Z = 90;
+	Keyboard.F1 = 112;
+	Keyboard.F2 = 113;
+	Keyboard.F3 = 114;
+	Keyboard.F4 = 115;
+	Keyboard.F5 = 116;
+	Keyboard.F6 = 117;
+	Keyboard.F7 = 118;
+	Keyboard.F8 = 119;
+	Keyboard.F9 = 120;
+	Keyboard.F10 = 121;
+	Keyboard.F11 = 122;
+	Keyboard.F12 = 123;
+	Keyboard.F13 = 124;
+	Keyboard.F14 = 125;
+	Keyboard.F15 = 126;
+	Keyboard.NUMPAD = 21;
+	Keyboard.NUMPAD_0 = 96;
+	Keyboard.NUMPAD_1 = 97;
+	Keyboard.NUMPAD_2 = 98;
+	Keyboard.NUMPAD_3 = 99;
+	Keyboard.NUMPAD_4 = 100;
+	Keyboard.NUMPAD_5 = 101;
+	Keyboard.NUMPAD_6 = 102;
+	Keyboard.NUMPAD_7 = 103;
+	Keyboard.NUMPAD_8 = 104;
+	Keyboard.NUMPAD_9 = 105;
+	Keyboard.NUMPAD_ADD = 107;
+	Keyboard.NUMPAD_DECIMAL = 110;
+	Keyboard.NUMPAD_DIVIDE = 111;
+	Keyboard.NUMPAD_ENTER = 108;
+	Keyboard.NUMPAD_MULTIPLY = 106;
+	Keyboard.NUMPAD_SUBTRACT = 109;
+	Keyboard.SEMICOLON = 186;
+	Keyboard.EQUAL = 187;
+	Keyboard.COMMA = 188;
+	Keyboard.MINUS = 189;
+	Keyboard.PERIOD = 190;
+	Keyboard.SLASH = 191;
+	Keyboard.BACKQUOTE = 192;
+	Keyboard.LEFTBRACKET = 219;
+	Keyboard.BACKSLASH = 220;
+	Keyboard.RIGHTBRACKET = 221;
+	Keyboard.QUOTE = 222;
+	Keyboard.ALTERNATE = 18;
+	Keyboard.BACKSPACE = 8;
+	Keyboard.CAPS_LOCK = 20;
+	Keyboard.COMMAND = 15;
+	Keyboard.CONTROL = 17;
+	Keyboard.DELETE = 46;
+	Keyboard.ENTER = 13;
+	Keyboard.ESCAPE = 27;
+	Keyboard.PAGE_UP = 33;
+	Keyboard.PAGE_DOWN = 34;
+	Keyboard.END = 35;
+	Keyboard.HOME = 36;
+	Keyboard.LEFT = 37;
+	Keyboard.UP = 38;
+	Keyboard.RIGHT = 39;
+	Keyboard.DOWN = 40;
+	Keyboard.SHIFT = 16;
+	Keyboard.SPACE = 32;
+	Keyboard.TAB = 9;
+	Keyboard.INSERT = 45;
+
+	class CommandEncoder {
+	    constructor(layagl, reserveSize, adjustSize, isSyncToRenderThread) {
+	        this._idata = [];
+	    }
+	    getArrayData() {
+	        return this._idata;
+	    }
+	    getPtrID() {
+	        return 0;
+	    }
+	    beginEncoding() {
+	    }
+	    endEncoding() {
+	    }
+	    clearEncoding() {
+	        this._idata.length = 0;
+	    }
+	    getCount() {
+	        return this._idata.length;
+	    }
+	    add_ShaderValue(o) {
+	        this._idata.push(o);
+	    }
+	    addShaderUniform(one) {
+	        this.add_ShaderValue(one);
 	    }
 	}
 
-	/**
-	 * 动画播放完毕后调度。
-	 * @eventType Event.COMPLETE
-	 */
-	/*[Event(name = "complete", type = "laya.events.Event")]*/
-	/**
-	 * 播放到某标签后调度。
-	 * @eventType Event.LABEL
-	 */
-	/*[Event(name = "label", type = "laya.events.Event")]*/
-	/**
-	 * <p> <code>Animation</code> 是Graphics动画类。实现了基于Graphics的动画创建、播放、控制接口。</p>
-	 * <p>本类使用了动画模版缓存池，它以一定的内存开销来节省CPU开销，当相同的动画模版被多次使用时，相比于每次都创建新的动画模版，使用动画模版缓存池，只需创建一次，缓存之后多次复用，从而节省了动画模版创建的开销。</p>
-	 * <p>动画模版缓存池，以key-value键值对存储，key可以自定义，也可以从指定的配置文件中读取，value为对应的动画模版，是一个Graphics对象数组，每个Graphics对象对应一个帧图像，动画的播放实质就是定时切换Graphics对象。</p>
-	 * <p>使用set source、loadImages(...)、loadAtlas(...)、loadAnimation(...)方法可以创建动画模版。使用play(...)可以播放指定动画。</p>
-	 * @example <caption>以下示例代码，创建了一个 <code>Text</code> 实例。</caption>
-	 * package
-	 * {
-	 * 	import laya.display.Animation;
-	 * 	import laya.net.Loader;
-	 * 	import laya.utils.Handler;
-	 * 	public class Animation_Example
-	 * 	{
-	 * 		public function Animation_Example()
-	 * 		{
-	 * 			Laya.init(640, 800);//设置游戏画布宽高、渲染模式。
-	 * 			Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
-	 * 			init();//初始化
-	 * 		}
-	 * 		private function init():void
-	 * 		{
-	 * 			var animation:Animation = new Animation();//创建一个 Animation 类的实例对象 animation 。
-	 * 			animation.loadAtlas("resource/ani/fighter.json");//加载图集并播放
-	 * 			animation.x = 200;//设置 animation 对象的属性 x 的值，用于控制 animation 对象的显示位置。
-	 * 			animation.y = 200;//设置 animation 对象的属性 x 的值，用于控制 animation 对象的显示位置。
-	 * 			animation.interval = 50;//设置 animation 对象的动画播放间隔时间，单位：毫秒。
-	 * 			animation.play();//播放动画。
-	 * 			Laya.stage.addChild(animation);//将 animation 对象添加到显示列表。
-	 * 		}
-	 * 	}
-	 * }
-	 *
-	 * @example
-	 * Animation_Example();
-	 * function Animation_Example(){
-	 *     Laya.init(640, 800);//设置游戏画布宽高、渲染模式。
-	 *     Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
-	 *     init();//初始化
-	 * }
-	 * function init()
-	 * {
-	 *     var animation = new Laya.Animation();//创建一个 Animation 类的实例对象 animation 。
-	 *     animation.loadAtlas("resource/ani/fighter.json");//加载图集并播放
-	 *     animation.x = 200;//设置 animation 对象的属性 x 的值，用于控制 animation 对象的显示位置。
-	 *     animation.y = 200;//设置 animation 对象的属性 x 的值，用于控制 animation 对象的显示位置。
-	 *     animation.interval = 50;//设置 animation 对象的动画播放间隔时间，单位：毫秒。
-	 *     animation.play();//播放动画。
-	 *     Laya.stage.addChild(animation);//将 animation 对象添加到显示列表。
-	 * }
-	 *
-	 * @example
-	 * import Animation = laya.display.Animation;
-	 * class Animation_Example {
-	 *     constructor() {
-	 *         Laya.init(640, 800);//设置游戏画布宽高、渲染模式。
-	 *         Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
-	 *         this.init();
-	 *     }
-	 *     private init(): void {
-	 *         var animation:Animation = new Laya.Animation();//创建一个 Animation 类的实例对象 animation 。
-	 *         animation.loadAtlas("resource/ani/fighter.json");//加载图集并播放
-	 *         animation.x = 200;//设置 animation 对象的属性 x 的值，用于控制 animation 对象的显示位置。
-	 *         animation.y = 200;//设置 animation 对象的属性 x 的值，用于控制 animation 对象的显示位置。
-	 *         animation.interval = 50;//设置 animation 对象的动画播放间隔时间，单位：毫秒。
-	 *         animation.play();//播放动画。
-	 *         Laya.stage.addChild(animation);//将 animation 对象添加到显示列表。
-	 *     }
-	 * }
-	 * new Animation_Example();
-	 */
-	class Animation extends AnimationBase {
-	    /**
-	     * 创建一个新的 <code>Animation</code> 实例。
-	     */
+	class QuickTestTool {
 	    constructor() {
-	        super();
-	        this._setControlNode(this);
 	    }
-	    /** @inheritDoc
-	     *  @override
-	     */
-	    destroy(destroyChild = true) {
-	        this.stop();
-	        super.destroy(destroyChild);
-	        this._frames = null;
-	        this._labels = null;
+	    static getMCDName(type) {
+	        return QuickTestTool._typeToNameDic[type];
 	    }
-	    /**
-	     * <p>开始播放动画。会在动画模版缓存池中查找key值为name的动画模版，存在则用此动画模版初始化当前序列帧， 如果不存在，则使用当前序列帧。</p>
-	     * <p>play(...)方法被设计为在创建实例后的任何时候都可以被调用，调用后就处于播放状态，当相应的资源加载完毕、调用动画帧填充方法(set frames)或者将实例显示在舞台上时，会判断是否处于播放状态，如果是，则开始播放。</p>
-	     * <p>配合wrapMode属性，可设置动画播放顺序类型。</p>
-	     * @param	start	（可选）指定动画播放开始的索引(int)或帧标签(String)。帧标签可以通过addLabel(...)和removeLabel(...)进行添加和删除。
-	     * @param	loop	（可选）是否循环播放。
-	     * @param	name	（可选）动画模板在动画模版缓存池中的key，也可认为是动画名称。如果name为空，则播放当前动画序列帧；如果不为空，则在动画模版缓存池中寻找key值为name的动画模版，如果存在则用此动画模版初始化当前序列帧并播放，如果不存在，则仍然播放当前动画序列帧；如果没有当前动画的帧数据，则不播放，但该实例仍然处于播放状态。
-	     * @override
-	     */
-	    play(start = 0, loop = true, name = "") {
-	        if (name)
-	            this._setFramesFromCache(name, true);
-	        super.play(start, loop, name);
-	    }
-	    /**@private */
-	    _setFramesFromCache(name, showWarn = false) {
-	        if (this._url)
-	            name = this._url + "#" + name;
-	        if (name && Animation.framesMap[name]) {
-	            var tAniO = Animation.framesMap[name];
-	            if (tAniO instanceof Array) {
-	                this._frames = Animation.framesMap[name];
-	                this._count = this._frames.length;
-	            }
-	            else {
-	                if (tAniO.nodeRoot) {
-	                    //如果动画数据未解析过,则先进行解析
-	                    Animation.framesMap[name] = GraphicAnimation.parseAnimationByData(tAniO);
-	                    tAniO = Animation.framesMap[name];
+	    static showRenderTypeInfo(type, force = false) {
+	        if (!force && QuickTestTool.showedDic[type])
+	            return;
+	        QuickTestTool.showedDic[type] = true;
+	        if (!QuickTestTool._rendertypeToStrDic[type]) {
+	            var arr = [];
+	            var tType;
+	            tType = 1;
+	            while (tType <= type) {
+	                if (tType & type) {
+	                    arr.push(QuickTestTool.getMCDName(tType & type));
 	                }
-	                this._frames = tAniO.frames;
-	                this._count = this._frames.length;
-	                //如果读取的是动画配置信息，帧率按照动画设置的帧率播放
-	                if (!this._frameRateChanged)
-	                    this._interval = tAniO.interval;
-	                this._labels = this._copyLabels(tAniO.labels);
+	                tType = tType << 1;
 	            }
-	            return true;
+	            QuickTestTool._rendertypeToStrDic[type] = arr.join(",");
 	        }
-	        else {
-	            if (showWarn)
-	                console.log("ani not found:", name);
-	        }
-	        return false;
+	        console.log("cmd:", QuickTestTool._rendertypeToStrDic[type]);
 	    }
-	    /**@private */
-	    _copyLabels(labels) {
-	        if (!labels)
-	            return null;
-	        var rst;
-	        rst = {};
+	    static __init__() {
+	        QuickTestTool._typeToNameDic[SpriteConst.ALPHA] = "ALPHA";
+	        QuickTestTool._typeToNameDic[SpriteConst.TRANSFORM] = "TRANSFORM";
+	        QuickTestTool._typeToNameDic[SpriteConst.TEXTURE] = "TEXTURE";
+	        QuickTestTool._typeToNameDic[SpriteConst.GRAPHICS] = "GRAPHICS";
+	        QuickTestTool._typeToNameDic[SpriteConst.ONECHILD] = "ONECHILD";
+	        QuickTestTool._typeToNameDic[SpriteConst.CHILDS] = "CHILDS";
+	        QuickTestTool._typeToNameDic[SpriteConst.TRANSFORM | SpriteConst.ALPHA] = "TRANSFORM|ALPHA";
+	        QuickTestTool._typeToNameDic[SpriteConst.CANVAS] = "CANVAS";
+	        QuickTestTool._typeToNameDic[SpriteConst.BLEND] = "BLEND";
+	        QuickTestTool._typeToNameDic[SpriteConst.FILTERS] = "FILTERS";
+	        QuickTestTool._typeToNameDic[SpriteConst.MASK] = "MASK";
+	        QuickTestTool._typeToNameDic[SpriteConst.CLIP] = "CLIP";
+	        QuickTestTool._typeToNameDic[SpriteConst.LAYAGL3D] = "LAYAGL3D";
+	    }
+	    render(context, x, y) {
+	        QuickTestTool._addType(this._renderType);
+	        QuickTestTool.showRenderTypeInfo(this._renderType);
+	        RenderSprite.renders[this._renderType]._fun(this, context, x + this._x, y + this._y);
+	        this._repaint = 0;
+	    }
+	    _stageRender(context, x, y) {
+	        QuickTestTool._countStart();
+	        QuickTestTool._PreStageRender.call(window.Laya.stage, context, x, y);
+	        QuickTestTool._countEnd();
+	    }
+	    static _countStart() {
 	        var key;
-	        for (key in labels) {
-	            rst[key] = Utils.copyArray([], labels[key]);
-	        }
-	        return rst;
-	    }
-	    /**@private
-	    *  @override
-	    */
-	    _frameLoop() {
-	        if (this._visible && this._style.alpha > 0.01 && this._frames) {
-	            super._frameLoop();
+	        for (key in QuickTestTool._countDic) {
+	            QuickTestTool._countDic[key] = 0;
 	        }
 	    }
-	    /**@private
-	     * @override
-	    */
-	    _displayToIndex(value) {
-	        if (this._frames)
-	            this.graphics = this._frames[value];
-	    }
-	    /**
-	     * 当前动画的帧图像数组。本类中，每个帧图像是一个Graphics对象，而动画播放就是定时切换Graphics对象的过程。
-	     */
-	    get frames() {
-	        return this._frames;
-	    }
-	    set frames(value) {
-	        this._frames = value;
-	        if (value) {
-	            this._count = value.length;
-	            //if (_isPlaying) play(_index, loop, _actionName);
-	            if (this._actionName)
-	                this._setFramesFromCache(this._actionName, true);
-	            this.index = this._index;
+	    static _countEnd() {
+	        QuickTestTool._i++;
+	        if (QuickTestTool._i > 60) {
+	            QuickTestTool.showCountInfo();
+	            QuickTestTool._i = 0;
 	        }
 	    }
-	    /**
-	     * <p>动画数据源。</p>
-	     * <p>类型如下：<br/>
-	     * 1. LayaAir IDE动画文件路径：使用此类型需要预加载所需的图集资源，否则会创建失败，如果不想预加载或者需要创建完毕的回调，请使用loadAnimation(...)方法；<br/>
-	     * 2. 图集路径：使用此类型创建的动画模版不会被缓存到动画模版缓存池中，如果需要缓存或者创建完毕的回调，请使用loadAtlas(...)方法；<br/>
-	     * 3. 图片路径集合：使用此类型创建的动画模版不会被缓存到动画模版缓存池中，如果需要缓存，请使用loadImages(...)方法。</p>
-	     * @param value	数据源。比如：图集："xx/a1.atlas"；图片集合："a1.png,a2.png,a3.png"；LayaAir IDE动画"xx/a1.ani"。
-	     */
-	    set source(value) {
-	        if (value.indexOf(".ani") > -1)
-	            this.loadAnimation(value);
-	        else if (value.indexOf(".json") > -1 || value.indexOf("als") > -1 || value.indexOf("atlas") > -1)
-	            this.loadAtlas(value);
-	        else
-	            this.loadImages(value.split(","));
-	    }
-	    /**
-	     * 设置自动播放的动画名称，在LayaAir IDE中可以创建的多个动画组成的动画集合，选择其中一个动画名称进行播放。
-	     */
-	    set autoAnimation(value) {
-	        this.play(0, true, value);
-	    }
-	    /**
-	     * 是否自动播放，默认为false。如果设置为true，则动画被创建并添加到舞台后自动播放。
-	     */
-	    set autoPlay(value) {
-	        if (value)
-	            this.play();
-	        else
-	            this.stop();
-	    }
-	    /**
-	     * 停止动画播放，并清理对象属性。之后可存入对象池，方便对象复用。
-	     * @override
-	     */
-	    clear() {
-	        super.clear();
-	        this.stop();
-	        this.graphics = null;
-	        this._frames = null;
-	        this._labels = null;
-	        return this;
-	    }
-	    /**
-	     * <p>根据指定的动画模版初始化当前动画序列帧。选择动画模版的过程如下：1. 动画模版缓存池中key为cacheName的动画模版；2. 如果不存在，则加载指定的图片集合并创建动画模版。注意：只有指定不为空的cacheName，才能将创建好的动画模版以此为key缓存到动画模版缓存池，否则不进行缓存。</p>
-	     * <p>动画模版缓存池是以一定的内存开销来节省CPU开销，当相同的动画模版被多次使用时，相比于每次都创建新的动画模版，使用动画模版缓存池，只需创建一次，缓存之后多次复用，从而节省了动画模版创建的开销。</p>
-	     * <p>因为返回值为Animation对象本身，所以可以使用如下语法：loadImages(...).loadImages(...).play(...);。</p>
-	     * @param	urls		图片路径集合。需要创建动画模版时，会以此为数据源。参数形如：[url1,url2,url3,...]。
-	     * @param	cacheName	（可选）动画模板在动画模版缓存池中的key。如果此参数不为空，表示使用动画模版缓存池。如果动画模版缓存池中存在key为cacheName的动画模版，则使用此模版。否则，创建新的动画模版，如果cacheName不为空，则以cacheName为key缓存到动画模版缓存池中，如果cacheName为空，不进行缓存。
-	     * @return 	返回Animation对象本身。
-	     */
-	    loadImages(urls, cacheName = "") {
-	        this._url = "";
-	        if (!this._setFramesFromCache(cacheName)) {
-	            this.frames = Animation.framesMap[cacheName] ? Animation.framesMap[cacheName] : Animation.createFrames(urls, cacheName);
-	        }
-	        return this;
-	    }
-	    /**
-	     * <p>根据指定的动画模版初始化当前动画序列帧。选择动画模版的过程如下：1. 动画模版缓存池中key为cacheName的动画模版；2. 如果不存在，则加载指定的图集并创建动画模版。</p>
-	     * <p>注意：只有指定不为空的cacheName，才能将创建好的动画模版以此为key缓存到动画模版缓存池，否则不进行缓存。</p>
-	     * <p>动画模版缓存池是以一定的内存开销来节省CPU开销，当相同的动画模版被多次使用时，相比于每次都创建新的动画模版，使用动画模版缓存池，只需创建一次，缓存之后多次复用，从而节省了动画模版创建的开销。</p>
-	     * <p>因为返回值为Animation对象本身，所以可以使用如下语法：loadAtlas(...).loadAtlas(...).play(...);。</p>
-	     * @param	url			图集路径。需要创建动画模版时，会以此为数据源。
-	     * @param	loaded		（可选）使用指定图集初始化动画完毕的回调。
-	     * @param	cacheName	（可选）动画模板在动画模版缓存池中的key。如果此参数不为空，表示使用动画模版缓存池。如果动画模版缓存池中存在key为cacheName的动画模版，则使用此模版。否则，创建新的动画模版，如果cacheName不为空，则以cacheName为key缓存到动画模版缓存池中，如果cacheName为空，不进行缓存。
-	     * @return 	返回动画本身。
-	     */
-	    loadAtlas(url, loaded = null, cacheName = "") {
-	        this._url = "";
-	        var _this = this;
-	        if (!_this._setFramesFromCache(cacheName)) {
-	            function onLoaded(loadUrl) {
-	                if (url === loadUrl) {
-	                    _this.frames = Animation.framesMap[cacheName] ? Animation.framesMap[cacheName] : Animation.createFrames(url, cacheName);
-	                    if (loaded)
-	                        loaded.run();
-	                }
-	            }
-	            if (Loader.getAtlas(url))
-	                onLoaded(url);
-	            else
-	                ILaya.loader.load(url, Handler.create(null, onLoaded, [url]), null, Loader.ATLAS);
-	        }
-	        return this;
-	    }
-	    /**
-	     * <p>加载并解析由LayaAir IDE制作的动画文件，此文件中可能包含多个动画。默认帧率为在IDE中设计的帧率，如果调用过set interval，则使用此帧间隔对应的帧率。加载后创建动画模版，并缓存到动画模版缓存池，key "url#动画名称" 对应相应动画名称的动画模板，key "url#" 对应动画模版集合的默认动画模版。</p>
-	     * <p>注意：如果调用本方法前，还没有预加载动画使用的图集，请将atlas参数指定为对应的图集路径，否则会导致动画创建失败。</p>
-	     * <p>动画模版缓存池是以一定的内存开销来节省CPU开销，当相同的动画模版被多次使用时，相比于每次都创建新的动画模版，使用动画模版缓存池，只需创建一次，缓存之后多次复用，从而节省了动画模版创建的开销。</p>
-	     * <p>因为返回值为Animation对象本身，所以可以使用如下语法：loadAnimation(...).loadAnimation(...).play(...);。</p>
-	     * @param	url 	动画文件路径。可由LayaAir IDE创建并发布。
-	     * @param	loaded	（可选）使用指定动画资源初始化动画完毕的回调。
-	     * @param	atlas	（可选）动画用到的图集地址（可选）。
-	     * @return 	返回动画本身。
-	     */
-	    loadAnimation(url, loaded = null, atlas = null) {
-	        this._url = url;
-	        var _this = this;
-	        if (!this._actionName)
-	            this._actionName = "";
-	        if (!_this._setFramesFromCache(this._actionName)) {
-	            if (!atlas || Loader.getAtlas(atlas)) {
-	                this._loadAnimationData(url, loaded, atlas);
-	            }
-	            else {
-	                ILaya.loader.load(atlas, Handler.create(this, this._loadAnimationData, [url, loaded, atlas]), null, Loader.ATLAS);
-	            }
+	    static _addType(type) {
+	        if (!QuickTestTool._countDic[type]) {
+	            QuickTestTool._countDic[type] = 1;
 	        }
 	        else {
-	            _this._setFramesFromCache(this._actionName, true);
-	            this.index = 0;
-	            if (loaded)
-	                loaded.run();
-	        }
-	        return this;
-	    }
-	    /**@private */
-	    _loadAnimationData(url, loaded = null, atlas = null) {
-	        if (atlas && !Loader.getAtlas(atlas)) {
-	            console.warn("atlas load fail:" + atlas);
-	            return;
-	        }
-	        var _this = this;
-	        function onLoaded(loadUrl) {
-	            if (!Loader.getRes(loadUrl)) {
-	                // 如果getRes失败了，有可能是相同的文件已经被删掉了，因为下面在用完后会立即删除
-	                // 这时候可以取frameMap中去找，如果找到了，走正常流程。--王伟
-	                if (Animation.framesMap[url + "#"]) {
-	                    _this._setFramesFromCache(this._actionName, true);
-	                    _this.index = 0;
-	                    _this._resumePlay();
-	                    if (loaded)
-	                        loaded.run();
-	                }
-	                return;
-	            }
-	            if (url === loadUrl) {
-	                var tAniO;
-	                if (!Animation.framesMap[url + "#"]) {
-	                    //此次解析仅返回动画数据，并不真正解析动画graphic数据
-	                    var aniData = GraphicAnimation.parseAnimationData(Loader.getRes(url));
-	                    if (!aniData)
-	                        return;
-	                    //缓存动画数据
-	                    var aniList = aniData.animationList;
-	                    var i, len = aniList.length;
-	                    var defaultO;
-	                    for (i = 0; i < len; i++) {
-	                        tAniO = aniList[i];
-	                        Animation.framesMap[url + "#" + tAniO.name] = tAniO;
-	                        if (!defaultO)
-	                            defaultO = tAniO;
-	                    }
-	                    if (defaultO) {
-	                        Animation.framesMap[url + "#"] = defaultO;
-	                        _this._setFramesFromCache(_this._actionName, true);
-	                        _this.index = 0;
-	                    }
-	                    _this._resumePlay();
-	                }
-	                else {
-	                    _this._setFramesFromCache(_this._actionName, true);
-	                    _this.index = 0;
-	                    _this._resumePlay();
-	                }
-	                if (loaded)
-	                    loaded.run();
-	            }
-	            //清理掉配置
-	            Loader.clearRes(url);
-	        }
-	        if (Loader.getRes(url))
-	            onLoaded(url);
-	        else
-	            ILaya.loader.load(url, Handler.create(null, onLoaded, [url]), null, Loader.JSON);
-	    }
-	    /**
-	     * <p>创建动画模板，多个动画可共享同一份动画模板，而不必每次都创建一份新的，从而节省创建Graphics集合的开销。</p>
-	     * @param	url			图集路径或者图片路径数组。如果是图集路径，需要相应图集已经被预加载，如果没有预加载，会导致创建失败。
-	     * @param	name		动画模板在动画模版缓存池中的key。如果不为空，则以此为key缓存动画模板，否则不缓存。
-	     * @return	动画模板。
-	     */
-	    static createFrames(url, name) {
-	        var arr;
-	        if (typeof (url) == 'string') {
-	            var atlas = Loader.getAtlas(url);
-	            if (atlas && atlas.length) {
-	                arr = [];
-	                for (var i = 0, n = atlas.length; i < n; i++) {
-	                    var g = new Graphics();
-	                    g.drawImage(Loader.getRes(atlas[i]), 0, 0);
-	                    arr.push(g);
-	                }
-	            }
-	        }
-	        else if (url instanceof Array) {
-	            arr = [];
-	            for (i = 0, n = url.length; i < n; i++) {
-	                g = new Graphics();
-	                g.loadImage(url[i], 0, 0);
-	                arr.push(g);
-	            }
-	        }
-	        if (name)
-	            Animation.framesMap[name] = arr;
-	        return arr;
-	    }
-	    /**
-	     * <p>从动画模版缓存池中清除指定key值的动画数据。</p>
-	     * <p>开发者在调用创建动画模版函数时，可以手动指定此值。而如果是由LayaAir IDE创建的动画集，解析后的key格式为："url#"：表示动画集的默认动画模版，如果以此值为参数，会清除整个动画集数据；"url#aniName"：表示相应名称的动画模版。</p>
-	     * @param key 动画模板在动画模版缓存池中的key。
-	     */
-	    static clearCache(key) {
-	        var cache = Animation.framesMap;
-	        var val;
-	        var key2 = key + "#";
-	        for (val in cache) {
-	            if (val === key || val.indexOf(key2) === 0) {
-	                delete Animation.framesMap[val];
-	            }
+	            QuickTestTool._countDic[type] += 1;
 	        }
 	    }
-	}
-	/**
-	 * <p>动画模版缓存池，以key-value键值对存储，key可以自定义，也可以从指定的配置文件中读取，value为对应的动画模版，是一个Graphics对象数组，每个Graphics对象对应一个帧图像，动画的播放实质就是定时切换Graphics对象。</p>
-	 * <p>使用loadImages(...)、loadAtlas(...)、loadAnimation(...)、set source方法可以创建动画模版。使用play(...)可以播放指定动画。</p>
-	 */
-	Animation.framesMap = {};
-	ILaya.regClass(Animation);
-	ClassUtils.regClass("laya.display.Animation", Animation);
-	ClassUtils.regClass("Laya.Animation", Animation);
-
-	/**
-	 * <p> 动效模板。用于为指定目标对象添加动画效果。每个动效有唯一的目标对象，而同一个对象可以添加多个动效。 当一个动效开始播放时，其他动效会自动停止播放。</p>
-	 * <p> 可以通过LayaAir IDE创建。 </p>
-	 */
-	class EffectAnimation extends FrameAnimation {
-	    constructor() {
-	        super(...arguments);
-	        /**@private */
-	        this._initData = {};
-	    }
-	    /**
-	     * 本实例的目标对象。通过本实例控制目标对象的属性变化。
-	     * @param v 指定的目标对象。
-	     */
-	    set target(v) {
-	        if (this._target)
-	            this._target.off(EffectAnimation.EFFECT_BEGIN, this, this._onOtherBegin);
-	        this._target = v;
-	        if (this._target)
-	            this._target.on(EffectAnimation.EFFECT_BEGIN, this, this._onOtherBegin);
-	        this._addEvent();
-	    }
-	    get target() {
-	        return this._target;
-	    }
-	    /**@private */
-	    _onOtherBegin(effect) {
-	        if (effect === this)
-	            return;
-	        this.stop();
-	    }
-	    /**
-	     * 设置开始播放的事件。本实例会侦听目标对象的指定事件，触发后播放相应动画效果。
-	     * @param event
-	     */
-	    set playEvent(event) {
-	        this._playEvent = event;
-	        if (!event)
-	            return;
-	        this._addEvent();
-	    }
-	    /**@private */
-	    _addEvent() {
-	        if (!this._target || !this._playEvent)
-	            return;
-	        this._setControlNode(this._target);
-	        this._target.on(this._playEvent, this, this._onPlayAction);
-	    }
-	    /**@private */
-	    _onPlayAction() {
-	        this.play(0, false);
-	    }
-	    /**
-	     * @param start
-	     * @param loop
-	     * @param name
-	     * @override
-	     */
-	    play(start = 0, loop = true, name = "") {
-	        if (!this._target)
-	            return;
-	        this._target.event(EffectAnimation.EFFECT_BEGIN, [this]);
-	        this._recordInitData();
-	        super.play(start, loop, name);
-	    }
-	    /**@private */
-	    _recordInitData() {
-	        if (!this._aniKeys)
-	            return;
-	        var i, len;
-	        len = this._aniKeys.length;
+	    static showCountInfo() {
+	        console.log("===================");
 	        var key;
-	        for (i = 0; i < len; i++) {
-	            key = this._aniKeys[i];
-	            this._initData[key] = this._target[key];
+	        for (key in QuickTestTool._countDic) {
+	            console.log("count:" + QuickTestTool._countDic[key]);
+	            QuickTestTool.showRenderTypeInfo(key, true);
 	        }
 	    }
-	    /**
-	     * 设置提供数据的类。
-	     * @param classStr 类路径
-	     */
-	    set effectClass(classStr) {
-	        this._effectClass = ClassUtils.getClass(classStr);
-	        if (this._effectClass) {
-	            var uiData = this._effectClass["uiView"];
-	            if (uiData) {
-	                var aniData = uiData["animations"];
-	                if (aniData && aniData[0]) {
-	                    var data = aniData[0];
-	                    this._setUp({}, data);
-	                    if (data.nodes && data.nodes[0]) {
-	                        this._aniKeys = data.nodes[0].keys;
-	                    }
-	                }
-	            }
-	        }
-	    }
-	    /**
-	     * 设置动画数据。
-	     * @param uiData
-	     */
-	    set effectData(uiData) {
-	        if (uiData) {
-	            var aniData = uiData["animations"];
-	            if (aniData && aniData[0]) {
-	                var data = aniData[0];
-	                this._setUp({}, data);
-	                if (data.nodes && data.nodes[0]) {
-	                    this._aniKeys = data.nodes[0].keys;
-	                }
-	            }
-	        }
-	    }
-	    /**@private
-	     * @override
-	    */
-	    _displayToIndex(value) {
-	        if (!this._animationData)
-	            return;
-	        if (value < 0)
-	            value = 0;
-	        if (value > this._count)
-	            value = this._count;
-	        var nodes = this._animationData.nodes, i, len = nodes.length;
-	        len = len > 1 ? 1 : len;
-	        for (i = 0; i < len; i++) {
-	            this._displayNodeToFrame(nodes[i], value);
-	        }
-	    }
-	    /**@private
-	     * @override
-	    */
-	    _displayNodeToFrame(node, frame, targetDic = null) {
-	        if (!this._target)
-	            return;
-	        var target = this._target;
-	        var frames = node.frames, key, propFrames, value;
-	        var keys = node.keys, i, len = keys.length;
-	        var secondFrames = node.secondFrames;
-	        var tSecondFrame;
-	        var easeFun;
-	        var tKeyFrames;
-	        var startFrame;
-	        var endFrame;
-	        for (i = 0; i < len; i++) {
-	            key = keys[i];
-	            propFrames = frames[key];
-	            tSecondFrame = secondFrames[key];
-	            if (tSecondFrame == -1) {
-	                value = this._initData[key];
-	            }
-	            else {
-	                if (frame < tSecondFrame) {
-	                    tKeyFrames = node.keyframes[key];
-	                    startFrame = tKeyFrames[0];
-	                    if (startFrame.tween) {
-	                        easeFun = Ease[startFrame.tweenMethod];
-	                        if (easeFun == null)
-	                            easeFun = Ease.linearNone;
-	                        endFrame = tKeyFrames[1];
-	                        value = easeFun(frame, this._initData[key], endFrame.value - this._initData[key], endFrame.index);
-	                    }
-	                    else {
-	                        value = this._initData[key];
-	                    }
-	                }
-	                else {
-	                    if (propFrames.length > frame)
-	                        value = propFrames[frame];
-	                    else
-	                        value = propFrames[propFrames.length - 1];
-	                }
-	            }
-	            target[key] = value;
-	        }
-	    }
-	    /**@private
-	     * @override
-	    */
-	    _calculateKeyFrames(node) {
-	        super._calculateKeyFrames(node);
-	        var keyFrames = node.keyframes, key, tKeyFrames, target = node.target;
-	        var secondFrames = {};
-	        node.secondFrames = secondFrames;
-	        for (key in keyFrames) {
-	            tKeyFrames = keyFrames[key];
-	            if (tKeyFrames.length <= 1)
-	                secondFrames[key] = -1;
-	            else
-	                secondFrames[key] = tKeyFrames[1].index;
-	        }
+	    static enableQuickTest() {
+	        QuickTestTool.__init__();
+	        Sprite["prototype"]["render"] = QuickTestTool["prototype"]["render"];
+	        QuickTestTool._PreStageRender = Stage["prototype"]["render"];
+	        Stage["prototype"]["render"] = QuickTestTool["prototype"]["_stageRender"];
 	    }
 	}
-	/**
-	 * @private
-	 * 动效开始事件。
-	 */
-	EffectAnimation.EFFECT_BEGIN = "effectbegin";
-	ClassUtils.regClass("laya.display.EffectAnimation", EffectAnimation);
-	ClassUtils.regClass("Laya.EffectAnimation", EffectAnimation);
+	QuickTestTool.showedDic = {};
+	QuickTestTool._rendertypeToStrDic = {};
+	QuickTestTool._typeToNameDic = {};
+	QuickTestTool._countDic = {};
+	QuickTestTool._i = 0;
 
-	/**
-	 * 场景类，负责场景创建，加载，销毁等功能
-	 * 场景被从节点移除后，并不会被自动垃圾机制回收，如果想回收，请调用destroy接口，可以通过unDestroyedScenes属性查看还未被销毁的场景列表
-	 */
-	class Scene extends Sprite {
-	    constructor() {
-	        super();
-	        /**场景被关闭后，是否自动销毁（销毁节点和使用到的资源），默认为false*/
-	        this.autoDestroyAtClosed = false;
-	        /**场景地址*/
-	        this.url = null;
-	        /**@private */
-	        this._viewCreated = false;
-	        /**@internal */
-	        this._$componentType = "Scene";
-	        this._setBit(Const.NOT_READY, true);
-	        Scene.unDestroyedScenes.push(this);
-	        this._scene = this;
-	        this.createChildren();
-	    }
-	    /**
-	     * @private 兼容老项目
-	     */
-	    createChildren() {
-	    }
-	    /**
-	     * @private 兼容老项目
-	     * 装载场景视图。用于加载模式。
-	     * @param path 场景地址。
-	     */
-	    loadScene(path) {
-	        var url = path.indexOf(".") > -1 ? path : path + ".scene";
-	        var view = ILaya.loader.getRes(url);
-	        if (view) {
-	            this.createView(view);
-	        }
-	        else {
-	            ILaya.loader.resetProgress();
-	            var loader = new SceneLoader();
-	            loader.on(Event.COMPLETE, this, this._onSceneLoaded, [url]);
-	            loader.load(url);
-	            //Laya.loader.load(url, Handler.create(this, createView), null, Loader.JSON);
-	        }
-	    }
-	    _onSceneLoaded(url) {
-	        this.createView(ILaya.Loader.getRes(url));
-	    }
-	    /**
-	     * @private 兼容老项目
-	     * 通过视图数据创建视图。
-	     * @param uiView 视图数据信息。
-	     */
-	    createView(view) {
-	        if (view && !this._viewCreated) {
-	            this._viewCreated = true;
-	            SceneUtils.createByData(this, view);
-	        }
-	    }
-	    /**
-	     * 根据IDE内的节点id，获得节点实例
-	     */
-	    getNodeByID(id) {
-	        if (this._idMap)
-	            return this._idMap[id];
-	        return null;
-	    }
-	    /**
-	     * 打开场景。【注意】被关闭的场景，如果没有设置autoDestroyAtRemoved=true，则资源可能不能被回收，需要自己手动回收
-	     * @param	closeOther	是否关闭其他场景，默认为true（可选）
-	     * @param	param		打开页面的参数，会传递给onOpened方法（可选）
-	     */
-	    open(closeOther = true, param = null) {
-	        if (closeOther)
-	            Scene.closeAll();
-	        Scene.root.addChild(this);
-	        this.onOpened(param);
-	    }
-	    /**场景打开完成后，调用此方法（如果有弹出动画，则在动画完成后执行）*/
-	    onOpened(param) {
-	        //trace("onOpened");
-	    }
-	    /**
-	     * 关闭场景
-	     * 【注意】被关闭的场景，如果没有设置autoDestroyAtRemoved=true，则资源可能不能被回收，需要自己手动回收
-	     * @param type 关闭的原因，会传递给onClosed函数
-	     */
-	    close(type = null) {
-	        this.onClosed(type);
-	        if (this.autoDestroyAtClosed)
-	            this.destroy();
-	        else
-	            this.removeSelf();
-	    }
-	    /**关闭完成后，调用此方法（如果有关闭动画，则在动画完成后执行）
-	     * @param type 如果是点击默认关闭按钮触发，则传入关闭按钮的名字(name)，否则为null。
-	     */
-	    onClosed(type = null) {
-	        //trace("onClosed");
-	    }
-	    /**@inheritDoc
-	     * @override
-	    */
-	    destroy(destroyChild = true) {
-	        this._idMap = null;
-	        super.destroy(destroyChild);
-	        var list = Scene.unDestroyedScenes;
-	        for (var i = list.length - 1; i > -1; i--) {
-	            if (list[i] === this) {
-	                list.splice(i, 1);
-	                return;
-	            }
-	        }
-	    }
-	    /**@inheritDoc
-	     * @override
-	    */
-	    set scaleX(value) {
-	        if (super.get_scaleX() == value)
-	            return;
-	        super.set_scaleX(value);
-	        this.event(Event.RESIZE);
-	    }
-	    get scaleX() {
-	        return super.scaleX;
-	    }
-	    /**@inheritDoc
-	     * @override
-	    */
-	    set scaleY(value) {
-	        if (super.get_scaleY() == value)
-	            return;
-	        super.set_scaleY(value);
-	        this.event(Event.RESIZE);
-	    }
-	    get scaleY() {
-	        return super.scaleY;
-	    }
-	    /**@inheritDoc
-	     * @override
-	    */
-	    get width() {
-	        if (this._width)
-	            return this._width;
-	        var max = 0;
-	        for (var i = this.numChildren - 1; i > -1; i--) {
-	            var comp = this.getChildAt(i);
-	            if (comp._visible) {
-	                max = Math.max(comp._x + comp.width * comp.scaleX, max);
-	            }
-	        }
-	        return max;
-	    }
-	    /**@inheritDoc
-	     * @override
-	    */
-	    set width(value) {
-	        if (super.get_width() == value)
-	            return;
-	        super.set_width(value);
-	        this.callLater(this._sizeChanged);
-	    }
-	    /**@inheritDoc
-	     * @override
-	    */
-	    get height() {
-	        if (this._height)
-	            return this._height;
-	        var max = 0;
-	        for (var i = this.numChildren - 1; i > -1; i--) {
-	            var comp = this.getChildAt(i);
-	            if (comp._visible) {
-	                max = Math.max(comp._y + comp.height * comp.scaleY, max);
-	            }
-	        }
-	        return max;
-	    }
-	    /**@inheritDoc
-	     * @override
-	    */
-	    set height(value) {
-	        if (super.get_height() == value)
-	            return;
-	        super.set_height(value);
-	        this.callLater(this._sizeChanged);
-	    }
-	    /**@private */
-	    _sizeChanged() {
-	        this.event(Event.RESIZE);
-	    }
-	    //////////////////////////////////////静态方法//////////////////////////////////////////
-	    /**获取场景根容器*/
-	    static get root() {
-	        if (!Scene._root) {
-	            Scene._root = ILaya.stage.addChild(new Sprite());
-	            Scene._root.name = "root";
-	            ILaya.stage.on("resize", null, () => {
-	                Scene._root.size(ILaya.stage.width, ILaya.stage.height);
-	                Scene._root.event(Event.RESIZE);
-	            });
-	            Scene._root.size(ILaya.stage.width, ILaya.stage.height);
-	            Scene._root.event(Event.RESIZE);
-	        }
-	        return Scene._root;
-	    }
-	    /**场景时钟
-	     * @override
-	    */
-	    get timer() {
-	        return this._timer || ILaya.timer;
-	    }
-	    set timer(value) {
-	        this._timer = value;
-	    }
-	    /**
-	     * 加载场景及场景使用到的资源
-	     * @param	url			场景地址
-	     * @param	complete	加载完成回调，返回场景实例（可选）
-	     * @param	progress	加载进度回调（可选）
-	     */
-	    static load(url, complete = null, progress = null) {
-	        ILaya.loader.resetProgress();
-	        var loader = new SceneLoader();
-	        loader.on(Event.PROGRESS, null, onProgress);
-	        loader.once(Event.COMPLETE, null, create);
-	        loader.load(url);
-	        function onProgress(value) {
-	            if (Scene._loadPage)
-	                Scene._loadPage.event("progress", value);
-	            progress && progress.runWith(value);
-	        }
-	        function create() {
-	            loader.off(Event.PROGRESS, null, onProgress);
-	            var obj = ILaya.Loader.getRes(url);
-	            if (!obj)
-	                throw "Can not find scene:" + url;
-	            if (!obj.props)
-	                throw "Scene data is error:" + url;
-	            var runtime = obj.props.runtime ? obj.props.runtime : obj.type;
-	            var clas = ILaya.ClassUtils.getClass(runtime);
-	            if (obj.props.renderType == "instance") {
-	                var scene = clas.instance || (clas.instance = new clas());
-	            }
-	            else {
-	                scene = new clas();
-	            }
-	            if (scene && scene instanceof Node) {
-	                scene.url = url;
-	                if (!scene._getBit(Const.NOT_READY)) {
-	                    complete && complete.runWith(scene);
-	                }
-	                else {
-	                    scene.on("onViewCreated", null, function () {
-	                        complete && complete.runWith(scene);
-	                    });
-	                    scene.createView(obj);
-	                }
-	                Scene.hideLoadingPage();
-	            }
-	            else {
-	                throw "Can not find scene:" + runtime;
-	            }
-	        }
-	    }
-	    /**
-	     * 加载并打开场景
-	     * @param	url			场景地址
-	     * @param	closeOther	是否关闭其他场景，默认为true（可选），【注意】被关闭的场景，如果没有设置autoDestroyAtRemoved=true，则资源可能不能被回收，需要自己手动回收
-	     * @param	param		打开页面的参数，会传递给onOpened方法（可选）
-	     * @param	complete	打开完成回调，返回场景实例（可选）
-	     * @param	progress	加载进度回调（可选）
-	     */
-	    static open(url, closeOther = true, param = null, complete = null, progress = null) {
-	        //兼容处理
-	        if (param instanceof Handler) {
-	            var temp = complete;
-	            complete = param;
-	            param = temp;
-	        }
-	        Scene.showLoadingPage();
-	        Scene.load(url, Handler.create(null, this._onSceneLoaded, [closeOther, complete, param]), progress);
-	    }
-	    /**@private */
-	    static _onSceneLoaded(closeOther, complete, param, scene) {
-	        scene.open(closeOther, param);
-	        if (complete)
-	            complete.runWith(scene);
-	    }
-	    /**
-	     * 根据地址，关闭场景（包括对话框）
-	     * @param	url		场景地址
-	     * @param	name	如果name不为空，name必须相同才能关闭
-	     * @return	返回是否关闭成功，如果url找不到，则不成功
-	     */
-	    static close(url, name = "") {
-	        var flag = false;
-	        var list = Scene.unDestroyedScenes;
-	        for (var i = 0, n = list.length; i < n; i++) {
-	            var scene = list[i];
-	            if (scene && scene.parent && scene.url === url && scene.name == name) {
-	                scene.close();
-	                flag = true;
-	            }
-	        }
-	        return flag;
-	    }
-	    /**
-	     * 关闭所有场景，不包括对话框，如果关闭对话框，请使用Dialog.closeAll()
-	     * 【注意】被关闭的场景，如果没有设置autoDestroyAtRemoved=true，则资源可能不能被回收，需要自己手动回收
-	     */
-	    static closeAll() {
-	        var root = Scene.root;
-	        for (var i = 0, n = root.numChildren; i < n; i++) {
-	            var scene = root.getChildAt(0);
-	            if (scene instanceof Scene)
-	                scene.close();
-	            else
-	                scene.removeSelf();
-	        }
-	    }
-	    /**
-	     * 根据地址，销毁场景（包括对话框）
-	     * @param	url		场景地址
-	     * @param	name	如果name不为空，name必须相同才能关闭
-	     * @return	返回是否销毁成功，如果url找不到，则不成功
-	     */
-	    static destroy(url, name = "") {
-	        var flag = false;
-	        var list = Scene.unDestroyedScenes;
-	        for (var i = 0, n = list.length; i < n; i++) {
-	            var scene = list[i];
-	            if (scene.url === url && scene.name == name) {
-	                scene.destroy();
-	                flag = true;
-	            }
-	        }
-	        return flag;
-	    }
-	    /**
-	     * 销毁当前没有被使用的资源,该函数会忽略lock=true的资源。
-	     */
-	    static gc() {
-	        Resource.destroyUnusedResources();
-	    }
-	    /**
-	     * 设置loading界面，引擎会在调用open方法后，延迟打开loading界面，在页面添加到舞台之后，关闭loading界面
-	     * @param	loadPage 	load界面实例
-	     */
-	    static setLoadingPage(loadPage) {
-	        if (Scene._loadPage != loadPage) {
-	            Scene._loadPage = loadPage;
-	        }
-	    }
-	    /**
-	     * 显示loading界面
-	     * @param	param 打开参数，如果是scene，则会传递给onOpened方法
-	     * @param	delay 延迟打开时间，默认500毫秒
-	     */
-	    static showLoadingPage(param = null, delay = 500) {
-	        if (Scene._loadPage) {
-	            ILaya.systemTimer.clear(null, Scene._showLoading);
-	            ILaya.systemTimer.clear(null, Scene._hideLoading);
-	            ILaya.systemTimer.once(delay, null, Scene._showLoading, [param], false);
-	        }
-	    }
-	    static _showLoading(param) {
-	        ILaya.stage.addChild(Scene._loadPage);
-	        Scene._loadPage.onOpened(param);
-	    }
-	    static _hideLoading() {
-	        Scene._loadPage.close();
-	    }
-	    /**
-	     * 隐藏loading界面
-	     * @param	delay 延迟关闭时间，默认500毫秒
-	     */
-	    static hideLoadingPage(delay = 500) {
-	        if (Scene._loadPage) {
-	            ILaya.systemTimer.clear(null, Scene._showLoading);
-	            ILaya.systemTimer.clear(null, Scene._hideLoading);
-	            ILaya.systemTimer.once(delay, null, Scene._hideLoading);
-	        }
-	    }
-	}
-	/**创建后，还未被销毁的场景列表，方便查看还未被销毁的场景列表，方便内存管理，本属性只读，请不要直接修改*/
-	Scene.unDestroyedScenes = [];
-	ILaya.regClass(Scene);
-	ClassUtils.regClass("laya.display.Scene", Scene);
-	ClassUtils.regClass("Laya.Scene", Scene);
-
-	/**
-	 * 绘制Canvas贴图
-	 * @internal
-	 */
-	class DrawCanvasCmd {
-	    constructor() {
-	        this._paramData = null;
-	    }
-	    /**@private */
-	    static create(texture /*RenderTexture2D*/, x, y, width, height) {
-	        return null;
-	    }
-	    /**
-	     * 回收到对象池
-	     */
-	    recover() {
-	        this._graphicsCmdEncoder = null;
-	        Pool.recover("DrawCanvasCmd", this);
-	    }
-	    /**@private */
-	    get cmdID() {
-	        return DrawCanvasCmd.ID;
-	    }
-	}
-	DrawCanvasCmd.ID = "DrawCanvasCmd";
-	/**@private */
-	DrawCanvasCmd._DRAW_IMAGE_CMD_ENCODER_ = null;
-	/**@private */
-	DrawCanvasCmd._PARAM_TEXTURE_POS_ = 2;
-	/**@private */
-	DrawCanvasCmd._PARAM_VB_POS_ = 5;
-
-	/**
-	 * 绘制粒子
-	 * @private
-	 */
-	class DrawParticleCmd {
-	    /**@private */
-	    static create(_temp) {
-	        var cmd = Pool.getItemByClass("DrawParticleCmd", DrawParticleCmd);
-	        cmd._templ = _temp;
-	        return cmd;
-	    }
-	    /**
-	     * 回收到对象池
-	     */
-	    recover() {
-	        this._templ = null;
-	        Pool.recover("DrawParticleCmd", this);
-	    }
-	    /**@private */
-	    run(context, gx, gy) {
-	        //这个只有webgl在用
-	        context.drawParticle(gx, gy, this._templ);
-	    }
-	    /**@private */
-	    get cmdID() {
-	        return DrawParticleCmd.ID;
-	    }
-	}
-	DrawParticleCmd.ID = "DrawParticleCmd";
-
-	/**
-	 * <code>Sound</code> 类是用来播放控制声音的类。
-	 * 引擎默认有两套声音方案，优先使用WebAudio播放声音，如果WebAudio不可用，则用H5Audio播放，H5Audio在部分机器上有兼容问题（比如不能混音，播放有延迟等）。
-	 */
 	class Sound extends EventDispatcher {
-	    /**
-	     * 加载声音。
-	     * @param url 地址。
-	     */
 	    load(url) {
 	    }
-	    /**
-	     * 播放声音。
-	     * @param startTime 开始时间,单位秒
-	     * @param loops 循环次数,0表示一直循环
-	     * @return 声道 SoundChannel 对象。
-	     */
 	    play(startTime = 0, loops = 0) {
 	        return null;
 	    }
-	    /**
-	     * 获取总时间。
-	     */
 	    get duration() {
 	        return 0;
 	    }
-	    /**
-	     * 释放声音资源。
-	     */
 	    dispose() {
 	    }
 	}
 
-	/**
-	 * @private
-	 */
 	class SoundNode extends Sprite {
 	    constructor() {
 	        super();
@@ -35451,16 +24329,9 @@ window.Laya= (function (exports) {
 	        this.on(Event.ADDED, this, this._onParentChange);
 	        this.on(Event.REMOVED, this, this._onParentChange);
 	    }
-	    /**@private */
 	    _onParentChange() {
 	        this.target = this.parent;
 	    }
-	    /**
-	     * 播放
-	     * @param loops 循环次数
-	     * @param complete 完成回调
-	     *
-	     */
 	    play(loops = 1, complete = null) {
 	        if (isNaN(loops)) {
 	            loops = 1;
@@ -35470,17 +24341,12 @@ window.Laya= (function (exports) {
 	        this.stop();
 	        this._channel = SoundManager.playSound(this.url, loops, complete);
 	    }
-	    /**
-	     * 停止播放
-	     *
-	     */
 	    stop() {
 	        if (this._channel && !this._channel.isStopped) {
 	            this._channel.stop();
 	        }
 	        this._channel = null;
 	    }
-	    /**@private */
 	    _setPlayAction(tar, event, action, add = true) {
 	        if (!this[action])
 	            return;
@@ -35493,7 +24359,6 @@ window.Laya= (function (exports) {
 	            tar.off(event, this, this[action]);
 	        }
 	    }
-	    /**@private */
 	    _setPlayActions(tar, events, action, add = true) {
 	        if (!tar)
 	            return;
@@ -35506,11 +24371,6 @@ window.Laya= (function (exports) {
 	            this._setPlayAction(tar, eventArr[i], action, add);
 	        }
 	    }
-	    /**
-	     * 设置触发播放的事件
-	     * @param events
-	     *
-	     */
 	    set playEvent(events) {
 	        this._playEvents = events;
 	        if (!events)
@@ -35519,11 +24379,6 @@ window.Laya= (function (exports) {
 	            this._setPlayActions(this._tar, events, "play");
 	        }
 	    }
-	    /**
-	     * 设置控制播放的对象
-	     * @param tar
-	     *
-	     */
 	    set target(tar) {
 	        if (this._tar) {
 	            this._setPlayActions(this._tar, this._playEvents, "play", false);
@@ -35535,11 +24390,6 @@ window.Laya= (function (exports) {
 	            this._setPlayActions(this._tar, this._stopEvents, "stop", true);
 	        }
 	    }
-	    /**
-	     * 设置触发停止的事件
-	     * @param events
-	     *
-	     */
 	    set stopEvent(events) {
 	        this._stopEvents = events;
 	        if (!events)
@@ -35550,23 +24400,743 @@ window.Laya= (function (exports) {
 	    }
 	}
 
+	class ResourceVersion {
+	    static enable(manifestFile, callback, type = 2) {
+	        ResourceVersion.type = type;
+	        ILaya.loader.load(manifestFile, Handler.create(null, ResourceVersion.onManifestLoaded, [callback]), null, Loader.JSON);
+	        URL.customFormat = ResourceVersion.addVersionPrefix;
+	    }
+	    static onManifestLoaded(callback, data) {
+	        ResourceVersion.manifest = data;
+	        callback.run();
+	        if (!data) {
+	            console.warn("资源版本清单文件不存在，不使用资源版本管理。忽略ERR_FILE_NOT_FOUND错误。");
+	        }
+	    }
+	    static addVersionPrefix(originURL) {
+	        originURL = URL.getAdptedFilePath(originURL);
+	        if (ResourceVersion.manifest && ResourceVersion.manifest[originURL]) {
+	            if (ResourceVersion.type == ResourceVersion.FILENAME_VERSION)
+	                return ResourceVersion.manifest[originURL];
+	            return ResourceVersion.manifest[originURL] + "/" + originURL;
+	        }
+	        return originURL;
+	    }
+	}
+	ResourceVersion.FOLDER_VERSION = 1;
+	ResourceVersion.FILENAME_VERSION = 2;
+	ResourceVersion.type = ResourceVersion.FOLDER_VERSION;
+
+	class Socket extends EventDispatcher {
+	    constructor(host = null, port = 0, byteClass = null, protocols = null) {
+	        super();
+	        this.disableInput = false;
+	        this.protocols = [];
+	        this._byteClass = byteClass ? byteClass : Byte;
+	        this.protocols = protocols;
+	        this.endian = Socket.BIG_ENDIAN;
+	        if (host && port > 0 && port < 65535)
+	            this.connect(host, port);
+	    }
+	    get input() {
+	        return this._input;
+	    }
+	    get output() {
+	        return this._output;
+	    }
+	    get connected() {
+	        return this._connected;
+	    }
+	    get endian() {
+	        return this._endian;
+	    }
+	    set endian(value) {
+	        this._endian = value;
+	        if (this._input != null)
+	            this._input.endian = value;
+	        if (this._output != null)
+	            this._output.endian = value;
+	    }
+	    connect(host, port) {
+	        var url = "ws://" + host + ":" + port;
+	        this.connectByUrl(url);
+	    }
+	    connectByUrl(url) {
+	        if (this._socket != null)
+	            this.close();
+	        this._socket && this.cleanSocket();
+	        if (!this.protocols || this.protocols.length == 0) {
+	            this._socket = new Browser.window.WebSocket(url);
+	        }
+	        else {
+	            this._socket = new Browser.window.WebSocket(url, this.protocols);
+	        }
+	        this._socket.binaryType = "arraybuffer";
+	        this._output = new this._byteClass();
+	        this._output.endian = this.endian;
+	        this._input = new this._byteClass();
+	        this._input.endian = this.endian;
+	        this._addInputPosition = 0;
+	        this._socket.onopen = (e) => {
+	            this._onOpen(e);
+	        };
+	        this._socket.onmessage = (msg) => {
+	            this._onMessage(msg);
+	        };
+	        this._socket.onclose = (e) => {
+	            this._onClose(e);
+	        };
+	        this._socket.onerror = (e) => {
+	            this._onError(e);
+	        };
+	    }
+	    cleanSocket() {
+	        this.close();
+	        this._connected = false;
+	        this._socket.onopen = null;
+	        this._socket.onmessage = null;
+	        this._socket.onclose = null;
+	        this._socket.onerror = null;
+	        this._socket = null;
+	    }
+	    close() {
+	        if (this._socket != null) {
+	            try {
+	                this._socket.close();
+	            }
+	            catch (e) {
+	            }
+	        }
+	    }
+	    _onOpen(e) {
+	        this._connected = true;
+	        this.event(Event.OPEN, e);
+	    }
+	    _onMessage(msg) {
+	        if (!msg || !msg.data)
+	            return;
+	        var data = msg.data;
+	        if (this.disableInput && data) {
+	            this.event(Event.MESSAGE, data);
+	            return;
+	        }
+	        if (this._input.length > 0 && this._input.bytesAvailable < 1) {
+	            this._input.clear();
+	            this._addInputPosition = 0;
+	        }
+	        var pre = this._input.pos;
+	        !this._addInputPosition && (this._addInputPosition = 0);
+	        this._input.pos = this._addInputPosition;
+	        if (data) {
+	            if (typeof (data) == 'string') {
+	                this._input.writeUTFBytes(data);
+	            }
+	            else {
+	                this._input.writeArrayBuffer(data);
+	            }
+	            this._addInputPosition = this._input.pos;
+	            this._input.pos = pre;
+	        }
+	        this.event(Event.MESSAGE, data);
+	    }
+	    _onClose(e) {
+	        this._connected = false;
+	        this.event(Event.CLOSE, e);
+	    }
+	    _onError(e) {
+	        this.event(Event.ERROR, e);
+	    }
+	    send(data) {
+	        this._socket.send(data);
+	    }
+	    flush() {
+	        if (this._output && this._output.length > 0) {
+	            var evt;
+	            try {
+	                this._socket && this._socket.send(this._output.__getBuffer().slice(0, this._output.length));
+	            }
+	            catch (e) {
+	                evt = e;
+	            }
+	            this._output.endian = this.endian;
+	            this._output.clear();
+	            if (evt)
+	                this.event(Event.ERROR, evt);
+	        }
+	    }
+	}
+	Socket.LITTLE_ENDIAN = "littleEndian";
+	Socket.BIG_ENDIAN = "bigEndian";
+
+	class System {
+	    static changeDefinition(name, classObj) {
+	        window.Laya[name] = classObj;
+	        var str = name + "=classObj";
+	        window['eval'](str);
+	    }
+	}
+
+	class HTMLChar {
+	    constructor() {
+	        this.reset();
+	    }
+	    setData(char, w, h, style) {
+	        this.char = char;
+	        this.charNum = char.charCodeAt(0);
+	        this.x = this.y = 0;
+	        this.width = w;
+	        this.height = h;
+	        this.style = style;
+	        this.isWord = !HTMLChar._isWordRegExp.test(char);
+	        return this;
+	    }
+	    reset() {
+	        this.x = this.y = this.width = this.height = 0;
+	        this.isWord = false;
+	        this.char = null;
+	        this.charNum = 0;
+	        this.style = null;
+	        return this;
+	    }
+	    recover() {
+	        Pool.recover("HTMLChar", this.reset());
+	    }
+	    static create() {
+	        return Pool.getItemByClass("HTMLChar", HTMLChar);
+	    }
+	    _isChar() {
+	        return true;
+	    }
+	    _getCSSStyle() {
+	        return this.style;
+	    }
+	}
+	HTMLChar._isWordRegExp = new RegExp("[\\w\.]", "");
+
+	class Log {
+	    static enable() {
+	        if (!Log._logdiv) {
+	            Log._logdiv = Browser.createElement('div');
+	            Log._logdiv.style.cssText = "border:white;padding:4px;overflow-y:auto;z-index:1000000;background:rgba(100,100,100,0.6);color:white;position: absolute;left:0px;top:0px;width:50%;height:50%;";
+	            Browser.document.body.appendChild(Log._logdiv);
+	            Log._btn = Browser.createElement("button");
+	            Log._btn.innerText = "Hide";
+	            Log._btn.style.cssText = "z-index:1000001;position: absolute;left:10px;top:10px;";
+	            Log._btn.onclick = Log.toggle;
+	            Browser.document.body.appendChild(Log._btn);
+	        }
+	    }
+	    static toggle() {
+	        var style = Log._logdiv.style;
+	        if (style.display === "") {
+	            Log._btn.innerText = "Show";
+	            style.display = "none";
+	        }
+	        else {
+	            Log._btn.innerText = "Hide";
+	            style.display = "";
+	        }
+	    }
+	    static print(value) {
+	        if (Log._logdiv) {
+	            if (Log._count >= Log.maxCount)
+	                Log.clear();
+	            Log._count++;
+	            Log._logdiv.innerText += value + "\n";
+	            if (Log.autoScrollToBottom) {
+	                if (Log._logdiv.scrollHeight - Log._logdiv.scrollTop - Log._logdiv.clientHeight < 50) {
+	                    Log._logdiv.scrollTop = Log._logdiv.scrollHeight;
+	                }
+	            }
+	        }
+	    }
+	    static clear() {
+	        Log._logdiv.innerText = "";
+	        Log._count = 0;
+	    }
+	}
+	Log._count = 0;
+	Log.maxCount = 50;
+	Log.autoScrollToBottom = true;
+
+	let DATANUM = 300;
+	class PerfData {
+	    constructor(id, color, name, scale) {
+	        this.scale = 1.0;
+	        this.datas = new Array(DATANUM);
+	        this.datapos = 0;
+	        this.id = id;
+	        this.color = color;
+	        this.name = name;
+	        this.scale = scale;
+	    }
+	    addData(v) {
+	        this.datas[this.datapos] = v;
+	        this.datapos++;
+	        this.datapos %= DATANUM;
+	    }
+	}
+
+	class PerfHUD extends Sprite {
+	    constructor() {
+	        super();
+	        this.datas = [];
+	        this.xdata = new Array(PerfHUD.DATANUM);
+	        this.ydata = new Array(PerfHUD.DATANUM);
+	        this.hud_width = 800;
+	        this.hud_height = 200;
+	        this.gMinV = 0;
+	        this.gMaxV = 100;
+	        this.textSpace = 40;
+	        this.sttm = 0;
+	        PerfHUD.inst = this;
+	        this._renderType |= SpriteConst.CUSTOM;
+	        this._setRenderType(this._renderType);
+	        this._setCustomRender();
+	        this.addDataDef(0, 0xffffff, 'frame', 1.0);
+	        this.addDataDef(1, 0x00ff00, 'update', 1.0);
+	        this.addDataDef(2, 0xff0000, 'flush', 1.0);
+	        PerfHUD._now = performance ? performance.now.bind(performance) : Date.now;
+	    }
+	    now() {
+	        return PerfHUD._now();
+	    }
+	    start() {
+	        this.sttm = PerfHUD._now();
+	    }
+	    end(i) {
+	        var dt = PerfHUD._now() - this.sttm;
+	        this.updateValue(i, dt);
+	    }
+	    config(w, h) {
+	        this.hud_width = w;
+	        this.hud_height = h;
+	    }
+	    addDataDef(id, color, name, scale) {
+	        this.datas[id] = new PerfData(id, color, name, scale);
+	    }
+	    updateValue(id, v) {
+	        this.datas[id].addData(v);
+	    }
+	    v2y(v) {
+	        var bb = this._y + this.hud_height * (1 - (v - this.gMinV) / this.gMaxV);
+	        return this._y + this.hud_height * (1 - (v - this.gMinV) / this.gMaxV);
+	    }
+	    drawHLine(ctx, v, color, text) {
+	        var sx = this._x;
+	        var ex = this._x + this.hud_width;
+	        var sy = this.v2y(v);
+	        ctx.fillText(text, sx, sy - 6, null, 'green', null);
+	        sx += this.textSpace;
+	        ctx.fillStyle = color;
+	        ctx.fillRect(sx, sy, this._x + this.hud_width, 1, null);
+	    }
+	    customRender(ctx, x, y) {
+	        var now = performance.now();
+	        if (PerfHUD._lastTm <= 0)
+	            PerfHUD._lastTm = now;
+	        this.updateValue(0, now - PerfHUD._lastTm);
+	        PerfHUD._lastTm = now;
+	        ctx.save();
+	        ctx.fillRect(this._x, this._y, this.hud_width, this.hud_height + 4, '#000000cc');
+	        ctx.globalAlpha = 0.9;
+	        this.drawHLine(ctx, 0, 'green', '    0');
+	        this.drawHLine(ctx, 10, 'green', '  10');
+	        this.drawHLine(ctx, 16.667, 'red', ' ');
+	        this.drawHLine(ctx, 20, 'green', '50|20');
+	        this.drawHLine(ctx, 16.667 * 2, 'yellow', '');
+	        this.drawHLine(ctx, 16.667 * 3, 'yellow', '');
+	        this.drawHLine(ctx, 16.667 * 4, 'yellow', '');
+	        this.drawHLine(ctx, 50, 'green', '20|50');
+	        this.drawHLine(ctx, 100, 'green', '10|100');
+	        for (var di = 0, sz = this.datas.length; di < sz; di++) {
+	            var cd = this.datas[di];
+	            if (!cd)
+	                continue;
+	            var dtlen = cd.datas.length;
+	            var dx = (this.hud_width - this.textSpace) / dtlen;
+	            var cx = cd.datapos;
+	            var _cx = this._x + this.textSpace;
+	            ctx.fillStyle = cd.color;
+	            for (var dtsz = dtlen; cx < dtsz; cx++) {
+	                var sty = this.v2y(cd.datas[cx] * cd.scale);
+	                ctx.fillRect(_cx, sty, dx, this.hud_height + this._y - sty, null);
+	                _cx += dx;
+	            }
+	            for (cx = 0; cx < cd.datapos; cx++) {
+	                sty = this.v2y(cd.datas[cx] * cd.scale);
+	                ctx.fillRect(_cx, sty, dx, this.hud_height + this._y - sty, null);
+	                _cx += dx;
+	            }
+	        }
+	        ctx.restore();
+	    }
+	}
+	PerfHUD._lastTm = 0;
+	PerfHUD._now = null;
+	PerfHUD.DATANUM = 300;
+	PerfHUD.drawTexTm = 0;
+
+	class PoolCache {
+	    constructor() {
+	        this.maxCount = 1000;
+	    }
+	    getCacheList() {
+	        return Pool.getPoolBySign(this.sign);
+	    }
+	    tryDispose(force) {
+	        var list;
+	        list = Pool.getPoolBySign(this.sign);
+	        if (list.length > this.maxCount) {
+	            list.splice(this.maxCount, list.length - this.maxCount);
+	        }
+	    }
+	    static addPoolCacheManager(sign, maxCount = 100) {
+	        var cache;
+	        cache = new PoolCache();
+	        cache.sign = sign;
+	        cache.maxCount = maxCount;
+	        CacheManger.regCacheByFunction(Utils.bind(cache.tryDispose, cache), Utils.bind(cache.getCacheList, cache));
+	    }
+	}
+
+	class TimeLine extends EventDispatcher {
+	    constructor() {
+	        super(...arguments);
+	        this._tweenDic = {};
+	        this._tweenDataList = [];
+	        this._currTime = 0;
+	        this._lastTime = 0;
+	        this._startTime = 0;
+	        this._index = 0;
+	        this._gidIndex = 0;
+	        this._firstTweenDic = {};
+	        this._startTimeSort = false;
+	        this._endTimeSort = false;
+	        this._loopKey = false;
+	        this.scale = 1;
+	        this._frameRate = 60;
+	        this._frameIndex = 0;
+	        this._total = 0;
+	    }
+	    static to(target, props, duration, ease = null, offset = 0) {
+	        return (new TimeLine()).to(target, props, duration, ease, offset);
+	    }
+	    static from(target, props, duration, ease = null, offset = 0) {
+	        return (new TimeLine()).from(target, props, duration, ease, offset);
+	    }
+	    to(target, props, duration, ease = null, offset = 0) {
+	        return this._create(target, props, duration, ease, offset, true);
+	    }
+	    from(target, props, duration, ease = null, offset = 0) {
+	        return this._create(target, props, duration, ease, offset, false);
+	    }
+	    _create(target, props, duration, ease, offset, isTo) {
+	        var tTweenData = Pool.getItemByClass("tweenData", tweenData);
+	        tTweenData.isTo = isTo;
+	        tTweenData.type = 0;
+	        tTweenData.target = target;
+	        tTweenData.duration = duration;
+	        tTweenData.data = props;
+	        tTweenData.startTime = this._startTime + offset;
+	        tTweenData.endTime = tTweenData.startTime + tTweenData.duration;
+	        tTweenData.ease = ease;
+	        this._startTime = Math.max(tTweenData.endTime, this._startTime);
+	        this._tweenDataList.push(tTweenData);
+	        this._startTimeSort = true;
+	        this._endTimeSort = true;
+	        return this;
+	    }
+	    addLabel(label, offset) {
+	        var tTweenData = Pool.getItemByClass("tweenData", tweenData);
+	        tTweenData.type = 1;
+	        tTweenData.data = label;
+	        tTweenData.endTime = tTweenData.startTime = this._startTime + offset;
+	        this._labelDic || (this._labelDic = {});
+	        this._labelDic[label] = tTweenData;
+	        this._tweenDataList.push(tTweenData);
+	        return this;
+	    }
+	    removeLabel(label) {
+	        if (this._labelDic && this._labelDic[label]) {
+	            var tTweenData = this._labelDic[label];
+	            if (tTweenData) {
+	                var tIndex = this._tweenDataList.indexOf(tTweenData);
+	                if (tIndex > -1) {
+	                    this._tweenDataList.splice(tIndex, 1);
+	                }
+	            }
+	            delete this._labelDic[label];
+	        }
+	    }
+	    gotoTime(time) {
+	        if (this._tweenDataList == null || this._tweenDataList.length == 0)
+	            return;
+	        var tTween;
+	        var tObject;
+	        for (var p in this._firstTweenDic) {
+	            tObject = this._firstTweenDic[p];
+	            if (tObject) {
+	                for (var tDataP in tObject) {
+	                    if (tDataP in tObject.diyTarget) {
+	                        tObject.diyTarget[tDataP] = tObject[tDataP];
+	                    }
+	                }
+	            }
+	        }
+	        for (p in this._tweenDic) {
+	            tTween = this._tweenDic[p];
+	            tTween.clear();
+	            delete this._tweenDic[p];
+	        }
+	        this._index = 0;
+	        this._gidIndex = 0;
+	        this._currTime = time;
+	        this._lastTime = Browser.now();
+	        var tTweenDataCopyList;
+	        if (this._endTweenDataList == null || this._endTimeSort) {
+	            this._endTimeSort = false;
+	            this._endTweenDataList = tTweenDataCopyList = this._tweenDataList.concat();
+	            function Compare(paraA, paraB) {
+	                if (paraA.endTime > paraB.endTime) {
+	                    return 1;
+	                }
+	                else if (paraA.endTime < paraB.endTime) {
+	                    return -1;
+	                }
+	                else {
+	                    return 0;
+	                }
+	            }
+	            tTweenDataCopyList.sort(Compare);
+	        }
+	        else {
+	            tTweenDataCopyList = this._endTweenDataList;
+	        }
+	        var tTweenData;
+	        for (var i = 0, n = tTweenDataCopyList.length; i < n; i++) {
+	            tTweenData = tTweenDataCopyList[i];
+	            if (tTweenData.type == 0) {
+	                if (time >= tTweenData.endTime) {
+	                    this._index = Math.max(this._index, i + 1);
+	                    var props = tTweenData.data;
+	                    if (tTweenData.isTo) {
+	                        for (var tP in props) {
+	                            tTweenData.target[tP] = props[tP];
+	                        }
+	                    }
+	                }
+	                else {
+	                    break;
+	                }
+	            }
+	        }
+	        for (i = 0, n = this._tweenDataList.length; i < n; i++) {
+	            tTweenData = this._tweenDataList[i];
+	            if (tTweenData.type == 0) {
+	                if (time >= tTweenData.startTime && time < tTweenData.endTime) {
+	                    this._index = Math.max(this._index, i + 1);
+	                    this._gidIndex++;
+	                    tTween = Pool.getItemByClass("tween", Tween);
+	                    tTween._create(tTweenData.target, tTweenData.data, tTweenData.duration, tTweenData.ease, Handler.create(this, this._animComplete, [this._gidIndex]), 0, false, tTweenData.isTo, true, false);
+	                    tTween.setStartTime(this._currTime - (time - tTweenData.startTime));
+	                    tTween._updateEase(this._currTime);
+	                    tTween.gid = this._gidIndex;
+	                    this._tweenDic[this._gidIndex] = tTween;
+	                }
+	            }
+	        }
+	    }
+	    gotoLabel(Label) {
+	        if (this._labelDic == null)
+	            return;
+	        var tLabelData = this._labelDic[Label];
+	        if (tLabelData)
+	            this.gotoTime(tLabelData.startTime);
+	    }
+	    pause() {
+	        ILaya.timer.clear(this, this._update);
+	    }
+	    resume() {
+	        this.play(this._currTime, this._loopKey);
+	    }
+	    play(timeOrLabel = 0, loop = false) {
+	        if (!this._tweenDataList)
+	            return;
+	        if (this._startTimeSort) {
+	            this._startTimeSort = false;
+	            function Compare(paraA, paraB) {
+	                if (paraA.startTime > paraB.startTime) {
+	                    return 1;
+	                }
+	                else if (paraA.startTime < paraB.startTime) {
+	                    return -1;
+	                }
+	                else {
+	                    return 0;
+	                }
+	            }
+	            this._tweenDataList.sort(Compare);
+	            for (var i = 0, n = this._tweenDataList.length; i < n; i++) {
+	                var tTweenData = this._tweenDataList[i];
+	                if (tTweenData != null && tTweenData.type == 0) {
+	                    var tTarget = tTweenData.target;
+	                    var gid = (tTarget.$_GID || (tTarget.$_GID = Utils.getGID()));
+	                    var tSrcData = null;
+	                    if (this._firstTweenDic[gid] == null) {
+	                        tSrcData = {};
+	                        tSrcData.diyTarget = tTarget;
+	                        this._firstTweenDic[gid] = tSrcData;
+	                    }
+	                    else {
+	                        tSrcData = this._firstTweenDic[gid];
+	                    }
+	                    for (var p in tTweenData.data) {
+	                        if (tSrcData[p] == null) {
+	                            tSrcData[p] = tTarget[p];
+	                        }
+	                    }
+	                }
+	            }
+	        }
+	        if (typeof (timeOrLabel) == 'string') {
+	            this.gotoLabel(timeOrLabel);
+	        }
+	        else {
+	            this.gotoTime(timeOrLabel);
+	        }
+	        this._loopKey = loop;
+	        this._lastTime = Browser.now();
+	        ILaya.timer.frameLoop(1, this, this._update);
+	    }
+	    _update() {
+	        if (this._currTime >= this._startTime) {
+	            if (this._loopKey) {
+	                this._complete();
+	                if (!this._tweenDataList)
+	                    return;
+	                this.gotoTime(0);
+	            }
+	            else {
+	                for (var p in this._tweenDic) {
+	                    tTween = this._tweenDic[p];
+	                    tTween.complete();
+	                }
+	                this._complete();
+	                this.pause();
+	                return;
+	            }
+	        }
+	        var tNow = Browser.now();
+	        var tFrameTime = tNow - this._lastTime;
+	        var tCurrTime = this._currTime += tFrameTime * this.scale;
+	        this._lastTime = tNow;
+	        for (p in this._tweenDic) {
+	            tTween = this._tweenDic[p];
+	            tTween._updateEase(tCurrTime);
+	        }
+	        var tTween;
+	        if (this._tweenDataList.length != 0 && this._index < this._tweenDataList.length) {
+	            var tTweenData = this._tweenDataList[this._index];
+	            if (tCurrTime >= tTweenData.startTime) {
+	                this._index++;
+	                if (tTweenData.type == 0) {
+	                    this._gidIndex++;
+	                    tTween = Pool.getItemByClass("tween", Tween);
+	                    tTween._create(tTweenData.target, tTweenData.data, tTweenData.duration, tTweenData.ease, Handler.create(this, this._animComplete, [this._gidIndex]), 0, false, tTweenData.isTo, true, false);
+	                    tTween.setStartTime(tCurrTime);
+	                    tTween.gid = this._gidIndex;
+	                    this._tweenDic[this._gidIndex] = tTween;
+	                    tTween._updateEase(tCurrTime);
+	                }
+	                else {
+	                    this.event(Event.LABEL, tTweenData.data);
+	                }
+	            }
+	        }
+	    }
+	    _animComplete(index) {
+	        var tTween = this._tweenDic[index];
+	        if (tTween)
+	            delete this._tweenDic[index];
+	    }
+	    _complete() {
+	        this.event(Event.COMPLETE);
+	    }
+	    get index() {
+	        return this._frameIndex;
+	    }
+	    set index(value) {
+	        this._frameIndex = value;
+	        this.gotoTime(this._frameIndex / this._frameRate * 1000);
+	    }
+	    get total() {
+	        this._total = Math.floor(this._startTime / 1000 * this._frameRate);
+	        return this._total;
+	    }
+	    reset() {
+	        var p;
+	        if (this._labelDic) {
+	            for (p in this._labelDic) {
+	                delete this._labelDic[p];
+	            }
+	        }
+	        var tTween;
+	        for (p in this._tweenDic) {
+	            tTween = this._tweenDic[p];
+	            tTween.clear();
+	            delete this._tweenDic[p];
+	        }
+	        for (p in this._firstTweenDic) {
+	            delete this._firstTweenDic[p];
+	        }
+	        this._endTweenDataList = null;
+	        if (this._tweenDataList && this._tweenDataList.length) {
+	            var i, len;
+	            len = this._tweenDataList.length;
+	            for (i = 0; i < len; i++) {
+	                if (this._tweenDataList[i])
+	                    this._tweenDataList[i].destroy();
+	            }
+	        }
+	        this._tweenDataList.length = 0;
+	        this._currTime = 0;
+	        this._lastTime = 0;
+	        this._startTime = 0;
+	        this._index = 0;
+	        this._gidIndex = 0;
+	        this.scale = 1;
+	        ILaya.timer.clear(this, this._update);
+	    }
+	    destroy() {
+	        this.reset();
+	        this._labelDic = null;
+	        this._tweenDic = null;
+	        this._tweenDataList = null;
+	        this._firstTweenDic = null;
+	    }
+	}
+	class tweenData {
+	    constructor() {
+	        this.type = 0;
+	        this.isTo = true;
+	    }
+	    destroy() {
+	        this.target = null;
+	        this.ease = null;
+	        this.data = null;
+	        this.isTo = true;
+	        this.type = 0;
+	        Pool.recover("tweenData", this);
+	    }
+	}
+
 	class ShaderValue {
 	    constructor() {
 	    }
 	}
 
-	/**
-	 * 阿拉伯文的转码。把unicode的阿拉伯文字母编码转成他们的老的能描述不同写法的编码。
-	 *  这个是从GitHub上 Javascript-Arabic-Reshaper 项目转来的
-	 * https://github.com/louy/Javascript-Arabic-Reshaper/blob/master/src/index.js
-	 */
-	/**
-	     * Javascript Arabic Reshaper by Louy Alakkad
-	     * https://github.com/louy/Javascript-Arabic-Reshaper
-	     * Based on (http://git.io/vsnAd)
-	     */
 	class ArabicReshaper {
-	    //TODO:coverage
 	    characterMapContains(c) {
 	        for (var i = 0; i < ArabicReshaper.charsMap.length; ++i) {
 	            if (ArabicReshaper.charsMap[i][0] === c) {
@@ -35575,7 +25145,6 @@ window.Laya= (function (exports) {
 	        }
 	        return false;
 	    }
-	    //TODO:coverage
 	    getCharRep(c) {
 	        for (var i = 0; i < ArabicReshaper.charsMap.length; ++i) {
 	            if (ArabicReshaper.charsMap[i][0] === c) {
@@ -35584,18 +25153,14 @@ window.Laya= (function (exports) {
 	        }
 	        return false;
 	    }
-	    //TODO:coverage
 	    getCombCharRep(c1, c2) {
 	        for (var i = 0; i < ArabicReshaper.combCharsMap.length; ++i) {
 	            if (ArabicReshaper.combCharsMap[i][0][0] === c1 && ArabicReshaper.combCharsMap[i][0][1] === c2) {
 	                return ArabicReshaper.combCharsMap[i];
 	            }
 	        }
-	        // We should never reach here...
-	        // istanbul ignore next
 	        return false;
 	    }
-	    //TODO:coverage
 	    isTransparent(c) {
 	        for (var i = 0; i < ArabicReshaper.transChars.length; ++i) {
 	            if (ArabicReshaper.transChars[i] === c) {
@@ -35604,7 +25169,6 @@ window.Laya= (function (exports) {
 	        }
 	        return false;
 	    }
-	    //TODO:coverage
 	    getOriginalCharsFromCode(code) {
 	        var j;
 	        for (j = 0; j < ArabicReshaper.charsMap.length; ++j) {
@@ -35620,25 +25184,12 @@ window.Laya= (function (exports) {
 	        }
 	        return String.fromCharCode(code);
 	    }
-	    /**
-	     * 转换函数。从normal转到presentB
-	     * 这个返回的字符串可以直接按照从左到右的顺序渲染。
-	     * 例如
-	     * graphics.fillText(convertArabic('سلام'),....)
-	     *
-	    */
-	    //TODO:coverage
 	    convertArabic(normal) {
 	        var crep, combcrep, shaped = '';
 	        for (var i = 0; i < normal.length; ++i) {
 	            var current = normal.charCodeAt(i);
 	            if (this.characterMapContains(current)) {
 	                var prev = null, next = null, prevID = i - 1, nextID = i + 1;
-	                /*
-	                  Transparent characters have no effect in the shaping process.
-	                  So, ignore all the transparent characters that are BEFORE the
-	                  current character.
-	                  */
 	                for (; prevID >= 0; --prevID) {
 	                    if (!this.isTransparent(normal.charCodeAt(prevID))) {
 	                        break;
@@ -35647,13 +25198,8 @@ window.Laya= (function (exports) {
 	                prev = (prevID >= 0) ? normal.charCodeAt(prevID) : null;
 	                crep = prev ? this.getCharRep(prev) : false;
 	                if (!crep || crep[2] == null && crep[3] == null) {
-	                    prev = null; // prev character doesn’t connect with its successor
+	                    prev = null;
 	                }
-	                /*
-	                  Transparent characters have no effect in the shaping process.
-	                  So, ignore all the transparent characters that are AFTER the
-	                  current character.
-	                  */
 	                for (; nextID < normal.length; ++nextID) {
 	                    if (!this.isTransparent(normal.charCodeAt(nextID))) {
 	                        break;
@@ -35662,9 +25208,8 @@ window.Laya= (function (exports) {
 	                next = (nextID < normal.length) ? normal.charCodeAt(nextID) : null;
 	                crep = next ? this.getCharRep(next) : false;
 	                if (!crep || crep[3] == null && crep[4] == null) {
-	                    next = null; // next character doesn’t connect with its predecessor
+	                    next = null;
 	                }
-	                /* Combinations */
 	                if (current === 0x0644 && next != null &&
 	                    (next === 0x0622 || next === 0x0623 || next === 0x0625 || next === 0x0627)) {
 	                    combcrep = this.getCombCharRep(current, next);
@@ -35678,20 +25223,19 @@ window.Laya= (function (exports) {
 	                    continue;
 	                }
 	                crep = this.getCharRep(current);
-	                /* Medial */
 	                if (prev != null && next != null && crep[3] != null) {
 	                    shaped += String.fromCharCode(crep[3]);
 	                    continue;
 	                }
-	                else /* Final */ if (prev != null && crep[4] != null) {
+	                else if (prev != null && crep[4] != null) {
 	                    shaped += String.fromCharCode(crep[4]);
 	                    continue;
 	                }
-	                else /* Initial */ if (next != null && crep[2] != null) {
+	                else if (next != null && crep[2] != null) {
 	                    shaped += String.fromCharCode(crep[2]);
 	                    continue;
 	                }
-	                else /* Isolated */ {
+	                else {
 	                    shaped += String.fromCharCode(crep[1]);
 	                }
 	            }
@@ -35700,9 +25244,7 @@ window.Laya= (function (exports) {
 	            }
 	        }
 	        return shaped;
-	    } /*;*/
-	    // convert from Arabic Presentation Forms B
-	    //TODO:coverage
+	    }
 	    convertArabicBack(apfb) {
 	        var toReturn = '', selectedChar;
 	        var i;
@@ -35801,14 +25343,6 @@ window.Laya= (function (exports) {
 	    0x06ED];
 
 	class MatirxArray {
-	    /**
-	     * 4*4矩阵数组相乘。
-	     * o=a*b;
-	     * @param	a 4*4矩阵数组。
-	     * @param	b 4*4矩阵数组。
-	     * @param	o 4*4矩阵数组。
-	     */
-	    //TODO:coverage
 	    static ArrayMul(a, b, o) {
 	        if (!a) {
 	            MatirxArray.copyArray(b, o);
@@ -35830,7 +25364,6 @@ window.Laya= (function (exports) {
 	            o[i + 12] = ai0 * b[12] + ai1 * b[13] + ai2 * b[14] + ai3 * b[15];
 	        }
 	    }
-	    //TODO:coverage
 	    static copyArray(f, t) {
 	        if (!f)
 	            return;

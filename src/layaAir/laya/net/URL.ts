@@ -34,7 +34,7 @@ import { ILaya } from "../../ILaya";
 			return this._path;
 		}
 		
-		/**基础路径。如果不设置，默认为当前网页的路径。最终地址将被格式化为 basePath+相对URL地址，*/
+		/**@internal 基础路径。如果不设置，默认为当前网页的路径。最终地址将被格式化为 basePath+相对URL地址，*/
 		 static _basePath:string = "";
 		/**root路径。只针对'~'类型的url路径有效*/
 		 static rootPath:string = "";

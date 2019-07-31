@@ -22,7 +22,7 @@ vec4 PBRStandardDiectionLight (in vec4 albedoColor, in float metallic, in float 
 	vec3 lightVec = normalize(light.Direction);
 	return PBRStandardLight(albedoColor, metallic, smoothness, normal, viewDir, lightVec, light.Color, gi);
 }
-
+#ifdef POINTLIGHT
 vec4 PBRStandardPointLight (in vec4 albedoColor, in float metallic, in float smoothness, in vec3 normal, in vec3 viewDir, in PointLight light, in vec3 pos, in LayaGI gi)
 {
 	vec3 lightCoord = (u_PointLightMatrix * vec4(pos, 1.0)).xyz;
@@ -31,7 +31,7 @@ vec4 PBRStandardPointLight (in vec4 albedoColor, in float metallic, in float smo
 	vec3 lightVec = normalize(pos - light.Position);
 	return PBRStandardLight(albedoColor, metallic, smoothness, normal, viewDir, lightVec, light.Color, gi) * attenuate;
 }
-
+#endif
 vec4 PBRStandardSpotLight (in vec4 albedoColor, in float metallic, in float smoothness, in vec3 normal, in vec3 viewDir, in SpotLight light, in vec3 pos, in LayaGI gi)
 {
 	vec3 lightVec =  pos - light.Position;

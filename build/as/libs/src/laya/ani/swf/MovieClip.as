@@ -1,6 +1,5 @@
 package laya.ani.swf {
 	import laya.display.Sprite;
-	import laya.utils.Byte;
 	import laya.utils.Handler;
 
 	/*
@@ -29,94 +28,9 @@ package laya.ani.swf {
 	public class MovieClip extends laya.display.Sprite {
 
 		/*
-		 * @private 
-		 */
-		protected static var _ValueList:Array;
-
-		/*
-		 * @private 数据起始位置。
-		 */
-		protected var _start:Number;
-
-		/*
-		 * @private 当前位置。
-		 */
-		protected var _Pos:Number;
-
-		/*
-		 * @private 数据。
-		 */
-		protected var _data:Byte;
-
-		/*
-		 * @private 
-		 */
-		protected var _curIndex:Number;
-
-		/*
-		 * @private 
-		 */
-		protected var _preIndex:Number;
-
-		/*
-		 * @private 
-		 */
-		protected var _playIndex:Number;
-
-		/*
-		 * @private 
-		 */
-		protected var _playing:Boolean;
-
-		/*
-		 * @private 
-		 */
-		protected var _ended:Boolean;
-
-		/*
-		 * @private 总帧数。
-		 */
-		protected var _count:Number;
-
-		/*
-		 * @private 
-		 */
-		protected var _loadedImage:*;
-
-		/*
-		 * @private 
-		 */
-		protected var _labels:*;
-
-		/*
 		 * 资源根目录。
 		 */
 		public var basePath:String;
-
-		/*
-		 * @private 
-		 */
-		private var _atlasPath:*;
-
-		/*
-		 * @private 
-		 */
-		private var _url:*;
-
-		/*
-		 * @private 
-		 */
-		private var _isRoot:*;
-
-		/*
-		 * @private 
-		 */
-		private var _completeHandler:*;
-
-		/*
-		 * @private 
-		 */
-		private var _endFrame:*;
 
 		/*
 		 * 播放间隔(单位：毫秒)。
@@ -141,12 +55,6 @@ package laya.ani.swf {
 		 * @override 
 		 */
 		override public function destroy(destroyChild:Boolean = null):void{}
-
-		/*
-		 * @private 
-		 * @override 
-		 */
-		override protected function _onDisplay(value:Boolean = null):void{}
 
 		/*
 		 * @private 更新时间轴
@@ -186,11 +94,6 @@ package laya.ani.swf {
 		}
 
 		/*
-		 * @private 动画的帧更新处理函数。
-		 */
-		private var _update:*;
-
-		/*
 		 * 停止播放动画。
 		 */
 		public function stop():void{}
@@ -202,30 +105,10 @@ package laya.ani.swf {
 		public function gotoAndStop(index:Number):void{}
 
 		/*
-		 * @private 清理。
-		 */
-		private var _clear:*;
-
-		/*
 		 * 播放动画。
 		 * @param index 帧索引。
 		 */
 		public function play(index:Number = null,loop:Boolean = null):void{}
-
-		/*
-		 * @private 
-		 */
-		private var _displayFrame:*;
-
-		/*
-		 * @private 
-		 */
-		private var _reset:*;
-
-		/*
-		 * @private 
-		 */
-		private var _parseFrame:*;
 
 		/*
 		 * 资源地址。
@@ -239,21 +122,6 @@ package laya.ani.swf {
 		 * @param atlasPath 图集路径，默认使用与swf同名的图集
 		 */
 		public function load(url:String,atlas:Boolean = null,atlasPath:String = null):void{}
-
-		/*
-		 * @private 
-		 */
-		private var _onLoaded:*;
-
-		/*
-		 * @private 
-		 */
-		private var _initState:*;
-
-		/*
-		 * @private 
-		 */
-		private var _initData:*;
 
 		/*
 		 * 从开始索引播放到结束索引，结束之后出发complete回调

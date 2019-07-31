@@ -87,12 +87,6 @@ package laya.utils {
 		 */
 		public static var gpuMemory:Number;
 		public static var cpuMemory:Number;
-		public static var _fpsStr:String;
-		public static var _canvasStr:String;
-		public static var _spriteStr:String;
-		public static var _fpsData:Array;
-		public static var _timer:Number;
-		public static var _count:Number;
 
 		/*
 		 * 显示性能统计信息。

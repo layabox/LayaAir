@@ -13,31 +13,6 @@ package laya.display {
 		private static var EFFECT_BEGIN:*;
 
 		/*
-		 * @private 
-		 */
-		private var _target:*;
-
-		/*
-		 * @private 
-		 */
-		private var _playEvent:*;
-
-		/*
-		 * @private 
-		 */
-		private var _initData:*;
-
-		/*
-		 * @private 
-		 */
-		private var _aniKeys:*;
-
-		/*
-		 * @private 
-		 */
-		private var _effectClass:*;
-
-		/*
 		 * 本实例的目标对象。通过本实例控制目标对象的属性变化。
 		 * @param v 指定的目标对象。
 		 */
@@ -53,16 +28,6 @@ package laya.display {
 		 * @param event 
 		 */
 		public var playEvent:String;
-
-		/*
-		 * @private 
-		 */
-		private var _addEvent:*;
-
-		/*
-		 * @private 
-		 */
-		private var _onPlayAction:*;
 
 		/*
 		 * @param start 
@@ -90,22 +55,9 @@ package laya.display {
 		public var effectData:*;
 
 		/*
-		 * @private 
-		 * @override 
-		 */
-		override protected function _displayToIndex(value:Number):void{}
-
-		/*
-		 * @private 
 		 * @override 
 		 */
 		override protected function _displayNodeToFrame(node:*,frame:Number,targetDic:* = null):void{}
-
-		/*
-		 * @private 
-		 * @override 
-		 */
-		override protected function _calculateKeyFrames(node:*):void{}
 	}
 
 }

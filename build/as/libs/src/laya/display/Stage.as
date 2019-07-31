@@ -192,7 +192,6 @@ package laya.display {
 		 * 是否启用屏幕适配，可以适配后，在某个时候关闭屏幕适配，防止某些操作导致的屏幕意外改变
 		 */
 		public var screenAdaptationEnabled:Boolean;
-		public var _canvasTransform:Matrix;
 
 		/*
 		 * @private 

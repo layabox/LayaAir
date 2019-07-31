@@ -1,6 +1,6 @@
 export class FontInfo{
 		
-		 static EMPTY:FontInfo = new FontInfo(null);
+		static EMPTY:FontInfo = new FontInfo(null);
 		
 		private static _cache:any = { };
 		private static _gfontID:number = 0;
@@ -20,11 +20,17 @@ export class FontInfo{
 			return r;
 		}
 		
+		/**@internal */
 		 _id:number ;
+		 /**@internal */
 		 _font:string="14px Arial";
+		 /**@internal */
 		 _family:string="Arial";
+		 /**@internal */
 		 _size:number =14;
+		 /**@internal */
 		 _italic:boolean =false;
+		 /**@internal */
 		 _bold:boolean=false ;
 		
 		constructor(font:string ){

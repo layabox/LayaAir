@@ -42,13 +42,6 @@ package laya.utils {
 		}
 
 		/*
-		 * @private 是否击中Graphic
-		 */
-		public static function _isHitGraphic(x:Number,y:Number,graphic:Graphics):Boolean{
-			return null;
-		}
-
-		/*
 		 * 可点击区域，可以设置绘制一系列矢量图作为点击区域（目前只支持圆形，矩形，多边形）
 		 */
 		public var hit:Graphics;

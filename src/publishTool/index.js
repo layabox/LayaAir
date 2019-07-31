@@ -173,7 +173,7 @@ function checkComplete() {
         else {
             checkComplete();
         }
-    }, 5000);
+    }, 1000 * 5);
 }
 /**
  * 给节点加上名字，便于调试

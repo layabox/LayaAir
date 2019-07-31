@@ -26,6 +26,7 @@ import { Browser } from "./Browser";
 			return Mouse._style.cursor;
 		}
 
+		/**@internal */
 		static __init__():any
 		{
 			//Mouse._style = Browser.document.body.style;

@@ -43,7 +43,7 @@
 				"constructParams":[
 					2048,
 					2048,
-					0,
+					1,
 					true
 				],
 				"propertyParams":{

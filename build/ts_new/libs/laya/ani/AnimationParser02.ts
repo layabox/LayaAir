@@ -9,15 +9,15 @@ import { Byte } from "../utils/Byte";
  * @internal
  */
 export class AnimationParser02 {
-	/**@private */
+	/**@internal */
 	private static _templet: AnimationTemplet;
-	/**@private */
+	/**@internal */
 	private static _reader: Byte;
-	/**@private */
+	/**@internal */
 	private static _strings: any[] = [];
-	/**@private */
+	/**@internal */
 	private static _BLOCK: any = { count: 0 };
-	/**@private */
+	/**@internal */
 	private static _DATA: any = { offset: 0, size: 0 };
 
 	/**

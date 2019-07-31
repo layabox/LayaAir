@@ -57,47 +57,6 @@ package laya.components {
 		}
 
 		/*
-		 * @private 
-		 */
-		private var _resetComp:*;
-
-		/*
-		 * [实现IListPool接口]
-		 */
-		public function _getIndexInList():Number{
-			return null;
-		}
-
-		/*
-		 * [实现IListPool接口]
-		 */
-		public function _setIndexInList(index:Number):void{}
-
-		/*
-		 * 被激活后调用，可根据需要重写此方法
-		 * @private 
-		 */
-		protected function _onAwake():void{}
-
-		/*
-		 * 被激活后调用，可根据需要重写此方法
-		 * @private 
-		 */
-		protected function _onEnable():void{}
-
-		/*
-		 * 被禁用时调用，可根据需要重写此方法
-		 * @private 
-		 */
-		protected function _onDisable():void{}
-
-		/*
-		 * 被销毁时调用，可根据需要重写此方法
-		 * @private 
-		 */
-		protected function _onDestroy():void{}
-
-		/*
 		 * 重置组件参数到默认值，如果实现了这个函数，则组件会被重置并且自动回收到对象池，方便下次复用
 		 * 如果没有重置，则不进行回收复用
 		 * 此方法为虚方法，使用时重写覆盖即可

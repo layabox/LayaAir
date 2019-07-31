@@ -26,9 +26,13 @@ export class PathConstraint {
 	rotateMix: number;
 	translateMix: number;
 
+	/**@internal */
 	private _debugKey: boolean = false;
+	/**@internal */
 	private _segments: number[] = [];
+	/**@internal */
 	private _curves: number[] = [];
+	/**@internal */
 	private _spaces: number[];
 
 	constructor(data: PathConstraintData, bones: Bone[]) {
@@ -170,6 +174,7 @@ export class PathConstraint {
 			}
 		}
 	}
+	/**@internal */
 	private static _tempMt: Matrix = new Matrix();
 	/**
 	 * 计算顶点的世界坐标

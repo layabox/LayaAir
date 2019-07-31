@@ -52,53 +52,77 @@ export class Skeleton extends Sprite {
 	 * 在canvas模式是否使用简化版的mesh绘制，简化版的mesh将不进行三角形绘制，而改为矩形绘制，能极大提高性能，但是可能某些mesh动画效果会不太正常
 	 */
 	static useSimpleMeshInCanvas: boolean = false;
+	/**@internal */
 	protected _templet: Templet;//动画解析器
-	/** @private */
+	/** @internal */
 	protected _player: AnimationPlayer;//播放器
-	/** @private */
+	/** @internal */
 	protected _curOriginalData: Float32Array;//当前骨骼的偏移数据
+	/** @internal */
 	private _boneMatrixArray: any[] = [];//当前骨骼动画的最终结果数据
+	/** @internal */
 	private _lastTime: number = 0;//上次的帧时间
+	/** @internal */
 	private _currAniIndex: number = -1;
+	/** @internal */
 	private _pause: boolean = true;
-	/** @private */
+	/** @internal */
 	protected _aniClipIndex: number = -1;
-	/** @private */
+	/** @internal */
 	protected _clipIndex: number = -1;
+	/** @internal */
 	private _skinIndex: number = 0;
+	/** @internal */
 	private _skinName: string = "default";
+	/** @internal */
 	private _aniMode: number = 0;//
-	//当前动画自己的缓冲区
+	/** @internal 当前动画自己的缓冲区*/
 	private _graphicsCache: any[];
-
+	/** @internal */
 	private _boneSlotDic: any;
+	/** @internal */
 	private _bindBoneBoneSlotDic: any;
+	/** @internal */
 	private _boneSlotArray: any[];
-
+	/** @internal */
 	private _index: number = -1;
+	/** @internal */
 	private _total: number = -1;
+	/** @internal */
 	private _indexControl: boolean = false;
-	//加载路径
+	/** @internal 加载路径*/
 	private _aniPath: string;
+	/** @internal */
 	private _complete: Handler;
+	/** @internal */
 	private _loadAniMode: number;
-
+	/** @internal */
 	private _yReverseMatrix: Matrix;
-
+	/** @internal */
 	private _ikArr: any[];
+	/** @internal */
 	private _tfArr: any[];
+	/** @internal */
 	private _pathDic: any;
+	/** @internal */
 	private _rootBone: Bone;
-	/** @private */
+	/** @internal */
 	protected _boneList: Bone[];
-	/** @private */
+	/** @internal */
 	protected _aniSectionDic: any;		// section 是每段数据(transform,slot,ik,path)的长度，这个是一个section的数据，表示每个clip的section数据
+	/** @internal */
 	private _eventIndex: number = 0;
+	/** @internal */
 	private _drawOrderIndex: number = 0;
+	/** @internal */
 	private _drawOrder: number[] = null;
+	/** @internal */
 	private _lastAniClipIndex: number = -1;
+	/** @internal */
 	private _lastUpdateAniClipIndex: number = -1;
+	/** @internal */
 	private _playAudio: boolean = true;
+	/** @internal */
 	private _soundChannelArr: any[] = [];
 
 
@@ -223,6 +247,7 @@ export class Skeleton extends Sprite {
 	}
 
 	/**
+	 * @internal
 	 * 加载完成
 	 */
 	private _onLoaded(): void {
@@ -257,6 +282,7 @@ export class Skeleton extends Sprite {
 	}
 
 	/**
+	 * @internal
 	 * 解析完成
 	 */
 	private _parseComplete(): void {
@@ -269,6 +295,7 @@ export class Skeleton extends Sprite {
 	}
 
 	/**
+	 * @internal
 	 * 解析失败
 	 */
 	private _parseFail(): void {
@@ -276,6 +303,7 @@ export class Skeleton extends Sprite {
 	}
 
 	/**
+	 * @internal
 	 * 传递PLAY事件
 	 */
 	private _onPlay(): void {
@@ -283,6 +311,7 @@ export class Skeleton extends Sprite {
 	}
 
 	/**
+	 * @internal
 	 * 传递STOP事件
 	 */
 	private _onStop(): void {
@@ -304,6 +333,7 @@ export class Skeleton extends Sprite {
 	}
 
 	/**
+	 * @internal
 	 * 传递PAUSE事件
 	 */
 	private _onPause(): void {
@@ -311,6 +341,7 @@ export class Skeleton extends Sprite {
 	}
 
 	/**
+	 * @internal
 	 * 创建骨骼的矩阵，保存每次计算的最终结果
 	 */
 	private _parseSrcBoneMatrix(): void {
@@ -343,6 +374,12 @@ export class Skeleton extends Sprite {
 		}
 	}
 
+	/**
+	 * @internal
+	 * @param startTime 
+	 * @param endTime 
+	 * @param startIndex 
+	 */
 	private _emitMissedEvents(startTime: number, endTime: number, startIndex: number = 0): void {
 		var tEventAniArr: any[] = this._templet.eventAniArr;
 		var tEventArr: EventData[] = tEventAniArr[this._player.currentAnimationClipIndex];
@@ -361,6 +398,7 @@ export class Skeleton extends Sprite {
 
 	/**
 	 * 更新动画
+	 * @internal
 	 * @param	autoKey true为正常更新，false为index手动更新
 	 */
 	private _update(autoKey: boolean = true): void {
@@ -434,7 +472,7 @@ export class Skeleton extends Sprite {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * 清掉播放完成的音频
 	 * @param force 是否强制删掉所有的声音channel
 	 */
@@ -452,7 +490,7 @@ export class Skeleton extends Sprite {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * 创建grahics图像. 并且保存到cache中
 	 * @param	_clipIndex 第几帧
 	 */
@@ -747,6 +785,7 @@ export class Skeleton extends Sprite {
 
 	/**
 	 * 设置deform数据
+	 * @internal
 	 * @param	tDeformAniData
 	 * @param	tDeformDic
 	 * @param	_boneSlotArray
@@ -900,6 +939,7 @@ export class Skeleton extends Sprite {
 
 	/**
 	 * 换装的时候，需要清一下缓冲区
+	 * @internal
 	 */
 	private _clearCache(): void {
 		if (this._aniMode == 1) {
@@ -1042,7 +1082,7 @@ export class Skeleton extends Sprite {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * 得到缓冲数据
 	 * @param	aniIndex
 	 * @param	frameIndex
@@ -1053,7 +1093,7 @@ export class Skeleton extends Sprite {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * 保存缓冲grahpics
 	 * @param	aniIndex
 	 * @param	frameIndex

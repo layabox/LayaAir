@@ -33,14 +33,14 @@ import { ILaya } from "../../ILaya";
 		private _destroyed:boolean = false;
 		/**@private */
 		private _bitmap:Texture2D|Texture;
-		/**@private */
+		/**@internal */
 		public _uv:ArrayLike<number>;
 		/**@private */
 		private _referenceCount:number = 0;
 		/** @internal [NATIVE]*/
 		 _nativeObj:any;
 		
-		/**@private 唯一ID*/
+		/**@internal 唯一ID*/
 		 $_GID:number=0;
 		/**沿 X 轴偏移量。*/
 		 offsetX:number = 0;

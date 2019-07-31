@@ -21,7 +21,7 @@ vec4 PBRSpecularDiectionLight (in vec4 albedoColor, in vec3 specularColor, in fl
 	vec3 lightVec = normalize(light.Direction);
 	return PBRSpecularLight(albedoColor, specularColor, smoothness, normal, viewDir, lightVec, light.Color, gi);
 }
-
+#ifdef POINTLIGHT
 vec4 PBRSpecularPointLight (in vec4 albedoColor, in vec3 specularColor, in float smoothness, in vec3 normal, in vec3 viewDir, in PointLight light, in vec3 pos, in LayaGI gi)
 {
 	vec3 lightCoord = (u_PointLightMatrix * vec4(pos, 1.0)).xyz;
@@ -30,7 +30,7 @@ vec4 PBRSpecularPointLight (in vec4 albedoColor, in vec3 specularColor, in float
 	vec3 lightVec = normalize(pos - light.Position);
 	return PBRSpecularLight(albedoColor, specularColor, smoothness, normal, viewDir, lightVec, light.Color, gi) * attenuate;
 }
-
+#endif
 vec4 PBRSpecularSpotLight (in vec4 albedoColor, in vec3 specularColor, in float smoothness, in vec3 normal, in vec3 viewDir, in SpotLight light, in vec3 pos, in LayaGI gi)
 {
 	vec3 lightVec =  pos - light.Position;

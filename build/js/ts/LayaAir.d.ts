@@ -57,21 +57,6 @@
 	declare class Config3D implements laya.d3.core.IClone  {
 
 		/*
-		 * @private 
-		 */
-		static _default:Config3D;
-
-		/*
-		 * @private 
-		 */
-		private _defaultPhysicsMemory:any;
-
-		/*
-		 * @private 
-		 */
-		_editerEnvironment:boolean;
-
-		/*
 		 * 是否开启抗锯齿。
 		 */
 		isAntialias:boolean;
@@ -179,86 +164,6 @@ declare module laya.ani {
 	 * <code>AnimationPlayer</code> 类用于动画播放器。
 	 */
 	class AnimationPlayer extends laya.events.EventDispatcher implements laya.resource.IDestroy  {
-
-		/*
-		 * @private 
-		 */
-		private _destroyed:any;
-
-		/*
-		 * 数据模板
-		 */
-		private _templet:any;
-
-		/*
-		 * 当前精确时间，不包括重播时间
-		 */
-		private _currentTime:any;
-
-		/*
-		 * 当前帧时间，不包括重播时间
-		 */
-		private _currentFrameTime:any;
-
-		/*
-		 * 动画播放的起始时间位置
-		 */
-		private _playStart:any;
-
-		/*
-		 * 动画播放的结束时间位置
-		 */
-		private _playEnd:any;
-
-		/*
-		 * 动画播放一次的总时间
-		 */
-		private _playDuration:any;
-
-		/*
-		 * 动画播放总时间
-		 */
-		private _overallDuration:any;
-
-		/*
-		 * 是否在一次动画结束时停止。 设置这个标志后就不会再发送complete事件了
-		 */
-		private _stopWhenCircleFinish:any;
-
-		/*
-		 * 播放时帧数
-		 */
-		private _startUpdateLoopCount:any;
-
-		/*
-		 * 当前动画索引
-		 */
-		private _currentAnimationClipIndex:any;
-
-		/*
-		 * 当前帧数
-		 */
-		private _currentKeyframeIndex:any;
-
-		/*
-		 * 是否暂停
-		 */
-		private _paused:any;
-
-		/*
-		 * 默认帧率,必须大于0
-		 */
-		private _cacheFrameRate:any;
-
-		/*
-		 * 帧率间隔时间
-		 */
-		private _cacheFrameRateInterval:any;
-
-		/*
-		 * 缓存播放速率
-		 */
-		private _cachePlayRate:any;
 
 		/*
 		 * 是否缓存
@@ -396,21 +301,6 @@ declare module laya.ani {
 		 */
 
 		constructor();
-
-		/*
-		 * @private 
-		 */
-		private _computeFullKeyframeIndices:any;
-
-		/*
-		 * @private 
-		 */
-		private _onAnimationTempletLoaded:any;
-
-		/*
-		 * @private 
-		 */
-		private _calculatePlayDuration:any;
 
 		/*
 		 * @private 
@@ -590,9 +480,6 @@ declare module laya.ani.bone {
 		rotation:number;
 		resultRotation:number;
 		d:number;
-		private _tempMatrix:any;
-		private _children:any;
-		private _sprite:any;
 
 		constructor();
 		setTempMatrix(matrix:laya.maths.Matrix):void;
@@ -666,28 +553,6 @@ declare module laya.ani.bone {
 		originalIndex:number;
 
 		/*
-		 * 用户自定义的皮肤
-		 */
-		private _diyTexture:any;
-		private _parentMatrix:any;
-		private _resultMatrix:any;
-
-		/*
-		 * 索引替换表
-		 */
-		private _replaceDic:any;
-
-		/*
-		 * 当前diyTexture的动画纹理
-		 */
-		private _curDiyUV:any;
-
-		/*
-		 * 实时模式下，复用使用
-		 */
-		private _skinSprite:any;
-
-		/*
 		 * @private 变形动画数据
 		 */
 		deformData:any[];
@@ -741,8 +606,6 @@ declare module laya.ani.bone {
 		private static _tempMatrix:any;
 		static createSkinMesh():any;
 		private static isSameArr:any;
-		private static _tempResultMatrix:any;
-		private _preGraphicVerticle:any;
 		private getSaveVerticle:any;
 		static isSameMatrix(mtA:laya.maths.Matrix,mtB:laya.maths.Matrix):boolean;
 		private _preGraphicMatrix:any;
@@ -755,7 +618,6 @@ declare module laya.ani.bone {
 		 * @param noUseSave 不使用共享的矩阵对象 _tempResultMatrix，只有实时计算的时候才设置为true
 		 */
 		draw(graphics:laya.ani.GraphicsAni,boneMatrixArray:any[],noUseSave?:boolean,alpha?:number):void;
-		private static _tempVerticleArr:any;
 
 		/*
 		 * 显示蒙皮动画
@@ -899,66 +761,6 @@ declare module laya.ani.bone {
 		 * 在canvas模式是否使用简化版的mesh绘制，简化版的mesh将不进行三角形绘制，而改为矩形绘制，能极大提高性能，但是可能某些mesh动画效果会不太正常
 		 */
 		static useSimpleMeshInCanvas:boolean;
-		protected _templet:laya.ani.bone.Templet;
-
-		/*
-		 * @private 
-		 */
-		protected _player:laya.ani.AnimationPlayer;
-
-		/*
-		 * @private 
-		 */
-		protected _curOriginalData:Float32Array;
-		private _boneMatrixArray:any;
-		private _lastTime:any;
-		private _currAniIndex:any;
-		private _pause:any;
-
-		/*
-		 * @private 
-		 */
-		protected _aniClipIndex:number;
-
-		/*
-		 * @private 
-		 */
-		protected _clipIndex:number;
-		private _skinIndex:any;
-		private _skinName:any;
-		private _aniMode:any;
-		private _graphicsCache:any;
-		private _boneSlotDic:any;
-		private _bindBoneBoneSlotDic:any;
-		private _boneSlotArray:any;
-		private _index:any;
-		private _total:any;
-		private _indexControl:any;
-		private _aniPath:any;
-		private _complete:any;
-		private _loadAniMode:any;
-		private _yReverseMatrix:any;
-		private _ikArr:any;
-		private _tfArr:any;
-		private _pathDic:any;
-		private _rootBone:any;
-
-		/*
-		 * @private 
-		 */
-		protected _boneList:laya.ani.bone.Bone[];
-
-		/*
-		 * @private 
-		 */
-		protected _aniSectionDic:any;
-		private _eventIndex:any;
-		private _drawOrderIndex:any;
-		private _drawOrder:any;
-		private _lastAniClipIndex:any;
-		private _lastUpdateAniClipIndex:any;
-		private _playAudio:any;
-		private _soundChannelArr:any;
 
 		/*
 		 * 创建一个Skeleton对象
@@ -991,70 +793,7 @@ declare module laya.ani.bone {
 		 * @param aniMode 与<code>Skeleton.init</code>的<code>aniMode</code>作用一致
 		 */
 		load(path:string,complete?:laya.utils.Handler,aniMode?:number):void;
-
-		/*
-		 * 加载完成
-		 */
-		private _onLoaded:any;
-
-		/*
-		 * 解析完成
-		 */
-		private _parseComplete:any;
-
-		/*
-		 * 解析失败
-		 */
-		private _parseFail:any;
-
-		/*
-		 * 传递PLAY事件
-		 */
-		private _onPlay:any;
-
-		/*
-		 * 传递STOP事件
-		 */
-		private _onStop:any;
-
-		/*
-		 * 传递PAUSE事件
-		 */
-		private _onPause:any;
-
-		/*
-		 * 创建骨骼的矩阵，保存每次计算的最终结果
-		 */
-		private _parseSrcBoneMatrix:any;
-		private _emitMissedEvents:any;
-
-		/*
-		 * 更新动画
-		 * @param autoKey true为正常更新，false为index手动更新
-		 */
-		private _update:any;
-
-		/*
-		 * @private 清掉播放完成的音频
-		 * @param force 是否强制删掉所有的声音channel
-		 */
-		private _onAniSoundStoped:any;
-
-		/*
-		 * @private 创建grahics图像. 并且保存到cache中
-		 * @param _clipIndex 第几帧
-		 */
-		protected _createGraphics(_clipIndex?:number):laya.ani.GraphicsAni;
 		private _checkIsAllParsed:any;
-
-		/*
-		 * 设置deform数据
-		 * @param tDeformAniData 
-		 * @param tDeformDic 
-		 * @param _boneSlotArray 
-		 * @param curTime 
-		 */
-		private _setDeform:any;
 
 		/*
 		 * *****************************************定义接口************************************************
@@ -1131,11 +870,6 @@ declare module laya.ani.bone {
 		setSlotSkin(slotName:string,texture:laya.resource.Texture):void;
 
 		/*
-		 * 换装的时候，需要清一下缓冲区
-		 */
-		private _clearCache:any;
-
-		/*
 		 * 播放动画
 		 * @param nameOrIndex 动画名字或者索引
 		 * @param loop 是否循环播放
@@ -1167,22 +901,6 @@ declare module laya.ani.bone {
 		 * 恢复动画的播放
 		 */
 		resume():void;
-
-		/*
-		 * @private 得到缓冲数据
-		 * @param aniIndex 
-		 * @param frameIndex 
-		 * @return 
-		 */
-		private _getGrahicsDataWithCache:any;
-
-		/*
-		 * @private 保存缓冲grahpics
-		 * @param aniIndex 
-		 * @param frameIndex 
-		 * @param graphics 
-		 */
-		private _setGrahicsDataWithCache:any;
 
 		/*
 		 * 销毁当前动画
@@ -1265,8 +983,6 @@ declare module laya.ani.bone {
 	 * 动画模板类
 	 */
 	class Templet extends laya.ani.AnimationTemplet  {
-		private _mainTexture:any;
-		private _graphicsCache:any;
 
 		/*
 		 * 存放原始骨骼信息
@@ -1352,20 +1068,8 @@ declare module laya.ani.bone {
 		 * 实际显示对象列表，用于销毁用
 		 */
 		skinSlotDisplayDataArr:laya.ani.bone.SkinSlotDisplayData[];
-
-		/*
-		 * 是否需要解析audio数据
-		 */
-		private _isParseAudio:any;
-		private _isDestroyed:any;
-		private _rate:any;
 		isParserComplete:boolean;
 		aniSectionDic:any;
-		private _skBufferUrl:any;
-		private _textureDic:any;
-		private _loadList:any;
-		private _path:any;
-		private _relativeUrl:any;
 
 		/*
 		 * @private 
@@ -1401,17 +1105,6 @@ declare module laya.ani.bone {
 		 * @override 
 		 */
 		parse(data:ArrayBuffer):void;
-		private _parseTexturePath:any;
-
-		/*
-		 * 纹理加载完成
-		 */
-		private _textureComplete:any;
-
-		/*
-		 * 解析自定义数据
-		 */
-		private _parsePublicExtData:any;
 
 		/*
 		 * 得到指定的纹理
@@ -1546,94 +1239,9 @@ declare module laya.ani.swf {
 	class MovieClip extends laya.display.Sprite  {
 
 		/*
-		 * @private 
-		 */
-		protected static _ValueList:any[];
-
-		/*
-		 * @private 数据起始位置。
-		 */
-		protected _start:number;
-
-		/*
-		 * @private 当前位置。
-		 */
-		protected _Pos:number;
-
-		/*
-		 * @private 数据。
-		 */
-		protected _data:laya.utils.Byte;
-
-		/*
-		 * @private 
-		 */
-		protected _curIndex:number;
-
-		/*
-		 * @private 
-		 */
-		protected _preIndex:number;
-
-		/*
-		 * @private 
-		 */
-		protected _playIndex:number;
-
-		/*
-		 * @private 
-		 */
-		protected _playing:boolean;
-
-		/*
-		 * @private 
-		 */
-		protected _ended:boolean;
-
-		/*
-		 * @private 总帧数。
-		 */
-		protected _count:number;
-
-		/*
-		 * @private 
-		 */
-		protected _loadedImage:any;
-
-		/*
-		 * @private 
-		 */
-		protected _labels:any;
-
-		/*
 		 * 资源根目录。
 		 */
 		basePath:string;
-
-		/*
-		 * @private 
-		 */
-		private _atlasPath:any;
-
-		/*
-		 * @private 
-		 */
-		private _url:any;
-
-		/*
-		 * @private 
-		 */
-		private _isRoot:any;
-
-		/*
-		 * @private 
-		 */
-		private _completeHandler:any;
-
-		/*
-		 * @private 
-		 */
-		private _endFrame:any;
 
 		/*
 		 * 播放间隔(单位：毫秒)。
@@ -1658,12 +1266,6 @@ declare module laya.ani.swf {
 		 * @override 
 		 */
 		destroy(destroyChild?:boolean):void;
-
-		/*
-		 * @private 
-		 * @override 
-		 */
-		protected _onDisplay(value?:boolean):void;
 
 		/*
 		 * @private 更新时间轴
@@ -1699,11 +1301,6 @@ declare module laya.ani.swf {
 		readonly playing:boolean;
 
 		/*
-		 * @private 动画的帧更新处理函数。
-		 */
-		private _update:any;
-
-		/*
 		 * 停止播放动画。
 		 */
 		stop():void;
@@ -1715,30 +1312,10 @@ declare module laya.ani.swf {
 		gotoAndStop(index:number):void;
 
 		/*
-		 * @private 清理。
-		 */
-		private _clear:any;
-
-		/*
 		 * 播放动画。
 		 * @param index 帧索引。
 		 */
 		play(index?:number,loop?:boolean):void;
-
-		/*
-		 * @private 
-		 */
-		private _displayFrame:any;
-
-		/*
-		 * @private 
-		 */
-		private _reset:any;
-
-		/*
-		 * @private 
-		 */
-		private _parseFrame:any;
 
 		/*
 		 * 资源地址。
@@ -1752,21 +1329,6 @@ declare module laya.ani.swf {
 		 * @param atlasPath 图集路径，默认使用与swf同名的图集
 		 */
 		load(url:string,atlas?:boolean,atlasPath?:string):void;
-
-		/*
-		 * @private 
-		 */
-		private _onLoaded:any;
-
-		/*
-		 * @private 
-		 */
-		private _initState:any;
-
-		/*
-		 * @private 
-		 */
-		private _initData:any;
 
 		/*
 		 * 从开始索引播放到结束索引，结束之后出发complete回调
@@ -1887,45 +1449,6 @@ declare module laya.components {
 		 * 获取是否已经销毁 。
 		 */
 		readonly destroyed:boolean;
-
-		/*
-		 * @private 
-		 */
-		private _resetComp:any;
-
-		/*
-		 * [实现IListPool接口]
-		 */
-		_getIndexInList():number;
-
-		/*
-		 * [实现IListPool接口]
-		 */
-		_setIndexInList(index:number):void;
-
-		/*
-		 * 被激活后调用，可根据需要重写此方法
-		 * @private 
-		 */
-		protected _onAwake():void;
-
-		/*
-		 * 被激活后调用，可根据需要重写此方法
-		 * @private 
-		 */
-		protected _onEnable():void;
-
-		/*
-		 * 被禁用时调用，可根据需要重写此方法
-		 * @private 
-		 */
-		protected _onDisable():void;
-
-		/*
-		 * 被销毁时调用，可根据需要重写此方法
-		 * @private 
-		 */
-		protected _onDestroy():void;
 
 		/*
 		 * 重置组件参数到默认值，如果实现了这个函数，则组件会被重置并且自动回收到对象池，方便下次复用
@@ -21172,31 +20695,6 @@ declare module laya.display {
 		private static EFFECT_BEGIN:any;
 
 		/*
-		 * @private 
-		 */
-		private _target:any;
-
-		/*
-		 * @private 
-		 */
-		private _playEvent:any;
-
-		/*
-		 * @private 
-		 */
-		private _initData:any;
-
-		/*
-		 * @private 
-		 */
-		private _aniKeys:any;
-
-		/*
-		 * @private 
-		 */
-		private _effectClass:any;
-
-		/*
 		 * 本实例的目标对象。通过本实例控制目标对象的属性变化。
 		 * @param v 指定的目标对象。
 		 */
@@ -21212,16 +20710,6 @@ declare module laya.display {
 		 * @param event 
 		 */
 		playEvent:string;
-
-		/*
-		 * @private 
-		 */
-		private _addEvent:any;
-
-		/*
-		 * @private 
-		 */
-		private _onPlayAction:any;
 
 		/*
 		 * @param start 
@@ -21249,22 +20737,9 @@ declare module laya.display {
 		effectData:any;
 
 		/*
-		 * @private 
-		 * @override 
-		 */
-		protected _displayToIndex(value:number):void;
-
-		/*
-		 * @private 
 		 * @override 
 		 */
 		protected _displayNodeToFrame(node:any,frame:number,targetDic?:any):void;
-
-		/*
-		 * @private 
-		 * @override 
-		 */
-		protected _calculateKeyFrames(node:any):void;
 	}
 
 }
@@ -21290,16 +20765,6 @@ declare module laya.display {
 		 * @private 
 		 */
 		private static _sortIndexFun:any;
-
-		/*
-		 * @private id对象表
-		 */
-		_targetDic:any;
-
-		/*
-		 * @private 动画数据
-		 */
-		_animationData:any;
 
 		/*
 		 * @private 
@@ -22014,11 +21479,6 @@ declare module laya.display {
 		 */
 
 		constructor();
-
-		/*
-		 * @private 
-		 */
-		static __init__():void;
 		private static _popupInputMethod:any;
 		private static _createInputElement:any;
 		private static _initInput:any;
@@ -22851,31 +22311,6 @@ declare module laya.display {
 	 * @example import Sprite = laya.display.Sprite;class Sprite_Example {    private sprite: Sprite;    private shape: Sprite    public Sprite_Example() {        Laya.init(640, 800);//设置游戏画布宽高、渲染模式。        Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。        this.onInit();    }    private onInit(): void {        this.sprite = new Sprite();//创建一个 Sprite 类的实例对象 sprite 。        this.sprite.loadImage("resource/ui/bg.png");//加载并显示图片。        this.sprite.x = 200;//设置 sprite 对象相对于父容器的水平方向坐标值。        this.sprite.y = 200;//设置 sprite 对象相对于父容器的垂直方向坐标值。        this.sprite.pivotX = 0;//设置 sprite 对象的水平方法轴心点坐标。        this.sprite.pivotY = 0;//设置 sprite 对象的垂直方法轴心点坐标。        Laya.stage.addChild(this.sprite);//将此 sprite 对象添加到显示列表。        this.sprite.on(laya.events.Event.CLICK, this, this.onClickSprite);//给 sprite 对象添加点击事件侦听。        this.shape = new Sprite();//创建一个 Sprite 类的实例对象 sprite 。        this.shape.graphics.drawRect(0, 0, 100, 100, "#ccff00", "#ff0000", 2);//绘制一个有边框的填充矩形。        this.shape.x = 400;//设置 shape 对象相对于父容器的水平方向坐标值。        this.shape.y = 200;//设置 shape 对象相对于父容器的垂直方向坐标值。        this.shape.width = 100;//设置 shape 对象的宽度。        this.shape.height = 100;//设置 shape 对象的高度。        this.shape.pivotX = 50;//设置 shape 对象的水平方法轴心点坐标。        this.shape.pivotY = 50;//设置 shape 对象的垂直方法轴心点坐标。        Laya.stage.addChild(this.shape);//将此 shape 对象添加到显示列表。        this.shape.on(laya.events.Event.CLICK, this, this.onClickShape);//给 shape 对象添加点击事件侦听。    }    private onClickSprite(): void {        console.log("点击 sprite 对象。");        this.sprite.rotation += 5;//旋转 sprite 对象。    }    private onClickShape(): void {        console.log("点击 shape 对象。");        this.shape.rotation += 5;//旋转 shape 对象。    }}
 	 */
 	class Sprite extends laya.display.Node  {
-
-		/*
-		 * @private 
-		 */
-		_width:number;
-
-		/*
-		 * @private 
-		 */
-		_height:number;
-
-		/*
-		 * @private 
-		 */
-		protected _tfChanged:boolean;
-
-		/*
-		 * @private 
-		 */
-		protected _repaint:number;
-
-		/*
-		 * @private 
-		 */
-		private _texture:any;
 
 		/*
 		 * <p>鼠标事件与此对象的碰撞检测是否可穿透。碰撞检测发生在鼠标事件的捕获阶段，此阶段引擎会从stage开始递归检测stage及其子对象，直到找到命中的目标对象或者未命中任何对象。</p>
@@ -23729,7 +23164,6 @@ declare module laya.display {
 		 * 是否启用屏幕适配，可以适配后，在某个时候关闭屏幕适配，防止某些操作导致的屏幕意外改变
 		 */
 		screenAdaptationEnabled:boolean;
-		_canvasTransform:laya.maths.Matrix;
 
 		/*
 		 * @private 
@@ -24110,11 +23544,6 @@ declare module laya.display {
 		 * 在IOS下，一些字体会找不到，引擎提供了字体映射功能，比如默认会把 "黑体" 映射为 "黑体-简"，更多映射，可以自己添加
 		 */
 		static fontFamilyMap:any;
-
-		/*
-		 * @private 预测长度的文字，用来提升计算效率，不同语言找一个最大的字符即可
-		 */
-		static _testWord:string;
 
 		/*
 		 * @private 位图字体字典。
@@ -25828,16 +25257,6 @@ declare module laya.events {
 		 * 是否开启键盘事件，默认为true
 		 */
 		static enabled:boolean;
-
-		/*
-		 * @private 
-		 */
-		static _event:laya.events.Event;
-
-		/*
-		 * @private 
-		 */
-		static __init__():void;
 		private static _addEvent:any;
 		private static _dispatch:any;
 
@@ -28332,11 +27751,6 @@ declare module laya.maths {
 		static TEMP:Matrix;
 
 		/*
-		 * @private 
-		 */
-		static _createFun:Function;
-
-		/*
 		 * 缩放或旋转图像时影响像素沿 x 轴定位的值。
 		 */
 		a:number;
@@ -29095,11 +28509,6 @@ declare module laya.media {
 		private static _musicMuted:any;
 
 		/*
-		 * @private 当前背景音乐url。
-		 */
-		static _bgMusic:string;
-
-		/*
 		 * @private 当前背景音乐声道。
 		 */
 		private static _musicChannel:any;
@@ -29127,27 +28536,12 @@ declare module laya.media {
 		/*
 		 * @private 
 		 */
-		static _soundClass:new () => any;
-
-		/*
-		 * @private 
-		 */
-		static _musicClass:new () => any;
-
-		/*
-		 * @private 
-		 */
 		private static _lastSoundUsedTimeDic:any;
 
 		/*
 		 * @private 
 		 */
 		private static _isCheckingDispose:any;
-
-		/*
-		 * @private 
-		 */
-		static __init__():boolean;
 
 		/*
 		 * 音效播放后自动删除。
@@ -29618,7 +29012,7 @@ declare module laya.net {
 		/*
 		 * @private 
 		 */
-		protected _http:any;
+		protected _http:XMLHttpRequest;
 
 		/*
 		 * @private 
@@ -29924,11 +29318,6 @@ declare module laya.net {
 		load(url:string,type?:string,cache?:boolean,group?:string,ignoreCache?:boolean,useWorkerLoader?:boolean):void;
 
 		/*
-		 * @private 
-		 */
-		_loadResourceFilter(type:string,url:string):void;
-
-		/*
 		 * @private onload、onprocess、onerror必须写在本类
 		 */
 		private _loadHttpRequest:any;
@@ -29937,11 +29326,6 @@ declare module laya.net {
 		 * @private 
 		 */
 		private _loadHtmlImage:any;
-
-		/*
-		 * @private 
-		 */
-		_loadHttpRequestWhat(url:string,contentType:string):void;
 
 		/*
 		 * @private 加载TTF资源。
@@ -29953,12 +29337,6 @@ declare module laya.net {
 		 * @private 
 		 */
 		protected _loadImage(url:string):void;
-
-		/*
-		 * @private 加载声音资源。
-		 * @param url 资源地址。
-		 */
-		_loadSound(url:string):void;
 
 		/*
 		 * @private 
@@ -30299,7 +29677,6 @@ declare module laya.net {
 	 * <p> <code>LocalStorage</code> 类用于没有时间限制的数据存储。</p>
 	 */
 	class LocalStorage  {
-		static _baseClass:any;
 
 		/*
 		 * 数据列表。
@@ -30310,7 +29687,6 @@ declare module laya.net {
 		 * 表示是否支持  <code>LocalStorage</code>。
 		 */
 		static support:boolean;
-		static __init__():boolean;
 
 		/*
 		 * 存储指定键名和键值，字符串类型。
@@ -30683,11 +30059,6 @@ declare module laya.net {
 		 * 地址的文件夹路径（不包括文件名）。
 		 */
 		readonly path:string;
-
-		/*
-		 * 基础路径。如果不设置，默认为当前网页的路径。最终地址将被格式化为 basePath+相对URL地址，
-		 */
-		static _basePath:string;
 
 		/*
 		 * root路径。只针对'~'类型的url路径有效
@@ -34420,25 +33791,6 @@ declare module laya.resource {
 		constructor();
 
 		/*
-		 */
-		_setCreateURL(url:string):void;
-
-		/*
-		 * @implements IReferenceCounter
-		 */
-		_addReference(count?:number):void;
-
-		/*
-		 * @implements IReferenceCounter
-		 */
-		_removeReference(count?:number):void;
-
-		/*
-		 * @implements IReferenceCounter
-		 */
-		_clearReference():void;
-
-		/*
 		 * @private 
 		 */
 		protected _recoverResource():void;
@@ -34516,17 +33868,7 @@ declare module laya.resource {
 		/*
 		 * @private 
 		 */
-		_uv:ArrayLike<number>;
-
-		/*
-		 * @private 
-		 */
 		private _referenceCount:any;
-
-		/*
-		 * @private 唯一ID
-		 */
-		$_GID:number;
 
 		/*
 		 * 沿 X 轴偏移量。
@@ -41210,12 +40552,6 @@ declare module laya.utils {
 		static createByJson(json:any,node?:any,root?:laya.display.Node,customHandler?:laya.utils.Handler,instanceHandler?:laya.utils.Handler):any;
 
 		/*
-		 * @private 将graphic对象添加到Sprite上
-		 * @param graphicO graphic对象描述
-		 */
-		static _addGraphicsToSprite(graphicO:any,sprite:laya.display.Sprite):void;
-
-		/*
 		 * @private 
 		 */
 		private static _getGraphicsFromSprite:any;
@@ -41887,12 +41223,6 @@ declare module laya.utils {
 		private static _lastFont:any;
 		private static _lastFontInfo:any;
 		static Parse(font:string):FontInfo;
-		_id:number;
-		_font:string;
-		_family:string;
-		_size:number;
-		_italic:boolean;
-		_bold:boolean;
 
 		constructor(font:string);
 		setFont(value:string):void;
@@ -42187,11 +41517,6 @@ declare module laya.utils {
 		contains(x:number,y:number):boolean;
 
 		/*
-		 * @private 是否击中Graphic
-		 */
-		static _isHitGraphic(x:number,y:number,graphic:laya.display.Graphics):boolean;
-
-		/*
 		 * 可点击区域，可以设置绘制一系列矢量图作为点击区域（目前只支持圆形，矩形，多边形）
 		 */
 		hit:laya.display.Graphics;
@@ -42398,7 +41723,6 @@ declare module laya.utils {
 		 * @param cursorStr 例如auto move no-drop col-resizeall-scroll pointer not-allowed row-resizecrosshair progress e-resize ne-resizedefault text n-resize nw-resizehelp vertical-text s-resize se-resizeinherit wait w-resize sw-resize
 		 */
 		static cursor:string;
-		static __init__():any;
 
 		/*
 		 * 隐藏鼠标
@@ -42819,12 +42143,6 @@ declare module laya.utils {
 		 */
 		static gpuMemory:number;
 		static cpuMemory:number;
-		static _fpsStr:string;
-		static _canvasStr:string;
-		static _spriteStr:string;
-		static _fpsData:any[];
-		static _timer:number;
-		static _count:number;
 
 		/*
 		 * 显示性能统计信息。
@@ -46010,16 +45328,6 @@ declare module laya.webgl {
 		static render:laya.renders.Render;
 
 		/*
-		 * @private 
-		 */
-		static _currentStage:laya.display.Sprite;
-
-		/*
-		 * @private 
-		 */
-		private static _isinit:any;
-
-		/*
 		 * 是否是微信小游戏子域，默认为false*
 		 */
 		static isWXOpenDataContext:boolean;
@@ -46028,11 +45336,6 @@ declare module laya.webgl {
 		 * 微信小游戏是否需要在主域中自动将加载的文本数据自动传递到子域，默认 false*
 		 */
 		static isWXPosMsg:boolean;
-
-		/*
-		 * @private 兼容as3编译工具
-		 */
-		static __init(_classs:any):void;
 
 		/*
 		 * 初始化引擎。使用引擎需要先初始化引擎，否则可能会报错。
@@ -46044,26 +45347,10 @@ declare module laya.webgl {
 		static init(width:number,height:number,...plugins:any[]):any;
 
 		/*
-		 * @private 
-		 */
-		static _getUrlPath():string;
-
-		/*
-		 * @private 
-		 */
-		static _arrayBufferSlice(start:number,end:number):ArrayBuffer;
-
-		/*
 		 * 表示是否捕获全局错误并弹出提示。默认为false。
 		 * 适用于移动设备等不方便调试的时候，设置为true后，如有未知错误，可以弹窗抛出详细错误堆栈。
 		 */
 		static alertGlobalError:boolean;
-		private static _evcode:any;
-
-		/*
-		 * @private 
-		 */
-		static _runScript(script:string):any;
 
 		/*
 		 * 开启DebugPanel
@@ -46131,41 +45418,6 @@ declare module laya.webgl {
 		/*
 		 * @private 
 		 */
-		private static _innerFirstLevelLoaderManager:any;
-
-		/*
-		 * @private 
-		 */
-		private static _innerSecondLevelLoaderManager:any;
-
-		/*
-		 * @private 
-		 */
-		private static _innerThirdLevelLoaderManager:any;
-
-		/*
-		 * @private 
-		 */
-		private static _innerFourthLevelLoaderManager:any;
-
-		/*
-		 * @private 
-		 */
-		private static _isInit:any;
-
-		/*
-		 * @private 
-		 */
-		static _editerEnvironment:boolean;
-
-		/*
-		 * @private 
-		 */
-		static _config:Config3D;
-
-		/*
-		 * @private 
-		 */
 		static physicsSettings:laya.d3.physics.PhysicsSettings;
 
 		/*
@@ -46173,137 +45425,12 @@ declare module laya.webgl {
 		 * @param 是否启用物理 。
 		 */
 		static readonly enbalePhysics:any;
-
-		/*
-		 * @private 
-		 */
-		static _cancelLoadByUrl(url:string):void;
-
-		/*
-		 * @private 
-		 */
-		private static _changeWebGLSize:any;
-
-		/*
-		 * @private 
-		 */
-		private static __init__:any;
 		private static enableNative3D:any;
 
 		/*
 		 * @private 
 		 */
 		private static formatRelativePath:any;
-
-		/*
-		 * @private 
-		 */
-		private static _endLoad:any;
-
-		/*
-		 * @private 
-		 */
-		private static _eventLoadManagerError:any;
-
-		/*
-		 * @private 
-		 */
-		private static _addHierarchyInnerUrls:any;
-
-		/*
-		 * @private 
-		 */
-		private static _getSprite3DHierarchyInnerUrls:any;
-
-		/*
-		 * @private 
-		 */
-		private static _loadHierarchy:any;
-
-		/*
-		 * @private 
-		 */
-		private static _onHierarchylhLoaded:any;
-
-		/*
-		 * @private 
-		 */
-		private static _onHierarchyInnerForthLevResouLoaded:any;
-
-		/*
-		 * @private 
-		 */
-		private static _onHierarchyInnerThirdLevResouLoaded:any;
-
-		/*
-		 * @private 
-		 */
-		private static _onHierarchyInnerSecondLevResouLoaded:any;
-
-		/*
-		 * @private 
-		 */
-		private static _onHierarchyInnerFirstLevResouLoaded:any;
-
-		/*
-		 * @private 
-		 */
-		private static _loadMesh:any;
-
-		/*
-		 * @private 
-		 */
-		private static _onMeshLmLoaded:any;
-
-		/*
-		 * @private 
-		 */
-		private static _loadMaterial:any;
-
-		/*
-		 * @private 
-		 */
-		private static _onMaterilLmatLoaded:any;
-
-		/*
-		 * @private 
-		 */
-		private static _onMateialTexturesLoaded:any;
-
-		/*
-		 * @private 
-		 */
-		private static _loadAvatar:any;
-
-		/*
-		 * @private 
-		 */
-		private static _loadAnimationClip:any;
-
-		/*
-		 * @private 
-		 */
-		private static _loadTexture2D:any;
-
-		/*
-		 * @private 
-		 */
-		private static _loadTextureCube:any;
-
-		/*
-		 * @private 
-		 */
-		private static _onTextureCubeLtcLoaded:any;
-
-		/*
-		 * @private 
-		 */
-		private static _onTextureCubeImagesLoaded:any;
-
-		/*
-		 * @private 
-		 */
-		private static _onProcessChange:any;
 
 		/*
 		 * 初始化Laya3D相关设置。

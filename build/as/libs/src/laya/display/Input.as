@@ -184,11 +184,6 @@ package laya.display {
 		 */
 
 		public function Input(){}
-
-		/*
-		 * @private 
-		 */
-		public static function __init__():void{}
 		private static var _popupInputMethod:*;
 		private static var _createInputElement:*;
 		private static var _initInput:*;

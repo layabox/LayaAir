@@ -91,7 +91,17 @@ import { HTMLLinkElement } from "../dom/HTMLLinkElement";
 					} else {
 						txt = xml.textContent.replace(/^\s+|\s+$/g, '');//去掉前后空格和\n\t
 						if (txt.length > 0) {
-							(((<HTMLElement>parent )).innerTEXT = txt.replace(HTMLParse.char255AndOneSpacePattern, " "));// decodeFromEntities(txt));
+                            var containNode = parent;
+                            if(parent instanceof HTMLElement && parent.innerTEXT && parent.innerTEXT.length>0){
+                                // 如果已经有 innerText了，只能创建子节点，不能冲掉原来的
+                                let cnode = (<HTMLElement>HTMLParse.getInstance('p') );
+                                if(cnode){
+                                    parent.addChild(cnode);
+                                    containNode = cnode;
+                                }
+    
+                            }
+							containNode.innerTEXT = txt.replace(HTMLParse.char255AndOneSpacePattern, " ");// decodeFromEntities(txt));
 						}
 					}
 					return;

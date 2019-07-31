@@ -1,5 +1,4 @@
 package laya.events {
-	import laya.events.Event;
 
 	/*
 	 * <p><code>KeyBoardManager</code> 是键盘事件管理类。该类从浏览器中接收键盘事件，并派发该事件。</p>
@@ -14,16 +13,6 @@ package laya.events {
 		 * 是否开启键盘事件，默认为true
 		 */
 		public static var enabled:Boolean;
-
-		/*
-		 * @private 
-		 */
-		public static var _event:Event;
-
-		/*
-		 * @private 
-		 */
-		public static function __init__():void{}
 		private static var _addEvent:*;
 		private static var _dispatch:*;
 

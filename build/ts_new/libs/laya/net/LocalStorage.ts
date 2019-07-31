@@ -2,8 +2,8 @@
 	 * <p> <code>LocalStorage</code> 类用于没有时间限制的数据存储。</p>
 	 */
 	export class LocalStorage {
-		
-        //基础类
+	
+		/**@internal 基础类*/
          static _baseClass: any;
 		/**
 		 *  数据列表。
@@ -13,7 +13,7 @@
 		 * 表示是否支持  <code>LocalStorage</code>。
 		 */
 		 static support:boolean = false;
-		
+		/**@internal */
 		 static __init__():boolean {
 			if (!LocalStorage._baseClass) {
 				LocalStorage._baseClass = Storage;

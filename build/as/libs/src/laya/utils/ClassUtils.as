@@ -1,6 +1,5 @@
 package laya.utils {
 	import laya.utils.Handler;
-	import laya.display.Sprite;
 	import laya.display.Node;
 
 	/*
@@ -100,12 +99,6 @@ package laya.utils {
 		 * @return 生成的节点。
 		 */
 		public static function createByJson(json:*,node:* = null,root:Node = null,customHandler:Handler = null,instanceHandler:Handler = null):*{}
-
-		/*
-		 * @private 将graphic对象添加到Sprite上
-		 * @param graphicO graphic对象描述
-		 */
-		public static function _addGraphicsToSprite(graphicO:*,sprite:Sprite):void{}
 
 		/*
 		 * @private 

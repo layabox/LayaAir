@@ -48,7 +48,7 @@ import { ILaya } from "../../ILaya";
 		private static _soundMuted:boolean = false;
 		/**@private 是否背景音乐静音，默认为false。*/
 		private static _musicMuted:boolean = false;
-		/**@private 当前背景音乐url。*/
+		/**@internal 当前背景音乐url。*/
 		 static _bgMusic:string = null;
 		/**@private 当前背景音乐声道。*/
 		private static _musicChannel:SoundChannel = null;
@@ -60,16 +60,16 @@ import { ILaya } from "../../ILaya";
 		private static _blurPaused:boolean = false;
 		/**@private */
 		private static _isActive:boolean = true;
-		/**@private */
+		/**@internal */
 		 static _soundClass:new()=>any;
-		/**@private */
+		/**@internal */
 		 static _musicClass:new()=>any;
 		/**@private */
 		private static _lastSoundUsedTimeDic:any = { };
 		/**@private */
 		private static _isCheckingDispose:boolean = false;
 		
-		/**@private */
+		/**@internal */
 		 static __init__():boolean {
 
 			var win:any = ILaya.Browser.window;

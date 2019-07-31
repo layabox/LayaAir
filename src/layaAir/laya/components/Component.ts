@@ -81,7 +81,7 @@ export class Component implements ISingletonElement, IDestroy {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _resetComp(): void {
 		this._indexInList = -1;
@@ -92,6 +92,7 @@ export class Component implements ISingletonElement, IDestroy {
 
 	/**
 	 * [实现IListPool接口]
+	 * @internal
 	 */
 	_getIndexInList(): number {
 		return this._indexInList;
@@ -99,6 +100,7 @@ export class Component implements ISingletonElement, IDestroy {
 
 	/**
 	 * [实现IListPool接口]
+	 * @internal
 	 */
 	_setIndexInList(index: number): void {
 		this._indexInList = index;
@@ -114,7 +116,7 @@ export class Component implements ISingletonElement, IDestroy {
 
 	/**
 	 * 被激活后调用，可根据需要重写此方法
-	 * @private
+	 * @internal
 	 */
 	protected _onAwake(): void {
 		//override it.
@@ -122,7 +124,7 @@ export class Component implements ISingletonElement, IDestroy {
 
 	/**
 	 * 被激活后调用，可根据需要重写此方法
-	 * @private
+	 * @internal
 	 */
 	protected _onEnable(): void {
 		//override it.
@@ -130,7 +132,7 @@ export class Component implements ISingletonElement, IDestroy {
 
 	/**
 	 * 被禁用时调用，可根据需要重写此方法
-	 * @private
+	 * @internal
 	 */
 	protected _onDisable(): void {
 		//override it.
@@ -138,7 +140,7 @@ export class Component implements ISingletonElement, IDestroy {
 
 	/**
 	 * 被销毁时调用，可根据需要重写此方法
-	 * @private
+	 * @internal
 	 */
 	protected _onDestroy(): void {
 		//override it.

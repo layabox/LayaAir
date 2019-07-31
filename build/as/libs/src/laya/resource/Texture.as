@@ -56,17 +56,7 @@ package laya.resource {
 		/*
 		 * @private 
 		 */
-		public var _uv:Array;
-
-		/*
-		 * @private 
-		 */
 		private var _referenceCount:*;
-
-		/*
-		 * @private 唯一ID
-		 */
-		public var $_GID:Number;
 
 		/*
 		 * 沿 X 轴偏移量。

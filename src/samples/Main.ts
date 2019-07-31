@@ -34,7 +34,7 @@ import { Texture2D } from "../../bin/tsc/layaAir/laya/resource/Texture2D";
 		/**false 2d；true 3d**/
 		private _isType:boolean = false;
 		 static isWXAPP:boolean = false;
-		private _isReadNetWorkRes:boolean = false;
+		private _isReadNetWorkRes:boolean = true;
 		constructor(){
 			
 			//QGMiniAdapter.init();

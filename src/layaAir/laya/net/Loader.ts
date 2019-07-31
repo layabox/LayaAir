@@ -184,7 +184,7 @@ export class Loader extends EventDispatcher {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_loadResourceFilter(type: string, url: string): void {
 		this._loadResource(type, url);
@@ -269,7 +269,7 @@ export class Loader extends EventDispatcher {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	_loadHttpRequestWhat(url: string, contentType: string): void {
 		if (Loader.preLoadedMap[url])
@@ -341,7 +341,7 @@ export class Loader extends EventDispatcher {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * 加载声音资源。
 	 * @param	url 资源地址。
 	 */

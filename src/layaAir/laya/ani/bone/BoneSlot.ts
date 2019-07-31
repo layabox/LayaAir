@@ -37,15 +37,18 @@ export class BoneSlot {
 	originalIndex: number = -1;
 
 	/** 用户自定义的皮肤 */
+	/**@internal */
 	private _diyTexture: Texture;
+	/**@internal */
 	private _parentMatrix: Matrix;	// 指向了骨骼的resultMatrix
+	/**@internal */
 	private _resultMatrix: Matrix;	// 只有不使用缓冲时才使用
-	/** 索引替换表 */
+	/** @internal 索引替换表 */
 	private _replaceDic: any = {};
-	/** 当前diyTexture的动画纹理 */
+	/** @internal 当前diyTexture的动画纹理 */
 	private _curDiyUV: any[];
 
-	/** 实时模式下，复用使用 */
+	/** @internal 实时模式下，复用使用 */
 	private _skinSprite: any;
 	/** @private 变形动画数据 */
 	deformData: any[];
@@ -165,8 +168,9 @@ export class BoneSlot {
 		}
 		return true;
 	}
+	/**@internal */
 	private static _tempResultMatrix: Matrix = new Matrix();
-
+	/**@internal */	
 	private _preGraphicVerticle: any[];
 
 	//TODO:coverage
@@ -355,6 +359,7 @@ export class BoneSlot {
 		}
 	}
 
+	/**@internal */ 
 	private static _tempVerticleArr: any[] = [];
 	/**
 	 * 显示蒙皮动画

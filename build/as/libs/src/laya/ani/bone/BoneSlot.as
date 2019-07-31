@@ -64,28 +64,6 @@ package laya.ani.bone {
 		public var originalIndex:Number;
 
 		/*
-		 * 用户自定义的皮肤
-		 */
-		private var _diyTexture:*;
-		private var _parentMatrix:*;
-		private var _resultMatrix:*;
-
-		/*
-		 * 索引替换表
-		 */
-		private var _replaceDic:*;
-
-		/*
-		 * 当前diyTexture的动画纹理
-		 */
-		private var _curDiyUV:*;
-
-		/*
-		 * 实时模式下，复用使用
-		 */
-		private var _skinSprite:*;
-
-		/*
 		 * @private 变形动画数据
 		 */
 		public var deformData:Array;
@@ -139,8 +117,6 @@ package laya.ani.bone {
 		private static var _tempMatrix:*;
 		public static function createSkinMesh():*{}
 		private static var isSameArr:*;
-		private static var _tempResultMatrix:*;
-		private var _preGraphicVerticle:*;
 		private var getSaveVerticle:*;
 		public static function isSameMatrix(mtA:Matrix,mtB:Matrix):Boolean{
 			return null;
@@ -155,7 +131,6 @@ package laya.ani.bone {
 		 * @param noUseSave 不使用共享的矩阵对象 _tempResultMatrix，只有实时计算的时候才设置为true
 		 */
 		public function draw(graphics:GraphicsAni,boneMatrixArray:Array,noUseSave:Boolean = null,alpha:Number = null):void{}
-		private static var _tempVerticleArr:*;
 
 		/*
 		 * 显示蒙皮动画

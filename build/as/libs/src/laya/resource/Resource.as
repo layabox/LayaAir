@@ -162,25 +162,6 @@ package laya.resource {
 		public function Resource(){}
 
 		/*
-		 */
-		public function _setCreateURL(url:String):void{}
-
-		/*
-		 * @implements IReferenceCounter
-		 */
-		public function _addReference(count:Number):void{}
-
-		/*
-		 * @implements IReferenceCounter
-		 */
-		public function _removeReference(count:Number):void{}
-
-		/*
-		 * @implements IReferenceCounter
-		 */
-		public function _clearReference():void{}
-
-		/*
 		 * @private 
 		 */
 		protected function _recoverResource():void{}

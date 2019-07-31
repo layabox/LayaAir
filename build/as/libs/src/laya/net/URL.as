@@ -51,11 +51,6 @@ package laya.net {
 		}
 
 		/*
-		 * 基础路径。如果不设置，默认为当前网页的路径。最终地址将被格式化为 basePath+相对URL地址，
-		 */
-		public static var _basePath:String;
-
-		/*
 		 * root路径。只针对'~'类型的url路径有效
 		 */
 		public static var rootPath:String;

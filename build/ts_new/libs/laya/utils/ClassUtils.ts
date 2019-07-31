@@ -169,7 +169,7 @@ import { HitArea } from "../utils/HitArea";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 * 将graphic对象添加到Sprite上
 		 * @param graphicO graphic对象描述
 		 */

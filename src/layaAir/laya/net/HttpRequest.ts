@@ -25,7 +25,7 @@ import { Event } from "../events/Event"
 	 */
 	export class HttpRequest extends EventDispatcher {
 		/**@private */
-		protected _http:any = new XMLHttpRequest();
+		protected _http = new XMLHttpRequest();
 		/**@private */
 		protected _responseType:string;
 		/**@private */
@@ -46,7 +46,7 @@ import { Event } from "../events/Event"
 			this._data = null;
 			this._url = url;
 			var _this:HttpRequest = this;
-			var http:any = this._http;
+			var http = this._http;
 			//临时，因为微信不支持以下文件格式
 			url = URL.getAdptedFilePath(url);
 			http.open(method, url, true);
@@ -57,8 +57,12 @@ import { Event } from "../events/Event"
 			} else if (!(((<any>window )).conch)) {
 				if (!data || typeof(data)=='string') http.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 				else http.setRequestHeader("Content-Type", "application/json");
-			}
-			http.responseType = responseType !== "arraybuffer" ? "text" : "arraybuffer";
+            }
+            let restype:XMLHttpRequestResponseType = responseType !== "arraybuffer" ? "text" : "arraybuffer";
+            http.responseType = restype;
+            if((http as any).dataType){//for Ali
+                (http as any).dataType = restype;
+            }
 			http.onerror = function(e:any):void {
 				_this._onError(e);
 			}

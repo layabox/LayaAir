@@ -25,7 +25,7 @@ package laya.net {
 		/*
 		 * @private 
 		 */
-		protected var _http:*;
+		protected var _http:XMLHttpRequest;
 
 		/*
 		 * @private 
