@@ -44,4 +44,5 @@
 		
 		 static useRetinalCanvas:boolean = false;
 	}
+	(window as any).Config = Config;
 

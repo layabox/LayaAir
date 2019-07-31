@@ -93,5 +93,5 @@ export class Config3D implements IClone {
 	}
 
 }
-
+(window as any).Config3D = Config3D;
 
