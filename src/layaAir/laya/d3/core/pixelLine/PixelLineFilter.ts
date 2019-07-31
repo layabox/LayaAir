@@ -132,7 +132,7 @@ export class PixelLineFilter extends GeometryElement {
 		var rightPartVertices: Float32Array = new Float32Array(this._vertices.buffer, nextIndex * floatCount * 4, (this._lineCount - nextIndex) * floatCount);
 		this._vertices.set(rightPartVertices, offset);
 		this._minUpdate = Math.min(this._minUpdate, offset);
-		this._maxUpdate = Math.max(this._maxUpdate, offset + floatCount);
+		this._maxUpdate = Math.max(this._maxUpdate, offset + rightPartVertices.length);
 		this._lineCount--;
 	}
 
