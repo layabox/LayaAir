@@ -142,8 +142,10 @@ import { Browser } from "../../utils/Browser";
 				ctx.lineWidth = lineWidth;
 				ctx.strokeText(char, margin_left, margin_top+sz/2);
 			}
-			ctx.fillStyle = colStr;
-			ctx.fillText(char, margin_left, margin_top+sz/2);
+			if(colStr){
+				ctx.fillStyle = colStr;
+				ctx.fillText(char, margin_left, margin_top+sz/2);
+			}
 		
 			if ( this.showDbgInfo) {
 				ctx.strokeStyle = '#ff0000';
@@ -214,7 +216,7 @@ import { Browser } from "../../utils/Browser";
 					ctx.strokeText(char, 0, sz/2);
 					ctx.fillText(char, 0, sz/2);
 				}		
-			} else {
+			} else if(colStr){
 				ctx.fillStyle = colStr;
 				ctx.fillText(char, 0, sz/2);
 			}
