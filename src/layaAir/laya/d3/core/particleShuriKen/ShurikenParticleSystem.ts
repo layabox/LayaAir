@@ -2123,7 +2123,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		dest.scaleMode = this.scaleMode;
 		dest.playOnAwake = this.playOnAwake;
 		dest.autoRandomSeed = this.autoRandomSeed;
-		dest.randomSeed = this.randomSeed;
+		dest.randomSeed[0] = this.randomSeed[0];
 
 		dest.maxParticles = this.maxParticles;
 
