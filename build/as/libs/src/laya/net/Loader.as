@@ -223,11 +223,6 @@ package laya.net {
 		public function load(url:String,type:String = null,cache:Boolean = null,group:String = null,ignoreCache:Boolean = null,useWorkerLoader:Boolean = null):void{}
 
 		/*
-		 * @private 
-		 */
-		public function _loadResourceFilter(type:String,url:String):void{}
-
-		/*
 		 * @private onload、onprocess、onerror必须写在本类
 		 */
 		private var _loadHttpRequest:*;
@@ -236,11 +231,6 @@ package laya.net {
 		 * @private 
 		 */
 		private var _loadHtmlImage:*;
-
-		/*
-		 * @private 
-		 */
-		public function _loadHttpRequestWhat(url:String,contentType:String):void{}
 
 		/*
 		 * @private 加载TTF资源。
@@ -252,12 +242,6 @@ package laya.net {
 		 * @private 
 		 */
 		protected function _loadImage(url:String):void{}
-
-		/*
-		 * @private 加载声音资源。
-		 * @param url 资源地址。
-		 */
-		public function _loadSound(url:String):void{}
 
 		/*
 		 * @private 

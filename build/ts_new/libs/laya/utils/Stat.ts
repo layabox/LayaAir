@@ -42,12 +42,17 @@ import { IStatRender } from "./IStatRender";
 		/** 资源管理器所管理资源的累计内存,以字节为单位。*/
 		 static gpuMemory:number;
 		 static cpuMemory:number;
-		
+		/**@internal */
 		public static _fpsStr:string;
+		/**@internal */
 		public static _canvasStr:string;
+		/**@internal */
 		public static _spriteStr:string;
+		/**@internal */
 		public static _fpsData:any[] = [];
+		/**@internal */
 		public static _timer:number = 0;
+		/**@internal */
 		public static _count:number = 0;
 		
 		/**@internal*/

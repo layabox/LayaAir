@@ -5,12 +5,12 @@ import { Vector3 } from "./laya/d3/math/Vector3"
  * <code>Config3D</code> 类用于创建3D初始化配置。
  */
 export class Config3D implements IClone {
-	/**@private	*/
+	/**@internal*/
 	static _default: Config3D = new Config3D();
 
-	/**@private	*/
+	/**@internal*/
 	private _defaultPhysicsMemory: number = 16;
-	/**@private	*/
+	/**@internal*/
 	_editerEnvironment: boolean = false;
 
 	/** 是否开启抗锯齿。*/

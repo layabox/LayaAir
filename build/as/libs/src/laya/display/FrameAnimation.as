@@ -22,16 +22,6 @@ package laya.display {
 		private static var _sortIndexFun:*;
 
 		/*
-		 * @private id对象表
-		 */
-		public var _targetDic:*;
-
-		/*
-		 * @private 动画数据
-		 */
-		public var _animationData:*;
-
-		/*
 		 * @private 
 		 */
 		protected var _usedFrames:Array;

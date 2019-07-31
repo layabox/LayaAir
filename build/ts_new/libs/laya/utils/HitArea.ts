@@ -32,7 +32,7 @@ import { ILaya } from "../../ILaya";
 		}
 		
 		/**
-		 * @private
+		 * @internal
 		 * 是否击中Graphic
 		 */
 		 static _isHitGraphic(x:number, y:number, graphic:Graphics):boolean {

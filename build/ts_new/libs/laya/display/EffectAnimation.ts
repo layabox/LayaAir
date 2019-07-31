@@ -13,15 +13,15 @@ import { ClassUtils } from "../utils/ClassUtils"
 		 */
 		private static EFFECT_BEGIN:string = "effectbegin";
 		
-		/**@private */
+		/**@internal */
 		private _target:any;
-		/**@private */
+		/**@internal */
 		private _playEvent:string;
-		/**@private */
+		/**@internal */
 		private _initData:any = {};
-		/**@private */
+		/**@internal */
 		private _aniKeys:any[];
-		/**@private */
+		/**@internal */
 		private _effectClass:new()=>any;
 		
 		/**
@@ -55,14 +55,14 @@ import { ClassUtils } from "../utils/ClassUtils"
 			this._addEvent();
 		}
 		
-		/**@private */
+		/**@internal */
 		private _addEvent():void {
 			if (!this._target || !this._playEvent) return;
 			this._setControlNode(this._target);
 			this._target.on(this._playEvent, this, this._onPlayAction);
 		}
 		
-		/**@private */
+		/**@internal */
 		private _onPlayAction():void {
 			this.play(0, false);
 		}
@@ -131,8 +131,8 @@ import { ClassUtils } from "../utils/ClassUtils"
 			}
 		}
 		
-		/**@private 
-		 * @override
+		/**
+		 * @internal
 		*/
 		protected _displayToIndex(value:number):void {
 			if (!this._animationData) return;
@@ -145,7 +145,7 @@ import { ClassUtils } from "../utils/ClassUtils"
 			}
 		}
 		
-		/**@private 
+		/**
 		 * @override
 		*/
 		protected _displayNodeToFrame(node:any, frame:number, targetDic:any = null):void {
@@ -187,8 +187,8 @@ import { ClassUtils } from "../utils/ClassUtils"
 			}
 		}
 		
-		/**@private 
-		 * @override
+		/**
+		 * @internal
 		*/
 		protected _calculateKeyFrames(node:any):void {
 			super._calculateKeyFrames(node);

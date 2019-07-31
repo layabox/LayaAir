@@ -1,9 +1,6 @@
 (function (exports, Laya) {
 	'use strict';
 
-	/**
-	 * @private
-	 */
 	class HTMLExtendStyle {
 	    constructor() {
 	        this.reset();
@@ -22,46 +19,17 @@
 	            return;
 	        Laya.Pool.recover("HTMLExtendStyle", this.reset());
 	    }
-	    /**
-	     * 从对象池中创建
-	     */
-	    //TODO:coverage
 	    static create() {
 	        return Laya.Pool.getItemByClass("HTMLExtendStyle", HTMLExtendStyle);
 	    }
 	}
 	HTMLExtendStyle.EMPTY = new HTMLExtendStyle();
 
-	/**
-	 * @private
-	 */
 	class HTMLStyle {
-	    ///**
-	    //* <p>描边宽度（以像素为单位）。</p>
-	    //* 默认值0，表示不描边。
-	    //* @default 0
-	    //*/
-	    //public var stroke:Number;
-	    ///**
-	    //* <p>描边颜色，以字符串表示。</p>
-	    //* @default "#000000";
-	    //*/
-	    //public var strokeColor:String;
-	    ///**
-	    //* <p>垂直行间距（以像素为单位）</p>
-	    //*/
-	    //public var leading:Number;
-	    ///**行高。 */
-	    //public var lineHeight:Number;
-	    //protected var _letterSpacing:int;
 	    constructor() {
-	        /**
-	         * 边距信息。
-	         */
 	        this.padding = HTMLStyle._PADDING;
 	        this.reset();
 	    }
-	    //TODO:coverage
 	    _getExtendStyle() {
 	        if (this._extendStyle === HTMLExtendStyle.EMPTY)
 	            this._extendStyle = HTMLExtendStyle.create();
@@ -75,11 +43,6 @@
 	            return;
 	        this._getExtendStyle().href = value;
 	    }
-	    /**
-	     * <p>描边宽度（以像素为单位）。</p>
-	     * 默认值0，表示不描边。
-	     * @default 0
-	     */
 	    get stroke() {
 	        return this._extendStyle.stroke;
 	    }
@@ -88,10 +51,6 @@
 	            return;
 	        this._getExtendStyle().stroke = value;
 	    }
-	    /**
-	     * <p>描边颜色，以字符串表示。</p>
-	     * @default "#000000";
-	     */
 	    get strokeColor() {
 	        return this._extendStyle.strokeColor;
 	    }
@@ -100,9 +59,6 @@
 	            return;
 	        this._getExtendStyle().strokeColor = value;
 	    }
-	    /**
-	     * <p>垂直行间距（以像素为单位）</p>
-	     */
 	    get leading() {
 	        return this._extendStyle.leading;
 	    }
@@ -111,7 +67,6 @@
 	            return;
 	        this._getExtendStyle().leading = value;
 	    }
-	    /**行高。 */
 	    get lineHeight() {
 	        return this._extendStyle.lineHeight;
 	    }
@@ -126,10 +81,6 @@
 	        this._type &= (~HTMLStyle._ALIGN);
 	        this._type |= HTMLStyle.alignVDic[v];
 	    }
-	    /**
-	     * <p>表示使用此文本格式的文本段落的水平对齐方式。</p>
-	     * @default  "left"
-	     */
 	    get align() {
 	        var v = this._type & HTMLStyle._ALIGN;
 	        return HTMLStyle.align_Value[v];
@@ -140,17 +91,10 @@
 	        this._type &= (~HTMLStyle._VALIGN);
 	        this._type |= HTMLStyle.alignVDic[v];
 	    }
-	    /**
-	     * <p>表示使用此文本格式的文本段落的水平对齐方式。</p>
-	     * @default  "left"
-	     */
 	    get valign() {
 	        var v = this._type & HTMLStyle._VALIGN;
 	        return HTMLStyle.vAlign_Value[v];
 	    }
-	    /**
-	     * 字体样式字符串。
-	     */
 	    set font(value) {
 	        var strs = value.split(' ');
 	        for (var i = 0, n = strs.length; i < n; i++) {
@@ -174,19 +118,12 @@
 	    get font() {
 	        return (this.italic ? "italic " : "") + (this.bold ? "bold " : "") + this.fontSize + "px " + (Laya.ILaya.Browser.onIPhone ? (Laya.ILaya.Text.fontFamilyMap[this.family] || this.family) : this.family);
 	    }
-	    /**
-	     * 是否显示为块级元素。
-	     */
 	    set block(value) {
 	        value ? (this._type |= HTMLStyle._CSS_BLOCK) : (this._type &= (~HTMLStyle._CSS_BLOCK));
 	    }
-	    /**表示元素是否显示为块级元素。*/
 	    get block() {
 	        return (this._type & HTMLStyle._CSS_BLOCK) != 0;
 	    }
-	    /**
-	     * 重置，方便下次复用
-	     */
 	    reset() {
 	        this.ower = null;
 	        this._type = 0;
@@ -205,30 +142,14 @@
 	        if (this._extendStyle)
 	            this._extendStyle.recover();
 	        this._extendStyle = HTMLExtendStyle.EMPTY;
-	        //stroke = 0;
-	        //strokeColor = "#000000";
-	        //leading = 0;
-	        //lineHeight = 0;
-	        //_letterSpacing = 0;
 	        return this;
 	    }
-	    /**
-	     * 回收
-	     */
-	    //TODO:coverage
 	    recover() {
 	        Laya.Pool.recover("HTMLStyle", this.reset());
 	    }
-	    /**
-	     * 从对象池中创建
-	     */
 	    static create() {
 	        return Laya.Pool.getItemByClass("HTMLStyle", HTMLStyle);
 	    }
-	    /**
-	     * 复制传入的 CSSStyle 属性值。
-	     * @param	src 待复制的 CSSStyle 对象。
-	     */
 	    inherit(src) {
 	        var i, len;
 	        var props;
@@ -240,37 +161,27 @@
 	            this[key] = src[key];
 	        }
 	    }
-	    /**
-	     * 表示是否换行。
-	     */
 	    get wordWrap() {
 	        return (this._type & HTMLStyle._NOWARP) === 0;
 	    }
 	    set wordWrap(value) {
 	        value ? (this._type &= ~HTMLStyle._NOWARP) : (this._type |= HTMLStyle._NOWARP);
 	    }
-	    /**是否为粗体*/
 	    get bold() {
 	        return (this._type & HTMLStyle._BOLD) != 0;
 	    }
 	    set bold(value) {
 	        value ? (this._type |= HTMLStyle._BOLD) : (this._type &= ~HTMLStyle._BOLD);
 	    }
-	    /**
-	     * 表示使用此文本格式的文本是否为斜体。
-	     * @default false
-	     */
 	    get italic() {
 	        return (this._type & HTMLStyle._ITALIC) != 0;
 	    }
 	    set italic(value) {
 	        value ? (this._type |= HTMLStyle._ITALIC) : (this._type &= ~HTMLStyle._ITALIC);
 	    }
-	    /**@internal */
 	    _widthAuto() {
-	        return (this._type & HTMLStyle._WIDTHAUTO) !== 0; // || (_type & _WIDTH_SET) === 0;
+	        return (this._type & HTMLStyle._WIDTHAUTO) !== 0;
 	    }
-	    /**@inheritDoc	 */
 	    widthed(sprite) {
 	        return (this._type & HTMLStyle._WIDTH_SET) != 0;
 	    }
@@ -278,22 +189,12 @@
 	        type === "nowrap" && (this._type |= HTMLStyle._NOWARP);
 	        type === "none" && (this._type &= ~HTMLStyle._NOWARP);
 	    }
-	    /**
-	     * 设置如何处理元素内的空白。
-	     */
 	    get whiteSpace() {
 	        return (this._type & HTMLStyle._NOWARP) ? "nowrap" : "";
 	    }
-	    /**
-	     * @internal
-	     */
-	    //TODO:coverage
 	    _calculation(type, value) {
 	        return false;
 	    }
-	    /**
-	     * 宽度。
-	     */
 	    set width(w) {
 	        this._type |= HTMLStyle._WIDTH_SET;
 	        if (typeof (w) == 'string') {
@@ -308,9 +209,6 @@
 	        }
 	        this.size(w, -1);
 	    }
-	    /**
-	     * 高度。
-	     */
 	    set height(h) {
 	        this._type |= HTMLStyle._HEIGHT_SET;
 	        if (typeof (h) == 'string') {
@@ -320,19 +218,9 @@
 	        }
 	        this.size(-1, h);
 	    }
-	    /**
-	     * 是否已设置高度。
-	     * @param	sprite 显示对象 Sprite。
-	     * @return 一个Boolean 表示是否已设置高度。
-	     */
 	    heighted(sprite) {
 	        return (this._type & HTMLStyle._HEIGHT_SET) != 0;
 	    }
-	    /**
-	     * 设置宽高。
-	     * @param	w 宽度。
-	     * @param	h 高度。
-	     */
 	    size(w, h) {
 	        var ower = this.ower;
 	        var resize = false;
@@ -350,23 +238,15 @@
 	            ower._layoutLater();
 	        }
 	    }
-	    /**
-	     * 是否是行元素。
-	     */
 	    getLineElement() {
 	        return (this._type & HTMLStyle._LINE_ELEMENT) != 0;
 	    }
 	    setLineElement(value) {
 	        value ? (this._type |= HTMLStyle._LINE_ELEMENT) : (this._type &= (~HTMLStyle._LINE_ELEMENT));
 	    }
-	    /**@internal */
-	    //TODO:coverage
 	    _enableLayout() {
 	        return (this._type & HTMLStyle._DISPLAY_NONE) === 0 && (this._type & HTMLStyle._ABSOLUTE) === 0;
 	    }
-	    /**
-	     * 间距。
-	     */
 	    get letterSpacing() {
 	        return this._extendStyle.letterSpacing;
 	    }
@@ -376,17 +256,9 @@
 	            return;
 	        this._getExtendStyle().letterSpacing = d;
 	    }
-	    /**
-	     * 设置 CSS 样式字符串。
-	     * @param	text CSS样式字符串。
-	     */
 	    cssText(text) {
 	        this.attrs(HTMLStyle.parseOneCSS(text, ';'));
 	    }
-	    /**
-	     * 根据传入的属性名、属性值列表，设置此对象的属性值。
-	     * @param	attrs 属性名与属性值列表。
-	     */
 	    attrs(attrs) {
 	        if (attrs) {
 	            for (var i = 0, n = attrs.length; i < n; i++) {
@@ -398,30 +270,18 @@
 	    set position(value) {
 	        value === "absolute" ? (this._type |= HTMLStyle._ABSOLUTE) : (this._type &= ~HTMLStyle._ABSOLUTE);
 	    }
-	    /**
-	     * 元素的定位类型。
-	     */
 	    get position() {
 	        return (this._type & HTMLStyle._ABSOLUTE) ? "absolute" : "";
 	    }
-	    /**@inheritDoc	 */
 	    get absolute() {
 	        return (this._type & HTMLStyle._ABSOLUTE) !== 0;
 	    }
-	    /**@inheritDoc	 */
 	    get paddingLeft() {
 	        return this.padding[3];
 	    }
-	    /**@inheritDoc	 */
 	    get paddingTop() {
 	        return this.padding[0];
 	    }
-	    /**
-	     * 通过传入的分割符，分割解析CSS样式字符串，返回样式列表。
-	     * @param	text CSS样式字符串。
-	     * @param	clipWord 分割符；
-	     * @return 样式列表。
-	     */
 	    static parseOneCSS(text, clipWord) {
 	        var out = [];
 	        var attrs = text.split(clipWord);
@@ -430,10 +290,9 @@
 	            var attr = attrs[i];
 	            var ofs = attr.indexOf(':');
 	            var name = attr.substr(0, ofs).replace(/^\s+|\s+$/g, '');
-	            // 最后一个元素是空元素。
 	            if (name.length === 0)
 	                continue;
-	            var value = attr.substr(ofs + 1).replace(/^\s+|\s+$/g, ''); //去掉前后空格和\n\t
+	            var value = attr.substr(ofs + 1).replace(/^\s+|\s+$/g, '');
 	            var one = [name, value];
 	            switch (name) {
 	                case 'italic':
@@ -470,13 +329,6 @@
 	        }
 	        return out;
 	    }
-	    /**
-	     * 解析 CSS 样式文本。
-	     * @param	text CSS 样式文本。
-	     * @param	uri URL对象。
-	     * @internal 此处需要再详细点注释。
-	     */
-	    //TODO:coverage
 	    static parseCSS(text, uri) {
 	        var one;
 	        while ((one = HTMLStyle._parseCSSRegExp.exec(text)) != null) {
@@ -486,25 +338,14 @@
 	}
 	HTMLStyle._CSSTOVALUE = { 'letter-spacing': 'letterSpacing', 'white-space': 'whiteSpace', 'line-height': 'lineHeight', 'font-family': 'family', 'vertical-align': 'valign', 'text-decoration': 'textDecoration', 'background-color': 'bgColor', 'border-color': 'borderColor' };
 	HTMLStyle._parseCSSRegExp = new RegExp("([\.\#]\\w+)\\s*{([\\s\\S]*?)}", "g");
-	/**
-	 * 需要继承的属性
-	 */
 	HTMLStyle._inheritProps = ["italic", "align", "valign", "leading", "stroke", "strokeColor", "bold", "fontSize", "lineHeight", "wordWrap", "color"];
-	/**水平居左对齐方式。 */
 	HTMLStyle.ALIGN_LEFT = "left";
-	/**水平居中对齐方式。 */
 	HTMLStyle.ALIGN_CENTER = "center";
-	/**水平居右对齐方式。 */
 	HTMLStyle.ALIGN_RIGHT = "right";
-	/**垂直居中对齐方式。 */
 	HTMLStyle.VALIGN_TOP = "top";
-	/**垂直居中对齐方式。 */
 	HTMLStyle.VALIGN_MIDDLE = "middle";
-	/**垂直居底部对齐方式。 */
 	HTMLStyle.VALIGN_BOTTOM = "bottom";
-	/** 样式表信息。*/
 	HTMLStyle.styleSheets = {};
-	/**添加布局。 */
 	HTMLStyle.ADDLAYOUTED = 0x200;
 	HTMLStyle._PADDING = [0, 0, 0, 0];
 	HTMLStyle._HEIGHT_SET = 0x2000;
@@ -513,44 +354,31 @@
 	HTMLStyle._WIDTHAUTO = 0x40000;
 	HTMLStyle._BOLD = 0x400;
 	HTMLStyle._ITALIC = 0x800;
-	/**@private */
 	HTMLStyle._CSS_BLOCK = 0x1;
-	/**@private */
 	HTMLStyle._DISPLAY_NONE = 0x2;
-	/**@private */
 	HTMLStyle._ABSOLUTE = 0x4;
-	/**@private */
 	HTMLStyle._WIDTH_SET = 0x8;
 	HTMLStyle.alignVDic = { "left": 0, "center": 0x10, "right": 0x20, "top": 0, "middle": 0x40, "bottom": 0x80 };
 	HTMLStyle.align_Value = { 0: "left", 0x10: "center", 0x20: "right" };
 	HTMLStyle.vAlign_Value = { 0: "top", 0x40: "middle", 0x80: "bottom" };
-	HTMLStyle._ALIGN = 0x30; // 0x10 & 0x20;
-	HTMLStyle._VALIGN = 0xc0; //0x40 & 0x80;
+	HTMLStyle._ALIGN = 0x30;
+	HTMLStyle._VALIGN = 0xc0;
 
-	/**
-	 * @private
-	 */
 	class HTMLDocument {
 	    constructor() {
 	        this.all = [];
 	        this.styleSheets = HTMLStyle.styleSheets;
 	    }
-	    //TODO:coverage
 	    getElementById(id) {
 	        return this.all[id];
 	    }
-	    //TODO:coverage
 	    setElementById(id, e) {
 	        this.all[id] = e;
 	    }
 	}
 	HTMLDocument.document = new HTMLDocument();
 
-	/**
-	 * @private
-	 */
 	class HTMLHitRect {
-	    //TODO:coverage
 	    constructor() {
 	        this.rec = new Laya.Rectangle();
 	        this.reset();
@@ -568,9 +396,6 @@
 	    }
 	}
 
-	/**
-	 * @internal
-	 */
 	class IHtml {
 	}
 	IHtml.HTMLDivElement = null;
@@ -580,9 +405,6 @@
 	IHtml.HTMLParse = null;
 	IHtml.HTMLElementType = null;
 
-	/**
-	 * @private
-	 */
 	class LayoutLine {
 	    constructor() {
 	        this.elements = [];
@@ -594,20 +416,8 @@
 	        this.minTextHeight = 99999;
 	        this.mWidth = 0;
 	    }
-	    //注释：垂直居中对齐是以最小的文字单位为中心点对齐(如果没有文字，就以上对齐)
-	    //如果计算的坐标小于高度，那么以高度为主
-	    /**
-	     * 底对齐（默认）
-	     * @param	left
-	     * @param	width
-	     * @param	dy
-	     * @param	align		水平
-	     * @param	valign		垂直
-	     * @param	lineHeight	行高
-	     */
 	    updatePos(left, width, lineNum, dy, align, valign, lineHeight) {
 	        var w = 0;
-	        //重新计算宽度，因为上层的排序跟分段规则导致宽度计算不正确，把宽度计算放到这里，后面看情况再去优化
 	        var one;
 	        if (this.elements.length > 0) {
 	            one = this.elements[this.elements.length - 1];
@@ -619,7 +429,6 @@
 	            dx = (width - w) / 2;
 	        if (align === HTMLStyle.ALIGN_RIGHT)
 	            dx = (width - w);
-	        //lineHeight === 0 || valign != 0 || (valign = 1);
 	        for (var i = 0, n = this.elements.length; i < n; i++) {
 	            one = this.elements[i];
 	            var tCSSStyle = one._getCSSStyle();
@@ -633,7 +442,7 @@
 	                    if (this.minTextHeight != 99999)
 	                        tMinTextHeight = this.minTextHeight;
 	                    var tBottomLineY = (tMinTextHeight + lineHeight) / 2;
-	                    tBottomLineY = Math.max(tBottomLineY, this.h); //如果实际行高大于一半行高，用实际行高对齐
+	                    tBottomLineY = Math.max(tBottomLineY, this.h);
 	                    if (one.eletype == IHtml.HTMLElementType.IMAGE)
 	                        ddy = dy + tBottomLineY - one.height;
 	                    else
@@ -648,13 +457,7 @@
 	    }
 	}
 
-	/**
-	 * @private
-	 * HTML的布局类
-	 * 对HTML的显示对象进行排版
-	 */
 	class Layout {
-	    //TODO:coverage
 	    static later(element) {
 	        if (Layout._will == null) {
 	            Layout._will = [];
@@ -676,72 +479,9 @@
 	        if ((style._type & HTMLStyle.ADDLAYOUTED) === 0)
 	            return null;
 	        element.style._type &= ~HTMLStyle.ADDLAYOUTED;
-	        /*
-	           if (element._children.length > 0)
-	           return _multiLineLayout(element);
-	           if (element is HTMLElement)
-	           {
-	           var htmlElement:HTMLElement = element as HTMLElement;
-	           var style:CSSStyle = htmlElement.style;
-	           var txt:String = htmlElement.text;
-	           if (txt.length < 1)
-	           return [0, 0];
-	           if (!style.wordWrap)
-	           return _singleLineTextLayout(htmlElement, -1, -1);
-	           if (style.letterSpacing || txt.indexOf('\n') >= 0)
-	           return _multiLineLayout(htmlElement);
-	           var sz:Object = Utils.measureText(txt, style.font);
-	           if (sz.width > element.width)
-	           return _multiLineLayout(htmlElement);
-	           return _singleLineTextLayout(htmlElement, sz.width, sz.height);
-	           }*/
 	        var arr = Layout._multiLineLayout(element);
 	        return arr;
 	    }
-	    /*
-	       //针对单行文字，还可以优化
-	       public static function _singleLineTextLayout(element:HTMLElement, txtWidth:int, txtHeight:int):Array
-	       {
-	       var style:CSSStyle = element._getCSSStyle();
-	    
-	       if (txtWidth < 0)
-	       {
-	       var txt:String = element.text;
-	       var sz:Object = Utils.measureText(txt, style.font);
-	       txtWidth = sz.width;
-	       txtHeight = sz.height;
-	       }
-	    
-	       if (style.italic)
-	       txtWidth += txtHeight / 3;
-	    
-	       var elements:Vector.<HTMLChar> = element._getWords() as Vector.<HTMLChar>;
-	       var x:int = 0;
-	       var y:int = 0;
-	    
-	       var letterSpacing:Number = style.letterSpacing;
-	       var align:int = style._getAlign();
-	       var lineHeight:Number = style.lineHeight;
-	       var valign:int = style._getValign();
-	    
-	       (lineHeight > 0) && valign === 0 && (valign = CSSStyle.VALIGN_MIDDLE);
-	    
-	       (align === CSSStyle.ALIGN_CENTER) && (x = (element.width - txtWidth) / 2);
-	       (align === CSSStyle.ALIGN_RIGHT) && (x = (element.width - txtWidth));
-	    
-	       (valign === CSSStyle.VALIGN_MIDDLE) && (y = (element.height - txtHeight) / 2);
-	       (valign === CSSStyle.VALIGN_BOTTOM) && (y = (element.height - txtHeight));
-	    
-	       for (var i:int = 0, n:int = elements.length; i < n; i++)
-	       {
-	       var one:ILayout = elements[i];
-	       one.x = x;
-	       one.y = y;
-	       x += one.width + letterSpacing;
-	       }
-	       return [txtWidth, txtHeight];
-	       }
-	     */
 	    static _multiLineLayout(element) {
 	        var elements = [];
 	        element._addChildsToLayout(elements);
@@ -787,7 +527,6 @@
 	            tLineFirstKey = true;
 	            newLine = false;
 	        }
-	        //生成排版的行
 	        for (i = 0; i < n; i++) {
 	            oneLayout = elements[i];
 	            if (oneLayout == null) {
@@ -806,10 +545,8 @@
 	            }
 	            else if (oneLayout._isChar()) {
 	                htmlWord = oneLayout;
-	                if (!htmlWord.isWord) //如果是完整单词
-	                 {
-	                    if (lines.length > 0 && (x + w) > width && curLine.wordStartIndex > 0) //如果完整单词超界，需要单词开始折到下一行
-	                     {
+	                if (!htmlWord.isWord) {
+	                    if (lines.length > 0 && (x + w) > width && curLine.wordStartIndex > 0) {
 	                        var tLineWord = 0;
 	                        tLineWord = curLine.elements.length - curLine.wordStartIndex + 1;
 	                        curLine.elements.length = curLine.wordStartIndex;
@@ -824,7 +561,6 @@
 	                    newLine = nextNewline || (htmlWord.char === '\n');
 	                    curLine.wordStartIndex = curLine.elements.length;
 	                }
-	                //w = htmlWord.width + letterSpacing;
 	                w = htmlWord.width + htmlWord.style.letterSpacing;
 	                h = htmlWord.height;
 	                nextNewline = false;
@@ -836,7 +572,6 @@
 	                curStyle = oneLayout._getCSSStyle();
 	                sprite = oneLayout;
 	                curPadding = curStyle.padding;
-	                //curStyle._getCssFloat() === 0 || (endAdjust = true);
 	                newLine = nextNewline || curStyle.getLineElement();
 	                w = sprite.width + curPadding[1] + curPadding[3] + curStyle.letterSpacing;
 	                h = sprite.height + curPadding[0] + curPadding[2];
@@ -845,7 +580,7 @@
 	                newLine && addLine();
 	            }
 	            curLine.elements.push(oneLayout);
-	            curLine.h = Math.max(curLine.h, h); //计算最大宽和高
+	            curLine.h = Math.max(curLine.h, h);
 	            oneLayout.x = x;
 	            oneLayout.y = y;
 	            x += w;
@@ -854,15 +589,10 @@
 	            maxWidth = Math.max(x + exWidth, maxWidth);
 	        }
 	        y = curLine.y + curLine.h;
-	        //如果行信息需要调整，包括有浮动，有居中等
 	        if (endAdjust) {
-	            //var dy:Number = 0;
-	            //valign === CSSStyle.VALIGN_MIDDLE && (dy = (height - y) / 2);
-	            //valign === CSSStyle.VALIGN_BOTTOM && (dy = (height - y));
 	            var tY = 0;
 	            var tWidth = width;
 	            if (widthAuto && element.width > 0) {
-	                //如果使用单行，这里一定要根据单行的实际宽（element.width）来排版
 	                tWidth = element.width;
 	            }
 	            for (i = 0, n = lines.length; i < n; i++) {
@@ -882,33 +612,21 @@
 	    HTMLElementType[HTMLElementType["BASE"] = 0] = "BASE";
 	    HTMLElementType[HTMLElementType["IMAGE"] = 1] = "IMAGE";
 	})(exports.HTMLElementType || (exports.HTMLElementType = {}));
-	/**
-	 * @private
-	 */
 	class HTMLElement {
 	    constructor() {
-	        this.eletype = exports.HTMLElementType.BASE; // 用type来避免 instance判断引起的import问题
+	        this.eletype = exports.HTMLElementType.BASE;
 	        this._creates();
 	        this.reset();
 	    }
-	    /**
-	     * 格式化指定的地址并返回。
-	     * @param	url 地址。
-	     * @param	base 基础路径，如果没有，则使用basePath。
-	     * @return	格式化处理后的地址。
-	     */
 	    static formatURL1(url, basePath = null) {
 	        if (!url)
 	            return "null path";
 	        if (!basePath)
 	            basePath = Laya.URL.basePath;
-	        //如果是全路径，直接返回，提高性能
 	        if (url.indexOf(":") > 0)
 	            return url;
-	        //自定义路径格式化
 	        if (Laya.URL.customFormat != null)
 	            url = Laya.URL.customFormat(url);
-	        //如果是全路径，直接返回，提高性能
 	        if (url.indexOf(":") > 0)
 	            return url;
 	        var char1 = url.charAt(0);
@@ -930,9 +648,6 @@
 	    _creates() {
 	        this._style = HTMLStyle.create();
 	    }
-	    /**
-	     * 重置
-	     */
 	    reset() {
 	        this.URI = null;
 	        this.parent = null;
@@ -956,11 +671,9 @@
 	        this._x = this._y = this._width = this._height = 0;
 	        return this;
 	    }
-	    /**@internal */
 	    _getCSSStyle() {
 	        return this._style;
 	    }
-	    /**@internal */
 	    _addChildsToLayout(out) {
 	        var words = this._getWords();
 	        if (words == null && (!this._children || this._children.length == 0))
@@ -977,7 +690,6 @@
 	            });
 	        return true;
 	    }
-	    /**@internal */
 	    _addToLayout(out) {
 	        if (!this._style)
 	            return;
@@ -1049,24 +761,14 @@
 	            return tar.name;
 	        return tar["constructor"].name;
 	    }
-	    /**
-	     * <p>销毁此对象。destroy对象默认会把自己从父节点移除，并且清理自身引用关系，等待js自动垃圾回收机制回收。destroy后不能再使用。</p>
-	     * <p>destroy时会移除自身的事情监听，自身的timer监听，移除子对象及从父节点移除自己。</p>
-	     * @param destroyChild	（可选）是否同时销毁子节点，若值为true,则销毁子节点，否则不销毁子节点。
-	     */
 	    destroy() {
-	        //销毁子节点
 	        if (this._children) {
 	            this.destroyChildren();
 	            this._children.length = 0;
 	        }
 	        Laya.Pool.recover(HTMLElement.getClassName(this), this.reset());
 	    }
-	    /**
-	     * 销毁所有子对象，不销毁自己本身。
-	     */
 	    destroyChildren() {
-	        //销毁子节点
 	        if (this._children) {
 	            for (var i = this._children.length - 1; i > -1; i--) {
 	                this._children[i].destroy();
@@ -1077,7 +779,6 @@
 	    get style() {
 	        return this._style;
 	    }
-	    /**@internal */
 	    _getWords() {
 	        if (!this._text)
 	            return null;
@@ -1098,12 +799,9 @@
 	        }
 	        return words;
 	    }
-	    /**@internal */
-	    //TODO:coverage
 	    _isChar() {
 	        return false;
 	    }
-	    /**@internal */
 	    _layoutLater() {
 	        var style = this.style;
 	        if ((style._type & HTMLStyle.ADDLAYOUTED))
@@ -1152,7 +850,6 @@
 	            this.repaint();
 	        }
 	    }
-	    /**@internal */
 	    _setAttributes(name, value) {
 	        switch (name) {
 	            case 'style':
@@ -1239,18 +936,9 @@
 	                    var stroke = cssStyle.stroke;
 	                    stroke = parseInt(stroke);
 	                    var strokeColor = cssStyle.strokeColor;
-	                    //for (i = 0; i < len; i++) {
-	                    //a = words[i];
-	                    //graphic.strokeText(a.char, a.x + gX, a.y + gY, font, strokeColor, stroke, 'left');
-	                    //graphic.fillText(a.char, a.x + gX, a.y + gY, font, color, 'left');
-	                    //}
 	                    graphic.fillBorderWords(words, gX, gY, font, color, strokeColor, stroke);
 	                }
 	                else {
-	                    //for (i = 0; i < len; i++) {
-	                    //a = words[i];
-	                    //graphic.fillText(a.char, a.x + gX, a.y + gY, font, color, 'left');
-	                    //}
 	                    graphic.fillWords(words, gX, gY, font, color);
 	                }
 	                if (this.href) {
@@ -1312,15 +1000,10 @@
 	Laya.ILaya.regClass(HTMLElement);
 	IHtml.HTMLElementType = exports.HTMLElementType;
 
-	/**
-	 * @internal
-	 */
 	class HTMLBrElement {
-	    /**@internal */
 	    _addToLayout(out) {
 	        out.push(this);
 	    }
-	    //TODO:coverage
 	    reset() {
 	        return this;
 	    }
@@ -1335,8 +1018,6 @@
 	    }
 	    set href(value) {
 	    }
-	    /**@internal */
-	    //TODO:coverage
 	    _getCSSStyle() {
 	        if (!HTMLBrElement.brStyle) {
 	            HTMLBrElement.brStyle = new HTMLStyle();
@@ -1351,36 +1032,14 @@
 	IHtml.HTMLBrElement = HTMLBrElement;
 	Laya.ILaya.regClass(HTMLBrElement);
 
-	/**
-	 * @private
-	 */
 	class HTMLStyleElement extends HTMLElement {
-	    /**
-	     * @override
-	     */
 	    _creates() {
 	    }
-	    /**
-	     *
-	     * @param graphic
-	     * @param gX
-	     * @param gY
-	     * @param recList
-	     * @override
-	     */
 	    drawToGraphic(graphic, gX, gY, recList) {
 	    }
-	    //TODO:coverage
-	    /**
-	     * @override
-	     */
 	    reset() {
 	        return this;
 	    }
-	    /**
-	     * 解析样式
-	     * @override
-	     */
 	    set innerTEXT(value) {
 	        HTMLStyle.parseCSS(value, null);
 	    }
@@ -1390,35 +1049,17 @@
 	}
 	Laya.ILaya.regClass(HTMLStyleElement);
 
-	/**
-	 * @private
-	 */
 	class HTMLLinkElement extends HTMLElement {
-	    /**
-	     * @override
-	     */
 	    _creates() {
 	    }
-	    /**
-	     *
-	     * @param graphic
-	     * @param gX
-	     * @param gY
-	     * @param recList
-	     * @override
-	     */
 	    drawToGraphic(graphic, gX, gY, recList) {
 	    }
-	    /**
-	     * @override
-	     */
 	    reset() {
 	        if (this._loader)
 	            this._loader.off(Laya.Event.COMPLETE, this, this._onload);
 	        this._loader = null;
 	        return this;
 	    }
-	    /**@internal */
 	    _onload(data) {
 	        if (this._loader)
 	            this._loader = null;
@@ -1429,9 +1070,6 @@
 	        }
 	        this.repaint(true);
 	    }
-	    /**
-	     * @override
-	     */
 	    set href(url) {
 	        if (!url)
 	            return;
@@ -1456,18 +1094,11 @@
 	HTMLLinkElement._cuttingStyle = new RegExp("((@keyframes[\\s\\t]+|)(.+))[\\t\\n\\r\\\s]*{", "g");
 	Laya.ILaya.regClass(HTMLLinkElement);
 
-	/**
-	 * @private
-	 */
 	class HTMLDivParser extends HTMLElement {
 	    constructor() {
 	        super(...arguments);
-	        /** 重绘回调 */
 	        this.repaintHandler = null;
 	    }
-	    /**
-	     * @override
-	     */
 	    reset() {
 	        super.reset();
 	        this._style.block = true;
@@ -1479,16 +1110,10 @@
 	        this.contextWidth = 0;
 	        return this;
 	    }
-	    /**
-	     * 设置标签内容
-	     */
 	    set innerHTML(text) {
 	        this.destroyChildren();
 	        this.appendHTML(text);
 	    }
-	    /**
-	     * @override
-	     */
 	    set width(value) {
 	        var changed;
 	        if (value === 0) {
@@ -1501,20 +1126,10 @@
 	        if (changed)
 	            this.layout();
 	    }
-	    /**
-	     * 追加内容，解析并对显示对象排版
-	     * @param	text
-	     */
 	    appendHTML(text) {
 	        IHtml.HTMLParse.parse(this, text, this.URI);
 	        this.layout();
 	    }
-	    /**
-	     * @internal
-	     * @param	out
-	     * @return
-	     * @override
-	     */
 	    _addChildsToLayout(out) {
 	        var words = this._getWords();
 	        if (words == null && (!this._children || this._children.length == 0))
@@ -1531,25 +1146,14 @@
 	            else {
 	                out.push(null);
 	            }
-	            //o._style._enableLayout() && o._addToLayout(out);
 	            o._addToLayout(out);
 	        }
 	        return true;
 	    }
-	    /**
-	     * @internal
-	     * @param	out
-	     * @override
-	     */
-	    //TODO:coverage
 	    _addToLayout(out) {
 	        this.layout();
 	        !this.style.absolute && out.push(this);
 	    }
-	    /**
-	     * 获取bounds
-	     * @return
-	     */
 	    getBounds() {
 	        if (!this._htmlBounds)
 	            return null;
@@ -1557,18 +1161,11 @@
 	            this._boundsRec = Laya.Rectangle.create();
 	        return this._boundsRec.copyFrom(this._htmlBounds);
 	    }
-	    /**
-	     * @override
-	     */
 	    parentRepaint(recreate = false) {
 	        super.parentRepaint();
 	        if (this.repaintHandler)
 	            this.repaintHandler.runWith(recreate);
 	    }
-	    /**
-	     * @private
-	     * 对显示内容进行排版
-	     */
 	    layout() {
 	        this.style._type |= HTMLStyle.ADDLAYOUTED;
 	        var tArray = Layout.layout(this);
@@ -1581,10 +1178,6 @@
 	            tRectangle.height = this.contextHeight = tArray[1];
 	        }
 	    }
-	    /**
-	     * 获取对象的高
-	     * @override
-	     */
 	    get height() {
 	        if (this._height)
 	            return this._height;
@@ -1593,10 +1186,6 @@
 	    set height(value) {
 	        super.height = value;
 	    }
-	    /**
-	     * 获取对象的宽
-	     * @override
-	     */
 	    get width() {
 	        if (this._width)
 	            return this._width;
@@ -1606,14 +1195,7 @@
 	IHtml.HTMLDivParser = HTMLDivParser;
 	Laya.ILaya.regClass(HTMLDivParser);
 
-	/**
-	 * @private
-	 */
 	class HTMLParse {
-	    /**
-	     * 根据类型获取对应的节点
-	     * @param type
-	     */
 	    static getInstance(type) {
 	        var rst = Laya.Pool.getItem(HTMLParse._htmlClassMapShort[type]);
 	        if (!rst) {
@@ -1621,32 +1203,16 @@
 	        }
 	        return rst;
 	    }
-	    /**
-	     * 解析HTML
-	     * @param	ower
-	     * @param	xmlString
-	     * @param	url
-	     */
 	    static parse(ower, xmlString, url) {
 	        xmlString = xmlString.replace(/<br>/g, "<br/>");
 	        xmlString = "<root>" + xmlString + "</root>";
 	        xmlString = xmlString.replace(HTMLParse.spacePattern, HTMLParse.char255);
 	        var xml = Laya.Utils.parseXMLFromString(xmlString);
-	        /*if (xml.firstChild.innerHTML.indexOf("<parsererror ") == 0)
-	           {
-	           throw new Error("HTML parsererror:" + xmlString);
-	           return;
-	           }*/
 	        HTMLParse._parseXML(ower, xml.childNodes[0].childNodes, url);
 	    }
-	    /**
-	     * 解析xml节点 该函数会被递归调用
-	     * @param xml
-	     */
 	    static _parseXML(parent, xml, url, href = null) {
 	        var i, n;
-	        if (xml.join || xml.item) //判断xml是否是NodeList或AS中为Array
-	         {
+	        if (xml.join || xml.item) {
 	            for (i = 0, n = xml.length; i < n; ++i) {
 	                HTMLParse._parseXML(parent, xml[i], url, href);
 	            }
@@ -1654,27 +1220,34 @@
 	        else {
 	            var node;
 	            var nodeName;
-	            if (xml.nodeType == 3) //文本节点
-	             {
+	            if (xml.nodeType == 3) {
 	                var txt;
 	                if (parent instanceof IHtml.HTMLDivParser) {
 	                    if (xml.nodeName == null) {
 	                        xml.nodeName = "#text";
 	                    }
 	                    nodeName = xml.nodeName.toLowerCase();
-	                    txt = xml.textContent.replace(/^\s+|\s+$/g, ''); //去掉前后空格和\n\t
+	                    txt = xml.textContent.replace(/^\s+|\s+$/g, '');
 	                    if (txt.length > 0) {
 	                        node = HTMLParse.getInstance(nodeName);
 	                        if (node) {
 	                            parent.addChild(node);
-	                            (node.innerTEXT = txt.replace(HTMLParse.char255AndOneSpacePattern, " ")); // decodeFromEntities(txt));
+	                            (node.innerTEXT = txt.replace(HTMLParse.char255AndOneSpacePattern, " "));
 	                        }
 	                    }
 	                }
 	                else {
-	                    txt = xml.textContent.replace(/^\s+|\s+$/g, ''); //去掉前后空格和\n\t
+	                    txt = xml.textContent.replace(/^\s+|\s+$/g, '');
 	                    if (txt.length > 0) {
-	                        (parent.innerTEXT = txt.replace(HTMLParse.char255AndOneSpacePattern, " ")); // decodeFromEntities(txt));
+	                        var containNode = parent;
+	                        if (parent instanceof HTMLElement && parent.innerTEXT && parent.innerTEXT.length > 0) {
+	                            let cnode = HTMLParse.getInstance('p');
+	                            if (cnode) {
+	                                parent.addChild(cnode);
+	                                containNode = cnode;
+	                            }
+	                        }
+	                        containNode.innerTEXT = txt.replace(HTMLParse.char255AndOneSpacePattern, " ");
 	                    }
 	                }
 	                return;
@@ -1740,57 +1313,16 @@
 	Laya.ClassUtils.regClass('#text', HTMLElement);
 	Laya.ClassUtils.regClass('link', HTMLLinkElement);
 
-	/**
-	 * HTML图文类，用于显示html内容
-	 *
-	 * 支持的标签如下:
-	 * a:链接标签，点击后会派发"link"事件 比如:<a href='alink'>a</a>
-	 * div:div容器标签，比如:<div>abc</div>
-	 * span:行内元素标签，比如:<span style='color:#ff0000'>abc</span>
-	 * p:行元素标签，p标签会自动换行，div不会，比如:<p>abc</p>
-	 * img:图片标签，比如:<img src='res/boy.png'></img>
-	 * br:换行标签，比如:<div>abc<br/>def</div>
-	 * style:样式标签，比如:<div style='width:130px;height:50px;color:#ff0000'>abc</div>
-	 * link:外链样式标签，可以加载一个css文件来当style使用，比如:<link type='text/css' href='html/test.css'/>
-	 *
-	 * style支持的属性如下:
-	 * italic:true|false;					是否是斜体
-	 * bold:true|false;						是否是粗体
-	 * letter-spacing:10px;					字间距
-	 * font-family:宋体; 					字体
-	 * font-size:20px;						字体大小
-	 * font-weight:bold:none;				字体是否是粗体，功能同bold
-	 * color:#ff0000;						字体颜色
-	 * stroke:2px;							字体描边宽度
-	 * strokeColor:#ff0000;					字体描边颜色
-	 * padding:10px 10px 20px 20px;			边缘的距离
-	 * vertical-align:top|bottom|middle;	垂直对齐方式
-	 * align:left|right|center;				水平对齐方式
-	 * line-height:20px;					行高
-	 * background-color:#ff0000;			背景颜色
-	 * border-color:#ff0000;				边框颜色
-	 * width:100px;							对象宽度
-	 * height:100px;						对象高度
-	 *
-	 * 示例用法：
-	 * var div:HTMLDivElement=new HTMLDivElement();
-	 * div.innerHTML = "<link type='text/css' href='html/test.css'/><a href='alink'>a</a><div style='width:130px;height:50px;color:#ff0000'>div</div><br/><span style='font-weight:bold;color:#ffffff;font-size:30px;stroke:2px;italic:true;'>span</span><span style='letter-spacing:5px'>span2</span><p>p</p><img src='res/boy.png'></img>";
-	 */
 	class HTMLDivElement extends Laya.Sprite {
 	    constructor() {
 	        super();
-	        /**@private */
 	        this._recList = [];
-	        /**@private */
 	        this._repaintState = 0;
 	        this._element = new HTMLDivParser();
 	        this._element.repaintHandler = new Laya.Handler(this, this._htmlDivRepaint);
 	        this.mouseEnabled = true;
 	        this.on(Laya.Event.CLICK, this, this._onMouseClick);
 	    }
-	    /**@private
-	     * @override
-	    */
 	    destroy(destroyChild = true) {
 	        if (this._element)
 	            this._element.reset();
@@ -1798,7 +1330,6 @@
 	        this._doClears();
 	        super.destroy(destroyChild);
 	    }
-	    /**@private */
 	    _htmlDivRepaint(recreate = false) {
 	        if (recreate) {
 	            if (this._repaintState < 2)
@@ -1824,7 +1355,6 @@
 	    _setGraphicDirty() {
 	        this.callLater(this._updateGraphicWork);
 	    }
-	    /**@private */
 	    _doClears() {
 	        if (!this._recList)
 	            return;
@@ -1836,7 +1366,6 @@
 	        }
 	        this._recList.length = 0;
 	    }
-	    /**@private */
 	    _updateGraphic() {
 	        this._doClears();
 	        this.graphics.clear(true);
@@ -1845,18 +1374,11 @@
 	        var bounds = this._element.getBounds();
 	        if (bounds)
 	            this.setSelfBounds(bounds);
-	        //this.hitArea = bounds;
 	        this.size(bounds.width, bounds.height);
 	    }
-	    /**
-	     * 获取HTML样式
-	     */
 	    get style() {
 	        return this._element.style;
 	    }
-	    /**
-	     * 设置标签内容
-	     */
 	    set innerHTML(text) {
 	        if (this._innerHTML == text)
 	            return;
@@ -1871,19 +1393,12 @@
 	            this._element.innerHTML = this._innerHTML;
 	        this._setGraphicDirty();
 	    }
-	    /**
-	     * 获取內容宽度
-	     */
 	    get contextWidth() {
 	        return this._element.contextWidth;
 	    }
-	    /**
-	     * 获取內容高度
-	     */
 	    get contextHeight() {
 	        return this._element.contextHeight;
 	    }
-	    /**@private */
 	    _onMouseClick() {
 	        var tX = this.mouseX;
 	        var tY = this.mouseY;
@@ -1897,7 +1412,6 @@
 	            }
 	        }
 	    }
-	    /**@private */
 	    _eventLink(href) {
 	        this.event(Laya.Event.LINK, [href]);
 	    }
@@ -1905,18 +1419,11 @@
 	IHtml.HTMLDivElement = HTMLDivElement;
 	IHtml.HTMLParse = HTMLParse;
 
-	/**
-	 * iframe标签类，目前用于加载外并解析数据
-	 */
 	class HTMLIframeElement extends HTMLDivElement {
 	    constructor() {
 	        super();
 	        this._element._getCSSStyle().valign = "middle";
 	    }
-	    /**
-	     * 加载html文件，并解析数据
-	     * @param	url
-	     */
 	    set href(url) {
 	        url = this._element.formatURL(url);
 	        var l = new Laya.Loader();
@@ -1930,17 +1437,11 @@
 	    }
 	}
 
-	/**
-	 * @private
-	 */
 	class HTMLImageElement$1 extends HTMLElement {
 	    constructor() {
 	        super();
 	        this.eletype = exports.HTMLElementType.IMAGE;
 	    }
-	    /**
-	     * @override
-	     */
 	    reset() {
 	        super.reset();
 	        if (this._tex) {
@@ -1963,7 +1464,6 @@
 	        }
 	        tex.getIsReady() ? this.onloaded() : tex.once(Laya.Event.READY, this, this.onloaded);
 	    }
-	    //TODO:coverage
 	    onloaded() {
 	        if (!this._style)
 	            return;
@@ -1980,21 +1480,10 @@
 	        }
 	        this.repaint();
 	    }
-	    /**@internal
-	     * @override
-	    */
 	    _addToLayout(out) {
 	        var style = this._style;
 	        !style.absolute && out.push(this);
 	    }
-	    /**
-	     *
-	     * @param graphic
-	     * @param gX
-	     * @param gY
-	     * @param recList
-	     * @override
-	     */
 	    renderSelfToGraphic(graphic, gX, gY, recList) {
 	        if (!this._tex)
 	            return;

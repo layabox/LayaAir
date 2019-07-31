@@ -23,8 +23,11 @@ export class Bone {
 	resultRotation: number;
 	d: number = -1;
 
+	/**@internal */
 	private _tempMatrix: Matrix;
+	/**@internal */
 	private _children: Bone[] = [];
+	/**@internal */
 	private _sprite: Sprite;
 
 	constructor() {

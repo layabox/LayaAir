@@ -7,22 +7,223 @@
     IAniLib.AnimationTemplet = null;
     IAniLib.Templet = null;
 
-    /**
-     * @internal
-     * @author ...
-     */
     class AnimationContent {
     }
 
-    /**
-     * @internal
-     */
     class AnimationNodeContent {
     }
 
-    /**
-     * @internal
-     */
+    class KeyFramesContent {
+    }
+
+    class AnimationParser01 {
+        static parse(templet, reader) {
+            var data = reader.__getBuffer();
+            var i, j, k, n, l, m, o;
+            var aniClassName = reader.readUTFString();
+            templet._aniClassName = aniClassName;
+            var strList = reader.readUTFString().split("\n");
+            var aniCount = reader.getUint8();
+            var publicDataPos = reader.getUint32();
+            var publicExtDataPos = reader.getUint32();
+            var publicData;
+            if (publicDataPos > 0)
+                publicData = data.slice(publicDataPos, publicExtDataPos);
+            var publicRead = new Laya.Byte(publicData);
+            if (publicExtDataPos > 0)
+                templet._publicExtData = data.slice(publicExtDataPos, data.byteLength);
+            templet._useParent = !!reader.getUint8();
+            templet._anis.length = aniCount;
+            for (i = 0; i < aniCount; i++) {
+                var ani = templet._anis[i] = new AnimationContent();
+                ani.nodes = [];
+                var name = ani.name = strList[reader.getUint16()];
+                templet._aniMap[name] = i;
+                ani.bone3DMap = {};
+                ani.playTime = reader.getFloat32();
+                var boneCount = ani.nodes.length = reader.getUint8();
+                ani.totalKeyframeDatasLength = 0;
+                for (j = 0; j < boneCount; j++) {
+                    var node = ani.nodes[j] = new AnimationNodeContent();
+                    node.childs = [];
+                    var nameIndex = reader.getInt16();
+                    if (nameIndex >= 0) {
+                        node.name = strList[nameIndex];
+                        ani.bone3DMap[node.name] = j;
+                    }
+                    node.keyFrame = [];
+                    node.parentIndex = reader.getInt16();
+                    node.parentIndex == -1 ? node.parent = null : node.parent = ani.nodes[node.parentIndex];
+                    node.lerpType = reader.getUint8();
+                    var keyframeParamsOffset = reader.getUint32();
+                    publicRead.pos = keyframeParamsOffset;
+                    var keyframeDataCount = node.keyframeWidth = publicRead.getUint16();
+                    ani.totalKeyframeDatasLength += keyframeDataCount;
+                    if (node.lerpType === 0 || node.lerpType === 1) {
+                        node.interpolationMethod = [];
+                        node.interpolationMethod.length = keyframeDataCount;
+                        for (k = 0; k < keyframeDataCount; k++)
+                            node.interpolationMethod[k] = IAniLib.AnimationTemplet.interpolation[publicRead.getUint8()];
+                    }
+                    if (node.parent != null)
+                        node.parent.childs.push(node);
+                    var privateDataLen = reader.getUint16();
+                    if (privateDataLen > 0) {
+                        node.extenData = data.slice(reader.pos, reader.pos + privateDataLen);
+                        reader.pos += privateDataLen;
+                    }
+                    var keyframeCount = reader.getUint16();
+                    node.keyFrame.length = keyframeCount;
+                    var startTime = 0;
+                    var keyFrame;
+                    for (k = 0, n = keyframeCount; k < n; k++) {
+                        keyFrame = node.keyFrame[k] = new KeyFramesContent();
+                        keyFrame.duration = reader.getFloat32();
+                        keyFrame.startTime = startTime;
+                        if (node.lerpType === 2) {
+                            keyFrame.interpolationData = [];
+                            var interDataLength = reader.getUint8();
+                            var lerpType;
+                            lerpType = reader.getFloat32();
+                            switch (lerpType) {
+                                case 254:
+                                    keyFrame.interpolationData.length = keyframeDataCount;
+                                    for (o = 0; o < keyframeDataCount; o++)
+                                        keyFrame.interpolationData[o] = 0;
+                                    break;
+                                case 255:
+                                    keyFrame.interpolationData.length = keyframeDataCount;
+                                    for (o = 0; o < keyframeDataCount; o++)
+                                        keyFrame.interpolationData[o] = 5;
+                                    break;
+                                default:
+                                    keyFrame.interpolationData.push(lerpType);
+                                    for (m = 1; m < interDataLength; m++) {
+                                        keyFrame.interpolationData.push(reader.getFloat32());
+                                    }
+                            }
+                        }
+                        keyFrame.data = new Float32Array(keyframeDataCount);
+                        keyFrame.dData = new Float32Array(keyframeDataCount);
+                        keyFrame.nextData = new Float32Array(keyframeDataCount);
+                        for (l = 0; l < keyframeDataCount; l++) {
+                            keyFrame.data[l] = reader.getFloat32();
+                            if (keyFrame.data[l] > -0.00000001 && keyFrame.data[l] < 0.00000001)
+                                keyFrame.data[l] = 0;
+                        }
+                        startTime += keyFrame.duration;
+                    }
+                    keyFrame.startTime = ani.playTime;
+                    node.playTime = ani.playTime;
+                    templet._calculateKeyFrame(node, keyframeCount, keyframeDataCount);
+                }
+            }
+        }
+    }
+
+    class AnimationParser02 {
+        static READ_DATA() {
+            AnimationParser02._DATA.offset = AnimationParser02._reader.getUint32();
+            AnimationParser02._DATA.size = AnimationParser02._reader.getUint32();
+        }
+        static READ_BLOCK() {
+            var count = AnimationParser02._BLOCK.count = AnimationParser02._reader.getUint16();
+            var blockStarts = AnimationParser02._BLOCK.blockStarts = [];
+            var blockLengths = AnimationParser02._BLOCK.blockLengths = [];
+            for (var i = 0; i < count; i++) {
+                blockStarts.push(AnimationParser02._reader.getUint32());
+                blockLengths.push(AnimationParser02._reader.getUint32());
+            }
+        }
+        static READ_STRINGS() {
+            var offset = AnimationParser02._reader.getUint32();
+            var count = AnimationParser02._reader.getUint16();
+            var prePos = AnimationParser02._reader.pos;
+            AnimationParser02._reader.pos = offset + AnimationParser02._DATA.offset;
+            for (var i = 0; i < count; i++)
+                AnimationParser02._strings[i] = AnimationParser02._reader.readUTFString();
+            AnimationParser02._reader.pos = prePos;
+        }
+        static parse(templet, reader) {
+            AnimationParser02._templet = templet;
+            AnimationParser02._reader = reader;
+            var arrayBuffer = reader.__getBuffer();
+            AnimationParser02.READ_DATA();
+            AnimationParser02.READ_BLOCK();
+            AnimationParser02.READ_STRINGS();
+            for (var i = 0, n = AnimationParser02._BLOCK.count; i < n; i++) {
+                var index = reader.getUint16();
+                var blockName = AnimationParser02._strings[index];
+                var fn = AnimationParser02["READ_" + blockName];
+                if (fn == null)
+                    throw new Error("model file err,no this function:" + index + " " + blockName);
+                else
+                    fn.call(null);
+            }
+        }
+        static READ_ANIMATIONS() {
+            var reader = AnimationParser02._reader;
+            var arrayBuffer = reader.__getBuffer();
+            var i, j, k, n;
+            var keyframeWidth = reader.getUint16();
+            var interpolationMethod = [];
+            interpolationMethod.length = keyframeWidth;
+            for (i = 0; i < keyframeWidth; i++)
+                interpolationMethod[i] = IAniLib.AnimationTemplet.interpolation[reader.getByte()];
+            var aniCount = reader.getUint8();
+            AnimationParser02._templet._anis.length = aniCount;
+            for (i = 0; i < aniCount; i++) {
+                var ani = AnimationParser02._templet._anis[i] = new AnimationContent();
+                ani.nodes = [];
+                var aniName = ani.name = AnimationParser02._strings[reader.getUint16()];
+                AnimationParser02._templet._aniMap[aniName] = i;
+                ani.bone3DMap = {};
+                ani.playTime = reader.getFloat32();
+                var boneCount = ani.nodes.length = reader.getInt16();
+                ani.totalKeyframeDatasLength = 0;
+                for (j = 0; j < boneCount; j++) {
+                    var node = ani.nodes[j] = new AnimationNodeContent();
+                    node.keyframeWidth = keyframeWidth;
+                    node.childs = [];
+                    var nameIndex = reader.getUint16();
+                    if (nameIndex >= 0) {
+                        node.name = AnimationParser02._strings[nameIndex];
+                        ani.bone3DMap[node.name] = j;
+                    }
+                    node.keyFrame = [];
+                    node.parentIndex = reader.getInt16();
+                    node.parentIndex == -1 ? node.parent = null : node.parent = ani.nodes[node.parentIndex];
+                    ani.totalKeyframeDatasLength += keyframeWidth;
+                    node.interpolationMethod = interpolationMethod;
+                    if (node.parent != null)
+                        node.parent.childs.push(node);
+                    var keyframeCount = reader.getUint16();
+                    node.keyFrame.length = keyframeCount;
+                    var keyFrame = null, lastKeyFrame = null;
+                    for (k = 0, n = keyframeCount; k < n; k++) {
+                        keyFrame = node.keyFrame[k] = new KeyFramesContent();
+                        keyFrame.startTime = reader.getFloat32();
+                        (lastKeyFrame) && (lastKeyFrame.duration = keyFrame.startTime - lastKeyFrame.startTime);
+                        keyFrame.dData = new Float32Array(keyframeWidth);
+                        keyFrame.nextData = new Float32Array(keyframeWidth);
+                        var offset = AnimationParser02._DATA.offset;
+                        var keyframeDataOffset = reader.getUint32();
+                        var keyframeDataLength = keyframeWidth * 4;
+                        var keyframeArrayBuffer = arrayBuffer.slice(offset + keyframeDataOffset, offset + keyframeDataOffset + keyframeDataLength);
+                        keyFrame.data = new Float32Array(keyframeArrayBuffer);
+                        lastKeyFrame = keyFrame;
+                    }
+                    keyFrame.duration = 0;
+                    node.playTime = ani.playTime;
+                    AnimationParser02._templet._calculateKeyFrame(node, keyframeCount, keyframeWidth);
+                }
+            }
+        }
+    }
+    AnimationParser02._strings = [];
+    AnimationParser02._BLOCK = { count: 0 };
+    AnimationParser02._DATA = { offset: 0, size: 0 };
+
     class AnimationState {
         constructor() {
         }
@@ -31,34 +232,10 @@
     AnimationState.paused = 1;
     AnimationState.playing = 2;
 
-    /**开始播放时调度。
-     * @eventType Event.PLAYED
-     * */
-    /*[Event(name = "played", type = "laya.events.Event")]*/
-    /**暂停时调度。
-     * @eventType Event.PAUSED
-     * */
-    /*[Event(name = "paused", type = "laya.events.Event")]*/
-    /**完成一次循环时调度。
-     * @eventType Event.COMPLETE
-     * */
-    /*[Event(name = "complete", type = "laya.events.Event")]*/
-    /**停止时调度。
-     * @eventType Event.STOPPED
-     * */
-    /*[Event(name = "stopped", type = "laya.events.Event")]*/
-    /**
-     * <code>AnimationPlayer</code> 类用于动画播放器。
-     */
     class AnimationPlayer extends Laya.EventDispatcher {
-        /**
-         * 创建一个 <code>AnimationPlayer</code> 实例。
-         */
         constructor() {
             super();
-            /**是否缓存*/
             this.isCache = true;
-            /** 播放速率*/
             this.playbackRate = 1.0;
             this._destroyed = false;
             this._currentAnimationClipIndex = -1;
@@ -72,168 +249,83 @@
             this.cacheFrameRate = 60;
             this.returnToZeroStopped = false;
         }
-        /**
-         * 获取动画数据模板
-         * @param	value 动画数据模板
-         */
         get templet() {
             return this._templet;
         }
-        /**
-         * 设置动画数据模板,注意：修改此值会有计算开销。
-         * @param	value 动画数据模板
-         */
         set templet(value) {
             if (!(this.state === AnimationState.stopped))
                 this.stop(true);
             if (this._templet !== value) {
                 this._templet = value;
-                //if (value.loaded)
                 this._computeFullKeyframeIndices();
-                //else
-                //value.once(Event.LOADED, this, _onTempletLoadedComputeFullKeyframeIndices, [_cachePlayRate, _cacheFrameRate]);
             }
         }
-        /**
-         * 动画播放的起始时间位置。
-         * @return	 起始时间位置。
-         */
         get playStart() {
             return this._playStart;
         }
-        /**
-         * 动画播放的结束时间位置。
-         * @return	 结束时间位置。
-         */
         get playEnd() {
             return this._playEnd;
         }
-        /**
-         * 获取动画播放一次的总时间
-         * @return	 动画播放一次的总时间
-         */
         get playDuration() {
             return this._playDuration;
         }
-        /**
-         * 获取动画播放的总总时间
-         * @return	 动画播放的总时间
-         */
         get overallDuration() {
             return this._overallDuration;
         }
-        /**
-         * 获取当前动画索引
-         * @return	value 当前动画索引
-         */
         get currentAnimationClipIndex() {
             return this._currentAnimationClipIndex;
         }
-        /**
-         * 获取当前帧数
-         * @return	 当前帧数
-         */
         get currentKeyframeIndex() {
             return this._currentKeyframeIndex;
         }
-        /**
-         *  获取当前精确时间，不包括重播时间
-         * @return	value 当前时间
-         */
         get currentPlayTime() {
             return this._currentTime + this._playStart;
         }
-        /**
-         *  获取当前帧时间，不包括重播时间
-         * @return	value 当前时间
-         */
         get currentFrameTime() {
             return this._currentFrameTime;
         }
-        /**
-         *  获取缓存播放速率。*
-         * @return	 缓存播放速率。
-         */
         get cachePlayRate() {
             return this._cachePlayRate;
         }
-        /**
-         *  设置缓存播放速率,默认值为1.0,注意：修改此值会有计算开销。*
-         * @return	value 缓存播放速率。
-         */
         set cachePlayRate(value) {
             if (this._cachePlayRate !== value) {
                 this._cachePlayRate = value;
                 if (this._templet)
-                    //if (_templet.loaded)
                     this._computeFullKeyframeIndices();
-                //else
-                //_templet.once(Event.LOADED, this, _onTempletLoadedComputeFullKeyframeIndices, [value, _cacheFrameRate]);
             }
         }
-        /**
-         *  获取默认帧率*
-         * @return	value 默认帧率
-         */
         get cacheFrameRate() {
             return this._cacheFrameRate;
         }
-        /**
-         *  设置默认帧率,每秒60帧,注意：修改此值会有计算开销。*
-         * @return	value 缓存帧率
-         */
         set cacheFrameRate(value) {
             if (this._cacheFrameRate !== value) {
                 this._cacheFrameRate = value;
                 this._cacheFrameRateInterval = 1000.0 / this._cacheFrameRate;
                 if (this._templet)
-                    //if (_templet.loaded)
                     this._computeFullKeyframeIndices();
-                //else
-                //_templet.once(Event.LOADED, this, _onTempletLoadedComputeFullKeyframeIndices, [_cachePlayRate, value]);
             }
         }
-        /**
-         * 设置当前播放位置
-         * @param	value 当前时间
-         */
         set currentTime(value) {
-            if (this._currentAnimationClipIndex === -1 || !this._templet /*|| !_templet.loaded*/)
+            if (this._currentAnimationClipIndex === -1 || !this._templet)
                 return;
             if (value < this._playStart || value > this._playEnd)
                 throw new Error("AnimationPlayer:value must large than playStartTime,small than playEndTime.");
             this._startUpdateLoopCount = Laya.Stat.loopCount;
             var cacheFrameInterval = this._cacheFrameRateInterval * this._cachePlayRate;
-            this._currentTime = value /*% playDuration*/;
+            this._currentTime = value;
             this._currentKeyframeIndex = Math.floor(this.currentPlayTime / cacheFrameInterval);
             this._currentFrameTime = this._currentKeyframeIndex * cacheFrameInterval;
         }
-        /**
-         * 获取当前是否暂停
-         * @return	是否暂停
-         */
         get paused() {
             return this._paused;
         }
-        /**
-         * 设置是否暂停
-         * @param	value 是否暂停
-         */
         set paused(value) {
             this._paused = value;
             value && this.event(Laya.Event.PAUSED);
         }
-        /**
-         * 获取缓存帧率间隔时间
-         * @return	缓存帧率间隔时间
-         */
         get cacheFrameRateInterval() {
             return this._cacheFrameRateInterval;
         }
-        /**
-         * 获取当前播放状态
-         * @return	当前播放状态
-         */
         get state() {
             if (this._currentAnimationClipIndex === -1)
                 return AnimationState.stopped;
@@ -241,25 +333,15 @@
                 return AnimationState.paused;
             return AnimationState.playing;
         }
-        /**
-         * 获取是否已销毁。
-         * @return 是否已销毁。
-         */
         get destroyed() {
             return this._destroyed;
         }
-        /**
-         * @internal
-         */
         _onTempletLoadedComputeFullKeyframeIndices(cachePlayRate, cacheFrameRate, templet) {
             if (this._templet === templet && this._cachePlayRate === cachePlayRate && this._cacheFrameRate === cacheFrameRate)
                 this._computeFullKeyframeIndices();
         }
-        /**
-         * @private
-         */
         _computeFullKeyframeIndices() {
-            return; // 先改成实时计算了。否则占用内存太多
+            return;
             var templet = this._templet;
             if (templet._fullFrames)
                 return;
@@ -274,9 +356,8 @@
                 for (var j = 0, jNum = templet.getAnimation(i).nodes.length; j < jNum; j++) {
                     var node = templet.getAnimation(i).nodes[j];
                     var frameCount = Math.round(node.playTime / cacheFrameInterval);
-                    var nodeFullFrames = new Uint16Array(frameCount + 1); //本骨骼对应的全帧关键帧编号
-                    // 先把关键帧所在的位置填上
-                    var stidx = -1; // 第一帧的位置，应该是0
+                    var nodeFullFrames = new Uint16Array(frameCount + 1);
+                    var stidx = -1;
                     var nodeframes = node.keyFrame;
                     for (var n = 0, nNum = nodeframes.length; n < nNum; n++) {
                         var keyFrame = nodeframes[n];
@@ -284,18 +365,17 @@
                         if (stidx < 0 && pos > 0) {
                             stidx = pos;
                         }
-                        if (pos <= frameCount) { // 实际大小是frameCount+1
+                        if (pos <= frameCount) {
                             nodeFullFrames[pos] = n;
                         }
                     }
-                    // 再把空隙填满
                     var cf = 0;
-                    for (n = stidx; n < frameCount; n++) { // 实际大小是frameCount+1 
+                    for (n = stidx; n < frameCount; n++) {
                         if (nodeFullFrames[n] == 0) {
                             nodeFullFrames[n] = cf;
                         }
                         else {
-                            cf = nodeFullFrames[n]; // 新的开始
+                            cf = nodeFullFrames[n];
                         }
                     }
                     aniFullFrame.push(nodeFullFrames);
@@ -303,75 +383,54 @@
                 anifullFrames.push(aniFullFrame);
             }
         }
-        /**
-         * @private
-         */
         _onAnimationTempletLoaded() {
             (this.destroyed) || (this._calculatePlayDuration());
         }
-        /**
-         * @private
-         */
         _calculatePlayDuration() {
-            if (this.state !== AnimationState.stopped) { //防止动画已停止，异步回调导致BUG
+            if (this.state !== AnimationState.stopped) {
                 var oriDuration = this._templet.getAniDuration(this._currentAnimationClipIndex);
                 (this._playEnd === 0) && (this._playEnd = oriDuration);
-                if (this._playEnd > oriDuration) //以毫秒为最小时间单位,取整。FillTextureSprite
+                if (this._playEnd > oriDuration)
                     this._playEnd = oriDuration;
                 this._playDuration = this._playEnd - this._playStart;
             }
         }
-        /**
-         * @private
-         */
         _setPlayParams(time, cacheFrameInterval) {
             this._currentTime = time;
             this._currentKeyframeIndex = Math.floor((this.currentPlayTime) / cacheFrameInterval + 0.01);
             this._currentFrameTime = this._currentKeyframeIndex * cacheFrameInterval;
         }
-        /**
-         * 动画停止了对应的参数。目前都是设置时间为最后
-         * @private
-         */
         _setPlayParamsWhenStop(currentAniClipPlayDuration, cacheFrameInterval, playEnd = -1) {
             this._currentTime = currentAniClipPlayDuration;
             var endTime = playEnd > 0 ? playEnd : currentAniClipPlayDuration;
             this._currentKeyframeIndex = Math.floor(endTime / cacheFrameInterval + 0.01);
             this._currentKeyframeIndex = Math.floor(currentAniClipPlayDuration / cacheFrameInterval + 0.01);
             this._currentFrameTime = this._currentKeyframeIndex * cacheFrameInterval;
-            this._currentAnimationClipIndex = -1; //动画结束	
+            this._currentAnimationClipIndex = -1;
         }
-        /**
-         * @internal
-         */
         _update(elapsedTime) {
-            if (this._currentAnimationClipIndex === -1 || this._paused || !this._templet /*|| !_templet.loaded*/) //动画停止或暂停，不更新
+            if (this._currentAnimationClipIndex === -1 || this._paused || !this._templet)
                 return;
             var cacheFrameInterval = this._cacheFrameRateInterval * this._cachePlayRate;
-            var time = 0; // 时间间隔
-            // 计算经过的时间
-            (this._startUpdateLoopCount !== Laya.Stat.loopCount) && (time = elapsedTime * this.playbackRate, this._elapsedPlaybackTime += time); //elapsedTime为距离上一帧时间,首帧播放如果_startPlayLoopCount===Stat.loopCount，则不累加时间
+            var time = 0;
+            (this._startUpdateLoopCount !== Laya.Stat.loopCount) && (time = elapsedTime * this.playbackRate, this._elapsedPlaybackTime += time);
             var currentAniClipPlayDuration = this.playDuration;
-            // 如果设置了总播放时间，并且超过总播放时间了，就发送stop事件
-            // 如果没有设置_overallDuration，且播放时间超过的动画总时间，也发送stop事件？  也就是说单次播放不会发出complete事件？
-            // 如果设置了loop播放，则会设置 _overallDuration 
             time += this._currentTime;
             if ((this._overallDuration !== 0 && this._elapsedPlaybackTime >= this._overallDuration) || (this._overallDuration === 0 && this._elapsedPlaybackTime >= currentAniClipPlayDuration
                 || (this._overallDuration === 0 && time >= this.playEnd))) {
-                this._setPlayParamsWhenStop(currentAniClipPlayDuration, cacheFrameInterval, this.playEnd); // (总播放时间,缓存帧的时间间隔(33.33))
+                this._setPlayParamsWhenStop(currentAniClipPlayDuration, cacheFrameInterval, this.playEnd);
                 this.event(Laya.Event.STOPPED);
                 return;
             }
-            if (currentAniClipPlayDuration > 0) { // 如果设置了 总动画时间，一般都设置了把，就是动画文件本身记录的时间
-                if (time >= currentAniClipPlayDuration) { // 如果超出了总动画时间
-                    if (this._stopWhenCircleFinish) { // 如果只播放一次，就发送stop事件
-                        this._setPlayParamsWhenStop(currentAniClipPlayDuration, cacheFrameInterval); // (总播放时间,缓存帧的时间间隔(33.33))
+            if (currentAniClipPlayDuration > 0) {
+                if (time >= currentAniClipPlayDuration) {
+                    if (this._stopWhenCircleFinish) {
+                        this._setPlayParamsWhenStop(currentAniClipPlayDuration, cacheFrameInterval);
                         this._stopWhenCircleFinish = false;
                         this.event(Laya.Event.STOPPED);
                         return;
                     }
                     else {
-                        // 如果多次播放,发送complete事件
                         time = time % currentAniClipPlayDuration;
                         this._setPlayParams(time, cacheFrameInterval);
                         this.event(Laya.Event.COMPLETE);
@@ -393,23 +452,11 @@
                 this.event(Laya.Event.COMPLETE);
             }
         }
-        /**
-         * @internal
-         */
         _destroy() {
             this.offAll();
             this._templet = null;
-            //_fullFrames = null;
             this._destroyed = true;
         }
-        /**
-         * 播放动画。
-         * @param	index 动画索引。
-         * @param	playbackRate 播放速率。
-         * @param	duration 播放时长（0为1次,Number.MAX_VALUE为循环播放）。
-         * @param	playStart 播放的起始时间位置。
-         * @param	playEnd 播放的结束时间位置。（0为动画一次循环的最长结束时间位置）。
-         */
         play(index = 0, playbackRate = 1.0, overallDuration = 2147483647, playStart = 0, playEnd = 0) {
             if (!this._templet)
                 throw new Error("AnimationPlayer:templet must not be null,maybe you need to set url.");
@@ -429,29 +476,13 @@
             this._currentKeyframeIndex = 0;
             this._startUpdateLoopCount = Laya.Stat.loopCount;
             this.event(Laya.Event.PLAYED);
-            //if (_templet.loaded)
             this._calculatePlayDuration();
-            //else
-            //_templet.once(Event.LOADED, this, _onAnimationTempletLoaded);
-            this._update(0); //如果分段播放,可修正帧率
+            this._update(0);
         }
-        /**
-         * 播放动画。
-         * @param	index 动画索引。
-         * @param	playbackRate 播放速率。
-         * @param	duration 播放时长（0为1次,Number.MAX_VALUE为循环播放）。
-         * @param	playStartFrame 播放的原始起始帧率位置。
-         * @param	playEndFrame 播放的原始结束帧率位置。（0为动画一次循环的最长结束时间位置）。
-         */
         playByFrame(index = 0, playbackRate = 1.0, overallDuration = 2147483647, playStartFrame = 0, playEndFrame = 0, fpsIn3DBuilder = 30) {
             var interval = 1000.0 / fpsIn3DBuilder;
             this.play(index, playbackRate, overallDuration, playStartFrame * interval, playEndFrame * interval);
         }
-        /**
-         * 停止播放当前动画
-         * 如果不是立即停止就等待动画播放完成后再停止
-         * @param	immediate 是否立即停止
-         */
         stop(immediate = true) {
             if (immediate) {
                 this._currentTime = this._currentFrameTime = this._currentKeyframeIndex = 0;
@@ -462,291 +493,13 @@
                 this._stopWhenCircleFinish = true;
             }
         }
-        /**
-         * @private
-         */
         destroy() {
         }
     }
 
-    class KeyFramesContent {
-    }
-
-    /**
-     * @internal
-     */
-    class AnimationParser01 {
-        /**
-         * @private
-         */
-        static parse(templet, reader) {
-            var data = reader.__getBuffer();
-            var i, j, k, n, l, m, o;
-            //if (head != KeyframesAniTemplet.LAYA_ANIMATION_VISION)
-            //{
-            //trace("[Error] Version " + _aniVersion + " The engine is inconsistent, update to the version " + KeyframesAniTemplet.LAYA_ANIMATION_VISION + " please.");
-            //return;
-            //}
-            var aniClassName = reader.readUTFString(); //字符串(动画播放器类名，缺省为ANI)
-            templet._aniClassName = aniClassName;
-            var strList = reader.readUTFString().split("\n"); //字符串(\n分割 UTF8 )
-            var aniCount = reader.getUint8(); //动画块数:Uint8
-            var publicDataPos = reader.getUint32(); //公用数据POS	
-            var publicExtDataPos = reader.getUint32(); //公用扩展数据POS
-            var publicData; //获取公用数据
-            if (publicDataPos > 0)
-                publicData = data.slice(publicDataPos, publicExtDataPos);
-            var publicRead = new Laya.Byte(publicData);
-            if (publicExtDataPos > 0) //获取公用扩展数据
-                templet._publicExtData = data.slice(publicExtDataPos, data.byteLength);
-            templet._useParent = !!reader.getUint8();
-            templet._anis.length = aniCount;
-            for (i = 0; i < aniCount; i++) {
-                var ani = templet._anis[i] = new AnimationContent();
-                //[IF-SCRIPT] {};//不要删除
-                ani.nodes = [];
-                var name = ani.name = strList[reader.getUint16()]; //获得骨骼名字
-                templet._aniMap[name] = i; //按名字可以取得动画索引
-                ani.bone3DMap = {};
-                ani.playTime = reader.getFloat32(); //本骨骼播放时间
-                var boneCount = ani.nodes.length = reader.getUint8(); //得到本动画骨骼数目
-                ani.totalKeyframeDatasLength = 0;
-                for (j = 0; j < boneCount; j++) {
-                    var node = ani.nodes[j] = new AnimationNodeContent();
-                    //[IF-SCRIPT] {};//不要删除
-                    node.childs = [];
-                    var nameIndex = reader.getInt16();
-                    if (nameIndex >= 0) {
-                        node.name = strList[nameIndex]; //骨骼名字
-                        ani.bone3DMap[node.name] = j;
-                    }
-                    node.keyFrame = [];
-                    node.parentIndex = reader.getInt16(); //父对象编号，相对本动画(INT16,-1表示没有)
-                    node.parentIndex == -1 ? node.parent = null : node.parent = ani.nodes[node.parentIndex];
-                    node.lerpType = reader.getUint8(); //该节点插值类型:0为不插值，1为逐节点插值，2为私有插值
-                    var keyframeParamsOffset = reader.getUint32(); //相对于数据扩展区的偏移地址
-                    publicRead.pos = keyframeParamsOffset; //切换到数据区偏移地址
-                    var keyframeDataCount = node.keyframeWidth = publicRead.getUint16(); //keyframe数据宽度:Uint8		
-                    ani.totalKeyframeDatasLength += keyframeDataCount;
-                    //每个数据的插值方式:Uint8*keyframe数据宽度
-                    if (node.lerpType === 0 || node.lerpType === 1) //是否逐节点插值
-                     {
-                        node.interpolationMethod = [];
-                        node.interpolationMethod.length = keyframeDataCount;
-                        for (k = 0; k < keyframeDataCount; k++)
-                            node.interpolationMethod[k] = IAniLib.AnimationTemplet.interpolation[publicRead.getUint8()];
-                    }
-                    if (node.parent != null)
-                        node.parent.childs.push(node);
-                    var privateDataLen = reader.getUint16(); //"UINT16", [1],//私有数据长度
-                    if (privateDataLen > 0) {
-                        //"BYTE", [1],//私有数据
-                        node.extenData = data.slice(reader.pos, reader.pos + privateDataLen);
-                        reader.pos += privateDataLen;
-                    }
-                    var keyframeCount = reader.getUint16();
-                    node.keyFrame.length = keyframeCount;
-                    var startTime = 0;
-                    var keyFrame;
-                    for (k = 0, n = keyframeCount; k < n; k++) {
-                        keyFrame = node.keyFrame[k] = new KeyFramesContent();
-                        //[IF-SCRIPT] {};//不要删除
-                        keyFrame.duration = reader.getFloat32();
-                        keyFrame.startTime = startTime;
-                        if (node.lerpType === 2) //是否逐帧插值
-                         {
-                            keyFrame.interpolationData = [];
-                            var interDataLength = reader.getUint8(); //插值数据长度
-                            var lerpType;
-                            lerpType = reader.getFloat32();
-                            switch (lerpType) {
-                                case 254: //全线性插值
-                                    keyFrame.interpolationData.length = keyframeDataCount;
-                                    for (o = 0; o < keyframeDataCount; o++)
-                                        keyFrame.interpolationData[o] = 0;
-                                    break;
-                                case 255: //全不插值
-                                    keyFrame.interpolationData.length = keyframeDataCount;
-                                    for (o = 0; o < keyframeDataCount; o++)
-                                        keyFrame.interpolationData[o] = 5;
-                                    break;
-                                default:
-                                    keyFrame.interpolationData.push(lerpType);
-                                    for (m = 1; m < interDataLength; m++) {
-                                        keyFrame.interpolationData.push(reader.getFloat32());
-                                    }
-                            }
-                            //for (m = 0; m < interDataLength; m++) {
-                            //var lerpData:int = read.getFloat32();//插值数据
-                            //switch (lerpData) {
-                            //case 254: //全线性插值
-                            //keyFrame.interpolationData.length = keyframeDataCount;
-                            //for (o = 0; o < keyframeDataCount; o++)
-                            //keyFrame.interpolationData[o] = 0;
-                            //break;
-                            //case 255: //全不插值
-                            //
-                            //keyFrame.interpolationData.length = keyframeDataCount;
-                            //for (o = 0; o < keyframeDataCount; o++)
-                            //keyFrame.interpolationData[o] = 5;
-                            //break;
-                            //default: 
-                            //keyFrame.interpolationData.push(lerpData);
-                            //}
-                            //}
-                        }
-                        keyFrame.data = new Float32Array(keyframeDataCount);
-                        keyFrame.dData = new Float32Array(keyframeDataCount);
-                        keyFrame.nextData = new Float32Array(keyframeDataCount);
-                        for (l = 0; l < keyframeDataCount; l++) {
-                            keyFrame.data[l] = reader.getFloat32();
-                            if (keyFrame.data[l] > -0.00000001 && keyFrame.data[l] < 0.00000001)
-                                keyFrame.data[l] = 0;
-                        }
-                        startTime += keyFrame.duration;
-                    }
-                    keyFrame.startTime = ani.playTime; //因工具BUG，矫正最后一帧startTime
-                    node.playTime = ani.playTime; //节点总时间可能比总时长大，次处修正
-                    templet._calculateKeyFrame(node, keyframeCount, keyframeDataCount);
-                }
-            }
-        }
-    }
-
-    /**
-     * @internal
-     */
-    class AnimationParser02 {
-        /**
-         * @private
-         */
-        static READ_DATA() {
-            AnimationParser02._DATA.offset = AnimationParser02._reader.getUint32();
-            AnimationParser02._DATA.size = AnimationParser02._reader.getUint32();
-        }
-        /**
-         * @private
-         */
-        //TODO:coverage
-        static READ_BLOCK() {
-            var count = AnimationParser02._BLOCK.count = AnimationParser02._reader.getUint16();
-            var blockStarts = AnimationParser02._BLOCK.blockStarts = [];
-            var blockLengths = AnimationParser02._BLOCK.blockLengths = [];
-            for (var i = 0; i < count; i++) {
-                blockStarts.push(AnimationParser02._reader.getUint32());
-                blockLengths.push(AnimationParser02._reader.getUint32());
-            }
-        }
-        /**
-         * @private
-         */
-        //TODO:coverage
-        static READ_STRINGS() {
-            var offset = AnimationParser02._reader.getUint32();
-            var count = AnimationParser02._reader.getUint16();
-            var prePos = AnimationParser02._reader.pos;
-            AnimationParser02._reader.pos = offset + AnimationParser02._DATA.offset;
-            for (var i = 0; i < count; i++)
-                AnimationParser02._strings[i] = AnimationParser02._reader.readUTFString();
-            AnimationParser02._reader.pos = prePos;
-        }
-        /**
-         * @private
-         */
-        //TODO:coverage
-        static parse(templet, reader) {
-            AnimationParser02._templet = templet;
-            AnimationParser02._reader = reader;
-            var arrayBuffer = reader.__getBuffer();
-            AnimationParser02.READ_DATA();
-            AnimationParser02.READ_BLOCK();
-            AnimationParser02.READ_STRINGS();
-            for (var i = 0, n = AnimationParser02._BLOCK.count; i < n; i++) {
-                var index = reader.getUint16();
-                var blockName = AnimationParser02._strings[index];
-                var fn = AnimationParser02["READ_" + blockName];
-                if (fn == null)
-                    throw new Error("model file err,no this function:" + index + " " + blockName);
-                else
-                    fn.call(null);
-            }
-        }
-        //TODO:coverage
-        static READ_ANIMATIONS() {
-            var reader = AnimationParser02._reader;
-            var arrayBuffer = reader.__getBuffer();
-            var i, j, k, n;
-            var keyframeWidth = reader.getUint16();
-            var interpolationMethod = [];
-            interpolationMethod.length = keyframeWidth;
-            for (i = 0; i < keyframeWidth; i++)
-                interpolationMethod[i] = IAniLib.AnimationTemplet.interpolation[reader.getByte()];
-            var aniCount = reader.getUint8();
-            AnimationParser02._templet._anis.length = aniCount;
-            for (i = 0; i < aniCount; i++) {
-                var ani = AnimationParser02._templet._anis[i] = new AnimationContent();
-                ani.nodes = [];
-                var aniName = ani.name = AnimationParser02._strings[reader.getUint16()];
-                AnimationParser02._templet._aniMap[aniName] = i; //按名字可以取得动画索引
-                ani.bone3DMap = {};
-                ani.playTime = reader.getFloat32();
-                var boneCount = ani.nodes.length = reader.getInt16();
-                ani.totalKeyframeDatasLength = 0;
-                for (j = 0; j < boneCount; j++) {
-                    var node = ani.nodes[j] = new AnimationNodeContent();
-                    node.keyframeWidth = keyframeWidth; //TODO:存在骨骼里是否合并，需要优化到动画中更合理。
-                    node.childs = [];
-                    var nameIndex = reader.getUint16();
-                    if (nameIndex >= 0) {
-                        node.name = AnimationParser02._strings[nameIndex]; //骨骼名字
-                        ani.bone3DMap[node.name] = j;
-                    }
-                    node.keyFrame = [];
-                    node.parentIndex = reader.getInt16(); //父对象编号，相对本动画(INT16,-1表示没有)
-                    node.parentIndex == -1 ? node.parent = null : node.parent = ani.nodes[node.parentIndex];
-                    ani.totalKeyframeDatasLength += keyframeWidth;
-                    node.interpolationMethod = interpolationMethod; //TODO:
-                    if (node.parent != null)
-                        node.parent.childs.push(node);
-                    var keyframeCount = reader.getUint16();
-                    node.keyFrame.length = keyframeCount;
-                    var keyFrame = null, lastKeyFrame = null;
-                    for (k = 0, n = keyframeCount; k < n; k++) {
-                        keyFrame = node.keyFrame[k] = new KeyFramesContent();
-                        keyFrame.startTime = reader.getFloat32();
-                        (lastKeyFrame) && (lastKeyFrame.duration = keyFrame.startTime - lastKeyFrame.startTime);
-                        keyFrame.dData = new Float32Array(keyframeWidth);
-                        keyFrame.nextData = new Float32Array(keyframeWidth);
-                        var offset = AnimationParser02._DATA.offset;
-                        var keyframeDataOffset = reader.getUint32();
-                        var keyframeDataLength = keyframeWidth * 4;
-                        var keyframeArrayBuffer = arrayBuffer.slice(offset + keyframeDataOffset, offset + keyframeDataOffset + keyframeDataLength);
-                        keyFrame.data = new Float32Array(keyframeArrayBuffer);
-                        lastKeyFrame = keyFrame;
-                    }
-                    keyFrame.duration = 0;
-                    node.playTime = ani.playTime; //节点总时间可能比总时长大，次处修正
-                    AnimationParser02._templet._calculateKeyFrame(node, keyframeCount, keyframeWidth);
-                }
-            }
-        }
-    }
-    /**@private */
-    AnimationParser02._strings = [];
-    /**@private */
-    AnimationParser02._BLOCK = { count: 0 };
-    /**@private */
-    AnimationParser02._DATA = { offset: 0, size: 0 };
-
-    /**
-     * @internal
-     * ...
-     * @author ww
-     */
     class BezierLerp {
         constructor() {
         }
-        //TODO:coverage
         static getBezierRate(t, px0, py0, px1, py1) {
             var key = BezierLerp._getBezierParamKey(px0, py0, px1, py1);
             var vKey = key * 100 + t;
@@ -764,11 +517,9 @@
             BezierLerp._bezierResultCache[vKey] = 1;
             return 1;
         }
-        //TODO:coverage
         static _getBezierParamKey(px0, py0, px1, py1) {
             return (((px0 * 100 + py0) * 100 + px1) * 100 + py1) * 100;
         }
-        //TODO:coverage
         static _getBezierPoints(px0, py0, px1, py1, key) {
             if (BezierLerp._bezierPointsCache[key])
                 return BezierLerp._bezierPointsCache[key];
@@ -785,115 +536,64 @@
     BezierLerp._bezierResultCache = {};
     BezierLerp._bezierPointsCache = {};
 
-    /**
-     * <code>AnimationTemplet</code> 类用于动画模板资源。
-     */
     class AnimationTemplet extends Laya.Resource {
         constructor() {
             super();
-            /**@internal */
             this._anis = [];
-            /**@internal */
             this._aniMap = {};
-            /**@private */
             this.unfixedLastAniIndex = -1;
-            /**@internal */
             this._fullFrames = null;
-            /**@private */
-            this._boneCurKeyFrm = []; // 记录每个骨骼当前在动画的第几帧。这个是为了去掉缓存的帧索引数据。TODO 其实这个应该放到skeleton中
+            this._boneCurKeyFrm = [];
         }
-        /**
-         * @private
-         */
-        //TODO:coverage
         static _LinearInterpolation_0(bone, index, out, outOfs, data, dt, dData, duration, nextData, interData = null) {
             out[outOfs] = data[index] + dt * dData[index];
             return 1;
         }
-        /**
-         * @private
-         */
-        //TODO:coverage
         static _QuaternionInterpolation_1(bone, index, out, outOfs, data, dt, dData, duration, nextData, interData = null) {
             var amount = duration === 0 ? 0 : dt / duration;
-            Laya.MathUtil.slerpQuaternionArray(data, index, nextData, index, amount, out, outOfs); //(dt/duration)为amount比例
+            Laya.MathUtil.slerpQuaternionArray(data, index, nextData, index, amount, out, outOfs);
             return 4;
         }
-        /**
-         * @private
-         */
-        //TODO:coverage
         static _AngleInterpolation_2(bone, index, out, outOfs, data, dt, dData, duration, nextData, interData = null) {
             return 0;
         }
-        /**
-         * @private
-         */
-        //TODO:coverage
         static _RadiansInterpolation_3(bone, index, out, outOfs, data, dt, dData, duration, nextData, interData = null) {
             return 0;
         }
-        /**
-         * @private
-         */
-        //TODO:coverage
         static _Matrix4x4Interpolation_4(bone, index, out, outOfs, data, dt, dData, duration, nextData, interData = null) {
             for (var i = 0; i < 16; i++, index++)
                 out[outOfs + i] = data[index] + dt * dData[index];
             return 16;
         }
-        /**
-         * @private
-         */
-        //TODO:coverage
         static _NoInterpolation_5(bone, index, out, outOfs, data, dt, dData, duration, nextData, interData = null) {
             out[outOfs] = data[index];
             return 1;
         }
-        /**
-         * @private
-         */
-        //TODO:coverage
         static _BezierInterpolation_6(bone, index, out, outOfs, data, dt, dData, duration, nextData, interData = null, offset = 0) {
             out[outOfs] = data[index] + (nextData[index] - data[index]) * BezierLerp.getBezierRate(dt / duration, interData[offset], interData[offset + 1], interData[offset + 2], interData[offset + 3]);
             return 5;
         }
-        /**
-         * @private
-         */
-        //TODO:coverage
         static _BezierInterpolation_7(bone, index, out, outOfs, data, dt, dData, duration, nextData, interData = null, offset = 0) {
-            //interData=[x0,y0,x1,y1,start,d,offTime,allTime]
             out[outOfs] = interData[offset + 4] + interData[offset + 5] * BezierLerp.getBezierRate((dt * 0.001 + interData[offset + 6]) / interData[offset + 7], interData[offset], interData[offset + 1], interData[offset + 2], interData[offset + 3]);
             return 9;
         }
-        /**
-         * @private
-         */
         parse(data) {
             var reader = new Laya.Byte(data);
             this._aniVersion = reader.readUTFString();
             AnimationParser01.parse(this, reader);
         }
-        /**
-         * @internal
-         */
         _calculateKeyFrame(node, keyframeCount, keyframeDataCount) {
             var keyFrames = node.keyFrame;
             keyFrames[keyframeCount] = keyFrames[0];
             for (var i = 0; i < keyframeCount; i++) {
                 var keyFrame = keyFrames[i];
                 for (var j = 0; j < keyframeDataCount; j++) {
-                    keyFrame.dData[j] = (keyFrame.duration === 0) ? 0 : (keyFrames[i + 1].data[j] - keyFrame.data[j]) / keyFrame.duration; //末帧dData数据为0
+                    keyFrame.dData[j] = (keyFrame.duration === 0) ? 0 : (keyFrames[i + 1].data[j] - keyFrame.data[j]) / keyFrame.duration;
                     keyFrame.nextData[j] = keyFrames[i + 1].data[j];
                 }
             }
             keyFrames.length--;
         }
-        /**
-         * @internal
-         */
-        //TODO:coverage
         _onAsynLoaded(data, propertyParams = null) {
             var reader = new Laya.Byte(data);
             this._aniVersion = reader.readUTFString();
@@ -914,7 +614,6 @@
         getAniDuration(aniIndex) {
             return this._anis[aniIndex].playTime;
         }
-        //TODO:coverage
         getNodes(aniIndex) {
             return this._anis[aniIndex].nodes;
         }
@@ -930,7 +629,6 @@
         getPublicExtData() {
             return this._publicExtData;
         }
-        //TODO:coverage
         getAnimationDataWithCache(key, cacheDatas, aniIndex, frameIndex) {
             var aniDatas = cacheDatas[aniIndex];
             if (!aniDatas) {
@@ -945,22 +643,11 @@
                 }
             }
         }
-        //TODO:coverage
         setAnimationDataWithCache(key, cacheDatas, aniIndex, frameIndex, data) {
             var aniDatas = (cacheDatas[aniIndex]) || (cacheDatas[aniIndex] = {});
             var aniDatasCache = (aniDatas[key]) || (aniDatas[key] = []);
             aniDatasCache[frameIndex] = data;
         }
-        /**
-         * 计算当前时间应该对应关键帧的哪一帧
-         * @param	nodeframes	当前骨骼的关键帧数据
-         * @param	nodeid		骨骼id，因为要使用和更新 _boneCurKeyFrm
-         * @param	tm
-         * @return
-         * 问题
-         * 	最后一帧有问题，例如倒数第二帧时间是0.033ms,则后两帧非常靠近，当实际给最后一帧的时候，根据帧数计算出的时间实际上落在倒数第二帧
-         *  	使用与AnimationPlayer一致的累积时间就行
-         */
         getNodeKeyFrame(nodeframes, nodeid, tm) {
             var cid = this._boneCurKeyFrm[nodeid];
             var frmNum = nodeframes.length;
@@ -970,15 +657,12 @@
             var kinfo = nodeframes[cid];
             var curFrmTm = kinfo.startTime;
             var dt = tm - curFrmTm;
-            // 缓存命中的情况
             if (dt == 0 || (dt > 0 && kinfo.duration > dt)) {
                 return cid;
             }
-            // 否则就要前后判断在第几帧
             var i = 0;
             if (dt > 0) {
-                // 在后面
-                tm = tm + 0.01; // 有个问题，由于浮点精度的问题可能导致 前后 st+duration  st+duration 接不上。导致cid+1的起始时间>tm，所以时间加上一点
+                tm = tm + 0.01;
                 for (i = cid + 1; i < frmNum; i++) {
                     kinfo = nodeframes[i];
                     if (kinfo.startTime <= tm && kinfo.startTime + kinfo.duration > tm) {
@@ -989,7 +673,6 @@
                 return frmNum - 1;
             }
             else {
-                // 在前面
                 for (i = 0; i < cid; i++) {
                     kinfo = nodeframes[i];
                     if (kinfo.startTime <= tm && kinfo.startTime + kinfo.duration > tm) {
@@ -997,32 +680,21 @@
                         return i;
                     }
                 }
-                return cid; // 可能误差导致，返回最后一个
+                return cid;
             }
-            return 0; // 这个怎么做
+            return 0;
         }
-        /**
-         *
-         * @param	aniIndex
-         * @param	originalData
-         * @param	nodesFrameIndices
-         * @param	frameIndex
-         * @param	playCurTime
-         */
         getOriginalData(aniIndex, originalData, nodesFrameIndices, frameIndex, playCurTime) {
             var oneAni = this._anis[aniIndex];
             var nodes = oneAni.nodes;
-            // 当前帧缓存数组可能大小需要调整
             var curKFrm = this._boneCurKeyFrm;
             if (curKFrm.length < nodes.length) {
                 curKFrm.length = nodes.length;
             }
-            //playCurTime %= oneAni.playTime;
             var j = 0;
             for (var i = 0, n = nodes.length, outOfs = 0; i < n; i++) {
                 var node = nodes[i];
                 var key;
-                //key = node.keyFrame[nodesFrameIndices[i][frameIndex]];
                 var kfrm = node.keyFrame;
                 key = kfrm[this.getNodeKeyFrame(kfrm, i, playCurTime)];
                 node.dataOffset = outOfs;
@@ -1051,10 +723,6 @@
                                     default:
                                         j += AnimationTemplet.interpolation[type](node, dataIndex, originalData, outOfs + dataIndex, key.data, dt, key.dData, key.duration, key.nextData);
                                 }
-                                //if (type === 6)
-                                //j += interpolation[type](node, dataIndex, originalData, outOfs + dataIndex, key.data, dt, key.dData, key.duration, key.nextData, interpolationData.slice(j+1, j + 5));
-                                //else
-                                //j += interpolation[type](node, dataIndex, originalData, outOfs + dataIndex, key.data, dt, key.dData, key.duration, key.nextData);
                                 dataIndex++;
                             }
                             break;
@@ -1067,7 +735,6 @@
                 outOfs += node.keyframeWidth;
             }
         }
-        //TODO:coverage
         getNodesCurrentFrameIndex(aniIndex, playCurTime) {
             var ani = this._anis[aniIndex];
             var nodes = ani.nodes;
@@ -1090,7 +757,6 @@
             }
             return this.unfixedCurrentFrameIndexes;
         }
-        //TODO:coverage
         getOriginalDataUnfixedRate(aniIndex, originalData, playCurTime) {
             var oneAni = this._anis[aniIndex];
             var nodes = oneAni.nodes;
@@ -1139,10 +805,6 @@
                                     default:
                                         j += AnimationTemplet.interpolation[type](node, dataIndex, originalData, outOfs + dataIndex, key.data, dt, key.dData, key.duration, key.nextData);
                                 }
-                                //if (type === 6)
-                                //j += interpolation[type](node, dataIndex, originalData, outOfs + dataIndex, key.data, dt, key.dData, key.duration, key.nextData, interpolationData.slice(j+1, j + 5));
-                                //else
-                                //j += interpolation[type](node, dataIndex, originalData, outOfs + dataIndex, key.data, dt, key.dData, key.duration, key.nextData);
                                 dataIndex++;
                             }
                             break;
@@ -1160,21 +822,13 @@
     IAniLib.AnimationTemplet = AnimationTemplet;
 
     class GraphicsAni extends Laya.Graphics {
-        /**
-         * @private
-         * 画自定义蒙皮动画
-         * @param	skin
-         */
-        //TODO:coverage
         drawSkin(skinA, alpha) {
             this.drawTriangles(skinA.texture, 0, 0, skinA.vertices, skinA.uvs, skinA.indexes, skinA.transform || Laya.Matrix.EMPTY, alpha);
         }
-        //TODO:coverage
         static create() {
             var rs = GraphicsAni._caches.pop();
             return rs || new GraphicsAni();
         }
-        //TODO:coverage
         static recycle(graphics) {
             graphics.clear();
             GraphicsAni._caches.push(graphics);
@@ -1184,16 +838,15 @@
 
     class Transform {
         constructor() {
-            this.skX = 0; // 旋转？
-            this.skY = 0; // 不知道干什么的
-            this.scX = 1; // 缩放
+            this.skX = 0;
+            this.skY = 0;
+            this.scX = 1;
             this.scY = 1;
-            this.x = 0; // 偏移
+            this.x = 0;
             this.y = 0;
-            this.skewX = 0; // skew
+            this.skewX = 0;
             this.skewY = 0;
         }
-        //TODO:coverage
         initData(data) {
             if (data.x != undefined) {
                 this.x = data.x;
@@ -1214,7 +867,6 @@
                 this.scY = data.scY;
             }
         }
-        //TODO:coverage
         getMatrix() {
             var tMatrix;
             if (this.mMatrix) {
@@ -1232,7 +884,6 @@
             tMatrix.translate(this.x, this.y);
             return tMatrix;
         }
-        //TODO:coverage
         skew(m, x, y) {
             var sinX = Math.sin(y);
             var cosX = Math.cos(y);
@@ -1243,9 +894,6 @@
         }
     }
 
-    /**
-     * @private
-     */
     class Bone {
         constructor() {
             this.length = 10;
@@ -1265,7 +913,6 @@
                 tBone.setTempMatrix(this._tempMatrix);
             }
         }
-        //TODO:coverage
         update(pMatrix = null) {
             this.rotation = this.transform.skX;
             var tResultMatrix;
@@ -1287,10 +934,6 @@
                         var cos;
                         var sin;
                         var tParentMatrix = this.parentBone.resultMatrix;
-                        //var worldX:Number = tParentMatrix.a * transform.x + tParentMatrix.c * transform.y + tParentMatrix.tx;
-                        //var worldY:Number = tParentMatrix.b * transform.x + tParentMatrix.d * transform.y + tParentMatrix.ty;
-                        //out.tx = ba * atx + bc * aty + btx;
-                        //out.ty = bb * atx + bd * aty + bty;
                         tResultMatrix = this.resultTransform.getMatrix();
                         var worldX = tParentMatrix.a * tResultMatrix.tx + tParentMatrix.c * tResultMatrix.ty + tParentMatrix.tx;
                         var worldY = tParentMatrix.b * tResultMatrix.tx + tParentMatrix.d * tResultMatrix.ty + tParentMatrix.ty;
@@ -1339,7 +982,6 @@
                 tBone.update();
             }
         }
-        //TODO:coverage
         updateChild() {
             var i = 0, n = 0;
             var tBone;
@@ -1348,13 +990,11 @@
                 tBone.update();
             }
         }
-        //TODO:coverage
         setRotation(rd) {
             if (this._sprite) {
                 this._sprite.rotation = rd * 180 / Math.PI;
             }
         }
-        //TODO:coverage
         updateDraw(x, y) {
             if (!Bone.ShowBones || Bone.ShowBones[this.name]) {
                 if (this._sprite) {
@@ -1382,7 +1022,6 @@
             this._children.push(bone);
             bone.parentBone = this;
         }
-        //TODO:coverage
         findBone(boneName) {
             if (this.name == boneName) {
                 return this;
@@ -1401,7 +1040,6 @@
             }
             return null;
         }
-        //TODO:coverage
         localToWorld(local) {
             var localX = local[0];
             var localY = local[1];
@@ -1411,21 +1049,9 @@
     }
     Bone.ShowBones = {};
 
-    /**
-     * 用于UV转换的工具类
-     * @internal
-     */
     class UVTools {
         constructor() {
         }
-        //[0, 0, 1.0, 0, 1.0, 1.0, 0, 1.0]
-        /**
-         * 将相对于大图图集的小UV转换成相对某个大图的UV
-         * @param	bigUV 某个大图的UV
-         * @param	smallUV 大图图集中的UV
-         * @return 相对于某个大图的UV
-         */
-        //TODO:coverage
         static getRelativeUV(bigUV, smallUV, rst = null) {
             var startX = bigUV[0];
             var width = bigUV[2] - bigUV[0];
@@ -1444,13 +1070,6 @@
             }
             return rst;
         }
-        /**
-         * 将相对于某个大图的UV转换成相对于大图图集的UV
-         * @param	bigUV 某个大图的UV
-         * @param	smallUV 相对于某个大图的UV
-         * @return 相对于大图图集的UV
-         */
-        //TODO:coverage
         static getAbsoluteUV(bigUV, smallUV, rst = null) {
             if (bigUV[0] == 0 && bigUV[1] == 0 && bigUV[4] == 1 && bigUV[5] == 1) {
                 if (rst) {
@@ -1478,44 +1097,20 @@
         }
     }
 
-    /**
-     */
     class MeshData {
         constructor() {
-            /**
-             * uv数据
-             */
             this.uvs = new Float32Array([0, 0, 1, 0, 1, 1, 0, 1]);
-            /**
-             * 顶点数据
-             */
             this.vertices = new Float32Array([0, 0, 100, 0, 100, 100, 0, 100]);
-            /**
-             * 顶点索引
-             */
             this.indexes = new Uint16Array([0, 1, 3, 3, 1, 2]);
-            /**
-             * 是否有uv变化矩阵
-             */
             this.useUvTransform = false;
-            /**
-             * 扩展像素,用来去除黑边
-             */
             this.canvasPadding = 1;
         }
-        /**
-         * 计算mesh的Bounds
-         * @return
-         *
-         */
-        //TODO:coverage
         getBounds() {
             return Laya.Rectangle._getWrapRec(this.vertices);
         }
     }
 
     class SkinMeshForGraphic extends MeshData {
-        //TODO:coverage
         constructor() {
             super();
         }
@@ -1533,23 +1128,12 @@
 
     class BoneSlot {
         constructor() {
-            /** 原始数据的索引 */
             this.srcDisplayIndex = -1;
-            /** 判断对象是否是原对象 */
             this.type = "src";
-            /** 显示皮肤的索引 */
             this.displayIndex = -1;
-            /** @private */
             this.originalIndex = -1;
-            /** 索引替换表 */
             this._replaceDic = {};
         }
-        /**
-         * 设置要显示的插槽数据
-         * @param	slotData
-         * @param	disIndex
-         * @param	freshIndex 是否重置纹理
-         */
         showSlotData(slotData, freshIndex = true) {
             this.currSlotData = slotData;
             if (freshIndex)
@@ -1557,20 +1141,11 @@
             this.currDisplayData = null;
             this.currTexture = null;
         }
-        /**
-         * 通过名字显示指定对象
-         * @param	name
-         */
         showDisplayByName(name) {
             if (this.currSlotData) {
                 this.showDisplayByIndex(this.currSlotData.getDisplayByName(name));
             }
         }
-        /**
-         * 替换贴图名
-         * @param	tarName 要替换的贴图名
-         * @param	newName 替换后的贴图名
-         */
         replaceDisplayByName(tarName, newName) {
             if (!this.currSlotData)
                 return;
@@ -1580,11 +1155,6 @@
             newIndex = this.currSlotData.getDisplayByName(newName);
             this.replaceDisplayByIndex(preIndex, newIndex);
         }
-        /**
-         * 替换贴图索引
-         * @param	tarIndex 要替换的索引
-         * @param	newIndex 替换后的索引
-         */
         replaceDisplayByIndex(tarIndex, newIndex) {
             if (!this.currSlotData)
                 return;
@@ -1593,10 +1163,6 @@
                 this.showDisplayByIndex(tarIndex);
             }
         }
-        /**
-         * 指定显示对象
-         * @param	index
-         */
         showDisplayByIndex(index) {
             this.originalIndex = index;
             if (this._replaceDic[index] != null)
@@ -1618,10 +1184,6 @@
                 this.currTexture = null;
             }
         }
-        /**
-         * 替换皮肤
-         * @param	_texture
-         */
         replaceSkin(_texture) {
             this._diyTexture = _texture;
             if (this._curDiyUV)
@@ -1630,19 +1192,12 @@
                 this._diyTexture = null;
             }
         }
-        /**
-         * 保存父矩阵的索引
-         * @param	parentMatrix
-         */
-        //TODO:coverage
         setParentMatrix(parentMatrix) {
             this._parentMatrix = parentMatrix;
         }
-        //TODO:coverage
         static createSkinMesh() {
             return new SkinMeshForGraphic();
         }
-        //TODO:coverage
         static isSameArr(arrA, arrB) {
             if (arrA.length != arrB.length)
                 return false;
@@ -1654,7 +1209,6 @@
             }
             return true;
         }
-        //TODO:coverage
         getSaveVerticle(tArr) {
             if (BoneSlot.useSameMatrixAndVerticle && this._preGraphicVerticle && BoneSlot.isSameArr(tArr, this._preGraphicVerticle)) {
                 tArr = this._preGraphicVerticle;
@@ -1665,11 +1219,9 @@
             }
             return tArr;
         }
-        //TODO:coverage
         static isSameMatrix(mtA, mtB) {
             return mtA.a == mtB.a && mtA.b == mtB.b && mtA.c == mtB.c && mtA.d == mtB.d && Math.abs(mtA.tx - mtB.tx) < 0.00001 && Math.abs(mtA.ty - mtB.ty) < 0.00001;
         }
-        //TODO:coverage
         getSaveMatrix(tResultMatrix) {
             if (BoneSlot.useSameMatrixAndVerticle && this._preGraphicMatrix && BoneSlot.isSameMatrix(tResultMatrix, this._preGraphicMatrix)) {
                 tResultMatrix = this._preGraphicMatrix;
@@ -1681,11 +1233,6 @@
             }
             return tResultMatrix;
         }
-        /**
-         * 把纹理画到Graphics上
-         * @param	graphics
-         * @param	noUseSave   不使用共享的矩阵对象 _tempResultMatrix，只有实时计算的时候才设置为true
-         */
         draw(graphics, boneMatrixArray, noUseSave = false, alpha = 1) {
             if ((this._diyTexture == null && this.currTexture == null) || this.currDisplayData == null) {
                 if (!(this.currDisplayData && this.currDisplayData.type == 3)) {
@@ -1701,7 +1248,7 @@
                     if (graphics) {
                         var tCurrentMatrix = this.getDisplayMatrix();
                         if (this._parentMatrix) {
-                            var tRotateKey = false; // 是否有旋转
+                            var tRotateKey = false;
                             if (tCurrentMatrix) {
                                 Laya.Matrix.mul(tCurrentMatrix, this._parentMatrix, Laya.Matrix.TEMP);
                                 var tResultMatrix;
@@ -1711,17 +1258,14 @@
                                     tResultMatrix = this._resultMatrix;
                                 }
                                 else {
-                                    //tResultMatrix = new Matrix();
                                     tResultMatrix = BoneSlot._tempResultMatrix;
                                 }
                                 if (this._diyTexture && this.currDisplayData.uvs) {
                                     var tTestMatrix = BoneSlot._tempMatrix;
                                     tTestMatrix.identity();
-                                    //判断是否上下反转。
                                     if (this.currDisplayData.uvs[1] > this.currDisplayData.uvs[5]) {
                                         tTestMatrix.d = -1;
                                     }
-                                    //判断是否旋转
                                     if (this.currDisplayData.uvs[0] > this.currDisplayData.uvs[4]
                                         && this.currDisplayData.uvs[1] > this.currDisplayData.uvs[5]) {
                                         tRotateKey = true;
@@ -1834,10 +1378,6 @@
                     break;
             }
         }
-        /**
-         * 显示蒙皮动画
-         * @param	boneMatrixArray 当前帧的骨骼矩阵
-         */
         skinMesh(boneMatrixArray, skinSprite) {
             var tTexture = this.currTexture;
             var tBones = this.currDisplayData.bones;
@@ -1909,37 +1449,20 @@
             this._mVerticleArr = this.getSaveVerticle(this._mVerticleArr);
             skinSprite.init2(tTexture, tIBArray, this._mVerticleArr, tUvs);
         }
-        /**
-         * 画骨骼的起始点，方便调试
-         * @param	graphics
-         */
         drawBonePoint(graphics) {
             if (graphics && this._parentMatrix) {
                 graphics.drawCircle(this._parentMatrix.tx, this._parentMatrix.ty, 5, "#ff0000");
             }
         }
-        /**
-         * 得到显示对象的矩阵
-         * @return
-         */
-        //TODO:coverage
         getDisplayMatrix() {
             if (this.currDisplayData) {
                 return this.currDisplayData.transform.getMatrix();
             }
             return null;
         }
-        /**
-         * 得到插糟的矩阵
-         * @return
-         */
         getMatrix() {
             return this._resultMatrix;
         }
-        /**
-         * 用原始数据拷贝出一个
-         * @return
-         */
         copy() {
             var tBoneSlot = new BoneSlot();
             tBoneSlot.type = "copy";
@@ -1960,31 +1483,19 @@
     BoneSlot.useSameMatrixAndVerticle = true;
     BoneSlot._tempVerticleArr = [];
 
-    /**
-     * @internal
-     */
     class DeformAniData {
-        //TODO:coverage
         constructor() {
             this.deformSlotDataList = [];
         }
     }
 
-    /**
-     * @internal
-     */
     class DeformSlotData {
-        //TODO:coverage
         constructor() {
             this.deformSlotDisplayList = [];
         }
     }
 
-    /**
-     * @internal
-     */
     class DeformSlotDisplayData {
-        //TODO:coverage
         constructor() {
             this.slotIndex = -1;
             this.timeList = [];
@@ -2007,9 +1518,8 @@
                     return low + 1;
                 current = (low + high) >>> 1;
             }
-            return 0; // Can't happen.
+            return 0;
         }
-        //TODO:coverage
         apply(time, boneSlot, alpha = 1) {
             time += 0.05;
             if (this.timeList.length <= 0) {
@@ -2059,11 +1569,7 @@
         }
     }
 
-    /**
-     * @internal
-     */
     class DrawOrderData {
-        //TODO:coverage
         constructor() {
             this.drawOrder = [];
         }
@@ -2074,11 +1580,7 @@
         }
     }
 
-    /**
-     * @internal
-     */
     class IkConstraint {
-        //TODO:coverage
         constructor(data, bones) {
             this.isSpine = true;
             this.isDebug = false;
@@ -2102,15 +1604,14 @@
                     break;
                 case 2:
                     if (this.isSpine) {
-                        this._applyIk2(this._bones[0], this._bones[1], this._targetBone.resultMatrix.tx, this._targetBone.resultMatrix.ty, this.bendDirection, this.mix); // tIkConstraintData.mix);
+                        this._applyIk2(this._bones[0], this._bones[1], this._targetBone.resultMatrix.tx, this._targetBone.resultMatrix.ty, this.bendDirection, this.mix);
                     }
                     else {
-                        this._applyIk3(this._bones[0], this._bones[1], this._targetBone.resultMatrix.tx, this._targetBone.resultMatrix.ty, this.bendDirection, this.mix); // tIkConstraintData.mix);
+                        this._applyIk3(this._bones[0], this._bones[1], this._targetBone.resultMatrix.tx, this._targetBone.resultMatrix.ty, this.bendDirection, this.mix);
                     }
                     break;
             }
         }
-        //TODO:coverage
         _applyIk1(bone, targetX, targetY, alpha) {
             var pp = bone.parentBone;
             var id = 1 / (pp.resultMatrix.a * pp.resultMatrix.d - pp.resultMatrix.b * pp.resultMatrix.c);
@@ -2128,18 +1629,15 @@
             bone.transform.skX = bone.transform.skY = bone.transform.skX + rotationIK * alpha;
             bone.update();
         }
-        //TODO:coverage
         updatePos(x, y) {
             if (this._sp) {
                 this._sp.pos(x, y);
             }
         }
-        //TODO:coverage
         _applyIk2(parent, child, targetX, targetY, bendDir, alpha) {
             if (alpha == 0) {
                 return;
             }
-            //spine 双骨骼ik计算
             var px = parent.resultTransform.x, py = parent.resultTransform.y;
             var psx = parent.transform.scX, psy = parent.transform.scY;
             var csx = child.transform.scX;
@@ -2168,7 +1666,6 @@
             var a = parent.resultMatrix.a, b = parent.resultMatrix.c;
             var c = parent.resultMatrix.b, d = parent.resultMatrix.d;
             var u = Math.abs(psx - psy) <= 0.0001;
-            //求子骨骼的世界坐标点
             if (!u) {
                 cy = 0;
                 cwx = a * cx + parent.resultMatrix.tx;
@@ -2179,7 +1676,6 @@
                 cwx = a * cx + b * cy + parent.resultMatrix.tx;
                 cwy = c * cx + d * cy + parent.resultMatrix.ty;
             }
-            //cwx,cwy为子骨骼应该在的世界坐标
             if (this.isDebug) {
                 if (!this._sp) {
                     this._sp = new Laya.Sprite();
@@ -2195,25 +1691,19 @@
             b = pp.resultMatrix.c;
             c = pp.resultMatrix.b;
             d = pp.resultMatrix.d;
-            //逆因子
             var id = 1 / (a * d - b * c);
-            //求得IK中的子骨骼角度向量
             var x = targetX - pp.resultMatrix.tx, y = targetY - pp.resultMatrix.ty;
             var tx = (x * d - y * b) * id - px;
             var ty = (y * a - x * c) * id - py;
-            //求得子骨骼的角度向量
             x = cwx - pp.resultMatrix.tx;
             y = cwy - pp.resultMatrix.ty;
             var dx = (x * d - y * b) * id - px;
             var dy = (y * a - x * c) * id - py;
-            //子骨骼的实际长度
             var l1 = Math.sqrt(dx * dx + dy * dy);
-            //子骨骼的长度
             var l2 = child.length * csx;
             var a1, a2;
             if (u) {
                 l2 *= psx;
-                //求IK的角度
                 var cos = (tx * tx + ty * ty - l1 * l1 - l2 * l2) / (2 * l1 * l2);
                 if (cos < -1)
                     cos = -1;
@@ -2307,17 +1797,14 @@
             child.resultTransform.skX = child.resultTransform.skY = child.resultTransform.skY + a2 * alpha;
             parent.update();
         }
-        //TODO:coverage
         _applyIk3(parent, child, targetX, targetY, bendDir, alpha) {
             if (alpha == 0) {
                 return;
             }
             var cwx, cwy;
-            // 龙骨双骨骼ik计算
             const x = child.resultMatrix.a * child.length;
             const y = child.resultMatrix.b * child.length;
             const lLL = x * x + y * y;
-            //child骨骼长度
             const lL = Math.sqrt(lLL);
             var parentX = parent.resultMatrix.tx;
             var parentY = parent.resultMatrix.ty;
@@ -2326,15 +1813,12 @@
             var dX = childX - parentX;
             var dY = childY - parentY;
             const lPP = dX * dX + dY * dY;
-            //parent骨骼长度
             const lP = Math.sqrt(lPP);
             dX = targetX - parent.resultMatrix.tx;
             dY = targetY - parent.resultMatrix.ty;
             const lTT = dX * dX + dY * dY;
-            //parent到ik的长度
             const lT = Math.sqrt(lTT);
-            if (lL + lP <= lT || lT + lL <= lP || lT + lP <= lL) //构不成三角形,被拉成直线
-             {
+            if (lL + lP <= lT || lT + lL <= lP || lT + lP <= lL) {
                 var rate;
                 if (lL + lP <= lT) {
                     rate = 1;
@@ -2363,7 +1847,6 @@
             }
             cwx = childX;
             cwy = childY;
-            //cwx,cwy为子骨骼应该在的世界坐标
             if (this.isDebug) {
                 if (!this._sp) {
                     this._sp = new Laya.Sprite();
@@ -2374,8 +1857,6 @@
                 this._sp.graphics.drawCircle(targetX, targetY, 15, "#ffff00");
                 this._sp.graphics.drawCircle(cwx, cwy, 15, "#ff00ff");
             }
-            //根据当前计算出的世界坐标更新骨骼
-            //更新parent
             var pRotation;
             pRotation = Math.atan2(cwy - parent.resultMatrix.ty, cwx - parent.resultMatrix.tx);
             parent.setRotation(pRotation);
@@ -2387,7 +1868,6 @@
             pTarMatrix.translate(parent.resultMatrix.tx, parent.resultMatrix.ty);
             pTarMatrix.copyTo(parent.resultMatrix);
             parent.updateChild();
-            //更新child
             var childRotation;
             childRotation = Math.atan2(targetY - cwy, targetX - cwx);
             child.setRotation(childRotation);
@@ -2405,11 +1885,7 @@
     IkConstraint.degRad = Math.PI / 180;
     IkConstraint._tempMatrix = new Laya.Matrix();
 
-    /**
-     * @internal
-     */
     class IkConstraintData {
-        //TODO:coverage
         constructor() {
             this.boneNames = [];
             this.bendDirection = 1;
@@ -2420,22 +1896,6 @@
         }
     }
 
-    /**
-     * @internal
-     */
-    class PathConstraintData {
-        constructor() {
-            this.bones = [];
-        }
-    }
-
-    /**
-     * @internal
-     * 路径作用器
-     * 1，生成根据骨骼计算控制点
-     * 2，根据控制点生成路径，并计算路径上的节点
-     * 3，根据节点，重新调整骨骼位置
-     */
     class PathConstraint {
         constructor(data, bones) {
             this._debugKey = false;
@@ -2452,13 +1912,6 @@
                 this.bones.push(bones[tBoneIds[i]]);
             }
         }
-        /**
-         * 计算骨骼在路径上的节点
-         * @param	boneSlot
-         * @param	boneMatrixArray
-         * @param	graphics
-         */
-        //TODO:coverage
         apply(boneList, graphics) {
             if (!this.target)
                 return;
@@ -2481,8 +1934,6 @@
                 for (var i = 0, n = spacesCount - 1; i < n;) {
                     var bone = this.bones[i];
                     var length = bone.length;
-                    //var x:Number = length * bone.transform.getMatrix().a;
-                    //var y:Number = length * bone.transform.getMatrix().c;
                     var x = length * bone.resultMatrix.a;
                     var y = length * bone.resultMatrix.b;
                     length = Math.sqrt(x * x + y * y);
@@ -2531,8 +1982,6 @@
                 boneY = y;
                 if (tRotate) {
                     var a = bone.resultMatrix.a;
-                    //var b:Number = bone.resultMatrix.b;
-                    //var c:Number = bone.resultMatrix.c;
                     var b = bone.resultMatrix.c;
                     var c = bone.resultMatrix.b;
                     var d = bone.resultMatrix.d;
@@ -2572,16 +2021,6 @@
                 }
             }
         }
-        /**
-         * 计算顶点的世界坐标
-         * @param	boneSlot
-         * @param	boneList
-         * @param	start
-         * @param	count
-         * @param	worldVertices
-         * @param	offset
-         */
-        //TODO:coverage
         computeWorldVertices2(boneSlot, boneList, start, count, worldVertices, offset) {
             var tBones = boneSlot.currDisplayData.bones;
             var tWeights = boneSlot.currDisplayData.weights;
@@ -2599,7 +2038,6 @@
             var vy = 0;
             var bone;
             var len;
-            //if (!tTriangles) tTriangles = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
             if (tBones == null) {
                 if (!tTriangles)
                     tTriangles = tWeights;
@@ -2620,7 +2058,6 @@
                 if (bone) {
                     tBoneMt = bone.resultMatrix;
                 }
-                //bone = boneSlot.parent;
                 if (!tBoneMt)
                     tBoneMt = PathConstraint._tempMt;
                 var x = tBoneMt.tx;
@@ -2657,18 +2094,6 @@
                 worldVertices[w + 1] = wy;
             }
         }
-        /**
-         * 计算路径上的节点
-         * @param	boneSlot
-         * @param	boneList
-         * @param	graphics
-         * @param	spacesCount
-         * @param	tangents
-         * @param	percentPosition
-         * @param	percentSpacing
-         * @return
-         */
-        //TODO:coverage
         computeWorldPositions(boneSlot, boneList, graphics, spacesCount, tangents, percentPosition, percentSpacing) {
             var tBones = boneSlot.currDisplayData.bones;
             var tWeights = boneSlot.currDisplayData.weights;
@@ -2688,7 +2113,6 @@
             var space;
             var prev;
             var length;
-            // World vertices.
             {
                 curveCount--;
                 verticesLength -= 4;
@@ -2700,7 +2124,6 @@
                 }
                 world = tVertices;
             }
-            // Curve lengths.
             this._curves.length = curveCount;
             var curves = this._curves;
             pathLength = 0;
@@ -2759,7 +2182,6 @@
                     this.addAfterPosition(p - pathLength, world, verticesLength - 4, out, o);
                     continue;
                 }
-                // Determine curve containing position.
                 for (;; curve++) {
                     length = curves[curve];
                     if (p > length)
@@ -2772,7 +2194,6 @@
                     }
                     break;
                 }
-                // Curve segment lengths.
                 if (curve != prevCurve) {
                     prevCurve = curve;
                     var ii = curve * 6;
@@ -2812,7 +2233,6 @@
                     segments[9] = curveLength;
                     segment = 0;
                 }
-                // Weight by segment length.
                 p *= curveLength;
                 for (;; segment++) {
                     length = segments[segment];
@@ -2830,21 +2250,18 @@
             }
             return out;
         }
-        //TODO:coverage
         addBeforePosition(p, temp, i, out, o) {
             var x1 = temp[i], y1 = temp[i + 1], dx = temp[i + 2] - x1, dy = temp[i + 3] - y1, r = Math.atan2(dy, dx);
             out[o] = x1 + p * Math.cos(r);
             out[o + 1] = y1 + p * Math.sin(r);
             out[o + 2] = r;
         }
-        //TODO:coverage
         addAfterPosition(p, temp, i, out, o) {
             var x1 = temp[i + 2], y1 = temp[i + 3], dx = x1 - temp[i], dy = y1 - temp[i + 1], r = Math.atan2(dy, dx);
             out[o] = x1 + p * Math.cos(r);
             out[o + 1] = y1 + p * Math.sin(r);
             out[o + 2] = r;
         }
-        //TODO:coverage
         addCurvePosition(p, x1, y1, cx1, cy1, cx2, cy2, x2, y2, out, o, tangents) {
             if (p == 0)
                 p = 0.0001;
@@ -2866,11 +2283,13 @@
     PathConstraint.AFTER = -3;
     PathConstraint._tempMt = new Laya.Matrix();
 
-    /**
-     * @internal
-     */
+    class PathConstraintData {
+        constructor() {
+            this.bones = [];
+        }
+    }
+
     class TfConstraint {
-        //TODO:coverage
         constructor(data, bones) {
             this._temp = [];
             this._data = data;
@@ -2887,7 +2306,6 @@
             this.scaleMix = data.scaleMix;
             this.shearMix = data.shearMix;
         }
-        //TODO:coverage
         apply() {
             var tTfBone;
             var ta = this.target.resultMatrix.a, tb = this.target.resultMatrix.b, tc = this.target.resultMatrix.c, td = this.target.resultMatrix.d;
@@ -2944,45 +2362,18 @@
         }
     }
 
-    /**动画开始播放调度
-     * @eventType Event.PLAYED
-     * */
-    /*[Event(name = "played", type = "laya.events.Event.PLAYED", desc = "动画开始播放调度")]*/
-    /**动画停止播放调度
-     * @eventType Event.STOPPED
-     * */
-    /*[Event(name = "stopped", type = "laya.events.Event.STOPPED", desc = "动画停止播放调度")]*/
-    /**动画暂停播放调度
-     * @eventType Event.PAUSED
-     * */
-    /*[Event(name = "paused", type = "laya.events.Event.PAUSED", desc = "动画暂停播放调度")]*/
-    /**自定义事件。
-     * @eventType Event.LABEL
-     */
-    /*[Event(name = "label", type = "laya.events.Event.LABEL", desc = "自定义事件")]*/
-    /**
-     * 骨骼动画由<code>Templet</code>，<code>AnimationPlayer</code>，<code>Skeleton</code>三部分组成。
-     */
     class Skeleton extends Laya.Sprite {
-        /**
-         * 创建一个Skeleton对象
-         *
-         * @param	templet	骨骼动画模板
-         * @param	aniMode	动画模式，0不支持换装，1、2支持换装
-         */
         constructor(templet = null, aniMode = 0) {
             super();
-            this._boneMatrixArray = []; //当前骨骼动画的最终结果数据
-            this._lastTime = 0; //上次的帧时间
+            this._boneMatrixArray = [];
+            this._lastTime = 0;
             this._currAniIndex = -1;
             this._pause = true;
-            /** @private */
             this._aniClipIndex = -1;
-            /** @private */
             this._clipIndex = -1;
             this._skinIndex = 0;
             this._skinName = "default";
-            this._aniMode = 0; //
+            this._aniMode = 0;
             this._index = -1;
             this._total = -1;
             this._indexControl = false;
@@ -2996,28 +2387,9 @@
             if (templet)
                 this.init(templet, aniMode);
         }
-        /**
-         * 初始化动画
-         * @param	templet		模板
-         * @param	aniMode		动画模式
-         * <table>
-         * 	<tr><th>模式</th><th>描述</th></tr>
-         * 	<tr>
-         * 		<td>0</td> <td>使用模板缓冲的数据，模板缓冲的数据，不允许修改（内存开销小，计算开销小，不支持换装）</td>
-         * 	</tr>
-         * 	<tr>
-         * 		<td>1</td> <td>使用动画自己的缓冲区，每个动画都会有自己的缓冲区，相当耗费内存	（内存开销大，计算开销小，支持换装）</td>
-         * 	</tr>
-         * 	<tr>
-         * 		<td>2</td> <td>使用动态方式，去实时去画（内存开销小，计算开销大，支持换装,不建议使用）</td>
-         * </tr>
-         * </table>
-         */
         init(templet, aniMode = 0) {
             var i = 0, n;
-            //aniMode = 2;
-            if (aniMode == 1) //使用动画自己的缓冲区
-             {
+            if (aniMode == 1) {
                 this._graphicsCache = [];
                 for (i = 0, n = templet.getAnimationCount(); i < n; i++) {
                     this._graphicsCache.push([]);
@@ -3032,18 +2404,15 @@
             this._player.templet = templet;
             this._player.play();
             this._parseSrcBoneMatrix();
-            //骨骼数据
             this._boneList = templet.mBoneArr;
             this._rootBone = templet.mRootBone;
             this._aniSectionDic = templet.aniSectionDic;
-            //ik作用器
             if (templet.ikArr.length > 0) {
                 this._ikArr = [];
                 for (i = 0, n = templet.ikArr.length; i < n; i++) {
                     this._ikArr.push(new IkConstraint(templet.ikArr[i], this._boneList));
                 }
             }
-            //path作用器
             if (templet.pathArr.length > 0) {
                 var tPathData;
                 var tPathConstraint;
@@ -3061,7 +2430,6 @@
                     this._pathDic[tPathData.name] = tPathConstraint;
                 }
             }
-            //tf作用器
             if (templet.tfArr.length > 0) {
                 this._tfArr = [];
                 for (i = 0, n = templet.tfArr.length; i < n; i++) {
@@ -3076,33 +2444,18 @@
             this._player.on(Laya.Event.STOPPED, this, this._onStop);
             this._player.on(Laya.Event.PAUSED, this, this._onPause);
         }
-        /**
-         * 得到资源的URL
-         */
         get url() {
             return this._aniPath;
         }
-        /**
-         * 设置动画路径
-         */
         set url(path) {
             this.load(path);
         }
-        /**
-         * 通过加载直接创建动画
-         * @param	path		要加载的动画文件路径
-         * @param	complete	加载完成的回调函数
-         * @param	aniMode		与<code>Skeleton.init</code>的<code>aniMode</code>作用一致
-         */
         load(path, complete = null, aniMode = 0) {
             this._aniPath = path;
             this._complete = complete;
             this._loadAniMode = aniMode;
             Laya.ILaya.loader.load([{ url: path, type: Laya.ILaya.Loader.BUFFER }], Laya.Handler.create(this, this._onLoaded));
         }
-        /**
-         * 加载完成
-         */
         _onLoaded() {
             var arraybuffer = Laya.ILaya.Loader.getRes(this._aniPath);
             if (arraybuffer == null)
@@ -3136,9 +2489,6 @@
                 tFactory.parseData(null, arraybuffer);
             }
         }
-        /**
-         * 解析完成
-         */
         _parseComplete() {
             var tTemple = IAniLib.Templet.TEMPLET_DICTIONARY[this._aniPath];
             if (tTemple) {
@@ -3147,23 +2497,13 @@
             }
             this._complete && this._complete.runWith(this);
         }
-        /**
-         * 解析失败
-         */
         _parseFail() {
             console.log("[Error]:" + this._aniPath + "解析失败");
         }
-        /**
-         * 传递PLAY事件
-         */
         _onPlay() {
             this.event(Laya.Event.PLAYED);
         }
-        /**
-         * 传递STOP事件
-         */
         _onStop() {
-            //把没播的事件播完
             var tEventData;
             var tEventAniArr = this._templet.eventAniArr;
             var tEventArr = tEventAniArr[this._aniClipIndex];
@@ -3175,19 +2515,12 @@
                     }
                 }
             }
-            //_eventIndex = 0;
             this._drawOrder = null;
             this.event(Laya.Event.STOPPED);
         }
-        /**
-         * 传递PAUSE事件
-         */
         _onPause() {
             this.event(Laya.Event.PAUSED);
         }
-        /**
-         * 创建骨骼的矩阵，保存每次计算的最终结果
-         */
         _parseSrcBoneMatrix() {
             var i = 0, n = 0;
             n = this._templet.srcBoneMatrixArr.length;
@@ -3236,10 +2569,6 @@
                 }
             }
         }
-        /**
-         * 更新动画
-         * @param	autoKey true为正常更新，false为index手动更新
-         */
         _update(autoKey = true) {
             if (this._pause)
                 return;
@@ -3250,7 +2579,6 @@
             var preIndex = this._player.currentKeyframeIndex;
             var dTime = tCurrTime - this._lastTime;
             if (autoKey) {
-                // player update，更新当前帧数，判断是否stop或者complete
                 this._player._update(dTime);
             }
             else {
@@ -3259,7 +2587,7 @@
             this._lastTime = tCurrTime;
             if (!this._player)
                 return;
-            this._index = this._clipIndex = this._player.currentKeyframeIndex; // 当前所在帧
+            this._index = this._clipIndex = this._player.currentKeyframeIndex;
             if (this._index < 0)
                 return;
             if (dTime > 0 && this._clipIndex == preIndex && this._lastUpdateAniClipIndex == this._aniClipIndex) {
@@ -3270,7 +2598,6 @@
                 this._emitMissedEvents(this._player.playStart, this._player.playEnd, this._eventIndex);
                 this._eventIndex = 0;
             }
-            // 自定义事件的检查
             var tEventArr = this._templet.eventAniArr[this._aniClipIndex];
             var _soundChannel;
             if (tEventArr && this._eventIndex < tEventArr.length) {
@@ -3298,14 +2625,13 @@
             }
             var tGraphics;
             if (this._aniMode == 0) {
-                // 从templet中找到缓存的这一帧的 graphics
-                tGraphics = this._templet.getGrahicsDataWithCache(this._aniClipIndex, this._clipIndex) || this._createGraphics(); // _clipIndex是 AnimationPlayer计算出来的
+                tGraphics = this._templet.getGrahicsDataWithCache(this._aniClipIndex, this._clipIndex) || this._createGraphics();
                 if (tGraphics && this.graphics != tGraphics) {
                     this.graphics = tGraphics;
                 }
             }
             else if (this._aniMode == 1) {
-                tGraphics = this._getGrahicsDataWithCache(this._aniClipIndex, this._clipIndex) || this._createGraphics(); // 与0的区别是从this get，上面是从templet get
+                tGraphics = this._getGrahicsDataWithCache(this._aniClipIndex, this._clipIndex) || this._createGraphics();
                 if (tGraphics && this.graphics != tGraphics) {
                     this.graphics = tGraphics;
                 }
@@ -3314,11 +2640,6 @@
                 this._createGraphics();
             }
         }
-        /**
-         * @private
-         * 清掉播放完成的音频
-         * @param force 是否强制删掉所有的声音channel
-         */
         _onAniSoundStoped(force) {
             var _channel;
             for (var len = this._soundChannelArr.length, i = 0; i < len; i++) {
@@ -3326,58 +2647,45 @@
                 if (_channel.isStopped || force) {
                     !_channel.isStopped && _channel.stop();
                     this._soundChannelArr.splice(i, 1);
-                    // SoundManager.removeChannel(_channel); // TODO 是否需要? 去掉有什么好处? 是否还需要其他操作?
                     len--;
                     i--;
                 }
             }
         }
-        /**
-         * @private
-         * 创建grahics图像. 并且保存到cache中
-         * @param	_clipIndex 第几帧
-         */
         _createGraphics(_clipIndex = -1) {
             if (_clipIndex == -1)
                 _clipIndex = this._clipIndex;
             var curTime = _clipIndex * this._player.cacheFrameRateInterval;
-            //处理绘制顺序
             var tDrawOrderData;
             var tDrawOrderAniArr = this._templet.drawOrderAniArr;
-            // 当前动作的 drawOrderArray 信息
             var tDrawOrderArr = tDrawOrderAniArr[this._aniClipIndex];
             if (tDrawOrderArr && tDrawOrderArr.length > 0) {
-                // 选出当前所在帧的 drawOrderArray
-                this._drawOrderIndex = 0; // 从0开始
+                this._drawOrderIndex = 0;
                 tDrawOrderData = tDrawOrderArr[this._drawOrderIndex];
                 while (curTime >= tDrawOrderData.time) {
                     this._drawOrder = tDrawOrderData.drawOrder;
-                    this._drawOrderIndex++; // 下一帧
+                    this._drawOrderIndex++;
                     if (this._drawOrderIndex >= tDrawOrderArr.length) {
                         break;
                     }
                     tDrawOrderData = tDrawOrderArr[this._drawOrderIndex];
                 }
             }
-            //要用的graphics
-            if (this._aniMode == 0 || this._aniMode == 1) { // 有缓存的情况
-                this.graphics = GraphicsAni.create(); // new GraphicsAni();
+            if (this._aniMode == 0 || this._aniMode == 1) {
+                this.graphics = GraphicsAni.create();
             }
-            else { // 实时计算的情况。 每次都是新的数据，因此要把上一帧的清理一下
+            else {
                 if (this.graphics instanceof GraphicsAni) {
                     this.graphics.clear();
                 }
                 else {
-                    this.graphics = GraphicsAni.create(); //new GraphicsAni();
+                    this.graphics = GraphicsAni.create();
                 }
             }
             var tGraphics = this.graphics;
-            //获取骨骼数据
             var bones = this._templet.getNodes(this._aniClipIndex);
-            // 现在把帧数计算改成实时的，根据时间算，因此时间要求准确，不能再用curTime了。
-            // 用curTime可能会出一个bug就是没有到达最后一帧。例如最后两帧间隔很短
             var stopped = this._player.state == 0;
-            this._templet.getOriginalData(this._aniClipIndex, this._curOriginalData, /*_templet._fullFrames[_aniClipIndex]*/ null, _clipIndex, stopped ? (curTime + this._player.cacheFrameRateInterval) : curTime);
+            this._templet.getOriginalData(this._aniClipIndex, this._curOriginalData, null, _clipIndex, stopped ? (curTime + this._player.cacheFrameRateInterval) : curTime);
             var tSectionArr = this._aniSectionDic[this._aniClipIndex];
             var tStartIndex = 0;
             var i = 0, j = 0, k = 0, n = 0;
@@ -3385,7 +2693,6 @@
             var tDBBoneSlotArr;
             var tParentTransform;
             var tSrcBone;
-            //对骨骼数据进行计算
             var boneCount = this._templet.srcBoneMatrixArr.length;
             var origDt = this._curOriginalData;
             for (i = 0, n = tSectionArr[0]; i < boneCount; i++) {
@@ -3403,28 +2710,23 @@
                     resultTrans.skewY = tParentTransform.skewY + origDt[tStartIndex++];
                 }
             }
-            //对插槽进行插值计算
             var tSlotDic = {};
             var tSlotAlphaDic = {};
             var tBoneData;
             for (n += tSectionArr[1]; i < n; i++) {
                 tBoneData = bones[i];
                 tSlotDic[tBoneData.name] = origDt[tStartIndex++];
-                tSlotAlphaDic[tBoneData.name] = origDt[tStartIndex++]; // 每一个slot的alpha?
-                //预留
+                tSlotAlphaDic[tBoneData.name] = origDt[tStartIndex++];
                 tStartIndex += 4;
             }
-            //ik
             var tBendDirectionDic = {};
             var tMixDic = {};
             for (n += tSectionArr[2]; i < n; i++) {
                 tBoneData = bones[i];
                 tBendDirectionDic[tBoneData.name] = origDt[tStartIndex++];
                 tMixDic[tBoneData.name] = origDt[tStartIndex++];
-                //预留
                 tStartIndex += 4;
             }
-            //path
             if (this._pathDic) {
                 var tPathConstraint;
                 for (n += tSectionArr[3]; i < n; i++) {
@@ -3433,13 +2735,13 @@
                     if (tPathConstraint) {
                         var tByte = new Laya.Byte(tBoneData.extenData);
                         switch (tByte.getByte()) {
-                            case 1: //position
+                            case 1:
                                 tPathConstraint.position = origDt[tStartIndex++];
                                 break;
-                            case 2: //spacing
+                            case 2:
                                 tPathConstraint.spacing = origDt[tStartIndex++];
                                 break;
-                            case 3: //mix
+                            case 3:
                                 tPathConstraint.rotateMix = origDt[tStartIndex++];
                                 tPathConstraint.translateMix = origDt[tStartIndex++];
                                 break;
@@ -3447,9 +2749,7 @@
                     }
                 }
             }
-            // 从root开始级联矩阵
             this._rootBone.update(this._yReverseMatrix || Laya.Matrix.TEMP.identity());
-            //刷新IK作用器
             if (this._ikArr) {
                 var tIkConstraint;
                 for (i = 0, n = this._ikArr.length; i < n; i++) {
@@ -3461,17 +2761,14 @@
                         tIkConstraint.mix = tMixDic[tIkConstraint.name];
                     }
                     tIkConstraint.apply();
-                    //tIkConstraint.updatePos(this.x, this.y);
                 }
             }
-            //刷新PATH作用器
             if (this._pathDic) {
                 for (var tPathStr in this._pathDic) {
                     tPathConstraint = this._pathDic[tPathStr];
                     tPathConstraint.apply(this._boneList, tGraphics);
                 }
             }
-            //刷新transform作用器
             if (this._tfArr) {
                 var tTfConstraint;
                 for (i = 0, k = this._tfArr.length; i < k; i++) {
@@ -3493,7 +2790,6 @@
                 }
             }
             var tDeformDic = {};
-            //变形动画作用器
             var tDeformAniArr = this._templet.deformAniArr;
             var tDeformAniData;
             if (tDeformAniArr && tDeformAniArr.length > 0) {
@@ -3505,10 +2801,8 @@
                     }
                 }
                 var tSkinDeformAni = tDeformAniArr[this._aniClipIndex];
-                //使用default数据
                 tDeformAniData = (tSkinDeformAni["default"]);
                 this._setDeform(tDeformAniData, tDeformDic, this._boneSlotArray, curTime);
-                //使用其他皮肤的数据
                 var tSkin;
                 for (tSkin in tSkinDeformAni) {
                     if (tSkin != "default" && tSkin != this._skinName) {
@@ -3516,15 +2810,12 @@
                         this._setDeform(tDeformAniData, tDeformDic, this._boneSlotArray, curTime);
                     }
                 }
-                //使用自己皮肤的数据
                 tDeformAniData = (tSkinDeformAni[this._skinName]);
                 this._setDeform(tDeformAniData, tDeformDic, this._boneSlotArray, curTime);
             }
-            //_rootBone.updateDraw(this.x,this.y);
             var tSlotData2;
             var tSlotData3;
             var tObject;
-            //把动画按插槽顺序画出来
             if (this._drawOrder) {
                 for (i = 0, n = this._drawOrder.length; i < n; i++) {
                     tDBBoneSlot = this._boneSlotArray[this._drawOrder[i]];
@@ -3613,13 +2904,6 @@
             }
             this._templet.deleteAniData(_aniClipIndex);
         }
-        /**
-         * 设置deform数据
-         * @param	tDeformAniData
-         * @param	tDeformDic
-         * @param	_boneSlotArray
-         * @param	curTime
-         */
         _setDeform(tDeformAniData, tDeformDic, _boneSlotArray, curTime) {
             if (!tDeformAniData)
                 return;
@@ -3642,42 +2926,18 @@
                 }
             }
         }
-        /*******************************************定义接口*************************************************/
-        /**
-         * 得到当前动画的数量
-         * @return 当前动画的数量
-         */
         getAnimNum() {
             return this._templet.getAnimationCount();
         }
-        /**
-         * 得到指定动画的名字
-         * @param	index	动画的索引
-         */
         getAniNameByIndex(index) {
             return this._templet.getAniNameByIndex(index);
         }
-        /**
-         * 通过名字得到插槽的引用
-         * @param	name	动画的名字
-         * @return 插槽的引用
-         */
         getSlotByName(name) {
             return this._boneSlotDic[name];
         }
-        /**
-         * 通过名字显示一套皮肤
-         * @param	name	皮肤的名字
-         * @param	freshSlotIndex	是否将插槽纹理重置到初始化状态
-         */
         showSkinByName(name, freshSlotIndex = true) {
             this.showSkinByIndex(this._templet.getSkinIndexByName(name), freshSlotIndex);
         }
-        /**
-         * 通过索引显示一套皮肤
-         * @param	skinIndex	皮肤索引
-         * @param	freshSlotIndex	是否将插槽纹理重置到初始化状态
-         */
         showSkinByIndex(skinIndex, freshSlotIndex = true) {
             for (var i = 0; i < this._boneSlotArray.length; i++) {
                 this._boneSlotArray[i].showSlotData(null, freshSlotIndex);
@@ -3689,11 +2949,6 @@
             }
             this._clearCache();
         }
-        /**
-         * 设置某插槽的皮肤
-         * @param	slotName	插槽名称
-         * @param	index	插糟皮肤的索引
-         */
         showSlotSkinByIndex(slotName, index) {
             if (this._aniMode == 0)
                 return;
@@ -3703,11 +2958,6 @@
             }
             this._clearCache();
         }
-        /**
-         * 设置某插槽的皮肤
-         * @param	slotName	插槽名称
-         * @param	name	皮肤名称
-         */
         showSlotSkinByName(slotName, name) {
             if (this._aniMode == 0)
                 return;
@@ -3717,12 +2967,6 @@
             }
             this._clearCache();
         }
-        /**
-         * 替换插槽贴图名
-         * @param	slotName 插槽名称
-         * @param	oldName 要替换的贴图名
-         * @param	newName 替换后的贴图名
-         */
         replaceSlotSkinName(slotName, oldName, newName) {
             if (this._aniMode == 0)
                 return;
@@ -3732,12 +2976,6 @@
             }
             this._clearCache();
         }
-        /**
-         * 替换插槽的贴图索引
-         * @param	slotName 插槽名称
-         * @param	oldIndex 要替换的索引
-         * @param	newIndex 替换后的索引
-         */
         replaceSlotSkinByIndex(slotName, oldIndex, newIndex) {
             if (this._aniMode == 0)
                 return;
@@ -3747,11 +2985,6 @@
             }
             this._clearCache();
         }
-        /**
-         * 设置自定义皮肤
-         * @param	name		插糟的名字
-         * @param	texture		自定义的纹理
-         */
         setSlotSkin(slotName, texture) {
             if (this._aniMode == 0)
                 return;
@@ -3761,9 +2994,6 @@
             }
             this._clearCache();
         }
-        /**
-         * 换装的时候，需要清一下缓冲区
-         */
         _clearCache() {
             if (this._aniMode == 1) {
                 for (var i = 0, n = this._graphicsCache.length; i < n; i++) {
@@ -3777,24 +3007,13 @@
                 }
             }
         }
-        /**
-         * 播放动画
-         *
-         * @param	nameOrIndex	动画名字或者索引
-         * @param	loop		是否循环播放
-         * @param	force		false,如果要播的动画跟上一个相同就不生效,true,强制生效
-         * @param	start		起始时间
-         * @param	end			结束时间
-         * @param	freshSkin	是否刷新皮肤数据
-         * @param	playAudio	是否播放音频
-         */
         play(nameOrIndex, loop, force = true, start = 0, end = 0, freshSkin = true, playAudio = true) {
             this._playAudio = playAudio;
             this._indexControl = false;
             var index = -1;
             var duration;
             if (loop) {
-                duration = 2147483647; //int.MAX_VALUE;
+                duration = 2147483647;
             }
             else {
                 duration = 0;
@@ -3830,40 +3049,30 @@
                 }
             }
         }
-        /**
-         * 停止动画
-         */
         stop() {
             if (!this._pause) {
                 this._pause = true;
                 if (this._player) {
                     this._player.stop(true);
                 }
-                if (this._soundChannelArr.length > 0) { // 有正在播放的声音
+                if (this._soundChannelArr.length > 0) {
                     this._onAniSoundStoped(true);
                 }
                 this.timer.clear(this, this._update);
             }
         }
-        /**
-         * 设置动画播放速率
-         * @param	value	1为标准速率
-         */
         playbackRate(value) {
             if (this._player) {
                 this._player.playbackRate = value;
             }
         }
-        /**
-         * 暂停动画的播放
-         */
         paused() {
             if (!this._pause) {
                 this._pause = true;
                 if (this._player) {
                     this._player.paused = true;
                 }
-                if (this._soundChannelArr.length > 0) { // 有正在播放的声音
+                if (this._soundChannelArr.length > 0) {
                     var _soundChannel;
                     for (var len = this._soundChannelArr.length, i = 0; i < len; i++) {
                         _soundChannel = this._soundChannelArr[i];
@@ -3875,9 +3084,6 @@
                 this.timer.clear(this, this._update);
             }
         }
-        /**
-         * 恢复动画的播放
-         */
         resume() {
             this._indexControl = false;
             if (this._pause) {
@@ -3885,7 +3091,7 @@
                 if (this._player) {
                     this._player.paused = false;
                 }
-                if (this._soundChannelArr.length > 0) { // 有正在播放的声音
+                if (this._soundChannelArr.length > 0) {
                     var _soundChannel;
                     for (var len = this._soundChannelArr.length, i = 0; i < len; i++) {
                         _soundChannel = this._soundChannelArr[i];
@@ -3898,56 +3104,30 @@
                 this.timer.frameLoop(1, this, this._update, null, true);
             }
         }
-        /**
-         * @private
-         * 得到缓冲数据
-         * @param	aniIndex
-         * @param	frameIndex
-         * @return
-         */
         _getGrahicsDataWithCache(aniIndex, frameIndex) {
             return this._graphicsCache[aniIndex][frameIndex];
         }
-        /**
-         * @private
-         * 保存缓冲grahpics
-         * @param	aniIndex
-         * @param	frameIndex
-         * @param	graphics
-         */
         _setGrahicsDataWithCache(aniIndex, frameIndex, graphics) {
             this._graphicsCache[aniIndex][frameIndex] = graphics;
         }
-        /**
-         * 销毁当前动画
-         * @override
-         */
         destroy(destroyChild = true) {
             super.destroy(destroyChild);
             this._templet._removeReference(1);
-            this._templet = null; //动画解析器
+            this._templet = null;
             if (this._player)
                 this._player.offAll();
-            this._player = null; // 播放器
-            this._curOriginalData = null; //当前骨骼的偏移数据
-            this._boneMatrixArray.length = 0; //当前骨骼动画的最终结果数据
-            this._lastTime = 0; //上次的帧时间
+            this._player = null;
+            this._curOriginalData = null;
+            this._boneMatrixArray.length = 0;
+            this._lastTime = 0;
             this.timer.clear(this, this._update);
-            if (this._soundChannelArr.length > 0) { // 有正在播放的声音
+            if (this._soundChannelArr.length > 0) {
                 this._onAniSoundStoped(true);
             }
         }
-        /**
-         * @private
-         * 得到帧索引
-         */
         get index() {
             return this._index;
         }
-        /**
-         * @private
-         * 设置帧索引
-         */
         set index(value) {
             if (this.player) {
                 this._index = value;
@@ -3956,9 +3136,6 @@
                 this._update(false);
             }
         }
-        /**
-         * 得到总帧数据
-         */
         get total() {
             if (this._templet && this._player) {
                 this._total = Math.floor(this._templet.getAniDuration(this._player.currentAnimationClipIndex) / 1000 * this._player.cacheFrameRate);
@@ -3968,32 +3145,19 @@
             }
             return this._total;
         }
-        /**
-         * 得到播放器的引用
-         */
         get player() {
             return this._player;
         }
-        /**
-         * 得到动画模板的引用
-         * @return templet.
-         */
         get templet() {
             return this._templet;
         }
     }
-    /**
-     * 在canvas模式是否使用简化版的mesh绘制，简化版的mesh将不进行三角形绘制，而改为矩形绘制，能极大提高性能，但是可能某些mesh动画效果会不太正常
-     */
     Skeleton.useSimpleMeshInCanvas = false;
     IAniLib.Skeleton = Skeleton;
     Laya.ILaya.regClass(Skeleton);
     Laya.ClassUtils.regClass("laya.ani.bone.Skeleton", Skeleton);
     Laya.ClassUtils.regClass("Laya.Skeleton", Skeleton);
 
-    /**
-     * @internal
-     */
     class SkinData {
         constructor() {
             this.slotArr = [];
@@ -4005,10 +3169,8 @@
             if (this.texture)
                 return this.texture;
             this.texture = new Laya.Texture(currTexture.bitmap, this.uvs);
-            //判断是否旋转
             if (this.uvs[0] > this.uvs[4]
                 && this.uvs[1] > this.uvs[5]) {
-                //旋转
                 this.texture.width = currTexture.height;
                 this.texture.height = currTexture.width;
                 this.texture.offsetX = -currTexture.offsetX;
@@ -4048,64 +3210,32 @@
         }
     }
 
-    /**
-     * @internal
-     */
-    //TODO:coverage
     class TfConstraintData {
         constructor() {
             this.boneIndexs = [];
         }
     }
 
-    /**数据解析完成后的调度。
-     * @eventType Event.COMPLETE
-     * */
-    /*[Event(name = "complete", type = "laya.events.Event.COMPLETE", desc = "数据解析完成后的调度")]*/
-    /**数据解析错误后的调度。
-     * @eventType Event.ERROR
-     * */
-    /*[Event(name = "error", type = "laya.events.Event.ERROR", desc = "数据解析错误后的调度")]*/
-    /**
-     * 动画模板类
-     */
     class Templet extends AnimationTemplet {
         constructor() {
             super(...arguments);
             this._graphicsCache = [];
-            /** 存放原始骨骼信息 */
             this.srcBoneMatrixArr = [];
-            /** IK数据 */
             this.ikArr = [];
-            /** transform数据 */
             this.tfArr = [];
-            /** path数据 */
             this.pathArr = [];
-            /** 存放插槽数据的字典 */
             this.boneSlotDic = {};
-            /** 绑定插槽数据的字典 */
             this.bindBoneBoneSlotDic = {};
-            /** 存放插糟数据的数组 */
             this.boneSlotArray = [];
-            /** 皮肤数据 */
             this.skinDataArray = [];
-            /** 皮肤的字典数据 */
             this.skinDic = {};
-            /** 存放纹理数据 */
             this.subTextureDic = {};
-            /** 是否解析失败 */
             this.isParseFail = false;
-            /** 渲染顺序动画数据 */
             this.drawOrderAniArr = [];
-            /** 事件动画数据 */
             this.eventAniArr = [];
-            /** @private 索引对应的名称 */
             this.attachmentNames = null;
-            /** 顶点动画数据 */
             this.deformAniArr = [];
-            /** 实际显示对象列表，用于销毁用 */
             this.skinSlotDisplayDataArr = [];
-            /** 是否需要解析audio数据 */
             this._isParseAudio = false;
             this._isDestroyed = false;
             this._rate = 30;
@@ -4131,12 +3261,6 @@
             this._path = this._skBufferUrl.slice(0, this._skBufferUrl.lastIndexOf("/")) + "/";
             this.parseData(null, tSkBuffer);
         }
-        /**
-         * 解析骨骼动画数据
-         * @param	texture			骨骼动画用到的纹理
-         * @param	skeletonData	骨骼动画信息及纹理分块信息
-         * @param	playbackRate	缓冲的帧率数据（会根据帧率去分帧）
-         */
         parseData(texture, skeletonData, playbackRate = 30) {
             if (!this._path) {
                 var s1 = (this._relativeUrl || this.url);
@@ -4154,49 +3278,24 @@
             this._rate = playbackRate;
             this.parse(skeletonData);
         }
-        /**
-         * 创建动画
-         * 0,使用模板缓冲的数据，模板缓冲的数据，不允许修改					（内存开销小，计算开销小，不支持换装）
-         * 1,使用动画自己的缓冲区，每个动画都会有自己的缓冲区，相当耗费内存	（内存开销大，计算开销小，支持换装）
-         * 2,使用动态方式，去实时去画										（内存开销小，计算开销大，支持换装,不建议使用）
-         * @param	aniMode 0	动画模式，0:不支持换装,1,2支持换装
-         * @return
-         */
         buildArmature(aniMode = 0) {
             return new Skeleton(this, aniMode);
         }
-        /**
-         * @private
-         * 解析动画
-         * @param	data			解析的二进制数据
-         * @param	playbackRate	帧率
-         * @override
-         */
         parse(data) {
             super.parse(data);
-            //_loaded = true;
             this.event(Laya.Event.LOADED, this);
             if (this._aniVersion === Templet.LAYA_ANIMATION_VISION) {
                 this._isParseAudio = true;
             }
             else if (this._aniVersion != Templet.LAYA_ANIMATION_160_VISION) {
-                //trace("[Error] Version " + _aniVersion + " The engine is inconsistent, update to the version " + KeyframesAniTemplet.LAYA_ANIMATION_VISION + " please.");
                 console.log("[Error] 版本不一致，请使用IDE版本配套的重新导出" + this._aniVersion + "->" + Templet.LAYA_ANIMATION_VISION);
-                //_loaded = false;
             }
-            //解析公共数据
-            //if (loaded) {
-            //这里后面要改成一个状态，直接确认是不是要不要加载外部图片
             if (this._mainTexture) {
                 this._parsePublicExtData();
             }
             else {
                 this._parseTexturePath();
             }
-            //} else {
-            //this.event(Event.ERROR, this);
-            //isParseFail = true;
-            //}
         }
         _parseTexturePath() {
             if (this._isDestroyed) {
@@ -4229,9 +3328,6 @@
             }
             Laya.ILaya.loader.load(this._loadList, Laya.Handler.create(this, this._textureComplete));
         }
-        /**
-         * 纹理加载完成
-         */
         _textureComplete() {
             var tTexture;
             var tTextureName;
@@ -4241,9 +3337,6 @@
             }
             this._parsePublicExtData();
         }
-        /**
-         * 解析自定义数据
-         */
         _parsePublicExtData() {
             var i = 0, j = 0, k = 0, l = 0, n = 0;
             for (i = 0, n = this.getAnimationCount(); i < n; i++) {
@@ -4255,7 +3348,6 @@
             var tX = 0, tY = 0, tWidth = 0, tHeight = 0;
             var tFrameX = 0, tFrameY = 0, tFrameWidth = 0, tFrameHeight = 0;
             var tTempleData = 0;
-            //var tTextureLen:int = tByte.getUint8();
             var tTextureLen = tByte.getInt32();
             var tTextureName = tByte.readUTFString();
             var tTextureNameArr = tTextureName.split("\n");
@@ -4516,7 +3608,6 @@
                     this.attachmentNames.push(tByte.getUTFString());
                 }
             }
-            //创建插槽并绑定到骨骼上
             var tBoneSlotLen = tByte.getInt16();
             var tDBBoneSlot;
             var tDBBoneSlotArr;
@@ -4633,11 +3724,6 @@
             this.isParserComplete = true;
             this.event(Laya.Event.COMPLETE, this);
         }
-        /**
-         * 得到指定的纹理
-         * @param	name	纹理的名字
-         * @return
-         */
         getTexture(name) {
             var tTexture = this.subTextureDic[name];
             if (!tTexture) {
@@ -4648,13 +3734,6 @@
             }
             return tTexture;
         }
-        /**
-         * @private
-         * 显示指定的皮肤
-         * @param	boneSlotDic	插糟字典的引用
-         * @param	skinIndex	皮肤的索引
-         * @param	freshDisplayIndex	是否重置插槽纹理
-         */
         showSkinByIndex(boneSlotDic, skinIndex, freshDisplayIndex = true) {
             if (skinIndex < 0 && skinIndex >= this.skinDataArray.length)
                 return false;
@@ -4682,11 +3761,6 @@
             }
             return false;
         }
-        /**
-         * 通过皮肤名字得到皮肤索引
-         * @param	skinName 皮肤名称
-         * @return
-         */
         getSkinIndexByName(skinName) {
             var tSkinData;
             for (var i = 0, n = this.skinDataArray.length; i < n; i++) {
@@ -4697,35 +3771,16 @@
             }
             return -1;
         }
-        /**
-         * @private
-         * 得到缓冲数据
-         * @param	aniIndex	动画索引
-         * @param	frameIndex	帧索引
-         * @return
-         */
         getGrahicsDataWithCache(aniIndex, frameIndex) {
             if (this._graphicsCache[aniIndex] && this._graphicsCache[aniIndex][frameIndex]) {
                 return this._graphicsCache[aniIndex][frameIndex];
             }
-            //trace("getGrahicsDataWithCache fail:",aniIndex,frameIndex,this._path);
             return null;
         }
-        /**
-         * @internal
-         * @override
-         */
         _setCreateURL(url) {
             this._relativeUrl = url;
             super._setCreateURL(url);
         }
-        /**
-         * @private
-         * 保存缓冲grahpics
-         * @param	aniIndex	动画索引
-         * @param	frameIndex	帧索引
-         * @param	graphics	要保存的数据
-         */
         setGrahicsDataWithCache(aniIndex, frameIndex, graphics) {
             this._graphicsCache[aniIndex][frameIndex] = graphics;
         }
@@ -4736,10 +3791,6 @@
                 tAniDataO.nodes = null;
             }
         }
-        /**
-         * 释放纹理
-         * @override
-         */
         destroy() {
             this._isDestroyed = true;
             var tTexture;
@@ -4764,12 +3815,6 @@
             }
             super.destroy();
         }
-        /***********************************下面为一些儿访问接口*****************************************/
-        /**
-         * 通过索引得动画名称
-         * @param	index
-         * @return
-         */
         getAniNameByIndex(index) {
             var tAni = this.getAnimation(index);
             if (tAni)
@@ -4783,53 +3828,18 @@
             this._rate = v;
         }
     }
-    /**@internal */
     Templet.LAYA_ANIMATION_160_VISION = "LAYAANIMATION:1.6.0";
-    /**@internal */
     Templet.LAYA_ANIMATION_VISION = "LAYAANIMATION:1.7.0";
     IAniLib.Templet = Templet;
 
-    /**
-     * 动画播放完毕后调度。
-     * @eventType Event.COMPLETE
-     */
-    /*[Event(name = "complete", type = "laya.events.Event")]*/
-    /**
-     * 播放到某标签后调度。
-     * @eventType Event.LABEL
-     */
-    /*[Event(name = "label", type = "laya.events.Event")]*/
-    /**
-     * 加载完成后调度。
-     * @eventType Event.LOADED
-     */
-    /*[Event(name = "loaded", type = "laya.events.Event")]*/
-    /**
-     * 进入帧后调度。
-     * @eventType Event.FRAME
-     */
-    /*[Event(name = "frame", type = "laya.events.Event")]*/
-    /**
-     * <p> <code>MovieClip</code> 用于播放经过工具处理后的 swf 动画。</p>
-     */
     class MovieClip extends Laya.Sprite {
-        /**
-         * 创建一个 <code>MovieClip</code> 实例。
-         * @param parentMovieClip 父MovieClip,自己创建时不需要传该参数
-         */
         constructor(parentMovieClip = null) {
             super();
-            /**@private 数据起始位置。*/
             this._start = 0;
-            /**@private 当前位置。*/
             this._Pos = 0;
-            /**@private */
             this._ended = true;
-            /**@private */
             this._loadedImage = {};
-            /**@private */
             this._endFrame = -1;
-            /** 播放间隔(单位：毫秒)。*/
             this.interval = 30;
             this._ids = {};
             this._idOfSprite = [];
@@ -4847,37 +3857,22 @@
                 this._movieClipList.push(this);
             }
         }
-        /**
-         * <p>销毁此对象。以及销毁引用的Texture</p>
-         * @param	destroyChild 是否同时销毁子节点，若值为true,则销毁子节点，否则不销毁子节点。
-         * @override
-         */
         destroy(destroyChild = true) {
             this._clear();
             super.destroy(destroyChild);
         }
-        /**
-         * @internal
-         * @override
-         */
         _setDisplay(value) {
             super._setDisplay(value);
             if (this._isRoot) {
                 this._onDisplay(value);
             }
         }
-        /**
-         * @private
-         * @override
-         */
         _onDisplay(value) {
             if (value)
                 this.timer.loop(this.interval, this, this.updates, null, true);
             else
                 this.timer.clear(this, this.updates);
         }
-        /**@private 更新时间轴*/
-        //TODO:coverage
         updates() {
             if (this._parentMovieClip)
                 return;
@@ -4887,7 +3882,6 @@
                 this._movieClipList[i] && this._movieClipList[i]._update();
             }
         }
-        /**当前播放索引。*/
         get index() {
             return this._playIndex;
         }
@@ -4898,20 +3892,11 @@
             if (this._labels && this._labels[value])
                 this.event(Laya.Event.LABEL, this._labels[value]);
         }
-        /**
-         * 增加一个标签到index帧上，播放到此index后会派发label事件
-         * @param	label	标签名称
-         * @param	index	索引位置
-         */
         addLabel(label, index) {
             if (!this._labels)
                 this._labels = {};
             this._labels[index] = label;
         }
-        /**
-         * 删除某个标签
-         * @param	label 标签名字，如果label为空，则删除所有Label
-         */
         removeLabel(label) {
             if (!label)
                 this._labels = null;
@@ -4924,23 +3909,12 @@
                 }
             }
         }
-        /**
-         * 帧总数。
-         */
         get count() {
             return this._count;
         }
-        /**
-         * 是否在播放中
-         */
         get playing() {
             return this._playing;
         }
-        /**
-         * @private
-         * 动画的帧更新处理函数。
-         */
-        //TODO:coverage
         _update() {
             if (!this._data)
                 return;
@@ -4968,24 +3942,13 @@
                 this.stop();
             }
         }
-        /**
-         * 停止播放动画。
-         */
         stop() {
             this._playing = false;
         }
-        /**
-         * 跳到某帧并停止播放动画。
-         * @param frame 要跳到的帧
-         */
         gotoAndStop(index) {
             this.index = index;
             this.stop();
         }
-        /**
-         * @private
-         * 清理。
-         */
         _clear() {
             this.stop();
             this._idOfSprite.length = 0;
@@ -5013,18 +3976,12 @@
             this.graphics = null;
             this._parentMovieClip = null;
         }
-        /**
-         * 播放动画。
-         * @param	index 帧索引。
-         */
         play(index = 0, loop = true) {
             this.loop = loop;
             this._playing = true;
             if (this._data)
                 this._displayFrame(index);
         }
-        /**@private */
-        //TODO:coverage
         _displayFrame(frameIndex = -1) {
             if (frameIndex != -1) {
                 if (this._curIndex > frameIndex)
@@ -5032,15 +3989,12 @@
                 this._parseFrame(frameIndex);
             }
         }
-        /**@private */
         _reset(rm = true) {
             if (rm && this._curIndex != 1)
                 this.removeChildren();
             this._preIndex = this._curIndex = -1;
             this._Pos = this._start;
         }
-        /**@private */
-        //TODO:coverage
         _parseFrame(frameIndex) {
             var mc, sp, key, type, tPos, ttype, ifAdd = false;
             var _idOfSprite = this._idOfSprite, _data = this._data, eStr;
@@ -5056,7 +4010,7 @@
             while ((this._curIndex <= frameIndex) && (!this._ended)) {
                 type = _data.getUint16();
                 switch (type) {
-                    case 12: //new MC
+                    case 12:
                         key = _data.getUint16();
                         tPos = this._ids[_data.getUint16()];
                         this._Pos = _data.pos;
@@ -5091,53 +4045,53 @@
                         }
                         _data.pos = this._Pos;
                         break;
-                    case 3: //addChild
-                        var node = _idOfSprite[ /*key*/_data.getUint16()];
+                    case 3:
+                        var node = _idOfSprite[_data.getUint16()];
                         if (node) {
                             this.addChild(node);
                             node.zOrder = _data.getUint16();
                             ifAdd = true;
                         }
                         break;
-                    case 4: //remove
-                        node = _idOfSprite[ /*key*/_data.getUint16()];
+                    case 4:
+                        node = _idOfSprite[_data.getUint16()];
                         node && node.removeSelf();
                         break;
-                    case 5: //setValue
+                    case 5:
                         _idOfSprite[_data.getUint16()][MovieClip._ValueList[_data.getUint16()]] = (_data.getFloat32());
                         break;
-                    case 6: //visible
-                        _idOfSprite[_data.getUint16()].visible = ( /*visible*/_data.getUint8() > 0);
+                    case 6:
+                        _idOfSprite[_data.getUint16()].visible = (_data.getUint8() > 0);
                         break;
-                    case 7: //SetTransform
-                        sp = _idOfSprite[ /*key*/_data.getUint16()]; //.transform=mt;
+                    case 7:
+                        sp = _idOfSprite[_data.getUint16()];
                         var mt = sp.transform || Laya.Matrix.create();
                         mt.setTo(_data.getFloat32(), _data.getFloat32(), _data.getFloat32(), _data.getFloat32(), _data.getFloat32(), _data.getFloat32());
                         sp.transform = mt;
                         break;
-                    case 8: //pos
+                    case 8:
                         _idOfSprite[_data.getUint16()].setPos(_data.getFloat32(), _data.getFloat32());
                         break;
-                    case 9: //size
+                    case 9:
                         _idOfSprite[_data.getUint16()].setSize(_data.getFloat32(), _data.getFloat32());
                         break;
-                    case 10: //alpha
-                        _idOfSprite[ /*key*/_data.getUint16()].alpha = /*alpha*/ _data.getFloat32();
+                    case 10:
+                        _idOfSprite[_data.getUint16()].alpha = _data.getFloat32();
                         break;
-                    case 11: //scale
+                    case 11:
                         _idOfSprite[_data.getUint16()].setScale(_data.getFloat32(), _data.getFloat32());
                         break;
-                    case 98: //event		
+                    case 98:
                         eStr = _data.getString();
                         this.event(eStr);
                         if (eStr == "stop")
                             this.stop();
                         break;
-                    case 99: //FrameBegin				
+                    case 99:
                         this._curIndex = _data.getUint16();
                         ifAdd && this.updateZOrder();
                         break;
-                    case 100: //cmdEnd
+                    case 100:
                         this._count = this._curIndex + 1;
                         this._ended = true;
                         if (this._playing) {
@@ -5153,24 +4107,13 @@
                 this.event(Laya.Event.FRAME);
             this._Pos = _data.pos;
         }
-        /**@internal */
-        //TODO:coverage
         _setData(data, start) {
             this._data = data;
             this._start = start + 3;
         }
-        /**
-         * 资源地址。
-         */
         set url(path) {
             this.load(path);
         }
-        /**
-         * 加载资源。
-         * @param	url swf 资源地址。
-         * @param   atlas  是否使用图集资源
-         * @param   atlasPath  图集路径，默认使用与swf同名的图集
-         */
         load(url, atlas = false, atlasPath = null) {
             this._url = url;
             if (atlas)
@@ -5185,7 +4128,6 @@
             }
             Laya.ILaya.loader.load(urls, Laya.Handler.create(this, this._onLoaded));
         }
-        /**@private */
         _onLoaded() {
             var data;
             data = Laya.ILaya.Loader.getRes(this._url);
@@ -5197,12 +4139,9 @@
                 this.event(Laya.Event.ERROR, "Atlas not find");
                 return;
             }
-            // guo TODO getAtlas 返回的会有dir么， 应该是数组
             this.basePath = this._atlasPath ? Laya.ILaya.Loader.getAtlas(this._atlasPath).dir : this._url.split(".swf")[0] + "/image/";
             this._initData(data);
         }
-        /**@private */
-        //TODO:coverage
         _initState() {
             this._reset();
             this._ended = false;
@@ -5213,8 +4152,6 @@
                 this._parseFrame(++this._curIndex);
             this._playing = preState;
         }
-        /**@private */
-        //TODO:coverage
         _initData(data) {
             this._data = new Laya.Byte(data);
             var i, len = this._data.getUint16();
@@ -5228,19 +4165,12 @@
             if (!this._parentMovieClip)
                 this.timer.loop(this.interval, this, this.updates, null, true);
         }
-        /**
-         * 从开始索引播放到结束索引，结束之后出发complete回调
-         * @param	start	开始索引
-         * @param	end		结束索引
-         * @param	complete	结束回调
-         */
         playTo(start, end, complete = null) {
             this._completeHandler = complete;
             this._endFrame = end;
             this.play(start, false);
         }
     }
-    /**@private */
     MovieClip._ValueList = ["x", "y", "width", "height", "scaleX", "scaleY", "rotation", "alpha"];
 
     exports.AnimationContent = AnimationContent;

@@ -117,12 +117,13 @@ export class SkyRenderer {
 					Matrix4x4.createPerspective(camera.fieldOfView, camera.aspectRatio, camera.nearPlane, camera.farPlane, projectionMatrix);
 				}
 				//无穷投影矩阵算法
+				//http://terathon.com/gdc07_lengyel.pdf
 				// var epsilon: number = 1e-6;
 				// var nearPlane: number = camera.nearPlane * 0.01;
 				// projectionMatrix.elements[10] = -1.0 + epsilon;
 				// projectionMatrix.elements[11] = -1.0;
 				// projectionMatrix.elements[14] = (-1.0 + epsilon) * nearPlane;//Direct模式投影矩阵盒OpenGL不同
-				(<Camera>camera)._applyViewProject(state, viewMatrix, projectionMatrix, renderTar ? true : false);//TODO:优化不应设置给Camera直接提交
+				(<Camera>camera)._applyViewProject(state, viewMatrix, projectionMatrix, renderTar ? true : false);//TODO:优化 不应设置给Camera直接提交
 
 				shader.uploadUniforms(shader._cameraUniformParamsMap, camera._shaderValues, uploadCamera);
 				shader._uploadCamera = camera;

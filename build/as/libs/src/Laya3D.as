@@ -56,41 +56,6 @@ package  {
 		/*
 		 * @private 
 		 */
-		private static var _innerFirstLevelLoaderManager:*;
-
-		/*
-		 * @private 
-		 */
-		private static var _innerSecondLevelLoaderManager:*;
-
-		/*
-		 * @private 
-		 */
-		private static var _innerThirdLevelLoaderManager:*;
-
-		/*
-		 * @private 
-		 */
-		private static var _innerFourthLevelLoaderManager:*;
-
-		/*
-		 * @private 
-		 */
-		private static var _isInit:*;
-
-		/*
-		 * @private 
-		 */
-		public static var _editerEnvironment:Boolean;
-
-		/*
-		 * @private 
-		 */
-		public static var _config:Config3D;
-
-		/*
-		 * @private 
-		 */
 		public static var physicsSettings:PhysicsSettings;
 
 		/*
@@ -100,137 +65,12 @@ package  {
 		public static function get enbalePhysics():*{
 				return null;
 		}
-
-		/*
-		 * @private 
-		 */
-		public static function _cancelLoadByUrl(url:String):void{}
-
-		/*
-		 * @private 
-		 */
-		private static var _changeWebGLSize:*;
-
-		/*
-		 * @private 
-		 */
-		private static var __init__:*;
 		private static var enableNative3D:*;
 
 		/*
 		 * @private 
 		 */
 		private static var formatRelativePath:*;
-
-		/*
-		 * @private 
-		 */
-		private static var _endLoad:*;
-
-		/*
-		 * @private 
-		 */
-		private static var _eventLoadManagerError:*;
-
-		/*
-		 * @private 
-		 */
-		private static var _addHierarchyInnerUrls:*;
-
-		/*
-		 * @private 
-		 */
-		private static var _getSprite3DHierarchyInnerUrls:*;
-
-		/*
-		 * @private 
-		 */
-		private static var _loadHierarchy:*;
-
-		/*
-		 * @private 
-		 */
-		private static var _onHierarchylhLoaded:*;
-
-		/*
-		 * @private 
-		 */
-		private static var _onHierarchyInnerForthLevResouLoaded:*;
-
-		/*
-		 * @private 
-		 */
-		private static var _onHierarchyInnerThirdLevResouLoaded:*;
-
-		/*
-		 * @private 
-		 */
-		private static var _onHierarchyInnerSecondLevResouLoaded:*;
-
-		/*
-		 * @private 
-		 */
-		private static var _onHierarchyInnerFirstLevResouLoaded:*;
-
-		/*
-		 * @private 
-		 */
-		private static var _loadMesh:*;
-
-		/*
-		 * @private 
-		 */
-		private static var _onMeshLmLoaded:*;
-
-		/*
-		 * @private 
-		 */
-		private static var _loadMaterial:*;
-
-		/*
-		 * @private 
-		 */
-		private static var _onMaterilLmatLoaded:*;
-
-		/*
-		 * @private 
-		 */
-		private static var _onMateialTexturesLoaded:*;
-
-		/*
-		 * @private 
-		 */
-		private static var _loadAvatar:*;
-
-		/*
-		 * @private 
-		 */
-		private static var _loadAnimationClip:*;
-
-		/*
-		 * @private 
-		 */
-		private static var _loadTexture2D:*;
-
-		/*
-		 * @private 
-		 */
-		private static var _loadTextureCube:*;
-
-		/*
-		 * @private 
-		 */
-		private static var _onTextureCubeLtcLoaded:*;
-
-		/*
-		 * @private 
-		 */
-		private static var _onTextureCubeImagesLoaded:*;
-
-		/*
-		 * @private 
-		 */
-		private static var _onProcessChange:*;
 
 		/*
 		 * 初始化Laya3D相关设置。

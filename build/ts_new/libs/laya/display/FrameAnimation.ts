@@ -22,9 +22,9 @@ import { ClassUtils } from "../utils/ClassUtils";
 		/**@private */
 		private static _sortIndexFun:(a:any,b:any)=>number;
 		
-		/**@private id对象表*/
+		/**@internal id对象表*/
 		 _targetDic:any;
-		/**@private 动画数据*/
+		/**@internal 动画数据*/
 		 _animationData:any;
 		/**@private */
 		protected _usedFrames:any[];

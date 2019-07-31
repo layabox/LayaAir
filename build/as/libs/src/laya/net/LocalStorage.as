@@ -4,7 +4,6 @@ package laya.net {
 	 * <p> <code>LocalStorage</code> 类用于没有时间限制的数据存储。</p>
 	 */
 	public class LocalStorage {
-		public static var _baseClass:*;
 
 		/*
 		 * 数据列表。
@@ -15,9 +14,6 @@ package laya.net {
 		 * 表示是否支持  <code>LocalStorage</code>。
 		 */
 		public static var support:Boolean;
-		public static function __init__():Boolean{
-			return null;
-		}
 
 		/*
 		 * 存储指定键名和键值，字符串类型。

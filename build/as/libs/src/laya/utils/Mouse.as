@@ -20,7 +20,6 @@ package laya.utils {
 		 * @param cursorStr 例如auto move no-drop col-resizeall-scroll pointer not-allowed row-resizecrosshair progress e-resize ne-resizedefault text n-resize nw-resizehelp vertical-text s-resize se-resizeinherit wait w-resize sw-resize
 		 */
 		public static var cursor:String;
-		public static function __init__():*{}
 
 		/*
 		 * 隐藏鼠标

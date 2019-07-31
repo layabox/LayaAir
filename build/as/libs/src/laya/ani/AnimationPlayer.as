@@ -29,86 +29,6 @@ package laya.ani {
 	public class AnimationPlayer extends laya.events.EventDispatcher implements laya.resource.IDestroy {
 
 		/*
-		 * @private 
-		 */
-		private var _destroyed:*;
-
-		/*
-		 * 数据模板
-		 */
-		private var _templet:*;
-
-		/*
-		 * 当前精确时间，不包括重播时间
-		 */
-		private var _currentTime:*;
-
-		/*
-		 * 当前帧时间，不包括重播时间
-		 */
-		private var _currentFrameTime:*;
-
-		/*
-		 * 动画播放的起始时间位置
-		 */
-		private var _playStart:*;
-
-		/*
-		 * 动画播放的结束时间位置
-		 */
-		private var _playEnd:*;
-
-		/*
-		 * 动画播放一次的总时间
-		 */
-		private var _playDuration:*;
-
-		/*
-		 * 动画播放总时间
-		 */
-		private var _overallDuration:*;
-
-		/*
-		 * 是否在一次动画结束时停止。 设置这个标志后就不会再发送complete事件了
-		 */
-		private var _stopWhenCircleFinish:*;
-
-		/*
-		 * 播放时帧数
-		 */
-		private var _startUpdateLoopCount:*;
-
-		/*
-		 * 当前动画索引
-		 */
-		private var _currentAnimationClipIndex:*;
-
-		/*
-		 * 当前帧数
-		 */
-		private var _currentKeyframeIndex:*;
-
-		/*
-		 * 是否暂停
-		 */
-		private var _paused:*;
-
-		/*
-		 * 默认帧率,必须大于0
-		 */
-		private var _cacheFrameRate:*;
-
-		/*
-		 * 帧率间隔时间
-		 */
-		private var _cacheFrameRateInterval:*;
-
-		/*
-		 * 缓存播放速率
-		 */
-		private var _cachePlayRate:*;
-
-		/*
 		 * 是否缓存
 		 */
 		public var isCache:Boolean;
@@ -266,21 +186,6 @@ package laya.ani {
 		 */
 
 		public function AnimationPlayer(){}
-
-		/*
-		 * @private 
-		 */
-		private var _computeFullKeyframeIndices:*;
-
-		/*
-		 * @private 
-		 */
-		private var _onAnimationTempletLoaded:*;
-
-		/*
-		 * @private 
-		 */
-		private var _calculatePlayDuration:*;
 
 		/*
 		 * @private 

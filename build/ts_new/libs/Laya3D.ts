@@ -108,22 +108,22 @@ export class Laya3D {
 	/**Terrain资源。*/
 	static TERRAINRES: string = "TERRAIN";
 
-	/**@private */
+	/**@internal */
 	private static _innerFirstLevelLoaderManager: LoaderManager = new LoaderManager();//Mesh 
-	/**@private */
+	/**@internal */
 	private static _innerSecondLevelLoaderManager: LoaderManager = new LoaderManager();//Material
-	/**@private */
+	/**@internal */
 	private static _innerThirdLevelLoaderManager: LoaderManager = new LoaderManager();//TextureCube、TerrainResou
-	/**@private */
+	/**@internal */
 	private static _innerFourthLevelLoaderManager: LoaderManager = new LoaderManager();//Texture2D、Image、Avatar、AnimationClip
 
-	/**@private */
+	/**@internal */
 	private static _isInit: boolean = false;
 
 
-	/**@private */
+	/**@internal */
 	static _editerEnvironment: boolean = false;
-	/**@private */
+	/**@internal */
 	static _config: Config3D = new Config3D();
 
 	/**@private */
@@ -138,7 +138,7 @@ export class Laya3D {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	static _cancelLoadByUrl(url: string): void {
 		Laya.loader.cancelLoadByUrl(url);
@@ -149,7 +149,7 @@ export class Laya3D {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	private static _changeWebGLSize(width: number, height: number): void {
 		WebGL.onStageResize(width, height);
@@ -158,7 +158,7 @@ export class Laya3D {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	private static __init__(width: number, height: number, config: Config3D): void {
 		Config.isAntialias = config.isAntialias;
@@ -411,7 +411,7 @@ export class Laya3D {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private static _endLoad(loader: Loader, content: any = null, subResous: any[] = null): void {
 		if (subResous) {
@@ -424,14 +424,14 @@ export class Laya3D {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	private static _eventLoadManagerError(msg: string): void {
 		Laya.loader.event(Event.ERROR, msg);
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	private static _addHierarchyInnerUrls(urls: any[], urlMap: any[], urlVersion: string, hierarchyBasePath: string, path: string, type: string, constructParams: any = null, propertyParams: any = null): string {
 		var formatUrl: string = Laya3D.formatRelativePath(hierarchyBasePath, path);
@@ -442,7 +442,7 @@ export class Laya3D {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	private static _getSprite3DHierarchyInnerUrls(node: any, firstLevelUrls: any[], secondLevelUrls: any[], thirdLevelUrls: any[], fourthLelUrls: any[], subUrls: any[], urlVersion: string, hierarchyBasePath: string): void {
 		var i: number, n: number;
@@ -533,7 +533,7 @@ export class Laya3D {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	private static _loadHierarchy(loader: Loader): void {
 		loader.on(Event.LOADED, null, Laya3D._onHierarchylhLoaded, [loader]);
@@ -541,7 +541,7 @@ export class Laya3D {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	private static _onHierarchylhLoaded(loader: Loader, lhData: any): void {
 		var url: string = loader.url;
@@ -567,7 +567,7 @@ export class Laya3D {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	private static _onHierarchyInnerForthLevResouLoaded(loader: Loader, processHandler: Handler, lhData: any, subUrls: any[], firstLevUrls: any[], secondLevUrls: any[], thirdLevUrls: any[], processOffset: number, processCeil: number): void {
 		(processHandler) && (processHandler.recover());
@@ -580,7 +580,7 @@ export class Laya3D {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	private static _onHierarchyInnerThirdLevResouLoaded(loader: Loader, processHandler: Handler, lhData: any, subUrls: any[], firstLevUrls: any[], secondLevUrls: any[], processOffset: number, processCeil: number): void {
 		(processHandler) && (processHandler.recover());
@@ -593,7 +593,7 @@ export class Laya3D {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	private static _onHierarchyInnerSecondLevResouLoaded(loader: Loader, processHandler: Handler, lhData: any, subUrls: any[], firstLevUrls: any[], processOffset: number, processCeil: number): void {
 		(processHandler) && (processHandler.recover());
@@ -606,7 +606,7 @@ export class Laya3D {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	private static _onHierarchyInnerFirstLevResouLoaded(loader: Loader, processHandler: Handler, lhData: any, subUrls: any[]): void {
 		(processHandler) && (processHandler.recover());
@@ -616,7 +616,7 @@ export class Laya3D {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	private static _loadMesh(loader: Loader): void {
 		loader.on(Event.LOADED, null, Laya3D._onMeshLmLoaded, [loader]);
@@ -624,7 +624,7 @@ export class Laya3D {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	private static _onMeshLmLoaded(loader: Loader, lmData: ArrayBuffer): void {
 		loader._cache = loader._createCache;
@@ -633,7 +633,7 @@ export class Laya3D {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	private static _loadMaterial(loader: Loader): void {
 		loader.on(Event.LOADED, null, Laya3D._onMaterilLmatLoaded, [loader]);
@@ -641,7 +641,7 @@ export class Laya3D {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	private static _onMaterilLmatLoaded(loader: Loader, lmatData: any): void {
 		var url: string = loader.url;
@@ -689,7 +689,7 @@ export class Laya3D {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	private static _onMateialTexturesLoaded(loader: Loader, processHandler: Handler, lmatData: any, subUrls: any[]): void {
 		loader._cache = loader._createCache;
@@ -699,7 +699,7 @@ export class Laya3D {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	private static _loadAvatar(loader: Loader): void {
 		loader.on(Event.LOADED, null, function (data: any): void {
@@ -711,7 +711,7 @@ export class Laya3D {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	private static _loadAnimationClip(loader: Loader): void {
 		loader.on(Event.LOADED, null, function (data: any): void {
@@ -723,7 +723,7 @@ export class Laya3D {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	private static _loadTexture2D(loader: Loader): void {
 		var url: string = loader.url;
@@ -757,7 +757,7 @@ export class Laya3D {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	private static _loadTextureCube(loader: Loader): void {
 		loader.on(Event.LOADED, null, Laya3D._onTextureCubeLtcLoaded, [loader]);
@@ -765,7 +765,7 @@ export class Laya3D {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	private static _onTextureCubeLtcLoaded(loader: Loader, ltcData: any): void {
 		var ltcBasePath: string = URL.getPath(loader.url);
@@ -778,7 +778,7 @@ export class Laya3D {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	private static _onTextureCubeImagesLoaded(loader: Loader, urls: any[], processHandler: Handler): void {
 		var images: any[] = new Array(6);
@@ -795,7 +795,7 @@ export class Laya3D {
 	}
 
 	/**
-	 *@private
+	 *@internal
 	 */
 	private static _onProcessChange(loader: Loader, offset: number, weight: number, process: number): void {
 		process = offset + process * weight;

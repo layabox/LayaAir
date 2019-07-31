@@ -21,8 +21,6 @@ package laya.ani.bone {
 	 * 动画模板类
 	 */
 	public class Templet extends laya.ani.AnimationTemplet {
-		private var _mainTexture:*;
-		private var _graphicsCache:*;
 
 		/*
 		 * 存放原始骨骼信息
@@ -108,20 +106,8 @@ package laya.ani.bone {
 		 * 实际显示对象列表，用于销毁用
 		 */
 		public var skinSlotDisplayDataArr:Array;
-
-		/*
-		 * 是否需要解析audio数据
-		 */
-		private var _isParseAudio:*;
-		private var _isDestroyed:*;
-		private var _rate:*;
 		public var isParserComplete:Boolean;
 		public var aniSectionDic:*;
-		private var _skBufferUrl:*;
-		private var _textureDic:*;
-		private var _loadList:*;
-		private var _path:*;
-		private var _relativeUrl:*;
 
 		/*
 		 * @private 
@@ -159,17 +145,6 @@ package laya.ani.bone {
 		 * @override 
 		 */
 		override public function parse(data:ArrayBuffer):void{}
-		private var _parseTexturePath:*;
-
-		/*
-		 * 纹理加载完成
-		 */
-		private var _textureComplete:*;
-
-		/*
-		 * 解析自定义数据
-		 */
-		private var _parsePublicExtData:*;
 
 		/*
 		 * 得到指定的纹理

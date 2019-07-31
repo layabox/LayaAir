@@ -10,7 +10,9 @@ export class BezierLerp {
 	constructor() {
 
 	}
+	/**@internal */
 	private static _bezierResultCache: any = {};
+	/**@internal */
 	private static _bezierPointsCache: any = {};
 
 	//TODO:coverage
@@ -32,11 +34,13 @@ export class BezierLerp {
 	}
 
 	//TODO:coverage
+	/**@internal */
 	private static _getBezierParamKey(px0: number, py0: number, px1: number, py1: number): number {
 		return (((px0 * 100 + py0) * 100 + px1) * 100 + py1) * 100;
 	}
 
 	//TODO:coverage
+	/**@internal */
 	private static _getBezierPoints(px0: number, py0: number, px1: number, py1: number, key: number): any[] {
 		if (BezierLerp._bezierPointsCache[key]) return BezierLerp._bezierPointsCache[key];
 		var controlPoints: any[];

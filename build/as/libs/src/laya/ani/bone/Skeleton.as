@@ -1,8 +1,6 @@
 package laya.ani.bone {
-	import laya.ani.bone.Bone;
 	import laya.ani.bone.BoneSlot;
 	import laya.ani.AnimationPlayer;
-	import laya.ani.GraphicsAni;
 	import laya.display.Sprite;
 	import laya.utils.Handler;
 	import laya.resource.Texture;
@@ -37,66 +35,6 @@ package laya.ani.bone {
 		 * 在canvas模式是否使用简化版的mesh绘制，简化版的mesh将不进行三角形绘制，而改为矩形绘制，能极大提高性能，但是可能某些mesh动画效果会不太正常
 		 */
 		public static var useSimpleMeshInCanvas:Boolean;
-		protected var _templet:Templet;
-
-		/*
-		 * @private 
-		 */
-		protected var _player:AnimationPlayer;
-
-		/*
-		 * @private 
-		 */
-		protected var _curOriginalData:Float32Array;
-		private var _boneMatrixArray:*;
-		private var _lastTime:*;
-		private var _currAniIndex:*;
-		private var _pause:*;
-
-		/*
-		 * @private 
-		 */
-		protected var _aniClipIndex:Number;
-
-		/*
-		 * @private 
-		 */
-		protected var _clipIndex:Number;
-		private var _skinIndex:*;
-		private var _skinName:*;
-		private var _aniMode:*;
-		private var _graphicsCache:*;
-		private var _boneSlotDic:*;
-		private var _bindBoneBoneSlotDic:*;
-		private var _boneSlotArray:*;
-		private var _index:*;
-		private var _total:*;
-		private var _indexControl:*;
-		private var _aniPath:*;
-		private var _complete:*;
-		private var _loadAniMode:*;
-		private var _yReverseMatrix:*;
-		private var _ikArr:*;
-		private var _tfArr:*;
-		private var _pathDic:*;
-		private var _rootBone:*;
-
-		/*
-		 * @private 
-		 */
-		protected var _boneList:Array;
-
-		/*
-		 * @private 
-		 */
-		protected var _aniSectionDic:*;
-		private var _eventIndex:*;
-		private var _drawOrderIndex:*;
-		private var _drawOrder:*;
-		private var _lastAniClipIndex:*;
-		private var _lastUpdateAniClipIndex:*;
-		private var _playAudio:*;
-		private var _soundChannelArr:*;
 
 		/*
 		 * 创建一个Skeleton对象
@@ -129,72 +67,7 @@ package laya.ani.bone {
 		 * @param aniMode 与<code>Skeleton.init</code>的<code>aniMode</code>作用一致
 		 */
 		public function load(path:String,complete:Handler = null,aniMode:Number = null):void{}
-
-		/*
-		 * 加载完成
-		 */
-		private var _onLoaded:*;
-
-		/*
-		 * 解析完成
-		 */
-		private var _parseComplete:*;
-
-		/*
-		 * 解析失败
-		 */
-		private var _parseFail:*;
-
-		/*
-		 * 传递PLAY事件
-		 */
-		private var _onPlay:*;
-
-		/*
-		 * 传递STOP事件
-		 */
-		private var _onStop:*;
-
-		/*
-		 * 传递PAUSE事件
-		 */
-		private var _onPause:*;
-
-		/*
-		 * 创建骨骼的矩阵，保存每次计算的最终结果
-		 */
-		private var _parseSrcBoneMatrix:*;
-		private var _emitMissedEvents:*;
-
-		/*
-		 * 更新动画
-		 * @param autoKey true为正常更新，false为index手动更新
-		 */
-		private var _update:*;
-
-		/*
-		 * @private 清掉播放完成的音频
-		 * @param force 是否强制删掉所有的声音channel
-		 */
-		private var _onAniSoundStoped:*;
-
-		/*
-		 * @private 创建grahics图像. 并且保存到cache中
-		 * @param _clipIndex 第几帧
-		 */
-		protected function _createGraphics(_clipIndex:Number = null):GraphicsAni{
-			return null;
-		}
 		private var _checkIsAllParsed:*;
-
-		/*
-		 * 设置deform数据
-		 * @param tDeformAniData 
-		 * @param tDeformDic 
-		 * @param _boneSlotArray 
-		 * @param curTime 
-		 */
-		private var _setDeform:*;
 
 		/*
 		 * *****************************************定义接口************************************************
@@ -277,11 +150,6 @@ package laya.ani.bone {
 		public function setSlotSkin(slotName:String,texture:Texture):void{}
 
 		/*
-		 * 换装的时候，需要清一下缓冲区
-		 */
-		private var _clearCache:*;
-
-		/*
 		 * 播放动画
 		 * @param nameOrIndex 动画名字或者索引
 		 * @param loop 是否循环播放
@@ -313,22 +181,6 @@ package laya.ani.bone {
 		 * 恢复动画的播放
 		 */
 		public function resume():void{}
-
-		/*
-		 * @private 得到缓冲数据
-		 * @param aniIndex 
-		 * @param frameIndex 
-		 * @return 
-		 */
-		private var _getGrahicsDataWithCache:*;
-
-		/*
-		 * @private 保存缓冲grahpics
-		 * @param aniIndex 
-		 * @param frameIndex 
-		 * @param graphics 
-		 */
-		private var _setGrahicsDataWithCache:*;
 
 		/*
 		 * 销毁当前动画

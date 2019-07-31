@@ -8,21 +8,6 @@ package  {
 	public class Config3D implements laya.d3.core.IClone {
 
 		/*
-		 * @private 
-		 */
-		public static var _default:Config3D;
-
-		/*
-		 * @private 
-		 */
-		private var _defaultPhysicsMemory:*;
-
-		/*
-		 * @private 
-		 */
-		public var _editerEnvironment:Boolean;
-
-		/*
 		 * 是否开启抗锯齿。
 		 */
 		public var isAntialias:Boolean;

@@ -71,11 +71,6 @@ package laya.display {
 		public static var fontFamilyMap:*;
 
 		/*
-		 * @private 预测长度的文字，用来提升计算效率，不同语言找一个最大的字符即可
-		 */
-		public static var _testWord:String;
-
-		/*
 		 * @private 位图字体字典。
 		 */
 		private static var _bitmapFonts:*;

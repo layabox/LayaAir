@@ -1,5 +1,4 @@
 package  {
-	import laya.display.Sprite;
 	import laya.display.Stage;
 	import laya.net.LoaderManager;
 	import laya.renders.Render;
@@ -62,16 +61,6 @@ package  {
 		public static var render:Render;
 
 		/*
-		 * @private 
-		 */
-		public static var _currentStage:Sprite;
-
-		/*
-		 * @private 
-		 */
-		private static var _isinit:*;
-
-		/*
 		 * 是否是微信小游戏子域，默认为false*
 		 */
 		public static var isWXOpenDataContext:Boolean;
@@ -80,11 +69,6 @@ package  {
 		 * 微信小游戏是否需要在主域中自动将加载的文本数据自动传递到子域，默认 false*
 		 */
 		public static var isWXPosMsg:Boolean;
-
-		/*
-		 * @private 兼容as3编译工具
-		 */
-		public static function __init(_classs:*):void{}
 
 		/*
 		 * 初始化引擎。使用引擎需要先初始化引擎，否则可能会报错。
@@ -96,30 +80,10 @@ package  {
 		public static function init(width:Number,height:Number,...plugins):*{}
 
 		/*
-		 * @private 
-		 */
-		public static function _getUrlPath():String{
-			return null;
-		}
-
-		/*
-		 * @private 
-		 */
-		public static function _arrayBufferSlice(start:Number,end:Number):ArrayBuffer{
-			return null;
-		}
-
-		/*
 		 * 表示是否捕获全局错误并弹出提示。默认为false。
 		 * 适用于移动设备等不方便调试的时候，设置为true后，如有未知错误，可以弹窗抛出详细错误堆栈。
 		 */
 		public static var alertGlobalError:Boolean;
-		private static var _evcode:*;
-
-		/*
-		 * @private 
-		 */
-		public static function _runScript(script:String):*{}
 
 		/*
 		 * 开启DebugPanel

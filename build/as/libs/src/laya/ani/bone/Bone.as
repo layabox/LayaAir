@@ -19,9 +19,6 @@ package laya.ani.bone {
 		public var rotation:Number;
 		public var resultRotation:Number;
 		public var d:Number;
-		private var _tempMatrix:*;
-		private var _children:*;
-		private var _sprite:*;
 
 		public function Bone(){}
 		public function setTempMatrix(matrix:Matrix):void{}

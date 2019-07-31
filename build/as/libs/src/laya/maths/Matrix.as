@@ -18,11 +18,6 @@ package laya.maths {
 		public static var TEMP:Matrix;
 
 		/*
-		 * @private 
-		 */
-		public static var _createFun:Function;
-
-		/*
 		 * 缩放或旋转图像时影响像素沿 x 轴定位的值。
 		 */
 		public var a:Number;

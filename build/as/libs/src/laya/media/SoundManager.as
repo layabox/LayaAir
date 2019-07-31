@@ -52,11 +52,6 @@ package laya.media {
 		private static var _musicMuted:*;
 
 		/*
-		 * @private 当前背景音乐url。
-		 */
-		public static var _bgMusic:String;
-
-		/*
 		 * @private 当前背景音乐声道。
 		 */
 		private static var _musicChannel:*;
@@ -84,29 +79,12 @@ package laya.media {
 		/*
 		 * @private 
 		 */
-		public static var _soundClass:Class;
-
-		/*
-		 * @private 
-		 */
-		public static var _musicClass:Class;
-
-		/*
-		 * @private 
-		 */
 		private static var _lastSoundUsedTimeDic:*;
 
 		/*
 		 * @private 
 		 */
 		private static var _isCheckingDispose:*;
-
-		/*
-		 * @private 
-		 */
-		public static function __init__():Boolean{
-			return null;
-		}
 
 		/*
 		 * 音效播放后自动删除。

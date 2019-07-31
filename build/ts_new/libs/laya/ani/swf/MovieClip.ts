@@ -35,29 +35,29 @@ import { Matrix } from "../../maths/Matrix";
  * <p> <code>MovieClip</code> 用于播放经过工具处理后的 swf 动画。</p>
  */
 export class MovieClip extends Sprite {
-	/**@private */
+	/**@internal */
 	protected static _ValueList: any[] = ["x", "y", "width", "height", "scaleX", "scaleY", "rotation", "alpha"];
-	/**@private 数据起始位置。*/
+	/**@internal 数据起始位置。*/
 	protected _start: number = 0;
-	/**@private 当前位置。*/
+	/**@internal 当前位置。*/
 	protected _Pos: number = 0;
-	/**@private 数据。*/
+	/**@internal 数据。*/
 	protected _data: Byte;
-	/**@private */
+	/**@internal */
 	protected _curIndex: number;
-	/**@private */
+	/**@internal */
 	protected _preIndex: number;
-	/**@private */
+	/**@internal */
 	protected _playIndex: number;
-	/**@private */
+	/**@internal */
 	protected _playing: boolean;
-	/**@private */
+	/**@internal */
 	protected _ended: boolean = true;
-	/**@private 总帧数。*/
+	/**@internal 总帧数。*/
 	protected _count: number;
 	/**@internal id_data起始位置表*/
 	_ids: any;
-	/**@private */
+	/**@internal */
 	protected _loadedImage: any = {};
 	/**@internal id_实例表*/
 	_idOfSprite: any[];
@@ -65,19 +65,19 @@ export class MovieClip extends Sprite {
 	_parentMovieClip: MovieClip;
 	/**@internal 需要更新的movieClip表*/
 	_movieClipList: any[];
-	/**@private */
+	/**@internal */
 	protected _labels: any;
 	/**资源根目录。*/
 	basePath: string;
-	/**@private */
+	/**@internal */
 	private _atlasPath: string;
-	/**@private */
+	/**@internal */
 	private _url: string;
-	/**@private */
+	/**@internal */
 	private _isRoot: boolean;
-	/**@private */
+	/**@internal */
 	private _completeHandler: Handler;
-	/**@private */
+	/**@internal */
 	private _endFrame: number = -1;
 
 	/** 播放间隔(单位：毫秒)。*/
@@ -128,7 +128,7 @@ export class MovieClip extends Sprite {
 		}
 	}
 	/**
-	 * @private 
+	 * @internal 
 	 * @override
 	 */
 	protected _onDisplay(value?: boolean): void {
@@ -199,7 +199,7 @@ export class MovieClip extends Sprite {
 		return this._playing;
 	}
 	/**
-	 * @private
+	 * @internal
 	 * 动画的帧更新处理函数。
 	 */
 	//TODO:coverage
@@ -246,7 +246,7 @@ export class MovieClip extends Sprite {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 * 清理。
 	 */
 	private _clear(): void {
@@ -288,7 +288,7 @@ export class MovieClip extends Sprite {
 			this._displayFrame(index);
 	}
 
-	/**@private */
+	/**@internal */
 	//TODO:coverage
 	private _displayFrame(frameIndex: number = -1): void {
 		if (frameIndex != -1) {
@@ -297,14 +297,14 @@ export class MovieClip extends Sprite {
 		}
 	}
 
-	/**@private */
+	/**@internal */
 	private _reset(rm: boolean = true): void {
 		if (rm && this._curIndex != 1) this.removeChildren();
 		this._preIndex = this._curIndex = -1;
 		this._Pos = this._start;
 	}
 
-	/**@private */
+	/**@internal */
 	//TODO:coverage
 	private _parseFrame(frameIndex: number): void {
 		var mc: MovieClip, sp: Sprite, key: number, type: number, tPos: number, ttype: number, ifAdd: boolean = false;
@@ -450,7 +450,7 @@ export class MovieClip extends Sprite {
 		ILaya.loader.load(urls, Handler.create(this, this._onLoaded));
 	}
 
-	/**@private */
+	/**@internal */
 	private _onLoaded(): void {
 		var data: any;
 		data = ILaya.Loader.getRes(this._url);
@@ -467,7 +467,7 @@ export class MovieClip extends Sprite {
 		this._initData(data);
 	}
 
-	/**@private */
+	/**@internal */
 	//TODO:coverage
 	private _initState(): void {
 		this._reset();
@@ -479,7 +479,7 @@ export class MovieClip extends Sprite {
 		this._playing = preState;
 	}
 
-	/**@private */
+	/**@internal */
 	//TODO:coverage
 	private _initData(data: any): void {
 		this._data = new Byte(data);
