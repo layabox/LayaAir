@@ -50,6 +50,9 @@ function start() {
         if (!tsCongfig.length || (yield compile())) { //确认编译结果
             checkAllDir("");
         }
+        else {
+            child_process.exec("pause");
+        }
     });
 }
 function compile() {
