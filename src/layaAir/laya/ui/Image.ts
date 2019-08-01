@@ -125,7 +125,6 @@ import { ClassUtils } from "../utils/ClassUtils";
 		/**
 		 * @inheritDoc 
 		 * @override
-		 * @internal
 		*/
 		/*override*/ protected createChildren():void {
 			this.graphics = this._bitmap = new AutoBitmap();

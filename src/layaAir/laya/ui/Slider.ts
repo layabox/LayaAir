@@ -109,7 +109,6 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc 
-		 * @internal
 		*/
 		/*override*/ protected createChildren():void {
 			this.addChild(this._bg = new Image());
@@ -118,7 +117,6 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc 
-		 * @internal
 		*/
 		/*override*/ protected initialize():void {
 			this._bar.on(Event.MOUSE_DOWN, this, this.onBarMouseDown);

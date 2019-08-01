@@ -41,7 +41,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * 添加视图。
-		 * @internal 添加视图对象，并设置此视图对象的<code>name</code> 属性。
+		 * 添加视图对象，并设置此视图对象的<code>name</code> 属性。
 		 * @param view 需要添加的视图对象。
 		 */
 		 addItem(view:Node):void {

@@ -78,7 +78,6 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc 
-		 * @internal
 		 */
 		protected initialize():void {
 			super.initialize();
