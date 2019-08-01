@@ -429,18 +429,34 @@ regClassToEngine(HTMLImage);
 
 export var __init = Laya.__init;
 export var init = Laya.init;	
-export var stage;
-export var systemTimer;
-export var startTimer;
-export var physicsTimer;
-export var updateTimer;
-export var lateTimer;
-export var timer;
-export var loader;
+export var stage:Stage;
+export var systemTimer:Timer;
+export var startTimer:Timer;
+export var physicsTimer:Timer;
+export var updateTimer:Timer;
+export var lateTimer:Timer;
+export var timer:Timer;
+export var loader:LoaderManager;
 export var version = Laya.version;
-export var render;
-export var isWXOpenDataContext;
-export var isWXPosMsg;
+export var render:Render;
+export var isWXOpenDataContext:boolean;
+export var isWXPosMsg:boolean;
 export var alertGlobalError = Laya.alertGlobalError;
 export var enableDebugPanel = Laya.enableDebugPanel;
 
+export function _static(_class,def){
+        for(var i=0,sz=def.length;i<sz;i+=2){
+            if(def[i]=='length') 
+                _class.length=def[i+1].call(_class);
+            else{
+                function tmp(){
+                    var name=def[i];
+                    var getfn=def[i+1];
+                    Object.defineProperty(_class,name,{
+                        get:function(){delete this[name];return this[name]=getfn.call(this);},
+                        set:function(v){delete this[name];this[name]=v;},enumerable: true,configurable: true});
+                }
+                tmp();
+            }
+        }
+}
