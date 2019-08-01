@@ -90,11 +90,11 @@ export class Texture2D extends BaseTexture {
 
 
 
-		/**
-		 * @inheritDoc
-		 * @override
-		 */
-		  get defaulteTexture(): BaseTexture {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	get defaulteTexture(): BaseTexture {
 		return Texture2D.grayTexture;
 	}
 
@@ -109,7 +109,7 @@ export class Texture2D extends BaseTexture {
 	constructor(width: number = 0, height: number = 0, format: number = BaseTexture.FORMAT_R8G8B8A8, mipmap: boolean = true, canRead: boolean = false) {
 
 		super(format, mipmap);
-		var gl:WebGLRenderingContext=LayaGL.instance;
+		var gl: WebGLRenderingContext = LayaGL.instance;
 		this._glTextureType = gl.TEXTURE_2D;
 		this._width = width;
 		this._height = height;
@@ -356,7 +356,7 @@ export class Texture2D extends BaseTexture {
 		this._setWarpMode(gl.TEXTURE_WRAP_T, this._wrapModeV);//宽高变化后需要重新设置
 		this._setFilterMode(this._filterMode);//宽高变化后需要重新设置
 
-		
+
 
 		WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
 		var glFormat: number = this._getGLFormat();

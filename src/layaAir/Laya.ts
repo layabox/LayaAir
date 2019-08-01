@@ -105,7 +105,6 @@ export class Laya {
 	static __classmap: Object = null;
 
 	/**
-	 * @internal
 	 * 兼容as3编译工具 
 	 */
 	static __init(_classs: any): void {

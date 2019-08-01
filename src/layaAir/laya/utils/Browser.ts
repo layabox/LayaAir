@@ -48,6 +48,8 @@ import { ILaya } from "../../ILaya";
 		 static onVVMiniGame:boolean;
 		 /** 阿里小游戏 **/
 		 static onAlipayMiniGame:boolean;
+		 /** QQ小游戏 **/
+		 static onQQMiniGame:boolean; 
 		/** @private */
 		 static onFirefox:boolean;//TODO:求补充
 		/** @private */
@@ -119,7 +121,7 @@ import { ILaya } from "../../ILaya";
 			}
 
 			//微信小游戏
-			if (u.indexOf('OPPO') == -1 && u.indexOf("MiniGame") > -1 && "wx" in Browser.window && !("my" in Browser.window)) {
+			if (u.indexOf('OPPO') == -1 && u.indexOf("MiniGame") > -1 && "wx" in Browser.window && !("my" in Browser.window) && !("qq" in Browser.window)) {
 				(window as any).wxMiniGame(Laya,Laya);
 				if (!Laya["MiniAdpter"]) {
 					console.error("请先添加小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?nav=zh-ts-5-0-0");
@@ -128,6 +130,17 @@ import { ILaya } from "../../ILaya";
 					Laya["MiniAdpter"].enable();
 				}
 			}
+
+			//QQ小游戏
+			if (u.indexOf("MiniGame") > -1 && "qq" in Browser.window) {
+				(window as any).qqMiniGame(Laya,Laya);
+				if (!Laya["QQMiniAdapter"]) {
+					console.error("请先添加小游戏适配库,详细教程");
+				} else {
+					Laya["QQMiniAdapter"].enable();
+				}
+			}
+
 			
 			//百度小游戏
 			if (u.indexOf("SwanGame") > -1) {
@@ -227,9 +240,13 @@ import { ILaya } from "../../ILaya";
 			{
 				Browser.onQGMiniGame = true;//OPPO环境判断
 				Browser.onMiniGame = false;
+			}else if("qq" in Browser.window && u.indexOf('MiniGame') > -1)
+			{
+				//QQ小游戏
+				Browser.onQQMiniGame = true;
+				Browser.onMiniGame = false;
 			}	
 			Browser.onVVMiniGame =  u.indexOf('VVGame') > -1;//vivo
-			
 			Browser.onKGMiniGame =  u.indexOf('QuickGame') > -1;//小米运行环境判断
 			if(u.indexOf('AlipayMiniGame') > -1)
 			{

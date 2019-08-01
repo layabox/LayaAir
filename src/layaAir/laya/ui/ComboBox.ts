@@ -463,7 +463,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		}
 		
 		 set isOpen(value:boolean) {
-             var Laya = (window as any).Laya;
+             var Laya = ILaya.Laya;
 			if (this._isOpen != value) {
 				this._isOpen = value;
 				this._button.selected = this._isOpen;

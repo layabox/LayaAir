@@ -181,10 +181,10 @@ function myMultiInput(){
                 if(ext!='.ts' && ext!='.glsl' && ext!='.vs' && ext!='.ps' &&ext!='.fs'){
                     importfile+='.ts';
                 }
-                console.log('import ', importfile);
+                //console.log('import ', importfile);
                 if( curPackFiles.indexOf(importfile)<0){
                     //其他包里的文件
-                    console.log('other pack:',id,'importer=', importer);
+                    // console.log('other pack:',id,'importer=', importer);
                     return 'Laya';
                 }
               },            
@@ -199,6 +199,7 @@ function myMultiInput(){
                     }));
                     return matched.promise(patterns, {realpath: true}).then(function (paths) {
                         curPackFiles = paths;   // 记录一下所有的文件
+                        paths.sort();
                         return paths.map(exporter).join('\n');
                     });
                   }else{
@@ -464,12 +465,14 @@ gulp.task('CopyTSJSLibsFileToTS', () => {
 		.pipe(gulp.dest('../build/ts_new/jslibs'));
 });
 
-gulp.task('CopyDTS', () => {
-	return gulp.src([
-        '../tslibs/*.*'], )
+gulp.task('CopyDTS', (cb) => {
+	gulp.src(['../tslibs/ts/*.*'], )
 		.pipe(gulp.dest('../build/js/ts'))
 		.pipe(gulp.dest('../build/ts/ts'))
-		.pipe(gulp.dest('../build/ts_new/libs'))
+
+    gulp.src(['../tslibs/nts/*.*'], )
+        .pipe(gulp.dest('../build/ts_new/libs'))
+    setTimeout(cb, 1000);
 });
 
 

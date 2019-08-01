@@ -1,5 +1,5 @@
 import { EventDispatcher } from "laya/events/EventDispatcher";
-import { MiniAdpter } from "./MiniAdpter";
+import { QQMiniAdapter } from "./QQMiniAdapter";
 import { MiniFileMgr } from "./MiniFileMgr";
 import { Handler } from "laya/utils/Handler";
 import { MiniSoundChannel } from "./MiniSoundChannel";
@@ -37,7 +37,7 @@ import { URL } from "laya/net/URL";
 		/** @private **/
 		private static _createSound():any {
 			MiniSound._id++;
-			return MiniAdpter.window.wx.createInnerAudioContext();
+			return QQMiniAdapter.window.qq.createInnerAudioContext();
 		}
 		
 		/**
@@ -70,12 +70,12 @@ import { URL } from "laya/net/URL";
 				this.event(Event.COMPLETE);
 				return;
 			}
-			if(MiniAdpter.autoCacheFile&&MiniFileMgr.getFileInfo(url))
+			if(QQMiniAdapter.autoCacheFile&&MiniFileMgr.getFileInfo(url))
 			{
 				this.onDownLoadCallBack(url,0);
 			}else
 			{
-				if(!MiniAdpter.autoCacheFile)
+				if(!QQMiniAdapter.autoCacheFile)
 				{
 					this.onDownLoadCallBack(url,0);
 				}else
@@ -90,25 +90,25 @@ import { URL } from "laya/net/URL";
                             url = tempUrl;
                         }
 						//分包目录资源加载处理
-						if (MiniAdpter.subNativeFiles && MiniAdpter.subNativeheads.length == 0)
+						if (QQMiniAdapter.subNativeFiles && QQMiniAdapter.subNativeheads.length == 0)
 						{
-							for (var key  in MiniAdpter.subNativeFiles)
+							for (var key  in QQMiniAdapter.subNativeFiles)
 							{
-								var tempArr:any[] = MiniAdpter.subNativeFiles[key];
-								MiniAdpter.subNativeheads = MiniAdpter.subNativeheads.concat(tempArr);
+								var tempArr:any[] = QQMiniAdapter.subNativeFiles[key];
+								QQMiniAdapter.subNativeheads = QQMiniAdapter.subNativeheads.concat(tempArr);
 								for (var aa:number = 0; aa < tempArr.length;aa++)
 								{
-									MiniAdpter.subMaps[tempArr[aa]] = key + "/" + tempArr[aa];
+									QQMiniAdapter.subMaps[tempArr[aa]] = key + "/" + tempArr[aa];
 								}
 							}
 						}
 						//判断当前的url是否为分包映射路径
-						if(MiniAdpter.subNativeFiles && url.indexOf("/") != -1)
+						if(QQMiniAdapter.subNativeFiles && url.indexOf("/") != -1)
 						{
 							var curfileHead:string = url.split("/")[0] + "/";//文件头
-							if(curfileHead && MiniAdpter.subNativeheads.indexOf(curfileHead) != -1)
+							if(curfileHead && QQMiniAdapter.subNativeheads.indexOf(curfileHead) != -1)
 							{
-								var newfileHead:string = MiniAdpter.subMaps[curfileHead];
+								var newfileHead:string = QQMiniAdapter.subMaps[curfileHead];
 								url = url.replace(curfileHead,newfileHead);
 							}
 						}
@@ -132,7 +132,7 @@ import { URL } from "laya/net/URL";
 			if (!errorCode)
 			{
 				var fileNativeUrl:string;
-				if(MiniAdpter.autoCacheFile)
+				if(QQMiniAdapter.autoCacheFile)
 				{
 					if(!tempFilePath){
 						if (MiniFileMgr.isLocalNativeFile(sourceUrl)) {
@@ -238,7 +238,7 @@ import { URL } from "laya/net/URL";
 			}
 			if(!tSound)
 				return null;
-			if(MiniAdpter.autoCacheFile&&MiniFileMgr.getFileInfo(this.url))
+			if(QQMiniAdapter.autoCacheFile&&MiniFileMgr.getFileInfo(this.url))
 			{
 				var fileNativeUrl:string;
 				var fileObj:any = MiniFileMgr.getFileInfo(this.url);

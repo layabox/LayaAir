@@ -398,8 +398,8 @@ export class Camera extends BaseCamera {
 	}
 
 	/**
-	 * @inheritDoc
-	 * @internal
+	 * @param shader 着色器
+	 * @param replacementTag 替换标记。
 	 */
 	render(shader: Shader3D = null, replacementTag: string = null): void {
 		if (!this._scene) //自定义相机渲染需要加保护判断是否在场景中,否则报错

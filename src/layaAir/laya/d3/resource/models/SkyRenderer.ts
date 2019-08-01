@@ -13,6 +13,7 @@ import { SkyBox } from "./SkyBox";
 import { SkyMesh } from "./SkyMesh";
 import { ShaderData } from "../../shader/ShaderData";
 import { ILaya } from "../../../../ILaya";
+import { Vector3 } from "../../math/Vector3";
 
 /**
  * <code>SkyRenderer</code> 类用于实现天空渲染器。
@@ -89,9 +90,9 @@ export class SkyRenderer {
 			var scene: Scene3D = state.scene;
 			var camera: Camera = <Camera>state.camera;
 
-			var noteValue:boolean = ShaderData._SET_RUNTIME_VALUE_MODE_REFERENCE_;
+			var noteValue: boolean = ShaderData._SET_RUNTIME_VALUE_MODE_REFERENCE_;
 			ILaya.Render.supportWebGLPlusRendering && ShaderData.setRuntimeValueMode(false);
-			
+
 			WebGLContext.setCullFace(gl, false);
 			WebGLContext.setDepthFunc(gl, gl.LEQUAL);
 			WebGLContext.setDepthMask(gl, false);
@@ -109,22 +110,43 @@ export class SkyRenderer {
 			var uploadCamera: boolean = (shader._uploadCamera !== camera) || switchShaderLoop;
 			if (uploadCamera || switchShader) {
 				var viewMatrix: Matrix4x4 = SkyRenderer._tempMatrix0;
-				var projectionMatrix: Matrix4x4 = (<Camera>camera).projectionMatrix;
-				camera.transform.worldMatrix.cloneTo(viewMatrix);//视图矩阵逆矩阵的转置矩阵，移除平移和缩放
-				viewMatrix.transpose();
-				if (camera.orthographic) {
-					projectionMatrix = SkyRenderer._tempMatrix1;
-					Matrix4x4.createPerspective(camera.fieldOfView, camera.aspectRatio, camera.nearPlane, camera.farPlane, projectionMatrix);
-				}
-				//无穷投影矩阵算法
-				//http://terathon.com/gdc07_lengyel.pdf
-				// var epsilon: number = 1e-6;
-				// var nearPlane: number = camera.nearPlane * 0.01;
-				// projectionMatrix.elements[10] = -1.0 + epsilon;
-				// projectionMatrix.elements[11] = -1.0;
-				// projectionMatrix.elements[14] = (-1.0 + epsilon) * nearPlane;//Direct模式投影矩阵盒OpenGL不同
-				(<Camera>camera)._applyViewProject(state, viewMatrix, projectionMatrix, renderTar ? true : false);//TODO:优化 不应设置给Camera直接提交
+				var projectionMatrix: Matrix4x4 = SkyRenderer._tempMatrix1;
+				camera.viewMatrix.cloneTo(viewMatrix);//视图矩阵逆矩阵的转置矩阵，移除平移和缩放
+				camera.projectionMatrix.cloneTo(projectionMatrix);
+				viewMatrix.setTranslationVector(Vector3._ZERO);
 
+				if (camera.orthographic)
+					Matrix4x4.createPerspective(camera.fieldOfView, camera.aspectRatio, camera.nearPlane, camera.farPlane, projectionMatrix);
+
+				//无穷投影矩阵算法,DirectX右手坐标系推导
+				//http://terathon.com/gdc07_lengyel.pdf
+
+				//xScale  0     0                          0
+				//0     yScale  0                          0
+				//0       0    	-zfar /(zfar-znear)        -1.0
+				//0       0     -znear*zfar /(zfar-znear)  0
+
+				//xScale  0     0       0        mul   [x,y,z,0] =[xScale*x,yScale*y,-z,-z]
+				//0     yScale  0       0		
+				//0       0    	-1      -1.0	
+				//0       0     -0      0
+
+				//[xScale*x,yScale*y,-z,-z]=>[-xScale*x/z,-yScale*y/z,1]
+
+				//xScale  0     0       0      
+				//0     yScale  0       0		
+				//0       0    	-1+e    -1.0	
+				//0       0     -0  0
+
+				var epsilon: number = 1e-6;
+				var yScale: number = 1.0 / Math.tan(3.1416 * camera.fieldOfView / 180 * 0.5);
+				projectionMatrix.elements[0] = yScale / camera.aspectRatio;
+				projectionMatrix.elements[5] = yScale;
+				projectionMatrix.elements[10] = epsilon - 1.0;
+				projectionMatrix.elements[11] = -1.0;
+				projectionMatrix.elements[14] = -0;//znear无穷小
+
+				(<Camera>camera)._applyViewProject(state, viewMatrix, projectionMatrix, renderTar ? true : false);//TODO:优化 不应设置给Camera直接提交
 				shader.uploadUniforms(shader._cameraUniformParamsMap, camera._shaderValues, uploadCamera);
 				shader._uploadCamera = camera;
 			}
@@ -137,14 +159,14 @@ export class SkyRenderer {
 
 			this._mesh._bufferState.bind();
 			this._mesh._render(state);
-			
+
 			ILaya.Render.supportWebGLPlusRendering && ShaderData.setRuntimeValueMode(noteValue);
-			
+
 			WebGLContext.setDepthFunc(gl, gl.LESS);
 			WebGLContext.setDepthMask(gl, true);
 			(<Camera>camera)._applyViewProject(state, (<Camera>camera).viewMatrix, (<Camera>camera).projectionMatrix, renderTar ? true : false);
 
-			
+
 		}
 	}
 
