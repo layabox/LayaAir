@@ -149,7 +149,7 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
 	}
 
 	/**
-	 * @internal
+	 * 获取动画状态。
 	 */
 	getAnimatorState(name: string): AnimatorState {
 		var state: AnimatorState = this._statesMap[name];
@@ -195,7 +195,7 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
 	}
 
 	/**
-	 * @internal
+	 * 销毁。
 	 */
 	destroy(): void {
 		this._clearReference();
