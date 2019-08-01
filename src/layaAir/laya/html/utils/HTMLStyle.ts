@@ -562,7 +562,6 @@ import { URL } from "../../net/URL";
 		 * 解析 CSS 样式文本。
 		 * @param	text CSS 样式文本。
 		 * @param	uri URL对象。
-		 * @internal 此处需要再详细点注释。
 		 */
         //TODO:coverage
 		 static parseCSS(text:string, uri:URL):void {

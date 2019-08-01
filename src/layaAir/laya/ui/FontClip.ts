@@ -41,9 +41,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 			if (skin) this.skin = skin;
 			if (sheet) this.sheet = sheet;
 		}
-		/**
-		 * @internal
-		 */
+
 		/*override*/ protected createChildren():void {
 			this._bitmap = new AutoBitmap();
 			this.on(Event.LOADED, this, this._onClipLoaded);

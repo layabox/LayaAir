@@ -118,7 +118,6 @@ import { ClassUtils } from "../utils/ClassUtils";
 		}
 		/**
 		 * @override
-		 * @internal
 		 */
 		protected initialize():void {
 			this.width = 180;

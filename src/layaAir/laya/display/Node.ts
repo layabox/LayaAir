@@ -58,8 +58,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 			super();
 			this.createGLBuffer();
 		}
-		
-		/**@internal */
+	
 		createGLBuffer():void {
 		}
 		
@@ -391,7 +390,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * 替换子节点。
-		 * @internal 将传入的新节点对象替换到已有子节点索引位置处。
+		 * 将传入的新节点对象替换到已有子节点索引位置处。
 		 * @param	newNode 新节点。
 		 * @param	oldNode 老节点。
 		 * @return	返回新节点。

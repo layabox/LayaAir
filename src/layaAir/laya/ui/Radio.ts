@@ -36,9 +36,6 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this._value = null;
 		}
 		
-		/**
-		 * @internal
-		 */	
 		 protected preinitialize():void {
 			super.preinitialize();
 			this.toggle = false;
@@ -47,7 +44,6 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc 
-		 * @internal
 		 * */	
 		protected initialize():void {
 			super.initialize();

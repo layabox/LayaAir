@@ -114,20 +114,14 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this.changeHandler = null;
 			this._offsets = null;
 		}
-		
-		/**
-		 * @internal 
-		*/
+
 		 protected createChildren():void {
 			this.addChild(this.slider = new Slider());
 			//TODO:
 			this.addChild(this.upButton = new Button());
 			this.addChild(this.downButton = new Button());
 		}
-		
-		/**
-		 * @internal 
-		*/
+
 		 protected initialize():void {
 			this.slider.showLabel = false;
 			this.slider.tick = 0;
