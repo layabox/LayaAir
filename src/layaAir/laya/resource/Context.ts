@@ -800,8 +800,8 @@ export class Context {
 	}
 
 	//TODO:coverage
-	fillText(txt: string, x: number, y: number, fontStr: string, color: string, align: string): void {
-		this._fillText(txt, null, x, y, fontStr, color, null, 0, null);
+	fillText(txt: string, x: number, y: number, fontStr: string, color: string, align: string, lineWidth: number = 0, borderColor: string = ""): void {
+		this._fillText(txt, null, x, y, fontStr, color, borderColor, lineWidth, align);
 	}
 
 	/**

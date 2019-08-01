@@ -25,6 +25,8 @@ import { ILaya } from "../../../ILaya";
 		 y:number;
 		private _font:string;
 		private _color:string;
+		private _borderColor:string;
+		private _lineWidth: number;
 		private _textAlign:string;
 		private _fontColor:number = 0xffffffff;
 		private _strokeColor:number = 0;
@@ -33,7 +35,7 @@ import { ILaya } from "../../../ILaya";
 		private _nTexAlign:number = 0;
 		
 		/**@private */
-		 static create(text:string|WordText, x:number, y:number, font:string, color:string, textAlign:string):FillTextCmd {
+		 static create(text:string|WordText, x:number, y:number, font:string, color:string, textAlign:string, lineWidth:number, borderColor: string):FillTextCmd {
 			var cmd:FillTextCmd = Pool.getItemByClass("FillTextCmd", FillTextCmd);
 			cmd.text = text;
 			cmd._textIsWorldText = text instanceof WordText;
@@ -42,6 +44,8 @@ import { ILaya } from "../../../ILaya";
 			cmd.font = font;
 			cmd.color = color;
 			cmd.textAlign = textAlign;
+			cmd._lineWidth = lineWidth;
+			cmd._borderColor = borderColor;
 			return cmd;
 		}
 		
@@ -58,10 +62,16 @@ import { ILaya } from "../../../ILaya";
 			if(ILaya.stage.isGlobalRepaint()){
 				this._textIsWorldText && ((<WordText>this._text )).cleanCache();
 			}
-			
-			if (this._textIsWorldText ) {
+			if (this._lineWidth && this._borderColor != "") {
+				context.fillBorderText(this.text, this.x + gx, this.y + gy, this.font, this.color, this._borderColor, this._lineWidth, this.textAlign);
+			}
+			else if (this._lineWidth && this._borderColor == ""){
+				context.strokeWord(this.text, this.x + gx, this.y + gy, this.font, this.color, this._lineWidth, this.textAlign);
+			}
+			else if (this._textIsWorldText ) {
 				context._fast_filltext(((<WordText>this._text )), this.x + gx, this.y + gy, this._fontObj, this._color, null, 0, this._nTexAlign, 0);
-			} else {
+			} 
+			else {
 				context.drawText(this._text, this.x + gx, this.y + gy, this._font, this._color, this._textAlign);
 			}
 		}
