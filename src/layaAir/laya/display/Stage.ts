@@ -692,7 +692,7 @@ export class Stage extends Sprite {
 		var isDoubleLoop: boolean = (this._renderCount % 2 === 0);
 
 		Stat.renderSlow = !isFastMode;
-		if (!isFastMode && !isDoubleLoop)
+		if (!isFastMode && !isDoubleLoop)//统一双帧处理渲染
 			return;
 
 		CallLater.I._update();
