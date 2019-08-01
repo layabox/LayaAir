@@ -267,7 +267,7 @@ export class Stage extends Sprite {
 		return (Browser.onMobile && Input.isInputting);
 	}
 
-	/**@inheritDoc @override*/  
+	/**@inheritDoc @override*/
 	set width(value: number) {
 		this.designWidth = value;
 		super.set_width(value);
@@ -551,17 +551,17 @@ export class Stage extends Sprite {
 		}
 	}
 
-	/**鼠标在 Stage 上的 X 轴坐标。@override*/  
+	/**鼠标在 Stage 上的 X 轴坐标。@override*/
 	get mouseX(): number {
 		return Math.round(MouseManager.instance.mouseX / this.clientScaleX);
 	}
 
-	/**鼠标在 Stage 上的 Y 轴坐标。@override*/  
+	/**鼠标在 Stage 上的 Y 轴坐标。@override*/
 	get mouseY(): number {
 		return Math.round(MouseManager.instance.mouseY / this.clientScaleY);
 	}
 
-	/**@inheritDoc @override*/  
+	/**@inheritDoc @override*/
 	getMousePoint(): Point {
 		return Point.TEMP.setTo(this.mouseX, this.mouseY);
 	}
@@ -592,13 +592,13 @@ export class Stage extends Sprite {
 		this._screenMode = value;
 	}
 
-		/**@inheritDoc @override*/  
-		repaint(type: number = SpriteConst.REPAINT_CACHE): void {
+	/**@inheritDoc @override*/
+	repaint(type: number = SpriteConst.REPAINT_CACHE): void {
 		this._repaint |= type;
 	}
 
-		/**@inheritDoc @override*/  
-		parentRepaint(type: number = SpriteConst.REPAINT_CACHE): void {
+	/**@inheritDoc @override*/
+	parentRepaint(type: number = SpriteConst.REPAINT_CACHE): void {
 	}
 
 	/**@internal */
@@ -627,7 +627,7 @@ export class Stage extends Sprite {
 		return Browser.now() - this._frameStartTime;
 	}
 
-	/**@inheritDoc @override*/  
+	/**@inheritDoc @override*/
 	set visible(value: boolean) {
 		if (this.visible !== value) {
 			super.set_visible(value);
@@ -657,7 +657,7 @@ export class Stage extends Sprite {
 	};
 
 
-	/**@inheritDoc @override*/  
+	/**@inheritDoc @override*/
 	render(context: Context, x: number, y: number): void {
 		if (((<any>window)).conch) {
 			this.renderToNative(context, x, y);
@@ -692,31 +692,29 @@ export class Stage extends Sprite {
 		var isDoubleLoop: boolean = (this._renderCount % 2 === 0);
 
 		Stat.renderSlow = !isFastMode;
+		if (!isFastMode && !isDoubleLoop)
+			return;
 
-		if (isFastMode || isDoubleLoop) {
-			CallLater.I._update();
-			Stat.loopCount++;
-			RenderInfo.loopCount = Stat.loopCount;
+		CallLater.I._update();
+		Stat.loopCount++;
+		RenderInfo.loopCount = Stat.loopCount;
 
-			if (this.renderingEnabled) {
-				for (var i: number = 0, n: number = this._scene3Ds.length; i < n; i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
-					this._scene3Ds[i]._update();
-				context.clear();
-				super.render(context, x, y);
-				Stat._StatRender.renderNotCanvas(context, x, y);
-			}
+		if (this.renderingEnabled) {
+			for (var i: number = 0, n: number = this._scene3Ds.length; i < n; i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
+				this._scene3Ds[i]._update();
+			context.clear();
+			super.render(context, x, y);
+			Stat._StatRender.renderNotCanvas(context, x, y);
 		}
 
 		Stage._dbgSprite.render(context, 0, 0);
 
-		if (isFastMode || !isDoubleLoop) {
-			if (this.renderingEnabled) {
-				Stage.clear(this._bgColor);
-				context.flush();
-				VectorGraphManager.instance && VectorGraphManager.getInstance().endDispose();
-			}
-			this._updateTimers();
+		if (this.renderingEnabled) {
+			Stage.clear(this._bgColor);
+			context.flush();
+			VectorGraphManager.instance && VectorGraphManager.getInstance().endDispose();
 		}
+		this._updateTimers();
 	}
 
 	renderToNative(context: Context, x: number, y: number): void {
