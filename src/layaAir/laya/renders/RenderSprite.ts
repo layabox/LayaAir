@@ -52,7 +52,7 @@ export class RenderSprite {
 	//public static const CUSTOM:int = 0x400;
 	/** @private */
 	//public static const CHILDS:int = 0x800;
-	/** @internal */
+	/** @private */
 	static INIT: number = 0x11111;
 	/** @private */
 	static renders: any[] = [];

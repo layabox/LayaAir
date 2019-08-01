@@ -267,9 +267,6 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this._renderHandler = null;
 		}
 		
-		/**
-		 * @internal
-		*/
 		 protected createChildren():void {
 			this.addChild(this._list = new List());
 			this._list.renderHandler = Handler.create(this, this.renderItem, null, false);
