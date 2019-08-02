@@ -96,7 +96,7 @@ export class RenderTexture extends BaseTexture {
 	/**
 	 * @internal
 	 */
-	private _texImage2D(gl: any, glTextureType: number, width: number, height: number): void {
+	private _texImage2D(gl: WebGLRenderingContext, glTextureType: number, width: number, height: number): void {
 		var glFormat: number;
 		switch (this._format) {
 			case BaseTexture.FORMAT_R8G8B8:
@@ -110,7 +110,7 @@ export class RenderTexture extends BaseTexture {
 				break;
 			case BaseTexture.RENDERTEXTURE_FORMAT_RGBA_HALF_FLOAT:
 				if (LayaGL.layaGPUInstance._isWebGL2)
-					gl.texImage2D(this._glTextureType, 0, WebGL2RenderingContext.RGBA16F, width, height, 0, gl.RGBA, WebGL2RenderingContext.HALF_FLOAT, null);
+					gl.texImage2D(this._glTextureType, 0, (<WebGL2RenderingContext>gl).RGBA16F, width, height, 0, gl.RGBA, (<WebGL2RenderingContext>gl).HALF_FLOAT, null);
 				else
 					gl.texImage2D(this._glTextureType, 0, gl.RGBA, width, height, 0, gl.RGBA, LayaGL.layaGPUInstance._oesTextureHalfFloat.HALF_FLOAT_OES, null);//内部格式仍为RGBA
 				break;
