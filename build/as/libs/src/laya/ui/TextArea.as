@@ -37,6 +37,11 @@ package laya.ui {
 		override public function destroy(destroyChild:Boolean = null):void{}
 
 		/*
+		 * @override 
+		 */
+		override protected function initialize():void{}
+
+		/*
 		 * 垂直滚动条皮肤
 		 */
 		public var vScrollBarSkin:String;

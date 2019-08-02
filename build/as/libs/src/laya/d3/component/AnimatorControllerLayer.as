@@ -71,6 +71,13 @@ package laya.d3.component {
 		public function _clearReference():void{}
 
 		/*
+		 * 获取动画状态。
+		 */
+		public function getAnimatorState(name:String):AnimatorState{
+			return null;
+		}
+
+		/*
 		 * 添加动画状态。
 		 * @param state 动画状态。
 		 * @param layerIndex 层索引。
@@ -83,6 +90,11 @@ package laya.d3.component {
 		 * @param layerIndex 层索引。
 		 */
 		public function removeState(state:AnimatorState):void{}
+
+		/*
+		 * 销毁。
+		 */
+		public function destroy():void{}
 
 		/*
 		 * 克隆。

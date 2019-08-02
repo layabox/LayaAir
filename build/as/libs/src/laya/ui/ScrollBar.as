@@ -163,6 +163,8 @@ package laya.ui {
 		 * @override 
 		 */
 		override public function destroy(destroyChild:Boolean = null):void{}
+		protected function createChildren():void{}
+		protected function initialize():void{}
 
 		/*
 		 * @private 滑块位置发生改变的处理函数。

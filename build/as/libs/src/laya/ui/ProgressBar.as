@@ -56,6 +56,11 @@ package laya.ui {
 		override public function destroy(destroyChild:Boolean = null):void{}
 
 		/*
+		 * @inheritDoc 
+		 */
+		protected function createChildren():void{}
+
+		/*
 		 * @copy laya.ui.Image#skin
 		 */
 		public var skin:String;

@@ -62,6 +62,24 @@ package laya.ui {
 		override public function destroy(destroyChild:Boolean = null):void{}
 
 		/*
+		 * <p>预初始化。</p>
+		 * 子类可在此函数内设置、修改属性默认值
+		 */
+		protected function preinitialize():void{}
+
+		/*
+		 * <p>创建并添加控件子节点。</p>
+		 * 子类可在此函数内创建并添加子节点。
+		 */
+		protected function createChildren():void{}
+
+		/*
+		 * <p>控件初始化。</p>
+		 * 在此子对象已被创建，可以对子对象进行修改。
+		 */
+		protected function initialize():void{}
+
+		/*
 		 * @override 
 		 */
 		override public function get_width():Number{
@@ -74,6 +92,14 @@ package laya.ui {
 		protected function measureWidth():Number{
 			return null;
 		}
+
+		/*
+		 * <p>立即执行影响宽高度量的延迟调用函数。</p>
+		 * <p>使用 <code>runCallLater</code> 函数，立即执行影响宽高度量的延迟运行函数(使用 <code>callLater</code> 设置延迟执行函数)。</p>
+		 * @see #callLater()
+		 * @see #runCallLater()
+		 */
+		protected function commitMeasure():void{}
 
 		/*
 		 * @override 
@@ -138,6 +164,12 @@ package laya.ui {
 		 */
 		public var centerY:Number;
 		protected function _sizeChanged():void{}
+
+		/*
+		 * <p>对象的标签。</p>
+		 * 冗余字段，可以用来储存数据。
+		 */
+		public var tag:*;
 
 		/*
 		 * <p>鼠标悬停提示。</p>

@@ -10,6 +10,59 @@ package laya.renders {
 		/*
 		 * @private 
 		 */
+
+		/*
+		 * @private 
+		 */
+
+		/*
+		 * @private 
+		 */
+
+		/*
+		 * @private 
+		 */
+
+		/*
+		 * @private 
+		 */
+
+		/*
+		 * @private 
+		 */
+
+		/*
+		 * @private 
+		 */
+
+		/*
+		 * @private 
+		 */
+
+		/*
+		 * @private 
+		 */
+
+		/*
+		 * @private 
+		 */
+
+		/*
+		 * @private 
+		 */
+
+		/*
+		 * @private 
+		 */
+
+		/*
+		 * @private 
+		 */
+		public static var INIT:Number;
+
+		/*
+		 * @private 
+		 */
 		public static var renders:Array;
 
 		/*

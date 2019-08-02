@@ -84,6 +84,12 @@ package laya.webgl.utils {
 		 * @param gl 
 		 */
 		private var configVAO:*;
+
+		/*
+		 * 应用这个mesh
+		 * @param gl 
+		 */
+		public function useMesh(gl:*):void{}
 		public function getEleNum():Number{
 			return null;
 		}

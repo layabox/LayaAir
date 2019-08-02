@@ -7,6 +7,7 @@ package laya.d3.core {
 	import laya.d3.math.Vector3;
 	import laya.d3.math.Viewport;
 	import laya.d3.resource.RenderTexture;
+	import laya.d3.shader.Shader3D;
 	import laya.d3.core.BaseCamera;
 	import laya.d3.core.render.command.CommandBuffer;
 
@@ -144,6 +145,12 @@ package laya.d3.core {
 			return null;
 		}
 		private var _calculationViewport:*;
+
+		/*
+		 * @param shader 着色器
+		 * @param replacementTag 替换标记。
+		 */
+		public function render(shader:Shader3D = null,replacementTag:String = null):void{}
 
 		/*
 		 * 计算从屏幕空间生成的射线。

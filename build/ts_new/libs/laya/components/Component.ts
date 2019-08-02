@@ -92,7 +92,6 @@ export class Component implements ISingletonElement, IDestroy {
 
 	/**
 	 * [实现IListPool接口]
-	 * @internal
 	 */
 	_getIndexInList(): number {
 		return this._indexInList;
@@ -100,7 +99,6 @@ export class Component implements ISingletonElement, IDestroy {
 
 	/**
 	 * [实现IListPool接口]
-	 * @internal
 	 */
 	_setIndexInList(index: number): void {
 		this._indexInList = index;

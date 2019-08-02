@@ -53,7 +53,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this._content.destroyChildren();
 		}
 		
-		/**@inheritDoc @internal*/ 
+		/**@inheritDoc*/ 
 		protected createChildren():void {
 			super.addChild(this._content = new Box());
 		}

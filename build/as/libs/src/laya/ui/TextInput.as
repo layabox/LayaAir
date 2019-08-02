@@ -49,9 +49,19 @@ package laya.ui {
 
 		/*
 		 * @inheritDoc 
+		 */
+		protected function preinitialize():void{}
+
+		/*
+		 * @inheritDoc 
 		 * @override 
 		 */
 		override public function destroy(destroyChild:Boolean = null):void{}
+
+		/*
+		 * @inheritDoc 
+		 */
+		protected function createChildren():void{}
 
 		/*
 		 * @private 
@@ -72,6 +82,11 @@ package laya.ui {
 		 * @private 
 		 */
 		private var _onEnter:*;
+
+		/*
+		 * @inheritDoc 
+		 */
+		protected function initialize():void{}
 
 		/*
 		 * 表示此对象包含的文本背景 <code>AutoBitmap</code> 组件实例。
