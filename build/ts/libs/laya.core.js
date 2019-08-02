@@ -17573,7 +17573,7 @@ window.Laya= (function (exports) {
 	                return null;
 	        }
 	        var tSound;
-	        if (!ILaya.Browser.onBDMiniGame && !ILaya.Browser.onMiniGame && !ILaya.Browser.onKGMiniGame && !ILaya.Browser.onQGMiniGame && !ILaya.Browser.onVVMiniGame && !ILaya.Browser.onAlipayMiniGame) {
+	        if (!ILaya.Browser.onBDMiniGame && !ILaya.Browser.onMiniGame && !ILaya.Browser.onKGMiniGame && !ILaya.Browser.onQGMiniGame && !ILaya.Browser.onVVMiniGame && !ILaya.Browser.onAlipayMiniGame && !ILaya.Browser.onQQMiniGame) {
 	            tSound = ILaya.loader.getRes(url);
 	        }
 	        if (!soundClass)
@@ -17581,7 +17581,7 @@ window.Laya= (function (exports) {
 	        if (!tSound) {
 	            tSound = new soundClass();
 	            tSound.load(url);
-	            if (!ILaya.Browser.onBDMiniGame && !ILaya.Browser.onMiniGame && !ILaya.Browser.onKGMiniGame && !ILaya.Browser.onQGMiniGame && !ILaya.Browser.onVVMiniGame && !ILaya.Browser.onAlipayMiniGame) {
+	            if (!ILaya.Browser.onBDMiniGame && !ILaya.Browser.onMiniGame && !ILaya.Browser.onKGMiniGame && !ILaya.Browser.onQGMiniGame && !ILaya.Browser.onVVMiniGame && !ILaya.Browser.onAlipayMiniGame && !ILaya.Browser.onQQMiniGame) {
 	                ILaya.Loader.cacheRes(url, tSound);
 	            }
 	        }
