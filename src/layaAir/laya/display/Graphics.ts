@@ -16,7 +16,6 @@ import { AlphaCmd } from "./cmd/AlphaCmd"
 	import { DrawTextureCmd } from "./cmd/DrawTextureCmd"
 	import { DrawTexturesCmd } from "./cmd/DrawTexturesCmd"
 	import { DrawTrianglesCmd } from "./cmd/DrawTrianglesCmd"
-	import { FillBorderTextCmd } from "./cmd/FillBorderTextCmd"
 	import { FillBorderWordsCmd } from "./cmd/FillBorderWordsCmd"
 	import { FillTextCmd } from "./cmd/FillTextCmd"
 	import { FillTextureCmd } from "./cmd/FillTextureCmd"
@@ -25,7 +24,6 @@ import { AlphaCmd } from "./cmd/AlphaCmd"
 	import { RotateCmd } from "./cmd/RotateCmd"
 	import { SaveCmd } from "./cmd/SaveCmd"
 	import { ScaleCmd } from "./cmd/ScaleCmd"
-	import { StrokeTextCmd } from "./cmd/StrokeTextCmd"
 	import { TransformCmd } from "./cmd/TransformCmd"
 	import { TranslateCmd } from "./cmd/TranslateCmd"
 	import { Event } from "../events/Event"
@@ -38,6 +36,7 @@ import { AlphaCmd } from "./cmd/AlphaCmd"
 	import { Utils } from "../utils/Utils"
 	import { VectorGraphManager } from "../utils/VectorGraphManager"
 import { ILaya } from "../../ILaya";
+import { HTMLChar } from "../utils/HTMLChar";
 
 	/**
 	 * <code>Graphics</code> 类用于创建绘图显示对象。Graphics可以同时绘制多个位图或者矢量图，还可以结合save，restore，transform，scale，rotate，translate，alpha等指令对绘图效果进行变化。
@@ -395,7 +394,7 @@ import { ILaya } from "../../ILaya";
 		}
 		
 		/*** @private */
-		 fillWords(words:any[], x:number, y:number, font:string, color:string):FillWordsCmd {
+		 fillWords(words:HTMLChar[], x:number, y:number, font:string, color:string):FillWordsCmd {
 			return this._saveToCmd(Render._context.fillWords, FillWordsCmd.create.call(this, words, x, y, font || ILaya.Text.defaultFontStr(), color));
 		}
 		
@@ -508,7 +507,7 @@ import { ILaya } from "../../ILaya";
 		/**@private */
 		private _isTextCmd(cmd:any):boolean {
 			var cmdID:string = cmd.cmdID;
-			return cmdID == FillTextCmd.ID || cmdID == StrokeTextCmd.ID || cmdID == FillBorderTextCmd.ID;
+			return cmdID == FillTextCmd.ID;
 		}
 		
 		/**
@@ -537,12 +536,9 @@ import { ILaya } from "../../ILaya";
 			var cmdID:string = cmdO.cmdID;
 			switch (cmdID) {
 			case FillTextCmd.ID: 
-			case StrokeTextCmd.ID: 
 				cmdO.color = color;
 				break;
-			case FillBorderTextCmd.ID: 
 			case FillBorderWordsCmd.ID: 
-			case FillBorderTextCmd.ID: 
 				cmdO.fillColor = color;
 				break;
 			}

@@ -1,5 +1,6 @@
 import { Context } from "../../resource/Context"
 	import { Pool } from "../../utils/Pool"
+import { HTMLChar } from "../../utils/HTMLChar";
 	
 	/**
 	 * 填充文字命令
@@ -11,7 +12,7 @@ import { Context } from "../../resource/Context"
 		/**
 		 * 文字数组
 		 */
-		 words:any[];
+		 words:HTMLChar[];
 		/**
 		 * 开始绘制文本的 x 坐标位置（相对于画布）。
 		 */
@@ -30,7 +31,7 @@ import { Context } from "../../resource/Context"
 		 color:string;
 		
 		/**@private */
-		 static create(words:any[], x:number, y:number, font:string, color:string):FillWordsCmd {
+		 static create(words:HTMLChar[], x:number, y:number, font:string, color:string):FillWordsCmd {
 			var cmd:FillWordsCmd = Pool.getItemByClass("FillWordsCmd", FillWordsCmd);
 			cmd.words = words;
 			cmd.x = x;
