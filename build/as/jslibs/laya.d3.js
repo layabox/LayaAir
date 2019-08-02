@@ -5845,7 +5845,7 @@
 	        var camPos = context.camera._transform.position;
 	        for (i = 0; i < validCount; i++) {
 	            var render = renders[i];
-	            if (camera._isLayerVisible(render._owner._layer) && render._enable && scene._cullingBufferResult[i]) {
+	            if (!camera.useOcclusionCulling || (camera._isLayerVisible(render._owner._layer) && render._enable && scene._cullingBufferResult[i])) {
 	                render._visible = true;
 	                render._distanceForSort = Vector3.distance(render.bounds.getCenter(), camPos);
 	                var elements = render._renderElements;
