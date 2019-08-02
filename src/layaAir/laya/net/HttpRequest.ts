@@ -46,7 +46,7 @@ import { Browser } from "../utils/Browser";
 			this._responseType = responseType;
 			this._data = null;
 			
-			if(Browser.onVVMiniGame && Browser.onQGMiniGame && Browser.onQQMiniGame)
+			if(Browser.onVVMiniGame || Browser.onQGMiniGame || Browser.onQQMiniGame)
 			{
 				url = encodeURI(url);
 			}
