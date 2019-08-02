@@ -107,6 +107,11 @@ package laya.utils {
 		public static var onAlipayMiniGame:Boolean;
 
 		/*
+		 * *手机QQ小游戏
+		 */
+		public static var onQQMiniGame:Boolean;
+
+		/*
 		 * @private 
 		 */
 		public static var onFirefox:Boolean;

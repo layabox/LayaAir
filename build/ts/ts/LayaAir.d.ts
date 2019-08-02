@@ -33282,8 +33282,8 @@ declare module laya.resource {
 		 * @param underLine 
 		 */
 		private _fillText:any;
-		fillWords(words:any[],x:number,y:number,fontStr:string,color:string):void;
-		fillBorderWords(words:any[],x:number,y:number,font:string,color:string,borderColor:string,lineWidth:number):void;
+		fillWords(words:laya.utils.HTMLChar[],x:number,y:number,fontStr:string,color:string):void;
+		fillBorderWords(words:laya.utils.HTMLChar[],x:number,y:number,font:string,color:string,borderColor:string,lineWidth:number):void;
 		drawText(text:any,x:number,y:number,font:string,color:string,textAlign:string):void;
 
 		/*
@@ -33309,7 +33309,7 @@ declare module laya.resource {
 		 * @param lineWidth 
 		 * @param textAlign 
 		 */
-		fillBorderText(txt:any,x:number,y:number,fontStr:string,fillColor:string,borderColor:string,lineWidth:number,textAlign:string):void;
+		fillBorderText(txt:string|laya.utils.WordText,x:number,y:number,fontStr:string,fillColor:string,borderColor:string,lineWidth:number,textAlign:string):void;
 		private _fillBorderText:any;
 		private _fillRect:any;
 		fillRect(x:number,y:number,width:number,height:number,fillStyle:any):void;
@@ -40097,6 +40097,11 @@ declare module laya.utils {
 		 * 阿里小游戏 *
 		 */
 		static onAlipayMiniGame:boolean;
+
+		/*
+		 * *手机QQ小游戏
+		 */
+		static onQQMiniGame:boolean;
 
 		/*
 		 * @private 
