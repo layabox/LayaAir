@@ -817,7 +817,7 @@ export class Context {
 	 * @param	textAlign
 	 * @param	underLine
 	 */
-	private _fillText(txt: any, words: HTMLChar[], x: number, y: number, fontStr: string, color: string, strokeColor: string, lineWidth: number, textAlign: string, underLine: number = 0): void {
+	private _fillText(txt: string|WordText, words: HTMLChar[], x: number, y: number, fontStr: string, color: string, strokeColor: string, lineWidth: number, textAlign: string, underLine: number = 0): void {
 		/*
 		if (!window.testft) {
 			//测试文字
@@ -837,14 +837,12 @@ export class Context {
 		Context._textRender._fast_filltext(this, data, null, x, y, (<FontInfo>fontObj), color, strokeColor, lineWidth, textAlign, underLine);
 	}
 
-	//TODO:coverage
-	fillWords(words: any[], x: number, y: number, fontStr: string, color: string): void {
-		this._fillText(null, words as HTMLChar[], x, y, fontStr, color, null, -1, null, 0);
+	fillWords(words: HTMLChar[], x: number, y: number, fontStr: string, color: string): void {
+		this._fillText(null, words, x, y, fontStr, color, null, -1, null, 0);
 	}
 
-	//TODO:coverage
-	fillBorderWords(words: any[], x: number, y: number, font: string, color: string, borderColor: string, lineWidth: number): void {
-		this._fillBorderText(null, words as HTMLChar[], x, y, font, color, borderColor, lineWidth, null);
+	fillBorderWords(words: HTMLChar[], x: number, y: number, font: string, color: string, borderColor: string, lineWidth: number): void {
+		this._fillBorderText(null, words, x, y, font, color, borderColor, lineWidth, null);
 	}
 
 	drawText(text: any, x: number, y: number, font: string, color: string, textAlign: string): void {
@@ -881,12 +879,12 @@ export class Context {
 	 * @param	lineWidth
 	 * @param	textAlign
 	 */
-	fillBorderText(txt: any, x: number, y: number, fontStr: string, fillColor: string, borderColor: string, lineWidth: number, textAlign: string): void {
+	fillBorderText(txt: string|WordText, x: number, y: number, fontStr: string, fillColor: string, borderColor: string, lineWidth: number, textAlign: string): void {
 		//webgl绘制不了，需要解决
 		this._fillBorderText(txt, null, x, y, fontStr, ColorUtils.create(fillColor).strColor, ColorUtils.create(borderColor).strColor, lineWidth, textAlign);
 	}
 
-	private _fillBorderText(txt: any, words: HTMLChar[], x: number, y: number, fontStr: string, fillColor: string, borderColor: string, lineWidth: number, textAlign: string): void {
+	private _fillBorderText(txt: string|WordText, words: HTMLChar[], x: number, y: number, fontStr: string, fillColor: string, borderColor: string, lineWidth: number, textAlign: string): void {
 		this._fillText(txt, words, x, y, fontStr, fillColor, borderColor, lineWidth || 1, textAlign);
 	}
 
