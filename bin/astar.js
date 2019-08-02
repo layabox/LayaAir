@@ -12,11 +12,15 @@
     define([], definition);
   } else {
     var exports = definition();
-    // window.astar = exports.astar;//适配小游戏修改xiaoSong
-    // window.Graph = exports.Graph;//适配小游戏修改xiaoSong
+     window.astar = exports.astar;//适配小游戏修改xiaoSong
+     window.Graph = exports.Graph;//适配小游戏修改xiaoSong
   }
-  window.astar = module.exports.astar;//适配小游戏修改xiaoSong
-  window.Graph = module.exports.Graph;//适配小游戏修改xiaoSong
+  if(!window.Graph)
+  {
+	window.astar = module.exports.astar;//适配小游戏修改xiaoSong
+	window.Graph = module.exports.Graph;//适配小游戏修改xiaoSong  
+	  
+  }
 })(function() {
 
 function pathTo(node) {
