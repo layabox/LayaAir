@@ -444,7 +444,7 @@ export class Loader extends EventDispatcher {
 				if (this._data.toLoads.length > 0) {
 					this.event(Event.PROGRESS, 0.3 + 1 / this._data.toLoads.length * 0.6);
 					//有图片未加载
-					return this._loadImage(this._data.toLoads.pop());
+					return this._loadResourceFilter(Loader.IMAGE,this._data.toLoads.pop());
 				}
 				var frames: any = this._data.frames;
 				var cleanUrl: string = this._url.split("?")[0];
