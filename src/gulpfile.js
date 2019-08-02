@@ -126,7 +126,13 @@ var packsDef={
         ],
         'out':'../build/js/libs/laya.vvmini.js'
     },
-
+    //ali
+    'qq':{
+        'input':[
+            './platform/qq/**/*.*'
+        ],
+        'out':'../build/js/libs/laya.qqmini.js'
+    },
 
 };
 
@@ -393,7 +399,7 @@ gulp.task('ModifierJs', () => {
         }))
         .pipe(gulp.dest('../build/js/libs/'));
 
-        return gulp.src([
+        gulp.src([
             '../build/js/libs/laya.vvmini.js'], )
             .pipe(through.obj(function (file, encode, cb) {
                 var srcContents = file.contents.toString();
@@ -406,6 +412,20 @@ gulp.task('ModifierJs', () => {
                 cb()
             }))
             .pipe(gulp.dest('../build/js/libs/'));
+
+        return  gulp.src([
+            '../build/js/libs/laya.qqmini.js'], )
+            .pipe(through.obj(function (file, encode, cb) {
+                var srcContents = file.contents.toString();
+                var tempContents = srcContents.replace(/\(/, "window.qqMiniGame = ");
+                var destContents = tempContents.replace(/\(this.Laya = this.Laya \|\| {}, Laya\)\);/, " ");
+                // 再次转为Buffer对象，并赋值给文件内容
+                file.contents = new Buffer(destContents)
+                // 以下是例行公事
+                this.push(file)
+            cb()
+        }))
+        .pipe(gulp.dest('../build/js/libs/'));
 });
 
 //合并physics 和 box2d
@@ -461,7 +481,8 @@ gulp.task('CopyTSJSLibsFileToTS', () => {
         '../build/js/libs/laya.bdmini.js',
         '../build/js/libs/laya.xmmini.js',
         '../build/js/libs/laya.quickgamemini.js',
-        '../build/js/libs/laya.vvmini.js'], )
+        '../build/js/libs/laya.vvmini.js',
+        '../build/js/libs/laya.qqmini.js'],)
 		.pipe(gulp.dest('../build/ts_new/jslibs'));
 });
 
@@ -908,6 +929,36 @@ gulp.task('buildJS', async function () {
 
     await vv.write({
         file: packsDef.vv.out,
+        format: 'iife',
+        name: 'Laya',
+        sourcemap: false,
+        extend:true,
+        globals:{'Laya':'Laya'}
+    });
+
+    const qq = await rollup.rollup({
+        input:packsDef.qq.input,
+        output: {
+            extend:true,
+            globals:{'Laya':'Laya'}
+        },
+        external:['Laya'],
+        plugins: [
+            myMultiInput(),
+            typescript({
+                tsconfig:"./layaAir/tsconfig.json",
+                check: false,
+                tsconfigOverride:{compilerOptions:{removeComments: true}}
+            }),
+            glsl({
+                include: /.*(.glsl|.vs|.fs)$/,
+                sourceMap: false
+            })   
+        ]
+    });
+
+    await qq.write({
+        file: packsDef.qq.out,
         format: 'iife',
         name: 'Laya',
         sourcemap: false,
