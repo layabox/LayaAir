@@ -44,7 +44,7 @@ export class StatUI extends IStatRender {
 	 */
 	show(x: number = 0, y: number = 0): void {
 		var dt: any = Stat;
-		if (!Browser.onMiniGame && !ILaya.Render.isConchApp && !Browser.onBDMiniGame && !Browser.onKGMiniGame && !Browser.onQGMiniGame) this._useCanvas = true;
+		if (!Browser.onMiniGame && !ILaya.Render.isConchApp && !Browser.onBDMiniGame && !Browser.onKGMiniGame && !Browser.onQGMiniGame && !Browser.onAlipayMiniGame) this._useCanvas = true;
 		this._show = true;
 		Stat._fpsData.length = 60;
 		this._view[0] = { title: "FPS(Canvas)", value: "_fpsStr", color: "yellow", units: "int" };
@@ -110,7 +110,7 @@ export class StatUI extends IStatRender {
 			stat.addChild(this._leftText);
 
 			this._txt = new Text();
-			this._txt.pos(80 * pixel, 5);
+			this._txt.pos(130 * pixel, 5);
 			this._txt.color = "#ffffff";
 			stat.addChild(this._txt);
 			this._sp = stat;
@@ -134,7 +134,7 @@ export class StatUI extends IStatRender {
 		stat.size(width, height);
 		stat.graphics.clear();
 		stat.graphics.alpha(0.5);
-		stat.graphics.drawRect(0, 0, width, height, "#999999");
+		stat.graphics.drawRect(0, 0, width+110, height+30, "#999999");
 		stat.graphics.alpha(2);
 		this.loop();
 	}

@@ -3,7 +3,7 @@
 	 */
 	export class LocalStorage {
 	
-		/**@internal 基础类*/
+		/**@ 基础类*/
          static _baseClass: any;
 		/**
 		 *  数据列表。

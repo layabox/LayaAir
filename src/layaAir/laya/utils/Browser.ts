@@ -110,7 +110,6 @@ import { ILaya } from "../../ILaya";
 			//阿里小游戏
 			if (u.indexOf('AlipayMiniGame') > -1 && "my" in Browser.window) {
 				//这里需要手动初始化阿里适配库
-				(window as any).aliMiniGame(Laya,Laya);
 				(window as any).aliPayMiniGame(Laya,Laya);
 				if (!Laya["ALIMiniAdapter"]) {
 					console.error("请先添加阿里小游戏适配库");
