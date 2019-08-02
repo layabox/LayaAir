@@ -17700,7 +17700,7 @@ window.Laya= (function (exports) {
 	    send(url, data = null, method = "get", responseType = "text", headers = null) {
 	        this._responseType = responseType;
 	        this._data = null;
-	        if (Browser.onVVMiniGame && Browser.onQGMiniGame && Browser.onQQMiniGame) {
+	        if (Browser.onVVMiniGame || Browser.onQGMiniGame || Browser.onQQMiniGame) {
 	            url = encodeURI(url);
 	        }
 	        this._url = url;

@@ -58,8 +58,11 @@ window.qqMiniGame = function (exports, Laya) {
 	        MiniFileMgr.fs.readFile({ filePath: filePath, encoding: encoding, success: function (data) {
 	                if (filePath.indexOf("http://") != -1 || filePath.indexOf("https://") != -1) {
 	                    if (QQMiniAdapter.autoCacheFile || isSaveFile) {
-	                        MiniFileMgr.copyFile(filePath, readyUrl, callBack, encoding, isAutoClear);
+	                        callBack != null && callBack.runWith([0, data]);
+	                        MiniFileMgr.copyFile(filePath, readyUrl, null, encoding, isAutoClear);
 	                    }
+	                    else
+	                        callBack != null && callBack.runWith([0, data]);
 	                }
 	                else
 	                    callBack != null && callBack.runWith([0, data]);
@@ -1342,7 +1345,7 @@ window.qqMiniGame = function (exports, Laya) {
 	                    MiniImage.onCreateImage(url, thisLoader, true);
 	                }
 	                else {
-	                    MiniFileMgr.downOtherFiles(url, new Laya.Handler(MiniImage, MiniImage.onDownImgCallBack, [url, thisLoader]), url);
+	                    MiniFileMgr.downOtherFiles(encodeURI(url), new Laya.Handler(MiniImage, MiniImage.onDownImgCallBack, [url, thisLoader]), url);
 	                }
 	            }
 	            else
@@ -1402,6 +1405,8 @@ window.qqMiniGame = function (exports, Laya) {
 	        }
 	        var onerror = function () {
 	            clear();
+	            delete MiniFileMgr.fakeObj[sourceUrl];
+	            delete MiniFileMgr.filesListObj[sourceUrl];
 	            thisLoader.event(Laya.Event.ERROR, "Load image failed");
 	        };
 	        if (thisLoader._type == "nativeimage") {

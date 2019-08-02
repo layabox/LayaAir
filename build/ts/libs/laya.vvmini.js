@@ -1389,6 +1389,8 @@ window.vvMiniGame = function (exports, Laya) {
 	        }
 	        var onerror = function () {
 	            clear();
+	            delete MiniFileMgr.fakeObj[sourceUrl];
+	            delete MiniFileMgr.filesListObj[sourceUrl];
 	            thisLoader.event(Laya.Event.ERROR, "Load image failed");
 	        };
 	        if (thisLoader._type == "nativeimage") {
