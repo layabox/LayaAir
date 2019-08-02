@@ -113,7 +113,7 @@ import { Main } from "../Main";
 		
 		//---------------------------------------------------------------------------------2D------------开始---------------------------------------------
 		
-		private _comboxBigArr:any[] = ['Sprite','动画','骨骼动画','混合模式','区块地图','滤镜','粒子','音频','文本','UI','计时器','缓动','鼠标交互','屏幕适配','网络和格式','调试','性能测试','IDE',"VIP测试案例"];
+		private _comboxBigArr:any[] = ['Sprite','动画','骨骼动画','混合模式','区块地图','滤镜','粒子','音频','文本','UI','计时器','缓动','鼠标交互','屏幕适配','网络和格式','调试','性能测试','IDE'];
 		/************************sprite-start***************************/
 		private _comboBoxSpriteClsArr:any[] = [Sprite_DisplayImage,Sprite_Container,Sprite_RoateAndScale,Sprite_DrawPath,Sprite_MagnifyingGlass,Sprite_DrawShapes,Sprite_Cache,Sprite_NodeControl,Sprite_Pivot,Sprite_SwitchTexture];
 		private _comboBoxSpriteArr:any[] = ['显示图片','容器','旋转缩放','根据数据绘制路径','遮罩-放大镜','绘制各种形状','缓存为静态图像','节点控制','轴中心','切换纹理'];
@@ -406,12 +406,15 @@ import { Main } from "../Main";
 						break;
 					case 18://IDE
 						//this._oldView = new this._VIPClsArr[index];
-						this.b_length = this._VIPArr.length - 1;
+						//this.b_length = this._VIPArr.length - 1;
 						break;
 					default:
 						break;
                 }
-                (this._oldView as any).Main = this.Main;
+				if(this._oldView)
+				{
+					(this._oldView as any).Main = this.Main;
+				}
 			}
 		}
 		
@@ -485,7 +488,7 @@ import { Main } from "../Main";
 					labelStr = this._comboBoxIDEArr.toString();
 					break;
 				case 18://IDE
-					labelStr = this._VIPArr.toString();
+					//labelStr = this._VIPArr.toString();
 					break;
 			}
 			this.smallComBox.labels = labelStr;
