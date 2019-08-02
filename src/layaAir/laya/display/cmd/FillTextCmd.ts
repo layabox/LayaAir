@@ -4,6 +4,8 @@
 	import { Pool } from "../../utils/Pool"
 	import { WordText } from "../../utils/WordText"
 import { ILaya } from "../../../ILaya";
+import { HTMLChar } from "../../utils/HTMLChar";
+import { worker } from "cluster";
     
 	/**
 	 * 绘制文字
@@ -15,6 +17,7 @@ import { ILaya } from "../../../ILaya";
 		private _text:string|WordText;
 		/**@internal */
 		 _textIsWorldText:boolean = false;
+		 _words: HTMLChar[];
 		/**
 		 * 开始绘制文本的 x 坐标位置（相对于画布）。
 		 */
@@ -35,10 +38,11 @@ import { ILaya } from "../../../ILaya";
 		private _nTexAlign:number = 0;
 		
 		/**@private */
-		 static create(text:string|WordText, x:number, y:number, font:string, color:string, textAlign:string, lineWidth:number, borderColor: string):FillTextCmd {
+		 static create(text:string|WordText, words: HTMLChar[], x:number, y:number, font:string, color:string, textAlign:string, lineWidth:number, borderColor: string):FillTextCmd {
 			var cmd:FillTextCmd = Pool.getItemByClass("FillTextCmd", FillTextCmd);
 			cmd.text = text;
 			cmd._textIsWorldText = text instanceof WordText;
+			cmd._words = words;
 			cmd.x = x;
 			cmd.y = y;
 			cmd.font = font;
@@ -62,7 +66,13 @@ import { ILaya } from "../../../ILaya";
 			if(ILaya.stage.isGlobalRepaint()){
 				this._textIsWorldText && ((<WordText>this._text )).cleanCache();
 			}
-			if (this._lineWidth && this._borderColor != "") {
+			if (this._words && this._borderColor != "") {
+				context.fillBorderWords(this._words, this.x + gx, this.y + gy, this.font, this.color, this._borderColor, this._lineWidth);
+			}
+			else if (this._words) {
+				context.fillWords(this._words, this.x + gx, this.y + gy, this.font, this.color);
+			}
+			else if (this._lineWidth && this._borderColor != "") {
 				context.fillBorderText(this.text, this.x + gx, this.y + gy, this.font, this.color, this._borderColor, this._lineWidth, this.textAlign);
 			}
 			else if (this._lineWidth && this._borderColor == ""){
