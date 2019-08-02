@@ -141,7 +141,8 @@ import { Laya } from "Laya";
 					{
 						callBack != null && callBack.runWith([0, data]);
 						MiniFileMgr.copyFile(filePath, readyUrl, null,encoding,isAutoClear);
-					}
+					}else
+						callBack != null && callBack.runWith([0, data]);
 				}
 				else
 					callBack != null && callBack.runWith([0, data]);

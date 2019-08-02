@@ -146,9 +146,11 @@ import { URL } from "laya/net/URL";
 						callBack != null && callBack.runWith([0, data]);
 						MiniFileMgr.copyFile(filePath, readyUrl, null,encoding,isAutoClear);
 					}
+					else
+						callBack != null && callBack.runWith([0, data]);
+
 				}
 				else
-					callBack != null && callBack.runWith([0, data]);
 			}, fail: function(data:any):void {
 				if (data)
 					callBack != null && callBack.runWith([1, data]);
