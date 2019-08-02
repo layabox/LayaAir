@@ -119,7 +119,7 @@ import { URL } from "laya/net/URL";
 							this.onDownLoadCallBack(url, 0);
 						}else
 						{
-							MiniFileMgr.downOtherFiles(encodeURI(url), Handler.create(this, this.onDownLoadCallBack, [url]), url);
+							MiniFileMgr.downOtherFiles(url, Handler.create(this, this.onDownLoadCallBack, [url]), url);
 						}
 					}
 				}
@@ -246,7 +246,7 @@ import { URL } from "laya/net/URL";
 				tSound.src = this.url =MiniFileMgr.getFileNativePath(fileMd5Name);
 			}else
 			{
-				tSound.src = encodeURI(this.url);
+				tSound.src = this.url;
 			}
 			var channel:any = new MiniSoundChannel(tSound,this);
 			channel.url = this.url;

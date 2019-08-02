@@ -76,7 +76,7 @@ import {Event} from "laya/events/Event";
 						MiniImage.onCreateImage(url, thisLoader, true);//直接读取本地文件，非加载缓存的图片
 					}else
 					{
-						MiniFileMgr.downOtherFiles(url, new Handler(MiniImage, MiniImage.onDownImgCallBack, [url, thisLoader]), url);
+						MiniFileMgr.downOtherFiles(encodeURI(url), new Handler(MiniImage, MiniImage.onDownImgCallBack, [url, thisLoader]), url);
 					}
 				}
 				else
@@ -160,6 +160,8 @@ import {Event} from "laya/events/Event";
 			
 			var onerror:Function = function():void {
 				clear();
+				delete MiniFileMgr.fakeObj[sourceUrl];
+				delete MiniFileMgr.filesListObj[sourceUrl];
 				thisLoader.event(Event.ERROR, "Load image failed");
 			}
 			if (thisLoader._type == "nativeimage") {
