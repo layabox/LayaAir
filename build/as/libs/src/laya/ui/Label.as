@@ -35,6 +35,11 @@ package laya.ui {
 		override public function destroy(destroyChild:Boolean = null):void{}
 
 		/*
+		 * @inheritDoc 
+		 */
+		protected function createChildren():void{}
+
+		/*
 		 * 当前文本内容字符串。
 		 * @see laya.display.Text.text
 		 */

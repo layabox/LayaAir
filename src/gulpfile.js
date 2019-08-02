@@ -532,6 +532,7 @@ gulp.task('buildJS', async function () {
     await core.write({
       file: packsDef.core.out,
       format: 'iife',
+      outro:'exports.static=_static;',  //由于static是关键字，无法通过ts编译。AS需要这个函数，临时强插
       name: 'Laya',
       sourcemap: false
     });

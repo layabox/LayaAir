@@ -27,6 +27,12 @@ package laya.ui {
 		 * @override 
 		 */
 		override public function destroy(destroyChild:Boolean = null):void{}
+		protected function preinitialize():void{}
+
+		/*
+		 * @inheritDoc 
+		 */
+		protected function initialize():void{}
 
 		/*
 		 * @private 对象的<code>Event.CLICK</code>事件侦听处理函数。

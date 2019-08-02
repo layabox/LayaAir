@@ -61,6 +61,7 @@ package laya.ui {
 		 */
 
 		public function FontClip(skin:String = undefined,sheet:String = undefined){}
+		protected function createChildren():void{}
 
 		/*
 		 * 资源加载完毕

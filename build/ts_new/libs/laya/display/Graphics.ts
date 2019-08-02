@@ -414,7 +414,7 @@ import { ILaya } from "../../ILaya";
 		 * @param textAlign	文本对齐方式，可选值："left"，"center"，"right"。
 		 */
 		 strokeText(text:string, x:number, y:number, font:string, color:string, lineWidth:number, textAlign:string):StrokeTextCmd {
-			return this._saveToCmd(Render._context.fillBorderText, StrokeTextCmd.create.call(this, text, x, y, font || ILaya.Text.defaultFontStr(), null, color, lineWidth, textAlign));
+			return this._saveToCmd(Render._context.fillBorderText, StrokeTextCmd.create.call(this, text, x, y, font || ILaya.Text.defaultFontStr(), color, lineWidth, textAlign));
 		}
 		
 		/**

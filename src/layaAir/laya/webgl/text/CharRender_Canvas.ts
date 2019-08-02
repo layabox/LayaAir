@@ -32,7 +32,6 @@ import { Browser } from "../../utils/Browser";
 			}
 		}
 		/**
-		 * @internal
 		 * @override
 		 */
 		  get canvasWidth():number {
@@ -40,7 +39,6 @@ import { Browser } from "../../utils/Browser";
 		}
 		
 		/**
-		 * @internal
 		 * @override
 		 */
 		  set canvasWidth(w:number) {

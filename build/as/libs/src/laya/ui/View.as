@@ -43,6 +43,13 @@ package laya.ui {
 		public static function regComponent(key:String,compClass:Class):void{}
 
 		/*
+		 * @private 兼容老版本注册UI视图类的逻辑处理类。注册runtime解析。
+		 * @param key UI视图类的关键字。
+		 * @param compClass UI视图类对应的逻辑处理类。
+		 */
+		public static function regViewRuntime(key:String,compClass:Class):void{}
+
+		/*
 		 * @private 兼容老版本注册UI配置信息，比如注册一个路径为"test/TestPage"的页面，UI内容是IDE生成的json
 		 * @param url UI的路径
 		 * @param json UI内容

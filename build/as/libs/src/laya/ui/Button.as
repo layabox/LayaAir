@@ -109,9 +109,21 @@ package laya.ui {
 		override public function destroy(destroyChild:Boolean = null):void{}
 
 		/*
+		 * @inheritDoc 
+		 * @override 
+		 */
+		override protected function createChildren():void{}
+
+		/*
 		 * @private 
 		 */
 		protected function createText():void{}
+
+		/*
+		 * @inheritDoc 
+		 * @override 
+		 */
+		override protected function initialize():void{}
 
 		/*
 		 * 对象的 <code>Event.MOUSE_OVER、Event.MOUSE_OUT、Event.MOUSE_DOWN、Event.MOUSE_UP、Event.CLICK</code> 事件侦听处理函数。

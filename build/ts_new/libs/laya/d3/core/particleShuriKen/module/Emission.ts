@@ -143,7 +143,7 @@ export class Emission implements IClone, IDestroy {
 	 * @return	 克隆副本。
 	 */
 	clone(): any {
-		var destEmission: Vector3 = new Vector3();
+		var destEmission: Emission = new Emission();
 		this.cloneTo(destEmission);
 		return destEmission;
 	}

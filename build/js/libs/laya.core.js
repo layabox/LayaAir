@@ -13,6 +13,7 @@ window.Laya= (function (exports) {
 	Config.is2DPixelArtGame = false;
 	Config.useWebGL2 = true;
 	Config.useRetinalCanvas = false;
+	window.Config = Config;
 
 	class ILaya {
 	    static regClass(c) {
@@ -7258,8 +7259,10 @@ window.Laya= (function (exports) {
 	            ctx.lineWidth = lineWidth;
 	            ctx.strokeText(char, margin_left, margin_top + sz / 2);
 	        }
-	        ctx.fillStyle = colStr;
-	        ctx.fillText(char, margin_left, margin_top + sz / 2);
+	        if (colStr) {
+	            ctx.fillStyle = colStr;
+	            ctx.fillText(char, margin_left, margin_top + sz / 2);
+	        }
 	        if (this.showDbgInfo) {
 	            ctx.strokeStyle = '#ff0000';
 	            ctx.strokeRect(1, 1, w - 2, h - 2);
@@ -7314,7 +7317,7 @@ window.Laya= (function (exports) {
 	                ctx.fillText(char, 0, sz / 2);
 	            }
 	        }
-	        else {
+	        else if (colStr) {
 	            ctx.fillStyle = colStr;
 	            ctx.fillText(char, 0, sz / 2);
 	        }
@@ -11365,7 +11368,7 @@ window.Laya= (function (exports) {
 	        return this._saveToCmd(Render._context.fillBorderWords, FillBorderWordsCmd.create.call(this, words, x, y, font || ILaya.Text.defaultFontStr(), fillColor, borderColor, lineWidth));
 	    }
 	    strokeText(text, x, y, font, color, lineWidth, textAlign) {
-	        return this._saveToCmd(Render._context.fillBorderText, StrokeTextCmd.create.call(this, text, x, y, font || ILaya.Text.defaultFontStr(), null, color, lineWidth, textAlign));
+	        return this._saveToCmd(Render._context.fillBorderText, StrokeTextCmd.create.call(this, text, x, y, font || ILaya.Text.defaultFontStr(), color, lineWidth, textAlign));
 	    }
 	    alpha(alpha) {
 	        return this._saveToCmd(Render._context.alpha, AlphaCmd.create.call(this, alpha));
@@ -16482,27 +16485,25 @@ window.Laya= (function (exports) {
 	        var isFastMode = (frameMode !== Stage.FRAME_SLOW);
 	        var isDoubleLoop = (this._renderCount % 2 === 0);
 	        Stat.renderSlow = !isFastMode;
-	        if (isFastMode || isDoubleLoop) {
-	            CallLater.I._update();
-	            Stat.loopCount++;
-	            RenderInfo.loopCount = Stat.loopCount;
-	            if (this.renderingEnabled) {
-	                for (var i = 0, n = this._scene3Ds.length; i < n; i++)
-	                    this._scene3Ds[i]._update();
-	                context.clear();
-	                super.render(context, x, y);
-	                Stat._StatRender.renderNotCanvas(context, x, y);
-	            }
+	        if (!isFastMode && !isDoubleLoop)
+	            return;
+	        CallLater.I._update();
+	        Stat.loopCount++;
+	        RenderInfo.loopCount = Stat.loopCount;
+	        if (this.renderingEnabled) {
+	            for (var i = 0, n = this._scene3Ds.length; i < n; i++)
+	                this._scene3Ds[i]._update();
+	            context.clear();
+	            super.render(context, x, y);
+	            Stat._StatRender.renderNotCanvas(context, x, y);
 	        }
 	        Stage._dbgSprite.render(context, 0, 0);
-	        if (isFastMode || !isDoubleLoop) {
-	            if (this.renderingEnabled) {
-	                Stage.clear(this._bgColor);
-	                context.flush();
-	                VectorGraphManager.instance && VectorGraphManager.getInstance().endDispose();
-	            }
-	            this._updateTimers();
+	        if (this.renderingEnabled) {
+	            Stage.clear(this._bgColor);
+	            context.flush();
+	            VectorGraphManager.instance && VectorGraphManager.getInstance().endDispose();
 	        }
+	        this._updateTimers();
 	    }
 	    renderToNative(context, x, y) {
 	        this._renderCount++;
@@ -22202,7 +22203,7 @@ window.Laya= (function (exports) {
 	Laya.lateTimer = null;
 	Laya.timer = null;
 	Laya.loader = null;
-	Laya.version = "2.2.0beta";
+	Laya.version = "2.2.0beta2";
 	Laya._isinit = false;
 	Laya.isWXOpenDataContext = false;
 	Laya.isWXPosMsg = false;
@@ -22281,6 +22282,23 @@ window.Laya= (function (exports) {
 	var isWXPosMsg;
 	var alertGlobalError = Laya.alertGlobalError;
 	var enableDebugPanel = Laya.enableDebugPanel;
+	function _static(_class, def) {
+	    for (var i = 0, sz = def.length; i < sz; i += 2) {
+	        if (def[i] == 'length')
+	            _class.length = def[i + 1].call(_class);
+	        else {
+	            function tmp() {
+	                var name = def[i];
+	                var getfn = def[i + 1];
+	                Object.defineProperty(_class, name, {
+	                    get: function () { delete this[name]; return this[name] = getfn.call(this); },
+	                    set: function (v) { delete this[name]; this[name] = v; }, enumerable: true, configurable: true
+	                });
+	            }
+	            tmp();
+	        }
+	    }
+	}
 
 	class CommonScript extends Component {
 	    get isSingleton() {
@@ -25590,12 +25608,15 @@ window.Laya= (function (exports) {
 	exports.WordText = WordText;
 	exports.WorkerLoader = WorkerLoader;
 	exports.__init = __init;
+	exports._static = _static;
 	exports.alertGlobalError = alertGlobalError;
 	exports.enableDebugPanel = enableDebugPanel;
 	exports.init = init;
 	exports.isWXOpenDataContext = isWXOpenDataContext;
 	exports.isWXPosMsg = isWXPosMsg;
 	exports.version = version;
+
+	exports.static=_static;
 
 	return exports;
 

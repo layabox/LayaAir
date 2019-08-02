@@ -52,21 +52,21 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * <p>预初始化。</p>
-		 * @internal 子类可在此函数内设置、修改属性默认值
+		 * 子类可在此函数内设置、修改属性默认值
 		 */
 		protected preinitialize():void {
 		}
 		
 		/**
 		 * <p>创建并添加控件子节点。</p>
-		 * @internal 子类可在此函数内创建并添加子节点。
+		 * 子类可在此函数内创建并添加子节点。
 		 */
 		protected createChildren():void {
 		}
 		
 		/**
 		 * <p>控件初始化。</p>
-		 * @internal 在此子对象已被创建，可以对子对象进行修改。
+		 * 在此子对象已被创建，可以对子对象进行修改。
 		 */
 		protected initialize():void {
 		}
@@ -104,7 +104,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * <p>立即执行影响宽高度量的延迟调用函数。</p>
-		 * @internal <p>使用 <code>runCallLater</code> 函数，立即执行影响宽高度量的延迟运行函数(使用 <code>callLater</code> 设置延迟执行函数)。</p>
+		 * <p>使用 <code>runCallLater</code> 函数，立即执行影响宽高度量的延迟运行函数(使用 <code>callLater</code> 设置延迟执行函数)。</p>
 		 * @see #callLater()
 		 * @see #runCallLater()
 		 */
@@ -276,7 +276,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * <p>对象的标签。</p>
-		 * @internal 冗余字段，可以用来储存数据。
+		 * 冗余字段，可以用来储存数据。
 		 */
 		 get tag():any {
 			return this._tag;

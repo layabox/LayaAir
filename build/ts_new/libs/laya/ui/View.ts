@@ -80,7 +80,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		/**
 		 * @private 兼容老版本
 		 * 注册UI视图类的逻辑处理类。
-		 * @internal 注册runtime解析。
+		 * 注册runtime解析。
 		 * @param key UI视图类的关键字。
 		 * @param compClass UI视图类对应的逻辑处理类。
 		 */

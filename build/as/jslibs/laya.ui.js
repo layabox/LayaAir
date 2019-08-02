@@ -9,6 +9,7 @@
 	UIConfig.popupBgColor = "#000000";
 	UIConfig.popupBgAlpha = 0.5;
 	UIConfig.closeDialogOnSide = true;
+	window.UIConfig = UIConfig;
 
 	class Styles {
 	}
@@ -3583,7 +3584,7 @@
 	        return this._isOpen;
 	    }
 	    set isOpen(value) {
-	        var Laya$1 = window.Laya;
+	        var Laya$1 = Laya.ILaya.Laya;
 	        if (this._isOpen != value) {
 	            this._isOpen = value;
 	            this._button.selected = this._isOpen;

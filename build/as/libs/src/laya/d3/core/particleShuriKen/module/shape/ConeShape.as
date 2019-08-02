@@ -46,6 +46,12 @@ package laya.d3.core.particleShuriKen.module.shape {
 		 * @override 
 		 */
 		override public function cloneTo(destObject:*):void{}
+
+		/*
+		 * 克隆。
+		 * @return 克隆副本。
+		 */
+		public function clone():*{}
 	}
 
 }

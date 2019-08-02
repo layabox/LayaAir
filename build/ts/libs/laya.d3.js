@@ -504,6 +504,7 @@
 	    }
 	}
 	Config3D._default = new Config3D();
+	window.Config3D = Config3D;
 
 	class ILaya3D {
 	}
@@ -14030,7 +14031,7 @@
 	        destEmission.enbale = this.enbale;
 	    }
 	    clone() {
-	        var destEmission = new Vector3();
+	        var destEmission = new Emission();
 	        this.cloneTo(destEmission);
 	        return destEmission;
 	    }
@@ -15351,7 +15352,7 @@
 	        var renderMode = render.renderMode;
 	        if (renderMode !== -1 && this.maxParticles > 0) {
 	            var indices, i, j, m, indexOffset, perPartOffset, vertexDeclaration;
-	            var vbMemorySize, memorySize;
+	            var vbMemorySize = 0, memorySize = 0;
 	            var mesh = render.mesh;
 	            if (renderMode === 4) {
 	                if (mesh) {
@@ -15873,6 +15874,8 @@
 	        dest.simulationSpace = this.simulationSpace;
 	        dest.scaleMode = this.scaleMode;
 	        dest.playOnAwake = this.playOnAwake;
+	        dest.autoRandomSeed = this.autoRandomSeed;
+	        dest.randomSeed[0] = this.randomSeed[0];
 	        dest.maxParticles = this.maxParticles;
 	        (this._emission) && (dest._emission = this._emission.clone());
 	        (this.shape) && (dest.shape = this.shape.clone());
@@ -16912,6 +16915,11 @@
 	        destShape.z = this.z;
 	        destShape.randomDirection = this.randomDirection;
 	    }
+	    clone() {
+	        var destShape = new BoxShape();
+	        this.cloneTo(destShape);
+	        return destShape;
+	    }
 	}
 
 	class CircleShape extends BaseShape {
@@ -16979,6 +16987,11 @@
 	        destShape.arc = this.arc;
 	        destShape.emitFromEdge = this.emitFromEdge;
 	        destShape.randomDirection = this.randomDirection;
+	    }
+	    clone() {
+	        var destShape = new CircleShape();
+	        this.cloneTo(destShape);
+	        return destShape;
 	    }
 	}
 	CircleShape._tempPositionPoint = new Vector2();
@@ -17170,6 +17183,11 @@
 	        destShape.emitType = this.emitType;
 	        destShape.randomDirection = this.randomDirection;
 	    }
+	    clone() {
+	        var destShape = new ConeShape();
+	        this.cloneTo(destShape);
+	        return destShape;
+	    }
 	}
 	ConeShape._tempPositionPoint = new Vector2();
 	ConeShape._tempDirectionPoint = new Vector2();
@@ -17234,6 +17252,11 @@
 	        destShape.emitFromShell = this.emitFromShell;
 	        destShape.randomDirection = this.randomDirection;
 	    }
+	    clone() {
+	        var destShape = new HemisphereShape();
+	        this.cloneTo(destShape);
+	        return destShape;
+	    }
 	}
 
 	class SphereShape extends BaseShape {
@@ -17291,6 +17314,11 @@
 	        destShape.radius = this.radius;
 	        destShape.emitFromShell = this.emitFromShell;
 	        destShape.randomDirection = this.randomDirection;
+	    }
+	    clone() {
+	        var destShape = new SphereShape();
+	        this.cloneTo(destShape);
+	        return destShape;
 	    }
 	}
 
@@ -23330,7 +23358,7 @@
 	        var rightPartVertices = new Float32Array(this._vertices.buffer, nextIndex * floatCount * 4, (this._lineCount - nextIndex) * floatCount);
 	        this._vertices.set(rightPartVertices, offset);
 	        this._minUpdate = Math.min(this._minUpdate, offset);
-	        this._maxUpdate = Math.max(this._maxUpdate, offset + floatCount);
+	        this._maxUpdate = Math.max(this._maxUpdate, offset + rightPartVertices.length);
 	        this._lineCount--;
 	    }
 	    _updateLineData(index, startPosition, endPosition, startColor, endColor) {

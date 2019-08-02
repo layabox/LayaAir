@@ -103,6 +103,16 @@ export class BoxShape extends BaseShape {
 		destShape.randomDirection = this.randomDirection;
 	}
 
+	/**
+	 * 克隆。
+	 * @return	 克隆副本。
+	 */
+	clone(): any {
+		var destShape: BoxShape = new BoxShape();
+		this.cloneTo(destShape);
+		return destShape;
+	}
+
 }
 
 

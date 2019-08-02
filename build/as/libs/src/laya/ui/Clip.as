@@ -122,6 +122,11 @@ package laya.ui {
 		public function dispose():void{}
 
 		/*
+		 * @inheritDoc 
+		 */
+		protected function createChildren():void{}
+
+		/*
 		 * @private 
 		 * @override 
 		 */

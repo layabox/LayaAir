@@ -129,7 +129,6 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc 
-		 * @internal
 		*/
 		/*override*/ protected preinitialize():void {
 			this.mouseEnabled = true;
@@ -147,7 +146,6 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc 
-		 * @internal
 		*/
 		protected createChildren():void {
 			this.addChild(this._tf = new Input());
@@ -188,7 +186,6 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc 
-		 * @internal
 		*/
 		protected initialize():void {
 			this.width = 128;

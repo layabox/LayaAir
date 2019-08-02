@@ -145,7 +145,6 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc 
-		 * @internal
 		*/
 		protected createChildren():void {
 			this.addChild(this._tf = new Text());

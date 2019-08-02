@@ -175,6 +175,11 @@ package laya.ui {
 		 * @override 
 		 */
 		override public function destroy(destroyChild:Boolean = null):void{}
+
+		/*
+		 * @inheritDoc 
+		 */
+		protected function createChildren():void{}
 		private var onScrollStart:*;
 		private var onScrollEnd:*;
 
@@ -234,6 +239,11 @@ package laya.ui {
 		 * 垂直方向显示的单元格之间的间距（以像素为单位）。
 		 */
 		public var spaceY:Number;
+
+		/*
+		 * @private 更改单元格的信息。在此销毁、创建单元格，并设置单元格的位置等属性。相当于此列表内容发送改变时调用此函数。
+		 */
+		protected function changeCells():void{}
 		private var _getOneCell:*;
 		private var _createItems:*;
 		protected function createItem():Box{
@@ -429,6 +439,7 @@ package laya.ui {
 		 * @private 
 		 */
 		protected function _setCellChanged():void{}
+		protected function commitMeasure():void{}
 	}
 
 }

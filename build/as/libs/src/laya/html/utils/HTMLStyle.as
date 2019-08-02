@@ -1,5 +1,6 @@
 package laya.html.utils {
 	import laya.html.dom.HTMLElement;
+	import laya.net.URL;
 
 	/*
 	 * @private 
@@ -298,6 +299,13 @@ package laya.html.utils {
 		public static function parseOneCSS(text:String,clipWord:String):Array{
 			return null;
 		}
+
+		/*
+		 * 解析 CSS 样式文本。
+		 * @param text CSS 样式文本。
+		 * @param uri URL对象。
+		 */
+		public static function parseCSS(text:String,uri:URL):void{}
 	}
 
 }

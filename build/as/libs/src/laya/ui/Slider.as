@@ -130,6 +130,16 @@ package laya.ui {
 		override public function destroy(destroyChild:Boolean = null):void{}
 
 		/*
+		 * @inheritDoc 
+		 */
+		protected function createChildren():void{}
+
+		/*
+		 * @inheritDoc 
+		 */
+		protected function initialize():void{}
+
+		/*
 		 * @private 滑块的的 <code>Event.MOUSE_DOWN</code> 事件侦听处理函数。
 		 */
 		protected function onBarMouseDown(e:Event):void{}

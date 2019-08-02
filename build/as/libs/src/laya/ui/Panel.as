@@ -62,6 +62,11 @@ package laya.ui {
 
 		/*
 		 * @inheritDoc 
+		 */
+		protected function createChildren():void{}
+
+		/*
+		 * @inheritDoc 
 		 * @override 
 		 */
 		override public function addChild(child:Node):Node{

@@ -253,7 +253,6 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**@inheritDoc 
 		 * @override
-		 * @internal
 		*/
 		 protected createChildren():void {
 			this.graphics = this._bitmap = new AutoBitmap();
@@ -273,7 +272,6 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**@inheritDoc 
 		 * @override
-		 * @internal
 		*/
 		 protected initialize():void {
 			if (this._mouseState !== 1) {

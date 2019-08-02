@@ -114,6 +114,7 @@ package laya.ui {
 		 */
 
 		public function UIGroup(labels:String = undefined,skin:String = undefined){}
+		protected function preinitialize():void{}
 
 		/*
 		 * @inheritDoc 
@@ -253,6 +254,11 @@ package laya.ui {
 		 * @private 更改项对象的属性值。
 		 */
 		protected function changeLabels():void{}
+
+		/*
+		 * @inheritDoc 
+		 */
+		protected function commitMeasure():void{}
 
 		/*
 		 * 项对象们的存放数组。

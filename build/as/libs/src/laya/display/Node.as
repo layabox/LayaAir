@@ -49,6 +49,7 @@ package laya.display {
 		public var destroyed:Boolean;
 
 		public function Node(){}
+		public function createGLBuffer():void{}
 
 		/*
 		 * <p>增加事件侦听器，以使侦听器能够接收事件通知。</p>
@@ -211,6 +212,17 @@ package laya.display {
 		 * @return 当前节点对象。
 		 */
 		public function removeChildren(beginIndex:Number = null,endIndex:Number = null):Node{
+			return null;
+		}
+
+		/*
+		 * 替换子节点。
+		 * 将传入的新节点对象替换到已有子节点索引位置处。
+		 * @param newNode 新节点。
+		 * @param oldNode 老节点。
+		 * @return 返回新节点。
+		 */
+		public function replaceChild(newNode:Node,oldNode:Node):Node{
 			return null;
 		}
 

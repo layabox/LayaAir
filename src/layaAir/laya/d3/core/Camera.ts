@@ -26,6 +26,7 @@ import { RenderQueue } from "./render/RenderQueue";
 import { Scene3D } from "./scene/Scene3D";
 import { Scene3DShaderDeclaration } from "./scene/Scene3DShaderDeclaration";
 import { Laya } from "../../../Laya";
+import { Node } from "../../display/Node";
 
 /**
  * <code>Camera</code> 类用于创建摄像机。
@@ -619,6 +620,13 @@ export class Camera extends BaseCamera {
 			default:
 				throw "Camera:unknown event.";
 		}
+	}
+
+	/**
+	 * @internal
+	 */
+	protected _create(): Node {
+		return new Camera();
 	}
 
 	/** @internal [NATIVE]*/
