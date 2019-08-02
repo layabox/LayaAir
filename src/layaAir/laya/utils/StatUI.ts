@@ -44,7 +44,7 @@ export class StatUI extends IStatRender {
 	 */
 	show(x: number = 0, y: number = 0): void {
 		var dt: any = Stat;
-		if (!Browser.onMiniGame && !ILaya.Render.isConchApp && !Browser.onBDMiniGame && !Browser.onKGMiniGame && !Browser.onQGMiniGame) this._useCanvas = true;
+		if (!Browser.onMiniGame && !ILaya.Render.isConchApp && !Browser.onBDMiniGame && !Browser.onKGMiniGame && !Browser.onQGMiniGame && !Browser.onQQMiniGame) this._useCanvas = true;
 		this._show = true;
 		Stat._fpsData.length = 60;
 		this._view[0] = { title: "FPS(Canvas)", value: "_fpsStr", color: "yellow", units: "int" };

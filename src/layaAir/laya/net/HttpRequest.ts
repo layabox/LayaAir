@@ -2,6 +2,7 @@ import { URL } from "./URL";
 import { Event } from "../events/Event"
 	import { EventDispatcher } from "../events/EventDispatcher"
 	import { Utils } from "../utils/Utils"
+import { Browser } from "../utils/Browser";
 	
 	/**
 	 * 请求进度改变时调度。
@@ -44,6 +45,11 @@ import { Event } from "../events/Event"
 		 send(url:string, data:any = null, method:string = "get", responseType:string = "text", headers:any[] = null):void {
 			this._responseType = responseType;
 			this._data = null;
+			
+			if(Browser.onVVMiniGame && Browser.onQGMiniGame && Browser.onQQMiniGame)
+			{
+				url = encodeURI(url);
+			}
 			this._url = url;
 			var _this:HttpRequest = this;
 			var http = this._http;
