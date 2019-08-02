@@ -161,6 +161,8 @@ import {Event} from "laya/events/Event";
 			
 			var onerror:Function = function():void {
 				clear();
+				delete MiniFileMgr.fakeObj[sourceUrl];
+				delete MiniFileMgr.filesListObj[sourceUrl];
 				thisLoader.event(Event.ERROR, "Load image failed");
 			}
 			if (thisLoader._type == "nativeimage") {

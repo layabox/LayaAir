@@ -139,8 +139,10 @@ import { URL } from "laya/net/URL";
 				{
 					if(QQMiniAdapter.autoCacheFile || isSaveFile)
 					{
-						MiniFileMgr.copyFile(filePath, readyUrl, callBack,encoding,isAutoClear);
-					}
+						callBack != null && callBack.runWith([0, data]);
+						MiniFileMgr.copyFile(filePath, readyUrl, null,encoding,isAutoClear);
+					}else
+						callBack != null && callBack.runWith([0, data]);
 				}
 				else
 					callBack != null && callBack.runWith([0, data]);
