@@ -7054,7 +7054,7 @@
 	                break;
 	            case Laya.BaseTexture.RENDERTEXTURE_FORMAT_RGBA_HALF_FLOAT:
 	                if (Laya.LayaGL.layaGPUInstance._isWebGL2)
-	                    gl.texImage2D(this._glTextureType, 0, WebGL2RenderingContext.RGBA16F, width, height, 0, gl.RGBA, WebGL2RenderingContext.HALF_FLOAT, null);
+	                    gl.texImage2D(this._glTextureType, 0, gl.RGBA16F, width, height, 0, gl.RGBA, gl.HALF_FLOAT, null);
 	                else
 	                    gl.texImage2D(this._glTextureType, 0, gl.RGBA, width, height, 0, gl.RGBA, Laya.LayaGL.layaGPUInstance._oesTextureHalfFloat.HALF_FLOAT_OES, null);
 	                break;
@@ -8150,6 +8150,9 @@
 	            default:
 	                throw "Camera:unknown event.";
 	        }
+	    }
+	    _create() {
+	        return new Camera();
 	    }
 	}
 	Camera.CAMERAEVENT_POSTPROCESS = 0;

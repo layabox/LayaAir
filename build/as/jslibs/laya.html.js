@@ -989,7 +989,7 @@
 	    createOneLine(startWord, lastWords, hasLine, graphic, recList) {
 	        var lineY = lastWords.y + lastWords.height;
 	        if (hasLine)
-	            graphic.drawLine(startWord.x, lineY, lastWords.x + lastWords.width, lineY, this.color, 1);
+	            graphic.drawLine(startWord.x, lineY, lastWords.x + lastWords.width, lineY, this.style.color, 1);
 	        var hitRec = HTMLHitRect.create();
 	        hitRec.rec.setTo(startWord.x, lastWords.y, lastWords.x + lastWords.width - startWord.x, lastWords.height);
 	        hitRec.href = this.href;

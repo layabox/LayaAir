@@ -4,6 +4,8 @@ package laya.resource {
 	import laya.maths.Matrix;
 	import laya.maths.Point;
 	import laya.maths.Rectangle;
+	import laya.utils.HTMLChar;
+	import laya.utils.WordText;
 	import laya.webgl.shader.d2.value.Value2D;
 	import laya.webgl.shader.Shader;
 	import laya.webgl.submit.ISubmit;
