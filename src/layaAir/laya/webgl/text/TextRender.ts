@@ -1,18 +1,18 @@
 import { TextAtlas } from "./TextAtlas";
 import { TextTexture } from "./TextTexture";
 import { Sprite } from "../../display/Sprite"
-	import { Matrix } from "../../maths/Matrix"
-	import { Point } from "../../maths/Point"
-	import { RenderInfo } from "../../renders/RenderInfo"
-	import { Context } from "../../resource/Context"
-	import { Texture } from "../../resource/Texture"
-	import { FontInfo } from "../../utils/FontInfo"
-	import { HTMLChar } from "../../utils/HTMLChar"
-	import { WordText } from "../../utils/WordText"
-	import { CharRenderInfo } from "./CharRenderInfo"
-	import { CharRender_Canvas } from "./CharRender_Canvas"
-	import { CharRender_Native } from "./CharRender_Native"
-	import { ICharRender } from "./ICharRender"
+import { Matrix } from "../../maths/Matrix"
+import { Point } from "../../maths/Point"
+import { RenderInfo } from "../../renders/RenderInfo"
+import { Context } from "../../resource/Context"
+import { Texture } from "../../resource/Texture"
+import { FontInfo } from "../../utils/FontInfo"
+import { HTMLChar } from "../../utils/HTMLChar"
+import { WordText } from "../../utils/WordText"
+import { CharRenderInfo } from "./CharRenderInfo"
+import { CharRender_Canvas } from "./CharRender_Canvas"
+import { CharRender_Native } from "./CharRender_Native"
+import { ICharRender } from "./ICharRender"
 import { ILaya } from "../../../ILaya";
 
 	export class TextRender {
@@ -429,7 +429,11 @@ import { ILaya } from "../../../ILaya";
 			// 如果不存在，就要插入已有的，或者创建新的
 			var imgdt:ImageData = null;
 			// 先大约测量文字宽度 
-			var w1:number = Math.ceil(this.charRender.getWidth(this.fontStr, str) * this.fontScaleX);
+
+			if (!lineWidth){
+				lineWidth = 0;
+			}
+			var w1:number = Math.ceil((this.charRender.getWidth(this.fontStr, str) + 2 * lineWidth) * this.fontScaleX);
 			if (w1 > this.charRender.canvasWidth) {
 				this.charRender.canvasWidth = Math.min(2048, w1+ margin * 2);
 			}
@@ -450,7 +454,7 @@ import { ILaya } from "../../../ILaya";
 				var len:number = str.length;
 				if (len > 1) {
 					// emoji或者组合的
-				}					
+				}				
 				var lineExt:number = lineWidth*1 ;	// 这里，包括下面的*2 都尽量用整数。否则在取整以后可能有有偏移。
 				var fw:number = Math.ceil((this.fontSizeW+lineExt*2)*this.fontScaleX); 	//本来只要 lineWidth就行，但是这样安全一些
 				var fh:number = Math.ceil((this.fontSizeH+lineExt*2)*this.fontScaleY);
