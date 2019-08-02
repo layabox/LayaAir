@@ -23,6 +23,16 @@ package laya.ui {
 		 */
 
 		public function CheckBox(skin:String = undefined,label:String = undefined){}
+
+		/*
+		 * @inheritDoc 
+		 */
+		protected function preinitialize():void{}
+
+		/*
+		 * @inheritDoc 
+		 */
+		protected function initialize():void{}
 	}
 
 }

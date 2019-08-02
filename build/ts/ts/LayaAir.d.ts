@@ -1451,6 +1451,16 @@ declare module laya.components {
 		readonly destroyed:boolean;
 
 		/*
+		 * [实现IListPool接口]
+		 */
+		_getIndexInList():number;
+
+		/*
+		 * [实现IListPool接口]
+		 */
+		_setIndexInList(index:number):void;
+
+		/*
 		 * 重置组件参数到默认值，如果实现了这个函数，则组件会被重置并且自动回收到对象池，方便下次复用
 		 * 如果没有重置，则不进行回收复用
 		 * 此方法为虚方法，使用时重写覆盖即可
@@ -2194,6 +2204,11 @@ declare module laya.d3.component {
 		_clearReference():void;
 
 		/*
+		 * 获取动画状态。
+		 */
+		getAnimatorState(name:string):laya.d3.component.AnimatorState;
+
+		/*
 		 * 添加动画状态。
 		 * @param state 动画状态。
 		 * @param layerIndex 层索引。
@@ -2206,6 +2221,11 @@ declare module laya.d3.component {
 		 * @param layerIndex 层索引。
 		 */
 		removeState(state:laya.d3.component.AnimatorState):void;
+
+		/*
+		 * 销毁。
+		 */
+		destroy():void;
 
 		/*
 		 * 克隆。
@@ -3095,6 +3115,12 @@ declare module laya.d3.core {
 		 */
 		_isLayerVisible(layer:number):boolean;
 		private _calculationViewport:any;
+
+		/*
+		 * @param shader 着色器
+		 * @param replacementTag 替换标记。
+		 */
+		render(shader?:laya.d3.shader.Shader3D,replacementTag?:string):void;
 
 		/*
 		 * 计算从屏幕空间生成的射线。
@@ -7945,6 +7971,12 @@ declare module laya.d3.core.particleShuriKen.module.shape {
 		 * @override 
 		 */
 		cloneTo(destObject:any):void;
+
+		/*
+		 * 克隆。
+		 * @return 克隆副本。
+		 */
+		clone():any;
 	}
 
 }
@@ -7990,6 +8022,12 @@ declare module laya.d3.core.particleShuriKen.module.shape {
 		 * @override 
 		 */
 		cloneTo(destObject:any):void;
+
+		/*
+		 * 克隆。
+		 * @return 克隆副本。
+		 */
+		clone():any;
 	}
 
 }
@@ -8039,6 +8077,12 @@ declare module laya.d3.core.particleShuriKen.module.shape {
 		 * @override 
 		 */
 		cloneTo(destObject:any):void;
+
+		/*
+		 * 克隆。
+		 * @return 克隆副本。
+		 */
+		clone():any;
 	}
 
 }
@@ -8078,6 +8122,12 @@ declare module laya.d3.core.particleShuriKen.module.shape {
 		 * @override 
 		 */
 		cloneTo(destObject:any):void;
+
+		/*
+		 * 克隆。
+		 * @return 克隆副本。
+		 */
+		clone():any;
 	}
 
 }
@@ -8137,6 +8187,12 @@ declare module laya.d3.core.particleShuriKen.module.shape {
 		 * @override 
 		 */
 		cloneTo(destObject:any):void;
+
+		/*
+		 * 克隆。
+		 * @return 克隆副本。
+		 */
+		clone():any;
 	}
 
 }
@@ -21658,6 +21714,7 @@ declare module laya.display {
 		destroyed:boolean;
 
 		constructor();
+		createGLBuffer():void;
 
 		/*
 		 * <p>增加事件侦听器，以使侦听器能够接收事件通知。</p>
@@ -21794,6 +21851,15 @@ declare module laya.display {
 		 * @return 当前节点对象。
 		 */
 		removeChildren(beginIndex?:number,endIndex?:number):Node;
+
+		/*
+		 * 替换子节点。
+		 * 将传入的新节点对象替换到已有子节点索引位置处。
+		 * @param newNode 新节点。
+		 * @param oldNode 老节点。
+		 * @return 返回新节点。
+		 */
+		replaceChild(newNode:Node,oldNode:Node):Node;
 
 		/*
 		 * 子对象数量。
@@ -26636,6 +26702,13 @@ declare module laya.html.utils {
 		 * @return 样式列表。
 		 */
 		static parseOneCSS(text:string,clipWord:string):any[];
+
+		/*
+		 * 解析 CSS 样式文本。
+		 * @param text CSS 样式文本。
+		 * @param uri URL对象。
+		 */
+		static parseCSS(text:string,uri:laya.net.URL):void;
 	}
 
 }
@@ -32645,6 +32718,59 @@ declare module laya.renders {
 		/*
 		 * @private 
 		 */
+
+		/*
+		 * @private 
+		 */
+
+		/*
+		 * @private 
+		 */
+
+		/*
+		 * @private 
+		 */
+
+		/*
+		 * @private 
+		 */
+
+		/*
+		 * @private 
+		 */
+
+		/*
+		 * @private 
+		 */
+
+		/*
+		 * @private 
+		 */
+
+		/*
+		 * @private 
+		 */
+
+		/*
+		 * @private 
+		 */
+
+		/*
+		 * @private 
+		 */
+
+		/*
+		 * @private 
+		 */
+
+		/*
+		 * @private 
+		 */
+		static INIT:number;
+
+		/*
+		 * @private 
+		 */
 		static renders:any[];
 
 		/*
@@ -33793,6 +33919,11 @@ declare module laya.resource {
 		/*
 		 * @private 
 		 */
+		_setCreateURL(url:string):void;
+
+		/*
+		 * @private 
+		 */
 		protected _recoverResource():void;
 
 		/*
@@ -34575,9 +34706,21 @@ declare module laya.ui {
 		destroy(destroyChild?:boolean):void;
 
 		/*
+		 * @inheritDoc 
+		 * @override 
+		 */
+		protected createChildren():void;
+
+		/*
 		 * @private 
 		 */
 		protected createText():void;
+
+		/*
+		 * @inheritDoc 
+		 * @override 
+		 */
+		protected initialize():void;
 
 		/*
 		 * 对象的 <code>Event.MOUSE_OVER、Event.MOUSE_OUT、Event.MOUSE_DOWN、Event.MOUSE_UP、Event.CLICK</code> 事件侦听处理函数。
@@ -34782,6 +34925,16 @@ declare module laya.ui {
 
 		/*
 		 * @inheritDoc 
+		 */
+		protected preinitialize():void;
+
+		/*
+		 * @inheritDoc 
+		 */
+		protected initialize():void;
+
+		/*
+		 * @inheritDoc 
 		 * @override 
 		 */
 		dataSource:any;
@@ -34907,6 +35060,11 @@ declare module laya.ui {
 		 * 销毁对象并释放加载的皮肤资源。
 		 */
 		dispose():void;
+
+		/*
+		 * @inheritDoc 
+		 */
+		protected createChildren():void;
 
 		/*
 		 * @private 
@@ -35148,6 +35306,16 @@ declare module laya.ui {
 		 * @override 
 		 */
 		destroy(destroyChild?:boolean):void;
+
+		/*
+		 * @inheritDoc 
+		 */
+		protected createChildren():void;
+
+		/*
+		 * @inheritDoc 
+		 */
+		protected initialize():void;
 		private onPanelMouseDown:any;
 
 		/*
@@ -35357,6 +35525,11 @@ declare module laya.ui {
 		 * @override 
 		 */
 		destroy(destroyChild?:boolean):void;
+
+		/*
+		 * @inheritDoc 
+		 */
+		protected createChildren():void;
 		private _createList:any;
 		private _setListEvent:any;
 
@@ -35942,6 +36115,7 @@ declare module laya.ui {
 		 */
 
 		constructor(skin?:string,sheet?:string);
+		protected createChildren():void;
 
 		/*
 		 * 资源加载完毕
@@ -36073,6 +36247,11 @@ declare module laya.ui {
 	 * @example import HScrollBar = laya.ui.HScrollBar;import Handler = laya.utils.Handler;class HScrollBar_Example {    private hScrollBar: HScrollBar;    constructor() {        Laya.init(640, 800);//设置游戏画布宽高。        Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。        Laya.loader.load(["resource/ui/hscroll.png", "resource/ui/hscroll$bar.png", "resource/ui/hscroll$down.png", "resource/ui/hscroll$up.png"], Handler.create(this, this.onLoadComplete));//加载资源。    }    private onLoadComplete(): void {        this.hScrollBar = new HScrollBar();//创建一个 HScrollBar 类的实例对象 hScrollBar 。        this.hScrollBar.skin = "resource/ui/hscroll.png";//设置 hScrollBar 的皮肤。        this.hScrollBar.x = 100;//设置 hScrollBar 对象的属性 x 的值，用于控制 hScrollBar 对象的显示位置。        this.hScrollBar.y = 100;//设置 hScrollBar 对象的属性 y 的值，用于控制 hScrollBar 对象的显示位置。        this.hScrollBar.changeHandler = new Handler(this, this.onChange);//设置 hScrollBar 的滚动变化处理器。        Laya.stage.addChild(this.hScrollBar);//将此 hScrollBar 对象添加到显示列表。    }    private onChange(value: number): void {        console.log("滚动条的位置： value=" + value);    }}
 	 */
 	class HScrollBar extends laya.ui.ScrollBar  {
+
+		/*
+		 * @inheritDoc 
+		 */
+		protected initialize():void;
 	}
 
 }
@@ -36168,6 +36347,12 @@ declare module laya.ui {
 		 * 销毁对象并释放加载的皮肤资源。
 		 */
 		dispose():void;
+
+		/*
+		 * @inheritDoc 
+		 * @override 
+		 */
+		protected createChildren():void;
 
 		/*
 		 * <p>对象的皮肤地址，以字符串表示。</p>
@@ -36300,6 +36485,11 @@ declare module laya.ui {
 		 * @override 
 		 */
 		destroy(destroyChild?:boolean):void;
+
+		/*
+		 * @inheritDoc 
+		 */
+		protected createChildren():void;
 
 		/*
 		 * 当前文本内容字符串。
@@ -36707,6 +36897,11 @@ declare module laya.ui {
 
 		/*
 		 * @inheritDoc 
+		 */
+		protected createChildren():void;
+
+		/*
+		 * @inheritDoc 
 		 * @override 
 		 */
 		cacheAs:string;
@@ -36776,6 +36971,11 @@ declare module laya.ui {
 		 * 垂直方向显示的单元格之间的间距（以像素为单位）。
 		 */
 		spaceY:number;
+
+		/*
+		 * @private 更改单元格的信息。在此销毁、创建单元格，并设置单元格的位置等属性。相当于此列表内容发送改变时调用此函数。
+		 */
+		protected changeCells():void;
 		private _getOneCell:any;
 		private _createItems:any;
 		protected createItem():laya.ui.Box;
@@ -36969,6 +37169,7 @@ declare module laya.ui {
 		 * @private 
 		 */
 		protected _setCellChanged():void;
+		protected commitMeasure():void;
 	}
 
 }
@@ -37028,6 +37229,11 @@ declare module laya.ui {
 		 * @override 
 		 */
 		destroyChildren():void;
+
+		/*
+		 * @inheritDoc 
+		 */
+		protected createChildren():void;
 
 		/*
 		 * @inheritDoc 
@@ -37248,6 +37454,11 @@ declare module laya.ui {
 		destroy(destroyChild?:boolean):void;
 
 		/*
+		 * @inheritDoc 
+		 */
+		protected createChildren():void;
+
+		/*
 		 * @copy laya.ui.Image#skin
 		 */
 		skin:string;
@@ -37342,6 +37553,12 @@ declare module laya.ui {
 		 * @override 
 		 */
 		destroy(destroyChild?:boolean):void;
+		protected preinitialize():void;
+
+		/*
+		 * @inheritDoc 
+		 */
+		protected initialize():void;
 
 		/*
 		 * @private 对象的<code>Event.CLICK</code>事件侦听处理函数。
@@ -37572,6 +37789,8 @@ declare module laya.ui {
 		 * @override 
 		 */
 		destroy(destroyChild?:boolean):void;
+		protected createChildren():void;
+		protected initialize():void;
 
 		/*
 		 * @private 滑块位置发生改变的处理函数。
@@ -37892,6 +38111,16 @@ declare module laya.ui {
 		destroy(destroyChild?:boolean):void;
 
 		/*
+		 * @inheritDoc 
+		 */
+		protected createChildren():void;
+
+		/*
+		 * @inheritDoc 
+		 */
+		protected initialize():void;
+
+		/*
 		 * @private 滑块的的 <code>Event.MOUSE_DOWN</code> 事件侦听处理函数。
 		 */
 		protected onBarMouseDown(e:laya.events.Event):void;
@@ -38138,6 +38367,11 @@ declare module laya.ui {
 		/*
 		 * @override 
 		 */
+		protected initialize():void;
+
+		/*
+		 * @override 
+		 */
 		width:number;
 
 		/*
@@ -38245,9 +38479,19 @@ declare module laya.ui {
 
 		/*
 		 * @inheritDoc 
+		 */
+		protected preinitialize():void;
+
+		/*
+		 * @inheritDoc 
 		 * @override 
 		 */
 		destroy(destroyChild?:boolean):void;
+
+		/*
+		 * @inheritDoc 
+		 */
+		protected createChildren():void;
 
 		/*
 		 * @private 
@@ -38268,6 +38512,11 @@ declare module laya.ui {
 		 * @private 
 		 */
 		private _onEnter:any;
+
+		/*
+		 * @inheritDoc 
+		 */
+		protected initialize():void;
 
 		/*
 		 * 表示此对象包含的文本背景 <code>AutoBitmap</code> 组件实例。
@@ -38489,6 +38738,7 @@ declare module laya.ui {
 		 * @override 
 		 */
 		destroy(destroyChild?:boolean):void;
+		protected createChildren():void;
 
 		/*
 		 * @private 此对象包含的<code>List</code>实例的<code>Event.CHANGE</code>事件侦听处理函数。
@@ -38731,6 +38981,24 @@ declare module laya.ui {
 		destroy(destroyChild?:boolean):void;
 
 		/*
+		 * <p>预初始化。</p>
+		 * 子类可在此函数内设置、修改属性默认值
+		 */
+		protected preinitialize():void;
+
+		/*
+		 * <p>创建并添加控件子节点。</p>
+		 * 子类可在此函数内创建并添加子节点。
+		 */
+		protected createChildren():void;
+
+		/*
+		 * <p>控件初始化。</p>
+		 * 在此子对象已被创建，可以对子对象进行修改。
+		 */
+		protected initialize():void;
+
+		/*
 		 * <p>表示显示对象的宽度，以像素为单位。</p>
 		 * <p><b>注：</b>当值为0时，宽度为自适应大小。</p>
 		 * @override 
@@ -38751,6 +39019,14 @@ declare module laya.ui {
 		 * <p>显示对象的实际显示区域宽度（以像素为单位）。</p>
 		 */
 		protected measureWidth():number;
+
+		/*
+		 * <p>立即执行影响宽高度量的延迟调用函数。</p>
+		 * <p>使用 <code>runCallLater</code> 函数，立即执行影响宽高度量的延迟运行函数(使用 <code>callLater</code> 设置延迟执行函数)。</p>
+		 * @see #callLater()
+		 * @see #runCallLater()
+		 */
+		protected commitMeasure():void;
 
 		/*
 		 * <p>表示显示对象的高度，以像素为单位。</p>
@@ -38816,6 +39092,12 @@ declare module laya.ui {
 		 */
 		centerY:number;
 		protected _sizeChanged():void;
+
+		/*
+		 * <p>对象的标签。</p>
+		 * 冗余字段，可以用来储存数据。
+		 */
+		tag:any;
 
 		/*
 		 * <p>鼠标悬停提示。</p>
@@ -39040,6 +39322,7 @@ declare module laya.ui {
 		 */
 
 		constructor(labels?:string,skin?:string);
+		protected preinitialize():void;
 
 		/*
 		 * @inheritDoc 
@@ -39175,6 +39458,11 @@ declare module laya.ui {
 		 * @private 更改项对象的属性值。
 		 */
 		protected changeLabels():void;
+
+		/*
+		 * @inheritDoc 
+		 */
+		protected commitMeasure():void;
 
 		/*
 		 * 项对象们的存放数组。
@@ -39367,6 +39655,13 @@ declare module laya.ui {
 		static regComponent(key:string,compClass:new () => any):void;
 
 		/*
+		 * @private 兼容老版本注册UI视图类的逻辑处理类。注册runtime解析。
+		 * @param key UI视图类的关键字。
+		 * @param compClass UI视图类对应的逻辑处理类。
+		 */
+		static regViewRuntime(key:string,compClass:new () => any):void;
+
+		/*
 		 * @private 兼容老版本注册UI配置信息，比如注册一个路径为"test/TestPage"的页面，UI内容是IDE生成的json
 		 * @param url UI的路径
 		 * @param json UI内容
@@ -39475,6 +39770,13 @@ declare module laya.ui {
 		 * @param views 视图对象数组。
 		 */
 		setItems(views:any[]):void;
+
+		/*
+		 * 添加视图。
+		 * 添加视图对象，并设置此视图对象的<code>name</code> 属性。
+		 * @param view 需要添加的视图对象。
+		 */
+		addItem(view:laya.display.Node):void;
 
 		/*
 		 * 初始化视图对象集合。
@@ -44238,6 +44540,15 @@ declare module laya.webgl.text {
 		constructor(maxw:number,maxh:number,scalefont?:boolean,useImageData?:boolean,showdbg?:boolean);
 
 		/*
+		 * @override 
+		 */
+
+		/*
+		 * @override 
+		 */
+		canvasWidth:number;
+
+		/*
 		 * @param font 
 		 * @param str 
 		 * @override 
@@ -44825,6 +45136,12 @@ declare module laya.webgl.utils {
 		 * @param gl 
 		 */
 		private configVAO:any;
+
+		/*
+		 * 应用这个mesh
+		 * @param gl 
+		 */
+		useMesh(gl:WebGLRenderingContext):void;
 		getEleNum():number;
 
 		/*
@@ -45336,6 +45653,11 @@ declare module laya.webgl {
 		 * 微信小游戏是否需要在主域中自动将加载的文本数据自动传递到子域，默认 false*
 		 */
 		static isWXPosMsg:boolean;
+
+		/*
+		 * 兼容as3编译工具
+		 */
+		static __init(_classs:any):void;
 
 		/*
 		 * 初始化引擎。使用引擎需要先初始化引擎，否则可能会报错。

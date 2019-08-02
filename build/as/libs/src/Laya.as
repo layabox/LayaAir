@@ -71,6 +71,11 @@ package  {
 		public static var isWXPosMsg:Boolean;
 
 		/*
+		 * 兼容as3编译工具
+		 */
+		public static function __init(_classs:*):void{}
+
+		/*
 		 * 初始化引擎。使用引擎需要先初始化引擎，否则可能会报错。
 		 * @param width 初始化的游戏窗口宽度，又称设计宽度。
 		 * @param height 初始化的游戏窗口高度，又称设计高度。

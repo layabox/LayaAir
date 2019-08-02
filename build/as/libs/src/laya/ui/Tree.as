@@ -66,6 +66,7 @@ package laya.ui {
 		 * @override 
 		 */
 		override public function destroy(destroyChild:Boolean = null):void{}
+		protected function createChildren():void{}
 
 		/*
 		 * @private 此对象包含的<code>List</code>实例的<code>Event.CHANGE</code>事件侦听处理函数。

@@ -164,6 +164,11 @@ package laya.resource {
 		/*
 		 * @private 
 		 */
+		public function _setCreateURL(url:String):void{}
+
+		/*
+		 * @private 
+		 */
 		protected function _recoverResource():void{}
 
 		/*

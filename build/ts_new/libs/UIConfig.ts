@@ -13,4 +13,5 @@
 		/**模式窗口点击边缘，是否关闭窗口，默认是关闭的*/
 		 static closeDialogOnSide:boolean = true;
 	}
+	(window as any).UIConfig = UIConfig;
 

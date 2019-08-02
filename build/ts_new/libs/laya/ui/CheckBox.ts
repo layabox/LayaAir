@@ -97,7 +97,6 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc 
-		 * @internal
 		*/
 		 protected preinitialize():void {
 			super.preinitialize();
@@ -107,7 +106,6 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc 
-		 * @internal
 		*/
 		 protected initialize():void {
 			super.initialize();

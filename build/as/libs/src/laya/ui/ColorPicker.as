@@ -95,6 +95,16 @@ package laya.ui {
 		 * @override 
 		 */
 		override public function destroy(destroyChild:Boolean = null):void{}
+
+		/*
+		 * @inheritDoc 
+		 */
+		protected function createChildren():void{}
+
+		/*
+		 * @inheritDoc 
+		 */
+		protected function initialize():void{}
 		private var onPanelMouseDown:*;
 
 		/*

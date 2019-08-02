@@ -46,6 +46,12 @@ package laya.ui {
 		public function dispose():void{}
 
 		/*
+		 * @inheritDoc 
+		 * @override 
+		 */
+		override protected function createChildren():void{}
+
+		/*
 		 * <p>对象的皮肤地址，以字符串表示。</p>
 		 * <p>如果资源未加载，则先加载资源，加载完成后应用于此对象。</p>
 		 * <b>注意：</b>资源加载完成后，会自动缓存至资源库中。

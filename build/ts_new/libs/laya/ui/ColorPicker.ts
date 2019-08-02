@@ -180,7 +180,6 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc 
-		 * @internal
 		*/
 		/*override*/ protected createChildren():void {
 			this.addChild(this._colorButton = new Button());
@@ -193,7 +192,6 @@ import { ClassUtils } from "../utils/ClassUtils";
 		
 		/**
 		 * @inheritDoc 
-		 * @internal
 		*/
 		/*override*/ protected initialize():void {
 			this._colorButton.on(Event.CLICK, this, this.onColorButtonClick);

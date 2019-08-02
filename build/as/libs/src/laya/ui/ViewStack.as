@@ -31,6 +31,13 @@ package laya.ui {
 		public function setItems(views:Array):void{}
 
 		/*
+		 * 添加视图。
+		 * 添加视图对象，并设置此视图对象的<code>name</code> 属性。
+		 * @param view 需要添加的视图对象。
+		 */
+		public function addItem(view:Node):void{}
+
+		/*
 		 * 初始化视图对象集合。
 		 */
 		public function initItems():void{}

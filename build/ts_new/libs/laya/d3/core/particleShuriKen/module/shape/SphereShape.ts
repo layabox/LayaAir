@@ -93,6 +93,16 @@ export class SphereShape extends BaseShape {
 		destShape.emitFromShell = this.emitFromShell;
 		destShape.randomDirection = this.randomDirection;
 	}
+
+	/**
+	 * 克隆。
+	 * @return	 克隆副本。
+	 */
+	clone(): any {
+		var destShape: SphereShape = new SphereShape();
+		this.cloneTo(destShape);
+		return destShape;
+	}
 }
 
 
