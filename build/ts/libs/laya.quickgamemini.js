@@ -61,6 +61,8 @@ window.qgMiniGame = function (exports, Laya) {
 	                        callBack != null && callBack.runWith([0, data]);
 	                        MiniFileMgr.copyFile(filePath, readyUrl, null, encoding, isAutoClear);
 	                    }
+	                    else
+	                        callBack != null && callBack.runWith([0, data]);
 	                }
 	                else
 	                    callBack != null && callBack.runWith([0, data]);
@@ -1382,6 +1384,8 @@ window.qgMiniGame = function (exports, Laya) {
 	        }
 	        var onerror = function () {
 	            clear();
+	            delete MiniFileMgr.fakeObj[sourceUrl];
+	            delete MiniFileMgr.filesListObj[sourceUrl];
 	            thisLoader.event(Laya.Event.ERROR, "Load image failed");
 	        };
 	        if (thisLoader._type == "nativeimage") {

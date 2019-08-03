@@ -2,5 +2,4 @@ bin
 node_modules
 .rpt2_cache
 .cache
-build
 /src/generateDoc/doc

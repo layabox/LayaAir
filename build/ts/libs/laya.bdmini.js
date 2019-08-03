@@ -60,6 +60,8 @@ window.bdMiniGame = function (exports, Laya) {
 	                    if (BMiniAdapter.autoCacheFile || isSaveFile) {
 	                        MiniFileMgr.copyFile(filePath, readyUrl, callBack, encoding, isAutoClear);
 	                    }
+	                    else
+	                        callBack != null && callBack.runWith([0, data]);
 	                }
 	                else
 	                    callBack != null && callBack.runWith([0, data]);
@@ -1394,6 +1396,8 @@ window.bdMiniGame = function (exports, Laya) {
 	        }
 	        var onerror = function () {
 	            clear();
+	            delete MiniFileMgr.fakeObj[sourceUrl];
+	            delete MiniFileMgr.filesListObj[sourceUrl];
 	            thisLoader.event(Laya.Event.ERROR, "Load image failed");
 	        };
 	        if (thisLoader._type == "nativeimage") {

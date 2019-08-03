@@ -220,8 +220,8 @@ import { IHtml } from "../utils/IHtml";
 			}
 		}
 		
-		 get style():HTMLStyle {
-			return (<HTMLStyle>this._style );
+		 get style() {
+			return this._style;
 		}
 		/**@internal */
 		 _getWords():HTMLChar[] {
@@ -354,8 +354,8 @@ import { IHtml } from "../utils/IHtml";
 			return HTMLElement.formatURL1(url, this.URI ? this.URI.path : null);
 		}
 		
-		 set color(value:string) {
-			this.style.color = value;
+		set color(value:string) {
+            this.style.color = value;
 		}
 		
 		 set className(value:string) {
@@ -474,7 +474,7 @@ import { IHtml } from "../utils/IHtml";
 		{
 			var lineY:number = lastWords.y + lastWords.height;
 			if(hasLine)
-				graphic.drawLine(startWord.x, lineY, lastWords.x + lastWords.width, lineY, this.color, 1);
+				graphic.drawLine(startWord.x, lineY, lastWords.x + lastWords.width, lineY, this.style.color, 1);
 			var hitRec:HTMLHitRect = HTMLHitRect.create();
 			hitRec.rec.setTo(startWord.x, lastWords.y, lastWords.x + lastWords.width - startWord.x, lastWords.height);
 			hitRec.href = this.href;

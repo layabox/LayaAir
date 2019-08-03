@@ -5845,7 +5845,7 @@
 	        var camPos = context.camera._transform.position;
 	        for (i = 0; i < validCount; i++) {
 	            var render = renders[i];
-	            if (camera._isLayerVisible(render._owner._layer) && render._enable && scene._cullingBufferResult[i]) {
+	            if (!camera.useOcclusionCulling || (camera._isLayerVisible(render._owner._layer) && render._enable && scene._cullingBufferResult[i])) {
 	                render._visible = true;
 	                render._distanceForSort = Vector3.distance(render.bounds.getCenter(), camPos);
 	                var elements = render._renderElements;
@@ -7054,7 +7054,7 @@
 	                break;
 	            case Laya.BaseTexture.RENDERTEXTURE_FORMAT_RGBA_HALF_FLOAT:
 	                if (Laya.LayaGL.layaGPUInstance._isWebGL2)
-	                    gl.texImage2D(this._glTextureType, 0, WebGL2RenderingContext.RGBA16F, width, height, 0, gl.RGBA, WebGL2RenderingContext.HALF_FLOAT, null);
+	                    gl.texImage2D(this._glTextureType, 0, gl.RGBA16F, width, height, 0, gl.RGBA, gl.HALF_FLOAT, null);
 	                else
 	                    gl.texImage2D(this._glTextureType, 0, gl.RGBA, width, height, 0, gl.RGBA, Laya.LayaGL.layaGPUInstance._oesTextureHalfFloat.HALF_FLOAT_OES, null);
 	                break;
@@ -8150,6 +8150,9 @@
 	            default:
 	                throw "Camera:unknown event.";
 	        }
+	    }
+	    _create() {
+	        return new Camera();
 	    }
 	}
 	Camera.CAMERAEVENT_POSTPROCESS = 0;

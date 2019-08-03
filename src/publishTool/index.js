@@ -50,6 +50,10 @@ function start() {
         if (!tsCongfig.length || (yield compile())) { //确认编译结果
             checkAllDir("");
         }
+        else {
+            child_process.exec("pause");
+            child_process.exec("exit");
+        }
     });
 }
 function compile() {
@@ -81,6 +85,9 @@ function compile() {
                 if (err)
                     console.log("tsc fail ", tsConfigUrl);
                 start(err);
+            });
+            tscLayaAir.on("error", (err) => {
+                console.log("Error :", err);
             });
         }
     });
