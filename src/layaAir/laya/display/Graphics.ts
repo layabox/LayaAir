@@ -2,39 +2,39 @@ import { Sprite } from "./Sprite";
 import { GraphicsBounds } from "./GraphicsBounds";
 import { SpriteConst } from "./SpriteConst";
 import { AlphaCmd } from "./cmd/AlphaCmd"
-	import { ClipRectCmd } from "./cmd/ClipRectCmd"
-	import { Draw9GridTexture } from "./cmd/Draw9GridTexture"
-	import { DrawCircleCmd } from "./cmd/DrawCircleCmd"
-	import { DrawCurvesCmd } from "./cmd/DrawCurvesCmd"
-	import { DrawImageCmd } from "./cmd/DrawImageCmd"
-	import { DrawLineCmd } from "./cmd/DrawLineCmd"
-	import { DrawLinesCmd } from "./cmd/DrawLinesCmd"
-	import { DrawPathCmd } from "./cmd/DrawPathCmd"
-	import { DrawPieCmd } from "./cmd/DrawPieCmd"
-	import { DrawPolyCmd } from "./cmd/DrawPolyCmd"
-	import { DrawRectCmd } from "./cmd/DrawRectCmd"
-	import { DrawTextureCmd } from "./cmd/DrawTextureCmd"
-	import { DrawTexturesCmd } from "./cmd/DrawTexturesCmd"
-	import { DrawTrianglesCmd } from "./cmd/DrawTrianglesCmd"
-	import { FillBorderWordsCmd } from "./cmd/FillBorderWordsCmd"
-	import { FillTextCmd } from "./cmd/FillTextCmd"
-	import { FillTextureCmd } from "./cmd/FillTextureCmd"
-	import { FillWordsCmd } from "./cmd/FillWordsCmd"
-	import { RestoreCmd } from "./cmd/RestoreCmd"
-	import { RotateCmd } from "./cmd/RotateCmd"
-	import { SaveCmd } from "./cmd/SaveCmd"
-	import { ScaleCmd } from "./cmd/ScaleCmd"
-	import { TransformCmd } from "./cmd/TransformCmd"
-	import { TranslateCmd } from "./cmd/TranslateCmd"
-	import { Event } from "../events/Event"
-	import { Matrix } from "../maths/Matrix"
-	import { Point } from "../maths/Point"
-	import { Rectangle } from "../maths/Rectangle"
-	import { Render } from "../renders/Render"
-	import { Context } from "../resource/Context"
-	import { Texture } from "../resource/Texture"
-	import { Utils } from "../utils/Utils"
-	import { VectorGraphManager } from "../utils/VectorGraphManager"
+import { ClipRectCmd } from "./cmd/ClipRectCmd"
+import { Draw9GridTexture } from "./cmd/Draw9GridTexture"
+import { DrawCircleCmd } from "./cmd/DrawCircleCmd"
+import { DrawCurvesCmd } from "./cmd/DrawCurvesCmd"
+import { DrawImageCmd } from "./cmd/DrawImageCmd"
+import { DrawLineCmd } from "./cmd/DrawLineCmd"
+import { DrawLinesCmd } from "./cmd/DrawLinesCmd"
+import { DrawPathCmd } from "./cmd/DrawPathCmd"
+import { DrawPieCmd } from "./cmd/DrawPieCmd"
+import { DrawPolyCmd } from "./cmd/DrawPolyCmd"
+import { DrawRectCmd } from "./cmd/DrawRectCmd"
+import { DrawTextureCmd } from "./cmd/DrawTextureCmd"
+import { DrawTexturesCmd } from "./cmd/DrawTexturesCmd"
+import { DrawTrianglesCmd } from "./cmd/DrawTrianglesCmd"
+import { FillBorderWordsCmd } from "./cmd/FillBorderWordsCmd"
+import { FillTextCmd } from "./cmd/FillTextCmd"
+import { FillTextureCmd } from "./cmd/FillTextureCmd"
+import { FillWordsCmd } from "./cmd/FillWordsCmd"
+import { RestoreCmd } from "./cmd/RestoreCmd"
+import { RotateCmd } from "./cmd/RotateCmd"
+import { SaveCmd } from "./cmd/SaveCmd"
+import { ScaleCmd } from "./cmd/ScaleCmd"
+import { TransformCmd } from "./cmd/TransformCmd"
+import { TranslateCmd } from "./cmd/TranslateCmd"
+import { Event } from "../events/Event"
+import { Matrix } from "../maths/Matrix"
+import { Point } from "../maths/Point"
+import { Rectangle } from "../maths/Rectangle"
+import { Render } from "../renders/Render"
+import { Context } from "../resource/Context"
+import { Texture } from "../resource/Texture"
+import { Utils } from "../utils/Utils"
+import { VectorGraphManager } from "../utils/VectorGraphManager"
 import { ILaya } from "../../ILaya";
 import { HTMLChar } from "../utils/HTMLChar";
 
@@ -374,7 +374,7 @@ import { HTMLChar } from "../utils/HTMLChar";
 		 * @param textAlign 文本对齐方式，可选值："left"，"center"，"right"。
 		 */
 		 fillText(text:string, x:number, y:number, font:string, color:string, textAlign:string):FillTextCmd {
-			return this._saveToCmd(Render._context.fillText, FillTextCmd.create.call(this, text, x, y, font || ILaya.Text.defaultFontStr(), color, textAlign, 0, ""));
+			return this._saveToCmd(Render._context.fillText, FillTextCmd.create.call(this, text, null, x, y, font || ILaya.Text.defaultFontStr(), color, textAlign, 0, ""));
 		}
 		
 		/**
@@ -388,19 +388,23 @@ import { HTMLChar } from "../utils/HTMLChar";
 		 * @param lineWidth		镶边线条宽度。
 		 * @param textAlign		文本对齐方式，可选值："left"，"center"，"right"。
 		 */
-		
+
 		fillBorderText(text:string, x:number, y:number, font:string, fillColor:string, textAlign:string, lineWidth:number, borderColor:string): FillTextCmd {
-			return this._saveToCmd(Render._context.fillText, FillTextCmd.create.call(this, text, x, y, font || ILaya.Text.defaultFontStr(), fillColor, borderColor, lineWidth, textAlign));
+			return this._saveToCmd(Render._context.fillText, FillTextCmd.create.call(this, text, null, x, y, font || ILaya.Text.defaultFontStr(), fillColor, borderColor, lineWidth, textAlign));
 		}
 		
 		/*** @private */
-		 fillWords(words:HTMLChar[], x:number, y:number, font:string, color:string):FillWordsCmd {
-			return this._saveToCmd(Render._context.fillWords, FillWordsCmd.create.call(this, words, x, y, font || ILaya.Text.defaultFontStr(), color));
-		}
+
 		
+		fillWords(words:any[], x: number, y: number, font: string, color: string): FillTextCmd {
+			return this._saveToCmd(Render._context.fillText, FillTextCmd.create.call(this, null, words, x, y, font||ILaya.Text.defaultFontStr(), color));
+		}
+
 		/*** @private */
-		 fillBorderWords(words:any[], x:number, y:number, font:string, fillColor:string, borderColor:string, lineWidth:number):FillBorderWordsCmd {
-			return this._saveToCmd(Render._context.fillBorderWords, FillBorderWordsCmd.create.call(this, words, x, y, font || ILaya.Text.defaultFontStr(), fillColor, borderColor, lineWidth));
+
+
+		fillBorderWords(words:any[], x:number, y:number, font:string, fillColor:string, borderColor:string, lineWidth:number):FillTextCmd {
+			return this._saveToCmd(Render._context.fillText, FillTextCmd.create.call(this, null, words, x, y, font || ILaya.Text.defaultFontStr(), fillColor, "", lineWidth, borderColor));
 		}
 		
 		/**
@@ -413,9 +417,12 @@ import { HTMLChar } from "../utils/HTMLChar";
 		 * @param lineWidth	线条宽度。
 		 * @param textAlign	文本对齐方式，可选值："left"，"center"，"right"。
 		 */
+
 		 strokeText(text:string, x:number, y:number, font:string, color:string, lineWidth:number, textAlign:string):FillTextCmd {
-			return this._saveToCmd(Render._context.fillText, FillTextCmd.create.call(this, text, x, y, font || ILaya.Text.defaultFontStr(), color, textAlign, lineWidth, ""));
+			return this._saveToCmd(Render._context.fillText, FillTextCmd.create.call(this, text, null, x, y, font || ILaya.Text.defaultFontStr(), color, textAlign, lineWidth, ""));
+		 
 		}
+		
 		/**
 		 * 设置透明度。
 		 * @param value 透明度。

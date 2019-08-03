@@ -207,7 +207,7 @@ import { Event } from "laya/events/Event";
 							MiniFileMgr.readFile(url, encoding, new Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType,  thisLoader]), url);
 						}else
 						{
-							MiniFileMgr.downFiles(tempurl, encoding, new Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType,  thisLoader]), tempurl,true);
+							MiniFileMgr.downFiles(encodeURI(tempurl), encoding, new Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType,  thisLoader]), tempurl,true);
 						}
 					}
 				}
@@ -271,7 +271,7 @@ import { Event } from "laya/events/Event";
 						thisLoader._loadImage(url);//直接读取本地文件，非加载缓存的图片
 					}else
 					{
-						MiniFileMgr.downOtherFiles(tempUrl, new Handler(MiniLoader, MiniLoader.onDownImgCallBack, [url, thisLoader]), tempUrl);
+						MiniFileMgr.downOtherFiles(encodeURI(tempUrl), new Handler(MiniLoader, MiniLoader.onDownImgCallBack, [url, thisLoader]), tempUrl);
 					}
 				}
 				else
