@@ -432,7 +432,7 @@ import { ILaya } from "../../ILaya";
 				ILaya.loader.load(url, Handler.create(this, function(bit:any):void{
 					this.bitmap = bit;
 					onok && onok();
-				}), null, "htmlimage", 1,true, null, false);	
+				}), null, "htmlimage", 1,true, null, true);	
 			}
 		}
 		
