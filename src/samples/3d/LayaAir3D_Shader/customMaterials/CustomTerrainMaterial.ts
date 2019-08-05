@@ -1,8 +1,8 @@
 import { BaseMaterial } from "laya/d3/core/material/BaseMaterial";
 import { Vector2 } from "laya/d3/math/Vector2";
 import { Shader3D } from "laya/d3/shader/Shader3D";
-import { ShaderDefines } from "laya/d3/shader/ShaderDefines";
 import { BaseTexture } from "laya/resource/BaseTexture";
+import { ShaderDefine } from "../../../../../bin/tsc/layaAir/laya/d3/shader/ShaderDefine";
 
 /**
  * ...
@@ -22,25 +22,21 @@ export class CustomTerrainMaterial extends BaseMaterial {
 	static DIFFUSESCALE5: number = Shader3D.propertyNameToID("u_DiffuseScale5");
 
 	/**自定义地形材质细节宏定义。*/
-	static SHADERDEFINE_DETAIL_NUM1: number;
-	static SHADERDEFINE_DETAIL_NUM2: number;
-	static SHADERDEFINE_DETAIL_NUM3: number;
-	static SHADERDEFINE_DETAIL_NUM4: number;
-	static SHADERDEFINE_DETAIL_NUM5: number;
-
-	/**@private */
-	static shaderDefines: ShaderDefines = null;
+	static SHADERDEFINE_DETAIL_NUM1: ShaderDefine;
+	static SHADERDEFINE_DETAIL_NUM2: ShaderDefine;
+	static SHADERDEFINE_DETAIL_NUM3: ShaderDefine;
+	static SHADERDEFINE_DETAIL_NUM4: ShaderDefine;
+	static SHADERDEFINE_DETAIL_NUM5: ShaderDefine;
 
 	/**
 	 * @private
 	 */
 	static __init__(): void {
-		CustomTerrainMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
-		CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM1 = CustomTerrainMaterial.shaderDefines.registerDefine("CUSTOM_DETAIL_NUM1");
-		CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM2 = CustomTerrainMaterial.shaderDefines.registerDefine("CUSTOM_DETAIL_NUM2");
-		CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM3 = CustomTerrainMaterial.shaderDefines.registerDefine("CUSTOM_DETAIL_NUM3");
-		CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM4 = CustomTerrainMaterial.shaderDefines.registerDefine("CUSTOM_DETAIL_NUM4");
-		CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM5 = CustomTerrainMaterial.shaderDefines.registerDefine("CUSTOM_DETAIL_NUM5");
+		CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM1 = Shader3D.getDefineByName("CUSTOM_DETAIL_NUM1");
+		CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM2 = Shader3D.getDefineByName("CUSTOM_DETAIL_NUM2");
+		CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM3 = Shader3D.getDefineByName("CUSTOM_DETAIL_NUM3");
+		CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM4 = Shader3D.getDefineByName("CUSTOM_DETAIL_NUM4");
+		CustomTerrainMaterial.SHADERDEFINE_DETAIL_NUM5 = Shader3D.getDefineByName("CUSTOM_DETAIL_NUM5");
 	}
 
 	/**

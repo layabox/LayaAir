@@ -3,14 +3,15 @@ import { RenderState } from "laya/d3/core/material/RenderState";
 import { VertexMesh } from "laya/d3/graphics/Vertex/VertexMesh";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { Shader3D } from "laya/d3/shader/Shader3D";
-import { ShaderDefines } from "laya/d3/shader/ShaderDefines";
 import { ShaderPass } from "laya/d3/shader/ShaderPass";
 import { SubShader } from "laya/d3/shader/SubShader";
 import { BaseTexture } from "laya/resource/BaseTexture";
+import { ShaderDefine } from "laya/d3/shader/ShaderDefine";
 import OutlineFS from "../customShader/outline.fs";
 import OutlineVS from "../customShader/outline.vs";
 import Outline02FS from "../customShader/outline02.fs";
 import Outline02VS from "../customShader/outline02.vs";
+
 
 /**
  * ...
@@ -22,15 +23,13 @@ export class MultiplePassOutlineMaterial extends BaseMaterial {
 	static OUTLINEWIDTH: number = Shader3D.propertyNameToID("u_OutlineWidth");
 	static OUTLINELIGHTNESS: number = Shader3D.propertyNameToID("u_OutlineLightness");
 
-	static SHADERDEFINE_ALBEDOTEXTURE: number;
-	/**@private */
-	static shaderDefines: ShaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
+	static SHADERDEFINE_ALBEDOTEXTURE: ShaderDefine;
 
 	/**
 	 * @private
 	 */
 	static __init__(): void {
-		MultiplePassOutlineMaterial.SHADERDEFINE_ALBEDOTEXTURE = MultiplePassOutlineMaterial.shaderDefines.registerDefine("ALBEDOTEXTURE");
+		MultiplePassOutlineMaterial.SHADERDEFINE_ALBEDOTEXTURE = Shader3D.getDefineByName("ALBEDOTEXTURE");
 	}
 	/**
 	 * 获取漫反射贴图。
@@ -114,7 +113,7 @@ export class MultiplePassOutlineMaterial extends BaseMaterial {
 		};
 
 		var customShader: Shader3D = Shader3D.add("MultiplePassOutlineShader");
-		var subShader: SubShader = new SubShader(attributeMap, uniformMap, MultiplePassOutlineMaterial.shaderDefines);
+		var subShader: SubShader = new SubShader(attributeMap, uniformMap);
 		customShader.addSubShader(subShader);
 		var pass1: ShaderPass = subShader.addShaderPass(OutlineVS, OutlineFS);
 		pass1.renderState.cull = RenderState.CULL_FRONT;

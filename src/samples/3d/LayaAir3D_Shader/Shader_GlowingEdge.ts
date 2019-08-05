@@ -122,7 +122,7 @@ export class Shader_GlowingEdge {
 		//创建自定义shader
 		var glowingEdgeShader: Shader3D = Shader3D.add("GlowingEdgeMaterial");
 		//为当前自定义的shader添加SubShader
-		var subShader: SubShader = new SubShader(attributeMap, uniformMap, SkinnedMeshSprite3D.shaderDefines);
+		var subShader: SubShader = new SubShader(attributeMap, uniformMap);
 		glowingEdgeShader.addSubShader(subShader);
 		//SubShader添加ShaderPass
 		(<ShaderPass>subShader.addShaderPass(GlowingEdgeShaderVS, GlowingEdgeShaderFS));
