@@ -346,16 +346,17 @@ export class ShurikenParticleData {
 			}
 
 			var frame: FrameOverTime = textureSheetAnimation.frame;
+			var cycles: number = textureSheetAnimation.cycles;
 			switch (frame.type) {
 				case 0:
-					startFrameCount += frame.constant;
+					startFrameCount += frame.constant * cycles;
 					break;
 				case 2:
 					if (autoRandomSeed) {
-						startFrameCount += MathUtil.lerp(frame.constantMin, frame.constantMax, Math.random());
+						startFrameCount += MathUtil.lerp(frame.constantMin, frame.constantMax, Math.random()) * cycles;
 					} else {
 						rand.seed = randomSeeds[15];
-						startFrameCount += MathUtil.lerp(frame.constantMin, frame.constantMax, rand.getFloat());
+						startFrameCount += MathUtil.lerp(frame.constantMin, frame.constantMax, rand.getFloat()) * cycles;
 						randomSeeds[15] = rand.seed;
 					}
 					break;
