@@ -179,10 +179,10 @@ import { ILaya } from "../../../ILaya";
 			this._fast_filltext(ctx, (<WordText>data ), null, x, y, font, color, strokeColor, lineWidth, nTextAlign, underLine);
 		}
 		
-		 fillWords(ctx:Context, data:HTMLChar[], x:number, y:number, fontStr:string, color:string, strokeColor:string, lineWidth:number):void {
+		 fillWords(ctx:Context, data:HTMLChar[], x:number, y:number, fontStr:string|FontInfo, color:string, strokeColor:string, lineWidth:number):void {
 			if (!data) return;
 			if (data.length <= 0) return;
-			var font:FontInfo = FontInfo.Parse(fontStr);
+			var font:FontInfo = typeof(fontStr)==='string' ? FontInfo.Parse(fontStr):fontStr;
 			this._fast_filltext(ctx, null, data, x, y, font, color, strokeColor, lineWidth, 0, 0);
 		}		
 		
