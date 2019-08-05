@@ -16,10 +16,8 @@ import { DrawRectCmd } from "./cmd/DrawRectCmd"
 import { DrawTextureCmd } from "./cmd/DrawTextureCmd"
 import { DrawTexturesCmd } from "./cmd/DrawTexturesCmd"
 import { DrawTrianglesCmd } from "./cmd/DrawTrianglesCmd"
-import { FillBorderWordsCmd } from "./cmd/FillBorderWordsCmd"
 import { FillTextCmd } from "./cmd/FillTextCmd"
 import { FillTextureCmd } from "./cmd/FillTextureCmd"
-import { FillWordsCmd } from "./cmd/FillWordsCmd"
 import { RestoreCmd } from "./cmd/RestoreCmd"
 import { RotateCmd } from "./cmd/RotateCmd"
 import { SaveCmd } from "./cmd/SaveCmd"
@@ -419,8 +417,7 @@ import { HTMLChar } from "../utils/HTMLChar";
 		 */
 
 		 strokeText(text:string, x:number, y:number, font:string, color:string, lineWidth:number, textAlign:string):FillTextCmd {
-			return this._saveToCmd(Render._context.fillText, FillTextCmd.create.call(this, text, null, x, y, font || ILaya.Text.defaultFontStr(), color, textAlign, lineWidth, ""));
-		 
+			return this._saveToCmd(Render._context.fillText, FillTextCmd.create.call(this, text, null, x, y, font || ILaya.Text.defaultFontStr(), null, textAlign, lineWidth, color));
 		}
 		
 		/**
@@ -543,10 +540,7 @@ import { HTMLChar } from "../utils/HTMLChar";
 			var cmdID:string = cmdO.cmdID;
 			switch (cmdID) {
 			case FillTextCmd.ID: 
-				cmdO.color = color;
-				break;
-			case FillBorderWordsCmd.ID: 
-				cmdO.fillColor = color;
+				(cmdO as FillTextCmd).color = color;
 				break;
 			}
 		}

@@ -448,7 +448,8 @@ export class Context {
 	 */
 	sprite: Sprite = null;
 
-	private static _textRender: TextRender = null;// new TextRender();
+    /**@internal */
+	public static _textRender: TextRender = null;// new TextRender();
 	/**@internal */
 	_italicDeg: number = 0;//文字的倾斜角度
 	/**@internal */
@@ -799,93 +800,29 @@ export class Context {
 		//_other.font === FontInContext.EMPTY ? (_other.font = new FontInContext(str)) : (_other.font.setFont(str));
 	}
 
-	//TODO:coverage
-	fillText(txt: string, x: number, y: number, fontStr: string, color: string, align: string, lineWidth: number = 0, borderColor: string = ""): void {
-		this._fillText(txt, null, x, y, fontStr, color, borderColor, lineWidth, align);
+	fillText(txt: string|WordText, x: number, y: number, fontStr: string, color: string, align: string, lineWidth: number = 0, borderColor: string = ""): void {
+        Context._textRender.filltext(this,txt,x,y,fontStr,color,borderColor,lineWidth,align);
+    }
+    // 与fillText的区别是没有border信息
+	drawText(text: string|WordText, x: number, y: number, font: string, color: string, textAlign: string): void {
+        Context._textRender.filltext(this,text,x,y,font,color,null,0,textAlign);
 	}
-
-	/**
-	 * 
-	 * @param	txt
-	 * @param	words		HTMLChar 数组，是已经在外面排好版的一个数组
-	 * @param	x
-	 * @param	y
-	 * @param	fontStr
-	 * @param	color
-	 * @param	strokeColor
-	 * @param	lineWidth
-	 * @param	textAlign
-	 * @param	underLine
-	 */
-	private _fillText(txt: string|WordText, words: HTMLChar[], x: number, y: number, fontStr: string, color: string, strokeColor: string, lineWidth: number, textAlign: string, underLine: number = 0): void {
-		/*
-		if (!window.testft) {
-			//测试文字
-			var teststr = 'a丠両丢丣两严並丧丨丩个丫丬中丮丯';
-			_charBook.filltext(this, teststr, 0, 0, 'normal 100 66px 华文行楷', '#ff0000');
-			window.testft = true;
-		}
-		*/
-		if (txt)
-			Context._textRender.filltext(this, txt, x, y, fontStr, color, strokeColor, lineWidth, textAlign, underLine);
-		else if (words)
-			Context._textRender.fillWords(this, words, x, y, fontStr, color, strokeColor, lineWidth);
-	}
-
-	/**@internal */
-	_fast_filltext(data: WordText, x: number, y: number, fontObj: any, color: string, strokeColor: string, lineWidth: number, textAlign: number, underLine: number = 0): void {
-		Context._textRender._fast_filltext(this, data, null, x, y, (<FontInfo>fontObj), color, strokeColor, lineWidth, textAlign, underLine);
-	}
-
 	fillWords(words: HTMLChar[], x: number, y: number, fontStr: string, color: string): void {
-		this._fillText(null, words, x, y, fontStr, color, null, -1, null, 0);
+        Context._textRender.fillWords(this, words, x, y, fontStr, color, null,0);
 	}
-
+	strokeWord(text: string|WordText, x: number, y: number, font: string, color: string, lineWidth: number, textAlign: string): void {
+        Context._textRender.filltext(this, text, x, y, font, null, color, lineWidth, textAlign);
+	}
+	fillBorderText(txt: string|WordText, x: number, y: number, font: string, color: string, borderColor: string, lineWidth: number, textAlign: string): void {
+        Context._textRender.filltext(this,txt,x,y,font,color, borderColor, lineWidth,textAlign);
+	}
 	fillBorderWords(words: HTMLChar[], x: number, y: number, font: string, color: string, borderColor: string, lineWidth: number): void {
-		this._fillBorderText(null, words, x, y, font, color, borderColor, lineWidth, null);
-	}
-
-	drawText(text: any, x: number, y: number, font: string, color: string, textAlign: string): void {
-		this._fillText(text, null, x, y, font, ColorUtils.create(color).strColor, null, -1, textAlign);
-	}
-
-	//public function fillText(txt:*, x:Number, y:Number, fontStr:String, color:String, textAlign:String):void {
-	//_fillText(txt, null, x, y, fontStr, color, null, -1, textAlign);
-	//}
-
-	/**
-	 * 只画边框
-	 * @param	text
-	 * @param	x
-	 * @param	y
-	 * @param	font
-	 * @param	color
-	 * @param	lineWidth
-	 * @param	textAlign
-	 */
-	strokeWord(text: any, x: number, y: number, font: string, color: string, lineWidth: number, textAlign: string): void {
-		//webgl绘制不了，需要解决
-		this._fillText(text, null, x, y, font, null, ColorUtils.create(color).strColor, lineWidth || 1, textAlign);
-	}
-
-	/**
-	 * 即画文字又画边框
-	 * @param	txt
-	 * @param	x
-	 * @param	y
-	 * @param	fontStr
-	 * @param	fillColor
-	 * @param	borderColor
-	 * @param	lineWidth
-	 * @param	textAlign
-	 */
-	fillBorderText(txt: string|WordText, x: number, y: number, fontStr: string, fillColor: string, borderColor: string, lineWidth: number, textAlign: string): void {
-		//webgl绘制不了，需要解决
-		this._fillBorderText(txt, null, x, y, fontStr, ColorUtils.create(fillColor).strColor, ColorUtils.create(borderColor).strColor, lineWidth, textAlign);
-	}
-
-	private _fillBorderText(txt: string|WordText, words: HTMLChar[], x: number, y: number, fontStr: string, fillColor: string, borderColor: string, lineWidth: number, textAlign: string): void {
-		this._fillText(txt, words, x, y, fontStr, fillColor, borderColor, lineWidth || 1, textAlign);
+        Context._textRender.fillWords(this,words,x,y,font,color, borderColor, lineWidth);
+    }
+    
+	/**@internal */
+	_fast_filltext(data: string|WordText, x: number, y: number, fontObj: any, color: string, strokeColor: string, lineWidth: number, textAlign: number, underLine: number = 0): void {
+		Context._textRender._fast_filltext(this, data, null, x, y, (<FontInfo>fontObj), color, strokeColor, lineWidth, textAlign, underLine);
 	}
 
 	private _fillRect(x: number, y: number, width: number, height: number, rgba: number): void {
@@ -2225,6 +2162,8 @@ export class Context {
 			y = _y1;//_curMat.b * _x1 + _curMat.d * _y1 + _curMat.ty;
 			lastx = _x1;
 			lasty = _y1;
+			this._path._lastOriX = x;
+			this._path._lastOriY = y;
 			this._path.addPoint(x, y);
 		}
 		var cvx: number = ptx1 - orix;
@@ -2245,6 +2184,8 @@ export class Context {
 				//var _tx1:Number = x, _ty1:Number = y;
 				//x = _curMat.a * _tx1 + _curMat.c * _ty1 + _curMat.tx;
 				//y = _curMat.b * _tx1 + _curMat.d * _ty1 + _curMat.ty;
+				this._path._lastOriX = x;
+				this._path._lastOriY = y;
 				this._path.addPoint(x, y);
 				lastx = x;
 				lasty = y;
