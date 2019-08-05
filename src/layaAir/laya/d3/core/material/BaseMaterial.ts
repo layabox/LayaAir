@@ -8,10 +8,10 @@ import { Vector4 } from "../../math/Vector4";
 import { DefineDatas } from "../../shader/DefineDatas";
 import { Shader3D } from "../../shader/Shader3D";
 import { ShaderData } from "../../shader/ShaderData";
-import { ShaderDefines } from "../../shader/ShaderDefines";
 import { IClone } from "../IClone";
 import { ClassUtils } from "../../../utils/ClassUtils";
 import { Laya } from "../../../../Laya";
+import { ShaderDefine } from "../../shader/ShaderDefine";
 
 /**
  * <code>BaseMaterial</code> 类用于创建材质。
@@ -31,9 +31,7 @@ export class BaseMaterial extends Resource implements IClone {
 	static ALPHATESTVALUE: number = Shader3D.propertyNameToID("u_AlphaTestValue");
 
 	/**材质级着色器宏定义,透明测试。*/
-	static SHADERDEFINE_ALPHATEST: number;
-
-	static shaderDefines: ShaderDefines = null;
+	static SHADERDEFINE_ALPHATEST: ShaderDefine = null;
 
 	/**
 	 * 加载材质。
@@ -48,8 +46,7 @@ export class BaseMaterial extends Resource implements IClone {
 	 * @internal
 	 */
 	static __initDefine__(): void {
-		BaseMaterial.shaderDefines = new ShaderDefines();
-		BaseMaterial.SHADERDEFINE_ALPHATEST = BaseMaterial.shaderDefines.registerDefine("ALPHATEST");
+		BaseMaterial.SHADERDEFINE_ALPHATEST = Shader3D.getDefineByName("ALPHATEST");
 	}
 
 	/**
@@ -110,7 +107,7 @@ export class BaseMaterial extends Resource implements IClone {
 						case "defines":
 							var defineNames: any[] = props[key];
 							for (i = 0, n = defineNames.length; i < n; i++) {
-								var define: number = material._shader.getSubShaderAt(0).getMaterialDefineByName(defineNames[i]);//TODO:是否取消defines
+								var define: ShaderDefine = Shader3D.getDefineByName(defineNames[i]);//TODO:是否取消defines
 								material._shaderValues.addDefine(define);
 							}
 							break;

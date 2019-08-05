@@ -1,6 +1,5 @@
 import { Vector4 } from "../../math/Vector4";
 import { Shader3D } from "../../shader/Shader3D";
-import { ShaderDefines } from "../../shader/ShaderDefines";
 import { BaseMaterial } from "../material/BaseMaterial";
 
 /**
@@ -12,8 +11,6 @@ export class PixelLineMaterial extends BaseMaterial {
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: PixelLineMaterial;
 
-	/**@internal */
-	static shaderDefines: ShaderDefines = null;
 
 	static CULL: number = Shader3D.propertyNameToID("s_Cull");
 	static BLEND: number = Shader3D.propertyNameToID("s_Blend");
@@ -26,7 +23,7 @@ export class PixelLineMaterial extends BaseMaterial {
 	* @internal
 	*/
 	static __initDefine__(): void {
-		PixelLineMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
+
 	}
 
 	/**

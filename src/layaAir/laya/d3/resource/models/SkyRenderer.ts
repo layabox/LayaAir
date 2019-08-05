@@ -14,13 +14,18 @@ import { SkyMesh } from "./SkyMesh";
 import { ShaderData } from "../../shader/ShaderData";
 import { ILaya } from "../../../../ILaya";
 import { Vector3 } from "../../math/Vector3";
+import { DefineDatas } from "../../shader/DefineDatas";
 
 /**
  * <code>SkyRenderer</code> 类用于实现天空渲染器。
  */
 export class SkyRenderer {
+	/** @internal */
 	private static _tempMatrix0: Matrix4x4 = new Matrix4x4();
+	/** @internal */
 	private static _tempMatrix1: Matrix4x4 = new Matrix4x4();
+	/** @internal */
+	private static _compileDefine: DefineDatas = new DefineDatas();
 
 	/** @internal */
 	private _material: BaseMaterial;
@@ -96,7 +101,9 @@ export class SkyRenderer {
 			WebGLContext.setCullFace(gl, false);
 			WebGLContext.setDepthFunc(gl, gl.LEQUAL);
 			WebGLContext.setDepthMask(gl, false);
-			var shader: ShaderInstance = state.shader = this._material._shader.getSubShaderAt(0)._passes[0].withCompile(0, 0, this._material._shaderValues._defineDatas.value);//TODO:调整SubShader代码
+			var comDef: DefineDatas = SkyRenderer._compileDefine;
+			this._material._shaderValues._defineDatas.cloneTo(comDef);
+			var shader: ShaderInstance = state.shader = this._material._shader.getSubShaderAt(0)._passes[0].withCompile(comDef);//TODO:调整SubShader代码
 			var switchShader: boolean = shader.bind();//纹理需要切换shader时重新绑定 其他uniform不需要
 			var switchShaderLoop: boolean = (Stat.loopCount !== shader._uploadMark);
 

@@ -1,29 +1,11 @@
 import { BaseTexture } from "../../resource/BaseTexture";
 import { Texture2D } from "../../resource/Texture2D";
-import { PostProcess } from "../component/PostProcess";
-import { BlinnPhongMaterial } from "../core/material/BlinnPhongMaterial";
-import { EffectMaterial } from "../core/material/EffectMaterial";
-import { ExtendTerrainMaterial } from "../core/material/ExtendTerrainMaterial";
-import { PBRSpecularMaterial } from "../core/material/PBRSpecularMaterial";
-import { PBRStandardMaterial } from "../core/material/PBRStandardMaterial";
 import { RenderState } from "../core/material/RenderState";
-import { SkyProceduralMaterial } from "../core/material/SkyProceduralMaterial";
-import { UnlitMaterial } from "../core/material/UnlitMaterial";
-import { WaterPrimaryMaterial } from "../core/material/WaterPrimaryMaterial";
-import { ShuriKenParticle3D } from "../core/particleShuriKen/ShuriKenParticle3D";
-import { ShurikenParticleMaterial } from "../core/particleShuriKen/ShurikenParticleMaterial";
-import { RenderableSprite3D } from "../core/RenderableSprite3D";
-import { SkinnedMeshSprite3D } from "../core/SkinnedMeshSprite3D";
-import { TrailMaterial } from "../core/trail/TrailMaterial";
-import { TrailSprite3D } from "../core/trail/TrailSprite3D";
 import { VertexTrail } from "../core/trail/VertexTrail";
 import { VertexMesh } from "../graphics/Vertex/VertexMesh";
 import { VertexShuriKenParticle } from "../graphics/Vertex/VertexShuriKenParticle";
 import { TextureGenerator } from "../resource/TextureGenerator";
 import { Utils3D } from "../utils/Utils3D";
-import { Shader3D } from "./Shader3D";
-import { ShaderPass } from "./ShaderPass";
-import { SubShader } from "./SubShader";
 import BlitScreenPS from "./files/BlitScreen.fs";
 import BlitScreenVS from "./files/BlitScreen.vs";
 import EffectPS from "./files/Effect.fs";
@@ -68,6 +50,9 @@ import UnlitPS from "./files/Unlit.fs";
 import UnlitVS from "./files/Unlit.vs";
 import WaterPrimaryPS from "./files/WaterPrimary.fs";
 import WaterPrimaryVS from "./files/WaterPrimary.vs";
+import { Shader3D } from "./Shader3D";
+import { ShaderPass } from "./ShaderPass";
+import { SubShader } from "./SubShader";
 
 
 
@@ -94,7 +79,7 @@ export class ShaderInit3D {
 		ShaderInit3D._rangeAttenTex.wrapModeU = BaseTexture.WARPMODE_CLAMP;
 		ShaderInit3D._rangeAttenTex.wrapModeV = BaseTexture.WARPMODE_CLAMP;
 		ShaderInit3D._rangeAttenTex.lock = true;
-		Shader3D.SHADERDEFINE_HIGHPRECISION = Shader3D.registerPublicDefine("HIGHPRECISION");
+		Shader3D.SHADERDEFINE_HIGHPRECISION = Shader3D.getDefineByName("HIGHPRECISION");
 
 
 		Shader3D.addInclude("Lighting.glsl", LightingGLSL);
@@ -171,7 +156,7 @@ export class ShaderInit3D {
 		}
 
 		var shader: Shader3D = Shader3D.add("BLINNPHONG", null, null, true);
-		var subShader: SubShader = new SubShader(attributeMap, uniformMap, SkinnedMeshSprite3D.shaderDefines, BlinnPhongMaterial.shaderDefines);
+		var subShader: SubShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		subShader.addShaderPass(MeshBlinnPhongVS, MeshBlinnPhongPS, stateMap);
 
@@ -272,7 +257,7 @@ export class ShaderInit3D {
 		}
 
 		shader = Shader3D.add("PBRStandard", null, null, true);
-		subShader = new SubShader(attributeMap, uniformMap, SkinnedMeshSprite3D.shaderDefines, PBRStandardMaterial.shaderDefines);
+		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		subShader.addShaderPass(PBRStandardVS, PBRStandardPS, stateMap);
 
@@ -350,7 +335,7 @@ export class ShaderInit3D {
 		}
 
 		shader = Shader3D.add("PBRSpecular", null, null, true);
-		subShader = new SubShader(attributeMap, uniformMap, SkinnedMeshSprite3D.shaderDefines, PBRSpecularMaterial.shaderDefines);
+		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 
 		subShader.addShaderPass(PBRSpecularVS, PBRSpecularPS, stateMap);
@@ -385,7 +370,7 @@ export class ShaderInit3D {
 		}
 
 		shader = Shader3D.add("Unlit", null, null, true);
-		subShader = new SubShader(attributeMap, uniformMap, SkinnedMeshSprite3D.shaderDefines, UnlitMaterial.shaderDefines);
+		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		subShader.addShaderPass(UnlitVS, UnlitPS, stateMap);
 
@@ -418,7 +403,7 @@ export class ShaderInit3D {
 		}
 
 		shader = Shader3D.add("Effect", null, null, true);
-		subShader = new SubShader(attributeMap, uniformMap, SkinnedMeshSprite3D.shaderDefines, EffectMaterial.shaderDefines);
+		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		subShader.addShaderPass(EffectVS, EffectPS, stateMap);
 
@@ -512,7 +497,7 @@ export class ShaderInit3D {
 		};
 
 		shader = Shader3D.add("PARTICLESHURIKEN");
-		subShader = new SubShader(attributeMap, uniformMap, ShuriKenParticle3D.shaderDefines, ShurikenParticleMaterial.shaderDefines);
+		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		subShader.addShaderPass(ParticleShuriKenVS, ParticleShuriKenPS, stateMap);
 
@@ -548,7 +533,7 @@ export class ShaderInit3D {
 		};
 
 		shader = Shader3D.add("SkyBoxProcedural");
-		subShader = new SubShader(attributeMap, uniformMap, null, SkyProceduralMaterial.shaderDefines);
+		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		subShader.addShaderPass(SkyBoxProceduralVS, SkyBoxProceduralPS);
 
@@ -608,7 +593,7 @@ export class ShaderInit3D {
 		};
 
 		shader = Shader3D.add("ExtendTerrain");
-		subShader = new SubShader(attributeMap, uniformMap, RenderableSprite3D.shaderDefines, ExtendTerrainMaterial.shaderDefines);
+		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		subShader.addShaderPass(extendTerrainVS, extendTerrainPS, stateMap);
 
@@ -645,7 +630,7 @@ export class ShaderInit3D {
 		};
 
 		shader = Shader3D.add("Trail");
-		subShader = new SubShader(attributeMap, uniformMap, TrailSprite3D.shaderDefines, TrailMaterial.shaderDefines);
+		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		subShader.addShaderPass(TrailVS, TrailPS, stateMap);
 
@@ -668,7 +653,7 @@ export class ShaderInit3D {
 		};
 
 		shader = Shader3D.add("WaterPrimary");
-		subShader = new SubShader(attributeMap, uniformMap, null, WaterPrimaryMaterial.shaderDefines);
+		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		subShader.addShaderPass(WaterPrimaryVS, WaterPrimaryPS);
 
@@ -683,7 +668,7 @@ export class ShaderInit3D {
 
 
 		shader = Shader3D.add("BlitScreen");
-		subShader = new SubShader(attributeMap, uniformMap, null, null);
+		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		var shaderPass: ShaderPass = subShader.addShaderPass(BlitScreenVS, BlitScreenPS);
 		var renderState: RenderState = shaderPass.renderState;
@@ -709,7 +694,7 @@ export class ShaderInit3D {
 		shader = Shader3D.add("PostProcessBloom", attributeMap, uniformMap);
 
 		//subShader0
-		subShader = new SubShader(null, null, null, null);
+		subShader = new SubShader(null, null);
 		shader.addSubShader(subShader);
 		shaderPass = subShader.addShaderPass(BloomVS, BloomPrefilter13PS);
 		renderState = shaderPass.renderState;
@@ -719,7 +704,7 @@ export class ShaderInit3D {
 		renderState.blend = RenderState.BLEND_DISABLE;
 
 		//subShader1
-		subShader = new SubShader(null, null, null, null);
+		subShader = new SubShader(null, null);
 		shader.addSubShader(subShader);
 		shaderPass = subShader.addShaderPass(BloomVS, BloomPrefilter4PS);
 		renderState = shaderPass.renderState;
@@ -729,7 +714,7 @@ export class ShaderInit3D {
 		renderState.blend = RenderState.BLEND_DISABLE;
 
 		//subShader2
-		subShader = new SubShader(null, null, null, null);
+		subShader = new SubShader(null, null);
 		shader.addSubShader(subShader);
 		shaderPass = subShader.addShaderPass(BloomVS, BloomDownsample13PS);
 		renderState = shaderPass.renderState;
@@ -739,7 +724,7 @@ export class ShaderInit3D {
 		renderState.blend = RenderState.BLEND_DISABLE;
 
 		//subShader3
-		subShader = new SubShader(null, null, null, null);
+		subShader = new SubShader(null, null);
 		shader.addSubShader(subShader);
 		shaderPass = subShader.addShaderPass(BloomVS, BloomDownsample4PS);
 		renderState = shaderPass.renderState;
@@ -749,7 +734,7 @@ export class ShaderInit3D {
 		renderState.blend = RenderState.BLEND_DISABLE;
 
 		//subShader4
-		subShader = new SubShader(null, null, null, null);
+		subShader = new SubShader(null, null);
 		shader.addSubShader(subShader);
 		shaderPass = subShader.addShaderPass(BloomVS, BloomUpsampleTentPS);
 		renderState = shaderPass.renderState;
@@ -759,7 +744,7 @@ export class ShaderInit3D {
 		renderState.blend = RenderState.BLEND_DISABLE;
 
 		//subShader5
-		subShader = new SubShader(null, null, null, null);
+		subShader = new SubShader(null, null);
 		shader.addSubShader(subShader);
 		shaderPass = subShader.addShaderPass(BloomVS, BloomUpsampleBoxPS);
 		renderState = shaderPass.renderState;
@@ -787,7 +772,7 @@ export class ShaderInit3D {
 		};
 		shader = Shader3D.add("PostProcessComposite", attributeMap, uniformMap);
 
-		subShader = new SubShader(null, null, null, PostProcess.shaderDefines);
+		subShader = new SubShader(null, null);
 		shader.addSubShader(subShader);
 		shaderPass = subShader.addShaderPass(CompositeVS, CompositePS);
 		renderState = shaderPass.renderState;

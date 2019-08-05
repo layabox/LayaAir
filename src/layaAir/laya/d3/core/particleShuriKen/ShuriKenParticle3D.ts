@@ -4,7 +4,6 @@ import { Color } from "../../math/Color";
 import { Vector2 } from "../../math/Vector2";
 import { Vector3 } from "../../math/Vector3";
 import { Vector4 } from "../../math/Vector4";
-import { ShaderDefines } from "../../shader/ShaderDefines";
 import { Gradient } from "../Gradient";
 import { RenderElement } from "../render/RenderElement";
 import { RenderableSprite3D } from "../RenderableSprite3D";
@@ -33,44 +32,42 @@ import { StartFrame } from "./module/StartFrame";
 import { TextureSheetAnimation } from "./module/TextureSheetAnimation";
 import { VelocityOverLifetime } from "./module/VelocityOverLifetime";
 import { ShuriKenParticle3DShaderDeclaration } from "./ShuriKenParticle3DShaderDeclaration";
+import { Shader3D } from "../../shader/Shader3D";
 
 /**
  * <code>ShuriKenParticle3D</code> 3D粒子。
  */
 export class ShuriKenParticle3D extends RenderableSprite3D {
-	/**@internal */
-	static shaderDefines: ShaderDefines;
 
 	/**
 	 * @internal
 	 */
 	static __init__(): void {
-		ShuriKenParticle3D.shaderDefines = new ShaderDefines(RenderableSprite3D.shaderDefines);
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RENDERMODE_BILLBOARD = ShuriKenParticle3D.shaderDefines.registerDefine("SPHERHBILLBOARD");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RENDERMODE_STRETCHEDBILLBOARD = ShuriKenParticle3D.shaderDefines.registerDefine("STRETCHEDBILLBOARD");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RENDERMODE_HORIZONTALBILLBOARD = ShuriKenParticle3D.shaderDefines.registerDefine("HORIZONTALBILLBOARD");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RENDERMODE_VERTICALBILLBOARD = ShuriKenParticle3D.shaderDefines.registerDefine("VERTICALBILLBOARD");
+		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RENDERMODE_BILLBOARD = Shader3D.getDefineByName("SPHERHBILLBOARD");
+		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RENDERMODE_STRETCHEDBILLBOARD = Shader3D.getDefineByName("STRETCHEDBILLBOARD");
+		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RENDERMODE_HORIZONTALBILLBOARD = Shader3D.getDefineByName("HORIZONTALBILLBOARD");
+		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RENDERMODE_VERTICALBILLBOARD = Shader3D.getDefineByName("VERTICALBILLBOARD");
 
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLOROVERLIFETIME = ShuriKenParticle3D.shaderDefines.registerDefine("COLOROVERLIFETIME");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RANDOMCOLOROVERLIFETIME = ShuriKenParticle3D.shaderDefines.registerDefine("RANDOMCOLOROVERLIFETIME");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMECONSTANT = ShuriKenParticle3D.shaderDefines.registerDefine("VELOCITYOVERLIFETIMECONSTANT");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMECURVE = ShuriKenParticle3D.shaderDefines.registerDefine("VELOCITYOVERLIFETIMECURVE");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMERANDOMCONSTANT = ShuriKenParticle3D.shaderDefines.registerDefine("VELOCITYOVERLIFETIMERANDOMCONSTANT");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMERANDOMCURVE = ShuriKenParticle3D.shaderDefines.registerDefine("VELOCITYOVERLIFETIMERANDOMCURVE");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_TEXTURESHEETANIMATIONCURVE = ShuriKenParticle3D.shaderDefines.registerDefine("TEXTURESHEETANIMATIONCURVE");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_TEXTURESHEETANIMATIONRANDOMCURVE = ShuriKenParticle3D.shaderDefines.registerDefine("TEXTURESHEETANIMATIONRANDOMCURVE");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIME = ShuriKenParticle3D.shaderDefines.registerDefine("ROTATIONOVERLIFETIME");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMESEPERATE = ShuriKenParticle3D.shaderDefines.registerDefine("ROTATIONOVERLIFETIMESEPERATE");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMECONSTANT = ShuriKenParticle3D.shaderDefines.registerDefine("ROTATIONOVERLIFETIMECONSTANT");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMECURVE = ShuriKenParticle3D.shaderDefines.registerDefine("ROTATIONOVERLIFETIMECURVE");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMERANDOMCONSTANTS = ShuriKenParticle3D.shaderDefines.registerDefine("ROTATIONOVERLIFETIMERANDOMCONSTANTS");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMERANDOMCURVES = ShuriKenParticle3D.shaderDefines.registerDefine("ROTATIONOVERLIFETIMERANDOMCURVES");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMECURVE = ShuriKenParticle3D.shaderDefines.registerDefine("SIZEOVERLIFETIMECURVE");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMECURVESEPERATE = ShuriKenParticle3D.shaderDefines.registerDefine("SIZEOVERLIFETIMECURVESEPERATE");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMERANDOMCURVES = ShuriKenParticle3D.shaderDefines.registerDefine("SIZEOVERLIFETIMERANDOMCURVES");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMERANDOMCURVESSEPERATE = ShuriKenParticle3D.shaderDefines.registerDefine("SIZEOVERLIFETIMERANDOMCURVESSEPERATE");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RENDERMODE_MESH = ShuriKenParticle3D.shaderDefines.registerDefine("RENDERMODE_MESH");
-		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SHAPE = ShuriKenParticle3D.shaderDefines.registerDefine("SHAPE");
+		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLOROVERLIFETIME = Shader3D.getDefineByName("COLOROVERLIFETIME");
+		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RANDOMCOLOROVERLIFETIME = Shader3D.getDefineByName("RANDOMCOLOROVERLIFETIME");
+		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMECONSTANT = Shader3D.getDefineByName("VELOCITYOVERLIFETIMECONSTANT");
+		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMECURVE = Shader3D.getDefineByName("VELOCITYOVERLIFETIMECURVE");
+		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMERANDOMCONSTANT = Shader3D.getDefineByName("VELOCITYOVERLIFETIMERANDOMCONSTANT");
+		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMERANDOMCURVE = Shader3D.getDefineByName("VELOCITYOVERLIFETIMERANDOMCURVE");
+		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_TEXTURESHEETANIMATIONCURVE = Shader3D.getDefineByName("TEXTURESHEETANIMATIONCURVE");
+		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_TEXTURESHEETANIMATIONRANDOMCURVE = Shader3D.getDefineByName("TEXTURESHEETANIMATIONRANDOMCURVE");
+		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIME = Shader3D.getDefineByName("ROTATIONOVERLIFETIME");
+		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMESEPERATE = Shader3D.getDefineByName("ROTATIONOVERLIFETIMESEPERATE");
+		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMECONSTANT = Shader3D.getDefineByName("ROTATIONOVERLIFETIMECONSTANT");
+		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMECURVE = Shader3D.getDefineByName("ROTATIONOVERLIFETIMECURVE");
+		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMERANDOMCONSTANTS = Shader3D.getDefineByName("ROTATIONOVERLIFETIMERANDOMCONSTANTS");
+		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMERANDOMCURVES = Shader3D.getDefineByName("ROTATIONOVERLIFETIMERANDOMCURVES");
+		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMECURVE = Shader3D.getDefineByName("SIZEOVERLIFETIMECURVE");
+		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMECURVESEPERATE = Shader3D.getDefineByName("SIZEOVERLIFETIMECURVESEPERATE");
+		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMERANDOMCURVES = Shader3D.getDefineByName("SIZEOVERLIFETIMERANDOMCURVES");
+		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMERANDOMCURVESSEPERATE = Shader3D.getDefineByName("SIZEOVERLIFETIMERANDOMCURVESSEPERATE");
+		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RENDERMODE_MESH = Shader3D.getDefineByName("RENDERMODE_MESH");
+		ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SHAPE = Shader3D.getDefineByName("SHAPE");
 	}
 
 	/** @internal */

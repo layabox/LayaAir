@@ -11,6 +11,7 @@ import { ScreenQuad } from "../ScreenQuad";
 import { ScreenTriangle } from "../ScreenTriangle";
 import { Command } from "./Command";
 import { LayaGL } from "../../../../layagl/LayaGL";
+import { DefineDatas } from "../../../shader/DefineDatas";
 
 /**
  * <code>BlitCMD</code> 类用于创建从一张渲染目标输出到另外一张渲染目标指令。
@@ -20,6 +21,8 @@ export class BlitScreenQuadCMD extends Command {
 	static _SCREENTYPE_QUAD: number = 0;
 	/**@internal */
 	static _SCREENTYPE_TRIANGLE: number = 1;
+	/** @internal */
+	private static _compileDefine: DefineDatas = new DefineDatas();
 
 	/**@internal */
 	private static _pool: any[] = [];
@@ -74,7 +77,9 @@ export class BlitScreenQuadCMD extends Command {
 		var subShader: SubShader = shader.getSubShaderAt(this._subShader);
 		var passes: ShaderPass[] = subShader._passes;
 		for (var i: number = 0, n: number = passes.length; i < n; i++) {
-			var shaderPass: ShaderInstance = passes[i].withCompile(0, 0, shaderData._defineDatas.value);//TODO:define处理
+			var comDef: DefineDatas = BlitScreenQuadCMD._compileDefine;
+			shaderData._defineDatas.cloneTo(comDef);
+			var shaderPass: ShaderInstance = passes[i].withCompile(comDef);//TODO:define处理
 			shaderPass.bind();
 			shaderPass.uploadUniforms(shaderPass._materialUniformParamsMap, shaderData, true);//TODO:最后一个参数处理
 			shaderPass.uploadRenderStateBlendDepth(shaderData);

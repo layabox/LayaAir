@@ -115,19 +115,19 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	static __init__(): void {
-		Scene3DShaderDeclaration.SHADERDEFINE_FOG = Shader3D.registerPublicDefine("FOG");
-		Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT = Shader3D.registerPublicDefine("DIRECTIONLIGHT");
-		Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT = Shader3D.registerPublicDefine("POINTLIGHT");
-		Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT = Shader3D.registerPublicDefine("SPOTLIGHT");
-		Scene3DShaderDeclaration.SHADERDEFINE_CAST_SHADOW = Shader3D.registerPublicDefine("CASTSHADOW");
-		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM1 = Shader3D.registerPublicDefine("SHADOWMAP_PSSM1");
-		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM2 = Shader3D.registerPublicDefine("SHADOWMAP_PSSM2");
-		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM3 = Shader3D.registerPublicDefine("SHADOWMAP_PSSM3");
-		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF_NO = Shader3D.registerPublicDefine("SHADOWMAP_PCF_NO");
-		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF1 = Shader3D.registerPublicDefine("SHADOWMAP_PCF1");
-		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF2 = Shader3D.registerPublicDefine("SHADOWMAP_PCF2");
-		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF3 = Shader3D.registerPublicDefine("SHADOWMAP_PCF3");
-		Scene3DShaderDeclaration.SHADERDEFINE_REFLECTMAP = Shader3D.registerPublicDefine("REFLECTMAP");
+		Scene3DShaderDeclaration.SHADERDEFINE_FOG = Shader3D.getDefineByName("FOG");
+		Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT = Shader3D.getDefineByName("DIRECTIONLIGHT");
+		Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT = Shader3D.getDefineByName("POINTLIGHT");
+		Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT = Shader3D.getDefineByName("SPOTLIGHT");
+		Scene3DShaderDeclaration.SHADERDEFINE_CAST_SHADOW = Shader3D.getDefineByName("CASTSHADOW");
+		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM1 = Shader3D.getDefineByName("SHADOWMAP_PSSM1");
+		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM2 = Shader3D.getDefineByName("SHADOWMAP_PSSM2");
+		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM3 = Shader3D.getDefineByName("SHADOWMAP_PSSM3");
+		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF_NO = Shader3D.getDefineByName("SHADOWMAP_PCF_NO");
+		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF1 = Shader3D.getDefineByName("SHADOWMAP_PCF1");
+		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF2 = Shader3D.getDefineByName("SHADOWMAP_PCF2");
+		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF3 = Shader3D.getDefineByName("SHADOWMAP_PCF3");
+		Scene3DShaderDeclaration.SHADERDEFINE_REFLECTMAP = Shader3D.getDefineByName("REFLECTMAP");
 	}
 
 

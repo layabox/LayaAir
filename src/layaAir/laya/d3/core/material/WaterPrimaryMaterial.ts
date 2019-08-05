@@ -1,8 +1,8 @@
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Vector4 } from "../../math/Vector4";
 import { Shader3D } from "../../shader/Shader3D";
-import { ShaderDefines } from "../../shader/ShaderDefines";
 import { BaseMaterial } from "./BaseMaterial";
+import { ShaderDefine } from "../../shader/ShaderDefine";
 
 /**
  * <code>WaterPrimaryMaterial</code> 类用于实现水材质。
@@ -15,22 +15,18 @@ export class WaterPrimaryMaterial extends BaseMaterial {
 	static WAVESCALE: number = Shader3D.propertyNameToID("u_WaveScale");
 	static WAVESPEED: number = Shader3D.propertyNameToID("u_WaveSpeed");
 
-	static SHADERDEFINE_MAINTEXTURE: number;
-	static SHADERDEFINE_NORMALTEXTURE: number;
+	static SHADERDEFINE_MAINTEXTURE: ShaderDefine;
+	static SHADERDEFINE_NORMALTEXTURE: ShaderDefine;
 
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: WaterPrimaryMaterial;
-
-	/**@internal */
-	static shaderDefines: ShaderDefines = null;
 
 	/**
 	 * @internal
 	 */
 	static __initDefine__(): void {
-		WaterPrimaryMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
-		WaterPrimaryMaterial.SHADERDEFINE_MAINTEXTURE = WaterPrimaryMaterial.shaderDefines.registerDefine("MAINTEXTURE");
-		WaterPrimaryMaterial.SHADERDEFINE_NORMALTEXTURE = WaterPrimaryMaterial.shaderDefines.registerDefine("NORMALTEXTURE");
+		WaterPrimaryMaterial.SHADERDEFINE_MAINTEXTURE = Shader3D.getDefineByName("MAINTEXTURE");
+		WaterPrimaryMaterial.SHADERDEFINE_NORMALTEXTURE = Shader3D.getDefineByName("NORMALTEXTURE");
 	}
 
 	/**

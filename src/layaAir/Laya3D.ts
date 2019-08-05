@@ -214,6 +214,7 @@ export class Laya3D {
 			Rigidbody3D.__init__();
 		}
 		
+		ShaderInit3D.__init__();
 		Mesh.__init__();
 		PrimitiveMesh.__init__();
 		Sprite3D.__init__();
@@ -239,7 +240,7 @@ export class Laya3D {
 		ExtendTerrainMaterial.__initDefine__();
 		PixelLineMaterial.__initDefine__();
 		SkyBoxMaterial.__initDefine__();
-		ShaderInit3D.__init__();
+		
 
 		Command.__init__();
 

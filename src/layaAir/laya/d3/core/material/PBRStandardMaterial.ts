@@ -1,10 +1,10 @@
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Vector4 } from "../../math/Vector4";
 import { Shader3D } from "../../shader/Shader3D";
-import { ShaderDefines } from "../../shader/ShaderDefines";
 import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
 import { BaseMaterial } from "./BaseMaterial";
 import { RenderState } from "./RenderState";
+import { ShaderDefine } from "../../shader/ShaderDefine";
 
 /**
  * <code>PBRStandardMaterial</code> 类用于实现PBR(Standard)材质。
@@ -25,17 +25,17 @@ export class PBRStandardMaterial extends BaseMaterial {
 	/**渲染状态_透明混合_物理上看似合理的透明。*/
 	static RENDERMODE_TRANSPARENT: number = 3;
 
-	static SHADERDEFINE_ALBEDOTEXTURE: number;
-	static SHADERDEFINE_NORMALTEXTURE: number;
-	static SHADERDEFINE_SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA: number;
-	static SHADERDEFINE_METALLICGLOSSTEXTURE: number;
-	static SHADERDEFINE_OCCLUSIONTEXTURE: number;
-	static SHADERDEFINE_PARALLAXTEXTURE: number;
-	static SHADERDEFINE_EMISSION: number;
-	static SHADERDEFINE_EMISSIONTEXTURE: number;
-	static SHADERDEFINE_REFLECTMAP: number;
-	static SHADERDEFINE_TILINGOFFSET: number;
-	static SHADERDEFINE_ALPHAPREMULTIPLY: number;
+	static SHADERDEFINE_ALBEDOTEXTURE: ShaderDefine;
+	static SHADERDEFINE_NORMALTEXTURE: ShaderDefine;
+	static SHADERDEFINE_SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA: ShaderDefine;
+	static SHADERDEFINE_METALLICGLOSSTEXTURE: ShaderDefine;
+	static SHADERDEFINE_OCCLUSIONTEXTURE: ShaderDefine;
+	static SHADERDEFINE_PARALLAXTEXTURE: ShaderDefine;
+	static SHADERDEFINE_EMISSION: ShaderDefine;
+	static SHADERDEFINE_EMISSIONTEXTURE: ShaderDefine;
+	static SHADERDEFINE_REFLECTMAP: ShaderDefine;
+	static SHADERDEFINE_TILINGOFFSET: ShaderDefine;
+	static SHADERDEFINE_ALPHAPREMULTIPLY: ShaderDefine;
 
 	static ALBEDOTEXTURE: number = Shader3D.propertyNameToID("u_AlbedoTexture");
 	static METALLICGLOSSTEXTURE: number = Shader3D.propertyNameToID("u_MetallicGlossTexture");
@@ -68,25 +68,21 @@ export class PBRStandardMaterial extends BaseMaterial {
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: PBRStandardMaterial;
 
-	/**@internal */
-	static shaderDefines: ShaderDefines = null;
-
 	/**
 	 * @internal
 	 */
 	static __initDefine__(): void {
-		PBRStandardMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
-		PBRStandardMaterial.SHADERDEFINE_ALBEDOTEXTURE = PBRStandardMaterial.shaderDefines.registerDefine("ALBEDOTEXTURE");
-		PBRStandardMaterial.SHADERDEFINE_METALLICGLOSSTEXTURE = PBRStandardMaterial.shaderDefines.registerDefine("METALLICGLOSSTEXTURE");
-		PBRStandardMaterial.SHADERDEFINE_SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA = PBRStandardMaterial.shaderDefines.registerDefine("SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA");
-		PBRStandardMaterial.SHADERDEFINE_NORMALTEXTURE = PBRStandardMaterial.shaderDefines.registerDefine("NORMALTEXTURE");
-		PBRStandardMaterial.SHADERDEFINE_PARALLAXTEXTURE = PBRStandardMaterial.shaderDefines.registerDefine("PARALLAXTEXTURE");
-		PBRStandardMaterial.SHADERDEFINE_OCCLUSIONTEXTURE = PBRStandardMaterial.shaderDefines.registerDefine("OCCLUSIONTEXTURE");
-		PBRStandardMaterial.SHADERDEFINE_EMISSION = PBRStandardMaterial.shaderDefines.registerDefine("EMISSION");
-		PBRStandardMaterial.SHADERDEFINE_EMISSIONTEXTURE = PBRStandardMaterial.shaderDefines.registerDefine("EMISSIONTEXTURE");
-		PBRStandardMaterial.SHADERDEFINE_REFLECTMAP = PBRStandardMaterial.shaderDefines.registerDefine("REFLECTMAP");
-		PBRStandardMaterial.SHADERDEFINE_TILINGOFFSET = PBRStandardMaterial.shaderDefines.registerDefine("TILINGOFFSET");
-		PBRStandardMaterial.SHADERDEFINE_ALPHAPREMULTIPLY = PBRStandardMaterial.shaderDefines.registerDefine("ALPHAPREMULTIPLY");
+		PBRStandardMaterial.SHADERDEFINE_ALBEDOTEXTURE = Shader3D.getDefineByName("ALBEDOTEXTURE");
+		PBRStandardMaterial.SHADERDEFINE_METALLICGLOSSTEXTURE = Shader3D.getDefineByName("METALLICGLOSSTEXTURE");
+		PBRStandardMaterial.SHADERDEFINE_SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA = Shader3D.getDefineByName("SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA");
+		PBRStandardMaterial.SHADERDEFINE_NORMALTEXTURE = Shader3D.getDefineByName("NORMALTEXTURE");
+		PBRStandardMaterial.SHADERDEFINE_PARALLAXTEXTURE = Shader3D.getDefineByName("PARALLAXTEXTURE");
+		PBRStandardMaterial.SHADERDEFINE_OCCLUSIONTEXTURE = Shader3D.getDefineByName("OCCLUSIONTEXTURE");
+		PBRStandardMaterial.SHADERDEFINE_EMISSION = Shader3D.getDefineByName("EMISSION");
+		PBRStandardMaterial.SHADERDEFINE_EMISSIONTEXTURE = Shader3D.getDefineByName("EMISSIONTEXTURE");
+		PBRStandardMaterial.SHADERDEFINE_REFLECTMAP = Shader3D.getDefineByName("REFLECTMAP");
+		PBRStandardMaterial.SHADERDEFINE_TILINGOFFSET = Shader3D.getDefineByName("TILINGOFFSET");
+		PBRStandardMaterial.SHADERDEFINE_ALPHAPREMULTIPLY = Shader3D.getDefineByName("ALPHAPREMULTIPLY");
 	}
 
 	private _albedoColor: Vector4;

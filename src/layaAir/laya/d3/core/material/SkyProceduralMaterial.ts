@@ -1,7 +1,7 @@
 import { Vector4 } from "../../math/Vector4";
 import { Shader3D } from "../../shader/Shader3D";
-import { ShaderDefines } from "../../shader/ShaderDefines";
 import { BaseMaterial } from "./BaseMaterial";
+import { ShaderDefine } from "../../shader/ShaderDefine";
 
 /**
  * <code>SkyProceduralMaterial</code> 类用于实现SkyProceduralMaterial材质。
@@ -28,22 +28,19 @@ export class SkyProceduralMaterial extends BaseMaterial {
 	static EXPOSURE: number = Shader3D.propertyNameToID("u_Exposure");
 
 	/**@internal */
-	static SHADERDEFINE_SUN_HIGH_QUALITY: number;
+	static SHADERDEFINE_SUN_HIGH_QUALITY: ShaderDefine;
 	/**@internal */
-	static SHADERDEFINE_SUN_SIMPLE: number;
+	static SHADERDEFINE_SUN_SIMPLE: ShaderDefine;
 
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: SkyProceduralMaterial;
-	/**@internal */
-	static shaderDefines: ShaderDefines = null;
 
 	/**
 	 * @internal
 	 */
 	static __initDefine__(): void {
-		SkyProceduralMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
-		SkyProceduralMaterial.SHADERDEFINE_SUN_HIGH_QUALITY = SkyProceduralMaterial.shaderDefines.registerDefine("SUN_HIGH_QUALITY");
-		SkyProceduralMaterial.SHADERDEFINE_SUN_SIMPLE = SkyProceduralMaterial.shaderDefines.registerDefine("SUN_SIMPLE");
+		SkyProceduralMaterial.SHADERDEFINE_SUN_HIGH_QUALITY = Shader3D.getDefineByName("SUN_HIGH_QUALITY");
+		SkyProceduralMaterial.SHADERDEFINE_SUN_SIMPLE = Shader3D.getDefineByName("SUN_SIMPLE");
 	}
 
 	private _sunDisk: number;

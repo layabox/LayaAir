@@ -1,9 +1,9 @@
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Vector4 } from "../../math/Vector4";
 import { Shader3D } from "../../shader/Shader3D";
-import { ShaderDefines } from "../../shader/ShaderDefines";
 import { BaseMaterial } from "../material/BaseMaterial";
 import { RenderState } from "../material/RenderState";
+import { ShaderDefine } from "../../shader/ShaderDefine";
 
 /**
  * <code>TrailMaterial</code> 类用于实现拖尾材质。
@@ -17,9 +17,9 @@ export class TrailMaterial extends BaseMaterial {
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: TrailMaterial;
 
-	static SHADERDEFINE_MAINTEXTURE: number;
-	static SHADERDEFINE_TILINGOFFSET: number;
-	static SHADERDEFINE_ADDTIVEFOG: number;
+	static SHADERDEFINE_MAINTEXTURE: ShaderDefine;
+	static SHADERDEFINE_TILINGOFFSET: ShaderDefine;
+	static SHADERDEFINE_ADDTIVEFOG: ShaderDefine;
 
 	static MAINTEXTURE: number = Shader3D.propertyNameToID("u_MainTexture");
 	static TINTCOLOR: number = Shader3D.propertyNameToID("u_MainColor");
@@ -31,17 +31,14 @@ export class TrailMaterial extends BaseMaterial {
 	static DEPTH_TEST: number = Shader3D.propertyNameToID("s_DepthTest");
 	static DEPTH_WRITE: number = Shader3D.propertyNameToID("s_DepthWrite");
 
-	/**@internal */
-	static shaderDefines: ShaderDefines = null;
 
 	/**
 	 * @internal
 	 */
 	static __initDefine__(): void {
-		TrailMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
-		TrailMaterial.SHADERDEFINE_MAINTEXTURE = TrailMaterial.shaderDefines.registerDefine("MAINTEXTURE");
-		TrailMaterial.SHADERDEFINE_TILINGOFFSET = TrailMaterial.shaderDefines.registerDefine("TILINGOFFSET");
-		TrailMaterial.SHADERDEFINE_ADDTIVEFOG = TrailMaterial.shaderDefines.registerDefine("ADDTIVEFOG");
+		TrailMaterial.SHADERDEFINE_MAINTEXTURE = Shader3D.getDefineByName("MAINTEXTURE");
+		TrailMaterial.SHADERDEFINE_TILINGOFFSET = Shader3D.getDefineByName("TILINGOFFSET");
+		TrailMaterial.SHADERDEFINE_ADDTIVEFOG = Shader3D.getDefineByName("ADDTIVEFOG");
 	}
 
 	/**@internal */

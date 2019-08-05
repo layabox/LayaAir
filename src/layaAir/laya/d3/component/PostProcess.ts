@@ -6,21 +6,21 @@ import { CommandBuffer } from "../core/render/command/CommandBuffer"
 import { RenderTexture } from "../resource/RenderTexture"
 import { Shader3D } from "../shader/Shader3D"
 import { ShaderData } from "../shader/ShaderData"
-import { ShaderDefines } from "../shader/ShaderDefines"
 import { BaseTexture } from "../../resource/BaseTexture"
 import { Texture2D } from "../../resource/Texture2D"
 import { ILaya } from "../../../ILaya";
+import { ShaderDefine } from "../shader/ShaderDefine";
 
 /**
  * <code>PostProcess</code> 类用于创建后期处理组件。
  */
 export class PostProcess {
 	/**@internal */
-	static SHADERDEFINE_BLOOM_LOW: number;
+	static SHADERDEFINE_BLOOM_LOW: ShaderDefine;
 	/**@internal */
-	static SHADERDEFINE_BLOOM: number;
+	static SHADERDEFINE_BLOOM: ShaderDefine;
 	/**@internal */
-	static SHADERDEFINE_FINALPASS: number;
+	static SHADERDEFINE_FINALPASS: ShaderDefine;
 	/**@internal */
 	static SHADERVALUE_MAINTEX: number = Shader3D.propertyNameToID("u_MainTex");
 	/**@internal */
@@ -38,16 +38,13 @@ export class PostProcess {
 	/**@internal */
 	static SHADERVALUE_BLOOM_COLOR: number = Shader3D.propertyNameToID("u_Bloom_Color");
 
-	/**@internal */
-	static shaderDefines: ShaderDefines = new ShaderDefines();
-
 	/**
 	 * @internal
 	 */
 	static __init__(): void {
-		PostProcess.SHADERDEFINE_BLOOM_LOW = PostProcess.shaderDefines.registerDefine("BLOOM_LOW");
-		PostProcess.SHADERDEFINE_BLOOM = PostProcess.shaderDefines.registerDefine("BLOOM");
-		PostProcess.SHADERDEFINE_FINALPASS = PostProcess.shaderDefines.registerDefine("FINALPASS");
+		PostProcess.SHADERDEFINE_BLOOM_LOW = Shader3D.getDefineByName("BLOOM_LOW");
+		PostProcess.SHADERDEFINE_BLOOM = Shader3D.getDefineByName("BLOOM");
+		PostProcess.SHADERDEFINE_FINALPASS = Shader3D.getDefineByName("FINALPASS");
 	}
 
 	private _compositeShader: Shader3D = Shader3D.find("PostProcessComposite");

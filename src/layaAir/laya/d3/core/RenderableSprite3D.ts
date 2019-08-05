@@ -2,22 +2,22 @@ import { Node } from "../../display/Node";
 import { Animator } from "../component/Animator";
 import { Vector4 } from "../math/Vector4";
 import { Shader3D } from "../shader/Shader3D";
-import { ShaderDefines } from "../shader/ShaderDefines";
 import { Sprite3D } from "./Sprite3D";
 import { BaseRender } from "./render/BaseRender";
 import { Scene3D } from "./scene/Scene3D";
 import { ILaya3D } from "../../../ILaya3D";
+import { ShaderDefine } from "../shader/ShaderDefine";
 
 /**
  * <code>RenderableSprite3D</code> 类用于可渲染3D精灵的父类，抽象类不允许实例。
  */
 export class RenderableSprite3D extends Sprite3D {
 	/**精灵级着色器宏定义,接收阴影。*/
-	static SHADERDEFINE_RECEIVE_SHADOW: number;
+	static SHADERDEFINE_RECEIVE_SHADOW: ShaderDefine;
 	/**精灵级着色器宏定义,光照贴图便宜和缩放。*/
-	static SHADERDEFINE_SCALEOFFSETLIGHTINGMAPUV: number;
+	static SHADERDEFINE_SCALEOFFSETLIGHTINGMAPUV: ShaderDefine;
 	/**精灵级着色器宏定义,光照贴图。*/
-	static SAHDERDEFINE_LIGHTMAP: number;
+	static SAHDERDEFINE_LIGHTMAP: ShaderDefine;
 
 	/**着色器变量名，光照贴图缩放和偏移。*/
 	static LIGHTMAPSCALEOFFSET: number = Shader3D.propertyNameToID("u_LightmapScaleOffset");
@@ -29,15 +29,13 @@ export class RenderableSprite3D extends Sprite3D {
 	pickColor: Vector4;
 
 
-	static shaderDefines: ShaderDefines = new ShaderDefines();
-
 	/**
 	 * @internal
 	 */
 	static __init__(): void {
-		RenderableSprite3D.SHADERDEFINE_RECEIVE_SHADOW = RenderableSprite3D.shaderDefines.registerDefine("RECEIVESHADOW");
-		RenderableSprite3D.SHADERDEFINE_SCALEOFFSETLIGHTINGMAPUV = RenderableSprite3D.shaderDefines.registerDefine("SCALEOFFSETLIGHTINGMAPUV");
-		RenderableSprite3D.SAHDERDEFINE_LIGHTMAP = RenderableSprite3D.shaderDefines.registerDefine("LIGHTMAP");
+		RenderableSprite3D.SHADERDEFINE_RECEIVE_SHADOW = Shader3D.getDefineByName("RECEIVESHADOW");
+		RenderableSprite3D.SHADERDEFINE_SCALEOFFSETLIGHTINGMAPUV = Shader3D.getDefineByName("SCALEOFFSETLIGHTINGMAPUV");
+		RenderableSprite3D.SAHDERDEFINE_LIGHTMAP = Shader3D.getDefineByName("LIGHTMAP");
 	}
 
 	/** @internal */

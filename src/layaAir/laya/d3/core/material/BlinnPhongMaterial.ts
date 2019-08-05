@@ -1,11 +1,11 @@
 import { Vector4 } from "../../math/Vector4";
 import { Shader3D } from "../../shader/Shader3D";
 import { ShaderData } from "../../shader/ShaderData";
-import { ShaderDefines } from "../../shader/ShaderDefines";
 import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
 import { BaseMaterial } from "./BaseMaterial";
 import { RenderState } from "./RenderState";
 import { BaseTexture } from "../../../resource/BaseTexture";
+import { ShaderDefine } from "../../shader/ShaderDefine";
 
 /**
  * <code>BlinnPhongMaterial</code> 类用于实现Blinn-Phong材质。
@@ -23,11 +23,11 @@ export class BlinnPhongMaterial extends BaseMaterial {
 	/**渲染状态_透明混合。*/
 	static RENDERMODE_TRANSPARENT: number = 2;
 
-	static SHADERDEFINE_DIFFUSEMAP: number;
-	static SHADERDEFINE_NORMALMAP: number;
-	static SHADERDEFINE_SPECULARMAP: number;
-	static SHADERDEFINE_TILINGOFFSET: number;
-	static SHADERDEFINE_ENABLEVERTEXCOLOR: number;
+	static SHADERDEFINE_DIFFUSEMAP: ShaderDefine;
+	static SHADERDEFINE_NORMALMAP: ShaderDefine;
+	static SHADERDEFINE_SPECULARMAP: ShaderDefine;
+	static SHADERDEFINE_TILINGOFFSET: ShaderDefine;
+	static SHADERDEFINE_ENABLEVERTEXCOLOR: ShaderDefine;
 
 	static ALBEDOTEXTURE: number = Shader3D.propertyNameToID("u_DiffuseTexture");
 	static NORMALTEXTURE: number = Shader3D.propertyNameToID("u_NormalTexture");
@@ -46,19 +46,15 @@ export class BlinnPhongMaterial extends BaseMaterial {
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: BlinnPhongMaterial;
 
-	/**@internal */
-	static shaderDefines: ShaderDefines = null;
-
 	/**
 	 * @internal
 	 */
 	static __initDefine__(): void {
-		BlinnPhongMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
-		BlinnPhongMaterial.SHADERDEFINE_DIFFUSEMAP = BlinnPhongMaterial.shaderDefines.registerDefine("DIFFUSEMAP");
-		BlinnPhongMaterial.SHADERDEFINE_NORMALMAP = BlinnPhongMaterial.shaderDefines.registerDefine("NORMALMAP");
-		BlinnPhongMaterial.SHADERDEFINE_SPECULARMAP = BlinnPhongMaterial.shaderDefines.registerDefine("SPECULARMAP");
-		BlinnPhongMaterial.SHADERDEFINE_TILINGOFFSET = BlinnPhongMaterial.shaderDefines.registerDefine("TILINGOFFSET");
-		BlinnPhongMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR = BlinnPhongMaterial.shaderDefines.registerDefine("ENABLEVERTEXCOLOR");
+		BlinnPhongMaterial.SHADERDEFINE_DIFFUSEMAP = Shader3D.getDefineByName("DIFFUSEMAP");
+		BlinnPhongMaterial.SHADERDEFINE_NORMALMAP = Shader3D.getDefineByName("NORMALMAP");
+		BlinnPhongMaterial.SHADERDEFINE_SPECULARMAP = Shader3D.getDefineByName("SPECULARMAP");
+		BlinnPhongMaterial.SHADERDEFINE_TILINGOFFSET = Shader3D.getDefineByName("TILINGOFFSET");
+		BlinnPhongMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR = Shader3D.getDefineByName("ENABLEVERTEXCOLOR");
 	}
 
 	private _albedoColor: Vector4;
@@ -707,10 +703,16 @@ export class BlinnPhongMaterial extends BaseMaterial {
 	 */
 	set enableLighting(value: boolean) {
 		if (this._enableLighting !== value) {
-			if (value)
-				this._disablePublicDefineDatas.remove(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT | Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT | Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
-			else
-				this._disablePublicDefineDatas.add(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT | Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT | Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
+			if (value) {
+				this._disablePublicDefineDatas.remove(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT);
+				this._disablePublicDefineDatas.remove(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT);
+				this._disablePublicDefineDatas.remove(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
+			}
+			else {
+				this._disablePublicDefineDatas.add(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT);
+				this._disablePublicDefineDatas.add(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT);
+				this._disablePublicDefineDatas.add(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
+			}
 			this._enableLighting = value;
 		}
 	}

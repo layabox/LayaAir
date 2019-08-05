@@ -1,10 +1,10 @@
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Vector4 } from "../../math/Vector4";
 import { Shader3D } from "../../shader/Shader3D";
-import { ShaderDefines } from "../../shader/ShaderDefines";
 import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
 import { BaseMaterial } from "./BaseMaterial";
 import { RenderState } from "./RenderState";
+import { ShaderDefine } from "../../shader/ShaderDefine";
 
 /**
  * <code>PBRSpecularMaterial</code> 类用于实现PBR(Specular)材质。
@@ -25,16 +25,16 @@ export class PBRSpecularMaterial extends BaseMaterial {
 	/**渲染状态_透明混合_物理上看似合理的透明。*/
 	static RENDERMODE_TRANSPARENT: number = 3;
 
-	static SHADERDEFINE_ALBEDOTEXTURE: number;
-	static SHADERDEFINE_NORMALTEXTURE: number;
-	static SHADERDEFINE_SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA: number;
-	static SHADERDEFINE_SPECULARTEXTURE: number;
-	static SHADERDEFINE_OCCLUSIONTEXTURE: number;
-	static SHADERDEFINE_PARALLAXTEXTURE: number;
-	static SHADERDEFINE_EMISSION: number;
-	static SHADERDEFINE_EMISSIONTEXTURE: number;
-	static SHADERDEFINE_TILINGOFFSET: number;
-	static SHADERDEFINE_ALPHAPREMULTIPLY: number;
+	static SHADERDEFINE_ALBEDOTEXTURE: ShaderDefine;
+	static SHADERDEFINE_NORMALTEXTURE: ShaderDefine;
+	static SHADERDEFINE_SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA: ShaderDefine;
+	static SHADERDEFINE_SPECULARTEXTURE: ShaderDefine;
+	static SHADERDEFINE_OCCLUSIONTEXTURE: ShaderDefine;
+	static SHADERDEFINE_PARALLAXTEXTURE: ShaderDefine;
+	static SHADERDEFINE_EMISSION: ShaderDefine;
+	static SHADERDEFINE_EMISSIONTEXTURE: ShaderDefine;
+	static SHADERDEFINE_TILINGOFFSET: ShaderDefine;
+	static SHADERDEFINE_ALPHAPREMULTIPLY: ShaderDefine;
 
 	static ALBEDOTEXTURE: number = Shader3D.propertyNameToID("u_AlbedoTexture");
 	static SPECULARTEXTURE: number = Shader3D.propertyNameToID("u_SpecularTexture");
@@ -66,24 +66,21 @@ export class PBRSpecularMaterial extends BaseMaterial {
 
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: PBRSpecularMaterial;
-	/**@internal */
-	static shaderDefines: ShaderDefines = null;
 
 	/**
 	 * @internal
 	 */
 	static __initDefine__(): void {
-		PBRSpecularMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
-		PBRSpecularMaterial.SHADERDEFINE_ALBEDOTEXTURE = PBRSpecularMaterial.shaderDefines.registerDefine("ALBEDOTEXTURE");
-		PBRSpecularMaterial.SHADERDEFINE_SPECULARTEXTURE = PBRSpecularMaterial.shaderDefines.registerDefine("SPECULARTEXTURE");
-		PBRSpecularMaterial.SHADERDEFINE_SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA = PBRSpecularMaterial.shaderDefines.registerDefine("SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA");
-		PBRSpecularMaterial.SHADERDEFINE_NORMALTEXTURE = PBRSpecularMaterial.shaderDefines.registerDefine("NORMALTEXTURE");
-		PBRSpecularMaterial.SHADERDEFINE_PARALLAXTEXTURE = PBRSpecularMaterial.shaderDefines.registerDefine("PARALLAXTEXTURE");
-		PBRSpecularMaterial.SHADERDEFINE_OCCLUSIONTEXTURE = PBRSpecularMaterial.shaderDefines.registerDefine("OCCLUSIONTEXTURE");
-		PBRSpecularMaterial.SHADERDEFINE_EMISSION = PBRSpecularMaterial.shaderDefines.registerDefine("EMISSION");
-		PBRSpecularMaterial.SHADERDEFINE_EMISSIONTEXTURE = PBRSpecularMaterial.shaderDefines.registerDefine("EMISSIONTEXTURE");
-		PBRSpecularMaterial.SHADERDEFINE_TILINGOFFSET = PBRSpecularMaterial.shaderDefines.registerDefine("TILINGOFFSET");
-		PBRSpecularMaterial.SHADERDEFINE_ALPHAPREMULTIPLY = PBRSpecularMaterial.shaderDefines.registerDefine("ALPHAPREMULTIPLY");
+		PBRSpecularMaterial.SHADERDEFINE_ALBEDOTEXTURE = Shader3D.getDefineByName("ALBEDOTEXTURE");
+		PBRSpecularMaterial.SHADERDEFINE_SPECULARTEXTURE = Shader3D.getDefineByName("SPECULARTEXTURE");
+		PBRSpecularMaterial.SHADERDEFINE_SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA = Shader3D.getDefineByName("SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA");
+		PBRSpecularMaterial.SHADERDEFINE_NORMALTEXTURE = Shader3D.getDefineByName("NORMALTEXTURE");
+		PBRSpecularMaterial.SHADERDEFINE_PARALLAXTEXTURE = Shader3D.getDefineByName("PARALLAXTEXTURE");
+		PBRSpecularMaterial.SHADERDEFINE_OCCLUSIONTEXTURE = Shader3D.getDefineByName("OCCLUSIONTEXTURE");
+		PBRSpecularMaterial.SHADERDEFINE_EMISSION = Shader3D.getDefineByName("EMISSION");
+		PBRSpecularMaterial.SHADERDEFINE_EMISSIONTEXTURE = Shader3D.getDefineByName("EMISSIONTEXTURE");
+		PBRSpecularMaterial.SHADERDEFINE_TILINGOFFSET = Shader3D.getDefineByName("TILINGOFFSET");
+		PBRSpecularMaterial.SHADERDEFINE_ALPHAPREMULTIPLY = Shader3D.getDefineByName("ALPHAPREMULTIPLY");
 	}
 
 	private _albedoColor: Vector4;

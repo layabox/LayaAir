@@ -1,9 +1,9 @@
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Vector4 } from "../../math/Vector4";
 import { Shader3D } from "../../shader/Shader3D";
-import { ShaderDefines } from "../../shader/ShaderDefines";
 import { BaseMaterial } from "./BaseMaterial";
 import { RenderState } from "./RenderState";
+import { ShaderDefine } from "../../shader/ShaderDefine";
 
 /**
  * <code>EffectMaterial</code> 类用于实现Mesh特效材质。
@@ -17,9 +17,9 @@ export class EffectMaterial extends BaseMaterial {
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: EffectMaterial;
 
-	static SHADERDEFINE_MAINTEXTURE: number;
-	static SHADERDEFINE_TILINGOFFSET: number;
-	static SHADERDEFINE_ADDTIVEFOG: number;
+	static SHADERDEFINE_MAINTEXTURE: ShaderDefine;
+	static SHADERDEFINE_TILINGOFFSET: ShaderDefine;
+	static SHADERDEFINE_ADDTIVEFOG: ShaderDefine;
 
 	static MAINTEXTURE: number = Shader3D.propertyNameToID("u_AlbedoTexture");
 	static TINTCOLOR: number = Shader3D.propertyNameToID("u_AlbedoColor");
@@ -31,17 +31,13 @@ export class EffectMaterial extends BaseMaterial {
 	static DEPTH_TEST: number = Shader3D.propertyNameToID("s_DepthTest");
 	static DEPTH_WRITE: number = Shader3D.propertyNameToID("s_DepthWrite");
 
-	/**@internal */
-	static shaderDefines: ShaderDefines = null;
-
 	/**
 	 * @internal
 	 */
 	static __initDefine__(): void {
-		EffectMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
-		EffectMaterial.SHADERDEFINE_MAINTEXTURE = EffectMaterial.shaderDefines.registerDefine("MAINTEXTURE");
-		EffectMaterial.SHADERDEFINE_TILINGOFFSET = EffectMaterial.shaderDefines.registerDefine("TILINGOFFSET");
-		EffectMaterial.SHADERDEFINE_ADDTIVEFOG = EffectMaterial.shaderDefines.registerDefine("ADDTIVEFOG");
+		EffectMaterial.SHADERDEFINE_MAINTEXTURE = Shader3D.getDefineByName("MAINTEXTURE");
+		EffectMaterial.SHADERDEFINE_TILINGOFFSET = Shader3D.getDefineByName("TILINGOFFSET");
+		EffectMaterial.SHADERDEFINE_ADDTIVEFOG = Shader3D.getDefineByName("ADDTIVEFOG");
 	}
 
 	private _color: Vector4;

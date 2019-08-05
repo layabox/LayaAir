@@ -2,8 +2,8 @@ import { BaseMaterial } from "../material/BaseMaterial"
 import { RenderState } from "../material/RenderState"
 import { Vector4 } from "../../math/Vector4"
 import { Shader3D } from "../../shader/Shader3D"
-import { ShaderDefines } from "../../shader/ShaderDefines"
 import { BaseTexture } from "../../../resource/BaseTexture"
+import { ShaderDefine } from "../../shader/ShaderDefine";
 
 
 /**
@@ -16,10 +16,10 @@ export class ShurikenParticleMaterial extends BaseMaterial {
 	static RENDERMODE_ADDTIVE: number = 1;
 
 
-	static SHADERDEFINE_DIFFUSEMAP: number;
-	static SHADERDEFINE_TINTCOLOR: number;
-	static SHADERDEFINE_TILINGOFFSET: number;
-	static SHADERDEFINE_ADDTIVEFOG: number;
+	static SHADERDEFINE_DIFFUSEMAP: ShaderDefine;
+	static SHADERDEFINE_TINTCOLOR: ShaderDefine;
+	static SHADERDEFINE_TILINGOFFSET: ShaderDefine;
+	static SHADERDEFINE_ADDTIVEFOG: ShaderDefine;
 
 	static DIFFUSETEXTURE: number = Shader3D.propertyNameToID("u_texture");
 	static TINTCOLOR: number = Shader3D.propertyNameToID("u_Tintcolor");
@@ -33,18 +33,15 @@ export class ShurikenParticleMaterial extends BaseMaterial {
 
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: ShurikenParticleMaterial;
-	/**@internal */
-	static shaderDefines: ShaderDefines = null;
 
 	/**
 	 * @internal
 	 */
 	static __initDefine__(): void {
-		ShurikenParticleMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
-		ShurikenParticleMaterial.SHADERDEFINE_DIFFUSEMAP = ShurikenParticleMaterial.shaderDefines.registerDefine("DIFFUSEMAP");
-		ShurikenParticleMaterial.SHADERDEFINE_TINTCOLOR = ShurikenParticleMaterial.shaderDefines.registerDefine("TINTCOLOR");
-		ShurikenParticleMaterial.SHADERDEFINE_ADDTIVEFOG = ShurikenParticleMaterial.shaderDefines.registerDefine("ADDTIVEFOG");
-		ShurikenParticleMaterial.SHADERDEFINE_TILINGOFFSET = ShurikenParticleMaterial.shaderDefines.registerDefine("TILINGOFFSET");
+		ShurikenParticleMaterial.SHADERDEFINE_DIFFUSEMAP = Shader3D.getDefineByName("DIFFUSEMAP");
+		ShurikenParticleMaterial.SHADERDEFINE_TINTCOLOR = Shader3D.getDefineByName("TINTCOLOR");
+		ShurikenParticleMaterial.SHADERDEFINE_ADDTIVEFOG = Shader3D.getDefineByName("ADDTIVEFOG");
+		ShurikenParticleMaterial.SHADERDEFINE_TILINGOFFSET = Shader3D.getDefineByName("TILINGOFFSET");
 	}
 
 	/**@internal */

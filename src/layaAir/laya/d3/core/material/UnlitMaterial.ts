@@ -1,9 +1,9 @@
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Vector4 } from "../../math/Vector4";
 import { Shader3D } from "../../shader/Shader3D";
-import { ShaderDefines } from "../../shader/ShaderDefines";
 import { BaseMaterial } from "./BaseMaterial";
 import { RenderState } from "./RenderState";
+import { ShaderDefine } from "../../shader/ShaderDefine";
 
 /**
  * <code>UnlitMaterial</code> 类用于实现不受光照影响的材质。
@@ -19,9 +19,9 @@ export class UnlitMaterial extends BaseMaterial {
 	/**渲染状态__加色法混合。*/
 	static RENDERMODE_ADDTIVE: number = 3;
 
-	static SHADERDEFINE_ALBEDOTEXTURE: number;
-	static SHADERDEFINE_TILINGOFFSET: number;
-	static SHADERDEFINE_ENABLEVERTEXCOLOR: number;
+	static SHADERDEFINE_ALBEDOTEXTURE: ShaderDefine;
+	static SHADERDEFINE_TILINGOFFSET: ShaderDefine;
+	static SHADERDEFINE_ENABLEVERTEXCOLOR: ShaderDefine;
 
 	static ALBEDOTEXTURE: number = Shader3D.propertyNameToID("u_AlbedoTexture");
 	static ALBEDOCOLOR: number = Shader3D.propertyNameToID("u_AlbedoColor");
@@ -35,17 +35,14 @@ export class UnlitMaterial extends BaseMaterial {
 
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: UnlitMaterial;
-	/**@internal */
-	static shaderDefines: ShaderDefines = null;
 
 	/**
 	 * @internal
 	 */
 	static __initDefine__(): void {
-		UnlitMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
-		UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE = UnlitMaterial.shaderDefines.registerDefine("ALBEDOTEXTURE");
-		UnlitMaterial.SHADERDEFINE_TILINGOFFSET = UnlitMaterial.shaderDefines.registerDefine("TILINGOFFSET");
-		UnlitMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR = UnlitMaterial.shaderDefines.registerDefine("ENABLEVERTEXCOLOR");
+		UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE = Shader3D.getDefineByName("ALBEDOTEXTURE");
+		UnlitMaterial.SHADERDEFINE_TILINGOFFSET = Shader3D.getDefineByName("TILINGOFFSET");
+		UnlitMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR = Shader3D.getDefineByName("ENABLEVERTEXCOLOR");
 	}
 
 	private _albedoColor: Vector4 = new Vector4(1.0, 1.0, 1.0, 1.0);

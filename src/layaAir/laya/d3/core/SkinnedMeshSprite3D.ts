@@ -5,7 +5,6 @@ import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
 import { Mesh } from "../resource/models/Mesh";
 import { Shader3D } from "../shader/Shader3D";
-import { ShaderDefines } from "../shader/ShaderDefines";
 import { Utils3D } from "../utils/Utils3D";
 import { Avatar } from "./Avatar";
 import { Bounds } from "./Bounds";
@@ -29,15 +28,11 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
 	/**着色器变量名，蒙皮动画。*/
 	static BONES: number = Shader3D.propertyNameToID("u_Bones");
 
-	/**@internal */
-	static shaderDefines: ShaderDefines = null;
-
 	/**
 	 * @internal
 	 */
 	static __init__(): void {
-		SkinnedMeshSprite3D.shaderDefines = new ShaderDefines(MeshSprite3D.shaderDefines);
-		SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_BONE = SkinnedMeshSprite3D.shaderDefines.registerDefine("BONE");
+		SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_BONE = Shader3D.getDefineByName("BONE");
 	}
 
 	/** @internal */

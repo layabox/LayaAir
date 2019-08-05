@@ -1,28 +1,30 @@
+import { ShaderDefine } from "../../shader/ShaderDefine";
+
 export class Scene3DShaderDeclaration {
 	/**@internal */
-	static SHADERDEFINE_FOG: number;
+	static SHADERDEFINE_FOG: ShaderDefine;
 	/**@internal */
-	static SHADERDEFINE_DIRECTIONLIGHT: number;
+	static SHADERDEFINE_DIRECTIONLIGHT: ShaderDefine;
 	/**@internal */
-	static SHADERDEFINE_POINTLIGHT: number;
+	static SHADERDEFINE_POINTLIGHT: ShaderDefine;
 	/**@internal */
-	static SHADERDEFINE_SPOTLIGHT: number;
+	static SHADERDEFINE_SPOTLIGHT: ShaderDefine;
 	/**@internal */
-	static SHADERDEFINE_CAST_SHADOW: number;
+	static SHADERDEFINE_CAST_SHADOW: ShaderDefine;
 	/**@internal */
-	static SHADERDEFINE_SHADOW_PSSM1: number;
+	static SHADERDEFINE_SHADOW_PSSM1: ShaderDefine;
 	/**@internal */
-	static SHADERDEFINE_SHADOW_PSSM2: number;
+	static SHADERDEFINE_SHADOW_PSSM2: ShaderDefine;
 	/**@internal */
-	static SHADERDEFINE_SHADOW_PSSM3: number;
+	static SHADERDEFINE_SHADOW_PSSM3: ShaderDefine;
 	/**@internal */
-	static SHADERDEFINE_SHADOW_PCF_NO: number;
+	static SHADERDEFINE_SHADOW_PCF_NO: ShaderDefine;
 	/**@internal */
-	static SHADERDEFINE_SHADOW_PCF1: number;
+	static SHADERDEFINE_SHADOW_PCF1: ShaderDefine;
 	/**@internal */
-	static SHADERDEFINE_SHADOW_PCF2: number;
+	static SHADERDEFINE_SHADOW_PCF2: ShaderDefine;
 	/**@internal */
-	static SHADERDEFINE_SHADOW_PCF3: number;
+	static SHADERDEFINE_SHADOW_PCF3: ShaderDefine;
 	/**@internal */
-	static SHADERDEFINE_REFLECTMAP: number;
+	static SHADERDEFINE_REFLECTMAP: ShaderDefine;
 }

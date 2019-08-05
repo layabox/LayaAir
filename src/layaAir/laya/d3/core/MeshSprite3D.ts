@@ -8,28 +8,23 @@ import { MeshRenderStaticBatchManager } from "../graphics/MeshRenderStaticBatchM
 import { StaticBatchManager } from "../graphics/StaticBatchManager"
 import { Vector4 } from "../math/Vector4"
 import { Mesh } from "../resource/models/Mesh"
-import { ShaderDefines } from "../shader/ShaderDefines"
 import { Node } from "../../display/Node"
 import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration";
 import { Loader } from "../../net/Loader";
+import { Shader3D } from "../shader/Shader3D";
 
 /**
  * <code>MeshSprite3D</code> 类用于创建网格。
  */
 export class MeshSprite3D extends RenderableSprite3D {
-
-	/**@internal */
-	static shaderDefines: ShaderDefines;
-
 	/**
 	 * @internal
 	 */
 	static __init__(): void {
-		MeshSprite3D.shaderDefines = new ShaderDefines(RenderableSprite3D.shaderDefines);
-		MeshSprite3DShaderDeclaration.SHADERDEFINE_UV0 = MeshSprite3D.shaderDefines.registerDefine("UV");
-		MeshSprite3DShaderDeclaration.SHADERDEFINE_COLOR = MeshSprite3D.shaderDefines.registerDefine("COLOR");
-		MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1 = MeshSprite3D.shaderDefines.registerDefine("UV1");
-		MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE = MeshSprite3D.shaderDefines.registerDefine("GPU_INSTANCE");
+		MeshSprite3DShaderDeclaration.SHADERDEFINE_UV0 = Shader3D.getDefineByName("UV");
+		MeshSprite3DShaderDeclaration.SHADERDEFINE_COLOR = Shader3D.getDefineByName("COLOR");
+		MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1 = Shader3D.getDefineByName("UV1");
+		MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE = Shader3D.getDefineByName("GPU_INSTANCE");
 		StaticBatchManager._registerManager(MeshRenderStaticBatchManager.instance);
 		DynamicBatchManager._registerManager(MeshRenderDynamicBatchManager.instance);
 	}

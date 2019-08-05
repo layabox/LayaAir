@@ -1,10 +1,10 @@
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Vector4 } from "../../math/Vector4";
 import { Shader3D } from "../../shader/Shader3D";
-import { ShaderDefines } from "../../shader/ShaderDefines";
 import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
 import { BaseMaterial } from "./BaseMaterial";
 import { RenderState } from "./RenderState";
+import { ShaderDefine } from "../../shader/ShaderDefine";
 
 /**
  * ...
@@ -39,25 +39,21 @@ export class ExtendTerrainMaterial extends BaseMaterial {
 	static DEPTH_WRITE: number = Shader3D.propertyNameToID("s_DepthWrite");
 
 	/**地形细节宏定义。*/
-	static SHADERDEFINE_DETAIL_NUM1: number;
-	static SHADERDEFINE_DETAIL_NUM2: number;
-	static SHADERDEFINE_DETAIL_NUM3: number;
-	static SHADERDEFINE_DETAIL_NUM4: number;
-	static SHADERDEFINE_DETAIL_NUM5: number;
-
-	/**@internal */
-	static shaderDefines: ShaderDefines = null;
+	static SHADERDEFINE_DETAIL_NUM1: ShaderDefine;
+	static SHADERDEFINE_DETAIL_NUM2: ShaderDefine;
+	static SHADERDEFINE_DETAIL_NUM3: ShaderDefine;
+	static SHADERDEFINE_DETAIL_NUM4: ShaderDefine;
+	static SHADERDEFINE_DETAIL_NUM5: ShaderDefine;
 
 	/**
 	 * @internal
 	 */
 	static __initDefine__(): void {
-		ExtendTerrainMaterial.shaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
-		ExtendTerrainMaterial.SHADERDEFINE_DETAIL_NUM1 = ExtendTerrainMaterial.shaderDefines.registerDefine("ExtendTerrain_DETAIL_NUM1");
-		ExtendTerrainMaterial.SHADERDEFINE_DETAIL_NUM2 = ExtendTerrainMaterial.shaderDefines.registerDefine("ExtendTerrain_DETAIL_NUM2");
-		ExtendTerrainMaterial.SHADERDEFINE_DETAIL_NUM3 = ExtendTerrainMaterial.shaderDefines.registerDefine("ExtendTerrain_DETAIL_NUM3");
-		ExtendTerrainMaterial.SHADERDEFINE_DETAIL_NUM4 = ExtendTerrainMaterial.shaderDefines.registerDefine("ExtendTerrain_DETAIL_NUM4");
-		ExtendTerrainMaterial.SHADERDEFINE_DETAIL_NUM5 = ExtendTerrainMaterial.shaderDefines.registerDefine("ExtendTerrain_DETAIL_NUM5");
+		ExtendTerrainMaterial.SHADERDEFINE_DETAIL_NUM1 = Shader3D.getDefineByName("ExtendTerrain_DETAIL_NUM1");
+		ExtendTerrainMaterial.SHADERDEFINE_DETAIL_NUM2 = Shader3D.getDefineByName("ExtendTerrain_DETAIL_NUM2");
+		ExtendTerrainMaterial.SHADERDEFINE_DETAIL_NUM3 = Shader3D.getDefineByName("ExtendTerrain_DETAIL_NUM3");
+		ExtendTerrainMaterial.SHADERDEFINE_DETAIL_NUM4 = Shader3D.getDefineByName("ExtendTerrain_DETAIL_NUM4");
+		ExtendTerrainMaterial.SHADERDEFINE_DETAIL_NUM5 = Shader3D.getDefineByName("ExtendTerrain_DETAIL_NUM5");
 	}
 
 	private _enableLighting: boolean = true;
@@ -229,10 +225,16 @@ export class ExtendTerrainMaterial extends BaseMaterial {
 	 */
 	set enableLighting(value: boolean) {
 		if (this._enableLighting !== value) {
-			if (value)
-				this._disablePublicDefineDatas.remove(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT | Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT | Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
-			else
-				this._disablePublicDefineDatas.add(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT | Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT | Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
+			if (value) {
+				this._disablePublicDefineDatas.remove(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT);
+				this._disablePublicDefineDatas.remove(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT);
+				this._disablePublicDefineDatas.remove(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
+			}
+			else {
+				this._disablePublicDefineDatas.add(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT);
+				this._disablePublicDefineDatas.add(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT);
+				this._disablePublicDefineDatas.add(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
+			}
 			this._enableLighting = value;
 		}
 	}

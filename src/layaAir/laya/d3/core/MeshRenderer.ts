@@ -1,33 +1,33 @@
+import { Render } from "../../renders/Render";
+import { SingletonList } from "../component/SingletonList";
 import { FrustumCulling } from "../graphics/FrustumCulling";
 import { MeshRenderStaticBatchManager } from "../graphics/MeshRenderStaticBatchManager";
 import { SubMeshInstanceBatch } from "../graphics/SubMeshInstanceBatch";
 import { BoundFrustum } from "../math/BoundFrustum";
-import { ContainmentType } from "../math/ContainmentType";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Vector3 } from "../math/Vector3";
 import { Mesh } from "../resource/models/Mesh";
-import { ShaderData } from "../shader/ShaderData";
 import { Utils3D } from "../utils/Utils3D";
-import { MeshSprite3D } from "./MeshSprite3D";
-import { RenderableSprite3D } from "./RenderableSprite3D";
-import { Sprite3D } from "./Sprite3D";
-import { Transform3D } from "./Transform3D";
 import { BaseMaterial } from "./material/BaseMaterial";
 import { BlinnPhongMaterial } from "./material/BlinnPhongMaterial";
+import { MeshSprite3D } from "./MeshSprite3D";
+import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration";
 import { BaseRender } from "./render/BaseRender";
 import { RenderContext3D } from "./render/RenderContext3D";
 import { RenderElement } from "./render/RenderElement";
 import { SubMeshRenderElement } from "./render/SubMeshRenderElement";
-import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration";
-import { Render } from "../../renders/Render";
-import { SingletonList } from "../component/SingletonList";
+import { RenderableSprite3D } from "./RenderableSprite3D";
+import { Sprite3D } from "./Sprite3D";
+import { Transform3D } from "./Transform3D";
 
 /**
  * <code>MeshRenderer</code> 类用于网格渲染器。
  */
 export class MeshRenderer extends BaseRender {
 	/** @internal */
-	protected _oriDefineValue: number;
+	protected _revertStaticBatchDefineUV1: boolean = false;
+	/** @internal */
+	protected _revertStaticBatchDefineLightMapUV: boolean = false;
 	/** @internal */
 	protected _projectionViewWorldMatrix: Matrix4x4;
 
@@ -99,7 +99,7 @@ export class MeshRenderer extends BaseRender {
 	 * @override
 	 * @internal
 	 */
-	_needRender(boundFrustum: BoundFrustum,context: RenderContext3D): boolean {
+	_needRender(boundFrustum: BoundFrustum, context: RenderContext3D): boolean {
 		if (boundFrustum)
 			return boundFrustum.intersects(this.bounds._getBoundBox());
 		else
@@ -118,13 +118,24 @@ export class MeshRenderer extends BaseRender {
 				this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, transform.worldMatrix);
 				break;
 			case RenderElement.RENDERTYPE_STATICBATCH:
-				this._oriDefineValue = this._shaderValues._defineDatas.value;
 				if (transform)
 					this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, transform.worldMatrix);
 				else
 					this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, Matrix4x4.DEFAULT);
-				this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1);
-				this._shaderValues.removeDefine(RenderableSprite3D.SHADERDEFINE_SCALEOFFSETLIGHTINGMAPUV);
+				if (!this._shaderValues.hasDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1)) {
+					this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1);
+					this._revertStaticBatchDefineUV1 = true;
+				}
+				else {
+					this._revertStaticBatchDefineUV1 = false;
+				}
+				if (this._shaderValues.hasDefine(RenderableSprite3D.SHADERDEFINE_SCALEOFFSETLIGHTINGMAPUV)) {
+					this._shaderValues.removeDefine(RenderableSprite3D.SHADERDEFINE_SCALEOFFSETLIGHTINGMAPUV);
+					this._revertStaticBatchDefineLightMapUV = true;
+				}
+				else {
+					this._revertStaticBatchDefineLightMapUV = false;
+				}
 				break;
 			case RenderElement.RENDERTYPE_VERTEXBATCH:
 				this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, Matrix4x4.DEFAULT);
@@ -182,7 +193,11 @@ export class MeshRenderer extends BaseRender {
 		var element: SubMeshRenderElement = (<SubMeshRenderElement>context.renderElement);
 		switch (element.renderType) {
 			case RenderElement.RENDERTYPE_STATICBATCH:
-				this._shaderValues._defineDatas.value = this._oriDefineValue;
+				if (this._revertStaticBatchDefineUV1)
+					this._shaderValues.removeDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1);
+
+				if (this._revertStaticBatchDefineLightMapUV)
+					this._shaderValues.addDefine(RenderableSprite3D.SHADERDEFINE_SCALEOFFSETLIGHTINGMAPUV);
 				break;
 			case RenderElement.RENDERTYPE_INSTANCEBATCH:
 				this._shaderValues.removeDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);

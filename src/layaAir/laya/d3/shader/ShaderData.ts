@@ -8,6 +8,7 @@ import { Vector2 } from "../math/Vector2";
 import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
 import { DefineDatas } from "./DefineDatas";
+import { ShaderDefine } from "./ShaderDefine";
 
 
 /**
@@ -48,7 +49,7 @@ export class ShaderData implements IClone {
 	 * 增加Shader宏定义。
 	 * @param value 宏定义。
 	 */
-	addDefine(define: number): void {
+	addDefine(define: ShaderDefine): void {
 		this._defineDatas.add(define);
 	}
 
@@ -56,7 +57,7 @@ export class ShaderData implements IClone {
 	 * 移除Shader宏定义。
 	 * @param value 宏定义。
 	 */
-	removeDefine(define: number): void {
+	removeDefine(define: ShaderDefine): void {
 		this._defineDatas.remove(define);
 	}
 
@@ -64,15 +65,15 @@ export class ShaderData implements IClone {
 	 * 是否包含Shader宏定义。
 	 * @param value 宏定义。
 	 */
-	hasDefine(define: number): boolean {
-		return (this._defineDatas.value & define) > 0;
+	hasDefine(define: ShaderDefine): boolean {
+		return this._defineDatas.has(define);
 	}
 
 	/**
 	 * 清空宏定义。
 	 */
 	clearDefine(): void {
-		this._defineDatas.value = 0;
+		this._defineDatas.clear();
 	}
 
 	/**

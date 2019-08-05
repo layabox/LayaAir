@@ -1,30 +1,32 @@
-import { SubShader } from "./SubShader";
-import { ShaderInstance } from "./ShaderInstance";
+import { InlcudeFile } from "../../webgl/utils/InlcudeFile";
+import { ShaderCompile } from "../../webgl/utils/ShaderCompile";
+import { ShaderNode } from "../../webgl/utils/ShaderNode";
+import { WebGL } from "../../webgl/WebGL";
+import { RenderState } from "../core/material/RenderState";
+import { DefineDatas } from "./DefineDatas";
 import { Shader3D } from "./Shader3D";
-import { RenderState } from "../core/material/RenderState"
-import { WebGL } from "../../webgl/WebGL"
-import { InlcudeFile } from "../../webgl/utils/InlcudeFile"
-import { ShaderCompile } from "../../webgl/utils/ShaderCompile"
-import { ShaderNode } from "../../webgl/utils/ShaderNode"
+import { ShaderInstance } from "./ShaderInstance";
+import { SubShader } from "./SubShader";
 
 /**
  * <code>ShaderPass</code> 类用于实现ShaderPass。
  */
 export class ShaderPass extends ShaderCompile {
 	/**@internal */
+	private static _defineString: Array<string> = [];
+
+	/**@internal */
 	private _owner: SubShader;
 	/**@internal */
 	_stateMap: any;
 	/**@internal */
-	private _cacheSharders: any[];
+	private _cacheSharders: object = {};
 	/**@internal */
-	private _publicValidDefine: number;
-	/**@internal */
-	private _spriteValidDefine: number;
-	/**@internal */
-	private _materialValidDefine: number;
+	private _cacheShaderHierarchy: number = 0;
 	/**@internal */
 	private _renderState: RenderState = new RenderState();
+	/**@internal */
+	private _validDefine: DefineDatas = new DefineDatas();
 
 	/**
 	 * 获取渲染状态。
@@ -35,43 +37,11 @@ export class ShaderPass extends ShaderCompile {
 	}
 
 	constructor(owner: SubShader, vs: string, ps: string, stateMap: any) {
-
 		super(vs, ps, null);
 		this._owner = owner;
-		this._cacheSharders = [];
-		this._publicValidDefine = 0;
-		this._spriteValidDefine = 0;
-		this._materialValidDefine = 0;
-
-		var publicDefineMap: any = this._owner._publicDefinesMap;
-		var spriteDefineMap: any = this._owner._spriteDefinesMap;
-		var materialDefineMap: any = this._owner._materialDefinesMap;
-		for (var k in this.defs) {
-			if (publicDefineMap[k] != null)
-				this._publicValidDefine |= publicDefineMap[k];
-			else if (spriteDefineMap[k] != null)
-				this._spriteValidDefine |= spriteDefineMap[k];
-			else if (materialDefineMap[k] != null)
-				this._materialValidDefine |= materialDefineMap[k];
-		}
 		this._stateMap = stateMap;
-	}
-
-	/**
-	 * @internal
-	 */
-	private _definesToNameDic(value: number, int2Name: any[]): any {
-		var o: any = {};
-		var d: number = 1;
-		for (var i: number = 0; i < 32; i++) {
-			d = 1 << i;
-			if (d > value) break;
-			if (value & d) {
-				var name: string = int2Name[d];
-				o[name] = "";
-			}
-		}
-		return o;
+		for (var k in this.defs)
+			this._validDefine.add(Shader3D.getDefineByName(k));
 	}
 
 	/**
@@ -174,76 +144,70 @@ export class ShaderPass extends ShaderCompile {
 		}
 	}
 
+
 	/**
 	 * @internal
 	 */
-	withCompile(publicDefine: number, spriteDefine: number, materialDefine: number): ShaderInstance {
-		publicDefine &= this._publicValidDefine;
-		spriteDefine &= this._spriteValidDefine;
-		materialDefine &= this._materialValidDefine;
-		var shader: ShaderInstance;
-		var spriteDefShaders: any[], materialDefShaders: any[];
-
-		spriteDefShaders = this._cacheSharders[publicDefine];
-		if (spriteDefShaders) {
-			materialDefShaders = spriteDefShaders[spriteDefine];
-			if (materialDefShaders) {
-				shader = materialDefShaders[materialDefine];
-				if (shader)
-					return shader;
-			} else {
-				materialDefShaders = spriteDefShaders[spriteDefine] = [];
+	_resizeCacheShaderMap(cacheMap: object, hierarchy: number, resizeLength: number): void {
+		var end: number = this._cacheShaderHierarchy - 1;
+		if (hierarchy == end) {
+			for (var k in cacheMap) {
+				var shader: ShaderInstance = cacheMap[k];
+				for (var i: number = 0, n: number = resizeLength - end; i < n; i++) {
+					if (i == n - 1)
+						cacheMap[0] = shader;//0替代(i == 0 ? k : 0),只扩不缩
+					else
+						cacheMap = cacheMap[i == 0 ? k : 0] = {};
+				}
 			}
-		} else {
-			spriteDefShaders = this._cacheSharders[publicDefine] = [];
-			materialDefShaders = spriteDefShaders[spriteDefine] = [];
+			this._cacheShaderHierarchy = resizeLength;
+		}
+		else {
+			for (var k in cacheMap)
+				this._resizeCacheShaderMap(cacheMap[k], ++hierarchy, resizeLength);
+		}
+	}
+
+
+	/**
+	 * @internal
+	 */
+	withCompile(compileDefine: DefineDatas): ShaderInstance {
+		compileDefine._intersectionDefineDatas(this._validDefine);
+
+		var cacheShaders: object = this._cacheSharders;
+		var maskLength: number = compileDefine._length;
+		if (maskLength > this._cacheShaderHierarchy) {//扩充已缓存ShaderMap
+			this._resizeCacheShaderMap(cacheShaders, 0, maskLength);
+			this._cacheShaderHierarchy = maskLength;
 		}
 
-		var publicDefGroup: any = this._definesToNameDic(publicDefine, this._owner._publicDefines);
-		var spriteDefGroup: any = this._definesToNameDic(spriteDefine, this._owner._spriteDefines);
-		var materialDefGroup: any = this._definesToNameDic(materialDefine, this._owner._materialDefines);
-		var key: string;
-		if (Shader3D.debugMode) {
-			var publicDefGroupStr: string = "";
-			for (key in publicDefGroup)
-				publicDefGroupStr += key + " ";
-
-			var spriteDefGroupStr: string = "";
-			for (key in spriteDefGroup)
-				spriteDefGroupStr += key + " ";
-
-			var materialDefGroupStr: string = "";
-			for (key in materialDefGroup)
-				materialDefGroupStr += key + " ";
-
-			if (!WebGL.shaderHighPrecision)
-				publicDefine += Shader3D.SHADERDEFINE_HIGHPRECISION;//输出宏定义要保持设备无关性
-
-			console.log("%cShader3DDebugMode---(Name:" + this._owner._owner._name + " SubShaderIndex:" + this._owner._owner._subShaders.indexOf(this._owner) + " PassIndex:" + this._owner._passes.indexOf(this) + " PublicDefine:" + publicDefine + " SpriteDefine:" + spriteDefine + " MaterialDefine:" + materialDefine + " PublicDefineGroup:" + publicDefGroupStr + " SpriteDefineGroup:" + spriteDefGroupStr + "MaterialDefineGroup: " + materialDefGroupStr + ")---ShaderCompile3DDebugMode", "color:green");
+		var mask: Array<number> = compileDefine._mask;
+		var endIndex: number = compileDefine._length - 1;
+		var maxEndIndex: number = this._cacheShaderHierarchy - 1;
+		for (var i: number = 0; i < maxEndIndex; i++) {
+			var subMask: number = endIndex < i ? 0 : mask[i];
+			var subCacheShaders: object = cacheShaders[subMask];
+			(subCacheShaders) || (cacheShaders[subMask] = subCacheShaders = {});
+			cacheShaders = subCacheShaders;
 		}
+
+		var cacheKey: number = endIndex < maxEndIndex ? 0 : mask[maxEndIndex];
+		var shader: ShaderInstance = cacheShaders[cacheKey];
+		if (shader)
+			return shader;
+
+		var defineString: string[] = ShaderPass._defineString;
+		Shader3D._getNamesByDefineData(compileDefine, defineString);
 
 		var defMap: any = {};
 		var defineStr: string = "";
-		if (publicDefGroup) {
-			for (key in publicDefGroup) {
-				defineStr += "#define " + key + "\n";
-				defMap[key] = true;
-			}
+		for (var i: number = 0, n: number = defineString.length; i < n; i++) {
+			var def: string = defineString[i];
+			defineStr += "#define " + def + "\n";
+			defMap[def] = true;
 		}
 
-		if (spriteDefGroup) {
-			for (key in spriteDefGroup) {
-				defineStr += "#define " + key + "\n";
-				defMap[key] = true;
-			}
-		}
-
-		if (materialDefGroup) {
-			for (key in materialDefGroup) {
-				defineStr += "#define " + key + "\n";
-				defMap[key] = true;
-			}
-		}
 
 		var vs: any[] = this._VS.toscript(defMap, []);
 		var vsVersion: string = '';
@@ -260,9 +224,29 @@ export class ShaderPass extends ShaderCompile {
 		}
 		shader = new ShaderInstance(vsVersion + defineStr + vs.join('\n'), psVersion + defineStr + ps.join('\n'), this._owner._attributeMap || this._owner._owner._attributeMap, this._owner._uniformMap || this._owner._owner._uniformMap, this);
 
-		materialDefShaders[materialDefine] = shader;
+		cacheShaders[cacheKey] = shader;
+
+		if (Shader3D.debugMode) {
+			var defStr: string = "";
+			var defMask: string = "";
+
+			if (WebGL.shaderHighPrecision) {//输出宏定义要保持设备无关性
+				compileDefine.remove(Shader3D.SHADERDEFINE_HIGHPRECISION);
+				var index = defineString.indexOf("HIGHPRECISION");
+				(index !== -1) && (defineString.splice(index, 1));
+			}
+
+			for (var i: number = 0, n: number = compileDefine._length; i < n; i++)
+				(i == n - 1) ? defMask += mask[i] : defMask += mask[i] + ",";
+			for (var i: number = 0, n: number = defineString.length; i < n; i++)
+				(i == n - 1) ? defStr += defineString[i] : defStr += defineString[i] + ",";
+
+			console.log("%cLayaAir: Shader Compile Information---ShaderName:" + this._owner._owner._name + " SubShaderIndex:" + this._owner._owner._subShaders.indexOf(this._owner) + " PassIndex:" + this._owner._passes.indexOf(this) + " DefineMask:[" + defMask + "]" + " DefineNames:[" + defStr + "]", "color:green");
+		}
+
 		return shader;
 	}
+
 
 }
 
