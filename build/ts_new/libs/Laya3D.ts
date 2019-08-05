@@ -256,6 +256,7 @@ export class Laya3D {
 		ClassUtils.regClass("Laya.ShurikenParticleMaterial", ShurikenParticleMaterial);
 		ClassUtils.regClass("Laya.TrailMaterial", TrailMaterial);
 		ClassUtils.regClass("Laya.PhysicsCollider", PhysicsCollider);
+		ClassUtils.regClass("Laya.Rigidbody3D", Rigidbody3D);
 		ClassUtils.regClass("Laya.CharacterController", CharacterController);
 		ClassUtils.regClass("Laya.Animator", Animator);
 

@@ -29757,6 +29757,7 @@
 	        Laya.ClassUtils.regClass("Laya.ShurikenParticleMaterial", ShurikenParticleMaterial);
 	        Laya.ClassUtils.regClass("Laya.TrailMaterial", TrailMaterial);
 	        Laya.ClassUtils.regClass("Laya.PhysicsCollider", PhysicsCollider);
+	        Laya.ClassUtils.regClass("Laya.Rigidbody3D", Rigidbody3D);
 	        Laya.ClassUtils.regClass("Laya.CharacterController", CharacterController);
 	        Laya.ClassUtils.regClass("Laya.Animator", Animator);
 	        Laya.ClassUtils.regClass("PhysicsCollider", PhysicsCollider);
