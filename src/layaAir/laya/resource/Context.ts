@@ -2225,6 +2225,8 @@ export class Context {
 			y = _y1;//_curMat.b * _x1 + _curMat.d * _y1 + _curMat.ty;
 			lastx = _x1;
 			lasty = _y1;
+			this._path._lastOriX = x;
+			this._path._lastOriY = y;
 			this._path.addPoint(x, y);
 		}
 		var cvx: number = ptx1 - orix;
@@ -2245,6 +2247,8 @@ export class Context {
 				//var _tx1:Number = x, _ty1:Number = y;
 				//x = _curMat.a * _tx1 + _curMat.c * _ty1 + _curMat.tx;
 				//y = _curMat.b * _tx1 + _curMat.d * _ty1 + _curMat.ty;
+				this._path._lastOriX = x;
+				this._path._lastOriY = y;
 				this._path.addPoint(x, y);
 				lastx = x;
 				lasty = y;
