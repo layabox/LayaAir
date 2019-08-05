@@ -65,25 +65,16 @@ import { worker } from "cluster";
 		 run(context:Context, gx:number, gy:number):void {
 			if(ILaya.stage.isGlobalRepaint()){
 				this._textIsWorldText && ((<WordText>this._text )).cleanCache();
-			}
-			if (this._words && this._borderColor != "") {
-				context.fillBorderWords(this._words, this.x + gx, this.y + gy, this.font, this.color, this._borderColor, this._lineWidth);
-			}
-			else if (this._words) {
-				context.fillWords(this._words, this.x + gx, this.y + gy, this.font, this.color);
-			}
-			else if (this._lineWidth && this._borderColor != "") {
-				context.fillBorderText(this.text, this.x + gx, this.y + gy, this.font, this.color, this._borderColor, this._lineWidth, this.textAlign);
-			}
-			else if (this._lineWidth && this._borderColor == ""){
-				context.strokeWord(this.text, this.x + gx, this.y + gy, this.font, this.color, this._lineWidth, this.textAlign);
-			}
-			else if (this._textIsWorldText ) {
-				context._fast_filltext(((<WordText>this._text )), this.x + gx, this.y + gy, this._fontObj, this._color, null, 0, this._nTexAlign, 0);
-			} 
-			else {
-				context.drawText(this._text, this.x + gx, this.y + gy, this._font, this._color, this._textAlign);
-			}
+            }
+            if( this._words){
+                Context._textRender.fillWords(context, this._words, this.x+gx, this.y+gy, this._fontObj, this._color, this._borderColor, this._lineWidth);
+            }else{
+                if(this._textIsWorldText){// 快速通道
+                    context._fast_filltext(((<WordText>this._text )), this.x + gx, this.y + gy, this._fontObj, this._color, null, 0, this._nTexAlign, 0);
+                }else{
+                    Context._textRender.filltext(context, this._text, this.x+gx, this.y+gy, this.font, this.color, this._borderColor, this._lineWidth, this._textAlign);
+                }
+            }
 		}
 		
 		/**@private */
