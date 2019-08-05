@@ -1,13 +1,12 @@
 import { BaseMaterial } from "laya/d3/core/material/BaseMaterial";
 import { RenderState } from "laya/d3/core/material/RenderState";
-import { SkinnedMeshSprite3D } from "laya/d3/core/SkinnedMeshSprite3D";
 import { VertexMesh } from "laya/d3/graphics/Vertex/VertexMesh";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { Shader3D } from "laya/d3/shader/Shader3D";
-import { ShaderDefines } from "laya/d3/shader/ShaderDefines";
 import { ShaderPass } from "laya/d3/shader/ShaderPass";
 import { SubShader } from "laya/d3/shader/SubShader";
 import { BaseTexture } from "laya/resource/BaseTexture";
+import { ShaderDefine } from "laya/d3/shader/ShaderDefine";
 import CartoonFS from "./shader/cartoon.fs";
 import CartoonVS from "./shader/cartoon.vs";
 import OutlineFS from "./shader/outline.fs";
@@ -27,22 +26,19 @@ export class CartoonMaterial extends BaseMaterial {
 	static OUTLINELIGHTNESS: number = Shader3D.propertyNameToID("u_OutlineLightness");
 	static TILINGOFFSET: number;
 
-	static SHADERDEFINE_ALBEDOTEXTURE: number;
-	static SHADERDEFINE_BLENDTEXTURE: number;
-	static SHADERDEFINE_OUTLINETEXTURE: number;
-	static SHADERDEFINE_TILINGOFFSET: number;
-
-	/**@private */
-	static shaderDefines: ShaderDefines = new ShaderDefines(BaseMaterial.shaderDefines);
+	static SHADERDEFINE_ALBEDOTEXTURE: ShaderDefine;
+	static SHADERDEFINE_BLENDTEXTURE: ShaderDefine;
+	static SHADERDEFINE_OUTLINETEXTURE: ShaderDefine;
+	static SHADERDEFINE_TILINGOFFSET: ShaderDefine;
 
 	/**
 	 * @private
 	 */
 	static __init__(): void {
-		CartoonMaterial.SHADERDEFINE_ALBEDOTEXTURE = CartoonMaterial.shaderDefines.registerDefine("ALBEDOTEXTURE");
-		CartoonMaterial.SHADERDEFINE_BLENDTEXTURE = CartoonMaterial.shaderDefines.registerDefine("BLENDTEXTURE");
-		CartoonMaterial.SHADERDEFINE_OUTLINETEXTURE = CartoonMaterial.shaderDefines.registerDefine("OUTLINETEXTURE");
-		CartoonMaterial.SHADERDEFINE_TILINGOFFSET = CartoonMaterial.shaderDefines.registerDefine("TILINGOFFSET");
+		CartoonMaterial.SHADERDEFINE_ALBEDOTEXTURE = Shader3D.getDefineByName("ALBEDOTEXTURE");
+		CartoonMaterial.SHADERDEFINE_BLENDTEXTURE = Shader3D.getDefineByName("BLENDTEXTURE");
+		CartoonMaterial.SHADERDEFINE_OUTLINETEXTURE = Shader3D.getDefineByName("OUTLINETEXTURE");
+		CartoonMaterial.SHADERDEFINE_TILINGOFFSET = Shader3D.getDefineByName("TILINGOFFSET");
 	}
 
 	static initShader(): void {
@@ -74,7 +70,7 @@ export class CartoonMaterial extends BaseMaterial {
 			'u_DirectionLight.Color': Shader3D.PERIOD_SCENE
 		};
 		var cartoonShader3D: Shader3D = Shader3D.add("CartoonShader");
-		var subShader: SubShader = new SubShader(attributeMap, uniformMap, SkinnedMeshSprite3D.shaderDefines, CartoonMaterial.shaderDefines);
+		var subShader: SubShader = new SubShader(attributeMap, uniformMap);
 		cartoonShader3D.addSubShader(subShader);
 		var pass1: ShaderPass = subShader.addShaderPass(OutlineVS, OutlineFS);
 		pass1.renderState.cull = RenderState.CULL_FRONT;
