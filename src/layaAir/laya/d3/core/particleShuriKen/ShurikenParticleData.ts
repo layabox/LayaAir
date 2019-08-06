@@ -22,8 +22,6 @@ import { MathUtil } from "../../../maths/MathUtil"
 export class ShurikenParticleData {
 	/**@internal */
 	private static _tempVector30: Vector3 = new Vector3();
-	/**@internal */
-	private static _tempQuaternion: Quaternion = new Quaternion();
 
 	static startLifeTime: number;
 	static startColor: Vector4 = new Vector4();
@@ -414,7 +412,6 @@ export class ShurikenParticleData {
 				break;
 			default:
 				throw new Error("ShurikenParticleMaterial: SimulationSpace value is invalid.");
-				break;
 		}
 	}
 

@@ -1,49 +1,48 @@
+import { LayaGL } from "../../../layagl/LayaGL";
+import { MathUtil } from "../../../maths/MathUtil";
+import { Resource } from "../../../resource/Resource";
+import { Stat } from "../../../utils/Stat";
+import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
+import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
+import { VertexShurikenParticleBillboard } from "../../graphics/Vertex/VertexShurikenParticleBillboard";
+import { VertexShurikenParticleMesh } from "../../graphics/Vertex/VertexShurikenParticleMesh";
+import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
+import { VertexDeclaration } from "../../graphics/VertexDeclaration";
+import { VertexElement } from "../../graphics/VertexElement";
+import { BoundBox } from "../../math/BoundBox";
+import { BoundSphere } from "../../math/BoundSphere";
+import { Matrix4x4 } from "../../math/Matrix4x4";
+import { Rand } from "../../math/Rand";
+import { Vector2 } from "../../math/Vector2";
+import { Vector3 } from "../../math/Vector3";
+import { Vector4 } from "../../math/Vector4";
+import { Mesh } from "../../resource/models/Mesh";
+import { ShaderData } from "../../shader/ShaderData";
+import { BufferState } from "../BufferState";
+import { GeometryElement } from "../GeometryElement";
+import { Gradient } from "../Gradient";
+import { IClone } from "../IClone";
+import { RenderContext3D } from "../render/RenderContext3D";
+import { Scene3D } from "../scene/Scene3D";
+import { Transform3D } from "../Transform3D";
+import { Burst } from "./module/Burst";
+import { ColorOverLifetime } from "./module/ColorOverLifetime";
+import { Emission } from "./module/Emission";
+import { FrameOverTime } from "./module/FrameOverTime";
+import { GradientAngularVelocity } from "./module/GradientAngularVelocity";
+import { GradientColor } from "./module/GradientColor";
+import { GradientDataNumber } from "./module/GradientDataNumber";
+import { GradientSize } from "./module/GradientSize";
+import { GradientVelocity } from "./module/GradientVelocity";
+import { RotationOverLifetime } from "./module/RotationOverLifetime";
+import { BaseShape } from "./module/shape/BaseShape";
+import { SizeOverLifetime } from "./module/SizeOverLifetime";
+import { TextureSheetAnimation } from "./module/TextureSheetAnimation";
+import { VelocityOverLifetime } from "./module/VelocityOverLifetime";
 import { ShuriKenParticle3D } from "./ShuriKenParticle3D";
-import { ShurikenParticleRenderer } from "./ShurikenParticleRenderer";
-import { ShurikenParticleData } from "./ShurikenParticleData";
-import { BufferState } from "../BufferState"
-import { GeometryElement } from "../GeometryElement"
-import { Gradient } from "../Gradient"
-import { IClone } from "../IClone"
-import { Transform3D } from "../Transform3D"
-import { Burst } from "./module/Burst"
-import { ColorOverLifetime } from "./module/ColorOverLifetime"
-import { Emission } from "./module/Emission"
-import { FrameOverTime } from "./module/FrameOverTime"
-import { GradientAngularVelocity } from "./module/GradientAngularVelocity"
-import { GradientColor } from "./module/GradientColor"
-import { GradientDataNumber } from "./module/GradientDataNumber"
-import { GradientSize } from "./module/GradientSize"
-import { GradientVelocity } from "./module/GradientVelocity"
-import { RotationOverLifetime } from "./module/RotationOverLifetime"
-import { SizeOverLifetime } from "./module/SizeOverLifetime"
-import { TextureSheetAnimation } from "./module/TextureSheetAnimation"
-import { VelocityOverLifetime } from "./module/VelocityOverLifetime"
-import { BaseShape } from "./module/shape/BaseShape"
-import { RenderContext3D } from "../render/RenderContext3D"
-import { Scene3D } from "../scene/Scene3D"
-import { IndexBuffer3D } from "../../graphics/IndexBuffer3D"
-import { VertexMesh } from "../../graphics/Vertex/VertexMesh"
-import { VertexShurikenParticleBillboard } from "../../graphics/Vertex/VertexShurikenParticleBillboard"
-import { VertexShurikenParticleMesh } from "../../graphics/Vertex/VertexShurikenParticleMesh"
-import { VertexBuffer3D } from "../../graphics/VertexBuffer3D"
-import { VertexDeclaration } from "../../graphics/VertexDeclaration"
-import { VertexElement } from "../../graphics/VertexElement"
-import { BoundBox } from "../../math/BoundBox"
-import { BoundSphere } from "../../math/BoundSphere"
-import { Matrix4x4 } from "../../math/Matrix4x4"
-import { Rand } from "../../math/Rand"
-import { Vector2 } from "../../math/Vector2"
-import { Vector3 } from "../../math/Vector3"
-import { Vector4 } from "../../math/Vector4"
-import { Mesh } from "../../resource/models/Mesh"
-import { ShaderData } from "../../shader/ShaderData"
-import { LayaGL } from "../../../layagl/LayaGL"
-import { MathUtil } from "../../../maths/MathUtil"
-import { Resource } from "../../../resource/Resource"
-import { Stat } from "../../../utils/Stat"
-import { WebGLContext } from "../../../webgl/WebGLContext"
 import { ShuriKenParticle3DShaderDeclaration } from "./ShuriKenParticle3DShaderDeclaration";
+import { ShurikenParticleData } from "./ShurikenParticleData";
+import { ShurikenParticleRenderer } from "./ShurikenParticleRenderer";
 
 
 /**
@@ -599,20 +598,6 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 			shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMECURVE);
 			shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMERANDOMCONSTANT);
 			shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMERANDOMCURVE);
-
-			shaDat.setVector(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYCONST, null);
-			shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTX, null);
-			shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTY, null);
-			shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTZ, null);
-			shaDat.setVector(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYCONST, null);
-			shaDat.setVector(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYCONSTMAX, null);
-			shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTX, null);
-			shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTXMAX, null);
-			shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTY, null);
-			shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTYMAX, null);
-			shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTZ, null);
-			shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTZMAX, null);
-			shaDat.setInt(ShuriKenParticle3DShaderDeclaration.VOLSPACETYPE, undefined);
 		}
 		this._velocityOverLifetime = value;
 	}
@@ -746,15 +731,6 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 			shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMECURVESEPERATE);
 			shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMERANDOMCURVES);
 			shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMERANDOMCURVESSEPERATE);
-
-			shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTX, null);
-			shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTXMAX, null);
-			shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTY, null);
-			shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTYMAX, null);
-			shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSizeGradientZ, null);
-			shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSizeGradientZMAX, null);
-			shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENT, null);
-			shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSizeGradientMax, null);
 		}
 		this._sizeOverLifetime = value;
 	}
@@ -858,23 +834,6 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 			shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMECURVE);
 			shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMERANDOMCONSTANTS);
 			shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMERANDOMCURVES);
-
-			shaDat.setVector(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYCONSTSEPRARATE, null);
-			shaDat.setVector(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYCONSTMAXSEPRARATE, null);
-			shaDat.setNumber(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYCONST, undefined);
-			shaDat.setNumber(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYCONSTMAX, undefined);
-
-			shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTX, null);
-			shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTXMAX, null);
-			shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTY, null);
-			shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTYMAX, null);
-			shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTZ, null);
-			shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTZMAX, null);
-			//shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTW, null);
-			shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTWMAX, null);
-
-			shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENT, null);
-			shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTMAX, null);
 		}
 		this._rotationOverLifetime = value;
 	}
@@ -932,11 +891,6 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		} else {
 			shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_TEXTURESHEETANIMATIONCURVE);
 			shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_TEXTURESHEETANIMATIONRANDOMCURVE);
-
-			shaDat.setNumber(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONCYCLES, undefined);
-			shaDat.setVector(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONSUBUVLENGTH, null);
-			shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONGRADIENTUVS, null);
-			shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONGRADIENTMAXUVS, null);
 		}
 		this._textureSheetAnimation = value;
 	}
