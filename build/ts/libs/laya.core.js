@@ -11670,7 +11670,7 @@ window.Laya= (function (exports) {
 	        return ClassUtils._classMap[className];
 	    }
 	    static getClass(className) {
-	        var classObject = ClassUtils._classMap[className] || className;
+	        var classObject = ClassUtils._classMap[className] || ClassUtils._classMap['Laya.' + className] || className;
 	        var glaya = ILaya.Laya;
 	        if (typeof (classObject) == 'string')
 	            return (ILaya.__classMap[classObject] || glaya[className]);
