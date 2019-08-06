@@ -1853,7 +1853,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 						this._vertices[offset++] = MathUtil.lerp(this.startSpeedConstantMin, this.startSpeedConstantMax, Math.random());
 					} else {
 						this._rand.seed = this._randomSeeds[8];
-						this._vertices[offset++] = MathUtil.lerp(this.startSpeedConstantMin, this.startSpeedConstantMax, rand.getFloat());
+						this._vertices[offset++] = MathUtil.lerp(this.startSpeedConstantMin, this.startSpeedConstantMax, this._rand.getFloat());
 						this._randomSeeds[8] = this._rand.seed;
 					}
 					break;
