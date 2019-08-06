@@ -321,6 +321,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 		particleSystem.gravityModifier = data.gravityModifier;
 
 		particleSystem.simulationSpace = data.simulationSpace;
+		particleSystem.simulationSpeed = data.simulationSpeed;
 
 		particleSystem.scaleMode = data.scaleMode;
 

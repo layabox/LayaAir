@@ -271,6 +271,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	gravityModifier: number = 0;
 	/**模拟器空间,0为World,1为Local。暂不支持Custom。*/
 	simulationSpace: number = 0;
+	/**粒子的播放速度。 */
+	simulationSpeed: number = 1.0;
 	/**缩放模式，0为Hiercachy,1为Local,2为World。*/
 	scaleMode: number = 0;
 	/**激活时是否自动播放。*/
@@ -1330,7 +1332,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		}
 		else {
 			var elapsedTime: number = (this._startUpdateLoopCount !== Stat.loopCount && !this._isPaused) ? ((<Scene3D>this._owner._scene)).timer._delta / 1000.0 : 0;
-			elapsedTime = Math.min(ShurikenParticleSystem._maxElapsedTime, elapsedTime);
+			elapsedTime = Math.min(ShurikenParticleSystem._maxElapsedTime, elapsedTime * this.simulationSpeed);
 			this._updateParticles(elapsedTime);
 		}
 	}
