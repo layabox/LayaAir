@@ -1,20 +1,19 @@
-import { ShurikenParticleSystem } from "./ShurikenParticleSystem";
+import { MathUtil } from "../../../maths/MathUtil";
+import { Rand } from "../../math/Rand";
+import { Vector2 } from "../../math/Vector2";
+import { Vector3 } from "../../math/Vector3";
+import { Vector4 } from "../../math/Vector4";
+import { Transform3D } from "../Transform3D";
+import { ColorOverLifetime } from "./module/ColorOverLifetime";
+import { FrameOverTime } from "./module/FrameOverTime";
+import { GradientColor } from "./module/GradientColor";
+import { GradientDataNumber } from "./module/GradientDataNumber";
+import { GradientSize } from "./module/GradientSize";
+import { SizeOverLifetime } from "./module/SizeOverLifetime";
+import { StartFrame } from "./module/StartFrame";
+import { TextureSheetAnimation } from "./module/TextureSheetAnimation";
 import { ShurikenParticleRenderer } from "./ShurikenParticleRenderer";
-import { Transform3D } from "../Transform3D"
-import { ColorOverLifetime } from "./module/ColorOverLifetime"
-import { FrameOverTime } from "./module/FrameOverTime"
-import { GradientColor } from "./module/GradientColor"
-import { GradientDataNumber } from "./module/GradientDataNumber"
-import { GradientSize } from "./module/GradientSize"
-import { SizeOverLifetime } from "./module/SizeOverLifetime"
-import { StartFrame } from "./module/StartFrame"
-import { TextureSheetAnimation } from "./module/TextureSheetAnimation"
-import { Quaternion } from "../../math/Quaternion"
-import { Rand } from "../../math/Rand"
-import { Vector2 } from "../../math/Vector2"
-import { Vector3 } from "../../math/Vector3"
-import { Vector4 } from "../../math/Vector4"
-import { MathUtil } from "../../../maths/MathUtil"
+import { ShurikenParticleSystem } from "./ShurikenParticleSystem";
 
 /**
  *  @internal
@@ -27,7 +26,6 @@ export class ShurikenParticleData {
 	static startColor: Vector4 = new Vector4();
 	static startSize: Float32Array = new Float32Array(3);
 	static startRotation: Float32Array = new Float32Array(3);
-	static startSpeed: number;
 	static startUVInfo: Float32Array = new Float32Array(4);
 
 	constructor() {
@@ -300,21 +298,6 @@ export class ShurikenParticleData {
 				break;
 		}
 
-		//StartSpeed
-		switch (particleSystem.startSpeedType) {
-			case 0:
-				ShurikenParticleData.startSpeed = particleSystem.startSpeedConstant;
-				break;
-			case 2:
-				if (autoRandomSeed) {
-					ShurikenParticleData.startSpeed = MathUtil.lerp(particleSystem.startSpeedConstantMin, particleSystem.startSpeedConstantMax, Math.random());
-				} else {
-					rand.seed = randomSeeds[8];
-					ShurikenParticleData.startSpeed = MathUtil.lerp(particleSystem.startSpeedConstantMin, particleSystem.startSpeedConstantMax, rand.getFloat());
-					randomSeeds[8] = rand.seed;
-				}
-				break;
-		}
 
 		//StartUV
 		var textureSheetAnimation: TextureSheetAnimation = particleSystem.textureSheetAnimation;

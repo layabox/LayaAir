@@ -1652,7 +1652,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		if (nextFreeParticle === this._firstRetiredElement)
 			return false;
 
-		var transform:Transform3D=this._owner.transform;
+		var transform: Transform3D = this._owner.transform;
 		ShurikenParticleData.create(this, this._ownerRender, transform);
 
 		var particleAge: number = this._currentTime - time;
@@ -1843,7 +1843,21 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 			this._vertices[offset++] = ShurikenParticleData.startRotation[1];
 			this._vertices[offset++] = ShurikenParticleData.startRotation[2];
 
-			this._vertices[offset++] = ShurikenParticleData.startSpeed;
+			//StartSpeed
+			switch (this.startSpeedType) {
+				case 0:
+					this._vertices[offset++] = this.startSpeedConstant;
+					break;
+				case 2:
+					if (this.autoRandomSeed) {
+						this._vertices[offset++] = MathUtil.lerp(this.startSpeedConstantMin, this.startSpeedConstantMax, Math.random());
+					} else {
+						this._rand.seed = this._randomSeeds[8];
+						this._vertices[offset++] = MathUtil.lerp(this.startSpeedConstantMin, this.startSpeedConstantMax, rand.getFloat());
+						this._randomSeeds[8] = this._rand.seed;
+					}
+					break;
+			}
 
 			// (_vertices[offset] = XX);TODO:29预留
 			needRandomColor && (this._vertices[offset + 1] = randomColor);
@@ -1860,7 +1874,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 				case 0:
 					offset += 8;
 					var pos: Vector3 = transform.position;
-			      	var rot: Quaternion = transform.rotation;
+					var rot: Quaternion = transform.rotation;
 					this._vertices[offset++] = pos.x;
 					this._vertices[offset++] = pos.y;
 					this._vertices[offset++] = pos.z;
