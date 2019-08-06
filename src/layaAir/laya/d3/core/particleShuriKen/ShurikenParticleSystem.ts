@@ -43,6 +43,7 @@ import { ShuriKenParticle3D } from "./ShuriKenParticle3D";
 import { ShuriKenParticle3DShaderDeclaration } from "./ShuriKenParticle3DShaderDeclaration";
 import { ShurikenParticleData } from "./ShurikenParticleData";
 import { ShurikenParticleRenderer } from "./ShurikenParticleRenderer";
+import { Quaternion } from "../../math/Quaternion";
 
 
 /**
@@ -1651,7 +1652,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		if (nextFreeParticle === this._firstRetiredElement)
 			return false;
 
-		ShurikenParticleData.create(this, this._ownerRender, this._owner.transform);
+		var transform:Transform3D=this._owner.transform;
+		ShurikenParticleData.create(this, this._ownerRender, transform);
 
 		var particleAge: number = this._currentTime - time;
 		if (particleAge >= ShurikenParticleData.startLifeTime)//如果时间已大于声明周期，则直接跳过,TODO:提前优化
@@ -1857,13 +1859,15 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 			switch (this.simulationSpace) {
 				case 0:
 					offset += 8;
-					this._vertices[offset++] = ShurikenParticleData.simulationWorldPostion[0];
-					this._vertices[offset++] = ShurikenParticleData.simulationWorldPostion[1];
-					this._vertices[offset++] = ShurikenParticleData.simulationWorldPostion[2];
-					this._vertices[offset++] = ShurikenParticleData.simulationWorldRotation[0];
-					this._vertices[offset++] = ShurikenParticleData.simulationWorldRotation[1];
-					this._vertices[offset++] = ShurikenParticleData.simulationWorldRotation[2];
-					this._vertices[offset++] = ShurikenParticleData.simulationWorldRotation[3];
+					var pos: Vector3 = transform.position;
+			      	var rot: Quaternion = transform.rotation;
+					this._vertices[offset++] = pos.x;
+					this._vertices[offset++] = pos.y;
+					this._vertices[offset++] = pos.z;
+					this._vertices[offset++] = rot.x;
+					this._vertices[offset++] = rot.y;
+					this._vertices[offset++] = rot.z;
+					this._vertices[offset++] = rot.w;
 					break;
 				case 1:
 					break;

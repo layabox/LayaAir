@@ -29,8 +29,6 @@ export class ShurikenParticleData {
 	static startRotation: Float32Array = new Float32Array(3);
 	static startSpeed: number;
 	static startUVInfo: Float32Array = new Float32Array(4);
-	static simulationWorldPostion: Float32Array = new Float32Array(3);
-	static simulationWorldRotation: Float32Array = new Float32Array(4);
 
 	constructor() {
 	}
@@ -395,24 +393,6 @@ export class ShurikenParticleData {
 			ShurikenParticleData.startUVInfo[3] = 0.0;
 		}
 
-		switch (particleSystem.simulationSpace) {
-			case 0:
-				var position: Vector3 = transform.position;
-				ShurikenParticleData.simulationWorldPostion[0] = position.x;
-				ShurikenParticleData.simulationWorldPostion[1] = position.y;
-				ShurikenParticleData.simulationWorldPostion[2] = position.z;
-
-				var rotation: Quaternion = transform.rotation;
-				ShurikenParticleData.simulationWorldRotation[0] = rotation.x;
-				ShurikenParticleData.simulationWorldRotation[1] = rotation.y;
-				ShurikenParticleData.simulationWorldRotation[2] = rotation.z;
-				ShurikenParticleData.simulationWorldRotation[3] = rotation.w;
-				break;
-			case 1:
-				break;
-			default:
-				throw new Error("ShurikenParticleMaterial: SimulationSpace value is invalid.");
-		}
 	}
 
 }
