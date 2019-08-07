@@ -2,14 +2,14 @@
 	"version":"LAYAHIERARCHY:02",
 	"data":{
 		"type":"ShuriKenParticle3D",
-		"instanceID":1,
+		"instanceID":4,
 		"props":{
-			"name":"lv_guangci",
+			"name":"lv_kuosan1",
 			"active":true,
 			"isStatic":false,
 			"layer":0,
 			"position":[
-				-6.874553,
+				3.160447,
 				5.528735,
 				1.097193
 			],
@@ -25,17 +25,17 @@
 				1.5
 			],
 			"isPerformanceMode":true,
-			"duration":1,
+			"duration":0.5,
 			"looping":true,
 			"prewarm":false,
 			"startDelayType":0,
-			"startDelay":0.45,
+			"startDelay":0.35,
 			"startDelayMin":0,
-			"startDelayMax":0.45,
-			"startLifetimeType":0,
-			"startLifetimeConstant":0.7,
-			"startLifetimeConstantMin":0,
-			"startLifetimeConstantMax":0.7,
+			"startDelayMax":0.35,
+			"startLifetimeType":2,
+			"startLifetimeConstant":0.2,
+			"startLifetimeConstantMin":0.2,
+			"startLifetimeConstantMax":0.2,
 			"startLifetimeGradient":{
 				"startLifetimes":[]
 			},
@@ -45,32 +45,32 @@
 			"startLifetimeGradientMax":{
 				"startLifetimes":[]
 			},
-			"startSpeedType":0,
-			"startSpeedConstant":0,
-			"startSpeedConstantMin":0,
-			"startSpeedConstantMax":0,
+			"startSpeedType":2,
+			"startSpeedConstant":0.3,
+			"startSpeedConstantMin":0.3,
+			"startSpeedConstantMax":0.3,
 			"threeDStartSize":false,
-			"startSizeType":0,
-			"startSizeConstant":5,
-			"startSizeConstantMin":0,
-			"startSizeConstantMax":5,
+			"startSizeType":2,
+			"startSizeConstant":3,
+			"startSizeConstantMin":3,
+			"startSizeConstantMax":3,
 			"startSizeConstantSeparate":[
-				5,
+				3,
 				1,
 				1
 			],
 			"startSizeConstantMinSeparate":[
-				0,
-				0,
-				0
+				3,
+				1,
+				1
 			],
 			"startSizeConstantMaxSeparate":[
-				5,
+				3,
 				1,
 				1
 			],
 			"threeDStartRotation":false,
-			"startRotationType":0,
+			"startRotationType":2,
 			"startRotationConstant":0,
 			"startRotationConstantMin":0,
 			"startRotationConstantMax":0,
@@ -92,9 +92,9 @@
 			"randomizeRotationDirection":0,
 			"startColorType":0,
 			"startColorConstant":[
-				1,
-				1,
-				1,
+				0.9632353,
+				0.3786511,
+				0,
 				1
 			],
 			"startColorConstantMin":[
@@ -104,9 +104,9 @@
 				0
 			],
 			"startColorConstantMax":[
-				1,
-				1,
-				1,
+				0.9632353,
+				0.3786511,
+				0,
 				1
 			],
 			"gravity":[
@@ -119,20 +119,14 @@
 			"simulationSpeed":1,
 			"scaleMode":0,
 			"playOnAwake":true,
-			"maxParticles":5,
+			"maxParticles":100,
 			"autoRandomSeed":true,
-			"randomSeed":3.727208E+09,
+			"randomSeed":8.262598E+08,
 			"emission":{
 				"enable":true,
-				"emissionRate":0,
+				"emissionRate":40,
 				"emissionRateTip":"Time",
-				"bursts":[
-					{
-						"time":0,
-						"min":1,
-						"max":1
-					}
-				]
+				"bursts":[]
 			},
 			"colorOverLifetime":{
 				"enable":true,
@@ -148,10 +142,14 @@
 						"alphas":[
 							{
 								"key":0,
+								"value":0
+							},
+							{
+								"key":0.1588312,
 								"value":1
 							},
 							{
-								"key":0.8323491,
+								"key":0.723537,
 								"value":1
 							},
 							{
@@ -194,10 +192,14 @@
 						"alphas":[
 							{
 								"key":0,
+								"value":0
+							},
+							{
+								"key":0.1588312,
 								"value":1
 							},
 							{
-								"key":0.8323491,
+								"key":0.723537,
 								"value":1
 							},
 							{
@@ -226,19 +228,61 @@
 					}
 				}
 			},
-			"rotationOverLifetime":{
+			"sizeOverLifetime":{
 				"enable":true,
-				"angularVelocity":{
+				"size":{
 					"type":0,
 					"separateAxes":false,
-					"constant":89.99999,
+					"gradient":{
+						"sizes":[
+							{
+								"key":0,
+								"value":0.2451935
+							},
+							{
+								"key":1,
+								"value":1
+							}
+						]
+					},
+					"gradientX":{
+						"sizes":[
+							{
+								"key":0,
+								"value":0.2451935
+							},
+							{
+								"key":1,
+								"value":1
+							}
+						]
+					},
+					"gradientY":{
+						"sizes":[
+							{
+								"key":0,
+								"value":0
+							},
+							{
+								"key":1,
+								"value":1
+							}
+						]
+					},
+					"gradientZ":{
+						"sizes":[
+							{
+								"key":0,
+								"value":0
+							},
+							{
+								"key":1,
+								"value":1
+							}
+						]
+					},
 					"constantMin":0,
-					"constantMax":89.99999,
-					"constantSeparate":[
-						0,
-						0,
-						-89.99999
-					],
+					"constantMax":0,
 					"constantMinSeparate":[
 						0,
 						0,
@@ -247,43 +291,67 @@
 					"constantMaxSeparate":[
 						0,
 						0,
-						89.99999
+						0
 					],
-					"gradient":{
-						"angularVelocitys":[]
-					},
-					"gradientX":{
-						"angularVelocitys":[]
-					},
-					"gradientY":{
-						"angularVelocitys":[]
-					},
-					"gradientZ":{
-						"angularVelocitys":[]
-					},
 					"gradientMin":{
-						"angularVelocitys":[]
+						"sizes":[]
 					},
 					"gradientMax":{
-						"angularVelocitys":[]
+						"sizes":[
+							{
+								"key":0,
+								"value":0.2451935
+							},
+							{
+								"key":1,
+								"value":1
+							}
+						]
 					},
 					"gradientXMin":{
-						"angularVelocitys":[]
+						"sizes":[]
 					},
 					"gradientXMax":{
-						"angularVelocitys":[]
+						"sizes":[
+							{
+								"key":0,
+								"value":0.2451935
+							},
+							{
+								"key":1,
+								"value":1
+							}
+						]
 					},
 					"gradientYMin":{
-						"angularVelocitys":[]
+						"sizes":[]
 					},
 					"gradientYMax":{
-						"angularVelocitys":[]
+						"sizes":[
+							{
+								"key":0,
+								"value":0
+							},
+							{
+								"key":1,
+								"value":1
+							}
+						]
 					},
 					"gradientZMin":{
-						"angularVelocitys":[]
+						"sizes":[]
 					},
 					"gradientZMax":{
-						"angularVelocitys":[]
+						"sizes":[
+							{
+								"key":0,
+								"value":0
+							},
+							{
+								"key":1,
+								"value":1
+							}
+						]
 					}
 				}
 			},
@@ -291,10 +359,10 @@
 			"stretchedBillboardCameraSpeedScale":0,
 			"stretchedBillboardSpeedScale":0,
 			"stretchedBillboardLengthScale":2,
-			"sortingFudge":2,
+			"sortingFudge":-5,
 			"material":{
 				"type":"Laya.ShurikenParticleMaterial",
-				"path":"Assets/Effects/Textures/jianling/Materials/tx54.lmat"
+				"path":"Assets/Effects/Textures/jianling/Materials/x_texture_035qw.lmat"
 			}
 		},
 		"components":[],

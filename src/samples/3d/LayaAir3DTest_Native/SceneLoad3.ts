@@ -24,10 +24,10 @@ export class SceneLoad3 {
 	monkeyRow: number = 10;
 	monkeyCount: number = 0;
 	_scene: Scene3D;
-	layaMonkey: Sprite3D;
+	layaMonkey:Sprite3D;
+	particles:Array<Sprite3D>;
 
 	constructor() {
-		Shader3D.debugMode = true;
 		Laya3D.init(0, 0);
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
@@ -45,7 +45,7 @@ export class SceneLoad3 {
 			//设置雾化最浓处的距离。
 			scene.fogRange = 40;
 			//设置场景环境光
-			scene.ambientColor = new Vector3(0, 0, 0.1);
+			scene.ambientColor = new Vector3(0.03, 0.08, 0.04);
 
 			//添加相机
 			var camera: Camera = new Camera();
@@ -92,8 +92,61 @@ export class SceneLoad3 {
 
 			_this._scene = scene;
 			_this.loadMonkey();
+			_this.loadParticle();
 		}));
 	}
+
+	loadParticle() {
+		var _this: SceneLoad3 = this;
+		this.particles = new Array<Sprite3D>();
+		Sprite3D.load("res/threeDimen/particle/lv_guangci.lh", Handler.create(null, function (lm: Sprite3D): void {
+			_this.particles.push(lm);
+			if(_this.particles.length>=5)
+			{
+				_this.createParticle();
+			}
+		}));
+		Sprite3D.load("res/threeDimen/particle/lv_kuosan.lh", Handler.create(null, function (lm: Sprite3D): void {
+			_this.particles.push(lm);
+			if(_this.particles.length>=5)
+			{
+				_this.createParticle();
+			}
+		}));
+		Sprite3D.load("res/threeDimen/particle/lv_qiu2.lh", Handler.create(null, function (lm: Sprite3D): void {
+			_this.particles.push(lm);
+			if(_this.particles.length>=5)
+			{
+				_this.createParticle();
+			}
+		}));
+		Sprite3D.load("res/threeDimen/particle/lv_sd.lh", Handler.create(null, function (lm: Sprite3D): void {
+			_this.particles.push(lm);
+			if(_this.particles.length>=5)
+			{
+				_this.createParticle();
+			}
+		}));
+		Sprite3D.load("res/threeDimen/particle/lv_kuosan1.lh", Handler.create(null, function (lm: Sprite3D): void {
+			_this.particles.push(lm);
+			if(_this.particles.length>=5)
+			{
+				_this.createParticle();
+			}
+		}));
+	}
+
+	createParticle()
+	{
+		var nNum: number = this.monkeyRow * this.monkeyRow;
+		for (let i: number = 0; i < nNum; i++) {
+			var x: number = parseInt((i / this.monkeyRow).toString());
+			var y: number = parseInt((i % this.monkeyRow).toString());
+			var sp: Sprite3D = Sprite3D.instantiate(this.particles[i%5], this._scene, false, new Vector3((-this.monkeyRow / 2 + x) * 4, 9, -2 + -y * 2));
+			this._scene.addChild(sp);
+		}
+	}
+
 
 	loadMonkey() {
 		var _this: SceneLoad3 = this;
@@ -114,11 +167,12 @@ export class SceneLoad3 {
 			Laya.timer.frameOnce(1, _this, _this.createMonkey);
 		}));
 	}
+
 	createMonkey(): void {
 		if (this.layaMonkey) {
 			var i: number = parseInt((this.monkeyCount / this.monkeyRow).toString());
 			var j: number = parseInt((this.monkeyCount % this.monkeyRow).toString());
-			var sp: Sprite3D = Sprite3D.instantiate(this.layaMonkey, this._scene, false, new Vector3((-this.monkeyRow / 2 + i) * 4, 7, -2 + -j * 2));
+			var sp: Sprite3D = Sprite3D.instantiate(this.layaMonkey, this._scene, false, new Vector3((-this.monkeyRow / 2 + i) * 4, 9, -2 + -j * 2));
 			//sp.transform.rotate(new Vector3(0, 180, 0),true,false );
 			this.monkeyCount++;
 			if (this.monkeyCount < this.monkeyRow * this.monkeyRow) {

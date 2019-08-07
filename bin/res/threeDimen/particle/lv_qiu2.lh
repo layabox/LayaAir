@@ -9,9 +9,9 @@
 			"isStatic":false,
 			"layer":0,
 			"position":[
-				3.27,
-				0,
-				0
+				-3.619554,
+				5.528735,
+				1.097193
 			],
 			"rotation":[
 				0,
@@ -20,9 +20,9 @@
 				-1
 			],
 			"scale":[
-				1,
-				1,
-				1
+				1.5,
+				1.5,
+				1.5
 			],
 			"isPerformanceMode":true,
 			"duration":1,
@@ -121,7 +121,7 @@
 			"playOnAwake":true,
 			"maxParticles":5,
 			"autoRandomSeed":true,
-			"randomSeed":2.401503E+09,
+			"randomSeed":1.762983E+09,
 			"emission":{
 				"enable":true,
 				"emissionRate":0,
