@@ -90,7 +90,7 @@ export class Shader3D {
 			var subMask: number = mask[i];
 			for (var j: number = 0; j < 32; j++) {
 				var d: number = 1 << j;
-				if (d > subMask)//大于跳出
+				if (subMask > 0 && d > subMask)//如果31位存在subMask为负数,避免break
 					break;
 				if (subMask & d)
 					out.push(subMaskMap[d]);
@@ -108,7 +108,7 @@ export class Shader3D {
 			var maskMap: Array<object> = Shader3D._maskMap;
 			var counter: number = Shader3D._defineCounter;
 			var index: number = Math.floor(counter / 32);
-			var value: number = Math.pow(2, counter % 32);
+			var value: number = 1 << counter % 32;
 			define = new ShaderDefine(index, value);
 			Shader3D._defineMap[name] = define;
 			if (index == maskMap.length) {
