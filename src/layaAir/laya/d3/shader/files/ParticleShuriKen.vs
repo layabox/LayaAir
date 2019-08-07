@@ -152,10 +152,6 @@ uniform int u_SimulationSpace;
   uniform  vec2 u_TSAMaxGradientUVs[4];//x为key,y为frame
 #endif
 
-#ifdef FOG
-	//varying vec3 v_PositionWorld;
-#endif
-
 #ifdef TILINGOFFSET
 	uniform vec4 u_TilingOffset;
 #endif
@@ -761,11 +757,7 @@ void main()
 		#endif
 	#endif
     v_Discard=0.0;
-	  
-	#ifdef FOG
-		//v_PositionWorld=center;
-	#endif
-   }
+   	}
    else
 	{
 		v_Discard=1.0;
