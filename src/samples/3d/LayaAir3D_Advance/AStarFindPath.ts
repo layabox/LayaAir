@@ -168,14 +168,17 @@ export class AStarFindPath {
 				this._position.y = this.moveSprite3D.transform.position.y;
 			}
 
-			this._tarPosition.x = this._position.x;
-			this._tarPosition.z = this._position.z;
-			this._tarPosition.y = this.moveSprite3D.transform.position.y;
+			//在出发前进行姿态的调整
+			if(this.index === 1){
+				//调整方向
+				this._tarPosition.x = this.resPath[this.resPath.length -1].x;
+				this._tarPosition.z = this.resPath[this.resPath.length -1].z;
+				this._tarPosition.y = this.moveSprite3D.transform.position.y;
+				this.layaMonkey.transform.lookAt(this._tarPosition, this._upVector3, false);
+				//因为资源规格,这里需要旋转180度
+				this.layaMonkey.transform.rotate(this._rotation2, false, false);
+			}
 
-			//调整方向
-			this.layaMonkey.transform.lookAt(this._tarPosition, this._upVector3, false);
-			//因为资源规格,这里需要旋转180度
-			this.layaMonkey.transform.rotate(this._rotation2, false, false);
 			//调整位置
 			Tween.to(this._finalPosition, { x: this._position.x, y: this._position.y, z: this._position.z }, 40);
 			this.moveSprite3D.transform.position = this._finalPosition;
