@@ -134,11 +134,11 @@ export class FrameOverTime implements IClone {
 		var destFrameOverTime: FrameOverTime = (<FrameOverTime>destObject);
 		destFrameOverTime._type = this._type;
 		destFrameOverTime._constant = this._constant;
-		this._overTime.cloneTo(destFrameOverTime._overTime);
+		(this._overTime) && (this._overTime.cloneTo(destFrameOverTime._overTime));
 		destFrameOverTime._constantMin = this._constantMin;
 		destFrameOverTime._constantMax = this._constantMax;
-		this._overTimeMin.cloneTo(destFrameOverTime._overTimeMin);
-		this._overTimeMax.cloneTo(destFrameOverTime._overTimeMax);
+		(this._overTimeMin) && (this._overTimeMin.cloneTo(destFrameOverTime._overTimeMin));
+		(this._overTimeMax) && (this._overTimeMax.cloneTo(destFrameOverTime._overTimeMax));
 	}
 
 	/**
