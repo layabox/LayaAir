@@ -12,7 +12,7 @@ import { ShaderDefine } from "./ShaderDefine";
 
 
 /**
- * @private
+ * 着色器数据类。
  */
 export class ShaderData implements IClone {
 	/**@internal */
