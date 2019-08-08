@@ -219,7 +219,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 				this._localBounds._tranform(this._owner.transform.worldMatrix, this._bounds);
 
 		} else {//[兼容性API]
-			if (this._rootBone) {
+			if (this._cacheAnimator && this._rootBone) {
 				var worldMat: Matrix4x4 = SkinnedMeshRenderer._tempMatrix4x4;
 				Utils3D.matrix4x4MultiplyMFM(((<Sprite3D>this._cacheAnimator.owner)).transform.worldMatrix, this._cacheRootAnimationNode.transform.getWorldMatrix(), worldMat);
 				this._localBounds._tranform(worldMat, this._bounds);
