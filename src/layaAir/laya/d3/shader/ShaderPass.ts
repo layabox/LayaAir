@@ -22,7 +22,7 @@ export class ShaderPass extends ShaderCompile {
 	/**@internal */
 	private _cacheSharders: object = {};
 	/**@internal */
-	private _cacheShaderHierarchy: number = 0;
+	private _cacheShaderHierarchy: number = 1;
 	/**@internal */
 	private _renderState: RenderState = new RenderState();
 	/**@internal */
