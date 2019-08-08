@@ -2,6 +2,7 @@
 import typescript from 'rollup-plugin-typescript2';
 import glsl from 'rollup-plugin-glsl';
 const path = require('path')
+const layaExpPlugin = require('rollup-plugin-exportlaya');
 // `npm run build` -> `production` is true
 // `npm run dev` -> `production` is false
 const production = !process.env.ROLLUP_WATCH;
@@ -9,7 +10,6 @@ const production = !process.env.ROLLUP_WATCH;
 const resolveFile = function(filePath) {
     return path.join(__dirname, '..', filePath)
 }
-
 
 function testPlug(options){
     return {
@@ -31,6 +31,7 @@ function testPlug(options){
     }
 }
 
+let layaexpreplace = '//__LAYARPLACEMENTHERE__//';
 export default { 
     //input: './src/debug/PerformanceTest_Maggots.ts',
     input: './Main.ts',
@@ -42,10 +43,19 @@ export default {
 		file: '../../bin/bundle.js',
 		format: 'iife', // immediately-invoked function expression — suitable for <script> tags
         sourcemap: false,
-        name:'laya',
+        name:'Laya',
+        extend: true,
+        //intro:'window.Laya=window.Laya||exports||{};\n',
+        outro:layaexpreplace
         //indent: false
 	},
 	plugins: [
+        layaExpPlugin({
+            baseUrl:'../layaAir',
+            layaPath:'../layaAir',      // 收集需要的laya文件
+            //gatherExtFiles:layaFiles,
+            addLayaExpAt:layaexpreplace,
+        }),
         typescript({
             //abortOnError:false
             check: false
