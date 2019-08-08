@@ -14,9 +14,9 @@
 			}
 		],
 		"enableVertexColor":false,
-		"alphaTest":true,
+		"alphaTest":false,
 		"alphaTestValue":0.5,
-		"renderQueue":2450,
+		"renderQueue":2000,
 		"albedoIntensity":1,
 		"enableLighting":true,
 		"shininess":0.01,
@@ -51,6 +51,7 @@
 			{
 				"name":"specularColor",
 				"value":[
+					1,
 					1,
 					1,
 					1

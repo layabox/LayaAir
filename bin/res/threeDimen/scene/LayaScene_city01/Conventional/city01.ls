@@ -7,7 +7,7 @@
 			"sky":{
 				"material":{
 					"type":"Laya.SkyProceduralMaterial",
-					"path":"Assets/Sky.lmat"
+					"path":"Assets/New Material.lmat"
 				},
 				"mesh":"SkyDome"
 			},
@@ -58,10 +58,10 @@
 						-40.3
 					],
 					"rotation":[
-						0.1646411,
+						0.1739396,
 						0,
 						0,
-						-0.9863536
+						-0.9847564
 					],
 					"scale":[
 						1,
@@ -70,6 +70,7 @@
 					],
 					"clearFlag":1,
 					"orthographic":false,
+					"orthographicVerticalSize":10,
 					"fieldOfView":60,
 					"enableHDR":false,
 					"nearPlane":0.3,
@@ -3148,7 +3149,7 @@
 									"enableRender":true,
 									"materials":[
 										{
-											"path":"Assets/artresource/material/city01/city01.lmat"
+											"path":"Assets/artresource/material/city01/city01AlphaTest.lmat"
 										}
 									]
 								},
@@ -3190,7 +3191,7 @@
 									"enableRender":true,
 									"materials":[
 										{
-											"path":"Assets/artresource/material/city01/city01.lmat"
+											"path":"Assets/artresource/material/city01/city01AlphaTest.lmat"
 										}
 									]
 								},
@@ -3610,7 +3611,7 @@
 									"enableRender":true,
 									"materials":[
 										{
-											"path":"Assets/artresource/material/city01/city01.lmat"
+											"path":"Assets/artresource/material/city01/city01AlphaTest.lmat"
 										}
 									]
 								},
@@ -3778,7 +3779,7 @@
 									"enableRender":true,
 									"materials":[
 										{
-											"path":"Assets/artresource/material/city01/city01.lmat"
+											"path":"Assets/artresource/material/city01/city01AlphaTest.lmat"
 										}
 									]
 								},
@@ -3820,7 +3821,7 @@
 									"enableRender":true,
 									"materials":[
 										{
-											"path":"Assets/artresource/material/city01/city01.lmat"
+											"path":"Assets/artresource/material/city01/city01AlphaTest.lmat"
 										}
 									]
 								},
@@ -3862,7 +3863,7 @@
 									"enableRender":true,
 									"materials":[
 										{
-											"path":"Assets/artresource/material/city01/city01.lmat"
+											"path":"Assets/artresource/material/city01/city01AlphaTest.lmat"
 										}
 									]
 								},
@@ -3988,7 +3989,7 @@
 									"enableRender":true,
 									"materials":[
 										{
-											"path":"Assets/artresource/material/city01/city01.lmat"
+											"path":"Assets/artresource/material/city01/city01AlphaTest.lmat"
 										}
 									]
 								},
@@ -4450,7 +4451,7 @@
 									"enableRender":true,
 									"materials":[
 										{
-											"path":"Assets/artresource/material/city01/city01.lmat"
+											"path":"Assets/artresource/material/city01/city01AlphaTest.lmat"
 										}
 									]
 								},
@@ -4576,7 +4577,7 @@
 									"enableRender":true,
 									"materials":[
 										{
-											"path":"Assets/artresource/material/city01/city01.lmat"
+											"path":"Assets/artresource/material/city01/city01AlphaTest.lmat"
 										}
 									]
 								},
@@ -4618,7 +4619,7 @@
 									"enableRender":true,
 									"materials":[
 										{
-											"path":"Assets/artresource/material/city01/city01.lmat"
+											"path":"Assets/artresource/material/city01/city01AlphaTest.lmat"
 										}
 									]
 								},
@@ -4744,7 +4745,7 @@
 									"enableRender":true,
 									"materials":[
 										{
-											"path":"Assets/artresource/material/city01/city01.lmat"
+											"path":"Assets/artresource/material/city01/city01AlphaTest.lmat"
 										}
 									]
 								},
@@ -4870,7 +4871,7 @@
 									"enableRender":true,
 									"materials":[
 										{
-											"path":"Assets/artresource/material/city01/city01.lmat"
+											"path":"Assets/artresource/material/city01/city01AlphaTest.lmat"
 										}
 									]
 								},
@@ -5584,7 +5585,7 @@
 									"enableRender":true,
 									"materials":[
 										{
-											"path":"Assets/artresource/material/city01/city01.lmat"
+											"path":"Assets/artresource/material/city01/city01AlphaTest.lmat"
 										}
 									]
 								},
@@ -5626,7 +5627,7 @@
 									"enableRender":true,
 									"materials":[
 										{
-											"path":"Assets/artresource/material/city01/city01.lmat"
+											"path":"Assets/artresource/material/city01/city01AlphaTest.lmat"
 										}
 									]
 								},
@@ -6298,7 +6299,7 @@
 									"enableRender":true,
 									"materials":[
 										{
-											"path":"Assets/artresource/material/city01/city01.lmat"
+											"path":"Assets/artresource/material/city01/city01AlphaTest.lmat"
 										}
 									]
 								},
@@ -6508,7 +6509,7 @@
 									"enableRender":true,
 									"materials":[
 										{
-											"path":"Assets/artresource/material/city01/city01.lmat"
+											"path":"Assets/artresource/material/city01/city01AlphaTest.lmat"
 										}
 									]
 								},
@@ -6886,7 +6887,7 @@
 									"enableRender":true,
 									"materials":[
 										{
-											"path":"Assets/artresource/material/city01/city01.lmat"
+											"path":"Assets/artresource/material/city01/city01AlphaTest.lmat"
 										}
 									]
 								},
@@ -7516,7 +7517,7 @@
 									"enableRender":true,
 									"materials":[
 										{
-											"path":"Assets/artresource/material/city01/city01.lmat"
+											"path":"Assets/artresource/material/city01/city01AlphaTest.lmat"
 										}
 									]
 								},
@@ -7852,7 +7853,7 @@
 									"enableRender":true,
 									"materials":[
 										{
-											"path":"Assets/artresource/material/city01/city01.lmat"
+											"path":"Assets/artresource/material/city01/city01AlphaTest.lmat"
 										}
 									]
 								},
@@ -7894,7 +7895,7 @@
 									"enableRender":true,
 									"materials":[
 										{
-											"path":"Assets/artresource/material/city01/city01.lmat"
+											"path":"Assets/artresource/material/city01/city01AlphaTest.lmat"
 										}
 									]
 								},
@@ -8272,7 +8273,7 @@
 									"enableRender":true,
 									"materials":[
 										{
-											"path":"Assets/artresource/material/city01/city01.lmat"
+											"path":"Assets/artresource/material/city01/city01AlphaTest.lmat"
 										}
 									]
 								},
@@ -8314,7 +8315,7 @@
 									"enableRender":true,
 									"materials":[
 										{
-											"path":"Assets/artresource/material/city01/city01.lmat"
+											"path":"Assets/artresource/material/city01/city01AlphaTest.lmat"
 										}
 									]
 								},
@@ -8356,7 +8357,7 @@
 									"enableRender":true,
 									"materials":[
 										{
-											"path":"Assets/artresource/material/city01/city01.lmat"
+											"path":"Assets/artresource/material/city01/city01AlphaTest.lmat"
 										}
 									]
 								},
@@ -8398,7 +8399,7 @@
 									"enableRender":true,
 									"materials":[
 										{
-											"path":"Assets/artresource/material/city01/city01.lmat"
+											"path":"Assets/artresource/material/city01/city01AlphaTest.lmat"
 										}
 									]
 								},
@@ -8440,7 +8441,7 @@
 									"enableRender":true,
 									"materials":[
 										{
-											"path":"Assets/artresource/material/city01/city01.lmat"
+											"path":"Assets/artresource/material/city01/city01AlphaTest.lmat"
 										}
 									]
 								},
@@ -8482,7 +8483,7 @@
 									"enableRender":true,
 									"materials":[
 										{
-											"path":"Assets/artresource/material/city01/city01.lmat"
+											"path":"Assets/artresource/material/city01/city01AlphaTest.lmat"
 										}
 									]
 								},
@@ -8524,7 +8525,7 @@
 									"enableRender":true,
 									"materials":[
 										{
-											"path":"Assets/artresource/material/city01/city01.lmat"
+											"path":"Assets/artresource/material/city01/city01AlphaTest.lmat"
 										}
 									]
 								},
@@ -8566,7 +8567,7 @@
 									"enableRender":true,
 									"materials":[
 										{
-											"path":"Assets/artresource/material/city01/city01.lmat"
+											"path":"Assets/artresource/material/city01/city01AlphaTest.lmat"
 										}
 									]
 								},
