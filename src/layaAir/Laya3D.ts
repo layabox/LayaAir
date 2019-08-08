@@ -261,9 +261,10 @@ export class Laya3D {
 		ClassUtils.regClass("Laya.CharacterController", CharacterController);
 		ClassUtils.regClass("Laya.Animator", Animator);
 
-		ClassUtils.regClass("PhysicsCollider", PhysicsCollider);//兼容
-		ClassUtils.regClass("CharacterController", CharacterController);//兼容
-		ClassUtils.regClass("Animator", Animator);//兼容
+		ClassUtils.regClass("Rigidbody3D", Rigidbody3D);
+		ClassUtils.regClass("PhysicsCollider", PhysicsCollider);
+		ClassUtils.regClass("CharacterController", CharacterController);
+		ClassUtils.regClass("Animator", Animator);
 
 
 		PixelLineMaterial.defaultMaterial = new PixelLineMaterial();
