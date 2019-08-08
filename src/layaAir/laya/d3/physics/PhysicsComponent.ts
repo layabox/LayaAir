@@ -302,16 +302,26 @@ export class PhysicsComponent extends Component {
 	 * @inheritDoc
 	 * @override
 	 */
+	get enabled(): boolean {
+		return super.enabled;
+	}
+
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
 	set enabled(value: boolean) {
-		if (this._simulation && this._colliderShape) {
-			if (value) {
-				this._derivePhysicsTransformation(true);
-				this._addToSimulation();
-			} else {
-				this._removeFromSimulation();
+		if (this._enabled != value) {
+			if (this._simulation && this._colliderShape) {
+				if (value) {
+					this._derivePhysicsTransformation(true);
+					this._addToSimulation();
+				} else {
+					this._removeFromSimulation();
+				}
 			}
+			super.enabled = value;
 		}
-		super.enabled = value;
 	}
 
 	/**
