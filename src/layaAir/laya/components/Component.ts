@@ -49,12 +49,14 @@ export class Component implements ISingletonElement, IDestroy {
 	}
 
 	set enabled(value: boolean) {
-		this._enabled = value;
-		if (this.owner) {
-			if (value)
-				this.owner.activeInHierarchy && this._onEnable();
-			else
-				this.owner.activeInHierarchy && this._onDisable();
+		if (this._enabled != value) {
+			this._enabled = value;
+			if (this.owner) {
+				if (value)
+					this.owner.activeInHierarchy && this._onEnable();
+				else
+					this.owner.activeInHierarchy && this._onDisable();
+			}
 		}
 	}
 
