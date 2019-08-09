@@ -9,7 +9,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 	 */
 	export class Widget extends Component {
 		/**一个已初始化的 <code>Widget</code> 实例。*/
-		 static EMPTY:Widget = null;// new Widget();
+		static EMPTY:Widget = null;// new Widget();
 		
 		private _top:number = NaN;
 		private _bottom:number = NaN;
@@ -197,7 +197,6 @@ import { ClassUtils } from "../utils/ClassUtils";
 	}
 
 ILaya.regClass(Widget);
-
 Widget.EMPTY=new Widget();
-	ClassUtils.regClass("laya.ui.Widget", Widget);
-	ClassUtils.regClass("Laya.Widget", Widget);
+ClassUtils.regClass("laya.ui.Widget", Widget);
+ClassUtils.regClass("Laya.Widget", Widget);

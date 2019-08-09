@@ -927,7 +927,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 		 * @param	type 组件类型。
 		 * @return	组件。
 		 */
-		 addComponent(type:new()=>any):any {
+		 addComponent(type:typeof Component):any {
 			var comp:Component = Pool.createByClass(type);
 			comp._destroyed = false;
 			if (comp.isSingleton && this.getComponent(type))

@@ -281,8 +281,8 @@ import { ClassUtils } from "../utils/ClassUtils";
 			this.texture = null;
 		}
 		
-		constructor(){super();
-
+		constructor(){
+            super();
 		}
 		
 		/**根据zOrder进行重新排序。*/
