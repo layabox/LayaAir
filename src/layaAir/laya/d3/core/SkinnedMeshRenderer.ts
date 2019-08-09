@@ -372,7 +372,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 			var nodeMapC: any = this._cacheAnimator._avatarNodeMap;
 			for (i = 0; i < innerBindPoseCount; i++) {
 				var nodeC: AnimationNode = nodeMapC[meshBoneNames[bindPoseIndices[i]]];
-				this._cacheAnimationNodeIndices[i] = nodeC._worldMatrixIndex;
+				this._cacheAnimationNodeIndices[i] = nodeC ? nodeC._worldMatrixIndex : 0;
 			}
 		}
 	}
