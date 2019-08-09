@@ -68,7 +68,7 @@ export class Shader3D {
 	static _preCompileShader: any = {};
 
 	/**是否开启调试模式。 */
-	static debugMode: boolean = true;
+	static debugMode: boolean = false;
 
 	/**
 	 * 通过Shader属性名称获得唯一ID。
