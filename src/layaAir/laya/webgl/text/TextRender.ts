@@ -859,7 +859,7 @@ export class TextRender {
         sp.graphics.drawRect(0, 0, w, h, bgcolor);
         sp.graphics.drawTexture((<Texture>texture), 0, 0, w, h);
         sp.pos(x, y);
-        (window as any).Laya.stage.addChild(sp);
+        ILaya.stage.addChild(sp);
         return sp;
     }
 

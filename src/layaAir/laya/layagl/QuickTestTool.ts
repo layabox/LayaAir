@@ -3,6 +3,7 @@ import { SpriteConst } from "../display/SpriteConst"
 import { Stage } from "../display/Stage"
 import { RenderSprite } from "../renders/RenderSprite"
 import { Context } from "../resource/Context"
+import { ILaya } from "../../ILaya";
 /**
  * ...
  * @author ww
@@ -89,7 +90,7 @@ export class QuickTestTool {
     //TODO:coverage
     _stageRender(context: Context, x: number, y: number): void {
         QuickTestTool._countStart();
-        QuickTestTool._PreStageRender.call((window as any).Laya.stage, context, x, y);//TODO TS
+        QuickTestTool._PreStageRender.call(ILaya.stage, context, x, y);//TODO TS
         QuickTestTool._countEnd();
     }
     private static _countDic: any = {};

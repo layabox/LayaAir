@@ -501,9 +501,8 @@ export class ComboBox extends UIComponent {
      * 关闭下拉列表。
      */
     protected removeList(e: Event): void {
-        var Laya = (window as any).Laya;
-        Laya.stage.off(Event.MOUSE_DOWN, this, this.removeList);
-        Laya.stage.off(Event.MOUSE_WHEEL, this, this._onStageMouseWheel);
+        ILaya.stage.off(Event.MOUSE_DOWN, this, this.removeList);
+        ILaya.stage.off(Event.MOUSE_WHEEL, this, this._onStageMouseWheel);
         this.isOpen = false;
     }
 

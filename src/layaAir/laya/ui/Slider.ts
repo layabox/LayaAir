@@ -130,7 +130,7 @@ export class Slider extends UIComponent {
      * 滑块的的 <code>Event.MOUSE_DOWN</code> 事件侦听处理函数。
      */
     protected onBarMouseDown(e: Event): void {
-        var Laya = (window as any).Laya;
+        var Laya = ILaya;
         this._globalSacle || (this._globalSacle = new Point());
         this._globalSacle.setTo(this.globalScaleX || 0.01, this.globalScaleY || 0.01);
 
@@ -175,10 +175,10 @@ export class Slider extends UIComponent {
      * @private
      */
     private mouseUp(e: Event): void {
-        var Laya = (window as any).Laya;
-        Laya.stage.off(Event.MOUSE_MOVE, this, this.mouseMove);
-        Laya.stage.off(Event.MOUSE_UP, this, this.mouseUp);
-        Laya.stage.off(Event.MOUSE_OUT, this, this.mouseUp);
+        let stage = ILaya.stage;
+        stage.off(Event.MOUSE_MOVE, this, this.mouseMove);
+        stage.off(Event.MOUSE_UP, this, this.mouseUp);
+        stage.off(Event.MOUSE_OUT, this, this.mouseUp);
         this.sendChangeEvent(Event.CHANGED);
         this.hideValueText();
     }
@@ -187,24 +187,24 @@ export class Slider extends UIComponent {
      * @private
      */
     private mouseMove(e: Event): void {
-        var Laya = (window as any).Laya;
+        let stage = ILaya.stage;
         var oldValue: number = this._value;
         if (this.isVertical) {
-            this._bar.y += (Laya.stage.mouseY - this._ty) / this._globalSacle.y;
+            this._bar.y += (stage.mouseY - this._ty) / this._globalSacle.y;
             if (this._bar._y > this._maxMove) this._bar.y = this._maxMove;
             else if (this._bar._y < 0) this._bar.y = 0;
             this._value = this._bar._y / this._maxMove * (this._max - this._min) + this._min;
             if (this._progress) this._progress.height = this._bar._y + 0.5 * this._bar.height;
         } else {
-            this._bar.x += (Laya.stage.mouseX - this._tx) / this._globalSacle.x;
+            this._bar.x += (stage.mouseX - this._tx) / this._globalSacle.x;
             if (this._bar._x > this._maxMove) this._bar.x = this._maxMove;
             else if (this._bar._x < 0) this._bar.x = 0;
             this._value = this._bar._x / this._maxMove * (this._max - this._min) + this._min;
             if (this._progress) this._progress.width = this._bar._x + 0.5 * this._bar.width;
         }
 
-        this._tx = Laya.stage.mouseX;
-        this._ty = Laya.stage.mouseY;
+        this._tx = stage.mouseX;
+        this._ty = stage.mouseY;
 
         if (this._tick != 0) {
             var pow: number = Math.pow(10, (this._tick + "").length - 1);
@@ -236,7 +236,7 @@ export class Slider extends UIComponent {
         if (this._skin != value) {
             this._skin = value;
             if (this._skin && !Loader.getRes(this._skin)) {
-                (window as any).Laya.loader.load([this._skin, this._skin.replace(".png", "$bar.png")], Handler.create(this, this._skinLoaded));
+                ILaya.loader.load([this._skin, this._skin.replace(".png", "$bar.png")], Handler.create(this, this._skinLoaded));
             } else {
                 this._skinLoaded();
             }
