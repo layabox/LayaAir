@@ -135,7 +135,7 @@ import { Laya } from "Laya";
 		 static readFile(filePath:string, encoding:string = "utf8", callBack:Handler = null, readyUrl:string = "", isSaveFile:boolean = false, fileType:string = "", isAutoClear:boolean = true):void {
 			filePath = URL.getAdptedFilePath(filePath);
 			MiniFileMgr.fs.readFile({filePath: filePath, encoding: encoding, success: function(data:any):void {
-				if (filePath.indexOf("http://") != -1 || filePath.indexOf("https://") != -1)
+				if (filePath.indexOf(QGMiniAdapter.window.qg.env.USER_DATA_PATH) == -1 &&(filePath.indexOf("http://") != -1 || filePath.indexOf("https://") != -1))
 				{
 					if(QGMiniAdapter.autoCacheFile || isSaveFile)
 					{
@@ -331,20 +331,26 @@ import { Laya } from "Laya";
 		 static deleteFile(tempFileName:string, readyUrl:string = "", callBack:Handler = null,encoding:string = "",fileSize:number = 0):void {
 			var fileObj:any = MiniFileMgr.getFileInfo(readyUrl);
 			var deleteFileUrl:string = MiniFileMgr.getFileNativePath(fileObj.md5);
+
+			//调整：先写入文件数据在操作删除，避免文件删除了但是文件列表没有清理
+			var isAdd:boolean = tempFileName != "" ? true : false;
+			MiniFileMgr.onSaveFile(readyUrl, tempFileName,isAdd,encoding,callBack,fileSize);
+
 			MiniFileMgr.fs.unlink({filePath: deleteFileUrl, success: function(data:any):void {
 				var isAdd:boolean = tempFileName != "" ? true : false;
 				if(tempFileName != "")
 				{
 					var saveFilePath:string = MiniFileMgr.getFileNativePath(tempFileName);
 					MiniFileMgr.fs.copyFile({srcPath: tempFileName, destPath: saveFilePath, success: function(data:any):void {
-						MiniFileMgr.onSaveFile(readyUrl, tempFileName,isAdd,encoding,callBack,data.size);
+						//MiniFileMgr.onSaveFile(readyUrl, tempFileName,isAdd,encoding,callBack,data.size);
 					}, fail: function(data:any):void {
 						callBack != null && callBack.runWith([1, data]);
 					}});
-				}else
-				{
-					MiniFileMgr.onSaveFile(readyUrl, tempFileName,isAdd,encoding,callBack,fileSize);//清理文件列表
 				}
+				// else
+				// {
+				// 	MiniFileMgr.onSaveFile(readyUrl, tempFileName,isAdd,encoding,callBack,fileSize);//清理文件列表
+				// }
 			}, fail: function(data:any):void {
 			}});
 		}
@@ -423,7 +429,7 @@ import { Laya } from "Laya";
 			}, fail: function(data:any):void {
 			}});
 			//主域向子域传递消息
-			if(!QGMiniAdapter.isZiYu &&QGMiniAdapter.isPosMsgYu)
+			if(!QGMiniAdapter.isZiYu &&QGMiniAdapter.isPosMsgYu && QGMiniAdapter.window.qg.postMessage)
 			{
 				QGMiniAdapter.window.qg.postMessage && QGMiniAdapter.window.qg.postMessage({url:fileurlkey,data:MiniFileMgr.filesListObj[fileurlkey],isLoad:"filenative",isAdd:isAdd});
 			}
