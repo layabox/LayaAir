@@ -144,16 +144,15 @@ export class ScrollBar extends UIComponent {
      * 向上和向下按钮的 <code>Event.MOUSE_DOWN</code> 事件侦听处理函数。
      */
     protected onButtonMouseDown(e: Event): void {
-        var Laya = (window as any).Laya;
         var isUp: boolean = e.currentTarget === this.upButton;
         this.slide(isUp);
-        Laya.timer.once(Styles.scrollBarDelayTime, this, this.startLoop, [isUp]);
-        Laya.stage.once(Event.MOUSE_UP, this, this.onStageMouseUp);
+        ILaya.timer.once(Styles.scrollBarDelayTime, this, this.startLoop, [isUp]);
+        ILaya.stage.once(Event.MOUSE_UP, this, this.onStageMouseUp);
     }
 
     /**@private */
     protected startLoop(isUp: boolean): void {
-        (window as any).Laya.timer.frameLoop(1, this, this.slide, [isUp]);
+        ILaya.timer.frameLoop(1, this, this.slide, [isUp]);
     }
 
     /**@private */
@@ -167,9 +166,8 @@ export class ScrollBar extends UIComponent {
      * 舞台的 <code>Event.MOUSE_DOWN</code> 事件侦听处理函数。
      */
     protected onStageMouseUp(e: Event): void {
-        var Laya = (window as any).Laya;
-        Laya.timer.clear(this, this.startLoop);
-        Laya.timer.clear(this, this.slide);
+        ILaya.timer.clear(this, this.startLoop);
+        ILaya.timer.clear(this, this.slide);
     }
 
     /**
@@ -184,7 +182,7 @@ export class ScrollBar extends UIComponent {
         if (this._skin != value) {
             this._skin = value;
             if (this._skin && !Loader.getRes(this._skin)) {
-                (window as any).Laya.loader.load([this._skin, this._skin.replace(".png", "$up.png"), this._skin.replace(".png", "$down.png"), this._skin.replace(".png", "$bar.png")], Handler.create(this, this._skinLoaded));
+                ILaya.loader.load([this._skin, this._skin.replace(".png", "$up.png"), this._skin.replace(".png", "$down.png"), this._skin.replace(".png", "$bar.png")], Handler.create(this, this._skinLoaded));
             } else {
                 this._skinLoaded();
             }
@@ -453,41 +451,38 @@ export class ScrollBar extends UIComponent {
 
     /**@private */
     protected onTargetMouseDown(e: Event): void {
-        var Laya = (window as any).Laya;
         if ((this.isLockedFun) && !this.isLockedFun(e)) return;
         this.event(Event.END);
         this._clickOnly = true;
         this._lastOffset = 0;
         this._checkElastic = false;
         this._lastPoint || (this._lastPoint = new Point());
-        this._lastPoint.setTo(Laya.stage.mouseX, Laya.stage.mouseY);
-        Laya.timer.clear(this, this.tweenMove);
+        this._lastPoint.setTo(ILaya.stage.mouseX, ILaya.stage.mouseY);
+        ILaya.timer.clear(this, this.tweenMove);
         Tween.clearTween(this);
-        Laya.stage.once(Event.MOUSE_UP, this, this.onStageMouseUp2);
-        Laya.stage.once(Event.MOUSE_OUT, this, this.onStageMouseUp2);
-        Laya.timer.frameLoop(1, this, this.loop);
+        ILaya.stage.once(Event.MOUSE_UP, this, this.onStageMouseUp2);
+        ILaya.stage.once(Event.MOUSE_OUT, this, this.onStageMouseUp2);
+        ILaya.timer.frameLoop(1, this, this.loop);
     }
 
     startDragForce(): void {
-        var Laya = (window as any).Laya;
         this._clickOnly = true;
         this._lastOffset = 0;
         this._checkElastic = false;
         this._lastPoint || (this._lastPoint = new Point());
-        this._lastPoint.setTo(Laya.stage.mouseX, Laya.stage.mouseY);
-        Laya.timer.clear(this, this.tweenMove);
+        this._lastPoint.setTo(ILaya.stage.mouseX, ILaya.stage.mouseY);
+        ILaya.timer.clear(this, this.tweenMove);
         Tween.clearTween(this);
-        Laya.stage.once(Event.MOUSE_UP, this, this.onStageMouseUp2);
-        Laya.stage.once(Event.MOUSE_OUT, this, this.onStageMouseUp2);
-        Laya.timer.frameLoop(1, this, this.loop);
+        ILaya.stage.once(Event.MOUSE_UP, this, this.onStageMouseUp2);
+        ILaya.stage.once(Event.MOUSE_OUT, this, this.onStageMouseUp2);
+        ILaya.timer.frameLoop(1, this, this.loop);
     }
 
     private cancelDragOp(): void {
-        var Laya = (window as any).Laya;
-        Laya.stage.off(Event.MOUSE_UP, this, this.onStageMouseUp2);
-        Laya.stage.off(Event.MOUSE_OUT, this, this.onStageMouseUp2);
-        Laya.timer.clear(this, this.tweenMove);
-        Laya.timer.clear(this, this.loop);
+        ILaya.stage.off(Event.MOUSE_UP, this, this.onStageMouseUp2);
+        ILaya.stage.off(Event.MOUSE_OUT, this, this.onStageMouseUp2);
+        ILaya.timer.clear(this, this.tweenMove);
+        ILaya.timer.clear(this, this.loop);
         this._target.mouseEnabled = true;
     }
 
@@ -519,17 +514,16 @@ export class ScrollBar extends UIComponent {
 
     startTweenMoveForce(lastOffset: number): void {
         this._lastOffset = lastOffset;
-        (window as any).Laya.timer.frameLoop(1, this, this.tweenMove, [200]);
+        ILaya.timer.frameLoop(1, this, this.tweenMove, [200]);
     }
     /**@private */
     protected loop(): void {
-        var Laya = (window as any).Laya;
-        var mouseY: number = Laya.stage.mouseY;
-        var mouseX: number = Laya.stage.mouseX;
+        var mouseY: number = ILaya.stage.mouseY;
+        var mouseX: number = ILaya.stage.mouseX;
         this._lastOffset = this.isVertical ? (mouseY - this._lastPoint.y) : (mouseX - this._lastPoint.x);
 
         if (this._clickOnly) {
-            if (Math.abs(this._lastOffset * (this.isVertical ? Laya.stage._canvasTransform.getScaleY() : Laya.stage._canvasTransform.getScaleX())) > 1) {
+            if (Math.abs(this._lastOffset * (this.isVertical ? ILaya.stage._canvasTransform.getScaleY() : ILaya.stage._canvasTransform.getScaleX())) > 1) {
                 this._clickOnly = false;
                 if (this.checkTriggers()) return;
                 this._offsets || (this._offsets = []);
@@ -592,10 +586,9 @@ export class ScrollBar extends UIComponent {
 
     /**@private */
     protected onStageMouseUp2(e: Event): void {
-        var Laya = (window as any).Laya;
-        Laya.stage.off(Event.MOUSE_UP, this, this.onStageMouseUp2);
-        Laya.stage.off(Event.MOUSE_OUT, this, this.onStageMouseUp2);
-        Laya.timer.clear(this, this.loop);
+        ILaya.stage.off(Event.MOUSE_UP, this, this.onStageMouseUp2);
+        ILaya.stage.off(Event.MOUSE_OUT, this, this.onStageMouseUp2);
+        ILaya.timer.clear(this, this.loop);
 
         if (this._clickOnly) {
             if (this._value >= this.min && this._value <= this.max)
@@ -613,7 +606,7 @@ export class ScrollBar extends UIComponent {
             if (!this._offsets) return;
             //计算平均值
             if (this._offsets.length < 1) {
-                this._offsets[0] = this.isVertical ? Laya.stage.mouseY - this._lastPoint.y : Laya.stage.mouseX - this._lastPoint.x;
+                this._offsets[0] = this.isVertical ? ILaya.stage.mouseY - this._lastPoint.y : ILaya.stage.mouseX - this._lastPoint.x;
             }
             var offset: number = 0;
             var n: number = Math.min(this._offsets.length, 3);
@@ -629,7 +622,7 @@ export class ScrollBar extends UIComponent {
             }
             if (offset > 250) this._lastOffset = this._lastOffset > 0 ? 250 : -250;
             var dis: number = Math.round(Math.abs(this.elasticDistance * (this._lastOffset / 150)));
-            Laya.timer.frameLoop(1, this, this.tweenMove, [dis]);
+            ILaya.timer.frameLoop(1, this, this.tweenMove, [dis]);
         }
     }
 
@@ -664,7 +657,7 @@ export class ScrollBar extends UIComponent {
         this.value -= this._lastOffset;
         //if (Math.abs(_lastOffset) < 1 || value == max || value == min) 
         if (Math.abs(this._lastOffset) < 0.1) {
-            (window as any).Laya.timer.clear(this, this.tweenMove);
+            ILaya.timer.clear(this, this.tweenMove);
             if (this._isElastic) {
                 if (this._value < this.min) {
                     Tween.to(this, { value: this.min }, this.elasticBackTime, Ease.sineOut, Handler.create(this, this.elasticOver));
@@ -687,7 +680,7 @@ export class ScrollBar extends UIComponent {
      */
     stopScroll(): void {
         this.onStageMouseUp2(null);
-        (window as any).Laya.timer.clear(this, this.tweenMove);
+        ILaya.timer.clear(this, this.tweenMove);
         Tween.clearTween(this);
     }
 

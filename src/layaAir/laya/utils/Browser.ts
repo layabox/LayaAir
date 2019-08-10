@@ -1,6 +1,7 @@
 //import { HTMLCanvas } from "../resource/HTMLCanvas"
 import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { ILaya } from "../../ILaya";
+import { Laya } from "../../Laya";
 
 
 /**
@@ -101,7 +102,7 @@ export class Browser {
 
     /**@internal */
     static __init__(): any {
-        var Laya: any = (window as any).Laya || ILaya.Laya;
+        var Laya: Laya = (window as any).Laya || ILaya.Laya;
         if (Browser._window) return Browser._window;
         var win: any = Browser._window = window;
         var doc: any = Browser._document = win.document;

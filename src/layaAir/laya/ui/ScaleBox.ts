@@ -12,22 +12,22 @@ export class ScaleBox extends Box {
      * @override
      */
     onEnable(): void {
-        (window as any).Laya.stage.on("resize", this, this.onResize);
+        ILaya.stage.on("resize", this, this.onResize);
         this.onResize();
     }
     /**
      * @override
      */
     onDisable(): void {
-        (window as any).Laya.stage.off("resize", this, this.onResize);
+        ILaya.stage.off("resize", this, this.onResize);
     }
 
     private onResize(): void {
-        var Laya = (window as any).Laya;
+        let stage = ILaya.stage;
         if (this.width > 0 && this.height > 0) {
-            var scale: number = Math.min(Laya.stage.width / this._oldW, Laya.stage.height / this._oldH);
-            super.width = Laya.stage.width;
-            super.height = Laya.stage.height;
+            var scale: number = Math.min(stage.width / this._oldW, stage.height / this._oldH);
+            super.width = stage.width;
+            super.height = stage.height;
             this.scale(scale, scale);
         }
     }

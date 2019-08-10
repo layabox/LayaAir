@@ -2,6 +2,7 @@ import { Graphics } from "../display/Graphics"
 import { Texture } from "../resource/Texture"
 import { Utils } from "../utils/Utils"
 import { ClassUtils } from "../utils/ClassUtils";
+import { ILaya } from "../../ILaya";
 
 /**
  * <code>AutoBitmap</code> 类是用于表示位图图像或绘制图形的显示对象。
@@ -126,7 +127,7 @@ export class AutoBitmap extends Graphics {
     protected _setChanged(): void {
         if (!this._isChanged) {
             this._isChanged = true;
-            (window as any).Laya.timer.callLater(this, this.changeSource);
+            ILaya.timer.callLater(this, this.changeSource);
         }
     }
 

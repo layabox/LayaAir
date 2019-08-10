@@ -181,7 +181,7 @@ export class Clip extends UIComponent {
      */
     dispose(): void {
         this.destroy(true);
-        (window as any).Laya.loader.clearRes(this._skin);
+        ILaya.loader.clearRes(this._skin);
     }
 
 		/**
@@ -213,7 +213,7 @@ export class Clip extends UIComponent {
             this._skin = value;
             if (value) {
                 if (!Loader.getRes(value)) {
-                    (window as any).Laya.loader.load(this._skin, Handler.create(this, this._skinLoaded), null, Loader.IMAGE, 1);
+                    ILaya.loader.load(this._skin, Handler.create(this, this._skinLoaded), null, Loader.IMAGE, 1);
                 } else {
                     this._skinLoaded();
                 }
@@ -284,7 +284,7 @@ export class Clip extends UIComponent {
         if (img) {
             this.loadComplete(this._skin, img);
         } else {
-            (window as any).Laya.loader.load(this._skin, Handler.create(this, this.loadComplete, [this._skin]));
+            ILaya.loader.load(this._skin, Handler.create(this, this.loadComplete, [this._skin]));
         }
     }
 
@@ -477,7 +477,7 @@ export class Clip extends UIComponent {
         this.index = from;
         this._toIndex = to;
         this._index++;
-        (window as any).Laya.timer.loop(this.interval, this, this._loop);
+        ILaya.timer.loop(this.interval, this, this._loop);
 
         this.on(Event.DISPLAY, this, this._onDisplay);
         this.on(Event.UNDISPLAY, this, this._onDisplay);
@@ -500,7 +500,7 @@ export class Clip extends UIComponent {
      */
     stop(): void {
         this._isPlaying = false;
-        (window as any).Laya.timer.clear(this, this._loop);
+        ILaya.timer.clear(this, this._loop);
         this.event(Event.COMPLETE);
     }
 

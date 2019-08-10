@@ -96,7 +96,7 @@ export class View extends Scene {
      * @param	json	UI内容
      */
     static regUI(url: string, json: any): void {
-        (window as any).Laya.loader.cacheRes(url, json);
+        ILaya.loader.cacheRes(url, json);
     }
 
 		/** 
