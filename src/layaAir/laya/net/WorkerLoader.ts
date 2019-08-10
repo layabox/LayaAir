@@ -1,7 +1,6 @@
 import { Loader } from "./Loader";
 import { URL } from "./URL";
 import { EventDispatcher } from "../events/EventDispatcher"
-import { HTMLCanvas } from "../resource/HTMLCanvas"
 import { Texture2D } from "../resource/Texture2D"
 
 /**
@@ -30,9 +29,10 @@ export class WorkerLoader extends EventDispatcher {
     constructor() {
         super();
         this.worker = new Worker(WorkerLoader.workerPath);
+        let me = this;
         this.worker.onmessage = function (evt: any): void {
             //接收worker传过来的数据函数
-            (this as any as WorkerLoader).workerMessage(evt.data);
+            me.workerMessage(evt.data);
         }
     }
 
