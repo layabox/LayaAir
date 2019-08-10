@@ -55,10 +55,10 @@ import { MeshVG } from "./laya/webgl/utils/MeshVG";
 import { MeshParticle2D } from "./laya/webgl/utils/MeshParticle2D";
 import { MeshQuadTexture } from "./laya/webgl/utils/MeshQuadTexture";
 import { MeshTexture } from "./laya/webgl/utils/MeshTexture";
- import { SoundChannel } from "./laya/media/SoundChannel";
- import { EventDispatcher } from "./laya/events/EventDispatcher";
- import { Handler } from "./laya/utils/Handler";
- import { RunDriver } from "./laya/utils/RunDriver";
+import { SoundChannel } from "./laya/media/SoundChannel";
+import { EventDispatcher } from "./laya/events/EventDispatcher";
+import { Handler } from "./laya/utils/Handler";
+import { RunDriver } from "./laya/utils/RunDriver";
 import { Matrix } from "./laya/maths/Matrix";
 import { HTMLImage } from "./laya/resource/HTMLImage";
 import { Event } from "./laya/events/Event";
@@ -72,7 +72,6 @@ export class Laya {
 	/*[COMPILER OPTIONS:normal]*/
 	/** 舞台对象的引用。*/
 	static stage: Stage = null;
-
 
 	/**@private 系统时钟管理器，引擎内部使用*/
 	static systemTimer: Timer = null;
@@ -93,8 +92,6 @@ export class Laya {
 	/**@private Render 类的引用。*/
 	static render: Render;
 	/**@internal */
-	static _currentStage: Sprite;
-	/**@internal */
 	private static _isinit: boolean = false;
 	/**是否是微信小游戏子域，默认为false**/
 	static isWXOpenDataContext: boolean = false;
@@ -102,8 +99,31 @@ export class Laya {
 	static isWXPosMsg: boolean = false;
 
 	/**@internal*/
-	static __classmap: Object = null;
-
+    static __classmap: Object = null;
+    
+    static Config=Config;    //这种写法是为了防止被混淆掉，不能用其他技巧，例如 assin({Config,Stage,...})
+    static TextRender=TextRender;
+    static EventDispatcher=EventDispatcher;
+    static SoundChannel=SoundChannel;
+    static Stage=Stage;
+    static Render=Render;
+    static Browser=Browser;
+    static Sprite=Sprite;
+    static Node=Node;
+    static Context=Context;
+    static WebGL=WebGL;
+    static Handler=Handler;
+    static RunDriver=RunDriver;
+    static Utils=Utils;
+    static Input=Input;
+    static Loader=Loader;
+    static LocalStorage=LocalStorage;
+    static SoundManager=SoundManager;
+    static URL=URL;
+    static Event=Event;
+    static Matrix=Matrix;
+    static HTMLImage=HTMLImage;
+    
 	/**
 	 * 兼容as3编译工具 
 	 */
@@ -142,12 +162,10 @@ export class Laya {
 		Browser.canvas = new HTMLCanvas(true);
 		Browser.context = <CanvasRenderingContext2D>(Browser.canvas.getContext('2d') as any);
 
-
 		Browser.supportWebAudio = SoundManager.__init__();;
 		Browser.supportLocalStorage = LocalStorage.__init__();
 
 		//temp TODO 以后分包
-
 		Laya.systemTimer = new Timer(false);
 		systemTimer = Timer.gSysTimer = Laya.systemTimer;
 		Laya.startTimer = new Timer(false);
@@ -164,15 +182,12 @@ export class Laya {
 		physicsTimer = ILaya.physicsTimer = Laya.physicsTimer;
 
 		Laya.loader = new LoaderManager();
-
 		ILaya.Laya = Laya;
 		loader = ILaya.loader = Laya.loader;
 
 		WeakObject.__init__();
-
 		SceneUtils.__init();
 		Mouse.__init__();
-
 
 		WebGL.inner_enable();
 		for (var i: number = 0, n: number = plugins.length; i < n; i++) {
@@ -185,10 +200,8 @@ export class Laya {
 		}
 
 		CacheManger.beginCheck();
-		stage = Laya._currentStage = Laya.stage = new Stage();
-
+		stage = Laya.stage = new Stage();
 		ILaya.stage = Laya.stage;
-
 		Utils.gStage = Laya.stage;
 		URL.rootPath = URL._basePath = Laya._getUrlPath();
 		MeshQuadTexture.__int__();
@@ -200,9 +213,7 @@ export class Laya {
 		((<any>window)).stage = Laya.stage;
 
 		WebGLContext.__init__();
-
 		MeshParticle2D.__init__();
-
 		ShaderCompile.__init__();
 		RenderSprite.__init__();
 		KeyBoardManager.__init__();
@@ -215,7 +226,6 @@ export class Laya {
 		Value2D._initone(ShaderDefines2D.TEXTURE2D | ShaderDefines2D.FILTERGLOW, TextureSV);
 		Value2D._initone(ShaderDefines2D.PRIMITIVE, PrimitiveSV);
 		Value2D._initone(ShaderDefines2D.SKINMESH, SkinSV);
-
 
 		return Render.canvas;
 	}
@@ -379,6 +389,7 @@ ILaya.Stage = Stage;
 ILaya.Resource = Resource;
 ILaya.WorkerLoader = WorkerLoader;
 
+
 //初始化引擎库
 var libs: any[] = (window as any)._layalibs;
 if (libs) {
@@ -390,42 +401,12 @@ if (libs) {
 	}
 }
 
-
-(window as any).Laya = Laya;// 给tsc模式下用
-
-function regClassToEngine(cls: any) {
-	if (cls.name) {
-		Laya[cls.name] = cls;
-	}
-
-
-}
-
-regClassToEngine(Config);
-regClassToEngine(Laya);
-regClassToEngine(TextRender);
-regClassToEngine(Stage);
-regClassToEngine(Render);
-regClassToEngine(Browser);
-regClassToEngine(Sprite);
-regClassToEngine(Node);
-regClassToEngine(Context);
-regClassToEngine(WebGL);
-regClassToEngine(SoundChannel);
-regClassToEngine(EventDispatcher);
-regClassToEngine(Handler);
-regClassToEngine(RunDriver);
-regClassToEngine(Utils);
-regClassToEngine(Input);
-regClassToEngine(Loader);
-regClassToEngine(LocalStorage);
-regClassToEngine(SoundManager);
-regClassToEngine(URL);
-regClassToEngine(Event);
-regClassToEngine(Matrix);
-regClassToEngine(HTMLImage);
-
-
+let win = window as any;
+if(win.Laya){
+    win.Laya.Laya = Laya;
+    Object.assign(win.Laya, Laya);
+}else
+    win.Laya = Laya;
 
 export var __init = Laya.__init;
 export var init = Laya.init;	
@@ -445,18 +426,18 @@ export var alertGlobalError = Laya.alertGlobalError;
 export var enableDebugPanel = Laya.enableDebugPanel;
 
 export function _static(_class,def){
-        for(var i=0,sz=def.length;i<sz;i+=2){
-            if(def[i]=='length') 
-                _class.length=def[i+1].call(_class);
-            else{
-                function tmp(){
-                    var name=def[i];
-                    var getfn=def[i+1];
-                    Object.defineProperty(_class,name,{
-                        get:function(){delete this[name];return this[name]=getfn.call(this);},
-                        set:function(v){delete this[name];this[name]=v;},enumerable: true,configurable: true});
-                }
-                tmp();
+    for(var i=0,sz=def.length;i<sz;i+=2){
+        if(def[i]=='length') 
+            _class.length=def[i+1].call(_class);
+        else{
+            function tmp(){
+                var name=def[i];
+                var getfn=def[i+1];
+                Object.defineProperty(_class,name,{
+                    get:function(){delete this[name];return this[name]=getfn.call(this);},
+                    set:function(v){delete this[name];this[name]=v;},enumerable: true,configurable: true});
             }
+            tmp();
         }
+    }
 }

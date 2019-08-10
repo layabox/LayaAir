@@ -463,7 +463,7 @@ export class ComboBox extends UIComponent {
     }
 
     set isOpen(value: boolean) {
-        var Laya = ILaya.Laya;
+        //var Laya = ILaya.Laya;
         if (this._isOpen != value) {
             this._isOpen = value;
             this._button.selected = this._isOpen;
@@ -474,17 +474,17 @@ export class ComboBox extends UIComponent {
 
                 var p: Point = this.localToGlobal(Point.TEMP.setTo(0, 0));
                 var py: number = p.y + this._button.height;
-                py = py + this._listHeight <= Laya.stage.height ? py : p.y - this._listHeight;
+                py = py + this._listHeight <= ILaya.stage.height ? py : p.y - this._listHeight;
 
                 this._list.pos(p.x, py);
                 this._list.zOrder = 1001;
 
-                Laya._currentStage.addChild(this._list);
+                ILaya.stage.addChild(this._list);
                 //Laya.stage.once(Event.MOUSE_DOWN, this, removeList);
                 //Laya.stage.on(Event.MOUSE_WHEEL, this, _onStageMouseWheel);
                 //parent.addChild(_list);
-                Laya.stage.once(Event.MOUSE_DOWN, this, this.removeList);
-                Laya.stage.on(Event.MOUSE_WHEEL, this, this._onStageMouseWheel);
+                ILaya.stage.once(Event.MOUSE_DOWN, this, this.removeList);
+                ILaya.stage.on(Event.MOUSE_WHEEL, this, this._onStageMouseWheel);
                 this._list.selectedIndex = this._selectedIndex;
             } else {
                 this._list && this._list.removeSelf();

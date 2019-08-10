@@ -227,7 +227,3 @@ class EventHandler extends Handler {
     }
 }
 
-let win = window as any;
-if( win.Laya ){
-    win.Laya.EventDispatcher=EventDispatcher;
-}
