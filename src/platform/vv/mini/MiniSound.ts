@@ -120,7 +120,7 @@ import { Laya } from "Laya";
 							this.onDownLoadCallBack(url, 0);
 						}else
 						{
-							MiniFileMgr.downOtherFiles(url, Handler.create(this, this.onDownLoadCallBack, [url]), url);
+							MiniFileMgr.downOtherFiles(encodeURI(url), Handler.create(this, this.onDownLoadCallBack, [url]), url);
 						}
 					}
 				}
@@ -185,11 +185,11 @@ import { Laya } from "Laya";
 
 		private onCheckComplete():void
 		{
-			if(this._sound.duration && this._sound.duration > 0)
+			if(this._sound && this._sound.duration && this._sound.duration > 0)
 			{
-				Laya.timer.clear(this,this.onCheckComplete);
 				this.onCanPlay();
 			}
+			Laya.timer.clear(this,this.onCheckComplete);
 		}
 
 		
@@ -266,7 +266,7 @@ import { Laya } from "Laya";
 				tSound.src = this.url =MiniFileMgr.getFileNativePath(fileMd5Name);
 			}else
 			{
-				tSound.src = this.url;
+				tSound.src = encodeURI(this.url);
 			}
 			var channel:MiniSoundChannel = new MiniSoundChannel(tSound,this);
 			channel.url = this.url;
