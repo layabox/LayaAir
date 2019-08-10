@@ -152,8 +152,21 @@ import { Component } from "../components/Component"
 			if (["get", "set"].indexOf(accessor) === -1) { // includes
 				return;
 			}
-			let propertyDes = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(obj), prop);
-			return propertyDes && propertyDes[accessor].bind(obj);
+			let privateProp = `_$${accessor}_${prop}`;
+			if (obj[privateProp]) {
+				return obj[privateProp];
+			}
+			let ObjConstructor = obj.constructor;
+			let des;
+			while (ObjConstructor) {
+				des = Object.getOwnPropertyDescriptor(ObjConstructor.prototype, prop);
+				if (des && des[accessor]) { // 构造函数(包括原型的构造函数)有该属性
+					obj[privateProp] = des[accessor].bind(obj);
+					break;
+				}
+				ObjConstructor = Object.getPrototypeOf(ObjConstructor);
+			}
+			return obj[privateProp];
 		}
 		
 		/**
@@ -215,7 +228,7 @@ import { Component } from "../components/Component"
 		
 		/**@private */
 		private _overSet(sp:Sprite, prop:string, getfun:any):void {
-			Object.defineProperty(sp, prop, {get: this.accessGetSetFunc(sp, prop, "get") , set: getfun, enumerable: false, configurable: true});;
+			Object.defineProperty(sp, prop, {get: this.accessGetSetFunc(sp, prop, "get"), set: getfun, enumerable: false, configurable: true});;
 		}
 		/**
 		 * @override

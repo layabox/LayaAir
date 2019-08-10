@@ -12,8 +12,6 @@ var through = require('through2');
 //合并文件
 var concat = require('gulp-concat'),
     pump   = require('pump');
-const multiInput = require('./buildtools/rollup_multiInput');
-
 
 var packsDef={
     'core':{
@@ -138,13 +136,104 @@ var packsDef={
 
 };
 
+var curPackFiles=null;  //当前包的所有的文件
+var mentry = 'multientry:entry-point';
+function myMultiInput(){
+    var include = [];
+    var exclude = [];    
+    function configure(config) {
+        if (typeof config === 'string') {
+          include = [config];
+        } else if (Array.isArray(config)) {
+          include = config;
+        } else {
+            include = config.include || [];
+            exclude = config.exclude || [];
+      
+            if (config.exports === false) {
+              exporter = function exporter(p) {
+                if(p.substr(p.length-3)=='.ts'){
+                    p=p.substr(0,p.length-3);
+                }
+                return `import ${JSON.stringify(p)};`;
+              };
+            }            
+        }
+      }  
+      
+      var exporter = function exporter(p) {
+        if(p.substr(p.length-3)=='.ts'){
+            p=p.substr(0,p.length-3);
+        }
+        return `export * from ${JSON.stringify(p)};`;
+      };
+          
+    return(
+        {
+            options(options){
+                console.log('===', options.input)
+                configure(options.input);
+                options.input = mentry;
+            },
+            
+            resolveId(id, importer) {//entry是个特殊字符串，rollup并不识别，所以假装这里解析一下
+                if (id === mentry) {
+                  return mentry;
+                }
+                if(mentry==importer)
+                    return;
+                var importfile= path.join(path.dirname(importer),id);
+                var ext = path.extname(importfile);
+                if(ext!='.ts' && ext!='.glsl' && ext!='.vs' && ext!='.ps' &&ext!='.fs'){
+                    importfile+='.ts';
+                }
+                //console.log('import ', importfile);
+                if( curPackFiles.indexOf(importfile)<0){
+                    //其他包里的文件
+                    // console.log('other pack:',id,'importer=', importer);
+                    return 'Laya';
+                }
+              },            
+            load(id){
+                if (id === mentry) {
+                    if (!include.length) {
+                      return Promise.resolve('');
+                    }
+            
+                    var patterns = include.concat(exclude.map(function (pattern) {
+                      return '!' + pattern;
+                    }));
+                    return matched.promise(patterns, {realpath: true}).then(function (paths) {
+                        curPackFiles = paths;   // 记录一下所有的文件
+                        paths.sort();
+                        return paths.map(exporter).join('\n');
+                    });
+                  }else{
+                      //console.log('load ',id);
+                  }
+            }
+        }
+    );
+}
 
 //修改引擎库和第三方适配库
 gulp.task('ModifierJs', () => {
     //core
+    gulp.src([
+        '../build/js/libs/laya.core.js'], )
+        .pipe(through.obj(function (file, encode, cb) {
+            var srcContents = file.contents.toString();
+            var destContents = srcContents.replace(/var Laya /, "window.Laya");
+            // 再次转为Buffer对象，并赋值给文件内容
+            file.contents = new Buffer(destContents)
+            // 以下是例行公事
+            this.push(file)
+        cb()
+    }))
+    .pipe(gulp.dest('../build/js/libs/'));
     //d3
     gulp.src([
-        '../build/js/libs/laya.d3.js'] )
+        '../build/js/libs/laya.d3.js'], )
         .pipe(through.obj(function (file, encode, cb) {
             var srcContents = file.contents.toString();
             var destContents = srcContents.replace(/this.Laya = this.Laya /, "window.Laya = window.Laya");
@@ -158,7 +247,7 @@ gulp.task('ModifierJs', () => {
 
     //device
     gulp.src([
-        '../build/js/libs/laya.device.js'] )
+        '../build/js/libs/laya.device.js'], )
         .pipe(through.obj(function (file, encode, cb) {
             var srcContents = file.contents.toString();
             var destContents = srcContents.replace(/this.Laya = this.Laya /, "window.Laya = window.Laya");
@@ -172,7 +261,7 @@ gulp.task('ModifierJs', () => {
 
     //tiledmap
     gulp.src([
-        '../build/js/libs/laya.tiledmap.js'] )
+        '../build/js/libs/laya.tiledmap.js'], )
         .pipe(through.obj(function (file, encode, cb) {
             var srcContents = file.contents.toString();
             var destContents = srcContents.replace(/this.Laya = this.Laya /, "window.Laya = window.Laya");
@@ -186,7 +275,7 @@ gulp.task('ModifierJs', () => {
 
     //html
     gulp.src([
-        '../build/js/libs/laya.html.js'] )
+        '../build/js/libs/laya.html.js'], )
         .pipe(through.obj(function (file, encode, cb) {
             var srcContents = file.contents.toString();
             var destContents = srcContents.replace(/this.Laya = this.Laya /, "window.Laya = window.Laya");
@@ -200,7 +289,7 @@ gulp.task('ModifierJs', () => {
 
     //particle
     gulp.src([
-        '../build/js/libs/laya.particle.js'] )
+        '../build/js/libs/laya.particle.js'], )
         .pipe(through.obj(function (file, encode, cb) {
             var srcContents = file.contents.toString();
             var destContents = srcContents.replace(/this.Laya = this.Laya /, "window.Laya = window.Laya");
@@ -214,7 +303,7 @@ gulp.task('ModifierJs', () => {
 
     //physics
     gulp.src([
-        '../build/js/libs/laya.physics.js'] )
+        '../build/js/libs/laya.physics.js'], )
         .pipe(through.obj(function (file, encode, cb) {
             var srcContents = file.contents.toString();
             var destContents = srcContents.replace(/this.Laya = this.Laya /, "window.Laya = window.Laya");
@@ -228,7 +317,7 @@ gulp.task('ModifierJs', () => {
 
     //ui
     gulp.src([
-        '../build/js/libs/laya.ui.js'] )
+        '../build/js/libs/laya.ui.js'], )
         .pipe(through.obj(function (file, encode, cb) {
             var srcContents = file.contents.toString();
             var destContents = srcContents.replace(/this.Laya = this.Laya /, "window.Laya = window.Laya");
@@ -242,7 +331,7 @@ gulp.task('ModifierJs', () => {
 
     //ani
     gulp.src([
-        '../build/js/libs/laya.ani.js'] )
+        '../build/js/libs/laya.ani.js'], )
         .pipe(through.obj(function (file, encode, cb) {
             var srcContents = file.contents.toString();
             var destContents = srcContents.replace(/this.Laya = this.Laya /, "window.Laya = window.Laya");
@@ -255,7 +344,7 @@ gulp.task('ModifierJs', () => {
     .pipe(gulp.dest('../build/js/libs/'));
 
     gulp.src([
-        '../build/js/libs/laya.wxmini.js'] )
+        '../build/js/libs/laya.wxmini.js'], )
         .pipe(through.obj(function (file, encode, cb) {
             var srcContents = file.contents.toString();
             var tempContents = srcContents.replace(/\(/, "window.wxMiniGame = ");
@@ -269,7 +358,7 @@ gulp.task('ModifierJs', () => {
     .pipe(gulp.dest('../build/js/libs/'));
 
         gulp.src([
-            '../build/js/libs/laya.bdmini.js'] )
+            '../build/js/libs/laya.bdmini.js'], )
             .pipe(through.obj(function (file, encode, cb) {
                 var srcContents = file.contents.toString();
                 var tempContents = srcContents.replace(/\(/, "window.bdMiniGame = ");
@@ -283,7 +372,7 @@ gulp.task('ModifierJs', () => {
         .pipe(gulp.dest('../build/js/libs/'));
 
         gulp.src([
-            '../build/js/libs/laya.xmmini.js'] )
+            '../build/js/libs/laya.xmmini.js'], )
             .pipe(through.obj(function (file, encode, cb) {
                 var srcContents = file.contents.toString();
                 var tempContents = srcContents.replace(/\(/, "window.miMiniGame = ");
@@ -297,7 +386,7 @@ gulp.task('ModifierJs', () => {
         .pipe(gulp.dest('../build/js/libs/'));
 
         gulp.src([
-            '../build/js/libs/laya.quickgamemini.js'] )
+            '../build/js/libs/laya.quickgamemini.js'], )
             .pipe(through.obj(function (file, encode, cb) {
                 var srcContents = file.contents.toString();
                 var tempContents = srcContents.replace(/\(/, "window.qgMiniGame = ");
@@ -311,7 +400,7 @@ gulp.task('ModifierJs', () => {
         .pipe(gulp.dest('../build/js/libs/'));
 
         gulp.src([
-            '../build/js/libs/laya.vvmini.js'] )
+            '../build/js/libs/laya.vvmini.js'], )
             .pipe(through.obj(function (file, encode, cb) {
                 var srcContents = file.contents.toString();
                 var tempContents = srcContents.replace(/\(/, "window.vvMiniGame = ");
@@ -325,7 +414,7 @@ gulp.task('ModifierJs', () => {
             .pipe(gulp.dest('../build/js/libs/'));
 
         return  gulp.src([
-            '../build/js/libs/laya.qqmini.js'] )
+            '../build/js/libs/laya.qqmini.js'], )
             .pipe(through.obj(function (file, encode, cb) {
                 var srcContents = file.contents.toString();
                 var tempContents = srcContents.replace(/\(/, "window.qqMiniGame = ");
@@ -353,21 +442,21 @@ gulp.task('ConcatBox2dPhysics', function (cb) {
 //拷贝引擎的第三方js库
 gulp.task('CopyJSLibsToJS', () => {
 	return gulp.src([
-		'./layaAir/jsLibs/*.js', '!./layaAir/jsLibs/box2d.js', '!./layaAir/jsLibs/laya.physics.js'] )
+		'./layaAir/jsLibs/*.js', '!./layaAir/jsLibs/box2d.js', '!./layaAir/jsLibs/laya.physics.js'], )
 		.pipe(gulp.dest('../build/js/libs'));
 });
 
 //拷贝js库至ts库
 gulp.task('CopyJSFileToTSCompatible', () => {
 	return gulp.src([
-		'../build/js/libs/**/*.js'] )
+		'../build/js/libs/**/*.js'], )
 		.pipe(gulp.dest('../build/ts/libs'));
 });
 
 //拷贝js库至as库
 gulp.task('CopyJSFileToAS', () => {
 	return gulp.src([
-		'../build/js/libs/**/*.js', '!../build/js/declare/*ts'] )
+		'../build/js/libs/**/*.js', '!../build/js/declare/*ts'], )
 		.pipe(gulp.dest('../build/as/jslibs'));
 });
 
@@ -380,7 +469,7 @@ gulp.task('CopyTSFileToTS', () => {
     //     './extensions/map/**/*.*'], )
     //     .pipe(gulp.dest('../build/ts_new/libs/laya/map'));
 	return gulp.src([
-        './layaAir/**/*.*', '!./layaAir/jsLibs/**/*.*', '!./layaAir/gulpfile.js', '!./layaAir/tsconfig.json'] )
+        './layaAir/**/*.*', '!./layaAir/jsLibs/**/*.*', '!./layaAir/gulpfile.js', '!./layaAir/tsconfig.json'], )
 		.pipe(gulp.dest('../build/ts_new/libs'));
 });
 
@@ -393,16 +482,16 @@ gulp.task('CopyTSJSLibsFileToTS', () => {
         '../build/js/libs/laya.xmmini.js',
         '../build/js/libs/laya.quickgamemini.js',
         '../build/js/libs/laya.vvmini.js',
-        '../build/js/libs/laya.qqmini.js'])
+        '../build/js/libs/laya.qqmini.js'],)
 		.pipe(gulp.dest('../build/ts_new/jslibs'));
 });
 
 gulp.task('CopyDTS', (cb) => {
-	gulp.src(['../tslibs/ts/*.*'] )
+	gulp.src(['../tslibs/ts/*.*'], )
 		.pipe(gulp.dest('../build/js/ts'))
 		.pipe(gulp.dest('../build/ts/ts'))
 
-    gulp.src(['../tslibs/nts/*.*'] )
+    gulp.src(['../tslibs/nts/*.*'], )
         .pipe(gulp.dest('../build/ts_new/libs'))
     setTimeout(cb, 1000);
 });
@@ -420,7 +509,7 @@ gulp.task('buildJS', async function () {
         },
         external:['Laya'],
         plugins: [
-            multiInput(),
+            myMultiInput(),
             typescript({
                 tsconfig:"./layaAir/tsconfig.json",
                 check: false,
@@ -447,7 +536,7 @@ gulp.task('buildJS', async function () {
     const core = await rollup.rollup({
         input:packsDef.core.input,
         plugins: [
-            multiInput(),
+            myMultiInput(),
             typescript({
                 tsconfig:"./layaAir/tsconfig.json",
                 check: false,
@@ -464,8 +553,6 @@ gulp.task('buildJS', async function () {
     await core.write({
       file: packsDef.core.out,
       format: 'iife',
-      extend:true,  // 不要var Laya=了
-      banner:'window.Laya=window.Laya||{};',
       outro:'exports.static=_static;',  //由于static是关键字，无法通过ts编译。AS需要这个函数，临时强插
       name: 'Laya',
       sourcemap: false
@@ -479,7 +566,7 @@ gulp.task('buildJS', async function () {
         },
         external:['Laya'],
         plugins: [
-            multiInput(),
+            myMultiInput(),
             typescript({
                 tsconfig:"./layaAir/tsconfig.json",
                 check: false,
@@ -510,7 +597,7 @@ gulp.task('buildJS', async function () {
         },
         external:['Laya'],
         plugins: [
-            multiInput(),
+            myMultiInput(),
             typescript({
                 tsconfig:"./layaAir/tsconfig.json",
                 check: false,
@@ -545,7 +632,7 @@ gulp.task('buildJS', async function () {
         },
         external:['Laya'],
         plugins: [
-            multiInput(),
+            myMultiInput(),
             typescript({
                 tsconfig:"./layaAir/tsconfig.json",
                 check: false,
@@ -576,7 +663,7 @@ gulp.task('buildJS', async function () {
         },
         external:['Laya'],
         plugins: [
-            multiInput(),
+            myMultiInput(),
             typescript({
                 tsconfig:"./layaAir/tsconfig.json",
                 check: false,
@@ -610,7 +697,7 @@ gulp.task('buildJS', async function () {
         },
         external:['Laya'],
         plugins: [
-            multiInput(),
+            myMultiInput(),
             typescript({
                 tsconfig:"./layaAir/tsconfig.json",
                 check: false,
@@ -641,7 +728,7 @@ gulp.task('buildJS', async function () {
         },
         external:['Laya'],
         plugins: [
-            multiInput(),
+            myMultiInput(),
             typescript({
                 tsconfig:"./layaAir/tsconfig.json",
                 check: false,
@@ -672,7 +759,7 @@ gulp.task('buildJS', async function () {
         },
         external:['Laya'],
         plugins: [
-            multiInput(),
+            myMultiInput(),
             typescript({
                 tsconfig:"./layaAir/tsconfig.json",
                 check: false,
@@ -706,7 +793,7 @@ gulp.task('buildJS', async function () {
         },
         external:['Laya'],
         plugins: [
-            multiInput(),
+            myMultiInput(),
             typescript({
                 tsconfig:"./layaAir/tsconfig.json",
                 check: false,
@@ -737,7 +824,7 @@ gulp.task('buildJS', async function () {
         },
         external:['Laya'],
         plugins: [
-            multiInput(),
+            myMultiInput(),
             typescript({
                 tsconfig:"./layaAir/tsconfig.json",
                 check: false,
@@ -767,7 +854,7 @@ gulp.task('buildJS', async function () {
         },
         external:['Laya'],
         plugins: [
-            multiInput(),
+            myMultiInput(),
             typescript({
                 tsconfig:"./layaAir/tsconfig.json",
                 check: false,
@@ -797,7 +884,7 @@ gulp.task('buildJS', async function () {
         },
         external:['Laya'],
         plugins: [
-            multiInput(),
+            myMultiInput(),
             typescript({
                 tsconfig:"./layaAir/tsconfig.json",
                 check: false,
@@ -827,7 +914,7 @@ gulp.task('buildJS', async function () {
         },
         external:['Laya'],
         plugins: [
-            multiInput(),
+            myMultiInput(),
             typescript({
                 tsconfig:"./layaAir/tsconfig.json",
                 check: false,
@@ -857,7 +944,7 @@ gulp.task('buildJS', async function () {
         },
         external:['Laya'],
         plugins: [
-            multiInput(),
+            myMultiInput(),
             typescript({
                 tsconfig:"./layaAir/tsconfig.json",
                 check: false,
