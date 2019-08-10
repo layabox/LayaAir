@@ -53,7 +53,7 @@ package laya.ui {
 		 * <p>创建一个新的 <code>Component</code> 实例。</p>
 		 */
 
-		public function UIComponent(){}
+		public function UIComponent(createChildren:Boolean = undefined){}
 
 		/*
 		 * @inheritDoc 

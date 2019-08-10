@@ -3468,7 +3468,7 @@
 	Shader3D._publicCounter = 0;
 	Shader3D._globleDefines = [];
 	Shader3D._preCompileShader = {};
-	Shader3D.debugMode = true;
+	Shader3D.debugMode = false;
 
 	class ShaderDefines {
 	    constructor(superDefines = null) {
@@ -9687,17 +9687,22 @@
 	    get isActive() {
 	        return this._nativeColliderObject ? this._nativeColliderObject.isActive() : false;
 	    }
+	    get enabled() {
+	        return super.enabled;
+	    }
 	    set enabled(value) {
-	        if (this._simulation && this._colliderShape) {
-	            if (value) {
-	                this._derivePhysicsTransformation(true);
-	                this._addToSimulation();
+	        if (this._enabled != value) {
+	            if (this._simulation && this._colliderShape) {
+	                if (value) {
+	                    this._derivePhysicsTransformation(true);
+	                    this._addToSimulation();
+	                }
+	                else {
+	                    this._removeFromSimulation();
+	                }
 	            }
-	            else {
-	                this._removeFromSimulation();
-	            }
+	            super.enabled = value;
 	        }
-	        super.enabled = value;
 	    }
 	    get colliderShape() {
 	        return this._colliderShape;
@@ -16117,11 +16122,11 @@
 	        var destFrameOverTime = destObject;
 	        destFrameOverTime._type = this._type;
 	        destFrameOverTime._constant = this._constant;
-	        this._overTime.cloneTo(destFrameOverTime._overTime);
+	        (this._overTime) && (this._overTime.cloneTo(destFrameOverTime._overTime));
 	        destFrameOverTime._constantMin = this._constantMin;
 	        destFrameOverTime._constantMax = this._constantMax;
-	        this._overTimeMin.cloneTo(destFrameOverTime._overTimeMin);
-	        this._overTimeMax.cloneTo(destFrameOverTime._overTimeMax);
+	        (this._overTimeMin) && (this._overTimeMin.cloneTo(destFrameOverTime._overTimeMin));
+	        (this._overTimeMax) && (this._overTimeMax.cloneTo(destFrameOverTime._overTimeMax));
 	    }
 	    clone() {
 	        var destFrameOverTime = new FrameOverTime();
@@ -17439,11 +17444,12 @@
 	        this.tiles.cloneTo(destTextureSheetAnimation.tiles);
 	        destTextureSheetAnimation.type = this.type;
 	        destTextureSheetAnimation.randomRow = this.randomRow;
-	        this._frame.cloneTo(destTextureSheetAnimation._frame);
-	        this._startFrame.cloneTo(destTextureSheetAnimation._startFrame);
+	        destTextureSheetAnimation.rowIndex = this.rowIndex;
 	        destTextureSheetAnimation.cycles = this.cycles;
 	        destTextureSheetAnimation.enableUVChannels = this.enableUVChannels;
 	        destTextureSheetAnimation.enable = this.enable;
+	        this._frame.cloneTo(destTextureSheetAnimation._frame);
+	        this._startFrame.cloneTo(destTextureSheetAnimation._startFrame);
 	    }
 	    clone() {
 	        var destFrame;
@@ -17471,12 +17477,7 @@
 	                break;
 	        }
 	        var destTextureSheetAnimation = new TextureSheetAnimation(destFrame, destStartFrame);
-	        this.tiles.cloneTo(destTextureSheetAnimation.tiles);
-	        destTextureSheetAnimation.type = this.type;
-	        destTextureSheetAnimation.randomRow = this.randomRow;
-	        destTextureSheetAnimation.cycles = this.cycles;
-	        destTextureSheetAnimation.enableUVChannels = this.enableUVChannels;
-	        destTextureSheetAnimation.enable = this.enable;
+	        this.cloneTo(destTextureSheetAnimation);
 	        return destTextureSheetAnimation;
 	    }
 	}
@@ -20509,7 +20510,6 @@
 	        this._skinnedDataLoopMarks = [];
 	        this._localBounds = new Bounds(Vector3._ZERO, Vector3._ZERO);
 	        this._cacheAnimationNode = [];
-	        (owner) && (this._owner.transform.off(Laya.Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange));
 	    }
 	    get localBounds() {
 	        return this._localBounds;
@@ -20523,32 +20523,19 @@
 	    set rootBone(value) {
 	        if (this._cacheRootBone != value) {
 	            if (this._cacheRootBone)
-	                this._cacheRootBone.transform.off(Laya.Event.TRANSFORM_CHANGED, this, this._boundChange);
-	            value.transform.on(Laya.Event.TRANSFORM_CHANGED, this, this._boundChange);
+	                this._cacheRootBone.transform.off(Laya.Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);
+	            else
+	                this._owner.transform.off(Laya.Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);
+	            if (value)
+	                value.transform.on(Laya.Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);
+	            else
+	                this._owner.transform.on(Laya.Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);
 	            this._cacheRootBone = value;
-	            this._boundChange(Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDSCALE);
+	            this._onWorldMatNeedChange(Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDSCALE);
 	        }
 	    }
 	    get bones() {
 	        return this._bones;
-	    }
-	    _computeSkinnedDataForNative() {
-	        if (this._cacheMesh && this._cacheAvatar || this._cacheMesh && !this._cacheAvatar) {
-	            var bindPoses = this._cacheMesh._inverseBindPoses;
-	            var meshBindPoseIndices = this._cacheMesh._bindPoseIndices;
-	            var pathMarks = this._cacheMesh._skinDataPathMarks;
-	            for (var i = 0, n = this._cacheMesh.subMeshCount; i < n; i++) {
-	                var subMeshBoneIndices = this._cacheMesh.getSubMesh(i)._boneIndicesList;
-	                var subData = this._skinnedData[i];
-	                for (var j = 0, m = subMeshBoneIndices.length; j < m; j++) {
-	                    var boneIndices = subMeshBoneIndices[j];
-	                    if (this._cacheAvatar && Laya.Render.supportWebGLPlusAnimation)
-	                        this._computeSubSkinnedDataNative(this._cacheAnimator._animationNodeWorldMatrixs, this._cacheAnimationNodeIndices, this._cacheMesh._inverseBindPosesBuffer, boneIndices, meshBindPoseIndices, subData[j]);
-	                    else
-	                        this._computeSubSkinnedData(bindPoses, boneIndices, meshBindPoseIndices, subData[j], pathMarks);
-	                }
-	            }
-	        }
 	    }
 	    _computeSkinnedData() {
 	        if (this._cacheMesh && this._cacheAvatar || this._cacheMesh && !this._cacheAvatar) {
@@ -20588,7 +20575,7 @@
 	            }
 	        }
 	    }
-	    _boundChange(flag) {
+	    _onWorldMatNeedChange(flag) {
 	        this._boundsChange = true;
 	        if (this._octreeNode) {
 	            if (this._cacheAvatar) {
@@ -20673,28 +20660,32 @@
 	    }
 	    _renderUpdateWithCamera(context, transform) {
 	        var projectionView = context.projectionViewMatrix;
-	        if (!this._cacheAvatar) {
-	            this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, projectionView);
-	        }
-	        else {
-	            if (this._cacheAnimator) {
-	                var aniOwnerTrans = this._cacheAnimator.owner._transform;
-	                Matrix4x4.multiply(projectionView, aniOwnerTrans.worldMatrix, this._projectionViewWorldMatrix);
+	        if (this._cacheAnimator) {
+	            if (!this._cacheAvatar) {
+	                this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, projectionView);
 	            }
 	            else {
-	                Matrix4x4.multiply(projectionView, transform.worldMatrix, this._projectionViewWorldMatrix);
+	                var aniOwnerTrans = this._cacheAnimator.owner._transform;
+	                Matrix4x4.multiply(projectionView, aniOwnerTrans.worldMatrix, this._projectionViewWorldMatrix);
+	                this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, this._projectionViewWorldMatrix);
 	            }
+	        }
+	        else {
+	            Matrix4x4.multiply(projectionView, transform.worldMatrix, this._projectionViewWorldMatrix);
 	            this._shaderValues.setMatrix4x4(Sprite3D.MVPMATRIX, this._projectionViewWorldMatrix);
 	        }
 	    }
 	    _destroy() {
 	        super._destroy();
 	        if (!this._cacheAvatar) {
-	            (this._cacheRootBone && !this._cacheRootBone.destroyed) && (this._cacheRootBone.transform.off(Laya.Event.TRANSFORM_CHANGED, this, this._boundChange));
+	            if (this._cacheRootBone)
+	                (!this._cacheRootBone.destroyed) && (this._cacheRootBone.transform.off(Laya.Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange));
+	            else
+	                (this._owner && !this._owner.destroyed) && (this._owner.transform.off(Laya.Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange));
 	        }
 	        else {
 	            if (this._cacheRootAnimationNode)
-	                this._cacheRootAnimationNode.transform.off(Laya.Event.TRANSFORM_CHANGED, this, this._boundChange);
+	                this._cacheRootAnimationNode.transform.off(Laya.Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);
 	        }
 	    }
 	    get bounds() {
@@ -20715,10 +20706,11 @@
 	        else
 	            rootNode = null;
 	        if (this._cacheRootAnimationNode != rootNode) {
-	            this._boundChange(Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDSCALE);
+	            this._onWorldMatNeedChange(Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDSCALE);
+	            this._owner.transform.off(Laya.Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);
 	            if (this._cacheRootAnimationNode)
-	                this._cacheRootAnimationNode.transform.off(Laya.Event.TRANSFORM_CHANGED, this, this._boundChange);
-	            (rootNode) && (rootNode.transform.on(Laya.Event.TRANSFORM_CHANGED, this, this._boundChange));
+	                this._cacheRootAnimationNode.transform.off(Laya.Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);
+	            (rootNode) && (rootNode.transform.on(Laya.Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange));
 	            this._cacheRootAnimationNode = rootNode;
 	        }
 	    }
@@ -20760,6 +20752,24 @@
 	    }
 	    _computeSubSkinnedDataNative(worldMatrixs, cacheAnimationNodeIndices, inverseBindPosesBuffer, boneIndices, bindPoseInices, data) {
 	        Laya.LayaGL.instance.computeSubSkinnedData(worldMatrixs, cacheAnimationNodeIndices, inverseBindPosesBuffer, boneIndices, bindPoseInices, data);
+	    }
+	    _computeSkinnedDataForNative() {
+	        if (this._cacheMesh && this._cacheAvatar || this._cacheMesh && !this._cacheAvatar) {
+	            var bindPoses = this._cacheMesh._inverseBindPoses;
+	            var meshBindPoseIndices = this._cacheMesh._bindPoseIndices;
+	            var pathMarks = this._cacheMesh._skinDataPathMarks;
+	            for (var i = 0, n = this._cacheMesh.subMeshCount; i < n; i++) {
+	                var subMeshBoneIndices = this._cacheMesh.getSubMesh(i)._boneIndicesList;
+	                var subData = this._skinnedData[i];
+	                for (var j = 0, m = subMeshBoneIndices.length; j < m; j++) {
+	                    var boneIndices = subMeshBoneIndices[j];
+	                    if (this._cacheAvatar && Laya.Render.supportWebGLPlusAnimation)
+	                        this._computeSubSkinnedDataNative(this._cacheAnimator._animationNodeWorldMatrixs, this._cacheAnimationNodeIndices, this._cacheMesh._inverseBindPosesBuffer, boneIndices, meshBindPoseIndices, subData[j]);
+	                    else
+	                        this._computeSubSkinnedData(bindPoses, boneIndices, meshBindPoseIndices, subData[j], pathMarks);
+	                }
+	            }
+	        }
 	    }
 	}
 	SkinnedMeshRenderer._tempMatrix4x4 = new Matrix4x4();
@@ -29763,6 +29773,7 @@
 	        Laya.ClassUtils.regClass("PhysicsCollider", PhysicsCollider);
 	        Laya.ClassUtils.regClass("CharacterController", CharacterController);
 	        Laya.ClassUtils.regClass("Animator", Animator);
+	        Laya.ClassUtils.regClass("Rigidbody3D", Rigidbody3D);
 	        PixelLineMaterial.defaultMaterial = new PixelLineMaterial();
 	        BlinnPhongMaterial.defaultMaterial = new BlinnPhongMaterial();
 	        EffectMaterial.defaultMaterial = new EffectMaterial();

@@ -62,11 +62,12 @@ export class TextureSheetAnimation implements IClone {
 		this.tiles.cloneTo(destTextureSheetAnimation.tiles);
 		destTextureSheetAnimation.type = this.type;
 		destTextureSheetAnimation.randomRow = this.randomRow;
-		this._frame.cloneTo(destTextureSheetAnimation._frame);
-		this._startFrame.cloneTo(destTextureSheetAnimation._startFrame);
+		destTextureSheetAnimation.rowIndex = this.rowIndex;
 		destTextureSheetAnimation.cycles = this.cycles;
 		destTextureSheetAnimation.enableUVChannels = this.enableUVChannels;
 		destTextureSheetAnimation.enable = this.enable;
+		this._frame.cloneTo(destTextureSheetAnimation._frame);
+		this._startFrame.cloneTo(destTextureSheetAnimation._startFrame);
 	}
 
 	/**
@@ -101,12 +102,7 @@ export class TextureSheetAnimation implements IClone {
 		}
 
 		var destTextureSheetAnimation: TextureSheetAnimation = new TextureSheetAnimation(destFrame, destStartFrame);
-		this.tiles.cloneTo(destTextureSheetAnimation.tiles);
-		destTextureSheetAnimation.type = this.type;
-		destTextureSheetAnimation.randomRow = this.randomRow;
-		destTextureSheetAnimation.cycles = this.cycles;
-		destTextureSheetAnimation.enableUVChannels = this.enableUVChannels;
-		destTextureSheetAnimation.enable = this.enable;
+		this.cloneTo(destTextureSheetAnimation);
 		return destTextureSheetAnimation;
 	}
 

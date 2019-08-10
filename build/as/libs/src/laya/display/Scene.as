@@ -44,7 +44,7 @@ package laya.display {
 		 */
 		private var _viewCreated:*;
 
-		public function Scene(){}
+		public function Scene(createChildren:Boolean = undefined){}
 
 		/*
 		 * @private 兼容老项目

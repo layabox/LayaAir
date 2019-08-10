@@ -1,7 +1,7 @@
 export class ShaderValue {
-		constructor(){
-		
-		}
-	}
+    constructor() {
+
+    }
+}
 
 

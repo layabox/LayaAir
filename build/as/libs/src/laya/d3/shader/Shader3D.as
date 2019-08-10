@@ -116,6 +116,13 @@ package laya.d3.shader {
 		}
 
 		/*
+		 * 添加函数库引用。
+		 * @param fileName 文件名字。
+		 * @param txt 文件内容
+		 */
+		public static function addInclude(fileName:String,txt:String):void{}
+
+		/*
 		 * 编译shader。
 		 * @param name Shader名称。
 		 * @param subShaderIndex 子着色器索引。

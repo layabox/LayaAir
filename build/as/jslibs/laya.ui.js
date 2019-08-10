@@ -86,7 +86,7 @@
 	    _setChanged() {
 	        if (!this._isChanged) {
 	            this._isChanged = true;
-	            window.Laya.timer.callLater(this, this.changeSource);
+	            Laya.ILaya.timer.callLater(this, this.changeSource);
 	        }
 	    }
 	    changeSource() {
@@ -363,14 +363,16 @@
 	Laya.ClassUtils.regClass("Laya.UIUtils", UIUtils);
 
 	class UIComponent extends Laya.Sprite {
-	    constructor() {
+	    constructor(createChildren = true) {
 	        super();
 	        this._anchorX = NaN;
 	        this._anchorY = NaN;
 	        this._widget = Widget.EMPTY;
-	        this.preinitialize();
-	        this.createChildren();
-	        this.initialize();
+	        if (createChildren) {
+	            this.preinitialize();
+	            this.createChildren();
+	            this.initialize();
+	        }
 	    }
 	    destroy(destroyChild = true) {
 	        super.destroy(destroyChild);
@@ -533,10 +535,10 @@
 	        }
 	    }
 	    onMouseOver(e) {
-	        window.Laya.stage.event(UIEvent.SHOW_TIP, this._toolTip);
+	        Laya.ILaya.stage.event(UIEvent.SHOW_TIP, this._toolTip);
 	    }
 	    onMouseOut(e) {
-	        window.Laya.stage.event(UIEvent.HIDE_TIP, this._toolTip);
+	        Laya.ILaya.stage.event(UIEvent.HIDE_TIP, this._toolTip);
 	    }
 	    get gray() {
 	        return this._gray;
@@ -656,7 +658,7 @@
 	    }
 	    dispose() {
 	        this.destroy(true);
-	        window.Laya.loader.clearRes(this._skin);
+	        Laya.ILaya.loader.clearRes(this._skin);
 	    }
 	    createChildren() {
 	        this.graphics = this._bitmap = new AutoBitmap();
@@ -675,7 +677,7 @@
 	                    this.onCompResize();
 	                }
 	                else
-	                    window.Laya.loader.load(this._skin, Laya.Handler.create(this, this.setSource, [this._skin]), null, Laya.Loader.IMAGE, 1, true, this._group);
+	                    Laya.ILaya.loader.load(this._skin, Laya.Handler.create(this, this.setSource, [this._skin]), null, Laya.Loader.IMAGE, 1, true, this._group);
 	            }
 	            else {
 	                this.source = null;
@@ -1017,7 +1019,7 @@
 	            this._skin = value;
 	            if (value) {
 	                if (!Laya.Loader.getRes(value)) {
-	                    window.Laya.loader.load(this._skin, Laya.Handler.create(this, this._skinLoaded), null, Laya.Loader.IMAGE, 1);
+	                    Laya.ILaya.loader.load(this._skin, Laya.Handler.create(this, this._skinLoaded), null, Laya.Loader.IMAGE, 1);
 	                }
 	                else {
 	                    this._skinLoaded();
@@ -1336,7 +1338,7 @@
 	    }
 	    dispose() {
 	        this.destroy(true);
-	        window.Laya.loader.clearRes(this._skin);
+	        Laya.ILaya.loader.clearRes(this._skin);
 	    }
 	    createChildren() {
 	        this.graphics = this._bitmap = new AutoBitmap();
@@ -1360,7 +1362,7 @@
 	            this._skin = value;
 	            if (value) {
 	                if (!Laya.Loader.getRes(value)) {
-	                    window.Laya.loader.load(this._skin, Laya.Handler.create(this, this._skinLoaded), null, Laya.Loader.IMAGE, 1);
+	                    Laya.ILaya.loader.load(this._skin, Laya.Handler.create(this, this._skinLoaded), null, Laya.Loader.IMAGE, 1);
 	                }
 	                else {
 	                    this._skinLoaded();
@@ -1413,7 +1415,7 @@
 	            this.loadComplete(this._skin, img);
 	        }
 	        else {
-	            window.Laya.loader.load(this._skin, Laya.Handler.create(this, this.loadComplete, [this._skin]));
+	            Laya.ILaya.loader.load(this._skin, Laya.Handler.create(this, this.loadComplete, [this._skin]));
 	        }
 	    }
 	    loadComplete(url, img) {
@@ -1529,7 +1531,7 @@
 	        this.index = from;
 	        this._toIndex = to;
 	        this._index++;
-	        window.Laya.timer.loop(this.interval, this, this._loop);
+	        Laya.ILaya.timer.loop(this.interval, this, this._loop);
 	        this.on(Laya.Event.DISPLAY, this, this._onDisplay);
 	        this.on(Laya.Event.UNDISPLAY, this, this._onDisplay);
 	    }
@@ -1545,7 +1547,7 @@
 	    }
 	    stop() {
 	        this._isPlaying = false;
-	        window.Laya.timer.clear(this, this._loop);
+	        Laya.ILaya.timer.clear(this, this._loop);
 	        this.event(Laya.Event.COMPLETE);
 	    }
 	    set dataSource(value) {
@@ -1656,18 +1658,18 @@
 	            this.open();
 	    }
 	    open() {
-	        var Laya$1 = window.Laya;
+	        let stage = Laya.ILaya.stage;
 	        var p = this.localToGlobal(new Laya.Point());
-	        var px = p.x + this._colorPanel.width <= Laya$1.stage.width ? p.x : Laya$1.stage.width - this._colorPanel.width;
+	        var px = p.x + this._colorPanel.width <= stage.width ? p.x : stage.width - this._colorPanel.width;
 	        var py = p.y + this._colorButton.height;
-	        py = py + this._colorPanel.height <= Laya$1.stage.height ? py : p.y - this._colorPanel.height;
+	        py = py + this._colorPanel.height <= stage.height ? py : p.y - this._colorPanel.height;
 	        this._colorPanel.pos(px, py);
 	        this._colorPanel.zOrder = 1001;
-	        Laya$1._currentStage.addChild(this._colorPanel);
-	        Laya$1.stage.on(Laya.Event.MOUSE_DOWN, this, this.removeColorBox);
+	        stage.addChild(this._colorPanel);
+	        stage.on(Laya.Event.MOUSE_DOWN, this, this.removeColorBox);
 	    }
 	    close() {
-	        window.Laya.stage.off(Laya.Event.MOUSE_DOWN, this, this.removeColorBox);
+	        Laya.ILaya.stage.off(Laya.Event.MOUSE_DOWN, this, this.removeColorBox);
 	        this._colorPanel.removeSelf();
 	    }
 	    removeColorBox(e = null) {
@@ -1984,7 +1986,7 @@
 	        this.allowClickBack = true;
 	    }
 	    onBarMouseDown(e) {
-	        var Laya$1 = window.Laya;
+	        var Laya$1 = Laya.ILaya;
 	        this._globalSacle || (this._globalSacle = new Laya.Point());
 	        this._globalSacle.setTo(this.globalScaleX || 0.01, this.globalScaleY || 0.01);
 	        this._maxMove = this.isVertical ? (this.height - this._bar.height) : (this.width - this._bar.width);
@@ -2014,18 +2016,18 @@
 	        Slider.label && Slider.label.removeSelf();
 	    }
 	    mouseUp(e) {
-	        var Laya$1 = window.Laya;
-	        Laya$1.stage.off(Laya.Event.MOUSE_MOVE, this, this.mouseMove);
-	        Laya$1.stage.off(Laya.Event.MOUSE_UP, this, this.mouseUp);
-	        Laya$1.stage.off(Laya.Event.MOUSE_OUT, this, this.mouseUp);
+	        let stage = Laya.ILaya.stage;
+	        stage.off(Laya.Event.MOUSE_MOVE, this, this.mouseMove);
+	        stage.off(Laya.Event.MOUSE_UP, this, this.mouseUp);
+	        stage.off(Laya.Event.MOUSE_OUT, this, this.mouseUp);
 	        this.sendChangeEvent(Laya.Event.CHANGED);
 	        this.hideValueText();
 	    }
 	    mouseMove(e) {
-	        var Laya = window.Laya;
+	        let stage = Laya.ILaya.stage;
 	        var oldValue = this._value;
 	        if (this.isVertical) {
-	            this._bar.y += (Laya.stage.mouseY - this._ty) / this._globalSacle.y;
+	            this._bar.y += (stage.mouseY - this._ty) / this._globalSacle.y;
 	            if (this._bar._y > this._maxMove)
 	                this._bar.y = this._maxMove;
 	            else if (this._bar._y < 0)
@@ -2035,7 +2037,7 @@
 	                this._progress.height = this._bar._y + 0.5 * this._bar.height;
 	        }
 	        else {
-	            this._bar.x += (Laya.stage.mouseX - this._tx) / this._globalSacle.x;
+	            this._bar.x += (stage.mouseX - this._tx) / this._globalSacle.x;
 	            if (this._bar._x > this._maxMove)
 	                this._bar.x = this._maxMove;
 	            else if (this._bar._x < 0)
@@ -2044,8 +2046,8 @@
 	            if (this._progress)
 	                this._progress.width = this._bar._x + 0.5 * this._bar.width;
 	        }
-	        this._tx = Laya.stage.mouseX;
-	        this._ty = Laya.stage.mouseY;
+	        this._tx = stage.mouseX;
+	        this._ty = stage.mouseY;
 	        if (this._tick != 0) {
 	            var pow = Math.pow(10, (this._tick + "").length - 1);
 	            this._value = Math.round(Math.round(this._value / this._tick) * this._tick * pow) / pow;
@@ -2066,7 +2068,7 @@
 	        if (this._skin != value) {
 	            this._skin = value;
 	            if (this._skin && !Laya.Loader.getRes(this._skin)) {
-	                window.Laya.loader.load([this._skin, this._skin.replace(".png", "$bar.png")], Laya.Handler.create(this, this._skinLoaded));
+	                Laya.ILaya.loader.load([this._skin, this._skin.replace(".png", "$bar.png")], Laya.Handler.create(this, this._skinLoaded));
 	            }
 	            else {
 	                this._skinLoaded();
@@ -2275,14 +2277,13 @@
 	            this.value = this.slider.value;
 	    }
 	    onButtonMouseDown(e) {
-	        var Laya$1 = window.Laya;
 	        var isUp = e.currentTarget === this.upButton;
 	        this.slide(isUp);
-	        Laya$1.timer.once(Styles.scrollBarDelayTime, this, this.startLoop, [isUp]);
-	        Laya$1.stage.once(Laya.Event.MOUSE_UP, this, this.onStageMouseUp);
+	        Laya.ILaya.timer.once(Styles.scrollBarDelayTime, this, this.startLoop, [isUp]);
+	        Laya.ILaya.stage.once(Laya.Event.MOUSE_UP, this, this.onStageMouseUp);
 	    }
 	    startLoop(isUp) {
-	        window.Laya.timer.frameLoop(1, this, this.slide, [isUp]);
+	        Laya.ILaya.timer.frameLoop(1, this, this.slide, [isUp]);
 	    }
 	    slide(isUp) {
 	        if (isUp)
@@ -2291,9 +2292,8 @@
 	            this.value += this._scrollSize;
 	    }
 	    onStageMouseUp(e) {
-	        var Laya = window.Laya;
-	        Laya.timer.clear(this, this.startLoop);
-	        Laya.timer.clear(this, this.slide);
+	        Laya.ILaya.timer.clear(this, this.startLoop);
+	        Laya.ILaya.timer.clear(this, this.slide);
 	    }
 	    get skin() {
 	        return this._skin;
@@ -2304,7 +2304,7 @@
 	        if (this._skin != value) {
 	            this._skin = value;
 	            if (this._skin && !Laya.Loader.getRes(this._skin)) {
-	                window.Laya.loader.load([this._skin, this._skin.replace(".png", "$up.png"), this._skin.replace(".png", "$down.png"), this._skin.replace(".png", "$bar.png")], Laya.Handler.create(this, this._skinLoaded));
+	                Laya.ILaya.loader.load([this._skin, this._skin.replace(".png", "$up.png"), this._skin.replace(".png", "$down.png"), this._skin.replace(".png", "$bar.png")], Laya.Handler.create(this, this._skinLoaded));
 	            }
 	            else {
 	                this._skinLoaded();
@@ -2487,7 +2487,6 @@
 	        this.target = this._target;
 	    }
 	    onTargetMouseDown(e) {
-	        var Laya$1 = window.Laya;
 	        if ((this.isLockedFun) && !this.isLockedFun(e))
 	            return;
 	        this.event(Laya.Event.END);
@@ -2495,32 +2494,30 @@
 	        this._lastOffset = 0;
 	        this._checkElastic = false;
 	        this._lastPoint || (this._lastPoint = new Laya.Point());
-	        this._lastPoint.setTo(Laya$1.stage.mouseX, Laya$1.stage.mouseY);
-	        Laya$1.timer.clear(this, this.tweenMove);
+	        this._lastPoint.setTo(Laya.ILaya.stage.mouseX, Laya.ILaya.stage.mouseY);
+	        Laya.ILaya.timer.clear(this, this.tweenMove);
 	        Laya.Tween.clearTween(this);
-	        Laya$1.stage.once(Laya.Event.MOUSE_UP, this, this.onStageMouseUp2);
-	        Laya$1.stage.once(Laya.Event.MOUSE_OUT, this, this.onStageMouseUp2);
-	        Laya$1.timer.frameLoop(1, this, this.loop);
+	        Laya.ILaya.stage.once(Laya.Event.MOUSE_UP, this, this.onStageMouseUp2);
+	        Laya.ILaya.stage.once(Laya.Event.MOUSE_OUT, this, this.onStageMouseUp2);
+	        Laya.ILaya.timer.frameLoop(1, this, this.loop);
 	    }
 	    startDragForce() {
-	        var Laya$1 = window.Laya;
 	        this._clickOnly = true;
 	        this._lastOffset = 0;
 	        this._checkElastic = false;
 	        this._lastPoint || (this._lastPoint = new Laya.Point());
-	        this._lastPoint.setTo(Laya$1.stage.mouseX, Laya$1.stage.mouseY);
-	        Laya$1.timer.clear(this, this.tweenMove);
+	        this._lastPoint.setTo(Laya.ILaya.stage.mouseX, Laya.ILaya.stage.mouseY);
+	        Laya.ILaya.timer.clear(this, this.tweenMove);
 	        Laya.Tween.clearTween(this);
-	        Laya$1.stage.once(Laya.Event.MOUSE_UP, this, this.onStageMouseUp2);
-	        Laya$1.stage.once(Laya.Event.MOUSE_OUT, this, this.onStageMouseUp2);
-	        Laya$1.timer.frameLoop(1, this, this.loop);
+	        Laya.ILaya.stage.once(Laya.Event.MOUSE_UP, this, this.onStageMouseUp2);
+	        Laya.ILaya.stage.once(Laya.Event.MOUSE_OUT, this, this.onStageMouseUp2);
+	        Laya.ILaya.timer.frameLoop(1, this, this.loop);
 	    }
 	    cancelDragOp() {
-	        var Laya$1 = window.Laya;
-	        Laya$1.stage.off(Laya.Event.MOUSE_UP, this, this.onStageMouseUp2);
-	        Laya$1.stage.off(Laya.Event.MOUSE_OUT, this, this.onStageMouseUp2);
-	        Laya$1.timer.clear(this, this.tweenMove);
-	        Laya$1.timer.clear(this, this.loop);
+	        Laya.ILaya.stage.off(Laya.Event.MOUSE_UP, this, this.onStageMouseUp2);
+	        Laya.ILaya.stage.off(Laya.Event.MOUSE_OUT, this, this.onStageMouseUp2);
+	        Laya.ILaya.timer.clear(this, this.tweenMove);
+	        Laya.ILaya.timer.clear(this, this.loop);
 	        this._target.mouseEnabled = true;
 	    }
 	    checkTriggers(isTweenMove = false) {
@@ -2545,15 +2542,14 @@
 	    }
 	    startTweenMoveForce(lastOffset) {
 	        this._lastOffset = lastOffset;
-	        window.Laya.timer.frameLoop(1, this, this.tweenMove, [200]);
+	        Laya.ILaya.timer.frameLoop(1, this, this.tweenMove, [200]);
 	    }
 	    loop() {
-	        var Laya$1 = window.Laya;
-	        var mouseY = Laya$1.stage.mouseY;
-	        var mouseX = Laya$1.stage.mouseX;
+	        var mouseY = Laya.ILaya.stage.mouseY;
+	        var mouseX = Laya.ILaya.stage.mouseX;
 	        this._lastOffset = this.isVertical ? (mouseY - this._lastPoint.y) : (mouseX - this._lastPoint.x);
 	        if (this._clickOnly) {
-	            if (Math.abs(this._lastOffset * (this.isVertical ? Laya$1.stage._canvasTransform.getScaleY() : Laya$1.stage._canvasTransform.getScaleX())) > 1) {
+	            if (Math.abs(this._lastOffset * (this.isVertical ? Laya.ILaya.stage._canvasTransform.getScaleY() : Laya.ILaya.stage._canvasTransform.getScaleX())) > 1) {
 	                this._clickOnly = false;
 	                if (this.checkTriggers())
 	                    return;
@@ -2621,10 +2617,9 @@
 	        }
 	    }
 	    onStageMouseUp2(e) {
-	        var Laya$1 = window.Laya;
-	        Laya$1.stage.off(Laya.Event.MOUSE_UP, this, this.onStageMouseUp2);
-	        Laya$1.stage.off(Laya.Event.MOUSE_OUT, this, this.onStageMouseUp2);
-	        Laya$1.timer.clear(this, this.loop);
+	        Laya.ILaya.stage.off(Laya.Event.MOUSE_UP, this, this.onStageMouseUp2);
+	        Laya.ILaya.stage.off(Laya.Event.MOUSE_OUT, this, this.onStageMouseUp2);
+	        Laya.ILaya.timer.clear(this, this.loop);
 	        if (this._clickOnly) {
 	            if (this._value >= this.min && this._value <= this.max)
 	                return;
@@ -2642,7 +2637,7 @@
 	            if (!this._offsets)
 	                return;
 	            if (this._offsets.length < 1) {
-	                this._offsets[0] = this.isVertical ? Laya$1.stage.mouseY - this._lastPoint.y : Laya$1.stage.mouseX - this._lastPoint.x;
+	                this._offsets[0] = this.isVertical ? Laya.ILaya.stage.mouseY - this._lastPoint.y : Laya.ILaya.stage.mouseX - this._lastPoint.x;
 	            }
 	            var offset = 0;
 	            var n = Math.min(this._offsets.length, 3);
@@ -2658,7 +2653,7 @@
 	            if (offset > 250)
 	                this._lastOffset = this._lastOffset > 0 ? 250 : -250;
 	            var dis = Math.round(Math.abs(this.elasticDistance * (this._lastOffset / 150)));
-	            Laya$1.timer.frameLoop(1, this, this.tweenMove, [dis]);
+	            Laya.ILaya.timer.frameLoop(1, this, this.tweenMove, [dis]);
 	        }
 	    }
 	    elasticOver() {
@@ -2690,7 +2685,7 @@
 	        }
 	        this.value -= this._lastOffset;
 	        if (Math.abs(this._lastOffset) < 0.1) {
-	            window.Laya.timer.clear(this, this.tweenMove);
+	            Laya.ILaya.timer.clear(this, this.tweenMove);
 	            if (this._isElastic) {
 	                if (this._value < this.min) {
 	                    Laya.Tween.to(this, { value: this.min }, this.elasticBackTime, Laya.Ease.sineOut, Laya.Handler.create(this, this.elasticOver));
@@ -2711,7 +2706,7 @@
 	    }
 	    stopScroll() {
 	        this.onStageMouseUp2(null);
-	        window.Laya.timer.clear(this, this.tweenMove);
+	        Laya.ILaya.timer.clear(this, this.tweenMove);
 	        Laya.Tween.clearTween(this);
 	    }
 	    get tick() {
@@ -3613,9 +3608,8 @@
 	        this.removeList(null);
 	    }
 	    removeList(e) {
-	        var Laya$1 = window.Laya;
-	        Laya$1.stage.off(Laya.Event.MOUSE_DOWN, this, this.removeList);
-	        Laya$1.stage.off(Laya.Event.MOUSE_WHEEL, this, this._onStageMouseWheel);
+	        Laya.ILaya.stage.off(Laya.Event.MOUSE_DOWN, this, this.removeList);
+	        Laya.ILaya.stage.off(Laya.Event.MOUSE_WHEEL, this, this._onStageMouseWheel);
 	        this.isOpen = false;
 	    }
 	    get scrollBarSkin() {
@@ -3729,7 +3723,7 @@
 	        if (this._skin != value) {
 	            this._skin = value;
 	            if (this._skin && !Laya.Loader.getRes(this._skin)) {
-	                window.Laya.loader.load(this._skin, Laya.Handler.create(this, this._skinLoaded), null, Laya.Loader.IMAGE, 1);
+	                Laya.ILaya.loader.load(this._skin, Laya.Handler.create(this, this._skinLoaded), null, Laya.Loader.IMAGE, 1);
 	            }
 	            else {
 	                this._skinLoaded();
@@ -3963,7 +3957,7 @@
 	        if (this._skin != value) {
 	            this._skin = value;
 	            if (this._skin && !Laya.Loader.getRes(this._skin)) {
-	                window.Laya.loader.load(this._skin, Laya.Handler.create(this, this._skinLoaded), null, Laya.Loader.IMAGE, 1);
+	                Laya.ILaya.loader.load(this._skin, Laya.Handler.create(this, this._skinLoaded), null, Laya.Loader.IMAGE, 1);
 	            }
 	            else {
 	                this._skinLoaded();
@@ -4317,7 +4311,7 @@
 	        if (this._skin != value) {
 	            this._skin = value;
 	            if (this._skin && !Laya.Loader.getRes(this._skin)) {
-	                window.Laya.loader.load(this._skin, Laya.Handler.create(this, this._skinLoaded), null, Laya.Loader.IMAGE, 1);
+	                Laya.ILaya.loader.load(this._skin, Laya.Handler.create(this, this._skinLoaded), null, Laya.Loader.IMAGE, 1);
 	            }
 	            else {
 	                this._skinLoaded();
@@ -4553,18 +4547,18 @@
 	        this._oldH = 0;
 	    }
 	    onEnable() {
-	        window.Laya.stage.on("resize", this, this.onResize);
+	        Laya.ILaya.stage.on("resize", this, this.onResize);
 	        this.onResize();
 	    }
 	    onDisable() {
-	        window.Laya.stage.off("resize", this, this.onResize);
+	        Laya.ILaya.stage.off("resize", this, this.onResize);
 	    }
 	    onResize() {
-	        var Laya = window.Laya;
+	        let stage = Laya.ILaya.stage;
 	        if (this.width > 0 && this.height > 0) {
-	            var scale = Math.min(Laya.stage.width / this._oldW, Laya.stage.height / this._oldH);
-	            super.width = Laya.stage.width;
-	            super.height = Laya.stage.height;
+	            var scale = Math.min(stage.width / this._oldW, stage.height / this._oldH);
+	            super.width = stage.width;
+	            super.height = stage.height;
 	            this.scale(scale, scale);
 	        }
 	    }
@@ -5444,11 +5438,12 @@
 
 	class View extends Laya.Scene {
 	    constructor() {
-	        super();
+	        super(false);
 	        this._watchMap = {};
 	        this._anchorX = NaN;
 	        this._anchorY = NaN;
 	        this._widget = Widget.EMPTY;
+	        this.createChildren();
 	    }
 	    static __init__() {
 	        Laya.ILaya.ClassUtils.regShortClassName([ViewStack, Button, TextArea, ColorPicker, Box, ScaleBox, CheckBox, Clip, ComboBox, UIComponent,
@@ -5462,7 +5457,7 @@
 	        Laya.ILaya.ClassUtils.regClass(key, compClass);
 	    }
 	    static regUI(url, json) {
-	        window.Laya.loader.cacheRes(url, json);
+	        Laya.ILaya.loader.cacheRes(url, json);
 	    }
 	    destroy(destroyChild = true) {
 	        this._watchMap = null;
@@ -5586,21 +5581,18 @@
 	        super();
 	        this.maskLayer = new Laya.Sprite();
 	        this.popupEffect = function (dialog) {
-	            var Laya$1 = window.Laya;
 	            dialog.scale(1, 1);
-	            dialog._effectTween = Laya.Tween.from(dialog, { x: Laya$1.stage.width / 2, y: Laya$1.stage.height / 2, scaleX: 0, scaleY: 0 }, 300, Laya.Ease.backOut, Laya.Handler.create(this, this.doOpen, [dialog]), 0, false, false);
+	            dialog._effectTween = Laya.Tween.from(dialog, { x: Laya.ILaya.stage.width / 2, y: Laya.ILaya.stage.height / 2, scaleX: 0, scaleY: 0 }, 300, Laya.Ease.backOut, Laya.Handler.create(this, this.doOpen, [dialog]), 0, false, false);
 	        };
 	        this.closeEffect = function (dialog) {
-	            var Laya$1 = window.Laya;
-	            dialog._effectTween = Laya.Tween.to(dialog, { x: Laya$1.stage.width / 2, y: Laya$1.stage.height / 2, scaleX: 0, scaleY: 0 }, 300, Laya.Ease.strongOut, Laya.Handler.create(this, this.doClose, [dialog]), 0, false, false);
+	            dialog._effectTween = Laya.Tween.to(dialog, { x: Laya.ILaya.stage.width / 2, y: Laya.ILaya.stage.height / 2, scaleX: 0, scaleY: 0 }, 300, Laya.Ease.strongOut, Laya.Handler.create(this, this.doClose, [dialog]), 0, false, false);
 	        };
 	        this.popupEffectHandler = new Laya.Handler(this, this.popupEffect);
 	        this.closeEffectHandler = new Laya.Handler(this, this.closeEffect);
 	        this.mouseEnabled = this.maskLayer.mouseEnabled = true;
 	        this.zOrder = 1000;
-	        var Laya$1 = window.Laya;
-	        Laya$1.stage.addChild(this);
-	        Laya$1.stage.on(Laya.Event.RESIZE, this, this._onResize);
+	        Laya.ILaya.stage.addChild(this);
+	        Laya.ILaya.stage.on(Laya.Event.RESIZE, this, this._onResize);
 	        if (UIConfig.closeDialogOnSide)
 	            this.maskLayer.on("click", this, this._closeOnSide);
 	        this._onResize(null);
@@ -5611,11 +5603,10 @@
 	            dialog.close();
 	    }
 	    setLockView(value) {
-	        var Laya = window.Laya;
 	        if (!this.lockLayer) {
 	            this.lockLayer = new Box();
 	            this.lockLayer.mouseEnabled = true;
-	            this.lockLayer.size(Laya.stage.width, Laya.stage.height);
+	            this.lockLayer.size(Laya.ILaya.stage.width, Laya.ILaya.stage.height);
 	        }
 	        this.lockLayer.removeChildren();
 	        if (value) {
@@ -5624,9 +5615,8 @@
 	        }
 	    }
 	    _onResize(e = null) {
-	        var Laya = window.Laya;
-	        var width = this.maskLayer.width = Laya.stage.width;
-	        var height = this.maskLayer.height = Laya.stage.height;
+	        var width = this.maskLayer.width = Laya.ILaya.stage.width;
+	        var height = this.maskLayer.height = Laya.ILaya.stage.height;
 	        if (this.lockLayer)
 	            this.lockLayer.size(width, height);
 	        this.maskLayer.graphics.clear(true);
@@ -5639,9 +5629,8 @@
 	        }
 	    }
 	    _centerDialog(dialog) {
-	        var Laya = window.Laya;
-	        dialog.x = Math.round(((Laya.stage.width - dialog.width) >> 1) + dialog.pivotX);
-	        dialog.y = Math.round(((Laya.stage.height - dialog.height) >> 1) + dialog.pivotY);
+	        dialog.x = Math.round(((Laya.ILaya.stage.width - dialog.width) >> 1) + dialog.pivotX);
+	        dialog.y = Math.round(((Laya.ILaya.stage.height - dialog.height) >> 1) + dialog.pivotY);
 	    }
 	    open(dialog, closeOther = false, showEffect = false) {
 	        if (closeOther)
@@ -5651,7 +5640,7 @@
 	            this._centerDialog(dialog);
 	        this.addChild(dialog);
 	        if (dialog.isModal || this._getBit(Laya.Const.HAS_ZORDER))
-	            window.Laya.timer.callLater(this, this._checkMask);
+	            Laya.ILaya.timer.callLater(this, this._checkMask);
 	        if (showEffect && dialog.popupEffect != null)
 	            dialog.popupEffect.runWith(dialog);
 	        else
@@ -5873,17 +5862,17 @@
 	        this._tipText.x = this._tipText.y = 5;
 	        this._tipText.color = TipManager.tipTextColor;
 	        this._defaultTipHandler = this._showDefaultTip;
-	        window.Laya.stage.on(UIEvent.SHOW_TIP, this, this._onStageShowTip);
-	        window.Laya.stage.on(UIEvent.HIDE_TIP, this, this._onStageHideTip);
+	        Laya.ILaya.stage.on(UIEvent.SHOW_TIP, this, this._onStageShowTip);
+	        Laya.ILaya.stage.on(UIEvent.HIDE_TIP, this, this._onStageHideTip);
 	        this.zOrder = 1100;
 	    }
 	    _onStageHideTip(e) {
-	        window.Laya.timer.clear(this, this._showTip);
+	        Laya.ILaya.timer.clear(this, this._showTip);
 	        this.closeAll();
 	        this.removeSelf();
 	    }
 	    _onStageShowTip(data) {
-	        window.Laya.timer.once(TipManager.tipDelay, this, this._showTip, [data], true);
+	        Laya.ILaya.timer.once(TipManager.tipDelay, this, this._showTip, [data], true);
 	    }
 	    _showTip(tip) {
 	        if (typeof (tip) == 'string') {
@@ -5899,8 +5888,8 @@
 	            tip.apply();
 	        }
 	        {
-	            window.Laya.stage.on(Laya.Event.MOUSE_MOVE, this, this._onStageMouseMove);
-	            window.Laya.stage.on(Laya.Event.MOUSE_DOWN, this, this._onStageMouseDown);
+	            Laya.ILaya.stage.on(Laya.Event.MOUSE_MOVE, this, this._onStageMouseMove);
+	            Laya.ILaya.stage.on(Laya.Event.MOUSE_DOWN, this, this._onStageMouseDown);
 	        }
 	        this._onStageMouseMove(null);
 	    }
@@ -5911,28 +5900,26 @@
 	        this._showToStage(this, TipManager.offsetX, TipManager.offsetY);
 	    }
 	    _showToStage(dis, offX = 0, offY = 0) {
-	        var Laya = window.Laya;
 	        var rec = dis.getBounds();
-	        dis.x = Laya.stage.mouseX + offX;
-	        dis.y = Laya.stage.mouseY + offY;
-	        if (dis._x + rec.width > Laya.stage.width) {
+	        dis.x = Laya.ILaya.stage.mouseX + offX;
+	        dis.y = Laya.ILaya.stage.mouseY + offY;
+	        if (dis._x + rec.width > Laya.ILaya.stage.width) {
 	            dis.x -= rec.width + offX;
 	        }
-	        if (dis._y + rec.height > Laya.stage.height) {
+	        if (dis._y + rec.height > Laya.ILaya.stage.height) {
 	            dis.y -= rec.height + offY;
 	        }
 	    }
 	    closeAll() {
-	        var Laya$1 = window.Laya;
-	        Laya$1.timer.clear(this, this._showTip);
-	        Laya$1.stage.off(Laya.Event.MOUSE_MOVE, this, this._onStageMouseMove);
-	        Laya$1.stage.off(Laya.Event.MOUSE_DOWN, this, this._onStageMouseDown);
+	        Laya.ILaya.timer.clear(this, this._showTip);
+	        Laya.ILaya.stage.off(Laya.Event.MOUSE_MOVE, this, this._onStageMouseMove);
+	        Laya.ILaya.stage.off(Laya.Event.MOUSE_DOWN, this, this._onStageMouseDown);
 	        this.removeChildren();
 	    }
 	    showDislayTip(tip) {
 	        this.addChild(tip);
 	        this._showToStage(this);
-	        window.Laya._currentStage.addChild(this);
+	        Laya.ILaya.stage.addChild(this);
 	    }
 	    _showDefaultTip(text) {
 	        this._tipText.text = text;
@@ -5941,7 +5928,7 @@
 	        g.drawRect(0, 0, this._tipText.width + 10, this._tipText.height + 10, TipManager.tipBackColor);
 	        this.addChild(this._tipBox);
 	        this._showToStage(this);
-	        window.Laya._currentStage.addChild(this);
+	        Laya.ILaya.stage.addChild(this);
 	    }
 	    get defaultTipHandler() {
 	        return this._defaultTipHandler;
