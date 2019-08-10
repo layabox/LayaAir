@@ -2,7 +2,7 @@
 import typescript from 'rollup-plugin-typescript2';
 import glsl from 'rollup-plugin-glsl';
 const path = require('path')
-const layaExpPlugin = require('rollup-plugin-exportlaya');
+const layaExpPlugin = require('../buildtools/rollup_LayaExp');
 // `npm run build` -> `production` is true
 // `npm run dev` -> `production` is false
 const production = !process.env.ROLLUP_WATCH;
