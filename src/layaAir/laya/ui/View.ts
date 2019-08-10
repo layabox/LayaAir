@@ -62,8 +62,9 @@ import { ClassUtils } from "../utils/ClassUtils";
 		}
 		
 		constructor(){
-            super();
-			this._widget = Widget.EMPTY;
+            super(false);   // 先不要createChildren 因为 this._widget还没有赋值
+            this._widget = Widget.EMPTY;
+            this.createChildren();
 		}
 		
 		/**

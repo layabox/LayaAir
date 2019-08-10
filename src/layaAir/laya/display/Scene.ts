@@ -36,12 +36,13 @@ import { ClassUtils } from "../utils/ClassUtils";
 		/**@internal */
 		 _$componentType:string = "Scene";
 		
-		constructor(){
+		constructor(createChildren=true){
 			super();
 			this._setBit(Const.NOT_READY, true);
 			Scene.unDestroyedScenes.push(this);
-			this._scene = this;
-			this.createChildren();
+            this._scene = this;
+            if(createChildren)
+			    this.createChildren();
 		}
 		
 		/**
