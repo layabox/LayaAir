@@ -88,7 +88,3 @@ export class SoundChannel extends EventDispatcher {
     }
 }
 
-let win:any = window;
-if(win.Laya){
-    win.Laya.SoundChannel=SoundChannel;
-}
