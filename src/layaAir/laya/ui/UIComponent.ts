@@ -32,11 +32,13 @@ import { ClassUtils } from "../utils/ClassUtils";
 		/**
 		 * <p>创建一个新的 <code>Component</code> 实例。</p>
 		 */
-		constructor(){
-			super();
+		constructor(createChildren=true){
+            super();
+            if(createChildren){
             this.preinitialize();
 			this.createChildren();
-			this.initialize();
+            this.initialize();
+            }
 		}
 		
 		/**
