@@ -29,7 +29,6 @@ export class MultiplePassOutlineMaterial extends BaseMaterial {
 	 * @private
 	 */
 	static __init__(): void {
-		MultiplePassOutlineMaterial.SHADERDEFINE_ALBEDOTEXTURE = Shader3D.getDefineByName("ALBEDOTEXTURE");
 	}
 	/**
 	 * 获取漫反射贴图。
@@ -44,10 +43,6 @@ export class MultiplePassOutlineMaterial extends BaseMaterial {
 	 * @param value 漫反射贴图。
 	 */
 	set albedoTexture(value: BaseTexture) {
-		if (value)
-			this._shaderValues.addDefine(MultiplePassOutlineMaterial.SHADERDEFINE_ALBEDOTEXTURE);
-		else
-			this._shaderValues.removeDefine(MultiplePassOutlineMaterial.SHADERDEFINE_ALBEDOTEXTURE);
 		this._shaderValues.setTexture(MultiplePassOutlineMaterial.ALBEDOTEXTURE, value);
 	}
 	/**
