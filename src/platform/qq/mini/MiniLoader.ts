@@ -23,7 +23,7 @@ import { Event } from "laya/events/Event";
 			var thisLoader:any = this;
 			
 			//url转义处理
-			if (url.indexOf("http://usr/") == -1&&(url.indexOf("http://") != -1 || url.indexOf("https://") != -1))
+			if (url.indexOf(QQMiniAdapter.window.qq.env.USER_DATA_PATH) == -1&&(url.indexOf("http://") != -1 || url.indexOf("https://") != -1))
 			{
 				if(MiniFileMgr.loadPath != "")
 				{
@@ -98,7 +98,7 @@ import { Event } from "laya/events/Event";
 			}else
 			{
 				var tempurl:string = URL.formatURL(url);
-				if (!MiniFileMgr.isLocalNativeFile(url) &&  (tempurl.indexOf("http://") == -1 && tempurl.indexOf("https://") == -1) || (tempurl.indexOf("http://usr/") != -1)) 
+				if (!MiniFileMgr.isLocalNativeFile(url) &&  (tempurl.indexOf("http://") == -1 && tempurl.indexOf("https://") == -1) || (tempurl.indexOf(QQMiniAdapter.window.qq.env.USER_DATA_PATH) != -1)) 
 				{
 					MiniLoader.onDownLoadCallBack(url,thisLoader, 0);
 				}else
@@ -184,7 +184,7 @@ import { Event } from "laya/events/Event";
 			else
 			{
 				var tempurl:string = URL.formatURL(url);
-				if (url.indexOf("http://usr/") == -1&& (tempurl.indexOf("http://") != -1 || tempurl.indexOf("https://") != -1) && !QQMiniAdapter.AutoCacheDownFile) 
+				if (url.indexOf(QQMiniAdapter.window.qq.env.USER_DATA_PATH) == -1&& (tempurl.indexOf("http://") != -1 || tempurl.indexOf("https://") != -1) && !QQMiniAdapter.AutoCacheDownFile) 
 				{
 					thisLoader._loadHttpRequest(tempurl, contentType, thisLoader, thisLoader.onLoaded, thisLoader, thisLoader.onProgress, thisLoader, thisLoader.onError);
 				}else
@@ -202,7 +202,7 @@ import { Event } from "laya/events/Event";
 					}
 					else
 					{
-						if((tempurl.indexOf("http://") == -1 && tempurl.indexOf("https://") == -1) || MiniFileMgr.isLocalNativeFile(url))
+						if(contentType != Loader.IMAGE &&(tempurl.indexOf("http://") == -1 && tempurl.indexOf("https://") == -1) || MiniFileMgr.isLocalNativeFile(url))
 						{
 							MiniFileMgr.readFile(url, encoding, new Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType,  thisLoader]), url);
 						}else
@@ -263,7 +263,7 @@ import { Event } from "laya/events/Event";
 			if (!MiniFileMgr.getFileInfo(url)) 
 			{
 				var tempUrl:string = URL.formatURL(url);
-				if (url.indexOf('http://usr/') == -1&&(tempUrl.indexOf("http://") != -1 || tempUrl.indexOf("https://") != -1))
+				if (url.indexOf(QQMiniAdapter.window.qq.env.USER_DATA_PATH) == -1&&(tempUrl.indexOf("http://") != -1 || tempUrl.indexOf("https://") != -1))
 				{
 					//小游戏在子域里不能远端加载图片资源
 					if(QQMiniAdapter.isZiYu)
