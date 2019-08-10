@@ -5,34 +5,34 @@ import { LayaGL } from "../../../../layagl/LayaGL";
 
 export class SkinMeshBuffer {
 
-	ib: IndexBuffer2D;
-	vb: VertexBuffer2D;
+    ib: IndexBuffer2D;
+    vb: VertexBuffer2D;
 
-	static instance: SkinMeshBuffer;
+    static instance: SkinMeshBuffer;
 
-	//TODO:coverage
-	constructor() {
-		var gl: WebGLRenderingContext = LayaGL.instance;
-		this.ib = IndexBuffer2D.create(gl.DYNAMIC_DRAW);
-		this.vb = VertexBuffer2D.create(8);
-	}
+    //TODO:coverage
+    constructor() {
+        var gl: WebGLRenderingContext = LayaGL.instance;
+        this.ib = IndexBuffer2D.create(gl.DYNAMIC_DRAW);
+        this.vb = VertexBuffer2D.create(8);
+    }
 
-	//TODO:coverage
-	static getInstance(): SkinMeshBuffer {
-		return SkinMeshBuffer.instance = SkinMeshBuffer.instance || new SkinMeshBuffer();
-	}
+    //TODO:coverage
+    static getInstance(): SkinMeshBuffer {
+        return SkinMeshBuffer.instance = SkinMeshBuffer.instance || new SkinMeshBuffer();
+    }
 
-	//TODO:coverage
-	addSkinMesh(skinMesh: any): void {
-		//skinMesh.getData(vb, ib, vb.byteLength / 32);
-		skinMesh.getData2(this.vb, this.ib, this.vb._byteLength / 32);
-	}
+    //TODO:coverage
+    addSkinMesh(skinMesh: any): void {
+        //skinMesh.getData(vb, ib, vb.byteLength / 32);
+        skinMesh.getData2(this.vb, this.ib, this.vb._byteLength / 32);
+    }
 
 
-	reset(): void {
-		this.vb.clear();
-		this.ib.clear();
-	}
+    reset(): void {
+        this.vb.clear();
+        this.ib.clear();
+    }
 
 }
 
