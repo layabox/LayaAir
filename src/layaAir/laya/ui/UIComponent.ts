@@ -331,14 +331,14 @@ export class UIComponent extends Sprite {
      * 对象的 <code>Event.MOUSE_OVER</code> 事件侦听处理函数。
      */
     private onMouseOver(e: Event): void {
-        (window as any).Laya.stage.event(UIEvent.SHOW_TIP, this._toolTip);
+        ILaya.stage.event(UIEvent.SHOW_TIP, this._toolTip);
     }
 
     /**
      * 对象的 <code>Event.MOUSE_OUT</code> 事件侦听处理函数。
      */
     private onMouseOut(e: Event): void {
-        (window as any).Laya.stage.event(UIEvent.HIDE_TIP, this._toolTip);
+        ILaya.stage.event(UIEvent.HIDE_TIP, this._toolTip);
     }
 
     /** 是否变灰。*/

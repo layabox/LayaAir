@@ -10,6 +10,7 @@ import { Handler } from "../utils/Handler"
 import { Tween } from "../utils/Tween"
 import { IUI } from "./IUI";
 import { ClassUtils } from "../utils/ClassUtils";
+import { ILaya } from "../../ILaya";
 
 /**打开任意窗口后调度。
  * @eventType Event.OPEN
@@ -34,15 +35,13 @@ export class DialogManager extends Sprite {
 
     /**@private 全局默认弹出对话框效果，可以设置一个效果代替默认的弹出效果，如果不想有任何效果，可以赋值为null*/
     popupEffect: Function = function (dialog: Dialog): void {
-        var Laya = (window as any).Laya;
         dialog.scale(1, 1);
-        dialog._effectTween = Tween.from(dialog, { x: Laya.stage.width / 2, y: Laya.stage.height / 2, scaleX: 0, scaleY: 0 }, 300, Ease.backOut, Handler.create(this, this.doOpen, [dialog]), 0, false, false);
+        dialog._effectTween = Tween.from(dialog, { x: ILaya.stage.width / 2, y: ILaya.stage.height / 2, scaleX: 0, scaleY: 0 }, 300, Ease.backOut, Handler.create(this, this.doOpen, [dialog]), 0, false, false);
     }
 
     /**@private 全局默认关闭对话框效果，可以设置一个效果代替默认的关闭效果，如果不想有任何效果，可以赋值为null*/
     closeEffect: Function = function (dialog: Dialog): void {
-        var Laya = (window as any).Laya;
-        dialog._effectTween = Tween.to(dialog, { x: Laya.stage.width / 2, y: Laya.stage.height / 2, scaleX: 0, scaleY: 0 }, 300, Ease.strongOut, Handler.create(this, this.doClose, [dialog]), 0, false, false);
+        dialog._effectTween = Tween.to(dialog, { x: ILaya.stage.width / 2, y: ILaya.stage.height / 2, scaleX: 0, scaleY: 0 }, 300, Ease.strongOut, Handler.create(this, this.doClose, [dialog]), 0, false, false);
     }
 
     /**全局默认关闭对话框效果，可以设置一个效果代替默认的关闭效果，如果不想有任何效果，可以赋值为null*/
@@ -57,9 +56,8 @@ export class DialogManager extends Sprite {
         super();
         this.mouseEnabled = this.maskLayer.mouseEnabled = true;
         this.zOrder = 1000;
-        var Laya = (window as any).Laya;
-        Laya.stage.addChild(this);
-        Laya.stage.on(Event.RESIZE, this, this._onResize);
+        ILaya.stage.addChild(this);
+        ILaya.stage.on(Event.RESIZE, this, this._onResize);
         if (UIConfig.closeDialogOnSide) this.maskLayer.on("click", this, this._closeOnSide);
         this._onResize(null);
     }
@@ -71,11 +69,10 @@ export class DialogManager extends Sprite {
 
     /**设置锁定界面，如果为空则什么都不显示*/
     setLockView(value: UIComponent): void {
-        var Laya = (window as any).Laya;
         if (!this.lockLayer) {
             this.lockLayer = new Box();
             this.lockLayer.mouseEnabled = true;
-            this.lockLayer.size(Laya.stage.width, Laya.stage.height);
+            this.lockLayer.size(ILaya.stage.width, ILaya.stage.height);
         }
         this.lockLayer.removeChildren();
         if (value) {
@@ -86,9 +83,8 @@ export class DialogManager extends Sprite {
 
     /**@private */
     private _onResize(e: Event = null): void {
-        var Laya = (window as any).Laya;
-        var width: number = this.maskLayer.width = Laya.stage.width;
-        var height: number = this.maskLayer.height = Laya.stage.height;
+        var width: number = this.maskLayer.width = ILaya.stage.width;
+        var height: number = this.maskLayer.height = ILaya.stage.height;
         if (this.lockLayer) this.lockLayer.size(width, height);
 
         this.maskLayer.graphics.clear(true);
@@ -102,9 +98,8 @@ export class DialogManager extends Sprite {
     }
 
     private _centerDialog(dialog: Dialog): void {
-        var Laya = (window as any).Laya;
-        dialog.x = Math.round(((Laya.stage.width - dialog.width) >> 1) + dialog.pivotX);
-        dialog.y = Math.round(((Laya.stage.height - dialog.height) >> 1) + dialog.pivotY);
+        dialog.x = Math.round(((ILaya.stage.width - dialog.width) >> 1) + dialog.pivotX);
+        dialog.y = Math.round(((ILaya.stage.height - dialog.height) >> 1) + dialog.pivotY);
     }
 
     /**
@@ -118,7 +113,7 @@ export class DialogManager extends Sprite {
         this._clearDialogEffect(dialog);
         if (dialog.isPopupCenter) this._centerDialog(dialog);
         this.addChild(dialog);
-        if (dialog.isModal || this._getBit(Const.HAS_ZORDER)) (window as any).Laya.timer.callLater(this, this._checkMask);
+        if (dialog.isModal || this._getBit(Const.HAS_ZORDER)) ILaya.timer.callLater(this, this._checkMask);
         if (showEffect && dialog.popupEffect != null) dialog.popupEffect.runWith(dialog);
         else this.doOpen(dialog);
         this.event(Event.OPEN);

@@ -1,5 +1,6 @@
 import { Browser } from "./Browser";
 import { Utils } from "./Utils";
+import { ILaya } from "../../ILaya";
 
 var supportWeakMap = !!WeakMap;
 /**
@@ -26,7 +27,7 @@ export class WeakObject {
         WeakObject.I = new WeakObject();
         //WeakObject.supportWeakMap = Browser.window.WeakMap != null;
         //如果不支持，10分钟回收一次
-        if (!WeakObject.supportWeakMap) (window as any).Laya.systemTimer.loop(WeakObject.delInterval, null, WeakObject.clearCache);
+        if (!WeakObject.supportWeakMap) ILaya.systemTimer.loop(WeakObject.delInterval, null, WeakObject.clearCache);
     }
 
     /**清理缓存，回收内存*/

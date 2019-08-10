@@ -268,22 +268,22 @@ export class ColorPicker extends UIComponent {
      * 打开颜色样本列表面板。
      */
     open(): void {
-        var Laya = (window as any).Laya;
+        let stage = ILaya.stage;
         var p: Point = this.localToGlobal(new Point());
-        var px: number = p.x + this._colorPanel.width <= Laya.stage.width ? p.x : Laya.stage.width - this._colorPanel.width;
+        var px: number = p.x + this._colorPanel.width <= stage.width ? p.x : stage.width - this._colorPanel.width;
         var py: number = p.y + this._colorButton.height;
-        py = py + this._colorPanel.height <= Laya.stage.height ? py : p.y - this._colorPanel.height;
+        py = py + this._colorPanel.height <= stage.height ? py : p.y - this._colorPanel.height;
         this._colorPanel.pos(px, py);
         this._colorPanel.zOrder = 1001;
-        Laya._currentStage.addChild(this._colorPanel);
-        Laya.stage.on(Event.MOUSE_DOWN, this, this.removeColorBox);
+        stage.addChild(this._colorPanel);
+        stage.on(Event.MOUSE_DOWN, this, this.removeColorBox);
     }
 
     /**
      * 关闭颜色样本列表面板。
      */
     close(): void {
-        (window as any).Laya.stage.off(Event.MOUSE_DOWN, this, this.removeColorBox);
+        ILaya.stage.off(Event.MOUSE_DOWN, this, this.removeColorBox);
         this._colorPanel.removeSelf();
     }
 

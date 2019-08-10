@@ -119,7 +119,7 @@ export class Image extends UIComponent {
      */
     dispose(): void {
         this.destroy(true);
-        (window as any).Laya.loader.clearRes(this._skin);
+        ILaya.loader.clearRes(this._skin);
     }
 
 		/**
@@ -148,7 +148,7 @@ export class Image extends UIComponent {
                 if (source) {
                     this.source = source;
                     this.onCompResize();
-                } else (window as any).Laya.loader.load(this._skin, Handler.create(this, this.setSource, [this._skin]), null, Loader.IMAGE, 1, true, this._group);
+                } else ILaya.loader.load(this._skin, Handler.create(this, this.setSource, [this._skin]), null, Loader.IMAGE, 1, true, this._group);
             } else {
                 this.source = null;
             }
