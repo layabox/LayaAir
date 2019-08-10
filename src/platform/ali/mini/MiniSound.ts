@@ -37,7 +37,7 @@ import { URL } from "laya/net/URL";
 		/** @private **/
 		private static _createSound():any {
 			MiniSound._id++;
-			return ALIMiniAdapter.window.wx.createInnerAudioContext();
+			return ALIMiniAdapter.window.my.createInnerAudioContext();
 		}
 		
 		/**
@@ -115,11 +115,11 @@ import { URL } from "laya/net/URL";
                         this.onDownLoadCallBack(url,0);
 					}else
 					{
-						if (!MiniFileMgr.isLocalNativeFile(url) &&  (url.indexOf("http://") == -1 && url.indexOf("https://") == -1) || (url.indexOf("http://usr/") != -1)) {
+						if (!MiniFileMgr.isLocalNativeFile(url) &&  (url.indexOf("http://") == -1 && url.indexOf("https://") == -1) || (url.indexOf(ALIMiniAdapter.window.my.env.USER_DATA_PATH) != -1)) {
 							this.onDownLoadCallBack(url, 0);
 						}else
 						{
-							MiniFileMgr.downOtherFiles(url, Handler.create(this, this.onDownLoadCallBack, [url]), url);
+							MiniFileMgr.downOtherFiles(encodeURI(url), Handler.create(this, this.onDownLoadCallBack, [url]), url);
 						}
 					}
 				}
@@ -164,7 +164,7 @@ import { URL } from "laya/net/URL";
 				}else
 				{
 					this._sound = MiniSound._createSound();
-					this._sound.src = this.url = sourceUrl;
+					this._sound.src = this.url = encodeURI(sourceUrl);
 				}
 				
 				this._sound.onCanPlay(MiniSound.bindToThis(this.onCanPlay,this));
@@ -235,7 +235,7 @@ import { URL } from "laya/net/URL";
 				tSound.src = this.url =MiniFileMgr.getFileNativePath(fileMd5Name);
 			}else
 			{
-				tSound.src = this.url;
+				tSound.src = encodeURI(this.url);
 			}
 			var channel:any = new MiniSoundChannel(tSound,this);
 			channel.url = this.url;

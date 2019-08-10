@@ -438,7 +438,7 @@ export class Loader extends EventDispatcher {
 					data.pics = [];
 				}
 				this.event(Event.PROGRESS, 0.3 + 1 / toloadPics.length * 0.6);
-				return this._loadResourceFilter(Loader.IMAGE, this._data.toLoads.pop());
+				return this._loadResourceFilter(Loader.IMAGE, toloadPics.pop());
 			} else {
 				this._data.pics.push(data);
 				if (this._data.toLoads.length > 0) {

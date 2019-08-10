@@ -292,7 +292,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 			if (this._cacheRootBone)
 				(!this._cacheRootBone.destroyed) && (this._cacheRootBone.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange));
 			else
-				(!this._owner.destroyed) && (this._owner.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange));
+				(this._owner&&!this._owner.destroyed) && (this._owner.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange));
 		} else {//[兼容性]
 			if (this._cacheRootAnimationNode)
 				this._cacheRootAnimationNode.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);
@@ -372,7 +372,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 			var nodeMapC: any = this._cacheAnimator._avatarNodeMap;
 			for (i = 0; i < innerBindPoseCount; i++) {
 				var nodeC: AnimationNode = nodeMapC[meshBoneNames[bindPoseIndices[i]]];
-				this._cacheAnimationNodeIndices[i] = nodeC._worldMatrixIndex;
+				this._cacheAnimationNodeIndices[i] = nodeC ? nodeC._worldMatrixIndex : 0;
 			}
 		}
 	}

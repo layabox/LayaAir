@@ -23,7 +23,7 @@ import { Event } from "laya/events/Event";
 			var thisLoader:any = this;
 			
 			//url转义处理
-			if (url.indexOf("http://usr/") == -1&&(url.indexOf("http://") != -1 || url.indexOf("https://") != -1))
+			if (url.indexOf(KGMiniAdapter.window.qg.env.USER_DATA_PATH) == -1&&(url.indexOf("http://") != -1 || url.indexOf("https://") != -1))
 			{
 				if(MiniFileMgr.loadPath != "")
 				{
@@ -98,7 +98,7 @@ import { Event } from "laya/events/Event";
 			}else
 			{
 				var tempurl:string = URL.formatURL(url);
-				if (!MiniFileMgr.isLocalNativeFile(url) &&  (tempurl.indexOf("http://") == -1 && tempurl.indexOf("https://") == -1) || (tempurl.indexOf("http://usr/") != -1)) 
+				if (!MiniFileMgr.isLocalNativeFile(url) &&  (tempurl.indexOf("http://") == -1 && tempurl.indexOf("https://") == -1) || (tempurl.indexOf(KGMiniAdapter.window.qg.env.USER_DATA_PATH) != -1)) 
 				{
 					MiniLoader.onDownLoadCallBack(url,thisLoader, 0);
 				}else
@@ -183,7 +183,7 @@ import { Event } from "laya/events/Event";
 			else
 			{
 				var tempurl:string = URL.formatURL(url);
-				if (url.indexOf("http://usr/") == -1&& (tempurl.indexOf("http://") != -1 || tempurl.indexOf("https://") != -1) && !KGMiniAdapter.AutoCacheDownFile) 
+				if (url.indexOf(KGMiniAdapter.window.qg.env.USER_DATA_PATH) == -1&& (tempurl.indexOf("http://") != -1 || tempurl.indexOf("https://") != -1) && !KGMiniAdapter.AutoCacheDownFile) 
 				{
 					thisLoader._loadHttpRequest(tempurl, contentType, thisLoader, thisLoader.onLoaded, thisLoader, thisLoader.onProgress, thisLoader, thisLoader.onError);
 				}else
@@ -201,12 +201,12 @@ import { Event } from "laya/events/Event";
 					}
 					else
 					{
-						if((tempurl.indexOf("http://") == -1 && tempurl.indexOf("https://") == -1) || MiniFileMgr.isLocalNativeFile(url))
+						if(contentType != Loader.IMAGE && ((tempurl.indexOf("http://") == -1 && tempurl.indexOf("https://") == -1) || MiniFileMgr.isLocalNativeFile(url)))
 						{
 							MiniFileMgr.readFile(url, encoding, new Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType,  thisLoader]), url);
 						}else
 						{
-							MiniFileMgr.downFiles(tempurl, encoding, new Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType,  thisLoader]), tempurl,true);
+							MiniFileMgr.downFiles(encodeURI(tempurl), encoding, new Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType,  thisLoader]), tempurl,true);
 						}
 					}
 				}

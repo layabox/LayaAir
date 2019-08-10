@@ -10,16 +10,31 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { IndexView2D } from "./view/IndexView2D";
 import { IndexView3D } from "./view/IndexView3D";
+import { Texture } from "../../bin/tsc/layaAir/laya/resource/Texture";
+import { Texture2D } from "../../bin/tsc/layaAir/laya/resource/Texture2D";
 
 	export class Main
 	{
-		static box3D:Sprite;
-		static box2D:Sprite;
+		private static  _box3D:Sprite;
+		public static  get box3D():Sprite{
+		return Main._box3D||Laya.stage;
+		}
+		public static  set box3D(value:Sprite){
+			Main._box3D = value;
+		}
+		
+		private static  _box2D:Sprite;
+		public static  get box2D():Sprite{
+		return Main._box2D||Laya.stage;
+		}
+		public static set box2D(value:Sprite){
+			Main._box2D = value;
+		}
 		static _indexView:any;
 		/**false 2d；true 3d**/
 		private _isType:boolean = false;
 		 static isWXAPP:boolean = false;
-		private _isReadNetWorkRes:boolean = false;
+		private _isReadNetWorkRes:boolean = true;
 		constructor(){
 			
 			//QGMiniAdapter.init();
@@ -42,9 +57,9 @@ import { IndexView3D } from "./view/IndexView3D";
 			
 			//这里改成true就会从外部加载资源
 			this._isReadNetWorkRes = (window as any).isReadNetWorkRes || false;
-			if(this._isReadNetWorkRes|| ILaya.Browser.onVVMiniGame|| ILaya.Browser.onBDMiniGame)
+			if(this._isReadNetWorkRes|| ILaya.Browser.onVVMiniGame|| ILaya.Browser.onBDMiniGame||ILaya.Browser.onMiniGame)
 			{
-				URL.rootPath = URL.basePath = "https://layaair.ldc.layabox.com/demo2/h5/";
+				URL.rootPath = URL.basePath = "http://10.10.20.55:8000/";//"https://star.layabox.com/Laya1.0.0/";//"http://10.10.20.55:8000/";//"https://layaair.ldc.layabox.com/demo2/h5/";
 			}
 			//加载引擎需要的资源
 			Laya.loader.load([{url:"res/atlas/comp.json", type: Loader.ATLAS}], Handler.create(this, this.onLoaded));
@@ -52,7 +67,8 @@ import { IndexView3D } from "./view/IndexView3D";
 		
 		private onLoaded():void
 		{
-
+			let txture:Texture = Laya.loader.getRes("comp/button.png");
+			(txture.bitmap as Texture2D).lock = true;
 			if(!this._isType)
 			{
 				//Layaair1.0-2d

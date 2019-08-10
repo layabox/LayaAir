@@ -9,9 +9,9 @@ export class FadeOut extends EffectBase {
 	/**
 	 * @override
 	 */
-	protected _doTween(): Tween {
-		this.target.alpha = 1;
-		return Tween.to(this.target, { alpha: 0 }, this.duration, Ease[this.ease], this._comlete, this.delay);
-	}
+    protected _doTween(): Tween {
+        this.target.alpha = 1;
+        return Tween.to(this.target, { alpha: 0 }, this.duration, Ease[this.ease], this._comlete, this.delay);
+    }
 }
 

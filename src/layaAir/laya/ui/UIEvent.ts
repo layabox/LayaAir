@@ -9,13 +9,13 @@ export class UIEvent extends Event {
 	/**
 	 * 显示提示信息。
 	 */
-	static SHOW_TIP: string = "showtip";
+    static SHOW_TIP: string = "showtip";
 	/**
 	 * 隐藏提示信息。
 	 */
-	static HIDE_TIP: string = "hidetip";
+    static HIDE_TIP: string = "hidetip";
 }
 
 ILaya.regClass(UIEvent);
-	ClassUtils.regClass("laya.ui.UIEvent", UIEvent);
-	ClassUtils.regClass("Laya.UIEvent", UIEvent);
+ClassUtils.regClass("laya.ui.UIEvent", UIEvent);
+ClassUtils.regClass("Laya.UIEvent", UIEvent);

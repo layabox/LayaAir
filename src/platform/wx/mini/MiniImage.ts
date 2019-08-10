@@ -25,7 +25,7 @@ import {Event} from "laya/events/Event";
 				url = URL.formatURL(url);
 			}else
 			{
-				if (url.indexOf("http://usr/") == -1&&(url.indexOf("http://") != -1 || url.indexOf("https://") != -1))
+				if (url.indexOf(MiniAdpter.window.wx.env.USER_DATA_PATH) == -1&&(url.indexOf("http://") != -1 || url.indexOf("https://") != -1))
 				{
 					if(MiniFileMgr.loadPath != "")
 					{
@@ -68,7 +68,7 @@ import {Event} from "laya/events/Event";
 			}
 			if (!MiniFileMgr.getFileInfo(url)) 
 			{
-				if (url.indexOf('http://usr/') == -1&&(url.indexOf("http://") != -1 || url.indexOf("https://") != -1))
+				if (url.indexOf(MiniAdpter.window.wx.env.USER_DATA_PATH) == -1&&(url.indexOf("http://") != -1 || url.indexOf("https://") != -1))
 				{
 					//小游戏在子域里不能远端加载图片资源
 					if(MiniAdpter.isZiYu)

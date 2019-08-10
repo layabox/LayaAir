@@ -90,18 +90,18 @@ import { ClassUtils } from "../utils/ClassUtils";
 	 *
 	 * @see laya.ui.Slider
 	 */
-	export class HSlider extends Slider {
-		
-		/**
-		 * 创建一个 <code>HSlider</code> 类实例。
-		 * @param skin 皮肤。
-		 */
-		constructor(skin:string = null){
-			super(skin);
-			this.isVertical = false;
-		}
-	}
+export class HSlider extends Slider {
+
+    /**
+     * 创建一个 <code>HSlider</code> 类实例。
+     * @param skin 皮肤。
+     */
+    constructor(skin: string = null) {
+        super(skin);
+        this.isVertical = false;
+    }
+}
 
 ILaya.regClass(HSlider);
-	ClassUtils.regClass("laya.ui.HSlider", HSlider);
-	ClassUtils.regClass("Laya.HSlider", HSlider);
+ClassUtils.regClass("laya.ui.HSlider", HSlider);
+ClassUtils.regClass("Laya.HSlider", HSlider);
