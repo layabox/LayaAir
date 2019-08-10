@@ -123,6 +123,7 @@ export class Laya {
     static Event=Event;
     static Matrix=Matrix;
     static HTMLImage=HTMLImage;
+    static Laya=Laya;
     
 	/**
 	 * 兼容as3编译工具 
