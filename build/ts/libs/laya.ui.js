@@ -3579,7 +3579,6 @@
 	        return this._isOpen;
 	    }
 	    set isOpen(value) {
-	        var Laya$1 = Laya.ILaya.Laya;
 	        if (this._isOpen != value) {
 	            this._isOpen = value;
 	            this._button.selected = this._isOpen;
@@ -3589,12 +3588,12 @@
 	                this._itemChanged && this.changeItem();
 	                var p = this.localToGlobal(Laya.Point.TEMP.setTo(0, 0));
 	                var py = p.y + this._button.height;
-	                py = py + this._listHeight <= Laya$1.stage.height ? py : p.y - this._listHeight;
+	                py = py + this._listHeight <= Laya.ILaya.stage.height ? py : p.y - this._listHeight;
 	                this._list.pos(p.x, py);
 	                this._list.zOrder = 1001;
-	                Laya$1._currentStage.addChild(this._list);
-	                Laya$1.stage.once(Laya.Event.MOUSE_DOWN, this, this.removeList);
-	                Laya$1.stage.on(Laya.Event.MOUSE_WHEEL, this, this._onStageMouseWheel);
+	                Laya.ILaya.stage.addChild(this._list);
+	                Laya.ILaya.stage.once(Laya.Event.MOUSE_DOWN, this, this.removeList);
+	                Laya.ILaya.stage.on(Laya.Event.MOUSE_WHEEL, this, this._onStageMouseWheel);
 	                this._list.selectedIndex = this._selectedIndex;
 	            }
 	            else {
