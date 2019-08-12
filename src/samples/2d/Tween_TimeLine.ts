@@ -79,6 +79,13 @@ export class Tween_TimeLine {
 
 	dispose(): void {
 		Laya.stage.off(Event.KEY_DOWN, this, this.keyDown);
+		if(this.timeLine)
+		{
+			this.timeLine.on(Event.COMPLETE, this, this.onComplete);
+			this.timeLine.on(Event.LABEL, this, this.onLabel);
+			this.timeLine.destroy();
+			this.timeLine = null;
+		}
 	}
 }
 

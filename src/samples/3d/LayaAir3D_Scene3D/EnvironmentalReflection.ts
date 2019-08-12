@@ -49,7 +49,7 @@ export class EnvironmentalReflection {
 		camera.clearFlag = BaseCamera.CLEARFLAG_SKY;
 
 		//天空盒
-		BaseMaterial.load("res/threeDimen/skyBox/DawnDusk/SkyBox.lmat", Handler.create(this, function (mat: SkyBoxMaterial): void {
+		BaseMaterial.load("res/threeDimen/skyBox/DawnDusk/Skybox.lmat", Handler.create(this, function (mat: SkyBoxMaterial): void {
 			//获取相机的天空盒渲染体
 			var skyRenderer: SkyRenderer = camera.skyRenderer;
 			//设置天空盒mesh
@@ -70,6 +70,11 @@ export class EnvironmentalReflection {
 			this.teapot = (<MeshSprite3D>scene.addChild(new MeshSprite3D(mesh)));
 			this.teapot.transform.position = new Vector3(0, 1.75, 2);
 			this.teapot.transform.rotate(new Vector3(-90, 0, 0), false, false);
+			//加载纹理
+			Texture2D.load("res/threeDimen/pbr/jinshu.jpg", Handler.create(this, function (tex: Texture2D): void {
+				//pbrMat.albedoTexture = tex;
+				this.teapot.meshRenderer.material = pbrMat;
+			}));
 		}));
 
 		//实例PBR材质
@@ -79,11 +84,6 @@ export class EnvironmentalReflection {
 		//设置材质的金属度，尽量高点，反射效果更明显
 		pbrMat.metallic = 1;
 
-		//加载纹理
-		Texture2D.load("res/threeDimen/pbr/jinshu.jpg", Handler.create(this, function (tex: Texture2D): void {
-			//pbrMat.albedoTexture = tex;
-			this.teapot.meshRenderer.material = pbrMat;
-		}));
 	}
 }
 

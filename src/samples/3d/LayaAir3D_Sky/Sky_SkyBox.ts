@@ -33,7 +33,7 @@ export class Sky_SkyBox {
 		camera.clearFlag = BaseCamera.CLEARFLAG_SKY;
 
 		//天空盒
-		BaseMaterial.load("res/threeDimen/skyBox/DawnDusk/SkyBox.lmat", Handler.create(this, function (mat: SkyBoxMaterial): void {
+		BaseMaterial.load("res/threeDimen/skyBox/DawnDusk/Skybox.lmat", Handler.create(this, function (mat: SkyBoxMaterial): void {
 			//获取相机的天空渲染器
 			var skyRenderer: SkyRenderer = camera.skyRenderer;
 			//创建天空盒的mesh

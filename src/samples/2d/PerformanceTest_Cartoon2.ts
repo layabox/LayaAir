@@ -5,6 +5,7 @@ import { Text } from "laya/display/Text";
 import { Stat } from "laya/utils/Stat";
 import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
+import { Image } from "laya/ui/Image";
 
 export class PerformanceTest_Cartoon2 {
 	private amount: number = 500;
@@ -46,14 +47,17 @@ export class PerformanceTest_Cartoon2 {
 
 	private characters: any[] = [];
 	private text: Text;
-
+	private image:Image;
 	Main: typeof Main = null;
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 		Laya.init(1280, 720, WebGL);
 		//			Laya.stage.screenMode = Stage.SCREEN_HORIZONTAL;
 		Stat.enable();
-		this.Main.box2D.loadImage("res/cartoon2/background.jpg");
+
+		this.image = new Image();
+		this.image.skin = "res/cartoon2/background.jpg";
+		this.Main.box2D.addChild(this.image);
 
 		this.createCharacters();
 
@@ -96,6 +100,8 @@ export class PerformanceTest_Cartoon2 {
 
 	dispose(): void {
 		Laya.timer.clear(this, this.gameLoop);
+		this.image.dispose();
+		this.image = null;
 	}
 }
 

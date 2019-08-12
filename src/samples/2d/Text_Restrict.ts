@@ -59,10 +59,9 @@ export class Text_Restrict {
 		input.color = "#FFFFFF";
 		input.padding = [0, 4, 0, 4];
 
-		Laya.stage.addChild(input);
+		this.Main.box2D.addChild(input);
 		return input;
 	}
-
 }
 
 

@@ -34,7 +34,7 @@ import { Texture2D } from "../../bin/tsc/layaAir/laya/resource/Texture2D";
 		/**false 2d；true 3d**/
 		private _isType:boolean = false;
 		 static isWXAPP:boolean = false;
-		private _isReadNetWorkRes:boolean = true;
+		private _isReadNetWorkRes:boolean = false;
 		constructor(){
 			
 			//QGMiniAdapter.init();
@@ -59,7 +59,7 @@ import { Texture2D } from "../../bin/tsc/layaAir/laya/resource/Texture2D";
 			this._isReadNetWorkRes = (window as any).isReadNetWorkRes || false;
 			if(this._isReadNetWorkRes|| ILaya.Browser.onVVMiniGame|| ILaya.Browser.onBDMiniGame||ILaya.Browser.onMiniGame)
 			{
-				URL.rootPath = URL.basePath = "http://10.10.20.55:8000/";//"https://star.layabox.com/Laya1.0.0/";//"http://10.10.20.55:8000/";//"https://layaair.ldc.layabox.com/demo2/h5/";
+				URL.rootPath = URL.basePath = "https://star.layabox.com/Laya1.0.0/";//"https://star.layabox.com/Laya1.0.0/";//"http://10.10.20.55:8000/";//"https://layaair.ldc.layabox.com/demo2/h5/";
 			}
 			//加载引擎需要的资源
 			Laya.loader.load([{url:"res/atlas/comp.json", type: Loader.ATLAS}], Handler.create(this, this.onLoaded));

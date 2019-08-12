@@ -35,7 +35,7 @@ export class PBRStandardMaterialDemo {
 			var camera: Camera = (<Camera>scene.getChildByName("Main Camera"));
 			camera.addComponent(CameraMoveScript);
 			camera.clearFlag = BaseCamera.CLEARFLAG_SKY;
-			BaseMaterial.load("res/threeDimen/skyBox/DawnDusk/SkyBox.lmat", Handler.create(this, function (mat: SkyBoxMaterial): void {
+			BaseMaterial.load("res/threeDimen/skyBox/DawnDusk/Skybox.lmat", Handler.create(this, function (mat: SkyBoxMaterial): void {
 				var skyRenderer: SkyRenderer = camera.skyRenderer;
 				skyRenderer.mesh = SkyBox.instance;
 				skyRenderer.material = mat;
