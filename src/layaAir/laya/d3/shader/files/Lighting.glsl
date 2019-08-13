@@ -64,9 +64,9 @@ int GetLightIndex(sampler2D clusterBuffer,vec2 clusterUV,int offset,int index)
 DirectionLight GetDirectionLight(sampler2D lightBuffer,int index) 
 {
     DirectionLight light;
-    float u = (float(index)+0.5)/ float(MAX_LIGHT_COUNT);
-    vec4 p1 = texture2D(lightBuffer, vec2(u, 0.125));
-    vec4 p2 = texture2D(lightBuffer, vec2(u, 0.375));
+    float v = (float(index)+0.5)/ float(MAX_LIGHT_COUNT);
+    vec4 p1 = texture2D(lightBuffer, vec2(0.125,v));
+    vec4 p2 = texture2D(lightBuffer, vec2(0.375,v));
 	light.color=p1.rgb;
     light.direction = p2.rgb;
     return light;
@@ -75,9 +75,9 @@ DirectionLight GetDirectionLight(sampler2D lightBuffer,int index)
 PointLight GetPointLight(sampler2D lightBuffer,int index) 
 {
     PointLight light;
-    float u = (float(index)+0.5)/ float(MAX_LIGHT_COUNT);
-    vec4 p1 = texture2D(lightBuffer, vec2(u, 0.125));
-    vec4 p2 = texture2D(lightBuffer, vec2(u, 0.375));
+    float v = (float(index)+0.5)/ float(MAX_LIGHT_COUNT);
+    vec4 p1 = texture2D(lightBuffer, vec2(0.125,v));
+    vec4 p2 = texture2D(lightBuffer, vec2(0.375,v));
 	light.color=p1.rgb;
 	light.range = p1.a;
     light.position = p2.rgb;
@@ -87,10 +87,10 @@ PointLight GetPointLight(sampler2D lightBuffer,int index)
 SpotLight GetSpotLight(sampler2D lightBuffer,int index) 
 {
     SpotLight light;
-    float u = (float(index)+0.5)/ float(MAX_LIGHT_COUNT);
-    vec4 p1 = texture2D(lightBuffer, vec2(u, 0.125));
-    vec4 p2 = texture2D(lightBuffer, vec2(u, 0.375));
-	vec4 p3 = texture2D(lightBuffer, vec2(u, 0.625));
+    float v = (float(index)+0.5)/ float(MAX_LIGHT_COUNT);
+    vec4 p1 = texture2D(lightBuffer, vec2(0.125,v));
+    vec4 p2 = texture2D(lightBuffer, vec2(0.375,v));
+	vec4 p3 = texture2D(lightBuffer, vec2(0.625,v));
     light.color = p1.rgb;
 	light.range=p1.a;
     light.position = p2.rgb;

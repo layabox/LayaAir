@@ -467,7 +467,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 		//LightTexture
 		var maxLightCount: number = Laya3D._config.maxLightCount;
-		var lightTex: Texture2D = new Texture2D(maxLightCount, 4, BaseTexture.FORMAT_R32G32B32A32, false, false);//TODO:浪费
+		var lightTex: Texture2D = new Texture2D(4, maxLightCount, BaseTexture.FORMAT_R32G32B32A32, false, false);//TODO:浪费
 		lightTex.filterMode = BaseTexture.FILTERMODE_POINT;
 		lightTex.wrapModeU = BaseTexture.WARPMODE_CLAMP;
 		lightTex.wrapModeV = BaseTexture.WARPMODE_CLAMP;
@@ -683,6 +683,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	protected _prepareSceneToRender(): void {
+		const pixelWidth: number = this._lightTexture.width;
+		const floatWidth: number = pixelWidth * 4;
 		var maxCount: number = Laya3D._config.maxLightCount;
 		var curCount: number = 0;
 		var dirElements: DirectionLight[] = <DirectionLight[]>this._directionallights._elements;
@@ -692,7 +694,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			var dirLight: DirectionLight = dirElements[i];
 			var dir: Vector3 = dirLight._direction;
 			var intCor: Vector3 = dirLight._intensityColor;
-			var off: number = 4 * i;
+			var off: number = floatWidth * i;
 			Vector3.scale(dirLight.color, dirLight._intensity, intCor);
 			dirLight.transform.worldMatrix.getForward(dir);
 			Vector3.normalize(dir, dir);
@@ -711,7 +713,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			var poiLight: PointLight = poiElements[i];
 			var pos: Vector3 = poiLight.transform.position;
 			var intCor: Vector3 = dirLight._intensityColor;
-			var off: number = 4 * i;
+			var off: number = floatWidth * i;
 			Vector3.scale(dirLight.color, dirLight._intensity, intCor);
 			this._lightPixles[off] = intCor.x;
 			this._lightPixles[off + 1] = intCor.y;
@@ -731,7 +733,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			var dir: Vector3 = spoLight._direction;
 			var pos: Vector3 = spoLight.transform.position;
 			var intCor: Vector3 = dirLight._intensityColor;
-			var off: number = 4 * i;
+			var off: number = floatWidth * i;
 			Vector3.scale(dirLight.color, dirLight._intensity, intCor);
 			spoLight.transform.worldMatrix.getForward(dir);
 			Vector3.normalize(dir, dir);//TODO:
@@ -747,7 +749,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			this._lightPixles[off + 9] = dir.y;
 			this._lightPixles[off + 10] = dir.z;
 		}
-		this._lightTexture.setSubPixels(0, 0, curCount, 4, this._lightPixles, 0);
+		this._lightTexture.setSubPixels(0, 0, pixelWidth, curCount, this._lightPixles, 0);
 
 		this._shaderValues.setTexture(Scene3D.LIGHTBUFFER, this._lightTexture);
 		this._shaderValues.setInt(Scene3D.DIRECTIONLIGHTCOUNT, this._directionallights._length)
