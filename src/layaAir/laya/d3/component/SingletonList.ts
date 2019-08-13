@@ -1,4 +1,3 @@
-import { ISingletonElement } from "../../resource/ISingletonElement"
 
 /**
  * <code>SingletonList</code> 类用于实现单例队列。

@@ -9,6 +9,7 @@ import { LightSprite } from "./LightSprite";
  * <code>DirectionLight</code> 类用于创建平行光。
  */
 export class DirectionLight extends LightSprite {
+	/**@iternal */
 	_direction: Vector3;
 
 	/**
@@ -31,6 +32,9 @@ export class DirectionLight extends LightSprite {
 	}
 
 
+	/**
+	 * @internal
+	 */
 	private _initShadow(): void {
 		if (this._shadow) {
 			this._parallelSplitShadowMap = new ParallelSplitShadowMap();
@@ -55,7 +59,7 @@ export class DirectionLight extends LightSprite {
 	 * @override
 	 */
 	protected _addToScene(): void {
-		(<Scene3D>this._scene)._directionallights.push(this);
+		(<Scene3D>this._scene)._directionallights.add(this);
 	}
 
 	/**
@@ -63,8 +67,7 @@ export class DirectionLight extends LightSprite {
 	 * @override
 	 */
 	protected _removeFromScene(): void {
-		var lights = (<Scene3D>this._scene)._directionallights;
-		lights.splice(lights.indexOf(this), 1);
+		(<Scene3D>this._scene)._directionallights.remove(this);
 	}
 
 
@@ -75,7 +78,7 @@ export class DirectionLight extends LightSprite {
 	protected _onActive(): void {
 		super._onActive();
 		this._shadow && (this._initShadow());
-		(this._lightmapBakedType !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED) && (((<Scene3D>this._scene))._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT));
+		(this._lightmapBakedType !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED) && ((<Scene3D>this._scene))._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
 	}
 
 	/**
@@ -84,7 +87,7 @@ export class DirectionLight extends LightSprite {
 	 */
 	protected _onInActive(): void {
 		super._onInActive();
-		(this._lightmapBakedType !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED) && (((<Scene3D>this._scene))._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT));
+		(this._lightmapBakedType !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED) && ((<Scene3D>this._scene))._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
 	}
 }
 

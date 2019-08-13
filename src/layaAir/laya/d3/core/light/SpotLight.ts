@@ -7,9 +7,13 @@ import { LightSprite } from "./LightSprite";
  * <code>SpotLight</code> 类用于创建聚光。
  */
 export class SpotLight extends LightSprite {
-	public _direction: Vector3;
+	/** @internal */
 	private _spotAngle: number;
+	/** @internal */
 	private _range: number;
+
+	/** @internal */
+	public _direction: Vector3;
 
 	/**
  	* 获取聚光灯的锥形角度。
@@ -58,7 +62,7 @@ export class SpotLight extends LightSprite {
 	 * @override
 	 */
 	protected _addToScene(): void {
-		(<Scene3D>this._scene)._spotLights.push(this);
+		(<Scene3D>this._scene)._spotLights.add(this);
 	}
 
 	/**
@@ -66,8 +70,7 @@ export class SpotLight extends LightSprite {
 	 * @override
 	 */
 	protected _removeFromScene(): void {
-		var lights = (<Scene3D>this._scene)._spotLights;
-		lights.splice(lights.indexOf(this), 1);
+		(<Scene3D>this._scene)._spotLights.remove(this);
 	}
 
 	/**
@@ -76,7 +79,7 @@ export class SpotLight extends LightSprite {
 	 */
 	protected _onActive(): void {
 		super._onActive();
-		(this._lightmapBakedType !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED) && (((<Scene3D>this.scene))._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT));
+		(this._lightmapBakedType !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED) && ((<Scene3D>this.scene))._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT);
 	}
 
 	/**
@@ -85,7 +88,7 @@ export class SpotLight extends LightSprite {
 	 */
 	protected _onInActive(): void {
 		super._onInActive();
-		(this._lightmapBakedType !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED) && (((<Scene3D>this.scene))._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT));
+		(this._lightmapBakedType !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED) && ((<Scene3D>this.scene))._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT);
 	}
 
 	/**

@@ -6,6 +6,7 @@ import { Scene3D } from "../../core/scene/Scene3D";
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Vector3 } from "../../math/Vector3";
 import { SpotLight } from "../../core/light/SpotLight";
+import { LightQueue } from "../../core/light/LightQueue";
 
 /**
  * @internal
@@ -143,13 +144,14 @@ export class ClusteredRender {
         }
 
         var viewMat: Matrix4x4 = camera.viewMatrix;
-        var pointLights: PointLight[] = scene._pointLights;
-        var spotLights: SpotLight[] = scene._spotLights;
+        var pointLights: LightQueue<PointLight> = scene._pointLights;
+        var spotLights: LightQueue<SpotLight> = scene._spotLights;
         var viewLightPos: Vector3 = ClusteredRender._tempVector30;
         var min: Vector3 = ClusteredRender._tempVector31;
         var max: Vector3 = ClusteredRender._tempVector32;
-        for (var i = 0, n = pointLights.length; i < n; i++) {
-            var poiLight: PointLight = pointLights[i];
+        var poiElements: PointLight[] = <PointLight[]>pointLights._elements;
+        for (var i = 0, n = pointLights._length; i < n; i++) {
+            var poiLight: PointLight = poiElements[i];
             var radius = poiLight.range;
             Vector3.transformV3ToV3(poiLight._transform.position, viewMat, viewLightPos);//World to View
             viewLightPos.z *= -1; //camera looks down negative z, make z axis positive to make calculations easier
@@ -160,8 +162,9 @@ export class ClusteredRender {
         }
 
         var viewForward: Vector3 = ClusteredRender._tempVector33;
-        for (var i = 0, n = spotLights.length; i < n; i++) {
-            var spoLight: SpotLight = spotLights[i];
+        var spoElements: SpotLight[] = <SpotLight[]>spotLights._elements;
+        for (var i = 0, n = spotLights._length; i < n; i++) {
+            var spoLight: SpotLight = spoElements[i];
             var radius = spoLight.range;
             spoLight._transform.worldMatrix.getForward(viewForward);
             Vector3.transformV3ToV3(viewForward, viewMat, viewForward);//forward to View

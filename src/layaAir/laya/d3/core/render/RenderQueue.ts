@@ -1,7 +1,6 @@
-import { RenderElement } from "./RenderElement";
-import { RenderContext3D } from "./RenderContext3D";
-import { Shader3D } from "../../shader/Shader3D"
 import { SingletonList } from "../../component/SingletonList";
+import { RenderContext3D } from "./RenderContext3D";
+import { RenderElement } from "./RenderElement";
 
 /**
  * @internal
@@ -83,7 +82,7 @@ export class RenderQueue {
 	 * @internal
 	 */
 	_render(context: RenderContext3D, isTarget: boolean): void {
-		var elements:RenderElement[]=this.elements.elements;
+		var elements: RenderElement[] = this.elements.elements;
 		for (var i: number = 0, n: number = this.elements.length; i < n; i++)
 			elements[i]._render(context, isTarget);
 	}

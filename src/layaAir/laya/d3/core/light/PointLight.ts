@@ -1,19 +1,13 @@
-import { Matrix4x4 } from "../../math/Matrix4x4";
-import { Vector3 } from "../../math/Vector3";
-import { ShaderData } from "../../shader/ShaderData";
 import { Scene3D } from "../scene/Scene3D";
 import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
 import { LightSprite } from "./LightSprite";
-import { ILaya3D } from "../../../../ILaya3D";
 
 /**
  * <code>PointLight</code> 类用于创建点光。
  */
 export class PointLight extends LightSprite {
-	private static _tempMatrix0: Matrix4x4 = new Matrix4x4();
-
+	/** @internal */
 	private _range: number;
-	private _lightMatrix: Matrix4x4 = new Matrix4x4();
 
 	/**
 	 * 获取点光的范围。
@@ -45,7 +39,7 @@ export class PointLight extends LightSprite {
 	 * @override
 	 */
 	protected _addToScene(): void {
-		(<Scene3D>this._scene)._pointLights.push(this);
+		(<Scene3D>this._scene)._pointLights.add(this);
 	}
 
 	/**
@@ -53,8 +47,7 @@ export class PointLight extends LightSprite {
 	 * @override
 	 */
 	protected _removeFromScene(): void {
-		var lights = (<Scene3D>this._scene)._pointLights;
-		lights.splice(lights.indexOf(this), 1);
+		(<Scene3D>this._scene)._pointLights.remove(this);
 	}
 
 	/**
@@ -63,7 +56,7 @@ export class PointLight extends LightSprite {
 	 */
 	protected _onActive(): void {
 		super._onActive();
-		(this._lightmapBakedType !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED) && (((<Scene3D>this._scene))._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT));
+		(this._lightmapBakedType !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED) && ((<Scene3D>this._scene))._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT);
 	}
 
 	/**
@@ -72,7 +65,7 @@ export class PointLight extends LightSprite {
 	 */
 	protected _onInActive(): void {
 		super._onInActive();
-		(this._lightmapBakedType !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED) && (((<Scene3D>this._scene))._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT));
+		(this._lightmapBakedType !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED) && ((<Scene3D>this._scene))._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT);
 	}
 
 
