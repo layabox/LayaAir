@@ -467,7 +467,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 		//LightTexture
 		var maxLightCount: number = Laya3D._config.maxLightCount;
-		var lightTex: Texture2D = new Texture2D(4, maxLightCount, BaseTexture.FORMAT_R32G32B32A32, false, false);//TODO:浪费
+		var lightTex: Texture2D = new Texture2D(4, maxLightCount, BaseTexture.FORMAT_R32G32B32A32, false, false);
 		lightTex.filterMode = BaseTexture.FILTERMODE_POINT;
 		lightTex.wrapModeU = BaseTexture.WARPMODE_CLAMP;
 		lightTex.wrapModeV = BaseTexture.WARPMODE_CLAMP;
@@ -697,7 +697,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			var off: number = floatWidth * i;
 			Vector3.scale(dirLight.color, dirLight._intensity, intCor);
 			dirLight.transform.worldMatrix.getForward(dir);
-			Vector3.normalize(dir, dir);
+			Vector3.normalize(dir, dir);//矩阵有缩放时需要归一化
 			this._lightPixles[off] = intCor.x;
 			this._lightPixles[off + 1] = intCor.y;
 			this._lightPixles[off + 2] = intCor.z;
@@ -736,7 +736,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			var off: number = floatWidth * i;
 			Vector3.scale(dirLight.color, dirLight._intensity, intCor);
 			spoLight.transform.worldMatrix.getForward(dir);
-			Vector3.normalize(dir, dir);//TODO:
+			Vector3.normalize(dir, dir);
 			this._lightPixles[off] = intCor.x;
 			this._lightPixles[off + 1] = intCor.y;
 			this._lightPixles[off + 2] = intCor.z;

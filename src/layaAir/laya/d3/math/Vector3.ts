@@ -126,9 +126,9 @@ import { IClone } from "../core/IClone"
 			var len:number = x * x + y * y + z * z;
 			if (len > 0) {
 				len = 1 / Math.sqrt(len);
-				out.x = s.x * len;
-				out.y = s.y * len;
-				out.z = s.z * len;
+				out.x = x * len;
+				out.y = y * len;
+				out.z = z * len;
 			}
 		}
 		
