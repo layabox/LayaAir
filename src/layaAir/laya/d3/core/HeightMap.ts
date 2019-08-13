@@ -97,7 +97,7 @@ export class HeightMap {
 		var textureHeight: number = texture.height;
 		var heightMap: HeightMap = new HeightMap(textureWidth, textureHeight, minHeight, maxHeight);
 		var compressionRatio: number = (maxHeight - minHeight) / 254;
-		var pixelsInfo: Uint8Array = texture.getPixels();
+		var pixelsInfo: Uint8Array = <Uint8Array>texture.getPixels();
 
 		var index: number = 0;
 		for (var h: number = 0; h < textureHeight; h++) {

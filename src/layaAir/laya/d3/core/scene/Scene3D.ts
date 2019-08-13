@@ -1,3 +1,5 @@
+import { ILaya } from "../../../../ILaya";
+import { Laya3D } from "../../../../Laya3D";
 import { Sprite } from "../../../display/Sprite";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Loader } from "../../../net/Loader";
@@ -6,7 +8,6 @@ import { Render } from "../../../renders/Render";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Context } from "../../../resource/Context";
 import { ICreateResource } from "../../../resource/ICreateResource";
-import { RenderTexture2D } from "../../../resource/RenderTexture2D";
 import { Texture2D } from "../../../resource/Texture2D";
 import { Handler } from "../../../utils/Handler";
 import { Timer } from "../../../utils/Timer";
@@ -20,10 +21,12 @@ import { Animator } from "../../component/Animator";
 import { Script3D } from "../../component/Script3D";
 import { SimpleSingletonList } from "../../component/SimpleSingletonList";
 import { FrustumCulling } from "../../graphics/FrustumCulling";
+import { ClusteredRender } from "../../graphics/renderPath/ClusteredRender";
 import { Input3D } from "../../Input3D";
 import { Vector3 } from "../../math/Vector3";
 import { Vector4 } from "../../math/Vector4";
 import { Viewport } from "../../math/Viewport";
+import { Physics3D } from "../../physics/Physics3D";
 import { PhysicsComponent } from "../../physics/PhysicsComponent";
 import { PhysicsSettings } from "../../physics/PhysicsSettings";
 import { PhysicsSimulation } from "../../physics/PhysicsSimulation";
@@ -38,7 +41,9 @@ import { ShaderInit3D } from "../../shader/ShaderInit3D";
 import { ParallelSplitShadowMap } from "../../shadowMap/ParallelSplitShadowMap";
 import { BaseCamera } from "../BaseCamera";
 import { Camera } from "../Camera";
-import { LightSprite } from "../light/LightSprite";
+import { DirectionLight } from "../light/DirectionLight";
+import { PointLight } from "../light/PointLight";
+import { SpotLight } from "../light/SpotLight";
 import { BaseMaterial } from "../material/BaseMaterial";
 import { RenderState } from "../material/RenderState";
 import { PixelLineMaterial } from "../pixelLine/PixelLineMaterial";
@@ -51,14 +56,16 @@ import { RenderableSprite3D } from "../RenderableSprite3D";
 import { Sprite3D } from "../Sprite3D";
 import { BoundsOctree } from "./BoundsOctree";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
-import { Physics3D } from "../../physics/Physics3D";
-import { ILaya } from "../../../../ILaya";
+import { Config3D } from "../../../../Config3D";
 
 
 /**
  * <code>Scene3D</code> 类用于实现场景。
  */
 export class Scene3D extends Sprite implements ISubmit, ICreateResource {
+	/** @internal */
+	public static _cluster: ClusteredRender;
+
 	/**Hierarchy资源。*/
 	static HIERARCHY: string = "HIERARCHY";
 	/**@internal */
@@ -81,19 +88,10 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	static FOGSTART: number = Shader3D.propertyNameToID("u_FogStart");
 	static FOGRANGE: number = Shader3D.propertyNameToID("u_FogRange");
 
-	static LIGHTDIRECTION: number = Shader3D.propertyNameToID("u_DirectionLight.Direction");
-	static LIGHTDIRCOLOR: number = Shader3D.propertyNameToID("u_DirectionLight.Color");
+	static DIRECTIONLIGHTCOUNT: number = Shader3D.propertyNameToID("u_DirationLightCount");
+	static LIGHTBUFFER: number = Shader3D.propertyNameToID("u_LightBuffer");
+	static CLUSTERBUFFER: number = Shader3D.propertyNameToID("u_ClusterBuffer");
 
-	static POINTLIGHTPOS: number = Shader3D.propertyNameToID("u_PointLight.Position");
-	static POINTLIGHTRANGE: number = Shader3D.propertyNameToID("u_PointLight.Range");
-	static POINTLIGHTATTENUATION: number = Shader3D.propertyNameToID("u_PointLight.Attenuation");
-	static POINTLIGHTCOLOR: number = Shader3D.propertyNameToID("u_PointLight.Color");
-
-	static SPOTLIGHTPOS: number = Shader3D.propertyNameToID("u_SpotLight.Position");
-	static SPOTLIGHTDIRECTION: number = Shader3D.propertyNameToID("u_SpotLight.Direction");
-	static SPOTLIGHTSPOTANGLE: number = Shader3D.propertyNameToID("u_SpotLight.Spot");
-	static SPOTLIGHTRANGE: number = Shader3D.propertyNameToID("u_SpotLight.Range");
-	static SPOTLIGHTCOLOR: number = Shader3D.propertyNameToID("u_SpotLight.Color");
 
 	static SHADOWDISTANCE: number = Shader3D.propertyNameToID("u_shadowPSSMDistance");
 	static SHADOWLIGHTVIEWPROJECT: number = Shader3D.propertyNameToID("u_lightShadowVP");
@@ -115,6 +113,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	static __init__(): void {
+		var con: Config3D = Laya3D._config;
+		Scene3D._cluster = new ClusteredRender(con.clusterXCount, con.clusterYCount, con.clusterZCount, con.maxLightCountPerCluster);
 		Scene3DShaderDeclaration.SHADERDEFINE_FOG = Shader3D.getDefineByName("FOG");
 		Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT = Shader3D.getDefineByName("DIRECTIONLIGHT");
 		Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT = Shader3D.getDefineByName("POINTLIGHT");
@@ -145,7 +145,15 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/**@internal */
 	private _group: string;
 	/** @internal */
-	private _lights: LightSprite[] = [];
+	public _pointLights: PointLight[] = [];
+	/** @internal */
+	public _spotLights: SpotLight[] = [];
+	/** @internal */
+	public _directionallights: DirectionLight[] = [];
+	/** @internal */
+	public _lightTexture: Texture2D;
+	/** @internal */
+	public _lightPixles: Float32Array;
 	/** @internal */
 	private _lightmaps: Texture2D[] = [];
 	/** @internal */
@@ -153,16 +161,12 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal */
 	private _reflectionMode: number = 1;
 	/** @internal */
-	private _enableLightCount: number = 3;
-	/** @internal */
-	private _renderTargetTexture: RenderTexture2D;
-	/** @internal */
 	private _enableFog: boolean;
-	/**@internal */
+	/** @internal */
 	_physicsSimulation: PhysicsSimulation;
-	/**@internal */
+	/** @internal */
 	private _input: Input3D = new Input3D();
-	/**@internal */
+	/** @internal */
 	private _timer: Timer = ILaya.timer;
 
 	/**@internal */
@@ -180,13 +184,13 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	_transparentQueue: RenderQueue = new RenderQueue(true);
 	/** @internal 相机的对象池*/
 	_cameraPool: BaseCamera[] = [];
-	/**@internal */
+	/** @internal */
 	_animatorPool: SimpleSingletonList = new SimpleSingletonList();
-	/**@internal */
+	/** @internal */
 	_scriptPool: Script3D[] = new Array<Script3D>();
-	/**@internal */
+	/** @internal */
 	_tempScriptPool: Script3D[] = new Array<Script3D>();
-	/**@internal */
+	/** @internal */
 	_needClearScriptPool: boolean = false;
 
 	/** @internal */
@@ -199,20 +203,20 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 	//阴影相关变量
 	parallelSplitShadowMaps: ParallelSplitShadowMap[];
-	/**@internal */
+	/** @internal */
 	_debugTool: PixelLineSprite3D;
 
-	/**@internal */
+	/** @internal */
 	_key: SubmitKey = new SubmitKey();
 
 	private _time: number = 0;
 
-	/**@internal	[NATIVE]*/
+	/** @internal	[NATIVE]*/
 	_cullingBufferIndices: Int32Array;
-	/**@internal	[NATIVE]*/
+	/** @internal	[NATIVE]*/
 	_cullingBufferResult: Int32Array;
 
-	/**@internal [Editer]*/
+	/** @internal [Editer]*/
 	_pickIdToSprite: any = new Object();
 
 	/**
@@ -452,12 +456,22 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			this._cullingBufferResult = new Int32Array(1024);
 		}
 
-		this._shaderValues.setTexture(Scene3D.RANGEATTENUATIONTEXTURE, ShaderInit3D._rangeAttenTex);
+		this._shaderValues.setTexture(Scene3D.RANGEATTENUATIONTEXTURE, ShaderInit3D._rangeAttenTex);//TODO:
 
 		//var angleAttenTex:Texture2D = Texture2D.buildTexture2D(64, 64, BaseTexture.FORMAT_Alpha8, TextureGenerator.haloTexture);
 		//_shaderValues.setTexture(Scene3D.ANGLEATTENUATIONTEXTURE, angleAttenTex);
 		this._scene = this;
 		this._input.__init__(Render.canvas, this);
+
+		//LightTexture
+		var maxLightCount: number = Laya3D._config.maxLightCount;
+		var lightTex: Texture2D = new Texture2D(maxLightCount, 4, BaseTexture.FORMAT_R32G32B32A32, false, false);//TODO:浪费
+		lightTex.filterMode = BaseTexture.FILTERMODE_POINT;
+		lightTex.wrapModeU = BaseTexture.WARPMODE_CLAMP;
+		lightTex.wrapModeV = BaseTexture.WARPMODE_CLAMP;
+		lightTex.anisoLevel = 0;
+		this._lightTexture = lightTex;
+		this._lightPixles = new Float32Array(maxLightCount * 4 * 4);
 
 		if (Scene3D.octreeCulling) {
 			this._octree = new BoundsOctree(Scene3D.octreeInitialSize, Scene3D.octreeInitialCenter, Scene3D.octreeMinNodeSize, Scene3D.octreeLooseness);
@@ -667,17 +681,70 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	protected _prepareSceneToRender(): void {
-		var lightCount: number = this._lights.length;
-		if (lightCount > 0) {
-			var renderLightCount: number = 0;
-			for (var i: number = 0; i < lightCount; i++) {
-				if (!this._lights[i]._prepareToScene())//TODO:应该直接移除
-					continue;
-				renderLightCount++;
-				if (renderLightCount >= this._enableLightCount)
-					break;
-			}
+		var maxCount: number = Laya3D._config.maxLightCount;
+		var curCount: number = 0;
+		for (var i: number = 0, n: number = this._directionallights.length; i < n; i++ , curCount++) {
+			if (curCount > maxCount)
+				break;
+			var dirLight: DirectionLight = this._directionallights[i];
+			var direction: Vector3 = dirLight._direction;
+			var intCor: Vector3 = dirLight._intensityColor;
+			var off: number = 4 * i;
+			Vector3.scale(dirLight.color, dirLight._intensity, intCor);
+			dirLight.transform.worldMatrix.getForward(direction);
+			Vector3.normalize(direction, direction);
+			this._lightPixles[off] = intCor.x;
+			this._lightPixles[off + 1] = intCor.y;
+			this._lightPixles[off + 2] = intCor.z;
+			this._lightPixles[off + 4] = direction.x;
+			this._lightPixles[off + 5] = direction.y;
+			this._lightPixles[off + 6] = direction.z;
 		}
+		for (var i: number = 0, n: number = this._pointLights.length; i < n; i++ , curCount++) {
+			if (curCount > maxCount)
+				break;
+			var poiLight: PointLight = this._pointLights[i];
+			var pos: Vector3 = poiLight.transform.position;
+			var intCor: Vector3 = dirLight._intensityColor;
+			var off: number = 4 * i;
+			Vector3.scale(dirLight.color, dirLight._intensity, intCor);
+			this._lightPixles[off] = intCor.x;
+			this._lightPixles[off + 1] = intCor.y;
+			this._lightPixles[off + 2] = intCor.z;
+			this._lightPixles[off + 3] = poiLight.range;
+			this._lightPixles[off + 4] = pos.x;
+			this._lightPixles[off + 5] = pos.y;
+			this._lightPixles[off + 6] = pos.z;
+
+		}
+
+		for (var i: number = 0, n: number = this._spotLights.length; i < n; i++ , curCount++) {
+			if (curCount > maxCount)
+				break;
+			var spoLight: SpotLight = this._spotLights[i];
+			var direction: Vector3 = spoLight._direction;
+			var pos: Vector3 = spoLight.transform.position;
+			var intCor: Vector3 = dirLight._intensityColor;
+			var off: number = 4 * i;
+			Vector3.scale(dirLight.color, dirLight._intensity, intCor);
+			spoLight.transform.worldMatrix.getForward(direction);
+			Vector3.normalize(direction, direction);//TODO:
+			this._lightPixles[off] = intCor.x;
+			this._lightPixles[off + 1] = intCor.y;
+			this._lightPixles[off + 2] = intCor.z;
+			this._lightPixles[off + 3] = spoLight.range;
+			this._lightPixles[off + 4] = pos.x;
+			this._lightPixles[off + 5] = pos.y;
+			this._lightPixles[off + 6] = pos.z;
+			this._lightPixles[off + 7] = spoLight.spotAngle;
+			this._lightPixles[off + 8] = direction.x;
+			this._lightPixles[off + 9] = direction.y;
+			this._lightPixles[off + 10] = direction.z;
+		}
+		this._lightTexture.setSubPixels(0, 0, curCount, 4, this._lightPixles, 0);
+
+		this._shaderValues.setTexture(Scene3D.LIGHTBUFFER, this._lightTexture);
+		this._shaderValues.setInt(Scene3D.DIRECTIONLIGHTCOUNT, this._directionallights.length)
 	}
 
 	/**
@@ -880,21 +947,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/**
 	 * @internal
 	 */
-	_addLight(light: LightSprite): void {
-		if (this._lights.indexOf(light) < 0) this._lights.push(light);
-	}
-
-	/**
-	 * @internal
-	 */
-	_removeLight(light: LightSprite): void {
-		var index: number = this._lights.indexOf(light);
-		index >= 0 && (this._lights.splice(index, 1));
-	}
-
-	/**
-	 * @internal
-	 */
 	_addRenderObject(render: BaseRender): void {
 		if (this._octree && render._supportOctree) {
 			this._octree.add(render);
@@ -1009,9 +1061,10 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		super.destroy(destroyChild);
 		this._skyRenderer.destroy();
 		this._skyRenderer = null;
-		this._lights = null;
+		this._directionallights = null;
+		this._pointLights = null;
+		this._spotLights = null;
 		this._lightmaps = null;
-		this._renderTargetTexture = null;
 		this._shaderValues = null;
 		this._renders = null;
 		this._castShadowRenders = null;

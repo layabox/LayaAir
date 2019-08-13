@@ -47,6 +47,8 @@ export class BaseTexture extends Bitmap {
 
 	/**渲染纹理格式_16位半精度RGBA浮点格式。*/
 	static RENDERTEXTURE_FORMAT_RGBA_HALF_FLOAT: number = 14;
+	/**RGBAd格式纹理,每个通道32位浮点数。*/
+	static FORMAT_R32G32B32A32: number = 15;
 
 	/**深度格式_DEPTH_16。*/
 	static FORMAT_DEPTH_16: number = 0;
@@ -205,6 +207,8 @@ export class BaseTexture extends Bitmap {
 				return 4;
 			case BaseTexture.FORMAT_ALPHA8:
 				return 1;
+			case BaseTexture.FORMAT_R32G32B32A32:
+				return 4;
 			default:
 				throw "Texture2D: unknown format.";
 		}
@@ -233,6 +237,9 @@ export class BaseTexture extends Bitmap {
 				break;
 			case BaseTexture.FORMAT_ALPHA8:
 				glFormat = gl.ALPHA;
+				break;
+			case BaseTexture.FORMAT_R32G32B32A32:
+				glFormat = gl.RGBA;
 				break;
 			case BaseTexture.FORMAT_DXT1:
 				if (gpu._compressedTextureS3tc)
@@ -349,11 +356,11 @@ export class BaseTexture extends Bitmap {
 		}
 	}
 
-		/**
-		 * @inheritDoc
-		 * @override
-		 */
-		 protected _disposeResource(): void {
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _disposeResource(): void {
 		if (this._glTexture) {
 			LayaGL.instance.deleteTexture(this._glTexture);
 			this._glTexture = null;
@@ -361,12 +368,12 @@ export class BaseTexture extends Bitmap {
 		}
 	}
 
-		/**
-		 * @internal
-		 * 获取纹理资源。
-		 * @override
-		 */
-		  _getSource(): any {
+	/**
+	 * @internal
+	 * 获取纹理资源。
+	 * @override
+	 */
+	_getSource(): any {
 		if (this._readyed)
 			return this._glTexture;
 		else

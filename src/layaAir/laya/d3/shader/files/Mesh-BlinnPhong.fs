@@ -12,10 +12,6 @@ uniform vec4 u_DiffuseColor;
 	varying vec4 v_Color;
 #endif
 
-#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
-	varying vec3 v_ViewDir; 
-#endif
-
 #ifdef ALPHATEST
 	uniform float u_AlphaTestValue;
 #endif
@@ -23,7 +19,6 @@ uniform vec4 u_DiffuseColor;
 #ifdef DIFFUSEMAP
 	uniform sampler2D u_DiffuseTexture;
 #endif
-
 
 
 #if defined(DIFFUSEMAP)||((defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))&&(defined(SPECULARMAP)||defined(NORMALMAP)))
@@ -36,10 +31,24 @@ uniform vec4 u_DiffuseColor;
 #endif
 
 #if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
+	varying vec3 v_Position;
+	varying vec3 v_Normal;
+	varying vec3 v_ViewDir; 
+	uniform mat4 u_View;
 	uniform vec3 u_MaterialSpecular;
 	uniform float u_Shininess;
+	uniform vec4 u_ProjectionParams;
+	uniform vec4 u_Viewport;
+	uniform int u_DirationLightCount;
+	uniform sampler2D u_LightBuffer;
+	uniform sampler2D u_ClusterBuffer;
 	#ifdef SPECULARMAP 
 		uniform sampler2D u_SpecularTexture;
+	#endif
+	#ifdef NORMALMAP 
+		uniform sampler2D u_NormalTexture;
+		varying vec3 v_Tangent;
+		varying vec3 v_Binormal;
 	#endif
 #endif
 
@@ -50,30 +59,7 @@ uniform vec4 u_DiffuseColor;
 #endif
 
 
-#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
-	varying vec3 v_Normal;
-#endif
-
-#if (defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))&&defined(NORMALMAP)
-	uniform sampler2D u_NormalTexture;
-	varying vec3 v_Tangent;
-	varying vec3 v_Binormal;
-#endif
-
-#ifdef DIRECTIONLIGHT
-	uniform DirectionLight u_DirectionLight;
-#endif
-
-#ifdef POINTLIGHT
-	uniform PointLight u_PointLight;
-#endif
-
-#ifdef SPOTLIGHT
-	uniform SpotLight u_SpotLight;
-#endif
-
 uniform vec3 u_AmbientColor;
-
 
 #if defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(RECEIVESHADOW)
 	varying vec3 v_PositionWorld;
@@ -150,23 +136,46 @@ void main_normal()
 		#endif
 	#endif
 
-	
+   
+   //TODO:封装
 	#ifdef DIRECTIONLIGHT
-		LayaAirBlinnPhongDiectionLight(u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,u_DirectionLight,dif,spe);
-		diffuse+=dif;
-		specular+=spe;
+		for (int i = 0; i < MAX_LIGHT_COUNT; i++) 
+		{
+			if(i >= u_DirationLightCount)
+				break;
+			DirectionLight directionLight = GetDirectionLight(u_LightBuffer,i);
+			LayaAirBlinnPhongDiectionLight(u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,directionLight,dif,spe);
+			diffuse+=dif;
+			specular+=spe;
+		}
 	#endif
  
+  	vec2 areaLightInfoUV =getClusterUV(u_View,u_Viewport, v_Position,gl_FragCoord,u_ProjectionParams.x);
+	ivec2 areaLightCount=getLightCount(u_ClusterBuffer,areaLightInfoUV);//X:Point Count Y:Spot Count
 	#ifdef POINTLIGHT
-		LayaAirBlinnPhongPointLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,u_PointLight,dif,spe);
-		diffuse+=dif;
-		specular+=spe;
+		for (int i = 0; i < MAX_LIGHT_COUNT; i++) 
+		{
+			if(i >= areaLightCount.x)
+				break;
+			int lightIndex = GetLightIndex(u_ClusterBuffer,areaLightInfoUV,2,i);
+      		PointLight pointLight = GetPointLight(u_LightBuffer,lightIndex);
+			LayaAirBlinnPhongPointLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,pointLight,dif,spe);
+			diffuse+=dif;
+			specular+=spe;
+		}
 	#endif
 
 	#ifdef SPOTLIGHT
-		LayaAirBlinnPhongSpotLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,u_SpotLight,dif,spe);
-		diffuse+=dif;
-		specular+=spe;
+		for (int i = 0; i < MAX_LIGHT_COUNT; i++) 
+		{
+			if(i >= areaLightCount.y)
+				break;
+			int lightIndex = GetLightIndex(u_ClusterBuffer,areaLightInfoUV,i+pointLightCount+2,lightCount.y);
+      		SpotLight spotLight = GetSpotLight(u_LightBuffer,lightIndex);
+			LayaAirBlinnPhongSpotLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,spotLight,dif,spe);
+			diffuse+=dif;
+			specular+=spe;
+		}
 	#endif
 
 	#ifdef RECEIVESHADOW

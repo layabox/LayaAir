@@ -16,10 +16,10 @@ export class LightSprite extends Sprite3D {
 	static LIGHTMAPBAKEDTYPE_BAKED: number = 2;
 
 	/** @internal */
-	protected _intensityColor: Vector3;
+	_intensityColor: Vector3;
 
 	/** @internal */
-	protected _intensity: number;
+	_intensity: number;
 	/** @internal */
 	protected _shadow: boolean;
 	/** @internal */
@@ -154,9 +154,9 @@ export class LightSprite extends Sprite3D {
 			this._lightmapBakedType = value;
 			if (this.activeInHierarchy) {
 				if (value !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED)
-					((<Scene3D>this._scene))._addLight(this);
+					this._addToScene();
 				else
-					((<Scene3D>this._scene))._removeLight(this);
+					this._removeFromScene();
 			}
 		}
 	}
@@ -190,13 +190,26 @@ export class LightSprite extends Sprite3D {
 		this.lightmapBakedType = data.lightmapBakedType;
 	}
 
+
+	/**
+	 * @internal
+	 */
+	protected _addToScene(): void {
+	}
+
+	/**
+	 * @internal
+	 */
+	protected _removeFromScene(): void {
+	}
+
 	/**
 	 * @inheritDoc
 	 * @override
 	 */
 	protected _onActive(): void {
 		super._onActive();
-		(this.lightmapBakedType !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED) && (((<Scene3D>this._scene))._addLight(this));
+		(this.lightmapBakedType !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED) && (this._addToScene());
 	}
 
 	/**
@@ -205,15 +218,7 @@ export class LightSprite extends Sprite3D {
 	 */
 	protected _onInActive(): void {
 		super._onInActive();
-		(this.lightmapBakedType !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED) && (((<Scene3D>this._scene))._removeLight(this));
-	}
-
-	/**
-	 * 更新灯光相关渲染状态参数。
-	 * @param state 渲染状态参数。
-	 */
-	_prepareToScene(): boolean {
-		return false;
+		(this.lightmapBakedType !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED) && (this._removeFromScene());
 	}
 
 	/**

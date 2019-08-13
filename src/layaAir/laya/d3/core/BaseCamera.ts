@@ -23,6 +23,8 @@ export class BaseCamera extends Sprite3D {
 	static VIEWPROJECTMATRIX: number = Shader3D.propertyNameToID("u_ViewProjection");
 	static CAMERADIRECTION: number = Shader3D.propertyNameToID("u_CameraDirection");
 	static CAMERAUP: number = Shader3D.propertyNameToID("u_CameraUp");
+	static VIEWPORT: number = Shader3D.propertyNameToID("u_Viewport");
+	static PROJECTION_PARAMS: number = Shader3D.propertyNameToID("u_ProjectionParams");
 
 	/**渲染模式,延迟光照渲染，暂未开放。*/
 	static RENDERINGTYPE_DEFERREDLIGHTING: string = "DEFERREDLIGHTING";
@@ -50,9 +52,9 @@ export class BaseCamera extends Sprite3D {
 	_renderingOrder: number
 
 	/** 近裁剪面。*/
-	private _nearPlane: number;
+	protected _nearPlane: number;
 	/** 远裁剪面。*/
-	private _farPlane: number;
+	protected _farPlane: number;
 	/** 视野。*/
 	private _fieldOfView: number;
 	/** 正交投影的垂直尺寸。*/

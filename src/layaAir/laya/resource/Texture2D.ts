@@ -86,7 +86,7 @@ export class Texture2D extends BaseTexture {
 	/** @private */
 	private _canRead: boolean;
 	/** @private */
-	private _pixels: Uint8Array;
+	private _pixels: Uint8Array | Float32Array;//TODO:是否合并格式
 
 
 
@@ -127,6 +127,7 @@ export class Texture2D extends BaseTexture {
 			this._setGPUMemory(width * height * 4 * (1 + 1 / 3));
 		} else {
 			this._mipmapCount = 1;
+			this._setPixels(null, 0, width, height);//初始化
 			this._setGPUMemory(width * height * 4);
 		}
 	}
@@ -136,17 +137,25 @@ export class Texture2D extends BaseTexture {
 	/**
 	 * @private
 	 */
-	private _setPixels(pixels: Uint8Array, miplevel: number, width: number, height: number): void {
+	private _setPixels(pixels: Uint8Array | Float32Array, miplevel: number, width: number, height: number): void {
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		var textureType: number = this._glTextureType;
 		var glFormat: number = this._getGLFormat();
 		WebGLContext.bindTexture(gl, textureType, this._glTexture);
-		if (this.format === BaseTexture.FORMAT_R8G8B8) {
-			gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);//字节对齐
-			gl.texImage2D(textureType, miplevel, glFormat, width, height, 0, glFormat, gl.UNSIGNED_BYTE, pixels);
-			gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
-		} else {
-			gl.texImage2D(textureType, miplevel, glFormat, width, height, 0, glFormat, gl.UNSIGNED_BYTE, pixels);
+		switch (this.format) {
+			case BaseTexture.FORMAT_R8G8B8:
+				gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);//字节对齐
+				gl.texImage2D(textureType, miplevel, glFormat, width, height, 0, glFormat, gl.UNSIGNED_BYTE, pixels);
+				gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+				break;
+			case BaseTexture.FORMAT_R32G32B32A32:
+				if (LayaGL.layaGPUInstance._isWebGL2)
+					gl.texImage2D(textureType, miplevel, (<WebGL2RenderingContext>gl).RGBA32F, width, height, 0, glFormat, gl.FLOAT, pixels);
+				else
+					gl.texImage2D(textureType, miplevel, gl.RGBA, width, height, 0, glFormat, gl.FLOAT, pixels);
+				break;
+			default:
+				gl.texImage2D(textureType, miplevel, glFormat, width, height, 0, glFormat, gl.UNSIGNED_BYTE, pixels);
 		}
 	}
 
@@ -397,7 +406,7 @@ export class Texture2D extends BaseTexture {
 	 * @param	pixels 像素。
 	 * @param   miplevel 层级。
 	 */
-	setPixels(pixels: Uint8Array, miplevel: number = 0): void {
+	setPixels(pixels: Uint8Array | Float32Array, miplevel: number = 0): void {
 		if (!pixels)
 			throw "Texture2D:pixels can't be null.";
 		var width: number = Math.max(this._width >> miplevel, 1);
@@ -423,7 +432,7 @@ export class Texture2D extends BaseTexture {
 	 * @param  pixels 像素数组。
 	 * @param  miplevel 层级。
 	 */
-	setSubPixels(x: number, y: number, width: number, height: number, pixels: Uint8Array, miplevel: number = 0): void {
+	setSubPixels(x: number, y: number, width: number, height: number, pixels: Uint8Array | Float32Array, miplevel: number = 0): void {
 		if (!pixels)
 			throw "Texture2D:pixels can't be null.";
 
@@ -432,12 +441,17 @@ export class Texture2D extends BaseTexture {
 		WebGLContext.bindTexture(gl, textureType, this._glTexture);
 		var glFormat: number = this._getGLFormat();
 
-		if (this._format === BaseTexture.FORMAT_R8G8B8) {
-			gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);//字节对齐
-			gl.texSubImage2D(textureType, miplevel, x, y, width, height, glFormat, gl.UNSIGNED_BYTE, pixels);
-			gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
-		} else {
-			gl.texSubImage2D(textureType, miplevel, x, y, width, height, glFormat, gl.UNSIGNED_BYTE, pixels);
+		switch (this.format) {
+			case BaseTexture.FORMAT_R8G8B8:
+				gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);//字节对齐
+				gl.texSubImage2D(textureType, miplevel, x, y, width, height, glFormat, gl.UNSIGNED_BYTE, pixels);
+				gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+				break;
+			case BaseTexture.FORMAT_R32G32B32A32:
+				gl.texSubImage2D(textureType, miplevel, x, y, width, height, glFormat, gl.FLOAT, pixels);
+				break;
+			default:
+				gl.texSubImage2D(textureType, miplevel, x, y, width, height, glFormat, gl.UNSIGNED_BYTE, pixels);
 		}
 
 		//if (_canRead)
@@ -484,7 +498,7 @@ export class Texture2D extends BaseTexture {
 	 * 返回图片像素。
 	 * @return 图片像素。
 	 */
-	getPixels(): Uint8Array {
+	getPixels(): Uint8Array | Float32Array {
 		if (this._canRead)
 			return this._pixels;
 		else

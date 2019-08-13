@@ -4,13 +4,12 @@ import { ParallelSplitShadowMap } from "../../shadowMap/ParallelSplitShadowMap";
 import { Scene3D } from "../scene/Scene3D";
 import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
 import { LightSprite } from "./LightSprite";
-import { ILaya3D } from "../../../../ILaya3D";
 
 /**
  * <code>DirectionLight</code> 类用于创建平行光。
  */
 export class DirectionLight extends LightSprite {
-	private _direction: Vector3;
+	_direction: Vector3;
 
 	/**
 	 * @inheritDoc
@@ -52,6 +51,24 @@ export class DirectionLight extends LightSprite {
 	}
 
 	/**
+	 * @internal
+	 * @override
+	 */
+	protected _addToScene(): void {
+		(<Scene3D>this._scene)._directionallights.push(this);
+	}
+
+	/**
+	 * @internal
+	 * @override
+	 */
+	protected _removeFromScene(): void {
+		var lights = (<Scene3D>this._scene)._directionallights;
+		lights.splice(lights.indexOf(this), 1);
+	}
+
+
+	/**
 	 * @inheritDoc
 	 * @override
 	 */
@@ -68,26 +85,6 @@ export class DirectionLight extends LightSprite {
 	protected _onInActive(): void {
 		super._onInActive();
 		(this._lightmapBakedType !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED) && (((<Scene3D>this._scene))._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT));
-	}
-
-	/**
-	 * 更新平行光相关渲染状态参数。
-	 * @param state 渲染状态参数。
-	 * @override
-	 */
-	_prepareToScene(): boolean {
-		var scene: Scene3D = (<Scene3D>this._scene);
-		if (scene.enableLight && this.activeInHierarchy) {
-			var shaderValue: ShaderData = scene._shaderValues;
-			Vector3.scale(this.color, this._intensity, this._intensityColor);
-			shaderValue.setVector3(ILaya3D.Scene3D.LIGHTDIRCOLOR, this._intensityColor);
-			this.transform.worldMatrix.getForward(this._direction);
-			Vector3.normalize(this._direction, this._direction);
-			shaderValue.setVector3(ILaya3D.Scene3D.LIGHTDIRECTION, this._direction);
-			return true;
-		} else {
-			return false;
-		}
 	}
 }
 

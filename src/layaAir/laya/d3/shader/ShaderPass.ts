@@ -7,6 +7,7 @@ import { DefineDatas } from "./DefineDatas";
 import { Shader3D } from "./Shader3D";
 import { ShaderInstance } from "./ShaderInstance";
 import { SubShader } from "./SubShader";
+import { Laya3D } from "../../../Laya3D";
 
 /**
  * <code>ShaderPass</code> 类用于实现ShaderPass。
@@ -201,13 +202,16 @@ export class ShaderPass extends ShaderCompile {
 		Shader3D._getNamesByDefineData(compileDefine, defineString);
 
 		var defMap: any = {};
-		var defineStr: string = "";
+		var defineStr: string = "#define MAX_LIGHT_COUNT " + Laya3D._config.maxLightCount + "\n";
+		defineStr += "#define MAX_LIGHT_COUNT_PER_CLUSTER " + Laya3D._config.maxLightCountPerCluster + "\n";
+		defineStr += "#define CLUSTER_X_COUNT " + Laya3D._config.clusterXCount + "\n";
+		defineStr += "#define CLUSTER_Y_COUNT " + Laya3D._config.clusterYCount + "\n";
+		defineStr += "#define CLUSTER_Z_COUNT " + Laya3D._config.clusterZCount + "\n";
 		for (var i: number = 0, n: number = defineString.length; i < n; i++) {
 			var def: string = defineString[i];
 			defineStr += "#define " + def + "\n";
 			defMap[def] = true;
 		}
-
 
 		var vs: any[] = this._VS.toscript(defMap, []);
 		var vsVersion: string = '';

@@ -1,8 +1,9 @@
+import { Laya } from "../../../Laya";
+import { Node } from "../../display/Node";
 import { Event } from "../../events/Event";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Render } from "../../renders/Render";
 import { BaseTexture } from "../../resource/BaseTexture";
-import { WebGLContext } from "../../webgl/WebGLContext";
 import { PostProcess } from "../component/PostProcess";
 import { FrustumCulling } from "../graphics/FrustumCulling";
 import { BoundFrustum } from "../math/BoundFrustum";
@@ -11,6 +12,7 @@ import { Plane } from "../math/Plane";
 import { Ray } from "../math/Ray";
 import { Vector2 } from "../math/Vector2";
 import { Vector3 } from "../math/Vector3";
+import { Vector4 } from "../math/Vector4";
 import { Viewport } from "../math/Viewport";
 import { RenderTexture } from "../resource/RenderTexture";
 import { Shader3D } from "../shader/Shader3D";
@@ -18,15 +20,13 @@ import { ShaderData } from "../shader/ShaderData";
 import { ParallelSplitShadowMap } from "../shadowMap/ParallelSplitShadowMap";
 import { Picker } from "../utils/Picker";
 import { BaseCamera } from "./BaseCamera";
-import { Transform3D } from "./Transform3D";
 import { BlitScreenQuadCMD } from "./render/command/BlitScreenQuadCMD";
 import { CommandBuffer } from "./render/command/CommandBuffer";
 import { RenderContext3D } from "./render/RenderContext3D";
 import { RenderQueue } from "./render/RenderQueue";
 import { Scene3D } from "./scene/Scene3D";
 import { Scene3DShaderDeclaration } from "./scene/Scene3DShaderDeclaration";
-import { Laya } from "../../../Laya";
-import { Node } from "../../display/Node";
+import { Transform3D } from "./Transform3D";
 
 /**
  * <code>Camera</code> 类用于创建摄像机。
@@ -54,6 +54,10 @@ export class Camera extends BaseCamera {
 	public _offScreenRenderTexture: RenderTexture = null;
 	private _postProcess: PostProcess = null;
 	private _enableHDR: boolean = false;
+	private _viewportParams: Vector4 = new Vector4();
+	private _projectionParams: Vector4 = new Vector4();
+
+
 
 	/**@internal */
 	_renderTexture: RenderTexture = null;
@@ -396,6 +400,20 @@ export class Camera extends BaseCamera {
 			return BaseTexture.RENDERTEXTURE_FORMAT_RGBA_HALF_FLOAT;
 		else
 			return BaseTexture.FORMAT_R8G8B8;
+	}
+
+	/**
+	 * @override
+	 * @internal
+	 */
+	_prepareCameraToRender(): void {
+		super._prepareCameraToRender();
+		var vp: Viewport = this.viewport;
+		this._viewportParams.setValue(vp.x, vp.y, vp.width, vp.height);
+		this._projectionParams.setValue(this._nearPlane, this._farPlane, 0, 0);
+		this._shaderValues.setVector(BaseCamera.VIEWPORT, this._viewportParams);
+		this._shaderValues.setVector(BaseCamera.PROJECTION_PARAMS, this._projectionParams);
+		Scene3D._cluster.update(this, this.viewMatrix, <Scene3D>(this._scene));
 	}
 
 	/**

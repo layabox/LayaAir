@@ -1,22 +1,105 @@
-
 struct DirectionLight {
-	vec3 Color;
-	vec3 Direction;
+	vec3 color;
+	vec3 direction;
 };
 
 struct PointLight {
-	vec3 Color;
-	vec3 Position;
-	float Range;
+	vec3 color;
+	vec3 position;
+	float range;
 };
 
 struct SpotLight {
-	vec3 Color;
-	vec3 Position;
-	vec3 Direction;
-	float Spot;
-	float Range;
+	vec3 color;
+	vec3 position;
+	float range;
+	vec3 direction;
+	float spot;
 };
+
+
+
+const int c_PixelCountPerClusterV = (MAX_LIGHT_COUNT_PER_CLUSTER+2)/4;
+const int c_TotalXYClusters = CLUSTER_X_COUNT*CLUSTER_Y_COUNT;
+const int c_TotalClustersHeight = CLUSTER_Z_COUNT*c_PixelCountPerClusterV;
+
+vec2 getClusterUV(mat4 viewMatrix,vec4 viewport,vec3 position,vec4 fragCoord,float cameraNear)
+{
+	vec3 viewPos = vec3(viewMatrix*vec4(position, 1.0)); //position in viewspace
+	float xStride = float(viewport.z)/float(CLUSTER_X_COUNT);
+    float yStride = float(viewport.w)/float(CLUSTER_Y_COUNT);
+    float zStride = float(CLUSTER_Z_COUNT);
+
+	int clusterXIndex = int(floor(fragCoord.x/ xStride));
+
+    int clusterYIndex = int(floor(fragCoord.y/ yStride));
+
+    int clusterZIndex = int(floor((-viewPos.z-cameraNear) / zStride));
+
+	return vec2((float(clusterXIndex + clusterYIndex * CLUSTER_X_COUNT)+0.5)/float(c_TotalXYClusters),
+				(float(clusterZIndex*c_PixelCountPerClusterV)+0.5)/float(CLUSTER_Z_COUNT*c_PixelCountPerClusterV));
+}
+
+ivec2 getLightCount(sampler2D clusterBuffer,vec2 clusterUV) {
+	vec4 clusterPixel=texture2D(clusterBuffer, clusterUV);
+	return ivec2(int(clusterPixel.r),int(clusterPixel.g));
+}
+
+int GetLightIndex(sampler2D clusterBuffer,vec2 clusterUV,int offset,int index) 
+{
+	int pixel=(index+offset)/4;
+	clusterUV.y+=float(pixel)/float(c_TotalClustersHeight);
+	vec4 texel = texture2D(clusterBuffer, clusterUV);
+    int pixelComponent = index - pixel * 4;
+    if (pixelComponent == 0) 
+      return int(texel[0]);
+    else if (pixelComponent == 1) 
+      return int(texel[1]);
+    else if (pixelComponent == 2) 
+      return int(texel[2]);
+    else if (pixelComponent == 3) 
+      return int(texel[3]);
+}
+
+DirectionLight GetDirectionLight(sampler2D lightBuffer,int index) 
+{
+    DirectionLight light;
+    float u = (float(index)+0.5)/ float(MAX_LIGHT_COUNT);
+    vec4 p1 = texture2D(lightBuffer, vec2(u, 0.125));
+    vec4 p2 = texture2D(lightBuffer, vec2(u, 0.375));
+	light.color=p1.rgb;
+    light.direction = p2.rgb;
+    return light;
+}
+
+PointLight GetPointLight(sampler2D lightBuffer,int index) 
+{
+    PointLight light;
+    float u = (float(index)+0.5)/ float(MAX_LIGHT_COUNT);
+    vec4 p1 = texture2D(lightBuffer, vec2(u, 0.125));
+    vec4 p2 = texture2D(lightBuffer, vec2(u, 0.375));
+	light.color=p1.rgb;
+	light.range = p1.a;
+    light.position = p2.rgb;
+    return light;
+}
+
+SpotLight GetSpotLight(sampler2D lightBuffer,int index) 
+{
+    SpotLight light;
+    float u = (float(index)+0.5)/ float(MAX_LIGHT_COUNT);
+    vec4 p1 = texture2D(lightBuffer, vec2(u, 0.125));
+    vec4 p2 = texture2D(lightBuffer, vec2(u, 0.375));
+	vec4 p3 = texture2D(lightBuffer, vec2(u, 0.625));
+    light.color = p1.rgb;
+	light.range=p1.a;
+    light.position = p2.rgb;
+	light.spot = p2.a;
+	light.direction = p3.rgb;
+    return light;
+}
+
+
 
 // Laya中使用衰减纹理
 float LayaAttenuation(in vec3 L,in float invLightRadius) {
@@ -55,31 +138,31 @@ void LayaAirBlinnPhongLight (in vec3 specColor,in float specColorIntensity,in ve
 }
 
 void LayaAirBlinnPhongDiectionLight (in vec3 specColor,in float specColorIntensity,in vec3 normal,in vec3 gloss, in vec3 viewDir, in DirectionLight light,out vec3 diffuseColor,out vec3 specularColor) {
-	vec3 lightVec=normalize(light.Direction);
-	LayaAirBlinnPhongLight(specColor,specColorIntensity,normal,gloss,viewDir,light.Color,lightVec,diffuseColor,specularColor);
+	vec3 lightVec=normalize(light.direction);
+	LayaAirBlinnPhongLight(specColor,specColorIntensity,normal,gloss,viewDir,light.color,lightVec,diffuseColor,specularColor);
 }
 
 void LayaAirBlinnPhongPointLight (in vec3 pos,in vec3 specColor,in float specColorIntensity,in vec3 normal,in vec3 gloss, in vec3 viewDir, in PointLight light,out vec3 diffuseColor,out vec3 specularColor) {
-	vec3 lightVec =  pos-light.Position;
-	//if( length(lightVec) > light.Range )
+	vec3 lightVec =  pos-light.position;
+	//if( length(lightVec) > light.range )
 	//	return;
-	LayaAirBlinnPhongLight(specColor,specColorIntensity,normal,gloss,viewDir,light.Color,lightVec/length(lightVec),diffuseColor,specularColor);
-	float attenuate = LayaAttenuation(lightVec, 1.0/light.Range);
+	LayaAirBlinnPhongLight(specColor,specColorIntensity,normal,gloss,viewDir,light.color,lightVec/length(lightVec),diffuseColor,specularColor);
+	float attenuate = LayaAttenuation(lightVec, 1.0/light.range);
 	diffuseColor *= attenuate;
 	specularColor*= attenuate;
 }
 
 void LayaAirBlinnPhongSpotLight (in vec3 pos,in vec3 specColor,in float specColorIntensity,in vec3 normal,in vec3 gloss, in vec3 viewDir, in SpotLight light,out vec3 diffuseColor,out vec3 specularColor) {
-	vec3 lightVec =  pos-light.Position;
-	//if( length(lightVec) > light.Range)
+	vec3 lightVec =  pos-light.position;
+	//if( length(lightVec) > light.range)
 	//	return;
 
 	vec3 normalLightVec=lightVec/length(lightVec);
-	LayaAirBlinnPhongLight(specColor,specColorIntensity,normal,gloss,viewDir,light.Color,normalLightVec,diffuseColor,specularColor);
-	vec2 cosAngles=cos(vec2(light.Spot,light.Spot*0.5)*0.5);//ConeAttenuation
-	float dl=dot(normalize(light.Direction),normalLightVec);
+	LayaAirBlinnPhongLight(specColor,specColorIntensity,normal,gloss,viewDir,light.color,normalLightVec,diffuseColor,specularColor);
+	vec2 cosAngles=cos(vec2(light.spot,light.spot*0.5)*0.5);//ConeAttenuation
+	float dl=dot(normalize(light.direction),normalLightVec);
 	dl*=smoothstep(cosAngles[0],cosAngles[1],dl);
-	float attenuate = LayaAttenuation(lightVec, 1.0/light.Range)*dl;
+	float attenuate = LayaAttenuation(lightVec, 1.0/light.range)*dl;
 	diffuseColor *=attenuate;
 	specularColor *=attenuate;
 }
