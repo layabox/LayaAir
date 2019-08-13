@@ -1,7 +1,7 @@
 import { Shader } from "../../webgl/shader/Shader";
 
-import parvs from "../../webgl/shader/d2/files/Particle.vs.glsl";
-import parps from "../../webgl/shader/d2/files/Particle.ps.glsl";
+import parvs from "./Particle.vs.glsl";
+import parps from "./Particle.ps.glsl";
 /**
  *  @private
  */
