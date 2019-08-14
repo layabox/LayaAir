@@ -753,7 +753,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		ligTex.setSubPixels(0, 0, pixelWidth, curCount, ligPix, 0);
 
 		this._shaderValues.setTexture(Scene3D.LIGHTBUFFER, ligTex);
-		this._shaderValues.setInt(Scene3D.DIRECTIONLIGHTCOUNT, this._directionallights._length)
+		this._shaderValues.setInt(Scene3D.DIRECTIONLIGHTCOUNT, this._directionallights._length);
+		this._shaderValues.setTexture(Scene3D.CLUSTERBUFFER, Scene3D._cluster._clusterTexture);
 	}
 
 	/**

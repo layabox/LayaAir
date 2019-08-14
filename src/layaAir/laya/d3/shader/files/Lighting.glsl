@@ -19,17 +19,17 @@ struct SpotLight {
 
 
 
-const int c_PixelCountPerClusterV = (MAX_LIGHT_COUNT_PER_CLUSTER+2)/4;
+const int c_PixelCountPerClusterV =int(ceil(float(MAX_LIGHT_COUNT_PER_CLUSTER+2)/4.0));
 const int c_TotalXYClusters = CLUSTER_X_COUNT*CLUSTER_Y_COUNT;
 const int c_TotalClustersHeight = CLUSTER_Z_COUNT*c_PixelCountPerClusterV;
 
-vec2 getClusterUV(mat4 viewMatrix,vec4 viewport,vec3 position,vec4 fragCoord,float cameraNear)
+vec2 getClusterUV(mat4 viewMatrix,vec4 viewport,vec3 position,vec4 fragCoord,vec4 projectParams)
 {
 	vec3 viewPos = vec3(viewMatrix*vec4(position, 1.0)); //position in viewspace
 
 	int clusterXIndex = int(floor(fragCoord.x/ (float(viewport.z)/float(CLUSTER_X_COUNT))));
     int clusterYIndex = int(floor((viewport.w-fragCoord.y)/ (float(viewport.w)/float(CLUSTER_Y_COUNT))));
-    int clusterZIndex = int(floor((-viewPos.z-cameraNear) / float(CLUSTER_Z_COUNT)));
+    int clusterZIndex = int(floor((-viewPos.z-projectParams.x) / ((projectParams.y-projectParams.x)/float(CLUSTER_Z_COUNT))));//projectParams x:cameraNear y:cameraFar
 
 	return vec2((float(clusterXIndex + clusterYIndex * CLUSTER_X_COUNT)+0.5)/float(c_TotalXYClusters),
 				(float(clusterZIndex*c_PixelCountPerClusterV)+0.5)/float(CLUSTER_Z_COUNT*c_PixelCountPerClusterV));

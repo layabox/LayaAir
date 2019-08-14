@@ -22,12 +22,13 @@ export class ClusteredRender {
     private _ySlices: number;
     private _zSlices: number;
     private _maxLightsPerCluster: number;
-    private _clusterTexture: Texture2D;
     private _clusterPixels: Float32Array;
     private _clusterPixelHeight: number;
     private _clusterTexWidth: number;
     private _tanVerFovBy2: number;
     private _zStride: number;
+
+    public _clusterTexture: Texture2D;
 
     constructor(xSlices: number, ySlices: number, zSlices: number, maxLightsPerCluster: number) {
         this._xSlices = xSlices;

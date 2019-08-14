@@ -153,7 +153,7 @@ void main_normal()
 		}
 	#endif
  
-  	vec2 areaLightInfoUV =getClusterUV(u_View,u_Viewport, v_Position,gl_FragCoord,u_ProjectionParams.x);
+  	vec2 areaLightInfoUV =getClusterUV(u_View,u_Viewport, v_Position,gl_FragCoord,u_ProjectionParams);
 	ivec2 areaLightCount=getLightCount(u_ClusterBuffer,areaLightInfoUV);//X:Point Count Y:Spot Count
 	#ifdef POINTLIGHT
 		for (int i = 0; i < MAX_LIGHT_COUNT; i++) 
@@ -165,7 +165,6 @@ void main_normal()
 			LayaAirBlinnPhongPointLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,pointLight,dif,spe);
 			diffuse+=dif;
 			specular+=spe;
-			
 		}
 	#endif
 
