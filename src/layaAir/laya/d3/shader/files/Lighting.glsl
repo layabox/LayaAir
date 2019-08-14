@@ -42,18 +42,19 @@ ivec2 getLightCount(sampler2D clusterBuffer,vec2 clusterUV) {
 
 int GetLightIndex(sampler2D clusterBuffer,vec2 clusterUV,int offset,int index) 
 {
-	int pixel=(index+offset)/4;
+	int totalIndex=index+offset;
+	int pixel=totalIndex/4;
 	clusterUV.y+=float(pixel)/float(c_TotalClustersHeight);
 	vec4 texel = texture2D(clusterBuffer, clusterUV);
-    int pixelComponent = index - pixel * 4;
+    int pixelComponent = totalIndex - pixel * 4;
     if (pixelComponent == 0) 
-      return int(texel[0]);
+      return int(texel.x);
     else if (pixelComponent == 1) 
-      return int(texel[1]);
+      return int(texel.y);
     else if (pixelComponent == 2) 
-      return int(texel[2]);
+      return int(texel.z);
     else if (pixelComponent == 3) 
-      return int(texel[3]);
+      return int(texel.w);
 }
 
 DirectionLight GetDirectionLight(sampler2D lightBuffer,int index) 
