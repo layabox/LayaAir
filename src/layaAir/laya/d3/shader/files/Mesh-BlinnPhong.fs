@@ -34,11 +34,14 @@ uniform vec4 u_DiffuseColor;
 	varying vec3 v_Position;
 	varying vec3 v_Normal;
 	varying vec3 v_ViewDir; 
-	uniform mat4 u_View;
+
 	uniform vec3 u_MaterialSpecular;
 	uniform float u_Shininess;
+
+	uniform mat4 u_View;
 	uniform vec4 u_ProjectionParams;
 	uniform vec4 u_Viewport;
+
 	uniform int u_DirationLightCount;
 	uniform sampler2D u_LightBuffer;
 	uniform sampler2D u_ClusterBuffer;
@@ -162,6 +165,7 @@ void main_normal()
 			LayaAirBlinnPhongPointLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,pointLight,dif,spe);
 			diffuse+=dif;
 			specular+=spe;
+			
 		}
 	#endif
 

@@ -688,7 +688,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		const floatWidth: number = pixelWidth * 4;
 		var maxCount: number = Laya3D._config.maxLightCount;
 		var curCount: number = 0;
-		var dirElements: DirectionLight[] = <DirectionLight[]>this._directionallights._elements;
+		var dirElements: DirectionLight[] = this._directionallights._elements;
 		for (var i: number = 0, n: number = this._directionallights._length; i < n; i++ , curCount++) {
 			if (curCount > maxCount)
 				break;
@@ -707,15 +707,15 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			ligPix[off + 6] = dir.z;
 		}
 
-		var poiElements: PointLight[] = <PointLight[]>this._pointLights._elements;
+		var poiElements: PointLight[] = this._pointLights._elements;
 		for (var i: number = 0, n: number = this._pointLights._length; i < n; i++ , curCount++) {
 			if (curCount > maxCount)
 				break;
 			var poiLight: PointLight = poiElements[i];
 			var pos: Vector3 = poiLight.transform.position;
-			var intCor: Vector3 = dirLight._intensityColor;
+			var intCor: Vector3 = poiLight._intensityColor;
 			var off: number = floatWidth * i;
-			Vector3.scale(dirLight.color, dirLight._intensity, intCor);
+			Vector3.scale(poiLight.color, poiLight._intensity, intCor);
 			ligPix[off] = intCor.x;
 			ligPix[off + 1] = intCor.y;
 			ligPix[off + 2] = intCor.z;
@@ -726,16 +726,16 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 		}
 
-		var spoElements: SpotLight[] = <SpotLight[]>this._spotLights._elements;
+		var spoElements: SpotLight[] = this._spotLights._elements;
 		for (var i: number = 0, n: number = this._spotLights._length; i < n; i++ , curCount++) {
 			if (curCount > maxCount)
 				break;
 			var spoLight: SpotLight = spoElements[i];
 			var dir: Vector3 = spoLight._direction;
 			var pos: Vector3 = spoLight.transform.position;
-			var intCor: Vector3 = dirLight._intensityColor;
+			var intCor: Vector3 = spoLight._intensityColor;
 			var off: number = floatWidth * i;
-			Vector3.scale(dirLight.color, dirLight._intensity, intCor);
+			Vector3.scale(spoLight.color, spoLight._intensity, intCor);
 			spoLight.transform.worldMatrix.getForward(dir);
 			Vector3.normalize(dir, dir);
 			ligPix[off] = intCor.x;

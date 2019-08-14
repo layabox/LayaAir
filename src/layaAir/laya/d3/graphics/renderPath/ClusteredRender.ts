@@ -1,12 +1,11 @@
-import { BaseTexture } from "../../../resource/BaseTexture";
 import { Texture2D } from "../../../resource/Texture2D";
 import { Camera } from "../../core/Camera";
+import { LightQueue } from "../../core/light/LightQueue";
 import { PointLight } from "../../core/light/PointLight";
+import { SpotLight } from "../../core/light/SpotLight";
 import { Scene3D } from "../../core/scene/Scene3D";
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Vector3 } from "../../math/Vector3";
-import { SpotLight } from "../../core/light/SpotLight";
-import { LightQueue } from "../../core/light/LightQueue";
 import { Utils3D } from "../../utils/Utils3D";
 
 /**
@@ -25,10 +24,10 @@ export class ClusteredRender {
     private _maxLightsPerCluster: number;
     private _clusterTexture: Texture2D;
     private _clusterPixels: Float32Array;
+    private _clusterPixelHeight: number;
     private _clusterTexWidth: number;
     private _tanVerFovBy2: number;
     private _zStride: number;
-    private _camera: Camera;
 
     constructor(xSlices: number, ySlices: number, zSlices: number, maxLightsPerCluster: number) {
         this._xSlices = xSlices;
@@ -37,7 +36,8 @@ export class ClusteredRender {
         this._maxLightsPerCluster = maxLightsPerCluster;
 
         var clusterTexWidth: number = xSlices * ySlices;
-        var clisterTexHeight: number = Math.ceil((maxLightsPerCluster + 2) / 4) * zSlices;
+        this._clusterPixelHeight = Math.ceil((maxLightsPerCluster + 2) / 4);
+        var clisterTexHeight: number = this._clusterPixelHeight * zSlices;
 
         var cluTex: Texture2D = Utils3D._createFloatTextureBuffer(clusterTexWidth, clisterTexHeight);
         this._clusterTexture = cluTex;
@@ -60,9 +60,9 @@ export class ClusteredRender {
         */
     }
 
-    private _updateLight(min: Vector3, max: Vector3, lightIndex: number, viewlightPosZ: number, type: number): void {
+    private _updateLight(camera: Camera, min: Vector3, max: Vector3, lightIndex: number, viewlightPosZ: number, type: number): void {
         var lightFrustumH: number = Math.abs(this._tanVerFovBy2 * viewlightPosZ * 2);
-        var lightFrustumW: number = Math.abs(this._camera.aspectRatio * lightFrustumH);
+        var lightFrustumW: number = Math.abs(camera.aspectRatio * lightFrustumH);
         var xStride: number = lightFrustumW / this._xSlices;
         var yStride: number = lightFrustumH / this._ySlices;
 
@@ -70,19 +70,20 @@ export class ClusteredRender {
         // technically could fall outside the bounds we make because the planes themeselves are tilted by some angle
         // the effect is exaggerated the steeper the angle the plane makes is
 
-        //Culling:if continue light wont fall into any cluster
+        //if return light wont fall into any cluster
         var zStartIndex: number = Math.floor(min.z / this._zStride);
         var zEndIndex: number = Math.floor(max.z / this._zStride);
         if ((zStartIndex < 0 && zEndIndex < 0) || (zStartIndex >= this._zSlices && zEndIndex >= this._zSlices))
             return;
 
-        var yStartIndex: number = Math.floor((min.y + lightFrustumH * 0.5) / yStride);
-        var yEndIndex: number = Math.floor((max.y + lightFrustumH * 0.5) / yStride);
+        //should inverse Y
+        var yStartIndex: number = Math.floor((lightFrustumH * 0.5 - min.y) / yStride);
+        var yEndIndex: number = Math.floor((lightFrustumH * 0.5 - max.y) / yStride);
         if ((yStartIndex < 0 && yEndIndex < 0) || (yStartIndex >= this._ySlices && yEndIndex >= this._ySlices))
             return;
 
-        var xStartIndex: number = Math.floor((min.x + lightFrustumW * 0.5) / xStride) - 1;//TODO:?
-        var xEndIndex: number = Math.floor((max.x + lightFrustumW * 0.5) / xStride) + 1;//TODO:?
+        var xStartIndex: number = Math.floor((min.x + lightFrustumW * 0.5) / xStride);
+        var xEndIndex: number = Math.floor((max.x + lightFrustumW * 0.5) / xStride);
         if ((xStartIndex < 0 && xEndIndex < 0) || (xStartIndex >= this._xSlices && xEndIndex >= this._xSlices))
             return;
 
@@ -93,16 +94,15 @@ export class ClusteredRender {
         xStartIndex = Math.max(0, Math.min(zStartIndex, this._xSlices - 1));
         xEndIndex = Math.max(0, Math.min(zEndIndex, this._xSlices - 1));
 
-
         var lightCountOffset: number;
         if (type == 0) //pointLight
             lightCountOffset = 0;
         else //spotLight
-            lightCountOffset = 0;
+            lightCountOffset = 1;
         for (var z: number = zStartIndex; z <= zEndIndex; z++) {
             for (var y: number = yStartIndex; y <= yEndIndex; y++) {
                 for (var x: number = xStartIndex; x <= xEndIndex; x++) {
-                    var clusterOff: number = (x + y * this._xSlices + z * this._xSlices * this._ySlices) * 4;
+                    var clusterOff: number = (x + y * this._xSlices + z * this._xSlices * this._ySlices * this._clusterPixelHeight) * 4;
                     // Update the light count for every cluster
                     var countIndex: number = clusterOff + lightCountOffset;
                     var lightCount: number = this._clusterPixels[countIndex];
@@ -134,7 +134,7 @@ export class ClusteredRender {
         for (var z = 0; z < this._zSlices; z++) {
             for (var y = 0; y < this._ySlices; y++) {
                 for (var x = 0; x < this._xSlices; x++) {
-                    var off: number = 4 * x + y * this._xSlices + z * this._xSlices * this._ySlices;
+                    var off: number = 4 * (x + y * this._xSlices + z * this._xSlices * this._ySlices * this._clusterPixelHeight);
                     this._clusterPixels[off] = 0;
                     this._clusterPixels[off + 1] = 0;
                 }
@@ -156,25 +156,25 @@ export class ClusteredRender {
 
             min.setValue(viewLightPos.x - radius, viewLightPos.y - radius, viewLightPos.z - radius);
             max.setValue(viewLightPos.x + radius, viewLightPos.y + radius, viewLightPos.z + radius);
-            this._updateLight(min, max, i, viewLightPos.z, 0);
+            this._updateLight(camera, min, max, i, viewLightPos.z, 0);
         }
 
         var viewForward: Vector3 = ClusteredRender._tempVector33;
+        var pb: Vector3 = ClusteredRender._tempVector34;
         var spoElements: SpotLight[] = <SpotLight[]>spotLights._elements;
         for (var i = 0, n = spotLights._length; i < n; i++) {
             var spoLight: SpotLight = spoElements[i];
             var radius = spoLight.range;
             spoLight._transform.worldMatrix.getForward(viewForward);
             Vector3.transformV3ToV3(viewForward, viewMat, viewForward);//forward to View
+            Vector3.normalize(viewForward, viewForward);
             Vector3.transformV3ToV3(spoLight._transform.position, viewMat, viewLightPos);//World to View
             viewForward.z *= -1;//camera looks down negative z, make z axis positive to make calculations easier
             viewLightPos.z *= -1;
 
-
             //https://bartwronski.com/2017/04/13/cull-that-cone/
             //http://www.iquilezles.org/www/articles/diskbbox/diskbbox.htm
-            var pb: Vector3 = ClusteredRender._tempVector34;//TODO:优化
-            Vector3.scale(viewForward, radius, pb);//TODO:viewForward是否归一化
+            Vector3.scale(viewForward, radius, pb);
             Vector3.add(viewLightPos, pb, pb);
 
             var pbX: number = pb.x;
@@ -194,7 +194,7 @@ export class ClusteredRender {
 
             min.setValue(Math.min(paX, pbX - eX * rb), Math.min(paY, pbY - eY * rb), Math.min(paZ, pbZ - eZ * rb));
             max.setValue(Math.max(paX, pbX + eX * rb), Math.max(paY, pbY + eY * rb), Math.max(paZ, pbZ + eZ * rb));
-            this._updateLight(min, max, i, viewLightPos.z, 1);
+            this._updateLight(camera, min, max, i, viewLightPos.z, 1);
         }
         this._clusterTexture.setPixels(this._clusterPixels);
     }
