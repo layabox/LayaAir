@@ -180,7 +180,7 @@ export class ClusteredRender {
             var pbX: number = pb.x;
             var pbY: number = pb.y;
             var pbZ: number = pb.z;
-            var rb: number = Math.tan(spoLight.spotAngle * Math.PI / 180 * radius);
+            var rb: number = Math.tan((spoLight.spotAngle / 2) * Math.PI / 180 )* radius;
             var paX: number = viewLightPos.x;
             var paY: number = viewLightPos.y;
             var paZ: number = viewLightPos.z;
