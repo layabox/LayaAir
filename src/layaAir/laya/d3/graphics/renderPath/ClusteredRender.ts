@@ -153,10 +153,10 @@ export class ClusteredRender {
             var poiLight: PointLight = poiElements[i];
             var radius = poiLight.range;
             Vector3.transformV3ToV3(poiLight._transform.position, viewMat, viewLightPos);//World to View
-            viewLightPos.z *= -1; //camera looks down negative z, make z axis positive to make calculations easier
 
-            min.setValue(viewLightPos.x - radius, viewLightPos.y - radius, viewLightPos.z - radius);
-            max.setValue(viewLightPos.x + radius, viewLightPos.y + radius, viewLightPos.z + radius);
+            //camera looks down negative z, make z axis positive to make calculations easier
+            min.setValue(viewLightPos.x - radius, viewLightPos.y - radius, -(viewLightPos.z + radius));
+            max.setValue(viewLightPos.x + radius, viewLightPos.y + radius, -(viewLightPos.z - radius));
             this._updateLight(camera, min, max, i, viewLightPos.z, 0);
         }
 
@@ -170,8 +170,6 @@ export class ClusteredRender {
             Vector3.transformV3ToV3(viewForward, viewMat, viewForward);//forward to View
             Vector3.normalize(viewForward, viewForward);
             Vector3.transformV3ToV3(spoLight._transform.position, viewMat, viewLightPos);//World to View
-            viewForward.z *= -1;//camera looks down negative z, make z axis positive to make calculations easier
-            viewLightPos.z *= -1;
 
             //https://bartwronski.com/2017/04/13/cull-that-cone/
             //http://www.iquilezles.org/www/articles/diskbbox/diskbbox.htm
@@ -181,7 +179,7 @@ export class ClusteredRender {
             var pbX: number = pb.x;
             var pbY: number = pb.y;
             var pbZ: number = pb.z;
-            var rb: number = Math.tan(spoLight.spotAngle * radius);
+            var rb: number = Math.tan(spoLight.spotAngle * Math.PI / 180 * radius);
             var paX: number = viewLightPos.x;
             var paY: number = viewLightPos.y;
             var paZ: number = viewLightPos.z;
@@ -193,8 +191,10 @@ export class ClusteredRender {
             var eY: number = Math.sqrt(1.0 - aY * aY / dotA);
             var eZ: number = Math.sqrt(1.0 - aZ * aZ / dotA);
 
-            min.setValue(Math.min(paX, pbX - eX * rb), Math.min(paY, pbY - eY * rb), Math.min(paZ, pbZ - eZ * rb));
-            max.setValue(Math.max(paX, pbX + eX * rb), Math.max(paY, pbY + eY * rb), Math.max(paZ, pbZ + eZ * rb));
+            //camera looks down negative z, make z axis positive to make calculations easier
+            min.setValue(Math.min(paX, pbX - eX * rb), Math.min(paY, pbY - eY * rb), -Math.max(paZ, pbZ + eZ * rb));
+            max.setValue(Math.max(paX, pbX + eX * rb), Math.max(paY, pbY + eY * rb), -Math.min(paZ, pbZ - eZ * rb));
+
             this._updateLight(camera, min, max, i, viewLightPos.z, 1);
         }
         this._clusterTexture.setPixels(this._clusterPixels);
