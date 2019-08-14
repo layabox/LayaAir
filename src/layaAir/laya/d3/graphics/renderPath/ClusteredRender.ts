@@ -142,6 +142,7 @@ export class ClusteredRender {
             }
         }
 
+        var curCount: number = scene._directionallights._length;
         var viewMat: Matrix4x4 = camera.viewMatrix;
         var pointLights: LightQueue<PointLight> = scene._pointLights;
         var spotLights: LightQueue<SpotLight> = scene._spotLights;
@@ -149,7 +150,7 @@ export class ClusteredRender {
         var min: Vector3 = ClusteredRender._tempVector31;
         var max: Vector3 = ClusteredRender._tempVector32;
         var poiElements: PointLight[] = <PointLight[]>pointLights._elements;
-        for (var i = 0, n = pointLights._length; i < n; i++) {
+        for (var i = 0, n = pointLights._length; i < n; i++ , curCount++) {
             var poiLight: PointLight = poiElements[i];
             var radius = poiLight.range;
             Vector3.transformV3ToV3(poiLight._transform.position, viewMat, viewLightPos);//World to View
@@ -157,13 +158,13 @@ export class ClusteredRender {
             //camera looks down negative z, make z axis positive to make calculations easier
             min.setValue(viewLightPos.x - radius, viewLightPos.y - radius, -(viewLightPos.z + radius));
             max.setValue(viewLightPos.x + radius, viewLightPos.y + radius, -(viewLightPos.z - radius));
-            this._updateLight(camera, min, max, i, viewLightPos.z, 0);
+            this._updateLight(camera, min, max, curCount, viewLightPos.z, 0);
         }
 
         var viewForward: Vector3 = ClusteredRender._tempVector33;
         var pb: Vector3 = ClusteredRender._tempVector34;
         var spoElements: SpotLight[] = <SpotLight[]>spotLights._elements;
-        for (var i = 0, n = spotLights._length; i < n; i++) {
+        for (var i = 0, n = spotLights._length; i < n; i++ , curCount++) {
             var spoLight: SpotLight = spoElements[i];
             var radius = spoLight.range;
             spoLight._transform.worldMatrix.getForward(viewForward);
@@ -195,7 +196,7 @@ export class ClusteredRender {
             min.setValue(Math.min(paX, pbX - eX * rb), Math.min(paY, pbY - eY * rb), -Math.max(paZ, pbZ + eZ * rb));
             max.setValue(Math.max(paX, pbX + eX * rb), Math.max(paY, pbY + eY * rb), -Math.min(paZ, pbZ - eZ * rb));
 
-            this._updateLight(camera, min, max, i, viewLightPos.z, 1);
+            this._updateLight(camera, min, max, curCount, viewLightPos.z, 1);
         }
         this._clusterTexture.setPixels(this._clusterPixels);
     }

@@ -695,7 +695,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			var dirLight: DirectionLight = dirElements[i];
 			var dir: Vector3 = dirLight._direction;
 			var intCor: Vector3 = dirLight._intensityColor;
-			var off: number = floatWidth * i;
+			var off: number = floatWidth * curCount;
 			Vector3.scale(dirLight.color, dirLight._intensity, intCor);
 			dirLight.transform.worldMatrix.getForward(dir);
 			Vector3.normalize(dir, dir);//矩阵有缩放时需要归一化
@@ -714,7 +714,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			var poiLight: PointLight = poiElements[i];
 			var pos: Vector3 = poiLight.transform.position;
 			var intCor: Vector3 = poiLight._intensityColor;
-			var off: number = floatWidth * i;
+			var off: number = floatWidth * curCount;
 			Vector3.scale(poiLight.color, poiLight._intensity, intCor);
 			ligPix[off] = intCor.x;
 			ligPix[off + 1] = intCor.y;
@@ -734,7 +734,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			var dir: Vector3 = spoLight._direction;
 			var pos: Vector3 = spoLight.transform.position;
 			var intCor: Vector3 = spoLight._intensityColor;
-			var off: number = floatWidth * i;
+			var off: number = floatWidth * curCount;
 			Vector3.scale(spoLight.color, spoLight._intensity, intCor);
 			spoLight.transform.worldMatrix.getForward(dir);
 			Vector3.normalize(dir, dir);
