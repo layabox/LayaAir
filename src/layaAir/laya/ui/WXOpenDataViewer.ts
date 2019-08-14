@@ -4,6 +4,8 @@ import { Stage } from "../../laya/display/Stage"
 import { Matrix } from "../../laya/maths/Matrix"
 import { Texture } from "../../laya/resource/Texture"
 import { Texture2D } from "../resource/Texture2D";
+import { ILaya } from "../../ILaya";
+import { ClassUtils } from "../utils/ClassUtils";
 	
 /**
  * 微信开放数据展示组件，直接实例本组件，即可根据组件宽高，位置，以最优的方式显示开放域数据
@@ -88,3 +90,6 @@ export class WXOpenDataViewer extends UIComponent {
     }
 }
 
+ILaya.regClass(WXOpenDataViewer);
+ClassUtils.regClass("laya.ui.WXOpenDataViewer", WXOpenDataViewer);
+ClassUtils.regClass("Laya.WXOpenDataViewer", WXOpenDataViewer);
