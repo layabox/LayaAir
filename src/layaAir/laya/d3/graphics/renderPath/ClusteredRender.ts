@@ -7,6 +7,7 @@ import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Vector3 } from "../../math/Vector3";
 import { SpotLight } from "../../core/light/SpotLight";
 import { LightQueue } from "../../core/light/LightQueue";
+import { Utils3D } from "../../utils/Utils3D";
 
 /**
  * @internal
@@ -37,11 +38,8 @@ export class ClusteredRender {
 
         var clusterTexWidth: number = xSlices * ySlices;
         var clisterTexHeight: number = Math.ceil((maxLightsPerCluster + 2) / 4) * zSlices;
-        var cluTex: Texture2D = new Texture2D(clusterTexWidth, clisterTexHeight, BaseTexture.FORMAT_R32G32B32A32, false, false);
-        cluTex.filterMode = BaseTexture.FILTERMODE_POINT;
-        cluTex.wrapModeU = BaseTexture.WARPMODE_CLAMP;
-        cluTex.wrapModeV = BaseTexture.WARPMODE_CLAMP;
-        cluTex.anisoLevel = 0;
+
+        var cluTex: Texture2D = Utils3D._createFloatTextureBuffer(clusterTexWidth, clisterTexHeight);
         this._clusterTexture = cluTex;
         this._clusterPixels = new Float32Array(clusterTexWidth * clisterTexHeight * 4);
         this._clusterTexWidth = clusterTexWidth;

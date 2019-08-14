@@ -1,3 +1,4 @@
+import { Config3D } from "../../../../Config3D";
 import { ILaya } from "../../../../ILaya";
 import { Laya3D } from "../../../../Laya3D";
 import { Sprite } from "../../../display/Sprite";
@@ -39,9 +40,11 @@ import { Shader3D } from "../../shader/Shader3D";
 import { ShaderData } from "../../shader/ShaderData";
 import { ShaderInit3D } from "../../shader/ShaderInit3D";
 import { ParallelSplitShadowMap } from "../../shadowMap/ParallelSplitShadowMap";
+import { Utils3D } from "../../utils/Utils3D";
 import { BaseCamera } from "../BaseCamera";
 import { Camera } from "../Camera";
 import { DirectionLight } from "../light/DirectionLight";
+import { LightQueue } from "../light/LightQueue";
 import { PointLight } from "../light/PointLight";
 import { SpotLight } from "../light/SpotLight";
 import { BaseMaterial } from "../material/BaseMaterial";
@@ -56,9 +59,6 @@ import { RenderableSprite3D } from "../RenderableSprite3D";
 import { Sprite3D } from "../Sprite3D";
 import { BoundsOctree } from "./BoundsOctree";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
-import { Config3D } from "../../../../Config3D";
-import { LightQueue } from "../light/LightQueue";
-import { LightSprite } from "../light/LightSprite";
 
 
 /**
@@ -67,6 +67,10 @@ import { LightSprite } from "../light/LightSprite";
 export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal */
 	public static _cluster: ClusteredRender;
+	/** @internal */
+	public static _lightTexture: Texture2D;
+	/** @internal */
+	public static _lightPixles: Float32Array;
 
 	/**Hierarchy资源。*/
 	static HIERARCHY: string = "HIERARCHY";
@@ -115,8 +119,13 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	static __init__(): void {
+		const width: number = 4;
 		var con: Config3D = Laya3D._config;
+		var maxLightCount: number = con.maxLightCount;
 		Scene3D._cluster = new ClusteredRender(con.clusterXCount, con.clusterYCount, con.clusterZCount, con.maxLightCountPerCluster);
+		Scene3D._lightTexture = Utils3D._createFloatTextureBuffer(width, maxLightCount);
+		Scene3D._lightPixles = new Float32Array(maxLightCount * width * 4);
+
 		Scene3DShaderDeclaration.SHADERDEFINE_FOG = Shader3D.getDefineByName("FOG");
 		Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT = Shader3D.getDefineByName("DIRECTIONLIGHT");
 		Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT = Shader3D.getDefineByName("POINTLIGHT");
@@ -152,10 +161,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	public _spotLights: LightQueue<SpotLight> = new LightQueue();
 	/** @internal */
 	public _directionallights: LightQueue<DirectionLight> = new LightQueue();
-	/** @internal */
-	public _lightTexture: Texture2D;
-	/** @internal */
-	public _lightPixles: Float32Array;
+
 	/** @internal */
 	private _lightmaps: Texture2D[] = [];
 	/** @internal */
@@ -465,15 +471,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this._scene = this;
 		this._input.__init__(Render.canvas, this);
 
-		//LightTexture
-		var maxLightCount: number = Laya3D._config.maxLightCount;
-		var lightTex: Texture2D = new Texture2D(4, maxLightCount, BaseTexture.FORMAT_R32G32B32A32, false, false);
-		lightTex.filterMode = BaseTexture.FILTERMODE_POINT;
-		lightTex.wrapModeU = BaseTexture.WARPMODE_CLAMP;
-		lightTex.wrapModeV = BaseTexture.WARPMODE_CLAMP;
-		lightTex.anisoLevel = 0;
-		this._lightTexture = lightTex;
-		this._lightPixles = new Float32Array(maxLightCount * 4 * 4);
+
+
 
 		if (Scene3D.octreeCulling) {
 			this._octree = new BoundsOctree(Scene3D.octreeInitialSize, Scene3D.octreeInitialCenter, Scene3D.octreeMinNodeSize, Scene3D.octreeLooseness);
@@ -683,7 +682,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	protected _prepareSceneToRender(): void {
-		const pixelWidth: number = this._lightTexture.width;
+		var ligTex: Texture2D = Scene3D._lightTexture;
+		var ligPix: Float32Array = Scene3D._lightPixles;
+		const pixelWidth: number = ligTex.width;
 		const floatWidth: number = pixelWidth * 4;
 		var maxCount: number = Laya3D._config.maxLightCount;
 		var curCount: number = 0;
@@ -698,12 +699,12 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			Vector3.scale(dirLight.color, dirLight._intensity, intCor);
 			dirLight.transform.worldMatrix.getForward(dir);
 			Vector3.normalize(dir, dir);//矩阵有缩放时需要归一化
-			this._lightPixles[off] = intCor.x;
-			this._lightPixles[off + 1] = intCor.y;
-			this._lightPixles[off + 2] = intCor.z;
-			this._lightPixles[off + 4] = dir.x;
-			this._lightPixles[off + 5] = dir.y;
-			this._lightPixles[off + 6] = dir.z;
+			ligPix[off] = intCor.x;
+			ligPix[off + 1] = intCor.y;
+			ligPix[off + 2] = intCor.z;
+			ligPix[off + 4] = dir.x;
+			ligPix[off + 5] = dir.y;
+			ligPix[off + 6] = dir.z;
 		}
 
 		var poiElements: PointLight[] = <PointLight[]>this._pointLights._elements;
@@ -715,13 +716,13 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			var intCor: Vector3 = dirLight._intensityColor;
 			var off: number = floatWidth * i;
 			Vector3.scale(dirLight.color, dirLight._intensity, intCor);
-			this._lightPixles[off] = intCor.x;
-			this._lightPixles[off + 1] = intCor.y;
-			this._lightPixles[off + 2] = intCor.z;
-			this._lightPixles[off + 3] = poiLight.range;
-			this._lightPixles[off + 4] = pos.x;
-			this._lightPixles[off + 5] = pos.y;
-			this._lightPixles[off + 6] = pos.z;
+			ligPix[off] = intCor.x;
+			ligPix[off + 1] = intCor.y;
+			ligPix[off + 2] = intCor.z;
+			ligPix[off + 3] = poiLight.range;
+			ligPix[off + 4] = pos.x;
+			ligPix[off + 5] = pos.y;
+			ligPix[off + 6] = pos.z;
 
 		}
 
@@ -737,21 +738,21 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			Vector3.scale(dirLight.color, dirLight._intensity, intCor);
 			spoLight.transform.worldMatrix.getForward(dir);
 			Vector3.normalize(dir, dir);
-			this._lightPixles[off] = intCor.x;
-			this._lightPixles[off + 1] = intCor.y;
-			this._lightPixles[off + 2] = intCor.z;
-			this._lightPixles[off + 3] = spoLight.range;
-			this._lightPixles[off + 4] = pos.x;
-			this._lightPixles[off + 5] = pos.y;
-			this._lightPixles[off + 6] = pos.z;
-			this._lightPixles[off + 7] = spoLight.spotAngle;
-			this._lightPixles[off + 8] = dir.x;
-			this._lightPixles[off + 9] = dir.y;
-			this._lightPixles[off + 10] = dir.z;
+			ligPix[off] = intCor.x;
+			ligPix[off + 1] = intCor.y;
+			ligPix[off + 2] = intCor.z;
+			ligPix[off + 3] = spoLight.range;
+			ligPix[off + 4] = pos.x;
+			ligPix[off + 5] = pos.y;
+			ligPix[off + 6] = pos.z;
+			ligPix[off + 7] = spoLight.spotAngle;
+			ligPix[off + 8] = dir.x;
+			ligPix[off + 9] = dir.y;
+			ligPix[off + 10] = dir.z;
 		}
-		this._lightTexture.setSubPixels(0, 0, pixelWidth, curCount, this._lightPixles, 0);
+		ligTex.setSubPixels(0, 0, pixelWidth, curCount, ligPix, 0);
 
-		this._shaderValues.setTexture(Scene3D.LIGHTBUFFER, this._lightTexture);
+		this._shaderValues.setTexture(Scene3D.LIGHTBUFFER, ligTex);
 		this._shaderValues.setInt(Scene3D.DIRECTIONLIGHTCOUNT, this._directionallights._length)
 	}
 
