@@ -77,9 +77,9 @@ export class ClusteredRender {
         if ((zStartIndex < 0 && zEndIndex < 0) || (zStartIndex >= this._zSlices && zEndIndex >= this._zSlices))
             return;
 
-        //should inverse Y
-        var yStartIndex: number = Math.floor((lightFrustumH * 0.5 - min.y) / yStride);
-        var yEndIndex: number = Math.floor((lightFrustumH * 0.5 - max.y) / yStride);
+        //should inverse Y to more easy  compute
+        var yStartIndex: number = Math.floor((-max.y + lightFrustumH * 0.5) / yStride);
+        var yEndIndex: number = Math.floor((-min.y + lightFrustumH * 0.5) / yStride);
         if ((yStartIndex < 0 && yEndIndex < 0) || (yStartIndex >= this._ySlices && yEndIndex >= this._ySlices))
             return;
 
@@ -90,10 +90,10 @@ export class ClusteredRender {
 
         zStartIndex = Math.max(0, Math.min(zStartIndex, this._zSlices - 1));
         zEndIndex = Math.max(0, Math.min(zEndIndex, this._zSlices - 1));
-        yStartIndex = Math.max(0, Math.min(zStartIndex, this._ySlices - 1));
-        yEndIndex = Math.max(0, Math.min(zEndIndex, this._ySlices - 1));
-        xStartIndex = Math.max(0, Math.min(zStartIndex, this._xSlices - 1));
-        xEndIndex = Math.max(0, Math.min(zEndIndex, this._xSlices - 1));
+        yStartIndex = Math.max(0, Math.min(yStartIndex, this._ySlices - 1));
+        yEndIndex = Math.max(0, Math.min(yEndIndex, this._ySlices - 1));
+        xStartIndex = Math.max(0, Math.min(xStartIndex, this._xSlices - 1));
+        xEndIndex = Math.max(0, Math.min(xEndIndex, this._xSlices - 1));
 
         var lightCountOffset: number;
         if (type == 0) //pointLight
