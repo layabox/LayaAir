@@ -745,7 +745,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			ligPix[off + 4] = pos.x;
 			ligPix[off + 5] = pos.y;
 			ligPix[off + 6] = pos.z;
-			ligPix[off + 7] = spoLight.spotAngle;
+			ligPix[off + 7] = spoLight.spotAngle * Math.PI / 180;
 			ligPix[off + 8] = dir.x;
 			ligPix[off + 9] = dir.y;
 			ligPix[off + 10] = dir.z;

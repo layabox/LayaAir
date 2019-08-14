@@ -173,7 +173,7 @@ void main_normal()
 		{
 			if(i >= areaLightCount.y)
 				break;
-			int lightIndex = GetLightIndex(u_ClusterBuffer,areaLightInfoUV,i+pointLightCount+2,lightCount.y);
+			int lightIndex = GetLightIndex(u_ClusterBuffer,areaLightInfoUV,areaLightCount.x+2,i);
       		SpotLight spotLight = GetSpotLight(u_LightBuffer,lightIndex);
 			LayaAirBlinnPhongSpotLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,spotLight,dif,spe);
 			diffuse+=dif;
