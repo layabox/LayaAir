@@ -57,6 +57,22 @@ export class Cluster {
         |component2 (lid6|lid7|lid8|lid9) | (lid6|lid7|lid8|lid9)
         V(Z)
         */
+
+        /*
+        Layout of clusterTexture
+        |------------------------------------------------------U(XY)
+        |               cluster0               cluster1       
+        |        (Offs|PCou|SCou|XXXX) | (Offs|PCou|SCou|XXXX) 
+        |               cluster2               cluster3      
+        |        (Offs|PCou|SCou|XXXX) | (Offs|PCou|SCou|XXXX) 
+        |-----------------------------------------------------------
+        |                                    _                              
+        |        (poi0|poi1|spo0|spo1) |(spo2|poi0|poi1|poi2)
+        |             _
+        |        (poi3|spo0|....|....) |(....|....|....|....) 
+        |
+        V(Z)
+        */
     }
 
     private _updateLight(camera: Camera, min: Vector3, max: Vector3, lightIndex: number, viewlightPosZ: number, type: number): void {
@@ -71,18 +87,18 @@ export class Cluster {
         //if return light wont fall into any cluster
         var zStartIndex: number = Math.floor(min.z / this._zStride);
         var zEndIndex: number = Math.floor(max.z / this._zStride);
-        if ((zStartIndex < 0 && zEndIndex < 0) || (zStartIndex >= zSlices && zEndIndex >= zSlices))
+        if ((zEndIndex < 0) || (zStartIndex >= zSlices))
             return;
 
         //should inverse Y to more easy compute
         var yStartIndex: number = Math.floor((-max.y + lightFrustumH * 0.5) / yStride);
         var yEndIndex: number = Math.floor((-min.y + lightFrustumH * 0.5) / yStride);
-        if ((yStartIndex < 0 && yEndIndex < 0) || (yStartIndex >= ySlices && yEndIndex >= ySlices))
+        if ((yEndIndex < 0) || (yStartIndex >= ySlices))
             return;
 
         var xStartIndex: number = Math.floor((min.x + lightFrustumW * 0.5) / xStride);
         var xEndIndex: number = Math.floor((max.x + lightFrustumW * 0.5) / xStride);
-        if ((xStartIndex < 0 && xEndIndex < 0) || (xStartIndex >= xSlices && xEndIndex >= xSlices))
+        if ((xEndIndex < 0) || (xStartIndex >= xSlices))
             return;
 
         zStartIndex = Math.max(0, Math.min(zStartIndex, zSlices - 1));
