@@ -22,6 +22,7 @@ struct SpotLight {
 const int c_MaxPixelCountPerLightIndices =int(ceil(float(MAX_LIGHT_COUNT_PER_CLUSTER)/4.0));
 const int c_ClusterBufferWidth = CLUSTER_X_COUNT*CLUSTER_Y_COUNT;
 const int c_ClusterBufferHeight = CLUSTER_Z_COUNT*(1+c_MaxPixelCountPerLightIndices);
+const int c_ClusterBufferFloatWidth = c_ClusterBufferWidth*4;
 
 ivec3 getClusterInfo(sampler2D clusterBuffer,mat4 viewMatrix,vec4 viewport,vec3 position,vec4 fragCoord,vec4 projectParams)
 {
@@ -40,13 +41,14 @@ ivec3 getClusterInfo(sampler2D clusterBuffer,mat4 viewMatrix,vec4 viewport,vec3 
 
 int GetLightIndex(sampler2D clusterBuffer,int offset,int index) 
 {
-	int subOffset=index/4;
-	offset+=subOffset;
-	int row=offset/c_ClusterBufferWidth;
-	vec2 uv=vec2((float(offset-row*c_ClusterBufferWidth)+0.5)/float(c_ClusterBufferWidth),
+	int totalOffset=offset+index;
+	int row=totalOffset/c_ClusterBufferFloatWidth;
+	int lastRowFloat=totalOffset-row*c_ClusterBufferFloatWidth;
+	int col=lastRowFloat/4;
+	vec2 uv=vec2((float(col)+0.5)/float(c_ClusterBufferWidth),
 				(float(row)+0.5)/float(c_ClusterBufferHeight));
 	vec4 texel = texture2D(clusterBuffer, uv);
-    int pixelComponent = index-subOffset*4;
+    int pixelComponent = lastRowFloat-col*4;
     if (pixelComponent == 0) 
       return int(texel.x);
     else if (pixelComponent == 1) 

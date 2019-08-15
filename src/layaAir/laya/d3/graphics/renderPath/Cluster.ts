@@ -242,7 +242,7 @@ export class Cluster {
                         var sCount: number = data.spotLightCount;
                         clusterPixels[clusterOff] = pCount;
                         clusterPixels[clusterOff + 1] = sCount;
-                        clusterPixels[clusterOff + 2] = Math.floor(lightOff / 4);
+                        clusterPixels[clusterOff + 2] = lightOff;
                         for (var i: number = 0; i < pCount; i++)
                             clusterPixels[lightOff++] = indices[i];
                         for (var i: number = 0; i < sCount; i++)
