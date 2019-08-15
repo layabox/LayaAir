@@ -246,7 +246,7 @@ export class Cluster {
                         for (var i: number = 0; i < pCount; i++)
                             clusterPixels[lightOff++] = indices[i];
                         for (var i: number = 0; i < sCount; i++)
-                            clusterPixels[lightOff++] = indices[i];
+                            clusterPixels[lightOff++] = indices[pCount + i];
                     }
                 }
             }
