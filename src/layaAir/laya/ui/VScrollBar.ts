@@ -80,5 +80,5 @@ export class VScrollBar extends ScrollBar {
 }
 
 ILaya.regClass(VScrollBar);
-	ClassUtils.regClass("laya.ui.VScrollBar", VScrollBar);
-	ClassUtils.regClass("Laya.VScrollBar", VScrollBar);
+ClassUtils.regClass("laya.ui.VScrollBar", VScrollBar);
+ClassUtils.regClass("Laya.VScrollBar", VScrollBar);

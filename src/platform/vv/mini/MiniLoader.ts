@@ -206,7 +206,7 @@ import { Event } from "laya/events/Event";
 							MiniFileMgr.readFile(url, encoding, new Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType,  thisLoader]), url);
 						}else
 						{
-							MiniFileMgr.downFiles(tempurl, encoding, new Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType,  thisLoader]), tempurl,true);
+							MiniFileMgr.downFiles(encodeURI(tempurl), encoding, new Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType,  thisLoader]), tempurl,true);
 						}
 					}
 				}
@@ -233,9 +233,9 @@ import { Event } from "laya/events/Event";
 					tempData = data.data;
 				}
 				//主域向子域派发数据
-				if(!VVMiniAdapter.isZiYu &&VVMiniAdapter.isPosMsgYu && type  != Loader.BUFFER)
+				if(!VVMiniAdapter.isZiYu &&VVMiniAdapter.isPosMsgYu && type  != Loader.BUFFER && VVMiniAdapter.window.qg.postMessage)
 				{
-					VVMiniAdapter.window.wx.postMessage({url:url,data:tempData,isLoad:"filedata"});
+					VVMiniAdapter.window.qg.postMessage({url:url,data:tempData,isLoad:"filedata"});
 				}
 				thisLoader.onLoaded(tempData);
 			} else if (errorCode == 1) {
@@ -262,7 +262,7 @@ import { Event } from "laya/events/Event";
 			if (!MiniFileMgr.getFileInfo(url)) 
 			{
 				var tempUrl:string = URL.formatURL(url);
-				if (url.indexOf('http://usr/') == -1&&(tempUrl.indexOf("http://") != -1 || tempUrl.indexOf("https://") != -1))
+				if (url.indexOf(VVMiniAdapter.window.qg.env.USER_DATA_PATH) == -1&&(tempUrl.indexOf("http://") != -1 || tempUrl.indexOf("https://") != -1))
 				{
 					//小游戏在子域里不能远端加载图片资源
 					if(VVMiniAdapter.isZiYu)
@@ -270,7 +270,7 @@ import { Event } from "laya/events/Event";
 						thisLoader._loadImage(url);//直接读取本地文件，非加载缓存的图片
 					}else
 					{
-						MiniFileMgr.downOtherFiles(tempUrl, new Handler(MiniLoader, MiniLoader.onDownImgCallBack, [url, thisLoader]), tempUrl);
+						MiniFileMgr.downOtherFiles(encodeURI(tempUrl), new Handler(MiniLoader, MiniLoader.onDownImgCallBack, [url, thisLoader]), tempUrl);
 					}
 				}
 				else

@@ -22,6 +22,7 @@ import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { SubmitCMD } from "../webgl/submit/SubmitCMD";
 import { WebGLContext } from "../webgl/WebGLContext";
 import { LayaGLQuickRunner } from "./LayaGLQuickRunner";
+import { ILaya } from "../../ILaya";
 
 /**
  * @private
@@ -346,7 +347,7 @@ export class RenderSprite {
 			cacheNeedRebuild = canv.isCacheValid && !canv.isCacheValid();
 		}
 
-		if (sprite._needRepaint() || (!_cacheStyle.canvas) || textNeedRestore || cacheNeedRebuild || (window as any).Laya.stage.isGlobalRepaint()) {
+		if (sprite._needRepaint() || (!_cacheStyle.canvas) || textNeedRestore || cacheNeedRebuild || ILaya.stage.isGlobalRepaint()) {
 			if (_cacheStyle.cacheAs === 'normal') {
 				if (context._targets) {// 如果有target说明父节点已经是一个cacheas bitmap了，就不再走cacheas normal的流程了
 					_next._fun.call(_next, sprite, context, x, y);

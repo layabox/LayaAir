@@ -91,6 +91,7 @@ import { IndexViewUI } from "../ui/IndexViewUI";
 import { PostProcessBloom } from "../3d/LayaAir3D_Advance/PostProcessBloom";
 import { AStarFindPath } from "../3d/LayaAir3D_Advance/AStarFindPath";
 
+
 export class IndexView3D extends IndexViewUI {
 
 	private _bigIndex: number = 0;

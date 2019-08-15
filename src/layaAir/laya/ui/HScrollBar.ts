@@ -74,17 +74,17 @@ import { ClassUtils } from "../utils/ClassUtils";
 	 *     }
 	 * }
 	 */
-	export class HScrollBar extends ScrollBar {
-		
-		/**
-		 * @inheritDoc 
-		 */
-		protected initialize():void {
-			super.initialize();
-			this.slider.isVertical = false;
-		}
-	}
+export class HScrollBar extends ScrollBar {
+
+    /**
+     * @inheritDoc 
+     */
+    protected initialize(): void {
+        super.initialize();
+        this.slider.isVertical = false;
+    }
+}
 
 ILaya.regClass(HScrollBar);
-	ClassUtils.regClass("laya.ui.HScrollBar", HScrollBar);
-	ClassUtils.regClass("Laya.HScrollBar", HScrollBar);
+ClassUtils.regClass("laya.ui.HScrollBar", HScrollBar);
+ClassUtils.regClass("Laya.HScrollBar", HScrollBar);

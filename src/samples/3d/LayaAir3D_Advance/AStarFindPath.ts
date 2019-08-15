@@ -180,8 +180,11 @@ export class AStarFindPath {
 			}
 
 			//调整位置
-			Tween.to(this._finalPosition, { x: this._position.x, y: this._position.y, z: this._position.z }, 40);
-			this.moveSprite3D.transform.position = this._finalPosition;
+			if(this.index === this.resPath.length -1){
+				Tween.to(this._finalPosition, { x: this._position.x, y: this._position.y, z: this._position.z }, 40);
+				this.moveSprite3D.transform.position = this._finalPosition;
+			}
+			
 		}
 	}
 

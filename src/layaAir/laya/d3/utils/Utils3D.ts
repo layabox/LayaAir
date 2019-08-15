@@ -17,8 +17,6 @@ import { TextureGenerator } from "../resource/TextureGenerator";
 export class Utils3D {
 	private static _tempVector3_0: Vector3 = new Vector3();
 	private static _tempVector3_1: Vector3 = new Vector3();
-	private static _tempVector3_2: Vector3 = new Vector3();
-	private static _tempColor0: Color = new Color();
 
 	private static _tempArray16_0: Float32Array = new Float32Array(16);
 	private static _tempArray16_1: Float32Array = new Float32Array(16);
