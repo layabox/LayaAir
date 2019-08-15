@@ -153,14 +153,13 @@ void main_normal()
 		}
 	#endif
  
-  	vec2 areaLightInfoUV =getClusterUV(u_View,u_Viewport, v_Position,gl_FragCoord,u_ProjectionParams);
-	ivec2 areaLightCount=getLightCount(u_ClusterBuffer,areaLightInfoUV);//X:Point Count Y:Spot Count
+  	ivec3 areaLightCount =getClusterInfo(u_ClusterBuffer,u_View,u_Viewport, v_Position,gl_FragCoord,u_ProjectionParams);
 	#ifdef POINTLIGHT
 		for (int i = 0; i < MAX_LIGHT_COUNT; i++) 
 		{
 			if(i >= areaLightCount.x)
 				break;
-			int lightIndex = GetLightIndex(u_ClusterBuffer,areaLightInfoUV,2,i);
+			int lightIndex = GetLightIndex(u_ClusterBuffer,areaLightCount.z,i);
       		PointLight pointLight = GetPointLight(u_LightBuffer,lightIndex);
 			LayaAirBlinnPhongPointLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,pointLight,dif,spe);
 			diffuse+=dif;
@@ -173,7 +172,7 @@ void main_normal()
 		{
 			if(i >= areaLightCount.y)
 				break;
-			int lightIndex = GetLightIndex(u_ClusterBuffer,areaLightInfoUV,areaLightCount.x+2,i);
+			int lightIndex = GetLightIndex(u_ClusterBuffer,areaLightCount.z,areaLightCount.x+i);
       		SpotLight spotLight = GetSpotLight(u_LightBuffer,lightIndex);
 			LayaAirBlinnPhongSpotLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,spotLight,dif,spe);
 			diffuse+=dif;

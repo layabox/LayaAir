@@ -19,11 +19,11 @@ struct SpotLight {
 
 
 
-const int c_PixelCountPerClusterV =int(ceil(float(MAX_LIGHT_COUNT_PER_CLUSTER+2)/4.0));
-const int c_TotalXYClusters = CLUSTER_X_COUNT*CLUSTER_Y_COUNT;
-const int c_TotalClustersHeight = CLUSTER_Z_COUNT*c_PixelCountPerClusterV;
+const int c_MaxPixelCountPerLightIndices =int(ceil(float(MAX_LIGHT_COUNT_PER_CLUSTER)/4.0));
+const int c_ClusterBufferWidth = CLUSTER_X_COUNT*CLUSTER_Y_COUNT;
+const int c_ClusterBufferHeight = CLUSTER_Z_COUNT*(1+c_MaxPixelCountPerLightIndices);
 
-vec2 getClusterUV(mat4 viewMatrix,vec4 viewport,vec3 position,vec4 fragCoord,vec4 projectParams)
+ivec3 getClusterInfo(sampler2D clusterBuffer,mat4 viewMatrix,vec4 viewport,vec3 position,vec4 fragCoord,vec4 projectParams)
 {
 	vec3 viewPos = vec3(viewMatrix*vec4(position, 1.0)); //position in viewspace
 
@@ -31,22 +31,22 @@ vec2 getClusterUV(mat4 viewMatrix,vec4 viewport,vec3 position,vec4 fragCoord,vec
     int clusterYIndex = int(floor((viewport.w-fragCoord.y)/ (float(viewport.w)/float(CLUSTER_Y_COUNT))));
     int clusterZIndex = int(floor((-viewPos.z-projectParams.x) / ((projectParams.y-projectParams.x)/float(CLUSTER_Z_COUNT))));//projectParams x:cameraNear y:cameraFar
 
-	return vec2((float(clusterXIndex + clusterYIndex * CLUSTER_X_COUNT)+0.5)/float(c_TotalXYClusters),
-				(float(clusterZIndex*c_PixelCountPerClusterV)+0.5)/float(CLUSTER_Z_COUNT*c_PixelCountPerClusterV));
+	vec2 uv= vec2((float(clusterXIndex + clusterYIndex * CLUSTER_X_COUNT)+0.5)/float(c_ClusterBufferWidth),
+				(float(clusterZIndex)+0.5)/float(c_ClusterBufferHeight));
+	vec4 clusterPixel=texture2D(clusterBuffer, uv);
+	return ivec3(int(clusterPixel.r),int(clusterPixel.g),int(clusterPixel.b));//X:Point Count Y:Spot Count Z:Light Offset
 }
 
-ivec2 getLightCount(sampler2D clusterBuffer,vec2 clusterUV) {
-	vec4 clusterPixel=texture2D(clusterBuffer, clusterUV);
-	return ivec2(int(clusterPixel.r),int(clusterPixel.g));
-}
 
-int GetLightIndex(sampler2D clusterBuffer,vec2 clusterUV,int offset,int index) 
+int GetLightIndex(sampler2D clusterBuffer,int offset,int index) 
 {
-	int totalIndex=index+offset;
-	int pixel=totalIndex/4;
-	clusterUV.y+=float(pixel)/float(c_TotalClustersHeight);
-	vec4 texel = texture2D(clusterBuffer, clusterUV);
-    int pixelComponent = totalIndex - pixel * 4;
+	int subOffset=index/4;
+	offset+=subOffset;
+	int row=offset/c_ClusterBufferWidth;
+	vec2 uv=vec2((float(offset-row*c_ClusterBufferWidth)+0.5)/float(c_ClusterBufferWidth),
+				(float(row)+0.5)/float(c_ClusterBufferHeight));
+	vec4 texel = texture2D(clusterBuffer, uv);
+    int pixelComponent = index-subOffset*4;
     if (pixelComponent == 0) 
       return int(texel.x);
     else if (pixelComponent == 1) 

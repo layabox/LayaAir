@@ -1,3 +1,4 @@
+import { Laya3D } from "../../../../Laya3D";
 import { Texture2D } from "../../../resource/Texture2D";
 import { Camera } from "../../core/Camera";
 import { LightQueue } from "../../core/light/LightQueue";
@@ -11,6 +12,16 @@ import { Utils3D } from "../../utils/Utils3D";
 /**
  * @internal
  */
+class clusterData {
+    updateMark: number = -1;
+    pointLightCount: number = 0;
+    spotLightCount: number = 0;
+    indices: number[] = new Array(Laya3D._config.maxLightCountPerCluster);
+}
+
+/**
+ * @internal
+ */
 export class Cluster {
     private static _tempVector30: Vector3 = new Vector3();
     private static _tempVector31: Vector3 = new Vector3();
@@ -18,14 +29,16 @@ export class Cluster {
     private static _tempVector33: Vector3 = new Vector3();
     private static _tempVector34: Vector3 = new Vector3();
 
+
     private _xSlices: number;
     private _ySlices: number;
     private _zSlices: number;
     private _maxLightsPerCluster: number;
+    private _clusterDatas: clusterData[][][];
     private _clusterPixels: Float32Array;
-    private _clusterElementHeight: number;
     private _tanVerFovBy2: number;
     private _zStride: number;
+    private _updateMark: number = 0;
 
     public _clusterTexture: Texture2D;
 
@@ -36,27 +49,21 @@ export class Cluster {
         this._maxLightsPerCluster = maxLightsPerCluster;
 
         var clusterTexWidth: number = xSlices * ySlices;
-        this._clusterElementHeight = Math.ceil((maxLightsPerCluster + 2) / 4);
-        var clisterTexHeight: number = this._clusterElementHeight * zSlices;
-
-        var cluTex: Texture2D = Utils3D._createFloatTextureBuffer(clusterTexWidth, clisterTexHeight);
-        this._clusterTexture = cluTex;
+        var clisterTexHeight: number = zSlices * (1 + Math.ceil(maxLightsPerCluster / 4));
+        this._clusterTexture = Utils3D._createFloatTextureBuffer(clusterTexWidth, clisterTexHeight);
         this._clusterPixels = new Float32Array(clusterTexWidth * clisterTexHeight * 4);
 
-        //TODO:优化
-        /*
-        Layout of clusterTexture
-        |------------------------------------------------------U(XY)
-        |                  cluster0               cluster1       
-        |component0 (PCou|SCou|lid0|lid1) | (PCou|SCou|lid0|lid1) 
-        |component1 (lid2|lid3|lid4|lid5) | (lid2|lid3|lid4|lid5)
-        |component2 (lid6|lid7|lid8|lid9) | (lid6|lid7|lid8|lid9)
-        |                  cluster2               cluster3      
-        |component0 (PCou|SCou|lid0|lid1) | (PCou|SCou|lid0|lid1) 
-        |component1 (lid2|lid3|lid4|lid5) | (lid2|lid3|lid4|lid5) 
-        |component2 (lid6|lid7|lid8|lid9) | (lid6|lid7|lid8|lid9)
-        V(Z)
-        */
+        //Init for every cluster
+        var clusterDatas: clusterData[][][] = new Array<Array<Array<clusterData>>>(this._zSlices);
+        for (var z = 0; z < this._zSlices; z++) {
+            clusterDatas[z] = new Array<Array<clusterData>>(this._ySlices);
+            for (var y = 0; y < this._ySlices; y++) {
+                clusterDatas[z][y] = new Array<clusterData>(this._xSlices);
+                for (var x = 0; x < this._xSlices; x++)
+                    clusterDatas[z][y][x] = new clusterData();
+            }
+        }
+        this._clusterDatas = clusterDatas;
 
         /*
         Layout of clusterTexture
@@ -73,6 +80,47 @@ export class Cluster {
         |
         V(Z)
         */
+    }
+
+
+    private _updatePointLight(xS: number, xE: number, yS: number, yE: number, zS: number, zE: number, lightIndex: number): void {
+        for (var z: number = zS; z <= zE; z++) {
+            for (var y: number = yS; y <= yE; y++) {
+                for (var x: number = xS; x <= xE; x++) {
+                    var data: clusterData = this._clusterDatas[z][y][x];
+                    if (data.updateMark != this._updateMark) {
+                        data.pointLightCount = 0;
+                        data.spotLightCount = 0;
+                        data.updateMark = this._updateMark;
+                    }
+                    var lightCount: number = data.pointLightCount;
+                    if (lightCount < this._maxLightsPerCluster) {
+                        data.indices[lightCount] = lightIndex;
+                        data.pointLightCount++;
+                    }
+                }
+            }
+        }
+    }
+
+    private _updateSpotLight(xS: number, xE: number, yS: number, yE: number, zS: number, zE: number, lightIndex: number): void {
+        for (var z: number = zS; z <= zE; z++) {
+            for (var y: number = yS; y <= yE; y++) {
+                for (var x: number = xS; x <= xE; x++) {
+                    var data: clusterData = this._clusterDatas[z][y][x];
+                    if (data.updateMark != this._updateMark) {
+                        data.pointLightCount = 0;
+                        data.spotLightCount = 0;
+                        data.updateMark = this._updateMark;
+                    }
+                    var lightCount: number = data.pointLightCount + data.spotLightCount;
+                    if (lightCount < this._maxLightsPerCluster) {
+                        data.indices[lightCount] = lightIndex;
+                        data.spotLightCount++;
+                    }
+                }
+            }
+        }
     }
 
     private _updateLight(camera: Camera, min: Vector3, max: Vector3, lightIndex: number, viewlightPosZ: number, type: number): void {
@@ -108,56 +156,17 @@ export class Cluster {
         xStartIndex = Math.max(0, xStartIndex);
         xEndIndex = Math.min(xEndIndex, xSlices - 1);
 
-        var lightCountOffset: number;
         if (type == 0) //pointLight
-            lightCountOffset = 0;
+            this._updatePointLight(xStartIndex, xEndIndex, yStartIndex, yEndIndex, zStartIndex, zEndIndex, lightIndex);
         else //spotLight
-            lightCountOffset = 1;
-
-        var clusterElementHeight: number = this._clusterElementHeight;
-        var clusterTexWidth: number = this._clusterTexture.width;
-        var clusterPixels: Float32Array = this._clusterPixels;
-        for (var z: number = zStartIndex; z <= zEndIndex; z++) {
-            for (var y: number = yStartIndex; y <= yEndIndex; y++) {
-                for (var x: number = xStartIndex; x <= xEndIndex; x++) {
-                    var clusterOff: number = (x + y * xSlices + z * xSlices * ySlices * clusterElementHeight) * 4;
-                    // Update the light count for every cluster
-                    var countIndex: number = clusterOff + lightCountOffset;
-                    var lightCount: number = clusterPixels[countIndex];
-                    if (lightCount < this._maxLightsPerCluster) {
-                        clusterPixels[countIndex] = ++lightCount;
-                        var indexInElemnt: number;
-                        if (type == 0)
-                            indexInElemnt = lightCount + 1;
-                        else
-                            indexInElemnt = clusterPixels[clusterOff] + lightCount + 1;
-                        var texel: number = Math.floor(indexInElemnt / 4);
-                        var texelIndex: number = clusterOff + 4 * texel * clusterTexWidth;
-                        var texelSubIndex: number = indexInElemnt - texel * 4; //texel%4;
-
-                        // Update the light index for the particular cluster in the light buffer
-                        clusterPixels[texelIndex + texelSubIndex] = lightIndex;
-                    }
-                }
-            }
-        }
+            this._updateSpotLight(xStartIndex, xEndIndex, yStartIndex, yEndIndex, zStartIndex, zEndIndex, lightIndex);
     }
 
 
     update(camera: Camera, viewMatrix: Matrix4x4, scene: Scene3D): void {
+        this._updateMark++;
         this._tanVerFovBy2 = Math.tan(camera.fieldOfView * (Math.PI / 180.0) * 0.5);
         this._zStride = (camera.farPlane - camera.nearPlane) / this._zSlices;
-
-        //Reset the light count to 0 for every cluster
-        for (var z = 0; z < this._zSlices; z++) {
-            for (var y = 0; y < this._ySlices; y++) {
-                for (var x = 0; x < this._xSlices; x++) {
-                    var off: number = 4 * (x + y * this._xSlices + z * this._xSlices * this._ySlices * this._clusterElementHeight);
-                    this._clusterPixels[off] = 0;
-                    this._clusterPixels[off + 1] = 0;
-                }
-            }
-        }
 
         var curCount: number = scene._directionallights._length;
         var viewMat: Matrix4x4 = camera.viewMatrix;
@@ -213,10 +222,36 @@ export class Cluster {
             //camera looks down negative z, make z axis positive to make calculations easier
             min.setValue(Math.min(paX, pbX - eX * rb), Math.min(paY, pbY - eY * rb), -(Math.max(paZ, pbZ + eZ * rb) + camNear));
             max.setValue(Math.max(paX, pbX + eX * rb), Math.max(paY, pbY + eY * rb), -(Math.min(paZ, pbZ - eZ * rb) + camNear));
-
             this._updateLight(camera, min, max, curCount, viewLightPos.z, 1);
         }
-        this._clusterTexture.setPixels(this._clusterPixels);
-    }
 
+        var lightOff: number = this._xSlices * this._ySlices * this._zSlices * 4;
+        var clusterPixels: Float32Array = this._clusterPixels;
+        for (var z = 0; z < this._zSlices; z++) {
+            for (var y = 0; y < this._ySlices; y++) {
+                for (var x = 0; x < this._xSlices; x++) {
+                    var data: clusterData = this._clusterDatas[z][y][x];
+                    var clusterOff: number = (x + y * this._xSlices + z * this._xSlices * this._ySlices) * 4;
+                    if (data.updateMark !== this._updateMark) {
+                        clusterPixels[clusterOff] = 0;
+                        clusterPixels[clusterOff + 1] = 0;
+                    }
+                    else {
+                        var indices: number[] = data.indices;
+                        var pCount: number = data.pointLightCount;
+                        var sCount: number = data.spotLightCount;
+                        clusterPixels[clusterOff] = pCount;
+                        clusterPixels[clusterOff + 1] = sCount;
+                        clusterPixels[clusterOff + 2] = Math.floor(lightOff / 4);
+                        for (var i: number = 0; i < pCount; i++)
+                            clusterPixels[lightOff++] = indices[i];
+                        for (var i: number = 0; i < sCount; i++)
+                            clusterPixels[lightOff++] = indices[i];
+                    }
+                }
+            }
+        }
+        var width: number = this._clusterTexture.width;
+        this._clusterTexture.setSubPixels(0, 0, width, Math.ceil(lightOff / (4 * width)), clusterPixels);
+    }
 }
