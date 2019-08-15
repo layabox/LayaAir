@@ -167,14 +167,15 @@ export class Cluster {
         var min: Vector3 = Cluster._tempVector31;
         var max: Vector3 = Cluster._tempVector32;
         var poiElements: PointLight[] = <PointLight[]>pointLights._elements;
+        var camNear: number = camera.nearPlane;
         for (var i = 0, n = pointLights._length; i < n; i++ , curCount++) {
             var poiLight: PointLight = poiElements[i];
             var radius = poiLight.range;
             Vector3.transformV3ToV3(poiLight._transform.position, viewMat, viewLightPos);//World to View
 
             //camera looks down negative z, make z axis positive to make calculations easier
-            min.setValue(viewLightPos.x - radius, viewLightPos.y - radius, -(viewLightPos.z + radius));
-            max.setValue(viewLightPos.x + radius, viewLightPos.y + radius, -(viewLightPos.z - radius));
+            min.setValue(viewLightPos.x - radius, viewLightPos.y - radius, -(viewLightPos.z + radius + camNear));
+            max.setValue(viewLightPos.x + radius, viewLightPos.y + radius, -(viewLightPos.z - radius + camNear));
             this._updateLight(camera, min, max, curCount, viewLightPos.z, 0);
         }
 
@@ -210,8 +211,8 @@ export class Cluster {
             var eZ: number = Math.sqrt(1.0 - aZ * aZ / dotA);
 
             //camera looks down negative z, make z axis positive to make calculations easier
-            min.setValue(Math.min(paX, pbX - eX * rb), Math.min(paY, pbY - eY * rb), -Math.max(paZ, pbZ + eZ * rb));
-            max.setValue(Math.max(paX, pbX + eX * rb), Math.max(paY, pbY + eY * rb), -Math.min(paZ, pbZ - eZ * rb));
+            min.setValue(Math.min(paX, pbX - eX * rb), Math.min(paY, pbY - eY * rb), -(Math.max(paZ, pbZ + eZ * rb) + camNear));
+            max.setValue(Math.max(paX, pbX + eX * rb), Math.max(paY, pbY + eY * rb), -(Math.min(paZ, pbZ - eZ * rb) + camNear));
 
             this._updateLight(camera, min, max, curCount, viewLightPos.z, 1);
         }
