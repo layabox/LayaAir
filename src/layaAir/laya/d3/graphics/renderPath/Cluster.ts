@@ -101,12 +101,12 @@ export class Cluster {
         if ((xEndIndex < 0) || (xStartIndex >= xSlices))
             return;
 
-        zStartIndex = Math.max(0, Math.min(zStartIndex, zSlices - 1));
-        zEndIndex = Math.max(0, Math.min(zEndIndex, zSlices - 1));
-        yStartIndex = Math.max(0, Math.min(yStartIndex, ySlices - 1));
-        yEndIndex = Math.max(0, Math.min(yEndIndex, ySlices - 1));
-        xStartIndex = Math.max(0, Math.min(xStartIndex, xSlices - 1));
-        xEndIndex = Math.max(0, Math.min(xEndIndex, xSlices - 1));
+        zStartIndex = Math.max(0, zStartIndex);
+        zEndIndex = Math.min(zEndIndex, zSlices - 1);
+        yStartIndex = Math.max(0, yStartIndex);
+        yEndIndex = Math.min(yEndIndex, ySlices - 1);
+        xStartIndex = Math.max(0, xStartIndex);
+        xEndIndex = Math.min(xEndIndex, xSlices - 1);
 
         var lightCountOffset: number;
         if (type == 0) //pointLight
