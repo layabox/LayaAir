@@ -350,7 +350,7 @@ export class Texture extends EventDispatcher {
         var wstride: number = width * 4;
         var pix: Uint8Array = null;
         try {
-            pix = (tex2d as Texture2D).getPixels();
+            pix = <Uint8Array>(tex2d as Texture2D).getPixels();
         } catch (e) {
         }
         if (pix) {
