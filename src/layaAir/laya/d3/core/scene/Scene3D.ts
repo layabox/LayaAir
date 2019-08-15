@@ -22,7 +22,7 @@ import { Animator } from "../../component/Animator";
 import { Script3D } from "../../component/Script3D";
 import { SimpleSingletonList } from "../../component/SimpleSingletonList";
 import { FrustumCulling } from "../../graphics/FrustumCulling";
-import { ClusteredRender } from "../../graphics/renderPath/ClusteredRender";
+import { Cluster } from "../../graphics/renderPath/Cluster";
 import { Input3D } from "../../Input3D";
 import { Vector3 } from "../../math/Vector3";
 import { Vector4 } from "../../math/Vector4";
@@ -66,7 +66,7 @@ import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
  */
 export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal */
-	public static _cluster: ClusteredRender;
+	public static _cluster: Cluster;
 	/** @internal */
 	public static _lightTexture: Texture2D;
 	/** @internal */
@@ -122,7 +122,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		const width: number = 4;
 		var con: Config3D = Laya3D._config;
 		var maxLightCount: number = con.maxLightCount;
-		Scene3D._cluster = new ClusteredRender(con.clusterXCount, con.clusterYCount, con.clusterZCount, con.maxLightCountPerCluster);
+		Scene3D._cluster = new Cluster(con.clusterXCount, con.clusterYCount, con.clusterZCount, con.maxLightCountPerCluster);
 		Scene3D._lightTexture = Utils3D._createFloatTextureBuffer(width, maxLightCount);
 		Scene3D._lightPixles = new Float32Array(maxLightCount * width * 4);
 
