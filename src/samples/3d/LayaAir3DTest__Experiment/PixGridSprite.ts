@@ -112,7 +112,7 @@ this._long = long;
 		 * @param	divide 面板切分的次数
 		 */
 		private _divideTexture(color:Color, divide:number){
-			var pixels:Uint8Array = this._texture2D.getPixels();
+			var pixels:Uint8Array = <Uint8Array>this._texture2D.getPixels();
 			var row:number = divide + 1;//行
 			var column:number = divide + 1;//列
 			//一个格子的宽度
@@ -175,7 +175,7 @@ this._long = long;
 		 * @param	divide 面板切分的次数
 		 */
 		 setDivide(divide:number){
-			var pixs:Uint8Array = this._texture2D.getPixels();
+			var pixs:Uint8Array = <Uint8Array>this._texture2D.getPixels();
 			var colorR:number = this._color.r * 255;
 			var colorG:number = this._color.g * 255;
 			var colorB:number = this._color.b * 255;
