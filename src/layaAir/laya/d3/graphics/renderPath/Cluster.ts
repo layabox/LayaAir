@@ -226,7 +226,8 @@ export class Cluster {
             this._updateLight(camera, min, max, curCount, viewLightPos.z, 1);
         }
 
-        var lightOff: number = xSlices * ySlices * zSlices * 4;
+        var fixOffset: number = xSlices * ySlices * zSlices * 4;//solve precision problme, if data is big some GPU int(float) have problem
+        var lightOff: number = fixOffset;
         var clusterPixels: Float32Array = this._clusterPixels;
         var clusterDatas: clusterData[][][] = this._clusterDatas;
         for (var z = 0; z < zSlices; z++) {
@@ -244,7 +245,7 @@ export class Cluster {
                         var sCount: number = data.spotLightCount;
                         clusterPixels[clusterOff] = pCount;
                         clusterPixels[clusterOff + 1] = sCount;
-                        clusterPixels[clusterOff + 2] = lightOff;
+                        clusterPixels[clusterOff + 2] = lightOff - fixOffset;
                         for (var i: number = 0; i < pCount; i++)
                             clusterPixels[lightOff++] = indices[i];
                         for (var i: number = 0; i < sCount; i++)

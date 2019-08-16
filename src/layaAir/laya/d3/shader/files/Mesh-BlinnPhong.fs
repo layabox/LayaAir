@@ -1,7 +1,9 @@
 #ifdef HIGHPRECISION
 	precision highp float;
+	precision highp int;
 #else
 	precision mediump float;
+	precision mediump int;
 #endif
 
 #include "Lighting.glsl";
