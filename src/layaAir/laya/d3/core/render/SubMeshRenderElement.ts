@@ -287,7 +287,7 @@ export class SubMeshRenderElement extends RenderElement {
 						staBatchList.length = 0;
 						staBatchList.add((<SubMeshRenderElement>staLastElement));
 						staBatchList.add(this);
-						elements[elements.length - 1] = staBatchElement;
+						elements[queueElements.length - 1] = staBatchElement;
 					}
 					queue.lastTransparentBatched = true;
 				}
@@ -327,7 +327,7 @@ export class SubMeshRenderElement extends RenderElement {
 						insBatchList.length = 0;
 						insBatchList.add((<SubMeshRenderElement>insLastElement));
 						insBatchList.add(this);
-						elements[elements.length - 1] = insBatchElement;
+						elements[queueElements.length - 1] = insBatchElement;
 						queue.lastTransparentBatched = true;
 					}
 				}
@@ -361,7 +361,7 @@ export class SubMeshRenderElement extends RenderElement {
 						dynBatchList.length = 0;
 						dynBatchList.add((<SubMeshRenderElement>dynLastElement));
 						dynBatchList.add(this);
-						elements[elements.length - 1] = dynBatchElement;
+						elements[queueElements.length - 1] = dynBatchElement;
 					}
 					queue.lastTransparentBatched = true;
 				}
