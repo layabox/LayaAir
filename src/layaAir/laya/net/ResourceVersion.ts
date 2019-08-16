@@ -27,13 +27,12 @@ export class ResourceVersion {
     static enable(manifestFile: string, callback: Handler, type: number = 2): void {
         ResourceVersion.type = type;
         ILaya.loader.load(manifestFile, Handler.create(null, ResourceVersion.onManifestLoaded, [callback]), null, Loader.JSON);
-        URL.customFormat = ResourceVersion.addVersionPrefix;
     }
 
     private static onManifestLoaded(callback: Handler, data: any): void {
         ResourceVersion.manifest = data;
+        URL.customFormat = ResourceVersion.addVersionPrefix;
         callback.run();
-
         if (!data) {
             console.warn("资源版本清单文件不存在，不使用资源版本管理。忽略ERR_FILE_NOT_FOUND错误。");
         }
