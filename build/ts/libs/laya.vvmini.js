@@ -1211,7 +1211,7 @@ window.vvMiniGame = function (exports, Laya) {
 	    var rst;
 	    value = value.replace(/>\s+</g, '><');
 	    try {
-	        rst = (new window.Parser.DOMParser()).parseFromString(value, 'text/xml');
+	        rst = (new window.DOMParser()).parseFromString(value, 'text/xml');
 	    }
 	    catch (error) {
 	        throw "需要引入xml解析库文件";

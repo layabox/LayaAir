@@ -22086,7 +22086,7 @@ window.Laya= (function (exports) {
                 Laya.enableNative();
             }
             CacheManger.beginCheck();
-            exports.stage = Laya._currentStage = Laya.stage = new Stage();
+            exports.stage = Laya.stage = new Stage();
             ILaya.stage = Laya.stage;
             Utils.gStage = Laya.stage;
             URL.rootPath = URL._basePath = Laya._getUrlPath();
@@ -22229,6 +22229,29 @@ window.Laya= (function (exports) {
     Laya.isWXOpenDataContext = false;
     Laya.isWXPosMsg = false;
     Laya.__classmap = null;
+    Laya.Config = Config;
+    Laya.TextRender = TextRender;
+    Laya.EventDispatcher = EventDispatcher;
+    Laya.SoundChannel = SoundChannel;
+    Laya.Stage = Stage;
+    Laya.Render = Render;
+    Laya.Browser = Browser;
+    Laya.Sprite = Sprite;
+    Laya.Node = Node;
+    Laya.Context = Context;
+    Laya.WebGL = WebGL;
+    Laya.Handler = Handler;
+    Laya.RunDriver = RunDriver;
+    Laya.Utils = Utils;
+    Laya.Input = Input;
+    Laya.Loader = Loader;
+    Laya.LocalStorage = LocalStorage;
+    Laya.SoundManager = SoundManager;
+    Laya.URL = URL;
+    Laya.Event = Event;
+    Laya.Matrix = Matrix;
+    Laya.HTMLImage = HTMLImage;
+    Laya.Laya = Laya;
     Laya._evcode = "eva" + "l";
     Laya.isNativeRender_enable = false;
     Laya.__classmap = ILaya.__classMap;
@@ -22267,35 +22290,13 @@ window.Laya= (function (exports) {
             libs[j].f(window, window.document, Laya);
         }
     }
-    window.Laya = Laya;
-    function regClassToEngine(cls) {
-        if (cls.name) {
-            Laya[cls.name] = cls;
-        }
+    let win = window;
+    if (win.Laya) {
+        win.Laya.Laya = Laya;
+        Object.assign(win.Laya, Laya);
     }
-    regClassToEngine(Config);
-    regClassToEngine(Laya);
-    regClassToEngine(TextRender);
-    regClassToEngine(Stage);
-    regClassToEngine(Render);
-    regClassToEngine(Browser);
-    regClassToEngine(Sprite);
-    regClassToEngine(Node);
-    regClassToEngine(Context);
-    regClassToEngine(WebGL);
-    regClassToEngine(SoundChannel);
-    regClassToEngine(EventDispatcher);
-    regClassToEngine(Handler);
-    regClassToEngine(RunDriver);
-    regClassToEngine(Utils);
-    regClassToEngine(Input);
-    regClassToEngine(Loader);
-    regClassToEngine(LocalStorage);
-    regClassToEngine(SoundManager);
-    regClassToEngine(URL);
-    regClassToEngine(Event);
-    regClassToEngine(Matrix);
-    regClassToEngine(HTMLImage);
+    else
+        win.Laya = Laya;
     var __init = Laya.__init;
     var init = Laya.init;
     var version = Laya.version;

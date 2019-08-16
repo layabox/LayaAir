@@ -49,15 +49,15 @@ export class Shader_Terrain {
 			Texture2D.load("res/threeDimen/skinModel/Terrain/splatAlphaTexture.png", Handler.create(this, function (tex: Texture2D): void {
 				customMaterial.splatAlphaTexture = tex;
 			}));
-			Texture2D.load("res/threeDimen/skinModel/Terrain/ground_01.jpg", Handler.create(this, function (tex: Texture2D): void {
+			Texture2D.load("res/threeDimen/skinModel/Terrain/Ground_01.jpg", Handler.create(this, function (tex: Texture2D): void {
 				customMaterial.diffuseTexture1 = tex;
 			}));
 
-			Texture2D.load("res/threeDimen/skinModel/Terrain/ground_02.jpg", Handler.create(this, function (tex: Texture2D): void {
+			Texture2D.load("res/threeDimen/skinModel/Terrain/Ground_02.jpg", Handler.create(this, function (tex: Texture2D): void {
 				customMaterial.diffuseTexture2 = tex;
 			}));
 
-			Texture2D.load("res/threeDimen/skinModel/Terrain/ground_03.jpg", Handler.create(this, function (tex: Texture2D): void {
+			Texture2D.load("res/threeDimen/skinModel/Terrain/Ground_03.jpg", Handler.create(this, function (tex: Texture2D): void {
 				customMaterial.diffuseTexture3 = tex;
 			}));
 
