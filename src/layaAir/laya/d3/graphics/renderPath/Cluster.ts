@@ -164,9 +164,10 @@ export class Cluster {
 
 
     update(camera: Camera, viewMatrix: Matrix4x4, scene: Scene3D): void {
+        var xSlices: number = this._xSlices, ySlices: number = this._ySlices, zSlices: number = this._zSlices;
         this._updateMark++;
         this._tanVerFovBy2 = Math.tan(camera.fieldOfView * (Math.PI / 180.0) * 0.5);
-        this._zStride = (camera.farPlane - camera.nearPlane) / this._zSlices;
+        this._zStride = (camera.farPlane - camera.nearPlane) / zSlices;
 
         var curCount: number = scene._directionallights._length;
         var viewMat: Matrix4x4 = camera.viewMatrix;
@@ -225,13 +226,14 @@ export class Cluster {
             this._updateLight(camera, min, max, curCount, viewLightPos.z, 1);
         }
 
-        var lightOff: number = this._xSlices * this._ySlices * this._zSlices * 4;
+        var lightOff: number = xSlices * ySlices * zSlices * 4;
         var clusterPixels: Float32Array = this._clusterPixels;
-        for (var z = 0; z < this._zSlices; z++) {
-            for (var y = 0; y < this._ySlices; y++) {
-                for (var x = 0; x < this._xSlices; x++) {
-                    var data: clusterData = this._clusterDatas[z][y][x];
-                    var clusterOff: number = (x + y * this._xSlices + z * this._xSlices * this._ySlices) * 4;
+        var clusterDatas: clusterData[][][] = this._clusterDatas;
+        for (var z = 0; z < zSlices; z++) {
+            for (var y = 0; y < ySlices; y++) {
+                for (var x = 0; x < xSlices; x++) {
+                    var data: clusterData = clusterDatas[z][y][x];
+                    var clusterOff: number = (x + y * xSlices + z * xSlices * ySlices) * 4;
                     if (data.updateMark !== this._updateMark) {
                         clusterPixels[clusterOff] = 0;
                         clusterPixels[clusterOff + 1] = 0;
