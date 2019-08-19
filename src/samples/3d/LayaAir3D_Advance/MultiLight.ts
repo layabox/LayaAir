@@ -18,7 +18,7 @@ import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 
-export class BlinnPhong_DiffuseMap {
+export class MultiLight {
 
 	private rotation: Vector3 = new Vector3(0, 0.01, 0);
 
