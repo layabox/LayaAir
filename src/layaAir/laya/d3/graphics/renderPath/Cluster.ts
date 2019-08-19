@@ -125,9 +125,9 @@ export class Cluster {
         }
     }
 
-    private _updateLight(camera: Camera, min: Vector3, max: Vector3, lightIndex: number, viewlightNearestPosZ: number, type: number): void {
+    private _updateLight(camera: Camera, min: Vector3, max: Vector3, lightIndex: number, viewlightPosZ: number, type: number): void {
         var xSlices: number = this._xSlices, ySlices: number = this._ySlices, zSlices: number = this._zSlices;
-        var lightFrustumH: number = Math.abs(this._tanVerFovBy2 * viewlightNearestPosZ * 2);
+        var lightFrustumH: number = Math.abs(this._tanVerFovBy2 * viewlightPosZ * 2);
         var lightFrustumW: number = Math.abs(camera.aspectRatio * lightFrustumH);
         var xStride: number = lightFrustumW / xSlices, yStride: number = lightFrustumH / ySlices;
 
@@ -221,9 +221,17 @@ export class Cluster {
             var eY: number = Math.sqrt(1.0 - aY * aY / dotA);
             var eZ: number = Math.sqrt(1.0 - aZ * aZ / dotA);
 
+            var sphereMinX = viewLightPos.x - radius;
+            var sphereMinY = viewLightPos.y - radius;
+            var sphereMinZ = viewLightPos.z - radius;
+            var sphereMaxX = viewLightPos.x + radius;
+            var sphereMaxY = viewLightPos.y + radius;
+            var sphereMaxZ = viewLightPos.z + radius;
+
             //camera looks down negative z, make z axis positive to make calculations easier
-            min.setValue(Math.min(paX, pbX - eX * rb), Math.min(paY, pbY - eY * rb), -(Math.max(paZ, pbZ + eZ * rb) + camNear));
-            max.setValue(Math.max(paX, pbX + eX * rb), Math.max(paY, pbY + eY * rb), -(Math.min(paZ, pbZ - eZ * rb) + camNear));
+            min.setValue(Math.max(Math.min(paX, pbX - eX * rb), sphereMinX), Math.max(Math.min(paY, pbY - eY * rb), sphereMinY), -Math.min((Math.max(paZ, pbZ + eZ * rb), sphereMaxZ) + camNear));
+            max.setValue(Math.min(Math.max(paX, pbX + eX * rb), sphereMaxX), Math.min(Math.max(paY, pbY + eY * rb), sphereMaxY), -Math.max((Math.min(paZ, pbZ - eZ * rb), sphereMinZ) + camNear));
+
             this._updateLight(camera, min, max, curCount, viewLightPos.z, 1);
         }
 
