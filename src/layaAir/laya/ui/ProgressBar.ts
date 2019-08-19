@@ -148,7 +148,7 @@ export class ProgressBar extends UIComponent {
 
     /**
      * @inheritDoc 
-     *
+     * @override
     */
     protected createChildren(): void {
         this.addChild(this._bg = new Image());

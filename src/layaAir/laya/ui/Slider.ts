@@ -109,16 +109,18 @@ export class Slider extends UIComponent {
 
 		/**
 		 * @inheritDoc 
+         * @override
 		*/
-		/*override*/ protected createChildren(): void {
+		protected createChildren(): void {
         this.addChild(this._bg = new Image());
         this.addChild(this._bar = new Button());
     }
 
 		/**
 		 * @inheritDoc 
+         * @override
 		*/
-		/*override*/ protected initialize(): void {
+		protected initialize(): void {
         this._bar.on(Event.MOUSE_DOWN, this, this.onBarMouseDown);
         this._bg.sizeGrid = this._bar.sizeGrid = "4,4,4,4,0";
         if (this._progress) this._progress.sizeGrid = this._bar.sizeGrid;

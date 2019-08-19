@@ -399,6 +399,7 @@ export class Camera extends BaseCamera {
 	}
 
 	/**
+	 * @override
 	 * @param shader 着色器
 	 * @param replacementTag 替换标记。
 	 */

@@ -221,6 +221,7 @@ export class BaseMaterial extends Resource implements IClone {
 
 	/**
 	 * @implements IReferenceCounter
+	 * @internal
 	 * @override
 	 */
 	_addReference(count: number = 1): void {
@@ -235,6 +236,7 @@ export class BaseMaterial extends Resource implements IClone {
 
 	/**
 	 * @implements IReferenceCounter
+	 * @internal
 	 * @override
 	 */
 	_removeReference(count: number = 1): void {

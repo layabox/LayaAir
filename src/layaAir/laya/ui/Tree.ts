@@ -266,7 +266,9 @@ export class Tree extends Box implements IRender {
         this._source = null;
         this._renderHandler = null;
     }
-
+    /**
+     * @override
+     */
     protected createChildren(): void {
         this.addChild(this._list = new List());
         this._list.renderHandler = Handler.create(this, this.renderItem, null, false);

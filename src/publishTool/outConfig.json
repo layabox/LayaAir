@@ -10,6 +10,7 @@
     "CanvasRenderingContext2D":"*",
     "HTMLAudioElement":"Audio",
     "XMLDocument":"XmlDom",
-    "ChildNode":"XmlDom"
+    "ChildNode":"XmlDom",
+    "XMLHttpRequest":"*"
   }
 }

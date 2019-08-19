@@ -90,12 +90,14 @@ export class RigidBody extends Component {
         this.resetCollider(false);
     }
     /**
+     * @internal
      * @override
      */
     protected _onAwake(): void {
         this._createBody();
     }
     /**
+     * @internal
      * @override
      */
     protected _onEnable(): void {
@@ -231,6 +233,7 @@ export class RigidBody extends Component {
         Object.defineProperty(sp, prop, { get: this.accessGetSetFunc(sp, prop, "get"), set: getfun, enumerable: false, configurable: true });;
     }
     /**
+     * @internal
      * @override
      */
     protected _onDisable(): void {

@@ -185,7 +185,8 @@ export class Clip extends UIComponent {
     }
 
 		/**
-		 * @inheritDoc 
+		 * @inheritDoc
+         * @override 
 		*/
 		/*override*/ protected createChildren(): void {
         this.graphics = this._bitmap = new AutoBitmap();

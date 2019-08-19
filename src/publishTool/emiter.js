@@ -132,8 +132,6 @@ class emiter {
                     let type = nodeChild.types[j];
                     //对主类型判断
                     let typeText = type.expression.getText();
-                    if (this.importArr[typeText])
-                        typeText = this.importArr[typeText];
                     let argtext = "";
                     //如果有进行检测 加
                     if (type.typeArguments) {
@@ -146,6 +144,8 @@ class emiter {
                         argtext += ">";
                     }
                     nodetextAS += (j ? "," : "") + typeText;
+                    if (this.importArr[typeText])
+                        typeText = this.importArr[typeText];
                     nodetext += (j ? "," : "") + typeText + argtext;
                 }
                 if (kind.indexOf("extends") == -1)

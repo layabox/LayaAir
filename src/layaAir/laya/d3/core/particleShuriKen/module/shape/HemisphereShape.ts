@@ -101,6 +101,7 @@ export class HemisphereShape extends BaseShape {
 	}
 
 	/**
+	 * @override
 	 * 克隆。
 	 * @return	 克隆副本。
 	 */

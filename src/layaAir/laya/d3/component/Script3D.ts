@@ -46,6 +46,7 @@ export class Script3D extends Component {
 
 	/**
 	 * @inheritDoc
+	 * @internal
 	 * @override
 	 */
 	protected _onAwake(): void {
@@ -56,6 +57,7 @@ export class Script3D extends Component {
 
 	/**
 	 * @inheritDoc
+	 * @internal
 	 * @override
 	 */
 	protected _onEnable(): void {
@@ -74,6 +76,7 @@ export class Script3D extends Component {
 
 	/**
 	 * @inheritDoc
+	 * @internal
 	 * @override
 	 */
 	protected _onDisable(): void {
@@ -111,6 +114,7 @@ export class Script3D extends Component {
 
 	/**
 	 * @inheritDoc
+	 * @internal
 	 * @override
 	 */
 	protected _onDestroy(): void {
