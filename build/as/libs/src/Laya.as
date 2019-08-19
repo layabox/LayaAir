@@ -1,28 +1,8 @@
 package  {
-	import laya.display.Input;
-	import laya.display.Node;
-	import laya.display.Sprite;
 	import laya.display.Stage;
-	import laya.media.SoundManager;
-	import laya.net.Loader;
 	import laya.net.LoaderManager;
-	import laya.net.LocalStorage;
-	import laya.net.URL;
 	import laya.renders.Render;
-	import laya.resource.Context;
-	import laya.utils.Browser;
 	import laya.utils.Timer;
-	import laya.utils.Utils;
-	import laya.webgl.text.TextRender;
-	import laya.webgl.WebGL;
-	import laya.media.SoundChannel;
-	import laya.events.EventDispatcher;
-	import laya.utils.Handler;
-	import laya.utils.RunDriver;
-	import laya.maths.Matrix;
-	import laya.resource.HTMLImage;
-	import laya.events.Event;
-
 
 	/*
 	 * <code>Laya</code> 是全局对象的引用入口集。
@@ -89,29 +69,6 @@ package  {
 		 * 微信小游戏是否需要在主域中自动将加载的文本数据自动传递到子域，默认 false*
 		 */
 		public static var isWXPosMsg:Boolean;
-		public static var Config:Config;
-		public static var TextRender:TextRender;
-		public static var EventDispatcher:EventDispatcher;
-		public static var SoundChannel:SoundChannel;
-		public static var Stage:Stage;
-		public static var Render:Render;
-		public static var Browser:Browser;
-		public static var Sprite:Sprite;
-		public static var Node:Node;
-		public static var Context:Context;
-		public static var WebGL:WebGL;
-		public static var Handler:Handler;
-		public static var RunDriver:RunDriver;
-		public static var Utils:Utils;
-		public static var Input:Input;
-		public static var Loader:Loader;
-		public static var LocalStorage:LocalStorage;
-		public static var SoundManager:SoundManager;
-		public static var URL:URL;
-		public static var Event:Event;
-		public static var Matrix:Matrix;
-		public static var HTMLImage:HTMLImage;
-		public static var Laya:Laya;
 
 		/*
 		 * 兼容as3编译工具

@@ -8488,7 +8488,7 @@
 	                }
 	                else {
 	                    if (queue.lastTransparentBatched) {
-	                        elements[elements.length - 1].staticBatchElementList.add((this));
+	                        elements[queueElements.length - 1].staticBatchElementList.add((this));
 	                    }
 	                    else {
 	                        var staBatchElement = staManager._getBatchRenderElementFromPool();
@@ -8504,7 +8504,7 @@
 	                        staBatchList.length = 0;
 	                        staBatchList.add(staLastElement);
 	                        staBatchList.add(this);
-	                        elements[elements.length - 1] = staBatchElement;
+	                        elements[queueElements.length - 1] = staBatchElement;
 	                    }
 	                    queue.lastTransparentBatched = true;
 	                }
@@ -8526,7 +8526,7 @@
 	                }
 	                else {
 	                    if (queue.lastTransparentBatched) {
-	                        var instanceBatchElementList = elements[elements.length - 1].instanceBatchElementList;
+	                        var instanceBatchElementList = elements[queueElements.length - 1].instanceBatchElementList;
 	                        if (instanceBatchElementList.length === SubMeshInstanceBatch.instance.maxInstanceCount) {
 	                            queueElements.add(this);
 	                            queue.lastTransparentBatched = false;
@@ -8549,7 +8549,7 @@
 	                        insBatchList.length = 0;
 	                        insBatchList.add(insLastElement);
 	                        insBatchList.add(this);
-	                        elements[elements.length - 1] = insBatchElement;
+	                        elements[queueElements.length - 1] = insBatchElement;
 	                        queue.lastTransparentBatched = true;
 	                    }
 	                }
@@ -8571,7 +8571,7 @@
 	                }
 	                else {
 	                    if (queue.lastTransparentBatched) {
-	                        elements[elements.length - 1].vertexBatchElementList.add((this));
+	                        elements[queueElements.length - 1].vertexBatchElementList.add((this));
 	                    }
 	                    else {
 	                        var dynBatchElement = dynManager._getBatchRenderElementFromPool();
@@ -8586,7 +8586,7 @@
 	                        dynBatchList.length = 0;
 	                        dynBatchList.add(dynLastElement);
 	                        dynBatchList.add(this);
-	                        elements[elements.length - 1] = dynBatchElement;
+	                        elements[queueElements.length - 1] = dynBatchElement;
 	                    }
 	                    queue.lastTransparentBatched = true;
 	                }

@@ -272,7 +272,7 @@ export class SubMeshRenderElement extends RenderElement {
 					queue.lastTransparentBatched = false;
 				} else {
 					if (queue.lastTransparentBatched) {
-						(<SubMeshRenderElement>elements[elements.length - 1]).staticBatchElementList.add((this));
+						(<SubMeshRenderElement>elements[queueElements.length - 1]).staticBatchElementList.add((this));
 					} else {
 						var staBatchElement: SubMeshRenderElement = (<SubMeshRenderElement>staManager._getBatchRenderElementFromPool());
 						staBatchElement.renderType = RenderElement.RENDERTYPE_STATICBATCH;
@@ -287,7 +287,7 @@ export class SubMeshRenderElement extends RenderElement {
 						staBatchList.length = 0;
 						staBatchList.add((<SubMeshRenderElement>staLastElement));
 						staBatchList.add(this);
-						elements[elements.length - 1] = staBatchElement;
+						elements[queueElements.length - 1] = staBatchElement;
 					}
 					queue.lastTransparentBatched = true;
 				}
@@ -306,7 +306,7 @@ export class SubMeshRenderElement extends RenderElement {
 					queue.lastTransparentBatched = false;
 				} else {
 					if (queue.lastTransparentBatched) {
-						var instanceBatchElementList: SingletonList<SubMeshRenderElement> = elements[elements.length - 1].instanceBatchElementList;
+						var instanceBatchElementList: SingletonList<SubMeshRenderElement> = elements[queueElements.length - 1].instanceBatchElementList;
 						if (instanceBatchElementList.length === SubMeshInstanceBatch.instance.maxInstanceCount) {
 							queueElements.add(this);
 							queue.lastTransparentBatched = false;
@@ -327,7 +327,7 @@ export class SubMeshRenderElement extends RenderElement {
 						insBatchList.length = 0;
 						insBatchList.add((<SubMeshRenderElement>insLastElement));
 						insBatchList.add(this);
-						elements[elements.length - 1] = insBatchElement;
+						elements[queueElements.length - 1] = insBatchElement;
 						queue.lastTransparentBatched = true;
 					}
 				}
@@ -347,7 +347,7 @@ export class SubMeshRenderElement extends RenderElement {
 					queue.lastTransparentBatched = false;
 				} else {
 					if (queue.lastTransparentBatched) {
-						((<SubMeshRenderElement>elements[elements.length - 1])).vertexBatchElementList.add((this));
+						((<SubMeshRenderElement>elements[queueElements.length - 1])).vertexBatchElementList.add((this));
 					} else {
 						var dynBatchElement: SubMeshRenderElement = (<SubMeshRenderElement>dynManager._getBatchRenderElementFromPool());
 						dynBatchElement.renderType = RenderElement.RENDERTYPE_VERTEXBATCH;
@@ -361,7 +361,7 @@ export class SubMeshRenderElement extends RenderElement {
 						dynBatchList.length = 0;
 						dynBatchList.add((<SubMeshRenderElement>dynLastElement));
 						dynBatchList.add(this);
-						elements[elements.length - 1] = dynBatchElement;
+						elements[queueElements.length - 1] = dynBatchElement;
 					}
 					queue.lastTransparentBatched = true;
 				}

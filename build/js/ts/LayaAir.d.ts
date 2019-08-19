@@ -45670,29 +45670,6 @@ declare module laya.webgl {
 		 * 微信小游戏是否需要在主域中自动将加载的文本数据自动传递到子域，默认 false*
 		 */
 		static isWXPosMsg:boolean;
-		static Config:Config;
-		static TextRender:laya.webgl.text.TextRender;
-		static EventDispatcher:laya.events.EventDispatcher;
-		static SoundChannel:laya.media.SoundChannel;
-		static Stage:laya.display.Stage;
-		static Render:laya.renders.Render;
-		static Browser:laya.utils.Browser;
-		static Sprite:laya.display.Sprite;
-		static Node:laya.display.Node;
-		static Context:laya.resource.Context;
-		static WebGL:laya.webgl.WebGL;
-		static Handler:laya.utils.Handler;
-		static RunDriver:laya.utils.RunDriver;
-		static Utils:laya.utils.Utils;
-		static Input:laya.display.Input;
-		static Loader:laya.net.Loader;
-		static LocalStorage:laya.net.LocalStorage;
-		static SoundManager:laya.media.SoundManager;
-		static URL:laya.net.URL;
-		static Event:laya.events.Event;
-		static Matrix:laya.maths.Matrix;
-		static HTMLImage:laya.resource.HTMLImage;
-		static Laya:Laya;
 
 		/*
 		 * 兼容as3编译工具
