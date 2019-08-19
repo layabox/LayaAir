@@ -392,7 +392,7 @@ import { Config } from "Config";
 				fileNativeUrl = textureUrl;//4M包使用
 			}
 			if (fileNativeUrl) {
-				QQMiniAdapter.window.qq.postMessage({url: url, atlasdata: postData, imgNativeUrl: fileNativeUrl, imgReadyUrl: textureUrl, isLoad: "opendatacontext"});
+				QQMiniAdapter.window.qq.postMessage({url: URL.formatURL(url), atlasdata: postData, imgNativeUrl: fileNativeUrl, imgReadyUrl: textureUrl, isLoad: "opendatacontext"});
 			} else {
 				throw "获取图集的磁盘url路径不存在！";
 			}
