@@ -221,6 +221,7 @@ export class Cluster {
             var eY: number = Math.sqrt(1.0 - aY * aY / dotA);
             var eZ: number = Math.sqrt(1.0 - aZ * aZ / dotA);
 
+            //flat-capped cone is not spotLight shape,spoltlight is sphere-capped.so we get the common boundBox of flat-capped cone bounds and sphere bounds.
             var sphereMinX = viewLightPos.x - radius;
             var sphereMinY = viewLightPos.y - radius;
             var sphereMinZ = viewLightPos.z - radius;
