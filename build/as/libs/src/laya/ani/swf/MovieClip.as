@@ -25,7 +25,7 @@ package laya.ani.swf {
 	/*
 	 * <p> <code>MovieClip</code> 用于播放经过工具处理后的 swf 动画。</p>
 	 */
-	public class MovieClip extends laya.display.Sprite {
+	public class MovieClip extends Sprite {
 
 		/*
 		 * 资源根目录。

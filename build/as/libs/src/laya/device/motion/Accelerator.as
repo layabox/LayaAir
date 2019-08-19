@@ -26,7 +26,7 @@ package laya.device.motion {
 	 * 目前孰是孰非尚未可知，以此为注。
 	 * </p>
 	 */
-	public class Accelerator extends laya.events.EventDispatcher {
+	public class Accelerator extends EventDispatcher {
 
 		/*
 		 * Accelerator的唯一引用。

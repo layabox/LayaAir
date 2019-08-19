@@ -25,7 +25,7 @@ package laya.ui {
 	 * @see laya.ui.HSlider
 	 * @see laya.ui.VSlider
 	 */
-	public class Slider extends laya.ui.UIComponent {
+	public class Slider extends UIComponent {
 
 		/*
 		 * @private 获取对 <code>Slider</code> 组件所包含的 <code>Label</code> 组件的引用。
@@ -131,13 +131,15 @@ package laya.ui {
 
 		/*
 		 * @inheritDoc 
+		 * @override 
 		 */
-		protected function createChildren():void{}
+		override protected function createChildren():void{}
 
 		/*
 		 * @inheritDoc 
+		 * @override 
 		 */
-		protected function initialize():void{}
+		override protected function initialize():void{}
 
 		/*
 		 * @private 滑块的的 <code>Event.MOUSE_DOWN</code> 事件侦听处理函数。

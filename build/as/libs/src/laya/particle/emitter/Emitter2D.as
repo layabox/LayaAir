@@ -6,7 +6,7 @@ package laya.particle.emitter {
 	/*
 	 * @private 
 	 */
-	public class Emitter2D extends laya.particle.emitter.EmitterBase {
+	public class Emitter2D extends EmitterBase {
 		public var setting:ParticleSetting;
 		private var _posRange:*;
 		private var _canvasTemplate:*;

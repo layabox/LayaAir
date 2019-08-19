@@ -6,7 +6,7 @@ package laya.map {
 	 * TildMap的动画显示对象（一个动画（TileTexSet），可以绑定多个动画显示对象（TileAniSprite））
 	 * @author ...
 	 */
-	public class TileAniSprite extends laya.display.Sprite {
+	public class TileAniSprite extends Sprite {
 		private var _tileTextureSet:*;
 		private var _aniName:*;
 

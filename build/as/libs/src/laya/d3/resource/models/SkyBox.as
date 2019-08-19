@@ -4,7 +4,7 @@ package laya.d3.resource.models {
 	/*
 	 * <code>SkyBox</code> 类用于创建天空盒。
 	 */
-	public class SkyBox extends laya.d3.resource.models.SkyMesh {
+	public class SkyBox extends SkyMesh {
 		public static var instance:SkyBox;
 
 		/*

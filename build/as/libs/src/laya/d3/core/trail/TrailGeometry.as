@@ -5,7 +5,7 @@ package laya.d3.core.trail {
 	/*
 	 * <code>TrailGeometry</code> 类用于创建拖尾渲染单元。
 	 */
-	public class TrailGeometry extends laya.d3.core.GeometryElement {
+	public class TrailGeometry extends GeometryElement {
 
 		/*
 		 * 轨迹准线_面向摄像机。

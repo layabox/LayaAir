@@ -6,7 +6,7 @@ package laya.d3.math {
 	/*
 	 * <code>Matrix4x4</code> 类用于创建4x4矩阵。
 	 */
-	public class Matrix4x4 implements laya.d3.core.IClone {
+	public class Matrix4x4 implements IClone {
 
 		/*
 		 * 默认矩阵,禁止修改

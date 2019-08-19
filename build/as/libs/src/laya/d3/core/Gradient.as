@@ -5,7 +5,7 @@ package laya.d3.core {
 	/*
 	 * <code>Gradient</code> 类用于创建颜色渐变。
 	 */
-	public class Gradient implements laya.d3.core.IClone {
+	public class Gradient implements IClone {
 		private var _mode:*;
 		private var _maxColorRGBKeysCount:*;
 		private var _maxColorAlphaKeysCount:*;

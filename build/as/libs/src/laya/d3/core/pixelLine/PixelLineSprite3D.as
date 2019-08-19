@@ -9,7 +9,7 @@ package laya.d3.core.pixelLine {
 	/*
 	 * <code>PixelLineSprite3D</code> 类用于像素线渲染精灵。
 	 */
-	public class PixelLineSprite3D extends laya.d3.core.RenderableSprite3D {
+	public class PixelLineSprite3D extends RenderableSprite3D {
 
 		/*
 		 * 获取最大线数量

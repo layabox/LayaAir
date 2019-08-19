@@ -1,7 +1,7 @@
 package laya.webgl.canvas.save {
 	import laya.webgl.canvas.save.ISaveData;
 	import laya.resource.Context;
-	public class SaveTransform implements laya.webgl.canvas.save.ISaveData {
+	public class SaveTransform implements ISaveData {
 		private static var POOL:*;
 
 		public function SaveTransform(){}

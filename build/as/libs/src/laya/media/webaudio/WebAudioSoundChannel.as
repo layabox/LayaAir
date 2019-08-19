@@ -4,7 +4,7 @@ package laya.media.webaudio {
 	/*
 	 * @private web audio api方式播放声音的音轨控制
 	 */
-	public class WebAudioSoundChannel extends laya.media.SoundChannel {
+	public class WebAudioSoundChannel extends SoundChannel {
 
 		/*
 		 * 声音原始文件数据

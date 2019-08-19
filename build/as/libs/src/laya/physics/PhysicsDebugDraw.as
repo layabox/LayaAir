@@ -5,7 +5,7 @@ package laya.physics {
 	/*
 	 * 物理辅助线，调用PhysicsDebugDraw.enable()开启，或者通过IDE设置打开
 	 */
-	public class PhysicsDebugDraw extends laya.display.Sprite {
+	public class PhysicsDebugDraw extends Sprite {
 
 		/*
 		 * @private 

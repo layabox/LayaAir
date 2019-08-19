@@ -6,7 +6,7 @@ package laya.d3.core.particleShuriKen.module {
 	/*
 	 * <code>Emission</code> 类用于粒子发射器。
 	 */
-	public class Emission implements laya.d3.core.IClone,laya.resource.IDestroy {
+	public class Emission implements IClone,IDestroy {
 		private var _destroyed:*;
 
 		/*

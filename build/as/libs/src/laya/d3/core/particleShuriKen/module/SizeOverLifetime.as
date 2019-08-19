@@ -5,7 +5,7 @@ package laya.d3.core.particleShuriKen.module {
 	/*
 	 * <code>SizeOverLifetime</code> 类用于粒子的生命周期尺寸。
 	 */
-	public class SizeOverLifetime implements laya.d3.core.IClone {
+	public class SizeOverLifetime implements IClone {
 		private var _size:*;
 
 		/*

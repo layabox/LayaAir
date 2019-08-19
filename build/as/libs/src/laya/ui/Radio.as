@@ -7,7 +7,7 @@ package laya.ui {
 	 * 用户一次只能选择 <code>Radio</code> 组中的一个成员。选择未选中的组成员将取消选择该组中当前所选的 <code>Radio</code> 控件。
 	 * @see laya.ui.RadioGroup
 	 */
-	public class Radio extends laya.ui.Button {
+	public class Radio extends Button {
 
 		/*
 		 * @private 
@@ -27,12 +27,17 @@ package laya.ui {
 		 * @override 
 		 */
 		override public function destroy(destroyChild:Boolean = null):void{}
-		protected function preinitialize():void{}
+
+		/*
+		 * @override 
+		 */
+		override protected function preinitialize():void{}
 
 		/*
 		 * @inheritDoc 
+		 * @override 
 		 */
-		protected function initialize():void{}
+		override protected function initialize():void{}
 
 		/*
 		 * @private 对象的<code>Event.CLICK</code>事件侦听处理函数。

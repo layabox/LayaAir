@@ -8,7 +8,7 @@ package laya.ui {
 	 * fontClip.sheet = "abc123 456";//设置皮肤对应的内容，空格换行。此皮肤为2行5列（显示时skin会被等分为2行5列），第一行对应的文字为"abc123"，第二行为"456"
 	 * fontClip.value = "a1326";//显示"a1326"文字
 	 */
-	public class FontClip extends laya.ui.Clip {
+	public class FontClip extends Clip {
 
 		/*
 		 * 数值
@@ -61,7 +61,11 @@ package laya.ui {
 		 */
 
 		public function FontClip(skin:String = undefined,sheet:String = undefined){}
-		protected function createChildren():void{}
+
+		/*
+		 * @override 
+		 */
+		override protected function createChildren():void{}
 
 		/*
 		 * 资源加载完毕

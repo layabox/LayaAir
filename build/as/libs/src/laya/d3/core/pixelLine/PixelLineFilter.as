@@ -6,7 +6,7 @@ package laya.d3.core.pixelLine {
 	/*
 	 * <code>PixelLineFilter</code> 类用于线过滤器。
 	 */
-	public class PixelLineFilter extends laya.d3.core.GeometryElement {
+	public class PixelLineFilter extends GeometryElement {
 
 		public function PixelLineFilter(owner:PixelLineSprite3D = undefined,maxLineCount:Number = undefined){}
 

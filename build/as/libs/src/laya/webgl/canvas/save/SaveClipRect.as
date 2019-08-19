@@ -1,7 +1,7 @@
 package laya.webgl.canvas.save {
 	import laya.webgl.canvas.save.ISaveData;
 	import laya.resource.Context;
-	public class SaveClipRect implements laya.webgl.canvas.save.ISaveData {
+	public class SaveClipRect implements ISaveData {
 		private static var POOL:*;
 		private var _globalClipMatrix:*;
 		private var _clipInfoID:*;

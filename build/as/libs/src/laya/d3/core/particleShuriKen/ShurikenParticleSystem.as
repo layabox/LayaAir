@@ -18,7 +18,7 @@ package laya.d3.core.particleShuriKen {
 	/*
 	 * <code>ShurikenParticleSystem</code> 类用于创建3D粒子数据模板。
 	 */
-	public class ShurikenParticleSystem extends laya.d3.core.GeometryElement implements laya.d3.core.IClone {
+	public class ShurikenParticleSystem extends GeometryElement implements IClone {
 
 		/*
 		 * 粒子运行的总时长，单位为秒。

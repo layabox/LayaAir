@@ -7,7 +7,7 @@ package laya.d3.core.material {
 	 * ...
 	 * @author ...
 	 */
-	public class ExtendTerrainMaterial extends laya.d3.core.material.BaseMaterial {
+	public class ExtendTerrainMaterial extends BaseMaterial {
 
 		/*
 		 * 渲染状态_不透明。

@@ -6,7 +6,7 @@ package laya.resource {
 	/*
 	 * <code>Resource</code> 资源存取类。
 	 */
-	public class Resource extends laya.events.EventDispatcher implements laya.resource.ICreateResource,laya.resource.IDestroy {
+	public class Resource extends EventDispatcher implements ICreateResource,IDestroy {
 
 		/*
 		 * @private 

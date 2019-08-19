@@ -5,7 +5,7 @@ package laya.effect {
 	 * ...
 	 * @author ww
 	 */
-	public class GlowFilterSetter extends laya.effect.FilterSetterBase {
+	public class GlowFilterSetter extends FilterSetterBase {
 
 		/*
 		 * 滤镜的颜色

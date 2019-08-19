@@ -4,7 +4,7 @@ package laya.d3.core.particleShuriKen.module {
 	/*
 	 * <code>Burst</code> 类用于粒子的爆裂描述。
 	 */
-	public class Burst implements laya.d3.core.IClone {
+	public class Burst implements IClone {
 
 		/*
 		 * 爆裂时间,单位为秒。

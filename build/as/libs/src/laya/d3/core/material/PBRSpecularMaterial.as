@@ -6,7 +6,7 @@ package laya.d3.core.material {
 	/*
 	 * <code>PBRSpecularMaterial</code> 类用于实现PBR(Specular)材质。
 	 */
-	public class PBRSpecularMaterial extends laya.d3.core.material.BaseMaterial {
+	public class PBRSpecularMaterial extends BaseMaterial {
 
 		/*
 		 * 光滑度数据源_高光贴图的Alpha通道。

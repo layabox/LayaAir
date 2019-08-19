@@ -9,7 +9,7 @@ package laya.d3.core.material {
 	/*
 	 * <code>BaseMaterial</code> 类用于创建材质。
 	 */
-	public class BaseMaterial extends laya.resource.Resource implements laya.d3.core.IClone {
+	public class BaseMaterial extends Resource implements IClone {
 
 		/*
 		 * Material资源。
@@ -91,18 +91,6 @@ package laya.d3.core.material {
 
 		public function BaseMaterial(){}
 		private var _removeTetxureReference:*;
-
-		/*
-		 * @implements IReferenceCounter
-		 * @override 
-		 */
-		override public function _addReference(count:Number):void{}
-
-		/*
-		 * @implements IReferenceCounter
-		 * @override 
-		 */
-		override public function _removeReference(count:Number):void{}
 
 		/*
 		 * @inheritDoc 

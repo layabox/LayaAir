@@ -5,7 +5,7 @@ package laya.physics {
 	 * 2D多边形碰撞体，暂时不支持凹多边形，如果是凹多边形，先手动拆分为多个凸多边形
 	 * 节点个数最多是b2_maxPolygonVertices，这数值默认是8，所以点的数量不建议超过8个，也不能小于3个
 	 */
-	public class PolygonCollider extends laya.physics.ColliderBase {
+	public class PolygonCollider extends ColliderBase {
 
 		/*
 		 * 相对节点的x轴偏移

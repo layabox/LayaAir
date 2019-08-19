@@ -5,7 +5,7 @@ package laya.d3.resource.models {
 	/*
 	 * <code>SubMesh</code> 类用于创建子网格数据模板。
 	 */
-	public class SubMesh extends laya.d3.core.GeometryElement {
+	public class SubMesh extends GeometryElement {
 
 		/*
 		 * 获取索引数量。

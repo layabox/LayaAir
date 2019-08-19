@@ -5,7 +5,7 @@ package laya.html.dom {
 	/*
 	 * @private 
 	 */
-	public class HTMLImageElement extends laya.html.dom.HTMLElement {
+	public class HTMLImageElement extends HTMLElement {
 		private var _tex:*;
 		private var _url:*;
 

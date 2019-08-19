@@ -6,7 +6,7 @@ package laya.components {
 	/*
 	 * <code>Component</code> 类用于创建组件的基类。
 	 */
-	public class Component implements laya.resource.ISingletonElement,laya.resource.IDestroy {
+	public class Component implements ISingletonElement,IDestroy {
 
 		/*
 		 * @private [实现IListPool接口]

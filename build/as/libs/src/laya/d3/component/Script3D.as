@@ -7,33 +7,9 @@ package laya.d3.component {
 	/*
 	 * <code>Script3D</code> 类用于创建脚本的父类,该类为抽象类,不允许实例。
 	 */
-	public class Script3D extends laya.components.Component {
+	public class Script3D extends Component {
 		private var _checkProcessTriggers:*;
 		private var _checkProcessCollisions:*;
-
-		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		override protected function _onAwake():void{}
-
-		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		override protected function _onEnable():void{}
-
-		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		override protected function _onDisable():void{}
-
-		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		override protected function _onDestroy():void{}
 
 		/*
 		 * 创建后只执行一次

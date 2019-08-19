@@ -4,7 +4,7 @@ package laya.webgl.submit {
 	import laya.resource.RenderTexture2D;
 	import laya.webgl.shader.d2.value.Value2D;
 	import laya.webgl.utils.Mesh2D;
-	public class SubmitTarget implements laya.webgl.submit.ISubmit {
+	public class SubmitTarget implements ISubmit {
 		public var shaderValue:Value2D;
 		public var blendType:Number;
 		public var srcRT:RenderTexture2D;

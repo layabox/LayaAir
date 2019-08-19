@@ -4,7 +4,7 @@ package laya.d3.core.particleShuriKen.module {
 	/*
 	 * <code>StartFrame</code> 类用于创建开始帧。
 	 */
-	public class StartFrame implements laya.d3.core.IClone {
+	public class StartFrame implements IClone {
 
 		/*
 		 * 通过随机常量旋转创建一个 <code>StartFrame</code> 实例。

@@ -4,7 +4,7 @@ package laya.d3.animation {
 	/*
 	 * <code>BoneNode</code> 类用于实现骨骼节点。
 	 */
-	public class AnimationNode implements laya.d3.core.IClone {
+	public class AnimationNode implements IClone {
 		private var _children:*;
 
 		/*

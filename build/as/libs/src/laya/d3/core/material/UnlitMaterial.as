@@ -6,7 +6,7 @@ package laya.d3.core.material {
 	/*
 	 * <code>UnlitMaterial</code> 类用于实现不受光照影响的材质。
 	 */
-	public class UnlitMaterial extends laya.d3.core.material.BaseMaterial {
+	public class UnlitMaterial extends BaseMaterial {
 
 		/*
 		 * 渲染状态_不透明。

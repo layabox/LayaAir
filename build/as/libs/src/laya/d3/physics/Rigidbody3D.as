@@ -5,7 +5,7 @@ package laya.d3.physics {
 	/*
 	 * <code>Rigidbody3D</code> 类用于创建刚体碰撞器。
 	 */
-	public class Rigidbody3D extends laya.d3.physics.PhysicsTriggerComponent {
+	public class Rigidbody3D extends PhysicsTriggerComponent {
 		public static var TYPE_STATIC:Number;
 		public static var TYPE_DYNAMIC:Number;
 		public static var TYPE_KINEMATIC:Number;
@@ -178,12 +178,6 @@ package laya.d3.physics {
 		 */
 
 		public function Rigidbody3D(collisionGroup:Number = undefined,canCollideWith:Number = undefined){}
-
-		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		override protected function _onDestroy():void{}
 
 		/*
 		 * 应用作用力。

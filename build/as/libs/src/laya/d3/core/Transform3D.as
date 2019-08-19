@@ -8,7 +8,7 @@ package laya.d3.core {
 	/*
 	 * <code>Transform3D</code> 类用于实现3D变换。
 	 */
-	public class Transform3D extends laya.events.EventDispatcher {
+	public class Transform3D extends EventDispatcher {
 
 		/*
 		 * 获取所属精灵。

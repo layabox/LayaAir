@@ -8,7 +8,7 @@ package laya.d3.core {
 	/*
 	 * <code>BaseCamera</code> 类用于创建摄像机的父类。
 	 */
-	public class BaseCamera extends laya.d3.core.Sprite3D {
+	public class BaseCamera extends Sprite3D {
 		public static var _tempMatrix4x40:Matrix4x4;
 		public static var CAMERAPOS:Number;
 		public static var VIEWMATRIX:Number;

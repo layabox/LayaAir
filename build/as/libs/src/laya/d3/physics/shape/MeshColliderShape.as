@@ -5,7 +5,7 @@ package laya.d3.physics.shape {
 	/*
 	 * <code>MeshColliderShape</code> 类用于创建网格碰撞器。
 	 */
-	public class MeshColliderShape extends laya.d3.physics.shape.ColliderShape {
+	public class MeshColliderShape extends ColliderShape {
 		private var _mesh:*;
 		private var _convex:*;
 

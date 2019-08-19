@@ -6,7 +6,7 @@ package laya.d3.core.material {
 	/*
 	 * <code>SkyBoxMaterial</code> 类用于实现SkyBoxMaterial材质。
 	 */
-	public class SkyBoxMaterial extends laya.d3.core.material.BaseMaterial {
+	public class SkyBoxMaterial extends BaseMaterial {
 		public static var TINTCOLOR:Number;
 		public static var EXPOSURE:Number;
 		public static var ROTATION:Number;

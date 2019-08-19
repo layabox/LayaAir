@@ -5,7 +5,7 @@ package laya.physics.joint {
 	/*
 	 * 平移关节：移动关节允许两个物体沿指定轴相对移动，它会阻止相对旋转
 	 */
-	public class PrismaticJoint extends laya.physics.joint.JointBase {
+	public class PrismaticJoint extends JointBase {
 
 		/*
 		 * @private 

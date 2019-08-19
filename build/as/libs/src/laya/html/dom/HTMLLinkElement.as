@@ -5,7 +5,7 @@ package laya.html.dom {
 	/*
 	 * @private 
 	 */
-	public class HTMLLinkElement extends laya.html.dom.HTMLElement {
+	public class HTMLLinkElement extends HTMLElement {
 		public static var _cuttingStyle:RegExp;
 		public var type:String;
 		private var _loader:*;

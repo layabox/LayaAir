@@ -3,7 +3,7 @@ package laya.webgl.submit {
 	import laya.resource.Context;
 	import laya.webgl.shader.d2.value.Value2D;
 	import laya.webgl.utils.Mesh2D;
-	public class SubmitTexture extends laya.webgl.submit.SubmitBase {
+	public class SubmitTexture extends SubmitBase {
 		private static var _poolSize:*;
 		private static var POOL:*;
 

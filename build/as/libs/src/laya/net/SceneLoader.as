@@ -4,7 +4,7 @@ package laya.net {
 	/*
 	 * @private 场景资源加载器
 	 */
-	public class SceneLoader extends laya.events.EventDispatcher {
+	public class SceneLoader extends EventDispatcher {
 		public static var LoadableExtensions:*;
 		public static var No3dLoadTypes:*;
 		public var totalCount:Number;

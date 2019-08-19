@@ -16,7 +16,7 @@ package laya.d3.core.scene {
 	/*
 	 * <code>Scene3D</code> 类用于实现场景。
 	 */
-	public class Scene3D extends laya.display.Sprite implements laya.webgl.submit.ISubmit,laya.resource.ICreateResource {
+	public class Scene3D extends Sprite implements ISubmit,ICreateResource {
 
 		/*
 		 * Hierarchy资源。

@@ -4,7 +4,7 @@ package laya.d3.math {
 	/*
 	 * <code>Vector2</code> 类用于创建二维向量。
 	 */
-	public class Vector2 implements laya.d3.core.IClone {
+	public class Vector2 implements IClone {
 
 		/*
 		 * 零向量,禁止修改

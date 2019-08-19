@@ -8,7 +8,7 @@ package laya.d3.core.render.command {
 	/*
 	 * <code>BlitCMD</code> 类用于创建从一张渲染目标输出到另外一张渲染目标指令。
 	 */
-	public class BlitScreenQuadCMD extends laya.d3.core.render.command.Command {
+	public class BlitScreenQuadCMD extends Command {
 
 		/*
 		 */

@@ -5,7 +5,7 @@ package laya.d3.core.material {
 	/*
 	 * <code>SkyProceduralMaterial</code> 类用于实现SkyProceduralMaterial材质。
 	 */
-	public class SkyProceduralMaterial extends laya.d3.core.material.BaseMaterial {
+	public class SkyProceduralMaterial extends BaseMaterial {
 
 		/*
 		 * 太阳_无

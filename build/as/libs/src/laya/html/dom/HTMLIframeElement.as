@@ -4,7 +4,7 @@ package laya.html.dom {
 	/*
 	 * iframe标签类，目前用于加载外并解析数据
 	 */
-	public class HTMLIframeElement extends laya.html.dom.HTMLDivElement {
+	public class HTMLIframeElement extends HTMLDivElement {
 
 		public function HTMLIframeElement(){}
 

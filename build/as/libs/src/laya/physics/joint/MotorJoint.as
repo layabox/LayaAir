@@ -5,7 +5,7 @@ package laya.physics.joint {
 	/*
 	 * 马达关节：用来限制两个刚体，使其相对位置和角度保持不变
 	 */
-	public class MotorJoint extends laya.physics.joint.JointBase {
+	public class MotorJoint extends JointBase {
 
 		/*
 		 * @private 

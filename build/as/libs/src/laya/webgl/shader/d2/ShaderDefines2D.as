@@ -1,6 +1,6 @@
 package laya.webgl.shader.d2 {
 	import laya.webgl.shader.ShaderDefinesBase;
-	public class ShaderDefines2D extends laya.webgl.shader.ShaderDefinesBase {
+	public class ShaderDefines2D extends ShaderDefinesBase {
 		public static var TEXTURE2D:Number;
 		public static var PRIMITIVE:Number;
 		public static var FILTERGLOW:Number;

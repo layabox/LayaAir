@@ -6,7 +6,7 @@ package laya.d3.core.particleShuriKen.module.shape {
 	/*
 	 * <code>ConeShape</code> 类用于创建锥形粒子形状。
 	 */
-	public class ConeShape extends laya.d3.core.particleShuriKen.module.shape.BaseShape {
+	public class ConeShape extends BaseShape {
 
 		/*
 		 * 发射角度。
@@ -48,10 +48,10 @@ package laya.d3.core.particleShuriKen.module.shape {
 		override public function cloneTo(destObject:*):void{}
 
 		/*
-		 * 克隆。
+		 * @override 克隆。
 		 * @return 克隆副本。
 		 */
-		public function clone():*{}
+		override public function clone():*{}
 	}
 
 }

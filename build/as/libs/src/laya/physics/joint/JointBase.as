@@ -4,7 +4,7 @@ package laya.physics.joint {
 	/*
 	 * 关节基类
 	 */
-	public class JointBase extends laya.components.Component {
+	public class JointBase extends Component {
 
 		/*
 		 * 原生关节对象
@@ -17,22 +17,7 @@ package laya.physics.joint {
 		public function get joint():*{
 				return null;
 		}
-
-		/*
-		 * @override 
-		 */
-		override protected function _onEnable():void{}
-
-		/*
-		 * @override 
-		 */
-		override protected function _onAwake():void{}
 		protected function _createJoint():void{}
-
-		/*
-		 * @override 
-		 */
-		override protected function _onDisable():void{}
 	}
 
 }

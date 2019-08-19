@@ -14,7 +14,7 @@ package laya.ui {
 	 * @example Laya.init(640, 800);//设置游戏画布宽高Laya.stage.bgColor = "#efefef";//设置画布的背景颜色var res = ["resource/ui/progress.png", "resource/ui/progress$bar.png"];Laya.loader.load(res, laya.utils.Handler.create(this, onLoadComplete));//加载资源。function onLoadComplete(){    progressBar = new laya.ui.ProgressBar("resource/ui/progress.png");//创建一个 ProgressBar 类的实例对象 progressBar 。    progressBar.x = 100;//设置 progressBar 对象的属性 x 的值，用于控制 progressBar 对象的显示位置。    progressBar.y = 100;//设置 progressBar 对象的属性 y 的值，用于控制 progressBar 对象的显示位置。    progressBar.value = 0.3;//设置 progressBar 的进度值。    progressBar.width = 200;//设置 progressBar 的宽度。    progressBar.height = 50;//设置 progressBar 的高度。    progressBar.sizeGrid = "10,5,10,5";//设置 progressBar 的网格信息。    progressBar.changeHandler = new laya.utils.Handler(this, onChange);//设置 progressBar 的value值改变时执行的处理器。    Laya.stage.addChild(progressBar);//将 progressBar 添加到显示列表。    Laya.timer.once(3000, this, changeValue);//设定 3000ms（毫秒）后，执行函数changeValue。}function changeValue(){    console.log("改变进度条的进度值。");    progressBar.value = 0.6;}function onChange(value){    console.log("进度发生改变： value=" ,value);}
 	 * @example import ProgressBar = laya.ui.ProgressBar;import Handler = laya.utils.Handler;class ProgressBar_Example {    private progressBar: ProgressBar;    public ProgressBar_Example() {        Laya.init(640, 800);//设置游戏画布宽高。        Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。        Laya.loader.load(["resource/ui/progress.png", "resource/ui/progress$bar.png"], Handler.create(this, this.onLoadComplete));//加载资源。    }    private onLoadComplete(): void {        this.progressBar = new ProgressBar("resource/ui/progress.png");//创建一个 ProgressBar 类的实例对象 progressBar 。        this.progressBar.x = 100;//设置 progressBar 对象的属性 x 的值，用于控制 progressBar 对象的显示位置。        this.progressBar.y = 100;//设置 progressBar 对象的属性 y 的值，用于控制 progressBar 对象的显示位置。        this.progressBar.value = 0.3;//设置 progressBar 的进度值。        this.progressBar.width = 200;//设置 progressBar 的宽度。        this.progressBar.height = 50;//设置 progressBar 的高度。        this.progressBar.sizeGrid = "5,10,5,10";//设置 progressBar 的网格信息。        this.progressBar.changeHandler = new Handler(this, this.onChange);//设置 progressBar 的value值改变时执行的处理器。        Laya.stage.addChild(this.progressBar);//将 progressBar 添加到显示列表。        Laya.timer.once(3000, this, this.changeValue);//设定 3000ms（毫秒）后，执行函数changeValue。    }    private changeValue(): void {        console.log("改变进度条的进度值。");        this.progressBar.value = 0.6;    }    private onChange(value: number): void {        console.log("进度发生改变： value=", value);    }}
 	 */
-	public class ProgressBar extends laya.ui.UIComponent {
+	public class ProgressBar extends UIComponent {
 
 		/*
 		 * 当 <code>ProgressBar</code> 实例的 <code>value</code> 属性发生变化时的函数处理器。
@@ -57,8 +57,9 @@ package laya.ui {
 
 		/*
 		 * @inheritDoc 
+		 * @override 
 		 */
-		protected function createChildren():void{}
+		override protected function createChildren():void{}
 
 		/*
 		 * @copy laya.ui.Image#skin

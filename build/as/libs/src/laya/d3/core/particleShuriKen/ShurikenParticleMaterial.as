@@ -6,7 +6,7 @@ package laya.d3.core.particleShuriKen {
 	/*
 	 * <code>ShurikenParticleMaterial</code> 类用于实现粒子材质。
 	 */
-	public class ShurikenParticleMaterial extends laya.d3.core.material.BaseMaterial {
+	public class ShurikenParticleMaterial extends BaseMaterial {
 
 		/*
 		 * 渲染状态_透明混合。

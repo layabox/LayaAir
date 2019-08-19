@@ -5,7 +5,7 @@ package laya.d3.physics {
 	/*
 	 * <code>CharacterController</code> 类用于创建角色控制器。
 	 */
-	public class CharacterController extends laya.d3.physics.PhysicsComponent {
+	public class CharacterController extends PhysicsComponent {
 		public static var UPAXIS_X:Number;
 		public static var UPAXIS_Y:Number;
 		public static var UPAXIS_Z:Number;
@@ -92,12 +92,6 @@ package laya.d3.physics {
 		 */
 
 		public function CharacterController(stepheight:Number = undefined,upAxis:Vector3 = undefined,collisionGroup:Number = undefined,canCollideWith:Number = undefined){}
-
-		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		override protected function _onDestroy():void{}
 
 		/*
 		 * 通过指定移动向量移动角色。

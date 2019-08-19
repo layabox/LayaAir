@@ -11,7 +11,7 @@ package laya.resource {
 	/*
 	 * <code>Texture</code> 是一个纹理处理类。
 	 */
-	public class Texture extends laya.events.EventDispatcher {
+	public class Texture extends EventDispatcher {
 
 		/*
 		 * @private 默认 UV 信息。

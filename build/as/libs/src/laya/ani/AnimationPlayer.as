@@ -26,7 +26,7 @@ package laya.ani {
 	/*
 	 * <code>AnimationPlayer</code> 类用于动画播放器。
 	 */
-	public class AnimationPlayer extends laya.events.EventDispatcher implements laya.resource.IDestroy {
+	public class AnimationPlayer extends EventDispatcher implements IDestroy {
 
 		/*
 		 * 是否缓存

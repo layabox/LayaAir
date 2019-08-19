@@ -6,7 +6,7 @@ package laya.d3.core.particleShuriKen.module {
 	/*
 	 * <code>GradientVelocity</code> 类用于创建渐变速度。
 	 */
-	public class GradientVelocity implements laya.d3.core.IClone {
+	public class GradientVelocity implements IClone {
 
 		/*
 		 * 通过固定速度创建一个 <code>GradientVelocity</code> 实例。

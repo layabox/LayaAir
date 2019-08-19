@@ -14,7 +14,7 @@ package laya.display {
 	/*
 	 * 节点关键帧动画播放类。解析播放IDE内制作的节点动画。
 	 */
-	public class FrameAnimation extends laya.display.AnimationBase {
+	public class FrameAnimation extends AnimationBase {
 
 		/*
 		 * @private 

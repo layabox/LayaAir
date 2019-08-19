@@ -4,7 +4,7 @@ package laya.d3.core.light {
 	/*
 	 * <code>DirectionLight</code> 类用于创建平行光。
 	 */
-	public class DirectionLight extends laya.d3.core.light.LightSprite {
+	public class DirectionLight extends LightSprite {
 		private var _direction:*;
 
 		/*

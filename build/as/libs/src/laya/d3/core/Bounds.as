@@ -6,7 +6,7 @@ package laya.d3.core {
 	/*
 	 * <code>Bounds</code> 类用于创建包围体。
 	 */
-	public class Bounds implements laya.d3.core.IClone {
+	public class Bounds implements IClone {
 		private var _updateFlag:*;
 
 		/*

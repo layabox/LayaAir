@@ -6,7 +6,7 @@ package laya.d3.core.material {
 	/*
 	 * <code>PBRStandardMaterial</code> 类用于实现PBR(Standard)材质。
 	 */
-	public class PBRStandardMaterial extends laya.d3.core.material.BaseMaterial {
+	public class PBRStandardMaterial extends BaseMaterial {
 
 		/*
 		 * 光滑度数据源_金属度贴图的Alpha通道。

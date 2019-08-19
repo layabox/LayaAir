@@ -7,7 +7,7 @@ package laya.display {
 	 * 场景类，负责场景创建，加载，销毁等功能
 	 * 场景被从节点移除后，并不会被自动垃圾机制回收，如果想回收，请调用destroy接口，可以通过unDestroyedScenes属性查看还未被销毁的场景列表
 	 */
-	public class Scene extends laya.display.Sprite {
+	public class Scene extends Sprite {
 
 		/*
 		 * 创建后，还未被销毁的场景列表，方便查看还未被销毁的场景列表，方便内存管理，本属性只读，请不要直接修改

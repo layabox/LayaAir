@@ -5,7 +5,7 @@ package laya.resource {
 	/*
 	 * <code>Texture2D</code> 类用于生成2D纹理。
 	 */
-	public class Texture2D extends laya.resource.BaseTexture {
+	public class Texture2D extends BaseTexture {
 
 		/*
 		 * Texture2D资源。

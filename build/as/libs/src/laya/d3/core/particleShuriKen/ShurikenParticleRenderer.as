@@ -7,7 +7,7 @@ package laya.d3.core.particleShuriKen {
 	/*
 	 * <code>ShurikenParticleRender</code> 类用于创建3D粒子渲染器。
 	 */
-	public class ShurikenParticleRenderer extends laya.d3.core.render.BaseRender {
+	public class ShurikenParticleRenderer extends BaseRender {
 
 		/*
 		 * 拉伸广告牌模式摄像机速度缩放,暂不支持。

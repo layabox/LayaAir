@@ -87,6 +87,7 @@ export class ConstraintComponent extends Component {
 
 	/**
 	 * @inheritDoc
+	 * @internal
 	 * @override
 	 */
 	protected _onDestroy(): void {

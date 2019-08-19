@@ -5,7 +5,7 @@ package laya.webgl.utils {
 	/*
 	 * 与MeshQuadTexture基本相同。不过index不是固定的
 	 */
-	public class MeshTexture extends laya.webgl.utils.Mesh2D {
+	public class MeshTexture extends Mesh2D {
 		public static var const_stride:Number;
 		private static var _fixattriInfo:*;
 		private static var _POOL:*;

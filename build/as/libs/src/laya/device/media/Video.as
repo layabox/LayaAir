@@ -11,7 +11,7 @@ package laya.device.media {
 	 * 
 	 * <p>MDN Video链接： <i>https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video</i></p>
 	 */
-	public class Video extends laya.display.Sprite {
+	public class Video extends Sprite {
 		public static var MP4:Number;
 		public static var OGG:Number;
 		public static var CAMERA:Number;

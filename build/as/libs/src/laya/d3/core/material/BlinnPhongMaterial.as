@@ -6,7 +6,7 @@ package laya.d3.core.material {
 	/*
 	 * <code>BlinnPhongMaterial</code> 类用于实现Blinn-Phong材质。
 	 */
-	public class BlinnPhongMaterial extends laya.d3.core.material.BaseMaterial {
+	public class BlinnPhongMaterial extends BaseMaterial {
 
 		/*
 		 * 高光强度数据源_漫反射贴图的Alpha通道。

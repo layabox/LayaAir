@@ -4,7 +4,7 @@ package laya.physics.joint {
 	/*
 	 * 齿轮关节：用来模拟两个齿轮间的约束关系，齿轮旋转时，产生的动量有两种输出方式，一种是齿轮本身的角速度，另一种是齿轮表面的线速度
 	 */
-	public class GearJoint extends laya.physics.joint.JointBase {
+	public class GearJoint extends JointBase {
 
 		/*
 		 * @private 

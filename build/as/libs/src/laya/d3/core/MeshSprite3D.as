@@ -7,7 +7,7 @@ package laya.d3.core {
 	/*
 	 * <code>MeshSprite3D</code> 类用于创建网格。
 	 */
-	public class MeshSprite3D extends laya.d3.core.RenderableSprite3D {
+	public class MeshSprite3D extends RenderableSprite3D {
 		private var _meshFilter:*;
 
 		/*

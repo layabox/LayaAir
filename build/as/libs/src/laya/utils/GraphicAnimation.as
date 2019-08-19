@@ -7,7 +7,7 @@ package laya.utils {
 	 * Graphics动画解析器
 	 * @private 
 	 */
-	public class GraphicAnimation extends laya.display.FrameAnimation {
+	public class GraphicAnimation extends FrameAnimation {
 
 		/*
 		 * @private 

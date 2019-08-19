@@ -24,7 +24,7 @@ package laya.ui {
 	 * @example Laya.init(640, 800);//设置游戏画布宽高Laya.stage.bgColor = "#efefef";//设置画布的背景颜色var clip;Laya.loader.load("resource/ui/clip_num.png",laya.utils.Handler.create(this,loadComplete));//加载资源function loadComplete() {    console.log("资源加载完成！");    clip = new laya.ui.Clip("resource/ui/clip_num.png",10,1);//创建一个 Clip 类的实例对象 clip ,传入它的皮肤skin和横向分割数量、竖向分割数量。    clip.autoPlay = true;//设置 clip 动画自动播放。    clip.interval = 100;//设置 clip 动画的播放时间间隔。    clip.x =100;//设置 clip 对象的属性 x 的值，用于控制 clip 对象的显示位置。    clip.y =100;//设置 clip 对象的属性 y 的值，用于控制 clip 对象的显示位置。    clip.on(Event.CLICK,this,onClick);//给 clip 添加点击事件函数侦听。    Laya.stage.addChild(clip);//将此 clip 对象添加到显示列表。}function onClick(){    console.log("clip 的点击事件侦听处理函数。");    if(clip.isPlaying == true)    {        clip.stop();    }else {        clip.play();    }}
 	 * @example import Clip = laya.ui.Clip;import Handler = laya.utils.Handler;class Clip_Example {    private clip: Clip;    constructor() {        Laya.init(640, 800);//设置游戏画布宽高。        Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。        this.onInit();    }    private onInit(): void {        this.clip = new Clip("resource/ui/clip_num.png", 10, 1);//创建一个 Clip 类的实例对象 clip ,传入它的皮肤skin和横向分割数量、竖向分割数量。        this.clip.autoPlay = true;//设置 clip 动画自动播放。        this.clip.interval = 100;//设置 clip 动画的播放时间间隔。        this.clip.x = 100;//设置 clip 对象的属性 x 的值，用于控制 clip 对象的显示位置。        this.clip.y = 100;//设置 clip 对象的属性 y 的值，用于控制 clip 对象的显示位置。        this.clip.on(laya.events.Event.CLICK, this, this.onClick);//给 clip 添加点击事件函数侦听。        Laya.stage.addChild(this.clip);//将此 clip 对象添加到显示列表。    }    private onClick(): void {        console.log("clip 的点击事件侦听处理函数。clip.total=" + this.clip.total);        if (this.clip.isPlaying == true) {            this.clip.stop();//停止动画。        } else {            this.clip.play();//播放动画。        }    }}
 	 */
-	public class Clip extends laya.ui.UIComponent {
+	public class Clip extends UIComponent {
 
 		/*
 		 * @private 
@@ -123,8 +123,9 @@ package laya.ui {
 
 		/*
 		 * @inheritDoc 
+		 * @override 
 		 */
-		protected function createChildren():void{}
+		override protected function createChildren():void{}
 
 		/*
 		 * @private 

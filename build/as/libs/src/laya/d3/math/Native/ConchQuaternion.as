@@ -7,7 +7,7 @@ package laya.d3.math.Native {
 	/*
 	 * <code>Quaternion</code> 类用于创建四元数。
 	 */
-	public class ConchQuaternion implements laya.d3.core.IClone {
+	public class ConchQuaternion implements IClone {
 
 		/*
 		 * 默认矩阵,禁止修改

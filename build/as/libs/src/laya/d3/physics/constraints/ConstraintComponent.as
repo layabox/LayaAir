@@ -5,7 +5,7 @@ package laya.d3.physics.constraints {
 	/*
 	 * <code>ConstraintComponent</code> 类用于创建约束的父类。
 	 */
-	public class ConstraintComponent extends laya.components.Component {
+	public class ConstraintComponent extends Component {
 
 		/*
 		 * 获取打破冲力阈值。
@@ -41,12 +41,6 @@ package laya.d3.physics.constraints {
 		 */
 
 		public function ConstraintComponent(){}
-
-		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		override protected function _onDestroy():void{}
 	}
 
 }

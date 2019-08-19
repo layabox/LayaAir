@@ -5,7 +5,7 @@ package laya.d3.core.particleShuriKen.module {
 	/*
 	 * <code>VelocityOverLifetime</code> 类用于粒子的生命周期速度。
 	 */
-	public class VelocityOverLifetime implements laya.d3.core.IClone {
+	public class VelocityOverLifetime implements IClone {
 
 		/*
 		 * 是否启用

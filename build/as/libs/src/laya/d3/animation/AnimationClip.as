@@ -6,7 +6,7 @@ package laya.d3.animation {
 	/*
 	 * <code>AnimationClip</code> 类用于动画片段资源。
 	 */
-	public class AnimationClip extends laya.resource.Resource {
+	public class AnimationClip extends Resource {
 
 		/*
 		 * AnimationClip资源。

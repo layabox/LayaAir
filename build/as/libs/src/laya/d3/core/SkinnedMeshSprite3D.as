@@ -7,7 +7,7 @@ package laya.d3.core {
 	/*
 	 * <code>SkinnedMeshSprite3D</code> 类用于创建网格。
 	 */
-	public class SkinnedMeshSprite3D extends laya.d3.core.RenderableSprite3D {
+	public class SkinnedMeshSprite3D extends RenderableSprite3D {
 
 		/*
 		 * 着色器变量名，蒙皮动画。

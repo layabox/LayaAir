@@ -6,7 +6,7 @@ package laya.media {
 	 * <code>Sound</code> 类是用来播放控制声音的类。
 	 * 引擎默认有两套声音方案，优先使用WebAudio播放声音，如果WebAudio不可用，则用H5Audio播放，H5Audio在部分机器上有兼容问题（比如不能混音，播放有延迟等）。
 	 */
-	public class Sound extends laya.events.EventDispatcher {
+	public class Sound extends EventDispatcher {
 
 		/*
 		 * 加载声音。

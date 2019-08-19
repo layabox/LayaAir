@@ -7,7 +7,7 @@ package laya.d3.core {
 	/*
 	 * <code>TerrainMeshSprite3D</code> 类用于创建网格。
 	 */
-	public class MeshTerrainSprite3D extends laya.d3.core.MeshSprite3D {
+	public class MeshTerrainSprite3D extends MeshSprite3D {
 		private static var _tempVector3:*;
 		private static var _tempMatrix4x4:*;
 

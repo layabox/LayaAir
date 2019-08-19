@@ -5,7 +5,7 @@ package laya.d3.core {
 	/*
 	 * <code>MeshRenderer</code> 类用于网格渲染器。
 	 */
-	public class MeshRenderer extends laya.d3.core.render.BaseRender {
+	public class MeshRenderer extends BaseRender {
 
 		/*
 		 * 创建一个新的 <code>MeshRender</code> 实例。

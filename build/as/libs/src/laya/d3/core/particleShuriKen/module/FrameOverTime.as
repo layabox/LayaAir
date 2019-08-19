@@ -5,7 +5,7 @@ package laya.d3.core.particleShuriKen.module {
 	/*
 	 * <code>FrameOverTime</code> 类用于创建时间帧。
 	 */
-	public class FrameOverTime implements laya.d3.core.IClone {
+	public class FrameOverTime implements IClone {
 
 		/*
 		 * 通过固定帧创建一个 <code>FrameOverTime</code> 实例。

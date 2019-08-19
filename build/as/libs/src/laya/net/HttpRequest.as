@@ -20,12 +20,12 @@ package laya.net {
 	 * <p> <code>HttpRequest</code> 通过封装 HTML <code>XMLHttpRequest</code> 对象提供了对 HTTP 协议的完全的访问，包括做出 POST 和 HEAD 请求以及普通的 GET 请求的能力。 <code>HttpRequest</code> 只提供以异步的形式返回 Web 服务器的响应，并且能够以文本或者二进制的形式返回内容。</p>
 	 * <p><b>注意：</b>建议每次请求都使用新的 <code>HttpRequest</code> 对象，因为每次调用该对象的send方法时，都会清空之前设置的数据，并重置 HTTP 请求的状态，这会导致之前还未返回响应的请求被重置，从而得不到之前请求的响应结果。</p>
 	 */
-	public class HttpRequest extends laya.events.EventDispatcher {
+	public class HttpRequest extends EventDispatcher {
 
 		/*
 		 * @private 
 		 */
-		protected var _http:XMLHttpRequest;
+		protected var _http:*;
 
 		/*
 		 * @private 

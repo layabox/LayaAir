@@ -4,7 +4,7 @@ package laya.d3.core.light {
 	/*
 	 * <code>PointLight</code> 类用于创建点光。
 	 */
-	public class PointLight extends laya.d3.core.light.LightSprite {
+	public class PointLight extends LightSprite {
 		private static var _tempMatrix0:*;
 		private var _range:*;
 		private var _lightMatrix:*;

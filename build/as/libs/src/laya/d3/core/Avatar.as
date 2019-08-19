@@ -7,7 +7,7 @@ package laya.d3.core {
 	/*
 	 * <code>Avatar</code> 类用于创建Avatar。
 	 */
-	public class Avatar extends laya.resource.Resource implements laya.d3.core.IClone {
+	public class Avatar extends Resource implements IClone {
 
 		/*
 		 * Avatar资源。

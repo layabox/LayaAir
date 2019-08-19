@@ -4,7 +4,7 @@ package laya.d3.resource {
 	/*
 	 * //* <code>RenderTexture</code> 类用于创建渲染目标。
 	 */
-	public class RenderTexture extends laya.resource.BaseTexture {
+	public class RenderTexture extends BaseTexture {
 
 		/*
 		 * 获取当前激活的Rendertexture。

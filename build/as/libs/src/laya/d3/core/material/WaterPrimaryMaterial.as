@@ -6,7 +6,7 @@ package laya.d3.core.material {
 	/*
 	 * <code>WaterPrimaryMaterial</code> 类用于实现水材质。
 	 */
-	public class WaterPrimaryMaterial extends laya.d3.core.material.BaseMaterial {
+	public class WaterPrimaryMaterial extends BaseMaterial {
 		public static var HORIZONCOLOR:Number;
 		public static var MAINTEXTURE:Number;
 		public static var NORMALTEXTURE:Number;

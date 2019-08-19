@@ -4,7 +4,7 @@ package laya.d3.core {
 	/*
 	 * <code>FloatKeyFrame</code> 类用于创建浮点关键帧实例。
 	 */
-	public class FloatKeyframe extends laya.d3.core.Keyframe {
+	public class FloatKeyframe extends Keyframe {
 		public var inTangent:Number;
 		public var outTangent:Number;
 		public var value:Number;

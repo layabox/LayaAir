@@ -5,7 +5,7 @@ package laya.d3.core.light {
 	/*
 	 * <code>LightSprite</code> 类用于创建灯光的父类。
 	 */
-	public class LightSprite extends laya.d3.core.Sprite3D {
+	public class LightSprite extends Sprite3D {
 
 		/*
 		 * 灯光烘培类型-实时。

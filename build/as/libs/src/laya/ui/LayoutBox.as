@@ -5,7 +5,7 @@ package laya.ui {
 	/*
 	 * <code>LayoutBox</code> 是一个布局容器类。
 	 */
-	public class LayoutBox extends laya.ui.Box {
+	public class LayoutBox extends Box {
 
 		/*
 		 * @private 

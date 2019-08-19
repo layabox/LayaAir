@@ -5,7 +5,7 @@ package laya.d3.core.trail {
 	/*
 	 * <code>VertexTrail</code> 类用于创建拖尾顶点结构。
 	 */
-	public class VertexTrail implements laya.d3.graphics.IVertex {
+	public class VertexTrail implements IVertex {
 		public static var TRAIL_POSITION0:Number;
 		public static var TRAIL_OFFSETVECTOR:Number;
 		public static var TRAIL_TIME0:Number;

@@ -5,7 +5,7 @@ package laya.d3.core.scene {
 	/*
 	 * <code>OctreeMotionList</code> 类用于实现物理更新队列。
 	 */
-	public class OctreeMotionList extends laya.d3.component.SingletonList {
+	public class OctreeMotionList extends SingletonList {
 
 		/*
 		 * 创建一个新的 <code>OctreeMotionList</code> 实例。

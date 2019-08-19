@@ -2,7 +2,7 @@ package laya.ani.bone.canvasmesh {
 	import laya.ani.bone.canvasmesh.MeshData;
 	import laya.maths.Matrix;
 	import laya.resource.Texture;
-	public class SkinMeshForGraphic extends laya.ani.bone.canvasmesh.MeshData {
+	public class SkinMeshForGraphic extends MeshData {
 
 		public function SkinMeshForGraphic(){}
 

@@ -7,7 +7,7 @@ package laya.ui {
 	/*
 	 * <code>ViewStack</code> 类用于视图堆栈类，用于视图的显示等设置处理。
 	 */
-	public class ViewStack extends laya.ui.Box implements laya.ui.IItem {
+	public class ViewStack extends Box implements IItem {
 
 		/*
 		 * @private 

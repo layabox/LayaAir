@@ -5,7 +5,7 @@ package laya.webgl.utils {
 	/*
 	 * 用来画矢量的mesh。顶点格式固定为 x,y,rgba
 	 */
-	public class MeshVG extends laya.webgl.utils.Mesh2D {
+	public class MeshVG extends Mesh2D {
 		public static var const_stride:Number;
 		private static var _fixattriInfo:*;
 		private static var _POOL:*;

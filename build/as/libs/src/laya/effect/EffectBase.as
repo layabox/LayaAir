@@ -7,7 +7,7 @@ package laya.effect {
 	/*
 	 * 效果插件基类，基于对象池管理
 	 */
-	public class EffectBase extends laya.components.Component {
+	public class EffectBase extends Component {
 
 		/*
 		 * 动画持续时间，单位为毫秒
@@ -45,11 +45,6 @@ package laya.effect {
 		public var autoDestroyAtComplete:Boolean;
 		protected var _comlete:Handler;
 		protected var _tween:Tween;
-
-		/*
-		 * @override 
-		 */
-		override protected function _onAwake():void{}
 		protected function _exeTween():void{}
 		protected function _doTween():Tween{
 			return null;

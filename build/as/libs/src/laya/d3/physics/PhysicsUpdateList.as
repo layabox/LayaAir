@@ -5,7 +5,7 @@ package laya.d3.physics {
 	/*
 	 * <code>PhysicsUpdateList</code> 类用于实现物理更新队列。
 	 */
-	public class PhysicsUpdateList extends laya.d3.component.SingletonList {
+	public class PhysicsUpdateList extends SingletonList {
 
 		/*
 		 * 创建一个新的 <code>PhysicsUpdateList</code> 实例。

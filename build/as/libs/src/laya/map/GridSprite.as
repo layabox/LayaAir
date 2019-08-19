@@ -8,7 +8,7 @@ package laya.map {
 	 * 本类就是地图的块数据
 	 * @author ...
 	 */
-	public class GridSprite extends laya.display.Sprite {
+	public class GridSprite extends Sprite {
 
 		/*
 		 * 相对于地图X轴的坐标

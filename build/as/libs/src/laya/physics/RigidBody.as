@@ -11,7 +11,7 @@ package laya.physics {
 	 * 如果想整体位移物理世界，可以Physics.I.worldRoot=场景，然后移动场景即可
 	 * 可以通过IDE-"项目设置" 开启物理辅助线显示，或者通过代码PhysicsDebugDraw.enable();
 	 */
-	public class RigidBody extends laya.components.Component {
+	public class RigidBody extends Component {
 
 		/*
 		 * 刚体类型，支持三种类型static，dynamic和kinematic类型，默认为dynamic类型
@@ -95,16 +95,6 @@ package laya.physics {
 		private var _createBody:*;
 
 		/*
-		 * @override 
-		 */
-		override protected function _onAwake():void{}
-
-		/*
-		 * @override 
-		 */
-		override protected function _onEnable():void{}
-
-		/*
 		 * 获取对象某属性的get set方法
 		 * 通过其本身无法获取该方法，只能从原型上获取
 		 * @param obj 
@@ -138,11 +128,6 @@ package laya.physics {
 		 * @private 
 		 */
 		private var _overSet:*;
-
-		/*
-		 * @override 
-		 */
-		override protected function _onDisable():void{}
 
 		/*
 		 * 获得原始body对象

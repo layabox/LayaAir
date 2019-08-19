@@ -4,7 +4,7 @@ package laya.d3.core.render {
 	/*
 	 * <code>ScreenQuad</code> 类用于创建全屏四边形。
 	 */
-	public class ScreenQuad extends laya.resource.Resource {
+	public class ScreenQuad extends Resource {
 
 		/*
 		 * 创建一个 <code>ScreenQuad</code> 实例,禁止使用。

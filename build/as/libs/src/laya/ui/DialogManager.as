@@ -20,7 +20,7 @@ package laya.ui {
 	 * 可以通过UIConfig设置弹出框背景透明度，模式窗口点击边缘是否关闭，点击窗口是否切换层次等
 	 * 通过设置对话框的zOrder属性，可以更改弹出的层次
 	 */
-	public class DialogManager extends laya.display.Sprite {
+	public class DialogManager extends Sprite {
 
 		/*
 		 * 遮罩层

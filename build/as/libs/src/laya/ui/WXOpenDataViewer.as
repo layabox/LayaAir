@@ -4,7 +4,7 @@ package laya.ui {
 	/*
 	 * 微信开放数据展示组件，直接实例本组件，即可根据组件宽高，位置，以最优的方式显示开放域数据
 	 */
-	public class WXOpenDataViewer extends laya.ui.UIComponent {
+	public class WXOpenDataViewer extends UIComponent {
 
 		public function WXOpenDataViewer(){}
 

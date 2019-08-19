@@ -4,7 +4,7 @@ package laya.d3.physics.shape {
 	/*
 	 * <code>CapsuleColliderShape</code> 类用于创建胶囊形状碰撞器。
 	 */
-	public class CapsuleColliderShape extends laya.d3.physics.shape.ColliderShape {
+	public class CapsuleColliderShape extends ColliderShape {
 
 		/*
 		 * 获取半径。

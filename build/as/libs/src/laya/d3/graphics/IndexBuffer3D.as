@@ -4,7 +4,7 @@ package laya.d3.graphics {
 	/*
 	 * <code>IndexBuffer3D</code> 类用于创建索引缓冲。
 	 */
-	public class IndexBuffer3D extends laya.webgl.utils.Buffer {
+	public class IndexBuffer3D extends Buffer {
 
 		/*
 		 * 8位ubyte无符号索引类型。

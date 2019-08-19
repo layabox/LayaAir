@@ -6,7 +6,7 @@ package laya.d3.core.particleShuriKen.module.shape {
 	/*
 	 * <code>BoxShape</code> 类用于创建球形粒子形状。
 	 */
-	public class BoxShape extends laya.d3.core.particleShuriKen.module.shape.BaseShape {
+	public class BoxShape extends BaseShape {
 
 		/*
 		 * 发射器X轴长度。
@@ -44,10 +44,10 @@ package laya.d3.core.particleShuriKen.module.shape {
 		override public function cloneTo(destObject:*):void{}
 
 		/*
-		 * 克隆。
+		 * @override 克隆。
 		 * @return 克隆副本。
 		 */
-		public function clone():*{}
+		override public function clone():*{}
 	}
 
 }

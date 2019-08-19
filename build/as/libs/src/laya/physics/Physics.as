@@ -5,7 +5,7 @@ package laya.physics {
 	/*
 	 * 2D物理引擎，使用Box2d驱动
 	 */
-	public class Physics extends laya.events.EventDispatcher {
+	public class Physics extends EventDispatcher {
 
 		/*
 		 * 2D游戏默认单位为像素，物理默认单位为米，此值设置了像素和米的转换比率，默认50像素=1米

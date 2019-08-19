@@ -5,7 +5,7 @@ package laya.ani {
 	/*
 	 * <code>AnimationTemplet</code> 类用于动画模板资源。
 	 */
-	public class AnimationTemplet extends laya.resource.Resource {
+	public class AnimationTemplet extends Resource {
 		public static var interpolation:Array;
 
 		/*

@@ -28,7 +28,7 @@ package laya.ui {
 	 * @example Laya.init(640, 800);//设置游戏画布宽高Laya.stage.bgColor = "#efefef";//设置画布的背景颜色Laya.loader.load(["resource/ui/input.png"], laya.utils.Handler.create(this, onLoadComplete));//加载资源。function onLoadComplete() {    var textInput = new laya.ui.TextInput("这是一个TextInput实例。");//创建一个 TextInput 类的实例对象 textInput 。    textInput.skin = "resource/ui/input.png";//设置 textInput 的皮肤。    textInput.sizeGrid = "4,4,4,4";//设置 textInput 的网格信息。    textInput.color = "#008fff";//设置 textInput 的文本颜色。    textInput.font = "Arial";//设置 textInput 的文本字体。    textInput.bold = true;//设置 textInput 的文本显示为粗体。    textInput.fontSize = 30;//设置 textInput 的字体大小。    textInput.wordWrap = true;//设置 textInput 的文本自动换行。    textInput.x = 100;//设置 textInput 对象的属性 x 的值，用于控制 textInput 对象的显示位置。    textInput.y = 100;//设置 textInput 对象的属性 y 的值，用于控制 textInput 对象的显示位置。    textInput.width = 300;//设置 textInput 的宽度。    textInput.height = 200;//设置 textInput 的高度。    Laya.stage.addChild(textInput);//将 textInput 添加到显示列表。}
 	 * @example import Stage = laya.display.Stage;import TextInput = laya.ui.TextInput;import Handler = laya.utils.Handler;class TextInput_Example {    constructor() {        Laya.init(640, 800);//设置游戏画布宽高、渲染模式。        Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。        Laya.loader.load(["resource/ui/input.png"], Handler.create(this, this.onLoadComplete));//加载资源。    }    private onLoadComplete(): void {        var textInput: TextInput = new TextInput("这是一个TextInput实例。");//创建一个 TextInput 类的实例对象 textInput 。        textInput.skin = "resource/ui/input.png";//设置 textInput 的皮肤。        textInput.sizeGrid = "4,4,4,4";//设置 textInput 的网格信息。        textInput.color = "#008fff";//设置 textInput 的文本颜色。        textInput.font = "Arial";//设置 textInput 的文本字体。        textInput.bold = true;//设置 textInput 的文本显示为粗体。        textInput.fontSize = 30;//设置 textInput 的字体大小。        textInput.wordWrap = true;//设置 textInput 的文本自动换行。        textInput.x = 100;//设置 textInput 对象的属性 x 的值，用于控制 textInput 对象的显示位置。        textInput.y = 100;//设置 textInput 对象的属性 y 的值，用于控制 textInput 对象的显示位置。        textInput.width = 300;//设置 textInput 的宽度。        textInput.height = 200;//设置 textInput 的高度。        Laya.stage.addChild(textInput);//将 textInput 添加到显示列表。    }}
 	 */
-	public class TextInput extends laya.ui.Label {
+	public class TextInput extends Label {
 
 		/*
 		 * @private 
@@ -49,8 +49,9 @@ package laya.ui {
 
 		/*
 		 * @inheritDoc 
+		 * @override 
 		 */
-		protected function preinitialize():void{}
+		override protected function preinitialize():void{}
 
 		/*
 		 * @inheritDoc 
@@ -60,8 +61,9 @@ package laya.ui {
 
 		/*
 		 * @inheritDoc 
+		 * @override 
 		 */
-		protected function createChildren():void{}
+		override protected function createChildren():void{}
 
 		/*
 		 * @private 
@@ -85,8 +87,9 @@ package laya.ui {
 
 		/*
 		 * @inheritDoc 
+		 * @override 
 		 */
-		protected function initialize():void{}
+		override protected function initialize():void{}
 
 		/*
 		 * 表示此对象包含的文本背景 <code>AutoBitmap</code> 组件实例。

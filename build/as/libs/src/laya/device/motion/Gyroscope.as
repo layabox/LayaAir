@@ -17,7 +17,7 @@ package laya.device.motion {
 	 * 浏览器兼容性参见：<i>http://caniuse.com/#search=deviceorientation</i>
 	 * </p>
 	 */
-	public class Gyroscope extends laya.events.EventDispatcher {
+	public class Gyroscope extends EventDispatcher {
 		private static var info:*;
 
 		/*

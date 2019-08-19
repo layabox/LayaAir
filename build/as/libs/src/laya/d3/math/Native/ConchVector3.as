@@ -6,7 +6,7 @@ package laya.d3.math.Native {
 	/*
 	 * <code>Vector3</code> 类用于创建三维向量。
 	 */
-	public class ConchVector3 implements laya.d3.core.IClone {
+	public class ConchVector3 implements IClone {
 
 		/*
 		 * 零向量，禁止修改

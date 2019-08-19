@@ -9,7 +9,7 @@ package laya.ui {
 	 * @example import Handler = laya.utils.Handler;import HSlider = laya.ui.HSlider;class HSlider_Example {    private hSlider: HSlider;    constructor() {        Laya.init(640, 800);//设置游戏画布宽高。        Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。        Laya.loader.load(["resource/ui/hslider.png", "resource/ui/hslider$bar.png"], Handler.create(this, this.onLoadComplete));//加载资源。    }    private onLoadComplete(): void {        this.hSlider = new HSlider();//创建一个 HSlider 类的实例对象 hSlider 。        this.hSlider.skin = "resource/ui/hslider.png";//设置 hSlider 的皮肤。        this.hSlider.min = 0;//设置 hSlider 最低位置值。        this.hSlider.max = 10;//设置 hSlider 最高位置值。        this.hSlider.value = 2;//设置 hSlider 当前位置值。        this.hSlider.tick = 1;//设置 hSlider 刻度值。        this.hSlider.x = 100;//设置 hSlider 对象的属性 x 的值，用于控制 hSlider 对象的显示位置。        this.hSlider.y = 100;//设置 hSlider 对象的属性 y 的值，用于控制 hSlider 对象的显示位置。        this.hSlider.changeHandler = new Handler(this, this.onChange);//设置 hSlider 位置变化处理器。        Laya.stage.addChild(this.hSlider);//把 hSlider 添加到显示列表。    }    private onChange(value: number): void {        console.log("滑块的位置： value=" + value);    }}
 	 * @see laya.ui.Slider
 	 */
-	public class HSlider extends laya.ui.Slider {
+	public class HSlider extends Slider {
 
 		/*
 		 * 创建一个 <code>HSlider</code> 类实例。

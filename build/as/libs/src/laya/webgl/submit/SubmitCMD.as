@@ -1,6 +1,6 @@
 package laya.webgl.submit {
 	import laya.webgl.submit.ISubmit;
-	public class SubmitCMD implements laya.webgl.submit.ISubmit {
+	public class SubmitCMD implements ISubmit {
 		public static var POOL:*;
 		public var fun:Function;
 		public var args:Array;

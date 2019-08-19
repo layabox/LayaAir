@@ -29,7 +29,7 @@ package laya.ani.bone {
 	/*
 	 * 骨骼动画由<code>Templet</code>，<code>AnimationPlayer</code>，<code>Skeleton</code>三部分组成。
 	 */
-	public class Skeleton extends laya.display.Sprite {
+	public class Skeleton extends Sprite {
 
 		/*
 		 * 在canvas模式是否使用简化版的mesh绘制，简化版的mesh将不进行三角形绘制，而改为矩形绘制，能极大提高性能，但是可能某些mesh动画效果会不太正常

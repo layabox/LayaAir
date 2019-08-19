@@ -7,7 +7,7 @@ package laya.d3.shader {
 	/*
 	 * <code>ShaderPass</code> 类用于实现ShaderPass。
 	 */
-	public class ShaderPass extends laya.webgl.utils.ShaderCompile {
+	public class ShaderPass extends ShaderCompile {
 
 		/*
 		 * 获取渲染状态。

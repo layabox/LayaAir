@@ -4,7 +4,7 @@ package laya.filters {
 	/*
 	 * 发光滤镜(也可以当成阴影滤使用）
 	 */
-	public class GlowFilter extends laya.filters.Filter {
+	public class GlowFilter extends Filter {
 
 		/*
 		 * 数据的存储，顺序R,G,B,A,blurWidth,offX,offY;

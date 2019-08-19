@@ -4,7 +4,7 @@ package laya.physics {
 	/*
 	 * 2D线形碰撞体
 	 */
-	public class ChainCollider extends laya.physics.ColliderBase {
+	public class ChainCollider extends ColliderBase {
 
 		/*
 		 * 相对节点的x轴偏移

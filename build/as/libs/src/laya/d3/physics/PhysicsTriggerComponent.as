@@ -4,7 +4,7 @@ package laya.d3.physics {
 	/*
 	 * <code>PhysicsTriggerComponent</code> 类用于创建物理触发器组件。
 	 */
-	public class PhysicsTriggerComponent extends laya.d3.physics.PhysicsComponent {
+	public class PhysicsTriggerComponent extends PhysicsComponent {
 
 		/*
 		 * 获取是否为触发器。

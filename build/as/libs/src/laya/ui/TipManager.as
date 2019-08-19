@@ -5,7 +5,7 @@ package laya.ui {
 	/*
 	 * 鼠标提示管理类
 	 */
-	public class TipManager extends laya.ui.UIComponent {
+	public class TipManager extends UIComponent {
 		public static var offsetX:Number;
 		public static var offsetY:Number;
 		public static var tipTextColor:String;

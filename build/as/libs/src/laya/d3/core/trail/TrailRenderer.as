@@ -6,7 +6,7 @@ package laya.d3.core.trail {
 	/*
 	 * <code>TrailRenderer</code> 类用于创建拖尾渲染器。
 	 */
-	public class TrailRenderer extends laya.d3.core.render.BaseRender {
+	public class TrailRenderer extends BaseRender {
 
 		public function TrailRenderer(owner:TrailSprite3D = undefined){}
 		protected var _projectionViewWorldMatrix:Matrix4x4;

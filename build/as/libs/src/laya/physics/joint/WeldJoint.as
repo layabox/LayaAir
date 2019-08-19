@@ -5,7 +5,7 @@ package laya.physics.joint {
 	/*
 	 * 焊接关节：焊接关节的用途是使两个物体不能相对运动，受到关节的限制，两个刚体的相对位置和角度都保持不变，看上去像一个整体
 	 */
-	public class WeldJoint extends laya.physics.joint.JointBase {
+	public class WeldJoint extends JointBase {
 
 		/*
 		 * @private 

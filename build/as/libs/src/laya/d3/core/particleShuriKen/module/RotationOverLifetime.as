@@ -5,7 +5,7 @@ package laya.d3.core.particleShuriKen.module {
 	/*
 	 * <code>RotationOverLifetime</code> 类用于粒子的生命周期旋转。
 	 */
-	public class RotationOverLifetime implements laya.d3.core.IClone {
+	public class RotationOverLifetime implements IClone {
 		private var _angularVelocity:*;
 
 		/*

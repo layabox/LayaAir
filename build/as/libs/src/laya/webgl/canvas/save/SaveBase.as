@@ -1,7 +1,7 @@
 package laya.webgl.canvas.save {
 	import laya.webgl.canvas.save.ISaveData;
 	import laya.resource.Context;
-	public class SaveBase implements laya.webgl.canvas.save.ISaveData {
+	public class SaveBase implements ISaveData {
 		public static var TYPE_ALPHA:Number;
 		public static var TYPE_FILESTYLE:Number;
 		public static var TYPE_FONT:Number;

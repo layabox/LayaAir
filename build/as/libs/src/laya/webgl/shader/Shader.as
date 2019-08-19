@@ -2,7 +2,7 @@ package laya.webgl.shader {
 	import laya.utils.StringKey;
 	import laya.webgl.shader.BaseShader;
 	import laya.webgl.shader.ShaderValue;
-	public class Shader extends laya.webgl.shader.BaseShader {
+	public class Shader extends BaseShader {
 		private static var _count:*;
 		private var _attribInfo:*;
 		public static var SHADERNAME2ID:Number;

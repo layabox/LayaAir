@@ -30,7 +30,7 @@ package laya.display {
 	 * <p><code>Input</code> 类用于创建显示对象以显示和输入文本。</p>
 	 * <p>Input 类封装了原生的文本输入框，由于不同浏览器的差异，会导致此对象的默认文本的位置与用户点击输入时的文本的位置有少许的偏差。</p>
 	 */
-	public class Input extends laya.display.Text {
+	public class Input extends Text {
 
 		/*
 		 * 常规文本域。

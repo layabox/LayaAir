@@ -5,7 +5,7 @@ package laya.media.h5audio {
 	/*
 	 * @private 使用Audio标签播放声音
 	 */
-	public class AudioSound extends laya.events.EventDispatcher {
+	public class AudioSound extends EventDispatcher {
 
 		/*
 		 * @private 

@@ -5,7 +5,7 @@ package laya.physics.joint {
 	/*
 	 * 轮子关节：围绕节点旋转，包含弹性属性，使得刚体在节点位置发生弹性偏移
 	 */
-	public class WheelJoint extends laya.physics.joint.JointBase {
+	public class WheelJoint extends JointBase {
 
 		/*
 		 * @private 

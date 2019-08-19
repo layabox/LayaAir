@@ -4,7 +4,7 @@ package laya.webgl.utils {
 	/*
 	 * drawImage，fillRect等会用到的简单的mesh。每次添加必然是一个四边形。
 	 */
-	public class MeshParticle2D extends laya.webgl.utils.Mesh2D {
+	public class MeshParticle2D extends Mesh2D {
 		public static var const_stride:Number;
 		private static var _fixattriInfo:*;
 		private static var _POOL:*;

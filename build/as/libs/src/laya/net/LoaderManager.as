@@ -22,7 +22,7 @@ package laya.net {
 	 * 错误重试：资源加载失败后，会重试加载（以最低优先级插入加载队列），retryNum设定加载失败后重试次数，retryDelay设定加载重试的时间间隔。</p>
 	 * @see laya.net.Loader
 	 */
-	public class LoaderManager extends laya.events.EventDispatcher {
+	public class LoaderManager extends EventDispatcher {
 
 		/*
 		 * @private 

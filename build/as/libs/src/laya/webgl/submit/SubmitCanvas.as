@@ -5,7 +5,7 @@ package laya.webgl.submit {
 	/*
 	 * cache as normal 模式下的生成的canvas的渲染。
 	 */
-	public class SubmitCanvas extends laya.webgl.submit.SubmitBase {
+	public class SubmitCanvas extends SubmitBase {
 		public var canv:Context;
 		public static function create(canvas:*,alpha:Number,filters:Array):SubmitCanvas{
 			return null;

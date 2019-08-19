@@ -4,7 +4,7 @@ package laya.filters {
 	/*
 	 * 模糊滤镜
 	 */
-	public class BlurFilter extends laya.filters.Filter {
+	public class BlurFilter extends Filter {
 
 		/*
 		 * 模糊滤镜的强度(值越大，越不清晰

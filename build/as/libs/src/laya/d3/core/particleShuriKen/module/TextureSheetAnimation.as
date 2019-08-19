@@ -7,7 +7,7 @@ package laya.d3.core.particleShuriKen.module {
 	/*
 	 * <code>TextureSheetAnimation</code> 类用于创建粒子帧动画。
 	 */
-	public class TextureSheetAnimation implements laya.d3.core.IClone {
+	public class TextureSheetAnimation implements IClone {
 
 		/*
 		 * 纹理平铺。

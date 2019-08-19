@@ -5,7 +5,7 @@ package laya.d3.physics.shape {
 	/*
 	 * <code>StaticPlaneColliderShape</code> 类用于创建静态平面碰撞器。
 	 */
-	public class StaticPlaneColliderShape extends laya.d3.physics.shape.ColliderShape {
+	public class StaticPlaneColliderShape extends ColliderShape {
 		private static var _nativeNormal:*;
 
 		/*

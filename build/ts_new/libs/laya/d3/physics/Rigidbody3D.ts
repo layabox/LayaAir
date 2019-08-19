@@ -596,6 +596,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 
 	/**
 	 * @inheritDoc
+	 * @internal
 	 * @override
 	 */
 	protected _onDestroy(): void {

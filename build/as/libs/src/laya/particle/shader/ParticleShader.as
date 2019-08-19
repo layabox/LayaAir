@@ -4,7 +4,7 @@ package laya.particle.shader {
 	/*
 	 * @private 
 	 */
-	public class ParticleShader extends laya.webgl.shader.Shader {
+	public class ParticleShader extends Shader {
 		public static var vs:String;
 		public static var ps:String;
 

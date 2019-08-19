@@ -4,7 +4,7 @@ package laya.components {
 	/*
 	 * <code>CommonScript</code> 类用于创建公共脚本类。
 	 */
-	public class CommonScript extends laya.components.Component {
+	public class CommonScript extends Component {
 
 		public function CommonScript(){}
 

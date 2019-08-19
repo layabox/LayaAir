@@ -7,7 +7,7 @@ package laya.d3.math {
 	/*
 	 * <code>Vector3</code> 类用于创建三维向量。
 	 */
-	public class Vector3 implements laya.d3.core.IClone {
+	public class Vector3 implements IClone {
 
 		/*
 		 * 两个三维向量距离的平方。

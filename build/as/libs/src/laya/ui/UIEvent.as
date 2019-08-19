@@ -4,7 +4,7 @@ package laya.ui {
 	/*
 	 * <code>UIEvent</code> 类用来定义UI组件类的事件类型。
 	 */
-	public class UIEvent extends laya.events.Event {
+	public class UIEvent extends Event {
 
 		/*
 		 * 显示提示信息。

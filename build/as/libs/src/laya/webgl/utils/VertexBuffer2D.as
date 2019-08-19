@@ -1,6 +1,6 @@
 package laya.webgl.utils {
 	import laya.webgl.utils.Buffer2D;
-	public class VertexBuffer2D extends laya.webgl.utils.Buffer2D {
+	public class VertexBuffer2D extends Buffer2D {
 		public static var create:Function;
 		public var _floatArray32:Float32Array;
 		public var _uint32Array:Uint32Array;

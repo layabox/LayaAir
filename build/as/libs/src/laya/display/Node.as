@@ -26,7 +26,7 @@ package laya.display {
 	/*
 	 * <code>Node</code> 类是可放在显示列表中的所有对象的基类。该显示列表管理 Laya 运行时中显示的所有对象。使用 Node 类排列显示列表中的显示对象。Node 对象可以有子显示对象。
 	 */
-	public class Node extends laya.events.EventDispatcher {
+	public class Node extends EventDispatcher {
 
 		/*
 		 * @private 

@@ -4,7 +4,7 @@ package laya.d3.core {
 	/*
 	 * <code>KeyFrame</code> 类用于创建关键帧实例。
 	 */
-	public class Keyframe implements laya.d3.core.IClone {
+	public class Keyframe implements IClone {
 
 		/*
 		 * 时间。

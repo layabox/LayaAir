@@ -4,7 +4,7 @@ package laya.d3.physics.shape {
 	/*
 	 * <code>BoxColliderShape</code> 类用于创建盒子形状碰撞器。
 	 */
-	public class BoxColliderShape extends laya.d3.physics.shape.ColliderShape {
+	public class BoxColliderShape extends ColliderShape {
 
 		/*
 		 * 获取X轴尺寸。

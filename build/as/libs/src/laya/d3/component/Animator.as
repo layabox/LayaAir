@@ -9,7 +9,7 @@ package laya.d3.component {
 	/*
 	 * <code>Animator</code> 类用于创建动画组件。
 	 */
-	public class Animator extends laya.components.Component {
+	public class Animator extends Component {
 		private static var _tempVector30:*;
 		private static var _tempVector31:*;
 		private static var _tempQuaternion0:*;
@@ -70,24 +70,6 @@ package laya.d3.component {
 		private var _setCrossClipDatasToNode:*;
 		private var _setFixedCrossClipDatasToNode:*;
 		private var _revertDefaultKeyframeNodes:*;
-
-		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		override protected function _onDestroy():void{}
-
-		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		override protected function _onEnable():void{}
-
-		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		override protected function _onDisable():void{}
 
 		/*
 		 * 获取默认动画状态。

@@ -5,7 +5,7 @@ package laya.physics.joint {
 	/*
 	 * 鼠标关节：鼠标关节用于通过鼠标来操控物体。它试图将物体拖向当前鼠标光标的位置。而在旋转方面就没有限制。
 	 */
-	public class MouseJoint extends laya.physics.joint.JointBase {
+	public class MouseJoint extends JointBase {
 
 		/*
 		 * @private 
@@ -36,16 +36,6 @@ package laya.physics.joint {
 		 * 刚体在回归到节点过程中受到的阻尼，取值0~1
 		 */
 		private var _damping:*;
-
-		/*
-		 * @override 
-		 */
-		override protected function _onEnable():void{}
-
-		/*
-		 * @override 
-		 */
-		override protected function _onAwake():void{}
 		private var onMouseDown:*;
 
 		/*
@@ -54,11 +44,6 @@ package laya.physics.joint {
 		override protected function _createJoint():void{}
 		private var onStageMouseUp:*;
 		private var onMouseMove:*;
-
-		/*
-		 * @override 
-		 */
-		override protected function _onDisable():void{}
 
 		/*
 		 * 鼠标关节在拖曳刚体bodyB时施加的最大作用力

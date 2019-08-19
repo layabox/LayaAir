@@ -1,7 +1,7 @@
 package laya.webgl.text {
 	import laya.resource.Resource;
 	import laya.webgl.text.CharRenderInfo;
-	public class TextTexture extends laya.resource.Resource {
+	public class TextTexture extends Resource {
 		public static var gTextRender:ITextRender;
 		private static var pool:*;
 		private static var poolLen:*;

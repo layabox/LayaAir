@@ -5,7 +5,7 @@ package laya.d3 {
 	/*
 	 * <code>Touch</code> 类用于实现触摸描述。
 	 */
-	public class Touch implements laya.resource.ISingletonElement {
+	public class Touch implements ISingletonElement {
 
 		/*
 		 * [实现IListPool接口]

@@ -6,7 +6,7 @@ package laya.d3.math {
 	/*
 	 * <code>BoundSphere</code> 类用于创建包围球。
 	 */
-	public class BoundSphere implements laya.d3.core.IClone {
+	public class BoundSphere implements IClone {
 		private static var _tempVector3:*;
 
 		/*

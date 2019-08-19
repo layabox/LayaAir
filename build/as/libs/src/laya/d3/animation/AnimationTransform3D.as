@@ -5,7 +5,7 @@ package laya.d3.animation {
 	/*
 	 * <code>AnimationTransform3D</code> 类用于实现3D变换。
 	 */
-	public class AnimationTransform3D extends laya.events.EventDispatcher {
+	public class AnimationTransform3D extends EventDispatcher {
 		private static var _tempVector3:*;
 		private static var _angleToRandin:*;
 		private var _localMatrix:*;

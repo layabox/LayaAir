@@ -6,7 +6,7 @@ package laya.d3.core.particleShuriKen {
 	/*
 	 * <code>ShuriKenParticle3D</code> 3D粒子。
 	 */
-	public class ShuriKenParticle3D extends laya.d3.core.RenderableSprite3D {
+	public class ShuriKenParticle3D extends RenderableSprite3D {
 
 		/*
 		 * 获取粒子系统。

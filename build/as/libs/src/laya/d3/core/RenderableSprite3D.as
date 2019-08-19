@@ -6,7 +6,7 @@ package laya.d3.core {
 	/*
 	 * <code>RenderableSprite3D</code> 类用于可渲染3D精灵的父类，抽象类不允许实例。
 	 */
-	public class RenderableSprite3D extends laya.d3.core.Sprite3D {
+	public class RenderableSprite3D extends Sprite3D {
 
 		/*
 		 * 精灵级着色器宏定义,接收阴影。

@@ -4,7 +4,7 @@ package laya.filters {
 	/*
 	 * <code>Filter</code> 是滤镜基类。
 	 */
-	public class Filter implements laya.filters.IFilter {
+	public class Filter implements IFilter {
 
 		/*
 		 * @private 模糊滤镜。

@@ -4,7 +4,7 @@ package laya.ui {
 	/*
 	 * 相对布局插件
 	 */
-	public class Widget extends laya.components.Component {
+	public class Widget extends Component {
 
 		/*
 		 * 一个已初始化的 <code>Widget</code> 实例。
@@ -21,16 +21,6 @@ package laya.ui {
 		 * @override 
 		 */
 		override public function onReset():void{}
-
-		/*
-		 * @override 
-		 */
-		override protected function _onEnable():void{}
-
-		/*
-		 * @override 
-		 */
-		override protected function _onDisable():void{}
 
 		/*
 		 * 父容器的 <code>Event.RESIZE</code> 事件侦听处理函数。

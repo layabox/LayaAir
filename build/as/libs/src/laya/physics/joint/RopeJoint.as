@@ -5,7 +5,7 @@ package laya.physics.joint {
 	/*
 	 * 绳索关节：限制了两个点之间的最大距离。它能够阻止连接的物体之间的拉伸，即使在很大的负载下
 	 */
-	public class RopeJoint extends laya.physics.joint.JointBase {
+	public class RopeJoint extends JointBase {
 
 		/*
 		 * @private 

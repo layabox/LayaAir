@@ -20,7 +20,7 @@ package laya.ani.bone {
 	/*
 	 * 动画模板类
 	 */
-	public class Templet extends laya.ani.AnimationTemplet {
+	public class Templet extends AnimationTemplet {
 
 		/*
 		 * 存放原始骨骼信息

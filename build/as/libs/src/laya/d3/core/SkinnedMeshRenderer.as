@@ -7,7 +7,7 @@ package laya.d3.core {
 	/*
 	 * <code>SkinMeshRenderer</code> 类用于蒙皮渲染器。
 	 */
-	public class SkinnedMeshRenderer extends laya.d3.core.MeshRenderer {
+	public class SkinnedMeshRenderer extends MeshRenderer {
 
 		/*
 		 * 获取局部边界。

@@ -26,7 +26,7 @@ export class MouseJoint extends JointBase {
     private _damping: number = 0.7;
     /**
      * @override
-     * 
+     * @internal
      */
     protected _onEnable(): void {
         //super._onEnable();
@@ -34,7 +34,7 @@ export class MouseJoint extends JointBase {
     }
     /**
      * @override
-     * 
+     * @internal
      */
     protected _onAwake(): void {
     }
@@ -81,7 +81,7 @@ export class MouseJoint extends JointBase {
     }
     /**
      * @override
-     * 
+     * @internal
      */
     protected _onDisable(): void {
         (<Sprite>this.owner).off(Event.MOUSE_DOWN, this, this.onMouseDown);

@@ -6,7 +6,7 @@ package laya.d3.physics.shape {
 	/*
 	 * <code>ColliderShape</code> 类用于创建形状碰撞器的父类，该类为抽象类。
 	 */
-	public class ColliderShape implements laya.d3.core.IClone {
+	public class ColliderShape implements IClone {
 		public var needsCustomCollisionCallback:Boolean;
 
 		/*

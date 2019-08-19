@@ -4,7 +4,7 @@ package laya.ui {
 	/*
 	 * <code>HBox</code> 是一个水平布局容器类。
 	 */
-	public class HBox extends laya.ui.LayoutBox {
+	public class HBox extends LayoutBox {
 
 		/*
 		 * 无对齐。

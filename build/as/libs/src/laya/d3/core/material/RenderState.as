@@ -5,7 +5,7 @@ package laya.d3.core.material {
 	/*
 	 * <code>RenderState</code> 类用于控制渲染状态。
 	 */
-	public class RenderState implements laya.d3.core.IClone {
+	public class RenderState implements IClone {
 
 		/*
 		 * 剔除枚举_不剔除。

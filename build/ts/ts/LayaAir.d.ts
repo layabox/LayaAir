@@ -1510,30 +1510,6 @@ declare module laya.components {
 		readonly isSingleton:boolean;
 
 		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		protected _onAwake():void;
-
-		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		protected _onEnable():void;
-
-		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		protected _onDisable():void;
-
-		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		protected _onDestroy():void;
-
-		/*
 		 * 组件被激活后执行，此时所有节点和组件均已创建完毕，次方法只执行一次
 		 * 此方法为虚方法，使用时重写覆盖即可
 		 */
@@ -2031,24 +2007,6 @@ declare module laya.d3.component {
 		private _revertDefaultKeyframeNodes:any;
 
 		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		protected _onDestroy():void;
-
-		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		protected _onEnable():void;
-
-		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		protected _onDisable():void;
-
-		/*
 		 * 获取默认动画状态。
 		 * @param layerIndex 层索引。
 		 * @return 默认动画状态。
@@ -2412,30 +2370,6 @@ declare module laya.d3.component {
 		readonly isSingleton:boolean;
 		private _checkProcessTriggers:any;
 		private _checkProcessCollisions:any;
-
-		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		protected _onAwake():void;
-
-		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		protected _onEnable():void;
-
-		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		protected _onDisable():void;
-
-		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		protected _onDestroy():void;
 
 		/*
 		 * 创建后只执行一次
@@ -3117,6 +3051,7 @@ declare module laya.d3.core {
 		private _calculationViewport:any;
 
 		/*
+		 * @override 
 		 * @param shader 着色器
 		 * @param replacementTag 替换标记。
 		 */
@@ -3872,18 +3807,6 @@ declare module laya.d3.core.material {
 
 		constructor();
 		private _removeTetxureReference:any;
-
-		/*
-		 * @implements IReferenceCounter
-		 * @override 
-		 */
-		_addReference(count?:number):void;
-
-		/*
-		 * @implements IReferenceCounter
-		 * @override 
-		 */
-		_removeReference(count?:number):void;
 
 		/*
 		 * @inheritDoc 
@@ -7973,7 +7896,7 @@ declare module laya.d3.core.particleShuriKen.module.shape {
 		cloneTo(destObject:any):void;
 
 		/*
-		 * 克隆。
+		 * @override 克隆。
 		 * @return 克隆副本。
 		 */
 		clone():any;
@@ -8024,7 +7947,7 @@ declare module laya.d3.core.particleShuriKen.module.shape {
 		cloneTo(destObject:any):void;
 
 		/*
-		 * 克隆。
+		 * @override 克隆。
 		 * @return 克隆副本。
 		 */
 		clone():any;
@@ -8079,7 +8002,7 @@ declare module laya.d3.core.particleShuriKen.module.shape {
 		cloneTo(destObject:any):void;
 
 		/*
-		 * 克隆。
+		 * @override 克隆。
 		 * @return 克隆副本。
 		 */
 		clone():any;
@@ -8124,7 +8047,7 @@ declare module laya.d3.core.particleShuriKen.module.shape {
 		cloneTo(destObject:any):void;
 
 		/*
-		 * 克隆。
+		 * @override 克隆。
 		 * @return 克隆副本。
 		 */
 		clone():any;
@@ -8189,7 +8112,7 @@ declare module laya.d3.core.particleShuriKen.module.shape {
 		cloneTo(destObject:any):void;
 
 		/*
-		 * 克隆。
+		 * @override 克隆。
 		 * @return 克隆副本。
 		 */
 		clone():any;
@@ -15316,12 +15239,6 @@ declare module laya.d3.physics {
 		constructor(stepheight?:number,upAxis?:laya.d3.math.Vector3,collisionGroup?:number,canCollideWith?:number);
 
 		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		protected _onDestroy():void;
-
-		/*
 		 * 通过指定移动向量移动角色。
 		 * @param movement 移动向量。
 		 */
@@ -15451,12 +15368,6 @@ declare module laya.d3.physics.constraints {
 		 */
 
 		constructor();
-
-		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		protected _onDestroy():void;
 	}
 
 }
@@ -15720,24 +15631,6 @@ declare module laya.d3.physics {
 		 */
 
 		constructor(collisionGroup:number,canCollideWith:number);
-
-		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		protected _onEnable():void;
-
-		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		protected _onDisable():void;
-
-		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		protected _onDestroy():void;
 	}
 
 }
@@ -16125,12 +16018,6 @@ declare module laya.d3.physics {
 		 */
 
 		constructor(collisionGroup?:number,canCollideWith?:number);
-
-		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		protected _onDestroy():void;
 
 		/*
 		 * 应用作用力。
@@ -24211,11 +24098,6 @@ declare module laya.effect {
 		autoDestroyAtComplete:boolean;
 		protected _comlete:laya.utils.Handler;
 		protected _tween:laya.utils.Tween;
-
-		/*
-		 * @override 
-		 */
-		protected _onAwake():void;
 		protected _exeTween():void;
 		protected _doTween():laya.utils.Tween;
 
@@ -31155,17 +31037,7 @@ declare module laya.physics {
 		 * @private 获取碰撞体信息
 		 */
 		protected getDef():any;
-
-		/*
-		 * @override 
-		 */
-		protected _onEnable():void;
 		private _checkRigidBody:any;
-
-		/*
-		 * @override 
-		 */
-		protected _onDestroy():void;
 
 		/*
 		 * 是否是传感器，传感器能够触发碰撞事件，但不会产生碰撞反应
@@ -31342,22 +31214,7 @@ declare module laya.physics.joint {
 		 * [只读]原生关节对象
 		 */
 		readonly joint:any;
-
-		/*
-		 * @override 
-		 */
-		protected _onEnable():void;
-
-		/*
-		 * @override 
-		 */
-		protected _onAwake():void;
 		protected _createJoint():void;
-
-		/*
-		 * @override 
-		 */
-		protected _onDisable():void;
 	}
 
 }
@@ -31483,16 +31340,6 @@ declare module laya.physics.joint {
 		 * 刚体在回归到节点过程中受到的阻尼，取值0~1
 		 */
 		private _damping:any;
-
-		/*
-		 * @override 
-		 */
-		protected _onEnable():void;
-
-		/*
-		 * @override 
-		 */
-		protected _onAwake():void;
 		private onMouseDown:any;
 
 		/*
@@ -31501,11 +31348,6 @@ declare module laya.physics.joint {
 		protected _createJoint():void;
 		private onStageMouseUp:any;
 		private onMouseMove:any;
-
-		/*
-		 * @override 
-		 */
-		protected _onDisable():void;
 
 		/*
 		 * 鼠标关节在拖曳刚体bodyB时施加的最大作用力
@@ -32482,16 +32324,6 @@ declare module laya.physics {
 		private _createBody:any;
 
 		/*
-		 * @override 
-		 */
-		protected _onAwake():void;
-
-		/*
-		 * @override 
-		 */
-		protected _onEnable():void;
-
-		/*
 		 * 获取对象某属性的get set方法
 		 * 通过其本身无法获取该方法，只能从原型上获取
 		 * @param obj 
@@ -32525,11 +32357,6 @@ declare module laya.physics {
 		 * @private 
 		 */
 		private _overSet:any;
-
-		/*
-		 * @override 
-		 */
-		protected _onDisable():void;
 
 		/*
 		 * 获得原始body对象
@@ -34937,11 +34764,13 @@ declare module laya.ui {
 
 		/*
 		 * @inheritDoc 
+		 * @override 
 		 */
 		protected preinitialize():void;
 
 		/*
 		 * @inheritDoc 
+		 * @override 
 		 */
 		protected initialize():void;
 
@@ -35075,6 +34904,7 @@ declare module laya.ui {
 
 		/*
 		 * @inheritDoc 
+		 * @override 
 		 */
 		protected createChildren():void;
 
@@ -35321,11 +35151,13 @@ declare module laya.ui {
 
 		/*
 		 * @inheritDoc 
+		 * @override 
 		 */
 		protected createChildren():void;
 
 		/*
 		 * @inheritDoc 
+		 * @override 
 		 */
 		protected initialize():void;
 		private onPanelMouseDown:any;
@@ -35540,6 +35372,7 @@ declare module laya.ui {
 
 		/*
 		 * @inheritDoc 
+		 * @override 
 		 */
 		protected createChildren():void;
 		private _createList:any;
@@ -36127,6 +35960,10 @@ declare module laya.ui {
 		 */
 
 		constructor(skin?:string,sheet?:string);
+
+		/*
+		 * @override 
+		 */
 		protected createChildren():void;
 
 		/*
@@ -36261,6 +36098,7 @@ declare module laya.ui {
 	class HScrollBar extends laya.ui.ScrollBar  {
 
 		/*
+		 * @override 
 		 * @inheritDoc 
 		 */
 		protected initialize():void;
@@ -36499,6 +36337,7 @@ declare module laya.ui {
 		destroy(destroyChild?:boolean):void;
 
 		/*
+		 * @override 
 		 * @inheritDoc 
 		 */
 		protected createChildren():void;
@@ -36909,6 +36748,7 @@ declare module laya.ui {
 
 		/*
 		 * @inheritDoc 
+		 * @override 
 		 */
 		protected createChildren():void;
 
@@ -37181,6 +37021,10 @@ declare module laya.ui {
 		 * @private 
 		 */
 		protected _setCellChanged():void;
+
+		/*
+		 * @override 
+		 */
 		protected commitMeasure():void;
 	}
 
@@ -37244,6 +37088,7 @@ declare module laya.ui {
 
 		/*
 		 * @inheritDoc 
+		 * @override 
 		 */
 		protected createChildren():void;
 
@@ -37467,6 +37312,7 @@ declare module laya.ui {
 
 		/*
 		 * @inheritDoc 
+		 * @override 
 		 */
 		protected createChildren():void;
 
@@ -37565,10 +37411,15 @@ declare module laya.ui {
 		 * @override 
 		 */
 		destroy(destroyChild?:boolean):void;
+
+		/*
+		 * @override 
+		 */
 		protected preinitialize():void;
 
 		/*
 		 * @inheritDoc 
+		 * @override 
 		 */
 		protected initialize():void;
 
@@ -37801,7 +37652,15 @@ declare module laya.ui {
 		 * @override 
 		 */
 		destroy(destroyChild?:boolean):void;
+
+		/*
+		 * @override 
+		 */
 		protected createChildren():void;
+
+		/*
+		 * @override 
+		 */
 		protected initialize():void;
 
 		/*
@@ -38124,11 +37983,13 @@ declare module laya.ui {
 
 		/*
 		 * @inheritDoc 
+		 * @override 
 		 */
 		protected createChildren():void;
 
 		/*
 		 * @inheritDoc 
+		 * @override 
 		 */
 		protected initialize():void;
 
@@ -38491,6 +38352,7 @@ declare module laya.ui {
 
 		/*
 		 * @inheritDoc 
+		 * @override 
 		 */
 		protected preinitialize():void;
 
@@ -38502,6 +38364,7 @@ declare module laya.ui {
 
 		/*
 		 * @inheritDoc 
+		 * @override 
 		 */
 		protected createChildren():void;
 
@@ -38527,6 +38390,7 @@ declare module laya.ui {
 
 		/*
 		 * @inheritDoc 
+		 * @override 
 		 */
 		protected initialize():void;
 
@@ -38750,6 +38614,10 @@ declare module laya.ui {
 		 * @override 
 		 */
 		destroy(destroyChild?:boolean):void;
+
+		/*
+		 * @override 
+		 */
 		protected createChildren():void;
 
 		/*
@@ -39334,6 +39202,10 @@ declare module laya.ui {
 		 */
 
 		constructor(labels?:string,skin?:string);
+
+		/*
+		 * @override 
+		 */
 		protected preinitialize():void;
 
 		/*
@@ -39473,6 +39345,7 @@ declare module laya.ui {
 
 		/*
 		 * @inheritDoc 
+		 * @override 
 		 */
 		protected commitMeasure():void;
 
@@ -39888,16 +39761,6 @@ declare module laya.ui {
 		 * @override 
 		 */
 		onReset():void;
-
-		/*
-		 * @override 
-		 */
-		protected _onEnable():void;
-
-		/*
-		 * @override 
-		 */
-		protected _onDisable():void;
 
 		/*
 		 * 父容器的 <code>Event.RESIZE</code> 事件侦听处理函数。

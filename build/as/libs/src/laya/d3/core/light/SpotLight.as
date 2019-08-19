@@ -4,7 +4,7 @@ package laya.d3.core.light {
 	/*
 	 * <code>SpotLight</code> 类用于创建聚光。
 	 */
-	public class SpotLight extends laya.d3.core.light.LightSprite {
+	public class SpotLight extends LightSprite {
 		private static var _tempMatrix0:*;
 		private static var _tempMatrix1:*;
 		private var _direction:*;

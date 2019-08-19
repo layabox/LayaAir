@@ -5,7 +5,7 @@ package laya.media {
 	/*
 	 * @private 
 	 */
-	public class SoundNode extends laya.display.Sprite {
+	public class SoundNode extends Sprite {
 		public var url:String;
 		private var _channel:*;
 		private var _tar:*;

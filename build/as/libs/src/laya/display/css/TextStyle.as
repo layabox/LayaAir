@@ -7,7 +7,7 @@ package laya.display.css {
 	/*
 	 * 文本的样式类
 	 */
-	public class TextStyle extends laya.display.css.SpriteStyle {
+	public class TextStyle extends SpriteStyle {
 
 		/*
 		 * 一个已初始化的 <code>TextStyle</code> 实例。

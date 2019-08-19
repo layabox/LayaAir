@@ -4,7 +4,7 @@ package laya.d3.math.Native {
 	/*
 	 * <code>Vector4</code> 类用于创建四维向量。
 	 */
-	public class ConchVector4 implements laya.d3.core.IClone {
+	public class ConchVector4 implements IClone {
 
 		/*
 		 * 零向量，禁止修改

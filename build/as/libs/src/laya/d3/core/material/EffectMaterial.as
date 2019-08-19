@@ -6,7 +6,7 @@ package laya.d3.core.material {
 	/*
 	 * <code>EffectMaterial</code> 类用于实现Mesh特效材质。
 	 */
-	public class EffectMaterial extends laya.d3.core.material.BaseMaterial {
+	public class EffectMaterial extends BaseMaterial {
 
 		/*
 		 * 渲染状态_加色法混合。

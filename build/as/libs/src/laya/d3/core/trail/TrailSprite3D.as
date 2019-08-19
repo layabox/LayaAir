@@ -6,7 +6,7 @@ package laya.d3.core.trail {
 	/*
 	 * <code>TrailSprite3D</code> 类用于创建拖尾渲染精灵。
 	 */
-	public class TrailSprite3D extends laya.d3.core.RenderableSprite3D {
+	public class TrailSprite3D extends RenderableSprite3D {
 
 		/*
 		 * 获取Trail过滤器。

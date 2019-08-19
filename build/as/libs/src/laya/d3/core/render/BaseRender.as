@@ -10,7 +10,7 @@ package laya.d3.core.render {
 	/*
 	 * <code>Render</code> 类用于渲染器的父类，抽象类不允许实例。
 	 */
-	public class BaseRender extends laya.events.EventDispatcher implements laya.resource.ISingletonElement,laya.d3.core.scene.IOctreeObject {
+	public class BaseRender extends EventDispatcher implements ISingletonElement,IOctreeObject {
 		public var _supportOctree:Boolean;
 
 		/*

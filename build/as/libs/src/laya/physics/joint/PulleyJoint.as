@@ -5,7 +5,7 @@ package laya.physics.joint {
 	/*
 	 * 滑轮关节：它将两个物体接地(ground)并彼此连接，当一个物体上升，另一个物体就会下降
 	 */
-	public class PulleyJoint extends laya.physics.joint.JointBase {
+	public class PulleyJoint extends JointBase {
 
 		/*
 		 * @private 

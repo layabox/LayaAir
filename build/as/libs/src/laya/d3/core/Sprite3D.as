@@ -9,7 +9,7 @@ package laya.d3.core {
 	/*
 	 * <code>Sprite3D</code> 类用于实现3D精灵。
 	 */
-	public class Sprite3D extends laya.display.Node implements laya.resource.ICreateResource {
+	public class Sprite3D extends Node implements ICreateResource {
 
 		/*
 		 * Hierarchy资源。

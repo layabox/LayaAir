@@ -4,7 +4,7 @@ package laya.physics {
 	/*
 	 * 2D圆形碰撞体
 	 */
-	public class CircleCollider extends laya.physics.ColliderBase {
+	public class CircleCollider extends ColliderBase {
 
 		/*
 		 * @private 

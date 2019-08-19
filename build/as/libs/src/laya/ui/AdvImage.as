@@ -6,7 +6,7 @@ package laya.ui {
 	 * @author 小松
 	 * @date -2018-09-19
 	 */
-	public class AdvImage extends laya.ui.Image {
+	public class AdvImage extends Image {
 
 		/*
 		 * 广告列表数据*

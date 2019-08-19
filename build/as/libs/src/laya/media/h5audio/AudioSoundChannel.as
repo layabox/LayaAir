@@ -4,7 +4,7 @@ package laya.media.h5audio {
 	/*
 	 * @private audio标签播放声音的音轨控制
 	 */
-	public class AudioSoundChannel extends laya.media.SoundChannel {
+	public class AudioSoundChannel extends SoundChannel {
 
 		/*
 		 * 播放用的audio标签

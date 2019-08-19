@@ -6,7 +6,7 @@ package laya.d3.physics {
 	/*
 	 * <code>PhysicsComponent</code> 类用于创建物理组件的父类。
 	 */
-	public class PhysicsComponent extends laya.components.Component {
+	public class PhysicsComponent extends Component {
 
 		/*
 		 * 是否可以缩放Shape。
@@ -121,24 +121,6 @@ package laya.d3.physics {
 		 */
 
 		public function PhysicsComponent(collisionGroup:Number = undefined,canCollideWith:Number = undefined){}
-
-		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		override protected function _onEnable():void{}
-
-		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		override protected function _onDisable():void{}
-
-		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		override protected function _onDestroy():void{}
 	}
 
 }

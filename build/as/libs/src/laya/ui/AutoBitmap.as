@@ -6,7 +6,7 @@ package laya.ui {
 	 * <code>AutoBitmap</code> 类是用于表示位图图像或绘制图形的显示对象。
 	 * <p>封装了位置，宽高及九宫格的处理，供UI组件使用。</p>
 	 */
-	public class AutoBitmap extends laya.display.Graphics {
+	public class AutoBitmap extends Graphics {
 
 		/*
 		 * @private 是否自动缓存命令

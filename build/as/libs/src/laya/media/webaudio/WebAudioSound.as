@@ -5,7 +5,7 @@ package laya.media.webaudio {
 	/*
 	 * @private web audio api方式播放声音
 	 */
-	public class WebAudioSound extends laya.events.EventDispatcher {
+	public class WebAudioSound extends EventDispatcher {
 		private static var _dataCache:*;
 
 		/*

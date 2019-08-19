@@ -7,7 +7,7 @@ package laya.d3.component {
 	/*
 	 * <code>AnimatorState</code> 类用于创建动作状态。
 	 */
-	public class AnimatorState implements laya.d3.resource.IReferenceCounter,laya.d3.core.IClone {
+	public class AnimatorState implements IReferenceCounter,IClone {
 		private var _referenceCount:*;
 
 		/*

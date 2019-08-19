@@ -1,7 +1,7 @@
 package laya.webgl.utils {
 	import laya.webgl.WebGLContext;
 	import laya.webgl.utils.Buffer;
-	public class Buffer2D extends laya.webgl.utils.Buffer {
+	public class Buffer2D extends Buffer {
 		public static var FLOAT32:Number;
 		public static var SHORT:Number;
 		public static function __int__(gl:WebGLContext):void{}

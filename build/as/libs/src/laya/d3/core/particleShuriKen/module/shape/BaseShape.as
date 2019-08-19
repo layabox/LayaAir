@@ -6,7 +6,7 @@ package laya.d3.core.particleShuriKen.module.shape {
 	/*
 	 * <code>BaseShape</code> 类用于粒子形状。
 	 */
-	public class BaseShape implements laya.d3.core.IClone {
+	public class BaseShape implements IClone {
 
 		/*
 		 * 是否启用。

@@ -7,7 +7,7 @@ package laya.d3.graphics.Vertex {
 	/*
 	 * <code>VertexPositionNormalTexture</code> 类用于创建位置、纹理顶点结构。
 	 */
-	public class VertexPositionTexture0 implements laya.d3.graphics.IVertex {
+	public class VertexPositionTexture0 implements IVertex {
 		private static var _vertexDeclaration:*;
 		public static function get vertexDeclaration():VertexDeclaration{
 				return null;

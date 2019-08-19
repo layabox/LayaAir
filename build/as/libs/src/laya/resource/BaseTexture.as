@@ -4,7 +4,7 @@ package laya.resource {
 	/*
 	 * <code>BaseTexture</code> 纹理的父类，抽象类，不允许实例。
 	 */
-	public class BaseTexture extends laya.resource.Bitmap {
+	public class BaseTexture extends Bitmap {
 		public static var WARPMODE_REPEAT:Number;
 		public static var WARPMODE_CLAMP:Number;
 

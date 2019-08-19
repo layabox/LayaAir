@@ -4,7 +4,7 @@ package laya.d3.math {
 	/*
 	 * <code>Color</code> 类用于创建颜色实例。
 	 */
-	public class Color implements laya.d3.core.IClone {
+	public class Color implements IClone {
 
 		/*
 		 * 红色

@@ -6,7 +6,7 @@ package laya.d3.core.particleShuriKen.module.shape {
 	/*
 	 * <code>CircleShape</code> 类用于创建环形粒子形状。
 	 */
-	public class CircleShape extends laya.d3.core.particleShuriKen.module.shape.BaseShape {
+	public class CircleShape extends BaseShape {
 
 		/*
 		 * 发射器半径。
@@ -44,10 +44,10 @@ package laya.d3.core.particleShuriKen.module.shape {
 		override public function cloneTo(destObject:*):void{}
 
 		/*
-		 * 克隆。
+		 * @override 克隆。
 		 * @return 克隆副本。
 		 */
-		public function clone():*{}
+		override public function clone():*{}
 	}
 
 }

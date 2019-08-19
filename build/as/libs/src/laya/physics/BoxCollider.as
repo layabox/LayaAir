@@ -4,7 +4,7 @@ package laya.physics {
 	/*
 	 * 2D矩形碰撞体
 	 */
-	public class BoxCollider extends laya.physics.ColliderBase {
+	public class BoxCollider extends ColliderBase {
 
 		/*
 		 * @private 

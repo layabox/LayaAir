@@ -5,7 +5,7 @@ package laya.ui {
 	/*
 	 * <code>View</code> 是一个视图类，2.0开始，更改继承至Scene类，相对于Scene，增加相对布局功能。
 	 */
-	public class View extends laya.display.Scene {
+	public class View extends Scene {
 
 		/*
 		 * @private 兼容老版本

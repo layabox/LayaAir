@@ -4,7 +4,7 @@ package laya.resource {
 	/*
 	 * <code>RenderTexture</code> 类用于创建渲染目标。
 	 */
-	public class RenderTexture2D extends laya.resource.BaseTexture {
+	public class RenderTexture2D extends BaseTexture {
 
 		/*
 		 * @private 

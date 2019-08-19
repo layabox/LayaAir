@@ -5,7 +5,7 @@ package laya.effect {
 	 * ...
 	 * @author ww
 	 */
-	public class ColorFilterSetter extends laya.effect.FilterSetterBase {
+	public class ColorFilterSetter extends FilterSetterBase {
 
 		/*
 		 * brightness 亮度,范围:-100~100

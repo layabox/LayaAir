@@ -4,7 +4,7 @@ package laya.device {
 	/*
 	 * Shake只能在支持此操作的设备上有效。
 	 */
-	public class Shake extends laya.events.EventDispatcher {
+	public class Shake extends EventDispatcher {
 		private var throushold:*;
 		private var shakeInterval:*;
 		private var callback:*;

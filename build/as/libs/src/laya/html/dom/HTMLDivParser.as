@@ -6,7 +6,7 @@ package laya.html.dom {
 	/*
 	 * @private 
 	 */
-	public class HTMLDivParser extends laya.html.dom.HTMLElement {
+	public class HTMLDivParser extends HTMLElement {
 
 		/*
 		 * 实际内容的高

@@ -5,7 +5,7 @@ package laya.d3.graphics {
 	/*
 	 * <code>VertexBuffer3D</code> 类用于创建顶点缓冲。
 	 */
-	public class VertexBuffer3D extends laya.webgl.utils.Buffer {
+	public class VertexBuffer3D extends Buffer {
 
 		/*
 		 * 数据类型_Float32Array类型。

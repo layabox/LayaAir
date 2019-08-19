@@ -5,7 +5,7 @@ package laya.effect {
 	 * ...
 	 * @author ww
 	 */
-	public class BlurFilterSetter extends laya.effect.FilterSetterBase {
+	public class BlurFilterSetter extends FilterSetterBase {
 		private var _strength:*;
 
 		public function BlurFilterSetter(){}

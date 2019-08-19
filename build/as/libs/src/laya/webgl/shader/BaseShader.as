@@ -5,7 +5,7 @@ package laya.webgl.shader {
 	 * ...
 	 * @author ...
 	 */
-	public class BaseShader extends laya.resource.Resource {
+	public class BaseShader extends Resource {
 		public static var activeShader:BaseShader;
 		public static var bindShader:BaseShader;
 

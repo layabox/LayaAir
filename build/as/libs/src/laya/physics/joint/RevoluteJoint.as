@@ -5,7 +5,7 @@ package laya.physics.joint {
 	/*
 	 * 旋转关节强制两个物体共享一个锚点，两个物体相对旋转
 	 */
-	public class RevoluteJoint extends laya.physics.joint.JointBase {
+	public class RevoluteJoint extends JointBase {
 
 		/*
 		 * @private 

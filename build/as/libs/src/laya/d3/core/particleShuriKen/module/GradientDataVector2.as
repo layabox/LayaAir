@@ -5,7 +5,7 @@ package laya.d3.core.particleShuriKen.module {
 	/*
 	 * <code>GradientDataVector2</code> 类用于创建二维向量渐变。
 	 */
-	public class GradientDataVector2 implements laya.d3.core.IClone {
+	public class GradientDataVector2 implements IClone {
 		private var _currentLength:*;
 
 		/*

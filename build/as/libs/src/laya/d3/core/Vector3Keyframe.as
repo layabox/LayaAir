@@ -5,7 +5,7 @@ package laya.d3.core {
 	/*
 	 * <code>Vector3Keyframe</code> 类用于创建三维向量关键帧实例。
 	 */
-	public class Vector3Keyframe extends laya.d3.core.Keyframe {
+	public class Vector3Keyframe extends Keyframe {
 		public var inTangent:Vector3;
 		public var outTangent:Vector3;
 		public var value:Vector3;

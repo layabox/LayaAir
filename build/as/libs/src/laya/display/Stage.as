@@ -40,7 +40,7 @@ package laya.display {
 	 * <p>Stage提供几种适配模式，不同的适配模式会产生不同的画布大小，画布越大，渲染压力越大，所以要选择合适的适配方案。</p>
 	 * <p>Stage提供不同的帧率模式，帧率越高，渲染压力越大，越费电，合理使用帧率甚至动态更改帧率有利于改进手机耗电。</p>
 	 */
-	public class Stage extends laya.display.Sprite {
+	public class Stage extends Sprite {
 
 		/*
 		 * 应用保持设计宽高不变，不缩放不变形，stage的宽高等于设计宽高。

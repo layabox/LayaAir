@@ -5,7 +5,7 @@ package laya.d3.core.pixelLine {
 	/*
 	 * <code>PixelLineMaterial</code> 类用于实现像素线材质。
 	 */
-	public class PixelLineMaterial extends laya.d3.core.material.BaseMaterial {
+	public class PixelLineMaterial extends BaseMaterial {
 		public static var COLOR:Number;
 
 		/*

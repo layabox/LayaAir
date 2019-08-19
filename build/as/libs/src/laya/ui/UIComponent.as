@@ -7,7 +7,7 @@ package laya.ui {
 	 * <code>Component</code> 是ui控件类的基类。
 	 * <p>生命周期：preinitialize > createChildren > initialize > 组件构造函数</p>
 	 */
-	public class UIComponent extends laya.display.Sprite {
+	public class UIComponent extends Sprite {
 
 		/*
 		 * X锚点，值为0-1，设置anchorX值最终通过pivotX值来改变节点轴心点。

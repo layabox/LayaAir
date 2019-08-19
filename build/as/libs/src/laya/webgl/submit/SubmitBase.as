@@ -1,7 +1,7 @@
 package laya.webgl.submit {
 	import laya.webgl.submit.ISubmit;
 	import laya.webgl.shader.d2.value.Value2D;
-	public class SubmitBase implements laya.webgl.submit.ISubmit {
+	public class SubmitBase implements ISubmit {
 		public static var TYPE_2D:Number;
 		public static var TYPE_CANVAS:Number;
 		public static var TYPE_CMDSETRT:Number;

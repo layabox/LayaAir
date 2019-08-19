@@ -8,7 +8,7 @@ package laya.d3.graphics.Vertex {
 	 * /**
 	 *    <code>VertexShurikenParticle</code> 类用于创建粒子顶点结构。
 	 */
-	public class VertexShurikenParticleMesh extends laya.d3.graphics.Vertex.VertexShuriKenParticle {
+	public class VertexShurikenParticleMesh extends VertexShuriKenParticle {
 		public static function get vertexDeclaration():VertexDeclaration{
 				return null;
 		}

@@ -5,7 +5,7 @@ package laya.html.dom {
 	/*
 	 * @private 
 	 */
-	public class HTMLStyleElement extends laya.html.dom.HTMLElement {
+	public class HTMLStyleElement extends HTMLElement {
 
 		/*
 		 * @override 

@@ -6,31 +6,7 @@ package laya.components {
 	 * <code>Script</code> 类用于创建脚本的父类，该类为抽象类，不允许实例。
 	 * 组件的生命周期
 	 */
-	public class Script extends laya.components.Component {
-
-		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		override protected function _onAwake():void{}
-
-		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		override protected function _onEnable():void{}
-
-		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		override protected function _onDisable():void{}
-
-		/*
-		 * @inheritDoc 
-		 * @override 
-		 */
-		override protected function _onDestroy():void{}
+	public class Script extends Component {
 
 		/*
 		 * 组件被激活后执行，此时所有节点和组件均已创建完毕，次方法只执行一次

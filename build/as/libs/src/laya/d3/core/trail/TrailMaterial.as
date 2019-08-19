@@ -6,7 +6,7 @@ package laya.d3.core.trail {
 	/*
 	 * <code>TrailMaterial</code> 类用于实现拖尾材质。
 	 */
-	public class TrailMaterial extends laya.d3.core.material.BaseMaterial {
+	public class TrailMaterial extends BaseMaterial {
 
 		/*
 		 * 渲染状态_透明混合。

@@ -10,7 +10,7 @@ package laya.d3.shader {
 	/*
 	 * @private 
 	 */
-	public class ShaderData implements laya.d3.core.IClone {
+	public class ShaderData implements IClone {
 
 		/*
 		 * 增加Shader宏定义。

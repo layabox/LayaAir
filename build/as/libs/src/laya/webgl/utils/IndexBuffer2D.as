@@ -1,6 +1,6 @@
 package laya.webgl.utils {
 	import laya.webgl.utils.Buffer2D;
-	public class IndexBuffer2D extends laya.webgl.utils.Buffer2D {
+	public class IndexBuffer2D extends Buffer2D {
 		public static var create:Function;
 		protected var _uint16Array:Uint16Array;
 

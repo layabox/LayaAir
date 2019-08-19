@@ -15,7 +15,7 @@ package laya.display {
 	 * <p>动画基类，提供了基础的动画播放控制方法和帧标签事件相关功能。</p>
 	 * <p>可以继承此类，但不要直接实例化此类，因为有些方法需要由子类实现。</p>
 	 */
-	public class AnimationBase extends laya.display.Sprite {
+	public class AnimationBase extends Sprite {
 
 		/*
 		 * 动画播放顺序类型：正序播放。

@@ -17,7 +17,7 @@ package laya.ui {
 	 * @example Laya.init(640, 800);//设置游戏画布宽高Laya.stage.bgColor = "#efefef";//设置画布的背景颜色Laya.loader.load("resource/ui/color.png",laya.utils.Handler.create(this,loadComplete));//加载资源function loadComplete(){    console.log("资源加载完成！");    var colorPicket = new laya.ui.ColorPicker();//创建一个 ColorPicker 类的实例对象 colorPicket 。    colorPicket.skin = "resource/ui/color.png";//设置 colorPicket 的皮肤。    colorPicket.x = 100;//设置 colorPicket 对象的属性 x 的值，用于控制 colorPicket 对象的显示位置。    colorPicket.y = 100;//设置 colorPicket 对象的属性 y 的值，用于控制 colorPicket 对象的显示位置。    colorPicket.changeHandler = laya.utils.Handler.create(this, onChangeColor,[colorPicket],false);//设置 colorPicket 的颜色改变回调函数。    Laya.stage.addChild(colorPicket);//将此 colorPicket 对象添加到显示列表。}function onChangeColor(colorPicket){    console.log("当前选择的颜色： " + colorPicket.selectedColor);}
 	 * @example import ColorPicker = laya.ui.ColorPicker;import Handler = laya.utils.Handler;class ColorPicker_Example {    constructor() {        Laya.init(640, 800);//设置游戏画布宽高。        Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。        Laya.loader.load("resource/ui/color.png", Handler.create(this, this.onLoadComplete));//加载资源。    }    private onLoadComplete(): void {        console.log("资源加载完成！");        var colorPicket: ColorPicker = new ColorPicker();//创建一个 ColorPicker 类的实例对象 colorPicket 。        colorPicket.skin = "resource/ui/color.png";//设置 colorPicket 的皮肤。        colorPicket.x = 100;//设置 colorPicket 对象的属性 x 的值，用于控制 colorPicket 对象的显示位置。        colorPicket.y = 100;//设置 colorPicket 对象的属性 y 的值，用于控制 colorPicket 对象的显示位置。        colorPicket.changeHandler = new Handler(this, this.onChangeColor, [colorPicket]);//设置 colorPicket 的颜色改变回调函数。        Laya.stage.addChild(colorPicket);//将此 colorPicket 对象添加到显示列表。    }    private onChangeColor(colorPicket: ColorPicker): void {        console.log("当前选择的颜色： " + colorPicket.selectedColor);    }}
 	 */
-	public class ColorPicker extends laya.ui.UIComponent {
+	public class ColorPicker extends UIComponent {
 
 		/*
 		 * 当颜色发生改变时执行的函数处理器。
@@ -98,13 +98,15 @@ package laya.ui {
 
 		/*
 		 * @inheritDoc 
+		 * @override 
 		 */
-		protected function createChildren():void{}
+		override protected function createChildren():void{}
 
 		/*
 		 * @inheritDoc 
+		 * @override 
 		 */
-		protected function initialize():void{}
+		override protected function initialize():void{}
 		private var onPanelMouseDown:*;
 
 		/*

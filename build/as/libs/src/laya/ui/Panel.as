@@ -9,7 +9,7 @@ package laya.ui {
 	/*
 	 * <code>Panel</code> 是一个面板容器类。
 	 */
-	public class Panel extends laya.ui.Box {
+	public class Panel extends Box {
 
 		/*
 		 * @private 
@@ -62,8 +62,9 @@ package laya.ui {
 
 		/*
 		 * @inheritDoc 
+		 * @override 
 		 */
-		protected function createChildren():void{}
+		override protected function createChildren():void{}
 
 		/*
 		 * @inheritDoc 

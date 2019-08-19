@@ -5,7 +5,7 @@ package laya.d3.resource {
 	/*
 	 * <code>TextureCube</code> 类用于生成立方体纹理。
 	 */
-	public class TextureCube extends laya.resource.BaseTexture {
+	public class TextureCube extends BaseTexture {
 
 		/*
 		 * TextureCube资源。

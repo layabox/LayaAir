@@ -14,7 +14,7 @@ package laya.d3.resource.models {
 	/*
 	 * <code>Mesh</code> 类用于创建文件网格数据模板。
 	 */
-	public class Mesh extends laya.resource.Resource implements laya.d3.core.IClone {
+	public class Mesh extends Resource implements IClone {
 
 		/*
 		 * Mesh资源。

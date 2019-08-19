@@ -5,7 +5,7 @@ package laya.effect {
 	/*
 	 * 淡入效果
 	 */
-	public class FadeIn extends laya.effect.EffectBase {
+	public class FadeIn extends EffectBase {
 
 		/*
 		 * @override 

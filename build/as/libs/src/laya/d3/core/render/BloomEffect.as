@@ -6,7 +6,7 @@ package laya.d3.core.render {
 	/*
 	 * <code>BloomEffect</code> 类用于创建泛光效果。
 	 */
-	public class BloomEffect extends laya.d3.core.render.PostProcessEffect {
+	public class BloomEffect extends PostProcessEffect {
 
 		/*
 		 * 限制泛光像素的数量,该值在伽马空间。

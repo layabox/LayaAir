@@ -4,7 +4,7 @@ package laya.d3.core.particleShuriKen.module {
 	/*
 	 * <code>GradientDataInt</code> 类用于创建整形渐变。
 	 */
-	public class GradientDataInt implements laya.d3.core.IClone {
+	public class GradientDataInt implements IClone {
 		private var _currentLength:*;
 
 		/*

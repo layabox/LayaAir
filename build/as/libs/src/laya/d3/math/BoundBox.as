@@ -5,7 +5,7 @@ package laya.d3.math {
 	/*
 	 * <code>BoundBox</code> 类用于创建包围盒。
 	 */
-	public class BoundBox implements laya.d3.core.IClone {
+	public class BoundBox implements IClone {
 
 		/*
 		 * 最小顶点。

@@ -6,7 +6,7 @@ package laya.d3.core {
 	/*
 	 * <code>QuaternionKeyframe</code> 类用于创建四元数关键帧实例。
 	 */
-	public class QuaternionKeyframe extends laya.d3.core.Keyframe {
+	public class QuaternionKeyframe extends Keyframe {
 		public var inTangent:Vector4;
 		public var outTangent:Vector4;
 		public var value:Quaternion;

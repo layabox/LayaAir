@@ -5,7 +5,7 @@ package  {
 	/*
 	 * <code>Config3D</code> 类用于创建3D初始化配置。
 	 */
-	public class Config3D implements laya.d3.core.IClone {
+	public class Config3D implements IClone {
 
 		/*
 		 * 是否开启抗锯齿。

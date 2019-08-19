@@ -5,7 +5,7 @@ package laya.physics.joint {
 	/*
 	 * 距离关节：两个物体上面各自有一点，两点之间的距离固定不变
 	 */
-	public class DistanceJoint extends laya.physics.joint.JointBase {
+	public class DistanceJoint extends JointBase {
 
 		/*
 		 * @private 

@@ -4,7 +4,7 @@ package laya.resource {
 	/*
 	 * @private <code>Bitmap</code> 图片资源类。
 	 */
-	public class Bitmap extends laya.resource.Resource {
+	public class Bitmap extends Resource {
 
 		/*
 		 * @private 

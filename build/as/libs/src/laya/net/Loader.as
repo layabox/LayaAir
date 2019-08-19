@@ -20,7 +20,7 @@ package laya.net {
 	/*
 	 * <code>Loader</code> 类可用来加载文本、JSON、XML、二进制、图像等资源。
 	 */
-	public class Loader extends laya.events.EventDispatcher {
+	public class Loader extends EventDispatcher {
 
 		/*
 		 * 文本类型，加载完成后返回文本。

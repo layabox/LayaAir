@@ -14,7 +14,7 @@ package laya.d3.core {
 	/*
 	 * <code>Camera</code> 类用于创建摄像机。
 	 */
-	public class Camera extends laya.d3.core.BaseCamera {
+	public class Camera extends BaseCamera {
 		private var _aspectRatio:*;
 		private var _viewport:*;
 		private var _normalizedViewport:*;
@@ -147,10 +147,11 @@ package laya.d3.core {
 		private var _calculationViewport:*;
 
 		/*
+		 * @override 
 		 * @param shader 着色器
 		 * @param replacementTag 替换标记。
 		 */
-		public function render(shader:Shader3D = null,replacementTag:String = null):void{}
+		override public function render(shader:Shader3D = null,replacementTag:String = null):void{}
 
 		/*
 		 * 计算从屏幕空间生成的射线。

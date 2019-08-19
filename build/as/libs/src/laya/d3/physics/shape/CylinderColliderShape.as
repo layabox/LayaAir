@@ -4,7 +4,7 @@ package laya.d3.physics.shape {
 	/*
 	 * <code>CylinderColliderShape</code> 类用于创建圆柱碰撞器。
 	 */
-	public class CylinderColliderShape extends laya.d3.physics.shape.ColliderShape {
+	public class CylinderColliderShape extends ColliderShape {
 		private static var _nativeSize:*;
 		private var _orientation:*;
 		private var _radius:*;

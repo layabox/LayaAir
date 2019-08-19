@@ -6,7 +6,7 @@ package laya.resource {
 	/*
 	 * <code>HTMLCanvas</code> 是 Html Canvas 的代理类，封装了 Canvas 的属性和方法。
 	 */
-	public class HTMLCanvas extends laya.resource.Bitmap {
+	public class HTMLCanvas extends Bitmap {
 		private var _ctx:*;
 
 		/*

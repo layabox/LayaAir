@@ -5,7 +5,7 @@ package laya.ui {
 	/*
 	 * <code>Box</code> 类是一个控件容器类。
 	 */
-	public class Box extends laya.ui.UIComponent implements laya.ui.IBox {
+	public class Box extends UIComponent implements IBox {
 		private var _bgColor:*;
 
 		/*

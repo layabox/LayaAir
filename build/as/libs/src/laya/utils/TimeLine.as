@@ -14,7 +14,7 @@ package laya.utils {
 	/*
 	 * <code>TimeLine</code> 是一个用来创建时间轴动画的类。
 	 */
-	public class TimeLine extends laya.events.EventDispatcher {
+	public class TimeLine extends EventDispatcher {
 		private var _labelDic:*;
 		private var _tweenDic:*;
 		private var _tweenDataList:*;

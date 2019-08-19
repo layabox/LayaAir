@@ -29,7 +29,7 @@ package laya.ui {
 	 * @see laya.ui.VScrollBar
 	 * @see laya.ui.HScrollBar
 	 */
-	public class ScrollBar extends laya.ui.UIComponent {
+	public class ScrollBar extends UIComponent {
 
 		/*
 		 * 滚动衰减系数
@@ -163,8 +163,16 @@ package laya.ui {
 		 * @override 
 		 */
 		override public function destroy(destroyChild:Boolean = null):void{}
-		protected function createChildren():void{}
-		protected function initialize():void{}
+
+		/*
+		 * @override 
+		 */
+		override protected function createChildren():void{}
+
+		/*
+		 * @override 
+		 */
+		override protected function initialize():void{}
 
 		/*
 		 * @private 滑块位置发生改变的处理函数。

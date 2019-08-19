@@ -5,7 +5,7 @@ package laya.utils {
 	 * 显示Stat的结果。由于stat会引入很多的循环引用，所以把显示部分拆开
 	 * @author laya
 	 */
-	public class StatUI extends laya.utils.IStatRender {
+	public class StatUI extends IStatRender {
 		private static var _fontSize:*;
 		private var _txt:*;
 		private var _leftText:*;

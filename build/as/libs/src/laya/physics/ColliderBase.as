@@ -5,7 +5,7 @@ package laya.physics {
 	/*
 	 * 碰撞体基类
 	 */
-	public class ColliderBase extends laya.components.Component {
+	public class ColliderBase extends Component {
 
 		/*
 		 * 是否是传感器，传感器能够触发碰撞事件，但不会产生碰撞反应
@@ -56,17 +56,7 @@ package laya.physics {
 		 * @private 获取碰撞体信息
 		 */
 		protected function getDef():*{}
-
-		/*
-		 * @override 
-		 */
-		override protected function _onEnable():void{}
 		private var _checkRigidBody:*;
-
-		/*
-		 * @override 
-		 */
-		override protected function _onDestroy():void{}
 
 		/*
 		 * 是否是传感器，传感器能够触发碰撞事件，但不会产生碰撞反应

@@ -6,7 +6,7 @@ package laya.d3.component {
 	/*
 	 * <code>AnimatorControllerLayer</code> 类用于创建动画控制器层。
 	 */
-	public class AnimatorControllerLayer implements laya.d3.resource.IReferenceCounter,laya.d3.core.IClone {
+	public class AnimatorControllerLayer implements IReferenceCounter,IClone {
 		private var _defaultState:*;
 		private var _referenceCount:*;
 

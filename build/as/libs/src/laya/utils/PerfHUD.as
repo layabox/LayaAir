@@ -1,7 +1,7 @@
 package laya.utils {
 	import laya.display.Sprite;
 	import laya.resource.Context;
-	public class PerfHUD extends laya.display.Sprite {
+	public class PerfHUD extends Sprite {
 		private static var _lastTm:*;
 		private static var _now:*;
 		private var datas:*;

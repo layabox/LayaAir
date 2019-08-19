@@ -7,7 +7,7 @@ package laya.particle {
 	/*
 	 * <code>Particle2D</code> 类是2D粒子播放类
 	 */
-	public class Particle2D extends laya.display.Sprite {
+	public class Particle2D extends Sprite {
 
 		/*
 		 * @private 

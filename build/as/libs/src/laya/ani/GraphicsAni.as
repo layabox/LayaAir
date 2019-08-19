@@ -1,7 +1,7 @@
 package laya.ani {
 	import laya.ani.bone.canvasmesh.SkinMeshForGraphic;
 	import laya.display.Graphics;
-	public class GraphicsAni extends laya.display.Graphics {
+	public class GraphicsAni extends Graphics {
 
 		/*
 		 * @private 画自定义蒙皮动画

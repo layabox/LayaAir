@@ -9,7 +9,7 @@ package laya.map {
 	 * 本类就是层级类
 	 * @author ...
 	 */
-	public class MapLayer extends laya.display.Sprite {
+	public class MapLayer extends Sprite {
 		private var _map:*;
 		private var _tileWidthHalf:*;
 		private var _tileHeightHalf:*;

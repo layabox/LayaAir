@@ -6,7 +6,7 @@ package laya.d3.core.particleShuriKen.module {
 	/*
 	 * <code>GradientSize</code> 类用于创建渐变尺寸。
 	 */
-	public class GradientSize implements laya.d3.core.IClone {
+	public class GradientSize implements IClone {
 
 		/*
 		 * 通过渐变尺寸创建一个 <code>GradientSize</code> 实例。

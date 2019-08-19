@@ -8,7 +8,7 @@ package laya.d3.math {
 	/*
 	 * <code>Matrix3x3</code> 类用于创建3x3矩阵。
 	 */
-	public class Matrix3x3 implements laya.d3.core.IClone {
+	public class Matrix3x3 implements IClone {
 
 		/*
 		 * 默认矩阵,禁止修改

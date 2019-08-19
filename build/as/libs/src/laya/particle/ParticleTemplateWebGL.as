@@ -7,7 +7,7 @@ package laya.particle {
 	/*
 	 * @private 
 	 */
-	public class ParticleTemplateWebGL extends laya.particle.ParticleTemplateBase {
+	public class ParticleTemplateWebGL extends ParticleTemplateBase {
 		protected var _vertices:Float32Array;
 		protected var _mesh:MeshParticle2D;
 		protected var _conchMesh:*;

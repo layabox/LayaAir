@@ -7,7 +7,7 @@ package laya.d3.graphics.Vertex {
 	/*
 	 * <code>VertexPositionTerrain</code> 类用于创建位置、法线、纹理1、纹理2顶点结构。
 	 */
-	public class VertexPositionTerrain implements laya.d3.graphics.IVertex {
+	public class VertexPositionTerrain implements IVertex {
 		public static var TERRAIN_POSITION0:Number;
 		public static var TERRAIN_NORMAL0:Number;
 		public static var TERRAIN_TEXTURECOORDINATE0:Number;

@@ -6,7 +6,7 @@ package laya.d3.core.particleShuriKen.module {
 	/*
 	 * <code>GradientRotation</code> 类用于创建渐变角速度。
 	 */
-	public class GradientAngularVelocity implements laya.d3.core.IClone {
+	public class GradientAngularVelocity implements IClone {
 
 		/*
 		 * 通过固定角速度创建一个 <code>GradientAngularVelocity</code> 实例。

@@ -15,7 +15,7 @@ package laya.ui {
 	 * <p> <code>Group</code> 的默认项对象为 <code>Button</code> 类实例。
 	 * <code>Group</code> 是 <code>Tab</code> 和 <code>RadioGroup</code> 的基类。</p>
 	 */
-	public class UIGroup extends laya.ui.Box implements laya.ui.IItem {
+	public class UIGroup extends Box implements IItem {
 
 		/*
 		 * 改变 <code>Group</code> 的选择项时执行的处理器，(默认返回参数： 项索引（index:int）)。
@@ -114,7 +114,11 @@ package laya.ui {
 		 */
 
 		public function UIGroup(labels:String = undefined,skin:String = undefined){}
-		protected function preinitialize():void{}
+
+		/*
+		 * @override 
+		 */
+		override protected function preinitialize():void{}
 
 		/*
 		 * @inheritDoc 
@@ -257,8 +261,9 @@ package laya.ui {
 
 		/*
 		 * @inheritDoc 
+		 * @override 
 		 */
-		protected function commitMeasure():void{}
+		override protected function commitMeasure():void{}
 
 		/*
 		 * 项对象们的存放数组。

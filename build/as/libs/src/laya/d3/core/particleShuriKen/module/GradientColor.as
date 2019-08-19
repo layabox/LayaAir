@@ -6,7 +6,7 @@ package laya.d3.core.particleShuriKen.module {
 	/*
 	 * <code>GradientColor</code> 类用于创建渐变颜色。
 	 */
-	public class GradientColor implements laya.d3.core.IClone {
+	public class GradientColor implements IClone {
 
 		/*
 		 * 通过固定颜色创建一个 <code>GradientColor</code> 实例。

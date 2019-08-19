@@ -4,7 +4,7 @@ package laya.net {
 	/*
 	 * @private Worker Image加载器
 	 */
-	public class WorkerLoader extends laya.events.EventDispatcher {
+	public class WorkerLoader extends EventDispatcher {
 
 		/*
 		 * 单例

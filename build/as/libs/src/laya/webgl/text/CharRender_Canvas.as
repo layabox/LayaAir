@@ -1,7 +1,7 @@
 package laya.webgl.text {
 	import laya.webgl.text.CharRenderInfo;
 	import laya.webgl.text.ICharRender;
-	public class CharRender_Canvas extends laya.webgl.text.ICharRender {
+	public class CharRender_Canvas extends ICharRender {
 		private static var canvas:*;
 		private var ctx:*;
 		private var lastScaleX:*;

@@ -5,7 +5,7 @@ package laya.d3.component {
 	/*
 	 * <code>SimpleSingletonList</code> 类用于实现单例队列。
 	 */
-	public class SimpleSingletonList extends laya.d3.component.SingletonList {
+	public class SimpleSingletonList extends SingletonList {
 
 		/*
 		 * 创建一个新的 <code>SimpleSingletonList</code> 实例。

@@ -5,7 +5,7 @@ package laya.display {
 	 * <p> 动效模板。用于为指定目标对象添加动画效果。每个动效有唯一的目标对象，而同一个对象可以添加多个动效。 当一个动效开始播放时，其他动效会自动停止播放。</p>
 	 * <p> 可以通过LayaAir IDE创建。 </p>
 	 */
-	public class EffectAnimation extends laya.display.FrameAnimation {
+	public class EffectAnimation extends FrameAnimation {
 
 		/*
 		 * @private 动效开始事件。
