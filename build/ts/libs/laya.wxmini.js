@@ -1178,7 +1178,7 @@ window.wxMiniGame = function (exports, Laya) {
 	            fileNativeUrl = textureUrl;
 	        }
 	        if (fileNativeUrl) {
-	            MiniAdpter.window.wx.postMessage({ url: url, atlasdata: postData, imgNativeUrl: fileNativeUrl, imgReadyUrl: textureUrl, isLoad: "opendatacontext" });
+	            MiniAdpter.window.wx.postMessage({ url: Laya.URL.formatURL(url), atlasdata: postData, imgNativeUrl: fileNativeUrl, imgReadyUrl: textureUrl, isLoad: "opendatacontext" });
 	        }
 	        else {
 	            throw "获取图集的磁盘url路径不存在！";

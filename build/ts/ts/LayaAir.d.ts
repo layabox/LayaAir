@@ -39977,7 +39977,15 @@ declare module laya.ui {
 		/*
 		 * @override 
 		 */
+
+		/*
+		 * @override 
+		 */
 		width:number;
+
+		/*
+		 * @override 
+		 */
 
 		/*
 		 * @override 
@@ -39987,7 +39995,15 @@ declare module laya.ui {
 		/*
 		 * @override 
 		 */
+
+		/*
+		 * @override 
+		 */
 		x:number;
+
+		/*
+		 * @override 
+		 */
 
 		/*
 		 * @override 

@@ -5976,19 +5976,31 @@
 	            window.sharedCanvas.width = value;
 	        this.callLater(this._postMsg);
 	    }
+	    get width() {
+	        return super.width;
+	    }
 	    set height(value) {
 	        super.height = value;
 	        if (window.sharedCanvas)
 	            window.sharedCanvas.height = value;
 	        this.callLater(this._postMsg);
 	    }
+	    get height() {
+	        return super.width;
+	    }
 	    set x(value) {
 	        super.x = value;
 	        this.callLater(this._postMsg);
 	    }
+	    get x() {
+	        return super.x;
+	    }
 	    set y(value) {
 	        super.y = value;
 	        this.callLater(this._postMsg);
+	    }
+	    get y() {
+	        return super.y;
 	    }
 	    _postMsg() {
 	        var mat = new Laya.Matrix();
@@ -6004,6 +6016,9 @@
 	        }
 	    }
 	}
+	Laya.ILaya.regClass(WXOpenDataViewer);
+	Laya.ClassUtils.regClass("laya.ui.WXOpenDataViewer", WXOpenDataViewer);
+	Laya.ClassUtils.regClass("Laya.WXOpenDataViewer", WXOpenDataViewer);
 
 	exports.AdvImage = AdvImage;
 	exports.AutoBitmap = AutoBitmap;

@@ -4,6 +4,8 @@ import { Stage } from "../../laya/display/Stage"
 import { Matrix } from "../../laya/maths/Matrix"
 import { Texture } from "../../laya/resource/Texture"
 import { Texture2D } from "../resource/Texture2D";
+import { ILaya } from "../../ILaya";
+import { ClassUtils } from "../utils/ClassUtils";
 	
 /**
  * 微信开放数据展示组件，直接实例本组件，即可根据组件宽高，位置，以最优的方式显示开放域数据
@@ -49,6 +51,13 @@ export class WXOpenDataViewer extends UIComponent {
     /**
      * @override
      */
+    get width(){
+        return super.width;
+    }
+
+    /**
+     * @override
+     */
     set height(value:number) {
         super.height = value;
         if ((window as any).sharedCanvas) (window as any).sharedCanvas.height = value;
@@ -58,9 +67,23 @@ export class WXOpenDataViewer extends UIComponent {
     /**
      * @override
      */
+    get height(){
+        return super.width;
+    }
+
+    /**
+     * @override
+     */
     set x(value:number) {
         super.x = value;
         this.callLater(this._postMsg);
+    }
+    
+    /**
+     * @override
+     */
+    get x(){
+       return super.x;
     }
 
     /**
@@ -69,6 +92,13 @@ export class WXOpenDataViewer extends UIComponent {
     set y(value:number) {
         super.y = value;
         this.callLater(this._postMsg);
+    }
+    
+    /**
+     * @override
+     */
+    get y(){
+        return super.y;
     }
     
     private _postMsg():void {
@@ -88,3 +118,6 @@ export class WXOpenDataViewer extends UIComponent {
     }
 }
 
+ILaya.regClass(WXOpenDataViewer);
+ClassUtils.regClass("laya.ui.WXOpenDataViewer", WXOpenDataViewer);
+ClassUtils.regClass("Laya.WXOpenDataViewer", WXOpenDataViewer);
