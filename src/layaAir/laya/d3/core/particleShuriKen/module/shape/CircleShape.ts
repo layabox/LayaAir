@@ -113,6 +113,7 @@ export class CircleShape extends BaseShape {
 	}
 
 	/**
+	 * @override
 	 * 克隆。
 	 * @return	 克隆副本。
 	 */

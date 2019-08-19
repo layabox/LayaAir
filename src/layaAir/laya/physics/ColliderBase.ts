@@ -42,6 +42,7 @@ export class ColliderBase extends Component {
         return this._def;
     }
     /**
+     * @internal
      * @override
      */
     protected _onEnable(): void {
@@ -58,6 +59,7 @@ export class ColliderBase extends Component {
         }
     }
     /**
+     * @internal
      * @override
      */
     protected _onDestroy(): void {

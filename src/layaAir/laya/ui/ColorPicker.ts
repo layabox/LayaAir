@@ -180,6 +180,7 @@ export class ColorPicker extends UIComponent {
 
 		/**
 		 * @inheritDoc 
+         * @override
 		*/
 		/*override*/ protected createChildren(): void {
         this.addChild(this._colorButton = new Button());
@@ -192,6 +193,7 @@ export class ColorPicker extends UIComponent {
 
 		/**
 		 * @inheritDoc 
+         * @override
 		*/
 		/*override*/ protected initialize(): void {
         this._colorButton.on(Event.CLICK, this, this.onColorButtonClick);

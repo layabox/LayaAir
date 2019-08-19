@@ -182,6 +182,7 @@ export class ComboBox extends UIComponent {
 
 		/**
 		 * @inheritDoc 
+         * @override
 		*/
 		/*override*/ protected createChildren(): void {
         this.addChild(this._button = new Button());

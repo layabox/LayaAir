@@ -249,6 +249,7 @@ export class List extends Box implements IRender, IItem {
 
 	/**
 	 * @inheritDoc 
+	 * @override
 	 */
 	protected createChildren(): void {
 		this.addChild(this._content = new Box());
@@ -1088,7 +1089,7 @@ export class List extends Box implements IRender, IItem {
 			this.callLater(this.changeCells);
 		}
 	}
-
+	/**@override */
 	protected commitMeasure(): void {
 		this.runCallLater(this.changeCells);
 	}

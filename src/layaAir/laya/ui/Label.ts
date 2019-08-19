@@ -144,6 +144,7 @@ export class Label extends UIComponent {
     }
 
     /**
+     * @override
      * @inheritDoc 
     */
     protected createChildren(): void {

@@ -252,6 +252,7 @@ export class CharacterController extends PhysicsComponent {
 
 	/**
 	 * @inheritDoc
+	 * @internal
 	 * @override
 	 */
 	protected _onDestroy(): void {
