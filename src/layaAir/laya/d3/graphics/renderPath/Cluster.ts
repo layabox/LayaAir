@@ -8,6 +8,7 @@ import { Scene3D } from "../../core/scene/Scene3D";
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Vector3 } from "../../math/Vector3";
 import { Utils3D } from "../../utils/Utils3D";
+import { Vector4 } from "../../math/Vector4";
 
 /**
  * @internal
@@ -17,6 +18,7 @@ class clusterData {
     pointLightCount: number = 0;
     spotLightCount: number = 0;
     indices: number[] = new Array(Laya3D._config.maxLightCountPerCluster);
+    boundSphere: Vector4 = new Vector4();
 }
 
 /**
@@ -123,9 +125,9 @@ export class Cluster {
         }
     }
 
-    private _updateLight(camera: Camera, min: Vector3, max: Vector3, lightIndex: number, viewlightPosZ: number, type: number): void {
+    private _updateLight(camera: Camera, min: Vector3, max: Vector3, lightIndex: number, viewlightNearestPosZ: number, type: number): void {
         var xSlices: number = this._xSlices, ySlices: number = this._ySlices, zSlices: number = this._zSlices;
-        var lightFrustumH: number = Math.abs(this._tanVerFovBy2 * viewlightPosZ * 2);
+        var lightFrustumH: number = Math.abs(this._tanVerFovBy2 * viewlightNearestPosZ * 2);
         var lightFrustumW: number = Math.abs(camera.aspectRatio * lightFrustumH);
         var xStride: number = lightFrustumW / xSlices, yStride: number = lightFrustumH / ySlices;
 
@@ -169,24 +171,22 @@ export class Cluster {
         this._tanVerFovBy2 = Math.tan(camera.fieldOfView * (Math.PI / 180.0) * 0.5);
         this._zStride = (camera.farPlane - camera.nearPlane) / zSlices;
 
+        var viewLightPos: Vector3 = Cluster._tempVector30;
+        var min: Vector3 = Cluster._tempVector31;
+        var max: Vector3 = Cluster._tempVector32;
         var curCount: number = scene._directionallights._length;
         var viewMat: Matrix4x4 = camera.viewMatrix;
         var pointLights: LightQueue<PointLight> = scene._pointLights;
         var spotLights: LightQueue<SpotLight> = scene._spotLights;
-        var viewLightPos: Vector3 = Cluster._tempVector30;
-        var min: Vector3 = Cluster._tempVector31;
-        var max: Vector3 = Cluster._tempVector32;
         var poiElements: PointLight[] = <PointLight[]>pointLights._elements;
-        var camNear: number = camera.nearPlane;
         for (var i = 0, n = pointLights._length; i < n; i++ , curCount++) {
             var poiLight: PointLight = poiElements[i];
             var radius = poiLight.range;
             Vector3.transformV3ToV3(poiLight._transform.position, viewMat, viewLightPos);//World to View
-
             //camera looks down negative z, make z axis positive to make calculations easier
-            min.setValue(viewLightPos.x - radius, viewLightPos.y - radius, -(viewLightPos.z + radius + camNear));
-            max.setValue(viewLightPos.x + radius, viewLightPos.y + radius, -(viewLightPos.z - radius + camNear));
-            this._updateLight(camera, min, max, curCount, viewLightPos.z, 0);
+            min.setValue(viewLightPos.x - radius, viewLightPos.y - radius, -(viewLightPos.z + radius));
+            max.setValue(viewLightPos.x + radius, viewLightPos.y + radius, -(viewLightPos.z - radius));
+            this._updateLight(camera, min, max, curCount, min.z, 0);
         }
 
         var viewForward: Vector3 = Cluster._tempVector33;
@@ -221,9 +221,9 @@ export class Cluster {
             var eZ: number = Math.sqrt(1.0 - aZ * aZ / dotA);
 
             //camera looks down negative z, make z axis positive to make calculations easier
-            min.setValue(Math.min(paX, pbX - eX * rb), Math.min(paY, pbY - eY * rb), -(Math.max(paZ, pbZ + eZ * rb) + camNear));
-            max.setValue(Math.max(paX, pbX + eX * rb), Math.max(paY, pbY + eY * rb), -(Math.min(paZ, pbZ - eZ * rb) + camNear));
-            this._updateLight(camera, min, max, curCount, viewLightPos.z, 1);
+            min.setValue(Math.min(paX, pbX - eX * rb), Math.min(paY, pbY - eY * rb), -(Math.max(paZ, pbZ + eZ * rb)));
+            max.setValue(Math.max(paX, pbX + eX * rb), Math.max(paY, pbY + eY * rb), -(Math.min(paZ, pbZ - eZ * rb)));
+            this._updateLight(camera, min, max, curCount, min.z, 1);
         }
 
         var fixOffset: number = xSlices * ySlices * zSlices * 4;//solve precision problme, if data is big some GPU int(float) have problem
