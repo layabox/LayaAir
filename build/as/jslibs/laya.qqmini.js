@@ -1179,7 +1179,7 @@ window.qqMiniGame = function (exports, Laya) {
 	            fileNativeUrl = textureUrl;
 	        }
 	        if (fileNativeUrl) {
-	            QQMiniAdapter.window.qq.postMessage({ url: url, atlasdata: postData, imgNativeUrl: fileNativeUrl, imgReadyUrl: textureUrl, isLoad: "opendatacontext" });
+	            QQMiniAdapter.window.qq.postMessage({ url: Laya.URL.formatURL(url), atlasdata: postData, imgNativeUrl: fileNativeUrl, imgReadyUrl: textureUrl, isLoad: "opendatacontext" });
 	        }
 	        else {
 	            throw "获取图集的磁盘url路径不存在！";

@@ -24445,10 +24445,10 @@ window.Laya= (function (exports) {
         static enable(manifestFile, callback, type = 2) {
             ResourceVersion.type = type;
             ILaya.loader.load(manifestFile, Handler.create(null, ResourceVersion.onManifestLoaded, [callback]), null, Loader.JSON);
-            URL.customFormat = ResourceVersion.addVersionPrefix;
         }
         static onManifestLoaded(callback, data) {
             ResourceVersion.manifest = data;
+            URL.customFormat = ResourceVersion.addVersionPrefix;
             callback.run();
             if (!data) {
                 console.warn("资源版本清单文件不存在，不使用资源版本管理。忽略ERR_FILE_NOT_FOUND错误。");
