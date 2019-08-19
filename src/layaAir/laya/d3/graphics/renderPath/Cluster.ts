@@ -179,14 +179,15 @@ export class Cluster {
         var pointLights: LightQueue<PointLight> = scene._pointLights;
         var spotLights: LightQueue<SpotLight> = scene._spotLights;
         var poiElements: PointLight[] = <PointLight[]>pointLights._elements;
+        var camNear: number = camera.nearPlane;
         for (var i = 0, n = pointLights._length; i < n; i++ , curCount++) {
             var poiLight: PointLight = poiElements[i];
             var radius = poiLight.range;
             Vector3.transformV3ToV3(poiLight._transform.position, viewMat, viewLightPos);//World to View
             //camera looks down negative z, make z axis positive to make calculations easier
-            min.setValue(viewLightPos.x - radius, viewLightPos.y - radius, -(viewLightPos.z + radius));
-            max.setValue(viewLightPos.x + radius, viewLightPos.y + radius, -(viewLightPos.z - radius));
-            this._updateLight(camera, min, max, curCount, min.z, 0);
+            min.setValue(viewLightPos.x - radius, viewLightPos.y - radius, -(viewLightPos.z + radius + camNear));
+            max.setValue(viewLightPos.x + radius, viewLightPos.y + radius, -(viewLightPos.z - radius + camNear));
+            this._updateLight(camera, min, max, curCount, viewLightPos.z, 0);
         }
 
         var viewForward: Vector3 = Cluster._tempVector33;
@@ -221,9 +222,9 @@ export class Cluster {
             var eZ: number = Math.sqrt(1.0 - aZ * aZ / dotA);
 
             //camera looks down negative z, make z axis positive to make calculations easier
-            min.setValue(Math.min(paX, pbX - eX * rb), Math.min(paY, pbY - eY * rb), -(Math.max(paZ, pbZ + eZ * rb)));
-            max.setValue(Math.max(paX, pbX + eX * rb), Math.max(paY, pbY + eY * rb), -(Math.min(paZ, pbZ - eZ * rb)));
-            this._updateLight(camera, min, max, curCount, min.z, 1);
+            min.setValue(Math.min(paX, pbX - eX * rb), Math.min(paY, pbY - eY * rb), -(Math.max(paZ, pbZ + eZ * rb) + camNear));
+            max.setValue(Math.max(paX, pbX + eX * rb), Math.max(paY, pbY + eY * rb), -(Math.min(paZ, pbZ - eZ * rb) + camNear));
+            this._updateLight(camera, min, max, curCount, viewLightPos.z, 1);
         }
 
         var fixOffset: number = xSlices * ySlices * zSlices * 4;//solve precision problme, if data is big some GPU int(float) have problem
