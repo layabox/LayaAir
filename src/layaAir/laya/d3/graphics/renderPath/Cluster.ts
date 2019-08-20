@@ -153,12 +153,12 @@ export class Cluster {
         // the effect is exaggerated the steeper the angle the plane makes is
         // if return light wont fall into any cluster
 
+        // slice = Math.log2(z) * (numSlices / Math.log2(far / near)) - Math.log2(near) * numSlices / Math.log2(far / near)
+        // slice start from near plane,near is index:0,z must large than near,or the result will NaN
         var near: number = camera.nearPlane;
         var far: number = camera.farPlane;
         if ((max.z < near) || (min.z >= far))
             return;
-        // slice = Math.log2(z) * (numSlices / Math.log2(far / near)) - Math.log2(near) * numSlices / Math.log2(far / near)
-        // slice start from near plane,near is index:0,z must large than near,or the result will NaN
         var nearestZ: number = Math.max(min.z, near);
         var zStartIndex: number = Math.floor(Math.log2(nearestZ) * this._depthSliceParam.x - this._depthSliceParam.y);
         var zEndIndex: number = Math.floor(Math.log2(Math.min(max.z, far)) * this._depthSliceParam.x - this._depthSliceParam.y);
@@ -194,7 +194,7 @@ export class Cluster {
     }
 
 
-    update(camera: Camera, viewMatrix: Matrix4x4, scene: Scene3D): void {
+    update(camera: Camera, scene: Scene3D): void {
         var xSlices: number = this._xSlices, ySlices: number = this._ySlices, zSlices: number = this._zSlices;
         var camNear: number = camera.nearPlane;
         this._updateMark++;
@@ -268,9 +268,6 @@ export class Cluster {
                     if (data.updateMark !== this._updateMark) {
                         clusterPixels[clusterOff] = 0;
                         clusterPixels[clusterOff + 1] = 0;
-
-
-
                     }
                     else {
                         var indices: number[] = data.indices;
