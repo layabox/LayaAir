@@ -2437,7 +2437,7 @@ var SpriteRenderHook=(function(){
 		};
 		var preTime=0;
 		preTime=Browser.now();
-		Stat.spriteCount++;
+		// Stat.spriteCount++;
 		if (this["ShowBorderSign"]){
 			DebugTool.showDisBoundToSprite(this,DebugInfoLayer.I.cacheViewLayer,DebugConsts.SPRITE_REC_COLOR,DebugConsts.SPRITE_REC_LINEWIDTH);
 		}
