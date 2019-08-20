@@ -60,9 +60,9 @@ export class Cluster {
         for (var z = 0; z < this._zSlices; z++) {
             clusterDatas[z] = new Array<Array<ClusterData>>(this._ySlices);
             for (var y = 0; y < this._ySlices; y++) {
-                clusterDatas[z][y] = new Array<clusterData>(this._xSlices);
+                clusterDatas[z][y] = new Array<ClusterData>(this._xSlices);
                 for (var x = 0; x < this._xSlices; x++)
-                    clusterDatas[z][y][x] = new clusterData();
+                    clusterDatas[z][y][x] = new ClusterData();
             }
         }
         this._clusterDatas = clusterDatas;
@@ -135,8 +135,9 @@ export class Cluster {
 
         //if return light wont fall into any cluster
         //slice = Math.log2(z) * (numSlices / Math.log2(far / near)) - Math.log2(near) * numSlices / Math.log2(far / near)
-        var zStartIndex: number = Math.floor(Math.log2(min.z) * this._depthSliceParam.x - this._depthSliceParam.y);
-        var zEndIndex: number = Math.floor(Math.log2(max.z) * this._depthSliceParam.x - this._depthSliceParam.y);
+        var near: number = camera.nearPlane;
+        var zStartIndex: number = Math.floor(Math.log2(min.z - near) * this._depthSliceParam.x - this._depthSliceParam.y);
+        var zEndIndex: number = Math.floor(Math.log2(max.z - near) * this._depthSliceParam.x - this._depthSliceParam.y);
 
         if ((zEndIndex < 0) || (zStartIndex >= zSlices))
             return;
@@ -183,14 +184,14 @@ export class Cluster {
         var pointLights: LightQueue<PointLight> = scene._pointLights;
         var spotLights: LightQueue<SpotLight> = scene._spotLights;
         var poiElements: PointLight[] = <PointLight[]>pointLights._elements;
-       
+
         for (var i = 0, n = pointLights._length; i < n; i++ , curCount++) {
             var poiLight: PointLight = poiElements[i];
             var radius = poiLight.range;
             Vector3.transformV3ToV3(poiLight._transform.position, viewMat, viewLightPos);//World to View
             //camera looks down negative z, make z axis positive to make calculations easier
-            min.setValue(viewLightPos.x - radius, viewLightPos.y - radius, -(viewLightPos.z + radius + camNear));
-            max.setValue(viewLightPos.x + radius, viewLightPos.y + radius, -(viewLightPos.z - radius + camNear));
+            min.setValue(viewLightPos.x - radius, viewLightPos.y - radius, -(viewLightPos.z + radius));
+            max.setValue(viewLightPos.x + radius, viewLightPos.y + radius, -(viewLightPos.z - radius));
             this._updateLight(camera, min, max, curCount, viewLightPos.z, 0);
         }
 
@@ -234,8 +235,8 @@ export class Cluster {
             var sphereMaxZ = viewLightPos.z + radius;
 
             //camera looks down negative z, make z axis positive to make calculations easier
-            min.setValue(Math.max(Math.min(paX, pbX - eX * rb), sphereMinX), Math.max(Math.min(paY, pbY - eY * rb), sphereMinY), -Math.min((Math.max(paZ, pbZ + eZ * rb), sphereMaxZ) + camNear));
-            max.setValue(Math.min(Math.max(paX, pbX + eX * rb), sphereMaxX), Math.min(Math.max(paY, pbY + eY * rb), sphereMaxY), -Math.max((Math.min(paZ, pbZ - eZ * rb), sphereMinZ) + camNear));
+            min.setValue(Math.max(Math.min(paX, pbX - eX * rb), sphereMinX), Math.max(Math.min(paY, pbY - eY * rb), sphereMinY), -Math.min((Math.max(paZ, pbZ + eZ * rb), sphereMaxZ)));
+            max.setValue(Math.min(Math.max(paX, pbX + eX * rb), sphereMaxX), Math.min(Math.max(paY, pbY + eY * rb), sphereMaxY), -Math.max((Math.min(paZ, pbZ - eZ * rb), sphereMinZ)));
 
             this._updateLight(camera, min, max, curCount, viewLightPos.z, 1);
         }
