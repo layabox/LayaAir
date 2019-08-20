@@ -10,7 +10,9 @@ attribute vec2 a_Texcoord0;
 	uniform mat4 u_MvpMatrix;
 #endif
 
-varying vec4 v_Color;
+#ifdef COLOR
+	varying vec4 v_Color;
+#endif
 varying vec2 v_Texcoord0;
 
 #ifdef TILINGOFFSET
@@ -48,6 +50,8 @@ void main()
 		v_Texcoord0=a_Texcoord0;
 	#endif
 		
-	v_Color = a_Color;
+	#ifdef COLOR
+		v_Color = a_Color;
+	#endif
 	gl_Position=remapGLPositionZ(gl_Position);
 }
