@@ -8,17 +8,16 @@ import { Scene3D } from "../../core/scene/Scene3D";
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Vector3 } from "../../math/Vector3";
 import { Utils3D } from "../../utils/Utils3D";
-import { Vector4 } from "../../math/Vector4";
+import { Vector2 } from "../../math/Vector2";
 
 /**
  * @internal
  */
-class clusterData {
+class ClusterData {
     updateMark: number = -1;
     pointLightCount: number = 0;
     spotLightCount: number = 0;
     indices: number[] = new Array(Laya3D._config.maxLightCountPerCluster);
-    boundSphere: Vector4 = new Vector4();
 }
 
 /**
@@ -36,11 +35,12 @@ export class Cluster {
     private _ySlices: number;
     private _zSlices: number;
     private _maxLightsPerCluster: number;
-    private _clusterDatas: clusterData[][][];
+    private _clusterDatas: ClusterData[][][];
     private _clusterPixels: Float32Array;
     private _tanVerFovBy2: number;
     private _zStride: number;
     private _updateMark: number = 0;
+    private _depthSliceParam: Vector2 = new Vector2();
 
     public _clusterTexture: Texture2D;
 
@@ -56,9 +56,9 @@ export class Cluster {
         this._clusterPixels = new Float32Array(clusterTexWidth * clisterTexHeight * 4);
 
         //Init for every cluster
-        var clusterDatas: clusterData[][][] = new Array<Array<Array<clusterData>>>(this._zSlices);
+        var clusterDatas: ClusterData[][][] = new Array<Array<Array<ClusterData>>>(this._zSlices);
         for (var z = 0; z < this._zSlices; z++) {
-            clusterDatas[z] = new Array<Array<clusterData>>(this._ySlices);
+            clusterDatas[z] = new Array<Array<ClusterData>>(this._ySlices);
             for (var y = 0; y < this._ySlices; y++) {
                 clusterDatas[z][y] = new Array<clusterData>(this._xSlices);
                 for (var x = 0; x < this._xSlices; x++)
@@ -84,12 +84,11 @@ export class Cluster {
         */
     }
 
-
     private _updatePointLight(xS: number, xE: number, yS: number, yE: number, zS: number, zE: number, lightIndex: number): void {
         for (var z: number = zS; z <= zE; z++) {
             for (var y: number = yS; y <= yE; y++) {
                 for (var x: number = xS; x <= xE; x++) {
-                    var data: clusterData = this._clusterDatas[z][y][x];
+                    var data: ClusterData = this._clusterDatas[z][y][x];
                     if (data.updateMark != this._updateMark) {
                         data.pointLightCount = 0;
                         data.spotLightCount = 0;
@@ -109,7 +108,7 @@ export class Cluster {
         for (var z: number = zS; z <= zE; z++) {
             for (var y: number = yS; y <= yE; y++) {
                 for (var x: number = xS; x <= xE; x++) {
-                    var data: clusterData = this._clusterDatas[z][y][x];
+                    var data: ClusterData = this._clusterDatas[z][y][x];
                     if (data.updateMark != this._updateMark) {
                         data.pointLightCount = 0;
                         data.spotLightCount = 0;
@@ -135,8 +134,10 @@ export class Cluster {
         // the effect is exaggerated the steeper the angle the plane makes is
 
         //if return light wont fall into any cluster
-        var zStartIndex: number = Math.floor(min.z / this._zStride);
-        var zEndIndex: number = Math.floor(max.z / this._zStride);
+        //slice = Math.log2(z) * (numSlices / Math.log2(far / near)) - Math.log2(near) * numSlices / Math.log2(far / near)
+        var zStartIndex: number = Math.floor(Math.log2(min.z) * this._depthSliceParam.x - this._depthSliceParam.y);
+        var zEndIndex: number = Math.floor(Math.log2(max.z) * this._depthSliceParam.x - this._depthSliceParam.y);
+
         if ((zEndIndex < 0) || (zStartIndex >= zSlices))
             return;
 
@@ -167,9 +168,12 @@ export class Cluster {
 
     update(camera: Camera, viewMatrix: Matrix4x4, scene: Scene3D): void {
         var xSlices: number = this._xSlices, ySlices: number = this._ySlices, zSlices: number = this._zSlices;
+        var camNear: number = camera.nearPlane;
         this._updateMark++;
         this._tanVerFovBy2 = Math.tan(camera.fieldOfView * (Math.PI / 180.0) * 0.5);
-        this._zStride = (camera.farPlane - camera.nearPlane) / zSlices;
+        this._zStride = (camera.farPlane - camNear) / zSlices;
+        this._depthSliceParam.x = Laya3D._config.clusterZCount / Math.log2(camera.farPlane / camNear);
+        this._depthSliceParam.y = Math.log2(camNear) * this._depthSliceParam.x;
 
         var viewLightPos: Vector3 = Cluster._tempVector30;
         var min: Vector3 = Cluster._tempVector31;
@@ -179,7 +183,7 @@ export class Cluster {
         var pointLights: LightQueue<PointLight> = scene._pointLights;
         var spotLights: LightQueue<SpotLight> = scene._spotLights;
         var poiElements: PointLight[] = <PointLight[]>pointLights._elements;
-        var camNear: number = camera.nearPlane;
+       
         for (var i = 0, n = pointLights._length; i < n; i++ , curCount++) {
             var poiLight: PointLight = poiElements[i];
             var radius = poiLight.range;
@@ -239,11 +243,11 @@ export class Cluster {
         var fixOffset: number = xSlices * ySlices * zSlices * 4;//solve precision problme, if data is big some GPU int(float) have problem
         var lightOff: number = fixOffset;
         var clusterPixels: Float32Array = this._clusterPixels;
-        var clusterDatas: clusterData[][][] = this._clusterDatas;
+        var clusterDatas: ClusterData[][][] = this._clusterDatas;
         for (var z = 0; z < zSlices; z++) {
             for (var y = 0; y < ySlices; y++) {
                 for (var x = 0; x < xSlices; x++) {
-                    var data: clusterData = clusterDatas[z][y][x];
+                    var data: ClusterData = clusterDatas[z][y][x];
                     var clusterOff: number = (x + y * xSlices + z * xSlices * ySlices) * 4;
                     if (data.updateMark !== this._updateMark) {
                         clusterPixels[clusterOff] = 0;

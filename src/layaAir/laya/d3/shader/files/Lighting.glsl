@@ -31,7 +31,8 @@ ivec3 getClusterInfo(sampler2D clusterBuffer,mat4 viewMatrix,vec4 viewport,vec3 
 
 	int clusterXIndex = int(floor(fragCoord.x/ (float(viewport.z)/float(CLUSTER_X_COUNT))));
     int clusterYIndex = int(floor((viewport.w-fragCoord.y)/ (float(viewport.w)/float(CLUSTER_Y_COUNT))));
-    int clusterZIndex = int(floor((-viewPos.z-projectParams.x) / ((projectParams.y-projectParams.x)/float(CLUSTER_Z_COUNT))));//projectParams x:cameraNear y:cameraFar
+	float zSliceParam =float(CLUSTER_Z_COUNT)/log2(projectParams.y / projectParams.x);
+ 	int clusterZIndex = int(floor(log2(-viewPos.z-projectParams.x) * zSliceParam- log2(projectParams.x) * zSliceParam));//projectParams x:cameraNear y:cameraFar
 
 	vec2 uv= vec2((float(clusterXIndex + clusterYIndex * CLUSTER_X_COUNT)+0.5)/float(c_ClusterBufferWidth),
 				(float(clusterZIndex)+0.5)/float(c_ClusterBufferHeight));

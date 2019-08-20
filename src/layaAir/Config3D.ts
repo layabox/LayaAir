@@ -40,7 +40,7 @@ export class Config3D implements IClone {
 	/** X轴光照集群数量。*/
 	clusterXCount: number = 16;
 	/** Y轴光照集群数量。*/
-	clusterYCount: number = 16;
+	clusterYCount: number = 9;
 	/** Z轴光照集群数量。*/
 	clusterZCount: number = 16;
 
