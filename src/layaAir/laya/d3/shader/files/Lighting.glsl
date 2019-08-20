@@ -61,6 +61,17 @@ int GetLightIndex(sampler2D clusterBuffer,int offset,int index)
       return int(texel.w);
 }
 
+int GetPointLightIndex(sampler2D clusterBuffer,ivec3 areaLightInfo,int index) 
+{
+	return GetLightIndex(clusterBuffer,areaLightInfo.z,index);
+}
+
+int GetSpotLightIndex(sampler2D clusterBuffer,ivec3 areaLightInfo,int index) 
+{
+	return GetLightIndex(clusterBuffer,areaLightInfo.z,areaLightInfo.x+index);
+}
+
+
 DirectionLight GetDirectionLight(sampler2D lightBuffer,int index) 
 {
     DirectionLight light;
@@ -144,8 +155,12 @@ void LayaAirBlinnPhongDiectionLight (in vec3 specColor,in float specColorIntensi
 
 void LayaAirBlinnPhongPointLight (in vec3 pos,in vec3 specColor,in float specColorIntensity,in vec3 normal,in vec3 gloss, in vec3 viewDir, in PointLight light,out vec3 diffuseColor,out vec3 specularColor) {
 	vec3 lightVec =  pos-light.position;
-	//if( length(lightVec) > light.range )
-	//	return;
+	// if( length(lightVec) > light.range )
+	// {
+	// 	diffuseColor=vec3(0.0);
+	// 	specularColor=vec3(0.0);
+	// 	return;
+	// }
 	LayaAirBlinnPhongLight(specColor,specColorIntensity,normal,gloss,viewDir,light.color,lightVec/length(lightVec),diffuseColor,specularColor);
 	float attenuate = LayaAttenuation(lightVec, 1.0/light.range);
 	diffuseColor *= attenuate;
@@ -154,8 +169,12 @@ void LayaAirBlinnPhongPointLight (in vec3 pos,in vec3 specColor,in float specCol
 
 void LayaAirBlinnPhongSpotLight (in vec3 pos,in vec3 specColor,in float specColorIntensity,in vec3 normal,in vec3 gloss, in vec3 viewDir, in SpotLight light,out vec3 diffuseColor,out vec3 specularColor) {
 	vec3 lightVec =  pos-light.position;
-	//if( length(lightVec) > light.range)
-	//	return;
+	// if( length(lightVec) > light.range )
+	// {
+	// 	diffuseColor=vec3(0.0);
+	// 	specularColor=vec3(0.0);
+	// 	return;
+	// }
 
 	vec3 normalLightVec=lightVec/length(lightVec);
 	LayaAirBlinnPhongLight(specColor,specColorIntensity,normal,gloss,viewDir,light.color,normalLightVec,diffuseColor,specularColor);

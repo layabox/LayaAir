@@ -413,7 +413,7 @@ export class Camera extends BaseCamera {
 		this._projectionParams.setValue(this._nearPlane, this._farPlane, 0, 0);
 		this._shaderValues.setVector(BaseCamera.VIEWPORT, this._viewportParams);
 		this._shaderValues.setVector(BaseCamera.PROJECTION_PARAMS, this._projectionParams);
-		Scene3D._cluster.update(this, this.viewMatrix, <Scene3D>(this._scene));
+		Scene3D._cluster.update(this, <Scene3D>(this._scene));
 	}
 
 	/**
