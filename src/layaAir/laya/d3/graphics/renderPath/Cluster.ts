@@ -38,7 +38,6 @@ export class Cluster {
     private _clusterDatas: ClusterData[][][];
     private _clusterPixels: Float32Array;
     private _tanVerFovBy2: number;
-    private _zStride: number;
     private _updateMark: number = 0;
     private _depthSliceParam: Vector2 = new Vector2();
 
@@ -124,25 +123,26 @@ export class Cluster {
         }
     }
 
-    private _updateLight(camera: Camera, min: Vector3, max: Vector3, lightIndex: number, viewlightPosZ: number, type: number): void {
-        var xSlices: number = this._xSlices, ySlices: number = this._ySlices, zSlices: number = this._zSlices;
-        var lightFrustumH: number = Math.abs(this._tanVerFovBy2 * viewlightPosZ * 2);
+    private _updateLight(camera: Camera, min: Vector3, max: Vector3, lightIndex: number, nearestZ: number, type: number): void {
+        var xSlices: number = this._xSlices, ySlices: number = this._ySlices;
+        var lightFrustumH: number = Math.abs(this._tanVerFovBy2 * nearestZ * 2);
         var lightFrustumW: number = Math.abs(camera.aspectRatio * lightFrustumH);
         var xStride: number = lightFrustumW / xSlices, yStride: number = lightFrustumH / ySlices;
 
         // technically could fall outside the bounds we make because the planes themeselves are tilted by some angle
         // the effect is exaggerated the steeper the angle the plane makes is
+        // if return light wont fall into any cluster
 
-        //if return light wont fall into any cluster
-        //slice = Math.log2(z) * (numSlices / Math.log2(far / near)) - Math.log2(near) * numSlices / Math.log2(far / near)
         var near: number = camera.nearPlane;
-        var zStartIndex: number = Math.floor(Math.log2(min.z - near) * this._depthSliceParam.x - this._depthSliceParam.y);
-        var zEndIndex: number = Math.floor(Math.log2(max.z - near) * this._depthSliceParam.x - this._depthSliceParam.y);
-
-        if ((zEndIndex < 0) || (zStartIndex >= zSlices))
+        var far: number = camera.farPlane;
+        if ((max.z < near) || (min.z >= far))
             return;
+        // slice = Math.log2(z) * (numSlices / Math.log2(far / near)) - Math.log2(near) * numSlices / Math.log2(far / near)
+        // slice start from near plane,near is index:0,z must large than near,or the result will NaN
+        var zStartIndex: number = Math.floor(Math.log2(Math.max(min.z, near)) * this._depthSliceParam.x - this._depthSliceParam.y);
+        var zEndIndex: number = Math.floor(Math.log2(Math.min(max.z, far)) * this._depthSliceParam.x - this._depthSliceParam.y);
 
-        //should inverse Y to more easy compute
+        // should inverse Y to more easy compute
         var yStartIndex: number = Math.floor((-max.y + lightFrustumH * 0.5) / yStride);
         var yEndIndex: number = Math.floor((-min.y + lightFrustumH * 0.5) / yStride);
         if ((yEndIndex < 0) || (yStartIndex >= ySlices))
@@ -153,8 +153,8 @@ export class Cluster {
         if ((xEndIndex < 0) || (xStartIndex >= xSlices))
             return;
 
-        zStartIndex = Math.max(0, zStartIndex);
-        zEndIndex = Math.min(zEndIndex, zSlices - 1);
+        // zStartIndex = Math.max(0, zStartIndex);//Don't need, because zStartIndex is compute form Math.max(min.z, near) zEndIndex is from Math.min(max.z, far)
+        // zEndIndex = Math.min(zEndIndex, zSlices - 1);
         yStartIndex = Math.max(0, yStartIndex);
         yEndIndex = Math.min(yEndIndex, ySlices - 1);
         xStartIndex = Math.max(0, xStartIndex);
@@ -172,7 +172,6 @@ export class Cluster {
         var camNear: number = camera.nearPlane;
         this._updateMark++;
         this._tanVerFovBy2 = Math.tan(camera.fieldOfView * (Math.PI / 180.0) * 0.5);
-        this._zStride = (camera.farPlane - camNear) / zSlices;
         this._depthSliceParam.x = Laya3D._config.clusterZCount / Math.log2(camera.farPlane / camNear);
         this._depthSliceParam.y = Math.log2(camNear) * this._depthSliceParam.x;
 
@@ -192,7 +191,7 @@ export class Cluster {
             //camera looks down negative z, make z axis positive to make calculations easier
             min.setValue(viewLightPos.x - radius, viewLightPos.y - radius, -(viewLightPos.z + radius));
             max.setValue(viewLightPos.x + radius, viewLightPos.y + radius, -(viewLightPos.z - radius));
-            this._updateLight(camera, min, max, curCount, viewLightPos.z, 0);
+            this._updateLight(camera, min, max, curCount, Math.max(min.z, camNear), 0);
         }
 
         var viewForward: Vector3 = Cluster._tempVector33;
@@ -237,8 +236,7 @@ export class Cluster {
             //camera looks down negative z, make z axis positive to make calculations easier
             min.setValue(Math.max(Math.min(paX, pbX - eX * rb), sphereMinX), Math.max(Math.min(paY, pbY - eY * rb), sphereMinY), -Math.min((Math.max(paZ, pbZ + eZ * rb), sphereMaxZ)));
             max.setValue(Math.min(Math.max(paX, pbX + eX * rb), sphereMaxX), Math.min(Math.max(paY, pbY + eY * rb), sphereMaxY), -Math.max((Math.min(paZ, pbZ - eZ * rb), sphereMinZ)));
-
-            this._updateLight(camera, min, max, curCount, viewLightPos.z, 1);
+            this._updateLight(camera, min, max, curCount, Math.max(min.z, camNear), 1);
         }
 
         var fixOffset: number = xSlices * ySlices * zSlices * 4;//solve precision problme, if data is big some GPU int(float) have problem
