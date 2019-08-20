@@ -123,12 +123,7 @@ export class Cluster {
         }
     }
 
-    private _updateLight(camera: Camera, min: Vector3, max: Vector3, lightIndex: number, nearestZ: number, type: number): void {
-        var xSlices: number = this._xSlices, ySlices: number = this._ySlices;
-        var lightFrustumH: number = Math.abs(this._tanVerFovBy2 * nearestZ * 2);
-        var lightFrustumW: number = Math.abs(camera.aspectRatio * lightFrustumH);
-        var xStride: number = lightFrustumW / xSlices, yStride: number = lightFrustumH / ySlices;
-
+    private _updateLight(camera: Camera, min: Vector3, max: Vector3, lightIndex: number, type: number): void {
         // technically could fall outside the bounds we make because the planes themeselves are tilted by some angle
         // the effect is exaggerated the steeper the angle the plane makes is
         // if return light wont fall into any cluster
@@ -139,15 +134,22 @@ export class Cluster {
             return;
         // slice = Math.log2(z) * (numSlices / Math.log2(far / near)) - Math.log2(near) * numSlices / Math.log2(far / near)
         // slice start from near plane,near is index:0,z must large than near,or the result will NaN
-        var zStartIndex: number = Math.floor(Math.log2(Math.max(min.z, near)) * this._depthSliceParam.x - this._depthSliceParam.y);
+        var nearestZ: number = Math.max(min.z, near);
+        var zStartIndex: number = Math.floor(Math.log2(nearestZ) * this._depthSliceParam.x - this._depthSliceParam.y);
         var zEndIndex: number = Math.floor(Math.log2(Math.min(max.z, far)) * this._depthSliceParam.x - this._depthSliceParam.y);
 
         // should inverse Y to more easy compute
+        var ySlices: number = this._ySlices;
+        var lightFrustumH: number = Math.abs(this._tanVerFovBy2 * nearestZ * 2);
+        var yStride: number = lightFrustumH / ySlices;
         var yStartIndex: number = Math.floor((-max.y + lightFrustumH * 0.5) / yStride);
         var yEndIndex: number = Math.floor((-min.y + lightFrustumH * 0.5) / yStride);
         if ((yEndIndex < 0) || (yStartIndex >= ySlices))
             return;
 
+        var xSlices: number = this._xSlices;
+        var lightFrustumW: number = Math.abs(camera.aspectRatio * lightFrustumH);
+        var xStride: number = lightFrustumW / xSlices;
         var xStartIndex: number = Math.floor((min.x + lightFrustumW * 0.5) / xStride);
         var xEndIndex: number = Math.floor((max.x + lightFrustumW * 0.5) / xStride);
         if ((xEndIndex < 0) || (xStartIndex >= xSlices))
@@ -191,7 +193,7 @@ export class Cluster {
             //camera looks down negative z, make z axis positive to make calculations easier
             min.setValue(viewLightPos.x - radius, viewLightPos.y - radius, -(viewLightPos.z + radius));
             max.setValue(viewLightPos.x + radius, viewLightPos.y + radius, -(viewLightPos.z - radius));
-            this._updateLight(camera, min, max, curCount, Math.max(min.z, camNear), 0);
+            this._updateLight(camera, min, max, curCount, 0);
         }
 
         var viewForward: Vector3 = Cluster._tempVector33;
@@ -236,7 +238,7 @@ export class Cluster {
             //camera looks down negative z, make z axis positive to make calculations easier
             min.setValue(Math.max(Math.min(paX, pbX - eX * rb), sphereMinX), Math.max(Math.min(paY, pbY - eY * rb), sphereMinY), -Math.min((Math.max(paZ, pbZ + eZ * rb), sphereMaxZ)));
             max.setValue(Math.min(Math.max(paX, pbX + eX * rb), sphereMaxX), Math.min(Math.max(paY, pbY + eY * rb), sphereMaxY), -Math.max((Math.min(paZ, pbZ - eZ * rb), sphereMinZ)));
-            this._updateLight(camera, min, max, curCount, Math.max(min.z, camNear), 1);
+            this._updateLight(camera, min, max, curCount, 1);
         }
 
         var fixOffset: number = xSlices * ySlices * zSlices * 4;//solve precision problme, if data is big some GPU int(float) have problem
