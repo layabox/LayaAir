@@ -6,9 +6,10 @@ import { PointLight } from "../../core/light/PointLight";
 import { SpotLight } from "../../core/light/SpotLight";
 import { Scene3D } from "../../core/scene/Scene3D";
 import { Matrix4x4 } from "../../math/Matrix4x4";
+import { Vector2 } from "../../math/Vector2";
 import { Vector3 } from "../../math/Vector3";
 import { Utils3D } from "../../utils/Utils3D";
-import { Vector2 } from "../../math/Vector2";
+import { Vector4 } from "../../math/Vector4";
 
 /**
  * @internal
@@ -29,6 +30,7 @@ export class Cluster {
     private static _tempVector32: Vector3 = new Vector3();
     private static _tempVector33: Vector3 = new Vector3();
     private static _tempVector34: Vector3 = new Vector3();
+    private static _tempVector35: Vector3 = new Vector3();
 
 
     private _xSlices: number;
@@ -81,6 +83,29 @@ export class Cluster {
         |
         V(Z)
         */
+    }
+
+    private _insertSpotLightVsSphere(origin: Vector3, forward: Vector3, size: number, angle: number, testSphere: Vector4): boolean {
+        //combine cone cull and sphere range cull
+        var V: Vector3 = Cluster._tempVector35;
+        V.x = testSphere.x - origin.x;
+        V.y = testSphere.y - origin.y;
+        V.z = testSphere.z - origin.z;
+
+        var VlenSq = Vector3.dot(V, V);
+        var sphereRadius: number = testSphere.w;
+
+        var rangeCull: boolean = VlenSq > sphereRadius * sphereRadius;
+        if (!rangeCull)
+            return false;
+
+        var V1len: number = Vector3.dot(V, forward);
+        var distanceClosestPoint: number = Math.cos(angle) * Math.sqrt(VlenSq - V1len * V1len) - V1len * Math.sin(angle);
+
+        var angleCull: boolean = distanceClosestPoint > sphereRadius;
+        var frontCull: boolean = V1len > sphereRadius + size;
+        var backCull: boolean = V1len < -sphereRadius;
+        return !(angleCull || frontCull || backCull);
     }
 
     private _updatePointLight(xS: number, xE: number, yS: number, yE: number, zS: number, zE: number, lightIndex: number): void {
@@ -212,28 +237,18 @@ export class Cluster {
             Vector3.scale(viewForward, radius, pb);
             Vector3.add(viewLightPos, pb, pb);
 
-            var pbX: number = pb.x;
-            var pbY: number = pb.y;
-            var pbZ: number = pb.z;
+            var pbX: number = pb.x, pbY: number = pb.y, pbZ: number = pb.z;
             var rb: number = Math.tan((spoLight.spotAngle / 2) * Math.PI / 180) * radius;
-            var paX: number = viewLightPos.x;
-            var paY: number = viewLightPos.y;
-            var paZ: number = viewLightPos.z;
-            var aX: number = pbX - paX;
-            var aY: number = pbY - paY;
-            var aZ: number = pbZ - paZ;
+            var paX: number = viewLightPos.x, paY: number = viewLightPos.y, paZ: number = viewLightPos.z;
+            var aX: number = pbX - paX, aY: number = pbY - paY, aZ: number = pbZ - paZ;
             var dotA: number = aX * aX + aY * aY + aZ * aZ;
             var eX: number = Math.sqrt(1.0 - aX * aX / dotA);
             var eY: number = Math.sqrt(1.0 - aY * aY / dotA);
             var eZ: number = Math.sqrt(1.0 - aZ * aZ / dotA);
 
             //flat-capped cone is not spotLight shape,spoltlight is sphere-capped.so we get the common boundBox of flat-capped cone bounds and sphere bounds.
-            var sphereMinX = viewLightPos.x - radius;
-            var sphereMinY = viewLightPos.y - radius;
-            var sphereMinZ = viewLightPos.z - radius;
-            var sphereMaxX = viewLightPos.x + radius;
-            var sphereMaxY = viewLightPos.y + radius;
-            var sphereMaxZ = viewLightPos.z + radius;
+            var sphereMinX = viewLightPos.x - radius, sphereMinY = viewLightPos.y - radius, sphereMinZ = viewLightPos.z - radius;
+            var sphereMaxX = viewLightPos.x + radius, sphereMaxY = viewLightPos.y + radius, sphereMaxZ = viewLightPos.z + radius;
 
             //camera looks down negative z, make z axis positive to make calculations easier
             min.setValue(Math.max(Math.min(paX, pbX - eX * rb), sphereMinX), Math.max(Math.min(paY, pbY - eY * rb), sphereMinY), -Math.min((Math.max(paZ, pbZ + eZ * rb), sphereMaxZ)));
@@ -253,6 +268,9 @@ export class Cluster {
                     if (data.updateMark !== this._updateMark) {
                         clusterPixels[clusterOff] = 0;
                         clusterPixels[clusterOff + 1] = 0;
+
+
+
                     }
                     else {
                         var indices: number[] = data.indices;
