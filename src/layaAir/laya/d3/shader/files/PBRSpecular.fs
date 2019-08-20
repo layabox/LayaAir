@@ -1,4 +1,4 @@
-#ifdef FSHIGHPRECISION
+#ifdef HIGHPRECISION
 	precision highp float;
 #else
 	precision mediump float;
