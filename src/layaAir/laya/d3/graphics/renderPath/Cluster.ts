@@ -143,7 +143,7 @@ export class Cluster {
     private _shrinkXYByRadiusZByDepth(near: number, far: number, lightviewPos: Vector3, radius: number, lightBound: LightBound): boolean {
         var xMin: number, yMin: number, zMin: number;
         var xMax: number, yMax: number, zMax: number;
-        var lvX: number = lightviewPos.x, lvY: number = lightviewPos.y, lvZ: number = -lightviewPos.z;// inverse Z
+        var lvX: number = lightviewPos.x, lvY: number = lightviewPos.y, lvZ: number = lightviewPos.z;// inverse Z
 
         // slice = Math.log2(z) * (numSlices / Math.log2(far / near)) - Math.log2(near) * numSlices / Math.log2(far / near)
         // slice start from near plane,near is index:0,z must large than near,or the result will NaN
@@ -219,6 +219,7 @@ export class Cluster {
         var lightBound: LightBound = Cluster._tempLightBound;
         var lightviewPos: Vector3 = Cluster._tempVector30;
         Vector3.transformV3ToV3(pointLight._transform.position, viewMat, lightviewPos);//World to View
+        lightviewPos.z *= -1;
         if (!this._shrinkXYByRadiusZByDepth(near, far, lightviewPos, pointLight.range, lightBound))
             return;
 
@@ -246,12 +247,16 @@ export class Cluster {
         // the effect is exaggerated the steeper the angle the plane makes is
         var lightBound: LightBound = Cluster._tempLightBound;
         var viewPos: Vector3 = Cluster._tempVector30;
-        var viewForward: Vector3 = Cluster._tempVector31;
-        var normal: Vector3 = Cluster._tempVector32;
         Vector3.transformV3ToV3(spotLight._transform.position, viewMat, viewPos);//World to View
+        viewPos.z *= -1;
         if (!this._shrinkXYByRadiusZByDepth(near, far, viewPos, spotLight.range, lightBound))
             return;
 
+        // var viewForward: Vector3 = Cluster._tempVector31;
+        // var normal: Vector3 = Cluster._tempVector32;
+        // spotLight._transform.worldMatrix.getForward(viewForward);
+        // Vector3.transformV3ToV3(viewForward, viewMat, viewForward);//World to View
+        // viewForward.z *= -1;
 
         // var i: number;
         // var n: number = lightBound.yMax;
@@ -260,7 +265,7 @@ export class Cluster {
         // for (i = lightBound.yMin; i < n; i++) {
         //     var angle: number = yStart - yLengthPerCluster * i;
         //     var bigHypot: number = Math.sqrt(1 + angle * angle);
-        //     var normY: number = 1 / bigHypot;
+        //     var normY: number = -1 / bigHypot;
         //     normal.setValue(0, normY, -angle * normY);
         //     if (this._insertConePlane(viewPos, viewForward, spotLight.range, spotLight.spotAngle, normal)) {
         //         lightBound.yMin = Math.max(0, i - 1);
@@ -271,10 +276,10 @@ export class Cluster {
         // for (i = lightBound.yMin + 1; i < n; i++) {
         //     var angle: number = yStart - yLengthPerCluster * i;
         //     var bigHypot: number = Math.sqrt(1 + angle * angle);
-        //     var normY: number = 1 / bigHypot;
-        //     var normZ: number = -angle * normY;
-        //     if (lvY * normY + lvZ * normZ > radius) {//Dot
-        //         yMax = Math.max(0, i);
+        //     var normY: number = -1 / bigHypot;
+        //     normal.setValue(0, normY, -angle * normY);
+        //     if (this._insertConePlane(viewPos, viewForward, spotLight.range, spotLight.spotAngle, normal)) {
+        //         lightBound.yMax = Math.max(0, i);
         //         break;
         //     }
         // }
@@ -332,9 +337,9 @@ export class Cluster {
 
 
     update(camera: Camera, scene: Scene3D): void {
+        this._updateMark++;
         var xSlices: number = this._xSlices, ySlices: number = this._ySlices, zSlices: number = this._zSlices;
         var camNear: number = camera.nearPlane;
-        this._updateMark++;
         this._tanVerFovBy2 = Math.tan(camera.fieldOfView * (Math.PI / 180.0) * 0.5);
         this._depthSliceParam.x = Laya3D._config.clusterZCount / Math.log2(camera.farPlane / camNear);
         this._depthSliceParam.y = Math.log2(camNear) * this._depthSliceParam.x;
@@ -383,7 +388,7 @@ export class Cluster {
                         clusterPixels[clusterOff] = pCount;
                         clusterPixels[clusterOff + 1] = sCount;
                         clusterPixels[clusterOff + 2] = lightOff - fixOffset;
-                        for (var i: number = 0; i < pCount; i++)
+                        for (var i: number = 0; i < pCount; i++)//TODO:一个for循环
                             clusterPixels[lightOff++] = indices[i];
                         for (var i: number = 0; i < sCount; i++)
                             clusterPixels[lightOff++] = indices[pCount + i];
