@@ -14,6 +14,18 @@ import { Vector4 } from "../../math/Vector4";
 /**
  * @internal
  */
+class LightBound {
+    xMin: number;
+    xMax: number;
+    yMin: number;
+    yMax: number;
+    zMin: number;
+    zMax: number;
+}
+
+/**
+ * @internal
+ */
 class ClusterData {
     updateMark: number = -1;
     pointLightCount: number = 0;
@@ -31,7 +43,9 @@ export class Cluster {
     private static _tempVector33: Vector3 = new Vector3();
     private static _tempVector34: Vector3 = new Vector3();
     private static _tempVector35: Vector3 = new Vector3();
-
+    private static _tempVector36: Vector3 = new Vector3();
+    private static _tempVector37: Vector3 = new Vector3();
+    private static _tempLightBound: LightBound = new LightBound();
 
     private _xSlices: number;
     private _ySlices: number;
@@ -42,6 +56,7 @@ export class Cluster {
     private _tanVerFovBy2: number;
     private _updateMark: number = 0;
     private _depthSliceParam: Vector2 = new Vector2();
+    private _xySliceParams: Vector4 = new Vector4();
 
     public _clusterTexture: Texture2D;
 
@@ -85,7 +100,7 @@ export class Cluster {
         */
     }
 
-    private _insertSpotLightVsSphere(origin: Vector3, forward: Vector3, size: number, angle: number, testSphere: Vector4): boolean {
+    private _insertSpotLightSphere(origin: Vector3, forward: Vector3, size: number, angle: number, testSphere: Vector4): boolean {
         //combine cone cull and sphere range cull
         var V: Vector3 = Cluster._tempVector35;
         V.x = testSphere.x - origin.x;
@@ -108,10 +123,105 @@ export class Cluster {
         return !(angleCull || frontCull || backCull);
     }
 
-    private _updatePointLight(xS: number, xE: number, yS: number, yE: number, zS: number, zE: number, lightIndex: number): void {
-        for (var z: number = zS; z <= zE; z++) {
-            for (var y: number = yS; y <= yE; y++) {
-                for (var x: number = xS; x <= xE; x++) {
+    // private _insertConePlane(origin: Vector3, forward: Vector3, size: number, angle: number, planeNormal: Vector3, distance: number): boolean {
+    //     var V1: Vector3 = Cluster._tempVector36;
+    //     var V2: Vector3 = Cluster._tempVector37;
+    //     Vector3.cross(planeNormal, forward, V1);
+    //     Vector3.cross(V1, forward, V2);
+
+    //     const float3 capRimPoint = origin +
+    //         size * cos(angle) * forward +
+    //         size * sin(angle) * V2;
+
+    //     return dot(float4(capRimPoint, 1.0f), testPlane) >= 0.0f || dot(float4(origin, 1.0f), testPlane) >= 0.0f;
+    // }
+
+
+    private _shrinkXYByRadiusZByDepth(near: number, far: number, lightviewPos: Vector3, radius: number, lightBound: LightBound): boolean {
+        var xMin: number, yMin: number, zMin: number;
+        var xMax: number, yMax: number, zMax: number;
+        var lvX: number = lightviewPos.x, lvY: number = lightviewPos.y, lvZ: number = -lightviewPos.z;// inverse Z
+
+        // slice = Math.log2(z) * (numSlices / Math.log2(far / near)) - Math.log2(near) * numSlices / Math.log2(far / near)
+        // slice start from near plane,near is index:0,z must large than near,or the result will NaN
+        var minZ: number = lvZ - radius;
+        var maxZ: number = lvZ + radius;
+        if ((minZ > far) || (maxZ < near))
+            return false;
+        zMin = Math.floor(Math.log2(Math.max(minZ, near)) * this._depthSliceParam.x - this._depthSliceParam.y);
+        zMax = Math.floor(Math.log2(Math.min(maxZ, far)) * this._depthSliceParam.x - this._depthSliceParam.y) + 1;
+
+        var i: number;
+        var n: number = this._ySlices + 1;
+        var yStart = -this._xySliceParams.y;
+        var yLengthPerCluster: number = this._xySliceParams.w;
+        for (i = 0; i < n; i++) {
+            var angle: number = yStart - yLengthPerCluster * i;
+            var bigHypot: number = Math.sqrt(1 + angle * angle);
+            var normY: number = 1 / bigHypot;
+            var normZ: number = -angle * normY;
+            if (lvY * normY + lvZ * normZ > -radius) {//Dot
+                yMin = Math.max(0, i - 1);
+                break;
+            }
+        }
+        if (i == n)//fail insert
+            return false;
+        yMax = this._ySlices;
+        for (i = yMin + 1; i < n; i++) {
+            var angle: number = yStart - yLengthPerCluster * i;
+            var bigHypot: number = Math.sqrt(1 + angle * angle);
+            var normY: number = 1 / bigHypot;
+            var normZ: number = -angle * normY;
+            if (lvY * normY + lvZ * normZ > radius) {//Dot
+                yMax = Math.max(0, i);
+                break;
+            }
+        }
+
+        var xStart: number = this._xySliceParams.x;
+        var xLengthPerCluster: number = this._xySliceParams.z;
+        n = this._xSlices + 1;
+        for (i = 0; i < n; i++) {
+            var angle: number = xStart + xLengthPerCluster * i;
+            var bigHypot: number = Math.sqrt(1 + angle * angle);
+            var normX: number = 1 / bigHypot;
+            var normZ: number = -angle * normX;
+            if (lvX * normX + lvZ * normZ < radius) {//Dot
+                xMin = Math.max(0, i - 1);
+                break;
+            }
+        }
+        xMax = this._xSlices;
+        for (var i = xMin + 1; i < n; i++) {
+            var angle: number = xStart + xLengthPerCluster * i;
+            var bigHypot: number = Math.sqrt(1 + angle * angle);
+            var normX: number = 1 / bigHypot;
+            var normZ: number = -angle * normX;
+            if (lvX * normX + lvZ * normZ < -radius) {//Dot
+                xMax = Math.max(0, i);
+                break;
+            }
+        }
+        lightBound.xMin = xMin
+        lightBound.xMax = xMax;
+        lightBound.yMin = yMin;
+        lightBound.yMax = yMax;
+        lightBound.zMin = zMin;
+        lightBound.zMax = zMax;
+        return true;
+    }
+
+    private _updatePointLight(near: number, far: number, viewMat: Matrix4x4, pointLight: PointLight, lightIndex: number): void {
+        var lightBound: LightBound = Cluster._tempLightBound;
+        var lightviewPos: Vector3 = Cluster._tempVector30;
+        Vector3.transformV3ToV3(pointLight._transform.position, viewMat, lightviewPos);//World to View
+        if (!this._shrinkXYByRadiusZByDepth(near, far, lightviewPos, pointLight.range, lightBound))
+            return;
+
+        for (var z: number = lightBound.zMin, zEnd: number = lightBound.zMax; z < zEnd; z++) {
+            for (var y: number = lightBound.yMin, yEnd: number = lightBound.yMax; y < yEnd; y++) {
+                for (var x: number = lightBound.xMin, xEnd: number = lightBound.xMax; x < xEnd; x++) {
                     var data: ClusterData = this._clusterDatas[z][y][x];
                     if (data.updateMark != this._updateMark) {
                         data.pointLightCount = 0;
@@ -128,10 +238,20 @@ export class Cluster {
         }
     }
 
-    private _updateSpotLight(xS: number, xE: number, yS: number, yE: number, zS: number, zE: number, lightIndex: number): void {
-        for (var z: number = zS; z <= zE; z++) {
-            for (var y: number = yS; y <= yE; y++) {
-                for (var x: number = xS; x <= xE; x++) {
+    private _updateSpotLight(near: number, far: number, viewMat: Matrix4x4, spotLight: SpotLight, lightIndex: number): void {
+        // technically could fall outside the bounds we make because the planes themeselves are tilted by some angle
+        // the effect is exaggerated the steeper the angle the plane makes is
+        var lightBound: LightBound = Cluster._tempLightBound;
+        var lightviewPos: Vector3 = Cluster._tempVector30;
+        Vector3.transformV3ToV3(spotLight._transform.position, viewMat, lightviewPos);//World to View
+        if (!this._shrinkXYByRadiusZByDepth(near, far, lightviewPos, spotLight.range, lightBound))
+            return;
+
+        //TODO:go on  shrink
+
+        for (var z: number = lightBound.zMin, zEnd: number = lightBound.zMax; z < zEnd; z++) {
+            for (var y: number = lightBound.yMin, yEnd: number = lightBound.yMax; y < yEnd; y++) {
+                for (var x: number = lightBound.xMin, xEnd: number = lightBound.xMax; x < xEnd; x++) {
                     var data: ClusterData = this._clusterDatas[z][y][x];
                     if (data.updateMark != this._updateMark) {
                         data.pointLightCount = 0;
@@ -148,50 +268,6 @@ export class Cluster {
         }
     }
 
-    private _updateLight(camera: Camera, min: Vector3, max: Vector3, lightIndex: number, type: number): void {
-        // technically could fall outside the bounds we make because the planes themeselves are tilted by some angle
-        // the effect is exaggerated the steeper the angle the plane makes is
-        // if return light wont fall into any cluster
-
-        // slice = Math.log2(z) * (numSlices / Math.log2(far / near)) - Math.log2(near) * numSlices / Math.log2(far / near)
-        // slice start from near plane,near is index:0,z must large than near,or the result will NaN
-        var near: number = camera.nearPlane;
-        var far: number = camera.farPlane;
-        if ((max.z < near) || (min.z >= far))
-            return;
-        var nearestZ: number = Math.max(min.z, near);
-        var zStartIndex: number = Math.floor(Math.log2(nearestZ) * this._depthSliceParam.x - this._depthSliceParam.y);
-        var zEndIndex: number = Math.floor(Math.log2(Math.min(max.z, far)) * this._depthSliceParam.x - this._depthSliceParam.y);
-
-        // should inverse Y to more easy compute
-        var ySlices: number = this._ySlices;
-        var lightFrustumH: number = Math.abs(this._tanVerFovBy2 * nearestZ * 2);
-        var yStride: number = lightFrustumH / ySlices;
-        var yStartIndex: number = Math.floor((-max.y + lightFrustumH * 0.5) / yStride);
-        var yEndIndex: number = Math.floor((-min.y + lightFrustumH * 0.5) / yStride);
-        if ((yEndIndex < 0) || (yStartIndex >= ySlices))
-            return;
-
-        var xSlices: number = this._xSlices;
-        var lightFrustumW: number = Math.abs(camera.aspectRatio * lightFrustumH);
-        var xStride: number = lightFrustumW / xSlices;
-        var xStartIndex: number = Math.floor((min.x + lightFrustumW * 0.5) / xStride);
-        var xEndIndex: number = Math.floor((max.x + lightFrustumW * 0.5) / xStride);
-        if ((xEndIndex < 0) || (xStartIndex >= xSlices))
-            return;
-
-        // zStartIndex = Math.max(0, zStartIndex);//Don't need, because zStartIndex is compute form Math.max(min.z, near) zEndIndex is from Math.min(max.z, far)
-        // zEndIndex = Math.min(zEndIndex, zSlices - 1);
-        yStartIndex = Math.max(0, yStartIndex);
-        yEndIndex = Math.min(yEndIndex, ySlices - 1);
-        xStartIndex = Math.max(0, xStartIndex);
-        xEndIndex = Math.min(xEndIndex, xSlices - 1);
-
-        if (type == 0) //pointLight
-            this._updatePointLight(xStartIndex, xEndIndex, yStartIndex, yEndIndex, zStartIndex, zEndIndex, lightIndex);
-        else //spotLight
-            this._updateSpotLight(xStartIndex, xEndIndex, yStartIndex, yEndIndex, zStartIndex, zEndIndex, lightIndex);
-    }
 
 
     update(camera: Camera, scene: Scene3D): void {
@@ -202,59 +278,29 @@ export class Cluster {
         this._depthSliceParam.x = Laya3D._config.clusterZCount / Math.log2(camera.farPlane / camNear);
         this._depthSliceParam.y = Math.log2(camNear) * this._depthSliceParam.x;
 
-        var viewLightPos: Vector3 = Cluster._tempVector30;
-        var min: Vector3 = Cluster._tempVector31;
-        var max: Vector3 = Cluster._tempVector32;
+        var halfY = Math.tan((camera.fieldOfView / 2) * Math.PI / 180);
+        var halfX = camera.aspectRatio * halfY;
+        var yLengthPerCluster = 2 * halfY / this._ySlices;
+        var xLengthPerCluster = 2 * halfX / this._xSlices;
+        this._xySliceParams.x = -halfX;
+        this._xySliceParams.y = -halfY;//start from top is more similar to light pixel data
+        this._xySliceParams.z = xLengthPerCluster;
+        this._xySliceParams.w = yLengthPerCluster;
+
         var curCount: number = scene._directionallights._length;
+        var near: number = camera.nearPlane;
+        var far: number = camera.farPlane;
         var viewMat: Matrix4x4 = camera.viewMatrix;
+
         var pointLights: LightQueue<PointLight> = scene._pointLights;
-        var spotLights: LightQueue<SpotLight> = scene._spotLights;
         var poiElements: PointLight[] = <PointLight[]>pointLights._elements;
+        for (var i = 0, n = pointLights._length; i < n; i++ , curCount++)
+            this._updatePointLight(near, far, viewMat, poiElements[i], curCount);
 
-        for (var i = 0, n = pointLights._length; i < n; i++ , curCount++) {
-            var poiLight: PointLight = poiElements[i];
-            var radius = poiLight.range;
-            Vector3.transformV3ToV3(poiLight._transform.position, viewMat, viewLightPos);//World to View
-            //camera looks down negative z, make z axis positive to make calculations easier
-            min.setValue(viewLightPos.x - radius, viewLightPos.y - radius, -(viewLightPos.z + radius));
-            max.setValue(viewLightPos.x + radius, viewLightPos.y + radius, -(viewLightPos.z - radius));
-            this._updateLight(camera, min, max, curCount, 0);
-        }
-
-        var viewForward: Vector3 = Cluster._tempVector33;
-        var pb: Vector3 = Cluster._tempVector34;
+        var spotLights: LightQueue<SpotLight> = scene._spotLights;
         var spoElements: SpotLight[] = <SpotLight[]>spotLights._elements;
-        for (var i = 0, n = spotLights._length; i < n; i++ , curCount++) {
-            var spoLight: SpotLight = spoElements[i];
-            var radius = spoLight.range;
-            spoLight._transform.worldMatrix.getForward(viewForward);
-            Vector3.transformV3ToV3(viewForward, viewMat, viewForward);//forward to View
-            Vector3.normalize(viewForward, viewForward);
-            Vector3.transformV3ToV3(spoLight._transform.position, viewMat, viewLightPos);//World to View
-
-            //https://bartwronski.com/2017/04/13/cull-that-cone/
-            //http://www.iquilezles.org/www/articles/diskbbox/diskbbox.htm
-            Vector3.scale(viewForward, radius, pb);
-            Vector3.add(viewLightPos, pb, pb);
-
-            var pbX: number = pb.x, pbY: number = pb.y, pbZ: number = pb.z;
-            var rb: number = Math.tan((spoLight.spotAngle / 2) * Math.PI / 180) * radius;
-            var paX: number = viewLightPos.x, paY: number = viewLightPos.y, paZ: number = viewLightPos.z;
-            var aX: number = pbX - paX, aY: number = pbY - paY, aZ: number = pbZ - paZ;
-            var dotA: number = aX * aX + aY * aY + aZ * aZ;
-            var eX: number = Math.sqrt(1.0 - aX * aX / dotA);
-            var eY: number = Math.sqrt(1.0 - aY * aY / dotA);
-            var eZ: number = Math.sqrt(1.0 - aZ * aZ / dotA);
-
-            //flat-capped cone is not spotLight shape,spoltlight is sphere-capped.so we get the common boundBox of flat-capped cone bounds and sphere bounds.
-            var sphereMinX = viewLightPos.x - radius, sphereMinY = viewLightPos.y - radius, sphereMinZ = viewLightPos.z - radius;
-            var sphereMaxX = viewLightPos.x + radius, sphereMaxY = viewLightPos.y + radius, sphereMaxZ = viewLightPos.z + radius;
-
-            //camera looks down negative z, make z axis positive to make calculations easier
-            min.setValue(Math.max(Math.min(paX, pbX - eX * rb), sphereMinX), Math.max(Math.min(paY, pbY - eY * rb), sphereMinY), -Math.min((Math.max(paZ, pbZ + eZ * rb), sphereMaxZ)));
-            max.setValue(Math.min(Math.max(paX, pbX + eX * rb), sphereMaxX), Math.min(Math.max(paY, pbY + eY * rb), sphereMaxY), -Math.max((Math.min(paZ, pbZ - eZ * rb), sphereMinZ)));
-            this._updateLight(camera, min, max, curCount, 1);
-        }
+        for (var i = 0, n = spotLights._length; i < n; i++ , curCount++)
+            this._updateSpotLight(near, far, viewMat, spoElements[i], curCount);
 
         var fixOffset: number = xSlices * ySlices * zSlices * 4;//solve precision problme, if data is big some GPU int(float) have problem
         var lightOff: number = fixOffset;
