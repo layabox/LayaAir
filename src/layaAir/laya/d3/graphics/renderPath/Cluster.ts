@@ -152,7 +152,7 @@ export class Cluster {
         if ((minZ > far) || (maxZ <= near))
             return false;
         zMin = Math.floor(Math.log2(Math.max(minZ, near)) * this._depthSliceParam.x - this._depthSliceParam.y);
-        zMax = Math.floor(Math.log2(Math.min(maxZ, far)) * this._depthSliceParam.x - this._depthSliceParam.y) + 1;
+        zMax = Math.min(Math.floor(Math.log2(maxZ) * this._depthSliceParam.x - this._depthSliceParam.y) + 1, this._zSlices);
 
         var i: number;
         var n: number = this._ySlices + 1;
