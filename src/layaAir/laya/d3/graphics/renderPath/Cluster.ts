@@ -8,8 +8,8 @@ import { Scene3D } from "../../core/scene/Scene3D";
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Vector2 } from "../../math/Vector2";
 import { Vector3 } from "../../math/Vector3";
-import { Utils3D } from "../../utils/Utils3D";
 import { Vector4 } from "../../math/Vector4";
+import { Utils3D } from "../../utils/Utils3D";
 
 /**
  * @internal
@@ -123,18 +123,21 @@ export class Cluster {
         return !(angleCull || frontCull || backCull);
     }
 
-    // private _insertConePlane(origin: Vector3, forward: Vector3, size: number, angle: number, planeNormal: Vector3, distance: number): boolean {
-    //     var V1: Vector3 = Cluster._tempVector36;
-    //     var V2: Vector3 = Cluster._tempVector37;
-    //     Vector3.cross(planeNormal, forward, V1);
-    //     Vector3.cross(V1, forward, V2);
+    private _insertConePlane(origin: Vector3, forward: Vector3, size: number, angle: number, pNor: Vector3): boolean {
+        //https://bartwronski.com/2017/04/13/cull-that-cone/
+        //because distance is always zero so we ease this method
+        var V1: Vector3 = Cluster._tempVector36;
+        var V2: Vector3 = Cluster._tempVector37;
+        Vector3.cross(pNor, forward, V1);
+        Vector3.cross(V1, forward, V2);
+        var sCos: number = size * Math.cos(angle);
+        var sSin: number = size * Math.sin(angle);
+        var capRimX: number = origin.x + sCos * forward.x + sSin * V2.x;
+        var capRimY: number = origin.y + sCos * forward.y + sSin * V2.y;
+        var capRimZ: number = origin.z + sCos * forward.z + sSin * V2.z;
 
-    //     const float3 capRimPoint = origin +
-    //         size * cos(angle) * forward +
-    //         size * sin(angle) * V2;
-
-    //     return dot(float4(capRimPoint, 1.0f), testPlane) >= 0.0f || dot(float4(origin, 1.0f), testPlane) >= 0.0f;
-    // }
+        return capRimX * pNor.x + capRimY * pNor.y + capRimZ * pNor.z >= 0 || origin.x * pNor.x + origin.y * pNor.y + origin.z * pNor.z >= 0;
+    }
 
 
     private _shrinkXYByRadiusZByDepth(near: number, far: number, lightviewPos: Vector3, radius: number, lightBound: LightBound): boolean {
@@ -146,7 +149,7 @@ export class Cluster {
         // slice start from near plane,near is index:0,z must large than near,or the result will NaN
         var minZ: number = lvZ - radius;
         var maxZ: number = lvZ + radius;
-        if ((minZ > far) || (maxZ < near))
+        if ((minZ > far) || (maxZ <= near))
             return false;
         zMin = Math.floor(Math.log2(Math.max(minZ, near)) * this._depthSliceParam.x - this._depthSliceParam.y);
         zMax = Math.floor(Math.log2(Math.min(maxZ, far)) * this._depthSliceParam.x - this._depthSliceParam.y) + 1;
@@ -158,22 +161,22 @@ export class Cluster {
         for (i = 0; i < n; i++) {
             var angle: number = yStart - yLengthPerCluster * i;
             var bigHypot: number = Math.sqrt(1 + angle * angle);
-            var normY: number = 1 / bigHypot;
+            var normY: number = -1 / bigHypot;
             var normZ: number = -angle * normY;
-            if (lvY * normY + lvZ * normZ > -radius) {//Dot
+            if (lvY * normY + lvZ * normZ < radius) {//Dot
                 yMin = Math.max(0, i - 1);
                 break;
             }
         }
-        if (i == n)//fail insert
+        if (i == n)//fail scan insert
             return false;
         yMax = this._ySlices;
         for (i = yMin + 1; i < n; i++) {
             var angle: number = yStart - yLengthPerCluster * i;
             var bigHypot: number = Math.sqrt(1 + angle * angle);
-            var normY: number = 1 / bigHypot;
+            var normY: number = -1 / bigHypot;
             var normZ: number = -angle * normY;
-            if (lvY * normY + lvZ * normZ > radius) {//Dot
+            if (lvY * normY + lvZ * normZ <= -radius) {//Dot
                 yMax = Math.max(0, i);
                 break;
             }
@@ -198,7 +201,7 @@ export class Cluster {
             var bigHypot: number = Math.sqrt(1 + angle * angle);
             var normX: number = 1 / bigHypot;
             var normZ: number = -angle * normX;
-            if (lvX * normX + lvZ * normZ < -radius) {//Dot
+            if (lvX * normX + lvZ * normZ <= -radius) {//Dot
                 xMax = Math.max(0, i);
                 break;
             }
@@ -242,12 +245,70 @@ export class Cluster {
         // technically could fall outside the bounds we make because the planes themeselves are tilted by some angle
         // the effect is exaggerated the steeper the angle the plane makes is
         var lightBound: LightBound = Cluster._tempLightBound;
-        var lightviewPos: Vector3 = Cluster._tempVector30;
-        Vector3.transformV3ToV3(spotLight._transform.position, viewMat, lightviewPos);//World to View
-        if (!this._shrinkXYByRadiusZByDepth(near, far, lightviewPos, spotLight.range, lightBound))
+        var viewPos: Vector3 = Cluster._tempVector30;
+        var viewForward: Vector3 = Cluster._tempVector31;
+        var normal: Vector3 = Cluster._tempVector32;
+        Vector3.transformV3ToV3(spotLight._transform.position, viewMat, viewPos);//World to View
+        if (!this._shrinkXYByRadiusZByDepth(near, far, viewPos, spotLight.range, lightBound))
             return;
 
-        //TODO:go on  shrink
+
+        // var i: number;
+        // var n: number = lightBound.yMax;
+        // var yStart = -this._xySliceParams.y;
+        // var yLengthPerCluster: number = this._xySliceParams.w;
+        // for (i = lightBound.yMin; i < n; i++) {
+        //     var angle: number = yStart - yLengthPerCluster * i;
+        //     var bigHypot: number = Math.sqrt(1 + angle * angle);
+        //     var normY: number = 1 / bigHypot;
+        //     normal.setValue(0, normY, -angle * normY);
+        //     if (this._insertConePlane(viewPos, viewForward, spotLight.range, spotLight.spotAngle, normal)) {
+        //         lightBound.yMin = Math.max(0, i - 1);
+        //         break;
+        //     }
+        // }
+
+        // for (i = lightBound.yMin + 1; i < n; i++) {
+        //     var angle: number = yStart - yLengthPerCluster * i;
+        //     var bigHypot: number = Math.sqrt(1 + angle * angle);
+        //     var normY: number = 1 / bigHypot;
+        //     var normZ: number = -angle * normY;
+        //     if (lvY * normY + lvZ * normZ > radius) {//Dot
+        //         yMax = Math.max(0, i);
+        //         break;
+        //     }
+        // }
+
+        // var xStart: number = this._xySliceParams.x;
+        // var xLengthPerCluster: number = this._xySliceParams.z;
+        // n = this._xSlices + 1;
+        // for (i = 0; i < n; i++) {
+        //     var angle: number = xStart + xLengthPerCluster * i;
+        //     var bigHypot: number = Math.sqrt(1 + angle * angle);
+        //     var normX: number = 1 / bigHypot;
+        //     var normZ: number = -angle * normX;
+        //     if (lvX * normX + lvZ * normZ < radius) {//Dot
+        //         xMin = Math.max(0, i - 1);
+        //         break;
+        //     }
+        // }
+        // xMax = this._xSlices;
+        // for (var i = xMin + 1; i < n; i++) {
+        //     var angle: number = xStart + xLengthPerCluster * i;
+        //     var bigHypot: number = Math.sqrt(1 + angle * angle);
+        //     var normX: number = 1 / bigHypot;
+        //     var normZ: number = -angle * normX;
+        //     if (lvX * normX + lvZ * normZ < -radius) {//Dot
+        //         xMax = Math.max(0, i);
+        //         break;
+        //     }
+        // }
+        // lightBound.xMin = xMin
+        // lightBound.xMax = xMax;
+        // lightBound.yMin = yMin;
+        // lightBound.yMax = yMax;
+        // lightBound.zMin = zMin;
+        // lightBound.zMax = zMax;
 
         for (var z: number = lightBound.zMin, zEnd: number = lightBound.zMax; z < zEnd; z++) {
             for (var y: number = lightBound.yMin, yEnd: number = lightBound.yMax; y < yEnd; y++) {
