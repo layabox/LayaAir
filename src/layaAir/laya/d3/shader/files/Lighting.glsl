@@ -19,13 +19,11 @@ struct SpotLight {
 
 
 
-const int c_MaxPixelCountPerLightIndices =int(ceil(float(MAX_LIGHT_COUNT_PER_CLUSTER)/4.0));
 const int c_ClusterBufferWidth = CLUSTER_X_COUNT*CLUSTER_Y_COUNT;
-const int c_ClusterBufferHeight = CLUSTER_Z_COUNT*(1+c_MaxPixelCountPerLightIndices);
+const int c_ClusterBufferHeight = CLUSTER_Z_COUNT*(1+int(ceil(float(MAX_LIGHT_COUNT_PER_CLUSTER)/4.0)));
 const int c_ClusterBufferFloatWidth = c_ClusterBufferWidth*4;
-const int c_ClusterLightIndicesOffset = CLUSTER_X_COUNT*CLUSTER_Y_COUNT*CLUSTER_Z_COUNT*4;
 
-ivec3 getClusterInfo(sampler2D clusterBuffer,mat4 viewMatrix,vec4 viewport,vec3 position,vec4 fragCoord,vec4 projectParams)
+ivec4 getClusterInfo(sampler2D clusterBuffer,mat4 viewMatrix,vec4 viewport,vec3 position,vec4 fragCoord,vec4 projectParams)
 {
 	vec3 viewPos = vec3(viewMatrix*vec4(position, 1.0)); //position in viewspace
 
@@ -37,13 +35,13 @@ ivec3 getClusterInfo(sampler2D clusterBuffer,mat4 viewMatrix,vec4 viewport,vec3 
 	vec2 uv= vec2((float(clusterXIndex + clusterYIndex * CLUSTER_X_COUNT)+0.5)/float(c_ClusterBufferWidth),
 				(float(clusterZIndex)+0.5)/float(c_ClusterBufferHeight));
 	vec4 clusterPixel=texture2D(clusterBuffer, uv);
-	return ivec3(int(clusterPixel.r),int(clusterPixel.g),int(clusterPixel.b));//X:Point Count Y:Spot Count Z:Light Offset
+	return ivec4(int(clusterPixel.r),int(clusterPixel.g),int(clusterPixel.b),int(clusterPixel.a));//X:Point Count Y:Spot Count Z:Light Offset
 }
 
 
 int GetLightIndex(sampler2D clusterBuffer,int offset,int index) 
 {
-	int totalOffset=c_ClusterLightIndicesOffset+offset+index;
+	int totalOffset=offset+index;
 	int row=totalOffset/c_ClusterBufferFloatWidth;
 	int lastRowFloat=totalOffset-row*c_ClusterBufferFloatWidth;
 	int col=lastRowFloat/4;
@@ -61,14 +59,14 @@ int GetLightIndex(sampler2D clusterBuffer,int offset,int index)
       return int(texel.w);
 }
 
-int GetPointLightIndex(sampler2D clusterBuffer,ivec3 areaLightInfo,int index) 
+int GetPointLightIndex(sampler2D clusterBuffer,ivec4 areaLightInfo,int index) 
 {
-	return GetLightIndex(clusterBuffer,areaLightInfo.z,index);
+	return GetLightIndex(clusterBuffer,areaLightInfo.z*c_ClusterBufferFloatWidth+areaLightInfo.w,index);
 }
 
-int GetSpotLightIndex(sampler2D clusterBuffer,ivec3 areaLightInfo,int index) 
+int GetSpotLightIndex(sampler2D clusterBuffer,ivec4 areaLightInfo,int index) 
 {
-	return GetLightIndex(clusterBuffer,areaLightInfo.z,areaLightInfo.x+index);
+	return GetLightIndex(clusterBuffer,areaLightInfo.z*c_ClusterBufferFloatWidth+areaLightInfo.w,areaLightInfo.x+index);
 }
 
 

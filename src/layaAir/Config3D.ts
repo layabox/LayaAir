@@ -34,9 +34,9 @@ export class Config3D implements IClone {
 	octreeLooseness: number = 1.25;
 
 	/** 最大光源数量。*/
-	maxLightCount: number = 100;
+	maxLightCount: number = 300;
 	/** 每个集群的最大光源数量。*/
-	maxLightCountPerCluster: number = 50;
+	maxLightCountPerCluster: number = 300;
 	/** X轴光照集群数量。*/
 	clusterXCount: number = 16;
 	/** Y轴光照集群数量。*/

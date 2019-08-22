@@ -53,7 +53,6 @@ export class Cluster {
     private _maxLightsPerCluster: number;
     private _clusterDatas: ClusterData[][][];
     private _clusterPixels: Float32Array;
-    private _tanVerFovBy2: number;
     private _updateMark: number = 0;
     private _depthSliceParam: Vector2 = new Vector2();
     private _xySliceParams: Vector4 = new Vector4();
@@ -368,8 +367,8 @@ export class Cluster {
         for (var i = 0, n = spotLights._length; i < n; i++ , curCount++)
             this._updateSpotLight(near, far, viewMat, spoElements[i], curCount);
 
-        var fixOffset: number = xSlices * ySlices * zSlices * 4;//solve precision problme, if data is big some GPU int(float) have problem
-        var lightOff: number = fixOffset;
+        var widthFloat: number = xSlices * ySlices * 4;
+        var lightOff: number = widthFloat * zSlices;
         var clusterPixels: Float32Array = this._clusterPixels;
         var clusterDatas: ClusterData[][][] = this._clusterDatas;
         for (var z = 0; z < zSlices; z++) {
@@ -387,7 +386,8 @@ export class Cluster {
                         var sCount: number = data.spotLightCount;
                         clusterPixels[clusterOff] = pCount;
                         clusterPixels[clusterOff + 1] = sCount;
-                        clusterPixels[clusterOff + 2] = lightOff - fixOffset;
+                        clusterPixels[clusterOff + 2] = Math.floor(lightOff / widthFloat);//solve precision problme, if data is big some GPU int(float) have problem
+                        clusterPixels[clusterOff + 3] = lightOff % widthFloat;
                         for (var i: number = 0, n: number = pCount + sCount; i < n; i++)
                             clusterPixels[lightOff++] = indices[i];
                     }

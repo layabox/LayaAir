@@ -154,7 +154,7 @@ void main_normal()
 		}
 	#endif
  
-  	ivec3 areaLightInfo =getClusterInfo(u_LightInfoBuffer,u_View,u_Viewport, v_Position,gl_FragCoord,u_ProjectionParams);
+  	ivec4 areaLightInfo =getClusterInfo(u_LightInfoBuffer,u_View,u_Viewport, v_Position,gl_FragCoord,u_ProjectionParams);
 	#ifdef POINTLIGHT
 		for (int i = 0; i < MAX_LIGHT_COUNT; i++) 
 		{
