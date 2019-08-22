@@ -23,7 +23,7 @@ import { ALIMiniAdapter } from "./ALIMiniAdapter";
 		 * @param value 键值。
 		 */
 		 static setItem(key:string, value:any):void {
-			ALIMiniAdapter.window.my.setStorageSync(key,value);
+			ALIMiniAdapter.window.my.setStorageSync({key:key,value:value});
 		}
 		
 		/**
