@@ -388,10 +388,8 @@ export class Cluster {
                         clusterPixels[clusterOff] = pCount;
                         clusterPixels[clusterOff + 1] = sCount;
                         clusterPixels[clusterOff + 2] = lightOff - fixOffset;
-                        for (var i: number = 0; i < pCount; i++)//TODO:一个for循环
+                        for (var i: number = 0, n: number = pCount + sCount; i < n; i++)
                             clusterPixels[lightOff++] = indices[i];
-                        for (var i: number = 0; i < sCount; i++)
-                            clusterPixels[lightOff++] = indices[pCount + i];
                     }
                 }
             }
