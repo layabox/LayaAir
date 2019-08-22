@@ -37,7 +37,6 @@ attribute vec4 a_Position;
 
 #if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
 	attribute vec3 a_Normal;
-	varying vec3 v_Position;
 	varying vec3 v_Normal; 
 	uniform vec3 u_CameraPos;
 	varying vec3 v_ViewDir; 
@@ -131,7 +130,6 @@ void main_normal()
 		#else
 			worldInvMat=inverse(mat3(worldMat));
 		#endif  
-		v_Position=position.xyz;
 		v_Normal=a_Normal*worldInvMat;
 		#if (defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))&&defined(NORMALMAP)
 			v_Tangent=a_Tangent0.xyz*worldInvMat;

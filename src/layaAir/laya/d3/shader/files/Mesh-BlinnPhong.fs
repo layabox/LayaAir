@@ -33,7 +33,6 @@ uniform vec4 u_DiffuseColor;
 #endif
 
 #if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
-	varying vec3 v_Position;
 	varying vec3 v_Normal;
 	varying vec3 v_ViewDir; 
 
@@ -154,7 +153,7 @@ void main_normal()
 		}
 	#endif
  
-  	ivec4 areaLightInfo =getClusterInfo(u_LightInfoBuffer,u_View,u_Viewport, v_Position,gl_FragCoord,u_ProjectionParams);
+  	ivec4 areaLightInfo =getClusterInfo(u_LightInfoBuffer,u_View,u_Viewport, v_PositionWorld,gl_FragCoord,u_ProjectionParams);
 	#ifdef POINTLIGHT
 		for (int i = 0; i < MAX_LIGHT_COUNT; i++) 
 		{

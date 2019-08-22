@@ -151,7 +151,7 @@ export class Cluster {
         if ((minZ > far) || (maxZ <= near))
             return false;
         zMin = Math.floor(Math.log2(Math.max(minZ, near)) * this._depthSliceParam.x - this._depthSliceParam.y);
-        zMax = Math.min(Math.floor(Math.log2(maxZ) * this._depthSliceParam.x - this._depthSliceParam.y) + 1, this._zSlices);
+        zMax = Math.min(Math.ceil(Math.log2(maxZ) * this._depthSliceParam.x - this._depthSliceParam.y), this._zSlices);
 
         var i: number;
         var n: number = this._ySlices + 1;
@@ -339,7 +339,6 @@ export class Cluster {
         this._updateMark++;
         var xSlices: number = this._xSlices, ySlices: number = this._ySlices, zSlices: number = this._zSlices;
         var camNear: number = camera.nearPlane;
-        this._tanVerFovBy2 = Math.tan(camera.fieldOfView * (Math.PI / 180.0) * 0.5);
         this._depthSliceParam.x = Laya3D._config.clusterZCount / Math.log2(camera.farPlane / camNear);
         this._depthSliceParam.y = Math.log2(camNear) * this._depthSliceParam.x;
 
