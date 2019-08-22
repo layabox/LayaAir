@@ -5,7 +5,6 @@ import { Gradient } from "../Gradient"
 import { RenderableSprite3D } from "../RenderableSprite3D"
 import { BaseMaterial } from "../material/BaseMaterial"
 import { Color } from "../../math/Color"
-import { ShaderDefines } from "../../shader/ShaderDefines"
 import { Node } from "../../../display/Node"
 import { Loader } from "../../../net/Loader"
 
@@ -14,16 +13,11 @@ import { Loader } from "../../../net/Loader"
  */
 export class TrailSprite3D extends RenderableSprite3D {
 
-
-
-	/**@internal */
-	static shaderDefines: ShaderDefines;
-
 	/**
 	 * @internal
 	 */
 	static __init__(): void {
-		TrailSprite3D.shaderDefines = new ShaderDefines(RenderableSprite3D.shaderDefines);
+
 	}
 
 	/** @internal */
