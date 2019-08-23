@@ -188,9 +188,9 @@ export class Cluster {
         for (i = 0; i < n; i++) {
             var angle: number = yStart - yLengthPerCluster * i;
             var bigHypot: number = Math.sqrt(1 + angle * angle);
-            var normY: number = 1 / bigHypot;
+            var normY: number = -1 / bigHypot;
             var normZ: number = -angle * normY;
-            if (-lvY * normY + lvZ * normZ < radius) {//Dot
+            if (lvY * normY + lvZ * normZ < radius) {//Dot
                 yMin = Math.max(0, i - 1);
                 break;
             }
@@ -201,9 +201,9 @@ export class Cluster {
         for (i = yMin + 1; i < n; i++) {
             var angle: number = yStart - yLengthPerCluster * i;
             var bigHypot: number = Math.sqrt(1 + angle * angle);
-            var normY: number = 1 / bigHypot;
+            var normY: number = -1 / bigHypot;
             var normZ: number = -angle * normY;
-            if (-lvY * normY + lvZ * normZ <= -radius) {//Dot
+            if (lvY * normY + lvZ * normZ <= -radius) {//Dot
                 yMax = Math.max(0, i);
                 break;
             }
