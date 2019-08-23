@@ -384,6 +384,10 @@ export class Camera extends BaseCamera {
 			return RenderContext3D.clientHeight;
 	}
 
+	_getInternalRenderTexture(): RenderTexture {
+		return this._renderTexture || this._offScreenRenderTexture;
+	}
+
 	/**
 	 * @internal
 	 */
@@ -410,7 +414,7 @@ export class Camera extends BaseCamera {
 		super._prepareCameraToRender();
 		var vp: Viewport = this.viewport;
 		this._viewportParams.setValue(vp.x, vp.y, vp.width, vp.height);
-		this._projectionParams.setValue(this._nearPlane, this._farPlane, 0, 0);
+		this._projectionParams.setValue(this._nearPlane, this._farPlane, this._getInternalRenderTexture() ? -1 : 1, 0);
 		this._shaderValues.setVector(BaseCamera.VIEWPORT, this._viewportParams);
 		this._shaderValues.setVector(BaseCamera.PROJECTION_PARAMS, this._projectionParams);
 		Scene3D._cluster.update(this, <Scene3D>(this._scene));
@@ -459,7 +463,7 @@ export class Camera extends BaseCamera {
 		context.camera = this;
 
 		scene._preRenderScript();//TODO:duo相机是否重复
-		var renderTar: RenderTexture = this._renderTexture || this._offScreenRenderTexture;//如果有临时renderTexture则画到临时renderTexture,最后再画到屏幕或者离屏画布,如果无临时renderTexture则直接画到屏幕或离屏画布
+		var renderTar: RenderTexture = this._getInternalRenderTexture();//如果有临时renderTexture则画到临时renderTexture,最后再画到屏幕或者离屏画布,如果无临时renderTexture则直接画到屏幕或离屏画布
 		(renderTar) && (renderTar._start());
 		context.viewport = this.viewport;
 		this._prepareCameraToRender();

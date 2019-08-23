@@ -789,7 +789,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	_clear(gl: WebGLRenderingContext, state: RenderContext3D): void {
 		var viewport: Viewport = state.viewport;
 		var camera: Camera = (<Camera>state.camera);
-		var renderTexture: RenderTexture = camera._renderTexture || camera._offScreenRenderTexture;
+		var renderTexture: RenderTexture = camera._getInternalRenderTexture();
 		var vpW: number = viewport.width;
 		var vpH: number = viewport.height;
 		var vpX: number = viewport.x;
@@ -865,7 +865,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 */
 	_renderScene(context: RenderContext3D): void {
 		var camera: Camera = (<Camera>context.camera);
-		var renderTar: RenderTexture = camera._renderTexture || camera._offScreenRenderTexture;
+		var renderTar: RenderTexture = camera._getInternalRenderTexture();
 		renderTar ? this._opaqueQueue._render(context, true) : this._opaqueQueue._render(context, false);//非透明队列
 		if (camera.clearFlag === BaseCamera.CLEARFLAG_SKY) {
 			if (camera.skyRenderer._isAvailable())
