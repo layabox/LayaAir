@@ -153,31 +153,32 @@ void main_normal()
 		}
 	#endif
  
-  	ivec4 areaLightInfo =getClusterInfo(u_LightInfoBuffer,u_View,u_Viewport, v_PositionWorld,gl_FragCoord,u_ProjectionParams);
-	#ifdef POINTLIGHT
-		for (int i = 0; i < MAX_LIGHT_COUNT; i++) 
-		{
-			if(i >= areaLightInfo.x)//PointLightCount
-				break;
-			int lightIndex = GetPointLightIndex(u_LightInfoBuffer,areaLightInfo,i);
-      		PointLight pointLight = GetPointLight(u_LightBuffer,lightIndex);
-			LayaAirBlinnPhongPointLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,pointLight,dif,spe);
-			diffuse+=dif;
-			specular+=spe;
-		}
-	#endif
-
-	#ifdef SPOTLIGHT
-		for (int i = 0; i < MAX_LIGHT_COUNT; i++) 
-		{
-			if(i >= areaLightInfo.y)//SpotLightCount
-				break;
-			int lightIndex = GetSpotLightIndex(u_LightInfoBuffer,areaLightInfo,i);
-      		SpotLight spotLight = GetSpotLight(u_LightBuffer,lightIndex);
-			LayaAirBlinnPhongSpotLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,spotLight,dif,spe);
-			diffuse+=dif;
-			specular+=spe;
-		}
+	#if defined(POINTLIGHT)||defined(SPOTLIGHT)
+  		ivec4 areaLightInfo =getClusterInfo(u_LightInfoBuffer,u_View,u_Viewport, v_PositionWorld,gl_FragCoord,u_ProjectionParams);
+		#ifdef POINTLIGHT
+			for (int i = 0; i < MAX_LIGHT_COUNT; i++) 
+			{
+				if(i >= areaLightInfo.x)//PointLightCount
+					break;
+				int lightIndex = GetPointLightIndex(u_LightInfoBuffer,areaLightInfo,i);
+				PointLight pointLight = GetPointLight(u_LightBuffer,lightIndex);
+				LayaAirBlinnPhongPointLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,pointLight,dif,spe);
+				diffuse+=dif;
+				specular+=spe;
+			}
+		#endif
+		#ifdef SPOTLIGHT
+			for (int i = 0; i < MAX_LIGHT_COUNT; i++) 
+			{
+				if(i >= areaLightInfo.y)//SpotLightCount
+					break;
+				int lightIndex = GetSpotLightIndex(u_LightInfoBuffer,areaLightInfo,i);
+				SpotLight spotLight = GetSpotLight(u_LightBuffer,lightIndex);
+				LayaAirBlinnPhongSpotLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,spotLight,dif,spe);
+				diffuse+=dif;
+				specular+=spe;
+			}
+		#endif
 	#endif
 
 	#ifdef RECEIVESHADOW
