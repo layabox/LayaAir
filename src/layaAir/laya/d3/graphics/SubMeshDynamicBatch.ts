@@ -174,7 +174,7 @@ export class SubMeshDynamicBatch extends GeometryElement {
 					batchIndices[batchOffset + 2] = index + 1;
 				}
 			} else {
-				for (k = m, m = subIndices.length; k < m; k += 3) {
+				for (k = 0, m = subIndices.length; k < m; k += 3) {
 					batchOffset = batchIndexCount + k;
 					index = batchVertexCount + k;
 					batchIndices[batchOffset] = index;
@@ -191,7 +191,7 @@ export class SubMeshDynamicBatch extends GeometryElement {
 					batchIndices[batchOffset + 2] = batchVertexCount + subIndices[k + 1];
 				}
 			} else {
-				for (k = m, m = subIndices.length; k < m; k += 3) {
+				for (k = 0, m = subIndices.length; k < m; k += 3) {
 					batchOffset = batchIndexCount + k;
 					batchIndices[batchOffset] = batchVertexCount + subIndices[k];
 					batchIndices[batchOffset + 1] = batchVertexCount + subIndices[k + 1];
@@ -249,8 +249,9 @@ export class SubMeshDynamicBatch extends GeometryElement {
 		var floatStride: number = vertexDeclaration.vertexStride / 4;
 		var renderBatchCount: number = 0;
 		var elementCount: number = batchElements.length;
+		var elements: SubMeshRenderElement[] = batchElements.elements;
 		for (var i: number = 0; i < elementCount; i++) {
-			var subElement: SubMeshRenderElement = (<SubMeshRenderElement>batchElements[i]);
+			var subElement: SubMeshRenderElement = elements[i];
 			var subMesh: SubMesh = (<SubMesh>subElement._geometry);
 			var indexCount: number = subMesh._indexCount;
 			if (batchIndexCount + indexCount > SubMeshDynamicBatch.maxIndicesCount) {
