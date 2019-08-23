@@ -138,20 +138,48 @@ export class Cluster {
         return capRimX * pNor.x + capRimY * pNor.y + capRimZ * pNor.z >= 0 || origin.x * pNor.x + origin.y * pNor.y + origin.z * pNor.z >= 0;
     }
 
-
-    private _shrinkXYByRadiusZByDepth(near: number, far: number, lightviewPos: Vector3, radius: number, lightBound: LightBound): boolean {
-        var xMin: number, yMin: number, zMin: number;
-        var xMax: number, yMax: number, zMax: number;
-        var lvX: number = lightviewPos.x, lvY: number = lightviewPos.y, lvZ: number = lightviewPos.z;// inverse Z
-
-        // slice = Math.log2(z) * (numSlices / Math.log2(far / near)) - Math.log2(near) * numSlices / Math.log2(far / near)
-        // slice start from near plane,near is index:0,z must large than near,or the result will NaN
+    private _shrinkSphereLightZ(near: number, far: number, lightviewPos: Vector3, radius: number, lightBound: LightBound): boolean {
+        var lvZ: number = lightviewPos.z;
         var minZ: number = lvZ - radius;
         var maxZ: number = lvZ + radius;
         if ((minZ > far) || (maxZ <= near))
             return false;
-        zMin = Math.floor(Math.log2(Math.max(minZ, near)) * this._depthSliceParam.x - this._depthSliceParam.y);
-        zMax = Math.min(Math.ceil(Math.log2(maxZ) * this._depthSliceParam.x - this._depthSliceParam.y), this._zSlices);
+        // slice = Math.log2(z) * (numSlices / Math.log2(far / near)) - Math.log2(near) * numSlices / Math.log2(far / near)
+        // slice start from near plane,near is index:0,z must large than near,or the result will NaN
+        lightBound.zMin = Math.floor(Math.log2(Math.max(minZ, near)) * this._depthSliceParam.x - this._depthSliceParam.y);
+        lightBound.zMax = Math.min(Math.ceil(Math.log2(maxZ) * this._depthSliceParam.x - this._depthSliceParam.y), this._zSlices);
+        return true;
+    }
+
+    private _shrinkSpotLightZ(near: number, far: number, viewLightPos: Vector3, viewConeCap: Vector3, radius: number, angle: number, lightBound: LightBound): boolean {
+        //https://bartwronski.com/2017/04/13/cull-that-cone/
+        //http://www.iquilezles.org/www/articles/diskbbox/diskbbox.htm
+
+        var pbX: number = viewConeCap.x, pbY: number = viewConeCap.y, pbZ: number = viewConeCap.z;
+        var rb: number = Math.tan((angle / 2) * Math.PI / 180) * radius;
+        var paX: number = viewLightPos.x, paY: number = viewLightPos.y, paZ: number = viewLightPos.z;
+        var aX: number = pbX - paX, aY: number = pbY - paY, aZ: number = pbZ - paZ;
+        var dotA: number = aX * aX + aY * aY + aZ * aZ;
+        var eZ: number = Math.sqrt(1.0 - aZ * aZ / dotA);
+
+        //flat-capped cone is not spotLight shape,spoltlight is sphere-capped.so we get the common boundBox of flat-capped cone bounds and sphere bounds.
+        var minZ: number = Math.max(Math.min(paZ, pbZ - eZ * rb), viewLightPos.z - radius);
+        var maxZ: number = Math.min(Math.max(paZ, pbZ + eZ * rb), viewLightPos.z + radius);
+
+        if ((minZ > far) || (maxZ <= near))
+            return false;
+        // slice = Math.log2(z) * (numSlices / Math.log2(far / near)) - Math.log2(near) * numSlices / Math.log2(far / near)
+        // slice start from near plane,near is index:0,z must large than near,or the result will NaN
+        lightBound.zMin = Math.floor(Math.log2(Math.max(minZ, near)) * this._depthSliceParam.x - this._depthSliceParam.y);
+        lightBound.zMax = Math.min(Math.ceil(Math.log2(maxZ) * this._depthSliceParam.x - this._depthSliceParam.y), this._zSlices);
+        return true;
+    }
+
+
+    private _shrinkXYByRadius(lightviewPos: Vector3, radius: number, lightBound: LightBound): boolean {
+        var xMin: number, yMin: number;
+        var xMax: number, yMax: number;
+        var lvX: number = lightviewPos.x, lvY: number = lightviewPos.y, lvZ: number = lightviewPos.z;// inverse Z
 
         var i: number;
         var n: number = this._ySlices + 1;
@@ -209,8 +237,6 @@ export class Cluster {
         lightBound.xMax = xMax;
         lightBound.yMin = yMin;
         lightBound.yMax = yMax;
-        lightBound.zMin = zMin;
-        lightBound.zMax = zMax;
         return true;
     }
 
@@ -219,7 +245,9 @@ export class Cluster {
         var lightviewPos: Vector3 = Cluster._tempVector30;
         Vector3.transformV3ToV3(pointLight._transform.position, viewMat, lightviewPos);//World to View
         lightviewPos.z *= -1;
-        if (!this._shrinkXYByRadiusZByDepth(near, far, lightviewPos, pointLight.range, lightBound))
+        if (!this._shrinkSphereLightZ(near, far, lightviewPos, pointLight.range, lightBound))
+            return;
+        if (!this._shrinkXYByRadius(lightviewPos, pointLight.range, lightBound))
             return;
 
         for (var z: number = lightBound.zMin, zEnd: number = lightBound.zMax; z < zEnd; z++) {
@@ -246,12 +274,25 @@ export class Cluster {
         // the effect is exaggerated the steeper the angle the plane makes is
         var lightBound: LightBound = Cluster._tempLightBound;
         var viewPos: Vector3 = Cluster._tempVector30;
-        Vector3.transformV3ToV3(spotLight._transform.position, viewMat, viewPos);//World to View
+        var viewForward: Vector3 = Cluster._tempVector31;
+        var viewConeCap: Vector3 = Cluster._tempVector34;
+        var position: Vector3 = spotLight._transform.position;
+        var range: number = spotLight.range;
+        spotLight._transform.worldMatrix.getForward(viewForward);
+        Vector3.normalize(viewForward, viewForward);
+        Vector3.scale(viewForward, range, viewConeCap);
+        Vector3.add(position, viewConeCap, viewConeCap);
+
+        Vector3.transformV3ToV3(position, viewMat, viewPos);//World to View
+        Vector3.transformV3ToV3(viewConeCap, viewMat, viewConeCap);//World to View
         viewPos.z *= -1;
-        if (!this._shrinkXYByRadiusZByDepth(near, far, viewPos, spotLight.range, lightBound))
+        viewConeCap.z *= -1;
+        if (!this._shrinkSpotLightZ(near, far, viewPos, viewConeCap, range, spotLight.spotAngle, lightBound))
+            return;
+        if (!this._shrinkXYByRadius(viewPos, range, lightBound))
             return;
 
-        // var viewForward: Vector3 = Cluster._tempVector31;
+
         // var normal: Vector3 = Cluster._tempVector32;
         // spotLight._transform.worldMatrix.getForward(viewForward);
         // Vector3.transformV3ToV3(viewForward, viewMat, viewForward);//World to View
