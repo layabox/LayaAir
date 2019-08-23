@@ -560,7 +560,7 @@ class emiter {
                 if (docItem.comment)
                     oneDoc = tabNum + " * " + docItem.comment.replace(new RegExp("\r\n", "g"), (tabNum + " * ")) + oneDoc;
                 // oneDoc += docItem.comment.replace(new RegExp("\r\n","g"),(tabNum + " * "));
-                doc += tabNum + "/*" + oneDoc + tabNum + " */\r\n";
+                doc += tabNum + "/**" + oneDoc + tabNum + " */\r\n";
                 // doc += oneDoc;
             }
             // doc += tabNum + " */\r\n"
