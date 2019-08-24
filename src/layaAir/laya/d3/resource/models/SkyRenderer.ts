@@ -113,7 +113,7 @@ export class SkyRenderer {
 				shader._uploadScene = scene;
 			}
 
-			var renderTar: RenderTexture = camera._renderTexture || camera._offScreenRenderTexture;
+			var renderTar: RenderTexture = camera._getInternalRenderTexture();
 			var uploadCamera: boolean = (shader._uploadCamera !== camera) || switchShaderLoop;
 			if (uploadCamera || switchShader) {
 				var viewMatrix: Matrix4x4 = SkyRenderer._tempMatrix0;
