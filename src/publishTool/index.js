@@ -14,7 +14,7 @@ const path = require("path");
 const gulp = require("gulp");
 const child_process = require("child_process");
 const emiter_1 = require("./emiter");
-// var BaseURL = emiter_1.emiter.BaseURL ="./bin/layaAir/";
+// var BaseURL = emiter.BaseURL ="./bin/layaAir/";
 var BaseURL;
 /***导出相关 */
 var outfile;
@@ -94,7 +94,7 @@ function compile() {
 }
 // checkAllDir("./bin/layaAir/");
 // tstoas("laya\\utils\\GraphicAnimation.d.ts",null,"laya\\utils");
-// tstoas("laya\\d3\\physics\\PhysicsCollider.d.ts",null,"laya\\d3\\physics");
+// tstoas("laya\\display\\Node.d.ts",null,"laya\\display");
 // tstoas("laya\\d3\\physics\\CharacterController.d.ts", null, "laya\\d3\\physics");
 // tstoas("laya\\d3\\physics\\PhysicsUpdateList.d.ts",null,"laya\\d3\\physics");
 // tstoas("laya\\d3\\component\\SingletonList.d.ts",null,"laya\\d3\\component");
@@ -107,6 +107,28 @@ function checkAllDir(url) {
         }
         else
             console.log("readdir fail", url);
+    });
+}
+/**
+ * TS转AS
+ * @param infile 文件路径
+ * @param code 读取出来的文件
+ * @param fileurl 文件夹名字
+ */
+function tstoas(infile, code, fileurl) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!code) {
+            code = yield readFile(infile);
+        }
+        const sc = ts.createSourceFile(formatUrl(infile), code, ts.ScriptTarget.Latest, true);
+        addName(sc); // 为了调试方便，给每个节点加上名字
+        let em = new emiter_1.emiter();
+        let asCode = em.createCode(sc, code, fileurl);
+        dtsObj += em.copyTSdata;
+        // console.log(asCode);
+        //测试 查看copyTsdata
+        // console.log(em.copyTSdata);
+        return asCode;
     });
 }
 // var testArr = [];
@@ -189,28 +211,6 @@ function checkComplete() {
 function addName(node) {
     node._kindname = ts.SyntaxKind[node.kind];
     ts.forEachChild(node, addName);
-}
-/**
- * TS转AS
- * @param infile 文件路径
- * @param code 读取出来的文件
- * @param fileurl 文件夹名字
- */
-function tstoas(infile, code, fileurl) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (!code) {
-            code = yield readFile(infile);
-        }
-        const sc = ts.createSourceFile(formatUrl(infile), code, ts.ScriptTarget.Latest, true);
-        addName(sc); // 为了调试方便，给每个节点加上名字
-        let em = new emiter_1.emiter();
-        let asCode = em.createCode(sc, code, fileurl);
-        dtsObj += em.copyTSdata;
-        // console.log(asCode);
-        //测试 查看copyTsdata
-        // console.log(em.copyTSdata);
-        return asCode;
-    });
 }
 /**
  * 读取文件夹
