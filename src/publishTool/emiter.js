@@ -447,6 +447,11 @@ class emiter {
             return "any";
         if (node.exprName) {
             type = node.exprName.getText();
+            if (ts.SyntaxKind[node.kind] == "TypeQuery") {
+                if (this.importArr[type])
+                    type = this.importArr[type];
+                return "typeof " + type;
+            }
         }
         else if (node.typeName) {
             type = node.typeName.getText();
