@@ -1,5 +1,4 @@
 import { Scene3D } from "../scene/Scene3D";
-import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
 import { LightSprite } from "./LightSprite";
 
 /**
@@ -48,24 +47,6 @@ export class PointLight extends LightSprite {
 	 */
 	protected _removeFromScene(): void {
 		(<Scene3D>this._scene)._pointLights.remove(this);
-	}
-
-	/**
-	 * @inheritDoc
-	 * @override
-	 */
-	protected _onActive(): void {
-		super._onActive();
-		(this._lightmapBakedType !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED) && ((<Scene3D>this._scene))._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT);
-	}
-
-	/**
-	 * @inheritDoc
-	 * @override
-	 */
-	protected _onInActive(): void {
-		super._onInActive();
-		(this._lightmapBakedType !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED) && ((<Scene3D>this._scene))._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT);
 	}
 
 

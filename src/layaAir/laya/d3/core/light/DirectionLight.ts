@@ -69,25 +69,5 @@ export class DirectionLight extends LightSprite {
 	protected _removeFromScene(): void {
 		(<Scene3D>this._scene)._directionallights.remove(this);
 	}
-
-
-	/**
-	 * @inheritDoc
-	 * @override
-	 */
-	protected _onActive(): void {
-		super._onActive();
-		this._shadow && (this._initShadow());
-		(this._lightmapBakedType !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED) && ((<Scene3D>this._scene))._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
-	}
-
-	/**
-	 * @inheritDoc
-	 * @override
-	 */
-	protected _onInActive(): void {
-		super._onInActive();
-		(this._lightmapBakedType !== LightSprite.LIGHTMAPBAKEDTYPE_BAKED) && ((<Scene3D>this._scene))._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
-	}
 }
 

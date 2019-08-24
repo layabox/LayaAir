@@ -122,7 +122,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		const width: number = 4;
 		var con: Config3D = Laya3D._config;
 		var maxLightCount: number = con.maxLightCount;
-		var clusterSlices:Vector3=con.lightClusterCount;
+		var clusterSlices: Vector3 = con.lightClusterCount;
 		Scene3D._cluster = new Cluster(clusterSlices.x, clusterSlices.y, clusterSlices.z, con.maxLightCountPerCluster);
 		Scene3D._lightTexture = Utils3D._createFloatTextureBuffer(width, maxLightCount);
 		Scene3D._lightPixles = new Float32Array(maxLightCount * width * 4);
@@ -689,70 +689,90 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		const floatWidth: number = pixelWidth * 4;
 		var maxCount: number = Laya3D._config.maxLightCount;
 		var curCount: number = 0;
+		var dirCount: number = this._directionallights._length;
 		var dirElements: DirectionLight[] = this._directionallights._elements;
-		for (var i: number = 0, n: number = this._directionallights._length; i < n; i++ , curCount++) {
-			if (curCount > maxCount)
-				break;
-			var dirLight: DirectionLight = dirElements[i];
-			var dir: Vector3 = dirLight._direction;
-			var intCor: Vector3 = dirLight._intensityColor;
-			var off: number = floatWidth * curCount;
-			Vector3.scale(dirLight.color, dirLight._intensity, intCor);
-			dirLight.transform.worldMatrix.getForward(dir);
-			Vector3.normalize(dir, dir);//矩阵有缩放时需要归一化
-			ligPix[off] = intCor.x;
-			ligPix[off + 1] = intCor.y;
-			ligPix[off + 2] = intCor.z;
-			ligPix[off + 4] = dir.x;
-			ligPix[off + 5] = dir.y;
-			ligPix[off + 6] = dir.z;
+		if (dirCount > 0) {
+			for (var i: number = 0; i < dirCount; i++ , curCount++) {
+				if (curCount >= maxCount)
+					break;
+				var dirLight: DirectionLight = dirElements[i];
+				var dir: Vector3 = dirLight._direction;
+				var intCor: Vector3 = dirLight._intensityColor;
+				var off: number = floatWidth * curCount;
+				Vector3.scale(dirLight.color, dirLight._intensity, intCor);
+				dirLight.transform.worldMatrix.getForward(dir);
+				Vector3.normalize(dir, dir);//矩阵有缩放时需要归一化
+				ligPix[off] = intCor.x;
+				ligPix[off + 1] = intCor.y;
+				ligPix[off + 2] = intCor.z;
+				ligPix[off + 4] = dir.x;
+				ligPix[off + 5] = dir.y;
+				ligPix[off + 6] = dir.z;
+			}
+			this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
+		}
+		else {
+			this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
 		}
 
-		var poiElements: PointLight[] = this._pointLights._elements;
-		for (var i: number = 0, n: number = this._pointLights._length; i < n; i++ , curCount++) {
-			if (curCount > maxCount)
-				break;
-			var poiLight: PointLight = poiElements[i];
-			var pos: Vector3 = poiLight.transform.position;
-			var intCor: Vector3 = poiLight._intensityColor;
-			var off: number = floatWidth * curCount;
-			Vector3.scale(poiLight.color, poiLight._intensity, intCor);
-			ligPix[off] = intCor.x;
-			ligPix[off + 1] = intCor.y;
-			ligPix[off + 2] = intCor.z;
-			ligPix[off + 3] = poiLight.range;
-			ligPix[off + 4] = pos.x;
-			ligPix[off + 5] = pos.y;
-			ligPix[off + 6] = pos.z;
-
+		var poiCount: number = this._pointLights._length;
+		if (poiCount > 0) {
+			var poiElements: PointLight[] = this._pointLights._elements;
+			for (var i: number = 0; i < poiCount; i++ , curCount++) {
+				if (curCount >= maxCount)
+					break;
+				var poiLight: PointLight = poiElements[i];
+				var pos: Vector3 = poiLight.transform.position;
+				var intCor: Vector3 = poiLight._intensityColor;
+				var off: number = floatWidth * curCount;
+				Vector3.scale(poiLight.color, poiLight._intensity, intCor);
+				ligPix[off] = intCor.x;
+				ligPix[off + 1] = intCor.y;
+				ligPix[off + 2] = intCor.z;
+				ligPix[off + 3] = poiLight.range;
+				ligPix[off + 4] = pos.x;
+				ligPix[off + 5] = pos.y;
+				ligPix[off + 6] = pos.z;
+			}
+			this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT);
+		}
+		else {
+			this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT);
 		}
 
-		var spoElements: SpotLight[] = this._spotLights._elements;
-		for (var i: number = 0, n: number = this._spotLights._length; i < n; i++ , curCount++) {
-			if (curCount > maxCount)
-				break;
-			var spoLight: SpotLight = spoElements[i];
-			var dir: Vector3 = spoLight._direction;
-			var pos: Vector3 = spoLight.transform.position;
-			var intCor: Vector3 = spoLight._intensityColor;
-			var off: number = floatWidth * curCount;
-			Vector3.scale(spoLight.color, spoLight._intensity, intCor);
-			spoLight.transform.worldMatrix.getForward(dir);
-			Vector3.normalize(dir, dir);
-			ligPix[off] = intCor.x;
-			ligPix[off + 1] = intCor.y;
-			ligPix[off + 2] = intCor.z;
-			ligPix[off + 3] = spoLight.range;
-			ligPix[off + 4] = pos.x;
-			ligPix[off + 5] = pos.y;
-			ligPix[off + 6] = pos.z;
-			ligPix[off + 7] = spoLight.spotAngle * Math.PI / 180;
-			ligPix[off + 8] = dir.x;
-			ligPix[off + 9] = dir.y;
-			ligPix[off + 10] = dir.z;
+		var spoCount: number = this._spotLights._length;
+		if (spoCount > 0) {
+			var spoElements: SpotLight[] = this._spotLights._elements;
+			for (var i: number = 0; i < spoCount; i++ , curCount++) {
+				if (curCount >= maxCount)
+					break;
+				var spoLight: SpotLight = spoElements[i];
+				var dir: Vector3 = spoLight._direction;
+				var pos: Vector3 = spoLight.transform.position;
+				var intCor: Vector3 = spoLight._intensityColor;
+				var off: number = floatWidth * curCount;
+				Vector3.scale(spoLight.color, spoLight._intensity, intCor);
+				spoLight.transform.worldMatrix.getForward(dir);
+				Vector3.normalize(dir, dir);
+				ligPix[off] = intCor.x;
+				ligPix[off + 1] = intCor.y;
+				ligPix[off + 2] = intCor.z;
+				ligPix[off + 3] = spoLight.range;
+				ligPix[off + 4] = pos.x;
+				ligPix[off + 5] = pos.y;
+				ligPix[off + 6] = pos.z;
+				ligPix[off + 7] = spoLight.spotAngle * Math.PI / 180;
+				ligPix[off + 8] = dir.x;
+				ligPix[off + 9] = dir.y;
+				ligPix[off + 10] = dir.z;
+			}
+			this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT);
 		}
-		ligTex.setSubPixels(0, 0, pixelWidth, curCount, ligPix, 0);
+		else {
+			this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT);
+		}
 
+		(curCount > 0) && (ligTex.setSubPixels(0, 0, pixelWidth, curCount, ligPix, 0));
 		this._shaderValues.setTexture(Scene3D.LIGHTBUFFER, ligTex);
 		this._shaderValues.setInt(Scene3D.DIRECTIONLIGHTCOUNT, this._directionallights._length);
 		this._shaderValues.setTexture(Scene3D.CLUSTERBUFFER, Scene3D._cluster._clusterTexture);

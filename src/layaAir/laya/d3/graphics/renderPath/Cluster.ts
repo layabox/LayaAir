@@ -392,20 +392,27 @@ export class Cluster {
         this._xySliceParams.z = xLengthPerCluster;
         this._xySliceParams.w = yLengthPerCluster;
 
-        var curCount: number = scene._directionallights._length;
         var near: number = camera.nearPlane;
         var far: number = camera.farPlane;
         var viewMat: Matrix4x4 = camera.viewMatrix;
+        var maxCount: number = Laya3D._config.maxLightCount;
+        var curCount: number = scene._directionallights._length;
 
         var pointLights: LightQueue<PointLight> = scene._pointLights;
         var poiElements: PointLight[] = <PointLight[]>pointLights._elements;
-        for (var i = 0, n = pointLights._length; i < n; i++ , curCount++)
+        for (var i = 0, n = pointLights._length; i < n; i++ , curCount++) {
+            if (curCount >= maxCount)
+                break;
             this._updatePointLight(near, far, viewMat, poiElements[i], curCount);
+        }
 
         var spotLights: LightQueue<SpotLight> = scene._spotLights;
         var spoElements: SpotLight[] = <SpotLight[]>spotLights._elements;
-        for (var i = 0, n = spotLights._length; i < n; i++ , curCount++)
+        for (var i = 0, n = spotLights._length; i < n; i++ , curCount++) {
+            if (curCount >= maxCount)
+                break;
             this._updateSpotLight(near, far, viewMat, spoElements[i], curCount);
+        }
 
         var widthFloat: number = xSlices * ySlices * 4;
         var lightOff: number = widthFloat * zSlices;
