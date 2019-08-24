@@ -34,15 +34,15 @@ export class Config3D implements IClone {
 	octreeLooseness: number = 1.25;
 
 	/** 最大光源数量。*/
-	maxLightCount: number = 300;
+	maxLightCount: number = 32;
 	/** 每个集群的最大光源数量。*/
-	maxLightCountPerCluster: number = 300;
+	maxLightCountPerCluster: number = 32;
 	/** X、Y、Z轴的光照集群数量。*/
 	lightClusterCount: Vector3 = new Vector3(16, 16, 12);
 
 	/** 
 	 * 是否开启视锥裁剪调试。
-	 * 如果开启八叉树裁剪,使用红色绘制高层次八叉树节点包围盒,使用蓝色绘制低层次八叉节点包围盒,精灵包围盒和八叉树节点包围盒颜色一致,但Alpha为半透明。如果视锥完全包含八叉树节点,八叉树节点包围盒和精灵包围盒变为蓝色,同样精灵包围盒的Alpha为半透明。
+	 * 如果开启八叉树裁剪,使用红色绘制高层次八叉树节点包围盒,使用蓝色绘制低层次八叉节点包围盒,精灵包围盒和八叉树节点包围盒颜色一致,但Alpha为非透明。如果视锥完全包含八叉树节点,八叉树节点包围盒和精灵包围盒变为蓝色,同样精灵包围盒的Alpha为非透明。
 	 * 如果不开启八叉树裁剪,使用绿色像素线绘制精灵包围盒。
 	 */
 	debugFrustumCulling: boolean = false;
@@ -89,6 +89,8 @@ export class Config3D implements IClone {
 		destConfig3D.octreeMinNodeSize = this.octreeMinNodeSize;
 		destConfig3D.octreeLooseness = this.octreeLooseness;
 		destConfig3D.debugFrustumCulling = this.debugFrustumCulling;
+		destConfig3D.maxLightCount = this.maxLightCount;
+		destConfig3D.maxLightCountPerCluster = this.maxLightCountPerCluster;
 	}
 
 	/**
