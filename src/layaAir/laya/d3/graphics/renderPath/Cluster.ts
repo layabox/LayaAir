@@ -380,7 +380,7 @@ export class Cluster {
         this._updateMark++;
         var xSlices: number = this._xSlices, ySlices: number = this._ySlices, zSlices: number = this._zSlices;
         var camNear: number = camera.nearPlane;
-        this._depthSliceParam.x = Laya3D._config.clusterZCount / Math.log2(camera.farPlane / camNear);
+        this._depthSliceParam.x = Laya3D._config.lightClusterCount.z / Math.log2(camera.farPlane / camNear);
         this._depthSliceParam.y = Math.log2(camNear) * this._depthSliceParam.x;
 
         var halfY = Math.tan((camera.fieldOfView / 2) * Math.PI / 180);

@@ -122,7 +122,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		const width: number = 4;
 		var con: Config3D = Laya3D._config;
 		var maxLightCount: number = con.maxLightCount;
-		Scene3D._cluster = new Cluster(con.clusterXCount, con.clusterYCount, con.clusterZCount, con.maxLightCountPerCluster);
+		var clusterSlices:Vector3=con.lightClusterCount;
+		Scene3D._cluster = new Cluster(clusterSlices.x, clusterSlices.y, clusterSlices.z, con.maxLightCountPerCluster);
 		Scene3D._lightTexture = Utils3D._createFloatTextureBuffer(width, maxLightCount);
 		Scene3D._lightPixles = new Float32Array(maxLightCount * width * 4);
 

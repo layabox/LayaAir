@@ -37,12 +37,8 @@ export class Config3D implements IClone {
 	maxLightCount: number = 300;
 	/** 每个集群的最大光源数量。*/
 	maxLightCountPerCluster: number = 300;
-	/** X轴光照集群数量。*/
-	clusterXCount: number = 16;
-	/** Y轴光照集群数量。*/
-	clusterYCount: number = 9;
-	/** Z轴光照集群数量。*/
-	clusterZCount: number = 16;
+	/** X、Y、Z轴的光照集群数量。*/
+	lightClusterCount: Vector3 = new Vector3(16, 16, 12);
 
 	/** 
 	 * 是否开启视锥裁剪调试。

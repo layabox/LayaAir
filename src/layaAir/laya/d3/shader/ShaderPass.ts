@@ -8,6 +8,7 @@ import { Shader3D } from "./Shader3D";
 import { ShaderInstance } from "./ShaderInstance";
 import { SubShader } from "./SubShader";
 import { Laya3D } from "../../../Laya3D";
+import { Vector3 } from "../math/Vector3";
 
 /**
  * <code>ShaderPass</code> 类用于实现ShaderPass。
@@ -201,12 +202,13 @@ export class ShaderPass extends ShaderCompile {
 		var defineString: string[] = ShaderPass._defineString;
 		Shader3D._getNamesByDefineData(compileDefine, defineString);
 
+		var clusterSlices: Vector3 = Laya3D._config.lightClusterCount;
 		var defMap: any = {};
 		var defineStr: string = "#define MAX_LIGHT_COUNT " + Laya3D._config.maxLightCount + "\n";
 		defineStr += "#define MAX_LIGHT_COUNT_PER_CLUSTER " + Laya3D._config.maxLightCountPerCluster + "\n";
-		defineStr += "#define CLUSTER_X_COUNT " + Laya3D._config.clusterXCount + "\n";
-		defineStr += "#define CLUSTER_Y_COUNT " + Laya3D._config.clusterYCount + "\n";
-		defineStr += "#define CLUSTER_Z_COUNT " + Laya3D._config.clusterZCount + "\n";
+		defineStr += "#define CLUSTER_X_COUNT " + clusterSlices.x + "\n";
+		defineStr += "#define CLUSTER_Y_COUNT " + clusterSlices.y + "\n";
+		defineStr += "#define CLUSTER_Z_COUNT " + clusterSlices.z + "\n";
 		for (var i: number = 0, n: number = defineString.length; i < n; i++) {
 			var def: string = defineString[i];
 			defineStr += "#define " + def + "\n";
