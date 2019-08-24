@@ -59,6 +59,6 @@ export class LightQueue<T extends LightSprite> {
     }
 
     update(): void {
-        this._quickSort(0, this._length);
+        this._quickSort(0, this._length - 1);
     }
 }

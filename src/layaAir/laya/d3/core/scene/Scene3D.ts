@@ -683,6 +683,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	protected _prepareSceneToRender(): void {
+		this._directionallights.update();
+		this._pointLights.update();
+		this._spotLights.update();
 		var ligTex: Texture2D = Scene3D._lightTexture;
 		var ligPix: Float32Array = Scene3D._lightPixles;
 		const pixelWidth: number = ligTex.width;
