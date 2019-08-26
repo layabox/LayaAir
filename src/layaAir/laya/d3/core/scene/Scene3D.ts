@@ -683,9 +683,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	protected _prepareSceneToRender(): void {
-		// this._directionallights.update();
-		// this._pointLights.update();
-		// this._spotLights.update();
 		var ligTex: Texture2D = Scene3D._lightTexture;
 		var ligPix: Float32Array = Scene3D._lightPixles;
 		const pixelWidth: number = ligTex.width;
@@ -696,7 +693,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		var dirElements: DirectionLight[] = this._directionallights._elements;
 		if (dirCount > 0) {
 			for (var i: number = 0; i < dirCount; i++ , curCount++) {
-				if (curCount >= maxCount)
+				if (curCount >= maxCount) 
 					break;
 				var dirLight: DirectionLight = dirElements[i];
 				var dir: Vector3 = dirLight._direction;

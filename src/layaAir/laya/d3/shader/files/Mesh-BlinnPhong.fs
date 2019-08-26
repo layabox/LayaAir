@@ -160,8 +160,7 @@ void main_normal()
 			{
 				if(i >= areaLightInfo.x)//PointLightCount
 					break;
-				int lightIndex = GetPointLightIndex(u_LightInfoBuffer,areaLightInfo,i);
-				PointLight pointLight = GetPointLight(u_LightBuffer,lightIndex);
+				PointLight pointLight = GetPointLight(u_LightBuffer,u_LightInfoBuffer,areaLightInfo,i);
 				LayaAirBlinnPhongPointLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,pointLight,dif,spe);
 				diffuse+=dif;
 				specular+=spe;
@@ -172,8 +171,7 @@ void main_normal()
 			{
 				if(i >= areaLightInfo.y)//SpotLightCount
 					break;
-				int lightIndex = GetSpotLightIndex(u_LightInfoBuffer,areaLightInfo,i);
-				SpotLight spotLight = GetSpotLight(u_LightBuffer,lightIndex);
+				SpotLight spotLight = GetSpotLight(u_LightBuffer,u_LightInfoBuffer,areaLightInfo,i);
 				LayaAirBlinnPhongSpotLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,spotLight,dif,spe);
 				diffuse+=dif;
 				specular+=spe;

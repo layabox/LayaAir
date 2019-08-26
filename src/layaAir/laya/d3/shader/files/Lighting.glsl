@@ -59,17 +59,6 @@ int GetLightIndex(sampler2D clusterBuffer,int offset,int index)
       return int(texel.w);
 }
 
-int GetPointLightIndex(sampler2D clusterBuffer,ivec4 areaLightInfo,int index) 
-{
-	return GetLightIndex(clusterBuffer,areaLightInfo.z*c_ClusterBufferFloatWidth+areaLightInfo.w,index);
-}
-
-int GetSpotLightIndex(sampler2D clusterBuffer,ivec4 areaLightInfo,int index) 
-{
-	return GetLightIndex(clusterBuffer,areaLightInfo.z*c_ClusterBufferFloatWidth+areaLightInfo.w,areaLightInfo.x+index);
-}
-
-
 DirectionLight GetDirectionLight(sampler2D lightBuffer,int index) 
 {
     DirectionLight light;
@@ -81,10 +70,11 @@ DirectionLight GetDirectionLight(sampler2D lightBuffer,int index)
     return light;
 }
 
-PointLight GetPointLight(sampler2D lightBuffer,int index) 
+PointLight GetPointLight(sampler2D lightBuffer,sampler2D clusterBuffer,ivec4 areaLightInfo,int index) 
 {
     PointLight light;
-    float v = (float(index)+0.5)/ float(MAX_LIGHT_COUNT);
+	int pointIndex=GetLightIndex(clusterBuffer,areaLightInfo.z*c_ClusterBufferFloatWidth+areaLightInfo.w,index);
+    float v = (float(pointIndex)+0.5)/ float(MAX_LIGHT_COUNT);
     vec4 p1 = texture2D(lightBuffer, vec2(0.125,v));
     vec4 p2 = texture2D(lightBuffer, vec2(0.375,v));
 	light.color=p1.rgb;
@@ -93,10 +83,11 @@ PointLight GetPointLight(sampler2D lightBuffer,int index)
     return light;
 }
 
-SpotLight GetSpotLight(sampler2D lightBuffer,int index) 
+SpotLight GetSpotLight(sampler2D lightBuffer,sampler2D clusterBuffer,ivec4 areaLightInfo,int index) 
 {
     SpotLight light;
-    float v = (float(index)+0.5)/ float(MAX_LIGHT_COUNT);
+	int spoIndex=GetLightIndex(clusterBuffer,areaLightInfo.z*c_ClusterBufferFloatWidth+areaLightInfo.w,areaLightInfo.x+index);
+    float v = (float(spoIndex)+0.5)/ float(MAX_LIGHT_COUNT);
     vec4 p1 = texture2D(lightBuffer, vec2(0.125,v));
     vec4 p2 = texture2D(lightBuffer, vec2(0.375,v));
 	vec4 p3 = texture2D(lightBuffer, vec2(0.625,v));
