@@ -39,13 +39,25 @@ uniform vec4 u_DiffuseColor;
 	uniform vec3 u_MaterialSpecular;
 	uniform float u_Shininess;
 
-	uniform mat4 u_View;
-	uniform vec4 u_ProjectionParams;
-	uniform vec4 u_Viewport;
+	#ifdef LEGACYLIGHTING
+		#ifdef DIRECTIONLIGHT
+			uniform DirectionLight u_DirectionLight;
+		#endif
+		#ifdef POINTLIGHT
+			uniform PointLight u_PointLight;
+		#endif
+		#ifdef SPOTLIGHT
+			uniform SpotLight u_SpotLight;
+		#endif
+	#else
+		uniform mat4 u_View;
+		uniform vec4 u_ProjectionParams;
+		uniform vec4 u_Viewport;
+		uniform int u_DirationLightCount;
+		uniform sampler2D u_LightBuffer;
+		uniform sampler2D u_LightInfoBuffer;
+	#endif
 
-	uniform int u_DirationLightCount;
-	uniform sampler2D u_LightBuffer;
-	uniform sampler2D u_LightInfoBuffer;
 	#ifdef SPECULARMAP 
 		uniform sampler2D u_SpecularTexture;
 	#endif
@@ -140,42 +152,60 @@ void main_normal()
 		#endif
 	#endif
 
-   
-	#ifdef DIRECTIONLIGHT
-		for (int i = 0; i < MAX_LIGHT_COUNT; i++) 
-		{
-			if(i >= u_DirationLightCount)
-				break;
-			DirectionLight directionLight = GetDirectionLight(u_LightBuffer,i);
-			LayaAirBlinnPhongDiectionLight(u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,directionLight,dif,spe);
+	#ifdef LEGACYLIGHTING
+		#ifdef DIRECTIONLIGHT
+			LayaAirBlinnPhongDiectionLight(u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,u_DirectionLight,dif,spe);
 			diffuse+=dif;
 			specular+=spe;
-		}
-	#endif
- 
-	#if defined(POINTLIGHT)||defined(SPOTLIGHT)
-  		ivec4 areaLightInfo =getClusterInfo(u_LightInfoBuffer,u_View,u_Viewport, v_PositionWorld,gl_FragCoord,u_ProjectionParams);
+		#endif
+	
 		#ifdef POINTLIGHT
+			LayaAirBlinnPhongPointLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,u_PointLight,dif,spe);
+			diffuse+=dif;
+			specular+=spe;
+		#endif
+
+		#ifdef SPOTLIGHT
+			LayaAirBlinnPhongSpotLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,u_SpotLight,dif,spe);
+			diffuse+=dif;
+			specular+=spe;
+		#endif
+	#else
+		#ifdef DIRECTIONLIGHT
 			for (int i = 0; i < MAX_LIGHT_COUNT; i++) 
 			{
-				if(i >= areaLightInfo.x)//PointLightCount
+				if(i >= u_DirationLightCount)
 					break;
-				PointLight pointLight = GetPointLight(u_LightBuffer,u_LightInfoBuffer,areaLightInfo,i);
-				LayaAirBlinnPhongPointLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,pointLight,dif,spe);
+				DirectionLight directionLight = GetDirectionLight(u_LightBuffer,i);
+				LayaAirBlinnPhongDiectionLight(u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,directionLight,dif,spe);
 				diffuse+=dif;
 				specular+=spe;
 			}
 		#endif
-		#ifdef SPOTLIGHT
-			for (int i = 0; i < MAX_LIGHT_COUNT; i++) 
-			{
-				if(i >= areaLightInfo.y)//SpotLightCount
-					break;
-				SpotLight spotLight = GetSpotLight(u_LightBuffer,u_LightInfoBuffer,areaLightInfo,i);
-				LayaAirBlinnPhongSpotLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,spotLight,dif,spe);
-				diffuse+=dif;
-				specular+=spe;
-			}
+		#if defined(POINTLIGHT)||defined(SPOTLIGHT)
+			ivec4 areaLightInfo =getClusterInfo(u_LightInfoBuffer,u_View,u_Viewport, v_PositionWorld,gl_FragCoord,u_ProjectionParams);
+			#ifdef POINTLIGHT
+				for (int i = 0; i < MAX_LIGHT_COUNT; i++) 
+				{
+					if(i >= areaLightInfo.x)//PointLightCount
+						break;
+					PointLight pointLight = GetPointLight(u_LightBuffer,u_LightInfoBuffer,areaLightInfo,i);
+					LayaAirBlinnPhongPointLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,pointLight,dif,spe);
+					diffuse+=dif;
+					specular+=spe;
+				}
+			#endif
+			#ifdef SPOTLIGHT
+				for (int i = 0; i < MAX_LIGHT_COUNT; i++) 
+				{
+					if(i >= areaLightInfo.y)//SpotLightCount
+						break;
+					SpotLight spotLight = GetSpotLight(u_LightBuffer,u_LightInfoBuffer,areaLightInfo,i);
+					LayaAirBlinnPhongSpotLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,spotLight,dif,spe);
+					diffuse+=dif;
+					specular+=spe;
+				}
+			#endif
 		#endif
 	#endif
 

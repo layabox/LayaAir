@@ -9,6 +9,7 @@ import { ShaderInstance } from "./ShaderInstance";
 import { SubShader } from "./SubShader";
 import { Laya3D } from "../../../Laya3D";
 import { Vector3 } from "../math/Vector3";
+import { LayaGL } from "../../layagl/LayaGL";
 
 /**
  * <code>ShaderPass</code> 类用于实现ShaderPass。
@@ -239,6 +240,11 @@ export class ShaderPass extends ShaderCompile {
 			if (WebGL.shaderHighPrecision) {//输出宏定义要保持设备无关性
 				compileDefine.remove(Shader3D.SHADERDEFINE_HIGHPRECISION);
 				var index = defineString.indexOf("HIGHPRECISION");
+				(index !== -1) && (defineString.splice(index, 1));
+			}
+			if (!LayaGL.layaGPUInstance._isWebGL2 && !LayaGL.layaGPUInstance._oesTextureFloat) {
+				compileDefine.remove(Shader3D.SHADERDEFINE_LEGACYLIGHTING);
+				var index = defineString.indexOf("LEGACYLIGHTING");
 				(index !== -1) && (defineString.splice(index, 1));
 			}
 

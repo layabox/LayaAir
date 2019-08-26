@@ -80,6 +80,7 @@ export class ShaderInit3D {
 		ShaderInit3D._rangeAttenTex.wrapModeV = BaseTexture.WARPMODE_CLAMP;
 		ShaderInit3D._rangeAttenTex.lock = true;
 		Shader3D.SHADERDEFINE_HIGHPRECISION = Shader3D.getDefineByName("HIGHPRECISION");
+		Shader3D.SHADERDEFINE_LEGACYLIGHTING = Shader3D.getDefineByName("LEGACYLIGHTING");
 
 
 		Shader3D.addInclude("Lighting.glsl", LightingGLSL);
@@ -139,7 +140,19 @@ export class ShaderInit3D {
 			'u_shadowMap3': Shader3D.PERIOD_SCENE,
 			'u_shadowPSSMDistance': Shader3D.PERIOD_SCENE,
 			'u_lightShadowVP': Shader3D.PERIOD_SCENE,
-			'u_shadowPCFoffset': Shader3D.PERIOD_SCENE
+			'u_shadowPCFoffset': Shader3D.PERIOD_SCENE,
+
+			//legacy lighting
+			'u_DirectionLight.Color': Shader3D.PERIOD_SCENE,
+			'u_DirectionLight.Direction': Shader3D.PERIOD_SCENE,
+			'u_PointLight.Position': Shader3D.PERIOD_SCENE,
+			'u_PointLight.Range': Shader3D.PERIOD_SCENE,
+			'u_PointLight.Color': Shader3D.PERIOD_SCENE,
+			'u_SpotLight.Position': Shader3D.PERIOD_SCENE,
+			'u_SpotLight.Direction': Shader3D.PERIOD_SCENE,
+			'u_SpotLight.Range': Shader3D.PERIOD_SCENE,
+			'u_SpotLight.Spot': Shader3D.PERIOD_SCENE,
+			'u_SpotLight.Color': Shader3D.PERIOD_SCENE
 		};
 
 		var stateMap: any = {
