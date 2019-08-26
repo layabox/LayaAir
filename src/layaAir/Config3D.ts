@@ -11,6 +11,12 @@ export class Config3D implements IClone {
 	/**@internal*/
 	private _defaultPhysicsMemory: number = 16;
 	/**@internal*/
+	private _maxLightCount: number = 32;
+	/**@internal*/
+	private _lightClusterCount: Vector3 = new Vector3(16, 16, 12);
+	/** 每个集群的最大光源数量。*/
+	private _maxLightCountPerCluster: number = 32;
+	/**@internal*/
 	_editerEnvironment: boolean = false;
 
 	/** 是否开启抗锯齿。*/
@@ -33,12 +39,8 @@ export class Config3D implements IClone {
 	/** 八叉树松散值。*/
 	octreeLooseness: number = 1.25;
 
-	/** 最大光源数量。*/
-	maxLightCount: number = 32;
-	/** 每个集群的最大光源数量。*/
-	maxLightCountPerCluster: number = 32;
-	/** X、Y、Z轴的光照集群数量。*/
-	lightClusterCount: Vector3 = new Vector3(16, 16, 12);
+
+
 
 	/** 
 	 * 是否开启视锥裁剪调试。
@@ -48,17 +50,13 @@ export class Config3D implements IClone {
 	debugFrustumCulling: boolean = false;
 
 	/**
-	 * 获取默认物理功能初始化内存，单位为M。
+	 * 默认物理功能初始化内存，单位为M。
 	 * @return 默认物理功能初始化内存。
 	 */
 	get defaultPhysicsMemory(): number {
 		return this._defaultPhysicsMemory;
 	}
 
-	/**
-	 * 设置默认物理功能初始化内存，单位为M。
-	 * @param value 默认物理功能初始化内存。
-	 */
 	set defaultPhysicsMemory(value: number) {
 		if (value < 16)//必须大于16M
 			throw "defaultPhysicsMemory must large than 16M";
@@ -66,9 +64,67 @@ export class Config3D implements IClone {
 	}
 
 	/**
+	 * 最大光源数量。
+	 */
+	get maxLightCount(): number {
+		return this._maxLightCount;
+	}
+
+	set maxLightCount(value: number) {
+		if (value > 2048) {
+			this._maxLightCount = 2048;
+			console.warn("Config3D: maxLightCount must less equal 2048.");
+		}
+		else {
+			this._maxLightCount = value;
+		}
+	}
+
+	/**
+	 * X、Y、Z轴的光照集群数量。
+	 */
+	get lightClusterCount(): Vector3 {
+		return this._lightClusterCount;
+	}
+
+	set lightClusterCount(value: Vector3) {
+		if (!this._checkMaxLightCountPerCluster(this._maxLightCountPerCluster, value.z)) {
+			this._lightClusterCount.setValue(value.x, value.y, 2048 / (Math.ceil(this._maxLightCountPerCluster / 4) + 1));
+			console.warn("Config3D: lightClusterCount component must less equal 128.");
+		}
+		else {
+			value.cloneTo(this._lightClusterCount);
+		}
+	}
+
+	/**
+	 * 每个集群的最大光源数量。
+	 */
+	get maxLightCountPerCluster(): number {
+		return this._maxLightCountPerCluster;
+	}
+
+	set maxLightCountPerCluster(value: number) {
+		if (!this._checkMaxLightCountPerCluster(value, this._lightClusterCount.z)) {
+			this._maxLightCountPerCluster = Math.floor(2048 / this._lightClusterCount.z - 1) * 4;
+			console.warn("Config3D: (Math.ceil(maxLightCountPerCluster/4)+1)*lightClusterCount.z must less than 2048.");
+		}
+		else {
+			this._maxLightCountPerCluster = value;
+		}
+	}
+
+	/**
 	 * 创建一个 <code>Config3D</code> 实例。
 	 */
 	constructor() {
+	}
+
+	/**
+	 * @internal
+	 */
+	private _checkMaxLightCountPerCluster(maxLightCountPerCluster: number, clusterCountZ: number): boolean {
+		return Math.ceil((maxLightCountPerCluster / 4) + 1) * clusterCountZ < 2048;
 	}
 
 	/**
