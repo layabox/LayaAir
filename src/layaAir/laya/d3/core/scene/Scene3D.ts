@@ -100,17 +100,17 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	static CLUSTERBUFFER: number = Shader3D.propertyNameToID("u_LightInfoBuffer");
 
 	//------------------legacy lighting-------------------------------
-	static LIGHTDIRECTION: number = Shader3D.propertyNameToID("u_DirectionLight.Direction");
-	static LIGHTDIRCOLOR: number = Shader3D.propertyNameToID("u_DirectionLight.Color");
-	static POINTLIGHTPOS: number = Shader3D.propertyNameToID("u_PointLight.Position");
-	static POINTLIGHTRANGE: number = Shader3D.propertyNameToID("u_PointLight.Range");
-	static POINTLIGHTATTENUATION: number = Shader3D.propertyNameToID("u_PointLight.Attenuation");
-	static POINTLIGHTCOLOR: number = Shader3D.propertyNameToID("u_PointLight.Color");
-	static SPOTLIGHTPOS: number = Shader3D.propertyNameToID("u_SpotLight.Position");
-	static SPOTLIGHTDIRECTION: number = Shader3D.propertyNameToID("u_SpotLight.Direction");
-	static SPOTLIGHTSPOTANGLE: number = Shader3D.propertyNameToID("u_SpotLight.Spot");
-	static SPOTLIGHTRANGE: number = Shader3D.propertyNameToID("u_SpotLight.Range");
-	static SPOTLIGHTCOLOR: number = Shader3D.propertyNameToID("u_SpotLight.Color");
+	static LIGHTDIRECTION: number = Shader3D.propertyNameToID("u_DirectionLight.direction");
+	static LIGHTDIRCOLOR: number = Shader3D.propertyNameToID("u_DirectionLight.color");
+	static POINTLIGHTPOS: number = Shader3D.propertyNameToID("u_PointLight.position");
+	static POINTLIGHTRANGE: number = Shader3D.propertyNameToID("u_PointLight.range");
+	static POINTLIGHTATTENUATION: number = Shader3D.propertyNameToID("u_PointLight.attenuation");
+	static POINTLIGHTCOLOR: number = Shader3D.propertyNameToID("u_PointLight.color");
+	static SPOTLIGHTPOS: number = Shader3D.propertyNameToID("u_SpotLight.position");
+	static SPOTLIGHTDIRECTION: number = Shader3D.propertyNameToID("u_SpotLight.direction");
+	static SPOTLIGHTSPOTANGLE: number = Shader3D.propertyNameToID("u_SpotLight.spot");
+	static SPOTLIGHTRANGE: number = Shader3D.propertyNameToID("u_SpotLight.range");
+	static SPOTLIGHTCOLOR: number = Shader3D.propertyNameToID("u_SpotLight.color");
 
 
 	static SHADOWDISTANCE: number = Shader3D.propertyNameToID("u_shadowPSSMDistance");
@@ -133,13 +133,16 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	static __init__(): void {
-		const width: number = 4;
-		var con: Config3D = Laya3D._config;
-		var maxLightCount: number = con.maxLightCount;
-		var clusterSlices: Vector3 = con.lightClusterCount;
-		Scene3D._cluster = new Cluster(clusterSlices.x, clusterSlices.y, clusterSlices.z, con.maxLightCountPerCluster);
-		Scene3D._lightTexture = Utils3D._createFloatTextureBuffer(width, maxLightCount);
-		Scene3D._lightPixles = new Float32Array(maxLightCount * width * 4);
+		var legacyLighting: boolean = (!LayaGL.layaGPUInstance._oesTextureFloat && !LayaGL.layaGPUInstance._isWebGL2);
+		if (!legacyLighting) {
+			const width: number = 4;
+			var con: Config3D = Laya3D._config;
+			var maxLightCount: number = con.maxLightCount;
+			var clusterSlices: Vector3 = con.lightClusterCount;
+			Scene3D._cluster = new Cluster(clusterSlices.x, clusterSlices.y, clusterSlices.z, con.maxLightCountPerCluster);
+			Scene3D._lightTexture = Utils3D._createFloatTextureBuffer(width, maxLightCount);
+			Scene3D._lightPixles = new Float32Array(maxLightCount * width * 4);
+		}
 
 		Scene3DShaderDeclaration.SHADERDEFINE_FOG = Shader3D.getDefineByName("FOG");
 		Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT = Shader3D.getDefineByName("DIRECTIONLIGHT");
@@ -803,6 +806,10 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 				dirLight.transform.worldMatrix.getForward(dirLight._direction);
 				Vector3.normalize(dirLight._direction, dirLight._direction);
 				shaderValue.setVector3(Scene3D.LIGHTDIRECTION, dirLight._direction);
+				shaderValue.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
+			}
+			else {
+				shaderValue.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
 			}
 			if (this._pointLights._length > 0) {
 				var poiLight: PointLight = this._pointLights._elements[0];
@@ -810,6 +817,10 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 				shaderValue.setVector3(Scene3D.POINTLIGHTCOLOR, poiLight._intensityColor);
 				shaderValue.setVector3(Scene3D.POINTLIGHTPOS, poiLight.transform.position);
 				shaderValue.setNumber(Scene3D.POINTLIGHTRANGE, poiLight.range);
+				shaderValue.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT);
+			}
+			else {
+				shaderValue.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT);
 			}
 			if (this._spotLights._length > 0) {
 				var spotLight: SpotLight = this._spotLights._elements[0];
@@ -821,6 +832,10 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 				shaderValue.setVector3(Scene3D.SPOTLIGHTDIRECTION, spotLight._direction);
 				shaderValue.setNumber(Scene3D.SPOTLIGHTRANGE, spotLight.range);
 				shaderValue.setNumber(Scene3D.SPOTLIGHTSPOTANGLE, spotLight.spotAngle * Math.PI / 180);
+				shaderValue.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT);
+			}
+			else {
+				shaderValue.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT);
 			}
 		}
 	}

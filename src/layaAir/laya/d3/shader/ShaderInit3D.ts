@@ -143,16 +143,16 @@ export class ShaderInit3D {
 			'u_shadowPCFoffset': Shader3D.PERIOD_SCENE,
 
 			//legacy lighting
-			'u_DirectionLight.Color': Shader3D.PERIOD_SCENE,
-			'u_DirectionLight.Direction': Shader3D.PERIOD_SCENE,
-			'u_PointLight.Position': Shader3D.PERIOD_SCENE,
-			'u_PointLight.Range': Shader3D.PERIOD_SCENE,
-			'u_PointLight.Color': Shader3D.PERIOD_SCENE,
-			'u_SpotLight.Position': Shader3D.PERIOD_SCENE,
-			'u_SpotLight.Direction': Shader3D.PERIOD_SCENE,
-			'u_SpotLight.Range': Shader3D.PERIOD_SCENE,
-			'u_SpotLight.Spot': Shader3D.PERIOD_SCENE,
-			'u_SpotLight.Color': Shader3D.PERIOD_SCENE
+			'u_DirectionLight.color': Shader3D.PERIOD_SCENE,
+			'u_DirectionLight.direction': Shader3D.PERIOD_SCENE,
+			'u_PointLight.position': Shader3D.PERIOD_SCENE,
+			'u_PointLight.range': Shader3D.PERIOD_SCENE,
+			'u_PointLight.color': Shader3D.PERIOD_SCENE,
+			'u_SpotLight.position': Shader3D.PERIOD_SCENE,
+			'u_SpotLight.direction': Shader3D.PERIOD_SCENE,
+			'u_SpotLight.range': Shader3D.PERIOD_SCENE,
+			'u_SpotLight.spot': Shader3D.PERIOD_SCENE,
+			'u_SpotLight.color': Shader3D.PERIOD_SCENE
 		};
 
 		var stateMap: any = {
