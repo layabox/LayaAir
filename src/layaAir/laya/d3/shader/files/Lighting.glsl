@@ -35,7 +35,7 @@ ivec4 getClusterInfo(sampler2D clusterBuffer,mat4 viewMatrix,vec4 viewport,vec3 
 	vec2 uv= vec2((float(clusterXIndex + clusterYIndex * CLUSTER_X_COUNT)+0.5)/float(c_ClusterBufferWidth),
 				(float(clusterZIndex)+0.5)/float(c_ClusterBufferHeight));
 	vec4 clusterPixel=texture2D(clusterBuffer, uv);
-	return ivec4(int(clusterPixel.r),int(clusterPixel.g),int(clusterPixel.b),int(clusterPixel.a));//X:Point Count Y:Spot Count Z:Light Offset
+	return ivec4(clusterPixel);//X:Point Count Y:Spot Count Z、W:Light Offset
 }
 
 
