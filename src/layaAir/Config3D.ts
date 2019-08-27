@@ -14,7 +14,7 @@ export class Config3D implements IClone {
 	private _maxLightCount: number = 32;
 	/**@internal*/
 	private _lightClusterCount: Vector3 = new Vector3(16, 16, 12);
-	/** 每个集群的最大光源数量。*/
+	/**@internal*/
 	private _maxLightCountPerCluster: number = 32;
 	/**@internal*/
 	_editerEnvironment: boolean = false;

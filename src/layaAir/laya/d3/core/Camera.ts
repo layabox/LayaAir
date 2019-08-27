@@ -27,6 +27,7 @@ import { RenderQueue } from "./render/RenderQueue";
 import { Scene3D } from "./scene/Scene3D";
 import { Scene3DShaderDeclaration } from "./scene/Scene3DShaderDeclaration";
 import { Transform3D } from "./Transform3D";
+import { SystemUtils } from "../utils/SystemUtils";
 
 /**
  * <code>Camera</code> 类用于创建摄像机。
@@ -279,7 +280,15 @@ export class Camera extends BaseCamera {
 	 * 设置是否开启HDR。
 	 */
 	set enableHDR(value: boolean) {
-		this._enableHDR = value;
+		if (value) {
+			if (SystemUtils.supportRenderTextureFormat(BaseTexture.RENDERTEXTURE_FORMAT_RGBA_HALF_FLOAT))
+				this._enableHDR = true;
+			else
+				console.warn("Camera:can't enable HDR in this device.");
+		}
+		else {
+			this._enableHDR = false;
+		}
 	}
 
 	/**
