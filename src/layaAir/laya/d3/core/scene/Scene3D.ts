@@ -735,8 +735,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 					ligPix[off + 5] = dir.y;
 					ligPix[off + 6] = dir.z;
 					if (i == 0) {
-						shaderValue.setVector3(Scene3D.SUNLIGHTDIRCOLOR, intCor);
-						shaderValue.setVector3(Scene3D.SUNLIGHTDIRECTION, dir);
+						this._shaderValues.setVector3(Scene3D.SUNLIGHTDIRCOLOR, intCor);
+						this._shaderValues.setVector3(Scene3D.SUNLIGHTDIRECTION, dir);
 					}
 				}
 

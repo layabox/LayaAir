@@ -537,8 +537,8 @@ export class ShaderInit3D {
 			'u_GroundTint': Shader3D.PERIOD_MATERIAL,
 			'u_Exposure': Shader3D.PERIOD_MATERIAL,
 			'u_ViewProjection': Shader3D.PERIOD_CAMERA,//TODO:优化
-			'u_SunLight.Direction': Shader3D.PERIOD_SCENE,
-			'u_SunLight.Color': Shader3D.PERIOD_SCENE,
+			'u_SunLight.direction': Shader3D.PERIOD_SCENE,
+			'u_SunLight.color': Shader3D.PERIOD_SCENE,
 		};
 
 		shader = Shader3D.add("SkyBoxProcedural");
