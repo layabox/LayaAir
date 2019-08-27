@@ -58,16 +58,16 @@ export class DirectionLight extends LightSprite {
 	 * @internal
 	 * @override
 	 */
-	protected _addToScene(): void {
-		(<Scene3D>this._scene)._directionallights.add(this);
+	protected _addToLightQueue(): void {
+		(<Scene3D>this._scene)._directionLights.add(this);
 	}
 
 	/**
 	 * @internal
 	 * @override
 	 */
-	protected _removeFromScene(): void {
-		(<Scene3D>this._scene)._directionallights.remove(this);
+	protected _removeFromLightQueue(): void {
+		(<Scene3D>this._scene)._directionLights.remove(this);
 	}
 }
 

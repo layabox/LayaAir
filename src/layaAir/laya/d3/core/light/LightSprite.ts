@@ -2,6 +2,8 @@ import { Node } from "../../../display/Node"
 import { Vector3 } from "../../math/Vector3"
 import { ParallelSplitShadowMap } from "../../shadowMap/ParallelSplitShadowMap"
 import { Sprite3D } from "../Sprite3D"
+import { Scene3D } from "../scene/Scene3D";
+import { ILaya3D } from "../../../../ILaya3D";
 
 /**
  * <code>LightSprite</code> 类用于创建灯光的父类。
@@ -14,6 +16,8 @@ export class LightSprite extends Sprite3D {
 	/** 灯光烘培类型-烘焙。*/
 	static LIGHTMAPBAKEDTYPE_BAKED: number = 2;
 
+	/** @internal */
+	_isAlternate: boolean = false;
 	/** @internal */
 	_intensityColor: Vector3;
 
@@ -38,116 +42,88 @@ export class LightSprite extends Sprite3D {
 	color: Vector3;
 
 	/**
-	 * 获取灯光强度。
+	 * 灯光强度。
 	 * @return 灯光强度
 	 */
 	get intensity(): number {
 		return this._intensity;
 	}
 
-	/**
-	 * 设置灯光强度。
-	 * @param value 灯光强度
-	 */
 	set intensity(value: number) {
 		this._intensity = value;
 	}
 
 	/**
-	 * 获取是否产生阴影。
+	 * 否产生阴影。
 	 * @return 是否产生阴影。
 	 */
 	get shadow(): boolean {
 		return this._shadow;
 	}
 
-	/**
-	 * 设置是否产生阴影。
-	 * @param value 是否产生阴影。
-	 */
 	set shadow(value: boolean) {
 		throw new Error("LightSprite: must override it.");
-
 	}
 
 	/**
-	 * 获取阴影最远范围。
+	 * 阴影最远范围。
 	 * @return 阴影最远范围。
 	 */
 	get shadowDistance(): number {
 		return this._shadowFarPlane;
 	}
 
-	/**
-	 * 设置阴影最远范围。
-	 * @param value 阴影最远范围。
-	 */
 	set shadowDistance(value: number) {
 		this._shadowFarPlane = value;
 		(this._parallelSplitShadowMap) && (this._parallelSplitShadowMap.setFarDistance(value));
 	}
 
 	/**
-	 * 获取阴影贴图尺寸。
+	 * 阴影贴图尺寸。
 	 * @return 阴影贴图尺寸。
 	 */
 	get shadowResolution(): number {
 		return this._shadowMapSize;
 	}
 
-	/**
-	 * 设置阴影贴图尺寸。
-	 * @param value 阴影贴图尺寸。
-	 */
 	set shadowResolution(value: number) {
 		this._shadowMapSize = value;
 		(this._parallelSplitShadowMap) && (this._parallelSplitShadowMap.setShadowMapTextureSize(value));
 	}
 
 	/**
-	 * 获取阴影分段数。
+	 * 阴影分段数。
 	 * @return 阴影分段数。
 	 */
 	get shadowPSSMCount(): number {
 		return this._shadowMapCount;
 	}
 
-	/**
-	 * 设置阴影分段数。
-	 * @param value 阴影分段数。
-	 */
 	set shadowPSSMCount(value: number) {
 		this._shadowMapCount = value;
 		(this._parallelSplitShadowMap) && (this._parallelSplitShadowMap.shadowMapCount = value);
 	}
 
 	/**
-	 * 获取阴影PCF类型。
+	 * 阴影PCF类型。
 	 * @return PCF类型。
 	 */
 	get shadowPCFType(): number {
 		return this._shadowMapPCFType;
 	}
 
-	/**
-	 * 设置阴影PCF类型。
-	 * @param value PCF类型。
-	 */
 	set shadowPCFType(value: number) {
 		this._shadowMapPCFType = value;
 		(this._parallelSplitShadowMap) && (this._parallelSplitShadowMap.setPCFType(value));
 	}
 
 	/**
-	 * 获取灯光烘培类型。
+	 * 灯光烘培类型。
 	 */
 	get lightmapBakedType(): number {
 		return this._lightmapBakedType;
 	}
 
-	/**
-	 * 设置灯光烘培类型。
-	 */
 	set lightmapBakedType(value: number) {
 		if (this._lightmapBakedType !== value) {
 			this._lightmapBakedType = value;
@@ -189,17 +165,53 @@ export class LightSprite extends Sprite3D {
 		this.lightmapBakedType = data.lightmapBakedType;
 	}
 
-
 	/**
 	 * @internal
 	 */
-	protected _addToScene(): void {
+	private _addToScene(): void {
+		var scene: Scene3D = <Scene3D>this._scene;
+		if (scene._lightCount < ILaya3D.Laya3D._config.maxLightCount) {
+			scene._lightCount++;
+			this._addToLightQueue();
+			this._isAlternate = true;
+		}
+		else {
+			scene._alternateLights.add(this);
+			this._isAlternate = false;
+			console.warn("LightSprite:light count has large than maxLightCount,the latest added light will be ignore.");
+		}
 	}
 
 	/**
 	 * @internal
 	 */
-	protected _removeFromScene(): void {
+	private _removeFromScene(): void {
+		var scene: Scene3D = <Scene3D>this._scene;
+		if (this._isAlternate) {
+			scene._alternateLights.remove(this);
+		}
+		else {
+			scene._lightCount--;
+			this._removeFromLightQueue();
+			if (scene._alternateLights._length > 0) {
+				var alternateLight: LightSprite = scene._alternateLights.shift();
+				alternateLight._addToLightQueue();
+				alternateLight._isAlternate = false;
+				scene._lightCount++;
+			}
+		}
+	}
+
+	/**
+	 * @internal
+	 */
+	protected _addToLightQueue(): void {
+	}
+
+	/**
+	 * @internal
+	 */
+	protected _removeFromLightQueue(): void {
 	}
 
 	/**
@@ -228,7 +240,7 @@ export class LightSprite extends Sprite3D {
 	}
 
 	/**
-	 * 获取灯光的漫反射颜色。
+	 * 灯光的漫反射颜色。
 	 * @return 灯光的漫反射颜色。
 	 */
 	get diffuseColor(): Vector3 {
@@ -236,10 +248,6 @@ export class LightSprite extends Sprite3D {
 		return this.color;
 	}
 
-	/**
-	 * 设置灯光的漫反射颜色。
-	 * @param value 灯光的漫反射颜色。
-	 */
 	set diffuseColor(value: Vector3) {
 		console.log("LightSprite: discard property,please use color property instead.");
 		this.color = value;

@@ -59,7 +59,7 @@ import { RenderableSprite3D } from "../RenderableSprite3D";
 import { Sprite3D } from "../Sprite3D";
 import { BoundsOctree } from "./BoundsOctree";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
-import { LayaGPU } from "../../../webgl/LayaGPU";
+import { LightSprite } from "../light/LightSprite";
 
 
 /**
@@ -111,6 +111,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	static SPOTLIGHTSPOTANGLE: number = Shader3D.propertyNameToID("u_SpotLight.spot");
 	static SPOTLIGHTRANGE: number = Shader3D.propertyNameToID("u_SpotLight.range");
 	static SPOTLIGHTCOLOR: number = Shader3D.propertyNameToID("u_SpotLight.color");
+	//------------------legacy lighting-------------------------------
 
 
 	static SHADOWDISTANCE: number = Shader3D.propertyNameToID("u_shadowPSSMDistance");
@@ -173,12 +174,16 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	private _url: string;
 	/**@internal */
 	private _group: string;
+	/**@internal */
+	public _lightCount: number = 0;
 	/** @internal */
 	public _pointLights: LightQueue<PointLight> = new LightQueue();
 	/** @internal */
 	public _spotLights: LightQueue<SpotLight> = new LightQueue();
 	/** @internal */
-	public _directionallights: LightQueue<DirectionLight> = new LightQueue();
+	public _directionLights: LightQueue<DirectionLight> = new LightQueue();
+	/** @internal */
+	public _alternateLights: LightQueue<LightSprite> = new LightQueue();
 
 	/** @internal */
 	private _lightmaps: Texture2D[] = [];
@@ -707,14 +712,11 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			var ligPix: Float32Array = Scene3D._lightPixles;
 			const pixelWidth: number = ligTex.width;
 			const floatWidth: number = pixelWidth * 4;
-			var maxCount: number = Laya3D._config.maxLightCount;
 			var curCount: number = 0;
-			var dirCount: number = this._directionallights._length;
-			var dirElements: DirectionLight[] = this._directionallights._elements;
+			var dirCount: number = this._directionLights._length;
+			var dirElements: DirectionLight[] = this._directionLights._elements;
 			if (dirCount > 0) {
 				for (var i: number = 0; i < dirCount; i++ , curCount++) {
-					if (curCount >= maxCount)
-						break;
 					var dirLight: DirectionLight = dirElements[i];
 					var dir: Vector3 = dirLight._direction;
 					var intCor: Vector3 = dirLight._intensityColor;
@@ -739,8 +741,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			if (poiCount > 0) {
 				var poiElements: PointLight[] = this._pointLights._elements;
 				for (var i: number = 0; i < poiCount; i++ , curCount++) {
-					if (curCount >= maxCount)
-						break;
 					var poiLight: PointLight = poiElements[i];
 					var pos: Vector3 = poiLight.transform.position;
 					var intCor: Vector3 = poiLight._intensityColor;
@@ -764,8 +764,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			if (spoCount > 0) {
 				var spoElements: SpotLight[] = this._spotLights._elements;
 				for (var i: number = 0; i < spoCount; i++ , curCount++) {
-					if (curCount >= maxCount)
-						break;
 					var spoLight: SpotLight = spoElements[i];
 					var dir: Vector3 = spoLight._direction;
 					var pos: Vector3 = spoLight.transform.position;
@@ -794,13 +792,13 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 			(curCount > 0) && (ligTex.setSubPixels(0, 0, pixelWidth, curCount, ligPix, 0));
 			this._shaderValues.setTexture(Scene3D.LIGHTBUFFER, ligTex);
-			this._shaderValues.setInt(Scene3D.DIRECTIONLIGHTCOUNT, this._directionallights._length);
+			this._shaderValues.setInt(Scene3D.DIRECTIONLIGHTCOUNT, this._directionLights._length);
 			this._shaderValues.setTexture(Scene3D.CLUSTERBUFFER, Scene3D._cluster._clusterTexture);
 		}
 		else {
 			var shaderValue: ShaderData = this._shaderValues;
-			if (this._directionallights._length > 0) {
-				var dirLight: DirectionLight = this._directionallights._elements[0];
+			if (this._directionLights._length > 0) {
+				var dirLight: DirectionLight = this._directionLights._elements[0];
 				Vector3.scale(dirLight.color, dirLight._intensity, dirLight._intensityColor);
 				shaderValue.setVector3(Scene3D.LIGHTDIRCOLOR, dirLight._intensityColor);
 				dirLight.transform.worldMatrix.getForward(dirLight._direction);
@@ -1154,9 +1152,10 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		super.destroy(destroyChild);
 		this._skyRenderer.destroy();
 		this._skyRenderer = null;
-		this._directionallights = null;
+		this._directionLights = null;
 		this._pointLights = null;
 		this._spotLights = null;
+		this._alternateLights = null;
 		this._lightmaps = null;
 		this._shaderValues = null;
 		this._renders = null;

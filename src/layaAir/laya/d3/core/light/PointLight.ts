@@ -9,17 +9,13 @@ export class PointLight extends LightSprite {
 	private _range: number;
 
 	/**
-	 * 获取点光的范围。
+	 * 点光的范围。
 	 * @return 点光的范围。
 	 */
 	get range(): number {
 		return this._range;
 	}
 
-	/**
-	 * 设置点光的范围。
-	 * @param  value 点光的范围。
-	 */
 	set range(value: number) {
 		this._range = value;
 	}
@@ -37,7 +33,7 @@ export class PointLight extends LightSprite {
 	 * @internal
 	 * @override
 	 */
-	protected _addToScene(): void {
+	protected _addToLightQueue(): void {
 		(<Scene3D>this._scene)._pointLights.add(this);
 	}
 
@@ -45,7 +41,7 @@ export class PointLight extends LightSprite {
 	 * @internal
 	 * @override
 	 */
-	protected _removeFromScene(): void {
+	protected _removeFromLightQueue(): void {
 		(<Scene3D>this._scene)._pointLights.remove(this);
 	}
 

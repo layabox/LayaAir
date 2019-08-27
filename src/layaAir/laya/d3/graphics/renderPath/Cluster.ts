@@ -396,7 +396,7 @@ export class Cluster {
         var far: number = camera.farPlane;
         var viewMat: Matrix4x4 = camera.viewMatrix;
         var maxCount: number = Laya3D._config.maxLightCount;
-        var curCount: number = scene._directionallights._length;
+        var curCount: number = scene._directionLights._length;
 
         var pointLights: LightQueue<PointLight> = scene._pointLights;
         var poiElements: PointLight[] = <PointLight[]>pointLights._elements;

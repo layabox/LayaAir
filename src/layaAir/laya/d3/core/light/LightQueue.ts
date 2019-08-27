@@ -1,5 +1,6 @@
 import { LightSprite } from "./LightSprite";
 
+
 /**
  * @internal
  */
@@ -56,6 +57,11 @@ export class LightQueue<T extends LightSprite> {
             var end: T = this._elements[this._length];
             this._elements[index] = end;
         }
+    }
+
+    shift(): T {
+        this._length--;
+        return this._elements.shift();
     }
 
     update(): void {

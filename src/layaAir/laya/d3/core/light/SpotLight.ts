@@ -15,33 +15,25 @@ export class SpotLight extends LightSprite {
 	public _direction: Vector3;
 
 	/**
- 	* 获取聚光灯的锥形角度。
+ 	* 聚光灯的锥形角度。
  	* @return 聚光灯的锥形角度。
  	*/
 	get spotAngle(): number {
 		return this._spotAngle;
 	}
 
-	/**
-	 * 设置聚光灯的锥形角度。
-	 * @param value 聚光灯的锥形角度。
-	 */
 	set spotAngle(value: number) {
 		this._spotAngle = Math.max(Math.min(value, 180), 0);
 	}
 
 	/**
-	 * 获取聚光的范围。
+	 * 聚光的范围。
 	 * @return 聚光的范围值。
 	 */
 	get range(): number {
 		return this._range;
 	}
 
-	/**
-	 * 设置聚光的范围。
-	 * @param value 聚光的范围值。
-	 */
 	set range(value: number) {
 		this._range = value;
 	}
@@ -60,7 +52,7 @@ export class SpotLight extends LightSprite {
 	 * @internal
 	 * @override
 	 */
-	protected _addToScene(): void {
+	protected _addToLightQueue(): void {
 		(<Scene3D>this._scene)._spotLights.add(this);
 	}
 
@@ -68,7 +60,7 @@ export class SpotLight extends LightSprite {
 	 * @internal
 	 * @override
 	 */
-	protected _removeFromScene(): void {
+	protected _removeFromLightQueue(): void {
 		(<Scene3D>this._scene)._spotLights.remove(this);
 	}
 
