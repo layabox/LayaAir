@@ -786,8 +786,8 @@ export class Templet extends AnimationTemplet {
 			tSkinSlotDisplayData.destory();
 		}
 		this.skinSlotDisplayDataArr.length = 0;
-		if (this.url) {
-			delete Templet.TEMPLET_DICTIONARY[this.url];
+		if (this._relativeUrl) {
+			delete Templet.TEMPLET_DICTIONARY[this._relativeUrl];
 		}
 		super.destroy();
 	}
