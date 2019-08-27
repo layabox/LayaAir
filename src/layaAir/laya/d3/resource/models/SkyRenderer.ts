@@ -1,20 +1,19 @@
+import { ILaya } from "../../../../ILaya";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Stat } from "../../../utils/Stat";
 import { WebGLContext } from "../../../webgl/WebGLContext";
-import { BaseCamera } from "../../core/BaseCamera";
 import { Camera } from "../../core/Camera";
 import { BaseMaterial } from "../../core/material/BaseMaterial";
 import { RenderContext3D } from "../../core/render/RenderContext3D";
 import { Scene3D } from "../../core/scene/Scene3D";
 import { Matrix4x4 } from "../../math/Matrix4x4";
+import { Vector3 } from "../../math/Vector3";
+import { DefineDatas } from "../../shader/DefineDatas";
+import { ShaderData } from "../../shader/ShaderData";
 import { ShaderInstance } from "../../shader/ShaderInstance";
 import { RenderTexture } from "../RenderTexture";
 import { SkyBox } from "./SkyBox";
 import { SkyMesh } from "./SkyMesh";
-import { ShaderData } from "../../shader/ShaderData";
-import { ILaya } from "../../../../ILaya";
-import { Vector3 } from "../../math/Vector3";
-import { DefineDatas } from "../../shader/DefineDatas";
 
 /**
  * <code>SkyRenderer</code> 类用于实现天空渲染器。

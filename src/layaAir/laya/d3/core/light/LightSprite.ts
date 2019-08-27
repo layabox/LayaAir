@@ -4,6 +4,8 @@ import { ParallelSplitShadowMap } from "../../shadowMap/ParallelSplitShadowMap"
 import { Sprite3D } from "../Sprite3D"
 import { Scene3D } from "../scene/Scene3D";
 import { ILaya3D } from "../../../../ILaya3D";
+import { SystemUtils } from "../../utils/SystemUtils";
+import { BaseTexture } from "../../../resource/BaseTexture";
 
 /**
  * <code>LightSprite</code> 类用于创建灯光的父类。
@@ -170,7 +172,8 @@ export class LightSprite extends Sprite3D {
 	 */
 	private _addToScene(): void {
 		var scene: Scene3D = <Scene3D>this._scene;
-		if (scene._lightCount < ILaya3D.Laya3D._config.maxLightCount) {
+		var maxLightCount: number = SystemUtils.supportTextureFormat(BaseTexture.FORMAT_R32G32B32A32) ? ILaya3D.Laya3D._config.maxLightCount : 1;
+		if (scene._lightCount < maxLightCount) {
 			scene._lightCount++;
 			this._addToLightQueue();
 			this._isAlternate = true;

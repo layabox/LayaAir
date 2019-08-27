@@ -41,7 +41,7 @@ uniform vec3 u_SkyTint;
 uniform vec3 u_GroundTint;
 uniform float u_Exposure;
 uniform float u_AtmosphereThickness;
-uniform DirectionLight u_DirectionLight;
+uniform DirectionLight u_SunLight;
 
 varying vec3 v_GroundColor;
 varying vec3 v_SkyColor;
@@ -110,7 +110,7 @@ void main () {
 		{
 			float height = length(samplePoint);
 			float depth = exp(scaleOverScaleDepth * (innerRadius - height));
-			float lightAngle = dot(-u_DirectionLight.direction, samplePoint) / height;
+			float lightAngle = dot(-u_SunLight.direction, samplePoint) / height;
 			float cameraAngle = dot(eyeRay, samplePoint) / height;
 			float scatter = (startOffset + depth*(scaleAngle(lightAngle) - scaleAngle(cameraAngle)));
 			vec3 attenuate = exp(-clamp(scatter, 0.0, MAX_SCATTER) * (invWavelength * kr4PI + km4PI));
@@ -121,7 +121,7 @@ void main () {
 		{
 			float height = length(samplePoint);
 			float depth = exp(scaleOverScaleDepth * (innerRadius - height));
-			float lightAngle = dot(-u_DirectionLight.direction, samplePoint) / height;
+			float lightAngle = dot(-u_SunLight.direction, samplePoint) / height;
 			float cameraAngle = dot(eyeRay, samplePoint) / height;
 			float scatter = (startOffset + depth*(scaleAngle(lightAngle) - scaleAngle(cameraAngle)));
 			vec3 attenuate = exp(-clamp(scatter, 0.0, MAX_SCATTER) * (invWavelength * kr4PI + km4PI));
@@ -140,7 +140,7 @@ void main () {
 		// Calculate the ray's starting position, then calculate its scattering offset
 		float depth = exp((-cameraHeight) * (1.0/scaleDepth));
 		float cameraAngle = dot(-eyeRay, pos);
-		float lightAngle = dot(-u_DirectionLight.direction, pos);
+		float lightAngle = dot(-u_SunLight.direction, pos);
 		float cameraScale = scaleAngle(cameraAngle);
 		float lightScale = scaleAngle(lightAngle);
 		float cameraOffset = depth*cameraScale;
@@ -181,18 +181,18 @@ void main () {
 	// if we want to calculate color in vprog:
 	// in case of linear: multiply by _Exposure in here (even in case of lerp it will be common multiplier, so we can skip mul in fshader)
 	v_GroundColor = u_Exposure * (cIn + u_GroundTint*u_GroundTint * cOut);//u_GroundColor*u_GroundColor is gamma space convert to linear space
-	v_SkyColor    = u_Exposure * (cIn * getRayleighPhase(-u_DirectionLight.direction, -eyeRay));
+	v_SkyColor    = u_Exposure * (cIn * getRayleighPhase(-u_SunLight.direction, -eyeRay));
 
 	
 	// The sun should have a stable intensity in its course in the sky. Moreover it should match the highlight of a purely specular material.
 	// This matching was done using the Unity3D standard shader BRDF1 on the 5/31/2017
 	// Finally we want the sun to be always bright even in LDR thus the normalization of the lightColor for low intensity.
-	float lightColorIntensity = clamp(length(u_DirectionLight.color), 0.25, 1.0);
+	float lightColorIntensity = clamp(length(u_SunLight.color), 0.25, 1.0);
 
 	#ifdef SUN_HIGH_QUALITY 
-		v_SunColor = HDSundiskIntensityFactor * clamp(cOut,0.0,1.0) * u_DirectionLight.color / lightColorIntensity;
+		v_SunColor = HDSundiskIntensityFactor * clamp(cOut,0.0,1.0) * u_SunLight.color / lightColorIntensity;
 	#elif defined(SUN_SIMPLE) 
-		v_SunColor = simpleSundiskIntensityFactor * clamp(cOut * sunScale,0.0,1.0) * u_DirectionLight.color / lightColorIntensity;
+		v_SunColor = simpleSundiskIntensityFactor * clamp(cOut * sunScale,0.0,1.0) * u_SunLight.color / lightColorIntensity;
 	#endif
 	gl_Position=remapGLPositionZ(gl_Position);
 }

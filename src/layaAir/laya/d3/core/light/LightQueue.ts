@@ -1,3 +1,4 @@
+import { DirectionLight } from "./DirectionLight";
 import { LightSprite } from "./LightSprite";
 
 
@@ -7,40 +8,6 @@ import { LightSprite } from "./LightSprite";
 export class LightQueue<T extends LightSprite> {
     _length: number = 0;
     _elements: T[] = [];
-
-    private _partitionObject(left: number, right: number): number {
-        var elements: T[] = this._elements;
-        var pivot: T = elements[Math.floor((right + left) / 2)];
-        while (left <= right) {
-            while (elements[left]._intensity - pivot._intensity < 0)
-                left++;
-            while (elements[right]._intensity - pivot._intensity > 0)
-                right--;
-            if (left < right) {
-                var temp: T = elements[left];
-                elements[left] = elements[right];
-                elements[right] = temp;
-                left++;
-                right--;
-            } else if (left === right) {
-                left++;
-                break;
-            }
-        }
-        return left;
-    }
-
-    private _quickSort(left: number, right: number): void {
-        if (this._elements.length > 1) {
-            var index: number = this._partitionObject(left, right);
-            var leftIndex: number = index - 1;
-            if (left < leftIndex)
-                this._quickSort(left, leftIndex);
-
-            if (index < right)
-                this._quickSort(index, right);
-        }
-    }
 
     add(light: T): void {
         if (this._length === this._elements.length)
@@ -63,8 +30,32 @@ export class LightQueue<T extends LightSprite> {
         this._length--;
         return this._elements.shift();
     }
+}
 
-    update(): void {
-        this._quickSort(0, this._length - 1);
+
+/**
+ * @internal
+ */
+export class DirectionLightQueue extends LightQueue<DirectionLight>{
+    
+    update(sunLight: DirectionLight): void {
+        var maxIntIndex;
+        if (sunLight) {
+            maxIntIndex = this._elements.indexOf(sunLight);
+        }
+        else {
+            var maxIntensity: number = -1;
+            var elements: DirectionLight[] = this._elements;
+            for (var i: number = 0; i < this._length; i++) {
+                var intensity: number = elements[i]._intensity;
+                if (maxIntensity < intensity) {
+                    maxIntensity = intensity;
+                    maxIntIndex = i;
+                }
+            }
+        }
+        var temp: DirectionLight = elements[0];
+        elements[0] = elements[maxIntIndex];
+        elements[maxIntIndex] = temp;
     }
 }

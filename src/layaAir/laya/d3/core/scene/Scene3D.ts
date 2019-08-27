@@ -40,11 +40,13 @@ import { Shader3D } from "../../shader/Shader3D";
 import { ShaderData } from "../../shader/ShaderData";
 import { ShaderInit3D } from "../../shader/ShaderInit3D";
 import { ParallelSplitShadowMap } from "../../shadowMap/ParallelSplitShadowMap";
+import { SystemUtils } from "../../utils/SystemUtils";
 import { Utils3D } from "../../utils/Utils3D";
 import { BaseCamera } from "../BaseCamera";
 import { Camera } from "../Camera";
 import { DirectionLight } from "../light/DirectionLight";
-import { LightQueue } from "../light/LightQueue";
+import { DirectionLightQueue, LightQueue } from "../light/LightQueue";
+import { LightSprite } from "../light/LightSprite";
 import { PointLight } from "../light/PointLight";
 import { SpotLight } from "../light/SpotLight";
 import { BaseMaterial } from "../material/BaseMaterial";
@@ -59,8 +61,6 @@ import { RenderableSprite3D } from "../RenderableSprite3D";
 import { Sprite3D } from "../Sprite3D";
 import { BoundsOctree } from "./BoundsOctree";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
-import { LightSprite } from "../light/LightSprite";
-import { SystemUtils } from "../../utils/SystemUtils";
 
 
 /**
@@ -99,6 +99,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	static DIRECTIONLIGHTCOUNT: number = Shader3D.propertyNameToID("u_DirationLightCount");
 	static LIGHTBUFFER: number = Shader3D.propertyNameToID("u_LightBuffer");
 	static CLUSTERBUFFER: number = Shader3D.propertyNameToID("u_LightInfoBuffer");
+	static SUNLIGHTDIRECTION: number = Shader3D.propertyNameToID("u_SunLight.direction");
+	static SUNLIGHTDIRCOLOR: number = Shader3D.propertyNameToID("u_SunLight.color");
 
 	//------------------legacy lighting-------------------------------
 	static LIGHTDIRECTION: number = Shader3D.propertyNameToID("u_DirectionLight.direction");
@@ -182,7 +184,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal */
 	public _spotLights: LightQueue<SpotLight> = new LightQueue();
 	/** @internal */
-	public _directionLights: LightQueue<DirectionLight> = new LightQueue();
+	public _directionLights: DirectionLightQueue = new DirectionLightQueue();
 	/** @internal */
 	public _alternateLights: LightQueue<LightSprite> = new LightQueue();
 
@@ -707,8 +709,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	protected _prepareSceneToRender(): void {
-		var legacyLighting: boolean = !SystemUtils.supportTextureFormat(BaseTexture.FORMAT_R32G32B32A32);
-		if (!legacyLighting) {
+		var multiLighting: boolean = SystemUtils.supportTextureFormat(BaseTexture.FORMAT_R32G32B32A32);
+		if (multiLighting) {
 			var ligTex: Texture2D = Scene3D._lightTexture;
 			var ligPix: Float32Array = Scene3D._lightPixles;
 			const pixelWidth: number = ligTex.width;
@@ -717,6 +719,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			var dirCount: number = this._directionLights._length;
 			var dirElements: DirectionLight[] = this._directionLights._elements;
 			if (dirCount > 0) {
+				this._directionLights.update(null);//get the brightest light as sun
 				for (var i: number = 0; i < dirCount; i++ , curCount++) {
 					var dirLight: DirectionLight = dirElements[i];
 					var dir: Vector3 = dirLight._direction;
@@ -731,7 +734,12 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 					ligPix[off + 4] = dir.x;
 					ligPix[off + 5] = dir.y;
 					ligPix[off + 6] = dir.z;
+					if (i == 0) {
+						shaderValue.setVector3(Scene3D.SUNLIGHTDIRCOLOR, intCor);
+						shaderValue.setVector3(Scene3D.SUNLIGHTDIRECTION, dir);
+					}
 				}
+
 				this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
 			}
 			else {
@@ -801,10 +809,13 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			if (this._directionLights._length > 0) {
 				var dirLight: DirectionLight = this._directionLights._elements[0];
 				Vector3.scale(dirLight.color, dirLight._intensity, dirLight._intensityColor);
-				shaderValue.setVector3(Scene3D.LIGHTDIRCOLOR, dirLight._intensityColor);
+
 				dirLight.transform.worldMatrix.getForward(dirLight._direction);
 				Vector3.normalize(dirLight._direction, dirLight._direction);
+				shaderValue.setVector3(Scene3D.LIGHTDIRCOLOR, dirLight._intensityColor);
 				shaderValue.setVector3(Scene3D.LIGHTDIRECTION, dirLight._direction);
+				shaderValue.setVector3(Scene3D.SUNLIGHTDIRCOLOR, dirLight._intensityColor);
+				shaderValue.setVector3(Scene3D.SUNLIGHTDIRECTION, dirLight._direction);
 				shaderValue.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
 			}
 			else {
