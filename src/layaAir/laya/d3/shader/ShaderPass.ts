@@ -10,6 +10,8 @@ import { SubShader } from "./SubShader";
 import { Laya3D } from "../../../Laya3D";
 import { Vector3 } from "../math/Vector3";
 import { LayaGL } from "../../layagl/LayaGL";
+import { BaseTexture } from "../../resource/BaseTexture";
+import { SystemUtils } from "../utils/SystemUtils";
 
 /**
  * <code>ShaderPass</code> 类用于实现ShaderPass。
@@ -242,7 +244,7 @@ export class ShaderPass extends ShaderCompile {
 				var index = defineString.indexOf("HIGHPRECISION");
 				(index !== -1) && (defineString.splice(index, 1));
 			}
-			if (!LayaGL.layaGPUInstance._isWebGL2 && !LayaGL.layaGPUInstance._oesTextureFloat) {
+			if (!SystemUtils.supportTextureFormat(BaseTexture.FORMAT_R32G32B32A32)) {
 				compileDefine.remove(Shader3D.SHADERDEFINE_LEGACYLIGHTING);
 				var index = defineString.indexOf("LEGACYLIGHTING");
 				(index !== -1) && (defineString.splice(index, 1));

@@ -427,8 +427,8 @@ export class Camera extends BaseCamera {
 		this._shaderValues.setVector(BaseCamera.VIEWPORT, this._viewportParams);
 		this._shaderValues.setVector(BaseCamera.PROJECTION_PARAMS, this._projectionParams);
 
-		var legacyLighting: boolean = (!LayaGL.layaGPUInstance._oesTextureFloat && !LayaGL.layaGPUInstance._isWebGL2);
-		(!legacyLighting) && (Scene3D._cluster.update(this, <Scene3D>(this._scene)));
+		var multiLighting: boolean = SystemUtils.supportTextureFormat(BaseTexture.FORMAT_R32G32B32A32);
+		(multiLighting) && (Scene3D._cluster.update(this, <Scene3D>(this._scene)));
 	}
 
 	/**
