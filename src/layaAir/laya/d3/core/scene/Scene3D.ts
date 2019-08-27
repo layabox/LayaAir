@@ -709,6 +709,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	protected _prepareSceneToRender(): void {
+		var shaderValues: ShaderData = this._shaderValues;
 		var multiLighting: boolean = SystemUtils.supportTextureFormat(BaseTexture.FORMAT_R32G32B32A32);
 		if (multiLighting) {
 			var ligTex: Texture2D = Scene3D._lightTexture;
@@ -735,15 +736,14 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 					ligPix[off + 5] = dir.y;
 					ligPix[off + 6] = dir.z;
 					if (i == 0) {
-						this._shaderValues.setVector3(Scene3D.SUNLIGHTDIRCOLOR, intCor);
-						this._shaderValues.setVector3(Scene3D.SUNLIGHTDIRECTION, dir);
+						shaderValues.setVector3(Scene3D.SUNLIGHTDIRCOLOR, intCor);
+						shaderValues.setVector3(Scene3D.SUNLIGHTDIRECTION, dir);
 					}
 				}
-
-				this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
+				shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
 			}
 			else {
-				this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
+				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
 			}
 
 			var poiCount: number = this._pointLights._length;
@@ -763,10 +763,10 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 					ligPix[off + 5] = pos.y;
 					ligPix[off + 6] = pos.z;
 				}
-				this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT);
+				shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT);
 			}
 			else {
-				this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT);
+				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT);
 			}
 
 			var spoCount: number = this._spotLights._length;
@@ -793,59 +793,58 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 					ligPix[off + 9] = dir.y;
 					ligPix[off + 10] = dir.z;
 				}
-				this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT);
+				shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT);
 			}
 			else {
-				this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT);
+				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT);
 			}
 
 			(curCount > 0) && (ligTex.setSubPixels(0, 0, pixelWidth, curCount, ligPix, 0));
-			this._shaderValues.setTexture(Scene3D.LIGHTBUFFER, ligTex);
-			this._shaderValues.setInt(Scene3D.DIRECTIONLIGHTCOUNT, this._directionLights._length);
-			this._shaderValues.setTexture(Scene3D.CLUSTERBUFFER, Scene3D._cluster._clusterTexture);
+			shaderValues.setTexture(Scene3D.LIGHTBUFFER, ligTex);
+			shaderValues.setInt(Scene3D.DIRECTIONLIGHTCOUNT, this._directionLights._length);
+			shaderValues.setTexture(Scene3D.CLUSTERBUFFER, Scene3D._cluster._clusterTexture);
 		}
 		else {
-			var shaderValue: ShaderData = this._shaderValues;
 			if (this._directionLights._length > 0) {
 				var dirLight: DirectionLight = this._directionLights._elements[0];
 				Vector3.scale(dirLight.color, dirLight._intensity, dirLight._intensityColor);
 
 				dirLight.transform.worldMatrix.getForward(dirLight._direction);
 				Vector3.normalize(dirLight._direction, dirLight._direction);
-				shaderValue.setVector3(Scene3D.LIGHTDIRCOLOR, dirLight._intensityColor);
-				shaderValue.setVector3(Scene3D.LIGHTDIRECTION, dirLight._direction);
-				shaderValue.setVector3(Scene3D.SUNLIGHTDIRCOLOR, dirLight._intensityColor);
-				shaderValue.setVector3(Scene3D.SUNLIGHTDIRECTION, dirLight._direction);
-				shaderValue.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
+				shaderValues.setVector3(Scene3D.LIGHTDIRCOLOR, dirLight._intensityColor);
+				shaderValues.setVector3(Scene3D.LIGHTDIRECTION, dirLight._direction);
+				shaderValues.setVector3(Scene3D.SUNLIGHTDIRCOLOR, dirLight._intensityColor);
+				shaderValues.setVector3(Scene3D.SUNLIGHTDIRECTION, dirLight._direction);
+				shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
 			}
 			else {
-				shaderValue.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
+				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
 			}
 			if (this._pointLights._length > 0) {
 				var poiLight: PointLight = this._pointLights._elements[0];
 				Vector3.scale(poiLight.color, poiLight._intensity, poiLight._intensityColor);
-				shaderValue.setVector3(Scene3D.POINTLIGHTCOLOR, poiLight._intensityColor);
-				shaderValue.setVector3(Scene3D.POINTLIGHTPOS, poiLight.transform.position);
-				shaderValue.setNumber(Scene3D.POINTLIGHTRANGE, poiLight.range);
-				shaderValue.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT);
+				shaderValues.setVector3(Scene3D.POINTLIGHTCOLOR, poiLight._intensityColor);
+				shaderValues.setVector3(Scene3D.POINTLIGHTPOS, poiLight.transform.position);
+				shaderValues.setNumber(Scene3D.POINTLIGHTRANGE, poiLight.range);
+				shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT);
 			}
 			else {
-				shaderValue.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT);
+				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT);
 			}
 			if (this._spotLights._length > 0) {
 				var spotLight: SpotLight = this._spotLights._elements[0];
 				Vector3.scale(spotLight.color, spotLight._intensity, spotLight._intensityColor);
-				shaderValue.setVector3(Scene3D.SPOTLIGHTCOLOR, spotLight._intensityColor);
-				shaderValue.setVector3(Scene3D.SPOTLIGHTPOS, spotLight.transform.position);
+				shaderValues.setVector3(Scene3D.SPOTLIGHTCOLOR, spotLight._intensityColor);
+				shaderValues.setVector3(Scene3D.SPOTLIGHTPOS, spotLight.transform.position);
 				spotLight.transform.worldMatrix.getForward(spotLight._direction);
 				Vector3.normalize(spotLight._direction, spotLight._direction);
-				shaderValue.setVector3(Scene3D.SPOTLIGHTDIRECTION, spotLight._direction);
-				shaderValue.setNumber(Scene3D.SPOTLIGHTRANGE, spotLight.range);
-				shaderValue.setNumber(Scene3D.SPOTLIGHTSPOTANGLE, spotLight.spotAngle * Math.PI / 180);
-				shaderValue.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT);
+				shaderValues.setVector3(Scene3D.SPOTLIGHTDIRECTION, spotLight._direction);
+				shaderValues.setNumber(Scene3D.SPOTLIGHTRANGE, spotLight.range);
+				shaderValues.setNumber(Scene3D.SPOTLIGHTSPOTANGLE, spotLight.spotAngle * Math.PI / 180);
+				shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT);
 			}
 			else {
-				shaderValue.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT);
+				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT);
 			}
 		}
 	}
