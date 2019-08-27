@@ -144,6 +144,7 @@ export class Config3D implements IClone {
 		destConfig3D.debugFrustumCulling = this.debugFrustumCulling;
 		destConfig3D.maxLightCount = this.maxLightCount;
 		destConfig3D.maxLightCountPerCluster = this.maxLightCountPerCluster;
+		this.lightClusterCount.cloneTo(destConfig3D.lightClusterCount);
 	}
 
 	/**
