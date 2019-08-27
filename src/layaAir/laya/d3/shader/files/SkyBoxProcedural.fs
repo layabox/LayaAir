@@ -74,7 +74,7 @@ void main() {
 
 	#if defined(SUN_HIGH_QUALITY)||defined(SUN_SIMPLE)
 		if (y < 0.0)
-			col += v_SunColor * calcSunAttenuation(-u_DirectionLight.Direction, -ray);
+			col += v_SunColor * calcSunAttenuation(-u_DirectionLight.direction, -ray);
 	#endif
 
 	col = sqrt(col);//linear space convert to gamma space
