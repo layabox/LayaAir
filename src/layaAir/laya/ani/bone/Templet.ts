@@ -741,7 +741,7 @@ export class Templet extends AnimationTemplet {
 	 * @override
 	 */
 	_setCreateURL(url: string): void {
-		this._relativeUrl = url;
+		this._skBufferUrl =	this._relativeUrl = url;
 		super._setCreateURL(url);
 	}
 
@@ -763,11 +763,11 @@ export class Templet extends AnimationTemplet {
 			tAniDataO.nodes = null;
 		}
 	}
-		/**
-		 * 释放纹理
-		 * @override
-		 */
-		destroy(): void {
+	/**
+	 * 释放纹理
+	 * @override
+	 */
+	destroy(): void {
 		this._isDestroyed = true;
 		var tTexture: any;
 		for (tTexture in this.subTextureDic) {
@@ -790,6 +790,7 @@ export class Templet extends AnimationTemplet {
 			delete Templet.TEMPLET_DICTIONARY[this.url];
 		}
 		super.destroy();
+		ILaya.loader.clearRes(this._skBufferUrl);
 	}
 
 	/***********************************下面为一些儿访问接口*****************************************/
