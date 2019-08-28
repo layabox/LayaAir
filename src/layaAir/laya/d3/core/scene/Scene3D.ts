@@ -98,7 +98,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 	static DIRECTIONLIGHTCOUNT: number = Shader3D.propertyNameToID("u_DirationLightCount");
 	static LIGHTBUFFER: number = Shader3D.propertyNameToID("u_LightBuffer");
-	static CLUSTERBUFFER: number = Shader3D.propertyNameToID("u_LightInfoBuffer");
+	static CLUSTERBUFFER: number = Shader3D.propertyNameToID("u_LightClusterBuffer");
 	static SUNLIGHTDIRECTION: number = Shader3D.propertyNameToID("u_SunLight.direction");
 	static SUNLIGHTDIRCOLOR: number = Shader3D.propertyNameToID("u_SunLight.color");
 

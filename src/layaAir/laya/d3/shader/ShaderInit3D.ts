@@ -133,7 +133,7 @@ export class ShaderInit3D {
 			'u_FogColor': Shader3D.PERIOD_SCENE,
 			'u_DirationLightCount': Shader3D.PERIOD_SCENE,
 			'u_LightBuffer': Shader3D.PERIOD_SCENE,
-			'u_LightInfoBuffer': Shader3D.PERIOD_SCENE,
+			'u_LightClusterBuffer': Shader3D.PERIOD_SCENE,
 			'u_AmbientColor': Shader3D.PERIOD_SCENE,
 			'u_shadowMap1': Shader3D.PERIOD_SCENE,
 			'u_shadowMap2': Shader3D.PERIOD_SCENE,
