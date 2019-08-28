@@ -37,21 +37,16 @@ export class LightQueue<T extends LightSprite> {
  * @internal
  */
 export class DirectionLightQueue extends LightQueue<DirectionLight>{
-    
-    getSunLight(sunLight: DirectionLight): number {
+
+    getSunLight(): number {
         var maxIntIndex;
-        if (sunLight) {
-            maxIntIndex = this._elements.indexOf(sunLight);
-        }
-        else {
-            var maxIntensity: number = -1;
-            var elements: DirectionLight[] = this._elements;
-            for (var i: number = 0; i < this._length; i++) {
-                var intensity: number = elements[i]._intensity;
-                if (maxIntensity < intensity) {
-                    maxIntensity = intensity;
-                    maxIntIndex = i;
-                }
+        var maxIntensity: number = -1;
+        var elements: DirectionLight[] = this._elements;
+        for (var i: number = 0; i < this._length; i++) {
+            var intensity: number = elements[i]._intensity;
+            if (maxIntensity < intensity) {
+                maxIntensity = intensity;
+                maxIntIndex = i;
             }
         }
         return maxIntIndex;

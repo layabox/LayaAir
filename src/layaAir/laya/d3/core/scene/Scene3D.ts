@@ -721,7 +721,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			var dirCount: number = this._directionLights._length;
 			var dirElements: DirectionLight[] = this._directionLights._elements;
 			if (dirCount > 0) {
-				var sunLightIndex: number = this._directionLights.getSunLight(null);//get the brightest light as sun
+				var sunLightIndex: number = this._directionLights.getSunLight();//get the brightest light as sun
 				for (var i: number = 0; i < dirCount; i++ , curCount++) {
 					var dirLight: DirectionLight = dirElements[i];
 					var dir: Vector3 = dirLight._direction;
