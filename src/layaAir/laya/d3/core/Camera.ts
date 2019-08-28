@@ -428,9 +428,6 @@ export class Camera extends BaseCamera {
 		this._projectionParams.setValue(this._nearPlane, this._farPlane, this._getInternalRenderTexture() ? -1 : 1, 0);
 		this._shaderValues.setVector(BaseCamera.VIEWPORT, this._viewportParams);
 		this._shaderValues.setVector(BaseCamera.PROJECTION_PARAMS, this._projectionParams);
-
-		var multiLighting: boolean = ILaya3D.Laya3D._multiLighting;
-		(multiLighting) && (Scene3D._cluster.update(this, <Scene3D>(this._scene)));
 	}
 
 	/**
@@ -480,6 +477,8 @@ export class Camera extends BaseCamera {
 		(renderTar) && (renderTar._start());
 		context.viewport = this.viewport;
 		this._prepareCameraToRender();
+		var multiLighting: boolean = ILaya3D.Laya3D._multiLighting;
+		(multiLighting) && (Scene3D._cluster.update(this, <Scene3D>(this._scene)));
 		this._applyViewProject(context, this.viewMatrix, this._projectionMatrix, renderTar ? true : false);
 		scene._preCulling(context, this, shader, replacementTag);
 		scene._clear(gl, context);

@@ -6,7 +6,7 @@ import { WebGLContext } from "../../webgl/WebGLContext";
 import { RenderTextureFormat, RenderTextureDepthFormat } from "../../resource/RenderTextureFormat";
 
 /**
-   //* <code>RenderTexture</code> 类用于创建渲染目标。
+ * <code>RenderTexture</code> 类用于创建渲染目标。
  */
 export class RenderTexture extends BaseTexture {
 	/** @internal */
