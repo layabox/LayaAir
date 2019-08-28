@@ -30,6 +30,7 @@ import { Transform3D } from "./Transform3D";
 import { SystemUtils } from "../utils/SystemUtils";
 import { ILaya3D } from "../../../ILaya3D";
 import { RenderTextureFormat, RenderTextureDepthFormat } from "../../resource/RenderTextureFormat";
+import { Config3D } from "../../../Config3D";
 
 /**
  * <code>Camera</code> 类用于创建摄像机。
@@ -477,7 +478,7 @@ export class Camera extends BaseCamera {
 		(renderTar) && (renderTar._start());
 		context.viewport = this.viewport;
 		this._prepareCameraToRender();
-		var multiLighting: boolean = ILaya3D.Laya3D._multiLighting;
+		var multiLighting: boolean = Config3D._config._multiLighting;
 		(multiLighting) && (Scene3D._cluster.update(this, <Scene3D>(this._scene)));
 		this._applyViewProject(context, this.viewMatrix, this._projectionMatrix, renderTar ? true : false);
 		scene._preCulling(context, this, shader, replacementTag);

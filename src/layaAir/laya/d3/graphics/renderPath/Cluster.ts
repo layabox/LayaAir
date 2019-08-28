@@ -1,4 +1,4 @@
-import { Laya3D } from "../../../../Laya3D";
+import { Config3D } from "../../../../Config3D";
 import { Texture2D } from "../../../resource/Texture2D";
 import { Camera } from "../../core/Camera";
 import { LightQueue } from "../../core/light/LightQueue";
@@ -30,7 +30,7 @@ class ClusterData {
     updateMark: number = -1;
     pointLightCount: number = 0;
     spotLightCount: number = 0;
-    indices: number[] = new Array(Laya3D._config.maxLightCountPerCluster);
+    indices: number[] = new Array(Config3D._config.maxLightCountPerCluster);
 }
 
 /**
@@ -68,7 +68,7 @@ export class Cluster {
         var clusterTexWidth: number = xSlices * ySlices;
         var clisterTexHeight: number = zSlices * (1 + Math.ceil(maxLightsPerCluster / 4));
         this._clusterTexture = Utils3D._createFloatTextureBuffer(clusterTexWidth, clisterTexHeight);
-        this._clusterTexture.lock=true;
+        this._clusterTexture.lock = true;
         this._clusterPixels = new Float32Array(clusterTexWidth * clisterTexHeight * 4);
 
         //Init for every cluster
@@ -379,7 +379,7 @@ export class Cluster {
         this._updateMark++;
         var xSlices: number = this._xSlices, ySlices: number = this._ySlices, zSlices: number = this._zSlices;
         var camNear: number = camera.nearPlane;
-        this._depthSliceParam.x = Laya3D._config.lightClusterCount.z / Math.log2(camera.farPlane / camNear);
+        this._depthSliceParam.x = Config3D._config.lightClusterCount.z / Math.log2(camera.farPlane / camNear);
         this._depthSliceParam.y = Math.log2(camNear) * this._depthSliceParam.x;
 
         var halfY = Math.tan((camera.fieldOfView / 2) * Math.PI / 180);

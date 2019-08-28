@@ -1,14 +1,13 @@
 import { Config3D } from "../../../../Config3D";
 import { ILaya } from "../../../../ILaya";
-import { Laya3D } from "../../../../Laya3D";
 import { Sprite } from "../../../display/Sprite";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Loader } from "../../../net/Loader";
 import { URL } from "../../../net/URL";
 import { Render } from "../../../renders/Render";
-import { BaseTexture } from "../../../resource/BaseTexture";
 import { Context } from "../../../resource/Context";
 import { ICreateResource } from "../../../resource/ICreateResource";
+import { RenderTextureDepthFormat } from "../../../resource/RenderTextureFormat";
 import { Texture2D } from "../../../resource/Texture2D";
 import { Handler } from "../../../utils/Handler";
 import { Timer } from "../../../utils/Timer";
@@ -40,7 +39,6 @@ import { Shader3D } from "../../shader/Shader3D";
 import { ShaderData } from "../../shader/ShaderData";
 import { ShaderInit3D } from "../../shader/ShaderInit3D";
 import { ParallelSplitShadowMap } from "../../shadowMap/ParallelSplitShadowMap";
-import { SystemUtils } from "../../utils/SystemUtils";
 import { Utils3D } from "../../utils/Utils3D";
 import { BaseCamera } from "../BaseCamera";
 import { Camera } from "../Camera";
@@ -60,8 +58,6 @@ import { RenderableSprite3D } from "../RenderableSprite3D";
 import { Sprite3D } from "../Sprite3D";
 import { BoundsOctree } from "./BoundsOctree";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
-import { ILaya3D } from "../../../../ILaya3D";
-import { RenderTextureDepthFormat } from "../../../resource/RenderTextureFormat";
 
 
 /**
@@ -138,10 +134,10 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	static __init__(): void {
-		var multiLighting: boolean = ILaya3D.Laya3D._multiLighting;
+		var con: Config3D = Config3D._config;
+		var multiLighting: boolean = con._multiLighting;
 		if (multiLighting) {
 			const width: number = 4;
-			var con: Config3D = Laya3D._config;
 			var maxLightCount: number = con.maxLightCount;
 			var clusterSlices: Vector3 = con.lightClusterCount;
 			Scene3D._cluster = new Cluster(clusterSlices.x, clusterSlices.y, clusterSlices.z, con.maxLightCountPerCluster);
@@ -486,7 +482,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this.ambientColor = new Vector3(0.212, 0.227, 0.259);
 		this.reflectionIntensity = 1.0;
 		(WebGL.shaderHighPrecision) && (this._shaderValues.addDefine(Shader3D.SHADERDEFINE_HIGHPRECISION));
-		(ILaya3D.Laya3D._multiLighting) || (this._shaderValues.addDefine(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING));
+		(Config3D._config._multiLighting) || (this._shaderValues.addDefine(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING));
 
 		if (Render.supportWebGLPlusCulling) {//[NATIVE]
 			this._cullingBufferIndices = new Int32Array(1024);
@@ -712,7 +708,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 */
 	protected _prepareSceneToRender(): void {
 		var shaderValues: ShaderData = this._shaderValues;
-		var multiLighting: boolean = ILaya3D.Laya3D._multiLighting;
+		var multiLighting: boolean = Config3D._config._multiLighting;
 		if (multiLighting) {
 			var ligTex: Texture2D = Scene3D._lightTexture;
 			var ligPix: Float32Array = Scene3D._lightPixles;

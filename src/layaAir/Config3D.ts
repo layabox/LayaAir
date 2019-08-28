@@ -6,7 +6,7 @@ import { Vector3 } from "./laya/d3/math/Vector3"
  */
 export class Config3D implements IClone {
 	/**@internal*/
-	static _default: Config3D = new Config3D();
+	static _config: Config3D = new Config3D();
 
 	/**@internal*/
 	private _defaultPhysicsMemory: number = 16;
@@ -18,6 +18,8 @@ export class Config3D implements IClone {
 	private _maxLightCountPerCluster: number = 32;
 	/**@internal*/
 	_editerEnvironment: boolean = false;
+
+	_multiLighting: boolean;
 
 	/** 是否开启抗锯齿。*/
 	isAntialias: boolean = true;

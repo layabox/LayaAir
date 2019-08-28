@@ -126,10 +126,6 @@ export class Laya3D {
 
 	/**@internal */
 	static _editerEnvironment: boolean = false;
-	/**@internal */
-	static _config: Config3D = new Config3D();
-	/**@internal */
-	static _multiLighting: boolean;
 
 	/**@private */
 	static physicsSettings: PhysicsSettings = new PhysicsSettings();//TODO:
@@ -185,7 +181,7 @@ export class Laya3D {
 				return new CommandEncoder(this, reserveSize, adjustSize, isSyncToRenderThread);
 			}
 		}
-		Laya3D._multiLighting = config.enbaleMultiLight && SystemUtils.supportTextureFormat(TextureFormat.R32G32B32A32);
+		config._multiLighting = config.enbaleMultiLight && SystemUtils.supportTextureFormat(TextureFormat.R32G32B32A32);
 
 		ILaya3D.Scene3D = Scene3D;
 		ILaya3D.MeshRenderStaticBatchManager = MeshRenderStaticBatchManager;
@@ -821,10 +817,10 @@ export class Laya3D {
 		if (Laya3D._isInit)
 			return;
 		Laya3D._isInit = true;
-		config = config || Config3D._default;
-		config.cloneTo(Laya3D._config);
+		(config) && (config.cloneTo(Config3D._config));
+		config = Config3D._config;
 		FrustumCulling.debugFrustumCulling = config.debugFrustumCulling;
-		Laya3D._editerEnvironment = Laya3D._config._editerEnvironment;
+		Laya3D._editerEnvironment = config._editerEnvironment;
 		Scene3D.octreeCulling = config.octreeCulling;
 		Scene3D.octreeInitialSize = config.octreeInitialSize;
 		Scene3D.octreeInitialCenter = config.octreeInitialCenter;
@@ -834,12 +830,12 @@ export class Laya3D {
 		var physics3D: Function = (window as any).Physics3D;
 		if (physics3D == null) {
 			Physics3D._enbalePhysics = false;
-			Laya3D.__init__(width, height, Laya3D._config);
+			Laya3D.__init__(width, height, config);
 			compolete && compolete.run();
 		} else {
 			Physics3D._enbalePhysics = true;
-			physics3D(Laya3D._config.defaultPhysicsMemory * 1024 * 1024).then(function (): void {
-				Laya3D.__init__(width, height, Laya3D._config);
+			physics3D(config.defaultPhysicsMemory * 1024 * 1024).then(function (): void {
+				Laya3D.__init__(width, height, config);
 				compolete && compolete.run();
 			});
 		}

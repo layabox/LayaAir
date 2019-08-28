@@ -1,18 +1,15 @@
+import { Config3D } from "../../../Config3D";
+import { ILaya3D } from "../../../ILaya3D";
 import { InlcudeFile } from "../../webgl/utils/InlcudeFile";
 import { ShaderCompile } from "../../webgl/utils/ShaderCompile";
 import { ShaderNode } from "../../webgl/utils/ShaderNode";
 import { WebGL } from "../../webgl/WebGL";
 import { RenderState } from "../core/material/RenderState";
+import { Vector3 } from "../math/Vector3";
 import { DefineDatas } from "./DefineDatas";
 import { Shader3D } from "./Shader3D";
 import { ShaderInstance } from "./ShaderInstance";
 import { SubShader } from "./SubShader";
-import { Laya3D } from "../../../Laya3D";
-import { Vector3 } from "../math/Vector3";
-import { LayaGL } from "../../layagl/LayaGL";
-import { BaseTexture } from "../../resource/BaseTexture";
-import { SystemUtils } from "../utils/SystemUtils";
-import { ILaya3D } from "../../../ILaya3D";
 
 /**
  * <code>ShaderPass</code> 类用于实现ShaderPass。
@@ -206,10 +203,11 @@ export class ShaderPass extends ShaderCompile {
 		var defineString: string[] = ShaderPass._defineString;
 		Shader3D._getNamesByDefineData(compileDefine, defineString);
 
-		var clusterSlices: Vector3 = Laya3D._config.lightClusterCount;
+		var config: Config3D = Config3D._config;
+		var clusterSlices: Vector3 = config.lightClusterCount;
 		var defMap: any = {};
-		var defineStr: string = "#define MAX_LIGHT_COUNT " + Laya3D._config.maxLightCount + "\n";
-		defineStr += "#define MAX_LIGHT_COUNT_PER_CLUSTER " + Laya3D._config.maxLightCountPerCluster + "\n";
+		var defineStr: string = "#define MAX_LIGHT_COUNT " + config.maxLightCount + "\n";
+		defineStr += "#define MAX_LIGHT_COUNT_PER_CLUSTER " + config.maxLightCountPerCluster + "\n";
 		defineStr += "#define CLUSTER_X_COUNT " + clusterSlices.x + "\n";
 		defineStr += "#define CLUSTER_Y_COUNT " + clusterSlices.y + "\n";
 		defineStr += "#define CLUSTER_Z_COUNT " + clusterSlices.z + "\n";
@@ -245,7 +243,7 @@ export class ShaderPass extends ShaderCompile {
 				var index = defineString.indexOf("HIGHPRECISION");
 				(index !== -1) && (defineString.splice(index, 1));
 			}
-			if (!ILaya3D.Laya3D._multiLighting) {
+			if (!config._multiLighting) {
 				compileDefine.remove(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING);
 				var index = defineString.indexOf("LEGACYSINGLELIGHTING");
 				(index !== -1) && (defineString.splice(index, 1));
