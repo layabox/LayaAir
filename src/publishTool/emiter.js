@@ -13,6 +13,8 @@ class emiter {
         this.innerImportStr = "";
         /** 当前类名 */
         this.classNameNow = "";
+        /** 枚举结构 */
+        this.enumObj = [];
         this.VISITORS = {
             "ImportDeclaration": this.emitImport,
             "ClassDeclaration": this.emitClass,
@@ -21,7 +23,9 @@ class emiter {
             "Constructor": this.emitConstructor,
             "InterfaceDeclaration": this.emitInterface,
             "MethodSignature": this.emitMethodSig,
-            "PropertySignature": this.emitPropertySing //生成interface属性
+            "PropertySignature": this.emitPropertySing,
+            "ImportEqualsDeclaration": this.emitImportEquals,
+            "EnumDeclaration": this.emitEnum //枚举导出
         };
     }
     /**
@@ -70,6 +74,33 @@ class emiter {
         return this.outString;
     }
     /**
+     * 生成枚举
+     * @param node
+     */
+    emitEnum(node) {
+        let nodeName = node.name.getText();
+        //ts解析
+        let tsstr = node.getText().replace(new RegExp("export declare |declare ", "g"), "");
+        emiter.enumType.push(node.name.getText());
+        let asCode = "";
+        if (node.members) {
+            for (let i = 0; i < node.members.length; i++) {
+                let memberStr = "\t\t";
+                let memberNode = node.members[i];
+                //如果是数字
+                let isNumber = memberNode.initializer.kind == 8;
+                memberStr += "public static var " + memberNode.name.getText() + ":" + (isNumber ? "Number = " : "String = ") + memberNode.initializer.getText() + ";\r\n";
+                asCode += this.changeIndex(memberNode, "\r\n\t\t") + memberStr;
+            }
+        }
+        let packageName = this.url.replace(new RegExp("\\\\", "g"), ".");
+        //拼package & class
+        asCode = "\r\n\tpublic class " + nodeName + " {\r\n" + asCode + "\r\n\t}";
+        asCode = this.changeIndex(node, "\r\n") + "package " + packageName + " {\r\n" + asCode + "\r\n}";
+        this.enumObj.push({ "asCode": asCode, "url": this.url + "\\" + nodeName + ".as" });
+        return ["", tsstr];
+    }
+    /**
      * 生成import
      * @param node
      */
@@ -102,6 +133,15 @@ class emiter {
         classPath = classPath.replace(new RegExp("/", "g"), ".");
         this.importArr[importName] = classPath;
         return ["\timport " + classPath + ";\r\n", ""];
+    }
+    /**
+    * 对 = 的import解析
+    * @param  node
+    */
+    emitImportEquals(node) {
+        this.importArr[node.name.getText()] = node.moduleReference.getText();
+        emiter.jscObj[node.name.getText()] = "*";
+        return ["", ""];
     }
     /**
      * 生成class
@@ -522,17 +562,12 @@ class emiter {
         }
         else {
             let str = "";
-            if (type == "EnumDeclaration") {
-                str = node.getText().replace("export declare ", "");
-                emiter.enumType.push(node.name.getText());
+            if (emiter._typeArr.indexOf(type) != -1) {
+                // str = node.getText().replace("export ","\r\n");
             }
-            else {
-                if (emiter._typeArr.indexOf(type) != -1) {
-                    // str = node.getText().replace("export ","\r\n");
-                }
-                else
-                    console.log("这种类型没有准备对应的方法", type);
-            }
+            else
+                console.log("这种类型没有准备对应的方法", type);
+            // }
             return ["", str];
         }
     }
