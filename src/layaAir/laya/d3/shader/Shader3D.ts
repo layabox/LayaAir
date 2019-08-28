@@ -7,6 +7,7 @@ import { ShaderDefine } from "./ShaderDefine";
 import { LayaGL } from "../../layagl/LayaGL";
 import { SystemUtils } from "../utils/SystemUtils";
 import { BaseTexture } from "../../resource/BaseTexture";
+import { ILaya3D } from "../../../ILaya3D";
 
 /**
  * <code>Shader3D</code> 类用于创建Shader3D。
@@ -172,7 +173,7 @@ export class Shader3D {
 						compileDefineDatas.add(Shader3D.getDefineByName(defineNames[i]));
 
 					(WebGL.shaderHighPrecision) && (compileDefineDatas.add(Shader3D.SHADERDEFINE_HIGHPRECISION)); //部分低端移动设备不支持高精度shader,所以如果在PC端或高端移动设备输出的宏定义值需做判断移除高精度宏定义
-					(SystemUtils.supportTextureFormat(BaseTexture.FORMAT_R32G32B32A32)) || (compileDefineDatas.add(Shader3D.SHADERDEFINE_LEGACYLIGHTING));
+					(ILaya3D.Laya3D._multiLighting) || (compileDefineDatas.add(Shader3D.SHADERDEFINE_LEGACYLIGHTING));
 					pass.withCompile(compileDefineDatas);
 
 				} else {
@@ -188,7 +189,7 @@ export class Shader3D {
 
 
 	/**
-	 * 通过宏定义遮罩编译shader。
+	 * 通过宏定义遮罩编译shader,建议使用compileShaderByDefineNames。
 	 * @param	shaderName Shader名称。
 	 * @param   subShaderIndex 子着色器索引。
 	 * @param   passIndex  通道索引。
@@ -209,7 +210,7 @@ export class Shader3D {
 					compileDefineDatas._length = defineMask.length;
 
 					(WebGL.shaderHighPrecision) && (compileDefineDatas.add(Shader3D.SHADERDEFINE_HIGHPRECISION)); //部分低端移动设备不支持高精度shader,所以如果在PC端或高端移动设备输出的宏定义值需做判断移除高精度宏定义
-					(SystemUtils.supportTextureFormat(BaseTexture.FORMAT_R32G32B32A32)) || (compileDefineDatas.add(Shader3D.SHADERDEFINE_LEGACYLIGHTING));
+					(ILaya3D.Laya3D._multiLighting) || (compileDefineDatas.add(Shader3D.SHADERDEFINE_LEGACYLIGHTING));
 					pass.withCompile(compileDefineDatas);
 
 				} else {

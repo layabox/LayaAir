@@ -28,6 +28,7 @@ import { Scene3D } from "./scene/Scene3D";
 import { Scene3DShaderDeclaration } from "./scene/Scene3DShaderDeclaration";
 import { Transform3D } from "./Transform3D";
 import { SystemUtils } from "../utils/SystemUtils";
+import { ILaya3D } from "../../../ILaya3D";
 
 /**
  * <code>Camera</code> 类用于创建摄像机。
@@ -427,7 +428,7 @@ export class Camera extends BaseCamera {
 		this._shaderValues.setVector(BaseCamera.VIEWPORT, this._viewportParams);
 		this._shaderValues.setVector(BaseCamera.PROJECTION_PARAMS, this._projectionParams);
 
-		var multiLighting: boolean = SystemUtils.supportTextureFormat(BaseTexture.FORMAT_R32G32B32A32);
+		var multiLighting: boolean = ILaya3D.Laya3D._multiLighting;
 		(multiLighting) && (Scene3D._cluster.update(this, <Scene3D>(this._scene)));
 	}
 

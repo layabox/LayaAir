@@ -60,6 +60,7 @@ import { RenderableSprite3D } from "../RenderableSprite3D";
 import { Sprite3D } from "../Sprite3D";
 import { BoundsOctree } from "./BoundsOctree";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
+import { ILaya3D } from "../../../../ILaya3D";
 
 
 /**
@@ -136,7 +137,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	static __init__(): void {
-		var multiLighting: boolean = SystemUtils.supportTextureFormat(BaseTexture.FORMAT_R32G32B32A32);
+		var multiLighting: boolean = ILaya3D.Laya3D._multiLighting;
 		if (multiLighting) {
 			const width: number = 4;
 			var con: Config3D = Laya3D._config;
@@ -484,7 +485,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this.ambientColor = new Vector3(0.212, 0.227, 0.259);
 		this.reflectionIntensity = 1.0;
 		(WebGL.shaderHighPrecision) && (this._shaderValues.addDefine(Shader3D.SHADERDEFINE_HIGHPRECISION));
-		(SystemUtils.supportTextureFormat(BaseTexture.FORMAT_R32G32B32A32)) || (this._shaderValues.addDefine(Shader3D.SHADERDEFINE_LEGACYLIGHTING));
+		(ILaya3D.Laya3D._multiLighting) || (this._shaderValues.addDefine(Shader3D.SHADERDEFINE_LEGACYLIGHTING));
 
 		if (Render.supportWebGLPlusCulling) {//[NATIVE]
 			this._cullingBufferIndices = new Int32Array(1024);
@@ -710,7 +711,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 */
 	protected _prepareSceneToRender(): void {
 		var shaderValues: ShaderData = this._shaderValues;
-		var multiLighting: boolean = SystemUtils.supportTextureFormat(BaseTexture.FORMAT_R32G32B32A32);
+		var multiLighting: boolean = ILaya3D.Laya3D._multiLighting;
 		if (multiLighting) {
 			var ligTex: Texture2D = Scene3D._lightTexture;
 			var ligPix: Float32Array = Scene3D._lightPixles;

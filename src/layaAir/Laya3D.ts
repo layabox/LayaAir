@@ -2,34 +2,8 @@ import { Config } from "./Config";
 import { Config3D } from "./Config3D";
 import { ILaya3D } from "./ILaya3D";
 import { Laya } from "./Laya";
-import { MeshRenderDynamicBatchManager } from "./laya/d3/graphics/MeshRenderDynamicBatchManager";
-import { MeshRenderStaticBatchManager } from "./laya/d3/graphics/MeshRenderStaticBatchManager";
-import { SubMeshDynamicBatch } from "./laya/d3/graphics/SubMeshDynamicBatch";
-import { SubMeshInstanceBatch } from "./laya/d3/graphics/SubMeshInstanceBatch";
-import { Matrix4x4 } from "./laya/d3/math/Matrix4x4";
-import { Physics3D } from "./laya/d3/physics/Physics3D";
-import { PhysicsComponent } from "./laya/d3/physics/PhysicsComponent";
-import { PhysicsSimulation } from "./laya/d3/physics/PhysicsSimulation";
-import { BoxColliderShape } from "./laya/d3/physics/shape/BoxColliderShape";
-import { ColliderShape } from "./laya/d3/physics/shape/ColliderShape";
-import { CompoundColliderShape } from "./laya/d3/physics/shape/CompoundColliderShape";
-import { CylinderColliderShape } from "./laya/d3/physics/shape/CylinderColliderShape";
-import { Scene3DUtils } from "./laya/d3/utils/Scene3DUtils";
-import { Node } from "./laya/display/Node";
-import { Event } from "./laya/events/Event";
-import { CommandEncoder } from "./laya/layagl/CommandEncoder";
-import { LayaGL } from "./laya/layagl/LayaGL";
-import { Loader } from "./laya/net/Loader";
-import { LoaderManager } from "./laya/net/LoaderManager";
-import { URL } from "./laya/net/URL";
-import { Render } from "./laya/renders/Render";
-import { Resource } from "./laya/resource/Resource";
-import { Texture2D } from "./laya/resource/Texture2D";
-import { Handler } from "./laya/utils/Handler";
-import { RunDriver } from "./laya/utils/RunDriver";
-import { WebGL } from "./laya/webgl/WebGL";
-import { WebGLContext } from "./laya/webgl/WebGLContext";
 import { AnimationClip } from "./laya/d3/animation/AnimationClip";
+import { Animator } from "./laya/d3/component/Animator";
 import { PostProcess } from "./laya/d3/component/PostProcess";
 import { Avatar } from "./laya/d3/core/Avatar";
 import { BaseMaterial } from "./laya/d3/core/material/BaseMaterial";
@@ -47,6 +21,8 @@ import { MeshSprite3D } from "./laya/d3/core/MeshSprite3D";
 import { ShuriKenParticle3D } from "./laya/d3/core/particleShuriKen/ShuriKenParticle3D";
 import { ShurikenParticleMaterial } from "./laya/d3/core/particleShuriKen/ShurikenParticleMaterial";
 import { PixelLineMaterial } from "./laya/d3/core/pixelLine/PixelLineMaterial";
+import { PixelLineVertex } from "./laya/d3/core/pixelLine/PixelLineVertex";
+import { Command } from "./laya/d3/core/render/command/Command";
 import { RenderContext3D } from "./laya/d3/core/render/RenderContext3D";
 import { ScreenQuad } from "./laya/d3/core/render/ScreenQuad";
 import { ScreenTriangle } from "./laya/d3/core/render/ScreenTriangle";
@@ -57,33 +33,59 @@ import { SkinnedMeshSprite3D } from "./laya/d3/core/SkinnedMeshSprite3D";
 import { Sprite3D } from "./laya/d3/core/Sprite3D";
 import { TrailMaterial } from "./laya/d3/core/trail/TrailMaterial";
 import { TrailSprite3D } from "./laya/d3/core/trail/TrailSprite3D";
+import { VertexTrail } from "./laya/d3/core/trail/VertexTrail";
 import { FrustumCulling } from "./laya/d3/graphics/FrustumCulling";
+import { MeshRenderDynamicBatchManager } from "./laya/d3/graphics/MeshRenderDynamicBatchManager";
+import { MeshRenderStaticBatchManager } from "./laya/d3/graphics/MeshRenderStaticBatchManager";
+import { SubMeshDynamicBatch } from "./laya/d3/graphics/SubMeshDynamicBatch";
+import { SubMeshInstanceBatch } from "./laya/d3/graphics/SubMeshInstanceBatch";
+import { VertexMesh } from "./laya/d3/graphics/Vertex/VertexMesh";
+import { VertexPositionTerrain } from "./laya/d3/graphics/Vertex/VertexPositionTerrain";
+import { VertexPositionTexture0 } from "./laya/d3/graphics/Vertex/VertexPositionTexture0";
+import { VertexShurikenParticleBillboard } from "./laya/d3/graphics/Vertex/VertexShurikenParticleBillboard";
+import { VertexShurikenParticleMesh } from "./laya/d3/graphics/Vertex/VertexShurikenParticleMesh";
+import { VertexElementFormat } from "./laya/d3/graphics/VertexElementFormat";
 import { HalfFloatUtils } from "./laya/d3/math/HalfFloatUtils";
+import { Matrix4x4 } from "./laya/d3/math/Matrix4x4";
+import { CharacterController } from "./laya/d3/physics/CharacterController";
+import { Physics3D } from "./laya/d3/physics/Physics3D";
+import { PhysicsCollider } from "./laya/d3/physics/PhysicsCollider";
+import { PhysicsComponent } from "./laya/d3/physics/PhysicsComponent";
 import { PhysicsSettings } from "./laya/d3/physics/PhysicsSettings";
+import { PhysicsSimulation } from "./laya/d3/physics/PhysicsSimulation";
+import { Rigidbody3D } from "./laya/d3/physics/Rigidbody3D";
+import { BoxColliderShape } from "./laya/d3/physics/shape/BoxColliderShape";
+import { ColliderShape } from "./laya/d3/physics/shape/ColliderShape";
+import { CompoundColliderShape } from "./laya/d3/physics/shape/CompoundColliderShape";
+import { CylinderColliderShape } from "./laya/d3/physics/shape/CylinderColliderShape";
+import { StaticPlaneColliderShape } from "./laya/d3/physics/shape/StaticPlaneColliderShape";
 import { Mesh } from "./laya/d3/resource/models/Mesh";
+import { PrimitiveMesh } from "./laya/d3/resource/models/PrimitiveMesh";
 import { SkyBox } from "./laya/d3/resource/models/SkyBox";
 import { SkyDome } from "./laya/d3/resource/models/SkyDome";
 import { TextureCube } from "./laya/d3/resource/TextureCube";
 import { ShaderData } from "./laya/d3/shader/ShaderData";
 import { ShaderInit3D } from "./laya/d3/shader/ShaderInit3D";
 import { ShaderInstance } from "./laya/d3/shader/ShaderInstance";
+import { Scene3DUtils } from "./laya/d3/utils/Scene3DUtils";
+import { SystemUtils } from "./laya/d3/utils/SystemUtils";
 import { Utils3D } from "./laya/d3/utils/Utils3D";
-import { PhysicsCollider } from "./laya/d3/physics/PhysicsCollider";
-import { CharacterController } from "./laya/d3/physics/CharacterController";
-import { Rigidbody3D } from "./laya/d3/physics/Rigidbody3D";
-import { Animator } from "./laya/d3/component/Animator";
-import { Command } from "./laya/d3/core/render/command/Command";
+import { Node } from "./laya/display/Node";
+import { Event } from "./laya/events/Event";
+import { CommandEncoder } from "./laya/layagl/CommandEncoder";
+import { LayaGL } from "./laya/layagl/LayaGL";
+import { Loader } from "./laya/net/Loader";
+import { LoaderManager } from "./laya/net/LoaderManager";
+import { URL } from "./laya/net/URL";
+import { Render } from "./laya/renders/Render";
+import { BaseTexture } from "./laya/resource/BaseTexture";
+import { Resource } from "./laya/resource/Resource";
+import { Texture2D } from "./laya/resource/Texture2D";
 import { ClassUtils } from "./laya/utils/ClassUtils";
-import { StaticPlaneColliderShape } from "./laya/d3/physics/shape/StaticPlaneColliderShape";
-import { PrimitiveMesh } from "./laya/d3/resource/models/PrimitiveMesh";
-import { VertexMesh } from "./laya/d3/graphics/Vertex/VertexMesh";
-import { VertexElementFormat } from "./laya/d3/graphics/VertexElementFormat";
-import { VertexShurikenParticleBillboard } from "./laya/d3/graphics/Vertex/VertexShurikenParticleBillboard";
-import { VertexShurikenParticleMesh } from "./laya/d3/graphics/Vertex/VertexShurikenParticleMesh";
-import { VertexPositionTexture0 } from "./laya/d3/graphics/Vertex/VertexPositionTexture0";
-import { VertexTrail } from "./laya/d3/core/trail/VertexTrail";
-import { PixelLineVertex } from "./laya/d3/core/pixelLine/PixelLineVertex";
-import { VertexPositionTerrain } from "./laya/d3/graphics/Vertex/VertexPositionTerrain";
+import { Handler } from "./laya/utils/Handler";
+import { RunDriver } from "./laya/utils/RunDriver";
+import { WebGL } from "./laya/webgl/WebGL";
+import { WebGLContext } from "./laya/webgl/WebGLContext";
 
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
@@ -125,6 +127,8 @@ export class Laya3D {
 	static _editerEnvironment: boolean = false;
 	/**@internal */
 	static _config: Config3D = new Config3D();
+	/**@internal */
+	static _multiLighting: boolean;
 
 	/**@private */
 	static physicsSettings: PhysicsSettings = new PhysicsSettings();//TODO:
@@ -180,6 +184,8 @@ export class Laya3D {
 				return new CommandEncoder(this, reserveSize, adjustSize, isSyncToRenderThread);
 			}
 		}
+		Laya3D._multiLighting = config.enbaleMultiLight && SystemUtils.supportTextureFormat(BaseTexture.FORMAT_R32G32B32A32);
+
 		ILaya3D.Scene3D = Scene3D;
 		ILaya3D.MeshRenderStaticBatchManager = MeshRenderStaticBatchManager;
 		ILaya3D.MeshRenderDynamicBatchManager = MeshRenderDynamicBatchManager;
@@ -213,7 +219,7 @@ export class Laya3D {
 			CharacterController.__init__();
 			Rigidbody3D.__init__();
 		}
-		
+
 		ShaderInit3D.__init__();
 		Mesh.__init__();
 		PrimitiveMesh.__init__();
@@ -240,7 +246,7 @@ export class Laya3D {
 		ExtendTerrainMaterial.__initDefine__();
 		PixelLineMaterial.__initDefine__();
 		SkyBoxMaterial.__initDefine__();
-		
+
 
 		Command.__init__();
 

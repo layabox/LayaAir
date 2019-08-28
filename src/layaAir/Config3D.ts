@@ -27,6 +27,8 @@ export class Config3D implements IClone {
 	premultipliedAlpha: boolean = true;
 	/** 设置画布的是否开启模板缓冲。*/
 	isStencil: boolean = true;
+	/** 是否开启多光源。*/
+	enbaleMultiLight: boolean = true;
 
 	/** 是否开启八叉树裁剪。*/
 	octreeCulling: boolean = false;
@@ -143,6 +145,7 @@ export class Config3D implements IClone {
 		destConfig3D.debugFrustumCulling = this.debugFrustumCulling;
 		destConfig3D.maxLightCount = this.maxLightCount;
 		destConfig3D.maxLightCountPerCluster = this.maxLightCountPerCluster;
+		destConfig3D.enbaleMultiLight = this.enbaleMultiLight;
 		this.lightClusterCount.cloneTo(destConfig3D.lightClusterCount);
 	}
 
