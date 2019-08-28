@@ -62,17 +62,12 @@ export class RenderTexture extends BaseTexture {
 	private _inPool: boolean = false;
 
 	/**
-	 * 获取深度格式。
-	 *@return 深度格式。
+	 * 深度格式。
 	 */
 	get depthStencilFormat(): number {
 		return this._depthStencilFormat;
 	}
 
-	/**
-	 * @inheritDoc
-	 * @override
-	 */
 	get defaulteTexture(): BaseTexture {
 		return Texture2D.grayTexture;
 	}
