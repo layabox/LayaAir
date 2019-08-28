@@ -1595,7 +1595,12 @@ export class Context {
 		return false;
 	}
 
-	drawTriangles(tex: Texture, x: number, y: number, vertices: Float32Array, uvs: Float32Array, indices: Uint16Array, matrix: Matrix, alpha: number, color: ColorFilter, blendMode: string): void {
+	drawTriangles(tex: Texture, x: number, y: number, vertices: Float32Array, uvs: Float32Array, indices: Uint16Array, matrix: Matrix, alpha: number, color: ColorFilter, blendMode: string, colorNum: number = 0xffffffff): void {
+		var oldcomp: string = null;
+		if (blendMode) {
+			oldcomp = this.globalCompositeOperation;
+			this.globalCompositeOperation = blendMode;
+		}
 		if (!tex._getSource()) { //source内调用tex.active();
 			if (this.sprite) {
 				ILaya.systemTimer.callLater(this, this._repaintSprite);
@@ -1639,7 +1644,7 @@ export class Context {
 			this._submits[this._submits._length++] = submit;
 		}
 
-		var rgba: number = this._mixRGBandAlpha(0xffffffff, this._shader2D.ALPHA * alpha);
+		var rgba: number = this._mixRGBandAlpha(colorNum, this._shader2D.ALPHA * alpha);
 		if (!this._drawTriUseAbsMatrix) {
 			if (!matrix) {
 				tmpMat.a = 1; tmpMat.b = 0; tmpMat.c = 0; tmpMat.d = 1; tmpMat.tx = x; tmpMat.ty = y;
@@ -1657,6 +1662,9 @@ export class Context {
 		if (needRestorFilter) {
 			this._colorFiler = oldColorFilter;
 			this._curSubmit = SubmitBase.RENDERBASE;
+		}
+		if (blendMode) {
+			this.globalCompositeOperation = oldcomp;
 		}
 		//return true;
 	}

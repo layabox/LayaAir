@@ -53,8 +53,10 @@ export class DrawTrianglesCmd {
      */
     color: ColorFilter;
 
+    colorNum: number;
+
     /**@private */
-    static create(texture: Texture, x: number, y: number, vertices: Float32Array, uvs: Float32Array, indices: Uint16Array, matrix: Matrix, alpha: number, color: string, blendMode: string): DrawTrianglesCmd {
+    static create(texture: Texture, x: number, y: number, vertices: Float32Array, uvs: Float32Array, indices: Uint16Array, matrix: Matrix, alpha: number, color: string, blendMode: string, colorNum: number): DrawTrianglesCmd {
         var cmd: DrawTrianglesCmd = Pool.getItemByClass("DrawTrianglesCmd", DrawTrianglesCmd);
         cmd.texture = texture;
         cmd.x = x;
@@ -70,6 +72,7 @@ export class DrawTrianglesCmd {
             cmd.color.color(c[0] * 255, c[1] * 255, c[2] * 255, c[3] * 255);	//TODO 这个好像设置的是加色，这样并不合理
         }
         cmd.blendMode = blendMode;
+        cmd.colorNum = colorNum;
         return cmd;
     }
 
@@ -87,7 +90,7 @@ export class DrawTrianglesCmd {
 
     /**@private */
     run(context: Context, gx: number, gy: number): void {
-        context.drawTriangles(this.texture, this.x + gx, this.y + gy, this.vertices, this.uvs, this.indices, this.matrix, this.alpha, this.color, this.blendMode);
+        context.drawTriangles(this.texture, this.x + gx, this.y + gy, this.vertices, this.uvs, this.indices, this.matrix, this.alpha, this.color, this.blendMode, this.colorNum);
     }
 
     /**@private */
