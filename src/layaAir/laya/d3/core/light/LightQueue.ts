@@ -38,7 +38,7 @@ export class LightQueue<T extends LightSprite> {
  */
 export class DirectionLightQueue extends LightQueue<DirectionLight>{
     
-    update(sunLight: DirectionLight): void {
+    getSunLight(sunLight: DirectionLight): number {
         var maxIntIndex;
         if (sunLight) {
             maxIntIndex = this._elements.indexOf(sunLight);
@@ -54,8 +54,19 @@ export class DirectionLightQueue extends LightQueue<DirectionLight>{
                 }
             }
         }
-        var temp: DirectionLight = elements[0];
-        elements[0] = elements[maxIntIndex];
-        elements[maxIntIndex] = temp;
+        return maxIntIndex;
+    }
+}
+
+/**
+ * @internal
+ */
+export class AlternateLightQueue extends LightQueue<LightSprite>{
+
+    remove(light: LightSprite): void {
+        //sort must base added time
+        var index: number = this._elements.indexOf(light);
+        this._elements.splice(index, 1);
+        this._length--;
     }
 }

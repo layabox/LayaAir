@@ -1,11 +1,9 @@
-import { Node } from "../../../display/Node"
-import { Vector3 } from "../../math/Vector3"
-import { ParallelSplitShadowMap } from "../../shadowMap/ParallelSplitShadowMap"
-import { Sprite3D } from "../Sprite3D"
-import { Scene3D } from "../scene/Scene3D";
 import { ILaya3D } from "../../../../ILaya3D";
-import { SystemUtils } from "../../utils/SystemUtils";
-import { BaseTexture } from "../../../resource/BaseTexture";
+import { Node } from "../../../display/Node";
+import { Vector3 } from "../../math/Vector3";
+import { ParallelSplitShadowMap } from "../../shadowMap/ParallelSplitShadowMap";
+import { Scene3D } from "../scene/Scene3D";
+import { Sprite3D } from "../Sprite3D";
 
 /**
  * <code>LightSprite</code> 类用于创建灯光的父类。
@@ -45,7 +43,6 @@ export class LightSprite extends Sprite3D {
 
 	/**
 	 * 灯光强度。
-	 * @return 灯光强度
 	 */
 	get intensity(): number {
 		return this._intensity;
@@ -56,8 +53,7 @@ export class LightSprite extends Sprite3D {
 	}
 
 	/**
-	 * 否产生阴影。
-	 * @return 是否产生阴影。
+	 * 是否产生阴影。
 	 */
 	get shadow(): boolean {
 		return this._shadow;
@@ -69,7 +65,6 @@ export class LightSprite extends Sprite3D {
 
 	/**
 	 * 阴影最远范围。
-	 * @return 阴影最远范围。
 	 */
 	get shadowDistance(): number {
 		return this._shadowFarPlane;
@@ -82,7 +77,6 @@ export class LightSprite extends Sprite3D {
 
 	/**
 	 * 阴影贴图尺寸。
-	 * @return 阴影贴图尺寸。
 	 */
 	get shadowResolution(): number {
 		return this._shadowMapSize;
@@ -95,7 +89,6 @@ export class LightSprite extends Sprite3D {
 
 	/**
 	 * 阴影分段数。
-	 * @return 阴影分段数。
 	 */
 	get shadowPSSMCount(): number {
 		return this._shadowMapCount;
@@ -108,7 +101,6 @@ export class LightSprite extends Sprite3D {
 
 	/**
 	 * 阴影PCF类型。
-	 * @return PCF类型。
 	 */
 	get shadowPCFType(): number {
 		return this._shadowMapPCFType;
@@ -172,7 +164,7 @@ export class LightSprite extends Sprite3D {
 	 */
 	private _addToScene(): void {
 		var scene: Scene3D = <Scene3D>this._scene;
-		var maxLightCount: number = SystemUtils.supportTextureFormat(BaseTexture.FORMAT_R32G32B32A32) ? ILaya3D.Laya3D._config.maxLightCount : 1;
+		var maxLightCount: number = ILaya3D.Laya3D._config.maxLightCount;
 		if (scene._lightCount < maxLightCount) {
 			scene._lightCount++;
 			this._addToLightQueue();

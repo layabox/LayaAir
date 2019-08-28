@@ -45,7 +45,7 @@ import { Utils3D } from "../../utils/Utils3D";
 import { BaseCamera } from "../BaseCamera";
 import { Camera } from "../Camera";
 import { DirectionLight } from "../light/DirectionLight";
-import { DirectionLightQueue, LightQueue } from "../light/LightQueue";
+import { DirectionLightQueue, LightQueue, AlternateLightQueue } from "../light/LightQueue";
 import { LightSprite } from "../light/LightSprite";
 import { PointLight } from "../light/PointLight";
 import { SpotLight } from "../light/SpotLight";
@@ -145,7 +145,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			var clusterSlices: Vector3 = con.lightClusterCount;
 			Scene3D._cluster = new Cluster(clusterSlices.x, clusterSlices.y, clusterSlices.z, con.maxLightCountPerCluster);
 			Scene3D._lightTexture = Utils3D._createFloatTextureBuffer(width, maxLightCount);
-			Scene3D._lightTexture.lock=true;
+			Scene3D._lightTexture.lock = true;
 			Scene3D._lightPixles = new Float32Array(maxLightCount * width * 4);
 		}
 
@@ -187,7 +187,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal */
 	public _directionLights: DirectionLightQueue = new DirectionLightQueue();
 	/** @internal */
-	public _alternateLights: LightQueue<LightSprite> = new LightQueue();
+	public _alternateLights: AlternateLightQueue = new AlternateLightQueue();
 
 	/** @internal */
 	private _lightmaps: Texture2D[] = [];
@@ -721,7 +721,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			var dirCount: number = this._directionLights._length;
 			var dirElements: DirectionLight[] = this._directionLights._elements;
 			if (dirCount > 0) {
-				this._directionLights.update(null);//get the brightest light as sun
+				var sunLightIndex: number = this._directionLights.getSunLight(null);//get the brightest light as sun
 				for (var i: number = 0; i < dirCount; i++ , curCount++) {
 					var dirLight: DirectionLight = dirElements[i];
 					var dir: Vector3 = dirLight._direction;
@@ -736,7 +736,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 					ligPix[off + 4] = dir.x;
 					ligPix[off + 5] = dir.y;
 					ligPix[off + 6] = dir.z;
-					if (i == 0) {
+					if (i == sunLightIndex) {
 						shaderValues.setVector3(Scene3D.SUNLIGHTDIRCOLOR, intCor);
 						shaderValues.setVector3(Scene3D.SUNLIGHTDIRECTION, dir);
 					}
