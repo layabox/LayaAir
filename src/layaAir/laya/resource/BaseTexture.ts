@@ -19,25 +19,25 @@ export class BaseTexture extends Bitmap {
 	static FILTERMODE_TRILINEAR: number = 2;
 
 
-	/** @private */
+	/** @internal */
 	protected _readyed: boolean;
-	/** @private */
+	/** @internal */
 	protected _glTextureType: number;
-	/** @private */
+	/** @internal */
 	protected _glTexture: any;
-	/** @private */
+	/** @internal */
 	protected _format: number;
-	/** @private */
+	/** @internal */
 	protected _mipmap: boolean;
-	/** @private */
+	/** @internal */
 	protected _wrapModeU: number;
-	/** @private */
+	/** @internal */
 	protected _wrapModeV: number;
-	/** @private */
+	/** @internal */
 	protected _filterMode: number;
-	/** @private */
+	/** @internal */
 	protected _anisoLevel: number;
-	/** @private */
+	/** @internal */
 	protected _mipmapCount: number;
 
 	/**
@@ -126,7 +126,6 @@ export class BaseTexture extends Bitmap {
 	 * 创建一个 <code>BaseTexture</code> 实例。
 	 */
 	constructor(format: number, mipMap: boolean) {
-
 		super();
 		this._wrapModeU = BaseTexture.WARPMODE_REPEAT;
 		this._wrapModeV = BaseTexture.WARPMODE_REPEAT;
@@ -142,7 +141,7 @@ export class BaseTexture extends Bitmap {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	protected _getFormatByteCount(): number {
 		switch (this._format) {
@@ -160,14 +159,14 @@ export class BaseTexture extends Bitmap {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	protected _isPot(size: number): boolean {
 		return (size & (size - 1)) === 0;
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	protected _getGLFormat(): number {
 		var glFormat: number;
@@ -235,7 +234,7 @@ export class BaseTexture extends Bitmap {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	protected _setFilterMode(value: number): void {
 		var gl: WebGLRenderingContext = LayaGL.instance;
@@ -268,7 +267,7 @@ export class BaseTexture extends Bitmap {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	protected _setWarpMode(orientation: number, mode: number): void {
 		var gl: WebGLRenderingContext = LayaGL.instance;
@@ -288,7 +287,7 @@ export class BaseTexture extends Bitmap {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	protected _setAnisotropy(value: number): void {
 		var anisotropic: any = LayaGL.layaGPUInstance._extTextureFilterAnisotropic;
@@ -334,47 +333,39 @@ export class BaseTexture extends Bitmap {
 	}
 
 
-	// //----------------------------兼容----------------------------------
-	/**纹理格式_R8G8B8。*/
+	/**纹理格式_R8G8B8。@deprecated*/
 	static FORMAT_R8G8B8: number = 0;
-	/**纹理格式_R8G8B8A8。*/
+	/**纹理格式_R8G8B8A8。@deprecated*/
 	static FORMAT_R8G8B8A8: number = 1;
-	/**纹理格式_ALPHA8。*/
+	/**纹理格式_ALPHA8。@deprecated*/
 	static FORMAT_ALPHA8: number = 2;
-	/**纹理格式_DXT1。*/
+	/**纹理格式_DXT1。@deprecated*/
 	static FORMAT_DXT1: number = 3;
-	/**纹理格式_DXT5。*/
+	/**纹理格式_DXT5。@deprecated*/
 	static FORMAT_DXT5: number = 4;
-	/**纹理格式_ETC2RGB。*/
+	/**纹理格式_ETC2RGB。@deprecated*/
 	static FORMAT_ETC1RGB: number = 5;
-	///**纹理格式_ETC2RGB。*/
-	//public static const FORMAT_ETC2RGB:int = 6;
-	///**纹理格式_ETC2RGBA。*/
-	//public static const FORMAT_ETC2RGBA:int = 7;
-	/**纹理格式_ETC2RGB_PUNCHTHROUGHALPHA。*/
-	//public static const FORMAT_ETC2RGB_PUNCHTHROUGHALPHA:int = 8;
-	/**纹理格式_PVRTCRGB_2BPPV。*/
+	/**纹理格式_PVRTCRGB_2BPPV。@deprecated*/
 	static FORMAT_PVRTCRGB_2BPPV: number = 9;
-	/**纹理格式_PVRTCRGBA_2BPPV。*/
+	/**纹理格式_PVRTCRGBA_2BPPV。@deprecated*/
 	static FORMAT_PVRTCRGBA_2BPPV: number = 10;
-	/**纹理格式_PVRTCRGB_4BPPV。*/
+	/**纹理格式_PVRTCRGB_4BPPV。@deprecated*/
 	static FORMAT_PVRTCRGB_4BPPV: number = 11;
-	/**纹理格式_PVRTCRGBA_4BPPV。*/
+	/**纹理格式_PVRTCRGBA_4BPPV。@deprecated*/
 	static FORMAT_PVRTCRGBA_4BPPV: number = 12;
 
-	/**渲染纹理格式_16位半精度RGBA浮点格式。*/
+	/**渲染纹理格式_16位半精度RGBA浮点格式。@deprecated*/
 	static RENDERTEXTURE_FORMAT_RGBA_HALF_FLOAT: number = 14;
-	/**RGBAd格式纹理,每个通道32位浮点数。*/
+	/**RGBAd格式纹理,每个通道32位浮点数。@deprecated*/
 	static FORMAT_R32G32B32A32: number = 15;
 
-	/**深度格式_DEPTH_16。*/
+	/**深度格式_DEPTH_16。@deprecated*/
 	static FORMAT_DEPTH_16: number = 0;
-	/**深度格式_STENCIL_8。*/
+	/**深度格式_STENCIL_8。@deprecated*/
 	static FORMAT_STENCIL_8: number = 1;
-	/**深度格式_DEPTHSTENCIL_16_8。*/
+	/**深度格式_DEPTHSTENCIL_16_8。@deprecated*/
 	static FORMAT_DEPTHSTENCIL_16_8: number = 2;
-	/**深度格式_DEPTHSTENCIL_NONE。*/
+	/**深度格式_DEPTHSTENCIL_NONE。@deprecated*/
 	static FORMAT_DEPTHSTENCIL_NONE: number = 3;
-	// //----------------------------兼容----------------------------------
 }
 
