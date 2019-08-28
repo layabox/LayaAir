@@ -194,7 +194,7 @@ export class Shader3D {
 	 * @param   passIndex  通道索引。
 	 * @param	defineMask 宏定义遮罩集合。
 	 */
-	static compileShader(shaderName: string, subShaderIndex: number, passIndex: number, defineMask: Array<number>): void {
+	static compileShader(shaderName: string, subShaderIndex: number, passIndex: number, ...defineMask): void {
 		var shader: Shader3D = Shader3D.find(shaderName);
 		if (shader) {
 			var subShader: SubShader = shader.getSubShaderAt(subShaderIndex);
