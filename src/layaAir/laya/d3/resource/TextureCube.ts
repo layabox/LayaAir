@@ -4,6 +4,7 @@ import { WebGLContext } from "../../webgl/WebGLContext"
 import { BaseTexture } from "../../resource/BaseTexture"
 import { LayaGL } from "../../layagl/LayaGL";
 import { ILaya } from "../../../ILaya";
+import { TextureFormat } from "../../resource/TextureFormat";
 
 // export enum TextureCubeFace {
 // 	PositiveX,
@@ -32,7 +33,7 @@ export class TextureCube extends BaseTexture {
 		pixels[0] = 128;
 		pixels[1] = 128;
 		pixels[2] = 128;
-		TextureCube.grayTexture = new TextureCube(1, BaseTexture.FORMAT_R8G8B8, false);
+		TextureCube.grayTexture = new TextureCube(1, TextureFormat.R8G8B8, false);
 		TextureCube.grayTexture.setSixSidePixels([pixels, pixels, pixels, pixels, pixels, pixels]);
 		TextureCube.grayTexture.lock = true;//锁住资源防止被资源管理释放
 	}
@@ -68,7 +69,7 @@ export class TextureCube extends BaseTexture {
 	 * @param	format 贴图格式。
 	 * @param	mipmap 是否生成mipmap。
 	 */
-	constructor(size: number, format: number = BaseTexture.FORMAT_R8G8B8, mipmap: boolean = false) {
+	constructor(size: number, format: number = TextureFormat.R8G8B8, mipmap: boolean = false) {
 		super(format, mipmap);
 		this._glTextureType = LayaGL.instance.TEXTURE_CUBE_MAP;
 		this._width = size;
@@ -98,7 +99,7 @@ export class TextureCube extends BaseTexture {
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		var glFormat: number = this._getGLFormat();
 		WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
-		if (this.format === BaseTexture.FORMAT_R8G8B8) {
+		if (this.format === TextureFormat.R8G8B8) {
 			gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);//字节对齐
 			gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Z, miplevel, glFormat, width, height, 0, glFormat, gl.UNSIGNED_BYTE, pixels[0]);//back
 			gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, miplevel, glFormat, width, height, 0, glFormat, gl.UNSIGNED_BYTE, pixels[1]);//front

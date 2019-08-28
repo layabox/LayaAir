@@ -1,5 +1,6 @@
 import { BaseTexture } from "../../resource/BaseTexture";
 import { Texture2D } from "../../resource/Texture2D";
+import { TextureFormat } from "../../resource/TextureFormat";
 import { RenderState } from "../core/material/RenderState";
 import { VertexTrail } from "../core/trail/VertexTrail";
 import { VertexMesh } from "../graphics/Vertex/VertexMesh";
@@ -75,7 +76,7 @@ export class ShaderInit3D {
 	 * @internal
 	 */
 	static __init__(): void {
-		ShaderInit3D._rangeAttenTex = Utils3D._buildTexture2D(1024, 1, BaseTexture.FORMAT_ALPHA8, TextureGenerator.lightAttenTexture);//TODO:移动位置
+		ShaderInit3D._rangeAttenTex = Utils3D._buildTexture2D(1024, 1, TextureFormat.Alpha8, TextureGenerator.lightAttenTexture);//TODO:移动位置
 		ShaderInit3D._rangeAttenTex.wrapModeU = BaseTexture.WARPMODE_CLAMP;
 		ShaderInit3D._rangeAttenTex.wrapModeV = BaseTexture.WARPMODE_CLAMP;
 		ShaderInit3D._rangeAttenTex.lock = true;

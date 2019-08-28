@@ -86,6 +86,7 @@ import { Handler } from "./laya/utils/Handler";
 import { RunDriver } from "./laya/utils/RunDriver";
 import { WebGL } from "./laya/webgl/WebGL";
 import { WebGLContext } from "./laya/webgl/WebGLContext";
+import { TextureFormat } from "./laya/resource/TextureFormat";
 
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
@@ -184,7 +185,7 @@ export class Laya3D {
 				return new CommandEncoder(this, reserveSize, adjustSize, isSyncToRenderThread);
 			}
 		}
-		Laya3D._multiLighting = config.enbaleMultiLight && SystemUtils.supportTextureFormat(BaseTexture.FORMAT_R32G32B32A32);
+		Laya3D._multiLighting = config.enbaleMultiLight && SystemUtils.supportTextureFormat(TextureFormat.R32G32B32A32);
 
 		ILaya3D.Scene3D = Scene3D;
 		ILaya3D.MeshRenderStaticBatchManager = MeshRenderStaticBatchManager;

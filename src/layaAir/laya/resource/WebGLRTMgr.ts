@@ -1,5 +1,5 @@
-import { BaseTexture } from "./BaseTexture"
-import { RenderTexture2D } from "./RenderTexture2D"
+import { RenderTexture2D } from "./RenderTexture2D";
+import { RenderTextureFormat } from "./RenderTextureFormat";
 
 /**
  * WebGLRTMgr 管理WebGLRenderTarget的创建和回收
@@ -7,7 +7,7 @@ import { RenderTexture2D } from "./RenderTexture2D"
  */
 
 export class WebGLRTMgr {
-	
+
 	private static dict: any = {};		//key=h*10000+w
 	/**
 	 * 获得一个renderTarget
@@ -23,7 +23,7 @@ export class WebGLRTMgr {
 		if (w >= 10000) {
 			console.error('getRT error! w too big');
 		}
-        var ret: RenderTexture2D;
+		var ret: RenderTexture2D;
         /*
 		var key: number = h * 10000 + w;
 		var sw: any[] = WebGLRTMgr.dict[key];
@@ -35,7 +35,7 @@ export class WebGLRTMgr {
 			}
         }
         */
-		ret = new RenderTexture2D(w, h, BaseTexture.FORMAT_R8G8B8A8, -1);
+		ret = new RenderTexture2D(w, h, RenderTextureFormat.R8G8B8A8, -1);
 		//ret._mgrKey = key;
 		return ret;
 	}
@@ -46,8 +46,8 @@ export class WebGLRTMgr {
 	 * @param	rt
 	 */
 	static releaseRT(rt: RenderTexture2D): void {
-        rt._disposeResource();// 直接删除贴图。否则还要管理占用过多的时候的清理。
-        return;                
+		rt._disposeResource();// 直接删除贴图。否则还要管理占用过多的时候的清理。
+		return;
         /*
 		//如果_mgrKey<=0表示已经加进来了。
 		if (rt._mgrKey <= 0)

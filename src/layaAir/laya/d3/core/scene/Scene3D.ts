@@ -61,6 +61,7 @@ import { Sprite3D } from "../Sprite3D";
 import { BoundsOctree } from "./BoundsOctree";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
 import { ILaya3D } from "../../../../ILaya3D";
+import { RenderTextureDepthFormat } from "../../../resource/RenderTextureFormat";
 
 
 /**
@@ -905,13 +906,13 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 				if (renderTexture) {
 					flag = gl.COLOR_BUFFER_BIT;
 					switch (renderTexture.depthStencilFormat) {
-						case BaseTexture.FORMAT_DEPTH_16:
+						case RenderTextureDepthFormat.DEPTH_16:
 							flag |= gl.DEPTH_BUFFER_BIT;
 							break;
-						case BaseTexture.FORMAT_STENCIL_8:
+						case RenderTextureDepthFormat.STENCIL_8:
 							flag |= gl.STENCIL_BUFFER_BIT;
 							break;
-						case BaseTexture.FORMAT_DEPTHSTENCIL_16_8:
+						case RenderTextureDepthFormat.DEPTHSTENCIL_16_8:
 							flag |= gl.DEPTH_BUFFER_BIT;
 							flag |= gl.STENCIL_BUFFER_BIT;
 							break;
@@ -929,13 +930,13 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 				gl.scissor(vpX, vpY, vpW, vpH);
 				if (renderTexture) {
 					switch (renderTexture.depthStencilFormat) {
-						case BaseTexture.FORMAT_DEPTH_16:
+						case RenderTextureDepthFormat.DEPTH_16:
 							flag = gl.DEPTH_BUFFER_BIT;
 							break;
-						case BaseTexture.FORMAT_STENCIL_8:
+						case RenderTextureDepthFormat.STENCIL_8:
 							flag = gl.STENCIL_BUFFER_BIT;
 							break;
-						case BaseTexture.FORMAT_DEPTHSTENCIL_16_8:
+						case RenderTextureDepthFormat.DEPTHSTENCIL_16_8:
 							flag = gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT;
 							break;
 					}

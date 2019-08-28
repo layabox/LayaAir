@@ -1,5 +1,6 @@
 import { BaseTexture } from "../../resource/BaseTexture"
 import { Texture2D } from "../../resource/Texture2D"
+import { TextureFormat } from "../../resource/TextureFormat";
 
 	
 	/**
@@ -43,13 +44,13 @@ import { Texture2D } from "../../resource/Texture2D"
 			var index:number = 0;
 			var size:number = 0;
 			switch (texture.format) {
-			case BaseTexture.FORMAT_R8G8B8: 
+			case TextureFormat.R8G8B8: 
 				size = 3;
 				break;
-			case BaseTexture.FORMAT_R8G8B8A8: 
+			case TextureFormat.R8G8B8A8: 
 				size = 4;
 				break;
-			case BaseTexture.FORMAT_ALPHA8: 
+			case TextureFormat.Alpha8: 
 				size = 1;
 				break;
 			default: 

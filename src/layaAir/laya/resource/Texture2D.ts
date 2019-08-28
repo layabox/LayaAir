@@ -3,6 +3,7 @@ import { LayaGL } from "../layagl/LayaGL";
 import { Handler } from "../utils/Handler";
 import { WebGLContext } from "../webgl/WebGLContext";
 import { BaseTexture } from "./BaseTexture";
+import { TextureFormat } from "./TextureFormat";
 
 /**
  * <code>Texture2D</code> 类用于生成2D纹理。
@@ -26,19 +27,19 @@ export class Texture2D extends BaseTexture {
 		pixels[0] = 128;
 		pixels[1] = 128;
 		pixels[2] = 128;
-		Texture2D.grayTexture = new Texture2D(1, 1, BaseTexture.FORMAT_R8G8B8, false, false);
+		Texture2D.grayTexture = new Texture2D(1, 1, TextureFormat.R8G8B8, false, false);
 		Texture2D.grayTexture.setPixels(pixels);
 		Texture2D.grayTexture.lock = true;//锁住资源防止被资源管理释放
 		pixels[0] = 255;
 		pixels[1] = 255;
 		pixels[2] = 255;
-		Texture2D.whiteTexture = new Texture2D(1, 1, BaseTexture.FORMAT_R8G8B8, false, false);
+		Texture2D.whiteTexture = new Texture2D(1, 1, TextureFormat.R8G8B8, false, false);
 		Texture2D.whiteTexture.setPixels(pixels);
 		Texture2D.whiteTexture.lock = true;//锁住资源防止被资源管理释放
 		pixels[0] = 0;
 		pixels[1] = 0;
 		pixels[2] = 0;
-		Texture2D.blackTexture = new Texture2D(1, 1, BaseTexture.FORMAT_R8G8B8, false, false);
+		Texture2D.blackTexture = new Texture2D(1, 1, TextureFormat.R8G8B8, false, false);
 		Texture2D.blackTexture.setPixels(pixels);
 		Texture2D.blackTexture.lock = true;//锁住资源防止被资源管理释放
 	}
@@ -55,17 +56,17 @@ export class Texture2D extends BaseTexture {
 			texture.anisoLevel = propertyParams.anisoLevel;
 		}
 		switch (texture._format) {
-			case BaseTexture.FORMAT_R8G8B8:
-			case BaseTexture.FORMAT_R8G8B8A8:
+			case TextureFormat.R8G8B8:
+			case TextureFormat.R8G8B8A8:
 				texture.loadImageSource(data);
 				break;
-			case BaseTexture.FORMAT_DXT1:
-			case BaseTexture.FORMAT_DXT5:
-			case BaseTexture.FORMAT_ETC1RGB:
-			case BaseTexture.FORMAT_PVRTCRGB_2BPPV:
-			case BaseTexture.FORMAT_PVRTCRGBA_2BPPV:
-			case BaseTexture.FORMAT_PVRTCRGB_4BPPV:
-			case BaseTexture.FORMAT_PVRTCRGBA_4BPPV:
+			case TextureFormat.DXT1:
+			case TextureFormat.DXT5:
+			case TextureFormat.ETC1RGB:
+			case TextureFormat.PVRTCRGB_2BPPV:
+			case TextureFormat.PVRTCRGBA_2BPPV:
+			case TextureFormat.PVRTCRGB_4BPPV:
+			case TextureFormat.PVRTCRGBA_4BPPV:
 				texture.setCompressData(data);
 				break;
 			default:
@@ -106,7 +107,7 @@ export class Texture2D extends BaseTexture {
 	 * @param	mipmap 是否生成mipmap。
 	 * @param	canRead 是否可读像素,如果为true,会在内存保留像素数据。
 	 */
-	constructor(width: number = 0, height: number = 0, format: number = BaseTexture.FORMAT_R8G8B8A8, mipmap: boolean = true, canRead: boolean = false) {
+	constructor(width: number = 0, height: number = 0, format: TextureFormat = TextureFormat.R8G8B8A8, mipmap: boolean = true, canRead: boolean = false) {
 		super(format, mipmap);
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		this._glTextureType = gl.TEXTURE_2D;
@@ -142,12 +143,12 @@ export class Texture2D extends BaseTexture {
 		var glFormat: number = this._getGLFormat();
 		WebGLContext.bindTexture(gl, textureType, this._glTexture);
 		switch (this.format) {
-			case BaseTexture.FORMAT_R8G8B8:
+			case TextureFormat.R8G8B8:
 				gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);//字节对齐
 				gl.texImage2D(textureType, miplevel, glFormat, width, height, 0, glFormat, gl.UNSIGNED_BYTE, pixels);
 				gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
 				break;
-			case BaseTexture.FORMAT_R32G32B32A32:
+			case TextureFormat.R32G32B32A32:
 				if (LayaGL.layaGPUInstance._isWebGL2)
 					gl.texImage2D(textureType, miplevel, (<WebGL2RenderingContext>gl).RGBA32F, width, height, 0, glFormat, gl.FLOAT, pixels);
 				else
@@ -163,16 +164,16 @@ export class Texture2D extends BaseTexture {
 	 */
 	private _calcualatesCompressedDataSize(format: number, width: number, height: number): number {
 		switch (format) {
-			case BaseTexture.FORMAT_DXT1:
-			case BaseTexture.FORMAT_ETC1RGB:
+			case TextureFormat.DXT1:
+			case TextureFormat.ETC1RGB:
 				return ((width + 3) >> 2) * ((height + 3) >> 2) * 8;
-			case BaseTexture.FORMAT_DXT5:
+			case TextureFormat.DXT5:
 				return ((width + 3) >> 2) * ((height + 3) >> 2) * 16;
-			case BaseTexture.FORMAT_PVRTCRGB_4BPPV:
-			case BaseTexture.FORMAT_PVRTCRGBA_4BPPV:
+			case TextureFormat.PVRTCRGB_4BPPV:
+			case TextureFormat.PVRTCRGBA_4BPPV:
 				return Math.floor((Math.max(width, 8) * Math.max(height, 8) * 4 + 7) / 8);
-			case BaseTexture.FORMAT_PVRTCRGB_2BPPV:
-			case BaseTexture.FORMAT_PVRTCRGBA_2BPPV:
+			case TextureFormat.PVRTCRGB_2BPPV:
+			case TextureFormat.PVRTCRGBA_2BPPV:
 				return Math.floor((Math.max(width, 16) * Math.max(height, 8) * 2 + 7) / 8);
 			default:
 				return 0;
@@ -208,11 +209,11 @@ export class Texture2D extends BaseTexture {
 
 		var compressedFormat: number = header[DDS_HEADER_PF_FOURCC];
 		switch (this._format) {
-			case BaseTexture.FORMAT_DXT1:
+			case TextureFormat.DXT1:
 				if (compressedFormat !== FOURCC_DXT1)
 					throw "the FourCC code is not same with texture format.";
 				break;
-			case BaseTexture.FORMAT_DXT5:
+			case TextureFormat.DXT5:
 				if (compressedFormat !== FOURCC_DXT5)
 					throw "the FourCC code is not same with texture format.";
 				break;
@@ -257,7 +258,7 @@ export class Texture2D extends BaseTexture {
 		var compressedFormat: number = header[ETC_HEADER_FORMAT];
 		switch (compressedFormat) {
 			case LayaGL.layaGPUInstance._compressedTextureEtc1.COMPRESSED_RGB_ETC1_WEBGL:
-				this._format = BaseTexture.FORMAT_ETC1RGB;
+				this._format = TextureFormat.ETC1RGB;
 				break;
 			default:
 				throw "unknown texture format.";
@@ -296,16 +297,16 @@ export class Texture2D extends BaseTexture {
 		var compressedFormat: number = header[PVR_HEADER_FORMAT];
 		switch (compressedFormat) {
 			case PVR_FORMAT_2BPP_RGB:
-				this._format = BaseTexture.FORMAT_PVRTCRGB_2BPPV;
+				this._format = TextureFormat.PVRTCRGB_2BPPV;
 				break;
 			case PVR_FORMAT_4BPP_RGB:
-				this._format = BaseTexture.FORMAT_PVRTCRGB_4BPPV;
+				this._format = TextureFormat.PVRTCRGB_4BPPV;
 				break;
 			case PVR_FORMAT_2BPP_RGBA:
-				this._format = BaseTexture.FORMAT_PVRTCRGBA_2BPPV;
+				this._format = TextureFormat.PVRTCRGBA_2BPPV;
 				break;
 			case PVR_FORMAT_4BPP_RGBA:
-				this._format = BaseTexture.FORMAT_PVRTCRGBA_4BPPV;
+				this._format = TextureFormat.PVRTCRGBA_4BPPV;
 				break;
 			default:
 				throw "Texture2D:unknown PVR format.";
@@ -441,12 +442,12 @@ export class Texture2D extends BaseTexture {
 		var glFormat: number = this._getGLFormat();
 
 		switch (this.format) {
-			case BaseTexture.FORMAT_R8G8B8:
+			case TextureFormat.R8G8B8:
 				gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);//字节对齐
 				gl.texSubImage2D(textureType, miplevel, x, y, width, height, glFormat, gl.UNSIGNED_BYTE, pixels);
 				gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
 				break;
-			case BaseTexture.FORMAT_R32G32B32A32:
+			case TextureFormat.R32G32B32A32:
 				gl.texSubImage2D(textureType, miplevel, x, y, width, height, glFormat, gl.FLOAT, pixels);
 				break;
 			default:
@@ -467,17 +468,17 @@ export class Texture2D extends BaseTexture {
 	 */
 	setCompressData(data: ArrayBuffer): void {
 		switch (this._format) {
-			case BaseTexture.FORMAT_DXT1:
-			case BaseTexture.FORMAT_DXT5:
+			case TextureFormat.DXT1:
+			case TextureFormat.DXT5:
 				this._pharseDDS(data);
 				break;
-			case BaseTexture.FORMAT_ETC1RGB:
+			case TextureFormat.ETC1RGB:
 				this._pharseKTX(data);
 				break;
-			case BaseTexture.FORMAT_PVRTCRGB_2BPPV:
-			case BaseTexture.FORMAT_PVRTCRGBA_2BPPV:
-			case BaseTexture.FORMAT_PVRTCRGB_4BPPV:
-			case BaseTexture.FORMAT_PVRTCRGBA_4BPPV:
+			case TextureFormat.PVRTCRGB_2BPPV:
+			case TextureFormat.PVRTCRGBA_2BPPV:
+			case TextureFormat.PVRTCRGB_4BPPV:
+			case TextureFormat.PVRTCRGBA_4BPPV:
 				this._pharsePVR(data);
 				break;
 			default:

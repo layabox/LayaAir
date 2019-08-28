@@ -10,6 +10,7 @@ import { Shader3D } from "../../shader/Shader3D"
 import { ShaderData } from "../../shader/ShaderData"
 import { BaseTexture } from "../../../resource/BaseTexture"
 import { Texture2D } from "../../../resource/Texture2D"
+import { RenderTextureFormat, RenderTextureDepthFormat } from "../../../resource/RenderTextureFormat";
 
 /**
  * <code>BloomEffect</code> 类用于创建泛光效果。
@@ -239,11 +240,11 @@ export class BloomEffect extends PostProcessEffect {
 			var upIndex: number = downIndex + 1;
 			var subShader: number = i == 0 ? BloomEffect.SUBSHADER_PREFILTER13 + qualityOffset : BloomEffect.SUBSHADER_DOWNSAMPLE13 + qualityOffset;
 
-			var mipDownTexture: RenderTexture = RenderTexture.createFromPool(tw, th, BaseTexture.FORMAT_R8G8B8, BaseTexture.FORMAT_DEPTHSTENCIL_NONE, BaseTexture.FILTERMODE_BILINEAR);
+			var mipDownTexture: RenderTexture = RenderTexture.createFromPool(tw, th, RenderTextureFormat.R8G8B8, RenderTextureDepthFormat.DEPTHSTENCIL_NONE, BaseTexture.FILTERMODE_BILINEAR);
 			this._pyramid[downIndex] = mipDownTexture;
 
 			if (i !== iterations - 1) {
-				var mipUpTexture: RenderTexture = RenderTexture.createFromPool(tw, th, BaseTexture.FORMAT_R8G8B8, BaseTexture.FORMAT_DEPTHSTENCIL_NONE, BaseTexture.FILTERMODE_BILINEAR);
+				var mipUpTexture: RenderTexture = RenderTexture.createFromPool(tw, th, RenderTextureFormat.R8G8B8, RenderTextureDepthFormat.DEPTHSTENCIL_NONE, BaseTexture.FILTERMODE_BILINEAR);
 				this._pyramid[upIndex] = mipUpTexture;
 			}
 

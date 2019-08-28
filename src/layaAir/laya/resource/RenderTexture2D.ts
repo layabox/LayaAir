@@ -5,6 +5,7 @@ import { WebGLContext } from "../webgl/WebGLContext"
 import { BaseShader } from "../webgl/shader/BaseShader"
 import { RenderState2D } from "../webgl/utils/RenderState2D"
 import { ILaya } from "../../ILaya";
+import { RenderTextureFormat, RenderTextureDepthFormat } from "./RenderTextureFormat";
 
 /**
  * <code>RenderTexture</code> 类用于创建渲染目标。
@@ -93,7 +94,7 @@ export class RenderTexture2D extends BaseTexture {
      * @param depthStencilFormat 深度格式。
      * 创建一个 <code>RenderTexture</code> 实例。
      */
-    constructor(width: number, height: number, format: number = BaseTexture.FORMAT_R8G8B8, depthStencilFormat: number = BaseTexture.FORMAT_DEPTH_16) {//TODO:待老郭清理
+    constructor(width: number, height: number, format: number = RenderTextureFormat.R8G8B8, depthStencilFormat: number = RenderTextureDepthFormat.DEPTH_16) {//TODO:待老郭清理
 
         super(format, false);
         this._glTextureType = LayaGL.instance.TEXTURE_2D;
@@ -116,19 +117,19 @@ export class RenderTexture2D extends BaseTexture {
         this._setGPUMemory(width * height * 4);
         gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this._glTexture, 0);
-        if (this._depthStencilFormat !== BaseTexture.FORMAT_DEPTHSTENCIL_NONE) {
+        if (this._depthStencilFormat !== RenderTextureDepthFormat.DEPTHSTENCIL_NONE) {
             this._depthStencilBuffer = gl.createRenderbuffer();
             gl.bindRenderbuffer(gl.RENDERBUFFER, this._depthStencilBuffer);
             switch (this._depthStencilFormat) {
-                case BaseTexture.FORMAT_DEPTH_16:
+                case RenderTextureDepthFormat.DEPTH_16:
                     gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height);
                     gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this._depthStencilBuffer);
                     break;
-                case BaseTexture.FORMAT_STENCIL_8:
+                case RenderTextureDepthFormat.STENCIL_8:
                     gl.renderbufferStorage(gl.RENDERBUFFER, gl.STENCIL_INDEX8, width, height);
                     gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.STENCIL_ATTACHMENT, gl.RENDERBUFFER, this._depthStencilBuffer);
                     break;
-                case BaseTexture.FORMAT_DEPTHSTENCIL_16_8:
+                case RenderTextureDepthFormat.DEPTHSTENCIL_16_8:
                     gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_STENCIL, width, height);
                     gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT, gl.RENDERBUFFER, this._depthStencilBuffer);
                     break;

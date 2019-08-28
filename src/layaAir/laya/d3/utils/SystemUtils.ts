@@ -1,5 +1,7 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { BaseTexture } from "../../resource/BaseTexture";
+import { TextureFormat } from "../../resource/TextureFormat";
+import { RenderTextureFormat } from "../../resource/RenderTextureFormat";
 
 export class SystemUtils {
     /**
@@ -8,7 +10,7 @@ export class SystemUtils {
      */
     static supportTextureFormat(format: number): boolean {
         switch (format) {
-            case BaseTexture.FORMAT_R32G32B32A32:
+            case TextureFormat.R32G32B32A32:
                 if (!LayaGL.layaGPUInstance._isWebGL2 && !LayaGL.layaGPUInstance._oesTextureFloat)
                     return false;
                 else
@@ -24,7 +26,7 @@ export class SystemUtils {
      */
     static supportRenderTextureFormat(format: number): boolean {
         switch (format) {
-            case BaseTexture.RENDERTEXTURE_FORMAT_RGBA_HALF_FLOAT:
+            case RenderTextureFormat.RGBA_HALF_FLOAT:
                 if (!LayaGL.layaGPUInstance._isWebGL2 && !LayaGL.layaGPUInstance._oesTextureHalfFloat && !LayaGL.layaGPUInstance._oesTextureHalfFloatLinear)
                     return false;
                 else

@@ -10,6 +10,7 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
 import { TextureGenerator } from "../resource/TextureGenerator";
+import { TextureFormat } from "../../resource/TextureFormat";
 
 /**
  * <code>Utils3D</code> 类用于创建3D工具。
@@ -27,7 +28,7 @@ export class Utils3D {
 	 * @internal
 	 */
 	static _createFloatTextureBuffer(width: number, height: number): Texture2D {
-		var floatTex: Texture2D = new Texture2D(width, height, BaseTexture.FORMAT_R32G32B32A32, false, false);
+		var floatTex: Texture2D = new Texture2D(width, height, TextureFormat.R32G32B32A32, false, false);
 		floatTex.filterMode = BaseTexture.FILTERMODE_POINT;
 		floatTex.wrapModeU = BaseTexture.WARPMODE_CLAMP;
 		floatTex.wrapModeV = BaseTexture.WARPMODE_CLAMP;

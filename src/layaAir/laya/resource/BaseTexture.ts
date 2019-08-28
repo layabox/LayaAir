@@ -1,7 +1,7 @@
-import { LayaGL } from "../layagl/LayaGL"
-import { Bitmap } from "./Bitmap"
-import { WebGLContext } from "../webgl/WebGLContext"
-import { ILaya } from "../../ILaya";
+import { LayaGL } from "../layagl/LayaGL";
+import { WebGLContext } from "../webgl/WebGLContext";
+import { Bitmap } from "./Bitmap";
+import { TextureFormat } from "./TextureFormat";
 
 
 /**
@@ -18,46 +18,6 @@ export class BaseTexture extends Bitmap {
 	/**寻址模式_不循环。*/
 	static FILTERMODE_TRILINEAR: number = 2;
 
-	/**纹理格式_R8G8B8。*/
-	static FORMAT_R8G8B8: number = 0;
-	/**纹理格式_R8G8B8A8。*/
-	static FORMAT_R8G8B8A8: number = 1;
-	/**纹理格式_ALPHA8。*/
-	static FORMAT_ALPHA8: number = 2;
-	/**纹理格式_DXT1。*/
-	static FORMAT_DXT1: number = 3;
-	/**纹理格式_DXT5。*/
-	static FORMAT_DXT5: number = 4;
-	/**纹理格式_ETC2RGB。*/
-	static FORMAT_ETC1RGB: number = 5;
-	///**纹理格式_ETC2RGB。*/
-	//public static const FORMAT_ETC2RGB:int = 6;
-	///**纹理格式_ETC2RGBA。*/
-	//public static const FORMAT_ETC2RGBA:int = 7;
-	/**纹理格式_ETC2RGB_PUNCHTHROUGHALPHA。*/
-	//public static const FORMAT_ETC2RGB_PUNCHTHROUGHALPHA:int = 8;
-	/**纹理格式_PVRTCRGB_2BPPV。*/
-	static FORMAT_PVRTCRGB_2BPPV: number = 9;
-	/**纹理格式_PVRTCRGBA_2BPPV。*/
-	static FORMAT_PVRTCRGBA_2BPPV: number = 10;
-	/**纹理格式_PVRTCRGB_4BPPV。*/
-	static FORMAT_PVRTCRGB_4BPPV: number = 11;
-	/**纹理格式_PVRTCRGBA_4BPPV。*/
-	static FORMAT_PVRTCRGBA_4BPPV: number = 12;
-
-	/**渲染纹理格式_16位半精度RGBA浮点格式。*/
-	static RENDERTEXTURE_FORMAT_RGBA_HALF_FLOAT: number = 14;
-	/**RGBAd格式纹理,每个通道32位浮点数。*/
-	static FORMAT_R32G32B32A32: number = 15;
-
-	/**深度格式_DEPTH_16。*/
-	static FORMAT_DEPTH_16: number = 0;
-	/**深度格式_STENCIL_8。*/
-	static FORMAT_STENCIL_8: number = 1;
-	/**深度格式_DEPTHSTENCIL_16_8。*/
-	static FORMAT_DEPTHSTENCIL_16_8: number = 2;
-	/**深度格式_DEPTHSTENCIL_NONE。*/
-	static FORMAT_DEPTHSTENCIL_NONE: number = 3;
 
 	/** @private */
 	protected _readyed: boolean;
@@ -95,15 +55,12 @@ export class BaseTexture extends Bitmap {
 	}
 
 	/**
-	 * 获取纹理横向循环模式。
+	 * 纹理横向循环模式。
 	 */
 	get wrapModeU(): number {
 		return this._wrapModeU;
 	}
 
-	/**
-	 * 设置纹理横向循环模式。
-	 */
 	set wrapModeU(value: number) {
 		if (this._wrapModeU !== value) {
 			this._wrapModeU = value;
@@ -112,15 +69,12 @@ export class BaseTexture extends Bitmap {
 	}
 
 	/**
-	 * 获取纹理纵向循环模式。
+	 * 纹理纵向循环模式。
 	 */
 	get wrapModeV(): number {
 		return this._wrapModeV;
 	}
 
-	/**
-	 * 设置纹理纵向循环模式。
-	 */
 	set wrapModeV(value: number) {
 		if (this._wrapModeV !== value) {
 			this._wrapModeV = value;
@@ -135,9 +89,6 @@ export class BaseTexture extends Bitmap {
 		return this._filterMode;
 	}
 
-	/**
-	 * 缩小过滤器
-	 */
 	set filterMode(value: number) {
 		if (value !== this._filterMode) {
 			this._filterMode = value;
@@ -152,9 +103,6 @@ export class BaseTexture extends Bitmap {
 		return this._anisoLevel;
 	}
 
-	/**
-	 * 各向异性等级
-	 */
 	set anisoLevel(value: number) {
 		if (value !== this._anisoLevel) {
 			this._anisoLevel = Math.max(1, Math.min(16, value));
@@ -170,9 +118,6 @@ export class BaseTexture extends Bitmap {
 		return this._mipmapCount;
 	}
 
-	/**
-	 * 获取默认纹理资源。
-	 */
 	get defaulteTexture(): BaseTexture {
 		throw "BaseTexture:must override it."
 	}
@@ -201,13 +146,13 @@ export class BaseTexture extends Bitmap {
 	 */
 	protected _getFormatByteCount(): number {
 		switch (this._format) {
-			case BaseTexture.FORMAT_R8G8B8:
+			case TextureFormat.R8G8B8:
 				return 3;
-			case BaseTexture.FORMAT_R8G8B8A8:
+			case TextureFormat.R8G8B8A8:
 				return 4;
-			case BaseTexture.FORMAT_ALPHA8:
+			case TextureFormat.Alpha8:
 				return 1;
-			case BaseTexture.FORMAT_R32G32B32A32:
+			case TextureFormat.R32G32B32A32:
 				return 4;
 			default:
 				throw "Texture2D: unknown format.";
@@ -229,55 +174,55 @@ export class BaseTexture extends Bitmap {
 		var gl = LayaGL.instance;
 		var gpu = LayaGL.layaGPUInstance;
 		switch (this._format) {
-			case BaseTexture.FORMAT_R8G8B8:
+			case TextureFormat.R8G8B8:
 				glFormat = gl.RGB;
 				break;
-			case BaseTexture.FORMAT_R8G8B8A8:
+			case TextureFormat.R8G8B8A8:
 				glFormat = gl.RGBA;
 				break;
-			case BaseTexture.FORMAT_ALPHA8:
+			case TextureFormat.Alpha8:
 				glFormat = gl.ALPHA;
 				break;
-			case BaseTexture.FORMAT_R32G32B32A32:
+			case TextureFormat.R32G32B32A32:
 				glFormat = gl.RGBA;
 				break;
-			case BaseTexture.FORMAT_DXT1:
+			case TextureFormat.DXT1:
 				if (gpu._compressedTextureS3tc)
 					glFormat = gpu._compressedTextureS3tc.COMPRESSED_RGB_S3TC_DXT1_EXT;
 				else
 					throw "BaseTexture: not support DXT1 format.";
 				break;
-			case BaseTexture.FORMAT_DXT5:
+			case TextureFormat.DXT5:
 				if (gpu._compressedTextureS3tc)
 					glFormat = gpu._compressedTextureS3tc.COMPRESSED_RGBA_S3TC_DXT5_EXT;
 				else
 					throw "BaseTexture: not support DXT5 format.";
 				break;
-			case BaseTexture.FORMAT_ETC1RGB:
+			case TextureFormat.ETC1RGB:
 				if (gpu._compressedTextureEtc1)
 					glFormat = gpu._compressedTextureEtc1.COMPRESSED_RGB_ETC1_WEBGL;
 				else
 					throw "BaseTexture: not support ETC1RGB format.";
 				break;
-			case BaseTexture.FORMAT_PVRTCRGB_2BPPV:
+			case TextureFormat.PVRTCRGB_2BPPV:
 				if (gpu._compressedTexturePvrtc)
 					glFormat = gpu._compressedTexturePvrtc.COMPRESSED_RGB_PVRTC_2BPPV1_IMG;
 				else
 					throw "BaseTexture: not support PVRTCRGB_2BPPV format.";
 				break;
-			case BaseTexture.FORMAT_PVRTCRGBA_2BPPV:
+			case TextureFormat.PVRTCRGBA_2BPPV:
 				if (gpu._compressedTexturePvrtc)
 					glFormat = gpu._compressedTexturePvrtc.COMPRESSED_RGBA_PVRTC_2BPPV1_IMG;
 				else
 					throw "BaseTexture: not support PVRTCRGBA_2BPPV format.";
 				break;
-			case BaseTexture.FORMAT_PVRTCRGB_4BPPV:
+			case TextureFormat.PVRTCRGB_4BPPV:
 				if (gpu._compressedTexturePvrtc)
 					glFormat = gpu._compressedTexturePvrtc.COMPRESSED_RGB_PVRTC_4BPPV1_IMG;
 				else
 					throw "BaseTexture: not support PVRTCRGB_4BPPV format.";
 				break;
-			case BaseTexture.FORMAT_PVRTCRGBA_4BPPV:
+			case TextureFormat.PVRTCRGBA_4BPPV:
 				if (gpu._compressedTexturePvrtc)
 					glFormat = gpu._compressedTexturePvrtc.COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
 				else
@@ -387,5 +332,49 @@ export class BaseTexture extends Bitmap {
 		if (this._isPot(this.width) && this._isPot(this.height))
 			LayaGL.instance.generateMipmap(this._glTextureType);
 	}
+
+
+	// //----------------------------兼容----------------------------------
+	/**纹理格式_R8G8B8。*/
+	static FORMAT_R8G8B8: number = 0;
+	/**纹理格式_R8G8B8A8。*/
+	static FORMAT_R8G8B8A8: number = 1;
+	/**纹理格式_ALPHA8。*/
+	static FORMAT_ALPHA8: number = 2;
+	/**纹理格式_DXT1。*/
+	static FORMAT_DXT1: number = 3;
+	/**纹理格式_DXT5。*/
+	static FORMAT_DXT5: number = 4;
+	/**纹理格式_ETC2RGB。*/
+	static FORMAT_ETC1RGB: number = 5;
+	///**纹理格式_ETC2RGB。*/
+	//public static const FORMAT_ETC2RGB:int = 6;
+	///**纹理格式_ETC2RGBA。*/
+	//public static const FORMAT_ETC2RGBA:int = 7;
+	/**纹理格式_ETC2RGB_PUNCHTHROUGHALPHA。*/
+	//public static const FORMAT_ETC2RGB_PUNCHTHROUGHALPHA:int = 8;
+	/**纹理格式_PVRTCRGB_2BPPV。*/
+	static FORMAT_PVRTCRGB_2BPPV: number = 9;
+	/**纹理格式_PVRTCRGBA_2BPPV。*/
+	static FORMAT_PVRTCRGBA_2BPPV: number = 10;
+	/**纹理格式_PVRTCRGB_4BPPV。*/
+	static FORMAT_PVRTCRGB_4BPPV: number = 11;
+	/**纹理格式_PVRTCRGBA_4BPPV。*/
+	static FORMAT_PVRTCRGBA_4BPPV: number = 12;
+
+	/**渲染纹理格式_16位半精度RGBA浮点格式。*/
+	static RENDERTEXTURE_FORMAT_RGBA_HALF_FLOAT: number = 14;
+	/**RGBAd格式纹理,每个通道32位浮点数。*/
+	static FORMAT_R32G32B32A32: number = 15;
+
+	/**深度格式_DEPTH_16。*/
+	static FORMAT_DEPTH_16: number = 0;
+	/**深度格式_STENCIL_8。*/
+	static FORMAT_STENCIL_8: number = 1;
+	/**深度格式_DEPTHSTENCIL_16_8。*/
+	static FORMAT_DEPTHSTENCIL_16_8: number = 2;
+	/**深度格式_DEPTHSTENCIL_NONE。*/
+	static FORMAT_DEPTHSTENCIL_NONE: number = 3;
+	// //----------------------------兼容----------------------------------
 }
 

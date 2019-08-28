@@ -10,6 +10,7 @@ import { BaseTexture } from "../../resource/BaseTexture"
 import { Texture2D } from "../../resource/Texture2D"
 import { ILaya } from "../../../ILaya";
 import { ShaderDefine } from "../shader/ShaderDefine";
+import { RenderTextureDepthFormat } from "../../resource/RenderTextureFormat"
 
 /**
  * <code>PostProcess</code> 类用于创建后期处理组件。
@@ -78,7 +79,7 @@ export class PostProcess {
 
 		var camera: Camera = this._context.camera;
 
-		var screenTexture: RenderTexture = RenderTexture.createFromPool(RenderContext3D.clientWidth, RenderContext3D.clientHeight, camera._getRenderTextureFormat(), BaseTexture.FORMAT_DEPTHSTENCIL_NONE);
+		var screenTexture: RenderTexture = RenderTexture.createFromPool(RenderContext3D.clientWidth, RenderContext3D.clientHeight, camera._getRenderTextureFormat(), RenderTextureDepthFormat.DEPTHSTENCIL_NONE);
 		var cameraTarget: RenderTexture = camera._renderTexture;
 		this._context.command.clear();
 		this._context.source = screenTexture;

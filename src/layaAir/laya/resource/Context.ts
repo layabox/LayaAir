@@ -54,6 +54,7 @@ import { BaseTexture } from "./BaseTexture";
 import { HTMLCanvas } from "./HTMLCanvas";
 import { RenderTexture2D } from "./RenderTexture2D";
 import { Texture2D } from "./Texture2D";
+import { RenderTextureFormat } from "./RenderTextureFormat";
 
 /**
  * @private
@@ -622,7 +623,7 @@ export class Context {
 			//这种情况下canvas应该不占内存
 			if (this._targets) {
 				this._targets.destroy();
-				this._targets = new RenderTexture2D(w, h, BaseTexture.FORMAT_R8G8B8A8, -1);
+				this._targets = new RenderTexture2D(w, h, RenderTextureFormat.R8G8B8A8, -1);
 			}
 			//如果是主画布，要记录窗口大小
 			//如果不是 TODO
@@ -645,7 +646,7 @@ export class Context {
 		if (value) {
 			//缺省的RGB没有a，不合理把。况且没必要自定义一个常量。
 			//深度格式为-1表示不用深度缓存。
-			this._targets || (this._targets = new RenderTexture2D(this._width, this._height, BaseTexture.FORMAT_R8G8B8A8, -1));
+			this._targets || (this._targets = new RenderTexture2D(this._width, this._height, RenderTextureFormat.R8G8B8A8, -1));
 			if (!this._width || !this._height)
 				throw Error("asBitmap no size!");
 		} else {

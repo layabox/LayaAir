@@ -13,6 +13,7 @@ import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
 import { RenderTexture } from "../resource/RenderTexture";
 import { ShaderData } from "../shader/ShaderData";
+import { RenderTextureFormat, RenderTextureDepthFormat } from "../../resource/RenderTextureFormat";
 
 /**
  * ...
@@ -451,7 +452,7 @@ export class ParallelSplitShadowMap {
 			var shadowMap: RenderTexture = this.cameras[i].renderTarget;
 			if (shadowMap == null || shadowMap.width != this._shadowMapTextureSize || shadowMap.height != this._shadowMapTextureSize) {
 				(shadowMap) && (shadowMap.destroy());
-				shadowMap = new RenderTexture(this._shadowMapTextureSize, this._shadowMapTextureSize, BaseTexture.FORMAT_R8G8B8A8, BaseTexture.FORMAT_DEPTH_16);
+				shadowMap = new RenderTexture(this._shadowMapTextureSize, this._shadowMapTextureSize, RenderTextureFormat.R8G8B8A8, RenderTextureDepthFormat.DEPTH_16);
 				shadowMap.filterMode = BaseTexture.FILTERMODE_POINT;
 				this.cameras[i].renderTarget = shadowMap;
 			}

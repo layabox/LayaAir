@@ -29,6 +29,7 @@ import { Scene3DShaderDeclaration } from "./scene/Scene3DShaderDeclaration";
 import { Transform3D } from "./Transform3D";
 import { SystemUtils } from "../utils/SystemUtils";
 import { ILaya3D } from "../../../ILaya3D";
+import { RenderTextureFormat, RenderTextureDepthFormat } from "../../resource/RenderTextureFormat";
 
 /**
  * <code>Camera</code> 类用于创建摄像机。
@@ -282,7 +283,7 @@ export class Camera extends BaseCamera {
 	 */
 	set enableHDR(value: boolean) {
 		if (value) {
-			if (SystemUtils.supportRenderTextureFormat(BaseTexture.RENDERTEXTURE_FORMAT_RGBA_HALF_FLOAT))
+			if (SystemUtils.supportRenderTextureFormat(RenderTextureFormat.RGBA_HALF_FLOAT))
 				this._enableHDR = true;
 			else
 				console.warn("Camera:can't enable HDR in this device.");
@@ -411,9 +412,9 @@ export class Camera extends BaseCamera {
 	 */
 	_getRenderTextureFormat(): number {
 		if (this._enableHDR)
-			return BaseTexture.RENDERTEXTURE_FORMAT_RGBA_HALF_FLOAT;
+			return RenderTextureFormat.RGBA_HALF_FLOAT;
 		else
-			return BaseTexture.FORMAT_R8G8B8;
+			return RenderTextureFormat.R8G8B8;
 	}
 
 	/**
@@ -442,7 +443,7 @@ export class Camera extends BaseCamera {
 
 		var createRenderTexture: boolean = this._postProcess || this._enableHDR ? true : false;
 		if (createRenderTexture) //需要强制配置渲染纹理的条件
-			this._renderTexture = RenderTexture.createFromPool(RenderContext3D.clientWidth, RenderContext3D.clientHeight, this._getRenderTextureFormat(), BaseTexture.FORMAT_DEPTH_16, BaseTexture.FILTERMODE_BILINEAR);
+			this._renderTexture = RenderTexture.createFromPool(RenderContext3D.clientWidth, RenderContext3D.clientHeight, this._getRenderTextureFormat(), RenderTextureDepthFormat.DEPTH_16, BaseTexture.FILTERMODE_BILINEAR);
 
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		var context: RenderContext3D = RenderContext3D._instance;
