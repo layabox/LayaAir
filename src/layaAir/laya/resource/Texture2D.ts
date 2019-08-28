@@ -1,8 +1,8 @@
-import { LayaGL } from "../layagl/LayaGL"
-import { BaseTexture } from "./BaseTexture"
-import { Handler } from "../utils/Handler"
-import { WebGLContext } from "../webgl/WebGLContext"
 import { ILaya } from "../../ILaya";
+import { LayaGL } from "../layagl/LayaGL";
+import { Handler } from "../utils/Handler";
+import { WebGLContext } from "../webgl/WebGLContext";
+import { BaseTexture } from "./BaseTexture";
 
 /**
  * <code>Texture2D</code> 类用于生成2D纹理。
@@ -107,7 +107,6 @@ export class Texture2D extends BaseTexture {
 	 * @param	canRead 是否可读像素,如果为true,会在内存保留像素数据。
 	 */
 	constructor(width: number = 0, height: number = 0, format: number = BaseTexture.FORMAT_R8G8B8A8, mipmap: boolean = true, canRead: boolean = false) {
-
 		super(format, mipmap);
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		this._glTextureType = gl.TEXTURE_2D;

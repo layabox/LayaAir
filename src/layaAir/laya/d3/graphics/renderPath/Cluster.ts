@@ -68,6 +68,7 @@ export class Cluster {
         var clusterTexWidth: number = xSlices * ySlices;
         var clisterTexHeight: number = zSlices * (1 + Math.ceil(maxLightsPerCluster / 4));
         this._clusterTexture = Utils3D._createFloatTextureBuffer(clusterTexWidth, clisterTexHeight);
+        this._clusterTexture.lock=true;
         this._clusterPixels = new Float32Array(clusterTexWidth * clisterTexHeight * 4);
 
         //Init for every cluster
