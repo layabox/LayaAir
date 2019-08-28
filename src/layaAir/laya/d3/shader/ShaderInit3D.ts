@@ -80,7 +80,7 @@ export class ShaderInit3D {
 		ShaderInit3D._rangeAttenTex.wrapModeV = BaseTexture.WARPMODE_CLAMP;
 		ShaderInit3D._rangeAttenTex.lock = true;
 		Shader3D.SHADERDEFINE_HIGHPRECISION = Shader3D.getDefineByName("HIGHPRECISION");
-		Shader3D.SHADERDEFINE_LEGACYLIGHTING = Shader3D.getDefineByName("LEGACYLIGHTING");
+		Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING = Shader3D.getDefineByName("LEGACYSINGLELIGHTING");
 
 
 		Shader3D.addInclude("Lighting.glsl", LightingGLSL);

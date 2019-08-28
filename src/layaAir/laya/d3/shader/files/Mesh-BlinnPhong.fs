@@ -39,7 +39,7 @@ uniform vec4 u_DiffuseColor;
 	uniform vec3 u_MaterialSpecular;
 	uniform float u_Shininess;
 
-	#ifdef LEGACYLIGHTING
+	#ifdef LEGACYSINGLELIGHTING
 		#ifdef DIRECTIONLIGHT
 			uniform DirectionLight u_DirectionLight;
 		#endif
@@ -152,7 +152,7 @@ void main_normal()
 		#endif
 	#endif
 
-	#ifdef LEGACYLIGHTING
+	#ifdef LEGACYSINGLELIGHTING
 		#ifdef DIRECTIONLIGHT
 			LayaAirBlinnPhongDiectionLight(u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,u_DirectionLight,dif,spe);
 			diffuse+=dif;

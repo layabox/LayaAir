@@ -246,8 +246,8 @@ export class ShaderPass extends ShaderCompile {
 				(index !== -1) && (defineString.splice(index, 1));
 			}
 			if (!ILaya3D.Laya3D._multiLighting) {
-				compileDefine.remove(Shader3D.SHADERDEFINE_LEGACYLIGHTING);
-				var index = defineString.indexOf("LEGACYLIGHTING");
+				compileDefine.remove(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING);
+				var index = defineString.indexOf("LEGACYSINGLELIGHTING");
 				(index !== -1) && (defineString.splice(index, 1));
 			}
 
