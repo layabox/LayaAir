@@ -36,6 +36,7 @@ var isTimeOut = false;
 var tsCongfig;
 /**过滤文件夹名数组 */
 var filterArr;
+/**入口 */
 start();
 function start() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -93,9 +94,9 @@ function compile() {
     });
 }
 // checkAllDir("./bin/layaAir/");
-// tstoas("laya\\utils\\GraphicAnimation.d.ts",null,"laya\\utils");
+// tstoas("laya\\ani\\bone\\spine\\SpineSkeletonRenderer.d.ts",null,"laya\\ani\\bone\\spine");
 // tstoas("laya\\display\\Node.d.ts",null,"laya\\display");
-// tstoas("laya\\d3\\physics\\CharacterController.d.ts", null, "laya\\d3\\physics");
+// tstoas("laya\\html\\dom\\HTMLElement.d.ts", null, "laya\\html\\dom");
 // tstoas("laya\\d3\\physics\\PhysicsUpdateList.d.ts",null,"laya\\d3\\physics");
 // tstoas("laya\\d3\\component\\SingletonList.d.ts",null,"laya\\d3\\component");
 function checkAllDir(url) {
@@ -125,6 +126,12 @@ function tstoas(infile, code, fileurl) {
         let em = new emiter_1.emiter();
         let asCode = em.createCode(sc, code, fileurl);
         dtsObj += em.copyTSdata;
+        if (em.enumObj.length) {
+            return {
+                "asCode": asCode,
+                "enum": em.enumObj
+            };
+        }
         // console.log(asCode);
         //测试 查看copyTsdata
         // console.log(em.copyTSdata);
@@ -154,9 +161,19 @@ function ergodic(files, url) {
                         //读取文件
                         let tsdata = yield readFile(fileUrl);
                         // debugger
-                        let asdata = yield tstoas(fileUrl, tsdata, url);
-                        //写入文件
-                        writeFile(outfileAS + fileUrl, asdata);
+                        let data = yield tstoas(fileUrl, tsdata, url);
+                        if (typeof (data) == "string") {
+                            //写入文件
+                            writeFile(outfileAS + fileUrl, data);
+                        }
+                        else {
+                            //写入两份文件
+                            writeFile(outfileAS + fileUrl, data.asCode);
+                            for (let i = 0; i < data.enum.length; i++) {
+                                let asObj = data.enum[i];
+                                writeFile(outfileAS + asObj.url, asObj.asCode);
+                            }
+                        }
                     }
                 }
             }
