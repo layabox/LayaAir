@@ -84,9 +84,9 @@ export class Texture2D extends BaseTexture {
 		ILaya.loader.create(url, complete, null, ILaya.Loader.TEXTURE2D);
 	}
 
-	/** @private */
+	/** @internal */
 	private _canRead: boolean;
-	/** @private */
+	/** @internal */
 	private _pixels: Uint8Array | Float32Array;//TODO:是否合并格式
 
 
@@ -135,7 +135,7 @@ export class Texture2D extends BaseTexture {
 
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _setPixels(pixels: Uint8Array | Float32Array, miplevel: number, width: number, height: number): void {
 		var gl: WebGLRenderingContext = LayaGL.instance;
@@ -160,7 +160,7 @@ export class Texture2D extends BaseTexture {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _calcualatesCompressedDataSize(format: number, width: number, height: number): number {
 		switch (format) {
@@ -181,7 +181,7 @@ export class Texture2D extends BaseTexture {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _pharseDDS(arrayBuffer: ArrayBuffer): void {
 		const FOURCC_DXT1: number = 827611204;
@@ -241,7 +241,7 @@ export class Texture2D extends BaseTexture {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _pharseKTX(arrayBuffer: ArrayBuffer): void {
 		const ETC_HEADER_LENGTH: number = 13;
@@ -275,7 +275,7 @@ export class Texture2D extends BaseTexture {
 	}
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	private _pharsePVR(arrayBuffer: ArrayBuffer): void {
 		const PVR_FORMAT_2BPP_RGB: number = 0;
