@@ -11,6 +11,9 @@
     "HTMLAudioElement":"Audio",
     "XMLDocument":"XmlDom",
     "ChildNode":"XmlDom",
-    "XMLHttpRequest":"*"
+    "XMLHttpRequest":"*",
+    "TextureFormat":"int",
+    "RenderTextureFormat":"int",
+    "RenderTextureDepthFormat":"int"
   }
 }

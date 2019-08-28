@@ -4,6 +4,10 @@ const ts = require("typescript");
 const path = require("path");
 class emiter {
     constructor() {
+        /**
+         * 枚举类型
+         */
+        this.enumType = [];
         this.outString = "";
         //中转用ts 数据
         this.copyTSdata = "";
@@ -27,6 +31,12 @@ class emiter {
             "ImportEqualsDeclaration": this.emitImportEquals,
             "EnumDeclaration": this.emitEnum //枚举导出
         };
+    }
+    static get BaseURL() {
+        return emiter._BaseURL || "./bin/layaAir/";
+    }
+    static set BaseURL(v) {
+        emiter._BaseURL = v;
     }
     /**
      *
@@ -81,7 +91,7 @@ class emiter {
         let nodeName = node.name.getText();
         //ts解析
         let tsstr = node.getText().replace(new RegExp("export declare |declare ", "g"), "");
-        emiter.enumType.push(node.name.getText());
+        this.enumType.push(node.name.getText());
         let asCode = "";
         if (node.members) {
             for (let i = 0; i < node.members.length; i++) {
@@ -108,7 +118,7 @@ class emiter {
         let classPath;
         let nodes = node.getChildren();
         let _node, type;
-        let importName;
+        let importName = [];
         for (let i = 0; i < nodes.length; i++) {
             _node = nodes[i];
             type = ts.SyntaxKind[_node.kind];
@@ -124,14 +134,24 @@ class emiter {
                 }
             }
             else if (type == "ImportClause") {
-                importName = _node.namedBindings.elements[0].getText();
+                let importNode = _node.namedBindings;
+                if (importNode.elements) {
+                    for (let j = 0; j < importNode.elements.length; j++) {
+                        importName.push(importNode.elements[j].getText());
+                    }
+                }
             }
         }
+        //优先检测class路径
         if (classPath.indexOf("\\") == -1 && classPath.indexOf("/") == -1)
             return ["\r\n", ""];
-        classPath = classPath.replace(new RegExp("\\\\", "g"), ".");
-        classPath = classPath.replace(new RegExp("/", "g"), ".");
-        this.importArr[importName] = classPath;
+        let topPath = path.join(classPath, "../").replace(new RegExp("\\\\|/", "g"), ".");
+        classPath = classPath.replace(new RegExp("\\\\|/", "g"), ".");
+        if (importName.length) {
+            for (let i = 0; i < importName.length; i++) {
+                this.importArr[importName[i]] = topPath + importName[i];
+            }
+        }
         return ["\timport " + classPath + ";\r\n", ""];
     }
     /**
@@ -452,8 +472,8 @@ class emiter {
                 let type = node.typeName.getText();
                 if (type == "ArrayLike")
                     type = "Array";
-                //检测是否是枚举类型
-                if (emiter.enumType.indexOf(type) != -1)
+                //检测内部枚举是否是枚举类型
+                if (this.enumType.indexOf(type) != -1)
                     return "*";
                 //如果是内部类且有引用
                 if (this.innerClass && this.importArr[type] && this.classNameNow != type) {
@@ -613,10 +633,6 @@ class emiter {
 /**所有已经识别的没有准备的方法 */
 emiter._typeArr = ["VariableStatement", "ExportDeclaration", "Uint16Array", "Float32Array",
     "FunctionDeclaration"];
-/**
- * 枚举类型
- */
-emiter.enumType = [];
 /**jsc对应的astype */
 emiter.jscObj = {};
 /**构成的d.ts数据 */
