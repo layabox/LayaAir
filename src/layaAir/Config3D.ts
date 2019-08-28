@@ -48,7 +48,6 @@ export class Config3D implements IClone {
 
 	/**
 	 * 默认物理功能初始化内存，单位为M。
-	 * @return 默认物理功能初始化内存。
 	 */
 	get defaultPhysicsMemory(): number {
 		return this._defaultPhysicsMemory;
