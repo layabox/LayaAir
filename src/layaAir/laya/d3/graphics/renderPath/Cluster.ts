@@ -39,13 +39,13 @@ class ClusterData {
 export class Cluster {
     private static _tempVector30: Vector3 = new Vector3();
     private static _tempVector31: Vector3 = new Vector3();
-    private static _tempVector32: Vector3 = new Vector3();
-    private static _tempVector33: Vector3 = new Vector3();
     private static _tempVector34: Vector3 = new Vector3();
     private static _tempVector35: Vector3 = new Vector3();
     private static _tempVector36: Vector3 = new Vector3();
     private static _tempVector37: Vector3 = new Vector3();
     private static _tempLightBound: LightBound = new LightBound();
+
+    static instance: Cluster;
 
     private _xSlices: number;
     private _ySlices: number;

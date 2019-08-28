@@ -65,8 +65,6 @@ import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
  */
 export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal */
-	public static _cluster: Cluster;
-	/** @internal */
 	public static _lightTexture: Texture2D;
 	/** @internal */
 	public static _lightPixles: Float32Array;
@@ -140,7 +138,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			const width: number = 4;
 			var maxLightCount: number = con.maxLightCount;
 			var clusterSlices: Vector3 = con.lightClusterCount;
-			Scene3D._cluster = new Cluster(clusterSlices.x, clusterSlices.y, clusterSlices.z, con.maxLightCountPerCluster);
+			Cluster.instance = new Cluster(clusterSlices.x, clusterSlices.y, clusterSlices.z, con.maxLightCountPerCluster);
 			Scene3D._lightTexture = Utils3D._createFloatTextureBuffer(width, maxLightCount);
 			Scene3D._lightTexture.lock = true;
 			Scene3D._lightPixles = new Float32Array(maxLightCount * width * 4);
@@ -800,7 +798,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			(curCount > 0) && (ligTex.setSubPixels(0, 0, pixelWidth, curCount, ligPix, 0));
 			shaderValues.setTexture(Scene3D.LIGHTBUFFER, ligTex);
 			shaderValues.setInt(Scene3D.DIRECTIONLIGHTCOUNT, this._directionLights._length);
-			shaderValues.setTexture(Scene3D.CLUSTERBUFFER, Scene3D._cluster._clusterTexture);
+			shaderValues.setTexture(Scene3D.CLUSTERBUFFER, Cluster.instance._clusterTexture);
 		}
 		else {
 			if (this._directionLights._length > 0) {

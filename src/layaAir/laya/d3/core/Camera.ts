@@ -1,9 +1,11 @@
+import { Config3D } from "../../../Config3D";
 import { Laya } from "../../../Laya";
 import { Node } from "../../display/Node";
 import { Event } from "../../events/Event";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Render } from "../../renders/Render";
 import { BaseTexture } from "../../resource/BaseTexture";
+import { RenderTextureDepthFormat, RenderTextureFormat } from "../../resource/RenderTextureFormat";
 import { PostProcess } from "../component/PostProcess";
 import { FrustumCulling } from "../graphics/FrustumCulling";
 import { BoundFrustum } from "../math/BoundFrustum";
@@ -19,6 +21,7 @@ import { Shader3D } from "../shader/Shader3D";
 import { ShaderData } from "../shader/ShaderData";
 import { ParallelSplitShadowMap } from "../shadowMap/ParallelSplitShadowMap";
 import { Picker } from "../utils/Picker";
+import { SystemUtils } from "../utils/SystemUtils";
 import { BaseCamera } from "./BaseCamera";
 import { BlitScreenQuadCMD } from "./render/command/BlitScreenQuadCMD";
 import { CommandBuffer } from "./render/command/CommandBuffer";
@@ -27,10 +30,7 @@ import { RenderQueue } from "./render/RenderQueue";
 import { Scene3D } from "./scene/Scene3D";
 import { Scene3DShaderDeclaration } from "./scene/Scene3DShaderDeclaration";
 import { Transform3D } from "./Transform3D";
-import { SystemUtils } from "../utils/SystemUtils";
-import { ILaya3D } from "../../../ILaya3D";
-import { RenderTextureFormat, RenderTextureDepthFormat } from "../../resource/RenderTextureFormat";
-import { Config3D } from "../../../Config3D";
+import { Cluster } from "../graphics/renderPath/Cluster";
 
 /**
  * <code>Camera</code> 类用于创建摄像机。
@@ -479,7 +479,7 @@ export class Camera extends BaseCamera {
 		context.viewport = this.viewport;
 		this._prepareCameraToRender();
 		var multiLighting: boolean = Config3D._config._multiLighting;
-		(multiLighting) && (Scene3D._cluster.update(this, <Scene3D>(this._scene)));
+		(multiLighting) && (Cluster.instance.update(this, <Scene3D>(this._scene)));
 		this._applyViewProject(context, this.viewMatrix, this._projectionMatrix, renderTar ? true : false);
 		scene._preCulling(context, this, shader, replacementTag);
 		scene._clear(gl, context);
