@@ -283,7 +283,7 @@ export class Camera extends BaseCamera {
 	 */
 	set enableHDR(value: boolean) {
 		if (value) {
-			if (SystemUtils.supportRenderTextureFormat(RenderTextureFormat.RGBA_HALF_FLOAT))
+			if (SystemUtils.supportRenderTextureFormat(RenderTextureFormat.R16G16B16A16))
 				this._enableHDR = true;
 			else
 				console.warn("Camera:can't enable HDR in this device.");
@@ -412,7 +412,7 @@ export class Camera extends BaseCamera {
 	 */
 	_getRenderTextureFormat(): number {
 		if (this._enableHDR)
-			return RenderTextureFormat.RGBA_HALF_FLOAT;
+			return RenderTextureFormat.R16G16B16A16;
 		else
 			return RenderTextureFormat.R8G8B8;
 	}
