@@ -133,6 +133,13 @@ var packsDef={
         ],
         'out':'../build/js/libs/laya.qqmini.js'
     },
+    //debugtool
+    'debugtool':{
+        'input':[
+            './extensions/debug/**/*.*'
+        ],
+        'out':'../build/js/libs/laya.debugtool.js'
+    },
 
 };
 
@@ -775,6 +782,37 @@ gulp.task('buildJS', async function () {
   
     await tiledmap.write({
       file: packsDef.tiledmap.out,
+      format: 'iife',
+      name: 'Laya',
+      sourcemap: false,
+      extend:true,
+      globals:{'Laya':'Laya'}
+    });
+
+    const debugtool = await rollup.rollup({
+        input:packsDef.debugtool.input,
+        output: {
+            extend:true,
+            globals:{'Laya':'Laya'}
+        },
+        external:['Laya'],
+        plugins: [
+            myMultiInput(),
+            typescript({
+                tsconfig:"./layaAir/tsconfig.json",
+                check: false,
+                tsconfigOverride:{compilerOptions:{removeComments: true}}
+            }),
+            glsl({
+                include: /\.glsl$/,
+                sourceMap: false,
+                compress:false
+            }),   
+        ]
+    });
+  
+    await debugtool.write({
+      file: packsDef.debugtool.out,
       format: 'iife',
       name: 'Laya',
       sourcemap: false,
