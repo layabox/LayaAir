@@ -39,6 +39,8 @@ class ClusterData {
 export class Cluster {
     private static _tempVector30: Vector3 = new Vector3();
     private static _tempVector31: Vector3 = new Vector3();
+    private static _tempVector32: Vector3 = new Vector3();
+    private static _tempVector33: Vector3 = new Vector3();
     private static _tempVector34: Vector3 = new Vector3();
     private static _tempVector35: Vector3 = new Vector3();
     private static _tempVector36: Vector3 = new Vector3();
@@ -123,21 +125,22 @@ export class Cluster {
         return !(angleCull || frontCull || backCull);
     }
 
-    private _insertConePlane(origin: Vector3, forward: Vector3, size: number, angle: number, pNor: Vector3): boolean {
+    private _insertConePlane(origin: Vector3, forward: Vector3, radius: number, halfAngle: number, pNor: Vector3): boolean {
         //https://bartwronski.com/2017/04/13/cull-that-cone/
         //because distance is always zero so we ease this method
         var V1: Vector3 = Cluster._tempVector36;
         var V2: Vector3 = Cluster._tempVector37;
         Vector3.cross(pNor, forward, V1);
         Vector3.cross(V1, forward, V2);
-        var sCos: number = size * Math.cos(angle);
-        var sSin: number = size * Math.sin(angle);
-        var capRimX: number = origin.x + sCos * forward.x + sSin * V2.x;
-        var capRimY: number = origin.y + sCos * forward.y + sSin * V2.y;
-        var capRimZ: number = origin.z + sCos * forward.z + sSin * V2.z;
+        Vector3.normalize(V2, V2);
+        var tanR: number = radius * Math.tan(halfAngle);
+        var capRimX: number = origin.x + radius * forward.x + tanR * V2.x;
+        var capRimY: number = origin.y + radius * forward.y + tanR * V2.y;
+        var capRimZ: number = origin.z + radius * forward.z + tanR * V2.z;
 
-        return capRimX * pNor.x + capRimY * pNor.y + capRimZ * pNor.z >= 0 || origin.x * pNor.x + origin.y * pNor.y + origin.z * pNor.z >= 0;
+        return capRimX * pNor.x + capRimY * pNor.y + capRimZ * pNor.z <= 0 || origin.x * pNor.x + origin.y * pNor.y + origin.z * pNor.z <= 0;
     }
+
 
     private _shrinkSphereLightZ(near: number, far: number, lightviewPos: Vector3, radius: number, lightBound: LightBound): boolean {
         var lvZ: number = lightviewPos.z;
@@ -152,12 +155,12 @@ export class Cluster {
         return true;
     }
 
-    private _shrinkSpotLightZ(near: number, far: number, viewLightPos: Vector3, viewConeCap: Vector3, radius: number, angle: number, lightBound: LightBound): boolean {
+    private _shrinkSpotLightZ(near: number, far: number, viewLightPos: Vector3, viewConeCap: Vector3, radius: number, halfAngle: number, lightBound: LightBound): boolean {
         //https://bartwronski.com/2017/04/13/cull-that-cone/
         //http://www.iquilezles.org/www/articles/diskbbox/diskbbox.htm
 
         var pbX: number = viewConeCap.x, pbY: number = viewConeCap.y, pbZ: number = viewConeCap.z;
-        var rb: number = Math.tan((angle / 2) * Math.PI / 180) * radius;
+        var rb: number = Math.tan(halfAngle) * radius;
         var paX: number = viewLightPos.x, paY: number = viewLightPos.y, paZ: number = viewLightPos.z;
         var aX: number = pbX - paX, aY: number = pbY - paY, aZ: number = pbZ - paZ;
         var dotA: number = aX * aX + aY * aY + aZ * aZ;
@@ -180,7 +183,7 @@ export class Cluster {
     private _shrinkXYByRadius(lightviewPos: Vector3, radius: number, lightBound: LightBound): boolean {
         var xMin: number, yMin: number;
         var xMax: number, yMax: number;
-        var lvX: number = lightviewPos.x, lvY: number = lightviewPos.y, lvZ: number = lightviewPos.z;// inverse Z
+        var lvX: number = lightviewPos.x, lvY: number = lightviewPos.y, lvZ: number = lightviewPos.z;
 
         var i: number;
         var n: number = this._ySlices + 1;
@@ -224,7 +227,7 @@ export class Cluster {
             }
         }
         xMax = this._xSlices;
-        for (var i = xMin + 1; i < n; i++) {
+        for (i = xMin + 1; i < n; i++) {
             var angle: number = xStart + xLengthPerCluster * i;
             var bigHypot: number = Math.sqrt(1 + angle * angle);
             var normX: number = 1 / bigHypot;
@@ -235,6 +238,69 @@ export class Cluster {
             }
         }
         lightBound.xMin = xMin
+        lightBound.xMax = xMax;
+        lightBound.yMin = yMin;
+        lightBound.yMax = yMax;
+        return true;
+    }
+
+    private _shrinkSpotXYByCone(lightviewPos: Vector3, viewForward: Vector3, radius: number, halfAngle: number, lightBound: LightBound): boolean {
+        var xMin: number, yMin: number;
+        var xMax: number, yMax: number;
+
+        var normal: Vector3 = Cluster._tempVector32;
+        var n: number = lightBound.yMax + 1;
+        var yStart = -this._xySliceParams.y;
+        var yLengthPerCluster: number = this._xySliceParams.w;
+        for (var i: number = lightBound.yMin; i < n; i++) {
+            var angle: number = yStart - yLengthPerCluster * i;
+            var bigHypot: number = Math.sqrt(1 + angle * angle);
+            var normY: number = -1 / bigHypot;
+            normal.setValue(0, normY, -angle * normY);
+            if (this._insertConePlane(lightviewPos, viewForward, radius, halfAngle, normal)) {
+                yMin = Math.max(0, i - 1);
+                break;
+            }
+        }
+
+        yMax = lightBound.yMax;
+        for (var i: number = yMin + 1; i < n; i++) {
+            var angle: number = yStart - yLengthPerCluster * i;
+            var bigHypot: number = Math.sqrt(1 + angle * angle);
+            var normY: number = 1 / bigHypot;
+            normal.setValue(0, normY, -angle * normY);
+            if (!this._insertConePlane(lightviewPos, viewForward, radius, halfAngle, normal)) {
+                yMax = Math.max(0, i);
+                break;
+            }
+        }
+
+        var xStart: number = this._xySliceParams.x;
+        var xLengthPerCluster: number = this._xySliceParams.z;
+        n = lightBound.xMax + 1;
+        for (var i: number = lightBound.xMin; i < n; i++) {
+            var angle: number = xStart + xLengthPerCluster * i;
+            var bigHypot: number = Math.sqrt(1 + angle * angle);
+            var normX: number = 1 / bigHypot;
+            normal.setValue(normX, 0, -angle * normX);
+            if (this._insertConePlane(lightviewPos, viewForward, radius, halfAngle, normal)) {
+                xMin = Math.max(0, i - 1);
+                break;
+            }
+        }
+        xMax = lightBound.xMax;
+        for (var i: number = xMin + 1; i < n; i++) {
+            var angle: number = xStart + xLengthPerCluster * i;
+            var bigHypot: number = Math.sqrt(1 + angle * angle);
+            var normX: number = -1 / bigHypot;
+            normal.setValue(normX, 0, -angle * normX);
+            if (!this._insertConePlane(lightviewPos, viewForward, radius, halfAngle, normal)) {
+                xMax = Math.max(0, i);
+                break;
+            }
+        }
+
+        lightBound.xMin = xMin;
         lightBound.xMax = xMax;
         lightBound.yMin = yMin;
         lightBound.yMax = yMax;
@@ -275,22 +341,29 @@ export class Cluster {
         // the effect is exaggerated the steeper the angle the plane makes is
         var lightBound: LightBound = Cluster._tempLightBound;
         var viewPos: Vector3 = Cluster._tempVector30;
-        var viewForward: Vector3 = Cluster._tempVector31;
+        var forward: Vector3 = Cluster._tempVector31;
         var viewConeCap: Vector3 = Cluster._tempVector34;
         var position: Vector3 = spotLight._transform.position;
         var range: number = spotLight.range;
-        spotLight._transform.worldMatrix.getForward(viewForward);
-        Vector3.normalize(viewForward, viewForward);
-        Vector3.scale(viewForward, range, viewConeCap);
+        spotLight._transform.worldMatrix.getForward(forward);
+        Vector3.normalize(forward, forward);
+        Vector3.scale(forward, range, viewConeCap);
         Vector3.add(position, viewConeCap, viewConeCap);
 
         Vector3.transformV3ToV3(position, viewMat, viewPos);//World to View
         Vector3.transformV3ToV3(viewConeCap, viewMat, viewConeCap);//World to View
         viewPos.z *= -1;
         viewConeCap.z *= -1;
-        if (!this._shrinkSpotLightZ(near, far, viewPos, viewConeCap, range, spotLight.spotAngle, lightBound))
+        var halfAngle: number = (spotLight.spotAngle / 2) * Math.PI / 180;
+        if (!this._shrinkSpotLightZ(near, far, viewPos, viewConeCap, range, halfAngle, lightBound))
             return;
         if (!this._shrinkXYByRadius(viewPos, range, lightBound))
+            return;
+
+        var viewFor: Vector3 = Cluster._tempVector33;
+        viewFor.x = viewConeCap.x - viewPos.x, viewFor.y = viewConeCap.y - viewPos.y, viewFor.z = viewConeCap.z - viewPos.z;
+        Vector3.normalize(viewFor, viewFor);
+        if (!this._shrinkSpotXYByCone(viewPos, viewFor, range, halfAngle, lightBound))
             return;
 
 
