@@ -149,6 +149,7 @@ export class Cluster {
         var capRimZ: number = origin.z + capRim.z;
 
         return capRimX * pNor.x + capRimY * pNor.y + capRimZ * pNor.z <= 0 || origin.x * pNor.x + origin.y * pNor.y + origin.z * pNor.z <= 0;
+
     }
 
 
@@ -262,7 +263,7 @@ export class Cluster {
         var n: number = lightBound.yMax + 1;
         var yStart = -this._xySliceParams.y;
         var yLengthPerCluster: number = this._xySliceParams.w;
-        for (var i: number = lightBound.yMin; i < n; i++) {
+        for (var i: number = lightBound.yMin + 1; i < n; i++) {
             var angle: number = yStart - yLengthPerCluster * i;
             var bigHypot: number = Math.sqrt(1 + angle * angle);
             var normY: number = -1 / bigHypot;
@@ -288,7 +289,7 @@ export class Cluster {
         var xStart: number = this._xySliceParams.x;
         var xLengthPerCluster: number = this._xySliceParams.z;
         n = lightBound.xMax + 1;
-        for (var i: number = lightBound.xMin; i < n; i++) {
+        for (var i: number = lightBound.xMin + 1; i < n; i++) {
             var angle: number = xStart + xLengthPerCluster * i;
             var bigHypot: number = Math.sqrt(1 + angle * angle);
             var normX: number = 1 / bigHypot;
