@@ -45,6 +45,7 @@ export class Cluster {
     private static _tempVector35: Vector3 = new Vector3();
     private static _tempVector36: Vector3 = new Vector3();
     private static _tempVector37: Vector3 = new Vector3();
+    private static _tempVector38: Vector3 = new Vector3();
     private static _tempLightBound: LightBound = new LightBound();
 
     static instance: Cluster;
@@ -125,18 +126,27 @@ export class Cluster {
         return !(angleCull || frontCull || backCull);
     }
 
+
     private _insertConePlane(origin: Vector3, forward: Vector3, radius: number, halfAngle: number, pNor: Vector3): boolean {
         //https://bartwronski.com/2017/04/13/cull-that-cone/
         //because distance is always zero so we ease this method
         var V1: Vector3 = Cluster._tempVector36;
         var V2: Vector3 = Cluster._tempVector37;
+        var capRim: Vector3 = Cluster._tempVector38;
         Vector3.cross(pNor, forward, V1);
         Vector3.cross(V1, forward, V2);
         Vector3.normalize(V2, V2);
         var tanR: number = radius * Math.tan(halfAngle);
-        var capRimX: number = origin.x + radius * forward.x + tanR * V2.x;
-        var capRimY: number = origin.y + radius * forward.y + tanR * V2.y;
-        var capRimZ: number = origin.z + radius * forward.z + tanR * V2.z;
+
+        capRim.x = radius * forward.x + tanR * V2.x;
+        capRim.y = radius * forward.y + tanR * V2.y;
+        capRim.z = radius * forward.z + tanR * V2.z;
+        Vector3.normalize(capRim, capRim);
+        Vector3.scale(capRim, radius, capRim);//limit the capRim with raidus
+
+        var capRimX: number = origin.x + capRim.x;
+        var capRimY: number = origin.y + capRim.y;
+        var capRimZ: number = origin.z + capRim.z;
 
         return capRimX * pNor.x + capRimY * pNor.y + capRimZ * pNor.z <= 0 || origin.x * pNor.x + origin.y * pNor.y + origin.z * pNor.z <= 0;
     }
