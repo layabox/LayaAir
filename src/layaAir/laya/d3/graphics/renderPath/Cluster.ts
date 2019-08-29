@@ -140,11 +140,12 @@ export class Cluster {
         var capRimY: number = radius * forward.y + tanR * V2.y;
         var capRimZ: number = radius * forward.z + tanR * V2.z;
 
+        //limit the capRim with raidus
         //normilaze capRim
         var capLen: number = capRimX * capRimX + capRimY * capRimY + capRimZ * capRimZ;
         (capLen > 0) && (capLen = 1 / Math.sqrt(capLen), capRimX = capRimX * capLen, capRimY = capRimY * capLen, capRimZ = capRimZ * capLen);
         //Scale
-        capRimX = capRimX * radius, capRimY = capRimY * radius, capRimZ = capRimZ * radius;//limit the capRim with raidus
+        capRimX = capRimX * radius, capRimY = capRimY * radius, capRimZ = capRimZ * radius;
 
         var capRimX: number = origin.x + capRimX;
         var capRimY: number = origin.y + capRimY;
