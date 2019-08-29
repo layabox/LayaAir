@@ -45,7 +45,6 @@ export class Cluster {
     private static _tempVector35: Vector3 = new Vector3();
     private static _tempVector36: Vector3 = new Vector3();
     private static _tempVector37: Vector3 = new Vector3();
-    private static _tempVector38: Vector3 = new Vector3();
     private static _tempLightBound: LightBound = new LightBound();
 
     static instance: Cluster;
@@ -372,75 +371,11 @@ export class Cluster {
             return;
         if (!this._shrinkXYByRadius(viewPos, range, lightBound))
             return;
-
         var viewFor: Vector3 = Cluster._tempVector33;
         viewFor.x = viewConeCap.x - viewPos.x, viewFor.y = viewConeCap.y - viewPos.y, viewFor.z = viewConeCap.z - viewPos.z;
         Vector3.normalize(viewFor, viewFor);
         if (!this._shrinkSpotXYByCone(viewPos, viewFor, range, halfAngle, lightBound))
             return;
-
-
-        // var normal: Vector3 = Cluster._tempVector32;
-        // spotLight._transform.worldMatrix.getForward(viewForward);
-        // Vector3.transformV3ToV3(viewForward, viewMat, viewForward);//World to View
-        // viewForward.z *= -1;
-
-        // var i: number;
-        // var n: number = lightBound.yMax;
-        // var yStart = -this._xySliceParams.y;
-        // var yLengthPerCluster: number = this._xySliceParams.w;
-        // for (i = lightBound.yMin; i < n; i++) {
-        //     var angle: number = yStart - yLengthPerCluster * i;
-        //     var bigHypot: number = Math.sqrt(1 + angle * angle);
-        //     var normY: number = -1 / bigHypot;
-        //     normal.setValue(0, normY, -angle * normY);
-        //     if (this._insertConePlane(viewPos, viewForward, spotLight.range, spotLight.spotAngle, normal)) {
-        //         lightBound.yMin = Math.max(0, i - 1);
-        //         break;
-        //     }
-        // }
-
-        // for (i = lightBound.yMin + 1; i < n; i++) {
-        //     var angle: number = yStart - yLengthPerCluster * i;
-        //     var bigHypot: number = Math.sqrt(1 + angle * angle);
-        //     var normY: number = -1 / bigHypot;
-        //     normal.setValue(0, normY, -angle * normY);
-        //     if (this._insertConePlane(viewPos, viewForward, spotLight.range, spotLight.spotAngle, normal)) {
-        //         lightBound.yMax = Math.max(0, i);
-        //         break;
-        //     }
-        // }
-
-        // var xStart: number = this._xySliceParams.x;
-        // var xLengthPerCluster: number = this._xySliceParams.z;
-        // n = this._xSlices + 1;
-        // for (i = 0; i < n; i++) {
-        //     var angle: number = xStart + xLengthPerCluster * i;
-        //     var bigHypot: number = Math.sqrt(1 + angle * angle);
-        //     var normX: number = 1 / bigHypot;
-        //     var normZ: number = -angle * normX;
-        //     if (lvX * normX + lvZ * normZ < radius) {//Dot
-        //         xMin = Math.max(0, i - 1);
-        //         break;
-        //     }
-        // }
-        // xMax = this._xSlices;
-        // for (var i = xMin + 1; i < n; i++) {
-        //     var angle: number = xStart + xLengthPerCluster * i;
-        //     var bigHypot: number = Math.sqrt(1 + angle * angle);
-        //     var normX: number = 1 / bigHypot;
-        //     var normZ: number = -angle * normX;
-        //     if (lvX * normX + lvZ * normZ < -radius) {//Dot
-        //         xMax = Math.max(0, i);
-        //         break;
-        //     }
-        // }
-        // lightBound.xMin = xMin
-        // lightBound.xMax = xMax;
-        // lightBound.yMin = yMin;
-        // lightBound.yMax = yMax;
-        // lightBound.zMin = zMin;
-        // lightBound.zMax = zMax;
 
         for (var z: number = lightBound.zMin, zEnd: number = lightBound.zMax; z < zEnd; z++) {
             for (var y: number = lightBound.yMin, yEnd: number = lightBound.yMax; y < yEnd; y++) {
