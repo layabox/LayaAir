@@ -16,19 +16,17 @@ export class SpotLight extends LightSprite {
 
 	/**
  	* 聚光灯的锥形角度。
- 	* @return 聚光灯的锥形角度。
  	*/
 	get spotAngle(): number {
 		return this._spotAngle;
 	}
 
 	set spotAngle(value: number) {
-		this._spotAngle = Math.max(Math.min(value, 180), 0);
+		this._spotAngle = Math.max(Math.min(value, 179), 0);
 	}
 
 	/**
 	 * 聚光的范围。
-	 * @return 聚光的范围值。
 	 */
 	get range(): number {
 		return this._range;
