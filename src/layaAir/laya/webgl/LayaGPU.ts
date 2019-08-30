@@ -73,10 +73,10 @@ export class LayaGPU {
             this._oesTextureHalfFloat = this._getExtension("OES_texture_half_float");
             this._oesTextureHalfFloatLinear = this._getExtension("OES_texture_half_float_linear");
             this._oesTextureFloat = this._getExtension("OES_texture_float");
-            //_getExtension("OES_texture_float_linear");
+            //this._getExtension("OES_texture_float_linear");
         } else {
             this._getExtension("EXT_color_buffer_float");
-            //_getExtension("OES_texture_float_linear");
+            //this._getExtension("OES_texture_float_linear");
         }
 
         //_getExtension("EXT_float_blend");

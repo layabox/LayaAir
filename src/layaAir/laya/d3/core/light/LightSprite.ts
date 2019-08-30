@@ -1,4 +1,4 @@
-import { ILaya3D } from "../../../../ILaya3D";
+import { Config3D } from "../../../../Config3D";
 import { Node } from "../../../display/Node";
 import { Vector3 } from "../../math/Vector3";
 import { ParallelSplitShadowMap } from "../../shadowMap/ParallelSplitShadowMap";
@@ -164,7 +164,7 @@ export class LightSprite extends Sprite3D {
 	 */
 	private _addToScene(): void {
 		var scene: Scene3D = <Scene3D>this._scene;
-		var maxLightCount: number = ILaya3D.Laya3D._config.maxLightCount;
+		var maxLightCount: number = Config3D._config.maxLightCount;
 		if (scene._lightCount < maxLightCount) {
 			scene._lightCount++;
 			this._addToLightQueue();

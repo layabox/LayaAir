@@ -1,13 +1,10 @@
-import { SubShader } from "./SubShader";
-import { ShaderPass } from "./ShaderPass";
-import { WebGL } from "../../webgl/WebGL"
-import { ShaderCompile } from "../../webgl/utils/ShaderCompile"
+import { Config3D } from "../../../Config3D";
+import { ShaderCompile } from "../../webgl/utils/ShaderCompile";
+import { WebGL } from "../../webgl/WebGL";
 import { DefineDatas } from "./DefineDatas";
 import { ShaderDefine } from "./ShaderDefine";
-import { LayaGL } from "../../layagl/LayaGL";
-import { SystemUtils } from "../utils/SystemUtils";
-import { BaseTexture } from "../../resource/BaseTexture";
-import { ILaya3D } from "../../../ILaya3D";
+import { ShaderPass } from "./ShaderPass";
+import { SubShader } from "./SubShader";
 
 /**
  * <code>Shader3D</code> 类用于创建Shader3D。
@@ -173,7 +170,7 @@ export class Shader3D {
 						compileDefineDatas.add(Shader3D.getDefineByName(defineNames[i]));
 
 					(WebGL.shaderHighPrecision) && (compileDefineDatas.add(Shader3D.SHADERDEFINE_HIGHPRECISION)); //部分低端移动设备不支持高精度shader,所以如果在PC端或高端移动设备输出的宏定义值需做判断移除高精度宏定义
-					(ILaya3D.Laya3D._multiLighting) || (compileDefineDatas.add(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING));
+					(Config3D._config._multiLighting) || (compileDefineDatas.add(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING));
 					pass.withCompile(compileDefineDatas);
 
 				} else {
@@ -210,7 +207,7 @@ export class Shader3D {
 					compileDefineDatas._length = defineMask.length;
 
 					(WebGL.shaderHighPrecision) && (compileDefineDatas.add(Shader3D.SHADERDEFINE_HIGHPRECISION)); //部分低端移动设备不支持高精度shader,所以如果在PC端或高端移动设备输出的宏定义值需做判断移除高精度宏定义
-					(ILaya3D.Laya3D._multiLighting) || (compileDefineDatas.add(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING));
+					(Config3D._config._multiLighting) || (compileDefineDatas.add(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING));
 					pass.withCompile(compileDefineDatas);
 
 				} else {

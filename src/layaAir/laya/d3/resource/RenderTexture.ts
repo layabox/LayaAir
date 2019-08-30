@@ -104,7 +104,7 @@ export class RenderTexture extends BaseTexture {
 			case RenderTextureFormat.Alpha8:
 				gl.texImage2D(glTextureType, 0, gl.ALPHA, width, height, 0, gl.ALPHA, gl.UNSIGNED_BYTE, null);
 				break;
-			case RenderTextureFormat.RGBA_HALF_FLOAT:
+			case RenderTextureFormat.R16G16B16A16:
 				if (LayaGL.layaGPUInstance._isWebGL2)
 					gl.texImage2D(this._glTextureType, 0, (<WebGL2RenderingContext>gl).RGBA16F, width, height, 0, gl.RGBA, (<WebGL2RenderingContext>gl).HALF_FLOAT, null);
 				else

@@ -1,12 +1,12 @@
 export enum RenderTextureFormat {
-    /**纹理格式_R8G8B8。*/
+    /**RGB格式,每个通道8位。*/
     R8G8B8 = 0,
-    /**纹理格式_R8G8B8A8。*/
+    /**RGBA格式,每个通道8位。*/
     R8G8B8A8 = 1,
-    /**纹理格式_ALPHA8。*/
+    /**Alpha格式,8位。*/
     Alpha8 = 2,
-    /**渲染纹理格式_16位半精度RGBA浮点格式。*/
-    RGBA_HALF_FLOAT = 14
+    /**RGBA格式,每个通道16位。*/
+    R16G16B16A16 = 14
 }
 
 export enum RenderTextureDepthFormat {

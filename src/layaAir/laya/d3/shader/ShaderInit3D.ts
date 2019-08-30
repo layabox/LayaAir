@@ -763,9 +763,6 @@ export class ShaderInit3D {
 		renderState.cull = RenderState.CULL_NONE;
 		renderState.blend = RenderState.BLEND_DISABLE;
 
-
-
-
 		//PostProcessBloom
 		attributeMap = {
 			'a_PositionTexcoord': VertexMesh.MESH_POSITION0

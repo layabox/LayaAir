@@ -5,7 +5,6 @@ import { Pool } from "../../utils/Pool"
 import { WordText } from "../../utils/WordText"
 import { ILaya } from "../../../ILaya";
 import { HTMLChar } from "../../utils/HTMLChar";
-import { worker } from "cluster";
 
 /**
  * 绘制文字

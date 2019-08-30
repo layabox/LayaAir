@@ -26,7 +26,7 @@ export class SystemUtils {
      */
     static supportRenderTextureFormat(format: number): boolean {
         switch (format) {
-            case RenderTextureFormat.RGBA_HALF_FLOAT:
+            case RenderTextureFormat.R16G16B16A16:
                 if (!LayaGL.layaGPUInstance._isWebGL2 && !LayaGL.layaGPUInstance._oesTextureHalfFloat && !LayaGL.layaGPUInstance._oesTextureHalfFloatLinear)
                     return false;
                 else
