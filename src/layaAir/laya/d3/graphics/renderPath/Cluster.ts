@@ -135,24 +135,13 @@ export class Cluster {
         Vector3.cross(V1, forward, V2);
         Vector3.normalize(V2, V2);
         var tanR: number = radius * Math.tan(halfAngle);
-
-        var capRimX: number = radius * forward.x + tanR * V2.x;
-        var capRimY: number = radius * forward.y + tanR * V2.y;
-        var capRimZ: number = radius * forward.z + tanR * V2.z;
-
-        //limit the capRim with raidus
-        //normilaze capRim
-        var capLen: number = capRimX * capRimX + capRimY * capRimY + capRimZ * capRimZ;
-        (capLen > 0) && (capLen = 1 / Math.sqrt(capLen), capRimX = capRimX * capLen, capRimY = capRimY * capLen, capRimZ = capRimZ * capLen);
-        //Scale
-        capRimX = capRimX * radius, capRimY = capRimY * radius, capRimZ = capRimZ * radius;
-
-        var capRimX: number = origin.x + capRimX;
-        var capRimY: number = origin.y + capRimY;
-        var capRimZ: number = origin.z + capRimZ;
+        var capRimX: number = origin.x + radius * forward.x + tanR * V2.x;
+        var capRimY: number = origin.y + radius * forward.y + tanR * V2.y;
+        var capRimZ: number = origin.z + radius * forward.z + tanR * V2.z;
 
         return capRimX * pNor.x + capRimY * pNor.y + capRimZ * pNor.z <= 0 || origin.x * pNor.x + origin.y * pNor.y + origin.z * pNor.z <= 0;
     }
+
 
 
     private _shrinkSphereLightZ(near: number, far: number, lightviewPos: Vector3, radius: number, lightBound: LightBound): boolean {
