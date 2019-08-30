@@ -8,6 +8,7 @@ import { BaseTexture } from "../../resource/BaseTexture";
 import { RenderTextureDepthFormat, RenderTextureFormat } from "../../resource/RenderTextureFormat";
 import { PostProcess } from "../component/PostProcess";
 import { FrustumCulling } from "../graphics/FrustumCulling";
+import { Cluster } from "../graphics/renderPath/Cluster";
 import { BoundFrustum } from "../math/BoundFrustum";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Plane } from "../math/Plane";
@@ -30,13 +31,11 @@ import { RenderQueue } from "./render/RenderQueue";
 import { Scene3D } from "./scene/Scene3D";
 import { Scene3DShaderDeclaration } from "./scene/Scene3DShaderDeclaration";
 import { Transform3D } from "./Transform3D";
-import { Cluster } from "../graphics/renderPath/Cluster";
 
 /**
  * <code>Camera</code> 类用于创建摄像机。
  */
 export class Camera extends BaseCamera {
-
 	/** @internal */
 	static CAMERAEVENT_POSTPROCESS: number = 0;
 
@@ -46,34 +45,50 @@ export class Camera extends BaseCamera {
 	/** @internal */
 	static _updateMark: number = 0;
 
+	/** @internal */
 	private _aspectRatio: number;
+	/** @internal */
 	private _viewport: Viewport;
+	/** @internal */
 	private _normalizedViewport: Viewport;
+	/** @internal */
 	private _viewMatrix: Matrix4x4;
+	/** @internal */
 	private _projectionMatrix: Matrix4x4;
+	/** @internal */
 	private _projectionViewMatrix: Matrix4x4;
+	/** @internal */
 	private _boundFrustum: BoundFrustum;
+	/** @internal */
 	private _updateViewMatrix: boolean = true;
-	/** @internal 渲染目标。*/
-	public _offScreenRenderTexture: RenderTexture = null;
+	/** @internal */
 	private _postProcess: PostProcess = null;
+	/** @internal */
 	private _enableHDR: boolean = false;
+	/** @internal */
 	private _viewportParams: Vector4 = new Vector4();
+	/** @internal */
 	private _projectionParams: Vector4 = new Vector4();
 
 
-
+	/** @internal 渲染目标。*/
+	_offScreenRenderTexture: RenderTexture = null;
 	/**@internal */
 	_renderTexture: RenderTexture = null;
 	/** @internal */
 	_postProcessCommandBuffers: CommandBuffer[] = [];
+	/** @internal */
+	_clusterXPlanes: Vector2[];
+	/** @internal */
+	_clusterYPlanes: Vector2[];
+	/** @internal */
+	_clusterPlaneCacheFlag: Vector2 = new Vector2(-1, -1);
 
 	/**是否允许渲染。*/
 	enableRender: boolean = true;
 
 	/**
 	 * 获取横纵比。
-	 * @return 横纵比。
 	 */
 	get aspectRatio(): number {
 		if (this._aspectRatio === 0) {
@@ -83,10 +98,6 @@ export class Camera extends BaseCamera {
 		return this._aspectRatio;
 	}
 
-	/**
-	 * 设置横纵比。
-	 * @param value 横纵比。
-	 */
 	set aspectRatio(value: number) {
 		if (value < 0)
 			throw new Error("Camera: the aspect ratio has to be a positive real number.");
@@ -96,7 +107,6 @@ export class Camera extends BaseCamera {
 
 	/**
 	 * 获取屏幕像素坐标的视口。
-	 * @return 屏幕像素坐标的视口。
 	 */
 	get viewport(): Viewport {//TODO:优化
 		if (this._offScreenRenderTexture)
@@ -106,10 +116,6 @@ export class Camera extends BaseCamera {
 		return this._viewport;
 	}
 
-	/**
-	 * 设置屏幕像素坐标的视口。
-	 * @param 屏幕像素坐标的视口。
-	 */
 	set viewport(value: Viewport) {
 		var width: number;
 		var height: number;
@@ -130,16 +136,11 @@ export class Camera extends BaseCamera {
 
 	/**
 	 * 获取裁剪空间的视口。
-	 * @return 裁剪空间的视口。
 	 */
 	get normalizedViewport(): Viewport {
 		return this._normalizedViewport;
 	}
 
-	/**
-	 * 设置裁剪空间的视口。
-	 * @return 裁剪空间的视口。
-	 */
 	set normalizedViewport(value: Viewport) {
 		var width: number;
 		var height: number;
@@ -158,7 +159,6 @@ export class Camera extends BaseCamera {
 
 	/**
 	 * 获取视图矩阵。
-	 * @return 视图矩阵。
 	 */
 	get viewMatrix(): Matrix4x4 {
 		if (this._updateViewMatrix) {
@@ -184,12 +184,13 @@ export class Camera extends BaseCamera {
 		return this._viewMatrix;
 	}
 
-	/**获取投影矩阵。*/
+	/**
+	 * 获取投影矩阵。
+	 */
 	get projectionMatrix(): Matrix4x4 {
 		return this._projectionMatrix;
 	}
 
-	/**设置投影矩阵。*/
 	set projectionMatrix(value: Matrix4x4) {
 		this._projectionMatrix = value;
 		this._useUserProjectionMatrix = true;
@@ -197,7 +198,6 @@ export class Camera extends BaseCamera {
 
 	/**
 	 * 获取视图投影矩阵。
-	 * @return 视图投影矩阵。
 	 */
 	get projectionViewMatrix(): Matrix4x4 {
 		Matrix4x4.multiply(this.projectionMatrix, this.viewMatrix, this._projectionViewMatrix);
@@ -236,16 +236,11 @@ export class Camera extends BaseCamera {
 
 	/**
 	 * 获取自定义渲染场景的渲染目标。
-	 * @return 自定义渲染场景的渲染目标。
 	 */
 	get renderTarget(): RenderTexture {
 		return this._offScreenRenderTexture;
 	}
 
-	/**
-	 * 设置自定义渲染场景的渲染目标。
-	 * @param value 自定义渲染场景的渲染目标。
-	 */
 	set renderTarget(value: RenderTexture) {
 		if (this._offScreenRenderTexture !== value) {
 			this._offScreenRenderTexture = value;
@@ -255,16 +250,11 @@ export class Camera extends BaseCamera {
 
 	/**
 	 * 获取后期处理。
-	 * @return 后期处理。
 	 */
 	get postProcess(): PostProcess {
 		return this._postProcess;
 	}
 
-	/**
-	 * 设置后期处理。
-	 * @param value 后期处理。
-	 */
 	set postProcess(value: PostProcess) {
 		this._postProcess = value;
 		var postProcessCommandBuffer: CommandBuffer = new CommandBuffer();
@@ -279,9 +269,6 @@ export class Camera extends BaseCamera {
 		return this._enableHDR;
 	}
 
-	/**
-	 * 设置是否开启HDR。
-	 */
 	set enableHDR(value: boolean) {
 		if (value) {
 			if (SystemUtils.supportRenderTextureFormat(RenderTextureFormat.R16G16B16A16))
@@ -318,22 +305,8 @@ export class Camera extends BaseCamera {
 	}
 
 	/**
-	 *	通过蒙版值获取蒙版是否显示。
-	 * 	@param  layer 层。
-	 * 	@return 是否显示。
-	 */
-	_isLayerVisible(layer: number): boolean {
-		return (Math.pow(2, layer) & this.cullingMask) != 0;
-	}
-
-	/**
 	 * @internal
 	 */
-	_onTransformChanged(flag: number): void {
-		flag &= Transform3D.TRANSFORM_WORLDMATRIX;//过滤有用TRANSFORM标记
-		(flag) && (this._updateViewMatrix = true);
-	}
-
 	private _calculationViewport(normalizedViewport: Viewport, width: number, height: number): void {
 		var lx: number = normalizedViewport.x * width;//不应限制x范围
 		var ly: number = normalizedViewport.y * height;//不应限制y范围
@@ -361,19 +334,6 @@ export class Camera extends BaseCamera {
 	 * @override
 	 * @internal
 	 */
-	_parse(data: any, spriteMap: any): void {
-		super._parse(data, spriteMap);
-		var viewport: any[] = data.viewport;
-		this.normalizedViewport = new Viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
-		var enableHDR: boolean = data.enableHDR;
-		(enableHDR !== undefined) && (this.enableHDR = enableHDR);
-	}
-
-	/**
-	 * @inheritDoc
-	 * @override
-	 * @internal
-	 */
 	protected _calculateProjectionMatrix(): void {
 		if (!this._useUserProjectionMatrix) {
 			if (this._orthographic) {
@@ -385,6 +345,37 @@ export class Camera extends BaseCamera {
 			}
 		}
 	}
+
+	/**
+	 *	通过蒙版值获取蒙版是否显示。
+	 * 	@param  layer 层。
+	 * 	@return 是否显示。
+	 */
+	_isLayerVisible(layer: number): boolean {
+		return (Math.pow(2, layer) & this.cullingMask) != 0;
+	}
+
+	/**
+	 * @internal
+	 */
+	_onTransformChanged(flag: number): void {
+		flag &= Transform3D.TRANSFORM_WORLDMATRIX;//过滤有用TRANSFORM标记
+		(flag) && (this._updateViewMatrix = true);
+	}
+
+	/**
+	 * @inheritDoc
+	 * @override
+	 * @internal
+	 */
+	_parse(data: any, spriteMap: any): void {
+		super._parse(data, spriteMap);
+		var viewport: any[] = data.viewport;
+		this.normalizedViewport = new Viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+		var enableHDR: boolean = data.enableHDR;
+		(enableHDR !== undefined) && (this.enableHDR = enableHDR);
+	}
+
 
 	/**
 	 * @internal
@@ -429,6 +420,79 @@ export class Camera extends BaseCamera {
 		this._projectionParams.setValue(this._nearPlane, this._farPlane, this._getInternalRenderTexture() ? -1 : 1, 0);
 		this._shaderValues.setVector(BaseCamera.VIEWPORT, this._viewportParams);
 		this._shaderValues.setVector(BaseCamera.PROJECTION_PARAMS, this._projectionParams);
+	}
+
+	/**
+	 * @internal
+	 */
+	_applyViewProject(context: RenderContext3D, viewMat: Matrix4x4, proMat: Matrix4x4, inverseY: Boolean): void {
+		var projectView: Matrix4x4;
+		var shaderData: ShaderData = this._shaderValues;
+		if (inverseY) {
+			Matrix4x4.multiply(BaseCamera._invertYScaleMatrix, proMat, BaseCamera._invertYProjectionMatrix);
+			Matrix4x4.multiply(BaseCamera._invertYProjectionMatrix, viewMat, BaseCamera._invertYProjectionViewMatrix);
+			proMat = BaseCamera._invertYProjectionMatrix;
+			projectView = BaseCamera._invertYProjectionViewMatrix;
+		}
+		else {
+			Matrix4x4.multiply(proMat, viewMat, this._projectionViewMatrix);
+			projectView = this._projectionViewMatrix;
+		}
+
+		context.viewMatrix = viewMat;
+		context.projectionMatrix = proMat;
+		context.projectionViewMatrix = projectView;
+		shaderData.setMatrix4x4(BaseCamera.VIEWMATRIX, viewMat);
+		shaderData.setMatrix4x4(BaseCamera.PROJECTMATRIX, proMat);
+		shaderData.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, projectView);
+	}
+
+	/**
+	 * @internal
+	 */
+	_updateClusterPlaneXY(): void {
+		var fieldOfView: number = this.fieldOfView;
+		var aspectRatio: number = this.aspectRatio;
+		if (this._clusterPlaneCacheFlag.x !== fieldOfView || this._clusterPlaneCacheFlag.y !== aspectRatio) {
+			var clusterCount: Vector3 = Config3D._config.lightClusterCount;
+			var xSlixe: number = clusterCount.x, ySlice: number = clusterCount.y;
+			var xCount: number = xSlixe + 1, yCount: number = ySlice + 1;
+			var xPlanes: Vector2[] = this._clusterXPlanes, yPlanes: Vector2[] = this._clusterYPlanes;
+
+			if (!xPlanes) {
+				xPlanes = this._clusterXPlanes = new Array(xCount);
+				yPlanes = this._clusterYPlanes = new Array(yCount);
+				for (var i: number = 0; i < xCount; i++)
+					xPlanes[i] = new Vector2();
+				for (var i: number = 0; i < yCount; i++)
+					yPlanes[i] = new Vector2();
+			}
+
+			var halfY = Math.tan((this.fieldOfView / 2) * Math.PI / 180);
+			var halfX = this.aspectRatio * halfY;
+			var yLengthPerCluster = 2 * halfY / xSlixe;
+			var xLengthPerCluster = 2 * halfX / ySlice;
+			for (var i: number = 0; i < xCount; i++) {
+				var angle: number = -halfX + xLengthPerCluster * i;
+				var bigHypot: number = Math.sqrt(1 + angle * angle);
+				var normX: number = 1 / bigHypot;
+				var xPlane: Vector2 = xPlanes[i];
+				xPlane.x = normX;//normX
+				xPlane.y = -angle * normX;//normZ
+			}
+			//start from top is more similar to light pixel data
+			for (var i: number = 0; i < yCount; i++) {
+				var angle: number = halfY - yLengthPerCluster * i;
+				var bigHypot: number = Math.sqrt(1 + angle * angle);
+				var normY: number = -1 / bigHypot;
+				var yPlane: Vector2 = yPlanes[i];
+				yPlane.x = normY;//normY
+				yPlane.y = -angle * normY;//normZ
+			}
+
+			this._clusterPlaneCacheFlag.x = fieldOfView;
+			this._clusterPlaneCacheFlag.y = aspectRatio;
+		}
 	}
 
 	/**
@@ -498,31 +562,6 @@ export class Camera extends BaseCamera {
 			}
 			RenderTexture.recoverToPool(this._renderTexture);
 		}
-	}
-
-	/**
-	 * @internal
-	 */
-	_applyViewProject(context: RenderContext3D, viewMat: Matrix4x4, proMat: Matrix4x4, inverseY: Boolean): void {
-		var projectView: Matrix4x4;
-		var shaderData: ShaderData = this._shaderValues;
-		if (inverseY) {
-			Matrix4x4.multiply(BaseCamera._invertYScaleMatrix, proMat, BaseCamera._invertYProjectionMatrix);
-			Matrix4x4.multiply(BaseCamera._invertYProjectionMatrix, viewMat, BaseCamera._invertYProjectionViewMatrix);
-			proMat = BaseCamera._invertYProjectionMatrix;
-			projectView = BaseCamera._invertYProjectionViewMatrix;
-		}
-		else {
-			Matrix4x4.multiply(proMat, viewMat, this._projectionViewMatrix);
-			projectView = this._projectionViewMatrix;
-		}
-
-		context.viewMatrix = viewMat;
-		context.projectionMatrix = proMat;
-		context.projectionViewMatrix = projectView;
-		shaderData.setMatrix4x4(BaseCamera.VIEWMATRIX, viewMat);
-		shaderData.setMatrix4x4(BaseCamera.PROJECTMATRIX, proMat);
-		shaderData.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, projectView);
 	}
 
 
