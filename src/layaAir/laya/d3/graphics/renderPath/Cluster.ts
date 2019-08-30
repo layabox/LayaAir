@@ -270,9 +270,7 @@ export class Cluster {
                 break;
             }
         }
-
-        console.log("old : X " + lightBound.xMin + " " + lightBound.xMax + " Y " + lightBound.yMin + " " + lightBound.yMax);
-        console.log("new : X " + xMin + " " + xMax + " Y " + yMin + " " + yMax);
+        
         lightBound.xMin = xMin;
         lightBound.xMax = xMax;
         lightBound.yMin = yMin;
