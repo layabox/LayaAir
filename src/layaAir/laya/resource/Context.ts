@@ -1653,7 +1653,7 @@ export class Context {
 				tmpMat.a = matrix.a; tmpMat.b = matrix.b; tmpMat.c = matrix.c; tmpMat.d = matrix.d; tmpMat.tx = matrix.tx + x; tmpMat.ty = matrix.ty + y;
 			}
 			Matrix.mul(tmpMat, this._curMat, tmpMat);
-			triMesh.addData(vertices, uvs, indices, tmpMat, rgba);
+			triMesh.addData(vertices, uvs, indices, tmpMat||this._curMat, rgba);
 		} else {
 			// 这种情况是drawtexture转成的drawTriangle，直接使用matrix就行，传入的xy都是0
 			triMesh.addData(vertices, uvs, indices, matrix, rgba);
