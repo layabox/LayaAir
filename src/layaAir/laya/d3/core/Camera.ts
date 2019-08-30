@@ -78,9 +78,9 @@ export class Camera extends BaseCamera {
 	/** @internal */
 	_postProcessCommandBuffers: CommandBuffer[] = [];
 	/** @internal */
-	_clusterXPlanes: Vector2[];
+	_clusterXPlanes: Vector3[];
 	/** @internal */
-	_clusterYPlanes: Vector2[];
+	_clusterYPlanes: Vector3[];
 	/** @internal */
 	_clusterPlaneCacheFlag: Vector2 = new Vector2(-1, -1);
 
@@ -457,15 +457,15 @@ export class Camera extends BaseCamera {
 			var clusterCount: Vector3 = Config3D._config.lightClusterCount;
 			var xSlixe: number = clusterCount.x, ySlice: number = clusterCount.y;
 			var xCount: number = xSlixe + 1, yCount: number = ySlice + 1;
-			var xPlanes: Vector2[] = this._clusterXPlanes, yPlanes: Vector2[] = this._clusterYPlanes;
+			var xPlanes: Vector3[] = this._clusterXPlanes, yPlanes: Vector3[] = this._clusterYPlanes;
 
 			if (!xPlanes) {
 				xPlanes = this._clusterXPlanes = new Array(xCount);
 				yPlanes = this._clusterYPlanes = new Array(yCount);
 				for (var i: number = 0; i < xCount; i++)
-					xPlanes[i] = new Vector2();
+					xPlanes[i] = new Vector3();
 				for (var i: number = 0; i < yCount; i++)
-					yPlanes[i] = new Vector2();
+					yPlanes[i] = new Vector3();
 			}
 
 			var halfY = Math.tan((this.fieldOfView / 2) * Math.PI / 180);
@@ -476,18 +476,16 @@ export class Camera extends BaseCamera {
 				var angle: number = -halfX + xLengthPerCluster * i;
 				var bigHypot: number = Math.sqrt(1 + angle * angle);
 				var normX: number = 1 / bigHypot;
-				var xPlane: Vector2 = xPlanes[i];
-				xPlane.x = normX;//normX
-				xPlane.y = -angle * normX;//normZ
+				var xPlane: Vector3 = xPlanes[i];
+				xPlane.setValue(normX, 0, -angle * normX);
 			}
 			//start from top is more similar to light pixel data
 			for (var i: number = 0; i < yCount; i++) {
 				var angle: number = halfY - yLengthPerCluster * i;
 				var bigHypot: number = Math.sqrt(1 + angle * angle);
 				var normY: number = -1 / bigHypot;
-				var yPlane: Vector2 = yPlanes[i];
-				yPlane.x = normY;//normY
-				yPlane.y = -angle * normY;//normZ
+				var yPlane: Vector3 = yPlanes[i];
+				yPlane.setValue(0, normY, -angle * normY);
 			}
 
 			this._clusterPlaneCacheFlag.x = fieldOfView;

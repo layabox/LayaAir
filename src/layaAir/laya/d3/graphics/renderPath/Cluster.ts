@@ -181,7 +181,7 @@ export class Cluster {
     }
 
 
-    private _shrinkXYByRadius(lightviewPos: Vector3, radius: number, lightBound: LightBound, xPlanes: Vector2[], yPlanes: Vector2[]): boolean {
+    private _shrinkXYByRadius(lightviewPos: Vector3, radius: number, lightBound: LightBound, xPlanes: Vector3[], yPlanes: Vector3[]): boolean {
         var xMin: number, yMin: number;
         var xMax: number, yMax: number;
         var lvX: number = lightviewPos.x, lvY: number = lightviewPos.y, lvZ: number = lightviewPos.z;
@@ -189,8 +189,8 @@ export class Cluster {
         var i: number;
         var n: number = this._ySlices + 1;
         for (i = 0; i < n; i++) {
-            var plane: Vector2 = yPlanes[i];
-            if (lvY * plane.x + lvZ * plane.y < radius) {//Dot
+            var plane: Vector3 = yPlanes[i];
+            if (lvY * plane.y + lvZ * plane.z < radius) {//Dot
                 yMin = Math.max(0, i - 1);
                 break;
             }
@@ -199,8 +199,8 @@ export class Cluster {
             return false;
         yMax = this._ySlices;
         for (i = yMin + 1; i < n; i++) {
-            var plane: Vector2 = yPlanes[i];
-            if (lvY * plane.x + lvZ * plane.y <= -radius) {//Dot
+            var plane: Vector3 = yPlanes[i];
+            if (lvY * plane.y + lvZ * plane.z <= -radius) {//Dot
                 yMax = Math.max(0, i);
                 break;
             }
@@ -208,22 +208,22 @@ export class Cluster {
 
         n = this._xSlices + 1;
         for (i = 0; i < n; i++) {
-            var plane: Vector2 = xPlanes[i];
-            if (lvX * plane.x + lvZ * plane.y < radius) {//Dot
+            var plane: Vector3 = xPlanes[i];
+            if (lvX * plane.x + lvZ * plane.z < radius) {//Dot
                 xMin = Math.max(0, i - 1);
                 break;
             }
         }
         xMax = this._xSlices;
         for (i = xMin + 1; i < n; i++) {
-            var plane: Vector2 = xPlanes[i];
-            if (lvX * plane.x + lvZ * plane.y <= -radius) {//Dot
+            var plane: Vector3 = xPlanes[i];
+            if (lvX * plane.x + lvZ * plane.z <= -radius) {//Dot
                 xMax = Math.max(0, i);
                 break;
             }
         }
 
-       
+
         lightBound.xMin = xMin
         lightBound.xMax = xMax;
         lightBound.yMin = yMin;
@@ -231,16 +231,14 @@ export class Cluster {
         return true;
     }
 
-    private _shrinkSpotXYByCone(lightviewPos: Vector3, viewForward: Vector3, radius: number, halfAngle: number, lightBound: LightBound, xPlanes: Vector2[], yPlanes: Vector2[]): void {
+    private _shrinkSpotXYByCone(lightviewPos: Vector3, viewForward: Vector3, radius: number, halfAngle: number, lightBound: LightBound, xPlanes: Vector3[], yPlanes: Vector3[]): void {
         var xMin: number, yMin: number;
         var xMax: number, yMax: number;
 
         var normal: Vector3 = Cluster._tempVector32;
         var n: number = lightBound.yMax + 1;
         for (var i: number = lightBound.yMin + 1; i < n; i++) {
-            var plane: Vector2 = yPlanes[i];
-            normal.setValue(0, plane.x, plane.y);//TODO:继续优化
-            if (this._insertConePlane(lightviewPos, viewForward, radius, halfAngle, normal)) {
+            if (this._insertConePlane(lightviewPos, viewForward, radius, halfAngle, yPlanes[i])) {
                 yMin = Math.max(0, i - 1);
                 break;
             }
@@ -248,8 +246,8 @@ export class Cluster {
 
         yMax = lightBound.yMax;
         for (var i: number = yMin + 1; i < n; i++) {
-            var plane: Vector2 = yPlanes[i];
-            normal.setValue(0, -plane.x, -plane.y);
+            var plane: Vector3 = yPlanes[i];
+            normal.setValue(0, -plane.y, -plane.z);
             if (!this._insertConePlane(lightviewPos, viewForward, radius, halfAngle, normal)) {
                 yMax = Math.max(0, i);
                 break;
@@ -258,17 +256,15 @@ export class Cluster {
 
         n = lightBound.xMax + 1;
         for (var i: number = lightBound.xMin + 1; i < n; i++) {
-            var plane: Vector2 = xPlanes[i];
-            normal.setValue(plane.x, 0, plane.y);
-            if (this._insertConePlane(lightviewPos, viewForward, radius, halfAngle, normal)) {
+            if (this._insertConePlane(lightviewPos, viewForward, radius, halfAngle, xPlanes[i])) {
                 xMin = Math.max(0, i - 1);
                 break;
             }
         }
         xMax = lightBound.xMax;
         for (var i: number = xMin + 1; i < n; i++) {
-            var plane: Vector2 = xPlanes[i];
-            normal.setValue(-plane.x, 0, -plane.y);
+            var plane: Vector3 = xPlanes[i];
+            normal.setValue(-plane.x, 0, -plane.z);
             if (!this._insertConePlane(lightviewPos, viewForward, radius, halfAngle, normal)) {
                 xMax = Math.max(0, i);
                 break;
@@ -283,7 +279,7 @@ export class Cluster {
         lightBound.yMax = yMax;
     }
 
-    private _updatePointLight(near: number, far: number, viewMat: Matrix4x4, pointLight: PointLight, lightIndex: number, xPlanes: Vector2[], yPlanes: Vector2[]): void {
+    private _updatePointLight(near: number, far: number, viewMat: Matrix4x4, pointLight: PointLight, lightIndex: number, xPlanes: Vector3[], yPlanes: Vector3[]): void {
         var lightBound: LightBound = Cluster._tempLightBound;
         var lightviewPos: Vector3 = Cluster._tempVector30;
         Vector3.transformV3ToV3(pointLight._transform.position, viewMat, lightviewPos);//World to View
@@ -312,7 +308,7 @@ export class Cluster {
         }
     }
 
-    private _updateSpotLight(near: number, far: number, viewMat: Matrix4x4, spotLight: SpotLight, lightIndex: number, xPlanes: Vector2[], yPlanes: Vector2[]): void {
+    private _updateSpotLight(near: number, far: number, viewMat: Matrix4x4, spotLight: SpotLight, lightIndex: number, xPlanes: Vector3[], yPlanes: Vector3[]): void {
         // technically could fall outside the bounds we make because the planes themeselves are tilted by some angle
         // the effect is exaggerated the steeper the angle the plane makes is
         var lightBound: LightBound = Cluster._tempLightBound;
@@ -367,8 +363,8 @@ export class Cluster {
         this._depthSliceParam.y = Math.log2(camNear) * this._depthSliceParam.x;
 
         camera._updateClusterPlaneXY();
-        var xPlanes: Vector2[] = camera._clusterXPlanes;
-        var yPlanes: Vector2[] = camera._clusterYPlanes;
+        var xPlanes: Vector3[] = camera._clusterXPlanes;
+        var yPlanes: Vector3[] = camera._clusterYPlanes;
 
         var near: number = camera.nearPlane;
         var far: number = camera.farPlane;
