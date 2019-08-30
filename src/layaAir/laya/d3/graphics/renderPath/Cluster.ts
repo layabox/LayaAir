@@ -246,7 +246,7 @@ export class Cluster {
         return true;
     }
 
-    private _shrinkSpotXYByCone(lightviewPos: Vector3, viewForward: Vector3, radius: number, halfAngle: number, lightBound: LightBound): boolean {
+    private _shrinkSpotXYByCone(lightviewPos: Vector3, viewForward: Vector3, radius: number, halfAngle: number, lightBound: LightBound): void {
         var xMin: number, yMin: number;
         var xMax: number, yMax: number;
 
@@ -306,7 +306,6 @@ export class Cluster {
         lightBound.xMax = xMax;
         lightBound.yMin = yMin;
         lightBound.yMax = yMax;
-        return true;
     }
 
     private _updatePointLight(near: number, far: number, viewMat: Matrix4x4, pointLight: PointLight, lightIndex: number): void {
@@ -364,8 +363,7 @@ export class Cluster {
         var viewFor: Vector3 = Cluster._tempVector33;
         viewFor.x = viewConeCap.x - viewPos.x, viewFor.y = viewConeCap.y - viewPos.y, viewFor.z = viewConeCap.z - viewPos.z;
         Vector3.normalize(viewFor, viewFor);
-        if (!this._shrinkSpotXYByCone(viewPos, viewFor, range, halfAngle, lightBound))
-            return;
+        this._shrinkSpotXYByCone(viewPos, viewFor, range, halfAngle, lightBound);
 
         for (var z: number = lightBound.zMin, zEnd: number = lightBound.zMax; z < zEnd; z++) {
             for (var y: number = lightBound.yMin, yEnd: number = lightBound.yMax; y < yEnd; y++) {
