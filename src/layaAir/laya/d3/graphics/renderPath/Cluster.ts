@@ -269,8 +269,8 @@ export class Cluster {
         for (var i: number = yMin + 1; i < n; i++) {
             var angle: number = yStart - yLengthPerCluster * i;
             var bigHypot: number = Math.sqrt(1 + angle * angle);
-            var normY: number = 1 / bigHypot;
-            normal.setValue(0, normY, -angle * normY);
+            var normY: number = -1 / bigHypot;
+            normal.setValue(0, -normY, angle * normY);
             if (!this._insertConePlane(lightviewPos, viewForward, radius, halfAngle, normal)) {
                 yMax = Math.max(0, i);
                 break;
@@ -294,8 +294,8 @@ export class Cluster {
         for (var i: number = xMin + 1; i < n; i++) {
             var angle: number = xStart + xLengthPerCluster * i;
             var bigHypot: number = Math.sqrt(1 + angle * angle);
-            var normX: number = -1 / bigHypot;
-            normal.setValue(normX, 0, -angle * normX);
+            var normX: number = 1 / bigHypot;
+            normal.setValue(-normX, 0, angle * normX);
             if (!this._insertConePlane(lightviewPos, viewForward, radius, halfAngle, normal)) {
                 xMax = Math.max(0, i);
                 break;
