@@ -8,6 +8,7 @@ import { Vector2 } from "../math/Vector2";
 import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
 import { DefineDatas } from "./DefineDatas";
+import { Stat } from "../../utils/Stat";
 
 
 /**
@@ -689,7 +690,9 @@ export class ShaderData implements IClone {
 	}
 
 	clearRuntimeCopyArray(): void {
-		var currentFrame: number = (<any>LayaGL.instance).getFrameCount();
+		//var currentFrame: number = (<any>LayaGL.instance).getFrameCount();
+		//需要測試一下，可能會有問題
+		var currentFrame: number = Stat.loopCount;
 		if (this._frameCount != currentFrame) {
 			this._frameCount = currentFrame;
 			for (var i: number = 0, n: number = this._runtimeCopyValues.length; i < n; i++) {
