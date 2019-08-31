@@ -445,7 +445,15 @@ export class ShaderData implements IClone {
 			this._data["conchRef"] = preConchRef;
 			this._data["_ptrID"] = prePtrID;
 			pre && this._int32Data.set(pre, 0);
-			(<any>window).conch.updateArrayBufferRef(this._data['_ptrID'], preConchRef.isSyncToRender(), this._data);
+			var layagl:any = LayaGL.instance;
+			if(layagl.updateArrayBufferRef)
+			{
+				layagl.updateArrayBufferRef(this._data['_ptrID'], preConchRef.isSyncToRender(), this._data);
+			}
+			else
+			{
+				(<any>window).conch.updateArrayBufferRef(this._data['_ptrID'], preConchRef.isSyncToRender(), this._data);
+			}
 		}
 	}
 
