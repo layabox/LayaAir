@@ -267,7 +267,4 @@ http://ask.layabox.com/
 104144216
 
 ## 目录结构
-- bin 编译好的类库，里面分为as，js，ts三种
-- samples 示例项目
-- src 类库源代码
-- utils 自动化编译及其他工具
+TODO
