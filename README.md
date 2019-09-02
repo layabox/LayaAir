@@ -1,6 +1,6 @@
 # LayaAir is an open-source HTML5 engine
 
-It provides Canvas and WebGL for rendering.
+It provides WebGL for rendering.
 LayaAir Engine is designed for high performance games and support TypeScript, JavaScript programming language.
 Develop once, publish for multi target platform
 
