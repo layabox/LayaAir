@@ -138,7 +138,10 @@ http://ask.layabox.com/
 104144216
 
 ## Folder structure
+TODO
 - bin [Compiled librairy，divided for as，js，ts]
 - samples [Example project]
 - src [Source Code Library]
 - utils [Automated compilation and other tools]
+
+
