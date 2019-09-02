@@ -33,7 +33,6 @@ our official Layabox Github with complete engine source version, free of charge,
 
 ## general features overview
 - WebGL rendering
-- Canvas rendering
 - Vector renderer
 - Atlas texture support
 - Load Manager
