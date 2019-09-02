@@ -35,7 +35,7 @@ export class VertexBuffer3D extends Buffer {
 	set vertexDeclaration(value: VertexDeclaration) {
 		if (this._vertexDeclaration !== value) {
 			this._vertexDeclaration = value;
-			this._vertexCount = value ? this._byteLength / value.vertexStride : -1;
+			this._vertexCount = value ? this._byteLength / value.vertexStride : -1;//TODO:有问题，Buffer更换有问题
 		}
 	}
 

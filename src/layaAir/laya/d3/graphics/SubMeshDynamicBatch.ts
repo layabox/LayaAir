@@ -1,7 +1,8 @@
+import { ILaya3D } from "../../../ILaya3D";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Resource } from "../../resource/Resource";
 import { Stat } from "../../utils/Stat";
-import { WebGLContext } from "../../webgl/WebGLContext";
+import { SingletonList } from "../component/SingletonList";
 import { BufferState } from "../core/BufferState";
 import { GeometryElement } from "../core/GeometryElement";
 import { RenderContext3D } from "../core/render/RenderContext3D";
@@ -10,12 +11,10 @@ import { Transform3D } from "../core/Transform3D";
 import { Vector4 } from "../math/Vector4";
 import { SubMesh } from "../resource/models/SubMesh";
 import { IndexBuffer3D } from "./IndexBuffer3D";
+import { VertexMesh } from "./Vertex/VertexMesh";
 import { VertexBuffer3D } from "./VertexBuffer3D";
 import { VertexDeclaration } from "./VertexDeclaration";
 import { VertexElement } from "./VertexElement";
-import { VertexMesh } from "./Vertex/VertexMesh";
-import { ILaya3D } from "../../../ILaya3D";
-import { SingletonList } from "../component/SingletonList";
 /**
  * @internal
  * <code>SubMeshDynamicBatch</code> 类用于网格动态合并。
@@ -206,7 +205,7 @@ export class SubMeshDynamicBatch extends GeometryElement {
 	 */
 	private _flush(vertexCount: number, indexCount: number): void {
 		var gl: WebGLRenderingContext = LayaGL.instance;
-		this._vertexBuffer.setData(this._vertices.buffer, 0, 0, vertexCount * (this._vertexBuffer.vertexDeclaration.vertexStride));
+		this._vertexBuffer.setData(this._vertices.buffer, 0, 0, vertexCount * (this._bufferState.vertexDeclaration.vertexStride));
 		this._indexBuffer.setData(this._indices, 0, 0, indexCount);
 		gl.drawElements(gl.TRIANGLES, indexCount, gl.UNSIGNED_SHORT, 0);
 	}

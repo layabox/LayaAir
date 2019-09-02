@@ -1,9 +1,8 @@
+import { LayaGL } from "../../layagl/LayaGL"
+import { BufferStateBase } from "../../webgl/BufferStateBase"
 import { IndexBuffer3D } from "../graphics/IndexBuffer3D"
 import { VertexBuffer3D } from "../graphics/VertexBuffer3D"
 import { VertexDeclaration } from "../graphics/VertexDeclaration"
-import { LayaGL } from "../../layagl/LayaGL"
-import { Render } from "../../renders/Render"
-import { BufferStateBase } from "../../webgl/BufferStateBase"
 
 
 /**
@@ -11,6 +10,8 @@ import { BufferStateBase } from "../../webgl/BufferStateBase"
  * <code>BufferState</code> 类用于实现渲染所需的Buffer状态集合。
  */
 export class BufferState extends BufferStateBase {
+	/**@readonly */
+	vertexDeclaration: VertexDeclaration;
 
 	/**
 	 * 创建一个 <code>BufferState</code> 实例。
@@ -20,7 +21,6 @@ export class BufferState extends BufferStateBase {
 	}
 
 	/**
-	 * @internal
 	 * vertexBuffer的vertexDeclaration不能为空,该函数比较消耗性能，建议初始化时使用。
 	 */
 	applyVertexBuffer(vertexBuffer: VertexBuffer3D): void {//TODO:动态合并是否需要使用对象池机制
@@ -28,6 +28,7 @@ export class BufferState extends BufferStateBase {
 			var gl: any = LayaGL.instance;
 			var verDec: VertexDeclaration = vertexBuffer.vertexDeclaration;
 			var valueData: any = verDec._shaderValues.getData();
+			this.vertexDeclaration = verDec;
 			vertexBuffer.bind();
 			for (var k in valueData) {
 				var loc: number = parseInt(k);
@@ -41,7 +42,6 @@ export class BufferState extends BufferStateBase {
 	}
 
 	/**
-	 * @internal
 	 * vertexBuffers中的vertexDeclaration不能为空,该函数比较消耗性能，建议初始化时使用。
 	 */
 	applyVertexBuffers(vertexBuffers: VertexBuffer3D[]): void {
@@ -64,9 +64,7 @@ export class BufferState extends BufferStateBase {
 		}
 	}
 
-	/**
-	 * @internal
-	 */
+
 	applyInstanceVertexBuffer(vertexBuffer: VertexBuffer3D): void {//TODO:动态合并是否需要使用对象池机制
 		if (LayaGL.layaGPUInstance.supportInstance()) {//判断是否支持Instance
 			if (BufferStateBase._curBindedBufferState === this) {
@@ -87,9 +85,7 @@ export class BufferState extends BufferStateBase {
 		}
 	}
 
-	/**
-	 * @internal
-	 */
+
 	applyIndexBuffer(indexBuffer: IndexBuffer3D): void {
 		if (BufferStateBase._curBindedBufferState === this) {
 			if (this._bindedIndexBuffer !== indexBuffer) {
