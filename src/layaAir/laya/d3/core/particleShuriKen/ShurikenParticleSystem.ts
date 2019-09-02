@@ -1482,7 +1482,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 					this._floatCountPerVertex = vertexDeclaration.vertexStride / 4;
 					this._startLifeTimeIndex = 12;
 					this._timeIndex = 16;
-					this._vertexStride = mesh._vertexBuffer.vertexCount;
+					this._vertexStride = mesh._vertexCount;
 					var totalVertexCount: number = this._bufferMaxParticles * this._vertexStride;
 					var vbCount: number = Math.floor(totalVertexCount / 65535) + 1;
 					var lastVBVertexCount: number = totalVertexCount % 65535;

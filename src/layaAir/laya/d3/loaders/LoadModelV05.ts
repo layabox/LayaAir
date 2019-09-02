@@ -218,7 +218,7 @@ export class LoadModelV05 {
 			vertexBuffer.vertexDeclaration = vertexDeclaration;
 			vertexBuffer.setData(vertexData);
 			LoadModelV05._mesh._vertexBuffer = vertexBuffer;
-			LoadModelV05._mesh._vertexCount += vertexBuffer.vertexCount;
+			LoadModelV05._mesh._vertexCount += vertexBuffer._byteLength / vertexDeclaration.vertexStride;
 			memorySize += floatData.length * 4;
 		}
 

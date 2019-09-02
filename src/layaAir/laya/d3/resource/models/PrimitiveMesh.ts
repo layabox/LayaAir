@@ -15,7 +15,7 @@ import { LayaGL } from "../../../layagl/LayaGL";
 export class PrimitiveMesh {
 
 	static __init__(): void {
-	
+
 	}
 
 	/**
@@ -30,7 +30,7 @@ export class PrimitiveMesh {
 		vertexBuffer.vertexDeclaration = vertexDeclaration;
 		vertexBuffer.setData(vertices.buffer);
 		mesh._vertexBuffer = vertexBuffer;
-		mesh._vertexCount += vertexBuffer.vertexCount;
+		mesh._vertexCount = vertexBuffer._byteLength / vertexDeclaration.vertexStride;
 		var indexBuffer: IndexBuffer3D = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, indices.length, gl.STATIC_DRAW, true);
 		indexBuffer.setData(indices);
 		mesh._indexBuffer = indexBuffer;
@@ -41,7 +41,7 @@ export class PrimitiveMesh {
 
 		subMesh._vertexBuffer = vertexBuffer;
 		subMesh._indexBuffer = indexBuffer;
-		subMesh._setIndexRange(0,indexBuffer.indexCount);
+		subMesh._setIndexRange(0, indexBuffer.indexCount);
 
 		var subIndexBufferStart: number[] = subMesh._subIndexBufferStart;
 		var subIndexBufferCount: number[] = subMesh._subIndexBufferCount;

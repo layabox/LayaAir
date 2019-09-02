@@ -713,7 +713,7 @@ export class Mesh extends Resource implements IClone {
 		destVB.vertexDeclaration = vb.vertexDeclaration;
 		destVB.setData(vb.getUint8Data().slice().buffer);
 		destMesh._vertexBuffer = destVB;
-		destMesh._vertexCount += destVB.vertexCount;
+		destMesh._vertexCount = this._vertexCount;
 		var ib: IndexBuffer3D = this._indexBuffer;
 		var destIB: IndexBuffer3D = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, ib.indexCount, ib.bufferUsage, ib.canRead);
 		destIB.setData(ib.getData().slice());

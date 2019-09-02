@@ -110,7 +110,7 @@ export class LoadModelV04 {
 	 * @internal
 	 */
 	private static READ_MESH(): boolean {
-		var gl:WebGLRenderingContext=LayaGL.instance;
+		var gl: WebGLRenderingContext = LayaGL.instance;
 		var name: string = LoadModelV04._readString();
 		var arrayBuffer: ArrayBuffer = LoadModelV04._readData.__getBuffer();
 		var i: number, n: number;
@@ -121,7 +121,7 @@ export class LoadModelV04 {
 		for (i = 0; i < vertexBufferCount; i++) {//TODO:始终为1
 			var vbStart: number = offset + LoadModelV04._readData.getUint32();
 			var vbLength: number = LoadModelV04._readData.getUint32();
-			var vbArrayBuffer:ArrayBuffer=arrayBuffer.slice(vbStart, vbStart + vbLength);
+			var vbArrayBuffer: ArrayBuffer = arrayBuffer.slice(vbStart, vbStart + vbLength);
 			var vbDatas: Float32Array = new Float32Array(vbArrayBuffer);
 			var bufferAttribute: string = LoadModelV04._readString();
 			var vertexDeclaration: VertexDeclaration;
@@ -144,7 +144,7 @@ export class LoadModelV04 {
 			vertexBuffer.vertexDeclaration = vertexDeclaration;
 			vertexBuffer.setData(vbDatas.buffer);
 			LoadModelV04._mesh._vertexBuffer = vertexBuffer;
-			LoadModelV04._mesh._vertexCount += vertexBuffer.vertexCount;
+			LoadModelV04._mesh._vertexCount += vertexBuffer._byteLength / vertexDeclaration.vertexStride;
 			memorySize += vbDatas.length * 4;
 		}
 
@@ -198,7 +198,7 @@ export class LoadModelV04 {
 		var ibCount: number = LoadModelV04._readData.getUint32();
 		var indexBuffer: IndexBuffer3D = LoadModelV04._mesh._indexBuffer;
 		subMesh._indexBuffer = indexBuffer;
-		subMesh._setIndexRange(ibStart,ibCount);
+		subMesh._setIndexRange(ibStart, ibCount);
 		var vertexBuffer: VertexBuffer3D = LoadModelV04._mesh._vertexBuffer;
 		subMesh._vertexBuffer = vertexBuffer;
 

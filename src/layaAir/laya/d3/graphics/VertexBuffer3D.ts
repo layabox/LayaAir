@@ -13,8 +13,6 @@ export class VertexBuffer3D extends Buffer {
 	static DATATYPE_UINT8ARRAY: number = 1;
 
 	/** @internal */
-	private _vertexCount: number = 0;
-	/** @internal */
 	private _canRead: boolean;
 
 	/** @internal */
@@ -29,27 +27,14 @@ export class VertexBuffer3D extends Buffer {
 		return this._vertexDeclaration;
 	}
 
-	/**
-	 * 获取顶点声明。
-	 */
 	set vertexDeclaration(value: VertexDeclaration) {
-		if (this._vertexDeclaration !== value) {
-			this._vertexDeclaration = value;
-			this._vertexCount = value ? this._byteLength / value.vertexStride : -1;//TODO:有问题，Buffer更换有问题
-		}
+		this._vertexDeclaration = value;
 	}
 
-	/**
-	 * 获取顶点个数。
-	 *   @return	顶点个数。
-	 */
-	get vertexCount(): number {
-		return this._vertexCount;
-	}
+
 
 	/**
-	 * 获取是否可读。
-	 *   @return	是否可读。
+	 * 是否可读。
 	 */
 	get canRead(): boolean {
 		return this._canRead;
@@ -57,15 +42,13 @@ export class VertexBuffer3D extends Buffer {
 
 	/**
 	 * 创建一个 <code>VertexBuffer3D</code> 实例。
-	 * @param	vertexCount 顶点个数。
+	 * @param	byteLength 字节长度。
 	 * @param	bufferUsage VertexBuffer3D用途类型。
 	 * @param	canRead 是否可读。
-	 * @param   dateType 数据类型。
 	 */
 	constructor(byteLength: number, bufferUsage: number, canRead: boolean = false) {
 		super();
 		var gl: WebGLRenderingContext = LayaGL.instance;
-		this._vertexCount = -1;
 		this._bufferUsage = bufferUsage;
 		this._bufferType = gl.ARRAY_BUFFER;
 		this._canRead = canRead;
