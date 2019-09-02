@@ -134,5 +134,11 @@ export class Render {
         Render.supportWebGLPlusAnimation = true;
         Render.supportWebGLPlusRendering = true;
     }
+    else if((window as any).webglPlus != null)
+    {
+        Render.supportWebGLPlusCulling = true;
+        Render.supportWebGLPlusAnimation = true;
+        Render.supportWebGLPlusRendering = true;
+    }
 }
 
