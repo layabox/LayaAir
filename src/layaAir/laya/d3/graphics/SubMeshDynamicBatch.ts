@@ -206,7 +206,7 @@ export class SubMeshDynamicBatch extends GeometryElement {
 	 */
 	private _flush(vertexCount: number, indexCount: number): void {
 		var gl: WebGLRenderingContext = LayaGL.instance;
-		this._vertexBuffer.setData(this._vertices.buffer, 0, 0, vertexCount * (this._vertexBuffer.vertexDeclaration.vertexStride));
+		this._vertexBuffer.setData(this._vertices.buffer, 0, 0, vertexCount * (this._bufferState.vertexDeclaration.vertexStride));
 		this._indexBuffer.setData(this._indices, 0, 0, indexCount);
 		gl.drawElements(gl.TRIANGLES, indexCount, gl.UNSIGNED_SHORT, 0);
 	}

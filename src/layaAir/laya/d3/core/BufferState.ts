@@ -11,6 +11,9 @@ import { BufferStateBase } from "../../webgl/BufferStateBase"
  * <code>BufferState</code> 类用于实现渲染所需的Buffer状态集合。
  */
 export class BufferState extends BufferStateBase {
+	/**@readonly */
+	vertexDeclaration: VertexDeclaration;
+
 
 	/**
 	 * 创建一个 <code>BufferState</code> 实例。
@@ -28,6 +31,7 @@ export class BufferState extends BufferStateBase {
 			var gl: any = LayaGL.instance;
 			var verDec: VertexDeclaration = vertexBuffer.vertexDeclaration;
 			var valueData: any = verDec._shaderValues.getData();
+			this.vertexDeclaration = verDec;
 			vertexBuffer.bind();
 			for (var k in valueData) {
 				var loc: number = parseInt(k);
