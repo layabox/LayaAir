@@ -41,7 +41,8 @@ our official Layabox Github with complete engine source version, free of charge,
   
 - 3D
 
-  Camera、Mesh、ParticleSystem、Multi Light、SkyRender、SkinnedAnimation、PhysicBaseRendering、Shadow、Custom Shader、Trail、PixelLine
+  Camera、Mesh、ParticleSystem、Multi Light、SkyRender、SkinnedAnimation、PhysicBaseRendering、Shadow、Custom Shader、Trail、PixelLine、
+  Physics、Fog
 
 ## Beginner usage
 
