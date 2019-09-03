@@ -3,24 +3,24 @@ import { ILaya } from "../../ILaya";
 	 * @private
 	 */
 export class CallLater {
-    static I: CallLater = new CallLater();
+    static I = new CallLater();
     /**@private */
-    private _pool: any[] = [];
+    private _pool: LaterHandler[] = [];
     /**@private */
-    private _map: any[] = [];
+    private _map: {[key:string]:LaterHandler} = {};
     /**@private */
-    private _laters: any[] = [];
+    private _laters: LaterHandler[] = [];
 
     /**
      * @internal
      * 帧循环处理函数。
      */
     _update(): void {
-        var laters: any[] = this._laters;
-        var len: number = laters.length;
+        let laters = this._laters;
+        let len = laters.length;
         if (len > 0) {
-            for (var i: number = 0, n: number = len - 1; i <= n; i++) {
-                var handler: LaterHandler = laters[i];
+            for (let i = 0, n = len - 1; i <= n; i++) {
+                let handler = laters[i];
                 this._map[handler.key] = null;
                 if (handler.method !== null) {
                     handler.run();
@@ -36,8 +36,8 @@ export class CallLater {
     /** @private */
     private _getHandler(caller: any, method: any): LaterHandler {
         var cid: number = caller ? caller.$_GID || (caller.$_GID = ILaya.Utils.getGID()) : 0;
-        var mid: number = method.$_TID || (method.$_TID = (ILaya.Timer._mid++) * 100000);
-        return this._map[cid + mid];
+        var mid: number = method.$_TID || (method.$_TID = (ILaya.Timer._mid++) );
+        return this._map[cid+'.'+mid]
     }
 
     /**
@@ -48,9 +48,11 @@ export class CallLater {
      */
     callLater(caller: any, method: Function, args: any[] = null): void {
         if (this._getHandler(caller, method) == null) {
+            let handler:LaterHandler;
             if (this._pool.length)
-                var handler: LaterHandler = this._pool.pop();
-            else handler = new LaterHandler();
+                handler  = this._pool.pop();
+            else 
+                handler = new LaterHandler();
             //设置属性
             handler.caller = caller;
             handler.method = method;
@@ -58,7 +60,7 @@ export class CallLater {
             //索引handler
             var cid: number = caller ? caller.$_GID : 0;
             var mid: number = method["$_TID"];
-            handler.key = cid + mid;
+            handler.key = cid +'.'+ mid;
             this._map[handler.key] = handler
             //插入队列
             this._laters.push(handler);
@@ -71,7 +73,7 @@ export class CallLater {
      * @param	method 定时器回调函数。
      */
     runCallLater(caller: any, method: Function): void {
-        var handler: LaterHandler = this._getHandler(caller, method);
+        var handler = this._getHandler(caller, method);
         if (handler && handler.method != null) {
             this._map[handler.key] = null;
             handler.run();
@@ -84,7 +86,7 @@ export class CallLater {
 
 /** @private */
 class LaterHandler {
-    key: number;
+    key: string;
     caller: any
     method: Function;
     args: any[];
@@ -96,10 +98,10 @@ class LaterHandler {
     }
 
     run(): void {
-        var caller: any = this.caller;
+        var caller = this.caller;
         if (caller && caller.destroyed) return this.clear();
-        var method: Function = this.method;
-        var args: any[] = this.args;
+        var method = this.method;
+        var args = this.args;
         if (method == null) return;
         args ? method.apply(caller, args) : method.call(caller);
     }
