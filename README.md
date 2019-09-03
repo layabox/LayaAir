@@ -1,14 +1,14 @@
 # LayaAir is an open-source 2D/3D engine
 
-It use WebGL1.0/WebGL2.0 as graphic API.
-LayaAir Engine is designed for high performance games and support TypeScript and JavaScript、ActionScript 3.0 programming language.
+LayaAir use WebGL1.0/WebGL2.0 as graphic API.
+LayaAir is designed for high performance games and support TypeScript and JavaScript、ActionScript 3.0 programming language.
 LayaAir can develop once, publish for multi target platform(HTML5、Android、Ios).
 
 ## LayaAir features
 
 - High performance
 
-Display render is set priority to WebGL mode.
+LayaAir use GPU graphic API(WebGL1.0/WebGL2.0).
 LayaAir is design to be run without Plugin and on embedded system.
 
 - Light weight and easy to use
