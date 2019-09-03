@@ -377,11 +377,6 @@ export class Laya {
 			}
 			return this._texture;
 		}
-
-		if (Render.supportWebGLPlusRendering) {
-			((<any>LayaGLRunner)).uploadShaderUniforms = LayaGLRunner.uploadShaderUniformsForNative;
-		}
-
 	}
 }
 
