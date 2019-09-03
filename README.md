@@ -35,9 +35,9 @@ our official Layabox Github with complete engine source version, free of charge,
 
 ## general features overview
 
--2D
+- 2D
   WebGL rendering、Vector renderer、Atlas texture、Load Manager、HTML text、Bitmap fonts、Mask、Filter、Animation timeline、UI、         ParticleSystem、Bones animation、Physical systems
--3D 
+- 3D 
   Camera、Mesh、ParticleSystem、Multi Light、SkyRender、SkinnedAnimation、PhysicBaseRendering、Shadow、Custom Shader、Trail、PixelLine
 
 ## Beginner usage
