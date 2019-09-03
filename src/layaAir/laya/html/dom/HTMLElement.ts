@@ -9,6 +9,7 @@ import { HTMLChar } from "../../utils/HTMLChar"
 import { Pool } from "../../utils/Pool"
 import { ILaya } from "../../../ILaya";
 import { IHtml } from "../utils/IHtml";
+import { ClassUtils } from "../../utils/ClassUtils";
 
 export enum HTMLElementType {
     BASE = 0,
@@ -478,3 +479,5 @@ export class HTMLElement {
 
 ILaya.regClass(HTMLElement);
 IHtml.HTMLElementType = HTMLElementType;
+
+ClassUtils.regClass("laya.html.dom.HTMLElement", HTMLElement);

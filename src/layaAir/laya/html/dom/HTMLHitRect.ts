@@ -1,6 +1,7 @@
 import { Rectangle } from "../../maths/Rectangle"
 
 import { Pool } from "../../utils/Pool"
+import { ClassUtils } from "../../utils/ClassUtils";
 /**
  * @private
  */
@@ -30,3 +31,4 @@ export class HTMLHitRect {
     }
 }
 
+ClassUtils.regClass("laya.html.dom.HTMLHitRect", HTMLHitRect);
