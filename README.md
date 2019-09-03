@@ -1,8 +1,8 @@
-# LayaAir is an open-source 2D/3D engine include HTML5
+# LayaAir is an open-source 2D/3D engine
 
-It provides WebGL for rendering.
-LayaAir Engine is designed for high performance games and support TypeScript, JavaScript programming language.
-Develop once, publish for multi target platform
+It use WebGL1.0/WebGL2.0 as graphic API.
+LayaAir Engine is designed for high performance games and support TypeScript and JavaScript、ActionScript 3.0 programming language.
+LayaAir can develop once, publish for multi target platform(HTML5、Android、Ios).
 
 ## LayaAir features
 
@@ -105,42 +105,23 @@ our official Layabox Github with complete engine source version, free of charge,
     new Sprite_DisplayImage();
 ```
 
+## API Document
+
+- https://layaair.ldc.layabox.com/api2
+
+## Tutorial Document
+
+- https://ldc2.layabox.com/doc/?nav=zh-ts-0-3-0
+- https://github.com/layabox/layaair-doc
+
 ## Samples Demo
 
-- http://layaair.ldc.layabox.com/demo/
-- http://layabox.github.io/layaair-examples/
+- https://layaair2.ldc2.layabox.com/demo2/
 
-## Games Demo
+## Business Case 
 
-- http://game.layabox.com/265 (2D)
-- http://layaair.ldc.layabox.com/test/ZhanPaiKeJi/ (3D)
+- https://www.layabox.com/gamelist/
 
-## API Help
-
-http://layaair.ldc.layabox.com/api/
-
-## Documentation Tutorial
-
-- http://ldc.layabox.com/index.php?m=content&c=index&a=show&catid=8&id=10
-- https://github.com/layabox/layaair/wiki
-
-## Developer Center
-
-http://ldc.layabox.com/
-
-## Community
+## Offical Community
 
 http://ask.layabox.com/
-
-## QQ Group
-
-104144216
-
-## Folder structure
-TODO
-- bin [Compiled librairy，divided for as，js，ts]
-- samples [Example project]
-- src [Source Code Library]
-- utils [Automated compilation and other tools]
-
-
