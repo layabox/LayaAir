@@ -1,14 +1,14 @@
-# LayaAir is an open-source 2D/3D engine include HTML5
+# LayaAir is an open-source 2D/3D engine
 
-It provides WebGL for rendering.
-LayaAir Engine is designed for high performance games and support TypeScript, JavaScript programming language.
-Develop once, publish for multi target platform
+LayaAir use WebGL1.0/WebGL2.0 as graphic API.
+LayaAir is designed for high performance games and support TypeScript and JavaScript、ActionScript 3.0 programming language.
+LayaAir can develop once, publish for multi target platform(HTML5、Android、Ios、MiniGame).
 
 ## LayaAir features
 
 - High performance
 
-Display render is set priority to WebGL mode.
+LayaAir use GPU graphic API(WebGL1.0/WebGL2.0).
 LayaAir is design to be run without Plugin and on embedded system.
 
 - Light weight and easy to use
@@ -19,38 +19,35 @@ LayaAir API architecture aim to be simple, easy to handle, concepted to require 
 
 Build your HTML5 application from ActionScript 3.0、TypeScript、JavaScript project.
 
-- Complete feature
+- Laya Native
 
-functionality for 2D, 3D, VR, Timeline animation controls, slow motion, UI system, particle animation, skeletal animation, physical systems, etc.
+LayaNative is a complete development solution for LayaAir engine to native Apps, such as iOS or Android. LayaNative uses LayaPlayer as the core runtime and uses reflection function to provide developers with a secondary development. You also can use this function to handle docking market on your native applications.And it also provides developers with testApp and build tools to package and publish your project.
 
 - Provide a visual assistance in the development and tool flow
 
 [LayaAirIDE](http://ldc.layabox.com/index.php?m=content&c=index&a=lists&catid=27) offer code development tools and visual editor. Clear workflow make, ergonomic, designed development efficiency.
+
+[Unity Plugin](http://ldc.layabox.com/index.php?m=content&c=index&a=lists&catid=27)  offer resource and scene export with Unity,can let unity project easier migration to LayaAir.
 
 - Open-source and free
 
 our official Layabox Github with complete engine source version, free of charge, including commercial usage.
 
 ## general features overview
-- WebGL rendering
-- Vector renderer
-- Atlas texture support
-- Load Manager
-- HTML text
-- Bitmap fonts
-- Mask
-- Filter
-- Animation timeline
-- UI
-- Particle system
-- Bones animation
-- Physical systems
-- IDE viewer
-- 3D (FBX Autodesk and Unity3D assets are supported)
-- VR
+
+- 2D
+
+  Vector Renderer、Atlas Texture、Load Manager、HTML Text、Bitmap Fonts、Mask、Filter、Animation Timeline、UI、ParticleSystem、Bones animation、PhysicalSystem
+  
+- 3D
+
+  Camera、Mesh、ParticleSystem、Multi Light、SkyRender、SkinnedAnimation、PhysicBaseRendering、Shadow、Custom Shader、Trail、PixelLine、
+  Physics、Fog
 
 ## Beginner usage
+
 #### JS version
+
 ```js
     Laya.init(550, 400);
     Laya.stage.scaleMode = "showall";
@@ -63,6 +60,7 @@ our official Layabox Github with complete engine source version, free of charge,
 ```
 
 #### AS version
+
 ```as3
     package
     {
@@ -87,6 +85,7 @@ our official Layabox Github with complete engine source version, free of charge,
 ```
 
 #### TS version
+
 ```ts
     /// <reference path="../../libs/LayaAir.d.ts" />
     class Sprite_DisplayImage{
@@ -105,42 +104,23 @@ our official Layabox Github with complete engine source version, free of charge,
     new Sprite_DisplayImage();
 ```
 
+## API Document
+
+- https://layaair.ldc.layabox.com/api2
+
+## Tutorial Document
+
+- https://ldc2.layabox.com/doc/?nav=zh-ts-0-3-0
+- https://github.com/layabox/layaair-doc
+
 ## Samples Demo
 
-- http://layaair.ldc.layabox.com/demo/
-- http://layabox.github.io/layaair-examples/
+- https://layaair2.ldc2.layabox.com/demo2/
 
-## Games Demo
+## Business Case 
 
-- http://game.layabox.com/265 (2D)
-- http://layaair.ldc.layabox.com/test/ZhanPaiKeJi/ (3D)
+- https://www.layabox.com/gamelist/
 
-## API Help
+## Offical Community
 
-http://layaair.ldc.layabox.com/api/
-
-## Documentation Tutorial
-
-- http://ldc.layabox.com/index.php?m=content&c=index&a=show&catid=8&id=10
-- https://github.com/layabox/layaair/wiki
-
-## Developer Center
-
-http://ldc.layabox.com/
-
-## Community
-
-http://ask.layabox.com/
-
-## QQ Group
-
-104144216
-
-## Folder structure
-TODO
-- bin [Compiled librairy，divided for as，js，ts]
-- samples [Example project]
-- src [Source Code Library]
-- utils [Automated compilation and other tools]
-
-
+- http://ask.layabox.com/
