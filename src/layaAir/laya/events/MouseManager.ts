@@ -127,7 +127,7 @@ export class MouseManager {
         }, true);
         canvas.addEventListener("touchcancel", function (e: any): void {
             if (MouseManager.enabled) {
-                e.preventDefault();
+                (e.cancelable) && (e.preventDefault());
                 _this.runEvent(e);
             } else {
                 _this._curTouchID = NaN;

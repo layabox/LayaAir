@@ -57,7 +57,8 @@ export class Input3D {
 	 * @internal
 	 */
 	private _pushEventList: Function = ((e: UIEvent) => {
-		e.preventDefault();
+		//e.cancelable:false will cause error in some case,for example chromre
+		(e.cancelable) && (e.preventDefault());
 		this._eventList.push(e);
 	}).bind(this);
 
