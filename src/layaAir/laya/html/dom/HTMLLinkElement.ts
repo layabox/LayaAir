@@ -5,6 +5,7 @@ import { Event } from "../../events/Event";
 import { HTMLStyle } from "../utils/HTMLStyle";
 import { URL } from "../../net/URL";
 import { ILaya } from "../../../ILaya";
+import { ClassUtils } from "../../utils/ClassUtils";
 
 /**
  * @private
@@ -73,3 +74,5 @@ export class HTMLLinkElement extends HTMLElement {
 }
 
 ILaya.regClass(HTMLLinkElement);
+
+ClassUtils.regClass("laya.html.dom.HTMLLinkElement", HTMLLinkElement);
