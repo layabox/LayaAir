@@ -75,21 +75,22 @@ export class MouseManager {
         }
         canvas.addEventListener('mousedown', function (e: any): void {
             if (MouseManager.enabled) {
-                if (!Browser.onIE) e.preventDefault();
+                if (!Browser.onIE)
+                    (e.cancelable) && (e.preventDefault());
                 _this.mouseDownTime = Browser.now();
                 _this.runEvent(e);
             }
         });
         canvas.addEventListener('mouseup', function (e: any): void {
             if (MouseManager.enabled) {
-                e.preventDefault();
+                (e.cancelable) && (e.preventDefault());
                 _this.mouseDownTime = -Browser.now();
                 _this.runEvent(e);
             }
         }, true);
         canvas.addEventListener('mousemove', function (e: any): void {
             if (MouseManager.enabled) {
-                e.preventDefault();
+                (e.cancelable) && (e.preventDefault());
                 var now: number = Browser.now();
                 if (now - _this._lastMoveTimer < 10) return;
                 _this._lastMoveTimer = now;
@@ -104,14 +105,16 @@ export class MouseManager {
         })
         canvas.addEventListener("touchstart", function (e: any): void {
             if (MouseManager.enabled) {
-                if (!MouseManager._isFirstTouch && !Input.isInputting) e.preventDefault();
+                if (!MouseManager._isFirstTouch && !Input.isInputting)
+                    (e.cancelable) && (e.preventDefault());
                 _this.mouseDownTime = Browser.now();
                 _this.runEvent(e);
             }
         });
         canvas.addEventListener("touchend", function (e: any): void {
             if (MouseManager.enabled) {
-                if (!MouseManager._isFirstTouch && !Input.isInputting) e.preventDefault();
+                if (!MouseManager._isFirstTouch && !Input.isInputting)
+                    (e.cancelable) && (e.preventDefault());
                 MouseManager._isFirstTouch = false;
                 _this.mouseDownTime = -Browser.now();
                 _this.runEvent(e);
@@ -121,7 +124,7 @@ export class MouseManager {
         }, true);
         canvas.addEventListener("touchmove", function (e: any): void {
             if (MouseManager.enabled) {
-                e.preventDefault();
+                (e.cancelable) && (e.preventDefault());
                 _this.runEvent(e);
             }
         }, true);
