@@ -1,13 +1,14 @@
+import { Render } from "../../../renders/Render";
+import { FrustumCulling } from "../../graphics/FrustumCulling";
+import { Matrix4x4 } from "../../math/Matrix4x4";
+import { Vector3 } from "../../math/Vector3";
+import { ShaderData } from "../../shader/ShaderData";
+import { BaseRender } from "../render/BaseRender";
+import { RenderContext3D } from "../render/RenderContext3D";
+import { Sprite3D } from "../Sprite3D";
+import { Transform3D } from "../Transform3D";
 import { PixelLineSprite3D } from "./PixelLineSprite3D";
-import { Sprite3D } from "../Sprite3D"
-import { Transform3D } from "../Transform3D"
-import { BaseRender } from "../render/BaseRender"
-import { RenderContext3D } from "../render/RenderContext3D"
-import { FrustumCulling } from "../../graphics/FrustumCulling"
-import { Matrix4x4 } from "../../math/Matrix4x4"
-import { Vector3 } from "../../math/Vector3"
-import { ShaderData } from "../../shader/ShaderData"
-import { Render } from "../../../renders/Render"
+import { PixelLineFilter } from "./PixelLineFilter";
 
 
 /**
@@ -20,7 +21,6 @@ export class PixelLineRenderer extends BaseRender {
 	constructor(owner: PixelLineSprite3D) {
 		super(owner);
 		this._projectionViewWorldMatrix = new Matrix4x4();
-		this._supportOctree = false;
 	}
 
 	/**
@@ -29,17 +29,10 @@ export class PixelLineRenderer extends BaseRender {
 	 * @internal
 	 */
 	protected _calculateBoundingBox(): void {
-		var min: Vector3 = this._bounds.getMin();
-		min.x = -Number.MAX_VALUE;
-		min.y = -Number.MAX_VALUE;
-		min.z = -Number.MAX_VALUE;
-		this._bounds.setMin(min);
-		var max: Vector3 = this._bounds.getMax();
-		max.x = Number.MAX_VALUE;
-		max.y = Number.MAX_VALUE;
-		max.z = Number.MAX_VALUE;
-		this._bounds.setMax(max);
-
+		var worldMat: Matrix4x4 = ((<PixelLineSprite3D>this._owner)).transform.worldMatrix;
+		var lineFilter: PixelLineFilter = (<PixelLineSprite3D>this._owner)._geometryFilter;
+		lineFilter._reCalculateBound();
+		lineFilter._bounds._tranform(worldMat, this._bounds);
 		if (Render.supportWebGLPlusCulling) {//[NATIVE]
 			var min: Vector3 = this._bounds.getMin();
 			var max: Vector3 = this._bounds.getMax();

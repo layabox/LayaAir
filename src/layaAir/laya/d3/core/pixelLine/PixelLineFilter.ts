@@ -1,20 +1,25 @@
+import { LayaGL } from "../../../layagl/LayaGL";
+import { Stat } from "../../../utils/Stat";
+import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
+import { Color } from "../../math/Color";
+import { Vector3 } from "../../math/Vector3";
+import { Bounds } from "../Bounds";
+import { BufferState } from "../BufferState";
+import { GeometryElement } from "../GeometryElement";
+import { RenderContext3D } from "../render/RenderContext3D";
+import { PixelLineData } from "./PixelLineData";
 import { PixelLineSprite3D } from "./PixelLineSprite3D";
 import { PixelLineVertex } from "./PixelLineVertex";
-import { PixelLineData } from "./PixelLineData";
-import { BufferState } from "../BufferState"
-import { GeometryElement } from "../GeometryElement"
-import { RenderContext3D } from "../render/RenderContext3D"
-import { VertexBuffer3D } from "../../graphics/VertexBuffer3D"
-import { Color } from "../../math/Color"
-import { Vector3 } from "../../math/Vector3"
-import { LayaGL } from "../../../layagl/LayaGL"
-import { Stat } from "../../../utils/Stat"
-import { WebGLContext } from "../../../webgl/WebGLContext"
 
 /**
  * <code>PixelLineFilter</code> 类用于线过滤器。
  */
 export class PixelLineFilter extends GeometryElement {
+	/** @private */
+	private static _tempVector0: Vector3 = new Vector3();
+	/** @private */
+	private static _tempVector1: Vector3 = new Vector3();
+
 	/**@internal */
 	private static _type: number = GeometryElement._typeCounter++;
 
@@ -33,7 +38,13 @@ export class PixelLineFilter extends GeometryElement {
 	private _maxUpdate: number = Number.MIN_VALUE;
 	/** @internal */
 	private _bufferState: BufferState = new BufferState();
+	/** @internal */
+	private _floatBound: Float32Array = new Float32Array(6);
+	/** @internal */
+	private _calculateBound: boolean = false;
 
+	/** @internal */
+	_bounds: Bounds;
 	/** @internal */
 	_maxLineCount: number = 0;
 	/** @internal */
@@ -51,6 +62,12 @@ export class PixelLineFilter extends GeometryElement {
 		this._bufferState.bind();
 		this._bufferState.applyVertexBuffer(this._vertexBuffer);
 		this._bufferState.unBind();
+
+		var min: Vector3 = PixelLineFilter._tempVector0;
+		var max: Vector3 = PixelLineFilter._tempVector1;
+		min.setValue(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
+		max.setValue(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
+		this._bounds = new Bounds(min, max);
 	}
 
 	/**
@@ -78,10 +95,10 @@ export class PixelLineFilter extends GeometryElement {
 
 		if (vertexCount < lastVertices.length) {//取最小长度,拷贝旧数据
 			this._vertices.set(new Float32Array(lastVertices.buffer, 0, vertexCount));
-			this._vertexBuffer.setData(this._vertices.buffer, 0, 0, vertexCount*4);
+			this._vertexBuffer.setData(this._vertices.buffer, 0, 0, vertexCount * 4);
 		} else {
 			this._vertices.set(lastVertices);
-			this._vertexBuffer.setData(this._vertices.buffer, 0, 0, lastVertices.length*4);
+			this._vertexBuffer.setData(this._vertices.buffer, 0, 0, lastVertices.length * 4);
 		}
 
 		this._bufferState.bind();
@@ -120,6 +137,49 @@ export class PixelLineFilter extends GeometryElement {
 		}
 		this._minUpdate = Math.min(this._minUpdate, offset);
 		this._maxUpdate = Math.max(this._maxUpdate, offset + this._floatCountPerVertices * 2);
+
+		//expand bound
+		var bounds: Bounds = this._bounds;
+		var floatBound: Float32Array = this._floatBound;
+		var min: Vector3 = bounds.getMin(), max: Vector3 = bounds.getMax();
+		Vector3.min(min, startPosition, min);
+		Vector3.min(min, endPosition, min);
+		Vector3.max(max, startPosition, max);
+		Vector3.max(max, endPosition, max);
+		bounds.setMin(min);
+		bounds.setMax(max);
+		floatBound[0] = min.x, floatBound[1] = min.y, floatBound[2] = min.z;
+		floatBound[3] = max.x, floatBound[4] = max.y, floatBound[5] = max.z;
+	}
+
+
+	/**
+	 * @internal
+	 */
+	_reCalculateBound(): void {
+		if (this._calculateBound) {
+			var vertices: Float32Array = this._vertices;
+			var min: Vector3 = PixelLineFilter._tempVector0;
+			var max: Vector3 = PixelLineFilter._tempVector1;
+			min.setValue(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
+			max.setValue(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
+			for (var i: number = 0; i < this._lineCount * 2; ++i) {
+				var offset: number = this._floatCountPerVertices * i;
+				var x: number = vertices[offset + 0], y: number = vertices[offset + 1], z: number = vertices[offset + 2];
+				min.x = Math.min(x, min.x);
+				min.y = Math.min(y, min.y);
+				min.z = Math.min(z, min.z);
+				max.x = Math.max(x, max.x);
+				max.y = Math.max(y, max.y);
+				max.z = Math.max(z, max.z);
+			}
+			this._bounds.setMin(min);
+			this._bounds.setMax(max);
+			var floatBound: Float32Array = this._floatBound;
+			floatBound[0] = min.x, floatBound[1] = min.y, floatBound[2] = min.z;
+			floatBound[3] = max.x, floatBound[4] = max.y, floatBound[5] = max.z;
+			this._calculateBound = false;
+		}
 	}
 
 	/**
@@ -129,11 +189,23 @@ export class PixelLineFilter extends GeometryElement {
 		var floatCount: number = this._floatCountPerVertices * 2;
 		var nextIndex: number = index + 1;
 		var offset: number = index * floatCount;
-		var rightPartVertices: Float32Array = new Float32Array(this._vertices.buffer, nextIndex * floatCount * 4, (this._lineCount - nextIndex) * floatCount);
-		this._vertices.set(rightPartVertices, offset);
+
+		var vertices: Float32Array = this._vertices;
+		var rightPartVertices: Float32Array = new Float32Array(vertices.buffer, nextIndex * floatCount * 4, (this._lineCount - nextIndex) * floatCount);
+		vertices.set(rightPartVertices, offset);
 		this._minUpdate = Math.min(this._minUpdate, offset);
 		this._maxUpdate = Math.max(this._maxUpdate, offset + rightPartVertices.length);
 		this._lineCount--;
+
+		var floatBound: Float32Array = this._floatBound;
+		var startX: number = vertices[offset], startY: number = vertices[offset + 1], startZ: number = vertices[offset + 2];
+		var endX: number = vertices[offset + 7], endY: number = vertices[offset + 8], endZ: number = vertices[offset + 9];
+		var minX: number = floatBound[0], minY: number = floatBound[1], minZ: number = floatBound[2];
+		var maxX: number = floatBound[3], maxY: number = floatBound[4], maxZ: number = floatBound[5];
+
+		if ((startX === minX) || (startX === maxX) || (startY === minY) || (startY === maxY) || (startZ === minZ) || (startZ === maxZ) ||
+			(endX === minX) || (endX === maxX) || (endY === minY) || (endY === maxY) || (endZ === minZ) || (endZ === maxZ))
+			this._calculateBound = true;
 	}
 
 	/**
@@ -141,8 +213,7 @@ export class PixelLineFilter extends GeometryElement {
 	 */
 	_updateLineData(index: number, startPosition: Vector3, endPosition: Vector3, startColor: Color, endColor: Color): void {
 		var floatCount: number = this._floatCountPerVertices * 2;
-		var offset: number = index * floatCount;
-		this._updateLineVertices(offset, startPosition, endPosition, startColor, endColor);
+		this._updateLineVertices(index * floatCount, startPosition, endPosition, startColor, endColor);
 	}
 
 	/**
@@ -150,7 +221,6 @@ export class PixelLineFilter extends GeometryElement {
 	 */
 	_updateLineDatas(index: number, data: PixelLineData[]): void {
 		var floatCount: number = this._floatCountPerVertices * 2;
-		var offset: number = index * floatCount;
 		var count: number = data.length;
 		for (var i: number = 0; i < count; i++) {
 			var line: PixelLineData = data[i];
@@ -204,14 +274,14 @@ export class PixelLineFilter extends GeometryElement {
 	 */
 	_render(state: RenderContext3D): void {
 		if (this._minUpdate !== Number.MAX_VALUE && this._maxUpdate !== Number.MIN_VALUE) {
-			this._vertexBuffer.setData(this._vertices.buffer, this._minUpdate*4, this._minUpdate*4, (this._maxUpdate - this._minUpdate)*4);
+			this._vertexBuffer.setData(this._vertices.buffer, this._minUpdate * 4, this._minUpdate * 4, (this._maxUpdate - this._minUpdate) * 4);
 			this._minUpdate = Number.MAX_VALUE;
 			this._maxUpdate = Number.MIN_VALUE;
 		}
 
 		if (this._lineCount > 0) {
 			this._bufferState.bind();
-			var gl:WebGLRenderingContext=LayaGL.instance;
+			var gl: WebGLRenderingContext = LayaGL.instance;
 			gl.drawArrays(gl.LINES, 0, this._lineCount * 2);
 			Stat.renderBatches++;
 		}
