@@ -21,7 +21,7 @@ Build your HTML5 application from ActionScript 3.0、TypeScript、JavaScript pro
 
 - Laya Native
 
-LayaNative是LayaAir引擎针对移动端原生App的开发、测试、发布的一套完整的开发解决方案。利用反射机制、LayaNative可以在原生App上进行二次开放和渠道对接，并提供测试器、构建工具，为开发者将HTML5项目打包、发布成原生App提供便利
+LayaNative is a complete development solution for LayaAir engine to native Apps, such as iOS or Android. LayaNative uses LayaPlayer as the core runtime and uses reflection function to provide developers with a secondary development. You also can use this function to handle docking market on your native applications.And it also provides developers with testApp and build tools to package and publish your project.
 
 - Provide a visual assistance in the development and tool flow
 
@@ -37,7 +37,7 @@ our official Layabox Github with complete engine source version, free of charge,
 
 - 2D
 
-  Vector renderer、Atlas texture、Load Manager、HTML text、Bitmap fonts、Mask、Filter、Animation timeline、UI、         ParticleSystem、Bones animation、Physical systems
+  Vector Renderer、Atlas Texture、Load Manager、HTML Text、Bitmap Fonts、Mask、Filter、Animation Timeline、UI、ParticleSystem、Bones animation、PhysicalSystem
   
 - 3D
 
