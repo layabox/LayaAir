@@ -432,7 +432,7 @@ export class Texture extends EventDispatcher {
             ILaya.loader.load(url, Handler.create(this, function (bit: any): void {
                 this.bitmap = bit;
                 onok && onok();
-            }), null, "htmlimage", 1, true, null, true);
+            }), null, "htmlimage", 1, true);
         }
     }
 
@@ -459,7 +459,7 @@ export class Texture extends EventDispatcher {
                 bit = null;
             }
             if (this.url && this === ILaya.loader.getRes(this.url))
-                ILaya.loader.clearRes(this.url);
+                ILaya.Loader.clearRes(this.url);
         }
     }
 }

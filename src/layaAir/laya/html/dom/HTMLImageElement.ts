@@ -41,7 +41,7 @@ export class HTMLImageElement extends HTMLElement {
         if (!tex) {
             this._tex = tex = new Texture();
             tex.load(url);
-            Loader.cacheRes(url, tex);
+            Loader.cacheTexture(url, tex);
         }
 
         tex.getIsReady() ? this.onloaded() : tex.once(Event.READY, this, this.onloaded);
