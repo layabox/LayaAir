@@ -335,7 +335,7 @@ export class Texture extends EventDispatcher {
      */
     load(url: string, complete: Handler = null): void {
         if (!this._destroyed)
-            ILaya.loader.load(url, Handler.create(this, this._onLoaded, [complete]), null, "htmlimage", 1, false, null, true);
+            ILaya.loader.load(url, Handler.create(this, this._onLoaded, [complete]), null, "htmlimage", 1, true);
     }
 
     getTexturePixels(x: number, y: number, width: number, height: number): Uint8Array {
