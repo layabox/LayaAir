@@ -11,7 +11,6 @@ import { BaseMaterial } from "../core/material/BaseMaterial";
 import { RenderState } from "../core/material/RenderState";
 import { BaseRender } from "../core/render/BaseRender";
 import { Scene3D } from "../core/scene/Scene3D";
-import { Transform3D } from "../core/Transform3D";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Vector2 } from "../math/Vector2";
 import { Vector3 } from "../math/Vector3";
@@ -180,7 +179,7 @@ export class ShaderInstance extends Resource {
 			this._customUniformParamsMap[custom.dataOffset] = custom;
 		}
 
-		var stateMap: any = this._shaderPass._stateMap;
+		var stateMap: object = this._shaderPass._stateMap;
 		for (var s in stateMap)
 			this._stateParamsMap[stateMap[s]] = Shader3D.propertyNameToID(s);
 	}
@@ -575,23 +574,29 @@ export class ShaderInstance extends Resource {
 				WebGLContext.setBlend(gl, false);
 				break;
 			case RenderState.BLEND_ENABLE_ALL:
-				WebGLContext.setBlend(gl, true);
+				var blendEquation: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_EQUATION);
 				var srcBlend: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_SRC);
-				srcBlend == null && (srcBlend = renderState.srcBlend);
 				var dstBlend: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_DST);
+				blendEquation == null && (blendEquation = renderState.blendEquation);
+				srcBlend == null && (srcBlend = renderState.srcBlend);
 				dstBlend == null && (dstBlend = renderState.dstBlend);
+				WebGLContext.setBlend(gl, true);
+				WebGLContext.setBlendEquation(gl, blendEquation);
 				WebGLContext.setBlendFunc(gl, srcBlend, dstBlend);
 				break;
 			case RenderState.BLEND_ENABLE_SEPERATE:
-				WebGLContext.setBlend(gl, true);
+				var blendEquationRGB: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_EQUATION_RGB);
+				var blendEquationAlpha: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_EQUATION_ALPHA);
 				var srcRGB: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_SRC_RGB);
-				srcRGB == null && (srcRGB = renderState.srcBlendRGB);
 				var dstRGB: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_DST_RGB);
-				dstRGB == null && (dstRGB = renderState.dstBlendRGB);
 				var srcAlpha: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_SRC_ALPHA);
-				srcAlpha == null && (srcAlpha = renderState.srcBlendAlpha);
 				var dstAlpha: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_DST_ALPHA);
+				srcRGB == null && (srcRGB = renderState.srcBlendRGB);
+				dstRGB == null && (dstRGB = renderState.dstBlendRGB);
+				srcAlpha == null && (srcAlpha = renderState.srcBlendAlpha);
 				dstAlpha == null && (dstAlpha = renderState.dstBlendAlpha);
+				WebGLContext.setBlend(gl, true);
+				WebGLContext.setBlendEquationSeparate(gl, blendEquationRGB, blendEquationAlpha);
 				WebGLContext.setBlendFuncSeperate(gl, srcRGB, dstRGB, srcAlpha, dstAlpha);
 				break;
 		}

@@ -365,6 +365,7 @@ export class Context {
 	static set2DRenderConfig(): void {
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		WebGLContext.setBlend(gl, true);//还原2D设置
+		WebGLContext.setBlendEquation(gl, gl.FUNC_ADD);
 		WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 		WebGLContext.setDepthTest(gl, false);
 		WebGLContext.setCullFace(gl, false);
@@ -449,7 +450,7 @@ export class Context {
 	 */
 	sprite: Sprite = null;
 
-    /**@internal */
+	/**@internal */
 	public static _textRender: TextRender = null;// new TextRender();
 	/**@internal */
 	_italicDeg: number = 0;//文字的倾斜角度
@@ -801,28 +802,28 @@ export class Context {
 		//_other.font === FontInContext.EMPTY ? (_other.font = new FontInContext(str)) : (_other.font.setFont(str));
 	}
 
-	fillText(txt: string|WordText, x: number, y: number, fontStr: string, color: string, align: string, lineWidth: number = 0, borderColor: string = ""): void {
-        Context._textRender.filltext(this,txt,x,y,fontStr,color,borderColor,lineWidth,align);
-    }
-    // 与fillText的区别是没有border信息
-	drawText(text: string|WordText, x: number, y: number, font: string, color: string, textAlign: string): void {
-        Context._textRender.filltext(this,text,x,y,font,color,null,0,textAlign);
+	fillText(txt: string | WordText, x: number, y: number, fontStr: string, color: string, align: string, lineWidth: number = 0, borderColor: string = ""): void {
+		Context._textRender.filltext(this, txt, x, y, fontStr, color, borderColor, lineWidth, align);
+	}
+	// 与fillText的区别是没有border信息
+	drawText(text: string | WordText, x: number, y: number, font: string, color: string, textAlign: string): void {
+		Context._textRender.filltext(this, text, x, y, font, color, null, 0, textAlign);
 	}
 	fillWords(words: HTMLChar[], x: number, y: number, fontStr: string, color: string): void {
-        Context._textRender.fillWords(this, words, x, y, fontStr, color, null,0);
+		Context._textRender.fillWords(this, words, x, y, fontStr, color, null, 0);
 	}
-	strokeWord(text: string|WordText, x: number, y: number, font: string, color: string, lineWidth: number, textAlign: string): void {
-        Context._textRender.filltext(this, text, x, y, font, null, color, lineWidth, textAlign);
+	strokeWord(text: string | WordText, x: number, y: number, font: string, color: string, lineWidth: number, textAlign: string): void {
+		Context._textRender.filltext(this, text, x, y, font, null, color, lineWidth, textAlign);
 	}
-	fillBorderText(txt: string|WordText, x: number, y: number, font: string, color: string, borderColor: string, lineWidth: number, textAlign: string): void {
-        Context._textRender.filltext(this,txt,x,y,font,color, borderColor, lineWidth,textAlign);
+	fillBorderText(txt: string | WordText, x: number, y: number, font: string, color: string, borderColor: string, lineWidth: number, textAlign: string): void {
+		Context._textRender.filltext(this, txt, x, y, font, color, borderColor, lineWidth, textAlign);
 	}
 	fillBorderWords(words: HTMLChar[], x: number, y: number, font: string, color: string, borderColor: string, lineWidth: number): void {
-        Context._textRender.fillWords(this,words,x,y,font,color, borderColor, lineWidth);
-    }
-    
+		Context._textRender.fillWords(this, words, x, y, font, color, borderColor, lineWidth);
+	}
+
 	/**@internal */
-	_fast_filltext(data: string|WordText, x: number, y: number, fontObj: any, color: string, strokeColor: string, lineWidth: number, textAlign: number, underLine: number = 0): void {
+	_fast_filltext(data: string | WordText, x: number, y: number, fontObj: any, color: string, strokeColor: string, lineWidth: number, textAlign: number, underLine: number = 0): void {
 		Context._textRender._fast_filltext(this, data, null, x, y, (<FontInfo>fontObj), color, strokeColor, lineWidth, textAlign, underLine);
 	}
 
@@ -1474,7 +1475,7 @@ export class Context {
 		//var preworldClipRect:Rectangle = RenderState2D.worldClipRect;
 		//裁剪不用考虑，现在是在context内部自己维护，不会乱窜
 		RenderState2D.worldScissorTest = false;
-		var gl:WebGLRenderingContext=LayaGL.instance;
+		var gl: WebGLRenderingContext = LayaGL.instance;
 		gl.disable(gl.SCISSOR_TEST);
 
 		var preAlpha: number = RenderState2D.worldAlpha;
@@ -1653,7 +1654,7 @@ export class Context {
 				tmpMat.a = matrix.a; tmpMat.b = matrix.b; tmpMat.c = matrix.c; tmpMat.d = matrix.d; tmpMat.tx = matrix.tx + x; tmpMat.ty = matrix.ty + y;
 			}
 			Matrix.mul(tmpMat, this._curMat, tmpMat);
-			triMesh.addData(vertices, uvs, indices, tmpMat||this._curMat, rgba);
+			triMesh.addData(vertices, uvs, indices, tmpMat || this._curMat, rgba);
 		} else {
 			// 这种情况是drawtexture转成的drawTriangle，直接使用matrix就行，传入的xy都是0
 			triMesh.addData(vertices, uvs, indices, matrix, rgba);

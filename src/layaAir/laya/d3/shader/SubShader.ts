@@ -53,7 +53,7 @@ export class SubShader {
 	 * @param ps 
 	 * @param stateMap 
 	 */
-	addShaderPass(vs: string, ps: string, stateMap: any = null): ShaderPass {
+	addShaderPass(vs: string, ps: string, stateMap: object = null): ShaderPass {
 		var shaderPass: ShaderPass = new ShaderPass(this, vs, ps, stateMap);
 		this._passes.push(shaderPass);
 		return shaderPass;

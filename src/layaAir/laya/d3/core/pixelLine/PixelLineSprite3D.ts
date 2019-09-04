@@ -14,7 +14,7 @@ import { Node } from "../../../display/Node"
  */
 export class PixelLineSprite3D extends RenderableSprite3D {
 	/** @internal */
-	private _geometryFilter: PixelLineFilter;
+	public _geometryFilter: PixelLineFilter;
 
 	/**
 	 * 获取最大线数量
