@@ -25,9 +25,9 @@ LayaAir can directly bulid HTML5 and miniGame platform.LayaAir can also build na
 
 - Visual assistance in the development and tool flow
 
-[LayaAirIDE](http://ldc.layabox.com/index.php?m=content&c=index&a=lists&catid=27) offer code development tools and visual editor. Clear workflow make, ergonomic, designed development efficiency.
+[LayaAirIDE](http://ldc.layabox.com/index.php?m=content&c=index&a=lists&catid=27) Offer base and 2D development tools and visual editor. Clear workflow make, ergonomic, designed development efficiency.Support Code development,UI and Scene Editor,Particle Editor,Animation Editor,Physical Editor,Presupposition,Build Platform Packaging,Code confusion and compression,etc.
 
-[Unity Plugin](http://ldc.layabox.com/index.php?m=content&c=index&a=lists&catid=27)  offer resource and scene export with Unity,can let unity project easier migration to LayaAir.
+[Unity Plugin](http://ldc.layabox.com/index.php?m=content&c=index&a=lists&catid=27) Offer 3D resource and scene edit and export with Unity,support most of commonly used unity funtion,for example Animtor,MeshRender,MeshFilter,ParticleSystem,Light,TrailRender,Lightingmap,Physics,etc.Can let unity project easier migration to LayaAir or directly use unity as the 3D Editer.
 
 - Open-source and free
 
@@ -37,11 +37,11 @@ our official Layabox Github with complete engine source version, free of charge,
 
 - 2D
 
-  Vector Renderer、Atlas Texture、Load Manager、HTML Text、Bitmap Fonts、Mask、Filter、Animation Timeline、UI、ParticleSystem、SkeletonAnimation、Physics
+  Vector Renderer,Atlas Texture,Load Manager,HTML Text,Bitmap Fonts,Mask,Filter,Animation Timeline,UI,ParticleSystem,SkeletonAnimation,Physics,etc.
   
 - 3D
 
-  Camera、Mesh、ParticleSystem、Multi Light、SkyRender、Animation、PhysicBaseRendering、Shadow、Custom Shader、Trail、PixelLine、Physics、Fog、StaticBatch、DynamicBatch、PostProcess
+  Camera,Mesh,ParticleSystem,Multi Light,SkyRender,Animation,PhysicBaseRendering,Shadow,Custom Shader,Trail,PixelLine,Physics,Fog,StaticBatch,DynamicBatch,PostProcess,etc.
 
 ## Beginner usage
 
