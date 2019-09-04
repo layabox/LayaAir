@@ -6,39 +6,44 @@ import { LayaGL } from "../layagl/LayaGL";
  */
 export class WebGLContext {
     /**@internal */
-    static _activeTextures: any[] = new Array(8);
+    private static _activeTextures: any[] = new Array(8);
+    /**@internal */
+    private static _useProgram: any = null;
+    /**@internal */
+    private static _depthTest: boolean = true;
+    /**@internal */
+    private static _depthMask: boolean = true;
+    /**@internal */
+    private static _depthFunc: number;
+    /**@internal */
+    private static _blend: boolean = false;
+    /**@internal */
+    private static _blendEquation: number;
+    /**@internal */
+    private static _blendEquationRGB: number;
+    /**@internal */
+    private static _blendEquationAlpha: number;
+    /**@internal */
+    private static _sFactor: number;
+    /**@internal */
+    private static _dFactor: number;
+    /**@internal */
+    private static _sFactorRGB: number;
+    /**@internal */
+    private static _dFactorRGB: number;
+    /**@internal */
+    private static _sFactorAlpha: number;
+    /**@internal */
+    private static _dFactorAlpha: number;
+    /**@internal */
+    private static _cullFace: boolean = false;
+    /**@internal */
+    private static _frontFace: number;
+    /**@internal */
+    private static _activedTextureID: number;
+
     /**@internal */
     static _glTextureIDs: any[];
-    /**@internal */
-    static _useProgram: any = null;
-    /**@internal */
-    static _depthTest: boolean = true;
-    /**@internal */
-    static _depthMask: boolean = true;
-    /**@internal */
-    static _depthFunc: number;
-    /**@internal */
-    static _blend: boolean = false;
-    /**@internal */
-    static _blendEquation: number;
-    /**@internal */
-    static _blendEquationRGB: number;
-    /**@internal */
-    static _blendEquationAlpha: number;
-    /**@internal */
-    static _sFactor: number;
-    /**@internal */
-    static _dFactor: number;
-    /**@internal */
-    static _srcAlpha: number;
-    /**@internal */
-    static _dstAlpha: number;
-    /**@internal */
-    static _cullFace: boolean = false;
-    /**@internal */
-    static _frontFace: number;
-    /**@internal */
-    static _activedTextureID: number;
 
     /**@internal */
     static mainContext: WebGLRenderingContext = null;
@@ -55,8 +60,8 @@ export class WebGLContext {
         WebGLContext._blendEquationAlpha = gl.FUNC_ADD;
         WebGLContext._sFactor = gl.ONE;
         WebGLContext._dFactor = gl.ZERO;
-        WebGLContext._srcAlpha = gl.ONE;
-        WebGLContext._dstAlpha = gl.ZERO;
+        WebGLContext._sFactorAlpha = gl.ONE;
+        WebGLContext._dFactorAlpha = gl.ZERO;
         WebGLContext._activedTextureID = gl.TEXTURE0;//默认激活纹理区为0
         WebGLContext._glTextureIDs = [gl.TEXTURE0, gl.TEXTURE1, gl.TEXTURE2, gl.TEXTURE3, gl.TEXTURE4, gl.TEXTURE5, gl.TEXTURE6, gl.TEXTURE7];
     }
@@ -105,32 +110,51 @@ export class WebGLContext {
      * @internal
      */
     static setBlendEquation(gl: WebGLRenderingContext, blendEquation: number): void {
-        (blendEquation !== WebGLContext._blendEquation) && (WebGLContext._blendEquation = blendEquation, gl.blendEquation(blendEquation));
+        if (blendEquation !== WebGLContext._blendEquation) {
+            WebGLContext._blendEquation = blendEquation;
+            WebGLContext._blendEquationRGB = WebGLContext._blendEquationAlpha = null;
+            gl.blendEquation(blendEquation);
+        }
     }
 
     /**
      * @internal
      */
     static setBlendEquationSeparate(gl: WebGLRenderingContext, blendEquationRGB: number, blendEquationAlpha: number): void {
-        (blendEquationRGB !== WebGLContext._blendEquationRGB || blendEquationAlpha !== WebGLContext._blendEquationAlpha) && (WebGLContext._blendEquationRGB = blendEquationRGB, WebGLContext._blendEquationAlpha = blendEquationAlpha, gl.blendEquationSeparate(blendEquationRGB, blendEquationAlpha));
+        if (blendEquationRGB !== WebGLContext._blendEquationRGB || blendEquationAlpha !== WebGLContext._blendEquationAlpha) {
+            WebGLContext._blendEquationRGB = blendEquationRGB;
+            WebGLContext._blendEquationAlpha = blendEquationAlpha;
+            WebGLContext._blendEquation = null;
+            gl.blendEquationSeparate(blendEquationRGB, blendEquationAlpha);
+        }
     }
 
 	/**
 	 * @internal
 	 */
     static setBlendFunc(gl: WebGLRenderingContext, sFactor: number, dFactor: number): void {
-        (sFactor !== WebGLContext._sFactor || dFactor !== WebGLContext._dFactor) && (WebGLContext._sFactor = WebGLContext._srcAlpha = sFactor, WebGLContext._dFactor = WebGLContext._dstAlpha = dFactor, gl.blendFunc(sFactor, dFactor));
+        if (sFactor !== WebGLContext._sFactor || dFactor !== WebGLContext._dFactor) {
+            WebGLContext._sFactor = sFactor;
+            WebGLContext._dFactor = dFactor;
+            WebGLContext._sFactorRGB = null;
+            WebGLContext._dFactorRGB = null;
+            WebGLContext._sFactorAlpha = null;
+            WebGLContext._dFactorAlpha = null;
+            gl.blendFunc(sFactor, dFactor);
+        }
     }
 
 	/**
 	 * @internal
 	 */
     static setBlendFuncSeperate(gl: WebGLRenderingContext, srcRGB: number, dstRGB: number, srcAlpha: number, dstAlpha: number): void {
-        if (srcRGB !== WebGLContext._sFactor || dstRGB !== WebGLContext._dFactor || srcAlpha !== WebGLContext._srcAlpha || dstAlpha !== WebGLContext._dstAlpha) {
-            WebGLContext._sFactor = srcRGB;
-            WebGLContext._dFactor = dstRGB;
-            WebGLContext._srcAlpha = srcAlpha;
-            WebGLContext._dstAlpha = dstAlpha;
+        if (srcRGB !== WebGLContext._sFactorRGB || dstRGB !== WebGLContext._dFactorRGB || srcAlpha !== WebGLContext._sFactorAlpha || dstAlpha !== WebGLContext._dFactorAlpha) {
+            WebGLContext._sFactorRGB = srcRGB;
+            WebGLContext._dFactorRGB = dstRGB;
+            WebGLContext._sFactorAlpha = srcAlpha;
+            WebGLContext._dFactorAlpha = dstAlpha;
+            WebGLContext._sFactor = null;
+            WebGLContext._dFactor = null;
             gl.blendFuncSeparate(srcRGB, dstRGB, srcAlpha, dstAlpha);
         }
     }

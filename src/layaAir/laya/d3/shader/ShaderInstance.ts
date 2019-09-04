@@ -591,6 +591,8 @@ export class ShaderInstance extends Resource {
 				var dstRGB: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_DST_RGB);
 				var srcAlpha: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_SRC_ALPHA);
 				var dstAlpha: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_DST_ALPHA);
+				blendEquationRGB == null && (blendEquationRGB = renderState.blendEquationRGB);
+				blendEquationAlpha == null && (blendEquationAlpha = renderState.blendEquationAlpha);
 				srcRGB == null && (srcRGB = renderState.srcBlendRGB);
 				dstRGB == null && (dstRGB = renderState.dstBlendRGB);
 				srcAlpha == null && (srcAlpha = renderState.srcBlendAlpha);

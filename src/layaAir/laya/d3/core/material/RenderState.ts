@@ -44,11 +44,11 @@ export class RenderState implements IClone {
 	static BLENDPARAM_SRC_ALPHA_SATURATE: number = 0x0308;
 
 	/**混合方程枚举_加法,例：source + destination*/
-	static BLENDEQUATION_ADD: number = 0;
+	static BLENDEQUATION_ADD: number = 0x8006;
 	/**混合方程枚举_减法，例：source - destination*/
-	static BLENDEQUATION_SUBTRACT: number = 1;
+	static BLENDEQUATION_SUBTRACT: number = 0x800A;
 	/**混合方程枚举_反序减法，例：destination - source*/
-	static BLENDEQUATION_REVERSE_SUBTRACT: number = 2;
+	static BLENDEQUATION_REVERSE_SUBTRACT: number = 0x800B;
 
 	/**深度测试函数枚举_关闭深度测试。*/
 	static DEPTHTEST_OFF: number = 0/*WebGLContext.NEVER*/;//TODO:什么鬼
