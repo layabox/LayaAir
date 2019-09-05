@@ -589,35 +589,25 @@ export class Camera extends BaseCamera {
 	/**
 	 * 计算从世界空间准换三维坐标到屏幕空间。
 	 * @param	position 世界空间的位置。
-	 * @return  out  输出位置。
+	 * @param   out  输出位置。
 	 */
 	worldToViewportPoint(position: Vector3, out: Vector3): void {
 		Matrix4x4.multiply(this._projectionMatrix, this._viewMatrix, this._projectionViewMatrix);
 		this.viewport.project(position, this._projectionViewMatrix, out);
-		//if (out.z < 0.0 || out.z > 1.0)// TODO:是否需要近似判断
-		//{
-		//outE[0] = outE[1] = outE[2] = NaN;
-		//} else {
 		out.x = out.x / Laya.stage.clientScaleX;
 		out.y = out.y / Laya.stage.clientScaleY;
-		//}
 	}
 
 	/**
 	 * 计算从世界空间准换三维坐标到裁切空间。
 	 * @param	position 世界空间的位置。
-	 * @return  out  输出位置。
+	 * @param   out  输出位置。
 	 */
 	worldToNormalizedViewportPoint(position: Vector3, out: Vector3): void {
 		Matrix4x4.multiply(this._projectionMatrix, this._viewMatrix, this._projectionViewMatrix);
 		this.normalizedViewport.project(position, this._projectionViewMatrix, out);
-		//if (out.z < 0.0 || out.z > 1.0)// TODO:是否需要近似判断
-		//{
-		//outE[0] = outE[1] = outE[2] = NaN;
-		//} else {
 		out.x = out.x / Laya.stage.clientScaleX;
 		out.y = out.y / Laya.stage.clientScaleY;
-		//}
 	}
 
 	/**
