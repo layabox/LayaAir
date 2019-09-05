@@ -2,6 +2,7 @@ import {delay,loadRes} from './delay.js'
 import { Laya } from 'Laya.js';
 import { Image } from 'laya/ui/Image.js';
 import { Text } from 'laya/display/Text.js';
+import { getResPath } from './resPath.js';
 
 class Main {
 	constructor() {
@@ -16,9 +17,9 @@ class Main {
      * 几个文字效果
      */
     async test1(){
-        await loadRes('./res/monkey0.png');
+        await loadRes(getResPath('monkey0.png'));
         var sp = new Image();
-        sp.skin = './res/monkey0.png';
+        sp.skin = getResPath('monkey0.png');
         sp.pos(100,100);
         Laya.stage.addChild(sp);
 
@@ -40,7 +41,7 @@ class Main {
         Laya.stage.addChild(t2);
 
         var sp2 = new Image();
-        sp2.skin = './res/monkey0.png';
+        sp2.skin = getResPath('monkey0.png');
         sp2.pos(200,200);       
         Laya.stage.addChild(sp2); 
 

@@ -18,7 +18,7 @@ class Main {
      */
     async test1(){
         var l = new WorkerLoader();
-        var url = 'http://127.0.0.1:8888/res/monkey0.png';
+        var url = 'http://127.0.0.1:8888/bin/res/monkey0.png';
         l.on(url, this, function(d:Texture2D) { 
             var sp = new Sprite();
             Laya.stage.addChild(sp);

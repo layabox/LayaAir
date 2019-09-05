@@ -1,6 +1,7 @@
 import {delay,loadRes} from './delay.js'
 import { Laya } from 'Laya.js';
 import { Skeleton } from 'laya/ani/bone/Skeleton.js'
+import { getResPath } from './resPath.js';
 
 class Main {
 	constructor() {
@@ -15,7 +16,7 @@ class Main {
         var sk = new Skeleton();
         Laya.stage.addChild(sk);
         sk.pos(Math.random()*800,Math.random()*600);
-        sk.load('res/spine/vine.sk',null,2);
+        sk.load(getResPath('spine/vine.sk'),null,2);
         sk.scale(0.1,0.1);
     }
 
@@ -27,7 +28,7 @@ class Main {
         var sk = new Skeleton();
         Laya.stage.addChild(sk);
         sk.pos(300,300);
-        sk.load('res/spine/vine.sk');
+        sk.load(getResPath('spine/vine.sk'));
 
         for(var i=0; i<400;i++)
             this.addsp();

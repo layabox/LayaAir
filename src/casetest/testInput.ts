@@ -2,6 +2,7 @@ import {delay} from './delay.js'
 import { Laya } from 'Laya.js';
 import { Event } from 'laya/events/Event.js';
 import { Render } from 'laya/renders/Render.js';
+import { Sprite } from 'laya/display/Sprite.js';
 
 class Main {
 	constructor() {
@@ -16,7 +17,6 @@ class Main {
      * 各种输入事件的处理
      */
     async test1(){
-        var Sprite = Sprite;
         var sp1 = new Sprite();
         sp1.pos(10,10);
         sp1.size(10,10);

@@ -17,7 +17,6 @@ export class Main {
      * 有cacheas  normal的情况
      */
     async test1(){
-        new Text
         // 先创建两个文字贴图，由于字体较大，4个字就占一张图。
         var t1 = new Text();
         t1.fontSize = 120;
