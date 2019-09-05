@@ -1545,7 +1545,7 @@ export class Sprite extends Node {
             if (!tex) {
                 tex = new Texture();
                 tex.load(url);
-                ILaya.Loader.cacheRes(url, tex);
+                ILaya.Loader.cacheTexture(url, tex);
             }
             this.texture = tex;
             if (!tex.getIsReady()) tex.once(Event.READY, this, loaded);

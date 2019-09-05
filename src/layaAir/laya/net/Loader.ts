@@ -19,6 +19,7 @@ import { Handler } from "../utils/Handler"
 import { Utils } from "../utils/Utils"
 import { ILaya } from "../../ILaya";
 import { TTFLoader } from "./TTFLoader";
+import { Resource } from "../resource/Resource";
 
 /**
  * 加载进度发生改变时调度。
@@ -94,7 +95,9 @@ export class Loader extends EventDispatcher {
 	/**已加载的资源池。*/
 	static loadedMap: any = {};
 	/**已加载的图集资源池。*/
-	protected static atlasMap: any = {};
+	static atlasMap: any = {};
+	/**已加载的纹理资源池。*/
+	static textureMap: any = {};
 	/** @private 已加载的数据文件。*/
 	static preLoadedMap: any = {};
 	/**@private 引用image对象，防止垃圾回收*/
@@ -164,8 +167,14 @@ export class Loader extends EventDispatcher {
 		this._data = null;
 		if (useWorkerLoader)
 			ILaya.WorkerLoader.enableWorkerLoader();
-		if (!ignoreCache && Loader.loadedMap[url]) {
-			this._data = Loader.loadedMap[url];
+
+		var cacheRes: any;
+		if (type == Loader.IMAGE)
+			cacheRes = Loader.textureMap[url];
+		else
+			cacheRes = Loader.loadedMap[url];
+		if (!ignoreCache && cacheRes) {
+			this._data = cacheRes;
 			this.event(Event.PROGRESS, 1);
 			this.event(Event.COMPLETE, this._data);
 			return;
@@ -444,7 +453,7 @@ export class Loader extends EventDispatcher {
 				if (this._data.toLoads.length > 0) {
 					this.event(Event.PROGRESS, 0.3 + 1 / this._data.toLoads.length * 0.6);
 					//有图片未加载
-					return this._loadResourceFilter(Loader.IMAGE,this._data.toLoads.pop());
+					return this._loadResourceFilter(Loader.IMAGE, this._data.toLoads.pop());
 				}
 				var frames: any = this._data.frames;
 				var cleanUrl: string = this._url.split("?")[0];
@@ -463,7 +472,7 @@ export class Loader extends EventDispatcher {
 						((<any>tPic)).scaleRate = scaleRate;
 						var tTexture: Texture;
 						tTexture = Texture._create(tPic, obj.frame.x, obj.frame.y, obj.frame.w, obj.frame.h, obj.spriteSourceSize.x, obj.spriteSourceSize.y, obj.sourceSize.w, obj.sourceSize.h, Loader.getRes(url));
-						Loader.cacheRes(url, tTexture);
+						Loader.cacheTexture(url, tTexture);
 						tTexture.url = url;
 						map.push(url);
 					}
@@ -473,7 +482,7 @@ export class Loader extends EventDispatcher {
 						tPic = pics[obj.frame.idx ? obj.frame.idx : 0];//是否释放
 						url = URL.formatURL(directory + name);
 						tTexture = Texture._create(tPic, obj.frame.x, obj.frame.y, obj.frame.w, obj.frame.h, obj.spriteSourceSize.x, obj.spriteSourceSize.y, obj.sourceSize.w, obj.sourceSize.h, Loader.getRes(url));
-						Loader.cacheRes(url, tTexture);
+						Loader.cacheTexture(url, tTexture);
 						tTexture.url = url;
 						map.push(url);
 					}
@@ -627,21 +636,16 @@ export class Loader extends EventDispatcher {
 			for (var i: number = 0, n: number = arr.length; i < n; i++) {
 				var resUrl: string = arr[i];
 				var tex: Texture = Loader.getRes(resUrl);
-				delete Loader.loadedMap[resUrl];
+				delete Loader.textureMap[resUrl];
 				if (tex) tex.destroy();
-
 			}
 			arr.length = 0;
 			delete Loader.atlasMap[url];
-			delete Loader.loadedMap[url];
-		} else {
-			var res: any = Loader.loadedMap[url];
-			if (res) {
-				delete Loader.loadedMap[url];
-				if (res instanceof Texture && res.bitmap) ((<Texture>res)).destroy();
-
-			}
 		}
+		var texture: Texture = Loader.textureMap[url];
+		(texture) && (texture.destroy());
+		var res: any = Loader.loadedMap[url];
+		(res) && (delete Loader.loadedMap[url])
 	}
 
 	/**
@@ -671,12 +675,16 @@ export class Loader extends EventDispatcher {
 	}
 
 	/**
-	 * 获取指定资源地址的资源。
+	 * 获取指定资源地址的资源或纹理。
 	 * @param	url 资源地址。
 	 * @return	返回资源。
 	 */
 	static getRes(url: string): any {
-		return Loader.loadedMap[URL.formatURL(url)];
+		var res = Loader.loadedMap[URL.formatURL(url)];
+		if (res)
+			return res;
+		else
+			return Loader.textureMap[URL.formatURL(url)];
 	}
 
 	/**
@@ -684,9 +692,10 @@ export class Loader extends EventDispatcher {
 	 * @param	url 图集地址。
 	 * @return	返回地址集合。
 	 */
-	static getAtlas(url: string): any[] {
+	static getAtlas(url: string): number[] {
 		return Loader.atlasMap[URL.formatURL(url)];
 	}
+
 
 	/**
 	 * 缓存资源。
@@ -699,6 +708,20 @@ export class Loader extends EventDispatcher {
 			console.warn("Resources already exist,is repeated loading:", url);
 		} else {
 			Loader.loadedMap[url] = data;
+		}
+	}
+
+	/**
+	 * 缓存Teture。
+	 * @param	url 资源地址。
+	 * @param	data 要缓存的Texture。
+	 */
+	static cacheTexture(url: string, data: Texture): void {
+		url = URL.formatURL(url);
+		if (Loader.textureMap[url] != null) {
+			console.warn("Resources already exist,is repeated loading:", url);
+		} else {
+			Loader.textureMap[url] = data;
 		}
 	}
 
