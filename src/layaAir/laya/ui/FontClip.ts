@@ -42,7 +42,10 @@ export class FontClip extends Clip {
         if (sheet) this.sheet = sheet;
     }
 
-		/*override*/ protected createChildren(): void {
+    /**
+    * @override
+    */
+    protected createChildren(): void {
         this._bitmap = new AutoBitmap();
         this.on(Event.LOADED, this, this._onClipLoaded);
     }

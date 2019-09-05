@@ -5,6 +5,7 @@ import { Laya } from 'Laya';
 import { Texture } from 'laya/resource/Texture';
 import { Context } from 'laya/resource/Context';
 import { Handler } from 'laya/utils/Handler';
+import { getResPath } from './resPath';
 
 const min = Math.min;
 
@@ -101,7 +102,7 @@ class Main {
 	constructor() {
         Laya.init(1024,1024);
         Laya.stage.screenMode = 'none';
-        Laya.loader.load('res/atlas/tiles.atlas', Handler.create(this, this.test1));        
+        Laya.loader.load(getResPath('atlas/tiles.atlas'), Handler.create(this, this.test1));        
     }
     
     /**
@@ -112,7 +113,7 @@ class Main {
     async test1(){
         var fSp = new Sprite();
         var tex = new Texture();
-        tex.load('./res/monkey0.png');
+        tex.load(getResPath('monkey0.png'));
         fSp.graphics.drawTriangles(tex,0,0,
             new Float32Array([0,0, 200, 0, 200, 200, 0, 200]), 
             new Float32Array([0,0,1,0,1,1,0,1]), 

@@ -97,6 +97,7 @@ export class CheckBox extends Button {
 
     /**
      * @inheritDoc 
+     * @override
     */
     protected preinitialize(): void {
         super.preinitialize();
@@ -106,6 +107,7 @@ export class CheckBox extends Button {
 
     /**
      * @inheritDoc 
+     * @override
     */
     protected initialize(): void {
         super.initialize();

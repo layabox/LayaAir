@@ -4,15 +4,23 @@ const rollup = require('rollup');
 const typescript =require( 'rollup-plugin-typescript2');
 const  glsl =require('rollup-plugin-glsl');
 const path = require('path')
+const layaExpPlugin = require('../buildtools/rollup_LayaExp');
 
 const inputOptions = {
     //input: './src/debug/Main1.ts',
     input: './Main.ts',
 	plugins:[
-        typescript({
-            check: false
+        layaExpPlugin({
+            baseUrl:'../layaAir',
+            layaPath:'../LayaAir',      
+            //addLayaExpAt:layaexpreplace,
         }),
-        testPlug(),
+
+        typescript({
+            check: false,
+            tsconfigOverride:{compilerOptions:{removeComments: true}}
+        }),
+        //testPlug(),
         glsl({
 			// By default, everything gets included
 			include: /\.glsl$/ ,
@@ -26,7 +34,7 @@ const inputOptions = {
 const outputOptions = {
     file: '../../bin/bundle.js',
     format: 'iife', 
-    sourcemap: true,
+    sourcemap: false,
     name:'laya'
 };
 
@@ -37,6 +45,14 @@ function testPlug(){
                 debugger;
             }
             console.log(id);
+            return code+'\n//-ROLLUPIDSTUB-//id='+id;
+        },
+        renderChunk(code, chunk, options) {
+            let cs = code.split(/\/\/\-ROLLUP\-\/\/id\=(.*)/);
+            return cs.join('\n');
+        },
+        generateBundle (options,bundle,isWrite){
+            debugger;
         }
     }
 }

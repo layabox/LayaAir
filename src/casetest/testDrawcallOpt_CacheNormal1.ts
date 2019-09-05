@@ -2,6 +2,7 @@ import {delay, loadRes} from './delay.js'
 import { Laya } from 'Laya.js';
 import { Sprite } from 'laya/display/Sprite.js';
 import { Text } from 'laya/display/Text.js';
+import { getResPath } from './resPath.js';
 
 class Main {
 	constructor() {
@@ -16,7 +17,7 @@ class Main {
      * cacheas normal 移动位置。
      */
     async test1(){
-        await loadRes('./res/monkey0.png');
+        await loadRes(getResPath('monkey0.png'));
         var sp = new Sprite();
         sp.drawCallOptimize=true;       // 优化
         sp.pos(100,100);

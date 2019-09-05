@@ -3,6 +3,7 @@ import { Laya } from 'Laya.js';
 import { Sprite } from 'laya/display/Sprite.js';
 import { Image } from 'laya/ui/Image.js';
 import { Text } from 'laya/display/Text.js';
+import { getResPath } from './resPath.js';
 
 /**
  * 检查文字渲染正确
@@ -21,7 +22,7 @@ class Main {
         var sp1 = new Sprite();
         Laya.stage.addChild(sp1);
 
-        await loadRes('./res/monkey0.png');
+        await loadRes(getResPath('monkey0.png'));
 
         let spa = new Sprite();
         spa.graphics.clipRect(0,0,100,100);
@@ -31,7 +32,7 @@ class Main {
         Laya.stage.addChild(spb);
 
         var sp = new Image();
-        sp.skin = './res/monkey0.png';
+        sp.skin = getResPath('monkey0.png');
         spa.addChild(sp);
 
         var t1 = new Text();
@@ -42,7 +43,7 @@ class Main {
         spa.addChild(t1);
 
         let sp2 = new Image();
-        sp2.skin='./res/monkey0.png';
+        sp2.skin=getResPath('monkey0.png');
         sp2.pos(100,0);
         spb.addChild(sp2);
 

@@ -72,7 +72,9 @@ export class UIGroup extends Box implements IItem {
 		this.skin = skin;
 		this.labels = labels;
 	}
-
+	/**
+	 * @override
+	 */
 	protected preinitialize(): void {
 		this.mouseEnabled = true;
 	}
@@ -460,6 +462,7 @@ export class UIGroup extends Box implements IItem {
 
 	/**
 	 * @inheritDoc 
+	 * @override
 	*/
 	protected commitMeasure(): void {
 		this.runCallLater(this.changeLabels);

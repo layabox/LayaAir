@@ -16,6 +16,7 @@ export class Script extends Component {
 	}
 
 	/**
+	 * @internal
 	 * @inheritDoc
 	 * @override
 	 */
@@ -27,6 +28,7 @@ export class Script extends Component {
 	}
 
 		/**
+		 * @internal
 		 * @inheritDoc
 		 * @override
 		 */
@@ -99,6 +101,7 @@ export class Script extends Component {
 	}
 
 		/**
+		 * @internal
 		 * @inheritDoc
 		 * @override
 		 */
@@ -119,6 +122,7 @@ export class Script extends Component {
 	}
 
 		/**
+		 * @internal
 		 * @inheritDoc
 		 * @override
 		 */

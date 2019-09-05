@@ -53,7 +53,7 @@ export class Panel extends Box {
         this._content.destroyChildren();
     }
 
-    /**@inheritDoc*/
+    /**@inheritDoc @override*/
     protected createChildren(): void {
         super.addChild(this._content = new Box());
     }

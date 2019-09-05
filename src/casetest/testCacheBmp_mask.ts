@@ -1,10 +1,9 @@
-import {delay, loadRes} from './delay.js'
-import { Sprite } from 'laya/display/Sprite.js';
 import { Laya } from 'Laya.js';
-import { Image } from 'laya/ui/Image.js';
+import { Sprite } from 'laya/display/Sprite.js';
 import { Box } from 'laya/ui/Box.js';
 import { List } from 'laya/ui/List.js';
 import { Handler } from 'laya/utils/Handler.js';
+import { delay } from './delay.js';
 
 class MoreGameItem extends Box{
     iconImg:Sprite;

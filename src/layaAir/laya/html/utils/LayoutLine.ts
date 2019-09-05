@@ -3,6 +3,7 @@ import { HTMLStyle } from "./HTMLStyle";
 import { IHtml } from "./IHtml";
 import { HTMLImageElement } from "../dom/HTMLImageElement"
 import { HTMLElement, HTMLElementType } from "../dom/HTMLElement";
+import { ClassUtils } from "../../utils/ClassUtils";
 
 /**
  * @private
@@ -68,3 +69,4 @@ export class LayoutLine {
     }
 }
 
+ClassUtils.regClass("laya.html.utils.LayoutLine", LayoutLine);

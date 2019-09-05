@@ -15,7 +15,7 @@ export class SkinMeshForGraphic extends MeshData {
 	/**
 	 * 矩阵
 	 */
-    transform: Matrix;
+    transform: Matrix|null;
 
     init2(texture: Texture, ps: any[], verticles: any[], uvs: any[]): void {
         if (this.transform) {

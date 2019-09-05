@@ -83,15 +83,10 @@ class Main {
             for (let i = 0; i < this.tsCongfig.length; i++) {
                 mark++;
                 let tsConfigUrl = this.tsCongfig[i];
-                let tscLayaAir = child_process.exec("tsc -b " + tsConfigUrl);
-                //等待完成
-                tscLayaAir.on("exit", (err) => {
+                let tscLayaAir = child_process.exec("tsc -b " + tsConfigUrl, (err, stdout, stderr) => {
                     if (err)
-                        console.log("tsc fail ", tsConfigUrl);
+                        console.log("tsc fail ", tsConfigUrl, stdout, stderr);
                     start(err);
-                });
-                tscLayaAir.on("error", (err) => {
-                    console.log("Error :", err);
                 });
             }
         });

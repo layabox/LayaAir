@@ -1,39 +1,26 @@
+import { Node } from "../../../../../core/src/laya/display/Node";
+import { Sprite } from "../../../../../core/src/laya/display/Sprite";
+import { Event } from "../../../../../core/src/laya/events/Event";
+import { GrahamScan } from "../../../../../core/src/laya/maths/GrahamScan";
+import { Rectangle } from "../../../../../core/src/laya/maths/Rectangle";
+import { RenderSprite } from "../../../../../core/src/laya/renders/RenderSprite";
+import { Browser } from "../../../../../core/src/laya/utils/Browser";
+import { Stat } from "../../../../../core/src/laya/utils/Stat";
 import { Laya } from "./../../../../../core/src/Laya";
-///////////////////////////////////////////////////////////
-//  Debug.as
-//  Macromedia ActionScript Implementation of the Class Debug
-//  Created on:      2015-9-24 下午3:00:38
-//  Original author: ww
-///////////////////////////////////////////////////////////
-
-import { CacheAnalyser } from "./tools/CacheAnalyser"
-	import { ClassTool } from "./tools/ClassTool"
-	import { CountTool } from "./tools/CountTool"
-	import { DTrace } from "./tools/DTrace"
-	import { DebugExport } from "./tools/DebugExport"
-	import { DisControlTool } from "./tools/DisControlTool"
-	import { DisController } from "./tools/DisController"
-	import { DisplayHook } from "./tools/DisplayHook"
-	import { MouseEventAnalyser } from "./tools/MouseEventAnalyser"
-	import { RunProfile } from "./tools/RunProfile"
-	import { TraceTool } from "./tools/TraceTool"
-	import { WalkTools } from "./tools/WalkTools"
-	import { ClassCreateHook } from "./tools/enginehook/ClassCreateHook"
-	import { LoaderHook } from "./tools/enginehook/LoaderHook"
-	import { RenderSpriteHook } from "./tools/enginehook/RenderSpriteHook"
-	import { SpriteRenderHook } from "./tools/enginehook/SpriteRenderHook"
-	import { DebugInfoLayer } from "./view/nodeInfo/DebugInfoLayer"
-	import { NodeInfoPanel } from "./view/nodeInfo/NodeInfoPanel"
-	import { NodeUtils } from "./view/nodeInfo/NodeUtils"
-	import { Node } from "../../../../../core/src/laya/display/Node"
-	import { Sprite } from "../../../../../core/src/laya/display/Sprite"
-	import { Text } from "../../../../../core/src/laya/display/Text"
-	import { Event } from "../../../../../core/src/laya/events/Event"
-	import { GrahamScan } from "../../../../../core/src/laya/maths/GrahamScan"
-	import { Rectangle } from "../../../../../core/src/laya/maths/Rectangle"
-	import { RenderSprite } from "../../../../../core/src/laya/renders/RenderSprite"
-	import { Browser } from "../../../../../core/src/laya/utils/Browser"
-	import { Stat } from "../../../../../core/src/laya/utils/Stat"
+import { ClassTool } from "./tools/ClassTool";
+import { CountTool } from "./tools/CountTool";
+import { DebugExport } from "./tools/DebugExport";
+import { DisController } from "./tools/DisController";
+import { DisControlTool } from "./tools/DisControlTool";
+import { DisplayHook } from "./tools/DisplayHook";
+import { DTrace } from "./tools/DTrace";
+import { MouseEventAnalyser } from "./tools/MouseEventAnalyser";
+import { RunProfile } from "./tools/RunProfile";
+import { TraceTool } from "./tools/TraceTool";
+import { WalkTools } from "./tools/WalkTools";
+import { DebugInfoLayer } from "./view/nodeInfo/DebugInfoLayer";
+import { NodeInfoPanel } from "./view/nodeInfo/NodeInfoPanel";
+import { NodeUtils } from "./view/nodeInfo/NodeUtils";
 	
 	//import tools.debugUI.DMainPain;
 	

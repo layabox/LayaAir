@@ -7,6 +7,7 @@ import { Loader } from "../../net/Loader"
 import { Texture } from "../../resource/Texture"
 import { IHtml } from "../utils/IHtml";
 import { ILaya } from "../../../ILaya";
+import { ClassUtils } from "../../utils/ClassUtils";
 
 /**
  * @private
@@ -90,3 +91,5 @@ export class HTMLImageElement extends HTMLElement {
 
 IHtml.HTMLImageElement = HTMLImageElement;
 ILaya.regClass(HTMLImageElement);
+
+ClassUtils.regClass("laya.html.dom.HTMLImageElement", HTMLImageElement);

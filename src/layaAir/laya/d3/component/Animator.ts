@@ -698,6 +698,7 @@ export class Animator extends Component {
 
 	/**
 	 * @inheritDoc
+	 * @internal
 	 * @override
 	 */
 	protected _onDestroy(): void {
@@ -709,6 +710,7 @@ export class Animator extends Component {
 
 	/**
 	 * @inheritDoc
+	 * @internal
 	 * @override
 	 */
 	protected _onEnable(): void {
@@ -723,6 +725,7 @@ export class Animator extends Component {
 
 	/**
 	 * @inheritDoc
+	 * @internal
 	 * @override
 	 */
 	protected _onDisable(): void {

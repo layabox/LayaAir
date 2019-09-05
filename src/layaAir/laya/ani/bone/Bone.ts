@@ -44,7 +44,7 @@ export class Bone {
     }
 
     //TODO:coverage
-    update(pMatrix: Matrix = null): void {
+    update(pMatrix: Matrix|null = null): void {
         this.rotation = this.transform.skX;
         var tResultMatrix: Matrix;
         if (pMatrix) {
@@ -172,14 +172,14 @@ export class Bone {
     }
 
     //TODO:coverage
-    findBone(boneName: string): Bone {
+    findBone(boneName: string): Bone|null {
         if (this.name == boneName) {
             return this;
         }
         else {
             var i: number, n: number;
             var tBone: Bone;
-            var tResult: Bone;
+            var tResult: Bone|null;
             for (i = 0, n = this._children.length; i < n; i++) {
                 tBone = this._children[i];
                 tResult = tBone.findBone(boneName);

@@ -25,6 +25,7 @@ export class EffectBase extends Component {
     protected _comlete: Handler;
     protected _tween: Tween;
     /**
+     * @internal
      * @override
      */
     protected _onAwake(): void {
