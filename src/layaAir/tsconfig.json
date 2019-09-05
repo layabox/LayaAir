@@ -6,13 +6,7 @@
         "composite":true,
         "stripInternal": true,
         "removeComments": false,
-        "noImplicitAny": true,
-        "noImplicitReturns": true,
-        "noImplicitThis": true,
-        "noUnusedLocals": true,
-        "strictNullChecks": true,
-        "strictFunctionTypes": true,
-        "preserveConstEnums": false,
+        "preserveConstEnums": false
     }
 
 }
