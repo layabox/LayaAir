@@ -493,9 +493,11 @@ class emiter {
                 return "*";
             case "FunctionType":
                 return "Function";
+            case "ObjectKeyword":
+                return "Object";
             default:
-                console.log("TODO :", type , this.url);
-                return "";
+                console.log("TODO :", type, this.url + "/" + this.classNameNow);
+                return "*";
         }
     }
     /**
