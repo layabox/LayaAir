@@ -469,7 +469,7 @@ class emiter {
                 return "void";
             case "TypeReference":
                 //自定义类型
-                let type = node.typeName.getText();
+                type = node.typeName.getText();
                 if (type == "ArrayLike")
                     type = "Array";
                 //检测内部枚举是否是枚举类型
@@ -494,7 +494,7 @@ class emiter {
             case "FunctionType":
                 return "Function";
             default:
-                console.log("TODO :", type);
+                console.log("TODO :", type , this.url);
                 return "";
         }
     }
