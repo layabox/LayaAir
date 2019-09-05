@@ -5,3 +5,4 @@ node_modules
 /src/generateDoc/doc
 .vscode/chrome
 build
+/src/platform
