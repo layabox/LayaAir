@@ -8,6 +8,7 @@ import { IHtml } from "./IHtml";
 import { HTMLBrElement } from "../dom/HTMLBrElement";
 import { HTMLStyleElement } from "../dom/HTMLStyleElement";
 import { HTMLLinkElement } from "../dom/HTMLLinkElement";
+import { HTMLImageElement } from "../dom/HTMLImageElement";
 /**
  * @private
  */
