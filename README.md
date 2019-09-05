@@ -2,7 +2,7 @@
 
 LayaAir use WebGL1.0/WebGL2.0 as graphic API and written by TypeScript.
 LayaAir is designed for high performance games and support TypeScript and JavaScript、ActionScript 3.0 programming language.
-LayaAir can develop once, publish for multi target platform(HTML5、Android、Ios、MiniGame).
+LayaAir can develop once, publish for multi target platform(HTML5、Android、iOS、MiniGame).
 
 ## LayaAir features
 
