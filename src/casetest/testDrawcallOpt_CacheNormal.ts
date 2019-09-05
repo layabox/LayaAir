@@ -3,6 +3,7 @@ import { Laya } from 'Laya.js';
 import { Sprite } from 'laya/display/Sprite.js';
 import { Text } from 'laya/display/Text.js';
 import { Image } from 'laya/ui/Image.js';
+import { getResPath } from './resPath.js';
 
 class Main {
 	constructor() {
@@ -17,7 +18,7 @@ class Main {
      * cacheas normal 移动位置。
      */
     async test1(){
-        await loadRes('./res/monkey0.png');
+        await loadRes(getResPath('monkey0.png'));
         var sp = new Sprite();
         sp.drawCallOptimize=true;       // 优化
         sp.pos(100,100);
@@ -35,7 +36,7 @@ class Main {
         sp2.addChild(tx1);
 
         var i1 = new Image();
-        i1.skin = './res/monkey0.png';
+        i1.skin = getResPath('monkey0.png');
         sp2.addChild(i1);
 
         var t2 = new Text();   

@@ -27,9 +27,9 @@ export class BoneSlot {
 	/** 当前插槽对应的数据 */
 	currSlotData: SlotData;
 	/** 当前插槽显示的纹理 */
-	currTexture: Texture;
+	currTexture: Texture|null;
 	/** 显示对象对应的数据 */
-	currDisplayData: SkinSlotDisplayData;
+	currDisplayData: SkinSlotDisplayData|null;
 
 	/** 显示皮肤的索引 */
 	displayIndex: number = -1;
@@ -38,7 +38,7 @@ export class BoneSlot {
 
 	/** 用户自定义的皮肤 */
 	/**@internal */
-	private _diyTexture: Texture;
+	private _diyTexture: Texture|null;
 	/**@internal */
 	private _parentMatrix: Matrix;	// 指向了骨骼的resultMatrix
 	/**@internal */
@@ -215,13 +215,13 @@ export class BoneSlot {
 				return;
 			}
 		}
-		var tTexture: Texture = this.currTexture;
+		var tTexture = this.currTexture;
 		if (this._diyTexture) tTexture = this._diyTexture;
 		var tSkinSprite: any;
 		switch (this.currDisplayData.type) {
 			case 0:
 				if (graphics) {
-					var tCurrentMatrix: Matrix = this.getDisplayMatrix();
+					var tCurrentMatrix = this.getDisplayMatrix();
 					if (this._parentMatrix) {
 						var tRotateKey: boolean = false;		// 是否有旋转
 						if (tCurrentMatrix) {
@@ -314,7 +314,7 @@ export class BoneSlot {
 					}
 					tSkinSprite.init2(tTexture, tIBArray, this._mVerticleArr, tUVs);
 
-					var tCurrentMatrix2: Matrix = this.getDisplayMatrix();
+					var tCurrentMatrix2 = this.getDisplayMatrix();
 					if (this._parentMatrix) {
 						if (tCurrentMatrix2) {
 							Matrix.mul(tCurrentMatrix2, this._parentMatrix, Matrix.TEMP);
@@ -454,7 +454,7 @@ export class BoneSlot {
 	 * @return
 	 */
 	//TODO:coverage
-	private getDisplayMatrix(): Matrix {
+	private getDisplayMatrix(): Matrix|null {
 		if (this.currDisplayData) {
 			return this.currDisplayData.transform.getMatrix();
 		}

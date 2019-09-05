@@ -3,6 +3,7 @@ import {delay, loadRes} from './delay.js'
 import { ColorFilter } from 'laya/filters/ColorFilter.js';
 import { Laya } from 'Laya.js';
 import { Image } from 'laya/ui/Image.js';
+import { getResPath } from './resPath.js';
 
 class Main {
 	constructor() {
@@ -24,9 +25,9 @@ class Main {
             0,0,0,1,0];
 		var redFilter =new ColorFilter(redMat);
 
-        await loadRes('./res/monkey0.png');
+        await loadRes(getResPath('monkey0.png'));
         var sp = new Image();
-        sp.skin = './res/monkey0.png';
+        sp.skin = getResPath('monkey0.png');
         sp.filters=[redFilter];             // 先加一个
         var fs = sp.filters;    
         fs.push(redFilter);                 // 直接修改filter对象

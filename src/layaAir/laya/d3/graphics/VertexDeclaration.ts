@@ -15,7 +15,7 @@ export class VertexDeclaration {
 	/**@internal */
 	private _vertexStride: number;
 	/**@internal */
-	private _vertexElementsDic: Object;
+	private _vertexElementsDic: {[key:string]:VertexElement};
 	/**@internal */
 	_shaderValues: ShaderData;
 

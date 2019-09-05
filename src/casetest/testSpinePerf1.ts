@@ -6,11 +6,12 @@ import { Loader } from 'laya/net/Loader.js';
 import { Handler } from 'laya/utils/Handler.js';
 import { Skeleton } from 'laya/ani/bone/Skeleton.js'
 import { Templet } from 'laya/ani/bone/Templet.js'
+import { getResPath } from './resPath.js';
 
 class Main {
     rolsInfo = [
-        { tex:'res/spine/ymlm.png', sk:'res/spine/ymlm.sk', act:0 },		// dragone bone
-        {tex:'res/spine/hero_006.png', sk:'res/spine/hero_006.sk', act:'sk_2' }	// spine
+        { tex:getResPath('spine/ymlm.png'), sk:getResPath('spine/ymlm.sk'), act:0 },		// dragone bone
+        {tex: getResPath('spine/hero_006.png'), sk:getResPath('spine/hero_006.sk'), act:'sk_2' }	// spine
     ];
     roleid = 0;
     templetCache:Templet = null;

@@ -3,6 +3,7 @@ import { Laya } from 'Laya.js';
 import { Image } from 'laya/ui/Image.js';
 import { Text } from 'laya/display/Text.js';
 import { Sprite } from 'laya/display/Sprite.js';
+import { getResPath } from './resPath.js';
 
 class Main {
 	constructor() {
@@ -17,9 +18,9 @@ class Main {
      * cacheas normal 移动位置。
      */
     async test1(){
-        await loadRes('./res/monkey0.png');
+        await loadRes(getResPath('monkey0.png'));
         var sp = new Image();
-        sp.skin = './res/monkey0.png';
+        sp.skin = getResPath('monkey0.png');
         sp.pos(100,100);
         sp.scale(0.5,1.5);          // 必须要有缩放。因为cacheas normal要先把缩放去掉。
         Laya.stage.addChild(sp);
@@ -29,7 +30,7 @@ class Main {
          * 这时候要防止错误优化（不再上传shadervalue，导致mmat没有正确给shader）
          */
         var sp2 = new Image();
-        sp2.skin = './res/monkey0.png';
+        sp2.skin = getResPath('monkey0.png');
         sp2.cacheAs='normal';
         sp2.pos(100,100);
         sp.addChild(sp2);
@@ -44,7 +45,7 @@ class Main {
 
         // bitmap 下面 normal 要能正常
         var sp10 = new Image();
-        sp10.skin = './res/monkey0.png';
+        sp10.skin = getResPath('monkey0.png');
         sp10.pos(300,10);
         sp10.scale(0.5,1.5);          // 必须要有缩放。因为cacheas normal要先把缩放去掉。
         sp10.cacheAs='bitmap'

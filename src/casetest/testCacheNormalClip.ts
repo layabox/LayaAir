@@ -1,5 +1,6 @@
 import {delay} from './delay.js'
 import { Laya } from 'Laya.js';
+import { Sprite } from 'laya/display/Sprite.js';
 
 class Main {
 	constructor() {
@@ -13,7 +14,6 @@ class Main {
     /**
      */
     async test1(){
-        var Sprite = Sprite;
         var sp1 = new Sprite();
         sp1.pos(100,100);
         //sp1.graphics.drawRect(0,0,100,100,'red');

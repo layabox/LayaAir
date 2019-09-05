@@ -5,6 +5,7 @@ import { Sprite } from 'laya/display/Sprite';
 import { Loader } from 'laya/net/Loader';
 import { Image } from 'laya/ui/Image';
 import { GlowFilter } from 'laya/filters/GlowFilter';
+import { getResPath } from './resPath';
 
 /**
  * autobitmap 的drawgrid实现
@@ -19,7 +20,7 @@ class Main {
     }
     
     async test1(){
-        await loadRes('res/atlas/comp.atlas');
+        await loadRes(getResPath('atlas/comp.atlas'));
 
         // graphics 
         var tex = Loader.getRes('comp/bg.png');

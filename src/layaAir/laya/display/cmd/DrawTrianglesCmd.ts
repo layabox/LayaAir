@@ -14,7 +14,7 @@ export class DrawTrianglesCmd {
     /**
      * 纹理。
      */
-    texture: Texture;
+    texture: Texture|null;
     /**
      * X轴偏移量。
      */

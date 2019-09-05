@@ -1,5 +1,6 @@
 import {delay} from './delay.js'
 import { Laya } from 'Laya.js';
+import { Sprite } from 'laya/display/Sprite.js';
 
 class Main {
 	constructor() {
@@ -16,7 +17,6 @@ class Main {
      * 简单实现是暂时撤销cache
      */
     async test1(){
-        var Sprite = Sprite;
         var sp1 = new Sprite();
         sp1.graphics.drawPath(20, 20, [
             ['moveTo',0,0],
