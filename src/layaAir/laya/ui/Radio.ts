@@ -35,7 +35,9 @@ export class Radio extends Button {
         super.destroy(destroyChild);
         this._value = null;
     }
-
+    /**
+     * @override
+     */
     protected preinitialize(): void {
         super.preinitialize();
         this.toggle = false;
@@ -44,6 +46,7 @@ export class Radio extends Button {
 
     /**
      * @inheritDoc 
+     * @override
      * */
     protected initialize(): void {
         super.initialize();

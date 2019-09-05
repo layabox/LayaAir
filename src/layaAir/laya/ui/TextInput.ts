@@ -129,8 +129,9 @@ export class TextInput extends Label {
 
 		/**
 		 * @inheritDoc 
+         * @override
 		*/
-		/*override*/ protected preinitialize(): void {
+		protected preinitialize(): void {
         this.mouseEnabled = true;
     }
 
@@ -145,7 +146,8 @@ export class TextInput extends Label {
     }
 
     /**
-     * @inheritDoc 
+     * @inheritDoc
+     * @override 
     */
     protected createChildren(): void {
         this.addChild(this._tf = new Input());
@@ -186,6 +188,7 @@ export class TextInput extends Label {
 
     /**
      * @inheritDoc 
+     * @override
     */
     protected initialize(): void {
         this.width = 128;

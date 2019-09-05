@@ -604,6 +604,7 @@ export class PhysicsComponent extends Component {
 
 	/**
 	 * @inheritDoc
+	 * @internal
 	 * @override
 	 */
 	protected _onEnable(): void {
@@ -617,6 +618,7 @@ export class PhysicsComponent extends Component {
 
 	/**
 	 * @inheritDoc
+	 * @internal
 	 * @override
 	 */
 	protected _onDisable(): void {
@@ -659,6 +661,7 @@ export class PhysicsComponent extends Component {
 
 	/**
 	 * @inheritDoc
+	 * @internal
 	 * @override
 	 */
 	protected _onDestroy(): void {

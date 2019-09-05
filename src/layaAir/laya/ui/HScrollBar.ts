@@ -77,6 +77,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 export class HScrollBar extends ScrollBar {
 
     /**
+	 * @override
      * @inheritDoc 
      */
     protected initialize(): void {

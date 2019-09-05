@@ -16,6 +16,7 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { Config } from "Config";
 
 export class PickPixel {
 	private isPick: boolean = false;
@@ -25,8 +26,9 @@ export class PickPixel {
 	private renderTargetCamera: Camera;
 	constructor() {
 		//初始化引擎
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
+		Config.useRetinalCanvas = true;
+		Laya3D.init(750, 1334);
+		Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
 		//显示性能面板
 		Stat.show();
@@ -38,8 +40,8 @@ export class PickPixel {
 	}
 
 	private onMouseDown(): void {
-		var posX: number = MouseManager.instance.mouseX;
-		var posY: number = MouseManager.instance.mouseY;
+		var posX: number = MouseManager.instance.mouseX / Laya.stage.clientScaleX; 
+		var posY: number = MouseManager.instance.mouseY / Laya.stage.clientScaleY;
 		var out: Uint8Array = new Uint8Array(4);
 		this.renderTargetCamera.renderTarget.getData(posX, posY, 1, 1, out);
 		this.text.text = out[0] + " " + out[1] + " " + out[2] + " " + out[3];
@@ -53,9 +55,11 @@ export class PickPixel {
 		this.text.x = Laya.stage.width / 2;
 		this.changeActionButton.pos(Laya.stage.width / 2 - this.changeActionButton.width * Browser.pixelRatio / 2, Laya.stage.height - 100 * Browser.pixelRatio);
 	}
+	private _thisscene:Scene3D ;
 	private onComplete(): void {
+		this._thisscene = (<Scene3D>Laya.stage.addChild(Loader.getRes("res/threeDimen/scene/CourtyardScene/Courtyard.ls")));
 		//加载场景
-		var scene: Scene3D = (<Scene3D>Laya.stage.addChild(Loader.getRes("res/threeDimen/scene/CourtyardScene/Courtyard.ls")));
+		var scene: Scene3D = this._thisscene; 
 		//添加相机
 		var camera: Camera = (<Camera>scene.addChild(new Camera(0, 0.1, 1000)));
 		camera.transform.translate(new Vector3(57, 2.5, 58));

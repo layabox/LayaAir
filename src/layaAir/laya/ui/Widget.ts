@@ -25,15 +25,17 @@ export class Widget extends Component {
     }
 		/**
 		 * @override
+         * @internal
 		 */
-		/*override*/ protected _onEnable(): void {
+		protected _onEnable(): void {
         if (this.owner.parent) this._onAdded();
         else this.owner.once(Event.ADDED, this, this._onAdded);
     }
 		/**
 		 * @override
+         * @internal
 		 */
-		/*override*/ protected _onDisable(): void {
+		protected _onDisable(): void {
         this.owner.off(Event.ADDED, this, this._onAdded);
         if (this.owner.parent) this.owner.parent.off(Event.RESIZE, this, this._onParentResize);
     }

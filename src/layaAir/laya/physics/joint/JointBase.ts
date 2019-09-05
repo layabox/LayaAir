@@ -15,15 +15,15 @@ export class JointBase extends Component {
         return this._joint;
     }
     /**
+     * @internal
      * @override
-     * 
      */
     protected _onEnable(): void {
         this._createJoint();
     }
     /**
+     * @internal
      * @override
-     * 
      */
     protected _onAwake(): void {
         this._createJoint();
@@ -32,8 +32,8 @@ export class JointBase extends Component {
     protected _createJoint(): void {
     }
     /**
+     * @internal
      * @override
-     * 
      */
     protected _onDisable(): void {
         if (this._joint) {
