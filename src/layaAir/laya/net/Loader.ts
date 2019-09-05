@@ -489,6 +489,7 @@ export class Loader extends EventDispatcher {
 				}
 
 				delete this._data.pics;
+				Loader.loadedMap[data.url]=data;
 				this.complete(this._data);
 			}
 		} else if (type === Loader.FONT) {
@@ -643,7 +644,10 @@ export class Loader extends EventDispatcher {
 			delete Loader.atlasMap[url];
 		}
 		var texture: Texture = Loader.textureMap[url];
-		(texture) && (texture.destroy());
+		if (texture) {
+			texture.destroy();
+			delete Loader.textureMap[url]
+		}
 		var res: any = Loader.loadedMap[url];
 		(res) && (delete Loader.loadedMap[url])
 	}
@@ -680,11 +684,11 @@ export class Loader extends EventDispatcher {
 	 * @return	返回资源。
 	 */
 	static getRes(url: string): any {
-		var res = Loader.loadedMap[URL.formatURL(url)];
+		var res = Loader.textureMap[URL.formatURL(url)];
 		if (res)
 			return res;
 		else
-			return Loader.textureMap[URL.formatURL(url)];
+			return Loader.loadedMap[URL.formatURL(url)];
 	}
 
 	/**
