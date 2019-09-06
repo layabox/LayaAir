@@ -1,6 +1,6 @@
 # LayaAir is an open-source 2D/3D engine
 
-LayaAir use WebGL1.0/WebGL2.0 as graphic API and written by TypeScript. LayaAir is designed for high performance games and support TypeScript, JavaScript and ActionScript 3.0 programming language. Develop once and publish for multi-target platform (HTML5, Android, iOS, Wechat Mini-Game, Facebook Instant Game).
+LayaAir use WebGL1.0/WebGL2.0 as graphic API and written by TypeScript. LayaAir is designed for high performance games and support TypeScript, JavaScript and ActionScript 3.0 programming language. Develop once and publish for multi-target platform (HTML5, Android, iOS, Wechat Mini-Game,QQ Mini-Game,BaiDu Mini-Game,XiaoMi Mini-Game,OPPO Mini-Game,VIVO Mini-Game,Bilibili Mini-Game,Alibaba Mini-Game, Facebook Instant Game).
 
 ## LayaAir features
 
@@ -43,6 +43,26 @@ Our official Layabox Github with complete engine source version, free of charge,
 
 ## Beginner usage
 
+#### TS version
+
+```ts
+    /// <reference path="../../libs/LayaAir.d.ts" />
+    class Sprite_DisplayImage{
+
+        constructor(){
+            Laya.init(550, 400);
+            Laya.stage.scaleMode = "showall";
+
+            var ape = new Laya.Sprite();
+            //Loading our monkey
+            ape.loadImage("res/apes/monkey2.png");
+
+            Laya.stage.addChild(ape);
+        }
+    }
+    new Sprite_DisplayImage();
+```
+
 #### JS version
 
 ```js
@@ -79,26 +99,6 @@ Our official Layabox Github with complete engine source version, free of charge,
             }
         }
     }
-```
-
-#### TS version
-
-```ts
-    /// <reference path="../../libs/LayaAir.d.ts" />
-    class Sprite_DisplayImage{
-
-        constructor(){
-            Laya.init(550, 400);
-            Laya.stage.scaleMode = "showall";
-
-            var ape = new Laya.Sprite();
-            //Loading our monkey
-            ape.loadImage("res/apes/monkey2.png");
-
-            Laya.stage.addChild(ape);
-        }
-    }
-    new Sprite_DisplayImage();
 ```
 
 ## API Document
