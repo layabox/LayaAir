@@ -752,8 +752,7 @@ void main()
 		#endif
 		
 		#ifdef TILINGOFFSET
-			v_TextureCoordinate=vec2(v_TextureCoordinate.x,1.0-v_TextureCoordinate.y)*u_TilingOffset.xy+vec2(u_TilingOffset.z,-u_TilingOffset.w);//需要特殊处理
-			v_TextureCoordinate=vec2(v_TextureCoordinate.x,1.0-v_TextureCoordinate.y);//需要特殊处理
+			v_TextureCoordinate=TransformUV(v_TextureCoordinate,u_TilingOffset);
 		#endif
 	#endif
     v_Discard=0.0;

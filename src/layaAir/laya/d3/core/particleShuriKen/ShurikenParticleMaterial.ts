@@ -170,8 +170,7 @@ export class ShurikenParticleMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * 设置渲染模式。
-	 * @return 渲染模式。
+	 * 渲染模式。
 	 */
 	set renderMode(value: number) {
 		switch (value) {
@@ -201,81 +200,56 @@ export class ShurikenParticleMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * 获取颜色R分量。
-	 * @return 颜色R分量。
+	 * 颜色R分量。
 	 */
 	get colorR(): number {
 		return this._TintColorR;
 	}
 
-	/**
-	 * 设置颜色R分量。
-	 * @param value 颜色R分量。
-	 */
 	set colorR(value: number) {
 		this._TintColorR = value;
 	}
 
 	/**
-	 * 获取颜色G分量。
-	 * @return 颜色G分量。
+	 * 颜色G分量。
 	 */
 	get colorG(): number {
 		return this._TintColorG;
 	}
 
-	/**
-	 * 设置颜色G分量。
-	 * @param value 颜色G分量。
-	 */
 	set colorG(value: number) {
 		this._TintColorG = value;
 	}
 
 	/**
-	 * 获取颜色B分量。
-	 * @return 颜色B分量。
+	 * 颜色B分量。
 	 */
 	get colorB(): number {
 		return this._TintColorB;
 	}
 
-	/**
-	 * 设置颜色B分量。
-	 * @param value 颜色B分量。
-	 */
 	set colorB(value: number) {
 		this._TintColorB = value;
 	}
 
 	/**
-	 * 获取颜色Z分量。
-	 * @return 颜色Z分量。
+	 * 颜色Z分量。
 	 */
 	get colorA(): number {
 		return this._TintColorA;
 	}
 
-	/**
-	 * 设置颜色alpha分量。
-	 * @param value 颜色alpha分量。
-	 */
 	set colorA(value: number) {
 		this._TintColorA = value;
 	}
 
 	/**
-	 * 获取颜色。
-	 * @return  颜色。
+	 * 颜色。
 	 */
 	get color(): Vector4 {
 		return (<Vector4>this._shaderValues.getVector(ShurikenParticleMaterial.TINTCOLOR));
 	}
 
-	/**
-	 * 设置颜色。
-	 * @param value 颜色。
-	 */
 	set color(value: Vector4) {
 		if (value)
 			this._shaderValues.addDefine(ShurikenParticleMaterial.SHADERDEFINE_TINTCOLOR);
@@ -286,81 +260,56 @@ export class ShurikenParticleMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * 获取纹理平铺和偏移X分量。
-	 * @return 纹理平铺和偏移X分量。
+	 * 纹理平铺和偏移X分量。
 	 */
 	get tilingOffsetX(): number {
 		return this._MainTex_STX;
 	}
 
-	/**
-	 * 获取纹理平铺和偏移X分量。
-	 * @param x 纹理平铺和偏移X分量。
-	 */
 	set tilingOffsetX(x: number) {
 		this._MainTex_STX = x;
 	}
 
 	/**
-	 * 获取纹理平铺和偏移Y分量。
-	 * @return 纹理平铺和偏移Y分量。
+	 * 纹理平铺和偏移Y分量。
 	 */
 	get tilingOffsetY(): number {
 		return this._MainTex_STY;
 	}
 
-	/**
-	 * 获取纹理平铺和偏移Y分量。
-	 * @param y 纹理平铺和偏移Y分量。
-	 */
 	set tilingOffsetY(y: number) {
 		this._MainTex_STY = y;
 	}
 
 	/**
-	 * 获取纹理平铺和偏移Z分量。
-	 * @return 纹理平铺和偏移Z分量。
+	 * 纹理平铺和偏移Z分量。
 	 */
 	get tilingOffsetZ(): number {
 		return this._MainTex_STZ;
 	}
 
-	/**
-	 * 获取纹理平铺和偏移Z分量。
-	 * @param z 纹理平铺和偏移Z分量。
-	 */
 	set tilingOffsetZ(z: number) {
 		this._MainTex_STZ = z;
 	}
 
 	/**
-	 * 获取纹理平铺和偏移W分量。
-	 * @return 纹理平铺和偏移W分量。
+	 * 纹理平铺和偏移W分量。
 	 */
 	get tilingOffsetW(): number {
 		return this._MainTex_STW;
 	}
 
-	/**
-	 * 获取纹理平铺和偏移W分量。
-	 * @param w 纹理平铺和偏移W分量。
-	 */
 	set tilingOffsetW(w: number) {
 		this._MainTex_STW = w;
 	}
 
 	/**
-	 * 获取纹理平铺和偏移。
-	 * @return 纹理平铺和偏移。
+	 * 纹理平铺和偏移。
 	 */
 	get tilingOffset(): Vector4 {
 		return (<Vector4>this._shaderValues.getVector(ShurikenParticleMaterial.TILINGOFFSET));
 	}
 
-	/**
-	 * 获取纹理平铺和偏移。
-	 * @param value 纹理平铺和偏移。
-	 */
 	set tilingOffset(value: Vector4) {
 		if (value) {
 			if (value.x != 1 || value.y != 1 || value.z != 0 || value.w != 0)
@@ -374,17 +323,12 @@ export class ShurikenParticleMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * 获取漫反射贴图。
-	 * @return 漫反射贴图。
+	 * 漫反射贴图。
 	 */
 	get texture(): BaseTexture {
 		return this._shaderValues.getTexture(ShurikenParticleMaterial.DIFFUSETEXTURE);
 	}
 
-	/**
-	 * 设置漫反射贴图。
-	 * @param value 漫反射贴图。
-	 */
 	set texture(value: BaseTexture) {
 		if (value)
 			this._shaderValues.addDefine(ShurikenParticleMaterial.SHADERDEFINE_DIFFUSEMAP);
@@ -394,100 +338,72 @@ export class ShurikenParticleMaterial extends BaseMaterial {
 		this._shaderValues.setTexture(ShurikenParticleMaterial.DIFFUSETEXTURE, value);
 	}
 
-	/**
-	 * 设置是否写入深度。
-	 * @param value 是否写入深度。
-	 */
-	set depthWrite(value: boolean) {
-		this._shaderValues.setBool(ShurikenParticleMaterial.DEPTH_WRITE, value);
-	}
+
 
 	/**
-	 * 获取是否写入深度。
-	 * @return 是否写入深度。
+	 * 是否写入深度。
 	 */
 	get depthWrite(): boolean {
 		return this._shaderValues.getBool(ShurikenParticleMaterial.DEPTH_WRITE);
 	}
 
-	/**
-	 * 设置剔除方式。
-	 * @param value 剔除方式。
-	 */
-	set cull(value: number) {
-		this._shaderValues.setInt(ShurikenParticleMaterial.CULL, value);
+	set depthWrite(value: boolean) {
+		this._shaderValues.setBool(ShurikenParticleMaterial.DEPTH_WRITE, value);
 	}
 
 	/**
-	 * 获取剔除方式。
-	 * @return 剔除方式。
+	 * 剔除方式。
 	 */
 	get cull(): number {
 		return this._shaderValues.getInt(ShurikenParticleMaterial.CULL);
 	}
 
-	/**
-	 * 设置混合方式。
-	 * @param value 混合方式。
-	 */
-	set blend(value: number) {
-		this._shaderValues.setInt(ShurikenParticleMaterial.BLEND, value);
+	set cull(value: number) {
+		this._shaderValues.setInt(ShurikenParticleMaterial.CULL, value);
 	}
 
 	/**
-	 * 获取混合方式。
-	 * @return 混合方式。
+	 * 混合方式。
 	 */
 	get blend(): number {
 		return this._shaderValues.getInt(ShurikenParticleMaterial.BLEND);
 	}
 
-	/**
-	 * 设置混合源。
-	 * @param value 混合源
-	 */
-	set blendSrc(value: number) {
-		this._shaderValues.setInt(ShurikenParticleMaterial.BLEND_SRC, value);
+	set blend(value: number) {
+		this._shaderValues.setInt(ShurikenParticleMaterial.BLEND, value);
 	}
 
 	/**
-	 * 获取混合源。
-	 * @return 混合源。
+	 * 混合源。
 	 */
 	get blendSrc(): number {
 		return this._shaderValues.getInt(ShurikenParticleMaterial.BLEND_SRC);
 	}
 
-	/**
-	 * 设置混合目标。
-	 * @param value 混合目标
-	 */
-	set blendDst(value: number) {
-		this._shaderValues.setInt(ShurikenParticleMaterial.BLEND_DST, value);
+	set blendSrc(value: number) {
+		this._shaderValues.setInt(ShurikenParticleMaterial.BLEND_SRC, value);
 	}
 
 	/**
-	 * 获取混合目标。
-	 * @return 混合目标。
+	 * 混合目标。
 	 */
 	get blendDst(): number {
 		return this._shaderValues.getInt(ShurikenParticleMaterial.BLEND_DST);
 	}
 
-	/**
-	 * 设置深度测试方式。
-	 * @param value 深度测试方式
-	 */
-	set depthTest(value: number) {
-		this._shaderValues.setInt(ShurikenParticleMaterial.DEPTH_TEST, value);
+	set blendDst(value: number) {
+		this._shaderValues.setInt(ShurikenParticleMaterial.BLEND_DST, value);
 	}
 
 	/**
-	 * 获取深度测试方式。
-	 * @return 深度测试方式。
+	 * 深度测试方式。
 	 */
 	get depthTest(): number {
 		return this._shaderValues.getInt(ShurikenParticleMaterial.DEPTH_TEST);
+	}
+
+	set depthTest(value: number) {
+		this._shaderValues.setInt(ShurikenParticleMaterial.DEPTH_TEST, value);
 	}
 
 	constructor() {
