@@ -478,7 +478,6 @@ export class Cluster {
 
     update(camera: Camera, scene: Scene3D): void {
         this._updateMark++;
-        var xSlices: number = this._xSlices, ySlices: number = this._ySlices, zSlices: number = this._zSlices;
         var camNear: number = camera.nearPlane;
         this._depthSliceParam.x = Config3D._config.lightClusterCount.z / Math.log2(camera.farPlane / camNear);
         this._depthSliceParam.y = Math.log2(camNear) * this._depthSliceParam.x;
@@ -513,16 +512,18 @@ export class Cluster {
         }
 
         if (poiCount + spoCount > 0) {
+            var xSlices: number = this._xSlices, ySlices: number = this._ySlices, zSlices: number = this._zSlices;
             var widthFloat: number = xSlices * ySlices * 4;
             var lightOff: number = widthFloat * zSlices;
             var clusterPixels: Float32Array = this._clusterPixels;
             var clusterDatas: ClusterData[][][] = this._clusterDatas;
+            var updateMark: number = this._updateMark;
             for (var z = 0; z < zSlices; z++) {
                 for (var y = 0; y < ySlices; y++) {
                     for (var x = 0; x < xSlices; x++) {
                         var data: ClusterData = clusterDatas[z][y][x];
                         var clusterOff: number = (x + y * xSlices + z * xSlices * ySlices) * 4;
-                        if (data.updateMark !== this._updateMark) {
+                        if (data.updateMark !== updateMark) {
                             clusterPixels[clusterOff] = 0;
                             clusterPixels[clusterOff + 1] = 0;
                         }
