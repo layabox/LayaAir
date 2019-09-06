@@ -501,10 +501,9 @@ export class Cluster {
                 this._updateSpotLightOrth(halfX, halfY, near, far, viewMat, spoElements[i], curCount);
         }
         else {
-            camera._updateClusterPlaneXY();
             var xPlanes: Vector3[] = camera._clusterXPlanes;
             var yPlanes: Vector3[] = camera._clusterYPlanes;
-
+            camera._updateClusterPlaneXY();
             for (var i = 0; i < poiCount; i++ , curCount++)
                 this._updatePointLightPerspective(near, far, viewMat, poiElements[i], curCount, xPlanes, yPlanes);
             for (var i = 0; i < spoCount; i++ , curCount++)
