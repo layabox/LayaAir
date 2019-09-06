@@ -144,12 +144,6 @@ void LayaAirBlinnPhongDiectionLight (in vec3 specColor,in float specColorIntensi
 
 void LayaAirBlinnPhongPointLight (in vec3 pos,in vec3 specColor,in float specColorIntensity,in vec3 normal,in vec3 gloss, in vec3 viewDir, in PointLight light,out vec3 diffuseColor,out vec3 specularColor) {
 	vec3 lightVec =  pos-light.position;
-	// if( length(lightVec) > light.range )
-	// {
-	// 	diffuseColor=vec3(0.0);
-	// 	specularColor=vec3(0.0);
-	// 	return;
-	// }
 	LayaAirBlinnPhongLight(specColor,specColorIntensity,normal,gloss,viewDir,light.color,lightVec/length(lightVec),diffuseColor,specularColor);
 	float attenuate = LayaAttenuation(lightVec, 1.0/light.range);
 	diffuseColor *= attenuate;
@@ -158,13 +152,6 @@ void LayaAirBlinnPhongPointLight (in vec3 pos,in vec3 specColor,in float specCol
 
 void LayaAirBlinnPhongSpotLight (in vec3 pos,in vec3 specColor,in float specColorIntensity,in vec3 normal,in vec3 gloss, in vec3 viewDir, in SpotLight light,out vec3 diffuseColor,out vec3 specularColor) {
 	vec3 lightVec =  pos-light.position;
-	// if( length(lightVec) > light.range )
-	// {
-	// 	diffuseColor=vec3(0.0);
-	// 	specularColor=vec3(0.0);
-	// 	return;
-	// }
-
 	vec3 normalLightVec=lightVec/length(lightVec);
 	LayaAirBlinnPhongLight(specColor,specColorIntensity,normal,gloss,viewDir,light.color,normalLightVec,diffuseColor,specularColor);
 	vec2 cosAngles=cos(vec2(light.spot,light.spot*0.5)*0.5);//ConeAttenuation
