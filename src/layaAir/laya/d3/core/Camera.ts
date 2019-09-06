@@ -337,8 +337,8 @@ export class Camera extends BaseCamera {
 	protected _calculateProjectionMatrix(): void {
 		if (!this._useUserProjectionMatrix) {
 			if (this._orthographic) {
-				var halfWidth: number = this.orthographicVerticalSize * this.aspectRatio * 0.5;
 				var halfHeight: number = this.orthographicVerticalSize * 0.5;
+				var halfWidth: number = halfHeight * this.aspectRatio;
 				Matrix4x4.createOrthoOffCenter(-halfWidth, halfWidth, -halfHeight, halfHeight, this.nearPlane, this.farPlane, this._projectionMatrix);
 			} else {
 				Matrix4x4.createPerspective(3.1416 * this.fieldOfView / 180.0, this.aspectRatio, this.nearPlane, this.farPlane, this._projectionMatrix);

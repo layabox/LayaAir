@@ -233,11 +233,11 @@ export class Cluster {
         var minZ: number = lvZ - radius, maxZ: number = lvZ + radius;
         if ((minZ > far) || (maxZ <= near))
             return false;
-        var lvX: number = lightviewPos.z;
+        var lvX: number = lightviewPos.x;
         var minX: number = lvX - radius, maxX: number = lvX + radius;
         if ((minX > halfX) || (maxX <= -halfX))
             return false;
-        var lvY: number = lightviewPos.z;
+        var lvY: number = lightviewPos.y;
         var minY: number = lvY - radius, maxY: number = lvY + radius;
         if ((minY > halfY) || (maxY <= -halfY))
             return false;
@@ -246,10 +246,11 @@ export class Cluster {
         // slice start from near plane,near is index:0,z must large than near,or the result will NaN
         var xSlices: number = this._xSlices, ySlices: number = this._ySlices;
         var depthSliceParam: Vector2 = this._depthSliceParam;
-        lightBound.xMin = Math.max(Math.floor((minX + halfX) / xSlices), 0);
-        lightBound.xMax = Math.min(Math.floor((maxX + halfX) / xSlices), xSlices - 1);
-        lightBound.yMin = Math.max(Math.floor((minY + halfY) / ySlices), 0);
-        lightBound.yMax = Math.min(Math.floor((maxY + halfY) / ySlices), ySlices - 1);
+        var xStride: number = halfX * 2 / xSlices, yStride: number = halfY * 2 / ySlices;
+        lightBound.xMin = Math.max(Math.floor((minX + halfX) / xStride), 0);
+        lightBound.xMax = Math.min(Math.ceil((maxX + halfX) / xStride), xSlices);
+        lightBound.yMin = Math.max(Math.floor((halfY - maxY) / yStride), 0);//zero is from top
+        lightBound.yMax = Math.min(Math.ceil((halfY - minY) / yStride), ySlices);
         lightBound.zMin = Math.floor(Math.log2(Math.max(minZ, near)) * depthSliceParam.x - depthSliceParam.y);
         lightBound.zMax = Math.min(Math.ceil(Math.log2(maxZ) * depthSliceParam.x - depthSliceParam.y), this._zSlices);
         return true;
@@ -285,10 +286,11 @@ export class Cluster {
         // slice start from near plane,near is index:0,z must large than near,or the result will NaN
         var xSlices: number = this._xSlices, ySlices: number = this._ySlices;
         var depthSliceParam: Vector2 = this._depthSliceParam;
-        lightBound.xMin = Math.max(Math.floor((minX + halfX) / xSlices), 0);
-        lightBound.xMax = Math.min(Math.floor((maxX + halfX) / xSlices), xSlices - 1);
-        lightBound.yMin = Math.max(Math.floor((minY + halfY) / ySlices), 0);
-        lightBound.yMax = Math.min(Math.floor((maxY + halfY) / ySlices), ySlices - 1);
+        var xStride: number = halfX * 2 / xSlices, yStride: number = halfY * 2 / ySlices;
+        lightBound.xMin = Math.max(Math.floor((minX + halfX) / xStride), 0);
+        lightBound.xMax = Math.min(Math.ceil((maxX + halfX) / xStride), xSlices);
+        lightBound.yMin = Math.max(Math.floor((halfY - maxY) / yStride), 0);//zero is from top
+        lightBound.yMax = Math.min(Math.ceil((halfY - minY) / yStride), ySlices);
         lightBound.zMin = Math.floor(Math.log2(Math.max(minZ, near)) * depthSliceParam.x - depthSliceParam.y);
         lightBound.zMax = Math.min(Math.ceil(Math.log2(maxZ) * depthSliceParam.x - depthSliceParam.y), this._zSlices);
         return true;
@@ -437,7 +439,7 @@ export class Cluster {
         this._placeSpotLightToClusters(lightIndex, lightBound);
     }
 
-    private _updatePointLightOrthographic(halfX: number, halfY: number, near: number, far: number, viewMat: Matrix4x4, pointLight: PointLight, lightIndex: number): void {
+    private _updatePointLightOrth(halfX: number, halfY: number, near: number, far: number, viewMat: Matrix4x4, pointLight: PointLight, lightIndex: number): void {
         var lightBound: LightBound = Cluster._tempLightBound;
         var lightviewPos: Vector3 = Cluster._tempVector30;
         Vector3.transformV3ToV3(pointLight._transform.position, viewMat, lightviewPos);//World to View
@@ -449,7 +451,7 @@ export class Cluster {
         this._placePointLightToClusters(lightIndex, lightBound);
     }
 
-    private _updateSpotLightOrthographic(halfX: number, halfY: number, near: number, far: number, viewMat: Matrix4x4, spotLight: SpotLight, lightIndex: number): void {
+    private _updateSpotLightOrth(halfX: number, halfY: number, near: number, far: number, viewMat: Matrix4x4, spotLight: SpotLight, lightIndex: number): void {
         // technically could fall outside the bounds we make because the planes themeselves are tilted by some angle
         // the effect is exaggerated the steeper the angle the plane makes is
         var lightBound: LightBound = Cluster._tempLightBound;
@@ -495,9 +497,9 @@ export class Cluster {
             var halfY: number = camera.orthographicVerticalSize / 2.0;
             var halfX: number = halfY * camera.aspectRatio;
             for (var i = 0; i < poiCount; i++ , curCount++)
-                this._updatePointLightOrthographic(halfX, halfY, near, far, viewMat, poiElements[i], curCount);
+                this._updatePointLightOrth(halfX, halfY, near, far, viewMat, poiElements[i], curCount);
             for (var i = 0; i < spoCount; i++ , curCount++)
-                this._updateSpotLightOrthographic(halfX, halfY, near, far, viewMat, spoElements[i], curCount);
+                this._updateSpotLightOrth(halfX, halfY, near, far, viewMat, spoElements[i], curCount);
         }
         else {
             camera._updateClusterPlaneXY();
