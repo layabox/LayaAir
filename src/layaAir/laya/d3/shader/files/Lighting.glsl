@@ -39,7 +39,7 @@ ivec4 getClusterInfo(sampler2D clusterBuffer,mat4 viewMatrix,vec4 viewport,vec3 
 }
 
 
-int GetLightIndex(sampler2D clusterBuffer,int offset,int index) 
+int getLightIndex(sampler2D clusterBuffer,int offset,int index) 
 {
 	int totalOffset=offset+index;
 	int row=totalOffset/c_ClusterBufferFloatWidth;
@@ -59,7 +59,7 @@ int GetLightIndex(sampler2D clusterBuffer,int offset,int index)
       return int(texel.w);
 }
 
-DirectionLight GetDirectionLight(sampler2D lightBuffer,int index) 
+DirectionLight getDirectionLight(sampler2D lightBuffer,int index) 
 {
     DirectionLight light;
     float v = (float(index)+0.5)/ float(MAX_LIGHT_COUNT);
@@ -70,10 +70,10 @@ DirectionLight GetDirectionLight(sampler2D lightBuffer,int index)
     return light;
 }
 
-PointLight GetPointLight(sampler2D lightBuffer,sampler2D clusterBuffer,ivec4 clusterInfo,int index) 
+PointLight getPointLight(sampler2D lightBuffer,sampler2D clusterBuffer,ivec4 clusterInfo,int index) 
 {
     PointLight light;
-	int pointIndex=GetLightIndex(clusterBuffer,clusterInfo.z*c_ClusterBufferFloatWidth+clusterInfo.w,index);
+	int pointIndex=getLightIndex(clusterBuffer,clusterInfo.z*c_ClusterBufferFloatWidth+clusterInfo.w,index);
     float v = (float(pointIndex)+0.5)/ float(MAX_LIGHT_COUNT);
     vec4 p1 = texture2D(lightBuffer, vec2(0.125,v));
     vec4 p2 = texture2D(lightBuffer, vec2(0.375,v));
@@ -83,10 +83,10 @@ PointLight GetPointLight(sampler2D lightBuffer,sampler2D clusterBuffer,ivec4 clu
     return light;
 }
 
-SpotLight GetSpotLight(sampler2D lightBuffer,sampler2D clusterBuffer,ivec4 clusterInfo,int index) 
+SpotLight getSpotLight(sampler2D lightBuffer,sampler2D clusterBuffer,ivec4 clusterInfo,int index) 
 {
     SpotLight light;
-	int spoIndex=GetLightIndex(clusterBuffer,clusterInfo.z*c_ClusterBufferFloatWidth+clusterInfo.w,clusterInfo.x+index);
+	int spoIndex=getLightIndex(clusterBuffer,clusterInfo.z*c_ClusterBufferFloatWidth+clusterInfo.w,clusterInfo.x+index);
     float v = (float(spoIndex)+0.5)/ float(MAX_LIGHT_COUNT);
     vec4 p1 = texture2D(lightBuffer, vec2(0.125,v));
     vec4 p2 = texture2D(lightBuffer, vec2(0.375,v));

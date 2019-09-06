@@ -176,7 +176,7 @@ void main_normal()
 			{
 				if(i >= u_DirationLightCount)
 					break;
-				DirectionLight directionLight = GetDirectionLight(u_LightBuffer,i);
+				DirectionLight directionLight = getDirectionLight(u_LightBuffer,i);
 				LayaAirBlinnPhongDiectionLight(u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,directionLight,dif,spe);
 				diffuse+=dif;
 				specular+=spe;
@@ -189,7 +189,7 @@ void main_normal()
 				{
 					if(i >= clusterInfo.x)//PointLightCount
 						break;
-					PointLight pointLight = GetPointLight(u_LightBuffer,u_LightClusterBuffer,clusterInfo,i);
+					PointLight pointLight = getPointLight(u_LightBuffer,u_LightClusterBuffer,clusterInfo,i);
 					LayaAirBlinnPhongPointLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,pointLight,dif,spe);
 					diffuse+=dif;
 					specular+=spe;
@@ -200,7 +200,7 @@ void main_normal()
 				{
 					if(i >= clusterInfo.y)//SpotLightCount
 						break;
-					SpotLight spotLight = GetSpotLight(u_LightBuffer,u_LightClusterBuffer,clusterInfo,i);
+					SpotLight spotLight = getSpotLight(u_LightBuffer,u_LightClusterBuffer,clusterInfo,i);
 					LayaAirBlinnPhongSpotLight(v_PositionWorld,u_MaterialSpecular,u_Shininess,normal,gloss,viewDir,spotLight,dif,spe);
 					diffuse+=dif;
 					specular+=spe;
