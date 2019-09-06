@@ -261,7 +261,7 @@ export class Resource extends EventDispatcher implements ICreateResource, IDestr
 				(resList.length === 0) && (delete Resource._urlResourcesMap[this._url]);
 			}
 
-			var resou: Resource = ILaya.Loader.getRes(this._url);
+			var resou: Resource = ILaya.Loader.loadedMap[this._url];
 			(resou == this) && (delete ILaya.Loader.loadedMap[this._url]);
 		}
 	}

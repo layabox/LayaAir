@@ -489,7 +489,7 @@ export class Loader extends EventDispatcher {
 				}
 
 				delete this._data.pics;
-				Loader.loadedMap[data.url]=data;
+				Loader.loadedMap[data.url] = data;
 				this.complete(this._data);
 			}
 		} else if (type === Loader.FONT) {
@@ -711,7 +711,13 @@ export class Loader extends EventDispatcher {
 		if (Loader.loadedMap[url] != null) {
 			console.warn("Resources already exist,is repeated loading:", url);
 		} else {
-			Loader.loadedMap[url] = data;
+			if (data instanceof Texture) {
+				Loader.loadedMap[url] = data.bitmap;
+				Loader.textureMap[url] = data;
+			}
+			else {
+				Loader.loadedMap[url] = data;
+			}
 		}
 	}
 

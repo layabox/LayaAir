@@ -1,14 +1,14 @@
-import { AtlasInfoManager } from "./AtlasInfoManager";
-import { Event } from "../events/Event"
-import { EventDispatcher } from "../events/EventDispatcher"
-import { Loader } from "./Loader"
-import { ICreateResource } from "../resource/ICreateResource"
-import { Resource } from "../resource/Resource"
-import { Texture } from "../resource/Texture"
-import { Handler } from "../utils/Handler"
-import { Utils } from "../utils/Utils"
-import { Timer } from "../utils/Timer";
 import { ILaya } from "../../ILaya";
+import { Event } from "../events/Event";
+import { EventDispatcher } from "../events/EventDispatcher";
+import { URL } from "../net/URL";
+import { ICreateResource } from "../resource/ICreateResource";
+import { Resource } from "../resource/Resource";
+import { Texture } from "../resource/Texture";
+import { Handler } from "../utils/Handler";
+import { Utils } from "../utils/Utils";
+import { AtlasInfoManager } from "./AtlasInfoManager";
+import { Loader } from "./Loader";
 
 /**
  * 所有资源加载完成时调度。
@@ -198,7 +198,13 @@ export class LoaderManager extends EventDispatcher {
      */
     load(url: any, complete: Handler = null, progress: Handler = null, type: string = null, priority: number = 1, cache: boolean = true, group: string = null, ignoreCache: boolean = false, useWorkerLoader: boolean = ILaya.WorkerLoader.enable): LoaderManager {
         if (url instanceof Array) return this._loadAssets((<any[]>url), complete, progress, type, priority, cache, group);
-        var content: any = Loader.getRes(url);
+
+        var content: any;
+        if (type === Loader.IMAGE)
+            content = Loader.textureMap[URL.formatURL(url)];
+        else
+            content = Loader.loadedMap[URL.formatURL(url)];
+
         if (!ignoreCache && content != null) {
             //增加延迟回掉，防止快速回掉导致执行顺序错误
             ILaya.systemTimer.frameOnce(1, this, function (): void {
