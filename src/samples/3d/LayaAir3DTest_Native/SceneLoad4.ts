@@ -22,12 +22,14 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { PBRStandardMaterial } from "laya/d3/core/material/PBRStandardMaterial";
 import { Texture2D } from "laya/resource/Texture2D";
+import { Mesh } from "laya/d3/resource/models/Mesh";
+import { Vector4 } from "laya/d3/math/Vector4";
 
 
 export class SceneLoad4 {
 	monkeyRow: number = 10;
 	monkeyCount: number = 0;
-	modelRow:number = 30;
+	modelRow:number = 40;
 	_scene: Scene3D;
 	particles: Array<Sprite3D>;
 	skinmodels: Array<Sprite3D>;
@@ -56,7 +58,7 @@ export class SceneLoad4 {
 			var camera: Camera = new Camera();
 			scene.addChild(camera);
 			//调整相机的位置
-			camera.transform.translate(new Vector3(0, 18, -42));
+			camera.transform.translate(new Vector3(0, 18, -50));
 			camera.transform.rotate(new Vector3(-20, 180, 0), false, false);
 			//设置相机横纵比
 			camera.aspectRatio = 0;
@@ -89,7 +91,8 @@ export class SceneLoad4 {
 			mat.setForward(new Vector3(0, -5, 1));
 			light.transform.worldMatrix = mat;
 			//设置灯光漫反射颜色
-			light.diffuseColor = new Vector3(0.5, 0.5, 0.5);
+			//light.diffuseColor = new Vector3(0.5, 0.5, 0.5);
+			light.color = new Vector3(1.0, 1.0, 1.0);
 
 			//激活场景中的两个子节点
 			((<MeshSprite3D>scene.getChildByName('Scenes').getChildByName('HeightMap'))).active = false;
@@ -141,60 +144,214 @@ export class SceneLoad4 {
 		for (let i: number = 0; i < nNum; i++) {
 			var x: number = parseInt((i / this.monkeyRow).toString());
 			var y: number = parseInt((i % this.monkeyRow).toString());
-			var sp: Sprite3D = Sprite3D.instantiate(this.particles[i % 5], this._scene, false, new Vector3((-this.monkeyRow / 2 + x) * 4, 9, -2 + -y * 2));
+			var sp: Sprite3D = Sprite3D.instantiate(this.particles[i % 5], this._scene, false, new Vector3((-this.monkeyRow / 2 + x), 9, 20 + -y));
 			this._scene.addChild(sp);
 		}
 	}
 
-	loadStaticModel()
-	{
-		//预加载所有资源
-		let resource = [
-			this.baseUrl + "res/threeDimen/layabox.png",  
-			this.baseUrl + "res/threeDimen/monkey.png",
-			this.baseUrl + "res/threeDimen/secne.jpg",
-			this.baseUrl + "res/threeDimen/texture/earth.png",
-			];
-		Laya.loader.create(resource,Handler.create(this,this.loadStaticModelOnload));
-	}
-	loadStaticModelOnload() {
+	loadStaticModel() {
 		var _this: SceneLoad4 = this;
 		this.skinmodels = new Array<Sprite3D>();
 
-		var sphere: MeshSprite3D = new MeshSprite3D(PrimitiveMesh.createSphere(0.25, 20, 20));
-		_this.skinmodels.push(sphere);
-		var texture1:Texture2D = Laya.loader.getRes(this.baseUrl + "res/threeDimen/layabox.png");
-		var pbrStandardMaterial1 = new PBRStandardMaterial();
-		pbrStandardMaterial1.albedoTexture = texture1;
-		sphere.meshRenderer.material = pbrStandardMaterial1;
-		
-		
+		Mesh.load("res/threeDimen/pbrtest/PBRAssets02/Sphere.lm", Handler.create(this, function (mesh: Mesh): void {
 
-		var cylinder: MeshSprite3D = new MeshSprite3D(PrimitiveMesh.createCylinder(0.25, 1, 20));
-		_this.skinmodels.push(cylinder);
-		var texture2:Texture2D = Laya.loader.getRes(this.baseUrl + "res/threeDimen/monkey.png");
-		var pbrStandardMaterial2 = new PBRStandardMaterial();
-		pbrStandardMaterial2.albedoTexture = texture2;
-		cylinder.meshRenderer.material = pbrStandardMaterial2;
+			var meshSprite3D:MeshSprite3D = new MeshSprite3D(mesh);
+			_this.skinmodels.push(meshSprite3D);
+
+			//实例PBR材质
+			var sphereMat: PBRStandardMaterial = new PBRStandardMaterial();
+			//albedoTexture:法线贴图：增强模型细节
+
+			//反射贴图
+			Texture2D.load('res/threeDimen/pbrtest/PBRAssets02/Materials/Textures/Barrel_AlbedoTransparency.png', Handler.create(this, function (texture: Texture2D): void {
+				sphereMat.albedoTexture = texture;
+			}));
+
+			//法线贴图
+			Texture2D.load('res/threeDimen/pbrtest/PBRAssets02/Materials/Textures/Barrel_Normal.png', Handler.create(this, function (texture: Texture2D): void {
+				sphereMat.normalTexture = texture;
+			}));
+
+			//金属光滑度贴图
+			Texture2D.load('res/threeDimen/pbrtest/PBRAssets02/Materials/Textures/Barrel_MetallicSmoothness.png', Handler.create(this, function (texture: Texture2D): void {
+				sphereMat.metallicGlossTexture = texture;
+			}));
+
+			//遮挡贴图
+			Texture2D.load('res/threeDimen/pbrtest/PBRAssets02/Materials/Textures/Barrel_Occlusion.png', Handler.create(this, function (texture: Texture2D): void {
+				sphereMat.occlusionTexture = texture;
+			}));
+
+			//反射颜色
+			sphereMat.albedoColor = new Vector4(1, 1, 1, 1);
+			//光滑度缩放系数
+			sphereMat.smoothnessTextureScale = 1.0;
+			//遮挡贴图强度
+			sphereMat.occlusionTextureStrength = 1.0;
+			//法线贴图缩放系数
+			//mat.normalScale = 1;
+			//光滑度数据源:从金属度贴图/反射贴图获取。
+			sphereMat.smoothnessSource = PBRStandardMaterial.SmoothnessSource_MetallicGlossTexture_Alpha;
+
+			meshSprite3D.meshRenderer.sharedMaterial = sphereMat;
+			if( _this.skinmodels.length > 3)
+			{
+				_this.createSkinmodel();
+			}
+		}));
+
+		//加载Mesh 水桶
+		Mesh.load("res/threeDimen/pbrtest/PBRAssets01/Mesh/Wooden_Barrel-Barrel_Low[28772].lm", Handler.create(this, function (mesh: Mesh): void {
+
+			var meshSprite3D:MeshSprite3D = new MeshSprite3D(mesh);
+			_this.skinmodels.push(meshSprite3D);
+
+			//实例PBR材质
+			var barrelMat: PBRStandardMaterial = new PBRStandardMaterial();
+			//albedoTexture:法线贴图：增强模型细节
+
+			//反射贴图
+			Texture2D.load('res/threeDimen/pbrtest/PBRAssets01/Materials/Textures/Barrel_AlbedoTransparency.png', Handler.create(this, function (texture: Texture2D): void {
+				barrelMat.albedoTexture = texture;
+			}));
+
+			//法线贴图
+			Texture2D.load('res/threeDimen/pbrtest/PBRAssets01/Materials/Textures/Barrel_Normal.png', Handler.create(this, function (texture: Texture2D): void {
+				barrelMat.normalTexture = texture;
+			}));
+
+			//金属光滑度贴图
+			Texture2D.load('res/threeDimen/pbrtest/PBRAssets01/Materials/Textures/Barrel_MetallicSmoothness.png', Handler.create(this, function (texture: Texture2D): void {
+				barrelMat.metallicGlossTexture = texture;
+			}));
+
+			//遮挡贴图
+			Texture2D.load('res/threeDimen/pbrtest/PBRAssets01/Materials/Textures/Barrel_Occlusion.png', Handler.create(this, function (texture: Texture2D): void {
+				barrelMat.occlusionTexture = texture;
+			}));
+
+			//反射颜色
+			barrelMat.albedoColor = new Vector4(1, 1, 1, 1);
+			//光滑度缩放系数
+			barrelMat.smoothnessTextureScale = 1.0;
+			//遮挡贴图强度
+			barrelMat.occlusionTextureStrength = 1.0;
+			//法线贴图缩放系数
+			//mat.normalScale = 1;
+			//光滑度数据源:从金属度贴图/反射贴图获取。
+			barrelMat.smoothnessSource = PBRStandardMaterial.SmoothnessSource_MetallicGlossTexture_Alpha;
+
+			meshSprite3D.meshRenderer.sharedMaterial = barrelMat;
+
+			if( _this.skinmodels.length > 3)
+			{
+				_this.createSkinmodel();
+			}
+		}));
+
+		//加载Mesh 猴子
+        Mesh.load("res/threeDimen/skinModel/LayaMonkey/Assets/LayaMonkey/LayaMonkey-LayaMonkey.lm", Handler.create(this, function (mesh: Mesh): void {
+
+			var meshSprite3D:MeshSprite3D = new MeshSprite3D(mesh);
+			meshSprite3D.transform.scale = new Vector3(0.3,0.3,0.3);
+			meshSprite3D.transform.rotate(new Vector3(-90, 0, 0), true, false);
+			_this.skinmodels.push(meshSprite3D);
 
 
-		var capsule: MeshSprite3D = new MeshSprite3D(PrimitiveMesh.createCapsule(0.25, 1, 10, 20));
-		_this.skinmodels.push(capsule);
-		var texture3:Texture2D = Laya.loader.getRes(this.baseUrl + "res/threeDimen/secne.jpg");
-		var pbrStandardMaterial3 = new PBRStandardMaterial();
-		pbrStandardMaterial3.albedoTexture = texture3;
-		capsule.meshRenderer.material = pbrStandardMaterial3;
+            //实例PBR材质
+            var layaMonkeyMat: PBRStandardMaterial = new PBRStandardMaterial();
+            //albedoTexture:法线贴图：增强模型细节
+
+            //反射贴图
+            Texture2D.load('res/threeDimen/pbrtest/PBRAssets03/Materials/Textures/Barrel_AlbedoTransparency.png', Handler.create(this, function (texture: Texture2D): void {
+                layaMonkeyMat.albedoTexture = texture;
+            }));
+
+            //法线贴图
+            Texture2D.load('res/threeDimen/pbrtest/PBRAssets03/Materials/Textures/Barrel_Normal.png', Handler.create(this, function (texture: Texture2D): void {
+                layaMonkeyMat.normalTexture = texture;
+            }));
+
+            //金属光滑度贴图
+            Texture2D.load('res/threeDimen/pbrtest/PBRAssets03/Materials/Textures/Barrel_MetallicSmoothness.png', Handler.create(this, function (texture: Texture2D): void {
+                layaMonkeyMat.metallicGlossTexture = texture;
+            }));
+
+            //遮挡贴图
+            Texture2D.load('res/threeDimen/pbrtest/PBRAssets03/Materials/Textures/Barrel_Occlusion.png', Handler.create(this, function (texture: Texture2D): void {
+                layaMonkeyMat.occlusionTexture = texture;
+            }));
+
+            //反射颜色
+            layaMonkeyMat.albedoColor = new Vector4(1, 1, 1, 1);
+            //光滑度缩放系数
+            layaMonkeyMat.smoothnessTextureScale = 1.0;
+            //遮挡贴图强度
+            layaMonkeyMat.occlusionTextureStrength = 1.0;
+            //法线贴图缩放系数
+            //mat.normalScale = 1;
+            //光滑度数据源:从金属度贴图/反射贴图获取。
+            layaMonkeyMat.smoothnessSource = PBRStandardMaterial.SmoothnessSource_MetallicGlossTexture_Alpha;
+
+			meshSprite3D.meshRenderer.sharedMaterial = layaMonkeyMat;
 
 
-		var cone: MeshSprite3D = new MeshSprite3D(PrimitiveMesh.createCone(0.25, 0.75));
-		_this.skinmodels.push(cone);
-		var texture4:Texture2D = Laya.loader.getRes(this.baseUrl + "res/threeDimen/texture/earth.png");
-		var pbrStandardMaterial4 = new PBRStandardMaterial();
-		pbrStandardMaterial4.albedoTexture = texture4;
-		cone.meshRenderer.material = pbrStandardMaterial4;
+			if( _this.skinmodels.length > 3)
+			{
+				_this.createSkinmodel();
+			}
+            
+        }));
 
-		_this.createSkinmodel();
-		
+		//加载Mesh 茶壶
+		Mesh.load("res/threeDimen/staticModel/teapot/teapot-Teapot001.lm", Handler.create(this, function (mesh: Mesh): void {
+
+			var meshSprite3D:MeshSprite3D = new MeshSprite3D(mesh);
+			meshSprite3D.transform.scale = new Vector3(2,2,2);
+			_this.skinmodels.push(meshSprite3D);
+
+				//实例PBR材质
+			var teapotMat: PBRStandardMaterial = new PBRStandardMaterial();
+			//albedoTexture:法线贴图：增强模型细节
+
+			//反射贴图
+			Texture2D.load('res/threeDimen/pbrtest/PBRAssets04/Materials/Textures/Barrel_AlbedoTransparency.png', Handler.create(this, function (texture: Texture2D): void {
+				teapotMat.albedoTexture = texture;
+			}));
+
+			//法线贴图
+			Texture2D.load('res/threeDimen/pbrtest/PBRAssets04/Materials/Textures/Barrel_Normal.png', Handler.create(this, function (texture: Texture2D): void {
+				teapotMat.normalTexture = texture;
+			}));
+
+			//金属光滑度贴图
+			Texture2D.load('res/threeDimen/pbrtest/PBRAssets04/Materials/Textures/Barrel_MetallicSmoothness.png', Handler.create(this, function (texture: Texture2D): void {
+				teapotMat.metallicGlossTexture = texture;
+			}));
+
+			//遮挡贴图
+			Texture2D.load('res/threeDimen/pbrtest/PBRAssets04/Materials/Textures/Barrel_Occlusion.png', Handler.create(this, function (texture: Texture2D): void {
+				teapotMat.occlusionTexture = texture;
+			}));
+
+			//反射颜色
+			teapotMat.albedoColor = new Vector4(1, 1, 1, 1);
+			//光滑度缩放系数
+			teapotMat.smoothnessTextureScale = 1.0;
+			//遮挡贴图强度
+			teapotMat.occlusionTextureStrength = 1.0;
+			//法线贴图缩放系数
+			//mat.normalScale = 1;
+			//光滑度数据源:从金属度贴图/反射贴图获取。
+			teapotMat.smoothnessSource = PBRStandardMaterial.SmoothnessSource_MetallicGlossTexture_Alpha;
+
+			meshSprite3D.meshRenderer.sharedMaterial = teapotMat;
+
+			if( _this.skinmodels.length > 3)
+			{
+				_this.createSkinmodel();
+			}
+		}));
 	}
 
 	createSkinmodel() {
@@ -202,7 +359,7 @@ export class SceneLoad4 {
 		for (let i: number = 0; i < nNum; i++) {
 			var x: number = parseInt((i / this.modelRow).toString());
 			var y: number = parseInt((i % this.modelRow).toString());
-			var sp: Sprite3D = Sprite3D.instantiate(this.skinmodels[i%4], this._scene, false, new Vector3((-this.modelRow / 2 + x), 9, -2 + -y));
+			var sp: Sprite3D = Sprite3D.instantiate(this.skinmodels[i%4], this._scene, false, new Vector3((-this.modelRow / 2 + x), 9, 20 + -y));
 			this._scene.addChild(sp);
 		}
 	}
