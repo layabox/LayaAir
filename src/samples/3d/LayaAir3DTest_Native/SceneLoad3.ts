@@ -50,9 +50,11 @@ export class SceneLoad3 {
 
 			//添加相机
 			var camera: Camera = new Camera();
-			scene.addChild(camera);
+			var rotSprite:Sprite3D= new Sprite3D();
+			rotSprite.addChild(camera);
+			scene.addChild(rotSprite);
 			//调整相机的位置
-			camera.transform.translate(new Vector3(0, 18, -38));
+			camera.transform.translate(new Vector3(0, 18, -50));
 			camera.transform.rotate(new Vector3(-20, 180, 0), false, false);
 			//设置相机横纵比
 			camera.aspectRatio = 0;
@@ -69,12 +71,14 @@ export class SceneLoad3 {
 			//加入摄像机移动控制脚本
 			camera.addComponent(CameraMoveScript);
 
+			/*
 			//加载相机天空盒材质
 			BaseMaterial.load(this.baseUrl+"res/threeDimen/skyBox/skyBox2/SkyBox2.lmat", Handler.create(this, function (mat: BaseMaterial): void {
 				var skyRenderer: SkyRenderer = camera.skyRenderer;
 				skyRenderer.mesh = SkyBox.instance;
 				skyRenderer.material = mat;
 			}));
+			*/
 
 			//创建方向光
 			var light: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
@@ -85,7 +89,8 @@ export class SceneLoad3 {
 			mat.setForward(new Vector3(0, -5, 1));
 			light.transform.worldMatrix = mat;
 			//设置灯光漫反射颜色
-			light.diffuseColor = new Vector3(0.5, 0.5, 0.5);
+			//light.diffuseColor = new Vector3(0.5, 0.5, 0.5);
+			light.color = new Vector3(1.0, 1.0, 1.0);
 
 			//激活场景中的两个子节点
 			((<MeshSprite3D>scene.getChildByName('Scenes').getChildByName('HeightMap'))).active = false;
@@ -94,9 +99,23 @@ export class SceneLoad3 {
 			_this._scene = scene;
 			_this.loadSkinmodels();
 			_this.loadParticle();
+			this.camera1 = rotSprite;
+			this.lights = light
+			Laya.timer.frameLoop(1,this,this.rotateSprite);
 		}));
 	}
+	public camera1:Sprite3D;
+	public lights:DirectionLight;
 
+	rotateSprite()
+	{
+		this.camera1.transform.rotate(new Vector3(0,1,0),false,false);
+		//this.lights.transform.rotate(new Vector3(0,1,0),false,false);
+		var ve = this.lights.transform.rotationEuler;
+		ve.setValue(ve.x+2,ve.y+2,ve.z+2);
+		this.lights.transform.rotationEuler = ve;
+		
+	}
 	loadParticle() {
 		var _this: SceneLoad3 = this;
 		this.particles = new Array<Sprite3D>();

@@ -56,7 +56,9 @@ export class SceneLoad4 {
 
 			//添加相机
 			var camera: Camera = new Camera();
-			scene.addChild(camera);
+			var rotSprite:Sprite3D= new Sprite3D();
+			rotSprite.addChild(camera);
+			scene.addChild(rotSprite);
 			//调整相机的位置
 			camera.transform.translate(new Vector3(0, 18, -50));
 			camera.transform.rotate(new Vector3(-20, 180, 0), false, false);
@@ -75,12 +77,14 @@ export class SceneLoad4 {
 			//加入摄像机移动控制脚本
 			camera.addComponent(CameraMoveScript);
 
+			/*
 			//加载相机天空盒材质
 			BaseMaterial.load(this.baseUrl+"res/threeDimen/skyBox/skyBox2/SkyBox2.lmat", Handler.create(this, function (mat: BaseMaterial): void {
 				var skyRenderer: SkyRenderer = camera.skyRenderer;
 				skyRenderer.mesh = SkyBox.instance;
 				skyRenderer.material = mat;
 			}));
+			*/
 
 			//创建方向光
 			var light: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
@@ -101,9 +105,23 @@ export class SceneLoad4 {
 			_this._scene = scene;
 			_this.loadStaticModel();
 			_this.loadParticle();
+			this.camera1 = rotSprite;
+			this.lights = light
+			Laya.timer.frameLoop(1,this,this.rotateSprite);
 		}));
 	}
+	public camera1:Sprite3D;
+	public lights:DirectionLight;
 
+	rotateSprite()
+	{
+		this.camera1.transform.rotate(new Vector3(0,1,0),false,false);
+		//this.lights.transform.rotate(new Vector3(0,1,0),false,false);
+		var ve = this.lights.transform.rotationEuler;
+		ve.setValue(ve.x+2,ve.y+2,ve.z+2);
+		this.lights.transform.rotationEuler = ve;
+		
+	}
 	loadParticle() {
 		var _this: SceneLoad4 = this;
 		this.particles = new Array<Sprite3D>();
@@ -183,11 +201,11 @@ export class SceneLoad4 {
 			}));
 
 			//反射颜色
-			sphereMat.albedoColor = new Vector4(1, 1, 1, 1);
+			sphereMat.albedoColor = new Vector4(1.1, 1.1, 1.1, 1.1);
 			//光滑度缩放系数
-			sphereMat.smoothnessTextureScale = 1.0;
+			sphereMat.smoothnessTextureScale = 1.1;
 			//遮挡贴图强度
-			sphereMat.occlusionTextureStrength = 1.0;
+			sphereMat.occlusionTextureStrength = 1.1;
 			//法线贴图缩放系数
 			//mat.normalScale = 1;
 			//光滑度数据源:从金属度贴图/反射贴图获取。
@@ -231,11 +249,11 @@ export class SceneLoad4 {
 			}));
 
 			//反射颜色
-			barrelMat.albedoColor = new Vector4(1, 1, 1, 1);
+			barrelMat.albedoColor = new Vector4(1.2, 1.2, 1.2, 1.2);
 			//光滑度缩放系数
-			barrelMat.smoothnessTextureScale = 1.0;
+			barrelMat.smoothnessTextureScale = 1.2;
 			//遮挡贴图强度
-			barrelMat.occlusionTextureStrength = 1.0;
+			barrelMat.occlusionTextureStrength = 1.2;
 			//法线贴图缩放系数
 			//mat.normalScale = 1;
 			//光滑度数据源:从金属度贴图/反射贴图获取。
@@ -283,11 +301,11 @@ export class SceneLoad4 {
             }));
 
             //反射颜色
-            layaMonkeyMat.albedoColor = new Vector4(1, 1, 1, 1);
+            layaMonkeyMat.albedoColor = new Vector4(1.3, 1.3, 1.3, 1.3);
             //光滑度缩放系数
-            layaMonkeyMat.smoothnessTextureScale = 1.0;
+            layaMonkeyMat.smoothnessTextureScale = 1.3;
             //遮挡贴图强度
-            layaMonkeyMat.occlusionTextureStrength = 1.0;
+            layaMonkeyMat.occlusionTextureStrength = 1.3;
             //法线贴图缩放系数
             //mat.normalScale = 1;
             //光滑度数据源:从金属度贴图/反射贴图获取。
@@ -335,11 +353,11 @@ export class SceneLoad4 {
 			}));
 
 			//反射颜色
-			teapotMat.albedoColor = new Vector4(1, 1, 1, 1);
+			teapotMat.albedoColor = new Vector4(1.4, 1.4, 1.4, 1.4);
 			//光滑度缩放系数
-			teapotMat.smoothnessTextureScale = 1.0;
+			teapotMat.smoothnessTextureScale = 1.4;
 			//遮挡贴图强度
-			teapotMat.occlusionTextureStrength = 1.0;
+			teapotMat.occlusionTextureStrength = 1.4;
 			//法线贴图缩放系数
 			//mat.normalScale = 1;
 			//光滑度数据源:从金属度贴图/反射贴图获取。

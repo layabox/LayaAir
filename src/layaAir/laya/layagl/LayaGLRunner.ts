@@ -43,12 +43,7 @@ export class LayaGLRunner {
      * 批量上传ShaderUniforms。
      */
     static uploadShaderUniformsForNative(layaGL: any, commandEncoder: CommandEncoder, shaderData: any): number {
-        var nType: number = LayaGL.UPLOAD_SHADER_UNIFORM_TYPE_ID;
-        if (shaderData._runtimeCopyValues.length > 0) {
-            nType = LayaGL.UPLOAD_SHADER_UNIFORM_TYPE_DATA;
-        }
-        var data: any = shaderData._data;
-        return (<any>LayaGL.instance).uploadShaderUniforms(commandEncoder, data, nType);
+        return (<any>LayaGL.instance).uploadShaderUniforms(commandEncoder, shaderData._data, shaderData._runtimeCopyValues.length > 0 ? LayaGL.UPLOAD_SHADER_UNIFORM_TYPE_DATA : LayaGL.UPLOAD_SHADER_UNIFORM_TYPE_ID);
     }
 
 }
