@@ -19,7 +19,7 @@ export class TTFLoader {
     private _url: string;
     private _div: any;
     private _txtWidth: number;
-    private _http: HttpRequest;
+    private _http: HttpRequest|null;
 
     //TODO:coverage
     load(fontPath: string): void {

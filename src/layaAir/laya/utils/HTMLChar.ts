@@ -1,8 +1,8 @@
 import { Pool } from "./Pool";
 /**
-	 * @private
-	 * <code>HTMLChar</code> 是一个 HTML 字符类。
-	 */
+ * @private
+ * <code>HTMLChar</code> 是一个 HTML 字符类。
+ */
 export class HTMLChar {
 
     private static _isWordRegExp: RegExp = new RegExp("[\\w\.]", "");
@@ -18,7 +18,7 @@ export class HTMLChar {
     /** 表示是否是正常单词(英文|.|数字)。*/
     isWord: boolean;
     /** 字符。*/
-    char: string;
+    char: string|null;
     /** 字符数量。*/
     charNum: number;
     /** CSS 样式。*/

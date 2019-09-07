@@ -5,23 +5,22 @@
 	 */
 export class Handler {
 
-
     /**@private handler对象池*/
-    protected static _pool: any[] = [];
+    protected static _pool: Handler[] = [];
     /**@private */
     private static _gid: number = 1;
 
     /** 执行域(this)。*/
-    caller: any;
+    caller: Object|null;
     /** 处理方法。*/
-    method: Function;
+    method: Function|null;
     /** 参数。*/
-    args: any[];
+    args: any[]|null;
     /** 表示是否只执行一次。如果为true，回调后执行recover()进行回收，回收后会被再利用，默认为false 。*/
-    once: boolean = false;
+    once = false;
 
     /**@private */
-    protected _id: number = 0;
+    protected _id = 0;
 
     /**
      * 根据指定的属性值，创建一个 <code>Handler</code> 类的实例。
@@ -30,7 +29,7 @@ export class Handler {
      * @param	args 函数参数。
      * @param	once 是否只执行一次。
      */
-    constructor(caller: any = null, method: Function = null, args: any[] = null, once: boolean = false) {
+    constructor(caller: Object|null=null, method: Function|null=null, args: any[]|null = null, once: boolean = false) {
         this.setTo(caller, method, args, once);
     }
 
@@ -42,7 +41,7 @@ export class Handler {
      * @param	once 是否只执行一次，如果为true，执行后执行recover()进行回收。
      * @return  返回 handler 本身。
      */
-    setTo(caller: any, method: Function, args: any[], once: boolean): Handler {
+    setTo(caller: any, method: Function|null, args: any[]|null, once=false): Handler {
         this._id = Handler._gid++;
         this.caller = caller;
         this.method = method;
@@ -106,8 +105,9 @@ export class Handler {
      * @param	once 是否只执行一次，如果为true，回调后执行recover()进行回收，默认为true。
      * @return  返回创建的handler实例。
      */
-    static create(caller: any, method: Function, args: any[] = null, once: boolean = true): Handler {
-        if (Handler._pool.length) return Handler._pool.pop().setTo(caller, method, args, once);
+    static create(caller: any, method: Function, args: any[]|null = null, once: boolean = true): Handler {
+        if (Handler._pool.length) 
+            return (Handler._pool.pop() as Handler).setTo(caller, method, args, once);
         return new Handler(caller, method, args, once);
     }
 }
