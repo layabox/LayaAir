@@ -207,7 +207,7 @@ export class ShaderPass extends ShaderCompile {
 		var clusterSlices: Vector3 = config.lightClusterCount;
 		var defMap: any = {};
 		var defineStr: string = "#define MAX_LIGHT_COUNT " + config.maxLightCount + "\n";
-		defineStr += "#define MAX_LIGHT_COUNT_PER_CLUSTER " + config.maxLightCountPerCluster + "\n";
+		defineStr += "#define MAX_LIGHT_COUNT_PER_CLUSTER " + config._maxAreaLightCountPerClusterAverage + "\n";
 		defineStr += "#define CLUSTER_X_COUNT " + clusterSlices.x + "\n";
 		defineStr += "#define CLUSTER_Y_COUNT " + clusterSlices.y + "\n";
 		defineStr += "#define CLUSTER_Z_COUNT " + clusterSlices.z + "\n";

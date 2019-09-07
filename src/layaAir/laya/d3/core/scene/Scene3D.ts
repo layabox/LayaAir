@@ -138,7 +138,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			const width: number = 4;
 			var maxLightCount: number = con.maxLightCount;
 			var clusterSlices: Vector3 = con.lightClusterCount;
-			Cluster.instance = new Cluster(clusterSlices.x, clusterSlices.y, clusterSlices.z, con.maxLightCountPerCluster);
+			Cluster.instance = new Cluster(clusterSlices.x, clusterSlices.y, clusterSlices.z, Math.min(con.maxLightCount, con._maxAreaLightCountPerClusterAverage));
 			Scene3D._lightTexture = Utils3D._createFloatTextureBuffer(width, maxLightCount);
 			Scene3D._lightTexture.lock = true;
 			Scene3D._lightPixles = new Float32Array(maxLightCount * width * 4);

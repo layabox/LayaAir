@@ -14,12 +14,13 @@ export class Config3D implements IClone {
 	private _maxLightCount: number = 32;
 	/**@internal*/
 	private _lightClusterCount: Vector3 = new Vector3(12, 12, 12);
-	/**@internal*/
-	private _maxLightCountPerCluster: number = 32;
+
 	/**@internal*/
 	_editerEnvironment: boolean = false;
-
+	/**@internal*/
 	_multiLighting: boolean;
+	/**@internal*/
+	_maxAreaLightCountPerClusterAverage: number;
 
 	/** 是否开启抗锯齿。*/
 	isAntialias: boolean = true;
@@ -81,43 +82,32 @@ export class Config3D implements IClone {
 	}
 
 	/**
-	 * X、Y、Z轴的光照集群数量。
+	 * X、Y、Z轴的光照集群数量,Z值会影响Cluster接受区域光(点光、聚光)影响的数量,Math.floor(2048 / lightClusterCount.z - 1) * 4 为每个Cluster的最大平均接受区域光数量,如果每个Cluster所接受光源影响的平均数量大于该值，则较远的Cluster会忽略其中多余的光照影响。
 	 */
 	get lightClusterCount(): Vector3 {
 		return this._lightClusterCount;
 	}
 
 	set lightClusterCount(value: Vector3) {
-		if (!this._checkMaxLightCountPerCluster(this._maxLightCountPerCluster, value.z)) {
-			this._lightClusterCount.setValue(value.x, value.y, 2048 / (Math.ceil(this._maxLightCountPerCluster / 4) + 1));
-			console.warn("Config3D: lightClusterCount component must less equal 128.");
+		if (value.x > 128 || value.y > 128 || value.z > 128) {
+			this._lightClusterCount.setValue(Math.min(value.x, 128), Math.min(value.y, 128), Math.min(value.z, 128));
+			console.warn("Config3D: lightClusterCount X and Y、Z must less equal 128.");
 		}
 		else {
 			value.cloneTo(this._lightClusterCount);
 		}
-	}
 
-	/**
-	 * 每个集群的最大光源数量。
-	 */
-	get maxLightCountPerCluster(): number {
-		return this._maxLightCountPerCluster;
-	}
-
-	set maxLightCountPerCluster(value: number) {
-		if (!this._checkMaxLightCountPerCluster(value, this._lightClusterCount.z)) {
-			this._maxLightCountPerCluster = Math.floor(2048 / this._lightClusterCount.z - 1) * 4;
-			console.warn("Config3D: (Math.ceil(maxLightCountPerCluster/4)+1)*lightClusterCount.z must less than 2048.");
-		}
-		else {
-			this._maxLightCountPerCluster = value;
-		}
+		var maxAreaLightCountWithZ = Math.floor(2048 / this._lightClusterCount.z - 1) * 4;
+		if (maxAreaLightCountWithZ < this._maxLightCount)
+			console.warn("Config3D: if the area light(PointLight、SpotLight) count is large than " + maxAreaLightCountWithZ + ",maybe the far away culster will ingonre some light.");
+		this._maxAreaLightCountPerClusterAverage = Math.min(maxAreaLightCountWithZ, this._maxLightCount);
 	}
 
 	/**
 	 * 创建一个 <code>Config3D</code> 实例。
 	 */
 	constructor() {
+		this._maxAreaLightCountPerClusterAverage = Math.min(Math.floor(2048 / this._lightClusterCount.z - 1) * 4, this._maxLightCount);
 	}
 
 	/**
@@ -146,7 +136,6 @@ export class Config3D implements IClone {
 		destConfig3D.octreeLooseness = this.octreeLooseness;
 		destConfig3D.debugFrustumCulling = this.debugFrustumCulling;
 		destConfig3D.maxLightCount = this.maxLightCount;
-		destConfig3D.maxLightCountPerCluster = this.maxLightCountPerCluster;
 		destConfig3D.enbaleMultiLight = this.enbaleMultiLight;
 		this.lightClusterCount.cloneTo(destConfig3D.lightClusterCount);
 	}

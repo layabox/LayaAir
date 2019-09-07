@@ -30,7 +30,7 @@ class ClusterData {
     updateMark: number = -1;
     pointLightCount: number = 0;
     spotLightCount: number = 0;
-    indices: number[] = new Array(Config3D._config.maxLightCountPerCluster);
+    indices: number[] = [];
 }
 
 /**
@@ -52,7 +52,6 @@ export class Cluster {
     private _xSlices: number;
     private _ySlices: number;
     private _zSlices: number;
-    private _maxLightsPerCluster: number;
     private _clusterDatas: ClusterData[][][];
     private _clusterPixels: Float32Array;
     private _updateMark: number = 0;
@@ -60,14 +59,12 @@ export class Cluster {
 
     public _clusterTexture: Texture2D;
 
-    constructor(xSlices: number, ySlices: number, zSlices: number, maxLightsPerCluster: number) {
+    constructor(xSlices: number, ySlices: number, zSlices: number, maxLightsPerClusterAverage: number) {
         this._xSlices = xSlices;
         this._ySlices = ySlices;
         this._zSlices = zSlices;
-        this._maxLightsPerCluster = maxLightsPerCluster;
-
         var clusterTexWidth: number = xSlices * ySlices;
-        var clisterTexHeight: number = zSlices * (1 + Math.ceil(maxLightsPerCluster / 4));
+        var clisterTexHeight: number = zSlices * (1 + Math.ceil(maxLightsPerClusterAverage / 4));
         this._clusterTexture = Utils3D._createFloatTextureBuffer(clusterTexWidth, clisterTexHeight);
         this._clusterTexture.lock = true;
         this._clusterPixels = new Float32Array(clusterTexWidth * clisterTexHeight * 4);
@@ -127,7 +124,6 @@ export class Cluster {
     private _placePointLightToClusters(lightIndex: number, lightBound: LightBound): void {
         var clusterDatas: ClusterData[][][] = this._clusterDatas;
         var updateMark: number = this._updateMark;
-        var maxLightsPerCluster: number = this._maxLightsPerCluster;
         for (var z: number = lightBound.zMin, zEnd: number = lightBound.zMax; z < zEnd; z++) {
             for (var y: number = lightBound.yMin, yEnd: number = lightBound.yMax; y < yEnd; y++) {
                 for (var x: number = lightBound.xMin, xEnd: number = lightBound.xMax; x < xEnd; x++) {
@@ -137,11 +133,12 @@ export class Cluster {
                         data.spotLightCount = 0;
                         data.updateMark = updateMark;
                     }
-                    var lightCount: number = data.pointLightCount;
-                    if (lightCount < maxLightsPerCluster) {
-                        data.indices[lightCount] = lightIndex;
-                        data.pointLightCount++;
-                    }
+                    var indices: number[] = data.indices;
+                    var lightCount: number = data.pointLightCount++;
+                    if (lightCount < indices.length)
+                        indices[lightCount] = lightIndex;
+                    else
+                        indices.push(lightIndex);
                 }
             }
         }
@@ -150,7 +147,6 @@ export class Cluster {
     private _placeSpotLightToClusters(lightIndex: number, lightBound: LightBound): void {
         var clusterDatas: ClusterData[][][] = this._clusterDatas;
         var updateMark: number = this._updateMark;
-        var maxLightsPerCluster: number = this._maxLightsPerCluster;
         for (var z: number = lightBound.zMin, zEnd: number = lightBound.zMax; z < zEnd; z++) {
             for (var y: number = lightBound.yMin, yEnd: number = lightBound.yMax; y < yEnd; y++) {
                 for (var x: number = lightBound.xMin, xEnd: number = lightBound.xMax; x < xEnd; x++) {
@@ -160,11 +156,12 @@ export class Cluster {
                         data.spotLightCount = 0;
                         data.updateMark = updateMark;
                     }
-                    var lightCount: number = data.pointLightCount + data.spotLightCount;
-                    if (lightCount < maxLightsPerCluster) {
-                        data.indices[lightCount] = lightIndex;
-                        data.spotLightCount++;
-                    }
+                    var indices: number[] = data.indices;
+                    var lightCount: number = data.pointLightCount + data.spotLightCount++;
+                    if (lightCount < indices.length)
+                        indices[lightCount] = lightIndex;
+                    else
+                        indices.push(lightIndex);
                 }
             }
         }
@@ -515,8 +512,10 @@ export class Cluster {
             var widthFloat: number = xSlices * ySlices * 4;
             var lightOff: number = widthFloat * zSlices;
             var clusterPixels: Float32Array = this._clusterPixels;
+            var clusterPixelsCount: number = clusterPixels.length;
             var clusterDatas: ClusterData[][][] = this._clusterDatas;
             var updateMark: number = this._updateMark;
+            var freeSpace: boolean = true;
             for (var z = 0; z < zSlices; z++) {
                 for (var y = 0; y < ySlices; y++) {
                     for (var x = 0; x < xSlices; x++) {
@@ -527,15 +526,31 @@ export class Cluster {
                             clusterPixels[clusterOff + 1] = 0;
                         }
                         else {
-                            var indices: number[] = data.indices;
-                            var pCount: number = data.pointLightCount;
-                            var sCount: number = data.spotLightCount;
-                            clusterPixels[clusterOff] = pCount;
-                            clusterPixels[clusterOff + 1] = sCount;
-                            clusterPixels[clusterOff + 2] = Math.floor(lightOff / widthFloat);//solve precision problme, if data is big some GPU int(float) have problem
-                            clusterPixels[clusterOff + 3] = lightOff % widthFloat;
-                            for (var i: number = 0, n: number = pCount + sCount; i < n; i++)
-                                clusterPixels[lightOff++] = indices[i];
+                            if (freeSpace) {
+                                var indices: number[] = data.indices;
+                                var pCount: number = data.pointLightCount;
+                                var sCount: number = data.spotLightCount;
+                                var count: number = pCount + sCount;
+                                if (lightOff + count < clusterPixelsCount) {
+                                    clusterPixels[clusterOff] = pCount;
+                                    clusterPixels[clusterOff + 1] = sCount;
+                                    clusterPixels[clusterOff + 2] = Math.floor(lightOff / widthFloat);//solve precision problme, if data is big some GPU int(float) have problem
+                                    clusterPixels[clusterOff + 3] = lightOff % widthFloat;
+                                    for (var i: number = 0; i < count; i++)
+                                        clusterPixels[lightOff++] = indices[i];
+                                }
+                                else {
+                                    count = clusterPixelsCount - (lightOff + count);
+                                    pCount = Math.min(pCount, count);
+                                    clusterPixels[clusterOff] = pCount;
+                                    clusterPixels[clusterOff + 1] = Math.min(sCount, count - pCount);
+                                    clusterPixels[clusterOff + 2] = Math.floor(lightOff / widthFloat);//solve precision problme, if data is big some GPU int(float) have problem
+                                    clusterPixels[clusterOff + 3] = lightOff % widthFloat;
+                                    for (var i: number = 0; i < count; i++)
+                                        clusterPixels[lightOff++] = indices[i];
+                                    freeSpace = false;//remain cluster light will be ignore
+                                }
+                            }
                         }
                     }
                 }
