@@ -27,8 +27,8 @@ class ResInfo extends EventDispatcher {
 export interface loadItem{
     url:string;
     type:string|null;
-    size:number;
-    priority:number;
+    size?:number;
+    priority?:number;
     useWorkerLoader?:boolean;
     progress?:number;
     group?:string;
