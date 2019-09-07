@@ -42,7 +42,7 @@ export class HttpRequest extends EventDispatcher {
      * @param	responseType	(default = "text")Web 服务器的响应类型，可设置为 "text"、"json"、"xml"、"arraybuffer"。
      * @param	headers			(default = null) HTTP 请求的头部信息。参数形如key-value数组：key是头部的名称，不应该包括空白、冒号或换行；value是头部的值，不应该包括换行。比如["Content-Type", "application/json"]。
      */
-    send(url: string, data: any = null, method: string = "get", responseType: string = "text", headers: any[] = null): void {
+    send(url: string, data: any = null, method: string = "get", responseType: string = "text", headers: any[]|null = null): void {
         this._responseType = responseType;
         this._data = null;
 

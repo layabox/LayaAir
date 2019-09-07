@@ -79,9 +79,9 @@ export class Pool {
     static getItemByClass(sign: string, cls: new () => any): any {
         if (!Pool._poolDic[sign]) return new cls();
 
-        var pool: any[] = Pool.getPoolBySign(sign);
+        var pool = Pool.getPoolBySign(sign);
         if (pool.length) {
-            var rst: any = pool.pop();
+            var rst = pool.pop();
             rst[Pool.POOLSIGN] = false;
         } else {
             rst = new cls();
