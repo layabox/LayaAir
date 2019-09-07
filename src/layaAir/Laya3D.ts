@@ -84,7 +84,7 @@ import { VertexPositionTexture0 } from "./laya/d3/graphics/Vertex/VertexPosition
 import { VertexTrail } from "./laya/d3/core/trail/VertexTrail";
 import { PixelLineVertex } from "./laya/d3/core/pixelLine/PixelLineVertex";
 import { VertexPositionTerrain } from "./laya/d3/graphics/Vertex/VertexPositionTerrain";
-
+import { LayaGLRunner } from "./laya/layagl/LayaGLRunner";
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
  */
@@ -369,6 +369,7 @@ export class Laya3D {
 			shader3D.prototype._uniformMatrix2fv = shader3D.prototype._uniformMatrix2fvForNative;
 			shader3D.prototype._uniformMatrix3fv = shader3D.prototype._uniformMatrix3fvForNative;
 			shader3D.prototype._uniformMatrix4fv = shader3D.prototype._uniformMatrix4fvForNative;
+			LayaGLRunner.uploadShaderUniforms = LayaGLRunner.uploadShaderUniformsForNative;
 		}
 		if (Render.supportWebGLPlusCulling) {
 			frustumCulling.renderObjectCulling = FrustumCulling.renderObjectCullingNative;

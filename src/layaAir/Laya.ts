@@ -222,7 +222,7 @@ export class Laya {
 		if (ILaya.Render.isConchApp) {
 			Laya.enableNative();
 		}
-
+		Laya.enableWebGLPlus();
 		CacheManger.beginCheck();
 		stage = Laya.stage = new Stage();
 		ILaya.stage = Laya.stage;
@@ -311,7 +311,10 @@ export class Laya {
 			Laya["DebugPanel"].enable();
 		}
 	}
-
+	/**@private */
+	private static enableWebGLPlus(): void {
+		WebGLContext.__init_native();
+	}
 	private static isNativeRender_enable: boolean = false;
 	/**@private */
 	private static enableNative(): void {
@@ -319,7 +322,7 @@ export class Laya {
 			return;
 		Laya.isNativeRender_enable = true;
 
-		WebGLContext.__init_native();
+		
 		Shader.prototype.uploadTexture2D = function (value: any): void {
 			var gl: WebGLRenderingContext = LayaGL.instance;
 			gl.bindTexture(gl.TEXTURE_2D, (<WebGLTexture>value));
@@ -377,11 +380,6 @@ export class Laya {
 			}
 			return this._texture;
 		}
-
-		if (Render.supportWebGLPlusRendering) {
-			((<any>LayaGLRunner)).uploadShaderUniforms = LayaGLRunner.uploadShaderUniformsForNative;
-		}
-
 	}
 }
 

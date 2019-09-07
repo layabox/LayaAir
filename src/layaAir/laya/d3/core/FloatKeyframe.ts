@@ -29,10 +29,13 @@ export class FloatKeyframe extends Keyframe {
 }
 
 // native
-if ( ( (window as any).conch || (window as any).webglPlus) && (window as any).conchFloatKeyframe) {
+if ((window as any).conch && (window as any).conchFloatKeyframe) {
 	//@ts-ignore
 	FloatKeyframe = (window as any).conchFloatKeyframe;
 }
-
+if ((window as any).qq && (window as any).qq.webglPlus) {
+	//@ts-ignore
+	FloatKeyframe = (window as any).qq.webglPlus.conchFloatKeyframe;
+}
 
 

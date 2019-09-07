@@ -134,7 +134,7 @@ export class Render {
         Render.supportWebGLPlusAnimation = true;
         Render.supportWebGLPlusRendering = true;
     }
-    else if((window as any).webglPlus != null)
+    else if((window as any).qq != null && (window as any).qq.webglPlus != null)
     {
         Render.supportWebGLPlusCulling = true;
         Render.supportWebGLPlusAnimation = true;

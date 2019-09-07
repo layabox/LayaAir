@@ -2,6 +2,7 @@ import { HTMLDivElement } from "./HTMLDivElement";
 import { Loader } from "../../net/Loader"
 import { URL } from "../../net/URL"
 import { Event } from "../../events/Event"
+import { ClassUtils } from "../../utils/ClassUtils";
 
 /**
  * iframe标签类，目前用于加载外并解析数据
@@ -31,4 +32,5 @@ export class HTMLIframeElement extends HTMLDivElement {
 
 }
 
+ClassUtils.regClass("laya.html.dom.HTMLIframeElement", HTMLIframeElement);
 
