@@ -15,7 +15,7 @@ Except performance,LayaAir architecture aim to be simple and easy to use, openne
 
 - Multi language development support
 
-Build your HTML5 application from ActionScript 3, TypeScript and JavaScript project.
+You can build your game from TypeScript,JavaScript and ActionScript3.0(Will be discard in the future).
 
 - Multi target platform support
 
@@ -35,7 +35,7 @@ Our official Layabox Github with complete engine source version, free of charge,
 
 - 2D
 
-  Vector Renderer, Atlas Texture, Load Manager, HTML Text, Bitmap Fonts, Mask, Filter, Animation, Timeline, UI, ParticleSystem, SkeletonAnimation, Physics, etc..
+  Vector Renderer, Atlas Texture, HTML Text, Bitmap Fonts, Mask, Filter, Animation, Timeline, UI, ParticleSystem, SkeletonAnimation, Physics, etc..
   
 - 3D
 
