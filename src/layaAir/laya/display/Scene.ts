@@ -59,7 +59,7 @@ export class Scene extends Sprite {
         let uimap = ILaya.loader.getRes(url);
         if(uimap){
             for (let key in uimap) {
-                ILaya.Loader.loadedMap[URL.formatURL(key) + ".scene"] = uimap[key];
+                ILaya.Loader.loadedMap[URL.formatURL(key + ".scene")] = uimap[key];
             }
         }else{
             throw "请提前加载uimap的json，再使用该接口设置！";
