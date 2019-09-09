@@ -48,13 +48,10 @@ uniform float u_metallic;
 uniform float u_smoothness;
 uniform float u_smoothnessScale;
 
-uniform sampler2D u_RangeTexture;
-//uniform sampler2D u_AngleTexture;
-#ifdef POINTLIGHT
-	uniform mat4 u_PointLightMatrix;
-#endif
-//uniform mat4 u_SpotLightMatrix;
 
+
+
+#include "Lighting.glsl";
 #include "PBRStandardLighting.glsl"
 #include "ShadowHelper.glsl"
 
@@ -68,14 +65,23 @@ varying float v_posViewZ;
 	#endif
 #endif
 
-#ifdef DIRECTIONLIGHT
-	uniform DirectionLight u_DirectionLight;
-#endif
-#ifdef POINTLIGHT
-	uniform PointLight u_PointLight;
-#endif
-#ifdef SPOTLIGHT
-	uniform SpotLight u_SpotLight;
+#ifdef LEGACYSINGLELIGHTING
+	#ifdef DIRECTIONLIGHT
+		uniform DirectionLight u_DirectionLight;
+	#endif
+	#ifdef POINTLIGHT
+		uniform PointLight u_PointLight;
+	#endif
+	#ifdef SPOTLIGHT
+		uniform SpotLight u_SpotLight;
+	#endif
+#else
+		uniform mat4 u_View;
+		uniform vec4 u_ProjectionParams;
+		uniform vec4 u_Viewport;
+		uniform int u_DirationLightCount;
+		uniform sampler2D u_LightBuffer;
+		uniform sampler2D u_LightClusterBuffer;
 #endif
 
 #ifdef FOG
@@ -125,20 +131,57 @@ void main_normal()
 	gi.specular = ReflectCubeMap(viewDir, normal);
   
 	vec4 color = vec4(0.0);
+	#ifdef LEGACYSINGLELIGHTING
+		#ifdef DIRECTIONLIGHT
+			color += PBRStandardDiectionLight(albedoColor, mg.r, mg.g, normal, viewDir, u_DirectionLight, gi);
+		#endif
 	
-	#ifdef DIRECTIONLIGHT
-		color += PBRStandardDiectionLight(albedoColor, mg.r, mg.g, normal, viewDir, u_DirectionLight, gi);
+		#ifdef POINTLIGHT
+			color.a = 0.0;
+			color += PBRStandardPointLight(albedoColor, mg.r, mg.g, normal, viewDir, u_PointLight, v_PositionWorld, gi);
+		#endif
+		
+		#ifdef SPOTLIGHT
+			color.a = 0.0;
+			color += PBRStandardSpotLight(albedoColor, mg.r, mg.g, normal, viewDir, u_SpotLight, v_PositionWorld, gi);
+		#endif
+	#else
+		#ifdef DIRECTIONLIGHT
+			for (int i = 0; i < MAX_LIGHT_COUNT; i++) 
+			{
+				if(i >= u_DirationLightCount)
+					break;
+				DirectionLight directionLight = getDirectionLight(u_LightBuffer,i);
+				color.a = 0.0;
+				color += PBRStandardDiectionLight(albedoColor, mg.r, mg.g, normal, viewDir, directionLight, gi);
+			}
+		#endif
+		#if defined(POINTLIGHT)||defined(SPOTLIGHT)
+			ivec4 clusterInfo =getClusterInfo(u_LightClusterBuffer,u_View,u_Viewport, v_PositionWorld,gl_FragCoord,u_ProjectionParams);
+			#ifdef POINTLIGHT
+				for (int i = 0; i < MAX_LIGHT_COUNT; i++) 
+				{
+					if(i >= clusterInfo.x)//PointLightCount
+						break;
+					PointLight pointLight = getPointLight(u_LightBuffer,u_LightClusterBuffer,clusterInfo,i);
+					color.a = 0.0;
+					color += PBRStandardPointLight(albedoColor, mg.r, mg.g, normal, viewDir, pointLight, v_PositionWorld, gi);
+				}
+			#endif
+			#ifdef SPOTLIGHT
+				for (int i = 0; i < MAX_LIGHT_COUNT; i++) 
+				{
+					if(i >= clusterInfo.y)//SpotLightCount
+						break;
+					SpotLight spotLight = getSpotLight(u_LightBuffer,u_LightClusterBuffer,clusterInfo,i);
+					color.a = 0.0;
+					color += PBRStandardSpotLight(albedoColor, mg.r, mg.g, normal, viewDir, spotLight, v_PositionWorld, gi);
+					
+				}
+			#endif
+		#endif
 	#endif
- 
-	#ifdef POINTLIGHT
-		color.a = 0.0;
-		color += PBRStandardPointLight(albedoColor, mg.r, mg.g, normal, viewDir, u_PointLight, v_PositionWorld, gi);
-	#endif
-	
-	#ifdef SPOTLIGHT
-		color.a = 0.0;
-		color += PBRStandardSpotLight(albedoColor, mg.r, mg.g, normal, viewDir, u_SpotLight, v_PositionWorld, gi);
-	#endif
+
 	
 	#ifdef REFLECTMAP
 	 	color += LayaAirStandardReflect(albedoColor,mg.r,mg.g,gi);

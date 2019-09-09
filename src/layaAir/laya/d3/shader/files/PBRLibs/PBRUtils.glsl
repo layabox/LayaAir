@@ -1,24 +1,3 @@
-struct DirectionLight
-{
-	vec3 Color;
-	vec3 Direction;
-};
-
-struct PointLight
-{
-	vec3 Color;
-	vec3 Position;
-	float Range;
-};
-
-struct SpotLight
-{
-	vec3 Color;
-	vec3 Position;
-	vec3 Direction;
-	float SpotAngle;
-	float Range;
-};
 
 vec3 UnpackScaleNormal(in vec2 uv0)
 {
@@ -178,12 +157,7 @@ vec3 ReflectCubeMap(in vec3 viewDir, in vec3 normal){
 	#endif
 }
 
-float LayaAttenuation(in vec3 L, in float invLightRadius)
-{
-	float fRatio = clamp(length(L) * invLightRadius, 0.0, 1.0);
-	fRatio *= fRatio;
-	return 1.0 / (1.0 + 25.0 * fRatio) * clamp(4.0*(1.0 - fRatio), 0.0, 1.0); //fade to black as if 4 pixel texture
-}
+
 
 vec3 LayaPreMultiplyAlpha(vec3 diffColor, float alpha, float oneMinusReflectivity, out float outModifiedAlpha)
 {
