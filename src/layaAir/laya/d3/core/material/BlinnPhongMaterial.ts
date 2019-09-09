@@ -69,9 +69,6 @@ export class BlinnPhongMaterial extends BaseMaterial {
 		return this._albedoColor.x;
 	}
 
-	/**
-	 * @internal
-	 */
 	set _ColorR(value: number) {
 		this._albedoColor.x = value;
 		this.albedoColor = this._albedoColor;
@@ -84,9 +81,6 @@ export class BlinnPhongMaterial extends BaseMaterial {
 		return this._albedoColor.y;
 	}
 
-	/**
-	 * @internal
-	 */
 	set _ColorG(value: number) {
 		this._albedoColor.y = value;
 		this.albedoColor = this._albedoColor;
@@ -99,22 +93,18 @@ export class BlinnPhongMaterial extends BaseMaterial {
 		return this._albedoColor.z;
 	}
 
-	/**
-	 * @internal
-	 */
 	set _ColorB(value: number) {
 		this._albedoColor.z = value;
 		this.albedoColor = this._albedoColor;
 	}
 
-	/**@internal */
+	/**
+	 * @internal
+	 */
 	get _ColorA(): number {
 		return this._albedoColor.w;
 	}
 
-	/**
-	 * @internal
-	 */
 	set _ColorA(value: number) {
 		this._albedoColor.w = value;
 		this.albedoColor = this._albedoColor;
@@ -127,9 +117,6 @@ export class BlinnPhongMaterial extends BaseMaterial {
 		return this._shaderValues.getVector(BlinnPhongMaterial.MATERIALSPECULAR).x;
 	}
 
-	/**
-	 * @internal
-	 */
 	set _SpecColorR(value: number) {
 		this._shaderValues.getVector(BlinnPhongMaterial.MATERIALSPECULAR).x = value;
 	}
@@ -141,9 +128,6 @@ export class BlinnPhongMaterial extends BaseMaterial {
 		return this._shaderValues.getVector(BlinnPhongMaterial.MATERIALSPECULAR).y;
 	}
 
-	/**
-	 * @internal
-	 */
 	set _SpecColorG(value: number) {
 		this._shaderValues.getVector(BlinnPhongMaterial.MATERIALSPECULAR).y = value;
 	}
@@ -155,9 +139,6 @@ export class BlinnPhongMaterial extends BaseMaterial {
 		return this._shaderValues.getVector(BlinnPhongMaterial.MATERIALSPECULAR).z;
 	}
 
-	/**
-	 * @internal
-	 */
 	set _SpecColorB(value: number) {
 		this._shaderValues.getVector(BlinnPhongMaterial.MATERIALSPECULAR).z = value;
 	}
@@ -169,9 +150,6 @@ export class BlinnPhongMaterial extends BaseMaterial {
 		return this._shaderValues.getVector(BlinnPhongMaterial.MATERIALSPECULAR).w;
 	}
 
-	/**
-	 * @internal
-	 */
 	set _SpecColorA(value: number) {
 		this._shaderValues.getVector(BlinnPhongMaterial.MATERIALSPECULAR).w = value;
 	}
@@ -183,9 +161,6 @@ export class BlinnPhongMaterial extends BaseMaterial {
 		return this._albedoIntensity;
 	}
 
-	/**
-	 * @internal
-	 */
 	set _AlbedoIntensity(value: number) {
 		if (this._albedoIntensity !== value) {
 			var finalAlbedo: Vector4 = (<Vector4>this._shaderValues.getVector(BlinnPhongMaterial.ALBEDOCOLOR));
@@ -202,9 +177,6 @@ export class BlinnPhongMaterial extends BaseMaterial {
 		return this._shaderValues.getNumber(BlinnPhongMaterial.SHININESS);
 	}
 
-	/**
-	 * @internal
-	 */
 	set _Shininess(value: number) {
 		value = Math.max(0.0, Math.min(1.0, value));
 		this._shaderValues.setNumber(BlinnPhongMaterial.SHININESS, value);
@@ -217,9 +189,6 @@ export class BlinnPhongMaterial extends BaseMaterial {
 		return this._shaderValues.getVector(BlinnPhongMaterial.TILINGOFFSET).x;
 	}
 
-	/**
-	 * @internal
-	 */
 	set _MainTex_STX(x: number) {
 		var tilOff: Vector4 = (<Vector4>this._shaderValues.getVector(BlinnPhongMaterial.TILINGOFFSET));
 		tilOff.x = x;
@@ -233,9 +202,6 @@ export class BlinnPhongMaterial extends BaseMaterial {
 		return this._shaderValues.getVector(BlinnPhongMaterial.TILINGOFFSET).y;
 	}
 
-	/**
-	 * @internal
-	 */
 	set _MainTex_STY(y: number) {
 		var tilOff: Vector4 = (<Vector4>this._shaderValues.getVector(BlinnPhongMaterial.TILINGOFFSET));
 		tilOff.y = y;
@@ -249,9 +215,6 @@ export class BlinnPhongMaterial extends BaseMaterial {
 		return this._shaderValues.getVector(BlinnPhongMaterial.TILINGOFFSET).z;
 	}
 
-	/**
-	 * @internal
-	 */
 	set _MainTex_STZ(z: number) {
 		var tilOff: Vector4 = (<Vector4>this._shaderValues.getVector(BlinnPhongMaterial.TILINGOFFSET));
 		tilOff.z = z;
@@ -265,9 +228,6 @@ export class BlinnPhongMaterial extends BaseMaterial {
 		return this._shaderValues.getVector(BlinnPhongMaterial.TILINGOFFSET).w;
 	}
 
-	/**
-	 * @internal
-	 */
 	set _MainTex_STW(w: number) {
 		var tilOff: Vector4 = (<Vector4>this._shaderValues.getVector(BlinnPhongMaterial.TILINGOFFSET));
 		tilOff.w = w;
@@ -281,9 +241,6 @@ export class BlinnPhongMaterial extends BaseMaterial {
 		return this.alphaTestValue;
 	}
 
-	/**
-	 * @internal
-	 */
 	set _Cutoff(value: number) {
 		this.alphaTestValue = value;
 	}
@@ -326,17 +283,12 @@ export class BlinnPhongMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * 获取是否支持顶点色。
-	 * @return  是否支持顶点色。
+	 * 是否支持顶点色。
 	 */
 	get enableVertexColor(): boolean {
 		return this._enableVertexColor;
 	}
 
-	/**
-	 * 设置是否支持顶点色。
-	 * @param value  是否支持顶点色。
-	 */
 	set enableVertexColor(value: boolean) {
 		this._enableVertexColor = value;
 		if (value)
@@ -346,81 +298,56 @@ export class BlinnPhongMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * 获取纹理平铺和偏移X分量。
-	 * @return 纹理平铺和偏移X分量。
+	 * 纹理平铺和偏移X分量。
 	 */
 	get tilingOffsetX(): number {
 		return this._MainTex_STX;
 	}
 
-	/**
-	 * 获取纹理平铺和偏移X分量。
-	 * @param x 纹理平铺和偏移X分量。
-	 */
 	set tilingOffsetX(x: number) {
 		this._MainTex_STX = x;
 	}
 
 	/**
-	 * 获取纹理平铺和偏移Y分量。
-	 * @return 纹理平铺和偏移Y分量。
+	 * 纹理平铺和偏移Y分量。
 	 */
 	get tilingOffsetY(): number {
 		return this._MainTex_STY;
 	}
 
-	/**
-	 * 获取纹理平铺和偏移Y分量。
-	 * @param y 纹理平铺和偏移Y分量。
-	 */
 	set tilingOffsetY(y: number) {
 		this._MainTex_STY = y;
 	}
 
 	/**
-	 * 获取纹理平铺和偏移Z分量。
-	 * @return 纹理平铺和偏移Z分量。
+	 * 纹理平铺和偏移Z分量。
 	 */
 	get tilingOffsetZ(): number {
 		return this._MainTex_STZ;
 	}
 
-	/**
-	 * 获取纹理平铺和偏移Z分量。
-	 * @param z 纹理平铺和偏移Z分量。
-	 */
 	set tilingOffsetZ(z: number) {
 		this._MainTex_STZ = z;
 	}
 
 	/**
-	 * 获取纹理平铺和偏移W分量。
-	 * @return 纹理平铺和偏移W分量。
+	 * 纹理平铺和偏移W分量。
 	 */
 	get tilingOffsetW(): number {
 		return this._MainTex_STW;
 	}
 
-	/**
-	 * 获取纹理平铺和偏移W分量。
-	 * @param w 纹理平铺和偏移W分量。
-	 */
 	set tilingOffsetW(w: number) {
 		this._MainTex_STW = w;
 	}
 
 	/**
-	 * 获取纹理平铺和偏移。
-	 * @return 纹理平铺和偏移。
+	 * 纹理平铺和偏移。
 	 */
 	get tilingOffset(): Vector4 {
 		return (<Vector4>this._shaderValues.getVector(BlinnPhongMaterial.TILINGOFFSET));
 	}
 
-	/**
-	 * 获取纹理平铺和偏移。
-	 * @param value 纹理平铺和偏移。
-	 */
 	set tilingOffset(value: Vector4) {
 		if (value) {
 			if (value.x != 1 || value.y != 1 || value.z != 0 || value.w != 0)
@@ -434,81 +361,56 @@ export class BlinnPhongMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * 获取反照率颜色R分量。
-	 * @return 反照率颜色R分量。
+	 * 反照率颜色R分量。
 	 */
 	get albedoColorR(): number {
 		return this._ColorR;
 	}
 
-	/**
-	 * 设置反照率颜色R分量。
-	 * @param value 反照率颜色R分量。
-	 */
 	set albedoColorR(value: number) {
 		this._ColorR = value;
 	}
 
 	/**
-	 * 获取反照率颜色G分量。
-	 * @return 反照率颜色G分量。
+	 * 反照率颜色G分量。
 	 */
 	get albedoColorG(): number {
 		return this._ColorG;
 	}
 
-	/**
-	 * 设置反照率颜色G分量。
-	 * @param value 反照率颜色G分量。
-	 */
 	set albedoColorG(value: number) {
 		this._ColorG = value;
 	}
 
 	/**
-	 * 获取反照率颜色B分量。
-	 * @return 反照率颜色B分量。
+	 * 反照率颜色B分量。
 	 */
 	get albedoColorB(): number {
 		return this._ColorB;
 	}
 
-	/**
-	 * 设置反照率颜色B分量。
-	 * @param value 反照率颜色B分量。
-	 */
 	set albedoColorB(value: number) {
 		this._ColorB = value;
 	}
 
 	/**
-	 * 获取反照率颜色Z分量。
-	 * @return 反照率颜色Z分量。
+	 * 反照率颜色Z分量。
 	 */
 	get albedoColorA(): number {
 		return this._ColorA;
 	}
 
-	/**
-	 * 设置反照率颜色alpha分量。
-	 * @param value 反照率颜色alpha分量。
-	 */
 	set albedoColorA(value: number) {
 		this._ColorA = value;
 	}
 
 	/**
-	 * 获取反照率颜色。
-	 * @return 反照率颜色。
+	 * 反照率颜色。
 	 */
 	get albedoColor(): Vector4 {
 		return this._albedoColor;
 	}
 
-	/**
-	 * 设置反照率颜色。
-	 * @param value 反照率颜色。
-	 */
 	set albedoColor(value: Vector4) {
 		var finalAlbedo: Vector4 = (<Vector4>this._shaderValues.getVector(BlinnPhongMaterial.ALBEDOCOLOR));
 		Vector4.scale(value, this._albedoIntensity, finalAlbedo);
@@ -517,129 +419,89 @@ export class BlinnPhongMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * 获取反照率强度。
-	 * @return 反照率强度。
+	 * 反照率强度。
 	 */
 	get albedoIntensity(): number {
 		return this._albedoIntensity;
 	}
 
-	/**
-	 * 设置反照率强度。
-	 * @param value 反照率强度。
-	 */
 	set albedoIntensity(value: number) {
 		this._AlbedoIntensity = value;
 	}
 
 	/**
-	 * 获取高光颜色R轴分量。
-	 * @return 高光颜色R轴分量。
+	 * 高光颜色R轴分量。
 	 */
 	get specularColorR(): number {
 		return this._SpecColorR;
 	}
 
-	/**
-	 * 设置高光颜色R分量。
-	 * @param value 高光颜色R分量。
-	 */
 	set specularColorR(value: number) {
 		this._SpecColorR = value;
 	}
 
 	/**
-	 * 获取高光颜色G分量。
-	 * @return 高光颜色G分量。
+	 * 高光颜色G分量。
 	 */
 	get specularColorG(): number {
 		return this._SpecColorG;
 	}
 
-	/**
-	 * 设置高光颜色G分量。
-	 * @param value 高光颜色G分量。
-	 */
 	set specularColorG(value: number) {
 		this._SpecColorG = value;
 	}
 
 	/**
-	 * 获取高光颜色B分量。
-	 * @return 高光颜色B分量。
+	 * 高光颜色B分量。
 	 */
 	get specularColorB(): number {
 		return this._SpecColorB;
 	}
 
-	/**
-	 * 设置高光颜色B分量。
-	 * @param value 高光颜色B分量。
-	 */
 	set specularColorB(value: number) {
 		this._SpecColorB = value;
 	}
 
 	/**
-	 * 获取高光颜色A分量。
-	 * @return 高光颜色A分量。
+	 * 高光颜色A分量。
 	 */
 	get specularColorA(): number {
 		return this._SpecColorA;
 	}
 
-	/**
-	 * 设置高光颜色A分量。
-	 * @param value 高光颜色A分量。
-	 */
 	set specularColorA(value: number) {
 		this._SpecColorA = value;
 	}
 
 	/**
-	 * 获取高光颜色。
-	 * @return 高光颜色。
+	 * 高光颜色。
 	 */
 	get specularColor(): Vector4 {
 		return (<Vector4>this._shaderValues.getVector(BlinnPhongMaterial.MATERIALSPECULAR));
 	}
 
-	/**
-	 * 设置高光颜色。
-	 * @param value 高光颜色。
-	 */
 	set specularColor(value: Vector4) {
 		this._shaderValues.setVector(BlinnPhongMaterial.MATERIALSPECULAR, value);
 	}
 
 	/**
-	 * 获取高光强度,范围为0到1。
-	 * @return 高光强度。
+	 * 高光强度,范围为0到1。
 	 */
 	get shininess(): number {
 		return this._Shininess;
 	}
 
-	/**
-	 * 设置高光强度,范围为0到1。
-	 * @param value 高光强度。
-	 */
 	set shininess(value: number) {
 		this._Shininess = value;
 	}
 
 	/**
-	 * 获取反照率贴图。
-	 * @return 反照率贴图。
+	 * 反照率贴图。
 	 */
 	get albedoTexture(): BaseTexture {
 		return this._shaderValues.getTexture(BlinnPhongMaterial.ALBEDOTEXTURE);
 	}
 
-	/**
-	 * 设置反照率贴图。
-	 * @param value 反照率贴图。
-	 */
 	set albedoTexture(value: BaseTexture) {
 		if (value)
 			this._shaderValues.addDefine(BlinnPhongMaterial.SHADERDEFINE_DIFFUSEMAP);
@@ -649,17 +511,12 @@ export class BlinnPhongMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * 获取法线贴图。
-	 * @return 法线贴图。
+	 * 法线贴图。
 	 */
 	get normalTexture(): BaseTexture {
 		return this._shaderValues.getTexture(BlinnPhongMaterial.NORMALTEXTURE);
 	}
 
-	/**
-	 * 设置法线贴图。
-	 * @param value 法线贴图。
-	 */
 	set normalTexture(value: BaseTexture) {
 		if (value)
 			this._shaderValues.addDefine(BlinnPhongMaterial.SHADERDEFINE_NORMALMAP);
@@ -669,17 +526,12 @@ export class BlinnPhongMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * 获取高光贴图。
-	 * @return 高光贴图。
+	 * 高光贴图。
 	 */
 	get specularTexture(): BaseTexture {
 		return this._shaderValues.getTexture(BlinnPhongMaterial.SPECULARTEXTURE);
 	}
 
-	/**
-	 * 设置高光贴图，高光强度则从该贴图RGB值中获取,如果该值为空则从漫反射贴图的Alpha通道获取。
-	 * @param value  高光贴图。
-	 */
 	set specularTexture(value: BaseTexture) {
 		if (value)
 			this._shaderValues.addDefine(BlinnPhongMaterial.SHADERDEFINE_SPECULARMAP);
@@ -690,17 +542,12 @@ export class BlinnPhongMaterial extends BaseMaterial {
 	}
 
 	/**
-	 * 获取是否启用光照。
-	 * @return 是否启用光照。
+	 * 是否启用光照。
 	 */
 	get enableLighting(): boolean {
 		return this._enableLighting;
 	}
 
-	/**
-	 * 设置是否启用光照。
-	 * @param value 是否启用光照。
-	 */
 	set enableLighting(value: boolean) {
 		if (this._enableLighting !== value) {
 			if (value) {
@@ -717,101 +564,76 @@ export class BlinnPhongMaterial extends BaseMaterial {
 		}
 	}
 
-	/**
-	 * 设置是否写入深度。
-	 * @param value 是否写入深度。
-	 */
-	set depthWrite(value: boolean) {
-		this._shaderValues.setBool(BlinnPhongMaterial.DEPTH_WRITE, value);
-	}
+
 
 	/**
-	 * 获取是否写入深度。
-	 * @return 是否写入深度。
+	 * 是否写入深度。
 	 */
 	get depthWrite(): boolean {
 		return this._shaderValues.getBool(BlinnPhongMaterial.DEPTH_WRITE);
 	}
 
-	/**
-	 * 设置剔除方式。
-	 * @param value 剔除方式。
-	 */
-	set cull(value: number) {
-		this._shaderValues.setInt(BlinnPhongMaterial.CULL, value);
+	set depthWrite(value: boolean) {
+		this._shaderValues.setBool(BlinnPhongMaterial.DEPTH_WRITE, value);
 	}
 
 	/**
-	 * 获取剔除方式。
-	 * @return 剔除方式。
+	 * 剔除方式。
 	 */
 	get cull(): number {
 		return this._shaderValues.getInt(BlinnPhongMaterial.CULL);
 	}
 
-	/**
-	 * 设置混合方式。
-	 * @param value 混合方式。
-	 */
-	set blend(value: number) {
-		this._shaderValues.setInt(BlinnPhongMaterial.BLEND, value);
+	set cull(value: number) {
+		this._shaderValues.setInt(BlinnPhongMaterial.CULL, value);
 	}
 
+
 	/**
-	 * 获取混合方式。
-	 * @return 混合方式。
+	 * 混合方式。
 	 */
 	get blend(): number {
 		return this._shaderValues.getInt(BlinnPhongMaterial.BLEND);
 	}
 
-	/**
-	 * 设置混合源。
-	 * @param value 混合源
-	 */
-	set blendSrc(value: number) {
-		this._shaderValues.setInt(BlinnPhongMaterial.BLEND_SRC, value);
+	set blend(value: number) {
+		this._shaderValues.setInt(BlinnPhongMaterial.BLEND, value);
 	}
 
+
 	/**
-	 * 获取混合源。
-	 * @return 混合源。
+	 * 混合源。
 	 */
 	get blendSrc(): number {
 		return this._shaderValues.getInt(BlinnPhongMaterial.BLEND_SRC);
 	}
 
-	/**
-	 * 设置混合目标。
-	 * @param value 混合目标
-	 */
-	set blendDst(value: number) {
-		this._shaderValues.setInt(BlinnPhongMaterial.BLEND_DST, value);
+	set blendSrc(value: number) {
+		this._shaderValues.setInt(BlinnPhongMaterial.BLEND_SRC, value);
 	}
 
 	/**
-	 * 获取混合目标。
-	 * @return 混合目标。
+	 * 混合目标。
 	 */
 	get blendDst(): number {
 		return this._shaderValues.getInt(BlinnPhongMaterial.BLEND_DST);
 	}
 
-	/**
-	 * 设置深度测试方式。
-	 * @param value 深度测试方式
-	 */
-	set depthTest(value: number) {
-		this._shaderValues.setInt(BlinnPhongMaterial.DEPTH_TEST, value);
+	set blendDst(value: number) {
+		this._shaderValues.setInt(BlinnPhongMaterial.BLEND_DST, value);
 	}
 
 	/**
-	 * 获取深度测试方式。
-	 * @return 深度测试方式。
+	 * 深度测试方式。
 	 */
 	get depthTest(): number {
 		return this._shaderValues.getInt(BlinnPhongMaterial.DEPTH_TEST);
 	}
+
+	set depthTest(value: number) {
+		this._shaderValues.setInt(BlinnPhongMaterial.DEPTH_TEST, value);
+	}
+
 
 	/**
 	 * 创建一个 <code>BlinnPhongMaterial</code> 实例。
