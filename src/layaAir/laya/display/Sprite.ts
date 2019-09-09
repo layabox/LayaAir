@@ -1208,7 +1208,7 @@ export class Sprite extends Node {
      * @private
      * 绘制到画布。
      */
-    static drawToCanvas: Function = function (sprite: Sprite, _renderType: number, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number): HTMLCanvas {
+    static drawToCanvas(sprite: Sprite, _renderType: number, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number): HTMLCanvas {
         offsetX -= sprite.x;
         offsetY -= sprite.y;
         offsetX |= 0;
@@ -1218,7 +1218,8 @@ export class Sprite extends Node {
         var ctx: Context = new Context();
         ctx.size(canvasWidth, canvasHeight);
         ctx.asBitmap = true;
-        ctx._targets.start();
+		ctx._targets.start();
+		ctx._targets.clear(0,0,0,0);
         RenderSprite.renders[_renderType]._fun(sprite, ctx, offsetX, offsetY);
         ctx.flush();
         ctx._targets.end();
@@ -1251,7 +1252,7 @@ export class Sprite extends Node {
      * @private 
      * 
      */
-    static drawToTexture: Function = function (sprite: Sprite, _renderType: number, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number): Texture {
+    static drawToTexture(sprite: Sprite, _renderType: number, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number): Texture {
         offsetX -= sprite.x;
         offsetY -= sprite.y;
         offsetX |= 0;
@@ -1261,7 +1262,8 @@ export class Sprite extends Node {
         var ctx: Context = new Context();
         ctx.size(canvasWidth, canvasHeight);
         ctx.asBitmap = true;
-        ctx._targets.start();
+		ctx._targets.start();
+		ctx._targets.clear(0,0,0,0);	// 否则没有地方调用clear
         RenderSprite.renders[_renderType]._fun(sprite, ctx, offsetX, offsetY);
         ctx.flush();
         ctx._targets.end();
