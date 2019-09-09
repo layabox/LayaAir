@@ -13,8 +13,8 @@
     "gulp-concat": "^2.6.1",
     "looks-same": "^7.2.1",
     "matched": "^4.0.0",
+    "typedoc": "^0.14.2",
     "puppeteer-core": "^1.19.0",
-    "typedoc": "^0.15.0",
     "typescript": "^3.5.3"
   },
   "devDependencies": {
