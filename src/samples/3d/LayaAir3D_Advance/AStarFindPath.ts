@@ -19,6 +19,7 @@ import { Stat } from "laya/utils/Stat";
 import { Tween } from "laya/utils/Tween";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { Vector2 } from "laya/d3/math/Vector2";
 
 /**
  * Based upon https://github.com/bgrins/javascript-astar
@@ -46,7 +47,11 @@ export class AStarFindPath {
 	private aStarMap: any;
 	private graph: any;
 	private opts: any;
-	private resPath: any;
+	private resPath: Array<Vector2> = new Array<Vector2>();
+	private resPathLength:number;
+
+	private startPoint:Vector2;
+	private endPoint:Vector2;
 	constructor() {
 		//初始化引擎
 		Laya3D.init(0, 0);
@@ -56,6 +61,12 @@ export class AStarFindPath {
 		Stat.show();
 
 		this.path = [];
+		this.startPoint = new Vector2();
+		this.endPoint = new Vector2();
+		for(var i:number = 0; i < 20; ++i){
+			var newVec:Vector2 = new Vector2();
+			this.resPath.push(newVec);
+		}
 
 		//预加载所有资源
 		var resource = [{ url: "res/threeDimen/scene/TerrainScene/XunLongShi.ls", clas: Scene3D, priority: 1 },
@@ -141,16 +152,16 @@ export class AStarFindPath {
 		Laya.stage.on(Event.MOUSE_UP, this, function (): void {
 			this.index = 0;
 			//获取每次生成路径
-			var startPoint = this.getGridIndex(this.path[this.curPathIndex % this.pointCount].x, this.path[this.curPathIndex++ % this.pointCount].z);
-			var endPoint = this.getGridIndex(this.path[this.nextPathIndex % this.pointCount].x, this.path[this.nextPathIndex++ % this.pointCount].z);
-			var start = this.graph.grid[startPoint.x][startPoint.z];
-			var end = this.graph.grid[endPoint.x][endPoint.z];
+			this.getGridIndex(this.path[this.curPathIndex % this.pointCount].x, this.path[this.curPathIndex++ % this.pointCount].z, this.startPoint);
+			this.getGridIndex(this.path[this.nextPathIndex % this.pointCount].x, this.path[this.nextPathIndex++ % this.pointCount].z, this.endPoint);
+			var start = this.graph.grid[this.startPoint.x][this.startPoint.y];
+			var end = this.graph.grid[this.endPoint.x][this.endPoint.y];
 
 			this._everyPath = (window as any).astar.search(this.graph, start, end, {
 				closest: this.opts.closest
 			});
 			if (this._everyPath && this._everyPath.length > 0) {
-				this.resPath = this.getRealPosition(start, this._everyPath);
+				this.getRealPosition(start, this._everyPath);
 			}
 		});
 		//开启定时重复执行
@@ -158,33 +169,28 @@ export class AStarFindPath {
 	}
 
 	private loopfun(): void {
-		if (this.resPath && this.index < this.resPath.length) {
+		if (this.resPath && this.index < this.resPathLength) {
+			console.log(this.resPath.length);
 			//AStar寻路位置
 			this._position.x = this.resPath[this.index].x;
-			this._position.z = this.resPath[this.index++].z;
+			this._position.z = this.resPath[this.index++].y;
 			//HeightMap获取高度数据
 			this._position.y = this.terrainSprite.getHeight(this._position.x, this._position.z);
 			if (isNaN(this._position.y)) {
 				this._position.y = this.moveSprite3D.transform.position.y;
 			}
 
-			//在出发前进行姿态的调整
-			if(this.index === 1){
-				//调整方向
-				this._tarPosition.x = this.resPath[this.resPath.length -1].x;
-				this._tarPosition.z = this.resPath[this.resPath.length -1].z;
-				this._tarPosition.y = this.moveSprite3D.transform.position.y;
-				this.layaMonkey.transform.lookAt(this._tarPosition, this._upVector3, false);
-				//因为资源规格,这里需要旋转180度
-				this.layaMonkey.transform.rotate(this._rotation2, false, false);
-			}
+			this._tarPosition.x = this._position.x;
+			this._tarPosition.z = this._position.z;
+			this._tarPosition.y = this.moveSprite3D.transform.position.y;
 
+			//调整方向
+			this.layaMonkey.transform.lookAt(this._tarPosition, this._upVector3, false);
+			//因为资源规格,这里需要旋转180度
+			this.layaMonkey.transform.rotate(this._rotation2, false, false);
 			//调整位置
-			if(this.index === this.resPath.length -1){
-				Tween.to(this._finalPosition, { x: this._position.x, y: this._position.y, z: this._position.z }, 40);
-				this.moveSprite3D.transform.position = this._finalPosition;
-			}
-			
+			Tween.to(this._finalPosition, { x: this._position.x, y: this._position.y, z: this._position.z }, 40);
+			this.moveSprite3D.transform.position = this._finalPosition;
 		}
 	}
 
@@ -198,7 +204,7 @@ export class AStarFindPath {
     /**
 	* 得到整数的网格索引
 	*/
-	private getGridIndex(x, z): any {
+	private getGridIndex(x:number, z:number, out:Vector2) {
 		var minX = this.terrainSprite.minX;
 		var minZ = this.terrainSprite.minZ;
 		var cellX = this.terrainSprite.width / this.aStarMap.width;
@@ -211,33 +217,40 @@ export class AStarFindPath {
 		(gridZ > boundHeight) && (gridZ = boundHeight);
 		(gridX < 0) && (gridX = 0);
 		(gridZ < 0) && (gridZ = 0);
-		var res: any = [];
-		res.x = gridX;
-		res.z = gridZ;
-		return res;
+		out.x = gridX;
+		out.y = gridZ;
 	}
 
     /**
 	 * 得到世界坐标系下的真实坐标
 	 */
 	private getRealPosition(start, path): any {
-		var resPath = [];
+		this.resPathLength = path.length;
 		var minX = this.terrainSprite.minX;
 		var minZ = this.terrainSprite.minZ;
 		var cellX = this.terrainSprite.width / this.aStarMap.width;
 		var cellZ = this.terrainSprite.depth / this.aStarMap.height;
 		var halfCellX = cellX / 2;
 		var halfCellZ = cellZ / 2;
-		resPath[0] = [];
-		resPath[0].x = start.x * cellX + halfCellX + minX;
-		resPath[0].z = start.y * cellZ + halfCellZ + minZ;
+
+		this.resPath[0].x = start.x * cellX + halfCellX + minX;
+		this.resPath[0].y = start.y * cellZ + halfCellZ + minZ;
+
+		if(this.resPath.length < path.length ){
+			var diff:number = path.length - this.resPath.length;
+			for(var j:number = 0; j < diff; ++j){
+				var newPoint:Vector2 = new Vector2();
+				this.resPath.push(newPoint);
+			}
+			
+		}
+
 		for (var i = 1; i < path.length; i++) {
 			var gridPos = path[i];
-			resPath[i] = [];
-			resPath[i].x = gridPos.x * cellX + halfCellX + minX;
-			resPath[i].z = gridPos.y * cellZ + halfCellZ + minZ;
+			this.resPath[i].x = gridPos.x * cellX + halfCellX + minX;
+			this.resPath[i].y = gridPos.y * cellZ + halfCellZ + minZ;
 		}
-		return resPath;
+		return 0;
 	}
 
     /**
