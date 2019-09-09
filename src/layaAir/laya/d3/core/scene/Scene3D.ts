@@ -123,10 +123,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	static REFLECTIONTEXTURE: number = Shader3D.propertyNameToID("u_ReflectTexture");
 	static REFLETIONINTENSITY: number = Shader3D.propertyNameToID("u_ReflectIntensity");
 	static TIME: number = Shader3D.propertyNameToID("u_Time");
-	static ANGLEATTENUATIONTEXTURE: number = Shader3D.propertyNameToID("u_AngleTexture");
-	static RANGEATTENUATIONTEXTURE: number = Shader3D.propertyNameToID("u_RangeTexture");
-	static POINTLIGHTMATRIX: number = Shader3D.propertyNameToID("u_PointLightMatrix");
-	static SPOTLIGHTMATRIX: number = Shader3D.propertyNameToID("u_SpotLightMatrix");
+	
 
 	/**
 	 * @internal
@@ -487,7 +484,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			this._cullingBufferResult = new Int32Array(1024);
 		}
 
-		this._shaderValues.setTexture(Scene3D.RANGEATTENUATIONTEXTURE, ShaderInit3D._rangeAttenTex);//TODO:
+		//this._shaderValues.setTexture(Scene3D.RANGEATTENUATIONTEXTURE, ShaderInit3D._rangeAttenTex);//TODO:
 
 		//var angleAttenTex:Texture2D = Texture2D.buildTexture2D(64, 64, BaseTexture.FORMAT_Alpha8, TextureGenerator.haloTexture);
 		//_shaderValues.setTexture(Scene3D.ANGLEATTENUATIONTEXTURE, angleAttenTex);
