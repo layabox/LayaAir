@@ -4,7 +4,6 @@
   precision mediump float;
 #endif
 
-varying float v_Discard;
 varying vec4 v_Color;
 varying vec2 v_TextureCoordinate;
 uniform sampler2D u_texture;
@@ -33,8 +32,6 @@ void main()
 	#endif
 		
 	#ifdef DIFFUSEMAP
-		if(v_Discard!=0.0)
-			discard;
 		#ifdef TINTCOLOR
 			gl_FragColor*=texture2D(u_texture,v_TextureCoordinate)*u_Tintcolor*2.0*v_Color;
 		#else
