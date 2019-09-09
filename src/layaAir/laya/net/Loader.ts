@@ -92,7 +92,7 @@ export class Loader extends EventDispatcher {
 	/**已加载的资源池。*/
 	static loadedMap: { [key: string]: any } = {};
 	/**已加载的图集资源池。*/
-	static atlasMap: { [key: string]: [] } = {};
+	static atlasMap: { [key: string]: any[] } = {};
 	/**已加载的纹理资源池。*/
 	static textureMap: { [key: string]: Texture } = {};
 	/** @private 已加载的数据文件。*/
@@ -626,32 +626,31 @@ export class Loader extends EventDispatcher {
 		return this._data;
 	}
 
-	/**
-	 * 清理指定资源地址的缓存。
-	 * @param	url 资源地址。
-	 */
-	static clearRes(url: string): void {
-		url = URL.formatURL(url);
+    /**
+     * 清理指定资源地址的缓存。 
+     * @param url 资源地址。
+     */
+    static clearRes(url: string): void {
+		url = URL.formatURL(url);
 		//删除图集
-		var arr: any[] = Loader.getAtlas(url);
-		if (arr) {
-			for (var i: number = 0, n: number = arr.length; i < n; i++) {
-				var resUrl: string = arr[i];
-				var tex: Texture = Loader.getRes(resUrl);
-				delete Loader.textureMap[resUrl];
-				if (tex) tex.destroy();
+		var arr = Loader.getAtlas(url);
+		if (arr) {
+			for (var i= 0, n = arr.length; i < n; i++) {
+				var resUrl = arr[i];
+				var tex: Texture = Loader.getRes(resUrl);
+				delete Loader.textureMap[resUrl];
+				if (tex) tex.destroy();
 			}
-			arr.length = 0;
-			if (texture) {
-				texture.destroy();
-				delete Loader.textureMap[url]
-			}
-	
+			arr.length = 0;
+			delete Loader.atlasMap[url];
 		}
-		var texture: Texture = Loader.textureMap[url];
-		(texture) && (texture.destroy());
-		var res: any = Loader.loadedMap[url];
-		(res) && (delete Loader.loadedMap[url])
+		var texture = Loader.textureMap[url];
+		if (texture) {
+			texture.destroy();
+			delete Loader.textureMap[url]
+		}
+		var res= Loader.loadedMap[url];
+		(res) && (delete Loader.loadedMap[url])
 	}
 
 	/**
@@ -699,7 +698,7 @@ export class Loader extends EventDispatcher {
 	 * @param	url 图集地址。
 	 * @return	返回地址集合。
 	 */
-	static getAtlas(url: string): number[] {
+	static getAtlas(url: string) {
 		return Loader.atlasMap[URL.formatURL(url)];
 	}
 
