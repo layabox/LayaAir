@@ -82,29 +82,41 @@ export class Loader extends EventDispatcher {
 	static TERRAINRES = "TERRAIN";
 
 	/**文件后缀和类型对应表。*/
-	static typeMap: {[key:string]:string} = { "ttf": "ttf", "png": "image", "jpg": "image", "jpeg": "image", "ktx": "image", "pvr": "image", "txt": "text", "json": "json", "prefab": "prefab", "xml": "xml", "als": "atlas", "atlas": "atlas", "mp3": "sound", "ogg": "sound", "wav": "sound", "part": "json", "fnt": "font", "plf": "plf", "plfb": "plfb", "scene": "json", "ani": "json", "sk": "arraybuffer" };
+	static typeMap: { [key: string]: string } = { "ttf": "ttf", "png": "image", "jpg": "image", "jpeg": "image", "ktx": "image", "pvr": "image", "txt": "text", "json": "json", "prefab": "prefab", "xml": "xml", "als": "atlas", "atlas": "atlas", "mp3": "sound", "ogg": "sound", "wav": "sound", "part": "json", "fnt": "font", "plf": "plf", "plfb": "plfb", "scene": "json", "ani": "json", "sk": "arraybuffer" };
 	/**资源解析函数对应表，用来扩展更多类型的资源加载解析。*/
 	static parserMap: any = {};
 	/**每帧加载完成回调使用的最大超时时间，如果超时，则下帧再处理，防止帧卡顿。*/
 	static maxTimeOut: number = 100;
 	/**资源分组对应表。*/
-	static groupMap:{[key:string]:string[]} = {};
+	static groupMap: { [key: string]: string[] } = {};
 	/**已加载的资源池。*/
-	static loadedMap:{[key:string]:any} = {};
+	static loadedMap: { [key: string]: any } = {};
 	/**已加载的图集资源池。*/
-	static atlasMap:{[key:string]:[]} = {};
+	static atlasMap: { [key: string]: [] } = {};
 	/**已加载的纹理资源池。*/
-	static textureMap:{[key:string]:Texture} = {};
+	static textureMap: { [key: string]: Texture } = {};
 	/** @private 已加载的数据文件。*/
-	static preLoadedMap:{[key:string]:ArrayBuffer} = {};
+	static preLoadedMap: { [key: string]: ArrayBuffer } = {};
 	/**@private 引用image对象，防止垃圾回收*/
-	protected static _imgCache:{[key:string]:HTMLImageElement} = {};
+	protected static _imgCache: { [key: string]: HTMLImageElement } = {};
 	/**@private */
-	protected static _loaders:Loader[] = [];
+	protected static _loaders: Loader[] = [];
 	/**@private */
 	protected static _isWorking = false;
 	/**@private */
 	protected static _startIndex: number = 0;
+
+	/**
+	 * 获取指定资源地址的数据类型。
+	 * @param	url 资源地址。
+	 * @return 数据类型。
+	 */
+	static getTypeFromUrl(url: string): string {
+		var type = Utils.getFileExtension(url);
+		if (type) return Loader.typeMap[type];
+		console.warn("Not recognize the resources suffix", url);
+		return "text";
+	}
 
 	/**@internal 加载后的数据对象，只读*/
 	_data: any;
@@ -121,22 +133,12 @@ export class Loader extends EventDispatcher {
 	/**@internal 自定义解析不派发complete事件，但会派发loaded事件，手动调用endLoad方法再派发complete事件*/
 	_customParse = false;
 	/**@internal */
-	_constructParams: any[]|null;
+	_constructParams: any[] | null;
 	/**@internal */
 	_propertyParams: any;
 	/**@internal */
-	_createCache: boolean;    
-	/**
-	 * 获取指定资源地址的数据类型。
-	 * @param	url 资源地址。
-	 * @return 数据类型。
-	 */
-	static getTypeFromUrl(url: string): string {
-		var type = Utils.getFileExtension(url);
-		if (type) return Loader.typeMap[type];
-		console.warn("Not recognize the resources suffix", url);
-		return "text";
-	}
+	_createCache: boolean;
+
 
 	/**
 	 * 加载资源。加载错误会派发 Event.ERROR 事件，参数为错误信息。
@@ -147,7 +149,7 @@ export class Loader extends EventDispatcher {
 	 * @param	ignoreCache (default = false)是否忽略缓存，强制重新加载。
 	 * @param	useWorkerLoader(default = false)是否使用worker加载（只针对IMAGE类型和ATLAS类型，并且浏览器支持的情况下生效）
 	 */
-	load(url: string, type: string|null = null, cache: boolean = true, group: string|null = null, ignoreCache: boolean = false, useWorkerLoader: boolean = ILaya.WorkerLoader.enable): void {
+	load(url: string, type: string | null = null, cache: boolean = true, group: string | null = null, ignoreCache: boolean = false, useWorkerLoader: boolean = ILaya.WorkerLoader.enable): void {
 		if (!url) {
 			this.onLoaded(null);
 			return;
@@ -232,7 +234,7 @@ export class Loader extends EventDispatcher {
 	 * @private
 	 * onload、onprocess、onerror必须写在本类
 	 */
-	private _loadHttpRequest(url: string, contentType: string, onLoadCaller: Object, onLoad: Function|null, onProcessCaller: any, onProcess: Function|null, onErrorCaller: any, onError: Function): void {
+	private _loadHttpRequest(url: string, contentType: string, onLoadCaller: Object, onLoad: Function | null, onProcessCaller: any, onProcess: Function | null, onErrorCaller: any, onError: Function): void {
 		if (Browser.onVVMiniGame) {
 			this._http = new HttpRequest();//临时修复vivo复用xmlhttprequest的bug
 		} else {
@@ -306,7 +308,7 @@ export class Loader extends EventDispatcher {
 			_this.event(Event.ERROR, "Load image failed");
 		}
 		if (this._type === "nativeimage") {
-			onLoaded = (image: any)=>{
+			onLoaded = (image: any) => {
 				this.onLoaded(image);
 			}
 			this._loadHtmlImage(url, this, onLoaded, this, onError);
@@ -321,11 +323,11 @@ export class Loader extends EventDispatcher {
 							break;
 						case "pvr":
 							format = TextureFormat.PVRTCRGBA_4BPPV;
-                            break;
-                        default:{
-                            console.error('unknown format', ext);
-                            return;
-                        }
+							break;
+						default: {
+							console.error('unknown format', ext);
+							return;
+						}
 					}
 					var tex = new Texture2D(0, 0, format, false, false);
 					tex.wrapModeU = BaseTexture.WARPMODE_CLAMP;
@@ -408,10 +410,10 @@ export class Loader extends EventDispatcher {
 		} else if (type === Loader.ATLAS) {
 			//处理图集
 			if (!(data instanceof Texture2D)) {
-                var toloadPics:string[]=[];
+				var toloadPics: string[] = [];
 				if (!this._data) {
-                    this._data = data;
-                    //let cdt = data as Texture2D;
+					this._data = data;
+					//let cdt = data as Texture2D;
 					//构造加载图片信息
 					if (data.meta && data.meta.image) {
 						//带图片信息的类型
@@ -419,7 +421,7 @@ export class Loader extends EventDispatcher {
 						var split: string = this._url.indexOf("/") >= 0 ? "/" : "\\";
 						var idx: number = this._url.lastIndexOf(split);
 						var folderPath: string = idx >= 0 ? this._url.substr(0, idx + 1) : "";
-						var changeType: string|null=null;
+						var changeType: string | null = null;
 
 						if (Browser.onAndroid && data.meta.compressTextureAndroid) {
 							changeType = ".ktx";
@@ -640,7 +642,11 @@ export class Loader extends EventDispatcher {
 				if (tex) tex.destroy();
 			}
 			arr.length = 0;
-			delete Loader.atlasMap[url];
+			if (texture) {
+				texture.destroy();
+				delete Loader.textureMap[url]
+			}
+	
 		}
 		var texture: Texture = Loader.textureMap[url];
 		(texture) && (texture.destroy());
@@ -680,12 +686,13 @@ export class Loader extends EventDispatcher {
 	 * @return	返回资源。
 	 */
 	static getRes(url: string): any {
-		var res = Loader.loadedMap[URL.formatURL(url)];
+		var res = Loader.textureMap[URL.formatURL(url)];
 		if (res)
 			return res;
 		else
-			return Loader.textureMap[URL.formatURL(url)];
+			return Loader.loadedMap[URL.formatURL(url)];
 	}
+
 
 	/**
 	 * 获取指定资源地址的图集地址列表。
@@ -707,9 +714,16 @@ export class Loader extends EventDispatcher {
 		if (Loader.loadedMap[url] != null) {
 			console.warn("Resources already exist,is repeated loading:", url);
 		} else {
-			Loader.loadedMap[url] = data;
+			if (data instanceof Texture) {
+				Loader.loadedMap[url] = data.bitmap;
+				Loader.textureMap[url] = data;
+			}
+			else {
+				Loader.loadedMap[url] = data;
+			}
 		}
 	}
+
 
 	/**
 	 * 缓存Teture。
