@@ -9,6 +9,7 @@ import { SceneUtils } from "../utils/SceneUtils"
 import { Timer } from "../utils/Timer"
 import { ILaya } from "../../ILaya";
 import { ClassUtils } from "../utils/ClassUtils";
+import { URL } from "../net/URL";
 
 /**
  * 场景类，负责场景创建，加载，销毁等功能
@@ -50,7 +51,20 @@ export class Scene extends Sprite {
      */
     protected createChildren(): void {
     }
-
+    /**
+     * 加载模式设置uimap
+     * @param url uimapJosn的url
+     */
+    static setUIMap(url):void{
+        let uimap = ILaya.loader.getRes(url);
+        if(uimap){
+            for (let key in uimap) {
+                ILaya.Loader.loadedMap[URL.formatURL(key + ".scene")] = uimap[key];
+            }
+        }else{
+            throw "请提前加载uimap的json，再使用该接口设置！";
+        }
+    }
     /**
      * @private 兼容老项目
      * 装载场景视图。用于加载模式。
