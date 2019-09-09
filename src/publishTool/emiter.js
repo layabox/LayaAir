@@ -454,19 +454,9 @@ class emiter {
         if (!node)
             return "*";
         let type = ts.SyntaxKind[node.kind];
+        if (emiter.tsToasTypeObj[type])
+            return emiter.tsToasTypeObj[type];
         switch (type) {
-            case "ArrayType":
-                return "Array";
-            case "StringKeyword":
-                return "String";
-            case "AnyKeyword":
-                return "*";
-            case "BooleanKeyword":
-                return "Boolean";
-            case "NumberKeyword":
-                return "Number";
-            case "VoidKeyword":
-                return "void";
             case "TypeReference":
                 //自定义类型
                 type = node.typeName.getText();
@@ -484,17 +474,9 @@ class emiter {
                 if (emiter.jscObj && emiter.jscObj[type])
                     type = emiter.jscObj[type];
                 return type;
-            case "ConstructorType":
-                return "Class";
             case "TypeQuery":
                 // console.log("console test:",node.exprName.getText());
                 return node.exprName.getText();
-            case "UnionType":
-                return "*";
-            case "FunctionType":
-                return "Function";
-            case "ObjectKeyword":
-                return "Object";
             default:
                 console.log("TODO :", type, this.url + "/" + this.classNameNow);
                 return "*";
@@ -554,8 +536,26 @@ class emiter {
                     type += typeone + (i == node.types.length - 1 ? "" : "|");
                 }
             }
-            else
+            else if (type == "TypeLiteral") {
+                let _node = node;
+                let typestr = "{";
+                if (_node.members) {
+                    for (let i = 0; i < _node.members.length; i++) {
+                        let __node = _node.members[0];
+                        if (__node.parameters) { //检测param
+                            for (let j = 0; j < __node.parameters.length; j++) {
+                                let ___node = __node.parameters[0];
+                                typestr += "[key:" + this.emitTsType(___node.type) + "]:";
+                            }
+                        }
+                        typestr += this.emitTsType(__node.type) + ";";
+                    }
+                }
+                type = typestr + "}";
+            }
+            else {
                 type = node.getText();
+            }
         }
         if (this.importArr[type])
             return this.importArr[type];
@@ -635,6 +635,22 @@ class emiter {
 /**所有已经识别的没有准备的方法 */
 emiter._typeArr = ["VariableStatement", "ExportDeclaration", "Uint16Array", "Float32Array",
     "FunctionDeclaration"];
+/**
+ * 已知 的简单对应表
+ */
+emiter.tsToasTypeObj = {
+    "ArrayType": "Array",
+    "StringKeyword": "String",
+    "BooleanKeyword": "Boolean",
+    "NumberKeyword": "Number",
+    "VoidKeyword": "void",
+    "ConstructorType": "Class",
+    "TypeLiteral": "*",
+    "AnyKeyword": "*",
+    "UnionType": "*",
+    "FunctionType": "Function",
+    "ObjectKeyword": "Object"
+};
 /**jsc对应的astype */
 emiter.jscObj = {};
 /**构成的d.ts数据 */

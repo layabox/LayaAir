@@ -76,10 +76,7 @@ export class ShaderInit3D {
 	 * @internal
 	 */
 	static __init__(): void {
-		ShaderInit3D._rangeAttenTex = Utils3D._buildTexture2D(1024, 1, TextureFormat.Alpha8, TextureGenerator.lightAttenTexture);//TODO:移动位置
-		ShaderInit3D._rangeAttenTex.wrapModeU = BaseTexture.WARPMODE_CLAMP;
-		ShaderInit3D._rangeAttenTex.wrapModeV = BaseTexture.WARPMODE_CLAMP;
-		ShaderInit3D._rangeAttenTex.lock = true;
+		
 		Shader3D.SHADERDEFINE_HIGHPRECISION = Shader3D.getDefineByName("HIGHPRECISION");
 		Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING = Shader3D.getDefineByName("LEGACYSINGLELIGHTING");
 
@@ -208,7 +205,12 @@ export class ShaderInit3D {
 			'u_Bones': Shader3D.PERIOD_CUSTOM,
 			'u_MvpMatrix': Shader3D.PERIOD_SPRITE,
 			'u_WorldMat': Shader3D.PERIOD_SPRITE,
+
 			'u_CameraPos': Shader3D.PERIOD_CAMERA,
+			'u_View':Shader3D.PERIOD_CAMERA,
+			'u_ProjectionParams':Shader3D.PERIOD_CAMERA,
+			'u_Viewport': Shader3D.PERIOD_CAMERA,
+			
 			'u_AlphaTestValue': Shader3D.PERIOD_MATERIAL,
 			'u_AlbedoColor': Shader3D.PERIOD_MATERIAL,
 			'u_EmissionColor': Shader3D.PERIOD_MATERIAL,
@@ -225,23 +227,7 @@ export class ShaderInit3D {
 			'u_normalScale': Shader3D.PERIOD_MATERIAL,
 			'u_parallaxScale': Shader3D.PERIOD_MATERIAL,
 			'u_TilingOffset': Shader3D.PERIOD_MATERIAL,
-			'u_DirectionLight.Direction': Shader3D.PERIOD_SCENE,
-			'u_DirectionLight.Color': Shader3D.PERIOD_SCENE,
 
-			'u_PointLightMatrix': Shader3D.PERIOD_SCENE,
-			'u_PointLight.Position': Shader3D.PERIOD_SCENE,
-			'u_PointLight.Range': Shader3D.PERIOD_SCENE,
-			'u_PointLight.Color': Shader3D.PERIOD_SCENE,
-
-			//'u_SpotLightMatrix':  Shader3D.PERIOD_SCENE, 
-			'u_SpotLight.Position': Shader3D.PERIOD_SCENE,
-			'u_SpotLight.Direction': Shader3D.PERIOD_SCENE,
-			'u_SpotLight.Range': Shader3D.PERIOD_SCENE,
-			'u_SpotLight.SpotAngle': Shader3D.PERIOD_SCENE,
-			'u_SpotLight.Color': Shader3D.PERIOD_SCENE,
-
-			'u_RangeTexture': Shader3D.PERIOD_SCENE,
-			//'u_AngleTexture':Shader3D.PERIOD_SCENE,
 
 			'u_ReflectTexture': Shader3D.PERIOD_SCENE,
 			'u_ReflectIntensity': Shader3D.PERIOD_SCENE,
@@ -254,7 +240,22 @@ export class ShaderInit3D {
 			'u_shadowPCFoffset': Shader3D.PERIOD_SCENE,
 			'u_FogStart': Shader3D.PERIOD_SCENE,
 			'u_FogRange': Shader3D.PERIOD_SCENE,
-			'u_FogColor': Shader3D.PERIOD_SCENE
+			'u_FogColor': Shader3D.PERIOD_SCENE,
+			'u_DirationLightCount': Shader3D.PERIOD_SCENE,
+			'u_LightBuffer': Shader3D.PERIOD_SCENE,
+			'u_LightClusterBuffer': Shader3D.PERIOD_SCENE,
+
+			//legacy lighting
+			'u_DirectionLight.direction': Shader3D.PERIOD_SCENE,
+			'u_DirectionLight.color': Shader3D.PERIOD_SCENE,
+			'u_PointLight.position': Shader3D.PERIOD_SCENE,
+			'u_PointLight.range': Shader3D.PERIOD_SCENE,
+			'u_PointLight.color': Shader3D.PERIOD_SCENE,
+			'u_SpotLight.position': Shader3D.PERIOD_SCENE,
+			'u_SpotLight.direction': Shader3D.PERIOD_SCENE,
+			'u_SpotLight.range': Shader3D.PERIOD_SCENE,
+			'u_SpotLight.spot': Shader3D.PERIOD_SCENE,
+			'u_SpotLight.color': Shader3D.PERIOD_SCENE,
 		};
 
 		stateMap = {
@@ -286,7 +287,12 @@ export class ShaderInit3D {
 			'u_Bones': Shader3D.PERIOD_CUSTOM,
 			'u_MvpMatrix': Shader3D.PERIOD_SPRITE,
 			'u_WorldMat': Shader3D.PERIOD_SPRITE,
+
 			'u_CameraPos': Shader3D.PERIOD_CAMERA,
+			'u_View':Shader3D.PERIOD_CAMERA,
+			'u_ProjectionParams':Shader3D.PERIOD_CAMERA,
+			'u_Viewport': Shader3D.PERIOD_CAMERA,
+
 			'u_AlphaTestValue': Shader3D.PERIOD_MATERIAL,
 			'u_AlbedoColor': Shader3D.PERIOD_MATERIAL,
 			'u_SpecularColor': Shader3D.PERIOD_MATERIAL,
@@ -303,23 +309,11 @@ export class ShaderInit3D {
 			'u_normalScale': Shader3D.PERIOD_MATERIAL,
 			'u_parallaxScale': Shader3D.PERIOD_MATERIAL,
 			'u_TilingOffset': Shader3D.PERIOD_MATERIAL,
-			'u_DirectionLight.Direction': Shader3D.PERIOD_SCENE,
-			'u_DirectionLight.Color': Shader3D.PERIOD_SCENE,
+			
+			
 
-			'u_PointLightMatrix': Shader3D.PERIOD_SCENE,
-			'u_PointLight.Position': Shader3D.PERIOD_SCENE,
-			'u_PointLight.Range': Shader3D.PERIOD_SCENE,
-			'u_PointLight.Color': Shader3D.PERIOD_SCENE,
-
-			//'u_SpotLightMatrix':  Shader3D.PERIOD_SCENE, 
-			'u_SpotLight.Position': Shader3D.PERIOD_SCENE,
-			'u_SpotLight.Direction': Shader3D.PERIOD_SCENE,
-			'u_SpotLight.Range': Shader3D.PERIOD_SCENE,
-			'u_SpotLight.SpotAngle': Shader3D.PERIOD_SCENE,
-			'u_SpotLight.Color': Shader3D.PERIOD_SCENE,
-
-			'u_RangeTexture': Shader3D.PERIOD_SCENE,
-			//'u_AngleTexture': Shader3D.PERIOD_SCENE,
+			
+			
 
 			'u_ReflectTexture': Shader3D.PERIOD_SCENE,
 			'u_ReflectIntensity': Shader3D.PERIOD_SCENE,
@@ -332,7 +326,25 @@ export class ShaderInit3D {
 			'u_shadowPCFoffset': Shader3D.PERIOD_SCENE,
 			'u_FogStart': Shader3D.PERIOD_SCENE,
 			'u_FogRange': Shader3D.PERIOD_SCENE,
-			'u_FogColor': Shader3D.PERIOD_SCENE
+			'u_FogColor': Shader3D.PERIOD_SCENE,
+			'u_DirationLightCount': Shader3D.PERIOD_SCENE,
+			'u_LightBuffer': Shader3D.PERIOD_SCENE,
+			'u_LightClusterBuffer': Shader3D.PERIOD_SCENE,
+			
+			'u_DirectionLight.direction': Shader3D.PERIOD_SCENE,
+			'u_DirectionLight.color': Shader3D.PERIOD_SCENE,
+
+			
+			'u_PointLight.position': Shader3D.PERIOD_SCENE,
+			'u_PointLight.range': Shader3D.PERIOD_SCENE,
+			'u_PointLight.color': Shader3D.PERIOD_SCENE,
+
+			
+			'u_SpotLight.position': Shader3D.PERIOD_SCENE,
+			'u_SpotLight.direction': Shader3D.PERIOD_SCENE,
+			'u_SpotLight.range': Shader3D.PERIOD_SCENE,
+			'u_SpotLight.spotAngle': Shader3D.PERIOD_SCENE,
+			'u_SpotLight.color': Shader3D.PERIOD_SCENE,
 		};
 
 		stateMap = {

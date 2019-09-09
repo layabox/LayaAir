@@ -1,4 +1,4 @@
-export const enum TextureFormat {
+export enum TextureFormat {
     /**纹理格式_R8G8B8。*/
     R8G8B8 = 0,
     /**纹理格式_R8G8B8A8。*/
