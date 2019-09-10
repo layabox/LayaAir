@@ -206,19 +206,17 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 	 * @internal
 	 */
 	remove(sprite: RenderableSprite3D): void {
-		var mesh: Mesh = (<Mesh>((<MeshSprite3D>sprite)).meshFilter.sharedMesh);
+		var mesh: Mesh = (<MeshSprite3D>sprite).meshFilter.sharedMesh;
 		var index: number = this._batchElements.indexOf(sprite);
 		if (index !== -1) {
 			this._batchElements.splice(index, 1);
 
-			var render: BaseRender = sprite._render;
 			var renderElements: RenderElement[] = sprite._render._renderElements;
 			for (var i: number = 0, n: number = renderElements.length; i < n; i++)
 				renderElements[i].staticBatch = null;
 
-			var meshVertexCount: number = mesh.vertexCount;
 			this._currentBatchIndexCount = this._currentBatchIndexCount - mesh._indexBuffer.indexCount;
-			this._currentBatchVertexCount = this._currentBatchVertexCount - meshVertexCount;
+			this._currentBatchVertexCount = this._currentBatchVertexCount - mesh.vertexCount;
 			sprite._render._isPartOfStaticBatch = false;
 		}
 	}
@@ -232,7 +230,7 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 			this._indexBuffer.destroy();
 			Resource._addGPUMemory(-(this._vertexBuffer._byteLength + this._indexBuffer._byteLength));
 		}
-		var gl:WebGLRenderingContext=LayaGL.instance;
+		var gl: WebGLRenderingContext = LayaGL.instance;
 		var batchVertexCount: number = 0;
 		var batchIndexCount: number = 0;
 
@@ -298,9 +296,9 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 	 */
 	_render(state: RenderContext3D): void {
 		this._bufferState.bind();
-		var gl:WebGLRenderingContext=LayaGL.instance;
+		var gl: WebGLRenderingContext = LayaGL.instance;
 		var element: RenderElement = state.renderElement;
-		var staticBatchElementList:SingletonList<SubMeshRenderElement>=(<SubMeshRenderElement>element).staticBatchElementList;
+		var staticBatchElementList: SingletonList<SubMeshRenderElement> = (<SubMeshRenderElement>element).staticBatchElementList;
 		var batchElementList: Array<SubMeshRenderElement> = staticBatchElementList.elements;
 		/*合并drawcall版本:合并几率不大*/
 		var from: number = 0;

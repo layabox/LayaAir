@@ -138,7 +138,9 @@ export class MeshRenderStaticBatchManager extends StaticBatchManager {
 	 */
 	_destroyRenderSprite(sprite: RenderableSprite3D): void {
 		var staticBatch: SubMeshStaticBatch = (<SubMeshStaticBatch>sprite._render._staticBatch);
-		staticBatch.remove(sprite);
+		var index: number = staticBatch._batchElements.indexOf(sprite);
+		if (index !== -1)
+			staticBatch._batchElements.splice(index, 1);
 
 		if (staticBatch._batchElements.length === 0) {
 			var owner: Sprite3D = staticBatch.batchOwner;
