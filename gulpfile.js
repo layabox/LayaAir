@@ -12,13 +12,13 @@ gulp.task('tsc', () => {
     });
 });
 
-// gulp.task('CopyNoneTSFile', ()=>{
-//     return gulp.src([
-//         'src/**/*.vs',
-//         'src/**/*.fs',
-//         'src/**/*.glsl'], { base: "src" })
-//         .pipe(gulp.dest('bin/tsc'));
-// });
+gulp.task('CopyNoneTSFile', ()=>{
+    return gulp.src([
+        'src/**/*.vs',
+        'src/**/*.fs',
+        'src/**/*.glsl'], { base: "src" })
+        .pipe(gulp.dest('bin/tsc'));
+});
 
 
 // gulp.task('buildCore', async ()=>{
