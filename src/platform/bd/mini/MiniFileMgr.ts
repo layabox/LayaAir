@@ -237,7 +237,7 @@ import { URL } from "laya/net/URL";
 									BMiniAdapter.minClearSize = data.size;
 								MiniFileMgr.onClearCacheRes();//如果存储满了需要清理资源,检查没用的资源清理，然后在做存储
 							}
-							MiniFileMgr.deleteFile(tempFileName, readyUrl, callBack,encoding,data.size);
+							MiniFileMgr.deleteFile(tempFilePath, readyUrl, callBack,encoding,data.size);
 						},
 						fail:function(data:any):void{
 							callBack != null && callBack.runWith([1, data]);
