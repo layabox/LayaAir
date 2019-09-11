@@ -1,3 +1,4 @@
+import { Config3D } from "Config3D";
 import { Laya } from "Laya";
 import { Script3D } from "laya/d3/component/Script3D";
 import { Camera } from "laya/d3/core/Camera";
@@ -7,7 +8,6 @@ import { SpotLight } from "laya/d3/core/light/SpotLight";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Transform3D } from "laya/d3/core/Transform3D";
 import { Vector3 } from "laya/d3/math/Vector3";
-import { Shader3D } from "laya/d3/shader/Shader3D";
 import { Stage } from "laya/display/Stage";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
@@ -38,8 +38,9 @@ class LightMoveScript extends Script3D {
 export class MultiLight {
 
 	constructor() {
-		Shader3D.debugMode = true;
-		Laya3D.init(0, 0);
+		var c = new Config3D();
+		c.maxLightCount = 32;
+		Laya3D.init(0, 0, c);
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
 		Stat.show();
@@ -49,27 +50,22 @@ export class MultiLight {
 
 			var camera: Camera = <Camera>scene.getChildByName("Main Camera");
 			camera.addComponent(CameraMoveScript);
+			camera.transform.localPosition = new Vector3(8.937199060699333, 61.364798067809126, -66.77836086472654);
+
 			var moveScript: LightMoveScript = camera.addComponent(LightMoveScript);
-
-			// var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
-			// var mat: Matrix4x4 = directionLight.transform.worldMatrix;
-			// mat.setForward(new Vector3(0.0, -0.8, -1.0));
-			// directionLight.color.setValue(0.5, 0.5, 0.4);
-
 			var moverLights: LightSprite[] = moveScript.lights;
 			var offsets: Vector3[] = moveScript.offsets;
 			var moveRanges: Vector3[] = moveScript.moveRanges;
-			moverLights.length = 50;
-			for (var i: number = 0; i < 50; i++) {
+			moverLights.length = 31;
+			for (var i: number = 0; i < 31; i++) {
 				var pointLight: PointLight = (<PointLight>scene.addChild(new PointLight()));
 				pointLight.range = 2.0 + Math.random() * 8.0;
 				pointLight.color.setValue(Math.random(), Math.random(), Math.random());
-				pointLight.intensity = 2.0 + Math.random() * 8;
+				pointLight.intensity = 6.0 + Math.random() * 8;
 				moverLights[i] = pointLight;
-				offsets[i] = new Vector3((Math.random() - 0.5) * 20, pointLight.range * 0.75, 20.0 * Math.random() - 10);
+				offsets[i] = new Vector3((Math.random() - 0.5) * 10, pointLight.range * 0.75, (Math.random() - 0.5) * 10);
 				moveRanges[i] = new Vector3((Math.random() - 0.5) * 40, 0, (Math.random() - 0.5) * 40);
 			}
-
 
 			var spotLight: SpotLight = (<SpotLight>scene.addChild(new SpotLight()));
 			spotLight.transform.localPosition = new Vector3(0.0, 9.0, -35.0);
@@ -77,38 +73,7 @@ export class MultiLight {
 			spotLight.color.setValue(Math.random(), Math.random(), Math.random());
 			spotLight.range = 50;
 			spotLight.intensity = 15;
-			spotLight.spotAngle = 70;
-
-
-			// for (var i: number = 0; i < 1; i++) {
-			// 	var pointLight: PointLight = (<PointLight>scene.addChild(new PointLight()));
-			// 	pointLight.range = 1.0 + 1.0 * 2.0;
-			// 	pointLight.transform.localPosition = new Vector3((1.0 - 0.5) * 10, pointLight.range * 0.75, -13.0);
-			// 	pointLight.color.setValue(1.0, 0, 0);
-			// 	pointLight.intensity = 1.0 * 10 + 2.0;
-			// }
-
-			// var pointLight: PointLight = (<PointLight>scene.addChild(new PointLight()));
-			// pointLight.transform.localPosition = new Vector3(-5.0, 0.2, -6.0);
-			// pointLight.color.setValue(0.0, 1.0, -6.0);
-			// pointLight.range = 6.0;
-			// pointLight.intensity = 12.0;
-
-			// var pointLight: PointLight = (<PointLight>scene.addChild(new PointLight()));
-			// pointLight.transform.localPosition = new Vector3(-5.0, 0.2, -6.0);
-			// pointLight.color.setValue(0.0, 1.0, -4.0);
-			// pointLight.range = 6.9;
-
-			// var pointLight: PointLight = (<PointLight>scene.addChild(new PointLight()));
-			// pointLight.transform.localPosition = new Vector3(-5.3, 0.2, -6.0);
-			// pointLight.color.setValue(1.0, 1.0, -2.0);
-			// pointLight.range = 6.9;o
-
-			// var pointLight: PointLight = (<PointLight>scene.addChild(new PointLight()));
-			// pointLight.transform.localPosition = new Vector3(-5.3, 0.2, 0.0);
-			// pointLight.color.setValue(2.0, 0.2, 1.0);
-			// pointLight.range = 6.8;
-
+			spotLight.spotAngle = 60;
 
 		}));
 
