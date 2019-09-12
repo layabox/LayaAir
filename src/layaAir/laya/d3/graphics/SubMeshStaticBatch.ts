@@ -178,9 +178,6 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 	 * @internal
 	 */
 	add(sprite: RenderableSprite3D): void {
-		var oldStaticBatch: SubMeshStaticBatch = (<SubMeshStaticBatch>sprite._render._staticBatch);
-		(oldStaticBatch) && (oldStaticBatch.remove(sprite));//重复合并需要从旧的staticBatch移除
-
 		var mesh: Mesh = (<Mesh>((<MeshSprite3D>sprite)).meshFilter.sharedMesh);
 		var subMeshVertexCount: number = mesh.vertexCount;
 		this._batchElements.push(sprite);
