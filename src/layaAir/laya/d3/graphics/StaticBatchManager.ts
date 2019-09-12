@@ -47,7 +47,12 @@ export class StaticBatchManager {
 		if (batchSpritesCount > 0) {
 			for (var i: number = 0; i < batchSpritesCount; i++) {
 				var sprite: RenderableSprite3D = renderableSprite3Ds[i];
-				(!sprite.destroyed && !sprite._render._isPartOfStaticBatch) && (sprite._addToInitStaticBatchManager());
+				if (!sprite.destroyed) {
+					if (sprite._render._isPartOfStaticBatch)
+						console.warn("StaticBatchManager: Sprite " + sprite.name + " has a part of Static Batch,it will be ignore.");
+					else
+						sprite._addToInitStaticBatchManager();
+				}
 			}
 
 			for (var k: number = 0, m: number = StaticBatchManager._managers.length; k < m; k++) {
