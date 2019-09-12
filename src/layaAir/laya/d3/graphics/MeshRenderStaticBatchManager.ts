@@ -140,12 +140,13 @@ export class MeshRenderStaticBatchManager extends StaticBatchManager {
 	 * @internal
 	 */
 	_destroyRenderSprite(sprite: RenderableSprite3D): void {
-		var staticBatch: SubMeshStaticBatch = (<SubMeshStaticBatch>sprite._render._staticBatch);
-		var index: number = staticBatch._batchElements.indexOf(sprite);
+		var staticBatch: SubMeshStaticBatch = <SubMeshStaticBatch>sprite._render._staticBatch;
+		var batchElements: RenderableSprite3D[] = staticBatch._batchElements;
+		var index: number = batchElements.indexOf(sprite);
 		if (index !== -1)
-			staticBatch._batchElements.splice(index, 1);
+			batchElements.splice(index, 1);
 
-		if (staticBatch._batchElements.length === 0) {
+		if (batchElements.length === 0) {
 			delete this._staticBatches[staticBatch._batchID];
 			staticBatch.dispose();
 		}
