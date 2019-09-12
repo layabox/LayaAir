@@ -1659,6 +1659,29 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		if (particleAge >= ShurikenParticleData.startLifeTime)//如果时间已大于声明周期，则直接跳过,TODO:提前优化
 			return true;
 
+		var pos: Vector3, rot: Quaternion;
+		if (this.simulationSpace == 0) {
+			pos = transform.position;
+			rot = transform.rotation;
+		}
+
+		//StartSpeed
+		var startSpeed: number;
+		switch (this.startSpeedType) {
+			case 0:
+				startSpeed = this.startSpeedConstant;
+				break;
+			case 2:
+				if (this.autoRandomSeed) {
+					startSpeed = MathUtil.lerp(this.startSpeedConstantMin, this.startSpeedConstantMax, Math.random());
+				} else {
+					this._rand.seed = this._randomSeeds[8];
+					startSpeed = MathUtil.lerp(this.startSpeedConstantMin, this.startSpeedConstantMax, this._rand.getFloat());
+					this._randomSeeds[8] = this._rand.seed;
+				}
+				break;
+		}
+
 
 		var randomVelocityX: number, randomVelocityY: number, randomVelocityZ: number, randomColor: number, randomSize: number, randomRotation: number, randomTextureAnimation: number;
 		var needRandomVelocity: boolean = this._velocityOverLifetime && this._velocityOverLifetime.enbale;
@@ -1844,20 +1867,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 			this._vertices[offset++] = ShurikenParticleData.startRotation[2];
 
 			//StartSpeed
-			switch (this.startSpeedType) {
-				case 0:
-					this._vertices[offset++] = this.startSpeedConstant;
-					break;
-				case 2:
-					if (this.autoRandomSeed) {
-						this._vertices[offset++] = MathUtil.lerp(this.startSpeedConstantMin, this.startSpeedConstantMax, Math.random());
-					} else {
-						this._rand.seed = this._randomSeeds[8];
-						this._vertices[offset++] = MathUtil.lerp(this.startSpeedConstantMin, this.startSpeedConstantMax, this._rand.getFloat());
-						this._randomSeeds[8] = this._rand.seed;
-					}
-					break;
-			}
+			this._vertices[offset++] = startSpeed;
 
 			// (_vertices[offset] = XX);TODO:29预留
 			needRandomColor && (this._vertices[offset + 1] = randomColor);
@@ -1873,8 +1883,6 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 			switch (this.simulationSpace) {
 				case 0:
 					offset += 8;
-					var pos: Vector3 = transform.position;
-					var rot: Quaternion = transform.rotation;
 					this._vertices[offset++] = pos.x;
 					this._vertices[offset++] = pos.y;
 					this._vertices[offset++] = pos.z;
