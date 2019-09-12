@@ -46,8 +46,8 @@ export class StaticBatchManager {
 		var batchSpritesCount: number = renderableSprite3Ds.length;
 		if (batchSpritesCount > 0) {
 			for (var i: number = 0; i < batchSpritesCount; i++) {
-				var renderableSprite3D: RenderableSprite3D = renderableSprite3Ds[i];
-				(renderableSprite3D.destroyed) || (renderableSprite3D._addToInitStaticBatchManager());
+				var sprite: RenderableSprite3D = renderableSprite3Ds[i];
+				(!sprite.destroyed && !sprite._render._isPartOfStaticBatch) && (sprite._addToInitStaticBatchManager());
 			}
 
 			for (var k: number = 0, m: number = StaticBatchManager._managers.length; k < m; k++) {
