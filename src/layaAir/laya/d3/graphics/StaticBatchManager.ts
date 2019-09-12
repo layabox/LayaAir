@@ -1,8 +1,7 @@
-import { RenderableSprite3D } from "../core/RenderableSprite3D"
-import { Sprite3D } from "../core/Sprite3D"
-import { RenderElement } from "../core/render/RenderElement"
-import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement"
-import { SubMeshStaticBatch } from "./SubMeshStaticBatch";
+import { RenderElement } from "../core/render/RenderElement";
+import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement";
+import { RenderableSprite3D } from "../core/RenderableSprite3D";
+import { Sprite3D } from "../core/Sprite3D";
 
 /**
  * <code>StaticBatchManager</code> 类用于静态批处理管理的父类。
@@ -10,13 +9,6 @@ import { SubMeshStaticBatch } from "./SubMeshStaticBatch";
 export class StaticBatchManager {
 	/** @internal [只读]*/
 	static _managers: StaticBatchManager[] = [];
-
-	/**
-	 * @internal
-	 */
-	static _registerManager(manager: StaticBatchManager): void {
-		StaticBatchManager._managers.push(manager);
-	}
 
 	/**
 	 * @internal
@@ -29,6 +21,13 @@ export class StaticBatchManager {
 	}
 
 	/**
+	 * @internal
+	 */
+	static _registerManager(manager: StaticBatchManager): void {
+		StaticBatchManager._managers.push(manager);
+	}
+
+	/**
 	 * 静态批处理合并，合并后子节点修改Transform属性无效，根节点staticBatchRoot可为null,如果根节点不为null，根节点可移动。
 	 * 如果renderableSprite3Ds为null，合并staticBatchRoot以及其所有子节点为静态批处理，staticBatchRoot作为静态根节点。
 	 * 如果renderableSprite3Ds不为null,合并renderableSprite3Ds为静态批处理，staticBatchRoot作为静态根节点。
@@ -36,7 +35,6 @@ export class StaticBatchManager {
 	 * @param renderableSprite3Ds 静态批处理子节点队列。
 	 */
 	static combine(staticBatchRoot: Sprite3D, renderableSprite3Ds: RenderableSprite3D[] = null): void {
-		//TODO:每次有新物体合并都会重构一次Buffer,无论是否有变化
 		if (!renderableSprite3Ds) {
 			renderableSprite3Ds = [];
 			if (staticBatchRoot)
