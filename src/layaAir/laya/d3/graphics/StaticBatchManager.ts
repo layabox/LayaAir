@@ -22,7 +22,7 @@ export class StaticBatchManager {
 	 * @internal
 	 */
 	private static _addToStaticBatchQueue(sprite3D: Sprite3D, renderableSprite3D: RenderableSprite3D[]): void {
-		if (sprite3D instanceof RenderableSprite3D && sprite3D.isStatic)
+		if (sprite3D instanceof RenderableSprite3D)
 			renderableSprite3D.push(sprite3D);
 		for (var i: number = 0, n: number = sprite3D.numChildren; i < n; i++)
 			StaticBatchManager._addToStaticBatchQueue((<Sprite3D>sprite3D._children[i]), renderableSprite3D);

@@ -211,7 +211,7 @@ export class MeshRenderer extends BaseRender {
 	 * @internal
 	 */
 	_destroy(): void {
-		(this._isPartOfStaticBatch) && (MeshRenderStaticBatchManager.instance._destroyRenderSprite(this._owner));
+		(this._isPartOfStaticBatch) && (MeshRenderStaticBatchManager.instance._removeRenderSprite(this._owner));
 		super._destroy();
 	}
 }

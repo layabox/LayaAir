@@ -184,7 +184,7 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 
 		var render: BaseRender = sprite._render;
 		render._isPartOfStaticBatch = true;
-		render._staticBatch = this;
+		render._staticBatch = this;//TODO:mayebe shhould  delete
 		var renderElements: RenderElement[] = render._renderElements;
 		for (var i: number = 0, n: number = renderElements.length; i < n; i++)
 			renderElements[i].staticBatch = this;

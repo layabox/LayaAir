@@ -54,7 +54,7 @@ export class MeshRenderStaticBatchManager extends StaticBatchManager {
 		if (lightOffset === 0) {
 			var receiveShadowOffset: number = (lRender.receiveShadow ? 1 : 0) - (rRender.receiveShadow ? 1 : 0);
 			if (receiveShadowOffset === 0) {
-				var materialOffset: number = lRender.sharedMaterial.id - rRender.sharedMaterial.id;//多维子材质以第一个材质排序
+				var materialOffset: number = (lRender.sharedMaterial && rRender.sharedMaterial) ? lRender.sharedMaterial.id - rRender.sharedMaterial.id : 0;//多维子材质以第一个材质排序
 				if (materialOffset === 0) {
 					var verDec: number = leftGeo._vertexBuffer.vertexDeclaration.id - rightGeo._vertexBuffer.vertexDeclaration.id;
 					if (verDec === 0) {
@@ -139,12 +139,18 @@ export class MeshRenderStaticBatchManager extends StaticBatchManager {
 	/**
 	 * @internal
 	 */
-	_destroyRenderSprite(sprite: RenderableSprite3D): void {
-		var staticBatch: SubMeshStaticBatch = <SubMeshStaticBatch>sprite._render._staticBatch;
+	_removeRenderSprite(sprite: RenderableSprite3D): void {
+		var render: BaseRender = sprite._render;
+		var staticBatch: SubMeshStaticBatch = <SubMeshStaticBatch>render._staticBatch;
 		var batchElements: RenderableSprite3D[] = staticBatch._batchElements;
 		var index: number = batchElements.indexOf(sprite);
-		if (index !== -1)
+		if (index !== -1) {
 			batchElements.splice(index, 1);
+			render._staticBatch = null;
+			var renderElements: RenderElement[] = render._renderElements;
+			for (var i: number = 0, n: number = renderElements.length; i < n; i++)
+				renderElements[i].staticBatch = null;
+		}
 
 		if (batchElements.length === 0) {
 			delete this._staticBatches[staticBatch._batchID];
