@@ -2,6 +2,7 @@ import { RenderableSprite3D } from "../core/RenderableSprite3D"
 import { Sprite3D } from "../core/Sprite3D"
 import { RenderElement } from "../core/render/RenderElement"
 import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement"
+import { SubMeshStaticBatch } from "./SubMeshStaticBatch";
 
 /**
  * <code>StaticBatchManager</code> 类用于静态批处理管理的父类。
@@ -35,7 +36,6 @@ export class StaticBatchManager {
 	 * @param renderableSprite3Ds 静态批处理子节点队列。
 	 */
 	static combine(staticBatchRoot: Sprite3D, renderableSprite3Ds: RenderableSprite3D[] = null): void {
-		//TODO:合并条件是否取消静态，外面判断
 		//TODO:每次有新物体合并都会重构一次Buffer,无论是否有变化
 		if (!renderableSprite3Ds) {
 			renderableSprite3Ds = [];
@@ -47,7 +47,7 @@ export class StaticBatchManager {
 		if (batchSpritesCount > 0) {
 			for (var i: number = 0; i < batchSpritesCount; i++) {
 				var renderableSprite3D: RenderableSprite3D = renderableSprite3Ds[i];
-				(renderableSprite3D.isStatic) && (renderableSprite3D._addToInitStaticBatchManager());
+				(renderableSprite3D.destroyed) || (renderableSprite3D._addToInitStaticBatchManager());
 			}
 
 			for (var k: number = 0, m: number = StaticBatchManager._managers.length; k < m; k++) {
@@ -62,16 +62,14 @@ export class StaticBatchManager {
 	/** @internal */
 	protected _batchRenderElementPoolIndex: number;
 	/** @internal */
-	protected _initBatchSprites: RenderableSprite3D[];
+	protected _initBatchSprites: RenderableSprite3D[] = [];
 	/** @internal */
-	protected _staticBatches: any;
+	protected _staticBatches: object = {};
 
 	/**
 	 * 创建一个 <code>StaticBatchManager</code> 实例。
 	 */
 	constructor() {
-		this._initBatchSprites = [];
-		this._staticBatches = {};
 		this._batchRenderElementPoolIndex = 0;
 		this._batchRenderElementPool = [];
 	}

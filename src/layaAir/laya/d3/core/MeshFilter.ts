@@ -1,20 +1,23 @@
-import { RenderableSprite3D } from "./RenderableSprite3D";
-import { VertexMesh } from "../graphics/Vertex/VertexMesh"
-import { VertexElement } from "../graphics/VertexElement"
-import { Mesh } from "../resource/models/Mesh"
-import { SubMesh } from "../resource/models/SubMesh"
-import { ShaderData } from "../shader/ShaderData"
+import { VertexMesh } from "../graphics/Vertex/VertexMesh";
+import { VertexElement } from "../graphics/VertexElement";
+import { Mesh } from "../resource/models/Mesh";
+import { SubMesh } from "../resource/models/SubMesh";
+import { ShaderData } from "../shader/ShaderData";
+import { ShaderDefine } from "../shader/ShaderDefine";
 import { MeshRenderer } from "./MeshRenderer";
 import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration";
-import { ShaderDefine } from "../shader/ShaderDefine";
+import { RenderableSprite3D } from "./RenderableSprite3D";
 
 /**
  * <code>MeshFilter</code> 类用于创建网格过滤器。
  */
 export class MeshFilter {
+	/** @internal */
 	private static _meshVerticeDefine: Array<ShaderDefine> = [];
 
+	/** @internal */
 	private _owner: RenderableSprite3D;
+	/** @internal */
 	private _sharedMesh: Mesh;
 
 	/**
