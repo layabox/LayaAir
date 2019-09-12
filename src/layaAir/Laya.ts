@@ -88,7 +88,7 @@ export class Laya {
 	/** 加载管理器的引用。*/
 	static loader: LoaderManager = null;
 	/** 当前引擎版本。*/
-	static version: string = "2.2.0beta3";
+	static version: string = "2.2.0beta4";
 	/**@private Render 类的引用。*/
 	static render: Render;
 	/**@internal */
@@ -101,28 +101,51 @@ export class Laya {
 	/**@internal*/
     static __classmap: Object = null;
     
+    /**@internal*/
     static Config=Config;    //这种写法是为了防止被混淆掉，不能用其他技巧，例如 assin({Config,Stage,...})
+    /**@internal*/
     static TextRender=TextRender;
+    /**@internal*/
     static EventDispatcher=EventDispatcher;
+    /**@internal*/
     static SoundChannel=SoundChannel;
+    /**@internal*/
     static Stage=Stage;
+    /**@internal*/
     static Render=Render;
+    /**@internal*/
     static Browser=Browser;
+    /**@internal*/
     static Sprite=Sprite;
+    /**@internal*/
     static Node=Node;
+    /**@internal*/
     static Context=Context;
+    /**@internal*/
     static WebGL=WebGL;
+    /**@internal*/
     static Handler=Handler;
+    /**@internal*/
     static RunDriver=RunDriver;
+    /**@internal*/
     static Utils=Utils;
+    /**@internal*/
     static Input=Input;
+    /**@internal*/
     static Loader=Loader;
+    /**@internal*/
     static LocalStorage=LocalStorage;
+    /**@internal*/
     static SoundManager=SoundManager;
+    /**@internal*/
     static URL=URL;
+    /**@internal*/
     static Event=Event;
+    /**@internal*/
     static Matrix=Matrix;
+    /**@internal*/
     static HTMLImage=HTMLImage;
+    /**@internal*/
     static Laya=Laya;
     
 	/**
