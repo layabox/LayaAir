@@ -5,10 +5,15 @@ const bundleLib = require('./src/buildtools/bundleLib');
 
 // 在 shell 中执行一个命令
 var exec = require('child_process').exec;
-gulp.task('tsc', () => {
+gulp.task('tsc', (cb) => {
     // return exec(path.join(__dirname,'node_modules/.bin/tsc.cmd -b src/samples/tsconfig.json'), function() {
     // });
-    return exec("tsc -b src/samples/tsconfig.json", function () {
+    exec("tsc -b src/samples/tsconfig.json", function (err,stdout,stderr) {
+        if(err){
+            console.log("out:",stdout);
+            console.log("err:",stderr);
+        }
+        cb();
     });
 });
 
