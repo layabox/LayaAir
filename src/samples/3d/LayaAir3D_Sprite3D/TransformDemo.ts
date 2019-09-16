@@ -83,22 +83,13 @@ export class TransformDemo {
 		//地面接收阴影
 		((<MeshSprite3D>grid.getChildAt(0))).meshRenderer.receiveShadow = true;
 		//加载静态小猴子
-		var staticLayaMonkey: MeshSprite3D = (<MeshSprite3D>this._scene.addChild(new MeshSprite3D(Loader.getRes("res/threeDimen/skinModel/LayaMonkey/Assets/LayaMonkey/LayaMonkey-LayaMonkey.lm"))));
-		//设置材质
-		staticLayaMonkey.meshRenderer.material = Loader.getRes("res/threeDimen/skinModel/LayaMonkey/Assets/LayaMonkey/Materials/T_Diffuse.lmat");
-		//设置位置
-		var staticMonkeyTransform: Transform3D = staticLayaMonkey.transform;
-		var pos: Vector3 = staticMonkeyTransform.position;
-		pos.setValue(0, 0, 0);
-		staticMonkeyTransform.position = pos;
+		var staticLayaMonkey: MeshSprite3D = (<MeshSprite3D>Loader.getRes("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"));
+		
 		//设置缩放
+		var staticMonkeyTransform: Transform3D = staticLayaMonkey.transform;
 		var staticMonkeyScale: Vector3 = staticMonkeyTransform.localScale;
 		staticMonkeyScale.setValue(0.3, 0.3, 0.3);
 		staticMonkeyTransform.localScale = staticMonkeyScale;
-		//设置旋转
-		staticMonkeyTransform.rotation = new Quaternion(0.7071068, 0, 0, -0.7071067);
-		//产生阴影
-		staticLayaMonkey.meshRenderer.castShadow = true;
 
 		//克隆sprite3d
 		this.layaMonkey_clone1 = Sprite3D.instantiate(staticLayaMonkey, this._scene, false, this._position1);
@@ -123,7 +114,7 @@ export class TransformDemo {
 		scale.setValue(0.1, 0.1, 0.1);
 		this.clone3Transform.localScale = scale;
 
-		staticLayaMonkey.removeSelf();
+		staticLayaMonkey.destroy();
 
 		//设置定时器执行,定时重复执行(基于帧率)
 		Laya.timer.frameLoop(1, this, this.animate);

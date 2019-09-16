@@ -90,6 +90,7 @@ import { TrailRender } from "../3d/LayaAir3D_Trail/TrailRender";
 import { IndexViewUI } from "../ui/IndexViewUI";
 import { PostProcessBloom } from "../3d/LayaAir3D_Advance/PostProcessBloom";
 import { AStarFindPath } from "../3d/LayaAir3D_Advance/AStarFindPath";
+import { MultiLight } from "../3d/LayaAir3D_Lighting/MultiLight";
 
 
 export class IndexView3D extends IndexViewUI {
@@ -106,11 +107,10 @@ export class IndexView3D extends IndexViewUI {
 	private b_length: number;
 	private m_length: number;
 
-	private _comboxBigArr2: any[] = ['高级应用', '动画', '摄影机', 'Demo', '灯光', '材质', '网格', 'mouseLnteraction', '粒子系统', 'performance', '物理系统', 'resource', 'scene3D',
-		'script', 'shader', 'sky', 'sprite3D', 'texture', 'trail'];
+	private _comboxBigArr2: any[] = ['Resource', 'Scene3D', 'Camera', 'Lighting', 'Sprite3D', 'Mesh', 'Material', 'Texture', 'Animation3D', 'Physics3D', 'MouseLnteraction', 'Script', 'Sky', 'Particle3D', 'Trail', 'Shader', 'performance', 'Advance',   'Demo' ];
 	//var s:Secne3DPlayer2D    
 	private _advanceClsArr: any[] = [PostProcessBloom,AStarFindPath,DrawTextTexture, Laya3DCombineHtml, Scene2DPlayer3D, Secne3DPlayer2D];//PostProcessBloom,AStarFindPath,
-	private _advanceArr: any[] = ['后期处理之泛光','寻路示例','DrawTextTexture', 'Laya3D与网页混合', '2D坐标转3D坐标', '3D坐标转2D坐标'];//'后期处理之泛光','寻路示例',
+	private _advanceArr: any[] = ['PostProcessBloom','AStarFindPath','DrawTextTexture', 'Laya3DCombineHtml', 'Scene2DPlayer3D', 'Secne3DPlayer2D'];//'后期处理之泛光','寻路示例',
 
 	private _animationClsArr: any[] = [AnimationEventByUnity, AnimationLayerBlend, AnimatorDemo, AnimatorStateScriptDemo, BoneLinkSprite3D, CameraAnimation, MaterialAnimation, RigidbodyAnimationDemo, SkinAnimationSample];//AnimationEventByUnity,AnimationLayerBlend,BoneLinkSprite3D,RigidbodyAnimationDemo
 	private _animationArr: any[] = ["AnimationEventByUnity", "AnimationLayerBlend", 'Animator', "AnimatorStateScript", "BoneLinkSprite3D", "CameraAnimation", "MaterialAnimation", "RigidbodyAnimation", "SkinAnimationSample"];
@@ -121,8 +121,8 @@ export class IndexView3D extends IndexViewUI {
 	private _demoClsArr: any[] = [PBRDemo];
 	private _demoArr: any[] = ['PBRDemo'];
 
-	private _lightingClsArr: any[] = [DirectionLightDemo, PointLightDemo, RealTimeShadow, SpotLightDemo];
-	private _lightingArr: any[] = ['DirectionLight', 'PointLight', 'RealTimeShadow', 'SpotLight'];
+	private _lightingClsArr: any[] = [DirectionLightDemo, PointLightDemo, RealTimeShadow, SpotLightDemo, MultiLight];
+	private _lightingArr: any[] = ['DirectionLight', 'PointLight', 'RealTimeShadow', 'SpotLight', 'MultiLight'];
 
 	private _mterialClsArr: any[] = [BlinnPhong_DiffuseMap, BlinnPhong_NormalMap, BlinnPhong_SpecularMap, BlinnPhongMaterialLoad, EffectMaterialDemo, MaterialDemo, PBRStandardMaterialDemo, UnlitMaterialDemo, WaterPrimaryMaterialDemo];//BlinnPhong_DiffuseMap,BlinnPhong_NormalMap,BlinnPhong_SpecularMap,BlinnPhongMaterialLoad,EffectMaterialDemo,UnlitMaterialDemo
 	private _materilArr: any[] = ['BlinnPhong_DiffuseMap', 'BlinnPhong_NormalMap', "BlinnPhong_SpecularMap", "BlinnPhongMaterialLoad", "EffectMaterial", "Material", "PBRStandardMaterial", "UnlitMaterial", "WaterPrimaryMaterial"];
@@ -261,82 +261,84 @@ export class IndexView3D extends IndexViewUI {
 			}
 		}
 		else {
+
+			var _comboxBigArr2: any[] = ['Resource', 'Scene3D', 'Camera', 'Lighting', 'Sprite3D', 'Mesh', 'Material', 'Texture', 'Animation3D', 'Physics3D', 'MouseLnteraction', 'Script', 'Sky', 'Particle3D', 'Trail', 'Shader', 'Performance', 'Advance',   'Demo' ];
 			switch (this._bigIndex) {
 				case 0:
-					this._oldView = new this._advanceClsArr[index];
-					this.b_length = this._advanceClsArr.length - 1;
+					this._oldView = new this._resourceClsArr[index];
+					this.b_length = this._resourceClsArr.length - 1;
 					break;
 				case 1:
-					this._oldView = new this._animationClsArr[index];
-					this.b_length = this._animationClsArr.length - 1;
+					this._oldView = new this._scene3DClsArr[index];
+					this.b_length = this._scene3DClsArr.length - 1;
 					break;
 				case 2:
 					this._oldView = new this._cameraClsArr[index];
 					this.b_length = this._cameraClsArr.length - 1;
 					break;
 				case 3:
-					this._oldView = new this._demoClsArr[index];
-					this.b_length = this._demoClsArr.length - 1;
-					break;
-				case 4:
 					this._oldView = new this._lightingClsArr[index];
 					this.b_length = this._lightingClsArr.length - 1;
 					break;
-				case 5:
-					this._oldView = new this._mterialClsArr[index];
-					this.b_length = this._mterialClsArr.length - 1;
-					break;
-				case 6:
-					this._oldView = new this._meshClsArr[index];
-					this.b_length = this._meshClsArr.length - 1;
-					break;
-				case 7:
-					this._oldView = new this._mouseLnteractionClsArr[index];
-					this.b_length = this._mouseLnteractionClsArr.length - 1;
-					break;
-				case 8:
-					this._oldView = new this._particleClsArr[index];
-					this.b_length = this._particleClsArr.length - 1;
-					break;
-				case 9:
-					this._oldView = new this._performanceClsArr[index];
-					this.b_length = this._performanceClsArr.length - 1;
-					break;
-				case 10:
-					this._oldView = new this._physicsClsArr[index];
-					this.b_length = this._physicsClsArr.length - 1;
-					break;
-				case 11:
-					this._oldView = new this._resourceClsArr[index];
-					this.b_length = this._resourceClsArr.length - 1;
-					break;
-				case 12:
-					this._oldView = new this._scene3DClsArr[index];
-					this.b_length = this._scene3DClsArr.length - 1;
-					break;
-				case 13:
-					this._oldView = new this._scriptClsArr[index];
-					this.b_length = this._scriptClsArr.length - 1;
-					break;
-				case 14:
-					this._oldView = new this._shaderClsArr[index];
-					this.b_length = this._shaderClsArr.length - 1;
-					break;
-				case 15:
-					this._oldView = new this._skyClsArr[index];
-					this.b_length = this._skyClsArr.length - 1;
-					break;
-				case 16:
+				case 4:
 					this._oldView = new this._sprite3DClsArr[index];
 					this.b_length = this._sprite3DClsArr.length - 1;
 					break;
-				case 17:
+				case 5:
+					this._oldView = new this._meshClsArr[index];
+					this.b_length = this._meshClsArr.length - 1;
+					break;
+				case 6:
+					this._oldView = new this._mterialClsArr[index];
+					this.b_length = this._mterialClsArr.length - 1;
+					break;
+				case 7:
 					this._oldView = new this._textureClsArr[index];
 					this.b_length = this._textureClsArr.length - 1;
 					break;
-				case 18:
+				case 8:
+					this._oldView = new this._animationClsArr[index];
+					this.b_length = this._animationClsArr.length - 1;
+					break;
+				case 9:
+					this._oldView = new this._physicsClsArr[index];
+					this.b_length = this._physicsClsArr.length - 1;
+					break;
+				case 10:
+					this._oldView = new this._mouseLnteractionClsArr[index];
+					this.b_length = this._mouseLnteractionClsArr.length - 1;
+					break;
+				case 11:
+					this._oldView = new this._scriptClsArr[index];
+					this.b_length = this._scriptClsArr.length - 1;
+					break;
+				case 12:
+					this._oldView = new this._skyClsArr[index];
+					this.b_length = this._skyClsArr.length - 1;
+					break;
+				case 13:
+					this._oldView = new this._particleClsArr[index];
+					this.b_length = this._particleClsArr.length - 1;
+					break;
+				case 14:
 					this._oldView = new this._trailClsArr[index];
 					this.b_length = this._trailClsArr.length - 1;
+					break;
+				case 15:
+					this._oldView = new this._shaderClsArr[index];
+					this.b_length = this._shaderClsArr.length - 1;
+					break;
+				case 16:
+					this._oldView = new this._performanceClsArr[index];
+					this.b_length = this._performanceClsArr.length - 1;
+					break;
+				case 17:
+					this._oldView = new this._advanceClsArr[index];
+					this.b_length = this._advanceClsArr.length - 1;
+					break;
+				case 18:
+					this._oldView = new this._demoClsArr[index];
+					this.b_length = this._demoClsArr.length - 1;
 					break;
 				// case 19:
 				// 	this._oldView = new this._testPerformanceClsArr[index];
@@ -381,63 +383,64 @@ export class IndexView3D extends IndexViewUI {
 	private onBigComBoxSelectHandler(index: number, smallIndex: number = 0): void {
 		this._bigIndex = index;
 		var labelStr: string;
+
 		switch (index) {
-			case 0: //sprite3D
-				labelStr = this._advanceArr.toString();
+			case 0: 
+				labelStr = this._resourceArr.toString();
 				break;
-			case 1: //mesh
-				labelStr = this._animationArr.toString();
+			case 1: 
+				labelStr = this._scene3DArr.toString();
 				break;
-			case 2: //ligth
+			case 2: 
 				labelStr = this._cameraArr.toString();
 				break;
 			case 3:
-				labelStr = this._demoArr.toString();
-				break;
-			case 4: //material
 				labelStr = this._lightingArr.toString();
 				break;
-			case 5: //camera
-				labelStr = this._materilArr.toString();
-				break;
-			case 6: //SkyBox
-				labelStr = this._meshArr.toString();
-				break;
-			case 7: //Scene
-				labelStr = this._mouseLnteractionArr.toString();
-				break;
-			case 8: //animation
-				labelStr = this._particleArr.toString();
-				break;
-			case 9: //particle
-				labelStr = this._performanceArr.toString();
-				break;
-			case 10: //physics
-				labelStr = this._physicslArr.toString();
-				break;
-			case 11: //shader
-				labelStr = this._resourceArr.toString();
-				break;
-			case 12: //advanced
-				labelStr = this._scene3DArr.toString();
-				break;
-			case 13: //advanced
-				labelStr = this._scriptArr.toString();
-				break;
-			case 14: //advanced
-				labelStr = this._shaderArr.toString();
-				break;
-			case 15: //advanced
-				labelStr = this._skyArr.toString();
-				break;
-			case 16: //advanced
+			case 4: 
 				labelStr = this._sprite3DArr.toString();
 				break;
-			case 17: //advanced
+			case 5:
+				labelStr = this._meshArr.toString();
+				break;
+			case 6:
+				labelStr = this._materilArr.toString();
+				break;
+			case 7: 
 				labelStr = this._textureArr.toString();
 				break;
-			case 18: //advanced
+			case 8: 
+				labelStr = this._animationArr.toString();
+				break;
+			case 9: 
+				labelStr = this._physicslArr.toString();
+				break;
+			case 10: 
+				labelStr = this._mouseLnteractionArr.toString();
+				break;
+			case 11: 
+				labelStr = this._scriptArr.toString();
+				break;
+			case 12: 
+				labelStr = this._skyArr.toString();
+				break;
+			case 13: 
+				labelStr = this._particleArr.toString();
+				break;
+			case 14: 
 				labelStr = this._trailArr.toString();
+				break;
+			case 15:
+				labelStr = this._shaderArr.toString();
+				break;
+			case 16: 
+				labelStr = this._performanceArr.toString();
+				break;
+			case 17: 
+				labelStr = this._advanceArr.toString();
+				break;
+			case 18: 
+				labelStr = this._demoArr.toString();
 				break;
 			// case 19: //advanced
 			// 	labelStr = this._testPerformanceArr.toString();

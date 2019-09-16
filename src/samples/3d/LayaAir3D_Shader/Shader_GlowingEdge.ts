@@ -117,6 +117,7 @@ export class Shader_GlowingEdge {
 
 	//初始化shader
 	private initShader(): void {
+
 		var attributeMap: any = { 
 			'a_Position': VertexMesh.MESH_POSITION0, 
 			'a_Normal': VertexMesh.MESH_NORMAL0, 
