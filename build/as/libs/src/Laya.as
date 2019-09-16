@@ -95,6 +95,11 @@ package  {
 		 * @param debugJsPath laya.debugtool.js文件路径
 		 */
 		public static function enableDebugPanel(debugJsPath:String = null):void{}
+
+		/*
+		 * @private 
+		 */
+		private static var enableWebGLPlus:*;
 		private static var isNativeRender_enable:*;
 
 		/*

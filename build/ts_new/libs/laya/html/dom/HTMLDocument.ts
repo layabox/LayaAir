@@ -1,5 +1,6 @@
 import { HTMLElement } from "./HTMLElement";
 import { HTMLStyle } from "../utils/HTMLStyle"
+import { ClassUtils } from "../../utils/ClassUtils";
 
 /**
  * @private
@@ -20,3 +21,4 @@ export class HTMLDocument {
     }
 }
 
+ClassUtils.regClass("laya.html.dom.HTMLDocument", HTMLDocument);

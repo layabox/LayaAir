@@ -195,20 +195,20 @@ export class TrailGeometry extends GeometryElement {
 	 * 通过位置更新TrailRenderElement数据
 	 */
 	private _addTrailByNextPosition(camera: Camera, position: Vector3): void {
-		var cameraMatrix: Matrix4x4 = camera.viewMatrix;
-		Vector3.transformCoordinate(position, cameraMatrix, TrailGeometry._tempVector33);
 		var delVector3: Vector3 = TrailGeometry._tempVector30;
 		var pointAtoBVector3: Vector3 = TrailGeometry._tempVector31;
-		Vector3.transformCoordinate(this._lastFixedVertexPosition, cameraMatrix, TrailGeometry._tempVector34);
-		Vector3.subtract(TrailGeometry._tempVector33, TrailGeometry._tempVector34, delVector3);
-
 		switch (this._owner.alignment) {
 			case TrailAlignment.View:
+				var cameraMatrix: Matrix4x4 = camera.viewMatrix;
+				Vector3.transformCoordinate(position, cameraMatrix, TrailGeometry._tempVector33);
+				Vector3.transformCoordinate(this._lastFixedVertexPosition, cameraMatrix, TrailGeometry._tempVector34);
+				Vector3.subtract(TrailGeometry._tempVector33, TrailGeometry._tempVector34, delVector3);
 				Vector3.cross(TrailGeometry._tempVector33, delVector3, pointAtoBVector3);
 				break;
 			case TrailAlignment.TransformZ:
+				Vector3.subtract(position, this._lastFixedVertexPosition, delVector3);
 				var forward: Vector3 = TrailGeometry._tempVector32;
-				this._owner._owner.transform.getForward(forward);
+				this._owner._owner.transform.localMatrix.getForward(forward);
 				Vector3.cross(delVector3, forward, pointAtoBVector3);//实时更新模式需要和view一样根据当前forward重新计算
 				break;
 		}

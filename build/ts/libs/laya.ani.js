@@ -3778,7 +3778,7 @@
             return null;
         }
         _setCreateURL(url) {
-            this._relativeUrl = url;
+            this._skBufferUrl = this._relativeUrl = url;
             super._setCreateURL(url);
         }
         setGrahicsDataWithCache(aniIndex, frameIndex, graphics) {
@@ -3814,6 +3814,7 @@
                 delete Templet.TEMPLET_DICTIONARY[this.url];
             }
             super.destroy();
+            Laya.ILaya.loader.clearRes(this._skBufferUrl);
         }
         getAniNameByIndex(index) {
             var tAni = this.getAnimation(index);

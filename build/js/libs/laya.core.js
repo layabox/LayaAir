@@ -10405,7 +10405,12 @@ window.Laya= (function (exports) {
     {
         Render.isConchApp = (window.conch != null);
         if (Render.isConchApp) {
-            Render.supportWebGLPlusCulling = true;
+            Render.supportWebGLPlusCulling = false;
+            Render.supportWebGLPlusAnimation = true;
+            Render.supportWebGLPlusRendering = true;
+        }
+        else if (window.qq != null && window.qq.webglPlus != null) {
+            Render.supportWebGLPlusCulling = false;
             Render.supportWebGLPlusAnimation = true;
             Render.supportWebGLPlusRendering = true;
         }
@@ -16732,38 +16737,6 @@ window.Laya= (function (exports) {
     KeyBoardManager.enabled = true;
     KeyBoardManager._event = new Event();
 
-    class LayaGLRunner {
-        static uploadShaderUniforms(layaGL, commandEncoder, shaderData, uploadUnTexture) {
-            var data = shaderData._data;
-            var shaderUniform = commandEncoder.getArrayData();
-            var shaderCall = 0;
-            for (var i = 0, n = shaderUniform.length; i < n; i++) {
-                var one = shaderUniform[i];
-                if (uploadUnTexture || one.textureID !== -1) {
-                    var value = data[one.dataOffset];
-                    if (value != null)
-                        shaderCall += one.fun.call(one.caller, one, value);
-                }
-            }
-            return shaderCall;
-        }
-        static uploadCustomUniform(layaGL, custom, index, data) {
-            var shaderCall = 0;
-            var one = custom[index];
-            if (one && data != null)
-                shaderCall += one.fun.call(one.caller, one, data);
-            return shaderCall;
-        }
-        static uploadShaderUniformsForNative(layaGL, commandEncoder, shaderData) {
-            var nType = LayaGL.UPLOAD_SHADER_UNIFORM_TYPE_ID;
-            if (shaderData._runtimeCopyValues.length > 0) {
-                nType = LayaGL.UPLOAD_SHADER_UNIFORM_TYPE_DATA;
-            }
-            var data = shaderData._data;
-            return LayaGL.instance.uploadShaderUniforms(commandEncoder, data, nType);
-        }
-    }
-
     class SoundChannel extends EventDispatcher {
         constructor() {
             super(...arguments);
@@ -22085,6 +22058,7 @@ window.Laya= (function (exports) {
             if (ILaya.Render.isConchApp) {
                 Laya.enableNative();
             }
+            Laya.enableWebGLPlus();
             CacheManger.beginCheck();
             exports.stage = Laya.stage = new Stage();
             ILaya.stage = Laya.stage;
@@ -22153,11 +22127,13 @@ window.Laya= (function (exports) {
                 Laya["DebugPanel"].enable();
             }
         }
+        static enableWebGLPlus() {
+            WebGLContext.__init_native();
+        }
         static enableNative() {
             if (Laya.isNativeRender_enable)
                 return;
             Laya.isNativeRender_enable = true;
-            WebGLContext.__init_native();
             Shader.prototype.uploadTexture2D = function (value) {
                 var gl = LayaGL.instance;
                 gl.bindTexture(gl.TEXTURE_2D, value);
@@ -22211,9 +22187,6 @@ window.Laya= (function (exports) {
                 }
                 return this._texture;
             };
-            if (Render.supportWebGLPlusRendering) {
-                LayaGLRunner.uploadShaderUniforms = LayaGLRunner.uploadShaderUniformsForNative;
-            }
         }
     }
     Laya.stage = null;
@@ -22224,7 +22197,7 @@ window.Laya= (function (exports) {
     Laya.lateTimer = null;
     Laya.timer = null;
     Laya.loader = null;
-    Laya.version = "2.2.0beta4";
+    Laya.version = "2.2.0";
     Laya._isinit = false;
     Laya.isWXOpenDataContext = false;
     Laya.isWXPosMsg = false;
@@ -24255,6 +24228,33 @@ window.Laya= (function (exports) {
         }
         addShaderUniform(one) {
             this.add_ShaderValue(one);
+        }
+    }
+
+    class LayaGLRunner {
+        static uploadShaderUniforms(layaGL, commandEncoder, shaderData, uploadUnTexture) {
+            var data = shaderData._data;
+            var shaderUniform = commandEncoder.getArrayData();
+            var shaderCall = 0;
+            for (var i = 0, n = shaderUniform.length; i < n; i++) {
+                var one = shaderUniform[i];
+                if (uploadUnTexture || one.textureID !== -1) {
+                    var value = data[one.dataOffset];
+                    if (value != null)
+                        shaderCall += one.fun.call(one.caller, one, value);
+                }
+            }
+            return shaderCall;
+        }
+        static uploadCustomUniform(layaGL, custom, index, data) {
+            var shaderCall = 0;
+            var one = custom[index];
+            if (one && data != null)
+                shaderCall += one.fun.call(one.caller, one, data);
+            return shaderCall;
+        }
+        static uploadShaderUniformsForNative(layaGL, commandEncoder, shaderData) {
+            return LayaGL.instance.uploadShaderUniforms(commandEncoder, shaderData._data, shaderData._runtimeCopyValues.length > 0 ? LayaGL.UPLOAD_SHADER_UNIFORM_TYPE_DATA : LayaGL.UPLOAD_SHADER_UNIFORM_TYPE_ID);
         }
     }
 

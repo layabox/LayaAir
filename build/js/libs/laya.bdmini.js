@@ -119,7 +119,7 @@ window.bdMiniGame = function (exports, Laya) {
 	                                BMiniAdapter.minClearSize = data.size;
 	                            MiniFileMgr.onClearCacheRes();
 	                        }
-	                        MiniFileMgr.deleteFile(tempFileName, readyUrl, callBack, encoding, data.size);
+	                        MiniFileMgr.deleteFile(tempFilePath, readyUrl, callBack, encoding, data.size);
 	                    },
 	                    fail: function (data) {
 	                        callBack != null && callBack.runWith([1, data]);

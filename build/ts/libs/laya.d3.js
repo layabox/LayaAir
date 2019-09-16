@@ -542,6 +542,7 @@
 	            var gl = Laya.LayaGL.instance;
 	            var verDec = vertexBuffer.vertexDeclaration;
 	            var valueData = verDec._shaderValues.getData();
+	            this.vertexDeclaration = verDec;
 	            vertexBuffer.bind();
 	            for (var k in valueData) {
 	                var loc = parseInt(k);
@@ -2322,7 +2323,13 @@
 	            this._data["conchRef"] = preConchRef;
 	            this._data["_ptrID"] = prePtrID;
 	            pre && this._int32Data.set(pre, 0);
-	            window.conch.updateArrayBufferRef(this._data['_ptrID'], preConchRef.isSyncToRender(), this._data);
+	            var layagl = Laya.LayaGL.instance;
+	            if (layagl.updateArrayBufferRef) {
+	                layagl.updateArrayBufferRef(this._data['_ptrID'], preConchRef.isSyncToRender(), this._data);
+	            }
+	            else {
+	                window.conch.updateArrayBufferRef(this._data['_ptrID'], preConchRef.isSyncToRender(), this._data);
+	            }
 	        }
 	    }
 	    getDataForNative() {
@@ -2466,7 +2473,7 @@
 	        ShaderData._SET_RUNTIME_VALUE_MODE_REFERENCE_ = bReference;
 	    }
 	    clearRuntimeCopyArray() {
-	        var currentFrame = Laya.LayaGL.instance.getFrameCount();
+	        var currentFrame = Laya.Stat.loopCount;
 	        if (this._frameCount != currentFrame) {
 	            this._frameCount = currentFrame;
 	            for (var i = 0, n = this._runtimeCopyValues.length; i < n; i++) {
@@ -2710,7 +2717,7 @@
 	                }
 	            }
 	            else {
-	                for (k = m, m = subIndices.length; k < m; k += 3) {
+	                for (k = 0, m = subIndices.length; k < m; k += 3) {
 	                    batchOffset = batchIndexCount + k;
 	                    index = batchVertexCount + k;
 	                    batchIndices[batchOffset] = index;
@@ -2729,7 +2736,7 @@
 	                }
 	            }
 	            else {
-	                for (k = m, m = subIndices.length; k < m; k += 3) {
+	                for (k = 0, m = subIndices.length; k < m; k += 3) {
 	                    batchOffset = batchIndexCount + k;
 	                    batchIndices[batchOffset] = batchVertexCount + subIndices[k];
 	                    batchIndices[batchOffset + 1] = batchVertexCount + subIndices[k + 1];
@@ -2740,7 +2747,7 @@
 	    }
 	    _flush(vertexCount, indexCount) {
 	        var gl = Laya.LayaGL.instance;
-	        this._vertexBuffer.setData(this._vertices.buffer, 0, 0, vertexCount * (this._vertexBuffer.vertexDeclaration.vertexStride));
+	        this._vertexBuffer.setData(this._vertices.buffer, 0, 0, vertexCount * (this._bufferState.vertexDeclaration.vertexStride));
 	        this._indexBuffer.setData(this._indices, 0, 0, indexCount);
 	        gl.drawElements(gl.TRIANGLES, indexCount, gl.UNSIGNED_SHORT, 0);
 	    }
@@ -2771,8 +2778,9 @@
 	        var floatStride = vertexDeclaration.vertexStride / 4;
 	        var renderBatchCount = 0;
 	        var elementCount = batchElements.length;
+	        var elements = batchElements.elements;
 	        for (var i = 0; i < elementCount; i++) {
-	            var subElement = batchElements[i];
+	            var subElement = elements[i];
 	            var subMesh = subElement._geometry;
 	            var indexCount = subMesh._indexCount;
 	            if (batchIndexCount + indexCount > SubMeshDynamicBatch.maxIndicesCount) {
@@ -5843,15 +5851,19 @@
 	        var boundFrustum = camera.boundFrustum;
 	        FrustumCulling.cullingNative(camera._boundFrustumBuffer, FrustumCulling._cullingBuffer, scene._cullingBufferIndices, validCount, scene._cullingBufferResult);
 	        var camPos = context.camera._transform.position;
-	        for (i = 0; i < validCount; i++) {
+	        for (var i = 0; i < validCount; i++) {
 	            var render = renders[i];
-	            if (!camera.useOcclusionCulling || (camera._isLayerVisible(render._owner._layer) && render._enable && scene._cullingBufferResult[i])) {
-	                render._visible = true;
-	                render._distanceForSort = Vector3.distance(render.bounds.getCenter(), camPos);
-	                var elements = render._renderElements;
-	                for (j = 0, m = elements.length; j < m; j++) {
-	                    var element = elements[j];
-	                    element._update(scene, context, customShader, replacementTag);
+	            if (camera._isLayerVisible(render._owner._layer) && render._enable) {
+	                Laya.Stat.frustumCulling++;
+	                if (!camera.useOcclusionCulling || scene._cullingBufferResult[i]) {
+	                    render._visible = true;
+	                    render._distanceForSort = Vector3.distance(render.bounds.getCenter(), camPos);
+	                    var elements = render._renderElements;
+	                    for (var j = 0, m = elements.length; j < m; j++)
+	                        elements[j]._update(scene, context, customShader, replacementTag);
+	                }
+	                else {
+	                    render._visible = false;
 	                }
 	            }
 	            else {
@@ -21153,6 +21165,9 @@
 	if (window.conch && window.conchFloatKeyframe) {
 	    FloatKeyframe = window.conchFloatKeyframe;
 	}
+	if (window.qq && window.qq.webglPlus) {
+	    FloatKeyframe = window.qq.webglPlus.conchFloatKeyframe;
+	}
 
 	class TextureMode {
 	}
@@ -21282,19 +21297,20 @@
 	        this._needAddFirstVertex = true;
 	    }
 	    _addTrailByNextPosition(camera, position) {
-	        var cameraMatrix = camera.viewMatrix;
-	        Vector3.transformCoordinate(position, cameraMatrix, TrailGeometry._tempVector33);
 	        var delVector3 = TrailGeometry._tempVector30;
 	        var pointAtoBVector3 = TrailGeometry._tempVector31;
-	        Vector3.transformCoordinate(this._lastFixedVertexPosition, cameraMatrix, TrailGeometry._tempVector34);
-	        Vector3.subtract(TrailGeometry._tempVector33, TrailGeometry._tempVector34, delVector3);
 	        switch (this._owner.alignment) {
 	            case exports.TrailAlignment.View:
+	                var cameraMatrix = camera.viewMatrix;
+	                Vector3.transformCoordinate(position, cameraMatrix, TrailGeometry._tempVector33);
+	                Vector3.transformCoordinate(this._lastFixedVertexPosition, cameraMatrix, TrailGeometry._tempVector34);
+	                Vector3.subtract(TrailGeometry._tempVector33, TrailGeometry._tempVector34, delVector3);
 	                Vector3.cross(TrailGeometry._tempVector33, delVector3, pointAtoBVector3);
 	                break;
 	            case exports.TrailAlignment.TransformZ:
+	                Vector3.subtract(position, this._lastFixedVertexPosition, delVector3);
 	                var forward = TrailGeometry._tempVector32;
-	                this._owner._owner.transform.getForward(forward);
+	                this._owner._owner.transform.localMatrix.getForward(forward);
 	                Vector3.cross(delVector3, forward, pointAtoBVector3);
 	                break;
 	        }
@@ -21684,7 +21700,6 @@
 
 	class TrailSprite3D extends RenderableSprite3D {
 	    static __init__() {
-	        TrailSprite3D.shaderDefines = new ShaderDefines(RenderableSprite3D.shaderDefines);
 	    }
 	    get trailFilter() {
 	        return this._geometryFilter;
@@ -25160,6 +25175,9 @@
 	if (window.conch && window.conchKeyframeNode) {
 	    KeyframeNode = window.conchKeyframeNode;
 	}
+	if (window.qq && window.qq.webglPlus) {
+	    KeyframeNode = window.qq.webglPlus.conchKeyframeNode;
+	}
 
 	class AnimationEvent {
 	    constructor() {
@@ -25184,6 +25202,9 @@
 	if (window.conch && window.conchFloatArrayKeyframe) {
 	    QuaternionKeyframe = window.conchFloatArrayKeyframe;
 	}
+	if (window.qq && window.qq.webglPlus) {
+	    QuaternionKeyframe = window.qq.webglPlus.conchFloatArrayKeyframe;
+	}
 
 	class Vector3Keyframe extends Keyframe {
 	    constructor() {
@@ -25202,6 +25223,9 @@
 	}
 	if (window.conch && window.conchFloatArrayKeyframe) {
 	    Vector3Keyframe = window.conchFloatArrayKeyframe;
+	}
+	if (window.qq && window.qq.webglPlus) {
+	    Vector3Keyframe = window.qq.webglPlus.conchFloatArrayKeyframe;
 	}
 
 	class ConchVector4 {
@@ -26754,6 +26778,9 @@
 	}
 	if (window.conch && window.conchKeyframeNodeList) {
 	    KeyframeNodeList = window.conchKeyframeNodeList;
+	}
+	if (window.qq && window.qq.webglPlus) {
+	    KeyframeNodeList = window.qq.webglPlus.conchKeyframeNodeList;
 	}
 
 	class AnimationClip extends Laya.Resource {
@@ -29834,56 +29861,57 @@
 	        Laya3D._innerFourthLevelLoaderManager.on(Laya.Event.ERROR, null, Laya3D._eventLoadManagerError);
 	    }
 	    static enableNative3D() {
-	        if (Laya.Render.isConchApp) {
-	            var shaderData = ShaderData;
-	            var shader3D = ShaderInstance;
-	            var skinnedMeshRender = SkinnedMeshRenderer;
-	            var avatar = Avatar;
-	            var frustumCulling = FrustumCulling;
-	            if (Laya.Render.supportWebGLPlusRendering) {
-	                shaderData.prototype._initData = shaderData.prototype._initDataForNative;
-	                shaderData.prototype.setBool = shaderData.prototype.setBoolForNative;
-	                shaderData.prototype.getBool = shaderData.prototype.getBoolForNative;
-	                shaderData.prototype.setInt = shaderData.prototype.setIntForNative;
-	                shaderData.prototype.getInt = shaderData.prototype.getIntForNative;
-	                shaderData.prototype.setNumber = shaderData.prototype.setNumberForNative;
-	                shaderData.prototype.getNumber = shaderData.prototype.getNumberForNative;
-	                shaderData.prototype.setVector = shaderData.prototype.setVectorForNative;
-	                shaderData.prototype.getVector = shaderData.prototype.getVectorForNative;
-	                shaderData.prototype.setVector2 = shaderData.prototype.setVector2ForNative;
-	                shaderData.prototype.getVector2 = shaderData.prototype.getVector2ForNative;
-	                shaderData.prototype.setVector3 = shaderData.prototype.setVector3ForNative;
-	                shaderData.prototype.getVector3 = shaderData.prototype.getVector3ForNative;
-	                shaderData.prototype.setQuaternion = shaderData.prototype.setQuaternionForNative;
-	                shaderData.prototype.getQuaternion = shaderData.prototype.getQuaternionForNative;
-	                shaderData.prototype.setMatrix4x4 = shaderData.prototype.setMatrix4x4ForNative;
-	                shaderData.prototype.getMatrix4x4 = shaderData.prototype.getMatrix4x4ForNative;
-	                shaderData.prototype.setBuffer = shaderData.prototype.setBufferForNative;
-	                shaderData.prototype.getBuffer = shaderData.prototype.getBufferForNative;
-	                shaderData.prototype.setTexture = shaderData.prototype.setTextureForNative;
-	                shaderData.prototype.getTexture = shaderData.prototype.getTextureForNative;
-	                shaderData.prototype.setAttribute = shaderData.prototype.setAttributeForNative;
-	                shaderData.prototype.getAttribute = shaderData.prototype.getAttributeForNative;
-	                shaderData.prototype.cloneTo = shaderData.prototype.cloneToForNative;
-	                shaderData.prototype.getData = shaderData.prototype.getDataForNative;
-	                shader3D.prototype._uniformMatrix2fv = shader3D.prototype._uniformMatrix2fvForNative;
-	                shader3D.prototype._uniformMatrix3fv = shader3D.prototype._uniformMatrix3fvForNative;
-	                shader3D.prototype._uniformMatrix4fv = shader3D.prototype._uniformMatrix4fvForNative;
-	            }
-	            if (Laya.Render.supportWebGLPlusCulling) {
-	                frustumCulling.renderObjectCulling = FrustumCulling.renderObjectCullingNative;
-	            }
-	            if (Laya.Render.supportWebGLPlusAnimation) {
-	                avatar.prototype._cloneDatasToAnimator = avatar.prototype._cloneDatasToAnimatorNative;
-	                var animationClip = AnimationClip;
-	                animationClip.prototype._evaluateClipDatasRealTime = animationClip.prototype._evaluateClipDatasRealTimeForNative;
-	                skinnedMeshRender.prototype._computeSkinnedData = skinnedMeshRender.prototype._computeSkinnedDataForNative;
-	            }
+	        var shaderData = ShaderData;
+	        var shader3D = ShaderInstance;
+	        var skinnedMeshRender = SkinnedMeshRenderer;
+	        var avatar = Avatar;
+	        var frustumCulling = FrustumCulling;
+	        if (Laya.Render.supportWebGLPlusRendering) {
+	            shaderData.prototype._initData = shaderData.prototype._initDataForNative;
+	            shaderData.prototype.setBool = shaderData.prototype.setBoolForNative;
+	            shaderData.prototype.getBool = shaderData.prototype.getBoolForNative;
+	            shaderData.prototype.setInt = shaderData.prototype.setIntForNative;
+	            shaderData.prototype.getInt = shaderData.prototype.getIntForNative;
+	            shaderData.prototype.setNumber = shaderData.prototype.setNumberForNative;
+	            shaderData.prototype.getNumber = shaderData.prototype.getNumberForNative;
+	            shaderData.prototype.setVector = shaderData.prototype.setVectorForNative;
+	            shaderData.prototype.getVector = shaderData.prototype.getVectorForNative;
+	            shaderData.prototype.setVector2 = shaderData.prototype.setVector2ForNative;
+	            shaderData.prototype.getVector2 = shaderData.prototype.getVector2ForNative;
+	            shaderData.prototype.setVector3 = shaderData.prototype.setVector3ForNative;
+	            shaderData.prototype.getVector3 = shaderData.prototype.getVector3ForNative;
+	            shaderData.prototype.setQuaternion = shaderData.prototype.setQuaternionForNative;
+	            shaderData.prototype.getQuaternion = shaderData.prototype.getQuaternionForNative;
+	            shaderData.prototype.setMatrix4x4 = shaderData.prototype.setMatrix4x4ForNative;
+	            shaderData.prototype.getMatrix4x4 = shaderData.prototype.getMatrix4x4ForNative;
+	            shaderData.prototype.setBuffer = shaderData.prototype.setBufferForNative;
+	            shaderData.prototype.getBuffer = shaderData.prototype.getBufferForNative;
+	            shaderData.prototype.setTexture = shaderData.prototype.setTextureForNative;
+	            shaderData.prototype.getTexture = shaderData.prototype.getTextureForNative;
+	            shaderData.prototype.setAttribute = shaderData.prototype.setAttributeForNative;
+	            shaderData.prototype.getAttribute = shaderData.prototype.getAttributeForNative;
+	            shaderData.prototype.cloneTo = shaderData.prototype.cloneToForNative;
+	            shaderData.prototype.getData = shaderData.prototype.getDataForNative;
+	            shader3D.prototype._uniformMatrix2fv = shader3D.prototype._uniformMatrix2fvForNative;
+	            shader3D.prototype._uniformMatrix3fv = shader3D.prototype._uniformMatrix3fvForNative;
+	            shader3D.prototype._uniformMatrix4fv = shader3D.prototype._uniformMatrix4fvForNative;
+	            Laya.LayaGLRunner.uploadShaderUniforms = Laya.LayaGLRunner.uploadShaderUniformsForNative;
 	        }
-	        Laya.WebGL.shaderHighPrecision = false;
-	        var gl = Laya.LayaGL.instance;
-	        var precisionFormat = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT);
-	        precisionFormat.precision ? Laya.WebGL.shaderHighPrecision = true : Laya.WebGL.shaderHighPrecision = false;
+	        if (Laya.Render.supportWebGLPlusCulling) {
+	            frustumCulling.renderObjectCulling = FrustumCulling.renderObjectCullingNative;
+	        }
+	        if (Laya.Render.supportWebGLPlusAnimation) {
+	            avatar.prototype._cloneDatasToAnimator = avatar.prototype._cloneDatasToAnimatorNative;
+	            var animationClip = AnimationClip;
+	            animationClip.prototype._evaluateClipDatasRealTime = animationClip.prototype._evaluateClipDatasRealTimeForNative;
+	            skinnedMeshRender.prototype._computeSkinnedData = skinnedMeshRender.prototype._computeSkinnedDataForNative;
+	        }
+	        if (Laya.Render.isConchApp) {
+	            Laya.WebGL.shaderHighPrecision = false;
+	            var gl = Laya.LayaGL.instance;
+	            var precisionFormat = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT);
+	            precisionFormat.precision ? Laya.WebGL.shaderHighPrecision = true : Laya.WebGL.shaderHighPrecision = false;
+	        }
 	    }
 	    static formatRelativePath(base, value) {
 	        var path;

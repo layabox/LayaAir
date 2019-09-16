@@ -45575,6 +45575,11 @@ declare module laya.webgl {
 		 * @param debugJsPath laya.debugtool.js文件路径
 		 */
 		static enableDebugPanel(debugJsPath?:string):void;
+
+		/*
+		 * @private 
+		 */
+		private static enableWebGLPlus:any;
 		private static isNativeRender_enable:any;
 
 		/*
