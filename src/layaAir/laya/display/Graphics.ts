@@ -307,7 +307,7 @@ export class Graphics {
      * @param color		颜色变换
      * @param blendMode	blend模式
      */
-    drawTriangles(texture: Texture, x: number, y: number, vertices: Float32Array, uvs: Float32Array, indices: Uint16Array, matrix: Matrix = null, alpha: number = 1, color: string = null, blendMode: string = null, colorNum: number = null): DrawTrianglesCmd {
+    drawTriangles(texture: Texture, x: number, y: number, vertices: Float32Array, uvs: Float32Array, indices: Uint16Array, matrix: Matrix = null, alpha: number = 1, color: string = null, blendMode: string = null, colorNum: number = undefined): DrawTrianglesCmd {
         return this._saveToCmd(Render._context.drawTriangles, DrawTrianglesCmd.create.call(this, texture, x, y, vertices, uvs, indices, matrix, alpha, color, blendMode, colorNum));
     }
 
