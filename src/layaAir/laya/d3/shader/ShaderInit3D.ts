@@ -76,10 +76,8 @@ export class ShaderInit3D {
 	 * @internal
 	 */
 	static __init__(): void {
-		
 		Shader3D.SHADERDEFINE_HIGHPRECISION = Shader3D.getDefineByName("HIGHPRECISION");
 		Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING = Shader3D.getDefineByName("LEGACYSINGLELIGHTING");
-
 
 		Shader3D.addInclude("Lighting.glsl", LightingGLSL);
 		Shader3D.addInclude("ShadowHelper.glsl", ShadowHelperGLSL);
@@ -91,6 +89,7 @@ export class ShaderInit3D {
 		Shader3D.addInclude("Sampling.glsl", SamplingGLSL);
 		Shader3D.addInclude("StdLib.glsl", StdLibGLSL);
 
+		//BLINNPHONG
 		var attributeMap: any = {
 			'a_Position': VertexMesh.MESH_POSITION0,
 			'a_Color': VertexMesh.MESH_COLOR0,
@@ -152,7 +151,6 @@ export class ShaderInit3D {
 			'u_SpotLight.spot': Shader3D.PERIOD_SCENE,
 			'u_SpotLight.color': Shader3D.PERIOD_SCENE
 		};
-
 		var stateMap: any = {
 			's_Cull': Shader3D.RENDER_STATE_CULL,
 			's_Blend': Shader3D.RENDER_STATE_BLEND,
@@ -161,13 +159,12 @@ export class ShaderInit3D {
 			's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
 			's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE
 		}
-
 		var shader: Shader3D = Shader3D.add("BLINNPHONG", null, null, true);
 		var subShader: SubShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		subShader.addShaderPass(MeshBlinnPhongVS, MeshBlinnPhongPS, stateMap);
 
-
+		//LineShader
 		attributeMap = {
 			'a_Position': VertexMesh.MESH_POSITION0,
 			'a_Color': VertexMesh.MESH_COLOR0
@@ -184,7 +181,6 @@ export class ShaderInit3D {
 			's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
 			's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE
 		}
-
 		shader = Shader3D.add("LineShader");
 		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
@@ -207,10 +203,10 @@ export class ShaderInit3D {
 			'u_WorldMat': Shader3D.PERIOD_SPRITE,
 
 			'u_CameraPos': Shader3D.PERIOD_CAMERA,
-			'u_View':Shader3D.PERIOD_CAMERA,
-			'u_ProjectionParams':Shader3D.PERIOD_CAMERA,
+			'u_View': Shader3D.PERIOD_CAMERA,
+			'u_ProjectionParams': Shader3D.PERIOD_CAMERA,
 			'u_Viewport': Shader3D.PERIOD_CAMERA,
-			
+
 			'u_AlphaTestValue': Shader3D.PERIOD_MATERIAL,
 			'u_AlbedoColor': Shader3D.PERIOD_MATERIAL,
 			'u_EmissionColor': Shader3D.PERIOD_MATERIAL,
@@ -257,7 +253,6 @@ export class ShaderInit3D {
 			'u_SpotLight.spot': Shader3D.PERIOD_SCENE,
 			'u_SpotLight.color': Shader3D.PERIOD_SCENE,
 		};
-
 		stateMap = {
 			's_Cull': Shader3D.RENDER_STATE_CULL,
 			's_Blend': Shader3D.RENDER_STATE_BLEND,
@@ -266,7 +261,6 @@ export class ShaderInit3D {
 			's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
 			's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE
 		}
-
 		shader = Shader3D.add("PBRStandard", null, null, true);
 		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
@@ -289,8 +283,8 @@ export class ShaderInit3D {
 			'u_WorldMat': Shader3D.PERIOD_SPRITE,
 
 			'u_CameraPos': Shader3D.PERIOD_CAMERA,
-			'u_View':Shader3D.PERIOD_CAMERA,
-			'u_ProjectionParams':Shader3D.PERIOD_CAMERA,
+			'u_View': Shader3D.PERIOD_CAMERA,
+			'u_ProjectionParams': Shader3D.PERIOD_CAMERA,
 			'u_Viewport': Shader3D.PERIOD_CAMERA,
 
 			'u_AlphaTestValue': Shader3D.PERIOD_MATERIAL,
@@ -309,11 +303,6 @@ export class ShaderInit3D {
 			'u_normalScale': Shader3D.PERIOD_MATERIAL,
 			'u_parallaxScale': Shader3D.PERIOD_MATERIAL,
 			'u_TilingOffset': Shader3D.PERIOD_MATERIAL,
-			
-			
-
-			
-			
 
 			'u_ReflectTexture': Shader3D.PERIOD_SCENE,
 			'u_ReflectIntensity': Shader3D.PERIOD_SCENE,
@@ -330,23 +319,19 @@ export class ShaderInit3D {
 			'u_DirationLightCount': Shader3D.PERIOD_SCENE,
 			'u_LightBuffer': Shader3D.PERIOD_SCENE,
 			'u_LightClusterBuffer': Shader3D.PERIOD_SCENE,
-			
+
+			//legacy lighting
 			'u_DirectionLight.direction': Shader3D.PERIOD_SCENE,
 			'u_DirectionLight.color': Shader3D.PERIOD_SCENE,
-
-			
 			'u_PointLight.position': Shader3D.PERIOD_SCENE,
 			'u_PointLight.range': Shader3D.PERIOD_SCENE,
 			'u_PointLight.color': Shader3D.PERIOD_SCENE,
-
-			
 			'u_SpotLight.position': Shader3D.PERIOD_SCENE,
 			'u_SpotLight.direction': Shader3D.PERIOD_SCENE,
 			'u_SpotLight.range': Shader3D.PERIOD_SCENE,
 			'u_SpotLight.spotAngle': Shader3D.PERIOD_SCENE,
 			'u_SpotLight.color': Shader3D.PERIOD_SCENE,
 		};
-
 		stateMap = {
 			's_Cull': Shader3D.RENDER_STATE_CULL,
 			's_Blend': Shader3D.RENDER_STATE_BLEND,
@@ -355,11 +340,9 @@ export class ShaderInit3D {
 			's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
 			's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE
 		}
-
 		shader = Shader3D.add("PBRSpecular", null, null, true);
 		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
-
 		subShader.addShaderPass(PBRSpecularVS, PBRSpecularPS, stateMap);
 
 		//unlit
@@ -390,7 +373,6 @@ export class ShaderInit3D {
 			's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
 			's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE
 		}
-
 		shader = Shader3D.add("Unlit", null, null, true);
 		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
@@ -423,7 +405,6 @@ export class ShaderInit3D {
 			's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
 			's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE
 		}
-
 		shader = Shader3D.add("Effect", null, null, true);
 		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
@@ -517,12 +498,12 @@ export class ShaderInit3D {
 			's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
 			's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE
 		};
-
 		shader = Shader3D.add("PARTICLESHURIKEN");
 		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		subShader.addShaderPass(ParticleShuriKenVS, ParticleShuriKenPS, stateMap);
 
+		//SkyBox
 		attributeMap = {
 			'a_Position': VertexMesh.MESH_POSITION0
 		};
@@ -533,12 +514,12 @@ export class ShaderInit3D {
 			'u_CubeTexture': Shader3D.PERIOD_MATERIAL,
 			'u_ViewProjection': Shader3D.PERIOD_CAMERA
 		};//TODO:优化
-
 		shader = Shader3D.add("SkyBox");
 		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		subShader.addShaderPass(SkyBoxVS, SkyBoxPS);
 
+		//SkyBoxProcedural
 		attributeMap = {
 			'a_Position': VertexMesh.MESH_POSITION0
 		};
@@ -553,7 +534,6 @@ export class ShaderInit3D {
 			'u_SunLight.direction': Shader3D.PERIOD_SCENE,
 			'u_SunLight.color': Shader3D.PERIOD_SCENE,
 		};
-
 		shader = Shader3D.add("SkyBoxProcedural");
 		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
@@ -613,7 +593,6 @@ export class ShaderInit3D {
 			's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
 			's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE
 		};
-
 		shader = Shader3D.add("ExtendTerrain");
 		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
@@ -650,7 +629,6 @@ export class ShaderInit3D {
 			's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
 			's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE
 		};
-
 		shader = Shader3D.add("Trail");
 		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
@@ -673,7 +651,6 @@ export class ShaderInit3D {
 			'u_WaveScale': Shader3D.PERIOD_MATERIAL,
 			'u_WaveSpeed': Shader3D.PERIOD_MATERIAL
 		};
-
 		shader = Shader3D.add("WaterPrimary");
 		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
@@ -687,8 +664,6 @@ export class ShaderInit3D {
 		uniformMap = {
 			'u_MainTex': Shader3D.PERIOD_MATERIAL
 		};
-
-
 		shader = Shader3D.add("BlitScreen");
 		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
@@ -713,10 +688,9 @@ export class ShaderInit3D {
 			'u_Threshold': Shader3D.PERIOD_MATERIAL,
 			'u_Params': Shader3D.PERIOD_MATERIAL
 		};
-		shader = Shader3D.add("PostProcessBloom", attributeMap, uniformMap);
-
+		shader = Shader3D.add("PostProcessBloom");
 		//subShader0
-		subShader = new SubShader(null, null);
+		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		shaderPass = subShader.addShaderPass(BloomVS, BloomPrefilter13PS);
 		renderState = shaderPass.renderState;
@@ -724,9 +698,8 @@ export class ShaderInit3D {
 		renderState.depthWrite = false;
 		renderState.cull = RenderState.CULL_NONE;
 		renderState.blend = RenderState.BLEND_DISABLE;
-
 		//subShader1
-		subShader = new SubShader(null, null);
+		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		shaderPass = subShader.addShaderPass(BloomVS, BloomPrefilter4PS);
 		renderState = shaderPass.renderState;
@@ -734,9 +707,8 @@ export class ShaderInit3D {
 		renderState.depthWrite = false;
 		renderState.cull = RenderState.CULL_NONE;
 		renderState.blend = RenderState.BLEND_DISABLE;
-
 		//subShader2
-		subShader = new SubShader(null, null);
+		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		shaderPass = subShader.addShaderPass(BloomVS, BloomDownsample13PS);
 		renderState = shaderPass.renderState;
@@ -744,9 +716,8 @@ export class ShaderInit3D {
 		renderState.depthWrite = false;
 		renderState.cull = RenderState.CULL_NONE;
 		renderState.blend = RenderState.BLEND_DISABLE;
-
 		//subShader3
-		subShader = new SubShader(null, null);
+		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		shaderPass = subShader.addShaderPass(BloomVS, BloomDownsample4PS);
 		renderState = shaderPass.renderState;
@@ -754,9 +725,8 @@ export class ShaderInit3D {
 		renderState.depthWrite = false;
 		renderState.cull = RenderState.CULL_NONE;
 		renderState.blend = RenderState.BLEND_DISABLE;
-
 		//subShader4
-		subShader = new SubShader(null, null);
+		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		shaderPass = subShader.addShaderPass(BloomVS, BloomUpsampleTentPS);
 		renderState = shaderPass.renderState;
@@ -764,9 +734,8 @@ export class ShaderInit3D {
 		renderState.depthWrite = false;
 		renderState.cull = RenderState.CULL_NONE;
 		renderState.blend = RenderState.BLEND_DISABLE;
-
 		//subShader5
-		subShader = new SubShader(null, null);
+		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		shaderPass = subShader.addShaderPass(BloomVS, BloomUpsampleBoxPS);
 		renderState = shaderPass.renderState;
@@ -775,7 +744,7 @@ export class ShaderInit3D {
 		renderState.cull = RenderState.CULL_NONE;
 		renderState.blend = RenderState.BLEND_DISABLE;
 
-		//PostProcessBloom
+		//PostProcessComposite
 		attributeMap = {
 			'a_PositionTexcoord': VertexMesh.MESH_POSITION0
 		};
@@ -789,9 +758,9 @@ export class ShaderInit3D {
 			'u_Bloom_Settings': Shader3D.PERIOD_MATERIAL,
 			'u_Bloom_Color': Shader3D.PERIOD_MATERIAL
 		};
-		shader = Shader3D.add("PostProcessComposite", attributeMap, uniformMap);
+		shader = Shader3D.add("PostProcessComposite");
 
-		subShader = new SubShader(null, null);
+		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		shaderPass = subShader.addShaderPass(CompositeVS, CompositePS);
 		renderState = shaderPass.renderState;
