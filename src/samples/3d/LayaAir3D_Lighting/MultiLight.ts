@@ -56,8 +56,8 @@ export class MultiLight {
 			var moverLights: LightSprite[] = moveScript.lights;
 			var offsets: Vector3[] = moveScript.offsets;
 			var moveRanges: Vector3[] = moveScript.moveRanges;
-			moverLights.length = 32;
-			for (var i: number = 0; i < 32; i++) {
+			moverLights.length = 31;
+			for (var i: number = 0; i < 31; i++) {
 				var pointLight: PointLight = (<PointLight>scene.addChild(new PointLight()));
 				pointLight.range = 2.0 + Math.random() * 8.0;
 				pointLight.color.setValue(Math.random(), Math.random(), Math.random());
