@@ -623,8 +623,8 @@ export class Camera extends BaseCamera {
 			var clientHeight: number = RenderContext3D.clientHeight;
 			var ratioX: number = this.orthographicVerticalSize * this.aspectRatio / clientWidth;
 			var ratioY: number = this.orthographicVerticalSize / clientHeight;
-			out.x = (-clientWidth / 2 + source.x) * ratioX;
-			out.y = (clientHeight / 2 - source.y) * ratioY;
+			out.x = (-clientWidth / 2 + source.x * Laya.stage.clientScaleX) * ratioX;
+			out.y = (clientHeight / 2 - source.y * Laya.stage.clientScaleY) * ratioY;
 			out.z = (this.nearPlane - this.farPlane) * (source.z + 1) / 2 - this.nearPlane;
 			Vector3.transformCoordinate(out, this.transform.worldMatrix, out);
 			return true;
