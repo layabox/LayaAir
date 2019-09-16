@@ -1,3 +1,4 @@
+import { Config3D } from "Config3D";
 import { Laya } from "Laya";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Shader3D } from "laya/d3/shader/Shader3D";
@@ -5,7 +6,6 @@ import { Stage } from "laya/display/Stage";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
-import { Config3D } from "Config3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 
 export class StaticBatchTest {

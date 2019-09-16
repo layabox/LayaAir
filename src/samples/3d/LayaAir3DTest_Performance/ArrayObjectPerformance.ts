@@ -1,9 +1,9 @@
-import { Laya3D } from "Laya3D";
 import { Laya } from "Laya";
-import { Stage } from "laya/display/Stage"
-import { Event } from "laya/events/Event"
-import { Browser } from "laya/utils/Browser"
-import { Stat } from "laya/utils/Stat"
+import { Stage } from "laya/display/Stage";
+import { Event } from "laya/events/Event";
+import { Browser } from "laya/utils/Browser";
+import { Stat } from "laya/utils/Stat";
+import { Laya3D } from "Laya3D";
 
 /**
  * ...
