@@ -5,8 +5,8 @@
 //  Original author: ww
 ///////////////////////////////////////////////////////////
 
-import { Graphics } from "../../../../../../../core/src/laya/display/Graphics"
-	import { Sprite } from "../../../../../../../core/src/laya/display/Sprite"
+import { Graphics } from "laya/display/Graphics"
+import { Sprite } from "laya/display/Sprite"
 	
 	/**
 	 * 

@@ -5,7 +5,7 @@
 //  Original author: ww
 ///////////////////////////////////////////////////////////
 
-import { Text } from "../../../../../../../core/src/laya/display/Text"
+import { Text } from "laya/display/Text"
 	
 	/**
 	 * 
@@ -19,7 +19,7 @@ import { Text } from "../../../../../../../core/src/laya/display/Text"
 		
 		constructor(){
 			super();
-this.bgColor="#ffff00";
+			this.bgColor="#ffff00";
 			this.wordWrap=false;
 			this.mouseEnabled=true;
 //			this.width=100;

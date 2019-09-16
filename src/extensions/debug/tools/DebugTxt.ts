@@ -1,5 +1,5 @@
-import { Laya } from "./../../../../../../core/src/Laya";
-import { Text } from "../../../../../../core/src/laya/display/Text"
+import { Laya } from "Laya";
+import { Text } from "laya/display/Text"
 	/**
 	 * ...
 	 * @author ww

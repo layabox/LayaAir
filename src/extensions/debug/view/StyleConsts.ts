@@ -1,5 +1,5 @@
-import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
-	import { Browser } from "../../../../../../core/src/laya/utils/Browser"
+import { Sprite } from "laya/display/Sprite"
+import { Browser } from "laya/utils/Browser"
 	/**
 	 * ...
 	 * @author ww

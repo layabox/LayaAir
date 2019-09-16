@@ -1,6 +1,6 @@
-import { Loader } from "../../../../../../core/src/laya/net/Loader"
-	import { Texture } from "../../../../../../core/src/laya/resource/Texture"
-	import { Browser } from "../../../../../../core/src/laya/utils/Browser"
+import { Loader } from "laya/net/Loader"
+import { Texture } from "laya/resource/Texture"
+import { Browser } from "laya/utils/Browser"
 	/**
 	 * ...
 	 * @author ww
@@ -13,7 +13,7 @@ import { Loader } from "../../../../../../core/src/laya/net/Loader"
 		}
 		 static getCanvasPic(img:Texture):any
 		{
-			img=img.bitmap;
+			(img as any)=img.bitmap;
 			//var canvas:*= Browser.createElement("syscanvas");
 			var canvas:any=Browser.createElement("canvas");
 			var ctx:any=canvas.getContext('2d');

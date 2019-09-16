@@ -1,17 +1,16 @@
-import { Laya } from "./../../../../../../core/src/Laya";
+import { Laya } from "Laya";
 import { Notice } from "./Notice";
-import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
-	import { Stage } from "../../../../../../core/src/laya/display/Stage"
-	import { Render } from "../../../../../../core/src/laya/renders/Render"
-	import { Browser } from "../../../../../../core/src/laya/utils/Browser"
-	import { Matrix } from "../../../../../../core/src/laya/maths/Matrix"
-	import { Point } from "../../../../../../core/src/laya/maths/Point"
-	import { Rectangle } from "../../../../../../core/src/laya/maths/Rectangle"
-	import { DebugInfoLayer } from "../view/nodeInfo/DebugInfoLayer"
-	
-	import { DButton } from "./debugUI/DButton"
-	import { Event } from "../../../../../../core/src/laya/events/Event"
-	import { DebugTool } from "../DebugTool"
+import { DebugInfoLayer } from "../view/nodeInfo/DebugInfoLayer"
+import { DButton } from "./debugUI/DButton"
+import { Event } from "laya/events/Event";
+import { DebugTool } from "../DebugTool"
+import { Render } from "laya/renders/Render";
+import { Stage } from "laya/display/Stage";
+import { Matrix } from "laya/maths/Matrix";
+import { Point } from "laya/maths/Point";
+import { Rectangle } from "laya/maths/Rectangle";
+import { Browser } from "laya/utils/Browser";
+import { Sprite } from "laya/display/Sprite";
 
 	/**
 	 * 调试拾取显示对象类
@@ -73,16 +72,16 @@ import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
 			}, true);
 			
 			function initEvent(e:Event, event:any = null):void {
-				_this._event._stoped = false;
+				(_this._event as any)._stoped = false;
 				_this._event.nativeEvent = event || e;
 				_this._target = null;
 				
-				if (e.offsetX) {
-					_this.mouseX = e.offsetX;
-					_this.mouseY = e.offsetY;
+				if ((e as any).offsetX) {
+					_this.mouseX = (e as any).offsetX;
+					_this.mouseY = (e as any).offsetY;
 				} else {
-					_this.mouseX = e.clientX - Laya.stage.offset.x;
-					_this.mouseY = e.clientY - Laya.stage.offset.y;
+					_this.mouseX = (e as any).clientX - Laya.stage.offset.x;
+					_this.mouseY = (e as any).clientY - Laya.stage.offset.y;
 				}
 			}
 		}
@@ -127,7 +126,7 @@ import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
 		}
 		
 		private sendEvent(ele:any, type:string):void {
-			if (!this._event._stoped) {
+			if (!(this._event as any)._stoped) {
 				ele.event(type, this._event.setTo(type, ele,ele));
 				if (type === Event.MOUSE_UP && ele.$_MOUSEDOWN) {
 					ele.$_MOUSEDOWN = false;
@@ -179,8 +178,8 @@ import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
 				//父对象没有接收到事件，子对象不再测试
 				if (isHit) {
 					var flag:boolean = false;
-					for (var i:number = sp._children.length - 1; i > -1; i--) {
-						var child:Sprite = sp._children[i];
+					for (var i:number = (sp as any)._children.length - 1; i > -1; i--) {
+						var child:Sprite = (sp as any)._children[i];
 						//只有接受交互事件的，才进行处理
 						 (flag = this.check(child, mouseX, mouseY, callBack, hitTest, true));
 						if (flag) break;

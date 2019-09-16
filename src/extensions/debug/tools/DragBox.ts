@@ -1,9 +1,8 @@
-import { Laya } from "./../../../../../../core/src/Laya";
-import { Graphics } from "../../../../../../core/src/laya/display/Graphics"
-	import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
-	import { Event } from "../../../../../../core/src/laya/events/Event"
-	import { Point } from "../../../../../../core/src/laya/maths/Point"
-	
+import { Sprite } from "laya/display/Sprite";
+import { Point } from "laya/maths/Point";
+import { Graphics } from "laya/display/Graphics";
+import { Event } from "laya/events/Event";
+import { Laya } from "Laya";
 	export class DragBox extends Sprite {
 		private static BLOCK_WIDTH:number = 6;
 		private _box:Sprite;

@@ -1,6 +1,6 @@
-import { Laya } from "./../../../../../../core/src/Laya";
-import { Browser } from "../../../../../../core/src/laya/utils/Browser"
-	import { Timer } from "../../../../../../core/src/laya/utils/Timer"
+import { Laya } from "Laya";
+import { Browser } from "laya/utils/Browser"
+import { Timer } from "laya/utils/Timer"
 
 	/**
 	 * ...
@@ -15,7 +15,7 @@ import { Browser } from "../../../../../../core/src/laya/utils/Browser"
 		
 		private static timeDic:any = { };
 		
-		 static getTime(sign:string,update:boolean=true):number
+		static getTime(sign:string,update:boolean=true):number
 		{
 			if (!TimeTool.timeDic[sign])
 			{
@@ -30,8 +30,8 @@ import { Browser } from "../../../../../../core/src/laya/utils/Browser"
 		}
 		
 		
-		 static _deep:number=0;
-		 static runAllCallLater():void
+		static _deep:number=0;
+		static runAllCallLater():void
 		{
 			if(TimeTool._deep>0) debugger;
 			TimeTool._deep++;

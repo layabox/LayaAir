@@ -1,15 +1,15 @@
-import { Laya } from "./../../../../../../../core/src/Laya";
+import { Laya } from "Laya";
 import { DebugInfoLayer } from "./DebugInfoLayer";
 import { ClassTool } from "../../tools/ClassTool"
-	import { RenderAnalyser } from "../../tools/RenderAnalyser"
-	import { StringTool } from "../../tools/StringTool"
-	import { WalkTools } from "../../tools/WalkTools"
-	import { Graphics } from "../../../../../../../core/src/laya/display/Graphics"
-	import { Node } from "../../../../../../../core/src/laya/display/Node"
-	import { Sprite } from "../../../../../../../core/src/laya/display/Sprite"
-	import { GrahamScan } from "../../../../../../../core/src/laya/maths/GrahamScan"
-	import { Point } from "../../../../../../../core/src/laya/maths/Point"
-	import { Rectangle } from "../../../../../../../core/src/laya/maths/Rectangle"
+import { RenderAnalyser } from "../../tools/RenderAnalyser"
+import { StringTool } from "../../tools/StringTool"
+import { WalkTools } from "../../tools/WalkTools"
+import { Node } from "laya/display/Node"
+import { GrahamScan } from "laya/maths/GrahamScan"
+import { Sprite } from "laya/display/Sprite";
+import { Point } from "laya/maths/Point";
+import { Rectangle } from "laya/maths/Rectangle";
+import { Graphics } from "laya/display/Graphics";
 	
 	/**
 	 * ...
@@ -38,7 +38,7 @@ import { ClassTool } from "../../tools/ClassTool"
 			
 			var cList:any[];
 			var tChild:Sprite;
-			cList = sprite._children;
+			cList = (sprite as any)._children;
 			len = cList.length;
 			var mClist:any[];
 			mClist = [];
@@ -228,7 +228,7 @@ import { ClassTool } from "../../tools/ClassTool"
 			rst = 1;
 			var i:number, len:number;
 			var cList:any[];
-			cList = node._children;
+			cList = (node as any)._children;
 			len = cList.length;
 			for (i = 0; i < len; i++) {
 				rst += NodeUtils.getNodeCount(cList[i], visibleRequire);
@@ -265,27 +265,27 @@ import { ClassTool } from "../../tools/ClassTool"
 		
 		 static getGRec(node:Sprite):Rectangle {
 			var pointList:any[];
-			pointList = node._getBoundPointsM(true);
+			pointList = (node as any)._getBoundPointsM(true);
 			if (!pointList || pointList.length < 1)
 				return Rectangle.TEMP.setTo(0, 0, 0, 0);
 			pointList = GrahamScan.pListToPointList(pointList, true);
 			WalkTools.walkArr(pointList, node.localToGlobal, node);
 			pointList = GrahamScan.pointListToPlist(pointList);
 			var _disBoundRec:Rectangle;
-			_disBoundRec = Rectangle._getWrapRec(pointList, _disBoundRec);
+			_disBoundRec = (Rectangle as any)._getWrapRec(pointList, _disBoundRec);
 			return _disBoundRec;
 		}
 		
 		 static getGGraphicRec(node:Sprite):Rectangle {
 			var pointList:any[];
-			pointList = node.getGraphicBounds()._getBoundPoints();
+			pointList = (node.getGraphicBounds() as any)._getBoundPoints();
 			if (!pointList || pointList.length < 1)
 				return Rectangle.TEMP.setTo(0, 0, 0, 0);
 			pointList = GrahamScan.pListToPointList(pointList, true);
 			WalkTools.walkArr(pointList, node.localToGlobal, node);
 			pointList = GrahamScan.pointListToPlist(pointList);
 			var _disBoundRec:Rectangle;
-			_disBoundRec = Rectangle._getWrapRec(pointList, _disBoundRec);
+			_disBoundRec = (Rectangle as any)._getWrapRec(pointList, _disBoundRec);
 			return _disBoundRec;
 		}
 		
@@ -296,7 +296,7 @@ import { ClassTool } from "../../tools/ClassTool"
 					rst = node.graphics.cmds.length;
 				}
 				else {
-					if (node.graphics._one) {
+					if ((node.graphics as any)._one) {
 						rst = 1;
 					}
 					else {
@@ -314,7 +314,7 @@ import { ClassTool } from "../../tools/ClassTool"
 			var rst:number;
 			var i:number, len:number;
 			var cList:any[];
-			cList = node._children;
+			cList = (node as any)._children;
 			len = cList.length;
 			rst = NodeUtils.getNodeCmdCount(node);
 			for (i = 0; i < len; i++) {
@@ -329,7 +329,7 @@ import { ClassTool } from "../../tools/ClassTool"
 			var rst:number;
 			var i:number, len:number;
 			var cList:any[];
-			cList = node._children;
+			cList = (node as any)._children;
 			len = cList.length;
 			rst = 1;
 			for (i = 0; i < len; i++) {
@@ -342,7 +342,7 @@ import { ClassTool } from "../../tools/ClassTool"
 			var rst:number;
 			var i:number, len:number;
 			var cList:any[];
-			cList = node._children;
+			cList = (node as any)._children;
 			len = cList.length;
 			rst = 1;
 			for (i = 0; i < len; i++) {

@@ -1,6 +1,6 @@
 import { RecInfo } from "./RecInfo";
 import { DisControlTool } from "./DisControlTool";
-import { Laya } from "./../../../../../../core/src/Laya";
+import { Laya } from "Laya";
 ///////////////////////////////////////////////////////////
 //  DisController.as
 //  Macromedia ActionScript Implementation of the Class DisController
@@ -8,9 +8,8 @@ import { Laya } from "./../../../../../../core/src/Laya";
 //  Original author: ww
 ///////////////////////////////////////////////////////////
 
-import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
-	
-	import { Axis } from "./comps/Axis"
+import { Sprite } from "laya/display/Sprite"
+import { Axis } from "./comps/Axis"
 	
 	/**
 	 * 

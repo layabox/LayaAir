@@ -5,10 +5,10 @@
 //  Original author: ww
 ///////////////////////////////////////////////////////////
 
-import { Node } from "../../../../../../core/src/laya/display/Node"
-	import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
-	import { Browser } from "../../../../../../core/src/laya/utils/Browser"
-	import { DebugTool } from "../DebugTool"
+import { Node } from "laya/display/Node"
+import { Sprite } from "laya/display/Sprite"
+import { Browser } from "laya/utils/Browser"
+import { DebugTool } from "../DebugTool"
 	
 	/**
 	 * 
@@ -106,15 +106,16 @@ import { Node } from "../../../../../../core/src/laya/display/Node"
 			}
 			return msg;
 		}
-		 static Erroer:any = null;
-		 static getCallLoc(index:number=2):string
+
+		static Erroer:any = null;
+		static getCallLoc(index:number=2):string
 		{
 			var loc:string;
 			try {
 				TraceTool.Erroer.i++;
 			} catch (e) {
 				var arr:any[];
-				arr = this.e.stack.replace(/Error\n/).split(/\n/);
+				arr = (this as any).e.stack.replace(/Error\n/).split(/\n/);
 				if (arr[index])
 				{
 					loc= arr[index].replace(/^\s+|\s+$/, "");
@@ -132,7 +133,7 @@ import { Node } from "../../../../../../core/src/laya/display/Node"
 			try {
 				TraceTool.Erroer.i++;
 			} catch (e) {
-				 loc= this.e.stack;
+				 loc= (this as any).e.stack;
 			}
 			
 			console.log(loc);

@@ -1,8 +1,6 @@
 import { NodeInfosItem } from "./NodeInfosItem";
-import { Sprite } from "../../../../../../../core/src/laya/display/Sprite"
-	import { Point } from "../../../../../../../core/src/laya/maths/Point"
-	import { DisControlTool } from "../../tools/DisControlTool"
-	import { IDTools } from "../../tools/IDTools"
+import { Sprite } from "laya/display/Sprite"
+import { IDTools } from "../../tools/IDTools"
 	
 	/**
 	 * ...
@@ -84,7 +82,7 @@ import { Sprite } from "../../../../../../../core/src/laya/display/Sprite"
 				return;
 			var i:number, len:number;
 			var cList:any[];
-			cList = node._children;
+			cList = (node as any)._children;
 			len = cList.length;
 			var tChild:Sprite;
 			for (i = 0; i < len; i++)
@@ -107,7 +105,7 @@ import { Sprite } from "../../../../../../../core/src/laya/display/Sprite"
 				return;
 			var i:number, len:number;
 			var cList:any[];
-			cList = p._children;
+			cList = (p as any)._children;
 			len = cList.length;
 			var tChild:Sprite;
 			for (i = 0; i < len; i++)

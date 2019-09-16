@@ -1,5 +1,5 @@
-import { Laya } from "./../../../../../../../core/src/Laya";
-import { Sprite } from "../../../../../../../core/src/laya/display/Sprite"
+import { Laya } from "Laya";
+import { Sprite } from "laya/display/Sprite"
 	/**
 	 * 布局工具类,目前只支持水平方向布局
 	 * @author ww

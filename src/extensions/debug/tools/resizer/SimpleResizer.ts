@@ -1,7 +1,7 @@
-import { Laya } from "./../../../../../../../core/src/Laya";
-import { Sprite } from "../../../../../../../core/src/laya/display/Sprite"
-	import { Event } from "../../../../../../../core/src/laya/events/Event"
-	import { Point } from "../../../../../../../core/src/laya/maths/Point"
+import { Laya } from "Laya";
+import { Sprite } from "laya/display/Sprite"
+import { Event } from "laya/events/Event"
+import { Point } from "laya/maths/Point"
 	/**
 	 * ...
 	 * @author ww

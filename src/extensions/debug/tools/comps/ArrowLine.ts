@@ -1,5 +1,5 @@
 import { Rect } from "./Rect";
-import { Laya } from "./../../../../../../../core/src/Laya";
+import { Laya } from "Laya";
 ///////////////////////////////////////////////////////////
 //  ArrowLine.as
 //  Macromedia ActionScript Implementation of the Class ArrowLine
@@ -7,9 +7,9 @@ import { Laya } from "./../../../../../../../core/src/Laya";
 //  Original author: ww
 ///////////////////////////////////////////////////////////
 
-import { Graphics } from "../../../../../../../core/src/laya/display/Graphics"
-	import { Sprite } from "../../../../../../../core/src/laya/display/Sprite"
-	import { Event } from "../../../../../../../core/src/laya/events/Event"
+import { Graphics } from "laya/display/Graphics"
+	import { Sprite } from "laya/display/Sprite"
+	import { Event } from "laya/events/Event"
 	
 	import { ValueChanger } from "../ValueChanger"
 	

@@ -1,8 +1,8 @@
-import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
-	import { Rectangle } from "../../../../../../core/src/laya/maths/Rectangle"
-	import { RenderSprite } from "../../../../../../core/src/laya/renders/RenderSprite"
-	import { HTMLCanvas } from "../../../../../../core/src/laya/resource/HTMLCanvas"
-	import { Texture } from "../../../../../../core/src/laya/resource/Texture"
+import { Sprite } from "laya/display/Sprite"
+	import { Rectangle } from "laya/maths/Rectangle"
+	import { RenderSprite } from "laya/renders/RenderSprite"
+	import { HTMLCanvas } from "laya/resource/HTMLCanvas"
+	import { Texture } from "laya/resource/Texture"
 	
 	/**
 	 * ...
@@ -15,17 +15,18 @@ import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
 		
 		}
 		
-		 static createCanvas(width:number, height:number):HTMLCanvas
+		static createCanvas(width:number, height:number):HTMLCanvas
 		{
-			var rst:HTMLCanvas = new HTMLCanvas("2D");
-			rst.getContext('2d');
-			rst.size(width, height);
-			return rst;
+			return null;
+			// var rst:HTMLCanvas = new HTMLCanvas("2D");
+			// rst.getContext('2d');
+			// rst.size(width, height);
+			// return rst;
 		}
 		
 		 static renderSpriteToCanvas(sprite:Sprite, canvas:HTMLCanvas, offsetX:number, offsetY:number):void
 		{
-			RenderSprite.renders[sprite._renderType]._fun(sprite, canvas.context, offsetX, offsetY);
+			RenderSprite.renders[(sprite as any)._renderType]._fun(sprite, canvas.context, offsetX, offsetY);
 		}
 		
 		 static getImageDataFromCanvas(canvas:HTMLCanvas, x:number = 0, y:number = 0, width:number = 0, height:number = 0):any
@@ -102,13 +103,15 @@ import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
 			rst.setTo(minX, minY, maxX - minX+1, maxY - minY+1);
 			return rst;
 		}
-		 static fillCanvasRec(canvas:HTMLCanvas, rec:Rectangle, color:string):void
+
+		static fillCanvasRec(canvas:HTMLCanvas, rec:Rectangle, color:string):void
 		{
 			var ctx:any= canvas.context;
 			ctx.fillStyle=color;
             ctx.fillRect(rec.x,rec.y,rec.width,rec.height);
 		}
-		 static isEmptyPoint(data:any[], pos:number):boolean
+
+		static isEmptyPoint(data:any[], pos:number):boolean
 		{
 			if (data[pos] == 0 && data[pos + 1] == 0 && data[pos + 2] == 0 && data[pos + 3] == 0)
 			{
@@ -120,7 +123,7 @@ import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
 			}
 		}
 		
-		 static isPoinSame(pos:number, data1:any[], data2:any[]):boolean
+		static isPoinSame(pos:number, data1:any[], data2:any[]):boolean
 		{
 			if (data1[pos] == data2[pos] && data1[pos + 1] == data2[pos + 1] && data1[pos + 2] == data2[pos + 2] && data1[pos + 3] == data2[pos + 3])
 			{
@@ -132,7 +135,7 @@ import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
 			}
 		}
 		
-		 static walkImageData(imgdata:any, walkFun:Function):void
+		static walkImageData(imgdata:any, walkFun:Function):void
 		{
 			var i:number, iLen:number;
 			var j:number, jLen:number;
@@ -150,15 +153,9 @@ import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
 			}
 		}
 		
-		 static getSpriteByCanvas(canvas:HTMLCanvas):Sprite
-		{
-			var rst:Sprite;
-			rst = new Sprite();
-			rst.graphics.drawTexture(new Texture(canvas), 0, 0, canvas.width, canvas.height);
-			return rst;
-		}
+
 		
-		 static renderSpritesToCanvas(canvas:HTMLCanvas, sprites:any[], offx:number = 0, offy:number = 0, startIndex:number = 0):void
+		static renderSpritesToCanvas(canvas:HTMLCanvas, sprites:any[], offx:number = 0, offy:number = 0, startIndex:number = 0):void
 		{
 			var i:number, len:number;
 			len = sprites.length;

@@ -1,4 +1,4 @@
-import { EventDispatcher } from "../../../../../../core/src/laya/events/EventDispatcher"
+import { EventDispatcher } from "laya/events/EventDispatcher"
 	/**
 	 * 本类用于模块间消息传递
 	 * @author ww
