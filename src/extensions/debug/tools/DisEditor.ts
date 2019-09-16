@@ -1,4 +1,4 @@
-import { Laya } from "./../../../../../../core/src/Laya";
+import { Laya } from "Laya";
 ///////////////////////////////////////////////////////////
 //  DisEditor.as
 //  Macromedia ActionScript Implementation of the Class DisEditor
@@ -6,9 +6,9 @@ import { Laya } from "./../../../../../../core/src/Laya";
 //  Original author: ww
 ///////////////////////////////////////////////////////////
 
-import { Graphics } from "../../../../../../core/src/laya/display/Graphics"
-	import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
-	import { Rectangle } from "../../../../../../core/src/laya/maths/Rectangle"
+import { Graphics } from "laya/display/Graphics"
+import { Sprite } from "laya/display/Sprite"
+import { Rectangle } from "laya/maths/Rectangle"
 	
 	/**
 	 * 

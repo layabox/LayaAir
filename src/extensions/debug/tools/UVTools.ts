@@ -1,5 +1,5 @@
-import { Rectangle } from "../../../../../../core/src/laya/maths/Rectangle"
-	import { Texture } from "../../../../../../core/src/laya/resource/Texture"
+import { Rectangle } from "laya/maths/Rectangle"
+import { Texture } from "laya/resource/Texture"
 
 	/**
 	 * ...
@@ -70,7 +70,7 @@ import { Rectangle } from "../../../../../../core/src/laya/maths/Rectangle"
 		 static getTextureRec(texture:Texture):Rectangle
 		{
 			var rst:Rectangle;
-			rst=UVTools.getRecFromUV(texture.uv);
+			rst=UVTools.getRecFromUV((texture.uv) as any);
 			rst.x*=texture.bitmap.width;
 			rst.y*=texture.bitmap.height;
 			rst.width*=texture.bitmap.width;

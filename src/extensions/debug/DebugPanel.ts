@@ -1,22 +1,19 @@
-import { Laya } from "./../../../../../core/src/Laya";
+import { Laya } from "Laya";
 import { DebugTool } from "./DebugTool"
-	import { DivScripts } from "./divui/DivScripts"
-	import { AtlasTools } from "./tools/AtlasTools"
-	import { CacheAnalyser } from "./tools/CacheAnalyser"
-	import { ClassTool } from "./tools/ClassTool"
-	import { ClickSelectTool } from "./tools/ClickSelectTool"
-	import { RenderSpriteHook } from "./tools/enginehook/RenderSpriteHook"
-	import { SpriteRenderHook } from "./tools/enginehook/SpriteRenderHook"
-	import { IDTools } from "./tools/IDTools"
-	import { JsonTool } from "./tools/JsonTool"
-	import { JSTools } from "./tools/JSTools"
-	import { ObjectTools } from "./tools/ObjectTools"
-	import { NodeUtils } from "./view/nodeInfo/NodeUtils"
-	import { Sprite } from "../../../../../core/src/laya/display/Sprite"
-	import { Event } from "../../../../../core/src/laya/events/Event"
-	import { MathUtil } from "../../../../../core/src/laya/maths/MathUtil"
-	import { Browser } from "../../../../../core/src/laya/utils/Browser"
-	import { Handler } from "../../../../../core/src/laya/utils/Handler"
+import { DivScripts } from "./divui/DivScripts"
+import { AtlasTools } from "./tools/AtlasTools"
+import { CacheAnalyser } from "./tools/CacheAnalyser"
+import { ClassTool } from "./tools/ClassTool"
+import { ClickSelectTool } from "./tools/ClickSelectTool"
+import { RenderSpriteHook } from "./tools/enginehook/RenderSpriteHook"
+import { SpriteRenderHook } from "./tools/enginehook/SpriteRenderHook"
+import { IDTools } from "./tools/IDTools"
+import { JSTools } from "./tools/JSTools"
+import { Sprite } from "laya/display/Sprite"
+import { Event } from "laya/events/Event"
+import { MathUtil } from "laya/maths/MathUtil"
+import { Browser } from "laya/utils/Browser"
+import { Handler } from "laya/utils/Handler"
 	
 	/**
 	 * ...
@@ -64,7 +61,7 @@ import { DebugTool } from "./DebugTool"
 			IDTools.idObj(sprite);
 			rst.id = IDTools.getObjID(sprite);
 			var childs:any[];
-			childs = sprite._children;
+			childs = (sprite as any)._children;
 			var i:number, len:number;
 			len = childs.length;
 			var tchild:any;

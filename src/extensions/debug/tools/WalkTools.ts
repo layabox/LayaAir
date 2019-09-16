@@ -1,4 +1,4 @@
-import { DisControlTool } from "./sControlTool";
+import { DisControlTool } from "./DisControlTool";
 ///////////////////////////////////////////////////////////
 //  WalkTools.as
 //  Macromedia ActionScript Implementation of the Class WalkTools
@@ -6,7 +6,7 @@ import { DisControlTool } from "./sControlTool";
 //  Original author: ww
 ///////////////////////////////////////////////////////////
 
-import { Node } from "../../../../../../core/src/laya/display/Node"
+import { Node } from "laya/display/Node"
 	
 	/**
 	 * 
@@ -41,7 +41,7 @@ import { Node } from "../../../../../../core/src/laya/display/Node"
 			var len:number;
 			var tChild:Node;
 			var childs:any[];
-			childs = target._children;
+			childs = (target as any)._children;
 			len=childs.length;
 			for(i=0;i<len;i++)
 			{

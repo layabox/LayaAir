@@ -5,8 +5,6 @@
 //  Original author: ww
 ///////////////////////////////////////////////////////////
 
-import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
-	
 	/**
 	 * 
 	 * @author ww

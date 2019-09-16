@@ -47,7 +47,6 @@ import { ClassTool } from "../ClassTool"
 			//"deliverChangeRecords":true,
 			//"getNotifier":true,
 			//"observe":true,
-			"unobserve":true,
 			"apply":true,
 			"call":true,
 			"bind":true,

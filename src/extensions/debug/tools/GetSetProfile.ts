@@ -2,9 +2,7 @@ import { ClassTool } from "./ClassTool";
 import { IDTools } from "./IDTools";
 import { ObjectTools } from "./ObjectTools";
 import { FunHook } from "./hook/FunHook"
-	import { Node } from "../../../../../../core/src/laya/display/Node"
-	import { MathUtil } from "../../../../../../core/src/laya/maths/MathUtil"
-	import { Browser } from "../../../../../../core/src/laya/utils/Browser"
+import { MathUtil } from "laya/maths/MathUtil"
 	
 	/**
 	 * ...

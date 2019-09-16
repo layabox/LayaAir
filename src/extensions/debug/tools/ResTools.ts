@@ -1,7 +1,6 @@
-import { Loader } from "../../../../../../core/src/laya/net/Loader"
-	import { Render } from "../../../../../../core/src/laya/renders/Render"
-	import { Resource } from "../../../../../../core/src/laya/resource/Resource"
-	import { Texture } from "../../../../../../core/src/laya/resource/Texture"
+import { Loader } from "laya/net/Loader"
+import { Render } from "laya/renders/Render"
+import { Texture } from "laya/resource/Texture"
 	/**
 	 * ...
 	 * @author ww
@@ -14,13 +13,9 @@ import { Loader } from "../../../../../../core/src/laya/net/Loader"
 		}
 		 static getCachedResList():any[]
 		{
-			if (Render.isWebGL)
-			{
-				return ResTools.getWebGlResList();
-			}else
-			{
-				return ResTools.getCanvasResList();
-			}
+			
+			return ResTools.getWebGlResList();
+			
 		}
 		private static getWebGlResList():any[]
 		{
@@ -76,11 +71,11 @@ import { Loader } from "../../../../../../core/src/laya/net/Loader"
 				tTexture = dataO[key];
 				if (tTexture) 
 				{
-					if (tTexture.bitmap&&tTexture.bitmap.src)
+					if (tTexture.bitmap&&(tTexture.bitmap as any).src)
 					{
-						var url:string = tTexture.bitmap.src;
+						var url:string = (tTexture.bitmap as any).src;
 						if(url.indexOf("data:image/png;base64")<0)
-						picDic[tTexture.bitmap.src] = true;
+						picDic[(tTexture.bitmap as any).src] = true;
 					}
 					
 				}

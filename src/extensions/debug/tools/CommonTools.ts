@@ -5,7 +5,7 @@
 //  Original author: ww
 ///////////////////////////////////////////////////////////
 
-import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
+import { Sprite } from "laya/display/Sprite"
 	
 	/**
 	 * 

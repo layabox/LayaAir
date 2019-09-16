@@ -5,8 +5,8 @@
 //  Original author: ww
 ///////////////////////////////////////////////////////////
 
-import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
-	import { Point } from "../../../../../../core/src/laya/maths/Point"
+import { Sprite } from "laya/display/Sprite"
+import { Point } from "laya/maths/Point"
 	
 	/**
 	 * 

@@ -5,9 +5,7 @@ import { Watcher } from "./Watcher";
 //  Created on:      2015-10-31 下午3:35:16
 //  Original author: ww
 ///////////////////////////////////////////////////////////
-
-import { Browser } from "../../../../../../core/src/laya/utils/Browser"
-	import { DebugTool } from "../DebugTool"
+import { DebugTool } from "../DebugTool"
 	
 	/**
 	 * 

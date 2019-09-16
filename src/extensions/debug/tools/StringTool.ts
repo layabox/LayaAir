@@ -587,9 +587,9 @@
 		}
 		
 		
-		 static copyStr(str:string):string
+		static copyStr(str:string):string
 		{
-			return str.substring();
+			return str.substring(0);
 		}
 	
 		/**

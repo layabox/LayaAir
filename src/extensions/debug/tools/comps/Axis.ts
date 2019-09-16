@@ -1,6 +1,6 @@
 import { ArrowLine } from "./ArrowLine";
 import { Rect } from "./Rect";
-import { Laya } from "./../../../../../../../core/src/Laya";
+import { Laya } from "Laya";
 ///////////////////////////////////////////////////////////
 //  Axis.as
 //  Macromedia ActionScript Implementation of the Class Axis
@@ -8,13 +8,12 @@ import { Laya } from "./../../../../../../../core/src/Laya";
 //  Original author: ww
 ///////////////////////////////////////////////////////////
 
-import { Sprite } from "../../../../../../../core/src/laya/display/Sprite"
-	import { Event } from "../../../../../../../core/src/laya/events/Event"
-	import { MathUtil } from "../../../../../../../core/src/laya/maths/MathUtil"
-	import { Point } from "../../../../../../../core/src/laya/maths/Point"
-	
-	import { DisControlTool } from "../DisControlTool"
-	import { ValueChanger } from "../ValueChanger"
+import { Sprite } from "laya/display/Sprite"
+import { Event } from "laya/events/Event"
+import { MathUtil } from "laya/maths/MathUtil"
+import { Point } from "laya/maths/Point"
+import { DisControlTool } from "../DisControlTool"
+import { ValueChanger } from "../ValueChanger"
 	
 	
 	/**
