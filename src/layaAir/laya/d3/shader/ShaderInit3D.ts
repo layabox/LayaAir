@@ -1,12 +1,8 @@
-import { BaseTexture } from "../../resource/BaseTexture";
 import { Texture2D } from "../../resource/Texture2D";
-import { TextureFormat } from "../../resource/TextureFormat";
 import { RenderState } from "../core/material/RenderState";
 import { VertexTrail } from "../core/trail/VertexTrail";
 import { VertexMesh } from "../graphics/Vertex/VertexMesh";
 import { VertexShuriKenParticle } from "../graphics/Vertex/VertexShuriKenParticle";
-import { TextureGenerator } from "../resource/TextureGenerator";
-import { Utils3D } from "../utils/Utils3D";
 import BlitScreenPS from "./files/BlitScreen.fs";
 import BlitScreenVS from "./files/BlitScreen.vs";
 import EffectPS from "./files/Effect.fs";
@@ -57,15 +53,11 @@ import { SubShader } from "./SubShader";
 
 
 
-
 /**
  * @internal
  * <code>ShaderInit</code> 类用于初始化内置Shader。
  */
 export class ShaderInit3D {
-	/**@internal */
-	static _rangeAttenTex: Texture2D;
-
 	/**
 	 * 创建一个 <code>ShaderInit</code> 实例。
 	 */
