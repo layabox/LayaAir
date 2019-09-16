@@ -1,7 +1,7 @@
-import { RenderableSprite3D } from "../core/RenderableSprite3D"
-import { Sprite3D } from "../core/Sprite3D"
-import { RenderElement } from "../core/render/RenderElement"
-import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement"
+import { RenderElement } from "../core/render/RenderElement";
+import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement";
+import { RenderableSprite3D } from "../core/RenderableSprite3D";
+import { Sprite3D } from "../core/Sprite3D";
 
 /**
  * <code>StaticBatchManager</code> 类用于静态批处理管理的父类。
@@ -13,18 +13,18 @@ export class StaticBatchManager {
 	/**
 	 * @internal
 	 */
-	static _registerManager(manager: StaticBatchManager): void {
-		StaticBatchManager._managers.push(manager);
+	private static _addToStaticBatchQueue(sprite3D: Sprite3D, renderableSprite3D: RenderableSprite3D[]): void {
+		if (sprite3D instanceof RenderableSprite3D)
+			renderableSprite3D.push(sprite3D);
+		for (var i: number = 0, n: number = sprite3D.numChildren; i < n; i++)
+			StaticBatchManager._addToStaticBatchQueue((<Sprite3D>sprite3D._children[i]), renderableSprite3D);
 	}
 
 	/**
 	 * @internal
 	 */
-	private static _addToStaticBatchQueue(sprite3D: Sprite3D, renderableSprite3D: RenderableSprite3D[]): void {
-		if (sprite3D instanceof RenderableSprite3D && sprite3D.isStatic)
-			renderableSprite3D.push(sprite3D);
-		for (var i: number = 0, n: number = sprite3D.numChildren; i < n; i++)
-			StaticBatchManager._addToStaticBatchQueue((<Sprite3D>sprite3D._children[i]), renderableSprite3D);
+	static _registerManager(manager: StaticBatchManager): void {
+		StaticBatchManager._managers.push(manager);
 	}
 
 	/**
@@ -35,8 +35,6 @@ export class StaticBatchManager {
 	 * @param renderableSprite3Ds 静态批处理子节点队列。
 	 */
 	static combine(staticBatchRoot: Sprite3D, renderableSprite3Ds: RenderableSprite3D[] = null): void {
-		//TODO:合并条件是否取消静态，外面判断
-		//TODO:每次有新物体合并都会重构一次Buffer,无论是否有变化
 		if (!renderableSprite3Ds) {
 			renderableSprite3Ds = [];
 			if (staticBatchRoot)
@@ -46,8 +44,13 @@ export class StaticBatchManager {
 		var batchSpritesCount: number = renderableSprite3Ds.length;
 		if (batchSpritesCount > 0) {
 			for (var i: number = 0; i < batchSpritesCount; i++) {
-				var renderableSprite3D: RenderableSprite3D = renderableSprite3Ds[i];
-				(renderableSprite3D.isStatic) && (renderableSprite3D._addToInitStaticBatchManager());
+				var sprite: RenderableSprite3D = renderableSprite3Ds[i];
+				if (!sprite.destroyed) {
+					if (sprite._render._isPartOfStaticBatch)
+						console.warn("StaticBatchManager: Sprite " + sprite.name + " has a part of Static Batch,it will be ignore.");
+					else
+						sprite._addToInitStaticBatchManager();
+				}
 			}
 
 			for (var k: number = 0, m: number = StaticBatchManager._managers.length; k < m; k++) {
@@ -62,16 +65,14 @@ export class StaticBatchManager {
 	/** @internal */
 	protected _batchRenderElementPoolIndex: number;
 	/** @internal */
-	protected _initBatchSprites: RenderableSprite3D[];
+	protected _initBatchSprites: RenderableSprite3D[] = [];
 	/** @internal */
-	protected _staticBatches: any;
+	protected _staticBatches: object = {};
 
 	/**
 	 * 创建一个 <code>StaticBatchManager</code> 实例。
 	 */
 	constructor() {
-		this._initBatchSprites = [];
-		this._staticBatches = {};
 		this._batchRenderElementPoolIndex = 0;
 		this._batchRenderElementPool = [];
 	}

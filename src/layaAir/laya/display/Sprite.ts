@@ -1,30 +1,29 @@
+import { ILaya } from "../../ILaya";
+import { Const } from "../Const";
+import { Event } from "../events/Event";
+import { EventDispatcher } from "../events/EventDispatcher";
+import { ColorFilter } from "../filters/ColorFilter";
+import { Filter } from "../filters/Filter";
+import { GrahamScan } from "../maths/GrahamScan";
+import { Matrix } from "../maths/Matrix";
+import { Point } from "../maths/Point";
+import { Rectangle } from "../maths/Rectangle";
+import { RenderSprite } from "../renders/RenderSprite";
+import { Context } from "../resource/Context";
+import { HTMLCanvas } from "../resource/HTMLCanvas";
+import { Texture } from "../resource/Texture";
+import { Texture2D } from "../resource/Texture2D";
+import { ClassUtils } from "../utils/ClassUtils";
+import { Handler } from "../utils/Handler";
+import { Utils } from "../utils/Utils";
+import { BoundsStyle } from "./css/BoundsStyle";
+import { CacheStyle } from "./css/CacheStyle";
+import { SpriteStyle } from "./css/SpriteStyle";
+import { Graphics } from "./Graphics";
 import { Node } from "./Node";
 import { SpriteConst } from "./SpriteConst";
-import { Graphics } from "./Graphics";
 import { Stage } from "./Stage";
-import { Const } from "../Const"
-import { BoundsStyle } from "./css/BoundsStyle"
-import { CacheStyle } from "./css/CacheStyle"
-import { SpriteStyle } from "./css/SpriteStyle"
-import { Event } from "../events/Event"
-import { EventDispatcher } from "../events/EventDispatcher"
-import { ColorFilter } from "../filters/ColorFilter"
-import { Filter } from "../filters/Filter"
-import { GrahamScan } from "../maths/GrahamScan"
-import { Matrix } from "../maths/Matrix"
-import { Point } from "../maths/Point"
-import { Rectangle } from "../maths/Rectangle"
-import { RenderSprite } from "../renders/RenderSprite"
-import { Context } from "../resource/Context"
-import { HTMLCanvas } from "../resource/HTMLCanvas"
-import { Texture } from "../resource/Texture"
-import { Handler } from "../utils/Handler"
-import { Utils } from "../utils/Utils"
-import { Texture2D } from "../resource/Texture2D";
-import { Timer } from "../utils/Timer";
-import { Dragging } from "../utils/Dragging";
-import { ILaya } from "../../ILaya";
-import { ClassUtils } from "../utils/ClassUtils";
+import { URL } from "../net/URL";
 
 
 /**在显示对象上按下后调度。
@@ -1218,8 +1217,8 @@ export class Sprite extends Node {
         var ctx: Context = new Context();
         ctx.size(canvasWidth, canvasHeight);
         ctx.asBitmap = true;
-		ctx._targets.start();
-		ctx._targets.clear(0,0,0,0);
+        ctx._targets.start();
+        ctx._targets.clear(0, 0, 0, 0);
         RenderSprite.renders[_renderType]._fun(sprite, ctx, offsetX, offsetY);
         ctx.flush();
         ctx._targets.end();
@@ -1262,8 +1261,8 @@ export class Sprite extends Node {
         var ctx: Context = new Context();
         ctx.size(canvasWidth, canvasHeight);
         ctx.asBitmap = true;
-		ctx._targets.start();
-		ctx._targets.clear(0,0,0,0);	// 否则没有地方调用clear
+        ctx._targets.start();
+        ctx._targets.clear(0, 0, 0, 0);	// 否则没有地方调用clear
         RenderSprite.renders[_renderType]._fun(sprite, ctx, offsetX, offsetY);
         ctx.flush();
         ctx._targets.end();
@@ -1543,7 +1542,7 @@ export class Sprite extends Node {
             this.texture = null;
             loaded.call(this);
         } else {
-            var tex: Texture = ILaya.Loader.getRes(url);
+            var tex: Texture = ILaya.Loader.textureMap[URL.formatURL(url)];
             if (!tex) {
                 tex = new Texture();
                 tex.load(url);

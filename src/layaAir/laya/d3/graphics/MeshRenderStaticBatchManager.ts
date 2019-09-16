@@ -54,7 +54,7 @@ export class MeshRenderStaticBatchManager extends StaticBatchManager {
 		if (lightOffset === 0) {
 			var receiveShadowOffset: number = (lRender.receiveShadow ? 1 : 0) - (rRender.receiveShadow ? 1 : 0);
 			if (receiveShadowOffset === 0) {
-				var materialOffset: number = lRender.sharedMaterial.id - rRender.sharedMaterial.id;//多维子材质以第一个材质排序
+				var materialOffset: number = (lRender.sharedMaterial && rRender.sharedMaterial) ? lRender.sharedMaterial.id - rRender.sharedMaterial.id : 0;//多维子材质以第一个材质排序
 				if (materialOffset === 0) {
 					var verDec: number = leftGeo._vertexBuffer.vertexDeclaration.id - rightGeo._vertexBuffer.vertexDeclaration.id;
 					if (verDec === 0) {
@@ -90,11 +90,13 @@ export class MeshRenderStaticBatchManager extends StaticBatchManager {
 	/**
 	 * @internal
 	 */
-	private _getStaticBatch(rootOwner: Sprite3D, number: number): SubMeshStaticBatch {
-		var key: number = rootOwner ? rootOwner.id : 0;
-		var batchOwner: any = this._staticBatches[key];
-		(batchOwner) || (batchOwner = this._staticBatches[key] = []);
-		return (batchOwner[number]) || (batchOwner[number] = new SubMeshStaticBatch(rootOwner, number, MeshRenderStaticBatchManager._verDec));
+	private _getStaticBatch(staticBatches: Array<SubMeshStaticBatch>, rootOwner: Sprite3D, number: number): SubMeshStaticBatch {
+		var subMeshStaticBatch: SubMeshStaticBatch = staticBatches[number];
+		if (!subMeshStaticBatch) {
+			subMeshStaticBatch = staticBatches[number] = new SubMeshStaticBatch(rootOwner, MeshRenderStaticBatchManager._verDec);
+			this._staticBatches[subMeshStaticBatch._batchID] = subMeshStaticBatch;
+		}
+		return subMeshStaticBatch;
 	}
 
 	/**
@@ -102,12 +104,14 @@ export class MeshRenderStaticBatchManager extends StaticBatchManager {
 	 * @override
 	 */
 	protected _initStaticBatchs(rootOwner: Sprite3D): void {
-		this._quickSort(this._initBatchSprites, 0, this._initBatchSprites.length - 1);
+		var initBatchSprites: RenderableSprite3D[] = this._initBatchSprites;
+		this._quickSort(initBatchSprites, 0, initBatchSprites.length - 1);
+		var staticBatches: SubMeshStaticBatch[] = [];
 		var lastCanMerage: boolean = false;
 		var curStaticBatch: SubMeshStaticBatch;
 		var batchNumber: number = 0;
-		for (var i: number = 0, n: number = this._initBatchSprites.length; i < n; i++) {
-			var sprite: RenderableSprite3D = this._initBatchSprites[i];
+		for (var i: number = 0, n: number = initBatchSprites.length; i < n; i++) {
+			var sprite: RenderableSprite3D = initBatchSprites[i];
 			if (lastCanMerage) {
 				if (curStaticBatch.addTest(sprite)) {
 					curStaticBatch.add(sprite);
@@ -117,18 +121,17 @@ export class MeshRenderStaticBatchManager extends StaticBatchManager {
 				}
 			} else {
 				var lastIndex: number = n - 1;
-				if (i !== lastIndex) {
-					curStaticBatch = this._getStaticBatch(rootOwner, batchNumber);
+				if (i !== lastIndex) {//the last do not need
+					curStaticBatch = this._getStaticBatch(staticBatches, rootOwner, batchNumber);
 					curStaticBatch.add(sprite);
 					lastCanMerage = true;
 				}
 			}
 		}
 
-		for (var key in this._staticBatches) {
-			var batches: any[] = this._staticBatches[key];
-			for (i = 0, n = batches.length; i < n; i++)
-				batches[i].finishInit();
+		for (i = 0, n = staticBatches.length; i < n; i++) {
+			var staticBatch: SubMeshStaticBatch = staticBatches[i];
+			staticBatch && staticBatch.finishInit();
 		}
 		this._initBatchSprites.length = 0;
 	}
@@ -136,27 +139,22 @@ export class MeshRenderStaticBatchManager extends StaticBatchManager {
 	/**
 	 * @internal
 	 */
-	_destroyRenderSprite(sprite: RenderableSprite3D): void {
-		var staticBatch: SubMeshStaticBatch = (<SubMeshStaticBatch>sprite._render._staticBatch);
-		var index: number = staticBatch._batchElements.indexOf(sprite);
-		if (index !== -1)
-			staticBatch._batchElements.splice(index, 1);
+	_removeRenderSprite(sprite: RenderableSprite3D): void {
+		var render: BaseRender = sprite._render;
+		var staticBatch: SubMeshStaticBatch = <SubMeshStaticBatch>render._staticBatch;
+		var batchElements: RenderableSprite3D[] = staticBatch._batchElements;
+		var index: number = batchElements.indexOf(sprite);
+		if (index !== -1) {
+			batchElements.splice(index, 1);
+			render._staticBatch = null;
+			var renderElements: RenderElement[] = render._renderElements;
+			for (var i: number = 0, n: number = renderElements.length; i < n; i++)
+				renderElements[i].staticBatch = null;
+		}
 
-		if (staticBatch._batchElements.length === 0) {
-			var owner: Sprite3D = staticBatch.batchOwner;
-			var ownerID: number = owner ? owner.id : 0;
-			var batches: any[] = this._staticBatches[ownerID];
-			batches[staticBatch.number] = null;
+		if (batchElements.length === 0) {
+			delete this._staticBatches[staticBatch._batchID];
 			staticBatch.dispose();
-			var empty: boolean = true;
-			for (var i: number = 0; i < batches.length; i++) {
-				if (batches[i])
-					empty = false;
-			}
-
-			if (empty) {
-				delete this._staticBatches[ownerID];
-			}
 		}
 	}
 
@@ -175,16 +173,10 @@ export class MeshRenderStaticBatchManager extends StaticBatchManager {
 	 */
 	_garbageCollection(): void {
 		for (var key in this._staticBatches) {
-			var batches: any[] = this._staticBatches[key];
-			for (var i: number = 0, n: number = batches.length; i < n; i++) {
-				var staticBatch: SubMeshStaticBatch = batches[i];
-				if (staticBatch._batchElements.length === 0) {
-					staticBatch.dispose();
-					batches.splice(i, 1);
-					i-- , n--;
-					if (n === 0)
-						delete this._staticBatches[key];
-				}
+			var staticBatch: SubMeshStaticBatch = this._staticBatches[key];
+			if (staticBatch._batchElements.length === 0) {
+				staticBatch.dispose();
+				delete this._staticBatches[key];
 			}
 		}
 	}

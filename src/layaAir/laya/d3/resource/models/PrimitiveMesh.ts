@@ -35,8 +35,6 @@ export class PrimitiveMesh {
 		indexBuffer.setData(indices);
 		mesh._indexBuffer = indexBuffer;
 
-		var vertexBuffers: VertexBuffer3D[] = [];
-		vertexBuffers[0] = vertexBuffer;
 		mesh._setBuffer(vertexBuffer, indexBuffer);
 
 		subMesh._vertexBuffer = vertexBuffer;

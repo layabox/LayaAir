@@ -18,6 +18,7 @@ import { EventDispatcher } from "../../../events/EventDispatcher"
 import { Render } from "../../../renders/Render"
 import { ISingletonElement } from "../../../resource/ISingletonElement"
 import { Texture2D } from "../../../resource/Texture2D"
+import { MeshRenderStaticBatchManager } from "../../graphics/MeshRenderStaticBatchManager";
 
 /**
  * <code>Render</code> 类用于渲染器的父类，抽象类不允许实例。
@@ -473,7 +474,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	 * @internal
 	 * @param boundFrustum 如果boundFrustum为空则为摄像机不裁剪模式。
 	 */
-	_needRender(boundFrustum: BoundFrustum,context: RenderContext3D): boolean {
+	_needRender(boundFrustum: BoundFrustum, context: RenderContext3D): boolean {
 		return true;
 	}
 
@@ -512,6 +513,17 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 		this._sharedMaterials = null;
 		this._bounds = null;
 		this._lightmapScaleOffset = null;
+	}
+
+	/**
+	 * 标记为非静态,静态合并后可用于取消静态限制。
+	 */
+	markAsUnStatic(): void {
+		if (this._isPartOfStaticBatch) {
+			MeshRenderStaticBatchManager.instance._removeRenderSprite(this._owner);
+			this._isPartOfStaticBatch = false;
+		}
+
 	}
 }
 
