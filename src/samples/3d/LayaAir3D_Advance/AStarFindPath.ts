@@ -170,7 +170,6 @@ export class AStarFindPath {
 
 	private loopfun(): void {
 		if (this.resPath && this.index < this.resPathLength) {
-			console.log(this.resPath.length);
 			//AStar寻路位置
 			this._position.x = this.resPath[this.index].x;
 			this._position.z = this.resPath[this.index++].y;
