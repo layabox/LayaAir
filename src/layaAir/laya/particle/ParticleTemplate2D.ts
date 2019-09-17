@@ -10,6 +10,7 @@ import { MeshParticle2D } from "../webgl/utils/MeshParticle2D";
 import { VertexBuffer2D } from "../webgl/utils/VertexBuffer2D";
 import { WebGLContext } from "../webgl/WebGLContext";
 import { Stat } from "../utils/Stat";
+import { Loader } from "../net/Loader";
 
 
 /**
@@ -35,7 +36,7 @@ export class ParticleTemplate2D extends ParticleTemplateWebGL implements ISubmit
         var _this: ParticleTemplate2D = this;
         ILaya.loader.load(this.settings.textureName, Handler.create(null, function (texture: Texture): void {
             _this.texture = texture;
-        }));
+        }), null, Loader.IMAGE);
         this.sv.u_Duration = this.settings.duration;
         this.sv.u_Gravity = this.settings.gravity;
         this.sv.u_EndVelocity = this.settings.endVelocity;

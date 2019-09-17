@@ -1,14 +1,14 @@
-import { ObjectTools } from "./jectTools";
-import { IDTools } from "./Tools";
-import { Laya } from "./../../../../../../core/src/Laya";
-import { ClassTool } from "./assTool";
-import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
-	import { Matrix } from "../../../../../../core/src/laya/maths/Matrix"
-	import { Point } from "../../../../../../core/src/laya/maths/Point"
-	import { Rectangle } from "../../../../../../core/src/laya/maths/Rectangle"
-	import { DebugTool } from "../DebugTool"
-	import { HitArea } from "../../../../../../core/src/laya/utils/HitArea"
-	
+import { ObjectTools } from "./ObjectTools";
+import { IDTools } from "./IDTools";
+import { Laya } from "Laya";
+import { ClassTool } from "./ClassTool";
+import { DebugTool } from "../DebugTool"
+import { Sprite } from "laya/display/Sprite";
+import { Matrix } from "laya/maths/Matrix";
+import { Point } from "laya/maths/Point";
+import { Rectangle } from "laya/maths/Rectangle";
+import { HitArea } from "laya/utils/HitArea";
+import { MouseManager } from "laya/events/MouseManager";
 	/**
 	 * ...
 	 * @author ww
@@ -115,7 +115,7 @@ import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
 			
 			var i:number, len:number;
 			var cList:any[];
-			cList = sp._children;
+			cList = (sp as any)._children;
 			len = cList.length;
 			var child:Sprite;
 			var childInChain:Sprite;
@@ -138,9 +138,9 @@ import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
 				MouseEventAnalyser.infoO[IDTools.getObjID(sp)] = "hitTestPrior=true，宽高区域不包含鼠标:" + ":" + mouseX + "," + mouseY+" size:"+sp.width+","+sp.height;
 				return false;
 			}
-			for (i = sp._children.length - 1; i > -1; i--)
+			for (i = (sp as any)._children.length - 1; i > -1; i--)
 			{
-				child = sp._children[i];
+				child = (sp as any)._children[i];
 				if (child == childInChain)
 				{
 					if (!childInChain.mouseEnabled)
@@ -242,7 +242,7 @@ import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
 		private static hitTest(sp:Sprite, mouseX:number, mouseY:number):boolean {
 			var isHit:boolean = false;
 			if (sp.hitArea instanceof HitArea) {
-				return sp.hitArea.isHit(mouseX, mouseY);
+				return	(MouseManager.instance as any).hitTest(sp,mouseX, mouseY);
 			}
 			if (sp.width > 0 && sp.height > 0 || sp.mouseThrough || sp.hitArea) {
 				//判断是否在矩形区域内

@@ -1,4 +1,4 @@
-import { StringTool } from "./ringTool";
+import { StringTool } from "./StringTool";
 ///////////////////////////////////////////////////////////
 //  ObjectTools.as
 //  Macromedia ActionScript Implementation of the Class ObjectTools
@@ -6,8 +6,7 @@ import { StringTool } from "./ringTool";
 //  Original author: ww
 ///////////////////////////////////////////////////////////
 
-import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
-	import { Utils } from "../../../../../../core/src/laya/utils/Utils"
+import { Sprite } from "laya/display/Sprite"
 	
 	/**
 	 * 本类提供obj相关的一些操作
@@ -421,10 +420,7 @@ import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
 			{
 				if(parseFloat(value).toString()!="NaN")
 				{
-					if(parseFloat(value)==value)
-					{
 						return false;
-					}
 				}
 			}
 			return true;

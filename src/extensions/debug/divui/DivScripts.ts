@@ -1,6 +1,5 @@
-import { Laya } from "./../../../../../../core/src/Laya";
+import { Laya } from "Laya";
 import { Base64Tool } from "../tools/Base64Tool"
-	import { Browser } from "../../../../../../core/src/laya/utils/Browser"
 	/**
 	 * ...
 	 * @author ww
@@ -16,7 +15,7 @@ import { Base64Tool } from "../tools/Base64Tool"
 		{
 			var script:string;
 			script = Base64Tool.decodeToByte(DivScripts.data).readUTFBytes();
-			Laya._runScript(script);
+			eval(script);
 		}
 	}
 

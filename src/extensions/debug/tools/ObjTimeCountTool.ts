@@ -1,6 +1,6 @@
-import { IDTools } from "./Tools";
-import { ObjectTools } from "./jectTools";
-import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
+import { IDTools } from "./IDTools";
+import { ObjectTools } from "./ObjectTools";
+import { Sprite } from "laya/display/Sprite"
 	/**
 	 * ...
 	 * @author ww

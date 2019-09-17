@@ -1,5 +1,5 @@
-import { NodeRecInfo } from "./deRecInfo";
-import { Laya } from "./../../../../../../../../core/src/Laya";
+import { NodeRecInfo } from "./NodeRecInfo";
+import { Laya } from "Laya";
 import { ClassTool } from "../../../tools/ClassTool"
 	/**
 	 * ...

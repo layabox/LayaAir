@@ -1,7 +1,7 @@
-import { Browser } from "../../../../../../../core/src/laya/utils/Browser"
-	import { ClassTool } from "../ClassTool"
-	import { CountTool } from "../CountTool"
-	import { FunHook } from "../hook/FunHook"
+import { Browser } from "laya/utils/Browser"
+import { ClassTool } from "../ClassTool"
+import { CountTool } from "../CountTool"
+import { FunHook } from "../hook/FunHook"
 	/**
 	 * ...
 	 * @author ww

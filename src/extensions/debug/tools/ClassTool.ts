@@ -1,5 +1,5 @@
 import { ObjectTools } from "./ObjectTools";
-import { Laya } from "./../../../../../../core/src/Laya";
+import { Laya } from "Laya";
 ///////////////////////////////////////////////////////////
 //  ClassTool.as
 //  Macromedia ActionScript Implementation of the Class ClassTool
@@ -19,30 +19,30 @@ import { Laya } from "./../../../../../../core/src/Laya";
 		constructor(){
 		}
 		
-		 static defineProperty(obj:any,name:string,des:any):void
+		static defineProperty(obj:any,name:string,des:any):void
 		{
 			Object.defineProperty(obj,name,des);;
 		}
 		
-		 static getOwnPropertyDescriptor(obj:any,name:string):any
+		static getOwnPropertyDescriptor(obj:any,name:string):any
 		{
 			var rst:any;
 			rst=Object.getOwnPropertyDescriptor(obj,name);;
 			return rst;
 		}
-		 static getOwnPropertyDescriptors(obj:any):any
+		static getOwnPropertyDescriptors(obj:any):any
 		{
 			var rst:any;
 			rst=Object.getOwnPropertyDescriptors(obj);;
 			return rst;
 		}
-		 static getOwnPropertyNames(obj:any):any[]
+		static getOwnPropertyNames(obj:any):any[]
 		{
 			var rst:any[];
 			rst=Object.getOwnPropertyNames(obj);;
 			return rst;
 		}
-		 static getObjectGetSetKeys(obj:any,rst:any[]=null):any[]
+		static getObjectGetSetKeys(obj:any,rst:any[]=null):any[]
 		{
 			if (!rst) rst = [];
 			var keys:any[];
@@ -68,8 +68,8 @@ import { Laya } from "./../../../../../../core/src/Laya";
 			return rst;
 		}
 		
-		 static displayTypes:any = { "boolean":true, "number":true, "string":true };
-		 static getObjectDisplayAbleKeys(obj:any,rst:any[]=null):any[]
+		static displayTypes:any = { "boolean":true, "number":true, "string":true };
+		static getObjectDisplayAbleKeys(obj:any,rst:any[]=null):any[]
 		{
 			if (!rst) rst = [];
 			var key:string;
@@ -88,12 +88,12 @@ import { Laya } from "./../../../../../../core/src/Laya";
 			rst = ObjectTools.getNoSameArr(rst);
 			return rst;
 		}
-		 static getClassName(tar:any):string
+		static getClassName(tar:any):string
 		{
 			if (tar instanceof Function) return tar.name;
 			return tar["constructor"].name;
 		}
-		 static getNodeClassAndName(tar:any):string
+		static getNodeClassAndName(tar:any):string
 		{
 			if (!tar) return "null";
 			var rst:string;
@@ -106,14 +106,14 @@ import { Laya } from "./../../../../../../core/src/Laya";
 			}
 			return rst;
 		}
-		 static getClassNameByClz(clz:new()=>any):string
+		static getClassNameByClz(clz:new()=>any):string
 		{
 			return clz["name"];
 		}
-		 static getClassByName(className:string):new()=>any
+		static getClassByName(className:string):new()=>any
 		{
 			var rst:new()=>any;
-			rst = Laya._runScript(className);
+			rst = eval(className);
 			return rst;
 		}
 		 static createObjByName(className:string):any

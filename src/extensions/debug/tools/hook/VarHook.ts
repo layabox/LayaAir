@@ -1,4 +1,4 @@
-import { FunHook } from "./nHook";
+import { FunHook } from "./FunHook";
 ///////////////////////////////////////////////////////////
 //  VarHook.as
 //  Macromedia ActionScript Implementation of the Class VarHook

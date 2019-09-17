@@ -1,10 +1,9 @@
 import { AutoFillRec } from "./AutoFillRec";
-import { Laya } from "./../../../../../../../core/src/Laya";
-import { Sprite } from "../../../../../../../core/src/laya/display/Sprite"
-	import { Event } from "../../../../../../../core/src/laya/events/Event"
-	import { Rectangle } from "../../../../../../../core/src/laya/maths/Rectangle"
-	
-	import { DisControlTool } from "../DisControlTool"
+import { Laya } from "Laya";
+import { Sprite } from "laya/display/Sprite"
+import { Event } from "laya/events/Event"
+import { Rectangle } from "laya/maths/Rectangle"
+import { DisControlTool } from "../DisControlTool"
 
 	/**
 	 * 本类用于调整对象的宽高以及坐标

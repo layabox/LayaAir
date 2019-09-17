@@ -1,8 +1,8 @@
-import { Laya } from "./../../../../../../../core/src/Laya";
-import { Event } from "../../../../../../../core/src/laya/events/Event"
-	import { LoaderManager } from "../../../../../../../core/src/laya/net/LoaderManager"
-	import { LocalStorage } from "../../../../../../../core/src/laya/net/LocalStorage"
-	import { Handler } from "../../../../../../../core/src/laya/utils/Handler"
+import { Laya } from "Laya";
+import { Event } from "laya/events/Event"
+	import { LoaderManager } from "laya/net/LoaderManager"
+	import { LocalStorage } from "laya/net/LocalStorage"
+	import { Handler } from "laya/utils/Handler"
 	/**
 	 * ...
 	 * @author ww

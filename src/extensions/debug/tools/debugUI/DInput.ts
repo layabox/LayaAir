@@ -1,4 +1,4 @@
-import { Input } from "../../../../../../../core/src/laya/display/Input"
+import { Input } from "laya/display/Input"
 	/**
 	 * ...
 	 * @author ww
@@ -8,7 +8,7 @@ import { Input } from "../../../../../../../core/src/laya/display/Input"
 		
 		constructor(){
 			super();
-this.bgColor="#11ff00";
+			this.bgColor="#11ff00";
 		}
 		
 	}

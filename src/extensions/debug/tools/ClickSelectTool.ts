@@ -1,15 +1,15 @@
 import { Notice } from "./Notice";
 import { DisplayHook } from "./DisplayHook";
-import { Laya } from "./../../../../../../core/src/Laya";
+import { Laya } from "Laya";
 import { DebugConsts } from "./DebugConsts";
 import { DebugTool } from "../DebugTool"
 	import { DebugInfoLayer } from "../view/nodeInfo/DebugInfoLayer"
 	import { NodeUtils } from "../view/nodeInfo/NodeUtils"
-	import { Graphics } from "../../../../../../core/src/laya/display/Graphics"
-	import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
-	import { Rectangle } from "../../../../../../core/src/laya/maths/Rectangle"
-	import { Browser } from "../../../../../../core/src/laya/utils/Browser"
-	import { Handler } from "../../../../../../core/src/laya/utils/Handler"
+	import { Graphics } from "laya/display/Graphics"
+	import { Sprite } from "laya/display/Sprite"
+	import { Rectangle } from "laya/maths/Rectangle"
+	import { Browser } from "laya/utils/Browser"
+	import { Handler } from "laya/utils/Handler"
 	/**
 	 * ...
 	 * @author ww
