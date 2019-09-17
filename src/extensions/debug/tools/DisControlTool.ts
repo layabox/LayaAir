@@ -1,4 +1,4 @@
-import { Laya } from "./../../../../../../core/src/Laya";
+import { Laya } from "Laya";
 ///////////////////////////////////////////////////////////
 //  DisControlTool.as
 //  Macromedia ActionScript Implementation of the Class DisControlTool
@@ -6,14 +6,14 @@ import { Laya } from "./../../../../../../core/src/Laya";
 //  Original author: ww
 ///////////////////////////////////////////////////////////
 
-import { Node } from "../../../../../../core/src/laya/display/Node"
-	import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
-	import { Event } from "../../../../../../core/src/laya/events/Event"
-	import { Point } from "../../../../../../core/src/laya/maths/Point"
-	import { Rectangle } from "../../../../../../core/src/laya/maths/Rectangle"
-	
-	import { DisResizer } from "./resizer/DisResizer"
-	import { SimpleResizer } from "./resizer/SimpleResizer"
+import { Node } from "laya/display/Node"
+import { Sprite } from "laya/display/Sprite"
+import { Event } from "laya/events/Event"
+import { Point } from "laya/maths/Point"
+import { Rectangle } from "laya/maths/Rectangle"
+
+import { DisResizer } from "./resizer/DisResizer"
+import { SimpleResizer } from "./resizer/SimpleResizer"
 	
 	/**
 	 * 
@@ -41,8 +41,8 @@ import { Node } from "../../../../../../core/src/laya/display/Node"
 				tempP = sprite.fromParentPoint(tempP);
 				x = tempP.x;
 				y = tempP.y;
-				for (var i:number = sprite._children.length - 1; i > -1; i--) {
-					var child:Sprite = sprite._children[i];
+				for (var i:number = (sprite as any)._children.length - 1; i > -1; i--) {
+					var child:Sprite = (sprite as any)._children[i];
 					if(child instanceof Sprite)
 						DisControlTool.getObjectsUnderPoint(child,x,y,rst,filterFun);
 				}

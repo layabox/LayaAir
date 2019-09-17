@@ -8,7 +8,7 @@ import { DTrace } from "./DTrace";
 //  Original author: ww
 ///////////////////////////////////////////////////////////
 
-import { Browser } from "../../../../../../core/src/laya/utils/Browser"
+import { Browser } from "laya/utils/Browser"
 	
 	/**
 	 * 类实例创建分析工具

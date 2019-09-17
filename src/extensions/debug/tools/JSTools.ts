@@ -1,10 +1,10 @@
-import { Laya } from "./../../../../../../core/src/Laya";
-import { Node } from "../../../../../../core/src/laya/display/Node"
-	import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
-	import { Matrix } from "../../../../../../core/src/laya/maths/Matrix"
-	import { Point } from "../../../../../../core/src/laya/maths/Point"
-	import { Texture } from "../../../../../../core/src/laya/resource/Texture"
-	import { Browser } from "../../../../../../core/src/laya/utils/Browser"
+import { Laya } from "Laya";
+import { Browser } from "laya/utils/Browser";
+import { Matrix } from "laya/maths/Matrix";
+import { Sprite } from "laya/display/Sprite";
+import { Point } from "laya/maths/Point";
+import { Texture } from "laya/resource/Texture";
+
 	
 	/**
 	 * 本类用于操作html对象

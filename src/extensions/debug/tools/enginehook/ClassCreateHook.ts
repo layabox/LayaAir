@@ -1,8 +1,6 @@
-import { Browser } from "../../../../../../../core/src/laya/utils/Browser"
-	import { ClassTool } from "../ClassTool"
-	import { FunHook } from "../hook/FunHook"
-	import { VarHook } from "../hook/VarHook"
-	import { RunProfile } from "../RunProfile"
+import { ClassTool } from "../ClassTool"
+import { FunHook } from "../hook/FunHook"
+import { RunProfile } from "../RunProfile"
 	/**
 	 * ...
 	 * @author ww
@@ -35,7 +33,7 @@ import { Browser } from "../../../../../../../core/src/laya/utils/Browser"
 			tClz = clz;
 			while (tClz && tClz != oClass)
 			{
-				tClz = tClz.__super;
+				tClz = tClz.prototype;
 				depth++;
 			} 
 			
@@ -47,10 +45,9 @@ import { Browser } from "../../../../../../../core/src/laya/utils/Browser"
 			//trace("create:",key,clz);
 			//RunProfile.showClassCreate(key);
 			RunProfile.run(key, depth+6);
-			
-			
 		}
-		 getClassCreateInfo(clz:new()=>any):any
+		
+		getClassCreateInfo(clz:new()=>any):any
 		{
 			var key:string;
 			key=ClassTool.getClassName(clz);

@@ -20,16 +20,16 @@ import { DifferTool } from "../DifferTool"
 		constructor(){
 		}
 		
-		 static observe(obj:any,callBack:Function):void
+		static observe(obj:any,callBack:Function):void
 		{
-			Object.observe(obj, callBack);
+			// Object.observe(obj, callBack);
 		}
-		 static unobserve(obj:any,callBack:Function):void
+		static unobserve(obj:any,callBack:Function):void
 		{
-			Object.unobserve(obj, callBack);
+			// Object.unobserve(obj, callBack);
 		}
 		
-		 static observeDiffer(obj:any,sign:string,msg:string="obDiffer"):void
+		static observeDiffer(obj:any,sign:string,msg:string="obDiffer"):void
 		{
 			var differFun:Function=function():void
 			{

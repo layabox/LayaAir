@@ -1,19 +1,17 @@
 import { DebugInfoLayer } from "./DebugInfoLayer";
-import { Laya } from "./../../../../../../../core/src/Laya";
-import { Graphics } from "../../../../../../../core/src/laya/display/Graphics"
-	import { Node } from "../../../../../../../core/src/laya/display/Node"
-	import { Sprite } from "../../../../../../../core/src/laya/display/Sprite"
-	import { Text } from "../../../../../../../core/src/laya/display/Text"
-	import { GrahamScan } from "../../../../../../../core/src/laya/maths/GrahamScan"
-	import { Point } from "../../../../../../../core/src/laya/maths/Point"
-	import { Rectangle } from "../../../../../../../core/src/laya/maths/Rectangle"
-	import { Pool } from "../../../../../../../core/src/laya/utils/Pool"
-	
-	import { ClassTool } from "../../tools/ClassTool"
-	import { DisControlTool } from "../../tools/DisControlTool"
-	import { IDTools } from "../../tools/IDTools"
-	import { WalkTools } from "../../tools/WalkTools"
-
+import { Laya } from "Laya";
+import { GrahamScan } from "laya/maths/GrahamScan"
+import { Point } from "laya/maths/Point"
+import { Pool } from "laya/utils/Pool"
+import { ClassTool } from "../../tools/ClassTool"
+import { DisControlTool } from "../../tools/DisControlTool"
+import { IDTools } from "../../tools/IDTools"
+import { WalkTools } from "../../tools/WalkTools"
+import { Sprite } from "laya/display/Sprite";
+import { Rectangle } from "laya/maths/Rectangle";
+import { Graphics } from "laya/display/Graphics";
+import { Text } from "laya/display/Text";
+import { Node } from "laya/display/Node";
 	/**
 	 * ...
 	 * @author ww
@@ -33,7 +31,7 @@ import { Graphics } from "../../../../../../../core/src/laya/display/Graphics"
 		}
 		constructor(){
 			super();
-this._infoTxt = new Text();
+			this._infoTxt = new Text();
 			this._infoTxt.color = "#ff0000";
 			this._infoTxt.bgColor = "#00ff00";
 			this._infoTxt.fontSize = 12;
@@ -67,12 +65,13 @@ this._infoTxt = new Text();
 			NodeInfosItem.clearRelations();
 		}
 		
-		/*override*/  removeSelf():Node 
+		removeSelf():Node 
 		{
 			this._infoTxt.removeSelf();
 			return super.removeSelf();
 		}
-		 showToUI():void
+		
+		showToUI():void
 		{
 			NodeInfosItem.NodeInfoContainer.nodeRecInfoLayer.addChild(this);
 			
@@ -119,7 +118,7 @@ this._infoTxt = new Text();
 			tParent = NodeInfosItem.NodeInfoContainer.nodeRecInfoLayer;
 			var i:number, len:number;
 			var cList:any[];
-			cList = tParent._children;
+			cList = (tParent as any)._children;
 			len = cList.length;
 			var tChild:Sprite;
 			var mRec:Rectangle;
@@ -273,12 +272,12 @@ this._infoTxt = new Text();
 			this.graphics.clear();
 			
 			var pointList:any[];
-			pointList=node._getBoundPointsM(true);
+			pointList=(node as any)._getBoundPointsM(true);
 			if(!pointList||pointList.length<1) return;
 			pointList=GrahamScan.pListToPointList(pointList,true);	
 			WalkTools.walkArr(pointList,node.localToGlobal,node);	
 			pointList=GrahamScan.pointListToPlist(pointList);
-			NodeInfosItem._disBoundRec=Rectangle._getWrapRec(pointList,NodeInfosItem._disBoundRec);
+			NodeInfosItem._disBoundRec=(Rectangle as any)._getWrapRec(pointList,NodeInfosItem._disBoundRec);
 			//debugLayer.graphics.drawRect(_disBoundRec.x, _disBoundRec.y, _disBoundRec.width, _disBoundRec.height, null, "#ff0000");
 			this.graphics.drawRect(0, 0, NodeInfosItem._disBoundRec.width, NodeInfosItem._disBoundRec.height, null, "#00ffff");
 			this.pos(NodeInfosItem._disBoundRec.x, NodeInfosItem._disBoundRec.y);

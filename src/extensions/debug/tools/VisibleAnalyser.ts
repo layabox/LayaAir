@@ -1,14 +1,13 @@
-import { Laya } from "./../../../../../../core/src/Laya";
+import { Laya } from "Laya";
 import { CanvasTools } from "./CanvasTools";
 import { WalkTools } from "./WalkTools";
 import { ClassTool } from "./ClassTool";
 import { ColorTool } from "./ColorTool";
 import { DebugInfoLayer } from "../view/nodeInfo/DebugInfoLayer"
-	import { NodeUtils } from "../view/nodeInfo/NodeUtils"
-	import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
-	import { Rectangle } from "../../../../../../core/src/laya/maths/Rectangle"
-	import { Render } from "../../../../../../core/src/laya/renders/Render"
-	import { HTMLCanvas } from "../../../../../../core/src/laya/resource/HTMLCanvas"
+import { NodeUtils } from "../view/nodeInfo/NodeUtils"
+import { Sprite } from "laya/display/Sprite"
+import { Rectangle } from "laya/maths/Rectangle"
+import { HTMLCanvas } from "laya/resource/HTMLCanvas"
 	
 	/**
 	 * ...
@@ -21,7 +20,7 @@ import { DebugInfoLayer } from "../view/nodeInfo/DebugInfoLayer"
 		
 		}
 		
-		 static analyseTarget(node:Sprite):void
+		static analyseTarget(node:Sprite):void
 		{
 			var isInstage:boolean;
 			isInstage = node.displayedInStage;
@@ -54,10 +53,8 @@ import { DebugInfoLayer } from "../view/nodeInfo/DebugInfoLayer"
 			
 			if (isInstage && isInVisibleRec && gVisible && gAlpha > 0)
 			{
-				if (Render.isWebGL)
-				{
-					VisibleAnalyser.anlyseRecVisible(node);
-				}
+				
+				VisibleAnalyser.anlyseRecVisible(node);
 				msg += "coverRate:" + VisibleAnalyser.coverRate + "\n";
 				if (VisibleAnalyser._coverList.length > 0)
 				{
@@ -75,8 +72,7 @@ import { DebugInfoLayer } from "../view/nodeInfo/DebugInfoLayer"
 			var parent:Sprite = (<Sprite>node.parent );
 			if (!parent)
 				return;
-			var _childs:any[];
-			_childs = parent._children;
+			var _childs:any[] = (parent as any)._children;
 			var index:number;
 			index = _childs.indexOf(node);
 			if (index < 0)
@@ -90,18 +86,18 @@ import { DebugInfoLayer } from "../view/nodeInfo/DebugInfoLayer"
 		
 		}
 		
-		 static isNodeWalked:boolean;
-		 static _analyseTarget:Sprite;
-		 static tarRec:Rectangle = new Rectangle();
-		 static isTarRecOK:boolean;
-		
-		 static mainCanvas:HTMLCanvas;
-		 static preImageData:any;
-		 static tImageData:any;
-		 static tarImageData:any;
-		 static coverRate:number;
-		 static tColor:number;
-		 static anlyseRecVisible(node:Sprite):void
+		static isNodeWalked:boolean;
+		static _analyseTarget:Sprite;
+		static tarRec:Rectangle = new Rectangle();
+		static isTarRecOK:boolean;
+	
+		static mainCanvas:HTMLCanvas;
+		static preImageData:any;
+		static tImageData:any;
+		static tarImageData:any;
+		static coverRate:number;
+		static tColor:number;
+		static anlyseRecVisible(node:Sprite):void
 		{
 			VisibleAnalyser.isNodeWalked = false;
 			VisibleAnalyser._analyseTarget = node;

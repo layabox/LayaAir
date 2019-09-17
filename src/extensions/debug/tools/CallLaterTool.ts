@@ -1,12 +1,11 @@
-import { Laya } from "./../../../../../../core/src/Laya";
+import { Laya } from "Laya";
 ///////////////////////////////////////////////////////////
 //  CallLaterTool.as
 //  Macromedia ActionScript Implementation of the Class CallLaterTool
 //  Created on:      2017-3-2 下午12:11:59
 //  Original author: ww
 ///////////////////////////////////////////////////////////
-
-import { Timer } from "../../../../../../core/src/laya/utils/Timer"
+import { Timer } from "laya/utils/Timer"
 	
 	/**
 	 * 

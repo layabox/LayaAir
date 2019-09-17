@@ -1,5 +1,5 @@
-import { Graphics } from "../../../../../../../core/src/laya/display/Graphics"
-	import { Sprite } from "../../../../../../../core/src/laya/display/Sprite"
+import { Graphics } from "laya/display/Graphics"
+import { Sprite } from "laya/display/Sprite"
 
 	/**
 	 * 自动根据大小填充自己全部区域的显示对象

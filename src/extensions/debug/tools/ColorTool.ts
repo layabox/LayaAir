@@ -1,5 +1,5 @@
 import { MathTools } from "./MathTools";
-import { Utils } from "../../../../../../core/src/laya/utils/Utils"
+import { Utils } from "laya/utils/Utils"
 	
 	
 	/**

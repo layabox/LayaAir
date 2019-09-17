@@ -1,10 +1,9 @@
 import { CacheAnalyser } from "../CacheAnalyser"
-	import { Sprite } from "../../../../../../../core/src/laya/display/Sprite"
-	import { CacheStyle } from "../../../../../../../core/src/laya/display/css/CacheStyle"
-	import { RenderSprite } from "../../../../../../../core/src/laya/renders/RenderSprite"
-	import { Context } from "../../../../../../../core/src/laya/resource/Context"
-	import { Browser } from "../../../../../../../core/src/laya/utils/Browser"
-
+import { Sprite } from "laya/display/Sprite"
+import { RenderSprite } from "laya/renders/RenderSprite"
+import { Context } from "laya/resource/Context"
+import { Browser } from "laya/utils/Browser"
+import { CacheStyle } from "laya/display/css/CacheStyle";
 	/**
 	 * ...
 	 * @author ww
@@ -61,9 +60,9 @@ import { CacheAnalyser } from "../CacheAnalyser"
 			RenderSprite["prototype"]["_canvas"] = RenderSpriteHook["prototype"]["_canvas"];
 		}
 
-		 _canvas(sprite:Sprite, context:Context, x:number, y:number):void {
+		_canvas(sprite:Sprite, context:Context, x:number, y:number):void {
 			//trace("hooked canvas");
-			var _cacheStyle:CacheStyle = sprite._cacheStyle;
+			var _cacheStyle:CacheStyle = (sprite as any)._cacheStyle;
 			var _next:RenderSprite = this._next;
 			var _repaint:boolean ;
 			if (!_cacheStyle.enableCanvasRender) {
@@ -71,7 +70,7 @@ import { CacheAnalyser } from "../CacheAnalyser"
 				return;
 			}
 
-			if (sprite._needRepaint() || (!_cacheStyle.canvas)) {
+			if ((sprite as any)._needRepaint() || (!_cacheStyle.canvas)) {
 				_repaint = true;
 			}else
 			{

@@ -1,12 +1,5 @@
-import { Node } from "../../../../../core/src/laya/display/Node";
-import { Sprite } from "../../../../../core/src/laya/display/Sprite";
-import { Event } from "../../../../../core/src/laya/events/Event";
-import { GrahamScan } from "../../../../../core/src/laya/maths/GrahamScan";
-import { Rectangle } from "../../../../../core/src/laya/maths/Rectangle";
-import { RenderSprite } from "../../../../../core/src/laya/renders/RenderSprite";
-import { Browser } from "../../../../../core/src/laya/utils/Browser";
-import { Stat } from "../../../../../core/src/laya/utils/Stat";
-import { Laya } from "./../../../../../core/src/Laya";
+
+import { Laya } from "Laya";
 import { ClassTool } from "./tools/ClassTool";
 import { CountTool } from "./tools/CountTool";
 import { DebugExport } from "./tools/DebugExport";
@@ -21,9 +14,14 @@ import { WalkTools } from "./tools/WalkTools";
 import { DebugInfoLayer } from "./view/nodeInfo/DebugInfoLayer";
 import { NodeInfoPanel } from "./view/nodeInfo/NodeInfoPanel";
 import { NodeUtils } from "./view/nodeInfo/NodeUtils";
-	
-	//import tools.debugUI.DMainPain;
-	
+import { Browser } from "laya/utils/Browser";
+import { Sprite } from "laya/display/Sprite";
+import { Rectangle } from "laya/maths/Rectangle";
+import { Event } from "laya/events/Event";
+import { Node } from "laya/display/Node";
+import { Stat } from "laya/utils/Stat";
+import { GrahamScan } from "laya/maths/GrahamScan";
+import { RenderSprite } from "laya/renders/RenderSprite";
 	/**
 	 *
 	 * @author ww
@@ -527,13 +525,13 @@ import { NodeUtils } from "./view/nodeInfo/NodeUtils";
 				DebugTool.clearDebugLayer();
 			var pointList:any[];
 //			pointList=target.getSelfBounds().getBoundPoints();
-			pointList = sprite._getBoundPointsM(true);
+			pointList = (sprite as any)._getBoundPointsM(true);
 			if (!pointList || pointList.length < 1)
 				return;
 			pointList = GrahamScan.pListToPointList(pointList, true);
 			WalkTools.walkArr(pointList, sprite.localToGlobal, sprite);
 			pointList = GrahamScan.pointListToPlist(pointList);
-			DebugTool._disBoundRec = Rectangle._getWrapRec(pointList, DebugTool._disBoundRec);
+			DebugTool._disBoundRec = (Rectangle as any)._getWrapRec(pointList, DebugTool._disBoundRec);
 			DebugTool.debugLayer.graphics.drawRect(DebugTool._disBoundRec.x, DebugTool._disBoundRec.y, DebugTool._disBoundRec.width, DebugTool._disBoundRec.height, null, color);
 			
 			DebugInfoLayer.I.setTop();
@@ -542,13 +540,13 @@ import { NodeUtils } from "./view/nodeInfo/NodeUtils";
 		 static showDisBoundToSprite(sprite:Sprite = null, graphicSprite:Sprite = null, color:string = "#ff0000", lineWidth:number = 1):any {
 			var pointList:any[];
 //			pointList=target.getSelfBounds().getBoundPoints();
-			pointList = sprite._getBoundPointsM(true);
+			pointList = (sprite as any)._getBoundPointsM(true);
 			if (!pointList || pointList.length < 1)
 				return;
 			pointList = GrahamScan.pListToPointList(pointList, true);
 			WalkTools.walkArr(pointList, sprite.localToGlobal, sprite);
 			pointList = GrahamScan.pointListToPlist(pointList);
-			DebugTool._disBoundRec = Rectangle._getWrapRec(pointList, DebugTool._disBoundRec);
+			DebugTool._disBoundRec = (Rectangle as any)._getWrapRec(pointList, DebugTool._disBoundRec);
 			graphicSprite.graphics.drawRect(DebugTool._disBoundRec.x, DebugTool._disBoundRec.y, DebugTool._disBoundRec.width, DebugTool._disBoundRec.height, null, color, lineWidth);
 		}
 		 static autoTraceEnable:boolean = false;
@@ -621,13 +619,13 @@ import { NodeUtils } from "./view/nodeInfo/NodeUtils";
 			console.log("self CMDs:");
 			console.log(sprite.graphics.cmds);
 			var renderSprite:RenderSprite;
-			renderSprite = RenderSprite.renders[sprite._renderType];
+			renderSprite = RenderSprite.renders[(sprite as any)._renderType];
 			console.log("renderSprite:", renderSprite);
 			DebugTool._rSpList.length = 0;
 			while (renderSprite && renderSprite["_sign"] > 0) {
 				
 				DebugTool._rSpList.push(DebugTool.cmdToTypeO[renderSprite["_sign"]]);
-				renderSprite = renderSprite._next;
+				renderSprite = (renderSprite as any)._next;
 			}
 			console.log("fun:", DebugTool._rSpList.join(","));
 			DebugTool.counter.reset();
@@ -667,7 +665,7 @@ import { NodeUtils } from "./view/nodeInfo/NodeUtils";
 		private static getCMdCount(target:Sprite):number {
 			if (!target)
 				return 0;
-			if (!target instanceof Sprite)
+			if (!(target instanceof Sprite))
 				return 0;
 			if (!target.graphics.cmds)
 				return 0;

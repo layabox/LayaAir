@@ -1,4 +1,4 @@
-import { Browser } from "../../../../../../core/src/laya/utils/Browser"
+import { Browser } from "laya/utils/Browser"
 	/**
 	 * 全局时间速率控制类
 	 * @author ww
@@ -12,25 +12,27 @@ import { Browser } from "../../../../../../core/src/laya/utils/Browser"
 		/**
 		 * 获取浏览器当前时间
 		 */
-		 static now():number {
+		static now():number {
 			if (TimerControlTool._timeRate != 1) return TimerControlTool.getRatedNow();
 			return Date.now();
 		}
 		
-		 static getRatedNow():number
+		static getRatedNow():number
 		{
 			var dTime:number;
 			dTime = TimerControlTool.getNow() - TimerControlTool._startTime;
 			return dTime * TimerControlTool._timeRate + TimerControlTool._startTime;
 		}
-		 static getNow():number
+		static getNow():number
 		{
 			return Date.now();
 		}
 		private static _startTime:number;
 		private static _timeRate:number = 1;
-		 static _browerNow:Function;
-		 static setTimeRate(rate:number):void
+
+		static _browerNow:any;
+
+		static setTimeRate(rate:number):void
 		{
 			if (TimerControlTool._browerNow==null) TimerControlTool._browerNow = Browser["now"];
 			TimerControlTool._startTime = TimerControlTool.getNow();

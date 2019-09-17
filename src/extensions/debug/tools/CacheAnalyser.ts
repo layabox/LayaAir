@@ -2,9 +2,9 @@ import { ObjTimeCountTool } from "./ObjTimeCountTool";
 import { IDTools } from "./IDTools";
 import { DebugConsts } from "./DebugConsts";
 import { DebugTool } from "../DebugTool"
-	import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
-	import { DebugInfoLayer } from "../view/nodeInfo/DebugInfoLayer"
-	import { ReCacheRecInfo } from "../view/nodeInfo/recinfos/ReCacheRecInfo"
+import { Sprite } from "laya/display/Sprite"
+import { DebugInfoLayer } from "../view/nodeInfo/DebugInfoLayer"
+import { ReCacheRecInfo } from "../view/nodeInfo/recinfos/ReCacheRecInfo"
 	/**
 	 * ...
 	 * @author ww

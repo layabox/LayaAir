@@ -1,8 +1,7 @@
-import { Laya } from "./../../../../../../../core/src/Laya";
-import { Sprite } from "../../../../../../../core/src/laya/display/Sprite"
-	import { Event } from "../../../../../../../core/src/laya/events/Event"
-	import { Browser } from "../../../../../../../core/src/laya/utils/Browser"
-	import { DisControlTool } from "../../tools/DisControlTool"
+import { Laya } from "Laya";
+import { Event } from "laya/events/Event"
+import { DisControlTool } from "../../tools/DisControlTool"
+import { Sprite } from "laya/display/Sprite";
 	/**
 	 * ...
 	 * @author ww

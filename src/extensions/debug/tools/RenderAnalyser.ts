@@ -1,8 +1,8 @@
 import { IDTools } from "./IDTools";
 import { ObjectTools } from "./ObjectTools";
-import { Laya } from "./../../../../../../core/src/Laya";
-import { Sprite } from "../../../../../../core/src/laya/display/Sprite"
-	import { NodeConsts } from "../view/nodeInfo/NodeConsts"
+import { Laya } from "Laya";
+import { Sprite } from "laya/display/Sprite"
+import { NodeConsts } from "../view/nodeInfo/NodeConsts"
 	/**
 	 * ...
 	 * @author ww
