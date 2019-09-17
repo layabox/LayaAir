@@ -27,7 +27,7 @@
 			return IDTools._ID.getID();
 		}
 		private static _idDic:any={"default":new IDTools()};
-		 static idObjE(obj:any,sign:string="default"):any
+		static idObjE(obj:any,sign:string="default"):any
 		{
 			if (obj[IDTools.idSign]) return obj;
 			if(!sign)

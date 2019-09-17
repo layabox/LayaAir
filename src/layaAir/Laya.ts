@@ -300,15 +300,15 @@ export class Laya {
 	 * @param	debugJsPath laya.debugtool.js文件路径
 	 */
 	static enableDebugPanel(debugJsPath: string = "libs/laya.debugtool.js"): void {
-		if (!Laya["DebugPanel"]) {
+		if (!window['Laya']["DebugPanel"]) {
 			var script: any = Browser.createElement("script");
 			script.onload = function (): void {
-				Laya["DebugPanel"].enable();
+				window['Laya']["DebugPanel"].enable();
 			}
 			script.src = debugJsPath;
 			Browser.document.body.appendChild(script);
 		} else {
-			Laya["DebugPanel"].enable();
+			window['Laya']["DebugPanel"].enable();
 		}
 	}
 

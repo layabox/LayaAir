@@ -1,5 +1,4 @@
 import { ObjectTools } from "./ObjectTools";
-import { Laya } from "Laya";
 ///////////////////////////////////////////////////////////
 //  ClassTool.as
 //  Macromedia ActionScript Implementation of the Class ClassTool
@@ -30,18 +29,21 @@ import { Laya } from "Laya";
 			rst=Object.getOwnPropertyDescriptor(obj,name);;
 			return rst;
 		}
+		
 		static getOwnPropertyDescriptors(obj:any):any
 		{
 			var rst:any;
 			rst=Object.getOwnPropertyDescriptors(obj);;
 			return rst;
 		}
+
 		static getOwnPropertyNames(obj:any):any[]
 		{
 			var rst:any[];
 			rst=Object.getOwnPropertyNames(obj);;
 			return rst;
 		}
+
 		static getObjectGetSetKeys(obj:any,rst:any[]=null):any[]
 		{
 			if (!rst) rst = [];
@@ -88,11 +90,13 @@ import { Laya } from "Laya";
 			rst = ObjectTools.getNoSameArr(rst);
 			return rst;
 		}
+
 		static getClassName(tar:any):string
 		{
 			if (tar instanceof Function) return tar.name;
 			return tar["constructor"].name;
 		}
+
 		static getNodeClassAndName(tar:any):string
 		{
 			if (!tar) return "null";
@@ -106,17 +110,20 @@ import { Laya } from "Laya";
 			}
 			return rst;
 		}
+
 		static getClassNameByClz(clz:new()=>any):string
 		{
 			return clz["name"];
 		}
+
 		static getClassByName(className:string):new()=>any
 		{
 			var rst:new()=>any;
-			rst = eval(className);
+			rst = window["eval"](className);
 			return rst;
 		}
-		 static createObjByName(className:string):any
+
+		static createObjByName(className:string):any
 		{
 			var clz:new()=>any;
 			clz=ClassTool.getClassByName(className);

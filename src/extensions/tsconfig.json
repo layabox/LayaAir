@@ -12,7 +12,6 @@
         }
     ],
     "exclude": [
-        "debug",
         "laya/d3Extend/Cube",
         "laya/d3Extend/D3UI",
         "laya/d3Extend/lineRender",

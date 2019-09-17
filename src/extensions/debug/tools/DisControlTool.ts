@@ -5,14 +5,11 @@ import { Laya } from "Laya";
 //  Created on:      2015-9-25 下午7:19:44
 //  Original author: ww
 ///////////////////////////////////////////////////////////
-
 import { Node } from "laya/display/Node"
 import { Sprite } from "laya/display/Sprite"
 import { Event } from "laya/events/Event"
 import { Point } from "laya/maths/Point"
 import { Rectangle } from "laya/maths/Rectangle"
-
-import { DisResizer } from "./resizer/DisResizer"
 import { SimpleResizer } from "./resizer/SimpleResizer"
 	
 	/**
@@ -27,7 +24,7 @@ import { SimpleResizer } from "./resizer/SimpleResizer"
 		constructor(){
 		}
 		private static tempP:Point = new Point();
-		 static getObjectsUnderPoint(sprite:Sprite,x:number,y:number,rst:any[]=null,filterFun:Function=null):any[]
+		static getObjectsUnderPoint(sprite:Sprite,x:number,y:number,rst:any[]=null,filterFun:Function=null):any[]
 		{
 			rst=rst?rst:[];
 			if(filterFun!=null&&!filterFun(sprite)) return rst;
@@ -50,7 +47,8 @@ import { SimpleResizer } from "./resizer/SimpleResizer"
 			}
 			return rst;
 		}
-		 static getObjectsUnderGlobalPoint(sprite:Sprite,filterFun:Function=null):any[]
+
+		static getObjectsUnderGlobalPoint(sprite:Sprite,filterFun:Function=null):any[]
 		{
 			var point:Point = new Point();
 			point.setTo(Laya.stage.mouseX, Laya.stage.mouseY);
@@ -58,7 +56,8 @@ import { SimpleResizer } from "./resizer/SimpleResizer"
 			point = ((<Sprite>sprite.parent )).globalToLocal(point);
 			return DisControlTool.getObjectsUnderPoint(sprite, point.x, point.y,null,filterFun);
 		}
-		 static findFirstObjectsUnderGlobalPoint():Sprite
+
+		static findFirstObjectsUnderGlobalPoint():Sprite
 		{
 			var disList:any[];
 			disList = DisControlTool.getObjectsUnderGlobalPoint(Laya.stage);
@@ -76,22 +75,26 @@ import { SimpleResizer } from "./resizer/SimpleResizer"
 			}
 			return tDis;
 		}
-		 static visibleAndEnableObjFun(tar:Sprite):boolean
+
+		static visibleAndEnableObjFun(tar:Sprite):boolean
 		{
 			return tar.visible&&tar.mouseEnabled;
 		}
-		 static visibleObjFun(tar:Sprite):boolean
+
+		static visibleObjFun(tar:Sprite):boolean
 		{
 			return tar.visible;
 		}
-		 static getMousePoint(sprite:Sprite):Point
+
+		static getMousePoint(sprite:Sprite):Point
 		{
 			var point:Point = new Point();
 			point.setTo(Laya.stage.mouseX, Laya.stage.mouseY);
 			point = sprite.globalToLocal(point);
 			return point;
 		}
-		 static isChildE(parent:Node, child:Node):boolean
+
+		static isChildE(parent:Node, child:Node):boolean
 		{
 			if (!parent) return false;
 			while (child)
@@ -101,11 +104,13 @@ import { SimpleResizer } from "./resizer/SimpleResizer"
 			}
 			return false;
 		}
-		 static isInTree(pNode:Node, child:Node):boolean
+
+		static isInTree(pNode:Node, child:Node):boolean
 		{
 			return pNode == child || DisControlTool.isChildE(pNode,child);
 		}
-		 static setTop(tar:Node):void
+
+		static setTop(tar:Node):void
 		{
 			if(tar&&tar.parent)
 			{
@@ -119,7 +124,7 @@ import { SimpleResizer } from "./resizer/SimpleResizer"
 		 * @param items
 		 *
 		 */
-		 static clearItemRelativeInfo(item:any):void
+		static clearItemRelativeInfo(item:any):void
 		{
 			var Nan:any = "NaN";
 			item.getLayout().left = Nan;
@@ -127,7 +132,8 @@ import { SimpleResizer } from "./resizer/SimpleResizer"
 			item.getLayout().top = Nan;
 			item.getLayout().bottom = Nan;
 		}
-		 static swap(tarA:Node, tarB:Node):void
+
+		static swap(tarA:Node, tarB:Node):void
 		{
 			if (tarA == tarB) return;
 			var iA:number;
@@ -139,7 +145,8 @@ import { SimpleResizer } from "./resizer/SimpleResizer"
 			tarA.parent.addChildAt(tarB, iA);
 			bP.addChildAt(tarA,iB);
 		}
-		 static insertToTarParent(tarA:Node,tars:any[],after:boolean=false):void
+
+		static insertToTarParent(tarA:Node,tars:any[],after:boolean=false):void
 		{
 			var tIndex:number;
 			var parent:Node;
@@ -150,7 +157,8 @@ import { SimpleResizer } from "./resizer/SimpleResizer"
 			if(after) tIndex++;
 			DisControlTool.insertToParent(parent,tars,tIndex);
 		}
-		 static insertToParent(parent:Node,tars:any[],index:number=-1):void
+
+		static insertToParent(parent:Node,tars:any[],index:number=-1):void
 		{
 			if(!parent) return;
 			if(index<0) index=parent.numChildren;
@@ -162,7 +170,8 @@ import { SimpleResizer } from "./resizer/SimpleResizer"
 				parent.addChildAt(tars[i],index);
 			}
 		}
-		 static transParent(tar:Sprite,newParent:Sprite):void
+
+		static transParent(tar:Sprite,newParent:Sprite):void
 		{
 			if(!tar||!newParent) return;
 			if(!tar.parent) return;
@@ -174,13 +183,15 @@ import { SimpleResizer } from "./resizer/SimpleResizer"
 			pos=newParent.globalToLocal(pos);
 			tar.pos(pos.x,pos.y);
 		}
-		 static transPoint(nowParent:Sprite,tarParent:Sprite,point:Point):Point
+
+		static transPoint(nowParent:Sprite,tarParent:Sprite,point:Point):Point
 		{
 			point=nowParent.localToGlobal(point);
 			point=tarParent.globalToLocal(point);
 			return point;
 		}
-		 static removeItems(itemList:any[]):void
+
+		static removeItems(itemList:any[]):void
 		{
 			var i:number, len:number;
 			len = itemList.length;
@@ -189,7 +200,8 @@ import { SimpleResizer } from "./resizer/SimpleResizer"
 				((<Node>itemList[i] )).removeSelf();
 			}
 		}
-		 static addItems(itemList:any[],parent:Node):void
+
+		static addItems(itemList:any[],parent:Node):void
 		{
 			var i:number, len:number;
 			len = itemList.length;
@@ -198,7 +210,8 @@ import { SimpleResizer } from "./resizer/SimpleResizer"
 				parent.addChild(itemList[i]);
 			}
 		}
-		 static getAllChild(tar:Node):any[]
+
+		static getAllChild(tar:Node):any[]
 		{
 			if(!tar) return [];
 			var i:number;
@@ -211,7 +224,8 @@ import { SimpleResizer } from "./resizer/SimpleResizer"
 			}
 			return rst;
 		}
-		 static upDis(child:Node):void
+
+		static upDis(child:Node):void
 		{
 			if(child&&child.parent)
 			{
@@ -227,7 +241,7 @@ import { SimpleResizer } from "./resizer/SimpleResizer"
 				tParent.setChildIndex(child,newIndex);
 			}
 		}
-		 static downDis(child:Node):void
+		static downDis(child:Node):void
 		{
 			if(child&&child.parent)
 			{
@@ -240,7 +254,7 @@ import { SimpleResizer } from "./resizer/SimpleResizer"
 				tParent.setChildIndex(child,newIndex);
 			}
 		}
-		 static setResizeAbleEx(node:Sprite):void
+		static setResizeAbleEx(node:Sprite):void
 		{
 			var clickItem:Sprite;
 			clickItem = (<Sprite>node.getChildByName("resizeBtn") );
@@ -250,33 +264,39 @@ import { SimpleResizer } from "./resizer/SimpleResizer"
 			}
 			//node.on(Event.CLICK, null, resizeHandler, [node]);
 		}
-		 static setResizeAble(node:Sprite):void
+
+		static setResizeAble(node:Sprite):void
 		{
 			node.on(Event.CLICK, null, DisControlTool.resizeHandler, [node]);
 		}
-		 static resizeHandler(tar:Sprite):void
-		{
-			DisResizer.setUp(tar);
-		}
-		 static setDragingItem(dragBar:Sprite, tar:Sprite):void
+
+		static resizeHandler:Function;
+		// (tar:Sprite):void
+		// {
+		// 	DisResizer.setUp(tar);
+		// }
+
+		static setDragingItem(dragBar:Sprite, tar:Sprite):void
 		{
 			dragBar.on(Event.MOUSE_DOWN, null, DisControlTool.dragingHandler, [tar]);
 			tar.on(Event.DRAG_END, null, DisControlTool.dragingEnd, [tar]);
 		}
 		
-		 static dragingHandler(tar:Sprite):void
+		static dragingHandler(tar:Sprite):void
 		{
 			if (tar)
 			{
 				tar.startDrag();
 			}
 		}
-		 static dragingEnd(tar:Sprite):void
+
+		static dragingEnd(tar:Sprite):void
 		{
 			DisControlTool.intFyDisPos(tar);
 			console.log(tar.x,tar.y);
 		}
-		 static showToStage(dis:Sprite, offX:number = 0, offY:number = 0):void
+
+		static showToStage(dis:Sprite, offX:number = 0, offY:number = 0):void
 		{
 			var rec:Rectangle = dis.getBounds();
 			dis.x = Laya.stage.mouseX + offX;
@@ -292,13 +312,15 @@ import { SimpleResizer } from "./resizer/SimpleResizer"
 			}
 			DisControlTool.intFyDisPos(dis);
 		}
-		 static intFyDisPos(dis:Sprite):void
+
+		static intFyDisPos(dis:Sprite):void
 		{
 			if (!dis) return;
 			dis.x = Math.round(dis.x);
 			dis.y = Math.round(dis.y);
 		}
-		 static showOnly(disList:any[], showItem:Sprite):void
+
+		static showOnly(disList:any[], showItem:Sprite):void
 		{
 			var i:number, len:number;
 			len = disList.length;
@@ -307,11 +329,13 @@ import { SimpleResizer } from "./resizer/SimpleResizer"
 				disList[i].visible = disList[i] == showItem;
 			}
 		}
-		 static showOnlyByIndex(disList:any[], index:number):void
+
+		static showOnlyByIndex(disList:any[], index:number):void
 		{
 			DisControlTool.showOnly(disList, disList[index]);
 		}
-		 static addOnly(disList:any[], showItem:Sprite,parent:Sprite):void
+
+		static addOnly(disList:any[], showItem:Sprite,parent:Sprite):void
 		{
 			var i:number, len:number;
 			len = disList.length;
@@ -326,7 +350,8 @@ import { SimpleResizer } from "./resizer/SimpleResizer"
 				}
 			}
 		}
-		 static addOnlyByIndex(disList:any[], index:number,parent:Sprite):void
+
+		static addOnlyByIndex(disList:any[], index:number,parent:Sprite):void
 		{
 			DisControlTool.addOnly(disList, disList[index],parent);
 		}

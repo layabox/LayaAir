@@ -14,18 +14,17 @@ import { DisControlTool } from "../DisControlTool"
 		/**
 		 * 最边缘的拖动条
 		 */
-		 static Side:number = 2;
+		static Side:number = 2;
 		/**
 		 * 垂直方向的拖动条
 		 */
-		 static Vertical:number = 1;
+		static Vertical:number = 1;
 		/**
 		 * 水平方向的拖动条
 		 */
-		 static Horizon:number = 0;
-		constructor(){
-			
-		}
+		static Horizon:number = 0;
+
+		constructor(){}
 		private static _up:AutoFillRec;
 		private static _down:AutoFillRec;
 		private static _left:AutoFillRec;
@@ -33,9 +32,9 @@ import { DisControlTool } from "../DisControlTool"
 		
 		private static _barList:any[];
 		private static _tar:Sprite;
-		 static barWidth:number = 2;
-		 static useGetBounds:boolean=false;
-		 static init():void
+		static barWidth:number = 2;
+		static useGetBounds:boolean=false;
+		static init():void
 		{
 			if (DisResizer._up) return;
 			
@@ -68,7 +67,7 @@ import { DisControlTool } from "../DisControlTool"
 			}
 			DisResizer.clear();
 		}
-		 static clear():void
+		static clear():void
 		{
 			DisResizer._tar = null;
 			Laya.stage.off(Event.MOUSE_UP, null, DisResizer.stageDown);
@@ -224,4 +223,4 @@ import { DisControlTool } from "../DisControlTool"
 		
 	}
 
-
+DisControlTool.resizeHandler = DisResizer.setUp;

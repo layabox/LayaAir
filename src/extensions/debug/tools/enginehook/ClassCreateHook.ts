@@ -7,12 +7,22 @@ import { RunProfile } from "../RunProfile"
 	 */
 	export class ClassCreateHook 
 	{
-		 static I:ClassCreateHook = new ClassCreateHook();
+		private static _instance:ClassCreateHook;
+		static get I():ClassCreateHook{
+			if(!ClassCreateHook._instance){
+				ClassCreateHook._instance = new ClassCreateHook();
+			}
+			return ClassCreateHook._instance;
+		}
+		static set I(value){
+			ClassCreateHook._instance = value;
+		}
+		
 		constructor(){
 			
 		}
-		 static isInited:boolean = false;
-		 hookClass(clz:new()=>any):void
+		static isInited:boolean = false;
+		hookClass(clz:new()=>any):void
 		{
 			if (ClassCreateHook.isInited) return;
 			ClassCreateHook.isInited = true;
@@ -23,8 +33,8 @@ import { RunProfile } from "../RunProfile"
 			FunHook.hook(clz, "call", createFun);
 		}
 		
-	     createInfo:any = { };
-		 classCreated(clz:new()=>any,oClass:new()=>any):void
+		createInfo:any = { };
+		classCreated(clz:new()=>any,oClass:new()=>any):void
 		{
 			var key:string;
 			key = ClassTool.getNodeClassAndName(clz);
