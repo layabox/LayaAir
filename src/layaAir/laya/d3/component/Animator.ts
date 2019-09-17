@@ -36,11 +36,6 @@ export class Animator extends Component {
 	private static _tempQuaternion0: Quaternion = new Quaternion();
 	private static _tempQuaternion1: Quaternion = new Quaternion();
 
-	private static _tempVector3Array0: Float32Array = new Float32Array(3);
-	private static _tempVector3Array1: Float32Array = new Float32Array(3);
-	private static _tempQuaternionArray0: Float32Array = new Float32Array(4);
-	private static _tempQuaternionArray1: Float32Array = new Float32Array(4);
-
 	/** 裁剪模式_始终播放动画。*/
 	static CULLINGMODE_ALWAYSANIMATE: number = 0;
 	/** 裁剪模式_不可见时完全不播放动画。*/
