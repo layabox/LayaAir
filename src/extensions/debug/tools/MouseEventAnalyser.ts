@@ -24,7 +24,7 @@ import { MouseManager } from "laya/events/MouseManager";
 		 static nodeO:any = {};
 		 static hitO:any = {};
 		
-		 static analyseNode(node:Sprite):void
+		static analyseNode(node:Sprite):void
 		{
 			DebugTool.showDisBound(node, true);
 			var _node:Sprite;
@@ -260,4 +260,7 @@ import { MouseManager } from "laya/events/MouseManager";
 		}
 	}
 
-
+DebugTool.analyseMouseHit = ()=>{
+	if (DebugTool.target)
+		MouseEventAnalyser.analyseNode(DebugTool.target);
+}

@@ -3,7 +3,7 @@ import { Sprite } from "laya/display/Sprite"
 import { RenderSprite } from "laya/renders/RenderSprite"
 import { Context } from "laya/resource/Context"
 import { Browser } from "laya/utils/Browser"
-import { CacheStyle } from "laya/display/css/CacheStyle";
+
 	/**
 	 * ...
 	 * @author ww
@@ -62,7 +62,7 @@ import { CacheStyle } from "laya/display/css/CacheStyle";
 
 		_canvas(sprite:Sprite, context:Context, x:number, y:number):void {
 			//trace("hooked canvas");
-			var _cacheStyle:CacheStyle = (sprite as any)._cacheStyle;
+			var _cacheStyle:any = sprite._cacheStyle;
 			var _next:RenderSprite = this._next;
 			var _repaint:boolean ;
 			if (!_cacheStyle.enableCanvasRender) {

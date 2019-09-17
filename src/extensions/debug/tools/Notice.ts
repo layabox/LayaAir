@@ -6,11 +6,18 @@ import { EventDispatcher } from "laya/events/EventDispatcher"
 	export class Notice extends EventDispatcher
 	{
 		
-		constructor(){super();
+		constructor(){super();}
 
-			
+		private static _instance:Notice;
+		static get I():Notice{
+			if(!Notice._instance){
+				Notice._instance = new Notice();
+			}
+			return Notice._instance;
 		}
-		 static I:Notice = new Notice();
+		static set I(value){
+			Notice._instance = value;
+		}
 		
 		/**
 		 * 发送一个消息 

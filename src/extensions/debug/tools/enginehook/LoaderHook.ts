@@ -1,8 +1,8 @@
 import { Laya } from "Laya";
 import { Event } from "laya/events/Event"
-	import { LoaderManager } from "laya/net/LoaderManager"
-	import { LocalStorage } from "laya/net/LocalStorage"
-	import { Handler } from "laya/utils/Handler"
+import { LoaderManager } from "laya/net/LoaderManager"
+import { LocalStorage } from "laya/net/LocalStorage"
+import { Handler } from "laya/utils/Handler"
 	/**
 	 * ...
 	 * @author ww

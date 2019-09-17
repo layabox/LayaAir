@@ -14,6 +14,7 @@ import { Event } from "laya/events/Event"
 import { MathUtil } from "laya/maths/MathUtil"
 import { Browser } from "laya/utils/Browser"
 import { Handler } from "laya/utils/Handler"
+import { DisplayHook } from "./tools/DisplayHook";
 	
 	/**
 	 * ...
@@ -24,7 +25,7 @@ import { Handler } from "laya/utils/Handler"
 		constructor(){
 			this._init();
 		}
-		 static I:DebugPanel;
+		static I:DebugPanel;
 		private static overlay:boolean;
 		private static _enable:boolean = false;
 		
@@ -38,6 +39,7 @@ import { Handler } from "laya/utils/Handler"
 				DebugPanel._enable = true;
 				DebugPanel.overlay = !underGame;
 				DivScripts.init();
+				DisplayHook.initMe();
 				DebugTool.initBasicFunctions();
 				RenderSpriteHook.init();
 				SpriteRenderHook.init();
@@ -50,10 +52,10 @@ import { Handler } from "laya/utils/Handler"
 			}		
 		}
 		
-		 static ChildrenSign:string = "item";
-		 static LabelSign:string = "text";
+		static ChildrenSign:string = "item";
+		static LabelSign:string = "text";
 		
-		 static getSpriteTreeArr(sprite:Sprite):any {
+		static getSpriteTreeArr(sprite:Sprite):any {
 			var rst:any;
 			rst = {};
 			rst[DebugPanel.LabelSign] = "" + ClassTool.getNodeClassAndName(sprite);
@@ -74,15 +76,15 @@ import { Handler } from "laya/utils/Handler"
 			}
 			return rst;
 		}
-		 static displayTypes:any = {"boolean": true, "number": true, "string": true};
-		 static displayKeys:any[] = [["x", "number"], ["y", "number"], ["width", "number"], ["width", "number"], ["width", "number"], ["width", "number"], ["width", "number"], ["width", "number"], ["width", "number"], ["width", "number"], ["width", "number"]];
-		 static tObjKeys:any[] = [];
-		 tShowObj:any;
-		 preValueO:any = {};
-		 static noDisplayKeys:any = {"desginWidth": true, "desginHeight": true};
-		 static Bottom:string = "bottom";
-		 static Right:string = "right";
-		 static sideType:string = DebugPanel.Bottom;
+		static displayTypes:any = {"boolean": true, "number": true, "string": true};
+		static displayKeys:any[] = [["x", "number"], ["y", "number"], ["width", "number"], ["width", "number"], ["width", "number"], ["width", "number"], ["width", "number"], ["width", "number"], ["width", "number"], ["width", "number"], ["width", "number"]];
+		static tObjKeys:any[] = [];
+		tShowObj:any;
+		preValueO:any = {};
+		static noDisplayKeys:any = {"desginWidth": true, "desginHeight": true};
+		static Bottom:string = "bottom";
+		static Right:string = "right";
+		static sideType:string = DebugPanel.Bottom;
 		
 		private removeNoDisplayKeys(arr:any[]):void {
 			var i:number;
@@ -93,7 +95,7 @@ import { Handler } from "laya/utils/Handler"
 			}
 		}
 		
-		 updateShowKeys():void {
+		updateShowKeys():void {
 			DebugPanel.tObjKeys.length = 0;
 			if (!this.tShowObj)
 				return;
@@ -105,7 +107,7 @@ import { Handler } from "laya/utils/Handler"
 			DebugPanel.tObjKeys.sort(MathUtil.sortSmallFirst);
 		}
 		
-		 static getObjectData(data:any):any[] {
+		static getObjectData(data:any):any[] {
 			var dataList:any[];
 			var tData:any;
 			var key:string;
@@ -133,11 +135,11 @@ import { Handler } from "laya/utils/Handler"
 			
 			return dataList;
 		}
-		 div:any;
-		 debug_view:any;
-		 height:number = 300;
-		 width:number = 600;
-		 clickedHandler:Handler;
+		div:any;
+		debug_view:any;
+		height:number = 300;
+		width:number = 600;
+		clickedHandler:Handler;
 		
 		private _init():void {
 			this.div = Browser.document.createElement('div');
@@ -145,59 +147,69 @@ import { Handler } from "laya/utils/Handler"
 			this.clickedHandler = new Handler(this, this.onClickSelected);
 			this.debug_view = Browser.window.layaair_debug_view;
 			this.debug_view.initLayaAirDebugView(this.div);
-			this.debug_view.tree.attachEvent("onSelect", function(id:any):void {
-					var dataO:any;
-					dataO = this.getDataByID(id, this._treeDataList[0]);
-					if (dataO.target) {
-						DebugTool.showDisBound(dataO.target);
-						this.showTargetInfo(dataO.target);
-					}
-				
-				});
-			this.debug_view.setValueChangeHandler(function(data:any, new_value:any):void {
-					this.onValueChange(data, new_value);
-				});
-			this.debug_view.onRefresh(function():void {
-					DebugPanel.I.setRoot(Laya.stage);
-				});
-			this.debug_view.onInspectElement(function():void {
-					ClickSelectTool.I.beginClickSelect(this.clickedHandler);
-				});
-			this.debug_view.onLogInfo(function():void {
-					console.log(this.tShowObj);
-				});
-			this.debug_view.onPrintEnabledNodeChain(function():void {
-					DebugTool.traceDisMouseEnable(this.tShowObj);
-				});
-			this.debug_view.onPrintSizeChain(function():void {
-					DebugTool.traceDisSizeChain(this.tShowObj);
-				});
-			this.debug_view.onToggleVisibility(function(selectd:any):void {
-					if (this.tShowObj) {
-						this.tShowObj.visible = this.debug_view.getVisibility();
-					}
-				});
-			this.debug_view.onToggleDebugBorder(function(selectd:any):void {
-					if (!this.tShowObj)
-						return;
-					SpriteRenderHook.showDisplayBorder(this.tShowObj, this.debug_view.getShowDebugBorder());
-				});
-			this.debug_view.onToggleShowCurrentCache(function(selectd:any):void {
-					CacheAnalyser.showRecacheSprite = this.debug_view.getShowCurrentCache();
-				});
-			this.debug_view.onToggleShowAllCache(function(selectd:any):void {
-					CacheAnalyser.showCacheSprite = this.debug_view.getShowAllCache();
-				});
-			this.debug_view.onToggleShowAtlas(function(selectd:any):void {
-					console.log("toggle show atlas:", this.debug_view.getShowAtlas());
-					if (this.debug_view.getShowAtlas()) {
-						AtlasTools.getInstance().start();
-					}
-					else {
-						AtlasTools.getInstance().end();
-					}
-				
-				});
+			this.debug_view.tree.attachEvent("onSelect", (id:any)=>{
+				var dataO:any;
+				dataO = this.getDataByID(id, this._treeDataList[0]);
+				if (dataO.target) {
+					DebugTool.showDisBound(dataO.target);
+					this.showTargetInfo(dataO.target);
+				}
+			
+			});
+			this.debug_view.setValueChangeHandler((data:any, new_value:any)=> {
+				this.onValueChange(data, new_value);
+			});
+
+			this.debug_view.onRefresh(()=> {
+				DebugPanel.I.setRoot(Laya.stage);
+			});
+
+			this.debug_view.onInspectElement(()=> {
+				ClickSelectTool.I.beginClickSelect(this.clickedHandler);
+			});
+
+			this.debug_view.onLogInfo(()=> {
+				console.log(this.tShowObj);
+			});
+
+			this.debug_view.onPrintEnabledNodeChain(()=> {
+				DebugTool.traceDisMouseEnable(this.tShowObj);
+			});
+
+			this.debug_view.onPrintSizeChain(()=> {
+				DebugTool.traceDisSizeChain(this.tShowObj);
+			});
+
+			this.debug_view.onToggleVisibility((selectd:any)=> {
+				if (this.tShowObj) {
+					this.tShowObj.visible = this.debug_view.getVisibility();
+				}
+			});
+
+			this.debug_view.onToggleDebugBorder((selectd:any)=> {
+				if (!this.tShowObj)
+					return;
+				SpriteRenderHook.showDisplayBorder(this.tShowObj, this.debug_view.getShowDebugBorder());
+			});
+
+			this.debug_view.onToggleShowCurrentCache((selectd:any)=> {
+				CacheAnalyser.showRecacheSprite = this.debug_view.getShowCurrentCache();
+			});
+
+			this.debug_view.onToggleShowAllCache((selectd:any)=>{
+				CacheAnalyser.showCacheSprite = this.debug_view.getShowAllCache();
+			});
+
+			this.debug_view.onToggleShowAtlas((selectd:any)=> {
+				console.log("toggle show atlas:", this.debug_view.getShowAtlas());
+				if (this.debug_view.getShowAtlas()) {
+					AtlasTools.getInstance().start();
+				}
+				else {
+					AtlasTools.getInstance().end();
+				}
+			
+			});
 			
 			JSTools.showToBody(this.div, 0, 0);
 			this.initNewDivs();
@@ -226,7 +238,7 @@ import { Handler } from "laya/utils/Handler"
 				}
 				this.adptPos();
 			}
-			switchNode.addEventListener("change", onSwitchChange);
+			switchNode.addEventListener("change", onSwitchChange.bind(this));
 		}
 		private dragArea:number = 10;
 		
@@ -268,7 +280,6 @@ import { Handler } from "laya/utils/Handler"
 			var preX:number;
 			var preY:number;
 			
-			
 			function onDivMouseMove(e:any):void {
 				
 				var abs:number;
@@ -297,6 +308,7 @@ import { Handler } from "laya/utils/Handler"
 				}
 				e.stopPropagation();
 			}
+
 			function onBodyMouseMove(e:any):void {
 				if (!isMouseDown)
 					return;
@@ -309,16 +321,16 @@ import { Handler } from "laya/utils/Handler"
 				isMouseDown = false;
 				e.stopPropagation();
 			}
-			parentNode.addEventListener("mousedown", onDivMouseDown,true)
-			parentNode.addEventListener("mousemove", onDivMouseMove,true)
-			Browser.document.body.addEventListener("mousemove", onBodyMouseMove)
-			Browser.document.body.addEventListener("mouseup", onDivMouseUp)
+			parentNode.addEventListener("mousedown", onDivMouseDown.bind(this),true);
+			parentNode.addEventListener("mousemove", onDivMouseMove.bind(this),true);
+			Browser.document.body.addEventListener("mousemove", onBodyMouseMove.bind(this));
+			Browser.document.body.addEventListener("mouseup", onDivMouseUp.bind(this));
 		}
+
 		private initDragWork():void {
 			var isMouseDown:boolean = false;
 			var preX:number;
 			var preY:number;
-			
 			
 			function onDivMouseMove(e:any):void {
 				if (DebugPanel.sideType == DebugPanel.Bottom) {
@@ -385,10 +397,10 @@ import { Handler } from "laya/utils/Handler"
 				isMouseDown = false;
 				e.stopPropagation();
 			}
-			this.div.addEventListener("mousedown", onDivMouseDown,true)
-			this.div.addEventListener("mousemove", onDivMouseMove,true)
-			Browser.document.body.addEventListener("mousemove", onBodyMouseMove)
-			Browser.document.body.addEventListener("mouseup", onDivMouseUp)
+			this.div.addEventListener("mousedown", onDivMouseDown.bind(this),true);
+			this.div.addEventListener("mousemove", onDivMouseMove.bind(this),true);
+			Browser.document.body.addEventListener("mousemove", onBodyMouseMove.bind(this));
+			Browser.document.body.addEventListener("mouseup", onDivMouseUp.bind(this));
 		}
 		
 		private onClickSelected(target:any):void {
@@ -412,7 +424,7 @@ import { Handler } from "laya/utils/Handler"
 			this.showTargetInfo(tTarget);
 		}
 		
-		 static mParseFloat(v:any):number {
+		static mParseFloat(v:any):number {
 			var rst:number;
 			rst = parseFloat(v);
 			if (isNaN(rst))
@@ -482,16 +494,19 @@ import { Handler } from "laya/utils/Handler"
 				JSTools.setPos(this.div, Browser.clientWidth - this.width, 0);
 				this.debug_view.resize(this.width, Browser.clientHeight);
 				if (!DebugPanel.overlay) {
-					Laya.stage.setScreenSize((Browser.clientWidth - this.width) * Browser.pixelRatio, Browser.clientHeight * Browser.pixelRatio);
+					let newWidth = 0;
+					if(Browser.clientWidth > this.width){
+						newWidth =(Browser.clientWidth - this.width) * Browser.pixelRatio;
+					}
+					Laya.stage.setScreenSize( newWidth, Browser.clientHeight * Browser.pixelRatio);
 				}
 			}
-			
 			this.fromMe = false;
 		}
 		
 		private _treeDataList:any[];
 		
-		 setRoot(sprite:Sprite):void {
+		setRoot(sprite:Sprite):void {
 			var mtreeo:any;
 			mtreeo = DebugPanel.getSpriteTreeArr(sprite);
 			this._treeDataList = [mtreeo];
@@ -504,7 +519,7 @@ import { Handler } from "laya/utils/Handler"
 			Laya.timer.loop(500, this, this.updateLoop);
 		}
 		
-		 getDataByID(targetID:string, nodeO:any):any {
+		getDataByID(targetID:string, nodeO:any):any {
 			if (!nodeO)
 				return null;
 			if (targetID == nodeO.id)
@@ -524,7 +539,7 @@ import { Handler } from "laya/utils/Handler"
 			return null;
 		}
 		
-		 getDataByTarget(target:any, nodeO:any):any {
+		getDataByTarget(target:any, nodeO:any):any {
 			if (!nodeO)
 				return null;
 			if (target == nodeO.target)

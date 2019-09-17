@@ -2,12 +2,9 @@
 import { Laya } from "Laya";
 import { ClassTool } from "./tools/ClassTool";
 import { CountTool } from "./tools/CountTool";
-import { DebugExport } from "./tools/DebugExport";
 import { DisController } from "./tools/DisController";
 import { DisControlTool } from "./tools/DisControlTool";
-import { DisplayHook } from "./tools/DisplayHook";
 import { DTrace } from "./tools/DTrace";
-import { MouseEventAnalyser } from "./tools/MouseEventAnalyser";
 import { RunProfile } from "./tools/RunProfile";
 import { TraceTool } from "./tools/TraceTool";
 import { WalkTools } from "./tools/WalkTools";
@@ -22,21 +19,24 @@ import { Node } from "laya/display/Node";
 import { Stat } from "laya/utils/Stat";
 import { GrahamScan } from "laya/maths/GrahamScan";
 import { RenderSprite } from "laya/renders/RenderSprite";
+import { Watcher } from "./tools/Watcher";
+// import { DisplayHook } from "./tools/DisplayHook";
+
 	/**
 	 *
 	 * @author ww
 	 * @version 1.0
-	 *
 	 * @created  2015-9-24 下午3:00:38
 	 */
+	
 	export class DebugTool {
 		constructor(){
 		}
 		
-		 static enableCacheAnalyse:boolean = false;
-		 static enableNodeCreateAnalyse:boolean = true;
-		
-		 static getMenuShowEvent():string {
+		static enableCacheAnalyse:boolean = false;
+		static enableNodeCreateAnalyse:boolean = true;
+	
+		static getMenuShowEvent():string {
 			//return Event.DOUBLE_CLICK;
 			if (Browser.onMobile) {
 				return Event.DOUBLE_CLICK;
@@ -46,8 +46,8 @@ import { RenderSprite } from "laya/renders/RenderSprite";
 			}
 		}
 		
-		 static initBasicFunctions():void {
-			DisplayHook.initMe();
+		static initBasicFunctions():void {
+			// DisplayHook.initMe();
 			if (!DebugTool.debugLayer) {
 				DebugInfoLayer.init();
 				DebugTool.debugLayer = DebugInfoLayer.I.graphicLayer;
@@ -65,8 +65,7 @@ import { RenderSprite } from "laya/renders/RenderSprite";
 //				cmdToTypeO[RenderSprite.CUSTOM] = "CUSTOM";
 //				cmdToTypeO[RenderSprite.CHILDS] = "CHILDS";
 				
-				DebugExport.export();
-				
+				DebugTool.export();
 			}
 		}
 		
@@ -76,7 +75,7 @@ import { RenderSprite } from "laya/renders/RenderSprite";
 		 * 在输出ui中输出
 		 * @param str
 		 */
-		 static dTrace(str:string):void {
+		static dTrace(str:string):void {
 			if (DebugTool._traceFun != null) {
 				DebugTool._traceFun(str);
 			}
@@ -216,17 +215,18 @@ import { RenderSprite } from "laya/renders/RenderSprite";
 			}
 		}
 		
-		 static switchNodeTree():void {
+		static switchNodeTree():void {
 
 		}
 		
-		 static analyseMouseHit():void {
-			if (DebugTool.target)
-				MouseEventAnalyser.analyseNode(DebugTool.target);
-		}
+		static analyseMouseHit:Function;
+		// ():void {
+		// 	if (DebugTool.target)
+		// 		MouseEventAnalyser.analyseNode(DebugTool.target);
+		// }
 		
-		 static selectNodeUnderMouse():void {
-			DisplayHook.instance.selectDisUnderMouse();
+		static selectNodeUnderMouse():void {
+			// DisplayHook.instance.selectDisUnderMouse();
 			DebugTool.showDisBound();
 			return;
 		}
@@ -355,7 +355,7 @@ import { RenderSprite } from "laya/renders/RenderSprite";
 		 * 设置是否显示帧率信息
 		 * @param value 是否显示true|false
 		 */
-		 static set showStatu(value:boolean) {
+		static set showStatu(value:boolean) {
 			if (value) {
 				Stat.show();
 			}
@@ -366,39 +366,39 @@ import { RenderSprite } from "laya/renders/RenderSprite";
 			}
 		}
 		
-		 static clearDebugLayer():void {
+		static clearDebugLayer():void {
 			if (DebugTool.debugLayer.graphics)
 				DebugTool.debugLayer.graphics.clear();
 		}
 		/**
 		 * debug层
 		 */
-		 static debugLayer:Sprite;
+		static debugLayer:Sprite;
 		/**
 		 * 最后点击的对象
 		 */
 		 static _target:Sprite;
 		
-		 static set target(v:Sprite) {
+		static set target(v:Sprite) {
 			DebugTool._target = v;
 		}
 		
-		 static get target():Sprite {
+		static get target():Sprite {
 			return DebugTool._target;
 		}
 		/**
 		 * 最后被选中的节点列表
 		 */
-		 static selectedNodes:any[] = [];
+		static selectedNodes:any[] = [];
 		/**
 		 * 是否自动显示选中节点列表
 		 */
-		 static autoShowSelected:boolean = true;
+		static autoShowSelected:boolean = true;
 		
 		/**
 		 * 显示选中的节点列表
 		 */
-		 static showSelected():void {
+		static showSelected():void {
 			if (!DebugTool.autoShowSelected)
 				return;
 			if (!DebugTool.selectedNodes || DebugTool.selectedNodes.length < 1)
@@ -418,7 +418,7 @@ import { RenderSprite } from "laya/renders/RenderSprite";
 		 * @param className
 		 * @return
 		 */
-		 static getClassCreateInfo(className:string):any {
+		static getClassCreateInfo(className:string):any {
 			return RunProfile.getRunInfo(className);
 		}
 		
@@ -428,21 +428,21 @@ import { RenderSprite } from "laya/renders/RenderSprite";
 		 * 是否自动显示点击对象的边框
 		 * @param value
 		 */
-		 static set showBound(value:boolean) {
+		static set showBound(value:boolean) {
 			DebugTool._showBound = value;
 			if (!DebugTool._showBound) {
 				DebugTool.clearDebugLayer();
 			}
 		}
 		
-		 static get showBound():boolean {
+		static get showBound():boolean {
 			return DebugTool._showBound;
 		}
 		
 		/**
 		 * 执行默认操作
 		 */
-		 static autoWork():void {
+		static autoWork():void {
 			if (!DebugTool.isThisShow)
 				return;
 			if (DebugTool.showBound)
@@ -463,7 +463,7 @@ import { RenderSprite } from "laya/renders/RenderSprite";
 			}
 		}
 		
-		 static traceDisMouseEnable(tar:any = null):any {
+		static traceDisMouseEnable(tar:any = null):any {
 			console.log("----------------traceDisMouseEnable--------------------");
 			if (!tar)
 				tar = DebugTool.target;
@@ -485,7 +485,7 @@ import { RenderSprite } from "laya/renders/RenderSprite";
 			return strArr.join("\n");
 		}
 		
-		 static traceDisSizeChain(tar:any = null):any {
+		static traceDisSizeChain(tar:any = null):any {
 			console.log("---------------------traceDisSizeChain-------------------");
 			if (!tar)
 				tar = DebugTool.target;
@@ -514,7 +514,7 @@ import { RenderSprite } from "laya/renders/RenderSprite";
 		 * @param sprite 对象
 		 * @param clearPre 是否清楚原先的边框图
 		 */
-		 static showDisBound(sprite:Sprite = null, clearPre:boolean = true, color:string = "#ff0000"):any {
+		static showDisBound(sprite:Sprite = null, clearPre:boolean = true, color:string = "#ff0000"):any {
 			if (!sprite)
 				sprite = DebugTool.target;
 			if (!sprite) {
@@ -537,7 +537,7 @@ import { RenderSprite } from "laya/renders/RenderSprite";
 			DebugInfoLayer.I.setTop();
 		}
 		
-		 static showDisBoundToSprite(sprite:Sprite = null, graphicSprite:Sprite = null, color:string = "#ff0000", lineWidth:number = 1):any {
+		static showDisBoundToSprite(sprite:Sprite = null, graphicSprite:Sprite = null, color:string = "#ff0000", lineWidth:number = 1):any {
 			var pointList:any[];
 //			pointList=target.getSelfBounds().getBoundPoints();
 			pointList = (sprite as any)._getBoundPointsM(true);
@@ -549,28 +549,28 @@ import { RenderSprite } from "laya/renders/RenderSprite";
 			DebugTool._disBoundRec = (Rectangle as any)._getWrapRec(pointList, DebugTool._disBoundRec);
 			graphicSprite.graphics.drawRect(DebugTool._disBoundRec.x, DebugTool._disBoundRec.y, DebugTool._disBoundRec.width, DebugTool._disBoundRec.height, null, color, lineWidth);
 		}
-		 static autoTraceEnable:boolean = false;
-		 static autoTraceBounds:boolean = false;
-		 static autoTraceSize:boolean = false;
-		 static autoTraceTree:boolean = true;
+		static autoTraceEnable:boolean = false;
+		static autoTraceBounds:boolean = false;
+		static autoTraceSize:boolean = false;
+		static autoTraceTree:boolean = true;
 		/**
 		 * 是否自动显示节点自身的CMD
 		 */
-		 static autoTraceCMD:boolean = true;
+		static autoTraceCMD:boolean = true;
 		/**
 		 *  是否自动显示节点自身已经子对象的CMD
 		 */
-		 static autoTraceCMDR:boolean = false;
+		static autoTraceCMDR:boolean = false;
 		/**
 		 * 是否自动显示节点信息
 		 */
-		 static autoTraceSpriteInfo:boolean = true;
+		static autoTraceSpriteInfo:boolean = true;
 		
 		/**
 		 *  显示节点统计信息
 		 * @return
 		 */
-		 static getNodeInfo():any {
+		static getNodeInfo():any {
 			DebugTool.counter.reset();
 			WalkTools.walkTarget(Laya.stage, DebugTool.addNodeInfo);
 //			trace("total:"+counter.count);
@@ -581,7 +581,7 @@ import { RenderSprite } from "laya/renders/RenderSprite";
 		private static _classList:any[];
 		private static _tFindClass:string;
 		
-		 static findByClass(className:string):any[] {
+		static findByClass(className:string):any[] {
 			DebugTool._classList = [];
 			DebugTool._tFindClass = className;
 			WalkTools.walkTarget(Laya.stage, DebugTool.addClassNode);
@@ -609,7 +609,7 @@ import { RenderSprite } from "laya/renders/RenderSprite";
 		 * @param sprite
 		 * @return
 		 */
-		 static traceCMD(sprite:Sprite = null):any {
+		static traceCMD(sprite:Sprite = null):any {
 			if (!sprite)
 				sprite = DebugTool.target;
 			if (!sprite) {
@@ -685,7 +685,7 @@ import { RenderSprite } from "laya/renders/RenderSprite";
 		 * @param filter
 		 * @return
 		 */
-		 static find(filter:any, ifShowSelected:boolean = true):any[] {
+		static find(filter:any, ifShowSelected:boolean = true):any[] {
 			var rst:any[];
 			rst = DebugTool.findTarget(Laya.stage, filter);
 			DebugTool.selectedNodes = rst;
@@ -703,7 +703,7 @@ import { RenderSprite } from "laya/renders/RenderSprite";
 		 * @param name
 		 * @return
 		 */
-		 static findByName(name:string):any[] {
+		static findByName(name:string):any[] {
 			DebugTool.nameFilter.name = name;
 			return DebugTool.find(DebugTool.nameFilter);
 		}
@@ -713,7 +713,7 @@ import { RenderSprite } from "laya/renders/RenderSprite";
 		 * @param startStr
 		 * @return
 		 */
-		 static findNameStartWith(startStr:string):any[] {
+		static findNameStartWith(startStr:string):any[] {
 			DebugTool.nameFilter.name = DebugTool.getStartWithFun(startStr);
 			return DebugTool.find(DebugTool.nameFilter);
 		}
@@ -723,7 +723,7 @@ import { RenderSprite } from "laya/renders/RenderSprite";
 		 * @param hasStr
 		 * @return
 		 */
-		 static findNameHas(hasStr:string, showSelected:boolean = true):any[] {
+		static findNameHas(hasStr:string, showSelected:boolean = true):any[] {
 			DebugTool.nameFilter.name = DebugTool.getHasFun(hasStr);
 			return DebugTool.find(DebugTool.nameFilter, showSelected);
 		}
@@ -750,7 +750,7 @@ import { RenderSprite } from "laya/renders/RenderSprite";
 			return rst;
 		}
 		
-		 static findTarget(target:Sprite, filter:any):any[] {
+		static findTarget(target:Sprite, filter:any):any[] {
 			var rst:any[] = [];
 			if (DebugTool.isFit(target, filter))
 				rst.push(target);
@@ -767,7 +767,7 @@ import { RenderSprite } from "laya/renders/RenderSprite";
 			return rst;
 		}
 		
-		 static findClassHas(target:Sprite, str:string):any[] {
+		static findClassHas(target:Sprite, str:string):any[] {
 			var rst:any[] = [];
 			if (ClassTool.getClassName(target).indexOf(str) >= 0)
 				rst.push(target);
@@ -807,14 +807,32 @@ import { RenderSprite } from "laya/renders/RenderSprite";
 			return true;
 		}
 		
-		 static _logFun:Function;
+		static _logFun:Function;
 		
-		 static log(... args):void {
+		static log(... args):void {
 			var arr:any[];
 			arr = DTrace.getArgArr(args);
 			if (DebugTool._logFun != null) {
 				DebugTool._logFun(arr.join(" "));
 			}
 		}
+
+		private static _exportsDic:any=
+			{
+				"DebugTool":DebugTool,
+				"Watcher":Watcher
+			};
+			
+		static export():void
+		{
+			var _window:any;
+			_window=window;;
+			var key:string;
+			for(key in DebugTool._exportsDic)
+			{
+				_window[key]=DebugTool._exportsDic[key];
+			}
+		}
 	}
 
+TraceTool._debugtrace = DebugTool.dTrace;

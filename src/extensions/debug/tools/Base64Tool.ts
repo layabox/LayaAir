@@ -105,7 +105,7 @@ import { ByteEx } from "./ByteEx";
 		 * @return 
 		 * 
 		 */
-		 static decodeToByte(base64:string):ByteEx
+		static decodeToByte(base64:string):ByteEx
 		{
 			return new ByteEx(Base64Tool.decode(base64));
 		}

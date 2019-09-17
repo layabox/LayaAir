@@ -8,7 +8,6 @@
 import { Node } from "laya/display/Node"
 import { Sprite } from "laya/display/Sprite"
 import { Browser } from "laya/utils/Browser"
-import { DebugTool } from "../DebugTool"
 	
 	/**
 	 * 
@@ -19,24 +18,24 @@ import { DebugTool } from "../DebugTool"
 	 */
 	export class TraceTool
 	{
-		constructor(){
-		}
-		 static closeAllLog():void
+		static	_debugtrace:Function;
+		constructor(){}
+		static closeAllLog():void
 		{
 			var logFun:Function;
 			logFun = TraceTool.emptyLog;
 			Browser.window.console.log = logFun;
 		}
-		 static emptyLog():void
+		static emptyLog():void
 		{
 			
 		}
-		 static tempArr:any[]=[];
+		static tempArr:any[]=[];
 		/**
 		 * 打印obj 
 		 * @param obj
 		 */
-		 static traceObj(obj:any):string
+		static traceObj(obj:any):string
 		{
 			TraceTool.tempArr.length = 0;
 			var key:string;
@@ -50,7 +49,7 @@ import { DebugTool } from "../DebugTool"
 			console.log(rst);
 			return rst;
 		}
-		 static traceObjR(obj:any):string
+		static traceObjR(obj:any):string
 		{
 			TraceTool.tempArr.length = 0;
 			var key:string;
@@ -64,27 +63,27 @@ import { DebugTool } from "../DebugTool"
 			console.log(rst);
 			return rst;
 		}
-		 static traceSize(tar:any):void
+		static traceSize(tar:any):void
 		{
-			DebugTool.dTrace("Size: x:"+tar.x+" y:"+tar.y+" w:"+tar.width+" h:"+tar.height+" scaleX:"+tar.scaleX+" scaleY:"+tar.scaleY);
+			TraceTool._debugtrace("Size: x:"+tar.x+" y:"+tar.y+" w:"+tar.width+" h:"+tar.height+" scaleX:"+tar.scaleX+" scaleY:"+tar.scaleY);
 		}
-		 static traceSplit(msg:string):void
+		static traceSplit(msg:string):void
 		{
 			console.log("---------------------"+msg+"---------------------------");
 		}
-		 static group(gName:any):void
+		static group(gName:any):void
 		{
-			console.group(gName);;
+			console.group(gName);
 		}
-		 static groupEnd():void
+		static groupEnd():void
 		{
-			console.groupEnd();;
+			console.groupEnd();
 		}
 		/**
 		 *  在js中可打印调用堆栈 
 		 * @param life 打印堆栈的深度
 		 */
-		 static getCallStack(life:number=1,s:number=1):string
+		static getCallStack(life:number=1,s:number=1):string
 		{
 			var caller:any;
 			caller=TraceTool.getCallStack;
@@ -127,7 +126,8 @@ import { DebugTool } from "../DebugTool"
 			}
 			return loc;
 		}
-		 static traceCallStack():string
+		
+		static traceCallStack():string
 		{
 			var loc:string;
 			try {
@@ -140,7 +140,7 @@ import { DebugTool } from "../DebugTool"
 			return loc;
 		}
 		private static holderDic:any={};
-		 static getPlaceHolder(len:number):string
+		static getPlaceHolder(len:number):string
 		{
 			if(!TraceTool.holderDic.hasOwnProperty(len))
 			{
@@ -155,7 +155,7 @@ import { DebugTool } from "../DebugTool"
 			}		
 			return TraceTool.holderDic[len];
 		}
-		 static traceTree(tar:Node,depth:number=0,isFirst:boolean=true):void
+		static traceTree(tar:Node,depth:number=0,isFirst:boolean=true):void
 		{
 			if(isFirst)
 			{
@@ -179,11 +179,11 @@ import { DebugTool } from "../DebugTool"
 			}
 			TraceTool.groupEnd();
 		}
-		 static getClassName(tar:any):string
+		static getClassName(tar:any):string
 		{
 			return tar["constructor"].name;
 		}
-		 static traceSpriteInfo(tar:Sprite,showBounds:boolean=true,showSize:boolean=true,showTree:boolean=true):void
+		static traceSpriteInfo(tar:Sprite,showBounds:boolean=true,showSize:boolean=true,showTree:boolean=true):void
 		{
 			if(!(tar instanceof Sprite)) 
 			{
@@ -197,7 +197,7 @@ import { DebugTool } from "../DebugTool"
 			}
 			TraceTool.traceSplit("traceSpriteInfo");
 //			trace("Sprite:"+tar.name);
-			DebugTool.dTrace(TraceTool.getClassName(tar)+":"+tar.name);
+			TraceTool._debugtrace(TraceTool.getClassName(tar)+":"+tar.name);
 			if(showTree)
 			{
 				TraceTool.traceTree(tar);

@@ -31,6 +31,7 @@ import { Axis } from "./comps/Axis"
 		private recInfo:RecInfo;
 		
 		private static _container:Sprite;
+
 		private static init():void
 		{
 			if (DisController._container) 
@@ -42,7 +43,8 @@ import { Axis } from "./comps/Axis"
 			DisController._container.mouseEnabled=true;
 			Laya.stage.addChild(DisController._container);
 		}
-		 set target(target:Sprite)
+
+		set target(target:Sprite)
 		{
 			this._target=target;
 			if(target)
@@ -58,19 +60,19 @@ import { Axis } from "./comps/Axis"
 			this.arrowAxis.target=target;
 			this.updateMe();
 		}
-		 get target():Sprite
+		get target():Sprite
 		{
 			return this._target;
 		}
-		 set type(lenType:number)
+		set type(lenType:number)
 		{
 			this.arrowAxis.type=lenType;
 		}
-		 get type():number
+		get type():number
 		{
 			return this.arrowAxis.type;
 		}
-		 switchType():void
+		switchType():void
 		{
 			this.arrowAxis.switchType();
 		}
@@ -87,6 +89,16 @@ import { Axis } from "./comps/Axis"
 			this.arrowAxis.rotation = this.recInfo.rotation;
 			this.arrowAxis.yAxis.rotation = this.recInfo.rotationV-this.recInfo.rotation;
 		}
-		 static I:DisController=new DisController();
+
+		private static _instance:DisController;
+		static get I():DisController{
+			if(!DisController._instance){
+				DisController._instance = new DisController();
+			}
+			return  DisController._instance ;
+		}
+		static set I(value){
+			DisController._instance = value;
+		}
 	}
 

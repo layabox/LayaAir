@@ -14,8 +14,18 @@ import { NodeConsts } from "../view/nodeInfo/NodeConsts"
 			this.working = true;
 		}
 		
-		 static I:RenderAnalyser = new RenderAnalyser();
-		 render(sprite:Sprite, time:number):void
+		private static _instance:RenderAnalyser;
+		static get I():RenderAnalyser{
+			if(!RenderAnalyser._instance){
+				RenderAnalyser._instance = new RenderAnalyser();
+			}
+			return RenderAnalyser._instance;
+		}
+		static set I(value){
+			RenderAnalyser._instance = value;
+		}
+		
+		render(sprite:Sprite, time:number):void
 		{
 			this.addTime(sprite, time);
 		}
