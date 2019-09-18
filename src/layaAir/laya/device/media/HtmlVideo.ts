@@ -7,8 +7,10 @@ import { ILaya } from "../../../ILaya";
  * @internal
  */
 export class HtmlVideo extends Bitmap {
-    protected video: any;
-    protected _source: any;
+    protected video: HTMLVideoElement;
+	protected _source: HTMLVideoElement;
+	protected _w=0;
+	protected _h=0;
     constructor() {
         super();
 
@@ -30,10 +32,10 @@ export class HtmlVideo extends Bitmap {
         style.top = '0px';
         style.left = '0px';
 
-        this.video.addEventListener("loadedmetadata", (function (): void {
+        this.video.addEventListener("loadedmetadata", ()=> {
             this._w = this.video.videoWidth;
             this._h = this.video.videoHeight;
-        })['bind'](this));
+        });
     }
 
     setSource(url: string, extension: number): void {

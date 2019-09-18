@@ -55,8 +55,6 @@ export class BasePoly {
         dist = Math.sqrt(perpx * perpx + perpy * perpy);
         perpx = perpx / dist * w;
         perpy = perpy / dist * w;
-        //应用矩阵。 只要旋转缩放
-        var tpx: number = perpx, tpy: number = perpy;
 
         result.push(p1x - perpx, p1y - perpy, p1x + perpx, p1y + perpy);
         for (i = 1; i < length - 1; i++) {
@@ -220,7 +218,7 @@ export class BasePoly {
         for (i = 0; i < pointnum; i++) {
             p1x = points[ci], p1y = points[ci + 1];
             p2x = points[ci + 2], p2y = points[ci + 3];
-            var p3x: number = points[ci + 4], p3y: number = points[ci + 5];
+            //var p3x: number = points[ci + 4], p3y: number = points[ci + 5];
 
         }
         if (loop) {

@@ -6,15 +6,12 @@ import { Pool } from "../../utils/Pool"
  * Graphic bounds数据类
  */
 export class BoundsStyle {
-
-
-
     /**@private */
-    bounds: Rectangle;
+    bounds: Rectangle|null;
     /**用户设的bounds*/
-    userBounds: Rectangle;
+    userBounds: Rectangle|null;
     /**缓存的bounds顶点,sprite计算bounds用*/
-    temBM: any[];
+    temBM: any[]|null;
 
     /**
      * 重置

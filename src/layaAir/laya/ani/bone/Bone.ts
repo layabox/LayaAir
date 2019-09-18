@@ -60,7 +60,6 @@ export class Bone {
                     Matrix.mul(tResultMatrix, this.parentBone.resultMatrix, this.resultMatrix);
                 }
                 else {
-                    var temp: number = 0;
                     var parent: Bone = this.parentBone;
                     var tAngle: number;
                     var cos: number;

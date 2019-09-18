@@ -10,18 +10,18 @@ import skin_vs from './skinAnishader/skinShader.vs.glsl';
 import skin_ps from './skinAnishader/skinShader.ps.glsl';
 
 export class Shader2D {
-
-
     ALPHA: number = 1;
     shader: Shader;
     filters: any[];
-    defines: ShaderDefines2D = new ShaderDefines2D();
+    defines = new ShaderDefines2D();
     shaderType: number = 0;
     colorAdd: any[];
-    fillStyle: DrawStyle = DrawStyle.DEFAULT;
-    strokeStyle: DrawStyle = DrawStyle.DEFAULT;
+    fillStyle = DrawStyle.DEFAULT;
+    strokeStyle  = DrawStyle.DEFAULT;
     destroy(): void {
-        this.defines = null;
+		//@ts-ignore
+		this.defines = null;
+		//@ts-ignore
         this.filters = null;
     }
 

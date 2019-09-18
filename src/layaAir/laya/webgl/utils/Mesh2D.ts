@@ -1,26 +1,25 @@
-import { VertexBuffer2D } from "./VertexBuffer2D";
-import { IndexBuffer2D } from "./IndexBuffer2D";
-import { Config } from "./../../../Config";
-import { BufferState2D } from "../BufferState2D"
-import { WebGLContext } from "../WebGLContext"
 import { LayaGL } from "../../layagl/LayaGL";
+import { BufferState2D } from "../BufferState2D";
+import { Config } from "./../../../Config";
+import { IndexBuffer2D } from "./IndexBuffer2D";
+import { VertexBuffer2D } from "./VertexBuffer2D";
 
 /**
  * Mesh2d只是保存数据。描述attribute用的。本身不具有渲染功能。
  */
 export class Mesh2D {
-    _stride: number = 0;			//顶点结构大小。每个mesh的顶点结构是固定的。
-    vertNum: number = 0;				//当前的顶点的个数
-    indexNum: number = 0;			//实际index 个数。例如一个三角形是3个。由于ib本身可能超过实际使用的数量，所以需要一个indexNum
-    protected _applied: boolean = false;	//是否已经设置给webgl了
+    _stride = 0;			//顶点结构大小。每个mesh的顶点结构是固定的。
+    vertNum = 0;				//当前的顶点的个数
+    indexNum = 0;			//实际index 个数。例如一个三角形是3个。由于ib本身可能超过实际使用的数量，所以需要一个indexNum
+    protected _applied = false;	//是否已经设置给webgl了
     _vb: VertexBuffer2D;			//vb和ib都可能需要在外部修改，所以public
     _ib: IndexBuffer2D;
     private _vao: BufferState2D;						//webgl VAO对象。需要WebGL扩展。
-    private static _gvaoid: number = 0;
+    private static _gvaoid = 0;
     private _attribInfo: any[];			//保存起来的属性定义数组。
-    protected _quadNum: number = 0;
+    protected _quadNum = 0;
     //public static var meshlist:Array = [];	//活着的mesh对象列表。
-    canReuse: boolean = false;	//用完以后，是删除还是回收。
+    canReuse = false;	//用完以后，是删除还是回收。
 
     /**
      * 

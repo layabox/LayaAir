@@ -34,13 +34,13 @@ export class DialogManager extends Sprite {
     lockLayer: Sprite;
 
     /**@private 全局默认弹出对话框效果，可以设置一个效果代替默认的弹出效果，如果不想有任何效果，可以赋值为null*/
-    popupEffect: Function = function (dialog: Dialog): void {
+    popupEffect = (dialog: Dialog)=>{
         dialog.scale(1, 1);
         dialog._effectTween = Tween.from(dialog, { x: ILaya.stage.width / 2, y: ILaya.stage.height / 2, scaleX: 0, scaleY: 0 }, 300, Ease.backOut, Handler.create(this, this.doOpen, [dialog]), 0, false, false);
     }
 
     /**@private 全局默认关闭对话框效果，可以设置一个效果代替默认的关闭效果，如果不想有任何效果，可以赋值为null*/
-    closeEffect: Function = function (dialog: Dialog): void {
+    closeEffect = (dialog: Dialog)=>{
         dialog._effectTween = Tween.to(dialog, { x: ILaya.stage.width / 2, y: ILaya.stage.height / 2, scaleX: 0, scaleY: 0 }, 300, Ease.strongOut, Handler.create(this, this.doClose, [dialog]), 0, false, false);
     }
 

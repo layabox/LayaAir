@@ -4,14 +4,14 @@ import { Browser } from "../../utils/Browser";
 export class CharRender_Canvas extends ICharRender {
     private static canvas: any = null;// HTMLCanvasElement;
     private ctx: any = null;
-    private lastScaleX: number = 1.0;
-    private lastScaleY: number = 1.0;
-    private needResetScale: boolean = false;
-    private maxTexW: number = 0;
-    private maxTexH: number = 0;
-    private scaleFontSize: boolean = true;
-    private showDbgInfo: boolean = false;
-    private supportImageData: boolean = true;
+    private lastScaleX = 1.0;
+    private lastScaleY = 1.0;
+    //private needResetScale: boolean = false;
+    private maxTexW = 0;
+    private maxTexH = 0;
+    private scaleFontSize = true;
+    private showDbgInfo = false;
+    private supportImageData = true;
     constructor(maxw: number, maxh: number, scalefont: boolean = true, useImageData: boolean = true, showdbg: boolean = false) {
         super();
         this.maxTexW = maxw;
@@ -98,7 +98,7 @@ export class CharRender_Canvas extends ICharRender {
 		 * @override
 		 */
 		 /*override*/ getCharBmp(char: string, font: string, lineWidth: number, colStr: string, strokeColStr: string, cri: CharRenderInfo,
-        margin_left: number, margin_top: number, margin_right: number, margin_bottom: number, rect: any[] = null): ImageData {
+        margin_left: number, margin_top: number, margin_right: number, margin_bottom: number, rect: any[]|null = null): ImageData {
         if (!this.supportImageData)
             return this.getCharCanvas(char, font, lineWidth, colStr, strokeColStr, cri, margin_left, margin_top, margin_right, margin_bottom);
         var ctx: any = this.ctx;

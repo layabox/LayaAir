@@ -138,7 +138,7 @@ export class Text extends Sprite {
     static RightToLeft: boolean = false;
 
     /**@private */
-    private _clipPoint: Point;
+    private _clipPoint: Point|null;
     /**@private 表示文本内容字符串。*/
     protected _text: string;
     /**@private 表示文本内容是否发生改变。*/
@@ -148,15 +148,15 @@ export class Text extends Sprite {
     /**@private 表示文本的高度，以像素为单位。*/
     protected _textHeight: number = 0;
     /**@private 存储文字行数信息。*/
-    protected _lines: any[] = [];
+    protected _lines: any[]|null = [];
     /**@private 保存每行宽度*/
-    protected _lineWidths: any[] = [];
+    protected _lineWidths: number[]|null = [];
     /**@private 文本的内容位置 X 轴信息。*/
     protected _startX: number = 0;
     /**@private 文本的内容位置X轴信息。 */
     protected _startY: number = 0;
     /**@private */
-    protected _words: WordText[];
+    protected _words: WordText[]|null;
     /**@private */
     protected _charSize: any = {};
     /**@private */

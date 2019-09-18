@@ -13,9 +13,9 @@ export class Rectangle {
     static TEMP: Rectangle = new Rectangle();
 
     /** @private */
-    private static _temB: any[] = [];
+    private static _temB: number[] = [];
     /** @private */
-    private static _temA: any[] = [];
+    private static _temA: number[] = [];
 
     /** 矩形左上角的 X 轴坐标。*/
     x: number;
@@ -137,7 +137,7 @@ export class Rectangle {
 	 * @param out	（可选）待输出的矩形区域。如果为空则创建一个新的。建议：尽量复用对象，减少对象创建消耗。
 	 * @return	返回相交的矩形区域对象。
 	 */
-    intersection(rect: Rectangle, out: Rectangle = null): Rectangle {
+    intersection(rect: Rectangle, out: Rectangle|null = null): Rectangle|null {
         if (!this.intersects(rect)) return null;
         out || (out = new Rectangle());
         out.x = Math.max(this.x, rect.x);
@@ -154,7 +154,7 @@ export class Rectangle {
 	 * @param	out	用于存储输出结果的矩形对象。如果为空，则创建一个新的。建议：尽量复用对象，减少对象创建消耗。Rectangle.TEMP对象用于对象复用。
 	 * @return	充当两个矩形的联合的新 Rectangle 对象。
 	 */
-    union(source: Rectangle, out: Rectangle = null): Rectangle {
+    union(source: Rectangle, out: Rectangle|null = null): Rectangle {
         out || (out = new Rectangle());
         this.clone(out);
         if (source.width <= 0 || source.height <= 0) return out;
@@ -168,7 +168,7 @@ export class Rectangle {
 	 * @param out	（可选）用于存储结果的矩形对象。如果为空，则创建一个新的。建议：尽量复用对象，减少对象创建消耗。。Rectangle.TEMP对象用于对象复用。
 	 * @return Rectangle 对象，其 x、y、width 和 height 属性的值与当前 Rectangle 对象的对应值相同。
 	 */
-    clone(out: Rectangle = null): Rectangle {
+    clone(out: Rectangle|null = null): Rectangle {
         out || (out = new Rectangle());
         out.x = this.x;
         out.y = this.y;
@@ -214,8 +214,8 @@ export class Rectangle {
 	 * 返回代表当前矩形的顶点数据。
 	 * @return 顶点数据。
 	 */
-    _getBoundPoints(): any[] {
-        var rst: any[] = Rectangle._temB;
+    _getBoundPoints() {
+        var rst = Rectangle._temB;
         rst.length = 0;
         if (this.width == 0 || this.height == 0) return rst;
         rst.push(this.x, this.y, this.x + this.width, this.y, this.x, this.y + this.height, this.x + this.width, this.y + this.height);
@@ -240,7 +240,7 @@ export class Rectangle {
 	 * @param pointList 点列表。
 	 * @return 包含所有点的最小矩形矩形对象。
 	 */
-    static _getWrapRec(pointList: ArrayLike<number>, rst: Rectangle = null): Rectangle {
+    static _getWrapRec(pointList: ArrayLike<number>, rst: Rectangle|null = null): Rectangle {
 
         if (!pointList || pointList.length < 1) return rst ? rst.setTo(0, 0, 0, 0) : Rectangle.TEMP.setTo(0, 0, 0, 0);
         rst = rst ? rst : Rectangle.create();

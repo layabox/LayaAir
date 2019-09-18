@@ -1,8 +1,7 @@
-import { ILaya } from "../../ILaya";
 
 /**
-	 * <code>Styles</code> 定义了组件常用的样式属性。
-	 */
+ * <code>Styles</code> 定义了组件常用的样式属性。
+ */
 export class Styles {
 
     /**

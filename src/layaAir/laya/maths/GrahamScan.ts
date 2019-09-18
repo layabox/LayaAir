@@ -26,7 +26,7 @@ export class GrahamScan {
         return (p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y);
     }
 
-    private static _getPoints(count: number, tempUse: boolean = false, rst: any[] = null): any[] {
+    private static _getPoints(count: number, tempUse: boolean = false, rst: any[]|null = null): any[] {
         if (!GrahamScan._mPointList) GrahamScan._mPointList = [];
         while (GrahamScan._mPointList.length < count) GrahamScan._mPointList.push(new Point());
         if (!rst) rst = [];

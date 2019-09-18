@@ -1,9 +1,8 @@
+import { LayaGL } from "../../layagl/LayaGL";
+import { Matrix } from "../../maths/Matrix";
+import { IndexBuffer2D } from "./IndexBuffer2D";
 import { Mesh2D } from "./Mesh2D";
 import { VertexBuffer2D } from "./VertexBuffer2D";
-import { IndexBuffer2D } from "./IndexBuffer2D";
-import { Matrix } from "../../maths/Matrix"
-import { LayaGPU } from "../LayaGPU";
-import { LayaGL } from "../../layagl/LayaGL";
 
 /**
  * 与MeshQuadTexture基本相同。不过index不是固定的

@@ -18,7 +18,7 @@ export class DrawPathCmd {
     /**
      * 路径集合，路径支持以下格式：[["moveTo",x,y],["lineTo",x,y],["arcTo",x1,y1,x2,y2,r],["closePath"]]。
      */
-    paths: any[];
+    paths: any[]|null;
     /**
      * （可选）刷子定义，支持以下设置{fillStyle:"#FF0000"}。
      */
@@ -51,7 +51,7 @@ export class DrawPathCmd {
 
     /**@private */
     run(context: Context, gx: number, gy: number): void {
-        context._drawPath(this.x + gx, this.y + gy, this.paths, this.brush, this.pen);
+        this.paths && context._drawPath(this.x + gx, this.y + gy, this.paths, this.brush, this.pen);
     }
 
     /**@private */

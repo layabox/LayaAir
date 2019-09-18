@@ -439,10 +439,10 @@ export class RenderSprite {
 
 		var _cacheStyle: CacheStyle = sprite._cacheStyle;
 		var _next: RenderSprite = this._next;
-		var canvas: HTMLCanvas = _cacheStyle.canvas;
+		var canvas = _cacheStyle.canvas;
 
 		var tCacheType: string = _cacheStyle.cacheAs;
-		var scaleInfo: Point = _cacheStyle._calculateCacheRect(sprite, tCacheType, 0, 0);
+		_cacheStyle._calculateCacheRect(sprite, tCacheType, 0, 0);
 
 		if (!canvas) {
 			canvas = _cacheStyle.canvas = ((new WebGLCacheAsNormalCanvas(context, sprite) as any) as HTMLCanvas);

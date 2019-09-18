@@ -113,7 +113,7 @@ export class Socket extends EventDispatcher {
      * @param protocols	子协议名称。子协议名称字符串，或由多个子协议名称字符串构成的数组
      * @see laya.utils.Byte
      */
-    constructor(host: string = null, port: number = 0, byteClass: new () => any = null, protocols: any[] = null) {
+    constructor(host: string|null = null, port: number = 0, byteClass: new () => any = null, protocols: any[]|null = null) {
         super();
         this._byteClass = byteClass ? byteClass : Byte;
         this.protocols = protocols;

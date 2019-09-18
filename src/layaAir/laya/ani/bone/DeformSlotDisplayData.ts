@@ -43,16 +43,15 @@ export class DeformSlotDisplayData {
 		if (this.timeList.length <= 0) {
 			return;
 		}
-		var i: number = 0;
-		var n: number = 0;
-		var tTime: number = this.timeList[0];
+		var i = 0;
+		var tTime = this.timeList[0];
 		if (time < tTime) {
 			return;
 		}
 
-		var tVertexCount: number = this.vectices[0].length;
+		var tVertexCount = this.vectices[0].length;
 		var tVertices: any[] = [];
-		var tFrameIndex: number = this.binarySearch1(this.timeList, time);
+		var tFrameIndex = this.binarySearch1(this.timeList, time);
 		this.frameIndex = tFrameIndex;
 		if (time >= this.timeList[this.timeList.length - 1]) {
 			var lastVertices: any[] = this.vectices[this.vectices.length - 1];
@@ -70,11 +69,11 @@ export class DeformSlotDisplayData {
 			return;
 		}
 
-		var tTweenKey: boolean = this.tweenKeyList[this.frameIndex];
-		var tPrevVertices: any[] = this.vectices[this.frameIndex - 1];
-		var tNextVertices: any[] = this.vectices[this.frameIndex];
-		var tPreFrameTime: number = this.timeList[this.frameIndex - 1];
-		var tFrameTime: number = this.timeList[this.frameIndex];
+		//var tTweenKey: boolean = this.tweenKeyList[this.frameIndex];
+		var tPrevVertices = this.vectices[this.frameIndex - 1];
+		var tNextVertices = this.vectices[this.frameIndex];
+		var tPreFrameTime = this.timeList[this.frameIndex - 1];
+		var tFrameTime = this.timeList[this.frameIndex];
 
 		if (this.tweenKeyList[tFrameIndex - 1]) {
 			alpha = (time - tPreFrameTime) / (tFrameTime - tPreFrameTime);

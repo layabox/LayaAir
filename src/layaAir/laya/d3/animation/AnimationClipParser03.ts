@@ -55,7 +55,7 @@ export class AnimationClipParser03 {
 	static parse(clip: AnimationClip, reader: Byte): void {
 		AnimationClipParser03._animationClip = clip;
 		AnimationClipParser03._reader = reader;
-		var arrayBuffer: ArrayBuffer = reader.__getBuffer();
+		var arrayBuffer = reader.__getBuffer();
 		AnimationClipParser03.READ_DATA();
 		AnimationClipParser03.READ_BLOCK();
 		AnimationClipParser03.READ_STRINGS();

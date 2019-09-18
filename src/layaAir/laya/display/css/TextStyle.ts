@@ -40,11 +40,11 @@ export class TextStyle extends SpriteStyle {
     /**
      * 文本背景颜色，以字符串表示。
      */
-    bgColor: string;
+    bgColor: string|null;
     /**
      * 文本边框背景颜色，以字符串表示。
      */
-    borderColor: string;
+    borderColor: string|null;
     /**
      * <p>指定文本字段是否是密码文本字段。</p>
      * 如果此属性的值为 true，则文本字段被视为密码文本字段，并使用星号而不是实际字符来隐藏输入的字符。如果为 false，则不会将文本字段视为密码文本字段。
@@ -66,9 +66,9 @@ export class TextStyle extends SpriteStyle {
     /**是否显示下划线*/
     underline: boolean;
     /**下划线颜色*/
-    underlineColor: string;
+    underlineColor: string|null;
     /**当前使用的位置字体。*/
-    currBitmapFont: BitmapFont;
+    currBitmapFont: BitmapFont|null;
     /**
      * @override
      */

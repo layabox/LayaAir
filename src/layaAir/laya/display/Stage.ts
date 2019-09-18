@@ -156,7 +156,7 @@ export class Stage extends Sprite {
 	/**@private */
 	private _isVisibility: boolean;
 	/**@internal webgl Color*/
-	_wgColor: any[] = [0, 0, 0, 1];
+	_wgColor: number[]|null = [0, 0, 0, 1];
 	/**@internal */
 	_scene3Ds: any[] = [];
 
@@ -170,7 +170,7 @@ export class Stage extends Sprite {
 	/**@internal */
 	_3dUI: Sprite[] = [];
 	/**@internal */
-	_curUIBase: Sprite = null; 		// 给鼠标事件capture用的。用来找到自己的根。因为3d界面的根不是stage（界面链会被3d对象打断）
+	_curUIBase: Sprite|null = null; 		// 给鼠标事件capture用的。用来找到自己的根。因为3d界面的根不是stage（界面链会被3d对象打断）
 	/**使用物理分辨率作为canvas大小，会改进渲染效果，但是会降低性能*/
 	useRetinalCanvas: boolean = false;
 	/**场景类，引擎中只有一个stage实例，此实例可以通过Laya.stage访问。*/
@@ -190,22 +190,22 @@ export class Stage extends Sprite {
 		this.useRetinalCanvas = Config.useRetinalCanvas;
 
 		var window: any = Browser.window;
-		var _me: Stage = this;	//for TS 。 TS的_this是有特殊用途的
+		//var _me = this;	
 
-		window.addEventListener("focus", function (): void {
+		window.addEventListener("focus", ()=>{
 			this._isFocused = true;
-			_me.event(Event.FOCUS);
-			_me.event(Event.FOCUS_CHANGE);
+			this.event(Event.FOCUS);
+			this.event(Event.FOCUS_CHANGE);
 		});
-		window.addEventListener("blur", function (): void {
+		window.addEventListener("blur", ()=> {
 			this._isFocused = false;
-			_me.event(Event.BLUR);
-			_me.event(Event.FOCUS_CHANGE);
-			if (_me._isInputting()) Input["inputElement"].target.focus = false;
+			this.event(Event.BLUR);
+			this.event(Event.FOCUS_CHANGE);
+			if (this._isInputting()) Input["inputElement"].target.focus = false;
 		});
 
 		// 各种浏览器兼容
-		var hidden: string = "hidden", state: string = "visibilityState", visibilityChange: string = "visibilitychange";
+		var state = "visibilityState", visibilityChange = "visibilitychange";
 		var document: any = window.document;
 		if (typeof document.hidden !== "undefined") {
 			visibilityChange = "visibilitychange";
@@ -221,38 +221,37 @@ export class Stage extends Sprite {
 			state = "webkitVisibilityState";
 		}
 
-		window.document.addEventListener(visibilityChange, visibleChangeFun);
-		function visibleChangeFun(): void {
+		window.document.addEventListener(visibilityChange, ()=> {
 			if (Browser.document[state] == "hidden") {
 				this._isVisibility = false;
-				if (_me._isInputting()) Input["inputElement"].target.focus = false;
+				if (this._isInputting()) Input["inputElement"].target.focus = false;
 			} else {
 				this._isVisibility = true;
 			}
 			this.renderingEnabled = this._isVisibility;
-			_me.event(Event.VISIBILITY_CHANGE);
-		}
-		window.addEventListener("resize", function (): void {
+			this.event(Event.VISIBILITY_CHANGE);
+		});
+		window.addEventListener("resize", ()=> {
 			// 处理屏幕旋转。旋转后收起输入法。
 			var orientation: any = Browser.window.orientation;
-			if (orientation != null && orientation != this._previousOrientation && _me._isInputting()) {
+			if (orientation != null && orientation != this._previousOrientation && this._isInputting()) {
 				Input["inputElement"].target.focus = false;
 			}
 			this._previousOrientation = orientation;
 
 			// 弹出输入法不应对画布进行resize。
-			if (_me._isInputting()) return;
+			if (this._isInputting()) return;
 
 			// Safari横屏工具栏偏移
 			if (Browser.onSafari)
-				_me._safariOffsetY = (Browser.window.__innerHeight || Browser.document.body.clientHeight || Browser.document.documentElement.clientHeight) - Browser.window.innerHeight;
+				this._safariOffsetY = (Browser.window.__innerHeight || Browser.document.body.clientHeight || Browser.document.documentElement.clientHeight) - Browser.window.innerHeight;
 
-			_me._resetCanvas();
+			this._resetCanvas();
 		});
 
 		// 微信的iframe不触发orientationchange。
-		window.addEventListener("orientationchange", function (e: any): void {
-			_me._resetCanvas();
+		window.addEventListener("orientationchange", (e: any)=>{
+			this._resetCanvas();
 		});
 
 		this.on(Event.MOUSE_MOVE, this, this._onmouseMove);

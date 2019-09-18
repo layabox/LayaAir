@@ -12,7 +12,7 @@ export class Matrix {
     /**用于中转使用的 <code>Matrix</code> 对象。*/
     static TEMP: Matrix = new Matrix();
     /**@internal */
-    static _createFun: Function = null;
+    static _createFun: Function|null = null;
 
     /**缩放或旋转图像时影响像素沿 x 轴定位的值。*/
     a: number;

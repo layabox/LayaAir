@@ -13,7 +13,7 @@ export class Shader extends BaseShader {
     private static _count: number = 0;
     /**@internal */
     static _preCompileShader: any = {}; //存储预编译结果，可以通过名字获得内容,目前不支持#ifdef嵌套和条件
-    private _attribInfo: any[] = null;
+    private _attribInfo: any[]|null = null;
 
     static SHADERNAME2ID: number = 0.0002;
 
@@ -125,7 +125,7 @@ export class Shader extends BaseShader {
 	 * @param	name:
 	 * @param	nameMap 帮助里要详细解释为什么需要nameMap
 	 */
-    constructor(vs: string, ps: string, saveName: any = null, nameMap: any = null, bindAttrib: any[] = null) {
+    constructor(vs: string, ps: string, saveName: any = null, nameMap: any = null, bindAttrib: any[]|null = null) {
         super();
         if ((!vs) || (!ps)) throw "Shader Error";
         this._attribInfo = bindAttrib;

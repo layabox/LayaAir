@@ -133,7 +133,7 @@ export class LoaderManager extends EventDispatcher {
             var itemCount: number = items.length;
             var loadedCount: number = 0;
             if (progress) {
-                var progress2: Handler = Handler.create(progress.caller, progress.method, progress.args, false);
+                var progress2: Handler = Handler.create(progress.caller, progress?progress.method:null, progress.args, false);
             }
 
             for (var i: number = 0; i < itemCount; i++) {
@@ -552,9 +552,11 @@ export class LoaderManager extends EventDispatcher {
                 item.progress = value;
                 var num = 0;
                 for (var j = 0; j < items.length; j++) {
-                    var item1 = items[j];
-                    let prog = item1.progress==undefined?0:item1.progress;
-                    num += item1.size * prog;
+					var item1 = items[j];
+					if(item1){
+                    	let prog = item1.progress==undefined?0:item1.progress;
+						num += item1.size==undefined?0:item1.size * prog;
+					}
                 }
                 var v = num / totalSize;
                 progress.runWith(v);

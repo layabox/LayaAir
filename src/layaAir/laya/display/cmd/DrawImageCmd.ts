@@ -11,7 +11,7 @@ export class DrawImageCmd {
     /**
      * 纹理。
      */
-    texture: Texture;
+    texture: Texture|null;
     /**
      * （可选）X轴偏移量。
      */
@@ -45,14 +45,15 @@ export class DrawImageCmd {
      * 回收到对象池
      */
     recover(): void {
-        this.texture._removeReference();
+        this.texture && this.texture._removeReference();
         this.texture = null;
         Pool.recover("DrawImageCmd", this);
     }
 
     /**@private */
     run(context: Context, gx: number, gy: number): void {
-        context.drawTexture(this.texture, this.x + gx, this.y + gy, this.width, this.height);
+		if(this.texture)
+        	context.drawTexture(this.texture, this.x + gx, this.y + gy, this.width, this.height);
     }
 
     /**@private */

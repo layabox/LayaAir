@@ -14,7 +14,7 @@ export class IkConstraint {
 	/**@internal */
 	private _bones: Bone[];
 	/**@internal */
-	private _data: IkConstraintData;
+	//private _data: IkConstraintData;
 	name: string;
 	mix: number;
 	bendDirection: number;
@@ -26,7 +26,7 @@ export class IkConstraint {
 
 	//TODO:coverage
 	constructor(data: IkConstraintData, bones: Bone[]) {
-		this._data = data;
+		//this._data = data;
 		this._targetBone = bones[data.targetBoneIndex];
 		this.isSpine = data.isSpine;
 		if (this._bones == null) this._bones = [];

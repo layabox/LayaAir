@@ -75,7 +75,7 @@ export class TextTexture extends Resource {
             return this.addCharCanvas(data, x, y, uv);
         }
         !this._source && this.recreateResource();
-        var gl: WebGLRenderingContext = LayaGL.instance;
+        var gl = LayaGL.instance;
         WebGLContext.bindTexture(gl, gl.TEXTURE_2D, this._source);
         !ILaya.Render.isConchApp && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
         var dt: any = data.data;

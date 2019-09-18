@@ -1,7 +1,6 @@
-import { Buffer2D } from "./Buffer2D";
-import { LayaGL } from "../../layagl/LayaGL"
-import { WebGLContext } from "../WebGLContext"
+import { LayaGL } from "../../layagl/LayaGL";
 import { Buffer } from "./Buffer";
+import { Buffer2D } from "./Buffer2D";
 
 export class IndexBuffer2D extends Buffer2D {
     static create: Function = function (bufferUsage: number = 0x88e4/* WebGLContext.STATIC_DRAW*/): IndexBuffer2D {

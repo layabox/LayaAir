@@ -9,7 +9,7 @@ export class AtlasInfoManager {
 
 	private static _fileLoadDic: any = {};
 
-	static enable(infoFile: string, callback: Handler = null): void {
+	static enable(infoFile: string, callback: Handler|null = null): void {
 		ILaya.loader.load(infoFile, Handler.create(null, AtlasInfoManager._onInfoLoaded, [callback]), null, Loader.JSON);
 	}
 

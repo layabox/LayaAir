@@ -18,7 +18,7 @@ export class DrawLinesCmd {
     /**
      * 线段的点集合。格式:[x1,y1,x2,y2,x3,y3...]。
      */
-    points: any[];
+    points: number[]|null;
     /**
      * 线段颜色，或者填充绘图的渐变对象。
      */
@@ -53,7 +53,7 @@ export class DrawLinesCmd {
 
     /**@private */
     run(context: Context, gx: number, gy: number): void {
-        context._drawLines(this.x + gx, this.y + gy, this.points, this.lineColor, this.lineWidth, this.vid);
+        this.points && context._drawLines(this.x + gx, this.y + gy, this.points, this.lineColor, this.lineWidth, this.vid);
     }
 
     /**@private */

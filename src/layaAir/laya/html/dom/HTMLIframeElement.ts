@@ -21,7 +21,7 @@ export class HTMLIframeElement extends HTMLDivElement {
     set href(url: string) {
         url = this._element.formatURL(url);
         var l: Loader = new Loader();
-        l.once(Event.COMPLETE, null, function (data: string): void {
+        l.once(Event.COMPLETE, null, (data: string)=> {
             var pre: URL = this._element.URI;
             this._element.URI = new URL(url);
             this.innerHTML = data;

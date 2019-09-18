@@ -1,7 +1,6 @@
-import { Mesh2D } from "./Mesh2D";
-import { Context } from "../../resource/Context"
-import { WebGLContext } from "../WebGLContext"
 import { LayaGL } from "../../layagl/LayaGL";
+import { Context } from "../../resource/Context";
+import { Mesh2D } from "./Mesh2D";
 
 /**
  * 用来画矢量的mesh。顶点格式固定为 x,y,rgba

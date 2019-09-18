@@ -1,6 +1,5 @@
 import { AtlasGrid } from "./AtlasGrid";
 import { TextTexture } from "./TextTexture";
-import { TextRender } from "./TextRender";
 import { Point } from "../../maths/Point"
 import { CharRenderInfo } from "./CharRenderInfo"
 import { ILaya } from "../../../ILaya";
@@ -11,8 +10,8 @@ export class TextAtlas {
     texWidth: number = 1024;
     texHeight: number = 1024;
     private atlasgrid: AtlasGrid;
-    private protectDist: number = 1;
-    texture: TextTexture = null;
+    //private protectDist: number = 1;
+    texture: TextTexture|null = null;
     charMaps: any = {};		// 保存文字信息的字典
     static atlasGridW: number = 16;
 
@@ -26,7 +25,7 @@ export class TextAtlas {
     }
 
     setProtecteDist(d: number): void {
-        this.protectDist = d;
+        //this.protectDist = d;
     }
 
     /**

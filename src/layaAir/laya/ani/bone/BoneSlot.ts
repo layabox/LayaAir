@@ -278,10 +278,6 @@ export class BoneSlot {
 					return;
 				}
 				var tIBArray: any[];
-				var tRed: number = 1;
-				var tGreed: number = 1;
-				var tBlue: number = 1;
-				var tAlpha: number = 1;
 				if (this.currDisplayData.bones == null) {
 					var tVertices: any[] = this.currDisplayData.weights;
 					if (this.deformData) {

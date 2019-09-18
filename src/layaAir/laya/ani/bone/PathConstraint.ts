@@ -14,7 +14,7 @@ import { Matrix } from "../../maths/Matrix";
  */
 export class PathConstraint {
 
-	private static NONE: number = -1;
+	//private static NONE: number = -1;
 	private static BEFORE: number = -2;
 	private static AFTER: number = -3;
 

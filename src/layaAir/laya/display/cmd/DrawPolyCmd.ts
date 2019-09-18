@@ -18,7 +18,7 @@ export class DrawPolyCmd {
     /**
      * 多边形的点集合。
      */
-    points: any[];
+    points: number[]|null;
     /**
      * 填充颜色，或者填充绘图的渐变对象。
      */
@@ -62,7 +62,7 @@ export class DrawPolyCmd {
 
     /**@private */
     run(context: Context, gx: number, gy: number): void {
-        context._drawPoly(this.x + gx, this.y + gy, this.points, this.fillColor, this.lineColor, this.lineWidth, this.isConvexPolygon, this.vid);
+        this.points && context._drawPoly(this.x + gx, this.y + gy, this.points, this.fillColor, this.lineColor, this.lineWidth, this.isConvexPolygon, this.vid);
     }
 
     /**@private */

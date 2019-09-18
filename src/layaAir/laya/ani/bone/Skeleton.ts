@@ -535,7 +535,7 @@ export class Skeleton extends Sprite {
 
 		this._templet.getOriginalData(this._aniClipIndex, this._curOriginalData, /*_templet._fullFrames[_aniClipIndex]*/null, _clipIndex, stopped ? (curTime + this._player.cacheFrameRateInterval) : curTime);
 		var tSectionArr: any[] = this._aniSectionDic[this._aniClipIndex];
-		var tParentMatrix: Matrix;//父骨骼矩阵的引用
+		//var tParentMatrix: Matrix;//父骨骼矩阵的引用
 		var tStartIndex: number = 0;
 		var i: number = 0, j: number = 0, k: number = 0, n: number = 0;
 		var tDBBoneSlot: BoneSlot;

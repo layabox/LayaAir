@@ -2,11 +2,11 @@ import { Shader } from "../Shader"
 import { ShaderValue } from "../ShaderValue"
 
 export class Shader2X extends Shader {
-    _params2dQuick2: any[] = null;
+    _params2dQuick2: any[]|null = null;
     _shaderValueWidth: number = 0;
     _shaderValueHeight: number = 0;
 
-    constructor(vs: string, ps: string, saveName: any = null, nameMap: any = null, bindAttrib: any[] = null) {
+    constructor(vs: string, ps: string, saveName: any = null, nameMap: any = null, bindAttrib: any[]|null = null) {
         super(vs, ps, saveName, nameMap, bindAttrib);
     }
 
@@ -38,7 +38,7 @@ export class Shader2X extends Shader {
         return this._params2dQuick2;
     }
 
-    static create(vs: string, ps: string, saveName: any = null, nameMap: any = null, bindAttrib: any[] = null): Shader {
+    static create(vs: string, ps: string, saveName: any = null, nameMap: any = null, bindAttrib: any[]|null = null): Shader {
         return new Shader2X(vs, ps, saveName, nameMap, bindAttrib);
     }
 }

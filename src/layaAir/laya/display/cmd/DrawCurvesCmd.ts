@@ -18,7 +18,7 @@ export class DrawCurvesCmd {
     /**
      * 线段的点集合，格式[controlX, controlY, anchorX, anchorY...]。
      */
-    points: any[];
+    points: number[]|null;
     /**
      * 线段颜色，或者填充绘图的渐变对象。
      */
@@ -50,7 +50,8 @@ export class DrawCurvesCmd {
 
     /**@private */
     run(context: Context, gx: number, gy: number): void {
-        context.drawCurves(this.x + gx, this.y + gy, this.points, this.lineColor, this.lineWidth);
+		if(this.points)
+        	context.drawCurves(this.x + gx, this.y + gy, this.points, this.lineColor, this.lineWidth);
     }
 
     /**@private */

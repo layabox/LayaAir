@@ -364,8 +364,8 @@ export class AnimationTemplet extends Resource {
 			this.unfixedLastAniIndex = aniIndex;
 		}
 
-		for (var i: number = 0, n: number = nodes.length, outOfs: number = 0; i < n; i++) {
-			var node: AnimationNodeContent = nodes[i];
+		for (var i = 0, n = nodes.length; i < n; i++) {
+			var node = nodes[i];
 			if (playCurTime < this.unfixedCurrentTimes[i])
 				this.unfixedCurrentFrameIndexes[i] = 0;
 			this.unfixedCurrentTimes[i] = playCurTime;

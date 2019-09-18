@@ -13,7 +13,7 @@ export class DrawTextureCmd {
     /**
      * 纹理。
      */
-    texture: Texture;
+    texture: Texture|null;
     /**
      * （可选）X轴偏移量。
      */
@@ -33,7 +33,7 @@ export class DrawTextureCmd {
     /**
      * （可选）矩阵信息。
      */
-    matrix: Matrix;
+    matrix: Matrix|null;
     /**
      * （可选）透明度。
      */
@@ -43,13 +43,13 @@ export class DrawTextureCmd {
      */
     color: string;
 
-    colorFlt: ColorFilter = null;
+    colorFlt: ColorFilter|null = null;
     /**
      * （可选）混合模式。
      */
     blendMode: string;
 
-    uv: number[] = null;
+    uv: number[]|null = null;
 
     /**@private */
     static create(texture: Texture, x: number, y: number, width: number, height: number, matrix: Matrix, alpha: number, color: string, blendMode: string, uv?: number[]): DrawTextureCmd {
@@ -64,7 +64,7 @@ export class DrawTextureCmd {
         cmd.alpha = alpha;
         cmd.color = color;
         cmd.blendMode = blendMode;
-        cmd.uv = uv;
+        cmd.uv = uv==undefined?null:uv;
         if (color) {
             cmd.colorFlt = new ColorFilter();
             cmd.colorFlt.setColor(color);
@@ -77,7 +77,7 @@ export class DrawTextureCmd {
      * 回收到对象池
      */
     recover(): void {
-        this.texture._removeReference();
+        this.texture && this.texture._removeReference();
         this.texture = null;
         this.matrix = null;
         Pool.recover("DrawTextureCmd", this);
@@ -85,7 +85,7 @@ export class DrawTextureCmd {
 
     /**@private */
     run(context: Context, gx: number, gy: number): void {
-        context.drawTextureWithTransform(this.texture, this.x, this.y, this.width, this.height, this.matrix, gx, gy, this.alpha, this.blendMode, this.colorFlt, this.uv);
+        this.texture && context.drawTextureWithTransform(this.texture, this.x, this.y, this.width, this.height, this.matrix, gx, gy, this.alpha, this.blendMode, this.colorFlt, this.uv);
     }
 
     /**@private */

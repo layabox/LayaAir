@@ -1,8 +1,7 @@
+import { LayaGL } from "../../layagl/LayaGL";
 import { Shader } from "../shader/Shader";
-import { WebGLContext } from "../WebGLContext";
 import { InlcudeFile } from "./InlcudeFile";
 import { ShaderNode } from "./ShaderNode";
-import { LayaGL } from "../../layagl/LayaGL";
 
 /**
  * @private

@@ -20,7 +20,7 @@ export class ICharRender {
      * @param	size  返回宽高
      * @return
      */
-    getCharBmp(char: string, font: string, lineWidth: number, colStr: string, strokeColStr: string, size: CharRenderInfo, margin_left: number, margin_top: number, margin_right: number, margin_bottom: number, rect: any[] = null): ImageData {
+    getCharBmp(char: string, font: string, lineWidth: number, colStr: string, strokeColStr: string, size: CharRenderInfo, margin_left: number, margin_top: number, margin_right: number, margin_bottom: number, rect: any[]|null = null): ImageData|null {
         return null;
     }
 }

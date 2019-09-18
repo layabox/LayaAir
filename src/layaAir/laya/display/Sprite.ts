@@ -1553,7 +1553,7 @@ export class Sprite extends Node {
             else loaded.call(this);
         }
 
-        function loaded(): void {
+        function loaded(this:Sprite): void {
             this.repaint(SpriteConst.REPAINT_ALL);
             complete && complete.run();
         }

@@ -105,7 +105,7 @@ export class Handler {
      * @param	once 是否只执行一次，如果为true，回调后执行recover()进行回收，默认为true。
      * @return  返回创建的handler实例。
      */
-    static create(caller: any, method: Function, args: any[]|null = null, once: boolean = true): Handler {
+    static create(caller: any, method: Function|null, args: any[]|null = null, once: boolean = true): Handler {
         if (Handler._pool.length) 
             return (Handler._pool.pop() as Handler).setTo(caller, method, args, once);
         return new Handler(caller, method, args, once);

@@ -1,11 +1,9 @@
+import { ILaya } from "../../ILaya";
+import { Event } from "../events/Event";
+import { Browser } from "../utils/Browser";
+import { Handler } from "../utils/Handler";
 import { HttpRequest } from "./HttpRequest";
 import { Loader } from "./Loader";
-import { Event } from "../events/Event"
-import { Handler } from "../utils/Handler"
-//import { RunDriver } from "../utils/RunDriver"
-import { Timer } from "../utils/Timer";
-import { Browser } from "../utils/Browser";
-import { ILaya } from "../../ILaya";
 
 /**
  * @private
@@ -13,8 +11,8 @@ import { ILaya } from "../../ILaya";
 export class TTFLoader {
     private static _testString: string = "LayaTTFFont";
     fontName: string;
-    complete: Handler;
-    err: Handler;
+    complete: Handler|null;
+    err: Handler|null;
     private _fontTxt: string;
     private _url: string;
     private _div: any;

@@ -204,8 +204,8 @@ export class Templet extends AnimationTemplet {
 		var i: number = 0;
 		this._loadList = [];
 		var tByte: Byte = new Byte(this.getPublicExtData());
-		var tX: number = 0, tY: number = 0, tWidth: number = 0, tHeight: number = 0;
-		var tFrameX: number = 0, tFrameY: number = 0, tFrameWidth: number = 0, tFrameHeight: number = 0;
+		var tX = 0, tY = 0, tWidth = 0, tHeight = 0;
+		var tFrameX = 0, tFrameY = 0, tFrameWidth = 0, tFrameHeight = 0;
 		var tTempleData: number = 0;
 		var tTextureLen: number = tByte.getInt32();
 		var tTextureName: string = tByte.readUTFString();

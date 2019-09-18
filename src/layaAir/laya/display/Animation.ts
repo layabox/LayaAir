@@ -329,7 +329,7 @@ export class Animation extends AnimationBase {
                 // 如果getRes失败了，有可能是相同的文件已经被删掉了，因为下面在用完后会立即删除
                 // 这时候可以取frameMap中去找，如果找到了，走正常流程。--王伟
                 if (Animation.framesMap[url + "#"]) {
-                    _this._setFramesFromCache(this._actionName, true);
+                    _this._setFramesFromCache(_this._actionName, true);
                     _this.index = 0;
                     _this._resumePlay();
                     if (loaded) loaded.run();

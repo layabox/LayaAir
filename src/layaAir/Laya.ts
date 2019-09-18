@@ -151,7 +151,7 @@ export class Laya {
 	/**
 	 * 兼容as3编译工具 
 	 */
-	static __init(_classs: any): void {
+	static __init(_classs: any[]): void {
 		_classs.forEach(function (o) { o.__init$ && o.__init$(); });
 	}
 
@@ -162,7 +162,7 @@ export class Laya {
 	 * @param	plugins 插件列表，比如 WebGL（使用WebGL方式渲染）。
 	 * @return	返回原生canvas引用，方便对canvas属性进行修改
 	 */
-	static init(width: number, height: number, ...plugins): any {
+	static init(width: number, height: number, plugins:any[]|null): any {
 		if (Laya._isinit) return;
 		Laya._isinit = true;
 		ArrayBuffer.prototype.slice || (ArrayBuffer.prototype.slice = Laya._arrayBufferSlice);
@@ -214,9 +214,11 @@ export class Laya {
 		Mouse.__init__();
 
 		WebGL.inner_enable();
-		for (var i: number = 0, n: number = plugins.length; i < n; i++) {
-			if (plugins[i] && plugins[i].enable) {
-				plugins[i].enable();
+		if(plugins){
+			for (var i = 0, n = plugins.length; i < n; i++) {
+				if (plugins[i] && plugins[i].enable) {
+					plugins[i].enable();
+				}
 			}
 		}
 		if (ILaya.Render.isConchApp) {
@@ -449,7 +451,7 @@ export var isWXPosMsg:boolean;
 export var alertGlobalError = Laya.alertGlobalError;
 export var enableDebugPanel = Laya.enableDebugPanel;
 
-export function _static(_class,def){
+export function _static(_class:any,def:any){
     for(var i=0,sz=def.length;i<sz;i+=2){
         if(def[i]=='length') 
             _class.length=def[i+1].call(_class);
