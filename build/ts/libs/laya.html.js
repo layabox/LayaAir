@@ -1906,31 +1906,6 @@
 	IHtml.HTMLParse = HTMLParse;
 
 	/**
-	 * iframe标签类，目前用于加载外并解析数据
-	 */
-	class HTMLIframeElement extends HTMLDivElement {
-	    constructor() {
-	        super();
-	        this._element._getCSSStyle().valign = "middle";
-	    }
-	    /**
-	     * 加载html文件，并解析数据
-	     * @param	url
-	     */
-	    set href(url) {
-	        url = this._element.formatURL(url);
-	        var l = new Laya.Loader();
-	        l.once(Laya.Event.COMPLETE, null, function (data) {
-	            var pre = this._element.URI;
-	            this._element.URI = new Laya.URL(url);
-	            this.innerHTML = data;
-	            !pre || (this._element.URI = pre);
-	        });
-	        l.load(url, Laya.Loader.TEXT);
-	    }
-	}
-
-	/**
 	 * @private
 	 */
 	class HTMLImageElement$1 extends HTMLElement {
@@ -2003,6 +1978,31 @@
 	}
 	IHtml.HTMLImageElement = HTMLImageElement$1;
 	Laya.ILaya.regClass(HTMLImageElement$1);
+
+	/**
+	 * iframe标签类，目前用于加载外并解析数据
+	 */
+	class HTMLIframeElement extends HTMLDivElement {
+	    constructor() {
+	        super();
+	        this._element._getCSSStyle().valign = "middle";
+	    }
+	    /**
+	     * 加载html文件，并解析数据
+	     * @param	url
+	     */
+	    set href(url) {
+	        url = this._element.formatURL(url);
+	        var l = new Laya.Loader();
+	        l.once(Laya.Event.COMPLETE, null, function (data) {
+	            var pre = this._element.URI;
+	            this._element.URI = new Laya.URL(url);
+	            this.innerHTML = data;
+	            !pre || (this._element.URI = pre);
+	        });
+	        l.load(url, Laya.Loader.TEXT);
+	    }
+	}
 
 	exports.HTMLBrElement = HTMLBrElement;
 	exports.HTMLDivElement = HTMLDivElement;

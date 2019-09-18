@@ -17985,6 +17985,14 @@ declare module laya.d3.shader {
 }
 
 declare module laya.d3.shader {
+	class ShaderDefine  {
+
+		constructor(index:number,value:number);
+	}
+
+}
+
+declare module laya.d3.shader {
 	class ShaderDefines  {
 
 		/*
@@ -18311,6 +18319,24 @@ declare module laya.d3.utils {
 		readonly height:number;
 
 		constructor(width:number,height:number);
+	}
+
+}
+
+declare module laya.d3.utils {
+	class SystemUtils  {
+
+		/*
+		 * 是否支持纹理格式。
+		 * @param format 纹理格式。
+		 */
+		static supportTextureFormat(format:number):boolean;
+
+		/*
+		 * 是否支持渲染纹理格式。
+		 * @param format 渲染纹理格式。
+		 */
+		static supportRenderTextureFormat(format:number):boolean;
 	}
 
 }
@@ -34285,6 +34311,28 @@ declare module laya.resource {
 }
 
 declare module laya.resource {
+enum RenderTextureFormat {
+    /**RGB格式,每个通道8位。*/
+    R8G8B8 = 0,
+    /**RGBA格式,每个通道8位。*/
+    R8G8B8A8 = 1,
+    /**Alpha格式,8位。*/
+    Alpha8 = 2,
+    /**RGBA格式,每个通道16位。*/
+    R16G16B16A16 = 14
+}enum RenderTextureDepthFormat {
+    /**深度格式_DEPTH_16。*/
+    DEPTH_16 = 0,
+    /**深度格式_STENCIL_8。*/
+    STENCIL_8 = 1,
+    /**深度格式_DEPTHSTENCIL_16_8。*/
+    DEPTHSTENCIL_16_8 = 2,
+    /**深度格式_DEPTHSTENCIL_NONE。*/
+    DEPTHSTENCIL_NONE = 3
+}
+}
+
+declare module laya.resource {
 
 	/*
 	 * <code>Resource</code> 资源存取类。
@@ -34827,6 +34875,34 @@ declare module laya.resource {
 		getPixels():Uint8Array;
 	}
 
+}
+
+declare module laya.resource {
+enum TextureFormat {
+    /**纹理格式_R8G8B8。*/
+    R8G8B8 = 0,
+    /**纹理格式_R8G8B8A8。*/
+    R8G8B8A8 = 1,
+    /**纹理格式_ALPHA8。*/
+    Alpha8 = 2,
+    /**纹理格式_DXT1。*/
+    DXT1 = 3,
+    /**纹理格式_DXT5。*/
+    DXT5 = 4,
+    /**纹理格式_ETC2RGB。*/
+    ETC1RGB = 5,
+    /**纹理格式_ETC2RGB_PUNCHTHROUGHALPHA。*/
+    /**纹理格式_PVRTCRGB_2BPPV。*/
+    PVRTCRGB_2BPPV = 9,
+    /**纹理格式_PVRTCRGBA_2BPPV。*/
+    PVRTCRGBA_2BPPV = 10,
+    /**纹理格式_PVRTCRGB_4BPPV。*/
+    PVRTCRGB_4BPPV = 11,
+    /**纹理格式_PVRTCRGBA_4BPPV。*/
+    PVRTCRGBA_4BPPV = 12,
+    /**RGBA格式纹理,每个通道32位浮点数。*/
+    R32G32B32A32 = 15
+}
 }
 
 declare module laya.resource {
@@ -37212,7 +37288,7 @@ declare module laya.ui {
 	/*
 	 * <code>List</code> 控件可显示项目列表。默认为垂直方向列表。可通过UI编辑器自定义列表。
 	 * @example <caption>以下示例代码，创建了一个 <code>List</code> 实例。</caption>package{import laya.ui.List;import laya.utils.Handler;public class List_Example{public function List_Example(){Laya.init(640, 800, "false");//设置游戏画布宽高、渲染模式。Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。Laya.loader.load(["resource/ui/vscroll.png", "resource/ui/vscroll$bar.png", "resource/ui/vscroll$down.png", "resource/ui/vscroll$up.png"], Handler.create(this, onLoadComplete));}private function onLoadComplete():void{var arr:Array = [];//创建一个数组，用于存贮列表的数据信息。for (var i:int = 0; i &lt; 20; i++){arr.push({label: "item" + i});}var list:List = new List();//创建一个 List 类的实例对象 list 。list.itemRender = Item;//设置 list 的单元格渲染器。list.repeatX = 1;//设置 list 的水平方向单元格数量。list.repeatY = 10;//设置 list 的垂直方向单元格数量。list.vScrollBarSkin = "resource/ui/vscroll.png";//设置 list 的垂直方向滚动条皮肤。list.array = arr;//设置 list 的列表数据源。list.pos(100, 100);//设置 list 的位置。list.selectEnable = true;//设置 list 可选。list.selectHandler = new Handler(this, onSelect);//设置 list 改变选择项执行的处理器。Laya.stage.addChild(list);//将 list 添加到显示列表。}private function onSelect(index:int):void{trace("当前选择的项目索引： index= ", index);}}}import laya.ui.Box;import laya.ui.Label;class Item extends Box{public function Item(){graphics.drawRect(0, 0, 100, 20,null, "#ff0000");var label:Label = new Label();label.text = "100000";label.name = "label";//设置 label 的name属性值。label.size(100, 20);addChild(label);}}
-	 * @example (function (_super){    function Item(){        Item.__super.call(this);//初始化父类        this.graphics.drawRect(0, 0, 100, 20, "#ff0000");        var label = new laya.ui.Label();//创建一个 Label 类的实例对象 label 。        label.text = "100000";//设置 label 的文本内容。        label.name = "label";//设置 label 的name属性值。        label.size(100, 20);//设置 label 的宽度、高度。        this.addChild(label);//将 label 添加到显示列表。    };    Laya.class(Item,"mypackage.listExample.Item",_super);//注册类 Item 。})(laya.ui.Box);Laya.init(640, 800);//设置游戏画布宽高、渲染模式。Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。var res = ["resource/ui/vscroll.png", "resource/ui/vscroll$bar.png", "resource/ui/vscroll$down.png", "resource/ui/vscroll$up.png"];Laya.loader.load(res, new laya.utils.Handler(this, onLoadComplete));//加载资源。function onLoadComplete() {    var arr = [];//创建一个数组，用于存贮列表的数据信息。    for (var i = 0; i &lt; 20; i++) {        arr.push({label: "item" + i});    }    var list = new laya.ui.List();//创建一个 List 类的实例对象 list 。    list.itemRender = mypackage.listExample.Item;//设置 list 的单元格渲染器。    list.repeatX = 1;//设置 list 的水平方向单元格数量。    list.repeatY = 10;//设置 list 的垂直方向单元格数量。    list.vScrollBarSkin = "resource/ui/vscroll.png";//设置 list 的垂直方向滚动条皮肤。    list.array = arr;//设置 list 的列表数据源。    list.pos(100, 100);//设置 list 的位置。    list.selectEnable = true;//设置 list 可选。    list.selectHandler = new laya.utils.Handler(this, onSelect);//设置 list 改变选择项执行的处理器。    Laya.stage.addChild(list);//将 list 添加到显示列表。}function onSelect(index){    console.log("当前选择的项目索引： index= ", index);}
+	 * @example (function (_super){    function Item(){        Item.__super.call(this);//初始化父类        this.graphics.drawRect(0, 0, 100, 20, "#ff0000");        var label = new laya.ui.Label();//创建一个 Label 类的实例对象 label 。        label.text = "100000";//设置 label 的文本内容。        label.name = "label";//设置 label 的name属性值。        label.size(100, 20);//设置 label 的宽度、高度。        this.addChild(label);//将 label 添加到显示列表。    };    Laya.class(Item,"mypackage.listExample.Item",_super);//注册类 Item 。})(laya.ui.Box); Laya.init(640, 800);//设置游戏画布宽高、渲染模式。Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。var res = ["resource/ui/vscroll.png", "resource/ui/vscroll$bar.png", "resource/ui/vscroll$down.png", "resource/ui/vscroll$up.png"];Laya.loader.load(res, new laya.utils.Handler(this, onLoadComplete));//加载资源。 function onLoadComplete() {    var arr = [];//创建一个数组，用于存贮列表的数据信息。    for (var i = 0; i &lt; 20; i++) {        arr.push({label: "item" + i});    }     var list = new laya.ui.List();//创建一个 List 类的实例对象 list 。    list.itemRender = mypackage.listExample.Item;//设置 list 的单元格渲染器。    list.repeatX = 1;//设置 list 的水平方向单元格数量。    list.repeatY = 10;//设置 list 的垂直方向单元格数量。    list.vScrollBarSkin = "resource/ui/vscroll.png";//设置 list 的垂直方向滚动条皮肤。    list.array = arr;//设置 list 的列表数据源。    list.pos(100, 100);//设置 list 的位置。    list.selectEnable = true;//设置 list 可选。    list.selectHandler = new laya.utils.Handler(this, onSelect);//设置 list 改变选择项执行的处理器。    Laya.stage.addChild(list);//将 list 添加到显示列表。} function onSelect(index){    console.log("当前选择的项目索引： index= ", index);}
 	 * @example import List = laya.ui.List;import Handler = laya.utils.Handler;public class List_Example {    public List_Example() {        Laya.init(640, 800);//设置游戏画布宽高。        Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。        Laya.loader.load(["resource/ui/vscroll.png", "resource/ui/vscroll$bar.png", "resource/ui/vscroll$down.png", "resource/ui/vscroll$up.png"], Handler.create(this, this.onLoadComplete));    }    private onLoadComplete(): void {        var arr= [];//创建一个数组，用于存贮列表的数据信息。        for (var i: number = 0; i &lt; 20; i++)        {            arr.push({ label: "item" + i });        }        var list: List = new List();//创建一个 List 类的实例对象 list 。        list.itemRender = Item;//设置 list 的单元格渲染器。        list.repeatX = 1;//设置 list 的水平方向单元格数量。        list.repeatY = 10;//设置 list 的垂直方向单元格数量。        list.vScrollBarSkin = "resource/ui/vscroll.png";//设置 list 的垂直方向滚动条皮肤。        list.array = arr;//设置 list 的列表数据源。        list.pos(100, 100);//设置 list 的位置。        list.selectEnable = true;//设置 list 可选。        list.selectHandler = new Handler(this, this.onSelect);//设置 list 改变选择项执行的处理器。        Laya.stage.addChild(list);//将 list 添加到显示列表。    }    private onSelect(index: number): void {        console.log("当前选择的项目索引： index= ", index);    }}import Box = laya.ui.Box;import Label = laya.ui.Label;class Item extends Box {    constructor() {        this.graphics.drawRect(0, 0, 100, 20, null, "#ff0000");        var label: Label = new Label();        label.text = "100000";        label.name = "label";//设置 label 的name属性值。        label.size(100, 20);        this.addChild(label);    }}
 	 */
 	class List extends laya.ui.Box implements laya.ui.IRender,laya.ui.IItem  {
@@ -47619,6 +47695,8 @@ declare module Laya {
 
 	class ShaderData extends laya.d3.shader.ShaderData {}
 
+	class ShaderDefine extends laya.d3.shader.ShaderDefine {}
+
 	class ShaderDefines extends laya.d3.shader.ShaderDefines {}
 
 	/*
@@ -47671,6 +47749,8 @@ declare module Laya {
 	class Scene3DUtils extends laya.d3.utils.Scene3DUtils {}
 
 	class Size extends laya.d3.utils.Size {}
+
+	class SystemUtils extends laya.d3.utils.SystemUtils {}
 
 	/*
 	 * <code>Utils3D</code> 类用于创建3D工具。
@@ -49263,7 +49343,7 @@ declare module Laya {
 	/*
 	 * <code>List</code> 控件可显示项目列表。默认为垂直方向列表。可通过UI编辑器自定义列表。
 	 * @example <caption>以下示例代码，创建了一个 <code>List</code> 实例。</caption>package{import laya.ui.List;import laya.utils.Handler;public class List_Example{public function List_Example(){Laya.init(640, 800, "false");//设置游戏画布宽高、渲染模式。Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。Laya.loader.load(["resource/ui/vscroll.png", "resource/ui/vscroll$bar.png", "resource/ui/vscroll$down.png", "resource/ui/vscroll$up.png"], Handler.create(this, onLoadComplete));}private function onLoadComplete():void{var arr:Array = [];//创建一个数组，用于存贮列表的数据信息。for (var i:int = 0; i &lt; 20; i++){arr.push({label: "item" + i});}var list:List = new List();//创建一个 List 类的实例对象 list 。list.itemRender = Item;//设置 list 的单元格渲染器。list.repeatX = 1;//设置 list 的水平方向单元格数量。list.repeatY = 10;//设置 list 的垂直方向单元格数量。list.vScrollBarSkin = "resource/ui/vscroll.png";//设置 list 的垂直方向滚动条皮肤。list.array = arr;//设置 list 的列表数据源。list.pos(100, 100);//设置 list 的位置。list.selectEnable = true;//设置 list 可选。list.selectHandler = new Handler(this, onSelect);//设置 list 改变选择项执行的处理器。Laya.stage.addChild(list);//将 list 添加到显示列表。}private function onSelect(index:int):void{trace("当前选择的项目索引： index= ", index);}}}import laya.ui.Box;import laya.ui.Label;class Item extends Box{public function Item(){graphics.drawRect(0, 0, 100, 20,null, "#ff0000");var label:Label = new Label();label.text = "100000";label.name = "label";//设置 label 的name属性值。label.size(100, 20);addChild(label);}}
-	 * @example (function (_super){    function Item(){        Item.__super.call(this);//初始化父类        this.graphics.drawRect(0, 0, 100, 20, "#ff0000");        var label = new laya.ui.Label();//创建一个 Label 类的实例对象 label 。        label.text = "100000";//设置 label 的文本内容。        label.name = "label";//设置 label 的name属性值。        label.size(100, 20);//设置 label 的宽度、高度。        this.addChild(label);//将 label 添加到显示列表。    };    Laya.class(Item,"mypackage.listExample.Item",_super);//注册类 Item 。})(laya.ui.Box);Laya.init(640, 800);//设置游戏画布宽高、渲染模式。Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。var res = ["resource/ui/vscroll.png", "resource/ui/vscroll$bar.png", "resource/ui/vscroll$down.png", "resource/ui/vscroll$up.png"];Laya.loader.load(res, new laya.utils.Handler(this, onLoadComplete));//加载资源。function onLoadComplete() {    var arr = [];//创建一个数组，用于存贮列表的数据信息。    for (var i = 0; i &lt; 20; i++) {        arr.push({label: "item" + i});    }    var list = new laya.ui.List();//创建一个 List 类的实例对象 list 。    list.itemRender = mypackage.listExample.Item;//设置 list 的单元格渲染器。    list.repeatX = 1;//设置 list 的水平方向单元格数量。    list.repeatY = 10;//设置 list 的垂直方向单元格数量。    list.vScrollBarSkin = "resource/ui/vscroll.png";//设置 list 的垂直方向滚动条皮肤。    list.array = arr;//设置 list 的列表数据源。    list.pos(100, 100);//设置 list 的位置。    list.selectEnable = true;//设置 list 可选。    list.selectHandler = new laya.utils.Handler(this, onSelect);//设置 list 改变选择项执行的处理器。    Laya.stage.addChild(list);//将 list 添加到显示列表。}function onSelect(index){    console.log("当前选择的项目索引： index= ", index);}
+	 * @example (function (_super){    function Item(){        Item.__super.call(this);//初始化父类        this.graphics.drawRect(0, 0, 100, 20, "#ff0000");        var label = new laya.ui.Label();//创建一个 Label 类的实例对象 label 。        label.text = "100000";//设置 label 的文本内容。        label.name = "label";//设置 label 的name属性值。        label.size(100, 20);//设置 label 的宽度、高度。        this.addChild(label);//将 label 添加到显示列表。    };    Laya.class(Item,"mypackage.listExample.Item",_super);//注册类 Item 。})(laya.ui.Box); Laya.init(640, 800);//设置游戏画布宽高、渲染模式。Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。var res = ["resource/ui/vscroll.png", "resource/ui/vscroll$bar.png", "resource/ui/vscroll$down.png", "resource/ui/vscroll$up.png"];Laya.loader.load(res, new laya.utils.Handler(this, onLoadComplete));//加载资源。 function onLoadComplete() {    var arr = [];//创建一个数组，用于存贮列表的数据信息。    for (var i = 0; i &lt; 20; i++) {        arr.push({label: "item" + i});    }     var list = new laya.ui.List();//创建一个 List 类的实例对象 list 。    list.itemRender = mypackage.listExample.Item;//设置 list 的单元格渲染器。    list.repeatX = 1;//设置 list 的水平方向单元格数量。    list.repeatY = 10;//设置 list 的垂直方向单元格数量。    list.vScrollBarSkin = "resource/ui/vscroll.png";//设置 list 的垂直方向滚动条皮肤。    list.array = arr;//设置 list 的列表数据源。    list.pos(100, 100);//设置 list 的位置。    list.selectEnable = true;//设置 list 可选。    list.selectHandler = new laya.utils.Handler(this, onSelect);//设置 list 改变选择项执行的处理器。    Laya.stage.addChild(list);//将 list 添加到显示列表。} function onSelect(index){    console.log("当前选择的项目索引： index= ", index);}
 	 * @example import List = laya.ui.List;import Handler = laya.utils.Handler;public class List_Example {    public List_Example() {        Laya.init(640, 800);//设置游戏画布宽高。        Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。        Laya.loader.load(["resource/ui/vscroll.png", "resource/ui/vscroll$bar.png", "resource/ui/vscroll$down.png", "resource/ui/vscroll$up.png"], Handler.create(this, this.onLoadComplete));    }    private onLoadComplete(): void {        var arr= [];//创建一个数组，用于存贮列表的数据信息。        for (var i: number = 0; i &lt; 20; i++)        {            arr.push({ label: "item" + i });        }        var list: List = new List();//创建一个 List 类的实例对象 list 。        list.itemRender = Item;//设置 list 的单元格渲染器。        list.repeatX = 1;//设置 list 的水平方向单元格数量。        list.repeatY = 10;//设置 list 的垂直方向单元格数量。        list.vScrollBarSkin = "resource/ui/vscroll.png";//设置 list 的垂直方向滚动条皮肤。        list.array = arr;//设置 list 的列表数据源。        list.pos(100, 100);//设置 list 的位置。        list.selectEnable = true;//设置 list 可选。        list.selectHandler = new Handler(this, this.onSelect);//设置 list 改变选择项执行的处理器。        Laya.stage.addChild(list);//将 list 添加到显示列表。    }    private onSelect(index: number): void {        console.log("当前选择的项目索引： index= ", index);    }}import Box = laya.ui.Box;import Label = laya.ui.Label;class Item extends Box {    constructor() {        this.graphics.drawRect(0, 0, 100, 20, null, "#ff0000");        var label: Label = new Label();        label.text = "100000";        label.name = "label";//设置 label 的name属性值。        label.size(100, 20);        this.addChild(label);    }}
 	 */
 

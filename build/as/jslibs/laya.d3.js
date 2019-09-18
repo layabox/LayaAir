@@ -2835,9 +2835,9 @@
 	        re[9] = at.y;
 	        re[10] = at.z;
 	        // In case of reflexions//TODO:是否不用计算dot后的值即为结果
-	        ((re[0] * m11 + re[1] * m12 + re[2] * m13) /*Vector3.dot(right,Right)*/ < 0.0) && (se[0] = -sX);
-	        ((re[4] * m21 + re[5] * m22 + re[6] * m23) /* Vector3.dot(up, Up)*/ < 0.0) && (se[1] = -sY);
-	        ((re[8] * m31 + re[9] * m32 + re[10] * m33) /*Vector3.dot(at, Backward)*/ < 0.0) && (se[2] = -sZ);
+	        ((re[0] * m11 + re[1] * m12 + re[2] * m13) /*Vector3.dot(right,Right)*/ < 0.0) && (se.x = -sX);
+	        ((re[4] * m21 + re[5] * m22 + re[6] * m23) /* Vector3.dot(up, Up)*/ < 0.0) && (se.y = -sY);
+	        ((re[8] * m31 + re[9] * m32 + re[10] * m33) /*Vector3.dot(at, Backward)*/ < 0.0) && (se.z = -sZ);
 	        return true;
 	    }
 	    /**
@@ -6396,11 +6396,11 @@
 	                        if (!playStateInfo._finish) {
 	                            speed = this._speed * animatorState.speed;
 	                            this._updatePlayer(animatorState, playStateInfo, delta * speed, clip.islooping);
-	                            if (needRender) {
-	                                this._updateClipDatas(animatorState, addtive, playStateInfo, timerScale * speed);
-	                            }
 	                        }
 	                        if (needRender) {
+	                            //even the animatorState has finish,must call _updateClipDatas(animatorState....),
+	                            //because other animator share this clip will change the public data in clip
+	                            this._updateClipDatas(animatorState, addtive, playStateInfo, timerScale * speed);
 	                            this._updateClipDatas(crossClipState, addtive, crossPlayStateInfo, timerScale * crossScale * crossSpeed);
 	                            this._setCrossClipDatasToNode(controllerLayer, animatorState, crossClipState, crossWeight, i === 0);
 	                        }
@@ -12110,7 +12110,7 @@
 	                }
 	                else {
 	                    if (queue.lastTransparentBatched) {
-	                        elements[elements.length - 1].staticBatchElementList.add((this));
+	                        elements[queueElements.length - 1].staticBatchElementList.add((this));
 	                    }
 	                    else {
 	                        var staBatchElement = staManager._getBatchRenderElementFromPool();
@@ -12126,7 +12126,7 @@
 	                        staBatchList.length = 0;
 	                        staBatchList.add(staLastElement);
 	                        staBatchList.add(this);
-	                        elements[elements.length - 1] = staBatchElement;
+	                        elements[queueElements.length - 1] = staBatchElement;
 	                    }
 	                    queue.lastTransparentBatched = true;
 	                }
@@ -12148,7 +12148,7 @@
 	                }
 	                else {
 	                    if (queue.lastTransparentBatched) {
-	                        var instanceBatchElementList = elements[elements.length - 1].instanceBatchElementList;
+	                        var instanceBatchElementList = elements[queueElements.length - 1].instanceBatchElementList;
 	                        if (instanceBatchElementList.length === SubMeshInstanceBatch.instance.maxInstanceCount) {
 	                            queueElements.add(this);
 	                            queue.lastTransparentBatched = false;
@@ -12171,7 +12171,7 @@
 	                        insBatchList.length = 0;
 	                        insBatchList.add(insLastElement);
 	                        insBatchList.add(this);
-	                        elements[elements.length - 1] = insBatchElement;
+	                        elements[queueElements.length - 1] = insBatchElement;
 	                        queue.lastTransparentBatched = true;
 	                    }
 	                }
@@ -12193,7 +12193,7 @@
 	                }
 	                else {
 	                    if (queue.lastTransparentBatched) {
-	                        elements[elements.length - 1].vertexBatchElementList.add((this));
+	                        elements[queueElements.length - 1].vertexBatchElementList.add((this));
 	                    }
 	                    else {
 	                        var dynBatchElement = dynManager._getBatchRenderElementFromPool();
@@ -12208,7 +12208,7 @@
 	                        dynBatchList.length = 0;
 	                        dynBatchList.add(dynLastElement);
 	                        dynBatchList.add(this);
-	                        elements[elements.length - 1] = dynBatchElement;
+	                        elements[queueElements.length - 1] = dynBatchElement;
 	                    }
 	                    queue.lastTransparentBatched = true;
 	                }
@@ -44076,51 +44076,6 @@
 	}
 
 	/**
-	 * <code>Point2PointConstraint</code> 类用于创建物理组件的父类。
-	 */
-	class Point2PointConstraint {
-	    /**
-	     * 创建一个 <code>Point2PointConstraint</code> 实例。
-	     */
-	    constructor() {
-	        /**@internal */
-	        this._pivotInA = new Vector3();
-	        /**@internal */
-	        this._pivotInB = new Vector3();
-	    }
-	    get pivotInA() {
-	        return this._pivotInA;
-	    }
-	    set pivotInA(value) {
-	        this._pivotInA = value;
-	    }
-	    get pivotInB() {
-	        return this._pivotInB;
-	    }
-	    set pivotInB(value) {
-	        this._pivotInB = value;
-	    }
-	    get damping() {
-	        return this._damping;
-	    }
-	    set damping(value) {
-	        this._damping = value;
-	    }
-	    get impulseClamp() {
-	        return this._impulseClamp;
-	    }
-	    set impulseClamp(value) {
-	        this._impulseClamp = value;
-	    }
-	    get tau() {
-	        return this._tau;
-	    }
-	    set tau(value) {
-	        this._tau = value;
-	    }
-	}
-
-	/**
 	 * <code>ConstraintComponent</code> 类用于创建约束的父类。
 	 */
 	class ConstraintComponent extends Laya.Component {
@@ -44194,6 +44149,51 @@
 	        var physics3D = Physics3D._physics3D;
 	        physics3D.destroy(this._nativeConstraint);
 	        this._nativeConstraint = null;
+	    }
+	}
+
+	/**
+	 * <code>Point2PointConstraint</code> 类用于创建物理组件的父类。
+	 */
+	class Point2PointConstraint {
+	    /**
+	     * 创建一个 <code>Point2PointConstraint</code> 实例。
+	     */
+	    constructor() {
+	        /**@internal */
+	        this._pivotInA = new Vector3();
+	        /**@internal */
+	        this._pivotInB = new Vector3();
+	    }
+	    get pivotInA() {
+	        return this._pivotInA;
+	    }
+	    set pivotInA(value) {
+	        this._pivotInA = value;
+	    }
+	    get pivotInB() {
+	        return this._pivotInB;
+	    }
+	    set pivotInB(value) {
+	        this._pivotInB = value;
+	    }
+	    get damping() {
+	        return this._damping;
+	    }
+	    set damping(value) {
+	        this._damping = value;
+	    }
+	    get impulseClamp() {
+	        return this._impulseClamp;
+	    }
+	    set impulseClamp(value) {
+	        this._impulseClamp = value;
+	    }
+	    get tau() {
+	        return this._tau;
+	    }
+	    set tau(value) {
+	        this._tau = value;
 	    }
 	}
 
