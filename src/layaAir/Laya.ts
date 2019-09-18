@@ -99,55 +99,55 @@ export class Laya {
 	static isWXPosMsg: boolean = false;
 
 	/**@internal*/
-    static __classmap: Object = null;
-    
-    /**@internal*/
-    static Config=Config;    //这种写法是为了防止被混淆掉，不能用其他技巧，例如 assin({Config,Stage,...})
-    /**@internal*/
-    static TextRender=TextRender;
-    /**@internal*/
-    static EventDispatcher=EventDispatcher;
-    /**@internal*/
-    static SoundChannel=SoundChannel;
-    /**@internal*/
-    static Stage=Stage;
-    /**@internal*/
-    static Render=Render;
-    /**@internal*/
-    static Browser=Browser;
-    /**@internal*/
-    static Sprite=Sprite;
-    /**@internal*/
-    static Node=Node;
-    /**@internal*/
-    static Context=Context;
-    /**@internal*/
-    static WebGL=WebGL;
-    /**@internal*/
-    static Handler=Handler;
-    /**@internal*/
-    static RunDriver=RunDriver;
-    /**@internal*/
-    static Utils=Utils;
-    /**@internal*/
-    static Input=Input;
-    /**@internal*/
-    static Loader=Loader;
-    /**@internal*/
-    static LocalStorage=LocalStorage;
-    /**@internal*/
-    static SoundManager=SoundManager;
-    /**@internal*/
-    static URL=URL;
-    /**@internal*/
-    static Event=Event;
-    /**@internal*/
-    static Matrix=Matrix;
-    /**@internal*/
-    static HTMLImage=HTMLImage;
-    /**@internal*/
-    static Laya=Laya;
-    
+	static __classmap: Object = null;
+
+	/**@internal*/
+	static Config = Config;    //这种写法是为了防止被混淆掉，不能用其他技巧，例如 assin({Config,Stage,...})
+	/**@internal*/
+	static TextRender = TextRender;
+	/**@internal*/
+	static EventDispatcher = EventDispatcher;
+	/**@internal*/
+	static SoundChannel = SoundChannel;
+	/**@internal*/
+	static Stage = Stage;
+	/**@internal*/
+	static Render = Render;
+	/**@internal*/
+	static Browser = Browser;
+	/**@internal*/
+	static Sprite = Sprite;
+	/**@internal*/
+	static Node = Node;
+	/**@internal*/
+	static Context = Context;
+	/**@internal*/
+	static WebGL = WebGL;
+	/**@internal*/
+	static Handler = Handler;
+	/**@internal*/
+	static RunDriver = RunDriver;
+	/**@internal*/
+	static Utils = Utils;
+	/**@internal*/
+	static Input = Input;
+	/**@internal*/
+	static Loader = Loader;
+	/**@internal*/
+	static LocalStorage = LocalStorage;
+	/**@internal*/
+	static SoundManager = SoundManager;
+	/**@internal*/
+	static URL = URL;
+	/**@internal*/
+	static Event = Event;
+	/**@internal*/
+	static Matrix = Matrix;
+	/**@internal*/
+	static HTMLImage = HTMLImage;
+	/**@internal*/
+	static Laya = Laya;
+
 	/**
 	 * 兼容as3编译工具 
 	 */
@@ -162,7 +162,7 @@ export class Laya {
 	 * @param	plugins 插件列表，比如 WebGL（使用WebGL方式渲染）。
 	 * @return	返回原生canvas引用，方便对canvas属性进行修改
 	 */
-	static init(width: number, height: number, plugins:any[]|null): any {
+	static init(width: number, height: number, ...plugins): any {
 		if (Laya._isinit) return;
 		Laya._isinit = true;
 		ArrayBuffer.prototype.slice || (ArrayBuffer.prototype.slice = Laya._arrayBufferSlice);
@@ -214,7 +214,7 @@ export class Laya {
 		Mouse.__init__();
 
 		WebGL.inner_enable();
-		if(plugins){
+		if (plugins) {
 			for (var i = 0, n = plugins.length; i < n; i++) {
 				if (plugins[i] && plugins[i].enable) {
 					plugins[i].enable();
@@ -428,42 +428,43 @@ if (libs) {
 }
 
 let win = window as any;
-if(win.Laya){
-    win.Laya.Laya = Laya;
-    Object.assign(win.Laya, Laya);
-}else
-    win.Laya = Laya;
+if (win.Laya) {
+	win.Laya.Laya = Laya;
+	Object.assign(win.Laya, Laya);
+} else
+	win.Laya = Laya;
 
 export var __init = Laya.__init;
-export var init = Laya.init;	
-export var stage:Stage;
-export var systemTimer:Timer;
-export var startTimer:Timer;
-export var physicsTimer:Timer;
-export var updateTimer:Timer;
-export var lateTimer:Timer;
-export var timer:Timer;
-export var loader:LoaderManager;
+export var init = Laya.init;
+export var stage: Stage;
+export var systemTimer: Timer;
+export var startTimer: Timer;
+export var physicsTimer: Timer;
+export var updateTimer: Timer;
+export var lateTimer: Timer;
+export var timer: Timer;
+export var loader: LoaderManager;
 export var version = Laya.version;
-export var render:Render;
-export var isWXOpenDataContext:boolean;
-export var isWXPosMsg:boolean;
+export var render: Render;
+export var isWXOpenDataContext: boolean;
+export var isWXPosMsg: boolean;
 export var alertGlobalError = Laya.alertGlobalError;
 export var enableDebugPanel = Laya.enableDebugPanel;
 
-export function _static(_class:any,def:any){
-    for(var i=0,sz=def.length;i<sz;i+=2){
-        if(def[i]=='length') 
-            _class.length=def[i+1].call(_class);
-        else{
-            function tmp(){
-                var name=def[i];
-                var getfn=def[i+1];
-                Object.defineProperty(_class,name,{
-                    get:function(){delete this[name];return this[name]=getfn.call(this);},
-                    set:function(v){delete this[name];this[name]=v;},enumerable: true,configurable: true});
-            }
-            tmp();
-        }
-    }
+export function _static(_class: any, def: any) {
+	for (var i = 0, sz = def.length; i < sz; i += 2) {
+		if (def[i] == 'length')
+			_class.length = def[i + 1].call(_class);
+		else {
+			function tmp() {
+				var name = def[i];
+				var getfn = def[i + 1];
+				Object.defineProperty(_class, name, {
+					get: function () { delete this[name]; return this[name] = getfn.call(this); },
+					set: function (v) { delete this[name]; this[name] = v; }, enumerable: true, configurable: true
+				});
+			}
+			tmp();
+		}
+	}
 }
