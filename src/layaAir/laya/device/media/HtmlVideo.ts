@@ -8,7 +8,7 @@ import { ILaya } from "../../../ILaya";
  */
 export class HtmlVideo extends Bitmap {
     protected video: HTMLVideoElement;
-	protected _source: HTMLVideoElement;
+	protected _source: any;
 	protected _w=0;
 	protected _h=0;
     constructor() {
@@ -75,7 +75,7 @@ export class HtmlVideo extends Bitmap {
 
         var isConchApp: boolean = ILaya.Render.isConchApp;
         if (isConchApp) {
-            this.video._destroy();
+            (<any>this.video)._destroy();
         }
     }
 
