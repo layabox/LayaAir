@@ -132,9 +132,7 @@ export class Shader_GlowingEdge {
 			'u_WorldMat': Shader3D.PERIOD_SPRITE, 
 			'u_texture': Shader3D.PERIOD_MATERIAL, 
 			'u_marginalColor': Shader3D.PERIOD_MATERIAL, 
-			'u_DirationLightCount': Shader3D.PERIOD_SCENE,
-			'u_LightBuffer': Shader3D.PERIOD_SCENE,
-			'u_DirectionLight.color': Shader3D.PERIOD_SCENE
+			'u_SunLight.color': Shader3D.PERIOD_SCENE,
 		};
 		//创建自定义shader
 		var glowingEdgeShader: Shader3D = Shader3D.add("GlowingEdgeMaterial");

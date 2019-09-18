@@ -170,7 +170,7 @@ export class Laya {
 
 		// 创建主画布
 		//这个其实在Render中感觉更合理，但是runtime要求第一个canvas是主画布，所以必须在下面的那个离线画布之前
-		var mainCanv: HTMLCanvas = Browser.mainCanvas = new HTMLCanvas(true);
+		var mainCanv = Browser.mainCanvas = new HTMLCanvas(true);
 		//Render._mainCanvas = mainCanv;
 		var style: any = mainCanv.source.style;
 		style.position = 'absolute';
