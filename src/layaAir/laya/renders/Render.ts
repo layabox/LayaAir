@@ -37,13 +37,14 @@ export class Render {
 	 * @param	height	游戏窗口高度。
 	 */
     constructor(width: number, height: number, mainCanv: HTMLCanvas) {
-        Render._mainCanvas = mainCanv;
+		Render._mainCanvas = mainCanv;
+		let source:HTMLCanvasElement = Render._mainCanvas.source as HTMLCanvasElement;
         //创建主画布。改到Browser中了，因为为了runtime，主画布必须是第一个
-        Render._mainCanvas.source.id = "layaCanvas";
-        Render._mainCanvas.source.width = width;
-        Render._mainCanvas.source.height = height;
+        source.id = "layaCanvas";
+        source.width = width;
+        source.height = height;
         if (Render.isConchApp) {
-            document.body.appendChild(Render._mainCanvas.source);
+            document.body.appendChild(source);
         }
 
         this.initRender(Render._mainCanvas, width, height);

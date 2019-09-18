@@ -163,7 +163,7 @@ export class StatUI extends IStatRender {
 	 * @override
 	 * 点击性能统计显示区域的处理函数。
 	 */
-	set_onclick(fn: Function): void {
+	set_onclick(fn: (this: GlobalEventHandlers, ev: MouseEvent) => any): void {
 		if (this._sp) {
 			this._sp.on("click", this._sp, fn);
 		}

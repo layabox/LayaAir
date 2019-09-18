@@ -11,11 +11,9 @@ import { HTMLChar } from "../../utils/HTMLChar";
  */
 export class FillTextCmd {
     static ID: string = "FillText";
-
-
     private _text: string | WordText;
     /**@internal */
-    _textIsWorldText: boolean = false;
+    _textIsWorldText = false;
     _words: HTMLChar[];
     /**
      * 开始绘制文本的 x 坐标位置（相对于画布）。
@@ -30,11 +28,11 @@ export class FillTextCmd {
     private _borderColor: string;
     private _lineWidth: number;
     private _textAlign: string;
-    private _fontColor: number = 0xffffffff;
-    private _strokeColor: number = 0;
-    private static _defFontObj: FontInfo = new FontInfo(null);
-    private _fontObj: FontInfo = FillTextCmd._defFontObj;
-    private _nTexAlign: number = 0;
+    private _fontColor = 0xffffffff;
+    private _strokeColor = 0;
+    private static _defFontObj = new FontInfo(null);
+    private _fontObj = FillTextCmd._defFontObj;
+    private _nTexAlign = 0;
 
     /**@private */
     static create(text: string | WordText, words: HTMLChar[], x: number, y: number, font: string, color: string, textAlign: string, lineWidth: number, borderColor: string): FillTextCmd {
@@ -69,7 +67,7 @@ export class FillTextCmd {
             Context._textRender.fillWords(context, this._words, this.x + gx, this.y + gy, this._fontObj, this._color, this._borderColor, this._lineWidth);
         } else {
             if (this._textIsWorldText) {// 快速通道
-                context._fast_filltext(((<WordText>this._text)), this.x + gx, this.y + gy, this._fontObj, this._color, null, 0, this._nTexAlign, 0);
+                context._fast_filltext(((<WordText>this._text)), this.x + gx, this.y + gy, this._fontObj, this._color, this._borderColor, this._lineWidth, this._nTexAlign, 0);
             } else {
                 Context._textRender.filltext(context, this._text, this.x + gx, this.y + gy, this.font, this.color, this._borderColor, this._lineWidth, this._textAlign);
             }
