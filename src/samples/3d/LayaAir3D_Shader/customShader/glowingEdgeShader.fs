@@ -25,13 +25,21 @@ varying vec3 v_PositionWorld;
 
 vec3 getDirectionLightColor()
 {
-	for (int i = 0; i < MAX_LIGHT_COUNT; i++) 
-	{
-		if(i >= u_DirationLightCount)
+	vec3 lightColor = vec3(1.0, 0.0, 0.0);
+	#ifdef LEGACYSINGLELIGHTING
+		return u_DirectionLight.color;
+	#else
+		for (int i = 0; i < MAX_LIGHT_COUNT; i++) 
+		{
+			if(i >= u_DirationLightCount)
+				break;
+			DirectionLight directionLight = getDirectionLight(u_LightBuffer,i);
+			lightColor = directionLight.color;
 			break;
-		DirectionLight directionLight = getDirectionLight(u_LightBuffer,i);
-		return directionLight.color;
-	}
+		}
+	#endif
+
+	return lightColor;
 }
 
 void main()
