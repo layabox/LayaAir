@@ -67,7 +67,9 @@ export class RenderTexture extends BaseTexture {
 	get depthStencilFormat(): number {
 		return this._depthStencilFormat;
 	}
-
+	/**
+	 * @override
+	 */
 	get defaulteTexture(): BaseTexture {
 		return Texture2D.grayTexture;
 	}

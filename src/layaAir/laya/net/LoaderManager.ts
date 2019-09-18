@@ -10,31 +10,6 @@ import { Utils } from "../utils/Utils";
 import { AtlasInfoManager } from "./AtlasInfoManager";
 import { Loader } from "./Loader";
 
-class ResInfo extends EventDispatcher {
-    url: string;
-    type: string|null;
-    cache: boolean;
-    group: string|null;
-    ignoreCache: boolean;
-    useWorkerLoader: boolean;
-    originalUrl: string|null;
-
-    createCache: boolean;
-    createConstructParams: any[]|null;
-    createPropertyParams: any;
-}
-
-export interface loadItem{
-    url:string;
-    type:string|null;
-    size?:number;
-    priority?:number;
-    useWorkerLoader?:boolean;
-    progress?:number;
-    group?:string;
-}
-
-
 /**
  * 所有资源加载完成时调度。
  * @eventType Event.COMPLETE
@@ -604,3 +579,26 @@ export class LoaderManager extends EventDispatcher {
     }
 }
 
+class ResInfo extends EventDispatcher {
+    url: string;
+    type: string|null;
+    cache: boolean;
+    group: string|null;
+    ignoreCache: boolean;
+    useWorkerLoader: boolean;
+    originalUrl: string|null;
+
+    createCache: boolean;
+    createConstructParams: any[]|null;
+    createPropertyParams: any;
+}
+
+export interface loadItem{
+    url:string;
+    type:string|null;
+    size?:number;
+    priority?:number;
+    useWorkerLoader?:boolean;
+    progress?:number;
+    group?:string;
+}
