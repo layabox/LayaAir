@@ -17458,6 +17458,14 @@ declare module laya.d3.shader {
 }
 
 declare module laya.d3.shader {
+	class ShaderDefine  {
+
+		constructor(index:number,value:number);
+	}
+
+}
+
+declare module laya.d3.shader {
 	class ShaderDefines  {
 
 		/*
@@ -17784,6 +17792,24 @@ declare module laya.d3.utils {
 		readonly height:number;
 
 		constructor(width:number,height:number);
+	}
+
+}
+
+declare module laya.d3.utils {
+	class SystemUtils  {
+
+		/*
+		 * 是否支持纹理格式。
+		 * @param format 纹理格式。
+		 */
+		static supportTextureFormat(format:number):boolean;
+
+		/*
+		 * 是否支持渲染纹理格式。
+		 * @param format 渲染纹理格式。
+		 */
+		static supportRenderTextureFormat(format:number):boolean;
 	}
 
 }
@@ -33616,6 +33642,28 @@ declare module laya.resource {
 }
 
 declare module laya.resource {
+enum RenderTextureFormat {
+    /**RGB格式,每个通道8位。*/
+    R8G8B8 = 0,
+    /**RGBA格式,每个通道8位。*/
+    R8G8B8A8 = 1,
+    /**Alpha格式,8位。*/
+    Alpha8 = 2,
+    /**RGBA格式,每个通道16位。*/
+    R16G16B16A16 = 14
+}enum RenderTextureDepthFormat {
+    /**深度格式_DEPTH_16。*/
+    DEPTH_16 = 0,
+    /**深度格式_STENCIL_8。*/
+    STENCIL_8 = 1,
+    /**深度格式_DEPTHSTENCIL_16_8。*/
+    DEPTHSTENCIL_16_8 = 2,
+    /**深度格式_DEPTHSTENCIL_NONE。*/
+    DEPTHSTENCIL_NONE = 3
+}
+}
+
+declare module laya.resource {
 
 	/*
 	 * <code>Resource</code> 资源存取类。
@@ -34134,6 +34182,34 @@ declare module laya.resource {
 		getPixels():Uint8Array;
 	}
 
+}
+
+declare module laya.resource {
+enum TextureFormat {
+    /**纹理格式_R8G8B8。*/
+    R8G8B8 = 0,
+    /**纹理格式_R8G8B8A8。*/
+    R8G8B8A8 = 1,
+    /**纹理格式_ALPHA8。*/
+    Alpha8 = 2,
+    /**纹理格式_DXT1。*/
+    DXT1 = 3,
+    /**纹理格式_DXT5。*/
+    DXT5 = 4,
+    /**纹理格式_ETC2RGB。*/
+    ETC1RGB = 5,
+    /**纹理格式_ETC2RGB_PUNCHTHROUGHALPHA。*/
+    /**纹理格式_PVRTCRGB_2BPPV。*/
+    PVRTCRGB_2BPPV = 9,
+    /**纹理格式_PVRTCRGBA_2BPPV。*/
+    PVRTCRGBA_2BPPV = 10,
+    /**纹理格式_PVRTCRGB_4BPPV。*/
+    PVRTCRGB_4BPPV = 11,
+    /**纹理格式_PVRTCRGBA_4BPPV。*/
+    PVRTCRGBA_4BPPV = 12,
+    /**RGBA格式纹理,每个通道32位浮点数。*/
+    R32G32B32A32 = 15
+}
 }
 
 declare module laya.resource {
@@ -46964,6 +47040,8 @@ declare module Laya {
 
 	class ShaderData extends laya.d3.shader.ShaderData {}
 
+	class ShaderDefine extends laya.d3.shader.ShaderDefine {}
+
 	class ShaderDefines extends laya.d3.shader.ShaderDefines {}
 
 	/*
@@ -47016,6 +47094,8 @@ declare module Laya {
 	class Scene3DUtils extends laya.d3.utils.Scene3DUtils {}
 
 	class Size extends laya.d3.utils.Size {}
+
+	class SystemUtils extends laya.d3.utils.SystemUtils {}
 
 	/*
 	 * <code>Utils3D</code> 类用于创建3D工具。

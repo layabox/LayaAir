@@ -249,7 +249,7 @@ export class List extends Box implements IRender, IItem {
 
 	/**
 	 * @inheritDoc 
-	 * @override
+	 * @internal
 	 */
 	protected createChildren(): void {
 		this.addChild(this._content = new Box());
@@ -456,7 +456,7 @@ export class List extends Box implements IRender, IItem {
 	/**
 	 * @private
 	 * 更改单元格的信息。
-	 * 在此销毁、创建单元格，并设置单元格的位置等属性。相当于此列表内容发送改变时调用此函数。
+	 * @internal 在此销毁、创建单元格，并设置单元格的位置等属性。相当于此列表内容发送改变时调用此函数。
 	 */
 	protected changeCells(): void {
 		this._cellChanged = false;
@@ -1089,7 +1089,9 @@ export class List extends Box implements IRender, IItem {
 			this.callLater(this.changeCells);
 		}
 	}
-	/**@override */
+	/**
+	 * @internal
+	 */
 	protected commitMeasure(): void {
 		this.runCallLater(this.changeCells);
 	}
