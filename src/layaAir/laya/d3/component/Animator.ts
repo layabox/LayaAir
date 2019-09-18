@@ -874,11 +874,11 @@ export class Animator extends Component {
 						if (!playStateInfo._finish) {
 							speed = this._speed * animatorState.speed;
 							this._updatePlayer(animatorState, playStateInfo, delta * speed, clip.islooping);
-							if (needRender) {
-								this._updateClipDatas(animatorState, addtive, playStateInfo, timerScale * speed);
-							}
 						}
 						if (needRender) {
+							//even the animatorState has finish,must call _updateClipDatas(animatorState....),
+							//because other animator share this clip will change the public data in clip
+							this._updateClipDatas(animatorState, addtive, playStateInfo, timerScale * speed);
 							this._updateClipDatas(crossClipState, addtive, crossPlayStateInfo, timerScale * crossScale * crossSpeed);
 							this._setCrossClipDatasToNode(controllerLayer, animatorState, crossClipState, crossWeight, i === 0);
 						}
