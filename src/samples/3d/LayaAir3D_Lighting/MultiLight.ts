@@ -39,7 +39,7 @@ export class MultiLight {
 
 	constructor() {
 		var c = new Config3D();
-		c.maxLightCount = 32;
+		c.maxLightCount = 16;
 		Laya3D.init(0, 0, c);
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
@@ -56,8 +56,8 @@ export class MultiLight {
 			var moverLights: LightSprite[] = moveScript.lights;
 			var offsets: Vector3[] = moveScript.offsets;
 			var moveRanges: Vector3[] = moveScript.moveRanges;
-			moverLights.length = 31;
-			for (var i: number = 0; i < 31; i++) {
+			moverLights.length = 15;
+			for (var i: number = 0; i < 15; i++) {
 				var pointLight: PointLight = (<PointLight>scene.addChild(new PointLight()));
 				pointLight.range = 2.0 + Math.random() * 8.0;
 				pointLight.color.setValue(Math.random(), Math.random(), Math.random());
@@ -74,7 +74,6 @@ export class MultiLight {
 			spotLight.range = 50;
 			spotLight.intensity = 15;
 			spotLight.spotAngle = 60;
-
 		}));
 
 	}
