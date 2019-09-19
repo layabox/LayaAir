@@ -111,13 +111,6 @@ export class Config3D implements IClone {
 	}
 
 	/**
-	 * @internal
-	 */
-	private _checkMaxLightCountPerCluster(maxLightCountPerCluster: number, clusterCountZ: number): boolean {
-		return Math.ceil((maxLightCountPerCluster / 4) + 1) * clusterCountZ < 2048;
-	}
-
-	/**
 	 * 克隆。
 	 * @param	destObject 克隆源。
 	 */
@@ -137,9 +130,9 @@ export class Config3D implements IClone {
 		destConfig3D.debugFrustumCulling = this.debugFrustumCulling;
 		destConfig3D.maxLightCount = this.maxLightCount;
 		destConfig3D.enbaleMultiLight = this.enbaleMultiLight;
-		var lightClusterCount:Vector3=destConfig3D.lightClusterCount;
+		var lightClusterCount: Vector3 = destConfig3D.lightClusterCount;
 		this.lightClusterCount.cloneTo(lightClusterCount);
-		destConfig3D.lightClusterCount=lightClusterCount;
+		destConfig3D.lightClusterCount = lightClusterCount;
 	}
 
 	/**
