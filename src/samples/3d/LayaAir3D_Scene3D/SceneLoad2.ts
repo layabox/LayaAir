@@ -3,6 +3,7 @@ import { BaseCamera } from "laya/d3/core/BaseCamera";
 import { Camera } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BaseMaterial } from "laya/d3/core/material/BaseMaterial";
+import { Material } from "laya/d3/core/material/Material";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
@@ -59,7 +60,7 @@ export class SceneLoad2 {
 			camera.addComponent(CameraMoveScript);
 
 			//加载相机天空盒材质
-			BaseMaterial.load("res/threeDimen/skyBox/skyBox2/SkyBox2.lmat", Handler.create(this, function (mat: BaseMaterial): void {
+			BaseMaterial.load("res/threeDimen/skyBox/skyBox2/SkyBox2.lmat", Handler.create(this, function (mat: Material): void {
 				var skyRenderer: SkyRenderer = camera.skyRenderer;
 				skyRenderer.mesh = SkyBox.instance;
 				skyRenderer.material = mat;

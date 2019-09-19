@@ -23,6 +23,7 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { Material } from "laya/d3/core/material/Material";
 
 /**
  * ...
@@ -72,7 +73,7 @@ export class LoadResourceDemo {
 			directionLight.transform.rotate(new Vector3(-1.14 / 3, 0, 0));
 
 			//材质加载
-			BaseMaterial.load("res/threeDimen/skyBox/skyBox2/skyBox2.lmat", Handler.create(this, function (mat: BaseMaterial): void {
+			BaseMaterial.load("res/threeDimen/skyBox/skyBox2/skyBox2.lmat", Handler.create(this, function (mat: Material): void {
 				//获取相机的天空渲染器
 				var skyRenderer: SkyRenderer = camera.skyRenderer;
 				//创建天空盒的mesh
@@ -186,7 +187,7 @@ export class LoadResourceDemo {
 		directionLight.transform.rotate(new Vector3(-3.14 / 3, 0, 0));
 
 		//使用材质
-		var skyboxMaterial: BaseMaterial = (<BaseMaterial>Loader.getRes("res/threeDimen/skyBox/skyBox2/skyBox2.lmat"));
+		var skyboxMaterial: Material = <Material>Loader.getRes("res/threeDimen/skyBox/skyBox2/skyBox2.lmat");
 		var skyRenderer: SkyRenderer = camera.skyRenderer;
 		skyRenderer.mesh = SkyBox.instance;
 		skyRenderer.material = skyboxMaterial;

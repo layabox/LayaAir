@@ -1,4 +1,4 @@
-import { BaseMaterial } from "laya/d3/core/material/BaseMaterial";
+import { Material } from "laya/d3/core/material/Material";
 import { Vector2 } from "laya/d3/math/Vector2";
 import { Shader3D } from "laya/d3/shader/Shader3D";
 import { BaseTexture } from "laya/resource/BaseTexture";
@@ -8,7 +8,7 @@ import { ShaderDefine } from "../../../../../bin/tsc/layaAir/laya/d3/shader/Shad
  * ...
  * @author
  */
-export class CustomTerrainMaterial extends BaseMaterial {
+export class CustomTerrainMaterial extends Material {
 	static SPLATALPHATEXTURE: number = Shader3D.propertyNameToID("u_SplatAlphaTexture");
 	static DIFFUSETEXTURE1: number = Shader3D.propertyNameToID("u_DiffuseTexture1");
 	static DIFFUSETEXTURE2: number = Shader3D.propertyNameToID("u_DiffuseTexture2");

@@ -2,8 +2,8 @@ import { Laya } from "Laya";
 import { BaseCamera } from "laya/d3/core/BaseCamera";
 import { Camera } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
-import { BaseMaterial } from "laya/d3/core/material/BaseMaterial";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
+import { Material } from "laya/d3/core/material/Material";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
@@ -135,7 +135,7 @@ export class CameraDemo {
 					//设置相机的清除标识为天空盒
 					this.camera.clearFlag = BaseCamera.CLEARFLAG_SKY;
 					//使用加载天空盒材质
-					var skyboxMaterial: BaseMaterial = (<BaseMaterial>Loader.getRes("res/threeDimen/skyBox/skyBox2/skyBox2.lmat"));
+					var skyboxMaterial: Material = (<Material>Loader.getRes("res/threeDimen/skyBox/skyBox2/skyBox2.lmat"));
 					//获取相机的天空渲染器
 					var skyRenderer: SkyRenderer = this.camera.skyRenderer;
 					//设置相机的天空渲染器的mesh

@@ -1,13 +1,10 @@
-import { BaseMaterial } from "laya/d3/core/material/BaseMaterial";
-import { Vector3 } from "laya/d3/math/Vector3";
-import { Shader3D } from "laya/d3/shader/Shader3D";
-import { BaseTexture } from "laya/resource/BaseTexture";
+import { Material } from "laya/d3/core/material/Material";
 
 /**
  * ...
  * @author ...
  */
-export class CustomMaterial extends BaseMaterial {
+export class CustomMaterial extends Material {
 	constructor() {
 		super();
 		this.setShaderName("CustomShader");

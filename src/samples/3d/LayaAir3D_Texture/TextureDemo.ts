@@ -1,8 +1,8 @@
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
-import { BaseMaterial } from "laya/d3/core/material/BaseMaterial";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
+import { Material } from "laya/d3/core/material/Material";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
@@ -69,7 +69,7 @@ export class TextureDemo {
 			tilingOffset.setValue(3, 3, 0.0, 0.0);
 			mat1.tilingOffset = tilingOffset;
 
-			box.meshRenderer.material = mat1 as BaseMaterial;
+			box.meshRenderer.material = mat1 as Material;
 		}));
 
 	}

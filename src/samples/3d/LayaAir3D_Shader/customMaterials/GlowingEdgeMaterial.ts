@@ -1,10 +1,10 @@
-import { BaseMaterial } from "laya/d3/core/material/BaseMaterial";
+import { Material } from "laya/d3/core/material/Material";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Shader3D } from "laya/d3/shader/Shader3D";
 import { BaseTexture } from "laya/resource/BaseTexture";
 
 
-export class GlowingEdgeMaterial extends BaseMaterial {
+export class GlowingEdgeMaterial extends Material {
     public static DIFFUSETEXTURE: number =  Shader3D.propertyNameToID("u_texture");
     public static MARGINALCOLOR: number = Shader3D.propertyNameToID("u_marginalColor");
     constructor() {

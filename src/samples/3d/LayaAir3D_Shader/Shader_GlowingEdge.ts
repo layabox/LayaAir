@@ -22,6 +22,7 @@ import { CustomMaterial } from "./customMaterials/CustomMaterial";
 import GlowingEdgeShaderFS from "./customShader/glowingEdgeShader.fs";
 import GlowingEdgeShaderVS from "./customShader/glowingEdgeShader.vs";
 import { GlowingEdgeMaterial } from "./customMaterials/GlowingEdgeMaterial";
+import { Material } from "laya/d3/core/material/Material";
 
 
 
@@ -88,13 +89,13 @@ export class Shader_GlowingEdge {
 			}))
 			glowingEdgeMaterial4.marginalColor = new Vector3(1, 0.7, 0);
 
-			var baseMaterials: BaseMaterial[] = [];
+			var baseMaterials: Material[] = [];
 			baseMaterials[0] = glowingEdgeMaterial1;
 			baseMaterials[1] = glowingEdgeMaterial2;
 			baseMaterials[2] = glowingEdgeMaterial3;
 			baseMaterials[3] = glowingEdgeMaterial4;
 
-			((<SkinnedMeshSprite3D>dude.getChildAt(0).getChildAt(0))).skinnedMeshRenderer.sharedMaterials = baseMaterials;
+			(<SkinnedMeshSprite3D>dude.getChildAt(0).getChildAt(0)).skinnedMeshRenderer.sharedMaterials = baseMaterials;
 			dude.transform.position = new Vector3(0, 0.5, 0);
 			dude.transform.scale = new Vector3(0.2, 0.2, 0.2);
 			dude.transform.rotate(new Vector3(0, 180, 0), false, false);
