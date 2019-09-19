@@ -333,39 +333,39 @@ export class BaseTexture extends Bitmap {
 	}
 
 
-	/**纹理格式_R8G8B8。@deprecated*/
+	/** @deprecated use TextureFormat.FORMAT_R8G8B8 instead.*/
 	static FORMAT_R8G8B8: number = 0;
-	/**纹理格式_R8G8B8A8。@deprecated*/
+	/** @deprecated use TextureFormat.FORMAT_R8G8B8A8 instead.*/
 	static FORMAT_R8G8B8A8: number = 1;
-	/**纹理格式_ALPHA8。@deprecated*/
+	/** @deprecated use TextureFormat.FORMAT_ALPHA8 instead.*/
 	static FORMAT_ALPHA8: number = 2;
-	/**纹理格式_DXT1。@deprecated*/
+	/** @deprecated use TextureFormat.FORMAT_DXT1 instead.*/
 	static FORMAT_DXT1: number = 3;
-	/**纹理格式_DXT5。@deprecated*/
+	/** @deprecated use TextureFormat.FORMAT_DXT5 instead.*/
 	static FORMAT_DXT5: number = 4;
-	/**纹理格式_ETC2RGB。@deprecated*/
+	/** @deprecated use TextureFormat.FORMAT_ETC1RGB instead.*/
 	static FORMAT_ETC1RGB: number = 5;
-	/**纹理格式_PVRTCRGB_2BPPV。@deprecated*/
+	/** @deprecated use TextureFormat.FORMAT_PVRTCRGB_2BPPV instead.*/
 	static FORMAT_PVRTCRGB_2BPPV: number = 9;
-	/**纹理格式_PVRTCRGBA_2BPPV。@deprecated*/
+	/** @deprecated use TextureFormat.FORMAT_PVRTCRGBA_2BPPV instead.*/
 	static FORMAT_PVRTCRGBA_2BPPV: number = 10;
-	/**纹理格式_PVRTCRGB_4BPPV。@deprecated*/
+	/** @deprecated use TextureFormat.FORMAT_PVRTCRGB_4BPPV instead.*/
 	static FORMAT_PVRTCRGB_4BPPV: number = 11;
-	/**纹理格式_PVRTCRGBA_4BPPV。@deprecated*/
+	/** @deprecated use TextureFormat.FORMAT_PVRTCRGBA_4BPPV instead.*/
 	static FORMAT_PVRTCRGBA_4BPPV: number = 12;
 
-	/**渲染纹理格式_16位半精度RGBA浮点格式。@deprecated*/
+	/** @deprecated use RenderTextureFormat.R16G16B16A16 instead.*/
 	static RENDERTEXTURE_FORMAT_RGBA_HALF_FLOAT: number = 14;
-	/**RGBAd格式纹理,每个通道32位浮点数。@deprecated*/
+	/** @deprecated use TextureFormat.R32G32B32A32 instead.*/
 	static FORMAT_R32G32B32A32: number = 15;
 
-	/**深度格式_DEPTH_16。@deprecated*/
+	/** @deprecated use RenderTextureDepthFormat.DEPTH_16 instead.*/
 	static FORMAT_DEPTH_16: number = 0;
-	/**深度格式_STENCIL_8。@deprecated*/
+	/** @deprecated use RenderTextureDepthFormat.STENCIL_8 instead.*/
 	static FORMAT_STENCIL_8: number = 1;
-	/**深度格式_DEPTHSTENCIL_16_8。@deprecated*/
+	/** @deprecated use RenderTextureDepthFormat.DEPTHSTENCIL_16_8 instead.*/
 	static FORMAT_DEPTHSTENCIL_16_8: number = 2;
-	/**深度格式_DEPTHSTENCIL_NONE。@deprecated*/
+	/** @deprecated use RenderTextureDepthFormat.DEPTHSTENCIL_NONE instead.*/
 	static FORMAT_DEPTHSTENCIL_NONE: number = 3;
 }
 
