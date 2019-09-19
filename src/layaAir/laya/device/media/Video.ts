@@ -123,10 +123,9 @@ export class Video extends Sprite {
 	private static onWaiting(e: any): void { e.target.layaTarget.event("waiting") }
 
 	private onPlayComplete(e: any): void {
-		this.event("ended");
 		if (!ILaya.Render.isConchApp || !this.videoElement || !this.videoElement.loop)
 			ILaya.timer.clear(this, this.renderCanvas);
-
+		this.event("ended");
 	}
 
 	/**
