@@ -113,6 +113,7 @@ class Main {
             if (!code) {
                 code = yield this.readFile(infile);
             }
+            // code = code.replace(/\|\s*null/gm,"");    
             const sc = ts.createSourceFile(this.formatUrl(infile), code, ts.ScriptTarget.Latest, true);
             this.addName(sc); // 为了调试方便，给每个节点加上名字
             let em = new emiter_1.emiter();
