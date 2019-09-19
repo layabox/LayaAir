@@ -87,7 +87,7 @@ import { RunDriver } from "./laya/utils/RunDriver";
 import { WebGL } from "./laya/webgl/WebGL";
 import { WebGLContext } from "./laya/webgl/WebGLContext";
 import { TextureFormat } from "./laya/resource/TextureFormat";
-
+import { LayaGLRunner } from "./laya/layagl/LayaGLRunner";
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
  */
@@ -337,59 +337,62 @@ export class Laya3D {
 	}
 
 	private static enableNative3D(): void {
-		if (Render.isConchApp) {
-			var shaderData: any = ShaderData;
-			var shader3D: any = ShaderInstance;
-			var skinnedMeshRender: any = SkinnedMeshRenderer;
-			var avatar: any = Avatar;
-			var frustumCulling: any = FrustumCulling;
-			var meshRender: any = MeshRenderer;
-			if (Render.supportWebGLPlusRendering) {
-				//替换ShaderData的函数
-				shaderData.prototype._initData = shaderData.prototype._initDataForNative;
-				shaderData.prototype.setBool = shaderData.prototype.setBoolForNative;
-				shaderData.prototype.getBool = shaderData.prototype.getBoolForNative;
-				shaderData.prototype.setInt = shaderData.prototype.setIntForNative;
-				shaderData.prototype.getInt = shaderData.prototype.getIntForNative;
-				shaderData.prototype.setNumber = shaderData.prototype.setNumberForNative;
-				shaderData.prototype.getNumber = shaderData.prototype.getNumberForNative;
-				shaderData.prototype.setVector = shaderData.prototype.setVectorForNative;
-				shaderData.prototype.getVector = shaderData.prototype.getVectorForNative;
-				shaderData.prototype.setVector2 = shaderData.prototype.setVector2ForNative;
-				shaderData.prototype.getVector2 = shaderData.prototype.getVector2ForNative;
-				shaderData.prototype.setVector3 = shaderData.prototype.setVector3ForNative;
-				shaderData.prototype.getVector3 = shaderData.prototype.getVector3ForNative;
-				shaderData.prototype.setQuaternion = shaderData.prototype.setQuaternionForNative;
-				shaderData.prototype.getQuaternion = shaderData.prototype.getQuaternionForNative;
-				shaderData.prototype.setMatrix4x4 = shaderData.prototype.setMatrix4x4ForNative;
-				shaderData.prototype.getMatrix4x4 = shaderData.prototype.getMatrix4x4ForNative;
-				shaderData.prototype.setBuffer = shaderData.prototype.setBufferForNative;
-				shaderData.prototype.getBuffer = shaderData.prototype.getBufferForNative;
-				shaderData.prototype.setTexture = shaderData.prototype.setTextureForNative;
-				shaderData.prototype.getTexture = shaderData.prototype.getTextureForNative;
-				shaderData.prototype.setAttribute = shaderData.prototype.setAttributeForNative;
-				shaderData.prototype.getAttribute = shaderData.prototype.getAttributeForNative;
-				shaderData.prototype.cloneTo = shaderData.prototype.cloneToForNative;
-				shaderData.prototype.getData = shaderData.prototype.getDataForNative;
-				shader3D.prototype._uniformMatrix2fv = shader3D.prototype._uniformMatrix2fvForNative;
-				shader3D.prototype._uniformMatrix3fv = shader3D.prototype._uniformMatrix3fvForNative;
-				shader3D.prototype._uniformMatrix4fv = shader3D.prototype._uniformMatrix4fvForNative;
-			}
-			if (Render.supportWebGLPlusCulling) {
-				frustumCulling.renderObjectCulling = FrustumCulling.renderObjectCullingNative;
-			}
-
-			if (Render.supportWebGLPlusAnimation) {
-				avatar.prototype._cloneDatasToAnimator = avatar.prototype._cloneDatasToAnimatorNative;
-				var animationClip: any = AnimationClip;
-				animationClip.prototype._evaluateClipDatasRealTime = animationClip.prototype._evaluateClipDatasRealTimeForNative;
-				skinnedMeshRender.prototype._computeSkinnedData = skinnedMeshRender.prototype._computeSkinnedDataForNative;
-			}
+		var shaderData: any = ShaderData;
+		var shader3D: any = ShaderInstance;
+		var skinnedMeshRender: any = SkinnedMeshRenderer;
+		var avatar: any = Avatar;
+		var frustumCulling: any = FrustumCulling;
+		var meshRender: any = MeshRenderer;
+		if (Render.supportWebGLPlusRendering) {
+			//替换ShaderData的函数
+			shaderData.prototype._initData = shaderData.prototype._initDataForNative;
+			shaderData.prototype.setBool = shaderData.prototype.setBoolForNative;
+			shaderData.prototype.getBool = shaderData.prototype.getBoolForNative;
+			shaderData.prototype.setInt = shaderData.prototype.setIntForNative;
+			shaderData.prototype.getInt = shaderData.prototype.getIntForNative;
+			shaderData.prototype.setNumber = shaderData.prototype.setNumberForNative;
+			shaderData.prototype.getNumber = shaderData.prototype.getNumberForNative;
+			shaderData.prototype.setVector = shaderData.prototype.setVectorForNative;
+			shaderData.prototype.getVector = shaderData.prototype.getVectorForNative;
+			shaderData.prototype.setVector2 = shaderData.prototype.setVector2ForNative;
+			shaderData.prototype.getVector2 = shaderData.prototype.getVector2ForNative;
+			shaderData.prototype.setVector3 = shaderData.prototype.setVector3ForNative;
+			shaderData.prototype.getVector3 = shaderData.prototype.getVector3ForNative;
+			shaderData.prototype.setQuaternion = shaderData.prototype.setQuaternionForNative;
+			shaderData.prototype.getQuaternion = shaderData.prototype.getQuaternionForNative;
+			shaderData.prototype.setMatrix4x4 = shaderData.prototype.setMatrix4x4ForNative;
+			shaderData.prototype.getMatrix4x4 = shaderData.prototype.getMatrix4x4ForNative;
+			shaderData.prototype.setBuffer = shaderData.prototype.setBufferForNative;
+			shaderData.prototype.getBuffer = shaderData.prototype.getBufferForNative;
+			shaderData.prototype.setTexture = shaderData.prototype.setTextureForNative;
+			shaderData.prototype.getTexture = shaderData.prototype.getTextureForNative;
+			shaderData.prototype.setAttribute = shaderData.prototype.setAttributeForNative;
+			shaderData.prototype.getAttribute = shaderData.prototype.getAttributeForNative;
+			shaderData.prototype.cloneTo = shaderData.prototype.cloneToForNative;
+			shaderData.prototype.getData = shaderData.prototype.getDataForNative;
+			shader3D.prototype._uniformMatrix2fv = shader3D.prototype._uniformMatrix2fvForNative;
+			shader3D.prototype._uniformMatrix3fv = shader3D.prototype._uniformMatrix3fvForNative;
+			shader3D.prototype._uniformMatrix4fv = shader3D.prototype._uniformMatrix4fvForNative;
+			LayaGLRunner.uploadShaderUniforms = LayaGLRunner.uploadShaderUniformsForNative;
 		}
-		WebGL.shaderHighPrecision = false;
-		var gl: WebGLRenderingContext = LayaGL.instance;
-		var precisionFormat: any = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT);
-		precisionFormat.precision ? WebGL.shaderHighPrecision = true : WebGL.shaderHighPrecision = false;
+
+		if (Render.supportWebGLPlusCulling) {
+			frustumCulling.renderObjectCulling = FrustumCulling.renderObjectCullingNative;
+		}
+
+		if (Render.supportWebGLPlusAnimation) {
+			avatar.prototype._cloneDatasToAnimator = avatar.prototype._cloneDatasToAnimatorNative;
+			var animationClip: any = AnimationClip;
+			animationClip.prototype._evaluateClipDatasRealTime = animationClip.prototype._evaluateClipDatasRealTimeForNative;
+			skinnedMeshRender.prototype._computeSkinnedData = skinnedMeshRender.prototype._computeSkinnedDataForNative;
+		}
+
+		if (Render.isConchApp) {
+			WebGL.shaderHighPrecision = false;
+			var gl: WebGLRenderingContext = LayaGL.instance;
+			var precisionFormat: any = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT);
+			precisionFormat.precision ? WebGL.shaderHighPrecision = true : WebGL.shaderHighPrecision = false;
+		}
 	}
 
 	/**

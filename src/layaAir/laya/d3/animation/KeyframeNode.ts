@@ -128,7 +128,11 @@ export class KeyframeNode {
 }
 
 // native
-if((window as any).conch  && (window as any).conchKeyframeNode){
+if((window as any).conch && (window as any).conchKeyframeNode) {
     //@ts-ignore
     KeyframeNode=(window as any).conchKeyframeNode;
+}
+if ((window as any).qq && (window as any).qq.webglPlus) {
+	//@ts-ignore
+	KeyframeNode=(window as any).qq.webglPlus.conchKeyframeNode;
 }
