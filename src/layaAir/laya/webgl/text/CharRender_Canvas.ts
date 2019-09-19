@@ -99,7 +99,7 @@ export class CharRender_Canvas extends ICharRender {
 	 * @override
 	 */
 	getCharBmp(char: string, font: string, lineWidth: number, colStr: string, strokeColStr: string, cri: CharRenderInfo,
-		margin_left: number, margin_top: number, margin_right: number, margin_bottom: number, rect: any[] | null = null): ImageData {
+		margin_left: number, margin_top: number, margin_right: number, margin_bottom: number, rect: any[] | null = null): ImageData|null {
 		if (!this.supportImageData)
 			return this.getCharCanvas(char, font, lineWidth, colStr, strokeColStr, cri, margin_left, margin_top, margin_right, margin_bottom);
 		var ctx: any = this.ctx;
