@@ -14,6 +14,7 @@
     "XMLHttpRequest":"*",
     "TextureFormat":"int",
     "RenderTextureFormat":"int",
-    "RenderTextureDepthFormat":"int"
+    "RenderTextureDepthFormat":"int",
+    "HTMLCanvasElement":"*"
   }
 }
