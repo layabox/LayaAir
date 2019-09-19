@@ -19,7 +19,7 @@ You can build your game from TypeScript,JavaScript and ActionScript3.0(Will be d
 
 - Multi target platform support
 
-LayaAir can directly build HTML5 and Wechat Mini-Game platform. Extend native platform app with LayaNative, a complete development solution for LayaAir engine to target native Apps, such as iOS or Android. LayaNative uses LayaPlayer as the core runtime and uses reflection function to provide developers with a secondary development. You also can use this function to handle docking market on your native applications. And it also provides developers with testApp and build tools to package and publish your project.
+LayaAir can directly build HTML5 and many "Mini-Game platform",LayaAir can also extend native platform app with LayaNative, a complete development solution for LayaAir engine to target native Apps, such as iOS or Android. LayaNative uses LayaPlayer as the core runtime and uses reflection function to provide developers with a secondary development. You also can use this function to handle docking market on your native applications. And it also provides developers with testApp and build tools to package and publish your project.
 
 - Mature ecosystem for design development and tool flow
 
@@ -89,7 +89,7 @@ Our official Layabox Github with complete engine source version, free of charge,
             public function Sprite_DisplayImage()
             {
                 Laya.init(550, 400);
-      		    Laya.stage.scaleMode = "showall";
+      		      Laya.stage.scaleMode = "showall";
 
                 var ape:Sprite = new Sprite();
                 //Loading our monkey
