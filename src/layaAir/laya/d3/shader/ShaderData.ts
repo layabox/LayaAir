@@ -9,6 +9,7 @@ import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
 import { DefineDatas } from "./DefineDatas";
 import { ShaderDefine } from "./ShaderDefine";
+import { Stat } from "../../utils/Stat";
 
 
 /**
@@ -446,7 +447,15 @@ export class ShaderData implements IClone {
 			this._data["conchRef"] = preConchRef;
 			this._data["_ptrID"] = prePtrID;
 			pre && this._int32Data.set(pre, 0);
-			(<any>window).conch.updateArrayBufferRef(this._data['_ptrID'], preConchRef.isSyncToRender(), this._data);
+			var layagl:any = LayaGL.instance;
+			if(layagl.updateArrayBufferRef)
+			{
+				layagl.updateArrayBufferRef(this._data['_ptrID'], preConchRef.isSyncToRender(), this._data);
+			}
+			else
+			{
+				(<any>window).conch.updateArrayBufferRef(this._data['_ptrID'], preConchRef.isSyncToRender(), this._data);
+			}
 		}
 	}
 
@@ -682,7 +691,7 @@ export class ShaderData implements IClone {
 	}
 
 	clearRuntimeCopyArray(): void {
-		var currentFrame: number = (<any>LayaGL.instance).getFrameCount();
+		var currentFrame: number = Stat.loopCount;
 		if (this._frameCount != currentFrame) {
 			this._frameCount = currentFrame;
 			for (var i: number = 0, n: number = this._runtimeCopyValues.length; i < n; i++) {

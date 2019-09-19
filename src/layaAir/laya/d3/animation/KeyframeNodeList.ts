@@ -50,7 +50,11 @@ export class KeyframeNodeList {
 }
 
 // native
-if((window as any).conch  && (window as any).conchKeyframeNodeList){
+if((window as any).conch  && (window as any).conchKeyframeNodeList) {
     //@ts-ignore
     KeyframeNodeList=(window as any).conchKeyframeNodeList;
+}
+if ((window as any).qq && (window as any).qq.webglPlus) {
+	//@ts-ignore
+	KeyframeNodeList=(window as any).qq.webglPlus.conchKeyframeNodeList;
 }
