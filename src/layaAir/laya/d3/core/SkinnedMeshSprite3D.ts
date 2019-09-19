@@ -13,7 +13,7 @@ import { MeshSprite3D } from "./MeshSprite3D";
 import { RenderableSprite3D } from "./RenderableSprite3D";
 import { SkinnedMeshRenderer } from "./SkinnedMeshRenderer";
 import { Sprite3D } from "./Sprite3D";
-import { BaseMaterial } from "./material/BaseMaterial";
+import { Material } from "./material/Material";
 import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
 
 
@@ -87,7 +87,7 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
 
 		var materials: any[] = data.materials;
 		if (materials) {
-			var sharedMaterials: BaseMaterial[] = render.sharedMaterials;
+			var sharedMaterials: Material[] = render.sharedMaterials;
 			var materialCount: number = materials.length;
 			sharedMaterials.length = materialCount;
 			for (var i: number = 0; i < materialCount; i++) {

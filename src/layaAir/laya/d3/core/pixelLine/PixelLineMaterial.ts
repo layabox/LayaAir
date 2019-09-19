@@ -1,11 +1,11 @@
 import { Vector4 } from "../../math/Vector4";
 import { Shader3D } from "../../shader/Shader3D";
-import { BaseMaterial } from "../material/BaseMaterial";
+import { Material } from "../material/Material";
 
 /**
  * <code>PixelLineMaterial</code> 类用于实现像素线材质。
  */
-export class PixelLineMaterial extends BaseMaterial {
+export class PixelLineMaterial extends Material {
 	static COLOR: number = Shader3D.propertyNameToID("u_Color");
 
 	/** 默认材质，禁止修改*/

@@ -2,7 +2,7 @@ import { Vector4 } from "../../math/Vector4";
 import { Shader3D } from "../../shader/Shader3D";
 import { ShaderData } from "../../shader/ShaderData";
 import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
-import { BaseMaterial } from "./BaseMaterial";
+import { Material } from "./Material";
 import { RenderState } from "./RenderState";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { ShaderDefine } from "../../shader/ShaderDefine";
@@ -10,7 +10,7 @@ import { ShaderDefine } from "../../shader/ShaderDefine";
 /**
  * <code>BlinnPhongMaterial</code> 类用于实现Blinn-Phong材质。
  */
-export class BlinnPhongMaterial extends BaseMaterial {
+export class BlinnPhongMaterial extends Material {
 	/**高光强度数据源_漫反射贴图的Alpha通道。*/
 	static SPECULARSOURCE_DIFFUSEMAPALPHA: number;
 	/**高光强度数据源_高光贴图的RGB通道。*/
@@ -253,14 +253,14 @@ export class BlinnPhongMaterial extends BaseMaterial {
 		switch (value) {
 			case BlinnPhongMaterial.RENDERMODE_OPAQUE:
 				this.alphaTest = false;
-				this.renderQueue = BaseMaterial.RENDERQUEUE_OPAQUE;
+				this.renderQueue = Material.RENDERQUEUE_OPAQUE;
 				this.depthWrite = true;
 				this.cull = RenderState.CULL_BACK;
 				this.blend = RenderState.BLEND_DISABLE;
 				this.depthTest = RenderState.DEPTHTEST_LESS;
 				break;
 			case BlinnPhongMaterial.RENDERMODE_CUTOUT:
-				this.renderQueue = BaseMaterial.RENDERQUEUE_ALPHATEST;
+				this.renderQueue = Material.RENDERQUEUE_ALPHATEST;
 				this.alphaTest = true;
 				this.depthWrite = true;
 				this.cull = RenderState.CULL_BACK;
@@ -268,7 +268,7 @@ export class BlinnPhongMaterial extends BaseMaterial {
 				this.depthTest = RenderState.DEPTHTEST_LESS;
 				break;
 			case BlinnPhongMaterial.RENDERMODE_TRANSPARENT:
-				this.renderQueue = BaseMaterial.RENDERQUEUE_TRANSPARENT;
+				this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
 				this.alphaTest = false;
 				this.depthWrite = false;
 				this.cull = RenderState.CULL_BACK;
@@ -647,7 +647,7 @@ export class BlinnPhongMaterial extends BaseMaterial {
 		sv.setVector(BlinnPhongMaterial.ALBEDOCOLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
 		sv.setVector(BlinnPhongMaterial.MATERIALSPECULAR, new Vector4(1.0, 1.0, 1.0, 1.0));
 		sv.setNumber(BlinnPhongMaterial.SHININESS, 0.078125);
-		sv.setNumber(BaseMaterial.ALPHATESTVALUE, 0.5);
+		sv.setNumber(Material.ALPHATESTVALUE, 0.5);
 		sv.setVector(BlinnPhongMaterial.TILINGOFFSET, new Vector4(1.0, 1.0, 0.0, 0.0));
 		this._enableLighting = true;
 		this.renderMode = BlinnPhongMaterial.RENDERMODE_OPAQUE;

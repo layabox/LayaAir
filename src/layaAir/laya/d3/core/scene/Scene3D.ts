@@ -46,7 +46,7 @@ import { DirectionLight } from "../light/DirectionLight";
 import { AlternateLightQueue, DirectionLightQueue, LightQueue } from "../light/LightQueue";
 import { PointLight } from "../light/PointLight";
 import { SpotLight } from "../light/SpotLight";
-import { BaseMaterial } from "../material/BaseMaterial";
+import { Material } from "../material/Material";
 import { RenderState } from "../material/RenderState";
 import { PixelLineMaterial } from "../pixelLine/PixelLineMaterial";
 import { PixelLineSprite3D } from "../pixelLine/PixelLineSprite3D";
@@ -501,7 +501,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		if (FrustumCulling.debugFrustumCulling) {
 			this._debugTool = new PixelLineSprite3D();
 			var lineMaterial: PixelLineMaterial = new PixelLineMaterial();
-			lineMaterial.renderQueue = BaseMaterial.RENDERQUEUE_TRANSPARENT;
+			lineMaterial.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
 			lineMaterial.alphaTest = false;
 			lineMaterial.depthWrite = false;
 			lineMaterial.cull = RenderState.CULL_BACK;

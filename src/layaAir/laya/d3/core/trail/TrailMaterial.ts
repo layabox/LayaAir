@@ -1,14 +1,14 @@
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Vector4 } from "../../math/Vector4";
 import { Shader3D } from "../../shader/Shader3D";
-import { BaseMaterial } from "../material/BaseMaterial";
+import { Material } from "../material/Material";
 import { RenderState } from "../material/RenderState";
 import { ShaderDefine } from "../../shader/ShaderDefine";
 
 /**
  * <code>TrailMaterial</code> 类用于实现拖尾材质。
  */
-export class TrailMaterial extends BaseMaterial {
+export class TrailMaterial extends Material {
 	/**渲染状态_透明混合。*/
 	static RENDERMODE_ALPHABLENDED: number = 0;
 	/**渲染状态_加色法混合。*/
@@ -173,7 +173,7 @@ export class TrailMaterial extends BaseMaterial {
 	set renderMode(value: number) {
 		switch (value) {
 			case TrailMaterial.RENDERMODE_ADDTIVE:
-				this.renderQueue = BaseMaterial.RENDERQUEUE_TRANSPARENT;
+				this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
 				this.alphaTest = false;
 				this.depthWrite = false;
 				this.cull = RenderState.CULL_NONE;
@@ -184,7 +184,7 @@ export class TrailMaterial extends BaseMaterial {
 				this._shaderValues.addDefine(TrailMaterial.SHADERDEFINE_ADDTIVEFOG);
 				break;
 			case TrailMaterial.RENDERMODE_ALPHABLENDED:
-				this.renderQueue = BaseMaterial.RENDERQUEUE_TRANSPARENT;
+				this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
 				this.alphaTest = false;
 				this.depthWrite = false;
 				this.cull = RenderState.CULL_NONE;

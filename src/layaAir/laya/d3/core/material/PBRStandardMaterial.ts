@@ -2,14 +2,14 @@ import { BaseTexture } from "../../../resource/BaseTexture";
 import { Vector4 } from "../../math/Vector4";
 import { Shader3D } from "../../shader/Shader3D";
 import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
-import { BaseMaterial } from "./BaseMaterial";
+import { Material } from "./Material";
 import { RenderState } from "./RenderState";
 import { ShaderDefine } from "../../shader/ShaderDefine";
 
 /**
  * <code>PBRStandardMaterial</code> 类用于实现PBR(Standard)材质。
  */
-export class PBRStandardMaterial extends BaseMaterial {
+export class PBRStandardMaterial extends Material {
 
 	/**光滑度数据源_金属度贴图的Alpha通道。*/
 	static SmoothnessSource_MetallicGlossTexture_Alpha: number = 0;
@@ -708,7 +708,7 @@ export class PBRStandardMaterial extends BaseMaterial {
 		switch (value) {
 			case PBRStandardMaterial.RENDERMODE_OPAQUE:
 				this.alphaTest = false;
-				this.renderQueue = BaseMaterial.RENDERQUEUE_OPAQUE;
+				this.renderQueue = Material.RENDERQUEUE_OPAQUE;
 				this.depthWrite = true;
 				this.cull = RenderState.CULL_BACK;
 				this.blend = RenderState.BLEND_DISABLE;
@@ -716,7 +716,7 @@ export class PBRStandardMaterial extends BaseMaterial {
 				this._shaderValues.removeDefine(PBRStandardMaterial.SHADERDEFINE_ALPHAPREMULTIPLY);
 				break;
 			case PBRStandardMaterial.RENDERMODE_CUTOUT:
-				this.renderQueue = BaseMaterial.RENDERQUEUE_ALPHATEST;
+				this.renderQueue = Material.RENDERQUEUE_ALPHATEST;
 				this.alphaTest = true;
 				this.depthWrite = true;
 				this.cull = RenderState.CULL_BACK;
@@ -725,7 +725,7 @@ export class PBRStandardMaterial extends BaseMaterial {
 				this._shaderValues.removeDefine(PBRStandardMaterial.SHADERDEFINE_ALPHAPREMULTIPLY);
 				break;
 			case PBRStandardMaterial.RENDERMODE_FADE:
-				this.renderQueue = BaseMaterial.RENDERQUEUE_TRANSPARENT;
+				this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
 				this.alphaTest = false;
 				this.depthWrite = false;
 				this.cull = RenderState.CULL_BACK;
@@ -737,7 +737,7 @@ export class PBRStandardMaterial extends BaseMaterial {
 				break;
 				break;
 			case PBRStandardMaterial.RENDERMODE_TRANSPARENT:
-				this.renderQueue = BaseMaterial.RENDERQUEUE_TRANSPARENT;
+				this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
 				this.alphaTest = false;
 				this.depthWrite = false;
 				this.cull = RenderState.CULL_BACK;
@@ -839,7 +839,7 @@ export class PBRStandardMaterial extends BaseMaterial {
 		this._shaderValues.setNumber(PBRStandardMaterial.PARALLAXSCALE, 0.001);
 		this._shaderValues.setBool(PBRStandardMaterial.ENABLEEMISSION, false);
 		this._shaderValues.setBool(PBRStandardMaterial.ENABLEREFLECT, true);
-		this._shaderValues.setNumber(BaseMaterial.ALPHATESTVALUE, 0.5);
+		this._shaderValues.setNumber(Material.ALPHATESTVALUE, 0.5);
 		this._disablePublicDefineDatas.remove(Scene3DShaderDeclaration.SHADERDEFINE_REFLECTMAP);
 		this.renderMode = PBRStandardMaterial.RENDERMODE_OPAQUE;
 	}

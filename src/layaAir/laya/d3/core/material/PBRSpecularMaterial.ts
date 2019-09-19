@@ -2,14 +2,14 @@ import { BaseTexture } from "../../../resource/BaseTexture";
 import { Vector4 } from "../../math/Vector4";
 import { Shader3D } from "../../shader/Shader3D";
 import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
-import { BaseMaterial } from "./BaseMaterial";
+import { Material } from "./Material";
 import { RenderState } from "./RenderState";
 import { ShaderDefine } from "../../shader/ShaderDefine";
 
 /**
  * <code>PBRSpecularMaterial</code> 类用于实现PBR(Specular)材质。
  */
-export class PBRSpecularMaterial extends BaseMaterial {
+export class PBRSpecularMaterial extends Material {
 
 	/**光滑度数据源_高光贴图的Alpha通道。*/
 	static SmoothnessSource_SpecularTexture_Alpha: number = 0;
@@ -744,7 +744,7 @@ export class PBRSpecularMaterial extends BaseMaterial {
 		switch (value) {
 			case PBRSpecularMaterial.RENDERMODE_OPAQUE:
 				this.alphaTest = false;
-				this.renderQueue = BaseMaterial.RENDERQUEUE_OPAQUE;
+				this.renderQueue = Material.RENDERQUEUE_OPAQUE;
 				this.depthWrite = true;
 				this.cull = RenderState.CULL_BACK;
 				this.blend = RenderState.BLEND_DISABLE;
@@ -752,7 +752,7 @@ export class PBRSpecularMaterial extends BaseMaterial {
 				this._shaderValues.removeDefine(PBRSpecularMaterial.SHADERDEFINE_ALPHAPREMULTIPLY);
 				break;
 			case PBRSpecularMaterial.RENDERMODE_CUTOUT:
-				this.renderQueue = BaseMaterial.RENDERQUEUE_ALPHATEST;
+				this.renderQueue = Material.RENDERQUEUE_ALPHATEST;
 				this.alphaTest = true;
 				this.depthWrite = true;
 				this.cull = RenderState.CULL_BACK;
@@ -761,7 +761,7 @@ export class PBRSpecularMaterial extends BaseMaterial {
 				this._shaderValues.removeDefine(PBRSpecularMaterial.SHADERDEFINE_ALPHAPREMULTIPLY);
 				break;
 			case PBRSpecularMaterial.RENDERMODE_FADE:
-				this.renderQueue = BaseMaterial.RENDERQUEUE_TRANSPARENT;
+				this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
 				this.alphaTest = false;
 				this.depthWrite = false;
 				this.cull = RenderState.CULL_BACK;
@@ -772,7 +772,7 @@ export class PBRSpecularMaterial extends BaseMaterial {
 				this._shaderValues.removeDefine(PBRSpecularMaterial.SHADERDEFINE_ALPHAPREMULTIPLY);
 				break;
 			case PBRSpecularMaterial.RENDERMODE_TRANSPARENT:
-				this.renderQueue = BaseMaterial.RENDERQUEUE_TRANSPARENT;
+				this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
 				this.alphaTest = false;
 				this.depthWrite = false;
 				this.cull = RenderState.CULL_BACK;
@@ -874,7 +874,7 @@ export class PBRSpecularMaterial extends BaseMaterial {
 		this._shaderValues.setNumber(PBRSpecularMaterial.NORMALSCALE, 1.0);
 		this._shaderValues.setNumber(PBRSpecularMaterial.PARALLAXSCALE, 0.001);
 		this._shaderValues.setBool(PBRSpecularMaterial.ENABLEEMISSION, false);
-		this._shaderValues.setNumber(BaseMaterial.ALPHATESTVALUE, 0.5);
+		this._shaderValues.setNumber(Material.ALPHATESTVALUE, 0.5);
 		this.renderMode = PBRSpecularMaterial.RENDERMODE_OPAQUE;
 	}
 

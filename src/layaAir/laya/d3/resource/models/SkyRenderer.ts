@@ -3,7 +3,6 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { Stat } from "../../../utils/Stat";
 import { WebGLContext } from "../../../webgl/WebGLContext";
 import { Camera } from "../../core/Camera";
-import { BaseMaterial } from "../../core/material/BaseMaterial";
 import { RenderContext3D } from "../../core/render/RenderContext3D";
 import { Scene3D } from "../../core/scene/Scene3D";
 import { Matrix4x4 } from "../../math/Matrix4x4";
@@ -14,6 +13,7 @@ import { ShaderInstance } from "../../shader/ShaderInstance";
 import { RenderTexture } from "../RenderTexture";
 import { SkyBox } from "./SkyBox";
 import { SkyMesh } from "./SkyMesh";
+import { Material } from "../../core/material/Material";
 
 /**
  * <code>SkyRenderer</code> 类用于实现天空渲染器。
@@ -27,7 +27,7 @@ export class SkyRenderer {
 	private static _compileDefine: DefineDatas = new DefineDatas();
 
 	/** @internal */
-	private _material: BaseMaterial;
+	private _material: Material;
 	/** @internal */
 	private _mesh: SkyMesh = SkyBox.instance;
 
@@ -35,7 +35,7 @@ export class SkyRenderer {
 	 * 获取材质。
 	 * @return 材质。
 	 */
-	get material(): BaseMaterial {
+	get material(): Material {
 		return this._material;
 	}
 
@@ -43,7 +43,7 @@ export class SkyRenderer {
 	 * 设置材质。
 	 * @param 材质。
 	 */
-	set material(value: BaseMaterial) {
+	set material(value: Material) {
 		if (this._material !== value) {
 			(this._material) && (this._material._removeReference());
 			(value) && (value._addReference());

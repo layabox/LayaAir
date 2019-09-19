@@ -1,7 +1,7 @@
 import { RenderableSprite3D } from "./RenderableSprite3D";
 import { MeshFilter } from "./MeshFilter";
 import { MeshRenderer } from "./MeshRenderer";
-import { BaseMaterial } from "./material/BaseMaterial"
+import { Material } from "./material/Material";
 import { DynamicBatchManager } from "../graphics/DynamicBatchManager"
 import { MeshRenderDynamicBatchManager } from "../graphics/MeshRenderDynamicBatchManager"
 import { MeshRenderStaticBatchManager } from "../graphics/MeshRenderStaticBatchManager"
@@ -75,7 +75,7 @@ export class MeshSprite3D extends RenderableSprite3D {
 		(data.enableRender != undefined) && (this.meshRenderer.enable = data.enableRender);
 		var materials: any[] = data.materials;
 		if (materials) {
-			var sharedMaterials: BaseMaterial[] = render.sharedMaterials;
+			var sharedMaterials: Material[] = render.sharedMaterials;
 			var materialCount: number = materials.length;
 			sharedMaterials.length = materialCount;
 			for (var i: number = 0; i < materialCount; i++) {

@@ -8,7 +8,7 @@ import { Matrix4x4 } from "../math/Matrix4x4";
 import { Vector3 } from "../math/Vector3";
 import { Mesh } from "../resource/models/Mesh";
 import { Utils3D } from "../utils/Utils3D";
-import { BaseMaterial } from "./material/BaseMaterial";
+import { Material } from "./material/Material";
 import { BlinnPhongMaterial } from "./material/BlinnPhongMaterial";
 import { MeshSprite3D } from "./MeshSprite3D";
 import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration";
@@ -56,7 +56,7 @@ export class MeshRenderer extends BaseRender {
 			for (var i: number = 0; i < count; i++) {
 				var renderElement: RenderElement = this._renderElements[i];
 				if (!renderElement) {
-					var material: BaseMaterial = this.sharedMaterials[i];
+					var material: Material = this.sharedMaterials[i];
 					renderElement = this._renderElements[i] = this._createRenderElement();
 					renderElement.setTransform(this._owner._transform);
 					renderElement.render = this;

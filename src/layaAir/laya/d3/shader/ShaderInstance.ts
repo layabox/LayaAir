@@ -7,7 +7,7 @@ import { Resource } from "../../resource/Resource";
 import { Stat } from "../../utils/Stat";
 import { WebGLContext } from "../../webgl/WebGLContext";
 import { BaseCamera } from "../core/BaseCamera";
-import { BaseMaterial } from "../core/material/BaseMaterial";
+import { Material } from "../core/material/Material";
 import { RenderState } from "../core/material/RenderState";
 import { BaseRender } from "../core/render/BaseRender";
 import { Scene3D } from "../core/scene/Scene3D";
@@ -62,7 +62,7 @@ export class ShaderInstance extends Resource {
 	/**@internal */
 	_uploadMark: number = -1;
 	/**@internal */
-	_uploadMaterial: BaseMaterial;
+	_uploadMaterial: Material;
 	/**@internal */
 	_uploadRender: BaseRender;
 	/** @internal */

@@ -2,13 +2,13 @@ import { BaseTexture } from "../../../resource/BaseTexture";
 import { Vector4 } from "../../math/Vector4";
 import { Shader3D } from "../../shader/Shader3D";
 import { ShaderDefine } from "../../shader/ShaderDefine";
-import { BaseMaterial } from "./BaseMaterial";
+import { Material } from "./Material";
 import { RenderState } from "./RenderState";
 
 /**
  * <code>UnlitMaterial</code> 类用于实现不受光照影响的材质。
  */
-export class UnlitMaterial extends BaseMaterial {
+export class UnlitMaterial extends Material {
 
 	/**渲染状态_不透明。*/
 	static RENDERMODE_OPAQUE: number = 0;
@@ -345,14 +345,14 @@ export class UnlitMaterial extends BaseMaterial {
 		switch (value) {
 			case UnlitMaterial.RENDERMODE_OPAQUE:
 				this.alphaTest = false;
-				this.renderQueue = BaseMaterial.RENDERQUEUE_OPAQUE;
+				this.renderQueue = Material.RENDERQUEUE_OPAQUE;
 				this.depthWrite = true;
 				this.cull = RenderState.CULL_BACK;
 				this.blend = RenderState.BLEND_DISABLE;
 				this.depthTest = RenderState.DEPTHTEST_LESS;
 				break;
 			case UnlitMaterial.RENDERMODE_CUTOUT:
-				this.renderQueue = BaseMaterial.RENDERQUEUE_ALPHATEST;
+				this.renderQueue = Material.RENDERQUEUE_ALPHATEST;
 				this.alphaTest = true;
 				this.depthWrite = true;
 				this.cull = RenderState.CULL_BACK;
@@ -360,7 +360,7 @@ export class UnlitMaterial extends BaseMaterial {
 				this.depthTest = RenderState.DEPTHTEST_LESS;
 				break;
 			case UnlitMaterial.RENDERMODE_TRANSPARENT:
-				this.renderQueue = BaseMaterial.RENDERQUEUE_TRANSPARENT;
+				this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
 				this.alphaTest = false;
 				this.depthWrite = false;
 				this.cull = RenderState.CULL_BACK;

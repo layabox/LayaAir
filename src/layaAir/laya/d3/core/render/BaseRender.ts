@@ -4,7 +4,7 @@ import { Bounds } from "../Bounds"
 import { GeometryElement } from "../GeometryElement"
 import { RenderableSprite3D } from "../RenderableSprite3D"
 import { Transform3D } from "../Transform3D"
-import { BaseMaterial } from "../material/BaseMaterial"
+import { Material } from "../material/Material"
 import { BoundsOctreeNode } from "../scene/BoundsOctreeNode"
 import { IOctreeObject } from "../scene/IOctreeObject"
 import { Scene3D } from "../scene/Scene3D"
@@ -60,7 +60,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	_shaderValues: ShaderData;
 
 	/** @internal */
-	_sharedMaterials: BaseMaterial[] = [];
+	_sharedMaterials: Material[] = [];
 	/** @internal */
 	_scene: Scene3D;
 	/** @internal */
@@ -155,10 +155,10 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	 * 返回第一个实例材质,第一次使用会拷贝实例对象。
 	 * @return 第一个实例材质。
 	 */
-	get material(): BaseMaterial {
-		var material: BaseMaterial = this._sharedMaterials[0];
+	get material(): Material {
+		var material: Material = this._sharedMaterials[0];
 		if (material && !this._materialsInstance[0]) {
-			var insMat: BaseMaterial = this._getInstanceMaterial(material, 0);
+			var insMat: Material = this._getInstanceMaterial(material, 0);
 			var renderElement: RenderElement = this._renderElements[0];
 			(renderElement) && (renderElement.material = insMat);
 		}
@@ -169,7 +169,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	 * 设置第一个实例材质。
 	 * @param value 第一个实例材质。
 	 */
-	set material(value: BaseMaterial) {
+	set material(value: Material) {
 		this.sharedMaterial = value;
 	}
 
@@ -177,10 +177,10 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	 * 获取潜拷贝实例材质列表,第一次使用会拷贝实例对象。
 	 * @return 浅拷贝实例材质列表。
 	 */
-	get materials(): BaseMaterial[] {
+	get materials(): Material[] {
 		for (var i: number = 0, n: number = this._sharedMaterials.length; i < n; i++) {
 			if (!this._materialsInstance[i]) {
-				var insMat: BaseMaterial = this._getInstanceMaterial(this._sharedMaterials[i], i);
+				var insMat: Material = this._getInstanceMaterial(this._sharedMaterials[i], i);
 				var renderElement: RenderElement = this._renderElements[i];
 				(renderElement) && (renderElement.material = insMat);
 			}
@@ -192,7 +192,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	 * 设置实例材质列表。
 	 * @param value 实例材质列表。
 	 */
-	set materials(value: BaseMaterial[]) {
+	set materials(value: Material[]) {
 		this.sharedMaterials = value;
 	}
 
@@ -200,7 +200,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	 * 返回第一个材质。
 	 * @return 第一个材质。
 	 */
-	get sharedMaterial(): BaseMaterial {
+	get sharedMaterial(): Material {
 		return this._sharedMaterials[0];
 	}
 
@@ -208,8 +208,8 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	 * 设置第一个材质。
 	 * @param value 第一个材质。
 	 */
-	set sharedMaterial(value: BaseMaterial) {
-		var lastValue: BaseMaterial = this._sharedMaterials[0];
+	set sharedMaterial(value: Material) {
+		var lastValue: Material = this._sharedMaterials[0];
 		if (lastValue !== value) {
 			this._sharedMaterials[0] = value;
 			this._materialsInstance[0] = false;
@@ -223,7 +223,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	 * 获取浅拷贝材质列表。
 	 * @return 浅拷贝材质列表。
 	 */
-	get sharedMaterials(): BaseMaterial[] {
+	get sharedMaterials(): Material[] {
 		return this._sharedMaterials.slice();
 	}
 
@@ -231,12 +231,12 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	 * 设置材质列表。
 	 * @param value 材质列表。
 	 */
-	set sharedMaterials(value: BaseMaterial[]) {
+	set sharedMaterials(value: Material[]) {
 		var materialsInstance: boolean[] = this._materialsInstance;
-		var sharedMats: BaseMaterial[] = this._sharedMaterials;
+		var sharedMats: Material[] = this._sharedMaterials;
 
 		for (var i: number = 0, n: number = sharedMats.length; i < n; i++) {
-			var lastMat: BaseMaterial = sharedMats[i];
+			var lastMat: Material = sharedMats[i];
 			(lastMat) && (lastMat._removeReference());
 		}
 
@@ -246,7 +246,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 			sharedMats.length = count;
 			for (i = 0; i < count; i++) {
 				lastMat = sharedMats[i];
-				var mat: BaseMaterial = value[i];
+				var mat: Material = value[i];
 				if (lastMat !== mat) {
 					materialsInstance[i] = false;
 					var renderElement: RenderElement = this._renderElements[i];
@@ -391,7 +391,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	/**
 	 * @internal
 	 */
-	private _changeMaterialReference(lastValue: BaseMaterial, value: BaseMaterial): void {
+	private _changeMaterialReference(lastValue: Material, value: Material): void {
 		(lastValue) && (lastValue._removeReference());
 		value._addReference();//TODO:value可以为空
 	}
@@ -399,8 +399,8 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	/**
 	 * @internal
 	 */
-	private _getInstanceMaterial(material: BaseMaterial, index: number): BaseMaterial {
-		var insMat: BaseMaterial = material.clone();//深拷贝
+	private _getInstanceMaterial(material: Material, index: number): Material {
+		var insMat: Material = material.clone();//深拷贝
 		insMat.name = insMat.name + "(Instance)";
 		this._materialsInstance[index] = true;
 		this._changeMaterialReference(this._sharedMaterials[index], insMat);

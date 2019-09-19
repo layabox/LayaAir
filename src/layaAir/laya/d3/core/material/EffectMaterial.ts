@@ -1,14 +1,14 @@
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Vector4 } from "../../math/Vector4";
 import { Shader3D } from "../../shader/Shader3D";
-import { BaseMaterial } from "./BaseMaterial";
+import { Material } from "./Material";
 import { RenderState } from "./RenderState";
 import { ShaderDefine } from "../../shader/ShaderDefine";
 
 /**
  * <code>EffectMaterial</code> 类用于实现Mesh特效材质。
  */
-export class EffectMaterial extends BaseMaterial {
+export class EffectMaterial extends Material {
 	/**渲染状态_加色法混合。*/
 	static RENDERMODE_ADDTIVE: number = 0;
 	/**渲染状态_透明混合。*/
@@ -171,7 +171,7 @@ export class EffectMaterial extends BaseMaterial {
 	set renderMode(value: number) {
 		switch (value) {
 			case EffectMaterial.RENDERMODE_ADDTIVE:
-				this.renderQueue = BaseMaterial.RENDERQUEUE_TRANSPARENT;
+				this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
 				this.alphaTest = false;
 				this.depthWrite = false;
 				this.cull = RenderState.CULL_NONE;
@@ -182,7 +182,7 @@ export class EffectMaterial extends BaseMaterial {
 				this._shaderValues.addDefine(EffectMaterial.SHADERDEFINE_ADDTIVEFOG);
 				break;
 			case EffectMaterial.RENDERMODE_ALPHABLENDED:
-				this.renderQueue = BaseMaterial.RENDERQUEUE_TRANSPARENT;
+				this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
 				this.alphaTest = false;
 				this.depthWrite = false;
 				this.cull = RenderState.CULL_NONE;

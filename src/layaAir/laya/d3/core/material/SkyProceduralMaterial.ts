@@ -1,12 +1,12 @@
 import { Vector4 } from "../../math/Vector4";
 import { Shader3D } from "../../shader/Shader3D";
-import { BaseMaterial } from "./BaseMaterial";
+import { Material } from "./Material";
 import { ShaderDefine } from "../../shader/ShaderDefine";
 
 /**
  * <code>SkyProceduralMaterial</code> 类用于实现SkyProceduralMaterial材质。
  */
-export class SkyProceduralMaterial extends BaseMaterial {
+export class SkyProceduralMaterial extends Material {
 	/** 太阳_无*/
 	static SUN_NODE: number = 0;
 	/** 太阳_精简*/

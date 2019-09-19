@@ -6,7 +6,7 @@ import { AnimationClip } from "./laya/d3/animation/AnimationClip";
 import { Animator } from "./laya/d3/component/Animator";
 import { PostProcess } from "./laya/d3/component/PostProcess";
 import { Avatar } from "./laya/d3/core/Avatar";
-import { BaseMaterial } from "./laya/d3/core/material/BaseMaterial";
+import { Material } from "./laya/d3/core/material/Material";
 import { BlinnPhongMaterial } from "./laya/d3/core/material/BlinnPhongMaterial";
 import { EffectMaterial } from "./laya/d3/core/material/EffectMaterial";
 import { ExtendTerrainMaterial } from "./laya/d3/core/material/ExtendTerrainMaterial";
@@ -88,6 +88,7 @@ import { WebGL } from "./laya/webgl/WebGL";
 import { WebGLContext } from "./laya/webgl/WebGLContext";
 import { TextureFormat } from "./laya/resource/TextureFormat";
 import { LayaGLRunner } from "./laya/layagl/LayaGLRunner";
+import { BaseMaterial } from "./laya/d3/core/material/BaseMaterial";
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
  */
@@ -230,6 +231,7 @@ export class Laya3D {
 		Scene3D.__init__();
 		MeshRenderStaticBatchManager.__init__();
 
+		Material.__initDefine__();
 		BaseMaterial.__initDefine__();
 		BlinnPhongMaterial.__initDefine__();
 		PBRStandardMaterial.__initDefine__();
@@ -306,7 +308,7 @@ export class Laya3D {
 		createMap["lh"] = [Laya3D.HIERARCHY, Scene3DUtils._parse];
 		createMap["ls"] = [Laya3D.HIERARCHY, Scene3DUtils._parseScene];
 		createMap["lm"] = [Laya3D.MESH, Mesh._parse];
-		createMap["lmat"] = [Laya3D.MATERIAL, BaseMaterial._parse];
+		createMap["lmat"] = [Laya3D.MATERIAL, Material._parse];
 		createMap["ltc"] = [Laya3D.TEXTURECUBE, TextureCube._parse];
 		createMap["jpg"] = [Laya3D.TEXTURE2D, Texture2D._parse];
 		createMap["jpeg"] = [Laya3D.TEXTURE2D, Texture2D._parse];
@@ -702,7 +704,7 @@ export class Laya3D {
 	 */
 	private static _onMateialTexturesLoaded(loader: Loader, processHandler: Handler, lmatData: any, subUrls: any[]): void {
 		loader._cache = loader._createCache;
-		var mat: BaseMaterial = BaseMaterial._parse(lmatData, loader._propertyParams, loader._constructParams);
+		var mat: Material = Material._parse(lmatData, loader._propertyParams, loader._constructParams);
 		Laya3D._endLoad(loader, mat, subUrls);
 		(processHandler) && (processHandler.recover());
 	}

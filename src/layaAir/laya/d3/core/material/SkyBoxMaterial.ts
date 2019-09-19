@@ -1,12 +1,12 @@
 import { Vector4 } from "../../math/Vector4";
 import { TextureCube } from "../../resource/TextureCube";
 import { Shader3D } from "../../shader/Shader3D";
-import { BaseMaterial } from "./BaseMaterial";
+import { Material } from "./Material";
 
 /**
  * <code>SkyBoxMaterial</code> 类用于实现SkyBoxMaterial材质。
  */
-export class SkyBoxMaterial extends BaseMaterial {
+export class SkyBoxMaterial extends Material {
 	static TINTCOLOR: number = Shader3D.propertyNameToID("u_TintColor");
 	static EXPOSURE: number = Shader3D.propertyNameToID("u_Exposure");
 	static ROTATION: number = Shader3D.propertyNameToID("u_Rotation");

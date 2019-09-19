@@ -1,4 +1,4 @@
-import { BaseMaterial } from "../material/BaseMaterial"
+import { Material } from "../material/Material"
 import { RenderState } from "../material/RenderState"
 import { Vector4 } from "../../math/Vector4"
 import { Shader3D } from "../../shader/Shader3D"
@@ -9,7 +9,7 @@ import { ShaderDefine } from "../../shader/ShaderDefine";
 /**
  * <code>ShurikenParticleMaterial</code> 类用于实现粒子材质。
  */
-export class ShurikenParticleMaterial extends BaseMaterial {
+export class ShurikenParticleMaterial extends Material {
 	/**渲染状态_透明混合。*/
 	static RENDERMODE_ALPHABLENDED: number = 0;
 	/**渲染状态_加色法混合。*/
@@ -175,7 +175,7 @@ export class ShurikenParticleMaterial extends BaseMaterial {
 	set renderMode(value: number) {
 		switch (value) {
 			case ShurikenParticleMaterial.RENDERMODE_ADDTIVE:
-				this.renderQueue = BaseMaterial.RENDERQUEUE_TRANSPARENT;
+				this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
 				this.depthWrite = false;
 				this.cull = RenderState.CULL_NONE;
 				this.blend = RenderState.BLEND_ENABLE_ALL;
@@ -185,7 +185,7 @@ export class ShurikenParticleMaterial extends BaseMaterial {
 				this._shaderValues.addDefine(ShurikenParticleMaterial.SHADERDEFINE_ADDTIVEFOG);
 				break;
 			case ShurikenParticleMaterial.RENDERMODE_ALPHABLENDED:
-				this.renderQueue = BaseMaterial.RENDERQUEUE_TRANSPARENT;
+				this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
 				this.depthWrite = false;
 				this.cull = RenderState.CULL_NONE;
 				this.blend = RenderState.BLEND_ENABLE_ALL;

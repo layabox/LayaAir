@@ -5,7 +5,7 @@ import { BaseCamera } from "../BaseCamera"
 import { Camera } from "../Camera"
 import { GeometryElement } from "../GeometryElement"
 import { Transform3D } from "../Transform3D"
-import { BaseMaterial } from "../material/BaseMaterial"
+import { Material } from "../material/Material"
 import { Scene3D } from "../scene/Scene3D"
 import { Shader3D } from "../../shader/Shader3D"
 import { ShaderData } from "../../shader/ShaderData"
@@ -36,7 +36,7 @@ export class RenderElement {
 	_geometry: GeometryElement;
 
 	/** @internal */
-	material: BaseMaterial;//可能为空
+	material: Material;//可能为空
 	/** @internal */
 	render: BaseRender;
 	/** @internal */
@@ -134,7 +134,7 @@ export class RenderElement {
 	 * @internal
 	 */
 	_render(context: RenderContext3D, isTarget: boolean): void {
-		var lastStateMaterial: BaseMaterial, lastStateShaderInstance: ShaderInstance, lastStateRender: BaseRender;
+		var lastStateMaterial: Material, lastStateShaderInstance: ShaderInstance, lastStateRender: BaseRender;
 		var updateMark: number = Camera._updateMark;
 		var scene: Scene3D = context.scene;
 		var camera: BaseCamera = context.camera;

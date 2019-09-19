@@ -1,13 +1,13 @@
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Vector4 } from "../../math/Vector4";
 import { Shader3D } from "../../shader/Shader3D";
-import { BaseMaterial } from "./BaseMaterial";
+import { Material } from "./Material";
 import { ShaderDefine } from "../../shader/ShaderDefine";
 
 /**
  * <code>WaterPrimaryMaterial</code> 类用于实现水材质。
  */
-export class WaterPrimaryMaterial extends BaseMaterial {
+export class WaterPrimaryMaterial extends Material {
 
 	static HORIZONCOLOR: number = Shader3D.propertyNameToID("u_HorizonColor");
 	static MAINTEXTURE: number = Shader3D.propertyNameToID("u_MainTexture");

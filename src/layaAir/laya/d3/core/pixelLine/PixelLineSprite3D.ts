@@ -3,7 +3,7 @@ import { PixelLineRenderer } from "./PixelLineRenderer";
 import { PixelLineMaterial } from "./PixelLineMaterial";
 import { PixelLineData } from "./PixelLineData";
 import { RenderableSprite3D } from "../RenderableSprite3D"
-import { BaseMaterial } from "../material/BaseMaterial"
+import { Material } from "../material/Material"
 import { RenderElement } from "../render/RenderElement"
 import { Color } from "../../math/Color"
 import { Vector3 } from "../../math/Vector3"
@@ -75,7 +75,7 @@ export class PixelLineSprite3D extends RenderableSprite3D {
 	/**
 	 * @inheritDoc
 	 */
-	_changeRenderObjects(sender: PixelLineRenderer, index: number, material: BaseMaterial): void {
+	_changeRenderObjects(sender: PixelLineRenderer, index: number, material: Material): void {
 		var renderObjects: RenderElement[] = this._render._renderElements;
 		(material) || (material = PixelLineMaterial.defaultMaterial);
 		var renderElement: RenderElement = renderObjects[index];

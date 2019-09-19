@@ -2,7 +2,7 @@ import { BaseTexture } from "../../../resource/BaseTexture";
 import { Vector4 } from "../../math/Vector4";
 import { Shader3D } from "../../shader/Shader3D";
 import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
-import { BaseMaterial } from "./BaseMaterial";
+import { Material } from "./Material";
 import { RenderState } from "./RenderState";
 import { ShaderDefine } from "../../shader/ShaderDefine";
 
@@ -10,7 +10,7 @@ import { ShaderDefine } from "../../shader/ShaderDefine";
  * ...
  * @author ...
  */
-export class ExtendTerrainMaterial extends BaseMaterial {
+export class ExtendTerrainMaterial extends Material {
 	/**渲染状态_不透明。*/
 	static RENDERMODE_OPAQUE: number = 1;
 	/**渲染状态_透明混合。*/
@@ -246,14 +246,14 @@ export class ExtendTerrainMaterial extends BaseMaterial {
 	set renderMode(value: number) {
 		switch (value) {
 			case ExtendTerrainMaterial.RENDERMODE_OPAQUE:
-				this.renderQueue = BaseMaterial.RENDERQUEUE_OPAQUE;
+				this.renderQueue = Material.RENDERQUEUE_OPAQUE;
 				this.depthWrite = true;
 				this.cull = RenderState.CULL_BACK;
 				this.blend = RenderState.BLEND_DISABLE;
 				this.depthTest = RenderState.DEPTHTEST_LESS;
 				break;
 			case ExtendTerrainMaterial.RENDERMODE_TRANSPARENT:
-				this.renderQueue = BaseMaterial.RENDERQUEUE_OPAQUE;
+				this.renderQueue = Material.RENDERQUEUE_OPAQUE;
 				this.depthWrite = false;
 				this.cull = RenderState.CULL_BACK;
 				this.blend = RenderState.BLEND_ENABLE_ALL;

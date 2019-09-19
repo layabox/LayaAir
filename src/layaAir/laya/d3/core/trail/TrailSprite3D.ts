@@ -3,7 +3,7 @@ import { TrailRenderer } from "./TrailRenderer";
 import { FloatKeyframe } from "../FloatKeyframe"
 import { Gradient } from "../Gradient"
 import { RenderableSprite3D } from "../RenderableSprite3D"
-import { BaseMaterial } from "../material/BaseMaterial"
+import { Material } from "../material/Material"
 import { Color } from "../../math/Color"
 import { Node } from "../../../display/Node"
 import { Loader } from "../../../net/Loader"
@@ -57,7 +57,7 @@ export class TrailSprite3D extends RenderableSprite3D {
 		var i: number, j: number;
 		var materials: any[] = data.materials;
 		if (materials) {
-			var sharedMaterials: BaseMaterial[] = render.sharedMaterials;
+			var sharedMaterials: Material[] = render.sharedMaterials;
 			var materialCount: number = materials.length;
 			sharedMaterials.length = materialCount;
 			for (i = 0; i < materialCount; i++)
