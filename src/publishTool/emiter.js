@@ -477,6 +477,16 @@ class emiter {
             case "TypeQuery":
                 // console.log("console test:",node.exprName.getText());
                 return node.exprName.getText();
+            case "UnionType":
+                type = "";
+                node = node;
+                for (let i = 0; i < node.types.length; i++) {
+                    type += (i ? "|" : "") + this.emitType(node.types[i]);
+                }
+                type = type.replace(/\|\s*null|\|\s*undefined/gm, "");
+                if (type.indexOf("|") != -1)
+                    type = "*";
+                return type;
             default:
                 console.log("TODO :", type, this.url + "/" + this.classNameNow);
                 return "*";
@@ -647,9 +657,10 @@ emiter.tsToasTypeObj = {
     "ConstructorType": "Class",
     "TypeLiteral": "*",
     "AnyKeyword": "*",
-    "UnionType": "*",
     "FunctionType": "Function",
-    "ObjectKeyword": "Object"
+    "ObjectKeyword": "Object",
+    "NullKeyword": "null",
+    "UndefinedKeyword": "undefined"
 };
 /**jsc对应的astype */
 emiter.jscObj = {};
