@@ -49,7 +49,8 @@ export class SpotLightDemo {
 		mat.setForward(new Vector3(0.15, -1.0, 0.0));
 		spotLight.transform.worldMatrix = mat;
 		//设置聚光灯范围
-		spotLight.range = 6.0;
+		spotLight.range = 1.6;
+		spotLight.intensity=8.0;
 		//设置聚光灯锥形角度
 		spotLight.spotAngle = 32;
 

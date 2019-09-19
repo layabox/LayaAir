@@ -13,19 +13,19 @@ export class HTMLCanvas extends Bitmap {
 
     private _ctx: any;
     /**@internal */
-    _source: any;
+    _source: HTMLCanvasElement;
     /**@internal */
     _texture: Texture;
     /**
      * @inheritDoc
      */
-    get source(): any {
+    get source() {
         return this._source;
     }
     /**@internal 
      * @override
     */
-    _getSource(): any {
+    _getSource() {
         return this._source;
     }
     /**
@@ -36,7 +36,7 @@ export class HTMLCanvas extends Bitmap {
         if (createCanvas)	//webgl模式下不建立。除非强制指，例如绘制文字部分
             this._source = Browser.createElement("canvas");
         else {
-            this._source = this;
+            this._source = this as unknown as HTMLCanvasElement;
         }
         this.lock = true;
     }
@@ -73,7 +73,8 @@ export class HTMLCanvas extends Bitmap {
      * Canvas 渲染上下文。
      */
     get context(): Context {
-        if (this._ctx) return this._ctx;
+		if (this._ctx) return this._ctx;
+		//@ts-ignore
         if (this._source == this) {	//是webgl并且不是真的画布。如果是真的画布，可能真的想要2d context
             this._ctx = new ILaya.Context();
         } else {
@@ -165,7 +166,7 @@ export class HTMLCanvas extends Bitmap {
                 return win.conchToBase64FlipY ? win.conchToBase64FlipY(type, encoderOptions, data.buffer, width, height) : win.conchToBase64(type, encoderOptions, data.buffer, width, height);
             }
             else {
-                return this._source.toDataURL(type, encoderOptions);
+                return (this._source as HTMLCanvasElement).toDataURL(type, encoderOptions);
             }
         }
         return null;

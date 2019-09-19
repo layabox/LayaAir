@@ -170,7 +170,7 @@ export class Laya {
 
 		// 创建主画布
 		//这个其实在Render中感觉更合理，但是runtime要求第一个canvas是主画布，所以必须在下面的那个离线画布之前
-		var mainCanv: HTMLCanvas = Browser.mainCanvas = new HTMLCanvas(true);
+		var mainCanv = Browser.mainCanvas = new HTMLCanvas(true);
 		//Render._mainCanvas = mainCanv;
 		var style: any = mainCanv.source.style;
 		style.position = 'absolute';
@@ -224,7 +224,7 @@ export class Laya {
 		if (ILaya.Render.isConchApp) {
 			Laya.enableNative();
 		}
-
+		Laya.enableWebGLPlus();
 		CacheManger.beginCheck();
 		stage = Laya.stage = new Stage();
 		ILaya.stage = Laya.stage;
@@ -316,12 +316,14 @@ export class Laya {
 
 	private static isNativeRender_enable: boolean = false;
 	/**@private */
+	private static enableWebGLPlus(): void {
+		WebGLContext.__init_native();
+	}
+	/**@private */
 	private static enableNative(): void {
 		if (Laya.isNativeRender_enable)
 			return;
 		Laya.isNativeRender_enable = true;
-
-		WebGLContext.__init_native();
 		Shader.prototype.uploadTexture2D = function (value: any): void {
 			var gl: WebGLRenderingContext = LayaGL.instance;
 			gl.bindTexture(gl.TEXTURE_2D, (<WebGLTexture>value));
@@ -379,11 +381,6 @@ export class Laya {
 			}
 			return this._texture;
 		}
-
-		if (Render.supportWebGLPlusRendering) {
-			((<any>LayaGLRunner)).uploadShaderUniforms = LayaGLRunner.uploadShaderUniformsForNative;
-		}
-
 	}
 }
 
