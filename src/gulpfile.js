@@ -489,6 +489,7 @@ gulp.task('CopyTSJSLibsFileToTS', () => {
         '../build/js/libs/laya.xmmini.js',
         '../build/js/libs/laya.quickgamemini.js',
         '../build/js/libs/laya.vvmini.js',
+        '../build/js/libs/laya.debugtool.js',
         '../build/js/libs/laya.qqmini.js'],)
 		.pipe(gulp.dest('../build/ts_new/jslibs'));
 });
