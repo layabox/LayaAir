@@ -178,7 +178,6 @@ export class Shader3D {
 					(WebGL.shaderHighPrecision) && (compileDefineDatas.add(Shader3D.SHADERDEFINE_HIGHPRECISION)); //部分低端移动设备不支持高精度shader,所以如果在PC端或高端移动设备输出的宏定义值需做判断移除高精度宏定义
 					(Config3D._config._multiLighting) || (compileDefineDatas.add(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING));
 					pass.withCompile(compileDefineDatas);
-
 				} else {
 					console.warn("Shader3D: unknown passIndex.");
 				}
@@ -190,43 +189,6 @@ export class Shader3D {
 		}
 	}
 
-
-	/**
-	 * @deprecated
-	 * 通过宏定义遮罩编译shader,建议使用compileShaderByDefineNames。
-	 * @param	shaderName Shader名称。
-	 * @param   subShaderIndex 子着色器索引。
-	 * @param   passIndex  通道索引。
-	 * @param	defineMask 宏定义遮罩集合。
-	 */
-	static compileShader(shaderName: string, subShaderIndex: number, passIndex: number, ...defineMask): void {
-		var shader: Shader3D = Shader3D.find(shaderName);
-		if (shader) {
-			var subShader: SubShader = shader.getSubShaderAt(subShaderIndex);
-			if (subShader) {
-				var pass: ShaderPass = subShader._passes[passIndex];
-				if (pass) {
-					var compileDefineDatas: DefineDatas = Shader3D._compileDefineDatas;
-					var mask: Array<number> = compileDefineDatas._mask;
-					mask.length = 0;
-					for (var i: number = 0, n: number = defineMask.length; i < n; i++)
-						mask.push(defineMask[i]);
-					compileDefineDatas._length = defineMask.length;
-
-					(WebGL.shaderHighPrecision) && (compileDefineDatas.add(Shader3D.SHADERDEFINE_HIGHPRECISION)); //部分低端移动设备不支持高精度shader,所以如果在PC端或高端移动设备输出的宏定义值需做判断移除高精度宏定义
-					(Config3D._config._multiLighting) || (compileDefineDatas.add(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING));
-					pass.withCompile(compileDefineDatas);
-
-				} else {
-					console.warn("Shader3D: unknown passIndex.");
-				}
-			} else {
-				console.warn("Shader3D: unknown subShaderIndex.");
-			}
-		} else {
-			console.warn("Shader3D: unknown shader name.");
-		}
-	}
 
 	/**
 	 * 添加预编译shader文件，主要是处理宏定义
@@ -278,6 +240,43 @@ export class Shader3D {
 	 */
 	getSubShaderAt(index: number): SubShader {
 		return this._subShaders[index];
+	}
+
+	/**
+	 * @deprecated
+	 * 通过宏定义遮罩编译shader,建议使用compileShaderByDefineNames。
+	 * @param	shaderName Shader名称。
+	 * @param   subShaderIndex 子着色器索引。
+	 * @param   passIndex  通道索引。
+	 * @param	defineMask 宏定义遮罩集合。
+	 */
+	static compileShader(shaderName: string, subShaderIndex: number, passIndex: number, ...defineMask): void {
+		var shader: Shader3D = Shader3D.find(shaderName);
+		if (shader) {
+			var subShader: SubShader = shader.getSubShaderAt(subShaderIndex);
+			if (subShader) {
+				var pass: ShaderPass = subShader._passes[passIndex];
+				if (pass) {
+					var compileDefineDatas: DefineDatas = Shader3D._compileDefineDatas;
+					var mask: Array<number> = compileDefineDatas._mask;
+					mask.length = 0;
+					for (var i: number = 0, n: number = defineMask.length; i < n; i++)
+						mask.push(defineMask[i]);
+					compileDefineDatas._length = defineMask.length;
+
+					(WebGL.shaderHighPrecision) && (compileDefineDatas.add(Shader3D.SHADERDEFINE_HIGHPRECISION)); //部分低端移动设备不支持高精度shader,所以如果在PC端或高端移动设备输出的宏定义值需做判断移除高精度宏定义
+					(Config3D._config._multiLighting) || (compileDefineDatas.add(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING));
+					pass.withCompile(compileDefineDatas);
+
+				} else {
+					console.warn("Shader3D: unknown passIndex.");
+				}
+			} else {
+				console.warn("Shader3D: unknown subShaderIndex.");
+			}
+		} else {
+			console.warn("Shader3D: unknown shader name.");
+		}
 	}
 
 }
