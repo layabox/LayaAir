@@ -1,4 +1,4 @@
-import { BaseMaterial } from "laya/d3/core/material/BaseMaterial";
+import { Material } from "laya/d3/core/material/Material";
 import { RenderState } from "laya/d3/core/material/RenderState";
 import { VertexMesh } from "laya/d3/graphics/Vertex/VertexMesh";
 import { Vector4 } from "laya/d3/math/Vector4";
@@ -12,7 +12,7 @@ import CartoonVS from "./shader/cartoon.vs";
 import OutlineFS from "./shader/outline.fs";
 import OutlineVS from "./shader/outline.vs";
 
-export class CartoonMaterial extends BaseMaterial {
+export class CartoonMaterial extends Material {
 
 	static ALBEDOTEXTURE: number = Shader3D.propertyNameToID("u_AlbedoTexture");
 	static BLENDTEXTURE: number = Shader3D.propertyNameToID("u_BlendTexture");

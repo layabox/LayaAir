@@ -11,7 +11,6 @@ import { Config3D } from "Config3D";
 export class GPUTexture2DTest {
 	constructor() {
 		var config: Config3D = new Config3D();
-		Shader3D.debugMode = true;
 		Laya3D.init(0, 0, config);
 		Stat.show();
 		Laya.stage.scaleMode = Stage.SCALE_FULL;

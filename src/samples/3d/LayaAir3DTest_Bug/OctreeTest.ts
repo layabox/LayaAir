@@ -34,7 +34,6 @@ export class OctreeTest {
 		config.octreeInitialSize = 32;
 		config.octreeMinNodeSize = 0.01;
 		config.octreeLooseness = 1.01;
-		Shader3D.debugMode = true;
 		Laya3D.init(0, 0, config);
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
