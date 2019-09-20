@@ -163,7 +163,7 @@ export class Shader3D {
 	 * @param   passIndex  通道索引。
 	 * @param	defineNames 宏定义名字集合。
 	 */
-	static compileShaderByDefineNames(shaderName: string, subShaderIndex: number, passIndex: number, defineNames: Array<string>): void {
+	static compileShaderByDefineNames(shaderName: string, subShaderIndex: number, passIndex: number, defineNames: string[]): void {
 		var shader: Shader3D = Shader3D.find(shaderName);
 		if (shader) {
 			var subShader: SubShader = shader.getSubShaderAt(subShaderIndex);

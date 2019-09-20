@@ -14,7 +14,7 @@ export class ShaderVariantInfo {
     /** @internal */
     _passIndex: number = 0;
     /** @internal */
-    _defines: string[];
+    _defineNames: string[];
 
     /**
      * 创建着色器变种。
@@ -32,36 +32,36 @@ export class ShaderVariantInfo {
      * @param shader 着色器
      * @param subShaderIndex 子着色器索引 
      * @param passIndex 通道索引
-     * @param defines 宏定义集合
+     * @param defineNames 宏定义集合
      */
-    setValue(shader: Shader3D, subShaderIndex: number, passIndex: number, defines: string[]): void {
+    setValue(shader: Shader3D, subShaderIndex: number, passIndex: number, defineNames: string[]): void {
         if (shader) {
             var subShader: SubShader = shader.getSubShaderAt(subShaderIndex);
             if (subShader) {
                 var pass: ShaderPass = subShader._passes[passIndex];
                 if (pass) {
                     var validDefine: DefineDatas = pass._validDefine;
-                    for (var i: number = 0, n: number = defines.length; i < n; i++) {
-                        var defname: string = defines[i];
+                    for (var i: number = 0, n: number = defineNames.length; i < n; i++) {
+                        var defname: string = defineNames[i];
                         if (!validDefine.has(Shader3D.getDefineByName(defname)))
-                            throw "ShaderVariantInfo:invalid defineName: " + defname + " in shaderPass. ";
+                            throw `ShaderVariantInfo:Invalid defineName ${defname} in ${shader._name} subShaderIndex of ${subShaderIndex} passIndex of ${passIndex}.`;
                     }
                 }
                 else {
-                    throw "ShaderVariantInfo:shader don't have passIndex of " + passIndex + " .";
+                    throw `ShaderVariantInfo:Shader don't have passIndex of ${passIndex}.`;
                 }
             }
             else {
-                throw "ShaderVariantInfo:shader don't have subShaderIndex of " + subShaderIndex + " .";
+                throw `ShaderVariantInfo:Shader don't have subShaderIndex of ${subShaderIndex}.`;
             }
         }
         else {
-            throw "ShaderVariantInfo:shader can't be null.";
+            throw `ShaderVariantInfo:Shader can't be null.`;
         }
         this._shader = shader;
         this._subShaderIndex = subShaderIndex;
         this._passIndex = passIndex;
-        this._defines = defines;
+        this._defineNames = defineNames;
     }
 
     /**
@@ -74,9 +74,9 @@ export class ShaderVariantInfo {
             return false;
         }
         else {
-            var defines: string[] = this._defines;
-            var otherDefines: string[] = other._defines;
-            for (var i: number = 0, n: number = this._defines.length; i < n; i++) {
+            var defines: string[] = this._defineNames;
+            var otherDefines: string[] = other._defineNames;
+            for (var i: number = 0, n: number = this._defineNames.length; i < n; i++) {
                 if (defines[i] !== otherDefines[i])
                     return false;
             }
@@ -89,7 +89,7 @@ export class ShaderVariantInfo {
      * @return 着色器变种。 
      */
     clone(): ShaderVariantInfo {
-        var dest: ShaderVariantInfo = new ShaderVariantInfo(this._shader, this._subShaderIndex, this._passIndex, this._defines.slice());
+        var dest: ShaderVariantInfo = new ShaderVariantInfo(this._shader, this._subShaderIndex, this._passIndex, this._defineNames.slice());
         return dest;
     }
 }
@@ -174,7 +174,7 @@ export class ShaderVariantInfoCollection {
             var variants: ShaderVariantInfo[] = this._variants;
             for (var i: number = 0, n: number = variants.length; i < n; i++) {
                 var variant: ShaderVariantInfo = variants[i];
-                Shader3D.compileShaderByDefineNames(variant._shader._name, variant._subShaderIndex, variant._passIndex, variant._defines);
+                Shader3D.compileShaderByDefineNames(variant._shader._name, variant._subShaderIndex, variant._passIndex, variant._defineNames);
             }
             this._allCompiled = true;
         }
