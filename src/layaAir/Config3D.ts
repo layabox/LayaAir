@@ -24,15 +24,14 @@ export class Config3D implements IClone {
 
 	/** 是否开启抗锯齿。*/
 	isAntialias: boolean = true;
-	/** 设置画布是否透明。*/
+	/** 画布是否包含透明通道。*/
 	isAlpha: boolean = false;
-	/** 设置画布是否预乘。*/
+	/** 画布是否预乘。*/
 	premultipliedAlpha: boolean = true;
-	/** 设置画布的是否开启模板缓冲。*/
+	/** 画布是否开启模板缓冲。*/
 	isStencil: boolean = true;
 	/** 是否开启多光源。*/
 	enbaleMultiLight: boolean = true;
-
 	/** 是否开启八叉树裁剪。*/
 	octreeCulling: boolean = false;
 	/** 八叉树初始化尺寸。*/
@@ -43,7 +42,6 @@ export class Config3D implements IClone {
 	octreeMinNodeSize: number = 2.0;
 	/** 八叉树松散值。*/
 	octreeLooseness: number = 1.25;
-
 	/** 
 	 * 是否开启视锥裁剪调试。
 	 * 如果开启八叉树裁剪,使用红色绘制高层次八叉树节点包围盒,使用蓝色绘制低层次八叉节点包围盒,精灵包围盒和八叉树节点包围盒颜色一致,但Alpha为非透明。如果视锥完全包含八叉树节点,八叉树节点包围盒和精灵包围盒变为蓝色,同样精灵包围盒的Alpha为非透明。

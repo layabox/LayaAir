@@ -23,7 +23,7 @@ export class Config {
      */
     static isStencil: boolean = true;
     /**
-     * 是否强制WebGL同步刷新。
+     * 是否保留渲染缓冲区。
      */
     static preserveDrawingBuffer: boolean = false;
 
