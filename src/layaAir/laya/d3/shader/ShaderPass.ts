@@ -18,6 +18,8 @@ import { ShaderVariantInfo } from "./ShaderVariantInfoCollection";
 export class ShaderPass extends ShaderCompile {
 	/**@internal */
 	private static _defineString: Array<string> = [];
+	/**@internal */
+	private static _debugDefineString: Array<string> = [];
 
 	/**@internal */
 	private _owner: SubShader;
@@ -180,7 +182,7 @@ export class ShaderPass extends ShaderCompile {
 		var dbugShaderVariantInfo: ShaderVariantInfo = Shader3D._debugShaderVariantInfo;
 		var debugSubShader: SubShader = this._owner;
 		var debugShader: Shader3D = debugSubShader._owner;
-		var deugDefines: string[] = [];
+		var deugDefines: string[] = ShaderPass._debugDefineString;
 		Shader3D._getNamesByDefineData(compileDefine, deugDefines);
 		if (WebGL.shaderHighPrecision) {
 			var index = deugDefines.indexOf("HIGHPRECISION");
