@@ -10,6 +10,7 @@ import { DefineDatas } from "./DefineDatas";
 import { Shader3D } from "./Shader3D";
 import { ShaderInstance } from "./ShaderInstance";
 import { SubShader } from "./SubShader";
+import { ShaderVariantInfo } from "./ShaderVariantInfoCollection";
 
 /**
  * <code>ShaderPass</code> 类用于实现ShaderPass。
@@ -28,8 +29,9 @@ export class ShaderPass extends ShaderCompile {
 	private _cacheShaderHierarchy: number = 1;
 	/**@internal */
 	private _renderState: RenderState = new RenderState();
+
 	/**@internal */
-	private _validDefine: DefineDatas = new DefineDatas();
+	_validDefine: DefineDatas = new DefineDatas();
 
 	/**
 	 * 获取渲染状态。
@@ -171,12 +173,30 @@ export class ShaderPass extends ShaderCompile {
 		}
 	}
 
+	/**
+	 * @internal
+	 */
+	_addDebugShaderVariantCollection(compileDefine: DefineDatas): void {
+		var dbugShaderVariantInfo: ShaderVariantInfo = Shader3D._debugShaderVariantInfo;
+		var debugSubShader: SubShader = this._owner;
+		var debugShader: Shader3D = debugSubShader._owner;
+		var deugDefines: string[] = [];
+		Shader3D._getNamesByDefineData(compileDefine, deugDefines);
+		if (dbugShaderVariantInfo)
+			dbugShaderVariantInfo.setValue(debugShader, debugShader._subShaders.indexOf(debugSubShader), debugSubShader._passes.indexOf(this), deugDefines);
+		else
+			Shader3D._debugShaderVariantInfo = dbugShaderVariantInfo = new ShaderVariantInfo(debugShader, debugShader._subShaders.indexOf(debugSubShader), debugSubShader._passes.indexOf(this), deugDefines);
+		Shader3D.debugShaderVariantCollection.add(dbugShaderVariantInfo);
+	}
+
 
 	/**
 	 * @internal
 	 */
 	withCompile(compileDefine: DefineDatas): ShaderInstance {
 		compileDefine._intersectionDefineDatas(this._validDefine);
+		if (Shader3D.debugMode)//add shader variant info to debug ShaderVariantCollection
+			this._addDebugShaderVariantCollection(compileDefine);
 
 		var cacheShaders: object = this._cacheSharders;
 		var maskLength: number = compileDefine._length;

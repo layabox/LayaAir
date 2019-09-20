@@ -5,6 +5,7 @@ import { DefineDatas } from "./DefineDatas";
 import { ShaderDefine } from "./ShaderDefine";
 import { ShaderPass } from "./ShaderPass";
 import { SubShader } from "./SubShader";
+import { ShaderVariantInfoCollection, ShaderVariantInfo } from "./ShaderVariantInfoCollection";
 
 /**
  * <code>Shader3D</code> 类用于创建Shader3D。
@@ -71,9 +72,14 @@ export class Shader3D {
 	static _preCompileShader: any = {};
 	/**@internal */
 	static _maskMap: Array<object> = [];
+	/**@internal */
+	static _debugShaderVariantInfo: ShaderVariantInfo;
+
 
 	/**是否开启调试模式。 */
 	static debugMode: boolean = true;
+	/**调试着色器变种集合。 */
+	static readonly debugShaderVariantCollection: ShaderVariantInfoCollection = new ShaderVariantInfoCollection();
 
 	/**@internal */
 	_attributeMap: any = null;
@@ -186,6 +192,7 @@ export class Shader3D {
 
 
 	/**
+	 * @deprecated
 	 * 通过宏定义遮罩编译shader,建议使用compileShaderByDefineNames。
 	 * @param	shaderName Shader名称。
 	 * @param   subShaderIndex 子着色器索引。
@@ -249,7 +256,6 @@ export class Shader3D {
 	 * 创建一个 <code>Shader3D</code> 实例。
 	 */
 	constructor(name: string, attributeMap: any, uniformMap: any, enableInstancing: boolean) {
-
 		this._name = name;
 		this._attributeMap = attributeMap;
 		this._uniformMap = uniformMap;
