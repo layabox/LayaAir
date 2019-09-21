@@ -74,24 +74,21 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	private _particleSystem: ShurikenParticleSystem;
 
 	/**
-	 * 获取粒子系统。
-	 * @return  粒子系统。
+	 * 粒子系统。
 	 */
 	get particleSystem(): ShurikenParticleSystem {
 		return this._particleSystem;
 	}
 
 	/**
-	 * 获取粒子渲染器。
-	 * @return  粒子渲染器。
+	 * 粒子渲染器。
 	 */
 	get particleRenderer(): ShurikenParticleRenderer {
-		return (<ShurikenParticleRenderer>this._render);
+		return <ShurikenParticleRenderer>this._render;
 	}
 
 	/**
 	 * 创建一个 <code>Particle3D</code> 实例。
-	 * @param settings value 粒子配置。
 	 */
 	constructor() {
 		super(null);
@@ -114,12 +111,12 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 		for (var t in moduleData) {
 			switch (t) {
 				case "bases":
-					var bases: any = moduleData.bases;
+					var bases: object = moduleData.bases;
 					for (var k in bases)
 						module[k] = moduleData[k];
 					break;
 				case "vector3s":
-					var vector3s: any = moduleData.vector3s;
+					var vector3s: object = moduleData.vector3s;
 					for (var k in vector3s) {
 						var vec3: Vector3 = module[k];
 						var vec3Data: number[] = vector3s[k];
@@ -128,16 +125,16 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 					}
 					break;
 				case "vector4s":
-					var vector3s: any = moduleData.vector3s;
-					for (var k in vector3s) {
-						var vec3: Vector3 = module[k];
-						var vec3Data: number[] = vector3s[k];
-						vec3.setValue(vec3Data[0], vec3Data[1], vec3Data[2]);
-						module[k] = vec3;
+					var vector4s: object = moduleData.vector4s;
+					for (var k in vector4s) {
+						var vec4: Vector4 = module[k];
+						var vec4Data: number[] = vector4s[k];
+						vec4.setValue(vec4Data[0], vec4Data[1], vec4Data[2], vec4Data[3]);
+						module[k] = vec4;
 					}
 					break;
 				case "gradientDataNumbers":
-					var gradientDataNumbers: any = moduleData.gradientDataNumbers;
+					var gradientDataNumbers: object = moduleData.gradientDataNumbers;
 					for (var k in gradientDataNumbers) {
 						var gradientNumber: GradientDataNumber = module[k];
 						var gradientNumberData: any[] = moduleData[k];
@@ -149,7 +146,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 					}
 					break;
 				case "gradientDataInts":
-					var gradientDataInts: any = moduleData.gradientDataNumbers;
+					var gradientDataInts: object = moduleData.gradientDataInts;
 					for (var k in gradientDataInts) {
 						var gradientInt: GradientDataInt = module[k];
 						var gradientIntData: any[] = moduleData[k];
@@ -161,40 +158,40 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 					}
 					break;
 				case "gradients":
-					var gradients: any = moduleData.gradients;
+					var gradients: object = moduleData.gradients;
 					for (var k in gradients) {
 						var gradient: Gradient = module[k];
 						var gradientData: any = moduleData[k];
 						var alphasData: any[] = gradientData.alphas;
-						var i: number, n: number;
-						for (i = 0, n = alphasData.length; i < n; i++) {
+						for (var i: number = 0, n: number = alphasData.length; i < n; i++) {
 							var alphaData: any = alphasData[i];
 							if ((i === 3) && ((alphaData.key !== 1))) {
 								alphaData.key = 1;
-								console.log("GradientDataColor warning:the forth key is  be force set to 1.");
+								console.warn("GradientDataColor warning:the forth key is  be force set to 1.");
 							}
 							gradient.addColorAlpha(alphaData.key, alphaData.value);
 						}
 						var rgbsData: any[] = gradientData.rgbs;
-						for (i = 0, n = rgbsData.length; i < n; i++) {
+						for (var i: number = 0, n: number = rgbsData.length; i < n; i++) {
 							var rgbData: any = rgbsData[i];
 							var rgbValue: any[] = rgbData.value;
 							if ((i === 3) && ((rgbData.key !== 1))) {
 								rgbData.key = 1;
-								console.log("GradientDataColor warning:the forth key is  be force set to 1.");
+								console.warn("GradientDataColor warning:the forth key is  be force set to 1.");
 							}
 							gradient.addColorRGB(rgbData.key, new Color(rgbValue[0], rgbValue[1], rgbValue[2], 1.0));
 						}
+						module[k] = gradient;
 					}
 					break;
 				case "resources":
 					var resourcesData: string[] = moduleData.resources;
-					for (i = 0, n = resourcesData.length; i < n; i++)
+					for (var i: number = 0, n: number = resourcesData.length; i < n; i++)
 						module[k] = Loader.getRes(resourcesData[i]);
 					break;
 				case "burst":
 					var burstsData: any[] = moduleData.bursts;
-					for (i = 0, n = burstsData.length; i < n; i++) {
+					for (var i: number = 0, n: number = burstsData.length; i < n; i++) {
 						var brust: any = burstsData[i];
 						module.addBurst(new Burst(brust.time, brust.min, brust.max));
 					}
