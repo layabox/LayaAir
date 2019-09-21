@@ -4,12 +4,10 @@ import { Color } from "../../math/Color";
 import { Vector2 } from "../../math/Vector2";
 import { Vector3 } from "../../math/Vector3";
 import { Vector4 } from "../../math/Vector4";
+import { Shader3D } from "../../shader/Shader3D";
 import { Gradient } from "../Gradient";
 import { RenderElement } from "../render/RenderElement";
 import { RenderableSprite3D } from "../RenderableSprite3D";
-import { ShurikenParticleMaterial } from "./ShurikenParticleMaterial";
-import { ShurikenParticleRenderer } from "./ShurikenParticleRenderer";
-import { ShurikenParticleSystem } from "./ShurikenParticleSystem";
 import { Burst } from "./module/Burst";
 import { ColorOverLifetime } from "./module/ColorOverLifetime";
 import { Emission } from "./module/Emission";
@@ -32,7 +30,9 @@ import { StartFrame } from "./module/StartFrame";
 import { TextureSheetAnimation } from "./module/TextureSheetAnimation";
 import { VelocityOverLifetime } from "./module/VelocityOverLifetime";
 import { ShuriKenParticle3DShaderDeclaration } from "./ShuriKenParticle3DShaderDeclaration";
-import { Shader3D } from "../../shader/Shader3D";
+import { ShurikenParticleMaterial } from "./ShurikenParticleMaterial";
+import { ShurikenParticleRenderer } from "./ShurikenParticleRenderer";
+import { ShurikenParticleSystem } from "./ShurikenParticleSystem";
 
 /**
  * <code>ShuriKenParticle3D</code> 3D粒子。
@@ -110,95 +110,99 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	/**
 	 * @internal
 	 */
-	private static _initStartLife(gradientData: any): GradientDataNumber {
-		var gradient: GradientDataNumber = new GradientDataNumber();
-		var startLifetimesData: any[] = gradientData.startLifetimes;
-		for (var i: number = 0, n: number = startLifetimesData.length; i < n; i++) {
-			var valueData: any = startLifetimesData[i];
-			gradient.add(valueData.key, valueData.value);
-		}
-		return gradient
-	}
-
-	/**
-	 * @internal
-	 */
-	private _initParticleVelocity(gradientData: any): GradientDataNumber {
-		var gradient: GradientDataNumber = new GradientDataNumber();
-		var velocitysData: any[] = gradientData.velocitys;
-		for (var i: number = 0, n: number = velocitysData.length; i < n; i++) {
-			var valueData: any = velocitysData[i];
-			gradient.add(valueData.key, valueData.value);
-		}
-		return gradient;
-	}
-
-	/**
-	 * @internal
-	 */
-	private _initParticleColor(gradientColorData: any): Gradient {
-		var gradientColor: Gradient = new Gradient(4, 4);
-		var alphasData: any[] = gradientColorData.alphas;
-		var i: number, n: number;
-		for (i = 0, n = alphasData.length; i < n; i++) {
-			var alphaData: any = alphasData[i];
-			if ((i === 3) && ((alphaData.key !== 1))) {
-				alphaData.key = 1;
-				console.log("GradientDataColor warning:the forth key is  be force set to 1.");
+	_parseModule(module: any, moduleData: any): void {
+		for (var t in moduleData) {
+			switch (t) {
+				case "bases":
+					var bases: any = moduleData.bases;
+					for (var k in bases)
+						module[k] = moduleData[k];
+					break;
+				case "vector3s":
+					var vector3s: any = moduleData.vector3s;
+					for (var k in vector3s) {
+						var vec3: Vector3 = module[k];
+						var vec3Data: number[] = vector3s[k];
+						vec3.setValue(vec3Data[0], vec3Data[1], vec3Data[2]);
+						module[k] = vec3;
+					}
+					break;
+				case "vector4s":
+					var vector3s: any = moduleData.vector3s;
+					for (var k in vector3s) {
+						var vec3: Vector3 = module[k];
+						var vec3Data: number[] = vector3s[k];
+						vec3.setValue(vec3Data[0], vec3Data[1], vec3Data[2]);
+						module[k] = vec3;
+					}
+					break;
+				case "gradientDataNumbers":
+					var gradientDataNumbers: any = moduleData.gradientDataNumbers;
+					for (var k in gradientDataNumbers) {
+						var gradientNumber: GradientDataNumber = module[k];
+						var gradientNumberData: any[] = moduleData[k];
+						for (var i: number = 0, n: number = gradientNumberData.length; i < n; i++) {
+							var valueData: any = gradientNumberData[i];
+							gradientNumber.add(valueData.key, valueData.value);
+						}
+						module[k] = gradientNumber;
+					}
+					break;
+				case "gradientDataInts":
+					var gradientDataInts: any = moduleData.gradientDataNumbers;
+					for (var k in gradientDataInts) {
+						var gradientInt: GradientDataInt = module[k];
+						var gradientIntData: any[] = moduleData[k];
+						for (var i: number = 0, n: number = gradientIntData.length; i < n; i++) {
+							var valueData: any = gradientIntData[i];
+							gradientInt.add(valueData.key, valueData.value);
+						}
+						module[k] = gradientInt;
+					}
+					break;
+				case "gradients":
+					var gradients: any = moduleData.gradients;
+					for (var k in gradients) {
+						var gradient: Gradient = module[k];
+						var gradientData: any = moduleData[k];
+						var alphasData: any[] = gradientData.alphas;
+						var i: number, n: number;
+						for (i = 0, n = alphasData.length; i < n; i++) {
+							var alphaData: any = alphasData[i];
+							if ((i === 3) && ((alphaData.key !== 1))) {
+								alphaData.key = 1;
+								console.log("GradientDataColor warning:the forth key is  be force set to 1.");
+							}
+							gradient.addColorAlpha(alphaData.key, alphaData.value);
+						}
+						var rgbsData: any[] = gradientData.rgbs;
+						for (i = 0, n = rgbsData.length; i < n; i++) {
+							var rgbData: any = rgbsData[i];
+							var rgbValue: any[] = rgbData.value;
+							if ((i === 3) && ((rgbData.key !== 1))) {
+								rgbData.key = 1;
+								console.log("GradientDataColor warning:the forth key is  be force set to 1.");
+							}
+							gradient.addColorRGB(rgbData.key, new Color(rgbValue[0], rgbValue[1], rgbValue[2], 1.0));
+						}
+					}
+					break;
+				case "resources":
+					var resourcesData: string[] = moduleData.resources;
+					for (i = 0, n = resourcesData.length; i < n; i++)
+						module[k] = Loader.getRes(resourcesData[i]);
+					break;
+				case "burst":
+					var burstsData: any[] = moduleData.bursts;
+					for (i = 0, n = burstsData.length; i < n; i++) {
+						var brust: any = burstsData[i];
+						module.addBurst(new Burst(brust.time, brust.min, brust.max));
+					}
+					break;
+				default:
+					throw "ShurikenParticle3D:unknown type.";
 			}
-			gradientColor.addColorAlpha(alphaData.key, alphaData.value);
 		}
-		var rgbsData: any[] = gradientColorData.rgbs;
-		for (i = 0, n = rgbsData.length; i < n; i++) {
-			var rgbData: any = rgbsData[i];
-			var rgbValue: any[] = rgbData.value;
-
-			if ((i === 3) && ((rgbData.key !== 1))) {
-				rgbData.key = 1;
-				console.log("GradientDataColor warning:the forth key is  be force set to 1.");
-			}
-			gradientColor.addColorRGB(rgbData.key, new Color(rgbValue[0], rgbValue[1], rgbValue[2], 1.0));
-		}
-		return gradientColor;
-	}
-
-	/**
-	 * @internal
-	 */
-	private _initParticleSize(gradientSizeData: any): GradientDataNumber {
-		var gradientSize: GradientDataNumber = new GradientDataNumber();
-		var sizesData: any[] = gradientSizeData.sizes;
-		for (var i: number = 0, n: number = sizesData.length; i < n; i++) {
-			var valueData: any = sizesData[i];
-			gradientSize.add(valueData.key, valueData.value);
-		}
-		return gradientSize;
-	}
-
-	/**
-	 * @internal
-	 */
-	private _initParticleRotation(gradientData: any): GradientDataNumber {
-		var gradient: GradientDataNumber = new GradientDataNumber();
-		var angularVelocitysData: any[] = gradientData.angularVelocitys;
-		for (var i: number = 0, n: number = angularVelocitysData.length; i < n; i++) {
-			var valueData: any = angularVelocitysData[i];
-			gradient.add(valueData.key, valueData.value / 180.0 * Math.PI);
-		}
-		return gradient;
-	}
-
-	/**
-	 * @internal
-	 */
-	private _initParticleFrame(overTimeFramesData: any): GradientDataInt {
-		var overTimeFrame: GradientDataInt = new GradientDataInt();
-		var framesData: any[] = overTimeFramesData.frames;
-		for (var i: number = 0, n: number = framesData.length; i < n; i++) {
-			var frameData: any = framesData[i];
-			overTimeFrame.add(frameData.key, frameData.value);
-		}
-		return overTimeFrame;
 	}
 
 	/**
@@ -208,6 +212,92 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	 */
 	_parse(data: any, spriteMap: any): void {
 		super._parse(data, spriteMap);
+		if (data.main) {
+			var particleSystem: ShurikenParticleSystem = this.particleSystem;
+			var particleRender: ShurikenParticleRenderer = this.particleRenderer;
+			this._parseModule(particleRender, data.render);//Render
+			this._parseModule(particleSystem, data.main);//particleSystem
+			this._parseModule(particleSystem.emission, data.emission);//Emission
+			this._parseModule(particleSystem.shape, data.shape);//Shape
+			this._parseModule(particleSystem.velocityOverLifetime, data.velocityOverLifetime);//VelocityOverLifetime
+			this._parseModule(particleSystem.colorOverLifetime, data.colorOverLifetime);//ColorOverLifetime
+			this._parseModule(particleSystem.sizeOverLifetime, data.sizeOverLifetimeData);//SizeOverLifetime
+			this._parseModule(particleSystem.rotationOverLifetime, data.rotationOverLifetimeData);//RotationOverLifetime
+			this._parseModule(particleSystem.textureSheetAnimation, data.textureSheetAnimationData);//TextureSheetAnimation
+		}
+		else {//legacy
+			this._parseOld(data);
+		}
+	}
+
+	/**
+	 * @inheritDoc
+	 * @override
+	 * @internal
+	 */
+	_activeHierarchy(activeChangeComponents: any[]): void {
+		super._activeHierarchy(activeChangeComponents);
+		(this.particleSystem.playOnAwake) && (this.particleSystem.play());
+	}
+
+	/**
+	 * @inheritDoc
+	 * @override
+	 * @internal
+	 */
+	_inActiveHierarchy(activeChangeComponents: any[]): void {
+		super._inActiveHierarchy(activeChangeComponents);
+		(this.particleSystem.isAlive) && (this.particleSystem.simulate(0, true));
+	}
+
+	/**
+	 * @internal
+	 * @override
+	 */
+	_cloneTo(destObject: any, srcSprite: Node, dstSprite: Node): void {
+		var destShuriKenParticle3D: ShuriKenParticle3D = (<ShuriKenParticle3D>destObject);
+		var destParticleSystem: ShurikenParticleSystem = destShuriKenParticle3D._particleSystem;
+		this._particleSystem.cloneTo(destParticleSystem);
+		var destParticleRender: ShurikenParticleRenderer = (<ShurikenParticleRenderer>destShuriKenParticle3D._render);
+		var particleRender: ShurikenParticleRenderer = (<ShurikenParticleRenderer>this._render);
+		destParticleRender.sharedMaterials = particleRender.sharedMaterials;
+		destParticleRender.enable = particleRender.enable;
+		destParticleRender.renderMode = particleRender.renderMode;
+		destParticleRender.mesh = particleRender.mesh;
+		destParticleRender.stretchedBillboardCameraSpeedScale = particleRender.stretchedBillboardCameraSpeedScale;
+		destParticleRender.stretchedBillboardSpeedScale = particleRender.stretchedBillboardSpeedScale;
+		destParticleRender.stretchedBillboardLengthScale = particleRender.stretchedBillboardLengthScale;
+		destParticleRender.sortingFudge = particleRender.sortingFudge;
+		super._cloneTo(destObject, srcSprite, dstSprite);//父类函数在最后,组件应该最后赋值，否则获取材质默认值等相关函数会有问题
+	}
+
+	/**
+	 * <p>销毁此对象。</p>
+	 * @param	destroyChild 是否同时销毁子节点，若值为true,则销毁子节点，否则不销毁子节点。
+	 * @override
+	 */
+	destroy(destroyChild: boolean = true): void {
+		if (this.destroyed)
+			return;
+		super.destroy(destroyChild);
+		this._particleSystem.destroy();
+		this._particleSystem = null;
+	}
+
+	/**
+	 * @internal
+	 */
+	protected _create(): Node {
+		return new ShuriKenParticle3D();
+	}
+
+	//--------------------------------------------------------------------Deprecated Code------------------------------------------------------------------------
+
+	/**
+	 * @deprecated
+	 * @internal
+	 */
+	private _parseOld(data: any): void {
 		const anglelToRad: number = Math.PI / 180.0;
 		var i: number, n: number;
 
@@ -585,64 +675,103 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	}
 
 	/**
-	 * @inheritDoc
-	 * @override
+	 * @deprecated
 	 * @internal
 	 */
-	_activeHierarchy(activeChangeComponents: any[]): void {
-		super._activeHierarchy(activeChangeComponents);
-		(this.particleSystem.playOnAwake) && (this.particleSystem.play());
+	private _initParticleColor(gradientColorData: any): Gradient {
+		var gradientColor: Gradient = new Gradient(4, 4);
+		var alphasData: any[] = gradientColorData.alphas;
+		var i: number, n: number;
+		for (i = 0, n = alphasData.length; i < n; i++) {
+			var alphaData: any = alphasData[i];
+			if ((i === 3) && ((alphaData.key !== 1))) {
+				alphaData.key = 1;
+				console.log("GradientDataColor warning:the forth key is  be force set to 1.");
+			}
+			gradientColor.addColorAlpha(alphaData.key, alphaData.value);
+		}
+		var rgbsData: any[] = gradientColorData.rgbs;
+		for (i = 0, n = rgbsData.length; i < n; i++) {
+			var rgbData: any = rgbsData[i];
+			var rgbValue: any[] = rgbData.value;
+
+			if ((i === 3) && ((rgbData.key !== 1))) {
+				rgbData.key = 1;
+				console.log("GradientDataColor warning:the forth key is  be force set to 1.");
+			}
+			gradientColor.addColorRGB(rgbData.key, new Color(rgbValue[0], rgbValue[1], rgbValue[2], 1.0));
+		}
+		return gradientColor;
 	}
 
 	/**
-	 * @inheritDoc
-	 * @override
+	 * @deprecated
 	 * @internal
 	 */
-	_inActiveHierarchy(activeChangeComponents: any[]): void {
-		super._inActiveHierarchy(activeChangeComponents);
-		(this.particleSystem.isAlive) && (this.particleSystem.simulate(0, true));
+	private _initParticleFrame(overTimeFramesData: any): GradientDataInt {
+		var overTimeFrame: GradientDataInt = new GradientDataInt();
+		var framesData: any[] = overTimeFramesData.frames;
+		for (var i: number = 0, n: number = framesData.length; i < n; i++) {
+			var frameData: any = framesData[i];
+			overTimeFrame.add(frameData.key, frameData.value);
+		}
+		return overTimeFrame;
 	}
 
 	/**
+	 * @deprecated
 	 * @internal
-	 * @override
 	 */
-	_cloneTo(destObject: any, srcSprite: Node, dstSprite: Node): void {
-		var destShuriKenParticle3D: ShuriKenParticle3D = (<ShuriKenParticle3D>destObject);
-		var destParticleSystem: ShurikenParticleSystem = destShuriKenParticle3D._particleSystem;
-		this._particleSystem.cloneTo(destParticleSystem);
-		var destParticleRender: ShurikenParticleRenderer = (<ShurikenParticleRenderer>destShuriKenParticle3D._render);
-		var particleRender: ShurikenParticleRenderer = (<ShurikenParticleRenderer>this._render);
-		destParticleRender.sharedMaterials = particleRender.sharedMaterials;
-		destParticleRender.enable = particleRender.enable;
-		destParticleRender.renderMode = particleRender.renderMode;
-		destParticleRender.mesh = particleRender.mesh;
-		destParticleRender.stretchedBillboardCameraSpeedScale = particleRender.stretchedBillboardCameraSpeedScale;
-		destParticleRender.stretchedBillboardSpeedScale = particleRender.stretchedBillboardSpeedScale;
-		destParticleRender.stretchedBillboardLengthScale = particleRender.stretchedBillboardLengthScale;
-		destParticleRender.sortingFudge = particleRender.sortingFudge;
-		super._cloneTo(destObject, srcSprite, dstSprite);//父类函数在最后,组件应该最后赋值，否则获取材质默认值等相关函数会有问题
+	private static _initStartLife(gradientData: any): GradientDataNumber {
+		var gradient: GradientDataNumber = new GradientDataNumber();
+		var startLifetimesData: any[] = gradientData.startLifetimes;
+		for (var i: number = 0, n: number = startLifetimesData.length; i < n; i++) {
+			var valueData: any = startLifetimesData[i];
+			gradient.add(valueData.key, valueData.value);
+		}
+		return gradient
 	}
 
 	/**
-	 * <p>销毁此对象。</p>
-	 * @param	destroyChild 是否同时销毁子节点，若值为true,则销毁子节点，否则不销毁子节点。
-	 * @override
+	 * @deprecated
+	 * @internal
 	 */
-	destroy(destroyChild: boolean = true): void {
-		if (this.destroyed)
-			return;
-		super.destroy(destroyChild);
-		this._particleSystem.destroy();
-		this._particleSystem = null;
+	private _initParticleVelocity(gradientData: any): GradientDataNumber {
+		var gradient: GradientDataNumber = new GradientDataNumber();
+		var velocitysData: any[] = gradientData.velocitys;
+		for (var i: number = 0, n: number = velocitysData.length; i < n; i++) {
+			var valueData: any = velocitysData[i];
+			gradient.add(valueData.key, valueData.value);
+		}
+		return gradient;
 	}
 
 	/**
+	 * @deprecated
 	 * @internal
 	 */
-	protected _create(): Node {
-		return new ShuriKenParticle3D();
+	private _initParticleSize(gradientSizeData: any): GradientDataNumber {
+		var gradientSize: GradientDataNumber = new GradientDataNumber();
+		var sizesData: any[] = gradientSizeData.sizes;
+		for (var i: number = 0, n: number = sizesData.length; i < n; i++) {
+			var valueData: any = sizesData[i];
+			gradientSize.add(valueData.key, valueData.value);
+		}
+		return gradientSize;
+	}
+
+	/**
+	 * @deprecated
+	 * @internal
+	 */
+	private _initParticleRotation(gradientData: any): GradientDataNumber {
+		var gradient: GradientDataNumber = new GradientDataNumber();
+		var angularVelocitysData: any[] = gradientData.angularVelocitys;
+		for (var i: number = 0, n: number = angularVelocitysData.length; i < n; i++) {
+			var valueData: any = angularVelocitysData[i];
+			gradient.add(valueData.key, valueData.value / 180.0 * Math.PI);
+		}
+		return gradient;
 	}
 
 }
