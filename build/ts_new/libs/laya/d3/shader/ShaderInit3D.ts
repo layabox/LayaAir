@@ -321,7 +321,7 @@ export class ShaderInit3D {
 			'u_SpotLight.position': Shader3D.PERIOD_SCENE,
 			'u_SpotLight.direction': Shader3D.PERIOD_SCENE,
 			'u_SpotLight.range': Shader3D.PERIOD_SCENE,
-			'u_SpotLight.spotAngle': Shader3D.PERIOD_SCENE,
+			'u_SpotLight.spot': Shader3D.PERIOD_SCENE,
 			'u_SpotLight.color': Shader3D.PERIOD_SCENE,
 		};
 		stateMap = {

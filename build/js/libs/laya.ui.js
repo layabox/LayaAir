@@ -5986,7 +5986,7 @@
 	        this.callLater(this._postMsg);
 	    }
 	    get height() {
-	        return super.width;
+	        return super.height;
 	    }
 	    set x(value) {
 	        super.x = value;
