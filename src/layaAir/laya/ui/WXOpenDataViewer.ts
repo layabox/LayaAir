@@ -68,7 +68,7 @@ export class WXOpenDataViewer extends UIComponent {
      * @override
      */
     get height(){
-        return super.width;
+        return super.height;
     }
 
     /**
