@@ -286,12 +286,11 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	/**是否为性能模式,性能模式下会延迟粒子释放。*/
 	isPerformanceMode: boolean = false;
 
-	/**获取最大粒子数。*/
+	/**最大粒子数。*/
 	get maxParticles(): number {
 		return this._bufferMaxParticles - 1;
 	}
 
-	/**设置最大粒子数,注意:谨慎修改此属性，有性能损耗。*/
 	set maxParticles(value: number) {//TODO:是否要重置其它参数
 		var newMaxParticles: number = value + 1;
 		if (newMaxParticles !== this._bufferMaxParticles) {
@@ -327,15 +326,12 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	}
 
 	/**
-	 * 获取形状。
+	 * 形状。
 	 */
 	get shape(): BaseShape {
 		return this._shape;
 	}
 
-	/**
-	 * 设置形状。
-	 */
 	set shape(value: BaseShape) {
 		if (this._shape !== value) {
 			if (value && value.enable)
@@ -378,15 +374,12 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	}
 
 	/**
-	 * 获取开始生命周期模式,0为固定时间，1为渐变时间，2为两个固定之间的随机插值,3为两个渐变时间的随机插值。
+	 * 开始生命周期模式,0为固定时间，1为渐变时间，2为两个固定之间的随机插值,3为两个渐变时间的随机插值。
 	 */
 	get startLifetimeType(): number {
 		return this._startLifetimeType;
 	}
 
-	/**
-	 * 设置开始生命周期模式,0为固定时间，1为渐变时间，2为两个固定之间的随机插值,3为两个渐变时间的随机插值。
-	 */
 	set startLifetimeType(value: number) {
 		//if (value !== _startLifetimeType){
 		var i: number, n: number;
@@ -418,15 +411,12 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	}
 
 	/**
-	 * 获取开始生命周期，0模式,单位为秒。
+	 * 开始生命周期，0模式,单位为秒。
 	 */
 	get startLifetimeConstant(): number {
 		return this._startLifetimeConstant;
 	}
 
-	/**
-	 * 设置开始生命周期，0模式,单位为秒。
-	 */
 	set startLifetimeConstant(value: number) {
 		if (this._startLifetimeType === 0)
 			this._maxStartLifetime = value;
@@ -434,15 +424,12 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	}
 
 	/**
-	 * 获取开始渐变生命周期，1模式,单位为秒。
+	 * 开始渐变生命周期，1模式,单位为秒。
 	 */
 	get startLifeTimeGradient(): GradientDataNumber {
 		return this._startLifeTimeGradient;
 	}
 
-	/**
-	 * 设置开始渐变生命周期，1模式,单位为秒。
-	 */
 	set startLifeTimeGradient(value: GradientDataNumber) {//无法使用if (_startLifeTimeGradient !== value)过滤，同一个GradientDataNumber可能修改了值,因此所有startLifeTime属性都统一处理
 		if (this._startLifetimeType === 1) {
 			this._maxStartLifetime = -Number.MAX_VALUE;
@@ -453,15 +440,12 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	}
 
 	/**
-	 * 获取最小开始生命周期，2模式,单位为秒。
+	 * 最小开始生命周期，2模式,单位为秒。
 	 */
 	get startLifetimeConstantMin(): number {
 		return this._startLifetimeConstantMin;
 	}
 
-	/**
-	 * 设置最小开始生命周期，2模式,单位为秒。
-	 */
 	set startLifetimeConstantMin(value: number) {
 		if (this._startLifetimeType === 2)
 			this._maxStartLifetime = Math.max(value, this._startLifetimeConstantMax);
@@ -470,15 +454,12 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
 
 	/**
-	 * 获取最大开始生命周期，2模式,单位为秒。
+	 * 最大开始生命周期，2模式,单位为秒。
 	 */
 	get startLifetimeConstantMax(): number {
 		return this._startLifetimeConstantMax;
 	}
 
-	/**
-	 * 设置最大开始生命周期，2模式,单位为秒。
-	 */
 	set startLifetimeConstantMax(value: number) {
 		if (this._startLifetimeType === 2)
 			this._maxStartLifetime = Math.max(this._startLifetimeConstantMin, value);
@@ -488,15 +469,12 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
 
 	/**
-	 * 获取开始渐变最小生命周期，3模式,单位为秒。
+	 * 开始渐变最小生命周期，3模式,单位为秒。
 	 */
 	get startLifeTimeGradientMin(): GradientDataNumber {
 		return this._startLifeTimeGradientMin;
 	}
 
-	/**
-	 * 设置开始渐变最小生命周期，3模式,单位为秒。
-	 */
 	set startLifeTimeGradientMin(value: GradientDataNumber) {
 		if (this._startLifetimeType === 3) {
 			var i: number, n: number;
@@ -510,15 +488,12 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	}
 
 	/**
-	 * 获取开始渐变最大生命周期，3模式,单位为秒。
+	 * 开始渐变最大生命周期，3模式,单位为秒。
 	 */
 	get startLifeTimeGradientMax(): GradientDataNumber {
 		return this._startLifeTimeGradientMax;
 	}
 
-	/**
-	 * 设置开始渐变最大生命周期，3模式,单位为秒。
-	 */
 	set startLifeTimeGradientMax(value: GradientDataNumber) {
 		if (this._startLifetimeType === 3) {
 			var i: number, n: number;
@@ -532,17 +507,12 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	}
 
 	/**
-	 * 获取生命周期速度,注意:如修改该值的某些属性,需重新赋值此属性才可生效。
-	 * @return 生命周期速度.
+	 * 生命周期速度,注意:如修改该值的某些属性,需重新赋值此属性才可生效。
 	 */
 	get velocityOverLifetime(): VelocityOverLifetime {
 		return this._velocityOverLifetime;
 	}
 
-	/**
-	 * 设置生命周期速度,注意:如修改该值的某些属性,需重新赋值此属性才可生效。
-	 * @param value 生命周期速度.
-	 */
 	set velocityOverLifetime(value: VelocityOverLifetime) {
 		var shaDat: ShaderData = this._owner._render._shaderValues;
 		if (value) {
@@ -604,17 +574,12 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	}
 
 	/**
-	 * 获取生命周期颜色,注意:如修改该值的某些属性,需重新赋值此属性才可生效。
-	 * @return 生命周期颜色
+	 * 生命周期颜色,注意:如修改该值的某些属性,需重新赋值此属性才可生效。
 	 */
 	get colorOverLifetime(): ColorOverLifetime {
 		return this._colorOverLifetime;
 	}
 
-	/**
-	 * 设置生命周期颜色,注意:如修改该值的某些属性,需重新赋值此属性才可生效。
-	 * @param value 生命周期颜色
-	 */
 	set colorOverLifetime(value: ColorOverLifetime) {
 		var shaDat: ShaderData = this._owner._render._shaderValues;
 		if (value) {
@@ -663,17 +628,12 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	}
 
 	/**
-	 * 获取生命周期尺寸,注意:如修改该值的某些属性,需重新赋值此属性才可生效。
-	 * @return 生命周期尺寸
+	 * 生命周期尺寸,注意:如修改该值的某些属性,需重新赋值此属性才可生效。
 	 */
 	get sizeOverLifetime(): SizeOverLifetime {
 		return this._sizeOverLifetime;
 	}
 
-	/**
-	 * 设置生命周期尺寸,注意:如修改该值的某些属性,需重新赋值此属性才可生效。
-	 * @param value 生命周期尺寸
-	 */
 	set sizeOverLifetime(value: SizeOverLifetime) {
 		var shaDat: ShaderData = this._owner._render._shaderValues;
 		if (value) {
@@ -737,17 +697,12 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	}
 
 	/**
-	 * 获取生命周期旋转,注意:如修改该值的某些属性,需重新赋值此属性才可生效。
-	 * @return 生命周期旋转。
+	 * 生命周期旋转,注意:如修改该值的某些属性,需重新赋值此属性才可生效。
 	 */
 	get rotationOverLifetime(): RotationOverLifetime {
 		return this._rotationOverLifetime;
 	}
 
-	/**
-	 * 设置生命周期旋转,注意:如修改该值的某些属性,需重新赋值此属性才可生效。
-	 * @param value 生命周期旋转。
-	 */
 	set rotationOverLifetime(value: RotationOverLifetime) {
 		var shaDat: ShaderData = this._owner._render._shaderValues;
 		if (value) {
@@ -840,17 +795,12 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	}
 
 	/**
-	 * 获取生命周期纹理动画,注意:如修改该值的某些属性,需重新赋值此属性才可生效。
-	 * @return 生命周期纹理动画。
+	 * 生命周期纹理动画,注意:如修改该值的某些属性,需重新赋值此属性才可生效。
 	 */
 	get textureSheetAnimation(): TextureSheetAnimation {
 		return this._textureSheetAnimation;
 	}
 
-	/**
-	 * 设置生命周期纹理动画,注意:如修改该值的某些属性,需重新赋值此属性才可生效。
-	 * @param value 生命周期纹理动画。
-	 */
 	set textureSheetAnimation(value: TextureSheetAnimation) {
 		var shaDat: ShaderData = this._owner._render._shaderValues;
 		if (value) {
@@ -896,16 +846,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		this._textureSheetAnimation = value;
 	}
 
-	_getVertexBuffer(index: number = 0): VertexBuffer3D {
-		if (index === 0)
-			return this._vertexBuffer;
-		else
-			return null;
-	}
 
-	_getIndexBuffer(): IndexBuffer3D {
-		return this._indexBuffer;
-	}
 
 	constructor(owner: ShuriKenParticle3D) {
 		super();
@@ -988,6 +929,23 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
 		this._emission = new Emission();
 		this._emission.enbale = true;
+	}
+
+	/**
+	 * @internal
+	 */
+	_getVertexBuffer(index: number = 0): VertexBuffer3D {
+		if (index === 0)
+			return this._vertexBuffer;
+		else
+			return null;
+	}
+
+	/**
+	 * @internal
+	 */
+	_getIndexBuffer(): IndexBuffer3D {
+		return this._indexBuffer;
 	}
 
 	/**
