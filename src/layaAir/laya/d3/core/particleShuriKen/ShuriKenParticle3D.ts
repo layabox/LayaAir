@@ -142,18 +142,18 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 						module[k] = vec4;
 					}
 					break;
-				// case "gradientDataNumbers":
-				// 	var gradientDataNumbers: object = moduleData.gradientDataNumbers;
-				// 	for (var k in gradientDataNumbers) {
-				// 		var gradientNumber: GradientDataNumber = module[k];
-				// 		var gradientNumberData: any[] = moduleData[k];
-				// 		for (var i: number = 0, n: number = gradientNumberData.length; i < n; i++) {
-				// 			var valueData: any = gradientNumberData[i];
-				// 			gradientNumber.add(valueData.key, valueData.value);
-				// 		}
-				// 		module[k] = gradientNumber;
-				// 	}
-				// 	break;
+				case "gradientDataNumbers":
+					var gradientDataNumbers: object = moduleData.gradientDataNumbers;
+					for (var k in gradientDataNumbers) {
+						var gradientNumber: GradientDataNumber = module[k];
+						var gradientNumberData: any[] = moduleData[k];
+						for (var i: number = 0, n: number = gradientNumberData.length; i < n; i++) {
+							var valueData: any = gradientNumberData[i];
+							gradientNumber.add(valueData.key, valueData.value);
+						}
+						module[k] = gradientNumber;
+					}
+					break;
 				// case "gradientDataInts":
 				// 	var gradientDataInts: object = moduleData.gradientDataInts;
 				// 	for (var k in gradientDataInts) {
@@ -198,7 +198,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 					for (var i: number = 0, n: number = resourcesData.length; i < n; i++)
 						module[k] = Loader.getRes(resourcesData[i]);
 					break;
-				case "burst":
+				case "bursts":
 					var burstsData: any[] = moduleData.bursts;
 					for (var i: number = 0, n: number = burstsData.length; i < n; i++) {
 						var brust: any = burstsData[i];
@@ -225,12 +225,6 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 			this._parseModule(particleRender, data.render);//Render
 			this._parseModule(particleSystem, data.main);//particleSystem
 			this._parseModule(particleSystem.emission, data.emission);//Emission
-			this._parseModule(particleSystem.shape, data.shape);//Shape
-			this._parseModule(particleSystem.velocityOverLifetime, data.velocityOverLifetime);//VelocityOverLifetime
-			this._parseModule(particleSystem.colorOverLifetime, data.colorOverLifetime);//ColorOverLifetime
-			this._parseModule(particleSystem.sizeOverLifetime, data.sizeOverLifetimeData);//SizeOverLifetime
-			this._parseModule(particleSystem.rotationOverLifetime, data.rotationOverLifetimeData);//RotationOverLifetime
-			this._parseModule(particleSystem.textureSheetAnimation, data.textureSheetAnimationData);//TextureSheetAnimation
 
 			//Shape
 			var shapeData: any = data.shape;
