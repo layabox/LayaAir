@@ -5,6 +5,7 @@ import { DefineDatas } from "./DefineDatas";
 import { ShaderDefine } from "./ShaderDefine";
 import { ShaderPass } from "./ShaderPass";
 import { SubShader } from "./SubShader";
+import { ShaderVariantInfoCollection, ShaderVariantInfo } from "./ShaderVariantInfoCollection";
 
 /**
  * <code>Shader3D</code> 类用于创建Shader3D。
@@ -71,9 +72,14 @@ export class Shader3D {
 	static _preCompileShader: any = {};
 	/**@internal */
 	static _maskMap: Array<object> = [];
+	/**@internal */
+	static _debugShaderVariantInfo: ShaderVariantInfo;
+
 
 	/**是否开启调试模式。 */
 	static debugMode: boolean = true;
+	/**调试着色器变种集合。 */
+	static readonly debugShaderVariantInfoCollection: ShaderVariantInfoCollection = new ShaderVariantInfoCollection();
 
 	/**@internal */
 	_attributeMap: any = null;
@@ -157,7 +163,7 @@ export class Shader3D {
 	 * @param   passIndex  通道索引。
 	 * @param	defineNames 宏定义名字集合。
 	 */
-	static compileShaderByDefineNames(shaderName: string, subShaderIndex: number, passIndex: number, defineNames: Array<string>): void {
+	static compileShaderByDefineNames(shaderName: string, subShaderIndex: number, passIndex: number, defineNames: string[]): void {
 		var shader: Shader3D = Shader3D.find(shaderName);
 		if (shader) {
 			var subShader: SubShader = shader.getSubShaderAt(subShaderIndex);
@@ -172,7 +178,6 @@ export class Shader3D {
 					(WebGL.shaderHighPrecision) && (compileDefineDatas.add(Shader3D.SHADERDEFINE_HIGHPRECISION)); //部分低端移动设备不支持高精度shader,所以如果在PC端或高端移动设备输出的宏定义值需做判断移除高精度宏定义
 					(Config3D._config._multiLighting) || (compileDefineDatas.add(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING));
 					pass.withCompile(compileDefineDatas);
-
 				} else {
 					console.warn("Shader3D: unknown passIndex.");
 				}
@@ -186,6 +191,59 @@ export class Shader3D {
 
 
 	/**
+	 * 添加预编译shader文件，主要是处理宏定义
+	 */
+	static add(name: string, attributeMap: any = null, uniformMap: any = null, enableInstancing: boolean = false): Shader3D {
+		return Shader3D._preCompileShader[name] = new Shader3D(name, attributeMap, uniformMap, enableInstancing);
+	}
+
+	/**
+	 * 获取ShaderCompile3D。
+	 * @param	name
+	 * @return ShaderCompile3D。
+	 */
+	static find(name: string): Shader3D {
+		return Shader3D._preCompileShader[name];
+	}
+
+	/**@internal */
+	_name: string;
+	/**@internal */
+	_enableInstancing: boolean = false;
+
+	/**@internal */
+	_subShaders: SubShader[] = [];
+
+	/**
+	 * 创建一个 <code>Shader3D</code> 实例。
+	 */
+	constructor(name: string, attributeMap: any, uniformMap: any, enableInstancing: boolean) {
+		this._name = name;
+		this._attributeMap = attributeMap;
+		this._uniformMap = uniformMap;
+		this._enableInstancing = enableInstancing;
+	}
+
+	/**
+	 * 添加子着色器。
+	 * @param 子着色器。
+	 */
+	addSubShader(subShader: SubShader): void {
+		this._subShaders.push(subShader);
+		subShader._owner = this;
+	}
+
+	/**
+	 * 在特定索引获取子着色器。
+	 * @param	index 索引。
+	 * @return 子着色器。
+	 */
+	getSubShaderAt(index: number): SubShader {
+		return this._subShaders[index];
+	}
+
+	/**
+	 * @deprecated
 	 * 通过宏定义遮罩编译shader,建议使用compileShaderByDefineNames。
 	 * @param	shaderName Shader名称。
 	 * @param   subShaderIndex 子着色器索引。
@@ -219,59 +277,6 @@ export class Shader3D {
 		} else {
 			console.warn("Shader3D: unknown shader name.");
 		}
-	}
-
-	/**
-	 * 添加预编译shader文件，主要是处理宏定义
-	 */
-	static add(name: string, attributeMap: any = null, uniformMap: any = null, enableInstancing: boolean = false): Shader3D {
-		return Shader3D._preCompileShader[name] = new Shader3D(name, attributeMap, uniformMap, enableInstancing);
-	}
-
-	/**
-	 * 获取ShaderCompile3D。
-	 * @param	name
-	 * @return ShaderCompile3D。
-	 */
-	static find(name: string): Shader3D {
-		return Shader3D._preCompileShader[name];
-	}
-
-	/**@internal */
-	_name: string;
-	/**@internal */
-	_enableInstancing: boolean = false;
-
-	/**@internal */
-	_subShaders: SubShader[] = [];
-
-	/**
-	 * 创建一个 <code>Shader3D</code> 实例。
-	 */
-	constructor(name: string, attributeMap: any, uniformMap: any, enableInstancing: boolean) {
-
-		this._name = name;
-		this._attributeMap = attributeMap;
-		this._uniformMap = uniformMap;
-		this._enableInstancing = enableInstancing;
-	}
-
-	/**
-	 * 添加子着色器。
-	 * @param 子着色器。
-	 */
-	addSubShader(subShader: SubShader): void {
-		this._subShaders.push(subShader);
-		subShader._owner = this;
-	}
-
-	/**
-	 * 在特定索引获取子着色器。
-	 * @param	index 索引。
-	 * @return 子着色器。
-	 */
-	getSubShaderAt(index: number): SubShader {
-		return this._subShaders[index];
 	}
 
 }

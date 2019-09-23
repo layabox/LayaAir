@@ -34,8 +34,6 @@ export class Shader_GlowingEdge {
 	private rotation: Vector3 = new Vector3(0, 0.01, 0);
 
 	constructor() {
-		//开启Shader调试模式
-		Shader3D.debugMode = true;
 		//初始化引擎
 		Laya3D.init(0, 0);
 		Laya.stage.scaleMode = Stage.SCALE_FULL;

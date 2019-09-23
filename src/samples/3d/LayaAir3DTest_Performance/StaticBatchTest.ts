@@ -13,7 +13,6 @@ export class StaticBatchTest {
 		var config: Config3D = new Config3D();
 		//config.debugFrustumCulling = true;
 		//config.octreeCulling = true;
-		Shader3D.debugMode = true;
 		Laya3D.init(0, 0, config);
 		Stat.show();
 		Laya.stage.scaleMode = Stage.SCALE_FULL;

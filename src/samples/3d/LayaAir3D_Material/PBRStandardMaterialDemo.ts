@@ -24,7 +24,6 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 export class PBRStandardMaterialDemo {
 
 	constructor() {
-		Shader3D.debugMode = true;
 		Laya3D.init(0, 0);
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
