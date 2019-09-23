@@ -247,8 +247,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 						shape = new CircleShape();
 						break;
 					default:
-						shape = new CircleShape();
-						break;
+						throw "ShuriKenParticle3D:unknown shape type.";
 				}
 				this._parseModule(shape, shapeData);
 				particleSystem.shape = shape;
