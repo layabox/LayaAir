@@ -115,6 +115,15 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 					for (var k in bases)
 						module[k] = moduleData[k];
 					break;
+				case "vector2s":
+					var vector2s: object = moduleData.vector2s;
+					for (var k in vector2s) {
+						var vec2: Vector2 = module[k];
+						var vec2Data: number[] = vector2s[k];
+						vec2.setValue(vec2Data[0], vec2Data[1]);
+						module[k] = vec2;
+					}
+					break;
 				case "vector3s":
 					var vector3s: object = moduleData.vector3s;
 					for (var k in vector3s) {
@@ -133,57 +142,57 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 						module[k] = vec4;
 					}
 					break;
-				case "gradientDataNumbers":
-					var gradientDataNumbers: object = moduleData.gradientDataNumbers;
-					for (var k in gradientDataNumbers) {
-						var gradientNumber: GradientDataNumber = module[k];
-						var gradientNumberData: any[] = moduleData[k];
-						for (var i: number = 0, n: number = gradientNumberData.length; i < n; i++) {
-							var valueData: any = gradientNumberData[i];
-							gradientNumber.add(valueData.key, valueData.value);
-						}
-						module[k] = gradientNumber;
-					}
-					break;
-				case "gradientDataInts":
-					var gradientDataInts: object = moduleData.gradientDataInts;
-					for (var k in gradientDataInts) {
-						var gradientInt: GradientDataInt = module[k];
-						var gradientIntData: any[] = moduleData[k];
-						for (var i: number = 0, n: number = gradientIntData.length; i < n; i++) {
-							var valueData: any = gradientIntData[i];
-							gradientInt.add(valueData.key, valueData.value);
-						}
-						module[k] = gradientInt;
-					}
-					break;
-				case "gradients":
-					var gradients: object = moduleData.gradients;
-					for (var k in gradients) {
-						var gradient: Gradient = module[k];
-						var gradientData: any = moduleData[k];
-						var alphasData: any[] = gradientData.alphas;
-						for (var i: number = 0, n: number = alphasData.length; i < n; i++) {
-							var alphaData: any = alphasData[i];
-							if ((i === 3) && ((alphaData.key !== 1))) {
-								alphaData.key = 1;
-								console.warn("GradientDataColor warning:the forth key is  be force set to 1.");
-							}
-							gradient.addColorAlpha(alphaData.key, alphaData.value);
-						}
-						var rgbsData: any[] = gradientData.rgbs;
-						for (var i: number = 0, n: number = rgbsData.length; i < n; i++) {
-							var rgbData: any = rgbsData[i];
-							var rgbValue: any[] = rgbData.value;
-							if ((i === 3) && ((rgbData.key !== 1))) {
-								rgbData.key = 1;
-								console.warn("GradientDataColor warning:the forth key is  be force set to 1.");
-							}
-							gradient.addColorRGB(rgbData.key, new Color(rgbValue[0], rgbValue[1], rgbValue[2], 1.0));
-						}
-						module[k] = gradient;
-					}
-					break;
+				// case "gradientDataNumbers":
+				// 	var gradientDataNumbers: object = moduleData.gradientDataNumbers;
+				// 	for (var k in gradientDataNumbers) {
+				// 		var gradientNumber: GradientDataNumber = module[k];
+				// 		var gradientNumberData: any[] = moduleData[k];
+				// 		for (var i: number = 0, n: number = gradientNumberData.length; i < n; i++) {
+				// 			var valueData: any = gradientNumberData[i];
+				// 			gradientNumber.add(valueData.key, valueData.value);
+				// 		}
+				// 		module[k] = gradientNumber;
+				// 	}
+				// 	break;
+				// case "gradientDataInts":
+				// 	var gradientDataInts: object = moduleData.gradientDataInts;
+				// 	for (var k in gradientDataInts) {
+				// 		var gradientInt: GradientDataInt = module[k];
+				// 		var gradientIntData: any[] = moduleData[k];
+				// 		for (var i: number = 0, n: number = gradientIntData.length; i < n; i++) {
+				// 			var valueData: any = gradientIntData[i];
+				// 			gradientInt.add(valueData.key, valueData.value);
+				// 		}
+				// 		module[k] = gradientInt;
+				// 	}
+				// 	break;
+				// case "gradients":
+				// 	var gradients: object = moduleData.gradients;
+				// 	for (var k in gradients) {
+				// 		var gradient: Gradient = module[k];
+				// 		var gradientData: any = moduleData[k];
+				// 		var alphasData: any[] = gradientData.alphas;
+				// 		for (var i: number = 0, n: number = alphasData.length; i < n; i++) {
+				// 			var alphaData: any = alphasData[i];
+				// 			if ((i === 3) && ((alphaData.key !== 1))) {
+				// 				alphaData.key = 1;
+				// 				console.warn("GradientDataColor warning:the forth key is  be force set to 1.");
+				// 			}
+				// 			gradient.addColorAlpha(alphaData.key, alphaData.value);
+				// 		}
+				// 		var rgbsData: any[] = gradientData.rgbs;
+				// 		for (var i: number = 0, n: number = rgbsData.length; i < n; i++) {
+				// 			var rgbData: any = rgbsData[i];
+				// 			var rgbValue: any[] = rgbData.value;
+				// 			if ((i === 3) && ((rgbData.key !== 1))) {
+				// 				rgbData.key = 1;
+				// 				console.warn("GradientDataColor warning:the forth key is  be force set to 1.");
+				// 			}
+				// 			gradient.addColorRGB(rgbData.key, new Color(rgbValue[0], rgbValue[1], rgbValue[2], 1.0));
+				// 		}
+				// 		module[k] = gradient;
+				// 	}
+				// 	break;
 				case "resources":
 					var resourcesData: string[] = moduleData.resources;
 					for (var i: number = 0, n: number = resourcesData.length; i < n; i++)
@@ -210,6 +219,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	_parse(data: any, spriteMap: any): void {
 		super._parse(data, spriteMap);
 		if (data.main) {
+			const anglelToRad: number = Math.PI / 180.0;
 			var particleSystem: ShurikenParticleSystem = this.particleSystem;
 			var particleRender: ShurikenParticleRenderer = this.particleRenderer;
 			this._parseModule(particleRender, data.render);//Render
@@ -221,6 +231,200 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 			this._parseModule(particleSystem.sizeOverLifetime, data.sizeOverLifetimeData);//SizeOverLifetime
 			this._parseModule(particleSystem.rotationOverLifetime, data.rotationOverLifetimeData);//RotationOverLifetime
 			this._parseModule(particleSystem.textureSheetAnimation, data.textureSheetAnimationData);//TextureSheetAnimation
+
+			//Shape
+			var shapeData: any = data.shape;
+			if (shapeData) {
+				var shape: BaseShape;
+				switch (shapeData.shapeType) {
+					case 0:
+						shape = new SphereShape();
+						break;
+					case 1:
+						shape = new HemisphereShape();
+						break;
+					case 2:
+						shape = new ConeShape();
+						break;
+					case 3:
+						shape = new BoxShape();
+						break;
+					case 7:
+						shape = new CircleShape();
+						break;
+					default:
+						shape = new CircleShape();
+						break;
+				}
+				this._parseModule(shape, shapeData);
+				particleSystem.shape = shape;
+			}
+
+			//VelocityOverLifetime
+			var velocityOverLifetimeData: any = data.velocityOverLifetime;
+			if (velocityOverLifetimeData) {
+				var velocityData: any = velocityOverLifetimeData.velocity;
+				var velocity: GradientVelocity;
+				switch (velocityData.type) {
+					case 0:
+						var constantData: any[] = velocityData.constant;
+						velocity = GradientVelocity.createByConstant(new Vector3(constantData[0], constantData[1], constantData[2]));
+						break;
+					case 1:
+						velocity = GradientVelocity.createByGradient(this._initParticleVelocity(velocityData.gradientX), this._initParticleVelocity(velocityData.gradientY), this._initParticleVelocity(velocityData.gradientZ));
+						break;
+					case 2:
+						var constantMinData: any[] = velocityData.constantMin;
+						var constantMaxData: any[] = velocityData.constantMax;
+						velocity = GradientVelocity.createByRandomTwoConstant(new Vector3(constantMinData[0], constantMinData[1], constantMinData[2]), new Vector3(constantMaxData[0], constantMaxData[1], constantMaxData[2]));
+						break;
+					case 3:
+						velocity = GradientVelocity.createByRandomTwoGradient(this._initParticleVelocity(velocityData.gradientXMin), this._initParticleVelocity(velocityData.gradientXMax), this._initParticleVelocity(velocityData.gradientYMin), this._initParticleVelocity(velocityData.gradientYMax), this._initParticleVelocity(velocityData.gradientZMin), this._initParticleVelocity(velocityData.gradientZMax));
+						break;
+				}
+				var velocityOverLifetime: VelocityOverLifetime = new VelocityOverLifetime(velocity);
+				this._parseModule(velocityOverLifetime, velocityOverLifetimeData);
+				particleSystem.velocityOverLifetime = velocityOverLifetime;
+			}
+
+			//ColorOverLifetime
+			var colorOverLifetimeData: any = data.colorOverLifetime;
+			if (colorOverLifetimeData) {
+				var colorData: any = colorOverLifetimeData.color;
+				var color: GradientColor;
+				switch (colorData.type) {
+					case 0:
+						var constColorData: any[] = colorData.constant;
+						color = GradientColor.createByConstant(new Vector4(constColorData[0], constColorData[1], constColorData[2], constColorData[3]));
+						break;
+					case 1:
+						color = GradientColor.createByGradient(this._initParticleColor(colorData.gradient));
+						break;
+					case 2:
+						var minConstColorData: any[] = colorData.constantMin;
+						var maxConstColorData: any[] = colorData.constantMax;
+						color = GradientColor.createByRandomTwoConstant(new Vector4(minConstColorData[0], minConstColorData[1], minConstColorData[2], minConstColorData[3]), new Vector4(maxConstColorData[0], maxConstColorData[1], maxConstColorData[2], maxConstColorData[3]));
+						break;
+					case 3:
+						color = GradientColor.createByRandomTwoGradient(this._initParticleColor(colorData.gradientMin), this._initParticleColor(colorData.gradientMax));
+						break;
+				}
+				var colorOverLifetime: ColorOverLifetime = new ColorOverLifetime(color);
+				this._parseModule(colorOverLifetime, colorOverLifetimeData);
+				particleSystem.colorOverLifetime = colorOverLifetime;
+			}
+
+			//SizeOverLifetime
+			var sizeOverLifetimeData: any = data.sizeOverLifetime;
+			if (sizeOverLifetimeData) {
+				var sizeData: any = sizeOverLifetimeData.size;
+				var size: GradientSize;
+				switch (sizeData.type) {
+					case 0:
+						if (sizeData.separateAxes) {
+							size = GradientSize.createByGradientSeparate(this._initParticleSize(sizeData.gradientX), this._initParticleSize(sizeData.gradientY), this._initParticleSize(sizeData.gradientZ));
+						} else {
+							size = GradientSize.createByGradient(this._initParticleSize(sizeData.gradient));
+						}
+						break;
+					case 1:
+						if (sizeData.separateAxes) {
+							var constantMinSeparateData: any[] = sizeData.constantMinSeparate;
+							var constantMaxSeparateData: any[] = sizeData.constantMaxSeparate;
+							size = GradientSize.createByRandomTwoConstantSeparate(new Vector3(constantMinSeparateData[0], constantMinSeparateData[1], constantMinSeparateData[2]), new Vector3(constantMaxSeparateData[0], constantMaxSeparateData[1], constantMaxSeparateData[2]));
+						} else {
+							size = GradientSize.createByRandomTwoConstant(sizeData.constantMin, sizeData.constantMax);
+						}
+						break;
+					case 2:
+						if (sizeData.separateAxes) {
+							size = GradientSize.createByRandomTwoGradientSeparate(this._initParticleSize(sizeData.gradientXMin), this._initParticleSize(sizeData.gradientYMin), this._initParticleSize(sizeData.gradientZMin), this._initParticleSize(sizeData.gradientXMax), this._initParticleSize(sizeData.gradientYMax), this._initParticleSize(sizeData.gradientZMax));
+						} else {
+							size = GradientSize.createByRandomTwoGradient(this._initParticleSize(sizeData.gradientMin), this._initParticleSize(sizeData.gradientMax));
+						}
+						break;
+				}
+				var sizeOverLifetime: SizeOverLifetime = new SizeOverLifetime(size);
+				this._parseModule(sizeOverLifetime, sizeOverLifetimeData);
+				particleSystem.sizeOverLifetime = sizeOverLifetime;
+			}
+
+			//RotationOverLifetime
+			var rotationOverLifetimeData: any = data.rotationOverLifetime;
+			if (rotationOverLifetimeData) {
+				var angularVelocityData: any = rotationOverLifetimeData.angularVelocity;
+				var angularVelocity: GradientAngularVelocity;
+				switch (angularVelocityData.type) {
+					case 0:
+						if (angularVelocityData.separateAxes) {
+							var conSep: any[] = angularVelocityData.constantSeparate;
+							angularVelocity = GradientAngularVelocity.createByConstantSeparate(new Vector3(conSep[0] * anglelToRad, conSep[1] * anglelToRad, conSep[2] * anglelToRad));
+						} else {
+							angularVelocity = GradientAngularVelocity.createByConstant(angularVelocityData.constant * anglelToRad);
+						}
+						break;
+					case 1:
+						if (angularVelocityData.separateAxes) {
+							angularVelocity = GradientAngularVelocity.createByGradientSeparate(this._initParticleRotation(angularVelocityData.gradientX), this._initParticleRotation(angularVelocityData.gradientY), this._initParticleRotation(angularVelocityData.gradientZ));
+						} else {
+							angularVelocity = GradientAngularVelocity.createByGradient(this._initParticleRotation(angularVelocityData.gradient));
+						}
+						break;
+					case 2:
+						if (angularVelocityData.separateAxes) {
+							var minSep: any[] = angularVelocityData.constantMinSeparate;//TODO:Y是否要取负数
+							var maxSep: any[] = angularVelocityData.constantMaxSeparate;//TODO:Y是否要取负数
+							angularVelocity = GradientAngularVelocity.createByRandomTwoConstantSeparate(new Vector3(minSep[0] * anglelToRad, minSep[1] * anglelToRad, minSep[2] * anglelToRad), new Vector3(maxSep[0] * anglelToRad, maxSep[1] * anglelToRad, maxSep[2] * anglelToRad));
+						} else {
+							angularVelocity = GradientAngularVelocity.createByRandomTwoConstant(angularVelocityData.constantMin * anglelToRad, angularVelocityData.constantMax * anglelToRad);
+						}
+						break;
+					case 3:
+						if (angularVelocityData.separateAxes) {
+							//TODO:待补充
+						} else {
+							angularVelocity = GradientAngularVelocity.createByRandomTwoGradient(this._initParticleRotation(angularVelocityData.gradientMin), this._initParticleRotation(angularVelocityData.gradientMax));
+						}
+						break;
+				}
+				var rotationOverLifetime: RotationOverLifetime = new RotationOverLifetime(angularVelocity);
+				this._parseModule(rotationOverLifetime, rotationOverLifetimeData);
+				particleSystem.rotationOverLifetime = rotationOverLifetime;
+			}
+
+			//TextureSheetAnimation
+			var textureSheetAnimationData: any = data.textureSheetAnimation;
+			if (textureSheetAnimationData) {
+				var frameData: any = textureSheetAnimationData.frame;
+				var frameOverTime: FrameOverTime;
+				switch (frameData.type) {
+					case 0:
+						frameOverTime = FrameOverTime.createByConstant(frameData.constant);
+						break;
+					case 1:
+						frameOverTime = FrameOverTime.createByOverTime(this._initParticleFrame(frameData.overTime));
+						break;
+					case 2:
+						frameOverTime = FrameOverTime.createByRandomTwoConstant(frameData.constantMin, frameData.constantMax);
+						break;
+					case 3:
+						frameOverTime = FrameOverTime.createByRandomTwoOverTime(this._initParticleFrame(frameData.overTimeMin), this._initParticleFrame(frameData.overTimeMax));
+						break;
+				}
+				var startFrameData: any = textureSheetAnimationData.startFrame;
+				var startFrame: StartFrame;
+				switch (startFrameData.type) {
+					case 0:
+						startFrame = StartFrame.createByConstant(startFrameData.constant);
+						break;
+					case 1:
+						startFrame = StartFrame.createByRandomTwoConstant(startFrameData.constantMin, startFrameData.constantMax);
+						break;
+				}
+				var textureSheetAnimation: TextureSheetAnimation = new TextureSheetAnimation(frameOverTime, startFrame);
+				this._parseModule(textureSheetAnimation, textureSheetAnimationData);
+				particleSystem.textureSheetAnimation = textureSheetAnimation;
+			}
 		}
 		else {//legacy
 			this._parseOld(data);
