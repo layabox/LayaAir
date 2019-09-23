@@ -38,6 +38,16 @@ export class SimpleSingletonList extends SingletonList<ISingletonElement> {
 		element._setIndexInList(-1);
 	}
 
+	/**
+	 * @internal
+	 */
+	clear(): void {
+		var elements: ISingletonElement[] = this.elements;
+		for (var i: number, n: number = this.length; i < n; i++)
+			elements[i]._setIndexInList(-1);
+		this.length = 0;
+	}
+
 }
 
 
