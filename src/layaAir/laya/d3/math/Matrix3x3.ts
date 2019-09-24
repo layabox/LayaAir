@@ -60,16 +60,15 @@ export class Matrix3x3 implements IClone {
 	 */
 	static createFromTranslation(trans: Vector2, out: Matrix3x3): void {
 		var e: Float32Array = out.elements;
-
-		out[0] = 1;
-		out[1] = 0;
-		out[2] = 0;
-		out[3] = 0;
-		out[4] = 1;
-		out[5] = 0;
-		out[6] = trans.x;
-		out[7] = trans.y;
-		out[8] = 1;
+		e[0] = 1;
+		e[1] = 0;
+		e[2] = 0;
+		e[3] = 0;
+		e[4] = 1;
+		e[5] = 0;
+		e[6] = trans.x;
+		e[7] = trans.y;
+		e[8] = 1;
 	}
 
 	/**
