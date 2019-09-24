@@ -297,6 +297,8 @@ export class Mesh extends Resource implements IClone {
 				default:
 					throw "Mesh:Unknown elementUsage.";
 			}
+			this._minVerticesUpdate = 0;
+			this._maxVerticesUpdate = Number.MAX_SAFE_INTEGER;
 		}
 		else {
 			console.warn("Mesh: the mesh don't have  this VertexElement.");
@@ -408,7 +410,7 @@ export class Mesh extends Resource implements IClone {
 		var max: number = this._maxVerticesUpdate;
 		if (min !== -1 && max !== -1) {
 			var offset: number = min * 4;
-			this._vertexBuffer.setData(this._vertexBuffer.getUint8Data().buffer, offset, offset, (max - min) * 4);
+			this._vertexBuffer.setData(this._vertexBuffer.getUint8Data().buffer, offset, offset, max - min);
 			this._minVerticesUpdate = -1;
 			this._maxVerticesUpdate = -1;
 		}
