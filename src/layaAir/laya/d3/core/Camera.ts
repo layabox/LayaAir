@@ -535,7 +535,7 @@ export class Camera extends BaseCamera {
 		}
 
 		context.camera = this;
-
+		Camera._updateMark++;
 		scene._preRenderScript();//TODO:duo相机是否重复
 		var renderTar: RenderTexture = this._getInternalRenderTexture();//如果有临时renderTexture则画到临时renderTexture,最后再画到屏幕或者离屏画布,如果无临时renderTexture则直接画到屏幕或离屏画布
 		(renderTar) && (renderTar._start());

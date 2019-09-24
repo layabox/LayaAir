@@ -32,7 +32,7 @@ export class Scene3DUtils {
 				break;
 			case "MeshSprite3D":
 				node = new MeshSprite3D();
-				(outBatchSprites && (<MeshSprite3D>node)._isStatic) && (outBatchSprites.push(<MeshSprite3D>node));
+				(outBatchSprites && nodeData.props.isStatic) && (outBatchSprites.push(<MeshSprite3D>node));
 				break;
 			case "SkinnedMeshSprite3D":
 				node = new SkinnedMeshSprite3D();
@@ -163,7 +163,7 @@ export class Scene3DUtils {
 				break;
 			case "MeshSprite3D":
 				node = new MeshSprite3D();
-				(outBatchSprites && (<MeshSprite3D>node)._isStatic) && (outBatchSprites.push(<MeshSprite3D>node));
+				(outBatchSprites && nodeData.props.isStatic) && (outBatchSprites.push(<MeshSprite3D>node));
 				break;
 			case "SkinnedMeshSprite3D":
 				node = new SkinnedMeshSprite3D();
