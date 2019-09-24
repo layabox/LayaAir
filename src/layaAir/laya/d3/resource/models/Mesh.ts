@@ -409,7 +409,7 @@ export class Mesh extends Resource implements IClone {
 		var min: number = this._minVerticesUpdate;
 		var max: number = this._maxVerticesUpdate;
 		if (min !== -1 && max !== -1) {
-			var offset: number = min * 4;
+			var offset: number = min;
 			this._vertexBuffer.setData(this._vertexBuffer.getUint8Data().buffer, offset, offset, max - min);
 			this._minVerticesUpdate = -1;
 			this._maxVerticesUpdate = -1;
