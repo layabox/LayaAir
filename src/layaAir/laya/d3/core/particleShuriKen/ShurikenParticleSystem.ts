@@ -88,9 +88,6 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	private static _type: number = GeometryElement._typeCounter++;
 
 	/** @internal */
-	private _tempRotationMatrix: Matrix4x4 = new Matrix4x4();
-
-	/** @internal */
 	_boundingSphere: BoundSphere = null;
 	/** @internal */
 	_boundingBox: BoundBox = null;
@@ -1427,7 +1424,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		var render: ShurikenParticleRenderer = this._ownerRender;
 		var renderMode: number = render.renderMode;
 		if (renderMode !== -1 && this.maxParticles > 0) {
-			var indices: Uint16Array, i: number, j: number, m: number, indexOffset: number, perPartOffset: number, vertexDeclaration: VertexDeclaration;;
+			var indices: Uint16Array, i: number, j: number, m: number, indexOffset: number, perPartOffset: number, vertexDeclaration: VertexDeclaration;
 			var vbMemorySize: number = 0, memorySize: number = 0;
 			var mesh: Mesh = render.mesh;
 			if (renderMode === 4) {

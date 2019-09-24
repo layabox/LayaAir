@@ -113,7 +113,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 				case "bases":
 					var bases: object = moduleData.bases;
 					for (var k in bases)
-						module[k] = moduleData[k];
+						module[k] = bases[k];
 					break;
 				case "vector2s":
 					var vector2s: object = moduleData.vector2s;
