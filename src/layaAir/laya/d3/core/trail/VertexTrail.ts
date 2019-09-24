@@ -2,7 +2,6 @@ import { IVertex } from "../../graphics/IVertex"
 import { VertexDeclaration } from "../../graphics/VertexDeclaration"
 import { VertexElement } from "../../graphics/VertexElement"
 import { VertexElementFormat } from "../../graphics/VertexElementFormat"
-import { Vector3 } from "../../math/Vector3"
 /**
  * <code>VertexTrail</code> 类用于创建拖尾顶点结构。
  */
@@ -14,9 +13,10 @@ export class VertexTrail implements IVertex {
 	static TRAIL_TEXTURECOORDINATE0X: number = 4;
 	static TRAIL_COLOR: number = 5;
 
-	private static _vertexDeclaration1;
-
-	private static _vertexDeclaration2;
+	/**@internal */
+	private static _vertexDeclaration1: VertexDeclaration;
+	/**@internal */
+	private static _vertexDeclaration2: VertexDeclaration;
 
 	static get vertexDeclaration1(): VertexDeclaration {
 		return VertexTrail._vertexDeclaration1;
@@ -42,10 +42,6 @@ export class VertexTrail implements IVertex {
 		VertexTrail._vertexDeclaration2 = new VertexDeclaration(20,
 			[new VertexElement(0, VertexElementFormat.Single, VertexTrail.TRAIL_TEXTURECOORDINATE0X),
 			new VertexElement(4, VertexElementFormat.Color, VertexTrail.TRAIL_COLOR)]);
-	}
-
-	constructor() {
-
 	}
 }
 
