@@ -522,6 +522,7 @@ export class Camera extends BaseCamera {
 				var shadowMap: RenderTexture = parallelSplitShadowMap.cameras[i + 1].renderTarget;
 				shadowMap._start();
 				context.camera = smCamera;
+				Camera._updateMark++;
 				context.viewport = smCamera.viewport;
 				smCamera._prepareCameraToRender();
 				smCamera._applyViewProject(context, smCamera.viewMatrix, smCamera.projectionMatrix, false);
