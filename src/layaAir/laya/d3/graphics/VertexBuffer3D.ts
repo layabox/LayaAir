@@ -84,9 +84,9 @@ export class VertexBuffer3D extends Buffer {
 	 * @param	dataStartIndex 顶点数据的偏移,以字节为单位。
 	 * @param	dataCount 顶点数据的长度,以字节为单位。
 	 */
-	setData(buffer: ArrayBuffer, bufferOffset: number = 0, dataStartIndex: number = 0, dataCount: number = 4294967295/*uint.MAX_VALUE*/): void {
+	setData(buffer: ArrayBuffer, bufferOffset: number = 0, dataStartIndex: number = 0, dataCount: number = Number.MAX_SAFE_INTEGER): void {
 		this.bind();
-		var needSubData: boolean = dataStartIndex !== 0 || dataCount !== 4294967295/*uint.MAX_VALUE*/;
+		var needSubData: boolean = dataStartIndex !== 0 || dataCount !== Number.MAX_SAFE_INTEGER;
 		if (needSubData) {
 			var subData: Uint8Array = new Uint8Array(buffer, dataStartIndex, dataCount);
 			LayaGL.instance.bufferSubData(this._bufferType, bufferOffset, subData);
