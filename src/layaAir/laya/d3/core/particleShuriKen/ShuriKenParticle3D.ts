@@ -205,6 +205,8 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 						module.addBurst(new Burst(brust.time, brust.min, brust.max));
 					}
 					break;
+				case "shapeType"://TODO:remove in the fulther
+					break;
 				default:
 					throw "ShurikenParticle3D:unknown type.";
 			}
