@@ -29309,7 +29309,7 @@
 	            'u_SpotLight.position': Shader3D.PERIOD_SCENE,
 	            'u_SpotLight.direction': Shader3D.PERIOD_SCENE,
 	            'u_SpotLight.range': Shader3D.PERIOD_SCENE,
-	            'u_SpotLight.spotAngle': Shader3D.PERIOD_SCENE,
+	            'u_SpotLight.spot': Shader3D.PERIOD_SCENE,
 	            'u_SpotLight.color': Shader3D.PERIOD_SCENE,
 	        };
 	        stateMap = {
@@ -30382,7 +30382,7 @@
 	                break;
 	            case "MeshSprite3D":
 	                node = new MeshSprite3D();
-	                (outBatchSprites) && (outBatchSprites.push(node));
+	                (outBatchSprites && node._isStatic) && (outBatchSprites.push(node));
 	                break;
 	            case "SkinnedMeshSprite3D":
 	                node = new SkinnedMeshSprite3D();
@@ -30486,7 +30486,7 @@
 	                break;
 	            case "MeshSprite3D":
 	                node = new MeshSprite3D();
-	                (outBatchSprites) && (outBatchSprites.push(node));
+	                (outBatchSprites && node._isStatic) && (outBatchSprites.push(node));
 	                break;
 	            case "SkinnedMeshSprite3D":
 	                node = new SkinnedMeshSprite3D();
