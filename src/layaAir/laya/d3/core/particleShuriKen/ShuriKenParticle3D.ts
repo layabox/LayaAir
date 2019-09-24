@@ -194,9 +194,9 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 				// 	}
 				// 	break;
 				case "resources":
-					var resourcesData: string[] = moduleData.resources;
-					for (var i: number = 0, n: number = resourcesData.length; i < n; i++)
-						module[k] = Loader.getRes(resourcesData[i]);
+					var resources: any = moduleData.resources;
+					for (var k in resources)
+						module[k] = Loader.getRes(resources[k]);
 					break;
 				case "bursts":
 					var burstsData: any[] = moduleData.bursts;
@@ -224,7 +224,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 			const anglelToRad: number = Math.PI / 180.0;
 			var particleSystem: ShurikenParticleSystem = this.particleSystem;
 			var particleRender: ShurikenParticleRenderer = this.particleRenderer;
-			this._parseModule(particleRender, data.render);//Render
+			this._parseModule(particleRender, data.renderer);//Renderer
 			this._parseModule(particleSystem, data.main);//particleSystem
 			this._parseModule(particleSystem.emission, data.emission);//Emission
 
