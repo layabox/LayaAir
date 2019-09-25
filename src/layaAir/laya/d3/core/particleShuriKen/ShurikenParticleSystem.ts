@@ -925,7 +925,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		this.isPerformanceMode = true;
 
 		this._emission = new Emission();
-		this._emission.enbale = true;
+		this._emission.enable = true;
 	}
 
 	/**
@@ -1271,7 +1271,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		}
 
 
-		if (this._emission.enbale && this._isEmitting && !this._isPaused)
+		if (this._emission.enable && this._isEmitting && !this._isPaused)
 			this._advanceTime(elapsedTime, this._currentTime);
 	}
 
@@ -1297,7 +1297,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 			return;
 		}
 
-		if (this._emission.enbale)
+		if (this._emission.enable)
 			this._advanceTime(time, time);//TODO:如果time，time均为零brust无效
 	}
 

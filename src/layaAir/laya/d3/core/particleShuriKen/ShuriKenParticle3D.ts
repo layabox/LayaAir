@@ -205,8 +205,16 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 						module.addBurst(new Burst(brust.time, brust.min, brust.max));
 					}
 					break;
+				case "randomSeed":
+					module.randomSeed[0] = moduleData.randomSeed;
+					break;
 				case "shapeType"://TODO:remove in the fulther
 				case "type":
+				case "color":
+				case "size":
+				case "frame":
+				case "startFrame":
+				case "angularVelocity":
 					break;
 				default:
 					throw "ShurikenParticle3D:unknown type.";
@@ -631,9 +639,9 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 					var brust: any = burstsData[i];
 					emission.addBurst(new Burst(brust.time, brust.min, brust.max));
 				}
-			emission.enbale = emissionData.enable;
+			emission.enable = emissionData.enable;
 		} else {
-			emission.enbale = false;
+			emission.enable = false;
 		}
 
 		//Shape
@@ -879,24 +887,37 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 		var gradientColor: Gradient = new Gradient(4, 4);
 		var alphasData: any[] = gradientColorData.alphas;
 		var i: number, n: number;
-		for (i = 0, n = alphasData.length; i < n; i++) {
-			var alphaData: any = alphasData[i];
-			if ((i === 3) && ((alphaData.key !== 1))) {
-				alphaData.key = 1;
-				console.log("GradientDataColor warning:the forth key is  be force set to 1.");
-			}
-			gradientColor.addColorAlpha(alphaData.key, alphaData.value);
+		if (!alphaData) {//兼容默认值
+			gradientColor.addColorAlpha(0, 1);
+			gradientColor.addColorAlpha(1, 1);
 		}
-		var rgbsData: any[] = gradientColorData.rgbs;
-		for (i = 0, n = rgbsData.length; i < n; i++) {
-			var rgbData: any = rgbsData[i];
-			var rgbValue: any[] = rgbData.value;
-
-			if ((i === 3) && ((rgbData.key !== 1))) {
-				rgbData.key = 1;
-				console.log("GradientDataColor warning:the forth key is  be force set to 1.");
+		else {
+			for (i = 0, n = alphasData.length; i < n; i++) {
+				var alphaData: any = alphasData[i];
+				if ((i === 3) && ((alphaData.key !== 1))) {
+					alphaData.key = 1;
+					console.log("GradientDataColor warning:the forth key is  be force set to 1.");
+				}
+				gradientColor.addColorAlpha(alphaData.key, alphaData.value);
 			}
-			gradientColor.addColorRGB(rgbData.key, new Color(rgbValue[0], rgbValue[1], rgbValue[2], 1.0));
+		}
+
+		var rgbsData: any[] = gradientColorData.rgbs;
+		if (!rgbsData) {//兼容默认值
+			gradientColor.addColorRGB(0, new Color(1.0, 1.0, 1.0, 1.0));
+			gradientColor.addColorRGB(0, new Color(1.0, 1.0, 1.0, 1.0));
+		}
+		else {
+			for (i = 0, n = rgbsData.length; i < n; i++) {
+				var rgbData: any = rgbsData[i];
+				var rgbValue: any[] = rgbData.value;
+
+				if ((i === 3) && ((rgbData.key !== 1))) {
+					rgbData.key = 1;
+					console.log("GradientDataColor warning:the forth key is  be force set to 1.");
+				}
+				gradientColor.addColorRGB(rgbData.key, new Color(rgbValue[0], rgbValue[1], rgbValue[2], 1.0));
+			}
 		}
 		return gradientColor;
 	}
