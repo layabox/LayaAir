@@ -529,11 +529,8 @@ class emiter {
             else if (type == "UnionType") {
                 type = "";
                 for (let i = 0; i < node.types.length; i++) {
-                    let typeone = node.types[i];
-                    typeone = typeone.getText();
-                    if (this.importArr[typeone])
-                        typeone = this.importArr[typeone];
-                    type += typeone + (i == node.types.length - 1 ? "" : "|");
+                    let typeone = this.emitTsType(node.types[i]);
+                    type += (i ? "|" : "") + typeone;
                 }
             }
             else if (type == "TypeLiteral") {
@@ -552,6 +549,18 @@ class emiter {
                     }
                 }
                 type = typestr + "}";
+            }
+            else if (type == "FunctionType") {
+                let _node = node;
+                type = "(";
+                //方法类型
+                if (_node.parameters) {
+                    for (let i = 0; i < _node.parameters.length; i++) {
+                        let paramNode = _node.parameters[i];
+                        type += (i ? "," : "") + paramNode.name.getText() + ":" + this.emitTsType(paramNode.type);
+                    }
+                }
+                type += ") =>" + this.emitTsType(_node.type);
             }
             else {
                 type = node.getText();
