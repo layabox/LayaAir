@@ -114,7 +114,7 @@ export class ShurikenParticleData {
 				break;
 		}
 		var colorOverLifetime: ColorOverLifetime = particleSystem.colorOverLifetime;
-		if (colorOverLifetime && colorOverLifetime.enbale) {
+		if (colorOverLifetime && colorOverLifetime.enable) {
 			var color: GradientColor = colorOverLifetime.color;
 			switch (color.type) {
 				case 0:
@@ -183,7 +183,7 @@ export class ShurikenParticleData {
 		}
 
 		var sizeOverLifetime: SizeOverLifetime = particleSystem.sizeOverLifetime;
-		if (sizeOverLifetime && sizeOverLifetime.enbale && sizeOverLifetime.size.type === 1) {
+		if (sizeOverLifetime && sizeOverLifetime.enable && sizeOverLifetime.size.type === 1) {
 			var size: GradientSize = sizeOverLifetime.size;
 			if (size.separateAxes) {
 				if (autoRandomSeed) {

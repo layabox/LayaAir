@@ -135,8 +135,8 @@ export class Laya3D {
 	 * 获取是否可以启用物理。
 	 * @param 是否启用物理。
 	 */
-	static get enbalePhysics(): any {
-		return Physics3D._enbalePhysics;
+	static get enablePhysics(): any {
+		return Physics3D._enablePhysics;
 	}
 
 	/**
@@ -182,7 +182,7 @@ export class Laya3D {
 				return new CommandEncoder(this, reserveSize, adjustSize, isSyncToRenderThread);
 			}
 		}
-		config._multiLighting = config.enbaleMultiLight && SystemUtils.supportTextureFormat(TextureFormat.R32G32B32A32);
+		config._multiLighting = config.enableMultiLight && SystemUtils.supportTextureFormat(TextureFormat.R32G32B32A32);
 
 		ILaya3D.Scene3D = Scene3D;
 		ILaya3D.MeshRenderStaticBatchManager = MeshRenderStaticBatchManager;
@@ -836,11 +836,11 @@ export class Laya3D {
 
 		var physics3D: Function = (window as any).Physics3D;
 		if (physics3D == null) {
-			Physics3D._enbalePhysics = false;
+			Physics3D._enablePhysics = false;
 			Laya3D.__init__(width, height, config);
 			compolete && compolete.run();
 		} else {
-			Physics3D._enbalePhysics = true;
+			Physics3D._enablePhysics = true;
 			physics3D(config.defaultPhysicsMemory * 1024 * 1024).then(function (): void {
 				Laya3D.__init__(width, height, config);
 				compolete && compolete.run();

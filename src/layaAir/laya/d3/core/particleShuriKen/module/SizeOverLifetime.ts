@@ -9,7 +9,7 @@ export class SizeOverLifetime implements IClone {
 	private _size: GradientSize;
 
 	/**是否启用*/
-	enbale: boolean;
+	enable: boolean;
 
 	/**
 	 *获取尺寸。
@@ -32,7 +32,7 @@ export class SizeOverLifetime implements IClone {
 	cloneTo(destObject: any): void {
 		var destSizeOverLifetime: SizeOverLifetime = (<SizeOverLifetime>destObject);
 		this._size.cloneTo(destSizeOverLifetime._size);
-		destSizeOverLifetime.enbale = this.enbale;
+		destSizeOverLifetime.enable = this.enable;
 	}
 
 	/**
@@ -63,7 +63,7 @@ export class SizeOverLifetime implements IClone {
 		}
 
 		var destSizeOverLifetime: SizeOverLifetime = new SizeOverLifetime(destSize);
-		destSizeOverLifetime.enbale = this.enbale;
+		destSizeOverLifetime.enable = this.enable;
 		return destSizeOverLifetime;
 	}
 

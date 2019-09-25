@@ -9,7 +9,7 @@ export class RotationOverLifetime implements IClone {
 	private _angularVelocity: GradientAngularVelocity;
 
 	/**是否启用*/
-	enbale: boolean;
+	enable: boolean;
 
 	/**
 	 *获取角速度。
@@ -32,7 +32,7 @@ export class RotationOverLifetime implements IClone {
 	cloneTo(destObject: any): void {
 		var destRotationOverLifetime: RotationOverLifetime = (<RotationOverLifetime>destObject);
 		this._angularVelocity.cloneTo(destRotationOverLifetime._angularVelocity);
-		destRotationOverLifetime.enbale = this.enbale;
+		destRotationOverLifetime.enable = this.enable;
 	}
 
 	/**
@@ -69,7 +69,7 @@ export class RotationOverLifetime implements IClone {
 		}
 
 		var destRotationOverLifetime: RotationOverLifetime = new RotationOverLifetime(destAngularVelocity);
-		destRotationOverLifetime.enbale = this.enbale;
+		destRotationOverLifetime.enable = this.enable;
 		return destRotationOverLifetime;
 	}
 

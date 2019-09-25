@@ -6,7 +6,7 @@ export class ColorOverLifetime {
 	private _color: GradientColor;
 
 	/**是否启用。*/
-	enbale: boolean;
+	enable: boolean;
 
 	/**
 	 *获取颜色。
@@ -29,7 +29,7 @@ export class ColorOverLifetime {
 	cloneTo(destObject: any): void {
 		var destColorOverLifetime: ColorOverLifetime = (<ColorOverLifetime>destObject);
 		this._color.cloneTo(destColorOverLifetime._color);
-		destColorOverLifetime.enbale = this.enbale;
+		destColorOverLifetime.enable = this.enable;
 	}
 
 	/**
@@ -54,7 +54,7 @@ export class ColorOverLifetime {
 		}
 
 		var destColorOverLifetime: ColorOverLifetime = new ColorOverLifetime(destColor);
-		destColorOverLifetime.enbale = this.enbale;
+		destColorOverLifetime.enable = this.enable;
 		return destColorOverLifetime;
 	}
 

@@ -464,7 +464,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 */
 	constructor() {
 		super();
-		if (Physics3D._enbalePhysics)
+		if (Physics3D._enablePhysics)
 			this._physicsSimulation = new PhysicsSimulation(Scene3D.physicsSettings);
 
 		this._shaderValues = new ShaderData(null);
@@ -535,7 +535,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this._shaderValues.setNumber(Scene3D.TIME, this._time);
 
 		var simulation: PhysicsSimulation = this._physicsSimulation;
-		if (Physics3D._enbalePhysics && !PhysicsSimulation.disableSimulation) {
+		if (Physics3D._enablePhysics && !PhysicsSimulation.disableSimulation) {
 			simulation._updatePhysicsTransformFromRender();
 			PhysicsComponent._addUpdateList = false;//物理模拟器会触发_updateTransformComponent函数,不加入更新队列
 			//simulate physics

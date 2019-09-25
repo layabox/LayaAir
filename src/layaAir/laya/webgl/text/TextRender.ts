@@ -332,7 +332,7 @@ export class TextRender {
      * @param y {int} 因为这个只能画在一行上所以没有必要保存y。所以这里再把y传进来
      */
     protected _drawResortedWords(ctx: Context, startx: number, starty: number, samePagesData: any[]): void {
-        var isLastRender = ctx._charSubmitCache?ctx._charSubmitCache._enbale:false;
+        var isLastRender = ctx._charSubmitCache?ctx._charSubmitCache._enable:false;
         var mat = ctx._curMat;
         var slen = samePagesData.length;
         for (var id = 0; id < slen; id++) {

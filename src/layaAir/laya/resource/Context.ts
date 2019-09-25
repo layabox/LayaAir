@@ -1150,9 +1150,9 @@ export class Context {
 		}
 	}
 
-	drawCallOptimize(enbale: boolean): boolean {
-		this._charSubmitCache.enable(enbale, this);
-		return enbale;
+	drawCallOptimize(enable: boolean): boolean {
+		this._charSubmitCache.enable(enable, this);
+		return enable;
 	}
 
 	/**

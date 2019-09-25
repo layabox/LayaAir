@@ -22,7 +22,7 @@ export class CharSubmitCache {
     private _clipid: number = -1;
     private _clipMatrix: Matrix = new Matrix();
     /**@internal */
-    _enbale: boolean = false;
+    _enable: boolean = false;
     /**@internal */
     _colorFiler: ColorFilter;
 
@@ -34,7 +34,7 @@ export class CharSubmitCache {
         this._tex = null;
         this._imgId = -1;
         this._ndata = 0;
-        this._enbale = false;
+        this._enable = false;
         this._colorFiler = null;
     }
 
@@ -69,10 +69,10 @@ export class CharSubmitCache {
     }
 
     enable(value: boolean, ctx: Context): void {
-        if (value === this._enbale)
+        if (value === this._enable)
             return;
-        this._enbale = value;
-        this._enbale || this.submit(ctx);
+        this._enable = value;
+        this._enable || this.submit(ctx);
     }
 
     submit(ctx: Context): void {
