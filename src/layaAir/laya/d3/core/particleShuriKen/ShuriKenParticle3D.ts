@@ -206,6 +206,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 					}
 					break;
 				case "shapeType"://TODO:remove in the fulther
+				case "type":
 					break;
 				default:
 					throw "ShurikenParticle3D:unknown type.";
