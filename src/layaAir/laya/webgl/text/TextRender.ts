@@ -18,7 +18,7 @@ import { ILaya } from "../../../ILaya";
 export class TextRender {
     //config
     static useOldCharBook: boolean = false;
-    static atlasWidth: number = 2048;
+    static atlasWidth: number = 1024;
     static noAtlas: boolean = false;				// 一串文字用独立贴图
     static forceSplitRender: boolean = false;	    // 强制把一句话拆开渲染
     static forceWholeRender: boolean = false; 	// 强制整句话渲染
@@ -40,7 +40,7 @@ export class TextRender {
      * 例如 [Arial]=0x00002020, 表示宽高都是32
      */
     private fontSizeInfo: any = {};
-    static atlasWidth2: number = 2048 * 2048;
+    static atlasWidth2: number;
     private charRender: ICharRender;
     private static tmpRI: CharRenderInfo = new CharRenderInfo();
     private static pixelBBX: any[] = [0, 0, 0, 0];
@@ -83,7 +83,8 @@ export class TextRender {
         //在微信下有时候不显示文字，所以采用canvas模式，现在测试微信好像都好了，所以去掉了。
         var miniadp: any = ILaya.Laya['MiniAdpter'];
         if (miniadp && miniadp.systemInfo && miniadp.systemInfo.system) {
-            bugIOS = miniadp.systemInfo.system.toLowerCase() === 'ios 10.1.1';
+			bugIOS = miniadp.systemInfo.system.toLowerCase() === 'ios 10.1.1';
+			//12.3
         }
         if (ILaya.Browser.onMiniGame /*&& !Browser.onAndroid*/ && !bugIOS) TextRender.isWan1Wan = true; //android 微信下 字边缘发黑，所以不用getImageData了
         //TextRender.isWan1Wan = true;
@@ -332,7 +333,7 @@ export class TextRender {
      * @param y {int} 因为这个只能画在一行上所以没有必要保存y。所以这里再把y传进来
      */
     protected _drawResortedWords(ctx: Context, startx: number, starty: number, samePagesData: any[]): void {
-        var isLastRender = ctx._charSubmitCache?ctx._charSubmitCache._enbale:false;
+        var isLastRender = ctx._charSubmitCache?ctx._charSubmitCache._enable:false;
         var mat = ctx._curMat;
         var slen = samePagesData.length;
         for (var id = 0; id < slen; id++) {

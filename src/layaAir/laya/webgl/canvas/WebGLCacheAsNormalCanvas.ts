@@ -51,7 +51,7 @@ export class WebGLCacheAsNormalCanvas {
 
     startRec(): void {
         // 如果有文字优化，这里要先提交一下
-        if (this.context._charSubmitCache._enbale) {
+        if (this.context._charSubmitCache._enable) {
             this.context._charSubmitCache.enable(false, this.context);
             this.context._charSubmitCache.enable(true, this.context);
         }
@@ -107,7 +107,7 @@ export class WebGLCacheAsNormalCanvas {
 
     endRec(): void {
         // 如果有文字优化，这里要先提交一下
-        if (this.context._charSubmitCache._enbale) {
+        if (this.context._charSubmitCache._enable) {
             this.context._charSubmitCache.enable(false, this.context);
             this.context._charSubmitCache.enable(true, this.context);
         }

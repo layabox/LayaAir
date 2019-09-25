@@ -728,7 +728,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 			}
 			var velocityOverLifetime: VelocityOverLifetime = new VelocityOverLifetime(velocity);
 			velocityOverLifetime.space = velocityOverLifetimeData.space;
-			velocityOverLifetime.enbale = velocityOverLifetimeData.enable;
+			velocityOverLifetime.enable = velocityOverLifetimeData.enable;
 			particleSystem.velocityOverLifetime = velocityOverLifetime;
 		}
 
@@ -755,7 +755,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 					break;
 			}
 			var colorOverLifetime: ColorOverLifetime = new ColorOverLifetime(color);
-			colorOverLifetime.enbale = colorOverLifetimeData.enable;
+			colorOverLifetime.enable = colorOverLifetimeData.enable;
 			particleSystem.colorOverLifetime = colorOverLifetime;
 		}
 
@@ -790,7 +790,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 					break;
 			}
 			var sizeOverLifetime: SizeOverLifetime = new SizeOverLifetime(size);
-			sizeOverLifetime.enbale = sizeOverLifetimeData.enable;
+			sizeOverLifetime.enable = sizeOverLifetimeData.enable;
 			particleSystem.sizeOverLifetime = sizeOverLifetime;
 		}
 
@@ -833,7 +833,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 					break;
 			}
 			var rotationOverLifetime: RotationOverLifetime = new RotationOverLifetime(angularVelocity);
-			rotationOverLifetime.enbale = rotationOverLifetimeData.enable;
+			rotationOverLifetime.enable = rotationOverLifetimeData.enable;
 			particleSystem.rotationOverLifetime = rotationOverLifetime;
 		}
 
@@ -887,7 +887,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 		var gradientColor: Gradient = new Gradient(4, 4);
 		var alphasData: any[] = gradientColorData.alphas;
 		var i: number, n: number;
-		if (!alphaData) {//兼容默认值
+		if (!alphasData) {//兼容默认值
 			gradientColor.addColorAlpha(0, 1);
 			gradientColor.addColorAlpha(1, 1);
 		}

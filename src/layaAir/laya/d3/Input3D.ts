@@ -284,7 +284,7 @@ export class Input3D {
 	 * @internal
 	 */
 	_update(): void {
-		var enablePhysics: boolean = Physics3D._enbalePhysics && !PhysicsSimulation.disableSimulation;
+		var enablePhysics: boolean = Physics3D._enablePhysics && !PhysicsSimulation.disableSimulation;
 		var i: number, n: number, j: number, m: number;
 		n = this._eventList.length;
 		var cameras: BaseCamera[] = this._scene._cameraPool;

@@ -10,7 +10,7 @@ export class VelocityOverLifetime implements IClone {
 	private _velocity: GradientVelocity;
 
 	/**是否启用*/
-	enbale: boolean = false;
+	enable: boolean = false;
 	/**速度空间,0为local,1为world。*/
 	space: number = 0;
 
@@ -35,7 +35,7 @@ export class VelocityOverLifetime implements IClone {
 	cloneTo(destObject: any): void {
 		var destVelocityOverLifetime: VelocityOverLifetime = (<VelocityOverLifetime>destObject);
 		this._velocity.cloneTo(destVelocityOverLifetime._velocity);
-		destVelocityOverLifetime.enbale = this.enbale;
+		destVelocityOverLifetime.enable = this.enable;
 		destVelocityOverLifetime.space = this.space;
 	}
 
@@ -60,7 +60,7 @@ export class VelocityOverLifetime implements IClone {
 				break;
 		}
 		var destVelocityOverLifetime: VelocityOverLifetime = new VelocityOverLifetime(destVelocity);
-		destVelocityOverLifetime.enbale = this.enbale;
+		destVelocityOverLifetime.enable = this.enable;
 		destVelocityOverLifetime.space = this.space;
 		return destVelocityOverLifetime;
 	}
