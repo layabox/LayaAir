@@ -48,8 +48,13 @@ export class DefineDatas implements IClone {
 			this._length = size;
 		}
 		else {
-			mask[index] |= define._value;
-			this._length = Math.max(this._length, size);
+			if (size > this._length) {//the real length is this._length, if size is large than real length should use "= instead "|=" to ignore dirty data.
+				mask[index] = define._value;
+				this._length = size;
+			}
+			else {
+				mask[index] |= define._value;
+			}
 		}
 	}
 
