@@ -10597,9 +10597,9 @@
 	            return false;
 	        }
 	    }
-	    setData(buffer, bufferOffset = 0, dataStartIndex = 0, dataCount = 4294967295) {
+	    setData(buffer, bufferOffset = 0, dataStartIndex = 0, dataCount = Number.MAX_SAFE_INTEGER) {
 	        this.bind();
-	        var needSubData = dataStartIndex !== 0 || dataCount !== 4294967295;
+	        var needSubData = dataStartIndex !== 0 || dataCount !== Number.MAX_SAFE_INTEGER;
 	        if (needSubData) {
 	            var subData = new Uint8Array(buffer, dataStartIndex, dataCount);
 	            Laya.LayaGL.instance.bufferSubData(this._bufferType, bufferOffset, subData);
@@ -13608,6 +13608,7 @@
 	                var shadowMap = parallelSplitShadowMap.cameras[i + 1].renderTarget;
 	                shadowMap._start();
 	                context.camera = smCamera;
+	                Camera._updateMark++;
 	                context.viewport = smCamera.viewport;
 	                smCamera._prepareCameraToRender();
 	                smCamera._applyViewProject(context, smCamera.viewMatrix, smCamera.projectionMatrix, false);
@@ -13620,6 +13621,7 @@
 	            ShaderData.setRuntimeValueMode(true);
 	        }
 	        context.camera = this;
+	        Camera._updateMark++;
 	        scene._preRenderScript();
 	        var renderTar = this._getInternalRenderTexture();
 	        (renderTar) && (renderTar._start());
@@ -13853,7 +13855,6 @@
 	        }
 	        if (updateRender && this.renderType !== RenderElement.RENDERTYPE_NORMAL)
 	            this.render._revertBatchRenderUpdate(context);
-	        Camera._updateMark++;
 	    }
 	    destroy() {
 	        this._transform = null;
@@ -27370,6 +27371,8 @@
 	                default:
 	                    throw "Mesh:Unknown elementUsage.";
 	            }
+	            this._minVerticesUpdate = 0;
+	            this._maxVerticesUpdate = Number.MAX_SAFE_INTEGER;
 	        }
 	        else {
 	            console.warn("Mesh: the mesh don't have  this VertexElement.");
@@ -27451,8 +27454,8 @@
 	        var min = this._minVerticesUpdate;
 	        var max = this._maxVerticesUpdate;
 	        if (min !== -1 && max !== -1) {
-	            var offset = min * 4;
-	            this._vertexBuffer.setData(this._vertexBuffer.getUint8Data().buffer, offset, offset, (max - min) * 4);
+	            var offset = min;
+	            this._vertexBuffer.setData(this._vertexBuffer.getUint8Data().buffer, offset, offset, max - min);
 	            this._minVerticesUpdate = -1;
 	            this._maxVerticesUpdate = -1;
 	        }
@@ -30382,7 +30385,7 @@
 	                break;
 	            case "MeshSprite3D":
 	                node = new MeshSprite3D();
-	                (outBatchSprites && node._isStatic) && (outBatchSprites.push(node));
+	                (outBatchSprites && nodeData.props.isStatic) && (outBatchSprites.push(node));
 	                break;
 	            case "SkinnedMeshSprite3D":
 	                node = new SkinnedMeshSprite3D();
@@ -30486,7 +30489,7 @@
 	                break;
 	            case "MeshSprite3D":
 	                node = new MeshSprite3D();
-	                (outBatchSprites && node._isStatic) && (outBatchSprites.push(node));
+	                (outBatchSprites && nodeData.props.isStatic) && (outBatchSprites.push(node));
 	                break;
 	            case "SkinnedMeshSprite3D":
 	                node = new SkinnedMeshSprite3D();
