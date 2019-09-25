@@ -205,6 +205,9 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 						module.addBurst(new Burst(brust.time, brust.min, brust.max));
 					}
 					break;
+				case "randomSeed":
+					module.randomSeed[0] = moduleData.randomSeed;
+					break;
 				case "shapeType"://TODO:remove in the fulther
 				case "type":
 				case "color":
@@ -636,9 +639,9 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 					var brust: any = burstsData[i];
 					emission.addBurst(new Burst(brust.time, brust.min, brust.max));
 				}
-			emission.enbale = emissionData.enable;
+			emission.enable = emissionData.enable;
 		} else {
-			emission.enbale = false;
+			emission.enable = false;
 		}
 
 		//Shape
