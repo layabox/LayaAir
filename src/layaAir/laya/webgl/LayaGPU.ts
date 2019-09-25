@@ -30,6 +30,8 @@ export class LayaGPU {
     /**@internal */
     _oesTextureHalfFloat: any = null;
     /**@internal */
+    _oesTextureHalfFloatLinear: any = null;
+    /**@internal */
     _extTextureFilterAnisotropic: any = null;
     /**@internal */
     _compressedTextureS3tc: any = null;
@@ -66,8 +68,8 @@ export class LayaGPU {
             if (!forceVAO)
                 this._angleInstancedArrays = this._getExtension("ANGLE_instanced_arrays");//forceVAO会导致Instance有BUG
 
-            this._oesTextureHalfFloat = this._getExtension("OES_texture_half_float");
-            this._getExtension("OES_texture_half_float_linear");
+                this._oesTextureHalfFloat = this._getExtension("OES_texture_half_float");
+                this._oesTextureHalfFloatLinear = this._getExtension("OES_texture_half_float_linear");
             //_getExtension("OES_texture_float");
             //_getExtension("OES_texture_float_linear");
         } else {

@@ -275,7 +275,15 @@ export class Camera extends BaseCamera {
 	 * 设置是否开启HDR。
 	 */
 	set enableHDR(value: boolean) {
-		this._enableHDR = value;
+		if (value) {
+			if (LayaGL.layaGPUInstance._isWebGL2 || LayaGL.layaGPUInstance._oesTextureHalfFloat && LayaGL.layaGPUInstance._oesTextureHalfFloatLinear)
+				this._enableHDR = true;
+			else
+				console.warn("Camera:can't enable HDR in this device.");
+		}
+		else {
+			this._enableHDR = false;
+		};
 	}
 
 	/**
