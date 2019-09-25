@@ -887,7 +887,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 		var gradientColor: Gradient = new Gradient(4, 4);
 		var alphasData: any[] = gradientColorData.alphas;
 		var i: number, n: number;
-		if (!alphaData) {//兼容默认值
+		if (!alphasData) {//兼容默认值
 			gradientColor.addColorAlpha(0, 1);
 			gradientColor.addColorAlpha(1, 1);
 		}
