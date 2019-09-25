@@ -640,9 +640,12 @@ export class Context {
 		if (value) {
 			//缺省的RGB没有a，不合理把。况且没必要自定义一个常量。
 			//深度格式为-1表示不用深度缓存。
-			this._targets || (this._targets = new RenderTexture2D(this._width, this._height, RenderTextureFormat.R8G8B8A8, -1));
+			let rt = this._targets;
 			if (!this._width || !this._height)
 				throw Error("asBitmap no size!");
+			if(!rt || rt.width!=this._width||rt.height!=this._height){
+				this._targets = new RenderTexture2D(this._width, this._height, RenderTextureFormat.R8G8B8A8, -1)
+			}
 		} else {
 			this._targets && this._targets.destroy();
 			this._targets = null;
