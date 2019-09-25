@@ -20,17 +20,17 @@ export class SystemUtils {
         }
     }
 
-    /**
+        /**
      * 是否支持渲染纹理格式。
      * @param format 渲染纹理格式。
      */
     static supportRenderTextureFormat(format: number): boolean {
         switch (format) {
             case RenderTextureFormat.R16G16B16A16:
-                if (!LayaGL.layaGPUInstance._isWebGL2 && !LayaGL.layaGPUInstance._oesTextureHalfFloat && !LayaGL.layaGPUInstance._oesTextureHalfFloatLinear)
-                    return false;
-                else
+                if (LayaGL.layaGPUInstance._isWebGL2 || LayaGL.layaGPUInstance._oesTextureHalfFloat && LayaGL.layaGPUInstance._oesTextureHalfFloatLinear)
                     return true;
+                else
+                    return false;
             default:
                 return true;
         }
