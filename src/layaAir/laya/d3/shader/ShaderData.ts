@@ -301,7 +301,7 @@ export class ShaderData implements IClone {
 	 * @param	destObject 克隆源。
 	 */
 	cloneTo(destObject: any): void {
-		var dest: ShaderData = (<ShaderData>destObject);
+		var dest: ShaderData = <ShaderData>destObject;
 		var destData: any[] = dest._data;
 		for (var k in this._data) {//TODO:需要优化,杜绝is判断，慢
 			var value: any = this._data[k];

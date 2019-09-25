@@ -639,18 +639,12 @@ export class PrimitiveMesh {
 	 * @param width 宽
 	 */
 	static createQuad(long: number = 1, width: number = 1): Mesh {
-		const vertexCount: number = 4;
-		const indexCount: number = 6;
 		//定义顶点数据结构
 		var vertexDeclaration: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,UV");
-		//单个顶点数据个数,总共字节数/单个字节数
-		var vertexFloatStride: number = vertexDeclaration.vertexStride / 4;
-
 		var halfLong: number = long / 2;
 		var halfWidth: number = width / 2;
 
-		var vertices: Float32Array = new Float32Array([halfLong, halfWidth, 0, 0, 0, 1, 0, 0, halfLong, halfWidth, 0, 0, 0, 1, 1, 0, -halfLong, -halfWidth, 0, 0, 0, 1, 0, 1, halfLong, -halfWidth, 0, 0, 0, 1, 1, 1]);
-
+		var vertices: Float32Array = new Float32Array([-halfLong, halfWidth, 0, 0, 0, 1, 0, 0, halfLong, halfWidth, 0, 0, 0, 1, 1, 0, -halfLong, -halfWidth, 0, 0, 0, 1, 0, 1, halfLong, -halfWidth, 0, 0, 0, 1, 1, 1]);
 		var indices: Uint16Array = new Uint16Array([0, 1, 2, 3, 2, 1]);
 
 		return PrimitiveMesh._createMesh(vertexDeclaration, vertices, indices);

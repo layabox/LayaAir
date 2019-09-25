@@ -9,7 +9,7 @@ import { Vector3 } from "../../../../math/Vector3"
  */
 export class BaseShape implements IClone {
 	/**是否启用。*/
-	enable: boolean;
+	enable: boolean=true;
 	/**随机方向。*/
 	randomDirection: boolean;
 

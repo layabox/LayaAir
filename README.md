@@ -107,7 +107,7 @@ Our official Layabox Github with complete engine source version, free of charge,
 
 ## Tutorial Document
 
-- https://ldc2.layabox.com/doc/?nav=zh-ts-0-3-0
+- https://ldc2.layabox.com/doc/
 
 ## Samples Demo
 

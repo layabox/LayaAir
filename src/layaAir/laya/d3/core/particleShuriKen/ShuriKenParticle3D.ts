@@ -113,7 +113,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 				case "bases":
 					var bases: object = moduleData.bases;
 					for (var k in bases)
-						module[k] = moduleData[k];
+						module[k] = bases[k];
 					break;
 				case "vector2s":
 					var vector2s: object = moduleData.vector2s;
@@ -142,18 +142,18 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 						module[k] = vec4;
 					}
 					break;
-				// case "gradientDataNumbers":
-				// 	var gradientDataNumbers: object = moduleData.gradientDataNumbers;
-				// 	for (var k in gradientDataNumbers) {
-				// 		var gradientNumber: GradientDataNumber = module[k];
-				// 		var gradientNumberData: any[] = moduleData[k];
-				// 		for (var i: number = 0, n: number = gradientNumberData.length; i < n; i++) {
-				// 			var valueData: any = gradientNumberData[i];
-				// 			gradientNumber.add(valueData.key, valueData.value);
-				// 		}
-				// 		module[k] = gradientNumber;
-				// 	}
-				// 	break;
+				case "gradientDataNumbers":
+					var gradientDataNumbers: object = moduleData.gradientDataNumbers;
+					for (var k in gradientDataNumbers) {
+						var gradientNumber: GradientDataNumber = module[k];
+						var gradientNumberData: any[] = moduleData[k];
+						for (var i: number = 0, n: number = gradientNumberData.length; i < n; i++) {
+							var valueData: any = gradientNumberData[i];
+							gradientNumber.add(valueData.key, valueData.value);
+						}
+						module[k] = gradientNumber;
+					}
+					break;
 				// case "gradientDataInts":
 				// 	var gradientDataInts: object = moduleData.gradientDataInts;
 				// 	for (var k in gradientDataInts) {
@@ -194,16 +194,18 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 				// 	}
 				// 	break;
 				case "resources":
-					var resourcesData: string[] = moduleData.resources;
-					for (var i: number = 0, n: number = resourcesData.length; i < n; i++)
-						module[k] = Loader.getRes(resourcesData[i]);
+					var resources: any = moduleData.resources;
+					for (var k in resources)
+						module[k] = Loader.getRes(resources[k]);
 					break;
-				case "burst":
+				case "bursts":
 					var burstsData: any[] = moduleData.bursts;
 					for (var i: number = 0, n: number = burstsData.length; i < n; i++) {
 						var brust: any = burstsData[i];
 						module.addBurst(new Burst(brust.time, brust.min, brust.max));
 					}
+					break;
+				case "shapeType"://TODO:remove in the fulther
 					break;
 				default:
 					throw "ShurikenParticle3D:unknown type.";
@@ -222,15 +224,9 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 			const anglelToRad: number = Math.PI / 180.0;
 			var particleSystem: ShurikenParticleSystem = this.particleSystem;
 			var particleRender: ShurikenParticleRenderer = this.particleRenderer;
-			this._parseModule(particleRender, data.render);//Render
+			this._parseModule(particleRender, data.renderer);//Renderer
 			this._parseModule(particleSystem, data.main);//particleSystem
 			this._parseModule(particleSystem.emission, data.emission);//Emission
-			this._parseModule(particleSystem.shape, data.shape);//Shape
-			this._parseModule(particleSystem.velocityOverLifetime, data.velocityOverLifetime);//VelocityOverLifetime
-			this._parseModule(particleSystem.colorOverLifetime, data.colorOverLifetime);//ColorOverLifetime
-			this._parseModule(particleSystem.sizeOverLifetime, data.sizeOverLifetimeData);//SizeOverLifetime
-			this._parseModule(particleSystem.rotationOverLifetime, data.rotationOverLifetimeData);//RotationOverLifetime
-			this._parseModule(particleSystem.textureSheetAnimation, data.textureSheetAnimationData);//TextureSheetAnimation
 
 			//Shape
 			var shapeData: any = data.shape;
@@ -253,8 +249,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 						shape = new CircleShape();
 						break;
 					default:
-						shape = new CircleShape();
-						break;
+						throw "ShuriKenParticle3D:unknown shape type.";
 				}
 				this._parseModule(shape, shapeData);
 				particleSystem.shape = shape;

@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "target": "es6",
-        "module": "esnext",
+        "module": "es6",
         "outDir": "../../bin/tsc/layaAir",
         "composite":true,
         "stripInternal": true,

@@ -207,7 +207,6 @@ export class RenderElement {
 		}
 		if (updateRender && this.renderType !== RenderElement.RENDERTYPE_NORMAL)
 			this.render._revertBatchRenderUpdate(context);//还原因合并导致的数据变化
-		Camera._updateMark++;
 	}
 
 	/**

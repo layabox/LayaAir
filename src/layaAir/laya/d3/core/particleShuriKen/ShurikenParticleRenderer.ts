@@ -40,7 +40,7 @@ export class ShurikenParticleRenderer extends BaseRender {
 	//public const SORTINGMODE_YOUNGESTINFRONT:int = 3;
 
 	/**@internal */
-	private _renderMode: number = 0;
+	private _renderMode: number;
 	/**@internal */
 	private _mesh: Mesh = null;
 
@@ -55,38 +55,12 @@ export class ShurikenParticleRenderer extends BaseRender {
 	//public var sortingMode:int;
 
 	/**
-	 * 获取渲染模式。
-	 * @return 渲染模式。
+	 * 获取渲染模式,0为BILLBOARD、1为STRETCHEDBILLBOARD、2为HORIZONTALBILLBOARD、3为VERTICALBILLBOARD、4为MESH。
 	 */
 	get renderMode(): number {
 		return this._renderMode;
 	}
 
-	/**
-	 * 获取网格渲染模式所使用的Mesh,rendderMode为4时生效。
-	 * @return 网格模式所使用Mesh。
-	 */
-	get mesh(): Mesh {
-		return this._mesh;
-	}
-
-	/**
-	 * 设置网格渲染模式所使用的Mesh,rendderMode为4时生效。
-	 * @param value 网格模式所使用Mesh。
-	 */
-	set mesh(value: Mesh) {
-		if (this._mesh !== value) {
-			(this._mesh) && (this._mesh._removeReference());
-			this._mesh = value;
-			(value) && (value._addReference());
-			((<ShuriKenParticle3D>this._owner)).particleSystem._initBufferDatas();
-		}
-	}
-
-	/**
-	 * 设置渲染模式,0为BILLBOARD、1为STRETCHEDBILLBOARD、2为HORIZONTALBILLBOARD、3为VERTICALBILLBOARD、4为MESH。
-	 * @param value 渲染模式。
-	 */
 	set renderMode(value: number) {
 		if (this._renderMode !== value) {
 			var defineDatas: ShaderData = this._shaderValues;
@@ -127,9 +101,28 @@ export class ShurikenParticleRenderer extends BaseRender {
 				default:
 					throw new Error("ShurikenParticleRender: unknown renderMode Value.");
 			}
+			var parSys: ShurikenParticleSystem = (<ShuriKenParticle3D>this._owner).particleSystem;
+			(parSys) && (parSys._initBufferDatas());
+		}
+	}
+
+	/**
+	 * 获取网格渲染模式所使用的Mesh,rendderMode为4时生效。
+	 */
+	get mesh(): Mesh {
+		return this._mesh;
+	}
+
+	set mesh(value: Mesh) {
+		if (this._mesh !== value) {
+			(this._mesh) && (this._mesh._removeReference());
+			this._mesh = value;
+			(value) && (value._addReference());
 			((<ShuriKenParticle3D>this._owner)).particleSystem._initBufferDatas();
 		}
 	}
+
+
 
 	/**
 	 * 创建一个 <code>ShurikenParticleRender</code> 实例。
@@ -137,7 +130,7 @@ export class ShurikenParticleRenderer extends BaseRender {
 	constructor(owner: ShuriKenParticle3D) {
 		super(owner);
 		this._defaultBoundBox = new BoundBox(new Vector3(), new Vector3());
-		this._renderMode = -1;
+		this.renderMode = 0;
 		this.stretchedBillboardCameraSpeedScale = 0.0;
 		this.stretchedBillboardSpeedScale = 0.0;
 		this.stretchedBillboardLengthScale = 1.0;
@@ -188,7 +181,7 @@ export class ShurikenParticleRenderer extends BaseRender {
 	 * @internal
 	 * @override
 	 */
-	_needRender(boundFrustum: BoundFrustum,context: RenderContext3D): boolean {
+	_needRender(boundFrustum: BoundFrustum, context: RenderContext3D): boolean {
 		if (boundFrustum) {
 			if (boundFrustum.intersects(this.bounds._getBoundBox())) {
 				if (((<ShuriKenParticle3D>this._owner)).particleSystem.isAlive)
