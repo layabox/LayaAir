@@ -1263,7 +1263,8 @@ export class Sprite extends Node {
         offsetY |= 0;
         canvasWidth |= 0;
         canvasHeight |= 0;
-        var ctx = rt?Sprite.drawtocanvCtx:new Context();
+		var ctx = rt?Sprite.drawtocanvCtx:new Context();
+		ctx.clear();
 		ctx.size(canvasWidth, canvasHeight);
 		if(rt){
 			ctx._targets=rt;
