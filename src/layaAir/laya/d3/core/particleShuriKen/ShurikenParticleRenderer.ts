@@ -49,7 +49,7 @@ export class ShurikenParticleRenderer extends BaseRender {
 	/**拉伸广告牌模式速度缩放。*/
 	stretchedBillboardSpeedScale: number = 0;
 	/**拉伸广告牌模式长度缩放。*/
-	stretchedBillboardLengthScale: number = 0;
+	stretchedBillboardLengthScale: number = 2;
 
 	///**排序模式。*/
 	//public var sortingMode:int;
@@ -131,9 +131,6 @@ export class ShurikenParticleRenderer extends BaseRender {
 		super(owner);
 		this._defaultBoundBox = new BoundBox(new Vector3(), new Vector3());
 		this.renderMode = 0;
-		this.stretchedBillboardCameraSpeedScale = 0.0;
-		this.stretchedBillboardSpeedScale = 0.0;
-		this.stretchedBillboardLengthScale = 1.0;
 		//sortingMode = SORTINGMODE_NONE;
 		this._supportOctree = false;
 	}

@@ -15,7 +15,7 @@ export class Emission implements IClone, IDestroy {
 	_bursts: Burst[];
 
 	/**是否启用。*/
-	enbale: boolean;
+	enable: boolean;
 
 	/**
 	 * 设置粒子发射速率。
@@ -134,7 +134,7 @@ export class Emission implements IClone, IDestroy {
 		}
 
 		destEmission._emissionRate = this._emissionRate;
-		destEmission.enbale = this.enbale;
+		destEmission.enable = this.enable;
 	}
 
 	/**
