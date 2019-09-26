@@ -63,15 +63,15 @@ export class Script3D extends Component {
 	protected _onEnable(): void {
 		(<Scene3D>this.owner._scene)._addScript(this);
 		var proto: any = Script3D.prototype;
-		if (this.onKeyDown !== proto.onKeyDown) {
+		if (this.onKeyDown !== proto.onKeyDown)
 			Laya.stage.on(Event.KEY_DOWN, this, this.onKeyDown);
-		}
-		if (this.onKeyPress !== proto.onKeyPress) {
+
+		if (this.onKeyPress !== proto.onKeyPress)
 			Laya.stage.on(Event.KEY_PRESS, this, this.onKeyUp);
-		}
-		if (this.onKeyUp !== proto.onKeyUp) {
+
+		if (this.onKeyUp !== proto.onKeyUp)
 			Laya.stage.on(Event.KEY_UP, this, this.onKeyUp);
-		}
+		this.onEnable();
 	}
 
 	/**
@@ -83,6 +83,7 @@ export class Script3D extends Component {
 		(<Scene3D>this.owner._scene)._removeScript(this);
 		this.owner.offAllCaller(this);
 		Laya.stage.offAllCaller(this);
+		this.onDisable();
 	}
 
 	/**

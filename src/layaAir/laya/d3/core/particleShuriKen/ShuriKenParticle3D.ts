@@ -905,7 +905,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 		var rgbsData: any[] = gradientColorData.rgbs;
 		if (!rgbsData) {//兼容默认值
 			gradientColor.addColorRGB(0, new Color(1.0, 1.0, 1.0, 1.0));
-			gradientColor.addColorRGB(0, new Color(1.0, 1.0, 1.0, 1.0));
+			gradientColor.addColorRGB(1, new Color(1.0, 1.0, 1.0, 1.0));
 		}
 		else {
 			for (i = 0, n = rgbsData.length; i < n; i++) {

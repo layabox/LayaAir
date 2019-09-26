@@ -390,6 +390,17 @@ export class Utils3D {
 		result[resultOffset + 2] = (coordinateX * transformElem[2]) + (coordinateY * transformElem[6]) + (coordinateZ * transformElem[10]) + transformElem[14] / w;
 	}
 
+	static transformVector3ArrayToVector3ArrayNormal(source: Float32Array, sourceOffset: number, transform: Matrix4x4, result: Float32Array, resultOffset: number): void {
+		var coordinateX: number = source[sourceOffset + 0];
+		var coordinateY: number = source[sourceOffset + 1];
+		var coordinateZ: number = source[sourceOffset + 2];
+
+		var transformElem: Float32Array = transform.elements;
+		result[resultOffset] = coordinateX * transformElem[0] + coordinateY * transformElem[4] + coordinateZ * transformElem[8];
+		result[resultOffset + 1] = coordinateX * transformElem[1] + coordinateY * transformElem[5] + coordinateZ * transformElem[9];
+		result[resultOffset + 2] = coordinateX * transformElem[2] + coordinateY * transformElem[6] + coordinateZ * transformElem[10];
+	}
+
 	/**
 	 * @internal
 	 */
