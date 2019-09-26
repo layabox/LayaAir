@@ -21,17 +21,12 @@ export class MeshFilter {
 	private _sharedMesh: Mesh;
 
 	/**
-	 * 获取共享网格。
-	 * @return 共享网格。
+	 * 共享网格。
 	 */
 	get sharedMesh(): Mesh {
 		return this._sharedMesh;
 	}
 
-	/**
-	 * 设置共享网格。
-	 * @return  value 共享网格。
-	 */
 	set sharedMesh(value: Mesh) {
 		if (this._sharedMesh !== value) {
 			var defineDatas: ShaderData = this._owner._render._shaderValues;

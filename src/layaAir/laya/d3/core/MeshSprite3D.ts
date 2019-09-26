@@ -32,16 +32,14 @@ export class MeshSprite3D extends RenderableSprite3D {
 	private _meshFilter: MeshFilter;
 
 	/**
-	 * 获取网格过滤器。
-	 * @return  网格过滤器。
+	 * 网格过滤器。
 	 */
 	get meshFilter(): MeshFilter {
 		return (<MeshFilter>this._meshFilter);
 	}
 
 	/**
-	 * 获取网格渲染器。
-	 * @return  网格渲染器。
+	 * 网格渲染器。
 	 */
 	get meshRenderer(): MeshRenderer {
 		return (<MeshRenderer>this._render);

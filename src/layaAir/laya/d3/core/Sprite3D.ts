@@ -90,25 +90,19 @@ export class Sprite3D extends Node implements ICreateResource {
 	_needProcessTriggers: boolean = false;
 
 	/**
-	 * 获取唯一标识ID。
-	 *   @return	唯一标识ID。
+	 * 唯一标识ID。
 	 */
 	get id(): number {
 		return this._id;
 	}
 
 	/**
-	 * 获取蒙版。
-	 * @return	蒙版。
+	 * 蒙版层。
 	 */
 	get layer(): number {
 		return this._layer;
 	}
 
-	/**
-	 * 设置蒙版。
-	 * @param	value 蒙版。
-	 */
 	set layer(value: number) {
 		if (this._layer !== value) {
 			if (value >= 0 && value <= 30) {
@@ -120,24 +114,21 @@ export class Sprite3D extends Node implements ICreateResource {
 	}
 
 	/**
-	 * 获取资源的URL地址。
-	 * @return URL地址。
+	 * 资源的URL地址。
 	 */
 	get url(): string {
 		return this._url;
 	}
 
 	/**
-	 * 获取是否为静态。
-	 * @return 是否为静态。
+	 * 是否为静态。
 	 */
 	get isStatic(): boolean {
 		return this._isStatic;
 	}
 
 	/**
-	 * 获取精灵变换。
-	 * @return 精灵变换。
+	 * 精灵变换。
 	 */
 	get transform(): Transform3D {
 		return this._transform;
