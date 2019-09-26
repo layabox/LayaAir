@@ -322,24 +322,16 @@ export class Sprite3D extends Node implements ICreateResource {
 		if (this.destroyed)
 			throw new Error("Sprite3D: Can't be cloned if the Sprite3D has destroyed.");
 
-		var destSprite3D: Sprite3D = (<Sprite3D>destObject);
+		var destSprite3D: Sprite3D = <Sprite3D>destObject;
+		var trans: Transform3D = this._transform;
+		var destTrans: Transform3D = destSprite3D._transform;
 
 		destSprite3D.name = this.name/* + "(clone)"*/;//TODO:克隆后不能播放刚体动画，找不到名字
 		destSprite3D.destroyed = this.destroyed;
-
 		destSprite3D.active = this.active;
-
-		var destLocalPosition: Vector3 = destSprite3D.transform.localPosition;
-		this.transform.localPosition.cloneTo(destLocalPosition);
-		destSprite3D.transform.localPosition = destLocalPosition;
-
-		var destLocalRotation: Quaternion = destSprite3D.transform.localRotation;
-		this.transform.localRotation.cloneTo(destLocalRotation);
-		destSprite3D.transform.localRotation = destLocalRotation;
-
-		var destLocalScale: Vector3 = destSprite3D.transform.localScale;
-		this.transform.localScale.cloneTo(destLocalScale);
-		destSprite3D.transform.localScale = destLocalScale;
+		destTrans.localPosition = trans.localPosition;
+		destTrans.localRotation = trans.localRotation;
+		destTrans.localScale = trans.localScale;
 
 		destSprite3D._isStatic = this._isStatic;
 		destSprite3D.layer = this.layer;
