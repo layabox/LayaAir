@@ -859,10 +859,8 @@ export class Node extends EventDispatcher {
 
         comp.owner = this;
         comp._onAdded();
-        if (this.activeInHierarchy) {
+        if (this.activeInHierarchy) 
             comp._setActive(true);
-            (comp._isScript() && comp._enabled) && (((<any>comp)).onEnable());
-        }
     }
 
     /**

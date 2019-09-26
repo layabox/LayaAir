@@ -195,10 +195,9 @@ export class Component implements ISingletonElement, IDestroy {
 	 * @internal
 	 */
 	_destroy(): void {
-		if (this.owner.activeInHierarchy && this._enabled) {
+		if (this.owner.activeInHierarchy && this._enabled)
 			this._setActive(false);
-			(this._isScript()) && (((<any>this)).onDisable());
-		}
+
 		this._onDestroy();
 		this._destroyed = true;
 		if (this.onReset !== Component.prototype.onReset) {
