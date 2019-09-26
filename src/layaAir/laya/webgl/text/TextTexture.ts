@@ -154,6 +154,9 @@ export class TextTexture extends Resource {
     }
 
     discard(): void {
+		// 文字贴图的释放要触发全局cacheas normal无效
+		ILaya.stage.setGlobalRepaint();
+		
         // 非标准大小不回收。
         if (this._texW != TextTexture.gTextRender.atlasWidth || this._texH != TextTexture.gTextRender.atlasWidth) {
             this.destroy();
