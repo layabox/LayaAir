@@ -42,6 +42,8 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 	private static _tempMatrix4x40: Matrix4x4 = new Matrix4x4();
 	/** @internal */
 	private static _tempMatrix4x41: Matrix4x4 = new Matrix4x4();
+	/** @internal */
+	private static _tempMatrix4x42: Matrix4x4 = new Matrix4x4();
 
 	/** @internal */
 	static maxBatchVertexCount: number = 65535;
@@ -114,6 +116,10 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 		} else {
 			worldMat = transform.worldMatrix;
 		}
+		var normalMat: Matrix4x4 = SubMeshStaticBatch._tempMatrix4x42;
+		worldMat.invert(normalMat);
+		normalMat.transpose();
+
 		var rotation: Quaternion = SubMeshStaticBatch._tempQuaternion0;
 		worldMat.decomposeTransRotScale(SubMeshStaticBatch._tempVector30, rotation, SubMeshStaticBatch._tempVector31);//可不计算position和scale	
 		var lightmapScaleOffset: Vector4 = render.lightmapScaleOffset;
@@ -125,7 +131,7 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 			var bakeOffset: number = (i + batchOffset) * bakeVertexFloatCount;
 			Utils3D.transformVector3ArrayToVector3ArrayCoordinate(oriVertexes, oriOffset + positionOffset, worldMat, batchVertices, bakeOffset + 0);
 			if (normalOffset !== -1)
-				Utils3D.transformVector3ArrayByQuat(oriVertexes, oriOffset + normalOffset, rotation, batchVertices, bakeOffset + 3);
+				Utils3D.transformVector3ArrayToVector3ArrayNormal(oriVertexes, oriOffset + normalOffset, normalMat, batchVertices, bakeOffset + 3);
 
 			var j: number, m: number;
 			var bakOff: number = bakeOffset + 6;
