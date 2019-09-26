@@ -23,7 +23,6 @@ export class BoxShape extends BaseShape {
 		this.x = 1.0;
 		this.y = 1.0;
 		this.z = 1.0;
-		this.randomDirection = false;
 	}
 
 	/**

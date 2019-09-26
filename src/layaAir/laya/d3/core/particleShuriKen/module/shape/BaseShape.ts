@@ -11,7 +11,7 @@ export class BaseShape implements IClone {
 	/**是否启用。*/
 	enable: boolean=true;
 	/**随机方向。*/
-	randomDirection: boolean;
+	randomDirection: number=0;
 
 	/**
 	 * 创建一个 <code>BaseShape</code> 实例。

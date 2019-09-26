@@ -20,7 +20,6 @@ export class SphereShape extends BaseShape {
 		super();
 		this.radius = 1.0;
 		this.emitFromShell = false;
-		this.randomDirection = false;
 	}
 
 	/**
