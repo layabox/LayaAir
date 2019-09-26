@@ -230,7 +230,6 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	_parse(data: any, spriteMap: any): void {
 		super._parse(data, spriteMap);
 		if (data.main) {
-			const anglelToRad: number = Math.PI / 180.0;
 			var particleSystem: ShurikenParticleSystem = this.particleSystem;
 			var particleRender: ShurikenParticleRenderer = this.particleRenderer;
 			this._parseModule(particleRender, data.renderer);//Renderer
@@ -362,9 +361,9 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 					case 0:
 						if (angularVelocityData.separateAxes) {
 							var conSep: any[] = angularVelocityData.constantSeparate;
-							angularVelocity = GradientAngularVelocity.createByConstantSeparate(new Vector3(conSep[0] * anglelToRad, conSep[1] * anglelToRad, conSep[2] * anglelToRad));
+							angularVelocity = GradientAngularVelocity.createByConstantSeparate(new Vector3(conSep[0], conSep[1], conSep[2]));
 						} else {
-							angularVelocity = GradientAngularVelocity.createByConstant(angularVelocityData.constant * anglelToRad);
+							angularVelocity = GradientAngularVelocity.createByConstant(angularVelocityData.constant);
 						}
 						break;
 					case 1:
@@ -378,9 +377,9 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 						if (angularVelocityData.separateAxes) {
 							var minSep: any[] = angularVelocityData.constantMinSeparate;//TODO:Y是否要取负数
 							var maxSep: any[] = angularVelocityData.constantMaxSeparate;//TODO:Y是否要取负数
-							angularVelocity = GradientAngularVelocity.createByRandomTwoConstantSeparate(new Vector3(minSep[0] * anglelToRad, minSep[1] * anglelToRad, minSep[2] * anglelToRad), new Vector3(maxSep[0] * anglelToRad, maxSep[1] * anglelToRad, maxSep[2] * anglelToRad));
+							angularVelocity = GradientAngularVelocity.createByRandomTwoConstantSeparate(new Vector3(minSep[0], minSep[1], minSep[2]), new Vector3(maxSep[0], maxSep[1], maxSep[2]));
 						} else {
-							angularVelocity = GradientAngularVelocity.createByRandomTwoConstant(angularVelocityData.constantMin * anglelToRad, angularVelocityData.constantMax * anglelToRad);
+							angularVelocity = GradientAngularVelocity.createByRandomTwoConstant(angularVelocityData.constantMin, angularVelocityData.constantMax);
 						}
 						break;
 					case 3:
