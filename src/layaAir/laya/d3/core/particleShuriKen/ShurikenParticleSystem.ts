@@ -258,11 +258,11 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	/**开始颜色模式，0为恒定颜色，2为两个恒定颜色的随机插值,缺少2种模式。*/
 	startColorType: number = 0;
 	/**开始颜色，0模式。*/
-	startColorConstant: Vector4 = null;
+	startColorConstant: Vector4 = new Vector4(1, 1, 1, 1);;
 	/**最小开始颜色，1模式。*/
-	startColorConstantMin: Vector4 = null;
+	startColorConstantMin: Vector4 = new Vector4(0, 0, 0, 0);
 	/**最大开始颜色，1模式。*/
-	startColorConstantMax: Vector4 = null;
+	startColorConstantMax: Vector4 = new Vector4(1, 1, 1, 1);
 
 	/**重力敏感度。*/
 	gravityModifier: number = 0;
@@ -907,12 +907,6 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		this.startRotationConstantMax = 0.0;
 		this.startRotationConstantMinSeparate = new Vector3(0, 0, 0);
 		this.startRotationConstantMaxSeparate = new Vector3(0, 0, 0);
-
-		this.randomizeRotationDirection = 0.0;
-		this.startColorType = 0;
-		this.startColorConstant = new Vector4(1, 1, 1, 1);
-		this.startColorConstantMin = new Vector4(1, 1, 1, 1);
-		this.startColorConstantMax = new Vector4(1, 1, 1, 1);
 
 		this.gravityModifier = 0.0;
 		this.simulationSpace = 1;
