@@ -88,7 +88,7 @@ export class Camera extends BaseCamera {
 	enableRender: boolean = true;
 
 	/**
-	 * 获取横纵比。
+	 * 横纵比。
 	 */
 	get aspectRatio(): number {
 		if (this._aspectRatio === 0) {
@@ -135,7 +135,7 @@ export class Camera extends BaseCamera {
 	}
 
 	/**
-	 * 获取裁剪空间的视口。
+	 * 裁剪空间的视口。
 	 */
 	get normalizedViewport(): Viewport {
 		return this._normalizedViewport;
@@ -185,7 +185,7 @@ export class Camera extends BaseCamera {
 	}
 
 	/**
-	 * 获取投影矩阵。
+	 * 投影矩阵。
 	 */
 	get projectionMatrix(): Matrix4x4 {
 		return this._projectionMatrix;
@@ -235,7 +235,7 @@ export class Camera extends BaseCamera {
 	}
 
 	/**
-	 * 获取自定义渲染场景的渲染目标。
+	 * 自定义渲染场景的渲染目标。
 	 */
 	get renderTarget(): RenderTexture {
 		return this._offScreenRenderTexture;
@@ -249,7 +249,7 @@ export class Camera extends BaseCamera {
 	}
 
 	/**
-	 * 获取后期处理。
+	 * 后期处理。
 	 */
 	get postProcess(): PostProcess {
 		return this._postProcess;
@@ -263,7 +263,7 @@ export class Camera extends BaseCamera {
 	}
 
 	/**
-	 * 获取是否开启HDR。
+	 * 是否开启HDR。
 	 */
 	get enableHDR(): boolean {
 		return this._enableHDR;

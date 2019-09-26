@@ -82,93 +82,67 @@ export class BaseCamera extends Sprite3D {
 	useOcclusionCulling: boolean;
 
 	/**
-	 * 获取天空渲染器。
-	 * @return 天空渲染器。
+	 * 天空渲染器。
 	 */
 	get skyRenderer(): SkyRenderer {
 		return this._skyRenderer;
 	}
 
 	/**
-	 * 获取视野。
-	 * @return 视野。
+	 * 视野。
 	 */
 	get fieldOfView(): number {
 		return this._fieldOfView;
 	}
 
-	/**
-	 * 设置视野。
-	 * @param value 视野。
-	 */
 	set fieldOfView(value: number) {
 		this._fieldOfView = value;
 		this._calculateProjectionMatrix();
 	}
 
 	/**
-	 * 获取近裁面。
-	 * @return 近裁面。
+	 * 近裁面。
 	 */
 	get nearPlane(): number {
 		return this._nearPlane;
 	}
 
-	/**
-	 * 设置近裁面。
-	 * @param value 近裁面。
-	 */
 	set nearPlane(value: number) {
 		this._nearPlane = value;
 		this._calculateProjectionMatrix();
 	}
 
 	/**
-	 * 获取远裁面。
-	 * @return 远裁面。
+	 * 远裁面。
 	 */
 	get farPlane(): number {
 		return this._farPlane;
 	}
 
-	/**
-	 * 设置远裁面。
-	 * @param value 远裁面。
-	 */
 	set farPlane(vaule: number) {
 		this._farPlane = vaule;
 		this._calculateProjectionMatrix();
 	}
 
 	/**
-	 * 获取是否正交投影矩阵。
-	 * @return 是否正交投影矩阵。
+	 * 是否正交投影矩阵。
 	 */
 	get orthographic(): boolean {
 		return this._orthographic;
 	}
 
-	/**
-	 * 设置是否正交投影矩阵。
-	 * @param 是否正交投影矩阵。
-	 */
 	set orthographic(vaule: boolean) {
 		this._orthographic = vaule;
 		this._calculateProjectionMatrix();
 	}
 
 	/**
-	 * 获取正交投影垂直矩阵尺寸。
-	 * @return 正交投影垂直矩阵尺寸。
+	 * 正交投影垂直矩阵尺寸。
 	 */
 	get orthographicVerticalSize(): number {
 		return this._orthographicVerticalSize;
 	}
 
-	/**
-	 * 设置正交投影垂直矩阵尺寸。
-	 * @param 正交投影垂直矩阵尺寸。
-	 */
 	set orthographicVerticalSize(vaule: number) {
 		this._orthographicVerticalSize = vaule;
 		this._calculateProjectionMatrix();
