@@ -23,63 +23,45 @@ export class SkyBoxMaterial extends Material {
 	}
 
 	/**
-	 * 获取颜色。
-	 * @return  颜色。
+	 * 颜色。
 	 */
 	get tintColor(): Vector4 {
 		return (<Vector4>this._shaderValues.getVector(SkyBoxMaterial.TINTCOLOR));
 	}
 
-	/**
-	 * 设置颜色。
-	 * @param value 颜色。
-	 */
 	set tintColor(value: Vector4) {
 		this._shaderValues.setVector(SkyBoxMaterial.TINTCOLOR, value);
 	}
 
 	/**
-	 * 获取曝光强度。
-	 * @return 曝光强度。
+	 * 曝光强度。
 	 */
 	get exposure(): number {
 		return this._shaderValues.getNumber(SkyBoxMaterial.EXPOSURE);
 	}
 
-	/**
-	 * 设置曝光强度。
-	 * @param value 曝光强度。
-	 */
 	set exposure(value: number) {
 		this._shaderValues.setNumber(SkyBoxMaterial.EXPOSURE, value);
 	}
 
 	/**
-	 * 获取曝光强度。
-	 * @return 曝光强度。
+	 * 曝光强度。
 	 */
 	get rotation(): number {
 		return this._shaderValues.getNumber(SkyBoxMaterial.ROTATION);
 	}
 
-	/**
-	 * 设置曝光强度。
-	 * @param value 曝光强度。
-	 */
 	set rotation(value: number) {
 		this._shaderValues.setNumber(SkyBoxMaterial.ROTATION, value);
 	}
 
 	/**
-	 * 获取天空盒纹理。
+	 * 天空盒纹理。
 	 */
 	get textureCube(): TextureCube {
 		return (<TextureCube>this._shaderValues.getTexture(SkyBoxMaterial.TEXTURECUBE));
 	}
 
-	/**
-	 * 设置天空盒纹理。
-	 */
 	set textureCube(value: TextureCube) {
 		this._shaderValues.setTexture(SkyBoxMaterial.TEXTURECUBE, value);
 	}
