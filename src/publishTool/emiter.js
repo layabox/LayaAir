@@ -33,7 +33,7 @@ class emiter {
         };
     }
     static get BaseURL() {
-        return emiter._BaseURL || "./bin/layaAir/";
+        return emiter._BaseURL || "../bin/layaAir/";
     }
     static set BaseURL(v) {
         emiter._BaseURL = v;
@@ -477,6 +477,16 @@ class emiter {
             case "TypeQuery":
                 // console.log("console test:",node.exprName.getText());
                 return node.exprName.getText();
+            case "UnionType":
+                type = "";
+                node = node;
+                for (let i = 0; i < node.types.length; i++) {
+                    type += (i ? "|" : "") + this.emitType(node.types[i]);
+                }
+                type = type.replace(/\|\s*null|\|\s*undefined/gm, "");
+                if (type.indexOf("|") != -1)
+                    type = "*";
+                return type;
             default:
                 console.log("TODO :", type, this.url + "/" + this.classNameNow);
                 return "*";
@@ -643,7 +653,7 @@ class emiter {
 }
 /**所有已经识别的没有准备的方法 */
 emiter._typeArr = ["VariableStatement", "ExportDeclaration", "Uint16Array", "Float32Array",
-    "FunctionDeclaration"];
+    "FunctionDeclaration", "loadItem"];
 /**
  * 已知 的简单对应表
  */
@@ -656,9 +666,10 @@ emiter.tsToasTypeObj = {
     "ConstructorType": "Class",
     "TypeLiteral": "*",
     "AnyKeyword": "*",
-    "UnionType": "*",
     "FunctionType": "Function",
-    "ObjectKeyword": "Object"
+    "ObjectKeyword": "Object",
+    "NullKeyword": "null",
+    "UndefinedKeyword": "undefined"
 };
 /**jsc对应的astype */
 emiter.jscObj = {};
