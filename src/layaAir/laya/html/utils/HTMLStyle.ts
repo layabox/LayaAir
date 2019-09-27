@@ -574,3 +574,4 @@ export class HTMLStyle {
 }
 
 ClassUtils.regClass("laya.html.utils.HTMLStyle", HTMLStyle);
+ClassUtils.regClass("Laya.HTMLStyle", HTMLStyle);

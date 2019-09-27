@@ -22,3 +22,4 @@ export class HTMLDocument {
 }
 
 ClassUtils.regClass("laya.html.dom.HTMLDocument", HTMLDocument);
+ClassUtils.regClass("Laya.HTMLDocument", HTMLDocument);
