@@ -93,3 +93,4 @@ IHtml.HTMLImageElement = HTMLImageElement;
 ILaya.regClass(HTMLImageElement);
 
 ClassUtils.regClass("laya.html.dom.HTMLImageElement", HTMLImageElement);
+ClassUtils.regClass("Laya.HTMLImageElement", HTMLImageElement);

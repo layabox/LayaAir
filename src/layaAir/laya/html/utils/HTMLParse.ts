@@ -198,3 +198,4 @@ ClassUtils.regClass('a', HTMLElement);
 ClassUtils.regClass('#text', HTMLElement);
 ClassUtils.regClass('link', HTMLLinkElement);
 ClassUtils.regClass("laya.html.utils.HTMLParse", HTMLParse);
+ClassUtils.regClass("Laya.HTMLParse", HTMLParse);

@@ -62,3 +62,4 @@ IHtml.HTMLBrElement = HTMLBrElement;
 ILaya.regClass(HTMLBrElement);
 
 ClassUtils.regClass("laya.html.dom.HTMLBrElement", HTMLBrElement);
+ClassUtils.regClass("Laya.HTMLBrElement", HTMLBrElement);

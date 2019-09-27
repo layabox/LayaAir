@@ -48,3 +48,4 @@ export class HTMLStyleElement extends HTMLElement {
 ILaya.regClass(HTMLStyleElement);
 
 ClassUtils.regClass("laya.html.dom.HTMLStyleElement", HTMLStyleElement);
+ClassUtils.regClass("Laya.HTMLStyleElement", HTMLStyleElement);

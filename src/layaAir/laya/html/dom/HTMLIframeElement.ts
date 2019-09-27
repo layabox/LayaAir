@@ -33,4 +33,5 @@ export class HTMLIframeElement extends HTMLDivElement {
 }
 
 ClassUtils.regClass("laya.html.dom.HTMLIframeElement", HTMLIframeElement);
+ClassUtils.regClass("Laya.HTMLIframeElement", HTMLIframeElement);
 
