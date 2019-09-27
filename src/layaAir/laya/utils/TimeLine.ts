@@ -321,8 +321,8 @@ export class TimeLine extends EventDispatcher {
                     tTween = this._tweenDic[p];
                     tTween.complete();
                 }
-                this._complete();
                 this.pause();
+                this._complete();
                 return;
             }
         }
