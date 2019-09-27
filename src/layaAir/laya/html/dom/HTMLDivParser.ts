@@ -170,3 +170,4 @@ IHtml.HTMLDivParser = HTMLDivParser;
 ILaya.regClass(HTMLDivParser);
 
 ClassUtils.regClass("laya.html.dom.HTMLDivParser", HTMLDivParser);
+ClassUtils.regClass("Laya.HTMLDivParser", HTMLDivParser);
