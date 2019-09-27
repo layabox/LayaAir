@@ -335,9 +335,9 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 						if (sizeData.separateAxes) {
 							var constantMinSeparateData: any[] = sizeData.constantMinSeparate;
 							var constantMaxSeparateData: any[] = sizeData.constantMaxSeparate;
-							size = GradientSize.createByRandomTwoConstantSeparate(new Vector3(constantMinSeparateData[0], constantMinSeparateData[1], constantMinSeparateData[2]), new Vector3(constantMaxSeparateData[0], constantMaxSeparateData[1], constantMaxSeparateData[2]));
+							size = GradientSize.createByRandomTwoConstantSeparate(constantMinSeparateData ? new Vector3(constantMinSeparateData[0], constantMinSeparateData[1], constantMinSeparateData[2]) : new Vector3(0, 0, 0), constantMaxSeparateData ? new Vector3(constantMaxSeparateData[0], constantMaxSeparateData[1], constantMaxSeparateData[2]) : new Vector3(0, 0, 0));
 						} else {
-							size = GradientSize.createByRandomTwoConstant(sizeData.constantMin, sizeData.constantMax);
+							size = GradientSize.createByRandomTwoConstant(sizeData.constantMin || 0, sizeData.constantMax || 0);
 						}
 						break;
 					case 2:
@@ -362,9 +362,9 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 					case 0:
 						if (angularVelocityData.separateAxes) {
 							var conSep: any[] = angularVelocityData.constantSeparate;
-							angularVelocity = GradientAngularVelocity.createByConstantSeparate(new Vector3(conSep[0], conSep[1], conSep[2]));
+							angularVelocity = GradientAngularVelocity.createByConstantSeparate(conSep ? new Vector3(conSep[0], conSep[1], conSep[2]) : new Vector3(0, 0, Math.PI / 4));
 						} else {
-							angularVelocity = GradientAngularVelocity.createByConstant(angularVelocityData.constant);
+							angularVelocity = GradientAngularVelocity.createByConstant(angularVelocityData.constant || Math.PI / 4);
 						}
 						break;
 					case 1:
@@ -378,9 +378,9 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 						if (angularVelocityData.separateAxes) {
 							var minSep: any[] = angularVelocityData.constantMinSeparate;//TODO:Y是否要取负数
 							var maxSep: any[] = angularVelocityData.constantMaxSeparate;//TODO:Y是否要取负数
-							angularVelocity = GradientAngularVelocity.createByRandomTwoConstantSeparate(new Vector3(minSep[0], minSep[1], minSep[2]), new Vector3(maxSep[0], maxSep[1], maxSep[2]));
+							angularVelocity = GradientAngularVelocity.createByRandomTwoConstantSeparate(minSep ? new Vector3(minSep[0], minSep[1], minSep[2]) : new Vector3(0, 0, 0), maxSep ? new Vector3(maxSep[0], maxSep[1], maxSep[2]) : new Vector3(0, 0, Math.PI / 4));
 						} else {
-							angularVelocity = GradientAngularVelocity.createByRandomTwoConstant(angularVelocityData.constantMin, angularVelocityData.constantMax);
+							angularVelocity = GradientAngularVelocity.createByRandomTwoConstant(angularVelocityData.constantMin || 0, angularVelocityData.constantMax || Math.PI / 4);
 						}
 						break;
 					case 3:
