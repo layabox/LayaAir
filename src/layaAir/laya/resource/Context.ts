@@ -362,6 +362,7 @@ export class Context {
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		WebGLContext.setBlend(gl, true);//还原2D设置
 		WebGLContext.setBlendEquation(gl, gl.FUNC_ADD);
+		BlendMode.activeBlendFunction=null;		// 防止submit不设置blend
 		WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 		WebGLContext.setDepthTest(gl, false);
 		WebGLContext.setCullFace(gl, false);
