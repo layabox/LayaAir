@@ -272,7 +272,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 				switch (velocityData.type) {
 					case 0:
 						var constantData: any[] = velocityData.constant;
-						velocity = GradientVelocity.createByConstant(new Vector3(constantData[0], constantData[1], constantData[2]));
+						velocity = GradientVelocity.createByConstant(constantData ? new Vector3(constantData[0], constantData[1], constantData[2]) : new Vector3(0, 0, 0));
 						break;
 					case 1:
 						velocity = GradientVelocity.createByGradient(this._initParticleVelocity(velocityData.gradientX), this._initParticleVelocity(velocityData.gradientY), this._initParticleVelocity(velocityData.gradientZ));
@@ -280,7 +280,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 					case 2:
 						var constantMinData: any[] = velocityData.constantMin;
 						var constantMaxData: any[] = velocityData.constantMax;
-						velocity = GradientVelocity.createByRandomTwoConstant(new Vector3(constantMinData[0], constantMinData[1], constantMinData[2]), new Vector3(constantMaxData[0], constantMaxData[1], constantMaxData[2]));
+						velocity = GradientVelocity.createByRandomTwoConstant(constantMinData ? new Vector3(constantMinData[0], constantMinData[1], constantMinData[2]) : new Vector3(0, 0, 0), constantMaxData ? new Vector3(constantMaxData[0], constantMaxData[1], constantMaxData[2]) : new Vector3(0, 0, 0));
 						break;
 					case 3:
 						velocity = GradientVelocity.createByRandomTwoGradient(this._initParticleVelocity(velocityData.gradientXMin), this._initParticleVelocity(velocityData.gradientXMax), this._initParticleVelocity(velocityData.gradientYMin), this._initParticleVelocity(velocityData.gradientYMax), this._initParticleVelocity(velocityData.gradientZMin), this._initParticleVelocity(velocityData.gradientZMax));
@@ -299,7 +299,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 				switch (colorData.type) {
 					case 0:
 						var constColorData: any[] = colorData.constant;
-						color = GradientColor.createByConstant(new Vector4(constColorData[0], constColorData[1], constColorData[2], constColorData[3]));
+						color = GradientColor.createByConstant(constColorData ? new Vector4(constColorData[0], constColorData[1], constColorData[2], constColorData[3]) : new Vector4(0, 0, 0, 0));
 						break;
 					case 1:
 						color = GradientColor.createByGradient(this._initParticleColor(colorData.gradient));
@@ -307,7 +307,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 					case 2:
 						var minConstColorData: any[] = colorData.constantMin;
 						var maxConstColorData: any[] = colorData.constantMax;
-						color = GradientColor.createByRandomTwoConstant(new Vector4(minConstColorData[0], minConstColorData[1], minConstColorData[2], minConstColorData[3]), new Vector4(maxConstColorData[0], maxConstColorData[1], maxConstColorData[2], maxConstColorData[3]));
+						color = GradientColor.createByRandomTwoConstant(minConstColorData ? new Vector4(minConstColorData[0], minConstColorData[1], minConstColorData[2], minConstColorData[3]) : new Vector4(0, 0, 0, 0), minConstColorData ? new Vector4(maxConstColorData[0], maxConstColorData[1], maxConstColorData[2], maxConstColorData[3]) : new Vector4(0, 0, 0, 0));
 						break;
 					case 3:
 						color = GradientColor.createByRandomTwoGradient(this._initParticleColor(colorData.gradientMin), this._initParticleColor(colorData.gradientMax));
