@@ -927,11 +927,18 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	 */
 	private _initParticleFrame(overTimeFramesData: any): GradientDataInt {
 		var overTimeFrame: GradientDataInt = new GradientDataInt();
-		var framesData: any[] = overTimeFramesData.frames;
-		for (var i: number = 0, n: number = framesData.length; i < n; i++) {
-			var frameData: any = framesData[i];
-			overTimeFrame.add(frameData.key, frameData.value);
+		if (overTimeFramesData) {
+			var framesData: any[] = overTimeFramesData.frames;
+			for (var i: number = 0, n: number = framesData.length; i < n; i++) {
+				var frameData: any = framesData[i];
+				overTimeFrame.add(frameData.key, frameData.value);
+			}
 		}
+		else {
+			overTimeFrame.add(0, 0);
+			overTimeFrame.add(1, 1);
+		}
+
 		return overTimeFrame;
 	}
 
@@ -969,18 +976,16 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	 */
 	private _initParticleSize(gradientSizeData: any): GradientDataNumber {
 		var gradientSize: GradientDataNumber = new GradientDataNumber();
-		if(gradientSizeData)
-		{
+		if (gradientSizeData) {
 			var sizesData: any[] = gradientSizeData.sizes;
 			for (var i: number = 0, n: number = sizesData.length; i < n; i++) {
 				var valueData: any = sizesData[i];
 				gradientSize.add(valueData.key, valueData.value);
 			}
 		}
-		else
-		{
-			gradientSize.add(0,0);
-			gradientSize.add(1,1);
+		else {
+			gradientSize.add(0, 0);
+			gradientSize.add(1, 1);
 		}
 		return gradientSize;
 	}
