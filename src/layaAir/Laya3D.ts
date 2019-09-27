@@ -491,9 +491,9 @@ export class Laya3D {
 			case "ShuriKenParticle3D":
 				if (props.main) {
 					var resources: any = props.renderer.resources;
-					var meshPath: string = resources.meshPath;
+					var mesh: string = resources.mesh;
 					var material: string = resources.material;
-					(meshPath) && (resources.meshPath = Laya3D._addHierarchyInnerUrls(firstLevelUrls, subUrls, urlVersion, hierarchyBasePath, meshPath, Laya3D.MESH));
+					(mesh) && (resources.mesh = Laya3D._addHierarchyInnerUrls(firstLevelUrls, subUrls, urlVersion, hierarchyBasePath, mesh, Laya3D.MESH));
 					(material) && (resources.material = Laya3D._addHierarchyInnerUrls(secondLevelUrls, subUrls, urlVersion, hierarchyBasePath, material, Laya3D.MATERIAL));
 				}
 				else {//兼容代码

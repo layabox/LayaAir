@@ -11,7 +11,7 @@ export class FrameOverTime implements IClone {
 	 * @param	constant 固定帧。
 	 * @return 时间帧。
 	 */
-	static createByConstant(constant: number): FrameOverTime {
+	static createByConstant(constant: number = 0): FrameOverTime {
 		var rotationOverLifetime: FrameOverTime = new FrameOverTime();
 		rotationOverLifetime._type = 0;
 		rotationOverLifetime._constant = constant;
@@ -36,7 +36,7 @@ export class FrameOverTime implements IClone {
 	 * @param	constantMax 最大固定帧。
 	 * @return 时间帧。
 	 */
-	static createByRandomTwoConstant(constantMin: number, constantMax: number): FrameOverTime {
+	static createByRandomTwoConstant(constantMin: number = 0, constantMax: number = 0): FrameOverTime {
 		var rotationOverLifetime: FrameOverTime = new FrameOverTime();
 		rotationOverLifetime._type = 2;
 		rotationOverLifetime._constantMin = constantMin;

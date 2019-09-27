@@ -215,6 +215,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 				case "frame":
 				case "startFrame":
 				case "angularVelocity":
+				case "velocity":
 					break;
 				default:
 					throw "ShurikenParticle3D:unknown type.";
@@ -968,10 +969,18 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	 */
 	private _initParticleSize(gradientSizeData: any): GradientDataNumber {
 		var gradientSize: GradientDataNumber = new GradientDataNumber();
-		var sizesData: any[] = gradientSizeData.sizes;
-		for (var i: number = 0, n: number = sizesData.length; i < n; i++) {
-			var valueData: any = sizesData[i];
-			gradientSize.add(valueData.key, valueData.value);
+		if(gradientSizeData)
+		{
+			var sizesData: any[] = gradientSizeData.sizes;
+			for (var i: number = 0, n: number = sizesData.length; i < n; i++) {
+				var valueData: any = sizesData[i];
+				gradientSize.add(valueData.key, valueData.value);
+			}
+		}
+		else
+		{
+			gradientSize.add(0,0);
+			gradientSize.add(1,1);
 		}
 		return gradientSize;
 	}
