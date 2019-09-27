@@ -885,37 +885,45 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	 */
 	private _initParticleColor(gradientColorData: any): Gradient {
 		var gradientColor: Gradient = new Gradient(4, 4);
-		var alphasData: any[] = gradientColorData.alphas;
-		var i: number, n: number;
-		if (!alphasData) {//兼容默认值
+		if (!gradientColorData) {
 			gradientColor.addColorAlpha(0, 1);
 			gradientColor.addColorAlpha(1, 1);
-		}
-		else {
-			for (i = 0, n = alphasData.length; i < n; i++) {
-				if (i == 3 && n > 4) {
-					i = n - 1;
-					console.warn("GradientDataColor warning:alpha data length is large than 4, will ignore the middle data.");
-				}
-				var alphaData: any = alphasData[i];
-				gradientColor.addColorAlpha(alphaData.key, alphaData.value);
-			}
-		}
-
-		var rgbsData: any[] = gradientColorData.rgbs;
-		if (!rgbsData) {//兼容默认值
 			gradientColor.addColorRGB(0, new Color(1.0, 1.0, 1.0, 1.0));
 			gradientColor.addColorRGB(1, new Color(1.0, 1.0, 1.0, 1.0));
 		}
 		else {
-			for (i = 0, n = rgbsData.length; i < n; i++) {
-				if (i == 3 && n > 4) {
-					i = n - 1;
-					console.warn("GradientDataColor warning:rgb data length is large than 4, will ignore the middle data.");
+			var alphasData: any[] = gradientColorData.alphas;
+			var i: number, n: number;
+			if (!alphasData) {//兼容默认值
+				gradientColor.addColorAlpha(0, 1);
+				gradientColor.addColorAlpha(1, 1);
+			}
+			else {
+				for (i = 0, n = alphasData.length; i < n; i++) {
+					if (i == 3 && n > 4) {
+						i = n - 1;
+						console.warn("GradientDataColor warning:alpha data length is large than 4, will ignore the middle data.");
+					}
+					var alphaData: any = alphasData[i];
+					gradientColor.addColorAlpha(alphaData.key, alphaData.value);
 				}
-				var rgbData: any = rgbsData[i];
-				var rgbValue: any[] = rgbData.value;
-				gradientColor.addColorRGB(rgbData.key, new Color(rgbValue[0], rgbValue[1], rgbValue[2], 1.0));
+			}
+
+			var rgbsData: any[] = gradientColorData.rgbs;
+			if (!rgbsData) {//兼容默认值
+				gradientColor.addColorRGB(0, new Color(1.0, 1.0, 1.0, 1.0));
+				gradientColor.addColorRGB(1, new Color(1.0, 1.0, 1.0, 1.0));
+			}
+			else {
+				for (i = 0, n = rgbsData.length; i < n; i++) {
+					if (i == 3 && n > 4) {
+						i = n - 1;
+						console.warn("GradientDataColor warning:rgb data length is large than 4, will ignore the middle data.");
+					}
+					var rgbData: any = rgbsData[i];
+					var rgbValue: any[] = rgbData.value;
+					gradientColor.addColorRGB(rgbData.key, new Color(rgbValue[0], rgbValue[1], rgbValue[2], 1.0));
+				}
 			}
 		}
 		return gradientColor;
