@@ -43,20 +43,16 @@ export class SkyProceduralMaterial extends Material {
 		SkyProceduralMaterial.SHADERDEFINE_SUN_SIMPLE = Shader3D.getDefineByName("SUN_SIMPLE");
 	}
 
+	/**@internal */
 	private _sunDisk: number;
 
 	/**
-	 * 获取太阳状态。
-	 * @return  太阳状态。
+	 * 太阳状态。
 	 */
 	get sunDisk(): number {
 		return this._sunDisk;
 	}
 
-	/**
-	 * 设置太阳状态。
-	 * @param value 太阳状态。
-	 */
 	set sunDisk(value: number) {
 		switch (value) {
 			case SkyProceduralMaterial.SUN_HIGH_QUALITY:
@@ -78,100 +74,70 @@ export class SkyProceduralMaterial extends Material {
 	}
 
 	/**
-	 * 获取太阳尺寸,范围是0到1。
-	 * @return  太阳尺寸。
+	 * 太阳尺寸,范围是0到1。
 	 */
 	get sunSize(): number {
 		return this._shaderValues.getNumber(SkyProceduralMaterial.SUNSIZE);
 	}
 
-	/**
-	 * 设置太阳尺寸,范围是0到1。
-	 * @param value 太阳尺寸。
-	 */
 	set sunSize(value: number) {
 		value = Math.min(Math.max(0.0, value), 1.0);
 		this._shaderValues.setNumber(SkyProceduralMaterial.SUNSIZE, value);
 	}
 
 	/**
-	 * 获取太阳尺寸收缩,范围是0到20。
-	 * @return  太阳尺寸收缩。
+	 * 太阳尺寸收缩,范围是0到20。
 	 */
 	get sunSizeConvergence(): number {
 		return this._shaderValues.getNumber(SkyProceduralMaterial.SUNSIZECONVERGENCE);
 	}
 
-	/**
-	 * 设置太阳尺寸收缩,范围是0到20。
-	 * @param value 太阳尺寸收缩。
-	 */
 	set sunSizeConvergence(value: number) {
 		value = Math.min(Math.max(0.0, value), 20.0);
 		this._shaderValues.setNumber(SkyProceduralMaterial.SUNSIZECONVERGENCE, value);
 	}
 
 	/**
-	 * 获取大气厚度,范围是0到5。
-	 * @return  大气厚度。
+	 * 大气厚度,范围是0到5。
 	 */
 	get atmosphereThickness(): number {
 		return this._shaderValues.getNumber(SkyProceduralMaterial.ATMOSPHERETHICKNESS);
 	}
 
-	/**
-	 * 设置大气厚度,范围是0到5。
-	 * @param value 大气厚度。
-	 */
 	set atmosphereThickness(value: number) {
 		value = Math.min(Math.max(0.0, value), 5.0);
 		this._shaderValues.setNumber(SkyProceduralMaterial.ATMOSPHERETHICKNESS, value);
 	}
 
 	/**
-	 * 获取天空颜色。
-	 * @return  天空颜色。
+	 * 天空颜色。
 	 */
 	get skyTint(): Vector4 {
 		return (<Vector4>this._shaderValues.getVector(SkyProceduralMaterial.SKYTINT));
 	}
 
-	/**
-	 * 设置天空颜色。
-	 * @param value 天空颜色。
-	 */
 	set skyTint(value: Vector4) {
 		this._shaderValues.setVector(SkyProceduralMaterial.SKYTINT, value);
 	}
 
 	/**
-	 * 获取地面颜色。
-	 * @return  地面颜色。
+	 * 地面颜色。
 	 */
 	get groundTint(): Vector4 {
 		return (<Vector4>this._shaderValues.getVector(SkyProceduralMaterial.GROUNDTINT));
 	}
 
-	/**
-	 * 设置地面颜色。
-	 * @param value 地面颜色。
-	 */
 	set groundTint(value: Vector4) {
 		this._shaderValues.setVector(SkyProceduralMaterial.GROUNDTINT, value);
 	}
 
 	/**
-	 * 获取曝光强度,范围是0到8。
-	 * @return 曝光强度。
+	 * 曝光强度,范围是0到8。
 	 */
 	get exposure(): number {
 		return this._shaderValues.getNumber(SkyProceduralMaterial.EXPOSURE);
 	}
 
-	/**
-	 * 设置曝光强度,范围是0到8。
-	 * @param value 曝光强度。
-	 */
 	set exposure(value: number) {
 		value = Math.min(Math.max(0.0, value), 8.0);
 		this._shaderValues.setNumber(SkyProceduralMaterial.EXPOSURE, value);

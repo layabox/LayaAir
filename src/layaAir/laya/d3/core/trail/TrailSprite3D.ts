@@ -24,16 +24,14 @@ export class TrailSprite3D extends RenderableSprite3D {
 	private _geometryFilter: TrailFilter;
 
 	/**
-	 * 获取Trail过滤器。
-	 * @return  Trail过滤器。
+	 * Trail过滤器。
 	 */
 	get trailFilter(): TrailFilter {
 		return (<TrailFilter>this._geometryFilter);
 	}
 
 	/**
-	 * 获取Trail渲染器。
-	 * @return  Trail渲染器。
+	 * Trail渲染器。
 	 */
 	get trailRenderer(): TrailRenderer {
 		return (<TrailRenderer>this._render);

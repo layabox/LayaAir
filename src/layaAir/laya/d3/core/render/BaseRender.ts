@@ -99,17 +99,12 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	}
 
 	/**
-	 * 获取光照贴图的索引。
-	 * @return 光照贴图的索引。
+	 * 光照贴图的索引。
 	 */
 	get lightmapIndex(): number {
 		return this._lightmapIndex;
 	}
 
-	/**
-	 * 设置光照贴图的索引。
-	 * @param value 光照贴图的索引。
-	 */
 	set lightmapIndex(value: number) {
 		if (this._lightmapIndex !== value) {
 			this._lightmapIndex = value;
@@ -118,17 +113,12 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	}
 
 	/**
-	 * 获取光照贴图的缩放和偏移。
-	 * @return  光照贴图的缩放和偏移。
+	 * 光照贴图的缩放和偏移。
 	 */
 	get lightmapScaleOffset(): Vector4 {
 		return this._lightmapScaleOffset;
 	}
 
-	/**
-	 * 设置光照贴图的缩放和偏移。
-	 * @param  光照贴图的缩放和偏移。
-	 */
 	set lightmapScaleOffset(value: Vector4) {
 		this._lightmapScaleOffset = value;
 		this._shaderValues.setVector(RenderableSprite3D.LIGHTMAPSCALEOFFSET, value);
@@ -136,24 +126,18 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	}
 
 	/**
-	 * 获取是否可用。
-	 * @return 是否可用。
+	 * 是否可用。
 	 */
 	get enable(): boolean {
 		return this._enable;
 	}
 
-	/**
-	 * 设置是否可用。
-	 * @param value 是否可用。
-	 */
 	set enable(value: boolean) {
 		this._enable = !!value;
 	}
 
 	/**
 	 * 返回第一个实例材质,第一次使用会拷贝实例对象。
-	 * @return 第一个实例材质。
 	 */
 	get material(): Material {
 		var material: Material = this._sharedMaterials[0];
@@ -165,17 +149,12 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 		return this._sharedMaterials[0];
 	}
 
-	/**
-	 * 设置第一个实例材质。
-	 * @param value 第一个实例材质。
-	 */
 	set material(value: Material) {
 		this.sharedMaterial = value;
 	}
 
 	/**
-	 * 获取潜拷贝实例材质列表,第一次使用会拷贝实例对象。
-	 * @return 浅拷贝实例材质列表。
+	 * 潜拷贝实例材质列表,第一次使用会拷贝实例对象。
 	 */
 	get materials(): Material[] {
 		for (var i: number = 0, n: number = this._sharedMaterials.length; i < n; i++) {
@@ -188,26 +167,17 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 		return this._sharedMaterials.slice();
 	}
 
-	/**
-	 * 设置实例材质列表。
-	 * @param value 实例材质列表。
-	 */
 	set materials(value: Material[]) {
 		this.sharedMaterials = value;
 	}
 
 	/**
 	 * 返回第一个材质。
-	 * @return 第一个材质。
 	 */
 	get sharedMaterial(): Material {
 		return this._sharedMaterials[0];
 	}
 
-	/**
-	 * 设置第一个材质。
-	 * @param value 第一个材质。
-	 */
 	set sharedMaterial(value: Material) {
 		var lastValue: Material = this._sharedMaterials[0];
 		if (lastValue !== value) {
@@ -220,17 +190,12 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	}
 
 	/**
-	 * 获取浅拷贝材质列表。
-	 * @return 浅拷贝材质列表。
+	 * 浅拷贝材质列表。
 	 */
 	get sharedMaterials(): Material[] {
 		return this._sharedMaterials.slice();
 	}
 
-	/**
-	 * 设置材质列表。
-	 * @param value 材质列表。
-	 */
 	set sharedMaterials(value: Material[]) {
 		var materialsInstance: boolean[] = this._materialsInstance;
 		var sharedMats: Material[] = this._sharedMaterials;
@@ -263,8 +228,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	}
 
 	/**
-	 * 获取包围盒,只读,不允许修改其值。
-	 * @return 包围盒。
+	 * 包围盒,只读,不允许修改其值。
 	 */
 	get bounds(): Bounds {
 		if (this._boundsChange) {
@@ -274,9 +238,6 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 		return this._bounds;
 	}
 
-	/**
-	 * 设置是否接收阴影属性
-	 */
 	set receiveShadow(value: boolean) {
 		if (this._receiveShadow !== value) {
 			this._receiveShadow = value;
@@ -288,24 +249,19 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	}
 
 	/**
-	 * 获得是否接收阴影属性
+	 * 是否接收阴影属性
 	 */
 	get receiveShadow(): boolean {
 		return this._receiveShadow;
 	}
 
 	/**
-	 * 获取是否产生阴影。
-	 * @return 是否产生阴影。
+	 * 是否产生阴影。
 	 */
 	get castShadow(): boolean {
 		return this._castShadow;
 	}
 
-	/**
-	 *	设置是否产生阴影。
-	 * 	@param value 是否产生阴影。
-	 */
 	set castShadow(value: boolean) {
 		if (this._castShadow !== value) {
 			if (this._owner.activeInHierarchy) {

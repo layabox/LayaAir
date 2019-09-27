@@ -32,7 +32,6 @@ export class ConeShape extends BaseShape {
 		this.radius = 1.0;
 		this.length = 5.0;
 		this.emitType = 0;
-		this.randomDirection = false;
 	}
 
 	/**

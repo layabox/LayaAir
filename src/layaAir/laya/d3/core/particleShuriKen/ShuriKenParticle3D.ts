@@ -215,6 +215,7 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 				case "frame":
 				case "startFrame":
 				case "angularVelocity":
+				case "velocity":
 					break;
 				default:
 					throw "ShurikenParticle3D:unknown type.";
@@ -892,11 +893,11 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 		}
 		else {
 			for (i = 0, n = alphasData.length; i < n; i++) {
-				var alphaData: any = alphasData[i];
-				if ((i === 3) && ((alphaData.key !== 1))) {
-					alphaData.key = 1;
-					console.log("GradientDataColor warning:the forth key is  be force set to 1.");
+				if (i == 3 && n > 4) {
+					i = n - 1;
+					console.warn("GradientDataColor warning:alpha data length is large than 4, will ignore the middle data.");
 				}
+				var alphaData: any = alphasData[i];
 				gradientColor.addColorAlpha(alphaData.key, alphaData.value);
 			}
 		}
@@ -908,13 +909,12 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 		}
 		else {
 			for (i = 0, n = rgbsData.length; i < n; i++) {
+				if (i == 3 && n > 4) {
+					i = n - 1;
+					console.warn("GradientDataColor warning:rgb data length is large than 4, will ignore the middle data.");
+				}
 				var rgbData: any = rgbsData[i];
 				var rgbValue: any[] = rgbData.value;
-
-				if ((i === 3) && ((rgbData.key !== 1))) {
-					rgbData.key = 1;
-					console.log("GradientDataColor warning:the forth key is  be force set to 1.");
-				}
 				gradientColor.addColorRGB(rgbData.key, new Color(rgbValue[0], rgbValue[1], rgbValue[2], 1.0));
 			}
 		}
@@ -969,10 +969,18 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 	 */
 	private _initParticleSize(gradientSizeData: any): GradientDataNumber {
 		var gradientSize: GradientDataNumber = new GradientDataNumber();
-		var sizesData: any[] = gradientSizeData.sizes;
-		for (var i: number = 0, n: number = sizesData.length; i < n; i++) {
-			var valueData: any = sizesData[i];
-			gradientSize.add(valueData.key, valueData.value);
+		if(gradientSizeData)
+		{
+			var sizesData: any[] = gradientSizeData.sizes;
+			for (var i: number = 0, n: number = sizesData.length; i < n; i++) {
+				var valueData: any = sizesData[i];
+				gradientSize.add(valueData.key, valueData.value);
+			}
+		}
+		else
+		{
+			gradientSize.add(0,0);
+			gradientSize.add(1,1);
 		}
 		return gradientSize;
 	}

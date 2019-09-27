@@ -870,10 +870,17 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	//----------------------------------------Discard-------------------------------------------------
+	/**
+	 * @deprecated
+	 */
 	get scale(): Vector3 {
 		console.warn("Transfrm3D: discard function,please use getWorldLossyScale instead.");
 		return this.getWorldLossyScale();
 	}
+
+	/**
+	 * @deprecated
+	 */
 	set scale(value: Vector3) {
 		console.warn("Transfrm3D: discard function,please use setWorldLossyScale instead.");
 		this.setWorldLossyScale(value);

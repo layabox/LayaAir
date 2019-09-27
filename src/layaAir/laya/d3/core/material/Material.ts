@@ -161,33 +161,23 @@ export class Material extends Resource implements IClone {
 	renderQueue: number;
 
 	/**
-	 * 获取透明测试模式裁剪值。
-	 * @return 透明测试模式裁剪值。
+	 * 透明测试模式裁剪值。
 	 */
 	get alphaTestValue(): number {
 		return this._shaderValues.getNumber(Material.ALPHATESTVALUE);
 	}
 
-	/**
-	 * 设置透明测试模式裁剪值。
-	 * @param value 透明测试模式裁剪值。
-	 */
 	set alphaTestValue(value: number) {
 		this._shaderValues.setNumber(Material.ALPHATESTVALUE, value);
 	}
 
 	/**
-	 * 获取是否透明裁剪。
-	 * @return 是否透明裁剪。
+	 * 是否透明裁剪。
 	 */
 	get alphaTest(): boolean {
 		return this._alphaTest;
 	}
 
-	/**
-	 * 设置是否透明裁剪。
-	 * @param value 是否透明裁剪。
-	 */
 	set alphaTest(value: boolean) {
 		this._alphaTest = value;
 		if (value)

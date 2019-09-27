@@ -9,7 +9,7 @@ export class StartFrame implements IClone {
 	 * @param	constant  固定帧。
 	 * @return 开始帧。
 	 */
-	static createByConstant(constant: number): StartFrame {
+	static createByConstant(constant: number = 0): StartFrame {
 		var rotationOverLifetime: StartFrame = new StartFrame();
 		rotationOverLifetime._type = 0;
 		rotationOverLifetime._constant = constant;
@@ -22,7 +22,7 @@ export class StartFrame implements IClone {
 	 * @param	constantMax 最大固定帧。
 	 * @return 开始帧。
 	 */
-	static createByRandomTwoConstant(constantMin: number, constantMax: number): StartFrame {
+	static createByRandomTwoConstant(constantMin: number = 0, constantMax: number = 0): StartFrame {
 		var rotationOverLifetime: StartFrame = new StartFrame();
 		rotationOverLifetime._type = 1;
 		rotationOverLifetime._constantMin = constantMin;
@@ -30,7 +30,7 @@ export class StartFrame implements IClone {
 		return rotationOverLifetime;
 	}
 
-	
+
 	private _type: number = 0;
 	private _constant: number = 0;
 	private _constantMin: number = 0;

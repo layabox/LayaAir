@@ -247,7 +247,6 @@ export class BlinnPhongMaterial extends Material {
 
 	/**
 	 * 设置渲染模式。
-	 * @return 渲染模式。
 	 */
 	set renderMode(value: number) {
 		switch (value) {

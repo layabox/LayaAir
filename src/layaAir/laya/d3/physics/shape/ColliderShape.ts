@@ -10,11 +10,11 @@ import { CompoundColliderShape } from "./CompoundColliderShape";
  * <code>ColliderShape</code> 类用于创建形状碰撞器的父类，该类为抽象类。
  */
 export class ColliderShape implements IClone {
-	/** @internal */
+	/** 形状方向_X轴正向 */
 	static SHAPEORIENTATION_UPX: number = 0;
-	/** @internal */
+	/** 形状方向_Y轴正向 */
 	static SHAPEORIENTATION_UPY: number = 1;
-	/** @internal */
+	/** 形状方向_Z轴正向 */
 	static SHAPEORIENTATION_UPZ: number = 2;
 
 	/** @internal */

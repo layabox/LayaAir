@@ -31,23 +31,17 @@ export class MultiplePassOutlineMaterial extends Material {
 	static __init__(): void {
 	}
 	/**
-	 * 获取漫反射贴图。
-	 * @return 漫反射贴图。
+	 * 漫反射贴图。
 	 */
 	get albedoTexture(): BaseTexture {
 		return this._shaderValues.getTexture(MultiplePassOutlineMaterial.ALBEDOTEXTURE);
 	}
 
-	/**
-	 * 设置漫反射贴图。
-	 * @param value 漫反射贴图。
-	 */
 	set albedoTexture(value: BaseTexture) {
 		this._shaderValues.setTexture(MultiplePassOutlineMaterial.ALBEDOTEXTURE, value);
 	}
 	/**
-	 * 获取线条颜色
-	 * @return 线条颜色
+	 * 线条颜色
 	 */
 	get outlineColor(): Vector4 {
 		return this._shaderValues.getVector(MultiplePassOutlineMaterial.OUTLINECOLOR);
@@ -57,34 +51,24 @@ export class MultiplePassOutlineMaterial extends Material {
 		this._shaderValues.setVector(MultiplePassOutlineMaterial.OUTLINECOLOR, value);
 	}
 	/**
-	 * 获取轮廓宽度。
-	 * @return 轮廓宽度,范围为0到0.05。
+	 * 获取轮廓宽度,范围为0到0.05。
 	 */
 	get outlineWidth(): number {
 		return this._shaderValues.getNumber(MultiplePassOutlineMaterial.OUTLINEWIDTH);
 	}
 
-	/**
-	 * 设置轮廓宽度。
-	 * @param value 轮廓宽度,范围为0到0.05。
-	 */
 	set outlineWidth(value: number) {
 		value = Math.max(0.0, Math.min(0.05, value));
 		this._shaderValues.setNumber(MultiplePassOutlineMaterial.OUTLINEWIDTH, value);
 	}
 
 	/**
-	 * 获取轮廓亮度。
-	 * @return 轮廓亮度,范围为0到1。
+	 * 轮廓亮度,范围为0到1。
 	 */
 	get outlineLightness(): number {
 		return this._shaderValues.getNumber(MultiplePassOutlineMaterial.OUTLINELIGHTNESS);
 	}
 
-	/**
-	 * 设置轮廓亮度。
-	 * @param value 轮廓亮度,范围为0到1。
-	 */
 	set outlineLightness(value: number) {
 		value = Math.max(0.0, Math.min(1.0, value));
 		this._shaderValues.setNumber(MultiplePassOutlineMaterial.OUTLINELIGHTNESS, value);

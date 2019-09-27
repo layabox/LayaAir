@@ -146,10 +146,7 @@ export class PhysicsComponent extends Component {
 	 * @internal
 	 */
 	private static physicVector3TransformQuat(source: Vector3, qx: number, qy: number, qz: number, qw: number, out: Vector3): void {
-		var x: number = source.x, y: number = source.y, z: number = source.z,
-
-			ix: number = qw * x + qy * z - qz * y, iy: number = qw * y + qz * x - qx * z, iz: number = qw * z + qx * y - qy * x, iw: number = -qx * x - qy * y - qz * z;
-
+		var x: number = source.x, y: number = source.y, z: number = source.z, ix: number = qw * x + qy * z - qz * y, iy: number = qw * y + qz * x - qx * z, iz: number = qw * z + qx * y - qy * x, iw: number = -qx * x - qy * y - qz * z;
 		out.x = ix * qw + iw * -qx + iy * -qz - iz * -qy;
 		out.y = iy * qw + iw * -qy + iz * -qx - ix * -qz;
 		out.z = iz * qw + iw * -qz + ix * -qy - iy * -qx;
@@ -159,7 +156,6 @@ export class PhysicsComponent extends Component {
 	 * @internal
 	 */
 	private static physicQuaternionMultiply(lx: number, ly: number, lz: number, lw: number, right: Quaternion, out: Quaternion): void {
-
 		var rx: number = right.x;
 		var ry: number = right.y;
 		var rz: number = right.z;
@@ -521,13 +517,15 @@ export class PhysicsComponent extends Component {
 	_innerDerivePhysicsTransformation(physicTransformOut: any, force: boolean): void {
 		var transform: Transform3D = ((<Sprite3D>this.owner))._transform;
 		var rotation: Quaternion = transform.rotation;
+		var scale: Vector3 = transform.getWorldLossyScale();
 		if (force || this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION)) {
 			var shapeOffset: Vector3 = this._colliderShape.localOffset;
 			var position: Vector3 = transform.position;
 			var nativePosition: any = PhysicsComponent._nativeVector30;
 			if (shapeOffset.x !== 0 || shapeOffset.y !== 0 || shapeOffset.z !== 0) {
 				var physicPosition: Vector3 = PhysicsComponent._tempVector30;
-				PhysicsComponent.physicVector3TransformQuat(shapeOffset, rotation.x, rotation.y, rotation.z, rotation.w, physicPosition);
+				Vector3.transformQuat(shapeOffset, rotation, physicPosition);
+				Vector3.multiply(physicPosition, scale, physicPosition);
 				Vector3.add(position, physicPosition, physicPosition);
 				nativePosition.setValue(-physicPosition.x, physicPosition.y, physicPosition.z);
 			} else {
