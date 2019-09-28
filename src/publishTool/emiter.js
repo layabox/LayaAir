@@ -33,7 +33,7 @@ class emiter {
         };
     }
     static get BaseURL() {
-        return emiter._BaseURL || "./bin/layaAir/";
+        return emiter._BaseURL || "../bin/layaAir/";
     }
     static set BaseURL(v) {
         emiter._BaseURL = v;
@@ -653,7 +653,7 @@ class emiter {
 }
 /**所有已经识别的没有准备的方法 */
 emiter._typeArr = ["VariableStatement", "ExportDeclaration", "Uint16Array", "Float32Array",
-    "FunctionDeclaration"];
+    "FunctionDeclaration", "loadItem"];
 /**
  * 已知 的简单对应表
  */
