@@ -883,7 +883,7 @@ export class Animator extends Component {
 			addtive = controllerLayer.blendingMode !== AnimatorControllerLayer.BLENDINGMODE_OVERRIDE;
 			switch (controllerLayer._playType) {
 				case 0:
-					var animatorState: AnimatorState = controllerLayer._currentPlayState;
+					var animatorState: AnimatorState = playStateInfo._currentState;
 					var clip: AnimationClip = animatorState._clip;
 					var speed: number = this._speed * animatorState.speed;
 					var finish: boolean = playStateInfo._finish;//提前取出finish,防止最后一帧跳过
@@ -896,7 +896,7 @@ export class Animator extends Component {
 					}
 					break;
 				case 1:
-					animatorState = controllerLayer._currentPlayState;
+					animatorState = playStateInfo._currentState;
 					clip = animatorState._clip;
 					var crossClipState: AnimatorState = controllerLayer._crossPlayState;
 					var crossClip: AnimationClip = crossClipState._clip;
@@ -913,7 +913,7 @@ export class Animator extends Component {
 							this._setClipDatasToNode(crossClipState, addtive, controllerLayer.defaultWeight, i === 0);
 
 							controllerLayer._playType = 0;//完成融合,切换到正常播放状态
-							controllerLayer._currentPlayState = crossClipState;
+							playStateInfo._currentState = crossClipState;
 							crossPlayStateInfo._cloneTo(playStateInfo);
 						}
 					} else {
@@ -949,7 +949,7 @@ export class Animator extends Component {
 							this._updateClipDatas(crossClipState, addtive, crossPlayStateInfo, timerScale * crossSpeed);
 							this._setClipDatasToNode(crossClipState, addtive, 1.0, i === 0);
 							controllerLayer._playType = 0;//完成融合,切换到正常播放状态
-							controllerLayer._currentPlayState = crossClipState;
+							playStateInfo._currentState = crossClipState;
 							crossPlayStateInfo._cloneTo(playStateInfo);
 						} else {
 							this._updateClipDatas(crossClipState, addtive, crossPlayStateInfo, timerScale * crossScale * crossSpeed);
@@ -1045,15 +1045,6 @@ export class Animator extends Component {
 	}
 
 	/**
-	 * 获取当前的播放状态。
-	 *	@param   layerIndex 层索引。
-	 * 	@return  动画播放状态。
-	 */
-	getCurrentAnimatorPlayState(layerInex: number = 0): AnimatorPlayState {
-		return this._controllerLayers[layerInex]._playStateInfo;
-	}
-
-	/**
 	 * 播放动画。
 	 * @param	name 如果为null则播放默认动画，否则按名字播放动画片段。
 	 * @param	layerIndex 层索引。
@@ -1064,9 +1055,10 @@ export class Animator extends Component {
 		if (controllerLayer) {
 			var defaultState: AnimatorState = controllerLayer.defaultState;
 			if (!name && !defaultState)
-				throw new Error("Animator:must have  default clip value,please set clip property.");
-			var curPlayState: AnimatorState = controllerLayer._currentPlayState;
+				throw new Error("Animator:must have default clip value,please set clip property.");
 			var playStateInfo: AnimatorPlayState = controllerLayer._playStateInfo;
+			var curPlayState: AnimatorState = playStateInfo._currentState;
+
 
 			var animatorState: AnimatorState = name ? controllerLayer._statesMap[name] : defaultState;
 			var clipDuration: number = animatorState._clip._duration;
@@ -1077,7 +1069,7 @@ export class Animator extends Component {
 					playStateInfo._resetPlayState(0.0);
 				(curPlayState !== null && curPlayState !== animatorState) && (this._revertDefaultKeyframeNodes(curPlayState));
 				controllerLayer._playType = 0;
-				controllerLayer._currentPlayState = animatorState;
+				playStateInfo._currentState = animatorState;
 			} else {
 				if (normalizedTime !== Number.NEGATIVE_INFINITY) {
 					playStateInfo._resetPlayState(clipDuration * normalizedTime);
@@ -1118,7 +1110,7 @@ export class Animator extends Component {
 				var crossNodeOwners: KeyframeNodeOwner[] = controllerLayer._crossNodesOwners;
 				var crossNodeOwnerIndicesMap: any = controllerLayer._crossNodesOwnersIndicesMap;
 
-				var srcAnimatorState: AnimatorState = controllerLayer._currentPlayState;
+				var srcAnimatorState: AnimatorState = controllerLayer._playStateInfo._currentState;
 				var destNodeOwners: KeyframeNodeOwner[] = destAnimatorState._nodeOwners;
 				var destCrossClipNodeIndices: number[] = controllerLayer._destCrossClipNodeIndices;
 				var destClip: AnimationClip = destAnimatorState._clip;
@@ -1370,6 +1362,16 @@ export class Animator extends Component {
 			throw ("Animator:sprite3D must belong to this Animator");
 			return false;
 		}
+	}
+
+	/**
+	 * @deprecated
+	 * 获取当前的播放状态。
+	 * @param   layerIndex 层索引。
+	 * @return  动画播放状态。
+	 */
+	getCurrentAnimatorPlayState(layerInex: number = 0): AnimatorPlayState {
+		return this._controllerLayers[layerInex]._playStateInfo;
 	}
 
 	/**

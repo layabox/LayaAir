@@ -1,3 +1,5 @@
+import { AnimatorState } from "./AnimatorState";
+
 /**
  * <code>AnimatorPlayState</code> 类用于创建动画播放状态信息。
  */
@@ -20,6 +22,8 @@ export class AnimatorPlayState {
 	_playEventIndex: number;
 	/**@internal */
 	_lastIsFront: boolean;
+	/**@internal */
+	_currentState: AnimatorState = null;
 
 	/**
 	 * 获取播放状态的归一化时间,整数为循环次数，小数为单次播放时间。
@@ -33,6 +37,13 @@ export class AnimatorPlayState {
 	 */
 	get duration(): number {
 		return this._duration;
+	}
+
+	/**
+	 * 动画状态机。
+	 */
+	get animatorState(): AnimatorState {
+		return this._currentState;
 	}
 
 	/**
