@@ -36,7 +36,7 @@ class Main {
         // this.tstoas("laya\\d3\\component\\SingletonList.d.ts",null,"laya\\d3\\component");
     }
     get BaseURL() {
-        return this._BaseURL || "./bin/layaAir/";
+        return this._BaseURL || "../bin/layaAir/";
     }
     set BaseURL(value) {
         this._BaseURL = value;
@@ -84,8 +84,10 @@ class Main {
                 mark++;
                 let tsConfigUrl = this.tsCongfig[i];
                 let tscLayaAir = child_process.exec("tsc -b " + tsConfigUrl, (err, stdout, stderr) => {
-                    if (err)
-                        console.log("tsc fail ", tsConfigUrl, stdout, stderr);
+                    if (err) {
+                        console.log("tsc fail ", tsConfigUrl, stderr);
+                    }
+                    console.log('out:', stdout);
                     start(err);
                 });
             }
@@ -98,8 +100,6 @@ class Main {
                 this.createAS && this.createDir(this.outfileAS + url);
                 yield this.ergodic(fileData, url);
             }
-            else
-                console.log("readdir fail", url);
         });
     }
     /**
@@ -261,7 +261,7 @@ class Main {
         return new Promise(resolve => {
             fs.readFile(this.formatUrl(fileUrl), "utf8", (err, files) => {
                 if (err) {
-                    console.error("readfile fial", fileUrl);
+                    console.error("readfile fail", fileUrl);
                     return resolve(0);
                 }
                 this.complete++;
