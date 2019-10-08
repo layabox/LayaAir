@@ -859,7 +859,7 @@ export class Node extends EventDispatcher {
 
         comp.owner = this;
         comp._onAdded();
-        if (this.activeInHierarchy) 
+        if (this.activeInHierarchy)
             comp._setActive(true);
     }
 
@@ -939,7 +939,7 @@ export class Node extends EventDispatcher {
      * @param	clas 组建类型
      * @return	返回组件
      */
-    getComponent(clas: any): any {
+    getComponent(clas: typeof Component): any {
         if (this._components) {
             for (var i: number = 0, n: number = this._components.length; i < n; i++) {
                 var comp: Component = this._components[i];
@@ -955,7 +955,7 @@ export class Node extends EventDispatcher {
      * @param	clas 组建类型
      * @return	返回组件数组
      */
-    getComponents(clas: any): any[] {
+    getComponents(clas: typeof Component): any[] {
         var arr: any[];
         if (this._components) {
             for (var i: number = 0, n: number = this._components.length; i < n; i++) {

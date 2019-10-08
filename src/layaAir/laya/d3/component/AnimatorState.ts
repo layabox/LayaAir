@@ -1,13 +1,14 @@
+import { AnimationClip } from "../animation/AnimationClip";
+import { AnimatorStateScript } from "../animation/AnimatorStateScript";
+import { IClone } from "../core/IClone";
+import { IReferenceCounter } from "../resource/IReferenceCounter";
 import { KeyframeNodeOwner } from "./KeyframeNodeOwner";
-import { AnimationClip } from "../animation/AnimationClip"
-import { AnimatorStateScript } from "../animation/AnimatorStateScript"
-import { IClone } from "../core/IClone"
-import { IReferenceCounter } from "../resource/IReferenceCounter"
 
 /**
  * <code>AnimatorState</code> 类用于创建动作状态。
  */
 export class AnimatorState implements IReferenceCounter, IClone {
+	/**@internal */
 	private _referenceCount: number = 0;
 
 	/**@internal */
@@ -29,17 +30,12 @@ export class AnimatorState implements IReferenceCounter, IClone {
 	clipEnd: number = 1.0;
 
 	/**
-	 * 获取动作。
-	 * @return 动作
+	 * 动作。
 	 */
 	get clip(): AnimationClip {
 		return this._clip;
 	}
 
-	/**
-	 * 设置动作。
-	 * @param value 动作。
-	 */
 	set clip(value: AnimationClip) {
 		if (this._clip !== value) {
 			if (this._clip)
@@ -61,6 +57,7 @@ export class AnimatorState implements IReferenceCounter, IClone {
 	}
 
 	/**
+	 * @internal
 	 * @implements IReferenceCounter
 	 */
 	_getReferenceCount(): number {
@@ -68,6 +65,7 @@ export class AnimatorState implements IReferenceCounter, IClone {
 	}
 
 	/**
+	 * @internal
 	 * @implements IReferenceCounter
 	 */
 	_addReference(count: number = 1): void {
@@ -76,6 +74,7 @@ export class AnimatorState implements IReferenceCounter, IClone {
 	}
 
 	/**
+	 * @internal
 	 * @implements IReferenceCounter
 	 */
 	_removeReference(count: number = 1): void {
@@ -84,6 +83,7 @@ export class AnimatorState implements IReferenceCounter, IClone {
 	}
 
 	/**
+	 * @internal
 	 * @implements IReferenceCounter
 	 */
 	_clearReference(): void {
@@ -104,7 +104,7 @@ export class AnimatorState implements IReferenceCounter, IClone {
 	 * @return 脚本。
 	 *
 	 */
-	addScript(type: new () => any): AnimatorStateScript {
+	addScript(type: typeof AnimatorStateScript): AnimatorStateScript {
 		var script: AnimatorStateScript = new type();
 		this._scripts = this._scripts || [];
 		this._scripts.push(script);
@@ -117,7 +117,7 @@ export class AnimatorState implements IReferenceCounter, IClone {
 	 * @return 脚本。
 	 *
 	 */
-	getScript(type: new () => any): AnimatorStateScript {
+	getScript(type: typeof AnimatorStateScript): AnimatorStateScript {
 		if (this._scripts) {
 			for (var i: number = 0, n: number = this._scripts.length; i < n; i++) {
 				var script: AnimatorStateScript = this._scripts[i];
@@ -134,7 +134,7 @@ export class AnimatorState implements IReferenceCounter, IClone {
 	 * @return 脚本集合。
 	 *
 	 */
-	getScripts(type: new () => any): AnimatorStateScript[] {
+	getScripts(type: typeof AnimatorStateScript): AnimatorStateScript[] {
 		var coms: AnimatorStateScript[];
 		if (this._scripts) {
 			for (var i: number = 0, n: number = this._scripts.length; i < n; i++) {
