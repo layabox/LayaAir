@@ -1,6 +1,6 @@
 //引用插件模块
 let path = require('path');
-const gulp = require('gulp');
+const gulp = require('./node_modules/gulp');
 const bundleLib = require('./src/buildtools/bundleLib');
 
 // 在 shell 中执行一个命令
