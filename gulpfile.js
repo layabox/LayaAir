@@ -1,21 +1,17 @@
-//引用插件模块
-let path = require('path');
 const gulp = require('./node_modules/gulp');
-const bundleLib = require('./src/buildtools/bundleLib');
-
-// 在 shell 中执行一个命令
 var exec = require('child_process').exec;
+
 gulp.task('tsc', (cb) => {
-    exec("tsc -b src/samples/tsconfig.json", function (err,stdout,stderr) {
-        if(err){
-            console.log("out:",stdout);
-            console.log("err:",stderr);
+    exec("tsc -b src/samples/tsconfig.json", function (err, stdout, stderr) {
+        if (err) {
+            console.log("out:", stdout);
+            console.log("err:", stderr);
         }
         cb();
     });
 });
 
-gulp.task('CopyNoneTSFile', ()=>{
+gulp.task('CopyShaderFile', () => {
     return gulp.src([
         'src/**/*.vs',
         'src/**/*.fs',
@@ -23,6 +19,10 @@ gulp.task('CopyNoneTSFile', ()=>{
         .pipe(gulp.dest('bin/tsc'));
 });
 
+gulp.task('LayaAirBuild', gulp.series('tsc', 'CopyShaderFile'));
+
+//let path = require('path');
+//const bundleLib = require('./src/buildtools/bundleLib');
 
 // gulp.task('buildCore', async ()=>{
 //     await bundleLib([
@@ -63,5 +63,3 @@ gulp.task('CopyNoneTSFile', ()=>{
 //         ''
 //     );    
 // });
-
-gulp.task('BuildLayaAir', gulp.series('tsc', 'CopyNoneTSFile'));
