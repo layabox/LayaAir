@@ -859,7 +859,7 @@ export class Node extends EventDispatcher {
 
         comp.owner = this;
         comp._onAdded();
-        if (this.activeInHierarchy) 
+        if (this.activeInHierarchy)
             comp._setActive(true);
     }
 
@@ -908,42 +908,42 @@ export class Node extends EventDispatcher {
 
     /**
      * 添加组件实例。
-     * @param	comp 组件实例。
+     * @param	component 组建实例。
      * @return	组件。
      */
-    addComponentIntance(comp: Component): any {
-        if (comp.owner)
+    addComponentIntance(component: Component): any {
+        if (component.owner)
             throw "Node:the component has belong to other node.";
-        if (comp.isSingleton && this.getComponent(((<any>comp)).constructor))
+        if (component.isSingleton && this.getComponent(((<any>component)).constructor))
             throw "Node:the component is singleton,can't add the second one.";
-        this._addComponentInstance(comp);
-        return comp;
+        this._addComponentInstance(component);
+        return component;
     }
 
     /**
      * 添加组件。
-     * @param	type 组件类型。
+     * @param	componentType 组件类型。
      * @return	组件。
      */
-    addComponent(type: typeof Component): any {
-        var comp: Component = Pool.createByClass(type);
+    addComponent(componentType: typeof Component): any {
+        var comp: Component = Pool.createByClass(componentType);
         comp._destroyed = false;
-        if (comp.isSingleton && this.getComponent(type))
-            throw "无法实例" + type + "组件" + "，" + type + "组件已存在！";
+        if (comp.isSingleton && this.getComponent(componentType))
+            throw "无法实例" + componentType + "组件" + "，" + componentType + "组件已存在！";
         this._addComponentInstance(comp);
         return comp;
     }
 
     /**
      * 获得组件实例，如果没有则返回为null
-     * @param	clas 组建类型
+     * @param	componentType 组建类型
      * @return	返回组件
      */
-    getComponent(clas: any): any {
+    getComponent(componentType: typeof Component): any {
         if (this._components) {
             for (var i: number = 0, n: number = this._components.length; i < n; i++) {
                 var comp: Component = this._components[i];
-                if (comp instanceof clas)
+                if (comp instanceof componentType)
                     return comp;
             }
         }
@@ -952,15 +952,15 @@ export class Node extends EventDispatcher {
 
     /**
      * 获得组件实例，如果没有则返回为null
-     * @param	clas 组建类型
+     * @param	componentType 组建类型
      * @return	返回组件数组
      */
-    getComponents(clas: any): any[] {
+    getComponents(componentType: typeof Component): any[] {
         var arr: any[];
         if (this._components) {
             for (var i: number = 0, n: number = this._components.length; i < n; i++) {
                 var comp: Component = this._components[i];
-                if (comp instanceof clas) {
+                if (comp instanceof componentType) {
                     arr = arr || [];
                     arr.push(comp);
                 }

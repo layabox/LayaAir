@@ -149,6 +149,14 @@ export class RenderElement {
 			this.render._updateMark = updateMark;
 			this.render._updateRenderType = this.renderType;
 		}
+		else {
+			//InstanceBatch should update worldMatrix every renderElement,
+			//because the instance matrix buffer is always different.
+			if (this.renderType == RenderElement.RENDERTYPE_INSTANCEBATCH) {
+				this.render._renderUpdate(context, transform);
+				this.render._renderUpdateWithCamera(context, transform);
+			}
+		}
 
 		if (geometry._prepareRender(context)) {
 			var passes: ShaderPass[] = this.renderSubShader._passes;

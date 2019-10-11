@@ -68,7 +68,7 @@ export class PhysicsSimulation {
 	private static _nativeTempTransform0: any;
 	/** @internal */
 	private static _nativeTempTransform1: any;
-	/**@internal */
+	/** @internal */
 	private static _tempVector30: Vector3 = new Vector3();
 
 	/*是否禁用所有模拟器。*/
@@ -93,44 +93,44 @@ export class PhysicsSimulation {
 		//TODO:
 	}
 
-	/**@internal	*/
+	/** @internal */
 	private _nativeDiscreteDynamicsWorld: any;
-	/**@internal	*/
+	/** @internal */
 	private _nativeCollisionWorld: any;
-	/**@internal	*/
+	/** @internal */
 	private _nativeDispatcher: any;
-	/**@internal	*/
+	/** @internal */
 	private _nativeCollisionConfiguration: any;
-	/**@internal	*/
+	/** @internal */
 	private _nativeBroadphase: any;
-	/**@internal	*/
+	/** @internal */
 	private _nativeSolverInfo: any;
-	/**@internal	*/
+	/** @internal */
 	private _nativeDispatchInfo: any;
-	/**@internal	*/
+	/** @internal */
 	private _gravity: Vector3 = new Vector3(0, -10, 0);
 
 	/** @internal */
 	private _nativeVector3Zero: any = new Physics3D._physics3D.btVector3(0, 0, 0);
 	/** @internal */
 	private _nativeDefaultQuaternion: any = new Physics3D._physics3D.btQuaternion(0, 0, 0, -1);
-	/**@internal */
+	/** @internal */
 	private _nativeClosestRayResultCallback: any;
-	/**@internal */
+	/** @internal */
 	private _nativeAllHitsRayResultCallback: any;
-	/**@internal */
+	/** @internal */
 	private _nativeClosestConvexResultCallback: any;
-	/**@internal */
+	/** @internal */
 	private _nativeAllConvexResultCallback: any;
 
-	/**@internal	*/
+	/** @internal */
 	private _collisionsUtils: CollisionTool = new CollisionTool();
-	/**@internal	*/
+	/** @internal */
 	private _previousFrameCollisions: Collision[] = [];
-	/**@internal	*/
+	/** @internal */
 	private _currentFrameCollisions: Collision[] = [];
 
-	/**@internal	*/
+	/** @internal */
 	_physicsUpdateList: PhysicsUpdateList = new PhysicsUpdateList();
 	/**@internal	*/
 	_characters: CharacterController[] = [];

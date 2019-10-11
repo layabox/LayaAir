@@ -1,78 +1,73 @@
-import { AnimatorState } from "./AnimatorState";
-import { KeyframeNodeOwner } from "./KeyframeNodeOwner";
-import { AnimatorPlayState } from "./AnimatorPlayState";
 import { AnimationClip } from "../animation/AnimationClip";
 import { KeyframeNodeList } from "../animation/KeyframeNodeList";
 import { IClone } from "../core/IClone";
 import { IReferenceCounter } from "../resource/IReferenceCounter";
 import { Animator } from "./Animator";
+import { AnimatorPlayState } from "./AnimatorPlayState";
+import { AnimatorState } from "./AnimatorState";
+import { KeyframeNodeOwner } from "./KeyframeNodeOwner";
 
 
 /**
  * <code>AnimatorControllerLayer</code> 类用于创建动画控制器层。
  */
 export class AnimatorControllerLayer implements IReferenceCounter, IClone {
-	/**@internal */
+	/**混合模式_覆盖。 */
 	static BLENDINGMODE_OVERRIDE: number = 0;
-	/**@internal */
+	/**混合模式_叠加。 */
 	static BLENDINGMODE_ADDTIVE: number = 1;
 
+	/**@internal */
 	private _defaultState: AnimatorState = null;
+	/**@internal */
 	private _referenceCount: number = 0;
 
 	/**@internal 0:常规播放、1:动态融合播放、2:固定融合播放*/
-	_playType: number;
+	_playType: number = -1;
 	/**@internal */
-	_crossDuration: number;
+	_crossDuration: number = -1;
 	/**@internal */
 	_crossPlayState: AnimatorState;
 	/**@internal */
-	_crossMark: number;
+	_crossMark: number = 0;
 	/**@internal */
-	_crossNodesOwnersCount: number;
+	_crossNodesOwnersCount: number = 0;
 	/**@internal */
-	_crossNodesOwners: KeyframeNodeOwner[];
+	_crossNodesOwners: KeyframeNodeOwner[] = [];
 	/**@internal */
-	_crossNodesOwnersIndicesMap: any;
+	_crossNodesOwnersIndicesMap: any = {};
 	/**@internal */
-	_srcCrossClipNodeIndices: number[];
+	_srcCrossClipNodeIndices: number[] = [];
 	/**@internal */
-	_destCrossClipNodeIndices: number[];
+	_destCrossClipNodeIndices: number[] = [];
 
 	/**@internal */
 	_animator: Animator;
 	/**@internal */
-	_currentPlayState: AnimatorState;
-	/**@internal */
 	_statesMap: any = {};
 	/**@internal */
-	_states: AnimatorState[];
+	_states: AnimatorState[] = [];
 	/**@internal */
-	_playStateInfo: AnimatorPlayState;
+	_playStateInfo: AnimatorPlayState = new AnimatorPlayState();
 	/**@internal */
-	_crossPlayStateInfo: AnimatorPlayState;
+	_crossPlayStateInfo: AnimatorPlayState = new AnimatorPlayState();
 
 	/** 层的名称。*/
 	name: string;
 	/** 名称。*/
-	blendingMode: number;
+	blendingMode: number = AnimatorControllerLayer.BLENDINGMODE_OVERRIDE;
 	/** 权重。*/
-	defaultWeight: number;
-	/**	激活时是否自动播放*/
+	defaultWeight: number = 1.0;
+	/**	激活时是否自动播放。*/
 	playOnWake: boolean = true;
 
 	/**
-	 * 获取默认动画状态。
-	 * @return 默认动画状态。
+	 * 默认动画状态机。
 	 */
 	get defaultState(): AnimatorState {
 		return this._defaultState;
 	}
 
-	/**
-	 * 设置默认动画状态。
-	 * @param value 默认动画状态。
-	 */
 	set defaultState(value: AnimatorState) {
 		this._defaultState = value;
 		this._statesMap[value.name] = value;
@@ -82,24 +77,12 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
 	 * 创建一个 <code>AnimatorControllerLayer</code> 实例。
 	 */
 	constructor(name: string) {
-		this._playType = -1;
-		this._crossMark = 0;
-		this._crossDuration = -1;
-		this._crossNodesOwnersIndicesMap = {};
-		this._crossNodesOwnersCount = 0;
-		this._crossNodesOwners = [];
-		this._currentPlayState = null;
-		this._states = [];
-		this._playStateInfo = new AnimatorPlayState();
-		this._crossPlayStateInfo = new AnimatorPlayState();
-		this._srcCrossClipNodeIndices = [];
-		this._destCrossClipNodeIndices = [];
-
 		this.name = name;
-		this.defaultWeight = 1.0;
-		this.blendingMode = AnimatorControllerLayer.BLENDINGMODE_OVERRIDE;
 	}
 
+	/**
+	 * @internal
+	 */
 	private _removeClip(clipStateInfos: AnimatorState[], statesMap: any, index: number, state: AnimatorState): void {
 		var clip: AnimationClip = state._clip;
 		var clipStateInfo: AnimatorState = clipStateInfos[index];
@@ -149,7 +132,16 @@ export class AnimatorControllerLayer implements IReferenceCounter, IClone {
 	}
 
 	/**
+	 * 获取当前的播放状态。
+	 * @return 动画播放状态。
+	 */
+	getCurrentPlayState(): AnimatorPlayState {
+		return this._playStateInfo;
+	}
+
+	/**
 	 * 获取动画状态。
+	 * @return 动画状态。
 	 */
 	getAnimatorState(name: string): AnimatorState {
 		var state: AnimatorState = this._statesMap[name];
