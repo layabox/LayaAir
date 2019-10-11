@@ -951,7 +951,7 @@ export class Context {
 			//这个优化先不要了，因为没太弄明白wrapmode的设置，总是不起作用。
 			//if(texture.uvrect[2]<1.0||texture.uvrect[3]<1.0)//这表示是大图集中的一部分，只有这时候才用特殊shader
 			sv.defines.add(ShaderDefines2D.FILLTEXTURE);
-			((<any>sv)).u_TexRange = texuvRect;
+			((<any>sv)).u_TexRange = texuvRect.concat();
 			submit = this._curSubmit = SubmitTexture.create(this, this._mesh, sv);
 			this._submits[this._submits._length++] = submit;
 			this._copyClipInfo(submit, this._globalClipMatrix);
