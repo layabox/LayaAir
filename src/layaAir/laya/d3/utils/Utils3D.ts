@@ -40,17 +40,18 @@ export class Utils3D {
 	/**
 	 * @internal
 	 */
-	static _convertToLayaVec3(bVector: any, out: Vector3, inverseX: boolean): void {
-		out.x = inverseX ? -bVector.x() : bVector.x();
-		out.y = bVector.y();
-		out.z = bVector.z();
+	static _convertToLayaVec3(bVector: number, out: Vector3, inverseX: boolean): void {
+		var bullet: any = Physics3D._bullet;
+		out.x = inverseX ? - bullet.btVector3_z(bVector) : bullet.btVector3_x(bVector);
+		out.y = bullet.btVector3_y(bVector);
+		out.z = bullet.btVector3_z(bVector);
 	}
 
 	/**
 	 * @internal
 	 */
 	static _convertToBulletVec3(lVector: Vector3, out: number, inverseX: boolean): void {
-		Physics3D._physics3D.btVector3_setValue(out, inverseX ? -lVector.x : lVector.x, lVector.y, lVector.z);
+		Physics3D._bullet.btVector3_setValue(out, inverseX ? -lVector.x : lVector.x, lVector.y, lVector.z);
 	}
 
 	/**

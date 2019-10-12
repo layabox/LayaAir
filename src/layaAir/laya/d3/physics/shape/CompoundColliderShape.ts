@@ -20,7 +20,7 @@ export class CompoundColliderShape extends ColliderShape {
 	 * @internal
 	 */
 	static __init__(): void {
-		var physics3D: any = Physics3D._physics3D;
+		var physics3D: any = Physics3D._bullet;
 		CompoundColliderShape._nativeVector3One = physics3D.btVector3_create(1, 1, 1);
 		CompoundColliderShape._nativeTransform = physics3D.btTransform_create();
 		CompoundColliderShape._nativeOffset = physics3D.btVector3_create(0, 0, 0);
@@ -36,7 +36,7 @@ export class CompoundColliderShape extends ColliderShape {
 	constructor() {
 		super();
 		this._type = ColliderShape.SHAPETYPES_COMPOUND;
-		this._nativeShape = new Physics3D._physics3D.btCompoundShape();
+		this._nativeShape = Physics3D._bullet.btCompoundShape_create();
 	}
 
 	/**
@@ -79,7 +79,7 @@ export class CompoundColliderShape extends ColliderShape {
 		nativeQuaternion.setValue(-rotation.x, rotation.y, rotation.z, -rotation.w);
 		nativeTransform.setOrigin(nativeOffset);
 		nativeTransform.setRotation(nativeQuaternion);
-		Physics3D._physics3D.btCompoundShape_updateChildTransform(this._nativeShape, shape._indexInCompound, nativeTransform, true);
+		Physics3D._bullet.btCompoundShape_updateChildTransform(this._nativeShape, shape._indexInCompound, nativeTransform, true);
 	}
 
 	/**
@@ -96,17 +96,17 @@ export class CompoundColliderShape extends ColliderShape {
 		this._childColliderShapes.push(shape);
 		var offset: Vector3 = shape.localOffset;
 		var rotation: Quaternion = shape.localRotation;
-		var physics3D: any = Physics3D._physics3D;
-		physics3D.btVector3_setValue(CompoundColliderShape._nativeOffset, -offset.x, offset.y, offset.z);
-		physics3D.btQuaternion_setValue(CompoundColliderShape._nativRotation, -rotation.x, rotation.y, rotation.z, -rotation.w);
-		physics3D.btTransform_setOrigin(CompoundColliderShape._nativeTransform, CompoundColliderShape._nativeOffset);
-		physics3D.btTransform_setRotation(CompoundColliderShape._nativeTransform, CompoundColliderShape._nativRotation);
+		var bulllet: any = Physics3D._bullet;
+		bulllet.btVector3_setValue(CompoundColliderShape._nativeOffset, -offset.x, offset.y, offset.z);
+		bulllet.btQuaternion_setValue(CompoundColliderShape._nativRotation, -rotation.x, rotation.y, rotation.z, -rotation.w);
+		bulllet.btTransform_setOrigin(CompoundColliderShape._nativeTransform, CompoundColliderShape._nativeOffset);
+		bulllet.btTransform_setRotation(CompoundColliderShape._nativeTransform, CompoundColliderShape._nativRotation);
 
-		var physics3D: any = Physics3D._physics3D;
-		var nativeScale: number = physics3D.btCollisionShape_getLocalScaling(this._nativeShape);
-		physics3D.btCollisionShape_setLocalScaling(this._nativeShape, CompoundColliderShape._nativeVector3One);
-		physics3D.btCompoundShape_addChildShape(this._nativeShape, CompoundColliderShape._nativeTransform, shape._nativeShape);
-		physics3D.btCollisionShape_setLocalScaling(this._nativeShape, nativeScale);
+		var bulllet: any = Physics3D._bullet;
+		var nativeScale: number = bulllet.btCollisionShape_getLocalScaling(this._nativeShape);
+		bulllet.btCollisionShape_setLocalScaling(this._nativeShape, CompoundColliderShape._nativeVector3One);
+		bulllet.btCompoundShape_addChildShape(this._nativeShape, CompoundColliderShape._nativeTransform, shape._nativeShape);
+		bulllet.btCollisionShape_setLocalScaling(this._nativeShape, nativeScale);
 
 		(this._attatchedCollisionObject) && (this._attatchedCollisionObject.colliderShape = this);//修改子Shape需要重新赋值父Shape以及将物理精灵重新加入物理世界等操作
 	}
@@ -123,7 +123,7 @@ export class CompoundColliderShape extends ColliderShape {
 			endShape._indexInCompound = index;
 			this._childColliderShapes[index] = endShape;
 			this._childColliderShapes.pop();
-			Physics3D._physics3D.btCompoundShape_removeChildShapeByIndex(this._nativeShape, index);
+			Physics3D._bullet.btCompoundShape_removeChildShapeByIndex(this._nativeShape, index);
 		}
 	}
 
@@ -133,7 +133,7 @@ export class CompoundColliderShape extends ColliderShape {
 	clearChildShape(): void {
 		for (var i: number = 0, n: number = this._childColliderShapes.length; i < n; i++) {
 			this._clearChildShape(this._childColliderShapes[i]);
-			Physics3D._physics3D.btCompoundShape_removeChildShapeByIndex(this._nativeShape, 0);
+			Physics3D._bullet.btCompoundShape_removeChildShapeByIndex(this._nativeShape, 0);
 		}
 		this._childColliderShapes.length = 0;
 	}

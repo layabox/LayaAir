@@ -23,7 +23,7 @@ export class PhysicsTriggerComponent extends PhysicsComponent {
 	 */
 	set isTrigger(value: boolean) {
 		this._isTrigger = value;
-		var physics3D: any = Physics3D._physics3D;
+		var physics3D: any = Physics3D._bullet;
 		if (this._nativeColliderObject) {
 			var flags: number = physics3D.btCollisionObject_getCollisionFlags(this._nativeColliderObject);
 			if (value) {

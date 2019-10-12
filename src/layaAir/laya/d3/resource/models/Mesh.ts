@@ -45,7 +45,7 @@ export class Mesh extends Resource implements IClone {
  	* @internal
  	*/
 	static __init__(): void {
-		var physics3D: any = Physics3D._physics3D;
+		var physics3D: any = Physics3D._bullet;
 		if (physics3D) {
 			Mesh._nativeTempVector30 = physics3D.btVector3_create(0, 0, 0);
 			Mesh._nativeTempVector31 = physics3D.btVector3_create(0, 0, 0);
@@ -368,11 +368,11 @@ export class Mesh extends Resource implements IClone {
 	 */
 	_getPhysicMesh(): any {
 		if (!this._nativeTriangleMesh) {
-			var physics3D: any = (<any>window).Physics3D;
-			var triangleMesh: any = new physics3D.btTriangleMesh();//TODO:独立抽象btTriangleMesh,增加内存复用
-			var nativePositio0: any = Mesh._nativeTempVector30;
-			var nativePositio1: any = Mesh._nativeTempVector31;
-			var nativePositio2: any = Mesh._nativeTempVector32;
+			var bullet: any = Physics3D._bullet;
+			var triangleMesh: number = bullet.btTriangleMesh_create();//TODO:独立抽象btTriangleMesh,增加内存复用
+			var nativePositio0: number = Mesh._nativeTempVector30;
+			var nativePositio1: number = Mesh._nativeTempVector31;
+			var nativePositio2: number = Mesh._nativeTempVector32;
 			var position0: Vector3 = this._tempVector30;
 			var position1: Vector3 = this._tempVector31;
 			var position2: Vector3 = this._tempVector32;
@@ -395,7 +395,7 @@ export class Mesh extends Resource implements IClone {
 				Utils3D._convertToBulletVec3(position0, nativePositio0, true);
 				Utils3D._convertToBulletVec3(position1, nativePositio1, true);
 				Utils3D._convertToBulletVec3(position2, nativePositio2, true);
-				triangleMesh.addTriangle(nativePositio0, nativePositio1, nativePositio2, true);
+				bullet.btTriangleMesh_addTriangle(triangleMesh, nativePositio0, nativePositio1, nativePositio2, true);
 			}
 			this._nativeTriangleMesh = triangleMesh;
 		}

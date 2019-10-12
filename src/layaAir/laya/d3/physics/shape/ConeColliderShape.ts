@@ -41,7 +41,7 @@ export class ConeColliderShape extends ColliderShape {
 		this._height = height;
 		this._orientation = orientation;
 		this._type = ColliderShape.SHAPETYPES_CYLINDER;
-		var physics3D: any = Physics3D._physics3D;
+		var physics3D: any = Physics3D._bullet;
 		switch (orientation) {
 			case ColliderShape.SHAPEORIENTATION_UPX:
 				this._nativeShape = physics3D.btConeShapeX_create(radius, height);

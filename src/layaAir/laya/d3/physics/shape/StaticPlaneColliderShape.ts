@@ -16,7 +16,7 @@ export class StaticPlaneColliderShape extends ColliderShape {
 	 * @internal
 	 */
 	static __init__(): void {
-		StaticPlaneColliderShape._nativeNormal = Physics3D._physics3D.btVector3_create(0, 0, 0);
+		StaticPlaneColliderShape._nativeNormal = Physics3D._bullet.btVector3_create(0, 0, 0);
 	}
 
 	/**
@@ -28,7 +28,7 @@ export class StaticPlaneColliderShape extends ColliderShape {
 		this._offset = offset;
 		this._type = ColliderShape.SHAPETYPES_STATICPLANE;
 
-		var physics3D: any = Physics3D._physics3D;
+		var physics3D: any = Physics3D._bullet;
 		physics3D.btVector3_setValue(StaticPlaneColliderShape._nativeNormal, -normal.x, normal.y, normal.z);
 		this._nativeShape = physics3D.btStaticPlaneShape_create(StaticPlaneColliderShape._nativeNormal, offset);
 	}

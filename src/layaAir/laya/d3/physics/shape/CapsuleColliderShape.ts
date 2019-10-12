@@ -51,7 +51,7 @@ export class CapsuleColliderShape extends ColliderShape {
 		this._orientation = orientation;
 		this._type = ColliderShape.SHAPETYPES_CAPSULE;
 
-		var physics3D: any = Physics3D._physics3D;
+		var physics3D: any = Physics3D._bullet;
 		switch (orientation) {
 			case ColliderShape.SHAPEORIENTATION_UPX:
 				this._nativeShape = physics3D.btCapsuleShapeX_create(radius, length - radius * 2);

@@ -12,7 +12,7 @@ export class CylinderColliderShape extends ColliderShape {
 	* @internal
 	*/
 	static __init__(): void {
-		CylinderColliderShape._nativeSize = Physics3D._physics3D.btVector3_create(0, 0, 0);
+		CylinderColliderShape._nativeSize = Physics3D._bullet.btVector3_create(0, 0, 0);
 	}
 
 	private _orientation: number;
@@ -51,7 +51,7 @@ export class CylinderColliderShape extends ColliderShape {
 		this._height = height;
 		this._orientation = orientation;
 		this._type = ColliderShape.SHAPETYPES_CYLINDER;
-		var physics3D: any = Physics3D._physics3D;
+		var physics3D: any = Physics3D._bullet;
 		switch (orientation) {
 			case ColliderShape.SHAPEORIENTATION_UPX:
 				physics3D.btVector3_setValue(CylinderColliderShape._nativeSize, height / 2, radius, radius);

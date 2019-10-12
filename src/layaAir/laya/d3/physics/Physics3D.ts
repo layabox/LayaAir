@@ -3,7 +3,7 @@ import { PhysicsComponent } from "./PhysicsComponent";
 
 export class Physics3D {
     /**@internal */
-    static _physics3D: any = null;
+    static _bullet: any = null;
     /**@internal */
     static _enablePhysics: Boolean = false;
     /**@internal */

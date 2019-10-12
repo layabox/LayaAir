@@ -205,8 +205,8 @@ export class Laya3D {
 		SubMeshInstanceBatch.__init__();
 		SubMeshDynamicBatch.__init__();
 
-		Physics3D._physics3D = (window as any).Physics3D;
-		if (Physics3D._physics3D) {
+		Physics3D._bullet = (window as any).Physics3D;
+		if (Physics3D._bullet) {
 			StaticPlaneColliderShape.__init__();
 			ColliderShape.__init__();
 			CompoundColliderShape.__init__();

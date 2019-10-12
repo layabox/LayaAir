@@ -72,10 +72,9 @@ export class PhysicsCollider extends PhysicsTriggerComponent {
 	 * @internal
 	 */
 	_onAdded(): void {
-		var physics3D: any = Physics3D._physics3D;
+		var physics3D: any = Physics3D._bullet;
 		var btColObj: number = physics3D.btCollisionObject_create();
 		physics3D.btCollisionObject_setUserIndex(btColObj, this.id);
-		console.log(btColObj);
 		physics3D.btCollisionObject_forceActivationState(btColObj, PhysicsComponent.ACTIVATIONSTATE_DISABLE_SIMULATION);//prevent simulation
 
 		var flags: number = physics3D.btCollisionObject_getCollisionFlags(btColObj);

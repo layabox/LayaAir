@@ -72,7 +72,7 @@ export class PhysicsComponent extends Component {
 	* @internal
 	*/
 	static __init__(): void {
-		var physics3D: any = Physics3D._physics3D;
+		var physics3D: any = Physics3D._bullet;
 		PhysicsComponent._nativeVector30 = physics3D.btVector3_create(0, 0, 0);
 		PhysicsComponent._nativeQuaternion0 = physics3D.btQuaternion_create(0, 0, 0, 1);
 	}
@@ -192,7 +192,7 @@ export class PhysicsComponent extends Component {
 	protected _transformFlag: number = 2147483647 /*int.MAX_VALUE*/;
 
 	/** @internal */
-	_nativeColliderObject: any;//TODO:不用声明,TODO:删除相关判断
+	_nativeColliderObject: number;//TODO:不用声明,TODO:删除相关判断
 	/** @internal */
 	_simulation: PhysicsSimulation;
 	/** @internal */
@@ -217,7 +217,7 @@ export class PhysicsComponent extends Component {
 	 */
 	set restitution(value: number) {
 		this._restitution = value;
-		this._nativeColliderObject && Physics3D._physics3D.btCollisionObject_setRestitution(this._nativeColliderObject, value);
+		this._nativeColliderObject && Physics3D._bullet.btCollisionObject_setRestitution(this._nativeColliderObject, value);
 	}
 
 	/**
@@ -234,7 +234,7 @@ export class PhysicsComponent extends Component {
 	 */
 	set friction(value: number) {
 		this._friction = value;
-		this._nativeColliderObject && Physics3D._physics3D.btCollisionObject_setFriction(this._nativeColliderObject, value);
+		this._nativeColliderObject && Physics3D._bullet.btCollisionObject_setFriction(this._nativeColliderObject, value);
 	}
 
 	/**
@@ -242,7 +242,7 @@ export class PhysicsComponent extends Component {
 	 * @return 滚动摩擦力。
 	 */
 	get rollingFriction(): number {
-		return this._nativeColliderObject.getRollingFriction();
+		return this._rollingFriction;
 	}
 
 	/**
@@ -251,7 +251,7 @@ export class PhysicsComponent extends Component {
 	 */
 	set rollingFriction(value: number) {
 		this._rollingFriction = value;
-		this._nativeColliderObject && Physics3D._physics3D.btCollisionObject_setRollingFriction(this._nativeColliderObject, value);
+		this._nativeColliderObject && Physics3D._bullet.btCollisionObject_setRollingFriction(this._nativeColliderObject, value);
 	}
 
 	/**
@@ -268,7 +268,7 @@ export class PhysicsComponent extends Component {
 	 */
 	set ccdMotionThreshold(value: number) {
 		this._ccdMotionThreshold = value;
-		this._nativeColliderObject && Physics3D._physics3D.btCollisionObject_setCcdMotionThreshold(this._nativeColliderObject, value);
+		this._nativeColliderObject && Physics3D._bullet.btCollisionObject_setCcdMotionThreshold(this._nativeColliderObject, value);
 	}
 
 	/**
@@ -285,14 +285,14 @@ export class PhysicsComponent extends Component {
 	 */
 	set ccdSweptSphereRadius(value: number) {
 		this._ccdSweptSphereRadius = value;
-		this._nativeColliderObject && Physics3D._physics3D.btCollisionObject_setCcdSweptSphereRadius(this._nativeColliderObject, value);
+		this._nativeColliderObject && Physics3D._bullet.btCollisionObject_setCcdSweptSphereRadius(this._nativeColliderObject, value);
 	}
 
 	/**
 	 * 获取是否激活。
 	 */
 	get isActive(): boolean {
-		return this._nativeColliderObject ? this._nativeColliderObject.isActive() : false;
+		return this._nativeColliderObject ? Physics3D._bullet.btCollisionObject_isActive(this._nativeColliderObject) : false;
 	}
 
 	/**
@@ -348,7 +348,7 @@ export class PhysicsComponent extends Component {
 			}
 
 			if (this._nativeColliderObject) {
-				Physics3D._physics3D.btCollisionObject_setCollisionShape(this._nativeColliderObject, value._nativeShape);
+				Physics3D._bullet.btCollisionObject_setCollisionShape(this._nativeColliderObject, value._nativeShape);
 				var canInSimulation: boolean = this._simulation && this._enabled;
 				(canInSimulation && lastColliderShape) && (this._removeFromSimulation());//修改shape必须把Collison从物理世界中移除再重新添加
 				this._onShapeChange(value);//修改shape会计算惯性
@@ -508,7 +508,7 @@ export class PhysicsComponent extends Component {
 	 * 	@internal
 	 */
 	_derivePhysicsTransformation(force: boolean): void {
-		this._innerDerivePhysicsTransformation(Physics3D._physics3D.btCollisionObject_getWorldTransform(this._nativeColliderObject), force);
+		this._innerDerivePhysicsTransformation(Physics3D._bullet.btCollisionObject_getWorldTransform(this._nativeColliderObject), force);
 	}
 
 	/**
@@ -516,7 +516,7 @@ export class PhysicsComponent extends Component {
 	 *	通过渲染矩阵更新物理矩阵。
 	 */
 	_innerDerivePhysicsTransformation(physicTransformOut: number, force: boolean): void {
-		var physics3D: any = Physics3D._physics3D;
+		var physics3D: any = Physics3D._bullet;
 		var transform: Transform3D = ((<Sprite3D>this.owner))._transform;
 		var rotation: Quaternion = transform.rotation;
 		var scale: Vector3 = transform.getWorldLossyScale();
@@ -562,7 +562,7 @@ export class PhysicsComponent extends Component {
 	 * 通过物理矩阵更新渲染矩阵。
 	 */
 	_updateTransformComponent(physicsTransform: number): void {
-		var physics3D: any = Physics3D._physics3D;
+		var physics3D: any = Physics3D._bullet;
 		var localOffset: Vector3 = this._colliderShape.localOffset;
 		var localRotation: Quaternion = this._colliderShape.localRotation;
 
@@ -610,7 +610,7 @@ export class PhysicsComponent extends Component {
 	 */
 	protected _onEnable(): void {
 		this._simulation = ((<Scene3D>this.owner._scene)).physicsSimulation;
-		Physics3D._physics3D.btCollisionObject_setContactProcessingThreshold(this._nativeColliderObject, 1e30);
+		Physics3D._bullet.btCollisionObject_setContactProcessingThreshold(this._nativeColliderObject, 1e30);
 		if (this._colliderShape && this._enabled) {
 			this._derivePhysicsTransformation(true);
 			this._addToSimulation();
@@ -635,7 +635,7 @@ export class PhysicsComponent extends Component {
 	 */
 	_onShapeChange(colShape: ColliderShape): void {
 		var btColObj: any = this._nativeColliderObject;
-		var physics3D: any = Physics3D._physics3D;
+		var physics3D: any = Physics3D._bullet;
 		var flags: number = physics3D.btCollisionObject_getCollisionFlags(btColObj);
 		if (colShape.needsCustomCollisionCallback) {
 			if ((flags & PhysicsComponent.COLLISIONFLAGS_CUSTOM_MATERIAL_CALLBACK) === 0)
@@ -667,7 +667,7 @@ export class PhysicsComponent extends Component {
 	 * @override
 	 */
 	protected _onDestroy(): void {
-		var physics3D: any = Physics3D._physics3D;
+		var physics3D: any = Physics3D._bullet;
 		delete PhysicsComponent._physicObjectsMap[this.id];
 		physics3D.destroy(this._nativeColliderObject);
 		this._colliderShape.destroy();
