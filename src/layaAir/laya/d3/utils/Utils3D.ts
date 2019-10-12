@@ -11,6 +11,7 @@ import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
 import { TextureGenerator } from "../resource/TextureGenerator";
 import { TextureFormat } from "../../resource/TextureFormat";
+import { Physics3D } from "../physics/Physics3D";
 
 /**
  * <code>Utils3D</code> 类用于创建3D工具。
@@ -48,8 +49,8 @@ export class Utils3D {
 	/**
 	 * @internal
 	 */
-	static _convertToBulletVec3(lVector: Vector3, out: any, inverseX: boolean): void {
-		out.setValue(inverseX ? -lVector.x : lVector.x, lVector.y, lVector.z);
+	static _convertToBulletVec3(lVector: Vector3, out: number, inverseX: boolean): void {
+		Physics3D._physics3D.btVector3_setValue(out, inverseX ? -lVector.x : lVector.x, lVector.y, lVector.z);
 	}
 
 	/**

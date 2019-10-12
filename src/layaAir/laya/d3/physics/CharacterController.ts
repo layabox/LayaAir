@@ -11,13 +11,13 @@ import { Component } from "../../components/Component";
  */
 export class CharacterController extends PhysicsComponent {
 	/** @internal */
-	private static _nativeTempVector30: any;
+	private static _nativeTempVector30: number;
 
 	/**
 	 * @internal
 	 */
 	static __init__(): void {
-		CharacterController._nativeTempVector30 = new Physics3D._physics3D.btVector3(0, 0, 0);
+		CharacterController._nativeTempVector30 = Physics3D._physics3D.btVector3_create(0, 0, 0);
 	}
 
 	/* UP轴_X轴。*/

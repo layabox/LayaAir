@@ -5,13 +5,14 @@ import { ColliderShape } from "./ColliderShape";
  * <code>CylinderColliderShape</code> 类用于创建圆柱碰撞器。
  */
 export class CylinderColliderShape extends ColliderShape {
-	private static _nativeSize: any;
+	/** @internal */
+	private static _nativeSize: number;
 
 	/**
 	* @internal
 	*/
 	static __init__(): void {
-		CylinderColliderShape._nativeSize = new Physics3D._physics3D.btVector3(0, 0, 0);
+		CylinderColliderShape._nativeSize = Physics3D._physics3D.btVector3_create(0, 0, 0);
 	}
 
 	private _orientation: number;
@@ -50,18 +51,19 @@ export class CylinderColliderShape extends ColliderShape {
 		this._height = height;
 		this._orientation = orientation;
 		this._type = ColliderShape.SHAPETYPES_CYLINDER;
+		var physics3D: any = Physics3D._physics3D;
 		switch (orientation) {
 			case ColliderShape.SHAPEORIENTATION_UPX:
-				CylinderColliderShape._nativeSize.setValue(height / 2, radius, radius);
-				this._nativeShape = new Physics3D._physics3D.btCylinderShapeX(CylinderColliderShape._nativeSize);
+				physics3D.btVector3_setValue(CylinderColliderShape._nativeSize, height / 2, radius, radius);
+				this._nativeShape = physics3D.btCylinderShapeX_create(CylinderColliderShape._nativeSize);
 				break;
 			case ColliderShape.SHAPEORIENTATION_UPY:
-				CylinderColliderShape._nativeSize.setValue(radius, height / 2, radius);
-				this._nativeShape = new Physics3D._physics3D.btCylinderShape(CylinderColliderShape._nativeSize);
+				physics3D.btVector3_setValue(CylinderColliderShape._nativeSize, radius, height / 2, radius);
+				this._nativeShape = physics3D.btCylinderShape_create(CylinderColliderShape._nativeSize);
 				break;
 			case ColliderShape.SHAPEORIENTATION_UPZ:
-				CylinderColliderShape._nativeSize.setValue(radius, radius, height / 2);
-				this._nativeShape = new Physics3D._physics3D.btCylinderShapeZ(CylinderColliderShape._nativeSize);
+				physics3D.btVector3_setValue(CylinderColliderShape._nativeSize, radius, radius, height / 2);
+				this._nativeShape = physics3D.btCylinderShapeZ_create(CylinderColliderShape._nativeSize);
 				break;
 			default:
 				throw "CapsuleColliderShape:unknown orientation.";

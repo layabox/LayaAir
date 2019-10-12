@@ -35,31 +35,46 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	static _BT_ENABLE_GYROPSCOPIC_FORCE: number = 2;
 
 	/** @internal */
-	private static _nativeTempVector30: any;
+	private static _nativeTempVector30: number;
 	/** @internal */
-	private static _nativeTempVector31: any;
+	private static _nativeTempVector31: number;
 	/** @internal */
-	private static _nativeVector3Zero: any;
+	private static _nativeVector3Zero: number;
 	/** @internal */
-	private static _nativeInertia: any;
+	private static _nativeInertia: number;
 	/** @internal */
-	private static _nativeImpulse: any;
+	private static _nativeImpulse: number;
 	/** @internal */
-	private static _nativeImpulseOffset: any;
+	private static _nativeImpulseOffset: number;
 	/** @internal */
-	private static _nativeGravity: any;
+	private static _nativeGravity: number;
+
 
 	/**
 	 * @internal
 	 */
 	static __init__(): void {
-		Rigidbody3D._nativeTempVector30 = new Physics3D._physics3D.btVector3(0, 0, 0);
-		Rigidbody3D._nativeTempVector31 = new Physics3D._physics3D.btVector3(0, 0, 0);
-		Rigidbody3D._nativeVector3Zero = new Physics3D._physics3D.btVector3(0, 0, 0);
-		Rigidbody3D._nativeInertia = new Physics3D._physics3D.btVector3(0, 0, 0);
-		Rigidbody3D._nativeImpulse = new Physics3D._physics3D.btVector3(0, 0, 0);
-		Rigidbody3D._nativeImpulseOffset = new Physics3D._physics3D.btVector3(0, 0, 0);
-		Rigidbody3D._nativeGravity = new Physics3D._physics3D.btVector3(0, 0, 0);
+		var physics3D: any = Physics3D._physics3D;
+		Rigidbody3D._nativeTempVector30 = physics3D.btVector3_create(0, 0, 0);
+		Rigidbody3D._nativeTempVector31 = physics3D.btVector3_create(0, 0, 0);
+		Rigidbody3D._nativeVector3Zero = physics3D.btVector3_create(0, 0, 0);
+		Rigidbody3D._nativeInertia = physics3D.btVector3_create(0, 0, 0);
+		Rigidbody3D._nativeImpulse = physics3D.btVector3_create(0, 0, 0);
+		Rigidbody3D._nativeImpulseOffset = physics3D.btVector3_create(0, 0, 0);
+		Rigidbody3D._nativeGravity = physics3D.btVector3_create(0, 0, 0);
+
+		var interactive: object = Physics3D._interactive;
+		//Dynamic刚体,初始化时调用一次。
+		//Kinematic刚体,每次物理tick时调用(如果未进入睡眠状态),让物理引擎知道刚体位置。
+		interactive["getWorldTransform"] = (worldTransPointer: number) => { };
+		//Dynamic刚体,物理引擎每帧调用一次,用于更新渲染矩阵。
+		interactive["setWorldTransform"] = (worldTransPointer: number) => {
+			var rigidBody: Rigidbody3D = (<any>this)._rigidbody;
+			rigidBody._simulation._updatedRigidbodies++;
+			var physics3D: any = Physics3D._physics3D;
+			var worldTrans: any = physics3D.wrapPointer(worldTransPointer, physics3D.btTransform);
+			rigidBody._updateTransformComponent(worldTrans);
+		};
 	}
 
 	/** @internal */
@@ -127,30 +142,31 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	set isKinematic(value: boolean) {
 		this._isKinematic = value;
 
+		var physics3D: any = Physics3D._physics3D;
 		var canInSimulation: boolean = !!(this._simulation && this._enabled && this._colliderShape);
 		canInSimulation && this._removeFromSimulation();
 		var natColObj: any = this._nativeColliderObject;
-		var flags: number = natColObj.getCollisionFlags();
+		var flags: number = physics3D.btCollisionObject_getCollisionFlags(natColObj);
 		if (value) {
 			flags = flags | PhysicsComponent.COLLISIONFLAGS_KINEMATIC_OBJECT;
-			natColObj.setCollisionFlags(flags);//加入场景前必须配置flag,加入后无效
-			this._nativeColliderObject.forceActivationState(PhysicsComponent.ACTIVATIONSTATE_DISABLE_DEACTIVATION);//触发器开启主动检测,并防止睡眠
+			physics3D.btCollisionObject_setCollisionFlags(natColObj, flags);//加入场景前必须配置flag,加入后无效
+			physics3D.btCollisionObject_forceActivationState(this._nativeColliderObject, PhysicsComponent.ACTIVATIONSTATE_DISABLE_DEACTIVATION);//触发器开启主动检测,并防止睡眠
 			this._enableProcessCollisions = false;
 			this._updateMass(0);//必须设置Mass为0来保证InverMass为0
 		} else {
 			if ((flags & PhysicsComponent.COLLISIONFLAGS_KINEMATIC_OBJECT) > 0)
 				flags = flags ^ PhysicsComponent.COLLISIONFLAGS_KINEMATIC_OBJECT;
-			natColObj.setCollisionFlags(flags);//加入场景前必须配置flag,加入后无效
-			this._nativeColliderObject.setActivationState(PhysicsComponent.ACTIVATIONSTATE_ACTIVE_TAG);
+			physics3D.btCollisionObject_setCollisionFlags(natColObj, flags);//加入场景前必须配置flag,加入后无效
+			physics3D.btCollisionObject_setActivationState(this._nativeColliderObject, PhysicsComponent.ACTIVATIONSTATE_ACTIVE_TAG);
 			this._enableProcessCollisions = true;
 			this._updateMass(this._mass);
 		}
 
 		var nativeZero: any = Rigidbody3D._nativeVector3Zero;
-		natColObj.setInterpolationLinearVelocity(nativeZero);
-		natColObj.setLinearVelocity(nativeZero);
-		natColObj.setInterpolationAngularVelocity(nativeZero);
-		natColObj.setAngularVelocity(nativeZero);
+		physics3D.btCollisionObject_setInterpolationLinearVelocity(natColObj, nativeZero);
+		physics3D.btRigidBody_setLinearVelocity(natColObj, nativeZero);
+		physics3D.btCollisionObject_setInterpolationAngularVelocity(natColObj, nativeZero);
+		physics3D.btRigidBody_setAngularVelocity(natColObj, nativeZero);
 
 		canInSimulation && this._addToSimulation();
 	}
@@ -170,7 +186,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	set linearDamping(value: number) {
 		this._linearDamping = value;
 		if (this._nativeColliderObject)
-			this._nativeColliderObject.setDamping(value, this._angularDamping);
+			Physics3D._physics3D.btRigidBody_setDamping(this._nativeColliderObject, value, this._angularDamping);
 	}
 
 	/**
@@ -188,7 +204,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	set angularDamping(value: number) {
 		this._angularDamping = value;
 		if (this._nativeColliderObject)
-			this._nativeColliderObject.setDamping(this._linearDamping, value);
+			Physics3D._physics3D.btRigidBody_setDamping(this._nativeColliderObject, this._linearDamping, value);
 	}
 
 	/**
@@ -205,14 +221,15 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	 */
 	set overrideGravity(value: boolean) {
 		this._overrideGravity = value;
+		var physics3D: any = Physics3D._physics3D;
 		if (this._nativeColliderObject) {
-			var flag: number = this._nativeColliderObject.getFlags();
+			var flag: number = physics3D.btRigidBody_getFlags(this._nativeColliderObject);
 			if (value) {
 				if ((flag & Rigidbody3D._BT_DISABLE_WORLD_GRAVITY) === 0)
-					this._nativeColliderObject.setFlags(flag | Rigidbody3D._BT_DISABLE_WORLD_GRAVITY);
+					physics3D.btRigidBody_setFlags(this._nativeColliderObject, flag | Rigidbody3D._BT_DISABLE_WORLD_GRAVITY);
 			} else {
 				if ((flag & Rigidbody3D._BT_DISABLE_WORLD_GRAVITY) > 0)
-					this._nativeColliderObject.setFlags(flag ^ Rigidbody3D._BT_DISABLE_WORLD_GRAVITY);
+					physics3D.btRigidBody_setFlags(this._nativeColliderObject, flag ^ Rigidbody3D._BT_DISABLE_WORLD_GRAVITY);
 			}
 		}
 	}
@@ -231,8 +248,9 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	 */
 	set gravity(value: Vector3) {
 		this._gravity = value;
-		Rigidbody3D._nativeGravity.setValue(-value.x, value.y, value.z);
-		this._nativeColliderObject.setGravity(Rigidbody3D._nativeGravity);
+		var physics3D: any = Physics3D._physics3D;
+		physics3D.btVector3_setValue(Rigidbody3D._nativeGravity, -value.x, value.y, value.z);
+		physics3D.btRigidBody_setGravity(this._nativeColliderObject, Rigidbody3D._nativeGravity);
 	}
 
 	/**
@@ -262,9 +280,9 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	set linearFactor(value: Vector3) {
 		this._linearFactor = value;
 		if (this._nativeColliderObject) {
-			var nativeValue: any = Rigidbody3D._nativeTempVector30;
+			var nativeValue: number = Rigidbody3D._nativeTempVector30;
 			Utils3D._convertToBulletVec3(value, nativeValue, false);
-			this._nativeColliderObject.setLinearFactor(nativeValue);
+			Physics3D._physics3D.btRigidBody_setLinearFactor(this._nativeColliderObject, nativeValue);
 		}
 	}
 
@@ -285,10 +303,10 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	set linearVelocity(value: Vector3) {
 		this._linearVelocity = value;
 		if (this._nativeColliderObject) {
-			var nativeValue: any = Rigidbody3D._nativeTempVector30;
+			var nativeValue: number = Rigidbody3D._nativeTempVector30;
 			Utils3D._convertToBulletVec3(value, nativeValue, true);
 			(this.isSleeping) && (this.wakeUp());//可能会因睡眠导致设置线速度无效
-			this._nativeColliderObject.setLinearVelocity(nativeValue);
+			Physics3D._physics3D.btRigidBody_setLinearVelocity(this._nativeColliderObject, nativeValue);
 		}
 	}
 
@@ -307,9 +325,9 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	set angularFactor(value: Vector3) {
 		this._angularFactor = value;
 		if (this._nativeColliderObject) {
-			var nativeValue: any = Rigidbody3D._nativeTempVector30;
+			var nativeValue: number = Rigidbody3D._nativeTempVector30;
 			Utils3D._convertToBulletVec3(value, nativeValue, false);
-			this._nativeColliderObject.setAngularFactor(nativeValue);
+			Physics3D._physics3D.btRigidBody_setAngularFactor(this._nativeColliderObject, nativeValue);
 		}
 	}
 
@@ -330,10 +348,10 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	set angularVelocity(value: Vector3) {
 		this._angularVelocity = value;
 		if (this._nativeColliderObject) {
-			var nativeValue: any = Rigidbody3D._nativeTempVector30;
+			var nativeValue: number = Rigidbody3D._nativeTempVector30;
 			Utils3D._convertToBulletVec3(value, nativeValue, true);
 			(this.isSleeping) && (this.wakeUp());//可能会因睡眠导致设置角速度无效
-			this._nativeColliderObject.setAngularVelocity(nativeValue);
+			Physics3D._physics3D.btRigidBody_setAngularVelocity(this._nativeColliderObject, nativeValue);
 		}
 	}
 
@@ -342,7 +360,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	 */
 	get totalTorque(): Vector3 {
 		if (this._nativeColliderObject) {
-			var nativeTotalTorque: any = this._nativeColliderObject.getTotalTorque();
+			var nativeTotalTorque: number = this._nativeColliderObject.getTotalTorque();
 			Utils3D._convertToLayaVec3(nativeTotalTorque, this._totalTorque, true);
 			return this._totalTorque;
 		}
@@ -432,9 +450,10 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	 */
 	private _updateMass(mass: number): void {
 		if (this._nativeColliderObject && this._colliderShape) {
-			this._colliderShape._nativeShape.calculateLocalInertia(mass, Rigidbody3D._nativeInertia);
-			this._nativeColliderObject.setMassProps(mass, Rigidbody3D._nativeInertia);
-			this._nativeColliderObject.updateInertiaTensor(); //this was the major headache when I had to debug Slider and Hinge constraint
+			var physics3D: any = Physics3D._physics3D;
+			physics3D.btCollisionShape_calculateLocalInertia(this._colliderShape._nativeShape, mass, Rigidbody3D._nativeInertia);
+			physics3D.btRigidBody_setMassProps(this._nativeColliderObject,mass, Rigidbody3D._nativeInertia);
+			physics3D.btRigidBody_updateInertiaTensor(this._nativeColliderObject); //this was the major headache when I had to debug Slider and Hinge constraint
 		}
 	}
 
@@ -468,37 +487,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		rigidBody._updateTransformComponent(worldTrans);
 	}
 
-	/**
-	 *  @internal
-	 * Dynamic刚体,初始化时调用一次。
-	 * Kinematic刚体,每次物理tick时调用(如果未进入睡眠状态),让物理引擎知道刚体位置。
-	 * 该函数只有在runtime下调用
-	 */
-	private _delegateMotionStateGetWorldTransformNative(ridgidBody3D: Rigidbody3D, worldTransPointer: number): void {
-		//已调整机制,引擎会统一处理通过Transform修改坐标更新包围盒队列
 
-		//var rigidBody:Rigidbody3D = ridgidBody3D;
-		//if (!rigidBody._colliderShape)//Dynamic刚体初始化时没有colliderShape需要跳过
-		//return;
-		//
-		//rigidBody._simulation._updatedRigidbodies++;
-		//var physics3D:* = Laya3D._physics3D;
-		//var worldTrans:* = physics3D.wrapPointer(worldTransPointer, physics3D.btTransform);
-		//rigidBody._innerDerivePhysicsTransformation(worldTrans, true);
-	}
-
-	/**
-	 * @internal
-	 * Dynamic刚体,物理引擎每帧调用一次,用于更新渲染矩阵。
-	 * 该函数只有在runtime下调用
-	 */
-	private _delegateMotionStateSetWorldTransformNative(rigidBody3D: Rigidbody3D, worldTransPointer: number): void {
-		var rigidBody: Rigidbody3D = rigidBody3D;
-		rigidBody._simulation._updatedRigidbodies++;
-		var physics3D: any = Physics3D._physics3D;
-		var worldTrans: any = physics3D.wrapPointer(worldTransPointer, physics3D.btTransform);
-		rigidBody._updateTransformComponent(worldTrans);
-	}
 
 	/**
 	 * @inheritDoc
@@ -511,36 +500,29 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	}
 
 	/**
-	 * @internal
-	 */
-	_delegateMotionStateClear(): void {
-		(<any>this)._rigidbody = null;
-	}
-
-	/**
 	 * @inheritDoc
 	 * @override
 	 * @internal
 	 */
 	_onAdded(): void {
 		var physics3D: any = Physics3D._physics3D;
-		var motionState: any = new physics3D.LayaMotionState();
-		var isConchApp: boolean = ((<any>window).conch != null);
-		if (isConchApp && physics3D.LayaMotionState.prototype.setRigidbody) {
-			motionState.setRigidbody(this);
-			motionState.setNativeGetWorldTransform(this._delegateMotionStateGetWorldTransformNative);
-			motionState.setNativeSetWorldTransform(this._delegateMotionStateSetWorldTransformNative);
-		} else {
-			motionState.getWorldTransform = this._delegateMotionStateGetWorldTransform;
-			motionState.setWorldTransform = this._delegateMotionStateSetWorldTransform;
-		}
+		var motionState: number = physics3D.LayaMotionState_create();
+		// var isConchApp: boolean = ((<any>window).conch != null);
+		// if (isConchApp && physics3D.LayaMotionState.prototype.setRigidbody) {
+		// motionState.setRigidbody(this);
+		// motionState.setNativeGetWorldTransform(this._delegateMotionStateGetWorldTransformNative);
+		// motionState.setNativeSetWorldTransform(this._delegateMotionStateSetWorldTransformNative);
+		// } else {
+		// 	motionState.getWorldTransform = this._delegateMotionStateGetWorldTransform;
+		// 	motionState.setWorldTransform = this._delegateMotionStateSetWorldTransform;
+		// }
 
-		motionState.clear = this._delegateMotionStateClear;
-		motionState._rigidbody = this;
+		physics3D.layaMotionState_set_rigidBodyID(motionState,this._id);
 		this._nativeMotionState = motionState;
-		var constructInfo: any = new physics3D.btRigidBodyConstructionInfo(0.0, motionState, null, Rigidbody3D._nativeVector3Zero);
-		var btRigid: any = new physics3D.btRigidBody(constructInfo);
-		btRigid.setUserIndex(this.id);
+		var constructInfo: number = physics3D.btRigidBodyConstructionInfo_create(0.0, motionState, null, Rigidbody3D._nativeVector3Zero);
+		var btRigid: number = physics3D.btRigidBody_create(constructInfo);
+		physics3D.btCollisionObject_setUserIndex(btRigid, this.id);
+		console.log(btRigid);
 		this._nativeColliderObject = btRigid;
 		super._onAdded();
 		this.mass = this._mass;
@@ -551,7 +533,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		this.overrideGravity = this._overrideGravity;
 		this.gravity = this._gravity;
 		this.isKinematic = this._isKinematic;
-		physics3D.destroy(constructInfo);
+		physics3D.btRigidBodyConstructionInfo_destroy(constructInfo);
 	}
 
 	/**
@@ -565,7 +547,8 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		if (this._isKinematic) {
 			this._updateMass(0);
 		} else {
-			this._nativeColliderObject.setCenterOfMassTransform(this._nativeColliderObject.getWorldTransform());//修改Shape会影响坐标,需要更新插值坐标,否则物理引擎motionState.setWorldTrans数据为旧数据
+			var physics3D: any = Physics3D._physics3D;
+			physics3D.btRigidBody_setCenterOfMassTransform(this._nativeColliderObject, physics3D.btCollisionObject_getWorldTransform(this._nativeColliderObject));//修改Shape会影响坐标,需要更新插值坐标,否则物理引擎motionState.setWorldTrans数据为旧数据
 			this._updateMass(this._mass);
 		}
 	}
@@ -709,9 +692,10 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	applyImpulse(impulse: Vector3, localOffset: Vector3 = null): void {
 		if (this._nativeColliderObject == null)
 			throw "Attempted to call a Physics function that is avaliable only when the Entity has been already added to the Scene.";
-		Rigidbody3D._nativeImpulse.setValue(-impulse.x, impulse.y, impulse.z);
+		var physics3D: any = Physics3D._physics3D;
+		physics3D.btVector3_setValue(Rigidbody3D._nativeImpulse, -impulse.x, impulse.y, impulse.z);
 		if (localOffset) {
-			Rigidbody3D._nativeImpulseOffset.setValue(-localOffset.x, localOffset.y, localOffset.z);
+			physics3D.btVector3_setValue(Rigidbody3D._nativeImpulseOffset, -localOffset.x, localOffset.y, localOffset.z);
 			this._nativeColliderObject.applyImpulse(Rigidbody3D._nativeImpulse, Rigidbody3D._nativeImpulseOffset);
 		} else {
 			this._nativeColliderObject.applyCentralImpulse(Rigidbody3D._nativeImpulse);

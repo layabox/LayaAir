@@ -57,17 +57,17 @@ export class PhysicsSimulation {
 	static SOLVERMODE_ALLOW_ZERO_LENGTH_FRICTION_DIRECTIONS: number = 1024;
 
 	/** @internal */
-	private static _nativeTempVector30: any;
+	private static _nativeTempVector30: number;
 	/** @internal */
-	private static _nativeTempVector31: any;
+	private static _nativeTempVector31: number;
 	/** @internal */
-	private static _nativeTempQuaternion0: any;
+	private static _nativeTempQuaternion0: number;
 	/** @internal */
-	private static _nativeTempQuaternion1: any;
+	private static _nativeTempQuaternion1: number;
 	/** @internal */
-	private static _nativeTempTransform0: any;
+	private static _nativeTempTransform0: number;
 	/** @internal */
-	private static _nativeTempTransform1: any;
+	private static _nativeTempTransform1: number;
 	/** @internal */
 	private static _tempVector30: Vector3 = new Vector3();
 
@@ -78,12 +78,13 @@ export class PhysicsSimulation {
 	* @internal
 	*/
 	static __init__(): void {
-		PhysicsSimulation._nativeTempVector30 = new Physics3D._physics3D.btVector3(0, 0, 0);
-		PhysicsSimulation._nativeTempVector31 = new Physics3D._physics3D.btVector3(0, 0, 0);
-		PhysicsSimulation._nativeTempQuaternion0 = new Physics3D._physics3D.btQuaternion(0, 0, 0, 1);
-		PhysicsSimulation._nativeTempQuaternion1 = new Physics3D._physics3D.btQuaternion(0, 0, 0, 1);
-		PhysicsSimulation._nativeTempTransform0 = new Physics3D._physics3D.btTransform();
-		PhysicsSimulation._nativeTempTransform1 = new Physics3D._physics3D.btTransform();
+		var physics3D: any = Physics3D._physics3D;
+		PhysicsSimulation._nativeTempVector30 = physics3D.btVector3_create(0, 0, 0);
+		PhysicsSimulation._nativeTempVector31 = physics3D.btVector3_create(0, 0, 0);
+		PhysicsSimulation._nativeTempQuaternion0 = physics3D.btQuaternion_create(0, 0, 0, 1);
+		PhysicsSimulation._nativeTempQuaternion1 = physics3D.btQuaternion_create(0, 0, 0, 1);
+		PhysicsSimulation._nativeTempTransform0 = physics3D.btTransform_create();
+		PhysicsSimulation._nativeTempTransform1 = physics3D.btTransform_create();
 	}
 
 	/**
@@ -98,11 +99,11 @@ export class PhysicsSimulation {
 	/** @internal */
 	private _nativeCollisionWorld: any;
 	/** @internal */
-	private _nativeDispatcher: any;
+	private _nativeDispatcher: number;
 	/** @internal */
-	private _nativeCollisionConfiguration: any;
+	private _nativeCollisionConfiguration: number;
 	/** @internal */
-	private _nativeBroadphase: any;
+	private _nativeBroadphase: number;
 	/** @internal */
 	private _nativeSolverInfo: any;
 	/** @internal */
@@ -111,9 +112,9 @@ export class PhysicsSimulation {
 	private _gravity: Vector3 = new Vector3(0, -10, 0);
 
 	/** @internal */
-	private _nativeVector3Zero: any = new Physics3D._physics3D.btVector3(0, 0, 0);
+	private _nativeVector3Zero: number = Physics3D._physics3D.btVector3_create(0, 0, 0);
 	/** @internal */
-	private _nativeDefaultQuaternion: any = new Physics3D._physics3D.btQuaternion(0, 0, 0, -1);
+	private _nativeDefaultQuaternion: number = Physics3D._physics3D.btQuaternion_create(0, 0, 0, -1);
 	/** @internal */
 	private _nativeClosestRayResultCallback: any;
 	/** @internal */
@@ -207,10 +208,10 @@ export class PhysicsSimulation {
 		this.fixedTimeStep = configuration.fixedTimeStep;
 
 		var physics3D: any = Physics3D._physics3D;
-		this._nativeCollisionConfiguration = new physics3D.btDefaultCollisionConfiguration();
-		this._nativeDispatcher = new physics3D.btCollisionDispatcher(this._nativeCollisionConfiguration);
-		this._nativeBroadphase = new physics3D.btDbvtBroadphase();
-		this._nativeBroadphase.getOverlappingPairCache().setInternalGhostPairCallback(new physics3D.btGhostPairCallback());//this allows characters to have proper physics behavior
+		this._nativeCollisionConfiguration = physics3D.btDefaultCollisionConfiguration_create();
+		this._nativeDispatcher = physics3D.btCollisionDispatcher_create(this._nativeCollisionConfiguration);
+		this._nativeBroadphase = physics3D.btDbvtBroadphase_create();
+		physics3D.btOverlappingPairCache_setInternalGhostPairCallback(physics3D.btDbvtBroadphase_getOverlappingPairCache(this._nativeBroadphase), physics3D.btGhostPairCallback_create());//this allows characters to have proper physics behavior
 
 		var conFlags: number = configuration.flags;
 		if (conFlags & PhysicsSimulation.PHYSICSENGINEFLAGS_COLLISIONSONLY) {
@@ -218,22 +219,22 @@ export class PhysicsSimulation {
 		} else if (conFlags & PhysicsSimulation.PHYSICSENGINEFLAGS_SOFTBODYSUPPORT) {
 			throw "PhysicsSimulation:SoftBody processing is not yet available";
 		} else {
-			var solver: any = new physics3D.btSequentialImpulseConstraintSolver();
-			this._nativeDiscreteDynamicsWorld = new physics3D.btDiscreteDynamicsWorld(this._nativeDispatcher, this._nativeBroadphase, solver, this._nativeCollisionConfiguration);
+			var solver: number = physics3D.btSequentialImpulseConstraintSolver_create();
+			this._nativeDiscreteDynamicsWorld = physics3D.btDiscreteDynamicsWorld_create(this._nativeDispatcher, this._nativeBroadphase, solver, this._nativeCollisionConfiguration);
 			this._nativeCollisionWorld = this._nativeDiscreteDynamicsWorld;
 		}
 
 		if (this._nativeDiscreteDynamicsWorld) {
-			this._nativeSolverInfo = this._nativeDiscreteDynamicsWorld.getSolverInfo(); //we are required to keep this reference, or the GC will mess up
-			this._nativeDispatchInfo = this._nativeDiscreteDynamicsWorld.getDispatchInfo();
+			this._nativeSolverInfo = physics3D.btDynamicsWorld_getSolverInfo(this._nativeDiscreteDynamicsWorld); //we are required to keep this reference, or the GC will mess up
+			this._nativeDispatchInfo = physics3D.btCollisionWorld_getDispatchInfo(this._nativeDiscreteDynamicsWorld);
 		}
 
-		this._nativeClosestRayResultCallback = new physics3D.ClosestRayResultCallback(this._nativeVector3Zero, this._nativeVector3Zero);
-		this._nativeAllHitsRayResultCallback = new physics3D.AllHitsRayResultCallback(this._nativeVector3Zero, this._nativeVector3Zero);
-		this._nativeClosestConvexResultCallback = new physics3D.ClosestConvexResultCallback(this._nativeVector3Zero, this._nativeVector3Zero);
-		this._nativeAllConvexResultCallback = new physics3D.AllConvexResultCallback(this._nativeVector3Zero, this._nativeVector3Zero);//是否TODO:优化C++
+		this._nativeClosestRayResultCallback = physics3D.ClosestRayResultCallback_create(this._nativeVector3Zero, this._nativeVector3Zero);
+		this._nativeAllHitsRayResultCallback = physics3D.AllHitsRayResultCallback_create(this._nativeVector3Zero, this._nativeVector3Zero);
+		this._nativeClosestConvexResultCallback = physics3D.ClosestConvexResultCallback_create(this._nativeVector3Zero, this._nativeVector3Zero);
+		this._nativeAllConvexResultCallback = physics3D.AllConvexResultCallback_create(this._nativeVector3Zero, this._nativeVector3Zero);//TODO:是否优化C++
 
-		physics3D._btGImpactCollisionAlgorithm_RegisterAlgorithm(this._nativeDispatcher.a);//注册算法
+		physics3D.btGImpactCollisionAlgorithm_RegisterAlgorithm(this._nativeDispatcher);//注册算法
 	}
 
 	/**
@@ -241,12 +242,11 @@ export class PhysicsSimulation {
 	 */
 	_simulate(deltaTime: number): void {
 		this._updatedRigidbodies = 0;
-
+		var physics3D: any = Physics3D._physics3D;
 		if (this._nativeDiscreteDynamicsWorld)
-			this._nativeDiscreteDynamicsWorld.stepSimulation(deltaTime, this.maxSubSteps, this.fixedTimeStep);
+			physics3D.btDiscreteDynamicsWorld_stepSimulation(this._nativeDiscreteDynamicsWorld, deltaTime, this.maxSubSteps, this.fixedTimeStep);
 		else
-			this._nativeCollisionWorld.PerformDiscreteCollisionDetection();
-
+			physics3D.PerformDiscreteCollisionDetection(this._nativeCollisionWorld);
 	}
 
 	/**
@@ -274,14 +274,14 @@ export class PhysicsSimulation {
 	 * @internal
 	 */
 	_addPhysicsCollider(component: PhysicsCollider, group: number, mask: number): void {
-		this._nativeCollisionWorld.addCollisionObject(component._nativeColliderObject, group, mask);
+		Physics3D._physics3D.btCollisionWorld_addCollisionObject(this._nativeCollisionWorld, component._nativeColliderObject, group, mask);
 	}
 
 	/**
 	 * @internal
 	 */
 	_removePhysicsCollider(component: PhysicsCollider): void {
-		this._nativeCollisionWorld.removeCollisionObject(component._nativeColliderObject);
+		Physics3D._physics3D.btCollisionWorld_removeCollisionObject(this._nativeCollisionWorld, component._nativeColliderObject);
 	}
 
 	/**
@@ -290,7 +290,7 @@ export class PhysicsSimulation {
 	_addRigidBody(rigidBody: Rigidbody3D, group: number, mask: number): void {
 		if (!this._nativeDiscreteDynamicsWorld)
 			throw "Simulation:Cannot perform this action when the physics engine is set to CollisionsOnly";
-		this._nativeCollisionWorld.addRigidBody(rigidBody._nativeColliderObject, group, mask);
+		Physics3D._physics3D.btDiscreteDynamicsWorld_addRigidBody(this._nativeCollisionWorld, rigidBody._nativeColliderObject, group, mask);
 	}
 
 	/**
@@ -299,7 +299,7 @@ export class PhysicsSimulation {
 	_removeRigidBody(rigidBody: Rigidbody3D): void {
 		if (!this._nativeDiscreteDynamicsWorld)
 			throw "Simulation:Cannot perform this action when the physics engine is set to CollisionsOnly";
-		this._nativeCollisionWorld.removeRigidBody(rigidBody._nativeColliderObject);
+		Physics3D._physics3D.btDiscreteDynamicsWorld_removeRigidBody(this._nativeCollisionWorld, rigidBody._nativeColliderObject);
 	}
 
 	/**
@@ -332,34 +332,35 @@ export class PhysicsSimulation {
 	 * @return 	是否成功。
 	 */
 	raycastFromTo(from: Vector3, to: Vector3, out: HitResult = null, collisonGroup: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER, collisionMask: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER): boolean {
-		var rayResultCall: any = this._nativeClosestRayResultCallback;
-		var rayFrom: any = PhysicsSimulation._nativeTempVector30;
-		var rayTo: any = PhysicsSimulation._nativeTempVector31;
-		rayFrom.setValue(-from.x, from.y, from.z);
-		rayTo.setValue(-to.x, to.y, to.z);
-		rayResultCall.set_m_rayFromWorld(rayFrom);
-		rayResultCall.set_m_rayToWorld(rayTo);
-		rayResultCall.set_m_collisionFilterGroup(collisonGroup);
-		rayResultCall.set_m_collisionFilterMask(collisionMask);
+		var physics3D: any = Physics3D._physics3D;
+		var rayResultCall: number = this._nativeClosestRayResultCallback;
+		var rayFrom: number = PhysicsSimulation._nativeTempVector30;
+		var rayTo: number = PhysicsSimulation._nativeTempVector31;
+		physics3D.btVector3_setValue(rayFrom, -from.x, from.y, from.z);
+		physics3D.btVector3_setValue(rayTo, -to.x, to.y, to.z);
+		physics3D.ClosestRayResultCallback_set_m_rayFromWorld(rayResultCall, rayFrom);
+		physics3D.ClosestRayResultCallback_set_m_rayToWorld(rayResultCall, rayTo);
+		physics3D.RayResultCallback_set_m_collisionFilterGroup(rayResultCall, collisonGroup);
+		physics3D.RayResultCallback_set_m_collisionFilterMask(rayResultCall, collisionMask);
 
-		rayResultCall.set_m_collisionObject(null);//还原默认值
-		rayResultCall.set_m_closestHitFraction(1);//还原默认值
-		this._nativeCollisionWorld.rayTest(rayFrom, rayTo, rayResultCall);//TODO:out为空可优化,bullet内
-		if (rayResultCall.hasHit()) {
+		physics3D.RayResultCallback_set_m_collisionObject(rayResultCall, null);//还原默认值
+		physics3D.RayResultCallback_set_m_closestHitFraction(rayResultCall, 1);//还原默认值
+		physics3D.btCollisionWorld_rayTest(this._nativeCollisionWorld,rayFrom, rayTo, rayResultCall);//TODO:out为空可优化,bullet内
+		if (physics3D.RayResultCallback_hasHit(rayResultCall)) {
 			if (out) {
 				out.succeeded = true;
-				out.collider = PhysicsComponent._physicObjectsMap[rayResultCall.get_m_collisionObject().getUserIndex()];
-				out.hitFraction = rayResultCall.get_m_closestHitFraction();
-				var nativePoint: any = rayResultCall.get_m_hitPointWorld();
+				out.collider = PhysicsComponent._physicObjectsMap[physics3D.btCollisionObject_getUserIndex(physics3D.RayResultCallback_get_m_collisionObject(rayResultCall))];
+				out.hitFraction = physics3D.RayResultCallback_get_m_closestHitFraction(rayResultCall);
+				var nativePoint: number = physics3D.ClosestRayResultCallback_get_m_hitPointWorld(rayResultCall);
 				var point: Vector3 = out.point;
-				point.x = -nativePoint.x();
-				point.y = nativePoint.y();
-				point.z = nativePoint.z();
-				var nativeNormal: any = rayResultCall.get_m_hitNormalWorld();
+				point.x = -physics3D.btVector3_x(nativePoint);
+				point.y = physics3D.btVector3_y(nativePoint);
+				point.z = physics3D.btVector3_z(nativePoint);
+				var nativeNormal: number = physics3D.ClosestRayResultCallback_get_m_hitPointWorld(rayResultCall);
 				var normal: Vector3 = out.normal;
-				normal.x = -nativeNormal.x();
-				normal.y = nativeNormal.y();
-				normal.z = nativeNormal.z();
+				normal.x = -physics3D.btVector3_x(nativeNormal);
+				normal.y = physics3D.btVector3_y(nativeNormal);
+				normal.z = physics3D.btVector3_z(nativeNormal);
 			}
 			return true;
 		} else {
@@ -671,20 +672,21 @@ export class PhysicsSimulation {
 		this._currentFrameCollisions.length = 0;
 		this._previousFrameCollisions = previous;
 		var loopCount: number = Stat.loopCount;
-		var numManifolds: number = this._nativeDispatcher.getNumManifolds();
+		var physics3D: any = Physics3D._physics3D;
+		var numManifolds: number = physics3D.btDispatcher_getNumManifolds(this._nativeDispatcher);
 		for (var i: number = 0; i < numManifolds; i++) {
-			var contactManifold: any = this._nativeDispatcher.getManifoldByIndexInternal(i);//1.可能同时返回A和B、B和A 2.可能同时返回A和B多次(可能和CCD有关)
-			var componentA: PhysicsTriggerComponent = PhysicsComponent._physicObjectsMap[contactManifold.getBody0().getUserIndex()];
-			var componentB: PhysicsTriggerComponent = PhysicsComponent._physicObjectsMap[contactManifold.getBody1().getUserIndex()];
+			var contactManifold: number = physics3D.btDispatcher_getManifoldByIndexInternal(this._nativeDispatcher, i);//1.可能同时返回A和B、B和A 2.可能同时返回A和B多次(可能和CCD有关)
+			var componentA: PhysicsTriggerComponent = PhysicsComponent._physicObjectsMap[physics3D.btCollisionObject_getUserIndex(physics3D.btPersistentManifold_getBody0(contactManifold))];
+			var componentB: PhysicsTriggerComponent = PhysicsComponent._physicObjectsMap[physics3D.btCollisionObject_getUserIndex(physics3D.btPersistentManifold_getBody1(contactManifold))];
 			var collision: Collision = null;
 			var isFirstCollision: boolean;//可能同时返回A和B多次,需要过滤
 			var contacts: ContactPoint[] = null;
 			var isTrigger: boolean = componentA.isTrigger || componentB.isTrigger;
 			if (isTrigger && (((<Sprite3D>componentA.owner))._needProcessTriggers || ((<Sprite3D>componentB.owner))._needProcessTriggers)) {
-				var numContacts: number = contactManifold.getNumContacts();
+				var numContacts: number = physics3D.btPersistentManifold_getNumContacts(contactManifold);
 				for (var j: number = 0; j < numContacts; j++) {
-					var pt: any = contactManifold.getContactPoint(j);
-					var distance: number = pt.getDistance();
+					var pt: number = physics3D.btPersistentManifold_getContactPoint(contactManifold, j);
+					var distance: number = physics3D.btManifoldPoint_getDistance(pt);
 					if (distance <= 0) {
 						collision = this._collisionsUtils.getCollision(componentA, componentB);
 						contacts = collision.contacts;
@@ -698,30 +700,30 @@ export class PhysicsSimulation {
 				}
 			} else if (((<Sprite3D>componentA.owner))._needProcessCollisions || ((<Sprite3D>componentB.owner))._needProcessCollisions) {
 				if (componentA._enableProcessCollisions || componentB._enableProcessCollisions) {//例：A和B均为运动刚体或PhysicCollider
-					numContacts = contactManifold.getNumContacts();
+					numContacts = physics3D.btPersistentManifold_getNumContacts(contactManifold);
 					for (j = 0; j < numContacts; j++) {
-						pt = contactManifold.getContactPoint(j);
-						distance = pt.getDistance();
+						pt = physics3D.btPersistentManifold_getContactPoint(contactManifold, j);
+						distance = physics3D.btManifoldPoint_getDistance(pt)
 						if (distance <= 0) {
 							var contactPoint: ContactPoint = this._collisionsUtils.getContactPoints();
 							contactPoint.colliderA = componentA;
 							contactPoint.colliderB = componentB;
 							contactPoint.distance = distance;
-							var nativeNormal: any = pt.get_m_normalWorldOnB();
+							var nativeNormal: number = physics3D.btManifoldPoint_get_m_normalWorldOnB(pt);
 							var normal: Vector3 = contactPoint.normal;
-							normal.x = -nativeNormal.x();
-							normal.y = nativeNormal.y();
-							normal.z = nativeNormal.z();
-							var nativePostionA: any = pt.get_m_positionWorldOnA();
+							normal.x = -physics3D.btVector3_x(nativeNormal);
+							normal.y = physics3D.btVector3_y(nativeNormal);
+							normal.z = physics3D.btVector3_z(nativeNormal);
+							var nativePostionA: number = physics3D.btManifoldPoint_get_m_positionWorldOnA(pt);
 							var positionOnA: Vector3 = contactPoint.positionOnA;
-							positionOnA.x = -nativePostionA.x();
-							positionOnA.y = nativePostionA.y();
-							positionOnA.z = nativePostionA.z();
-							var nativePostionB: any = pt.get_m_positionWorldOnB();
+							positionOnA.x = -physics3D.btVector3_x(nativePostionA);
+							positionOnA.y = physics3D.btVector3_y(nativePostionA);
+							positionOnA.z = physics3D.btVector3_z(nativePostionA);
+							var nativePostionB: number = physics3D.btManifoldPoint_get_m_positionWorldOnB(pt);
 							var positionOnB: Vector3 = contactPoint.positionOnB;
-							positionOnB.x = -nativePostionB.x();
-							positionOnB.y = nativePostionB.y();
-							positionOnB.z = nativePostionB.z();
+							positionOnB.x = -physics3D.btVector3_x(nativePostionB);
+							positionOnB.y = physics3D.btVector3_y(nativePostionB);
+							positionOnB.z = physics3D.btVector3_z(nativePostionB);
 
 							if (!collision) {
 								collision = this._collisionsUtils.getCollision(componentA, componentB);

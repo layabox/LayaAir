@@ -37,22 +37,23 @@ export class ColliderShape implements IClone {
 	/** @internal */
 	static _tempVector30: Vector3 = new Vector3();
 	/** @internal */
-	protected static _nativeScale: any;
+	protected static _nativeScale: number;
 	/**@internal */
-	protected static _nativeVector30: any;
+	protected static _nativeVector30: number;
 	/**@internal */
-	protected static _nativQuaternion0: any;
+	protected static _nativQuaternion0: number;
 	/**@internal */
-	protected static _nativeTransform0: any;
+	protected static _nativeTransform0: number;
 
 	/**
 	 * @internal
 	 */
 	static __init__(): void {
-		ColliderShape._nativeScale = new Physics3D._physics3D.btVector3(1, 1, 1);
-		ColliderShape._nativeVector30 = new Physics3D._physics3D.btVector3(0, 0, 0);
-		ColliderShape._nativQuaternion0 = new Physics3D._physics3D.btQuaternion(0, 0, 0, 1);
-		ColliderShape._nativeTransform0 = new Physics3D._physics3D.btTransform();
+		var physics3D: any = Physics3D._physics3D;
+		ColliderShape._nativeScale = physics3D.btVector3_create(1, 1, 1);
+		ColliderShape._nativeVector30 = physics3D.btVector3_create(0, 0, 0);
+		ColliderShape._nativQuaternion0 = physics3D.btQuaternion_create(0, 0, 0, 1);
+		ColliderShape._nativeTransform0 = physics3D.btTransform_create();
 	}
 
 	/**
@@ -86,7 +87,7 @@ export class ColliderShape implements IClone {
 	protected _scale: Vector3 = new Vector3(1, 1, 1);
 
 	/**@internal */
-	_nativeShape: any;
+	_nativeShape: number;
 	/**@internal */
 	_type: number;//TODO:可以删掉
 	/**@internal */
@@ -169,8 +170,9 @@ export class ColliderShape implements IClone {
 		if (this._compoundParent) {//TODO:待查,这里有问题
 			this.updateLocalTransformations();
 		} else {
-			ColliderShape._nativeScale.setValue(value.x, value.y, value.z);
-			this._nativeShape.setLocalScaling(ColliderShape._nativeScale);
+			var physics3D: any = Physics3D._physics3D;
+			physics3D.btVector3_setValue(ColliderShape._nativeScale, value.x, value.y, value.z);
+			physics3D.btCollisionShape_setLocalScaling(this._nativeShape, ColliderShape._nativeScale);
 		}
 	}
 

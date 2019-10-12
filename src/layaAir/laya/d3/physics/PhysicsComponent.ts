@@ -59,9 +59,9 @@ export class PhysicsComponent extends Component {
 	/**@internal */
 	protected static _tempMatrix4x40: Matrix4x4 = new Matrix4x4();
 	/** @internal */
-	protected static _nativeVector30: any;
+	protected static _nativeVector30: number;
 	/** @internal */
-	protected static _nativeQuaternion0: any;
+	protected static _nativeQuaternion0: number;
 
 	/**@internal */
 	static _physicObjectsMap: any = {};
@@ -72,8 +72,9 @@ export class PhysicsComponent extends Component {
 	* @internal
 	*/
 	static __init__(): void {
-		PhysicsComponent._nativeVector30 = new Physics3D._physics3D.btVector3(0, 0, 0);
-		PhysicsComponent._nativeQuaternion0 = new Physics3D._physics3D.btQuaternion(0, 0, 0, 1);
+		var physics3D: any = Physics3D._physics3D;
+		PhysicsComponent._nativeVector30 = physics3D.btVector3_create(0, 0, 0);
+		PhysicsComponent._nativeQuaternion0 = physics3D.btQuaternion_create(0, 0, 0, 1);
 	}
 
 	/**
@@ -216,7 +217,7 @@ export class PhysicsComponent extends Component {
 	 */
 	set restitution(value: number) {
 		this._restitution = value;
-		this._nativeColliderObject && this._nativeColliderObject.setRestitution(value);
+		this._nativeColliderObject && Physics3D._physics3D.btCollisionObject_setRestitution(this._nativeColliderObject, value);
 	}
 
 	/**
@@ -233,7 +234,7 @@ export class PhysicsComponent extends Component {
 	 */
 	set friction(value: number) {
 		this._friction = value;
-		this._nativeColliderObject && this._nativeColliderObject.setFriction(value);
+		this._nativeColliderObject && Physics3D._physics3D.btCollisionObject_setFriction(this._nativeColliderObject, value);
 	}
 
 	/**
@@ -250,7 +251,7 @@ export class PhysicsComponent extends Component {
 	 */
 	set rollingFriction(value: number) {
 		this._rollingFriction = value;
-		this._nativeColliderObject && this._nativeColliderObject.setRollingFriction(value);
+		this._nativeColliderObject && Physics3D._physics3D.btCollisionObject_setRollingFriction(this._nativeColliderObject, value);
 	}
 
 	/**
@@ -267,7 +268,7 @@ export class PhysicsComponent extends Component {
 	 */
 	set ccdMotionThreshold(value: number) {
 		this._ccdMotionThreshold = value;
-		this._nativeColliderObject && this._nativeColliderObject.setCcdMotionThreshold(value);
+		this._nativeColliderObject && Physics3D._physics3D.btCollisionObject_setCcdMotionThreshold(this._nativeColliderObject, value);
 	}
 
 	/**
@@ -284,7 +285,7 @@ export class PhysicsComponent extends Component {
 	 */
 	set ccdSweptSphereRadius(value: number) {
 		this._ccdSweptSphereRadius = value;
-		this._nativeColliderObject && this._nativeColliderObject.setCcdSweptSphereRadius(value);
+		this._nativeColliderObject && Physics3D._physics3D.btCollisionObject_setCcdSweptSphereRadius(this._nativeColliderObject, value);
 	}
 
 	/**
@@ -347,7 +348,7 @@ export class PhysicsComponent extends Component {
 			}
 
 			if (this._nativeColliderObject) {
-				this._nativeColliderObject.setCollisionShape(value._nativeShape);
+				Physics3D._physics3D.btCollisionObject_setCollisionShape(this._nativeColliderObject, value._nativeShape);
 				var canInSimulation: boolean = this._simulation && this._enabled;
 				(canInSimulation && lastColliderShape) && (this._removeFromSimulation());//修改shape必须把Collison从物理世界中移除再重新添加
 				this._onShapeChange(value);//修改shape会计算惯性
@@ -507,14 +508,15 @@ export class PhysicsComponent extends Component {
 	 * 	@internal
 	 */
 	_derivePhysicsTransformation(force: boolean): void {
-		this._innerDerivePhysicsTransformation(this._nativeColliderObject.getWorldTransform(), force);
+		this._innerDerivePhysicsTransformation(Physics3D._physics3D.btCollisionObject_getWorldTransform(this._nativeColliderObject), force);
 	}
 
 	/**
 	 * 	@internal
 	 *	通过渲染矩阵更新物理矩阵。
 	 */
-	_innerDerivePhysicsTransformation(physicTransformOut: any, force: boolean): void {
+	_innerDerivePhysicsTransformation(physicTransformOut: number, force: boolean): void {
+		var physics3D: any = Physics3D._physics3D;
 		var transform: Transform3D = ((<Sprite3D>this.owner))._transform;
 		var rotation: Quaternion = transform.rotation;
 		var scale: Vector3 = transform.getWorldLossyScale();
@@ -527,11 +529,11 @@ export class PhysicsComponent extends Component {
 				Vector3.transformQuat(shapeOffset, rotation, physicPosition);
 				Vector3.multiply(physicPosition, scale, physicPosition);
 				Vector3.add(position, physicPosition, physicPosition);
-				nativePosition.setValue(-physicPosition.x, physicPosition.y, physicPosition.z);
+				physics3D.btVector3_setValue(nativePosition, -physicPosition.x, physicPosition.y, physicPosition.z);
 			} else {
-				nativePosition.setValue(-position.x, position.y, position.z);
+				physics3D.btVector3_setValue(nativePosition, -position.x, position.y, position.z);
 			}
-			physicTransformOut.setOrigin(nativePosition);
+			physics3D.btTransform_setOrigin(physicTransformOut, nativePosition);
 			this._setTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION, false);
 		}
 
@@ -541,11 +543,11 @@ export class PhysicsComponent extends Component {
 			if (shapeRotation.x !== 0 || shapeRotation.y !== 0 || shapeRotation.z !== 0 || shapeRotation.w !== 1) {
 				var physicRotation: Quaternion = PhysicsComponent._tempQuaternion0;
 				PhysicsComponent.physicQuaternionMultiply(rotation.x, rotation.y, rotation.z, rotation.w, shapeRotation, physicRotation);
-				nativeRotation.setValue(-physicRotation.x, physicRotation.y, physicRotation.z, -physicRotation.w);
+				physics3D.btQuaternion_setValue(nativeRotation, -physicRotation.x, physicRotation.y, physicRotation.z, -physicRotation.w);
 			} else {
-				nativeRotation.setValue(-rotation.x, rotation.y, rotation.z, -rotation.w);
+				physics3D.btQuaternion_setValue(nativeRotation, -rotation.x, rotation.y, rotation.z, -rotation.w);
 			}
-			physicTransformOut.setRotation(nativeRotation);
+			physics3D.btTransform_setRotation(physicTransformOut, nativeRotation);
 			this._setTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION, false);
 		}
 
@@ -559,7 +561,8 @@ export class PhysicsComponent extends Component {
 	 * @internal
 	 * 通过物理矩阵更新渲染矩阵。
 	 */
-	_updateTransformComponent(physicsTransform: any): void {
+	_updateTransformComponent(physicsTransform: number): void {
+		var physics3D: any = Physics3D._physics3D;
 		var localOffset: Vector3 = this._colliderShape.localOffset;
 		var localRotation: Quaternion = this._colliderShape.localRotation;
 
@@ -567,23 +570,23 @@ export class PhysicsComponent extends Component {
 		var position: Vector3 = transform.position;
 		var rotation: Quaternion = transform.rotation;
 
-		var nativePosition: any = physicsTransform.getOrigin();
-		var nativeRotation: any = physicsTransform.getRotation();
-		var nativeRotX: number = -nativeRotation.x();
-		var nativeRotY: number = nativeRotation.y();
-		var nativeRotZ: number = nativeRotation.z();
-		var nativeRotW: number = -nativeRotation.w();
+		var nativePosition: number = physics3D.btTransform_getOrigin(physicsTransform);
+		var nativeRotation: number = physics3D.btTransform_getRotation(physicsTransform);
+		var nativeRotX: number = -physics3D.btQuaternion_x(nativeRotation);
+		var nativeRotY: number = physics3D.btQuaternion_y(nativeRotation);
+		var nativeRotZ: number = physics3D.btQuaternion_z(nativeRotation);
+		var nativeRotW: number = -physics3D.btQuaternion_w(nativeRotation);
 
 		if (localOffset.x !== 0 || localOffset.y !== 0 || localOffset.z !== 0) {
 			var rotShapePosition: Vector3 = PhysicsComponent._tempVector30;
 			PhysicsComponent.physicVector3TransformQuat(localOffset, nativeRotX, nativeRotY, nativeRotZ, nativeRotW, rotShapePosition);
-			position.x = -nativePosition.x() - rotShapePosition.x;
-			position.y = nativePosition.y() - rotShapePosition.y;
-			position.z = nativePosition.z() - rotShapePosition.z;
+			position.x = -physics3D.btVector3_x(nativePosition) - rotShapePosition.x;
+			position.y = physics3D.btVector3_y(nativePosition) - rotShapePosition.y;
+			position.z = physics3D.btVector3_z(nativePosition) - rotShapePosition.z;
 		} else {
-			position.x = -nativePosition.x();
-			position.y = nativePosition.y();
-			position.z = nativePosition.z();
+			position.x = -physics3D.btVector3_x(nativePosition);
+			position.y = physics3D.btVector3_y(nativePosition);
+			position.z = physics3D.btVector3_z(nativePosition);
 		}
 		transform.position = position;
 
@@ -607,7 +610,7 @@ export class PhysicsComponent extends Component {
 	 */
 	protected _onEnable(): void {
 		this._simulation = ((<Scene3D>this.owner._scene)).physicsSimulation;
-		this._nativeColliderObject.setContactProcessingThreshold(1e30);
+		Physics3D._physics3D.btCollisionObject_setContactProcessingThreshold(this._nativeColliderObject, 1e30);
 		if (this._colliderShape && this._enabled) {
 			this._derivePhysicsTransformation(true);
 			this._addToSimulation();
@@ -632,13 +635,14 @@ export class PhysicsComponent extends Component {
 	 */
 	_onShapeChange(colShape: ColliderShape): void {
 		var btColObj: any = this._nativeColliderObject;
-		var flags: number = btColObj.getCollisionFlags();
+		var physics3D: any = Physics3D._physics3D;
+		var flags: number = physics3D.btCollisionObject_getCollisionFlags(btColObj);
 		if (colShape.needsCustomCollisionCallback) {
 			if ((flags & PhysicsComponent.COLLISIONFLAGS_CUSTOM_MATERIAL_CALLBACK) === 0)
-				btColObj.setCollisionFlags(flags | PhysicsComponent.COLLISIONFLAGS_CUSTOM_MATERIAL_CALLBACK);
+				physics3D.btCollisionObject_setCollisionFlags(btColObj, flags | PhysicsComponent.COLLISIONFLAGS_CUSTOM_MATERIAL_CALLBACK);
 		} else {
 			if ((flags & PhysicsComponent.COLLISIONFLAGS_CUSTOM_MATERIAL_CALLBACK) > 0)
-				btColObj.setCollisionFlags(flags ^ PhysicsComponent.COLLISIONFLAGS_CUSTOM_MATERIAL_CALLBACK);
+				physics3D.btCollisionObject_setCollisionFlags(btColObj, flags ^ PhysicsComponent.COLLISIONFLAGS_CUSTOM_MATERIAL_CALLBACK);
 		}
 	}
 

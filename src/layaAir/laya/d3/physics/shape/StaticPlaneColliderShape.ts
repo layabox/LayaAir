@@ -6,7 +6,7 @@ import { Physics3D } from "../Physics3D";
  * <code>StaticPlaneColliderShape</code> 类用于创建静态平面碰撞器。
  */
 export class StaticPlaneColliderShape extends ColliderShape {
-	private static _nativeNormal: any;
+	private static _nativeNormal: number;
 	/**@internal */
 	_offset: number;
 	/**@internal */
@@ -16,7 +16,7 @@ export class StaticPlaneColliderShape extends ColliderShape {
 	 * @internal
 	 */
 	static __init__(): void {
-		StaticPlaneColliderShape._nativeNormal = new Physics3D._physics3D.btVector3(0, 0, 0);
+		StaticPlaneColliderShape._nativeNormal = Physics3D._physics3D.btVector3_create(0, 0, 0);
 	}
 
 	/**
@@ -28,8 +28,9 @@ export class StaticPlaneColliderShape extends ColliderShape {
 		this._offset = offset;
 		this._type = ColliderShape.SHAPETYPES_STATICPLANE;
 
-		StaticPlaneColliderShape._nativeNormal.setValue(-normal.x, normal.y, normal.z);
-		this._nativeShape = new Physics3D._physics3D.btStaticPlaneShape(StaticPlaneColliderShape._nativeNormal, offset);
+		var physics3D: any = Physics3D._physics3D;
+		physics3D.btVector3_setValue(StaticPlaneColliderShape._nativeNormal, -normal.x, normal.y, normal.z);
+		this._nativeShape = physics3D.btStaticPlaneShape_create(StaticPlaneColliderShape._nativeNormal, offset);
 	}
 
 	/**
