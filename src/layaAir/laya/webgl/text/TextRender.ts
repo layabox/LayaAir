@@ -206,8 +206,8 @@ export class TextRender {
             }
             if (sx < 1e-4 || sy < 1e-1)
                 return;
-            if (sx > 1) this.fontScaleX = sx;
-            if (sy > 1) this.fontScaleY = sy;
+            this.fontScaleX = sx;
+            this.fontScaleY = sy;
         }
 
         font._italic && (ctx._italicDeg = 13);

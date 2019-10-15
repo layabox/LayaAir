@@ -1,11 +1,12 @@
 {
     "compilerOptions": {
         "target": "es2018",
-        "module": "esnext",
+		"module": "esnext",
+		"moduleResolution": "node",
         "outDir": "../../test/test",
         "baseUrl": "../layaAir"
     },
     "references": [
         {"path":"../layaAir/"}
-    ]
+	]	
 }
