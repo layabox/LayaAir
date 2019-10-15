@@ -50,20 +50,20 @@ export class PhysicsComponent extends Component {
 	/** @internal */
 	static COLLISIONFLAGS_DISABLE_SPU_COLLISION_PROCESSING: number = 64;//disable parallel/SPU processing
 
-	/**@internal */
+	/** @internal */
 	protected static _tempVector30: Vector3 = new Vector3();
-	/**@internal */
+	/** @internal */
 	protected static _tempQuaternion0: Quaternion = new Quaternion();
-	/**@internal */
+	/** @internal */
 	protected static _tempQuaternion1: Quaternion = new Quaternion();
-	/**@internal */
+	/** @internal */
 	protected static _tempMatrix4x40: Matrix4x4 = new Matrix4x4();
 	/** @internal */
 	protected static _nativeVector30: number;
 	/** @internal */
 	protected static _nativeQuaternion0: number;
 
-	/**@internal */
+	/** @internal */
 	static _physicObjectsMap: any = {};
 	/** @internal */
 	static _addUpdateList: boolean = true;

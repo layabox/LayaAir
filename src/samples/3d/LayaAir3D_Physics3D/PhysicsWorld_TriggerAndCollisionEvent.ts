@@ -43,56 +43,57 @@ export class PhysicsWorld_TriggerAndCollisionEvent {
 
 	constructor() {
 		//初始化引擎
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		//显示性能面板
-		Stat.show();
+		Laya3D.init(0, 0, null, Handler.create(null, () => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			//显示性能面板
+			Stat.show();
 
-		//创建场景
-		this.scene = new Scene3D();
-		Laya.stage.addChild(this.scene);
+			//创建场景
+			this.scene = new Scene3D();
+			Laya.stage.addChild(this.scene);
 
-		//创建相机
-		this.camera = new Camera(0, 0.1, 100);
-		this.scene.addChild(this.camera);
-		this.camera.transform.translate(new Vector3(0, 8, 18));
-		this.camera.transform.rotate(new Vector3(-30, 0, 0), true, false);
-		this.camera.clearColor = null;
+			//创建相机
+			this.camera = new Camera(0, 0.1, 100);
+			this.scene.addChild(this.camera);
+			this.camera.transform.translate(new Vector3(0, 8, 18));
+			this.camera.transform.rotate(new Vector3(-30, 0, 0), true, false);
+			this.camera.clearColor = null;
 
-		//创建相机
-		var directionLight = new DirectionLight();
-		this.scene.addChild(directionLight);
-		directionLight.color = new Vector3(1, 1, 1);
-		//设置平行光的方向
-		var mat: Matrix4x4 = directionLight.transform.worldMatrix;
-		mat.setForward(new Vector3(-1.0, -1.0, 1.0));
-		directionLight.transform.worldMatrix = mat;
+			//创建相机
+			var directionLight = new DirectionLight();
+			this.scene.addChild(directionLight);
+			directionLight.color = new Vector3(1, 1, 1);
+			//设置平行光的方向
+			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+			mat.setForward(new Vector3(-1.0, -1.0, 1.0));
+			directionLight.transform.worldMatrix = mat;
 
-		//创建地面
-		this.plane = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(20, 20, 10, 10))));
-		//创建BlinnPhong材质
-		var planeMat: BlinnPhongMaterial = new BlinnPhongMaterial();
-		//加载纹理
-		Texture2D.load("res/threeDimen/Physics/wood.jpg", Handler.create(this, function (tex: Texture2D): void {
-			planeMat.albedoTexture = tex;
+			//创建地面
+			this.plane = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(20, 20, 10, 10))));
+			//创建BlinnPhong材质
+			var planeMat: BlinnPhongMaterial = new BlinnPhongMaterial();
+			//加载纹理
+			Texture2D.load("res/threeDimen/Physics/wood.jpg", Handler.create(this, function (tex: Texture2D): void {
+				planeMat.albedoTexture = tex;
+			}));
+			//设置材质
+			planeMat.tilingOffset = new Vector4(2, 2, 0, 0);
+			this.plane.meshRenderer.material = planeMat;
+
+			//创建物理碰撞
+			var staticCollider: PhysicsCollider = (<PhysicsCollider>this.plane.addComponent(PhysicsCollider));
+			//创建盒型碰撞器
+			var boxShape: BoxColliderShape = new BoxColliderShape(20, 0, 20);
+			//为物理碰撞设置碰撞形状
+			staticCollider.colliderShape = boxShape;
+			//创建运动学物体
+			this.addKinematicSphere();
+			for (var i: number = 0; i < 30; i++) {
+				this.addBoxAndTrigger();
+				this.addCapsuleCollision();
+			}
 		}));
-		//设置材质
-		planeMat.tilingOffset = new Vector4(2, 2, 0, 0);
-		this.plane.meshRenderer.material = planeMat;
-
-		//创建物理碰撞
-		var staticCollider: PhysicsCollider = (<PhysicsCollider>this.plane.addComponent(PhysicsCollider));
-		//创建盒型碰撞器
-		var boxShape: BoxColliderShape = new BoxColliderShape(20, 0, 20);
-		//为物理碰撞设置碰撞形状
-		staticCollider.colliderShape = boxShape;
-		//创建运动学物体
-		this.addKinematicSphere();
-		for (var i: number = 0; i < 30; i++) {
-			this.addBoxAndTrigger();
-			this.addCapsuleCollision();
-		}
 	}
 
 	addKinematicSphere(): void {
