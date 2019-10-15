@@ -298,11 +298,7 @@ export class TextRender {
                             add = add.words;
                         }
                         //不能直接修改ri.bmpWidth, 否则会累积缩放，所以把缩放保存到独立的变量中
-                        if (ILaya.Render.isConchApp) {
-                            add.push({ ri: ri, x: stx, y: sty, w: ri.bmpWidth / this.fontScaleX, h: ri.bmpHeight / this.fontScaleY });
-                        } else {
-                            add.push({ ri: ri, x: stx + 1 / this.fontScaleX, y: sty, w: (ri.bmpWidth - 2) / this.fontScaleX, h: (ri.bmpHeight - 1) / this.fontScaleY });	// 为了避免边缘像素采样错误，内缩一个像素
-                        }
+                        add.push({ ri: ri, x: stx, y: sty, w: ri.bmpWidth / this.fontScaleX, h: ri.bmpHeight / this.fontScaleY });
                         stx += ri.width;	// TODO 缩放
                     }
                 }
@@ -312,11 +308,7 @@ export class TextRender {
                 var isotex: boolean = TextRender.noAtlas || strWidth * this.fontScaleX > TextRender.atlasWidth;	// 独立贴图还是大图集
                 ri = this.getCharRenderInfo(str, font, color, strokeColor, lineWidth, isotex);
                 // 整句渲染，则只有一个贴图
-                if (ILaya.Render.isConchApp) {
-                    sameTexData[0] = { texgen: ((<TextTexture>ri.tex)).genID, tex: ri.tex, words: [{ ri: ri, x: 0, y: 0, w: ri.bmpWidth / this.fontScaleX, h: ri.bmpHeight / this.fontScaleY }] };
-                } else {
-                    sameTexData[0] = { texgen: ((<TextTexture>ri.tex)).genID, tex: ri.tex, words: [{ ri: ri, x: 1 / this.fontScaleX, y: 0 / this.fontScaleY, w: (ri.bmpWidth - 2) / this.fontScaleX, h: (ri.bmpHeight - 1) / this.fontScaleY }] }; // 为了避免边缘像素采样错误，内缩一个像素
-                }
+                sameTexData[0] = { texgen: ((<TextTexture>ri.tex)).genID, tex: ri.tex, words: [{ ri: ri, x: 0, y: 0, w: ri.bmpWidth / this.fontScaleX, h: ri.bmpHeight / this.fontScaleY }] };
             }
 
             //TODO getbmp 考虑margin 字体与标准字体的关系
