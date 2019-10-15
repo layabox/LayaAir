@@ -95,12 +95,9 @@ export class TrailGeometry extends GeometryElement {
 
 		this._resizeData(this._segementCount, this._bufferState);
 		var bounds: Bounds = this._owner._owner.trailRenderer.bounds;
-		var min: Vector3 = bounds.getMin();
-		var max: Vector3 = bounds.getMax();
-		min.setValue(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
-		max.setValue(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
-		bounds.setMin(min);
-		bounds.setMax(max);
+		var sprite3dPosition:Vector3 = this._owner._owner.transform.position;
+		bounds.setMin(sprite3dPosition);
+		bounds.setMax(sprite3dPosition);
 		Render.supportWebGLPlusCulling && this._calculateBoundingBoxForNative();//[NATIVE]
 	}
 
