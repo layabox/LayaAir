@@ -369,7 +369,7 @@ export class BoundsOctreeNode {
 	/**
 	 * @internal
 	 */
-	private _getCollidingWithFrustum(context: RenderContext3D, frustum: BoundFrustum, testVisible: boolean, camPos: Vector3, customShader: Shader3D, replacementTag: string): void {
+	private _getCollidingWithFrustum(context: RenderContext3D, frustum: BoundFrustum, testVisible: boolean, camPos: Vector3, customShader: Shader3D, replacementTag: string, isShadowCasterCull: boolean): void {
 		//if (_children === null && _objects.length == 0) {//无用末级节不需要检查，调试用
 		//debugger;
 		//return;
@@ -389,10 +389,15 @@ export class BoundsOctreeNode {
 		var scene: Scene3D = context.scene;
 		for (var i: number = 0, n: number = this._objects.length; i < n; i++) {
 			var render: BaseRender = (<BaseRender>this._objects[i]);
-			if (camera._isLayerVisible(render._owner.layer) && render._enable) {
+			var canPass: boolean;
+			if (isShadowCasterCull)
+				canPass = render._castShadow && render._enable;
+			else
+				canPass = camera._isLayerVisible(render._owner._layer) && render._enable;
+			if (canPass) {
 				if (testVisible) {
 					Stat.frustumCulling++;
-					if (!render._needRender(frustum,context))
+					if (!render._needRender(frustum, context))
 						continue;
 				}
 
@@ -400,7 +405,7 @@ export class BoundsOctreeNode {
 				var elements: RenderElement[] = render._renderElements;
 				for (var j: number = 0, m: number = elements.length; j < m; j++) {
 					var element: RenderElement = elements[j];
-					element._update(scene,context,customShader,replacementTag);
+					element._update(scene, context, customShader, replacementTag);
 				}
 			}
 		}
@@ -409,7 +414,7 @@ export class BoundsOctreeNode {
 		if (this._children != null) {
 			for (i = 0; i < 8; i++) {
 				var child: BoundsOctreeNode = this._children[i];
-				child && child._getCollidingWithFrustum(context, frustum, testVisible, camPos,customShader,replacementTag);
+				child && child._getCollidingWithFrustum(context, frustum, testVisible, camPos, customShader, replacementTag, isShadowCasterCull);
 			}
 		}
 	}
@@ -640,10 +645,10 @@ export class BoundsOctreeNode {
 	 * 	@param	ray 射线。.
 	 * 	@param	result 相交物体列表。
 	 */
-	getCollidingWithFrustum(context: RenderContext3D, customShader: Shader3D, replacementTag: string): void {
+	getCollidingWithFrustum(context: RenderContext3D, customShader: Shader3D, replacementTag: string, isShadowCasterCull: boolean): void {
 		var cameraPos: Vector3 = context.camera.transform.position;
 		var boundFrustum: BoundFrustum = ((<Camera>context.camera)).boundFrustum;
-		this._getCollidingWithFrustum(context, boundFrustum, true, cameraPos,customShader,replacementTag);
+		this._getCollidingWithFrustum(context, boundFrustum, true, cameraPos, customShader, replacementTag, isShadowCasterCull);
 	}
 
 	/**

@@ -123,7 +123,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	static REFLECTIONTEXTURE: number = Shader3D.propertyNameToID("u_ReflectTexture");
 	static REFLETIONINTENSITY: number = Shader3D.propertyNameToID("u_ReflectIntensity");
 	static TIME: number = Shader3D.propertyNameToID("u_Time");
-	
+
 
 	/**
 	 * @internal
@@ -219,9 +219,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	_tempScriptPool: Script3D[] = new Array<Script3D>();
 	/** @internal */
 	_needClearScriptPool: boolean = false;
-
-	/** @internal */
-	_castShadowRenders: CastShadowList = new CastShadowList();
 
 	/** 当前创建精灵所属遮罩层。*/
 	currentCreationLayer: number = Math.pow(2, 0);
@@ -865,7 +862,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	_preCulling(context: RenderContext3D, camera: Camera, shader: Shader3D, replacementTag: string): void {
-		FrustumCulling.renderObjectCulling(camera, this, context, this._renders, shader, replacementTag);
+		FrustumCulling.renderObjectCulling(camera, this, context, shader, replacementTag, false);
 	}
 
 	/**
@@ -1084,30 +1081,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/**
 	 * @internal
 	 */
-	_addShadowCastRenderObject(render: BaseRender): void {
-		if (this._octree) {
-			//TODO:
-			//addTreeNode(render);
-		} else {
-			this._castShadowRenders.add(render);
-		}
-	}
-
-	/**
-	 * @internal
-	 */
-	_removeShadowCastRenderObject(render: BaseRender): void {
-		if (this._octree) {
-			//TODO:
-			//removeTreeNode(render);
-		} else {
-			this._castShadowRenders.remove(render);
-		}
-	}
-
-	/**
-	 * @internal
-	 */
 	_getRenderQueue(index: number): RenderQueue {
 		if (index <= 2500)//2500作为队列临界点
 			return this._opaqueQueue;
@@ -1163,7 +1136,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this._lightmaps = null;
 		this._shaderValues = null;
 		this._renders = null;
-		this._castShadowRenders = null;
 		this._cameraPool = null;
 		this._octree = null;
 		this.parallelSplitShadowMaps = null;
