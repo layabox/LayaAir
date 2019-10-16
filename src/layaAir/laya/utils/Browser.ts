@@ -231,7 +231,7 @@ export class Browser {
 
         //处理兼容性			
         Browser.onMobile = (window as any).isConchApp ? true : u.indexOf("Mobile") > -1;
-        Browser.onIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)||u.indexOf('MacIntel')>-1;
+        Browser.onIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
         Browser.onIPhone = u.indexOf("iPhone") > -1;
         Browser.onMac = u.indexOf("Mac OS X") > -1;
         Browser.onIPad = u.indexOf("iPad") > -1 || u.indexOf('MacIntel')>-1;
