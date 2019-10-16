@@ -116,6 +116,7 @@ export class TrailSprite3D extends RenderableSprite3D {
 		super._cloneTo(destObject, srcSprite, dstSprite);
 		var i: number, j: number;
 		var destTrailSprite3D: TrailSprite3D = (<TrailSprite3D>destObject);
+
 		var destTrailFilter: TrailFilter = destTrailSprite3D.trailFilter;
 		destTrailFilter.time = this.trailFilter.time;
 		destTrailFilter.alignment = this.trailFilter.alignment;
