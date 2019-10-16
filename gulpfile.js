@@ -11,7 +11,7 @@ gulp.task('tsc', (cb) => {
     });
 });
 
-gulp.task('CopyShaderFile', () => {
+gulp.task('LayaAirShaderCopy', () => {
     return gulp.src([
         'src/**/*.vs',
         'src/**/*.fs',
@@ -19,7 +19,7 @@ gulp.task('CopyShaderFile', () => {
         .pipe(gulp.dest('bin/tsc'));
 });
 
-gulp.task('LayaAirBuild', gulp.series('tsc', 'CopyShaderFile'));
+//gulp.task('LayaAirBuild', gulp.series('tsc', 'CopyShaderFile'));
 
 //let path = require('path');
 //const bundleLib = require('./src/buildtools/bundleLib');

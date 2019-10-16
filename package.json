@@ -9,7 +9,6 @@
   "author": "LayaAir Team",
   "license": "ISC",
   "dependencies": {
-    "@types/webgl2": "0.0.5",
     "gulp-concat": "^2.6.1",
     "looks-same": "^7.2.1",
     "matched": "^4.0.0",
@@ -17,7 +16,7 @@
     "puppeteer-core": "^1.19.0",
     "through2": "^3.0.1",
     "typedoc": "^0.14.2",
-    "typescript": "^3.6.3"
+    "typescript": "^3.6.4"
   },
   "devDependencies": {
     "gulp": "^4.0.2",
