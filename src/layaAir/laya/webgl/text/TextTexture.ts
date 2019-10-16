@@ -87,17 +87,10 @@ export class TextTexture extends Resource {
         var v0: number;
         var u1: number;
         var v1: number;
-        if (ILaya.Render.isConchApp) {
-            u0 = x / this._texW;	// +1 表示内缩一下，反正文字总是有留白。否则会受到旁边的一个像素的影响
-            v0 = y / this._texH;
-            u1 = (x + data.width) / this._texW;	// 注意是-1,不是-2
-            v1 = (y + data.height) / this._texH;
-        } else {
-            u0 = (x + 1) / this._texW;	// +1 表示内缩一下，反正文字总是有留白。否则会受到旁边的一个像素的影响
-            v0 = (y) / this._texH;
-            u1 = (x + data.width - 1) / this._texW;	// 注意是-1,不是-2
-            v1 = (y + data.height - 1) / this._texH;
-        }
+		u0 = x / this._texW;	
+		v0 = y / this._texH;
+		u1 = (x + data.width) / this._texW;	
+		v1 = (y + data.height) / this._texH;
         uv = uv || new Array(8);
         uv[0] = u0, uv[1] = v0;
         uv[2] = u1, uv[3] = v0;
@@ -156,7 +149,10 @@ export class TextTexture extends Resource {
     discard(): void {
 		// 文字贴图的释放要触发全局cacheas normal无效
 		ILaya.stage.setGlobalRepaint();
-		
+		// 不再使用问题贴图的重用，否则会有内容清理问题
+		this.destroy();
+		return;
+
         // 非标准大小不回收。
         if (this._texW != TextTexture.gTextRender.atlasWidth || this._texH != TextTexture.gTextRender.atlasWidth) {
             this.destroy();
@@ -172,6 +168,9 @@ export class TextTexture extends Resource {
     }
 
     static getTextTexture(w: number, h: number): TextTexture {
+		// 不再回收
+		return new TextTexture(w, h);
+		
         if (w != TextTexture.gTextRender.atlasWidth || w != TextTexture.gTextRender.atlasWidth)
             return new TextTexture(w, h);
         // 否则从回收池中取
