@@ -17,17 +17,12 @@ export class PixelLineSprite3D extends RenderableSprite3D {
 	public _geometryFilter: PixelLineFilter;
 
 	/**
-	 * 获取最大线数量
-	 * @return  最大线数量。
+	 * 最大线数量
 	 */
 	get maxLineCount(): number {
 		return this._geometryFilter._maxLineCount;
 	}
 
-	/**
-	 * 设置最大线数量
-	 * @param	value 最大线数量。
-	 */
 	set maxLineCount(value: number) {
 		this._geometryFilter._resizeLineData(value);
 		this._geometryFilter._lineCount = Math.min(this._geometryFilter._lineCount, value);
@@ -35,16 +30,11 @@ export class PixelLineSprite3D extends RenderableSprite3D {
 
 	/**
 	 * 获取线数量。
-	 * @return 线段数量。
 	 */
 	get lineCount(): number {
 		return this._geometryFilter._lineCount;
 	}
 
-	/**
-	 * 设置获取线数量。
-	 * @param	value 线段数量。
-	 */
 	set lineCount(value: number) {
 		if (value > this.maxLineCount)
 			throw "PixelLineSprite3D: lineCount can't large than maxLineCount";
@@ -53,8 +43,7 @@ export class PixelLineSprite3D extends RenderableSprite3D {
 	}
 
 	/**
-	 * 获取line渲染器。
-	 * @return  line渲染器。
+	 * line渲染器。
 	 */
 	get pixelLineRenderer(): PixelLineRenderer {
 		return (<PixelLineRenderer>this._render);

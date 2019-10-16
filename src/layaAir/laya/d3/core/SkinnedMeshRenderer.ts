@@ -42,33 +42,23 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	private _cacheRootBone: Sprite3D;
 
 	/**
-	 * 获取局部边界。
-	 * @return 边界。
+	 * 局部边界。
 	 */
 	get localBounds(): Bounds {
 		return this._localBounds;
 	}
 
-	/**
-	 * 设置局部边界。
-	 * @param value 边界
-	 */
 	set localBounds(value: Bounds) {
 		this._localBounds = value;
 	}
 
 	/**
-	 * 获取根节点。
-	 * @return 根节点。
+	 * 根节点。
 	 */
 	get rootBone(): Sprite3D {
 		return this._cacheRootBone;
 	}
 
-	/**
-	 * 设置根节点。
-	 * @param value 根节点。
-	 */
 	set rootBone(value: Sprite3D) {
 		if (this._cacheRootBone != value) {
 			if (this._cacheRootBone)
@@ -101,7 +91,9 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	}
 
 
-
+	/**
+	 * @internal
+	 */
 	private _computeSkinnedData(): void {
 		if (this._cacheMesh && this._cacheAvatar/*兼容*/ || this._cacheMesh && !this._cacheAvatar) {
 			var bindPoses: Matrix4x4[] = this._cacheMesh._inverseBindPoses;
@@ -292,7 +284,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 			if (this._cacheRootBone)
 				(!this._cacheRootBone.destroyed) && (this._cacheRootBone.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange));
 			else
-				(this._owner&&!this._owner.destroyed) && (this._owner.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange));
+				(this._owner && !this._owner.destroyed) && (this._owner.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange));
 		} else {//[兼容性]
 			if (this._cacheRootAnimationNode)
 				this._cacheRootAnimationNode.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);
@@ -312,8 +304,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 
 	/**
 	 * @override
-	 * 获取包围盒。
-	 * @return 包围盒。
+	 * 包围盒。
 	 */
 	get bounds(): Bounds {
 		if (this._boundsChange || this._cacheAvatar) {//有this._cacheAvatar模式会导致裁剪后动画不更新。动画不更新包围不更新。包围盒不更新就永远裁掉了
@@ -397,7 +388,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 		}
 	}
 
-	/**@internal	[NATIVE]*/
+	/**@internal [NATIVE]*/
 	private _cacheAnimationNodeIndices: Uint16Array;
 
 	/**

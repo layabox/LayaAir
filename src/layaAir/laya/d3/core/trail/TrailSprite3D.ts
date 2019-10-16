@@ -12,7 +12,6 @@ import { Loader } from "../../../net/Loader"
  * <code>TrailSprite3D</code> 类用于创建拖尾渲染精灵。
  */
 export class TrailSprite3D extends RenderableSprite3D {
-
 	/**
 	 * @internal
 	 */
