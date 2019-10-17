@@ -1,12 +1,22 @@
 const gulp = require('./node_modules/gulp');
-var exec = require('child_process').exec;
+const { fork } = require('child_process');
 
 gulp.task('tsc', (cb) => {
-    exec("tsc -b src/samples/tsconfig.json", function (err, stdout, stderr) {
-        if (err) {
-            console.log("out:", stdout);
-            console.log("err:", stderr);
-        }
+    let cmd = ["-b","src/samples/tsconfig.json"];
+    let process = fork("./node_modules/typescript/lib/tsc.js",cmd,{
+        silent:true
+    });
+
+    process.stdout.on('data', (data) => {
+        console.log(`${data}`);
+    });
+      
+    process.stderr.on('data', (data) => {
+        console.log(`stderr: \n${data}`);
+    });
+    
+    process.on('close', (code) => {
+        console.log(`tsc complie exit：${code}`);
         cb();
     });
 });
