@@ -55,8 +55,7 @@ class Main {
                 this.checkAllDir("");
             }
             else {
-                child_process.exec("pause");
-                child_process.exec("exit");
+                console.log("compile fail!");
             }
         });
     }
@@ -85,7 +84,7 @@ class Main {
                 let tsConfigUrl = this.tsCongfig[i];
                 let cmd = ["-b", tsConfigUrl];
                 let compiletype = 0;
-                let tscurl = path.join(this.BaseURL, "../../../", "./node_modules/typescript/lib/tsc.js");
+                let tscurl = path.join(this.BaseURL.split("bin")[0], "./node_modules/typescript/lib/tsc.js");
                 let process = child_process.fork(tscurl, cmd, {
                     silent: true
                 });
