@@ -15,6 +15,7 @@ import { VertexMesh } from "./Vertex/VertexMesh";
 import { VertexBuffer3D } from "./VertexBuffer3D";
 import { VertexDeclaration } from "./VertexDeclaration";
 import { VertexElement } from "./VertexElement";
+import { IndexFormat } from "./IndexFormat";
 /**
  * @internal
  * <code>SubMeshDynamicBatch</code> 类用于网格动态合并。
@@ -77,7 +78,7 @@ export class SubMeshDynamicBatch extends GeometryElement {
 		this._vertices = new Float32Array(maxByteCount / 4);
 		this._vertexBuffer = new VertexBuffer3D(maxByteCount, gl.DYNAMIC_DRAW);
 		this._indices = new Int16Array(SubMeshDynamicBatch.maxIndicesCount);
-		this._indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, this._indices.length, gl.DYNAMIC_DRAW);
+		this._indexBuffer = new IndexBuffer3D(IndexFormat.UInt16, this._indices.length, gl.DYNAMIC_DRAW);
 
 		var memorySize: number = this._vertexBuffer._byteLength + this._indexBuffer._byteLength;
 		Resource._addMemory(memorySize, memorySize);
