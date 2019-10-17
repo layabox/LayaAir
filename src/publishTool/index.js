@@ -83,12 +83,22 @@ class Main {
             for (let i = 0; i < this.tsCongfig.length; i++) {
                 mark++;
                 let tsConfigUrl = this.tsCongfig[i];
-                let tscLayaAir = child_process.exec("tsc -b " + tsConfigUrl, (err, stdout, stderr) => {
-                    if (err) {
-                        console.log("tsc fail ", tsConfigUrl, stderr);
-                    }
-                    console.log('out:', stdout);
-                    start(err);
+                let cmd = ["-b", tsConfigUrl];
+                let compiletype = 0;
+                let tscurl = path.join(this.BaseURL, "../../../", "./node_modules/typescript/lib/tsc.js");
+                let process = child_process.fork(tscurl, cmd, {
+                    silent: true
+                });
+                process.stdout.on('data', (data) => {
+                    console.log(`${data}`);
+                });
+                process.stderr.on('data', (data) => {
+                    compiletype = 1;
+                    console.log(`stderr: \n${data}`);
+                });
+                process.on('close', (code) => {
+                    console.log(`tsc complie exit：${code}`);
+                    start(compiletype);
                 });
             }
         });
@@ -327,4 +337,5 @@ class Main {
         return path.join(this.BaseURL, url);
     }
 }
+exports.Main = Main;
 new Main();
