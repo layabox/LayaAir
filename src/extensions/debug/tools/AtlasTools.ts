@@ -1,7 +1,6 @@
 import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite"
 import { Texture } from "laya/resource/Texture"
-import {  } from "laya";
 
 	/**
 	 * tianpeng

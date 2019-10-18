@@ -29,7 +29,7 @@ gulp.task('LayaAirShaderCopy', () => {
         .pipe(gulp.dest('bin/tsc'));
 });
 
-//gulp.task('LayaAirBuild', gulp.series('tsc', 'CopyShaderFile'));
+gulp.task('LayaAirBuild', gulp.series('tsc', 'LayaAirShaderCopy'));
 
 //let path = require('path');
 //const bundleLib = require('./src/buildtools/bundleLib');
