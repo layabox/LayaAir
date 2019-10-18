@@ -6,6 +6,7 @@ import { Bounds } from "../../core/Bounds";
 import { BufferState } from "../../core/BufferState";
 import { IClone } from "../../core/IClone";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
+import { IndexFormat } from "../../graphics/IndexFormat";
 import { SubMeshInstanceBatch } from "../../graphics/SubMeshInstanceBatch";
 import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
@@ -20,7 +21,7 @@ import { Vector3 } from "../../math/Vector3";
 import { Vector4 } from "../../math/Vector4";
 import { Utils3D } from "../../utils/Utils3D";
 import { SubMesh } from "./SubMesh";
-import { IndexFormat } from "../../graphics/IndexFormat";
+import { LayaGL } from "../../../layagl/LayaGL";
 
 /**
  * <code>Mesh</code> 类用于创建文件网格数据模板。
@@ -108,13 +109,11 @@ export class Mesh extends Resource implements IClone {
 	_skinDataPathMarks: any[][];
 	/** @internal */
 	_vertexCount: number = 0;
-
-	/** 网格的索引格式。 */
-	indexFormat: IndexFormat = IndexFormat.UInt16;
+	/** @internal */
+	_indexFormat: IndexFormat = IndexFormat.UInt16;
 
 	/**
-	 * 获取网格的全局默认绑定动作逆矩阵。
-	 * @return  网格的全局默认绑定动作逆矩阵。
+	 * 网格的全局默认绑定动作逆矩阵。
 	 */
 	get inverseAbsoluteBindPoses(): Matrix4x4[] {
 		return this._inverseBindPoses;
@@ -135,8 +134,7 @@ export class Mesh extends Resource implements IClone {
 	}
 
 	/**
-	 * 获取SubMesh的个数。
-	 * @return SubMesh的个数。
+	 * SubMesh的个数。
 	 */
 	get subMeshCount(): number {
 		return this._subMeshes.length;
@@ -152,6 +150,13 @@ export class Mesh extends Resource implements IClone {
 	set bounds(value: Bounds) {
 		if (this._bounds !== value)
 			value.cloneTo(this._bounds);
+	}
+
+	/**
+	 * 索引格式。
+	 */
+	get indexFormat(): IndexFormat {
+		return this._indexFormat;
 	}
 
 	/**
@@ -651,9 +656,10 @@ export class Mesh extends Resource implements IClone {
 	}
 
 	/**
-	 * 拷贝并获取网格索引数据的副本。
+	 * 拷贝并获取网格索引的副本。
+	 * @return 网格索引。
 	 */
-	getIndices(): Uint16Array {
+	getIndices(): Uint8Array | Uint16Array | Uint32Array {
 		if (this._isReadable)
 			return this._indexBuffer.getData().slice();
 		else
@@ -662,10 +668,24 @@ export class Mesh extends Resource implements IClone {
 
 	/**
 	 * 设置网格索引。
-	 * @param indices 
+	 * @param indices 网格索引。
 	 */
-	setIndices(indices: Uint16Array): void {
-		this._indexBuffer.setData(indices);
+	setIndices(indices: Uint8Array | Uint16Array | Uint32Array): void {
+		var format: IndexFormat;
+		if (indices instanceof Uint32Array)
+			format = IndexFormat.UInt32;
+		else if (indices instanceof Uint16Array)
+			format = IndexFormat.UInt16;
+		else if (indices instanceof Uint8Array)
+			format = IndexFormat.UInt8;
+
+		var indexBuffer: IndexBuffer3D = this._indexBuffer;
+		if (this._indexFormat !== format || indexBuffer.indexCount !== indices.length) {//format chang and length chang will recreate the indexBuffer
+			indexBuffer.destroy();
+			this._indexBuffer = indexBuffer = new IndexBuffer3D(format, indices.length, LayaGL.instance.STATIC_DRAW, this._isReadable);
+		}
+		indexBuffer.setData(indices);
+		this._indexFormat = format;
 	}
 
 

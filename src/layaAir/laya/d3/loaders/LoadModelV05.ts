@@ -223,9 +223,9 @@ export class LoadModelV05 {
 			var vertexCount: number = vertexBuffer._byteLength / vertexDeclaration.vertexStride;
 			//TDDO:是否加标记
 			if (vertexCount > 65535)
-				mesh.indexFormat = IndexFormat.UInt32;
+				mesh._indexFormat = IndexFormat.UInt32;
 			else
-				mesh.indexFormat = IndexFormat.UInt16;
+				mesh._indexFormat = IndexFormat.UInt16;
 			mesh._vertexBuffer = vertexBuffer;
 			mesh._vertexCount += vertexCount;
 			memorySize += floatData.length * 4;
@@ -240,7 +240,7 @@ export class LoadModelV05 {
 		else
 			ibDatas = new Uint16Array(arrayBuffer.slice(ibStart, ibStart + ibLength));
 
-		var indexBuffer: IndexBuffer3D = new IndexBuffer3D(mesh.indexFormat, ibLength / 2, gl.STATIC_DRAW, true);
+		var indexBuffer: IndexBuffer3D = new IndexBuffer3D(mesh.indexFormat, ibDatas.length, gl.STATIC_DRAW, true);
 		indexBuffer.setData(ibDatas);
 		mesh._indexBuffer = indexBuffer;
 
@@ -274,7 +274,7 @@ export class LoadModelV05 {
 	 * @internal
 	 */
 	private static READ_SUBMESH(): boolean {
-		var reader:Byte=LoadModelV05._readData;
+		var reader: Byte = LoadModelV05._readData;
 		var arrayBuffer: ArrayBuffer = reader.__getBuffer();
 		var subMesh: SubMesh = new SubMesh(LoadModelV05._mesh);
 
