@@ -108,15 +108,25 @@ export class SubMesh extends GeometryElement {
 			console.warn("SubMesh:this device do not support IndexFormat.UInt32.");
 			return;
 		}
+
 		var gl: WebGLRenderingContext = LayaGL.instance;
-		//TODO:还有byte
-		var glIndexFormat: number = mesh.indexFormat == IndexFormat.UInt32 ? gl.UNSIGNED_INT : gl.UNSIGNED_SHORT;
-		var skinnedDatas: any[] = ((<SkinnedMeshRenderer>state.renderElement.render))._skinnedData;
+		var skinnedDatas: any[] = (<SkinnedMeshRenderer>state.renderElement.render)._skinnedData;
+		var glIndexFormat: number;
+		switch (mesh.indexFormat) {
+			case IndexFormat.UInt32:
+				glIndexFormat = gl.UNSIGNED_INT;
+				break;
+			case IndexFormat.UInt16:
+				glIndexFormat = gl.UNSIGNED_SHORT;
+				break;
+			case IndexFormat.UInt8:
+				glIndexFormat = gl.UNSIGNED_BYTE;
+				break;
+		}
 		mesh._bufferState.bind();
 		if (skinnedDatas) {
 			var subSkinnedDatas: Float32Array[] = skinnedDatas[this._indexInMesh];
-			var boneIndicesListCount: number = this._boneIndicesList.length;
-			for (var i: number = 0; i < boneIndicesListCount; i++) {
+			for (var i: number = 0, n: number = this._boneIndicesList.length; i < n; i++) {
 				state.shader.uploadCustomUniform(SkinnedMeshSprite3D.BONES, subSkinnedDatas[i]);
 				gl.drawElements(gl.TRIANGLES, this._subIndexBufferCount[i], glIndexFormat, this._subIndexBufferStart[i] * 2);
 			}
