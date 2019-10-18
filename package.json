@@ -4,16 +4,16 @@
   "description": "",
   "main": "layaAir.config.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "cd src/publishTool&&cmd /k publish.bat",
+    "compile":"gulp LayaAirBuild",
+    "buildDoc":"cd src/generateDoc&&cmd /k run.bat"
   },
   "author": "LayaAir Team",
   "license": "ISC",
   "dependencies": {
     "gulp-concat": "^2.6.1",
-    "looks-same": "^7.2.1",
     "matched": "^4.0.0",
     "pump": "^3.0.0",
-    "puppeteer-core": "^1.19.0",
     "through2": "^3.0.1",
     "typedoc": "^0.14.2",
     "typescript": "^3.6.4"
@@ -22,7 +22,14 @@
     "gulp": "^4.0.2",
     "rollup": "^1.16.7",
     "rollup-plugin-glsl": "^1.3.0",
-    "rollup-plugin-typescript": "^1.0.1",
     "rollup-plugin-typescript2": "^0.21.2"
+  },
+  "repository" :
+  {
+    "type" : "git",
+    "url" : "https://github.com/layabox/LayaAir"
+  },
+  "bugs": {
+    "url": "https://ask.layabox.com/"
   }
 }
