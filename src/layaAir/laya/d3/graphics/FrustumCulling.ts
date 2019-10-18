@@ -68,22 +68,25 @@ export class FrustumCulling {
 	/**
 	 * @internal
 	 */
-	private static _traversalCulling(camera: Camera, scene: Scene3D, context: RenderContext3D, renderList: SingletonList<ISingletonElement>, customShader: Shader3D, replacementTag: string): void {
-		var validCount: number = renderList.length;
+	private static _traversalCulling(camera: Camera, scene: Scene3D, context: RenderContext3D, renderList: SingletonList<ISingletonElement>, customShader: Shader3D, replacementTag: string, isShadowCasterCull: boolean): void {
 		var renders: ISingletonElement[] = renderList.elements;
 		var boundFrustum: BoundFrustum = camera.boundFrustum;
 		var camPos: Vector3 = camera._transform.position;
-		for (var i: number = 0; i < validCount; i++) {
-			var render: BaseRender = (<BaseRender>renders[i]);
-			if (camera._isLayerVisible(render._owner._layer) && render._enable) {
+		for (var i: number = 0, n: number = renderList.length; i < n; i++) {
+			var render: BaseRender = <BaseRender>renders[i];
+			var canPass: boolean;
+			if (isShadowCasterCull)
+				canPass = render._castShadow && render._enable;
+			else
+				canPass = camera._isLayerVisible(render._owner._layer) && render._enable;
+			if (canPass) {
 				Stat.frustumCulling++;
-				if (!camera.useOcclusionCulling || render._needRender(boundFrustum,context)) {
+				if (!camera.useOcclusionCulling || render._needRender(boundFrustum, context)) {
 					render._visible = true;
 					render._distanceForSort = Vector3.distance(render.bounds.getCenter(), camPos);//TODO:合并计算浪费,或者合并后取平均值
-
 					var elements: RenderElement[] = render._renderElements;
-					for (var j: number = 0, m: number = elements.length; j < m; j++) 
-						elements[j]._update(scene,context,customShader, replacementTag);
+					for (var j: number = 0, m: number = elements.length; j < m; j++)
+						elements[j]._update(scene, context, customShader, replacementTag);
 				} else {
 					render._visible = false;
 				}
@@ -96,10 +99,11 @@ export class FrustumCulling {
 	/**
 	 * @internal
 	 */
-	static renderObjectCulling(camera: Camera, scene: Scene3D, context: RenderContext3D, renderList: SingletonList<ISingletonElement>, customShader: Shader3D, replacementTag: string): void {
-		var i: number, n: number, j: number, m: number;
+	static renderObjectCulling(camera: Camera, scene: Scene3D, context: RenderContext3D, customShader: Shader3D, replacementTag: string, isShadowCasterCull: boolean): void {
+		var i: number, n: number;
 		var opaqueQueue: RenderQueue = scene._opaqueQueue;
 		var transparentQueue: RenderQueue = scene._transparentQueue;
+		var renderList: SingletonList<ISingletonElement> = scene._renders;
 		opaqueQueue.clear();
 		transparentQueue.clear();
 
@@ -114,10 +118,10 @@ export class FrustumCulling {
 		if (octree) {
 			octree.updateMotionObjects();
 			octree.shrinkRootIfPossible();
-			octree.getCollidingWithFrustum(context,customShader,replacementTag);
+			octree.getCollidingWithFrustum(context, customShader, replacementTag, isShadowCasterCull);
 		}
 		//else {//包围盒不完善的节点走遍历裁剪
-			FrustumCulling._traversalCulling(camera, scene, context, renderList,customShader,replacementTag);
+		FrustumCulling._traversalCulling(camera, scene, context, renderList, customShader, replacementTag, isShadowCasterCull);
 		//}
 
 		if (FrustumCulling.debugFrustumCulling) {
@@ -126,9 +130,9 @@ export class FrustumCulling {
 			if (octree) {
 				octree.drawAllBounds(debugTool);
 				octree.drawAllObjects(debugTool);
-			} 
+			}
 			//else {//包围盒不完善的节点走遍历裁剪
-				FrustumCulling._drawTraversalCullingBound(renderList, debugTool);
+			FrustumCulling._drawTraversalCullingBound(renderList, debugTool);
 			//}
 		}
 
@@ -167,13 +171,13 @@ export class FrustumCulling {
 		var camPos: Vector3 = context.camera._transform.position;
 		for (i = 0; i < validCount; i++) {
 			var render: BaseRender = (<BaseRender>renders[i]);
-			if (!camera.useOcclusionCulling || (camera._isLayerVisible(render._owner._layer) && render._enable && scene._cullingBufferResult[i])){//TODO:需要剥离部分函数
+			if (!camera.useOcclusionCulling || (camera._isLayerVisible(render._owner._layer) && render._enable && scene._cullingBufferResult[i])) {//TODO:需要剥离部分函数
 				render._visible = true;
 				render._distanceForSort = Vector3.distance(render.bounds.getCenter(), camPos);//TODO:合并计算浪费,或者合并后取平均值
 				var elements: RenderElement[] = render._renderElements;
 				for (j = 0, m = elements.length; j < m; j++) {
 					var element: RenderElement = elements[j];
-					element._update(scene,context,customShader,replacementTag);
+					element._update(scene, context, customShader, replacementTag);
 				}
 			} else {
 				render._visible = false;

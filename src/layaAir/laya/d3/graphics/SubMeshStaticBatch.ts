@@ -26,6 +26,7 @@ import { VertexMesh } from "./Vertex/VertexMesh";
 import { VertexBuffer3D } from "./VertexBuffer3D";
 import { VertexDeclaration } from "./VertexDeclaration";
 import { VertexElement } from "./VertexElement";
+import { IndexFormat } from "./IndexFormat";
 
 /**
  * @internal
@@ -238,7 +239,7 @@ export class SubMeshStaticBatch extends GeometryElement implements IDispose {
 		var indexDatas: Uint16Array = new Uint16Array(this._currentBatchIndexCount);
 		this._vertexBuffer = new VertexBuffer3D(this._vertexDeclaration.vertexStride * this._currentBatchVertexCount, gl.STATIC_DRAW);
 		this._vertexBuffer.vertexDeclaration = this._vertexDeclaration;
-		this._indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, this._currentBatchIndexCount, gl.STATIC_DRAW);
+		this._indexBuffer = new IndexBuffer3D(IndexFormat.UInt16, this._currentBatchIndexCount, gl.STATIC_DRAW);
 
 		for (var i: number = 0, n: number = this._batchElements.length; i < n; i++) {
 			var sprite: MeshSprite3D = (<MeshSprite3D>this._batchElements[i]);

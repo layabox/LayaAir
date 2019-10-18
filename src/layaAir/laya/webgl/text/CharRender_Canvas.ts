@@ -130,7 +130,7 @@ export class CharRender_Canvas extends ICharRender {
 			clearW = Math.max(clearW, rect[0] + rect[2] + 1);
 			clearH = Math.max(clearH, rect[1] + rect[3] + 1);
 		}
-		ctx.clearRect(0, 0, clearW, clearH);
+		ctx.clearRect(0, 0, clearW/this.lastScaleX+1, clearH/this.lastScaleY+1);
 		ctx.save();
 		//ctx.textAlign = "end";
 		ctx.textBaseline = "middle";
@@ -156,7 +156,7 @@ export class CharRender_Canvas extends ICharRender {
 		if (rect) {
 			if (rect[2] == -1) rect[2] = Math.ceil((cri.width + lineWidth * 2) * this.lastScaleX); // 这个没有考虑左右margin
 		}
-		var imgdt: ImageData = rect ? (ctx.getImageData(rect[0], rect[1], rect[2], rect[3])) : (ctx.getImageData(0, 0, w, h));
+		var imgdt: ImageData = rect ? (ctx.getImageData(rect[0], rect[1], rect[2], rect[3]+1)) : (ctx.getImageData(0, 0, w, h+1));
 		ctx.restore();
 		cri.bmpWidth = imgdt.width;
 		cri.bmpHeight = imgdt.height;

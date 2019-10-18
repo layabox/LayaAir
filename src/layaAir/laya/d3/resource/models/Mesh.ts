@@ -20,6 +20,7 @@ import { Vector3 } from "../../math/Vector3";
 import { Vector4 } from "../../math/Vector4";
 import { Utils3D } from "../../utils/Utils3D";
 import { SubMesh } from "./SubMesh";
+import { IndexFormat } from "../../graphics/IndexFormat";
 
 /**
  * <code>Mesh</code> 类用于创建文件网格数据模板。
@@ -107,6 +108,9 @@ export class Mesh extends Resource implements IClone {
 	_skinDataPathMarks: any[][];
 	/** @internal */
 	_vertexCount: number = 0;
+
+	/** 网格的索引格式。 */
+	indexFormat: IndexFormat = IndexFormat.UInt16;
 
 	/**
 	 * 获取网格的全局默认绑定动作逆矩阵。
@@ -717,7 +721,7 @@ export class Mesh extends Resource implements IClone {
 		destMesh._vertexBuffer = destVB;
 		destMesh._vertexCount = this._vertexCount;
 		var ib: IndexBuffer3D = this._indexBuffer;
-		var destIB: IndexBuffer3D = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, ib.indexCount, ib.bufferUsage, ib.canRead);
+		var destIB: IndexBuffer3D = new IndexBuffer3D(IndexFormat.UInt16, ib.indexCount, ib.bufferUsage, ib.canRead);
 		destIB.setData(ib.getData().slice());
 		destMesh._indexBuffer = destIB;
 

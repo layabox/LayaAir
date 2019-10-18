@@ -40,8 +40,6 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	private _receiveShadow: boolean;
 	/** @internal */
 	private _materialsInstance: boolean[];
-	/** @internal */
-	private _castShadow: boolean;
 	/** @internal  [实现IListPool接口]*/
 	private _indexInList: number = -1;
 	/** @internal */
@@ -53,6 +51,8 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	protected _boundsChange: boolean = true;
 
 
+	/** @internal */
+	_castShadow: boolean = false;
 	_supportOctree: boolean = true;
 	/** @internal */
 	_enable: boolean;
@@ -263,15 +263,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	}
 
 	set castShadow(value: boolean) {
-		if (this._castShadow !== value) {
-			if (this._owner.activeInHierarchy) {
-				if (value)
-					this._scene._addShadowCastRenderObject(this);
-				else
-					this._scene._removeShadowCastRenderObject(this);
-			}
-			this._castShadow = value;
-		}
+		this._castShadow = value;
 	}
 
 	/**
@@ -310,7 +302,6 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 		this._materialsInstance = [];
 		this._shaderValues = new ShaderData(null);
 		this.lightmapIndex = -1;
-		this._castShadow = false;
 		this.receiveShadow = false;
 		this.sortingFudge = 0.0;
 		(owner) && (this._owner.transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange));//如果为合并BaseRender,owner可能为空

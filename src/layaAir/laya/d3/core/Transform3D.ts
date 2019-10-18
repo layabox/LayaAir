@@ -451,7 +451,7 @@ export class Transform3D extends EventDispatcher {
 	 * 获取世界位置。
 	 * @return	世界位置。
 	 */
-	get position(): Vector3 {
+	get position(): Readonly<Vector3> {
 		if (this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION)) {
 			if (this._parent != null) {
 				var worldMatE = this.worldMatrix.elements;
@@ -470,7 +470,7 @@ export class Transform3D extends EventDispatcher {
 	 * 设置世界位置。
 	 * @param	value 世界位置。
 	 */
-	set position(value: Vector3) {
+	set position(value:  Readonly<Vector3>) {
 		if (this._parent != null) {
 			var parentInvMat: Matrix4x4 = Transform3D._tempMatrix0;
 			this._parent.worldMatrix.invert(parentInvMat);

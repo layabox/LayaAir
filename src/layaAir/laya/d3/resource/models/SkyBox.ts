@@ -7,6 +7,7 @@ import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { VertexDeclaration } from "../../graphics/VertexDeclaration";
 import { SkyMesh } from "./SkyMesh";
+import { IndexFormat } from "../../graphics/IndexFormat";
 
 /**
  * <code>SkyBox</code> 类用于创建天空盒。
@@ -43,7 +44,7 @@ export class SkyBox extends SkyMesh {
 		var verDec: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION");
 		this._vertexBuffer = new VertexBuffer3D(verDec.vertexStride * 8, gl.STATIC_DRAW, false);
 		this._vertexBuffer.vertexDeclaration = verDec;
-		this._indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_UBYTE, 36, gl.STATIC_DRAW, false);
+		this._indexBuffer = new IndexBuffer3D(IndexFormat.UInt8, 36, gl.STATIC_DRAW, false);
 		this._vertexBuffer.setData(vertices.buffer);
 		this._indexBuffer.setData(indices);
 
