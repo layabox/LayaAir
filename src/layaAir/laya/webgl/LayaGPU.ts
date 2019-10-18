@@ -4,10 +4,10 @@ import { ILaya } from "../../ILaya";
 import { VertexArrayObject } from "../../laya/webgl/VertexArrayObject"
 
 /**
- * @private
+ * @internal
  */
 export class LayaGPU {
-    /**@private */
+    /**@internal */
     private static _extentionVendorPrefixes: any[] = ["", "WEBKIT_", "MOZ_"];
 
     /**
@@ -18,17 +18,19 @@ export class LayaGPU {
         return Browser.onBDMiniGame || Browser.onQGMiniGame;
     }
 
-    /**@private */
+    /**@internal */
     private _gl: any = null;
-    /**@private */
+    /**@internal */
     private _vaoExt: any = null;
-    /**@private */
+    /**@internal */
     private _angleInstancedArrays: any = null;
 
     /**@internal */
     _isWebGL2: boolean = false;
     /**@internal */
     _oesTextureHalfFloat: any = null;
+    /**@internal */
+    _oes_element_index_uint: any = null;
     /**@internal */
     _oesTextureHalfFloatLinear: any = null;
     /**@internal */
@@ -43,17 +45,14 @@ export class LayaGPU {
     _compressedTextureEtc1: any = null;
 
     /**
-     * @private
+     * @internal
      */
     constructor(gl: any, isWebGL2: boolean) {
         this._gl = gl;
         this._isWebGL2 = isWebGL2;
 
-        try {//某些浏览器中未实现此函数，使用try catch增强兼容性。
-            var precisionFormat: any = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT);
-            precisionFormat.precision ? (WebGL.shaderHighPrecision = true) : WebGL.shaderHighPrecision = false;
-        } catch (e) {
-        }
+        var precisionFormat: any = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT);
+        precisionFormat.precision ? (WebGL.shaderHighPrecision = true) : WebGL.shaderHighPrecision = false;
 
         if (!isWebGL2) {
             var forceVAO: boolean = LayaGPU._forceSupportVAOPlatform();
@@ -74,6 +73,7 @@ export class LayaGPU {
             this._oesTextureHalfFloatLinear = this._getExtension("OES_texture_half_float_linear");
             this._oesTextureFloat = this._getExtension("OES_texture_float");
             //this._getExtension("OES_texture_float_linear");
+            this._oes_element_index_uint = this._getExtension("OES_element_index_uint");
         } else {
             this._getExtension("EXT_color_buffer_float");
             //this._getExtension("OES_texture_float_linear");
@@ -87,7 +87,7 @@ export class LayaGPU {
     }
 
     /**
-     * @private
+     * @internal
      */
     private _getExtension(name: string): any {
         var prefixes: any[] = LayaGPU._extentionVendorPrefixes;
@@ -100,7 +100,7 @@ export class LayaGPU {
     }
 
     /**
-     * @private
+     * @internal
      */
     createVertexArray(): any {
         if (this._isWebGL2)
@@ -110,7 +110,7 @@ export class LayaGPU {
     }
 
     /**
-     * @private
+     * @internal
      */
     bindVertexArray(vertexArray: any): void {
         if (this._isWebGL2)
@@ -120,7 +120,7 @@ export class LayaGPU {
     }
 
     /**
-     * @private
+     * @internal
      */
     deleteVertexArray(vertexArray: any): void {
         if (this._isWebGL2)
@@ -130,7 +130,7 @@ export class LayaGPU {
     }
 
     /**
-     * @private
+     * @internal
      */
     isVertexArray(vertexArray: any): void {
         if (this._isWebGL2)
@@ -139,8 +139,9 @@ export class LayaGPU {
             this._vaoExt.isVertexArrayOES(vertexArray);
     }
 
+
     /**
-     * @private
+     * @internal
      */
     drawElementsInstanced(mode: number, count: number, type: number, offset: number, instanceCount: number): void {
         if (this._isWebGL2)
@@ -150,7 +151,7 @@ export class LayaGPU {
     }
 
     /**
-     * @private
+     * @internal
      */
     drawArraysInstanced(mode: number, first: number, count: number, instanceCount: number): void {
         if (this._isWebGL2)
@@ -160,7 +161,7 @@ export class LayaGPU {
     }
 
     /**
-     * @private
+     * @internal
      */
     vertexAttribDivisor(index: number, divisor: number): void {
         if (this._isWebGL2)
@@ -170,13 +171,20 @@ export class LayaGPU {
     }
 
     /**
-     * @private
+     * @internal
      */
     supportInstance(): boolean {
         if (this._isWebGL2 || this._angleInstancedArrays)
             return true;
         else
             return false;
+    }
+
+    /**
+    * @internal
+    */
+    supportElementIndexUint32(): boolean {
+        return this._isWebGL2 || this._oes_element_index_uint ? true : false;
     }
 
 }

@@ -8,6 +8,7 @@ import { Vector3 } from "../../math/Vector3";
 import { Mesh } from "./Mesh";
 import { SubMesh } from "./SubMesh";
 import { LayaGL } from "../../../layagl/LayaGL";
+import { IndexFormat } from "../../graphics/IndexFormat";
 
 /**
  * <code>PrimitiveMesh</code> 类用于创建简单网格。
@@ -31,7 +32,7 @@ export class PrimitiveMesh {
 		vertexBuffer.setData(vertices.buffer);
 		mesh._vertexBuffer = vertexBuffer;
 		mesh._vertexCount = vertexBuffer._byteLength / vertexDeclaration.vertexStride;
-		var indexBuffer: IndexBuffer3D = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, indices.length, gl.STATIC_DRAW, true);
+		var indexBuffer: IndexBuffer3D = new IndexBuffer3D(IndexFormat.UInt16, indices.length, gl.STATIC_DRAW, true);
 		indexBuffer.setData(indices);
 		mesh._indexBuffer = indexBuffer;
 

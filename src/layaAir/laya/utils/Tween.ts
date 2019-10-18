@@ -299,6 +299,7 @@ export class Tween {
         this._ease = null;
         this._props = null;
         this._delayParam = null;
+	this.repeat = 1;
 
         if (this._usedPool) {
             this.update = null;

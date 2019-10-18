@@ -1,19 +1,14 @@
-import { LayaGL } from "../../layagl/LayaGL"
-import { BufferStateBase } from "../../webgl/BufferStateBase"
-import { WebGLContext } from "../../webgl/WebGLContext"
-import { Buffer } from "../../webgl/utils/Buffer"
+import { LayaGL } from "../../layagl/LayaGL";
+import { BufferStateBase } from "../../webgl/BufferStateBase";
+import { Buffer } from "../../webgl/utils/Buffer";
+import { IndexFormat } from "./IndexFormat";
 
 /**
  * <code>IndexBuffer3D</code> 类用于创建索引缓冲。
  */
 export class IndexBuffer3D extends Buffer {
-	/** 8位ubyte无符号索引类型。*/
-	static INDEXTYPE_UBYTE: string = "ubyte";
-	/** 16位ushort无符号索引类型。*/
-	static INDEXTYPE_USHORT: string = "ushort";
-
 	/** @internal */
-	private _indexType: string;
+	private _indexType: IndexFormat;
 	/** @internal */
 	private _indexTypeByteCount: number;
 	/** @internal */
@@ -22,32 +17,28 @@ export class IndexBuffer3D extends Buffer {
 	private _canRead: boolean;
 
 	/**
-	 * 获取索引类型。
-	 *   @return	索引类型。
+	 * 索引类型。
 	 */
-	get indexType(): string {
+	get indexType(): IndexFormat {
 		return this._indexType;
 	}
 
 	/**
-	 * 获取索引类型字节数量。
-	 *   @return	索引类型字节数量。
+	 * 索引类型字节数量。
 	 */
 	get indexTypeByteCount(): number {
 		return this._indexTypeByteCount;
 	}
 
 	/**
-	 * 获取索引个数。
-	 *   @return	索引个数。
+	 * 索引个数。
 	 */
 	get indexCount(): number {
 		return this._indexCount;
 	}
 
 	/**
-	 * 获取是否可读。
-	 *   @return	是否可读。
+	 * 是否可读。
 	 */
 	get canRead(): boolean {
 		return this._canRead;
@@ -60,7 +51,7 @@ export class IndexBuffer3D extends Buffer {
 	 * @param	bufferUsage IndexBuffer3D用途类型。
 	 * @param	canRead 是否可读。
 	 */
-	constructor(indexType: string, indexCount: number, bufferUsage: number = 0x88E4/*WebGLContext.STATIC_DRAW*/, canRead: boolean = false) {
+	constructor(indexType: IndexFormat, indexCount: number, bufferUsage: number = 0x88E4/*WebGLContext.STATIC_DRAW*/, canRead: boolean = false) {
 		super();
 		this._indexType = indexType;
 		this._indexCount = indexCount;
@@ -68,19 +59,22 @@ export class IndexBuffer3D extends Buffer {
 		this._bufferType = LayaGL.instance.ELEMENT_ARRAY_BUFFER;
 		this._canRead = canRead;
 
-		var byteLength: number;
-		if (indexType == IndexBuffer3D.INDEXTYPE_USHORT)
-			this._indexTypeByteCount = 2;
-		else if (indexType == IndexBuffer3D.INDEXTYPE_UBYTE)
-			this._indexTypeByteCount = 1;
-		else
-			throw new Error("unidentification index type.");
-
-		byteLength = this._indexTypeByteCount * indexCount;
-
-		this._byteLength = byteLength;
-
+		switch (indexType) {
+			case IndexFormat.UInt32:
+					this._indexTypeByteCount = 4;
+				break;
+			case IndexFormat.UInt16:
+					this._indexTypeByteCount = 2;
+				break;
+			case IndexFormat.UInt8:
+					this._indexTypeByteCount = 1;
+				break;
+			default:
+					throw new Error("unidentification index type.");
+		}
+		var byteLength: number = this._indexTypeByteCount * indexCount;
 		var curBufSta: BufferStateBase = BufferStateBase._curBindedBufferState;
+		this._byteLength = byteLength;
 		if (curBufSta) {
 			if (curBufSta._bindedIndexBuffer === this) {
 				LayaGL.instance.bufferData(this._bufferType, byteLength, this._bufferUsage);
@@ -96,10 +90,17 @@ export class IndexBuffer3D extends Buffer {
 		}
 
 		if (canRead) {
-			if (indexType == IndexBuffer3D.INDEXTYPE_USHORT)
-				this._buffer = new Uint16Array(indexCount);
-			else if (indexType == IndexBuffer3D.INDEXTYPE_UBYTE)
-				this._buffer = new Uint8Array(indexCount);
+			switch (indexType) {
+				case IndexFormat.UInt32:
+					this._buffer = new Uint32Array(indexCount);
+					break;
+				case IndexFormat.UInt16:
+					this._buffer = new Uint16Array(indexCount);
+					break;
+				case IndexFormat.UInt8:
+					this._buffer = new Uint8Array(indexCount);
+					break;
+			}
 		}
 	}
 
@@ -143,15 +144,19 @@ export class IndexBuffer3D extends Buffer {
 	 * @param	dataCount 索引数据的数量。
 	 */
 	setData(data: any, bufferOffset: number = 0, dataStartIndex: number = 0, dataCount: number = 4294967295/*uint.MAX_VALUE*/): void {
-		var byteCount: number;
-		if (this._indexType == IndexBuffer3D.INDEXTYPE_USHORT) {
-			byteCount = 2;
-			if (dataStartIndex !== 0 || dataCount !== 4294967295/*uint.MAX_VALUE*/)
-				data = new Uint16Array(data.buffer, dataStartIndex * byteCount, dataCount);
-		} else if (this._indexType == IndexBuffer3D.INDEXTYPE_UBYTE) {
-			byteCount = 1;
-			if (dataStartIndex !== 0 || dataCount !== 4294967295/*uint.MAX_VALUE*/)
-				data = new Uint8Array(data.buffer, dataStartIndex * byteCount, dataCount);
+		var byteCount: number = this._indexTypeByteCount;
+		if (dataStartIndex !== 0 || dataCount !== 4294967295/*uint.MAX_VALUE*/) {
+			switch (this._indexType) {
+				case IndexFormat.UInt32:
+					data = new Uint32Array(data.buffer, dataStartIndex * byteCount, dataCount);
+					break;
+				case IndexFormat.UInt16:
+					data = new Uint16Array(data.buffer, dataStartIndex * byteCount, dataCount);
+					break;
+				case IndexFormat.UInt8:
+					data = new Uint8Array(data.buffer, dataStartIndex * byteCount, dataCount);
+					break;
+			}
 		}
 
 		var curBufSta: BufferStateBase = BufferStateBase._curBindedBufferState;
@@ -184,7 +189,7 @@ export class IndexBuffer3D extends Buffer {
 
 	/**
 	 * 获取索引数据。
-	 *   @return	索引数据。
+	 * @return	索引数据。
 	 */
 	getData(): Uint16Array {
 		if (this._canRead)

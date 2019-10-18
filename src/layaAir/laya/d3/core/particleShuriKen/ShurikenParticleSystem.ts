@@ -44,6 +44,7 @@ import { ShuriKenParticle3DShaderDeclaration } from "./ShuriKenParticle3DShaderD
 import { ShurikenParticleData } from "./ShurikenParticleData";
 import { ShurikenParticleRenderer } from "./ShurikenParticleRenderer";
 import { Quaternion } from "../../math/Quaternion";
+import { IndexFormat } from "../../graphics/IndexFormat";
 
 
 /**
@@ -1448,7 +1449,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 					this._indexStride = mesh._indexBuffer.indexCount;
 					var indexDatas: Uint16Array = mesh._indexBuffer.getData();
 					var indexCount: number = this._bufferMaxParticles * this._indexStride;
-					this._indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, indexCount, gl.STATIC_DRAW);
+					this._indexBuffer = new IndexBuffer3D(IndexFormat.UInt16, indexCount, gl.STATIC_DRAW);
 					indices = new Uint16Array(indexCount);
 
 					memorySize = vbMemorySize + indexCount * 2;
@@ -1506,7 +1507,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 				}
 
 				this._indexStride = 6;
-				this._indexBuffer = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, this._bufferMaxParticles * 6, gl.STATIC_DRAW);
+				this._indexBuffer = new IndexBuffer3D(IndexFormat.UInt16, this._bufferMaxParticles * 6, gl.STATIC_DRAW);
 				indices = new Uint16Array(this._bufferMaxParticles * 6);
 				for (i = 0; i < this._bufferMaxParticles; i++) {
 					indexOffset = i * 6;

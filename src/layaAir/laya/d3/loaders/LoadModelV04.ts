@@ -8,6 +8,7 @@ import { Mesh } from "../resource/models/Mesh"
 import { SubMesh } from "../resource/models/SubMesh"
 import { Byte } from "../../utils/Byte"
 import { LayaGL } from "../../layagl/LayaGL";
+import { IndexFormat } from "../graphics/IndexFormat"
 
 /**
  * @internal
@@ -151,7 +152,7 @@ export class LoadModelV04 {
 		var ibStart: number = offset + LoadModelV04._readData.getUint32();
 		var ibLength: number = LoadModelV04._readData.getUint32();
 		var ibDatas: Uint16Array = new Uint16Array(arrayBuffer.slice(ibStart, ibStart + ibLength));
-		var indexBuffer: IndexBuffer3D = new IndexBuffer3D(IndexBuffer3D.INDEXTYPE_USHORT, ibLength / 2, gl.STATIC_DRAW, true);
+		var indexBuffer: IndexBuffer3D = new IndexBuffer3D(IndexFormat.UInt16, ibLength / 2, gl.STATIC_DRAW, true);
 		indexBuffer.setData(ibDatas);
 		LoadModelV04._mesh._indexBuffer = indexBuffer;
 		memorySize += indexBuffer.indexCount * 2;

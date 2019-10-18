@@ -54,9 +54,7 @@ export class RenderableSprite3D extends Sprite3D {
 	 */
 	protected _onInActive(): void {
 		super._onInActive();
-		var scene3D: Scene3D = (<Scene3D>this._scene);
-		scene3D._removeRenderObject(this._render);
-		(this._render.castShadow) && (scene3D._removeShadowCastRenderObject(this._render));
+		(<Scene3D>this._scene)._removeRenderObject(this._render);
 
 	}
 
@@ -66,9 +64,7 @@ export class RenderableSprite3D extends Sprite3D {
 	 */
 	protected _onActive(): void {
 		super._onActive();
-		var scene3D: Scene3D = (<Scene3D>this._scene);
-		scene3D._addRenderObject(this._render);
-		(this._render.castShadow) && (scene3D._addShadowCastRenderObject(this._render));
+		(<Scene3D>this._scene)._addRenderObject(this._render);
 	}
 
 	/**

@@ -517,7 +517,7 @@ export class Camera extends BaseCamera {
 			for (var i: number = 0, n: number = parallelSplitShadowMap.shadowMapCount; i < n; i++) {
 				var smCamera: Camera = parallelSplitShadowMap.cameras[i];
 				context.camera = smCamera;
-				FrustumCulling.renderObjectCulling(smCamera, scene, context, scene._castShadowRenders, shader, replacementTag);
+				FrustumCulling.renderObjectCulling(smCamera, scene, context, shader, replacementTag,true);
 
 				var shadowMap: RenderTexture = parallelSplitShadowMap.cameras[i + 1].renderTarget;
 				shadowMap._start();

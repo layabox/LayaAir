@@ -438,50 +438,49 @@ import { ContainmentType } from "./ContainmentType";
 		}
 		
 		/**
-		 * 空间中射线和平面是否相交
-		 * @param	ray   射线
-		 * @param	plane 平面
-		 * @param	out 相交距离,如果为0,不相交
+		 * 射线和平面是否相交,并返回相交距离。
+		 * @param	ray   射线。
+		 * @param	plane 平面。
+		 * @return	相交距离,-1为不相交。
 		 */
-		 static intersectsRayAndPlaneRD(ray:Ray, plane:Plane, out:number):boolean {
-			
+		 static intersectsRayAndPlaneRD(ray:Ray, plane:Plane):number {
+			//Source: Real-Time Collision Detection by Christer Ericson
+			//Reference: Page 175
 			var planeNor:Vector3 = plane.normal;
 			var direction:number = Vector3.dot(planeNor, ray.direction);
 			
-			if (MathUtils3D.isZero(direction)) {
-				out = 0;
-				return false;
-			}
+			if (Math.abs(direction)<MathUtils3D.zeroTolerance)
+				 return -1;
 			
 			var position:number = Vector3.dot(planeNor, ray.origin);
-			out = (-plane.distance - position) / direction;
+			var distance:number = (-plane.distance - position) / direction;
 			
-			if (out < 0) {
-				out = 0;
-				return false;
+			if (distance < 0) {
+				if (distance < -MathUtils3D.zeroTolerance)
+					return -1;
+				distance=0;
 			}
-			
-			return true;
+			return distance;
 		}
 		
 		/**
-		 * 空间中射线和平面是否相交
-		 * @param	ray   射线
-		 * @param	plane 平面
-		 * @param	out 相交点
+		 * 空间中射线和平面是否相交，并返回相交点。
+		 * @param	ray   射线。
+		 * @param	plane 平面。
+		 * @param	out 相交点。
 		 */
 		 static intersectsRayAndPlaneRP(ray:Ray, plane:Plane, out:Vector3):boolean {
-			
-			var distance:number;
-			if (!CollisionUtils.intersectsRayAndPlaneRD(ray, plane, distance)) {
-				
-				out = Vector3._ZERO;
+			//Source: Real-Time Collision Detection by Christer Ericson
+            //Reference: Page 175
+			var distance:number=CollisionUtils.intersectsRayAndPlaneRD(ray, plane);
+			if (distance==-1) {
+				out.setValue(0,0,0);
 				return false;
 			}
-			
-			Vector3.scale(ray.direction, distance, CollisionUtils._tempV30);
-			Vector3.add(ray.origin, CollisionUtils._tempV30, CollisionUtils._tempV31);
-			out = CollisionUtils._tempV31;
+		
+			var scaDis:Vector3=CollisionUtils._tempV30;
+			Vector3.scale(ray.direction, distance, scaDis);
+			Vector3.add(ray.origin, scaDis, out);
 			return true;
 		}
 		

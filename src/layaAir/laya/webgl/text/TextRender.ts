@@ -206,8 +206,8 @@ export class TextRender {
             }
             if (sx < 1e-4 || sy < 1e-1)
                 return;
-            if (sx > 1) this.fontScaleX = sx;
-            if (sy > 1) this.fontScaleY = sy;
+            this.fontScaleX = sx;
+            this.fontScaleY = sy;
         }
 
         font._italic && (ctx._italicDeg = 13);
@@ -298,11 +298,7 @@ export class TextRender {
                             add = add.words;
                         }
                         //不能直接修改ri.bmpWidth, 否则会累积缩放，所以把缩放保存到独立的变量中
-                        if (ILaya.Render.isConchApp) {
-                            add.push({ ri: ri, x: stx, y: sty, w: ri.bmpWidth / this.fontScaleX, h: ri.bmpHeight / this.fontScaleY });
-                        } else {
-                            add.push({ ri: ri, x: stx + 1 / this.fontScaleX, y: sty, w: (ri.bmpWidth - 2) / this.fontScaleX, h: (ri.bmpHeight - 1) / this.fontScaleY });	// 为了避免边缘像素采样错误，内缩一个像素
-                        }
+                        add.push({ ri: ri, x: stx, y: sty, w: ri.bmpWidth / this.fontScaleX, h: ri.bmpHeight / this.fontScaleY });
                         stx += ri.width;	// TODO 缩放
                     }
                 }
@@ -312,11 +308,7 @@ export class TextRender {
                 var isotex: boolean = TextRender.noAtlas || strWidth * this.fontScaleX > TextRender.atlasWidth;	// 独立贴图还是大图集
                 ri = this.getCharRenderInfo(str, font, color, strokeColor, lineWidth, isotex);
                 // 整句渲染，则只有一个贴图
-                if (ILaya.Render.isConchApp) {
-                    sameTexData[0] = { texgen: ((<TextTexture>ri.tex)).genID, tex: ri.tex, words: [{ ri: ri, x: 0, y: 0, w: ri.bmpWidth / this.fontScaleX, h: ri.bmpHeight / this.fontScaleY }] };
-                } else {
-                    sameTexData[0] = { texgen: ((<TextTexture>ri.tex)).genID, tex: ri.tex, words: [{ ri: ri, x: 1 / this.fontScaleX, y: 0 / this.fontScaleY, w: (ri.bmpWidth - 2) / this.fontScaleX, h: (ri.bmpHeight - 1) / this.fontScaleY }] }; // 为了避免边缘像素采样错误，内缩一个像素
-                }
+                sameTexData[0] = { texgen: ((<TextTexture>ri.tex)).genID, tex: ri.tex, words: [{ ri: ri, x: 0, y: 0, w: ri.bmpWidth / this.fontScaleX, h: ri.bmpHeight / this.fontScaleY }] };
             }
 
             //TODO getbmp 考虑margin 字体与标准字体的关系
@@ -336,7 +328,9 @@ export class TextRender {
         var isLastRender = ctx._charSubmitCache?ctx._charSubmitCache._enable:false;
         var mat = ctx._curMat;
         var slen = samePagesData.length;
-        for (var id = 0; id < slen; id++) {
+        //for (var id = 0; id < slen; id++) {
+		for(var id in samePagesData) {// TODO samePagesData可能是个不连续的数组，比如只有一个samePagesData[29999] = dt;
+										// TODO 想个更好的方法
             var dt = samePagesData[id];
             if (!dt) continue;
             var pri: any[] = dt.words;

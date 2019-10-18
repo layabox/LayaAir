@@ -168,11 +168,11 @@ export class LightSprite extends Sprite3D {
 		if (scene._lightCount < maxLightCount) {
 			scene._lightCount++;
 			this._addToLightQueue();
-			this._isAlternate = true;
+			this._isAlternate = false;
 		}
 		else {
 			scene._alternateLights.add(this);
-			this._isAlternate = false;
+			this._isAlternate = true;
 			console.warn("LightSprite:light count has large than maxLightCount,the latest added light will be ignore.");
 		}
 	}
