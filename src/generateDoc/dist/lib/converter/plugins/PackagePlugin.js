@@ -33,31 +33,27 @@ let PackagePlugin = class PackagePlugin extends components_1.ConverterComponent 
         }
     }
     onBeginDocument(context, reflection, node) {
+        let packageAndReadmeFound = () => (this.noReadmeFile || this.readmeFile) && this.packageFile;
+        let reachedTopDirectory = dirName => dirName === Path.resolve(Path.join(dirName, '..'));
+        let visitedDirBefore = dirName => this.visited.includes(dirName);
         if (!node) {
             return;
         }
-        if (this.readmeFile && this.packageFile) {
-            return;
-        }
         const fileName = node.fileName;
-        let dirName, parentDir = Path.resolve(Path.dirname(fileName));
-        do {
-            dirName = parentDir;
-            if (this.visited.includes(dirName)) {
-                break;
-            }
+        let dirName = Path.resolve(Path.dirname(fileName));
+        while (!packageAndReadmeFound() && !reachedTopDirectory(dirName) && !visitedDirBefore(dirName)) {
             FS.readdirSync(dirName).forEach((file) => {
-                const lfile = file.toLowerCase();
-                if (!this.noReadmeFile && !this.readmeFile && lfile === 'readme.md') {
+                const lowercaseFileName = file.toLowerCase();
+                if (!this.noReadmeFile && !this.readmeFile && lowercaseFileName === 'readme.md') {
                     this.readmeFile = Path.join(dirName, file);
                 }
-                if (!this.packageFile && lfile === 'package.json') {
+                if (!this.packageFile && lowercaseFileName === 'package.json') {
                     this.packageFile = Path.join(dirName, file);
                 }
             });
             this.visited.push(dirName);
-            parentDir = Path.resolve(Path.join(dirName, '..'));
-        } while (dirName !== parentDir);
+            dirName = Path.resolve(Path.join(dirName, '..'));
+        }
     }
     onBeginResolve(context) {
         const project = context.project;

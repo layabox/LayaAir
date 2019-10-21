@@ -175,7 +175,7 @@ __decorate([
 __decorate([
     component_1.Option({
         name: 'toc',
-        help: 'Specifies the top level table of contents.',
+        help: 'Define the contents of the top level table of contents as a comma-separated list of global symbols.',
         type: declaration_1.ParameterType.Array
     })
 ], Renderer.prototype, "toc", void 0);
