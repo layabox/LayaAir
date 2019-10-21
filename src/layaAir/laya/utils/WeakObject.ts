@@ -2,7 +2,7 @@ import { Browser } from "./Browser";
 import { Utils } from "./Utils";
 import { ILaya } from "../../ILaya";
 
-var supportWeakMap = !!WeakMap;
+var supportWeakMap = typeof WeakMap === "function";
 /**
 	 * 封装弱引用WeakMap
 	 * 如果支持WeakMap，则使用WeakMap，如果不支持，则用Object代替
