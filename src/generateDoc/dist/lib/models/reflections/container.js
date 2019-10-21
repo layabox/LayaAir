@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const abstract_1 = require("./abstract");
+console.log(__dirname,process.argv)
 const lodash_1 = require("lodash");
 class ContainerReflection extends abstract_1.Reflection {
     getChildrenByKind(kind) {

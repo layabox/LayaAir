@@ -83,21 +83,12 @@ class Main {
                 mark++;
                 let tsConfigUrl = this.tsCongfig[i];
                 let cmd = ["-b", tsConfigUrl];
-                let compiletype = 0;
-                let tscurl = path.join(this.BaseURL.split("bin")[0], "./node_modules/typescript/lib/tsc.js");
-                let process = child_process.fork(tscurl, cmd, {
-                    silent: true
-                });
-                process.stdout.on('data', (data) => {
-                    console.log(`${data}`);
-                });
-                process.stderr.on('data', (data) => {
-                    compiletype = 1;
-                    console.log(`stderr: \n${data}`);
-                });
-                process.on('close', (code) => {
-                    console.log(`tsc complie exit：${code}`);
-                    start(compiletype);
+                let tscurl = path.join(this.BaseURL.split("bin")[0], "./node_modules/.bin/tsc.cmd");
+                child_process.execFile(tscurl, cmd, (err, stdout, stderr) => {
+                    if (err) {
+                        console.log(err, '\n', stdout, '\n', stderr);
+                    }
+                    start(err);
                 });
             }
         });
