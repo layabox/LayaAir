@@ -57,9 +57,9 @@ let TypeScriptSource = TypeScriptSource_1 = class TypeScriptSource extends optio
     }
 };
 TypeScriptSource.IGNORED = [
-    'out', 'version', 'help',
+    'out', 'version', 'help', 'emitDeclarationOnly',
     'watch', 'declaration', 'declarationDir', 'declarationMap', 'mapRoot',
-    'sourceMap', 'inlineSources', 'removeComments'
+    'sourceMap', 'inlineSources', 'removeComments', 'incremental'
 ];
 TypeScriptSource = TypeScriptSource_1 = __decorate([
     component_1.Component({ name: 'options:typescript' })

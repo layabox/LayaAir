@@ -1,22 +1,13 @@
-const gulp = require('./node_modules/gulp');
-const { fork } = require('child_process');
-
+const gulp = require('gulp');
+const { execFile } = require('child_process');
+const path = require("path");
 gulp.task('tsc', (cb) => {
     let cmd = ["-b","src/samples/tsconfig.json"];
-    let process = fork("./node_modules/typescript/lib/tsc.js",cmd,{
-        silent:true
-    });
-
-    process.stdout.on('data', (data) => {
-        console.log(`${data}`);
-    });
-      
-    process.stderr.on('data', (data) => {
-        console.log(`stderr: \n${data}`);
-    });
-    
-    process.on('close', (code) => {
-        console.log(`tsc complie exit：${code}`);
+    let cmddir = path.join(__dirname,"./node_modules/.bin/tsc.cmd");
+    execFile(cmddir,cmd,(err,stdout,stderr)=>{
+        if(err){
+            console.log(err,'\n',stdout,'\n',stderr);
+        }
         cb();
     });
 });
@@ -29,7 +20,7 @@ gulp.task('LayaAirShaderCopy', () => {
         .pipe(gulp.dest('bin/tsc'));
 });
 
-//gulp.task('LayaAirBuild', gulp.series('tsc', 'CopyShaderFile'));
+gulp.task('LayaAirBuild', gulp.series('tsc', 'LayaAirShaderCopy'));
 
 //let path = require('path');
 //const bundleLib = require('./src/buildtools/bundleLib');

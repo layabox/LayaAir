@@ -107,13 +107,17 @@ let Application = Application_1 = class Application extends component_1.Childabl
             return exclude.some(mm => mm.match(fileName));
         }
         const supportedFileRegex = this.options.getCompilerOptions().allowJs ? /\.[tj]sx?$/ : /\.tsx?$/;
-        function add(file) {
-            if (isExcluded(file.replace(/\\/g, '/'))) {
+        function add(file, entryPoint) {
+            const fileIsDir = FS.statSync(file).isDirectory();
+            if (fileIsDir && file.slice(-1) !== '/') {
+                file = `${file}/`;
+            }
+            if ((!fileIsDir || !entryPoint) && isExcluded(file.replace(/\\/g, '/'))) {
                 return;
             }
-            if (FS.statSync(file).isDirectory()) {
+            if (fileIsDir) {
                 FS.readdirSync(file).forEach(next => {
-                    add(Path.join(file, next));
+                    add(Path.join(file, next), false);
                 });
             }
             else if (supportedFileRegex.test(file)) {
@@ -121,7 +125,7 @@ let Application = Application_1 = class Application extends component_1.Childabl
             }
         }
         inputFiles.forEach(file => {
-            add(Path.resolve(file));
+            add(Path.resolve(file), true);
         });
         return files;
     }
@@ -134,7 +138,7 @@ let Application = Application_1 = class Application extends component_1.Childabl
         ].join(typescript.sys.newLine);
     }
 };
-Application.VERSION = '0.15.0-0';
+Application.VERSION = '0.15.0';
 __decorate([
     component_1.Option({
         name: 'logger',
