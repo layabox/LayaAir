@@ -16,20 +16,20 @@ vec4 PBRSpecularLight(in vec4 albedoColor, in vec3 specularColor, in float smoot
 	return color;
 }
 
-vec4 PBRSpecularDiectionLight (in vec4 albedoColor, in vec3 specularColor, in float smoothness, in vec3 normal, in vec3 viewDir, in DirectionLight light, in LayaGI gi)
+vec4 PBRSpecularDiectionLight (in vec4 albedoColor, in vec3 specularColor, in float smoothness, in vec3 normal, in vec3 viewDir, in DirectionLight light, in LayaGI gi,in float shadowValue)
 {
 	vec3 lightVec = normalize(light.direction);
-	return PBRSpecularLight(albedoColor, specularColor, smoothness, normal, viewDir, lightVec, light.color, gi);
+	return PBRSpecularLight(albedoColor, specularColor, smoothness, normal, viewDir, lightVec, light.color*shadowValue, gi);
 }
 #ifdef POINTLIGHT
-vec4 PBRSpecularPointLight (in vec4 albedoColor, in vec3 specularColor, in float smoothness, in vec3 normal, in vec3 viewDir, in PointLight light, in vec3 pos, in LayaGI gi)
+vec4 PBRSpecularPointLight (in vec4 albedoColor, in vec3 specularColor, in float smoothness, in vec3 normal, in vec3 viewDir, in PointLight light, in vec3 pos, in LayaGI gi,in float shadowValue)
 {
 	vec3 lightVec = pos-light.position;
 	float attenuate = LayaAttenuation(lightVec, 1.0/light.range);
-	return PBRSpecularLight(albedoColor, specularColor, smoothness, normal, viewDir, lightVec, light.color, gi) * attenuate;
+	return PBRSpecularLight(albedoColor, specularColor, smoothness, normal, viewDir, lightVec, light.color*shadowValue, gi) * attenuate;
 }
 #endif
-vec4 PBRSpecularSpotLight (in vec4 albedoColor, in vec3 specularColor, in float smoothness, in vec3 normal, in vec3 viewDir, in SpotLight light, in vec3 pos, in LayaGI gi)
+vec4 PBRSpecularSpotLight (in vec4 albedoColor, in vec3 specularColor, in float smoothness, in vec3 normal, in vec3 viewDir, in SpotLight light, in vec3 pos, in LayaGI gi,in float shadowValue)
 {
 	vec3 lightVec =  pos - light.position;
 	vec3 normalLightVec = normalize(lightVec);
@@ -37,7 +37,7 @@ vec4 PBRSpecularSpotLight (in vec4 albedoColor, in vec3 specularColor, in float 
 	float dl = dot(normalize(light.direction), normalLightVec);
 	dl *= smoothstep(cosAngles[0], cosAngles[1], dl);
 	float attenuate = LayaAttenuation(lightVec, 1.0/light.range) * dl;
-	return PBRSpecularLight(albedoColor, specularColor, smoothness, normal, viewDir, lightVec, light.color, gi) * attenuate;
+	return PBRSpecularLight(albedoColor, specularColor, smoothness, normal, viewDir, lightVec, light.color*shadowValue, gi) * attenuate;
 }
 
 //vec4 PBRStandardSpotLight1 (in vec4 albedoColor, in float metallic, in float smoothness, in vec3 normal, in vec3 viewDir, in SpotLight light, in vec3 pos, in LayaGI gi)

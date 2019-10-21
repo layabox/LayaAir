@@ -130,20 +130,34 @@ void main_normal()
 	gi.diffuse = u_AmbientColor * Occlusion(uv0).rgb;
 	gi.specular = ReflectCubeMap(viewDir, normal);
   
+  	float shadowValue = 1.0;
+	#ifdef RECEIVESHADOW
+	
+		#ifdef SHADOWMAP_PSSM3
+			shadowValue = getShadowPSSM3( u_shadowMap1,u_shadowMap2,u_shadowMap3,u_lightShadowVP,u_shadowPSSMDistance,u_shadowPCFoffset,v_PositionWorld,v_posViewZ,0.001);
+		#endif
+		#ifdef SHADOWMAP_PSSM2
+			shadowValue = getShadowPSSM2( u_shadowMap1,u_shadowMap2,u_lightShadowVP,u_shadowPSSMDistance,u_shadowPCFoffset,v_PositionWorld,v_posViewZ,0.001);
+		#endif 
+		#ifdef SHADOWMAP_PSSM1
+			shadowValue = getShadowPSSM1( u_shadowMap1,v_lightMVPPos,u_shadowPSSMDistance,u_shadowPCFoffset,v_posViewZ,0.001);
+		#endif
+	#endif
+
 	vec4 color = vec4(0.0);
 	#ifdef LEGACYSINGLELIGHTING
 		#ifdef DIRECTIONLIGHT
-			color += PBRStandardDiectionLight(albedoColor, mg.r, mg.g, normal, viewDir, u_DirectionLight, gi);
+			color += PBRStandardDiectionLight(albedoColor, mg.r, mg.g, normal, viewDir, u_DirectionLight, gi,shadowValue);
 		#endif
 	
 		#ifdef POINTLIGHT
 			color.a = 0.0;
-			color += PBRStandardPointLight(albedoColor, mg.r, mg.g, normal, viewDir, u_PointLight, v_PositionWorld, gi);
+			color += PBRStandardPointLight(albedoColor, mg.r, mg.g, normal, viewDir, u_PointLight, v_PositionWorld, gi,shadowValue);
 		#endif
 		
 		#ifdef SPOTLIGHT
 			color.a = 0.0;
-			color += PBRStandardSpotLight(albedoColor, mg.r, mg.g, normal, viewDir, u_SpotLight, v_PositionWorld, gi);
+			color += PBRStandardSpotLight(albedoColor, mg.r, mg.g, normal, viewDir, u_SpotLight, v_PositionWorld, gi,shadowValue);
 		#endif
 	#else
 		#ifdef DIRECTIONLIGHT
@@ -153,7 +167,7 @@ void main_normal()
 					break;
 				DirectionLight directionLight = getDirectionLight(u_LightBuffer,i);
 				color.a = 0.0;
-				color += PBRStandardDiectionLight(albedoColor, mg.r, mg.g, normal, viewDir, directionLight, gi);
+				color += PBRStandardDiectionLight(albedoColor, mg.r, mg.g, normal, viewDir, directionLight, gi,shadowValue);
 			}
 		#endif
 		#if defined(POINTLIGHT)||defined(SPOTLIGHT)
@@ -165,7 +179,7 @@ void main_normal()
 						break;
 					PointLight pointLight = getPointLight(u_LightBuffer,u_LightClusterBuffer,clusterInfo,i);
 					color.a = 0.0;
-					color += PBRStandardPointLight(albedoColor, mg.r, mg.g, normal, viewDir, pointLight, v_PositionWorld, gi);
+					color += PBRStandardPointLight(albedoColor, mg.r, mg.g, normal, viewDir, pointLight, v_PositionWorld, gi,shadowValue);
 				}
 			#endif
 			#ifdef SPOTLIGHT
@@ -175,7 +189,7 @@ void main_normal()
 						break;
 					SpotLight spotLight = getSpotLight(u_LightBuffer,u_LightClusterBuffer,clusterInfo,i);
 					color.a = 0.0;
-					color += PBRStandardSpotLight(albedoColor, mg.r, mg.g, normal, viewDir, spotLight, v_PositionWorld, gi);
+					color += PBRStandardSpotLight(albedoColor, mg.r, mg.g, normal, viewDir, spotLight, v_PositionWorld, gi,shadowValue);
 					
 				}
 			#endif
@@ -195,22 +209,7 @@ void main_normal()
 		color.rgb += emissionColor.rgb;
 	#endif
 	
-	#ifdef RECEIVESHADOW
-		float shadowValue = 1.0;
-		#ifdef SHADOWMAP_PSSM3
-			shadowValue = getShadowPSSM3( u_shadowMap1,u_shadowMap2,u_shadowMap3,u_lightShadowVP,u_shadowPSSMDistance,u_shadowPCFoffset,v_PositionWorld,v_posViewZ,0.001);
-		#endif
-		#ifdef SHADOWMAP_PSSM2
-			shadowValue = getShadowPSSM2( u_shadowMap1,u_shadowMap2,u_lightShadowVP,u_shadowPSSMDistance,u_shadowPCFoffset,v_PositionWorld,v_posViewZ,0.001);
-		#endif 
-		#ifdef SHADOWMAP_PSSM1
-			shadowValue = getShadowPSSM1( u_shadowMap1,v_lightMVPPos,u_shadowPSSMDistance,u_shadowPCFoffset,v_posViewZ,0.001);
-		#endif
-		gl_FragColor = vec4(color.rgb * shadowValue, color.a);
-	#else
 		gl_FragColor = color;
-	#endif
-	
 	#ifdef FOG
 		float lerpFact = clamp((1.0 / gl_FragCoord.w - u_FogStart) / u_FogRange, 0.0, 1.0);
 		gl_FragColor.rgb = mix(gl_FragColor.rgb, u_FogColor, lerpFact);
