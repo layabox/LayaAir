@@ -144,17 +144,12 @@ export class PhysicsSimulation {
 	fixedTimeStep: number = 1.0 / 60.0;
 
 	/**
-	 * 获取是否进行连续碰撞检测。
-	 * @return  是否进行连续碰撞检测。
+	 * 是否进行连续碰撞检测。
 	 */
 	get continuousCollisionDetection(): boolean {
 		return Physics3D._bullet.btCollisionWorld_get_m_useContinuous(this._nativeDispatchInfo);
 	}
 
-	/**
-	 * 设置是否进行连续碰撞检测。
-	 * @param value 是否进行连续碰撞检测。
-	 */
 	set continuousCollisionDetection(value: boolean) {
 		Physics3D._bullet.btCollisionWorld_set_m_useContinuous(this._nativeDispatchInfo, value);
 	}
@@ -168,9 +163,6 @@ export class PhysicsSimulation {
 		return this._gravity;
 	}
 
-	/**
-	 * 设置重力。
-	 */
 	set gravity(value: Vector3) {
 		if (!this._nativeDiscreteDynamicsWorld)
 			throw "Simulation:Cannot perform this action when the physics engine is set to CollisionsOnly";

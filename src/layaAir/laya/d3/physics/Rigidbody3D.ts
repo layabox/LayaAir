@@ -97,17 +97,12 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	private _detectCollisions: boolean = true;
 
 	/**
-	 * 获取质量。
-	 * @return 质量。
+	 * 质量。
 	 */
 	get mass(): number {
 		return this._mass;
 	}
 
-	/**
-	 * 设置质量。
-	 * @param value 质量。
-	 */
 	set mass(value: number) {
 		value = Math.max(value, 1e-07);//质量最小为1e-07
 		this._mass = value;
@@ -115,17 +110,12 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	}
 
 	/**
-	 * 获取是否为运动物体，如果为true仅可通过transform属性移动物体,而非其他力相关属性。
-	 * @return 是否为运动物体。
+	 * 是否为运动物体，如果为true仅可通过transform属性移动物体,而非其他力相关属性。
 	 */
 	get isKinematic(): boolean {
 		return this._isKinematic;
 	}
 
-	/**
-	 * 设置是否为运动物体，如果为true仅可通过transform属性移动物体,而非其他力相关属性。
-	 * @param value 是否为运动物体。
-	 */
 	set isKinematic(value: boolean) {
 		this._isKinematic = value;
 
@@ -159,17 +149,12 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	}
 
 	/**
-	 * 获取刚体的线阻力。
-	 * @return 线阻力。
+	 * 刚体的线阻力。
 	 */
 	get linearDamping(): number {
 		return this._linearDamping;
 	}
 
-	/**
-	 * 设置刚体的线阻力。
-	 * @param value  线阻力。
-	 */
 	set linearDamping(value: number) {
 		this._linearDamping = value;
 		if (this._nativeColliderObject)
@@ -177,17 +162,12 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	}
 
 	/**
-	 * 获取刚体的角阻力。
-	 * @return 角阻力。
+	 * 刚体的角阻力。
 	 */
 	get angularDamping(): number {
 		return this._angularDamping;
 	}
 
-	/**
-	 * 设置刚体的角阻力。
-	 * @param value  角阻力。
-	 */
 	set angularDamping(value: number) {
 		this._angularDamping = value;
 		if (this._nativeColliderObject)
@@ -195,17 +175,12 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	}
 
 	/**
-	 * 获取是否重载重力。
-	 * @return 是否重载重力。
+	 * 是否重载重力。
 	 */
 	get overrideGravity(): boolean {
 		return this._overrideGravity;
 	}
 
-	/**
-	 * 设置是否重载重力。
-	 * @param value 是否重载重力。
-	 */
 	set overrideGravity(value: boolean) {
 		this._overrideGravity = value;
 		var physics3D: any = Physics3D._bullet;
@@ -222,17 +197,12 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	}
 
 	/**
-	 * 获取重力。
-	 * @return 重力。
+	 * 重力。
 	 */
 	get gravity(): Vector3 {
 		return this._gravity;
 	}
 
-	/**
-	 * 设置重力。
-	 * @param value 重力。
-	 */
 	set gravity(value: Vector3) {
 		this._gravity = value;
 		var bullet: any = Physics3D._bullet;
@@ -241,7 +211,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	}
 
 	/**
-	 * 获取总力。
+	 * 总力。
 	 */
 	get totalForce(): Vector3 {
 		if (this._nativeColliderObject) {
@@ -253,7 +223,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	}
 
 	/**
-	 * 获取性因子。
+	 * 线性因子。
 	 */
 	get linearFactor(): Vector3 {
 		if (this._nativeColliderObject)
@@ -261,9 +231,6 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		return null;
 	}
 
-	/**
-	 * 设置性因子。
-	 */
 	set linearFactor(value: Vector3) {
 		this._linearFactor = value;
 		if (this._nativeColliderObject) {
@@ -274,8 +241,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	}
 
 	/**
-	 * 获取线速度
-	 * @return 线速度
+	 * 线速度
 	 */
 	get linearVelocity(): Vector3 {
 		if (this._nativeColliderObject)
@@ -283,10 +249,6 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		return this._linearVelocity;
 	}
 
-	/**
-	 * 设置线速度。
-	 * @param 线速度。
-	 */
 	set linearVelocity(value: Vector3) {
 		this._linearVelocity = value;
 		if (this._nativeColliderObject) {
@@ -298,7 +260,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	}
 
 	/**
-	 * 获取角因子。
+	 * 角因子。
 	 */
 	get angularFactor(): Vector3 {
 		if (this._nativeColliderObject)
@@ -306,9 +268,6 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		return null;
 	}
 
-	/**
-	 * 设置角因子。
-	 */
 	set angularFactor(value: Vector3) {
 		this._angularFactor = value;
 		if (this._nativeColliderObject) {
@@ -319,8 +278,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	}
 
 	/**
-	 * 获取角速度。
-	 * @return 角速度。
+	 * 角速度。
 	 */
 	get angularVelocity(): Vector3 {
 		if (this._nativeColliderObject)
@@ -328,10 +286,6 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		return this._angularVelocity;
 	}
 
-	/**
-	 * 设置角速度。
-	 * @param 角速度
-	 */
 	set angularVelocity(value: Vector3) {
 		this._angularVelocity = value;
 		if (this._nativeColliderObject) {
@@ -343,7 +297,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	}
 
 	/**
-	 * 获取刚体所有扭力。
+	 * 刚体所有扭力。
 	 */
 	get totalTorque(): Vector3 {
 		if (this._nativeColliderObject) {
@@ -355,17 +309,12 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	}
 
 	/**
-	 * 获取是否进行碰撞检测。
-	 * @return 是否进行碰撞检测。
+	 * 是否进行碰撞检测。
 	 */
 	get detectCollisions(): boolean {
 		return this._detectCollisions;
 	}
 
-	/**
-	 * 设置是否进行碰撞检测。
-	 * @param value 是否进行碰撞检测。
-	 */
 	set detectCollisions(value: boolean) {
 		if (this._detectCollisions !== value) {
 			this._detectCollisions = value;
@@ -379,8 +328,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	}
 
 	/**
-	 * 获取是否处于睡眠状态。
-	 * @return 是否处于睡眠状态。
+	 * 是否处于睡眠状态。
 	 */
 	get isSleeping(): boolean {
 		if (this._nativeColliderObject)
@@ -389,34 +337,24 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	}
 
 	/**
-	 * 获取刚体睡眠的线速度阈值。
-	 * @return 刚体睡眠的线速度阈值。
+	 * 刚体睡眠的线速度阈值。
 	 */
 	get sleepLinearVelocity(): number {
 		return Physics3D._bullet.btRigidBody_getLinearSleepingThreshold(this._nativeColliderObject);
 	}
 
-	/**
-	 * 设置刚体睡眠的线速度阈值。
-	 * @param value 刚体睡眠的线速度阈值。
-	 */
 	set sleepLinearVelocity(value: number) {
 		var bullet: any = Physics3D._bullet;
 		Physics3D._bullet.btRigidBody_setSleepingThresholds(this._nativeColliderObject, value, bullet.btRigidBody_getAngularSleepingThreshold(this._nativeColliderObject));
 	}
 
 	/**
-	 * 获取刚体睡眠的角速度阈值。
-	 * @return 刚体睡眠的角速度阈值。
+	 * 刚体睡眠的角速度阈值。
 	 */
 	get sleepAngularVelocity(): number {
 		return Physics3D._bullet.btRigidBody_getAngularSleepingThreshold(this._nativeColliderObject);
 	}
 
-	/**
-	 * 设置刚体睡眠的角速度阈值。
-	 * @param value 刚体睡眠的角速度阈值。
-	 */
 	set sleepAngularVelocity(value: number) {
 		var bullet: any = Physics3D._bullet;
 		bullet.btRigidBody_setSleepingThresholds(this._nativeColliderObject, bullet.btRigidBody_getLinearSleepingThreshold(this._nativeColliderObject), value);
@@ -429,7 +367,6 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	 * @param canCollideWith 可产生碰撞的碰撞组。
 	 */
 	constructor(collisionGroup: number = Physics3DUtils.COLLISIONFILTERGROUP_DEFAULTFILTER, canCollideWith: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER) {
-
 		//LinkedConstraints = new List<Constraint>();
 		super(collisionGroup, canCollideWith);
 	}

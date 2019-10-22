@@ -44,51 +44,36 @@ export class CharacterController extends PhysicsComponent {
 	_nativeKinematicCharacter: number = null;
 
 	/**
-	 * 获取角色降落速度。
-	 * @return 角色降落速度。
+	 * 角色降落速度。
 	 */
 	get fallSpeed(): number {
 		return this._fallSpeed;
 	}
 
-	/**
-	 * 设置角色降落速度。
-	 * @param value 角色降落速度。
-	 */
 	set fallSpeed(value: number) {
 		this._fallSpeed = value;
 		Physics3D._bullet.btKinematicCharacterController_setFallSpeed(this._nativeKinematicCharacter, value);
 	}
 
 	/**
-	 * 获取角色跳跃速度。
-	 * @return 角色跳跃速度。
+	 * 角色跳跃速度。
 	 */
 	get jumpSpeed(): number {
 		return this._jumpSpeed;
 	}
 
-	/**
-	 * 设置角色跳跃速度。
-	 * @param value 角色跳跃速度。
-	 */
 	set jumpSpeed(value: number) {
 		this._jumpSpeed = value;
 		Physics3D._bullet.btKinematicCharacterController_setJumpSpeed(this._nativeKinematicCharacter, value);
 	}
 
 	/**
-	 * 获取重力。
-	 * @return 重力。
+	 * 重力。
 	 */
 	get gravity(): Vector3 {
 		return this._gravity;
 	}
 
-	/**
-	 * 设置重力。
-	 * @param value 重力。
-	 */
 	set gravity(value: Vector3) {
 		this._gravity = value;
 		var bullet: any = Physics3D._bullet;
@@ -98,58 +83,43 @@ export class CharacterController extends PhysicsComponent {
 	}
 
 	/**
-	 * 获取最大坡度。
-	 * @return 最大坡度。
+	 * 最大坡度。
 	 */
 	get maxSlope(): number {
 		return this._maxSlope;
 	}
 
-	/**
-	 * 设置最大坡度。
-	 * @param value 最大坡度。
-	 */
 	set maxSlope(value: number) {
 		this._maxSlope = value;
 		Physics3D._bullet.btKinematicCharacterController_setMaxSlope(this._nativeKinematicCharacter, (value / 180) * Math.PI);
 	}
 
 	/**
-	 * 获取角色是否在地表。
+	 * 角色是否在地表。
 	 */
 	get isGrounded(): boolean {
 		return Physics3D._bullet.btKinematicCharacterController_onGround(this._nativeKinematicCharacter);
 	}
 
 	/**
-	 * 获取角色行走的脚步高度，表示可跨越的最大高度。
-	 * @return 脚步高度。
+	 * 角色行走的脚步高度，表示可跨越的最大高度。
 	 */
 	get stepHeight(): number {
 		return this._stepHeight;
 	}
 
-	/**
-	 * 设置角色行走的脚步高度，表示可跨越的最大高度。
-	 * @param value 脚步高度。
-	 */
 	set stepHeight(value: number) {
 		this._stepHeight = value;
 		this._constructCharacter();
 	}
 
 	/**
-	 * 获取角色的Up轴。
-	 * @return 角色的Up轴。
+	 * 角色的Up轴。
 	 */
 	get upAxis(): Vector3 {
 		return this._upAxis;
 	}
 
-	/**
-	 * 设置角色的Up轴。
-	 * @return 角色的Up轴。
-	 */
 	set upAxis(value: Vector3) {
 		this._upAxis = value;
 		this._constructCharacter();
@@ -267,7 +237,7 @@ export class CharacterController extends PhysicsComponent {
 	move(movement: Vector3): void {
 		var nativeMovement: number = CharacterController._nativeVector30;
 		var bullet: any = Physics3D._bullet;
-		bullet.btVector3_setValue(nativeMovement,-movement.x, movement.y, movement.z);
+		bullet.btVector3_setValue(nativeMovement, -movement.x, movement.y, movement.z);
 		bullet.btKinematicCharacterController_setWalkDirection(this._nativeKinematicCharacter, nativeMovement);
 	}
 

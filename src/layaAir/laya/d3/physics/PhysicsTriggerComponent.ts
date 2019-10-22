@@ -10,17 +10,12 @@ export class PhysicsTriggerComponent extends PhysicsComponent {
 	private _isTrigger: boolean = false;
 
 	/**
-	 * 获取是否为触发器。
-	 * @return 是否为触发器。
+	 * 是否为触发器。
 	 */
 	get isTrigger(): boolean {
 		return this._isTrigger;
 	}
 
-	/**
-	 * 设置是否为触发器。
-	 * @param value 是否为触发器。
-	 */
 	set isTrigger(value: boolean) {
 		this._isTrigger = value;
 		var physics3D: any = Physics3D._bullet;
@@ -42,7 +37,6 @@ export class PhysicsTriggerComponent extends PhysicsComponent {
 	 * @param canCollideWith 可产生碰撞的碰撞组。
 	 */
 	constructor(collisionGroup: number, canCollideWith: number) {
-
 		super(collisionGroup, canCollideWith);
 	}
 
@@ -63,7 +57,7 @@ export class PhysicsTriggerComponent extends PhysicsComponent {
 	 */
 	_cloneTo(dest: Component): void {
 		super._cloneTo(dest);
-		((<PhysicsTriggerComponent>dest)).isTrigger = this._isTrigger;
+		(<PhysicsTriggerComponent>dest).isTrigger = this._isTrigger;
 	}
 }
 

@@ -10,21 +10,21 @@ export class ConeColliderShape extends ColliderShape {
 	private _height: number = 0.5;
 
 	/**
-	 * 获取半径。
+	 * 半径。
 	 */
 	get radius(): number {
 		return this._radius;
 	}
 
 	/**
-	 * 获取高度。
+	 * 高度。
 	 */
 	get height(): number {
 		return this._height;
 	}
 
 	/**
-	 * 获取方向。
+	 * 方向。
 	 */
 	get orientation(): number {
 		return this._orientation;

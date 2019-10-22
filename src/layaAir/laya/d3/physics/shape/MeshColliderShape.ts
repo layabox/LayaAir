@@ -7,21 +7,18 @@ import { Physics3D } from "../Physics3D";
  * <code>MeshColliderShape</code> 类用于创建网格碰撞器。
  */
 export class MeshColliderShape extends ColliderShape {
+	/** @internal */
 	private _mesh: Mesh = null;
+	/** @internal */
 	private _convex: boolean = false;
 
 	/**
-	 * 获取网格。
-	 * @return 网格。
+	 * 网格。
 	 */
 	get mesh(): Mesh {
 		return this._mesh;
 	}
 
-	/**
-	 * 设置网格。
-	 * @param 网格。
-	 */
 	set mesh(value: Mesh) {
 		if (this._mesh !== value) {
 			var physics3D: any = Physics3D._bullet;
@@ -38,17 +35,12 @@ export class MeshColliderShape extends ColliderShape {
 	}
 
 	/**
-	 * 获取是否使用凸多边形。
-	 * @return 是否使用凸多边形。
+	 * 是否使用凸多边形。
 	 */
 	get convex(): boolean {
 		return this._convex;
 	}
 
-	/**
-	 * 设置是否使用凸多边形。
-	 * @param value 是否使用凸多边形。
-	 */
 	set convex(value: boolean) {
 		this._convex = value;
 	}

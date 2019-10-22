@@ -23,21 +23,21 @@ export class BoxColliderShape extends ColliderShape {
 	private _sizeZ: number;
 
 	/**
-	 * 获取X轴尺寸。
+	 * X轴尺寸。
 	 */
 	get sizeX(): number {
 		return this._sizeX;
 	}
 
 	/**
-	 * 获取Y轴尺寸。
+	 * Y轴尺寸。
 	 */
 	get sizeY(): number {
 		return this._sizeY;
 	}
 
 	/**
-	 * 获取Z轴尺寸。
+	 * Z轴尺寸。
 	 */
 	get sizeZ(): number {
 		return this._sizeZ;

@@ -5,10 +5,11 @@ import { Physics3D } from "../Physics3D";
  * <code>SphereColliderShape</code> 类用于创建球形碰撞器。
  */
 export class SphereColliderShape extends ColliderShape {
+	/** @internal */
 	private _radius: number;
 
 	/**
-	 * 获取半径。
+	 * 半径。
 	 */
 	get radius(): number {
 		return this._radius;

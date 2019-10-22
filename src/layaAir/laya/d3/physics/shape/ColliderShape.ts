@@ -113,25 +113,19 @@ export class ColliderShape implements IClone {
 	needsCustomCollisionCallback: boolean = false;//TODO:默认值,TODO:::::::::::::::::::::::::::::::
 
 	/**
-	 * 获取碰撞类型。
-	 * @return 碰撞类型。
+	 * 碰撞类型。
 	 */
 	get type(): number {
 		return this._type;
 	}
 
 	/**
-	 * 获取Shape的本地偏移。
-	 * @return Shape的本地偏移。
+	 * Shape的本地偏移。
 	 */
 	get localOffset(): Vector3 {
 		return this._localOffset;
 	}
 
-	/**
-	 * 设置Shape的本地偏移。
-	 * @param Shape的本地偏移。
-	 */
 	set localOffset(value: Vector3) {
 		this._localOffset = value;
 		if (this._compoundParent)
@@ -139,17 +133,12 @@ export class ColliderShape implements IClone {
 	}
 
 	/**
-	 * 获取Shape的本地旋转。
-	 * @return Shape的本地旋转。
+	 * Shape的本地旋转。
 	 */
 	get localRotation(): Quaternion {
 		return this._localRotation;
 	}
 
-	/**
-	 * 设置Shape的本地旋转。
-	 * @param Shape的本地旋转。
-	 */
 	set localRotation(value: Quaternion) {
 		this._localRotation = value;
 		if (this._compoundParent)

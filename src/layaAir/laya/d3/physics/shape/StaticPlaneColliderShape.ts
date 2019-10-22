@@ -6,7 +6,9 @@ import { Physics3D } from "../Physics3D";
  * <code>StaticPlaneColliderShape</code> 类用于创建静态平面碰撞器。
  */
 export class StaticPlaneColliderShape extends ColliderShape {
+	/** @internal */
 	private static _nativeNormal: number;
+	
 	/**@internal */
 	_offset: number;
 	/**@internal */

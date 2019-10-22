@@ -17,21 +17,21 @@ export class CapsuleColliderShape extends ColliderShape {
 	private _orientation: number;
 
 	/**
-	 * 获取半径。
+	 * 半径。
 	 */
 	get radius(): number {
 		return this._radius;
 	}
 
 	/**
-	 * 获取长度。
+	 * 长度。
 	 */
 	get length(): number {
 		return this._length;
 	}
 
 	/**
-	 * 获取方向。
+	 * 方向。
 	 */
 	get orientation(): number {
 		return this._orientation;

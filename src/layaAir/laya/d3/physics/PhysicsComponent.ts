@@ -105,8 +105,8 @@ export class PhysicsComponent extends Component {
 	}
 
 	/**
-* @internal
-*/
+	 * @internal
+	 */
 	static _creatShape(shapeData: any): ColliderShape {
 		var colliderShape: ColliderShape;
 		switch (shapeData.type) {
@@ -204,85 +204,60 @@ export class PhysicsComponent extends Component {
 	canScaleShape: boolean = true;
 
 	/**
-	 * 获取弹力。
-	 * @return 弹力。
+	 * 弹力。
 	 */
 	get restitution(): number {
 		return this._restitution;
 	}
 
-	/**
-	 * 设置弹力。
-	 * @param 弹力。
-	 */
 	set restitution(value: number) {
 		this._restitution = value;
 		this._nativeColliderObject && Physics3D._bullet.btCollisionObject_setRestitution(this._nativeColliderObject, value);
 	}
 
 	/**
-	 * 获取摩擦力。
-	 * @return 摩擦力。
+	 * 摩擦力。
 	 */
 	get friction(): number {
 		return this._friction;
 	}
 
-	/**
-	 * 设置摩擦力。
-	 * @param value 摩擦力。
-	 */
 	set friction(value: number) {
 		this._friction = value;
 		this._nativeColliderObject && Physics3D._bullet.btCollisionObject_setFriction(this._nativeColliderObject, value);
 	}
 
 	/**
-	 * 获取滚动摩擦力。
-	 * @return 滚动摩擦力。
+	 * 滚动摩擦力。
 	 */
 	get rollingFriction(): number {
 		return this._rollingFriction;
 	}
 
-	/**
-	 * 设置滚动摩擦力。
-	 * @param 滚动摩擦力。
-	 */
 	set rollingFriction(value: number) {
 		this._rollingFriction = value;
 		this._nativeColliderObject && Physics3D._bullet.btCollisionObject_setRollingFriction(this._nativeColliderObject, value);
 	}
 
 	/**
-	 *获取用于连续碰撞检测(CCD)的速度阈值,当物体移动速度小于该值时不进行CCD检测,防止快速移动物体(例如:子弹)错误的穿过其它物体,0表示禁止。
-	 * @return 连续碰撞检测(CCD)的速度阈值。
+	 * 用于连续碰撞检测(CCD)的速度阈值,当物体移动速度小于该值时不进行CCD检测,防止快速移动物体(例如:子弹)错误的穿过其它物体,0表示禁止。
 	 */
 	get ccdMotionThreshold(): number {
 		return this._ccdMotionThreshold;
 	}
 
-	/**
-	 *设置用于连续碰撞检测(CCD)的速度阈值，当物体移动速度小于该值时不进行CCD检测,防止快速移动物体(例如:子弹)错误的穿过其它物体,0表示禁止。
-	 * @param value 连续碰撞检测(CCD)的速度阈值。
-	 */
 	set ccdMotionThreshold(value: number) {
 		this._ccdMotionThreshold = value;
 		this._nativeColliderObject && Physics3D._bullet.btCollisionObject_setCcdMotionThreshold(this._nativeColliderObject, value);
 	}
 
 	/**
-	 *获取用于进入连续碰撞检测(CCD)范围的球半径。
-	 * @return 球半径。
+	 * 获取用于进入连续碰撞检测(CCD)范围的球半径。
 	 */
 	get ccdSweptSphereRadius(): number {
 		return this._ccdSweptSphereRadius;
 	}
 
-	/**
-	 *设置用于进入连续碰撞检测(CCD)范围的球半径。
-	 * @param 球半径。
-	 */
 	set ccdSweptSphereRadius(value: number) {
 		this._ccdSweptSphereRadius = value;
 		this._nativeColliderObject && Physics3D._bullet.btCollisionObject_setCcdSweptSphereRadius(this._nativeColliderObject, value);
@@ -322,15 +297,12 @@ export class PhysicsComponent extends Component {
 	}
 
 	/**
-	 * 获取碰撞形状。
+	 * 碰撞形状。
 	 */
 	get colliderShape(): ColliderShape {
 		return this._colliderShape;
 	}
 
-	/**
-	 * 设置碰撞形状。
-	 */
 	set colliderShape(value: ColliderShape) {
 		var lastColliderShape: ColliderShape = this._colliderShape;
 		if (lastColliderShape) {
@@ -364,25 +336,19 @@ export class PhysicsComponent extends Component {
 	}
 
 	/**
-	 * 获取模拟器。
-	 * @return 模拟器。
+	 * 模拟器。
 	 */
 	get simulation(): PhysicsSimulation {
 		return this._simulation;
 	}
 
 	/**
-	 * 获取所属碰撞组。
-	 * @return 所属碰撞组。
+	 * 所属碰撞组。
 	 */
 	get collisionGroup(): number {
 		return this._collisionGroup;
 	}
 
-	/**
-	 * 设置所属碰撞组。
-	 * @param 所属碰撞组。
-	 */
 	set collisionGroup(value: number) {
 		if (this._collisionGroup !== value) {
 			this._collisionGroup = value;
@@ -394,17 +360,12 @@ export class PhysicsComponent extends Component {
 	}
 
 	/**
-	 * 获取可碰撞的碰撞组。
-	 * @return 可碰撞组。
+	 * 可碰撞的碰撞组。
 	 */
 	get canCollideWith(): number {
 		return this._canCollideWith;
 	}
 
-	/**
-	 * 设置可碰撞的碰撞组。
-	 * @param 可碰撞组。
-	 */
 	set canCollideWith(value: number) {
 		if (this._canCollideWith !== value) {
 			this._canCollideWith = value;
@@ -421,33 +382,11 @@ export class PhysicsComponent extends Component {
 	 * @param canCollideWith 可产生碰撞的碰撞组。
 	 */
 	constructor(collisionGroup: number, canCollideWith: number) {
-
 		super();
 		this._collisionGroup = collisionGroup;
 		this._canCollideWith = canCollideWith;
 		PhysicsComponent._physicObjectsMap[this.id] = this;
 	}
-
-	/**
-	 * @internal
-	 */
-	_isValid(): boolean {
-		return this._simulation && this._colliderShape && this._enabled;
-	}
-
-	/**
-	 * @inheritDoc
-	 * @override
-	 * @internal
-	 */
-	_parse(data: any): void {
-		(data.collisionGroup != null) && (this.collisionGroup = data.collisionGroup);
-		(data.canCollideWith != null) && (this.canCollideWith = data.canCollideWith);
-		(data.ccdMotionThreshold != null) && (this.ccdMotionThreshold = data.ccdMotionThreshold);
-		(data.ccdSweptSphereRadius != null) && (this.ccdSweptSphereRadius = data.ccdSweptSphereRadius);
-	}
-
-
 
 	/**
 	 * @internal
@@ -472,6 +411,69 @@ export class PhysicsComponent extends Component {
 	 */
 	protected _onScaleChange(scale: Vector3): void {
 		this._colliderShape._setScale(scale);
+	}
+
+	/**
+ * @inheritDoc
+ * @internal
+ * @override
+ */
+	protected _onEnable(): void {
+		this._simulation = ((<Scene3D>this.owner._scene)).physicsSimulation;
+		Physics3D._bullet.btCollisionObject_setContactProcessingThreshold(this._nativeColliderObject, 1e30);
+		if (this._colliderShape && this._enabled) {
+			this._derivePhysicsTransformation(true);
+			this._addToSimulation();
+		}
+	}
+
+	/**
+	 * @inheritDoc
+	 * @internal
+	 * @override
+	 */
+	protected _onDisable(): void {
+		if (this._colliderShape && this._enabled) {
+			this._removeFromSimulation();
+			(this._inPhysicUpdateListIndex !== -1) && (this._simulation._physicsUpdateList.remove(this));//销毁前一定会调用 _onDisable()
+		}
+		this._simulation = null;
+	}
+
+	/**
+	 * @inheritDoc
+	 * @internal
+	 * @override
+	 */
+	protected _onDestroy(): void {
+		var physics3D: any = Physics3D._bullet;
+		delete PhysicsComponent._physicObjectsMap[this.id];
+		physics3D.destroy(this._nativeColliderObject);
+		this._colliderShape.destroy();
+		super._onDestroy();
+		this._nativeColliderObject = null;
+		this._colliderShape = null;
+		this._simulation = null;
+		((<Sprite3D>this.owner)).transform.off(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
+	}
+
+	/**
+	 * @internal
+	 */
+	_isValid(): boolean {
+		return this._simulation && this._colliderShape && this._enabled;
+	}
+
+	/**
+	 * @inheritDoc
+	 * @override
+	 * @internal
+	 */
+	_parse(data: any): void {
+		(data.collisionGroup != null) && (this.collisionGroup = data.collisionGroup);
+		(data.canCollideWith != null) && (this.canCollideWith = data.canCollideWith);
+		(data.ccdMotionThreshold != null) && (this.ccdMotionThreshold = data.ccdMotionThreshold);
+		(data.ccdSweptSphereRadius != null) && (this.ccdSweptSphereRadius = data.ccdSweptSphereRadius);
 	}
 
 	/**
@@ -603,32 +605,7 @@ export class PhysicsComponent extends Component {
 		transform.rotation = rotation;
 	}
 
-	/**
-	 * @inheritDoc
-	 * @internal
-	 * @override
-	 */
-	protected _onEnable(): void {
-		this._simulation = ((<Scene3D>this.owner._scene)).physicsSimulation;
-		Physics3D._bullet.btCollisionObject_setContactProcessingThreshold(this._nativeColliderObject, 1e30);
-		if (this._colliderShape && this._enabled) {
-			this._derivePhysicsTransformation(true);
-			this._addToSimulation();
-		}
-	}
 
-	/**
-	 * @inheritDoc
-	 * @internal
-	 * @override
-	 */
-	protected _onDisable(): void {
-		if (this._colliderShape && this._enabled) {
-			this._removeFromSimulation();
-			(this._inPhysicUpdateListIndex !== -1) && (this._simulation._physicsUpdateList.remove(this));//销毁前一定会调用 _onDisable()
-		}
-		this._simulation = null;
-	}
 
 	/**
 	 * @internal
@@ -659,24 +636,6 @@ export class PhysicsComponent extends Component {
 		this.ccdMotionThreshold = this._ccdMotionThreshold;
 		this.ccdSweptSphereRadius = this._ccdSweptSphereRadius;
 		((<Sprite3D>this.owner)).transform.on(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
-	}
-
-	/**
-	 * @inheritDoc
-	 * @internal
-	 * @override
-	 */
-	protected _onDestroy(): void {
-		var physics3D: any = Physics3D._bullet;
-		delete PhysicsComponent._physicObjectsMap[this.id];
-		physics3D.destroy(this._nativeColliderObject);
-		this._colliderShape.destroy();
-		super._onDestroy();
-		this._nativeColliderObject = null;
-		this._colliderShape = null;
-		this._simulation = null;
-		((<Sprite3D>this.owner)).transform.off(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
-
 	}
 
 	/**
