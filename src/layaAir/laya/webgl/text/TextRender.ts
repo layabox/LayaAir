@@ -336,7 +336,9 @@ export class TextRender {
         var isLastRender = ctx._charSubmitCache?ctx._charSubmitCache._enable:false;
         var mat = ctx._curMat;
         var slen = samePagesData.length;
-        for (var id = 0; id < slen; id++) {
+        //for (var id = 0; id < slen; id++) {
+		for(var id in samePagesData) {// TODO samePagesData可能是个不连续的数组，比如只有一个samePagesData[29999] = dt;
+										// TODO 想个更好的方法
             var dt = samePagesData[id];
             if (!dt) continue;
             var pri: any[] = dt.words;
