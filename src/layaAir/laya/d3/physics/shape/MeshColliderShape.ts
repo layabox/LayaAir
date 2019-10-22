@@ -7,47 +7,39 @@ import { Physics3D } from "../Physics3D";
  * <code>MeshColliderShape</code> 类用于创建网格碰撞器。
  */
 export class MeshColliderShape extends ColliderShape {
+	/** @internal */
 	private _mesh: Mesh = null;
+	/** @internal */
 	private _convex: boolean = false;
 
 	/**
-	 * 获取网格。
-	 * @return 网格。
+	 * 网格。
 	 */
 	get mesh(): Mesh {
 		return this._mesh;
 	}
 
-	/**
-	 * 设置网格。
-	 * @param 网格。
-	 */
 	set mesh(value: Mesh) {
 		if (this._mesh !== value) {
-			var physics3D: any = Physics3D._physics3D;
+			var bt: any = Physics3D._bullet;
 			if (this._mesh) {
-				physics3D.destroy(this._nativeShape);
+				bt.destroy(this._btShape);
 			}
 			if (value) {
-				this._nativeShape = new Physics3D._physics3D.btGImpactMeshShape(value._getPhysicMesh());
-				this._nativeShape.updateBound();
+				this._btShape = bt.btGImpactMeshShape_create(value._getPhysicMesh());
+				bt.btGImpactShapeInterface_updateBound(this._btShape);
 			}
 			this._mesh = value;
 		}
 	}
 
 	/**
-	 * 获取是否使用凸多边形。
-	 * @return 是否使用凸多边形。
+	 * 是否使用凸多边形。
 	 */
 	get convex(): boolean {
 		return this._convex;
 	}
 
-	/**
-	 * 设置是否使用凸多边形。
-	 * @param value 是否使用凸多边形。
-	 */
 	set convex(value: boolean) {
 		this._convex = value;
 	}
@@ -70,9 +62,10 @@ export class MeshColliderShape extends ColliderShape {
 		if (this._compoundParent) {//TODO:待查,这里有问题
 			this.updateLocalTransformations();//TODO:
 		} else {
-			ColliderShape._nativeScale.setValue(value.x, value.y, value.z);
-			this._nativeShape.setLocalScaling(ColliderShape._nativeScale);
-			this._nativeShape.updateBound();//更新缩放后需要更新包围体,有性能损耗
+			var bt: any = Physics3D._bullet;
+			bt.btVector3_setValue(ColliderShape._btScale, value.x, value.y, value.z);
+			bt.btCollisionShape_setLocalScaling(this._btShape, ColliderShape._btScale);
+			bt.btGImpactShapeInterface_updateBound(this._btShape);//更新缩放后需要更新包围体,有性能损耗
 		}
 	}
 
@@ -103,10 +96,9 @@ export class MeshColliderShape extends ColliderShape {
 	 * @internal
 	 */
 	destroy(): void {
-		if (this._nativeShape) {
-			var physics3D: any = Physics3D._physics3D;
-			physics3D.destroy(this._nativeShape);
-			this._nativeShape = null;
+		if (this._btShape) {
+			Physics3D._bullet.btCollisionShape_destroy(this._btShape);
+			this._btShape = null;
 		}
 	}
 

@@ -205,8 +205,8 @@ export class Laya3D {
 		SubMeshInstanceBatch.__init__();
 		SubMeshDynamicBatch.__init__();
 
-		Physics3D._physics3D = (window as any).Physics3D;
-		if (Physics3D._physics3D) {
+		Physics3D._bullet = (window as any).Physics3D;
+		if (Physics3D._bullet) {
 			StaticPlaneColliderShape.__init__();
 			ColliderShape.__init__();
 			CompoundColliderShape.__init__();
@@ -848,7 +848,8 @@ export class Laya3D {
 			compolete && compolete.run();
 		} else {
 			Physics3D._enablePhysics = true;
-			physics3D(config.defaultPhysicsMemory * 1024 * 1024).then(function (): void {
+			//should convert MB to pages
+			physics3D(config.defaultPhysicsMemory * 16, Physics3D._interactive).then(function (): void {
 				Laya3D.__init__(width, height, config);
 				compolete && compolete.run();
 			});

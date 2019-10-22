@@ -24,10 +24,6 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 
-/**
- * ...
- * @author wzy
- */
 export class PhysicsWorld_MeshCollider {
 
 	private scene: Scene3D;
@@ -36,45 +32,46 @@ export class PhysicsWorld_MeshCollider {
 	private mat2: BlinnPhongMaterial;
 	private mat3: BlinnPhongMaterial;
 	constructor() {
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		Stat.show();
+		Laya3D.init(0, 0, null, Handler.create(null, () => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			Stat.show();
 
-		this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
+			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
-		//初始化照相机
-		var camera: Camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
-		camera.transform.translate(new Vector3(0, 6, 9.5));
-		camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
-		camera.addComponent(CameraMoveScript);
-		camera.clearColor = null;
+			//初始化照相机
+			var camera: Camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
+			camera.transform.translate(new Vector3(0, 6, 9.5));
+			camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
+			camera.addComponent(CameraMoveScript);
+			camera.clearColor = null;
 
-		//方向光
-		var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
-		//设置平行光的方向
-		var mat: Matrix4x4 = directionLight.transform.worldMatrix;
-		mat.setForward(new Vector3(0.0, -0.8, -1.0));
-		directionLight.transform.worldMatrix = mat;
-		directionLight.color = new Vector3(1, 1, 1);
+			//方向光
+			var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
+			//设置平行光的方向
+			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+			mat.setForward(new Vector3(0.0, -0.8, -1.0));
+			directionLight.transform.worldMatrix = mat;
+			directionLight.color = new Vector3(1, 1, 1);
 
-		this.mat1 = new BlinnPhongMaterial();
-		this.mat2 = new BlinnPhongMaterial();
-		this.mat3 = new BlinnPhongMaterial();
-		//加载纹理资源
-		Texture2D.load("res/threeDimen/Physics/rocks.jpg", Handler.create(this, function (tex: Texture2D): void {
-			this.mat1.albedoTexture = tex;
+			this.mat1 = new BlinnPhongMaterial();
+			this.mat2 = new BlinnPhongMaterial();
+			this.mat3 = new BlinnPhongMaterial();
+			//加载纹理资源
+			Texture2D.load("res/threeDimen/Physics/rocks.jpg", Handler.create(this, function (tex: Texture2D): void {
+				this.mat1.albedoTexture = tex;
+			}));
+
+			Texture2D.load("res/threeDimen/Physics/plywood.jpg", Handler.create(this, function (tex: Texture2D): void {
+				this.mat2.albedoTexture = tex;
+			}));
+
+			Texture2D.load("res/threeDimen/Physics/wood.jpg", Handler.create(this, function (tex: Texture2D): void {
+				this.mat3.albedoTexture = tex;
+			}));
+
+			Laya.loader.create(["res/threeDimen/staticModel/lizard/Assets/Lizard/lizard-lizard_geo.lm", "res/threeDimen/staticModel/lizard/Assets/Lizard/lizard_diff.png", "res/threeDimen/staticModel/lizard/Assets/Lizard/lizard_norm.png"], Handler.create(this, this.complete));
 		}));
-
-		Texture2D.load("res/threeDimen/Physics/plywood.jpg", Handler.create(this, function (tex: Texture2D): void {
-			this.mat2.albedoTexture = tex;
-		}));
-
-		Texture2D.load("res/threeDimen/Physics/wood.jpg", Handler.create(this, function (tex: Texture2D): void {
-			this.mat3.albedoTexture = tex;
-		}));
-
-		Laya.loader.create(["res/threeDimen/staticModel/lizard/Assets/Lizard/lizard-lizard_geo.lm", "res/threeDimen/staticModel/lizard/Assets/Lizard/lizard_diff.png", "res/threeDimen/staticModel/lizard/Assets/Lizard/lizard_norm.png"], Handler.create(this, this.complete));
 	}
 
 	complete(): void {

@@ -25,51 +25,47 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 export class PhysicsWorld_CompoundCollider {
 	private scene: Scene3D;
 	private camera: Camera;
-
-	private tmpVector: Vector3 = new Vector3(0, 0, 0);
-
 	constructor() {
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		Stat.show();
+		Laya3D.init(0, 0, null, Handler.create(null, () => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			Stat.show();
 
-		this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
+			this.scene = <Scene3D>Laya.stage.addChild(new Scene3D());
 
-		this.camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
-		this.camera.transform.translate(new Vector3(5.2, 4, 5.2));
-		this.camera.transform.rotate(new Vector3(-25, 45, 0), true, false);
-		this.camera.addComponent(CameraMoveScript);
-		this.camera.clearColor = null;
+			this.camera = <Camera>this.scene.addChild(new Camera(0, 0.1, 100));
+			this.camera.transform.translate(new Vector3(5.2, 4, 5.2));
+			this.camera.transform.rotate(new Vector3(-25, 45, 0), true, false);
+			this.camera.addComponent(CameraMoveScript);
+			this.camera.clearColor = null;
 
-		var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
-		directionLight.color = new Vector3(1, 1, 1);
-		//设置平行光的方向
-		var mat: Matrix4x4 = directionLight.transform.worldMatrix;
-		mat.setForward(new Vector3(-1.0, -1.0, 1.0));
-		directionLight.transform.worldMatrix = mat;
+			var directionLight: DirectionLight = <DirectionLight>this.scene.addChild(new DirectionLight());
+			directionLight.color = new Vector3(1, 1, 1);
+			//设置平行光的方向
+			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+			mat.setForward(new Vector3(-1.0, -1.0, 1.0));
+			directionLight.transform.worldMatrix = mat;
 
-		var plane: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(13, 13, 10, 10))));
-		var planeMat: BlinnPhongMaterial = new BlinnPhongMaterial();
-		Texture2D.load("res/threeDimen/Physics/grass.png", Handler.create(this, function (tex: Texture2D): void {
-			planeMat.albedoTexture = tex;
+			var plane: MeshSprite3D = <MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(13, 13, 10, 10)));
+			var planeMat: BlinnPhongMaterial = new BlinnPhongMaterial();
+			Texture2D.load("res/threeDimen/Physics/grass.png", Handler.create(this, function (tex: Texture2D): void {
+				planeMat.albedoTexture = tex;
+			}));
+			planeMat.tilingOffset = new Vector4(10, 10, 0, 0);
+			planeMat.shininess = 1;
+			plane.meshRenderer.material = planeMat;
+			plane.meshRenderer.receiveShadow = true;
+			var staticCollider: PhysicsCollider = <PhysicsCollider>plane.addComponent(PhysicsCollider);
+			var planeShape: BoxColliderShape = new BoxColliderShape(13, 0, 13);
+			staticCollider.colliderShape = planeShape;
+			staticCollider.friction = 2;
+
+			this.randomAddPhysicsSprite();
 		}));
-		planeMat.tilingOffset = new Vector4(10, 10, 0, 0);
-		planeMat.shininess = 1;
-		plane.meshRenderer.material = planeMat;
-		plane.meshRenderer.receiveShadow = true;
-		var staticCollider: PhysicsCollider = (<PhysicsCollider>plane.addComponent(PhysicsCollider));
-		var planeShape: BoxColliderShape = new BoxColliderShape(13, 0, 13);
-		staticCollider.colliderShape = planeShape;
-		staticCollider.friction = 2;
-
-		this.randomAddPhysicsSprite();
 	}
 
 	randomAddPhysicsSprite(): void {
-
 		Laya.timer.loop(1000, this, function (): void {
-
 			var random: number = Math.floor(Math.random() * 2) % 2;
 			switch (random) {
 				case 0:

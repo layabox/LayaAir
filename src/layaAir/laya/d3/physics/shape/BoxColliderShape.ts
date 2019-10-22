@@ -6,13 +6,13 @@ import { ColliderShape } from "./ColliderShape";
  */
 export class BoxColliderShape extends ColliderShape {
 	/** @internal */
-	private static _nativeSize: any;
+	private static _btSize: number;
 
 	/**
 	* @internal
 	*/
 	static __init__(): void {
-		BoxColliderShape._nativeSize = new Physics3D._physics3D.btVector3(0, 0, 0);
+		BoxColliderShape._btSize = Physics3D._bullet.btVector3_create(0, 0, 0);
 	}
 
 	/**@internal */
@@ -23,21 +23,21 @@ export class BoxColliderShape extends ColliderShape {
 	private _sizeZ: number;
 
 	/**
-	 * 获取X轴尺寸。
+	 * X轴尺寸。
 	 */
 	get sizeX(): number {
 		return this._sizeX;
 	}
 
 	/**
-	 * 获取Y轴尺寸。
+	 * Y轴尺寸。
 	 */
 	get sizeY(): number {
 		return this._sizeY;
 	}
 
 	/**
-	 * 获取Z轴尺寸。
+	 * Z轴尺寸。
 	 */
 	get sizeZ(): number {
 		return this._sizeZ;
@@ -59,8 +59,9 @@ export class BoxColliderShape extends ColliderShape {
 		this._sizeZ = sizeZ;
 		this._type = ColliderShape.SHAPETYPES_BOX;
 
-		BoxColliderShape._nativeSize.setValue(sizeX / 2, sizeY / 2, sizeZ / 2);
-		this._nativeShape = new Physics3D._physics3D.btBoxShape(BoxColliderShape._nativeSize);
+		var bt: any = Physics3D._bullet;
+		bt.btVector3_setValue(BoxColliderShape._btSize, sizeX / 2, sizeY / 2, sizeZ / 2);
+		this._btShape = bt.btBoxShape_create(BoxColliderShape._btSize);
 	}
 
 	/**

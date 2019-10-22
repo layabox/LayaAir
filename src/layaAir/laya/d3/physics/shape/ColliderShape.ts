@@ -37,22 +37,23 @@ export class ColliderShape implements IClone {
 	/** @internal */
 	static _tempVector30: Vector3 = new Vector3();
 	/** @internal */
-	protected static _nativeScale: any;
+	protected static _btScale: number;
 	/**@internal */
-	protected static _nativeVector30: any;
+	protected static _btVector30: number;
 	/**@internal */
-	protected static _nativQuaternion0: any;
+	protected static _btQuaternion0: number;
 	/**@internal */
-	protected static _nativeTransform0: any;
+	protected static _btTransform0: number;
 
 	/**
 	 * @internal
 	 */
 	static __init__(): void {
-		ColliderShape._nativeScale = new Physics3D._physics3D.btVector3(1, 1, 1);
-		ColliderShape._nativeVector30 = new Physics3D._physics3D.btVector3(0, 0, 0);
-		ColliderShape._nativQuaternion0 = new Physics3D._physics3D.btQuaternion(0, 0, 0, 1);
-		ColliderShape._nativeTransform0 = new Physics3D._physics3D.btTransform();
+		var bt: any = Physics3D._bullet;
+		ColliderShape._btScale = bt.btVector3_create(1, 1, 1);
+		ColliderShape._btVector30 = bt.btVector3_create(0, 0, 0);
+		ColliderShape._btQuaternion0 = bt.btQuaternion_create(0, 0, 0, 1);
+		ColliderShape._btTransform0 = bt.btTransform_create();
 	}
 
 	/**
@@ -86,7 +87,7 @@ export class ColliderShape implements IClone {
 	protected _scale: Vector3 = new Vector3(1, 1, 1);
 
 	/**@internal */
-	_nativeShape: any;
+	_btShape: number;
 	/**@internal */
 	_type: number;//TODO:可以删掉
 	/**@internal */
@@ -112,25 +113,19 @@ export class ColliderShape implements IClone {
 	needsCustomCollisionCallback: boolean = false;//TODO:默认值,TODO:::::::::::::::::::::::::::::::
 
 	/**
-	 * 获取碰撞类型。
-	 * @return 碰撞类型。
+	 * 碰撞类型。
 	 */
 	get type(): number {
 		return this._type;
 	}
 
 	/**
-	 * 获取Shape的本地偏移。
-	 * @return Shape的本地偏移。
+	 * Shape的本地偏移。
 	 */
 	get localOffset(): Vector3 {
 		return this._localOffset;
 	}
 
-	/**
-	 * 设置Shape的本地偏移。
-	 * @param Shape的本地偏移。
-	 */
 	set localOffset(value: Vector3) {
 		this._localOffset = value;
 		if (this._compoundParent)
@@ -138,17 +133,12 @@ export class ColliderShape implements IClone {
 	}
 
 	/**
-	 * 获取Shape的本地旋转。
-	 * @return Shape的本地旋转。
+	 * Shape的本地旋转。
 	 */
 	get localRotation(): Quaternion {
 		return this._localRotation;
 	}
 
-	/**
-	 * 设置Shape的本地旋转。
-	 * @param Shape的本地旋转。
-	 */
 	set localRotation(value: Quaternion) {
 		this._localRotation = value;
 		if (this._compoundParent)
@@ -169,8 +159,9 @@ export class ColliderShape implements IClone {
 		if (this._compoundParent) {//TODO:待查,这里有问题
 			this.updateLocalTransformations();
 		} else {
-			ColliderShape._nativeScale.setValue(value.x, value.y, value.z);
-			this._nativeShape.setLocalScaling(ColliderShape._nativeScale);
+			var bt: any = Physics3D._bullet;
+			bt.btVector3_setValue(ColliderShape._btScale, value.x, value.y, value.z);
+			bt.btCollisionShape_setLocalScaling(this._btShape, ColliderShape._btScale);
 		}
 	}
 
@@ -215,7 +206,7 @@ export class ColliderShape implements IClone {
 
 	/**
 	 * 克隆。
-	 * @return	 克隆副本。
+	 * @return 克隆副本。
 	 */
 	clone(): any {
 		return null;
@@ -225,9 +216,9 @@ export class ColliderShape implements IClone {
 	 * 销毁。
 	 */
 	destroy(): void {
-		if (this._nativeShape) {
-			Physics3D._physics3D.destroy(this._nativeShape);
-			this._nativeShape = null;
+		if (this._btShape) {
+			Physics3D._bullet.btCollisionShape_destroy(this._btShape);
+			this._btShape = null;
 		}
 	}
 
