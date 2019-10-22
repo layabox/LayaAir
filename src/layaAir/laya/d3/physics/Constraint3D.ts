@@ -7,7 +7,7 @@ import { PhysicsSimulation } from "./PhysicsSimulation"
  */
 export class Constraint3D {
 	/**@internal */
-	_nativeConstraint: any;
+	_btConstraint: number;
 	/**@internal */
 	_simulation: PhysicsSimulation;
 

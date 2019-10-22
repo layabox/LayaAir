@@ -6,13 +6,13 @@ import { ColliderShape } from "./ColliderShape";
  */
 export class CylinderColliderShape extends ColliderShape {
 	/** @internal */
-	private static _nativeSize: number;
+	private static _btSize: number;
 
 	/**
 	* @internal
 	*/
 	static __init__(): void {
-		CylinderColliderShape._nativeSize = Physics3D._bullet.btVector3_create(0, 0, 0);
+		CylinderColliderShape._btSize = Physics3D._bullet.btVector3_create(0, 0, 0);
 	}
 
 	private _orientation: number;
@@ -54,16 +54,16 @@ export class CylinderColliderShape extends ColliderShape {
 		var bt: any = Physics3D._bullet;
 		switch (orientation) {
 			case ColliderShape.SHAPEORIENTATION_UPX:
-				bt.btVector3_setValue(CylinderColliderShape._nativeSize, height / 2, radius, radius);
-				this._nativeShape = bt.btCylinderShapeX_create(CylinderColliderShape._nativeSize);
+				bt.btVector3_setValue(CylinderColliderShape._btSize, height / 2, radius, radius);
+				this._btShape = bt.btCylinderShapeX_create(CylinderColliderShape._btSize);
 				break;
 			case ColliderShape.SHAPEORIENTATION_UPY:
-				bt.btVector3_setValue(CylinderColliderShape._nativeSize, radius, height / 2, radius);
-				this._nativeShape = bt.btCylinderShape_create(CylinderColliderShape._nativeSize);
+				bt.btVector3_setValue(CylinderColliderShape._btSize, radius, height / 2, radius);
+				this._btShape = bt.btCylinderShape_create(CylinderColliderShape._btSize);
 				break;
 			case ColliderShape.SHAPEORIENTATION_UPZ:
-				bt.btVector3_setValue(CylinderColliderShape._nativeSize, radius, radius, height / 2);
-				this._nativeShape = bt.btCylinderShapeZ_create(CylinderColliderShape._nativeSize);
+				bt.btVector3_setValue(CylinderColliderShape._btSize, radius, radius, height / 2);
+				this._btShape = bt.btCylinderShapeZ_create(CylinderColliderShape._btSize);
 				break;
 			default:
 				throw "CapsuleColliderShape:unknown orientation.";

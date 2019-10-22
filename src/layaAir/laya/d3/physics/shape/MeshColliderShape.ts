@@ -23,11 +23,11 @@ export class MeshColliderShape extends ColliderShape {
 		if (this._mesh !== value) {
 			var bt: any = Physics3D._bullet;
 			if (this._mesh) {
-				bt.destroy(this._nativeShape);
+				bt.destroy(this._btShape);
 			}
 			if (value) {
-				this._nativeShape = bt.btGImpactMeshShape_create(value._getPhysicMesh());
-				bt.btGImpactShapeInterface_updateBound(this._nativeShape);
+				this._btShape = bt.btGImpactMeshShape_create(value._getPhysicMesh());
+				bt.btGImpactShapeInterface_updateBound(this._btShape);
 			}
 			this._mesh = value;
 		}
@@ -63,9 +63,9 @@ export class MeshColliderShape extends ColliderShape {
 			this.updateLocalTransformations();//TODO:
 		} else {
 			var bt: any = Physics3D._bullet;
-			bt.btVector3_setValue(ColliderShape._nativeScale, value.x, value.y, value.z);
-			bt.btCollisionShape_setLocalScaling(this._nativeShape, ColliderShape._nativeScale);
-			bt.btGImpactShapeInterface_updateBound(this._nativeShape);//更新缩放后需要更新包围体,有性能损耗
+			bt.btVector3_setValue(ColliderShape._btScale, value.x, value.y, value.z);
+			bt.btCollisionShape_setLocalScaling(this._btShape, ColliderShape._btScale);
+			bt.btGImpactShapeInterface_updateBound(this._btShape);//更新缩放后需要更新包围体,有性能损耗
 		}
 	}
 
@@ -96,9 +96,9 @@ export class MeshColliderShape extends ColliderShape {
 	 * @internal
 	 */
 	destroy(): void {
-		if (this._nativeShape) {
-			Physics3D._bullet.btCollisionShape_destroy(this._nativeShape);
-			this._nativeShape = null;
+		if (this._btShape) {
+			Physics3D._bullet.btCollisionShape_destroy(this._btShape);
+			this._btShape = null;
 		}
 	}
 

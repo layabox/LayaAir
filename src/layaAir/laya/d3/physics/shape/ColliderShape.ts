@@ -37,23 +37,23 @@ export class ColliderShape implements IClone {
 	/** @internal */
 	static _tempVector30: Vector3 = new Vector3();
 	/** @internal */
-	protected static _nativeScale: number;
+	protected static _btScale: number;
 	/**@internal */
-	protected static _nativeVector30: number;
+	protected static _btVector30: number;
 	/**@internal */
-	protected static _nativQuaternion0: number;
+	protected static _btQuaternion0: number;
 	/**@internal */
-	protected static _nativeTransform0: number;
+	protected static _btTransform0: number;
 
 	/**
 	 * @internal
 	 */
 	static __init__(): void {
 		var bt: any = Physics3D._bullet;
-		ColliderShape._nativeScale = bt.btVector3_create(1, 1, 1);
-		ColliderShape._nativeVector30 = bt.btVector3_create(0, 0, 0);
-		ColliderShape._nativQuaternion0 = bt.btQuaternion_create(0, 0, 0, 1);
-		ColliderShape._nativeTransform0 = bt.btTransform_create();
+		ColliderShape._btScale = bt.btVector3_create(1, 1, 1);
+		ColliderShape._btVector30 = bt.btVector3_create(0, 0, 0);
+		ColliderShape._btQuaternion0 = bt.btQuaternion_create(0, 0, 0, 1);
+		ColliderShape._btTransform0 = bt.btTransform_create();
 	}
 
 	/**
@@ -87,7 +87,7 @@ export class ColliderShape implements IClone {
 	protected _scale: Vector3 = new Vector3(1, 1, 1);
 
 	/**@internal */
-	_nativeShape: number;
+	_btShape: number;
 	/**@internal */
 	_type: number;//TODO:可以删掉
 	/**@internal */
@@ -160,8 +160,8 @@ export class ColliderShape implements IClone {
 			this.updateLocalTransformations();
 		} else {
 			var bt: any = Physics3D._bullet;
-			bt.btVector3_setValue(ColliderShape._nativeScale, value.x, value.y, value.z);
-			bt.btCollisionShape_setLocalScaling(this._nativeShape, ColliderShape._nativeScale);
+			bt.btVector3_setValue(ColliderShape._btScale, value.x, value.y, value.z);
+			bt.btCollisionShape_setLocalScaling(this._btShape, ColliderShape._btScale);
 		}
 	}
 
@@ -216,9 +216,9 @@ export class ColliderShape implements IClone {
 	 * 销毁。
 	 */
 	destroy(): void {
-		if (this._nativeShape) {
-			Physics3D._bullet.btCollisionShape_destroy(this._nativeShape);
-			this._nativeShape = null;
+		if (this._btShape) {
+			Physics3D._bullet.btCollisionShape_destroy(this._btShape);
+			this._btShape = null;
 		}
 	}
 

@@ -5,8 +5,6 @@ import { ClassUtils } from "../utils/ClassUtils";
 	 * 2D矩形碰撞体
 	 */
 export class BoxCollider extends ColliderBase {
-    /**@private */
-    private static _temp: any;
     /**相对节点的x轴偏移*/
     private _x: number = 0;
     /**相对节点的y轴偏移*/

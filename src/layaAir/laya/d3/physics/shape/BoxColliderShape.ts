@@ -6,13 +6,13 @@ import { ColliderShape } from "./ColliderShape";
  */
 export class BoxColliderShape extends ColliderShape {
 	/** @internal */
-	private static _nativeSize: number;
+	private static _btSize: number;
 
 	/**
 	* @internal
 	*/
 	static __init__(): void {
-		BoxColliderShape._nativeSize = Physics3D._bullet.btVector3_create(0, 0, 0);
+		BoxColliderShape._btSize = Physics3D._bullet.btVector3_create(0, 0, 0);
 	}
 
 	/**@internal */
@@ -60,8 +60,8 @@ export class BoxColliderShape extends ColliderShape {
 		this._type = ColliderShape.SHAPETYPES_BOX;
 
 		var bt: any = Physics3D._bullet;
-		bt.btVector3_setValue(BoxColliderShape._nativeSize, sizeX / 2, sizeY / 2, sizeZ / 2);
-		this._nativeShape = bt.btBoxShape_create(BoxColliderShape._nativeSize);
+		bt.btVector3_setValue(BoxColliderShape._btSize, sizeX / 2, sizeY / 2, sizeZ / 2);
+		this._btShape = bt.btBoxShape_create(BoxColliderShape._btSize);
 	}
 
 	/**

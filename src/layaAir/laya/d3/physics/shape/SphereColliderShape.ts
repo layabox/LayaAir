@@ -25,7 +25,7 @@ export class SphereColliderShape extends ColliderShape {
 		this._radius = radius;
 		this._type = ColliderShape.SHAPETYPES_SPHERE;
 
-		this._nativeShape = Physics3D._bullet.btSphereShape_create(radius);
+		this._btShape = Physics3D._bullet.btSphereShape_create(radius);
 	}
 
 	/**

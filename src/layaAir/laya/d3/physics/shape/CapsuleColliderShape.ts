@@ -54,13 +54,13 @@ export class CapsuleColliderShape extends ColliderShape {
 		var bt: any = Physics3D._bullet;
 		switch (orientation) {
 			case ColliderShape.SHAPEORIENTATION_UPX:
-				this._nativeShape = bt.btCapsuleShapeX_create(radius, length - radius * 2);
+				this._btShape = bt.btCapsuleShapeX_create(radius, length - radius * 2);
 				break;
 			case ColliderShape.SHAPEORIENTATION_UPY:
-				this._nativeShape = bt.btCapsuleShape_create(radius, length - radius * 2);
+				this._btShape = bt.btCapsuleShape_create(radius, length - radius * 2);
 				break;
 			case ColliderShape.SHAPEORIENTATION_UPZ:
-				this._nativeShape = bt.btCapsuleShapeZ_create(radius, length - radius * 2);
+				this._btShape = bt.btCapsuleShapeZ_create(radius, length - radius * 2);
 				break;
 			default:
 				throw "CapsuleColliderShape:unknown orientation.";

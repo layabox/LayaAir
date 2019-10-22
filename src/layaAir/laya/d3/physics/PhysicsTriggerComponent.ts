@@ -19,14 +19,14 @@ export class PhysicsTriggerComponent extends PhysicsComponent {
 	set isTrigger(value: boolean) {
 		this._isTrigger = value;
 		var bt: any = Physics3D._bullet;
-		if (this._nativeColliderObject) {
-			var flags: number = bt.btCollisionObject_getCollisionFlags(this._nativeColliderObject);
+		if (this._btColliderObject) {
+			var flags: number = bt.btCollisionObject_getCollisionFlags(this._btColliderObject);
 			if (value) {
 				if ((flags & PhysicsComponent.COLLISIONFLAGS_NO_CONTACT_RESPONSE) === 0)
-					bt.btCollisionObject_setCollisionFlags(this._nativeColliderObject, flags | PhysicsComponent.COLLISIONFLAGS_NO_CONTACT_RESPONSE);
+					bt.btCollisionObject_setCollisionFlags(this._btColliderObject, flags | PhysicsComponent.COLLISIONFLAGS_NO_CONTACT_RESPONSE);
 			} else {
 				if ((flags & PhysicsComponent.COLLISIONFLAGS_NO_CONTACT_RESPONSE) !== 0)
-					bt.btCollisionObject_setCollisionFlags(this._nativeColliderObject, flags ^ PhysicsComponent.COLLISIONFLAGS_NO_CONTACT_RESPONSE);
+					bt.btCollisionObject_setCollisionFlags(this._btColliderObject, flags ^ PhysicsComponent.COLLISIONFLAGS_NO_CONTACT_RESPONSE);
 			}
 		}
 	}

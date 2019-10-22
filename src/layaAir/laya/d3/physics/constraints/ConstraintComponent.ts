@@ -7,7 +7,7 @@ import { Physics3D } from "../Physics3D";
  */
 export class ConstraintComponent extends Component {
 	/**@internal */
-	private _nativeConstraint: any;
+	private _btConstraint: any;
 	/**@internal */
 	private _breakingImpulseThreshold: number;
 	/**@internal */
@@ -28,7 +28,7 @@ export class ConstraintComponent extends Component {
 	 * @override
 	 */
 	set enabled(value: boolean) {
-		this._nativeConstraint.IsEnabled = value;
+		this._btConstraint.IsEnabled = value;
 		super.enabled = value;
 	}
 
@@ -45,7 +45,7 @@ export class ConstraintComponent extends Component {
 	 * @param value 打破冲力阈值。
 	 */
 	set breakingImpulseThreshold(value: number) {
-		this._nativeConstraint.BreakingImpulseThreshold = value;
+		this._btConstraint.BreakingImpulseThreshold = value;
 		this._breakingImpulseThreshold = value;
 	}
 
@@ -54,10 +54,10 @@ export class ConstraintComponent extends Component {
 	 */
 	get appliedImpulse(): number {
 		if (!this._feedbackEnabled) {
-			this._nativeConstraint.EnableFeedback(true);
+			this._btConstraint.EnableFeedback(true);
 			this._feedbackEnabled = true;
 		}
-		return this._nativeConstraint.AppliedImpulse;
+		return this._btConstraint.AppliedImpulse;
 	}
 
 	/**
@@ -92,8 +92,8 @@ export class ConstraintComponent extends Component {
 	 */
 	protected _onDestroy(): void {
 		var physics3D: any = Physics3D._bullet;
-		physics3D.destroy(this._nativeConstraint);
-		this._nativeConstraint = null;
+		physics3D.destroy(this._btConstraint);
+		this._btConstraint = null;
 	}
 }
 

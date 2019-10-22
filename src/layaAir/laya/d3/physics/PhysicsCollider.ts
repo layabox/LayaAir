@@ -88,7 +88,7 @@ export class PhysicsCollider extends PhysicsTriggerComponent {
 			flags = flags | PhysicsComponent.COLLISIONFLAGS_KINEMATIC_OBJECT;
 		}
 		bt.btCollisionObject_setCollisionFlags(btColObj, flags);
-		this._nativeColliderObject = btColObj;
+		this._btColliderObject = btColObj;
 		super._onAdded();
 	}
 }
