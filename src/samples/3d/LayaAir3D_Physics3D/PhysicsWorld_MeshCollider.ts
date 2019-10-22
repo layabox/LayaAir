@@ -24,10 +24,6 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 
-/**
- * ...
- * @author wzy
- */
 export class PhysicsWorld_MeshCollider {
 
 	private scene: Scene3D;

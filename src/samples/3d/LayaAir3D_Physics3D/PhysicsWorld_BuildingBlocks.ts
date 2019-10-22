@@ -24,7 +24,6 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 
 export class PhysicsWorld_BuildingBlocks {
-
 	private scene: Scene3D;
 	private camera: Camera;
 	private ray: Ray = new Ray(new Vector3(0, 0, 0), new Vector3(0, 0, 0));

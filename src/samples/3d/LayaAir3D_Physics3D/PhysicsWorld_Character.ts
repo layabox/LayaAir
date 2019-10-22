@@ -20,7 +20,6 @@ import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
-import { Config3D } from "Config3D";
 
 export class PhysicsWorld_Character {
 
@@ -36,9 +35,7 @@ export class PhysicsWorld_Character {
 
 	constructor() {
 		//初始化引擎
-		var c: Config3D = new Config3D();
-		c.defaultPhysicsMemory = 100;
-		Laya3D.init(0, 0, c, Handler.create(null, () => {
+		Laya3D.init(0, 0, null, Handler.create(null, () => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			//显示性能面板

@@ -18,13 +18,8 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 
-/**
- * ...
- * @author wzy
- */
 export class PhysicsWorld_ContinueCollisionDetection {
 	private scene: Scene3D;
-	private tmpVector: Vector3 = new Vector3(0, 0, 0);
 	private mat2: BlinnPhongMaterial;
 	constructor() {
 		Laya3D.init(0, 0, null, Handler.create(null, () => {
@@ -80,7 +75,7 @@ export class PhysicsWorld_ContinueCollisionDetection {
 
 	addSphere(): void {
 		var radius: number = Math.random() * 0.2 + 0.2;
-		var sphere: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createSphere(radius))));
+		var sphere: MeshSprite3D = <MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createSphere(radius)));
 		sphere.meshRenderer.material = this.mat2;
 		var pos: Vector3 = sphere.transform.position;
 		pos.setValue(Math.random() * 4 - 2, 10, Math.random() * 4 - 2);
