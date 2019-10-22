@@ -1,5 +1,6 @@
 import { Component } from "../../components/Component"
 import { PhysicsComponent } from "./PhysicsComponent"
+import { Physics3D } from "./Physics3D";
 
 /**
  * <code>PhysicsTriggerComponent</code> 类用于创建物理触发器组件。
@@ -22,14 +23,15 @@ export class PhysicsTriggerComponent extends PhysicsComponent {
 	 */
 	set isTrigger(value: boolean) {
 		this._isTrigger = value;
+		var physics3D: any = Physics3D._bullet;
 		if (this._nativeColliderObject) {
-			var flags: number = this._nativeColliderObject.getCollisionFlags();
+			var flags: number = physics3D.btCollisionObject_getCollisionFlags(this._nativeColliderObject);
 			if (value) {
 				if ((flags & PhysicsComponent.COLLISIONFLAGS_NO_CONTACT_RESPONSE) === 0)
-					this._nativeColliderObject.setCollisionFlags(flags | PhysicsComponent.COLLISIONFLAGS_NO_CONTACT_RESPONSE);
+					physics3D.btCollisionObject_setCollisionFlags(this._nativeColliderObject, flags | PhysicsComponent.COLLISIONFLAGS_NO_CONTACT_RESPONSE);
 			} else {
 				if ((flags & PhysicsComponent.COLLISIONFLAGS_NO_CONTACT_RESPONSE) !== 0)
-					this._nativeColliderObject.setCollisionFlags(flags ^ PhysicsComponent.COLLISIONFLAGS_NO_CONTACT_RESPONSE);
+					physics3D.btCollisionObject_setCollisionFlags(this._nativeColliderObject, flags ^ PhysicsComponent.COLLISIONFLAGS_NO_CONTACT_RESPONSE);
 			}
 		}
 	}

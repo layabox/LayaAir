@@ -24,13 +24,14 @@ export class MeshColliderShape extends ColliderShape {
 	 */
 	set mesh(value: Mesh) {
 		if (this._mesh !== value) {
-			var physics3D: any = Physics3D._physics3D;
+			var physics3D: any = Physics3D._bullet;
 			if (this._mesh) {
 				physics3D.destroy(this._nativeShape);
 			}
 			if (value) {
-				this._nativeShape = new Physics3D._physics3D.btGImpactMeshShape(value._getPhysicMesh());
-				this._nativeShape.updateBound();
+				var bullet: any = Physics3D._bullet;
+				this._nativeShape = bullet.btGImpactMeshShape_create(value._getPhysicMesh());
+				bullet.btGImpactShapeInterface_updateBound(this._nativeShape);
 			}
 			this._mesh = value;
 		}
@@ -70,9 +71,10 @@ export class MeshColliderShape extends ColliderShape {
 		if (this._compoundParent) {//TODO:待查,这里有问题
 			this.updateLocalTransformations();//TODO:
 		} else {
-			ColliderShape._nativeScale.setValue(value.x, value.y, value.z);
-			this._nativeShape.setLocalScaling(ColliderShape._nativeScale);
-			this._nativeShape.updateBound();//更新缩放后需要更新包围体,有性能损耗
+			var bullet: any = Physics3D._bullet;
+			bullet.btVector3_setValue(ColliderShape._nativeScale, value.x, value.y, value.z);
+			bullet.btCollisionShape_setLocalScaling(this._nativeShape, ColliderShape._nativeScale);
+			bullet.btGImpactShapeInterface_updateBound(this._nativeShape);//更新缩放后需要更新包围体,有性能损耗
 		}
 	}
 
@@ -104,7 +106,7 @@ export class MeshColliderShape extends ColliderShape {
 	 */
 	destroy(): void {
 		if (this._nativeShape) {
-			var physics3D: any = Physics3D._physics3D;
+			var physics3D: any = Physics3D._bullet;
 			physics3D.destroy(this._nativeShape);
 			this._nativeShape = null;
 		}

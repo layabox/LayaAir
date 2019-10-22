@@ -91,7 +91,7 @@ export class ConstraintComponent extends Component {
 	 * @override
 	 */
 	protected _onDestroy(): void {
-		var physics3D: any = Physics3D._physics3D;
+		var physics3D: any = Physics3D._bullet;
 		physics3D.destroy(this._nativeConstraint);
 		this._nativeConstraint = null;
 	}
