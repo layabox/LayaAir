@@ -76,10 +76,10 @@ export class CharacterController extends PhysicsComponent {
 
 	set gravity(value: Vector3) {
 		this._gravity = value;
-		var bullet: any = Physics3D._bullet;
+		var bt: any = Physics3D._bullet;
 		var nativeGravity: number = CharacterController._nativeTempVector30;
-		bullet.btVector3_setValue(nativeGravity, -value.x, value.y, value.z);
-		bullet.btKinematicCharacterController_setGravity(this._nativeKinematicCharacter, nativeGravity);
+		bt.btVector3_setValue(nativeGravity, -value.x, value.y, value.z);
+		bt.btKinematicCharacterController_setGravity(this._nativeKinematicCharacter, nativeGravity);
 	}
 
 	/**
@@ -142,13 +142,13 @@ export class CharacterController extends PhysicsComponent {
 	 * @internal
 	 */
 	private _constructCharacter(): void {
-		var bullet: any = Physics3D._bullet;
+		var bt: any = Physics3D._bullet;
 		if (this._nativeKinematicCharacter)
-			bullet.destroy(this._nativeKinematicCharacter);
+			bt.btKinematicCharacterController_destroy(this._nativeKinematicCharacter);
 
 		var nativeUpAxis: number = CharacterController._nativeTempVector30;
-		bullet.btVector3_setValue(nativeUpAxis, this._upAxis.x, this._upAxis.y, this._upAxis.z);
-		this._nativeKinematicCharacter = bullet.btKinematicCharacterController_create(this._nativeColliderObject, this._colliderShape._nativeShape, this._stepHeight, nativeUpAxis);
+		bt.btVector3_setValue(nativeUpAxis, this._upAxis.x, this._upAxis.y, this._upAxis.z);
+		this._nativeKinematicCharacter = bt.btKinematicCharacterController_create(this._nativeColliderObject, this._colliderShape._nativeShape, this._stepHeight, nativeUpAxis);
 		this.fallSpeed = this._fallSpeed;
 		this.maxSlope = this._maxSlope;
 		this.jumpSpeed = this._jumpSpeed;
@@ -171,10 +171,10 @@ export class CharacterController extends PhysicsComponent {
 	 * @internal
 	 */
 	_onAdded(): void {
-		var bullet: any = Physics3D._bullet;
-		var ghostObject: number = bullet.btPairCachingGhostObject_create();
-		bullet.btCollisionObject_setUserIndex(ghostObject, this.id);
-		bullet.btCollisionObject_setCollisionFlags(ghostObject, PhysicsComponent.COLLISIONFLAGS_CHARACTER_OBJECT);
+		var bt: any = Physics3D._bullet;
+		var ghostObject: number = bt.btPairCachingGhostObject_create();
+		bt.btCollisionObject_setUserIndex(ghostObject, this.id);
+		bt.btCollisionObject_setCollisionFlags(ghostObject, PhysicsComponent.COLLISIONFLAGS_CHARACTER_OBJECT);
 		this._nativeColliderObject = ghostObject;
 
 		if (this._colliderShape)
@@ -225,7 +225,7 @@ export class CharacterController extends PhysicsComponent {
 	 * @override
 	 */
 	protected _onDestroy(): void {
-		Physics3D._bullet.destroy(this._nativeKinematicCharacter);
+		Physics3D._bullet.btKinematicCharacterController_destroy(this._nativeKinematicCharacter);
 		super._onDestroy();
 		this._nativeKinematicCharacter = null;
 	}
@@ -236,9 +236,9 @@ export class CharacterController extends PhysicsComponent {
 	 */
 	move(movement: Vector3): void {
 		var nativeMovement: number = CharacterController._nativeVector30;
-		var bullet: any = Physics3D._bullet;
-		bullet.btVector3_setValue(nativeMovement, -movement.x, movement.y, movement.z);
-		bullet.btKinematicCharacterController_setWalkDirection(this._nativeKinematicCharacter, nativeMovement);
+		var bt: any = Physics3D._bullet;
+		bt.btVector3_setValue(nativeMovement, -movement.x, movement.y, movement.z);
+		bt.btKinematicCharacterController_setWalkDirection(this._nativeKinematicCharacter, nativeMovement);
 	}
 
 	/**
@@ -246,15 +246,15 @@ export class CharacterController extends PhysicsComponent {
 	 * @param velocity 跳跃速度。
 	 */
 	jump(velocity: Vector3 = null): void {
-		var bullet: any = Physics3D._bullet;
+		var bt: any = Physics3D._bullet;
 		if (velocity) {
 			var nativeVelocity: number = CharacterController._nativeVector30;
 			Utils3D._convertToBulletVec3(velocity, nativeVelocity, true);
-			bullet.btKinematicCharacterController_jump(this._nativeKinematicCharacter, nativeVelocity);
+			bt.btKinematicCharacterController_jump(this._nativeKinematicCharacter, nativeVelocity);
 		} else {
 			var nativeVelocity: number = CharacterController._nativeVector30;
-			bullet.btVector3_setValue(nativeVelocity, 0, 0, 0);
-			bullet.btKinematicCharacterController_jump(this._nativeKinematicCharacter, nativeVelocity);
+			bt.btVector3_setValue(nativeVelocity, 0, 0, 0);
+			bt.btKinematicCharacterController_jump(this._nativeKinematicCharacter, nativeVelocity);
 		}
 	}
 }

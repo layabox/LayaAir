@@ -20,11 +20,11 @@ export class CompoundColliderShape extends ColliderShape {
 	 * @internal
 	 */
 	static __init__(): void {
-		var physics3D: any = Physics3D._bullet;
-		CompoundColliderShape._nativeVector3One = physics3D.btVector3_create(1, 1, 1);
-		CompoundColliderShape._nativeTransform = physics3D.btTransform_create();
-		CompoundColliderShape._nativeOffset = physics3D.btVector3_create(0, 0, 0);
-		CompoundColliderShape._nativRotation = physics3D.btQuaternion_create(0, 0, 0, 1);
+		var bt: any = Physics3D._bullet;
+		CompoundColliderShape._nativeVector3One = bt.btVector3_create(1, 1, 1);
+		CompoundColliderShape._nativeTransform = bt.btTransform_create();
+		CompoundColliderShape._nativeOffset = bt.btVector3_create(0, 0, 0);
+		CompoundColliderShape._nativRotation = bt.btQuaternion_create(0, 0, 0, 1);
 	}
 
 	/**@internal */
@@ -96,17 +96,16 @@ export class CompoundColliderShape extends ColliderShape {
 		this._childColliderShapes.push(shape);
 		var offset: Vector3 = shape.localOffset;
 		var rotation: Quaternion = shape.localRotation;
-		var bulllet: any = Physics3D._bullet;
-		bulllet.btVector3_setValue(CompoundColliderShape._nativeOffset, -offset.x, offset.y, offset.z);
-		bulllet.btQuaternion_setValue(CompoundColliderShape._nativRotation, -rotation.x, rotation.y, rotation.z, -rotation.w);
-		bulllet.btTransform_setOrigin(CompoundColliderShape._nativeTransform, CompoundColliderShape._nativeOffset);
-		bulllet.btTransform_setRotation(CompoundColliderShape._nativeTransform, CompoundColliderShape._nativRotation);
+		var bt: any = Physics3D._bullet;
+		bt.btVector3_setValue(CompoundColliderShape._nativeOffset, -offset.x, offset.y, offset.z);
+		bt.btQuaternion_setValue(CompoundColliderShape._nativRotation, -rotation.x, rotation.y, rotation.z, -rotation.w);
+		bt.btTransform_setOrigin(CompoundColliderShape._nativeTransform, CompoundColliderShape._nativeOffset);
+		bt.btTransform_setRotation(CompoundColliderShape._nativeTransform, CompoundColliderShape._nativRotation);
 
-		var bulllet: any = Physics3D._bullet;
-		var nativeScale: number = bulllet.btCollisionShape_getLocalScaling(this._nativeShape);
-		bulllet.btCollisionShape_setLocalScaling(this._nativeShape, CompoundColliderShape._nativeVector3One);
-		bulllet.btCompoundShape_addChildShape(this._nativeShape, CompoundColliderShape._nativeTransform, shape._nativeShape);
-		bulllet.btCollisionShape_setLocalScaling(this._nativeShape, nativeScale);
+		var nativeScale: number = bt.btCollisionShape_getLocalScaling(this._nativeShape);
+		bt.btCollisionShape_setLocalScaling(this._nativeShape, CompoundColliderShape._nativeVector3One);
+		bt.btCompoundShape_addChildShape(this._nativeShape, CompoundColliderShape._nativeTransform, shape._nativeShape);
+		bt.btCollisionShape_setLocalScaling(this._nativeShape, nativeScale);
 
 		(this._attatchedCollisionObject) && (this._attatchedCollisionObject.colliderShape = this);//修改子Shape需要重新赋值父Shape以及将物理精灵重新加入物理世界等操作
 	}

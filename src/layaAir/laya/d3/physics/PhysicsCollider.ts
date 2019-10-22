@@ -72,12 +72,12 @@ export class PhysicsCollider extends PhysicsTriggerComponent {
 	 * @internal
 	 */
 	_onAdded(): void {
-		var physics3D: any = Physics3D._bullet;
-		var btColObj: number = physics3D.btCollisionObject_create();
-		physics3D.btCollisionObject_setUserIndex(btColObj, this.id);
-		physics3D.btCollisionObject_forceActivationState(btColObj, PhysicsComponent.ACTIVATIONSTATE_DISABLE_SIMULATION);//prevent simulation
+		var bt: any = Physics3D._bullet;
+		var btColObj: number = bt.btCollisionObject_create();
+		bt.btCollisionObject_setUserIndex(btColObj, this.id);
+		bt.btCollisionObject_forceActivationState(btColObj, PhysicsComponent.ACTIVATIONSTATE_DISABLE_SIMULATION);//prevent simulation
 
-		var flags: number = physics3D.btCollisionObject_getCollisionFlags(btColObj);
+		var flags: number = bt.btCollisionObject_getCollisionFlags(btColObj);
 		if (((<Sprite3D>this.owner)).isStatic) {//TODO:
 			if ((flags & PhysicsComponent.COLLISIONFLAGS_KINEMATIC_OBJECT) > 0)
 				flags = flags ^ PhysicsComponent.COLLISIONFLAGS_KINEMATIC_OBJECT;
@@ -87,7 +87,7 @@ export class PhysicsCollider extends PhysicsTriggerComponent {
 				flags = flags ^ PhysicsComponent.COLLISIONFLAGS_STATIC_OBJECT;
 			flags = flags | PhysicsComponent.COLLISIONFLAGS_KINEMATIC_OBJECT;
 		}
-		physics3D.btCollisionObject_setCollisionFlags(btColObj, flags);
+		bt.btCollisionObject_setCollisionFlags(btColObj, flags);
 		this._nativeColliderObject = btColObj;
 		super._onAdded();
 	}

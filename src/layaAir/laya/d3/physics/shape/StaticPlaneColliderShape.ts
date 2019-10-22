@@ -8,7 +8,7 @@ import { Physics3D } from "../Physics3D";
 export class StaticPlaneColliderShape extends ColliderShape {
 	/** @internal */
 	private static _nativeNormal: number;
-	
+
 	/**@internal */
 	_offset: number;
 	/**@internal */
@@ -30,9 +30,9 @@ export class StaticPlaneColliderShape extends ColliderShape {
 		this._offset = offset;
 		this._type = ColliderShape.SHAPETYPES_STATICPLANE;
 
-		var physics3D: any = Physics3D._bullet;
-		physics3D.btVector3_setValue(StaticPlaneColliderShape._nativeNormal, -normal.x, normal.y, normal.z);
-		this._nativeShape = physics3D.btStaticPlaneShape_create(StaticPlaneColliderShape._nativeNormal, offset);
+		var bt: any = Physics3D._bullet;
+		bt.btVector3_setValue(StaticPlaneColliderShape._nativeNormal, -normal.x, normal.y, normal.z);
+		this._nativeShape = bt.btStaticPlaneShape_create(StaticPlaneColliderShape._nativeNormal, offset);
 	}
 
 	/**

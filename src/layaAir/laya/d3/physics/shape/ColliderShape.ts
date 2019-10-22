@@ -49,11 +49,11 @@ export class ColliderShape implements IClone {
 	 * @internal
 	 */
 	static __init__(): void {
-		var physics3D: any = Physics3D._bullet;
-		ColliderShape._nativeScale = physics3D.btVector3_create(1, 1, 1);
-		ColliderShape._nativeVector30 = physics3D.btVector3_create(0, 0, 0);
-		ColliderShape._nativQuaternion0 = physics3D.btQuaternion_create(0, 0, 0, 1);
-		ColliderShape._nativeTransform0 = physics3D.btTransform_create();
+		var bt: any = Physics3D._bullet;
+		ColliderShape._nativeScale = bt.btVector3_create(1, 1, 1);
+		ColliderShape._nativeVector30 = bt.btVector3_create(0, 0, 0);
+		ColliderShape._nativQuaternion0 = bt.btQuaternion_create(0, 0, 0, 1);
+		ColliderShape._nativeTransform0 = bt.btTransform_create();
 	}
 
 	/**
@@ -159,9 +159,9 @@ export class ColliderShape implements IClone {
 		if (this._compoundParent) {//TODO:待查,这里有问题
 			this.updateLocalTransformations();
 		} else {
-			var physics3D: any = Physics3D._bullet;
-			physics3D.btVector3_setValue(ColliderShape._nativeScale, value.x, value.y, value.z);
-			physics3D.btCollisionShape_setLocalScaling(this._nativeShape, ColliderShape._nativeScale);
+			var bt: any = Physics3D._bullet;
+			bt.btVector3_setValue(ColliderShape._nativeScale, value.x, value.y, value.z);
+			bt.btCollisionShape_setLocalScaling(this._nativeShape, ColliderShape._nativeScale);
 		}
 	}
 
@@ -206,7 +206,7 @@ export class ColliderShape implements IClone {
 
 	/**
 	 * 克隆。
-	 * @return	 克隆副本。
+	 * @return 克隆副本。
 	 */
 	clone(): any {
 		return null;
@@ -217,7 +217,7 @@ export class ColliderShape implements IClone {
 	 */
 	destroy(): void {
 		if (this._nativeShape) {
-			Physics3D._bullet.destroy(this._nativeShape);
+			Physics3D._bullet.btCollisionShape_destroy(this._nativeShape);
 			this._nativeShape = null;
 		}
 	}
