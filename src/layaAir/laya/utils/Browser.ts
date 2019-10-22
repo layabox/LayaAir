@@ -236,7 +236,7 @@ export class Browser {
         Browser.onIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
         Browser.onIPhone = u.indexOf("iPhone") > -1;
         Browser.onMac = u.indexOf("Mac OS X") > -1;
-        Browser.onIPad = u.indexOf("iPad") > -1 || ( platform === 'MacIntel' && maxTouchPoints >1 );
+        Browser.onIPad = u.indexOf("iPad") > -1 || ( platform === 'MacIntel' && maxTouchPoints >1 );//"platform === 'MacIntel' && maxTouchPoints >1" is a temporary solution，maybe accidentally injure other platform.
         Browser.onAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1;
         Browser.onWP = u.indexOf("Windows Phone") > -1;
         Browser.onQQBrowser = u.indexOf("QQBrowser") > -1;
