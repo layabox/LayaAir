@@ -70,16 +70,17 @@ export class CompoundColliderShape extends ColliderShape {
 	 * @internal
 	 */
 	_updateChildTransform(shape: ColliderShape): void {
+		var bt: any = Physics3D._bullet;
 		var offset: Vector3 = shape.localOffset;
 		var rotation: Quaternion = shape.localRotation;
-		var btOffset: any = ColliderShape._btVector30;
-		var btQuaternion: any = ColliderShape._btQuaternion0;
-		var btTransform: any = ColliderShape._btTransform0;
-		btOffset.setValue(-offset.x, offset.y, offset.z);
-		btQuaternion.setValue(-rotation.x, rotation.y, rotation.z, -rotation.w);
-		btTransform.setOrigin(btOffset);
-		btTransform.setRotation(btQuaternion);
-		Physics3D._bullet.btCompoundShape_updateChildTransform(this._btShape, shape._indexInCompound, btTransform, true);
+		var btOffset: number = ColliderShape._btVector30;
+		var btQuaternion: number = ColliderShape._btQuaternion0;
+		var btTransform: number = ColliderShape._btTransform0;
+		bt.btVector3_setValue(btOffset, -offset.x, offset.y, offset.z);
+		bt.btQuaternion_setValue(btQuaternion, -rotation.x, rotation.y, rotation.z, -rotation.w);
+		bt.btTransform_setOrigin(btTransform, btOffset);
+		bt.btTransform_setRotation(btTransform, btQuaternion);
+		bt.btCompoundShape_updateChildTransform(this._btShape, shape._indexInCompound, btTransform, true);
 	}
 
 	/**
