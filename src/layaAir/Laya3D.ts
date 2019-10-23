@@ -828,8 +828,10 @@ export class Laya3D {
 	 * @param	height 3D画布高度。
 	 */
 	static init(width: number, height: number, config: Config3D = null, compolete: Handler = null): void {
-		if (Laya3D._isInit)
+		if (Laya3D._isInit) {
+			compolete && compolete.run();
 			return;
+		}
 		Laya3D._isInit = true;
 		(config) && (config.cloneTo(Config3D._config));
 		config = Config3D._config;

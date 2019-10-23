@@ -634,7 +634,7 @@ export class PhysicsComponent extends Component {
 		this.rollingFriction = this._rollingFriction;
 		this.ccdMotionThreshold = this._ccdMotionThreshold;
 		this.ccdSweptSphereRadius = this._ccdSweptSphereRadius;
-		((<Sprite3D>this.owner)).transform.on(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
+		(<Sprite3D>this.owner).transform.on(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
 	}
 
 	/**

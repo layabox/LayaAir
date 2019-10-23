@@ -65,7 +65,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	}
 
 	/** @internal */
-	private _btMotionState: number;
+	private _btLayaMotionState: number;
 	/** @internal */
 	private _isKinematic: boolean = false;
 	/** @internal */
@@ -400,7 +400,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	 */
 	_onAdded(): void {
 		var bt: any = Physics3D._bullet;
-		var motionState: number = bt.LayaMotionState_create();
+		var motionState: number = bt.layaMotionState_create();
 		// var isConchApp: boolean = ((<any>window).conch != null);
 		// if (isConchApp && physics3D.LayaMotionState.prototype.setRigidbody) {
 		// motionState.setRigidbody(this);
@@ -412,7 +412,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		// }
 
 		bt.layaMotionState_set_rigidBodyID(motionState, this._id);
-		this._btMotionState = motionState;
+		this._btLayaMotionState = motionState;
 		var constructInfo: number = bt.btRigidBodyConstructionInfo_create(0.0, motionState, null, Rigidbody3D._btVector3Zero);
 		var btRigid: number = bt.btRigidBody_create(constructInfo);
 		bt.btCollisionObject_setUserIndex(btRigid, this.id);
@@ -476,7 +476,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	 * @override
 	 */
 	protected _onDestroy(): void {
-		Physics3D._bullet.btMotionState_destroy(this._btMotionState);
+		Physics3D._bullet.btMotionState_destroy(this._btLayaMotionState);
 
 		////Remove constraints safely
 		//var toremove = new FastList<Constraint>();
@@ -494,7 +494,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		////~Remove constraints
 
 		super._onDestroy();
-		this._btMotionState = null;
+		this._btLayaMotionState = null;
 		this._gravity = null;
 		this._totalTorque = null;
 		this._linearVelocity = null;

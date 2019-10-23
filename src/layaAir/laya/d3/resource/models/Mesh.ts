@@ -74,7 +74,7 @@ export class Mesh extends Resource implements IClone {
 	}
 
 	/** @internal */
-	private _nativeTriangleMesh: any;
+	private _btTriangleMesh: number;
 	/** @internal */
 	private _minVerticesUpdate: number = -1;
 	/** @internal */
@@ -322,19 +322,19 @@ export class Mesh extends Resource implements IClone {
 	protected _disposeResource(): void {
 		for (var i: number = 0, n: number = this._subMeshes.length; i < n; i++)
 			this._subMeshes[i].destroy();
-		this._nativeTriangleMesh && (<any>window).Physics3D.destroy(this._nativeTriangleMesh);
+		this._btTriangleMesh && Physics3D._bullet.btStridingMeshInterface_destroy(this._btTriangleMesh);
 		this._vertexBuffer.destroy();
 		this._indexBuffer.destroy();
-		this._setCPUMemory(0);
-		this._setGPUMemory(0);
 		this._bufferState.destroy();
 		this._instanceBufferState.destroy();
+		this._setCPUMemory(0);
+		this._setGPUMemory(0);
 		this._bufferState = null;
 		this._instanceBufferState = null;
 		this._vertexBuffer = null;
 		this._indexBuffer = null;
 		this._subMeshes = null;
-		this._nativeTriangleMesh = null;
+		this._btTriangleMesh = null;
 		this._indexBuffer = null;
 		this._boneNames = null;
 		this._inverseBindPoses = null;
@@ -376,9 +376,9 @@ export class Mesh extends Resource implements IClone {
 	 * @internal
 	 */
 	_getPhysicMesh(): any {
-		if (!this._nativeTriangleMesh) {
-			var bullet: any = Physics3D._bullet;
-			var triangleMesh: number = bullet.btTriangleMesh_create();//TODO:独立抽象btTriangleMesh,增加内存复用
+		if (!this._btTriangleMesh) {
+			var bt: any = Physics3D._bullet;
+			var triangleMesh: number = bt.btTriangleMesh_create();//TODO:独立抽象btTriangleMesh,增加内存复用
 			var nativePositio0: number = Mesh._nativeTempVector30;
 			var nativePositio1: number = Mesh._nativeTempVector31;
 			var nativePositio2: number = Mesh._nativeTempVector32;
@@ -404,11 +404,11 @@ export class Mesh extends Resource implements IClone {
 				Utils3D._convertToBulletVec3(position0, nativePositio0, true);
 				Utils3D._convertToBulletVec3(position1, nativePositio1, true);
 				Utils3D._convertToBulletVec3(position2, nativePositio2, true);
-				bullet.btTriangleMesh_addTriangle(triangleMesh, nativePositio0, nativePositio1, nativePositio2, true);
+				bt.btTriangleMesh_addTriangle(triangleMesh, nativePositio0, nativePositio1, nativePositio2, true);
 			}
-			this._nativeTriangleMesh = triangleMesh;
+			this._btTriangleMesh = triangleMesh;
 		}
-		return this._nativeTriangleMesh;
+		return this._btTriangleMesh;
 	}
 
 	/**
@@ -733,7 +733,7 @@ export class Mesh extends Resource implements IClone {
 	 * @param	destObject 克隆源。
 	 */
 	cloneTo(destObject: any): void {//[实现IClone接口]
-		var destMesh: Mesh = (<Mesh>destObject);
+		var destMesh: Mesh = <Mesh>destObject;
 		var vb: VertexBuffer3D = this._vertexBuffer;
 		var destVB: VertexBuffer3D = new VertexBuffer3D(vb._byteLength, vb.bufferUsage, vb.canRead);
 		destVB.vertexDeclaration = vb.vertexDeclaration;

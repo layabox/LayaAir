@@ -88,8 +88,8 @@ Our official Layabox Github with complete engine source version, free of charge,
         {
             public function Sprite_DisplayImage()
             {
-                Laya.init(550, 400);
-      		      Laya.stage.scaleMode = "showall";
+                Laya.init(550, 400)；
+                Laya.stage.scaleMode = "showall";
 
                 var ape:Sprite = new Sprite();
                 //Loading our monkey
