@@ -118,7 +118,6 @@ export class TrailSprite3D extends RenderableSprite3D {
 
 		var destTrailFilter: TrailFilter = destTrailSprite3D.trailFilter;
 		destTrailFilter.time = this.trailFilter.time;
-		destTrailFilter.alignment = this.trailFilter.alignment;
 		destTrailFilter.minVertexDistance = this.trailFilter.minVertexDistance;
 		destTrailFilter.widthMultiplier = this.trailFilter.widthMultiplier;
 		destTrailFilter.textureMode = this.trailFilter.textureMode;
