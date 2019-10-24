@@ -32,17 +32,12 @@ export class SkyRenderer {
 	private _mesh: SkyMesh = SkyBox.instance;
 
 	/**
-	 * 获取材质。
-	 * @return 材质。
+	 * 材质。
 	 */
 	get material(): Material {
 		return this._material;
 	}
 
-	/**
-	 * 设置材质。
-	 * @param 材质。
-	 */
 	set material(value: Material) {
 		if (this._material !== value) {
 			(this._material) && (this._material._removeReference());
@@ -52,17 +47,12 @@ export class SkyRenderer {
 	}
 
 	/**
-	 * 获取网格。
-	 * @return 网格。
+	 * 网格。
 	 */
 	get mesh(): SkyMesh {
 		return this._mesh;
 	}
 
-	/**
-	 * 设置网格。
-	 * @param 网格。
-	 */
 	set mesh(value: SkyMesh) {
 		if (this._mesh !== value) {
 			//(_mesh) && (_mesh._removeReference());//TODO:SkyMesh换成Mesh
