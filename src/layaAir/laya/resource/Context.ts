@@ -2414,6 +2414,9 @@ export class Context {
 	 * @param	w
 	 */
 	private _fillTexture_h(tex: Texture, imgid: number, uv: ArrayLike<number>, oriw: number, orih: number, x: number, y: number, w: number): void {
+		if(oriw<=0) 
+			console.error('_fillTexture_h error: oriw must>0');
+
 		var stx: number = x;
 		var num: number = Math.floor(w / oriw);
 		var left: number = w % oriw;
@@ -2444,6 +2447,8 @@ export class Context {
 	 * @param	h
 	 */
 	private _fillTexture_v(tex: Texture, imgid: number, uv: ArrayLike<number>, oriw: number, orih: number, x: number, y: number, h: number): void {
+		if(orih<=0) 
+			console.error('_fillTexture_v error: orih must>0');
 		var sty: number = y;
 		var num: number = Math.floor(h / orih);
 		var left: number = h % orih;
