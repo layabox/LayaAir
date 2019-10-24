@@ -1,4 +1,4 @@
-#ifdef HIGHPRECISION
+#ifdef GL_FRAGMENT_PRECISION_HIGH
 	precision highp float;
 	precision highp int;
 #else

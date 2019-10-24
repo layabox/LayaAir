@@ -1,7 +1,7 @@
 /*
 	texture和fillrect使用的。
 */
-#ifdef FSHIGHPRECISION
+#ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
 #else
 precision mediump float;

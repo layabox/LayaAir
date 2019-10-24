@@ -388,13 +388,6 @@ export class Laya3D {
 			animationClip.prototype._evaluateClipDatasRealTime = animationClip.prototype._evaluateClipDatasRealTimeForNative;
 			skinnedMeshRender.prototype._computeSkinnedData = skinnedMeshRender.prototype._computeSkinnedDataForNative;
 		}
-
-		if (Render.isConchApp) {
-			WebGL.shaderHighPrecision = false;
-			var gl: WebGLRenderingContext = LayaGL.instance;
-			var precisionFormat: any = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT);
-			precisionFormat.precision ? WebGL.shaderHighPrecision = true : WebGL.shaderHighPrecision = false;
-		}
 	}
 
 	/**

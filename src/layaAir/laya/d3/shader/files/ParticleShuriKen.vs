@@ -1,6 +1,6 @@
 #include "Lighting.glsl";
 
-#ifdef HIGHPRECISION
+#ifdef GL_FRAGMENT_PRECISION_HIGH
   precision highp float;
 #else
   precision mediump float;

@@ -184,10 +184,6 @@ export class ShaderPass extends ShaderCompile {
 		var debugShader: Shader3D = debugSubShader._owner;
 		var deugDefines: string[] = ShaderPass._debugDefineString;
 		Shader3D._getNamesByDefineData(compileDefine, deugDefines);
-		if (WebGL.shaderHighPrecision) {
-			var index = deugDefines.indexOf("HIGHPRECISION");
-			(index !== -1) && (deugDefines.splice(index, 1));
-		}
 		if (!Config3D._config._multiLighting) {
 			var index = deugDefines.indexOf("LEGACYSINGLELIGHTING");
 			(index !== -1) && (deugDefines.splice(index, 1));
@@ -268,11 +264,6 @@ export class ShaderPass extends ShaderCompile {
 			var defStr: string = "";
 			var defMask: string = "";
 
-			if (WebGL.shaderHighPrecision) {//输出宏定义要保持设备无关性
-				compileDefine.remove(Shader3D.SHADERDEFINE_HIGHPRECISION);
-				var index = defineString.indexOf("HIGHPRECISION");
-				(index !== -1) && (defineString.splice(index, 1));
-			}
 			if (!config._multiLighting) {
 				compileDefine.remove(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING);
 				var index = defineString.indexOf("LEGACYSINGLELIGHTING");

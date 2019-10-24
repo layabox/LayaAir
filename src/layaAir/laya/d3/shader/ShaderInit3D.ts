@@ -68,7 +68,6 @@ export class ShaderInit3D {
 	 * @internal
 	 */
 	static __init__(): void {
-		Shader3D.SHADERDEFINE_HIGHPRECISION = Shader3D.getDefineByName("HIGHPRECISION");
 		Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING = Shader3D.getDefineByName("LEGACYSINGLELIGHTING");
 
 		Shader3D.addInclude("Lighting.glsl", LightingGLSL);

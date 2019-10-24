@@ -10,7 +10,6 @@ export class ShaderDefines2D extends ShaderDefinesBase {
     static WORLDMAT: number = 0x80;
     static FILLTEXTURE: number = 0x100;
     static SKINMESH: number = 0x200;
-    static SHADERDEFINE_FSHIGHPRECISION: number = 0x400;
     static MVP3D: number = 0x800;
 
     static NOOPTMASK: number = ShaderDefines2D.FILTERGLOW | ShaderDefines2D.FILTERBLUR | ShaderDefines2D.FILTERCOLOR | ShaderDefines2D.FILLTEXTURE;	//有这些定义的不要优化。见submittexture
@@ -30,7 +29,6 @@ export class ShaderDefines2D extends ShaderDefinesBase {
 
         ShaderDefines2D.reg("WORLDMAT", ShaderDefines2D.WORLDMAT);
         ShaderDefines2D.reg("FILLTEXTURE", ShaderDefines2D.FILLTEXTURE);
-        ShaderDefines2D.reg("FSHIGHPRECISION", ShaderDefines2D.SHADERDEFINE_FSHIGHPRECISION);
         ShaderDefines2D.reg('MVP3D', ShaderDefines2D.MVP3D);
     }
 

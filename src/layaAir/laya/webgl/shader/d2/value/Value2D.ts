@@ -141,7 +141,7 @@ import { ILaya } from "../../../../../ILaya";
 		
 		 clear():void
 		{
-			this.defines._value=this.subID + (ILaya.WebGL.shaderHighPrecision?ShaderDefines2D.SHADERDEFINE_FSHIGHPRECISION:0);
+			this.defines._value=this.subID;
 			this.clipOff[0] = 0;
 		}
 		
