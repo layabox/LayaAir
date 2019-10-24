@@ -82,9 +82,6 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	private _totalTorque: Vector3 = new Vector3(0, 0, 0);
 	/** @internal */
 	private _totalForce: Vector3 = new Vector3(0, 0, 0);
-
-	//private var _linkedConstraints:Array;//TODO:
-
 	/** @internal */
 	private _linearVelocity: Vector3 = new Vector3();
 	/** @internal */
@@ -95,6 +92,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	private _angularFactor: Vector3 = new Vector3(1, 1, 1);
 	/** @internal */
 	private _detectCollisions: boolean = true;
+	//private var _linkedConstraints:Array;//TODO:
 
 	/**
 	 * 质量。
