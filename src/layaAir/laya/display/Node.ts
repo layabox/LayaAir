@@ -176,6 +176,13 @@ export class Node extends EventDispatcher {
     }
 
     /**
+     * 获取所有子节点
+     */
+    get children():Array<Node>{
+        return this._children;
+    }
+    
+    /**
      * 添加子节点。
      * @param	node 节点对象
      * @return	返回添加的节点
