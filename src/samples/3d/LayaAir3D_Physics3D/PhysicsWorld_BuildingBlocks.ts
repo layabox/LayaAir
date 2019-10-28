@@ -32,7 +32,7 @@ export class PhysicsWorld_BuildingBlocks {
 	private hasSelectedSprite: Sprite3D;
 	private hasSelectedRigidBody: Rigidbody3D;
 	private ZERO = new Vector3(0, 0, 0);
-	private ONE = new Vector3(0, 0, 0);
+	private ONE = new Vector3(1, 1, 1);
 	private posX: number;
 	private posY: number;
 	private delX: number;
@@ -142,8 +142,8 @@ export class PhysicsWorld_BuildingBlocks {
 		this.camera.viewportPointToRay(this.point, this.ray);
 		this.scene.physicsSimulation.rayCast(this.ray, this._outHitResult);
 		if (this._outHitResult.succeeded) {
-			var collider: Rigidbody3D = (<Rigidbody3D>this._outHitResult.collider);
-			this.hasSelectedSprite = (<Sprite3D>collider.owner);
+			var collider: Rigidbody3D = <Rigidbody3D>this._outHitResult.collider;
+			this.hasSelectedSprite = <Sprite3D>collider.owner;
 			this.hasSelectedRigidBody = collider;
 			collider.angularFactor = this.ZERO;
 			collider.angularVelocity = this.ZERO;
