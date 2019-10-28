@@ -869,13 +869,21 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 */
 	_clear(gl: WebGLRenderingContext, state: RenderContext3D): void {
 		var viewport: Viewport = state.viewport;
-		var camera: Camera = (<Camera>state.camera);
-		var renderTexture: RenderTexture = camera._getInternalRenderTexture();
+		var camera: Camera = <Camera>state.camera;
+		var renderTex: RenderTexture = camera._getRenderTexture();
+		var vpX: number, vpY: number;
 		var vpW: number = viewport.width;
 		var vpH: number = viewport.height;
-		var vpX: number = viewport.x;
-		var vpY: number = camera._getCanvasHeight() - viewport.y - vpH;
+		if (camera._needInternalRenderTexture()) {
+			vpX = 0;
+			vpY = 0;
+		}
+		else {
+			vpX = viewport.x;
+			vpY = camera._getCanvasHeight() - viewport.y - vpH;
+		}
 		gl.viewport(vpX, vpY, vpW, vpH);
+
 		var flag: number;
 		var clearFlag: number = camera.clearFlag;
 		if (clearFlag === BaseCamera.CLEARFLAG_SKY && !(camera.skyRenderer._isAvailable() || this._skyRenderer._isAvailable()))
@@ -890,9 +898,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 					gl.clearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
 				else
 					gl.clearColor(0, 0, 0, 0);
-				if (renderTexture) {
+				if (renderTex) {
 					flag = gl.COLOR_BUFFER_BIT;
-					switch (renderTexture.depthStencilFormat) {
+					switch (renderTex.depthStencilFormat) {
 						case RenderTextureDepthFormat.DEPTH_16:
 							flag |= gl.DEPTH_BUFFER_BIT;
 							break;
@@ -915,8 +923,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			case BaseCamera.CLEARFLAG_DEPTHONLY:
 				gl.enable(gl.SCISSOR_TEST);
 				gl.scissor(vpX, vpY, vpW, vpH);
-				if (renderTexture) {
-					switch (renderTexture.depthStencilFormat) {
+				if (renderTex) {
+					switch (renderTex.depthStencilFormat) {
 						case RenderTextureDepthFormat.DEPTH_16:
 							flag = gl.DEPTH_BUFFER_BIT;
 							break;
@@ -945,16 +953,16 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * @internal
 	 */
 	_renderScene(context: RenderContext3D): void {
-		var camera: Camera = (<Camera>context.camera);
-		var renderTar: RenderTexture = camera._getInternalRenderTexture();
-		renderTar ? this._opaqueQueue._render(context, true) : this._opaqueQueue._render(context, false);//非透明队列
+		var camera: Camera = <Camera>context.camera;
+		var renderTex: RenderTexture = camera._getRenderTexture();
+		renderTex ? this._opaqueQueue._render(context, true) : this._opaqueQueue._render(context, false);//非透明队列
 		if (camera.clearFlag === BaseCamera.CLEARFLAG_SKY) {
 			if (camera.skyRenderer._isAvailable())
 				camera.skyRenderer._render(context);
 			else if (this._skyRenderer._isAvailable())
 				this._skyRenderer._render(context);
 		}
-		renderTar ? this._transparentQueue._render(context, true) : this._transparentQueue._render(context, false);//透明队列
+		renderTex ? this._transparentQueue._render(context, true) : this._transparentQueue._render(context, false);//透明队列
 
 		if (FrustumCulling.debugFrustumCulling) {
 			var renderElements: RenderElement[] = this._debugTool._render._renderElements;

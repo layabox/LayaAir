@@ -74,7 +74,7 @@ export class Camera extends BaseCamera {
 	/** @internal 渲染目标。*/
 	_offScreenRenderTexture: RenderTexture = null;
 	/**@internal */
-	_renderTexture: RenderTexture = null;
+	_internalRenderTexture: RenderTexture = null;
 	/** @internal */
 	_postProcessCommandBuffers: CommandBuffer[] = [];
 	/** @internal */
@@ -83,6 +83,8 @@ export class Camera extends BaseCamera {
 	_clusterYPlanes: Vector3[];
 	/** @internal */
 	_clusterPlaneCacheFlag: Vector2 = new Vector2(-1, -1);
+	/**@internal */
+	_screenOffsetScale: Vector4 = new Vector4();
 
 	/**是否允许渲染。*/
 	enableRender: boolean = true;
@@ -380,6 +382,16 @@ export class Camera extends BaseCamera {
 	/**
 	 * @internal
 	 */
+	_getCanvasWidth(): number {
+		if (this._offScreenRenderTexture)
+			return this._offScreenRenderTexture.width;
+		else
+			return RenderContext3D.clientWidth;
+	}
+
+	/**
+	 * @internal
+	 */
 	_getCanvasHeight(): number {
 		if (this._offScreenRenderTexture)
 			return this._offScreenRenderTexture.height;
@@ -387,8 +399,18 @@ export class Camera extends BaseCamera {
 			return RenderContext3D.clientHeight;
 	}
 
-	_getInternalRenderTexture(): RenderTexture {
-		return this._renderTexture || this._offScreenRenderTexture;
+	/**
+	 * @internal
+	 */
+	_getRenderTexture(): RenderTexture {
+		return this._internalRenderTexture || this._offScreenRenderTexture;
+	}
+
+	/**
+	 * @internal
+	 */
+	_needInternalRenderTexture(): boolean {
+		return this._postProcess || this._enableHDR ? true : false;//condition of internal RT
 	}
 
 	/**
@@ -417,7 +439,7 @@ export class Camera extends BaseCamera {
 		super._prepareCameraToRender();
 		var vp: Viewport = this.viewport;
 		this._viewportParams.setValue(vp.x, vp.y, vp.width, vp.height);
-		this._projectionParams.setValue(this._nearPlane, this._farPlane, this._getInternalRenderTexture() ? -1 : 1, 0);
+		this._projectionParams.setValue(this._nearPlane, this._farPlane, this._getRenderTexture() ? -1 : 1, 0);
 		this._shaderValues.setVector(BaseCamera.VIEWPORT, this._viewportParams);
 		this._shaderValues.setVector(BaseCamera.PROJECTION_PARAMS, this._projectionParams);
 	}
@@ -499,16 +521,17 @@ export class Camera extends BaseCamera {
 	 * @param replacementTag 替换标记。
 	 */
 	render(shader: Shader3D = null, replacementTag: string = null): void {
-		if (!this._scene) //自定义相机渲染需要加保护判断是否在场景中,否则报错
+		if (!this.activeInHierarchy) //custom render should protected with activeInHierarchy=true,or will get the error
 			return;
 
-		var createRenderTexture: boolean = this._postProcess || this._enableHDR ? true : false;
-		if (createRenderTexture) //需要强制配置渲染纹理的条件
-			this._renderTexture = RenderTexture.createFromPool(RenderContext3D.clientWidth, RenderContext3D.clientHeight, this._getRenderTextureFormat(), RenderTextureDepthFormat.DEPTH_16, BaseTexture.FILTERMODE_BILINEAR);
+		var viewport: Viewport = this.viewport;
+		var needInternalRT: boolean = this._needInternalRenderTexture();
+		if (needInternalRT)
+			this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), RenderTextureDepthFormat.DEPTH_16, BaseTexture.FILTERMODE_BILINEAR);
 
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		var context: RenderContext3D = RenderContext3D._instance;
-		var scene: Scene3D = context.scene = (<Scene3D>this._scene);
+		var scene: Scene3D = context.scene = <Scene3D>this._scene;
 		if (scene.parallelSplitShadowMaps[0]) {//TODO:SM
 			ShaderData.setRuntimeValueMode(false);
 			var parallelSplitShadowMap: ParallelSplitShadowMap = scene.parallelSplitShadowMaps[0];
@@ -517,7 +540,7 @@ export class Camera extends BaseCamera {
 			for (var i: number = 0, n: number = parallelSplitShadowMap.shadowMapCount; i < n; i++) {
 				var smCamera: Camera = parallelSplitShadowMap.cameras[i];
 				context.camera = smCamera;
-				FrustumCulling.renderObjectCulling(smCamera, scene, context, shader, replacementTag,true);
+				FrustumCulling.renderObjectCulling(smCamera, scene, context, shader, replacementTag, true);
 
 				var shadowMap: RenderTexture = parallelSplitShadowMap.cameras[i + 1].renderTarget;
 				shadowMap._start();
@@ -538,29 +561,31 @@ export class Camera extends BaseCamera {
 		context.camera = this;
 		Camera._updateMark++;
 		scene._preRenderScript();//TODO:duo相机是否重复
-		var renderTar: RenderTexture = this._getInternalRenderTexture();//如果有临时renderTexture则画到临时renderTexture,最后再画到屏幕或者离屏画布,如果无临时renderTexture则直接画到屏幕或离屏画布
-		(renderTar) && (renderTar._start());
-		context.viewport = this.viewport;
+		var renderTex: RenderTexture = this._getRenderTexture();//如果有临时renderTexture则画到临时renderTexture,最后再画到屏幕或者离屏画布,如果无临时renderTexture则直接画到屏幕或离屏画布
+		(renderTex) && (renderTex._start());
+		context.viewport = viewport;
 		this._prepareCameraToRender();
 		var multiLighting: boolean = Config3D._config._multiLighting;
 		(multiLighting) && (Cluster.instance.update(this, <Scene3D>(this._scene)));
-		this._applyViewProject(context, this.viewMatrix, this._projectionMatrix, renderTar ? true : false);
+		this._applyViewProject(context, this.viewMatrix, this._projectionMatrix, renderTex ? true : false);
 		scene._preCulling(context, this, shader, replacementTag);
 		scene._clear(gl, context);
 		scene._renderScene(context);
 		scene._postRenderScript();//TODO:duo相机是否重复
-		(renderTar) && (renderTar._end());
+		(renderTex) && (renderTex._end());
 
-		if (createRenderTexture) {
+		if (needInternalRT) {
 			if (this._postProcess) {
 				this._postProcess._render();
 				this._applyPostProcessCommandBuffers();
 			} else if (this._enableHDR) {
-				var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(this._renderTexture, this._offScreenRenderTexture ? this._offScreenRenderTexture : null);
+				var canvasWidth: number = this._getCanvasWidth(), canvasHeight: number = this._getCanvasHeight();
+				this._screenOffsetScale.setValue(viewport.x / canvasWidth, viewport.y / canvasHeight, viewport.width / canvasWidth, viewport.height / canvasHeight);
+				var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(this._internalRenderTexture, this._offScreenRenderTexture ? this._offScreenRenderTexture : null, this._screenOffsetScale);
 				blit.run();
 				blit.recover();
 			}
-			RenderTexture.recoverToPool(this._renderTexture);
+			RenderTexture.recoverToPool(this._internalRenderTexture);
 		}
 	}
 

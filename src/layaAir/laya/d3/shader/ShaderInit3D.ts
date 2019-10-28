@@ -653,7 +653,8 @@ export class ShaderInit3D {
 			'a_PositionTexcoord': VertexMesh.MESH_POSITION0
 		};
 		uniformMap = {
-			'u_MainTex': Shader3D.PERIOD_MATERIAL
+			'u_MainTex': Shader3D.PERIOD_MATERIAL,
+			'u_OffsetScale': Shader3D.PERIOD_MATERIAL
 		};
 		shader = Shader3D.add("BlitScreen");
 		subShader = new SubShader(attributeMap, uniformMap);

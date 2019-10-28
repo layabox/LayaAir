@@ -102,7 +102,7 @@ export class SkyRenderer {
 				shader._uploadScene = scene;
 			}
 
-			var renderTar: RenderTexture = camera._getInternalRenderTexture();
+			var renderTex: RenderTexture = camera._getRenderTexture();
 			var uploadCamera: boolean = (shader._uploadCamera !== camera) || switchShaderLoop;
 			if (uploadCamera || switchShader) {
 				var viewMatrix: Matrix4x4 = SkyRenderer._tempMatrix0;
@@ -142,7 +142,7 @@ export class SkyRenderer {
 				projectionMatrix.elements[11] = -1.0;
 				projectionMatrix.elements[14] = -0;//znear无穷小
 
-				(<Camera>camera)._applyViewProject(state, viewMatrix, projectionMatrix, renderTar ? true : false);//TODO:优化 不应设置给Camera直接提交
+				(<Camera>camera)._applyViewProject(state, viewMatrix, projectionMatrix, renderTex ? true : false);//TODO:优化 不应设置给Camera直接提交
 				shader.uploadUniforms(shader._cameraUniformParamsMap, camera._shaderValues, uploadCamera);
 				shader._uploadCamera = camera;
 			}
@@ -160,7 +160,7 @@ export class SkyRenderer {
 
 			WebGLContext.setDepthFunc(gl, gl.LESS);
 			WebGLContext.setDepthMask(gl, true);
-			(<Camera>camera)._applyViewProject(state, (<Camera>camera).viewMatrix, (<Camera>camera).projectionMatrix, renderTar ? true : false);
+			(<Camera>camera)._applyViewProject(state, (<Camera>camera).viewMatrix, (<Camera>camera).projectionMatrix, renderTex ? true : false);
 		}
 	}
 

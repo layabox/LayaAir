@@ -1,6 +1,8 @@
+import { LayaGL } from "../../../../layagl/LayaGL";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Vector4 } from "../../../math/Vector4";
 import { RenderTexture } from "../../../resource/RenderTexture";
+import { DefineDatas } from "../../../shader/DefineDatas";
 import { Shader3D } from "../../../shader/Shader3D";
 import { ShaderData } from "../../../shader/ShaderData";
 import { ShaderInstance } from "../../../shader/ShaderInstance";
@@ -10,27 +12,29 @@ import { RenderContext3D } from "../RenderContext3D";
 import { ScreenQuad } from "../ScreenQuad";
 import { ScreenTriangle } from "../ScreenTriangle";
 import { Command } from "./Command";
-import { LayaGL } from "../../../../layagl/LayaGL";
-import { DefineDatas } from "../../../shader/DefineDatas";
 
 /**
- * <code>BlitCMD</code> 类用于创建从一张渲染目标输出到另外一张渲染目标指令。
+ * <code>BlitScreenQuadCMD</code> 类用于创建从一张渲染目标输出到另外一张渲染目标指令。
  */
 export class BlitScreenQuadCMD extends Command {
 	/**@internal */
 	static _SCREENTYPE_QUAD: number = 0;
 	/**@internal */
 	static _SCREENTYPE_TRIANGLE: number = 1;
+
 	/** @internal */
 	private static _compileDefine: DefineDatas = new DefineDatas();
-
 	/**@internal */
 	private static _pool: any[] = [];
+	/** @internal */
+	private static _defaultOffsetScale: Vector4 = new Vector4(0, 0, 1, 1);
 
 	/**@internal */
 	private _source: BaseTexture = null;
 	/**@internal */
 	private _dest: RenderTexture = null;
+	/**@internal */
+	private _offsetScale: Vector4 = null;
 	/**@internal */
 	private _shader: Shader3D = null;
 	/**@internal */
@@ -45,11 +49,12 @@ export class BlitScreenQuadCMD extends Command {
 	/**
 	 * 
 	 */
-	static create(source: BaseTexture, dest: RenderTexture, shader: Shader3D = null, shaderData: ShaderData = null, subShader: number = 0, screenType: number = BlitScreenQuadCMD._SCREENTYPE_QUAD): BlitScreenQuadCMD {
+	static create(source: BaseTexture, dest: RenderTexture, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null, subShader: number = 0, screenType: number = BlitScreenQuadCMD._SCREENTYPE_QUAD): BlitScreenQuadCMD {
 		var cmd: BlitScreenQuadCMD;
 		cmd = BlitScreenQuadCMD._pool.length > 0 ? BlitScreenQuadCMD._pool.pop() : new BlitScreenQuadCMD();
 		cmd._source = source;
 		cmd._dest = dest;
+		cmd._offsetScale = offsetScale;
 		cmd._shader = shader;
 		cmd._shaderData = shaderData;
 		cmd._subShader = subShader;
@@ -70,6 +75,7 @@ export class BlitScreenQuadCMD extends Command {
 
 		//TODO:优化
 		shaderData.setTexture(Command.SCREENTEXTURE_ID, this._source);
+		shaderData.setVector(Command.SCREENTEXTUREOFFSETSCALE_ID, this._offsetScale || BlitScreenQuadCMD._defaultOffsetScale);
 		this._sourceTexelSize.setValue(1.0 / this._source.width, 1.0 / this._source.height, this._source.width, this._source.height);
 		shaderData.setVector(Command.MAINTEXTURE_TEXELSIZE_ID, this._sourceTexelSize);
 

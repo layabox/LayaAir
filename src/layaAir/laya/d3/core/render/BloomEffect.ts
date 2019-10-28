@@ -248,7 +248,7 @@ export class BloomEffect extends PostProcessEffect {
 				this._pyramid[upIndex] = mipUpTexture;
 			}
 
-			cmd.blitScreenTriangle(lastDownTexture, mipDownTexture, this._shader, this._shaderData, subShader);
+			cmd.blitScreenTriangle(lastDownTexture, mipDownTexture,null, this._shader, this._shaderData, subShader);
 
 			lastDownTexture = mipDownTexture;
 			tw = Math.max(Math.floor(tw / 2), 1);
@@ -262,7 +262,7 @@ export class BloomEffect extends PostProcessEffect {
 			mipDownTexture = this._pyramid[downIndex];
 			mipUpTexture = this._pyramid[upIndex];
 			cmd.setShaderDataTexture(this._shaderData, BloomEffect.SHADERVALUE_BLOOMTEX, mipDownTexture);//通过指令延迟设置
-			cmd.blitScreenTriangle(lastUpTexture, mipUpTexture, this._shader, this._shaderData, BloomEffect.SUBSHADER_UPSAMPLETENT + qualityOffset);
+			cmd.blitScreenTriangle(lastUpTexture, mipUpTexture,null, this._shader, this._shaderData, BloomEffect.SUBSHADER_UPSAMPLETENT + qualityOffset);
 			lastUpTexture = mipUpTexture;
 		}
 
