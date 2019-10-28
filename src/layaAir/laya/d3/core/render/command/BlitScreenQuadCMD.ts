@@ -91,6 +91,7 @@ export class BlitScreenQuadCMD extends Command {
 				case BlitScreenQuadCMD._SCREENTYPE_TRIANGLE:
 					dest ? ScreenTriangle.instance.renderInvertUV() : ScreenTriangle.instance.render();
 					break;
+				default:
 					throw "BlitScreenQuadCMD:unknown screen Type.";
 			}
 		}

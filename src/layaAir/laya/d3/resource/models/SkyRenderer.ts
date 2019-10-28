@@ -3,6 +3,7 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { Stat } from "../../../utils/Stat";
 import { WebGLContext } from "../../../webgl/WebGLContext";
 import { Camera } from "../../core/Camera";
+import { Material } from "../../core/material/Material";
 import { RenderContext3D } from "../../core/render/RenderContext3D";
 import { Scene3D } from "../../core/scene/Scene3D";
 import { Matrix4x4 } from "../../math/Matrix4x4";
@@ -13,7 +14,6 @@ import { ShaderInstance } from "../../shader/ShaderInstance";
 import { RenderTexture } from "../RenderTexture";
 import { SkyBox } from "./SkyBox";
 import { SkyMesh } from "./SkyMesh";
-import { Material } from "../../core/material/Material";
 
 /**
  * <code>SkyRenderer</code> 类用于实现天空渲染器。
@@ -161,8 +161,6 @@ export class SkyRenderer {
 			WebGLContext.setDepthFunc(gl, gl.LESS);
 			WebGLContext.setDepthMask(gl, true);
 			(<Camera>camera)._applyViewProject(state, (<Camera>camera).viewMatrix, (<Camera>camera).projectionMatrix, renderTar ? true : false);
-
-
 		}
 	}
 
