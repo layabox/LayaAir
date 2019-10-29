@@ -88,6 +88,7 @@ export class BaseMaterial extends Resource implements IClone {
 		this._shaderValues = new ShaderData(this);
 		this.renderQueue = Material.RENDERQUEUE_OPAQUE;
 		this._alphaTest = false;
+		console.warn(" BaseMaterial has deprecated,please use Material instead.");
 	}
 
 	/**
@@ -98,7 +99,7 @@ export class BaseMaterial extends Resource implements IClone {
 		for (var k in data) {
 			var value: any = data[k];
 			if (value && value instanceof BaseTexture)//TODO:需要优化,杜绝is判断，慢
-				((<BaseTexture>value))._removeReference();
+				(<BaseTexture>value)._removeReference();
 		}
 	}
 
@@ -111,7 +112,7 @@ export class BaseMaterial extends Resource implements IClone {
 		for (var k in data) {
 			var value: any = data[k];
 			if (value && value instanceof BaseTexture)//TODO:需要优化,杜绝is判断，慢
-				((<BaseTexture>value))._addReference();
+				(<BaseTexture>value)._addReference();
 		}
 	}
 
