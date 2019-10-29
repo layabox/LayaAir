@@ -155,7 +155,7 @@ export class Material extends Resource implements IClone {
 	_disablePublicDefineDatas: DefineDatas;//TODO:移除
 	/** @internal */
 	_shader: Shader3D;
-	/** @internal */
+	/** @private */
 	_shaderValues: ShaderData = null;//TODO:剥离贴图ShaderValue
 
 	/** 所属渲染队列. */

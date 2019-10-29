@@ -31,15 +31,6 @@ export class BaseCamera extends Sprite3D {
 	/**渲染模式,前向渲染。*/
 	static RENDERINGTYPE_FORWARDRENDERING: string = "FORWARDRENDERING";
 
-	/**清除标记，固定颜色。*/
-	static CLEARFLAG_SOLIDCOLOR: number = 0;
-	/**清除标记，天空。*/
-	static CLEARFLAG_SKY: number = 1;
-	/**清除标记，仅深度。*/
-	static CLEARFLAG_DEPTHONLY: number = 2;
-	/**清除标记，不清除。*/
-	static CLEARFLAG_NONE: number = 3;
-
 	protected static _invertYScaleMatrix: Matrix4x4 = new Matrix4x4(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);//Matrix4x4.createScaling(new Vector3(1, -1, 1), _invertYScaleMatrix);
 	protected static _invertYProjectionMatrix: Matrix4x4 = new Matrix4x4();
 	protected static _invertYProjectionViewMatrix: Matrix4x4 = new Matrix4x4();
@@ -72,8 +63,6 @@ export class BaseCamera extends Sprite3D {
 	/** @internal */
 	_shaderValues: ShaderData;
 
-	/**清楚标记。*/
-	clearFlag: number;
 	/**摄像机的清除颜色,默认颜色为CornflowerBlue。*/
 	clearColor: Vector4 = new Vector4(100 / 255, 149 / 255, 237 / 255, 255 / 255);
 	/** 可视层位标记遮罩值,支持混合 例:cullingMask=Math.pow(2,0)|Math.pow(2,1)为第0层和第1层可见。*/
@@ -178,7 +167,6 @@ export class BaseCamera extends Sprite3D {
 		this._farPlane = farPlane;
 
 		this.cullingMask = 2147483647/*int.MAX_VALUE*/;
-		this.clearFlag = BaseCamera.CLEARFLAG_SOLIDCOLOR;
 		this.useOcclusionCulling = true;
 	}
 
@@ -330,8 +318,6 @@ export class BaseCamera extends Sprite3D {
 	 */
 	_parse(data: any, spriteMap: any): void {
 		super._parse(data, spriteMap);
-		var clearFlagData: any = data.clearFlag;
-		(clearFlagData !== undefined) && (this.clearFlag = clearFlagData);
 
 		this.orthographic = data.orthographic;
 		(data.orthographicVerticalSize !== undefined) && (this.orthographicVerticalSize = data.orthographicVerticalSize);
@@ -368,6 +354,13 @@ export class BaseCamera extends Sprite3D {
 		return new BaseCamera();
 	}
 
-
+	/** @deprecated plaease use CameraClearFlags.SolidColor instead.*/
+	static CLEARFLAG_SOLIDCOLOR: number = 0;
+	/** @deprecated plaease use CameraClearFlags.Sky instead.*/
+	static CLEARFLAG_SKY: number = 1;
+	/** @deprecated plaease use CameraClearFlags.DepthOnly instead.*/
+	static CLEARFLAG_DEPTHONLY: number = 2;
+	/** @deprecated plaease use CameraClearFlags.Nothing instead.*/
+	static CLEARFLAG_NONE: number = 3;
 }
 

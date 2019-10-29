@@ -6,6 +6,7 @@ import { LayaGL } from "../../layagl/LayaGL";
 import { Render } from "../../renders/Render";
 import { BaseTexture } from "../../resource/BaseTexture";
 import { RenderTextureDepthFormat, RenderTextureFormat } from "../../resource/RenderTextureFormat";
+import { WebGLContext } from "../../webgl/WebGLContext";
 import { PostProcess } from "../component/PostProcess";
 import { FrustumCulling } from "../graphics/FrustumCulling";
 import { Cluster } from "../graphics/renderPath/Cluster";
@@ -31,6 +32,20 @@ import { RenderQueue } from "./render/RenderQueue";
 import { Scene3D } from "./scene/Scene3D";
 import { Scene3DShaderDeclaration } from "./scene/Scene3DShaderDeclaration";
 import { Transform3D } from "./Transform3D";
+
+/**
+ * 相机清除标记。
+ */
+enum CameraClearFlags {
+	/**固定颜色。*/
+	SolidColor = 0,
+	/**天空。*/
+	Sky = 1,
+	/**仅深度。*/
+	DepthOnly = 2,
+	/**不清除。*/
+	Nothing = 3
+}
 
 /**
  * <code>Camera</code> 类用于创建摄像机。
@@ -88,6 +103,8 @@ export class Camera extends BaseCamera {
 
 	/**是否允许渲染。*/
 	enableRender: boolean = true;
+	/**清除标记。*/
+	clearFlag: CameraClearFlags = CameraClearFlags.SolidColor;
 
 	/**
 	 * 横纵比。
@@ -266,21 +283,18 @@ export class Camera extends BaseCamera {
 
 	/**
 	 * 是否开启HDR。
+	 * 开启后对性能有一定影响。
 	 */
 	get enableHDR(): boolean {
 		return this._enableHDR;
 	}
 
 	set enableHDR(value: boolean) {
-		if (value) {
-			if (SystemUtils.supportRenderTextureFormat(RenderTextureFormat.R16G16B16A16))
-				this._enableHDR = true;
-			else
-				console.warn("Camera:can't enable HDR in this device.");
+		if (value && !SystemUtils.supportRenderTextureFormat(RenderTextureFormat.R16G16B16A16)) {
+			console.warn("Camera:can't enable HDR in this device.");
+			return;
 		}
-		else {
-			this._enableHDR = false;
-		}
+		this._enableHDR = value;
 	}
 
 	/**
@@ -372,6 +386,8 @@ export class Camera extends BaseCamera {
 	 */
 	_parse(data: any, spriteMap: any): void {
 		super._parse(data, spriteMap);
+		var clearFlagData: any = data.clearFlag;
+		(clearFlagData !== undefined) && (this.clearFlag = clearFlagData);
 		var viewport: any[] = data.viewport;
 		this.normalizedViewport = new Viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 		var enableHDR: boolean = data.enableHDR;
@@ -521,17 +537,19 @@ export class Camera extends BaseCamera {
 	 * @param replacementTag 替换标记。
 	 */
 	render(shader: Shader3D = null, replacementTag: string = null): void {
-		if (!this.activeInHierarchy) //custom render should protected with activeInHierarchy=true,or will get the error
+		if (!this.activeInHierarchy) //custom render should protected with activeInHierarchy=true
 			return;
 
 		var viewport: Viewport = this.viewport;
 		var needInternalRT: boolean = this._needInternalRenderTexture();
-		if (needInternalRT)
-			this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), RenderTextureDepthFormat.DEPTH_16, BaseTexture.FILTERMODE_BILINEAR);
-
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		var context: RenderContext3D = RenderContext3D._instance;
 		var scene: Scene3D = context.scene = <Scene3D>this._scene;
+
+		if (needInternalRT)
+			this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), RenderTextureDepthFormat.DEPTH_16, BaseTexture.FILTERMODE_BILINEAR);
+		else
+			this._internalRenderTexture = null;
 		if (scene.parallelSplitShadowMaps[0]) {//TODO:SM
 			ShaderData.setRuntimeValueMode(false);
 			var parallelSplitShadowMap: ParallelSplitShadowMap = scene.parallelSplitShadowMaps[0];
@@ -561,6 +579,23 @@ export class Camera extends BaseCamera {
 		context.camera = this;
 		Camera._updateMark++;
 		scene._preRenderScript();//TODO:duo相机是否重复
+		//if needInternalRT = true and clearFlag is depthOnly, should grab the backBuffer
+		if (needInternalRT && (!this._offScreenRenderTexture && this.clearFlag == BaseCamera.CLEARFLAG_DEPTHONLY)) {
+			if (this._enableHDR) {//internalRenderTexture is HDR can't directly copy
+				var grabTexture: RenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, RenderTextureFormat.R8G8B8, RenderTextureDepthFormat.DEPTH_16, BaseTexture.FILTERMODE_BILINEAR);
+				WebGLContext.bindTexture(gl, gl.TEXTURE_2D, grabTexture._getSource());
+				gl.copyTexSubImage2D(gl.TEXTURE_2D, 0, 0, 0, viewport.x, RenderContext3D.clientHeight - (viewport.y + viewport.height), viewport.width, viewport.height);
+				var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(grabTexture, this._internalRenderTexture);
+				blit.invertY = true;
+				blit.run();
+				blit.recover();
+				RenderTexture.recoverToPool(grabTexture);
+			}
+			else {
+				WebGLContext.bindTexture(gl, gl.TEXTURE_2D, this._internalRenderTexture._getSource());
+				gl.copyTexSubImage2D(gl.TEXTURE_2D, 0, 0, 0, viewport.x, viewport.y, viewport.width, viewport.height);
+			}
+		}
 		var renderTex: RenderTexture = this._getRenderTexture();//如果有临时renderTexture则画到临时renderTexture,最后再画到屏幕或者离屏画布,如果无临时renderTexture则直接画到屏幕或离屏画布
 		(renderTex) && (renderTex._start());
 		context.viewport = viewport;
