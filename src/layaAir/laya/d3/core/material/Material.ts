@@ -162,6 +162,13 @@ export class Material extends Resource implements IClone {
 	renderQueue: number;
 
 	/**
+	 * 着色器数据。
+	 */
+	get shaderData(): ShaderData {
+		return this._shaderValues;
+	}
+
+	/**
 	 * 透明测试模式裁剪值。
 	 */
 	get alphaTestValue(): number {
@@ -198,6 +205,9 @@ export class Material extends Resource implements IClone {
 		this._alphaTest = false;
 	}
 
+	/**
+	 * @internal
+	 */
 	private _removeTetxureReference(): void {
 		var data: any = this._shaderValues.getData();
 		for (var k in data) {
@@ -205,6 +215,16 @@ export class Material extends Resource implements IClone {
 			if (value && value instanceof BaseTexture)//TODO:需要优化,杜绝is判断，慢
 				(<BaseTexture>value)._removeReference();
 		}
+	}
+
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _disposeResource(): void {
+		if (this._referenceCount > 0)
+			this._removeTetxureReference();
+		this._shaderValues = null;
 	}
 
 	/**
@@ -232,15 +252,7 @@ export class Material extends Resource implements IClone {
 		this._removeTetxureReference();
 	}
 
-	/**
-	 * @inheritDoc
-	 * @override
-	 */
-	protected _disposeResource(): void {
-		if (this._referenceCount > 0)
-			this._removeTetxureReference();
-		this._shaderValues = null;
-	}
+
 
 	/**
 	 * 设置使用Shader名字。
