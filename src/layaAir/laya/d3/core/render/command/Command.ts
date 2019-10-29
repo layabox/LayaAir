@@ -14,9 +14,13 @@ export class Command {
 	/** @internal */
 	static SCREENTEXTURE_NAME: string = "u_MainTex";//todo：
 	/** @internal */
+	static SCREENTEXTUREOFFSETSCALE_NAME: string = "u_OffsetScale";
+	/** @internal */
 	static MAINTEXTURE_TEXELSIZE_NAME: string = "u_MainTex_TexelSize";//todo：
 	/** @internal */
 	static SCREENTEXTURE_ID: number = Shader3D.propertyNameToID(Command.SCREENTEXTURE_NAME);//todo：
+	/** @internal */
+	static SCREENTEXTUREOFFSETSCALE_ID: number = Shader3D.propertyNameToID(Command.SCREENTEXTUREOFFSETSCALE_NAME);//todo：
 	/** @internal */
 	static MAINTEXTURE_TEXELSIZE_ID: number = Shader3D.propertyNameToID(Command.MAINTEXTURE_TEXELSIZE_NAME);//todo：
 

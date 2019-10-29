@@ -11,13 +11,13 @@ import { Component } from "../../components/Component";
  */
 export class CharacterController extends PhysicsComponent {
 	/** @internal */
-	private static _nativeTempVector30: any;
+	private static _btTempVector30: number;
 
 	/**
 	 * @internal
 	 */
 	static __init__(): void {
-		CharacterController._nativeTempVector30 = new Physics3D._physics3D.btVector3(0, 0, 0);
+		CharacterController._btTempVector30 = Physics3D._bullet.btVector3_create(0, 0, 0);
 	}
 
 	/* UP轴_X轴。*/
@@ -41,114 +41,85 @@ export class CharacterController extends PhysicsComponent {
 	private _gravity: Vector3 = new Vector3(0, -9.8 * 3, 0);
 
 	/**@internal */
-	_nativeKinematicCharacter: any = null;
+	_btKinematicCharacter: number = null;
 
 	/**
-	 * 获取角色降落速度。
-	 * @return 角色降落速度。
+	 * 角色降落速度。
 	 */
 	get fallSpeed(): number {
 		return this._fallSpeed;
 	}
 
-	/**
-	 * 设置角色降落速度。
-	 * @param value 角色降落速度。
-	 */
 	set fallSpeed(value: number) {
 		this._fallSpeed = value;
-		this._nativeKinematicCharacter.setFallSpeed(value);
+		Physics3D._bullet.btKinematicCharacterController_setFallSpeed(this._btKinematicCharacter, value);
 	}
 
 	/**
-	 * 获取角色跳跃速度。
-	 * @return 角色跳跃速度。
+	 * 角色跳跃速度。
 	 */
 	get jumpSpeed(): number {
 		return this._jumpSpeed;
 	}
 
-	/**
-	 * 设置角色跳跃速度。
-	 * @param value 角色跳跃速度。
-	 */
 	set jumpSpeed(value: number) {
 		this._jumpSpeed = value;
-		this._nativeKinematicCharacter.setJumpSpeed(value);
+		Physics3D._bullet.btKinematicCharacterController_setJumpSpeed(this._btKinematicCharacter, value);
 	}
 
 	/**
-	 * 获取重力。
-	 * @return 重力。
+	 * 重力。
 	 */
 	get gravity(): Vector3 {
 		return this._gravity;
 	}
 
-	/**
-	 * 设置重力。
-	 * @param value 重力。
-	 */
 	set gravity(value: Vector3) {
 		this._gravity = value;
-		var nativeGravity: any = CharacterController._nativeTempVector30;
-		nativeGravity.setValue(-value.x, value.y, value.z);
-		this._nativeKinematicCharacter.setGravity(nativeGravity);
+		var bt: any = Physics3D._bullet;
+		var btGravity: number = CharacterController._btTempVector30;
+		bt.btVector3_setValue(btGravity, -value.x, value.y, value.z);
+		bt.btKinematicCharacterController_setGravity(this._btKinematicCharacter, btGravity);
 	}
 
 	/**
-	 * 获取最大坡度。
-	 * @return 最大坡度。
+	 * 最大坡度。
 	 */
 	get maxSlope(): number {
 		return this._maxSlope;
 	}
 
-	/**
-	 * 设置最大坡度。
-	 * @param value 最大坡度。
-	 */
 	set maxSlope(value: number) {
 		this._maxSlope = value;
-		this._nativeKinematicCharacter.setMaxSlope((value / 180) * Math.PI);
+		Physics3D._bullet.btKinematicCharacterController_setMaxSlope(this._btKinematicCharacter, (value / 180) * Math.PI);
 	}
 
 	/**
-	 * 获取角色是否在地表。
+	 * 角色是否在地表。
 	 */
 	get isGrounded(): boolean {
-		return this._nativeKinematicCharacter.onGround();
+		return Physics3D._bullet.btKinematicCharacterController_onGround(this._btKinematicCharacter);
 	}
 
 	/**
-	 * 获取角色行走的脚步高度，表示可跨越的最大高度。
-	 * @return 脚步高度。
+	 * 角色行走的脚步高度，表示可跨越的最大高度。
 	 */
 	get stepHeight(): number {
 		return this._stepHeight;
 	}
 
-	/**
-	 * 设置角色行走的脚步高度，表示可跨越的最大高度。
-	 * @param value 脚步高度。
-	 */
 	set stepHeight(value: number) {
 		this._stepHeight = value;
 		this._constructCharacter();
 	}
 
 	/**
-	 * 获取角色的Up轴。
-	 * @return 角色的Up轴。
+	 * 角色的Up轴。
 	 */
 	get upAxis(): Vector3 {
 		return this._upAxis;
 	}
 
-	/**
-	 * 设置角色的Up轴。
-	 * @return 角色的Up轴。
-	 */
 	set upAxis(value: Vector3) {
 		this._upAxis = value;
 		this._constructCharacter();
@@ -162,7 +133,6 @@ export class CharacterController extends PhysicsComponent {
 	 * @param canCollideWith 可产生碰撞的碰撞组。
 	 */
 	constructor(stepheight: number = 0.1, upAxis: Vector3 = null, collisionGroup: number = Physics3DUtils.COLLISIONFILTERGROUP_DEFAULTFILTER, canCollideWith: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER) {
-
 		super(collisionGroup, canCollideWith);
 		this._stepHeight = stepheight;
 		(upAxis) && (this._upAxis = upAxis);
@@ -172,13 +142,13 @@ export class CharacterController extends PhysicsComponent {
 	 * @internal
 	 */
 	private _constructCharacter(): void {
-		var physics3D: any = Physics3D._physics3D;
-		if (this._nativeKinematicCharacter)
-			physics3D.destroy(this._nativeKinematicCharacter);
+		var bt: any = Physics3D._bullet;
+		if (this._btKinematicCharacter)
+			bt.btKinematicCharacterController_destroy(this._btKinematicCharacter);
 
-		var nativeUpAxis: any = CharacterController._nativeTempVector30;
-		nativeUpAxis.setValue(this._upAxis.x, this._upAxis.y, this._upAxis.z);
-		this._nativeKinematicCharacter = new physics3D.btKinematicCharacterController(this._nativeColliderObject, this._colliderShape._nativeShape, this._stepHeight, nativeUpAxis);
+		var btUpAxis: number = CharacterController._btTempVector30;
+		bt.btVector3_setValue(btUpAxis, this._upAxis.x, this._upAxis.y, this._upAxis.z);
+		this._btKinematicCharacter = bt.btKinematicCharacterController_create(this._btColliderObject, this._colliderShape._btShape, this._stepHeight, btUpAxis);
 		this.fallSpeed = this._fallSpeed;
 		this.maxSlope = this._maxSlope;
 		this.jumpSpeed = this._jumpSpeed;
@@ -201,15 +171,14 @@ export class CharacterController extends PhysicsComponent {
 	 * @internal
 	 */
 	_onAdded(): void {
-		var physics3D: any = Physics3D._physics3D;
-		var ghostObject: any = new physics3D.btPairCachingGhostObject();
-		ghostObject.setUserIndex(this.id);
-		ghostObject.setCollisionFlags(PhysicsComponent.COLLISIONFLAGS_CHARACTER_OBJECT);
-		this._nativeColliderObject = ghostObject;
+		var bt: any = Physics3D._bullet;
+		var ghostObject: number = bt.btPairCachingGhostObject_create();
+		bt.btCollisionObject_setUserIndex(ghostObject, this.id);
+		bt.btCollisionObject_setCollisionFlags(ghostObject, PhysicsComponent.COLLISIONFLAGS_CHARACTER_OBJECT);
+		this._btColliderObject = ghostObject;
 
 		if (this._colliderShape)
 			this._constructCharacter();
-
 		super._onAdded();
 	}
 
@@ -256,9 +225,9 @@ export class CharacterController extends PhysicsComponent {
 	 * @override
 	 */
 	protected _onDestroy(): void {
-		Physics3D._physics3D.destroy(this._nativeKinematicCharacter);
+		Physics3D._bullet.btKinematicCharacterController_destroy(this._btKinematicCharacter);
 		super._onDestroy();
-		this._nativeKinematicCharacter = null;
+		this._btKinematicCharacter = null;
 	}
 
 	/**
@@ -266,9 +235,10 @@ export class CharacterController extends PhysicsComponent {
 	 * @param	movement 移动向量。
 	 */
 	move(movement: Vector3): void {
-		var nativeMovement: any = CharacterController._nativeVector30;
-		nativeMovement.setValue(-movement.x, movement.y, movement.z);
-		this._nativeKinematicCharacter.setWalkDirection(nativeMovement);
+		var btMovement: number = CharacterController._btVector30;
+		var bt: any = Physics3D._bullet;
+		bt.btVector3_setValue(btMovement, -movement.x, movement.y, movement.z);
+		bt.btKinematicCharacterController_setWalkDirection(this._btKinematicCharacter, btMovement);
 	}
 
 	/**
@@ -276,12 +246,14 @@ export class CharacterController extends PhysicsComponent {
 	 * @param velocity 跳跃速度。
 	 */
 	jump(velocity: Vector3 = null): void {
+		var bt: any = Physics3D._bullet;
+		var btVelocity: number = CharacterController._btVector30;
 		if (velocity) {
-			var nativeVelocity: any = CharacterController._nativeVector30;
-			Utils3D._convertToBulletVec3(velocity, nativeVelocity, true);
-			this._nativeKinematicCharacter.jump(nativeVelocity);
+			Utils3D._convertToBulletVec3(velocity, btVelocity, true);
+			bt.btKinematicCharacterController_jump(this._btKinematicCharacter, btVelocity);
 		} else {
-			this._nativeKinematicCharacter.jump();
+			bt.btVector3_setValue(btVelocity, 0, 0, 0);
+			bt.btKinematicCharacterController_jump(this._btKinematicCharacter, btVelocity);
 		}
 	}
 }

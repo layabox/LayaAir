@@ -5,7 +5,6 @@ import { WebGLContext } from "./WebGLContext";
  * @private
  */
 export class WebGL {
-    static shaderHighPrecision: boolean;
     static _isWebGL2: boolean = false;
     static isNativeRender_enable: boolean = false;
 

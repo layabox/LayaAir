@@ -148,17 +148,25 @@ export class Material extends Resource implements IClone {
 		return material;
 	}
 
+	/** @internal */
 	private _alphaTest: boolean;
 
 	/** @internal */
 	_disablePublicDefineDatas: DefineDatas;//TODO:移除
 	/** @internal */
 	_shader: Shader3D;
-
+	/** @internal */
 	_shaderValues: ShaderData = null;//TODO:剥离贴图ShaderValue
 
 	/** 所属渲染队列. */
 	renderQueue: number;
+
+	/**
+	 * 着色器数据。
+	 */
+	get shaderData(): ShaderData {
+		return this._shaderValues;
+	}
 
 	/**
 	 * 透明测试模式裁剪值。
@@ -197,13 +205,26 @@ export class Material extends Resource implements IClone {
 		this._alphaTest = false;
 	}
 
+	/**
+	 * @internal
+	 */
 	private _removeTetxureReference(): void {
 		var data: any = this._shaderValues.getData();
 		for (var k in data) {
 			var value: any = data[k];
 			if (value && value instanceof BaseTexture)//TODO:需要优化,杜绝is判断，慢
-				((<BaseTexture>value))._removeReference();
+				(<BaseTexture>value)._removeReference();
 		}
+	}
+
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	protected _disposeResource(): void {
+		if (this._referenceCount > 0)
+			this._removeTetxureReference();
+		this._shaderValues = null;
 	}
 
 	/**
@@ -217,7 +238,7 @@ export class Material extends Resource implements IClone {
 		for (var k in data) {
 			var value: any = data[k];
 			if (value && value instanceof BaseTexture)//TODO:需要优化,杜绝is判断，慢
-				((<BaseTexture>value))._addReference();
+				(<BaseTexture>value)._addReference();
 		}
 	}
 
@@ -231,15 +252,7 @@ export class Material extends Resource implements IClone {
 		this._removeTetxureReference();
 	}
 
-	/**
-	 * @inheritDoc
-	 * @override
-	 */
-	protected _disposeResource(): void {
-		if (this._referenceCount > 0)
-			this._removeTetxureReference();
-		this._shaderValues = null;
-	}
+
 
 	/**
 	 * 设置使用Shader名字。

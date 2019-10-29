@@ -51,9 +51,6 @@ export class LayaGPU {
         this._gl = gl;
         this._isWebGL2 = isWebGL2;
 
-        var precisionFormat: any = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT);
-        precisionFormat.precision ? (WebGL.shaderHighPrecision = true) : WebGL.shaderHighPrecision = false;
-
         if (!isWebGL2) {
             var forceVAO: boolean = LayaGPU._forceSupportVAOPlatform();
             if (!ILaya.Render.isConchApp) {

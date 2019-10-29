@@ -39,53 +39,54 @@ export class PhysicsWorld_Kinematic {
 	private mat3: BlinnPhongMaterial;
 
 	constructor() {
-		Laya3D.init(0, 0, null);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		Stat.show();
-		this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
+		Laya3D.init(0, 0, null, Handler.create(null, () => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			Stat.show();
+			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
-		this.camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
-		this.camera.transform.translate(new Vector3(0, 8, 20));
-		this.camera.transform.rotate(new Vector3(-30, 0, 0), true, false);
-		this.camera.clearColor = null;
+			this.camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
+			this.camera.transform.translate(new Vector3(0, 8, 20));
+			this.camera.transform.rotate(new Vector3(-30, 0, 0), true, false);
+			this.camera.clearColor = null;
 
-		var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
-		directionLight.color = new Vector3(1, 1, 1);
-		//设置平行光的方向
-		var mat: Matrix4x4 = directionLight.transform.worldMatrix;
-		mat.setForward(new Vector3(-1.0, -1.0, 1.0));
-		directionLight.transform.worldMatrix = mat;
+			var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
+			directionLight.color = new Vector3(1, 1, 1);
+			//设置平行光的方向
+			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+			mat.setForward(new Vector3(-1.0, -1.0, 1.0));
+			directionLight.transform.worldMatrix = mat;
 
-		this.mat1 = new BlinnPhongMaterial();
-		this.mat3 = new BlinnPhongMaterial();
-		//加载纹理资源
-		Texture2D.load("res/threeDimen/Physics/rocks.jpg", Handler.create(this, function (tex: Texture2D): void {
-			this.mat1.albedoTexture = tex;
+			this.mat1 = new BlinnPhongMaterial();
+			this.mat3 = new BlinnPhongMaterial();
+			//加载纹理资源
+			Texture2D.load("res/threeDimen/Physics/rocks.jpg", Handler.create(this, function (tex: Texture2D): void {
+				this.mat1.albedoTexture = tex;
+			}));
+
+			Texture2D.load("res/threeDimen/Physics/wood.jpg", Handler.create(this, function (tex: Texture2D): void {
+				this.mat3.albedoTexture = tex;
+			}));
+
+			this.plane = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(20, 20, 10, 10))));
+			var planeMat: BlinnPhongMaterial = new BlinnPhongMaterial();
+			Texture2D.load("res/threeDimen/Physics/wood.jpg", Handler.create(this, function (tex: Texture2D): void {
+				planeMat.albedoTexture = tex;
+			}));
+			planeMat.tilingOffset = new Vector4(2, 2, 0, 0);
+			this.plane.meshRenderer.material = planeMat;
+
+			var rigidBody: PhysicsCollider = (<PhysicsCollider>this.plane.addComponent(PhysicsCollider));
+			var boxShape: BoxColliderShape = new BoxColliderShape(20, 0, 20);
+			rigidBody.colliderShape = boxShape;
+
+			for (var i: number = 0; i < 60; i++) {
+				this.addBox();
+				this.addCapsule();
+			}
+
+			this.addKinematicSphere();
 		}));
-
-		Texture2D.load("res/threeDimen/Physics/wood.jpg", Handler.create(this, function (tex: Texture2D): void {
-			this.mat3.albedoTexture = tex;
-		}));
-
-		this.plane = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(20, 20, 10, 10))));
-		var planeMat: BlinnPhongMaterial = new BlinnPhongMaterial();
-		Texture2D.load("res/threeDimen/Physics/wood.jpg", Handler.create(this, function (tex: Texture2D): void {
-			planeMat.albedoTexture = tex;
-		}));
-		planeMat.tilingOffset = new Vector4(2, 2, 0, 0);
-		this.plane.meshRenderer.material = planeMat;
-
-		var rigidBody: PhysicsCollider = (<PhysicsCollider>this.plane.addComponent(PhysicsCollider));
-		var boxShape: BoxColliderShape = new BoxColliderShape(20, 0, 20);
-		rigidBody.colliderShape = boxShape;
-
-		for (var i: number = 0; i < 60; i++) {
-			this.addBox();
-			this.addCapsule();
-		}
-
-		this.addKinematicSphere();
 	}
 
 	addKinematicSphere(): void {

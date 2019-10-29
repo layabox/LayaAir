@@ -20,7 +20,7 @@ import { WebGL } from "../../../WebGL"
 		{
 			this.texture = null;
 			this.shader = null;
-			this.defines._value=this.subID + (WebGL.shaderHighPrecision?ShaderDefines2D.SHADERDEFINE_FSHIGHPRECISION:0);
+			this.defines._value=this.subID;
 			//defines.setValue(0);
 		}
     }

@@ -55,8 +55,6 @@ export class Shader3D {
 	static PERIOD_SCENE: number = 4;
 
 	/**@internal */
-	static SHADERDEFINE_HIGHPRECISION: ShaderDefine;
-	/**@internal */
 	static SHADERDEFINE_LEGACYSINGALLIGHTING: ShaderDefine;
 
 	/**@internal */
@@ -175,7 +173,6 @@ export class Shader3D {
 					for (var i: number = 0, n: number = defineNames.length; i < n; i++)
 						compileDefineDatas.add(Shader3D.getDefineByName(defineNames[i]));
 
-					(WebGL.shaderHighPrecision) && (compileDefineDatas.add(Shader3D.SHADERDEFINE_HIGHPRECISION)); //部分低端移动设备不支持高精度shader,所以如果在PC端或高端移动设备输出的宏定义值需做判断移除高精度宏定义
 					(Config3D._config._multiLighting) || (compileDefineDatas.add(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING));
 					pass.withCompile(compileDefineDatas);
 				} else {
@@ -263,8 +260,7 @@ export class Shader3D {
 					for (var i: number = 0, n: number = defineMask.length; i < n; i++)
 						mask.push(defineMask[i]);
 					compileDefineDatas._length = defineMask.length;
-
-					(WebGL.shaderHighPrecision) && (compileDefineDatas.add(Shader3D.SHADERDEFINE_HIGHPRECISION)); //部分低端移动设备不支持高精度shader,所以如果在PC端或高端移动设备输出的宏定义值需做判断移除高精度宏定义
+					
 					(Config3D._config._multiLighting) || (compileDefineDatas.add(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING));
 					pass.withCompile(compileDefineDatas);
 

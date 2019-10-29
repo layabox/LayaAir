@@ -24,7 +24,6 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 
 export class PhysicsWorld_BuildingBlocks {
-
 	private scene: Scene3D;
 	private camera: Camera;
 	private ray: Ray = new Ray(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
@@ -33,7 +32,7 @@ export class PhysicsWorld_BuildingBlocks {
 	private hasSelectedSprite: Sprite3D;
 	private hasSelectedRigidBody: Rigidbody3D;
 	private ZERO = new Vector3(0, 0, 0);
-	private ONE = new Vector3(0, 0, 0);
+	private ONE = new Vector3(1, 1, 1);
 	private posX: number;
 	private posY: number;
 	private delX: number;
@@ -44,47 +43,48 @@ export class PhysicsWorld_BuildingBlocks {
 	private mesh2: Mesh;
 
 	constructor() {
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		Stat.show();
+		Laya3D.init(0, 0, null, Handler.create(null, () => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			Stat.show();
 
-		this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
+			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
-		this.camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
-		this.camera.transform.translate(new Vector3(4.5, 6, 4.5));
-		this.camera.transform.rotate(new Vector3(-30, 45, 0), true, false);
-		this.camera.clearColor = null;
+			this.camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
+			this.camera.transform.translate(new Vector3(4.5, 6, 4.5));
+			this.camera.transform.rotate(new Vector3(-30, 45, 0), true, false);
+			this.camera.clearColor = null;
 
-		var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
-		directionLight.color = new Vector3(1, 1, 1);
-		directionLight.transform.worldMatrix.setForward(new Vector3(-1.0, -1.0, 1.0));
+			var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
+			directionLight.color = new Vector3(1, 1, 1);
+			directionLight.transform.worldMatrix.setForward(new Vector3(-1.0, -1.0, 1.0));
 
-		var plane: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(13, 13, 10, 10))));
-		var planeMat: BlinnPhongMaterial = new BlinnPhongMaterial();
-		Texture2D.load("res/threeDimen/Physics/wood.jpg", Handler.create(this, function (tex: Texture2D): void {
-			planeMat.albedoTexture = tex;
+			var plane: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(13, 13, 10, 10))));
+			var planeMat: BlinnPhongMaterial = new BlinnPhongMaterial();
+			Texture2D.load("res/threeDimen/Physics/wood.jpg", Handler.create(this, function (tex: Texture2D): void {
+				planeMat.albedoTexture = tex;
+			}));
+
+			planeMat.tilingOffset = new Vector4(2, 2, 0, 0);
+			plane.meshRenderer.material = planeMat;
+			plane.meshRenderer.receiveShadow = true;
+
+			this.mesh1 = PrimitiveMesh.createBox(2, 0.33, 0.5);
+			this.mesh2 = PrimitiveMesh.createBox(0.5, 0.33, 2);
+			this.mat = new BlinnPhongMaterial();
+
+			//加载纹理资源
+			Texture2D.load("res/threeDimen/Physics/plywood.jpg", Handler.create(this, function (tex: Texture2D): void {
+				this.mat.albedoTexture = tex;
+			}));
+
+			var rigidBody: PhysicsCollider = (<PhysicsCollider>plane.addComponent(PhysicsCollider));
+			var boxShape: BoxColliderShape = new BoxColliderShape(13, 0, 13);
+			rigidBody.colliderShape = boxShape;
+			this.addMouseEvent();
+
+			this.addBox();
 		}));
-
-		planeMat.tilingOffset = new Vector4(2, 2, 0, 0);
-		plane.meshRenderer.material = planeMat;
-		plane.meshRenderer.receiveShadow = true;
-
-		this.mesh1 = PrimitiveMesh.createBox(2, 0.33, 0.5);
-		this.mesh2 = PrimitiveMesh.createBox(0.5, 0.33, 2);
-		this.mat = new BlinnPhongMaterial();
-
-		//加载纹理资源
-		Texture2D.load("res/threeDimen/Physics/plywood.jpg", Handler.create(this, function (tex: Texture2D): void {
-			this.mat.albedoTexture = tex;
-		}));
-
-		var rigidBody: PhysicsCollider = (<PhysicsCollider>plane.addComponent(PhysicsCollider));
-		var boxShape: BoxColliderShape = new BoxColliderShape(13, 0, 13);
-		rigidBody.colliderShape = boxShape;
-		this.addMouseEvent();
-
-		this.addBox();
 	}
 
 	addBox(): void {
@@ -142,8 +142,8 @@ export class PhysicsWorld_BuildingBlocks {
 		this.camera.viewportPointToRay(this.point, this.ray);
 		this.scene.physicsSimulation.rayCast(this.ray, this._outHitResult);
 		if (this._outHitResult.succeeded) {
-			var collider: Rigidbody3D = (<Rigidbody3D>this._outHitResult.collider);
-			this.hasSelectedSprite = (<Sprite3D>collider.owner);
+			var collider: Rigidbody3D = <Rigidbody3D>this._outHitResult.collider;
+			this.hasSelectedSprite = <Sprite3D>collider.owner;
 			this.hasSelectedRigidBody = collider;
 			collider.angularFactor = this.ZERO;
 			collider.angularVelocity = this.ZERO;

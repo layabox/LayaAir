@@ -393,6 +393,7 @@ export class Input extends Text {
 
     /**@private */
     private _focusOut(): void {
+        if(!Input.isInputting)return;
         Input.isInputting = false;
         this._focus = false;
 

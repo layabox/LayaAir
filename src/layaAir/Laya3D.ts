@@ -205,8 +205,8 @@ export class Laya3D {
 		SubMeshInstanceBatch.__init__();
 		SubMeshDynamicBatch.__init__();
 
-		Physics3D._physics3D = (window as any).Physics3D;
-		if (Physics3D._physics3D) {
+		Physics3D._bullet = (window as any).Physics3D;
+		if (Physics3D._bullet) {
 			StaticPlaneColliderShape.__init__();
 			ColliderShape.__init__();
 			CompoundColliderShape.__init__();
@@ -387,13 +387,6 @@ export class Laya3D {
 			var animationClip: any = AnimationClip;
 			animationClip.prototype._evaluateClipDatasRealTime = animationClip.prototype._evaluateClipDatasRealTimeForNative;
 			skinnedMeshRender.prototype._computeSkinnedData = skinnedMeshRender.prototype._computeSkinnedDataForNative;
-		}
-
-		if (Render.isConchApp) {
-			WebGL.shaderHighPrecision = false;
-			var gl: WebGLRenderingContext = LayaGL.instance;
-			var precisionFormat: any = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT);
-			precisionFormat.precision ? WebGL.shaderHighPrecision = true : WebGL.shaderHighPrecision = false;
 		}
 	}
 
@@ -828,8 +821,10 @@ export class Laya3D {
 	 * @param	height 3D画布高度。
 	 */
 	static init(width: number, height: number, config: Config3D = null, compolete: Handler = null): void {
-		if (Laya3D._isInit)
+		if (Laya3D._isInit) {
+			compolete && compolete.run();
 			return;
+		}
 		Laya3D._isInit = true;
 		(config) && (config.cloneTo(Config3D._config));
 		config = Config3D._config;
@@ -848,7 +843,8 @@ export class Laya3D {
 			compolete && compolete.run();
 		} else {
 			Physics3D._enablePhysics = true;
-			physics3D(config.defaultPhysicsMemory * 1024 * 1024).then(function (): void {
+			//should convert MB to pages
+			physics3D(config.defaultPhysicsMemory * 16, Physics3D._interactive).then(function (): void {
 				Laya3D.__init__(width, height, config);
 				compolete && compolete.run();
 			});

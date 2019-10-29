@@ -35,70 +35,72 @@ export class PhysicsWorld_Character {
 
 	constructor() {
 		//初始化引擎
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		//显示性能面板
-		Stat.show();
+		Laya3D.init(0, 0, null, Handler.create(null, () => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			//显示性能面板
+			Stat.show();
 
-		//创建场景
-		this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
+			//创建场景
+			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
-		//创建相机
-		this.camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
-		this.camera.transform.translate(new Vector3(0, 8, 20));
-		this.camera.transform.rotate(new Vector3(-30, 0, 0), true, false);
-		//设置相机的清除颜色
-		this.camera.clearColor = null;
+			//创建相机
+			this.camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
+			this.camera.transform.translate(new Vector3(0, 8, 20));
+			this.camera.transform.rotate(new Vector3(-30, 0, 0), true, false);
+			//设置相机的清除颜色
+			this.camera.clearColor = null;
 
-		//创建平行光
-		var directionLight = new DirectionLight();
-		this.scene.addChild(directionLight);
-		directionLight.color = new Vector3(1, 1, 1);
-		//设置平行光的方向
-		var mat: Matrix4x4 = directionLight.transform.worldMatrix;
-		mat.setForward(new Vector3(-1.0, -1.0, 1.0));
-		directionLight.transform.worldMatrix = mat;
+			//创建平行光
+			var directionLight = new DirectionLight();
+			this.scene.addChild(directionLight);
+			directionLight.color = new Vector3(1, 1, 1);
+			//设置平行光的方向
+			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+			mat.setForward(new Vector3(-1.0, -1.0, 1.0));
+			directionLight.transform.worldMatrix = mat;
 
-		//创建地面
-		var plane: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(20, 20, 10, 10))));
-		var planeMat: BlinnPhongMaterial = new BlinnPhongMaterial();
-		//加载纹理
-		Texture2D.load("res/threeDimen/Physics/wood.jpg", Handler.create(this, function (tex: Texture2D): void {
-			planeMat.albedoTexture = tex;
+			//创建地面
+			var plane: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(20, 20, 10, 10))));
+			var planeMat: BlinnPhongMaterial = new BlinnPhongMaterial();
+			//加载纹理
+			Texture2D.load("res/threeDimen/Physics/wood.jpg", Handler.create(this, function (tex: Texture2D): void {
+				planeMat.albedoTexture = tex;
+			}));
+			//设置材质
+			var tilingOffset = planeMat.tilingOffset;
+			tilingOffset.setValue(2, 2, 0, 0);
+			planeMat.tilingOffset = tilingOffset;
+			plane.meshRenderer.material = planeMat;
+
+			this.mat1 = new BlinnPhongMaterial();
+			this.mat2 = new BlinnPhongMaterial();
+
+			//加载纹理资源
+			Texture2D.load("res/threeDimen/Physics/rocks.jpg", Handler.create(this, function (tex: Texture2D): void {
+				this.mat1.albedoTexture = tex;
+			}));
+
+			Texture2D.load("res/threeDimen/Physics/wood.jpg", Handler.create(this, function (tex: Texture2D): void {
+				this.mat2.albedoTexture = tex;
+			}));
+
+			//创建物理碰撞器
+			var physicsCollider: PhysicsCollider = (<PhysicsCollider>plane.addComponent(PhysicsCollider));
+			//创建盒型碰撞器
+			var boxShape: BoxColliderShape = new BoxColliderShape(20, 0, 20);
+			//为物理碰撞器设置盒型碰撞器
+			physicsCollider.colliderShape = boxShape;
+
+			for (var i: number = 0; i < 60; i++) {
+				this.addBox();
+				this.addCapsule();
+			}
+
+			//添加角色
+			this.addCharacter();
 		}));
-		//设置材质
-		var tilingOffset = planeMat.tilingOffset;
-		tilingOffset.setValue(2, 2, 0, 0);
-		planeMat.tilingOffset = tilingOffset;
-		plane.meshRenderer.material = planeMat;
 
-		this.mat1 = new BlinnPhongMaterial();
-		this.mat2 = new BlinnPhongMaterial();
-
-		//加载纹理资源
-		Texture2D.load("res/threeDimen/Physics/rocks.jpg", Handler.create(this, function (tex: Texture2D): void {
-			this.mat1.albedoTexture = tex;
-		}));
-
-		Texture2D.load("res/threeDimen/Physics/wood.jpg", Handler.create(this, function (tex: Texture2D): void {
-			this.mat2.albedoTexture = tex;
-		}));
-
-		//创建物理碰撞器
-		var physicsCollider: PhysicsCollider = (<PhysicsCollider>plane.addComponent(PhysicsCollider));
-		//创建盒型碰撞器
-		var boxShape: BoxColliderShape = new BoxColliderShape(20, 0, 20);
-		//为物理碰撞器设置盒型碰撞器
-		physicsCollider.colliderShape = boxShape;
-
-		for (var i: number = 0; i < 60; i++) {
-			this.addBox();
-			this.addCapsule();
-		}
-
-		//添加角色
-		this.addCharacter();
 	}
 
 	addCharacter(): void {

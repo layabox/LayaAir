@@ -3,6 +3,7 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { Stat } from "../../../utils/Stat";
 import { WebGLContext } from "../../../webgl/WebGLContext";
 import { Camera } from "../../core/Camera";
+import { Material } from "../../core/material/Material";
 import { RenderContext3D } from "../../core/render/RenderContext3D";
 import { Scene3D } from "../../core/scene/Scene3D";
 import { Matrix4x4 } from "../../math/Matrix4x4";
@@ -13,7 +14,6 @@ import { ShaderInstance } from "../../shader/ShaderInstance";
 import { RenderTexture } from "../RenderTexture";
 import { SkyBox } from "./SkyBox";
 import { SkyMesh } from "./SkyMesh";
-import { Material } from "../../core/material/Material";
 
 /**
  * <code>SkyRenderer</code> 类用于实现天空渲染器。
@@ -32,17 +32,12 @@ export class SkyRenderer {
 	private _mesh: SkyMesh = SkyBox.instance;
 
 	/**
-	 * 获取材质。
-	 * @return 材质。
+	 * 材质。
 	 */
 	get material(): Material {
 		return this._material;
 	}
 
-	/**
-	 * 设置材质。
-	 * @param 材质。
-	 */
 	set material(value: Material) {
 		if (this._material !== value) {
 			(this._material) && (this._material._removeReference());
@@ -52,17 +47,12 @@ export class SkyRenderer {
 	}
 
 	/**
-	 * 获取网格。
-	 * @return 网格。
+	 * 网格。
 	 */
 	get mesh(): SkyMesh {
 		return this._mesh;
 	}
 
-	/**
-	 * 设置网格。
-	 * @param 网格。
-	 */
 	set mesh(value: SkyMesh) {
 		if (this._mesh !== value) {
 			//(_mesh) && (_mesh._removeReference());//TODO:SkyMesh换成Mesh
@@ -112,7 +102,7 @@ export class SkyRenderer {
 				shader._uploadScene = scene;
 			}
 
-			var renderTar: RenderTexture = camera._getInternalRenderTexture();
+			var renderTex: RenderTexture = camera._getRenderTexture();
 			var uploadCamera: boolean = (shader._uploadCamera !== camera) || switchShaderLoop;
 			if (uploadCamera || switchShader) {
 				var viewMatrix: Matrix4x4 = SkyRenderer._tempMatrix0;
@@ -152,7 +142,7 @@ export class SkyRenderer {
 				projectionMatrix.elements[11] = -1.0;
 				projectionMatrix.elements[14] = -0;//znear无穷小
 
-				(<Camera>camera)._applyViewProject(state, viewMatrix, projectionMatrix, renderTar ? true : false);//TODO:优化 不应设置给Camera直接提交
+				(<Camera>camera)._applyViewProject(state, viewMatrix, projectionMatrix, renderTex ? true : false);//TODO:优化 不应设置给Camera直接提交
 				shader.uploadUniforms(shader._cameraUniformParamsMap, camera._shaderValues, uploadCamera);
 				shader._uploadCamera = camera;
 			}
@@ -170,9 +160,7 @@ export class SkyRenderer {
 
 			WebGLContext.setDepthFunc(gl, gl.LESS);
 			WebGLContext.setDepthMask(gl, true);
-			(<Camera>camera)._applyViewProject(state, (<Camera>camera).viewMatrix, (<Camera>camera).projectionMatrix, renderTar ? true : false);
-
-
+			(<Camera>camera)._applyViewProject(state, (<Camera>camera).viewMatrix, (<Camera>camera).projectionMatrix, renderTex ? true : false);
 		}
 	}
 

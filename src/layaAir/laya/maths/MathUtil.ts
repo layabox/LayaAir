@@ -75,12 +75,12 @@ export class MathUtil {
     }
 
     /**
-     * 获取指定的两个点组成的线段的弧度值。
+     * 获取指定的两个点组成的线段的角度值。
      * @param	x0 点一的 X 轴坐标值。
      * @param	y0 点一的 Y 轴坐标值。
      * @param	x1 点二的 X 轴坐标值。
      * @param	y1 点二的 Y 轴坐标值。
-     * @return 弧度值。
+     * @return 角度值。
      */
     static getRotation(x0: number, y0: number, x1: number, y1: number): number {
         return Math.atan2(y1 - y0, x1 - x0) / Math.PI * 180;

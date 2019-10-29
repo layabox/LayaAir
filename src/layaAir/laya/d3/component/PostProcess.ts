@@ -1,16 +1,17 @@
+import { ILaya } from "../../../ILaya"
+import { RenderTextureDepthFormat } from "../../resource/RenderTextureFormat"
+import { Texture2D } from "../../resource/Texture2D"
 import { Camera } from "../core/Camera"
+import { CommandBuffer } from "../core/render/command/CommandBuffer"
 import { PostProcessEffect } from "../core/render/PostProcessEffect"
 import { PostProcessRenderContext } from "../core/render/PostProcessRenderContext"
 import { RenderContext3D } from "../core/render/RenderContext3D"
-import { CommandBuffer } from "../core/render/command/CommandBuffer"
 import { RenderTexture } from "../resource/RenderTexture"
 import { Shader3D } from "../shader/Shader3D"
 import { ShaderData } from "../shader/ShaderData"
-import { BaseTexture } from "../../resource/BaseTexture"
-import { Texture2D } from "../../resource/Texture2D"
-import { ILaya } from "../../../ILaya";
-import { ShaderDefine } from "../shader/ShaderDefine";
-import { RenderTextureDepthFormat } from "../../resource/RenderTextureFormat"
+import { ShaderDefine } from "../shader/ShaderDefine"
+import { Vector4 } from "../math/Vector4"
+import { Viewport } from "../math/Viewport"
 
 /**
  * <code>PostProcess</code> 类用于创建后期处理组件。
@@ -48,11 +49,16 @@ export class PostProcess {
 		PostProcess.SHADERDEFINE_FINALPASS = Shader3D.getDefineByName("FINALPASS");
 	}
 
+	/**@internal */
 	private _compositeShader: Shader3D = Shader3D.find("PostProcessComposite");
+	/**@internal */
 	private _compositeShaderData: ShaderData = new ShaderData();
 	/**@internal */
-	_context: PostProcessRenderContext = null;
 	private _effects: PostProcessEffect[] = [];
+
+	/**@internal */
+	_context: PostProcessRenderContext = null;
+
 
 	/**
 	 * 创建一个 <code>PostProcess</code> 实例。
@@ -74,13 +80,14 @@ export class PostProcess {
 	 * @internal
 	 */
 	_render(): void {
-		var noteValue:boolean = ShaderData._SET_RUNTIME_VALUE_MODE_REFERENCE_;
+		var noteValue: boolean = ShaderData._SET_RUNTIME_VALUE_MODE_REFERENCE_;
 		ILaya.Render.supportWebGLPlusRendering && ShaderData.setRuntimeValueMode(false);
 
 		var camera: Camera = this._context.camera;
+		var viewport: Viewport = camera.viewport;
 
 		var screenTexture: RenderTexture = RenderTexture.createFromPool(RenderContext3D.clientWidth, RenderContext3D.clientHeight, camera._getRenderTextureFormat(), RenderTextureDepthFormat.DEPTHSTENCIL_NONE);
-		var cameraTarget: RenderTexture = camera._renderTexture;
+		var cameraTarget: RenderTexture = camera._internalRenderTexture;
 		this._context.command.clear();
 		this._context.source = screenTexture;
 		this._context.destination = cameraTarget;
@@ -96,10 +103,12 @@ export class PostProcess {
 		this._compositeShaderData.addDefine(PostProcess.SHADERDEFINE_FINALPASS);
 		//dithering.Render(context);
 
-		var offScreenTexture: RenderTexture = camera.renderTarget;
-		var dest: RenderTexture = offScreenTexture ? offScreenTexture : null;//TODO:如果不画到RenderTarget上,最后一次为null直接画到屏幕上
+		var renderTarget: RenderTexture = camera.renderTarget;
+		var dest: RenderTexture = renderTarget ? renderTarget : null;//TODO:如果不画到RenderTarget上,最后一次为null直接画到屏幕上
 		this._context.destination = dest;
-		this._context.command.blitScreenTriangle(this._context.source, dest, this._compositeShader, this._compositeShaderData);
+		var canvasWidth: number = camera._getCanvasWidth(), canvasHeight: number = camera._getCanvasHeight();
+		camera._screenOffsetScale.setValue(viewport.x / canvasWidth, viewport.y / canvasHeight, viewport.width / canvasWidth, viewport.height / canvasHeight);
+		this._context.command.blitScreenTriangle(this._context.source, dest, camera._screenOffsetScale, this._compositeShader, this._compositeShaderData);
 
 		//context.source = context.destination;
 		//context.destination = finalDestination;

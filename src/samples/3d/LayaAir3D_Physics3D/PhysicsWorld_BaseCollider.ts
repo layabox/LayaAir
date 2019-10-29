@@ -24,10 +24,6 @@ import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 
 
-/**
- * ...
- * @author zqx
- */
 export class PhysicsWorld_BaseCollider {
 	private scene: Scene3D;
 	private tmpVector: Vector3 = new Vector3(0, 0, 0);
@@ -40,81 +36,82 @@ export class PhysicsWorld_BaseCollider {
 
 	constructor() {
 		//初始化引擎
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		//显示性能面板
-		Stat.show();
+		Laya3D.init(0, 0, null, Handler.create(null, () => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			//显示性能面板
+			Stat.show();
 
-		this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
+			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
-		//初始化照相机
-		var camera: Camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
-		camera.transform.translate(new Vector3(0, 6, 9.5));
-		camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
-		camera.addComponent(CameraMoveScript);
-		camera.clearColor = null;
+			//初始化照相机
+			var camera: Camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
+			camera.transform.translate(new Vector3(0, 6, 9.5));
+			camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
+			camera.addComponent(CameraMoveScript);
+			camera.clearColor = null;
 
-		//方向光
-		var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
-		directionLight.color = new Vector3(0.6, 0.6, 0.6);
-		//设置平行光的方向
-		var mat: Matrix4x4 = directionLight.transform.worldMatrix;
-		mat.setForward(new Vector3(-1.0, -1.0, -1.0));
-		directionLight.transform.worldMatrix = mat;
+			//方向光
+			var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
+			directionLight.color = new Vector3(0.6, 0.6, 0.6);
+			//设置平行光的方向
+			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+			mat.setForward(new Vector3(-1.0, -1.0, -1.0));
+			directionLight.transform.worldMatrix = mat;
 
-		//平面
-		var plane: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(10, 10, 10, 10))));
-		var planeMat: BlinnPhongMaterial = new BlinnPhongMaterial();
-		Texture2D.load("res/threeDimen/Physics/grass.png", Handler.create(this, function (tex: Texture2D): void {
-			planeMat.albedoTexture = tex;
+			//平面
+			var plane: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(10, 10, 10, 10))));
+			var planeMat: BlinnPhongMaterial = new BlinnPhongMaterial();
+			Texture2D.load("res/threeDimen/Physics/grass.png", Handler.create(this, function (tex: Texture2D): void {
+				planeMat.albedoTexture = tex;
+			}));
+			//设置纹理平铺和偏移
+			var tilingOffset: Vector4 = planeMat.tilingOffset;
+			tilingOffset.setValue(5, 5, 0, 0);
+			planeMat.tilingOffset = tilingOffset;
+			//设置材质
+			plane.meshRenderer.material = planeMat;
+
+			//平面添加物理碰撞体组件
+			var planeStaticCollider: PhysicsCollider = plane.addComponent(PhysicsCollider);
+			//创建盒子形状碰撞器
+			var planeShape: BoxColliderShape = new BoxColliderShape(10, 0, 10);
+			//物理碰撞体设置形状
+			planeStaticCollider.colliderShape = planeShape;
+			//物理碰撞体设置摩擦力
+			planeStaticCollider.friction = 2;
+			//物理碰撞体设置弹力
+			planeStaticCollider.restitution = 0.3;
+
+
+			this.mat1 = new BlinnPhongMaterial();
+			this.mat2 = new BlinnPhongMaterial();
+			this.mat3 = new BlinnPhongMaterial();
+			this.mat4 = new BlinnPhongMaterial();
+			this.mat5 = new BlinnPhongMaterial();
+			//加载纹理资源
+			Texture2D.load("res/threeDimen/Physics/rocks.jpg", Handler.create(this, function (tex: Texture2D): void {
+				this.mat1.albedoTexture = tex;
+			}));
+
+			Texture2D.load("res/threeDimen/Physics/plywood.jpg", Handler.create(this, function (tex: Texture2D): void {
+				this.mat2.albedoTexture = tex;
+			}));
+
+			Texture2D.load("res/threeDimen/Physics/wood.jpg", Handler.create(this, function (tex: Texture2D): void {
+				this.mat3.albedoTexture = tex;
+			}));
+
+			Texture2D.load("res/threeDimen/Physics/steel2.jpg", Handler.create(this, function (tex: Texture2D): void {
+				this.mat4.albedoTexture = tex;
+			}));
+			Texture2D.load("res/threeDimen/Physics/steel.jpg", Handler.create(this, function (tex: Texture2D): void {
+				this.mat5.albedoTexture = tex;
+			}));
+
+			//随机生成精灵
+			this.randomAddPhysicsSprite();
 		}));
-		//设置纹理平铺和偏移
-		var tilingOffset: Vector4 = planeMat.tilingOffset;
-		tilingOffset.setValue(5, 5, 0, 0);
-		planeMat.tilingOffset = tilingOffset;
-		//设置材质
-		plane.meshRenderer.material = planeMat;
-
-		//平面添加物理碰撞体组件
-		var planeStaticCollider: PhysicsCollider = plane.addComponent(PhysicsCollider);
-		//创建盒子形状碰撞器
-		var planeShape: BoxColliderShape = new BoxColliderShape(10, 0, 10);
-		//物理碰撞体设置形状
-		planeStaticCollider.colliderShape = planeShape;
-		//物理碰撞体设置摩擦力
-		planeStaticCollider.friction = 2;
-		//物理碰撞体设置弹力
-		planeStaticCollider.restitution = 0.3;
-
-
-		this.mat1 = new BlinnPhongMaterial();
-		this.mat2 = new BlinnPhongMaterial();
-		this.mat3 = new BlinnPhongMaterial();
-		this.mat4 = new BlinnPhongMaterial();
-		this.mat5 = new BlinnPhongMaterial();
-		//加载纹理资源
-		Texture2D.load("res/threeDimen/Physics/rocks.jpg", Handler.create(this, function (tex: Texture2D): void {
-			this.mat1.albedoTexture = tex;
-		}));
-
-		Texture2D.load("res/threeDimen/Physics/plywood.jpg", Handler.create(this, function (tex: Texture2D): void {
-			this.mat2.albedoTexture = tex;
-		}));
-
-		Texture2D.load("res/threeDimen/Physics/wood.jpg", Handler.create(this, function (tex: Texture2D): void {
-			this.mat3.albedoTexture = tex;
-		}));
-
-		Texture2D.load("res/threeDimen/Physics/steel2.jpg", Handler.create(this, function (tex: Texture2D): void {
-			this.mat4.albedoTexture = tex;
-		}));
-		Texture2D.load("res/threeDimen/Physics/steel.jpg", Handler.create(this, function (tex: Texture2D): void {
-			this.mat5.albedoTexture = tex;
-		}));
-
-		//随机生成精灵
-		this.randomAddPhysicsSprite();
 	}
 
 	randomAddPhysicsSprite(): void {
