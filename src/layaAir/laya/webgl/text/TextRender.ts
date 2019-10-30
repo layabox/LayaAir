@@ -194,16 +194,15 @@ export class TextRender {
         if (lineWidth < 0) lineWidth = 0;
         this.setFont(font);
         this.fontScaleX = this.fontScaleY = 1.0;
-        if (!ILaya.Render.isConchApp && TextRender.scaleFontWithCtx) {
+        if (TextRender.scaleFontWithCtx) {
             var sx: number = 1;
             var sy: number = 1;
-            if (ILaya.Render.isConchApp) {
-                sx = ctx._curMat.getScaleX();
-                sy = ctx._curMat.getScaleY();
-            } else {
+    
+            if (!ILaya.Render.isConchApp || ((window as any).conchTextCanvas.scale)) {
                 sx = ctx.getMatScaleX();
                 sy = ctx.getMatScaleY();
             }
+            
             if (sx < 1e-4 || sy < 1e-1)
                 return;
             this.fontScaleX = sx;
