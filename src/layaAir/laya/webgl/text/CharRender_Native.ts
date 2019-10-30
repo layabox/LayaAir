@@ -3,6 +3,9 @@ import { ICharRender } from "./ICharRender"
 import { ColorUtils } from "../../utils/ColorUtils"
 export class CharRender_Native extends ICharRender {
 	private lastFont: string = '';
+	private lastScaleX: number = 1.0;
+	private lastScaleY: number = 1.0;
+
 	//TODO:coverage
 	constructor() {
 		super();
@@ -34,7 +37,8 @@ export class CharRender_Native extends ICharRender {
 	 * @override
 	 */
 	scale(sx: number, sy: number): void {
-
+		this.lastScaleX = sx;
+		this.lastScaleY = sy;
 	}
 	/**
 	 *TODO stroke 
@@ -59,6 +63,9 @@ export class CharRender_Native extends ICharRender {
 		var h: number = size.height;
 		w += (margin_left + margin_right);
 		h += (margin_top + margin_bottom);
+
+		(window as any).conchTextCanvas.scale && (window as any).conchTextCanvas.scale(this.lastScaleX, this.lastScaleY);
+
 		var c1: ColorUtils = ColorUtils.create(strokeColStr);
 		var nStrokeColor: number = c1.numColor;
 		var c2: ColorUtils = ColorUtils.create(colStr);
