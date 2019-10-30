@@ -133,7 +133,8 @@ export class RenderElement {
 	/**
 	 * @internal
 	 */
-	_render(context: RenderContext3D, isTarget: boolean): void {
+	_render(context: RenderContext3D): void {
+		var forceInvertFace: boolean = context.invertY;
 		var lastStateMaterial: Material, lastStateShaderInstance: ShaderInstance, lastStateRender: BaseRender;
 		var updateMark: number = Camera._updateMark;
 		var scene: Scene3D = context.scene;
@@ -198,13 +199,13 @@ export class RenderElement {
 				var matValues: ShaderData = this.material._shaderValues;
 				if (lastStateMaterial !== this.material || lastStateShaderInstance !== shaderIns) {//lastStateMaterial,lastStateShaderInstance存到全局，多摄像机还可优化
 					shaderIns.uploadRenderStateBlendDepth(matValues);
-					shaderIns.uploadRenderStateFrontFace(matValues, isTarget, this.getInvertFront());
+					shaderIns.uploadRenderStateFrontFace(matValues, forceInvertFace, this.getInvertFront());
 					lastStateMaterial = this.material;
 					lastStateShaderInstance = shaderIns;
 					lastStateRender = this.render;
 				} else {
 					if (lastStateRender !== this.render) {//TODO:是否可以用transfrom
-						shaderIns.uploadRenderStateFrontFace(matValues, isTarget, this.getInvertFront());
+						shaderIns.uploadRenderStateFrontFace(matValues, forceInvertFace, this.getInvertFront());
 						lastStateRender = this.render;
 					}
 				}

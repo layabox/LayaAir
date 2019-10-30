@@ -17,9 +17,9 @@ export class ScreenTriangle extends Resource {
 	/** @internal */
 	private static _vertexDeclaration: VertexDeclaration;
 	/** @internal */
-	private static _vertices: Float32Array = new Float32Array([-1, -1, 0, 1, -1, 3, 0, -1, 3, -1, 2, 1]);
+	private static _vertices: Float32Array = new Float32Array([-1, -1, 0, 0, -1, 3, 0, 2, 3, -1, 2, 0]);//the rule of OpenGL
 	/** @internal */
-	private static _verticesInvertUV: Float32Array = new Float32Array([-1, -1, 0, 0, -1, 3, 0, 2, 3, -1, 2, 0]);
+	private static _verticesInvertUV: Float32Array = new Float32Array([-1, -1, 0, 1, -1, 3, 0, -1, 3, -1, 2, 1]);
 
 	/**@internal */
 	static instance: ScreenTriangle;

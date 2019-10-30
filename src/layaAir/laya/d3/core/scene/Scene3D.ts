@@ -954,21 +954,21 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 */
 	_renderScene(context: RenderContext3D): void {
 		var camera: Camera = <Camera>context.camera;
-		var renderTex: RenderTexture = camera._getRenderTexture();
-		renderTex ? this._opaqueQueue._render(context, true) : this._opaqueQueue._render(context, false);//非透明队列
+		
+		this._opaqueQueue._render(context);//非透明队列
 		if (camera.clearFlag === BaseCamera.CLEARFLAG_SKY) {
 			if (camera.skyRenderer._isAvailable())
 				camera.skyRenderer._render(context);
 			else if (this._skyRenderer._isAvailable())
 				this._skyRenderer._render(context);
 		}
-		renderTex ? this._transparentQueue._render(context, true) : this._transparentQueue._render(context, false);//透明队列
+		this._transparentQueue._render(context);//透明队列
 
 		if (FrustumCulling.debugFrustumCulling) {
 			var renderElements: RenderElement[] = this._debugTool._render._renderElements;
 			for (var i: number = 0, n: number = renderElements.length; i < n; i++) {
 				renderElements[i]._update(this, context, null, null);
-				renderElements[i]._render(context, false);
+				renderElements[i]._render(context);
 			}
 		}
 	}

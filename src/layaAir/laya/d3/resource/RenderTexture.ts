@@ -1,9 +1,10 @@
-import { LayaGL } from "../../layagl/LayaGL"
-import { Render } from "../../renders/Render"
-import { BaseTexture } from "../../resource/BaseTexture"
-import { Texture2D } from "../../resource/Texture2D"
+import { LayaGL } from "../../layagl/LayaGL";
+import { Render } from "../../renders/Render";
+import { BaseTexture } from "../../resource/BaseTexture";
+import { RenderTextureDepthFormat, RenderTextureFormat } from "../../resource/RenderTextureFormat";
+import { Texture2D } from "../../resource/Texture2D";
 import { WebGLContext } from "../../webgl/WebGLContext";
-import { RenderTextureFormat, RenderTextureDepthFormat } from "../../resource/RenderTextureFormat";
+import { RenderContext3D } from "../core/render/RenderContext3D";
 
 /**
  * <code>RenderTexture</code> 类用于创建渲染目标。
@@ -60,6 +61,9 @@ export class RenderTexture extends BaseTexture {
 	private _depthStencilFormat: number;
 	/** @internal */
 	private _inPool: boolean = false;
+
+	/** @internal */
+	_isCameraTarget: boolean = false;
 
 	/**
 	 * 深度格式。
@@ -170,6 +174,7 @@ export class RenderTexture extends BaseTexture {
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
 		RenderTexture._currentActive = this;
+		(this._isCameraTarget) && (RenderContext3D._instance.invertY = true);//if this is offScreenRenderTexture need invertY
 		this._readyed = false;
 	}
 
@@ -180,6 +185,7 @@ export class RenderTexture extends BaseTexture {
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 		RenderTexture._currentActive = null;
+		(this._isCameraTarget) && (RenderContext3D._instance.invertY = false);
 		this._readyed = true;
 	}
 

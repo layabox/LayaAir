@@ -81,10 +81,10 @@ export class RenderQueue {
 	/**
 	 * @internal
 	 */
-	_render(context: RenderContext3D, isTarget: boolean): void {
+	_render(context: RenderContext3D): void {
 		var elements: RenderElement[] = this.elements.elements;
 		for (var i: number = 0, n: number = this.elements.length; i < n; i++)
-			elements[i]._render(context, isTarget);
+			elements[i]._render(context);
 	}
 
 	/**

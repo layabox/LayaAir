@@ -86,9 +86,9 @@ export class Camera extends BaseCamera {
 	private _projectionParams: Vector4 = new Vector4();
 
 
-	/** @internal 渲染目标。*/
+	/** @internal */
 	_offScreenRenderTexture: RenderTexture = null;
-	/**@internal */
+	/** @internal */
 	_internalRenderTexture: RenderTexture = null;
 	/** @internal */
 	_postProcessCommandBuffers: CommandBuffer[] = [];
@@ -98,7 +98,7 @@ export class Camera extends BaseCamera {
 	_clusterYPlanes: Vector3[];
 	/** @internal */
 	_clusterPlaneCacheFlag: Vector2 = new Vector2(-1, -1);
-	/**@internal */
+	/** @internal */
 	_screenOffsetScale: Vector4 = new Vector4();
 
 	/**是否允许渲染。*/
@@ -262,6 +262,8 @@ export class Camera extends BaseCamera {
 
 	set renderTarget(value: RenderTexture) {
 		if (this._offScreenRenderTexture !== value) {
+			(this._offScreenRenderTexture) && (this._offScreenRenderTexture._isCameraTarget = false);
+			(value) && (value._isCameraTarget = false);
 			this._offScreenRenderTexture = value;
 			this._calculateProjectionMatrix();
 		}
@@ -463,10 +465,10 @@ export class Camera extends BaseCamera {
 	/**
 	 * @internal
 	 */
-	_applyViewProject(context: RenderContext3D, viewMat: Matrix4x4, proMat: Matrix4x4, inverseY: Boolean): void {
+	_applyViewProject(context: RenderContext3D, viewMat: Matrix4x4, proMat: Matrix4x4): void {
 		var projectView: Matrix4x4;
 		var shaderData: ShaderData = this._shaderValues;
-		if (inverseY) {
+		if (context.invertY) {
 			Matrix4x4.multiply(BaseCamera._invertYScaleMatrix, proMat, BaseCamera._invertYProjectionMatrix);
 			Matrix4x4.multiply(BaseCamera._invertYProjectionMatrix, viewMat, BaseCamera._invertYProjectionViewMatrix);
 			proMat = BaseCamera._invertYProjectionMatrix;
@@ -566,10 +568,10 @@ export class Camera extends BaseCamera {
 				Camera._updateMark++;
 				context.viewport = smCamera.viewport;
 				smCamera._prepareCameraToRender();
-				smCamera._applyViewProject(context, smCamera.viewMatrix, smCamera.projectionMatrix, false);
+				smCamera._applyViewProject(context, smCamera.viewMatrix, smCamera.projectionMatrix);
 				scene._clear(gl, context);
 				var queue: RenderQueue = scene._opaqueQueue;//阴影均为非透明队列
-				queue._render(context, false);//TODO:临时改为False
+				queue._render(context);
 				shadowMap._end();
 			}
 			scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_CAST_SHADOW);//去掉宏定义
@@ -579,21 +581,20 @@ export class Camera extends BaseCamera {
 		context.camera = this;
 		Camera._updateMark++;
 		scene._preRenderScript();//TODO:duo相机是否重复
-		//if needInternalRT = true and clearFlag is depthOnly, should grab the backBuffer
-		if (needInternalRT && (!this._offScreenRenderTexture && this.clearFlag == BaseCamera.CLEARFLAG_DEPTHONLY)) {
-			if (this._enableHDR) {//internalRenderTexture is HDR can't directly copy
+		//if need internal RT and no off screen RT and clearFlag is DepthOnly or Nothing, should grab the backBuffer
+		if (needInternalRT && !this._offScreenRenderTexture && (this.clearFlag == CameraClearFlags.DepthOnly || this.clearFlag == CameraClearFlags.Nothing)) {
+			if (this._enableHDR) {//internal RT is HDR can't directly copy
 				var grabTexture: RenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, RenderTextureFormat.R8G8B8, RenderTextureDepthFormat.DEPTH_16, BaseTexture.FILTERMODE_BILINEAR);
 				WebGLContext.bindTexture(gl, gl.TEXTURE_2D, grabTexture._getSource());
 				gl.copyTexSubImage2D(gl.TEXTURE_2D, 0, 0, 0, viewport.x, RenderContext3D.clientHeight - (viewport.y + viewport.height), viewport.width, viewport.height);
 				var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(grabTexture, this._internalRenderTexture);
-				blit.invertY = true;
 				blit.run();
 				blit.recover();
 				RenderTexture.recoverToPool(grabTexture);
 			}
 			else {
 				WebGLContext.bindTexture(gl, gl.TEXTURE_2D, this._internalRenderTexture._getSource());
-				gl.copyTexSubImage2D(gl.TEXTURE_2D, 0, 0, 0, viewport.x, viewport.y, viewport.width, viewport.height);
+				gl.copyTexSubImage2D(gl.TEXTURE_2D, 0, 0, 0, viewport.x, RenderContext3D.clientHeight - (viewport.y + viewport.height), viewport.width, viewport.height);
 			}
 		}
 		var renderTex: RenderTexture = this._getRenderTexture();//如果有临时renderTexture则画到临时renderTexture,最后再画到屏幕或者离屏画布,如果无临时renderTexture则直接画到屏幕或离屏画布
@@ -602,7 +603,9 @@ export class Camera extends BaseCamera {
 		this._prepareCameraToRender();
 		var multiLighting: boolean = Config3D._config._multiLighting;
 		(multiLighting) && (Cluster.instance.update(this, <Scene3D>(this._scene)));
-		this._applyViewProject(context, this.viewMatrix, this._projectionMatrix, renderTex ? true : false);
+
+		this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
+
 		scene._preCulling(context, this, shader, replacementTag);
 		scene._clear(gl, context);
 		scene._renderScene(context);

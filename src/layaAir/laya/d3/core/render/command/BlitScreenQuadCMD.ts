@@ -46,8 +46,6 @@ export class BlitScreenQuadCMD extends Command {
 	/**@internal */
 	private _screenType: number = 0;
 
-	invertY: boolean = false;
-
 	/**
 	 * 
 	 */
@@ -82,8 +80,6 @@ export class BlitScreenQuadCMD extends Command {
 		shaderData.setVector(Command.MAINTEXTURE_TEXELSIZE_ID, this._sourceTexelSize);
 
 		(dest) && (dest._start());
-		var invert: boolean = dest ? true : false;
-		(this.invertY) && (invert = !invert);
 		var subShader: SubShader = shader.getSubShaderAt(this._subShader);
 		var passes: ShaderPass[] = subShader._passes;
 		for (var i: number = 0, n: number = passes.length; i < n; i++) {
@@ -96,10 +92,10 @@ export class BlitScreenQuadCMD extends Command {
 			shaderPass.uploadRenderStateFrontFace(shaderData, false, null);//TODO: //利用UV翻转,无需设置为true
 			switch (this._screenType) {
 				case BlitScreenQuadCMD._SCREENTYPE_QUAD:
-					invert ? ScreenQuad.instance.renderInvertUV() : ScreenQuad.instance.render();
+					RenderContext3D._instance.invertY ? ScreenQuad.instance.renderInvertUV() : ScreenQuad.instance.render();
 					break;
 				case BlitScreenQuadCMD._SCREENTYPE_TRIANGLE:
-					invert ? ScreenTriangle.instance.renderInvertUV() : ScreenTriangle.instance.render();
+					RenderContext3D._instance.invertY ? ScreenTriangle.instance.renderInvertUV() : ScreenTriangle.instance.render();
 					break;
 				default:
 					throw "BlitScreenQuadCMD:unknown screen Type.";
@@ -119,7 +115,6 @@ export class BlitScreenQuadCMD extends Command {
 		this._offsetScale = null;
 		this._shader = null;
 		this._shaderData = null;
-		this.invertY = false;
 		super.recover();
 	}
 

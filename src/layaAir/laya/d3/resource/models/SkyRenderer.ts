@@ -78,11 +78,11 @@ export class SkyRenderer {
 	/**
 	 * @internal
 	 */
-	_render(state: RenderContext3D): void {
+	_render(context: RenderContext3D): void {
 		if (this._material && this._mesh) {
 			var gl: WebGLRenderingContext = LayaGL.instance;
-			var scene: Scene3D = state.scene;
-			var camera: Camera = <Camera>state.camera;
+			var scene: Scene3D = context.scene;
+			var camera: Camera = <Camera>context.camera;
 
 			var noteValue: boolean = ShaderData._SET_RUNTIME_VALUE_MODE_REFERENCE_;
 			ILaya.Render.supportWebGLPlusRendering && ShaderData.setRuntimeValueMode(false);
@@ -92,7 +92,7 @@ export class SkyRenderer {
 			WebGLContext.setDepthMask(gl, false);
 			var comDef: DefineDatas = SkyRenderer._compileDefine;
 			this._material._shaderValues._defineDatas.cloneTo(comDef);
-			var shader: ShaderInstance = state.shader = this._material._shader.getSubShaderAt(0)._passes[0].withCompile(comDef);//TODO:调整SubShader代码
+			var shader: ShaderInstance = context.shader = this._material._shader.getSubShaderAt(0)._passes[0].withCompile(comDef);//TODO:调整SubShader代码
 			var switchShader: boolean = shader.bind();//纹理需要切换shader时重新绑定 其他uniform不需要
 			var switchShaderLoop: boolean = (Stat.loopCount !== shader._uploadMark);
 
@@ -142,7 +142,7 @@ export class SkyRenderer {
 				projectionMatrix.elements[11] = -1.0;
 				projectionMatrix.elements[14] = -0;//znear无穷小
 
-				(<Camera>camera)._applyViewProject(state, viewMatrix, projectionMatrix, renderTex ? true : false);//TODO:优化 不应设置给Camera直接提交
+				(<Camera>camera)._applyViewProject(context, viewMatrix, projectionMatrix);//TODO:优化 不应设置给Camera直接提交
 				shader.uploadUniforms(shader._cameraUniformParamsMap, camera._shaderValues, uploadCamera);
 				shader._uploadCamera = camera;
 			}
@@ -154,13 +154,13 @@ export class SkyRenderer {
 			}
 
 			this._mesh._bufferState.bind();
-			this._mesh._render(state);
+			this._mesh._render(context);
 
 			ILaya.Render.supportWebGLPlusRendering && ShaderData.setRuntimeValueMode(noteValue);
 
 			WebGLContext.setDepthFunc(gl, gl.LESS);
 			WebGLContext.setDepthMask(gl, true);
-			(<Camera>camera)._applyViewProject(state, (<Camera>camera).viewMatrix, (<Camera>camera).projectionMatrix, renderTex ? true : false);
+			camera._applyViewProject(context, camera.viewMatrix, camera.projectionMatrix);
 		}
 	}
 

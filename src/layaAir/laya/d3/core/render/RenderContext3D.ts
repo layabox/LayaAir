@@ -18,11 +18,6 @@ export class RenderContext3D {
 	static clientHeight: number;
 
 	/** @internal */
-	_batchIndexStart: number;
-	/** @internal */
-	_batchIndexEnd: number;
-
-	/** @internal */
 	viewMatrix: Matrix4x4;
 	/** @internal */
 	projectionMatrix: Matrix4x4;
@@ -39,6 +34,8 @@ export class RenderContext3D {
 	renderElement: RenderElement;
 	/** @internal */
 	shader: ShaderInstance;
+	/** @internal */
+	invertY: boolean = false;
 
 	/**
 	 * 创建一个 <code>RenderContext3D</code> 实例。
