@@ -581,6 +581,8 @@ export class Camera extends BaseCamera {
 		context.camera = this;
 		Camera._updateMark++;
 		scene._preRenderScript();//TODO:duo相机是否重复
+		//TODO:webgl2 should use blitFramebuffer
+		//TODO:if adjacent camera param can use same internal RT can merge
 		//if need internal RT and no off screen RT and clearFlag is DepthOnly or Nothing, should grab the backBuffer
 		if (needInternalRT && !this._offScreenRenderTexture && (this.clearFlag == CameraClearFlags.DepthOnly || this.clearFlag == CameraClearFlags.Nothing)) {
 			if (this._enableHDR) {//internal RT is HDR can't directly copy
