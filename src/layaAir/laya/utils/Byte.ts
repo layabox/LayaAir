@@ -514,7 +514,19 @@ export class Byte {
                 c2 = u[this._pos_++];
                 c3 = u[this._pos_++];
                 //v += f(((c & 0x0F) << 18) | ((c2 & 0x7F) << 12) | ((c3 << 6) & 0x7F) | (u[_pos_++] & 0x7F));
-                strs[n++] = f(((c & 0x0F) << 18) | ((c2 & 0x7F) << 12) | ((c3 << 6) & 0x7F) | (u[this._pos_++] & 0x7F));
+                const _code = ((c & 0x0F)<< 18)| ((c2 & 0x7F)<< 12)| ((c3 & 0x7F)<< 6)| (u[this._pos_++] & 0x7F);
+				if( _code >= 0x10000 )
+				{
+					const _offset = _code - 0x10000;
+					const _lead = 0xd800 | (_offset >> 10);
+					const _trail = 0xdc00 | (_offset & 0x3ff);
+					strs[n++]=f(_lead);
+					strs[n++]=f(_trail);
+				}
+				else
+				{
+					strs[n++]=f(_code);
+				}
             }
             i++;
         }
@@ -622,7 +634,24 @@ export class Byte {
                 this._ensureWrite(this._pos_ + 2);
                 this._u8d_.set([0xC0 | (c >> 6), 0x80 | (c & 0x3F)], this._pos_);
                 this._pos_ += 2;
-            } else if (c <= 0xFFFF) {
+            } else if (c >= 0xD800 && c <=0xDBFF){
+				i++;
+				const c2=value.charCodeAt(i);
+				if( !Number.isNaN(c2) && c2>=0xDC00 && c2<=0xDFFF )
+				{
+					const _p1 = (c & 0x3FF) + 0x40;
+					const _p2 = c2 & 0x3FF;
+
+					const _b1 = 0xF0 | ((_p1>>8) & 0x3F);
+					const _b2 = 0x80 | ((_p1>>2) & 0x3F);
+					const _b3 = 0x80 | ((_p1 & 0x3)<<4) | ((_p2>>6) & 0xF);
+					const _b4 = 0x80 | (_p2 & 0x3F);
+
+					this._ensureWrite(this._pos_+4);
+					this._u8d_.set([_b1, _b2, _b3, _b4],this._pos_);
+					this._pos_+=4;
+				}
+			} else if (c <= 0xFFFF) {
                 this._ensureWrite(this._pos_ + 3);
                 this._u8d_.set([0xE0 | (c >> 12), 0x80 | ((c >> 6) & 0x3F), 0x80 | (c & 0x3F)], this._pos_);
                 this._pos_ += 3;
