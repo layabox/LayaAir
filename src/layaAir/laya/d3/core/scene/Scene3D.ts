@@ -14,9 +14,7 @@ import { Timer } from "../../../utils/Timer";
 import { ISubmit } from "../../../webgl/submit/ISubmit";
 import { SubmitBase } from "../../../webgl/submit/SubmitBase";
 import { SubmitKey } from "../../../webgl/submit/SubmitKey";
-import { WebGL } from "../../../webgl/WebGL";
 import { WebGLContext } from "../../../webgl/WebGLContext";
-import { CastShadowList } from "../../CastShadowList";
 import { Animator } from "../../component/Animator";
 import { Script3D } from "../../component/Script3D";
 import { SimpleSingletonList } from "../../component/SimpleSingletonList";
@@ -37,7 +35,6 @@ import { RenderTexture } from "../../resource/RenderTexture";
 import { TextureCube } from "../../resource/TextureCube";
 import { Shader3D } from "../../shader/Shader3D";
 import { ShaderData } from "../../shader/ShaderData";
-import { ShaderInit3D } from "../../shader/ShaderInit3D";
 import { ParallelSplitShadowMap } from "../../shadowMap/ParallelSplitShadowMap";
 import { Utils3D } from "../../utils/Utils3D";
 import { BaseCamera } from "../BaseCamera";
@@ -954,7 +951,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 */
 	_renderScene(context: RenderContext3D): void {
 		var camera: Camera = <Camera>context.camera;
-		
+
 		this._opaqueQueue._render(context);//非透明队列
 		if (camera.clearFlag === BaseCamera.CLEARFLAG_SKY) {
 			if (camera.skyRenderer._isAvailable())

@@ -120,18 +120,32 @@ export class Texture2D extends BaseTexture {
 		this._setFilterMode(this._filterMode);//TODO:重置宽高需要调整
 		this._setAnisotropy(this._anisoLevel);
 
-		if (this._mipmap) {
-			this._mipmapCount = Math.max(Math.ceil(Math.log2(width)) + 1, Math.ceil(Math.log2(height)) + 1);
-			for (var i: number = 0; i < this._mipmapCount; i++)
-				this._setPixels(null, i, Math.max(width >> i, 1), Math.max(height >> i, 1));//初始化各级mipmap
+		var compress: boolean = this._gpuCompressFormat();//if the format is compress,_setPixels() will cause webgl error
+		if (mipmap) {
+			var mipCount: number = Math.max(Math.ceil(Math.log2(width)) + 1, Math.ceil(Math.log2(height)) + 1);
+			if (!compress) {
+				for (var i: number = 0; i < mipCount; i++)
+					this._setPixels(null, i, Math.max(width >> i, 1), Math.max(height >> i, 1));//init all level
+			}
+			this._mipmapCount = mipCount;
 			this._setGPUMemory(width * height * 4 * (1 + 1 / 3));
 		} else {
+			if (!compress)
+				this._setPixels(null, 0, width, height);//init 0 level
 			this._mipmapCount = 1;
-			this._setPixels(null, 0, width, height);//初始化
 			this._setGPUMemory(width * height * 4);
 		}
 	}
 
+	/**
+	 * @internal
+	 */
+	private _gpuCompressFormat(): boolean {
+		return this._format == TextureFormat.DXT1 || this._format == TextureFormat.DXT5 ||
+			this._format == TextureFormat.ETC1RGB ||
+			this._format == TextureFormat.PVRTCRGB_2BPPV || this._format == TextureFormat.PVRTCRGBA_2BPPV ||
+			this._format == TextureFormat.PVRTCRGB_4BPPV || this._format == TextureFormat.PVRTCRGBA_4BPPV;
+	}
 
 
 	/**
@@ -407,6 +421,8 @@ export class Texture2D extends BaseTexture {
 	 * @param   miplevel 层级。
 	 */
 	setPixels(pixels: Uint8Array | Float32Array, miplevel: number = 0): void {
+		if (this._gpuCompressFormat())
+			throw "Texture2D:the format is GPU compression format.";
 		if (!pixels)
 			throw "Texture2D:pixels can't be null.";
 		var width: number = Math.max(this._width >> miplevel, 1);
@@ -433,6 +449,8 @@ export class Texture2D extends BaseTexture {
 	 * @param  miplevel 层级。
 	 */
 	setSubPixels(x: number, y: number, width: number, height: number, pixels: Uint8Array | Float32Array, miplevel: number = 0): void {
+		if (this._gpuCompressFormat())
+			throw "Texture2D:the format is GPU compression format.";
 		if (!pixels)
 			throw "Texture2D:pixels can't be null.";
 
