@@ -144,7 +144,7 @@ export class MapLayer extends Sprite {
      * @param	objName 所要获取对象的名字
      * @return
      */
-    getObjectDataByName(objName: string): GridSprite {
+    getObjectDataByName(objName: string): any {
         if (this._dataDic) {
             return this._dataDic[objName];
         }
