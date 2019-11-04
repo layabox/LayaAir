@@ -647,7 +647,7 @@ export class Stage extends Sprite {
 		RenderState2D.worldScissorTest && gl.disable(gl.SCISSOR_TEST);
 		var ctx: Context = Render.context;
 		//兼容浏览器
-		var c: any[] = (ctx._submits._length == 0 || Config.preserveDrawingBuffer) ? ColorUtils.create(value).arrColor : ((<any>window)).Laya.stage._wgColor;
+		var c: any[] = (ctx._submits._length == 0 || Config.preserveDrawingBuffer) ? ColorUtils.create(value).arrColor : ILaya.stage._wgColor;
 		if (c)
 			ctx.clearBG(c[0], c[1], c[2], c[3]);
 		else
