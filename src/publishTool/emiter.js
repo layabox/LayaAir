@@ -460,19 +460,29 @@ class emiter {
             case "TypeReference":
                 //自定义类型
                 type = node.typeName.getText();
-                if (type == "ArrayLike")
+                if (type == "ArrayLike") {
                     type = "Array";
+                }
+                else if (type == "Readonly") {
+                    type = "";
+                    for (let i = 0; i < node.typeArguments.length; i++) {
+                        type += (i ? "|" : "") + this.emitType(node.typeArguments[i]);
+                    }
+                }
                 //检测内部枚举是否是枚举类型
-                if (this.enumType.indexOf(type) != -1)
+                if (this.enumType.indexOf(type) != -1) {
                     return "*";
+                }
                 //如果是内部类且有引用
                 if (this.innerClass && this.importArr[type] && this.classNameNow != type) {
-                    if (this.innerImportStr.indexOf(this.importArr[type]) == -1)
+                    if (this.innerImportStr.indexOf(this.importArr[type]) == -1) {
                         this.innerImportStr += "\r\n\timport " + this.importArr[type] + ";";
+                    }
                 }
                 //检测tsc类型
-                if (emiter.jscObj && emiter.jscObj[type])
+                if (emiter.jscObj && emiter.jscObj[type]) {
                     type = emiter.jscObj[type];
+                }
                 return type;
             case "TypeQuery":
                 // console.log("console test:",node.exprName.getText());
@@ -514,6 +524,13 @@ class emiter {
             }
             else if (type == "Array") {
                 type = "Array<" + this.emitArray(node) + ">";
+            }
+            else if (type == "Readonly") {
+                type = "Readonly<";
+                for (let i = 0; i < node.typeArguments.length; i++) {
+                    type += (i ? "|" : "") + this.emitTsType(node.typeArguments[i]);
+                }
+                type += ">";
             }
             else if (this.importArr[type])
                 type = this.importArr[type];
