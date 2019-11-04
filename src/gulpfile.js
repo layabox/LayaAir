@@ -158,7 +158,7 @@ var packsDefPlatform = [
         'input': [
             './platform/ali/**/*.*'
         ],
-        'out': '../build/js/libs/laya.alimini.js'
+        'out': '../build/js/libs/laya.Alipaymini.js'
     },
     //debugtool
     {
@@ -349,7 +349,7 @@ gulp.task('CopyTSJSLibsFileToTS', () => {
         '../build/js/libs/laya.xmmini.js',
         '../build/js/libs/laya.quickgamemini.js',
         '../build/js/libs/laya.vvmini.js',
-        '../build/js/libs/laya.alimini.js',
+        '../build/js/libs/laya.Alipaymini.js',
         '../build/js/libs/laya.qqmini.js'])
         .pipe(gulp.dest('../build/ts_new/jslibs'));
 });
