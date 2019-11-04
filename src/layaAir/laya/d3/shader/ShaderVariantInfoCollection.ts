@@ -1,3 +1,4 @@
+import { ILaya3D } from "../../../ILaya3D";
 import { DefineDatas } from "./DefineDatas";
 import { Shader3D } from "./Shader3D";
 import { ShaderPass } from "./ShaderPass";
@@ -43,7 +44,7 @@ export class ShaderVariantInfo {
                     var validDefine: DefineDatas = pass._validDefine;
                     for (var i: number = 0, n: number = defineNames.length; i < n; i++) {
                         var defname: string = defineNames[i];
-                        if (!validDefine.has(Shader3D.getDefineByName(defname)))
+                        if (!validDefine.has(ILaya3D.Shader3D.getDefineByName(defname)))
                             throw `ShaderVariantInfo:Invalid defineName ${defname} in ${shader._name} subShaderIndex of ${subShaderIndex} passIndex of ${passIndex}.`;
                     }
                 }
@@ -174,7 +175,7 @@ export class ShaderVariantInfoCollection {
             var variants: ShaderVariantInfo[] = this._variants;
             for (var i: number = 0, n: number = variants.length; i < n; i++) {
                 var variant: ShaderVariantInfo = variants[i];
-                Shader3D.compileShaderByDefineNames(variant._shader._name, variant._subShaderIndex, variant._passIndex, variant._defineNames);
+                ILaya3D.Shader3D.compileShaderByDefineNames(variant._shader._name, variant._subShaderIndex, variant._passIndex, variant._defineNames);
             }
             this._allCompiled = true;
         }

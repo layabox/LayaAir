@@ -1,16 +1,14 @@
 import { Config3D } from "../../../Config3D";
-import { ILaya3D } from "../../../ILaya3D";
 import { InlcudeFile } from "../../webgl/utils/InlcudeFile";
 import { ShaderCompile } from "../../webgl/utils/ShaderCompile";
 import { ShaderNode } from "../../webgl/utils/ShaderNode";
-import { WebGL } from "../../webgl/WebGL";
 import { RenderState } from "../core/material/RenderState";
 import { Vector3 } from "../math/Vector3";
 import { DefineDatas } from "./DefineDatas";
 import { Shader3D } from "./Shader3D";
 import { ShaderInstance } from "./ShaderInstance";
-import { SubShader } from "./SubShader";
 import { ShaderVariantInfo } from "./ShaderVariantInfoCollection";
+import { SubShader } from "./SubShader";
 
 /**
  * <code>ShaderPass</code> 类用于实现ShaderPass。

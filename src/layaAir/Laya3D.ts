@@ -66,6 +66,7 @@ import { PrimitiveMesh } from "./laya/d3/resource/models/PrimitiveMesh";
 import { SkyBox } from "./laya/d3/resource/models/SkyBox";
 import { SkyDome } from "./laya/d3/resource/models/SkyDome";
 import { TextureCube } from "./laya/d3/resource/TextureCube";
+import { Shader3D } from "./laya/d3/shader/Shader3D";
 import { ShaderData } from "./laya/d3/shader/ShaderData";
 import { ShaderInit3D } from "./laya/d3/shader/ShaderInit3D";
 import { ShaderInstance } from "./laya/d3/shader/ShaderInstance";
@@ -184,6 +185,7 @@ export class Laya3D {
 		}
 		config._multiLighting = config.enableMultiLight && SystemUtils.supportTextureFormat(TextureFormat.R32G32B32A32);
 
+		ILaya3D.Shader3D = Shader3D;
 		ILaya3D.Scene3D = Scene3D;
 		ILaya3D.MeshRenderStaticBatchManager = MeshRenderStaticBatchManager;
 		ILaya3D.MeshRenderDynamicBatchManager = MeshRenderDynamicBatchManager;
