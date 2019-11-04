@@ -261,9 +261,10 @@ export class Camera extends BaseCamera {
 	}
 
 	set renderTarget(value: RenderTexture) {
-		if (this._offScreenRenderTexture !== value) {
-			(this._offScreenRenderTexture) && (this._offScreenRenderTexture._isCameraTarget = false);
-			(value) && (value._isCameraTarget = false);
+		var lastValue: RenderTexture = this._offScreenRenderTexture;
+		if (lastValue !== value) {
+			(lastValue) && (lastValue._isCameraTarget = false);
+			(value) && (value._isCameraTarget = true);
 			this._offScreenRenderTexture = value;
 			this._calculateProjectionMatrix();
 		}
