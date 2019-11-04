@@ -1,8 +1,7 @@
-import { CommandEncoder } from "./CommandEncoder";
 import { LayaGPU } from "../webgl/LayaGPU";
 
 /**
- * @private
+ * @internal
  * 封装GL命令
  */
 export class LayaGL {

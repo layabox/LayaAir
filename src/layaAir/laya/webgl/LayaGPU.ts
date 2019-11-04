@@ -1,7 +1,6 @@
 
-import { WebGL } from "./WebGL";
 import { ILaya } from "../../ILaya";
-import { VertexArrayObject } from "../../laya/webgl/VertexArrayObject"
+import { VertexArrayObject } from "../../laya/webgl/VertexArrayObject";
 
 /**
  * @internal

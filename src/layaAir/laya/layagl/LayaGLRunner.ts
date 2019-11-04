@@ -2,7 +2,7 @@ import { CommandEncoder } from "./CommandEncoder";
 import { LayaGL } from "./LayaGL";
 
 /**
- * @private
+ * @internal
  * 普通命令执行器
  */
 export class LayaGLRunner {
