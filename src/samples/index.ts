@@ -1,12 +1,2 @@
 import { Main } from "./Main";
-import { PhysicsWorld_BaseCollider } from "./3d/LayaAir3D_Physics3D/PhysicsWorld_BaseCollider";
-import { PhysicsWorld_BuildingBlocks } from "./3d/LayaAir3D_Physics3D/PhysicsWorld_BuildingBlocks";
-import { PhysicsWorld_Character } from "./3d/LayaAir3D_Physics3D/PhysicsWorld_Character";
-import { PhysicsWorld_CollisionFiflter } from "./3d/LayaAir3D_Physics3D/PhysicsWorld_CollisionFiflter";
-import { PhysicsWorld_ContinueCollisionDetection } from "./3d/LayaAir3D_Physics3D/PhysicsWorld_ContinueCollisionDetection";
-import { PhysicsWorld_CompoundCollider } from "./3d/LayaAir3D_Physics3D/PhysicsWorld_CompoundCollider";
-import { PhysicsWorld_Kinematic } from "./3d/LayaAir3D_Physics3D/PhysicsWorld_Kinematic";
-import { PhysicsWorld_MeshCollider } from "./3d/LayaAir3D_Physics3D/PhysicsWorld_MeshCollider";
-import { PhysicsWorld_RayShapeCast } from "./3d/LayaAir3D_Physics3D/PhysicsWorld_RayShapeCast";
-import { PhysicsWorld_TriggerAndCollisionEvent } from "./3d/LayaAir3D_Physics3D/PhysicsWorld_TriggerAndCollisionEvent";
-new PhysicsWorld_Character(); 
+new Main(); 
