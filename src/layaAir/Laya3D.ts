@@ -6,10 +6,11 @@ import { AnimationClip } from "./laya/d3/animation/AnimationClip";
 import { Animator } from "./laya/d3/component/Animator";
 import { PostProcess } from "./laya/d3/component/PostProcess";
 import { Avatar } from "./laya/d3/core/Avatar";
-import { Material } from "./laya/d3/core/material/Material";
+import { BaseMaterial } from "./laya/d3/core/material/BaseMaterial";
 import { BlinnPhongMaterial } from "./laya/d3/core/material/BlinnPhongMaterial";
 import { EffectMaterial } from "./laya/d3/core/material/EffectMaterial";
 import { ExtendTerrainMaterial } from "./laya/d3/core/material/ExtendTerrainMaterial";
+import { Material } from "./laya/d3/core/material/Material";
 import { PBRSpecularMaterial } from "./laya/d3/core/material/PBRSpecularMaterial";
 import { PBRStandardMaterial } from "./laya/d3/core/material/PBRStandardMaterial";
 import { SkyBoxMaterial } from "./laya/d3/core/material/SkyBoxMaterial";
@@ -47,6 +48,7 @@ import { VertexShurikenParticleMesh } from "./laya/d3/graphics/Vertex/VertexShur
 import { VertexElementFormat } from "./laya/d3/graphics/VertexElementFormat";
 import { HalfFloatUtils } from "./laya/d3/math/HalfFloatUtils";
 import { Matrix4x4 } from "./laya/d3/math/Matrix4x4";
+import { BulletInteractive } from "./laya/d3/physics/BulletInteractive";
 import { CharacterController } from "./laya/d3/physics/CharacterController";
 import { Physics3D } from "./laya/d3/physics/Physics3D";
 import { PhysicsCollider } from "./laya/d3/physics/PhysicsCollider";
@@ -74,21 +76,19 @@ import { Node } from "./laya/display/Node";
 import { Event } from "./laya/events/Event";
 import { CommandEncoder } from "./laya/layagl/CommandEncoder";
 import { LayaGL } from "./laya/layagl/LayaGL";
+import { LayaGLRunner } from "./laya/layagl/LayaGLRunner";
 import { Loader } from "./laya/net/Loader";
 import { LoaderManager } from "./laya/net/LoaderManager";
 import { URL } from "./laya/net/URL";
 import { Render } from "./laya/renders/Render";
-import { BaseTexture } from "./laya/resource/BaseTexture";
 import { Resource } from "./laya/resource/Resource";
 import { Texture2D } from "./laya/resource/Texture2D";
+import { TextureFormat } from "./laya/resource/TextureFormat";
 import { ClassUtils } from "./laya/utils/ClassUtils";
 import { Handler } from "./laya/utils/Handler";
 import { RunDriver } from "./laya/utils/RunDriver";
 import { WebGL } from "./laya/webgl/WebGL";
 import { WebGLContext } from "./laya/webgl/WebGLContext";
-import { TextureFormat } from "./laya/resource/TextureFormat";
-import { LayaGLRunner } from "./laya/layagl/LayaGLRunner";
-import { BaseMaterial } from "./laya/d3/core/material/BaseMaterial";
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
  */
@@ -844,7 +844,7 @@ export class Laya3D {
 		} else {
 			Physics3D._enablePhysics = true;
 			//should convert MB to pages
-			physics3D(config.defaultPhysicsMemory * 16, Physics3D._interactive).then(function (): void {
+			physics3D(config.defaultPhysicsMemory * 16, BulletInteractive._interactive).then(function (): void {
 				Laya3D.__init__(width, height, config);
 				compolete && compolete.run();
 			});

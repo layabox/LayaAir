@@ -1,11 +1,10 @@
 import { Config3D } from "../../../Config3D";
 import { ShaderCompile } from "../../webgl/utils/ShaderCompile";
-import { WebGL } from "../../webgl/WebGL";
 import { DefineDatas } from "./DefineDatas";
 import { ShaderDefine } from "./ShaderDefine";
 import { ShaderPass } from "./ShaderPass";
+import { ShaderVariantInfo, ShaderVariantInfoCollection } from "./ShaderVariantInfoCollection";
 import { SubShader } from "./SubShader";
-import { ShaderVariantInfoCollection, ShaderVariantInfo } from "./ShaderVariantInfoCollection";
 
 /**
  * <code>Shader3D</code> 类用于创建Shader3D。
@@ -260,7 +259,7 @@ export class Shader3D {
 					for (var i: number = 0, n: number = defineMask.length; i < n; i++)
 						mask.push(defineMask[i]);
 					compileDefineDatas._length = defineMask.length;
-					
+
 					(Config3D._config._multiLighting) || (compileDefineDatas.add(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING));
 					pass.withCompile(compileDefineDatas);
 
