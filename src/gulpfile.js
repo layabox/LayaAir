@@ -257,6 +257,7 @@ gulp.task('ModifierJs', () => {
             .pipe(through.obj(function (file, encode, cb) {
                 var srcContents = file.contents.toString();
                 var destContents = srcContents.replace(/var Laya /, "window.Laya");
+                destContents = destContents.replace(/\(this.Laya = this.Laya \|\| {}, Laya\)\);/, "(window.Laya = window.Laya || {}, Laya));");
                 // 再次转为Buffer对象，并赋值给文件内容
                 file.contents = Buffer.from(destContents);
                 // 以下是例行公事
