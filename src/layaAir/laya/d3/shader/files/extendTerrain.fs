@@ -18,17 +18,25 @@
 	uniform vec3 u_FogColor;
 #endif
 
-
-#ifdef DIRECTIONLIGHT
-	uniform DirectionLight u_DirectionLight;
-#endif
-
-#ifdef POINTLIGHT
-	uniform PointLight u_PointLight;
-#endif
-
-#ifdef SPOTLIGHT
-	uniform SpotLight u_SpotLight;
+#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
+	#ifdef LEGACYSINGLELIGHTING
+		#ifdef DIRECTIONLIGHT
+			uniform DirectionLight u_DirectionLight;
+		#endif
+		#ifdef POINTLIGHT
+			uniform PointLight u_PointLight;
+		#endif
+		#ifdef SPOTLIGHT
+			uniform SpotLight u_SpotLight;
+		#endif
+	#else
+		uniform mat4 u_View;
+		uniform vec4 u_ProjectionParams;
+		uniform vec4 u_Viewport;
+		uniform int u_DirationLightCount;
+		uniform sampler2D u_LightBuffer;
+		uniform sampler2D u_LightClusterBuffer;
+	#endif
 #endif
 
 #include "ShadowHelper.glsl"
@@ -105,41 +113,80 @@ void main()
 	#endif
 		gl_FragColor.w = splatAlpha.a;
 		
-#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
-    vec3 normal = v_Normal;
-	vec3 dif, spe;
-#endif
-
-vec3 diffuse = vec3(0.0);
-vec3 specular= vec3(0.0);
-#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(FOG)
-	vec3 toEye;
-	#ifdef FOG
-		toEye=u_CameraPos-v_PositionWorld;
-		float toEyeLength=length(toEye);
-		toEye/=toEyeLength;
-	#else
-		toEye=normalize(u_CameraPos-v_PositionWorld);
+	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
+		vec3 normal = v_Normal;
+		vec3 dif, spe;
 	#endif
-#endif
 
-#ifdef DIRECTIONLIGHT
-	LayaAirBlinnPhongDiectionLight(vec3(0.0), 1.0, normal, vec3(1.0), toEye,u_DirectionLight, dif, spe);
-	diffuse+=dif;
-	specular+=spe;
-#endif
- 
-#ifdef POINTLIGHT
-	LayaAirBlinnPhongPointLight(v_PositionWorld, vec3(0.0), 1.0, normal, vec3(1.0), toEye, u_PointLight, dif, spe);
-	diffuse+=dif;
-	specular+=spe;
-#endif
+	vec3 diffuse = vec3(0.0);
+	vec3 specular= vec3(0.0);
+	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(FOG)
+		vec3 toEye;
+		#ifdef FOG
+			toEye=u_CameraPos-v_PositionWorld;
+			float toEyeLength=length(toEye);
+			toEye/=toEyeLength;
+		#else
+			toEye=normalize(u_CameraPos-v_PositionWorld);
+		#endif
+	#endif
 
-#ifdef SPOTLIGHT
-	LayaAirBlinnPhongSpotLight(v_PositionWorld, vec3(0.0), 1.0, normal, vec3(1.0), toEye, u_SpotLight, dif, spe);
-	diffuse+=dif;
-	specular+=spe;
-#endif
+	#ifdef LEGACYSINGLELIGHTING
+		#ifdef DIRECTIONLIGHT
+			LayaAirBlinnPhongDiectionLight(vec3(0.0),1.0,normal,vec3(1.0),toEye,u_DirectionLight,dif,spe);
+			diffuse+=dif;
+			specular+=spe;
+		#endif
+	
+		#ifdef POINTLIGHT
+			LayaAirBlinnPhongPointLight(v_PositionWorld,vec3(0.0),1.0,normal,vec3(1.0),toEye,u_PointLight,dif,spe);
+			diffuse+=dif;
+			specular+=spe;
+		#endif
+
+		#ifdef SPOTLIGHT
+			LayaAirBlinnPhongSpotLight(v_PositionWorld,vec3(0.0),1.0,normal,vec3(1.0),toEye,u_SpotLight,dif,spe);
+			diffuse+=dif;
+			specular+=spe;
+		#endif
+	#else
+		#ifdef DIRECTIONLIGHT
+			for (int i = 0; i < MAX_LIGHT_COUNT; i++) 
+			{
+				if(i >= u_DirationLightCount)
+					break;
+				DirectionLight directionLight = getDirectionLight(u_LightBuffer,i);
+				LayaAirBlinnPhongDiectionLight(vec3(0.0),1.0,normal,vec3(1.0),toEye,directionLight,dif,spe);
+				diffuse+=dif;
+				specular+=spe;
+			}
+		#endif
+		#if defined(POINTLIGHT)||defined(SPOTLIGHT)
+			ivec4 clusterInfo =getClusterInfo(u_LightClusterBuffer,u_View,u_Viewport, v_PositionWorld,gl_FragCoord,u_ProjectionParams);
+			#ifdef POINTLIGHT
+				for (int i = 0; i < MAX_LIGHT_COUNT; i++) 
+				{
+					if(i >= clusterInfo.x)//PointLightCount
+						break;
+					PointLight pointLight = getPointLight(u_LightBuffer,u_LightClusterBuffer,clusterInfo,i);
+					LayaAirBlinnPhongPointLight(v_PositionWorld,vec3(0.0),1.0,normal,vec3(1.0),toEye,pointLight,dif,spe);
+					diffuse+=dif;
+					specular+=spe;
+				}
+			#endif
+			#ifdef SPOTLIGHT
+				for (int i = 0; i < MAX_LIGHT_COUNT; i++) 
+				{
+					if(i >= clusterInfo.y)//SpotLightCount
+						break;
+					SpotLight spotLight = getSpotLight(u_LightBuffer,u_LightClusterBuffer,clusterInfo,i);
+					LayaAirBlinnPhongSpotLight(v_PositionWorld,vec3(0.0),1.0,normal,vec3(1.0),toEye	,spotLight,dif,spe);
+					diffuse+=dif;
+					specular+=spe;
+				}
+			#endif
+		#endif
+	#endif
 
 vec3 globalDiffuse = u_AmbientColor;
 #ifdef LIGHTMAP
