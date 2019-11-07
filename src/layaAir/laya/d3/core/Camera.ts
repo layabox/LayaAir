@@ -633,8 +633,8 @@ export class Camera extends BaseCamera {
 
 	/**
 	 * 计算从屏幕空间生成的射线。
-	 * @param	point 屏幕空间的位置位置。
-	 * @return  out  输出射线。
+	 * @param point 屏幕空间的位置位置。
+	 * @param out  输出射线。
 	 */
 	viewportPointToRay(point: Vector2, out: Ray): void {
 		Picker.calculateCursorRay(point, this.viewport, this._projectionMatrix, this.viewMatrix, null, out);
@@ -642,8 +642,8 @@ export class Camera extends BaseCamera {
 
 	/**
 	 * 计算从裁切空间生成的射线。
-	 * @param	point 裁切空间的位置。。
-	 * @return  out  输出射线。
+	 * @param point 裁切空间的位置。
+	 * @param out  输出射线。
 	 */
 	normalizedViewportPointToRay(point: Vector2, out: Ray): void {
 		var finalPoint: Vector2 = Camera._tempVector20;
@@ -655,9 +655,9 @@ export class Camera extends BaseCamera {
 	}
 
 	/**
-	 * 计算从世界空间准换三维坐标到屏幕空间。
-	 * @param	position 世界空间的位置。
-	 * @param   out  输出位置。
+	 * 将一个点从世界空间转换到视口空间。
+	 * @param position 世界空间的坐标。
+	 * @param out  视口空间的坐标。
 	 */
 	worldToViewportPoint(position: Vector3, out: Vector3): void {
 		Matrix4x4.multiply(this._projectionMatrix, this._viewMatrix, this._projectionViewMatrix);
@@ -667,9 +667,9 @@ export class Camera extends BaseCamera {
 	}
 
 	/**
-	 * 计算从世界空间准换三维坐标到裁切空间。
-	 * @param	position 世界空间的位置。
-	 * @param   out  输出位置。
+	 * 将一个点从世界空间转换到归一化视口空间。
+	 * @param position 世界空间的坐标。
+	 * @param out  归一化视口空间的坐标。
 	 */
 	worldToNormalizedViewportPoint(position: Vector3, out: Vector3): void {
 		Matrix4x4.multiply(this._projectionMatrix, this._viewMatrix, this._projectionViewMatrix);
