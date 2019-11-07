@@ -221,7 +221,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	}
 
 	/**
-	 * 线性因子。
+	 * 每个轴的线性运动缩放因子。
 	 */
 	get linearFactor(): Vector3 {
 		if (this._btColliderObject)
@@ -258,7 +258,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	}
 
 	/**
-	 * 角因子。
+	 * 每个轴的角度运动缩放因子。
 	 */
 	get angularFactor(): Vector3 {
 		if (this._btColliderObject)
