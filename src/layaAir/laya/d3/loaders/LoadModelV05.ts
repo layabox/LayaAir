@@ -4,7 +4,7 @@ import { VertexBuffer3D } from "../graphics/VertexBuffer3D"
 import { VertexDeclaration } from "../graphics/VertexDeclaration"
 import { HalfFloatUtils } from "../math/HalfFloatUtils"
 import { Matrix4x4 } from "../math/Matrix4x4"
-import { Mesh } from "../resource/models/Mesh"
+import { Mesh, skinnedMatrixCache } from "../resource/models/Mesh"
 import { SubMesh } from "../resource/models/SubMesh"
 import { Byte } from "../../utils/Byte"
 import { LayaGL } from "../../layagl/LayaGL";
@@ -292,9 +292,9 @@ export class LoadModelV05 {
 		subIndexBufferCount.length = drawCount;
 		boneIndicesList.length = drawCount;
 
-		var pathMarks: any[][] = LoadModelV05._mesh._skinDataPathMarks;
-		var bindPoseIndices: number[] = [];
+		var skinnedCache: skinnedMatrixCache[] = LoadModelV05._mesh._skinnedMatrixCaches;
 		var subMeshIndex: number = LoadModelV05._subMeshes.length;
+		skinnedCache.length = LoadModelV05._mesh._inverseBindPoses.length;
 		for (var i: number = 0; i < drawCount; i++) {
 			subIndexBufferStart[i] = reader.getUint32();
 			subIndexBufferCount[i] = reader.getUint32();
@@ -303,11 +303,7 @@ export class LoadModelV05 {
 			var boneIndices: Uint16Array = boneIndicesList[i] = new Uint16Array(arrayBuffer.slice(offset + boneDicofs, offset + boneDicofs + boneDicCount));
 			for (var j: number = 0, m: number = boneIndices.length; j < m; j++) {
 				var index: number = boneIndices[j];
-				var combineIndex: number = bindPoseIndices.indexOf(index);
-				if (combineIndex === -1) {
-					bindPoseIndices.push(index);
-					pathMarks.push([subMeshIndex, i, j]);
-				}
+				skinnedCache[index] || (skinnedCache[index] = new skinnedMatrixCache(subMeshIndex, i, j));
 			}
 		}
 		LoadModelV05._subMeshes.push(subMesh);

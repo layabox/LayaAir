@@ -6,7 +6,7 @@ import { Animator } from "../component/Animator";
 import { FrustumCulling } from "../graphics/FrustumCulling";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Vector3 } from "../math/Vector3";
-import { Mesh } from "../resource/models/Mesh";
+import { Mesh, skinnedMatrixCache } from "../resource/models/Mesh";
 import { SubMesh } from "../resource/models/SubMesh";
 import { Utils3D } from "../utils/Utils3D";
 import { Avatar } from "./Avatar";
@@ -97,7 +97,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	private _computeSkinnedData(): void {
 		if (this._cacheMesh && this._cacheAvatar/*兼容*/ || this._cacheMesh && !this._cacheAvatar) {
 			var bindPoses: Matrix4x4[] = this._cacheMesh._inverseBindPoses;
-			var pathMarks: any[][] = this._cacheMesh._skinDataPathMarks;
+			var pathMarks: skinnedMatrixCache[] = this._cacheMesh._skinnedMatrixCaches;
 			for (var i: number = 0, n: number = this._cacheMesh.subMeshCount; i < n; i++) {
 				var subMeshBoneIndices: Uint16Array[] = ((<SubMesh>this._cacheMesh.getSubMesh(i)))._boneIndicesList;
 				var subData: Float32Array[] = this._skinnedData[i];
@@ -112,13 +112,13 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	/**
 	 * @internal
 	 */
-	private _computeSubSkinnedData(bindPoses: Matrix4x4[], boneIndices: Uint16Array, data: Float32Array, pathMarks: any[][]): void {
+	private _computeSubSkinnedData(bindPoses: Matrix4x4[], boneIndices: Uint16Array, data: Float32Array, matrixCaches: skinnedMatrixCache[]): void {
 		for (var k: number = 0, q: number = boneIndices.length; k < q; k++) {
 			var index: number = boneIndices[k];
 			if (this._skinnedDataLoopMarks[index] === Stat.loopCount) {
-				var p: any[] = pathMarks[index];
-				var preData: Float32Array = this._skinnedData[p[0]][p[1]];
-				var srcIndex: number = p[2] * 16;
+				var c: skinnedMatrixCache = matrixCaches[index];
+				var preData: Float32Array = this._skinnedData[c.subMeshIndex][c.batchIndex];
+				var srcIndex: number = c.batchBoneIndex * 16;
 				var dstIndex: number = k * 16;
 				for (var d: number = 0; d < 16; d++)
 					data[dstIndex + d] = preData[srcIndex + d];
@@ -400,7 +400,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 	private _computeSkinnedDataForNative(): void {
 		if (this._cacheMesh && this._cacheAvatar/*兼容*/ || this._cacheMesh && !this._cacheAvatar) {
 			var bindPoses: Matrix4x4[] = this._cacheMesh._inverseBindPoses;
-			var pathMarks: any[][] = this._cacheMesh._skinDataPathMarks;
+			var pathMarks: skinnedMatrixCache[] = this._cacheMesh._skinnedMatrixCaches;
 			for (var i: number = 0, n: number = this._cacheMesh.subMeshCount; i < n; i++) {
 				var subMeshBoneIndices: Uint16Array[] = ((<SubMesh>this._cacheMesh.getSubMesh(i)))._boneIndicesList;
 				var subData: Float32Array[] = this._skinnedData[i];

@@ -23,6 +23,21 @@ import { Utils3D } from "../../utils/Utils3D";
 import { SubMesh } from "./SubMesh";
 import { LayaGL } from "../../../layagl/LayaGL";
 
+
+/**
+ * @internal
+ */
+export class skinnedMatrixCache {
+	readonly subMeshIndex: number;
+	readonly batchIndex: number;
+	readonly batchBoneIndex: number;
+	constructor(subMeshIndex: number, batchIndex: number, batchBoneIndex: number) {
+		this.subMeshIndex = subMeshIndex;
+		this.batchIndex = batchIndex;
+		this.batchBoneIndex = batchBoneIndex;
+	}
+}
+
 /**
  * <code>Mesh</code> 类用于创建文件网格数据模板。
  */
@@ -104,7 +119,7 @@ export class Mesh extends Resource implements IClone {
 	/** @internal */
 	_inverseBindPoses: Matrix4x4[];
 	/** @internal */
-	_skinDataPathMarks: any[][] = [];
+	_skinnedMatrixCaches: skinnedMatrixCache[] = [];
 	/** @internal */
 	_vertexCount: number = 0;
 	/** @internal */
@@ -757,8 +772,12 @@ export class Mesh extends Resource implements IClone {
 		for (i = 0; i < inverseBindPoses.length; i++)
 			destInverseBindPoses[i] = inverseBindPoses[i];
 
-		for (i = 0; i < this._skinDataPathMarks.length; i++)
-			destMesh._skinDataPathMarks[i] = this._skinDataPathMarks[i].slice();
+		var cacheLength: number = this._skinnedMatrixCaches.length;
+		destMesh._skinnedMatrixCaches.length = cacheLength;
+		for (i = 0; i < cacheLength; i++) {
+			var skinnedCache: skinnedMatrixCache = this._skinnedMatrixCaches[i];
+			destMesh._skinnedMatrixCaches[i] = new skinnedMatrixCache(skinnedCache.subMeshIndex, skinnedCache.batchIndex, skinnedCache.batchBoneIndex);
+		}
 
 		for (i = 0; i < this.subMeshCount; i++) {
 			var subMesh: SubMesh = this._subMeshes[i];
