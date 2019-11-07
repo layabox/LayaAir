@@ -103,17 +103,17 @@ export class TextArea extends TextInput {
     private _onTextChange(): void {
         this.callLater(this.changeScroll);
     }
-		/**
-		 * 
-		 * @param destroyChild 
-		 * @override
-		 */
-		/*override*/  destroy(destroyChild: boolean = true): void {
-        super.destroy(destroyChild);
+    /**
+     * 
+     * @param destroyChild 
+     * @override
+     */
+    destroy(destroyChild: boolean = true): void {
         this._vScrollBar && this._vScrollBar.destroy();
         this._hScrollBar && this._hScrollBar.destroy();
         this._vScrollBar = null;
         this._hScrollBar = null;
+        super.destroy(destroyChild);
     }
     /**
      * @override
