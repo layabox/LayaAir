@@ -275,7 +275,6 @@ export class Matrix4x4 implements IClone {
 	 * @param	out 输出矩阵
 	 */
 	static createFromQuaternion(rotation: Quaternion, out: Matrix4x4): void {
-
 		var e: Float32Array = out.elements;
 		var x: number = rotation.x, y: number = rotation.y, z: number = rotation.z, w: number = rotation.w;
 		var x2: number = x + x;
@@ -321,7 +320,6 @@ export class Matrix4x4 implements IClone {
 	 * @param	out 输出矩阵
 	 */
 	static createAffineTransformation(trans: Vector3, rot: Quaternion, scale: Vector3, out: Matrix4x4): void {
-
 		var oe: Float32Array = out.elements;
 
 		var x: number = rot.x, y: number = rot.y, z: number = rot.z, w: number = rot.w, x2: number = x + x, y2: number = y + y, z2: number = z + z;
@@ -354,7 +352,6 @@ export class Matrix4x4 implements IClone {
 	 * @param	out 输出矩阵
 	 */
 	static createLookAt(eye: Vector3, target: Vector3, up: Vector3, out: Matrix4x4): void {
-
 		//注:WebGL为右手坐标系统
 		var oE: Float32Array = out.elements;
 		var xaxis: Vector3 = Matrix4x4._tempVector0;
@@ -391,7 +388,6 @@ export class Matrix4x4 implements IClone {
 	 * @param	out 输出矩阵。
 	 */
 	static createPerspective(fov: number, aspect: number, znear: number, zfar: number, out: Matrix4x4): void {
-
 		var yScale: number = 1.0 / Math.tan(fov * 0.5);
 		var xScale: number = yScale / aspect;
 
@@ -411,7 +407,6 @@ export class Matrix4x4 implements IClone {
 	 * @param	out 输出矩阵。
 	 */
 	static createPerspectiveOffCenter(left: number, right: number, bottom: number, top: number, znear: number, zfar: number, out: Matrix4x4): void {
-
 		var oe: Float32Array = out.elements;
 		var zRange: number = zfar / (zfar - znear);
 		oe[1] = oe[2] = oe[3] = oe[4] = oe[6] = oe[7] = oe[12] = oe[13] = oe[15] = 0;
@@ -476,7 +471,6 @@ export class Matrix4x4 implements IClone {
 	}
 
 	getElementByRowColumn(row: number, column: number): number {
-
 		if (row < 0 || row > 3)
 			throw new Error("row Rows and columns for matrices run from 0 to 3, inclusive.");
 		if (column < 0 || column > 3)
@@ -486,7 +480,6 @@ export class Matrix4x4 implements IClone {
 	}
 
 	setElementByRowColumn(row: number, column: number, value: number): void {
-
 		if (row < 0 || row > 3)
 			throw new Error("row Rows and columns for matrices run from 0 to 3, inclusive.");
 		if (column < 0 || column > 3)
@@ -532,7 +525,6 @@ export class Matrix4x4 implements IClone {
 	 * @return 是否分解成功。
 	 */
 	decomposeTransRotMatScale(translation: Vector3, rotationMatrix: Matrix4x4, scale: Vector3): boolean {
-
 		var e: Float32Array = this.elements;
 		var te: Vector3 = translation;
 		var re: Float32Array = rotationMatrix.elements;
@@ -617,9 +609,10 @@ export class Matrix4x4 implements IClone {
 		}
 	}
 
-	/**归一化矩阵 */
+	/**
+	 * 归一化矩阵 
+	 */
 	normalize(): void {
-
 		var v: Float32Array = this.elements;
 		var c: number = v[0], d: number = v[1], e: number = v[2], g: number = Math.sqrt(c * c + d * d + e * e);
 		if (g) {
@@ -637,9 +630,10 @@ export class Matrix4x4 implements IClone {
 		v[2] = e * g;
 	}
 
-	/**计算矩阵的转置矩阵*/
+	/**
+	 * 计算矩阵的转置矩阵
+	 */
 	transpose(): Matrix4x4 {
-
 		var e: Float32Array, t: number;
 		e = this.elements;
 		t = e[1];
@@ -660,7 +654,6 @@ export class Matrix4x4 implements IClone {
 		t = e[11];
 		e[11] = e[14];
 		e[14] = t;
-
 		return this;
 	}
 
