@@ -32,8 +32,6 @@ export class LoadModelV05 {
 	private static _mesh: Mesh;
 	/**@internal */
 	private static _subMeshes: SubMesh[];
-	/**@internal */
-	private static _bindPoseIndices: number[] = [];
 
 	/**
 	 * @internal
@@ -56,8 +54,6 @@ export class LoadModelV05 {
 			else
 				fn.call(null);
 		}
-		LoadModelV05._mesh._bindPoseIndices = new Uint16Array(LoadModelV05._bindPoseIndices);
-		LoadModelV05._bindPoseIndices.length = 0;
 		LoadModelV05._strings.length = 0;
 		LoadModelV05._readData = null;
 		LoadModelV05._version = null;
@@ -297,7 +293,7 @@ export class LoadModelV05 {
 		boneIndicesList.length = drawCount;
 
 		var pathMarks: any[][] = LoadModelV05._mesh._skinDataPathMarks;
-		var bindPoseIndices: number[] = LoadModelV05._bindPoseIndices;
+		var bindPoseIndices: number[] = [];
 		var subMeshIndex: number = LoadModelV05._subMeshes.length;
 		for (var i: number = 0; i < drawCount; i++) {
 			subIndexBufferStart[i] = reader.getUint32();
@@ -309,11 +305,8 @@ export class LoadModelV05 {
 				var index: number = boneIndices[j];
 				var combineIndex: number = bindPoseIndices.indexOf(index);
 				if (combineIndex === -1) {
-					boneIndices[j] = bindPoseIndices.length;
 					bindPoseIndices.push(index);
 					pathMarks.push([subMeshIndex, i, j]);
-				} else {
-					boneIndices[j] = combineIndex;
 				}
 			}
 		}

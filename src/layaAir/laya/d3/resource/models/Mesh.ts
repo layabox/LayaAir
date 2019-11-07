@@ -104,9 +104,7 @@ export class Mesh extends Resource implements IClone {
 	/** @internal */
 	_inverseBindPoses: Matrix4x4[];
 	/** @internal */
-	_bindPoseIndices: Uint16Array;
-	/** @internal */
-	_skinDataPathMarks: any[][];
+	_skinDataPathMarks: any[][] = [];
 	/** @internal */
 	_vertexCount: number = 0;
 	/** @internal */
@@ -167,7 +165,6 @@ export class Mesh extends Resource implements IClone {
 		super();
 		this._isReadable = isReadable;
 		this._subMeshes = [];
-		this._skinDataPathMarks = [];
 	}
 
 	/**
@@ -759,8 +756,6 @@ export class Mesh extends Resource implements IClone {
 		var destInverseBindPoses: Matrix4x4[] = destMesh._inverseBindPoses = [];
 		for (i = 0; i < inverseBindPoses.length; i++)
 			destInverseBindPoses[i] = inverseBindPoses[i];
-
-		destMesh._bindPoseIndices = new Uint16Array(this._bindPoseIndices);
 
 		for (i = 0; i < this._skinDataPathMarks.length; i++)
 			destMesh._skinDataPathMarks[i] = this._skinDataPathMarks[i].slice();
