@@ -657,7 +657,7 @@ export class Camera extends BaseCamera {
 	/**
 	 * 将一个点从世界空间转换到视口空间。
 	 * @param position 世界空间的坐标。
-	 * @param out  x、y、z为视口空间坐标,w为相对于变换矩阵的z轴坐标。
+	 * @param out  x、y、z为视口空间坐标,w为相对于摄像机的z轴坐标。
 	 */
 	worldToViewportPoint(position: Vector3, out: Vector4): void {
 		Matrix4x4.multiply(this._projectionMatrix, this._viewMatrix, this._projectionViewMatrix);
@@ -669,7 +669,7 @@ export class Camera extends BaseCamera {
 	/**
 	 * 将一个点从世界空间转换到归一化视口空间。
 	 * @param position 世界空间的坐标。
-	 * @param out  x、y、z为归一化视口空间坐标,w为相对于变换矩阵的z轴坐标。
+	 * @param out  x、y、z为归一化视口空间坐标,w为相对于摄像机的z轴坐标。
 	 */
 	worldToNormalizedViewportPoint(position: Vector3, out: Vector4): void {
 		Matrix4x4.multiply(this._projectionMatrix, this._viewMatrix, this._projectionViewMatrix);
