@@ -2,10 +2,13 @@ import { Matrix4x4 } from "./Matrix4x4";
 import { Vector3 } from "./Vector3";
 import { Vector4 } from "./Vector4";
 /**
-	 * <code>Viewport</code> 类用于创建视口。
-	 */
+ * <code>Viewport</code> 类用于创建视口。
+ */
 export class Viewport {
+	/** @internal */
 	private static _tempMatrix4x4: Matrix4x4 = new Matrix4x4();
+	/** @internal */
+	private static _tempVector4: Vector4 = new Vector4();
 
 	/**X轴坐标*/
 	x: number;
@@ -38,37 +41,33 @@ export class Viewport {
 	}
 
 	/**
-	 * 变换一个三维向量。
-	 * @param	source 源三维向量。
+	 * 投影一个三维向量到视口空间。
+	 * @param	source 三维向量。
 	 * @param	matrix 变换矩阵。
-	 * @param	vector 输出三维向量。
+	 * @param	out x、y、z为视口空间坐标,w为相对于变换矩阵的z轴坐标。
 	 */
-	project(source: Vector3, matrix: Matrix4x4, out: Vector3): void {
-		var sX: number = source.x;
-		var sY: number = source.y;
-		var sZ: number = source.z;
-		Vector3.transformV3ToV3(source, matrix, out);
-		var matE: Float32Array = matrix.elements;
-		var a: number = (((sX * matE[3]) + (sY * matE[7])) + (sZ * matE[11])) + matE[15];
-		if (a !== 1.0) {//待优化，经过计算得出的a可能会永远只近似于1，因为是Number类型
-			out.x = out.x / a;
-			out.y = out.y / a;
-			out.z = out.z / a;
+	project(source: Vector3, matrix: Matrix4x4, out: Vector4): void {
+		var vec4: Vector4 = Viewport._tempVector4;
+		Vector3.transformV3ToV4(source, matrix, vec4);
+		var w: number = vec4.w;
+		if (w !== 1.0) {//待优化，经过计算得出的a可能会永远只近似于1
+			out.x = vec4.x / w;
+			out.y = vec4.y / w;
+			out.z = vec4.z / w;
 		}
-
-		out.x = (((out.x + 1.0) * 0.5) * this.width) + this.x;
-		out.y = (((-out.y + 1.0) * 0.5) * this.height) + this.y;
-		out.z = (out.z * (this.maxDepth - this.minDepth)) + this.minDepth;
+		out.x = (out.x + 1.0) * 0.5 * this.width + this.x;
+		out.y = (-out.y + 1.0) * 0.5 * this.height + this.y;
+		out.z = out.z * (this.maxDepth - this.minDepth) + this.minDepth;
+		out.w = w;
 	}
 
 	/**
 	 * 反变换一个三维向量。
 	 * @param	source 源三维向量。
 	 * @param	matrix 变换矩阵。
-	 * @param	vector 输出三维向量。
+	 * @param	out 输出三维向量。
 	 */
 	unprojectFromMat(source: Vector3, matrix: Matrix4x4, out: Vector3): void {
-
 		var matrixEleme: Float32Array = matrix.elements;
 
 		out.x = (((source.x - this.x) / (this.width)) * 2.0) - 1.0;
