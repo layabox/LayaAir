@@ -7,7 +7,7 @@ import { SubShader } from "./SubShader";
 /**
  * 着色器变种。
  */
-export class ShaderVariantInfo {
+export class ShaderVariant {
     /** @internal */
     _shader: Shader3D;
     /** @internal */
@@ -70,7 +70,7 @@ export class ShaderVariantInfo {
      * @param other 其它着色器变种
      * @return 是否相等。
      */
-    equal(other: ShaderVariantInfo): boolean {
+    equal(other: ShaderVariant): boolean {
         if (this._shader !== other._shader || this._subShaderIndex !== other._subShaderIndex || this._passIndex !== other._passIndex) {
             return false;
         }
@@ -89,8 +89,8 @@ export class ShaderVariantInfo {
      * 克隆。
      * @return 着色器变种。 
      */
-    clone(): ShaderVariantInfo {
-        var dest: ShaderVariantInfo = new ShaderVariantInfo(this._shader, this._subShaderIndex, this._passIndex, this._defineNames.slice());
+    clone(): ShaderVariant {
+        var dest: ShaderVariant = new ShaderVariant(this._shader, this._subShaderIndex, this._passIndex, this._defineNames.slice());
         return dest;
     }
 }
@@ -98,11 +98,11 @@ export class ShaderVariantInfo {
 /**
  * 着色器变种集合。
  */
-export class ShaderVariantInfoCollection {
+export class ShaderVariantCollection {
     /** @internal */
     private _allCompiled: boolean = false;
     /** @internal */
-    private _variants: ShaderVariantInfo[] = [];
+    private _variants: ShaderVariant[] = [];
 
     /**
      * 是否已经全部编译。
@@ -123,7 +123,7 @@ export class ShaderVariantInfoCollection {
      * @param variant 着色器变种。
      * @param 是否添加成功。
      */
-    add(variant: ShaderVariantInfo): boolean {
+    add(variant: ShaderVariant): boolean {
         for (var i: number = 0, n: number = this._variants.length; i < n; i++) {
             if (this._variants[i].equal(variant))
                 return false;
@@ -138,7 +138,7 @@ export class ShaderVariantInfoCollection {
      * @param variant 着色器变种。
      * @return 是否移除成功。
      */
-    remove(variant: ShaderVariantInfo): boolean {
+    remove(variant: ShaderVariant): boolean {
         for (var i: number = 0, n: number = this._variants.length; i < n; i++) {
             if (this._variants[i].equal(variant)) {
                 this._variants.splice(i, 1);
@@ -152,12 +152,21 @@ export class ShaderVariantInfoCollection {
      * 是否包含着色器变种。
      * @param variant 着色器变种。
      */
-    contatins(variant: ShaderVariantInfo): boolean {
+    contatins(variant: ShaderVariant): boolean {
         for (var i: number = 0, n: number = this._variants.length; i < n; i++) {
             if (this._variants[i].equal(variant))
                 return true;
         }
         return false;
+    }
+
+    /**
+     * 通过索引获取着色器变种。
+     * @param index 索引。
+     * @returns 着色器变种。
+     */
+    getByIndex(index: number): ShaderVariant {
+        return this._variants[index];
     }
 
     /**
@@ -172,9 +181,9 @@ export class ShaderVariantInfoCollection {
      */
     compile(): void {
         if (!this._allCompiled) {
-            var variants: ShaderVariantInfo[] = this._variants;
+            var variants: ShaderVariant[] = this._variants;
             for (var i: number = 0, n: number = variants.length; i < n; i++) {
-                var variant: ShaderVariantInfo = variants[i];
+                var variant: ShaderVariant = variants[i];
                 ILaya3D.Shader3D.compileShaderByDefineNames(variant._shader._name, variant._subShaderIndex, variant._passIndex, variant._defineNames);
             }
             this._allCompiled = true;

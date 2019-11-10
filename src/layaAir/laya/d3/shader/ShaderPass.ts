@@ -7,7 +7,7 @@ import { Vector3 } from "../math/Vector3";
 import { DefineDatas } from "./DefineDatas";
 import { Shader3D } from "./Shader3D";
 import { ShaderInstance } from "./ShaderInstance";
-import { ShaderVariantInfo } from "./ShaderVariantInfoCollection";
+import { ShaderVariant } from "./ShaderVariantCollection";
 import { SubShader } from "./SubShader";
 
 /**
@@ -177,7 +177,7 @@ export class ShaderPass extends ShaderCompile {
 	 * @internal
 	 */
 	_addDebugShaderVariantCollection(compileDefine: DefineDatas): void {
-		var dbugShaderVariantInfo: ShaderVariantInfo = Shader3D._debugShaderVariantInfo;
+		var dbugShaderVariantInfo: ShaderVariant = Shader3D._debugShaderVariantInfo;
 		var debugSubShader: SubShader = this._owner;
 		var debugShader: Shader3D = debugSubShader._owner;
 		var deugDefines: string[] = ShaderPass._debugDefineString;
@@ -189,7 +189,7 @@ export class ShaderPass extends ShaderCompile {
 		if (dbugShaderVariantInfo)
 			dbugShaderVariantInfo.setValue(debugShader, debugShader._subShaders.indexOf(debugSubShader), debugSubShader._passes.indexOf(this), deugDefines);
 		else
-			Shader3D._debugShaderVariantInfo = dbugShaderVariantInfo = new ShaderVariantInfo(debugShader, debugShader._subShaders.indexOf(debugSubShader), debugSubShader._passes.indexOf(this), deugDefines);
+			Shader3D._debugShaderVariantInfo = dbugShaderVariantInfo = new ShaderVariant(debugShader, debugShader._subShaders.indexOf(debugSubShader), debugSubShader._passes.indexOf(this), deugDefines);
 		Shader3D.debugShaderVariantInfoCollection.add(dbugShaderVariantInfo);
 	}
 
