@@ -171,9 +171,9 @@ export class Quaternion implements IClone {
 	 * 球面插值
 	 * @param	left left四元数
 	 * @param	right  right四元数
-	 * @param	a 插值比例
+	 * @param	t 插值比例
 	 * @param	out 输出四元数
-	 * @return   输出Float32Array
+	 * @returns 输出Float32Array
 	 */
 	static slerp(left: Quaternion, right: Quaternion, t: number, out: Quaternion): Quaternion {
 		var ax: number = left.x, ay: number = left.y, az: number = left.z, aw: number = left.w, bx: number = right.x, by: number = right.y, bz: number = right.z, bw: number = right.w;
