@@ -42,7 +42,7 @@ export class Component implements ISingletonElement, IDestroy {
 	}
 
 	/**
-	 * 获取是否启用组件。
+	 * 是否启用组件。
 	 */
 	get enabled(): boolean {
 		return this._enabled;
@@ -61,14 +61,14 @@ export class Component implements ISingletonElement, IDestroy {
 	}
 
 	/**
-	 * 获取是否为单实例组件。
+	 * 是否为单实例组件。
 	 */
 	get isSingleton(): boolean {
 		return true;
 	}
 
 	/**
-	 * 获取是否已经销毁 。
+	 * 是否已经销毁 。
 	 */
 	get destroyed(): boolean {
 		//[实现IListPool接口]

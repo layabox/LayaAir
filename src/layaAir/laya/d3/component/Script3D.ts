@@ -22,6 +22,9 @@ export class Script3D extends Component {
 		return false;
 	}
 
+	/**
+	 * @internal
+	 */
 	private _checkProcessTriggers(): boolean {
 		var prototype: any = Script3D.prototype;
 		if (this.onTriggerEnter !== prototype.onTriggerEnter)
@@ -33,6 +36,9 @@ export class Script3D extends Component {
 		return false;
 	}
 
+	/**
+	 * @internal
+	 */
 	private _checkProcessCollisions(): boolean {
 		var prototype: any = Script3D.prototype;
 		if (this.onCollisionEnter !== prototype.onCollisionEnter)
@@ -91,33 +97,6 @@ export class Script3D extends Component {
 	 * @internal
 	 * @override
 	 */
-	_isScript(): boolean {
-		return true;
-	}
-
-	/**
-	 * @inheritDoc
-	 * @internal
-	 * @override
-	 */
-	_onAdded(): void {
-		var sprite: Sprite3D = (<Sprite3D>this.owner);
-		var scripts: Script3D[] = sprite._scripts;
-		scripts || (sprite._scripts = scripts = []);
-		scripts.push(this);
-
-		if (!sprite._needProcessCollisions)
-			sprite._needProcessCollisions = this._checkProcessCollisions();//检查是否需要处理物理碰撞
-
-		if (!sprite._needProcessTriggers)
-			sprite._needProcessTriggers = this._checkProcessTriggers();//检查是否需要处理触发器
-	}
-
-	/**
-	 * @inheritDoc
-	 * @internal
-	 * @override
-	 */
 	protected _onDestroy(): void {
 		var scripts: Script3D[] = ((<Sprite3D>this.owner))._scripts;
 		scripts.splice(scripts.indexOf(this), 1);
@@ -139,6 +118,33 @@ export class Script3D extends Component {
 			}
 		}
 		this.onDestroy();
+	}
+
+	/**
+	 * @inheritDoc
+	 * @internal
+	 * @override
+	 */
+	_isScript(): boolean {
+		return true;
+	}
+
+	/**
+	 * @inheritDoc
+	 * @internal
+	 * @override
+	 */
+	_onAdded(): void {
+		var sprite: Sprite3D = (<Sprite3D>this.owner);
+		var scripts: Script3D[] = sprite._scripts;
+		scripts || (sprite._scripts = scripts = []);
+		scripts.push(this);
+
+		if (!sprite._needProcessCollisions)
+			sprite._needProcessCollisions = this._checkProcessCollisions();//检查是否需要处理物理碰撞
+
+		if (!sprite._needProcessTriggers)
+			sprite._needProcessTriggers = this._checkProcessTriggers();//检查是否需要处理触发器
 	}
 
 	/**
