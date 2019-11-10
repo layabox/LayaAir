@@ -76,7 +76,7 @@ export class Shader3D {
 	/**是否开启调试模式。 */
 	static debugMode: boolean = true;
 	/**调试着色器变种集合。 */
-	static readonly debugShaderVariantInfoCollection: ShaderVariantCollection = new ShaderVariantCollection();
+	static readonly debugShaderVariantCollection: ShaderVariantCollection = new ShaderVariantCollection();
 
 	/**@internal */
 	_attributeMap: any = null;

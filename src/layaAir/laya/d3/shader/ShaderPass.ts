@@ -190,7 +190,7 @@ export class ShaderPass extends ShaderCompile {
 			dbugShaderVariantInfo.setValue(debugShader, debugShader._subShaders.indexOf(debugSubShader), debugSubShader._passes.indexOf(this), deugDefines);
 		else
 			Shader3D._debugShaderVariantInfo = dbugShaderVariantInfo = new ShaderVariant(debugShader, debugShader._subShaders.indexOf(debugSubShader), debugSubShader._passes.indexOf(this), deugDefines);
-		Shader3D.debugShaderVariantInfoCollection.add(dbugShaderVariantInfo);
+		Shader3D.debugShaderVariantCollection.add(dbugShaderVariantInfo);
 	}
 
 
