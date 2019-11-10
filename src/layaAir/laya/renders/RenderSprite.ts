@@ -204,8 +204,13 @@ export class RenderSprite {
 		var next: RenderSprite = this._next;
 		if (next == RenderSprite.NORENDER) return;
 		var r: Rectangle = sprite._style.scrollRect;
+		var width = r.width;
+		var height = r.height;
+		if (width === 0 || height === 0) {
+			return;
+		}
 		context.save();
-		context.clipRect(x, y, r.width, r.height);
+		context.clipRect(x, y, width, height);
 		next._fun.call(next, sprite, context, x - r.x, y - r.y);
 		context.restore();
 	}
