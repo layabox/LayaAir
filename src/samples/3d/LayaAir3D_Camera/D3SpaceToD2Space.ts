@@ -9,6 +9,7 @@ import { Image } from "laya/ui/Image";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
+import { Vector4 } from "laya/d3/math/Vector4";
 
 export class D3SpaceToD2Space {
 
@@ -17,7 +18,7 @@ export class D3SpaceToD2Space {
 	private layaMonkey3D: Sprite3D;
 	private layaMonkey2D: Image;
 	private _position: Vector3 = new Vector3();
-	private _outPos: Vector3 = new Vector3();
+	private _outPos: Vector4 = new Vector4();
 	private scaleDelta: number = 0;
 	private _translate: Vector3 = new Vector3(0, 0.35, 1);
 	private _rotation: Vector3 = new Vector3(-15, 0, 0);
@@ -65,9 +66,9 @@ export class D3SpaceToD2Space {
 		//变换的精灵的位置
 		this.layaMonkey3D.transform.position = this._position;
 		//矩阵变换得到对应的屏幕坐标
-		this.camera.viewport.project(this.layaMonkey3D.transform.position, this.camera.projectionViewMatrix, this._outPos);
-
-		this.layaMonkey2D.pos(this._outPos.x / Laya.stage.clientScaleX, this._outPos.y / Laya.stage.clientScaleY);
+		var outPos: Vector4 = this._outPos;
+		this.camera.viewport.project(this.layaMonkey3D.transform.position, this.camera.projectionViewMatrix, outPos);
+		this.layaMonkey2D.pos(outPos.x / Laya.stage.clientScaleX, outPos.y / Laya.stage.clientScaleY);
 	}
 
 }
