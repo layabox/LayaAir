@@ -34,7 +34,7 @@ package laya.utils {
 		/**
 		 * 字符。
 		 */
-		public var char:*;
+		public var char:String;
 
 		/**
 		 * 字符数量。

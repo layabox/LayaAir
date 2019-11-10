@@ -72,7 +72,7 @@ package laya.webgl.shader {
 		 * @param nameMap 帮助里要详细解释为什么需要nameMap
 		 */
 
-		public function Shader(vs:String = undefined,ps:String = undefined,saveName:* = undefined,nameMap:* = undefined,bindAttrib:* = undefined){}
+		public function Shader(vs:String = undefined,ps:String = undefined,saveName:* = undefined,nameMap:* = undefined,bindAttrib:Array = undefined){}
 		protected function recreateResource():void{}
 
 		/**

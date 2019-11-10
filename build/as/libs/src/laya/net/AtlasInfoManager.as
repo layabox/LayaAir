@@ -6,7 +6,7 @@ package laya.net {
 	 */
 	public class AtlasInfoManager {
 		private static var _fileLoadDic:*;
-		public static function enable(infoFile:String,callback:* = null):void{}
+		public static function enable(infoFile:String,callback:Handler = null):void{}
 
 		/**
 		 * @private 

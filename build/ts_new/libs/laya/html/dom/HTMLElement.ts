@@ -481,3 +481,4 @@ ILaya.regClass(HTMLElement);
 IHtml.HTMLElementType = HTMLElementType;
 
 ClassUtils.regClass("laya.html.dom.HTMLElement", HTMLElement);
+ClassUtils.regClass("Laya.HTMLElement", HTMLElement);

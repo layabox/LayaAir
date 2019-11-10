@@ -4939,7 +4939,8 @@
 	    }
 	    getArray() {
 	        var arr = [];
-	        for (let item of this._source) {
+	        for (let key in this._source) {
+	            let item = this._source[key];
 	            if (this.getParentOpenStatus(item)) {
 	                item.x = this._spaceLeft * this.getDepth(item);
 	                arr.push(item);
@@ -5035,7 +5036,8 @@
 	        if (!isRoot) {
 	            obj = {};
 	            var list2 = xml.attributes;
-	            for (let attrs of list2) {
+	            for (let key in list2) {
+	                var attrs = list2[key];
 	                var prop = attrs.nodeName;
 	                var value = attrs.nodeValue;
 	                obj[prop] = value == "true" ? true : value == "false" ? false : value;

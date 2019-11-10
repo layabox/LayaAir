@@ -13,7 +13,7 @@ package laya.display.cmd {
 		/**
 		 * 纹理。
 		 */
-		public var texture:*;
+		public var texture:Texture;
 
 		/**
 		 * X轴偏移量。

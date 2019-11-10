@@ -792,7 +792,7 @@ window.miMiniGame = function (exports, Laya) {
 	                var fileObj = MiniFileMgr.getFileInfo(Laya.URL.formatURL(url));
 	                if (fileObj) {
 	                    fileObj.encoding = fileObj.encoding == null ? "utf8" : fileObj.encoding;
-	                    MiniFileMgr.readFile(fileObj.url, encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), url);
+	                    MiniFileMgr.readFile(MiniFileMgr.getFileNativePath(fileObj.md5), encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), url);
 	                }
 	                else if (thisLoader.type == "image" || thisLoader.type == "htmlimage") {
 	                    thisLoader._transformUrl(url, contentType);

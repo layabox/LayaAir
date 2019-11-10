@@ -186,3 +186,4 @@ IHtml.HTMLDivElement = HTMLDivElement;
 IHtml.HTMLParse = HTMLParse;
 
 ClassUtils.regClass("laya.html.dom.HTMLDivElement", HTMLDivElement);
+ClassUtils.regClass("Laya.HTMLDivElement", HTMLDivElement);

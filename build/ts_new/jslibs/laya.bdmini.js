@@ -792,7 +792,7 @@ window.bdMiniGame = function (exports, Laya) {
 	                var fileObj = MiniFileMgr.getFileInfo(Laya.URL.formatURL(url));
 	                if (fileObj) {
 	                    fileObj.encoding = fileObj.encoding == null ? "utf8" : fileObj.encoding;
-	                    MiniFileMgr.readFile(fileObj.url, encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), url);
+	                    MiniFileMgr.readFile(MiniFileMgr.getFileNativePath(fileObj.md5), encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), url);
 	                }
 	                else if (thisLoader.type == "image" || thisLoader.type == "htmlimage") {
 	                    thisLoader._transformUrl(url, contentType);
@@ -1073,7 +1073,6 @@ window.bdMiniGame = function (exports, Laya) {
 	            if (BMiniAdapter.idx == 1) {
 	                if (BMiniAdapter.isZiYu) {
 	                    _source = BMiniAdapter.window.sharedCanvas;
-	                    _source.style = {};
 	                }
 	                else {
 	                    _source = BMiniAdapter.window.canvas;
@@ -1082,6 +1081,7 @@ window.bdMiniGame = function (exports, Laya) {
 	            else {
 	                _source = BMiniAdapter.window.swan.createCanvas();
 	            }
+	            _source.style = {};
 	            BMiniAdapter.idx++;
 	            return _source;
 	        }

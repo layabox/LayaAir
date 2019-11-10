@@ -226,7 +226,7 @@ package laya.net {
 		 * @param ignoreCache (default = false)是否忽略缓存，强制重新加载。
 		 * @param useWorkerLoader (default = false)是否使用worker加载（只针对IMAGE类型和ATLAS类型，并且浏览器支持的情况下生效）
 		 */
-		public function load(url:String,type:* = null,cache:Boolean = null,group:* = null,ignoreCache:Boolean = null,useWorkerLoader:Boolean = null):void{}
+		public function load(url:String,type:String = null,cache:Boolean = null,group:String = null,ignoreCache:Boolean = null,useWorkerLoader:Boolean = null):void{}
 
 		/**
 		 * @private onload、onprocess、onerror必须写在本类

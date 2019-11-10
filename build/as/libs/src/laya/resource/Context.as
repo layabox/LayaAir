@@ -133,7 +133,7 @@ package laya.resource {
 		 * 对于cacheas bitmap的情况，如果图片还没准备好，需要有机会重画，所以要保存sprite。例如在图片
 		 * 加载完成后，调用repaint
 		 */
-		public var sprite:*;
+		public var sprite:Sprite;
 		private var _fillColor:*;
 		private var _flushCnt:*;
 		private var defTexture:*;

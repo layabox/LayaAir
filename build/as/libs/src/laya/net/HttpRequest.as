@@ -50,7 +50,7 @@ package laya.net {
 		 * @param responseType (default = "text")Web 服务器的响应类型，可设置为 "text"、"json"、"xml"、"arraybuffer"。
 		 * @param headers (default = null) HTTP 请求的头部信息。参数形如key-value数组：key是头部的名称，不应该包括空白、冒号或换行；value是头部的值，不应该包括换行。比如["Content-Type", "application/json"]。
 		 */
-		public function send(url:String,data:* = null,method:String = null,responseType:String = null,headers:* = null):void{}
+		public function send(url:String,data:* = null,method:String = null,responseType:String = null,headers:Array = null):void{}
 
 		/**
 		 * @private 请求进度的侦听处理函数。

@@ -9,7 +9,7 @@ package laya.ani.bone.canvasmesh {
 		/**
 		 * 矩阵
 		 */
-		public var transform:*;
+		public var transform:Matrix;
 		public function init2(texture:Texture,ps:Array,verticles:Array,uvs:Array):void{}
 	}
 

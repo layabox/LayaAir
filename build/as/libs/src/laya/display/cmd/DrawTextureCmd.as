@@ -13,7 +13,7 @@ package laya.display.cmd {
 		/**
 		 * 纹理。
 		 */
-		public var texture:*;
+		public var texture:Texture;
 
 		/**
 		 * （可选）X轴偏移量。
@@ -38,7 +38,7 @@ package laya.display.cmd {
 		/**
 		 * （可选）矩阵信息。
 		 */
-		public var matrix:*;
+		public var matrix:Matrix;
 
 		/**
 		 * （可选）透明度。
@@ -49,13 +49,13 @@ package laya.display.cmd {
 		 * （可选）颜色滤镜。
 		 */
 		public var color:String;
-		public var colorFlt:*;
+		public var colorFlt:ColorFilter;
 
 		/**
 		 * （可选）混合模式。
 		 */
 		public var blendMode:String;
-		public var uv:*;
+		public var uv:Array;
 
 		/**
 		 * @private 

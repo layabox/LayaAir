@@ -25,6 +25,7 @@
     }
     HTMLExtendStyle.EMPTY = new HTMLExtendStyle();
     Laya.ClassUtils.regClass("laya.html.utils.HTMLExtendStyle", HTMLExtendStyle);
+    Laya.ClassUtils.regClass("Laya.HTMLExtendStyle", HTMLExtendStyle);
 
     class HTMLStyle {
         constructor() {
@@ -365,6 +366,7 @@
     HTMLStyle._ALIGN = 0x30;
     HTMLStyle._VALIGN = 0xc0;
     Laya.ClassUtils.regClass("laya.html.utils.HTMLStyle", HTMLStyle);
+    Laya.ClassUtils.regClass("Laya.HTMLStyle", HTMLStyle);
 
     class HTMLDocument {
         constructor() {
@@ -380,6 +382,7 @@
     }
     HTMLDocument.document = new HTMLDocument();
     Laya.ClassUtils.regClass("laya.html.dom.HTMLDocument", HTMLDocument);
+    Laya.ClassUtils.regClass("Laya.HTMLDocument", HTMLDocument);
 
     class HTMLHitRect {
         constructor() {
@@ -399,6 +402,7 @@
         }
     }
     Laya.ClassUtils.regClass("laya.html.dom.HTMLHitRect", HTMLHitRect);
+    Laya.ClassUtils.regClass("Laya.HTMLHitRect", HTMLHitRect);
 
     class IHtml {
     }
@@ -461,6 +465,7 @@
         }
     }
     Laya.ClassUtils.regClass("laya.html.utils.LayoutLine", LayoutLine);
+    Laya.ClassUtils.regClass("Laya.LayoutLine", LayoutLine);
 
     class Layout {
         static later(element) {
@@ -613,6 +618,7 @@
     }
     Layout.DIV_ELEMENT_PADDING = 0;
     Laya.ClassUtils.regClass("laya.html.utils.Layout", Layout);
+    Laya.ClassUtils.regClass("Laya.Layout", Layout);
 
     (function (HTMLElementType) {
         HTMLElementType[HTMLElementType["BASE"] = 0] = "BASE";
@@ -1006,6 +1012,7 @@
     Laya.ILaya.regClass(HTMLElement);
     IHtml.HTMLElementType = exports.HTMLElementType;
     Laya.ClassUtils.regClass("laya.html.dom.HTMLElement", HTMLElement);
+    Laya.ClassUtils.regClass("Laya.HTMLElement", HTMLElement);
 
     class HTMLBrElement {
         _addToLayout(out) {
@@ -1039,6 +1046,7 @@
     IHtml.HTMLBrElement = HTMLBrElement;
     Laya.ILaya.regClass(HTMLBrElement);
     Laya.ClassUtils.regClass("laya.html.dom.HTMLBrElement", HTMLBrElement);
+    Laya.ClassUtils.regClass("Laya.HTMLBrElement", HTMLBrElement);
 
     class HTMLStyleElement extends HTMLElement {
         _creates() {
@@ -1057,6 +1065,7 @@
     }
     Laya.ILaya.regClass(HTMLStyleElement);
     Laya.ClassUtils.regClass("laya.html.dom.HTMLStyleElement", HTMLStyleElement);
+    Laya.ClassUtils.regClass("Laya.HTMLStyleElement", HTMLStyleElement);
 
     class HTMLLinkElement extends HTMLElement {
         _creates() {
@@ -1103,6 +1112,7 @@
     HTMLLinkElement._cuttingStyle = new RegExp("((@keyframes[\\s\\t]+|)(.+))[\\t\\n\\r\\\s]*{", "g");
     Laya.ILaya.regClass(HTMLLinkElement);
     Laya.ClassUtils.regClass("laya.html.dom.HTMLLinkElement", HTMLLinkElement);
+    Laya.ClassUtils.regClass("Laya.HTMLLinkElement", HTMLLinkElement);
 
     class HTMLDivParser extends HTMLElement {
         constructor() {
@@ -1205,6 +1215,7 @@
     IHtml.HTMLDivParser = HTMLDivParser;
     Laya.ILaya.regClass(HTMLDivParser);
     Laya.ClassUtils.regClass("laya.html.dom.HTMLDivParser", HTMLDivParser);
+    Laya.ClassUtils.regClass("Laya.HTMLDivParser", HTMLDivParser);
 
     class HTMLImageElement extends HTMLElement {
         constructor() {
@@ -1262,6 +1273,7 @@
     IHtml.HTMLImageElement = HTMLImageElement;
     Laya.ILaya.regClass(HTMLImageElement);
     Laya.ClassUtils.regClass("laya.html.dom.HTMLImageElement", HTMLImageElement);
+    Laya.ClassUtils.regClass("Laya.HTMLImageElement", HTMLImageElement);
 
     class HTMLParse {
         static getInstance(type) {
@@ -1381,6 +1393,7 @@
     Laya.ClassUtils.regClass('#text', HTMLElement);
     Laya.ClassUtils.regClass('link', HTMLLinkElement);
     Laya.ClassUtils.regClass("laya.html.utils.HTMLParse", HTMLParse);
+    Laya.ClassUtils.regClass("Laya.HTMLParse", HTMLParse);
 
     class HTMLDivElement extends Laya.Sprite {
         constructor() {
@@ -1488,6 +1501,7 @@
     IHtml.HTMLDivElement = HTMLDivElement;
     IHtml.HTMLParse = HTMLParse;
     Laya.ClassUtils.regClass("laya.html.dom.HTMLDivElement", HTMLDivElement);
+    Laya.ClassUtils.regClass("Laya.HTMLDivElement", HTMLDivElement);
 
     class HTMLIframeElement extends HTMLDivElement {
         constructor() {
@@ -1507,6 +1521,7 @@
         }
     }
     Laya.ClassUtils.regClass("laya.html.dom.HTMLIframeElement", HTMLIframeElement);
+    Laya.ClassUtils.regClass("Laya.HTMLIframeElement", HTMLIframeElement);
 
     exports.HTMLBrElement = HTMLBrElement;
     exports.HTMLDivElement = HTMLDivElement;

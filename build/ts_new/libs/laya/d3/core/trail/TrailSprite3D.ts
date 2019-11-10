@@ -124,6 +124,7 @@ export class TrailSprite3D extends RenderableSprite3D {
 		destTrailFilter.minVertexDistance = this.trailFilter.minVertexDistance;
 		destTrailFilter.widthMultiplier = this.trailFilter.widthMultiplier;
 		destTrailFilter.textureMode = this.trailFilter.textureMode;
+		destTrailFilter.alignment = this.trailFilter.alignment;
 
 		var widthCurveData: FloatKeyframe[] = this.trailFilter.widthCurve;
 		var widthCurve: FloatKeyframe[] = [];

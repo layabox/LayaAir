@@ -32,3 +32,4 @@ export class HTMLHitRect {
 }
 
 ClassUtils.regClass("laya.html.dom.HTMLHitRect", HTMLHitRect);
+ClassUtils.regClass("Laya.HTMLHitRect", HTMLHitRect);

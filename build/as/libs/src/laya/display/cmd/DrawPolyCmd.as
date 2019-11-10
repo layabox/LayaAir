@@ -20,7 +20,7 @@ package laya.display.cmd {
 		/**
 		 * 多边形的点集合。
 		 */
-		public var points:*;
+		public var points:Array;
 
 		/**
 		 * 填充颜色，或者填充绘图的渐变对象。

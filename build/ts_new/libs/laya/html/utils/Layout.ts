@@ -251,3 +251,4 @@ export class Layout {
 }
 
 ClassUtils.regClass("laya.html.utils.Layout", Layout);
+ClassUtils.regClass("Laya.Layout", Layout);

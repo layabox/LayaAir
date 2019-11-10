@@ -9,7 +9,7 @@ package laya.webgl.text {
 		public var texWidth:Number;
 		public var texHeight:Number;
 		private var atlasgrid:*;
-		public var texture:*;
+		public var texture:TextTexture;
 		public var charMaps:*;
 		public static var atlasGridW:Number;
 

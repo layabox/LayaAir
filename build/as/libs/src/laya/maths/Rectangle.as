@@ -135,7 +135,9 @@ package laya.maths {
 		 * @param out （可选）待输出的矩形区域。如果为空则创建一个新的。建议：尽量复用对象，减少对象创建消耗。
 		 * @return 返回相交的矩形区域对象。
 		 */
-		public function intersection(rect:Rectangle,out:* = null):*{}
+		public function intersection(rect:Rectangle,out:Rectangle = null):Rectangle{
+			return null;
+		}
 
 		/**
 		 * <p>矩形联合，通过填充两个矩形之间的水平和垂直空间，将这两个矩形组合在一起以创建一个新的 Rectangle 对象。</p>
@@ -144,7 +146,7 @@ package laya.maths {
 		 * @param out 用于存储输出结果的矩形对象。如果为空，则创建一个新的。建议：尽量复用对象，减少对象创建消耗。Rectangle.TEMP对象用于对象复用。
 		 * @return 充当两个矩形的联合的新 Rectangle 对象。
 		 */
-		public function union(source:Rectangle,out:* = null):Rectangle{
+		public function union(source:Rectangle,out:Rectangle = null):Rectangle{
 			return null;
 		}
 
@@ -153,7 +155,7 @@ package laya.maths {
 		 * @param out （可选）用于存储结果的矩形对象。如果为空，则创建一个新的。建议：尽量复用对象，减少对象创建消耗。。Rectangle.TEMP对象用于对象复用。
 		 * @return Rectangle 对象，其 x、y、width 和 height 属性的值与当前 Rectangle 对象的对应值相同。
 		 */
-		public function clone(out:* = null):Rectangle{
+		public function clone(out:Rectangle = null):Rectangle{
 			return null;
 		}
 

@@ -46,12 +46,12 @@ package laya.ani.bone {
 		/**
 		 * 当前插槽显示的纹理
 		 */
-		public var currTexture:*;
+		public var currTexture:Texture;
 
 		/**
 		 * 显示对象对应的数据
 		 */
-		public var currDisplayData:*;
+		public var currDisplayData:SkinSlotDisplayData;
 
 		/**
 		 * 显示皮肤的索引

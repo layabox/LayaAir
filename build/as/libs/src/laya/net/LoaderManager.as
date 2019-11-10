@@ -117,7 +117,7 @@ package laya.net {
 		 * @param cache 是否缓存加载的资源。
 		 * @return 如果url为数组，返回true；否则返回指定的资源类对象。
 		 */
-		public function create(url:*,complete:* = null,progress:* = null,type:* = null,constructParams:* = null,propertyParams:* = null,priority:Number = null,cache:Boolean = null):void{}
+		public function create(url:*,complete:Handler = null,progress:Handler = null,type:String = null,constructParams:Array = null,propertyParams:* = null,priority:Number = null,cache:Boolean = null):void{}
 
 		/**
 		 * @private 
@@ -138,7 +138,7 @@ package laya.net {
 		 * @param useWorkerLoader (default = false)是否使用worker加载（只针对IMAGE类型和ATLAS类型，并且浏览器支持的情况下生效）
 		 * @return 此 LoaderManager 对象本身。
 		 */
-		public function load(url:*,complete:* = null,progress:* = null,type:* = null,priority:Number = null,cache:Boolean = null,group:* = null,ignoreCache:Boolean = null,useWorkerLoader:Boolean = null):LoaderManager{
+		public function load(url:*,complete:Handler = null,progress:Handler = null,type:String = null,priority:Number = null,cache:Boolean = null,group:String = null,ignoreCache:Boolean = null,useWorkerLoader:Boolean = null):LoaderManager{
 			return null;
 		}
 		private var _resInfoLoaded:*;
@@ -230,7 +230,7 @@ package laya.net {
 }
 	interface loadItem {
 		function get url():String;
-		function get type():*;
+		function get type():String;
 		function get size():Number;
 		function get priority():Number;
 		function get useWorkerLoader():Boolean;

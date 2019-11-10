@@ -120,7 +120,7 @@ package laya.net {
 		 * @see laya.utils.Byte
 		 */
 
-		public function Socket(host:* = undefined,port:Number = undefined,byteClass:Class = undefined,protocols:* = undefined){}
+		public function Socket(host:String = undefined,port:Number = undefined,byteClass:Class = undefined,protocols:Array = undefined){}
 
 		/**
 		 * <p>连接到指定的主机和端口。</p>

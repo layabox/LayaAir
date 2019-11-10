@@ -47,12 +47,12 @@ package laya.display.css {
 		/**
 		 * 文本背景颜色，以字符串表示。
 		 */
-		public var bgColor:*;
+		public var bgColor:String;
 
 		/**
 		 * 文本边框背景颜色，以字符串表示。
 		 */
-		public var borderColor:*;
+		public var borderColor:String;
 
 		/**
 		 * <p>指定文本字段是否是密码文本字段。</p>
@@ -86,12 +86,12 @@ package laya.display.css {
 		/**
 		 * 下划线颜色
 		 */
-		public var underlineColor:*;
+		public var underlineColor:String;
 
 		/**
 		 * 当前使用的位置字体。
 		 */
-		public var currBitmapFont:*;
+		public var currBitmapFont:BitmapFont;
 
 		/**
 		 * @override 

@@ -20,7 +20,7 @@ package laya.display.cmd {
 		/**
 		 * 路径集合，路径支持以下格式：[["moveTo",x,y],["lineTo",x,y],["arcTo",x1,y1,x2,y2,r],["closePath"]]。
 		 */
-		public var paths:*;
+		public var paths:Array;
 
 		/**
 		 * （可选）刷子定义，支持以下设置{fillStyle:"#FF0000"}。

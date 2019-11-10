@@ -797,7 +797,7 @@ window.wxMiniGame = function (exports, Laya) {
 	                var fileObj = MiniFileMgr.getFileInfo(Laya.URL.formatURL(url));
 	                if (fileObj) {
 	                    fileObj.encoding = fileObj.encoding == null ? "utf8" : fileObj.encoding;
-	                    MiniFileMgr.readFile(fileObj.url, encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), url);
+	                    MiniFileMgr.readFile(MiniFileMgr.getFileNativePath(fileObj.md5), encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), url);
 	                }
 	                else if (thisLoader.type == "image" || thisLoader.type == "htmlimage") {
 	                    thisLoader._transformUrl(url, contentType);
@@ -1158,7 +1158,7 @@ window.wxMiniGame = function (exports, Laya) {
 	                }
 	                for (i = 0; i < toloadPics.length; i++) {
 	                    var tempAtlasPngUrl = toloadPics[i];
-	                    MiniAdpter.postInfoToContext(url, tempAtlasPngUrl, atlasJson);
+	                    MiniAdpter.postInfoToContext(Laya.Laya.URL.formatURL(url), Laya.Laya.URL.formatURL(tempAtlasPngUrl), atlasJson);
 	                }
 	            }
 	            else {
@@ -1196,6 +1196,7 @@ window.wxMiniGame = function (exports, Laya) {
 	            fileNativeUrl = url;
 	        }
 	        if (fileNativeUrl) {
+	            url = Laya.Laya.URL.formatURL(url);
 	            MiniAdpter.window.wx.postMessage({ url: url, imgNativeUrl: fileNativeUrl, imgReadyUrl: url, isLoad: "openJsondatacontextPic" });
 	        }
 	        else {
@@ -1204,6 +1205,7 @@ window.wxMiniGame = function (exports, Laya) {
 	    }
 	    static sendJsonDataToDataContext(url) {
 	        if (!MiniAdpter.isZiYu) {
+	            url = Laya.Laya.URL.formatURL(url);
 	            var atlasJson = Laya.Loader.getRes(url);
 	            if (atlasJson) {
 	                MiniAdpter.window.wx.postMessage({ url: url, atlasdata: atlasJson, isLoad: "openJsondatacontext" });

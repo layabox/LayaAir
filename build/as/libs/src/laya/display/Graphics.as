@@ -122,14 +122,18 @@ package laya.display {
 		 * @param color （可选）颜色滤镜。
 		 * @param blendMode （可选）混合模式。
 		 */
-		public function drawTexture(texture:*,x:Number = null,y:Number = null,width:Number = null,height:Number = null,matrix:* = null,alpha:Number = null,color:* = null,blendMode:* = null,uv:Array = null):*{}
+		public function drawTexture(texture:Texture,x:Number = null,y:Number = null,width:Number = null,height:Number = null,matrix:Matrix = null,alpha:Number = null,color:String = null,blendMode:String = null,uv:Array = null):DrawTextureCmd{
+			return null;
+		}
 
 		/**
 		 * 批量绘制同样纹理。
 		 * @param texture 纹理。
 		 * @param pos 绘制次数和坐标。
 		 */
-		public function drawTextures(texture:Texture,pos:Array):*{}
+		public function drawTextures(texture:Texture,pos:Array):DrawTexturesCmd{
+			return null;
+		}
 
 		/**
 		 * 绘制一组三角形
@@ -158,7 +162,9 @@ package laya.display {
 		 * @param type （可选）填充类型 repeat|repeat-x|repeat-y|no-repeat
 		 * @param offset （可选）贴图纹理偏移
 		 */
-		public function fillTexture(texture:Texture,x:Number,y:Number,width:Number = null,height:Number = null,type:String = null,offset:* = null):*{}
+		public function fillTexture(texture:Texture,x:Number,y:Number,width:Number = null,height:Number = null,type:String = null,offset:Point = null):FillTextureCmd{
+			return null;
+		}
 
 		/**
 		 * 设置剪裁区域，超出剪裁区域的坐标不显示。
