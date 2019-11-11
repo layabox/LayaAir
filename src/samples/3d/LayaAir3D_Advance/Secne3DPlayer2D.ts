@@ -10,7 +10,6 @@ import { Image } from "laya/ui/Image";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
-import { Vector4 } from "laya/d3/math/Vector4";
 
 export class Secne3DPlayer2D {
 
@@ -18,7 +17,7 @@ export class Secne3DPlayer2D {
 	private _camera: Camera;
 	private _layaMonkey2D: Image;
 	private _position: Vector3 = new Vector3();
-	private _outPos: Vector4 = new Vector4();
+	private _outPos: Vector3 = new Vector3();
 	private _translate: Vector3 = new Vector3(0, 0.35, 1);
 	private _rotation: Vector3 = new Vector3(-3.14 / 3, 0, 0);
 
@@ -62,7 +61,7 @@ export class Secne3DPlayer2D {
 		//变换位置
 		this._position.x = Math.sin(this.scaleDelta += 0.01);
 		//计算位置
-		var outPos: Vector4 = this._outPos;
+		var outPos: Vector3 = this._outPos;
 		this._camera.viewport.project(this._position, this._camera.projectionViewMatrix, outPos);
 		this._layaMonkey2D.pos(outPos.x / Laya.stage.clientScaleX, outPos.y / Laya.stage.clientScaleY);
 	}
