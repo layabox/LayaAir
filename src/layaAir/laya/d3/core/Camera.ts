@@ -565,6 +565,7 @@ export class Camera extends BaseCamera {
 
 				var shadowMap: RenderTexture = parallelSplitShadowMap.cameras[i + 1].renderTarget;
 				shadowMap._start();
+				RenderContext3D._instance.invertY = false;//阴影不需要翻转,临时矫正，待重构处理
 				context.camera = smCamera;
 				Camera._updateMark++;
 				context.viewport = smCamera.viewport;
