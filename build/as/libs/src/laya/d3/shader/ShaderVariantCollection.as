@@ -4,7 +4,7 @@ package laya.d3.shader {
 	/**
 	 * 着色器变种。
 	 */
-	public class ShaderVariantInfo {
+	public class ShaderVariant {
 
 		/**
 		 * 创建着色器变种。
@@ -14,7 +14,7 @@ package laya.d3.shader {
 		 * @param defines 宏定义集合
 		 */
 
-		public function ShaderVariantInfo(shader:Shader3D = undefined,subShaderIndex:Number = undefined,passIndex:Number = undefined,defines:Array = undefined){}
+		public function ShaderVariant(shader:Shader3D = undefined,subShaderIndex:Number = undefined,passIndex:Number = undefined,defines:Array = undefined){}
 
 		/**
 		 * 给着色器变种赋值。
@@ -30,7 +30,7 @@ package laya.d3.shader {
 		 * @param other 其它着色器变种
 		 * @return 是否相等。
 		 */
-		public function equal(other:ShaderVariantInfo):Boolean{
+		public function equal(other:ShaderVariant):Boolean{
 			return null;
 		}
 
@@ -38,19 +38,19 @@ package laya.d3.shader {
 		 * 克隆。
 		 * @return 着色器变种。
 		 */
-		public function clone():ShaderVariantInfo{
+		public function clone():ShaderVariant{
 			return null;
 		}
 	}
 
 }
 
-	import ShaderVariantInfo;
+	import ShaderVariant;
 
 	/**
 	 * 着色器变种集合。
 	 */
-	class ShaderVariantInfoCollection {
+	class ShaderVariantCollection {
 
 		/**
 		 * 是否已经全部编译。
@@ -71,7 +71,7 @@ package laya.d3.shader {
 		 * @param variant 着色器变种。
 		 * @param 是否添加成功 。
 		 */
-		public function add(variant:ShaderVariantInfo):Boolean{
+		public function add(variant:ShaderVariant):Boolean{
 			return null;
 		}
 
@@ -80,7 +80,7 @@ package laya.d3.shader {
 		 * @param variant 着色器变种。
 		 * @return 是否移除成功。
 		 */
-		public function remove(variant:ShaderVariantInfo):Boolean{
+		public function remove(variant:ShaderVariant):Boolean{
 			return null;
 		}
 
@@ -88,7 +88,16 @@ package laya.d3.shader {
 		 * 是否包含着色器变种。
 		 * @param variant 着色器变种。
 		 */
-		public function contatins(variant:ShaderVariantInfo):Boolean{
+		public function contatins(variant:ShaderVariant):Boolean{
+			return null;
+		}
+
+		/**
+		 * 通过索引获取着色器变种。
+		 * @param index 索引。
+		 * @returns 着色器变种。
+		 */
+		public function getByIndex(index:Number):ShaderVariant{
 			return null;
 		}
 

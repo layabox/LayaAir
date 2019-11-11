@@ -15590,7 +15590,7 @@ declare module laya.d3.shader {
 		/**
 		 * 调试着色器变种集合。
 		 */
-		static readonly debugShaderVariantInfoCollection:laya.d3.shader.ShaderVariantInfoCollection;
+		static readonly debugShaderVariantCollection:laya.d3.shader.ShaderVariantCollection;
 
 		/**
 		 * 注册宏定义。
@@ -15923,7 +15923,7 @@ declare module laya.d3.shader {
 	/**
 	 * 着色器变种。
 	 */
-	class ShaderVariantInfo  {
+	class ShaderVariant  {
 
 		/**
 		 * 创建着色器变种。
@@ -15949,19 +15949,19 @@ declare module laya.d3.shader {
 		 * @param other 其它着色器变种
 		 * @return 是否相等。
 		 */
-		equal(other:ShaderVariantInfo):boolean;
+		equal(other:ShaderVariant):boolean;
 
 		/**
 		 * 克隆。
 		 * @return 着色器变种。
 		 */
-		clone():ShaderVariantInfo;
+		clone():ShaderVariant;
 	}
 
 	/**
 	 * 着色器变种集合。
 	 */
-	class ShaderVariantInfoCollection  {
+	class ShaderVariantCollection  {
 
 		/**
 		 * 是否已经全部编译。
@@ -15978,20 +15978,27 @@ declare module laya.d3.shader {
 		 * @param variant 着色器变种。
 		 * @param 是否添加成功 。
 		 */
-		add(variant:ShaderVariantInfo):boolean;
+		add(variant:ShaderVariant):boolean;
 
 		/**
 		 * 移除着色器变种。
 		 * @param variant 着色器变种。
 		 * @return 是否移除成功。
 		 */
-		remove(variant:ShaderVariantInfo):boolean;
+		remove(variant:ShaderVariant):boolean;
 
 		/**
 		 * 是否包含着色器变种。
 		 * @param variant 着色器变种。
 		 */
-		contatins(variant:ShaderVariantInfo):boolean;
+		contatins(variant:ShaderVariant):boolean;
+
+		/**
+		 * 通过索引获取着色器变种。
+		 * @param index 索引。
+		 * @returns 着色器变种。
+		 */
+		getByIndex(index:number):ShaderVariant;
 
 		/**
 		 * 清空。
@@ -44908,13 +44915,13 @@ declare module Laya {
 	 * 着色器变种。
 	 */
 
-	class ShaderVariantInfo extends laya.d3.shader.ShaderVariantInfo {}
+	class ShaderVariant extends laya.d3.shader.ShaderVariant {}
 
 	/**
 	 * 着色器变种集合。
 	 */
 
-	class ShaderVariantInfoCollection extends laya.d3.shader.ShaderVariantInfoCollection {}
+	class ShaderVariantCollection extends laya.d3.shader.ShaderVariantCollection {}
 
 	/**
 	 * <code>SubShader</code> 类用于创建SubShader。

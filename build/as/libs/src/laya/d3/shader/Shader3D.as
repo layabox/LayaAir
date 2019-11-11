@@ -1,6 +1,6 @@
 package laya.d3.shader {
 	import laya.d3.shader.ShaderDefine;
-	import laya.d3.shader.ShaderVariantInfoCollection;
+	import laya.d3.shader.ShaderVariantCollection;
 	import laya.d3.shader.SubShader;
 
 	/**
@@ -111,7 +111,7 @@ package laya.d3.shader {
 		/**
 		 * 调试着色器变种集合。
 		 */
-		public static function get debugShaderVariantInfoCollection():ShaderVariantInfoCollection{
+		public static function get debugShaderVariantCollection():ShaderVariantCollection{
 				return null;
 		}
 

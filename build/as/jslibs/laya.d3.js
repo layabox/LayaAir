@@ -5894,7 +5894,7 @@
 	    }
 	}
 
-	class ShaderVariantInfo {
+	class ShaderVariant {
 	    constructor(shader, subShaderIndex, passIndex, defines) {
 	        this._subShaderIndex = 0;
 	        this._passIndex = 0;
@@ -5944,11 +5944,11 @@
 	        }
 	    }
 	    clone() {
-	        var dest = new ShaderVariantInfo(this._shader, this._subShaderIndex, this._passIndex, this._defineNames.slice());
+	        var dest = new ShaderVariant(this._shader, this._subShaderIndex, this._passIndex, this._defineNames.slice());
 	        return dest;
 	    }
 	}
-	class ShaderVariantInfoCollection {
+	class ShaderVariantCollection {
 	    constructor() {
 	        this._allCompiled = false;
 	        this._variants = [];
@@ -5983,6 +5983,9 @@
 	                return true;
 	        }
 	        return false;
+	    }
+	    getByIndex(index) {
+	        return this._variants[index];
 	    }
 	    clear() {
 	        this._variants.length = 0;
@@ -6153,7 +6156,7 @@
 	Shader3D._preCompileShader = {};
 	Shader3D._maskMap = [];
 	Shader3D.debugMode = true;
-	Shader3D.debugShaderVariantInfoCollection = new ShaderVariantInfoCollection();
+	Shader3D.debugShaderVariantCollection = new ShaderVariantCollection();
 
 	class ShaderData {
 	    constructor(ownerResource = null) {
@@ -29547,8 +29550,8 @@
 	        if (dbugShaderVariantInfo)
 	            dbugShaderVariantInfo.setValue(debugShader, debugShader._subShaders.indexOf(debugSubShader), debugSubShader._passes.indexOf(this), deugDefines);
 	        else
-	            Shader3D._debugShaderVariantInfo = dbugShaderVariantInfo = new ShaderVariantInfo(debugShader, debugShader._subShaders.indexOf(debugSubShader), debugSubShader._passes.indexOf(this), deugDefines);
-	        Shader3D.debugShaderVariantInfoCollection.add(dbugShaderVariantInfo);
+	            Shader3D._debugShaderVariantInfo = dbugShaderVariantInfo = new ShaderVariant(debugShader, debugShader._subShaders.indexOf(debugSubShader), debugSubShader._passes.indexOf(this), deugDefines);
+	        Shader3D.debugShaderVariantCollection.add(dbugShaderVariantInfo);
 	    }
 	    withCompile(compileDefine) {
 	        compileDefine._intersectionDefineDatas(this._validDefine);
@@ -32723,8 +32726,8 @@
 	exports.ShaderInstance = ShaderInstance;
 	exports.ShaderPass = ShaderPass;
 	exports.ShaderVariable = ShaderVariable;
-	exports.ShaderVariantInfo = ShaderVariantInfo;
-	exports.ShaderVariantInfoCollection = ShaderVariantInfoCollection;
+	exports.ShaderVariant = ShaderVariant;
+	exports.ShaderVariantCollection = ShaderVariantCollection;
 	exports.ShapeUtils = ShapeUtils;
 	exports.ShuriKenParticle3D = ShuriKenParticle3D;
 	exports.ShuriKenParticle3DShaderDeclaration = ShuriKenParticle3DShaderDeclaration;

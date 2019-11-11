@@ -3,7 +3,7 @@ import { ShaderCompile } from "../../webgl/utils/ShaderCompile";
 import { DefineDatas } from "./DefineDatas";
 import { ShaderDefine } from "./ShaderDefine";
 import { ShaderPass } from "./ShaderPass";
-import { ShaderVariantInfo, ShaderVariantInfoCollection } from "./ShaderVariantInfoCollection";
+import { ShaderVariant, ShaderVariantCollection } from "./ShaderVariantCollection";
 import { SubShader } from "./SubShader";
 
 /**
@@ -70,13 +70,13 @@ export class Shader3D {
 	/**@internal */
 	static _maskMap: Array<object> = [];
 	/**@internal */
-	static _debugShaderVariantInfo: ShaderVariantInfo;
+	static _debugShaderVariantInfo: ShaderVariant;
 
 
 	/**是否开启调试模式。 */
 	static debugMode: boolean = true;
 	/**调试着色器变种集合。 */
-	static readonly debugShaderVariantInfoCollection: ShaderVariantInfoCollection = new ShaderVariantInfoCollection();
+	static readonly debugShaderVariantCollection: ShaderVariantCollection = new ShaderVariantCollection();
 
 	/**@internal */
 	_attributeMap: any = null;
