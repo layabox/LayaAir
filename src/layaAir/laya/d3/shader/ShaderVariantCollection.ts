@@ -18,6 +18,34 @@ export class ShaderVariant {
     _defineNames: string[];
 
     /**
+     * 着色器。
+     */
+    public get shader(): Shader3D {
+        return this._shader;
+    }
+
+    /**
+     * 子着色器索引。
+     */
+    public get subShaderIndex(): number {
+        return this._subShaderIndex;
+    }
+
+    /**
+     * 通道索引。
+     */
+    public get passIndex(): number {
+        return this.passIndex;
+    }
+
+    /**
+     * 宏定义集合。
+     */
+    public get defines(): Readonly<string[]> {
+        return this.defines;
+    }
+
+    /**
      * 创建着色器变种。
      * @param shader 着色器
      * @param subShaderIndex 子着色器索引 
