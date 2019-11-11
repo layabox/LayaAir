@@ -35,14 +35,14 @@ export class ShaderVariant {
      * 通道索引。
      */
     public get passIndex(): number {
-        return this.passIndex;
+        return this._passIndex;
     }
 
     /**
      * 宏定义集合。
      */
-    public get defines(): Readonly<string[]> {
-        return this.defines;
+    public get defineNames(): Readonly<string[]> {
+        return this._defineNames;
     }
 
     /**
