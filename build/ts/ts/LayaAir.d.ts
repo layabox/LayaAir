@@ -15634,6 +15634,11 @@ declare module laya.d3.shader {
 		static find(name:string):Shader3D;
 
 		/**
+		 * 名字。
+		 */
+		readonly name:string;
+
+		/**
 		 * 创建一个 <code>Shader3D</code> 实例。
 		 */
 
@@ -15924,6 +15929,26 @@ declare module laya.d3.shader {
 	 * 着色器变种。
 	 */
 	class ShaderVariant  {
+
+		/**
+		 * 着色器。
+		 */
+		readonly shader:laya.d3.shader.Shader3D;
+
+		/**
+		 * 子着色器索引。
+		 */
+		readonly subShaderIndex:number;
+
+		/**
+		 * 通道索引。
+		 */
+		readonly passIndex:number;
+
+		/**
+		 * 宏定义集合。
+		 */
+		readonly defineNames:Readonly<string[]>;
 
 		/**
 		 * 创建着色器变种。
