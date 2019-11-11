@@ -5900,6 +5900,18 @@
 	        this._passIndex = 0;
 	        this.setValue(shader, subShaderIndex, passIndex, defines);
 	    }
+	    get shader() {
+	        return this._shader;
+	    }
+	    get subShaderIndex() {
+	        return this._subShaderIndex;
+	    }
+	    get passIndex() {
+	        return this._passIndex;
+	    }
+	    get defineNames() {
+	        return this._defineNames;
+	    }
 	    setValue(shader, subShaderIndex, passIndex, defineNames) {
 	        if (shader) {
 	            var subShader = shader.getSubShaderAt(subShaderIndex);
@@ -5930,18 +5942,17 @@
 	        this._defineNames = defineNames;
 	    }
 	    equal(other) {
-	        if (this._shader !== other._shader || this._subShaderIndex !== other._subShaderIndex || this._passIndex !== other._passIndex) {
+	        if (this._shader !== other._shader || this._subShaderIndex !== other._subShaderIndex || this._passIndex !== other._passIndex)
 	            return false;
+	        var defines = this._defineNames;
+	        var otherDefines = other._defineNames;
+	        if (defines.length !== otherDefines.length)
+	            return false;
+	        for (var i = 0, n = this._defineNames.length; i < n; i++) {
+	            if (defines[i] !== otherDefines[i])
+	                return false;
 	        }
-	        else {
-	            var defines = this._defineNames;
-	            var otherDefines = other._defineNames;
-	            for (var i = 0, n = this._defineNames.length; i < n; i++) {
-	                if (defines[i] !== otherDefines[i])
-	                    return false;
-	            }
-	            return true;
-	        }
+	        return true;
 	    }
 	    clone() {
 	        var dest = new ShaderVariant(this._shader, this._subShaderIndex, this._passIndex, this._defineNames.slice());
@@ -6092,6 +6103,9 @@
 	    }
 	    static find(name) {
 	        return Shader3D._preCompileShader[name];
+	    }
+	    get name() {
+	        return this._name;
 	    }
 	    addSubShader(subShader) {
 	        this._subShaders.push(subShader);
@@ -13814,6 +13828,7 @@
 	                FrustumCulling.renderObjectCulling(smCamera, scene, context, shader, replacementTag, true);
 	                var shadowMap = parallelSplitShadowMap.cameras[i + 1].renderTarget;
 	                shadowMap._start();
+	                RenderContext3D._instance.invertY = false;
 	                context.camera = smCamera;
 	                Camera._updateMark++;
 	                context.viewport = smCamera.viewport;

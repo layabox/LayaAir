@@ -165,6 +165,13 @@ package laya.d3.shader {
 		}
 
 		/**
+		 * 名字。
+		 */
+		public function get name():String{
+				return null;
+		}
+
+		/**
 		 * 创建一个 <code>Shader3D</code> 实例。
 		 */
 
