@@ -567,7 +567,7 @@ export class PhysicsComponent extends Component {
 		var localOffset: Vector3 = this._colliderShape.localOffset;
 		var localRotation: Quaternion = this._colliderShape.localRotation;
 
-		var transform: Transform3D = ((<Sprite3D>this.owner))._transform;
+		var transform: Transform3D = (<Sprite3D>this.owner)._transform;
 		var position: Vector3 = transform.position;
 		var rotation: Quaternion = transform.rotation;
 
@@ -657,7 +657,7 @@ export class PhysicsComponent extends Component {
 	 * @internal
 	 */
 	_cloneTo(dest: Component): void {
-		var destPhysicsComponent: PhysicsComponent = (<PhysicsComponent>dest);
+		var destPhysicsComponent: PhysicsComponent = <PhysicsComponent>dest;
 		destPhysicsComponent.restitution = this._restitution;
 		destPhysicsComponent.friction = this._friction;
 		destPhysicsComponent.rollingFriction = this._rollingFriction;
