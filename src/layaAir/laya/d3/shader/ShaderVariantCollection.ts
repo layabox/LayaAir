@@ -99,19 +99,21 @@ export class ShaderVariant {
      * @return 是否相等。
      */
     equal(other: ShaderVariant): boolean {
-        if (this._shader !== other._shader || this._subShaderIndex !== other._subShaderIndex || this._passIndex !== other._passIndex) {
+        if (this._shader !== other._shader || this._subShaderIndex !== other._subShaderIndex || this._passIndex !== other._passIndex)
             return false;
+
+        var defines: string[] = this._defineNames;
+        var otherDefines: string[] = other._defineNames;
+        if (defines.length !== otherDefines.length)
+            return false;
+        for (var i: number = 0, n: number = this._defineNames.length; i < n; i++) {
+            if (defines[i] !== otherDefines[i])
+                return false;
         }
-        else {
-            var defines: string[] = this._defineNames;
-            var otherDefines: string[] = other._defineNames;
-            for (var i: number = 0, n: number = this._defineNames.length; i < n; i++) {
-                if (defines[i] !== otherDefines[i])
-                    return false;
-            }
-            return true;
-        }
+        return true;
+
     }
+
 
     /**
      * 克隆。
