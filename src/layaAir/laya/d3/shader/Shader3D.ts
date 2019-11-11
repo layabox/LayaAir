@@ -211,6 +211,13 @@ export class Shader3D {
 	_subShaders: SubShader[] = [];
 
 	/**
+	 * 名字。
+	 */
+	get name(): string {
+		return this._name;
+	}
+
+	/**
 	 * 创建一个 <code>Shader3D</code> 实例。
 	 */
 	constructor(name: string, attributeMap: any, uniformMap: any, enableInstancing: boolean) {
