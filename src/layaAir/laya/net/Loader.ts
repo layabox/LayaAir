@@ -301,7 +301,7 @@ export class Loader extends EventDispatcher {
 	 * @private
 	 */
 	protected _loadImage(url: string,isformatURL:boolean = true): void {
-		var _this: Loader = this;
+		var _this = this;
 		if(isformatURL)
 			url = URL.formatURL(url);
 		var onLoaded: Function;
