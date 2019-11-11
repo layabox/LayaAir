@@ -1671,12 +1671,12 @@ window.box2d=box2d;
             this.label = "RigidBody";
         }
         _createBody() {
-            if (this._body)
+            if (this._body || !this.owner)
                 return;
             var sp = this.owner;
             var box2d = window.box2d;
             var def = new box2d.b2BodyDef();
-            var point = this.owner.localToGlobal(Laya.Point.TEMP.setTo(0, 0), false, IPhysics.Physics.I.worldRoot);
+            var point = sp.localToGlobal(Laya.Point.TEMP.setTo(0, 0), false, IPhysics.Physics.I.worldRoot);
             def.position.Set(point.x / IPhysics.Physics.PIXEL_RATIO, point.y / IPhysics.Physics.PIXEL_RATIO);
             def.angle = Laya.Utils.toRadian(sp.rotation);
             def.allowSleep = this._allowSleep;

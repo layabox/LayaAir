@@ -4424,11 +4424,11 @@
 	        this.callLater(this.changeScroll);
 	    }
 	    destroy(destroyChild = true) {
-	        super.destroy(destroyChild);
 	        this._vScrollBar && this._vScrollBar.destroy();
 	        this._hScrollBar && this._hScrollBar.destroy();
 	        this._vScrollBar = null;
 	        this._hScrollBar = null;
+	        super.destroy(destroyChild);
 	    }
 	    initialize() {
 	        this.width = 180;
