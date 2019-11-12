@@ -54,14 +54,18 @@ export class HttpRequest extends EventDispatcher {
         var http = this._http;
         //临时，因为微信不支持以下文件格式
         url = URL.getAdptedFilePath(url);
-        http.open(method, url, true);
+		http.open(method, url, true);
+		let isJson = false;
         if (headers) {
             for (var i: number = 0; i < headers.length; i++) {
                 http.setRequestHeader(headers[i++], headers[i]);
             }
         } else if (!(((<any>window)).conch)) {
             if (!data || typeof (data) == 'string') http.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            else http.setRequestHeader("Content-Type", "application/json");
+			else{ 
+				http.setRequestHeader("Content-Type", "application/json");
+				isJson=true;
+			}
         }
         let restype: XMLHttpRequestResponseType = responseType !== "arraybuffer" ? "text" : "arraybuffer";
         http.responseType = restype;
@@ -80,7 +84,7 @@ export class HttpRequest extends EventDispatcher {
         http.onload = function (e: any): void {
             _this._onLoad(e);
         }
-        http.send(data);
+        http.send( isJson?JSON.stringify(data):data);
     }
 
     /**
