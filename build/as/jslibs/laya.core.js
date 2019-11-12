@@ -25093,8 +25093,8 @@ window.Laya= (function (exports) {
                         tTween = this._tweenDic[p];
                         tTween.complete();
                     }
-                    this._complete();
                     this.pause();
+                    this._complete();
                     return;
                 }
             }
