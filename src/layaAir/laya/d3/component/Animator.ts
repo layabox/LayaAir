@@ -1348,18 +1348,13 @@ export class Animator extends Component {
 	 * @return 是否解除关联成功。
 	 */
 	unLinkSprite3DToAvatarNode(sprite3D: Sprite3D): boolean {//[兼容性API]
-		if (sprite3D._hierarchyAnimator === this) {
-			var dummy: AnimationTransform3D = sprite3D.transform._dummy;
-			if (dummy) {
-				var nodeName: string = dummy._owner.name;
-				this._isLinkSpriteToAnimationNodeData(sprite3D, nodeName, false);
-				this._isLinkSpriteToAnimationNode(sprite3D, nodeName, false);
-				return true;
-			} else {
-				return false;
-			}
+		var dummy: AnimationTransform3D = sprite3D.transform._dummy;
+		if (dummy) {
+			var nodeName: string = dummy._owner.name;
+			this._isLinkSpriteToAnimationNodeData(sprite3D, nodeName, false);
+			this._isLinkSpriteToAnimationNode(sprite3D, nodeName, false);
+			return true;
 		} else {
-			throw ("Animator:sprite3D must belong to this Animator");
 			return false;
 		}
 	}
