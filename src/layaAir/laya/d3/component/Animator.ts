@@ -94,17 +94,12 @@ export class Animator extends Component {
 	_animationNodeParentIndices: Int16Array;
 
 	/**
-	 * 获取动画的播放速度,1.0为正常播放速度。
-	 * @return 动画的播放速度。
+	 * 动画的播放速度,1.0为正常播放速度。
 	 */
 	get speed(): number {
 		return this._speed;
 	}
 
-	/**
-	 * 设置动画的播放速度,1.0为正常播放速度。
-	 * @param 动画的播放速度。
-	 */
 	set speed(value: number) {
 		this._speed = value;
 	}
@@ -1222,22 +1217,28 @@ export class Animator extends Component {
 		}
 	}
 
-	//-----------------------------------------------------------------------------------------------------------------------------------------------------------
+	/**
+	 * @deprecated
+	 * 获取当前的播放状态。
+	 * @param   layerIndex 层索引。
+	 * @return  动画播放状态。
+	 */
+	getCurrentAnimatorPlayState(layerInex: number = 0): AnimatorPlayState {
+		return this._controllerLayers[layerInex]._playStateInfo;
+	}
 
+
+	//-----------------------------------------------------------------------------------------------------------------------------------------------------------
+	/** @internal */
 	private _avatar: Avatar;//[兼容性API]
 
 	/**
-	 * 获取avatar。
-	 * @return avator。
+	 * avatar。
 	 */
 	get avatar(): Avatar {//[兼容性API]
 		return this._avatar;
 	}
 
-	/**
-	 * 设置avatar。
-	 * @param value avatar。
-	 */
 	set avatar(value: Avatar) {//[兼容性API]
 		if (this._avatar !== value) {
 			this._avatar = value;
@@ -1251,6 +1252,25 @@ export class Animator extends Component {
 		}
 	}
 
+
+	/**
+	 *@internal
+	 */
+	private _isLinkSpriteToAnimationNodeData(sprite: Sprite3D, nodeName: string, isLink: boolean): void {//[兼容性API]
+		var linkSprites: any[] = this._linkAvatarSpritesData[nodeName];//存储挂点数据
+		if (isLink) {
+			linkSprites || (this._linkAvatarSpritesData[nodeName] = linkSprites = []);
+			linkSprites.push(sprite);
+		} else {
+			var index: number = linkSprites.indexOf(sprite);
+			linkSprites.splice(index, 1);
+		}
+	}
+
+
+	/**
+	 *@internal
+	 */
 	private _getAvatarOwnersAndInitDatasAsync(): void {//[兼容性API]
 		for (var i: number = 0, n: number = this._controllerLayers.length; i < n; i++) {
 			var clipStateInfos: AnimatorState[] = this._controllerLayers[i]._states;
@@ -1268,7 +1288,9 @@ export class Animator extends Component {
 		}
 	}
 
-
+	/**
+	 *@internal
+	 */
 	private _isLinkSpriteToAnimationNode(sprite: Sprite3D, nodeName: string, isLink: boolean): void {//[兼容性API]
 		if (this._avatar) {
 			var node: AnimationNode = this._avatarNodeMap[nodeName];
@@ -1298,18 +1320,6 @@ export class Animator extends Component {
 					this._linkAvatarSprites.splice(this._linkAvatarSprites.indexOf(sprite), 1);
 				}
 			}
-		}
-	}
-
-
-	private _isLinkSpriteToAnimationNodeData(sprite: Sprite3D, nodeName: string, isLink: boolean): void {//[兼容性API]
-		var linkSprites: any[] = this._linkAvatarSpritesData[nodeName];//存储挂点数据
-		if (isLink) {
-			linkSprites || (this._linkAvatarSpritesData[nodeName] = linkSprites = []);
-			linkSprites.push(sprite);
-		} else {
-			var index: number = linkSprites.indexOf(sprite);
-			linkSprites.splice(index, 1);
 		}
 	}
 
@@ -1357,16 +1367,6 @@ export class Animator extends Component {
 		} else {
 			return false;
 		}
-	}
-
-	/**
-	 * @deprecated
-	 * 获取当前的播放状态。
-	 * @param   layerIndex 层索引。
-	 * @return  动画播放状态。
-	 */
-	getCurrentAnimatorPlayState(layerInex: number = 0): AnimatorPlayState {
-		return this._controllerLayers[layerInex]._playStateInfo;
 	}
 
 	/**
