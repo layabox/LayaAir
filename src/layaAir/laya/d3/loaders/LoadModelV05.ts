@@ -1,18 +1,16 @@
+import { LayaGL } from "../../layagl/LayaGL"
+import { Byte } from "../../utils/Byte"
+import { Bounds } from "../core/Bounds"
 import { IndexBuffer3D } from "../graphics/IndexBuffer3D"
+import { IndexFormat } from "../graphics/IndexFormat"
 import { VertexMesh } from "../graphics/Vertex/VertexMesh"
 import { VertexBuffer3D } from "../graphics/VertexBuffer3D"
 import { VertexDeclaration } from "../graphics/VertexDeclaration"
 import { HalfFloatUtils } from "../math/HalfFloatUtils"
 import { Matrix4x4 } from "../math/Matrix4x4"
+import { Vector3 } from "../math/Vector3"
 import { Mesh, skinnedMatrixCache } from "../resource/models/Mesh"
 import { SubMesh } from "../resource/models/SubMesh"
-import { Byte } from "../../utils/Byte"
-import { LayaGL } from "../../layagl/LayaGL";
-import { IndexFormat } from "../graphics/IndexFormat"
-import { version } from "../../../Laya"
-import { BoundBox } from "../math/BoundBox"
-import { Bounds } from "../core/Bounds"
-import { Vector3 } from "../math/Vector3"
 
 
 /**
@@ -255,7 +253,7 @@ export class LoadModelV05 {
 		mesh._setCPUMemory(memorySize);
 		mesh._setGPUMemory(memorySize);
 
-		if (version == "LAYAMODEL:0501" || version == "LAYAMODEL:COMPRESSION_0501") {
+		if (LoadModelV05._version == "LAYAMODEL:0501" || LoadModelV05._version == "LAYAMODEL:COMPRESSION_0501") {
 			var bounds: Bounds = mesh.bounds;
 			var min: Vector3 = bounds.getMin();
 			var max: Vector3 = bounds.getMax();
