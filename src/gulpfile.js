@@ -316,21 +316,21 @@ gulp.task('ConcatBox2dPhysics', function (cb) {
 //拷贝引擎的第三方js库
 gulp.task('CopyJSLibsToJS', () => {
     return gulp.src([
-        './layaAir/jsLibs/*.js', '!./layaAir/jsLibs/box2d.js', '!./layaAir/jsLibs/laya.physics.js'])
+        './layaAir/jsLibs/laya.physics3D.wasm.wasm', './layaAir/jsLibs/*.js', '!./layaAir/jsLibs/box2d.js', '!./layaAir/jsLibs/laya.physics.js'])
         .pipe(gulp.dest('../build/js/libs'));
 });
 
 //拷贝js库至ts库
 gulp.task('CopyJSFileToTSCompatible', () => {
     return gulp.src([
-        '../build/js/libs/**/*.js'])
+        './layaAir/jsLibs/laya.physics3D.wasm.wasm','../build/js/libs/**/*.js'])
         .pipe(gulp.dest('../build/ts/libs'));
 });
 
 //拷贝js库至as库
 gulp.task('CopyJSFileToAS', () => {
     return gulp.src([
-        '../build/js/libs/**/*.js', '!../build/js/declare/*ts'])
+        './layaAir/jsLibs/laya.physics3D.wasm.wasm','../build/js/libs/**/*.js', '!../build/js/declare/*ts'])
         .pipe(gulp.dest('../build/as/jslibs'));
 });
 
