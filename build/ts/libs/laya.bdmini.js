@@ -785,14 +785,14 @@ window.bdMiniGame = function (exports, Laya) {
 	            thisLoader.onLoaded(Laya.Loader.preLoadedMap[url]);
 	        else {
 	            var tempurl = Laya.URL.formatURL(url);
-	            if (url.indexOf(BMiniAdapter.window.swan.env.USER_DATA_PATH) == -1 && (tempurl.indexOf("http://") != -1 || tempurl.indexOf("https://") != -1) && !BMiniAdapter.AutoCacheDownFile) {
+	            if (!MiniFileMgr.isLocalNativeFile(url) && !MiniFileMgr.getFileInfo(tempurl) && url.indexOf(BMiniAdapter.window.swan.env.USER_DATA_PATH) == -1 && (tempurl.indexOf("http://") != -1 || tempurl.indexOf("https://") != -1) && !BMiniAdapter.AutoCacheDownFile) {
 	                thisLoader._loadHttpRequest(tempurl, contentType, thisLoader, thisLoader.onLoaded, thisLoader, thisLoader.onProgress, thisLoader, thisLoader.onError);
 	            }
 	            else {
 	                var fileObj = MiniFileMgr.getFileInfo(Laya.URL.formatURL(url));
 	                if (fileObj) {
 	                    fileObj.encoding = fileObj.encoding == null ? "utf8" : fileObj.encoding;
-	                    MiniFileMgr.readFile(fileObj.url, encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), url);
+	                    MiniFileMgr.readFile(MiniFileMgr.getFileNativePath(fileObj.md5), encoding, new Laya.Handler(MiniLoader, MiniLoader.onReadNativeCallBack, [url, contentType, thisLoader]), url);
 	                }
 	                else if (thisLoader.type == "image" || thisLoader.type == "htmlimage") {
 	                    thisLoader._transformUrl(url, contentType);
@@ -831,21 +831,25 @@ window.bdMiniGame = function (exports, Laya) {
 	    }
 	    static _transformImgUrl(url, type, thisLoader) {
 	        if (BMiniAdapter.isZiYu) {
-	            thisLoader._loadImage(url);
+	            thisLoader._loadImage(url, false);
 	            return;
 	        }
-	        if (!MiniFileMgr.getFileInfo(url)) {
+	        if (MiniFileMgr.isLocalNativeFile(url)) {
+	            thisLoader._loadImage(url, false);
+	            return;
+	        }
+	        if (!MiniFileMgr.isLocalNativeFile(url) && !MiniFileMgr.getFileInfo(Laya.URL.formatURL(url))) {
 	            var tempUrl = Laya.URL.formatURL(url);
 	            if (url.indexOf(BMiniAdapter.window.swan.env.USER_DATA_PATH) == -1 && (tempUrl.indexOf("http://") != -1 || tempUrl.indexOf("https://") != -1)) {
 	                if (BMiniAdapter.isZiYu) {
-	                    thisLoader._loadImage(url);
+	                    thisLoader._loadImage(url, false);
 	                }
 	                else {
 	                    MiniFileMgr.downOtherFiles(tempUrl, new Laya.Handler(MiniLoader, MiniLoader.onDownImgCallBack, [url, thisLoader]), tempUrl);
 	                }
 	            }
 	            else
-	                thisLoader._loadImage(url);
+	                thisLoader._loadImage(url, false);
 	        }
 	        else {
 	            thisLoader._loadImage(url);
@@ -888,7 +892,7 @@ window.bdMiniGame = function (exports, Laya) {
 	            else
 	                fileNativeUrl = sourceUrl;
 	        }
-	        thisLoader._loadImage(fileNativeUrl);
+	        thisLoader._loadImage(fileNativeUrl, false);
 	    }
 	}
 
@@ -1073,7 +1077,6 @@ window.bdMiniGame = function (exports, Laya) {
 	            if (BMiniAdapter.idx == 1) {
 	                if (BMiniAdapter.isZiYu) {
 	                    _source = BMiniAdapter.window.sharedCanvas;
-	                    _source.style = {};
 	                }
 	                else {
 	                    _source = BMiniAdapter.window.canvas;
@@ -1082,6 +1085,7 @@ window.bdMiniGame = function (exports, Laya) {
 	            else {
 	                _source = BMiniAdapter.window.swan.createCanvas();
 	            }
+	            _source.style = {};
 	            BMiniAdapter.idx++;
 	            return _source;
 	        }

@@ -5780,8 +5780,13 @@
 	            this._length = size;
 	        }
 	        else {
-	            mask[index] |= define._value;
-	            this._length = Math.max(this._length, size);
+	            if (size > this._length) {
+	                mask[index] = define._value;
+	                this._length = size;
+	            }
+	            else {
+	                mask[index] |= define._value;
+	            }
 	        }
 	    }
 	    remove(define) {
@@ -6374,7 +6379,8 @@
 	        this.needRenewArrayBufferForNative(index);
 	        var lastValue = this._nativeArray[index];
 	        this._nativeArray[index] = value;
-	        this._int32Data[index] = value._glTexture.id;
+	        var glTexture = value._getSource() || value.defaulteTexture._getSource();
+	        this._int32Data[index] = glTexture.id;
 	        if (this._ownerResource && this._ownerResource.referenceCount > 0) {
 	            (lastValue) && (lastValue._removeReference());
 	            (value) && (value._addReference());
@@ -10597,9 +10603,9 @@
 	            return false;
 	        }
 	    }
-	    setData(buffer, bufferOffset = 0, dataStartIndex = 0, dataCount = 4294967295) {
+	    setData(buffer, bufferOffset = 0, dataStartIndex = 0, dataCount = Number.MAX_SAFE_INTEGER) {
 	        this.bind();
-	        var needSubData = dataStartIndex !== 0 || dataCount !== 4294967295;
+	        var needSubData = dataStartIndex !== 0 || dataCount !== Number.MAX_SAFE_INTEGER;
 	        if (needSubData) {
 	            var subData = new Uint8Array(buffer, dataStartIndex, dataCount);
 	            Laya.LayaGL.instance.bufferSubData(this._bufferType, bufferOffset, subData);
@@ -12508,10 +12514,10 @@
 	    static supportRenderTextureFormat(format) {
 	        switch (format) {
 	            case Laya.RenderTextureFormat.R16G16B16A16:
-	                if (!Laya.LayaGL.layaGPUInstance._isWebGL2 && !Laya.LayaGL.layaGPUInstance._oesTextureHalfFloat && !Laya.LayaGL.layaGPUInstance._oesTextureHalfFloatLinear)
-	                    return false;
-	                else
+	                if (Laya.LayaGL.layaGPUInstance._isWebGL2 || Laya.LayaGL.layaGPUInstance._oesTextureHalfFloat && Laya.LayaGL.layaGPUInstance._oesTextureHalfFloatLinear)
 	                    return true;
+	                else
+	                    return false;
 	            default:
 	                return true;
 	        }
@@ -13608,6 +13614,7 @@
 	                var shadowMap = parallelSplitShadowMap.cameras[i + 1].renderTarget;
 	                shadowMap._start();
 	                context.camera = smCamera;
+	                Camera._updateMark++;
 	                context.viewport = smCamera.viewport;
 	                smCamera._prepareCameraToRender();
 	                smCamera._applyViewProject(context, smCamera.viewMatrix, smCamera.projectionMatrix, false);
@@ -13620,6 +13627,7 @@
 	            ShaderData.setRuntimeValueMode(true);
 	        }
 	        context.camera = this;
+	        Camera._updateMark++;
 	        scene._preRenderScript();
 	        var renderTar = this._getInternalRenderTexture();
 	        (renderTar) && (renderTar._start());
@@ -13801,6 +13809,12 @@
 	            this.render._updateMark = updateMark;
 	            this.render._updateRenderType = this.renderType;
 	        }
+	        else {
+	            if (this.renderType == RenderElement.RENDERTYPE_INSTANCEBATCH) {
+	                this.render._renderUpdate(context, transform);
+	                this.render._renderUpdateWithCamera(context, transform);
+	            }
+	        }
 	        if (geometry._prepareRender(context)) {
 	            var passes = this.renderSubShader._passes;
 	            for (var j = 0, m = passes.length; j < m; j++) {
@@ -13853,7 +13867,6 @@
 	        }
 	        if (updateRender && this.renderType !== RenderElement.RENDERTYPE_NORMAL)
 	            this.render._revertBatchRenderUpdate(context);
-	        Camera._updateMark++;
 	    }
 	    destroy() {
 	        this._transform = null;
@@ -25472,12 +25485,9 @@
 	        this._segementCount = this._increaseSegementCount;
 	        this._resizeData(this._segementCount, this._bufferState);
 	        var bounds = this._owner._owner.trailRenderer.bounds;
-	        var min = bounds.getMin();
-	        var max = bounds.getMax();
-	        min.setValue(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
-	        max.setValue(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
-	        bounds.setMin(min);
-	        bounds.setMax(max);
+	        var sprite3dPosition = this._owner._owner.transform.position;
+	        bounds.setMin(sprite3dPosition);
+	        bounds.setMax(sprite3dPosition);
 	        Laya.Render.supportWebGLPlusCulling && this._calculateBoundingBoxForNative();
 	    }
 	    _resizeData(segementCount, bufferState) {
@@ -26015,6 +26025,7 @@
 	        destTrailFilter.minVertexDistance = this.trailFilter.minVertexDistance;
 	        destTrailFilter.widthMultiplier = this.trailFilter.widthMultiplier;
 	        destTrailFilter.textureMode = this.trailFilter.textureMode;
+	        destTrailFilter.alignment = this.trailFilter.alignment;
 	        var widthCurveData = this.trailFilter.widthCurve;
 	        var widthCurve = [];
 	        for (i = 0, j = widthCurveData.length; i < j; i++) {
@@ -27370,6 +27381,8 @@
 	                default:
 	                    throw "Mesh:Unknown elementUsage.";
 	            }
+	            this._minVerticesUpdate = 0;
+	            this._maxVerticesUpdate = Number.MAX_SAFE_INTEGER;
 	        }
 	        else {
 	            console.warn("Mesh: the mesh don't have  this VertexElement.");
@@ -27451,8 +27464,8 @@
 	        var min = this._minVerticesUpdate;
 	        var max = this._maxVerticesUpdate;
 	        if (min !== -1 && max !== -1) {
-	            var offset = min * 4;
-	            this._vertexBuffer.setData(this._vertexBuffer.getUint8Data().buffer, offset, offset, (max - min) * 4);
+	            var offset = min;
+	            this._vertexBuffer.setData(this._vertexBuffer.getUint8Data().buffer, offset, offset, max - min);
 	            this._minVerticesUpdate = -1;
 	            this._maxVerticesUpdate = -1;
 	        }
@@ -28096,10 +28109,9 @@
 	    }
 	    static createQuad(long = 1, width = 1) {
 	        var vertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,UV");
-	        var vertexFloatStride = vertexDeclaration.vertexStride / 4;
 	        var halfLong = long / 2;
 	        var halfWidth = width / 2;
-	        var vertices = new Float32Array([halfLong, halfWidth, 0, 0, 0, 1, 0, 0, halfLong, halfWidth, 0, 0, 0, 1, 1, 0, -halfLong, -halfWidth, 0, 0, 0, 1, 0, 1, halfLong, -halfWidth, 0, 0, 0, 1, 1, 1]);
+	        var vertices = new Float32Array([-halfLong, halfWidth, 0, 0, 0, 1, 0, 0, halfLong, halfWidth, 0, 0, 0, 1, 1, 0, -halfLong, -halfWidth, 0, 0, 0, 1, 0, 1, halfLong, -halfWidth, 0, 0, 0, 1, 1, 1]);
 	        var indices = new Uint16Array([0, 1, 2, 3, 2, 1]);
 	        return PrimitiveMesh._createMesh(vertexDeclaration, vertices, indices);
 	    }
@@ -30225,11 +30237,11 @@
 	        if (scene._lightCount < maxLightCount) {
 	            scene._lightCount++;
 	            this._addToLightQueue();
-	            this._isAlternate = true;
+	            this._isAlternate = false;
 	        }
 	        else {
 	            scene._alternateLights.add(this);
-	            this._isAlternate = false;
+	            this._isAlternate = true;
 	            console.warn("LightSprite:light count has large than maxLightCount,the latest added light will be ignore.");
 	        }
 	    }
@@ -30382,7 +30394,7 @@
 	                break;
 	            case "MeshSprite3D":
 	                node = new MeshSprite3D();
-	                (outBatchSprites && node._isStatic) && (outBatchSprites.push(node));
+	                (outBatchSprites && nodeData.props.isStatic) && (outBatchSprites.push(node));
 	                break;
 	            case "SkinnedMeshSprite3D":
 	                node = new SkinnedMeshSprite3D();
@@ -30486,7 +30498,7 @@
 	                break;
 	            case "MeshSprite3D":
 	                node = new MeshSprite3D();
-	                (outBatchSprites && node._isStatic) && (outBatchSprites.push(node));
+	                (outBatchSprites && nodeData.props.isStatic) && (outBatchSprites.push(node));
 	                break;
 	            case "SkinnedMeshSprite3D":
 	                node = new SkinnedMeshSprite3D();

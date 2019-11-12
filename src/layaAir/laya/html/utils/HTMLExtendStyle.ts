@@ -54,5 +54,6 @@ export class HTMLExtendStyle {
 }
 
 ClassUtils.regClass("laya.html.utils.HTMLExtendStyle", HTMLExtendStyle);
+ClassUtils.regClass("Laya.HTMLExtendStyle", HTMLExtendStyle);
 
 

@@ -109,12 +109,12 @@ package laya.display {
 		/**
 		 * @private 存储文字行数信息。
 		 */
-		protected var _lines:*;
+		protected var _lines:Array;
 
 		/**
 		 * @private 保存每行宽度
 		 */
-		protected var _lineWidths:*;
+		protected var _lineWidths:Array;
 
 		/**
 		 * @private 文本的内容位置 X 轴信息。
@@ -129,7 +129,7 @@ package laya.display {
 		/**
 		 * @private 
 		 */
-		protected var _words:*;
+		protected var _words:Array;
 
 		/**
 		 * @private 

@@ -55,9 +55,7 @@ package laya.map {
 		 * @param objName 所要获取对象的名字
 		 * @return 
 		 */
-		public function getObjectDataByName(objName:String):GridSprite{
-			return null;
-		}
+		public function getObjectDataByName(objName:String):*{}
 
 		/**
 		 * 得到地图层的自定义属性

@@ -22382,7 +22382,7 @@ declare module laya.display {
 		/**
 		 * @private 
 		 */
-		protected _words:WordText[]|null;
+		protected _words:laya.utils.WordText[]|null;
 
 		/**
 		 * @private 
@@ -24527,7 +24527,7 @@ declare module laya.filters {
 		 * @private 滤镜类型。
 		 */
 		readonly type:number;
-		static _filter:(sprite: Sprite, context: Context, x: number, y: number) => void;
+		static _filter:(sprite:laya.display.Sprite,context:laya.resource.Context,x:number,y:number) =>void;
 	}
 
 }
@@ -25706,7 +25706,7 @@ declare module laya.map {
 		 * @param objName 所要获取对象的名字
 		 * @return 
 		 */
-		getObjectDataByName(objName:string):laya.map.GridSprite;
+		getObjectDataByName(objName:string):any;
 
 		/**
 		 * 得到地图层的自定义属性
@@ -26507,7 +26507,7 @@ declare module laya.maths {
 		 * @param forceNum 如果值为true，则将排序的元素转为数字进行比较。
 		 * @return 排序函数。
 		 */
-		static sortByKey(key:string,bigFirst?:boolean,forceNum?:boolean):(a: any, b: any) => number;
+		static sortByKey(key:string,bigFirst?:boolean,forceNum?:boolean):(a:any,b:any) =>number;
 	}
 
 }
@@ -28121,7 +28121,7 @@ declare module laya.net {
 		/**
 		 * @private 
 		 */
-		protected _loadImage(url:string):void;
+		protected _loadImage(url:string,isformatURL?:boolean):void;
 
 		/**
 		 * @private 
@@ -34514,12 +34514,12 @@ declare module laya.ui {
 		/**
 		 * @private 全局默认弹出对话框效果，可以设置一个效果代替默认的弹出效果，如果不想有任何效果，可以赋值为null
 		 */
-		popupEffect:(dialog: Dialog) => void;
+		popupEffect:(dialog:laya.ui.Dialog) =>void;
 
 		/**
 		 * @private 全局默认关闭对话框效果，可以设置一个效果代替默认的关闭效果，如果不想有任何效果，可以赋值为null
 		 */
-		closeEffect:(dialog: Dialog) => void;
+		closeEffect:(dialog:laya.ui.Dialog) =>void;
 
 		/**
 		 * 全局默认关闭对话框效果，可以设置一个效果代替默认的关闭效果，如果不想有任何效果，可以赋值为null
@@ -41126,7 +41126,7 @@ declare module laya.utils {
 		/**
 		 * @override 点击性能统计显示区域的处理函数。
 		 */
-		set_onclick(fn:(this: GlobalEventHandlers, ev: MouseEvent) => any):void;
+		set_onclick(fn:(this:GlobalEventHandlers,ev:MouseEvent) =>any):void;
 
 		/**
 		 * @private 性能统计参数计算循环处理函数。
@@ -43368,7 +43368,7 @@ declare module laya.webgl.text {
 		getNextChar(str:string):string|null;
 		filltext(ctx:laya.resource.Context,data:string|laya.utils.WordText,x:number,y:number,fontStr:string,color:string,strokeColor:string,lineWidth:number,textAlign:string,underLine?:number):void;
 		fillWords(ctx:laya.resource.Context,data:laya.utils.HTMLChar[],x:number,y:number,fontStr:string|laya.utils.FontInfo,color:string,strokeColor:string,lineWidth:number):void;
-		_fast_filltext(ctx:laya.resource.Context,data:string|laya.utils.WordText|null,htmlchars:HTMLChar[]|null,x:number,y:number,font:laya.utils.FontInfo,color:string,strokeColor:string,lineWidth:number,textAlign:number,underLine?:number):void;
+		_fast_filltext(ctx:laya.resource.Context,data:string|laya.utils.WordText|null,htmlchars:laya.utils.HTMLChar[]|null,x:number,y:number,font:laya.utils.FontInfo,color:string,strokeColor:string,lineWidth:number,textAlign:number,underLine?:number):void;
 
 		/**
 		 * 画出重新按照贴图顺序分组的文字。

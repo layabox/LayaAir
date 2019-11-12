@@ -20,17 +20,17 @@ package laya.utils {
 		/**
 		 * 执行域(this)。
 		 */
-		public var caller:*;
+		public var caller:Object;
 
 		/**
 		 * 处理方法。
 		 */
-		public var method:*;
+		public var method:Function;
 
 		/**
 		 * 参数。
 		 */
-		public var args:*;
+		public var args:Array;
 
 		/**
 		 * 表示是否只执行一次。如果为true，回调后执行recover()进行回收，回收后会被再利用，默认为false 。
@@ -50,7 +50,7 @@ package laya.utils {
 		 * @param once 是否只执行一次。
 		 */
 
-		public function Handler(caller:* = undefined,method:* = undefined,args:* = undefined,once:Boolean = undefined){}
+		public function Handler(caller:Object = undefined,method:Function = undefined,args:Array = undefined,once:Boolean = undefined){}
 
 		/**
 		 * 设置此对象的指定属性值。
@@ -60,7 +60,7 @@ package laya.utils {
 		 * @param once 是否只执行一次，如果为true，执行后执行recover()进行回收。
 		 * @return 返回 handler 本身。
 		 */
-		public function setTo(caller:*,method:*,args:*,once:Boolean = null):Handler{
+		public function setTo(caller:*,method:Function,args:Array,once:Boolean = null):Handler{
 			return null;
 		}
 
@@ -95,7 +95,7 @@ package laya.utils {
 		 * @param once 是否只执行一次，如果为true，回调后执行recover()进行回收，默认为true。
 		 * @return 返回创建的handler实例。
 		 */
-		public static function create(caller:*,method:*,args:* = null,once:Boolean = null):Handler{
+		public static function create(caller:*,method:Function,args:Array = null,once:Boolean = null):Handler{
 			return null;
 		}
 	}

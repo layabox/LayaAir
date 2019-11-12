@@ -71,10 +71,12 @@ package laya.webgl.text {
 		 * @param str 
 		 * @param start 开始位置
 		 */
-		public function getNextChar(str:String):*{}
+		public function getNextChar(str:String):String{
+			return null;
+		}
 		public function filltext(ctx:Context,data:*,x:Number,y:Number,fontStr:String,color:String,strokeColor:String,lineWidth:Number,textAlign:String,underLine:Number = null):void{}
 		public function fillWords(ctx:Context,data:Array,x:Number,y:Number,fontStr:*,color:String,strokeColor:String,lineWidth:Number):void{}
-		public function _fast_filltext(ctx:Context,data:*,htmlchars:*,x:Number,y:Number,font:FontInfo,color:String,strokeColor:String,lineWidth:Number,textAlign:Number,underLine:Number = null):void{}
+		public function _fast_filltext(ctx:Context,data:*,htmlchars:Array,x:Number,y:Number,font:FontInfo,color:String,strokeColor:String,lineWidth:Number,textAlign:Number,underLine:Number = null):void{}
 
 		/**
 		 * 画出重新按照贴图顺序分组的文字。

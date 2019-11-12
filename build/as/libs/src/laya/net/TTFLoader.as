@@ -7,8 +7,8 @@ package laya.net {
 	public class TTFLoader {
 		private static var _testString:*;
 		public var fontName:String;
-		public var complete:*;
-		public var err:*;
+		public var complete:Handler;
+		public var err:Handler;
 		private var _fontTxt:*;
 		private var _url:*;
 		private var _div:*;

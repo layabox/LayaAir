@@ -76,3 +76,4 @@ export class HTMLLinkElement extends HTMLElement {
 ILaya.regClass(HTMLLinkElement);
 
 ClassUtils.regClass("laya.html.dom.HTMLLinkElement", HTMLLinkElement);
+ClassUtils.regClass("Laya.HTMLLinkElement", HTMLLinkElement);

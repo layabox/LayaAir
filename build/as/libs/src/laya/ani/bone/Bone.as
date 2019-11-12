@@ -22,12 +22,14 @@ package laya.ani.bone {
 
 		public function Bone(){}
 		public function setTempMatrix(matrix:Matrix):void{}
-		public function update(pMatrix:* = null):void{}
+		public function update(pMatrix:Matrix = null):void{}
 		public function updateChild():void{}
 		public function setRotation(rd:Number):void{}
 		public function updateDraw(x:Number,y:Number):void{}
 		public function addChild(bone:Bone):void{}
-		public function findBone(boneName:String):*{}
+		public function findBone(boneName:String):Bone{
+			return null;
+		}
 		public function localToWorld(local:Array):void{}
 	}
 

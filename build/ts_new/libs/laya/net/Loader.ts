@@ -300,9 +300,10 @@ export class Loader extends EventDispatcher {
 	/**
 	 * @private
 	 */
-	protected _loadImage(url: string): void {
+	protected _loadImage(url: string,isformatURL:boolean = true): void {
 		var _this = this;
-		url = URL.formatURL(url);
+		if(isformatURL)
+			url = URL.formatURL(url);
 		var onLoaded: Function;
 		var onError: Function = function (): void {
 			_this.event(Event.ERROR, "Load image failed");
@@ -500,7 +501,7 @@ export class Loader extends EventDispatcher {
 			if (!data._source) {
 				this._data = data;
 				this.event(Event.PROGRESS, 0.5);
-				return this._loadImage(this._url.replace(".fnt", ".png"));
+				return this._loadResourceFilter(Loader.IMAGE,this._url.replace(".fnt", ".png"));
 			} else {
 				var bFont = new BitmapFont();
 				bFont.parseFont(this._data, new Texture(data));

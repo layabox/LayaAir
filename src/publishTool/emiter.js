@@ -33,7 +33,7 @@ class emiter {
         };
     }
     static get BaseURL() {
-        return emiter._BaseURL || "./bin/layaAir/";
+        return emiter._BaseURL || "../bin/layaAir/";
     }
     static set BaseURL(v) {
         emiter._BaseURL = v;
@@ -477,6 +477,16 @@ class emiter {
             case "TypeQuery":
                 // console.log("console test:",node.exprName.getText());
                 return node.exprName.getText();
+            case "UnionType":
+                type = "";
+                node = node;
+                for (let i = 0; i < node.types.length; i++) {
+                    type += (i ? "|" : "") + this.emitType(node.types[i]);
+                }
+                type = type.replace(/\|\s*null|\|\s*undefined/gm, "");
+                if (type.indexOf("|") != -1)
+                    type = "*";
+                return type;
             default:
                 console.log("TODO :", type, this.url + "/" + this.classNameNow);
                 return "*";
@@ -529,11 +539,8 @@ class emiter {
             else if (type == "UnionType") {
                 type = "";
                 for (let i = 0; i < node.types.length; i++) {
-                    let typeone = node.types[i];
-                    typeone = typeone.getText();
-                    if (this.importArr[typeone])
-                        typeone = this.importArr[typeone];
-                    type += typeone + (i == node.types.length - 1 ? "" : "|");
+                    let typeone = this.emitTsType(node.types[i]);
+                    type += (i ? "|" : "") + typeone;
                 }
             }
             else if (type == "TypeLiteral") {
@@ -552,6 +559,18 @@ class emiter {
                     }
                 }
                 type = typestr + "}";
+            }
+            else if (type == "FunctionType") {
+                let _node = node;
+                type = "(";
+                //方法类型
+                if (_node.parameters) {
+                    for (let i = 0; i < _node.parameters.length; i++) {
+                        let paramNode = _node.parameters[i];
+                        type += (i ? "," : "") + paramNode.name.getText() + ":" + this.emitTsType(paramNode.type);
+                    }
+                }
+                type += ") =>" + this.emitTsType(_node.type);
             }
             else {
                 type = node.getText();
@@ -634,7 +653,7 @@ class emiter {
 }
 /**所有已经识别的没有准备的方法 */
 emiter._typeArr = ["VariableStatement", "ExportDeclaration", "Uint16Array", "Float32Array",
-    "FunctionDeclaration"];
+    "FunctionDeclaration", "loadItem"];
 /**
  * 已知 的简单对应表
  */
@@ -647,9 +666,10 @@ emiter.tsToasTypeObj = {
     "ConstructorType": "Class",
     "TypeLiteral": "*",
     "AnyKeyword": "*",
-    "UnionType": "*",
     "FunctionType": "Function",
-    "ObjectKeyword": "Object"
+    "ObjectKeyword": "Object",
+    "NullKeyword": "null",
+    "UndefinedKeyword": "undefined"
 };
 /**jsc对应的astype */
 emiter.jscObj = {};

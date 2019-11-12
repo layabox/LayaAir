@@ -20,7 +20,7 @@ package laya.display.cmd {
 		/**
 		 * 线段的点集合。格式:[x1,y1,x2,y2,x3,y3...]。
 		 */
-		public var points:*;
+		public var points:Array;
 
 		/**
 		 * 线段颜色，或者填充绘图的渐变对象。

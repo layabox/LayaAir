@@ -70,3 +70,4 @@ export class LayoutLine {
 }
 
 ClassUtils.regClass("laya.html.utils.LayoutLine", LayoutLine);
+ClassUtils.regClass("Laya.LayoutLine", LayoutLine);
