@@ -399,16 +399,6 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	_onAdded(): void {
 		var bt: any = Physics3D._bullet;
 		var motionState: number = bt.layaMotionState_create();
-		// var isConchApp: boolean = ((<any>window).conch != null);
-		// if (isConchApp && physics3D.LayaMotionState.prototype.setRigidbody) {
-		// motionState.setRigidbody(this);
-		// motionState.setNativeGetWorldTransform(this._delegateMotionStateGetWorldTransformNative);
-		// motionState.setNativeSetWorldTransform(this._delegateMotionStateSetWorldTransformNative);
-		// } else {
-		// 	motionState.getWorldTransform = this._delegateMotionStateGetWorldTransform;
-		// 	motionState.setWorldTransform = this._delegateMotionStateSetWorldTransform;
-		// }
-
 		bt.layaMotionState_set_rigidBodyID(motionState, this._id);
 		this._btLayaMotionState = motionState;
 		var constructInfo: number = bt.btRigidBodyConstructionInfo_create(0.0, motionState, null, Rigidbody3D._btVector3Zero);

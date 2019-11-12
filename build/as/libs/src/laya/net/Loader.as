@@ -247,7 +247,7 @@ package laya.net {
 		/**
 		 * @private 
 		 */
-		protected function _loadImage(url:String):void{}
+		protected function _loadImage(url:String,isformatURL:Boolean = null):void{}
 
 		/**
 		 * @private 
