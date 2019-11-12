@@ -221,21 +221,17 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	}
 
 	/**
-	 * 每个轴的线性运动缩放因子。
+	 * 每个轴的线性运动缩放因子,如果某一轴的值为0表示冻结在该轴的线性运动。
 	 */
 	get linearFactor(): Vector3 {
-		if (this._btColliderObject)
-			return this._linearFactor;
-		return null;
+		return this._linearFactor;
 	}
 
 	set linearFactor(value: Vector3) {
 		this._linearFactor = value;
-		if (this._btColliderObject) {
-			var btValue: number = Rigidbody3D._btTempVector30;
-			Utils3D._convertToBulletVec3(value, btValue, false);
-			Physics3D._bullet.btRigidBody_setLinearFactor(this._btColliderObject, btValue);
-		}
+		var btValue: number = Rigidbody3D._btTempVector30;
+		Utils3D._convertToBulletVec3(value, btValue, false);
+		Physics3D._bullet.btRigidBody_setLinearFactor(this._btColliderObject, btValue);
 	}
 
 	/**
@@ -258,21 +254,18 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	}
 
 	/**
-	 * 每个轴的角度运动缩放因子。
+	 * 每个轴的角度运动缩放因子,如果某一轴的值为0表示冻结在该轴的角度运动。
 	 */
 	get angularFactor(): Vector3 {
-		if (this._btColliderObject)
-			return this._angularFactor;
-		return null;
+		return this._angularFactor;
 	}
 
 	set angularFactor(value: Vector3) {
 		this._angularFactor = value;
-		if (this._btColliderObject) {
-			var btValue: number = Rigidbody3D._btTempVector30;
-			Utils3D._convertToBulletVec3(value, btValue, false);
-			Physics3D._bullet.btRigidBody_setAngularFactor(this._btColliderObject, btValue);
-		}
+		var btValue: number = Rigidbody3D._btTempVector30;
+		Utils3D._convertToBulletVec3(value, btValue, false);
+		Physics3D._bullet.btRigidBody_setAngularFactor(this._btColliderObject, btValue);
+
 	}
 
 	/**
@@ -360,7 +353,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 
 
 	/**
-	 * 创建一个 <code>RigidBody</code> 实例。
+	 * 创建一个 <code>RigidBody3D</code> 实例。
 	 * @param collisionGroup 所属碰撞组。
 	 * @param canCollideWith 可产生碰撞的碰撞组。
 	 */
@@ -399,16 +392,6 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	_onAdded(): void {
 		var bt: any = Physics3D._bullet;
 		var motionState: number = bt.layaMotionState_create();
-		// var isConchApp: boolean = ((<any>window).conch != null);
-		// if (isConchApp && physics3D.LayaMotionState.prototype.setRigidbody) {
-		// motionState.setRigidbody(this);
-		// motionState.setNativeGetWorldTransform(this._delegateMotionStateGetWorldTransformNative);
-		// motionState.setNativeSetWorldTransform(this._delegateMotionStateSetWorldTransformNative);
-		// } else {
-		// 	motionState.getWorldTransform = this._delegateMotionStateGetWorldTransform;
-		// 	motionState.setWorldTransform = this._delegateMotionStateSetWorldTransform;
-		// }
-
 		bt.layaMotionState_set_rigidBodyID(motionState, this._id);
 		this._btLayaMotionState = motionState;
 		var constructInfo: number = bt.btRigidBodyConstructionInfo_create(0.0, motionState, null, Rigidbody3D._btVector3Zero);

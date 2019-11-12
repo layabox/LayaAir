@@ -9,6 +9,10 @@ import { SubMesh } from "../resource/models/SubMesh"
 import { Byte } from "../../utils/Byte"
 import { LayaGL } from "../../layagl/LayaGL";
 import { IndexFormat } from "../graphics/IndexFormat"
+import { version } from "../../../Laya"
+import { BoundBox } from "../math/BoundBox"
+import { Bounds } from "../core/Bounds"
+import { Vector3 } from "../math/Vector3"
 
 
 /**
@@ -114,6 +118,9 @@ export class LoadModelV05 {
 		var name: string = LoadModelV05._readString();
 		var reader: Byte = LoadModelV05._readData;
 		var arrayBuffer: ArrayBuffer = reader.__getBuffer();
+
+
+
 		var vertexBufferCount: number = reader.getInt16();
 		var offset: number = LoadModelV05._DATA.offset;
 		for (i = 0; i < vertexBufferCount; i++) {//TODO:始终为1
@@ -133,11 +140,13 @@ export class LoadModelV05 {
 
 			switch (LoadModelV05._version) {
 				case "LAYAMODEL:05":
+				case "LAYAMODEL:0501":
 					vertexData = arrayBuffer.slice(vbStart, vbStart + vertexCount * vertexStride);
 					floatData = new Float32Array(vertexData);
 					uint8Data = new Uint8Array(vertexData);
 					break;
 				case "LAYAMODEL:COMPRESSION_05":
+				case "LAYAMODEL:COMPRESSION_0501":
 					vertexData = new ArrayBuffer(vertexStride * vertexCount);
 					floatData = new Float32Array(vertexData);
 					uint8Data = new Uint8Array(vertexData);
@@ -246,6 +255,17 @@ export class LoadModelV05 {
 		mesh._setCPUMemory(memorySize);
 		mesh._setGPUMemory(memorySize);
 
+		if (version == "LAYAMODEL:0501" || version == "LAYAMODEL:COMPRESSION_0501") {
+			var bounds: Bounds = mesh.bounds;
+			var min: Vector3 = bounds.getMin();
+			var max: Vector3 = bounds.getMax();
+			min.setValue(reader.getFloat32(), reader.getFloat32(), reader.getFloat32());
+			max.setValue(reader.getFloat32(), reader.getFloat32(), reader.getFloat32());
+			bounds.setMin(min);
+			bounds.setMax(max);
+			mesh.bounds = bounds;
+		}
+
 		var boneNames: string[] = mesh._boneNames = [];
 		var boneCount: number = reader.getUint16();
 		boneNames.length = boneCount;
@@ -263,6 +283,7 @@ export class LoadModelV05 {
 			var inverseGlobalBindPose: Matrix4x4 = new Matrix4x4(bindPoseDatas[i + 0], bindPoseDatas[i + 1], bindPoseDatas[i + 2], bindPoseDatas[i + 3], bindPoseDatas[i + 4], bindPoseDatas[i + 5], bindPoseDatas[i + 6], bindPoseDatas[i + 7], bindPoseDatas[i + 8], bindPoseDatas[i + 9], bindPoseDatas[i + 10], bindPoseDatas[i + 11], bindPoseDatas[i + 12], bindPoseDatas[i + 13], bindPoseDatas[i + 14], bindPoseDatas[i + 15], new Float32Array(bindPoseBuffer, i * 4, 16));
 			mesh._inverseBindPoses[i / 16] = inverseGlobalBindPose;
 		}
+
 		return true;
 	}
 

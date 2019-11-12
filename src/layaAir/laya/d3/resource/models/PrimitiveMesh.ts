@@ -54,6 +54,7 @@ export class PrimitiveMesh {
 		var subMeshes: SubMesh[] = [];
 		subMeshes.push(subMesh);
 		mesh._setSubMeshes(subMeshes);
+		mesh.calculateBounds();
 		var memorySize: number = vertexBuffer._byteLength + indexBuffer._byteLength;
 		mesh._setCPUMemory(memorySize);
 		mesh._setGPUMemory(memorySize);

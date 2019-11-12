@@ -96,10 +96,8 @@ export class Mesh extends Resource implements IClone {
 	private _maxVerticesUpdate: number = -1;
 	/** @internal */
 	private _needUpdateBounds: boolean = true;
-
-
 	/** @internal */
-	protected _bounds: Bounds = new Bounds(new Vector3(), new Vector3());
+	private _bounds: Bounds = new Bounds(new Vector3(), new Vector3());
 
 	/** @internal */
 	_isReadable: boolean;
@@ -357,10 +355,8 @@ export class Mesh extends Resource implements IClone {
 	 */
 	_setSubMeshes(subMeshes: SubMesh[]): void {
 		this._subMeshes = subMeshes
-
 		for (var i: number = 0, n: number = subMeshes.length; i < n; i++)
 			subMeshes[i]._indexInMesh = i;
-		this.calculateBounds();
 	}
 
 
