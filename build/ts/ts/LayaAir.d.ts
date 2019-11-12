@@ -28121,7 +28121,7 @@ declare module laya.net {
 		/**
 		 * @private 
 		 */
-		protected _loadImage(url:string):void;
+		protected _loadImage(url:string,isformatURL?:boolean):void;
 
 		/**
 		 * @private 
