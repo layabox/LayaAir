@@ -36,7 +36,7 @@ import { Transform3D } from "./Transform3D";
 /**
  * 相机清除标记。
  */
-enum CameraClearFlags {
+export enum CameraClearFlags {
 	/**固定颜色。*/
 	SolidColor = 0,
 	/**天空。*/
