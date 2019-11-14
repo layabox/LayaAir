@@ -351,7 +351,7 @@ export class PhysicsSimulation {
 				point.x = -bt.btVector3_x(btPoint);
 				point.y = bt.btVector3_y(btPoint);
 				point.z = bt.btVector3_z(btPoint);
-				var btNormal: number = bt.ClosestRayResultCallback_get_m_hitPointWorld(rayResultCall);
+				var btNormal: number = bt.ClosestRayResultCallback_get_m_hitNormalWorld(rayResultCall);
 				var normal: Vector3 = out.normal;
 				normal.x = -bt.btVector3_x(btNormal);
 				normal.y = bt.btVector3_y(btNormal);
