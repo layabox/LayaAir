@@ -1,6 +1,7 @@
 
 import { ILaya } from "../../ILaya";
 import { VertexArrayObject } from "../../laya/webgl/VertexArrayObject";
+import { SystemUtils } from "../d3/utils/SystemUtils";
 
 /**
  * @internal
@@ -35,6 +36,8 @@ export class LayaGPU {
     /**@internal */
     _oesTextureFloat: any = null;
     /**@internal */
+    _extShaderTextureLod: any = null;
+    /**@internal */
     _extTextureFilterAnisotropic: any = null;
     /**@internal */
     _compressedTextureS3tc: any = null;
@@ -46,10 +49,11 @@ export class LayaGPU {
     /**
      * @internal
      */
-    constructor(gl: any, isWebGL2: boolean) {
+    constructor(gl: WebGLRenderingContext, isWebGL2: boolean) {
         this._gl = gl;
         this._isWebGL2 = isWebGL2;
-
+        var maxTextureCountFS: number = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
+        var maxTextureSize: number = gl.getParameter(gl.MAX_TEXTURE_SIZE);
         if (!isWebGL2) {
             var forceVAO: boolean = LayaGPU._forceSupportVAOPlatform();
             if (!ILaya.Render.isConchApp) {
@@ -70,9 +74,20 @@ export class LayaGPU {
             this._oesTextureFloat = this._getExtension("OES_texture_float");
             //this._getExtension("OES_texture_float_linear");
             this._oes_element_index_uint = this._getExtension("OES_element_index_uint");
+            this._extShaderTextureLod = this._getExtension("EXT_shader_texture_lod");
+
+            //TODO:
+            var maxVaryingVectors: number = gl.getParameter(gl.MAX_VARYING_VECTORS);
+            if (maxVaryingVectors >= 10 && maxTextureCountFS >= 16 && maxTextureSize >= 4096 && this._extShaderTextureLod)
+                SystemUtils._shaderCapailityLevel = 30;
+            else
+                SystemUtils._shaderCapailityLevel = 20;
         } else {
             this._getExtension("EXT_color_buffer_float");
             //this._getExtension("OES_texture_float_linear");
+
+            //TODO:
+            SystemUtils._shaderCapailityLevel = 30;
         }
 
         //_getExtension("EXT_float_blend");
@@ -80,6 +95,9 @@ export class LayaGPU {
         this._compressedTextureS3tc = this._getExtension("WEBGL_compressed_texture_s3tc");
         this._compressedTexturePvrtc = this._getExtension("WEBGL_compressed_texture_pvrtc");
         this._compressedTextureEtc1 = this._getExtension("WEBGL_compressed_texture_etc1");
+
+        SystemUtils._maxTextureCount = maxTextureCountFS;
+        SystemUtils._maxTextureSize = maxTextureSize;
     }
 
     /**

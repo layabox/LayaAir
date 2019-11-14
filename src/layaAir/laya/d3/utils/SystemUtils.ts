@@ -1,12 +1,43 @@
 import { LayaGL } from "../../layagl/LayaGL";
-import { BaseTexture } from "../../resource/BaseTexture";
-import { TextureFormat } from "../../resource/TextureFormat";
 import { RenderTextureFormat } from "../../resource/RenderTextureFormat";
+import { TextureFormat } from "../../resource/TextureFormat";
 
+/**
+ * 系统工具。
+ */
 export class SystemUtils {
+    /** @internal */
+    static _maxTextureCount: number;
+    /** @internal */
+    static _maxTextureSize: number;
+    /** @internal */
+    static _shaderCapailityLevel: number;
+
+    /**
+     * 图形设备支持的最大纹理数量。
+     */
+    static get maxTextureCount(): number {
+        return this._maxTextureCount;
+    }
+
+    /**
+     * 图形设备支持的最大纹理尺寸。
+     */
+    static get maxTextureSize(): number {
+        return this._maxTextureSize;
+    }
+
+    /**
+     * 图形设备着色器的大致能力等级,类似于DirectX的shader model概念。
+     */
+    static get shaderCapailityLevel(): number {
+        return this._shaderCapailityLevel;
+    }
+
     /**
      * 是否支持纹理格式。
      * @param format 纹理格式。 
+     * @returns 是否支持。
      */
     static supportTextureFormat(format: number): boolean {
         switch (format) {
@@ -20,9 +51,10 @@ export class SystemUtils {
         }
     }
 
-        /**
+    /**
      * 是否支持渲染纹理格式。
      * @param format 渲染纹理格式。
+     * @returns 是否支持。
      */
     static supportRenderTextureFormat(format: number): boolean {
         switch (format) {
