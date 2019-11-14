@@ -27910,7 +27910,7 @@ declare module laya.net {
 	}
 	interface loadItem{
 		url:string;
-		type:string|null;
+		type:string;
 		size:number;
 		priority:number;
 		useWorkerLoader:boolean;

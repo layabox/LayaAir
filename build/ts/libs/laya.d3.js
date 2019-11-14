@@ -13484,13 +13484,12 @@
 	    }
 	}
 
-	var CameraClearFlags;
 	(function (CameraClearFlags) {
 	    CameraClearFlags[CameraClearFlags["SolidColor"] = 0] = "SolidColor";
 	    CameraClearFlags[CameraClearFlags["Sky"] = 1] = "Sky";
 	    CameraClearFlags[CameraClearFlags["DepthOnly"] = 2] = "DepthOnly";
 	    CameraClearFlags[CameraClearFlags["Nothing"] = 3] = "Nothing";
-	})(CameraClearFlags || (CameraClearFlags = {}));
+	})(exports.CameraClearFlags || (exports.CameraClearFlags = {}));
 	class Camera extends BaseCamera {
 	    constructor(aspectRatio = 0, nearPlane = 0.3, farPlane = 1000) {
 	        super(nearPlane, farPlane);
@@ -13505,7 +13504,7 @@
 	        this._clusterPlaneCacheFlag = new Vector2(-1, -1);
 	        this._screenOffsetScale = new Vector4();
 	        this.enableRender = true;
-	        this.clearFlag = CameraClearFlags.SolidColor;
+	        this.clearFlag = exports.CameraClearFlags.SolidColor;
 	        this._viewMatrix = new Matrix4x4();
 	        this._projectionMatrix = new Matrix4x4();
 	        this._projectionViewMatrix = new Matrix4x4();
@@ -13845,7 +13844,7 @@
 	        context.camera = this;
 	        Camera._updateMark++;
 	        scene._preRenderScript();
-	        if (needInternalRT && !this._offScreenRenderTexture && (this.clearFlag == CameraClearFlags.DepthOnly || this.clearFlag == CameraClearFlags.Nothing)) {
+	        if (needInternalRT && !this._offScreenRenderTexture && (this.clearFlag == exports.CameraClearFlags.DepthOnly || this.clearFlag == exports.CameraClearFlags.Nothing)) {
 	            if (this._enableHDR) {
 	                var grabTexture = RenderTexture.createFromPool(viewport.width, viewport.height, Laya.RenderTextureFormat.R8G8B8, Laya.RenderTextureDepthFormat.DEPTH_16, Laya.BaseTexture.FILTERMODE_BILINEAR);
 	                Laya.WebGLContext.bindTexture(gl, gl.TEXTURE_2D, grabTexture._getSource());
