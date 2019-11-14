@@ -443,6 +443,17 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		(data.angularDamping != null) && (this.angularDamping = data.angularDamping);
 		(data.overrideGravity != null) && (this.overrideGravity = data.overrideGravity);
 
+		if (data.linearFactor != null) {
+			var linFac = this.linearFactor;
+			linFac.fromArray(data.linearFactor);
+			this.linearFactor = linFac;
+		}
+		if (data.angularFactor != null) {
+			var angFac = this.angularFactor;
+			angFac.fromArray(data.angularFactor);
+			this.angularFactor = angFac;
+		}
+
 		if (data.gravity) {
 			this.gravity.fromArray(data.gravity);
 			this.gravity = this.gravity;
