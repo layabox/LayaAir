@@ -21,6 +21,7 @@ import PBRSpecularLightingGLSL from "./files/PBRLibs/PBRSpecularLighting.glsl";
 import PBRStandardLightingGLSL from "./files/PBRLibs/PBRStandardLighting.glsl";
 import PBRUtilsGLSL from "./files/PBRLibs/PBRUtils.glsl";
 import PBRUtilsGLSL02 from "./files/PBRLibs/PBRUtils02.glsl";
+import PBRUtilsGLSL03 from "./files/PBRLibs/PBRUtils03.glsl";
 import PBRSpecularPS from "./files/PBRSpecular.fs";
 import PBRSpecularVS from "./files/PBRSpecular.vs";
 import PBRStandardPS from "./files/PBRStandard.fs";
@@ -81,6 +82,7 @@ export class ShaderInit3D {
 		Shader3D.addInclude("Sampling.glsl", SamplingGLSL);
 		Shader3D.addInclude("StdLib.glsl", StdLibGLSL);
 		Shader3D.addInclude("PBRUtils02.glsl",PBRUtilsGLSL02);
+		Shader3D.addInclude("PBRUtils03.glsl",PBRUtilsGLSL03);
 
 		//BLINNPHONG
 		var attributeMap: any = {

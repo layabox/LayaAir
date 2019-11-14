@@ -85,3 +85,7 @@ vec3 LayaVertexGI(vec3 normalWorld)
 	return ambientDiffuse;
 }
 #endif
+
+
+
+

@@ -50,6 +50,7 @@ export class PBRStandardMaterial02 extends Material {
 	static NORMALSCALE: number = Shader3D.propertyNameToID("u_normalScale");
 	static METALLICGLOSSTEXTURE: number = Shader3D.propertyNameToID("u_MetallicGlossTexture");
 	static METALLIC: number = Shader3D.propertyNameToID("u_metallic");
+	
 	static SMOOTHNESS: number = Shader3D.propertyNameToID("u_smoothness");
 	static SMOOTHNESSSCALE: number = Shader3D.propertyNameToID("u_smoothnessScale");
 

@@ -7,14 +7,16 @@
 #endif
 
 #include "Lighting.glsl";
-#include "PBRUtils02.glsl";
+
 
 //环境光，没有GI的时候才会起作用
 uniform vec4 u_DiffuseColor;
-//alpha测试
+//alphaTest
 #ifdef ALPHATEST
 	uniform float u_AlphaTestValue;
 #endif
+
+uniform vec4 u_AlbedoColor;
 
 #ifdef NORMALTEXTURE
 	uniform sampler2D u_NormalTexture;
@@ -27,6 +29,10 @@ uniform vec4 u_DiffuseColor;
 #ifdef METALLICGLOSSTEXTURE
 	uniform sampler2D u_MetallicGlossTexture;
 #endif
+uniform float u_smoothness;
+uniform float u_smoothnessScale;
+
+uniform float u_metallic;
 //高差图
 #ifdef PARALLAXTEXTURE
 	uniform sampler2D u_ParallaxTexture;
@@ -101,11 +107,37 @@ void main_castShadow()
 		}
 	#endif
 }
+
+//#include "PBRUtils02.glsl";
+#include "PBRUtils03.glsl";
 void main_normal()
 {
+	vec2 uv;
+	#if defined(DIFFUSEMAP)||defined(METALLICGLOSSTEXTURE)||defined(NORMALTEXTURE)||defined(EMISSIONTEXTURE)||defined(OCCLUSIONTEXTURE)||defined(PARALLAXTEXTURE)
+		uv = v_Texcoord0;
+	#endif
+	//FSSetup
+	//LayaParallax计算TODO，目前先不考虑
+	float alpha = LayaAlpha(uv);
+	#ifdef ALPHATEST
+		if(alpha<u_AlphaTestValue)
+			discard;//Discard使用问题
+	#endif
 	
+	 LayaFragmentCommonData o;
+	 //分流派TODO
+	 o = LayaMetallicSetup(uv);
+
 }
+
+void test(out vec4 color)
+{
+	color.r = 1.0;
+}
+
 void main()
 {
-	gl_FragColor = vec4(1.0,1.0,1.0,1.0);
+	vec4 col = vec4(0.0,0.0,0.0,1.0);
+	test(col);
+	gl_FragColor = col;
 }
