@@ -595,7 +595,7 @@ class ResInfo extends EventDispatcher {
 
 export interface loadItem{
     url:string;
-    type:string|null;
+    type?:string;
     size?:number;
     priority?:number;
     useWorkerLoader?:boolean;
