@@ -94,6 +94,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	static CLUSTERBUFFER: number = Shader3D.propertyNameToID("u_LightClusterBuffer");
 	static SUNLIGHTDIRECTION: number = Shader3D.propertyNameToID("u_SunLight.direction");
 	static SUNLIGHTDIRCOLOR: number = Shader3D.propertyNameToID("u_SunLight.color");
+	static AMBIENTPROBE: number = Shader3D.propertyNameToID("u_AmbientProbe");
+	static REFLECTIONPROBE: number = Shader3D.propertyNameToID("u_ReflectionProbe");
 
 	//------------------legacy lighting-------------------------------
 	static LIGHTDIRECTION: number = Shader3D.propertyNameToID("u_DirectionLight.direction");
@@ -791,6 +793,18 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT);
 			}
 		}
+		if (this.ambientProbe) {
+			//TODO:
+		}
+		else {
+			//TODO:
+		}
+		if (this.reflectionProbe) {
+			//TODO:
+		}
+		else {
+			//TODO:
+		}
 	}
 
 	/**
@@ -976,6 +990,15 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			var fogCol: Vector3 = this.fogColor;
 			fogCol.fromArray(fogColorData);
 			this.fogColor = fogCol;
+		}
+
+		var ambientProbeData: any = data.ambientProbe;
+		if (ambientProbeData) {
+			//TODO:
+		}
+		var reflectionProbeData: any = data.reflectionProbe;
+		if (reflectionProbeData) {
+			//TODO:
 		}
 	}
 
