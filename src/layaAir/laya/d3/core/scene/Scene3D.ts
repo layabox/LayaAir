@@ -55,6 +55,7 @@ import { RenderableSprite3D } from "../RenderableSprite3D";
 import { Sprite3D } from "../Sprite3D";
 import { BoundsOctree } from "./BoundsOctree";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
+import { SphericalHarmonicsL2 } from "../../graphics/SphericalHarmonicsL2";
 
 
 /**
@@ -223,6 +224,10 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	currentCreationLayer: number = Math.pow(2, 0);
 	/** 是否启用灯光。*/
 	enableLight: boolean = true;
+	/** 全局的环境光探头。 */
+	ambientProbe: SphericalHarmonicsL2;
+	/**	全局的反射探头。 */
+	reflectionProbe: TextureCube;
 
 	//阴影相关变量
 	parallelSplitShadowMaps: ParallelSplitShadowMap[];
