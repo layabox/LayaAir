@@ -3,6 +3,9 @@
  */
 export class SphericalHarmonicsL2 {
     /** @internal */
+    static _default: SphericalHarmonicsL2 = new SphericalHarmonicsL2();
+
+    /** @internal */
     private _coefficients: Float32Array = new Float32Array(27);
 
     /**

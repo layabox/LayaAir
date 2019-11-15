@@ -774,18 +774,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT);
 			}
 		}
-		if (this.ambientProbe) {
-			//TODO:
-		}
-		else {
-			//TODO:
-		}
-		if (this.reflectionProbe) {
-			//TODO:
-		}
-		else {
-			//TODO:
-		}
+		var ambientProbe: SphericalHarmonicsL2 = this.ambientProbe || SphericalHarmonicsL2._default;
+		//TODO:
+		shaderValues.setTexture(Scene3D.REFLECTIONTEXTURE, this.reflectionProbe || TextureCube.blackTexture);
 	}
 
 	/**
