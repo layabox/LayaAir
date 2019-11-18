@@ -15,8 +15,6 @@ import { RenderState } from "./RenderState";
  * <code>PBRStandardMaterial02</code> 类用于实现PBR(Standard)材质。
  */
 export class PBRStandardMaterial02 extends Material {
-
-
 	/**光滑度数据源_金属度贴图的Alpha通道。*/
 	static SmoothnessSource_MetallicGlossTexture_Alpha: number = 0;
 	/**光滑度数据源_反射率贴图的Alpha通道。*/
@@ -31,67 +29,101 @@ export class PBRStandardMaterial02 extends Material {
 	/**渲染状态_透明混合_物理上看似合理的透明。*/
 	static RENDERMODE_TRANSPARENT: number = 3;
 
+	/** @internal */
 	static SHADERDEFINE_ALBEDOTEXTURE: ShaderDefine;
+	/** @internal */
 	static SHADERDEFINE_NORMALTEXTURE: ShaderDefine;
+	/** @internal */
 	static SHADERDEFINE_SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA: ShaderDefine;
+	/** @internal */
 	static SHADERDEFINE_METALLICGLOSSTEXTURE: ShaderDefine;
+	/** @internal */
 	static SHADERDEFINE_OCCLUSIONTEXTURE: ShaderDefine;
+	/** @internal */
 	static SHADERDEFINE_PARALLAXTEXTURE: ShaderDefine;
+	/** @internal */
 	static SHADERDEFINE_EMISSION: ShaderDefine;
+	/** @internal */
 	static SHADERDEFINE_EMISSIONTEXTURE: ShaderDefine;
+	/** @internal */
 	static SHADERDEFINE_REFLECTMAP: ShaderDefine;
+	/** @internal */
 	static SHADERDEFINE_TILINGOFFSET: ShaderDefine;
+	/** @internal */
 	static SHADERDEFINE_ALPHAPREMULTIPLY: ShaderDefine;
 
+	/** @internal */
 	static ALBEDOTEXTURE: number = Shader3D.propertyNameToID("u_AlbedoTexture");
+	/** @internal */
 	static ALBEDOCOLOR: number = Shader3D.propertyNameToID("u_AlbedoColor");
+	/** @internal */
 	static TILINGOFFSET: number = Shader3D.propertyNameToID("u_TilingOffset");
+	/** @internal */
 	static NORMALTEXTURE: number = Shader3D.propertyNameToID("u_NormalTexture");
+	/** @internal */
 	static NORMALSCALE: number = Shader3D.propertyNameToID("u_normalScale");
+	/** @internal */
 	static METALLICGLOSSTEXTURE: number = Shader3D.propertyNameToID("u_MetallicGlossTexture");
+	/** @internal */
 	static METALLIC: number = Shader3D.propertyNameToID("u_metallic");
+	/** @internal */
 	static SMOOTHNESS: number = Shader3D.propertyNameToID("u_smoothness");
+	/** @internal */
 	static SMOOTHNESSSCALE: number = Shader3D.propertyNameToID("u_smoothnessScale");
-
+	/** @internal */
 	static OCCLUSIONTEXTURE: number = Shader3D.propertyNameToID("u_OcclusionTexture");
+	/** @internal */
 	static OCCLUSIONSTRENGTH: number = Shader3D.propertyNameToID("u_occlusionStrength");
-
+	/** @internal */
 	static PARALLAXTEXTURE: number = Shader3D.propertyNameToID("u_ParallaxTexture");
+	/** @internal */
 	static PARALLAX: number = Shader3D.propertyNameToID("u_Parallax");
-
-
+	/** @internal */
 	static EMISSIONTEXTURE: number = Shader3D.propertyNameToID("u_EmissionTexture");
+	/** @internal */
 	static EMISSIONCOLOR: number = Shader3D.propertyNameToID("u_EmissionColor");
 
 	//minerGI
+	/** @internal */
 	static SHAR: number = Shader3D.propertyNameToID("u_SHAr");
+	/** @internal */
 	static SHAG: number = Shader3D.propertyNameToID("u_SHAg");
+	/** @internal */
 	static SHAB: number = Shader3D.propertyNameToID("u_SHAb");
+	/** @internal */
 	static SHBR: number = Shader3D.propertyNameToID("u_SHBr");
+	/** @internal */
 	static SHBG: number = Shader3D.propertyNameToID("u_SHBg");
+	/** @internal */
 	static SHBB: number = Shader3D.propertyNameToID("u_SHBb");
+	/** @internal */
 	static REFLECTIONMAP: number = Shader3D.propertyNameToID("u_ReflectionMap");
 
-
+	/** @internal */
 	static SMOOTHNESSSOURCE: number = -1;//TODO:
-
-
+	/** @internal */
 	static ENABLEEMISSION: number = -1;//TODO:
+	/** @internal */
 	static ENABLEREFLECT: number = -1;//TODO:
 
-
+	/** @internal */
 	static CULL: number = Shader3D.propertyNameToID("s_Cull");
+	/** @internal */
 	static BLEND: number = Shader3D.propertyNameToID("s_Blend");
+	/** @internal */
 	static BLEND_SRC: number = Shader3D.propertyNameToID("s_BlendSrc");
+	/** @internal */
 	static BLEND_DST: number = Shader3D.propertyNameToID("s_BlendDst");
+	/** @internal */
 	static DEPTH_TEST: number = Shader3D.propertyNameToID("s_DepthTest");
+	/** @internal */
 	static DEPTH_WRITE: number = Shader3D.propertyNameToID("s_DepthWrite");
 
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: PBRStandardMaterial02;
 
 	/**
-	 *
+	 * @internal
 	 */
 	static __initDefine__(): void {
 		PBRStandardMaterial02.SHADERDEFINE_ALBEDOTEXTURE = Shader3D.getDefineByName("ALBEDOTEXTURE");
@@ -107,6 +139,9 @@ export class PBRStandardMaterial02 extends Material {
 		PBRStandardMaterial02.SHADERDEFINE_ALPHAPREMULTIPLY = Shader3D.getDefineByName("ALPHAPREMULTIPLY");
 	}
 
+	/**
+	 * @internal
+	 */
 	static __init__(): void {
 		PBRStandardMaterial02.__initDefine__();
 		var attributeMap: any = {
