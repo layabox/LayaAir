@@ -1,4 +1,5 @@
 
+//VS
 vec3 UnpackScaleNormal(in vec2 uv0)
 {
 	#ifdef NORMALTEXTURE

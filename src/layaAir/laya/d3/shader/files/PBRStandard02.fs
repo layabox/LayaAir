@@ -7,14 +7,16 @@
 #endif
 
 #include "Lighting.glsl";
-#include "PBRUtils02.glsl";
-
+#include "BRDF02.glsl";
 //环境光，没有GI的时候才会起作用
-uniform vec4 u_DiffuseColor;
-//alpha测试
+uniform vec3 u_AmbientColor;
+
+//alphaTest
 #ifdef ALPHATEST
 	uniform float u_AlphaTestValue;
 #endif
+
+uniform vec4 u_AlbedoColor;
 
 #ifdef NORMALTEXTURE
 	uniform sampler2D u_NormalTexture;
@@ -27,6 +29,10 @@ uniform vec4 u_DiffuseColor;
 #ifdef METALLICGLOSSTEXTURE
 	uniform sampler2D u_MetallicGlossTexture;
 #endif
+uniform float u_smoothness;
+uniform float u_smoothnessScale;
+
+uniform float u_metallic;
 //高差图
 #ifdef PARALLAXTEXTURE
 	uniform sampler2D u_ParallaxTexture;
@@ -34,6 +40,7 @@ uniform vec4 u_DiffuseColor;
 //遮挡图
 #ifdef OCCLUSIONTEXTURE
 	uniform sampler2D u_OcclusionTexture;
+	uniform sampler2D u_occlusionStrength;
 #endif
 //自发光
 #ifdef EMISSIONTEXTURE
@@ -53,14 +60,8 @@ uniform vec4 u_DiffuseColor;
 	uniform sampler2D u_LightMap;
 #endif
 
-#if defined(INDIRECTLIGHT)&&defined(NOLOWPLAT)
-	uniform vec4 u_SHAr;
-	uniform vec4 u_SHAg;
-	uniform vec4 u_SHAb;
-	uniform vec4 u_SHBr;
-	uniform vec4 u_SHBg;
-	uniform vec4 u_SHBb;
-	uniform vec4 u_SHC;
+#if defined(REFLECTIONMAP)
+	uniform samplerCube u_ReflectTexture;
 #endif
 
 #if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(NORMALMAP)||defined(PARALLAXMAP)
@@ -70,7 +71,7 @@ uniform vec4 u_DiffuseColor;
 //后面考虑宏TODO
 varying vec3 v_eyeVec;
 
-#if (defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))&&(defined(NORMALMAP)||defined(PARALLAXMAP))
+#if defined(NORMALMAP)||defined(PARALLAXMAP)
 	varying vec3 v_Tangent;
 	varying vec3 v_Binormal;
 #endif
@@ -101,11 +102,83 @@ void main_castShadow()
 		}
 	#endif
 }
+
+#include "PBRUtils02.glsl";
+#include "PBRUtils03.glsl";
+LayaLight directLight()
+{
+	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
+		vec3 dif,spe;
+		#ifdef SPECULARMAP
+			vec3 gloss=texture2D(u_SpecularTexture, v_Texcoord0).rgb;
+		#else
+			#ifdef DIFFUSEMAP
+				vec3 gloss=vec3(difTexColor.a);
+			#else
+				vec3 gloss=vec3(1.0);
+			#endif
+		#endif
+	#endif
+}
 void main_normal()
 {
+	vec2 uv;vec3 normal;vec3 binormal;vec3 tangent;vec3 normalWorld;vec3 eyevec; vec3 posworld;
+	#if defined(DIFFUSEMAP)||defined(METALLICGLOSSTEXTURE)||defined(NORMALTEXTURE)||defined(EMISSIONTEXTURE)||defined(OCCLUSIONTEXTURE)||defined(PARALLAXTEXTURE)
+		uv = v_Texcoord0;
+	#endif
+	//FSSetup
+	//LayaParallax计算TODO，目前先不考虑
+	float alpha = LayaAlpha(uv);
+	#ifdef ALPHATEST
+		if(alpha<u_AlphaTestValue)
+			discard;//Discard使用问题
+	#endif
+	 LayaFragmentCommonData o;
+	 //分流派TODO
+	 o = LayaMetallicSetup(uv);
 	
+	#if defined(NORMALMAP)||defined(PARALLAXMAP)
+		tangent = v_Tangent;
+		binormal = v_Binormal;
+	#endif
+	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(NORMALMAP)||defined(PARALLAXMAP)
+		normal = v_Normal;	
+		normalWorld = LayaPerPixelWorldNormal(uv, tangentToWorld);
+	#endif
+	eyevec = LayaNormalizePerPixelNormal(v_eyeVec);
+	posworld = v_PositionWorld;
+	 //unity在这儿还做了Alpha预乘
+	 //LayaPreMultiplyAlpha
+	//阴影TODO
+	float occlusion = LayaOcclusion(uv);
+	//GI间接光
+	LayaGI gi =LayaFragmentGI(o,occlusion,normalWorld);
+
+	//下一步计算直接光
+	float shadowValue = 1.0;
+	#ifdef RECEIVESHADOW
+		#ifdef SHADOWMAP_PSSM3
+			shadowValue = getShadowPSSM3(u_shadowMap1,u_shadowMap2,u_shadowMap3,u_lightShadowVP,u_shadowPSSMDistance,u_shadowPCFoffset,v_PositionWorld,v_posViewZ,0.001);
+		#endif
+		#ifdef SHADOWMAP_PSSM2
+			shadowValue = getShadowPSSM2(u_shadowMap1,u_shadowMap2,u_lightShadowVP,u_shadowPSSMDistance,u_shadowPCFoffset,v_PositionWorld,v_posViewZ,0.001);
+		#endif 
+		#ifdef SHADOWMAP_PSSM1
+			shadowValue = getShadowPSSM1(u_shadowMap1,v_lightMVPPos,u_shadowPSSMDistance,u_shadowPCFoffset,v_posViewZ,0.001);
+		#endif
+	#endif
+	
+
 }
+
+void test(out vec4 color)
+{
+	color.r = 1.0;
+}
+
 void main()
 {
-	gl_FragColor = vec4(1.0,1.0,1.0,1.0);
+	vec4 col = vec4(0.0,0.0,0.0,1.0);
+	test(col);
+	gl_FragColor = col;
 }
