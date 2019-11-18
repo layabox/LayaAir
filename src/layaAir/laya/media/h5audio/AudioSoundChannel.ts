@@ -143,12 +143,19 @@ export class AudioSoundChannel extends SoundChannel {
      * @override
      */
     resume(): void {
-        if (!this._audio)
+        var audio = this._audio;
+        if (!audio)
             return;
         this.isStopped = false;
+        if (audio.readyState == 0) { //当音频放到后台一定时间后，会被卸载，音频会断开连接，并将readyState重置为0
+            audio.src = this.url;
+            audio.addEventListener("canplay", this._resumePlay as any);
+            audio.load();
+        }
         ILaya.SoundManager.addChannel(this);
-        if ("play" in this._audio)
-            this._audio.play();
+        if ("play" in audio) {
+            audio.play();
+        }
     }
 
     /**
