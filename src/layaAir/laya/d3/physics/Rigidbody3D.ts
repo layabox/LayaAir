@@ -443,6 +443,17 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		(data.angularDamping != null) && (this.angularDamping = data.angularDamping);
 		(data.overrideGravity != null) && (this.overrideGravity = data.overrideGravity);
 
+		if (data.linearFactor != null) {
+			var linFac = this.linearFactor;
+			linFac.fromArray(data.linearFactor);
+			this.linearFactor = linFac;
+		}
+		if (data.angularFactor != null) {
+			var angFac = this.angularFactor;
+			angFac.fromArray(data.angularFactor);
+			this.angularFactor = angFac;
+		}
+
 		if (data.gravity) {
 			this.gravity.fromArray(data.gravity);
 			this.gravity = this.gravity;
@@ -599,16 +610,17 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	 *清除应用到刚体上的所有力。
 	 */
 	clearForces(): void {
-		var rigidBody: any = this._btColliderObject;
+		var rigidBody: number = this._btColliderObject;
 		if (rigidBody == null)
 			throw "Attempted to call a Physics function that is avaliable only when the Entity has been already added to the Scene.";
 
-		rigidBody.clearForces();
-		var btZero: any = Rigidbody3D._btVector3Zero;
-		rigidBody.setInterpolationLinearVelocity(btZero);
-		rigidBody.setLinearVelocity(btZero);
-		rigidBody.setInterpolationAngularVelocity(btZero);
-		rigidBody.setAngularVelocity(btZero);
+		var bt: any = Physics3D._bullet;
+		bt.btRigidBody_clearForces(rigidBody);
+		var btZero: number = Rigidbody3D._btVector3Zero;
+		bt.btCollisionObject_setInterpolationLinearVelocity(rigidBody, btZero);
+		bt.btRigidBody_setLinearVelocity(rigidBody, btZero);
+		bt.btCollisionObject_setInterpolationAngularVelocity(rigidBody, btZero);
+		bt.btRigidBody_setAngularVelocity(rigidBody, btZero);
 	}
 
 }

@@ -22,18 +22,20 @@ export class TextureCube extends BaseTexture {
 	/**TextureCube资源。*/
 	static TEXTURECUBE: string = "TEXTURECUBE";
 
+	/**黑色纯色纹理。*/
+	static readonly blackTexture: TextureCube = new TextureCube(1, TextureFormat.R8G8B8, false);
 	/**灰色纯色纹理。*/
-	static grayTexture: TextureCube;
+	static readonly grayTexture: TextureCube = new TextureCube(1, TextureFormat.R8G8B8, false);
 
 	/**
 	 * @internal
 	 */
 	static __init__(): void {
 		var pixels: Uint8Array = new Uint8Array(3);
-		pixels[0] = 128;
-		pixels[1] = 128;
-		pixels[2] = 128;
-		TextureCube.grayTexture = new TextureCube(1, TextureFormat.R8G8B8, false);
+		pixels[0] = 0, pixels[1] = 0, pixels[2] = 0;
+		TextureCube.blackTexture.setSixSidePixels([pixels, pixels, pixels, pixels, pixels, pixels]);
+		TextureCube.blackTexture.lock = true;//锁住资源防止被资源管理释放
+		pixels[0] = 128, pixels[1] = 128, pixels[2] = 128;
 		TextureCube.grayTexture.setSixSidePixels([pixels, pixels, pixels, pixels, pixels, pixels]);
 		TextureCube.grayTexture.lock = true;//锁住资源防止被资源管理释放
 	}

@@ -55,6 +55,7 @@ import { RenderableSprite3D } from "../RenderableSprite3D";
 import { Sprite3D } from "../Sprite3D";
 import { BoundsOctree } from "./BoundsOctree";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
+import { SphericalHarmonicsL2 } from "../../graphics/SphericalHarmonicsL2";
 
 
 /**
@@ -93,6 +94,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	static CLUSTERBUFFER: number = Shader3D.propertyNameToID("u_LightClusterBuffer");
 	static SUNLIGHTDIRECTION: number = Shader3D.propertyNameToID("u_SunLight.direction");
 	static SUNLIGHTDIRCOLOR: number = Shader3D.propertyNameToID("u_SunLight.color");
+	static AMBIENTPROBE: number = Shader3D.propertyNameToID("u_AmbientProbe");
+	static REFLECTIONPROBE: number = Shader3D.propertyNameToID("u_ReflectionProbe");
 
 	//------------------legacy lighting-------------------------------
 	static LIGHTDIRECTION: number = Shader3D.propertyNameToID("u_DirectionLight.direction");
@@ -223,6 +226,10 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	currentCreationLayer: number = Math.pow(2, 0);
 	/** 是否启用灯光。*/
 	enableLight: boolean = true;
+	/** 全局的环境光探头。 */
+	ambientProbe: SphericalHarmonicsL2;
+	/**	全局的反射探头。 */
+	reflectionProbe: TextureCube;
 
 	//阴影相关变量
 	parallelSplitShadowMaps: ParallelSplitShadowMap[];
@@ -240,32 +247,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal [Editer]*/
 	_pickIdToSprite: any = new Object();
 
-	/**
-	 * @internal
-	 * [Editer]
-	 */
-	_allotPickColorByID(id: number, pickColor: Vector4): void {
 
-		var pickColorR: number = Math.floor(id / (255 * 255));
-		id -= pickColorR * 255 * 255;
-		var pickColorG: number = Math.floor(id / 255);
-		id -= pickColorG * 255;
-		var pickColorB: number = id;
-
-		pickColor.x = pickColorR / 255;
-		pickColor.y = pickColorG / 255;
-		pickColor.z = pickColorB / 255;
-		pickColor.w = 1.0;
-	}
-
-	/**
-	 * @internal
-	 * [Editer]
-	 */
-	_searchIDByPickColor(pickColor: Vector4): number {
-		var id: number = pickColor.x * 255 * 255 + pickColor.y * 255 + pickColor.z;
-		return id;
-	}
 
 	/**
 	 * 资源的URL地址。
@@ -524,6 +506,33 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		return start;
 	}
 
+	/**
+	 * @internal
+	 * [Editer]
+	 */
+	_allotPickColorByID(id: number, pickColor: Vector4): void {
+
+		var pickColorR: number = Math.floor(id / (255 * 255));
+		id -= pickColorR * 255 * 255;
+		var pickColorG: number = Math.floor(id / 255);
+		id -= pickColorG * 255;
+		var pickColorB: number = id;
+
+		pickColor.x = pickColorR / 255;
+		pickColor.y = pickColorG / 255;
+		pickColor.z = pickColorB / 255;
+		pickColor.w = 1.0;
+	}
+
+	/**
+	 * @internal
+	 * [Editer]
+	 */
+	_searchIDByPickColor(pickColor: Vector4): number {
+		var id: number = pickColor.x * 255 * 255 + pickColor.y * 255 + pickColor.z;
+		return id;
+	}
+
 
 	/**
 	 * @internal
@@ -605,43 +614,22 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * @internal
+	 * @inheritDoc
+	 * @override
 	 */
-	_addScript(script: Script3D): void {
-		var scripts: Script3D[] = this._scriptPool;
-		script._indexInPool = scripts.length;
-		scripts.push(script);
+	protected _onActive(): void {
+		super._onActive();
+		ILaya.stage._scene3Ds.push(this);
 	}
 
 	/**
-	 * @internal
+	 * @inheritDoc
+	 * @override
 	 */
-	_removeScript(script: Script3D): void {
-		this._scriptPool[script._indexInPool] = null;
-		script._indexInPool = -1;
-		this._needClearScriptPool = true;
-	}
-
-	/**
-	 * @internal
-	 */
-	_preRenderScript(): void {
-		var scripts: Script3D[] = this._scriptPool;
-		for (var i: number = 0, n: number = scripts.length; i < n; i++) {
-			var script: Script3D = scripts[i];
-			(script && script.enabled) && (script.onPreRender());
-		}
-	}
-
-	/**
-	 * @internal
-	 */
-	_postRenderScript(): void {
-		var scripts: Script3D[] = this._scriptPool;
-		for (var i: number = 0, n: number = scripts.length; i < n; i++) {
-			var script: Script3D = scripts[i];
-			(script && script.enabled) && (script.onPostRender());
-		}
+	protected _onInActive(): void {
+		super._onInActive();
+		var scenes: any[] = ILaya.stage._scene3Ds;
+		scenes.splice(scenes.indexOf(this), 1);
 	}
 
 	/**
@@ -785,6 +773,49 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			else {
 				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT);
 			}
+		}
+		var ambientProbe: SphericalHarmonicsL2 = this.ambientProbe || SphericalHarmonicsL2._default;
+		//TODO:
+		shaderValues.setTexture(Scene3D.REFLECTIONTEXTURE, this.reflectionProbe || TextureCube.blackTexture);
+	}
+
+	/**
+	 * @internal
+	 */
+	_addScript(script: Script3D): void {
+		var scripts: Script3D[] = this._scriptPool;
+		script._indexInPool = scripts.length;
+		scripts.push(script);
+	}
+
+	/**
+	 * @internal
+	 */
+	_removeScript(script: Script3D): void {
+		this._scriptPool[script._indexInPool] = null;
+		script._indexInPool = -1;
+		this._needClearScriptPool = true;
+	}
+
+	/**
+	 * @internal
+	 */
+	_preRenderScript(): void {
+		var scripts: Script3D[] = this._scriptPool;
+		for (var i: number = 0, n: number = scripts.length; i < n; i++) {
+			var script: Script3D = scripts[i];
+			(script && script.enabled) && (script.onPreRender());
+		}
+	}
+
+	/**
+	 * @internal
+	 */
+	_postRenderScript(): void {
+		var scripts: Script3D[] = this._scriptPool;
+		for (var i: number = 0, n: number = scripts.length; i < n; i++) {
+			var script: Script3D = scripts[i];
+			(script && script.enabled) && (script.onPostRender());
 		}
 	}
 
@@ -972,26 +1003,18 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			fogCol.fromArray(fogColorData);
 			this.fogColor = fogCol;
 		}
+
+		var ambientProbeData: any = data.ambientProbe;
+		if (ambientProbeData) {
+			//TODO:
+		}
+		var reflectionProbeData: any = data.reflectionProbe;
+		if (reflectionProbeData) {
+			//TODO:
+		}
 	}
 
-	/**
-	 * @inheritDoc
-	 * @override
-	 */
-	protected _onActive(): void {
-		super._onActive();
-		ILaya.stage._scene3Ds.push(this);
-	}
 
-	/**
-	 * @inheritDoc
-	 * @override
-	 */
-	protected _onInActive(): void {
-		super._onInActive();
-		var scenes: any[] = ILaya.stage._scene3Ds;
-		scenes.splice(scenes.indexOf(this), 1);
-	}
 
 	/**
 	 * @internal
