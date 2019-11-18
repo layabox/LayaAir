@@ -123,7 +123,7 @@ export class PBRStandardMaterial02 extends Material {
 	static defaultMaterial: PBRStandardMaterial02;
 
 	/**
-	 * @internal
+	 * @private
 	 */
 	static __initDefine__(): void {
 		PBRStandardMaterial02.SHADERDEFINE_ALBEDOTEXTURE = Shader3D.getDefineByName("ALBEDOTEXTURE");
@@ -140,7 +140,7 @@ export class PBRStandardMaterial02 extends Material {
 	}
 
 	/**
-	 * @internal
+	 * @private
 	 */
 	static __init__(): void {
 		PBRStandardMaterial02.__initDefine__();
