@@ -9,6 +9,7 @@ import { Shader3D } from "./Shader3D";
 import { ShaderInstance } from "./ShaderInstance";
 import { ShaderVariant } from "./ShaderVariantCollection";
 import { SubShader } from "./SubShader";
+import { SystemUtils } from "../utils/SystemUtils";
 
 /**
  * <code>ShaderPass</code> 类用于实现ShaderPass。
@@ -235,6 +236,8 @@ export class ShaderPass extends ShaderCompile {
 		defineStr += "#define CLUSTER_X_COUNT " + clusterSlices.x + "\n";
 		defineStr += "#define CLUSTER_Y_COUNT " + clusterSlices.y + "\n";
 		defineStr += "#define CLUSTER_Z_COUNT " + clusterSlices.z + "\n";
+		defineStr += "#define SHADER_CAPAILITY_LEVEL " + SystemUtils._shaderCapailityLevel + "\n";
+
 		for (var i: number = 0, n: number = defineString.length; i < n; i++) {
 			var def: string = defineString[i];
 			defineStr += "#define " + def + "\n";

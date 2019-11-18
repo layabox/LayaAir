@@ -1,5 +1,16 @@
 float PI = 3.14159265359;
 
+#if defined(INDIRECTLIGHT)
+	uniform vec4 u_SHAr;
+	uniform vec4 u_SHAg;
+	uniform vec4 u_SHAb;
+	uniform vec4 u_SHBr;
+	uniform vec4 u_SHBg;
+	uniform vec4 u_SHBb;
+	uniform vec4 u_SHC;
+#endif
+
+
 vec3 LinearToGammaSpace (vec3 linRGB)
 {
     linRGB = max(linRGB, vec3(0.0, 0.0, 0.0));
