@@ -52,7 +52,8 @@ export class LayaGPU {
     constructor(gl: WebGLRenderingContext, isWebGL2: boolean) {
         this._gl = gl;
         this._isWebGL2 = isWebGL2;
-        var maxTextureCountFS: number = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
+        var maxTextureVS: number = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
+        var maxTextureFS: number = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
         var maxTextureSize: number = gl.getParameter(gl.MAX_TEXTURE_SIZE);
         if (!isWebGL2) {
             var forceVAO: boolean = LayaGPU._forceSupportVAOPlatform();
@@ -78,7 +79,7 @@ export class LayaGPU {
 
             //TODO:
             var maxVaryingVectors: number = gl.getParameter(gl.MAX_VARYING_VECTORS);
-            if (maxVaryingVectors >= 10 && maxTextureCountFS >= 16 && maxTextureSize >= 4096 && this._extShaderTextureLod)
+            if (maxVaryingVectors >= 10 && maxTextureVS > 0 && maxTextureFS >= 16 && maxTextureSize >= 4096 && this._extShaderTextureLod)
                 SystemUtils._shaderCapailityLevel = 30;
             else
                 SystemUtils._shaderCapailityLevel = 20;
@@ -96,7 +97,7 @@ export class LayaGPU {
         this._compressedTexturePvrtc = this._getExtension("WEBGL_compressed_texture_pvrtc");
         this._compressedTextureEtc1 = this._getExtension("WEBGL_compressed_texture_etc1");
 
-        SystemUtils._maxTextureCount = maxTextureCountFS;
+        SystemUtils._maxTextureCount = maxTextureFS;
         SystemUtils._maxTextureSize = maxTextureSize;
     }
 
