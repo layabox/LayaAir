@@ -52,7 +52,6 @@ export class LayaGPU {
     constructor(gl: WebGLRenderingContext, isWebGL2: boolean) {
         this._gl = gl;
         this._isWebGL2 = isWebGL2;
-        var maxTextureVS: number = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
         var maxTextureFS: number = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
         var maxTextureSize: number = gl.getParameter(gl.MAX_TEXTURE_SIZE);
         if (!isWebGL2) {
@@ -77,18 +76,12 @@ export class LayaGPU {
             this._oes_element_index_uint = this._getExtension("OES_element_index_uint");
             this._extShaderTextureLod = this._getExtension("EXT_shader_texture_lod");
 
-            //TODO:
-            var maxVaryingVectors: number = gl.getParameter(gl.MAX_VARYING_VECTORS);
-            if (maxVaryingVectors >= 10 && maxTextureVS > 0 && maxTextureFS >= 16 && maxTextureSize >= 4096 && this._extShaderTextureLod)
-                SystemUtils._shaderCapailityLevel = 30;
-            else
-                SystemUtils._shaderCapailityLevel = 20;
+            SystemUtils._shaderCapailityLevel = 30;
         } else {
             this._getExtension("EXT_color_buffer_float");
             //this._getExtension("OES_texture_float_linear");
 
-            //TODO:
-            SystemUtils._shaderCapailityLevel = 30;
+            SystemUtils._shaderCapailityLevel = 35;
         }
 
         //_getExtension("EXT_float_blend");
