@@ -22,22 +22,40 @@ export class TextureCube extends BaseTexture {
 	/**TextureCube资源。*/
 	static TEXTURECUBE: string = "TEXTURECUBE";
 
-	/**黑色纯色纹理。*/
-	static readonly blackTexture: TextureCube = new TextureCube(1, TextureFormat.R8G8B8, false);
-	/**灰色纯色纹理。*/
-	static readonly grayTexture: TextureCube = new TextureCube(1, TextureFormat.R8G8B8, false);
+	/**@private*/
+	static _blackTexture: TextureCube;
+	/**@private*/
+	static _grayTexture: TextureCube;
+
+	/**
+	 * 黑色纯色纹理。
+	 */
+	static get blackTexture() {
+		return TextureCube._blackTexture;
+	}
+
+	/**
+	 * 灰色纯色纹理。
+	 */
+	static get grayTexture() {
+		return TextureCube._grayTexture;
+	}
 
 	/**
 	 * @internal
 	 */
 	static __init__(): void {
+		var blackTexture: TextureCube = new TextureCube(1, TextureFormat.R8G8B8, false);
+		var grayTexture: TextureCube = new TextureCube(1, TextureFormat.R8G8B8, false);
 		var pixels: Uint8Array = new Uint8Array(3);
 		pixels[0] = 0, pixels[1] = 0, pixels[2] = 0;
-		TextureCube.blackTexture.setSixSidePixels([pixels, pixels, pixels, pixels, pixels, pixels]);
-		TextureCube.blackTexture.lock = true;//锁住资源防止被资源管理释放
+		grayTexture.setSixSidePixels([pixels, pixels, pixels, pixels, pixels, pixels]);
+		grayTexture.lock = true;//锁住资源防止被资源管理释放
 		pixels[0] = 128, pixels[1] = 128, pixels[2] = 128;
-		TextureCube.grayTexture.setSixSidePixels([pixels, pixels, pixels, pixels, pixels, pixels]);
-		TextureCube.grayTexture.lock = true;//锁住资源防止被资源管理释放
+		grayTexture.setSixSidePixels([pixels, pixels, pixels, pixels, pixels, pixels]);
+		grayTexture.lock = true;//锁住资源防止被资源管理释放
+		TextureCube._grayTexture = grayTexture;
+		TextureCube._blackTexture = blackTexture;
 	}
 
 	/**
