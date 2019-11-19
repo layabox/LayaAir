@@ -4,10 +4,28 @@ attribute vec4 a_Position;
 
 #ifdef GPU_INSTANCE
 	attribute mat4 a_MvpMatrix;
+	attribute mat4 a_WorldMat;
 #else
 	uniform mat4 u_MvpMatrix;
+	uniform mat4 u_WorldMat;
 #endif
 
+#ifdef BONE
+	const int c_MaxBoneCount = 24;
+	attribute vec4 a_BoneIndices;
+	attribute vec4 a_BoneWeights;
+	uniform mat4 u_Bones[c_MaxBoneCount];
+#endif
+
+#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
+	attribute vec3 a_Normal;
+	varying vec3 v_Normal; 
+	#if defined(NORMALMAP)||defined(PARALLAXMAP)
+		attribute vec4 a_Tangent0;
+		varying vec3 v_Tangent;
+		varying vec3 v_Binormal;
+	#endif
+#endif
 
 #if defined(DIFFUSEMAP)||defined(METALLICGLOSSTEXTURE)||defined(NORMALTEXTURE)||defined(EMISSIONTEXTURE)||defined(OCCLUSIONTEXTURE)||defined(PARALLAXTEXTURE)
 	attribute vec2 a_Texcoord0;
@@ -23,42 +41,16 @@ attribute vec4 a_Position;
 	varying vec2 v_LightMapUV;
 #endif
 
-
-#ifdef BONE
-	const int c_MaxBoneCount = 24;
-	attribute vec4 a_BoneIndices;
-	attribute vec4 a_BoneWeights;
-	uniform mat4 u_Bones[c_MaxBoneCount];
-#endif
-
-#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(NORMALMAP)||defined(PARALLAXMAP)
-	attribute vec3 a_Normal;
-	varying vec3 v_Normal; 
-#endif
-
 uniform vec3 u_CameraPos;
 varying vec3 v_eyeVec;
-
-#if (defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))&&(defined(NORMALMAP)||defined(PARALLAXMAP))
-	attribute vec4 a_Tangent0;
-	varying vec3 v_Tangent;
-	varying vec3 v_Binormal;
-#endif
-
-#ifdef GPU_INSTANCE
-	attribute mat4 a_WorldMat;
-#else
-	uniform mat4 u_WorldMat;
-#endif
-
 varying vec3 v_PositionWorld;
-
 varying float v_posViewZ;
+
 #ifdef RECEIVESHADOW
-  #ifdef SHADOWMAP_PSSM1 
-  varying vec4 v_lightMVPPos;
-  uniform mat4 u_lightShadowVP[4];
-  #endif
+	#ifdef SHADOWMAP_PSSM1 
+	varying vec4 v_lightMVPPos;
+	uniform mat4 u_lightShadowVP[4];
+	#endif
 #endif
 
 #ifdef TILINGOFFSET
