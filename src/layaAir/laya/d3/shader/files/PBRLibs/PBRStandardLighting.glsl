@@ -13,6 +13,7 @@ vec4 PBRStandardLight(in vec4 albedoColor, in float metallic, in float smoothnes
 	diffuseColor = LayaPreMultiplyAlpha(diffuseColor, albedoColor.a, oneMinusReflectivity, alpha);
 	
 	vec4 color = LayaAirBRDF(diffuseColor, specularColor, oneMinusReflectivity, smoothness, normal, viewDir, lightDir, lightColor, gi);
+	//color.rgb = specularColor;
 	color.a = alpha;
 	return color;
 }

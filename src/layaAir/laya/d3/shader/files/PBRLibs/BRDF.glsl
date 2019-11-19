@@ -1,8 +1,8 @@
-struct LayaGI
-{
-	vec3 diffuse;
-	vec3 specular;
-};
+// struct LayaGI
+// {
+// 	vec3 diffuse;
+// 	vec3 specular;
+// };
 
 vec4 LayaAirBRDF(in vec3 diffuseColor, in vec3 specularColor, in float oneMinusReflectivity, in float smoothness, in vec3 normal, in vec3 viewDir, in vec3 lightDir, in vec3 lightColor, in LayaGI gi)
 {
@@ -35,10 +35,10 @@ vec4 LayaAirBRDF(in vec3 diffuseColor, in vec3 specularColor, in float oneMinusR
 	float grazingTerm = clamp(smoothness + (1.0 - oneMinusReflectivity), 0.0, 1.0);
 	
 	vec4 color;
-	color.rgb = diffuseColor * (gi.diffuse+lightColor * diffuseTerm) 
+	color.rgb = diffuseColor * (lightColor * diffuseTerm) 
 			  + specularTerm * lightColor * FresnelTerm (specularColor, lh);
 			  //+ surfaceReduction * gi.specular * FresnelLerp(specularColor, vec3(grazingTerm), nv);
-	
+	//* FresnelTerm (specularColor, lh)
 	return color;
 }
 vec4 LayaAirStandardReflect(in vec4 albedoColor,in float metallic,in float smoothness,in LayaGI gi)

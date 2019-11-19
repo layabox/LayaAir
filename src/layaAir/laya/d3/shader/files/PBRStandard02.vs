@@ -126,7 +126,7 @@ void main_normal()
 		worldMat = u_WorldMat;
 	#endif
 	v_PositionWorld=(worldMat*position).xyz;
-	v_eyeVec =LayaNormalizePerVertexNormal(v_PositionWorld - u_CameraPos);
+	v_eyeVec =LayaNormalizePerVertexNormal(u_CameraPos-v_PositionWorld);
 	#if defined(DIFFUSEMAP)||((defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))&&(defined(SPECULARMAP)||defined(NORMALMAP)))
 		#ifdef TILINGOFFSET
 			v_Texcoord0=TransformUV(a_Texcoord0,u_TilingOffset);
