@@ -42,7 +42,7 @@ attribute vec4 a_Position;
 #endif
 
 uniform vec3 u_CameraPos;
-varying vec3 v_eyeVec;
+varying vec3 v_EyeVec;
 varying vec3 v_PositionWorld;
 varying float v_posViewZ;
 
@@ -95,19 +95,22 @@ void main_normal()
 	#else
 		position=a_Position;
 	#endif
+
 	#ifdef GPU_INSTANCE
 		gl_Position = a_MvpMatrix * position;
 	#else
 		gl_Position = u_MvpMatrix * position;
 	#endif
+
 	mat4 worldMat;
 	#ifdef GPU_INSTANCE
 		worldMat = a_WorldMat;
 	#else
 		worldMat = u_WorldMat;
 	#endif
+
 	v_PositionWorld=(worldMat*position).xyz;
-	v_eyeVec =u_CameraPos-v_PositionWorld;
+
 	#if defined(DIFFUSEMAP)||((defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))&&(defined(SPECULARMAP)||defined(NORMALMAP)))
 		#ifdef TILINGOFFSET
 			v_Texcoord0=TransformUV(a_Texcoord0,u_TilingOffset);
@@ -115,6 +118,8 @@ void main_normal()
 			v_Texcoord0=a_Texcoord0;
 		#endif
 	#endif
+
+	v_EyeVec =u_CameraPos-v_PositionWorld;//will normalize per-pixel
 
 	#ifdef LIGHTMAP
 		#ifdef SCALEOFFSETLIGHTINGMAPUV

@@ -87,7 +87,7 @@ uniform vec4 u_EmissionColor;
 	#endif
 #endif
 //后面考虑宏TODO
-varying vec3 v_eyeVec;
+varying vec3 v_EyeVec;
 
 #if defined(NORMALMAP)||defined(PARALLAXMAP)
 	varying vec3 v_Tangent;
@@ -148,7 +148,7 @@ void main_normal()
 		normal = v_Normal;	
 		normalWorld = LayaPerPixelWorldNormal(uv,normal,binormal,tangent);
 	#endif
-	eyeVec = normalize(v_eyeVec);
+	eyeVec = normalize(v_EyeVec);
 	posworld = v_PositionWorld;
 	 //unity在这儿还做了Alpha预乘
 	 //LayaPreMultiplyAlpha
