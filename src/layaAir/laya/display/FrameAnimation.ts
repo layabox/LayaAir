@@ -31,7 +31,7 @@ export class FrameAnimation extends AnimationBase {
 
     constructor() {
         super();
-        if (FrameAnimation._sortIndexFun === null) {
+        if (FrameAnimation._sortIndexFun === undefined) {
             FrameAnimation._sortIndexFun = MathUtil.sortByKey("index", false, true);
         }
     }
