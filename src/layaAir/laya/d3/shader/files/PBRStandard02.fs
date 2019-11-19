@@ -49,9 +49,6 @@ uniform float u_metallic;
 #endif
 uniform vec4 u_EmissionColor;
 
-#if defined(INDIRECTLIGHT)&&defined(LOWPLAT)
-	varying vec3 v_ambientDiffuse;
-#endif
 
 #if defined(DIFFUSEMAP)||defined(METALLICGLOSSTEXTURE)||defined(NORMALTEXTURE)||defined(EMISSIONTEXTURE)||defined(OCCLUSIONTEXTURE)||defined(PARALLAXTEXTURE)
 	varying vec2 v_Texcoord0;
@@ -124,7 +121,6 @@ void main_castShadow()
 	#endif
 }
 
-#include "PBRUtils02.glsl";
 #include "PBRUtils03.glsl";
 
 void main_normal()
@@ -152,7 +148,7 @@ void main_normal()
 		normal = v_Normal;	
 		normalWorld = LayaPerPixelWorldNormal(uv,normal,binormal,tangent);
 	#endif
-	eyeVec = LayaNormalizePerPixelNormal(v_eyeVec);
+	eyeVec = normalize(v_eyeVec);
 	posworld = v_PositionWorld;
 	 //unity在这儿还做了Alpha预乘
 	 //LayaPreMultiplyAlpha
