@@ -38,7 +38,7 @@ import { ShaderData } from "../../shader/ShaderData";
 import { ParallelSplitShadowMap } from "../../shadowMap/ParallelSplitShadowMap";
 import { Utils3D } from "../../utils/Utils3D";
 import { BaseCamera } from "../BaseCamera";
-import { Camera } from "../Camera";
+import { Camera, CameraClearFlags } from "../Camera";
 import { DirectionLight } from "../light/DirectionLight";
 import { AlternateLightQueue, DirectionLightQueue, LightQueue } from "../light/LightQueue";
 import { PointLight } from "../light/PointLight";
@@ -867,11 +867,11 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 		var flag: number;
 		var clearFlag: number = camera.clearFlag;
-		if (clearFlag === BaseCamera.CLEARFLAG_SKY && !(camera.skyRenderer._isAvailable() || this._skyRenderer._isAvailable()))
-			clearFlag = BaseCamera.CLEARFLAG_SOLIDCOLOR;
+		if (clearFlag === CameraClearFlags.Sky && !(camera.skyRenderer._isAvailable() || this._skyRenderer._isAvailable()))
+			clearFlag = CameraClearFlags.SolidColor;
 
 		switch (clearFlag) {
-			case BaseCamera.CLEARFLAG_SOLIDCOLOR:
+			case CameraClearFlags.SolidColor:
 				var clearColor: Vector4 = camera.clearColor;
 				gl.enable(gl.SCISSOR_TEST);
 				gl.scissor(vpX, vpY, vpW, vpH);
@@ -900,8 +900,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 				gl.clear(flag);
 				gl.disable(gl.SCISSOR_TEST);
 				break;
-			case BaseCamera.CLEARFLAG_SKY:
-			case BaseCamera.CLEARFLAG_DEPTHONLY:
+			case CameraClearFlags.Sky:
+			case CameraClearFlags.DepthOnly:
 				gl.enable(gl.SCISSOR_TEST);
 				gl.scissor(vpX, vpY, vpW, vpH);
 				if (renderTex) {
@@ -923,7 +923,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 				gl.clear(flag);
 				gl.disable(gl.SCISSOR_TEST);
 				break;
-			case BaseCamera.CLEARFLAG_NONE:
+			case CameraClearFlags.Nothing:
 				break;
 			default:
 				throw new Error("Scene3D:camera clearFlag invalid.");
@@ -937,7 +937,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		var camera: Camera = <Camera>context.camera;
 
 		this._opaqueQueue._render(context);//非透明队列
-		if (camera.clearFlag === BaseCamera.CLEARFLAG_SKY) {
+		if (camera.clearFlag === CameraClearFlags.Sky) {
 			if (camera.skyRenderer._isAvailable())
 				camera.skyRenderer._render(context);
 			else if (this._skyRenderer._isAvailable())

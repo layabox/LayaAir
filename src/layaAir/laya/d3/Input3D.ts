@@ -5,7 +5,7 @@ import { Touch } from "./Touch";
 import { Script3D } from "./component/Script3D";
 import { SimpleSingletonList } from "./component/SimpleSingletonList";
 import { BaseCamera } from "./core/BaseCamera";
-import { Camera } from "./core/Camera";
+import { Camera, CameraClearFlags } from "./core/Camera";
 import { Scene3D } from "./core/scene/Scene3D";
 import { Sprite3D } from "./core/Sprite3D";
 import { Ray } from "./math/Ray";
@@ -201,7 +201,7 @@ export class Input3D {
 				camera.viewportPointToRay(touchPos, touchRay);
 
 				var sucess: boolean = this._scene._physicsSimulation.rayCast(touchRay, touchHitResult);
-				if (sucess || (camera.clearFlag === BaseCamera.CLEARFLAG_SOLIDCOLOR || camera.clearFlag === BaseCamera.CLEARFLAG_SKY))
+				if (sucess || (camera.clearFlag === CameraClearFlags.SolidColor || camera.clearFlag === CameraClearFlags.Sky))
 					break;
 			}
 		}
