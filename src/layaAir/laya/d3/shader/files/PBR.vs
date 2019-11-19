@@ -160,6 +160,5 @@ void main()
 		main_normal();
 	#endif
 
-	gl_Position = u_MvpMatrix * a_Position;
 	gl_Position=remapGLPositionZ(gl_Position);
 }
