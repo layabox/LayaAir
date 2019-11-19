@@ -2,8 +2,8 @@ import { BaseTexture } from "../../../resource/BaseTexture";
 import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
 import { Vector4 } from "../../math/Vector4";
 import { TextureCube } from "../../resource/TextureCube";
-import PBRStandard02PS from "../../shader/files/PBRStandard02.fs";
-import PBRStandard02VS from "../../shader/files/PBRStandard02.vs";
+import PBRPS from "../../shader/files/PBR.fs";
+import PBRVS from "../../shader/files/PBR.vs";
 import { Shader3D } from "../../shader/Shader3D";
 import { ShaderDefine } from "../../shader/ShaderDefine";
 import { SubShader } from "../../shader/SubShader";
@@ -12,9 +12,9 @@ import { Material } from "./Material";
 import { RenderState } from "./RenderState";
 
 /**
- * <code>PBRStandardMaterial02</code> 类用于实现PBR(Standard)材质。
+ * <code>PBRMaterial</code> 类用于实现PBR材质。
  */
-export class PBRStandardMaterial02 extends Material {
+export class PBRMaterial extends Material {
 	/**光滑度数据源_金属度贴图的Alpha通道。*/
 	static SmoothnessSource_MetallicGlossTexture_Alpha: number = 0;
 	/**光滑度数据源_反射率贴图的Alpha通道。*/
@@ -120,30 +120,30 @@ export class PBRStandardMaterial02 extends Material {
 	static DEPTH_WRITE: number = Shader3D.propertyNameToID("s_DepthWrite");
 
 	/** 默认材质，禁止修改*/
-	static defaultMaterial: PBRStandardMaterial02;
+	static defaultMaterial: PBRMaterial;
 
 	/**
 	 * @private
 	 */
 	static __initDefine__(): void {
-		PBRStandardMaterial02.SHADERDEFINE_ALBEDOTEXTURE = Shader3D.getDefineByName("ALBEDOTEXTURE");
-		PBRStandardMaterial02.SHADERDEFINE_METALLICGLOSSTEXTURE = Shader3D.getDefineByName("METALLICGLOSSTEXTURE");
-		PBRStandardMaterial02.SHADERDEFINE_SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA = Shader3D.getDefineByName("SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA");
-		PBRStandardMaterial02.SHADERDEFINE_NORMALTEXTURE = Shader3D.getDefineByName("NORMALTEXTURE");
-		PBRStandardMaterial02.SHADERDEFINE_PARALLAXTEXTURE = Shader3D.getDefineByName("PARALLAXTEXTURE");
-		PBRStandardMaterial02.SHADERDEFINE_OCCLUSIONTEXTURE = Shader3D.getDefineByName("OCCLUSIONTEXTURE");
-		PBRStandardMaterial02.SHADERDEFINE_EMISSION = Shader3D.getDefineByName("EMISSION");
-		PBRStandardMaterial02.SHADERDEFINE_EMISSIONTEXTURE = Shader3D.getDefineByName("EMISSIONTEXTURE");
-		PBRStandardMaterial02.SHADERDEFINE_REFLECTMAP = Shader3D.getDefineByName("REFLECTMAP");
-		PBRStandardMaterial02.SHADERDEFINE_TILINGOFFSET = Shader3D.getDefineByName("TILINGOFFSET");
-		PBRStandardMaterial02.SHADERDEFINE_ALPHAPREMULTIPLY = Shader3D.getDefineByName("ALPHAPREMULTIPLY");
+		PBRMaterial.SHADERDEFINE_ALBEDOTEXTURE = Shader3D.getDefineByName("ALBEDOTEXTURE");
+		PBRMaterial.SHADERDEFINE_METALLICGLOSSTEXTURE = Shader3D.getDefineByName("METALLICGLOSSTEXTURE");
+		PBRMaterial.SHADERDEFINE_SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA = Shader3D.getDefineByName("SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA");
+		PBRMaterial.SHADERDEFINE_NORMALTEXTURE = Shader3D.getDefineByName("NORMALTEXTURE");
+		PBRMaterial.SHADERDEFINE_PARALLAXTEXTURE = Shader3D.getDefineByName("PARALLAXTEXTURE");
+		PBRMaterial.SHADERDEFINE_OCCLUSIONTEXTURE = Shader3D.getDefineByName("OCCLUSIONTEXTURE");
+		PBRMaterial.SHADERDEFINE_EMISSION = Shader3D.getDefineByName("EMISSION");
+		PBRMaterial.SHADERDEFINE_EMISSIONTEXTURE = Shader3D.getDefineByName("EMISSIONTEXTURE");
+		PBRMaterial.SHADERDEFINE_REFLECTMAP = Shader3D.getDefineByName("REFLECTMAP");
+		PBRMaterial.SHADERDEFINE_TILINGOFFSET = Shader3D.getDefineByName("TILINGOFFSET");
+		PBRMaterial.SHADERDEFINE_ALPHAPREMULTIPLY = Shader3D.getDefineByName("ALPHAPREMULTIPLY");
 	}
 
 	/**
 	 * @private
 	 */
 	static __init__(): void {
-		PBRStandardMaterial02.__initDefine__();
+		PBRMaterial.__initDefine__();
 		var attributeMap: any = {
 			'a_Position': VertexMesh.MESH_POSITION0,
 			'a_Normal': VertexMesh.MESH_NORMAL0,
@@ -229,10 +229,10 @@ export class PBRStandardMaterial02 extends Material {
 			's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
 			's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE
 		}
-		var shader: Shader3D = Shader3D.add("PBRStandard02");
+		var shader: Shader3D = Shader3D.add("PBR");
 		var subShader: SubShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
-		subShader.addShaderPass(PBRStandard02VS, PBRStandard02PS, stateMap);
+		subShader.addShaderPass(PBRVS, PBRPS, stateMap);
 	}
 
 	/** @internal */
@@ -249,39 +249,39 @@ export class PBRStandardMaterial02 extends Material {
 
 	set albedoColor(value: Vector4) {
 		this._albedoColor = value;
-		this._shaderValues.setVector(PBRStandardMaterial02.ALBEDOCOLOR, value);
+		this._shaderValues.setVector(PBRMaterial.ALBEDOCOLOR, value);
 	}
 
 	/**
 	 * 漫反射贴图。
 	 */
 	get albedoTexture(): BaseTexture {
-		return this._shaderValues.getTexture(PBRStandardMaterial02.ALBEDOTEXTURE);
+		return this._shaderValues.getTexture(PBRMaterial.ALBEDOTEXTURE);
 	}
 
 	set albedoTexture(value: BaseTexture) {
 		if (value) {
-			this._shaderValues.addDefine(PBRStandardMaterial02.SHADERDEFINE_ALBEDOTEXTURE);
+			this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_ALBEDOTEXTURE);
 		} else {
-			this._shaderValues.removeDefine(PBRStandardMaterial02.SHADERDEFINE_ALBEDOTEXTURE);
+			this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_ALBEDOTEXTURE);
 		}
-		this._shaderValues.setTexture(PBRStandardMaterial02.ALBEDOTEXTURE, value);
+		this._shaderValues.setTexture(PBRMaterial.ALBEDOTEXTURE, value);
 	}
 
 	/**
 	 * 法线贴图。
 	 */
 	get normalTexture(): BaseTexture {
-		return this._shaderValues.getTexture(PBRStandardMaterial02.NORMALTEXTURE);
+		return this._shaderValues.getTexture(PBRMaterial.NORMALTEXTURE);
 	}
 
 	set normalTexture(value: BaseTexture) {
 		if (value) {
-			this._shaderValues.addDefine(PBRStandardMaterial02.SHADERDEFINE_NORMALTEXTURE);
+			this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_NORMALTEXTURE);
 		} else {
-			this._shaderValues.removeDefine(PBRStandardMaterial02.SHADERDEFINE_NORMALTEXTURE);
+			this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_NORMALTEXTURE);
 		}
-		this._shaderValues.setTexture(PBRStandardMaterial02.NORMALTEXTURE, value);
+		this._shaderValues.setTexture(PBRMaterial.NORMALTEXTURE, value);
 	}
 
 
@@ -289,130 +289,130 @@ export class PBRStandardMaterial02 extends Material {
 	 * 法线贴图缩放系数。
 	 */
 	get normalTextureScale(): number {
-		return this._shaderValues.getNumber(PBRStandardMaterial02.NORMALSCALE);
+		return this._shaderValues.getNumber(PBRMaterial.NORMALSCALE);
 	}
 
 	set normalTextureScale(value: number) {
-		this._shaderValues.setNumber(PBRStandardMaterial02.NORMALSCALE, value);
+		this._shaderValues.setNumber(PBRMaterial.NORMALSCALE, value);
 	}
 
 	/**
 	 * 视差贴图。
 	 */
 	get parallaxTexture(): BaseTexture {
-		return this._shaderValues.getTexture(PBRStandardMaterial02.PARALLAXTEXTURE);
+		return this._shaderValues.getTexture(PBRMaterial.PARALLAXTEXTURE);
 	}
 
 	set parallaxTexture(value: BaseTexture) {
 		if (value) {
-			this._shaderValues.addDefine(PBRStandardMaterial02.SHADERDEFINE_PARALLAXTEXTURE);
+			this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_PARALLAXTEXTURE);
 		} else {
-			this._shaderValues.removeDefine(PBRStandardMaterial02.SHADERDEFINE_PARALLAXTEXTURE);
+			this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_PARALLAXTEXTURE);
 		}
-		this._shaderValues.setTexture(PBRStandardMaterial02.PARALLAXTEXTURE, value);
+		this._shaderValues.setTexture(PBRMaterial.PARALLAXTEXTURE, value);
 	}
 
 	/**
 	 * 视差贴图缩放系数。
 	 */
 	get parallaxTextureScale(): number {
-		return this._shaderValues.getNumber(PBRStandardMaterial02.PARALLAX);
+		return this._shaderValues.getNumber(PBRMaterial.PARALLAX);
 	}
 
 	set parallaxTextureScale(value: number) {
-		this._shaderValues.setNumber(PBRStandardMaterial02.PARALLAX, Math.max(0.005, Math.min(0.08, value)));
+		this._shaderValues.setNumber(PBRMaterial.PARALLAX, Math.max(0.005, Math.min(0.08, value)));
 	}
 
 	/**
 	 * 遮挡贴图。
 	 */
 	get occlusionTexture(): BaseTexture {
-		return this._shaderValues.getTexture(PBRStandardMaterial02.OCCLUSIONTEXTURE);
+		return this._shaderValues.getTexture(PBRMaterial.OCCLUSIONTEXTURE);
 	}
 
 	set occlusionTexture(value: BaseTexture) {
 		if (value) {
-			this._shaderValues.addDefine(PBRStandardMaterial02.SHADERDEFINE_OCCLUSIONTEXTURE);
+			this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_OCCLUSIONTEXTURE);
 		} else {
-			this._shaderValues.removeDefine(PBRStandardMaterial02.SHADERDEFINE_OCCLUSIONTEXTURE);
+			this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_OCCLUSIONTEXTURE);
 		}
-		this._shaderValues.setTexture(PBRStandardMaterial02.OCCLUSIONTEXTURE, value);
+		this._shaderValues.setTexture(PBRMaterial.OCCLUSIONTEXTURE, value);
 	}
 
 	/**
 	 * 遮挡贴图强度,范围为0到1。
 	 */
 	get occlusionTextureStrength(): number {
-		return this._shaderValues.getNumber(PBRStandardMaterial02.OCCLUSIONSTRENGTH);
+		return this._shaderValues.getNumber(PBRMaterial.OCCLUSIONSTRENGTH);
 	}
 
 	set occlusionTextureStrength(value: number) {
-		this._shaderValues.setNumber(PBRStandardMaterial02.OCCLUSIONSTRENGTH, Math.max(0.0, Math.min(1.0, value)));
+		this._shaderValues.setNumber(PBRMaterial.OCCLUSIONSTRENGTH, Math.max(0.0, Math.min(1.0, value)));
 	}
 
 	/**
 	 * 金属光滑度贴图。
 	 */
 	get metallicGlossTexture(): BaseTexture {
-		return this._shaderValues.getTexture(PBRStandardMaterial02.METALLICGLOSSTEXTURE);
+		return this._shaderValues.getTexture(PBRMaterial.METALLICGLOSSTEXTURE);
 	}
 
 	set metallicGlossTexture(value: BaseTexture) {
 		if (value) {
-			this._shaderValues.addDefine(PBRStandardMaterial02.SHADERDEFINE_METALLICGLOSSTEXTURE);
+			this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_METALLICGLOSSTEXTURE);
 		} else {
-			this._shaderValues.removeDefine(PBRStandardMaterial02.SHADERDEFINE_METALLICGLOSSTEXTURE);
+			this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_METALLICGLOSSTEXTURE);
 		}
-		this._shaderValues.setTexture(PBRStandardMaterial02.METALLICGLOSSTEXTURE, value);
+		this._shaderValues.setTexture(PBRMaterial.METALLICGLOSSTEXTURE, value);
 	}
 
 	/**
 	 * 获取金属度,范围为0到1。
 	 */
 	get metallic(): number {
-		return this._shaderValues.getNumber(PBRStandardMaterial02.METALLIC);
+		return this._shaderValues.getNumber(PBRMaterial.METALLIC);
 	}
 
 	set metallic(value: number) {
-		this._shaderValues.setNumber(PBRStandardMaterial02.METALLIC, Math.max(0.0, Math.min(1.0, value)));
+		this._shaderValues.setNumber(PBRMaterial.METALLIC, Math.max(0.0, Math.min(1.0, value)));
 	}
 
 	/**
 	 * 光滑度,范围为0到1。
 	 */
 	get smoothness(): number {
-		return this._shaderValues.getNumber(PBRStandardMaterial02.SMOOTHNESS);
+		return this._shaderValues.getNumber(PBRMaterial.SMOOTHNESS);
 	}
 
 	set smoothness(value: number) {
-		this._shaderValues.setNumber(PBRStandardMaterial02.SMOOTHNESS, Math.max(0.0, Math.min(1.0, value)));
+		this._shaderValues.setNumber(PBRMaterial.SMOOTHNESS, Math.max(0.0, Math.min(1.0, value)));
 	}
 
 	/**
 	 * 光滑度缩放系数,范围为0到1。
 	 */
 	get smoothnessTextureScale(): number {
-		return this._shaderValues.getNumber(PBRStandardMaterial02.SMOOTHNESSSCALE);
+		return this._shaderValues.getNumber(PBRMaterial.SMOOTHNESSSCALE);
 	}
 
 	set smoothnessTextureScale(value: number) {
-		this._shaderValues.setNumber(PBRStandardMaterial02.SMOOTHNESSSCALE, Math.max(0.0, Math.min(1.0, value)));
+		this._shaderValues.setNumber(PBRMaterial.SMOOTHNESSSCALE, Math.max(0.0, Math.min(1.0, value)));
 	}
 
 	/**
 	 * 光滑度数据源,0或1。
 	 */
 	get smoothnessSource(): number {
-		return this._shaderValues.getInt(PBRStandardMaterial02.SMOOTHNESSSOURCE);
+		return this._shaderValues.getInt(PBRMaterial.SMOOTHNESSSOURCE);
 	}
 
 	set smoothnessSource(value: number) {
 		if (value) {
-			this._shaderValues.addDefine(PBRStandardMaterial02.SHADERDEFINE_SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA);
-			this._shaderValues.setInt(PBRStandardMaterial02.SMOOTHNESSSOURCE, 1);
+			this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA);
+			this._shaderValues.setInt(PBRMaterial.SMOOTHNESSSOURCE, 1);
 		} else {
-			this._shaderValues.removeDefine(PBRStandardMaterial02.SHADERDEFINE_SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA);
-			this._shaderValues.setInt(PBRStandardMaterial02.SMOOTHNESSSOURCE, 0);
+			this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA);
+			this._shaderValues.setInt(PBRMaterial.SMOOTHNESSSOURCE, 0);
 		}
 	}
 
@@ -420,54 +420,54 @@ export class PBRStandardMaterial02 extends Material {
 	 * 是否激活放射属性。
 	 */
 	get enableEmission(): boolean {
-		return this._shaderValues.getBool(PBRStandardMaterial02.ENABLEEMISSION);
+		return this._shaderValues.getBool(PBRMaterial.ENABLEEMISSION);
 	}
 
 	set enableEmission(value: boolean) {
 		if (value) {
-			this._shaderValues.addDefine(PBRStandardMaterial02.SHADERDEFINE_EMISSION);
+			this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_EMISSION);
 		} else {
-			this._shaderValues.removeDefine(PBRStandardMaterial02.SHADERDEFINE_EMISSION);
+			this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_EMISSION);
 		}
-		this._shaderValues.setBool(PBRStandardMaterial02.ENABLEEMISSION, value);
+		this._shaderValues.setBool(PBRMaterial.ENABLEEMISSION, value);
 	}
 
 	/**
 	 * 放射颜色。
 	 */
 	get emissionColor(): Vector4 {
-		return (<Vector4>this._shaderValues.getVector(PBRStandardMaterial02.EMISSIONCOLOR));
+		return (<Vector4>this._shaderValues.getVector(PBRMaterial.EMISSIONCOLOR));
 	}
 
 	set emissionColor(value: Vector4) {
-		this._shaderValues.setVector(PBRStandardMaterial02.EMISSIONCOLOR, value);
+		this._shaderValues.setVector(PBRMaterial.EMISSIONCOLOR, value);
 	}
 
 	/**
 	 * 放射贴图。
 	 */
 	get emissionTexture(): BaseTexture {
-		return this._shaderValues.getTexture(PBRStandardMaterial02.EMISSIONTEXTURE);
+		return this._shaderValues.getTexture(PBRMaterial.EMISSIONTEXTURE);
 	}
 
 	set emissionTexture(value: BaseTexture) {
 		if (value) {
-			this._shaderValues.addDefine(PBRStandardMaterial02.SHADERDEFINE_EMISSIONTEXTURE);
+			this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_EMISSIONTEXTURE);
 		} else {
-			this._shaderValues.removeDefine(PBRStandardMaterial02.SHADERDEFINE_EMISSIONTEXTURE);
+			this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_EMISSIONTEXTURE);
 		}
-		this._shaderValues.setTexture(PBRStandardMaterial02.EMISSIONTEXTURE, value);
+		this._shaderValues.setTexture(PBRMaterial.EMISSIONTEXTURE, value);
 	}
 
 	/**
 	 * 是否开启反射。
 	 */
 	get enableReflection(): boolean {
-		return this._shaderValues.getBool(PBRStandardMaterial02.ENABLEREFLECT);
+		return this._shaderValues.getBool(PBRMaterial.ENABLEREFLECT);
 	}
 
 	set enableReflection(value: boolean) {
-		this._shaderValues.setBool(PBRStandardMaterial02.ENABLEREFLECT, true);
+		this._shaderValues.setBool(PBRMaterial.ENABLEREFLECT, true);
 		if (value) {
 			this._disablePublicDefineDatas.remove(Scene3DShaderDeclaration.SHADERDEFINE_REFLECTMAP);
 		} else {
@@ -479,20 +479,20 @@ export class PBRStandardMaterial02 extends Material {
 	 * 纹理平铺和偏移。
 	 */
 	get tilingOffset(): Vector4 {
-		return (<Vector4>this._shaderValues.getVector(PBRStandardMaterial02.TILINGOFFSET));
+		return (<Vector4>this._shaderValues.getVector(PBRMaterial.TILINGOFFSET));
 	}
 
 	set tilingOffset(value: Vector4) {
 		if (value) {
 			if (value.x != 1 || value.y != 1 || value.z != 0 || value.w != 0) {
-				this._shaderValues.addDefine(PBRStandardMaterial02.SHADERDEFINE_TILINGOFFSET);
+				this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_TILINGOFFSET);
 			} else {
-				this._shaderValues.removeDefine(PBRStandardMaterial02.SHADERDEFINE_TILINGOFFSET);
+				this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_TILINGOFFSET);
 			}
 		} else {
-			this._shaderValues.removeDefine(PBRStandardMaterial02.SHADERDEFINE_TILINGOFFSET);
+			this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_TILINGOFFSET);
 		}
-		this._shaderValues.setVector(PBRStandardMaterial02.TILINGOFFSET, value);
+		this._shaderValues.setVector(PBRMaterial.TILINGOFFSET, value);
 	}
 
 	/**
@@ -500,25 +500,25 @@ export class PBRStandardMaterial02 extends Material {
 	 */
 	set renderMode(value: number) {
 		switch (value) {
-			case PBRStandardMaterial02.RENDERMODE_OPAQUE:
+			case PBRMaterial.RENDERMODE_OPAQUE:
 				this.alphaTest = false;
 				this.renderQueue = Material.RENDERQUEUE_OPAQUE;
 				this.depthWrite = true;
 				this.cull = RenderState.CULL_BACK;
 				this.blend = RenderState.BLEND_DISABLE;
 				this.depthTest = RenderState.DEPTHTEST_LESS;
-				this._shaderValues.removeDefine(PBRStandardMaterial02.SHADERDEFINE_ALPHAPREMULTIPLY);
+				this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_ALPHAPREMULTIPLY);
 				break;
-			case PBRStandardMaterial02.RENDERMODE_CUTOUT:
+			case PBRMaterial.RENDERMODE_CUTOUT:
 				this.renderQueue = Material.RENDERQUEUE_ALPHATEST;
 				this.alphaTest = true;
 				this.depthWrite = true;
 				this.cull = RenderState.CULL_BACK;
 				this.blend = RenderState.BLEND_DISABLE;
 				this.depthTest = RenderState.DEPTHTEST_LESS;
-				this._shaderValues.removeDefine(PBRStandardMaterial02.SHADERDEFINE_ALPHAPREMULTIPLY);
+				this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_ALPHAPREMULTIPLY);
 				break;
-			case PBRStandardMaterial02.RENDERMODE_FADE:
+			case PBRMaterial.RENDERMODE_FADE:
 				this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
 				this.alphaTest = false;
 				this.depthWrite = false;
@@ -527,9 +527,9 @@ export class PBRStandardMaterial02 extends Material {
 				this.blendSrc = RenderState.BLENDPARAM_SRC_ALPHA;
 				this.blendDst = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
 				this.depthTest = RenderState.DEPTHTEST_LESS;
-				this._shaderValues.removeDefine(PBRStandardMaterial02.SHADERDEFINE_ALPHAPREMULTIPLY);
+				this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_ALPHAPREMULTIPLY);
 				break;
-			case PBRStandardMaterial02.RENDERMODE_TRANSPARENT:
+			case PBRMaterial.RENDERMODE_TRANSPARENT:
 				this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
 				this.alphaTest = false;
 				this.depthWrite = false;
@@ -538,7 +538,7 @@ export class PBRStandardMaterial02 extends Material {
 				this.blendSrc = RenderState.BLENDPARAM_ONE;
 				this.blendDst = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
 				this.depthTest = RenderState.DEPTHTEST_LESS;
-				this._shaderValues.addDefine(PBRStandardMaterial02.SHADERDEFINE_ALPHAPREMULTIPLY);
+				this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_ALPHAPREMULTIPLY);
 				break;
 			default:
 				throw new Error("PBRSpecularMaterial : renderMode value error.");
@@ -549,83 +549,83 @@ export class PBRStandardMaterial02 extends Material {
 	 * 是否写入深度。
 	 */
 	get depthWrite(): boolean {
-		return this._shaderValues.getBool(PBRStandardMaterial02.DEPTH_WRITE);
+		return this._shaderValues.getBool(PBRMaterial.DEPTH_WRITE);
 	}
 
 	set depthWrite(value: boolean) {
-		this._shaderValues.setBool(PBRStandardMaterial02.DEPTH_WRITE, value);
+		this._shaderValues.setBool(PBRMaterial.DEPTH_WRITE, value);
 	}
 
 	/**
 	 * 剔除方式。
 	 */
 	get cull(): number {
-		return this._shaderValues.getInt(PBRStandardMaterial02.CULL);
+		return this._shaderValues.getInt(PBRMaterial.CULL);
 	}
 
 	set cull(value: number) {
-		this._shaderValues.setInt(PBRStandardMaterial02.CULL, value);
+		this._shaderValues.setInt(PBRMaterial.CULL, value);
 	}
 
 	/**
 	 * 混合方式。
 	 */
 	get blend(): number {
-		return this._shaderValues.getInt(PBRStandardMaterial02.BLEND);
+		return this._shaderValues.getInt(PBRMaterial.BLEND);
 	}
 
 	set blend(value: number) {
-		this._shaderValues.setInt(PBRStandardMaterial02.BLEND, value);
+		this._shaderValues.setInt(PBRMaterial.BLEND, value);
 	}
 
 	/**
 	 * 混合源。
 	 */
 	get blendSrc(): number {
-		return this._shaderValues.getInt(PBRStandardMaterial02.BLEND_SRC);
+		return this._shaderValues.getInt(PBRMaterial.BLEND_SRC);
 	}
 
 	set blendSrc(value: number) {
-		this._shaderValues.setInt(PBRStandardMaterial02.BLEND_SRC, value);
+		this._shaderValues.setInt(PBRMaterial.BLEND_SRC, value);
 	}
 
 	/**
 	 * 混合目标。
 	 */
 	get blendDst(): number {
-		return this._shaderValues.getInt(PBRStandardMaterial02.BLEND_DST);
+		return this._shaderValues.getInt(PBRMaterial.BLEND_DST);
 	}
 
 	set blendDst(value: number) {
-		this._shaderValues.setInt(PBRStandardMaterial02.BLEND_DST, value);
+		this._shaderValues.setInt(PBRMaterial.BLEND_DST, value);
 	}
 
 	/**
 	 * 深度测试方式。
 	 */
 	get depthTest(): number {
-		return this._shaderValues.getInt(PBRStandardMaterial02.DEPTH_TEST);
+		return this._shaderValues.getInt(PBRMaterial.DEPTH_TEST);
 	}
 
 
 	set depthTest(value: number) {
-		this._shaderValues.setInt(PBRStandardMaterial02.DEPTH_TEST, value);
+		this._shaderValues.setInt(PBRMaterial.DEPTH_TEST, value);
 	}
 
 
 	//minerGI
 	//TODO:临时，方法首字母必须小写
 	SetGIDiffuse(Ar: Vector4, Ag: Vector4, Ab: Vector4, Br: Vector4, Bg: Vector4, Bb: Vector4, C: Vector4) {
-		this._shaderValues.setVector(PBRStandardMaterial02.SHAR, Ar);
-		this._shaderValues.setVector(PBRStandardMaterial02.SHAG, Ag);
-		this._shaderValues.setVector(PBRStandardMaterial02.SHAB, Ab);
-		this._shaderValues.setVector(PBRStandardMaterial02.SHBR, Br);
-		this._shaderValues.setVector(PBRStandardMaterial02.SHBG, Bg);
-		this._shaderValues.setVector(PBRStandardMaterial02.SHBB, Bb);
+		this._shaderValues.setVector(PBRMaterial.SHAR, Ar);
+		this._shaderValues.setVector(PBRMaterial.SHAG, Ag);
+		this._shaderValues.setVector(PBRMaterial.SHAB, Ab);
+		this._shaderValues.setVector(PBRMaterial.SHBR, Br);
+		this._shaderValues.setVector(PBRMaterial.SHBG, Bg);
+		this._shaderValues.setVector(PBRMaterial.SHBB, Bb);
 	}
 
 	SetGISpecular(GISpecular: TextureCube) {
-		this._shaderValues.setTexture(PBRStandardMaterial02.REFLECTIONMAP, GISpecular);
+		this._shaderValues.setTexture(PBRMaterial.REFLECTIONMAP, GISpecular);
 	}
 
 
@@ -635,23 +635,23 @@ export class PBRStandardMaterial02 extends Material {
 	 */
 	constructor() {
 		super();
-		this.setShaderName("PBRStandard02");
+		this.setShaderName("PBR");
 		this._albedoColor = new Vector4(1.0, 1.0, 1.0, 1.0);
-		this._shaderValues.setVector(PBRStandardMaterial02.ALBEDOCOLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
+		this._shaderValues.setVector(PBRMaterial.ALBEDOCOLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
 		this._emissionColor = new Vector4(0.0, 0.0, 0.0, 0.0);
-		this._shaderValues.setVector(PBRStandardMaterial02.EMISSIONCOLOR, new Vector4(0.0, 0.0, 0.0, 0.0));
-		this._shaderValues.setNumber(PBRStandardMaterial02.METALLIC, 0.0);
-		this._shaderValues.setNumber(PBRStandardMaterial02.SMOOTHNESS, 0.5);
-		this._shaderValues.setNumber(PBRStandardMaterial02.SMOOTHNESSSCALE, 1.0);
-		this._shaderValues.setNumber(PBRStandardMaterial02.SMOOTHNESSSOURCE, 0);
-		this._shaderValues.setNumber(PBRStandardMaterial02.OCCLUSIONSTRENGTH, 1.0);
-		this._shaderValues.setNumber(PBRStandardMaterial02.NORMALSCALE, 1.0);
-		this._shaderValues.setNumber(PBRStandardMaterial02.PARALLAX, 0.001);
-		this._shaderValues.setBool(PBRStandardMaterial02.ENABLEEMISSION, false);
-		this._shaderValues.setBool(PBRStandardMaterial02.ENABLEREFLECT, true);
+		this._shaderValues.setVector(PBRMaterial.EMISSIONCOLOR, new Vector4(0.0, 0.0, 0.0, 0.0));
+		this._shaderValues.setNumber(PBRMaterial.METALLIC, 0.0);
+		this._shaderValues.setNumber(PBRMaterial.SMOOTHNESS, 0.5);
+		this._shaderValues.setNumber(PBRMaterial.SMOOTHNESSSCALE, 1.0);
+		this._shaderValues.setNumber(PBRMaterial.SMOOTHNESSSOURCE, 0);
+		this._shaderValues.setNumber(PBRMaterial.OCCLUSIONSTRENGTH, 1.0);
+		this._shaderValues.setNumber(PBRMaterial.NORMALSCALE, 1.0);
+		this._shaderValues.setNumber(PBRMaterial.PARALLAX, 0.001);
+		this._shaderValues.setBool(PBRMaterial.ENABLEEMISSION, false);
+		this._shaderValues.setBool(PBRMaterial.ENABLEREFLECT, true);
 		this._shaderValues.setNumber(Material.ALPHATESTVALUE, 0.5);
 		this._disablePublicDefineDatas.remove(Scene3DShaderDeclaration.SHADERDEFINE_REFLECTMAP);
-		this.renderMode = PBRStandardMaterial02.RENDERMODE_OPAQUE;
+		this.renderMode = PBRMaterial.RENDERMODE_OPAQUE;
 	}
 
 	/**
@@ -660,7 +660,7 @@ export class PBRStandardMaterial02 extends Material {
 	 * @override
 	 */
 	clone(): any {
-		var dest: PBRStandardMaterial02 = new PBRStandardMaterial02();
+		var dest: PBRMaterial = new PBRMaterial();
 		this.cloneTo(dest);
 		return dest;
 	}
@@ -671,7 +671,7 @@ export class PBRStandardMaterial02 extends Material {
 	 */
 	cloneTo(destObject: any): void {
 		super.cloneTo(destObject);
-		var destMaterial: PBRStandardMaterial02 = (<PBRStandardMaterial02>destObject);
+		var destMaterial: PBRMaterial = (<PBRMaterial>destObject);
 		this._albedoColor.cloneTo(destMaterial._albedoColor);
 		this._emissionColor.cloneTo(destMaterial._emissionColor);
 	}
