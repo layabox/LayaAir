@@ -1,5 +1,4 @@
 #include "Lighting.glsl";
-#include "PBRUtils02.glsl"
 
 attribute vec4 a_Position;
 
@@ -24,16 +23,6 @@ attribute vec4 a_Position;
 	varying vec2 v_LightMapUV;
 #endif
 
-#if defined(INDIRECTLIGHT)&&defined(LOWPLAT)
-	uniform vec4 u_SHAr;
-	uniform vec4 u_SHAg;
-	uniform vec4 u_SHAb;
-	uniform vec4 u_SHBr;
-	uniform vec4 u_SHBg;
-	uniform vec4 u_SHBb;
-	uniform vec4 u_SHC;
-	varying vec3 v_ambientDiffuse;
-#endif
 
 #ifdef BONE
 	const int c_MaxBoneCount = 24;
@@ -126,7 +115,7 @@ void main_normal()
 		worldMat = u_WorldMat;
 	#endif
 	v_PositionWorld=(worldMat*position).xyz;
-	v_eyeVec =LayaNormalizePerVertexNormal(u_CameraPos-v_PositionWorld);
+	v_eyeVec =u_CameraPos-v_PositionWorld;
 	#if defined(DIFFUSEMAP)||((defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))&&(defined(SPECULARMAP)||defined(NORMALMAP)))
 		#ifdef TILINGOFFSET
 			v_Texcoord0=TransformUV(a_Texcoord0,u_TilingOffset);
@@ -167,9 +156,7 @@ void main_normal()
 	#endif
 	//缺高差图TODO
 
-	#if defined(INDIRECTLIGHT)&&defined(LOWPLAT)
-		v_ambientDiffuse = LayaVertexGI(v_Normal);
-	#endif
+
 
 
 }

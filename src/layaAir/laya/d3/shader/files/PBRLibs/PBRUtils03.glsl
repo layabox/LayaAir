@@ -12,14 +12,7 @@ vec3 LayaEmission(vec2 uv)
 }
 
 
-vec3 LayaNormalizePerPixelNormal(vec3 n)
-{
-	#ifdef LOWPLAT
-		return n;
-	#else
-		return normalize(n);
-	#endif
-}
+
 //FSSet
 float LayaAlpha(vec2 uv)
 {
@@ -83,9 +76,9 @@ vec3 LayaPerPixelWorldNormal(vec2 uv,vec3 normal,vec3 binormal,vec3 tangent)
 		// 	binormal = newB * sign(dot(newB, binormal));
 		// #endif
 		vec3 normalTangent =texture2D(u_NormalTexture, uv).rgb ;
-		vec3 normalWorld = LayaNormalizePerPixelNormal(NormalSampleToWorldSpace(normalTangent, normal, tangent,binormal));
+		vec3 normalWorld = normalize(NormalSampleToWorldSpace(normalTangent, normal, tangent,binormal));
 	#else
-		vec3 normalWorld = LayaNormalizePerPixelNormal(normal);
+		vec3 normalWorld = normalize(normal);
 	#endif
 		return normalWorld;
 }
@@ -153,18 +146,68 @@ LayaFragmentCommonData LayaMetallicSetup(vec2 uv)
 
 
 
-//GI
+vec3 LinearToGammaSpace (vec3 linRGB)
+{
+    linRGB = max(linRGB, vec3(0.0, 0.0, 0.0));
+    // An almost-perfect approximation from http://chilliant.blogspot.com.au/2012/08/srgb-approximations-for-hlsl.html?m=1
+    return max(1.055 * pow(linRGB, vec3(0.416666667)) - 0.055, 0.0);   
+}
 
+//GI
+#ifdef INDIRECTLIGHT
+
+
+vec3 LayaSHEvalLinearL0L1(vec4 normal)
+{
+	vec3 x;
+	//九个参数转换为矩阵
+	// Linear (L1) + constant (L0) polynomial terms
+	x.r = dot(u_SHAr, normal);
+	x.g = dot(u_SHAg, normal);
+	x.b = dot(u_SHAb, normal);
+	return x;
+}
+
+
+vec3 LayaSHEvalLinearL2(vec4 normal)
+{
+	vec3 x1;
+	vec3 x2;
+	// 4 of the quadratic (L2) polynomials
+	vec4 vB = normal.xyzz * normal.yzzx;
+	x1.r = dot(u_SHBr, vB);
+	x1.g = dot(u_SHBg, vB);
+	x1.b = dot(u_SHBb, vB);
+
+	// Final (5th) quadratic (L2) polynomial
+	float vC = normal.x*normal.x - normal.y*normal.y;
+	x2 = u_SHC.rgb * vC;
+
+	return x1 + x2;
+}
+
+half3 LayaShadeSH9(half4 normal)
+{
+	// Linear + constant polynomial terms
+	//线性+常量多项式项
+	half3 res = LayaSHEvalLinearL0L1(normal);
+
+	// Quadratic polynomials
+	res += LayaSHEvalLinearL2(normal);
+
+	//需要转换到Gamma空间
+	res = LinearToGammaSpace(res);
+	return res;
+}
+#endif
 //LayaFragmentGI
 //感知光滑转换到感知粗糙
 //LayaGI_Base
 
 vec3 LayaShadeSHPerPixel(vec3 normal, vec3 ambient)
 {
-	//vec3 ambient_contrib = vec3(0.0,0.0,0.0);
-	#if defined(LOWPLAT)&&defined(INDIRECTLIGHT)
-		ambient=v_ambientDiffuse;
-	#elif defined(INDIRECTLIGHT)
+	
+	#ifdef INDIRECTLIGHT
 		ambient = LayaSHEvalLinearL0L1(vec4(normal, 1.0));
 		//得到完整球谐函数
 		ambient += LayaSHEvalLinearL2(vec4(normal, 1.0));
