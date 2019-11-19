@@ -34,7 +34,7 @@ struct LayaGI{
 struct LayaLight{
 	vec3 color;
 	vec3 dir;
-}
+};
 
 
 const int c_ClusterBufferWidth = CLUSTER_X_COUNT*CLUSTER_Y_COUNT;

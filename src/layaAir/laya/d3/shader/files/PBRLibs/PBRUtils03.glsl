@@ -2,12 +2,22 @@
 
 vec4 DielectricSpecularColor = vec4(0.220916301, 0.220916301, 0.220916301, 1.0 - 0.220916301);
 //FS
+vec3 LayaEmission(vec2 uv)
+{
+	#ifdef EMISSIONTEXTURE
+		return texture2D(u_EmissionTexture, uv).rgb * u_EmissionColor.rgb;
+	#else
+		return u_EmissionColor.rgb;
+	#endif
+}
+
+
 vec3 LayaNormalizePerPixelNormal(vec3 n)
 {
 	#ifdef LOWPLAT
 		return n;
 	#else
-		return normalize(n); 
+		return normalize(n);
 	#endif
 }
 //FSSet
@@ -24,6 +34,8 @@ float LayaAlpha(vec2 uv)
 		#endif
 	#endif
 }
+
+
 
 float LayaLerpOneTo(float b, float t)
 {
@@ -107,7 +119,7 @@ vec3 LayaDiffuseAndSpecularFromMetallic(vec3 albedo, float metallic, out vec3 sp
 {
 	//unity_ColorSpaceDielectricSpec.rgb是内置变量
 	// (0.22 0.22 0.22 0.779)
-	specColor = DielectricSpecularColor.rgb*metallic+ albedo*(1.0- metallic);
+	specColor = mix(DielectricSpecularColor.rgb, albedo, metallic);
 	//kd  漫反射系数
 	oneMinusReflectivity= DielectricSpecularColor.a-metallic*DielectricSpecularColor.a;
 	return albedo * oneMinusReflectivity;
@@ -234,11 +246,13 @@ LayaGI LayaGlobalIllumination(float occlusion, vec3 normalWorld,vec4 glossIn)
 }
 
 
-
-LayaGI LayaFragmentGI(LayaFragmentCommonData s,vec3 worldPos,vec3 eyeVec,float occlusion,float atten,vec3 worldnormal)
+//,,float occlusion,vec3 worldnormal
+LayaGI LayaFragmentGI(LayaFragmentCommonData s,vec3 eyeVec,float occlusion,vec3 worldnormal)
 {
+	LayaGI layagi;
 	vec3 worldViewDir = -eyeVec;
 	vec4 reflRoun = LayaGlossyEnvironmentSetup(s.smoothness, worldViewDir,worldnormal);
 	return LayaGlobalIllumination(occlusion, worldnormal, reflRoun);
+	//return layagi;
 }
 
