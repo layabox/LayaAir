@@ -358,13 +358,12 @@ export class Texture extends EventDispatcher {
                 return pix;
             //否则只取一部分
             var ret: Uint8Array = new Uint8Array(width * height * 4);
-            let srcwstride = texw * 4;
-            st = 0;//x * 4;
-            dst = (y + height - 1) * srcwstride + x * 4;
-            for (i = height - 1; i >= 0; i--) {
-                ret.set(dt.slice(dst, dst + width * 4), st);
+            wstride = texw * 4;
+            dst = y * wstride;
+            st = x * 4 + dst;
+            for (i = 0; i < height; i++) {
+                ret.set(pix.slice(st, st + width * 4), width * 4 * i);
                 st += wstride;
-                dst -= srcwstride;
             }
             return ret;
         }
