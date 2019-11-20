@@ -34,16 +34,16 @@ uniform float u_smoothness;
 uniform float u_smoothnessScale;
 
 uniform float u_metallic;
-//高差图
+
 #ifdef PARALLAXTEXTURE
 	uniform sampler2D u_ParallaxTexture;
 #endif
-//遮挡图
+
 #ifdef OCCLUSIONTEXTURE
 	uniform sampler2D u_OcclusionTexture;
-	uniform sampler2D u_occlusionStrength;
+	uniform float u_occlusionStrength;
 #endif
-//自发光
+
 #ifdef EMISSIONTEXTURE
 	uniform sampler2D u_EmissionTexture;
 #endif
@@ -130,12 +130,15 @@ void main_normal()
 	#endif
 	//FSSetup
 	//LayaParallax计算TODO，目前先不考虑
-	float alpha = LayaAlpha(uv);
+
+	float alpha = alpha(uv);
 	#ifdef ALPHATEST
 		if(alpha<u_AlphaTestValue)
-			discard;//Discard使用问题
+			discard;
 	#endif
-	 LayaFragmentCommonData o;
+
+	LayaFragmentCommonData o;
+	
 	 //分流派TODO
 	 o = LayaMetallicSetup(uv);
 	
