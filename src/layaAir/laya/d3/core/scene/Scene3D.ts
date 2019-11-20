@@ -429,12 +429,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this._scene = this;
 		this._input.__init__(Render.canvas, this);
 
-
-
-
-		if (Scene3D.octreeCulling) {
+		if (Scene3D.octreeCulling)
 			this._octree = new BoundsOctree(Scene3D.octreeInitialSize, Scene3D.octreeInitialCenter, Scene3D.octreeMinNodeSize, Scene3D.octreeLooseness);
-		}
 
 		if (FrustumCulling.debugFrustumCulling) {
 			this._debugTool = new PixelLineSprite3D();
