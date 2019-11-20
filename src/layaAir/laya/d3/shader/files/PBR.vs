@@ -137,7 +137,7 @@ void main_normal()
 		v_LightMapUV=transformLightMapUV(a_Texcoord0,a_Texcoord1,u_LightmapScaleOffset);
 	#endif
 
-	#if (defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))||(defined(NORMALMAP)||defined(PARALLAXMAP))||(defined(INDIRECTLIGHT)&&defined(LOWPLAT))
+	#if (defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))||(defined(NORMALMAP)||defined(PARALLAXMAP))||(defined(INDIRECTLIGHT))
 		mat3 worldInvMat;
 		#ifdef BONE
 			worldInvMat=inverse(mat3(worldMat*skinTransform));

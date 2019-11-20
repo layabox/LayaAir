@@ -39,12 +39,8 @@ float LayaLerpOneTo(float b, float t)
 float LayaOcclusion(vec2 uv)
 {
 	#ifdef OCCLUSIONTEXTURE
-		#ifdef LOWPLAT
-			return texture2D(u_OcclusionTexture, uv).g;
-		#else
-			float occ = texture2D(u_OcclusionTexture, uv).g;
-			return LayaLerpOneTo(occ, u_occlusionStrength);
-		#endif
+		float occ = texture2D(u_OcclusionTexture, uv).g;
+		return LayaLerpOneTo(occ, u_occlusionStrength);
 	#else
 		return 1.0;
 	#endif
