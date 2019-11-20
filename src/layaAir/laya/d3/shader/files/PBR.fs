@@ -63,9 +63,8 @@ uniform vec4 u_EmissionColor;
 	uniform samplerCube u_ReflectTexture;
 #endif
 
-#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(NORMALMAP)||defined(PARALLAXMAP)
-	varying vec3 v_Normal; 
-#endif
+varying vec3 v_Normal; 
+
 #if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
 	#ifdef LEGACYSINGLELIGHTING
 		#ifdef DIRECTIONLIGHT
@@ -144,10 +143,10 @@ void main_normal()
 		tangent = v_Tangent;
 		binormal = v_Binormal;
 	#endif
-	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(NORMALMAP)||defined(PARALLAXMAP)
-		normal = v_Normal;	
-		normalWorld = LayaPerPixelWorldNormal(uv,normal,binormal,tangent);
-	#endif
+
+	normal = v_Normal;
+	normalWorld = LayaPerPixelWorldNormal(uv,normal,binormal,tangent);
+
 	eyeVec = normalize(v_EyeVec);
 	posworld = v_PositionWorld;
 	 //unity在这儿还做了Alpha预乘
