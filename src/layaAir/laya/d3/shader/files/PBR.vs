@@ -17,14 +17,13 @@ attribute vec4 a_Position;
 	uniform mat4 u_Bones[c_MaxBoneCount];
 #endif
 
-#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(INDIRECTLIGHT)
-	attribute vec3 a_Normal;
-	varying vec3 v_Normal; 
-	#if defined(NORMALMAP)||defined(PARALLAXMAP)
-		attribute vec4 a_Tangent0;
-		varying vec3 v_Tangent;
-		varying vec3 v_Binormal;
-	#endif
+attribute vec3 a_Normal;
+varying vec3 v_Normal; 
+
+#if defined(NORMALMAP)||defined(PARALLAXMAP)
+	attribute vec4 a_Tangent0;
+	varying vec3 v_Tangent;
+	varying vec3 v_Binormal;
 #endif
 
 #if defined(DIFFUSEMAP)||defined(METALLICGLOSSTEXTURE)||defined(NORMALTEXTURE)||defined(EMISSIONTEXTURE)||defined(OCCLUSIONTEXTURE)||defined(PARALLAXTEXTURE)
@@ -123,7 +122,7 @@ void main_normal()
 
 	v_PositionWorld=(worldMat*position).xyz;
 
-	#if defined(DIFFUSEMAP)||((defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))&&(defined(SPECULARMAP)||defined(NORMALMAP)))
+	#if defined(DIFFUSEMAP)||defined(METALLICGLOSSTEXTURE)||defined(NORMALTEXTURE)||defined(EMISSIONTEXTURE)||defined(OCCLUSIONTEXTURE)||defined(PARALLAXTEXTURE)
 		#ifdef TILINGOFFSET
 			v_Texcoord0=TransformUV(a_Texcoord0,u_TilingOffset);
 		#else
@@ -137,24 +136,20 @@ void main_normal()
 		v_LightMapUV=transformLightMapUV(a_Texcoord0,a_Texcoord1,u_LightmapScaleOffset);
 	#endif
 
-	#if (defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))||(defined(NORMALMAP)||defined(PARALLAXMAP))||(defined(INDIRECTLIGHT)&&defined(LOWPLAT))||defined(INDIRECTLIGHT)
-		mat3 worldInvMat;
-		#ifdef BONE
-			worldInvMat=inverse(mat3(worldMat*skinTransform));
-		#else
-			worldInvMat=inverse(mat3(worldMat));
-		#endif  
-			v_Normal=a_Normal*worldInvMat;
-		#if (defined(NORMALMAP)||defined(PARALLAXMAP))
-			v_Tangent=a_Tangent0.xyz*worldInvMat;
-			v_Binormal=cross(v_Normal,v_Tangent)*a_Tangent0.w;
-		#endif
+	mat3 worldInvMat;
+	#ifdef BONE
+		worldInvMat=inverse(mat3(worldMat*skinTransform));
+	#else
+		worldInvMat=inverse(mat3(worldMat));
 	#endif
-	//缺高差图TODO
+	v_Normal=a_Normal*worldInvMat;
+	
+	#if defined(NORMALMAP)||defined(PARALLAXMAP)
+		v_Tangent=a_Tangent0.xyz*worldInvMat;
+		v_Binormal=cross(v_Normal,v_Tangent)*a_Tangent0.w;
+	#endif
 
-
-
-
+	//TODO:缺高差图TODO
 }
 void main()
 {

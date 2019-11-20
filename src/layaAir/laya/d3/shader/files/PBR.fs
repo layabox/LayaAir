@@ -34,16 +34,16 @@ uniform float u_smoothness;
 uniform float u_smoothnessScale;
 
 uniform float u_metallic;
-//高差图
+
 #ifdef PARALLAXTEXTURE
 	uniform sampler2D u_ParallaxTexture;
 #endif
-//遮挡图
+
 #ifdef OCCLUSIONTEXTURE
 	uniform sampler2D u_OcclusionTexture;
-	uniform sampler2D u_occlusionStrength;
+	uniform float u_occlusionStrength;
 #endif
-//自发光
+
 #ifdef EMISSIONTEXTURE
 	uniform sampler2D u_EmissionTexture;
 #endif
@@ -63,9 +63,8 @@ uniform vec4 u_EmissionColor;
 	uniform samplerCube u_ReflectTexture;
 #endif
 
-#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(NORMALMAP)||defined(PARALLAXMAP)||defined(INDIRECTLIGHT)
-	varying vec3 v_Normal; 
-#endif
+varying vec3 v_Normal; 
+
 #if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
 	#ifdef LEGACYSINGLELIGHTING
 		#ifdef DIRECTIONLIGHT
@@ -131,12 +130,15 @@ void main_normal()
 	#endif
 	//FSSetup
 	//LayaParallax计算TODO，目前先不考虑
-	float alpha = LayaAlpha(uv);
+
+	float alpha = alpha(uv);
 	#ifdef ALPHATEST
 		if(alpha<u_AlphaTestValue)
-			discard;//Discard使用问题
+			discard;
 	#endif
-	 LayaFragmentCommonData o;
+
+	LayaFragmentCommonData o;
+	
 	 //分流派TODO
 	 o = LayaMetallicSetup(uv);
 	
@@ -144,10 +146,10 @@ void main_normal()
 		tangent = v_Tangent;
 		binormal = v_Binormal;
 	#endif
-	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(NORMALMAP)||defined(PARALLAXMAP)||defined(INDIRECTLIGHT)
-		normal = v_Normal;	
-		normalWorld = LayaPerPixelWorldNormal(uv,normal,binormal,tangent);
-	#endif
+
+	normal = v_Normal;
+	normalWorld = LayaPerPixelWorldNormal(uv,normal,binormal,tangent);
+
 	eyeVec = normalize(v_EyeVec);
 	posworld = v_PositionWorld;
 	 //unity在这儿还做了Alpha预乘

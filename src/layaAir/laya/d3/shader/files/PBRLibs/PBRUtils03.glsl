@@ -11,24 +11,18 @@ vec3 LayaEmission(vec2 uv)
 	#endif
 }
 
-
-
-//FSSet
-float LayaAlpha(vec2 uv)
+mediump float alpha(vec2 uv)
 {
-	//这个宏是自己控制的
-	#if defined(SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA)
+	#ifdef SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA
 		return u_AlbedoColor.a;
 	#else
-		#if defined(ALBEDOTEXTURE)
+		#ifdef ALBEDOTEXTURE
 			return texture2D(u_AlbedoTexture, uv).a * u_AlbedoColor.a;
 		#else
 			return u_AlbedoColor.a;
 		#endif
 	#endif
 }
-
-
 
 float LayaLerpOneTo(float b, float t)
 {
@@ -39,12 +33,8 @@ float LayaLerpOneTo(float b, float t)
 float LayaOcclusion(vec2 uv)
 {
 	#ifdef OCCLUSIONTEXTURE
-		#ifdef LOWPLAT
-			return texture2D(u_OcclusionTexture, uv).g;
-		#else
-			float occ = texture2D(u_OcclusionTexture, uv).g;
-			return LayaLerpOneTo(occ, u_occlusionStrength);
-		#endif
+		float occ = texture2D(u_OcclusionTexture, uv).g;
+		return LayaLerpOneTo(occ, u_occlusionStrength);
 	#else
 		return 1.0;
 	#endif

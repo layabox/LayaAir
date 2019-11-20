@@ -94,7 +94,13 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	static CLUSTERBUFFER: number = Shader3D.propertyNameToID("u_LightClusterBuffer");
 	static SUNLIGHTDIRECTION: number = Shader3D.propertyNameToID("u_SunLight.direction");
 	static SUNLIGHTDIRCOLOR: number = Shader3D.propertyNameToID("u_SunLight.color");
-	static AMBIENTPROBE: number = Shader3D.propertyNameToID("u_AmbientProbe");
+	static AMBIENTSHAR: number = Shader3D.propertyNameToID("u_AmbientSHAr");
+	static AMBIENTSHAG: number = Shader3D.propertyNameToID("u_AmbientSHAg");
+	static AMBIENTSHAB: number = Shader3D.propertyNameToID("u_AmbientSHAb");
+	static AMBIENTSHBR: number = Shader3D.propertyNameToID("u_AmbientSHBr");
+	static AMBIENTSHBG: number = Shader3D.propertyNameToID("u_AmbientSHBg");
+	static AMBIENTSHBB: number = Shader3D.propertyNameToID("u_AmbientSHBb");
+	static AMBIENTSHC: number = Shader3D.propertyNameToID("u_AmbientSHC");
 	static REFLECTIONPROBE: number = Shader3D.propertyNameToID("u_ReflectionProbe");
 
 	//------------------legacy lighting-------------------------------
@@ -197,6 +203,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	private _timer: Timer = ILaya.timer;
 	/** @internal */
 	private _time: number = 0;
+	/** @internal */
+	private _shCoefficients: Vector4[] = new Array(7);
 
 	/** @internal */
 	_octree: BoundsOctree;
@@ -405,6 +413,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this.fogColor = new Vector3(0.7, 0.7, 0.7);
 		this.ambientColor = new Vector3(0.212, 0.227, 0.259);
 		this.reflectionIntensity = 1.0;
+		for (var i: number = 0; i < 7; i++)
+			this._shCoefficients[i] = new Vector4();
 		(Config3D._config._multiLighting) || (this._shaderValues.addDefine(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING));
 
 		if (Render.supportWebGLPlusCulling) {//[NATIVE]
@@ -419,12 +429,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this._scene = this;
 		this._input.__init__(Render.canvas, this);
 
-
-
-
-		if (Scene3D.octreeCulling) {
+		if (Scene3D.octreeCulling)
 			this._octree = new BoundsOctree(Scene3D.octreeInitialSize, Scene3D.octreeInitialCenter, Scene3D.octreeMinNodeSize, Scene3D.octreeLooseness);
-		}
 
 		if (FrustumCulling.debugFrustumCulling) {
 			this._debugTool = new PixelLineSprite3D();
@@ -774,8 +780,28 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT);
 			}
 		}
-		var ambientProbe: SphericalHarmonicsL2 = this.ambientProbe || SphericalHarmonicsL2._default;
-		//TODO:
+
+		//ambientProbe
+		var originalSH: SphericalHarmonicsL2 = this.ambientProbe || SphericalHarmonicsL2._default;
+		var optSH: Vector4[] = this._shCoefficients;
+
+		for (var i = 0; i < 3; i++) {
+			var shaderSHA: Vector4 = optSH[i];
+			var shaderSHB: Vector4 = optSH[i + 3];
+			shaderSHA.setValue(originalSH.getCoefficient(i, 3), originalSH.getCoefficient(i, 1), originalSH.getCoefficient(i, 2), (originalSH.getCoefficient(i, 0) - originalSH.getCoefficient(i, 6)));
+			shaderSHB.setValue(originalSH.getCoefficient(i, 4), originalSH.getCoefficient(i, 5), originalSH.getCoefficient(i, 6) * 3, originalSH.getCoefficient(i, 7));// Quadratic polynomials 
+		}
+		optSH[6].setValue(originalSH.getCoefficient(0, 8), originalSH.getCoefficient(1, 8), originalSH.getCoefficient(2, 8), 1);// Final quadratic polynomial 
+
+		shaderValues.setVector(Scene3D.AMBIENTSHAR, optSH[0]);
+		shaderValues.setVector(Scene3D.AMBIENTSHAG, optSH[1]);
+		shaderValues.setVector(Scene3D.AMBIENTSHAB, optSH[2]);
+		shaderValues.setVector(Scene3D.AMBIENTSHBR, optSH[3]);
+		shaderValues.setVector(Scene3D.AMBIENTSHBG, optSH[4]);
+		shaderValues.setVector(Scene3D.AMBIENTSHBB, optSH[5]);
+		shaderValues.setVector(Scene3D.AMBIENTSHC, optSH[6]);
+
+		//refelectionProbe
 		shaderValues.setTexture(Scene3D.REFLECTIONTEXTURE, this.reflectionProbe || TextureCube.blackTexture);
 	}
 
