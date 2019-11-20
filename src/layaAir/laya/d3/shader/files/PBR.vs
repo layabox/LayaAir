@@ -57,6 +57,26 @@ varying float v_posViewZ;
 	uniform vec4 u_TilingOffset;
 #endif
 
+vec4 transformLightMapUV(in vec4 texcoord0,in vec4 texcoord1,in vec4 lightmapScaleOffset)
+{
+	vec4 lightMapUV;
+	#ifdef SCALEOFFSETLIGHTINGMAPUV
+		#ifdef UV1
+			lightMapUV=vec2(texcoord1.x,1.0-texcoord1.y)*lightmapScaleOffset.xy+lightmapScaleOffset.zw;
+		#else
+			lightMapUV=vec2(texcoord0.x,1.0-texcoord0.y)*lightmapScaleOffset.xy+lightmapScaleOffset.zw;
+		#endif 
+		lightMapUV.y=1.0-lightMapUV.y;
+	#else
+		#ifdef UV1
+			lightMapUV=texcoord1;
+		#else
+			lightMapUV=texcoord0;
+		#endif 
+	#endif
+	return lightMapUV; 
+}
+
 void main_castShadow()
 {
 	vec4 position;
@@ -122,20 +142,7 @@ void main_normal()
 	v_EyeVec =u_CameraPos-v_PositionWorld;//will normalize per-pixel
 
 	#ifdef LIGHTMAP
-		#ifdef SCALEOFFSETLIGHTINGMAPUV
-			#ifdef UV1
-				v_LightMapUV=vec2(a_Texcoord1.x,1.0-a_Texcoord1.y)*u_LightmapScaleOffset.xy+u_LightmapScaleOffset.zw;
-			#else
-				v_LightMapUV=vec2(a_Texcoord0.x,1.0-a_Texcoord0.y)*u_LightmapScaleOffset.xy+u_LightmapScaleOffset.zw;
-			#endif 
-			v_LightMapUV.y=1.0-v_LightMapUV.y;
-		#else
-			#ifdef UV1
-				v_LightMapUV=a_Texcoord1;
-			#else
-				v_LightMapUV=a_Texcoord0;
-			#endif 
-		#endif 
+		v_LightMapUV=transformLightMapUV(a_Texcoord0,a_Texcoord1,u_LightmapScaleOffset);
 	#endif
 
 	#if (defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))||(defined(NORMALMAP)||defined(PARALLAXMAP))||(defined(INDIRECTLIGHT)&&defined(LOWPLAT))
