@@ -83,22 +83,6 @@ export class PBRMaterial extends Material {
 	/** @internal */
 	static EMISSIONCOLOR: number = Shader3D.propertyNameToID("u_EmissionColor");
 
-	//minerGI
-	/** @internal */
-	static SHAR: number = Shader3D.propertyNameToID("u_SHAr");
-	/** @internal */
-	static SHAG: number = Shader3D.propertyNameToID("u_SHAg");
-	/** @internal */
-	static SHAB: number = Shader3D.propertyNameToID("u_SHAb");
-	/** @internal */
-	static SHBR: number = Shader3D.propertyNameToID("u_SHBr");
-	/** @internal */
-	static SHBG: number = Shader3D.propertyNameToID("u_SHBg");
-	/** @internal */
-	static SHBB: number = Shader3D.propertyNameToID("u_SHBb");
-	/** @internal */
-	static REFLECTIONMAP: number = Shader3D.propertyNameToID("u_ReflectionMap");
-
 	/** @internal */
 	static SMOOTHNESSSOURCE: number = -1;//TODO:
 	/** @internal */
@@ -199,15 +183,14 @@ export class PBRMaterial extends Material {
 			'u_LightClusterBuffer': Shader3D.PERIOD_SCENE,
 
 			//PBRGI
-			//minerGI
-			'u_SHAr': Shader3D.PERIOD_MATERIAL,
-			'u_SHAg': Shader3D.PERIOD_MATERIAL,
-			'u_SHAb': Shader3D.PERIOD_MATERIAL,
-			'u_SHBr': Shader3D.PERIOD_MATERIAL,
-			'u_SHBg': Shader3D.PERIOD_MATERIAL,
-			'u_SHBb': Shader3D.PERIOD_MATERIAL,
-			'u_SHC': Shader3D.PERIOD_MATERIAL,
-			'u_ReflectionMap': Shader3D.PERIOD_MATERIAL,
+			'u_AmbientSHAr': Shader3D.PERIOD_SCENE,
+			'u_AmbientSHAg': Shader3D.PERIOD_SCENE,
+			'u_AmbientSHAb': Shader3D.PERIOD_SCENE,
+			'u_AmbientSHBr': Shader3D.PERIOD_SCENE,
+			'u_AmbientSHBg': Shader3D.PERIOD_SCENE,
+			'u_AmbientSHBb': Shader3D.PERIOD_SCENE,
+			'u_AmbientSHC': Shader3D.PERIOD_SCENE,
+			'u_ReflectionProbe': Shader3D.PERIOD_SCENE,
 
 			//legacy lighting
 			'u_DirectionLight.direction': Shader3D.PERIOD_SCENE,
@@ -611,25 +594,6 @@ export class PBRMaterial extends Material {
 	set depthTest(value: number) {
 		this._shaderValues.setInt(PBRMaterial.DEPTH_TEST, value);
 	}
-
-
-	//minerGI
-	//TODO:临时，方法首字母必须小写
-	SetGIDiffuse(Ar: Vector4, Ag: Vector4, Ab: Vector4, Br: Vector4, Bg: Vector4, Bb: Vector4, C: Vector4) {
-		this._shaderValues.setVector(PBRMaterial.SHAR, Ar);
-		this._shaderValues.setVector(PBRMaterial.SHAG, Ag);
-		this._shaderValues.setVector(PBRMaterial.SHAB, Ab);
-		this._shaderValues.setVector(PBRMaterial.SHBR, Br);
-		this._shaderValues.setVector(PBRMaterial.SHBG, Bg);
-		this._shaderValues.setVector(PBRMaterial.SHBB, Bb);
-	}
-
-	SetGISpecular(GISpecular: TextureCube) {
-		this._shaderValues.setTexture(PBRMaterial.REFLECTIONMAP, GISpecular);
-	}
-
-
-
 	/**
 	 * 创建一个 <code>PBRStandardMaterial02</code> 实例。
 	 */
