@@ -57,9 +57,9 @@ varying float v_posViewZ;
 	uniform vec4 u_TilingOffset;
 #endif
 
-vec4 transformLightMapUV(in vec4 texcoord0,in vec4 texcoord1,in vec4 lightmapScaleOffset)
+vec2 transformLightMapUV(in vec2 texcoord0,in vec2 texcoord1,in vec4 lightmapScaleOffset)
 {
-	vec4 lightMapUV;
+	vec2 lightMapUV;
 	#ifdef UV1
 		lightMapUV=vec2(texcoord1.x,1.0-texcoord1.y)*lightmapScaleOffset.xy+lightmapScaleOffset.zw;
 	#else

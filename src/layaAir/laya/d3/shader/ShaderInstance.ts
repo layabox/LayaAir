@@ -93,6 +93,7 @@ export class ShaderInstance extends Resource {
 	private _create(): void {
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		this._program = gl.createProgram();
+		console.log(this._vs);
 		this._vshader = this._createShader(gl, this._vs, gl.VERTEX_SHADER);
 		this._pshader = this._createShader(gl, this._ps, gl.FRAGMENT_SHADER);
 		gl.attachShader(this._program, this._vshader);

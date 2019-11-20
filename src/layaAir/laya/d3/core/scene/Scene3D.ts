@@ -204,7 +204,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal */
 	private _time: number = 0;
 	/** @internal */
-	private _shCoefficients: Vector4[] = new Vector4[7];
+	private _shCoefficients: Vector4[] = new Array(7);
 
 	/** @internal */
 	_octree: BoundsOctree;
@@ -413,7 +413,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this.fogColor = new Vector3(0.7, 0.7, 0.7);
 		this.ambientColor = new Vector3(0.212, 0.227, 0.259);
 		this.reflectionIntensity = 1.0;
-		for (var i: number; i < 7; i++)
+		for (var i: number = 0; i < 7; i++)
 			this._shCoefficients[i] = new Vector4();
 		(Config3D._config._multiLighting) || (this._shaderValues.addDefine(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING));
 
