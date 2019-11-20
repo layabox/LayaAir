@@ -21,7 +21,7 @@ import BRDFGLSL02 from "./files/PBRLibs/BRDF02.glsl";
 import PBRSpecularLightingGLSL from "./files/PBRLibs/PBRSpecularLighting.glsl";
 import PBRStandardLightingGLSL from "./files/PBRLibs/PBRStandardLighting.glsl";
 import PBRUtilsGLSL from "./files/PBRLibs/PBRUtils.glsl";
-import PBRUtilsGLSL03 from "./files/PBRLibs/PBRUtils03.glsl";
+import PBRInput from "./files/PBRLibs/PBRInput.glsl";
 import PBRSpecularPS from "./files/PBRSpecular.fs";
 import PBRSpecularVS from "./files/PBRSpecular.vs";
 import PBRStandardPS from "./files/PBRStandard.fs";
@@ -81,7 +81,7 @@ export class ShaderInit3D {
 		Shader3D.addInclude("Colors.glsl", ColorsGLSL);
 		Shader3D.addInclude("Sampling.glsl", SamplingGLSL);
 		Shader3D.addInclude("StdLib.glsl", StdLibGLSL);
-		Shader3D.addInclude("PBRUtils03.glsl",PBRUtilsGLSL03);
+		Shader3D.addInclude("PBRInput.glsl",PBRInput);
 		Shader3D.addInclude("BRDF02.glsl",BRDFGLSL02);
 
 		//BLINNPHONG

@@ -51,6 +51,8 @@ export class PBRMaterial extends Material {
 	static SHADERDEFINE_TILINGOFFSET: ShaderDefine;
 	/** @internal */
 	static SHADERDEFINE_ALPHAPREMULTIPLY: ShaderDefine;
+	/** @internal */
+	static SHADERDEFINE_INDIRECTLIGHT: ShaderDefine;
 
 	/** @internal */
 	static ALBEDOTEXTURE: number = Shader3D.propertyNameToID("u_AlbedoTexture");
@@ -121,6 +123,7 @@ export class PBRMaterial extends Material {
 		PBRMaterial.SHADERDEFINE_REFLECTMAP = Shader3D.getDefineByName("REFLECTMAP");
 		PBRMaterial.SHADERDEFINE_TILINGOFFSET = Shader3D.getDefineByName("TILINGOFFSET");
 		PBRMaterial.SHADERDEFINE_ALPHAPREMULTIPLY = Shader3D.getDefineByName("ALPHAPREMULTIPLY");
+		PBRMaterial.SHADERDEFINE_INDIRECTLIGHT = Shader3D.getDefineByName("INDIRECTLIGHT");
 	}
 
 	/**

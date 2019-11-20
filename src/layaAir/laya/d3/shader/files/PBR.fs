@@ -8,93 +8,7 @@
 
 #include "Lighting.glsl";
 #include "BRDF02.glsl";
-//环境光，没有GI的时候才会起作用
-uniform vec3 u_AmbientColor;
-
-//alphaTest
-#ifdef ALPHATEST
-	uniform float u_AlphaTestValue;
-#endif
-
-uniform vec4 u_AlbedoColor;
-
-#ifdef NORMALTEXTURE
-	uniform sampler2D u_NormalTexture;
-#endif
-//漫反射贴图
-#ifdef ALBEDOTEXTURE
-	uniform sampler2D u_AlbedoTexture;
-#endif
-
-#ifdef METALLICGLOSSTEXTURE
-	uniform sampler2D u_MetallicGlossTexture;
-#endif
-
-uniform float u_smoothness;
-uniform float u_smoothnessScale;
-
-uniform float u_metallic;
-
-#ifdef PARALLAXTEXTURE
-	uniform sampler2D u_ParallaxTexture;
-#endif
-
-#ifdef OCCLUSIONTEXTURE
-	uniform sampler2D u_OcclusionTexture;
-	uniform float u_occlusionStrength;
-#endif
-
-#ifdef EMISSIONTEXTURE
-	uniform sampler2D u_EmissionTexture;
-#endif
-uniform vec4 u_EmissionColor;
-
-
-#if defined(DIFFUSEMAP)||defined(METALLICGLOSSTEXTURE)||defined(NORMALTEXTURE)||defined(EMISSIONTEXTURE)||defined(OCCLUSIONTEXTURE)||defined(PARALLAXTEXTURE)
-	varying vec2 v_Texcoord0;
-#endif
-
-#ifdef LIGHTMAP
-	varying vec2 v_LightMapUV;
-	uniform sampler2D u_LightMap;
-#endif
-
-#if defined(REFLECTIONMAP)
-	uniform samplerCube u_ReflectTexture;
-#endif
-
-varying vec3 v_Normal; 
-
-#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
-	#ifdef LEGACYSINGLELIGHTING
-		#ifdef DIRECTIONLIGHT
-			uniform DirectionLight u_DirectionLight;
-		#endif
-		#ifdef POINTLIGHT
-			uniform PointLight u_PointLight;
-		#endif
-		#ifdef SPOTLIGHT
-			uniform SpotLight u_SpotLight;
-		#endif
-	#else
-		uniform mat4 u_View;
-		uniform vec4 u_ProjectionParams;
-		uniform vec4 u_Viewport;
-		uniform int u_DirationLightCount;
-		uniform sampler2D u_LightBuffer;
-		uniform sampler2D u_LightClusterBuffer;
-	#endif
-#endif
-//后面考虑宏TODO
-varying vec3 v_EyeVec;
-
-#if defined(NORMALMAP)||defined(PARALLAXMAP)
-	varying vec3 v_Tangent;
-	varying vec3 v_Binormal;
-#endif
-
-//后面考虑宏TODO
-varying vec3 v_PositionWorld;
+#include "PBRInput.glsl";
 
 
 #include "ShadowHelper.glsl"
@@ -120,7 +34,7 @@ void main_castShadow()
 	#endif
 }
 
-#include "PBRUtils03.glsl";
+
 
 void main_normal()
 {
@@ -140,7 +54,7 @@ void main_normal()
 	LayaFragmentCommonData o;
 	
 	 //分流派TODO
-	 o = LayaMetallicSetup(uv);
+	 o = metallicSetup(uv);
 	
 	#if defined(NORMALMAP)||defined(PARALLAXMAP)
 		tangent = v_Tangent;
@@ -148,17 +62,17 @@ void main_normal()
 	#endif
 
 	normal = v_Normal;
-	normalWorld = LayaPerPixelWorldNormal(uv,normal,binormal,tangent);
+	normalWorld = perPixelWorldNormal(uv,normal,binormal,tangent);
 
 	eyeVec = normalize(v_EyeVec);
 	posworld = v_PositionWorld;
 	 //unity在这儿还做了Alpha预乘
 	 //LayaPreMultiplyAlpha
 	//阴影TODO
-	float occlusion = LayaOcclusion(uv);
+	float occlusion = occlusion(uv);
 	//GI间接光
 	vec4 color = vec4(0.0);
-	LayaGI gi =LayaFragmentGI(o,eyeVec,occlusion,normalWorld);
+	LayaGI gi =fragmentGI(o,eyeVec,occlusion,normalWorld);
 	color = BRDF1_Laya_PBS_GI(o.diffColor,o.specColor,o.oneMinusReflectivity,o.smoothness,normalWorld,eyeVec,gi);
 	//下一步计算直接光
 	
@@ -226,7 +140,7 @@ void main_normal()
 		#endif
 	 #endif
 
-	color.rgb += LayaEmission(uv);
+	color.rgb += emission(uv);
 	gl_FragColor = vec4(color.rgb,alpha);
 	#ifdef FOG
 		float lerpFact=clamp((1.0/gl_FragCoord.w-u_FogStart)/u_FogRange,0.0,1.0);
