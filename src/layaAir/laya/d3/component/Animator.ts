@@ -526,34 +526,50 @@ export class Animator extends Component {
 				case 1: //Position
 					var localPos: Vector3 = pro.localPosition;
 					var position: Vector3 = Animator._tempVector30;
-					var srcX: number = srcValue.x, srcY: number = srcValue.y, srcZ: number = srcValue.z;
-					position.x = srcX + crossWeight * (desValue.x - srcX);
-					position.y = srcY + crossWeight * (desValue.y - srcY);
-					position.z = srcZ + crossWeight * (desValue.z - srcZ);
+					if (additive) {	// saveCrossFixedValue保存的是具体的pose，即这里的srcValue，但对additive来说，desValue是当帧与第一帧的deltaValue，两者不能lerp！
+						desValue.cloneTo(position);
+					} else {
+						var srcX: number = srcValue.x, srcY: number = srcValue.y, srcZ: number = srcValue.z;
+						position.x = srcX + crossWeight * (desValue.x - srcX);
+						position.y = srcY + crossWeight * (desValue.y - srcY);
+						position.z = srcZ + crossWeight * (desValue.z - srcZ);
+					}
 					this._applyPositionAndRotationEuler(nodeOwner, additive, weight, isFirstLayer, position, localPos);
 					pro.localPosition = localPos;
 					break;
 				case 2: //Rotation
 					var localRot: Quaternion = pro.localRotation;
 					var rotation: Quaternion = Animator._tempQuaternion0;
-					Quaternion.lerp(srcValue, desValue, crossWeight, rotation);
+					if (additive) {
+						desValue.cloneTo(rotation);
+					} else {
+						Quaternion.lerp(srcValue, desValue, crossWeight, rotation);
+					}
 					this._applyRotation(nodeOwner, additive, weight, isFirstLayer, rotation, localRot);
 					pro.localRotation = localRot;
 					break;
 				case 3: //Scale
 					var localSca: Vector3 = pro.localScale;
 					var scale: Vector3 = Animator._tempVector30;
-					Utils3D.scaleBlend(srcValue, desValue, crossWeight, scale);
+					if (additive) {
+						desValue.cloneTo(scale);
+					} else {
+						Utils3D.scaleBlend(srcValue, desValue, crossWeight, scale);
+					}
 					this._applyScale(nodeOwner, additive, weight, isFirstLayer, scale, localSca);
 					pro.localScale = localSca;
 					break;
 				case 4: //RotationEuler
 					var localEuler: Vector3 = pro.localRotationEuler;
 					var rotationEuler: Vector3 = Animator._tempVector30;
-					srcX = srcValue.x, srcY = srcValue.y, srcZ = srcValue.z;
-					rotationEuler.x = srcX + crossWeight * (desValue.x - srcX);
-					rotationEuler.y = srcY + crossWeight * (desValue.y - srcY);
-					rotationEuler.z = srcZ + crossWeight * (desValue.z - srcZ);
+					if (additive) {
+						desValue.cloneTo(rotationEuler);
+					} else {
+						srcX = srcValue.x, srcY = srcValue.y, srcZ = srcValue.z;
+						rotationEuler.x = srcX + crossWeight * (desValue.x - srcX);
+						rotationEuler.y = srcY + crossWeight * (desValue.y - srcY);
+						rotationEuler.z = srcZ + crossWeight * (desValue.z - srcZ);
+					}
 					this._applyPositionAndRotationEuler(nodeOwner, additive, weight, isFirstLayer, rotationEuler, localEuler);
 					pro.localRotationEuler = localEuler;
 					break;
