@@ -51,6 +51,8 @@ export class PBRMaterial extends Material {
 	static SHADERDEFINE_TILINGOFFSET: ShaderDefine;
 	/** @internal */
 	static SHADERDEFINE_ALPHAPREMULTIPLY: ShaderDefine;
+	/** @internal */
+	static SHADERDEFINE_INDIRECTLIGHT: ShaderDefine;
 
 	/** @internal */
 	static ALBEDOTEXTURE: number = Shader3D.propertyNameToID("u_AlbedoTexture");
@@ -97,6 +99,8 @@ export class PBRMaterial extends Material {
 	/** @internal */
 	static SHBB: number = Shader3D.propertyNameToID("u_SHBb");
 	/** @internal */
+	static SHC: number = Shader3D.propertyNameToID("u_SHC");
+	/** @internal */
 	static REFLECTIONMAP: number = Shader3D.propertyNameToID("u_ReflectionMap");
 
 	/** @internal */
@@ -137,6 +141,7 @@ export class PBRMaterial extends Material {
 		PBRMaterial.SHADERDEFINE_REFLECTMAP = Shader3D.getDefineByName("REFLECTMAP");
 		PBRMaterial.SHADERDEFINE_TILINGOFFSET = Shader3D.getDefineByName("TILINGOFFSET");
 		PBRMaterial.SHADERDEFINE_ALPHAPREMULTIPLY = Shader3D.getDefineByName("ALPHAPREMULTIPLY");
+		PBRMaterial.SHADERDEFINE_INDIRECTLIGHT = Shader3D.getDefineByName("INDIRECTLIGHT");
 	}
 
 	/**
@@ -616,12 +621,14 @@ export class PBRMaterial extends Material {
 	//minerGI
 	//TODO:临时，方法首字母必须小写
 	SetGIDiffuse(Ar: Vector4, Ag: Vector4, Ab: Vector4, Br: Vector4, Bg: Vector4, Bb: Vector4, C: Vector4) {
+		this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_INDIRECTLIGHT);
 		this._shaderValues.setVector(PBRMaterial.SHAR, Ar);
 		this._shaderValues.setVector(PBRMaterial.SHAG, Ag);
 		this._shaderValues.setVector(PBRMaterial.SHAB, Ab);
 		this._shaderValues.setVector(PBRMaterial.SHBR, Br);
 		this._shaderValues.setVector(PBRMaterial.SHBG, Bg);
 		this._shaderValues.setVector(PBRMaterial.SHBB, Bb);
+		this._shaderValues.setVector(PBRMaterial.SHC,C);
 	}
 
 	SetGISpecular(GISpecular: TextureCube) {

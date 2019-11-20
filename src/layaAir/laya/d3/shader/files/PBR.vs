@@ -17,7 +17,7 @@ attribute vec4 a_Position;
 	uniform mat4 u_Bones[c_MaxBoneCount];
 #endif
 
-#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
+#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(INDIRECTLIGHT)
 	attribute vec3 a_Normal;
 	varying vec3 v_Normal; 
 	#if defined(NORMALMAP)||defined(PARALLAXMAP)
@@ -57,9 +57,9 @@ varying float v_posViewZ;
 	uniform vec4 u_TilingOffset;
 #endif
 
-vec4 transformLightMapUV(in vec4 texcoord0,in vec4 texcoord1,in vec4 lightmapScaleOffset)
+vec2 transformLightMapUV(in vec2 texcoord0,in vec2 texcoord1,in vec4 lightmapScaleOffset)
 {
-	vec4 lightMapUV;
+	vec2 lightMapUV;
 	#ifdef UV1
 		lightMapUV=vec2(texcoord1.x,1.0-texcoord1.y)*lightmapScaleOffset.xy+lightmapScaleOffset.zw;
 	#else
@@ -137,7 +137,7 @@ void main_normal()
 		v_LightMapUV=transformLightMapUV(a_Texcoord0,a_Texcoord1,u_LightmapScaleOffset);
 	#endif
 
-	#if (defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))||(defined(NORMALMAP)||defined(PARALLAXMAP))||(defined(INDIRECTLIGHT)&&defined(LOWPLAT))
+	#if (defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))||(defined(NORMALMAP)||defined(PARALLAXMAP))||(defined(INDIRECTLIGHT)&&defined(LOWPLAT))||defined(INDIRECTLIGHT)
 		mat3 worldInvMat;
 		#ifdef BONE
 			worldInvMat=inverse(mat3(worldMat*skinTransform));

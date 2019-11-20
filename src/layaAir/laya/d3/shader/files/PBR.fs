@@ -63,7 +63,7 @@ uniform vec4 u_EmissionColor;
 	uniform samplerCube u_ReflectTexture;
 #endif
 
-#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(NORMALMAP)||defined(PARALLAXMAP)
+#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(NORMALMAP)||defined(PARALLAXMAP)||defined(INDIRECTLIGHT)
 	varying vec3 v_Normal; 
 #endif
 #if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
@@ -144,7 +144,7 @@ void main_normal()
 		tangent = v_Tangent;
 		binormal = v_Binormal;
 	#endif
-	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(NORMALMAP)||defined(PARALLAXMAP)
+	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(NORMALMAP)||defined(PARALLAXMAP)||defined(INDIRECTLIGHT)
 		normal = v_Normal;	
 		normalWorld = LayaPerPixelWorldNormal(uv,normal,binormal,tangent);
 	#endif

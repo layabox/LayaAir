@@ -1,6 +1,6 @@
 
 
-vec4 DielectricSpecularColor = vec4(0.220916301, 0.220916301, 0.220916301, 1.0 - 0.220916301);
+const vec4 DielectricSpecularColor = vec4(0.220916301, 0.220916301, 0.220916301, 1.0 - 0.220916301);
 //FS
 vec3 LayaEmission(vec2 uv)
 {
@@ -156,6 +156,13 @@ vec3 LinearToGammaSpace (vec3 linRGB)
 //GI
 #ifdef INDIRECTLIGHT
 
+uniform vec4 u_SHAr;
+uniform vec4 u_SHAg;
+uniform vec4 u_SHAb;
+uniform vec4 u_SHBr;
+uniform vec4 u_SHBg;
+uniform vec4 u_SHBb;
+uniform vec4 u_SHC;
 
 vec3 LayaSHEvalLinearL0L1(vec4 normal)
 {
@@ -186,19 +193,6 @@ vec3 LayaSHEvalLinearL2(vec4 normal)
 	return x1 + x2;
 }
 
-half3 LayaShadeSH9(half4 normal)
-{
-	// Linear + constant polynomial terms
-	//线性+常量多项式项
-	half3 res = LayaSHEvalLinearL0L1(normal);
-
-	// Quadratic polynomials
-	res += LayaSHEvalLinearL2(normal);
-
-	//需要转换到Gamma空间
-	res = LinearToGammaSpace(res);
-	return res;
-}
 #endif
 //LayaFragmentGI
 //感知光滑转换到感知粗糙
@@ -206,11 +200,11 @@ half3 LayaShadeSH9(half4 normal)
 
 vec3 LayaShadeSHPerPixel(vec3 normal, vec3 ambient)
 {
-	
+	vec3 nenormal = vec3(-normal.x,normal.y,normal.z);
 	#ifdef INDIRECTLIGHT
-		ambient = LayaSHEvalLinearL0L1(vec4(normal, 1.0));
+		ambient = LayaSHEvalLinearL0L1(vec4(nenormal, 1.0));
 		//得到完整球谐函数
-		ambient += LayaSHEvalLinearL2(vec4(normal, 1.0));
+		ambient += LayaSHEvalLinearL2(vec4(nenormal, 1.0));
 
 		ambient += max(vec3(0, 0, 0), ambient);
 	#endif
