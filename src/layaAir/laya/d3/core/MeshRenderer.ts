@@ -27,8 +27,6 @@ export class MeshRenderer extends BaseRender {
 	/** @internal */
 	protected _revertStaticBatchDefineUV1: boolean = false;
 	/** @internal */
-	protected _revertStaticBatchDefineLightMapUV: boolean = false;
-	/** @internal */
 	protected _projectionViewWorldMatrix: Matrix4x4;
 
 	/**
@@ -129,13 +127,6 @@ export class MeshRenderer extends BaseRender {
 				else {
 					this._revertStaticBatchDefineUV1 = false;
 				}
-				if (this._shaderValues.hasDefine(RenderableSprite3D.SHADERDEFINE_SCALEOFFSETLIGHTINGMAPUV)) {
-					this._shaderValues.removeDefine(RenderableSprite3D.SHADERDEFINE_SCALEOFFSETLIGHTINGMAPUV);
-					this._revertStaticBatchDefineLightMapUV = true;
-				}
-				else {
-					this._revertStaticBatchDefineLightMapUV = false;
-				}
 				break;
 			case RenderElement.RENDERTYPE_VERTEXBATCH:
 				this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, Matrix4x4.DEFAULT);
@@ -195,9 +186,6 @@ export class MeshRenderer extends BaseRender {
 			case RenderElement.RENDERTYPE_STATICBATCH:
 				if (this._revertStaticBatchDefineUV1)
 					this._shaderValues.removeDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1);
-
-				if (this._revertStaticBatchDefineLightMapUV)
-					this._shaderValues.addDefine(RenderableSprite3D.SHADERDEFINE_SCALEOFFSETLIGHTINGMAPUV);
 				break;
 			case RenderElement.RENDERTYPE_INSTANCEBATCH:
 				this._shaderValues.removeDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);

@@ -14,8 +14,6 @@ import { ShaderDefine } from "../shader/ShaderDefine";
 export class RenderableSprite3D extends Sprite3D {
 	/**精灵级着色器宏定义,接收阴影。*/
 	static SHADERDEFINE_RECEIVE_SHADOW: ShaderDefine;
-	/**精灵级着色器宏定义,光照贴图便宜和缩放。*/
-	static SHADERDEFINE_SCALEOFFSETLIGHTINGMAPUV: ShaderDefine;
 	/**精灵级着色器宏定义,光照贴图。*/
 	static SAHDERDEFINE_LIGHTMAP: ShaderDefine;
 
@@ -34,7 +32,6 @@ export class RenderableSprite3D extends Sprite3D {
 	 */
 	static __init__(): void {
 		RenderableSprite3D.SHADERDEFINE_RECEIVE_SHADOW = Shader3D.getDefineByName("RECEIVESHADOW");
-		RenderableSprite3D.SHADERDEFINE_SCALEOFFSETLIGHTINGMAPUV = Shader3D.getDefineByName("SCALEOFFSETLIGHTINGMAPUV");
 		RenderableSprite3D.SAHDERDEFINE_LIGHTMAP = Shader3D.getDefineByName("LIGHTMAP");
 	}
 

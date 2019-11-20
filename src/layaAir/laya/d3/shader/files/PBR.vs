@@ -60,20 +60,12 @@ varying float v_posViewZ;
 vec4 transformLightMapUV(in vec4 texcoord0,in vec4 texcoord1,in vec4 lightmapScaleOffset)
 {
 	vec4 lightMapUV;
-	#ifdef SCALEOFFSETLIGHTINGMAPUV
-		#ifdef UV1
-			lightMapUV=vec2(texcoord1.x,1.0-texcoord1.y)*lightmapScaleOffset.xy+lightmapScaleOffset.zw;
-		#else
-			lightMapUV=vec2(texcoord0.x,1.0-texcoord0.y)*lightmapScaleOffset.xy+lightmapScaleOffset.zw;
-		#endif 
-		lightMapUV.y=1.0-lightMapUV.y;
+	#ifdef UV1
+		lightMapUV=vec2(texcoord1.x,1.0-texcoord1.y)*lightmapScaleOffset.xy+lightmapScaleOffset.zw;
 	#else
-		#ifdef UV1
-			lightMapUV=texcoord1;
-		#else
-			lightMapUV=texcoord0;
-		#endif 
-	#endif
+		lightMapUV=vec2(texcoord0.x,1.0-texcoord0.y)*lightmapScaleOffset.xy+lightmapScaleOffset.zw;
+	#endif 
+	lightMapUV.y=1.0-lightMapUV.y;
 	return lightMapUV; 
 }
 
