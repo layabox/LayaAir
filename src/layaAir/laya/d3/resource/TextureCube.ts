@@ -102,7 +102,7 @@ export class TextureCube extends BaseTexture {
 		this._setAnisotropy(this._anisoLevel);
 
 		if (this._mipmap) {
-			this._mipmapCount = Math.ceil(Math.log2(size));
+			this._mipmapCount = Math.ceil(Math.log2(size)) + 1;
 			for (var i: number = 0; i < this._mipmapCount; i++)
 				this._setPixels([], i, Math.max(size >> i, 1), Math.max(size >> i, 1));//初始化各级mipmap
 			this._setGPUMemory(size * size * 4 * (1 + 1 / 3) * 6);
