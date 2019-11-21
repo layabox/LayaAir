@@ -1,3 +1,5 @@
+import { Vector4 } from "../math/Vector4";
+
 /**
  * 二阶球谐函数。
  */
@@ -14,7 +16,7 @@ export class SphericalHarmonicsL2 {
      * @param j 系数索引，范围0到8。
      */
     getCoefficient(i: number, j: number): number {
-        return this._coefficients[i * 3 + j];
+        return this._coefficients[i * 9 + j];
     }
 
     /**
@@ -23,7 +25,7 @@ export class SphericalHarmonicsL2 {
      * @param j 系数索引，范围0到8。
      */
     setCoefficient(i: number, j: number, coefficient: number): void {
-        this._coefficients[i * 3 + j] = coefficient;
+        this._coefficients[i * 9 + j] = coefficient;
     }
 
     /**
@@ -40,7 +42,7 @@ export class SphericalHarmonicsL2 {
      * @param coefficient8 系数8
      */
     setCoefficients(i: number, coefficient0: number, coefficient1: number, coefficient2: number, coefficient3: number, coefficient4: number, coefficient5: number, coefficient6: number, coefficient7: number, coefficient8: number): void {
-        var offset: number = i * 3;
+        var offset: number = i * 9;
         this._coefficients[offset] = coefficient0;
         this._coefficients[++offset] = coefficient1;
         this._coefficients[++offset] = coefficient2;

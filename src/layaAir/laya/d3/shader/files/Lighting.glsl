@@ -17,26 +17,6 @@ struct SpotLight {
 	float spot;
 };
 
-struct LayaFragmentCommonData{
-	vec3 diffColor;
-	vec3 specColor;
-	float oneMinusReflectivity;
-	float smoothness;
-	vec3 eyeVec;
-	float alpha;
-	vec3 reflUVW;
-};
-struct LayaGI{
-	vec3 diffuse;
-	vec3 specular;
-};
-
-struct LayaLight{
-	vec3 color;
-	vec3 dir;
-};
-
-
 const int c_ClusterBufferWidth = CLUSTER_X_COUNT*CLUSTER_Y_COUNT;
 const int c_ClusterBufferHeight = CLUSTER_Z_COUNT*(1+int(ceil(float(MAX_LIGHT_COUNT_PER_CLUSTER)/4.0)));
 const int c_ClusterBufferFloatWidth = c_ClusterBufferWidth*4;
