@@ -39,7 +39,7 @@ float LayaDisneyDiffuse(float NdotV, float NdotL, float LdotH, float perceptualR
 	return lightScatter * viewScatter;
 }
 //感知粗糙度和感知光滑
-float SmoothnessToPerceptualRoughness(float smoothness)
+float smoothnessToPerceptualRoughness(float smoothness)
 {
     return (1.0 - smoothness);
 }
@@ -98,7 +98,7 @@ LayaLight LayaAirBRDFSpotLight(in vec3 pos,in vec3 normal, in SpotLight light,in
 vec4 BRDF1_Laya_PBS_Light(vec3 diffColor, vec3 specColor, float oneMinusReflectivity, float smoothness,vec3 normal, vec3 viewDir,LayaLight light)
 {
 	//感知粗糙度
-	float perceptualRoughness = SmoothnessToPerceptualRoughness(smoothness);
+	float perceptualRoughness = smoothnessToPerceptualRoughness(smoothness);
 	//H
 	//vec3 halfDir = Laya_SafeNormalize(light.dir + viewDir);
 	vec3 halfDir = SafeNormalize(viewDir-light.dir);
@@ -152,7 +152,7 @@ vec4 BRDF1_Laya_PBS_Light(vec3 diffColor, vec3 specColor, float oneMinusReflecti
 
 vec4 BRDF1_Laya_PBS_GI(vec3 diffColor, vec3 specColor, float oneMinusReflectivity, float smoothness,vec3 normal, vec3 viewDir,LayaGI gi)
 {
-	float perceptualRoughness = SmoothnessToPerceptualRoughness(smoothness);
+	float perceptualRoughness = smoothnessToPerceptualRoughness(smoothness);
 	float roughness = PerceptualRoughnessToRoughness(perceptualRoughness);
 	float nv = abs(dot(normal, viewDir));    // This abs allow to limit artifact 
 	float surfaceReduction;
