@@ -52,7 +52,7 @@ void main_normal()
 			discard;
 	#endif
 
-	LayaFragmentCommonData o;
+	FragmentCommonData o;
 	
 	 //分流派TODO
 	 o = metallicSetup(uv);

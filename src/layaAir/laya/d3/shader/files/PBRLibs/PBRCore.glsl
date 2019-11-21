@@ -1,5 +1,4 @@
-const vec4 dielectricSpecularColor = vec4(0.220916301, 0.220916301, 0.220916301, 1.0 - 0.220916301);
-struct LayaFragmentCommonData{
+struct FragmentCommonData{
 	vec3 diffColor;
 	vec3 specColor;
 	float oneMinusReflectivity;
@@ -8,6 +7,7 @@ struct LayaFragmentCommonData{
 	float alpha;
 	vec3 reflUVW;
 };
+
 struct LayaGI{
 	vec3 diffuse;
 	vec3 specular;
@@ -18,7 +18,7 @@ struct LayaLight{
 	vec3 dir;
 };
 
-
+const vec4 dielectricSpecularColor = vec4(0.220916301, 0.220916301, 0.220916301, 1.0 - 0.220916301);
 
 float lerpOneTo(float b, float t)
 {
@@ -38,10 +38,10 @@ vec3 diffuseAndSpecularFromMetallic(vec3 albedo, float metallic, out vec3 specCo
 }
 
 //Metal flow
-LayaFragmentCommonData metallicSetup(vec2 uv)
+FragmentCommonData metallicSetup(vec2 uv)
 {
 
-	LayaFragmentCommonData o;
+	FragmentCommonData o;
 	vec2 metallicGloss = metallicGloss(uv);
 	float metallic = metallicGloss.x;
 	//这是1减去实际粗糙度m的平方根。

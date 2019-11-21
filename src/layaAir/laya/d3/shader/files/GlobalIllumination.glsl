@@ -132,7 +132,7 @@ LayaGI globalIllumination(float occlusion, vec3 normalWorld,vec4 glossIn)
 
 
 //,,float occlusion,vec3 worldnormal
-LayaGI fragmentGI(LayaFragmentCommonData s,vec3 eyeVec,float occlusion,vec3 worldnormal)
+LayaGI fragmentGI(FragmentCommonData s,vec3 eyeVec,float occlusion,vec3 worldnormal)
 {
 	LayaGI layagi;
 	vec3 worldViewDir = -eyeVec;
