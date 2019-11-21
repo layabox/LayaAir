@@ -7,12 +7,12 @@
 #endif
 
 #include "Lighting.glsl";
-
 #include "PBRInput.glsl";
 #include "PBRCore.glsl";
 #include "GlobalIllumination.glsl";
 #include "BRDF02.glsl";
 #include "ShadowHelper.glsl"
+
 varying float v_posViewZ;
 #ifdef RECEIVESHADOW
 	#if defined(SHADOWMAP_PSSM2)||defined(SHADOWMAP_PSSM3)
@@ -22,6 +22,7 @@ varying float v_posViewZ;
 		varying vec4 v_lightMVPPos;
 	#endif
 #endif
+
 void main_castShadow()
 {
 	//gl_FragColor=vec4(v_posViewZ,0.0,0.0,1.0);
@@ -34,8 +35,6 @@ void main_castShadow()
 		}
 	#endif
 }
-
-
 
 void main_normal()
 {
@@ -54,8 +53,7 @@ void main_normal()
 
 	FragmentCommonData o;
 	
-	 //分流派TODO
-	 o = metallicSetup(uv);
+	o = SETUP_BRDF_INPUT(uv);
 	
 	#if defined(NORMALMAP)||defined(PARALLAXMAP)
 		tangent = v_Tangent;

@@ -20,6 +20,10 @@ struct LayaLight{
 
 const mediump vec4 dielectricSpecularColor = vec4(0.220916301, 0.220916301, 0.220916301, 1.0 - 0.220916301);
 
+#ifndef SETUP_BRDF_INPUT
+    #define SETUP_BRDF_INPUT metallicSetup//default is metallicSetup,also can be other. 
+#endif
+
 float lerpOneTo(float b, float t)
 {
 	float oneMinusT = 1.0 - t;
