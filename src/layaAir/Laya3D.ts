@@ -11,8 +11,6 @@ import { BlinnPhongMaterial } from "./laya/d3/core/material/BlinnPhongMaterial";
 import { EffectMaterial } from "./laya/d3/core/material/EffectMaterial";
 import { ExtendTerrainMaterial } from "./laya/d3/core/material/ExtendTerrainMaterial";
 import { Material } from "./laya/d3/core/material/Material";
-import { PBRSpecularMaterial } from "./laya/d3/core/material/PBRSpecularMaterial";
-import { PBRStandardMaterial } from "./laya/d3/core/material/PBRStandardMaterial";
 import { SkyBoxMaterial } from "./laya/d3/core/material/SkyBoxMaterial";
 import { SkyProceduralMaterial } from "./laya/d3/core/material/SkyProceduralMaterial";
 import { UnlitMaterial } from "./laya/d3/core/material/UnlitMaterial";
@@ -236,8 +234,8 @@ export class Laya3D {
 		Material.__initDefine__();
 		BaseMaterial.__initDefine__();
 		BlinnPhongMaterial.__initDefine__();
-		PBRStandardMaterial.__initDefine__();
-		PBRSpecularMaterial.__initDefine__();
+		// PBRStandardMaterial.__initDefine__();
+		// PBRSpecularMaterial.__initDefine__();
 		SkyProceduralMaterial.__initDefine__();
 		UnlitMaterial.__initDefine__();
 		TrailMaterial.__initDefine__();
@@ -256,8 +254,8 @@ export class Laya3D {
 		ClassUtils.regClass("Laya.UnlitMaterial", UnlitMaterial);
 		ClassUtils.regClass("Laya.BlinnPhongMaterial", BlinnPhongMaterial);
 		ClassUtils.regClass("Laya.SkyProceduralMaterial", SkyProceduralMaterial);
-		ClassUtils.regClass("Laya.PBRStandardMaterial", PBRStandardMaterial);
-		ClassUtils.regClass("Laya.PBRSpecularMaterial", PBRSpecularMaterial);
+		// ClassUtils.regClass("Laya.PBRStandardMaterial", PBRStandardMaterial);
+		// ClassUtils.regClass("Laya.PBRSpecularMaterial", PBRSpecularMaterial);
 		ClassUtils.regClass("Laya.SkyBoxMaterial", SkyBoxMaterial);
 		ClassUtils.regClass("Laya.WaterPrimaryMaterial", WaterPrimaryMaterial);
 		ClassUtils.regClass("Laya.ExtendTerrainMaterial", ExtendTerrainMaterial);
@@ -277,8 +275,8 @@ export class Laya3D {
 		PixelLineMaterial.defaultMaterial = new PixelLineMaterial();
 		BlinnPhongMaterial.defaultMaterial = new BlinnPhongMaterial();
 		EffectMaterial.defaultMaterial = new EffectMaterial();
-		PBRStandardMaterial.defaultMaterial = new PBRStandardMaterial();
-		PBRSpecularMaterial.defaultMaterial = new PBRSpecularMaterial();
+		// PBRStandardMaterial.defaultMaterial = new PBRStandardMaterial();
+		// PBRSpecularMaterial.defaultMaterial = new PBRSpecularMaterial();
 		UnlitMaterial.defaultMaterial = new UnlitMaterial();
 		ShurikenParticleMaterial.defaultMaterial = new ShurikenParticleMaterial();
 		TrailMaterial.defaultMaterial = new TrailMaterial();
@@ -289,8 +287,8 @@ export class Laya3D {
 		PixelLineMaterial.defaultMaterial.lock = true;//todo:
 		BlinnPhongMaterial.defaultMaterial.lock = true;
 		EffectMaterial.defaultMaterial.lock = true;
-		PBRStandardMaterial.defaultMaterial.lock = true;
-		PBRSpecularMaterial.defaultMaterial.lock = true;
+		// PBRStandardMaterial.defaultMaterial.lock = true;
+		// PBRSpecularMaterial.defaultMaterial.lock = true;
 		UnlitMaterial.defaultMaterial.lock = true;
 		ShurikenParticleMaterial.defaultMaterial.lock = true;
 		TrailMaterial.defaultMaterial.lock = true;

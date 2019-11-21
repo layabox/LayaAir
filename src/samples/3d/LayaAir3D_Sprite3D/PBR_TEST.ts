@@ -10,7 +10,6 @@ import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
-import { PBRMaterial } from "laya/d3/core/material/PBRMaterial";
 import { PBRStandardMaterial } from "laya/d3/core/material/PBRStandardMaterial";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
@@ -25,7 +24,7 @@ export class PBR_TEST {
 
 		Scene3D.load("res/threeDimen/LayaScene_boneTest/Conventional/boneTest.ls", Handler.create(this, function (sprite: Scene3D): void {
 			var scene: Scene3D = (<Scene3D>Laya.stage.addChild(sprite));
-			PBRMaterial.__init__();
+			PBRStandardMaterial.__init__();
 			scene.ambientColor = new Vector3(0, 0, 0);
 			scene.getChildAt(0).addComponent(CameraMoveScript);
 			scene.getChildAt(1).active = false;				
@@ -33,7 +32,7 @@ export class PBR_TEST {
 
 			var sphere:MeshSprite3D = new MeshSprite3D(PrimitiveMesh.createSphere(1));
 			scene.addChild(sphere);
-			var PBR02:PBRMaterial = new PBRMaterial();
+			var PBR02:PBRStandardMaterial = new PBRStandardMaterial();
 			PBR02.metallic = 0.0;
 			PBR02.smoothness = 0.0;
 			sphere.meshRenderer.sharedMaterial = PBR02;
