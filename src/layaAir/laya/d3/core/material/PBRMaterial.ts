@@ -226,6 +226,11 @@ export class PBRMaterial extends Material {
 	/** @internal */
 	private _emissionColor: Vector4;
 
+	diffuseDefined():void
+	{
+		this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_INDIRECTLIGHT);
+	}
+	
 	/**
 	 * 漫反射颜色。
 	 */

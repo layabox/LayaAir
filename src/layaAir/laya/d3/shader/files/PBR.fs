@@ -7,10 +7,11 @@
 #endif
 
 #include "Lighting.glsl";
-#include "BRDF02.glsl";
+
 #include "PBRInput.glsl";
-
-
+#include "PBRCore.glsl";
+#include "GlobalIllumination.glsl";
+#include "BRDF02.glsl";
 #include "ShadowHelper.glsl"
 varying float v_posViewZ;
 #ifdef RECEIVESHADOW

@@ -235,7 +235,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** 是否启用灯光。*/
 	enableLight: boolean = true;
 	/** 全局的环境光探头。 */
-	ambientProbe: SphericalHarmonicsL2;
+	ambientProbe: SphericalHarmonicsL2 = new SphericalHarmonicsL2();
 	/**	全局的反射探头。 */
 	reflectionProbe: TextureCube;
 
@@ -792,7 +792,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			shaderSHB.setValue(originalSH.getCoefficient(i, 4), originalSH.getCoefficient(i, 5), originalSH.getCoefficient(i, 6) * 3, originalSH.getCoefficient(i, 7));// Quadratic polynomials 
 		}
 		optSH[6].setValue(originalSH.getCoefficient(0, 8), originalSH.getCoefficient(1, 8), originalSH.getCoefficient(2, 8), 1);// Final quadratic polynomial 
-
 		shaderValues.setVector(Scene3D.AMBIENTSHAR, optSH[0]);
 		shaderValues.setVector(Scene3D.AMBIENTSHAG, optSH[1]);
 		shaderValues.setVector(Scene3D.AMBIENTSHAB, optSH[2]);
