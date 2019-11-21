@@ -3,9 +3,9 @@ struct FragmentCommonData{
 	vec3 specColor;
 	float oneMinusReflectivity;
 	float smoothness;
-	vec3 eyeVec;
-	float alpha;
-	vec3 reflUVW;
+	//vec3 eyeVec;TODO:maybe can remove
+	//float alpha;
+	//vec3 reflUVW;
 };
 
 struct LayaGI{
@@ -30,12 +30,10 @@ float lerpOneTo(float b, float t)
 	return oneMinusT + b * t;
 }
 
-//能量守恒
-vec3 diffuseAndSpecularFromMetallic(mediump vec3 albedo,mediump float metallic, out mediump vec3 specColor, out mediump float oneMinusReflectivity)
+mediump vec3 diffuseAndSpecularFromMetallic(mediump vec3 albedo,mediump float metallic, out mediump vec3 specColor, out mediump float oneMinusReflectivity)
 {
 	specColor = mix(dielectricSpecularColor.rgb, albedo, metallic);
-	//kd  漫反射系数
-	oneMinusReflectivity= dielectricSpecularColor.a-metallic*dielectricSpecularColor.a;
+	oneMinusReflectivity= dielectricSpecularColor.a*(1.0-metallic);//diffuse proportion
 	return albedo * oneMinusReflectivity;
 }
 

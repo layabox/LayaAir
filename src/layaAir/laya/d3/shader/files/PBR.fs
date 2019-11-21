@@ -51,9 +51,7 @@ void main_normal()
 			discard;
 	#endif
 
-	FragmentCommonData o;
-	
-	o = SETUP_BRDF_INPUT(uv);
+	FragmentCommonData o = SETUP_BRDF_INPUT(uv);
 	
 	#if defined(NORMALMAP)||defined(PARALLAXMAP)
 		tangent = v_Tangent;
