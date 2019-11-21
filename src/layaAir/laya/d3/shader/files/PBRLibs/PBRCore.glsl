@@ -18,7 +18,7 @@ struct LayaLight{
 	vec3 dir;
 };
 
-const vec4 dielectricSpecularColor = vec4(0.220916301, 0.220916301, 0.220916301, 1.0 - 0.220916301);
+const mediump vec4 dielectricSpecularColor = vec4(0.220916301, 0.220916301, 0.220916301, 1.0 - 0.220916301);
 
 float lerpOneTo(float b, float t)
 {
@@ -27,10 +27,8 @@ float lerpOneTo(float b, float t)
 }
 
 //能量守恒
-vec3 diffuseAndSpecularFromMetallic(vec3 albedo, float metallic, out vec3 specColor, out float oneMinusReflectivity)
+vec3 diffuseAndSpecularFromMetallic(mediump vec3 albedo,mediump float metallic, out mediump vec3 specColor, out mediump float oneMinusReflectivity)
 {
-	//unity_ColorSpaceDielectricSpec.rgb是内置变量
-	// (0.22 0.22 0.22 0.779)
 	specColor = mix(dielectricSpecularColor.rgb, albedo, metallic);
 	//kd  漫反射系数
 	oneMinusReflectivity= dielectricSpecularColor.a-metallic*dielectricSpecularColor.a;
