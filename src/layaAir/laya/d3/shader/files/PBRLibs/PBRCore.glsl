@@ -54,6 +54,29 @@ FragmentCommonData metallicSetup(vec2 uv)
 	return o;
 }
 
+vec3 perPixelWorldNormal(vec2 uv,mediump vec3 normal,mediump vec3 binormal,mediump vec3 tangent)
+{
+	#if defined(NORMALMAP)||defined(PARALLAXMAP)//TODO:Need PARALLAXMAP deine?
+		// #if UNITY_TANGENT_ORTHONORMALIZE TODO:
+		// 	normal = LayaNormalizePerPixelNormal(normal);
+
+		// 	// ortho-normalize Tangent
+		// 	tangent = normalize(tangent - normal * dot(tangent, normal));
+
+		// 	// recalculate Binormal重新计算二法线
+		// 	half3 newB = cross(normal, tangent);
+		// 	//sign这个函数大于0的时候是1，等于0的时候是0，小于0的是-1
+		// 	//？？？这里二法线能等于0，0，0吗？
+		// 	binormal = newB * sign(dot(newB, binormal));
+		// #endif
+		mediump vec3 normalTangent =NormalInTangentSpace(uv);
+		vec3 normalWorld = normalize(normalSampleToWorldSpace(normalTangent, normal, tangent,binormal));
+	#else
+		vec3 normalWorld = normalize(normal);
+	#endif
+		return normalWorld;
+}
+
 vec3 LayaLinearToGammaSpace (vec3 linRGB)
 {
     linRGB = max(linRGB, vec3(0.0, 0.0, 0.0));

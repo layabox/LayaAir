@@ -155,29 +155,15 @@ mediump vec2 metallicGloss(vec2 uv)
 	return ms;
 }
 
-vec3 perPixelWorldNormal(vec2 uv,vec3 normal,vec3 binormal,vec3 tangent)
-{
-
-	#if defined(NORMALMAP)||defined(PARALLAXMAP)
-		// #if UNITY_TANGENT_ORTHONORMALIZE
-		// 	normal = LayaNormalizePerPixelNormal(normal);
-
-		// 	// ortho-normalize Tangent
-		// 	tangent = normalize(tangent - normal * dot(tangent, normal));
-
-		// 	// recalculate Binormal重新计算二法线
-		// 	half3 newB = cross(normal, tangent);
-		// 	//sign这个函数大于0的时候是1，等于0的时候是0，小于0的是-1
-		// 	//？？？这里二法线能等于0，0，0吗？
-		// 	binormal = newB * sign(dot(newB, binormal));
-		// #endif
-		vec3 normalTangent =texture2D(u_NormalTexture, uv).rgb ;
-		vec3 normalWorld = normalize(normalSampleToWorldSpace(normalTangent, normal, tangent,binormal));
-	#else
-		vec3 normalWorld = normalize(normal);
-	#endif
-		return normalWorld;
-}
+#ifdef NORMALMAP
+	mediump vec3 NormalInTangentSpace(vec2 texcoords)
+	{
+		//TODO:_BumpScale
+		mediump vec3 normalTangent = texture2D(u_NormalTexture, texcoords).rgb;
+		//TODO:DETAIL and DETAIL_NORMALMAP
+		return normalTangent;
+	}
+#endif
 
 
 
