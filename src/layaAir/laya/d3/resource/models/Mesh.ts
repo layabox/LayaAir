@@ -300,7 +300,7 @@ export class Mesh extends Resource implements IClone {
 						floatVertices[offset] = cor.r;
 						floatVertices[offset + 1] = cor.g;
 						floatVertices[offset + 2] = cor.b;
-						floatVertices[offset + 2] = cor.a;
+						floatVertices[offset + 3] = cor.a;
 					}
 					break;
 				case VertexMesh.MESH_BLENDINDICES0:

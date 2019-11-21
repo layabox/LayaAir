@@ -122,63 +122,51 @@ float occlusion(vec2 uv)
 	#endif
 }
 
-vec3 albedo(vec2 uv)
+mediump vec3 albedo(vec2 uv)
 {
 	#ifdef ALBEDOTEXTURE
 		return u_AlbedoColor.rgb * texture2D(u_AlbedoTexture, uv).rgb;
 	#else
 		return u_AlbedoColor.rgb;
 	#endif
+	//TODO:Detail Texture
 }
 
-vec3 perPixelWorldNormal(vec2 uv,vec3 normal,vec3 binormal,vec3 tangent)
+mediump vec2 metallicGloss(vec2 uv)
 {
-
-	#if defined(NORMALMAP)||defined(PARALLAXMAP)
-		// #if UNITY_TANGENT_ORTHONORMALIZE
-		// 	normal = LayaNormalizePerPixelNormal(normal);
-
-		// 	// ortho-normalize Tangent
-		// 	tangent = normalize(tangent - normal * dot(tangent, normal));
-
-		// 	// recalculate Binormal重新计算二法线
-		// 	half3 newB = cross(normal, tangent);
-		// 	//sign这个函数大于0的时候是1，等于0的时候是0，小于0的是-1
-		// 	//？？？这里二法线能等于0，0，0吗？
-		// 	binormal = newB * sign(dot(newB, binormal));
-		// #endif
-		vec3 normalTangent =texture2D(u_NormalTexture, uv).rgb ;
-		vec3 normalWorld = normalize(normalSampleToWorldSpace(normalTangent, normal, tangent,binormal));
-	#else
-		vec3 normalWorld = normalize(normal);
-	#endif
-		return normalWorld;
-}
-
-
-
-vec2 metallicGloss(vec2 uv)
-{
-	vec2 mg;
-	//m是金属度,g是光滑度
+	mediump vec2 ms;//x is metallic,y is smoothness
 	#ifdef METALLICGLOSSTEXTURE
 		#ifdef SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA
-			mg.r = texture2D(u_MetallicGlossTexture, uv).r;
-			mg.g = texture2D(u_AlbedoTexture, uv).a;
+			ms.x = texture2D(u_MetallicGlossTexture, uv).r;
+			ms.y = texture2D(u_AlbedoTexture, uv).a;
 		#else
 			mg = texture2D(u_MetallicGlossTexture, uv).ra;
 		#endif
-		mg.g *= u_smoothnessScale;
+		ms.y *= u_smoothnessScale;
 	#else
-		mg.r = u_metallic;
+		ms.x = u_metallic;
+		//TODO:Judge with ALBEDOTEXTURE define
 		#ifdef SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA
-			mg.g = texture2D(u_AlbedoTexture, uv).a * u_smoothnessScale;
+			ms.y = texture2D(u_AlbedoTexture, uv).a * u_smoothnessScale;
 		#else
-			mg.g = u_smoothness;
+			ms.y = u_smoothness;
 		#endif
 	#endif
-		return mg;
+	return ms;
 }
+
+#ifdef NORMALMAP
+	mediump vec3 NormalInTangentSpace(vec2 texcoords)
+	{
+		//TODO:_BumpScale
+		mediump vec3 normalTangent = texture2D(u_NormalTexture, texcoords).rgb;
+		//TODO:DETAIL and DETAIL_NORMALMAP
+		return normalTangent;
+	}
+#endif
+
+
+
 
 
 

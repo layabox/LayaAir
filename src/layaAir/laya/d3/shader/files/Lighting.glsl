@@ -17,6 +17,16 @@ struct SpotLight {
 	float spot;
 };
 
+struct LayaGI{
+	vec3 diffuse;
+	vec3 specular;
+};
+
+struct LayaLight{
+	vec3 color;
+	vec3 dir;
+};
+
 const int c_ClusterBufferWidth = CLUSTER_X_COUNT*CLUSTER_Y_COUNT;
 const int c_ClusterBufferHeight = CLUSTER_Z_COUNT*(1+int(ceil(float(MAX_LIGHT_COUNT_PER_CLUSTER)/4.0)));
 const int c_ClusterBufferFloatWidth = c_ClusterBufferWidth*4;
@@ -221,5 +231,12 @@ mat3 inverse(mat3 m) {
   return mat3(b01, (-a22 * a01 + a02 * a21), (a12 * a01 - a02 * a11),
               b11, (a22 * a00 - a02 * a20), (-a12 * a00 + a02 * a10),
               b21, (-a21 * a00 + a01 * a20), (a11 * a00 - a01 * a10)) / det;
+}
+
+vec3 LayaLinearToGammaSpace (vec3 linRGB)
+{
+    linRGB = max(linRGB, vec3(0.0, 0.0, 0.0));
+    // An almost-perfect approximation from http://chilliant.blogspot.com.au/2012/08/srgb-approximations-for-hlsl.html?m=1
+    return max(1.055 * pow(linRGB, vec3(0.416666667)) - 0.055, 0.0);   
 }
 
