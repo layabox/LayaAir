@@ -1,4 +1,3 @@
-import { Texture2D } from "../../resource/Texture2D";
 import { RenderState } from "../core/material/RenderState";
 import { VertexTrail } from "../core/trail/VertexTrail";
 import { VertexMesh } from "../graphics/Vertex/VertexMesh";
@@ -9,8 +8,8 @@ import EffectPS from "./files/Effect.fs";
 import EffectVS from "./files/Effect.vs";
 import extendTerrainPS from "./files/extendTerrain.fs";
 import extendTerrainVS from "./files/extendTerrain.vs";
-import LightingGLSL from "./files/Lighting.glsl";
 import GlobalIllumination from "./files/GlobalIllumination.glsl";
+import LightingGLSL from "./files/Lighting.glsl";
 import linePS from "./files/line.fs";
 import lineVS from "./files/line.vs";
 import MeshBlinnPhongPS from "./files/Mesh-BlinnPhong.fs";
@@ -19,11 +18,12 @@ import ParticleShuriKenPS from "./files/ParticleShuriKen.fs";
 import ParticleShuriKenVS from "./files/ParticleShuriKen.vs";
 import BRDFGLSL from "./files/PBRLibs/BRDF.glsl";
 import BRDFGLSL02 from "./files/PBRLibs/BRDF02.glsl";
-import PBRSpecularLightingGLSL from "./files/PBRLibs/PBRSpecularLighting.glsl";
-import PBRStandardLightingGLSL from "./files/PBRLibs/PBRStandardLighting.glsl";
+import PBRCore from "./files/PBRLibs/PBRCore.glsl";
+import PBRVertex from "./files/PBRLibs/PBRVertex.glsl";
 import PBRUtilsGLSL from "./files/PBRLibs/PBRUtils.glsl";
 import PBRInput from "./files/PBRLibs/PBRInput.glsl";
-import PBRCore from "./files/PBRLibs/PBRCore.glsl";
+import PBRSpecularLightingGLSL from "./files/PBRLibs/PBRSpecularLighting.glsl";
+import PBRStandardLightingGLSL from "./files/PBRLibs/PBRStandardLighting.glsl";
 import PBRSpecularPS from "./files/PBRSpecular.fs";
 import PBRSpecularVS from "./files/PBRSpecular.vs";
 import PBRStandardPS from "./files/PBRStandard.fs";
@@ -75,7 +75,7 @@ export class ShaderInit3D {
 		Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING = Shader3D.getDefineByName("LEGACYSINGLELIGHTING");
 
 		Shader3D.addInclude("Lighting.glsl", LightingGLSL);
-		Shader3D.addInclude("GlobalIllumination.glsl",GlobalIllumination)
+		Shader3D.addInclude("GlobalIllumination.glsl", GlobalIllumination)
 		Shader3D.addInclude("ShadowHelper.glsl", ShadowHelperGLSL);
 		Shader3D.addInclude("BRDF.glsl", BRDFGLSL);
 		Shader3D.addInclude("PBRUtils.glsl", PBRUtilsGLSL);
@@ -84,10 +84,11 @@ export class ShaderInit3D {
 		Shader3D.addInclude("Colors.glsl", ColorsGLSL);
 		Shader3D.addInclude("Sampling.glsl", SamplingGLSL);
 		Shader3D.addInclude("StdLib.glsl", StdLibGLSL);
-		Shader3D.addInclude("PBRInput.glsl",PBRInput);
-		Shader3D.addInclude("BRDF02.glsl",BRDFGLSL02);
-		Shader3D.addInclude("PBRCore.glsl",PBRCore);
-		
+		Shader3D.addInclude("PBRInput.glsl", PBRInput);
+		Shader3D.addInclude("BRDF02.glsl", BRDFGLSL02);
+		Shader3D.addInclude("PBRCore.glsl", PBRCore);
+		Shader3D.addInclude("PBRVertex.glsl", PBRVertex);
+
 		//BLINNPHONG
 		var attributeMap: any = {
 			'a_Position': VertexMesh.MESH_POSITION0,
