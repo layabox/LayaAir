@@ -39,20 +39,16 @@ vec3 diffuseAndSpecularFromMetallic(mediump vec3 albedo,mediump float metallic, 
 	return albedo * oneMinusReflectivity;
 }
 
-//Metal flow
 FragmentCommonData metallicSetup(vec2 uv)
 {
+	mediump vec2 metallicGloss = metallicGloss(uv);
+	mediump float metallic = metallicGloss.x;
+	mediump float smoothness = metallicGloss.y; // this is 1 minus the square root of real roughness m.
+	mediump float oneMinusReflectivity;//out
+	mediump vec3 specColor;//out
+	mediump vec3 diffColor = diffuseAndSpecularFromMetallic(albedo(uv), metallic,specColor,oneMinusReflectivity);
 
 	FragmentCommonData o;
-	vec2 metallicGloss = metallicGloss(uv);
-	float metallic = metallicGloss.x;
-	//这是1减去实际粗糙度m的平方根。
-	float smoothness = metallicGloss.y; // this is 1 minus the square root of real roughness m.
-	float oneMinusReflectivity;
-	vec3 specColor;
-	//算出了漫反射颜色  高光反射率，KD
-	vec3 diffColor = diffuseAndSpecularFromMetallic(albedo(uv), metallic,specColor,oneMinusReflectivity);
-
 	o.diffColor = diffColor;
 	o.specColor = specColor;
 	o.oneMinusReflectivity = oneMinusReflectivity;

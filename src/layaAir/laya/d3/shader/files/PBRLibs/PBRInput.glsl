@@ -122,13 +122,37 @@ float occlusion(vec2 uv)
 	#endif
 }
 
-vec3 albedo(vec2 uv)
+mediump vec3 albedo(vec2 uv)
 {
 	#ifdef ALBEDOTEXTURE
 		return u_AlbedoColor.rgb * texture2D(u_AlbedoTexture, uv).rgb;
 	#else
 		return u_AlbedoColor.rgb;
 	#endif
+	//TODO:Detail Texture
+}
+
+mediump vec2 metallicGloss(vec2 uv)
+{
+	mediump vec2 ms;//x is metallic,y is smoothness
+	#ifdef METALLICGLOSSTEXTURE
+		#ifdef SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA
+			ms.x = texture2D(u_MetallicGlossTexture, uv).r;
+			ms.y = texture2D(u_AlbedoTexture, uv).a;
+		#else
+			mg = texture2D(u_MetallicGlossTexture, uv).ra;
+		#endif
+		ms.y *= u_smoothnessScale;
+	#else
+		ms.x = u_metallic;
+		//TODO:Judge with ALBEDOTEXTURE define
+		#ifdef SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA
+			ms.y = texture2D(u_AlbedoTexture, uv).a * u_smoothnessScale;
+		#else
+			ms.y = u_smoothness;
+		#endif
+	#endif
+	return ms;
 }
 
 vec3 perPixelWorldNormal(vec2 uv,vec3 normal,vec3 binormal,vec3 tangent)
@@ -157,28 +181,6 @@ vec3 perPixelWorldNormal(vec2 uv,vec3 normal,vec3 binormal,vec3 tangent)
 
 
 
-vec2 metallicGloss(vec2 uv)
-{
-	vec2 mg;
-	//m是金属度,g是光滑度
-	#ifdef METALLICGLOSSTEXTURE
-		#ifdef SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA
-			mg.r = texture2D(u_MetallicGlossTexture, uv).r;
-			mg.g = texture2D(u_AlbedoTexture, uv).a;
-		#else
-			mg = texture2D(u_MetallicGlossTexture, uv).ra;
-		#endif
-		mg.g *= u_smoothnessScale;
-	#else
-		mg.r = u_metallic;
-		#ifdef SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA
-			mg.g = texture2D(u_AlbedoTexture, uv).a * u_smoothnessScale;
-		#else
-			mg.g = u_smoothness;
-		#endif
-	#endif
-		return mg;
-}
 
 
 
