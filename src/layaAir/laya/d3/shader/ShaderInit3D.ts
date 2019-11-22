@@ -16,7 +16,7 @@ import MeshBlinnPhongPS from "./files/Mesh-BlinnPhong.fs";
 import MeshBlinnPhongVS from "./files/Mesh-BlinnPhong.vs";
 import ParticleShuriKenPS from "./files/ParticleShuriKen.fs";
 import ParticleShuriKenVS from "./files/ParticleShuriKen.vs";
-import BRDFGLSL02 from "./files/PBRLibs/BRDF02.glsl";
+import LayaPBRBRDF from "./files/PBRLibs/LayaPBRBRDF.glsl";
 import PBRCore from "./files/PBRLibs/PBRCore.glsl";
 import PBRInput from "./files/PBRLibs/PBRInput.glsl";
 import PBRVertex from "./files/PBRLibs/PBRVertex.glsl";
@@ -73,7 +73,7 @@ export class ShaderInit3D {
 		Shader3D.addInclude("Sampling.glsl", SamplingGLSL);
 		Shader3D.addInclude("StdLib.glsl", StdLibGLSL);
 		Shader3D.addInclude("PBRInput.glsl", PBRInput);
-		Shader3D.addInclude("BRDF02.glsl", BRDFGLSL02);
+		Shader3D.addInclude("LayaPBRBRDF.glsl", LayaPBRBRDF);
 		Shader3D.addInclude("PBRCore.glsl", PBRCore);
 		Shader3D.addInclude("PBRVertex.glsl", PBRVertex);
 

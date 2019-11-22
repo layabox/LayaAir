@@ -1,3 +1,5 @@
+#define LAYA_SPECCUBE_LOD_STEPS 6.0
+
 uniform vec3 u_AmbientColor;
 
 #if defined(INDIRECTLIGHT)
@@ -10,8 +12,8 @@ uniform vec4 u_AmbientSHBb;
 uniform vec4 u_AmbientSHC;
 #endif
 
-#if defined(REFLECTIONMAP)
-	uniform samplerCube u_ReflectTexture;
+#if defined(REFLECTIONMAP)//TODO:移除
+uniform samplerCube u_ReflectTexture;
 #endif
 
 //GI
@@ -90,27 +92,36 @@ mediump vec4 glossyEnvironmentSetup(mediump float smoothness,mediump vec3 worldV
 	return uvwRoughness;
 }
 
-vec3 glossyEnvironment(vec4 glossIn)
+mediump vec3 LayaGlossyEnvironment(mediump vec4 glossIn)
 {
-	vec4 rgbm;
-	#if defined(REFLECTIONMAP)
-		float perceptualRoughness = glossIn.a;
-		perceptualRoughness = perceptualRoughness * (1.7 - 0.7*perceptualRoughness);
-		//六级
-		float mip = perceptualRoughness * 6;
-		vec3 r = glossIn.rgb;
+	#if defined(REFLECTIONMAP)//TODO:移除
+	mediump float perceptualRoughness = glossIn.a;
 
-		//TODO这里需要使用扩展的命令函数
-		rgbm=textureCube(u_ReflectTexture,r);
+	// use approximation to solve,below is more reasonable,but maybe slow. 
+	// float m = PerceptualRoughnessToRoughness(perceptualRoughness); // m is the real roughness parameter
+    // const float fEps = 1.192092896e-07F;        // smallest such that 1.0+FLT_EPSILON != 1.0  (+1e-4h is NOT good here. is visibly very wrong)
+    // float n =  (2.0/max(fEps, m*m))-2.0;        // remap to spec power. See eq. 21 in --> https://dl.dropboxusercontent.com/u/55891920/papers/mm_brdf.pdf
+    // n /= 4;                                     // remap from n_dot_h formulatino to n_dot_r. See section "Pre-convolved Cube Maps vs Path Tracers" --> https://s3.amazonaws.com/docs.knaldtech.com/knald/1.0.0/lys_power_drops.html
+    // perceptualRoughness = pow( 2/(n+2), 0.25);  // remap back to square root of real roughness (0.25 include both the sqrt root of the conversion and sqrt for going from roughness to perceptualRoughness)
+	perceptualRoughness = perceptualRoughness * (1.7 - 0.7*perceptualRoughness);//just a approximation,but fast.
+ 
+	mediump float mip = perceptualRoughness * LAYA_SPECCUBE_LOD_STEPS;
+	mediump vec3 uvw = glossIn.rgb;
+	mediump vec4 rgbm=textureCube(u_ReflectTexture,uvw);//TODO:should replace to textureCubeLod
+	return DecodeLightmap(rgbm);//TODO:DecodeHDR
+	#else
+	return DecodeLightmap(vec4(0.0));//TODO:DecodeHDR
 	#endif
-	return DecodeLightmap(rgbm);
 }
 
-vec3 giIndirectSpecular(float occlusion, vec4 glossIn)
+mediump vec3 LayaGIIndirectSpecular(mediump float occlusion, vec4 glossIn)
 {
-	vec3 specular;
-	//一般走这
-	specular = glossyEnvironment(glossIn);
+	mediump vec3 specular;
+	#ifdef REFLECTIONS_OFF
+        //specular = unity_IndirectSpecColor.rgb;//TODO: maybe the average lumination
+    #else
+		specular = LayaGlossyEnvironment(glossIn);
+	#endif
 	return specular * occlusion;
 }
 
@@ -119,7 +130,7 @@ LayaGI globalIllumination(mediump float occlusion, mediump vec3 normalWorld,medi
 {
 	LayaGI gi;
 	gi.diffuse= giBase(occlusion, normalWorld);
-	gi.specular = giIndirectSpecular(occlusion, uvwRoughness);
+	gi.specular = LayaGIIndirectSpecular(occlusion, uvwRoughness);
 	return gi;
 }
 
