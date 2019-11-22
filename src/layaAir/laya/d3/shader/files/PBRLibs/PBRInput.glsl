@@ -88,6 +88,12 @@ varying vec3 v_EyeVec;
 varying vec3 v_PositionWorld;
 
 
+mediump float lerpOneTo(mediump float b, mediump float t)
+{
+    mediump float oneMinusT = 1.0 - t;
+    return oneMinusT + b * t;
+}
+
 //FS
 vec3 emission(vec2 uv)
 {
@@ -111,12 +117,11 @@ mediump float alpha(vec2 uv)
 	#endif
 }
 
-
-float occlusion(vec2 uv)
+mediump float occlusion(vec2 uv)
 {
 	#ifdef OCCLUSIONTEXTURE
-		float occ = texture2D(u_OcclusionTexture, uv).g;
-		return LayaLerpOneTo(occ, u_occlusionStrength);
+		mediump float occ = texture2D(u_OcclusionTexture, uv).g;
+		return lerpOneTo(occ, u_occlusionStrength);
 	#else
 		return 1.0;
 	#endif
