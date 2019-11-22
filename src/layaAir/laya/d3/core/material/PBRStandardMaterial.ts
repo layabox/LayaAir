@@ -91,8 +91,6 @@ export class PBRStandardMaterial extends Material {
 	static SMOOTHNESSSOURCE: number = -1;//TODO:
 	/** @internal */
 	static ENABLEEMISSION: number = -1;//TODO:
-	/** @internal */
-	static ENABLEREFLECT: number = -1;//TODO:
 
 	/** @internal */
 	static CULL: number = Shader3D.propertyNameToID("s_Cull");
@@ -224,6 +222,8 @@ export class PBRStandardMaterial extends Material {
 		subShader.addShaderPass(PBRVS, PBRPS, stateMap);
 	}
 
+	/** @internal */
+	private _enableReflection: boolean = true;
 	/** @internal */
 	private _albedoColor: Vector4;
 	/** @internal */
@@ -456,16 +456,15 @@ export class PBRStandardMaterial extends Material {
 	 * 是否开启反射。
 	 */
 	get enableReflection(): boolean {
-		return this._shaderValues.getBool(PBRStandardMaterial.ENABLEREFLECT);
+		return this._enableReflection;
 	}
 
 	set enableReflection(value: boolean) {
-		this._shaderValues.setBool(PBRStandardMaterial.ENABLEREFLECT, true);
-		if (value) {
-			this._shaderValues.addDefine(PBRStandardMaterial.SHADERDEFINE_REFLECTIONS_OFF);
-		} else {
+		this._enableReflection = value;
+		if (value)
 			this._shaderValues.removeDefine(PBRStandardMaterial.SHADERDEFINE_REFLECTIONS_OFF);
-		}
+		else
+			this._shaderValues.addDefine(PBRStandardMaterial.SHADERDEFINE_REFLECTIONS_OFF);
 	}
 
 	/**
