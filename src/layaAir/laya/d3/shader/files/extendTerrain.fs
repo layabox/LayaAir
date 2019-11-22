@@ -190,7 +190,7 @@ void main()
 
 vec3 globalDiffuse = u_AmbientColor;
 #ifdef LIGHTMAP
-	globalDiffuse += DecodeLightmap(texture2D(u_LightMap, v_LightMapUV));
+	globalDiffuse += DecodeHDR(texture2D(u_LightMap, v_LightMapUV),5.0);
 #endif
 
 #ifdef RECEIVESHADOW
