@@ -41,6 +41,6 @@ void main()
 	#ifdef CASTSHADOW		
 		main_castShadow();
 	#else
-		gl_FragColor=fragmentForward();
+		fragmentForward();
 	#endif  
 }

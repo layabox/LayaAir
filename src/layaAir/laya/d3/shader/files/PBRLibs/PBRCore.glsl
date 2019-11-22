@@ -67,7 +67,7 @@ vec3 perPixelWorldNormal(vec2 uv,mediump vec3 normal,mediump vec3 binormal,mediu
 		return normalWorld;
 }
 
-mediump vec4 fragmentForward()
+void fragmentForward()
 {
 	vec2 uv;vec3 normal;vec3 binormal;vec3 tangent;vec3 normalWorld;vec3 eyeVec; vec3 posworld;
 	#if defined(DIFFUSEMAP)||defined(METALLICGLOSSTEXTURE)||defined(NORMALTEXTURE)||defined(EMISSIONTEXTURE)||defined(OCCLUSIONTEXTURE)||defined(PARALLAXTEXTURE)
@@ -175,7 +175,7 @@ mediump vec4 fragmentForward()
 		float lerpFact=clamp((1.0/gl_FragCoord.w-u_FogStart)/u_FogRange,0.0,1.0);
 		finalColor.rgb=mix(finalColor.rgb,u_FogColor,lerpFact);
 	#endif
-	return finalColor;
+	gl_FragColor=finalColor;
 }
 
 
