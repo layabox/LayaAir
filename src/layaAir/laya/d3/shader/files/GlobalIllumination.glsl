@@ -10,6 +10,20 @@ uniform vec4 u_AmbientSHBb;
 uniform vec4 u_AmbientSHC;
 #endif
 
+#ifdef GL_EXT_shader_texture_lod
+    #extension GL_EXT_shader_texture_lod : enable
+#endif
+#if !defined(GL_EXT_shader_texture_lod)
+    #define texture1DLodEXT texture1D
+    #define texture2DLodEXT texture2D
+    #define texture2DProjLodEXT texture2DProj
+    #define texture3DLodEXT texture3D
+    #define textureCubeLodEXT textureCube
+#endif
+
+
+
+
 #if defined(REFLECTIONMAP)
 	uniform samplerCube u_ReflectTexture;
 #endif
@@ -56,7 +70,6 @@ vec3 shadeSHPerPixel(vec3 normal, vec3 ambient)
 		ambient = SHEvalLinearL0L1(vec4(nenormal, 1.0));
 		//得到完整球谐函数
 		ambient += SHEvalLinearL2(vec4(nenormal, 1.0));
-
 		ambient += max(vec3(0, 0, 0), ambient);
 	#endif
 		ambient = LayaLinearToGammaSpace(ambient);
@@ -71,7 +84,7 @@ vec3 GI_Base(float occlusion, vec3 normalWorld)
 	indirectDiffuse=u_AmbientColor;
 	
 	#ifdef LIGHTMAP	
-		indirectDiffuse += DecodeLightmap(texture2D(u_LightMap, v_LightMapUV));
+		indirectDiffuse += DecodeHDR(texture2D(u_LightMap, v_LightMapUV),5.0);
 	#else
 		indirectDiffuse = shadeSHPerPixel(normalWorld, indirectDiffuse);
 	#endif
@@ -89,8 +102,7 @@ vec4 glossyEnvironmentSetup(float smoothness, vec3 worldViewDir, vec3 Normal)
 	vec4 reflRoun;
 	reflRoun.a= smoothnessToPerceptualRoughness(smoothness);
 	//采样方向
-	reflRoun.rgb = reflect(-worldViewDir, Normal);
-
+	reflRoun.rgb = reflect(worldViewDir, Normal);
 	return reflRoun;
 }
 
@@ -101,13 +113,13 @@ vec3 glossyEnvironment(vec4 glossIn)
 		float perceptualRoughness = glossIn.a;
 		perceptualRoughness = perceptualRoughness * (1.7 - 0.7*perceptualRoughness);
 		//六级
-		float mip = perceptualRoughness * 6;
+		float mip = perceptualRoughness * 6.0;
 		vec3 r = glossIn.rgb;
 
 		//TODO这里需要使用扩展的命令函数
-		rgbm=textureCube(u_ReflectTexture,r);
+		rgbm=textureCubeLodEXT(u_ReflectTexture,r,mip);
 	#endif
-	return DecodeLightmap(rgbm);
+	return DecodeHDR(rgbm,2.0);
 }
 
 vec3 GI_IndirectSpecular(float occlusion, vec4 glossIn)
