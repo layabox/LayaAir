@@ -64,7 +64,7 @@ vec3 shadeSHPerPixel(vec3 normal, vec3 ambient)
 }
 
 
-vec3 GI_Base(float occlusion, vec3 normalWorld)
+vec3 giBase(mediump float occlusion, mediump vec3 normalWorld)
 {
 	vec3 indirectDiffuse;
 	
@@ -81,17 +81,13 @@ vec3 GI_Base(float occlusion, vec3 normalWorld)
 	return indirectDiffuse;
 }
 
-//  //LayaGI_IndirectSpecular
 
-
-vec4 glossyEnvironmentSetup(float smoothness, vec3 worldViewDir, vec3 Normal)
+mediump vec4 glossyEnvironmentSetup(mediump float smoothness,mediump vec3 worldViewDir,mediump vec3 normal)
 {
-	vec4 reflRoun;
-	reflRoun.a= smoothnessToPerceptualRoughness(smoothness);
-	//采样方向
-	reflRoun.rgb = reflect(-worldViewDir, Normal);
-
-	return reflRoun;
+	mediump vec4 uvwRoughness;
+	uvwRoughness.rgb = reflect(-worldViewDir, normal);//reflectUVW
+	uvwRoughness.a= smoothnessToPerceptualRoughness(smoothness);//perceptualRoughness
+	return uvwRoughness;
 }
 
 vec3 glossyEnvironment(vec4 glossIn)
@@ -110,7 +106,7 @@ vec3 glossyEnvironment(vec4 glossIn)
 	return DecodeLightmap(rgbm);
 }
 
-vec3 GI_IndirectSpecular(float occlusion, vec4 glossIn)
+vec3 giIndirectSpecular(float occlusion, vec4 glossIn)
 {
 	vec3 specular;
 	//一般走这
@@ -119,24 +115,13 @@ vec3 GI_IndirectSpecular(float occlusion, vec4 glossIn)
 }
 
 
-LayaGI globalIllumination(float occlusion, vec3 normalWorld,vec4 glossIn)
+LayaGI globalIllumination(mediump float occlusion, mediump vec3 normalWorld,mediump vec4 uvwRoughness)
 {
-	//计算了间接光照的diffuse
-	LayaGI o_gi;
-	o_gi.diffuse= GI_Base(occlusion, normalWorld);
-	//计算了间接光照的高光
-	o_gi.specular = GI_IndirectSpecular(occlusion, glossIn);
-
-	return o_gi;
+	LayaGI gi;
+	gi.diffuse= giBase(occlusion, normalWorld);
+	gi.specular = giIndirectSpecular(occlusion, uvwRoughness);
+	return gi;
 }
 
 
-//,,float occlusion,vec3 worldnormal
-LayaGI fragmentGI(float smoothness,vec3 eyeVec,float occlusion,vec3 worldnormal)
-{
-	LayaGI layagi;
-	vec3 worldViewDir = -eyeVec;
-	vec4 reflRoun = glossyEnvironmentSetup(smoothness, worldViewDir,worldnormal);
-	return globalIllumination(occlusion, worldnormal, reflRoun);
-	//return layagi;
-}
+

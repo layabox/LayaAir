@@ -41,7 +41,7 @@ float LayaDisneyDiffuse(float NdotV, float NdotL, float LdotH, float perceptualR
 //感知粗糙度和感知光滑
 float smoothnessToPerceptualRoughness(float smoothness)
 {
-    return (1.0 - smoothness);
+    return 1.0 - smoothness;
 }
 
 // Ref: http://jcgt.org/published/0003/02/03/paper.pdf

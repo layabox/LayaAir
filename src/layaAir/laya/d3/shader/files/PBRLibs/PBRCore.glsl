@@ -38,6 +38,13 @@ FragmentCommonData metallicSetup(vec2 uv)
 	return o;
 }
 
+LayaGI fragmentGI(float smoothness,vec3 eyeVec,float occlusion,vec3 worldnormal)
+{
+	vec3 worldViewDir = -eyeVec;
+	mediump vec4 uvwRoughness = glossyEnvironmentSetup(smoothness, worldViewDir,worldnormal);
+	return globalIllumination(occlusion, worldnormal, uvwRoughness);
+}
+
 vec3 perPixelWorldNormal(vec2 uv,mediump vec3 normal,mediump vec3 binormal,mediump vec3 tangent)
 {
 	#ifdef NORMALMAP
@@ -93,10 +100,8 @@ void fragmentForward()
 
 
 	mediump float occlusion = occlusion(uv);
-	//GI间接光
-	vec4 color = vec4(0.0);
 	LayaGI gi =fragmentGI(o.smoothness,eyeVec,occlusion,normalWorld);
-	color = BRDF1_Laya_PBS_GI(o.diffColor,o.specColor,o.oneMinusReflectivity,o.smoothness,normalWorld,eyeVec,gi);
+	vec4 color = BRDF1_Laya_PBS_GI(o.diffColor,o.specColor,o.oneMinusReflectivity,o.smoothness,normalWorld,eyeVec,gi);
 	//下一步计算直接光
 	
 	float shadowValue = 1.0;
