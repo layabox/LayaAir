@@ -38,11 +38,11 @@ FragmentCommonData metallicSetup(vec2 uv)
 	return o;
 }
 
-LayaGI fragmentGI(float smoothness,vec3 eyeVec,float occlusion,vec3 worldnormal)
+LayaGI fragmentGI(float smoothness,vec3 eyeVec,mediump float occlusion,mediump vec2 lightmapUV,vec3 worldnormal)
 {
 	LayaGIInput giInput;
 	#ifdef LIGHTMAP
-		giInput.lightmapUV=v_LightMapUV;
+		giInput.lightmapUV=lightmapUV;
 	#endif
 
 	vec3 worldViewDir = -eyeVec;
@@ -105,7 +105,11 @@ void fragmentForward()
 
 
 	mediump float occlusion = occlusion(uv);
-	LayaGI gi =fragmentGI(o.smoothness,eyeVec,occlusion,normalWorld);
+	mediump vec2 lightMapUV;
+	#ifdef LIGHTMAP
+		lightMapUV=v_LightMapUV;
+	#endif
+	LayaGI gi =fragmentGI(o.smoothness,eyeVec,occlusion,lightMapUV,normalWorld);
 	vec4 color = BRDF1_Laya_PBS_GI(o.diffColor,o.specColor,o.oneMinusReflectivity,o.smoothness,normalWorld,eyeVec,gi);
 	//下一步计算直接光
 	
