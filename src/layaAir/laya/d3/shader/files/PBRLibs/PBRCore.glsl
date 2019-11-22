@@ -40,9 +40,14 @@ FragmentCommonData metallicSetup(vec2 uv)
 
 LayaGI fragmentGI(float smoothness,vec3 eyeVec,float occlusion,vec3 worldnormal)
 {
+	LayaGIInput giInput;
+	#ifdef LIGHTMAP
+		giInput.lightmapUV=v_LightMapUV;
+	#endif
+
 	vec3 worldViewDir = -eyeVec;
 	mediump vec4 uvwRoughness = glossyEnvironmentSetup(smoothness, worldViewDir,worldnormal);
-	return globalIllumination(occlusion, worldnormal, uvwRoughness);
+	return layaGlobalIllumination(giInput,occlusion, worldnormal, uvwRoughness);
 }
 
 vec3 perPixelWorldNormal(vec2 uv,mediump vec3 normal,mediump vec3 binormal,mediump vec3 tangent)

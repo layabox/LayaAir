@@ -231,7 +231,19 @@ export class ShaderPass extends ShaderCompile {
 		var config: Config3D = Config3D._config;
 		var clusterSlices: Vector3 = config.lightClusterCount;
 		var defMap: any = {};
-		var defineStr: string = "#define MAX_LIGHT_COUNT " + config.maxLightCount + "\n";
+		var defineStr: string = "";
+		//TODO:兼容webgl2.0
+		defineStr += `#ifdef GL_EXT_shader_texture_lod
+	#extension GL_EXTn_shader_texture_lod : enable
+#endif
+#if !defined(GL_EXT_shader_texture_lod)
+	#define texture1DLodEXT texture1D
+	#define texture2DLodEXT texture2D
+	#define texture2DProjLodEXT texture2DProj
+	#define texture3DLodEXT texture3D
+	#define textureCubeLodEXT textureCube
+#endif\n`
+		defineStr += "#define MAX_LIGHT_COUNT " + config.maxLightCount + "\n";
 		defineStr += "#define MAX_LIGHT_COUNT_PER_CLUSTER " + config._maxAreaLightCountPerClusterAverage + "\n";
 		defineStr += "#define CLUSTER_X_COUNT " + clusterSlices.x + "\n";
 		defineStr += "#define CLUSTER_Y_COUNT " + clusterSlices.y + "\n";
