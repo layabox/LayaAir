@@ -82,7 +82,7 @@ vec3 giBase(mediump float occlusion, mediump vec3 normalWorld)
 	indirectDiffuse=u_AmbientColor;
 	
 	#ifdef LIGHTMAP	
-		indirectDiffuse += DecodeHDR(texture2D(u_LightMap, v_LightMapUV),5.0);
+		indirectDiffuse += decodeHDR(texture2D(u_LightMap, v_LightMapUV),5.0);
 	#else
 		indirectDiffuse = shadeSHPerPixel(normalWorld, indirectDiffuse);
 	#endif
@@ -116,7 +116,7 @@ mediump vec3 LayaGlossyEnvironment(mediump vec4 glossIn)
 	mediump float mip = perceptualRoughness * LAYA_SPECCUBE_LOD_STEPS;
 	mediump vec3 uvw = glossIn.rgb;
 	mediump vec4 rgbm=textureCube(u_ReflectTexture,uvw);//TODO:should replace to textureCubeLod
-	return DecodeHDR(rgbm,2.0);//TODO:2.0 is Temp
+	return decodeHDR(rgbm,2.0);//TODO:2.0 is Temp
 }
 
 mediump vec3 LayaGIIndirectSpecular(mediump float occlusion, vec4 glossIn)

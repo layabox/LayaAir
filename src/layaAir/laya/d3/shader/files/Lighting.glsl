@@ -206,10 +206,9 @@ vec3 DecodeLightmap(vec4 color) {
 	return color.rgb*color.a*5.0;
 }
 
-vec3 DecodeHDR(vec4 color,float range) {
+vec3 decodeHDR(vec4 color,float range) {
 	return color.rgb*color.a*range;
 }
-
 
 vec2 TransformUV(vec2 texcoord,vec4 tilingOffset) {
 	vec2 transTexcoord=vec2(texcoord.x,texcoord.y-1.0)*tilingOffset.xy+vec2(tilingOffset.z,-tilingOffset.w);
