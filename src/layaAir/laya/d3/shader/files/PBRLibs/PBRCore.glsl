@@ -14,12 +14,6 @@ const mediump vec4 dielectricSpecularColor = vec4(0.220916301, 0.220916301, 0.22
     #define SETUP_BRDF_INPUT metallicSetup//default is metallicSetup,also can be other. 
 #endif
 
-float lerpOneTo(float b, float t)
-{
-	float oneMinusT = 1.0 - t;
-	return oneMinusT + b * t;
-}
-
 mediump vec3 diffuseAndSpecularFromMetallic(mediump vec3 albedo,mediump float metallic, out mediump vec3 specColor, out mediump float oneMinusReflectivity)
 {
 	specColor = mix(dielectricSpecularColor.rgb, albedo, metallic);
@@ -46,7 +40,7 @@ FragmentCommonData metallicSetup(vec2 uv)
 
 vec3 perPixelWorldNormal(vec2 uv,mediump vec3 normal,mediump vec3 binormal,mediump vec3 tangent)
 {
-	#if defined(NORMALMAP)||defined(PARALLAXMAP)//TODO:Need PARALLAXMAP deine?
+	#ifdef NORMALMAP
 		// #if UNITY_TANGENT_ORTHONORMALIZE TODO:
 		// 	normal = LayaNormalizePerPixelNormal(normal);
 
@@ -69,14 +63,14 @@ vec3 perPixelWorldNormal(vec2 uv,mediump vec3 normal,mediump vec3 binormal,mediu
 
 void fragmentForward()
 {
-	vec2 uv;vec3 normal;vec3 binormal;vec3 tangent;vec3 normalWorld;vec3 eyeVec; vec3 posworld;
+	vec2 uv;//TODO:
 	#if defined(DIFFUSEMAP)||defined(METALLICGLOSSTEXTURE)||defined(NORMALTEXTURE)||defined(EMISSIONTEXTURE)||defined(OCCLUSIONTEXTURE)||defined(PARALLAXTEXTURE)
 		uv = v_Texcoord0;
 	#endif
 	//FSSetup
-	//LayaParallax计算TODO，目前先不考虑
+	//TODO:Parallax to correct uv
 
-	float alpha = alpha(uv);
+	mediump float alpha = alpha(uv);
 	#ifdef ALPHATEST
 		if(alpha<u_AlphaTestValue)
 			discard;
@@ -84,21 +78,21 @@ void fragmentForward()
 
 	FragmentCommonData o = SETUP_BRDF_INPUT(uv);
 	
+	vec3 binormal;
+	vec3 tangent;
 	#if defined(NORMALMAP)||defined(PARALLAXMAP)
 		tangent = v_Tangent;
 		binormal = v_Binormal;
 	#endif
 
-	normal = v_Normal;
-	normalWorld = perPixelWorldNormal(uv,normal,binormal,tangent);
-	eyeVec = normalize(v_EyeVec);
-	posworld = v_PositionWorld;
-
+	vec3 normal = v_Normal;
+	vec3 normalWorld = perPixelWorldNormal(uv,normal,binormal,tangent);
+	vec3 eyeVec = normalize(v_EyeVec);
+	vec3 posworld = v_PositionWorld;
 	//TODO:Alpha预乘
 
 
-	//阴影TODO
-	float occlusion = occlusion(uv);
+	mediump float occlusion = occlusion(uv);
 	//GI间接光
 	vec4 color = vec4(0.0);
 	LayaGI gi =fragmentGI(o.smoothness,eyeVec,occlusion,normalWorld);
