@@ -24,11 +24,7 @@ uniform vec4 u_AmbientSHC;
 #endif
 
 
-
-
-#if defined(REFLECTIONMAP)
-	uniform samplerCube u_ReflectTexture;
-#endif
+uniform samplerCube u_ReflectTexture;
 
 //GI
 #ifdef INDIRECTLIGHT
@@ -107,8 +103,6 @@ mediump vec4 glossyEnvironmentSetup(mediump float smoothness,mediump vec3 worldV
 
 mediump vec3 LayaGlossyEnvironment(mediump vec4 glossIn)
 {
-
-	#if defined(REFLECTIONMAP)//TODO:移除
 	mediump float perceptualRoughness = glossIn.a;
 
 	// use approximation to solve,below is more reasonable,but maybe slow. 
@@ -122,10 +116,7 @@ mediump vec3 LayaGlossyEnvironment(mediump vec4 glossIn)
 	mediump float mip = perceptualRoughness * LAYA_SPECCUBE_LOD_STEPS;
 	mediump vec3 uvw = glossIn.rgb;
 	mediump vec4 rgbm=textureCube(u_ReflectTexture,uvw);//TODO:should replace to textureCubeLod
-	return DecodeLightmap(rgbm);//TODO:DecodeHDR
-	#else
-	return DecodeLightmap(vec4(0.0));//TODO:DecodeHDR
-	#endif
+	return DecodeHDR(rgbm,2.0);//TODO:2.0 is Temp
 }
 
 mediump vec3 LayaGIIndirectSpecular(mediump float occlusion, vec4 glossIn)

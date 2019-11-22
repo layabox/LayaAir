@@ -159,7 +159,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF1 = Shader3D.getDefineByName("SHADOWMAP_PCF1");
 		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF2 = Shader3D.getDefineByName("SHADOWMAP_PCF2");
 		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF3 = Shader3D.getDefineByName("SHADOWMAP_PCF3");
-		Scene3DShaderDeclaration.SHADERDEFINE_REFLECTMAP = Shader3D.getDefineByName("REFLECTMAP");
 	}
 
 
@@ -341,10 +340,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 	set customReflection(value: TextureCube) {
 		this._shaderValues.setTexture(Scene3D.REFLECTIONTEXTURE, value);
-		if (value)
-			this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_REFLECTMAP);
-		else
-			this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_REFLECTMAP);
 	}
 
 	/**

@@ -46,8 +46,6 @@ export class PBRStandardMaterial extends Material {
 	/** @internal */
 	static SHADERDEFINE_EMISSIONTEXTURE: ShaderDefine;
 	/** @internal */
-	static SHADERDEFINE_REFLECTMAP: ShaderDefine;
-	/** @internal */
 	static SHADERDEFINE_TILINGOFFSET: ShaderDefine;
 	/** @internal */
 	static SHADERDEFINE_ALPHAPREMULTIPLY: ShaderDefine;
@@ -120,7 +118,6 @@ export class PBRStandardMaterial extends Material {
 		PBRStandardMaterial.SHADERDEFINE_OCCLUSIONTEXTURE = Shader3D.getDefineByName("OCCLUSIONTEXTURE");
 		PBRStandardMaterial.SHADERDEFINE_EMISSION = Shader3D.getDefineByName("EMISSION");
 		PBRStandardMaterial.SHADERDEFINE_EMISSIONTEXTURE = Shader3D.getDefineByName("EMISSIONTEXTURE");
-		PBRStandardMaterial.SHADERDEFINE_REFLECTMAP = Shader3D.getDefineByName("REFLECTMAP");
 		PBRStandardMaterial.SHADERDEFINE_TILINGOFFSET = Shader3D.getDefineByName("TILINGOFFSET");
 		PBRStandardMaterial.SHADERDEFINE_ALPHAPREMULTIPLY = Shader3D.getDefineByName("ALPHAPREMULTIPLY");
 		PBRStandardMaterial.SHADERDEFINE_INDIRECTLIGHT = Shader3D.getDefineByName("INDIRECTLIGHT");
@@ -621,9 +618,7 @@ export class PBRStandardMaterial extends Material {
 		this._shaderValues.setNumber(PBRStandardMaterial.NORMALSCALE, 1.0);
 		this._shaderValues.setNumber(PBRStandardMaterial.PARALLAX, 0.001);
 		this._shaderValues.setBool(PBRStandardMaterial.ENABLEEMISSION, false);
-		this._shaderValues.setBool(PBRStandardMaterial.ENABLEREFLECT, true);
 		this._shaderValues.setNumber(Material.ALPHATESTVALUE, 0.5);
-		this._disablePublicDefineDatas.remove(Scene3DShaderDeclaration.SHADERDEFINE_REFLECTMAP);
 		this.renderMode = PBRStandardMaterial.RENDERMODE_OPAQUE;
 	}
 
