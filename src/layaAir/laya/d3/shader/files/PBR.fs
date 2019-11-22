@@ -8,7 +8,7 @@
 
 #include "Lighting.glsl";
 #include "PBRInput.glsl";
-#include "BRDF02.glsl";
+#include "LayaPBRBRDF.glsl";
 #include "GlobalIllumination.glsl";
 #include "PBRCore.glsl";
 #include "ShadowHelper.glsl"

@@ -1,3 +1,5 @@
+#define LAYA_SPECCUBE_LOD_STEPS 6.0
+
 uniform vec3 u_AmbientColor;
 
 #if defined(INDIRECTLIGHT)
@@ -77,7 +79,7 @@ vec3 shadeSHPerPixel(vec3 normal, vec3 ambient)
 }
 
 
-vec3 GI_Base(float occlusion, vec3 normalWorld)
+vec3 giBase(mediump float occlusion, mediump vec3 normalWorld)
 {
 	vec3 indirectDiffuse;
 	
@@ -94,61 +96,57 @@ vec3 GI_Base(float occlusion, vec3 normalWorld)
 	return indirectDiffuse;
 }
 
-//  //LayaGI_IndirectSpecular
 
-
-vec4 glossyEnvironmentSetup(float smoothness, vec3 worldViewDir, vec3 Normal)
+mediump vec4 glossyEnvironmentSetup(mediump float smoothness,mediump vec3 worldViewDir,mediump vec3 normal)
 {
-	vec4 reflRoun;
-	reflRoun.a= smoothnessToPerceptualRoughness(smoothness);
-	//采样方向
-	reflRoun.rgb = reflect(worldViewDir, Normal);
-	return reflRoun;
+	mediump vec4 uvwRoughness;
+	uvwRoughness.rgb = reflect(worldViewDir, normal);//reflectUVW
+	uvwRoughness.a= smoothnessToPerceptualRoughness(smoothness);//perceptualRoughness
+	return uvwRoughness;
 }
 
-vec3 glossyEnvironment(vec4 glossIn)
+mediump vec3 LayaGlossyEnvironment(mediump vec4 glossIn)
 {
-	vec4 rgbm;
-	#if defined(REFLECTIONMAP)
-		float perceptualRoughness = glossIn.a;
-		perceptualRoughness = perceptualRoughness * (1.7 - 0.7*perceptualRoughness);
-		//六级
-		float mip = perceptualRoughness * 6.0;
-		vec3 r = glossIn.rgb;
 
-		//TODO这里需要使用扩展的命令函数
-		rgbm=textureCubeLodEXT(u_ReflectTexture,r,mip);
+	#if defined(REFLECTIONMAP)//TODO:移除
+	mediump float perceptualRoughness = glossIn.a;
+
+	// use approximation to solve,below is more reasonable,but maybe slow. 
+	// float m = PerceptualRoughnessToRoughness(perceptualRoughness); // m is the real roughness parameter
+    // const float fEps = 1.192092896e-07F;        // smallest such that 1.0+FLT_EPSILON != 1.0  (+1e-4h is NOT good here. is visibly very wrong)
+    // float n =  (2.0/max(fEps, m*m))-2.0;        // remap to spec power. See eq. 21 in --> https://dl.dropboxusercontent.com/u/55891920/papers/mm_brdf.pdf
+    // n /= 4;                                     // remap from n_dot_h formulatino to n_dot_r. See section "Pre-convolved Cube Maps vs Path Tracers" --> https://s3.amazonaws.com/docs.knaldtech.com/knald/1.0.0/lys_power_drops.html
+    // perceptualRoughness = pow( 2/(n+2), 0.25);  // remap back to square root of real roughness (0.25 include both the sqrt root of the conversion and sqrt for going from roughness to perceptualRoughness)
+	perceptualRoughness = perceptualRoughness * (1.7 - 0.7*perceptualRoughness);//just a approximation,but fast.
+ 
+	mediump float mip = perceptualRoughness * LAYA_SPECCUBE_LOD_STEPS;
+	mediump vec3 uvw = glossIn.rgb;
+	mediump vec4 rgbm=textureCube(u_ReflectTexture,uvw);//TODO:should replace to textureCubeLod
+	return DecodeLightmap(rgbm);//TODO:DecodeHDR
+	#else
+	return DecodeLightmap(vec4(0.0));//TODO:DecodeHDR
 	#endif
-	return DecodeHDR(rgbm,2.0);
 }
 
-vec3 GI_IndirectSpecular(float occlusion, vec4 glossIn)
+mediump vec3 LayaGIIndirectSpecular(mediump float occlusion, vec4 glossIn)
 {
-	vec3 specular;
-	//一般走这
-	specular = glossyEnvironment(glossIn);
+	mediump vec3 specular;
+	#ifdef REFLECTIONS_OFF
+        //specular = unity_IndirectSpecColor.rgb;//TODO: maybe the average lumination
+    #else
+		specular = LayaGlossyEnvironment(glossIn);
+	#endif
 	return specular * occlusion;
 }
 
 
-LayaGI globalIllumination(float occlusion, vec3 normalWorld,vec4 glossIn)
+LayaGI globalIllumination(mediump float occlusion, mediump vec3 normalWorld,mediump vec4 uvwRoughness)
 {
-	//计算了间接光照的diffuse
-	LayaGI o_gi;
-	o_gi.diffuse= GI_Base(occlusion, normalWorld);
-	//计算了间接光照的高光
-	o_gi.specular = GI_IndirectSpecular(occlusion, glossIn);
-
-	return o_gi;
+	LayaGI gi;
+	gi.diffuse= giBase(occlusion, normalWorld);
+	gi.specular = LayaGIIndirectSpecular(occlusion, uvwRoughness);
+	return gi;
 }
 
 
-//,,float occlusion,vec3 worldnormal
-LayaGI fragmentGI(float smoothness,vec3 eyeVec,float occlusion,vec3 worldnormal)
-{
-	LayaGI layagi;
-	vec3 worldViewDir = -eyeVec;
-	vec4 reflRoun = glossyEnvironmentSetup(smoothness, worldViewDir,worldnormal);
-	return globalIllumination(occlusion, worldnormal, reflRoun);
-	//return layagi;
-}
+

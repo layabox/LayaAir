@@ -53,6 +53,8 @@ export class PBRStandardMaterial extends Material {
 	static SHADERDEFINE_ALPHAPREMULTIPLY: ShaderDefine;
 	/** @internal */
 	static SHADERDEFINE_INDIRECTLIGHT: ShaderDefine;
+	/** @internal */
+	static SHADERDEFINE_REFLECTIONS_OFF: ShaderDefine;
 
 	/** @internal */
 	static ALBEDOTEXTURE: number = Shader3D.propertyNameToID("u_AlbedoTexture");
@@ -124,6 +126,7 @@ export class PBRStandardMaterial extends Material {
 		PBRStandardMaterial.SHADERDEFINE_TILINGOFFSET = Shader3D.getDefineByName("TILINGOFFSET");
 		PBRStandardMaterial.SHADERDEFINE_ALPHAPREMULTIPLY = Shader3D.getDefineByName("ALPHAPREMULTIPLY");
 		PBRStandardMaterial.SHADERDEFINE_INDIRECTLIGHT = Shader3D.getDefineByName("INDIRECTLIGHT");
+		PBRStandardMaterial.SHADERDEFINE_REFLECTIONS_OFF = Shader3D.getDefineByName("REFLECTIONS_OFF");
 	}
 
 	/**
@@ -226,11 +229,10 @@ export class PBRStandardMaterial extends Material {
 	/** @internal */
 	private _emissionColor: Vector4;
 
-	diffuseDefined():void
-	{
+	diffuseDefined(): void {
 		this._shaderValues.addDefine(PBRStandardMaterial.SHADERDEFINE_INDIRECTLIGHT);
 	}
-	
+
 	/**
 	 * 漫反射颜色。
 	 */
@@ -460,9 +462,9 @@ export class PBRStandardMaterial extends Material {
 	set enableReflection(value: boolean) {
 		this._shaderValues.setBool(PBRStandardMaterial.ENABLEREFLECT, true);
 		if (value) {
-			this._disablePublicDefineDatas.remove(Scene3DShaderDeclaration.SHADERDEFINE_REFLECTMAP);
+			this._shaderValues.addDefine(PBRStandardMaterial.SHADERDEFINE_REFLECTIONS_OFF);
 		} else {
-			this._disablePublicDefineDatas.add(Scene3DShaderDeclaration.SHADERDEFINE_REFLECTMAP);
+			this._shaderValues.removeDefine(PBRStandardMaterial.SHADERDEFINE_REFLECTIONS_OFF);
 		}
 	}
 
