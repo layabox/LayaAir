@@ -1,21 +1,23 @@
+#define PI 3.14159265359
+#define INV_PI 0.31830988618
+
 mediump float pow5(mediump float x)
 {
 	return x * x * x*x * x;
 }
-//菲尼尔线性插值
-vec3 LayaFresnelLerp(vec3 F0, vec3 F90, float cosA)
+
+mediump vec3 fresnelLerp(mediump vec3 F0,mediump vec3 F90,mediump float cosA)
 {
 	float t = pow5(1.0 - cosA);   // ala Schlick interpoliation
 	return mix(F0, F90, t);
 }
-/*计算菲尼尔用了三种方法*/
-//1、菲尼尔系数  参数F0是specularColor，参数cosA是LdotH
-vec3 LayaFresnelTerm(vec3 F0, float cosA)
+
+mediump vec3 fresnelTerm(mediump vec3 F0,mediump float cosA)
 {
 	float t = pow5(1.0 - cosA);   // ala Schlick interpoliation
 	return F0 + (vec3(1.0) - F0) * t;
 }
-float PerceptualRoughnessToRoughness(float perceptualRoughness)
+float perceptualRoughnessToRoughness(float perceptualRoughness)
 {
     return perceptualRoughness * perceptualRoughness;
 }
@@ -71,13 +73,11 @@ float smithJointGGXVisibilityTerm(float NdotL, float NdotV, float roughness)
 	return 0.5 / (lambdaV + lambdaL + 1e-5);
 }
 
-float LayaGGXTerm(float NdotH, float roughness)
+float ggxTerm(float NdotH, float roughness)
 {
 	float a2 = roughness * roughness;
 	float d = (NdotH * a2 - NdotH) * NdotH + 1.0; // 2 mad
-	//#define UNITY_INV_PI        0.31830988618f
-	return 0.31830988618 * a2 / (d * d + 1e-7); // This function is not intended to be running on Mobile,//不会用于移动设备
-	// therefore epsilon is smaller than what can be represented by half//返回值小用half来返回
+	return INV_PI * a2 / (d * d + 1e-7); // This function is not intended to be running on Mobile,therefore epsilon is smaller than what can be represented by half//返回值小用half来返回
 }
 
 LayaLight LayaAirBRDFDirectionLight(in DirectionLight light,in float attenuate)
@@ -90,10 +90,10 @@ LayaLight LayaAirBRDFDirectionLight(in DirectionLight light,in float attenuate)
 LayaLight LayaAirBRDFPointLight(in vec3 pos,in vec3 normal, in PointLight light,in float attenuate)
 {
 	LayaLight relight;
-	 vec3 lightVec =  pos-light.position;
+	vec3 lightVec =  pos-light.position;
 	attenuate *= LayaAttenuation(lightVec, 1.0/light.range);
-	 relight.color = light.color*attenuate;
-	 relight.dir = normalize(lightVec);
+	relight.color = light.color*attenuate;
+	relight.dir = normalize(lightVec);
 	return relight;
 }
 LayaLight LayaAirBRDFSpotLight(in vec3 pos,in vec3 normal, in SpotLight light,in float attenuate)
@@ -147,44 +147,29 @@ mediump vec4 layaBRDF1Light(mediump vec3 diffColor, mediump vec3 specColor, medi
 	//TODO:UNITY_BRDF_GGX define
 	float V = smithJointGGXVisibilityTerm(nl, nv, roughness);
 	//微法线分布函数
-	float D = LayaGGXTerm(nh, roughness);
+	float D = ggxTerm(nh, roughness);
 
-	//UNITY_PI
-	float specularTerm = V * D * 3.14159265359; // Torrance-Sparrow model, Fresnel is applied later //fresnel会在后面匹配
+	float specularTerm = V * D * PI; // Torrance-Sparrow model, Fresnel is applied later
 
-	//#   ifdef UNITY_COLORSPACE_GAMMA
-	specularTerm = sqrt(max(0.0001, specularTerm));
-	//#   endif
+	//#ifdef UNITY_COLORSPACE_GAMMA
+	specularTerm = sqrt(max(1e-4, specularTerm));
+	//#endif
 
 	specularTerm = max(0.0, specularTerm * nl);
 
-	//float surfaceReduction;
-	//#   ifdef UNITY_COLORSPACE_GAMMA
-	//	surfaceReduction = 1.0 - 0.28*roughness*perceptualRoughness;      // 1-0.28*x^3 as approximation for (1/(x^4+1))^(1/2.2) on the domain [0;1]
-	//#   else
-			//surfaceReduction = 1.0 / (roughness*roughness + 1.0);           // fade \in [0.5;1]
-	//#   endif
-
-	
-	//输入参数只要有其中一个不为 0，则返回 true。||运算
-	//specularTerm *= not(specColor) ? 1.0 : 0.0;
-
-	
-	//这里是漫反射部分  分为两部分  一部分GI 一部分光照  GI在于diffColor*gi.diffuse  光线在于light.color*diffuseTerm
-	vec3 color = diffColor * light.color * diffuseTerm + specularTerm * light.color * LayaFresnelTerm(specColor, lh);//这里灯光的高光
-		//+ surfaceReduction * gi.specular * LayaFresnelLerp(specColor, grazingTerm, nv);//这里是全局光照的间接光
-		//+diffColor*gi*diffuse;
-	//nv, nl, lh, perceptualRoughness
-	 //* LayaFresnelTerm(specColor, lh)
+	//#def _SPECULARHIGHLIGHTS_OFF
+		
+	vec3 color = diffColor * light.color * diffuseTerm + specularTerm * light.color * fresnelTerm(specColor, lh);
 	return vec4(color, 1.0);
 }
 
 vec4 layaBRDF1GI(vec3 diffColor, vec3 specColor, float oneMinusReflectivity,float smoothness ,float perceptualRoughness,float roughness,float nv,vec3 normal, vec3 viewDir,LayaGI gi)
 {
+	// surfaceReduction = Int D(NdotH) * NdotH * Id(NdotL>0) dH = 1/(roughness^2+1)
 	float surfaceReduction;
-	surfaceReduction = 1.0 - 0.28*roughness*perceptualRoughness;      // 1-0.28*x^3 as approximation for (1/(x^4+1))^(1/2.2) on the domain [0;1]
+	surfaceReduction = 1.0 - 0.28*roughness*perceptualRoughness;// 1-0.28*x^3 as approximation for (1/(x^4+1))^(1/2.2) on the domain [0;1]
 	float grazingTerm = clamp(smoothness + (1.0 - oneMinusReflectivity),0.0,1.0);
-	vec3 color = surfaceReduction * gi.specular * LayaFresnelLerp(specColor,vec3(grazingTerm), nv)+diffColor*gi.diffuse;
-	 return vec4(color,1.0);
+	vec3 color =diffColor * gi.diffuse + surfaceReduction * gi.specular * fresnelLerp(specColor,vec3(grazingTerm), nv);
+	return vec4(color,1.0);
 }
 // BRDF1-------------------------------------------------------------------------------------

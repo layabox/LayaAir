@@ -102,6 +102,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	static AMBIENTSHBB: number = Shader3D.propertyNameToID("u_AmbientSHBb");
 	static AMBIENTSHC: number = Shader3D.propertyNameToID("u_AmbientSHC");
 	static REFLECTIONPROBE: number = Shader3D.propertyNameToID("u_ReflectionProbe");
+	static REFLECTIONCUBE_HDR_PARAMS: number = Shader3D.propertyNameToID("u_ReflectCubeHDRParams");
 
 	//------------------legacy lighting-------------------------------
 	static LIGHTDIRECTION: number = Shader3D.propertyNameToID("u_DirectionLight.direction");
@@ -237,6 +238,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	ambientProbe: SphericalHarmonicsL2 = new SphericalHarmonicsL2();
 	/**	全局的反射探头。 */
 	reflectionProbe: TextureCube;
+	/**	全局的反射探头。 */
+	readonly reflectionCubeHDRParams: Vector4 = new Vector4(1.0, 0.0, 0.0, 0.0);
 
 	//阴影相关变量
 	parallelSplitShadowMaps: ParallelSplitShadowMap[];
@@ -253,8 +256,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 	/** @internal [Editer]*/
 	_pickIdToSprite: any = new Object();
-
-
 
 	/**
 	 * 资源的URL地址。
@@ -284,7 +285,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * 雾化颜色。
 	 */
 	get fogColor(): Vector3 {
-		return (<Vector3>this._shaderValues.getVector3(Scene3D.FOGCOLOR));
+		return this._shaderValues.getVector3(Scene3D.FOGCOLOR);
 	}
 
 	set fogColor(value: Vector3) {
@@ -797,6 +798,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 		//refelectionProbe
 		shaderValues.setTexture(Scene3D.REFLECTIONTEXTURE, this.reflectionProbe || TextureCube.blackTexture);
+		shaderValues.setVector(Scene3D.REFLECTIONCUBE_HDR_PARAMS, this.reflectionCubeHDRParams);
 	}
 
 	/**
@@ -1024,14 +1026,20 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			this.fogColor = fogCol;
 		}
 
-		var ambientProbeData: any = data.ambientProbe;
+		var ambientProbeData: Array<number> = data.ambientProbe;
 		if (ambientProbeData) {
-			//TODO:
+			for (var i: number = 0; i < 3; i++) {
+				var off: number = i * 9;
+				this.ambientProbe.setCoefficients(i, ambientProbeData[off], ambientProbeData[off + 1], ambientProbeData[off + 2], ambientProbeData[off + 3], ambientProbeData[off + 4], ambientProbeData[off + 5], ambientProbeData[off + 6], ambientProbeData[off + 7], ambientProbeData[off + 8]);
+			}
 		}
 		var reflectionProbeData: any = data.reflectionProbe;
 		if (reflectionProbeData) {
 			//TODO:
 		}
+
+		var reflectionCubeHDRParamsData: Array<number> = data.reflectionCubeHDRParams;
+		(reflectionCubeHDRParamsData) && (this.reflectionCubeHDRParams.fromArray(reflectionCubeHDRParamsData));
 	}
 
 
