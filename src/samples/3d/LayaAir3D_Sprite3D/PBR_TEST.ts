@@ -153,7 +153,7 @@ export class PBR_TEST {
 			scene.addChild(sphere);
 			var PBR02:PBRStandardMaterial = new PBRStandardMaterial();
 			PBR02.metallic = 1.0;
-			PBR02.smoothness = 0.5;
+			PBR02.smoothness = 1.0;
 			sphere.meshRenderer.sharedMaterial = PBR02;
 			// var SHAr: Vector4  = new Vector4(-0.04560062,0.03957067,0.1411899,0.5705163);
 			// var SHAg:Vector4 = new Vector4(-0.04186664,0.05843516,0.1915448,0.2173594);
