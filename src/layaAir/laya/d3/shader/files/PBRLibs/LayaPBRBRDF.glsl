@@ -1,43 +1,43 @@
-
-
-
-float LayaPow5(float x)
+mediump float pow5(mediump float x)
 {
 	return x * x * x*x * x;
 }
 //菲尼尔线性插值
 vec3 LayaFresnelLerp(vec3 F0, vec3 F90, float cosA)
 {
-	float t = LayaPow5(1.0 - cosA);   // ala Schlick interpoliation
+	float t = pow5(1.0 - cosA);   // ala Schlick interpoliation
 	return mix(F0, F90, t);
 }
 /*计算菲尼尔用了三种方法*/
 //1、菲尼尔系数  参数F0是specularColor，参数cosA是LdotH
 vec3 LayaFresnelTerm(vec3 F0, float cosA)
 {
-	float t = LayaPow5(1.0 - cosA);   // ala Schlick interpoliation
+	float t = pow5(1.0 - cosA);   // ala Schlick interpoliation
 	return F0 + (vec3(1.0) - F0) * t;
 }
 float PerceptualRoughnessToRoughness(float perceptualRoughness)
 {
     return perceptualRoughness * perceptualRoughness;
 }
-vec3 SafeNormalize(in vec3 inVec)
+
+vec3 safeNormalize(vec3 inVec)
 {
 	float dp3 = max(0.001,dot(inVec,inVec));
 	return inVec * (1.0 / sqrt(dp3));
 }
+
 // Note: Disney diffuse must be multiply by diffuseAlbedo / PI. This is done outside of this function.
-float LayaDisneyDiffuse(float NdotV, float NdotL, float LdotH, float perceptualRoughness)
+mediump float disneyDiffuse(mediump float NdotV,mediump float NdotL,mediump float LdotH,mediump float perceptualRoughness)
 {
-	//再边缘和光线和眼睛的地方更亮一点点https://www.cnblogs.com/herenzhiming/articles/5790389.html  lambort
-	float fd90 = 0.5 + 2.0 * LdotH * LdotH * perceptualRoughness;
+	//https://www.cnblogs.com/herenzhiming/articles/5790389.html
+	mediump float fd90 = 0.5 + 2.0 * LdotH * LdotH * perceptualRoughness;
 	// Two schlick fresnel term
-	float lightScatter = (1.0 + (fd90 - 1.0) * LayaPow5(1.0 - NdotL));
-	float viewScatter = (1.0 + (fd90 - 1.0) * LayaPow5(1.0 - NdotV));
+	mediump float lightScatter = (1.0 + (fd90 - 1.0) * pow5(1.0 - NdotL));
+	mediump float viewScatter = (1.0 + (fd90 - 1.0) * pow5(1.0 - NdotV));
 
 	return lightScatter * viewScatter;
 }
+
 //感知粗糙度和感知光滑
 float smoothnessToPerceptualRoughness(float smoothness)
 {
@@ -45,11 +45,26 @@ float smoothnessToPerceptualRoughness(float smoothness)
 }
 
 // Ref: http://jcgt.org/published/0003/02/03/paper.pdf
-float LayaSmithJointGGXVisibilityTerm(float NdotL, float NdotV, float roughness)
+float smithJointGGXVisibilityTerm(float NdotL, float NdotV, float roughness)
 {
+	// Original formulation:
+    // lambda_v    = (-1 + sqrt(a2 * (1 - NdotL2) / NdotL2 + 1)) * 0.5f;
+    // lambda_l    = (-1 + sqrt(a2 * (1 - NdotV2) / NdotV2 + 1)) * 0.5f;
+    // G           = 1 / (1 + lambda_v + lambda_l);
+
+	// scientific code implement:
+	// Reorder code to be more optimal
+    // half a          = roughness;
+    // half a2         = a * a;
+
+    // half lambdaV    = NdotL * sqrt((-NdotV * a2 + NdotV) * NdotV + a2);
+    // half lambdaL    = NdotV * sqrt((-NdotL * a2 + NdotL) * NdotL + a2);
+
+    // Simplify visibility term: (2.0f * NdotL * NdotV) /  ((4.0f * NdotL * NdotV) * (lambda_v + lambda_l + 1e-5f));
+    // return 0.5f / (lambdaV + lambdaL + 1e-5f);  
+	// This function is not intended to be running on Mobile,therefore epsilon is smaller than can be represented by half
+
 	// Approximation of the above formulation (simplify the sqrt, not mathematically correct but close enough)
-	//上述公式的近似（简化sqrt，不是数学上正确，而是足够接近）
-	//这里做了近似
 	float a = roughness;
 	float lambdaV = NdotL * (NdotV * (1.0 - a) + a);
 	float lambdaL = NdotV * (NdotL * (1.0 - a) + a);
@@ -95,24 +110,42 @@ LayaLight LayaAirBRDFSpotLight(in vec3 pos,in vec3 normal, in SpotLight light,in
 	return relight;
 }
 
-vec4 BRDF1_Laya_PBS_Light(vec3 diffColor, vec3 specColor, float oneMinusReflectivity, float perceptualRoughness,float roughness,float nv,vec3 normal, vec3 viewDir,LayaLight light)
+// BRDF1-------------------------------------------------------------------------------------
+
+// Note: BRDF entry points use smoothness and oneMinusReflectivity for optimization purposes,
+// mostly for DX9 SM2.0 level. Most of the math is being done on these (1-x) values, and that saves a few precious ALU slots.
+
+// Main Physically Based BRDF
+// Derived from Disney work and based on Torrance-Sparrow micro-facet model
+//
+// BRDF = kD / pi + kS * (D * V * F) / 4
+// I = BRDF * NdotL
+//
+// *NDF (depending on LAYA_BRDF_GGX):
+//  a) Normalized BlinnPhong
+//  b) GGX
+// *Smith for Visiblity term
+// *Schlick approximation for Fresnel
+mediump vec4 layaBRDF1Light(mediump vec3 diffColor, mediump vec3 specColor, mediump float oneMinusReflectivity, float perceptualRoughness,float roughness,mediump float nv,vec3 normal, vec3 viewDir,LayaLight light)
 {
-
-
-	vec3 halfDir = SafeNormalize(viewDir-light.dir);
-
-
+	vec3 halfDir = safeNormalize(viewDir-light.dir);
 
 	float nl = clamp(dot(normal, -light.dir),0.0,1.0);
 	float nh = clamp(dot(normal, halfDir),0.0,1.0);
-	float lv = clamp(dot(light.dir, viewDir),0.0,1.0);
-	float lh = clamp(dot(light.dir, -halfDir),0.0,1.0);
+	mediump float lv = clamp(dot(light.dir, viewDir),0.0,1.0);
+	mediump float lh = clamp(dot(light.dir, -halfDir),0.0,1.0);
 
-	float diffuseTerm = LayaDisneyDiffuse(nv, nl, lh, perceptualRoughness) * nl;
+	// Diffuse term
+	mediump float diffuseTerm = disneyDiffuse(nv, nl, lh, perceptualRoughness) * nl;
 
-	//之前的测试发现这个数字在某些iOS，安卓上面不适配
+	// Specular term
+    // HACK: theoretically we should divide diffuseTerm by Pi and not multiply specularTerm!
+    // BUT that will make shader look significantly darker than Legacy ones
+
+	// GGX with roughtness to 0 would mean no specular at all, using max(roughness, 0.002) here to match HDrenderloop roughtness remapping.
 	roughness = max(roughness, 0.002);
-	float V = LayaSmithJointGGXVisibilityTerm(nl, nv, roughness);
+	//TODO:UNITY_BRDF_GGX define
+	float V = smithJointGGXVisibilityTerm(nl, nv, roughness);
 	//微法线分布函数
 	float D = LayaGGXTerm(nh, roughness);
 
@@ -125,12 +158,12 @@ vec4 BRDF1_Laya_PBS_Light(vec3 diffColor, vec3 specColor, float oneMinusReflecti
 
 	specularTerm = max(0.0, specularTerm * nl);
 
-//float surfaceReduction;
-//#   ifdef UNITY_COLORSPACE_GAMMA
-//	surfaceReduction = 1.0 - 0.28*roughness*perceptualRoughness;      // 1-0.28*x^3 as approximation for (1/(x^4+1))^(1/2.2) on the domain [0;1]
-//#   else
-		//surfaceReduction = 1.0 / (roughness*roughness + 1.0);           // fade \in [0.5;1]
-//#   endif
+	//float surfaceReduction;
+	//#   ifdef UNITY_COLORSPACE_GAMMA
+	//	surfaceReduction = 1.0 - 0.28*roughness*perceptualRoughness;      // 1-0.28*x^3 as approximation for (1/(x^4+1))^(1/2.2) on the domain [0;1]
+	//#   else
+			//surfaceReduction = 1.0 / (roughness*roughness + 1.0);           // fade \in [0.5;1]
+	//#   endif
 
 	
 	//输入参数只要有其中一个不为 0，则返回 true。||运算
@@ -146,14 +179,12 @@ vec4 BRDF1_Laya_PBS_Light(vec3 diffColor, vec3 specColor, float oneMinusReflecti
 	return vec4(color, 1.0);
 }
 
-
-
-vec4 BRDF1_Laya_PBS_GI(vec3 diffColor, vec3 specColor, float oneMinusReflectivity,float smoothness ,float perceptualRoughness,float roughness,float nv,vec3 normal, vec3 viewDir,LayaGI gi)
+vec4 layaBRDF1GI(vec3 diffColor, vec3 specColor, float oneMinusReflectivity,float smoothness ,float perceptualRoughness,float roughness,float nv,vec3 normal, vec3 viewDir,LayaGI gi)
 {
-
 	float surfaceReduction;
 	surfaceReduction = 1.0 - 0.28*roughness*perceptualRoughness;      // 1-0.28*x^3 as approximation for (1/(x^4+1))^(1/2.2) on the domain [0;1]
 	float grazingTerm = clamp(smoothness + (1.0 - oneMinusReflectivity),0.0,1.0);
 	vec3 color = surfaceReduction * gi.specular * LayaFresnelLerp(specColor,vec3(grazingTerm), nv)+diffColor*gi.diffuse;
 	 return vec4(color,1.0);
 }
+// BRDF1-------------------------------------------------------------------------------------
