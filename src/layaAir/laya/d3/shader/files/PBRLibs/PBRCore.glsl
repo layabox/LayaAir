@@ -110,7 +110,7 @@ void fragmentForward()
 		lightMapUV=v_LightMapUV;
 	#endif
 	float perceptualRoughness = smoothnessToPerceptualRoughness(o.smoothness);
-	float roughness = PerceptualRoughnessToRoughness(perceptualRoughness);
+	float roughness = perceptualRoughnessToRoughness(perceptualRoughness);
 	float nv = abs(dot(normalWorld, eyeVec));
 	LayaGI gi =fragmentGI(o.smoothness,eyeVec,occlusion,lightMapUV,normalWorld);
 	vec4 color = layaBRDF1GI(o.diffColor,o.specColor,o.oneMinusReflectivity,o.smoothness,perceptualRoughness,roughness,nv,normalWorld,eyeVec,gi);
