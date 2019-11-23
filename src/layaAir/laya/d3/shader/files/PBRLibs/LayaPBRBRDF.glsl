@@ -95,15 +95,13 @@ LayaLight LayaAirBRDFSpotLight(in vec3 pos,in vec3 normal, in SpotLight light,in
 	return relight;
 }
 
-vec4 BRDF1_Laya_PBS_Light(vec3 diffColor, vec3 specColor, float oneMinusReflectivity, float smoothness,vec3 normal, vec3 viewDir,LayaLight light)
+vec4 BRDF1_Laya_PBS_Light(vec3 diffColor, vec3 specColor, float oneMinusReflectivity, float perceptualRoughness,float roughness,float nv,vec3 normal, vec3 viewDir,LayaLight light)
 {
-	//感知粗糙度
-	float perceptualRoughness = smoothnessToPerceptualRoughness(smoothness);
-	//H
-	//vec3 halfDir = Laya_SafeNormalize(light.dir + viewDir);
+
+
 	vec3 halfDir = SafeNormalize(viewDir-light.dir);
-	//法线和视线
-	float nv = abs(dot(normal, viewDir));    // This abs allow to limit artifact
+
+
 
 	float nl = clamp(dot(normal, -light.dir),0.0,1.0);
 	float nh = clamp(dot(normal, halfDir),0.0,1.0);
@@ -111,7 +109,7 @@ vec4 BRDF1_Laya_PBS_Light(vec3 diffColor, vec3 specColor, float oneMinusReflecti
 	float lh = clamp(dot(light.dir, -halfDir),0.0,1.0);
 
 	float diffuseTerm = LayaDisneyDiffuse(nv, nl, lh, perceptualRoughness) * nl;
-	float roughness = PerceptualRoughnessToRoughness(perceptualRoughness);
+
 	//之前的测试发现这个数字在某些iOS，安卓上面不适配
 	roughness = max(roughness, 0.002);
 	float V = LayaSmithJointGGXVisibilityTerm(nl, nv, roughness);
@@ -150,11 +148,9 @@ vec4 BRDF1_Laya_PBS_Light(vec3 diffColor, vec3 specColor, float oneMinusReflecti
 
 
 
-vec4 BRDF1_Laya_PBS_GI(vec3 diffColor, vec3 specColor, float oneMinusReflectivity, float smoothness,vec3 normal, vec3 viewDir,LayaGI gi)
+vec4 BRDF1_Laya_PBS_GI(vec3 diffColor, vec3 specColor, float oneMinusReflectivity,float smoothness ,float perceptualRoughness,float roughness,float nv,vec3 normal, vec3 viewDir,LayaGI gi)
 {
-	float perceptualRoughness = smoothnessToPerceptualRoughness(smoothness);
-	float roughness = PerceptualRoughnessToRoughness(perceptualRoughness);
-	float nv = abs(dot(normal, viewDir));    // This abs allow to limit artifact 
+
 	float surfaceReduction;
 	surfaceReduction = 1.0 - 0.28*roughness*perceptualRoughness;      // 1-0.28*x^3 as approximation for (1/(x^4+1))^(1/2.2) on the domain [0;1]
 	float grazingTerm = clamp(smoothness + (1.0 - oneMinusReflectivity),0.0,1.0);
