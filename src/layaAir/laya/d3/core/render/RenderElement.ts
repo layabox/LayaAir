@@ -164,7 +164,6 @@ export class RenderElement {
 			for (var j: number = 0, m: number = passes.length; j < m; j++) {
 				var comDef: DefineDatas = RenderElement._compileDefine;
 				scene._shaderValues._defineDatas.cloneTo(comDef);
-				comDef.removeDefineDatas(this.material._disablePublicDefineDatas);
 				comDef.addDefineDatas(this.render._shaderValues._defineDatas);
 				comDef.addDefineDatas(this.material._shaderValues._defineDatas);
 				var shaderIns: ShaderInstance = context.shader = passes[j].withCompile(comDef);

@@ -239,7 +239,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/**	全局的反射探头。 */
 	reflectionProbe: TextureCube;
 	/**	全局的反射探头。 */
-	readonly reflectionCubeHDRParams: Vector4 = new Vector4();
+	readonly reflectionCubeHDRParams: Vector4 = new Vector4(1.0, 0.0, 0.0, 0.0);
 
 	//阴影相关变量
 	parallelSplitShadowMaps: ParallelSplitShadowMap[];
