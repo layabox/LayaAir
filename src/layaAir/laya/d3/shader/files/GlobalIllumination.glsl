@@ -18,6 +18,7 @@ uniform vec4 u_AmbientSHC;
 #endif
 
 uniform samplerCube u_ReflectTexture;
+uniform vec4 u_ReflectCubeHDRParams;
 
 //GI
 #ifdef INDIRECTLIGHT
@@ -105,7 +106,7 @@ mediump vec3 layaGlossyEnvironment(mediump vec4 glossIn)
 	mediump float mip = perceptualRoughness * LAYA_SPECCUBE_LOD_STEPS;
 	mediump vec3 uvw = glossIn.rgb;
 	mediump vec4 rgbm=textureCubeLodEXT(u_ReflectTexture,uvw,mip);
-	return decodeHDR(rgbm,1.0);//TODO:2.0 is Temp
+	return decodeHDR(rgbm,u_ReflectCubeHDRParams.x);//TODO:2.0 is Temp
 }
 
 mediump vec3 layaGIIndirectSpecular(LayaGIInput giInput,mediump float occlusion, vec4 glossIn)
