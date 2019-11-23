@@ -20,6 +20,8 @@ import { Loader } from "laya/net/Loader";
 import { TextureCube } from "laya/d3/resource/TextureCube";
 import { SkyRenderer } from "laya/d3/resource/models/SkyRenderer";
 import { SkyBoxMaterial } from "laya/d3/core/material/SkyBoxMaterial";
+import { Byte } from "laya/utils/Byte";
+import { BaseTexture } from "laya/resource/BaseTexture";
 
 export class PBR_TEST {
 	reflectCubeMap:TextureCube;
@@ -29,7 +31,8 @@ export class PBR_TEST {
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
 		Stat.show();
 		
-		this.LoadReflectMap("res/threeDimen/texture/");
+		//this.LoadReflectMap("res/threeDimen/texture/");
+		this.loadReflectMapData("res/threeDimen/GIReflection.cubemap");
 		// Scene3D.load("res/threeDimen/LayaScene_boneTest/Conventional/boneTest.ls", Handler.create(this, function (sprite: Scene3D): void {
 		// 	var scene: Scene3D = (<Scene3D>Laya.stage.addChild(sprite));
 		// 	PBRMaterial.__init__();
@@ -40,6 +43,11 @@ export class PBR_TEST {
 
 		
 }
+
+	/**
+	 * 加载图片的方式来生成Cubemap
+	 * @param loadpath 
+	 */
 	LoadReflectMap(loadpath:string):void
 	{
 		debugger;
@@ -66,6 +74,10 @@ export class PBR_TEST {
 			resource[k]={url:loadpaths[k],type:Loader.TEXTURE2D,constructParams:[texlen[k],texlen[k],TextureFormat.R8G8B8A8,false,true]};
 		Laya.loader.create(resource,Handler.create(this,this.creatCubeMap,[loadpaths]));
 	}
+	/**
+	 *	生成Cubemap
+	 * @param loadpaths 
+	 */
 	creatCubeMap(loadpaths:Array<string>):void
 	{
 		var cubemap:TextureCube = new TextureCube(128,TextureFormat.R8G8B8A8,true);
@@ -84,8 +96,46 @@ export class PBR_TEST {
 			cubemap.setSixSidePixels(cubemapArray[k],k);
 		}
 		this.reflectCubeMap = cubemap;
-		this.renderScene()
+		this.renderScene();
 		
+	}
+	loadReflectMapData(LoadPath:string)
+	{
+		Laya.loader.create(LoadPath,Handler.create(this,function(bytearray:ArrayBuffer):void{
+			debugger;
+			this.reflectCubeMap = this.reflactMapParse(bytearray);
+			(this.reflectCubeMap as TextureCube).filterMode = BaseTexture.FILTERMODE_TRILINEAR;
+			(this.reflectCubeMap as TextureCube).anisoLevel = 0;
+			this.renderScene();
+		}),null,Loader.BUFFER);
+	}
+	reflactMapParse(arraybuffer:ArrayBuffer):TextureCube
+	{
+		var byte:Byte =new Byte(arraybuffer);
+		var uint8array: Uint8Array = new Uint8Array(arraybuffer);
+		var version:string = byte.readUTFString();
+		if(version!="GIREFLECMAP")
+		return null;
+		
+		var count:number = byte.readInt32();
+		var width:number = byte.readInt32();
+		var pos:number = byte.pos;
+		var cubemap:TextureCube = new TextureCube(width,TextureFormat.R8G8B8A8,true);
+		for(var i = 0;i<count;i++)
+		{
+			var uint8Arrays:Array<Uint8Array>=new Array<Uint8Array>();
+			var texWidth:number = width*Math.pow(0.5,i);
+			var pixelLength:number = texWidth*texWidth*4;
+			for(var j = 0,n = 6;j<n;j++)
+			{
+				uint8Arrays.push(uint8array.slice(pos,pos+pixelLength));
+				pos+=pixelLength;
+			}
+			cubemap.setSixSidePixels(uint8Arrays,i);
+		}
+		return cubemap;
+
+
 	}
 	renderScene()
 	{
@@ -122,7 +172,7 @@ export class PBR_TEST {
 			 	scene.ambientProbe.setCoefficients(2,0.1783197,0.008783088,-0.02437624,0.0443121,0.0002688426,-0.01042652,0.01097564,-0.04568882,0.003249854);
 				 PBR02.diffuseDefined();
 				 scene.reflectionProbe = this.reflectCubeMap;
-				 PBR02.reflectDefined()
+				 PBR02.enableReflection = true;
 			 	// var sphere2:MeshSprite3D = new MeshSprite3D(PrimitiveMesh.createSphere(1));
 				// sphere2.transform.position = new Vector3(0,0,0);
 			 	// scene.addChild(sphere2);
@@ -134,7 +184,7 @@ export class PBR_TEST {
 			skymat.textureCube =  this.reflectCubeMap;
 			// 	sphere.active = true;
 			// 	sphere2.active = false;
-
+			
 				
 			// 	// sphere.active = false;
 			// 	// sphere2.active = true;

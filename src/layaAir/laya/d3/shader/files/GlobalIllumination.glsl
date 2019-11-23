@@ -116,7 +116,7 @@ mediump vec3 LayaGlossyEnvironment(mediump vec4 glossIn)
 	mediump float mip = perceptualRoughness * LAYA_SPECCUBE_LOD_STEPS;
 	mediump vec3 uvw = glossIn.rgb;
 	mediump vec4 rgbm=textureCube(u_ReflectTexture,uvw);//TODO:should replace to textureCubeLod
-	return DecodeHDR(rgbm,2.0);//TODO:2.0 is Temp
+	return DecodeHDR(rgbm,1.0);//TODO:2.0 is Temp
 }
 
 mediump vec3 LayaGIIndirectSpecular(mediump float occlusion, vec4 glossIn)
