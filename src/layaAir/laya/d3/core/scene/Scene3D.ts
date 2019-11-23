@@ -102,6 +102,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	static AMBIENTSHBB: number = Shader3D.propertyNameToID("u_AmbientSHBb");
 	static AMBIENTSHC: number = Shader3D.propertyNameToID("u_AmbientSHC");
 	static REFLECTIONPROBE: number = Shader3D.propertyNameToID("u_ReflectionProbe");
+	static REFLECTIONCUBE_HDR_PARAMS: number = Shader3D.propertyNameToID("u_ReflectCubeHDRParams");
 
 	//------------------legacy lighting-------------------------------
 	static LIGHTDIRECTION: number = Shader3D.propertyNameToID("u_DirectionLight.direction");
@@ -237,6 +238,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	ambientProbe: SphericalHarmonicsL2 = new SphericalHarmonicsL2();
 	/**	全局的反射探头。 */
 	reflectionProbe: TextureCube;
+	/**	全局的反射探头。 */
+	readonly reflectionCubeHDRParams: Vector4 = new Vector4();
 
 	//阴影相关变量
 	parallelSplitShadowMaps: ParallelSplitShadowMap[];
@@ -797,6 +800,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 		//refelectionProbe
 		shaderValues.setTexture(Scene3D.REFLECTIONTEXTURE, this.reflectionProbe || TextureCube.blackTexture);
+		shaderValues.setVector(Scene3D.REFLECTIONCUBE_HDR_PARAMS, this.reflectionCubeHDRParams);
 	}
 
 	/**
@@ -1032,6 +1036,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		if (reflectionProbeData) {
 			//TODO:
 		}
+
+		var reflectionCubeHDRParamsData: Array<number> = data.reflectionCubeHDRParams;
+		(reflectionCubeHDRParamsData) && (this.reflectionCubeHDRParams.fromArray(reflectionCubeHDRParamsData));
 	}
 
 
