@@ -257,8 +257,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal [Editer]*/
 	_pickIdToSprite: any = new Object();
 
-
-
 	/**
 	 * 资源的URL地址。
 	 */
@@ -287,7 +285,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * 雾化颜色。
 	 */
 	get fogColor(): Vector3 {
-		return (<Vector3>this._shaderValues.getVector3(Scene3D.FOGCOLOR));
+		return this._shaderValues.getVector3(Scene3D.FOGCOLOR);
 	}
 
 	set fogColor(value: Vector3) {
@@ -1028,9 +1026,12 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			this.fogColor = fogCol;
 		}
 
-		var ambientProbeData: any = data.ambientProbe;
+		var ambientProbeData: Array<number> = data.ambientProbe;
 		if (ambientProbeData) {
-			//TODO:
+			for (var i: number = 0; i < 3; i++) {
+				var off: number = i * 9;
+				this.ambientProbe.setCoefficients(i, ambientProbeData[off], ambientProbeData[off + 1], ambientProbeData[off + 2], ambientProbeData[off + 3], ambientProbeData[off + 4], ambientProbeData[off + 5], ambientProbeData[off + 6], ambientProbeData[off + 7], ambientProbeData[off + 8]);
+			}
 		}
 		var reflectionProbeData: any = data.reflectionProbe;
 		if (reflectionProbeData) {
