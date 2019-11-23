@@ -1,3 +1,8 @@
+struct LayaGIInput
+{
+	vec2 lightmapUV;
+};
+
 #define LAYA_SPECCUBE_LOD_STEPS 6.0
 
 uniform vec3 u_AmbientColor;
@@ -11,18 +16,6 @@ uniform vec4 u_AmbientSHBg;
 uniform vec4 u_AmbientSHBb;
 uniform vec4 u_AmbientSHC;
 #endif
-
-#ifdef GL_EXT_shader_texture_lod
-    #extension GL_EXT_shader_texture_lod : enable
-#endif
-#if !defined(GL_EXT_shader_texture_lod)
-    #define texture1DLodEXT texture1D
-    #define texture2DLodEXT texture2D
-    #define texture2DProjLodEXT texture2DProj
-    #define texture3DLodEXT texture3D
-    #define textureCubeLodEXT textureCube
-#endif
-
 
 uniform samplerCube u_ReflectTexture;
 
@@ -75,19 +68,15 @@ vec3 shadeSHPerPixel(vec3 normal, vec3 ambient)
 }
 
 
-vec3 giBase(mediump float occlusion, mediump vec3 normalWorld)
+vec3 layaGIBase(LayaGIInput giInput,mediump float occlusion, mediump vec3 normalWorld)
 {
 	vec3 indirectDiffuse;
-	
-	indirectDiffuse=u_AmbientColor;
-	
 	#ifdef LIGHTMAP	
-		indirectDiffuse += DecodeHDR(texture2D(u_LightMap, v_LightMapUV),5.0);
+		indirectDiffuse = u_AmbientColor + decodeHDR(texture2D(u_LightMap, giInput.LightMapUV),5.0);
 	#else
-		indirectDiffuse = shadeSHPerPixel(normalWorld, indirectDiffuse);
+		indirectDiffuse = shadeSHPerPixel(normalWorld, u_AmbientColor);
 	#endif
 
-	//间接光照的diffuse
 	indirectDiffuse*=occlusion;
 	return indirectDiffuse;
 }
@@ -101,7 +90,7 @@ mediump vec4 glossyEnvironmentSetup(mediump float smoothness,mediump vec3 worldV
 	return uvwRoughness;
 }
 
-mediump vec3 LayaGlossyEnvironment(mediump vec4 glossIn)
+mediump vec3 layaGlossyEnvironment(mediump vec4 glossIn)
 {
 	mediump float perceptualRoughness = glossIn.a;
 
@@ -115,27 +104,27 @@ mediump vec3 LayaGlossyEnvironment(mediump vec4 glossIn)
  
 	mediump float mip = perceptualRoughness * LAYA_SPECCUBE_LOD_STEPS;
 	mediump vec3 uvw = glossIn.rgb;
-	mediump vec4 rgbm=textureCube(u_ReflectTexture,uvw);//TODO:should replace to textureCubeLod
-	return DecodeHDR(rgbm,1.0);//TODO:2.0 is Temp
+	mediump vec4 rgbm=textureCubeLodEXT(u_ReflectTexture,uvw,mip);
+	return decodeHDR(rgbm,1.0);//TODO:2.0 is Temp
 }
 
-mediump vec3 LayaGIIndirectSpecular(mediump float occlusion, vec4 glossIn)
+mediump vec3 layaGIIndirectSpecular(LayaGIInput giInput,mediump float occlusion, vec4 glossIn)
 {
 	mediump vec3 specular;
 	#ifdef REFLECTIONS_OFF
         //specular = unity_IndirectSpecColor.rgb;//TODO: maybe the average lumination
     #else
-		specular = LayaGlossyEnvironment(glossIn);
+		specular = layaGlossyEnvironment(glossIn);
 	#endif
 	return specular * occlusion;
 }
 
 
-LayaGI globalIllumination(mediump float occlusion, mediump vec3 normalWorld,mediump vec4 uvwRoughness)
+LayaGI layaGlobalIllumination(LayaGIInput giInput,mediump float occlusion, mediump vec3 normalWorld,mediump vec4 uvwRoughness)
 {
 	LayaGI gi;
-	gi.diffuse= giBase(occlusion, normalWorld);
-	gi.specular = LayaGIIndirectSpecular(occlusion, uvwRoughness);
+	gi.diffuse= layaGIBase(giInput,occlusion, normalWorld);
+	gi.specular = layaGIIndirectSpecular(giInput,occlusion, uvwRoughness);
 	return gi;
 }
 
