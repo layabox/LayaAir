@@ -1,6 +1,7 @@
 import { Component } from "../../components/Component"
 import { Physics } from "../Physics"
 import { ClassUtils } from "../../utils/ClassUtils";
+import { RigidBody } from "../RigidBody";
 
 /**
  * 关节基类
@@ -36,10 +37,10 @@ export class JointBase extends Component {
      * @override
      */
     protected _onDisable(): void {
-        if (this._joint) {
+        if (this._joint&&this._joint.m_userData&&!this._joint.m_userData.isDestroy) {
             Physics.I._removeJoint(this._joint);
-            this._joint = null;
         }
+        this._joint = null;
     }
 }
 
