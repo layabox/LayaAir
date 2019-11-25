@@ -80,14 +80,14 @@ float ggxTerm(float NdotH, float roughness)
 	return INV_PI * a2 / (d * d + 1e-7); // This function is not intended to be running on Mobile,therefore epsilon is smaller than what can be represented by half//返回值小用half来返回
 }
 
-LayaLight LayaAirBRDFDirectionLight(in DirectionLight light,in float attenuate)
+LayaLight layaAirBRDFDirectionLight(in DirectionLight light,in float attenuate)
 {
 	LayaLight relight;
 	relight.color = light.color*attenuate;
 	relight.dir = light.direction;
 	return relight;
 } 
-LayaLight LayaAirBRDFPointLight(in vec3 pos,in vec3 normal, in PointLight light,in float attenuate)
+LayaLight layaAirBRDFPointLight(in vec3 pos,in vec3 normal, in PointLight light,in float attenuate)
 {
 	LayaLight relight;
 	vec3 lightVec =  pos-light.position;
@@ -96,7 +96,7 @@ LayaLight LayaAirBRDFPointLight(in vec3 pos,in vec3 normal, in PointLight light,
 	relight.dir = normalize(lightVec);
 	return relight;
 }
-LayaLight LayaAirBRDFSpotLight(in vec3 pos,in vec3 normal, in SpotLight light,in float attenuate)
+LayaLight layaAirBRDFSpotLight(in vec3 pos,in vec3 normal, in SpotLight light,in float attenuate)
 {
 	LayaLight relight;
 	vec3 lightVec =  pos-light.position;
