@@ -107,8 +107,6 @@ SpotLight getSpotLight(sampler2D lightBuffer,sampler2D clusterBuffer,ivec4 clust
     return light;
 }
 
-
-
 // Laya中使用衰减纹理
 float LayaAttenuation(in vec3 L,in float invLightRadius) {
 	float fRatio = clamp(length(L) * invLightRadius,0.0,1.0);

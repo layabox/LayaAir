@@ -25,6 +25,12 @@ mediump vec3 fresnelTerm(mediump vec3 F0,mediump float cosA)
 	float t = pow5(1.0 - cosA);   // ala Schlick interpoliation
 	return F0 + (vec3(1.0) - F0) * t;
 }
+
+float smoothnessToPerceptualRoughness(float smoothness)
+{
+    return 1.0 - smoothness;
+}
+
 float perceptualRoughnessToRoughness(float perceptualRoughness)
 {
     return perceptualRoughness * perceptualRoughness;
@@ -46,12 +52,6 @@ mediump float disneyDiffuse(mediump float NdotV,mediump float NdotL,mediump floa
 	mediump float viewScatter = (1.0 + (fd90 - 1.0) * pow5(1.0 - NdotV));
 
 	return lightScatter * viewScatter;
-}
-
-//感知粗糙度和感知光滑
-float smoothnessToPerceptualRoughness(float smoothness)
-{
-    return 1.0 - smoothness;
 }
 
 // Ref: http://jcgt.org/published/0003/02/03/paper.pdf
