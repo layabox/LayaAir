@@ -1,3 +1,11 @@
+// allow to explicitly override LAYA_BRDF_GI and LAYA_BRDF_LIGHT in custom shader,default is layaBRDF1GI and layaBRDF1Light
+#if !defined (LAYA_BRDF_GI) 
+	#define LAYA_BRDF_GI layaBRDF1GI
+#endif
+#if !defined (LAYA_BRDF_LIGHT)
+	#define LAYA_BRDF_LIGHT layaBRDF1Light
+#endif
+
 #define PI 3.14159265359
 #define INV_PI 0.31830988618
 
