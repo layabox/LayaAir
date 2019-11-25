@@ -98,7 +98,6 @@ export class ShaderInstance extends Resource {
 		this._pshader = this._createShader(gl, this._ps, gl.FRAGMENT_SHADER);
 		gl.attachShader(this._program, this._vshader);
 		gl.attachShader(this._program, this._pshader);
-	
 		for (var k in this._attributeMap)//根据声明调整location,便于VAO使用
 			gl.bindAttribLocation(this._program, this._attributeMap[k], k);
 
