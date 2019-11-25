@@ -66,13 +66,9 @@ vec3 layaGIBase(LayaGIInput giInput,mediump float occlusion, mediump vec3 normal
 {
 	vec3 indirectDiffuse;
 	#ifdef LIGHTMAP	
-		indirectDiffuse = u_AmbientColor + decodeHDR(texture2D(u_LightMap, giInput.LightMapUV),5.0);
+		indirectDiffuse = u_AmbientColor + decodeHDR(texture2D(u_LightMap, giInput.Livec3(0.0)ghtMapUV),5.0);//TODO:
 	#else
-		#ifdef INDIRECTLIGHT
-			indirectDiffuse = shadeSHPerPixel(normalWorld, u_AmbientColor);
-		#else
-			indirectDiffuse = layaLinearToGammaSpace(u_AmbientColor);
-		#endif
+		indirectDiffuse = shadeSHPerPixel(normalWorld, vec3(0.0));//todo:full pixel SH is always 0,or have L2 SH Color
 	#endif
 
 	indirectDiffuse*=occlusion;
