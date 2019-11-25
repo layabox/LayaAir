@@ -62,7 +62,7 @@ vec3 shadeSHPerPixel(vec3 normal, vec3 ambient)
 		ambient = SHEvalLinearL0L1(vec4(nenormal, 1.0));
 		//得到完整球谐函数
 		ambient += SHEvalLinearL2(vec4(nenormal, 1.0));
-		ambient += max(vec3(0, 0, 0), ambient);
+		ambient = max(vec3(0, 0, 0), ambient);
 	#endif
 		ambient = LayaLinearToGammaSpace(ambient);
 	return ambient;
