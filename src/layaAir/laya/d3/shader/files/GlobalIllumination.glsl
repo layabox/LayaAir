@@ -20,12 +20,11 @@ uniform vec4 u_AmbientSHC;
 uniform samplerCube u_ReflectTexture;
 uniform vec4 u_ReflectCubeHDRParams;
 
-//GI
+
 #ifdef INDIRECTLIGHT
-vec3 SHEvalLinearL0L1(vec4 normal)
+mediump vec3 SHEvalLinearL0L1(mediump vec4 normal)
 {
-	vec3 x;
-	//九个参数转换为矩阵
+	mediump vec3 x;
 	// Linear (L1) + constant (L0) polynomial terms
 	x.r = dot(u_AmbientSHAr, normal);
 	x.g = dot(u_AmbientSHAg, normal);
@@ -33,18 +32,17 @@ vec3 SHEvalLinearL0L1(vec4 normal)
 	return x;
 }
 
-vec3 SHEvalLinearL2(vec4 normal)
+mediump vec3 SHEvalLinearL2(mediump vec4 normal)
 {
-	vec3 x1;
-	vec3 x2;
+	mediump vec3 x1,x2;
 	// 4 of the quadratic (L2) polynomials
-	vec4 vB = normal.xyzz * normal.yzzx;
+	mediump vec4 vB = normal.xyzz * normal.yzzx;
 	x1.r = dot(u_AmbientSHBr, vB);
 	x1.g = dot(u_AmbientSHBg, vB);
 	x1.b = dot(u_AmbientSHBb, vB);
 
 	// Final (5th) quadratic (L2) polynomial
-	float vC = normal.x*normal.x - normal.y*normal.y;
+	mediump float vC = normal.x*normal.x - normal.y*normal.y;
 	x2 = u_AmbientSHC.rgb * vC;
 
 	return x1 + x2;
@@ -62,7 +60,7 @@ vec3 shadeSHPerPixel(vec3 normal, vec3 ambient)
 		ambient = SHEvalLinearL0L1(vec4(nenormal, 1.0));
 		//得到完整球谐函数
 		ambient += SHEvalLinearL2(vec4(nenormal, 1.0));
-		ambient += max(vec3(0, 0, 0), ambient);
+		ambient = max(vec3(0, 0, 0), ambient);
 	#endif
 		ambient = LayaLinearToGammaSpace(ambient);
 	return ambient;
