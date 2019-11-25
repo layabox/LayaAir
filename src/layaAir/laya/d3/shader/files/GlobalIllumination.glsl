@@ -51,6 +51,7 @@ mediump vec3 shEvalLinearL2(mediump vec4 normal)
 
 mediump vec3 shadeSHPerPixel(mediump vec3 normal,mediump vec3 ambient)
 {
+	normal.x=-normal.x;//TODO:The SH Data is inverse,so need to invertX
 	mediump vec3 ambientContrib;
 	#ifdef INDIRECTLIGHT
 		mediump vec4 normalV4=vec4(normal, 1.0);
