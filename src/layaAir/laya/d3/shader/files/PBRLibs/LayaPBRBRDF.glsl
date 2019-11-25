@@ -80,36 +80,6 @@ float ggxTerm(float NdotH, float roughness)
 	return INV_PI * a2 / (d * d + 1e-7); // This function is not intended to be running on Mobile,therefore epsilon is smaller than what can be represented by half//返回值小用half来返回
 }
 
-LayaLight layaAirBRDFDirectionLight(in DirectionLight light,in float attenuate)
-{
-	LayaLight relight;
-	relight.color = light.color*attenuate;
-	relight.dir = light.direction;
-	return relight;
-} 
-LayaLight layaAirBRDFPointLight(in vec3 pos,in vec3 normal, in PointLight light,in float attenuate)
-{
-	LayaLight relight;
-	vec3 lightVec =  pos-light.position;
-	attenuate *= LayaAttenuation(lightVec, 1.0/light.range);
-	relight.color = light.color*attenuate;
-	relight.dir = normalize(lightVec);
-	return relight;
-}
-LayaLight layaAirBRDFSpotLight(in vec3 pos,in vec3 normal, in SpotLight light,in float attenuate)
-{
-	LayaLight relight;
-	vec3 lightVec =  pos-light.position;
-	vec3 normalLightVec=lightVec/length(lightVec);
-	vec2 cosAngles=cos(vec2(light.spot,light.spot*0.5)*0.5);//ConeAttenuation
-	float dl=dot(normalize(light.direction),normalLightVec);
-	dl*=smoothstep(cosAngles[0],cosAngles[1],dl);
-	attenuate *= LayaAttenuation(lightVec, 1.0/light.range)*dl;
-	relight.dir = lightVec;
-	relight.color = light.color*attenuate;
-	return relight;
-}
-
 // BRDF1-------------------------------------------------------------------------------------
 
 // Note: BRDF entry points use smoothness and oneMinusReflectivity for optimization purposes,

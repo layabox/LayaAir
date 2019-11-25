@@ -114,7 +114,6 @@ void fragmentForward()
 	float nv = abs(dot(normalWorld, eyeVec));
 	LayaGI gi =fragmentGI(o.smoothness,eyeVec,occlusion,lightMapUV,normalWorld);
 	vec4 color = layaBRDF1GI(o.diffColor,o.specColor,o.oneMinusReflectivity,o.smoothness,perceptualRoughness,roughness,nv,normalWorld,eyeVec,gi);
-	//下一步计算直接光
 	
 	float shadowValue = 1.0;
 	 #ifdef RECEIVESHADOW
@@ -131,17 +130,17 @@ void fragmentForward()
 
 	 #ifdef LEGACYSINGLELIGHTING
 		#ifdef DIRECTIONLIGHT
-			LayaLight light = layaAirBRDFDirectionLight(u_DirectionLight,shadowValue);
+			LayaLight light = layaDirectionLightToLight(u_DirectionLight,shadowValue);
 			 color+= layaBRDF1Light(o.diffColor,o.specColor,o.oneMinusReflectivity,perceptualRoughness,roughness,nv,normalWorld,eyeVec,light);
 		#endif
 	
 		#ifdef POINTLIGHT
-			LayaLight light = layaAirBRDFPointLight(posworld,normalWorld,u_PointLight,shadowValue);
+			LayaLight light = layaPointLightToLight(posworld,normalWorld,u_PointLight,shadowValue);
 			color+= layaBRDF1Light(o.diffColor,o.specColor,o.oneMinusReflectivity,perceptualRoughness,roughness,nv,normalWorld,eyeVec,light);
 		#endif
 		
 		#ifdef SPOTLIGHT
-		    LayaLight light = layaAirBRDFSpotLight(posworld,normalWorld,u_SpotLight,shadowValue);
+		    LayaLight light = layaSpotLightToLight(posworld,normalWorld,u_SpotLight,shadowValue);
 			color+= layaBRDF1Light(o.diffColor,o.specColor,o.oneMinusReflectivity,perceptualRoughness,roughness,nv,normalWorld,eyeVec,light);
 		#endif
 	#else
@@ -151,7 +150,7 @@ void fragmentForward()
 				if(i >= u_DirationLightCount)
 					break;
 				DirectionLight directionLight = getDirectionLight(u_LightBuffer,i);
-				LayaLight light = layaAirBRDFDirectionLight(directionLight,shadowValue);
+				LayaLight light = layaDirectionLightToLight(directionLight,shadowValue);
 			 	color+=layaBRDF1Light(o.diffColor,o.specColor,o.oneMinusReflectivity,perceptualRoughness,roughness,nv,normalWorld,eyeVec,light);
 			}
 	 	#endif
@@ -163,7 +162,7 @@ void fragmentForward()
 					if(i >= clusterInfo.x)//PointLightCount
 						break;
 					PointLight pointLight = getPointLight(u_LightBuffer,u_LightClusterBuffer,clusterInfo,i);
-					LayaLight light = layaAirBRDFPointLight(posworld,normalWorld,pointLight,shadowValue);
+					LayaLight light = layaPointLightToLight(posworld,normalWorld,pointLight,shadowValue);
 					color+= layaBRDF1Light(o.diffColor,o.specColor,o.oneMinusReflectivity,perceptualRoughness,roughness,nv,normalWorld,eyeVec,light);
 				}
 			#endif
@@ -173,7 +172,7 @@ void fragmentForward()
 					if(i >= clusterInfo.y)//SpotLightCount
 						break;
 					SpotLight spotLight = getSpotLight(u_LightBuffer,u_LightClusterBuffer,clusterInfo,i);
-					LayaLight light = layaAirBRDFSpotLight(posworld,normalWorld,u_SpotLight,shadowValue);
+					LayaLight light = layaSpotLightToLight(posworld,normalWorld,u_SpotLight,shadowValue);
 					color+= layaBRDF1Light(o.diffColor,o.specColor,o.oneMinusReflectivity,perceptualRoughness,roughness,nv,normalWorld,eyeVec,light);
 				}
 			#endif
