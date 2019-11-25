@@ -53,13 +53,10 @@ mediump vec3 shadeSHPerPixel(mediump vec3 normal,mediump vec3 ambient)
 {
 	normal.x=-normal.x;//TODO:The SH Data is inverse,so need to invertX
 	mediump vec3 ambientContrib;
-	#ifdef INDIRECTLIGHT
-		mediump vec4 normalV4=vec4(normal, 1.0);
-		ambientContrib = shEvalLinearL0L1(normalV4);
-		ambientContrib += shEvalLinearL2(normalV4);
-		mediump vec3 zero=vec3(0.0);
-		ambient += max(zero, ambientContrib);
-	#endif
+	mediump vec4 normalV4=vec4(normal, 1.0);
+	ambientContrib = shEvalLinearL0L1(normalV4);
+	ambientContrib += shEvalLinearL2(normalV4);
+	ambient += max(vec3(0.0), ambientContrib);
 	ambient = layaLinearToGammaSpace(ambient);
 	return ambient;
 }
@@ -71,7 +68,11 @@ vec3 layaGIBase(LayaGIInput giInput,mediump float occlusion, mediump vec3 normal
 	#ifdef LIGHTMAP	
 		indirectDiffuse = u_AmbientColor + decodeHDR(texture2D(u_LightMap, giInput.LightMapUV),5.0);
 	#else
-		indirectDiffuse = shadeSHPerPixel(normalWorld, u_AmbientColor);
+		#ifdef INDIRECTLIGHT
+			indirectDiffuse = shadeSHPerPixel(normalWorld, u_AmbientColor);
+		#else
+			indirectDiffuse = layaLinearToGammaSpace(u_AmbientColor);
+		#endif
 	#endif
 
 	indirectDiffuse*=occlusion;
