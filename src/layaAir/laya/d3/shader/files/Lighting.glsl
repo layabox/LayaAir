@@ -235,11 +235,11 @@ mat3 inverse(mat3 m) {
               b21, (-a21 * a00 + a01 * a20), (a11 * a00 - a01 * a10)) / det;
 }
 
-vec3 LayaLinearToGammaSpace (vec3 linRGB)
+mediump vec3 layaLinearToGammaSpace (mediump vec3 linRGB)
 {
     linRGB = max(linRGB, vec3(0.0, 0.0, 0.0));
     // An almost-perfect approximation from http://chilliant.blogspot.com.au/2012/08/srgb-approximations-for-hlsl.html?m=1
-    return max(1.055 * pow(linRGB, vec3(0.416666667)) - 0.055, 0.0);   
+    return max(1.055 * pow(linRGB,vec3(0.416666667)) - 0.055, 0.0);   
 }
 
 LayaLight layaDirectionLightToLight(in DirectionLight light,in float attenuate)

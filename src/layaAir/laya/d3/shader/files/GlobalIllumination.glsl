@@ -60,7 +60,7 @@ mediump vec3 shadeSHPerPixel(mediump vec3 normal,mediump vec3 ambient)
 		mediump vec3 zero=vec3(0.0);
 		ambient += max(zero, ambientContrib);
 	#endif
-		ambient = LayaLinearToGammaSpace(ambient);
+	ambient = layaLinearToGammaSpace(ambient);
 	return ambient;
 }
 
