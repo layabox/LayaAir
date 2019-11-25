@@ -86,11 +86,6 @@ export class PBRStandardMaterial extends Material {
 	static EMISSIONCOLOR: number = Shader3D.propertyNameToID("u_EmissionColor");
 
 	/** @internal */
-	static SMOOTHNESSSOURCE: number = -1;//TODO:
-	/** @internal */
-	static ENABLEEMISSION: number = -1;//TODO:
-
-	/** @internal */
 	static CULL: number = Shader3D.propertyNameToID("s_Cull");
 	/** @internal */
 	static BLEND: number = Shader3D.propertyNameToID("s_Blend");
@@ -220,6 +215,10 @@ export class PBRStandardMaterial extends Material {
 		subShader.addShaderPass(PBRVS, PBRPS, stateMap);
 	}
 
+	/** @internal */
+	private _smoothnessSource: number = 0;
+	/** @internal */
+	private _enableEmission: boolean = false;
 	/** @internal */
 	private _enableReflection: boolean = true;
 	/** @internal */
@@ -394,33 +393,30 @@ export class PBRStandardMaterial extends Material {
 	 * 光滑度数据源,0或1。
 	 */
 	get smoothnessSource(): number {
-		return this._shaderValues.getInt(PBRStandardMaterial.SMOOTHNESSSOURCE);
+		return this._smoothnessSource;
 	}
 
 	set smoothnessSource(value: number) {
-		if (value) {
+		if (value)
 			this._shaderValues.addDefine(PBRStandardMaterial.SHADERDEFINE_SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA);
-			this._shaderValues.setInt(PBRStandardMaterial.SMOOTHNESSSOURCE, 1);
-		} else {
+		else
 			this._shaderValues.removeDefine(PBRStandardMaterial.SHADERDEFINE_SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA);
-			this._shaderValues.setInt(PBRStandardMaterial.SMOOTHNESSSOURCE, 0);
-		}
+		this._smoothnessSource = value;
 	}
 
 	/**
 	 * 是否激活放射属性。
 	 */
 	get enableEmission(): boolean {
-		return this._shaderValues.getBool(PBRStandardMaterial.ENABLEEMISSION);
+		return this._enableEmission;
 	}
 
 	set enableEmission(value: boolean) {
-		if (value) {
+		if (value)
 			this._shaderValues.addDefine(PBRStandardMaterial.SHADERDEFINE_EMISSION);
-		} else {
+		else
 			this._shaderValues.removeDefine(PBRStandardMaterial.SHADERDEFINE_EMISSION);
-		}
-		this._shaderValues.setBool(PBRStandardMaterial.ENABLEEMISSION, value);
+		this._enableEmission = value;
 	}
 
 	/**
@@ -602,7 +598,7 @@ export class PBRStandardMaterial extends Material {
 		this._shaderValues.setInt(PBRStandardMaterial.DEPTH_TEST, value);
 	}
 	/**
-	 * 创建一个 <code>PBRStandardMaterial02</code> 实例。
+	 * 创建一个 <code>PBRStandardMaterial</code> 实例。
 	 */
 	constructor() {
 		super();
@@ -614,11 +610,9 @@ export class PBRStandardMaterial extends Material {
 		this._shaderValues.setNumber(PBRStandardMaterial.METALLIC, 0.0);
 		this._shaderValues.setNumber(PBRStandardMaterial.SMOOTHNESS, 0.5);
 		this._shaderValues.setNumber(PBRStandardMaterial.SMOOTHNESSSCALE, 1.0);
-		this._shaderValues.setNumber(PBRStandardMaterial.SMOOTHNESSSOURCE, 0);
 		this._shaderValues.setNumber(PBRStandardMaterial.OCCLUSIONSTRENGTH, 1.0);
 		this._shaderValues.setNumber(PBRStandardMaterial.NORMALSCALE, 1.0);
 		this._shaderValues.setNumber(PBRStandardMaterial.PARALLAX, 0.001);
-		this._shaderValues.setBool(PBRStandardMaterial.ENABLEEMISSION, false);
 		this._shaderValues.setNumber(Material.ALPHATESTVALUE, 0.5);
 		this.renderMode = PBRStandardMaterial.RENDERMODE_OPAQUE;
 	}
