@@ -22,7 +22,7 @@ uniform vec4 u_ReflectCubeHDRParams;
 
 
 #ifdef INDIRECTLIGHT
-mediump vec3 SHEvalLinearL0L1(mediump vec4 normal)
+mediump vec3 shEvalLinearL0L1(mediump vec4 normal)
 {
 	mediump vec3 x;
 	// Linear (L1) + constant (L0) polynomial terms
@@ -32,7 +32,7 @@ mediump vec3 SHEvalLinearL0L1(mediump vec4 normal)
 	return x;
 }
 
-mediump vec3 SHEvalLinearL2(mediump vec4 normal)
+mediump vec3 shEvalLinearL2(mediump vec4 normal)
 {
 	mediump vec3 x1,x2;
 	// 4 of the quadratic (L2) polynomials
@@ -53,8 +53,8 @@ mediump vec3 shadeSHPerPixel(mediump vec3 normal,mediump vec3 ambient)
 {
 	vec3 nenormal = vec3(-normal.x,normal.y,normal.z);
 	#ifdef INDIRECTLIGHT
-		ambient = SHEvalLinearL0L1(vec4(nenormal, 1.0));
-		ambient += SHEvalLinearL2(vec4(nenormal, 1.0));
+		ambient = shEvalLinearL0L1(vec4(nenormal, 1.0));
+		ambient += shEvalLinearL2(vec4(nenormal, 1.0));
 		ambient = max(vec3(0, 0, 0), ambient);
 	#endif
 		ambient = LayaLinearToGammaSpace(ambient);
