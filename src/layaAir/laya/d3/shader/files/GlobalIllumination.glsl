@@ -48,17 +48,12 @@ mediump vec3 SHEvalLinearL2(mediump vec4 normal)
 	return x1 + x2;
 }
 #endif
-//LayaFragmentGI
-//感知光滑转换到感知粗糙
-//LayaGI_Base
 
-
-vec3 shadeSHPerPixel(vec3 normal, vec3 ambient)
+mediump vec3 shadeSHPerPixel(mediump vec3 normal,mediump vec3 ambient)
 {
 	vec3 nenormal = vec3(-normal.x,normal.y,normal.z);
 	#ifdef INDIRECTLIGHT
 		ambient = SHEvalLinearL0L1(vec4(nenormal, 1.0));
-		//得到完整球谐函数
 		ambient += SHEvalLinearL2(vec4(nenormal, 1.0));
 		ambient = max(vec3(0, 0, 0), ambient);
 	#endif
