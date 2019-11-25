@@ -1,3 +1,11 @@
+// allow to explicitly override LAYA_BRDF_GI and LAYA_BRDF_LIGHT in custom shader,default is layaBRDF1GI and layaBRDF1Light
+#if !defined (LAYA_BRDF_GI) 
+	#define LAYA_BRDF_GI layaBRDF1GI
+#endif
+#if !defined (LAYA_BRDF_LIGHT)
+	#define LAYA_BRDF_LIGHT layaBRDF1Light
+#endif
+
 #define PI 3.14159265359
 #define INV_PI 0.31830988618
 
@@ -17,6 +25,12 @@ mediump vec3 fresnelTerm(mediump vec3 F0,mediump float cosA)
 	float t = pow5(1.0 - cosA);   // ala Schlick interpoliation
 	return F0 + (vec3(1.0) - F0) * t;
 }
+
+float smoothnessToPerceptualRoughness(float smoothness)
+{
+    return 1.0 - smoothness;
+}
+
 float perceptualRoughnessToRoughness(float perceptualRoughness)
 {
     return perceptualRoughness * perceptualRoughness;
@@ -38,12 +52,6 @@ mediump float disneyDiffuse(mediump float NdotV,mediump float NdotL,mediump floa
 	mediump float viewScatter = (1.0 + (fd90 - 1.0) * pow5(1.0 - NdotV));
 
 	return lightScatter * viewScatter;
-}
-
-//感知粗糙度和感知光滑
-float smoothnessToPerceptualRoughness(float smoothness)
-{
-    return 1.0 - smoothness;
 }
 
 // Ref: http://jcgt.org/published/0003/02/03/paper.pdf
@@ -78,36 +86,6 @@ float ggxTerm(float NdotH, float roughness)
 	float a2 = roughness * roughness;
 	float d = (NdotH * a2 - NdotH) * NdotH + 1.0; // 2 mad
 	return INV_PI * a2 / (d * d + 1e-7); // This function is not intended to be running on Mobile,therefore epsilon is smaller than what can be represented by half//返回值小用half来返回
-}
-
-LayaLight LayaAirBRDFDirectionLight(in DirectionLight light,in float attenuate)
-{
-	LayaLight relight;
-	relight.color = light.color*attenuate;
-	relight.dir = light.direction;
-	return relight;
-} 
-LayaLight LayaAirBRDFPointLight(in vec3 pos,in vec3 normal, in PointLight light,in float attenuate)
-{
-	LayaLight relight;
-	vec3 lightVec =  pos-light.position;
-	attenuate *= LayaAttenuation(lightVec, 1.0/light.range);
-	relight.color = light.color*attenuate;
-	relight.dir = normalize(lightVec);
-	return relight;
-}
-LayaLight LayaAirBRDFSpotLight(in vec3 pos,in vec3 normal, in SpotLight light,in float attenuate)
-{
-	LayaLight relight;
-	vec3 lightVec =  pos-light.position;
-	vec3 normalLightVec=lightVec/length(lightVec);
-	vec2 cosAngles=cos(vec2(light.spot,light.spot*0.5)*0.5);//ConeAttenuation
-	float dl=dot(normalize(light.direction),normalLightVec);
-	dl*=smoothstep(cosAngles[0],cosAngles[1],dl);
-	attenuate *= LayaAttenuation(lightVec, 1.0/light.range)*dl;
-	relight.dir = lightVec;
-	relight.color = light.color*attenuate;
-	return relight;
 }
 
 // BRDF1-------------------------------------------------------------------------------------
@@ -146,7 +124,6 @@ mediump vec4 layaBRDF1Light(mediump vec3 diffColor, mediump vec3 specColor, medi
 	roughness = max(roughness, 0.002);
 	//TODO:UNITY_BRDF_GGX define
 	float V = smithJointGGXVisibilityTerm(nl, nv, roughness);
-	//微法线分布函数
 	float D = ggxTerm(nh, roughness);
 
 	float specularTerm = V * D * PI; // Torrance-Sparrow model, Fresnel is applied later
@@ -154,7 +131,6 @@ mediump vec4 layaBRDF1Light(mediump vec3 diffColor, mediump vec3 specColor, medi
 	//#ifdef UNITY_COLORSPACE_GAMMA
 	specularTerm = sqrt(max(1e-4, specularTerm));
 	//#endif
-
 	specularTerm = max(0.0, specularTerm * nl);
 
 	//#def _SPECULARHIGHLIGHTS_OFF

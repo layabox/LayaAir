@@ -107,8 +107,6 @@ SpotLight getSpotLight(sampler2D lightBuffer,sampler2D clusterBuffer,ivec4 clust
     return light;
 }
 
-
-
 // Laya中使用衰减纹理
 float LayaAttenuation(in vec3 L,in float invLightRadius) {
 	float fRatio = clamp(length(L) * invLightRadius,0.0,1.0);
@@ -242,5 +240,37 @@ vec3 LayaLinearToGammaSpace (vec3 linRGB)
     linRGB = max(linRGB, vec3(0.0, 0.0, 0.0));
     // An almost-perfect approximation from http://chilliant.blogspot.com.au/2012/08/srgb-approximations-for-hlsl.html?m=1
     return max(1.055 * pow(linRGB, vec3(0.416666667)) - 0.055, 0.0);   
+}
+
+LayaLight layaDirectionLightToLight(in DirectionLight light,in float attenuate)
+{
+	LayaLight relight;
+	relight.color = light.color*attenuate;
+	relight.dir = light.direction;
+	return relight;
+}
+
+LayaLight layaPointLightToLight(in vec3 pos,in vec3 normal, in PointLight light,in float attenuate)
+{
+	LayaLight relight;
+	vec3 lightVec =  pos-light.position;
+	attenuate *= LayaAttenuation(lightVec, 1.0/light.range);
+	relight.color = light.color*attenuate;
+	relight.dir = normalize(lightVec);
+	return relight;
+}
+
+LayaLight layaSpotLightToLight(in vec3 pos,in vec3 normal, in SpotLight light,in float attenuate)
+{
+	LayaLight relight;
+	vec3 lightVec =  pos-light.position;
+	vec3 normalLightVec=lightVec/length(lightVec);
+	vec2 cosAngles=cos(vec2(light.spot,light.spot*0.5)*0.5);//ConeAttenuation
+	float dl=dot(normalize(light.direction),normalLightVec);
+	dl*=smoothstep(cosAngles[0],cosAngles[1],dl);
+	attenuate *= LayaAttenuation(lightVec, 1.0/light.range)*dl;
+	relight.dir = lightVec;
+	relight.color = light.color*attenuate;
+	return relight;
 }
 
