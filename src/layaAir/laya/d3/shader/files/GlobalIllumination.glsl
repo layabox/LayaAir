@@ -51,11 +51,13 @@ mediump vec3 shEvalLinearL2(mediump vec4 normal)
 
 mediump vec3 shadeSHPerPixel(mediump vec3 normal,mediump vec3 ambient)
 {
-	vec3 nenormal = vec3(-normal.x,normal.y,normal.z);
+	normal = vec3(-normal.x,normal.y,normal.z);
+	mediump vec3 ambientContrib;
 	#ifdef INDIRECTLIGHT
-		ambient = shEvalLinearL0L1(vec4(nenormal, 1.0));
-		ambient += shEvalLinearL2(vec4(nenormal, 1.0));
-		ambient = max(vec3(0, 0, 0), ambient);
+		ambientContrib = shEvalLinearL0L1(vec4(normal, 1.0));
+		ambientContrib += shEvalLinearL2(vec4(normal, 1.0));
+		mediump vec3 zero=vec3(0.0);
+		ambient += max(zero, ambientContrib);
 	#endif
 		ambient = LayaLinearToGammaSpace(ambient);
 	return ambient;
