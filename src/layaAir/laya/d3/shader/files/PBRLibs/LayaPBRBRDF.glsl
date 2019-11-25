@@ -124,7 +124,6 @@ mediump vec4 layaBRDF1Light(mediump vec3 diffColor, mediump vec3 specColor, medi
 	roughness = max(roughness, 0.002);
 	//TODO:UNITY_BRDF_GGX define
 	float V = smithJointGGXVisibilityTerm(nl, nv, roughness);
-	//微法线分布函数
 	float D = ggxTerm(nh, roughness);
 
 	float specularTerm = V * D * PI; // Torrance-Sparrow model, Fresnel is applied later
@@ -132,7 +131,6 @@ mediump vec4 layaBRDF1Light(mediump vec3 diffColor, mediump vec3 specColor, medi
 	//#ifdef UNITY_COLORSPACE_GAMMA
 	specularTerm = sqrt(max(1e-4, specularTerm));
 	//#endif
-
 	specularTerm = max(0.0, specularTerm * nl);
 
 	//#def _SPECULARHIGHLIGHTS_OFF
