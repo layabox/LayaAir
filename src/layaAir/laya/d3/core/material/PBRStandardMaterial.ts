@@ -50,8 +50,6 @@ export class PBRStandardMaterial extends Material {
 	/** @internal */
 	static SHADERDEFINE_ALPHAPREMULTIPLY: ShaderDefine;
 	/** @internal */
-	static SHADERDEFINE_INDIRECTLIGHT: ShaderDefine;
-	/** @internal */
 	static SHADERDEFINE_REFLECTIONS_OFF: ShaderDefine;
 
 	/** @internal */
@@ -115,7 +113,6 @@ export class PBRStandardMaterial extends Material {
 		PBRStandardMaterial.SHADERDEFINE_EMISSIONTEXTURE = Shader3D.getDefineByName("EMISSIONTEXTURE");
 		PBRStandardMaterial.SHADERDEFINE_TILINGOFFSET = Shader3D.getDefineByName("TILINGOFFSET");
 		PBRStandardMaterial.SHADERDEFINE_ALPHAPREMULTIPLY = Shader3D.getDefineByName("ALPHAPREMULTIPLY");
-		PBRStandardMaterial.SHADERDEFINE_INDIRECTLIGHT = Shader3D.getDefineByName("INDIRECTLIGHT");
 		PBRStandardMaterial.SHADERDEFINE_REFLECTIONS_OFF = Shader3D.getDefineByName("REFLECTIONS_OFF");
 	}
 
@@ -225,10 +222,6 @@ export class PBRStandardMaterial extends Material {
 	private _albedoColor: Vector4;
 	/** @internal */
 	private _emissionColor: Vector4;
-
-	diffuseDefined(): void {
-		this._shaderValues.addDefine(PBRStandardMaterial.SHADERDEFINE_INDIRECTLIGHT);
-	}
 
 	/**
 	 * 漫反射颜色。

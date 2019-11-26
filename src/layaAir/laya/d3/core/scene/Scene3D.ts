@@ -56,6 +56,17 @@ import { Sprite3D } from "../Sprite3D";
 import { BoundsOctree } from "./BoundsOctree";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
 import { SphericalHarmonicsL2 } from "../../graphics/SphericalHarmonicsL2";
+import { ShaderDefine } from "../../shader/ShaderDefine";
+
+/**
+ * 环境光模式
+ */
+export enum AmbientMode {
+	/** 固定颜色。*/
+	SolidColor,
+	/** 基于天空盒的环境光。 */
+	Skybox
+}
 
 
 /**
@@ -160,6 +171,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF1 = Shader3D.getDefineByName("SHADOWMAP_PCF1");
 		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF2 = Shader3D.getDefineByName("SHADOWMAP_PCF2");
 		Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PCF3 = Shader3D.getDefineByName("SHADOWMAP_PCF3");
+		Scene3DShaderDeclaration.SHADERDEFINE_GI_AMBIENT_SH = Shader3D.getDefineByName("GI_AMBIENT_SH");
 	}
 
 
@@ -191,6 +203,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	private _lightmaps: Texture2D[] = [];
 	/** @internal */
 	private _skyRenderer: SkyRenderer = new SkyRenderer();
+	/** @internal */
+	private _ambientMode: AmbientMode = AmbientMode.SolidColor;
 	/** @internal */
 	private _reflectionMode: number = 1;
 	/** @internal */
@@ -312,6 +326,27 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 	set fogRange(value: number) {
 		this._shaderValues.setNumber(Scene3D.FOGRANGE, value);
+	}
+
+	/**
+	 * 环境光模式。
+	 */
+	get ambientMode(): AmbientMode {
+		return this._ambientMode;
+	}
+
+	set ambientMode(value: AmbientMode) {
+		switch (value) {
+			case AmbientMode.SolidColor:
+				this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_AMBIENT_SH);
+				break;
+			case AmbientMode.Skybox:
+				this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_AMBIENT_SH);
+				break;
+			default:
+				throw "Scene3D: unknown ambientMode.";
+		}
+		this._ambientMode = value;
 	}
 
 	/**

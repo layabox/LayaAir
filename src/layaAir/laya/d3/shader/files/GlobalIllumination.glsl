@@ -7,46 +7,46 @@ struct LayaGIInput
 
 uniform vec3 u_AmbientColor;
 
-#if defined(INDIRECTLIGHT)
-uniform vec4 u_AmbientSHAr;
-uniform vec4 u_AmbientSHAg;
-uniform vec4 u_AmbientSHAb;
-uniform vec4 u_AmbientSHBr;
-uniform vec4 u_AmbientSHBg;
-uniform vec4 u_AmbientSHBb;
-uniform vec4 u_AmbientSHC;
+#if defined(GI_AMBIENT_SH)
+	uniform vec4 u_AmbientSHAr;
+	uniform vec4 u_AmbientSHAg;
+	uniform vec4 u_AmbientSHAb;
+	uniform vec4 u_AmbientSHBr;
+	uniform vec4 u_AmbientSHBg;
+	uniform vec4 u_AmbientSHBb;
+	uniform vec4 u_AmbientSHC;
 #endif
 
 uniform samplerCube u_ReflectTexture;
 uniform vec4 u_ReflectCubeHDRParams;
 
 
-#ifdef INDIRECTLIGHT
-mediump vec3 shEvalLinearL0L1(mediump vec4 normal)
-{
-	mediump vec3 x;
-	// Linear (L1) + constant (L0) polynomial terms
-	x.r = dot(u_AmbientSHAr, normal);
-	x.g = dot(u_AmbientSHAg, normal);
-	x.b = dot(u_AmbientSHAb, normal);
-	return x;
-}
+#ifdef GI_AMBIENT_SH
+	mediump vec3 shEvalLinearL0L1(mediump vec4 normal)
+	{
+		mediump vec3 x;
+		// Linear (L1) + constant (L0) polynomial terms
+		x.r = dot(u_AmbientSHAr, normal);
+		x.g = dot(u_AmbientSHAg, normal);
+		x.b = dot(u_AmbientSHAb, normal);
+		return x;
+	}
 
-mediump vec3 shEvalLinearL2(mediump vec4 normal)
-{
-	mediump vec3 x1,x2;
-	// 4 of the quadratic (L2) polynomials
-	mediump vec4 vB = normal.xyzz * normal.yzzx;
-	x1.r = dot(u_AmbientSHBr, vB);
-	x1.g = dot(u_AmbientSHBg, vB);
-	x1.b = dot(u_AmbientSHBb, vB);
+	mediump vec3 shEvalLinearL2(mediump vec4 normal)
+	{
+		mediump vec3 x1,x2;
+		// 4 of the quadratic (L2) polynomials
+		mediump vec4 vB = normal.xyzz * normal.yzzx;
+		x1.r = dot(u_AmbientSHBr, vB);
+		x1.g = dot(u_AmbientSHBg, vB);
+		x1.b = dot(u_AmbientSHBb, vB);
 
-	// Final (5th) quadratic (L2) polynomial
-	mediump float vC = normal.x*normal.x - normal.y*normal.y;
-	x2 = u_AmbientSHC.rgb * vC;
+		// Final (5th) quadratic (L2) polynomial
+		mediump float vC = normal.x*normal.x - normal.y*normal.y;
+		x2 = u_AmbientSHC.rgb * vC;
 
-	return x1 + x2;
-}
+		return x1 + x2;
+	}
 #endif
 
 mediump vec3 shadeSHPerPixel(mediump vec3 normal,mediump vec3 ambient)
@@ -68,7 +68,11 @@ vec3 layaGIBase(LayaGIInput giInput,mediump float occlusion, mediump vec3 normal
 	#ifdef LIGHTMAP	
 		indirectDiffuse = u_AmbientColor + decodeHDR(texture2D(u_LightMap, giInput.Livec3(0.0)ghtMapUV),5.0);//TODO:
 	#else
-		indirectDiffuse = shadeSHPerPixel(normalWorld, vec3(0.0));//todo:full pixel SH is always 0,or have L2 SH Color
+		#ifdef GI_AMBIENT_SH
+			indirectDiffuse = shadeSHPerPixel(normalWorld, vec3(0.0));//todo:full pixel SH is always 0,or have L2 SH Color
+		#else
+			indirectDiffuse = u_AmbientColor;//already in gamma space
+		#endif
 	#endif
 
 	indirectDiffuse*=occlusion;
