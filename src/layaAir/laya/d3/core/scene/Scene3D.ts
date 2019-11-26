@@ -493,6 +493,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		for (var i: number = 0; i < 7; i++)
 			this._shCoefficients[i] = new Vector4();
 		(Config3D._config._multiLighting) || (this._shaderValues.addDefine(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING));
+		
+		this._shaderValues.setVector(Scene3D.REFLECTIONCUBE_HDR_PARAMS, this.reflectionCubeHDRParams);
 
 		if (Render.supportWebGLPlusCulling) {//[NATIVE]
 			this._cullingBufferIndices = new Int32Array(1024);
@@ -857,9 +859,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 				shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT);
 			}
 		}
-
-		//refelectionProbe
-		shaderValues.setVector(Scene3D.REFLECTIONCUBE_HDR_PARAMS, this.reflectionCubeHDRParams);
 	}
 
 	/**
