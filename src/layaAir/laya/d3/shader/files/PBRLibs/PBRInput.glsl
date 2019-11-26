@@ -29,6 +29,8 @@ uniform float u_metallic;
 
 #ifdef PARALLAXTEXTURE
 	uniform sampler2D u_ParallaxTexture;
+	uniform float u_Parallax;
+	varying vec3 v_ViewDirForParallax;
 #endif
 
 #ifdef OCCLUSIONTEXTURE
@@ -160,6 +162,29 @@ mediump vec2 metallicGloss(vec2 uv)
 	return ms;
 }
 
+// mediump vec4 specularGloss(vec2 uv)
+// {
+// 	mediump vec4 sg;
+// 	#ifdef SPECULARGLOSSTEXTURE
+// 		#ifdef SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA
+// 			sg.rgb = texture2D(u_SpecGlossTexture, uv).rgb;
+// 			sg.a = texture2D(u_AlbedoTexture, uv).a;
+// 		#else
+// 			sg = texture2D(u_SpecGlossTexture, uv);
+// 		#endif
+// 		sg.a *= u_smoothnessScale;
+// 	#else
+// 		sg.rgb =u_SpecularColor.rgb;
+// 		#ifdef SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA
+// 			sg.a = texture2D(u_AlbedoTexture, uv).a * u_SpecGlossScale;
+// 		#else
+// 			sg.a = u_smoothness;
+// 		#endif
+// 	#endif
+// 		return sg;
+// }
+
+
 #ifdef NORMALMAP
 	mediump vec3 NormalInTangentSpace(vec2 texcoords)
 	{
@@ -170,8 +195,21 @@ mediump vec2 metallicGloss(vec2 uv)
 	}
 #endif
 
-
-
+#ifdef PARALLAXTEXTURE
+vec2 parallaxOffset1Step(float h, float height, vec3 viewDir)
+{
+	h = h * height - height / 2.0;
+	vec3 v = normalize(viewDir);
+	v.z += 0.42;
+	return h * (v.xy / v.z);
+}
+vec4 parallax(vec2 texcoords, vec3 viewDir)
+{
+	float h = tex2D(u_ParallaxTexture, texcoords.xy).g;
+	vec2 offset = parallaxOffset1Step(h, u_Parallax, viewDir);
+	return vec2(texcoords.xy + offset);
+}
+#endif
 
 
 

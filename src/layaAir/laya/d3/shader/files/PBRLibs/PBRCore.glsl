@@ -79,9 +79,12 @@ void fragmentForward()
 	#if defined(DIFFUSEMAP)||defined(METALLICGLOSSTEXTURE)||defined(NORMALTEXTURE)||defined(EMISSIONTEXTURE)||defined(OCCLUSIONTEXTURE)||defined(PARALLAXTEXTURE)
 		uv = v_Texcoord0;
 	#endif
+	#ifdef PARALLAXTEXTURE
+		uv = parallax(uv,v_ViewDirForParallax);
+	#endif
 	//FSSetup
 	//TODO:Parallax to correct uv
-
+	
 	mediump float alpha = alpha(uv);
 	#ifdef ALPHATEST
 		if(alpha<u_AlphaTestValue)
