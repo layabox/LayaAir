@@ -246,13 +246,13 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	_tempScriptPool: Script3D[] = new Array<Script3D>();
 	/** @internal */
 	_needClearScriptPool: boolean = false;
+	/** @internal */
+	_reflectionProbe: TextureCube;
 
 	/** 当前创建精灵所属遮罩层。*/
 	currentCreationLayer: number = Math.pow(2, 0);
 	/** 是否启用灯光。*/
 	enableLight: boolean = true;
-	/**	全局的反射探头。 */
-	reflectionProbe: TextureCube;
 	/**	全局的反射探头。 */
 	readonly reflectionCubeHDRParams: Vector4 = new Vector4(1.0, 0.0, 0.0, 0.0);
 
@@ -392,6 +392,18 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 		if (this._ambientSphericalHarmonics != value)
 			value.cloneTo(this._ambientSphericalHarmonics);
+	}
+
+	/**
+	 * 全局反射探头。
+	 */
+	get reflectionProbe(): TextureCube {
+		return this._reflectionProbe;
+	}
+
+	set reflectionProbe(value: TextureCube) {
+		this._shaderValues.setTexture(Scene3D.REFLECTIONTEXTURE, value || TextureCube.blackTexture);
+		this._reflectionProbe = value;
 	}
 
 	/**
@@ -847,7 +859,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		}
 
 		//refelectionProbe
-		shaderValues.setTexture(Scene3D.REFLECTIONTEXTURE, this.reflectionProbe || TextureCube.blackTexture);
 		shaderValues.setVector(Scene3D.REFLECTIONCUBE_HDR_PARAMS, this.reflectionCubeHDRParams);
 	}
 

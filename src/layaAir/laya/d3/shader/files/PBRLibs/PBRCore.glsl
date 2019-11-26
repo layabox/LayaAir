@@ -115,6 +115,7 @@ void fragmentForward()
 	LayaGI gi =fragmentGI(o.smoothness,eyeVec,occlusion,lightMapUV,normalWorld);
 	vec4 color = LAYA_BRDF_GI(o.diffColor,o.specColor,o.oneMinusReflectivity,o.smoothness,perceptualRoughness,roughness,nv,normalWorld,eyeVec,gi);
 	
+	//TODO:阴影
 	float shadowValue = 1.0;
 	 #ifdef RECEIVESHADOW
 		#ifdef SHADOWMAP_PSSM3
@@ -131,7 +132,7 @@ void fragmentForward()
 	 #ifdef LEGACYSINGLELIGHTING
 		#ifdef DIRECTIONLIGHT
 			LayaLight light = layaDirectionLightToLight(u_DirectionLight,shadowValue);
-			 color+= LAYA_BRDF_LIGHT(o.diffColor,o.specColor,o.oneMinusReflectivity,perceptualRoughness,roughness,nv,normalWorld,eyeVec,light);
+			color+= LAYA_BRDF_LIGHT(o.diffColor,o.specColor,o.oneMinusReflectivity,perceptualRoughness,roughness,nv,normalWorld,eyeVec,light);
 		#endif
 	
 		#ifdef POINTLIGHT
