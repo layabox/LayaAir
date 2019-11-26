@@ -88,6 +88,7 @@ import { Handler } from "./laya/utils/Handler";
 import { RunDriver } from "./laya/utils/RunDriver";
 import { WebGL } from "./laya/webgl/WebGL";
 import { WebGLContext } from "./laya/webgl/WebGLContext";
+import { Byte } from "./laya/utils/Byte";
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
  */
@@ -102,6 +103,8 @@ export class Laya3D {
 	static TEXTURE2D: string = "TEXTURE2D";//兼容
 	/**TextureCube资源。*/
 	static TEXTURECUBE: string = "TEXTURECUBE";//兼容
+	/**TextureCube资源。*/
+	static TEXTURECUBEBIN: string = "TEXTURECUBEBIN";//兼容
 	/**AnimationClip资源。*/
 	static ANIMATIONCLIP: string = "ANIMATIONCLIP";//兼容
 	/**Avatar资源。*/
@@ -309,7 +312,6 @@ export class Laya3D {
 		createMap["ls"] = [Laya3D.HIERARCHY, Scene3DUtils._parseScene];
 		createMap["lm"] = [Laya3D.MESH, Mesh._parse];
 		createMap["lmat"] = [Laya3D.MATERIAL, Material._parse];
-		createMap["ltc"] = [Laya3D.TEXTURECUBE, TextureCube._parse];
 		createMap["jpg"] = [Laya3D.TEXTURE2D, Texture2D._parse];
 		createMap["jpeg"] = [Laya3D.TEXTURE2D, Texture2D._parse];
 		createMap["bmp"] = [Laya3D.TEXTURE2D, Texture2D._parse];
@@ -320,12 +322,15 @@ export class Laya3D {
 		createMap["pvr"] = [Laya3D.TEXTURE2D, Texture2D._parse];
 		createMap["lani"] = [Laya3D.ANIMATIONCLIP, AnimationClip._parse];
 		createMap["lav"] = [Laya3D.AVATAR, Avatar._parse];
+		createMap["ltc"] = [Laya3D.TEXTURECUBE, TextureCube._parse];
+		createMap["ltcb"] = [Laya3D.TEXTURECUBEBIN, TextureCube._parseBin];
 
 		var parserMap: any = Loader.parserMap;
 		parserMap[Laya3D.HIERARCHY] = Laya3D._loadHierarchy;
 		parserMap[Laya3D.MESH] = Laya3D._loadMesh;
 		parserMap[Laya3D.MATERIAL] = Laya3D._loadMaterial;
 		parserMap[Laya3D.TEXTURECUBE] = Laya3D._loadTextureCube;
+		parserMap[Laya3D.TEXTURECUBEBIN] = Laya3D._loadTextureCubeBin;
 		parserMap[Laya3D.TEXTURE2D] = Laya3D._loadTexture2D;
 		parserMap[Laya3D.ANIMATIONCLIP] = Laya3D._loadAnimationClip;
 		parserMap[Laya3D.AVATAR] = Laya3D._loadAvatar;
@@ -461,7 +466,8 @@ export class Laya3D {
 				}
 				var reflectionTextureData: string = props.reflectionTexture;
 				(reflectionTextureData) && (props.reflectionTexture = Laya3D._addHierarchyInnerUrls(thirdLevelUrls, subUrls, urlVersion, hierarchyBasePath, reflectionTextureData, Laya3D.TEXTURECUBE));
-
+				var reflectionProbeData: string = props.reflectionProbe;
+				(reflectionProbeData) && (props.reflectionProbe = Laya3D._addHierarchyInnerUrls(fourthLelUrls, subUrls, urlVersion, hierarchyBasePath, reflectionProbeData, Laya3D.TEXTURECUBEBIN));
 				if (props.sky) {
 					var skyboxMaterial: any = props.sky.material;
 					(skyboxMaterial) && (skyboxMaterial.path = Laya3D._addHierarchyInnerUrls(secondLevelUrls, subUrls, urlVersion, hierarchyBasePath, skyboxMaterial.path, Laya3D.MATERIAL));
@@ -775,6 +781,38 @@ export class Laya3D {
 	private static _loadTextureCube(loader: Loader): void {
 		loader.on(Event.LOADED, null, Laya3D._onTextureCubeLtcLoaded, [loader]);
 		loader.load(loader.url, Loader.JSON, false, null, true);
+	}
+
+	/**
+	 *@internal
+	 */
+	private static _loadTextureCubeBin(loader: Loader): void {
+		loader.on(Event.LOADED, null, (data: ArrayBuffer) => {
+			loader._cache = loader._createCache;
+
+			var byte: Byte = new Byte(data);
+			var version: string = byte.readUTFString();
+			if (version !== "LAYATEXTURECUBE:0000")
+				throw "Laya3D:unknow version.";
+			var format: number = byte.readUint8();
+			var mipCount: number = byte.getUint8();
+			var size: number = byte.readUint16();
+			var cubemap: TextureCube = new TextureCube(size, format, mipCount > 1 ? true : false);
+			var pos: number = byte.pos;
+			var mipSize: number = size;
+			for (var i = 0; i < mipCount; i++) {
+				var uint8Arrays: Array<Uint8Array> = new Array<Uint8Array>(6);
+				mipSize /= 2;
+				var mipPixelLength: number = mipSize * mipSize * 4;
+				for (var j = 0; j < 6; j++) {
+					uint8Arrays[i] = new Uint8Array(data, pos, pos + mipPixelLength);
+					pos += mipPixelLength;
+				}
+				cubemap.setSixSidePixels(uint8Arrays, i);
+			}
+			Laya3D._endLoad(loader, cubemap);
+		});
+		loader.load(loader.url, Loader.BUFFER, false, null, true);
 	}
 
 	/**

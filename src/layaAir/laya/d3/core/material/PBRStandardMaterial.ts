@@ -1,34 +1,42 @@
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
 import { Vector4 } from "../../math/Vector4";
-import { TextureCube } from "../../resource/TextureCube";
 import PBRPS from "../../shader/files/PBR.fs";
 import PBRVS from "../../shader/files/PBR.vs";
 import { Shader3D } from "../../shader/Shader3D";
 import { ShaderDefine } from "../../shader/ShaderDefine";
 import { SubShader } from "../../shader/SubShader";
-import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
 import { Material } from "./Material";
 import { RenderState } from "./RenderState";
+
+/**
+ * 光滑度数据源。
+ */
+export enum SmoothnessSource {
+	/**金属度贴图的Alpha通道。*/
+	MetallicGlossTextureAlpha,
+	/**反射率贴图的Alpha通道。*/
+	AlbedoTextureAlpha
+}
+
+/**
+ * 渲染状态。
+ */
+export enum RenderMode {
+	/**不透明。*/
+	Opaque,
+	/**透明裁剪。*/
+	Cutout,
+	/**透明混合_游戏中经常使用的透明。*/
+	Fade,
+	/**透明混合_物理上看似合理的透明。*/
+	Transparent
+}
 
 /**
  * <code>PBRStandardMaterial</code> 类用于实现PBR材质。
  */
 export class PBRStandardMaterial extends Material {
-	/**光滑度数据源_金属度贴图的Alpha通道。*/
-	static SmoothnessSource_MetallicGlossTexture_Alpha: number = 0;
-	/**光滑度数据源_反射率贴图的Alpha通道。*/
-	static SmoothnessSource_AlbedoTexture_Alpha: number = 1;
-
-	/**渲染状态_不透明。*/
-	static RENDERMODE_OPAQUE: number = 0;
-	/**渲染状态_透明测试。*/
-	static RENDERMODE_CUTOUT: number = 1;
-	/**渲染状态_透明混合_游戏中经常使用的透明。*/
-	static RENDERMODE_FADE: number = 2;
-	/**渲染状态_透明混合_物理上看似合理的透明。*/
-	static RENDERMODE_TRANSPARENT: number = 3;
-
 	/** @internal */
 	static SHADERDEFINE_ALBEDOTEXTURE: ShaderDefine;
 	/** @internal */
@@ -49,8 +57,6 @@ export class PBRStandardMaterial extends Material {
 	static SHADERDEFINE_TILINGOFFSET: ShaderDefine;
 	/** @internal */
 	static SHADERDEFINE_ALPHAPREMULTIPLY: ShaderDefine;
-	/** @internal */
-	static SHADERDEFINE_INDIRECTLIGHT: ShaderDefine;
 	/** @internal */
 	static SHADERDEFINE_REFLECTIONS_OFF: ShaderDefine;
 
@@ -115,7 +121,6 @@ export class PBRStandardMaterial extends Material {
 		PBRStandardMaterial.SHADERDEFINE_EMISSIONTEXTURE = Shader3D.getDefineByName("EMISSIONTEXTURE");
 		PBRStandardMaterial.SHADERDEFINE_TILINGOFFSET = Shader3D.getDefineByName("TILINGOFFSET");
 		PBRStandardMaterial.SHADERDEFINE_ALPHAPREMULTIPLY = Shader3D.getDefineByName("ALPHAPREMULTIPLY");
-		PBRStandardMaterial.SHADERDEFINE_INDIRECTLIGHT = Shader3D.getDefineByName("INDIRECTLIGHT");
 		PBRStandardMaterial.SHADERDEFINE_REFLECTIONS_OFF = Shader3D.getDefineByName("REFLECTIONS_OFF");
 	}
 
@@ -161,7 +166,6 @@ export class PBRStandardMaterial extends Material {
 			'u_parallax': Shader3D.PERIOD_MATERIAL,
 			'u_TilingOffset': Shader3D.PERIOD_MATERIAL,
 
-
 			'u_ReflectTexture': Shader3D.PERIOD_SCENE,
 			'u_ReflectIntensity': Shader3D.PERIOD_SCENE,
 			'u_AmbientColor': Shader3D.PERIOD_SCENE,
@@ -188,6 +192,7 @@ export class PBRStandardMaterial extends Material {
 			'u_AmbientSHC': Shader3D.PERIOD_SCENE,
 			'u_ReflectionProbe': Shader3D.PERIOD_SCENE,
 			'u_ReflectCubeHDRParams': Shader3D.PERIOD_SCENE,
+			'u_ReflectionSpecularColor': Shader3D.PERIOD_SCENE,
 
 			//legacy lighting
 			'u_DirectionLight.direction': Shader3D.PERIOD_SCENE,
@@ -225,10 +230,6 @@ export class PBRStandardMaterial extends Material {
 	private _albedoColor: Vector4;
 	/** @internal */
 	private _emissionColor: Vector4;
-
-	diffuseDefined(): void {
-		this._shaderValues.addDefine(PBRStandardMaterial.SHADERDEFINE_INDIRECTLIGHT);
-	}
 
 	/**
 	 * 漫反射颜色。
@@ -486,7 +487,7 @@ export class PBRStandardMaterial extends Material {
 	 */
 	set renderMode(value: number) {
 		switch (value) {
-			case PBRStandardMaterial.RENDERMODE_OPAQUE:
+			case RenderMode.Opaque:
 				this.alphaTest = false;
 				this.renderQueue = Material.RENDERQUEUE_OPAQUE;
 				this.depthWrite = true;
@@ -495,7 +496,7 @@ export class PBRStandardMaterial extends Material {
 				this.depthTest = RenderState.DEPTHTEST_LESS;
 				this._shaderValues.removeDefine(PBRStandardMaterial.SHADERDEFINE_ALPHAPREMULTIPLY);
 				break;
-			case PBRStandardMaterial.RENDERMODE_CUTOUT:
+			case RenderMode.Cutout:
 				this.renderQueue = Material.RENDERQUEUE_ALPHATEST;
 				this.alphaTest = true;
 				this.depthWrite = true;
@@ -504,7 +505,7 @@ export class PBRStandardMaterial extends Material {
 				this.depthTest = RenderState.DEPTHTEST_LESS;
 				this._shaderValues.removeDefine(PBRStandardMaterial.SHADERDEFINE_ALPHAPREMULTIPLY);
 				break;
-			case PBRStandardMaterial.RENDERMODE_FADE:
+			case RenderMode.Fade:
 				this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
 				this.alphaTest = false;
 				this.depthWrite = false;
@@ -515,7 +516,7 @@ export class PBRStandardMaterial extends Material {
 				this.depthTest = RenderState.DEPTHTEST_LESS;
 				this._shaderValues.removeDefine(PBRStandardMaterial.SHADERDEFINE_ALPHAPREMULTIPLY);
 				break;
-			case PBRStandardMaterial.RENDERMODE_TRANSPARENT:
+			case RenderMode.Transparent:
 				this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
 				this.alphaTest = false;
 				this.depthWrite = false;
@@ -614,7 +615,7 @@ export class PBRStandardMaterial extends Material {
 		this._shaderValues.setNumber(PBRStandardMaterial.NORMALSCALE, 1.0);
 		this._shaderValues.setNumber(PBRStandardMaterial.PARALLAX, 0.001);
 		this._shaderValues.setNumber(Material.ALPHATESTVALUE, 0.5);
-		this.renderMode = PBRStandardMaterial.RENDERMODE_OPAQUE;
+		this.renderMode = RenderMode.Opaque;
 	}
 
 	/**

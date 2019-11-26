@@ -25,4 +25,6 @@ export class Scene3DShaderDeclaration {
 	static SHADERDEFINE_SHADOW_PCF2: ShaderDefine;
 	/**@internal */
 	static SHADERDEFINE_SHADOW_PCF3: ShaderDefine;
+	/**@internal */
+	static SHADERDEFINE_GI_AMBIENT_SH: ShaderDefine;
 }
