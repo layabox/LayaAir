@@ -9,9 +9,14 @@
 #define PI 3.14159265359
 #define INV_PI 0.31830988618
 
+mediump float pow4(mediump float x)
+{
+	return x * x * x * x;
+}
+
 mediump float pow5(mediump float x)
 {
-	return x * x * x*x * x;
+	return x * x * x * x * x;
 }
 
 mediump vec3 fresnelLerp(mediump vec3 F0,mediump vec3 F90,mediump float cosA)
@@ -24,6 +29,13 @@ mediump vec3 fresnelTerm(mediump vec3 F0,mediump float cosA)
 {
 	float t = pow5(1.0 - cosA);   // ala Schlick interpoliation
 	return F0 + (vec3(1.0) - F0) * t;
+}
+
+// approximage Schlick with ^4 instead of ^5
+mediump vec3 fresnelLerpFast (mediump vec3 F0, mediump vec3 F90,mediump float cosA)
+{
+    mediump float t = pow4 (1.0 - cosA);
+    return mix (F0, F90, t);
 }
 
 float smoothnessToPerceptualRoughness(float smoothness)
@@ -133,13 +145,13 @@ mediump vec4 layaBRDF1Light(mediump vec3 diffColor, mediump vec3 specColor, medi
 	//#endif
 	specularTerm = max(0.0, specularTerm * nl);
 
-	//#def _SPECULARHIGHLIGHTS_OFF
+	//#def _SPECULARHIGHLIGHTS_OFF//TODO:
 		
 	vec3 color = diffColor * light.color * diffuseTerm + specularTerm * light.color * fresnelTerm(specColor, lh);
 	return vec4(color, 1.0);
 }
 
-vec4 layaBRDF1GI(vec3 diffColor, vec3 specColor, float oneMinusReflectivity,float smoothness ,float perceptualRoughness,float roughness,float nv,vec3 normal, vec3 viewDir,LayaGI gi)
+vec4 layaBRDF1GI(mediump vec3 diffColor,mediump vec3 specColor,mediump float oneMinusReflectivity,float smoothness ,float perceptualRoughness,float roughness,mediump float nv,vec3 normal, vec3 viewDir,LayaGI gi)
 {
 	// surfaceReduction = Int D(NdotH) * NdotH * Id(NdotL>0) dH = 1/(roughness^2+1)
 	float surfaceReduction;
@@ -149,3 +161,99 @@ vec4 layaBRDF1GI(vec3 diffColor, vec3 specColor, float oneMinusReflectivity,floa
 	return vec4(color,1.0);
 }
 // BRDF1-------------------------------------------------------------------------------------
+
+
+// BRDF2-------------------------------------------------------------------------------------
+// Based on Minimalist CookTorrance BRDF
+// Implementation is slightly different from original derivation: http://www.thetenthplanet.de/archives/255
+//
+// * NDF (depending on UNITY_BRDF_GGX):
+//  a) BlinnPhong
+//  b) [Modified] GGX
+// * Modified Kelemen and Szirmay-​Kalos for Visibility term
+// * Fresnel approximated with 1/LdotH
+mediump vec4 layaBRDF2Light (mediump vec3 diffColor, mediump vec3 specColor,mediump float oneMinusReflectivity,float perceptualRoughness,float roughness,mediump float nv,mediump vec3 normal, mediump vec3 viewDir,LayaLight light)
+{
+    mediump vec3 halfDir = safeNormalize (vec3(light.dir) + viewDir);
+    mediump float nl = clamp(dot(normal, light.dir),0.0,1.0);
+    float nh = clamp(dot(normal, halfDir),0.0,1.0);
+    // mediump float nv = clamp(dot(normal, viewDir),0.0,1.0);
+    float lh = clamp(dot(light.dir, halfDir),0.0,1.0);
+
+	// #if UNITY_BRDF_GGX
+    // GGX Distribution multiplied by combined approximation of Visibility and Fresnel
+    // See "Optimizing PBR for Mobile" from Siggraph 2015 moving mobile graphics course
+    // https://community.arm.com/events/1155
+    mediump float a = roughness;
+    float a2 = a*a;
+
+    float d = nh * nh * (a2 - 1.0) + 1.00001;
+	// #ifdef UNITY_COLORSPACE_GAMMA
+		// Tighter approximation for Gamma only rendering mode!
+		// DVF = sqrt(DVF);
+		// DVF = (a * sqrt(.25)) / (max(sqrt(0.1), lh)*sqrt(roughness + .5) * d);
+		float specularTerm = a / (max(0.32, lh) * (1.5 + roughness) * d);
+	// #else
+	// 	float specularTerm = a2 / (max(0.1f, lh*lh) * (roughness + 0.5f) * (d * d) * 4);
+	// #endif
+
+    // on mobiles (where half actually means something) denominator have risk of overflow
+    // clamp below was added specifically to "fix" that, but dx compiler (we convert bytecode to metal/gles)
+    // sees that specularTerm have only non-negative terms, so it skips max(0,..) in clamp (leaving only min(100,...))
+
+	//#if defined (SHADER_API_MOBILE)
+    specularTerm = specularTerm - 1e-4;
+	//#endif
+
+// #else
+    // // Legacy
+    // half specularPower = PerceptualRoughnessToSpecPower(perceptualRoughness);
+    // // Modified with approximate Visibility function that takes roughness into account
+    // // Original ((n+1)*N.H^n) / (8*Pi * L.H^3) didn't take into account roughness
+    // // and produced extremely bright specular at grazing angles
+
+    // half invV = lh * lh * smoothness + perceptualRoughness * perceptualRoughness; // approx ModifiedKelemenVisibilityTerm(lh, perceptualRoughness);
+    // half invF = lh;
+
+    // half specularTerm = ((specularPower + 1) * pow (nh, specularPower)) / (8 * invV * invF + 1e-4h);
+
+	// #ifdef UNITY_COLORSPACE_GAMMA
+	// 	specularTerm = sqrt(max(1e-4f, specularTerm));
+	// #endif
+// #endif
+
+// #if defined (SHADER_API_MOBILE)
+    specularTerm = clamp(specularTerm, 0.0, 100.0); // Prevent FP16 overflow on mobiles
+// #endif
+#if defined(_SPECULARHIGHLIGHTS_OFF)
+    specularTerm = 0.0;
+#endif
+
+    
+
+    
+    mediump vec3 color = (diffColor + specularTerm * specColor) * light.color * nl;
+
+    return vec4(color, 1.0);
+}
+
+mediump vec4 layaBRDF2GI (mediump vec3 diffColor, mediump vec3 specColor,mediump float oneMinusReflectivity,mediump float smoothness,float perceptualRoughness,float roughness,mediump float nv,mediump vec3 normal, mediump vec3 viewDir,LayaGI gi)
+{
+	// surfaceReduction = Int D(NdotH) * NdotH * Id(NdotL>0) dH = 1/(realRoughness^2+1)
+
+    // 1-0.28*x^3 as approximation for (1/(x^4+1))^(1/2.2) on the domain [0;1]
+    // 1-x^3*(0.6-0.08*x)   approximation for 1/(x^4+1)
+	// #ifdef LAYA_COLORSPACE_GAMMA
+		mediump float surfaceReduction = 0.28;
+	// #else
+		// mediump float surfaceReduction = (0.6-0.08*perceptualRoughness);
+	// #endif
+
+    surfaceReduction = 1.0 - roughness*perceptualRoughness*surfaceReduction;
+
+	mediump float grazingTerm = clamp(smoothness + (1.0-oneMinusReflectivity),0.0,1.0);
+	mediump vec3 color =gi.diffuse * diffColor+ surfaceReduction * gi.specular * fresnelLerpFast (specColor, vec3(grazingTerm), nv);
+
+    return vec4(color, 1.0);
+}
+// BRDF2-------------------------------------------------------------------------------------
