@@ -1104,6 +1104,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			//TODO:
 		}
 
+		var reflectionSpecularColorData: Array<number> = data.reflectionSpecularColor;
+		(reflectionSpecularColorData) && (this._reflectionSpecularColor.fromArray(reflectionSpecularColorData));
 		var reflectionCubeHDRParamsData: Array<number> = data.reflectionCubeHDRParams;
 		(reflectionCubeHDRParamsData) && (this.reflectionCubeHDRParams.fromArray(reflectionCubeHDRParamsData));
 	}
