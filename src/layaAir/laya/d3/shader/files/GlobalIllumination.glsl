@@ -22,7 +22,7 @@ uniform vec4 u_ReflectCubeHDRParams;
 
 
 #ifdef INDIRECTLIGHT
-mediump vec3 SHEvalLinearL0L1(mediump vec4 normal)
+mediump vec3 shEvalLinearL0L1(mediump vec4 normal)
 {
 	mediump vec3 x;
 	// Linear (L1) + constant (L0) polynomial terms
@@ -32,7 +32,7 @@ mediump vec3 SHEvalLinearL0L1(mediump vec4 normal)
 	return x;
 }
 
-mediump vec3 SHEvalLinearL2(mediump vec4 normal)
+mediump vec3 shEvalLinearL2(mediump vec4 normal)
 {
 	mediump vec3 x1,x2;
 	// 4 of the quadratic (L2) polynomials
@@ -48,21 +48,16 @@ mediump vec3 SHEvalLinearL2(mediump vec4 normal)
 	return x1 + x2;
 }
 #endif
-//LayaFragmentGI
-//感知光滑转换到感知粗糙
-//LayaGI_Base
 
-
-vec3 shadeSHPerPixel(vec3 normal, vec3 ambient)
+mediump vec3 shadeSHPerPixel(mediump vec3 normal,mediump vec3 ambient)
 {
-	vec3 nenormal = vec3(-normal.x,normal.y,normal.z);
-	#ifdef INDIRECTLIGHT
-		ambient = SHEvalLinearL0L1(vec4(nenormal, 1.0));
-		//得到完整球谐函数
-		ambient += SHEvalLinearL2(vec4(nenormal, 1.0));
-		ambient = max(vec3(0, 0, 0), ambient);
-	#endif
-		ambient = LayaLinearToGammaSpace(ambient);
+	normal.x=-normal.x;//TODO:The SH Data is inverse,so need to invertX
+	mediump vec3 ambientContrib;
+	mediump vec4 normalV4=vec4(normal, 1.0);
+	ambientContrib = shEvalLinearL0L1(normalV4);
+	ambientContrib += shEvalLinearL2(normalV4);
+	ambient += max(vec3(0.0), ambientContrib);
+	ambient = layaLinearToGammaSpace(ambient);
 	return ambient;
 }
 
@@ -71,9 +66,9 @@ vec3 layaGIBase(LayaGIInput giInput,mediump float occlusion, mediump vec3 normal
 {
 	vec3 indirectDiffuse;
 	#ifdef LIGHTMAP	
-		indirectDiffuse = u_AmbientColor + decodeHDR(texture2D(u_LightMap, giInput.LightMapUV),5.0);
+		indirectDiffuse = u_AmbientColor + decodeHDR(texture2D(u_LightMap, giInput.Livec3(0.0)ghtMapUV),5.0);//TODO:
 	#else
-		indirectDiffuse = shadeSHPerPixel(normalWorld, u_AmbientColor);
+		indirectDiffuse = shadeSHPerPixel(normalWorld, vec3(0.0));//todo:full pixel SH is always 0,or have L2 SH Color
 	#endif
 
 	indirectDiffuse*=occlusion;
