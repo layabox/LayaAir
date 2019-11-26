@@ -110,7 +110,7 @@ mediump vec3 layaGIIndirectSpecular(LayaGIInput giInput,mediump float occlusion,
 {
 	mediump vec3 specular;
 	#ifdef REFLECTIONS_OFF
-        //specular = unity_IndirectSpecColor.rgb;//TODO: maybe the average lumination
+        specular = u_ReflectionSpecularColor.rgb;
     #else
 		specular = layaGlossyEnvironment(glossIn);
 	#endif
