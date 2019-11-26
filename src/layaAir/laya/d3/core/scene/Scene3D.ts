@@ -114,6 +114,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	static AMBIENTSHBB: number = Shader3D.propertyNameToID("u_AmbientSHBb");
 	static AMBIENTSHC: number = Shader3D.propertyNameToID("u_AmbientSHC");
 	static REFLECTIONPROBE: number = Shader3D.propertyNameToID("u_ReflectionProbe");
+	static REFLECTION_SPECULAR_COLOR: number = Shader3D.propertyNameToID("u_ReflectionSpecularColor");
 	static REFLECTIONCUBE_HDR_PARAMS: number = Shader3D.propertyNameToID("u_ReflectCubeHDRParams");
 
 	//------------------legacy lighting-------------------------------
@@ -211,8 +212,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal */
 	private _enableFog: boolean;
 	/** @internal */
-	_physicsSimulation: PhysicsSimulation;
-	/** @internal */
 	private _input: Input3D = new Input3D();
 	/** @internal */
 	private _timer: Timer = ILaya.timer;
@@ -222,7 +221,13 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	private _shCoefficients: Vector4[] = new Array(7);
 	/** @internal */
 	private _ambientSphericalHarmonics: SphericalHarmonicsL2 = new SphericalHarmonicsL2();
+	/** @internal */
+	private _reflectionProbe: TextureCube;
+	/** @internal */
+	private _reflectionSpecularColor: Vector4 = new Vector4(0, 0, 0, 1);
 
+	/** @internal */
+	_physicsSimulation: PhysicsSimulation;
 	/** @internal */
 	_octree: BoundsOctree;
 	/** @internal 只读,不允许修改。*/
@@ -246,8 +251,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	_tempScriptPool: Script3D[] = new Array<Script3D>();
 	/** @internal */
 	_needClearScriptPool: boolean = false;
-	/** @internal */
-	_reflectionProbe: TextureCube;
 
 	/** 当前创建精灵所属遮罩层。*/
 	currentCreationLayer: number = Math.pow(2, 0);
@@ -493,8 +496,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		for (var i: number = 0; i < 7; i++)
 			this._shCoefficients[i] = new Vector4();
 		(Config3D._config._multiLighting) || (this._shaderValues.addDefine(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING));
-		
+
 		this._shaderValues.setVector(Scene3D.REFLECTIONCUBE_HDR_PARAMS, this.reflectionCubeHDRParams);
+		this._shaderValues.setVector(Scene3D.REFLECTION_SPECULAR_COLOR, this._reflectionSpecularColor);
 
 		if (Render.supportWebGLPlusCulling) {//[NATIVE]
 			this._cullingBufferIndices = new Int32Array(1024);
