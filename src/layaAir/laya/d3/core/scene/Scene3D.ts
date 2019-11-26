@@ -57,6 +57,7 @@ import { BoundsOctree } from "./BoundsOctree";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
 import { SphericalHarmonicsL2 } from "../../graphics/SphericalHarmonicsL2";
 import { ShaderDefine } from "../../shader/ShaderDefine";
+import { ShaderValue } from "../../../webgl/shader/ShaderValue";
 
 /**
  * 环境光模式
@@ -64,8 +65,8 @@ import { ShaderDefine } from "../../shader/ShaderDefine";
 export enum AmbientMode {
 	/** 固定颜色。*/
 	SolidColor,
-	/** 基于天空盒的环境光。 */
-	Skybox
+	/** 球谐光照,例如通过天空盒生成的球谐数据。 */
+	SphericalHarmonics
 }
 
 
@@ -219,6 +220,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	private _time: number = 0;
 	/** @internal */
 	private _shCoefficients: Vector4[] = new Array(7);
+	/** @internal */
+	private _ambientSphericalHarmonics: SphericalHarmonicsL2 = new SphericalHarmonicsL2();
 
 	/** @internal */
 	_octree: BoundsOctree;
@@ -248,8 +251,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	currentCreationLayer: number = Math.pow(2, 0);
 	/** 是否启用灯光。*/
 	enableLight: boolean = true;
-	/** 全局的环境光探头。 */
-	ambientProbe: SphericalHarmonicsL2 = new SphericalHarmonicsL2();
 	/**	全局的反射探头。 */
 	reflectionProbe: TextureCube;
 	/**	全局的反射探头。 */
@@ -330,6 +331,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 	/**
 	 * 环境光模式。
+	 * 如果值为AmbientMode.SolidColor一般使用ambientColor作为环境光源，如果值为如果值为AmbientMode.SphericalHarmonics一般使用ambientSphericalHarmonics作为环境光源。
 	 */
 	get ambientMode(): AmbientMode {
 		return this._ambientMode;
@@ -340,7 +342,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			case AmbientMode.SolidColor:
 				this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_AMBIENT_SH);
 				break;
-			case AmbientMode.Skybox:
+			case AmbientMode.SphericalHarmonics:
 				this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_AMBIENT_SH);
 				break;
 			default:
@@ -350,7 +352,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * 环境光颜色。
+	 * 固定颜色环境光。
 	 */
 	get ambientColor(): Vector3 {
 		return (<Vector3>this._shaderValues.getVector3(Scene3D.AMBIENTCOLOR));
@@ -358,6 +360,38 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 	set ambientColor(value: Vector3) {
 		this._shaderValues.setVector3(Scene3D.AMBIENTCOLOR, value);
+	}
+
+	/**
+	 * 球谐环境光,修改后必须重新赋值。
+	 */
+	get ambientSphericalHarmonics(): SphericalHarmonicsL2 {
+		return this._ambientSphericalHarmonics;
+	}
+
+	set ambientSphericalHarmonics(value: SphericalHarmonicsL2) {
+		var originalSH: SphericalHarmonicsL2 = value || SphericalHarmonicsL2._default;
+		var optSH: Vector4[] = this._shCoefficients;
+
+		for (var i = 0; i < 3; i++) {
+			var shaderSHA: Vector4 = optSH[i];
+			var shaderSHB: Vector4 = optSH[i + 3];
+			shaderSHA.setValue(originalSH.getCoefficient(i, 3), originalSH.getCoefficient(i, 1), originalSH.getCoefficient(i, 2), (originalSH.getCoefficient(i, 0) - originalSH.getCoefficient(i, 6)));
+			shaderSHB.setValue(originalSH.getCoefficient(i, 4), originalSH.getCoefficient(i, 5), originalSH.getCoefficient(i, 6) * 3, originalSH.getCoefficient(i, 7));// Quadratic polynomials 
+		}
+		optSH[6].setValue(originalSH.getCoefficient(0, 8), originalSH.getCoefficient(1, 8), originalSH.getCoefficient(2, 8), 1);// Final quadratic polynomial
+
+		var shaderValues: ShaderData = this._shaderValues;
+		shaderValues.setVector(Scene3D.AMBIENTSHAR, optSH[0]);
+		shaderValues.setVector(Scene3D.AMBIENTSHAG, optSH[1]);
+		shaderValues.setVector(Scene3D.AMBIENTSHAB, optSH[2]);
+		shaderValues.setVector(Scene3D.AMBIENTSHBR, optSH[3]);
+		shaderValues.setVector(Scene3D.AMBIENTSHBG, optSH[4]);
+		shaderValues.setVector(Scene3D.AMBIENTSHBB, optSH[5]);
+		shaderValues.setVector(Scene3D.AMBIENTSHC, optSH[6]);
+
+		if (this._ambientSphericalHarmonics != value)
+			value.cloneTo(this._ambientSphericalHarmonics);
 	}
 
 	/**
@@ -812,25 +846,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			}
 		}
 
-		//ambientProbe
-		var originalSH: SphericalHarmonicsL2 = this.ambientProbe || SphericalHarmonicsL2._default;
-		var optSH: Vector4[] = this._shCoefficients;
-
-		for (var i = 0; i < 3; i++) {
-			var shaderSHA: Vector4 = optSH[i];
-			var shaderSHB: Vector4 = optSH[i + 3];
-			shaderSHA.setValue(originalSH.getCoefficient(i, 3), originalSH.getCoefficient(i, 1), originalSH.getCoefficient(i, 2), (originalSH.getCoefficient(i, 0) - originalSH.getCoefficient(i, 6)));
-			shaderSHB.setValue(originalSH.getCoefficient(i, 4), originalSH.getCoefficient(i, 5), originalSH.getCoefficient(i, 6) * 3, originalSH.getCoefficient(i, 7));// Quadratic polynomials 
-		}
-		optSH[6].setValue(originalSH.getCoefficient(0, 8), originalSH.getCoefficient(1, 8), originalSH.getCoefficient(2, 8), 1);// Final quadratic polynomial 
-		shaderValues.setVector(Scene3D.AMBIENTSHAR, optSH[0]);
-		shaderValues.setVector(Scene3D.AMBIENTSHAG, optSH[1]);
-		shaderValues.setVector(Scene3D.AMBIENTSHAB, optSH[2]);
-		shaderValues.setVector(Scene3D.AMBIENTSHBR, optSH[3]);
-		shaderValues.setVector(Scene3D.AMBIENTSHBG, optSH[4]);
-		shaderValues.setVector(Scene3D.AMBIENTSHBB, optSH[5]);
-		shaderValues.setVector(Scene3D.AMBIENTSHC, optSH[6]);
-
 		//refelectionProbe
 		shaderValues.setTexture(Scene3D.REFLECTIONTEXTURE, this.reflectionProbe || TextureCube.blackTexture);
 		shaderValues.setVector(Scene3D.REFLECTIONCUBE_HDR_PARAMS, this.reflectionCubeHDRParams);
@@ -1063,10 +1078,12 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 		var ambientProbeData: Array<number> = data.ambientProbe;
 		if (ambientProbeData) {
+			var ambientSH: SphericalHarmonicsL2 = this.ambientSphericalHarmonics;
 			for (var i: number = 0; i < 3; i++) {
 				var off: number = i * 9;
-				this.ambientProbe.setCoefficients(i, ambientProbeData[off], ambientProbeData[off + 1], ambientProbeData[off + 2], ambientProbeData[off + 3], ambientProbeData[off + 4], ambientProbeData[off + 5], ambientProbeData[off + 6], ambientProbeData[off + 7], ambientProbeData[off + 8]);
+				ambientSH.setCoefficients(i, ambientProbeData[off], ambientProbeData[off + 1], ambientProbeData[off + 2], ambientProbeData[off + 3], ambientProbeData[off + 4], ambientProbeData[off + 5], ambientProbeData[off + 6], ambientProbeData[off + 7], ambientProbeData[off + 8]);
 			}
+			this.ambientSphericalHarmonics = ambientSH;
 		}
 		var reflectionProbeData: any = data.reflectionProbe;
 		if (reflectionProbeData) {

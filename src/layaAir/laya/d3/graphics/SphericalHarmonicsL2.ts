@@ -1,4 +1,3 @@
-import { Vector4 } from "../math/Vector4";
 
 /**
  * 二阶球谐函数。
@@ -52,5 +51,18 @@ export class SphericalHarmonicsL2 {
         this._coefficients[++offset] = coefficient6;
         this._coefficients[++offset] = coefficient7;
         this._coefficients[++offset] = coefficient8;
+    }
+
+    /**
+     * 克隆
+     * @param dest 
+     */
+    cloneTo(dest: SphericalHarmonicsL2): void {
+        if (this === dest)
+            return;
+        var coes: Float32Array = this._coefficients;
+        var destCoes: Float32Array = dest._coefficients;
+        for (var i: number = 0; i < 27; i++)
+            destCoes[i] = coes[i];
     }
 }
