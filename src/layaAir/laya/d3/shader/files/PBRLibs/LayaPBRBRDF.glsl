@@ -39,7 +39,7 @@ float perceptualRoughnessToRoughness(float perceptualRoughness)
 vec3 safeNormalize(vec3 inVec)
 {
 	float dp3 = max(0.001,dot(inVec,inVec));
-	return inVec * (1.0 / sqrt(dp3));
+	return inVec * inversesqrt(dp3);
 }
 
 // Note: Disney diffuse must be multiply by diffuseAlbedo / PI. This is done outside of this function.
