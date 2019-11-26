@@ -1099,10 +1099,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			}
 			this.ambientSphericalHarmonics = ambientSH;
 		}
-		var reflectionProbeData: any = data.reflectionProbe;
-		if (reflectionProbeData) {
-			//TODO:
-		}
+		var reflectionProbeData: string = data.reflectionProbe;
+		if (reflectionProbeData) 
+			this.reflectionProbe = Loader.getRes(reflectionProbeData);
 
 		var reflectionSpecularColorData: Array<number> = data.reflectionSpecularColor;
 		(reflectionSpecularColorData) && (this._reflectionSpecularColor.fromArray(reflectionSpecularColorData));

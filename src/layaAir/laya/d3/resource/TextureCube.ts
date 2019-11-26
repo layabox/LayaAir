@@ -23,9 +23,9 @@ export class TextureCube extends BaseTexture {
 	static TEXTURECUBE: string = "TEXTURECUBE";
 
 	/**@private*/
-	static _blackTexture: TextureCube;
+	private static _blackTexture: TextureCube;
 	/**@private*/
-	static _grayTexture: TextureCube;
+	private static _grayTexture: TextureCube;
 
 	/**
 	 * 黑色纯色纹理。
@@ -62,6 +62,15 @@ export class TextureCube extends BaseTexture {
 	 * @inheritDoc
 	 */
 	static _parse(data: any, propertyParams: any = null, constructParams: any[] = null): TextureCube {
+		var texture: TextureCube = constructParams ? new TextureCube(0, constructParams[0], constructParams[1]) : new TextureCube(0);
+		texture.setSixSideImageSources(data);
+		return texture;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	static _parseBin(data: any, propertyParams: any = null, constructParams: any[] = null): TextureCube {
 		var texture: TextureCube = constructParams ? new TextureCube(0, constructParams[0], constructParams[1]) : new TextureCube(0);
 		texture.setSixSideImageSources(data);
 		return texture;
