@@ -8,11 +8,11 @@ struct FragmentCommonData{
 	//vec3 reflUVW;
 };
 
-const mediump vec4 dielectricSpecularColor = vec4(0.220916301, 0.220916301, 0.220916301, 1.0 - 0.220916301);
-
 #ifndef SETUP_BRDF_INPUT
     #define SETUP_BRDF_INPUT metallicSetup//default is metallicSetup,also can be other. 
 #endif
+
+const mediump vec4 dielectricSpecularColor = vec4(0.220916301, 0.220916301, 0.220916301, 1.0 - 0.220916301);
 
 mediump vec3 diffuseAndSpecularFromMetallic(mediump vec3 albedo,mediump float metallic, out mediump vec3 specColor, out mediump float oneMinusReflectivity)
 {
