@@ -91,6 +91,7 @@ import { WebGLContext } from "./laya/webgl/WebGLContext";
 import { Byte } from "./laya/utils/Byte";
 import { PBRStandardMaterial } from "./laya/d3/core/material/PBRStandardMaterial";
 import { FilterMode } from "./laya/resource/FilterMode";
+import { WarpMode } from "./laya/resource/WrapMode";
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
  */
@@ -801,11 +802,15 @@ export class Laya3D {
 			var mipCount: number = byte.getUint8();
 			var size: number = byte.readUint16();
 			var filterMode: FilterMode = <FilterMode>byte.getUint8();
+			var warpModeU: WarpMode = <WarpMode>byte.getUint8();
+			var warpModev: WarpMode = <WarpMode>byte.getUint8();
 			var anisoLevel: FilterMode = byte.getUint8();
 
 			var cubemap: TextureCube = new TextureCube(size, format, mipCount > 1 ? true : false);
-			cubemap.filterMode=filterMode;
-			cubemap.anisoLevel=anisoLevel;
+			cubemap.filterMode = filterMode;
+			cubemap.wrapModeU = warpModeU;
+			cubemap.wrapModeV = warpModev;
+			cubemap.anisoLevel = anisoLevel;
 			var pos: number = byte.pos;
 			var mipSize: number = size;
 			for (var i = 0; i < mipCount; i++) {
