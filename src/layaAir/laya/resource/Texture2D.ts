@@ -87,7 +87,7 @@ export class Texture2D extends BaseTexture {
 	/** @internal */
 	private _canRead: boolean;
 	/** @internal */
-	private _pixels: Uint8Array | Float32Array;//TODO:是否合并格式
+	private _pixels: Uint8Array | Uint16Array | Float32Array;//TODO:是否合并格式
 
 
 
@@ -151,7 +151,7 @@ export class Texture2D extends BaseTexture {
 	/**
 	 * @internal
 	 */
-	private _setPixels(pixels: Uint8Array | Float32Array, miplevel: number, width: number, height: number): void {
+	private _setPixels(pixels: Uint8Array | Uint16Array | Float32Array, miplevel: number, width: number, height: number): void {
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		var textureType: number = this._glTextureType;
 		var glFormat: number = this._getGLFormat();
@@ -428,7 +428,7 @@ export class Texture2D extends BaseTexture {
 	 * @param	pixels 像素。
 	 * @param   miplevel 层级。
 	 */
-	setPixels(pixels: Uint8Array | Float32Array, miplevel: number = 0): void {
+	setPixels(pixels: Uint8Array | Uint16Array | Float32Array, miplevel: number = 0): void {
 		if (this._gpuCompressFormat())
 			throw "Texture2D:the format is GPU compression format.";
 		if (!pixels)
@@ -456,7 +456,7 @@ export class Texture2D extends BaseTexture {
 	 * @param  pixels 像素数组。
 	 * @param  miplevel 层级。
 	 */
-	setSubPixels(x: number, y: number, width: number, height: number, pixels: Uint8Array | Float32Array, miplevel: number = 0): void {
+	setSubPixels(x: number, y: number, width: number, height: number, pixels: Uint8Array | Uint16Array | Float32Array, miplevel: number = 0): void {
 		if (this._gpuCompressFormat())
 			throw "Texture2D:the format is GPU compression format.";
 		if (!pixels)
@@ -529,7 +529,7 @@ export class Texture2D extends BaseTexture {
 	 * 返回图片像素。
 	 * @return 图片像素。
 	 */
-	getPixels(): Uint8Array | Float32Array {
+	getPixels(): Uint8Array |Uint16Array| Float32Array {
 		if (this._canRead)
 			return this._pixels;
 		else
