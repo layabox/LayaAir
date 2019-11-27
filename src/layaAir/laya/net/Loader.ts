@@ -17,6 +17,7 @@ import { HttpRequest } from "./HttpRequest";
 import { TTFLoader } from "./TTFLoader";
 import { URL } from "./URL";
 import { TextureFormat } from "../resource/TextureFormat";
+import { WarpMode } from "../resource/WrapMode";
 
 /**
  * 加载进度发生改变时调度。
@@ -331,8 +332,8 @@ export class Loader extends EventDispatcher {
 						}
 					}
 					var tex = new Texture2D(0, 0, format, false, false);
-					tex.wrapModeU = BaseTexture.WARPMODE_CLAMP;
-					tex.wrapModeV = BaseTexture.WARPMODE_CLAMP;
+					tex.wrapModeU = WarpMode.Clamp;
+					tex.wrapModeV = WarpMode.Clamp;
 					tex.setCompressData(imageData);
 					tex._setCreateURL(url);
 					_this.onLoaded(tex);
@@ -341,8 +342,8 @@ export class Loader extends EventDispatcher {
 			} else {
 				onLoaded = function (image: any): void {
 					var tex: Texture2D = new Texture2D(image.width, image.height, 1, false, false);
-					tex.wrapModeU = BaseTexture.WARPMODE_CLAMP;
-					tex.wrapModeV = BaseTexture.WARPMODE_CLAMP;
+					tex.wrapModeU = WarpMode.Clamp;
+					tex.wrapModeV = WarpMode.Clamp;
 					tex.loadImageSource(image, true);
 					tex._setCreateURL(url);
 					_this.onLoaded(tex);

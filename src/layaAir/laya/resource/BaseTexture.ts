@@ -3,15 +3,13 @@ import { WebGLContext } from "../webgl/WebGLContext";
 import { Bitmap } from "./Bitmap";
 import { TextureFormat } from "./TextureFormat";
 import { FilterMode } from "./FilterMode";
+import { WarpMode } from "./WrapMode";
 
 
 /**
  * <code>BaseTexture</code> 纹理的父类，抽象类，不允许实例。
  */
 export class BaseTexture extends Bitmap {
-	static WARPMODE_REPEAT: number = 0;
-	static WARPMODE_CLAMP: number = 1;
-
 	/** @internal */
 	protected _readyed: boolean;
 	/** @internal */
@@ -23,9 +21,9 @@ export class BaseTexture extends Bitmap {
 	/** @internal */
 	protected _mipmap: boolean;
 	/** @internal */
-	protected _wrapModeU: number;
+	protected _wrapModeU: WarpMode;
 	/** @internal */
-	protected _wrapModeV: number;
+	protected _wrapModeV: WarpMode;
 	/** @internal */
 	protected _filterMode: FilterMode;
 	/** @internal */
@@ -120,8 +118,8 @@ export class BaseTexture extends Bitmap {
 	 */
 	constructor(format: number, mipMap: boolean) {
 		super();
-		this._wrapModeU = BaseTexture.WARPMODE_REPEAT;
-		this._wrapModeV = BaseTexture.WARPMODE_REPEAT;
+		this._wrapModeU = WarpMode.Repeat;
+		this._wrapModeV = WarpMode.Repeat;
 		this._filterMode = FilterMode.Bilinear;
 
 		this._readyed = false;
@@ -270,10 +268,10 @@ export class BaseTexture extends Bitmap {
 		WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
 		if (this._isPot(this._width) && this._isPot(this._height)) {
 			switch (mode) {
-				case BaseTexture.WARPMODE_REPEAT:
+				case WarpMode.Repeat:
 					gl.texParameteri(this._glTextureType, orientation, gl.REPEAT);
 					break;
-				case BaseTexture.WARPMODE_CLAMP:
+				case WarpMode.Clamp:
 					gl.texParameteri(this._glTextureType, orientation, gl.CLAMP_TO_EDGE);
 					break;
 			}
@@ -370,5 +368,10 @@ export class BaseTexture extends Bitmap {
 	static FILTERMODE_BILINEAR: number = 1;
 	/** @deprecated use FilterMode.Trilinear instead.*/
 	static FILTERMODE_TRILINEAR: number = 2;
+
+	/** @deprecated use WarpMode.Repeat instead.*/
+	static WARPMODE_REPEAT: number = 0;
+	/** @deprecated use WarpMode.Clamp instead.*/
+	static WARPMODE_CLAMP: number = 1;
 }
 
