@@ -144,10 +144,8 @@ mediump vec4 layaBRDF1Light(mediump vec3 diffColor, mediump vec3 specColor, medi
 	specularTerm = sqrt(max(1e-4, specularTerm));
 	//#endif
 	specularTerm = max(0.0, specularTerm * nl);
-
-	//#def _SPECULARHIGHLIGHTS_OFF//TODO:
 		
-	vec3 color = diffColor * light.color * diffuseTerm + specularTerm * light.color * fresnelTerm(specColor, lh);
+	mediump vec3 color = diffColor * light.color * diffuseTerm + specularTerm * light.color * fresnelTerm(specColor, lh);
 	return vec4(color, 1.0);
 }
 
@@ -157,7 +155,7 @@ vec4 layaBRDF1GI(mediump vec3 diffColor,mediump vec3 specColor,mediump float one
 	float surfaceReduction;
 	surfaceReduction = 1.0 - 0.28*roughness*perceptualRoughness;// 1-0.28*x^3 as approximation for (1/(x^4+1))^(1/2.2) on the domain [0;1]
 	float grazingTerm = clamp(smoothness + (1.0 - oneMinusReflectivity),0.0,1.0);
-	vec3 color =diffColor * gi.diffuse + surfaceReduction * gi.specular * fresnelLerp(specColor,vec3(grazingTerm), nv);
+	mediump vec3 color =diffColor * gi.diffuse + surfaceReduction * gi.specular * fresnelLerp(specColor,vec3(grazingTerm), nv);
 	return vec4(color,1.0);
 }
 // BRDF1-------------------------------------------------------------------------------------
@@ -205,32 +203,26 @@ mediump vec4 layaBRDF2Light (mediump vec3 diffColor, mediump vec3 specColor,medi
     specularTerm = specularTerm - 1e-4;
 	//#endif
 
-// #else
-    // // Legacy
-    // half specularPower = PerceptualRoughnessToSpecPower(perceptualRoughness);
-    // // Modified with approximate Visibility function that takes roughness into account
-    // // Original ((n+1)*N.H^n) / (8*Pi * L.H^3) didn't take into account roughness
-    // // and produced extremely bright specular at grazing angles
+	// #else
+		// // Legacy
+		// half specularPower = PerceptualRoughnessToSpecPower(perceptualRoughness);
+		// // Modified with approximate Visibility function that takes roughness into account
+		// // Original ((n+1)*N.H^n) / (8*Pi * L.H^3) didn't take into account roughness
+		// // and produced extremely bright specular at grazing angles
 
-    // half invV = lh * lh * smoothness + perceptualRoughness * perceptualRoughness; // approx ModifiedKelemenVisibilityTerm(lh, perceptualRoughness);
-    // half invF = lh;
+		// half invV = lh * lh * smoothness + perceptualRoughness * perceptualRoughness; // approx ModifiedKelemenVisibilityTerm(lh, perceptualRoughness);
+		// half invF = lh;
 
-    // half specularTerm = ((specularPower + 1) * pow (nh, specularPower)) / (8 * invV * invF + 1e-4h);
+		// half specularTerm = ((specularPower + 1) * pow (nh, specularPower)) / (8 * invV * invF + 1e-4h);
 
-	// #ifdef UNITY_COLORSPACE_GAMMA
-	// 	specularTerm = sqrt(max(1e-4f, specularTerm));
+		// #ifdef UNITY_COLORSPACE_GAMMA
+		// 	specularTerm = sqrt(max(1e-4f, specularTerm));
+		// #endif
 	// #endif
-// #endif
 
-// #if defined (SHADER_API_MOBILE)
-    specularTerm = clamp(specularTerm, 0.0, 100.0); // Prevent FP16 overflow on mobiles
-// #endif
-#if defined(_SPECULARHIGHLIGHTS_OFF)
-    specularTerm = 0.0;
-#endif
-
-    
-
+	// #if defined (SHADER_API_MOBILE)
+		specularTerm = clamp(specularTerm, 0.0, 100.0); // Prevent FP16 overflow on mobiles
+	// #endif
     
     mediump vec3 color = (diffColor + specularTerm * specColor) * light.color * nl;
 
