@@ -149,6 +149,8 @@ export class BaseTexture extends Bitmap {
 				return 3;
 			case TextureFormat.R8G8B8A8:
 				return 4;
+			case TextureFormat.R5G6B5:
+				return 2;
 			case TextureFormat.Alpha8:
 				return 1;
 			case TextureFormat.R32G32B32A32:
@@ -170,10 +172,11 @@ export class BaseTexture extends Bitmap {
 	 */
 	protected _getGLFormat(): number {
 		var glFormat: number;
-		var gl = LayaGL.instance;
+		var gl: WebGLRenderingContext = LayaGL.instance;
 		var gpu = LayaGL.layaGPUInstance;
 		switch (this._format) {
 			case TextureFormat.R8G8B8:
+			case TextureFormat.R5G6B5:
 				glFormat = gl.RGB;
 				break;
 			case TextureFormat.R8G8B8A8:

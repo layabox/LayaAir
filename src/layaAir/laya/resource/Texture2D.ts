@@ -162,6 +162,11 @@ export class Texture2D extends BaseTexture {
 				gl.texImage2D(textureType, miplevel, glFormat, width, height, 0, glFormat, gl.UNSIGNED_BYTE, pixels);
 				gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
 				break;
+			case TextureFormat.R5G6B5:
+				gl.pixelStorei(gl.UNPACK_ALIGNMENT, 2);//字节对齐
+				gl.texImage2D(textureType, miplevel, glFormat, width, height, 0, glFormat, gl.UNSIGNED_SHORT_5_6_5, pixels);
+				gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+				break;
 			case TextureFormat.R32G32B32A32:
 				if (LayaGL.layaGPUInstance._isWebGL2)
 					gl.texImage2D(textureType, miplevel, (<WebGL2RenderingContext>gl).RGBA32F, width, height, 0, glFormat, gl.FLOAT, pixels);
@@ -391,7 +396,10 @@ export class Texture2D extends BaseTexture {
 			gl.texImage2D(this._glTextureType, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
 		} else {
 			(premultiplyAlpha) && (gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true));
-			gl.texImage2D(this._glTextureType, 0, glFormat, glFormat, gl.UNSIGNED_BYTE, source);
+			if (this.format == TextureFormat.R5G6B5)
+				gl.texImage2D(this._glTextureType, 0, gl.RGB, gl.RGB, gl.UNSIGNED_SHORT_5_6_5, source);
+			else
+				gl.texImage2D(this._glTextureType, 0, glFormat, glFormat, gl.UNSIGNED_BYTE, source);
 			(premultiplyAlpha) && (gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false));
 		}
 		if (this._mipmap) {
@@ -463,6 +471,11 @@ export class Texture2D extends BaseTexture {
 			case TextureFormat.R8G8B8:
 				gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);//字节对齐
 				gl.texSubImage2D(textureType, miplevel, x, y, width, height, glFormat, gl.UNSIGNED_BYTE, pixels);
+				gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+				break;
+			case TextureFormat.R5G6B5:
+				gl.pixelStorei(gl.UNPACK_ALIGNMENT, 2);//字节对齐
+				gl.texSubImage2D(textureType, miplevel, x, y, width, height, glFormat, gl.UNSIGNED_SHORT_5_6_5, pixels);
 				gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
 				break;
 			case TextureFormat.R32G32B32A32:
