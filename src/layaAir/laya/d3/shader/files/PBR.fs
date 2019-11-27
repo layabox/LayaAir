@@ -7,7 +7,7 @@
 #endif
 
 #include "Lighting.glsl";
-#include "PBRInput.glsl";
+#include "PBRFSInput.glsl";
 #include "LayaPBRBRDF.glsl";
 #include "GlobalIllumination.glsl";
 #include "PBRCore.glsl";

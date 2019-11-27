@@ -1,8 +1,3 @@
-
-
-
-
-
 //alphaTest
 #ifdef ALPHATEST
 	uniform float u_AlphaTestValue;
