@@ -233,8 +233,9 @@ export class ShaderPass extends ShaderCompile {
 		var defMap: any = {};
 		var defineStr: string = "";
 		//TODO:兼容webgl2.0
-		defineStr += `#ifdef GL_EXT_shader_texture_lod
-	#extension GL_EXTn_shader_texture_lod : enable
+		defineStr += 
+`#ifdef GL_EXT_shader_texture_lod
+	#extension GL_EXT_shader_texture_lod : enable
 #endif
 #if !defined(GL_EXT_shader_texture_lod)
 	#define texture1DLodEXT texture1D
