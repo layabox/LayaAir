@@ -1,6 +1,7 @@
 #include "PBRVSInput.glsl";
 #include "Lighting.glsl";
 #include "PBRVertex.glsl";
+#include "PBRVSShadow.glsl";
 
 void main()
 {

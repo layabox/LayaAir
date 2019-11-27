@@ -82,6 +82,16 @@ varying vec3 v_EyeVec;
 //后面考虑宏TODO
 varying vec3 v_PositionWorld;
 
+varying float v_posViewZ;
+#ifdef RECEIVESHADOW
+	#if defined(SHADOWMAP_PSSM2)||defined(SHADOWMAP_PSSM3)
+		uniform mat4 u_lightShadowVP[4];
+	#endif
+	#ifdef SHADOWMAP_PSSM1 
+		varying vec4 v_lightMVPPos;
+	#endif
+#endif
+
 
 mediump float lerpOneTo(mediump float b, mediump float t)
 {

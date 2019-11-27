@@ -20,6 +20,8 @@ import LayaPBRBRDF from "./files/PBRLibs/LayaPBRBRDF.glsl";
 import PBRCore from "./files/PBRLibs/PBRCore.glsl";
 import PBRVSInput from "./files/PBRLibs/PBRVSInput.glsl";
 import PBRFSInput from "./files/PBRLibs/PBRFSInput.glsl";
+import PBRVSShadow from "./files/PBRLibs/PBRVSShadow.glsl";
+import PBRFSShadow from "./files/PBRLibs/PBRFSShadow.glsl";
 import PBRVertex from "./files/PBRLibs/PBRVertex.glsl";
 import BloomVS from "./files/postProcess/Bloom.vs";
 import BloomDownsample13PS from "./files/postProcess/BloomDownsample13.fs";
@@ -75,6 +77,8 @@ export class ShaderInit3D {
 		Shader3D.addInclude("StdLib.glsl", StdLibGLSL);
 		Shader3D.addInclude("PBRVSInput.glsl", PBRVSInput);
 		Shader3D.addInclude("PBRFSInput.glsl", PBRFSInput);
+		Shader3D.addInclude("PBRVSShadow.glsl", PBRVSShadow);
+		Shader3D.addInclude("PBRFSShadow.glsl", PBRFSShadow);
 		Shader3D.addInclude("LayaPBRBRDF.glsl", LayaPBRBRDF);
 		Shader3D.addInclude("PBRCore.glsl", PBRCore);
 		Shader3D.addInclude("PBRVertex.glsl", PBRVertex);
