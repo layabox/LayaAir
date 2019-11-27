@@ -165,11 +165,11 @@ vec4 layaBRDF1GI(mediump vec3 diffColor,mediump vec3 specColor,mediump float one
 // Based on Minimalist CookTorrance BRDF
 // Implementation is slightly different from original derivation: http://www.thetenthplanet.de/archives/255
 //
-// * NDF (depending on UNITY_BRDF_GGX):
+// *NDF (depending on UNITY_BRDF_GGX):
 //  a) BlinnPhong
 //  b) [Modified] GGX
-// * Modified Kelemen and Szirmay-​Kalos for Visibility term
-// * Fresnel approximated with 1/LdotH
+// *Modified Kelemen and Szirmay-​Kalos for Visibility term
+// *Fresnel approximated with 1/LdotH
 mediump vec4 layaBRDF2Light (mediump vec3 diffColor, mediump vec3 specColor,mediump float oneMinusReflectivity,float perceptualRoughness,float roughness,mediump float nv,mediump vec3 normal, mediump vec3 viewDir,LayaLight light)
 {
     mediump vec3 halfDir = safeNormalize (vec3(light.dir) + viewDir);
