@@ -5,6 +5,7 @@ import { RenderTextureDepthFormat, RenderTextureFormat } from "../../resource/Re
 import { Texture2D } from "../../resource/Texture2D";
 import { WebGLContext } from "../../webgl/WebGLContext";
 import { RenderContext3D } from "../core/render/RenderContext3D";
+import { FilterMode } from "../../resource/FilterMode";
 
 /**
  * <code>RenderTexture</code> 类用于创建渲染目标。
@@ -25,7 +26,7 @@ export class RenderTexture extends BaseTexture {
 	/**
 	 *从对象池获取临时渲染目标。
 	 */
-	static createFromPool(width: number, height: number, format: number = RenderTextureFormat.R8G8B8, depthStencilFormat: number = RenderTextureDepthFormat.DEPTH_16, filterMode: number = BaseTexture.FILTERMODE_BILINEAR): RenderTexture {
+	static createFromPool(width: number, height: number, format: number = RenderTextureFormat.R8G8B8, depthStencilFormat: number = RenderTextureDepthFormat.DEPTH_16, filterMode: FilterMode = FilterMode.Bilinear): RenderTexture {
 		var tex: RenderTexture;
 		for (var i: number = 0, n: number = RenderTexture._pool.length; i < n; i++) {
 			tex = RenderTexture._pool[i];

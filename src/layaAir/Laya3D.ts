@@ -89,6 +89,8 @@ import { RunDriver } from "./laya/utils/RunDriver";
 import { WebGL } from "./laya/webgl/WebGL";
 import { WebGLContext } from "./laya/webgl/WebGLContext";
 import { Byte } from "./laya/utils/Byte";
+import { PBRStandardMaterial } from "./laya/d3/core/material/PBRStandardMaterial";
+import { FilterMode } from "./laya/resource/FilterMode";
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
  */
@@ -222,6 +224,7 @@ export class Laya3D {
 		}
 
 		ShaderInit3D.__init__();
+		PBRStandardMaterial.__init__();
 		Mesh.__init__();
 		PrimitiveMesh.__init__();
 		Sprite3D.__init__();
@@ -794,21 +797,26 @@ export class Laya3D {
 			var version: string = byte.readUTFString();
 			if (version !== "LAYATEXTURECUBE:0000")
 				throw "Laya3D:unknow version.";
-			var format: number = byte.readUint8();
+			var format: TextureFormat = <TextureFormat>byte.readUint8();
 			var mipCount: number = byte.getUint8();
 			var size: number = byte.readUint16();
+			var filterMode: FilterMode = <FilterMode>byte.getUint8();
+			var anisoLevel: FilterMode = byte.getUint8();
+
 			var cubemap: TextureCube = new TextureCube(size, format, mipCount > 1 ? true : false);
+			cubemap.filterMode=filterMode;
+			cubemap.anisoLevel=anisoLevel;
 			var pos: number = byte.pos;
 			var mipSize: number = size;
 			for (var i = 0; i < mipCount; i++) {
 				var uint8Arrays: Array<Uint8Array> = new Array<Uint8Array>(6);
-				mipSize /= 2;
 				var mipPixelLength: number = mipSize * mipSize * 4;
 				for (var j = 0; j < 6; j++) {
-					uint8Arrays[i] = new Uint8Array(data, pos, pos + mipPixelLength);
+					uint8Arrays[j] = new Uint8Array(data, pos, mipPixelLength);
 					pos += mipPixelLength;
 				}
 				cubemap.setSixSidePixels(uint8Arrays, i);
+				mipSize /= 2;
 			}
 			Laya3D._endLoad(loader, cubemap);
 		});

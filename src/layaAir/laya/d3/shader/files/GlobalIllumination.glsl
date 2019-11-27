@@ -47,19 +47,19 @@ uniform vec4 u_ReflectCubeHDRParams;
 
 		return x1 + x2;
 	}
+	
+	mediump vec3 shadeSHPerPixel(mediump vec3 normal,mediump vec3 ambient)
+	{
+		normal.x=-normal.x;//TODO:The SH Data is inverse,so need to invertX
+		mediump vec3 ambientContrib;
+		mediump vec4 normalV4=vec4(normal, 1.0);
+		ambientContrib = shEvalLinearL0L1(normalV4);
+		ambientContrib += shEvalLinearL2(normalV4);
+		ambient += max(vec3(0.0), ambientContrib);
+		ambient = layaLinearToGammaSpace(ambient);
+		return ambient;
+	}
 #endif
-
-mediump vec3 shadeSHPerPixel(mediump vec3 normal,mediump vec3 ambient)
-{
-	normal.x=-normal.x;//TODO:The SH Data is inverse,so need to invertX
-	mediump vec3 ambientContrib;
-	mediump vec4 normalV4=vec4(normal, 1.0);
-	ambientContrib = shEvalLinearL0L1(normalV4);
-	ambientContrib += shEvalLinearL2(normalV4);
-	ambient += max(vec3(0.0), ambientContrib);
-	ambient = layaLinearToGammaSpace(ambient);
-	return ambient;
-}
 
 
 vec3 layaGIBase(LayaGIInput giInput,mediump float occlusion, mediump vec3 normalWorld)

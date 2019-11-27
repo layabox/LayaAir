@@ -12,6 +12,7 @@ import { Vector4 } from "../math/Vector4";
 import { TextureGenerator } from "../resource/TextureGenerator";
 import { TextureFormat } from "../../resource/TextureFormat";
 import { Physics3D } from "../physics/Physics3D";
+import { FilterMode } from "../../resource/FilterMode";
 
 /**
  * <code>Utils3D</code> 类用于创建3D工具。
@@ -30,7 +31,7 @@ export class Utils3D {
 	 */
 	static _createFloatTextureBuffer(width: number, height: number): Texture2D {
 		var floatTex: Texture2D = new Texture2D(width, height, TextureFormat.R32G32B32A32, false, false);
-		floatTex.filterMode = BaseTexture.FILTERMODE_POINT;
+		floatTex.filterMode = FilterMode.Point;
 		floatTex.wrapModeU = BaseTexture.WARPMODE_CLAMP;
 		floatTex.wrapModeV = BaseTexture.WARPMODE_CLAMP;
 		floatTex.anisoLevel = 0;
@@ -599,7 +600,7 @@ export class Utils3D {
 	static _buildTexture2D(width: number, height: number, format: number, colorFunc: Function, mipmaps: boolean = false): Texture2D {
 		var texture: Texture2D = new Texture2D(width, height, format, mipmaps, true);
 		texture.anisoLevel = 1;
-		texture.filterMode = BaseTexture.FILTERMODE_POINT;
+		texture.filterMode = FilterMode.Point;
 		TextureGenerator._generateTexture2D(texture, width, height, colorFunc);
 		return texture;
 	}
