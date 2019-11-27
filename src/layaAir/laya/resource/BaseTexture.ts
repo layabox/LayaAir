@@ -150,7 +150,7 @@ export class BaseTexture extends Bitmap {
 			case TextureFormat.R8G8B8A8:
 				return 4;
 			case TextureFormat.R5G6B5:
-				return 2;
+				return 1;
 			case TextureFormat.Alpha8:
 				return 1;
 			case TextureFormat.R32G32B32A32:
