@@ -29,7 +29,9 @@ class emiter {
             "MethodSignature": this.emitMethodSig,
             "PropertySignature": this.emitPropertySing,
             "ImportEqualsDeclaration": this.emitImportEquals,
-            "EnumDeclaration": this.emitEnum //枚举导出
+            "EnumDeclaration": this.emitEnum,
+            "GetAccessor": this.emitGetset,
+            "SetAccessor": this.emitGetset //get set解析
         };
     }
     static get BaseURL() {
@@ -256,25 +258,20 @@ class emiter {
     emitMethodSig(node) {
         let methodstr = "\t\tfunction ";
         let tsMethod = "\t\t";
-        // let paramstr = "";
-        // if(node.parameters&&node.parameters.length){
-        //     for(let i = 0;i<node.parameters.length;i++){
-        //         let param = node.parameters[i] as ts.ParameterDeclaration;
-        //         paramstr += (i?",":"") + param.name.getText() + ":" + this.emitType(param.type);
-        //     }
-        // }
-        // methodstr +=  node.name.getText() + "(" + paramstr + "):" + this.emitType(node.type);
         let paramstr = "";
         let tsparam = "";
         if (node.parameters) {
-            for (let i = 0; i < node.parameters.length; i++) {
-                let param = node.parameters[i];
-                let isdotdotdot = false;
-                if (param.dotDotDotToken)
-                    isdotdotdot = true;
-                paramstr += (i ? "," : "") + (isdotdotdot ? "..." : "") + param.name.getText() + (isdotdotdot ? "" : (":" + this.emitType(param.type) + (param.questionToken ? " = null" : "")));
-                tsparam += (i ? "," : "") + (isdotdotdot ? "..." : "") + param.name.getText() + (param.questionToken ? "?" : "") + ":" + this.emitTsType(param.type);
-            }
+            // for(let i = 0;i<node.parameters.length;i++){
+            //     let param = node.parameters[i] as ts.ParameterDeclaration;
+            //     let isdotdotdot = false;
+            //     if(param.dotDotDotToken)
+            //         isdotdotdot = true;
+            //     paramstr += (i ? "," : "") + (isdotdotdot?"...":"") + param.name.getText() + (isdotdotdot?"":( ":" + this.emitType(param.type) + (param.questionToken ? " = null" : "")));
+            //     tsparam += (i ? "," : "") + (isdotdotdot?"...":"") + param.name.getText() + (param.questionToken ? "?" : "") + ":" + this.emitTsType(param.type);
+            // }
+            let result = this.emitParameters(node.parameters);
+            paramstr += result[0];
+            tsparam += result[1];
         }
         methodstr += node.name.getText() + "(" + paramstr + "):" + this.emitType(node.type) + ";";
         tsMethod += node.name.getText() + "(" + tsparam + "):" + this.emitTsType(node.type) + ";";
@@ -382,15 +379,18 @@ class emiter {
         //检测是否重写接口
         if (note.indexOf("@implements") != -1)
             isImplements = true;
-        if (node.parameters) {
-            for (let i = 0; i < node.parameters.length; i++) {
-                let param = node.parameters[i];
-                let isdotdotdot = false;
-                if (param.dotDotDotToken)
-                    isdotdotdot = true;
-                paramstr += (i ? "," : "") + (isdotdotdot ? "..." : "") + param.name.getText() + (isdotdotdot ? "" : (":" + this.emitType(param.type) + (!isImplements && param.questionToken ? " = null" : "")));
-                tsparam += (i ? "," : "") + (isdotdotdot ? "..." : "") + param.name.getText() + (param.questionToken ? "?" : "") + ":" + this.emitTsType(param.type);
-            }
+        if (node.parameters) { //此处是特殊处理
+            // for(let i = 0;i<node.parameters.length;i++){
+            //     let param = node.parameters[i] as ts.ParameterDeclaration;
+            //     let isdotdotdot = false;
+            //     if(param.dotDotDotToken)
+            //         isdotdotdot = true;
+            //     paramstr += (i ? "," : "") + (isdotdotdot?"...":"") + param.name.getText() + (isdotdotdot?"":( ":" + this.emitType(param.type) + (!isImplements&&param.questionToken ? " = null" : "")));
+            //     tsparam += (i ? "," : "") + (isdotdotdot?"...":"") + param.name.getText() + (param.questionToken ? "?" : "") + ":" + this.emitTsType(param.type);
+            // }
+            let result = this.emitParameters(node.parameters, false, isImplements);
+            paramstr += result[0];
+            tsparam += result[1];
         }
         let nodetype = this.emitType(node.type);
         methodstr += node.name.getText() + "(" + paramstr + "):" + nodetype + "{" + (["*", "void"].indexOf(nodetype) != -1 ? "" : ("\r\n\t\t\treturn null;\r\n\t\t")) + "}";
@@ -406,15 +406,70 @@ class emiter {
         let tsstr = "";
         let note = this.changeIndex(node, "\r\n\t\t");
         if (node.parameters && node.parameters.length) {
-            for (let i = 0; i < node.parameters.length; i++) {
-                let param = node.parameters[i];
-                asstr += (i ? "," : "") + param.name.getText() + ":" + this.emitType(param.type) + " = undefined";
-                tsstr += (i ? "," : "") + param.name.getText() + (param.questionToken ? "?" : "") + ":" + this.emitTsType(param.type);
-            }
+            // for(let i = 0;i<node.parameters.length;i++){
+            //     let param = node.parameters[i] as ts.ParameterDeclaration;
+            //     asstr += (i?",":"") + param.name.getText() + ":" + this.emitType(param.type) + " = undefined";
+            //     tsstr += (i?",":"") + param.name.getText()  + ( param.questionToken?"?":"")  + ":"+ this.emitTsType(param.type);
+            // }
+            let result = this.emitParameters(node.parameters, true);
+            asstr += result[0];
+            tsstr += result[1];
         }
         asstr = "\r\n\t\tpublic function " + node.parent.name.getText() + "(" + asstr + "){}\r\n";
         tsstr = "\r\n\t\tconstructor(" + tsstr + ");\r\n";
         return [note + asstr, note + tsstr];
+    }
+    /**
+     * 解析get set函数
+     * @param node
+     */
+    emitGetset(node) {
+        let note = this.changeIndex(node, "\r\n\t\t");
+        let asstr = "";
+        let tsstr = "";
+        if (node.modifiers) {
+            for (let i = 0; i < node.modifiers.length; i++) {
+                let childnode = node.modifiers[i];
+                let type = ts.SyntaxKind[childnode.kind];
+                asstr += this.resolvingModifier(type, i, childnode);
+                tsstr += childnode.getText() + " ";
+            }
+            asstr += "function ";
+        }
+        else {
+            asstr += "public function ";
+        }
+        if (note.indexOf("@override") != -1) {
+            asstr = "override " + asstr;
+        }
+        let name = node.name.getText();
+        if (node.parameters.length) { //set
+            let result = this.emitParameters(node.parameters);
+            tsstr += "set " + name + "(" + result[1] + ");\r\n";
+            asstr += "set " + name + "(" + result[0] + "):void{}\r\n";
+        }
+        else {
+            //get
+            tsstr += "get " + name + "():" + this.emitTsType(node.type) + ";\r\n";
+            asstr += "get " + name + "():" + this.emitType(node.type) + "{return null;}\r\n";
+        }
+        return [note + "\t\t" + asstr, note + "\t\t" + tsstr];
+    }
+    /**
+     * 解析方法中的参数
+     * @param params
+     * @param isCon 是否是构造函数
+     */
+    emitParameters(params, isCon = false, isImp = false) {
+        let asResult = "";
+        let tsResult = "";
+        let defaultStr = isCon ? " = undefined" : " = null";
+        for (let index = 0; index < params.length; index++) {
+            let element = params[index];
+            asResult += (index ? "," : "") + (element.dotDotDotToken ? "..." : "") + element.name.getText() + (element.dotDotDotToken ? "" : (":" + this.emitType(element.type) + ((!isImp && element.questionToken) || isCon ? defaultStr : "")));
+            tsResult += (index ? "," : "") + (element.dotDotDotToken ? "..." : "") + element.name.getText() + (element.questionToken ? "?" : "") + ":" + this.emitTsType(element.type);
+        }
+        return [asResult, tsResult];
     }
     /**
      * 解析单个Modifier的类型
@@ -439,6 +494,9 @@ class emiter {
                 str = "public function get ";
             else
                 str = "function get ";
+        }
+        else if (type == "PublicKeywordstatic") {
+            str = "public static ";
         }
         else {
             str = "property todo " + type;
@@ -668,6 +726,7 @@ class emiter {
         return "";
     }
 }
+exports.emiter = emiter;
 /**所有已经识别的没有准备的方法 */
 emiter._typeArr = ["VariableStatement", "ExportDeclaration", "Uint16Array", "Float32Array",
     "FunctionDeclaration", "loadItem"];
@@ -692,4 +751,3 @@ emiter.tsToasTypeObj = {
 emiter.jscObj = {};
 /**构成的d.ts数据 */
 emiter.dtsData = "";
-exports.emiter = emiter;

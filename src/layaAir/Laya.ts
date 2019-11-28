@@ -431,21 +431,37 @@ if (win.Laya) {
 } else
 	win.Laya = Laya;
 
+/**@internal */
 export var __init = Laya.__init;
+/**@internal */
 export var init = Laya.init;
+/**@internal */
 export var stage: Stage;
+/**@internal */
 export var systemTimer: Timer;
+/**@internal */
 export var startTimer: Timer;
+/**@internal */
 export var physicsTimer: Timer;
+/**@internal */
 export var updateTimer: Timer;
+/**@internal */
 export var lateTimer: Timer;
+/**@internal */
 export var timer: Timer;
+/**@internal */
 export var loader: LoaderManager;
+/**@internal */
 export var version = Laya.version;
+/**@internal */
 export var render: Render;
+/**@internal */
 export var isWXOpenDataContext: boolean;
+/**@internal */
 export var isWXPosMsg: boolean;
+/**@internal */
 export var alertGlobalError = Laya.alertGlobalError;
+/**@internal */
 export var enableDebugPanel = Laya.enableDebugPanel;
 
 export function _static(_class: any, def: any) {
