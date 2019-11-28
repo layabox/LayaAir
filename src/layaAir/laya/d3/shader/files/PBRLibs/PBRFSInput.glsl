@@ -24,6 +24,8 @@ uniform float u_metallic;
 
 #ifdef PARALLAXTEXTURE
 	uniform sampler2D u_ParallaxTexture;
+	uniform float u_Parallax;//TODO:Scale
+	varying vec3 v_ViewDirForParallax;
 #endif
 
 #ifdef OCCLUSIONTEXTURE
@@ -175,8 +177,22 @@ mediump vec2 metallicGloss(vec2 uv)
 	}
 #endif
 
+#ifdef PARALLAXTEXTURE
+	mediump vec2 parallaxOffset1Step(mediump float h, mediump float height, mediump vec3 viewDir)
+	{
+		h = h * height - height / 2.0;
+		mediump vec3 v = normalize(viewDir);
+		v.z += 0.42;
+		return h * (v.xy / v.z);
+	}
 
-
+	vec4 parallax(vec4 texcoords, mediump vec3 viewDir)
+	{
+		mediump float h = tex2D(u_ParallaxTexture, texcoords.xy).g;
+		vec2 offset = parallaxOffset1Step(h, u_Parallax, viewDir);
+		return vec2(texcoords.xy + offset);
+	}
+#endif
 
 
 

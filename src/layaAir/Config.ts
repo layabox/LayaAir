@@ -40,7 +40,7 @@ export class Config {
     /**
      * 是否使用webgl2
      */
-    static useWebGL2: boolean = true;
+    static useWebGL2: boolean = false;
 
     static useRetinalCanvas: boolean = false;
 }

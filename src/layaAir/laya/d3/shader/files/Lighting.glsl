@@ -170,16 +170,13 @@ void LayaAirBlinnPhongSpotLight (in vec3 pos,in vec3 specColor,in float specColo
 
 vec3 NormalSampleToWorldSpace(vec3 normalMapSample, vec3 unitNormal, vec3 tangent,vec3 binormal) {
 	vec3 normalT =vec3(2.0*normalMapSample.x - 1.0,1.0-2.0*normalMapSample.y,2.0*normalMapSample.z - 1.0);
-
-	// Build orthonormal basis.
-	vec3 N = normalize(unitNormal);
-	vec3 T = normalize(tangent);
-	vec3 B = normalize(binormal);
+	mediump vec3 N = unitNormal;
+	mediump vec3 T = tangent;
+	mediump vec3 B = binormal;
 	mat3 TBN = mat3(T, B, N);
 
 	// Transform from tangent space to world space.
-	vec3 bumpedNormal = TBN*normalT;
-
+	vec3 bumpedNormal =normalize(TBN*normalT);
 	return bumpedNormal;
 }
 
