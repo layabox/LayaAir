@@ -52,7 +52,7 @@ LayaGI fragmentGI(float smoothness,vec3 eyeVec,mediump float occlusion,mediump v
 
 vec3 perPixelWorldNormal(vec2 uv,mediump vec3 normal,mediump vec3 binormal,mediump vec3 tangent)
 {
-	#ifdef NORMALMAP
+	#ifdef NORMALTEXTURE
 		// #if UNITY_TANGENT_ORTHONORMALIZE TODO:
 		// 	normal = LayaNormalizePerPixelNormal(normal);
 
@@ -66,7 +66,7 @@ vec3 perPixelWorldNormal(vec2 uv,mediump vec3 normal,mediump vec3 binormal,mediu
 		// 	binormal = newB * sign(dot(newB, binormal));
 		// #endif
 		mediump vec3 normalTangent =NormalInTangentSpace(uv);
-		vec3 normalWorld = normalize(normalSampleToWorldSpace(normalTangent, normal, tangent,binormal));
+		vec3 normalWorld = normalize(NormalSampleToWorldSpace(normalTangent, normal, tangent,binormal));
 	#else
 		vec3 normalWorld = normalize(normal);
 	#endif
@@ -92,7 +92,7 @@ void fragmentForward()
 	
 	vec3 binormal;
 	vec3 tangent;
-	#if defined(NORMALMAP)||defined(PARALLAXMAP)
+	#if defined(NORMALTEXTURE)||defined(PARALLAXMAP)
 		tangent = v_Tangent;
 		binormal = v_Binormal;
 	#endif

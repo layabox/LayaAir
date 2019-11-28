@@ -73,7 +73,7 @@ varying vec3 v_Normal;
 //后面考虑宏TODO
 varying vec3 v_EyeVec;
 
-#if defined(NORMALMAP)||defined(PARALLAXMAP)
+#if defined(NORMALTEXTURE)||defined(PARALLAXMAP)
 	varying vec3 v_Tangent;
 	varying vec3 v_Binormal;
 #endif
@@ -165,7 +165,7 @@ mediump vec2 metallicGloss(vec2 uv)
 	return ms;
 }
 
-#ifdef NORMALMAP
+#ifdef NORMALTEXTURE
 	mediump vec3 NormalInTangentSpace(vec2 texcoords)
 	{
 		//TODO:_BumpScale

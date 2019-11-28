@@ -18,7 +18,7 @@ attribute vec4 a_Position;
 attribute vec3 a_Normal;
 varying vec3 v_Normal; 
 
-#if defined(NORMALMAP)||defined(PARALLAXMAP)
+#if defined(NORMALTEXTURE)||defined(PARALLAXMAP)
 	attribute vec4 a_Tangent0;
 	varying vec3 v_Tangent;
 	varying vec3 v_Binormal;

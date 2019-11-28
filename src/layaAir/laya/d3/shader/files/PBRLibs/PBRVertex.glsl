@@ -60,7 +60,7 @@ void vertexForward()
 	#endif
 	v_Normal=a_Normal*worldInvMat;
 	
-	#if defined(NORMALMAP)||defined(PARALLAXMAP)
+	#if defined(NORMALTEXTURE)||defined(PARALLAXMAP)
 		v_Tangent=a_Tangent0.xyz*worldInvMat;
 		v_Binormal=cross(v_Normal,v_Tangent)*a_Tangent0.w;
 	#endif
