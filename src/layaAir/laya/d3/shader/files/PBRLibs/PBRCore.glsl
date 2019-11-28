@@ -78,9 +78,10 @@ void fragmentForward()
 	vec2 uv;//TODO:
 	#if defined(ALBEDOTEXTURE)||defined(METALLICGLOSSTEXTURE)||defined(NORMALTEXTURE)||defined(EMISSIONTEXTURE)||defined(OCCLUSIONTEXTURE)||defined(PARALLAXTEXTURE)
 		uv = v_Texcoord0;
+		#ifdef PARALLAXTEXTURE
+			uv = parallax(uv,v_ViewDirForParallax);
+		#endif
 	#endif
-	//FSSetup
-	//TODO:Parallax to correct uv
 
 	mediump float alpha = alpha(uv);
 	#ifdef ALPHATEST
