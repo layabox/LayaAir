@@ -163,7 +163,7 @@ export class PBRStandardMaterial extends Material {
 			'u_smoothnessScale': Shader3D.PERIOD_MATERIAL,
 			'u_occlusionStrength': Shader3D.PERIOD_MATERIAL,
 			'u_normalScale': Shader3D.PERIOD_MATERIAL,
-			'u_parallax': Shader3D.PERIOD_MATERIAL,
+			'u_Parallax': Shader3D.PERIOD_MATERIAL,
 			'u_TilingOffset': Shader3D.PERIOD_MATERIAL,
 
 			'u_ReflectTexture': Shader3D.PERIOD_SCENE,
@@ -295,11 +295,10 @@ export class PBRStandardMaterial extends Material {
 	}
 
 	set parallaxTexture(value: BaseTexture) {
-		if (value) {
+		if (value)
 			this._shaderValues.addDefine(PBRStandardMaterial.SHADERDEFINE_PARALLAXTEXTURE);
-		} else {
+		else
 			this._shaderValues.removeDefine(PBRStandardMaterial.SHADERDEFINE_PARALLAXTEXTURE);
-		}
 		this._shaderValues.setTexture(PBRStandardMaterial.PARALLAXTEXTURE, value);
 	}
 
