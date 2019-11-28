@@ -150,7 +150,7 @@ mediump vec2 metallicGloss(vec2 uv)
 			ms.x = texture2D(u_MetallicGlossTexture, uv).r;
 			ms.y = texture2D(u_AlbedoTexture, uv).a;
 		#else
-			mg = texture2D(u_MetallicGlossTexture, uv).ra;
+			ms = texture2D(u_MetallicGlossTexture, uv).ra;
 		#endif
 		ms.y *= u_smoothnessScale;
 	#else
