@@ -18,10 +18,13 @@ attribute vec4 a_Position;
 attribute vec3 a_Normal;
 varying vec3 v_Normal; 
 
-#if defined(NORMALTEXTURE)||defined(PARALLAXMAP)
+#if defined(NORMALTEXTURE)||defined(PARALLAXTEXTURE)
 	attribute vec4 a_Tangent0;
 	varying vec3 v_Tangent;
 	varying vec3 v_Binormal;
+    #ifdef PARALLAXTEXTURE
+	    varying vec3 v_ViewDirForParallax;
+    #endif
 #endif
 
 #if defined(ALBEDOTEXTURE)||defined(METALLICGLOSSTEXTURE)||defined(NORMALTEXTURE)||defined(EMISSIONTEXTURE)||defined(OCCLUSIONTEXTURE)||defined(PARALLAXTEXTURE)

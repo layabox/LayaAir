@@ -75,7 +75,7 @@ varying vec3 v_Normal;
 //后面考虑宏TODO
 varying vec3 v_EyeVec;
 
-#if defined(NORMALTEXTURE)||defined(PARALLAXMAP)
+#if defined(NORMALTEXTURE)||defined(PARALLAXTEXTURE)
 	varying vec3 v_Tangent;
 	varying vec3 v_Binormal;
 #endif
@@ -186,9 +186,9 @@ mediump vec2 metallicGloss(vec2 uv)
 		return h * (v.xy / v.z);
 	}
 
-	vec4 parallax(vec4 texcoords, mediump vec3 viewDir)
+	vec2 parallax(vec2 texcoords, mediump vec3 viewDir)
 	{
-		mediump float h = tex2D(u_ParallaxTexture, texcoords.xy).g;
+		mediump float h = texture2D(u_ParallaxTexture, texcoords.xy).g;
 		vec2 offset = parallaxOffset1Step(h, u_Parallax, viewDir);
 		return vec2(texcoords.xy + offset);
 	}
