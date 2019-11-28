@@ -24,7 +24,7 @@ varying vec3 v_Normal;
 	varying vec3 v_Binormal;
 #endif
 
-#if defined(DIFFUSEMAP)||defined(METALLICGLOSSTEXTURE)||defined(NORMALTEXTURE)||defined(EMISSIONTEXTURE)||defined(OCCLUSIONTEXTURE)||defined(PARALLAXTEXTURE)
+#if defined(ALBEDOTEXTURE)||defined(METALLICGLOSSTEXTURE)||defined(NORMALTEXTURE)||defined(EMISSIONTEXTURE)||defined(OCCLUSIONTEXTURE)||defined(PARALLAXTEXTURE)
 	attribute vec2 a_Texcoord0;
 	varying vec2 v_Texcoord0;
 #endif

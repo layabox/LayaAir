@@ -17,7 +17,7 @@ void main_castShadow()
 	#endif
 	
 	//TODO没考虑UV动画呢
-	#if defined(DIFFUSEMAP)&&defined(ALPHATEST)
+	#if defined(ALBEDOTEXTURE)&&defined(ALPHATEST)
 		v_Texcoord0=a_Texcoord0;
 	#endif
 	gl_Position=remapGLPositionZ(gl_Position);

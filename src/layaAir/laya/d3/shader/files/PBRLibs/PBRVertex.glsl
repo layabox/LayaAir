@@ -38,7 +38,7 @@ void vertexForward()
 
 	v_PositionWorld=(worldMat*position).xyz;
 
-	#if defined(DIFFUSEMAP)||defined(METALLICGLOSSTEXTURE)||defined(NORMALTEXTURE)||defined(EMISSIONTEXTURE)||defined(OCCLUSIONTEXTURE)||defined(PARALLAXTEXTURE)
+	#if defined(ALBEDOTEXTURE)||defined(METALLICGLOSSTEXTURE)||defined(NORMALTEXTURE)||defined(EMISSIONTEXTURE)||defined(OCCLUSIONTEXTURE)||defined(PARALLAXTEXTURE)
 		#ifdef TILINGOFFSET
 			v_Texcoord0=TransformUV(a_Texcoord0,u_TilingOffset);
 		#else
