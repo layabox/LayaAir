@@ -24,7 +24,7 @@ uniform float u_metallic;
 
 #ifdef PARALLAXTEXTURE
 	uniform sampler2D u_ParallaxTexture;
-	uniform float u_Parallax;//TODO:Scale
+	uniform float u_ParallaxScale;
 	varying vec3 v_ViewDirForParallax;
 #endif
 
@@ -188,7 +188,7 @@ mediump vec2 metallicGloss(vec2 uv)
 	vec2 parallax(vec2 texcoords, mediump vec3 viewDir)
 	{
 		mediump float h = texture2D(u_ParallaxTexture, texcoords.xy).g;
-		vec2 offset = parallaxOffset1Step(h, u_Parallax, viewDir);
+		vec2 offset = parallaxOffset1Step(h, u_ParallaxScale, viewDir);
 		offset.y=-offset.y;//Note:because when we use unity pugin to export uv,we use 1.0-v.
 		return texcoords+offset;
 	}

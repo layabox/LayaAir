@@ -85,7 +85,7 @@ export class PBRStandardMaterial extends Material {
 	/** @internal */
 	static PARALLAXTEXTURE: number = Shader3D.propertyNameToID("u_ParallaxTexture");
 	/** @internal */
-	static PARALLAX: number = Shader3D.propertyNameToID("u_Parallax");
+	static PARALLAXSCALE: number = Shader3D.propertyNameToID("u_ParallaxScale");
 	/** @internal */
 	static EMISSIONTEXTURE: number = Shader3D.propertyNameToID("u_EmissionTexture");
 	/** @internal */
@@ -163,7 +163,7 @@ export class PBRStandardMaterial extends Material {
 			'u_smoothnessScale': Shader3D.PERIOD_MATERIAL,
 			'u_occlusionStrength': Shader3D.PERIOD_MATERIAL,
 			'u_normalScale': Shader3D.PERIOD_MATERIAL,
-			'u_Parallax': Shader3D.PERIOD_MATERIAL,
+			'u_ParallaxScale': Shader3D.PERIOD_MATERIAL,
 			'u_TilingOffset': Shader3D.PERIOD_MATERIAL,
 
 			'u_ReflectTexture': Shader3D.PERIOD_SCENE,
@@ -301,11 +301,11 @@ export class PBRStandardMaterial extends Material {
 	 * 视差贴图缩放系数。
 	 */
 	get parallaxTextureScale(): number {
-		return this._shaderValues.getNumber(PBRStandardMaterial.PARALLAX);
+		return this._shaderValues.getNumber(PBRStandardMaterial.PARALLAXSCALE);
 	}
 
 	set parallaxTextureScale(value: number) {
-		this._shaderValues.setNumber(PBRStandardMaterial.PARALLAX, Math.max(0.005, Math.min(0.08, value)));
+		this._shaderValues.setNumber(PBRStandardMaterial.PARALLAXSCALE, Math.max(0.005, Math.min(0.08, value)));
 	}
 
 	/**
@@ -605,7 +605,7 @@ export class PBRStandardMaterial extends Material {
 		this._shaderValues.setNumber(PBRStandardMaterial.SMOOTHNESSSCALE, 1.0);
 		this._shaderValues.setNumber(PBRStandardMaterial.OCCLUSIONSTRENGTH, 1.0);
 		this._shaderValues.setNumber(PBRStandardMaterial.NORMALSCALE, 1.0);
-		this._shaderValues.setNumber(PBRStandardMaterial.PARALLAX, 0.001);
+		this._shaderValues.setNumber(PBRStandardMaterial.PARALLAXSCALE, 0.001);
 		this._shaderValues.setNumber(Material.ALPHATESTVALUE, 0.5);
 		this.renderMode = RenderMode.Opaque;
 	}
