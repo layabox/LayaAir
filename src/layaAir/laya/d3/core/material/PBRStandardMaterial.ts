@@ -69,7 +69,7 @@ export class PBRStandardMaterial extends Material {
 	/** @internal */
 	static NORMALTEXTURE: number = Shader3D.propertyNameToID("u_NormalTexture");
 	/** @internal */
-	static NORMALSCALE: number = Shader3D.propertyNameToID("u_normalScale");
+	static NORMALSCALE: number = Shader3D.propertyNameToID("u_NormalScale");
 	/** @internal */
 	static METALLICGLOSSTEXTURE: number = Shader3D.propertyNameToID("u_MetallicGlossTexture");
 	/** @internal */
@@ -162,7 +162,7 @@ export class PBRStandardMaterial extends Material {
 			'u_smoothness': Shader3D.PERIOD_MATERIAL,
 			'u_smoothnessScale': Shader3D.PERIOD_MATERIAL,
 			'u_occlusionStrength': Shader3D.PERIOD_MATERIAL,
-			'u_normalScale': Shader3D.PERIOD_MATERIAL,
+			'u_NormalScale': Shader3D.PERIOD_MATERIAL,
 			'u_ParallaxScale': Shader3D.PERIOD_MATERIAL,
 			'u_TilingOffset': Shader3D.PERIOD_MATERIAL,
 

@@ -7,8 +7,9 @@ uniform vec4 u_AlbedoColor;
 
 #ifdef NORMALTEXTURE
 	uniform sampler2D u_NormalTexture;
+	uniform float u_NormalScale;
 #endif
-//漫反射贴图
+
 #ifdef ALBEDOTEXTURE
 	uniform sampler2D u_AlbedoTexture;
 #endif
@@ -101,7 +102,6 @@ mediump float lerpOneTo(mediump float b, mediump float t)
     return oneMinusT + b * t;
 }
 
-//FS
 vec3 emission(vec2 uv)
 {
 	#ifdef EMISSIONTEXTURE
@@ -168,11 +168,16 @@ mediump vec2 metallicGloss(vec2 uv)
 }
 
 #ifdef NORMALTEXTURE
-	mediump vec3 NormalInTangentSpace(vec2 texcoords)
+	mediump vec3 unpackScaleNormal(mediump vec3 packednormal, mediump float bumpScale)
 	{
-		//TODO:_BumpScale
-		mediump vec3 normalTangent = texture2D(u_NormalTexture, texcoords).rgb;
-		//TODO:DETAIL and DETAIL_NORMALMAP
+		mediump vec3 normal = packednormal.xyz * 2.0 - 1.0;
+		normal.y=-normal.y;//NOTE:because unity to LayaAir coordSystem.
+		normal.xy *= bumpScale;
+		return normal;
+	}
+	mediump vec3 normalInTangentSpace(vec2 texcoords)
+	{
+		mediump vec3 normalTangent = unpackScaleNormal(texture2D(u_NormalTexture, texcoords).rgb,u_NormalScale);
 		return normalTangent;
 	}
 #endif

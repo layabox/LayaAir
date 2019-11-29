@@ -50,6 +50,8 @@ LayaGI fragmentGI(float smoothness,vec3 eyeVec,mediump float occlusion,mediump v
 	return layaGlobalIllumination(giInput,occlusion, worldnormal, uvwRoughness);
 }
 
+
+
 vec3 perPixelWorldNormal(vec2 uv,mediump vec3 normal,mediump vec3 binormal,mediump vec3 tangent)
 {
 	#ifdef NORMALTEXTURE
@@ -65,8 +67,8 @@ vec3 perPixelWorldNormal(vec2 uv,mediump vec3 normal,mediump vec3 binormal,mediu
 		// 	//？？？这里二法线能等于0，0，0吗？
 		// 	binormal = newB * sign(dot(newB, binormal));
 		// #endif
-		mediump vec3 normalTangent =NormalInTangentSpace(uv);
-		vec3 normalWorld = normalize(NormalSampleToWorldSpace(normalTangent, normal, tangent,binormal));
+		mediump vec3 normalTangent=normalInTangentSpace(uv);
+		vec3 normalWorld = normalize(tangent * normalTangent.x + binormal * normalTangent.y + normal * normalTangent.z);
 	#else
 		vec3 normalWorld = normalize(normal);
 	#endif
