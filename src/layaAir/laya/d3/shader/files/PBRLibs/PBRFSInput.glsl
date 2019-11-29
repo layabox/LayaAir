@@ -181,16 +181,16 @@ mediump vec2 metallicGloss(vec2 uv)
 	mediump vec2 parallaxOffset1Step(mediump float h, mediump float height, mediump vec3 viewDir)
 	{
 		h = h * height - height / 2.0;
-		mediump vec3 v = normalize(viewDir);
-		v.z += 0.42;
-		return h * (v.xy / v.z);
+		viewDir.z += 0.42;
+		return h * (viewDir.xy / viewDir.z);
 	}
 
 	vec2 parallax(vec2 texcoords, mediump vec3 viewDir)
 	{
 		mediump float h = texture2D(u_ParallaxTexture, texcoords.xy).g;
 		vec2 offset = parallaxOffset1Step(h, u_Parallax, viewDir);
-		return vec2(texcoords.xy + offset);
+		offset.y=-offset.y;//Note:because when we use unity pugin to export uv,we use 1.0-v.
+		return texcoords+offset;
 	}
 #endif
 

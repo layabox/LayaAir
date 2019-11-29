@@ -64,12 +64,10 @@ void vertexForward()
 		v_Tangent=a_Tangent0.xyz*worldInvMat;
 		v_Binormal=cross(v_Normal,v_Tangent)*a_Tangent0.w;
 		#ifdef PARALLAXTEXTURE
-				// Build orthonormal basis.
-				vec3 N = normalize(v_Normal);
-				vec3 T = normalize(v_Tangent);
-				vec3 B = normalize(v_Binormal);
-				mat3 TBN = mat3(T, B, N);
-				v_ViewDirForParallax = TBN * normalize(-v_EyeVec);
+				vec3 binormal = cross(a_Normal, a_Tangent0.xyz)*a_Tangent0.w;
+				mat3 objectTBN = mat3(a_Tangent0.xyz, binormal, a_Normal);
+				v_ViewDirForParallax=v_EyeVec*objectTBN;
+				v_ViewDirForParallax.y=-v_ViewDirForParallax.y;//NOTE:because different cood system with unity,or objectTBN each x will be inverse.
 		#endif
 	#endif
 }
