@@ -226,20 +226,15 @@ export class PBRStandardMaterial extends Material {
 	private _enableEmission: boolean = false;
 	/** @internal */
 	private _enableReflection: boolean = true;
-	/** @internal */
-	private _albedoColor: Vector4;
-	/** @internal */
-	private _emissionColor: Vector4;
 
 	/**
 	 * 漫反射颜色。
 	 */
 	get albedoColor(): Vector4 {
-		return this._albedoColor;
+		return <Vector4>this._shaderValues.getVector(PBRStandardMaterial.ALBEDOCOLOR);
 	}
 
 	set albedoColor(value: Vector4) {
-		this._albedoColor = value;
 		this._shaderValues.setVector(PBRStandardMaterial.ALBEDOCOLOR, value);
 	}
 
@@ -405,7 +400,7 @@ export class PBRStandardMaterial extends Material {
 	}
 
 	/**
-	 * 是否激活放射属性。
+	 * 是否开启自发光。
 	 */
 	get enableEmission(): boolean {
 		return this._enableEmission;
@@ -420,10 +415,10 @@ export class PBRStandardMaterial extends Material {
 	}
 
 	/**
-	 * 放射颜色。
+	 * 自发光颜色。
 	 */
 	get emissionColor(): Vector4 {
-		return (<Vector4>this._shaderValues.getVector(PBRStandardMaterial.EMISSIONCOLOR));
+		return <Vector4>this._shaderValues.getVector(PBRStandardMaterial.EMISSIONCOLOR);
 	}
 
 	set emissionColor(value: Vector4) {
@@ -431,7 +426,7 @@ export class PBRStandardMaterial extends Material {
 	}
 
 	/**
-	 * 放射贴图。
+	 * 自发光贴图。
 	 */
 	get emissionTexture(): BaseTexture {
 		return this._shaderValues.getTexture(PBRStandardMaterial.EMISSIONTEXTURE);
@@ -603,9 +598,7 @@ export class PBRStandardMaterial extends Material {
 	constructor() {
 		super();
 		this.setShaderName("PBR");
-		this._albedoColor = new Vector4(1.0, 1.0, 1.0, 1.0);
 		this._shaderValues.setVector(PBRStandardMaterial.ALBEDOCOLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
-		this._emissionColor = new Vector4(0.0, 0.0, 0.0, 0.0);
 		this._shaderValues.setVector(PBRStandardMaterial.EMISSIONCOLOR, new Vector4(0.0, 0.0, 0.0, 0.0));
 		this._shaderValues.setNumber(PBRStandardMaterial.METALLIC, 0.0);
 		this._shaderValues.setNumber(PBRStandardMaterial.SMOOTHNESS, 0.5);
@@ -626,17 +619,6 @@ export class PBRStandardMaterial extends Material {
 		var dest: PBRStandardMaterial = new PBRStandardMaterial();
 		this.cloneTo(dest);
 		return dest;
-	}
-
-	/**
-	 * @inheritDoc
-	 * @override
-	 */
-	cloneTo(destObject: any): void {
-		super.cloneTo(destObject);
-		var destMaterial: PBRStandardMaterial = (<PBRStandardMaterial>destObject);
-		this._albedoColor.cloneTo(destMaterial._albedoColor);
-		this._emissionColor.cloneTo(destMaterial._emissionColor);
 	}
 }
 
