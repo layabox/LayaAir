@@ -22,14 +22,14 @@ mediump vec3 diffuseAndSpecularFromMetallic(mediump vec3 albedo,mediump float me
 }
 
 #ifdef ALPHAPREMULTIPLY
-	mediump vec3 preMultiplyAlpha (mediump vec3 diffColor, mediump float alpha, mediump float oneMinusReflectivity/*, out mediump float modifiedAlpha*/)
+	mediump vec3 preMultiplyAlpha (mediump vec3 diffColor, mediump float alpha, mediump float oneMinusReflectivity,out mediump float modifiedAlpha)
 	{
-			// Transparency 'removes' from Diffuse component
-			diffColor *= alpha;
-			// Reflectivity 'removes' from the rest of components, including Transparency
-			// modifiedAlpha = 1-(1-alpha)*(1-reflectivity) = 1-(oneMinusReflectivity - alpha*oneMinusReflectivity) = 1-oneMinusReflectivity + alpha*oneMinusReflectivity
-			//modifiedAlpha = 1.0-oneMinusReflectivity + alpha*oneMinusReflectivity;
-			return diffColor;
+		// Transparency 'removes' from Diffuse component
+		diffColor *= alpha;
+		// Reflectivity 'removes' from the rest of components, including Transparency
+		// modifiedAlpha = 1.0-(1.0-alpha)*(1.0-reflectivity) = 1.0-(oneMinusReflectivity - alpha*oneMinusReflectivity) = 1.0-oneMinusReflectivity + alpha*oneMinusReflectivity
+		modifiedAlpha = 1.0 - oneMinusReflectivity + alpha*oneMinusReflectivity;
+		return diffColor;
 	}
 #endif
 
@@ -118,7 +118,7 @@ void fragmentForward()
 	vec3 posworld = v_PositionWorld;
 
 	#ifdef ALPHAPREMULTIPLY
-		o.diffColor=preMultiplyAlpha(o.diffColor,alpha,o.oneMinusReflectivity);// shader relies on pre-multiply alpha-blend (srcBlend = One, dstBlend = OneMinusSrcAlpha)
+		o.diffColor=preMultiplyAlpha(o.diffColor,alpha,o.oneMinusReflectivity,/*out*/alpha);// shader relies on pre-multiply alpha-blend (srcBlend = One, dstBlend = OneMinusSrcAlpha)
 	#endif
 
 	mediump float occlusion = occlusion(uv);
