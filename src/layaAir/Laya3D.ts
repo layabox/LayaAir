@@ -92,6 +92,7 @@ import { Byte } from "./laya/utils/Byte";
 import { PBRStandardMaterial } from "./laya/d3/core/material/PBRStandardMaterial";
 import { FilterMode } from "./laya/resource/FilterMode";
 import { WarpMode } from "./laya/resource/WrapMode";
+import { PBRMaterial } from "./laya/d3/core/material/PBRMaterial";
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
  */
@@ -225,6 +226,7 @@ export class Laya3D {
 		}
 
 		ShaderInit3D.__init__();
+		PBRMaterial.__init__();
 		PBRStandardMaterial.__init__();
 		Mesh.__init__();
 		PrimitiveMesh.__init__();
