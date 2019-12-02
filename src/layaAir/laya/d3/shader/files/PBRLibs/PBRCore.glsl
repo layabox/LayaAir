@@ -21,6 +21,18 @@ mediump vec3 diffuseAndSpecularFromMetallic(mediump vec3 albedo,mediump float me
 	return albedo * oneMinusReflectivity;
 }
 
+#ifdef ALPHAPREMULTIPLY
+	mediump vec3 preMultiplyAlpha (mediump vec3 diffColor, mediump float alpha, mediump float oneMinusReflectivity/*, out mediump float modifiedAlpha*/)
+	{
+			// Transparency 'removes' from Diffuse component
+			diffColor *= alpha;
+			// Reflectivity 'removes' from the rest of components, including Transparency
+			// modifiedAlpha = 1-(1-alpha)*(1-reflectivity) = 1-(oneMinusReflectivity - alpha*oneMinusReflectivity) = 1-oneMinusReflectivity + alpha*oneMinusReflectivity
+			//modifiedAlpha = 1.0-oneMinusReflectivity + alpha*oneMinusReflectivity;
+			return diffColor;
+	}
+#endif
+
 FragmentCommonData metallicSetup(vec2 uv)
 {
 	mediump vec2 metallicGloss = metallicGloss(uv);
@@ -104,8 +116,10 @@ void fragmentForward()
 	vec3 normalWorld = perPixelWorldNormal(uv,normal,binormal,tangent);
 	vec3 eyeVec = normalize(v_EyeVec);
 	vec3 posworld = v_PositionWorld;
-	//TODO:Alpha预乘
 
+	#ifdef ALPHAPREMULTIPLY
+		o.diffColor=preMultiplyAlpha(o.diffColor,alpha,o.oneMinusReflectivity);// shader relies on pre-multiply alpha-blend (srcBlend = One, dstBlend = OneMinusSrcAlpha)
+	#endif
 
 	mediump float occlusion = occlusion(uv);
 	mediump vec2 lightMapUV;

@@ -420,7 +420,7 @@ export class PBRMaterial extends Material {
                 this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_ALPHAPREMULTIPLY);
                 break;
             default:
-                throw new Error("PBRMaterial : renderMode value error.");
+                throw new Error("PBRMaterial:unknown renderMode value.");
         }
     }
 
