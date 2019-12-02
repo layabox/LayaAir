@@ -36,7 +36,7 @@ export class PBRStandardMaterial extends PBRMaterial {
 	static defaultMaterial: PBRStandardMaterial;
 
 	/**
-	 * @private
+	 * @internal
 	 */
 	static __init__(): void {
 		PBRStandardMaterial.__initDefine__();

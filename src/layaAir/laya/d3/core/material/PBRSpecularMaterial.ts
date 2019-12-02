@@ -30,7 +30,7 @@ export class PBRSpecularMaterial extends PBRMaterial {
 	/**
 	 * @internal
 	 */
-	static __initDefine__(): void {
+	static __init__(): void {
 		PBRSpecularMaterial.SHADERDEFINE_SPECULARTEXTURE = Shader3D.getDefineByName("SPECULARTEXTURE");
 		PBRSpecularMaterial.SHADERDEFINE_SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA = Shader3D.getDefineByName("SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA");
 	}
