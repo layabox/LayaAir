@@ -221,7 +221,7 @@ export class PBRStandardMaterial extends Material {
 	}
 
 	/** @internal */
-	private _smoothnessSource: number = 0;
+	private _smoothnessSource: SmoothnessSource = 0;
 	/** @internal */
 	private _enableEmission: boolean = false;
 	/** @internal */
@@ -387,11 +387,11 @@ export class PBRStandardMaterial extends Material {
 	/**
 	 * 光滑度数据源,0或1。
 	 */
-	get smoothnessSource(): number {
+	get smoothnessSource(): SmoothnessSource {
 		return this._smoothnessSource;
 	}
 
-	set smoothnessSource(value: number) {
+	set smoothnessSource(value: SmoothnessSource) {
 		if (value)
 			this._shaderValues.addDefine(PBRStandardMaterial.SHADERDEFINE_SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA);
 		else
