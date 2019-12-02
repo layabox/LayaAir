@@ -38,7 +38,7 @@ export class PBRMaterial extends Material {
     /** @internal */
     static SHADERDEFINE_TILINGOFFSET: ShaderDefine;
     /** @internal */
-    static SHADERDEFINE_ALPHAPREMULTIPLY: ShaderDefine;
+    static SHADERDEFINE_TRANSPARENTBLEND: ShaderDefine;
     /** @internal */
     static SHADERDEFINE_REFLECTIONS_OFF: ShaderDefine;
 
@@ -93,7 +93,7 @@ export class PBRMaterial extends Material {
         PBRMaterial.SHADERDEFINE_EMISSION = Shader3D.getDefineByName("EMISSION");
         PBRMaterial.SHADERDEFINE_EMISSIONTEXTURE = Shader3D.getDefineByName("EMISSIONTEXTURE");
         PBRMaterial.SHADERDEFINE_TILINGOFFSET = Shader3D.getDefineByName("TILINGOFFSET");
-        PBRMaterial.SHADERDEFINE_ALPHAPREMULTIPLY = Shader3D.getDefineByName("ALPHAPREMULTIPLY");
+        PBRMaterial.SHADERDEFINE_TRANSPARENTBLEND = Shader3D.getDefineByName("TRANSPARENTBLEND");
         PBRMaterial.SHADERDEFINE_REFLECTIONS_OFF = Shader3D.getDefineByName("REFLECTIONS_OFF");
     }
 
@@ -121,11 +121,11 @@ export class PBRMaterial extends Material {
     }
 
     set albedoTexture(value: BaseTexture) {
-        if (value) {
+        if (value)
             this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_ALBEDOTEXTURE);
-        } else {
+        else
             this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_ALBEDOTEXTURE);
-        }
+
         this._shaderValues.setTexture(PBRMaterial.ALBEDOTEXTURE, value);
     }
 
@@ -386,7 +386,7 @@ export class PBRMaterial extends Material {
                 this.cull = RenderState.CULL_BACK;
                 this.blend = RenderState.BLEND_DISABLE;
                 this.depthTest = RenderState.DEPTHTEST_LESS;
-                this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_ALPHAPREMULTIPLY);
+                this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_TRANSPARENTBLEND);
                 break;
             case PBRRenderMode.Cutout:
                 this.renderQueue = Material.RENDERQUEUE_ALPHATEST;
@@ -395,7 +395,7 @@ export class PBRMaterial extends Material {
                 this.cull = RenderState.CULL_BACK;
                 this.blend = RenderState.BLEND_DISABLE;
                 this.depthTest = RenderState.DEPTHTEST_LESS;
-                this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_ALPHAPREMULTIPLY);
+                this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_TRANSPARENTBLEND);
                 break;
             case PBRRenderMode.Fade:
                 this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
@@ -406,7 +406,7 @@ export class PBRMaterial extends Material {
                 this.blendSrc = RenderState.BLENDPARAM_SRC_ALPHA;
                 this.blendDst = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
                 this.depthTest = RenderState.DEPTHTEST_LESS;
-                this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_ALPHAPREMULTIPLY);
+                this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_TRANSPARENTBLEND);
                 break;
             case PBRRenderMode.Transparent:
                 this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
@@ -417,7 +417,7 @@ export class PBRMaterial extends Material {
                 this.blendSrc = RenderState.BLENDPARAM_ONE;
                 this.blendDst = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
                 this.depthTest = RenderState.DEPTHTEST_LESS;
-                this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_ALPHAPREMULTIPLY);
+                this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_TRANSPARENTBLEND);
                 break;
             default:
                 throw new Error("PBRMaterial:unknown renderMode value.");

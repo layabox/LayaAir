@@ -21,7 +21,7 @@ mediump vec3 diffuseAndSpecularFromMetallic(mediump vec3 albedo,mediump float me
 	return albedo * oneMinusReflectivity;
 }
 
-#ifdef ALPHAPREMULTIPLY
+#ifdef TRANSPARENTBLEND
 	mediump vec3 preMultiplyAlpha (mediump vec3 diffColor, mediump float alpha, mediump float oneMinusReflectivity,out mediump float modifiedAlpha)
 	{
 		// Transparency 'removes' from Diffuse component
@@ -117,7 +117,7 @@ void fragmentForward()
 	vec3 eyeVec = normalize(v_EyeVec);
 	vec3 posworld = v_PositionWorld;
 
-	#ifdef ALPHAPREMULTIPLY
+	#ifdef TRANSPARENTBLEND
 		o.diffColor=preMultiplyAlpha(o.diffColor,alpha,o.oneMinusReflectivity,/*out*/alpha);// shader relies on pre-multiply alpha-blend (srcBlend = One, dstBlend = OneMinusSrcAlpha)
 	#endif
 
