@@ -24,8 +24,8 @@ uniform float u_Metallic;
 #endif
 uniform vec3 u_SpecularColor;
 
-uniform float u_smoothness;
-uniform float u_smoothnessScale;
+uniform float u_Smoothness;
+uniform float u_SmoothnessScale;
 
 #ifdef PARALLAXTEXTURE
 	uniform sampler2D u_ParallaxTexture;
@@ -158,14 +158,14 @@ mediump vec2 metallicGloss(vec2 uv)
 		#else
 			ms = texture2D(u_MetallicGlossTexture, uv).ra;
 		#endif
-		ms.y *= u_smoothnessScale;
+		ms.y *= u_SmoothnessScale;
 	#else
 		ms.x = u_Metallic;
 		//TODO:Judge with ALBEDOTEXTURE define
 		#ifdef SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA
-			ms.y = texture2D(u_AlbedoTexture, uv).a * u_smoothnessScale;
+			ms.y = texture2D(u_AlbedoTexture, uv).a * u_SmoothnessScale;
 		#else
-			ms.y = u_smoothness;
+			ms.y = u_Smoothness;
 		#endif
 	#endif
 	return ms;
@@ -181,13 +181,13 @@ mediump vec4 specularGloss(vec2 uv)
 		#else
 			sg = texture2D(u_SpecGlossTexture, uv);
 		#endif
-		sg.a *= u_smoothnessScale;
+		sg.a *= u_SmoothnessScale;
 	#else
 		sg.rgb =u_SpecularColor.rgb;
 		#ifdef SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA
 			sg.a = texture2D(u_AlbedoTexture, uv).a * u_SpecGlossScale;
 		#else
-			sg.a = u_smoothness;
+			sg.a = u_Smoothness;
 		#endif
 	#endif
 		return sg;

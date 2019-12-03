@@ -53,9 +53,9 @@ export class PBRMaterial extends Material {
     /** @internal */
     static NORMALSCALE: number = Shader3D.propertyNameToID("u_NormalScale");
     /** @internal */
-    static SMOOTHNESS: number = Shader3D.propertyNameToID("u_smoothness");
+    static SMOOTHNESS: number = Shader3D.propertyNameToID("u_Smoothness");
     /** @internal */
-    static SMOOTHNESSSCALE: number = Shader3D.propertyNameToID("u_smoothnessScale");
+    static SMOOTHNESSSCALE: number = Shader3D.propertyNameToID("u_SmoothnessScale");
     /** @internal */
     static OCCLUSIONTEXTURE: number = Shader3D.propertyNameToID("u_OcclusionTexture");
     /** @internal */
