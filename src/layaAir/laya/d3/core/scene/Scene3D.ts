@@ -241,7 +241,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	_opaqueQueue: RenderQueue = new RenderQueue(false);
 	/** @internal */
 	_transparentQueue: RenderQueue = new RenderQueue(true);
-	/** @internal 相机的对象池*/
+	/** @internal */
 	_cameraPool: BaseCamera[] = [];
 	/** @internal */
 	_animatorPool: SimpleSingletonList = new SimpleSingletonList();
@@ -420,7 +420,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * 反射贴图。
 	 */
 	get customReflection(): TextureCube {
-		return (<TextureCube>this._shaderValues.getTexture(Scene3D.REFLECTIONTEXTURE));
+		return <TextureCube>this._shaderValues.getTexture(Scene3D.REFLECTIONTEXTURE);
 	}
 
 	set customReflection(value: TextureCube) {
@@ -1100,7 +1100,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			this.ambientSphericalHarmonics = ambientSH;
 		}
 		var reflectionProbeData: string = data.reflectionProbe;
-		if (reflectionProbeData) 
+		if (reflectionProbeData)
 			this.reflectionProbe = Loader.getRes(reflectionProbeData);
 
 		var reflectionSpecularColorData: Array<number> = data.reflectionSpecularColor;
