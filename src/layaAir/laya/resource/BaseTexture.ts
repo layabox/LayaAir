@@ -2,23 +2,14 @@ import { LayaGL } from "../layagl/LayaGL";
 import { WebGLContext } from "../webgl/WebGLContext";
 import { Bitmap } from "./Bitmap";
 import { TextureFormat } from "./TextureFormat";
+import { FilterMode } from "./FilterMode";
+import { WarpMode } from "./WrapMode";
 
 
 /**
  * <code>BaseTexture</code> 纹理的父类，抽象类，不允许实例。
  */
 export class BaseTexture extends Bitmap {
-	static WARPMODE_REPEAT: number = 0;
-	static WARPMODE_CLAMP: number = 1;
-
-	/**寻址模式_重复。*/
-	static FILTERMODE_POINT: number = 0;
-	/**寻址模式_不循环。*/
-	static FILTERMODE_BILINEAR: number = 1;
-	/**寻址模式_不循环。*/
-	static FILTERMODE_TRILINEAR: number = 2;
-
-
 	/** @internal */
 	protected _readyed: boolean;
 	/** @internal */
@@ -30,11 +21,11 @@ export class BaseTexture extends Bitmap {
 	/** @internal */
 	protected _mipmap: boolean;
 	/** @internal */
-	protected _wrapModeU: number;
+	protected _wrapModeU: WarpMode;
 	/** @internal */
-	protected _wrapModeV: number;
+	protected _wrapModeV: WarpMode;
 	/** @internal */
-	protected _filterMode: number;
+	protected _filterMode: FilterMode;
 	/** @internal */
 	protected _anisoLevel: number;
 	/** @internal */
@@ -85,11 +76,11 @@ export class BaseTexture extends Bitmap {
 	/**
 	 * 缩小过滤器
 	 */
-	get filterMode(): number {
+	get filterMode(): FilterMode {
 		return this._filterMode;
 	}
 
-	set filterMode(value: number) {
+	set filterMode(value: FilterMode) {
 		if (value !== this._filterMode) {
 			this._filterMode = value;
 			((this._width !== -1) && (this._height !== -1)) && (this._setFilterMode(value));
@@ -127,9 +118,9 @@ export class BaseTexture extends Bitmap {
 	 */
 	constructor(format: number, mipMap: boolean) {
 		super();
-		this._wrapModeU = BaseTexture.WARPMODE_REPEAT;
-		this._wrapModeV = BaseTexture.WARPMODE_REPEAT;
-		this._filterMode = BaseTexture.FILTERMODE_BILINEAR;
+		this._wrapModeU = WarpMode.Repeat;
+		this._wrapModeV = WarpMode.Repeat;
+		this._filterMode = FilterMode.Bilinear;
 
 		this._readyed = false;
 		this._width = -1;
@@ -149,6 +140,8 @@ export class BaseTexture extends Bitmap {
 				return 3;
 			case TextureFormat.R8G8B8A8:
 				return 4;
+			case TextureFormat.R5G6B5:
+				return 1;
 			case TextureFormat.Alpha8:
 				return 1;
 			case TextureFormat.R32G32B32A32:
@@ -170,10 +163,11 @@ export class BaseTexture extends Bitmap {
 	 */
 	protected _getGLFormat(): number {
 		var glFormat: number;
-		var gl = LayaGL.instance;
+		var gl: WebGLRenderingContext = LayaGL.instance;
 		var gpu = LayaGL.layaGPUInstance;
 		switch (this._format) {
 			case TextureFormat.R8G8B8:
+			case TextureFormat.R5G6B5:
 				glFormat = gl.RGB;
 				break;
 			case TextureFormat.R8G8B8A8:
@@ -236,25 +230,25 @@ export class BaseTexture extends Bitmap {
 	/**
 	 * @internal
 	 */
-	protected _setFilterMode(value: number): void {
+	protected _setFilterMode(value: FilterMode): void {
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
 		switch (value) {
-			case BaseTexture.FILTERMODE_POINT:
+			case FilterMode.Point:
 				if (this._mipmap)
 					gl.texParameteri(this._glTextureType, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_NEAREST);
 				else
 					gl.texParameteri(this._glTextureType, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 				gl.texParameteri(this._glTextureType, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 				break;
-			case BaseTexture.FILTERMODE_BILINEAR:
+			case FilterMode.Bilinear:
 				if (this._mipmap)
 					gl.texParameteri(this._glTextureType, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
 				else
 					gl.texParameteri(this._glTextureType, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 				gl.texParameteri(this._glTextureType, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 				break;
-			case BaseTexture.FILTERMODE_TRILINEAR:
+			case FilterMode.Trilinear:
 				if (this._mipmap)
 					gl.texParameteri(this._glTextureType, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
 				else
@@ -274,10 +268,10 @@ export class BaseTexture extends Bitmap {
 		WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
 		if (this._isPot(this._width) && this._isPot(this._height)) {
 			switch (mode) {
-				case BaseTexture.WARPMODE_REPEAT:
+				case WarpMode.Repeat:
 					gl.texParameteri(this._glTextureType, orientation, gl.REPEAT);
 					break;
-				case BaseTexture.WARPMODE_CLAMP:
+				case WarpMode.Clamp:
 					gl.texParameteri(this._glTextureType, orientation, gl.CLAMP_TO_EDGE);
 					break;
 			}
@@ -367,5 +361,17 @@ export class BaseTexture extends Bitmap {
 	static FORMAT_DEPTHSTENCIL_16_8: number = 2;
 	/** @deprecated use RenderTextureDepthFormat.DEPTHSTENCIL_NONE instead.*/
 	static FORMAT_DEPTHSTENCIL_NONE: number = 3;
+
+	/** @deprecated use FilterMode.Point instead.*/
+	static FILTERMODE_POINT: number = 0;
+	/** @deprecated use FilterMode.Bilinear instead.*/
+	static FILTERMODE_BILINEAR: number = 1;
+	/** @deprecated use FilterMode.Trilinear instead.*/
+	static FILTERMODE_TRILINEAR: number = 2;
+
+	/** @deprecated use WarpMode.Repeat instead.*/
+	static WARPMODE_REPEAT: number = 0;
+	/** @deprecated use WarpMode.Clamp instead.*/
+	static WARPMODE_CLAMP: number = 1;
 }
 

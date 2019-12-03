@@ -26,5 +26,5 @@ export class Scene3DShaderDeclaration {
 	/**@internal */
 	static SHADERDEFINE_SHADOW_PCF3: ShaderDefine;
 	/**@internal */
-	static SHADERDEFINE_REFLECTMAP: ShaderDefine;
+	static SHADERDEFINE_GI_AMBIENT_SH: ShaderDefine;
 }

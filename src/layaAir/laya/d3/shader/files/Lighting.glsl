@@ -17,7 +17,15 @@ struct SpotLight {
 	float spot;
 };
 
+struct LayaGI{
+	vec3 diffuse;
+	vec3 specular;
+};
 
+struct LayaLight{
+	vec3 color;
+	vec3 dir;
+};
 
 const int c_ClusterBufferWidth = CLUSTER_X_COUNT*CLUSTER_Y_COUNT;
 const int c_ClusterBufferHeight = CLUSTER_Z_COUNT*(1+int(ceil(float(MAX_LIGHT_COUNT_PER_CLUSTER)/4.0)));
@@ -99,8 +107,6 @@ SpotLight getSpotLight(sampler2D lightBuffer,sampler2D clusterBuffer,ivec4 clust
     return light;
 }
 
-
-
 // Laya中使用衰减纹理
 float LayaAttenuation(in vec3 L,in float invLightRadius) {
 	float fRatio = clamp(length(L) * invLightRadius,0.0,1.0);
@@ -164,16 +170,13 @@ void LayaAirBlinnPhongSpotLight (in vec3 pos,in vec3 specColor,in float specColo
 
 vec3 NormalSampleToWorldSpace(vec3 normalMapSample, vec3 unitNormal, vec3 tangent,vec3 binormal) {
 	vec3 normalT =vec3(2.0*normalMapSample.x - 1.0,1.0-2.0*normalMapSample.y,2.0*normalMapSample.z - 1.0);
-
-	// Build orthonormal basis.
-	vec3 N = normalize(unitNormal);
-	vec3 T = normalize(tangent);
-	vec3 B = normalize(binormal);
+	mediump vec3 N = unitNormal;
+	mediump vec3 T = tangent;
+	mediump vec3 B = binormal;
 	mat3 TBN = mat3(T, B, N);
 
 	// Transform from tangent space to world space.
-	vec3 bumpedNormal = TBN*normalT;
-
+	vec3 bumpedNormal =normalize(TBN*normalT);
 	return bumpedNormal;
 }
 
@@ -196,6 +199,10 @@ vec3 NormalSampleToWorldSpace1(vec4 normalMapSample, vec3 tangent, vec3 binormal
 
 vec3 DecodeLightmap(vec4 color) {
 	return color.rgb*color.a*5.0;
+}
+
+vec3 decodeHDR(vec4 color,float range) {
+	return color.rgb*color.a*range;
 }
 
 vec2 TransformUV(vec2 texcoord,vec4 tilingOffset) {
@@ -223,5 +230,44 @@ mat3 inverse(mat3 m) {
   return mat3(b01, (-a22 * a01 + a02 * a21), (a12 * a01 - a02 * a11),
               b11, (a22 * a00 - a02 * a20), (-a12 * a00 + a02 * a10),
               b21, (-a21 * a00 + a01 * a20), (a11 * a00 - a01 * a10)) / det;
+}
+
+mediump vec3 layaLinearToGammaSpace (mediump vec3 linRGB)
+{
+    linRGB = max(linRGB, vec3(0.0, 0.0, 0.0));
+    // An almost-perfect approximation from http://chilliant.blogspot.com.au/2012/08/srgb-approximations-for-hlsl.html?m=1
+    return max(1.055 * pow(linRGB,vec3(0.416666667)) - 0.055, 0.0);   
+}
+
+LayaLight layaDirectionLightToLight(in DirectionLight light,in float attenuate)
+{
+	LayaLight relight;
+	relight.color = light.color*attenuate;
+	relight.dir = light.direction;
+	return relight;
+}
+
+LayaLight layaPointLightToLight(in vec3 pos,in vec3 normal, in PointLight light,in float attenuate)
+{
+	LayaLight relight;
+	vec3 lightVec =  pos-light.position;
+	attenuate *= LayaAttenuation(lightVec, 1.0/light.range);
+	relight.color = light.color*attenuate;
+	relight.dir = normalize(lightVec);
+	return relight;
+}
+
+LayaLight layaSpotLightToLight(in vec3 pos,in vec3 normal, in SpotLight light,in float attenuate)
+{
+	LayaLight relight;
+	vec3 lightVec =  pos-light.position;
+	vec3 normalLightVec=lightVec/length(lightVec);
+	vec2 cosAngles=cos(vec2(light.spot,light.spot*0.5)*0.5);//ConeAttenuation
+	float dl=dot(normalize(light.direction),normalLightVec);
+	dl*=smoothstep(cosAngles[0],cosAngles[1],dl);
+	attenuate *= LayaAttenuation(lightVec, 1.0/light.range)*dl;
+	relight.dir = lightVec;
+	relight.color = light.color*attenuate;
+	return relight;
 }
 

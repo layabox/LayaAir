@@ -33,7 +33,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	/**@internal */
 	private _id: number;
 	/** @internal */
-	private _lightmapScaleOffset: Vector4;
+	private _lightmapScaleOffset: Vector4 = new Vector4(1, 1, 0, 0);
 	/** @internal */
 	private _lightmapIndex: number;
 	/** @internal */
@@ -120,9 +120,10 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	}
 
 	set lightmapScaleOffset(value: Vector4) {
+		if (!value)
+			throw "BaseRender: lightmapScaleOffset can't be null.";
 		this._lightmapScaleOffset = value;
 		this._shaderValues.setVector(RenderableSprite3D.LIGHTMAPSCALEOFFSET, value);
-		this._shaderValues.addDefine(RenderableSprite3D.SHADERDEFINE_SCALEOFFSETLIGHTINGMAPUV);
 	}
 
 	/**

@@ -1,6 +1,7 @@
 import { Bitmap } from "./Bitmap";
 import { Texture2D } from "./Texture2D";
 import { BaseTexture } from "./BaseTexture";
+import { WarpMode } from "./WrapMode";
 
 /**
  * @private
@@ -17,8 +18,8 @@ export class HTMLImage extends Bitmap {
      */
     static create: Function = function (width: number, height: number, format: number): Bitmap {
         var tex: Texture2D = new Texture2D(width, height, format, false, false);
-        tex.wrapModeU = BaseTexture.WARPMODE_CLAMP;
-        tex.wrapModeV = BaseTexture.WARPMODE_CLAMP;
+        tex.wrapModeU = WarpMode.Clamp;
+        tex.wrapModeV = WarpMode.Clamp;
         return tex;
     }
 }

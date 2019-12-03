@@ -32,6 +32,7 @@ import { RenderQueue } from "./render/RenderQueue";
 import { Scene3D } from "./scene/Scene3D";
 import { Scene3DShaderDeclaration } from "./scene/Scene3DShaderDeclaration";
 import { Transform3D } from "./Transform3D";
+import { FilterMode } from "../../resource/FilterMode";
 
 /**
  * 相机清除标记。
@@ -550,7 +551,7 @@ export class Camera extends BaseCamera {
 		var scene: Scene3D = context.scene = <Scene3D>this._scene;
 
 		if (needInternalRT)
-			this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), RenderTextureDepthFormat.DEPTH_16, BaseTexture.FILTERMODE_BILINEAR);
+			this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), RenderTextureDepthFormat.DEPTH_16, FilterMode.Bilinear);
 		else
 			this._internalRenderTexture = null;
 		if (scene.parallelSplitShadowMaps[0]) {//TODO:SM
@@ -588,7 +589,7 @@ export class Camera extends BaseCamera {
 		//if need internal RT and no off screen RT and clearFlag is DepthOnly or Nothing, should grab the backBuffer
 		if (needInternalRT && !this._offScreenRenderTexture && (this.clearFlag == CameraClearFlags.DepthOnly || this.clearFlag == CameraClearFlags.Nothing)) {
 			if (this._enableHDR) {//internal RT is HDR can't directly copy
-				var grabTexture: RenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, RenderTextureFormat.R8G8B8, RenderTextureDepthFormat.DEPTH_16, BaseTexture.FILTERMODE_BILINEAR);
+				var grabTexture: RenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, RenderTextureFormat.R8G8B8, RenderTextureDepthFormat.DEPTH_16, FilterMode.Bilinear);
 				WebGLContext.bindTexture(gl, gl.TEXTURE_2D, grabTexture._getSource());
 				gl.copyTexSubImage2D(gl.TEXTURE_2D, 0, 0, 0, viewport.x, RenderContext3D.clientHeight - (viewport.y + viewport.height), viewport.width, viewport.height);
 				var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(grabTexture, this._internalRenderTexture);

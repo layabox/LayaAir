@@ -1,4 +1,3 @@
-import { Texture2D } from "../../resource/Texture2D";
 import { RenderState } from "../core/material/RenderState";
 import { VertexTrail } from "../core/trail/VertexTrail";
 import { VertexMesh } from "../graphics/Vertex/VertexMesh";
@@ -9,6 +8,7 @@ import EffectPS from "./files/Effect.fs";
 import EffectVS from "./files/Effect.vs";
 import extendTerrainPS from "./files/extendTerrain.fs";
 import extendTerrainVS from "./files/extendTerrain.vs";
+import GlobalIllumination from "./files/GlobalIllumination.glsl";
 import LightingGLSL from "./files/Lighting.glsl";
 import linePS from "./files/line.fs";
 import lineVS from "./files/line.vs";
@@ -16,14 +16,13 @@ import MeshBlinnPhongPS from "./files/Mesh-BlinnPhong.fs";
 import MeshBlinnPhongVS from "./files/Mesh-BlinnPhong.vs";
 import ParticleShuriKenPS from "./files/ParticleShuriKen.fs";
 import ParticleShuriKenVS from "./files/ParticleShuriKen.vs";
-import BRDFGLSL from "./files/PBRLibs/BRDF.glsl";
-import PBRSpecularLightingGLSL from "./files/PBRLibs/PBRSpecularLighting.glsl";
-import PBRStandardLightingGLSL from "./files/PBRLibs/PBRStandardLighting.glsl";
-import PBRUtilsGLSL from "./files/PBRLibs/PBRUtils.glsl";
-import PBRSpecularPS from "./files/PBRSpecular.fs";
-import PBRSpecularVS from "./files/PBRSpecular.vs";
-import PBRStandardPS from "./files/PBRStandard.fs";
-import PBRStandardVS from "./files/PBRStandard.vs";
+import LayaPBRBRDF from "./files/PBRLibs/LayaPBRBRDF.glsl";
+import PBRCore from "./files/PBRLibs/PBRCore.glsl";
+import PBRVSInput from "./files/PBRLibs/PBRVSInput.glsl";
+import PBRFSInput from "./files/PBRLibs/PBRFSInput.glsl";
+import PBRVSShadow from "./files/PBRLibs/PBRVSShadow.glsl";
+import PBRFSShadow from "./files/PBRLibs/PBRFSShadow.glsl";
+import PBRVertex from "./files/PBRLibs/PBRVertex.glsl";
 import BloomVS from "./files/postProcess/Bloom.vs";
 import BloomDownsample13PS from "./files/postProcess/BloomDownsample13.fs";
 import BloomDownsample4PS from "./files/postProcess/BloomDownsample4.fs";
@@ -71,14 +70,18 @@ export class ShaderInit3D {
 		Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING = Shader3D.getDefineByName("LEGACYSINGLELIGHTING");
 
 		Shader3D.addInclude("Lighting.glsl", LightingGLSL);
+		Shader3D.addInclude("GlobalIllumination.glsl", GlobalIllumination)
 		Shader3D.addInclude("ShadowHelper.glsl", ShadowHelperGLSL);
-		Shader3D.addInclude("BRDF.glsl", BRDFGLSL);
-		Shader3D.addInclude("PBRUtils.glsl", PBRUtilsGLSL);
-		Shader3D.addInclude("PBRStandardLighting.glsl", PBRStandardLightingGLSL);
-		Shader3D.addInclude("PBRSpecularLighting.glsl", PBRSpecularLightingGLSL);
 		Shader3D.addInclude("Colors.glsl", ColorsGLSL);
 		Shader3D.addInclude("Sampling.glsl", SamplingGLSL);
 		Shader3D.addInclude("StdLib.glsl", StdLibGLSL);
+		Shader3D.addInclude("PBRVSInput.glsl", PBRVSInput);
+		Shader3D.addInclude("PBRFSInput.glsl", PBRFSInput);
+		Shader3D.addInclude("PBRVSShadow.glsl", PBRVSShadow);
+		Shader3D.addInclude("PBRFSShadow.glsl", PBRFSShadow);
+		Shader3D.addInclude("LayaPBRBRDF.glsl", LayaPBRBRDF);
+		Shader3D.addInclude("PBRCore.glsl", PBRCore);
+		Shader3D.addInclude("PBRVertex.glsl", PBRVertex);
 
 		//BLINNPHONG
 		var attributeMap: any = {
@@ -176,166 +179,7 @@ export class ShaderInit3D {
 		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		subShader.addShaderPass(lineVS, linePS, stateMap);
-
-		//PBRStandard
-		attributeMap = {
-			'a_Position': VertexMesh.MESH_POSITION0,
-			'a_Normal': VertexMesh.MESH_NORMAL0,
-			'a_Tangent0': VertexMesh.MESH_TANGENT0,
-			'a_Texcoord0': VertexMesh.MESH_TEXTURECOORDINATE0,
-			'a_BoneWeights': VertexMesh.MESH_BLENDWEIGHT0,
-			'a_BoneIndices': VertexMesh.MESH_BLENDINDICES0,
-			'a_MvpMatrix': VertexMesh.MESH_MVPMATRIX_ROW0,
-			'a_WorldMat': VertexMesh.MESH_WORLDMATRIX_ROW0
-		};
-		uniformMap = {
-			'u_Bones': Shader3D.PERIOD_CUSTOM,
-			'u_MvpMatrix': Shader3D.PERIOD_SPRITE,
-			'u_WorldMat': Shader3D.PERIOD_SPRITE,
-
-			'u_CameraPos': Shader3D.PERIOD_CAMERA,
-			'u_View': Shader3D.PERIOD_CAMERA,
-			'u_ProjectionParams': Shader3D.PERIOD_CAMERA,
-			'u_Viewport': Shader3D.PERIOD_CAMERA,
-
-			'u_AlphaTestValue': Shader3D.PERIOD_MATERIAL,
-			'u_AlbedoColor': Shader3D.PERIOD_MATERIAL,
-			'u_EmissionColor': Shader3D.PERIOD_MATERIAL,
-			'u_AlbedoTexture': Shader3D.PERIOD_MATERIAL,
-			'u_NormalTexture': Shader3D.PERIOD_MATERIAL,
-			'u_ParallaxTexture': Shader3D.PERIOD_MATERIAL,
-			'u_MetallicGlossTexture': Shader3D.PERIOD_MATERIAL,
-			'u_OcclusionTexture': Shader3D.PERIOD_MATERIAL,
-			'u_EmissionTexture': Shader3D.PERIOD_MATERIAL,
-			'u_metallic': Shader3D.PERIOD_MATERIAL,
-			'u_smoothness': Shader3D.PERIOD_MATERIAL,
-			'u_smoothnessScale': Shader3D.PERIOD_MATERIAL,
-			'u_occlusionStrength': Shader3D.PERIOD_MATERIAL,
-			'u_normalScale': Shader3D.PERIOD_MATERIAL,
-			'u_parallaxScale': Shader3D.PERIOD_MATERIAL,
-			'u_TilingOffset': Shader3D.PERIOD_MATERIAL,
-
-
-			'u_ReflectTexture': Shader3D.PERIOD_SCENE,
-			'u_ReflectIntensity': Shader3D.PERIOD_SCENE,
-			'u_AmbientColor': Shader3D.PERIOD_SCENE,
-			'u_shadowMap1': Shader3D.PERIOD_SCENE,
-			'u_shadowMap2': Shader3D.PERIOD_SCENE,
-			'u_shadowMap3': Shader3D.PERIOD_SCENE,
-			'u_shadowPSSMDistance': Shader3D.PERIOD_SCENE,
-			'u_lightShadowVP': Shader3D.PERIOD_SCENE,
-			'u_shadowPCFoffset': Shader3D.PERIOD_SCENE,
-			'u_FogStart': Shader3D.PERIOD_SCENE,
-			'u_FogRange': Shader3D.PERIOD_SCENE,
-			'u_FogColor': Shader3D.PERIOD_SCENE,
-			'u_DirationLightCount': Shader3D.PERIOD_SCENE,
-			'u_LightBuffer': Shader3D.PERIOD_SCENE,
-			'u_LightClusterBuffer': Shader3D.PERIOD_SCENE,
-
-			//legacy lighting
-			'u_DirectionLight.direction': Shader3D.PERIOD_SCENE,
-			'u_DirectionLight.color': Shader3D.PERIOD_SCENE,
-			'u_PointLight.position': Shader3D.PERIOD_SCENE,
-			'u_PointLight.range': Shader3D.PERIOD_SCENE,
-			'u_PointLight.color': Shader3D.PERIOD_SCENE,
-			'u_SpotLight.position': Shader3D.PERIOD_SCENE,
-			'u_SpotLight.direction': Shader3D.PERIOD_SCENE,
-			'u_SpotLight.range': Shader3D.PERIOD_SCENE,
-			'u_SpotLight.spot': Shader3D.PERIOD_SCENE,
-			'u_SpotLight.color': Shader3D.PERIOD_SCENE,
-		};
-		stateMap = {
-			's_Cull': Shader3D.RENDER_STATE_CULL,
-			's_Blend': Shader3D.RENDER_STATE_BLEND,
-			's_BlendSrc': Shader3D.RENDER_STATE_BLEND_SRC,
-			's_BlendDst': Shader3D.RENDER_STATE_BLEND_DST,
-			's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
-			's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE
-		}
-		shader = Shader3D.add("PBRStandard", null, null, true);
-		subShader = new SubShader(attributeMap, uniformMap);
-		shader.addSubShader(subShader);
-		subShader.addShaderPass(PBRStandardVS, PBRStandardPS, stateMap);
-
-		//PBRSpecular
-		attributeMap = {
-			'a_Position': VertexMesh.MESH_POSITION0,
-			'a_Normal': VertexMesh.MESH_NORMAL0,
-			'a_Tangent0': VertexMesh.MESH_TANGENT0,
-			'a_Texcoord0': VertexMesh.MESH_TEXTURECOORDINATE0,
-			'a_BoneWeights': VertexMesh.MESH_BLENDWEIGHT0,
-			'a_BoneIndices': VertexMesh.MESH_BLENDINDICES0,
-			'a_MvpMatrix': VertexMesh.MESH_MVPMATRIX_ROW0,
-			'a_WorldMat': VertexMesh.MESH_WORLDMATRIX_ROW0
-		};
-		uniformMap = {
-			'u_Bones': Shader3D.PERIOD_CUSTOM,
-			'u_MvpMatrix': Shader3D.PERIOD_SPRITE,
-			'u_WorldMat': Shader3D.PERIOD_SPRITE,
-
-			'u_CameraPos': Shader3D.PERIOD_CAMERA,
-			'u_View': Shader3D.PERIOD_CAMERA,
-			'u_ProjectionParams': Shader3D.PERIOD_CAMERA,
-			'u_Viewport': Shader3D.PERIOD_CAMERA,
-
-			'u_AlphaTestValue': Shader3D.PERIOD_MATERIAL,
-			'u_AlbedoColor': Shader3D.PERIOD_MATERIAL,
-			'u_SpecularColor': Shader3D.PERIOD_MATERIAL,
-			'u_EmissionColor': Shader3D.PERIOD_MATERIAL,
-			'u_AlbedoTexture': Shader3D.PERIOD_MATERIAL,
-			'u_NormalTexture': Shader3D.PERIOD_MATERIAL,
-			'u_ParallaxTexture': Shader3D.PERIOD_MATERIAL,
-			'u_SpecularTexture': Shader3D.PERIOD_MATERIAL,
-			'u_OcclusionTexture': Shader3D.PERIOD_MATERIAL,
-			'u_EmissionTexture': Shader3D.PERIOD_MATERIAL,
-			'u_smoothness': Shader3D.PERIOD_MATERIAL,
-			'u_smoothnessScale': Shader3D.PERIOD_MATERIAL,
-			'u_occlusionStrength': Shader3D.PERIOD_MATERIAL,
-			'u_normalScale': Shader3D.PERIOD_MATERIAL,
-			'u_parallaxScale': Shader3D.PERIOD_MATERIAL,
-			'u_TilingOffset': Shader3D.PERIOD_MATERIAL,
-
-			'u_ReflectTexture': Shader3D.PERIOD_SCENE,
-			'u_ReflectIntensity': Shader3D.PERIOD_SCENE,
-			'u_AmbientColor': Shader3D.PERIOD_SCENE,
-			'u_shadowMap1': Shader3D.PERIOD_SCENE,
-			'u_shadowMap2': Shader3D.PERIOD_SCENE,
-			'u_shadowMap3': Shader3D.PERIOD_SCENE,
-			'u_shadowPSSMDistance': Shader3D.PERIOD_SCENE,
-			'u_lightShadowVP': Shader3D.PERIOD_SCENE,
-			'u_shadowPCFoffset': Shader3D.PERIOD_SCENE,
-			'u_FogStart': Shader3D.PERIOD_SCENE,
-			'u_FogRange': Shader3D.PERIOD_SCENE,
-			'u_FogColor': Shader3D.PERIOD_SCENE,
-			'u_DirationLightCount': Shader3D.PERIOD_SCENE,
-			'u_LightBuffer': Shader3D.PERIOD_SCENE,
-			'u_LightClusterBuffer': Shader3D.PERIOD_SCENE,
-
-			//legacy lighting
-			'u_DirectionLight.direction': Shader3D.PERIOD_SCENE,
-			'u_DirectionLight.color': Shader3D.PERIOD_SCENE,
-			'u_PointLight.position': Shader3D.PERIOD_SCENE,
-			'u_PointLight.range': Shader3D.PERIOD_SCENE,
-			'u_PointLight.color': Shader3D.PERIOD_SCENE,
-			'u_SpotLight.position': Shader3D.PERIOD_SCENE,
-			'u_SpotLight.direction': Shader3D.PERIOD_SCENE,
-			'u_SpotLight.range': Shader3D.PERIOD_SCENE,
-			'u_SpotLight.spot': Shader3D.PERIOD_SCENE,
-			'u_SpotLight.color': Shader3D.PERIOD_SCENE
-		};
-		stateMap = {
-			's_Cull': Shader3D.RENDER_STATE_CULL,
-			's_Blend': Shader3D.RENDER_STATE_BLEND,
-			's_BlendSrc': Shader3D.RENDER_STATE_BLEND_SRC,
-			's_BlendDst': Shader3D.RENDER_STATE_BLEND_DST,
-			's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
-			's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE
-		}
-		shader = Shader3D.add("PBRSpecular", null, null, true);
-		subShader = new SubShader(attributeMap, uniformMap);
-		shader.addSubShader(subShader);
-		subShader.addShaderPass(PBRSpecularVS, PBRSpecularPS, stateMap);
-
+		
 		//unlit
 		attributeMap = {
 			'a_Position': VertexMesh.MESH_POSITION0,
