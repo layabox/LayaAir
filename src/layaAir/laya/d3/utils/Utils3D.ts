@@ -42,7 +42,7 @@ export class Utils3D {
 	 */
 	static _convertToLayaVec3(bVector: number, out: Vector3, inverseX: boolean): void {
 		var bullet: any = Physics3D._bullet;
-		out.x = inverseX ? - bullet.btVector3_z(bVector) : bullet.btVector3_x(bVector);
+		out.x = inverseX ? - bullet.btVector3_x(bVector) : bullet.btVector3_x(bVector);
 		out.y = bullet.btVector3_y(bVector);
 		out.z = bullet.btVector3_z(bVector);
 	}
