@@ -17,11 +17,12 @@ uniform vec4 u_AlbedoColor;
 #ifdef METALLICGLOSSTEXTURE
 	uniform sampler2D u_MetallicGlossTexture;
 #endif
+uniform float u_metallic;
+
+uniform vec3 u_SpecularColor;
 
 uniform float u_smoothness;
 uniform float u_smoothnessScale;
-
-uniform float u_metallic;
 
 #ifdef PARALLAXTEXTURE
 	uniform sampler2D u_ParallaxTexture;
@@ -166,6 +167,29 @@ mediump vec2 metallicGloss(vec2 uv)
 	#endif
 	return ms;
 }
+
+mediump vec4 specularGloss(vec2 uv)
+{
+	mediump vec4 sg;
+	#ifdef SPECULARGLOSSTEXTURE
+		#ifdef SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA
+			sg.rgb = texture2D(u_SpecGlossTexture, uv).rgb;
+			sg.a = texture2D(u_AlbedoTexture, uv).a;
+		#else
+			sg = texture2D(u_SpecGlossTexture, uv);
+		#endif
+		sg.a *= u_smoothnessScale;
+	#else
+		sg.rgb =u_SpecularColor.rgb;
+		#ifdef SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA
+			sg.a = texture2D(u_AlbedoTexture, uv).a * u_SpecGlossScale;
+		#else
+			sg.a = u_smoothness;
+		#endif
+	#endif
+		return sg;
+}
+
 
 #ifdef NORMALTEXTURE
 	mediump vec3 unpackScaleNormal(mediump vec3 packednormal, mediump float bumpScale)

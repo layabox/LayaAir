@@ -21,6 +21,12 @@ mediump vec3 diffuseAndSpecularFromMetallic(mediump vec3 albedo,mediump float me
 	return albedo * oneMinusReflectivity;
 }
 
+// Diffuse/Spec Energy conservation
+mediump vec3 energyConservationBetweenDiffuseAndSpecular (mediump vec3 albedo, mediump vec3 specColor, out mediump float oneMinusReflectivity)
+{
+    return albedo * (vec3(1.0) - specColor);
+}
+
 #ifdef TRANSPARENTBLEND
 	mediump vec3 preMultiplyAlpha (mediump vec3 diffColor, mediump float alpha, mediump float oneMinusReflectivity,out mediump float modifiedAlpha)
 	{
@@ -38,9 +44,9 @@ FragmentCommonData metallicSetup(vec2 uv)
 	mediump vec2 metallicGloss = metallicGloss(uv);
 	mediump float metallic = metallicGloss.x;
 	mediump float smoothness = metallicGloss.y; // this is 1 minus the square root of real roughness m.
-	mediump float oneMinusReflectivity;//out
-	mediump vec3 specColor;//out
-	mediump vec3 diffColor = diffuseAndSpecularFromMetallic(albedo(uv), metallic,specColor,oneMinusReflectivity);
+	mediump float oneMinusReflectivity;
+	mediump vec3 specColor;
+	mediump vec3 diffColor = diffuseAndSpecularFromMetallic(albedo(uv), metallic,/*out*/specColor,/*out*/oneMinusReflectivity);
 
 	FragmentCommonData o;
 	o.diffColor = diffColor;
@@ -48,6 +54,23 @@ FragmentCommonData metallicSetup(vec2 uv)
 	o.oneMinusReflectivity = oneMinusReflectivity;
 	o.smoothness = smoothness;
 	return o;
+}
+
+FragmentCommonData specularSetup(vec2 uv)
+{
+    mediump vec4 specGloss = specularGloss(uv);
+    mediump vec3 specColor = specGloss.rgb;
+    mediump float smoothness = specGloss.a;
+
+    mediump float oneMinusReflectivity;
+    mediump vec3 diffColor = energyConservationBetweenDiffuseAndSpecular (albedo(uv), specColor, /*out*/ oneMinusReflectivity);
+
+    FragmentCommonData o;
+    o.diffColor = diffColor;
+    o.specColor = specColor;
+    o.oneMinusReflectivity = oneMinusReflectivity;
+    o.smoothness = smoothness;
+    return o;
 }
 
 LayaGI fragmentGI(float smoothness,vec3 eyeVec,mediump float occlusion,mediump vec2 lightmapUV,vec3 worldnormal)
