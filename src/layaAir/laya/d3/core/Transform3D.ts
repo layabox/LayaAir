@@ -93,83 +93,62 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 获取所属精灵。
+	 * 所属精灵。
 	 */
 	get owner(): Sprite3D {
 		return this._owner;
 	}
 
 	/**
-	 * 获取世界矩阵是否需要更新。
-	 * @return	世界矩阵是否需要更新。
+	 * 世界矩阵是否需要更新。
 	 */
 	get worldNeedUpdate(): boolean {
 		return this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX);
 	}
 
 	/**
-	 * 获取局部位置X轴分量。
-	 * @return	局部位置X轴分量。
+	 * 局部位置X轴分量。
 	 */
 	get localPositionX(): number {
 		return this._localPosition.x;
 	}
 
-	/**
-	 * 设置局部位置X轴分量。
-	 * @param x	局部位置X轴分量。
-	 */
 	set localPositionX(x: number) {
 		this._localPosition.x = x;
 		this.localPosition = this._localPosition;
 	}
 
 	/**
-	 * 获取局部位置Y轴分量。
-	 * @return	局部位置Y轴分量。
+	 * 局部位置Y轴分量。
 	 */
 	get localPositionY(): number {
 		return this._localPosition.y;
 	}
 
-	/**
-	 * 设置局部位置Y轴分量。
-	 * @param y	局部位置Y轴分量。
-	 */
 	set localPositionY(y: number) {
 		this._localPosition.y = y;
 		this.localPosition = this._localPosition;
 	}
 
 	/**
-	 * 获取局部位置Z轴分量。
-	 * @return	局部位置Z轴分量。
+	 * 局部位置Z轴分量。
 	 */
 	get localPositionZ(): number {
 		return this._localPosition.z;
 	}
 
-	/**
-	 * 设置局部位置Z轴分量。
-	 * @param z	局部位置Z轴分量。
-	 */
 	set localPositionZ(z: number) {
 		this._localPosition.z = z;
 		this.localPosition = this._localPosition;
 	}
 
 	/**
-	 * 获取局部位置。
-	 * @return	局部位置。
+	 * 局部位置。
 	 */
 	get localPosition(): Vector3 {
 		return this._localPosition;
 	}
 
-	/**
-	 * 设置局部位置。
-	 * @param value	局部位置。
-	 */
 	set localPosition(value: Vector3) {
 		if (this._localPosition !== value)
 			value.cloneTo(this._localPosition);
@@ -179,76 +158,55 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 获取局部旋转四元数X分量。
-	 * @return	局部旋转四元数X分量。
+	 * 局部旋转四元数X分量。
 	 */
 	get localRotationX(): number {
 		return this.localRotation.x;
 	}
 
-	/**
-	 * 设置局部旋转四元数X分量。
-	 * @param x	局部旋转四元数X分量。
-	 */
 	set localRotationX(x: number) {
 		this._localRotation.x = x;
 		this.localRotation = this._localRotation;
 	}
 
 	/**
-	 * 获取局部旋转四元数Y分量。
-	 * @return	局部旋转四元数Y分量。
+	 * 局部旋转四元数Y分量。
 	 */
 	get localRotationY(): number {
 		return this.localRotation.y;
 	}
 
-	/**
-	 * 设置局部旋转四元数Y分量。
-	 * @param y	局部旋转四元数Y分量。
-	 */
 	set localRotationY(y: number) {
 		this._localRotation.y = y;
 		this.localRotation = this._localRotation;
 	}
 
 	/**
-	 * 获取局部旋转四元数Z分量。
-	 * @return	局部旋转四元数Z分量。
+	 * 局部旋转四元数Z分量。
 	 */
 	get localRotationZ(): number {
 		return this.localRotation.z;
 	}
 
-	/**
-	 * 设置局部旋转四元数Z分量。
-	 * @param z	局部旋转四元数Z分量。
-	 */
 	set localRotationZ(z: number) {
 		this._localRotation.z = z;
 		this.localRotation = this._localRotation;
 	}
 
 	/**
-	 * 获取局部旋转四元数W分量。
-	 * @return	局部旋转四元数W分量。
+	 * 局部旋转四元数W分量。
 	 */
 	get localRotationW(): number {
 		return this.localRotation.w;
 	}
 
-	/**
-	 * 设置局部旋转四元数W分量。
-	 * @param w	局部旋转四元数W分量。
-	 */
 	set localRotationW(w: number) {
 		this._localRotation.w = w;
 		this.localRotation = this._localRotation;
 	}
 
 	/**
-	 * 获取局部旋转。
-	 * @return	局部旋转。
+	 * 局部旋转。
 	 */
 	get localRotation(): Quaternion {
 		if (this._getTransformFlag(Transform3D.TRANSFORM_LOCALQUATERNION)) {
@@ -259,10 +217,6 @@ export class Transform3D extends EventDispatcher {
 		return this._localRotation;
 	}
 
-	/**
-	 * 设置局部旋转。
-	 * @param value	局部旋转。
-	 */
 	set localRotation(value: Quaternion) {
 		if (this._localRotation !== value)
 			value.cloneTo(this._localRotation);
@@ -273,68 +227,48 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 获取局部缩放X。
-	 * @return	局部缩放X。
+	 * 局部缩放X。
 	 */
 	get localScaleX(): number {
 		return this._localScale.x;
 	}
 
-	/**
-	 * 设置局部缩放X。
-	 * @param	value 局部缩放X。
-	 */
 	set localScaleX(value: number) {
 		this._localScale.x = value;
 		this.localScale = this._localScale;
 	}
 
 	/**
-	 * 获取局部缩放Y。
-	 * @return	局部缩放Y。
+	 * 局部缩放Y。
 	 */
 	get localScaleY(): number {
 		return this._localScale.y;
 	}
 
-	/**
-	 * 设置局部缩放Y。
-	 * @param	value 局部缩放Y。
-	 */
 	set localScaleY(value: number) {
 		this._localScale.y = value;
 		this.localScale = this._localScale;
 	}
 
 	/**
-	 * 获取局部缩放Z。
-	 * @return	局部缩放Z。
+	 * 局部缩放Z。
 	 */
 	get localScaleZ(): number {
 		return this._localScale.z;
 	}
 
-	/**
-	 * 设置局部缩放Z。
-	 * @param	value 局部缩放Z。
-	 */
 	set localScaleZ(value: number) {
 		this._localScale.z = value;
 		this.localScale = this._localScale;
 	}
 
 	/**
-	 * 获取局部缩放。
-	 * @return	局部缩放。
+	 * 局部缩放。
 	 */
 	get localScale(): Vector3 {
 		return this._localScale;
 	}
 
-	/**
-	 * 设置局部缩放。
-	 * @param	value 局部缩放。
-	 */
 	set localScale(value: Vector3) {
 		if (this._localScale !== value)
 			value.cloneTo(this._localScale);
@@ -343,59 +277,43 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 获取局部空间的X轴欧拉角。
-	 * @return	局部空间的X轴欧拉角。
+	 * 局部空间的X轴欧拉角。
 	 */
 	get localRotationEulerX(): number {
 		return this.localRotationEuler.x;
 	}
 
-	/**
-	 * 设置局部空间的X轴欧拉角。
-	 * @param	value 局部空间的X轴欧拉角。
-	 */
 	set localRotationEulerX(value: number) {
 		this._localRotationEuler.x = value;
 		this.localRotationEuler = this._localRotationEuler;
 	}
 
 	/**
-	 * 获取局部空间的Y轴欧拉角。
-	 * @return	局部空间的Y轴欧拉角。
+	 * 局部空间的Y轴欧拉角。
 	 */
 	get localRotationEulerY(): number {
 		return this.localRotationEuler.y;
 	}
 
-	/**
-	 * 设置局部空间的Y轴欧拉角。
-	 * @param	value 局部空间的Y轴欧拉角。
-	 */
 	set localRotationEulerY(value: number) {
 		this._localRotationEuler.y = value;
 		this.localRotationEuler = this._localRotationEuler;
 	}
 
 	/**
-	 * 获取局部空间的Z轴欧拉角。
-	 * @return	局部空间的Z轴欧拉角。
+	 * 局部空间的Z轴欧拉角。
 	 */
 	get localRotationEulerZ(): number {
 		return this.localRotationEuler.z;
 	}
 
-	/**
-	 * 设置局部空间的Z轴欧拉角。
-	 * @param	value 局部空间的Z轴欧拉角。
-	 */
 	set localRotationEulerZ(value: number) {
 		this._localRotationEuler.z = value;
 		this.localRotationEuler = this._localRotationEuler;
 	}
 
 	/**
-	 * 获取局部空间欧拉角。
-	 * @return	欧拉角的旋转值。
+	 * 局部空间欧拉角。
 	 */
 	get localRotationEuler(): Vector3 {
 		if (this._getTransformFlag(Transform3D.TRANSFORM_LOCALEULER)) {
@@ -410,10 +328,6 @@ export class Transform3D extends EventDispatcher {
 		return this._localRotationEuler;
 	}
 
-	/**
-	 * 设置局部空间的欧拉角。
-	 * @param	value 欧拉角的旋转值。
-	 */
 	set localRotationEuler(value: Vector3) {
 		if (this._localRotationEuler !== value)
 			value.cloneTo(this._localRotationEuler);
@@ -423,8 +337,7 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 获取局部矩阵。
-	 * @return	局部矩阵。
+	 * 局部矩阵。
 	 */
 	get localMatrix(): Matrix4x4 {
 		if (this._getTransformFlag(Transform3D.TRANSFORM_LOCALMATRIX)) {
@@ -434,10 +347,6 @@ export class Transform3D extends EventDispatcher {
 		return this._localMatrix;
 	}
 
-	/**
-	 * 设置局部矩阵。
-	 * @param value	局部矩阵。
-	 */
 	set localMatrix(value: Matrix4x4) {
 		if (this._localMatrix !== value)
 			value.cloneTo(this._localMatrix);
@@ -448,8 +357,7 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 获取世界位置。
-	 * @return	世界位置。
+	 * 世界位置。
 	 */
 	get position(): Vector3 {
 		if (this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION)) {
@@ -466,10 +374,6 @@ export class Transform3D extends EventDispatcher {
 		return this._position;
 	}
 
-	/**
-	 * 设置世界位置。
-	 * @param	value 世界位置。
-	 */
 	set position(value: Vector3) {
 		if (this._parent != null) {
 			var parentInvMat: Matrix4x4 = Transform3D._tempMatrix0;
@@ -488,8 +392,7 @@ export class Transform3D extends EventDispatcher {
 
 
 	/**
-	 * 获取世界旋转。
-	 * @return	世界旋转。
+	 * 世界旋转。
 	 */
 	get rotation(): Quaternion {
 		if (this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION)) {
@@ -502,10 +405,6 @@ export class Transform3D extends EventDispatcher {
 		return this._rotation;
 	}
 
-	/**
-	 * 设置世界旋转。
-	 * @param value	世界旋转。
-	 */
 	set rotation(value: Quaternion) {
 		if (this._parent != null) {
 			this._parent.rotation.invert(Transform3D._tempQuaternion0);
@@ -522,8 +421,7 @@ export class Transform3D extends EventDispatcher {
 
 
 	/**
-	 * 获取世界空间的旋转角度。
-	 * @return	欧拉角的旋转值，顺序为x、y、z。
+	 * 世界空间的旋转角度，顺序为x、y、z。
 	 */
 	get rotationEuler(): Vector3 {
 		if (this._getTransformFlag(Transform3D.TRANSFORM_WORLDEULER)) {
@@ -538,10 +436,6 @@ export class Transform3D extends EventDispatcher {
 		return this._rotationEuler;
 	}
 
-	/**
-	 * 设置世界空间的旋转角度。
-	 * @param	欧拉角的旋转值，顺序为x、y、z。
-	 */
 	set rotationEuler(value: Vector3) {
 		Quaternion.createFromYawPitchRoll(value.y / Transform3D._angleToRandin, value.x / Transform3D._angleToRandin, value.z / Transform3D._angleToRandin, this._rotation);
 		this.rotation = this._rotation;
@@ -552,8 +446,7 @@ export class Transform3D extends EventDispatcher {
 	}
 
 	/**
-	 * 获取世界矩阵。
-	 * @return	世界矩阵。
+	 * 世界矩阵。
 	 */
 	get worldMatrix(): Matrix4x4 {
 		if (this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX)) {
@@ -567,10 +460,6 @@ export class Transform3D extends EventDispatcher {
 		return this._worldMatrix;
 	}
 
-	/**
-	 * 设置世界矩阵。
-	 * @param	value 世界矩阵。
-	 */
 	set worldMatrix(value: Matrix4x4) {
 		if (this._parent === null) {
 			value.cloneTo(this._localMatrix);
