@@ -1595,16 +1595,16 @@ export class Context {
 	}
 
 	drawTriangles(tex: Texture, x: number, y: number, vertices: Float32Array, uvs: Float32Array, indices: Uint16Array, matrix: Matrix, alpha: number, color: ColorFilter, blendMode: string, colorNum: number = 0xffffffff): void {
-		var oldcomp: string = null;
-		if (blendMode) {
-			oldcomp = this.globalCompositeOperation;
-			this.globalCompositeOperation = blendMode;
-		}
 		if (!tex._getSource()) { //source内调用tex.active();
 			if (this.sprite) {
 				ILaya.systemTimer.callLater(this, this._repaintSprite);
 			}
 			return;
+		}
+		var oldcomp: string = null;
+		if (blendMode) {
+			oldcomp = this.globalCompositeOperation;
+			this.globalCompositeOperation = blendMode;
 		}
 		this._drawCount++;
 
