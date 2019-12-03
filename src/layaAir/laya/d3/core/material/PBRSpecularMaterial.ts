@@ -1,7 +1,7 @@
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Vector4 } from "../../math/Vector4";
-import PBRPS from "../../shader/files/PBR.fs";
-import PBRVS from "../../shader/files/PBR.vs";
+import PBRPS from "../../shader/files/PBRSpecular.fs";
+import PBRVS from "../../shader/files/PBRSpecular.vs";
 import { Shader3D } from "../../shader/Shader3D";
 import { ShaderDefine } from "../../shader/ShaderDefine";
 import { SubShader } from "../../shader/SubShader";
