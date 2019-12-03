@@ -39,7 +39,9 @@ export class PBRStandardMaterial extends PBRMaterial {
 	 * @internal
 	 */
 	static __init__(): void {
-		PBRStandardMaterial.__initDefine__();
+		PBRStandardMaterial.SHADERDEFINE_METALLICGLOSSTEXTURE = Shader3D.getDefineByName("METALLICGLOSSTEXTURE");
+		PBRStandardMaterial.SHADERDEFINE_SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA = Shader3D.getDefineByName("SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA");
+
 		var attributeMap: any = {
 			'a_Position': VertexMesh.MESH_POSITION0,
 			'a_Normal': VertexMesh.MESH_NORMAL0,
@@ -66,16 +68,16 @@ export class PBRStandardMaterial extends PBRMaterial {
 			'u_AlbedoTexture': Shader3D.PERIOD_MATERIAL,
 			'u_NormalTexture': Shader3D.PERIOD_MATERIAL,
 			'u_ParallaxTexture': Shader3D.PERIOD_MATERIAL,
-			'u_MetallicGlossTexture': Shader3D.PERIOD_MATERIAL,
 			'u_OcclusionTexture': Shader3D.PERIOD_MATERIAL,
 			'u_EmissionTexture': Shader3D.PERIOD_MATERIAL,
-			'u_metallic': Shader3D.PERIOD_MATERIAL,
 			'u_smoothness': Shader3D.PERIOD_MATERIAL,
 			'u_smoothnessScale': Shader3D.PERIOD_MATERIAL,
 			'u_occlusionStrength': Shader3D.PERIOD_MATERIAL,
 			'u_NormalScale': Shader3D.PERIOD_MATERIAL,
 			'u_ParallaxScale': Shader3D.PERIOD_MATERIAL,
 			'u_TilingOffset': Shader3D.PERIOD_MATERIAL,
+			'u_MetallicGlossTexture': Shader3D.PERIOD_MATERIAL,
+			'u_metallic': Shader3D.PERIOD_MATERIAL,
 
 			'u_ReflectTexture': Shader3D.PERIOD_SCENE,
 			'u_ReflectIntensity': Shader3D.PERIOD_SCENE,
@@ -129,14 +131,6 @@ export class PBRStandardMaterial extends PBRMaterial {
 		var subShader: SubShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		subShader.addShaderPass(PBRVS, PBRPS, stateMap);
-	}
-
-	/**
-    * @private
-    */
-	static __initDefine__(): void {
-		PBRStandardMaterial.SHADERDEFINE_METALLICGLOSSTEXTURE = Shader3D.getDefineByName("METALLICGLOSSTEXTURE");
-		PBRStandardMaterial.SHADERDEFINE_SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA = Shader3D.getDefineByName("SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA");
 	}
 
 	/** @internal */

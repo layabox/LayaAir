@@ -19,6 +19,9 @@ uniform vec4 u_AlbedoColor;
 #endif
 uniform float u_metallic;
 
+#ifdef SPECULARTEXTURE
+	uniform vec3 u_SpecGlossTexture;
+#endif
 uniform vec3 u_SpecularColor;
 
 uniform float u_smoothness;
