@@ -29,7 +29,7 @@ export class PBRStandardMaterial extends PBRMaterial {
 	/** @internal */
 	static METALLICGLOSSTEXTURE: number = Shader3D.propertyNameToID("u_MetallicGlossTexture");
 	/** @internal */
-	static METALLIC: number = Shader3D.propertyNameToID("u_metallic");
+	static METALLIC: number = Shader3D.propertyNameToID("u_Metallic");
 
 
 	/** 默认材质，禁止修改*/
@@ -77,7 +77,7 @@ export class PBRStandardMaterial extends PBRMaterial {
 			'u_ParallaxScale': Shader3D.PERIOD_MATERIAL,
 			'u_TilingOffset': Shader3D.PERIOD_MATERIAL,
 			'u_MetallicGlossTexture': Shader3D.PERIOD_MATERIAL,
-			'u_metallic': Shader3D.PERIOD_MATERIAL,
+			'u_Metallic': Shader3D.PERIOD_MATERIAL,
 
 			'u_ReflectTexture': Shader3D.PERIOD_SCENE,
 			'u_ReflectIntensity': Shader3D.PERIOD_SCENE,

@@ -17,7 +17,7 @@ uniform vec4 u_AlbedoColor;
 #ifdef METALLICGLOSSTEXTURE
 	uniform sampler2D u_MetallicGlossTexture;
 #endif
-uniform float u_metallic;
+uniform float u_Metallic;
 
 #ifdef SPECULARTEXTURE
 	uniform vec3 u_SpecGlossTexture;
@@ -160,7 +160,7 @@ mediump vec2 metallicGloss(vec2 uv)
 		#endif
 		ms.y *= u_smoothnessScale;
 	#else
-		ms.x = u_metallic;
+		ms.x = u_Metallic;
 		//TODO:Judge with ALBEDOTEXTURE define
 		#ifdef SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA
 			ms.y = texture2D(u_AlbedoTexture, uv).a * u_smoothnessScale;

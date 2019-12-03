@@ -77,7 +77,7 @@ export class PBRSpecularMaterial extends PBRMaterial {
 			'u_ParallaxScale': Shader3D.PERIOD_MATERIAL,
 			'u_TilingOffset': Shader3D.PERIOD_MATERIAL,
 			'u_MetallicGlossTexture': Shader3D.PERIOD_MATERIAL,
-			'u_metallic': Shader3D.PERIOD_MATERIAL,
+			'u_Metallic': Shader3D.PERIOD_MATERIAL,
 
 			'u_ReflectTexture': Shader3D.PERIOD_SCENE,
 			'u_ReflectIntensity': Shader3D.PERIOD_SCENE,
