@@ -21,9 +21,15 @@ mediump vec3 diffuseAndSpecularFromMetallic(mediump vec3 albedo,mediump float me
 	return albedo * oneMinusReflectivity;
 }
 
+mediump float specularStrength(mediump vec3 specular)
+{
+    return max (max (specular.r, specular.g), specular.b);
+}
+
 // Diffuse/Spec Energy conservation
 mediump vec3 energyConservationBetweenDiffuseAndSpecular (mediump vec3 albedo, mediump vec3 specColor, out mediump float oneMinusReflectivity)
 {
+	oneMinusReflectivity = 1.0 - specularStrength(specColor);
     return albedo * (vec3(1.0) - specColor);
 }
 

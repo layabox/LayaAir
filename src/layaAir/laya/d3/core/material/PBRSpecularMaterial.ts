@@ -166,7 +166,7 @@ export class PBRSpecularMaterial extends PBRMaterial {
 	constructor() {
 		super();
 		this.setShaderName("PBRSpecular");
-		this._shaderValues.setVector(PBRSpecularMaterial.SPECULARCOLOR, new Vector4(0.2, 0.2, 0.2, 0.2));
+		this._shaderValues.setVector(PBRSpecularMaterial.SPECULARCOLOR, new Vector4(0.2, 0.2, 0.2, 1.0));
 	}
 
 	/**
