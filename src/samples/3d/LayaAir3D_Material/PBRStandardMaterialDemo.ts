@@ -2,7 +2,7 @@ import { Laya } from "Laya";
 import { BaseCamera } from "laya/d3/core/BaseCamera";
 import { Camera } from "laya/d3/core/Camera";
 import { BaseMaterial } from "laya/d3/core/material/BaseMaterial";
-import { PBRStandardMaterial } from "laya/d3/core/material/PBRStandardMaterial";
+import { PBRStandardMaterial, PBRMetallicSmoothnessSource} from "laya/d3/core/material/PBRStandardMaterial";
 import { SkyBoxMaterial } from "laya/d3/core/material/SkyBoxMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
@@ -73,7 +73,7 @@ export class PBRStandardMaterialDemo {
 			//法线贴图缩放系数
 			//mat.normalScale = 1;
 			//光滑度数据源:从金属度贴图/反射贴图获取。
-			mat.smoothnessSource = PBRStandardMaterial.SmoothnessSource_MetallicGlossTexture_Alpha;
+			mat.smoothnessSource = PBRMetallicSmoothnessSource.MetallicGlossTextureAlpha;
 
 			var barrel: MeshSprite3D = (<MeshSprite3D>scene.getChildByName("Wooden_Barrel"));
 			var barrel1: MeshSprite3D = (<MeshSprite3D>scene.getChildByName("Wooden_Barrel (1)"));

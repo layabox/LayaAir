@@ -20,7 +20,7 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
-import { PBRStandardMaterial } from "laya/d3/core/material/PBRStandardMaterial";
+import { PBRStandardMaterial, PBRMetallicSmoothnessSource } from "laya/d3/core/material/PBRStandardMaterial";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Mesh } from "laya/d3/resource/models/Mesh";
 import { Vector4 } from "laya/d3/math/Vector4";
@@ -209,7 +209,7 @@ export class SceneLoad4 {
 			//法线贴图缩放系数
 			//mat.normalScale = 1;
 			//光滑度数据源:从金属度贴图/反射贴图获取。
-			sphereMat.smoothnessSource = PBRStandardMaterial.SmoothnessSource_MetallicGlossTexture_Alpha;
+			sphereMat.smoothnessSource = PBRMetallicSmoothnessSource.MetallicGlossTextureAlpha;
 
 			meshSprite3D.meshRenderer.sharedMaterial = sphereMat;
 			if( _this.skinmodels.length > 3)
@@ -257,7 +257,7 @@ export class SceneLoad4 {
 			//法线贴图缩放系数
 			//mat.normalScale = 1;
 			//光滑度数据源:从金属度贴图/反射贴图获取。
-			barrelMat.smoothnessSource = PBRStandardMaterial.SmoothnessSource_MetallicGlossTexture_Alpha;
+			barrelMat.smoothnessSource = PBRMetallicSmoothnessSource.MetallicGlossTextureAlpha;
 
 			meshSprite3D.meshRenderer.sharedMaterial = barrelMat;
 
@@ -309,7 +309,7 @@ export class SceneLoad4 {
             //法线贴图缩放系数
             //mat.normalScale = 1;
             //光滑度数据源:从金属度贴图/反射贴图获取。
-            layaMonkeyMat.smoothnessSource = PBRStandardMaterial.SmoothnessSource_MetallicGlossTexture_Alpha;
+            layaMonkeyMat.smoothnessSource = PBRMetallicSmoothnessSource.MetallicGlossTextureAlpha;
 
 			meshSprite3D.meshRenderer.sharedMaterial = layaMonkeyMat;
 
@@ -361,7 +361,7 @@ export class SceneLoad4 {
 			//法线贴图缩放系数
 			//mat.normalScale = 1;
 			//光滑度数据源:从金属度贴图/反射贴图获取。
-			teapotMat.smoothnessSource = PBRStandardMaterial.SmoothnessSource_MetallicGlossTexture_Alpha;
+			teapotMat.smoothnessSource = PBRMetallicSmoothnessSource.MetallicGlossTextureAlpha;
 
 			meshSprite3D.meshRenderer.sharedMaterial = teapotMat;
 

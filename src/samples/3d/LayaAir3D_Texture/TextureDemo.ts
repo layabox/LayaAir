@@ -17,6 +17,8 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { FilterMode } from "laya/resource/FilterMode";
+import { WarpMode } from "laya/resource/WrapMode";
 
 /**
  * ...
@@ -55,11 +57,11 @@ export class TextureDemo {
 		//漫反射贴图
 		Texture2D.load("res/threeDimen/texture/layabox.png", Handler.create(this, function (texture: Texture2D): void {
 			//在U方向上使用WARPMODE_CLAMP
-			texture.wrapModeU = BaseTexture.WARPMODE_REPEAT;
+			texture.wrapModeU = WarpMode.Repeat;
 			//在V方向使用WARPMODE_REPEAT
-			texture.wrapModeV = BaseTexture.WARPMODE_REPEAT;
+			texture.wrapModeV = WarpMode.Repeat;
 			//设置过滤方式
-			texture.filterMode = BaseTexture.FILTERMODE_BILINEAR;
+			texture.filterMode = FilterMode.Bilinear;
 			//设置各向异性等级
 			texture.anisoLevel = 2;
 
