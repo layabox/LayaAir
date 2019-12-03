@@ -1282,6 +1282,7 @@ export class Sprite extends Node {
         	ctx.destroy(true);// 保留 _targets
 			return rtex;
 		}
+		sprite._repaint=0;
 		return rt;
     }
 

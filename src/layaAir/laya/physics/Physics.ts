@@ -21,7 +21,7 @@ import { WeldJoint } from "./joint/WeldJoint"
 import { WheelJoint } from "./joint/WheelJoint"
 import { ClassUtils } from "../utils/ClassUtils"
 import { IPhysics } from "./IPhysics";
-
+import { DestructionListener } from "./DestructionListener";
 /**
  * 2D物理引擎，使用Box2d驱动
  */
@@ -91,6 +91,7 @@ export class Physics extends EventDispatcher {
 
             var gravity: any = new box2d.b2Vec2(0, options.gravity || 500 / Physics.PIXEL_RATIO);
             this.world = new box2d.b2World(gravity);
+            this.world.SetDestructionListener(new DestructionListener());
             this.world.SetContactListener(new ContactListener());
             this.allowSleeping = options.allowSleeping == null ? true : options.allowSleeping;
             if (!options.customUpdate) Laya.physicsTimer.frameLoop(1, this, this._update);
@@ -175,7 +176,10 @@ export class Physics extends EventDispatcher {
     /**@private */
     _createJoint(def: any): any {
         if (this.world) {
-            return this.world.CreateJoint(def);
+            let joint = this.world.CreateJoint(def);
+            joint.m_userData = {};
+            joint.m_userData.isDestroy = false;
+            return joint;
         } else {
             console.error('The physical engine should be initialized first.use "Physics.enable()"');
             return null;
