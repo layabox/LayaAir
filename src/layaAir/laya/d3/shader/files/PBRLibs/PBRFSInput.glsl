@@ -53,8 +53,6 @@ uniform vec4 u_EmissionColor;
 	uniform sampler2D u_LightMap;
 #endif
 
-
-
 varying vec3 v_Normal; 
 
 #if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
@@ -154,16 +152,23 @@ mediump vec2 metallicGloss(vec2 uv)
 	#ifdef METALLICGLOSSTEXTURE
 		#ifdef SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA
 			ms.x = texture2D(u_MetallicGlossTexture, uv).r;
-			ms.y = texture2D(u_AlbedoTexture, uv).a;
+			#ifdef ALBEDOTEXTURE
+				ms.y = texture2D(u_AlbedoTexture, uv).a*u_SmoothnessScale;
+			#else
+				ms.y =u_SmoothnessScale;
+			#endif
 		#else
 			ms = texture2D(u_MetallicGlossTexture, uv).ra;
+			ms.y *= u_SmoothnessScale;
 		#endif
-		ms.y *= u_SmoothnessScale;
 	#else
 		ms.x = u_Metallic;
-		//TODO:Judge with ALBEDOTEXTURE define
 		#ifdef SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA
-			ms.y = texture2D(u_AlbedoTexture, uv).a * u_SmoothnessScale;
+			#ifdef ALBEDOTEXTURE
+				ms.y = texture2D(u_AlbedoTexture, uv).a * u_SmoothnessScale;
+			#else
+				ms.y = u_SmoothnessScale;
+			#endif
 		#else
 			ms.y = u_Smoothness;
 		#endif
@@ -177,15 +182,23 @@ mediump vec4 specularGloss(vec2 uv)
 	#ifdef SPECULARGLOSSTEXTURE
 		#ifdef SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA
 			sg.rgb = texture2D(u_SpecGlossTexture, uv).rgb;
-			sg.a = texture2D(u_AlbedoTexture, uv).a;
+			#ifdef ALBEDOTEXTURE
+				sg.a = texture2D(u_AlbedoTexture, uv).a*u_SmoothnessScale;
+			#else
+				sg.a = u_SmoothnessScale;
+			#endif
 		#else
 			sg = texture2D(u_SpecGlossTexture, uv);
+			sg.a *= u_SmoothnessScale;
 		#endif
-		sg.a *= u_SmoothnessScale;
 	#else
-		sg.rgb =u_SpecularColor.rgb;
+		sg.rgb = u_SpecularColor.rgb;
 		#ifdef SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA
-			sg.a = texture2D(u_AlbedoTexture, uv).a * u_SpecGlossScale;
+			#ifdef ALBEDOTEXTURE
+				sg.a = texture2D(u_AlbedoTexture, uv).a * u_SpecGlossScale;
+			#else
+				sg.a = u_SpecGlossScale;
+			#endif
 		#else
 			sg.a = u_Smoothness;
 		#endif
