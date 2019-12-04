@@ -1,5 +1,7 @@
-import { Laya, timer } from "Laya";
+import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
+import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
+import { RenderState } from "laya/d3/core/material/RenderState";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
@@ -12,10 +14,6 @@ import { Browser } from "laya/utils/Browser";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
-import { transcode } from "buffer";
-import { Quaternion } from "laya/d3/math/Quaternion";
-import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
-import { RenderState } from "laya/d3/core/material/RenderState";
 
 
 export class DrawTextTexture {
@@ -75,10 +73,10 @@ export class DrawTextTexture {
         //给材质贴图
         this.mat.albedoTexture = this.texture2D;
         (<BlinnPhongMaterial>this.plane.meshRenderer.sharedMaterial).cull = RenderState.CULL_NONE;
-        var rotate:Vector3 = new Vector3(0,0,1);
-        Laya.timer.frameLoop(1, this, function(): void {
+        var rotate: Vector3 = new Vector3(0, 0, 1);
+        Laya.timer.frameLoop(1, this, function (): void {
             this.plane.transform.rotate(rotate, true, false);
-            
+
         });
     }
 
