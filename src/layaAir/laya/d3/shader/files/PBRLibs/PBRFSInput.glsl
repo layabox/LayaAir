@@ -155,7 +155,7 @@ mediump vec2 metallicGloss(vec2 uv)
 			#ifdef ALBEDOTEXTURE
 				ms.y = texture2D(u_AlbedoTexture, uv).a*u_SmoothnessScale;
 			#else
-				ms.y =u_SmoothnessScale;
+				ms.y = u_SmoothnessScale;
 			#endif
 		#else
 			ms = texture2D(u_MetallicGlossTexture, uv).ra;

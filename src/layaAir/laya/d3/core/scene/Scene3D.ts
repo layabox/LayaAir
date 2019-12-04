@@ -75,9 +75,9 @@ export enum AmbientMode {
  */
 export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal */
-	public static _lightTexture: Texture2D;
+	private static _lightTexture: Texture2D;
 	/** @internal */
-	public static _lightPixles: Float32Array;
+	private static _lightPixles: Float32Array;
 
 	/**Hierarchy资源。*/
 	static HIERARCHY: string = "HIERARCHY";
@@ -141,7 +141,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 	static AMBIENTCOLOR: number = Shader3D.propertyNameToID("u_AmbientColor");
 	static REFLECTIONTEXTURE: number = Shader3D.propertyNameToID("u_ReflectTexture");
-	static REFLETIONINTENSITY: number = Shader3D.propertyNameToID("u_ReflectIntensity");
 	static TIME: number = Shader3D.propertyNameToID("u_Time");
 
 
@@ -222,7 +221,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal */
 	private _ambientSphericalHarmonics: SphericalHarmonicsL2 = new SphericalHarmonicsL2();
 	/** @internal */
-	private _reflectionProbe: TextureCube;
+	private _reflection: TextureCube;
+	/** @internal */
+	private _reflectionIntensity: number = 1.0;
 	/** @internal */
 	private _reflectionSpecularColor: Vector4 = new Vector4(0, 0, 0, 1);
 
@@ -341,17 +342,19 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	set ambientMode(value: AmbientMode) {
-		switch (value) {
-			case AmbientMode.SolidColor:
-				this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_AMBIENT_SH);
-				break;
-			case AmbientMode.SphericalHarmonics:
-				this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_AMBIENT_SH);
-				break;
-			default:
-				throw "Scene3D: unknown ambientMode.";
+		if (this._ambientMode !== value) {
+			switch (value) {
+				case AmbientMode.SolidColor:
+					this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_AMBIENT_SH);
+					break;
+				case AmbientMode.SphericalHarmonics:
+					this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_AMBIENT_SH);
+					break;
+				default:
+					throw "Scene3D: unknown ambientMode.";
+			}
+			this._ambientMode = value;
 		}
-		this._ambientMode = value;
 	}
 
 	/**
@@ -398,15 +401,28 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * 全局反射探头。
+	 * 反射纹理。
 	 */
-	get reflectionProbe(): TextureCube {
-		return this._reflectionProbe;
+	get reflection(): TextureCube {
+		return this._reflection;
 	}
 
-	set reflectionProbe(value: TextureCube) {
+	set reflection(value: TextureCube) {
 		this._shaderValues.setTexture(Scene3D.REFLECTIONTEXTURE, value || TextureCube.blackTexture);
-		this._reflectionProbe = value;
+		this._reflection = value;
+	}
+
+	/**
+	 * 反射强度。
+	 */
+	get reflectionIntensity(): number {
+		return this._reflectionIntensity;
+	}
+
+	set reflectionIntensity(value: number) {
+		value = Math.max(Math.min(value, 1.0), 0.0);
+		this.reflectionCubeHDRParams.x = 5.0 * value;//5.0 is RGBM param
+		this._reflectionIntensity = value;
 	}
 
 	/**
@@ -425,18 +441,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 	set customReflection(value: TextureCube) {
 		this._shaderValues.setTexture(Scene3D.REFLECTIONTEXTURE, value);
-	}
-
-	/**
-	 * 反射强度。
-	 */
-	get reflectionIntensity(): number {
-		return this._shaderValues.getNumber(Scene3D.REFLETIONINTENSITY);
-	}
-
-	set reflectionIntensity(value: number) {
-		value = Math.max(Math.min(value, 1.0), 0.0);
-		this._shaderValues.setNumber(Scene3D.REFLETIONINTENSITY, value);
 	}
 
 	/**
@@ -1101,12 +1105,13 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		}
 		var reflectionProbeData: string = data.reflectionProbe;
 		if (reflectionProbeData)
-			this.reflectionProbe = Loader.getRes(reflectionProbeData);
+			this.reflection = Loader.getRes(reflectionProbeData);
 
 		var reflectionSpecularColorData: Array<number> = data.reflectionSpecularColor;
 		(reflectionSpecularColorData) && (this._reflectionSpecularColor.fromArray(reflectionSpecularColorData));
-		var reflectionCubeHDRParamsData: Array<number> = data.reflectionCubeHDRParams;
-		(reflectionCubeHDRParamsData) && (this.reflectionCubeHDRParams.fromArray(reflectionCubeHDRParamsData));
+
+		//var reflectionCubeHDRParamsData: Array<number> = data.reflectionCubeHDRParams;
+		//(reflectionCubeHDRParamsData) && (this.reflectionCubeHDRParams.fromArray(reflectionCubeHDRParamsData));
 	}
 
 
