@@ -134,7 +134,12 @@ class Storage {
 	 * @return <code>Object</code> 类型值
 	 */
     static getJSON(key: string): any {
-        return JSON.parse(Storage.support ? Storage.items.getItem(key) : null);
+        try{
+            let obj = JSON.parse(Storage.support ? Storage.items.getItem(key) : null);
+            return obj;
+        }catch(err){
+            return Storage.items.getItem(key);
+        }
     }
 
 	/**
