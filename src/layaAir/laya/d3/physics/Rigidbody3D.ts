@@ -248,24 +248,17 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	}
 
 	/**
-	 * 获取性因子。
+	 * 每个轴的线性运动缩放因子,如果某一轴的值为0表示冻结在该轴的线性运动。
 	 */
 	get linearFactor(): Vector3 {
-		if (this._nativeColliderObject)
-			return this._linearFactor;
-		return null;
+		return this._linearFactor;
 	}
 
-	/**
-	 * 设置性因子。
-	 */
 	set linearFactor(value: Vector3) {
 		this._linearFactor = value;
-		if (this._nativeColliderObject) {
-			var nativeValue: any = Rigidbody3D._nativeTempVector30;
-			Utils3D._convertToBulletVec3(value, nativeValue, false);
-			this._nativeColliderObject.setLinearFactor(nativeValue);
-		}
+		var nativeValue: any = Rigidbody3D._nativeTempVector30;
+		Utils3D._convertToBulletVec3(value, nativeValue, false);
+		this._nativeColliderObject.setLinearFactor(nativeValue);
 	}
 
 	/**
@@ -293,24 +286,17 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	}
 
 	/**
-	 * 获取角因子。
+	 * 每个轴的角度运动缩放因子,如果某一轴的值为0表示冻结在该轴的角度运动。
 	 */
 	get angularFactor(): Vector3 {
-		if (this._nativeColliderObject)
-			return this._angularFactor;
-		return null;
+		return this._angularFactor;
 	}
 
-	/**
-	 * 设置角因子。
-	 */
 	set angularFactor(value: Vector3) {
 		this._angularFactor = value;
-		if (this._nativeColliderObject) {
-			var nativeValue: any = Rigidbody3D._nativeTempVector30;
-			Utils3D._convertToBulletVec3(value, nativeValue, false);
-			this._nativeColliderObject.setAngularFactor(nativeValue);
-		}
+		var nativeValue: any = Rigidbody3D._nativeTempVector30;
+		Utils3D._convertToBulletVec3(value, nativeValue, false);
+		this._nativeColliderObject.setAngularFactor(nativeValue);
 	}
 
 	/**
@@ -585,6 +571,17 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		(data.linearDamping != null) && (this.linearDamping = data.linearDamping);
 		(data.angularDamping != null) && (this.angularDamping = data.angularDamping);
 		(data.overrideGravity != null) && (this.overrideGravity = data.overrideGravity);
+
+		if (data.linearFactor != null) {
+			var linFac = this.linearFactor;
+			linFac.fromArray(data.linearFactor);
+			this.linearFactor = linFac;
+		}
+		if (data.angularFactor != null) {
+			var angFac = this.angularFactor;
+			angFac.fromArray(data.angularFactor);
+			this.angularFactor = angFac;
+		}
 
 		if (data.gravity) {
 			this.gravity.fromArray(data.gravity);
