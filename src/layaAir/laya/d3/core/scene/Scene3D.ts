@@ -361,7 +361,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * 固定颜色环境光。
 	 */
 	get ambientColor(): Vector3 {
-		return (<Vector3>this._shaderValues.getVector3(Scene3D.AMBIENTCOLOR));
+		return this._shaderValues.getVector3(Scene3D.AMBIENTCOLOR);
 	}
 
 	set ambientColor(value: Vector3) {
