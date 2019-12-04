@@ -234,7 +234,7 @@ mat3 inverse(mat3 m) {
 
 mediump vec3 layaLinearToGammaSpace (mediump vec3 linRGB)
 {
-    linRGB = max(linRGB, vec3(0.0, 0.0, 0.0));
+    linRGB = max(linRGB, vec3(0.0));
     // An almost-perfect approximation from http://chilliant.blogspot.com.au/2012/08/srgb-approximations-for-hlsl.html?m=1
     return max(1.055 * pow(linRGB,vec3(0.416666667)) - 0.055, 0.0);   
 }

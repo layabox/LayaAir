@@ -1,6 +1,6 @@
-import { LayaGL } from "../../layagl/LayaGL";
-import { RenderTextureFormat } from "../../resource/RenderTextureFormat";
-import { TextureFormat } from "../../resource/TextureFormat";
+import { LayaGL } from "../layagl/LayaGL";
+import { TextureFormat } from "../resource/TextureFormat";
+import { RenderTextureFormat } from "../resource/RenderTextureFormat";
 
 /**
  * 系统工具。

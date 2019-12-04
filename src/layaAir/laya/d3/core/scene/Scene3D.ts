@@ -20,6 +20,7 @@ import { Script3D } from "../../component/Script3D";
 import { SimpleSingletonList } from "../../component/SimpleSingletonList";
 import { FrustumCulling } from "../../graphics/FrustumCulling";
 import { Cluster } from "../../graphics/renderPath/Cluster";
+import { SphericalHarmonicsL2 } from "../../graphics/SphericalHarmonicsL2";
 import { Input3D } from "../../Input3D";
 import { Vector3 } from "../../math/Vector3";
 import { Vector4 } from "../../math/Vector4";
@@ -55,9 +56,6 @@ import { RenderableSprite3D } from "../RenderableSprite3D";
 import { Sprite3D } from "../Sprite3D";
 import { BoundsOctree } from "./BoundsOctree";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
-import { SphericalHarmonicsL2 } from "../../graphics/SphericalHarmonicsL2";
-import { ShaderDefine } from "../../shader/ShaderDefine";
-import { ShaderValue } from "../../../webgl/shader/ShaderValue";
 
 /**
  * 环境光模式
@@ -221,6 +219,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal */
 	private _ambientSphericalHarmonics: SphericalHarmonicsL2 = new SphericalHarmonicsL2();
 	/** @internal */
+	private _ambientIntensity: number = 1.0;
+	/** @internal */
 	private _reflection: TextureCube;
 	/** @internal */
 	private _reflectionIntensity: number = 1.0;
@@ -361,7 +361,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	 * 固定颜色环境光。
 	 */
 	get ambientColor(): Vector3 {
-		return (<Vector3>this._shaderValues.getVector3(Scene3D.AMBIENTCOLOR));
+		return this._shaderValues.getVector3(Scene3D.AMBIENTCOLOR);
 	}
 
 	set ambientColor(value: Vector3) {
@@ -377,27 +377,25 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 	set ambientSphericalHarmonics(value: SphericalHarmonicsL2) {
 		var originalSH: SphericalHarmonicsL2 = value || SphericalHarmonicsL2._default;
-		var optSH: Vector4[] = this._shCoefficients;
-
-		for (var i = 0; i < 3; i++) {
-			var shaderSHA: Vector4 = optSH[i];
-			var shaderSHB: Vector4 = optSH[i + 3];
-			shaderSHA.setValue(originalSH.getCoefficient(i, 3), originalSH.getCoefficient(i, 1), originalSH.getCoefficient(i, 2), (originalSH.getCoefficient(i, 0) - originalSH.getCoefficient(i, 6)));
-			shaderSHB.setValue(originalSH.getCoefficient(i, 4), originalSH.getCoefficient(i, 5), originalSH.getCoefficient(i, 6) * 3, originalSH.getCoefficient(i, 7));// Quadratic polynomials 
-		}
-		optSH[6].setValue(originalSH.getCoefficient(0, 8), originalSH.getCoefficient(1, 8), originalSH.getCoefficient(2, 8), 1);// Final quadratic polynomial
-
-		var shaderValues: ShaderData = this._shaderValues;
-		shaderValues.setVector(Scene3D.AMBIENTSHAR, optSH[0]);
-		shaderValues.setVector(Scene3D.AMBIENTSHAG, optSH[1]);
-		shaderValues.setVector(Scene3D.AMBIENTSHAB, optSH[2]);
-		shaderValues.setVector(Scene3D.AMBIENTSHBR, optSH[3]);
-		shaderValues.setVector(Scene3D.AMBIENTSHBG, optSH[4]);
-		shaderValues.setVector(Scene3D.AMBIENTSHBB, optSH[5]);
-		shaderValues.setVector(Scene3D.AMBIENTSHC, optSH[6]);
-
+		this._applySHCoefficients(originalSH, Math.pow(this._ambientIntensity, 2.2));//Gamma to Linear,I prefer use 'Color.gammaToLinearSpace',but must same with Unity now.
 		if (this._ambientSphericalHarmonics != value)
 			value.cloneTo(this._ambientSphericalHarmonics);
+	}
+
+	/**
+	 * 环境光强度。
+	 */
+	get ambientIntensity(): number {
+		return this._ambientIntensity;
+	}
+
+	set ambientIntensity(value: number) {
+		value = Math.max(Math.min(value, 8.0), 0.0);
+		if (this._ambientIntensity !== value) {
+			var originalSH: SphericalHarmonicsL2 = this._ambientSphericalHarmonics || SphericalHarmonicsL2._default;
+			this._applySHCoefficients(originalSH, Math.pow(value, 2.2));//Gamma to Linear,I prefer use 'Color.gammaToLinearSpace',but must same with Unity now.
+			this._ambientIntensity = value;
+		}
 	}
 
 	/**
@@ -532,6 +530,29 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			lineMaterial.depthTest = RenderState.DEPTHTEST_LESS;
 			this._debugTool.pixelLineRenderer.sharedMaterial = lineMaterial;
 		}
+	}
+
+	/**
+	 * @internal
+	 */
+	private _applySHCoefficients(originalSH: SphericalHarmonicsL2, intensity: number): void {
+		var optSH: Vector4[] = this._shCoefficients;
+		for (var i = 0; i < 3; i++) {
+			var shaderSHA: Vector4 = optSH[i];
+			var shaderSHB: Vector4 = optSH[i + 3];
+			shaderSHA.setValue(originalSH.getCoefficient(i, 3) * intensity, originalSH.getCoefficient(i, 1) * intensity, originalSH.getCoefficient(i, 2) * intensity, (originalSH.getCoefficient(i, 0) - originalSH.getCoefficient(i, 6)) * intensity);
+			shaderSHB.setValue(originalSH.getCoefficient(i, 4) * intensity, originalSH.getCoefficient(i, 5) * intensity, originalSH.getCoefficient(i, 6) * 3 * intensity, originalSH.getCoefficient(i, 7) * intensity);// Quadratic polynomials 
+		}
+		optSH[6].setValue(originalSH.getCoefficient(0, 8) * intensity, originalSH.getCoefficient(1, 8) * intensity, originalSH.getCoefficient(2, 8) * intensity, 1);// Final quadratic polynomial
+
+		var shaderValues: ShaderData = this._shaderValues;
+		shaderValues.setVector(Scene3D.AMBIENTSHAR, optSH[0]);
+		shaderValues.setVector(Scene3D.AMBIENTSHAG, optSH[1]);
+		shaderValues.setVector(Scene3D.AMBIENTSHAB, optSH[2]);
+		shaderValues.setVector(Scene3D.AMBIENTSHBR, optSH[3]);
+		shaderValues.setVector(Scene3D.AMBIENTSHBG, optSH[4]);
+		shaderValues.setVector(Scene3D.AMBIENTSHBB, optSH[5]);
+		shaderValues.setVector(Scene3D.AMBIENTSHC, optSH[6]);
 	}
 
 	/**
@@ -1112,6 +1133,11 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 		//var reflectionCubeHDRParamsData: Array<number> = data.reflectionCubeHDRParams;
 		//(reflectionCubeHDRParamsData) && (this.reflectionCubeHDRParams.fromArray(reflectionCubeHDRParamsData));
+
+		var ambientIntensityData: number = data.ambientIntensity;
+		(ambientIntensityData != undefined) && (this.ambientIntensity = ambientIntensityData);
+		var reflectionIntensityData: number = data.reflectionIntensity;
+		(reflectionIntensityData != undefined) && (this.reflectionIntensity = reflectionIntensityData);
 	}
 
 

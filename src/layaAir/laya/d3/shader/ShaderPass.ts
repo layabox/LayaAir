@@ -9,7 +9,7 @@ import { Shader3D } from "./Shader3D";
 import { ShaderInstance } from "./ShaderInstance";
 import { ShaderVariant } from "./ShaderVariantCollection";
 import { SubShader } from "./SubShader";
-import { SystemUtils } from "../utils/SystemUtils";
+import { SystemUtils } from "../../webgl/SystemUtils";
 
 /**
  * <code>ShaderPass</code> 类用于实现ShaderPass。
@@ -233,8 +233,8 @@ export class ShaderPass extends ShaderCompile {
 		var defMap: any = {};
 		var defineStr: string = "";
 		//TODO:兼容webgl2.0
-		defineStr += 
-`#ifdef GL_EXT_shader_texture_lod
+		defineStr +=
+			`#ifdef GL_EXT_shader_texture_lod
 	#extension GL_EXT_shader_texture_lod : enable
 #endif
 #if !defined(GL_EXT_shader_texture_lod)
