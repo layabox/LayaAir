@@ -1,7 +1,7 @@
 
 import { ILaya } from "../../ILaya";
 import { VertexArrayObject } from "../../laya/webgl/VertexArrayObject";
-import { SystemUtils } from "../d3/utils/SystemUtils";
+import { SystemUtils } from "./SystemUtils";
 
 /**
  * @internal

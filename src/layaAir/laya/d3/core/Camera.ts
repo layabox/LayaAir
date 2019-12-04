@@ -23,7 +23,6 @@ import { Shader3D } from "../shader/Shader3D";
 import { ShaderData } from "../shader/ShaderData";
 import { ParallelSplitShadowMap } from "../shadowMap/ParallelSplitShadowMap";
 import { Picker } from "../utils/Picker";
-import { SystemUtils } from "../utils/SystemUtils";
 import { BaseCamera } from "./BaseCamera";
 import { BlitScreenQuadCMD } from "./render/command/BlitScreenQuadCMD";
 import { CommandBuffer } from "./render/command/CommandBuffer";
@@ -33,6 +32,7 @@ import { Scene3D } from "./scene/Scene3D";
 import { Scene3DShaderDeclaration } from "./scene/Scene3DShaderDeclaration";
 import { Transform3D } from "./Transform3D";
 import { FilterMode } from "../../resource/FilterMode";
+import { SystemUtils } from "../../webgl/SystemUtils";
 
 /**
  * 相机清除标记。
