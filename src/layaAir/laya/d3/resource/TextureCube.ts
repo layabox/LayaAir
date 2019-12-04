@@ -23,9 +23,9 @@ export class TextureCube extends BaseTexture {
 	static TEXTURECUBE: string = "TEXTURECUBE";
 
 	/**@private*/
-	static _blackTexture: TextureCube;
+	private static _blackTexture: TextureCube;
 	/**@private*/
-	static _grayTexture: TextureCube;
+	private static _grayTexture: TextureCube;
 
 	/**
 	 * 黑色纯色纹理。
@@ -68,6 +68,15 @@ export class TextureCube extends BaseTexture {
 	}
 
 	/**
+	 * @inheritDoc
+	 */
+	static _parseBin(data: any, propertyParams: any = null, constructParams: any[] = null): TextureCube {
+		var texture: TextureCube = constructParams ? new TextureCube(0, constructParams[0], constructParams[1]) : new TextureCube(0);
+		texture.setSixSideImageSources(data);
+		return texture;
+	}
+
+	/**
 	 * 加载TextureCube。
 	 * @param url TextureCube地址。
 	 * @param complete 完成回调。
@@ -102,7 +111,7 @@ export class TextureCube extends BaseTexture {
 		this._setAnisotropy(this._anisoLevel);
 
 		if (this._mipmap) {
-			this._mipmapCount = Math.ceil(Math.log2(size));
+			this._mipmapCount = Math.ceil(Math.log2(size)) + 1;
 			for (var i: number = 0; i < this._mipmapCount; i++)
 				this._setPixels([], i, Math.max(size >> i, 1), Math.max(size >> i, 1));//初始化各级mipmap
 			this._setGPUMemory(size * size * 4 * (1 + 1 / 3) * 6);

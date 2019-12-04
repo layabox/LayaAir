@@ -541,31 +541,6 @@ export class BlinnPhongMaterial extends Material {
 	}
 
 	/**
-	 * 是否启用光照。
-	 */
-	get enableLighting(): boolean {
-		return this._enableLighting;
-	}
-
-	set enableLighting(value: boolean) {
-		if (this._enableLighting !== value) {
-			if (value) {
-				this._disablePublicDefineDatas.remove(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT);
-				this._disablePublicDefineDatas.remove(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT);
-				this._disablePublicDefineDatas.remove(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
-			}
-			else {
-				this._disablePublicDefineDatas.add(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT);
-				this._disablePublicDefineDatas.add(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT);
-				this._disablePublicDefineDatas.add(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
-			}
-			this._enableLighting = value;
-		}
-	}
-
-
-
-	/**
 	 * 是否写入深度。
 	 */
 	get depthWrite(): boolean {

@@ -87,7 +87,7 @@ export class Texture2D extends BaseTexture {
 	/** @internal */
 	private _canRead: boolean;
 	/** @internal */
-	private _pixels: Uint8Array | Float32Array;//TODO:是否合并格式
+	private _pixels: Uint8Array | Uint16Array | Float32Array;//TODO:是否合并格式
 
 
 
@@ -151,7 +151,7 @@ export class Texture2D extends BaseTexture {
 	/**
 	 * @internal
 	 */
-	private _setPixels(pixels: Uint8Array | Float32Array, miplevel: number, width: number, height: number): void {
+	private _setPixels(pixels: Uint8Array | Uint16Array | Float32Array, miplevel: number, width: number, height: number): void {
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		var textureType: number = this._glTextureType;
 		var glFormat: number = this._getGLFormat();
@@ -160,6 +160,11 @@ export class Texture2D extends BaseTexture {
 			case TextureFormat.R8G8B8:
 				gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);//字节对齐
 				gl.texImage2D(textureType, miplevel, glFormat, width, height, 0, glFormat, gl.UNSIGNED_BYTE, pixels);
+				gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+				break;
+			case TextureFormat.R5G6B5:
+				gl.pixelStorei(gl.UNPACK_ALIGNMENT, 2);//字节对齐
+				gl.texImage2D(textureType, miplevel, glFormat, width, height, 0, glFormat, gl.UNSIGNED_SHORT_5_6_5, pixels);
 				gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
 				break;
 			case TextureFormat.R32G32B32A32:
@@ -391,7 +396,10 @@ export class Texture2D extends BaseTexture {
 			gl.texImage2D(this._glTextureType, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
 		} else {
 			(premultiplyAlpha) && (gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true));
-			gl.texImage2D(this._glTextureType, 0, glFormat, glFormat, gl.UNSIGNED_BYTE, source);
+			if (this.format == TextureFormat.R5G6B5)
+				gl.texImage2D(this._glTextureType, 0, gl.RGB, gl.RGB, gl.UNSIGNED_SHORT_5_6_5, source);
+			else
+				gl.texImage2D(this._glTextureType, 0, glFormat, glFormat, gl.UNSIGNED_BYTE, source);
 			(premultiplyAlpha) && (gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false));
 		}
 		if (this._mipmap) {
@@ -420,7 +428,7 @@ export class Texture2D extends BaseTexture {
 	 * @param	pixels 像素。
 	 * @param   miplevel 层级。
 	 */
-	setPixels(pixels: Uint8Array | Float32Array, miplevel: number = 0): void {
+	setPixels(pixels: Uint8Array | Uint16Array | Float32Array, miplevel: number = 0): void {
 		if (this._gpuCompressFormat())
 			throw "Texture2D:the format is GPU compression format.";
 		if (!pixels)
@@ -448,7 +456,7 @@ export class Texture2D extends BaseTexture {
 	 * @param  pixels 像素数组。
 	 * @param  miplevel 层级。
 	 */
-	setSubPixels(x: number, y: number, width: number, height: number, pixels: Uint8Array | Float32Array, miplevel: number = 0): void {
+	setSubPixels(x: number, y: number, width: number, height: number, pixels: Uint8Array | Uint16Array | Float32Array, miplevel: number = 0): void {
 		if (this._gpuCompressFormat())
 			throw "Texture2D:the format is GPU compression format.";
 		if (!pixels)
@@ -463,6 +471,11 @@ export class Texture2D extends BaseTexture {
 			case TextureFormat.R8G8B8:
 				gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);//字节对齐
 				gl.texSubImage2D(textureType, miplevel, x, y, width, height, glFormat, gl.UNSIGNED_BYTE, pixels);
+				gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+				break;
+			case TextureFormat.R5G6B5:
+				gl.pixelStorei(gl.UNPACK_ALIGNMENT, 2);//字节对齐
+				gl.texSubImage2D(textureType, miplevel, x, y, width, height, glFormat, gl.UNSIGNED_SHORT_5_6_5, pixels);
 				gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
 				break;
 			case TextureFormat.R32G32B32A32:
@@ -516,7 +529,7 @@ export class Texture2D extends BaseTexture {
 	 * 返回图片像素。
 	 * @return 图片像素。
 	 */
-	getPixels(): Uint8Array | Float32Array {
+	getPixels(): Uint8Array |Uint16Array| Float32Array {
 		if (this._canRead)
 			return this._pixels;
 		else

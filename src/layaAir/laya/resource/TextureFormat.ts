@@ -3,6 +3,8 @@ export enum TextureFormat {
     R8G8B8 = 0,
     /**纹理格式_R8G8B8A8。*/
     R8G8B8A8 = 1,
+    /**RGB格式纹理,R通道5位，G通道6位，B通道5位。*/
+    R5G6B5 = 16,
     /**纹理格式_ALPHA8。*/
     Alpha8 = 2,
     /**纹理格式_DXT1。*/
