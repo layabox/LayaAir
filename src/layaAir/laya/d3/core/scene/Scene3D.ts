@@ -219,7 +219,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal */
 	private _ambientSphericalHarmonics: SphericalHarmonicsL2 = new SphericalHarmonicsL2();
 	/** @internal */
-	private _ambientIntensity: number = 1.0;
+	private _ambientSphericalHarmonicsIntensity: number = 1.0;
 	/** @internal */
 	private _reflection: TextureCube;
 	/** @internal */
@@ -377,7 +377,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 	set ambientSphericalHarmonics(value: SphericalHarmonicsL2) {
 		var originalSH: SphericalHarmonicsL2 = value || SphericalHarmonicsL2._default;
-		this._applySHCoefficients(originalSH, Math.pow(this._ambientIntensity, 2.2));//Gamma to Linear,I prefer use 'Color.gammaToLinearSpace',but must same with Unity now.
+		this._applySHCoefficients(originalSH, Math.pow(this._ambientSphericalHarmonicsIntensity, 2.2));//Gamma to Linear,I prefer use 'Color.gammaToLinearSpace',but must same with Unity now.
 		if (this._ambientSphericalHarmonics != value)
 			value.cloneTo(this._ambientSphericalHarmonics);
 	}
@@ -385,16 +385,16 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/**
 	 * 环境光强度。
 	 */
-	get ambientIntensity(): number {
-		return this._ambientIntensity;
+	get ambientSphericalHarmonicsIntensity(): number {
+		return this._ambientSphericalHarmonicsIntensity;
 	}
 
-	set ambientIntensity(value: number) {
+	set ambientSphericalHarmonicsIntensity(value: number) {
 		value = Math.max(Math.min(value, 8.0), 0.0);
-		if (this._ambientIntensity !== value) {
+		if (this._ambientSphericalHarmonicsIntensity !== value) {
 			var originalSH: SphericalHarmonicsL2 = this._ambientSphericalHarmonics || SphericalHarmonicsL2._default;
 			this._applySHCoefficients(originalSH, Math.pow(value, 2.2));//Gamma to Linear,I prefer use 'Color.gammaToLinearSpace',but must same with Unity now.
-			this._ambientIntensity = value;
+			this._ambientSphericalHarmonicsIntensity = value;
 		}
 	}
 
@@ -1134,8 +1134,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		//var reflectionCubeHDRParamsData: Array<number> = data.reflectionCubeHDRParams;
 		//(reflectionCubeHDRParamsData) && (this.reflectionCubeHDRParams.fromArray(reflectionCubeHDRParamsData));
 
-		var ambientIntensityData: number = data.ambientIntensity;
-		(ambientIntensityData != undefined) && (this.ambientIntensity = ambientIntensityData);
+		var ambientSphericalHarmonicsIntensityData: number = data.ambientSphericalHarmonicsIntensity;
+		(ambientSphericalHarmonicsIntensityData != undefined) && (this.ambientSphericalHarmonicsIntensity = ambientSphericalHarmonicsIntensityData);
 		var reflectionIntensityData: number = data.reflectionIntensity;
 		(reflectionIntensityData != undefined) && (this.reflectionIntensity = reflectionIntensityData);
 	}
