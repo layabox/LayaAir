@@ -9,7 +9,7 @@
     "buildDoc": "cd src/generateDoc&&cmd /k run.bat"
   },
   "author": "LayaAir Team",
-  "license": "ISC",
+  "license": "SEE LICENSE IN LICENSE.md",
   "dependencies": {
     "gulp-concat": "^2.6.1",
     "iconv-lite": "^0.5.0",
