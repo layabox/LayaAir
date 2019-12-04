@@ -67,6 +67,15 @@ export enum AmbientMode {
 	SphericalHarmonics
 }
 
+/**
+ * 反射模式
+ */
+export enum ReflectionMode {
+	/** 基于天空反射。*/
+	Skybox,
+	/** 使用自定义反射。 */
+	Custom
+}
 
 /**
  * 用于实现3D场景。
@@ -203,10 +212,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal */
 	private _skyRenderer: SkyRenderer = new SkyRenderer();
 	/** @internal */
-	private _ambientMode: AmbientMode = AmbientMode.SolidColor;
-	/** @internal */
-	private _reflectionMode: number = 1;
-	/** @internal */
 	private _enableFog: boolean;
 	/** @internal */
 	private _input: Input3D = new Input3D();
@@ -217,11 +222,17 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal */
 	private _shCoefficients: Vector4[] = new Array(7);
 	/** @internal */
+	private _ambientMode: AmbientMode = AmbientMode.SolidColor;
+	/** @internal */
 	private _ambientSphericalHarmonics: SphericalHarmonicsL2 = new SphericalHarmonicsL2();
 	/** @internal */
 	private _ambientSphericalHarmonicsIntensity: number = 1.0;
 	/** @internal */
+	private _reflectionMode: ReflectionMode = ReflectionMode.Skybox;
+	/** @internal */
 	private _reflection: TextureCube;
+	/** @internal */
+	private _customReflection: TextureCube;
 	/** @internal */
 	private _reflectionIntensity: number = 1.0;
 	/** @internal */
@@ -399,15 +410,48 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * 反射纹理。
+	 * 反射模式。
+	 */
+	get reflectionMode(): ReflectionMode {
+		return this._reflectionMode;
+	}
+
+	set reflectionMode(value: ReflectionMode) {
+		if (this._reflectionMode != value) {
+			switch (value) {
+				case ReflectionMode.Skybox:
+					this._shaderValues.setTexture(Scene3D.REFLECTIONTEXTURE, this._reflection || TextureCube.blackTexture);
+					break;
+				case ReflectionMode.Custom:
+					this._shaderValues.setTexture(Scene3D.REFLECTIONTEXTURE, this._customReflection || TextureCube.blackTexture);
+					break;
+				default:
+					throw "Scene3D:unknown reflectionMode.";
+			}
+			this._reflectionMode = value;
+		}
+	}
+
+	/**
+	 * 天空反射纹理。
 	 */
 	get reflection(): TextureCube {
 		return this._reflection;
 	}
 
-	set reflection(value: TextureCube) {
-		this._shaderValues.setTexture(Scene3D.REFLECTIONTEXTURE, value || TextureCube.blackTexture);
-		this._reflection = value;
+	/**
+	 * 自定义反射。
+	 */
+	get customReflection(): TextureCube {
+		return this._customReflection;
+	}
+
+	set customReflection(value: TextureCube) {
+		if (this._customReflection != value) {
+			if (this._reflectionMode == ReflectionMode.Custom)
+				this._shaderValues.setTexture(Scene3D.REFLECTIONTEXTURE, value || TextureCube.blackTexture);
+			this._customReflection = value;
+		}
 	}
 
 	/**
@@ -431,32 +475,10 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * 反射贴图。
-	 */
-	get customReflection(): TextureCube {
-		return <TextureCube>this._shaderValues.getTexture(Scene3D.REFLECTIONTEXTURE);
-	}
-
-	set customReflection(value: TextureCube) {
-		this._shaderValues.setTexture(Scene3D.REFLECTIONTEXTURE, value);
-	}
-
-	/**
 	 * 物理模拟器。
 	 */
 	get physicsSimulation(): PhysicsSimulation {
 		return this._physicsSimulation;
-	}
-
-	/**
-	 * 反射模式。
-	 */
-	get reflectionMode(): number {
-		return this._reflectionMode;
-	}
-
-	set reflectionMode(value: number) {
-		this._reflectionMode = value;
 	}
 
 	/**
@@ -1125,8 +1147,10 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			this.ambientSphericalHarmonics = ambientSH;
 		}
 		var reflectionProbeData: string = data.reflectionProbe;
-		if (reflectionProbeData)
-			this.reflection = Loader.getRes(reflectionProbeData);
+		if (reflectionProbeData) {
+			this._reflection = Loader.getRes(reflectionProbeData);
+			this._shaderValues.setTexture(Scene3D.REFLECTIONTEXTURE, this._reflection || TextureCube.blackTexture);
+		}
 
 		var reflectionSpecularColorData: Array<number> = data.reflectionSpecularColor;
 		(reflectionSpecularColorData) && (this._reflectionSpecularColor.fromArray(reflectionSpecularColorData));
