@@ -1281,7 +1281,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	//--------------------------------------------------------deprecated------------------------------------------------------------------------
 	/**
 	 * @deprecated
-	 * 自定义反射。
 	 */
 	get customReflection(): TextureCube {
 		return this._reflection;
@@ -1299,7 +1298,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 	/**
 	 * @deprecated
-	 * 反射模式。
 	 */
 	get reflectionMode(): number {
 		return this._reflectionMode;
