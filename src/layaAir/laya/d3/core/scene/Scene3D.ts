@@ -68,16 +68,6 @@ export enum AmbientMode {
 }
 
 /**
- * 反射模式
- */
-export enum ReflectionMode {
-	/** 基于天空反射。*/
-	Skybox,
-	/** 使用自定义反射。 */
-	Custom
-}
-
-/**
  * 用于实现3D场景。
  */
 export class Scene3D extends Sprite implements ISubmit, ICreateResource {
@@ -228,11 +218,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal */
 	private _ambientSphericalHarmonicsIntensity: number = 1.0;
 	/** @internal */
-	private _reflectionMode: ReflectionMode = ReflectionMode.Skybox;
-	/** @internal */
-	private _skyReflection: TextureCube;
-	/** @internal */
-	private _customReflection: TextureCube;
+	private _reflection: TextureCube;
 	/** @internal */
 	private _reflectionIntensity: number = 1.0;
 	/** @internal */
@@ -394,7 +380,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * 环境光强度。
+	 * 环境球谐强度。
 	 */
 	get ambientSphericalHarmonicsIntensity(): number {
 		return this._ambientSphericalHarmonicsIntensity;
@@ -410,40 +396,16 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * 反射模式。
+	 * 反射立方体纹理。
 	 */
-	get reflectionMode(): ReflectionMode {
-		return this._reflectionMode;
+	get reflection(): TextureCube {
+		return this._reflection;
 	}
 
-	set reflectionMode(value: ReflectionMode) {
-		if (this._reflectionMode != value) {
-			switch (value) {
-				case ReflectionMode.Skybox:
-					this._shaderValues.setTexture(Scene3D.REFLECTIONTEXTURE, this._skyReflection || TextureCube.blackTexture);
-					break;
-				case ReflectionMode.Custom:
-					this._shaderValues.setTexture(Scene3D.REFLECTIONTEXTURE, this._customReflection || TextureCube.blackTexture);
-					break;
-				default:
-					throw "Scene3D:unknown reflectionMode.";
-			}
-			this._reflectionMode = value;
-		}
-	}
-
-	/**
-	 * 自定义反射。
-	 */
-	get customReflection(): TextureCube {
-		return this._customReflection;
-	}
-
-	set customReflection(value: TextureCube) {
-		if (this._customReflection != value) {
-			if (this._reflectionMode == ReflectionMode.Custom)
-				this._shaderValues.setTexture(Scene3D.REFLECTIONTEXTURE, value || TextureCube.blackTexture);
-			this._customReflection = value;
+	set reflection(value: TextureCube) {
+		if (this._reflection != value) {
+			this._shaderValues.setTexture(Scene3D.REFLECTIONTEXTURE, value || TextureCube.blackTexture);
+			this._reflection = value;
 		}
 	}
 
@@ -1141,8 +1103,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		}
 		var reflectionProbeData: string = data.reflectionProbe;
 		if (reflectionProbeData) {
-			this._skyReflection = Loader.getRes(reflectionProbeData);
-			this._shaderValues.setTexture(Scene3D.REFLECTIONTEXTURE, this._skyReflection || TextureCube.blackTexture);
+			this._reflection = Loader.getRes(reflectionProbeData);
+			this._shaderValues.setTexture(Scene3D.REFLECTIONTEXTURE, this._reflection || TextureCube.blackTexture);
 		}
 
 		var reflectionSpecularColorData: Array<number> = data.reflectionSpecularColor;
@@ -1314,5 +1276,39 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	reUse(context: Context, pos: number): number {
 		return 0;
 	}
+
+
+	//--------------------------------------------------------deprecated------------------------------------------------------------------------
+	/**
+	 * @deprecated
+	 * 自定义反射。
+	 */
+	get customReflection(): TextureCube {
+		return this._reflection;
+	}
+
+	set customReflection(value: TextureCube) {
+		if (this._reflection != value) {
+			this._shaderValues.setTexture(Scene3D.REFLECTIONTEXTURE, value || TextureCube.blackTexture);
+			this._reflection = value;
+		}
+	}
+
+	/** @internal */
+	private _reflectionMode: number = 0;
+
+	/**
+	 * @deprecated
+	 * 反射模式。
+	 */
+	get reflectionMode(): number {
+		return this._reflectionMode;
+	}
+
+	set reflectionMode(value: number) {
+		this._reflectionMode = value;
+
+	}
+
 }
 
