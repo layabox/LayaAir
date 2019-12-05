@@ -86,7 +86,6 @@ export class BoundFrustum {
 	 * @return  远平面。
 	 */
 	get far(): Plane {
-
 		return this._far;
 	}
 
@@ -95,7 +94,6 @@ export class BoundFrustum {
 	 * @return  左平面。
 	 */
 	get left(): Plane {
-
 		return this._left;
 	}
 
@@ -128,7 +126,6 @@ export class BoundFrustum {
 	 * @param	other 锥截体。
 	 */
 	equalsBoundFrustum(other: BoundFrustum): boolean {
-
 		return this._matrix.equalsOtherMatrix(other.matrix)
 	}
 
@@ -137,7 +134,6 @@ export class BoundFrustum {
 	 * @param	obj 对象。
 	 */
 	equalsObj(obj: any): boolean {
-
 		if (obj instanceof BoundFrustum) {
 			var bf: BoundFrustum = (<BoundFrustum>obj);
 			return this.equalsBoundFrustum(bf);
@@ -351,6 +347,7 @@ export class BoundFrustum {
 	/**
 	 * 是否与包围盒交叉。
 	 * @param box 包围盒。
+	 * @returns boolean 是否相交
 	 */
 	intersects(box: BoundBox): boolean {
 		var min: Vector3 = box.min;
@@ -391,8 +388,9 @@ export class BoundFrustum {
 	}
 
 	/**
-	 * 与包围盒的位置关系。返回-1,包涵;0,相交;1,不相交
+	 * 与包围盒的位置关系。
 	 * @param  box  包围盒。
+	 * @returns 包涵:1,相交:2,不相交:0
 	 */
 	containsBoundBox(box: BoundBox): number {
 		var p: Vector3 = BoundFrustum._tempV30, n: Vector3 = BoundFrustum._tempV31;
@@ -435,8 +433,9 @@ export class BoundFrustum {
 	}
 
 	/**
-	 * 与包围球的位置关系。返回-1,包涵;0,相交;1,不相交
+	 * 与包围球的位置关系
 	 * @param  sphere  包围球。
+	 * @returns 包涵:1,相交:2,不相交:0
 	 */
 	containsBoundSphere(sphere: BoundSphere): number {
 		var result: number = Plane.PlaneIntersectionType_Front;
