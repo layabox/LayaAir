@@ -265,11 +265,11 @@ export class PBRMaterial extends Material {
     }
 
     set emissionTexture(value: BaseTexture) {
-        if (value) {
+        if (value)
             this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_EMISSIONTEXTURE);
-        } else {
+        else
             this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_EMISSIONTEXTURE);
-        }
+
         this._shaderValues.setTexture(PBRMaterial.EMISSIONTEXTURE, value);
     }
 
@@ -427,7 +427,7 @@ export class PBRMaterial extends Material {
     constructor() {
         super();
         this._shaderValues.setVector(PBRMaterial.ALBEDOCOLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
-        this._shaderValues.setVector(PBRMaterial.EMISSIONCOLOR, new Vector4(0.0, 0.0, 0.0, 0.0));
+        this._shaderValues.setVector(PBRMaterial.EMISSIONCOLOR, new Vector4(1.0, 1.0, 1.0, 1.0));
         this._shaderValues.setNumber(PBRMaterial.SMOOTHNESS, 0.5);
         this._shaderValues.setNumber(PBRMaterial.SMOOTHNESSSCALE, 1.0);
         this._shaderValues.setNumber(PBRMaterial.OCCLUSIONSTRENGTH, 1.0);

@@ -472,10 +472,13 @@ export class Laya3D {
 					var lightMap: any = lightmaps[i];
 					lightMap.path = Laya3D._addHierarchyInnerUrls(fourthLelUrls, subUrls, urlVersion, hierarchyBasePath, lightMap.path, Laya3D.TEXTURE2D, lightMap.constructParams, lightMap.propertyParams);
 				}
+				
+				//兼容
 				var reflectionTextureData: string = props.reflectionTexture;
-				(reflectionTextureData) && (props.reflectionTexture = Laya3D._addHierarchyInnerUrls(thirdLevelUrls, subUrls, urlVersion, hierarchyBasePath, reflectionTextureData, Laya3D.TEXTURECUBE));
-				var reflectionProbeData: string = props.reflectionProbe;
-				(reflectionProbeData) && (props.reflectionProbe = Laya3D._addHierarchyInnerUrls(fourthLelUrls, subUrls, urlVersion, hierarchyBasePath, reflectionProbeData, Laya3D.TEXTURECUBEBIN));
+				(reflectionTextureData) && (props.reflection = Laya3D._addHierarchyInnerUrls(thirdLevelUrls, subUrls, urlVersion, hierarchyBasePath, reflectionTextureData, Laya3D.TEXTURECUBE));
+				
+				var reflectionData: string = props.reflection;
+				(reflectionData) && (props.reflection = Laya3D._addHierarchyInnerUrls(fourthLelUrls, subUrls, urlVersion, hierarchyBasePath, reflectionData, Laya3D.TEXTURECUBEBIN));
 				if (props.sky) {
 					var skyboxMaterial: any = props.sky.material;
 					(skyboxMaterial) && (skyboxMaterial.path = Laya3D._addHierarchyInnerUrls(secondLevelUrls, subUrls, urlVersion, hierarchyBasePath, skyboxMaterial.path, Laya3D.MATERIAL));

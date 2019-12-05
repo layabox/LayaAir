@@ -1079,8 +1079,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 					this.skyRenderer.mesh = SkyBox.instance;
 			}
 		}
-		var reflectionTextureData: string = data.reflectionTexture;
-		reflectionTextureData && (this.customReflection = Loader.getRes(reflectionTextureData));
 
 		this.enableFog = data.enableFog;
 		this.fogStart = data.fogStart;
@@ -1092,31 +1090,27 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			this.fogColor = fogCol;
 		}
 
-		var ambientProbeData: Array<number> = data.ambientProbe;
-		if (ambientProbeData) {
+		var ambientSphericalHarmonicsData: Array<number> = data.ambientSphericalHarmonics;
+		if (ambientSphericalHarmonicsData) {
 			var ambientSH: SphericalHarmonicsL2 = this.ambientSphericalHarmonics;
 			for (var i: number = 0; i < 3; i++) {
 				var off: number = i * 9;
-				ambientSH.setCoefficients(i, ambientProbeData[off], ambientProbeData[off + 1], ambientProbeData[off + 2], ambientProbeData[off + 3], ambientProbeData[off + 4], ambientProbeData[off + 5], ambientProbeData[off + 6], ambientProbeData[off + 7], ambientProbeData[off + 8]);
+				ambientSH.setCoefficients(i, ambientSphericalHarmonicsData[off], ambientSphericalHarmonicsData[off + 1], ambientSphericalHarmonicsData[off + 2], ambientSphericalHarmonicsData[off + 3], ambientSphericalHarmonicsData[off + 4], ambientSphericalHarmonicsData[off + 5], ambientSphericalHarmonicsData[off + 6], ambientSphericalHarmonicsData[off + 7], ambientSphericalHarmonicsData[off + 8]);
 			}
 			this.ambientSphericalHarmonics = ambientSH;
 		}
-		var reflectionProbeData: string = data.reflectionProbe;
-		if (reflectionProbeData) {
-			this._reflection = Loader.getRes(reflectionProbeData);
-			this._shaderValues.setTexture(Scene3D.REFLECTIONTEXTURE, this._reflection || TextureCube.blackTexture);
-		}
-
-		var reflectionSpecularColorData: Array<number> = data.reflectionSpecularColor;
-		(reflectionSpecularColorData) && (this._reflectionSpecularColor.fromArray(reflectionSpecularColorData));
-
-		//var reflectionCubeHDRParamsData: Array<number> = data.reflectionCubeHDRParams;
-		//(reflectionCubeHDRParamsData) && (this.reflectionCubeHDRParams.fromArray(reflectionCubeHDRParamsData));
-
+		var reflectionData: string = data.reflection;
+		(reflectionData) && (this.reflection = Loader.getRes(reflectionData));
 		var ambientSphericalHarmonicsIntensityData: number = data.ambientSphericalHarmonicsIntensity;
 		(ambientSphericalHarmonicsIntensityData != undefined) && (this.ambientSphericalHarmonicsIntensity = ambientSphericalHarmonicsIntensityData);
 		var reflectionIntensityData: number = data.reflectionIntensity;
 		(reflectionIntensityData != undefined) && (this.reflectionIntensity = reflectionIntensityData);
+
+		// var reflectionSpecularColorData: Array<number> = data.reflectionSpecularColor;
+		// (reflectionSpecularColorData) && (this._reflectionSpecularColor.fromArray(reflectionSpecularColorData));
+
+		//var reflectionCubeHDRParamsData: Array<number> = data.reflectionCubeHDRParams;
+		//(reflectionCubeHDRParamsData) && (this.reflectionCubeHDRParams.fromArray(reflectionCubeHDRParamsData));
 	}
 
 
