@@ -118,11 +118,12 @@ vec3 perPixelWorldNormal(vec2 uv,mediump vec3 normal,mediump vec3 binormal,mediu
 
 void fragmentForward()
 {
-	vec2 uv;//TODO:
+	vec2 uv;
 	#if defined(ALBEDOTEXTURE)||defined(METALLICGLOSSTEXTURE)||defined(NORMALTEXTURE)||defined(EMISSIONTEXTURE)||defined(OCCLUSIONTEXTURE)||defined(PARALLAXTEXTURE)
-		uv = v_Texcoord0;
 		#ifdef PARALLAXTEXTURE
-			uv = parallax(uv,normalize(v_ViewDirForParallax));
+			uv = parallax(v_Texcoord0,normalize(v_ViewDirForParallax));
+		#else
+			uv = v_Texcoord0;
 		#endif
 	#endif
 

@@ -1,4 +1,3 @@
-//alphaTest
 #ifdef ALPHATEST
 	uniform float u_AlphaTestValue;
 #endif
@@ -75,7 +74,7 @@ varying vec3 v_Normal;
 		uniform sampler2D u_LightClusterBuffer;
 	#endif
 #endif
-//后面考虑宏TODO
+
 varying vec3 v_EyeVec;
 
 #if defined(NORMALTEXTURE)||defined(PARALLAXTEXTURE)
