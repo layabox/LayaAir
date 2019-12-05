@@ -76,31 +76,6 @@ Our official Layabox Github with complete engine source version, free of charge,
     Laya.stage.addChild(ape);
 ```
 
-#### AS version
-
-```as3
-    package
-    {
-        import laya.display.Sprite;
-        import laya.display.Stage;
-
-        public class Sprite_DisplayImage
-        {
-            public function Sprite_DisplayImage()
-            {
-                Laya.init(550, 400)；
-                Laya.stage.scaleMode = "showall";
-
-                var ape:Sprite = new Sprite();
-                //Loading our monkey
-                ape.loadImage("res/apes/monkey2.png");
-
-                Laya.stage.addChild(ape);
-            }
-        }
-    }
-```
-
 ## API Document
 
 - https://layaair.ldc.layabox.com/api2
