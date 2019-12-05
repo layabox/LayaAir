@@ -230,7 +230,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal */
 	private _reflectionMode: ReflectionMode = ReflectionMode.Skybox;
 	/** @internal */
-	private _reflection: TextureCube;
+	private _skyReflection: TextureCube;
 	/** @internal */
 	private _customReflection: TextureCube;
 	/** @internal */
@@ -263,13 +263,13 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	_tempScriptPool: Script3D[] = new Array<Script3D>();
 	/** @internal */
 	_needClearScriptPool: boolean = false;
+	/**	@internal */
+	_reflectionCubeHDRParams: Vector4 = new Vector4();
 
 	/** 当前创建精灵所属遮罩层。*/
 	currentCreationLayer: number = Math.pow(2, 0);
 	/** 是否启用灯光。*/
 	enableLight: boolean = true;
-	/**	全局的反射探头。 */
-	readonly reflectionCubeHDRParams: Vector4 = new Vector4(1.0, 0.0, 0.0, 0.0);
 
 	//阴影相关变量
 	parallelSplitShadowMaps: ParallelSplitShadowMap[];
@@ -420,7 +420,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		if (this._reflectionMode != value) {
 			switch (value) {
 				case ReflectionMode.Skybox:
-					this._shaderValues.setTexture(Scene3D.REFLECTIONTEXTURE, this._reflection || TextureCube.blackTexture);
+					this._shaderValues.setTexture(Scene3D.REFLECTIONTEXTURE, this._skyReflection || TextureCube.blackTexture);
 					break;
 				case ReflectionMode.Custom:
 					this._shaderValues.setTexture(Scene3D.REFLECTIONTEXTURE, this._customReflection || TextureCube.blackTexture);
@@ -430,13 +430,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			}
 			this._reflectionMode = value;
 		}
-	}
-
-	/**
-	 * 天空反射纹理。
-	 */
-	get reflection(): TextureCube {
-		return this._reflection;
 	}
 
 	/**
@@ -463,7 +456,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 	set reflectionIntensity(value: number) {
 		value = Math.max(Math.min(value, 1.0), 0.0);
-		this.reflectionCubeHDRParams.x = 5.0 * value;//5.0 is RGBM param
+		this._reflectionCubeHDRParams.x = 5.0 * value;//5.0 is RGBM param
 		this._reflectionIntensity = value;
 	}
 
@@ -521,7 +514,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			this._shCoefficients[i] = new Vector4();
 		(Config3D._config._multiLighting) || (this._shaderValues.addDefine(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING));
 
-		this._shaderValues.setVector(Scene3D.REFLECTIONCUBE_HDR_PARAMS, this.reflectionCubeHDRParams);
+		this._shaderValues.setVector(Scene3D.REFLECTIONCUBE_HDR_PARAMS, this._reflectionCubeHDRParams);
 		this._shaderValues.setVector(Scene3D.REFLECTION_SPECULAR_COLOR, this._reflectionSpecularColor);
 
 		if (Render.supportWebGLPlusCulling) {//[NATIVE]
@@ -1148,8 +1141,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		}
 		var reflectionProbeData: string = data.reflectionProbe;
 		if (reflectionProbeData) {
-			this._reflection = Loader.getRes(reflectionProbeData);
-			this._shaderValues.setTexture(Scene3D.REFLECTIONTEXTURE, this._reflection || TextureCube.blackTexture);
+			this._skyReflection = Loader.getRes(reflectionProbeData);
+			this._shaderValues.setTexture(Scene3D.REFLECTIONTEXTURE, this._skyReflection || TextureCube.blackTexture);
 		}
 
 		var reflectionSpecularColorData: Array<number> = data.reflectionSpecularColor;
