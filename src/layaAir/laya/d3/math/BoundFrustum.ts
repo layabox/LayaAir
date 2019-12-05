@@ -104,7 +104,6 @@ export class BoundFrustum {
 	 * @return  右平面。
 	 */
 	get right(): Plane {
-
 		return this._right;
 	}
 
@@ -113,7 +112,6 @@ export class BoundFrustum {
 	 * @return  顶平面。
 	 */
 	get top(): Plane {
-
 		return this._top;
 	}
 
@@ -122,7 +120,6 @@ export class BoundFrustum {
 	 * @return  底平面。
 	 */
 	get bottom(): Plane {
-
 		return this._bottom;
 	}
 
@@ -303,11 +300,11 @@ export class BoundFrustum {
 	}
 
 	/**
-	 * 与点的位置关系。返回-1,包涵;0,相交;1,不相交
+	 * 与点的关系。
 	 * @param  point  点。
+	 * @returns 包涵:1,相交:2,不相交:0
 	 */
 	containsPoint(point: Vector3): number {
-
 		var result: number = Plane.PlaneIntersectionType_Front;
 		var planeResult: number = Plane.PlaneIntersectionType_Front;
 
