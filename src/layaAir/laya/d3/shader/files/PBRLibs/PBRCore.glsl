@@ -227,13 +227,15 @@ void fragmentForward()
 		#endif
 	 #endif
 
-	color.rgb += emission(uv);
-	mediump vec4 finalColor = vec4(color.rgb,alpha);
+	#ifdef EMISSION
+		color.rgb += emission(uv);
+	#endif
+	
 	#ifdef FOG
 		float lerpFact=clamp((1.0/gl_FragCoord.w-u_FogStart)/u_FogRange,0.0,1.0);
-		finalColor.rgb=mix(finalColor.rgb,u_FogColor,lerpFact);
+		color.rgb=mix(color.rgb,u_FogColor,lerpFact);
 	#endif
-	gl_FragColor=finalColor;
+	gl_FragColor=vec4(color.rgb,alpha);
 }
 
 
