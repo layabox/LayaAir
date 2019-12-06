@@ -134,6 +134,7 @@ export class Config3D implements IClone {
 		var lightClusterCount: Vector3 = destConfig3D.lightClusterCount;
 		this.lightClusterCount.cloneTo(lightClusterCount);
 		destConfig3D.lightClusterCount = lightClusterCount;
+		destConfig3D.pbrRenderQuality = this.pbrRenderQuality;
 	}
 
 	/**
