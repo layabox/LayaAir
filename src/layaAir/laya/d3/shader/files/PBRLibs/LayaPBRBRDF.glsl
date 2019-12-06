@@ -1,9 +1,17 @@
 // allow to explicitly override LAYA_BRDF_GI and LAYA_BRDF_LIGHT in custom shader,default is layaBRDF1GI and layaBRDF1Light
 #if !defined (LAYA_BRDF_GI) 
-	#define LAYA_BRDF_GI layaBRDF1GI
+	#if defined(LAYA_PBR_USE_BRDF2)
+		#define LAYA_BRDF_GI layaBRDF2GI
+	#elif defined(LAYA_PBR_USE_BRDF1)
+		#define LAYA_BRDF_GI layaBRDF1GI
+	#endif
 #endif
 #if !defined (LAYA_BRDF_LIGHT)
-	#define LAYA_BRDF_LIGHT layaBRDF1Light
+	#if defined(LAYA_PBR_USE_BRDF2)
+		#define LAYA_BRDF_LIGHT layaBRDF2Light
+	#elif defined(LAYA_PBR_USE_BRDF1)
+		#define LAYA_BRDF_LIGHT layaBRDF1Light
+	#endif
 #endif
 
 #define PI 3.14159265359

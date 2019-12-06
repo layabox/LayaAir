@@ -56,6 +56,8 @@ import { RenderableSprite3D } from "../RenderableSprite3D";
 import { Sprite3D } from "../Sprite3D";
 import { BoundsOctree } from "./BoundsOctree";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
+import {PBRMaterial } from "../material/PBRMaterial";
+import { PBRRenderQuality } from "../material/PBRRenderQuality";
 
 /**
  * 环境光模式
@@ -474,7 +476,18 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this.reflectionIntensity = 1.0;
 		for (var i: number = 0; i < 7; i++)
 			this._shCoefficients[i] = new Vector4();
-		(Config3D._config._multiLighting) || (this._shaderValues.addDefine(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING));
+		var config: Config3D = Config3D._config;
+		(config._multiLighting) || (this._shaderValues.addDefine(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING));
+		switch (config.pbrRenderQuality) {
+			case PBRRenderQuality.High:
+				this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_LAYA_PBR_USE_BRDF1)
+				break;
+			case PBRRenderQuality.Medium:
+				this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_LAYA_PBR_USE_BRDF2)
+				break;
+			default:
+				throw "Scene3D:unknown shader quality.";
+		}
 
 		this._shaderValues.setVector(Scene3D.REFLECTIONCUBE_HDR_PARAMS, this._reflectionCubeHDRParams);
 		this._shaderValues.setVector(Scene3D.REFLECTION_SPECULAR_COLOR, this._reflectionSpecularColor);
@@ -1112,7 +1125,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		//var reflectionCubeHDRParamsData: Array<number> = data.reflectionCubeHDRParams;
 		//(reflectionCubeHDRParamsData) && (this.reflectionCubeHDRParams.fromArray(reflectionCubeHDRParamsData));
 	}
-
 
 
 	/**

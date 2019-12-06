@@ -1,5 +1,6 @@
 import { IClone } from "./laya/d3/core/IClone"
 import { Vector3 } from "./laya/d3/math/Vector3"
+import { PBRRenderQuality } from "./laya/d3/core/material/PBRRenderQuality";
 
 /**
  * <code>Config3D</code> 类用于创建3D初始化配置。
@@ -48,6 +49,8 @@ export class Config3D implements IClone {
 	 * 如果不开启八叉树裁剪,使用绿色像素线绘制精灵包围盒。
 	 */
 	debugFrustumCulling: boolean = false;
+	/** PBR材质渲染质量。*/
+	pbrRenderQuality: PBRRenderQuality = PBRRenderQuality.High;
 
 	/**
 	 * 默认物理功能初始化内存，单位为M。

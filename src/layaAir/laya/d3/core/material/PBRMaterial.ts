@@ -4,9 +4,10 @@ import { Shader3D } from "../../shader/Shader3D";
 import { ShaderDefine } from "../../shader/ShaderDefine";
 import { Material } from "./Material";
 import { RenderState } from "./RenderState";
+import { PBRRenderQuality } from "./PBRRenderQuality";
 
 /**
- * 渲染状态。
+ * 渲染模式。
  */
 export enum PBRRenderMode {
     /**不透明。*/
@@ -41,6 +42,10 @@ export class PBRMaterial extends Material {
     static SHADERDEFINE_TRANSPARENTBLEND: ShaderDefine;
     /** @internal */
     static SHADERDEFINE_REFLECTIONS_OFF: ShaderDefine;
+    /**@internal */
+    static SHADERDEFINE_LAYA_PBR_USE_BRDF1: ShaderDefine;
+    /**@internal */
+    static SHADERDEFINE_LAYA_PBR_USE_BRDF2: ShaderDefine;
 
     /** @internal */
     static ALBEDOTEXTURE: number = Shader3D.propertyNameToID("u_AlbedoTexture");
@@ -82,6 +87,9 @@ export class PBRMaterial extends Material {
     /** @internal */
     static DEPTH_WRITE: number = Shader3D.propertyNameToID("s_DepthWrite");
 
+    /** 渲染质量。*/
+    static renderQuality: PBRRenderQuality = PBRRenderQuality.High;
+
     /**
 	 * @private
 	 */
@@ -95,6 +103,8 @@ export class PBRMaterial extends Material {
         PBRMaterial.SHADERDEFINE_TILINGOFFSET = Shader3D.getDefineByName("TILINGOFFSET");
         PBRMaterial.SHADERDEFINE_TRANSPARENTBLEND = Shader3D.getDefineByName("TRANSPARENTBLEND");
         PBRMaterial.SHADERDEFINE_REFLECTIONS_OFF = Shader3D.getDefineByName("REFLECTIONS_OFF");
+        PBRMaterial.SHADERDEFINE_LAYA_PBR_USE_BRDF1 = Shader3D.getDefineByName("LAYA_PBR_USE_BRDF1");
+        PBRMaterial.SHADERDEFINE_LAYA_PBR_USE_BRDF2 = Shader3D.getDefineByName("LAYA_PBR_USE_BRDF2");
     }
 
     /** @internal */
