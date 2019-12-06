@@ -313,7 +313,9 @@ export class Video extends Sprite {
 			this.videoElement.style.left = transform.x;
 		}
 	}
-
+	/**
+	 * @override
+	 */
 	get x() {
 		return super.x;
 	}
@@ -329,7 +331,9 @@ export class Video extends Sprite {
 			this.videoElement.style.top = transform.y;
 		}
 	}
-
+	/**
+	 * @override
+	 */
 	get y() {
 		return super.y;
 	}
@@ -436,7 +440,9 @@ export class Video extends Sprite {
 		super.width = value;
 		if (this.paused) this.renderCanvas();
 	}
-
+	/**
+	 * @override
+	 */
 	get width() {
 		return super.width;
 	}
@@ -454,7 +460,9 @@ export class Video extends Sprite {
 		}
 		super.height = value;
 	}
-
+	/**
+	 * @override
+	 */
 	get height() {
 		return super.height;
 	}

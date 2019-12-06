@@ -477,9 +477,10 @@ export class Input extends Text {
             super.changeText(text);
     }
 
-    /**@inheritDoc 
+    /**
+     * @inheritDoc 
      * @override
-    */
+     */
     set color(value: string) {
         if (this._focus)
             this.nativeInput.setColor(value);
@@ -487,20 +488,27 @@ export class Input extends Text {
         super.set_color(this._content ? value : this._promptColor);
         this._originColor = value;
     }
-
+    /**
+     * @inheritDoc 
+     * @override
+     */
     get color() {
         return super.color;
     }
 
-    /**@inheritDoc 
+    /**
+     * @inheritDoc 
      * @override
-    */
+     */
     set bgColor(value: string) {
         super.set_bgColor(value);
         if (ILaya.Render.isConchApp)
             this.nativeInput.setBgColor(value);
     }
-
+    /**
+     * @inheritDoc 
+     * @override
+     */
     get bgColor() {
         return super.bgColor;
     }

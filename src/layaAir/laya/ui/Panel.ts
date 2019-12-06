@@ -208,7 +208,10 @@ export class Panel extends Box {
         super.width = value;
         this._setScrollChanged();
     }
-
+    /**
+     * @inheritDoc
+     * @override
+     */
     get width() {
         return super.width;
     }
@@ -218,7 +221,7 @@ export class Panel extends Box {
         super.height = value;
         this._setScrollChanged();
     }
-
+    /**@inheritDoc @override*/
     get height() {
         return super.height;
     }
@@ -324,7 +327,10 @@ export class Panel extends Box {
             this._vScrollBar && this._vScrollBar.off(Event.START, this, this.onScrollStart);
         }
     }
-
+    /**
+     * @inheritDoc
+     * @override
+     */
     get cacheAs() {
         return super.cacheAs;
     }

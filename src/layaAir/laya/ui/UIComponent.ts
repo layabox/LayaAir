@@ -389,7 +389,10 @@ export class UIComponent extends Sprite {
         super.set_scaleX(value);
         this.event(Event.RESIZE);
     }
-
+    /**
+     * @inheritDoc
+     * @override
+     */
     get scaleX() {
         return super.scaleX;
     }
@@ -409,7 +412,10 @@ export class UIComponent extends Sprite {
         super.set_scaleY(value);
         this.event(Event.RESIZE);
     }
-
+    /**
+     * @inheritDoc
+     * @override
+     */
     get scaleY() {
         return super.scaleY;
     }

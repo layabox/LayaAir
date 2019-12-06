@@ -436,7 +436,10 @@ export class Tree extends Box implements IRender {
         super.width = value;
         this._list.width = value;
     }
-
+    /**
+     * @inheritDoc 
+     * @override
+     */
     get width() {
         return super.width;
     }
@@ -444,12 +447,15 @@ export class Tree extends Box implements IRender {
     /**
      * @inheritDoc 
      * @override
-    */
+     */
     set height(value: number) {
         super.height = value;
         this._list.height = value;
     }
-
+    /**
+     * @inheritDoc 
+     * @override
+     */
     get height() {
         return super.height;
     }
@@ -564,13 +570,16 @@ export class Tree extends Box implements IRender {
     /**
      * @inheritDoc 
      * @override
-    */
+     */
     set dataSource(value: any) {
         this._dataSource = value;
         //if (value is XmlDom) xml = value as XmlDom;
         super.dataSource = value;
     }
-
+    /**
+     * @inheritDoc 
+     * @override 
+     */
     get dataSource() {
         return super.dataSource;
     }

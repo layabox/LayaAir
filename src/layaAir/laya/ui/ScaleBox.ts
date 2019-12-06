@@ -38,7 +38,10 @@ export class ScaleBox extends Box {
         super.width = value;
         this._oldW = value;
     }
-
+    /**
+     * @inheritDoc
+     * @override
+     */
     get width() {
         return super.width;
     }
@@ -49,7 +52,10 @@ export class ScaleBox extends Box {
         super.height = value;
         this._oldH = value;
     }
-
+    /**
+     * @inheritDoc
+     * @override
+     */
     get height() {
         return super.height;
     }

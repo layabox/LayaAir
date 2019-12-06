@@ -489,14 +489,17 @@ export class UIGroup extends Box implements IItem {
 	/**
 	 * @inheritDoc 
 	 * @override
-	*/
+	 */
 	set dataSource(value: any) {
 		this._dataSource = value;
 		if (typeof (value) == 'number' || typeof (value) == 'string') this.selectedIndex = parseInt(value as string);
 		else if (value instanceof Array) this.labels = ((<any[]>value)).join(",");
 		else super.dataSource = value;
 	}
-
+	/**
+     * @inheritDoc
+     * @override
+     */
 	get dataSource() {
 		return super.dataSource;
 	}

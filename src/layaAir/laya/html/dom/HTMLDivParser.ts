@@ -151,7 +151,9 @@ export class HTMLDivParser extends HTMLElement {
         if (this._height) return this._height;
         return this.contextHeight;
     }
-
+    /**
+     * @override
+     */
     set height(value: number) {
         super.height = value;
     }

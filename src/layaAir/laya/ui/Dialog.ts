@@ -278,21 +278,21 @@ export class Dialog extends View {
         Dialog.manager.lock(false);
     }
 
-		/**
-		 * 关闭对话框。
-		 * @param type 关闭的原因，会传递给onClosed函数
-		 * @override
-		 */
-		/*override*/  close(type: string = null): void {
+    /**
+     * 关闭对话框。
+     * @param type 关闭的原因，会传递给onClosed函数
+     * @override
+     */
+	close(type: string = null): void {
         this.closeType = type;
         Dialog.manager.close(this);
     }
 
-		/**
-		 * @inheritDoc 
-		 * @override
-		*/
-		/*override*/  destroy(destroyChild: boolean = true): void {
+    /**
+     * @inheritDoc 
+     * @override
+     */
+	destroy(destroyChild: boolean = true): void {
         this.closeHandler = null;
         this.popupEffect = null;
         this.closeEffect = null;
@@ -331,15 +331,18 @@ export class Dialog extends View {
         return this.parent != null;
     }
 
-		/**
-		 * @inheritDoc 
-		 * @override
-		*/
-		/*override*/  set zOrder(value: number) {
+    /**
+     * @inheritDoc 
+     * @override
+     */
+	set zOrder(value: number) {
         super.zOrder = value;
         Dialog.manager._checkMask();
     }
-
+    /**
+     * @inheritDoc 
+     * @override
+     */
     get zOrder() {
         return super.zOrder;
     }

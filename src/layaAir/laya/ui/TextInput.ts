@@ -248,45 +248,53 @@ export class TextInput extends Label {
         this._bg.sizeGrid = UIUtils.fillArray(Styles.defaultSizeGrid, value, Number);
     }
 
-		/**
-		 * 当前文本内容字符串。
-		 * @see laya.display.Text.text
-		 * @override
-		 */
-		/*override*/  set text(value: string) {
+    /**
+     * 当前文本内容字符串。
+     * @see laya.display.Text.text
+     * @override
+     */
+	set text(value: string) {
         if (this._tf.text != value) {
             value = value + "";
             this._tf.text = value;
             this.event(Event.CHANGE);
         }
     }
-
+    /**
+     * @override
+     */
     get text() {
         return super.text;
     }
 
-		/**
-		 * @inheritDoc 
-		 * @override
-		*/
-		/*override*/  set width(value: number) {
+    /**
+     * @inheritDoc 
+     * @override
+     */
+	set width(value: number) {
         super.width = value;
         this._bg && (this._bg.width = value);
     }
-
+    /**
+     * @inheritDoc 
+     * @override
+     */
     get width() {
         return super.width;
     }
 
-		/**
-		 * @inheritDoc 
-		 * @override
-		*/
-		/*override*/  set height(value: number) {
+    /**
+     * @inheritDoc 
+     * @override
+     */
+	set height(value: number) {
         super.height = value;
         this._bg && (this._bg.height = value);
     }
-
+    /**
+     * @inheritDoc 
+     * @override
+     */
     get height() {
         return super.height;
     }
