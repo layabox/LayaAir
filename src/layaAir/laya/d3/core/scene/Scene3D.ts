@@ -480,10 +480,10 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		(config._multiLighting) || (this._shaderValues.addDefine(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING));
 		switch (config.pbrRenderQuality) {
 			case PBRRenderQuality.High:
-				this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_LAYA_PBR_USE_BRDF1)
+				this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_HIGH)
 				break;
 			case PBRRenderQuality.Medium:
-				this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_LAYA_PBR_USE_BRDF2)
+				this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_MEDIUM)
 				break;
 			default:
 				throw "Scene3D:unknown shader quality.";
