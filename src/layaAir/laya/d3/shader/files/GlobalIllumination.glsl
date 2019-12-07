@@ -50,9 +50,8 @@ uniform vec4 u_ReflectCubeHDRParams;
 	
 	mediump vec3 shadeSHPerPixel(mediump vec3 normal,mediump vec3 ambient)
 	{
-		normal.x=-normal.x;//TODO:The SH Data is inverse,so need to invertX
 		mediump vec3 ambientContrib;
-		mediump vec4 normalV4=vec4(normal, 1.0);
+		mediump vec4 normalV4=vec4(-normal.x,normal.yz, 1.0);//Note:SH Data is left-hand,so x need inverse
 		ambientContrib = shEvalLinearL0L1(normalV4);
 		ambientContrib += shEvalLinearL2(normalV4);
 		ambient += max(vec3(0.0), ambientContrib);
@@ -102,6 +101,7 @@ mediump vec3 layaGlossyEnvironment(mediump vec4 glossIn)
  
 	mediump float mip = perceptualRoughness * LAYA_SPECCUBE_LOD_STEPS;
 	mediump vec3 uvw = glossIn.rgb;
+	uvw.x=-uvw.x;//Note:reflectCube is left-hand,so x need inverse
 	mediump vec4 rgbm=textureCubeLodEXT(u_ReflectTexture,uvw,mip);
 	return decodeHDR(rgbm,u_ReflectCubeHDRParams.x);
 }
@@ -121,7 +121,7 @@ mediump vec3 layaGIIndirectSpecular(LayaGIInput giInput,mediump float occlusion,
 LayaGI layaGlobalIllumination(LayaGIInput giInput,mediump float occlusion, mediump vec3 normalWorld,mediump vec4 uvwRoughness)
 {
 	LayaGI gi;
-	gi.diffuse= layaGIBase(giInput,occlusion, normalWorld);
+	gi.diffuse = layaGIBase(giInput,occlusion, normalWorld);
 	gi.specular = layaGIIndirectSpecular(giInput,occlusion, uvwRoughness);
 	return gi;
 }

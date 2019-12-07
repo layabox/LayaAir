@@ -93,7 +93,7 @@ LayaGI fragmentGI(float smoothness,vec3 eyeVec,mediump float occlusion,mediump v
 
 
 
-vec3 perPixelWorldNormal(vec2 uv,mediump vec3 normal,mediump vec3 binormal,mediump vec3 tangent)
+vec3 perPixelWorldNormal(vec2 uv,vec3 normal,vec3 binormal,vec3 tangent)
 {
 	#ifdef NORMALTEXTURE
 		// #if UNITY_TANGENT_ORTHONORMALIZE TODO:
@@ -137,13 +137,13 @@ void fragmentForward()
 	
 	vec3 binormal;
 	vec3 tangent;
-	#if defined(NORMALTEXTURE)||defined(PARALLAXTEXTURE)
+	#if defined(NORMALTEXTURE)||defined(PARALLAXTEXTURE)//TODO:Need PARALLAXTEXTURE?
 		tangent = v_Tangent;
 		binormal = v_Binormal;
 	#endif
 
 	vec3 normal = v_Normal;
-	vec3 normalWorld = perPixelWorldNormal(uv,normal,binormal,tangent);
+	vec3 normalWorld = perPixelWorldNormal(uv,normal,binormal,tangent);//In FS if the normal use mediump before normalize will cause precision prolem in mobile device.
 	vec3 eyeVec = normalize(v_EyeVec);
 	vec3 posworld = v_PositionWorld;
 
@@ -227,13 +227,16 @@ void fragmentForward()
 		#endif
 	 #endif
 
-	color.rgb += emission(uv);
-	mediump vec4 finalColor = vec4(color.rgb,alpha);
+	#ifdef EMISSION
+		color.rgb += emission(uv);
+	#endif
+
 	#ifdef FOG
 		float lerpFact=clamp((1.0/gl_FragCoord.w-u_FogStart)/u_FogRange,0.0,1.0);
-		finalColor.rgb=mix(finalColor.rgb,u_FogColor,lerpFact);
+		color.rgb=mix(color.rgb,u_FogColor,lerpFact);
 	#endif
-	gl_FragColor=finalColor;
+	
+	gl_FragColor=vec4(color.rgb,alpha);
 }
 
 

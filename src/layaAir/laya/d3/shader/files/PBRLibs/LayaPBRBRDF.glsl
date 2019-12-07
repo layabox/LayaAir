@@ -1,9 +1,17 @@
-// allow to explicitly override LAYA_BRDF_GI and LAYA_BRDF_LIGHT in custom shader,default is layaBRDF1GI and layaBRDF1Light
+// allow to explicitly override LAYA_BRDF_GI and LAYA_BRDF_LIGHT in custom shader,default is layaBRDFHighGI and layaBRDFHighLight
 #if !defined (LAYA_BRDF_GI) 
-	#define LAYA_BRDF_GI layaBRDF1GI
+	#if defined(LAYA_PBR_BRDF_MEDIUM)
+		#define LAYA_BRDF_GI layaBRDFMediumGI
+	#elif defined(LAYA_PBR_BRDF_HIGH)
+		#define LAYA_BRDF_GI layaBRDFHighGI
+	#endif
 #endif
 #if !defined (LAYA_BRDF_LIGHT)
-	#define LAYA_BRDF_LIGHT layaBRDF1Light
+	#if defined(LAYA_PBR_BRDF_MEDIUM)
+		#define LAYA_BRDF_LIGHT layaBRDFMediumLight
+	#elif defined(LAYA_PBR_BRDF_HIGH)
+		#define LAYA_BRDF_LIGHT layaBRDFHighLight
+	#endif
 #endif
 
 #define PI 3.14159265359
@@ -116,7 +124,7 @@ float ggxTerm(float NdotH, float roughness)
 //  b) GGX
 // *Smith for Visiblity term
 // *Schlick approximation for Fresnel
-mediump vec4 layaBRDF1Light(mediump vec3 diffColor, mediump vec3 specColor, mediump float oneMinusReflectivity, float perceptualRoughness,float roughness,mediump float nv,vec3 normal, vec3 viewDir,LayaLight light)
+mediump vec4 layaBRDFHighLight(mediump vec3 diffColor, mediump vec3 specColor, mediump float oneMinusReflectivity, float perceptualRoughness,float roughness,mediump float nv,vec3 normal, vec3 viewDir,LayaLight light)
 {
 	vec3 halfDir = safeNormalize(viewDir-light.dir);
 
@@ -149,7 +157,7 @@ mediump vec4 layaBRDF1Light(mediump vec3 diffColor, mediump vec3 specColor, medi
 	return vec4(color, 1.0);
 }
 
-vec4 layaBRDF1GI(mediump vec3 diffColor,mediump vec3 specColor,mediump float oneMinusReflectivity,float smoothness ,float perceptualRoughness,float roughness,mediump float nv,vec3 normal, vec3 viewDir,LayaGI gi)
+vec4 layaBRDFHighGI(mediump vec3 diffColor,mediump vec3 specColor,mediump float oneMinusReflectivity,float smoothness ,float perceptualRoughness,float roughness,mediump float nv,vec3 normal, vec3 viewDir,LayaGI gi)
 {
 	// surfaceReduction = Int D(NdotH) * NdotH * Id(NdotL>0) dH = 1/(roughness^2+1)
 	float surfaceReduction;
@@ -170,13 +178,12 @@ vec4 layaBRDF1GI(mediump vec3 diffColor,mediump vec3 specColor,mediump float one
 //  b) [Modified] GGX
 // *Modified Kelemen and Szirmay-​Kalos for Visibility term
 // *Fresnel approximated with 1/LdotH
-mediump vec4 layaBRDF2Light (mediump vec3 diffColor, mediump vec3 specColor,mediump float oneMinusReflectivity,float perceptualRoughness,float roughness,mediump float nv,mediump vec3 normal, mediump vec3 viewDir,LayaLight light)
+mediump vec4 layaBRDFMediumLight (mediump vec3 diffColor, mediump vec3 specColor,mediump float oneMinusReflectivity,float perceptualRoughness,float roughness,mediump float nv,vec3 normal,vec3 viewDir,LayaLight light)
 {
-    mediump vec3 halfDir = safeNormalize (vec3(light.dir) + viewDir);
-    mediump float nl = clamp(dot(normal, light.dir),0.0,1.0);
+    vec3 halfDir = safeNormalize (viewDir-light.dir);
+    mediump float nl = clamp(dot(normal, -light.dir),0.0,1.0);
     float nh = clamp(dot(normal, halfDir),0.0,1.0);
-    // mediump float nv = clamp(dot(normal, viewDir),0.0,1.0);
-    float lh = clamp(dot(light.dir, halfDir),0.0,1.0);
+    float lh = clamp(dot(-light.dir, halfDir),0.0,1.0);
 
 	// #if UNITY_BRDF_GGX
     // GGX Distribution multiplied by combined approximation of Visibility and Fresnel
@@ -229,7 +236,7 @@ mediump vec4 layaBRDF2Light (mediump vec3 diffColor, mediump vec3 specColor,medi
     return vec4(color, 1.0);
 }
 
-mediump vec4 layaBRDF2GI (mediump vec3 diffColor, mediump vec3 specColor,mediump float oneMinusReflectivity,mediump float smoothness,float perceptualRoughness,float roughness,mediump float nv,mediump vec3 normal, mediump vec3 viewDir,LayaGI gi)
+mediump vec4 layaBRDFMediumGI (mediump vec3 diffColor, mediump vec3 specColor,mediump float oneMinusReflectivity,mediump float smoothness,float perceptualRoughness,float roughness,mediump float nv,vec3 normal,vec3 viewDir,LayaGI gi)
 {
 	// surfaceReduction = Int D(NdotH) * NdotH * Id(NdotL>0) dH = 1/(realRoughness^2+1)
 

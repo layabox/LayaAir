@@ -37,11 +37,12 @@ uniform float u_SmoothnessScale;
 	uniform float u_occlusionStrength;
 #endif
 
-#ifdef EMISSIONTEXTURE
-	uniform sampler2D u_EmissionTexture;
+#ifdef EMISSION 
+	#ifdef EMISSIONTEXTURE
+		uniform sampler2D u_EmissionTexture;
+	#endif
+	uniform vec4 u_EmissionColor;
 #endif
-uniform vec4 u_EmissionColor;
-
 
 #if defined(ALBEDOTEXTURE)||defined(METALLICGLOSSTEXTURE)||defined(NORMALTEXTURE)||defined(EMISSIONTEXTURE)||defined(OCCLUSIONTEXTURE)||defined(PARALLAXTEXTURE)
 	varying vec2 v_Texcoord0;
@@ -103,14 +104,16 @@ mediump float lerpOneTo(mediump float b, mediump float t)
     return oneMinusT + b * t;
 }
 
-vec3 emission(vec2 uv)
-{
-	#ifdef EMISSIONTEXTURE
-		return texture2D(u_EmissionTexture, uv).rgb * u_EmissionColor.rgb;
-	#else
-		return u_EmissionColor.rgb;
-	#endif
-}
+#ifdef EMISSION 
+	vec3 emission(vec2 uv)
+	{
+		#ifdef EMISSIONTEXTURE
+			return texture2D(u_EmissionTexture, uv).rgb * u_EmissionColor.rgb;
+		#else
+			return u_EmissionColor.rgb;
+		#endif
+	}
+#endif
 
 mediump float alpha(vec2 uv)
 {
