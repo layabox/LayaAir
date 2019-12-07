@@ -142,13 +142,12 @@ mediump vec4 layaBRDFHighLight(mediump vec3 diffColor, mediump vec3 specColor, m
 
 	// GGX with roughtness to 0 would mean no specular at all, using max(roughness, 0.002) here to match HDrenderloop roughtness remapping.
 	roughness = max(roughness, 0.002);
-	//TODO:UNITY_BRDF_GGX define
 	float V = smithJointGGXVisibilityTerm(nl, nv, roughness);
 	float D = ggxTerm(nh, roughness);
 
 	float specularTerm = V * D * PI; // Torrance-Sparrow model, Fresnel is applied later
 
-	//#ifdef UNITY_COLORSPACE_GAMMA
+	//#ifdef LAYA_COLORSPACE_GAMMA
 	specularTerm = sqrt(max(1e-4, specularTerm));
 	//#endif
 	specularTerm = max(0.0, specularTerm * nl);
@@ -185,7 +184,6 @@ mediump vec4 layaBRDFMediumLight (mediump vec3 diffColor, mediump vec3 specColor
     float nh = clamp(dot(normal, halfDir),0.0,1.0);
     float lh = clamp(dot(-light.dir, halfDir),0.0,1.0);
 
-	// #if UNITY_BRDF_GGX
     // GGX Distribution multiplied by combined approximation of Visibility and Fresnel
     // See "Optimizing PBR for Mobile" from Siggraph 2015 moving mobile graphics course
     // https://community.arm.com/events/1155
