@@ -44,32 +44,30 @@ export class StatUI extends IStatRender {
 	 */
 	show(x: number = 0, y: number = 0): void {
 		var dt: any = Stat;
-		if (!Browser.onMiniGame && !ILaya.Render.isConchApp && !Browser.onBDMiniGame && !Browser.onKGMiniGame && !Browser.onQGMiniGame &&  !Browser.onQQMiniGame && !Browser.onAlipayMiniGame) this._useCanvas = true;
+		if (!Browser.onMiniGame && !ILaya.Render.isConchApp && !Browser.onBDMiniGame && !Browser.onKGMiniGame && !Browser.onQGMiniGame && !Browser.onQQMiniGame && !Browser.onAlipayMiniGame) this._useCanvas = true;
 		this._show = true;
 		Stat._fpsData.length = 60;
-		this._view[0] = { title: "FPS(Canvas)", value: "_fpsStr", color: "yellow", units: "int" };
+		this._view[0] = { title: "FPS(WebGL)", value: "_fpsStr", color: "yellow", units: "int" };
 		this._view[1] = { title: "Sprite", value: "_spriteStr", color: "white", units: "int" };
 		this._view[2] = { title: "RenderBatches", value: "renderBatches", color: "white", units: "int" };
 		this._view[3] = { title: "SavedRenderBatches", value: "savedRenderBatches", color: "white", units: "int" };
 		this._view[4] = { title: "CPUMemory", value: "cpuMemory", color: "yellow", units: "M" };
 		this._view[5] = { title: "GPUMemory", value: "gpuMemory", color: "yellow", units: "M" };
 		this._view[6] = { title: "Shader", value: "shaderCall", color: "white", units: "int" };
-		if (!Render.is3DMode) {
-			this._view[0].title = "FPS(WebGL)";
-			this._view[7] = { title: "Canvas", value: "_canvasStr", color: "white", units: "int" };
-		} else {
-			this._view[0].title = "FPS(3D)";
-			this._view[7] = { title: "TriFaces", value: "trianglesFaces", color: "white", units: "int" };
-			this._view[8] = { title: "FrustumCulling", value: "frustumCulling", color: "white", units: "int" };
-			this._view[9] = { title: "OctreeNodeCulling", value: "octreeNodeCulling", color: "white", units: "int" };
-		}
-		if (this._useCanvas) {
-			this.createUIPre(x, y);
-		} else
-			this.createUI(x, y);
+		this._view[7] = { title: "Canvas", value: "_canvasStr", color: "white", units: "int" };
+		if (Render.is3DMode) {
+				this._view[0].title = "FPS(3D)";
+				this._view[8] = { title: "TriFaces", value: "trianglesFaces", color: "white", units: "int" };
+				this._view[9] = { title: "FrustumCulling", value: "frustumCulling", color: "white", units: "int" };
+				this._view[10] = { title: "OctreeNodeCulling", value: "octreeNodeCulling", color: "white", units: "int" };
+			}
+			if (this._useCanvas) {
+				this.createUIPre(x, y);
+			} else
+				this.createUI(x, y);
 
-		this.enable();
-	}
+			this.enable();
+		}
 
 	private createUIPre(x: number, y: number): void {
 		var pixel: number = Browser.pixelRatio;
@@ -134,7 +132,7 @@ export class StatUI extends IStatRender {
 		stat.size(width, height);
 		stat.graphics.clear();
 		stat.graphics.alpha(0.5);
-		stat.graphics.drawRect(0, 0, width+110, height+30, "#999999");
+		stat.graphics.drawRect(0, 0, width + 110, height + 30, "#999999");
 		stat.graphics.alpha(2);
 		this.loop();
 	}
@@ -265,11 +263,11 @@ export class StatUI extends IStatRender {
 	isCanvasRender(): boolean {
 		return this._useCanvas;
 	}
-	
+
 	/**
 	 * @override
 	 * 非canvas模式的渲染
-	 * */ 
+	 * */
 	renderNotCanvas(ctx: any, x: number, y: number) {
 		this._show && this._sp && this._sp.render(ctx, 0, 0);
 	}
