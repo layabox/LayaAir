@@ -271,7 +271,10 @@ export class ProgressBar extends UIComponent {
         this._bg.width = this._width;
         this.callLater(this.changeValue);
     }
-
+    /**
+     * @inheritDoc
+     * @override
+     */
     get width() {
         return super.width;
     }
@@ -285,7 +288,10 @@ export class ProgressBar extends UIComponent {
         this._bg.height = this._height;
         this._bar.height = this._height;
     }
-
+    /**
+     * @inheritDoc
+     * @override
+     */
     get height() {
         return super.height;
     }
@@ -299,7 +305,10 @@ export class ProgressBar extends UIComponent {
         if (typeof (value) == 'number' || typeof (value) == 'string') this.value = Number(value);
         else super.dataSource = value;
     }
-
+    /**
+     * @inheritDoc
+     * @override
+     */
     get dataSource() {
         return super.dataSource;
     }

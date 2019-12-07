@@ -238,9 +238,10 @@ export class Button extends UIComponent implements ISelect {
         this.label = label;
     }
 
-    /**@inheritDoc 
+    /**
+     * @inheritDoc 
      * @override
-    */
+     */
     destroy(destroyChild: boolean = true): void {
         super.destroy(destroyChild);
         this._bitmap && this._bitmap.destroy();
@@ -251,9 +252,10 @@ export class Button extends UIComponent implements ISelect {
         this._labelColors = this._sources = this._strokeColors = null;
     }
 
-    /**@inheritDoc 
+    /**
+     * @inheritDoc 
      * @override
-    */
+     */
     protected createChildren(): void {
         this.graphics = this._bitmap = new AutoBitmap();
     }
@@ -644,9 +646,10 @@ export class Button extends UIComponent implements ISelect {
         this._bitmap.sizeGrid = UIUtils.fillArray(Styles.defaultSizeGrid, value, Number);
     }
 
-    /**@inheritDoc 
+    /**
+     * @inheritDoc 
      * @override
-    */
+     */
     set width(value: number) {
         super.set_width(value);
         if (this._autoSize) {
@@ -654,7 +657,10 @@ export class Button extends UIComponent implements ISelect {
             this._text && (this._text.width = value);
         }
     }
-
+    /**
+     * @inheritDoc 
+     * @override
+     */
     get width(): number {
         return super.get_width();
     }
@@ -662,7 +668,7 @@ export class Button extends UIComponent implements ISelect {
     /**
      * @inheritDoc 
      * @override
-    */
+     */
     set height(value: number) {
         super.set_height(value);
         if (this._autoSize) {
@@ -670,7 +676,10 @@ export class Button extends UIComponent implements ISelect {
             this._text && (this._text.height = value);
         }
     }
-
+    /**
+     * @inheritDoc 
+     * @override
+     */
     get height(): number {
         return super.get_height();
     }
@@ -678,13 +687,16 @@ export class Button extends UIComponent implements ISelect {
     /**
      * @inheritDoc 
      * @override
-    */
+     */
     set dataSource(value: any) {
         this._dataSource = value;
         if (typeof (value) == 'number' || typeof (value) == 'string') this.label = value + "";
         else super.set_dataSource(value);
     }
-
+    /**
+     * @inheritDoc 
+     * @override
+     */
     get dataSource(): any {
         return super.get_dataSource();
     }

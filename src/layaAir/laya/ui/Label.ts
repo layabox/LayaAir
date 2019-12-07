@@ -396,13 +396,16 @@ export class Label extends UIComponent {
     /**
      * @inheritDoc 
      * @override
-    */
+     */
     set dataSource(value: any) {
         this._dataSource = value;
         if (typeof (value) == 'number' || typeof (value) == 'string') this.text = value + "";
         else super.dataSource = value;
     }
-
+    /**
+     * @inheritDoc 
+     * @override
+     */
     get dataSource() {
         return super.dataSource;
     }

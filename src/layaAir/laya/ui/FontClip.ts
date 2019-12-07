@@ -191,25 +191,31 @@ export class FontClip extends Clip {
             this.callLater(this._sizeChanged);
         }
     }
-		/**
-		 * @override
-		 */
-		/*override*/  set width(value: number) {
+    /**
+     * @override
+     */
+	set width(value: number) {
         super.width = value;
         this.callLater(this.changeValue);
     }
-
+    /**
+     * @inheritDoc 
+     * @override
+     */
     get width() {
         return super.width;
     }
-		/**
-		 * @override
-		 */
-		/*override*/  set height(value: number) {
+    /**
+     * @override
+     */
+	set height(value: number) {
         super.height = value;
         this.callLater(this.changeValue);
     }
-
+    /**
+     * @inheritDoc 
+     * @override
+     */
     get height() {
         return super.height;
     }

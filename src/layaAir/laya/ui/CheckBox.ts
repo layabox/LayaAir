@@ -98,7 +98,7 @@ export class CheckBox extends Button {
     /**
      * @inheritDoc 
      * @override
-    */
+     */
     protected preinitialize(): void {
         super.preinitialize();
         this.toggle = true;
@@ -108,7 +108,7 @@ export class CheckBox extends Button {
     /**
      * @inheritDoc 
      * @override
-    */
+     */
     protected initialize(): void {
         super.initialize();
         this.createText();
@@ -120,14 +120,17 @@ export class CheckBox extends Button {
     /**
      * @inheritDoc 
      * @override
-    */
+     */
     set dataSource(value: any) {
         this._dataSource = value;
         if (value instanceof Boolean) this.selected = value as boolean;
         else if (typeof (value) == 'string') this.selected = value === "true";
         else super.dataSource = value;
     }
-
+    /**
+     * @inheritDoc 
+     * @override
+     */
     get dataSource() {
         return super.dataSource;
     }

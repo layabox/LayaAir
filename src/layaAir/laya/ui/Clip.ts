@@ -165,11 +165,11 @@ export class Clip extends UIComponent {
         this.skin = url;
     }
 
-		/**
-		 * @inheritDoc 
-		 * @override
-		*/
-		/*override*/  destroy(destroyChild: boolean = true): void {
+    /**
+     * @inheritDoc 
+     * @override
+     */
+	destroy(destroyChild: boolean = true): void {
         super.destroy(true);
         this._bitmap && this._bitmap.destroy();
         this._bitmap = null;
@@ -184,11 +184,11 @@ export class Clip extends UIComponent {
         ILaya.loader.clearRes(this._skin);
     }
 
-		/**
-		 * @inheritDoc
-         * @override 
-		*/
-		/*override*/ protected createChildren(): void {
+    /**
+     * @inheritDoc
+     * @override 
+     */
+	protected createChildren(): void {
         this.graphics = this._bitmap = new AutoBitmap();
     }
 
@@ -347,46 +347,52 @@ export class Clip extends UIComponent {
         this._group = value;
     }
 
-		/**
-		 * @inheritDoc 
-		 * @override
-		*/
-		/*override*/  set width(value: number) {
+    /**
+     * @inheritDoc 
+     * @override
+     */
+	set width(value: number) {
         super.width = value;
         this._bitmap.width = value;
     }
-
+    /**
+     * @inheritDoc 
+     * @override
+     */
     get width() {
         return super.width;
     }
 
-		/**
-		 * @inheritDoc 
-		 * @override
-		 * */
-		/*override*/  set height(value: number) {
+    /**
+     * @inheritDoc 
+     * @override
+     */
+	set height(value: number) {
         super.height = value;
         this._bitmap.height = value;
     }
-
+    /**
+     * @inheritDoc 
+     * @override
+     */
     get height() {
         return super.height;
     }
 
-		/**
-		 * @inheritDoc 
-		 * @override
-		*/
-		/*override*/ protected measureWidth(): number {
+    /**
+     * @inheritDoc 
+     * @override
+     */
+	protected measureWidth(): number {
         this.runCallLater(this.changeClip);
         return this._bitmap.width;
     }
 
-		/**
-		 * @inheritDoc 
-		 * @override
-		*/
-		/*override*/ protected measureHeight(): number {
+    /**
+     * @inheritDoc 
+     * @override
+     */
+	protected measureHeight(): number {
         this.runCallLater(this.changeClip);
         return this._bitmap.height;
     }
@@ -508,13 +514,16 @@ export class Clip extends UIComponent {
     /**
      * @inheritDoc 
      * @override
-    */
+     */
     set dataSource(value: any) {
         this._dataSource = value;
         if (typeof (value) == 'number' || typeof (value) == 'string') this.index = parseInt(value as string);
         else super.dataSource = value;
     }
-
+    /**
+     * @inheritDoc 
+     * @override
+     */
     get dataSource() {
         return super.dataSource;
     }

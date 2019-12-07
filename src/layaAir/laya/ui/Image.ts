@@ -207,28 +207,35 @@ export class Image extends UIComponent {
         return this._bitmap.height;
     }
 
-		/**
-		 * @inheritDoc 
-		 * @override
-		*/
-		/*override*/  set width(value: number) {
+    /**
+     * @inheritDoc 
+     * @override
+    */
+	set width(value: number) {
         super.width = value;
         this._bitmap.width = value == 0 ? 0.0000001 : value;
     }
 
+    /**
+     * @inheritDoc 
+     * @override 
+     */
     get width() {
         return super.width;
     }
 
-		/**
-		 * @inheritDoc 
-		 * @override
-		*/
-		/*override*/  set height(value: number) {
+    /**
+     * @inheritDoc 
+     * @override
+     */
+	set height(value: number) {
         super.height = value;
         this._bitmap.height = value == 0 ? 0.0000001 : value;
     }
-
+    /**
+     * @inheritDoc 
+     * @override
+     */
     get height() {
         return super.height;
     }
@@ -251,13 +258,16 @@ export class Image extends UIComponent {
     /**
      * @inheritDoc 
      * @override
-    */
+     */
     set dataSource(value: any) {
         this._dataSource = value;
         if (typeof (value) == 'string') this.skin = value as string;
         else super.dataSource = value;
     }
-
+    /**
+     * @inheritDoc 
+     * @override
+     */
     get dataSource() {
         return super.dataSource;
     }
