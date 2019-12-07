@@ -8,7 +8,7 @@
     "compile": "gulp LayaAirBuild",
     "buildDoc": "cd src/generateDoc&&cmd /k run.bat"
   },
-  "author": "Layabox Team",
+  "author": "Layabox Inc.",
   "license": "SEE LICENSE IN LICENSE.md",
   "dependencies": {
     "gulp-concat": "^2.6.1",
