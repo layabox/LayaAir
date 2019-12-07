@@ -93,7 +93,7 @@ LayaGI fragmentGI(float smoothness,vec3 eyeVec,mediump float occlusion,mediump v
 
 
 
-vec3 perPixelWorldNormal(vec2 uv,mediump vec3 normal,mediump vec3 binormal,mediump vec3 tangent)
+vec3 perPixelWorldNormal(vec2 uv,vec3 normal,vec3 binormal,vec3 tangent)
 {
 	#ifdef NORMALTEXTURE
 		// #if UNITY_TANGENT_ORTHONORMALIZE TODO:
@@ -143,7 +143,7 @@ void fragmentForward()
 	#endif
 
 	vec3 normal = v_Normal;
-	vec3 normalWorld = perPixelWorldNormal(uv,normal,binormal,tangent);
+	vec3 normalWorld = perPixelWorldNormal(uv,normal,binormal,tangent);//In FS if the normal use mediump before normalize will cause precision prolem in mobile device.
 	vec3 eyeVec = normalize(v_EyeVec);
 	vec3 posworld = v_PositionWorld;
 
