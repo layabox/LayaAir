@@ -58,10 +58,11 @@ void vertexForward()
 	#else
 		worldInvMat=inverse(mat3(worldMat));
 	#endif
-	v_Normal=a_Normal*worldInvMat;
-	
+
+	v_Normal=normalize(a_Normal*worldInvMat);//if no normalize will cause precision problem.
+
 	#if defined(NORMALTEXTURE)||defined(PARALLAXTEXTURE)
-		v_Tangent=a_Tangent0.xyz*worldInvMat;
+		v_Tangent=normalize(a_Tangent0.xyz*worldInvMat);
 		v_Binormal=cross(v_Normal,v_Tangent)*a_Tangent0.w;
 		#ifdef PARALLAXTEXTURE
 				vec3 binormal = cross(a_Normal, a_Tangent0.xyz)*a_Tangent0.w;
