@@ -61,14 +61,15 @@ void vertexForward()
 
 	v_Normal=normalize(a_Normal*worldInvMat);//if no normalize will cause precision problem.
 
-	#if defined(NORMALTEXTURE)||defined(PARALLAXTEXTURE)
+	#ifdef NORMALTEXTURE
 		v_Tangent=normalize(a_Tangent0.xyz*worldInvMat);
 		v_Binormal=cross(v_Normal,v_Tangent)*a_Tangent0.w;
-		#ifdef PARALLAXTEXTURE
-				vec3 binormal = cross(a_Normal, a_Tangent0.xyz)*a_Tangent0.w;
-				mat3 objectTBN = mat3(a_Tangent0.xyz, binormal, a_Normal);
-				v_ViewDirForParallax=v_EyeVec*objectTBN;
-				v_ViewDirForParallax.y=-v_ViewDirForParallax.y;//NOTE:because different cood system with unity,or objectTBN each x will be inverse.
-		#endif
+	#endif
+
+	#ifdef PARALLAXTEXTURE
+		vec3 binormal = cross(a_Normal, a_Tangent0.xyz)*a_Tangent0.w;
+		mat3 objectTBN = mat3(a_Tangent0.xyz, binormal, a_Normal);
+		v_ViewDirForParallax=v_EyeVec*objectTBN;
+		v_ViewDirForParallax.y=-v_ViewDirForParallax.y;//NOTE:because different cood system with unity,or objectTBN each x will be inverse.
 	#endif
 }

@@ -137,7 +137,7 @@ void fragmentForward()
 	
 	vec3 binormal;
 	vec3 tangent;
-	#if defined(NORMALTEXTURE)||defined(PARALLAXTEXTURE)//TODO:Need PARALLAXTEXTURE?
+	#ifdef NORMALTEXTURE
 		tangent = v_Tangent;
 		binormal = v_Binormal;
 	#endif
