@@ -4,6 +4,6 @@
 export enum PBRRenderQuality {
     /**高质量。*/
     High,
-    /**中等质量。*/
-    Medium
+    /**低质量。*/
+    Low
 }

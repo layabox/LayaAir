@@ -45,7 +45,7 @@ export class PBRMaterial extends Material {
     /**@internal */
     static SHADERDEFINE_LAYA_PBR_BRDF_HIGH: ShaderDefine;
     /**@internal */
-    static SHADERDEFINE_LAYA_PBR_BRDF_MEDIUM: ShaderDefine;
+    static SHADERDEFINE_LAYA_PBR_BRDF_LOW: ShaderDefine;
 
     /** @internal */
     static ALBEDOTEXTURE: number = Shader3D.propertyNameToID("u_AlbedoTexture");
@@ -104,7 +104,7 @@ export class PBRMaterial extends Material {
         PBRMaterial.SHADERDEFINE_TRANSPARENTBLEND = Shader3D.getDefineByName("TRANSPARENTBLEND");
         PBRMaterial.SHADERDEFINE_REFLECTIONS_OFF = Shader3D.getDefineByName("REFLECTIONS_OFF");
         PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_HIGH = Shader3D.getDefineByName("LAYA_PBR_BRDF_HIGH");
-        PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_MEDIUM = Shader3D.getDefineByName("LAYA_PBR_BRDF_MEDIUM");
+        PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_LOW = Shader3D.getDefineByName("LAYA_PBR_BRDF_LOW");
     }
 
     /** @internal */
