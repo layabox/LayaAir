@@ -23,7 +23,7 @@ class Main {
         /**加载与写入计数 */
         this.complete = 0;
         this.progress = 0;
-        this.Testobj = {};
+        this.Testobj = 0;
         /** d.ts 主文件 */
         this.dtsObj = "";
         /** Laya头 */
@@ -33,7 +33,7 @@ class Main {
         // this.tstoas("laya\\ani\\bone\\spine\\SpineSkeletonRenderer.d.ts",null,"laya\\ani\\bone\\spine");
         // this.tstoas("laya\\d3\\core\\Transform3D.d.ts",null,"laya\\d3\\core\\");
         // this.tstoas("laya\\html\\dom\\HTMLElement.d.ts", null, "laya\\html\\dom");
-        // this.tstoas("laya\\ui\\ScaleBox.d.ts",null,"laya\\ui");
+        // this.tstoas("laya\\resource\\IDestroy.d.ts",null,"laya\\resource");
         // this.tstoas("Laya.d.ts",null,"");
         // this.tstoas("laya\\d3\\component\\SingletonList.d.ts",null,"laya\\d3\\component");
     }
@@ -119,20 +119,17 @@ class Main {
             const sc = ts.createSourceFile(this.formatUrl(infile), code, ts.ScriptTarget.Latest, true);
             this.addName(sc); // 为了调试方便，给每个节点加上名字
             let em = new emiter_1.emiter();
-            let asCode = em.createCode(sc, code, fileurl);
+            em.createCode(sc, code, fileurl);
             this.dtsObj += em.copyTSdata;
-            if (em.enumObj.length) {
-                return {
-                    "asCode": asCode,
-                    "enum": em.enumObj
-                };
-            }
             if (!this._BaseURL) {
-                console.log(asCode);
+                for (let index = 0; index < em.outputObj.length; index++) {
+                    let element = em.outputObj[index];
+                    console.log(element.asCode);
+                }
                 //测试 查看copyTsdata
                 console.log(em.copyTSdata);
             }
-            return asCode;
+            return em;
         });
     }
     // var testArr = [];
@@ -154,23 +151,17 @@ class Main {
                 else {
                     if (this.filterArr.indexOf(files[i]) == -1) {
                         if (fileUrl.indexOf(".d.ts") != -1) {
-                            // testArr.push(files[i]);
                             //读取文件
                             let tsdata = yield this.readFile(fileUrl);
                             // debugger
-                            let data = yield this.tstoas(fileUrl, tsdata, url);
-                            if (typeof (data) == "string") {
-                                //写入文件
-                                this.writeFile(this.outfileAS + fileUrl, data);
+                            let em = yield this.tstoas(fileUrl, tsdata, url);
+                            this.Testobj += em.outputObj.length;
+                            //多份文件
+                            for (let i = 0; i < em.outputObj.length; i++) {
+                                let asObj = em.outputObj[i];
+                                this.writeFile(this.outfileAS + asObj.url, asObj.asCode);
                             }
-                            else {
-                                //写入两份文件
-                                this.writeFile(this.outfileAS + fileUrl, data.asCode);
-                                for (let i = 0; i < data.enum.length; i++) {
-                                    let asObj = data.enum[i];
-                                    this.writeFile(this.outfileAS + asObj.url, asObj.asCode);
-                                }
-                            }
+                            em.outputObj = null;
                         }
                     }
                 }
@@ -182,8 +173,8 @@ class Main {
      */
     checkComplete() {
         setTimeout(() => {
-            let keys = Object.keys(this.Testobj);
-            if (!keys.length) {
+            // let keys = Object.keys(this.Testobj);
+            if (!this.Testobj) {
                 console.log("TS to AS complete!!!", this.complete, this.progress);
                 let layaObj = "declare module Laya {\n" + emiter_1.emiter.dtsData + "\n}\n";
                 this.dtsObj += layaObj;
@@ -267,7 +258,7 @@ class Main {
                     return resolve(0);
                 }
                 this.complete++;
-                this.Testobj[this.outfileAS + fileUrl] = "reading";
+                // this.Testobj[this.outfileAS+fileUrl.replace(".d.ts","")] = "reading";
                 // console.log("readfile success",fileUrl);
                 resolve(files);
             });
@@ -294,15 +285,17 @@ class Main {
      */
     writeFile(url, data) {
         if (this.createAS && data != "") {
-            let outUrl = url.replace(new RegExp("(d.ts)", "g"), "as");
-            outUrl = this.outfile + outUrl;
+            let outUrl = this.outfile + url;
+            // url.replace("(d.ts)","as");
+            // outUrl 
             return new Promise(resolve => {
                 fs.writeFile(outUrl, data, err => {
                     if (err) {
                         console.log("write file fail", url, err);
                     }
                     this.progress++;
-                    delete this.Testobj[url];
+                    // delete this.Testobj[url.replace(".as","")]
+                    this.Testobj--;
                     if (!this.isTimeOut) {
                         this.isTimeOut = true;
                         this.checkComplete();
@@ -313,7 +306,8 @@ class Main {
         }
         else {
             this.progress++;
-            delete this.Testobj[url];
+            this.Testobj--;
+            // delete this.Testobj[url]
             if (!this.isTimeOut) {
                 this.isTimeOut = true;
                 this.checkComplete();

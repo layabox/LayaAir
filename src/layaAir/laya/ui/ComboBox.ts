@@ -302,30 +302,36 @@ export class ComboBox extends UIComponent {
         this.isOpen = !this._isOpen;
     }
 
-		/**
-		 * @inheritDoc 
-		 * @override
-		*/
-		/*override*/  set width(value: number) {
+    /**
+     * @inheritDoc 
+     * @override
+     */
+	set width(value: number) {
         super.width = value;
         this._button.width = this._width;
         this._itemChanged = true;
         this._listChanged = true;
     }
-
+    /**
+     * @inheritDoc 
+     * @override
+     */
     get width() {
         return super.width;
     }
 
-		/**
-		 * @inheritDoc 
-		 * @override
-		*/
-		/*override*/  set height(value: number) {
+    /**
+     * @inheritDoc 
+     * @override
+     */
+	set height(value: number) {
         super.height = value;
         this._button.height = this._height;
     }
-
+    /**
+     * @inheritDoc 
+     * @override
+     */
     get height() {
         return super.height;
     }
@@ -574,7 +580,10 @@ export class ComboBox extends UIComponent {
         else if (value instanceof Array) this.labels = ((<any[]>value)).join(",");
         else super.dataSource = value;
     }
-
+    /**
+     * @inheritDoc 
+     * @override
+     */
     get dataSource() {
         return super.dataSource;
     }

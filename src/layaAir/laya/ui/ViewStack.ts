@@ -151,7 +151,10 @@ export class ViewStack extends Box implements IItem {
             }
         }
     }
-
+    /**
+     * @inheritDoc
+     * @override
+     */
     get dataSource() {
         return super.dataSource;
     }

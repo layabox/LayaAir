@@ -231,11 +231,11 @@ export class List extends Box implements IRender, IItem {
 	/**@private */
 	protected _elasticEnabled: boolean = false;
 
-		/**
-		 * @inheritDoc 
-		 * @override
-		*/
-		/*override*/  destroy(destroyChild: boolean = true): void {
+	/**
+	 * @inheritDoc 
+	 * @override
+	 */
+	destroy(destroyChild: boolean = true): void {
 		this._content && this._content.destroy(destroyChild);
 		this._scrollBar && this._scrollBar.destroy(destroyChild);
 		super.destroy(destroyChild);
@@ -255,11 +255,11 @@ export class List extends Box implements IRender, IItem {
 		this.addChild(this._content = new Box());
 	}
 
-		/**
-		 * @inheritDoc 
-		 * @override
-		*/
-		/*override*/  set cacheAs(value: string) {
+	/**
+	 * @inheritDoc 
+	 * @override
+	 */
+	set cacheAs(value: string) {
 		super.cacheAs = value;
 		if (this._scrollBar) {
 			this._usedCache = null;
@@ -267,7 +267,10 @@ export class List extends Box implements IRender, IItem {
 			else this._scrollBar.off(Event.START, this, this.onScrollStart);
 		}
 	}
-
+	/**
+	 * @inheritDoc 
+	 * @override
+	 */
 	get cacheAs() {
 		return super.cacheAs;
 	}
@@ -375,32 +378,38 @@ export class List extends Box implements IRender, IItem {
 		}
 	}
 
-		/**
-		 * @inheritDoc 
-		 * @override
-		*/
-		/*override*/  set width(value: number) {
+	/**
+	 * @inheritDoc 
+	 * @override
+	*/
+	set width(value: number) {
 		if (value != this._width) {
 			super.width = value;
 			this._setCellChanged();
 		}
 	}
-
+	/**
+	 * @inheritDoc 
+	 * @override
+	 */
 	get width() {
 		return super.width;
 	}
 
-		/**
-		 * @inheritDoc 
-		 * @override
-		*/
-		/*override*/  set height(value: number) {
+	/**
+	 * @inheritDoc 
+	 * @override
+	*/
+	set height(value: number) {
 		if (value != this._height) {
 			super.height = value;
 			this._setCellChanged();
 		}
 	}
-
+	/**
+	 * @inheritDoc 
+	 * @override
+	 */
 	get height() {
 		return super.height;
 	}
@@ -943,7 +952,10 @@ export class List extends Box implements IRender, IItem {
 		else if (value instanceof Array) this.array = (<any[]>value)
 		else super.dataSource = value;
 	}
-
+	/**
+	 * @inheritDoc 
+	 * @override
+	 */
 	get dataSource() {
 		return super.dataSource;
 	}

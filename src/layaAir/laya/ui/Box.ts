@@ -10,7 +10,8 @@ import { ClassUtils } from "../utils/ClassUtils";
 export class Box extends UIComponent implements IBox {
     private _bgColor: string;
 
-    /**@inheritDoc 
+    /**
+     * @inheritDoc 
      * @override
      */
     set dataSource(value: any) {
@@ -21,7 +22,10 @@ export class Box extends UIComponent implements IBox {
             else if (name in this && !(this[name] instanceof Function)) this[name] = value[name];
         }
     }
-
+    /**
+     * @inheritDoc 
+     * @override
+     */
     get dataSource() {
         return super.dataSource;
     }

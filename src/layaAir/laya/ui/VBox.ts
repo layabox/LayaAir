@@ -31,6 +31,10 @@ export class VBox extends LayoutBox {
             this.callLater(this.changeItems);
         }
     }
+    /**
+     * @inheritDoc
+     * @override
+     */
     get width() {
         return super.width;
     }

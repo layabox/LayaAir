@@ -67,7 +67,9 @@ export class HTMLLinkElement extends HTMLElement {
         this._loader.once(Event.COMPLETE, this, this._onload);
         this._loader.load(url, Loader.TEXT);
     }
-
+    /**
+     * @override
+     */
     get href() {
         return super.href;
     }

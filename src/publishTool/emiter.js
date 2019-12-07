@@ -13,12 +13,14 @@ class emiter {
         this.copyTSdata = "";
         /**import待替换结构 */
         this.importArr = {};
+        /**as引用数据 */
+        this.needimportArr = [];
         /**内部类的引用 */
-        this.innerImportStr = "";
+        // private innerImportStr = "";
         /** 当前类名 */
         this.classNameNow = "";
-        /** 枚举结构 */
-        this.enumObj = [];
+        /** 输出结构 */
+        this.outputObj = [];
         this.VISITORS = {
             "ImportDeclaration": this.emitImport,
             "ClassDeclaration": this.emitClass,
@@ -55,19 +57,31 @@ class emiter {
             node = nodes[i];
             let str = this.checkNodes(node);
             //内部类
-            if (this.innerClass && nodes[i - 1]) {
-                let lastnodetype = ts.SyntaxKind[nodes[i - 1].kind];
-                if ("ImportDeclaration" != lastnodetype && str[0].indexOf("\tclass ") != -1)
-                    str[0] = this.innerImportStr + "\n" + str[0];
-            }
             this.outString += str[0];
             this.copyTSdata += str[1];
-            if (!this.innerClass && (str[0].indexOf("public class") != -1 || str[0].indexOf("interface") != -1)) {
-                this.innerClass = 1;
+            if (str[0].indexOf("public class") != -1 || str[0].indexOf("interface") != -1) {
+                if (!this.innerClass) {
+                    this.innerClass = true;
+                }
+                else {
+                    if (this.needimportArr.length) {
+                        for (let i = 0; i < this.needimportArr.length; i++) {
+                            let key = this.needimportArr[i];
+                            if (this.importArr[key] && this.importArr[key] != key) {
+                                //检测是否需要添加引用
+                                this.outString = "\timport " + this.importArr[key] + ";\r\n" + this.outString;
+                            }
+                        }
+                    }
+                }
                 this.outString = "package " + _url.replace(new RegExp("\\\\", "g"), ".") + " {\r\n" + this.outString + "\r\n}\r\n";
+                let url = _url == "" ? "" : this.url + "\\";
+                this.outputObj.push({ "asCode": this.outString, "url": url + this.classNameNow + ".as" });
+                this.outString = "";
+                this.needimportArr = []; //清空
             }
         }
-        if (this.outString == "" && this.copyTSdata == "")
+        if (this.copyTSdata == "")
             return "";
         //对ts构成重写
         if (_url != "") {
@@ -83,7 +97,7 @@ class emiter {
         //         this.copyTSdata.replace(new RegExp(key,"g"),this.importArr[key]);
         //     }
         // }
-        return this.outString;
+        // return this.outString;
     }
     /**
      * 生成枚举
@@ -109,7 +123,7 @@ class emiter {
         //拼package & class
         asCode = "\r\n\tpublic class " + nodeName + " {\r\n" + asCode + "\r\n\t}";
         asCode = this.changeIndex(node, "\r\n") + "package " + packageName + " {\r\n" + asCode + "\r\n}";
-        this.enumObj.push({ "asCode": asCode, "url": this.url + "\\" + nodeName + ".as" });
+        this.outputObj.push({ "asCode": asCode, "url": this.url + "\\" + nodeName + ".as" });
         return ["", tsstr];
     }
     /**
@@ -226,7 +240,7 @@ class emiter {
             }
             typestr += ">";
         }
-        str = (this.innerClass ? "\tclass " : "\tpublic class ") + nodeName + " " + extendstr + "{\r\n" + str + "\t}\r\n";
+        str = "\tpublic class " + nodeName + " " + extendstr + "{\r\n" + str + "\t}\r\n";
         tstr = "\tclass " + nodeName + typestr + " " + tsExtend + " {\r\n" + tstr + "\t}\r\n";
         let note = this.changeIndex(node, "\r\n\t");
         if (this.url != "")
@@ -246,9 +260,11 @@ class emiter {
             str += result[0];
             tstr += result[1];
         }
-        str = (this.innerClass ? "\tinterface " : "\tpublic interface ") + node.name.getText() + " {\r\n" + str + "\t}\r\n";
-        tstr = "\tinterface " + node.name.getText() + "{\r\n" + tstr + "\t}\r\n";
+        let nodeName = this.classNameNow = node.name.getText();
+        str = "\tpublic interface " + nodeName + " {\r\n" + str + "\t}\r\n";
+        tstr = "\tinterface " + nodeName + "{\r\n" + tstr + "\t}\r\n";
         let note = this.changeIndex(node, "\r\n\t");
+        // this.outputObj.push({"asCode":note + str,"url":this.url + "\\" + nodeName + ".as"});
         return [note + str, note + tstr];
     }
     /**
@@ -347,7 +363,7 @@ class emiter {
         // let isGetset = propertystr.indexOf("function get") != -1;
         let note = this.changeIndex(node, "\r\n\t\t");
         propertystr += node.name.getText() + "():" + this.emitType(node.type);
-        tspro += node.name.getText() + ":" + this.emitTsType(node.type);
+        tspro += node.name.getText() + (node.questionToken ? "?" : "") + ":" + this.emitTsType(node.type);
         return [note + propertystr + ";\r\n", note + tspro + ";\r\n"];
     }
     /**
@@ -495,8 +511,8 @@ class emiter {
             else
                 str = "function get ";
         }
-        else if (type == "PublicKeywordstatic") {
-            str = "public static ";
+        else if (type == "PublicKeyword") {
+            str = "public ";
         }
         else {
             str = "property todo " + type;
@@ -532,19 +548,20 @@ class emiter {
                     return "*";
                 }
                 //如果是内部类且有引用
-                if (this.innerClass && this.importArr[type] && this.classNameNow != type) {
-                    if (this.innerImportStr.indexOf(this.importArr[type]) == -1) {
-                        this.innerImportStr += "\r\n\timport " + this.importArr[type] + ";";
-                    }
-                }
+                // if(this.innerClass&&this.importArr[type]&&this.classNameNow!=type){
+                //     if(this.innerImportStr.indexOf(this.importArr[type])==-1){
+                //         this.innerImportStr +=  "\r\n\timport " + this.importArr[type] + ";";
+                //     }
+                // }
                 //检测tsc类型
                 if (emiter.jscObj && emiter.jscObj[type]) {
                     type = emiter.jscObj[type];
                 }
+                this.needimportArr.indexOf(type) == -1 && this.needimportArr.push(type);
                 return type;
             case "TypeQuery":
                 // console.log("console test:",node.exprName.getText());
-                return node.exprName.getText();
+                return "*";
             case "UnionType":
                 type = "";
                 node = node;
@@ -554,6 +571,7 @@ class emiter {
                 type = type.replace(/\|\s*null|\|\s*undefined/gm, "");
                 if (type.indexOf("|") != -1)
                     type = "*";
+                this.needimportArr.indexOf(type) == -1 && this.needimportArr.push(type);
                 return type;
             default:
                 console.log("TODO :", type, this.url + "/" + this.classNameNow);

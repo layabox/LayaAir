@@ -272,7 +272,10 @@ export class Stage extends Sprite {
 		super.set_width(value);
 		ILaya.systemTimer.callLater(this, this._changeCanvasSize);
 	}
-
+	/**
+     * @inheritDoc 
+     * @override
+     */
 	get width(): number {
 		return super.get_width();
 	}
@@ -284,14 +287,17 @@ export class Stage extends Sprite {
 		ILaya.systemTimer.callLater(this, this._changeCanvasSize);
 	}
 
-		/** @override*/  get height(): number {
+	/** @override*/  
+	get height(): number {
 		return super.get_height();
 	}
 
-		/**@override*/  set transform(value: Matrix) {
+	/**@override*/
+	set transform(value: Matrix) {
 		super.set_transform(value);
 	}
-		/**@inheritDoc @override*/  get transform(): Matrix {
+	/**@inheritDoc @override*/ 
+	get transform(): Matrix {
 		if (this._tfChanged) this._adjustTransform();
 		return (this._transform = this._transform || this._createTransform());
 	}
@@ -634,7 +640,10 @@ export class Stage extends Sprite {
 			style.visibility = value ? "visible" : "hidden";
 		}
 	}
-
+	/**
+     * @inheritDoc 
+     * @override
+     */
 	get visible() {
 		return super.visible;
 	}

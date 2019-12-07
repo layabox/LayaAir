@@ -39,7 +39,9 @@ export class HTMLStyleElement extends HTMLElement {
     set innerTEXT(value: string) {
         HTMLStyle.parseCSS(value, null);
     }
-
+    /**
+     * @override
+     */
     get innerTEXT() {
         return super.innerTEXT;
     }

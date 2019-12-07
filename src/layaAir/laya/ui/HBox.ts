@@ -23,32 +23,36 @@ export class HBox extends LayoutBox {
      */
     static BOTTOM: string = "bottom";
 
-		/** 
-		 * @inheritDoc	
-		 * @override
-		*/
-		/*override*/ protected sortItem(items: any[]): void {
+    /** 
+     * @inheritDoc	
+     * @override
+     */
+	protected sortItem(items: any[]): void {
         if (items) items.sort(function (a: any, b: any): number { return a.x - b.x; });
     }
-		/**
-		 * @override
-		 */
-		/*override*/  set height(value: number) {
+    /**
+     * @inheritDoc	
+     * @override
+     */
+	set height(value: number) {
         if (this._height != value) {
             super.height = value;
             this.callLater(this.changeItems);
         }
     }
-
+    /**
+     * @inheritDoc	
+     * @override
+     */
     get height() {
         return super.height;
     }
 
-		/** 
-		 * @inheritDoc	
-		 * @override
-		*/
-		/*override*/ protected changeItems(): void {
+    /** 
+     * @inheritDoc	
+     * @override
+     */
+	protected changeItems(): void {
         this._itemChanged = false;
         var items: any[] = [];
         var maxHeight: number = 0;
