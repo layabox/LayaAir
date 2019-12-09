@@ -69,7 +69,6 @@ void vertexForward()
 	#ifdef PARALLAXTEXTURE
 		vec3 binormal = cross(a_Normal, a_Tangent0.xyz)*a_Tangent0.w;
 		mat3 objectTBN = mat3(a_Tangent0.xyz, binormal, a_Normal);
-		v_ViewDirForParallax=v_EyeVec*objectTBN;
-		v_ViewDirForParallax.y=-v_ViewDirForParallax.y;//NOTE:because different cood system with unity,or objectTBN each x will be inverse.
+		v_ViewDirForParallax=(worldInvMat*u_CameraPos-position.xyz)*objectTBN;
 	#endif
 }

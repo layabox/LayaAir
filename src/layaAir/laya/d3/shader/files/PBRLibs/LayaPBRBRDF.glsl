@@ -119,9 +119,7 @@ float ggxTerm(float NdotH, float roughness)
 // BRDF = kD / pi + kS * (D * V * F) / 4
 // I = BRDF * NdotL
 //
-// *NDF (depending on LAYA_BRDF_GGX):
-//  a) Normalized BlinnPhong
-//  b) GGX
+// *NDF GGX:
 // *Smith for Visiblity term
 // *Schlick approximation for Fresnel
 mediump vec4 layaBRDFHighLight(mediump vec3 diffColor, mediump vec3 specColor, mediump float oneMinusReflectivity, float perceptualRoughness,float roughness,mediump float nv,vec3 normal, vec3 viewDir,LayaLight light)
@@ -172,9 +170,7 @@ vec4 layaBRDFHighGI(mediump vec3 diffColor,mediump vec3 specColor,mediump float 
 // Based on Minimalist CookTorrance BRDF
 // Implementation is slightly different from original derivation: http://www.thetenthplanet.de/archives/255
 //
-// *NDF (depending on UNITY_BRDF_GGX):
-//  a) BlinnPhong
-//  b) [Modified] GGX
+// *NDF [Modified] GGX:
 // *Modified Kelemen and Szirmay-​Kalos for Visibility term
 // *Fresnel approximated with 1/LdotH
 mediump vec4 layaBRDFLowLight (mediump vec3 diffColor, mediump vec3 specColor,mediump float oneMinusReflectivity,float perceptualRoughness,float roughness,mediump float nv,vec3 normal,vec3 viewDir,LayaLight light)
