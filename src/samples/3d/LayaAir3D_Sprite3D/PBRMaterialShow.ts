@@ -1,6 +1,7 @@
 
 import { Config3D } from "Config3D";
 import { Laya } from "Laya";
+import { Camera } from "laya/d3/core/Camera";
 import { PBRRenderQuality } from "laya/d3/core/material/PBRRenderQuality";
 import { PBRStandardMaterial } from "laya/d3/core/material/PBRStandardMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
@@ -10,22 +11,28 @@ import { Vector3 } from "laya/d3/math/Vector3";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { Mesh } from "laya/d3/resource/models/Mesh";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
-import { TextureCube } from "laya/d3/resource/TextureCube";
 import { Shader3D } from "laya/d3/shader/Shader3D";
 import { Stage } from "laya/display/Stage";
+import { Text } from "laya/display/Text";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
-import { Text } from "laya/display/Text";
-import { Camera } from "laya/d3/core/Camera";
-import { Color } from "laya/d3/math/Color";
-import { BloomEffect } from "laya/d3/core/render/BloomEffect";
-import { PostProcess } from "laya/d3/component/PostProcess";
+import { Script3D } from "laya/d3/component/Script3D";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
+
+/**
+ * model rotation script.
+ */
+class RotationScript extends Script3D {
+	rotSpeed: Vector3 = new Vector3(0, 0.01, 0);
+	onUpdate(): void {
+		(<Sprite3D>this.owner).transform.rotate(this.rotSpeed,false);
+	}
+}
 
 export class PBRMaterialShow {
-	reflectCubeMap: TextureCube;
 	constructor() {
 		Shader3D.debugMode = true;
 		var c: Config3D = new Config3D();
@@ -36,64 +43,53 @@ export class PBRMaterialShow {
 		Stat.show();
 
 		Scene3D.load("LayaScene_SampleScene/Conventional/SampleScene.ls", Handler.create(this, function (scene: Scene3D): void {
-			var camera: Camera = <Camera>scene.getChildByName("Main Camera");
-			camera.addComponent(CameraMoveScript);
-
-			// //增加后期处理
-			// var postProcess: PostProcess = new PostProcess();
-			// //增加后期处理泛光效果
-			// var bloom: BloomEffect = new BloomEffect();
-			// postProcess.addEffect(bloom);
-			// camera.postProcess = postProcess;
-			// camera.enableHDR = true;
-
-			// //设置泛光参数
-			// bloom.intensity = 5;
-			// bloom.threshold = 1.0;
-			// bloom.softKnee = 0.5;
-			// bloom.clamp = 65472;
-			// bloom.diffusion = 5;
-			// bloom.anamorphicRatio = 0.0;
-			// bloom.color = new Color(1, 1, 1, 1);
-			// bloom.fastMode = true;
-
 			Laya.stage.addChild(scene);
 			scene.ambientMode = AmbientMode.SphericalHarmonics;
-			//scene.reflectionIntensity=0.2;
-			//scene._reflectionCubeHDRParams.x=23;
-			//scene.ambientSphericalHarmonicsIntensity = 1.8;
 
+			var camera: Camera = <Camera>scene.getChildByName("Main Camera");
+			var damagedHelmet: MeshSprite3D = <MeshSprite3D>scene.getChildAt(1).getChildAt(0);
+			var cerberus: MeshSprite3D = <MeshSprite3D>scene.getChildAt(2);
 
-			var sphere: MeshSprite3D = <MeshSprite3D>scene.getChildAt(1).getChildAt(0);
-			var pbrMat: PBRStandardMaterial = new PBRStandardMaterial();
+			var moveScript: CameraMoveScript = camera.addComponent(CameraMoveScript);
+			moveScript.speed = 0.005;
 
+			//damagedHelmet
+			damagedHelmet.addComponent(RotationScript);
+			var damagedHelmetMat: PBRStandardMaterial = new PBRStandardMaterial();
 			Texture2D.load("LayaScene_SampleScene/Conventional/Assets/DamagedHelmet/Default_albedo.jpg", Handler.create(null, function (tex: Texture2D): void {
-				pbrMat.albedoTexture = tex;
+				damagedHelmetMat.albedoTexture = tex;
 			}));
-
 			Texture2D.load("LayaScene_SampleScene/Conventional/Assets/DamagedHelmet/Default_metalRoughness.png", Handler.create(null, function (tex: Texture2D): void {
-				pbrMat.metallicGlossTexture = tex;
+				damagedHelmetMat.metallicGlossTexture = tex;
 			}));
-
 			Texture2D.load("LayaScene_SampleScene/Conventional/Assets/DamagedHelmet/Default_AO.jpg", Handler.create(null, function (tex: Texture2D): void {
-				pbrMat.occlusionTexture = tex;
+				damagedHelmetMat.occlusionTexture = tex;
 			}));
-
 			Texture2D.load("LayaScene_SampleScene/Conventional/Assets/DamagedHelmet/Default_normal.jpg", Handler.create(null, function (tex: Texture2D): void {
-				pbrMat.normalTexture = tex;
+				damagedHelmetMat.normalTexture = tex;
 			}));
-
-			// Texture2D.load("LayaScene_SampleScene/Conventional/Assets/DamagedHelmet/Default_albedo.jpg", Handler.create(null, function (tex: Texture2D): void {
-			// 	pbrMat.parallaxTexture = tex;
-			// 	pbrMat.parallaxTextureScale = 0.08;
-			// }));
-
 			Texture2D.load("LayaScene_SampleScene/Conventional/Assets/DamagedHelmet/Default_emissive.jpg", Handler.create(null, function (tex: Texture2D): void {
-				pbrMat.enableEmission = true;
-				pbrMat.emissionTexture = tex;
+				damagedHelmetMat.enableEmission = true;
+				damagedHelmetMat.emissionTexture = tex;
 			}));
-			sphere.meshRenderer.sharedMaterial = pbrMat;
+			damagedHelmet.meshRenderer.sharedMaterial = damagedHelmetMat;
 
+			//cerberus
+			cerberus.addComponent(RotationScript);
+			var cerberusMat: PBRStandardMaterial = new PBRStandardMaterial();
+			Texture2D.load("LayaScene_SampleScene/Conventional/Assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_A.png", Handler.create(null, function (tex: Texture2D): void {
+				cerberusMat.albedoTexture = tex;
+			}));
+			Texture2D.load("LayaScene_SampleScene/Conventional/Assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_MS.png", Handler.create(null, function (tex: Texture2D): void {
+				cerberusMat.metallicGlossTexture = tex;
+			}));
+			Texture2D.load("LayaScene_SampleScene/Conventional/Assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_AO.png", Handler.create(null, function (tex: Texture2D): void {
+				cerberusMat.occlusionTexture = tex;
+			}));
+			Texture2D.load("LayaScene_SampleScene/Conventional/Assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_N.png", Handler.create(null, function (tex: Texture2D): void {
+				cerberusMat.normalTexture = tex;
+			}));
+			cerberus.meshRenderer.sharedMaterial = cerberusMat;
 
 			var sphereMesh: Mesh = PrimitiveMesh.createSphere(0.25, 32, 32);
 			const row: number = 6;
@@ -106,17 +102,17 @@ export class PBRMaterialShow {
 			damagedHelmetText.color = "#FFFF00";
 			damagedHelmetText.fontSize = size;
 			damagedHelmetText.x = size;
-			damagedHelmetText.y = Laya.stage.height - size * 2;
-			damagedHelmetText.text = "Battle Damaged Sci-fi Helmet by the 3d artist theblueturtle_    www.leonardocarrion.com";
+			damagedHelmetText.y = Laya.stage.height - size * 4;
+			damagedHelmetText.text = "Battle Damaged Sci-fi Helmet by theblueturtle_    www.leonardocarrion.com";
 			Laya.stage.addChild(damagedHelmetText);
 
-			// var damagedHelmetText: Text = new Text();
-			// damagedHelmetText.color = "#FFFF00";
-			// damagedHelmetText.fontSize = size;
-			// damagedHelmetText.x = size;
-			// damagedHelmetText.y = Laya.stage.height - size * 2;
-			// damagedHelmetText.text = "Battle Damaged Sci-fi Helmet by the 3d artist theblueturtle_";
-			// Laya.stage.addChild(damagedHelmetText);
+			var cerberusText: Text = new Text();
+			cerberusText.color = "#FFFF00";
+			cerberusText.fontSize = size;
+			cerberusText.x = size;
+			cerberusText.y = Laya.stage.height - size * 2;
+			cerberusText.text = "Cerberus by Andrew Maximov     http://artisaverb.info/PBT.html";
+			Laya.stage.addChild(cerberusText);
 		}));
 	}
 
