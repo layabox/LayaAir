@@ -28,7 +28,7 @@ import { Sprite3D } from "laya/d3/core/Sprite3D";
 class RotationScript extends Script3D {
 	rotSpeed: Vector3 = new Vector3(0, 0.005, 0);
 	onUpdate(): void {
-		(<Sprite3D>this.owner).transform.rotate(this.rotSpeed,false);
+		(<Sprite3D>this.owner).transform.rotate(this.rotSpeed, false);
 	}
 }
 
@@ -98,21 +98,8 @@ export class PBRMaterialShow {
 			this.addSpheresSpecialMetallic(sphereMesh, new Vector3(0, -1.5, 0), scene, row, new Vector4(0.0, 0.0, 0.0, 1.0), 0.0);
 
 			var size: number = 20;
-			var damagedHelmetText: Text = new Text();
-			damagedHelmetText.color = "#FFFF00";
-			damagedHelmetText.fontSize = size;
-			damagedHelmetText.x = size;
-			damagedHelmetText.y = Laya.stage.height - size * 4;
-			damagedHelmetText.text = "Battle Damaged Sci-fi Helmet by theblueturtle_    www.leonardocarrion.com";
-			Laya.stage.addChild(damagedHelmetText);
-
-			var cerberusText: Text = new Text();
-			cerberusText.color = "#FFFF00";
-			cerberusText.fontSize = size;
-			cerberusText.x = size;
-			cerberusText.y = Laya.stage.height - size * 2;
-			cerberusText.text = "Cerberus by Andrew Maximov     http://artisaverb.info/PBT.html";
-			Laya.stage.addChild(cerberusText);
+			this.addText(size, Laya.stage.height - size * 4, "Battle Damaged Sci-fi Helmet by theblueturtle_    www.leonardocarrion.com");
+			this.addText(size, Laya.stage.height - size * 2, "Cerberus by Andrew Maximov     http://artisaverb.info/PBT.html");
 		}));
 	}
 
@@ -163,6 +150,19 @@ export class PBRMaterialShow {
 			transform.localPosition = pos;
 			scene.addChild(meshSprite);
 		}
+	}
+
+	/**
+	 * add text.
+	 */
+	addText(size: number, y: number, text: string): void {
+		var cerberusText: Text = new Text();
+		cerberusText.color = "#FFFF00";
+		cerberusText.fontSize = size;
+		cerberusText.x = size;
+		cerberusText.y = y;
+		cerberusText.text = text;
+		Laya.stage.addChild(cerberusText);
 	}
 }
 
