@@ -26,7 +26,7 @@ import { Sprite3D } from "laya/d3/core/Sprite3D";
  * model rotation script.
  */
 class RotationScript extends Script3D {
-	rotSpeed: Vector3 = new Vector3(0, 0.01, 0);
+	rotSpeed: Vector3 = new Vector3(0, 0.005, 0);
 	onUpdate(): void {
 		(<Sprite3D>this.owner).transform.rotate(this.rotSpeed,false);
 	}
