@@ -40,7 +40,7 @@ export class PBRMaterialShow {
 		Laya3D.init(0, 0, c);
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		Stat.show();
+		// Stat.show();
 
 		Scene3D.load("LayaScene_SampleScene/Conventional/SampleScene.ls", Handler.create(this, function (scene: Scene3D): void {
 			Laya.stage.addChild(scene);
@@ -75,7 +75,6 @@ export class PBRMaterialShow {
 			damagedHelmet.meshRenderer.sharedMaterial = damagedHelmetMat;
 
 			//cerberus
-			cerberus.addComponent(RotationScript);
 			var cerberusMat: PBRStandardMaterial = new PBRStandardMaterial();
 			Texture2D.load("LayaScene_SampleScene/Conventional/Assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_A.png", Handler.create(null, function (tex: Texture2D): void {
 				cerberusMat.albedoTexture = tex;
