@@ -18,6 +18,11 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { Text } from "laya/display/Text";
+import { Camera } from "laya/d3/core/Camera";
+import { Color } from "laya/d3/math/Color";
+import { BloomEffect } from "laya/d3/core/render/BloomEffect";
+import { PostProcess } from "laya/d3/component/PostProcess";
 
 export class PBRMaterialShow {
 	reflectCubeMap: TextureCube;
@@ -31,7 +36,27 @@ export class PBRMaterialShow {
 		Stat.show();
 
 		Scene3D.load("LayaScene_SampleScene/Conventional/SampleScene.ls", Handler.create(this, function (scene: Scene3D): void {
-			scene.getChildByName("Main Camera").addComponent(CameraMoveScript);
+			var camera: Camera = <Camera>scene.getChildByName("Main Camera");
+			camera.addComponent(CameraMoveScript);
+
+			// //增加后期处理
+			// var postProcess: PostProcess = new PostProcess();
+			// //增加后期处理泛光效果
+			// var bloom: BloomEffect = new BloomEffect();
+			// postProcess.addEffect(bloom);
+			// camera.postProcess = postProcess;
+			// camera.enableHDR = true;
+
+			// //设置泛光参数
+			// bloom.intensity = 5;
+			// bloom.threshold = 1.0;
+			// bloom.softKnee = 0.5;
+			// bloom.clamp = 65472;
+			// bloom.diffusion = 5;
+			// bloom.anamorphicRatio = 0.0;
+			// bloom.color = new Color(1, 1, 1, 1);
+			// bloom.fastMode = true;
+
 			Laya.stage.addChild(scene);
 			scene.ambientMode = AmbientMode.SphericalHarmonics;
 			//scene.reflectionIntensity=0.2;
@@ -69,11 +94,29 @@ export class PBRMaterialShow {
 			}));
 			sphere.meshRenderer.sharedMaterial = pbrMat;
 
-			
+
 			var sphereMesh: Mesh = PrimitiveMesh.createSphere(0.25, 32, 32);
-			this.addSpheresSpecialMetallic(sphereMesh, new Vector3(0, 1.5, 0), scene, 6, new Vector4(186 / 255, 110 / 255, 64 / 255, 1.0), 1.0);
-			this.addSpheres(sphereMesh, new Vector3(0, 0, 0), scene, 3, 6, new Vector4(1.0, 1.0, 1.0, 1.0));
-			this.addSpheresSpecialMetallic(sphereMesh, new Vector3(0, -1.5, 0), scene, 6, new Vector4(0.0, 0.0, 0.0, 1.0), 0.0);
+			const row: number = 6;
+			this.addSpheresSpecialMetallic(sphereMesh, new Vector3(0, 1.5, 0), scene, row, new Vector4(186 / 255, 110 / 255, 64 / 255, 1.0), 1.0);
+			this.addSpheres(sphereMesh, new Vector3(0, 0, 0), scene, 3, row, new Vector4(1.0, 1.0, 1.0, 1.0));
+			this.addSpheresSpecialMetallic(sphereMesh, new Vector3(0, -1.5, 0), scene, row, new Vector4(0.0, 0.0, 0.0, 1.0), 0.0);
+
+			var size: number = 20;
+			var damagedHelmetText: Text = new Text();
+			damagedHelmetText.color = "#FFFF00";
+			damagedHelmetText.fontSize = size;
+			damagedHelmetText.x = size;
+			damagedHelmetText.y = Laya.stage.height - size * 2;
+			damagedHelmetText.text = "Battle Damaged Sci-fi Helmet by the 3d artist theblueturtle_    www.leonardocarrion.com";
+			Laya.stage.addChild(damagedHelmetText);
+
+			// var damagedHelmetText: Text = new Text();
+			// damagedHelmetText.color = "#FFFF00";
+			// damagedHelmetText.fontSize = size;
+			// damagedHelmetText.x = size;
+			// damagedHelmetText.y = Laya.stage.height - size * 2;
+			// damagedHelmetText.text = "Battle Damaged Sci-fi Helmet by the 3d artist theblueturtle_";
+			// Laya.stage.addChild(damagedHelmetText);
 		}));
 	}
 
