@@ -236,7 +236,6 @@ mediump vec4 specularGloss(vec2 uv)
 	{
 		mediump float h = texture2D(u_ParallaxTexture, texcoords.xy).g;
 		vec2 offset = parallaxOffset1Step(h, u_ParallaxScale, viewDir);
-		offset.y=-offset.y;//Note:because when we use unity pugin to export uv,we use 1.0-v.
 		return texcoords+offset;
 	}
 #endif
