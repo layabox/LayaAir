@@ -31,6 +31,9 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	private static _uniqueIDCounter: number = 0;
 
 	/**@internal */
+	static _defaultLightmapScaleOffset: Vector4 = new Vector4(1.0, 1.0, 0.0, 0.0);
+
+	/**@internal */
 	private _id: number;
 	/** @internal */
 	private _lightmapScaleOffset: Vector4 = new Vector4(1, 1, 0, 0);
