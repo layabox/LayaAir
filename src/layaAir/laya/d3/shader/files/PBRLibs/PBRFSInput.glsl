@@ -217,6 +217,7 @@ mediump vec4 specularGloss(vec2 uv)
 		normal.xy *= bumpScale;
 		return normal;
 	}
+	
 	mediump vec3 normalInTangentSpace(vec2 texcoords)
 	{
 		mediump vec3 normalTangent = unpackScaleNormal(texture2D(u_NormalTexture, texcoords).rgb,u_NormalScale);
