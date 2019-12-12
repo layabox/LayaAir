@@ -265,8 +265,8 @@ export class Laya3D {
 		ClassUtils.regClass("Laya.UnlitMaterial", UnlitMaterial);
 		ClassUtils.regClass("Laya.BlinnPhongMaterial", BlinnPhongMaterial);
 		ClassUtils.regClass("Laya.SkyProceduralMaterial", SkyProceduralMaterial);
-		// ClassUtils.regClass("Laya.PBRStandardMaterial", PBRStandardMaterial);
-		// ClassUtils.regClass("Laya.PBRSpecularMaterial", PBRSpecularMaterial);
+		ClassUtils.regClass("Laya.PBRStandardMaterial", PBRStandardMaterial);
+		ClassUtils.regClass("Laya.PBRSpecularMaterial", PBRSpecularMaterial);
 		ClassUtils.regClass("Laya.SkyBoxMaterial", SkyBoxMaterial);
 		ClassUtils.regClass("Laya.WaterPrimaryMaterial", WaterPrimaryMaterial);
 		ClassUtils.regClass("Laya.ExtendTerrainMaterial", ExtendTerrainMaterial);
