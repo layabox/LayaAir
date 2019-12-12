@@ -28,6 +28,8 @@ export class CameraMoveScript extends Script3D {
 	protected camera: BaseCamera;
 	protected scene: Scene3D;
 
+	speed: number = 0.01;
+
 	constructor() {
 		super();
 
@@ -62,12 +64,12 @@ export class CameraMoveScript extends Script3D {
 		var elapsedTime: number = Laya.timer.delta;
 		if (!isNaN(this.lastMouseX) && !isNaN(this.lastMouseY) && this.isMouseDown) {
 			var scene: Scene3D = this.owner.scene;
-			KeyBoardManager.hasKeyDown(87) && this.moveForward(-0.01 * elapsedTime);//W
-			KeyBoardManager.hasKeyDown(83) && this.moveForward(0.01 * elapsedTime);//S
-			KeyBoardManager.hasKeyDown(65) && this.moveRight(-0.01 * elapsedTime);//A
-			KeyBoardManager.hasKeyDown(68) && this.moveRight(0.01 * elapsedTime);//D
-			KeyBoardManager.hasKeyDown(81) && this.moveVertical(0.01 * elapsedTime);//Q
-			KeyBoardManager.hasKeyDown(69) && this.moveVertical(-0.01 * elapsedTime);//E
+			KeyBoardManager.hasKeyDown(87) && this.moveForward(-this.speed * elapsedTime);//W
+			KeyBoardManager.hasKeyDown(83) && this.moveForward(this.speed * elapsedTime);//S
+			KeyBoardManager.hasKeyDown(65) && this.moveRight(-this.speed * elapsedTime);//A
+			KeyBoardManager.hasKeyDown(68) && this.moveRight(this.speed * elapsedTime);//D
+			KeyBoardManager.hasKeyDown(81) && this.moveVertical(this.speed * elapsedTime);//Q
+			KeyBoardManager.hasKeyDown(69) && this.moveVertical(-this.speed * elapsedTime);//E
 
 			var offsetX: number = Laya.stage.mouseX - this.lastMouseX;
 			var offsetY: number = Laya.stage.mouseY - this.lastMouseY;
