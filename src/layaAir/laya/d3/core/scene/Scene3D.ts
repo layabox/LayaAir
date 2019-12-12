@@ -56,8 +56,9 @@ import { RenderableSprite3D } from "../RenderableSprite3D";
 import { Sprite3D } from "../Sprite3D";
 import { BoundsOctree } from "./BoundsOctree";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
-import {PBRMaterial } from "../material/PBRMaterial";
+import { PBRMaterial } from "../material/PBRMaterial";
 import { PBRRenderQuality } from "../material/PBRRenderQuality";
+import { TextureDecodeFormat } from "../../../resource/TextureDecodeFormat";
 
 /**
  * 环境光模式
@@ -221,6 +222,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	private _ambientSphericalHarmonicsIntensity: number = 1.0;
 	/** @internal */
 	private _reflection: TextureCube;
+	/** @internal */
+	private _reflectionDecodeFormat: TextureDecodeFormat = TextureDecodeFormat.Normal;
 	/** @internal */
 	private _reflectionIntensity: number = 1.0;
 	/** @internal */
@@ -412,6 +415,22 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
+	 * 反射立方体纹理解码格式。
+	 */
+	get reflectionDecodingFormat(): TextureDecodeFormat {
+		return this._reflectionDecodeFormat;
+	}
+
+	set reflectionDecodingFormat(value: TextureDecodeFormat) {
+		if (this._reflectionDecodeFormat != value) {
+			this._reflectionCubeHDRParams.x = this._reflectionIntensity;
+			if (this._reflectionDecodeFormat == TextureDecodeFormat.RGBM)
+				this._reflectionCubeHDRParams.x *= 5.0;//5.0 is RGBM param
+			this._reflectionDecodeFormat = value;
+		}
+	}
+
+	/**
 	 * 反射强度。
 	 */
 	get reflectionIntensity(): number {
@@ -420,7 +439,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 	set reflectionIntensity(value: number) {
 		value = Math.max(Math.min(value, 1.0), 0.0);
-		this._reflectionCubeHDRParams.x = 5.0 * value;//5.0 is RGBM param
+		this._reflectionCubeHDRParams.x = value;
+		if (this._reflectionDecodeFormat == TextureDecodeFormat.RGBM)
+			this._reflectionCubeHDRParams.x *= 5.0;//5.0 is RGBM param
 		this._reflectionIntensity = value;
 	}
 
@@ -1113,7 +1134,10 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			this.ambientSphericalHarmonics = ambientSH;
 		}
 		var reflectionData: string = data.reflection;
-		(reflectionData) && (this.reflection = Loader.getRes(reflectionData));
+		if (reflectionData) {
+			this.reflection = Loader.getRes(reflectionData);
+			this.reflectionDecodingFormat = TextureDecodeFormat.RGBM;
+		}
 		var ambientSphericalHarmonicsIntensityData: number = data.ambientSphericalHarmonicsIntensity;
 		(ambientSphericalHarmonicsIntensityData != undefined) && (this.ambientSphericalHarmonicsIntensity = ambientSphericalHarmonicsIntensityData);
 		var reflectionIntensityData: number = data.reflectionIntensity;
