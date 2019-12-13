@@ -114,7 +114,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	static AMBIENTSHBB: number = Shader3D.propertyNameToID("u_AmbientSHBb");
 	static AMBIENTSHC: number = Shader3D.propertyNameToID("u_AmbientSHC");
 	static REFLECTIONPROBE: number = Shader3D.propertyNameToID("u_ReflectionProbe");
-	static REFLECTION_SPECULAR_COLOR: number = Shader3D.propertyNameToID("u_ReflectionSpecularColor");
 	static REFLECTIONCUBE_HDR_PARAMS: number = Shader3D.propertyNameToID("u_ReflectCubeHDRParams");
 
 	//------------------legacy lighting-------------------------------
@@ -226,8 +225,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	private _reflectionDecodeFormat: TextureDecodeFormat = TextureDecodeFormat.Normal;
 	/** @internal */
 	private _reflectionIntensity: number = 1.0;
-	/** @internal */
-	private _reflectionSpecularColor: Vector4 = new Vector4(0, 0, 0, 1);
 
 	/** @internal */
 	_physicsSimulation: PhysicsSimulation;
@@ -511,7 +508,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		}
 
 		this._shaderValues.setVector(Scene3D.REFLECTIONCUBE_HDR_PARAMS, this._reflectionCubeHDRParams);
-		this._shaderValues.setVector(Scene3D.REFLECTION_SPECULAR_COLOR, this._reflectionSpecularColor);
 
 		if (Render.supportWebGLPlusCulling) {//[NATIVE]
 			this._cullingBufferIndices = new Int32Array(1024);
