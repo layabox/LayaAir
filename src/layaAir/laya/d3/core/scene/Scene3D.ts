@@ -492,6 +492,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this.fogColor = new Vector3(0.7, 0.7, 0.7);
 		this.ambientColor = new Vector3(0.212, 0.227, 0.259);
 		this.reflectionIntensity = 1.0;
+		this.reflection = TextureCube.blackTexture;
 		for (var i: number = 0; i < 7; i++)
 			this._shCoefficients[i] = new Vector4();
 		var config: Config3D = Config3D._config;
