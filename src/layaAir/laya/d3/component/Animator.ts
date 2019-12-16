@@ -175,6 +175,8 @@ export class Animator extends Component {
 					var defaultValue: any = new property.constructor();
 					property.cloneTo(defaultValue);
 					keyframeNodeOwner.defaultValue = defaultValue;
+					keyframeNodeOwner.value = new property.constructor();
+					keyframeNodeOwner.crossFixedValue = new property.constructor();
 				}
 			}
 
@@ -356,7 +358,7 @@ export class Animator extends Component {
 	private _applyFloat(pro: any, proName: string, nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, data: number): void {
 		if (nodeOwner.updateMark === this._updateMark) {//一定非第一层
 			if (additive) {
-				pro[proName] += weight * (data);
+				pro[proName] += weight * data;
 			} else {
 				var oriValue: number = pro[proName];
 				pro[proName] = oriValue + weight * (data - oriValue);
@@ -521,11 +523,12 @@ export class Animator extends Component {
 					}
 
 					var crossValue: number = srcValue + crossWeight * (desValue - srcValue);
+					nodeOwner.value = crossValue;
 					this._applyFloat(pro, proPat[m], nodeOwner, additive, weight, isFirstLayer, crossValue);
 					break;
 				case 1: //Position
 					var localPos: Vector3 = pro.localPosition;
-					var position: Vector3 = Animator._tempVector30;
+					var position: Vector3 = nodeOwner.value;
 					var srcX: number = srcValue.x, srcY: number = srcValue.y, srcZ: number = srcValue.z;
 					position.x = srcX + crossWeight * (desValue.x - srcX);
 					position.y = srcY + crossWeight * (desValue.y - srcY);
@@ -535,21 +538,21 @@ export class Animator extends Component {
 					break;
 				case 2: //Rotation
 					var localRot: Quaternion = pro.localRotation;
-					var rotation: Quaternion = Animator._tempQuaternion0;
+					var rotation: Quaternion = nodeOwner.value;
 					Quaternion.lerp(srcValue, desValue, crossWeight, rotation);
 					this._applyRotation(nodeOwner, additive, weight, isFirstLayer, rotation, localRot);
 					pro.localRotation = localRot;
 					break;
 				case 3: //Scale
 					var localSca: Vector3 = pro.localScale;
-					var scale: Vector3 = Animator._tempVector30;
+					var scale: Vector3 = nodeOwner.value;
 					Utils3D.scaleBlend(srcValue, desValue, crossWeight, scale);
 					this._applyScale(nodeOwner, additive, weight, isFirstLayer, scale, localSca);
 					pro.localScale = localSca;
 					break;
 				case 4: //RotationEuler
 					var localEuler: Vector3 = pro.localRotationEuler;
-					var rotationEuler: Vector3 = Animator._tempVector30;
+					var rotationEuler: Vector3 = nodeOwner.value;
 					srcX = srcValue.x, srcY = srcValue.y, srcZ = srcValue.z;
 					rotationEuler.x = srcX + crossWeight * (desValue.x - srcX);
 					rotationEuler.y = srcY + crossWeight * (desValue.y - srcY);
@@ -615,7 +618,6 @@ export class Animator extends Component {
 	 * @internal
 	 */
 	private _setCrossClipDatasToNode(controllerLayer: AnimatorControllerLayer, srcState: AnimatorState, destState: AnimatorState, crossWeight: number, isFirstLayer: boolean): void {
-		//TODO:srcNodes、destNodes未使用
 		var nodeOwners: KeyframeNodeOwner[] = controllerLayer._crossNodesOwners;
 		var ownerCount: number = controllerLayer._crossNodesOwnersCount;
 		var additive: boolean = controllerLayer.blendingMode !== AnimatorControllerLayer.BLENDINGMODE_OVERRIDE;

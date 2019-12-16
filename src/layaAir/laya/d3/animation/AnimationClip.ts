@@ -234,11 +234,11 @@ export class AnimationClip extends Resource {
 						}
 
 					} else {
-						node.data = ((<FloatKeyframe>keyFrames[0])).value;
+						node.data = (<FloatKeyframe>keyFrames[0]).value;
 					}
 
 					if (addtive)
-						node.data -= ((<FloatKeyframe>keyFrames[0])).value;
+						node.data -= (<FloatKeyframe>keyFrames[0]).value;
 					break;
 				case 1:
 				case 4:

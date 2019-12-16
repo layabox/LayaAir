@@ -1,5 +1,5 @@
-import { Quaternion } from "../math/Quaternion"
-import { Vector3 } from "../math/Vector3"
+import { Vector3 } from "../math/Vector3";
+import { Quaternion } from "../math/Quaternion";
 
 /**
  * @internal
@@ -24,6 +24,8 @@ export class KeyframeNodeOwner {
 	/**@internal */
 	defaultValue: any = null;
 	/**@internal */
+	value: any = null;
+	/**@internal */
 	crossFixedValue: any = null;
 
 	/**
@@ -40,43 +42,15 @@ export class KeyframeNodeOwner {
 		if (pro) {
 			switch (this.type) {
 				case 0:
-					var proPat: string[] = this.property;
-					var m: number = proPat.length - 1;
-					for (var j: number = 0; j < m; j++) {
-						pro = pro[proPat[j]];
-						if (!pro)//属性可能或被置空
-							break;
-					}
-					this.crossFixedValue = pro[proPat[m]];
+					this.crossFixedValue = this.value;
 					break;
 				case 1:
-					var locPos: Vector3 = pro.localPosition;
-					this.crossFixedValue || (this.crossFixedValue = new Vector3());
-					this.crossFixedValue.x = locPos.x;
-					this.crossFixedValue.y = locPos.y;
-					this.crossFixedValue.z = locPos.z;
+				case 3:
+				case 4:
+					(<Vector3>this.value).cloneTo(this.crossFixedValue);
 					break;
 				case 2:
-					var locRot: Quaternion = pro.localRotation;
-					this.crossFixedValue || (this.crossFixedValue = new Quaternion());
-					this.crossFixedValue.x = locRot.x;
-					this.crossFixedValue.y = locRot.y;
-					this.crossFixedValue.z = locRot.z;
-					this.crossFixedValue.w = locRot.w;
-					break;
-				case 3:
-					var locSca: Vector3 = pro.localScale;
-					this.crossFixedValue || (this.crossFixedValue = new Vector3());
-					this.crossFixedValue.x = locSca.x;
-					this.crossFixedValue.y = locSca.y;
-					this.crossFixedValue.z = locSca.z;
-					break;
-				case 4:
-					var locEul: Vector3 = pro.localRotationEuler;
-					this.crossFixedValue || (this.crossFixedValue = new Vector3());
-					this.crossFixedValue.x = locEul.x;
-					this.crossFixedValue.y = locEul.y;
-					this.crossFixedValue.z = locEul.z;
+					(<Quaternion>this.value).cloneTo(this.crossFixedValue);
 					break;
 				default:
 					throw "Animator:unknown type.";
