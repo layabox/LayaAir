@@ -348,6 +348,8 @@ export class Texture extends EventDispatcher {
         var sourceHeight = this.sourceHeight;
         var tex2dw: number = tex2d.width;
         var tex2dh: number = tex2d.height;
+        var offsetX = this.offsetX;
+        var offsetY = this.offsetY;
         if (x + width > sourceWidth) width -= (x + width) - sourceWidth;
         if (y + height > sourceHeight) height -= (y + height) - sourceHeight;
         if (width <= 0 || height <= 0) return null;
@@ -363,11 +365,21 @@ export class Texture extends EventDispatcher {
                 return pix;
             //否则只取一部分
             var ret: Uint8Array = new Uint8Array(width * height * 4);
-            wstride = texw * 4;
+            wstride = tex2dw * 4;
             dst = y * wstride;
-            st = x * 4 + dst;
+            st = x * 4 + dst - offsetX * 4;
+            let 
+                offsetW: number = 0,
+                offsetArr: Uint8Array;
+            if (offsetX > x) {
+                offsetW = offsetX - x;
+                offsetArr = new Uint8Array(offsetW * 4);
+            }
             for (i = 0; i < height; i++) {
                 ret.set(pix.slice(st, st + width * 4), width * 4 * i);
+                if (!!offsetW) {
+                    ret.set(offsetArr, width * 4 * i);
+                 }
                 st += wstride;
             }
             return ret;
@@ -386,10 +398,10 @@ export class Texture extends EventDispatcher {
             var uvh: number = uv[7] - stv;
             var uk: number = uvw / texw;
             var vk: number = uvh / texh;
-            var offsetX = this.offsetX / tex2dw;
-            var offsetY = this.offsetY / tex2dh;
-            stu -= offsetX;
-            stv -= offsetY;
+            var uvOffsetX = offsetX / tex2dw;
+            var uvOffsetY = offsetY / tex2dh;
+            stu -= uvOffsetX;
+            stv -= uvOffsetY;
             uv = [stu + x * uk, stv + y * vk,
             stu + (x + width) * uk, stv + y * vk,
             stu + (x + width) * uk, stv + (y + height) * vk,
