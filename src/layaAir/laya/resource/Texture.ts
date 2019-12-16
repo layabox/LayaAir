@@ -341,10 +341,15 @@ export class Texture extends EventDispatcher {
     getTexturePixels(x: number, y: number, width: number, height: number): Uint8Array {
         var st: number, dst: number, i: number;
         var tex2d: Texture2D | Texture = this.bitmap;
-        var texw: number = tex2d.width;
-        var texh: number = tex2d.height;
-        if (x + width > texw) width -= (x + width) - texw;
-        if (y + height > texh) height -= (y + height) - texh;
+        // 适配图集
+        var texw = this._w;
+        var texh = this._h;
+        var sourceWidth = this.sourceWidth;
+        var sourceHeight = this.sourceHeight;
+        var tex2dw: number = tex2d.width;
+        var tex2dh: number = tex2d.height;
+        if (x + width > sourceWidth) width -= (x + width) - sourceWidth;
+        if (y + height > sourceHeight) height -= (y + height) - sourceHeight;
         if (width <= 0 || height <= 0) return null;
 
         var wstride: number = width * 4;
@@ -381,6 +386,10 @@ export class Texture extends EventDispatcher {
             var uvh: number = uv[7] - stv;
             var uk: number = uvw / texw;
             var vk: number = uvh / texh;
+            var offsetX = this.offsetX / tex2dw;
+            var offsetY = this.offsetY / tex2dh;
+            stu -= offsetX;
+            stv -= offsetY;
             uv = [stu + x * uk, stv + y * vk,
             stu + (x + width) * uk, stv + y * vk,
             stu + (x + width) * uk, stv + (y + height) * vk,
