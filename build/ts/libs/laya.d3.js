@@ -22640,7 +22640,7 @@
 	                point.x = -bt.btVector3_x(btPoint);
 	                point.y = bt.btVector3_y(btPoint);
 	                point.z = bt.btVector3_z(btPoint);
-	                var btNormal = bt.ClosestRayResultCallback_get_m_hitPointWorld(rayResultCall);
+	                var btNormal = bt.ClosestRayResultCallback_get_m_hitNormalWorld(rayResultCall);
 	                var normal = out.normal;
 	                normal.x = -bt.btVector3_x(btNormal);
 	                normal.y = bt.btVector3_y(btNormal);
@@ -27191,12 +27191,13 @@
 	        var rigidBody = this._btColliderObject;
 	        if (rigidBody == null)
 	            throw "Attempted to call a Physics function that is avaliable only when the Entity has been already added to the Scene.";
-	        rigidBody.clearForces();
+	        var bt = Physics3D._bullet;
+	        bt.btRigidBody_clearForces(rigidBody);
 	        var btZero = Rigidbody3D._btVector3Zero;
-	        rigidBody.setInterpolationLinearVelocity(btZero);
-	        rigidBody.setLinearVelocity(btZero);
-	        rigidBody.setInterpolationAngularVelocity(btZero);
-	        rigidBody.setAngularVelocity(btZero);
+	        bt.btCollisionObject_setInterpolationLinearVelocity(rigidBody, btZero);
+	        bt.btRigidBody_setLinearVelocity(rigidBody, btZero);
+	        bt.btCollisionObject_setInterpolationAngularVelocity(rigidBody, btZero);
+	        bt.btRigidBody_setAngularVelocity(rigidBody, btZero);
 	    }
 	}
 	Rigidbody3D.TYPE_STATIC = 0;
