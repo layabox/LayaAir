@@ -18,8 +18,8 @@ uniform vec4 u_AlbedoColor;
 #endif
 uniform float u_Metallic;
 
-#ifdef SPECULARTEXTURE
-	uniform vec3 u_SpecGlossTexture;
+#ifdef SPECULARGLOSSTEXTURE
+	uniform sampler2D u_SpecGlossTexture;
 #endif
 uniform vec3 u_SpecularColor;
 

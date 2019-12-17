@@ -105,7 +105,6 @@ export class PBRStandardMaterial extends PBRMaterial {
 			'u_AmbientSHC': Shader3D.PERIOD_SCENE,
 			'u_ReflectionProbe': Shader3D.PERIOD_SCENE,
 			'u_ReflectCubeHDRParams': Shader3D.PERIOD_SCENE,
-			'u_ReflectionSpecularColor': Shader3D.PERIOD_SCENE,
 
 			//legacy lighting
 			'u_DirectionLight.direction': Shader3D.PERIOD_SCENE,

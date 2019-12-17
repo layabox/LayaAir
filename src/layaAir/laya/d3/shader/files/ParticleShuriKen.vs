@@ -627,16 +627,16 @@ void main()
 		#endif
 	
 		#ifdef STRETCHEDBILLBOARD
-		vec2 corner=a_CornerTextureCoordinate.xy;//Billboard模式z轴无效
-		vec3 velocity;
-		#if defined(VELOCITYOVERLIFETIMECONSTANT)||defined(VELOCITYOVERLIFETIMECURVE)||defined(VELOCITYOVERLIFETIMERANDOMCONSTANT)||defined(VELOCITYOVERLIFETIMERANDOMCURVE)
-			if(u_VOLSpaceType==0)
-			velocity=rotationByQuaternions(u_SizeScale*(startVelocity+lifeVelocity),worldRotation)+gravityVelocity;
-			else
-			velocity=rotationByQuaternions(u_SizeScale*startVelocity,worldRotation)+lifeVelocity+gravityVelocity;
-		#else
-			velocity= rotationByQuaternions(u_SizeScale*startVelocity,worldRotation)+gravityVelocity;
-		#endif	
+			vec2 corner=a_CornerTextureCoordinate.xy;//Billboard模式z轴无效
+			vec3 velocity;
+			#if defined(VELOCITYOVERLIFETIMECONSTANT)||defined(VELOCITYOVERLIFETIMECURVE)||defined(VELOCITYOVERLIFETIMERANDOMCONSTANT)||defined(VELOCITYOVERLIFETIMERANDOMCURVE)
+				if(u_VOLSpaceType==0)
+				velocity=rotationByQuaternions(u_SizeScale*(startVelocity+lifeVelocity),worldRotation)+gravityVelocity;
+				else
+				velocity=rotationByQuaternions(u_SizeScale*startVelocity,worldRotation)+lifeVelocity+gravityVelocity;
+			#else
+				velocity= rotationByQuaternions(u_SizeScale*startVelocity,worldRotation)+gravityVelocity;
+			#endif	
 			vec3 cameraUpVector = normalize(velocity);
 			vec3 direction = normalize(center-u_CameraPos);
 			vec3 sideVector = normalize(cross(direction,normalize(velocity)));

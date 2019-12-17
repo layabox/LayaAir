@@ -39,9 +39,9 @@ export class DefineDatas implements IClone {
 		var index: number = define._index;
 		var size: number = index + 1;
 		var mask: Array<number> = this._mask;
-		var maskStart: number = mask.length;
+		var maskStart: number = this._length;//must from this._length because this._length maybe less than mask.length and have dirty data should clear.
 		if (maskStart < size) {
-			mask.length = size;
+			(mask.length < size) && (mask.length = size);//mask.length maybe small than size,maybe not.
 			for (; maskStart < index; maskStart++)
 				mask[maskStart] = 0;
 			mask[index] = define._value;

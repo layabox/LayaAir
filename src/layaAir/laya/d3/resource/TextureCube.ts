@@ -49,8 +49,8 @@ export class TextureCube extends BaseTexture {
 		var grayTexture: TextureCube = new TextureCube(1, TextureFormat.R8G8B8, false);
 		var pixels: Uint8Array = new Uint8Array(3);
 		pixels[0] = 0, pixels[1] = 0, pixels[2] = 0;
-		grayTexture.setSixSidePixels([pixels, pixels, pixels, pixels, pixels, pixels]);
-		grayTexture.lock = true;//锁住资源防止被资源管理释放
+		blackTexture.setSixSidePixels([pixels, pixels, pixels, pixels, pixels, pixels]);
+		blackTexture.lock = true;//锁住资源防止被资源管理释放
 		pixels[0] = 128, pixels[1] = 128, pixels[2] = 128;
 		grayTexture.setSixSidePixels([pixels, pixels, pixels, pixels, pixels, pixels]);
 		grayTexture.lock = true;//锁住资源防止被资源管理释放

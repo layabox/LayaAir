@@ -25,7 +25,7 @@ export class PBRSpecularMaterial extends PBRMaterial {
 	/** @internal */
 	static SHADERDEFINE_SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA: ShaderDefine;
 	/** @internal */
-	static SHADERDEFINE_SPECULARTEXTURE: ShaderDefine;
+	static SHADERDEFINE_SPECULARGLOSSTEXTURE: ShaderDefine;
 
 	/** @internal */
 	static SPECULARTEXTURE: number = Shader3D.propertyNameToID("u_SpecularTexture");
@@ -39,7 +39,7 @@ export class PBRSpecularMaterial extends PBRMaterial {
 	 * @internal
 	 */
 	static __init__(): void {
-		PBRSpecularMaterial.SHADERDEFINE_SPECULARTEXTURE = Shader3D.getDefineByName("SPECULARTEXTURE");
+		PBRSpecularMaterial.SHADERDEFINE_SPECULARGLOSSTEXTURE = Shader3D.getDefineByName("SPECULARGLOSSTEXTURE");
 		PBRSpecularMaterial.SHADERDEFINE_SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA = Shader3D.getDefineByName("SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA");
 
 		var attributeMap: any = {
@@ -105,7 +105,6 @@ export class PBRSpecularMaterial extends PBRMaterial {
 			'u_AmbientSHC': Shader3D.PERIOD_SCENE,
 			'u_ReflectionProbe': Shader3D.PERIOD_SCENE,
 			'u_ReflectCubeHDRParams': Shader3D.PERIOD_SCENE,
-			'u_ReflectionSpecularColor': Shader3D.PERIOD_SCENE,
 
 			//legacy lighting
 			'u_DirectionLight.direction': Shader3D.PERIOD_SCENE,
@@ -142,9 +141,9 @@ export class PBRSpecularMaterial extends PBRMaterial {
 
 	set specularTexture(value: BaseTexture) {
 		if (value)
-			this._shaderValues.addDefine(PBRSpecularMaterial.SHADERDEFINE_SPECULARTEXTURE);
+			this._shaderValues.addDefine(PBRSpecularMaterial.SHADERDEFINE_SPECULARGLOSSTEXTURE);
 		else
-			this._shaderValues.removeDefine(PBRSpecularMaterial.SHADERDEFINE_SPECULARTEXTURE);
+			this._shaderValues.removeDefine(PBRSpecularMaterial.SHADERDEFINE_SPECULARGLOSSTEXTURE);
 		this._shaderValues.setTexture(PBRSpecularMaterial.SPECULARTEXTURE, value);
 	}
 

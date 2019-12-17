@@ -40,8 +40,6 @@ export class PBRMaterial extends Material {
     static SHADERDEFINE_TILINGOFFSET: ShaderDefine;
     /** @internal */
     static SHADERDEFINE_TRANSPARENTBLEND: ShaderDefine;
-    /** @internal */
-    static SHADERDEFINE_REFLECTIONS_OFF: ShaderDefine;
     /**@internal */
     static SHADERDEFINE_LAYA_PBR_BRDF_HIGH: ShaderDefine;
     /**@internal */
@@ -102,15 +100,12 @@ export class PBRMaterial extends Material {
         PBRMaterial.SHADERDEFINE_EMISSIONTEXTURE = Shader3D.getDefineByName("EMISSIONTEXTURE");
         PBRMaterial.SHADERDEFINE_TILINGOFFSET = Shader3D.getDefineByName("TILINGOFFSET");
         PBRMaterial.SHADERDEFINE_TRANSPARENTBLEND = Shader3D.getDefineByName("TRANSPARENTBLEND");
-        PBRMaterial.SHADERDEFINE_REFLECTIONS_OFF = Shader3D.getDefineByName("REFLECTIONS_OFF");
         PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_HIGH = Shader3D.getDefineByName("LAYA_PBR_BRDF_HIGH");
         PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_LOW = Shader3D.getDefineByName("LAYA_PBR_BRDF_LOW");
     }
 
     /** @internal */
     private _enableEmission: boolean = false;
-    /** @internal */
-    private _enableReflection: boolean = true;
 
     /**
 	 * 漫反射颜色。
@@ -284,21 +279,6 @@ export class PBRMaterial extends Material {
     }
 
 	/**
-	 * 是否开启反射。
-	 */
-    get enableReflection(): boolean {
-        return this._enableReflection;
-    }
-
-    set enableReflection(value: boolean) {
-        this._enableReflection = value;
-        if (value)
-            this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_REFLECTIONS_OFF);
-        else
-            this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_REFLECTIONS_OFF);
-    }
-
-	/**
 	 * 纹理平铺和偏移。
 	 */
     get tilingOffset(): Vector4 {
@@ -445,5 +425,17 @@ export class PBRMaterial extends Material {
         this._shaderValues.setNumber(PBRMaterial.PARALLAXSCALE, 0.001);
         this._shaderValues.setNumber(Material.ALPHATESTVALUE, 0.5);
         this.renderMode = PBRRenderMode.Opaque;
+    }
+
+
+    //---------------------------------------------------------------deprecated------------------------------------------------------------------
+    /**
+	 * @deprecated
+	 */
+    get enableReflection(): boolean {
+        return true;
+    }
+
+    set enableReflection(value: boolean) {
     }
 }

@@ -108,12 +108,7 @@ mediump vec3 layaGlossyEnvironment(mediump vec4 glossIn)
 
 mediump vec3 layaGIIndirectSpecular(LayaGIInput giInput,mediump float occlusion, vec4 glossIn)
 {
-	mediump vec3 specular;
-	#ifdef REFLECTIONS_OFF
-        specular = u_ReflectionSpecularColor.rgb;
-    #else
-		specular = layaGlossyEnvironment(glossIn);
-	#endif
+	mediump vec3 specular = layaGlossyEnvironment(glossIn);
 	return specular * occlusion;
 }
 

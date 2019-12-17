@@ -30,7 +30,7 @@ import { MultiCamera } from "../3d/LayaAir3D_Camera/MultiCamera";
 import { OrthographicCamera } from "../3d/LayaAir3D_Camera/OrthographicCamera";
 import { PickPixel } from "../3d/LayaAir3D_Camera/PickPixel";
 import { RenderTargetCamera } from "../3d/LayaAir3D_Camera/RenderTargetCamera";
-import { PBRDemo } from "../3d/LayaAir3D_Demo/PBRDemo";
+import { GhostModelShow } from "../3d/LayaAir3D_Demo/GhostModelShow";
 import { DirectionLightDemo } from "../3d/LayaAir3D_Lighting/DirectionLightDemo";
 import { PointLightDemo } from "../3d/LayaAir3D_Lighting/PointLightDemo";
 import { RealTimeShadow } from "../3d/LayaAir3D_Lighting/RealTimeShadow";
@@ -118,7 +118,7 @@ export class IndexView3D extends IndexViewUI {
 	private _cameraClsArr: any[] = [CameraDemo, CameraLayer, CameraLookAt, CameraRay, D3SpaceToD2Space, MultiCamera, OrthographicCamera, PickPixel, RenderTargetCamera];
 	private _cameraArr: any[] = ['Camera', 'CameraLayer', 'CameraLookAt', 'CameraRay', 'D3SpaceToD2Space', 'MultiCamera', 'OrthographicCamera', 'PickPixel', 'RenderTargetCamera'];
 
-	private _demoClsArr: any[] = [PBRDemo];
+	private _demoClsArr: any[] = [GhostModelShow];
 	private _demoArr: any[] = ['PBRDemo'];
 
 	private _lightingClsArr: any[] = [DirectionLightDemo, PointLightDemo, RealTimeShadow, SpotLightDemo, MultiLight];
