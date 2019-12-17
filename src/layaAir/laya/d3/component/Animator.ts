@@ -26,6 +26,8 @@ import { AnimatorState } from "./AnimatorState";
 import { KeyframeNodeOwner } from "./KeyframeNodeOwner";
 import { Script3D } from "./Script3D";
 import { SimpleSingletonList } from "./SimpleSingletonList";
+import { ConchQuaternion } from "../math/Native/ConchQuaternion";
+import { ConchVector3 } from "../math/Native/ConchVector3";
 
 /**
  * <code>Animator</code> 类用于创建动画组件。
@@ -349,7 +351,7 @@ export class Animator extends Component {
 		var curPlayTime: number = animatorState.clipStart * clipDuration + playStateInfo._normalizedPlayTime * playStateInfo._duration;
 		var currentFrameIndices: Int16Array = animatorState._currentFrameIndices;
 		var frontPlay: boolean = playStateInfo._elapsedTime > playStateInfo._lastElapsedTime;
-		clip._evaluateClipDatasRealTime(clip._nodes, curPlayTime, currentFrameIndices, addtive, frontPlay);
+		clip._evaluateClipDatasRealTime(clip._nodes, curPlayTime, currentFrameIndices, addtive, frontPlay, animatorState._realtimeDatas);
 	}
 
 	/**
@@ -568,6 +570,7 @@ export class Animator extends Component {
 	 * @internal
 	 */
 	private _setClipDatasToNode(stateInfo: AnimatorState, additive: boolean, weight: number, isFirstLayer: boolean): void {
+		var realtimeDatas: Array<number | Vector3 | Quaternion | ConchVector3 | ConchQuaternion> = stateInfo._realtimeDatas;
 		var nodes: KeyframeNodeList = stateInfo._clip._nodes;
 		var nodeOwners: KeyframeNodeOwner[] = stateInfo._nodeOwners;
 		for (var i: number = 0, n: number = nodes.count; i < n; i++) {
@@ -584,26 +587,26 @@ export class Animator extends Component {
 								if (!pro)//属性可能或被置空
 									break;
 							}
-							this._applyFloat(pro, proPat[m], nodeOwner, additive, weight, isFirstLayer, nodes.getNodeByIndex(i).data);
+							this._applyFloat(pro, proPat[m], nodeOwner, additive, weight, isFirstLayer, <number>realtimeDatas[i]);
 							break;
 						case 1: //Position
 							var localPos: Vector3 = pro.localPosition;
-							this._applyPositionAndRotationEuler(nodeOwner, additive, weight, isFirstLayer, nodes.getNodeByIndex(i).data, localPos);
+							this._applyPositionAndRotationEuler(nodeOwner, additive, weight, isFirstLayer, <Vector3>realtimeDatas[i], localPos);
 							pro.localPosition = localPos;
 							break;
 						case 2: //Rotation
 							var localRot: Quaternion = pro.localRotation;
-							this._applyRotation(nodeOwner, additive, weight, isFirstLayer, nodes.getNodeByIndex(i).data, localRot);
+							this._applyRotation(nodeOwner, additive, weight, isFirstLayer, <Quaternion>realtimeDatas[i], localRot);
 							pro.localRotation = localRot;
 							break;
 						case 3: //Scale
 							var localSca: Vector3 = pro.localScale;
-							this._applyScale(nodeOwner, additive, weight, isFirstLayer, nodes.getNodeByIndex(i).data, localSca);
+							this._applyScale(nodeOwner, additive, weight, isFirstLayer, <Vector3>realtimeDatas[i], localSca);
 							pro.localScale = localSca;
 							break;
 						case 4: //RotationEuler
 							var localEuler: Vector3 = pro.localRotationEuler;
-							this._applyPositionAndRotationEuler(nodeOwner, additive, weight, isFirstLayer, nodes.getNodeByIndex(i).data, localEuler);
+							this._applyPositionAndRotationEuler(nodeOwner, additive, weight, isFirstLayer, <Vector3>realtimeDatas[i], localEuler);
 							pro.localRotationEuler = localEuler;
 							break;
 					}
@@ -623,20 +626,20 @@ export class Animator extends Component {
 		var additive: boolean = controllerLayer.blendingMode !== AnimatorControllerLayer.BLENDINGMODE_OVERRIDE;
 		var weight: number = controllerLayer.defaultWeight;
 
+		var destRealtimeDatas: Array<number | Vector3 | Quaternion | ConchVector3 | ConchQuaternion> = destState._realtimeDatas;
 		var destDataIndices: number[] = controllerLayer._destCrossClipNodeIndices;
-		var destNodes: KeyframeNodeList = destState._clip._nodes;
 		var destNodeOwners: KeyframeNodeOwner[] = destState._nodeOwners;
+		var srcRealtimeDatas: Array<number | Vector3 | Quaternion | ConchVector3 | ConchQuaternion> = srcState._realtimeDatas;
 		var srcDataIndices: number[] = controllerLayer._srcCrossClipNodeIndices;
 		var srcNodeOwners: KeyframeNodeOwner[] = srcState._nodeOwners;
-		var srcNodes: KeyframeNodeList = srcState._clip._nodes;
 
 		for (var i: number = 0; i < ownerCount; i++) {
 			var nodeOwner: KeyframeNodeOwner = nodeOwners[i];
 			if (nodeOwner) {
 				var srcIndex: number = srcDataIndices[i];
 				var destIndex: number = destDataIndices[i];
-				var srcValue: any = srcIndex !== -1 ? srcNodes.getNodeByIndex(srcIndex).data : destNodeOwners[destIndex].defaultValue;
-				var desValue: any = destIndex !== -1 ? destNodes.getNodeByIndex(destIndex).data : srcNodeOwners[srcIndex].defaultValue;
+				var srcValue: any = srcIndex !== -1 ? srcRealtimeDatas[srcIndex] : destNodeOwners[destIndex].defaultValue;
+				var desValue: any = destIndex !== -1 ? destRealtimeDatas[destIndex] : srcNodeOwners[srcIndex].defaultValue;
 				this._applyCrossData(nodeOwner, additive, weight, isFirstLayer, srcValue, desValue, crossWeight);
 			}
 		}
@@ -651,15 +654,15 @@ export class Animator extends Component {
 		var ownerCount: number = controllerLayer._crossNodesOwnersCount;
 		var additive: boolean = controllerLayer.blendingMode !== AnimatorControllerLayer.BLENDINGMODE_OVERRIDE;
 		var weight: number = controllerLayer.defaultWeight;
+		var destRealtimeDatas: Array<number | Vector3 | Quaternion | ConchVector3 | ConchQuaternion> = destState._realtimeDatas;
 		var destDataIndices: number[] = controllerLayer._destCrossClipNodeIndices;
-		var destNodes: KeyframeNodeList = destState._clip._nodes;
 
 		for (var i: number = 0; i < ownerCount; i++) {
 			var nodeOwner: KeyframeNodeOwner = nodeOwners[i];
 			if (nodeOwner) {
 				var destIndex: number = destDataIndices[i];
 				var srcValue: any = nodeOwner.crossFixedValue;
-				var desValue: any = destIndex !== -1 ? destNodes.getNodeByIndex(destIndex).data : nodeOwner.defaultValue;
+				var desValue: any = destIndex !== -1 ? destRealtimeDatas[destIndex] : nodeOwner.defaultValue;
 				this._applyCrossData(nodeOwner, additive, weight, isFirstLayer, srcValue, desValue, crossWeight);
 			}
 		}
@@ -895,64 +898,63 @@ export class Animator extends Component {
 				case 1:
 					animatorState = playStateInfo._currentState;
 					clip = animatorState._clip;
-					var crossClipState: AnimatorState = controllerLayer._crossPlayState;
-					var crossClip: AnimationClip = crossClipState._clip;
+					var crossState: AnimatorState = controllerLayer._crossPlayState;
+					var crossClip: AnimationClip = crossState._clip;
 					var crossDuratuion: number = controllerLayer._crossDuration;
 					var startPlayTime: number = crossPlayStateInfo._startPlayTime;
 					var crossClipDuration: number = crossClip._duration - startPlayTime;
 					var crossScale: number = crossDuratuion > crossClipDuration ? crossClipDuration / crossDuratuion : 1.0;//如果过度时间大于过度动作时间,则减慢速度
-					var crossSpeed: number = this._speed * crossClipState.speed;
-					this._updatePlayer(crossClipState, crossPlayStateInfo, delta * crossScale * crossSpeed, crossClip.islooping);
+					var crossSpeed: number = this._speed * crossState.speed;
+					this._updatePlayer(crossState, crossPlayStateInfo, delta * crossScale * crossSpeed, crossClip.islooping);
 					var crossWeight: number = ((crossPlayStateInfo._elapsedTime - startPlayTime) / crossScale) / crossDuratuion;
 					if (crossWeight >= 1.0) {
 						if (needRender) {
-							this._updateClipDatas(crossClipState, addtive, crossPlayStateInfo, timerScale * crossSpeed);
-							this._setClipDatasToNode(crossClipState, addtive, controllerLayer.defaultWeight, i === 0);
+							this._updateClipDatas(crossState, addtive, crossPlayStateInfo, timerScale * crossSpeed);
+							this._setClipDatasToNode(crossState, addtive, controllerLayer.defaultWeight, i === 0);
 
 							controllerLayer._playType = 0;//完成融合,切换到正常播放状态
-							playStateInfo._currentState = crossClipState;
+							playStateInfo._currentState = crossState;
 							crossPlayStateInfo._cloneTo(playStateInfo);
 						}
 					} else {
 						if (!playStateInfo._finish) {
 							speed = this._speed * animatorState.speed;
 							this._updatePlayer(animatorState, playStateInfo, delta * speed, clip.islooping);
+							if (needRender)
+								this._updateClipDatas(animatorState, addtive, playStateInfo, timerScale * speed);
 						}
 						if (needRender) {
-							//even the animatorState has finish,must call _updateClipDatas(animatorState....),
-							//because other animator share this clip will change the public data in clip
-							this._updateClipDatas(animatorState, addtive, playStateInfo, timerScale * speed);
-							this._updateClipDatas(crossClipState, addtive, crossPlayStateInfo, timerScale * crossScale * crossSpeed);
-							this._setCrossClipDatasToNode(controllerLayer, animatorState, crossClipState, crossWeight, i === 0);
+							this._updateClipDatas(crossState, addtive, crossPlayStateInfo, timerScale * crossScale * crossSpeed);
+							this._setCrossClipDatasToNode(controllerLayer, animatorState, crossState, crossWeight, i === 0);
 						}
 					}
 					if (needRender) {
 						this._updateEventScript(animatorState, playStateInfo);
-						this._updateEventScript(crossClipState, crossPlayStateInfo);
+						this._updateEventScript(crossState, crossPlayStateInfo);
 					}
 					break;
 				case 2:
-					crossClipState = controllerLayer._crossPlayState;
-					crossClip = crossClipState._clip;
+					crossState = controllerLayer._crossPlayState;
+					crossClip = crossState._clip;
 					crossDuratuion = controllerLayer._crossDuration;
 					startPlayTime = crossPlayStateInfo._startPlayTime;
 					crossClipDuration = crossClip._duration - startPlayTime;
 					crossScale = crossDuratuion > crossClipDuration ? crossClipDuration / crossDuratuion : 1.0;//如果过度时间大于过度动作时间,则减慢速度
-					crossSpeed = this._speed * crossClipState.speed;
-					this._updatePlayer(crossClipState, crossPlayStateInfo, delta * crossScale * crossSpeed, crossClip.islooping);
+					crossSpeed = this._speed * crossState.speed;
+					this._updatePlayer(crossState, crossPlayStateInfo, delta * crossScale * crossSpeed, crossClip.islooping);
 					if (needRender) {
 						crossWeight = ((crossPlayStateInfo._elapsedTime - startPlayTime) / crossScale) / crossDuratuion;
 						if (crossWeight >= 1.0) {
-							this._updateClipDatas(crossClipState, addtive, crossPlayStateInfo, timerScale * crossSpeed);
-							this._setClipDatasToNode(crossClipState, addtive, 1.0, i === 0);
+							this._updateClipDatas(crossState, addtive, crossPlayStateInfo, timerScale * crossSpeed);
+							this._setClipDatasToNode(crossState, addtive, 1.0, i === 0);
 							controllerLayer._playType = 0;//完成融合,切换到正常播放状态
-							playStateInfo._currentState = crossClipState;
+							playStateInfo._currentState = crossState;
 							crossPlayStateInfo._cloneTo(playStateInfo);
 						} else {
-							this._updateClipDatas(crossClipState, addtive, crossPlayStateInfo, timerScale * crossScale * crossSpeed);
-							this._setFixedCrossClipDatasToNode(controllerLayer, crossClipState, crossWeight, i === 0);
+							this._updateClipDatas(crossState, addtive, crossPlayStateInfo, timerScale * crossScale * crossSpeed);
+							this._setFixedCrossClipDatasToNode(controllerLayer, crossState, crossWeight, i === 0);
 						}
-						this._updateEventScript(crossClipState, crossPlayStateInfo);
+						this._updateEventScript(crossState, crossPlayStateInfo);
 					}
 					break;
 			}
