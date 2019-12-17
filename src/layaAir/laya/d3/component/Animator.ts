@@ -303,7 +303,7 @@ export class Animator extends Component {
 	 * @internal
 	 */
 	private _updateEventScript(stateInfo: AnimatorState, playStateInfo: AnimatorPlayState): void {
-		var scripts: Script3D[] = ((<Sprite3D>this.owner))._scripts;
+		var scripts: Script3D[] = (<Sprite3D>this.owner)._scripts;
 		if (scripts) {//TODO:play是否也换成此种计算
 			var clip: AnimationClip = stateInfo._clip;
 			var events: AnimationEvent[] = clip._animationEvents;
@@ -311,6 +311,7 @@ export class Animator extends Component {
 			var elapsedTime: number = playStateInfo._elapsedTime;
 			var time: number = elapsedTime % clipDuration;
 			var loopCount: number = Math.abs(Math.floor(elapsedTime / clipDuration) - Math.floor(playStateInfo._lastElapsedTime / clipDuration));//backPlay可能为负数
+
 			var frontPlay: boolean = playStateInfo._elapsedTime >= playStateInfo._lastElapsedTime;
 			if (playStateInfo._lastIsFront !== frontPlay) {
 				if (frontPlay)
@@ -320,21 +321,17 @@ export class Animator extends Component {
 				playStateInfo._lastIsFront = frontPlay;
 			}
 
-			if (loopCount == 0) {
-				playStateInfo._playEventIndex = this._eventScript(scripts, events, playStateInfo._playEventIndex, time, frontPlay);
+			if (frontPlay) {
+				playStateInfo._playEventIndex = this._eventScript(scripts, events, playStateInfo._playEventIndex, loopCount > 0 ? clipDuration : time, true);
+				for (var i: number = 0, n: number = loopCount - 1; i < n; i++)
+					this._eventScript(scripts, events, 0, clipDuration, true);
+				(loopCount > 0 && time > 0) && (playStateInfo._playEventIndex = this._eventScript(scripts, events, 0, time, true));//if need cross loop,'time' must large than 0
 			} else {
-				if (frontPlay) {
-					this._eventScript(scripts, events, playStateInfo._playEventIndex, clipDuration, true);
-					for (var i: number = 0, n: number = loopCount - 1; i < n; i++)
-						this._eventScript(scripts, events, 0, clipDuration, true);
-					playStateInfo._playEventIndex = this._eventScript(scripts, events, 0, time, true);
-				} else {
-					this._eventScript(scripts, events, playStateInfo._playEventIndex, 0, false);
-					var eventIndex: number = events.length - 1;
-					for (i = 0, n = loopCount - 1; i < n; i++)
-						this._eventScript(scripts, events, eventIndex, 0, false);
-					playStateInfo._playEventIndex = this._eventScript(scripts, events, eventIndex, time, false);
-				}
+				playStateInfo._playEventIndex = this._eventScript(scripts, events, playStateInfo._playEventIndex, loopCount > 0 ? 0 : time, false);
+				var eventIndex: number = events.length - 1;
+				for (i = 0, n = loopCount - 1; i < n; i++)
+					this._eventScript(scripts, events, eventIndex, 0, false);
+				(loopCount > 0 && time > 0) && (playStateInfo._playEventIndex = this._eventScript(scripts, events, eventIndex, time, false));//if need cross loop,'time' must large than 0
 			}
 		}
 	}
