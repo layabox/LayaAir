@@ -42,19 +42,19 @@ export class DamagedHelmetModelShow {
 
 			damagedHelmet.addComponent(RotationScript);
 			var damagedHelmetMat: PBRStandardMaterial = new PBRStandardMaterial();
-			Texture2D.load("LayaScene_SampleScene/Conventional/Assets/DamagedHelmet/Default_albedo.jpg", Handler.create(null, function (tex: Texture2D): void {
+			Texture2D.load("res/LayaScene_DamagedHelmetScene/Conventional/Assets/DamagedHelmet/Default_albedo.jpg", Handler.create(null, function (tex: Texture2D): void {
 				damagedHelmetMat.albedoTexture = tex;
 			}));
-			Texture2D.load("LayaScene_SampleScene/Conventional/Assets/DamagedHelmet/Default_metalRoughness.png", Handler.create(null, function (tex: Texture2D): void {
+			Texture2D.load("res/LayaScene_DamagedHelmetScene/Conventional/Assets/DamagedHelmet/Default_metalRoughness.png", Handler.create(null, function (tex: Texture2D): void {
 				damagedHelmetMat.metallicGlossTexture = tex;
 			}));
-			Texture2D.load("LayaScene_SampleScene/Conventional/Assets/DamagedHelmet/Default_AO.jpg", Handler.create(null, function (tex: Texture2D): void {
+			Texture2D.load("res/LayaScene_DamagedHelmetScene/Conventional/Assets/DamagedHelmet/Default_AO.jpg", Handler.create(null, function (tex: Texture2D): void {
 				damagedHelmetMat.occlusionTexture = tex;
 			}));
-			Texture2D.load("LayaScene_SampleScene/Conventional/Assets/DamagedHelmet/Default_normal.jpg", Handler.create(null, function (tex: Texture2D): void {
+			Texture2D.load("res/LayaScene_DamagedHelmetScene/Conventional/Assets/DamagedHelmet/Default_normal.jpg", Handler.create(null, function (tex: Texture2D): void {
 				damagedHelmetMat.normalTexture = tex;
 			}));
-			Texture2D.load("LayaScene_SampleScene/Conventional/Assets/DamagedHelmet/Default_emissive.jpg", Handler.create(null, function (tex: Texture2D): void {
+			Texture2D.load("res/LayaScene_DamagedHelmetScene/Conventional/Assets/DamagedHelmet/Default_emissive.jpg", Handler.create(null, function (tex: Texture2D): void {
 				damagedHelmetMat.enableEmission = true;
 				damagedHelmetMat.emissionTexture = tex;
 			}));
