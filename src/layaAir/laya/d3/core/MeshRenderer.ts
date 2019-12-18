@@ -127,6 +127,7 @@ export class MeshRenderer extends BaseRender {
 				else {
 					this._revertStaticBatchDefineUV1 = false;
 				}
+				this._shaderValues.setVector(RenderableSprite3D.LIGHTMAPSCALEOFFSET, BaseRender._defaultLightmapScaleOffset);
 				break;
 			case RenderElement.RENDERTYPE_VERTEXBATCH:
 				this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, Matrix4x4.DEFAULT);
@@ -186,6 +187,7 @@ export class MeshRenderer extends BaseRender {
 			case RenderElement.RENDERTYPE_STATICBATCH:
 				if (this._revertStaticBatchDefineUV1)
 					this._shaderValues.removeDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1);
+				this._shaderValues.setVector(RenderableSprite3D.LIGHTMAPSCALEOFFSET, this.lightmapScaleOffset);
 				break;
 			case RenderElement.RENDERTYPE_INSTANCEBATCH:
 				this._shaderValues.removeDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);

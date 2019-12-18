@@ -220,7 +220,7 @@ void fragmentForward()
 					if(i >= clusterInfo.y)//SpotLightCount
 						break;
 					SpotLight spotLight = getSpotLight(u_LightBuffer,u_LightClusterBuffer,clusterInfo,i);
-					LayaLight light = layaSpotLightToLight(posworld,normalWorld,u_SpotLight,shadowValue);
+					LayaLight light = layaSpotLightToLight(posworld,normalWorld,spotLight,shadowValue);
 					color+= LAYA_BRDF_LIGHT(o.diffColor,o.specColor,o.oneMinusReflectivity,perceptualRoughness,roughness,nv,normalWorld,eyeVec,light);
 				}
 			#endif

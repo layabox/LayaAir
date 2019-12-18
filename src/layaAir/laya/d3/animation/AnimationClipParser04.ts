@@ -131,21 +131,6 @@ export class AnimationClipParser04 {
 			var keyframeCount: number = reader.getUint16();
 			node._setKeyframeCount(keyframeCount);
 			var startTime: number;
-
-			switch (type) {
-				case 0:
-					break;
-				case 1:
-				case 3:
-				case 4:
-					node.data = Render.supportWebGLPlusAnimation ? new ConchVector3 : new Vector3();
-					break;
-				case 2:
-					node.data = Render.supportWebGLPlusAnimation ? new ConchQuaternion : new Quaternion();
-					break;
-				default:
-					throw "AnimationClipParser04:unknown type.";
-			}
 			switch (AnimationClipParser04._version) {
 				case "LAYAANIMATION:04":
 					for (j = 0; j < keyframeCount; j++) {

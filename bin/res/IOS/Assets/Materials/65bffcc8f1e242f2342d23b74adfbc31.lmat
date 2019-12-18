@@ -25,22 +25,7 @@
 		"occlusionTextureStrength":1,
 		"enableReflection":false,
 		"textures":[
-			{
-				"name":"albedoTexture",
-				"path":"../Transparent.pvr",
-				"constructParams":[
-					512,
-					512,
-					12,
-					true
-				],
-				"propertyParams":{
-					"filterMode":1,
-					"wrapModeU":0,
-					"wrapModeV":0,
-					"anisoLevel":1
-				}
-			}
+			
 		],
 		"vectors":[
 			{
@@ -58,7 +43,7 @@
 					1,
 					1,
 					1,
-					1
+					0.5
 				]
 			},
 			{
@@ -72,7 +57,7 @@
 			}
 		],
 		"defines":[
-			"ALPHAPREMULTIPLY"
+			"TRANSPARENTBLEND"
 		]
 	}
 }

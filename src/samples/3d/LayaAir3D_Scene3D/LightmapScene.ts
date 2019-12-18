@@ -21,8 +21,8 @@ export class LightmapScene {
 		Stat.show();
 
 		Scene3D.load("res/threeDimen/scene/ParticleScene/Example_01.ls", Handler.create(this, function (sprite: Scene3D): void {
-			var scene: Scene3D = (<Scene3D>Laya.stage.addChild(sprite));
-			var camera: Camera = (<Camera>scene.addChild(new Camera(0, 0.1, 100)));
+			var scene: Scene3D = <Scene3D>Laya.stage.addChild(sprite);
+			var camera: Camera = <Camera>scene.addChild(new Camera(0, 0.1, 100));
 			camera.transform.translate(new Vector3(0, 1, 0));
 			camera.addComponent(CameraMoveScript);
 		}));

@@ -26,14 +26,14 @@ export class AnimatorPlayState {
 	_currentState: AnimatorState = null;
 
 	/**
-	 * 获取播放状态的归一化时间,整数为循环次数，小数为单次播放时间。
+	 * 播放状态的归一化时间,整数为循环次数，小数为单次播放时间。
 	 */
 	get normalizedTime(): number {
 		return this._normalizedTime;
 	}
 
 	/**
-	 * 获取当前动画的持续时间，以秒为单位。
+	 * 当前动画的持续时间，以秒为单位。
 	 */
 	get duration(): number {
 		return this._duration;
@@ -70,6 +70,8 @@ export class AnimatorPlayState {
 		dest._finish = this._finish;
 		dest._startPlayTime = this._startPlayTime;
 		dest._elapsedTime = this._elapsedTime;
+		dest._normalizedTime = this._normalizedTime;
+		dest._normalizedPlayTime = this._normalizedPlayTime;
 		dest._playEventIndex = this._playEventIndex;
 		dest._lastIsFront = this._lastIsFront;
 	}

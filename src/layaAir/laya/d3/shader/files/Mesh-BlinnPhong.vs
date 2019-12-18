@@ -130,9 +130,9 @@ void main_normal()
 		#else
 			worldInvMat=inverse(mat3(worldMat));
 		#endif  
-		v_Normal=a_Normal*worldInvMat;
+		v_Normal=normalize(a_Normal*worldInvMat);
 		#if (defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))&&defined(NORMALMAP)
-			v_Tangent=a_Tangent0.xyz*worldInvMat;
+			v_Tangent=normalize(a_Tangent0.xyz*worldInvMat);
 			v_Binormal=cross(v_Normal,v_Tangent)*a_Tangent0.w;
 		#endif
 	#endif

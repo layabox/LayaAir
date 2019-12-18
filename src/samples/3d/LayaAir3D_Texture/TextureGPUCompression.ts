@@ -23,12 +23,10 @@ export class TextureGPUCompression {
 		else
 			URL.basePath = "res/Conventional/";
 
-
 		Scene3D.load("scene.ls", Handler.create(this, function (scene: Scene3D): void {
-			(<Scene3D>Laya.stage.addChild(scene));
-			var camera: Camera = (<Camera>scene.getChildByName("Main Camera"));
+			Laya.stage.addChild(scene);
+			var camera: Camera = <Camera>scene.getChildByName("Main Camera");
 			camera.addComponent(CameraMoveScript);
-			console.log(camera.clearColor);
 		}));
 
 	}

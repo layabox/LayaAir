@@ -56,8 +56,9 @@ import { RenderableSprite3D } from "../RenderableSprite3D";
 import { Sprite3D } from "../Sprite3D";
 import { BoundsOctree } from "./BoundsOctree";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
-import {PBRMaterial } from "../material/PBRMaterial";
+import { PBRMaterial } from "../material/PBRMaterial";
 import { PBRRenderQuality } from "../material/PBRRenderQuality";
+import { TextureDecodeFormat } from "../../../resource/TextureDecodeFormat";
 
 /**
  * 环境光模式
@@ -113,7 +114,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	static AMBIENTSHBB: number = Shader3D.propertyNameToID("u_AmbientSHBb");
 	static AMBIENTSHC: number = Shader3D.propertyNameToID("u_AmbientSHC");
 	static REFLECTIONPROBE: number = Shader3D.propertyNameToID("u_ReflectionProbe");
-	static REFLECTION_SPECULAR_COLOR: number = Shader3D.propertyNameToID("u_ReflectionSpecularColor");
 	static REFLECTIONCUBE_HDR_PARAMS: number = Shader3D.propertyNameToID("u_ReflectCubeHDRParams");
 
 	//------------------legacy lighting-------------------------------
@@ -222,9 +222,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** @internal */
 	private _reflection: TextureCube;
 	/** @internal */
-	private _reflectionIntensity: number = 1.0;
+	private _reflectionDecodeFormat: TextureDecodeFormat = TextureDecodeFormat.Normal;
 	/** @internal */
-	private _reflectionSpecularColor: Vector4 = new Vector4(0, 0, 0, 1);
+	private _reflectionIntensity: number = 1.0;
 
 	/** @internal */
 	_physicsSimulation: PhysicsSimulation;
@@ -412,6 +412,22 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
+	 * 反射立方体纹理解码格式。
+	 */
+	get reflectionDecodingFormat(): TextureDecodeFormat {
+		return this._reflectionDecodeFormat;
+	}
+
+	set reflectionDecodingFormat(value: TextureDecodeFormat) {
+		if (this._reflectionDecodeFormat != value) {
+			this._reflectionCubeHDRParams.x = this._reflectionIntensity;
+			if (this._reflectionDecodeFormat == TextureDecodeFormat.RGBM)
+				this._reflectionCubeHDRParams.x *= 5.0;//5.0 is RGBM param
+			this._reflectionDecodeFormat = value;
+		}
+	}
+
+	/**
 	 * 反射强度。
 	 */
 	get reflectionIntensity(): number {
@@ -420,7 +436,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 	set reflectionIntensity(value: number) {
 		value = Math.max(Math.min(value, 1.0), 0.0);
-		this._reflectionCubeHDRParams.x = 5.0 * value;//5.0 is RGBM param
+		this._reflectionCubeHDRParams.x = value;
+		if (this._reflectionDecodeFormat == TextureDecodeFormat.RGBM)
+			this._reflectionCubeHDRParams.x *= 5.0;//5.0 is RGBM param
 		this._reflectionIntensity = value;
 	}
 
@@ -474,6 +492,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this.fogColor = new Vector3(0.7, 0.7, 0.7);
 		this.ambientColor = new Vector3(0.212, 0.227, 0.259);
 		this.reflectionIntensity = 1.0;
+		this.reflection = TextureCube.blackTexture;
 		for (var i: number = 0; i < 7; i++)
 			this._shCoefficients[i] = new Vector4();
 		var config: Config3D = Config3D._config;
@@ -490,7 +509,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		}
 
 		this._shaderValues.setVector(Scene3D.REFLECTIONCUBE_HDR_PARAMS, this._reflectionCubeHDRParams);
-		this._shaderValues.setVector(Scene3D.REFLECTION_SPECULAR_COLOR, this._reflectionSpecularColor);
 
 		if (Render.supportWebGLPlusCulling) {//[NATIVE]
 			this._cullingBufferIndices = new Int32Array(1024);
@@ -1113,7 +1131,10 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			this.ambientSphericalHarmonics = ambientSH;
 		}
 		var reflectionData: string = data.reflection;
-		(reflectionData) && (this.reflection = Loader.getRes(reflectionData));
+		if (reflectionData) {
+			this.reflection = Loader.getRes(reflectionData);
+			this.reflectionDecodingFormat = TextureDecodeFormat.RGBM;
+		}
 		var ambientSphericalHarmonicsIntensityData: number = data.ambientSphericalHarmonicsIntensity;
 		(ambientSphericalHarmonicsIntensityData != undefined) && (this.ambientSphericalHarmonicsIntensity = ambientSphericalHarmonicsIntensityData);
 		var reflectionIntensityData: number = data.reflectionIntensity;

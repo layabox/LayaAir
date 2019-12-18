@@ -18,8 +18,8 @@ uniform vec4 u_AlbedoColor;
 #endif
 uniform float u_Metallic;
 
-#ifdef SPECULARTEXTURE
-	uniform vec3 u_SpecGlossTexture;
+#ifdef SPECULARGLOSSTEXTURE
+	uniform sampler2D u_SpecGlossTexture;
 #endif
 uniform vec3 u_SpecularColor;
 
@@ -217,6 +217,7 @@ mediump vec4 specularGloss(vec2 uv)
 		normal.xy *= bumpScale;
 		return normal;
 	}
+	
 	mediump vec3 normalInTangentSpace(vec2 texcoords)
 	{
 		mediump vec3 normalTangent = unpackScaleNormal(texture2D(u_NormalTexture, texcoords).rgb,u_NormalScale);

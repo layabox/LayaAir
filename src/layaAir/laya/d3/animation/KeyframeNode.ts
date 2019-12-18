@@ -19,27 +19,21 @@ export class KeyframeNode {
 	/**@internal */
 	propertyOwner: string;
 
-	/**@internal */
-	data: any;
-
 	/**
-	 * 获取精灵路径个数。
-	 * @return 精灵路径个数。
+	 * 精灵路径个数。
 	 */
 	get ownerPathCount(): number {
 		return this._ownerPath.length;
 	}
 
 	/**
-	 * 获取属性路径个数。
-	 * @return 数量路径个数。
+	 * 属性路径个数。
 	 */
 	get propertyCount(): number {
 		return this._propertys.length;
 	}
 
 	/**
-	 * 获取帧个数。
 	 * 帧个数。
 	 */
 	get keyFramesCount(): number {
@@ -128,11 +122,11 @@ export class KeyframeNode {
 }
 
 // native
-if((window as any).conch && (window as any).conchKeyframeNode) {
-    //@ts-ignore
-    KeyframeNode=(window as any).conchKeyframeNode;
+if ((window as any).conch && (window as any).conchKeyframeNode) {
+	//@ts-ignore
+	KeyframeNode = (window as any).conchKeyframeNode;
 }
 if ((window as any).qq && (window as any).qq.webglPlus) {
 	//@ts-ignore
-	KeyframeNode=(window as any).qq.webglPlus.conchKeyframeNode;
+	KeyframeNode = (window as any).qq.webglPlus.conchKeyframeNode;
 }
