@@ -37,16 +37,16 @@ export class CerberusModelShow {
 
 			//cerberus
 			var cerberusMat: PBRStandardMaterial = new PBRStandardMaterial();
-			Texture2D.load("LayaScene_SampleScene/Conventional/Assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_A.png", Handler.create(null, function (tex: Texture2D): void {
+			Texture2D.load("res/LayaScene_CerberusScene/Conventional/Assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_A.png", Handler.create(null, function (tex: Texture2D): void {
 				cerberusMat.albedoTexture = tex;
 			}));
-			Texture2D.load("LayaScene_SampleScene/Conventional/Assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_MS.png", Handler.create(null, function (tex: Texture2D): void {
+			Texture2D.load("res/LayaScene_CerberusScene/Conventional/Assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_MS.png", Handler.create(null, function (tex: Texture2D): void {
 				cerberusMat.metallicGlossTexture = tex;
 			}));
-			Texture2D.load("LayaScene_SampleScene/Conventional/Assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_AO.png", Handler.create(null, function (tex: Texture2D): void {
+			Texture2D.load("res/LayaScene_CerberusScene/Conventional/Assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_AO.png", Handler.create(null, function (tex: Texture2D): void {
 				cerberusMat.occlusionTexture = tex;
 			}));
-			Texture2D.load("LayaScene_SampleScene/Conventional/Assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_N.png", Handler.create(null, function (tex: Texture2D): void {
+			Texture2D.load("res/LayaScene_CerberusScene/Conventional/Assets/Cerberus_by_Andrew_Maximov/Textures/Cerberus_N.png", Handler.create(null, function (tex: Texture2D): void {
 				cerberusMat.normalTexture = tex;
 			}));
 			cerberus.meshRenderer.sharedMaterial = cerberusMat;
