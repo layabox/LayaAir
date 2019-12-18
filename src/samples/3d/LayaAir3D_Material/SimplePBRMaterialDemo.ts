@@ -15,7 +15,7 @@ import { Handler } from "laya/utils/Handler";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 
-export class PBRMaterial {
+export class SimplePBRMaterialDemo {
 	constructor() {
 		Shader3D.debugMode = true;
 		Laya3D.init(0, 0);
