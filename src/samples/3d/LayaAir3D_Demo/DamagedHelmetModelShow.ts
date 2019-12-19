@@ -32,10 +32,10 @@ export class DamagedHelmetModelShow {
 			Laya.stage.addChild(scene);
 
 			var camera: Camera = <Camera>scene.getChildByName("Main Camera");
-			var damagedHelmet: MeshSprite3D = <MeshSprite3D>scene.getChildAt(1).getChildAt(0);
-
 			var moveScript: CameraMoveScript = camera.addComponent(CameraMoveScript);
 			moveScript.speed = 0.005;
+
+			var damagedHelmet: MeshSprite3D = <MeshSprite3D>scene.getChildAt(1).getChildAt(0);
 			damagedHelmet.addComponent(RotationScript);
 
 			var size: number = 20;
