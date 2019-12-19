@@ -1,13 +1,2 @@
 import { Main } from "./Main";
-import { PhysicsWorld_BaseCollider } from "./3d/LayaAir3D_Physics3D/PhysicsWorld_BaseCollider";
-import { EnvironmentalReflection } from "./3d/LayaAir3D_Scene3D/EnvironmentalReflection";
-import { LightmapScene } from "./3d/LayaAir3D_Scene3D/LightmapScene";
-import { SceneLoad1 } from "./3d/LayaAir3D_Scene3D/SceneLoad1";
-import { TextureGPUCompression } from "./3d/LayaAir3D_Texture/TextureGPUCompression";
-import { AnimationLayerBlend } from "./3d/LayaAir3D_Animation3D/AnimationLayerBlend";
-import { Particle_BurningGround } from "./3d/LayaAir3D_Particle3D/Particle_BurningGround";
-import { PBRModelShow } from "./3d/LayaAir3D_Demo/PBRModelShow";
-import { GhostModelShow } from "./3d/LayaAir3D_Demo/GhostModelShow";
-import { PBRMaterial } from "./3d/LayaAir3D_Material/PBRMaterial";
-import { PBRStandardMaterialDemo } from "./3d/LayaAir3D_Material/PBRStandardMaterialDemo";
-new PBRStandardMaterialDemo(); 
+new Main(); 

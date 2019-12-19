@@ -11,6 +11,7 @@
 			],
 			"reflection":"Assets/CerberusSceneGIReflection.ltcb",
 			"reflectionIntensity":1,
+			"ambientMode":1,
 			"ambientSphericalHarmonics":[
 				0.6089483,
 				0.2711993,
@@ -127,7 +128,6 @@
 					"enableRender":true,
 					"materials":[
 						{
-							"type":"Laya.BlinnPhongMaterial",
 							"path":"Assets/Cerberus_by_Andrew_Maximov/Cerberus.lmat"
 						}
 					]

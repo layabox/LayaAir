@@ -1,7 +1,7 @@
 {
 	"version":"LAYAMATERIAL:02",
 	"props":{
-		"type":"Laya.BlinnPhongMaterial",
+		"type":"Laya.PBRStandardMaterial",
 		"name":"DamagedHelmet",
 		"renderStates":[
 			{
@@ -13,16 +13,6 @@
 				"depthTest":515
 			}
 		],
-		"alphaTest":false,
-		"alphaTestValue":0.5,
-		"renderQueue":2000,
-		"metallic":0,
-		"smoothness":0.5,
-		"smoothnessTextureScale":1,
-		"smoothnessSource":0,
-		"normalTextureScale":1,
-		"parallaxTextureScale":0.08,
-		"occlusionTextureStrength":1,
 		"textures":[
 			{
 				"name":"albedoTexture",
@@ -107,15 +97,6 @@
 		],
 		"vectors":[
 			{
-				"name":"tilingOffset",
-				"value":[
-					1,
-					1,
-					0,
-					0
-				]
-			},
-			{
 				"name":"albedoColor",
 				"value":[
 					1,
@@ -132,8 +113,36 @@
 					1,
 					1
 				]
+			},
+			{
+				"name":"tilingOffset",
+				"value":[
+					1,
+					1,
+					0,
+					0
+				]
 			}
 		],
-		"defines":[]
+		"defines":[
+			"EMISSION",
+			"NORMALTEXTURE",
+			"_EMISSION",
+			"_METALLICGLOSSMAP",
+			"_NORMALMAP"
+		],
+		"renderQueue":2000,
+		"_Cutoff":0.5,
+		"smoothness":0.5,
+		"smoothnessTextureScale":1,
+		"_SmoothnessTextureChannel":0,
+		"metallic":0,
+		"_SpecularHighlights":1,
+		"_GlossyReflections":1,
+		"normalTextureScale":1,
+		"parallaxTextureScale":0.02,
+		"occlusionTextureStrength":1,
+		"_DetailNormalMapScale":1,
+		"_UVSec":0
 	}
 }
