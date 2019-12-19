@@ -3,7 +3,7 @@ import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { PBRStandardMaterial } from "laya/d3/core/material/PBRStandardMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
-import { AmbientMode, Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Transform3D } from "laya/d3/core/Transform3D";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Vector4 } from "laya/d3/math/Vector4";
@@ -24,7 +24,6 @@ export class SimplePBRMaterialDemo {
 
 		Scene3D.load("res/LayaScene_EmptyScene/Conventional/EmptyScene.ls", Handler.create(this, function (scene: Scene3D): void {
 			Laya.stage.addChild(scene);
-			scene.ambientMode = AmbientMode.SphericalHarmonics;
 
 			var camera: Camera = <Camera>scene.getChildByName("Main Camera");
 			var moveScript: CameraMoveScript = camera.addComponent(CameraMoveScript);
