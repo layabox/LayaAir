@@ -350,9 +350,19 @@ export class Texture extends EventDispatcher {
         var tex2dh: number = tex2d.height;
         var offsetX = this.offsetX;
         var offsetY = this.offsetY;
+        let draww = width;
+        let drawh = width;
+        if (x + width > texw + offsetX) draww -= (x + width) - texw - offsetX;
         if (x + width > sourceWidth) width -= (x + width) - sourceWidth;
+        if (y + height > texh + offsetY) drawh -= (y + height) - texh - offsetY;
         if (y + height > sourceHeight) height -= (y + height) - sourceHeight;
         if (width <= 0 || height <= 0) return null;
+        let marginL = offsetX > x ? offsetX - x : 0; // 考虑图集的情况，只渲染图集中的图片，左侧可能需要补充空白
+        let marginT = offsetY > y ? offsetY - y : 0;
+        let rePosX = x > offsetX ? x - offsetX : 0; // 考虑图集的情况，只渲染图集中的图片，不渲染 offset，需要重新定位 x 坐标
+        let rePosY = y > offsetY ? y - offsetY : 0;
+        draww -= marginL; // 考虑图集的情况，只渲染图集中的图片，其大小要减去空白
+        drawh -= marginT;
 
         var wstride: number = width * 4;
         var pix: Uint8Array = null;
@@ -361,25 +371,18 @@ export class Texture extends EventDispatcher {
         } catch (e) {
         }
         if (pix) {
-            if (x == 0 && y == 0 && width == texw && height == texh)
+            if (x == 0 && y == 0 && width == tex2dw && height == tex2dh)
                 return pix;
             //否则只取一部分
+            let uv = (this._uv as Array<number>).slice();
+            let atlasPosX = Math.round(uv[0] * tex2dw); // 计算图片在图集中的位置
+            let atlasPosY = Math.round(uv[1] * tex2dh);
             var ret: Uint8Array = new Uint8Array(width * height * 4);
             wstride = tex2dw * 4;
-            dst = y * wstride;
-            st = x * 4 + dst - offsetX * 4;
-            let 
-                offsetW: number = 0,
-                offsetArr: Uint8Array;
-            if (offsetX > x) {
-                offsetW = offsetX - x;
-                offsetArr = new Uint8Array(offsetW * 4);
-            }
-            for (i = 0; i < height; i++) {
-                ret.set(pix.slice(st, st + width * 4), width * 4 * i);
-                if (!!offsetW) {
-                    ret.set(offsetArr, width * 4 * i);
-                 }
+            dst = (atlasPosY + rePosY) * wstride;
+            st = atlasPosX * 4 + rePosX * 4 + dst;
+            for (i = 0; i < drawh; i++) {
+                ret.set(pix.slice(st, st + draww * 4), width * 4 * (i + marginT) + marginL * 4);
                 st += wstride;
             }
             return ret;
@@ -390,7 +393,7 @@ export class Texture extends EventDispatcher {
         ctx.size(width, height);
         ctx.asBitmap = true;
         var uv: any[] = null;
-        if (x != 0 || y != 0 || width != texw || height != texh) {
+        if (x != 0 || y != 0 || width != tex2dw || height != tex2dh) {
             uv = (this._uv as Array<number>).slice();	// 复制一份uv
             var stu: number = uv[0];
             var stv: number = uv[1];
@@ -398,16 +401,12 @@ export class Texture extends EventDispatcher {
             var uvh: number = uv[7] - stv;
             var uk: number = uvw / texw;
             var vk: number = uvh / texh;
-            var uvOffsetX = offsetX / tex2dw;
-            var uvOffsetY = offsetY / tex2dh;
-            stu -= uvOffsetX;
-            stv -= uvOffsetY;
-            uv = [stu + x * uk, stv + y * vk,
-            stu + (x + width) * uk, stv + y * vk,
-            stu + (x + width) * uk, stv + (y + height) * vk,
-            stu + x * uk, stv + (y + height) * vk];
+            uv = [stu + rePosX * uk, stv + rePosY * vk,
+                stu + (rePosX + draww) * uk, stv + rePosY * vk,
+                stu + (rePosX + draww) * uk, stv + (rePosY + drawh) * vk,
+                stu + rePosX * uk, stv + (rePosY + drawh) * vk];
         }
-        ctx._drawTextureM(this, 0, 0, width, height, null, 1.0, uv);
+        ctx._drawTextureM(this, marginL, marginT, draww, drawh, null, 1.0, uv);
         //ctx.drawTexture(value, -x, -y, x + width, y + height);
         ctx._targets.start();
         ctx.flush();
