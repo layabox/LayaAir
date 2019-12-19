@@ -1,5 +1,6 @@
 import { ILaya } from "../../../../ILaya";
 import { Physics3D } from "../../../d3/physics/Physics3D";
+import { LayaGL } from "../../../layagl/LayaGL";
 import { Resource } from "../../../resource/Resource";
 import { Handler } from "../../../utils/Handler";
 import { Bounds } from "../../core/Bounds";
@@ -13,7 +14,6 @@ import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { VertexDeclaration } from "../../graphics/VertexDeclaration";
 import { VertexElement } from "../../graphics/VertexElement";
 import { VertexElementFormat } from "../../graphics/VertexElementFormat";
-import { MeshReader } from "../../loaders/MeshReader";
 import { Color } from "../../math/Color";
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Vector2 } from "../../math/Vector2";
@@ -21,7 +21,6 @@ import { Vector3 } from "../../math/Vector3";
 import { Vector4 } from "../../math/Vector4";
 import { Utils3D } from "../../utils/Utils3D";
 import { SubMesh } from "./SubMesh";
-import { LayaGL } from "../../../layagl/LayaGL";
 
 
 /**
@@ -70,14 +69,6 @@ export class Mesh extends Resource implements IClone {
 		}
 	}
 
-	/**
-	 *@internal
-	 */
-	static _parse(data: any, propertyParams: any = null, constructParams: any[] = null): Mesh {
-		var mesh: Mesh = new Mesh();
-		MeshReader.read(<ArrayBuffer>data, mesh, mesh._subMeshes);
-		return mesh;
-	}
 
 	/**
 	 * 加载网格模板。
