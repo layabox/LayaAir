@@ -1135,6 +1135,9 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			this.reflection = Loader.getRes(reflectionData);
 			this.reflectionDecodingFormat = TextureDecodeFormat.RGBM;
 		}
+		var ambientModeData: AmbientMode = data.ambientMode;
+		(ambientModeData != undefined) && (this.ambientMode = ambientModeData);
+
 		var ambientSphericalHarmonicsIntensityData: number = data.ambientSphericalHarmonicsIntensity;
 		(ambientSphericalHarmonicsIntensityData != undefined) && (this.ambientSphericalHarmonicsIntensity = ambientSphericalHarmonicsIntensityData);
 		var reflectionIntensityData: number = data.reflectionIntensity;
