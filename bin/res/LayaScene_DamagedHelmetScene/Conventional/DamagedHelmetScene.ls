@@ -11,6 +11,7 @@
 			],
 			"reflection":"Assets/DamagedHelmetSceneGIReflection.ltcb",
 			"reflectionIntensity":1,
+			"ambientMode":1,
 			"ambientSphericalHarmonics":[
 				0.6089483,
 				0.2711993,
@@ -154,7 +155,6 @@
 							"enableRender":true,
 							"materials":[
 								{
-									"type":"Laya.BlinnPhongMaterial",
 									"path":"Assets/DamagedHelmet/DamagedHelmet.lmat"
 								}
 							]
