@@ -11,6 +11,7 @@
 			],
 			"reflection":"Assets/EmptySceneGIReflection.ltcb",
 			"reflectionIntensity":1,
+			"ambientMode":1,
 			"ambientSphericalHarmonics":[
 				0.6089483,
 				0.2711993,
