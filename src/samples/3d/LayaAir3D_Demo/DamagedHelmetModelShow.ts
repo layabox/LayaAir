@@ -28,18 +28,18 @@ export class DamagedHelmetModelShow {
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
 
-		Scene3D.load("res/LayaScene_DamagedHelmetScene/Conventional/DamagedHelmetScene.ls", Handler.create(this, function (scene: Scene3D): void {
+		Scene3D.load("LayaScene_xx/Conventional/xx.ls", Handler.create(this, function (scene: Scene3D): void {
 			Laya.stage.addChild(scene);
 
 			var camera: Camera = <Camera>scene.getChildByName("Main Camera");
 			var moveScript: CameraMoveScript = camera.addComponent(CameraMoveScript);
 			moveScript.speed = 0.005;
 
-			var damagedHelmet: MeshSprite3D = <MeshSprite3D>scene.getChildAt(1).getChildAt(0);
-			damagedHelmet.addComponent(RotationScript);
+			// var damagedHelmet: MeshSprite3D = <MeshSprite3D>scene.getChildAt(1).getChildAt(0);
+			// damagedHelmet.addComponent(RotationScript);
 
-			var size: number = 20;
-			this.addText(size, Laya.stage.height - size * 2, "Battle Damaged Sci-fi Helmet by theblueturtle_    www.leonardocarrion.com");
+			// var size: number = 20;
+			// this.addText(size, Laya.stage.height - size * 2, "Battle Damaged Sci-fi Helmet by theblueturtle_    www.leonardocarrion.com");
 		}));
 	}
 

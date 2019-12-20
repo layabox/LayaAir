@@ -8,6 +8,7 @@ import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
 
 export class AnimationLayerBlend {
 	private _motionCross: boolean = false;
@@ -23,8 +24,21 @@ export class AnimationLayerBlend {
 		//显示性能面板
 		Stat.show();
 
-		//加载场景资源
-		Scene3D.load("res/threeDimen/scene/LayaScene_Sniper/Sniper.ls", Handler.create(this, this.sceneLoaded));
+		Laya.loader.create("scene/Conventional/fish.ls", Handler.create(this, (scene: Scene3D) => {
+            Laya.stage.addChild(scene);
+            var sprite = scene.getChildByName("32").getChildByName("YU-432") as Sprite3D;
+            scene.addChild(sprite);
+
+            var index = true;
+            Laya.timer.loop(500, this, () => {
+                let ani = sprite.getComponent(Animator) as Animator;
+                index = !index;
+                ani.crossFade(index ? "swim" : "swim 0", 0.25);
+            })
+		}))
+		
+		// //加载场景资源
+		// Scene3D.load("res/threeDimen/scene/LayaScene_Sniper/Sniper.ls", Handler.create(this, this.sceneLoaded));
 	}
 
 	private sceneLoaded(scene: Scene3D): void {
