@@ -10,14 +10,6 @@ export class LayaGPU {
     /**@internal */
     private static _extentionVendorPrefixes: any[] = ["", "WEBKIT_", "MOZ_"];
 
-    /**
-     * @internal
-     */
-    static _forceSupportVAOPlatform(): boolean {
-        let Browser = ILaya.Browser;
-        return Browser.onBDMiniGame || Browser.onQGMiniGame;
-    }
-
     /**@internal */
     private _gl: any = null;
     /**@internal */
@@ -55,19 +47,12 @@ export class LayaGPU {
         var maxTextureFS: number = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
         var maxTextureSize: number = gl.getParameter(gl.MAX_TEXTURE_SIZE);
         if (!isWebGL2) {
-            var forceVAO: boolean = LayaGPU._forceSupportVAOPlatform();
             if (!ILaya.Render.isConchApp) {
                 VertexArrayObject;//强制引用
-                if ((window as any)._setupVertexArrayObject) {//兼容VAO
-                    if (forceVAO)
-                        (window as any)._forceSetupVertexArrayObject(gl);
-                    else
-                        (window as any)._setupVertexArrayObject(gl);
-                }
+                if ((window as any)._setupVertexArrayObject) //兼容VAO
+                    (window as any)._setupVertexArrayObject(gl);
             }
             this._vaoExt = this._getExtension("OES_vertex_array_object");
-            if (!forceVAO)
-                this._angleInstancedArrays = this._getExtension("ANGLE_instanced_arrays");//forceVAO会导致Instance有BUG
 
             this._oesTextureHalfFloat = this._getExtension("OES_texture_half_float");
             this._oesTextureHalfFloatLinear = this._getExtension("OES_texture_half_float_linear");
