@@ -53,6 +53,7 @@ export class LayaGPU {
                     (window as any)._setupVertexArrayObject(gl);
             }
             this._vaoExt = this._getExtension("OES_vertex_array_object");
+            this._angleInstancedArrays = this._getExtension("ANGLE_instanced_arrays");
 
             this._oesTextureHalfFloat = this._getExtension("OES_texture_half_float");
             this._oesTextureHalfFloatLinear = this._getExtension("OES_texture_half_float_linear");
