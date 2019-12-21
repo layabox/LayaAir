@@ -98,7 +98,7 @@ export class PBRStandardMaterial extends PBRMaterial {
 			'u_LightBuffer': Shader3D.PERIOD_SCENE,
 			'u_LightClusterBuffer': Shader3D.PERIOD_SCENE,
 
-			//PBRGI
+			//GI
 			'u_AmbientSHAr': Shader3D.PERIOD_SCENE,
 			'u_AmbientSHAg': Shader3D.PERIOD_SCENE,
 			'u_AmbientSHAb': Shader3D.PERIOD_SCENE,

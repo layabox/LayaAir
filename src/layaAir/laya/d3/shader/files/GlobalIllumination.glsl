@@ -83,7 +83,7 @@ mediump vec4 glossyEnvironmentSetup(mediump float smoothness,mediump vec3 worldV
 {
 	mediump vec4 uvwRoughness;
 	uvwRoughness.rgb = reflect(worldViewDir, normal);//reflectUVW
-	uvwRoughness.a= smoothnessToPerceptualRoughness(smoothness);//perceptualRoughness
+	uvwRoughness.a= 1.0 - smoothness;//TODO:依赖了LayaBRDF不合理 smoothnessToPerceptualRoughness(smoothness);//perceptualRoughness
 	return uvwRoughness;
 }
 

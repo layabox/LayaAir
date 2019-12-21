@@ -35,9 +35,10 @@ attribute vec4 a_Position;
 	uniform mat4 u_Bones[c_MaxBoneCount];
 #endif
 
+attribute vec3 a_Normal;
+varying vec3 v_Normal; 
+
 #if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
-	attribute vec3 a_Normal;
-	varying vec3 v_Normal; 
 	uniform vec3 u_CameraPos;
 	varying vec3 v_ViewDir; 
 #endif
@@ -48,12 +49,13 @@ attribute vec4 a_Position;
 	varying vec3 v_Binormal;
 #endif
 
+#ifdef GPU_INSTANCE
+	attribute mat4 a_WorldMat;
+#else
+	uniform mat4 u_WorldMat;
+#endif
+
 #if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(RECEIVESHADOW)
-	#ifdef GPU_INSTANCE
-		attribute mat4 a_WorldMat;
-	#else
-		uniform mat4 u_WorldMat;
-	#endif
 	varying vec3 v_PositionWorld;
 #endif
 
@@ -113,28 +115,23 @@ void main_normal()
 		gl_Position = u_MvpMatrix * position;
 	#endif
 	
-	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(RECEIVESHADOW)
-		mat4 worldMat;
-		#ifdef GPU_INSTANCE
-			worldMat = a_WorldMat;
-		#else
-			worldMat = u_WorldMat;
-		#endif
+	mat4 worldMat;
+	#ifdef GPU_INSTANCE
+		worldMat = a_WorldMat;
+	#else
+		worldMat = u_WorldMat;
 	#endif
-	
 
-	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
-		mat3 worldInvMat;
-		#ifdef BONE
-			worldInvMat=inverse(mat3(worldMat*skinTransform));
-		#else
-			worldInvMat=inverse(mat3(worldMat));
-		#endif  
-		v_Normal=normalize(a_Normal*worldInvMat);
-		#if (defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))&&defined(NORMALMAP)
-			v_Tangent=normalize(a_Tangent0.xyz*worldInvMat);
-			v_Binormal=cross(v_Normal,v_Tangent)*a_Tangent0.w;
-		#endif
+	mat3 worldInvMat;
+	#ifdef BONE
+		worldInvMat=inverse(mat3(worldMat*skinTransform));
+	#else
+		worldInvMat=inverse(mat3(worldMat));
+	#endif  
+	v_Normal=normalize(a_Normal*worldInvMat);
+	#if defined(NORMALMAP)
+		v_Tangent=normalize(a_Tangent0.xyz*worldInvMat);
+		v_Binormal=cross(v_Normal,v_Tangent)*a_Tangent0.w;
 	#endif
 
 	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(RECEIVESHADOW)
