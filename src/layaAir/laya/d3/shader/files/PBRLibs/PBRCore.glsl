@@ -162,9 +162,9 @@ void fragmentForward()
 	LayaGI gi =fragmentGI(o.smoothness,eyeVec,occlusion,lightMapUV,normalWorld);
 	vec4 color = LAYA_BRDF_GI(o.diffColor,o.specColor,o.oneMinusReflectivity,o.smoothness,perceptualRoughness,roughness,nv,normalWorld,eyeVec,gi);
 	
-	//TODO:阴影
+	//Shadow
 	float shadowValue = 1.0;
-	 #ifdef RECEIVESHADOW
+	#ifdef RECEIVESHADOW
 		#ifdef SHADOWMAP_PSSM3
 			shadowValue = getShadowPSSM3(u_shadowMap1,u_shadowMap2,u_shadowMap3,u_lightShadowVP,u_shadowPSSMDistance,u_shadowPCFoffset,v_PositionWorld,v_posViewZ,0.001);
 		#endif

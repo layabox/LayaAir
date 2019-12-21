@@ -71,4 +71,11 @@ void vertexForward()
 		mat3 objectTBN = mat3(a_Tangent0.xyz, binormal, a_Normal);
 		v_ViewDirForParallax=(worldInvMat*u_CameraPos-position.xyz)*objectTBN;
 	#endif
+
+	#ifdef RECEIVESHADOW
+		v_posViewZ = gl_Position.w;
+		#ifdef SHADOWMAP_PSSM1 
+			v_lightMVPPos = u_lightShadowVP[0] * vec4(v_PositionWorld,1.0);
+		#endif
+	#endif
 }
