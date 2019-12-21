@@ -21,15 +21,30 @@ varying vec3 v_ViewDir;
 varying vec2 v_Texcoord0;
 varying vec2 v_Texcoord1;
 
+
 #include "Lighting.glsl"
+
+
+
+vec3 NormalSampleToWorldSpace(vec4 normalMapSample) {
+	vec3 normalT;
+	normalT.x = 2.0 * normalMapSample.x - 1.0;
+	normalT.y = 1.0 - 2.0 * normalMapSample.y;
+	normalT.z = sqrt(1.0 - clamp(dot(normalT.xy, normalT.xy), 0.0, 1.0));
+
+	vec3 bumpedNormal = normalize(normalT);
+
+	return bumpedNormal;
+}
+
 
 void main()
 {
 	vec4 bumpColor1 = texture2D(u_NormalTexture, v_Texcoord0);
 	vec4 bumpColor2 = texture2D(u_NormalTexture, v_Texcoord1);
-	
-	vec3 normal1 = NormalSampleToWorldSpace1(bumpColor1, v_Tangent, v_Binormal, v_Normal);
-	vec3 normal2 = NormalSampleToWorldSpace1(bumpColor2, v_Tangent, v_Binormal, v_Normal);
+
+	vec3 normal1 = NormalSampleToWorldSpace(bumpColor1);
+	vec3 normal2 = NormalSampleToWorldSpace(bumpColor2);
 	
 	vec3 normal = normalize((normal1 + normal2) * 0.5);
 	vec3 viewDir = normalize(v_ViewDir);
@@ -43,4 +58,5 @@ void main()
 	
 	gl_FragColor = color;
 }
+
 
