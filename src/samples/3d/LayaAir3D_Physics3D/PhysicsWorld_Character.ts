@@ -92,7 +92,7 @@ export class PhysicsWorld_Character {
 			//为物理碰撞器设置盒型碰撞器
 			physicsCollider.colliderShape = boxShape;
 
-			for (var i: number = 0; i < 200; i++) {
+			for (var i: number = 0; i < 60; i++) {
 				this.addBox();
 				this.addCapsule();
 			}

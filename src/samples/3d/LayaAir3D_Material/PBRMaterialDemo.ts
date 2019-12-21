@@ -34,7 +34,7 @@ export class PBRMaterialDemo {
 			var sphereMesh: Mesh = PrimitiveMesh.createSphere(0.25, 32, 32);
 			const row: number = 6;
 			this.addSpheresSpecialMetallic(sphereMesh, new Vector3(0, 1.5, 0), scene, row, new Vector4(186 / 255, 110 / 255, 64 / 255, 1.0), 1.0);
-			this.addSpheres(sphereMesh, new Vector3(0, 0, 0), scene, 3, row, new Vector4(1.0, 1.0, 1.0, 1.0));
+			this.addSpheresSmoothnessMetallic(sphereMesh, new Vector3(0, 0, 0), scene, 3, row, new Vector4(1.0, 1.0, 1.0, 1.0));
 			this.addSpheresSpecialMetallic(sphereMesh, new Vector3(0, -1.5, 0), scene, row, new Vector4(0.0, 0.0, 0.0, 1.0), 0.0);
 		}));
 	}
@@ -60,7 +60,7 @@ export class PBRMaterialDemo {
 	/**
 	 * Add some different smoothness and metallic sphere.
 	 */
-	addSpheres(sphereMesh: Mesh, offset: Vector3, scene: Scene3D, row: number, col: number, color: Vector4): void {
+	addSpheresSmoothnessMetallic(sphereMesh: Mesh, offset: Vector3, scene: Scene3D, row: number, col: number, color: Vector4): void {
 		const width: number = col * 0.5;
 		const height: number = row * 0.5;
 		for (var i: number = 0, n: number = col; i < n; i++) {//diffenent smoothness
