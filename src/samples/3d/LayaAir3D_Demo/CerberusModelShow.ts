@@ -14,7 +14,7 @@ export class CerberusModelShow {
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
 
-		Scene3D.load("res/LayaScene_CerberusScene/Conventional/CerberusScene.ls", Handler.create(this, function (scene: Scene3D): void {
+		Scene3D.load("res/threeDimen/scene/LayaScene_CerberusScene/Conventional/CerberusScene.ls", Handler.create(this, function (scene: Scene3D): void {
 			Laya.stage.addChild(scene);
 			scene.ambientMode = AmbientMode.SphericalHarmonics;
 
