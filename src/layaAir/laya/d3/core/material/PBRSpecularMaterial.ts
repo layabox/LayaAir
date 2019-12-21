@@ -47,6 +47,7 @@ export class PBRSpecularMaterial extends PBRMaterial {
 			'a_Normal': VertexMesh.MESH_NORMAL0,
 			'a_Tangent0': VertexMesh.MESH_TANGENT0,
 			'a_Texcoord0': VertexMesh.MESH_TEXTURECOORDINATE0,
+			'a_Texcoord1': VertexMesh.MESH_TEXTURECOORDINATE1,
 			'a_BoneWeights': VertexMesh.MESH_BLENDWEIGHT0,
 			'a_BoneIndices': VertexMesh.MESH_BLENDINDICES0,
 			'a_MvpMatrix': VertexMesh.MESH_MVPMATRIX_ROW0,
