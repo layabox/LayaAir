@@ -43,7 +43,7 @@ varying vec3 v_Normal;
 	varying vec3 v_ViewDir; 
 #endif
 
-#if (defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))&&defined(NORMALMAP)
+#if defined(NORMALMAP)
 	attribute vec4 a_Tangent0;
 	varying vec3 v_Tangent;
 	varying vec3 v_Binormal;

@@ -59,11 +59,12 @@ varying vec3 v_Normal;
 	#ifdef SPECULARMAP 
 		uniform sampler2D u_SpecularTexture;
 	#endif
-	#ifdef NORMALMAP 
-		uniform sampler2D u_NormalTexture;
-		varying vec3 v_Tangent;
-		varying vec3 v_Binormal;
-	#endif
+#endif
+
+#ifdef NORMALMAP 
+	uniform sampler2D u_NormalTexture;
+	varying vec3 v_Tangent;
+	varying vec3 v_Binormal;
 #endif
 
 #ifdef FOG
