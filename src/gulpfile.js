@@ -273,7 +273,6 @@ gulp.task('ModifierJs', () => {
                 .pipe(through.obj(function (file, encode, cb) {
                     var srcContents = file.contents.toString();
                     var srcString = "window." + packsDefPlatform[j].libName + "MiniGame = ";
-                    //var tempContents = srcContents.replace(/\(/, "window.wxMiniGame = ");
                     var tempContents = srcContents.replace(/\(/, srcString);
                     var destContents = tempContents.replace(/\(this.Laya = this.Laya \|\| {}, Laya\)\);/, " ");
                     // 再次转为Buffer对象，并赋值给文件内容
