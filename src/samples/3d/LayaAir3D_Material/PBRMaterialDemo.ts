@@ -15,7 +15,9 @@ import { Handler } from "laya/utils/Handler";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 
-export class SimplePBRMaterialDemo {
+export class PBRMaterialDemo {
+	private static _tempPos: Vector3 = new Vector3();
+
 	constructor() {
 		Shader3D.debugMode = true;
 		Laya3D.init(0, 0);
@@ -38,6 +40,24 @@ export class SimplePBRMaterialDemo {
 	}
 
 	/**
+	 * Add one with smoothness and metallic sphere.
+	 */
+	addPBRSphere(sphereMesh: Mesh, position: Vector3, scene: Scene3D, color: Vector4, smoothness: number, metallic: number): PBRStandardMaterial {
+		var mat: PBRStandardMaterial = new PBRStandardMaterial();
+		mat.albedoColor = color;
+		mat.smoothness = smoothness;
+		mat.metallic = metallic;
+
+		var meshSprite: MeshSprite3D = new MeshSprite3D(sphereMesh);
+		meshSprite.meshRenderer.sharedMaterial = mat;
+		var transform: Transform3D = meshSprite.transform;
+		transform.localPosition = position;
+		scene.addChild(meshSprite);
+		return mat;
+	}
+
+
+	/**
 	 * Add some different smoothness and metallic sphere.
 	 */
 	addSpheres(sphereMesh: Mesh, offset: Vector3, scene: Scene3D, row: number, col: number, color: Vector4): void {
@@ -45,19 +65,14 @@ export class SimplePBRMaterialDemo {
 		const height: number = row * 0.5;
 		for (var i: number = 0, n: number = col; i < n; i++) {//diffenent smoothness
 			for (var j: number = 0, m: number = row; j < m; j++) {//diffenent metallic
-				var mat: PBRStandardMaterial = new PBRStandardMaterial();
-				mat.albedoColor = color;
-				mat.smoothness = i / (n - 1);
-				mat.metallic = 1.0 - j / (m - 1);
+				var smoothness: number = i / (n - 1);
+				var metallic: number = 1.0 - j / (m - 1);
 
-				var meshSprite: MeshSprite3D = new MeshSprite3D(sphereMesh);
-				meshSprite.meshRenderer.sharedMaterial = mat;
-				var transform: Transform3D = meshSprite.transform;
-				var pos: Vector3 = transform.localPosition;
+				var pos: Vector3 = PBRMaterialDemo._tempPos;
 				pos.setValue(-width / 2 + i * width / (n - 1), height / 2 - j * height / (m - 1), 3.0);
 				Vector3.add(offset, pos, pos);
-				transform.localPosition = pos;
-				scene.addChild(meshSprite);
+
+				this.addPBRSphere(sphereMesh, pos, scene, color, smoothness, metallic);
 			}
 		}
 	}
@@ -68,19 +83,14 @@ export class SimplePBRMaterialDemo {
 	addSpheresSpecialMetallic(sphereMesh: Mesh, offset: Vector3, scene: Scene3D, col: number, color: Vector4, metallic: number = 0): void {
 		const width: number = col * 0.5;
 		for (var i: number = 0, n: number = col; i < n; i++) {//diffenent smoothness
-			var mat: PBRStandardMaterial = new PBRStandardMaterial();
-			mat.albedoColor = color;
-			mat.smoothness = i / (n - 1);
-			mat.metallic = metallic;
+			var smoothness: number = i / (n - 1);
+			var metallic: number = metallic;
 
-			var meshSprite: MeshSprite3D = new MeshSprite3D(sphereMesh);
-			meshSprite.meshRenderer.sharedMaterial = mat;
-			var transform: Transform3D = meshSprite.transform;
-			var pos: Vector3 = transform.localPosition;
+			var pos: Vector3 = PBRMaterialDemo._tempPos;
 			pos.setValue(-width / 2 + i * width / (n - 1), 0, 3.0);
 			Vector3.add(offset, pos, pos);
-			transform.localPosition = pos;
-			scene.addChild(meshSprite);
+
+			this.addPBRSphere(sphereMesh, pos, scene, color, smoothness, metallic);
 		}
 	}
 }
