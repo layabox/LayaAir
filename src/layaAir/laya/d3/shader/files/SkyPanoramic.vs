@@ -17,15 +17,16 @@ vec4 rotateAroundYInDegrees (vec4 vertex, float degrees)
 	float sina=sin(angle);
 	float cosa=cos(angle);
 	mat2 m = mat2(cosa, -sina, sina, cosa);
-	return vec4(m*vertex.xz, vertex.yw);
+	return vec4(m*vertex.xz, vertex.yw).xzyw;
 }
+
 		
 void main()
 {
 	vec4 position = rotateAroundYInDegrees(a_Position, u_Rotation);
 	gl_Position = u_ViewProjection*position;
 
-	v_Texcoord=vec3(-a_Position.x,a_Position.yz);// NOTE: convert coords system
+	v_Texcoord=vec3(-a_Position.x,-a_Position.y,a_Position.z);// NOTE: -a_Position.x convert coords system
 
 	// Calculate constant horizontal scale and cutoff for 180 (vs 360) image type
 	v_Image180ScaleAndCutoff = vec2(1.0, 1.0);// 360 degree mode
