@@ -1,6 +1,6 @@
+import { Texture2D } from "../../../resource/Texture2D";
 import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
 import { Vector4 } from "../../math/Vector4";
-import { TextureCube } from "../../resource/TextureCube";
 import SkyPanoramicFS from "../../shader/files/SkyPanoramic.fs";
 import SkyPanoramicVS from "../../shader/files/SkyPanoramic.vs";
 import { Shader3D } from "../../shader/Shader3D";
@@ -72,11 +72,11 @@ export class SkyPanoramicMaterial extends Material {
 	/**
 	 * 天空盒纹理。
 	 */
-    get textureCube(): TextureCube {
-        return (<TextureCube>this._shaderValues.getTexture(SkyPanoramicMaterial.TEXTURE));
+    get texture(): Texture2D {
+        return <Texture2D>this._shaderValues.getTexture(SkyPanoramicMaterial.TEXTURE);
     }
 
-    set textureCube(value: TextureCube) {
+    set texture(value: Texture2D) {
         this._shaderValues.setTexture(SkyPanoramicMaterial.TEXTURE, value);
     }
 
@@ -87,7 +87,7 @@ export class SkyPanoramicMaterial extends Material {
         super();
         this.setShaderName("SkyPanoramic");
         this.tintColor = new Vector4(0.5, 0.5, 0.5, 0.5);
-        this.exposure = 1.2;
+        this.exposure = 1.0;
         this.rotation = 0;
     }
 }
