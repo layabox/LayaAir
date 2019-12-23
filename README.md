@@ -1,6 +1,6 @@
 # LayaAir is an open-source 2D/3D engine
 
-LayaAir use WebGL1.0/WebGL2.0 as graphic API and written by TypeScript. LayaAir is designed for high performance games and support TypeScript, JavaScript and ActionScript 3.0 programming language. Develop once and publish for multi-target platform (HTML5, Android, iOS, Wechat Mini-Game,QQ Mini-Game,BaiDu Mini-Game,XiaoMi Mini-Game,OPPO Mini-Game,VIVO Mini-Game,Bilibili Mini-Game,Alibaba Mini-Game, Facebook Instant Game).
+LayaAir use WebGL1.0/WebGL2.0 as graphic API and written by TypeScript. LayaAir is designed for high performance games and support TypeScript and JavaScript programming language. Develop once and publish for multi-target platform (HTML5, Android, iOS, Wechat Mini-Game,QQ Mini-Game,BaiDu Mini-Game,XiaoMi Mini-Game,OPPO Mini-Game,VIVO Mini-Game,Bilibili Mini-Game,Alibaba Mini-Game, Facebook Instant Game).
 
 ## LayaAir features
 
