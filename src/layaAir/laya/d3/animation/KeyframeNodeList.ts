@@ -5,20 +5,16 @@ import { KeyframeNode } from "./KeyframeNode";
  * <code>KeyframeNodeList</code> 类用于创建KeyframeNode节点队列。
  */
 export class KeyframeNodeList {
+	/** @internal */
 	private _nodes: KeyframeNode[] = [];
 
 	/**
-	 *	获取节点个数。
-	 * @return 节点个数。
+	 *	节点个数。
 	 */
 	get count(): number {
 		return this._nodes.length;
 	}
 
-	/**
-	 * 设置节点个数。
-	 * @param value 节点个数。
-	 */
 	set count(value: number) {
 		this._nodes.length = value;
 	}
@@ -50,11 +46,11 @@ export class KeyframeNodeList {
 }
 
 // native
-if((window as any).conch  && (window as any).conchKeyframeNodeList) {
-    //@ts-ignore
-    KeyframeNodeList=(window as any).conchKeyframeNodeList;
+if ((window as any).conch && (window as any).conchKeyframeNodeList) {
+	//@ts-ignore
+	KeyframeNodeList = (window as any).conchKeyframeNodeList;
 }
 if ((window as any).qq && (window as any).qq.webglPlus) {
 	//@ts-ignore
-	KeyframeNodeList=(window as any).qq.webglPlus.conchKeyframeNodeList;
+	KeyframeNodeList = (window as any).qq.webglPlus.conchKeyframeNodeList;
 }

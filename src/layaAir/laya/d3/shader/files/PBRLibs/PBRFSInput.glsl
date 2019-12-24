@@ -78,7 +78,7 @@ varying vec3 v_Normal;
 
 varying vec3 v_EyeVec;
 
-#if defined(NORMALTEXTURE)||defined(PARALLAXTEXTURE)
+#ifdef NORMALTEXTURE
 	varying vec3 v_Tangent;
 	varying vec3 v_Binormal;
 #endif
@@ -197,9 +197,9 @@ mediump vec4 specularGloss(vec2 uv)
 		sg.rgb = u_SpecularColor.rgb;
 		#ifdef SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA
 			#ifdef ALBEDOTEXTURE
-				sg.a = texture2D(u_AlbedoTexture, uv).a * u_SpecGlossScale;
+				sg.a = texture2D(u_AlbedoTexture, uv).a * u_SmoothnessScale;
 			#else
-				sg.a = u_SpecGlossScale;
+				sg.a = u_SmoothnessScale;
 			#endif
 		#else
 			sg.a = u_Smoothness;

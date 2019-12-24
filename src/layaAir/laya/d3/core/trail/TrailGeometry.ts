@@ -320,10 +320,11 @@ export class TrailGeometry extends GeometryElement {
 		var min: Vector3, max: Vector3;
 		if (this._disappearBoundsMode) {//如果有顶点消失时候，需要重新计算包围盒
 			bounds = this._owner._owner.trailRenderer.bounds;
+			var sprite3dPosition: Vector3 = this._owner._owner.transform.position;
+			bounds.setMin(sprite3dPosition);
+			bounds.setMax(sprite3dPosition);
 			min = bounds.getMin();
 			max = bounds.getMax();
-			min.setValue(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
-			max.setValue(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
 			Render.supportWebGLPlusCulling && this._calculateBoundingBoxForNative();//[NATIVE]
 		}
 		var vertexCount: number = this._endIndex;

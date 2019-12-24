@@ -94,6 +94,8 @@ import { RunDriver } from "./laya/utils/RunDriver";
 import { SystemUtils } from "./laya/webgl/SystemUtils";
 import { WebGL } from "./laya/webgl/WebGL";
 import { WebGLContext } from "./laya/webgl/WebGLContext";
+import { MeshReader } from "./laya/d3/loaders/MeshReader";
+import { SkyPanoramicMaterial } from "./laya/d3/core/material/SkyPanoramicMaterial";
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
  */
@@ -230,6 +232,7 @@ export class Laya3D {
 		PBRMaterial.__init__();
 		PBRStandardMaterial.__init__();
 		PBRSpecularMaterial.__init__();
+		SkyPanoramicMaterial.__init__();
 		Mesh.__init__();
 		PrimitiveMesh.__init__();
 		Sprite3D.__init__();
@@ -318,7 +321,7 @@ export class Laya3D {
 		var createMap: any = LoaderManager.createMap;
 		createMap["lh"] = [Laya3D.HIERARCHY, Scene3DUtils._parse];
 		createMap["ls"] = [Laya3D.HIERARCHY, Scene3DUtils._parseScene];
-		createMap["lm"] = [Laya3D.MESH, Mesh._parse];
+		createMap["lm"] = [Laya3D.MESH, MeshReader._parse];
 		createMap["lmat"] = [Laya3D.MATERIAL, Material._parse];
 		createMap["jpg"] = [Laya3D.TEXTURE2D, Texture2D._parse];
 		createMap["jpeg"] = [Laya3D.TEXTURE2D, Texture2D._parse];
@@ -472,11 +475,11 @@ export class Laya3D {
 					var lightMap: any = lightmaps[i];
 					lightMap.path = Laya3D._addHierarchyInnerUrls(fourthLelUrls, subUrls, urlVersion, hierarchyBasePath, lightMap.path, Laya3D.TEXTURE2D, lightMap.constructParams, lightMap.propertyParams);
 				}
-				
+
 				//兼容
 				var reflectionTextureData: string = props.reflectionTexture;
 				(reflectionTextureData) && (props.reflection = Laya3D._addHierarchyInnerUrls(thirdLevelUrls, subUrls, urlVersion, hierarchyBasePath, reflectionTextureData, Laya3D.TEXTURECUBE));
-				
+
 				var reflectionData: string = props.reflection;
 				(reflectionData) && (props.reflection = Laya3D._addHierarchyInnerUrls(fourthLelUrls, subUrls, urlVersion, hierarchyBasePath, reflectionData, Laya3D.TEXTURECUBEBIN));
 				if (props.sky) {
@@ -658,7 +661,7 @@ export class Laya3D {
 	 */
 	private static _onMeshLmLoaded(loader: Loader, lmData: ArrayBuffer): void {
 		loader._cache = loader._createCache;
-		var mesh: Mesh = Mesh._parse(lmData, loader._propertyParams, loader._constructParams);
+		var mesh: Mesh = MeshReader._parse(lmData, loader._propertyParams, loader._constructParams);
 		Laya3D._endLoad(loader, mesh);
 	}
 

@@ -310,36 +310,4 @@ export class VertexArrayObject {
             return this.__OESVertexArrayObject;
         };
     };
-
-    (window as any)._forceSetupVertexArrayObject = function (gl) {
-        var original_getSupportedExtensions = gl.getSupportedExtensions;
-        gl.getSupportedExtensions = function getSupportedExtensions() {
-            var list = original_getSupportedExtensions.call(this) || [];
-            if (list.indexOf("OES_vertex_array_object") < 0) {
-                list.push("OES_vertex_array_object");
-            }
-            return list;
-        };
-
-        var original_getExtension = gl.getExtension;
-
-        gl.getExtension = function getExtension(name) {
-            if (name === "OES_vertex_array_object") {
-                if (!this.__OESVertexArrayObject) {
-                    console.log("Setup OES_vertex_array_object polyfill");
-                    this.__OESVertexArrayObject = new OESVertexArrayObject(this);
-                }
-                return this.__OESVertexArrayObject;
-            } else {
-                var ext = original_getExtension.call(this, name);
-                if (ext) {
-                    return ext;
-                }
-                else {
-                    return null;
-                }
-            }
-
-        };
-    }
 }());
