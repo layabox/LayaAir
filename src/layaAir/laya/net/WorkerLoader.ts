@@ -108,11 +108,9 @@ export class WorkerLoader extends EventDispatcher {
         }
 
         var imageData: ImageBitmap = data.imageBitmap;// imageBitmap
-        var tex: Texture2D = new Texture2D();
-        tex.loadImageSource(imageData);
         console.log("load:", data.url);
         //canvas = tex;
-        this.event(data.url, tex);
+        this.event(data.url, imageData);
 
     }
 
@@ -131,6 +129,7 @@ export class WorkerLoader extends EventDispatcher {
      */
     protected _loadImage(url: string): void {
         var _this: Loader = (<Loader>(this as any));
+        let type = _this.type;
         if (!this._useWorkerLoader || !WorkerLoader._enable) {
             WorkerLoader._preLoadFun.call(_this, url);
             return;
@@ -140,9 +139,15 @@ export class WorkerLoader extends EventDispatcher {
             WorkerLoader.I.off(url, _this, onload);
         }
 
-        var onload: Function = function (image: any): void {
+        var onload: Function = function (imageData: any): void {
             clear();
-            if (image) {
+            if (imageData) {
+                var image:any = imageData;
+                if (type !== "nativeimage") {
+                    image = new Texture2D();
+                    image.loadImageSource(imageData);
+                }
+                
                 _this["onLoaded"](image);
             } else {
                 //失败之后使用原版的加载函数加载重试
