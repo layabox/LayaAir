@@ -78,7 +78,7 @@ varying vec3 v_Normal;
 
 varying vec3 v_EyeVec;
 
-#if defined(NORMALTEXTURE)||defined(PARALLAXTEXTURE)
+#ifdef NORMALTEXTURE
 	varying vec3 v_Tangent;
 	varying vec3 v_Binormal;
 #endif

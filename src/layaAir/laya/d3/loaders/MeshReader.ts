@@ -1,13 +1,22 @@
+import { Byte } from "../../utils/Byte";
+import { Mesh } from "../resource/models/Mesh";
+import { SubMesh } from "../resource/models/SubMesh";
 import { LoadModelV04 } from "./LoadModelV04";
 import { LoadModelV05 } from "./LoadModelV05";
-import { Mesh } from "../resource/models/Mesh"
-import { SubMesh } from "../resource/models/SubMesh"
-import { Byte } from "../../utils/Byte"
 
 /**
  * @internal
  */
 export class MeshReader {
+	/**
+	 *@internal
+	 */
+	static _parse(data: any, propertyParams: any = null, constructParams: any[] = null): Mesh {
+		var mesh: Mesh = new Mesh();
+		MeshReader.read(<ArrayBuffer>data, mesh, mesh._subMeshes);
+		return mesh;
+	}
+
 	static read(data: ArrayBuffer, mesh: Mesh, subMeshes: SubMesh[]): void {
 		var readData: Byte = new Byte(data);
 		readData.pos = 0;

@@ -133,6 +133,15 @@ export class ShaderInit3D {
 			'u_lightShadowVP': Shader3D.PERIOD_SCENE,
 			'u_shadowPCFoffset': Shader3D.PERIOD_SCENE,
 
+			//GI
+			'u_AmbientSHAr': Shader3D.PERIOD_SCENE,
+			'u_AmbientSHAg': Shader3D.PERIOD_SCENE,
+			'u_AmbientSHAb': Shader3D.PERIOD_SCENE,
+			'u_AmbientSHBr': Shader3D.PERIOD_SCENE,
+			'u_AmbientSHBg': Shader3D.PERIOD_SCENE,
+			'u_AmbientSHBb': Shader3D.PERIOD_SCENE,
+			'u_AmbientSHC': Shader3D.PERIOD_SCENE,
+
 			//legacy lighting
 			'u_DirectionLight.color': Shader3D.PERIOD_SCENE,
 			'u_DirectionLight.direction': Shader3D.PERIOD_SCENE,

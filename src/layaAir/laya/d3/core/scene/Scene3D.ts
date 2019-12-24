@@ -1142,12 +1142,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		(ambientSphericalHarmonicsIntensityData != undefined) && (this.ambientSphericalHarmonicsIntensity = ambientSphericalHarmonicsIntensityData);
 		var reflectionIntensityData: number = data.reflectionIntensity;
 		(reflectionIntensityData != undefined) && (this.reflectionIntensity = reflectionIntensityData);
-
-		// var reflectionSpecularColorData: Array<number> = data.reflectionSpecularColor;
-		// (reflectionSpecularColorData) && (this._reflectionSpecularColor.fromArray(reflectionSpecularColorData));
-
-		//var reflectionCubeHDRParamsData: Array<number> = data.reflectionCubeHDRParams;
-		//(reflectionCubeHDRParamsData) && (this.reflectionCubeHDRParams.fromArray(reflectionCubeHDRParamsData));
 	}
 
 

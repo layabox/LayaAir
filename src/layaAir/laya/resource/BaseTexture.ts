@@ -1,8 +1,8 @@
 import { LayaGL } from "../layagl/LayaGL";
 import { WebGLContext } from "../webgl/WebGLContext";
 import { Bitmap } from "./Bitmap";
-import { TextureFormat } from "./TextureFormat";
 import { FilterMode } from "./FilterMode";
+import { TextureFormat } from "./TextureFormat";
 import { WarpMode } from "./WrapMode";
 
 
@@ -10,6 +10,9 @@ import { WarpMode } from "./WrapMode";
  * <code>BaseTexture</code> 纹理的父类，抽象类，不允许实例。
  */
 export class BaseTexture extends Bitmap {
+	/** @internal */
+	static _rgbmRange: number = 5.0;
+
 	/** @internal */
 	protected _readyed: boolean;
 	/** @internal */
