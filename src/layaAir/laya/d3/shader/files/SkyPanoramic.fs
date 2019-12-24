@@ -8,7 +8,6 @@
 #include "Lighting.glsl";
 
 uniform sampler2D u_Texture;
-uniform float u_Exposure;
 uniform vec4 u_TintColor;
 
 varying vec3 v_Texcoord;
@@ -36,7 +35,6 @@ void main()
 	mediump vec4 tex = texture2D (u_Texture, tc);
 	mediump vec3 c = decodeHDR (tex, 1.0);
 	c = c * u_TintColor.rgb * 2.0;//Gamma Space is 2.0,linear space is 4.59479380
-	c *= u_Exposure;
 	gl_FragColor=vec4(c, 1.0);
 }
 
