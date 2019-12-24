@@ -3,16 +3,6 @@
 	"props":{
 		"type":"Laya.PBRStandardMaterial",
 		"name":"DamagedHelmet",
-		"renderStates":[
-			{
-				"cull":2,
-				"blend":0,
-				"srcBlend":1,
-				"dstBlend":0,
-				"depthWrite":true,
-				"depthTest":515
-			}
-		],
 		"textures":[
 			{
 				"name":"albedoTexture",
@@ -126,23 +116,21 @@
 		],
 		"defines":[
 			"EMISSION",
-			"NORMALTEXTURE",
-			"_EMISSION",
-			"_METALLICGLOSSMAP",
-			"_NORMALMAP"
+			"METALLICGLOSSTEXTURE",
+			"NORMALTEXTURE"
 		],
+		"cull":2,
+		"blend":0,
+		"srcBlend":1,
+		"dstBlend":0,
+		"depthWrite":true,
+		"depthTest":515,
 		"renderQueue":2000,
-		"_Cutoff":0.5,
 		"smoothness":0.5,
 		"smoothnessTextureScale":1,
-		"_SmoothnessTextureChannel":0,
 		"metallic":0,
-		"_SpecularHighlights":1,
-		"_GlossyReflections":1,
 		"normalTextureScale":1,
 		"parallaxTextureScale":0.02,
-		"occlusionTextureStrength":1,
-		"_DetailNormalMapScale":1,
-		"_UVSec":0
+		"occlusionTextureStrength":1
 	}
 }
