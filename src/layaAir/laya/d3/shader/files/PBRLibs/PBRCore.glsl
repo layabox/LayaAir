@@ -96,18 +96,6 @@ LayaGI fragmentGI(float smoothness,vec3 eyeVec,mediump float occlusion,mediump v
 vec3 perPixelWorldNormal(vec2 uv,vec3 normal,vec3 binormal,vec3 tangent)
 {
 	#ifdef NORMALTEXTURE
-		// #if UNITY_TANGENT_ORTHONORMALIZE TODO:
-		// 	normal = LayaNormalizePerPixelNormal(normal);
-
-		// 	// ortho-normalize Tangent
-		// 	tangent = normalize(tangent - normal * dot(tangent, normal));
-
-		// 	// recalculate Binormal重新计算二法线
-		// 	half3 newB = cross(normal, tangent);
-		// 	//sign这个函数大于0的时候是1，等于0的时候是0，小于0的是-1
-		// 	//？？？这里二法线能等于0，0，0吗？
-		// 	binormal = newB * sign(dot(newB, binormal));
-		// #endif
 		mediump vec3 normalTangent=normalInTangentSpace(uv);
 		vec3 normalWorld = normalize(tangent * normalTangent.x + binormal * normalTangent.y + normal * normalTangent.z);
 	#else
