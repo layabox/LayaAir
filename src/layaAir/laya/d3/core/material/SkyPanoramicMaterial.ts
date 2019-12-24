@@ -18,7 +18,7 @@ export class SkyPanoramicMaterial extends Material {
     static EXPOSURE: number = Shader3D.propertyNameToID("u_Exposure");
     static ROTATION: number = Shader3D.propertyNameToID("u_Rotation");
     static TEXTURE: number = Shader3D.propertyNameToID("u_Texture");
-    static TEXTURE_HDR_PARAMS: number = Shader3D.propertyNameToID("u_TextureHDRparams");
+    static TEXTURE_HDR_PARAMS: number = Shader3D.propertyNameToID("u_TextureHDRParams");
 
     /**
 	 * @internal
@@ -29,7 +29,7 @@ export class SkyPanoramicMaterial extends Material {
         };
         var uniformMap: any = {
             'u_TintColor': Shader3D.PERIOD_MATERIAL,
-            'u_Exposure': Shader3D.PERIOD_MATERIAL,
+            'u_TextureHDRParams': Shader3D.PERIOD_MATERIAL,
             'u_Rotation': Shader3D.PERIOD_MATERIAL,
             'u_Texture': Shader3D.PERIOD_MATERIAL,
             'u_ViewProjection': Shader3D.PERIOD_CAMERA

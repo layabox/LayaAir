@@ -8,6 +8,7 @@
 #include "Lighting.glsl";
 
 uniform sampler2D u_Texture;
+uniform vec4 u_TextureHDRParams;
 uniform vec4 u_TintColor;
 
 varying vec3 v_Texcoord;
@@ -33,7 +34,7 @@ void main()
 	tc = (tc + v_Layout3DScaleAndOffset.xy) * v_Layout3DScaleAndOffset.zw;
 
 	mediump vec4 tex = texture2D (u_Texture, tc);
-	mediump vec3 c = decodeHDR (tex, 1.0);
+	mediump vec3 c = decodeHDR (tex, u_TextureHDRParams.x);
 	c = c * u_TintColor.rgb * 2.0;//Gamma Space is 2.0,linear space is 4.59479380
 	gl_FragColor=vec4(c, 1.0);
 }
