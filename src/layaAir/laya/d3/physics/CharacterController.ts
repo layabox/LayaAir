@@ -43,6 +43,9 @@ export class CharacterController extends PhysicsComponent {
 	/**@internal */
 	_btKinematicCharacter: number = null;
 
+	/**@internal */
+	_isAddedToSimulation: boolean = false;
+
 	/**
 	 * 角色降落速度。
 	 */
@@ -143,8 +146,13 @@ export class CharacterController extends PhysicsComponent {
 	 */
 	private _constructCharacter(): void {
 		var bt: any = Physics3D._bullet;
-		if (this._btKinematicCharacter)
+		if (this._btKinematicCharacter) {
+			if (this._isAddedToSimulation) {
+				this._simulation._removeCharacter(this);
+			}
 			bt.btKinematicCharacterController_destroy(this._btKinematicCharacter);
+		}
+		this._isAddedToSimulation = false;
 
 		var btUpAxis: number = CharacterController._btTempVector30;
 		bt.btVector3_setValue(btUpAxis, this._upAxis.x, this._upAxis.y, this._upAxis.z);
@@ -190,6 +198,7 @@ export class CharacterController extends PhysicsComponent {
 	_addToSimulation(): void {
 		this._simulation._characters.push(this);
 		this._simulation._addCharacter(this, this._collisionGroup, this._canCollideWith);
+		this._isAddedToSimulation = true;
 	}
 
 	/**
@@ -199,6 +208,7 @@ export class CharacterController extends PhysicsComponent {
 	 */
 	_removeFromSimulation(): void {
 		this._simulation._removeCharacter(this);
+		this._isAddedToSimulation = false;
 		var characters: CharacterController[] = this._simulation._characters;
 		characters.splice(characters.indexOf(this), 1);
 	}
@@ -225,6 +235,10 @@ export class CharacterController extends PhysicsComponent {
 	 * @override
 	 */
 	protected _onDestroy(): void {
+		if (this._isAddedToSimulation) {
+			this._simulation._removeCharacter(this);
+			this._isAddedToSimulation = false;
+		}
 		Physics3D._bullet.btKinematicCharacterController_destroy(this._btKinematicCharacter);
 		super._onDestroy();
 		this._btKinematicCharacter = null;
