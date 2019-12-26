@@ -87,6 +87,9 @@ export class TrailGeometry extends GeometryElement {
 	/** @private */
 	private _disappearBoundsMode: Boolean = false;
 
+	/** @private */
+	private _memorySize: number = 0.0;
+
 	constructor(owner: TrailFilter) {
 		super();
 		this._owner = owner;
@@ -128,7 +131,7 @@ export class TrailGeometry extends GeometryElement {
 		bufferState.bind();
 		bufferState.applyVertexBuffers(vertexBuffers);
 		bufferState.unBind();
-
+		this._memorySize += memorySize;
 		Resource._addMemory(memorySize, memorySize);
 	}
 
@@ -456,8 +459,7 @@ export class TrailGeometry extends GeometryElement {
 	 */
 	destroy(): void {
 		super.destroy();
-		var memorySize: number = this._vertexBuffer1._byteLength + this._vertexBuffer2._byteLength;
-		Resource._addMemory(-memorySize, -memorySize);
+		Resource._addMemory(-this._memorySize, -this._memorySize);
 
 		this._bufferState.destroy();
 		this._vertexBuffer1.destroy();
@@ -472,6 +474,7 @@ export class TrailGeometry extends GeometryElement {
 		this._subDistance = null;
 		this._lastFixedVertexPosition = null;
 		this._disappearBoundsMode = false;
+		this._memorySize = 0.0;
 	}
 	/**
 	 *@internal [NATIVE]
