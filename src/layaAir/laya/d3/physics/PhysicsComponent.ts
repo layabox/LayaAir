@@ -522,17 +522,15 @@ export class PhysicsComponent extends Component {
 	_innerDerivePhysicsTransformation(physicTransformOut: number, force: boolean): void {
 		var bt: any = Physics3D._bullet;
 		var transform: Transform3D = ((<Sprite3D>this.owner))._transform;
-		var rotation: Quaternion = transform.rotation;
-		var scale: Vector3 = transform.getWorldLossyScale();
+		
 		if (force || this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION)) {
 			var shapeOffset: Vector3 = this._colliderShape.localOffset;
 			var position: Vector3 = transform.position;
 			var btPosition: any = PhysicsComponent._btVector30;
 			if (shapeOffset.x !== 0 || shapeOffset.y !== 0 || shapeOffset.z !== 0) {
 				var physicPosition: Vector3 = PhysicsComponent._tempVector30;
-				Vector3.transformQuat(shapeOffset, rotation, physicPosition);
-				Vector3.multiply(physicPosition, scale, physicPosition);
-				Vector3.add(position, physicPosition, physicPosition);
+				var worldMat: Matrix4x4 = transform.worldMatrix;
+				Vector3.transformCoordinate(shapeOffset, worldMat, physicPosition);
 				bt.btVector3_setValue(btPosition, -physicPosition.x, physicPosition.y, physicPosition.z);
 			} else {
 				bt.btVector3_setValue(btPosition, -position.x, position.y, position.z);
@@ -544,6 +542,7 @@ export class PhysicsComponent extends Component {
 		if (force || this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION)) {
 			var shapeRotation: Quaternion = this._colliderShape.localRotation;
 			var btRotation: any = PhysicsComponent._btQuaternion0;
+			var rotation: Quaternion = transform.rotation;
 			if (shapeRotation.x !== 0 || shapeRotation.y !== 0 || shapeRotation.z !== 0 || shapeRotation.w !== 1) {
 				var physicRotation: Quaternion = PhysicsComponent._tempQuaternion0;
 				PhysicsComponent.physicQuaternionMultiply(rotation.x, rotation.y, rotation.z, rotation.w, shapeRotation, physicRotation);

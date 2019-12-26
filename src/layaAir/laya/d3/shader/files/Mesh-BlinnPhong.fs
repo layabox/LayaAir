@@ -6,8 +6,6 @@
 	precision mediump int;
 #endif
 
-#include "Lighting.glsl";
-
 uniform vec4 u_DiffuseColor;
 
 #if defined(COLOR)&&defined(ENABLEVERTEXCOLOR)
@@ -32,8 +30,8 @@ uniform vec4 u_DiffuseColor;
 	uniform sampler2D u_LightMap;
 #endif
 
+varying vec3 v_Normal;
 #if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
-	varying vec3 v_Normal;
 	varying vec3 v_ViewDir; 
 
 	uniform vec3 u_MaterialSpecular;
@@ -61,11 +59,12 @@ uniform vec4 u_DiffuseColor;
 	#ifdef SPECULARMAP 
 		uniform sampler2D u_SpecularTexture;
 	#endif
-	#ifdef NORMALMAP 
-		uniform sampler2D u_NormalTexture;
-		varying vec3 v_Tangent;
-		varying vec3 v_Binormal;
-	#endif
+#endif
+
+#ifdef NORMALMAP 
+	uniform sampler2D u_NormalTexture;
+	varying vec3 v_Tangent;
+	varying vec3 v_Binormal;
 #endif
 
 #ifdef FOG
@@ -74,12 +73,12 @@ uniform vec4 u_DiffuseColor;
 	uniform vec3 u_FogColor;
 #endif
 
-
-uniform vec3 u_AmbientColor;
-
 #if defined(POINTLIGHT)||defined(SPOTLIGHT)||defined(RECEIVESHADOW)
 	varying vec3 v_PositionWorld;
 #endif
+
+#include "Lighting.glsl";
+#include "GlobalIllumination.glsl";
 
 #include "ShadowHelper.glsl"
 varying float v_posViewZ;
@@ -91,6 +90,7 @@ varying float v_posViewZ;
 		varying vec4 v_lightMVPPos;
 	#endif
 #endif
+
 
 void main_castShadow()
 {
@@ -106,21 +106,23 @@ void main_castShadow()
 }
 void main_normal()
 {
-	vec3 globalDiffuse=u_AmbientColor;
-	#ifdef LIGHTMAP		
-		globalDiffuse += decodeHDR(texture2D(u_LightMap, v_LightMapUV),5.0);
+	vec3 normal;//light and SH maybe use normal
+	#if defined(NORMALMAP)
+		vec3 normalMapSample = texture2D(u_NormalTexture, v_Texcoord0).rgb;
+		normal = normalize(NormalSampleToWorldSpace(normalMapSample, v_Normal, v_Tangent,v_Binormal));
+	#else
+		normal = normalize(v_Normal);
 	#endif
-	
+
 	#if defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT)
-		vec3 normal;
-		#if (defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))&&defined(NORMALMAP)
-			vec3 normalMapSample = texture2D(u_NormalTexture, v_Texcoord0).rgb;
-			normal = normalize(NormalSampleToWorldSpace(normalMapSample, v_Normal, v_Tangent,v_Binormal));
-		#else
-			normal = normalize(v_Normal);
-		#endif
 		vec3 viewDir= normalize(v_ViewDir);
 	#endif
+
+	LayaGIInput giInput;
+	#ifdef LIGHTMAP	
+		giInput.lightmapUV=v_LightMapUV;
+	#endif
+	vec3 globalDiffuse=layaGIBase(giInput,1.0,normal);
 	
 	vec4 mainColor=u_DiffuseColor;
 	#ifdef DIFFUSEMAP

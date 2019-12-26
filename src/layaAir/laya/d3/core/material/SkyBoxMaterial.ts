@@ -45,7 +45,7 @@ export class SkyBoxMaterial extends Material {
 	}
 
 	/**
-	 * 曝光强度。
+	 * 旋转角度。
 	 */
 	get rotation(): number {
 		return this._shaderValues.getNumber(SkyBoxMaterial.ROTATION);

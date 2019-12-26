@@ -41,7 +41,6 @@ import { BlinnPhong_NormalMap } from "../3d/LayaAir3D_Material/BlinnPhong_Normal
 import { BlinnPhong_SpecularMap } from "../3d/LayaAir3D_Material/BlinnPhong_SpecularMap";
 import { EffectMaterialDemo } from "../3d/LayaAir3D_Material/EffectMaterialDemo";
 import { MaterialDemo } from "../3d/LayaAir3D_Material/MaterialDemo";
-import { PBRStandardMaterialDemo } from "../3d/LayaAir3D_Material/PBRStandardMaterialDemo";
 import { UnlitMaterialDemo } from "../3d/LayaAir3D_Material/UnlitMaterialDemo";
 import { WaterPrimaryMaterialDemo } from "../3d/LayaAir3D_Material/WaterPrimaryMaterialDemo";
 import { ChangeMesh } from "../3d/LayaAir3D_Mesh/ChangeMesh";
@@ -91,6 +90,9 @@ import { IndexViewUI } from "../ui/IndexViewUI";
 import { PostProcessBloom } from "../3d/LayaAir3D_Advance/PostProcessBloom";
 import { AStarFindPath } from "../3d/LayaAir3D_Advance/AStarFindPath";
 import { MultiLight } from "../3d/LayaAir3D_Lighting/MultiLight";
+import { PBRMaterialDemo } from "../3d/LayaAir3D_Material/PBRMaterialDemo";
+import { DamagedHelmetModelShow } from "../3d/LayaAir3D_Demo/DamagedHelmetModelShow";
+import { CerberusModelShow } from "../3d/LayaAir3D_Demo/CerberusModelShow";
 
 
 export class IndexView3D extends IndexViewUI {
@@ -107,10 +109,10 @@ export class IndexView3D extends IndexViewUI {
 	private b_length: number;
 	private m_length: number;
 
-	private _comboxBigArr2: any[] = ['Resource', 'Scene3D', 'Camera', 'Lighting', 'Sprite3D', 'Mesh', 'Material', 'Texture', 'Animation3D', 'Physics3D', 'MouseLnteraction', 'Script', 'Sky', 'Particle3D', 'Trail', 'Shader', 'performance', 'Advance',   'Demo' ];
+	private _comboxBigArr2: any[] = ['Resource', 'Scene3D', 'Camera', 'Lighting', 'Sprite3D', 'Mesh', 'Material', 'Texture', 'Animation3D', 'Physics3D', 'MouseLnteraction', 'Script', 'Sky', 'Particle3D', 'Trail', 'Shader', 'performance', 'Advance', 'Demo'];
 	//var s:Secne3DPlayer2D    
-	private _advanceClsArr: any[] = [PostProcessBloom,AStarFindPath,DrawTextTexture, Laya3DCombineHtml, Scene2DPlayer3D, Secne3DPlayer2D];//PostProcessBloom,AStarFindPath,
-	private _advanceArr: any[] = ['PostProcessBloom','AStarFindPath','DrawTextTexture', 'Laya3DCombineHtml', 'Scene2DPlayer3D', 'Secne3DPlayer2D'];//'后期处理之泛光','寻路示例',
+	private _advanceClsArr: any[] = [PostProcessBloom, AStarFindPath, DrawTextTexture, Laya3DCombineHtml, Scene2DPlayer3D, Secne3DPlayer2D];//PostProcessBloom,AStarFindPath,
+	private _advanceArr: any[] = ['PostProcessBloom', 'AStarFindPath', 'DrawTextTexture', 'Laya3DCombineHtml', 'Scene2DPlayer3D', 'Secne3DPlayer2D'];//'后期处理之泛光','寻路示例',
 
 	private _animationClsArr: any[] = [AnimationEventByUnity, AnimationLayerBlend, AnimatorDemo, AnimatorStateScriptDemo, BoneLinkSprite3D, CameraAnimation, MaterialAnimation, RigidbodyAnimationDemo, SkinAnimationSample];//AnimationEventByUnity,AnimationLayerBlend,BoneLinkSprite3D,RigidbodyAnimationDemo
 	private _animationArr: any[] = ["AnimationEventByUnity", "AnimationLayerBlend", 'Animator', "AnimatorStateScript", "BoneLinkSprite3D", "CameraAnimation", "MaterialAnimation", "RigidbodyAnimation", "SkinAnimationSample"];
@@ -118,14 +120,14 @@ export class IndexView3D extends IndexViewUI {
 	private _cameraClsArr: any[] = [CameraDemo, CameraLayer, CameraLookAt, CameraRay, D3SpaceToD2Space, MultiCamera, OrthographicCamera, PickPixel, RenderTargetCamera];
 	private _cameraArr: any[] = ['Camera', 'CameraLayer', 'CameraLookAt', 'CameraRay', 'D3SpaceToD2Space', 'MultiCamera', 'OrthographicCamera', 'PickPixel', 'RenderTargetCamera'];
 
-	private _demoClsArr: any[] = [GhostModelShow];
-	private _demoArr: any[] = ['PBRDemo'];
+	private _demoClsArr: any[] = [GhostModelShow, DamagedHelmetModelShow, CerberusModelShow];
+	private _demoArr: any[] = ['GhostModelShow', 'DamagedHelmetModelShow', 'CerberusModelShow'];
 
 	private _lightingClsArr: any[] = [DirectionLightDemo, PointLightDemo, RealTimeShadow, SpotLightDemo, MultiLight];
 	private _lightingArr: any[] = ['DirectionLight', 'PointLight', 'RealTimeShadow', 'SpotLight', 'MultiLight'];
 
-	private _mterialClsArr: any[] = [BlinnPhong_DiffuseMap, BlinnPhong_NormalMap, BlinnPhong_SpecularMap, BlinnPhongMaterialLoad, EffectMaterialDemo, MaterialDemo, PBRStandardMaterialDemo, UnlitMaterialDemo, WaterPrimaryMaterialDemo];//BlinnPhong_DiffuseMap,BlinnPhong_NormalMap,BlinnPhong_SpecularMap,BlinnPhongMaterialLoad,EffectMaterialDemo,UnlitMaterialDemo
-	private _materilArr: any[] = ['BlinnPhong_DiffuseMap', 'BlinnPhong_NormalMap', "BlinnPhong_SpecularMap", "BlinnPhongMaterialLoad", "EffectMaterial", "Material", "PBRStandardMaterial", "UnlitMaterial", "WaterPrimaryMaterial"];
+	private _mterialClsArr: any[] = [BlinnPhong_DiffuseMap, BlinnPhong_NormalMap, BlinnPhong_SpecularMap, BlinnPhongMaterialLoad, EffectMaterialDemo, MaterialDemo, PBRMaterialDemo, UnlitMaterialDemo, WaterPrimaryMaterialDemo];//BlinnPhong_DiffuseMap,BlinnPhong_NormalMap,BlinnPhong_SpecularMap,BlinnPhongMaterialLoad,EffectMaterialDemo,UnlitMaterialDemo
+	private _materilArr: any[] = ['BlinnPhong_DiffuseMap', 'BlinnPhong_NormalMap', "BlinnPhong_SpecularMap", "BlinnPhongMaterialLoad", "EffectMaterial", "Material", "PBRMaterial", "UnlitMaterial", "WaterPrimaryMaterial"];
 
 	private _meshClsArr: any[] = [ChangeMesh, CustomMesh, MeshLoad];
 	private _meshArr: any[] = ['ChangeMesh', 'CustomMesh', "MeshLoad"];
@@ -262,7 +264,7 @@ export class IndexView3D extends IndexViewUI {
 		}
 		else {
 
-			var _comboxBigArr2: any[] = ['Resource', 'Scene3D', 'Camera', 'Lighting', 'Sprite3D', 'Mesh', 'Material', 'Texture', 'Animation3D', 'Physics3D', 'MouseLnteraction', 'Script', 'Sky', 'Particle3D', 'Trail', 'Shader', 'Performance', 'Advance',   'Demo' ];
+			var _comboxBigArr2: any[] = ['Resource', 'Scene3D', 'Camera', 'Lighting', 'Sprite3D', 'Mesh', 'Material', 'Texture', 'Animation3D', 'Physics3D', 'MouseLnteraction', 'Script', 'Sky', 'Particle3D', 'Trail', 'Shader', 'Performance', 'Advance', 'Demo'];
 			switch (this._bigIndex) {
 				case 0:
 					this._oldView = new this._resourceClsArr[index];
@@ -385,19 +387,19 @@ export class IndexView3D extends IndexViewUI {
 		var labelStr: string;
 
 		switch (index) {
-			case 0: 
+			case 0:
 				labelStr = this._resourceArr.toString();
 				break;
-			case 1: 
+			case 1:
 				labelStr = this._scene3DArr.toString();
 				break;
-			case 2: 
+			case 2:
 				labelStr = this._cameraArr.toString();
 				break;
 			case 3:
 				labelStr = this._lightingArr.toString();
 				break;
-			case 4: 
+			case 4:
 				labelStr = this._sprite3DArr.toString();
 				break;
 			case 5:
@@ -406,40 +408,40 @@ export class IndexView3D extends IndexViewUI {
 			case 6:
 				labelStr = this._materilArr.toString();
 				break;
-			case 7: 
+			case 7:
 				labelStr = this._textureArr.toString();
 				break;
-			case 8: 
+			case 8:
 				labelStr = this._animationArr.toString();
 				break;
-			case 9: 
+			case 9:
 				labelStr = this._physicslArr.toString();
 				break;
-			case 10: 
+			case 10:
 				labelStr = this._mouseLnteractionArr.toString();
 				break;
-			case 11: 
+			case 11:
 				labelStr = this._scriptArr.toString();
 				break;
-			case 12: 
+			case 12:
 				labelStr = this._skyArr.toString();
 				break;
-			case 13: 
+			case 13:
 				labelStr = this._particleArr.toString();
 				break;
-			case 14: 
+			case 14:
 				labelStr = this._trailArr.toString();
 				break;
 			case 15:
 				labelStr = this._shaderArr.toString();
 				break;
-			case 16: 
+			case 16:
 				labelStr = this._performanceArr.toString();
 				break;
-			case 17: 
+			case 17:
 				labelStr = this._advanceArr.toString();
 				break;
-			case 18: 
+			case 18:
 				labelStr = this._demoArr.toString();
 				break;
 			// case 19: //advanced

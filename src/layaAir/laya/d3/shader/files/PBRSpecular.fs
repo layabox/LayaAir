@@ -12,8 +12,8 @@
 #include "PBRFSInput.glsl";
 #include "LayaPBRBRDF.glsl";
 #include "GlobalIllumination.glsl";
-#include "PBRCore.glsl";
 #include "ShadowHelper.glsl"
+#include "PBRCore.glsl";
 #include "PBRFSShadow.glsl";
 
 void main()

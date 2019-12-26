@@ -1169,7 +1169,18 @@ export class Text extends Sprite {
     }
     get singleCharRender(): boolean {
         return this._singleCharRender;
-    }
+	}
+/*	
+	scale(scaleX: number, scaleY: number, speedMode: boolean = false): Sprite {
+		super.scale(scaleX,scaleY, speedMode);
+        // 注意_words是一个数组（例如有换行）
+        this._words && this._words.forEach(function (w: WordText): void {
+            w.cleanCache();
+		});
+		this.repaint();
+		return this;
+	}	
+*/
 }
 
 

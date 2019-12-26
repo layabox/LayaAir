@@ -1,11 +1,6 @@
-vec2 transformLightMapUV(in vec2 texcoord0,in vec2 texcoord1,in vec4 lightmapScaleOffset)
+vec2 transformLightMapUV(in vec2 texcoord,in vec4 lightmapScaleOffset)
 {
-	vec2 lightMapUV;
-	#ifdef UV1
-		lightMapUV=vec2(texcoord1.x,1.0-texcoord1.y)*lightmapScaleOffset.xy+lightmapScaleOffset.zw;
-	#else
-		lightMapUV=vec2(texcoord0.x,1.0-texcoord0.y)*lightmapScaleOffset.xy+lightmapScaleOffset.zw;
-	#endif 
+	vec2 lightMapUV=vec2(texcoord.x,1.0-texcoord.y)*lightmapScaleOffset.xy+lightmapScaleOffset.zw;
 	lightMapUV.y=1.0-lightMapUV.y;
 	return lightMapUV; 
 }
@@ -49,7 +44,13 @@ void vertexForward()
 	v_EyeVec =u_CameraPos-v_PositionWorld;//will normalize per-pixel
 
 	#ifdef LIGHTMAP
-		v_LightMapUV=transformLightMapUV(a_Texcoord0,a_Texcoord1,u_LightmapScaleOffset);
+		vec2 texcoord;
+		#ifdef UV1
+			texcoord=a_Texcoord1;
+		#else
+			texcoord=a_Texcoord0;
+		#endif
+		v_LightMapUV=transformLightMapUV(texcoord,u_LightmapScaleOffset);
 	#endif
 
 	mat3 worldInvMat;
@@ -70,5 +71,12 @@ void vertexForward()
 		vec3 binormal = cross(a_Normal, a_Tangent0.xyz)*a_Tangent0.w;
 		mat3 objectTBN = mat3(a_Tangent0.xyz, binormal, a_Normal);
 		v_ViewDirForParallax=(worldInvMat*u_CameraPos-position.xyz)*objectTBN;
+	#endif
+
+	#ifdef RECEIVESHADOW
+		v_posViewZ = gl_Position.w;
+		#ifdef SHADOWMAP_PSSM1 
+			v_lightMVPPos = u_lightShadowVP[0] * vec4(v_PositionWorld,1.0);
+		#endif
 	#endif
 }

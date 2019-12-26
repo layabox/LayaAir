@@ -48,13 +48,13 @@ uniform vec4 u_ReflectCubeHDRParams;
 		return x1 + x2;
 	}
 	
-	mediump vec3 shadeSHPerPixel(mediump vec3 normal,mediump vec3 ambient)
+	mediump vec3 shadeSHPerPixel(mediump vec3 normal)
 	{
 		mediump vec3 ambientContrib;
 		mediump vec4 normalV4=vec4(-normal.x,normal.yz, 1.0);//Note:SH Data is left-hand,so x need inverse
 		ambientContrib = shEvalLinearL0L1(normalV4);
 		ambientContrib += shEvalLinearL2(normalV4);
-		ambient += max(vec3(0.0), ambientContrib);
+		mediump vec3 ambient = max(vec3(0.0), ambientContrib);
 		ambient = layaLinearToGammaSpace(ambient);
 		return ambient;
 	}
@@ -65,10 +65,10 @@ vec3 layaGIBase(LayaGIInput giInput,mediump float occlusion, mediump vec3 normal
 {
 	vec3 indirectDiffuse;
 	#ifdef LIGHTMAP	
-		indirectDiffuse = u_AmbientColor + decodeHDR(texture2D(u_LightMap, giInput.Livec3(0.0)ghtMapUV),5.0);//TODO:
+		indirectDiffuse =decodeHDR(texture2D(u_LightMap, giInput.lightmapUV),5.0);
 	#else
 		#ifdef GI_AMBIENT_SH
-			indirectDiffuse = shadeSHPerPixel(normalWorld, vec3(0.0));//todo:full pixel SH is always 0,or have L2 SH Color
+			indirectDiffuse = shadeSHPerPixel(normalWorld);
 		#else
 			indirectDiffuse = u_AmbientColor;//already in gamma space
 		#endif
@@ -83,7 +83,7 @@ mediump vec4 glossyEnvironmentSetup(mediump float smoothness,mediump vec3 worldV
 {
 	mediump vec4 uvwRoughness;
 	uvwRoughness.rgb = reflect(worldViewDir, normal);//reflectUVW
-	uvwRoughness.a= smoothnessToPerceptualRoughness(smoothness);//perceptualRoughness
+	uvwRoughness.a= 1.0 - smoothness;//TODO:依赖了LayaBRDF不合理 smoothnessToPerceptualRoughness(smoothness);//perceptualRoughness
 	return uvwRoughness;
 }
 

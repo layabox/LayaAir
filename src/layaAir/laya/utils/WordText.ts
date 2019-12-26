@@ -14,7 +14,9 @@ export class WordText {
     startID: number = 0;	//上面的是个数组，但是可能前面都是空的，加个起始位置
     startIDStroke: number = 0;
     lastGCCnt: number = 0;	//如果文字gc了，需要检查缓存是否有效，这里记录上次检查对应的gc值。
-    splitRender: boolean = false;	// 强制拆分渲染
+	splitRender: boolean = false;	// 强制拆分渲染
+	scalex=1;	// 缓存的时候的缩放
+	scaley=1;
 
     setText(txt: string): void {
         this.changed = true;
@@ -59,7 +61,9 @@ export class WordText {
         });
 
         this.pageChars = [];
-        this.startID = 0;
+		this.startID = 0;
+		this.scalex=1;
+		this.scaley=1;
     }
 }
 
