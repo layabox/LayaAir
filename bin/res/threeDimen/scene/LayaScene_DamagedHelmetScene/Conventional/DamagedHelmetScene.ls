@@ -4,6 +4,13 @@
 		"type":"Scene3D",
 		"props":{
 			"name":"DamagedHelmetScene",
+			"sky":{
+				"material":{
+					"type":"Laya.SkyPanoramicMaterial",
+					"path":"Assets/DamagedHelmet/LayaSkyMaterial.lmat"
+				},
+				"mesh":"SkyDome"
+			},
 			"ambientColor":[
 				1,
 				1,
@@ -77,7 +84,7 @@
 						1,
 						1
 					],
-					"clearFlag":0,
+					"clearFlag":1,
 					"orthographic":false,
 					"orthographicVerticalSize":10,
 					"fieldOfView":60,
