@@ -41,6 +41,7 @@
 		"depthTest":515,
 		"renderQueue":1000,
 		"exposure":1.2,
-		"rotation":0
+		"rotation":0,
+		"panoramicTextureDecodeFormat":1
 	}
 }
