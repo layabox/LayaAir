@@ -103,9 +103,9 @@
 			"NORMALTEXTURE"
 		],
 		"cull":2,
+		"blendSrc":1,
+		"blendDst":0,
 		"blend":0,
-		"srcBlend":1,
-		"dstBlend":0,
 		"depthWrite":true,
 		"depthTest":515,
 		"renderQueue":2000,
