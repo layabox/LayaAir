@@ -84,7 +84,7 @@
 						1,
 						1
 					],
-					"clearFlag":0,
+					"clearFlag":1,
 					"orthographic":false,
 					"orthographicVerticalSize":10,
 					"fieldOfView":60,
