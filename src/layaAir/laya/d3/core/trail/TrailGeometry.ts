@@ -87,7 +87,6 @@ export class TrailGeometry extends GeometryElement {
 	/** @private */
 	private _disappearBoundsMode: Boolean = false;
 
-
 	constructor(owner: TrailFilter) {
 		super();
 		this._owner = owner;
@@ -460,8 +459,6 @@ export class TrailGeometry extends GeometryElement {
 		super.destroy();
 		var memorySize: number = this._vertexBuffer1._byteLength + this._vertexBuffer2._byteLength;
 		Resource._addMemory(-memorySize, -memorySize);
-
-
 		this._bufferState.destroy();
 		this._vertexBuffer1.destroy();
 		this._vertexBuffer2.destroy();
