@@ -2,7 +2,7 @@
 	"version":"LAYAMATERIAL:02",
 	"props":{
 		"type":"Laya.SkyPanoramicMaterial",
-		"name":"LayaSkyMaterial",
+		"name":"SkyMaterial",
 		"textures":[
 			{
 				"name":"panoramicTexture",
@@ -32,7 +32,9 @@
 				]
 			}
 		],
-		"defines":[],
+		"defines":[
+			"_MAPPING_LATITUDE_LONGITUDE_LAYOUT"
+		],
 		"cull":2,
 		"blendSrc":1,
 		"blendDst":0,
