@@ -2479,12 +2479,8 @@ export class Context {
 
 		var top: number = sizeGrid[0];
 		var left: number = sizeGrid[3];
-		var d_top: number = top / h;
-		var d_left: number = left / w;
 		var right: number = sizeGrid[1];
 		var bottom: number = sizeGrid[2];
-		var d_right: number = right / w;
-		var d_bottom: number = bottom / h;
 		var repeat: boolean = sizeGrid[4];
 		var needClip: boolean = false;
 
@@ -2494,6 +2490,11 @@ export class Context {
 		if (height == h) {
 			top = bottom = 0;
 		}
+
+		var d_top: number = top / h;
+		var d_left: number = left / w;
+		var d_right: number = right / w;
+		var d_bottom: number = bottom / h;
 
 		//处理进度条不好看的问题
 		if (left + right > width) {
