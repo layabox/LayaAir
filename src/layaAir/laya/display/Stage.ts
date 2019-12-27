@@ -164,8 +164,6 @@ export class Stage extends Sprite {
 	private _globalRepaintSet: boolean = false;		// 设置全局重画标志。这个是给IDE用的。IDE的Image无法在onload的时候通知对应的sprite重画。
 	/**@private */
 	private _globalRepaintGet: boolean = false;		// 一个get一个set是为了把标志延迟到下一帧的开始，防止部分对象接收不到。
-	/**@private */
-	static _dbgSprite: Sprite = new Sprite();
 
 	/**@internal */
 	_3dUI: Sprite[] = [];
@@ -672,9 +670,6 @@ export class Stage extends Sprite {
 			return;
 		}
 
-		//临时
-		Stage._dbgSprite.graphics.clear();
-
 		if (this._frameRate === Stage.FRAME_SLEEP) {
 			var now: number = Browser.now();
 			if (now - this._frameStartTime >= 1000) this._frameStartTime = now;
@@ -714,8 +709,6 @@ export class Stage extends Sprite {
 			super.render(context, x, y);
 			Stat._StatRender.renderNotCanvas(context, x, y);
 		}
-
-		Stage._dbgSprite.render(context, 0, 0);
 
 		if (this.renderingEnabled) {
 			Stage.clear(this._bgColor);

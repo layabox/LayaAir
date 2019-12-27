@@ -97,6 +97,7 @@ import { Event } from "laya/events/Event"
 	import { IndexViewUI } from "../ui/IndexViewUI"
 import { Sprite } from "laya/display/Sprite";
 import { Main } from "../Main";
+import Sprite_ScreenShot from "../2d/Sprite_Screenshot";
 	
 	/**
 	 * 首页View 
@@ -115,8 +116,8 @@ import { Main } from "../Main";
 		
 		private _comboxBigArr:any[] = ['Sprite','动画','骨骼动画','混合模式','区块地图','滤镜','粒子','音频','文本','UI','计时器','缓动','鼠标交互','屏幕适配','网络和格式','调试','性能测试','IDE'];
 		/************************sprite-start***************************/
-		private _comboBoxSpriteClsArr:any[] = [Sprite_DisplayImage,Sprite_Container,Sprite_RoateAndScale,Sprite_DrawPath,Sprite_MagnifyingGlass,Sprite_DrawShapes,Sprite_Cache,Sprite_NodeControl,Sprite_Pivot,Sprite_SwitchTexture];
-		private _comboBoxSpriteArr:any[] = ['显示图片','容器','旋转缩放','根据数据绘制路径','遮罩-放大镜','绘制各种形状','缓存为静态图像','节点控制','轴中心','切换纹理'];
+		private _comboBoxSpriteClsArr:any[] = [Sprite_DisplayImage,Sprite_Container,Sprite_RoateAndScale,Sprite_DrawPath,Sprite_MagnifyingGlass,Sprite_DrawShapes,Sprite_Cache,Sprite_NodeControl,Sprite_Pivot,Sprite_SwitchTexture,Sprite_ScreenShot];
+		private _comboBoxSpriteArr:any[] = ['显示图片','容器','旋转缩放','根据数据绘制路径','遮罩-放大镜','绘制各种形状','缓存为静态图像','节点控制','轴中心','切换纹理','截图'];
 		/************************sprite-end***************************/
 		
 		/************************Animation-start***************************/
