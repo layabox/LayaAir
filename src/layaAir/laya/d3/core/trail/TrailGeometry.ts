@@ -128,7 +128,6 @@ export class TrailGeometry extends GeometryElement {
 		bufferState.bind();
 		bufferState.applyVertexBuffers(vertexBuffers);
 		bufferState.unBind();
-
 		Resource._addMemory(memorySize, memorySize);
 	}
 
@@ -146,6 +145,8 @@ export class TrailGeometry extends GeometryElement {
 		if (count === this._segementCount) {//当前count=_segementCount表示已满,需要扩充
 			this._vertexBuffer1.destroy();
 			this._vertexBuffer2.destroy();
+			var memorySize: number = this._vertexBuffer1._byteLength + this._vertexBuffer2._byteLength;
+			Resource._addMemory(-memorySize, -memorySize);
 			this._segementCount += this._increaseSegementCount;
 			this._resizeData(this._segementCount, this._bufferState);
 		}
@@ -458,7 +459,6 @@ export class TrailGeometry extends GeometryElement {
 		super.destroy();
 		var memorySize: number = this._vertexBuffer1._byteLength + this._vertexBuffer2._byteLength;
 		Resource._addMemory(-memorySize, -memorySize);
-
 		this._bufferState.destroy();
 		this._vertexBuffer1.destroy();
 		this._vertexBuffer2.destroy();

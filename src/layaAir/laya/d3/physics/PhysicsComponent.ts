@@ -366,6 +366,9 @@ export class PhysicsComponent extends Component {
 		return this._canCollideWith;
 	}
 
+	/**
+	 *  设置可碰撞的碰撞组(如果多组采用位操作）。
+	 */
 	set canCollideWith(value: number) {
 		if (this._canCollideWith !== value) {
 			this._canCollideWith = value;
