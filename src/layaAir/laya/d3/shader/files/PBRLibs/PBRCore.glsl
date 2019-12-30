@@ -87,7 +87,6 @@ LayaGI fragmentGI(float smoothness,vec3 eyeVec,mediump float occlusion,mediump v
 	#endif
 
 	vec3 worldViewDir = -eyeVec;
-
 	mediump vec4 uvwRoughness;
 	uvwRoughness.rgb = reflect(worldViewDir, worldnormal);//reflectUVW
 	uvwRoughness.a= smoothnessToPerceptualRoughness(smoothness);//perceptualRoughness
