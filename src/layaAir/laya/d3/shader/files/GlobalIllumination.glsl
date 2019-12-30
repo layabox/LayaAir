@@ -78,15 +78,6 @@ vec3 layaGIBase(LayaGIInput giInput,mediump float occlusion, mediump vec3 normal
 	return indirectDiffuse;
 }
 
-
-mediump vec4 glossyEnvironmentSetup(mediump float smoothness,mediump vec3 worldViewDir,mediump vec3 normal)
-{
-	mediump vec4 uvwRoughness;
-	uvwRoughness.rgb = reflect(worldViewDir, normal);//reflectUVW
-	uvwRoughness.a= 1.0 - smoothness;//TODO:依赖了LayaBRDF不合理 smoothnessToPerceptualRoughness(smoothness);//perceptualRoughness
-	return uvwRoughness;
-}
-
 mediump vec3 layaGlossyEnvironment(mediump vec4 glossIn)
 {
 	mediump float perceptualRoughness = glossIn.a;
