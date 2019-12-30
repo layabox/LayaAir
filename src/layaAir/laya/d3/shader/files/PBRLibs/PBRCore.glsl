@@ -87,10 +87,13 @@ LayaGI fragmentGI(float smoothness,vec3 eyeVec,mediump float occlusion,mediump v
 	#endif
 
 	vec3 worldViewDir = -eyeVec;
-	mediump vec4 uvwRoughness = glossyEnvironmentSetup(smoothness, worldViewDir,worldnormal);
+
+	mediump vec4 uvwRoughness;
+	uvwRoughness.rgb = reflect(worldViewDir, worldnormal);//reflectUVW
+	uvwRoughness.a= smoothnessToPerceptualRoughness(smoothness);//perceptualRoughness
+
 	return layaGlobalIllumination(giInput,occlusion, worldnormal, uvwRoughness);
 }
-
 
 
 vec3 perPixelWorldNormal(vec2 uv,vec3 normal,vec3 binormal,vec3 tangent)
