@@ -11,6 +11,7 @@ import { ShaderVariant } from "./ShaderVariantCollection";
 import { SubShader } from "./SubShader";
 import { SystemUtils } from "../../webgl/SystemUtils";
 import { WebGLContext } from "../../webgl/WebGLContext";
+import { WebGL } from "../../webgl/WebGL";
 
 /**
  * <code>ShaderPass</code> 类用于实现ShaderPass。
@@ -237,7 +238,7 @@ export class ShaderPass extends ShaderCompile {
 		var fragmentHead: string;
 		var defineStr: string = "";
 
-		if (WebGLContext._isWebgl2) {
+		if (WebGL._isWebGL2) {
 			vertexHead =
 				`#version 300 es\n
 				#define attribute in
