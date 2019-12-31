@@ -47,6 +47,8 @@ export class WebGLContext {
 
     /**@internal */
     static mainContext: WebGLRenderingContext = null;
+    /**@internal */
+    static _isWebgl2: boolean = false;
 
 
 	/**
