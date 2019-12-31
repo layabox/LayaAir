@@ -16,6 +16,7 @@
 				1,
 				1
 			],
+			"reflectionDecodingFormat":1,
 			"reflection":"Assets/CerberusSceneGIReflection.ltcb",
 			"reflectionIntensity":1,
 			"ambientMode":1,

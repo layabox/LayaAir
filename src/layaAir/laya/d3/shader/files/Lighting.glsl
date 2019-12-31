@@ -216,7 +216,7 @@ vec4 remapGLPositionZ(vec4 position) {
 	return position;
 }
 
-mat3 inverse(mat3 m) {
+mat3 inverseMat(mat3 m) {
   float a00 = m[0][0], a01 = m[0][1], a02 = m[0][2];
   float a10 = m[1][0], a11 = m[1][1], a12 = m[1][2];
   float a20 = m[2][0], a21 = m[2][1], a22 = m[2][2];

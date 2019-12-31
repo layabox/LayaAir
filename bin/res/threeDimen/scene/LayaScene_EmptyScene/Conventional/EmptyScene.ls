@@ -16,6 +16,7 @@
 				1,
 				1
 			],
+			"reflectionDecodingFormat":1,
 			"reflection":"Assets/EmptySceneGIReflection.ltcb",
 			"reflectionIntensity":1,
 			"ambientMode":1,

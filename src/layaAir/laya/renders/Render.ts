@@ -37,8 +37,8 @@ export class Render {
 	 * @param	height	游戏窗口高度。
 	 */
     constructor(width: number, height: number, mainCanv: HTMLCanvas) {
-		Render._mainCanvas = mainCanv;
-		let source:HTMLCanvasElement = Render._mainCanvas.source as HTMLCanvasElement;
+        Render._mainCanvas = mainCanv;
+        let source: HTMLCanvasElement = Render._mainCanvas.source as HTMLCanvasElement;
         //创建主画布。改到Browser中了，因为为了runtime，主画布必须是第一个
         source.id = "layaCanvas";
         source.width = width;
@@ -89,6 +89,8 @@ export class Render {
             return null;
         }
         var gl: WebGLRenderingContext = LayaGL.instance = WebGLContext.mainContext = getWebGLContext(Render._mainCanvas.source);
+        WebGLContext._isWebgl2 = gl instanceof WebGL2RenderingContext;
+
         if (!gl)
             return false;
 
@@ -135,8 +137,7 @@ export class Render {
         Render.supportWebGLPlusAnimation = true;
         Render.supportWebGLPlusRendering = true;
     }
-    else if((window as any).qq != null && (window as any).qq.webglPlus != null)
-    {
+    else if ((window as any).qq != null && (window as any).qq.webglPlus != null) {
         Render.supportWebGLPlusCulling = false;
         Render.supportWebGLPlusAnimation = true;
         Render.supportWebGLPlusRendering = true;
