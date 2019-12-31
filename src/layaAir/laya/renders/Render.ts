@@ -89,7 +89,6 @@ export class Render {
             return null;
         }
         var gl: WebGLRenderingContext = LayaGL.instance = WebGLContext.mainContext = getWebGLContext(Render._mainCanvas.source);
-        WebGLContext._isWebgl2 = gl instanceof WebGL2RenderingContext;
 
         if (!gl)
             return false;
