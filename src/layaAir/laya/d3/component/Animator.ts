@@ -877,7 +877,7 @@ export class Animator extends Component {
 		if (this.cullingMode === Animator.CULLINGMODE_CULLCOMPLETELY) {//所有渲染精灵不可见时
 			needRender = false;
 			for (var i: number = 0, n: number = this._renderableSprites.length; i < n; i++) {
-				if (this._renderableSprites[i]._render._visible) {
+				if (this._renderableSprites[i]._render._anyCameraVisible) {
 					needRender = true;
 					break;
 				}

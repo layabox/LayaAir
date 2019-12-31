@@ -1061,6 +1061,16 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/**
 	 * @internal
 	 */
+	_clearRenderFlag(): void {
+		for (var i = 0, iMax = this._renders.length; i < iMax; ++i) {
+			var render = <BaseRender>(this._renders.elements[i]);
+			render._anyCameraVisible = false;
+		}
+	}
+
+	/**
+	 * @internal
+	 */
 	_getRenderQueue(index: number): RenderQueue {
 		if (index <= 2500)//2500作为队列临界点
 			return this._opaqueQueue;
@@ -1140,6 +1150,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	renderSubmit(): number {
 		var gl: any = LayaGL.instance;
 		this._prepareSceneToRender();
+
+		this._clearRenderFlag();
 
 		var i: number, n: number, n1: number;
 		for (i = 0, n = this._cameraPool.length, n1 = n - 1; i < n; i++) {
