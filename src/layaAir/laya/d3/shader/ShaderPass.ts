@@ -261,7 +261,8 @@ export class ShaderPass extends ShaderCompile {
 				#define textureCubeGradEXT textureGrad\n`;
 		}
 		else {
-			vertexHead = fragmentHead =
+			vertexHead = ""
+			fragmentHead =
 				`#ifdef GL_EXT_shader_texture_lod
 					#extension GL_EXT_shader_texture_lod : enable
 				#endif

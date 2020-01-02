@@ -1132,7 +1132,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		}
 		var reflectionData: string = data.reflection;
 		(reflectionData != undefined) && (this.reflection = Loader.getRes(reflectionData));
-		
+
 		var reflectionDecodingFormatData: number = data.reflectionDecodingFormat;
 		(reflectionDecodingFormatData != undefined) && (this.reflectionDecodingFormat = reflectionDecodingFormatData);
 
@@ -1270,7 +1270,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	renderSubmit(): number {
 		var gl: any = LayaGL.instance;
 		this._prepareSceneToRender();
-
 		var i: number, n: number, n1: number;
 		for (i = 0, n = this._cameraPool.length, n1 = n - 1; i < n; i++) {
 			if (Render.supportWebGLPlusRendering)
