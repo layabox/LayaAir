@@ -72,6 +72,7 @@ export class FrustumCulling {
 		var renders: ISingletonElement[] = renderList.elements;
 		var boundFrustum: BoundFrustum = camera.boundFrustum;
 		var camPos: Vector3 = camera._transform.position;
+		var loopCount: number = Stat.loopCount;
 		for (var i: number = 0, n: number = renderList.length; i < n; i++) {
 			var render: BaseRender = <BaseRender>renders[i];
 			var canPass: boolean;
@@ -79,20 +80,16 @@ export class FrustumCulling {
 				canPass = render._castShadow && render._enable;
 			else
 				canPass = camera._isLayerVisible(render._owner._layer) && render._enable;
+
 			if (canPass) {
 				Stat.frustumCulling++;
 				if (!camera.useOcclusionCulling || render._needRender(boundFrustum, context)) {
-					render._visible = true;
-					render._anyCameraVisible = true;
+					render._renderMark == loopCount;
 					render._distanceForSort = Vector3.distance(render.bounds.getCenter(), camPos);//TODO:合并计算浪费,或者合并后取平均值
 					var elements: RenderElement[] = render._renderElements;
 					for (var j: number = 0, m: number = elements.length; j < m; j++)
 						elements[j]._update(scene, context, customShader, replacementTag);
-				} else {
-					render._visible = false;
 				}
-			} else {
-				render._visible = false;
 			}
 		}
 	}
@@ -169,20 +166,19 @@ export class FrustumCulling {
 		var boundFrustum: BoundFrustum = camera.boundFrustum;
 		FrustumCulling.cullingNative(camera._boundFrustumBuffer, FrustumCulling._cullingBuffer, scene._cullingBufferIndices, validCount, scene._cullingBufferResult);
 
+		var loopCount: number = Stat.loopCount;
 		var camPos: Vector3 = context.camera._transform.position;
+
 		for (i = 0; i < validCount; i++) {
-			var render: BaseRender = (<BaseRender>renders[i]);
+			var render: BaseRender = <BaseRender>renders[i];
 			if (!camera.useOcclusionCulling || (camera._isLayerVisible(render._owner._layer) && render._enable && scene._cullingBufferResult[i])) {//TODO:需要剥离部分函数
-				render._visible = true;
-				render._anyCameraVisible = true;
+				render._renderMark = loopCount;
 				render._distanceForSort = Vector3.distance(render.bounds.getCenter(), camPos);//TODO:合并计算浪费,或者合并后取平均值
 				var elements: RenderElement[] = render._renderElements;
 				for (j = 0, m = elements.length; j < m; j++) {
 					var element: RenderElement = elements[j];
 					element._update(scene, context, customShader, replacementTag);
 				}
-			} else {
-				render._visible = false;
 			}
 		}
 

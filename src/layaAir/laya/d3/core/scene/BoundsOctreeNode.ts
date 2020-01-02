@@ -385,10 +385,11 @@ export class BoundsOctreeNode {
 		this._isContaion = !testVisible;//[Debug] 用于调试信息,末级无用子节点不渲染、脱节节点看不见,所以无需更新变量
 
 		//检查节点中的对象
-		var camera: Camera = (<Camera>context.camera);
+		var camera: Camera = <Camera>context.camera;
 		var scene: Scene3D = context.scene;
+		var loopCount: number = Stat.loopCount;
 		for (var i: number = 0, n: number = this._objects.length; i < n; i++) {
-			var render: BaseRender = (<BaseRender>this._objects[i]);
+			var render: BaseRender = <BaseRender>this._objects[i];
 			var canPass: boolean;
 			if (isShadowCasterCull)
 				canPass = render._castShadow && render._enable;
@@ -401,6 +402,7 @@ export class BoundsOctreeNode {
 						continue;
 				}
 
+				render._renderMark = loopCount;
 				render._distanceForSort = Vector3.distance(render.bounds.getCenter(), camPos);//TODO:合并计算浪费,或者合并后取平均值
 				var elements: RenderElement[] = render._renderElements;
 				for (var j: number = 0, m: number = elements.length; j < m; j++) {

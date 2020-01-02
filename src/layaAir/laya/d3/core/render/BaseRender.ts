@@ -19,6 +19,7 @@ import { Render } from "../../../renders/Render"
 import { ISingletonElement } from "../../../resource/ISingletonElement"
 import { Texture2D } from "../../../resource/Texture2D"
 import { MeshRenderStaticBatchManager } from "../../graphics/MeshRenderStaticBatchManager";
+import { Stat } from "../../../utils/Stat";
 
 /**
  * <code>Render</code> 类用于渲染器的父类，抽象类不允许实例。
@@ -56,6 +57,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 
 	/** @internal */
 	_castShadow: boolean = false;
+	/** @internal */
 	_supportOctree: boolean = true;
 	/** @internal */
 	_enable: boolean;
@@ -72,10 +74,8 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	_renderElements: RenderElement[];
 	/** @internal */
 	_distanceForSort: number;
-	/**@internal */
-	_visible: boolean = true;//初始值为默认可见,否则会造成第一帧动画不更新等，TODO:还有个包围盒更新好像浪费了
-	/**@internal */
-	_anyCameraVisible: boolean = false;	// _visible只针对当前Camera的preCulling有效，假设有两个Camera先后处理，BaseRender对前一个可见、后一个不可见，则_visible不准
+	/** @internal */
+	_renderMark: number = -1;//TODO:初始值为-1强制更新,否则会造成第一帧动画不更新等,待优化
 	/** @internal */
 	_octreeNode: BoundsOctreeNode;
 	/** @internal */
@@ -280,10 +280,10 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	}
 
 	/**
-	 * 是否任一相机可见
+	 * 是否被渲染。
 	 */
-	get anyCameraVisible(): boolean {
-		return this._anyCameraVisible;
+	get isRender(): boolean {
+		return this._renderMark == -1 || this._renderMark == Stat.loopCount;
 	}
 
 	/**
