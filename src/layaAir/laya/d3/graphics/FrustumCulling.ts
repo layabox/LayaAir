@@ -84,7 +84,7 @@ export class FrustumCulling {
 			if (canPass) {
 				Stat.frustumCulling++;
 				if (!camera.useOcclusionCulling || render._needRender(boundFrustum, context)) {
-					render._renderMark == loopCount;
+					render._renderMark = loopCount;
 					render._distanceForSort = Vector3.distance(render.bounds.getCenter(), camPos);//TODO:合并计算浪费,或者合并后取平均值
 					var elements: RenderElement[] = render._renderElements;
 					for (var j: number = 0, m: number = elements.length; j < m; j++)
