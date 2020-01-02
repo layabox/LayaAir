@@ -10,7 +10,11 @@ import { Event } from "laya/events/Event";
 import { MouseManager } from "laya/events/MouseManager";
 import { Handler } from "laya/utils/Handler";
 import { Laya3D } from "Laya3D";
+import { Browser } from "laya/utils/Browser";
 
+/**
+ * model rotation script.
+ */
 class RotationScript extends Script3D {
 	private _lastMouseX: number;
 	private _mouseDown: boolean = false;
@@ -54,17 +58,19 @@ export class CerberusModelShow {
 			rotationScript.model = model;
 
 			var size: number = 20;
-			this.addText(size, Laya.stage.height - size * 2, "Cerberus by Andrew Maximov     http://artisaverb.info/PBT.html");
+			this.addText(size, size * 4, "Drag the screen to rotate the model.", "#F09900");
+			size = 10;
+			this.addText(size, Laya.stage.height - size * 4, "Cerberus by Andrew Maximov     http://artisaverb.info/PBT.html", "#FFFF00");
 		}));
 	}
 
 	/**
 	 * add text.
 	 */
-	addText(size: number, y: number, text: string): void {
+	addText(size: number, y: number, text: string,color:string): void {
 		var cerberusText: Text = new Text();
-		cerberusText.color = "#FFFF00";
-		cerberusText.fontSize = size;
+		cerberusText.color = color;
+		cerberusText.fontSize = size * Browser.pixelRatio;
 		cerberusText.x = size;
 		cerberusText.y = y;
 		cerberusText.text = text;
