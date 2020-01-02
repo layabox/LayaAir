@@ -645,6 +645,9 @@ export class Context {
 			if (!this._width || !this._height)
 				throw Error("asBitmap no size!");
 			if(!rt || rt.width!=this._width||rt.height!=this._height){
+				if(rt){
+					rt.destroy();
+				}
 				this._targets = new RenderTexture2D(this._width, this._height, RenderTextureFormat.R8G8B8A8, -1)
 			}
 		} else {
