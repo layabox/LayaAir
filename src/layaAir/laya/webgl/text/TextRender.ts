@@ -251,7 +251,7 @@ export class TextRender {
             if (this.hasFreedText(sameTexData)) {
                 sameTexData = wt.pageChars = [];
 			}
-			if(this.fontScaleX!=wt.scalex || this.fontScaleY!=wt.scaley){
+			if(isWT && (this.fontScaleX!=wt.scalex || this.fontScaleY!=wt.scaley)) {
 				// 文字缩放要清理缓存
 				sameTexData = wt.pageChars = [];
 			}
@@ -260,8 +260,10 @@ export class TextRender {
         //var oneTex: boolean = isWT || TextRender.forceWholeRender;	// 如果能缓存的话，就用一张贴图
         var splitTex: boolean = this.renderPerChar = (!isWT) || TextRender.forceSplitRender || isHtmlChar || (isWT && wt.splitRender); 	// 拆分字符串渲染，这个优先级高
         if (!sameTexData || sameTexData.length < 1) {
-			wt.scalex = this.fontScaleX;
-			wt.scaley = this.fontScaleY;
+			if (isWT) {
+                wt.scalex = this.fontScaleX;
+                wt.scaley = this.fontScaleY;
+            }
             // 重新构建缓存的贴图信息
             // TODO 还是要ctx.scale么
             if (splitTex) {

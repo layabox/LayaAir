@@ -95,3 +95,7 @@ Our official Layabox Github with complete engine source version, free of charge,
 ## Offical Community
 
 - http://ask.layabox.com/
+
+## Business Contact
+
+![](wechatQRcode.jpg)
