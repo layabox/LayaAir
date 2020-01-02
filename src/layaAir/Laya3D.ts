@@ -264,6 +264,7 @@ export class Laya3D {
 		Command.__init__();
 
 		//注册类命,解析的时候需要
+		ClassUtils.regClass("Laya.SkyPanoramicMaterial", SkyPanoramicMaterial);
 		ClassUtils.regClass("Laya.EffectMaterial", EffectMaterial);
 		ClassUtils.regClass("Laya.UnlitMaterial", UnlitMaterial);
 		ClassUtils.regClass("Laya.BlinnPhongMaterial", BlinnPhongMaterial);
@@ -825,7 +826,7 @@ export class Laya3D {
 			var mipSize: number = size;
 			for (var i = 0; i < mipCount; i++) {
 				var uint8Arrays: Array<Uint8Array> = new Array<Uint8Array>(6);
-				var mipPixelLength: number = mipSize * mipSize * 4;
+				var mipPixelLength: number = mipSize * mipSize * cubemap._getFormatByteCount();
 				for (var j = 0; j < 6; j++) {
 					uint8Arrays[j] = new Uint8Array(data, pos, mipPixelLength);
 					pos += mipPixelLength;

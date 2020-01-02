@@ -1,11 +1,6 @@
-vec2 transformLightMapUV(in vec2 texcoord0,in vec2 texcoord1,in vec4 lightmapScaleOffset)
+vec2 transformLightMapUV(in vec2 texcoord,in vec4 lightmapScaleOffset)
 {
-	vec2 lightMapUV;
-	#ifdef UV1
-		lightMapUV=vec2(texcoord1.x,1.0-texcoord1.y)*lightmapScaleOffset.xy+lightmapScaleOffset.zw;
-	#else
-		lightMapUV=vec2(texcoord0.x,1.0-texcoord0.y)*lightmapScaleOffset.xy+lightmapScaleOffset.zw;
-	#endif 
+	vec2 lightMapUV=vec2(texcoord.x,1.0-texcoord.y)*lightmapScaleOffset.xy+lightmapScaleOffset.zw;
 	lightMapUV.y=1.0-lightMapUV.y;
 	return lightMapUV; 
 }
@@ -49,14 +44,20 @@ void vertexForward()
 	v_EyeVec =u_CameraPos-v_PositionWorld;//will normalize per-pixel
 
 	#ifdef LIGHTMAP
-		v_LightMapUV=transformLightMapUV(a_Texcoord0,a_Texcoord1,u_LightmapScaleOffset);
+		vec2 texcoord;
+		#ifdef UV1
+			texcoord=a_Texcoord1;
+		#else
+			texcoord=a_Texcoord0;
+		#endif
+		v_LightMapUV=transformLightMapUV(texcoord,u_LightmapScaleOffset);
 	#endif
 
 	mat3 worldInvMat;
 	#ifdef BONE
-		worldInvMat=inverse(mat3(worldMat*skinTransform));
+		worldInvMat=inverseMat(mat3(worldMat*skinTransform));
 	#else
-		worldInvMat=inverse(mat3(worldMat));
+		worldInvMat=inverseMat(mat3(worldMat));
 	#endif
 
 	v_Normal=normalize(a_Normal*worldInvMat);//if no normalize will cause precision problem.

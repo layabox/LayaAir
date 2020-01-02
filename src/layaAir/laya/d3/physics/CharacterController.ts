@@ -110,7 +110,7 @@ export class CharacterController extends PhysicsComponent {
 
 	set stepHeight(value: number) {
 		this._stepHeight = value;
-		this._constructCharacter();
+		Physics3D._bullet.btKinematicCharacterController_setStepHeight(this._btKinematicCharacter, value);
 	}
 
 	/**
@@ -122,7 +122,9 @@ export class CharacterController extends PhysicsComponent {
 
 	set upAxis(value: Vector3) {
 		this._upAxis = value;
-		this._constructCharacter();
+		var btUpAxis: number = CharacterController._btTempVector30;
+		Utils3D._convertToBulletVec3(value, btUpAxis, false);
+		Physics3D._bullet.btKinematicCharacterController_setUp(this._btKinematicCharacter, btUpAxis);
 	}
 
 	/**
@@ -176,9 +178,7 @@ export class CharacterController extends PhysicsComponent {
 		bt.btCollisionObject_setUserIndex(ghostObject, this.id);
 		bt.btCollisionObject_setCollisionFlags(ghostObject, PhysicsComponent.COLLISIONFLAGS_CHARACTER_OBJECT);
 		this._btColliderObject = ghostObject;
-
-		if (this._colliderShape)
-			this._constructCharacter();
+		(this._colliderShape) && (this._constructCharacter());
 		super._onAdded();
 	}
 
@@ -210,7 +210,7 @@ export class CharacterController extends PhysicsComponent {
 	 */
 	_cloneTo(dest: Component): void {
 		super._cloneTo(dest);
-		var destCharacterController: CharacterController = (<CharacterController>dest);
+		var destCharacterController: CharacterController = <CharacterController>dest;
 		destCharacterController.stepHeight = this._stepHeight;
 		destCharacterController.upAxis = this._upAxis;
 		destCharacterController.maxSlope = this._maxSlope;

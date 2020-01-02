@@ -10,6 +10,8 @@ import { ShaderInstance } from "./ShaderInstance";
 import { ShaderVariant } from "./ShaderVariantCollection";
 import { SubShader } from "./SubShader";
 import { SystemUtils } from "../../webgl/SystemUtils";
+import { WebGLContext } from "../../webgl/WebGLContext";
+import { WebGL } from "../../webgl/WebGL";
 
 /**
  * <code>ShaderPass</code> 类用于实现ShaderPass。
@@ -231,19 +233,49 @@ export class ShaderPass extends ShaderCompile {
 		var config: Config3D = Config3D._config;
 		var clusterSlices: Vector3 = config.lightClusterCount;
 		var defMap: any = {};
+
+		var vertexHead: string;
+		var fragmentHead: string;
 		var defineStr: string = "";
-		//TODO:兼容webgl2.0
-		defineStr +=
-			`#ifdef GL_EXT_shader_texture_lod
-	#extension GL_EXT_shader_texture_lod : enable
-#endif
-#if !defined(GL_EXT_shader_texture_lod)
-	#define texture1DLodEXT texture1D
-	#define texture2DLodEXT texture2D
-	#define texture2DProjLodEXT texture2DProj
-	#define texture3DLodEXT texture3D
-	#define textureCubeLodEXT textureCube
-#endif\n`
+
+		if (WebGL._isWebGL2) {
+			vertexHead =
+				`#version 300 es\n
+				#define attribute in
+				#define varying out
+				#define texture2D texture\n`;
+			fragmentHead =
+				`#version 300 es\n
+				#define varying in
+				out highp vec4 pc_fragColor;
+				#define gl_FragColor pc_fragColor
+				#define gl_FragDepthEXT gl_FragDepth
+				#define texture2D texture
+				#define textureCube texture
+				#define texture2DProj textureProj
+				#define texture2DLodEXT textureLod
+				#define texture2DProjLodEXT textureProjLod
+				#define textureCubeLodEXT textureLod
+				#define texture2DGradEXT textureGrad
+				#define texture2DProjGradEXT textureProjGrad
+				#define textureCubeGradEXT textureGrad\n`;
+		}
+		else {
+			vertexHead = ""
+			fragmentHead =
+				`#ifdef GL_EXT_shader_texture_lod
+					#extension GL_EXT_shader_texture_lod : enable
+				#endif
+				#if !defined(GL_EXT_shader_texture_lod)
+					#define texture1DLodEXT texture1D
+					#define texture2DLodEXT texture2D
+					#define texture2DProjLodEXT texture2DProj
+					#define texture3DLodEXT texture3D
+					#define textureCubeLodEXT textureCube
+				#endif\n`;
+		}
+
+
 		defineStr += "#define MAX_LIGHT_COUNT " + config.maxLightCount + "\n";
 		defineStr += "#define MAX_LIGHT_COUNT_PER_CLUSTER " + config._maxAreaLightCountPerClusterAverage + "\n";
 		defineStr += "#define CLUSTER_X_COUNT " + clusterSlices.x + "\n";
@@ -270,7 +302,7 @@ export class ShaderPass extends ShaderCompile {
 			psVersion = ps[0] + '\n';
 			ps.shift();
 		}
-		shader = new ShaderInstance(vsVersion + defineStr + vs.join('\n'), psVersion + defineStr + ps.join('\n'), this._owner._attributeMap || this._owner._owner._attributeMap, this._owner._uniformMap || this._owner._owner._uniformMap, this);
+		shader = new ShaderInstance(vsVersion + vertexHead + defineStr + vs.join('\n'), psVersion + fragmentHead + defineStr + ps.join('\n'), this._owner._attributeMap || this._owner._owner._attributeMap, this._owner._uniformMap || this._owner._owner._uniformMap, this);
 
 		cacheShaders[cacheKey] = shader;
 

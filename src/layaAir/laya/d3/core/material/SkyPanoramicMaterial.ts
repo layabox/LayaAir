@@ -18,7 +18,7 @@ export class SkyPanoramicMaterial extends Material {
     static EXPOSURE: number = Shader3D.propertyNameToID("u_Exposure");
     static ROTATION: number = Shader3D.propertyNameToID("u_Rotation");
     static TEXTURE: number = Shader3D.propertyNameToID("u_Texture");
-    static TEXTURE_HDR_PARAMS: number = Shader3D.propertyNameToID("u_TextureHDRparams");
+    static TEXTURE_HDR_PARAMS: number = Shader3D.propertyNameToID("u_TextureHDRParams");
 
     /**
 	 * @internal
@@ -29,7 +29,7 @@ export class SkyPanoramicMaterial extends Material {
         };
         var uniformMap: any = {
             'u_TintColor': Shader3D.PERIOD_MATERIAL,
-            'u_Exposure': Shader3D.PERIOD_MATERIAL,
+            'u_TextureHDRParams': Shader3D.PERIOD_MATERIAL,
             'u_Rotation': Shader3D.PERIOD_MATERIAL,
             'u_Texture': Shader3D.PERIOD_MATERIAL,
             'u_ViewProjection': Shader3D.PERIOD_CAMERA
@@ -62,7 +62,7 @@ export class SkyPanoramicMaterial extends Material {
 	 * 曝光强度。
 	 */
     get exposure(): number {
-        return this._shaderValues.getNumber(SkyPanoramicMaterial.EXPOSURE);
+        return this._exposure;
     }
 
     set exposure(value: number) {
@@ -87,24 +87,24 @@ export class SkyPanoramicMaterial extends Material {
     }
 
 	/**
-	 * 天空纹理。
+	 * 全景天空纹理。
 	 */
-    get texture(): Texture2D {
+    get panoramicTexture(): Texture2D {
         return <Texture2D>this._shaderValues.getTexture(SkyPanoramicMaterial.TEXTURE);
     }
 
-    set texture(value: Texture2D) {
+    set panoramicTexture(value: Texture2D) {
         this._shaderValues.setTexture(SkyPanoramicMaterial.TEXTURE, value);
     }
 
     /**
-	 * 天空纹理解码格式。
+	 * 全景天空纹理解码格式。
 	 */
-    get textureDecodeFormat(): TextureDecodeFormat {
+    get panoramicTextureDecodeFormat(): TextureDecodeFormat {
         return this._textureDecodeFormat;
     }
 
-    set textureDecodeFormat(value: TextureDecodeFormat) {
+    set panoramicTextureDecodeFormat(value: TextureDecodeFormat) {
         if (this._textureDecodeFormat !== value) {
             this._textureDecodeFormat = value;
             if (value == TextureDecodeFormat.RGBM)

@@ -187,7 +187,7 @@ mediump vec4 layaBRDFLowLight (mediump vec3 diffColor, mediump vec3 specColor,me
     float a2 = a*a;
 
     float d = nh * nh * (a2 - 1.0) + 1.00001;
-	// #ifdef UNITY_COLORSPACE_GAMMA
+	// #ifdef LAYA_COLORSPACE_GAMMA
 		// Tighter approximation for Gamma only rendering mode!
 		// DVF = sqrt(DVF);
 		// DVF = (a * sqrt(.25)) / (max(sqrt(0.1), lh)*sqrt(roughness + .5) * d);
@@ -216,7 +216,7 @@ mediump vec4 layaBRDFLowLight (mediump vec3 diffColor, mediump vec3 specColor,me
 
 		// half specularTerm = ((specularPower + 1) * pow (nh, specularPower)) / (8 * invV * invF + 1e-4h);
 
-		// #ifdef UNITY_COLORSPACE_GAMMA
+		// #ifdef LAYA_COLORSPACE_GAMMA
 		// 	specularTerm = sqrt(max(1e-4f, specularTerm));
 		// #endif
 	// #endif

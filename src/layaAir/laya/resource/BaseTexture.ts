@@ -137,7 +137,7 @@ export class BaseTexture extends Bitmap {
 	/**
 	 * @internal
 	 */
-	protected _getFormatByteCount(): number {
+	_getFormatByteCount(): number {
 		switch (this._format) {
 			case TextureFormat.R8G8B8:
 				return 3;

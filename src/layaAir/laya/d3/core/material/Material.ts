@@ -76,6 +76,8 @@ export class Material extends Resource implements IClone {
 
 				for (var key in props) {
 					switch (key) {
+						case "type":
+							break;
 						case "vectors":
 							var vectors: any[] = props[key];
 							for (i = 0, n = vectors.length; i < n; i++) {
