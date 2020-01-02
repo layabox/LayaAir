@@ -46,7 +46,8 @@ export class WebGLRTMgr {
 	 * @param	rt
 	 */
 	static releaseRT(rt: RenderTexture2D): void {
-		rt._disposeResource();// 直接删除贴图。否则还要管理占用过多的时候的清理。
+		rt.destroy();
+		//rt._disposeResource();// 直接删除贴图。否则还要管理占用过多的时候的清理。  修改：去掉了，直接destroy，否则统计会以为没有释放掉。
 		return;
         /*
 		//如果_mgrKey<=0表示已经加进来了。
