@@ -74,6 +74,8 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	_distanceForSort: number;
 	/**@internal */
 	_visible: boolean = true;//初始值为默认可见,否则会造成第一帧动画不更新等，TODO:还有个包围盒更新好像浪费了
+	/**@internal */
+	_anyCameraVisible: boolean = false;	// _visible只针对当前Camera的preCulling有效，假设有两个Camera先后处理，BaseRender对前一个可见、后一个不可见，则_visible不准
 	/** @internal */
 	_octreeNode: BoundsOctreeNode;
 	/** @internal */
@@ -275,6 +277,13 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	 */
 	get isPartOfStaticBatch(): boolean {
 		return this._isPartOfStaticBatch;
+	}
+
+	/**
+	 * 是否任一相机可见
+	 */
+	get anyCameraVisible(): boolean {
+		return this._anyCameraVisible;
 	}
 
 	/**
