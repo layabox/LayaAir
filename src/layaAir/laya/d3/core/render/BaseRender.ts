@@ -283,7 +283,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	 * 是否被渲染。
 	 */
 	get isRender(): boolean {
-		return this._renderMark == -1 || this._renderMark == Stat.loopCount;
+		return this._renderMark == -1 || this._renderMark == (Stat.loopCount-1);
 	}
 
 	/**
