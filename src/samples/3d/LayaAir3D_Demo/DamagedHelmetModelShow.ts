@@ -1,19 +1,17 @@
 
 import { Laya } from "Laya";
 import { Script3D } from "laya/d3/component/Script3D";
-import { Camera } from "laya/d3/core/Camera";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Stage } from "laya/display/Stage";
 import { Text } from "laya/display/Text";
-import { Handler } from "laya/utils/Handler";
-import { Laya3D } from "Laya3D";
-import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Event } from "laya/events/Event";
 import { MouseManager } from "laya/events/MouseManager";
 import { Browser } from "laya/utils/Browser";
+import { Handler } from "laya/utils/Handler";
+import { Laya3D } from "Laya3D";
 
 /**
  * model rotation script.
@@ -22,6 +20,7 @@ class RotationScript extends Script3D {
 	private _lastMouseX: number;
 	private _mouseDown: boolean = false;
 	private _rotate: Vector3 = new Vector3();
+	private _autoRotateSpeed: Vector3 = new Vector3(0, 0.25, 0);
 
 	model: Sprite3D;
 
@@ -43,6 +42,9 @@ class RotationScript extends Script3D {
 			this.model.transform.rotate(this._rotate, false, false);
 			this._lastMouseX = MouseManager.instance.mouseX;
 		}
+		else {
+			this.model.transform.rotate(this._autoRotateSpeed, false, false);
+		}
 	}
 }
 
@@ -60,16 +62,16 @@ export class DamagedHelmetModelShow {
 			rotationScript.model = damagedHelmet;
 
 			var size: number = 20;
-			this.addText(size, size * 4, "Drag the screen to rotate the model.","#F09900");
+			this.addText(size, size * 4, "Drag the screen to rotate the model.", "#F09900");
 			size = 10;
-			this.addText(size, Laya.stage.height - size * 4, "Battle Damaged Sci-fi Helmet by theblueturtle_    www.leonardocarrion.com","#FFFF00");
+			this.addText(size, Laya.stage.height - size * 4, "Battle Damaged Sci-fi Helmet by theblueturtle_    www.leonardocarrion.com", "#FFFF00");
 		}));
 	}
 
 	/**
 	 * add text.
 	 */
-	addText(size: number, y: number, text: string,color:string): void {
+	addText(size: number, y: number, text: string, color: string): void {
 		var cerberusText: Text = new Text();
 		cerberusText.color = color;
 		cerberusText.fontSize = size * Browser.pixelRatio;
