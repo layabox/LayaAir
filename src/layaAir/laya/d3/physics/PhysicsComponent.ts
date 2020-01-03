@@ -271,32 +271,6 @@ export class PhysicsComponent extends Component {
 	}
 
 	/**
-	 * @inheritDoc
-	 * @override
-	 */
-	get enabled(): boolean {
-		return super.enabled;
-	}
-
-	/**
-	 * @inheritDoc
-	 * @override
-	 */
-	set enabled(value: boolean) {
-		if (this._enabled != value) {
-			if (this._simulation && this._colliderShape) {
-				if (value) {
-					this._derivePhysicsTransformation(true);
-					this._addToSimulation();
-				} else {
-					this._removeFromSimulation();
-				}
-			}
-			super.enabled = value;
-		}
-	}
-
-	/**
 	 * 碰撞形状。
 	 */
 	get colliderShape(): ColliderShape {
@@ -421,7 +395,7 @@ export class PhysicsComponent extends Component {
 	protected _onEnable(): void {
 		this._simulation = ((<Scene3D>this.owner._scene)).physicsSimulation;
 		Physics3D._bullet.btCollisionObject_setContactProcessingThreshold(this._btColliderObject, 1e30);
-		if (this._colliderShape && this._enabled) {
+		if (this._colliderShape) {
 			this._derivePhysicsTransformation(true);
 			this._addToSimulation();
 		}
@@ -433,7 +407,7 @@ export class PhysicsComponent extends Component {
 	 * @override
 	 */
 	protected _onDisable(): void {
-		if (this._colliderShape && this._enabled) {
+		if (this._colliderShape) {
 			this._removeFromSimulation();
 			(this._inPhysicUpdateListIndex !== -1) && (this._simulation._physicsUpdateList.remove(this));//销毁前一定会调用 _onDisable()
 		}
