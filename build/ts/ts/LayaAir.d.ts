@@ -1741,9 +1741,6 @@ declare module laya.d3.animation {
 		 */
 
 		constructor();
-		private _hermiteInterpolate:any;
-		private _hermiteInterpolateVector3:any;
-		private _hermiteInterpolateQuaternion:any;
 		_evaluateClipDatasRealTimeForNative(nodes:any,playCurTime:number,realTimeCurrentFrameIndexes:Uint16Array,addtive:boolean):void;
 		private _evaluateFrameNodeVector3DatasRealTime:any;
 		private _evaluateFrameNodeQuaternionDatasRealTime:any;
@@ -10039,7 +10036,7 @@ declare module laya.d3.core {
 		 * 设置世界位置。
 		 * @param value 世界位置。
 		 */
-		position:Readonly<laya.d3.math.Vector3>;
+		position:laya.d3.math.Vector3;
 
 		/**
 		 * 获取世界旋转。

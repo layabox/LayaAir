@@ -19388,7 +19388,13 @@ window.Laya= (function (exports) {
             }
         }
         static getJSON(key) {
-            return JSON.parse(Storage.support ? Storage.items.getItem(key) : null);
+            try {
+                let obj = JSON.parse(Storage.support ? Storage.items.getItem(key) : null);
+                return obj;
+            }
+            catch (err) {
+                return Storage.items.getItem(key);
+            }
         }
         static removeItem(key) {
             Storage.support && Storage.items.removeItem(key);
@@ -22253,7 +22259,7 @@ window.Laya= (function (exports) {
     Laya.lateTimer = null;
     Laya.timer = null;
     Laya.loader = null;
-    Laya.version = "2.4.0beta2";
+    Laya.version = "2.4.0";
     Laya._isinit = false;
     Laya.isWXOpenDataContext = false;
     Laya.isWXPosMsg = false;

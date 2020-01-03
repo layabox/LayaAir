@@ -3,21 +3,33 @@ import { AnimatorStateScript } from "../animation/AnimatorStateScript";
 import { IClone } from "../core/IClone";
 import { IReferenceCounter } from "../resource/IReferenceCounter";
 import { KeyframeNodeOwner } from "./KeyframeNodeOwner";
+import { Quaternion } from "../math/Quaternion";
+import { Vector3 } from "../math/Vector3";
+import { KeyframeNodeList } from "../animation/KeyframeNodeList";
+import { Render } from "../../renders/Render";
+import { ConchVector3 } from "../math/Native/ConchVector3";
+import { ConchQuaternion } from "../math/Native/ConchQuaternion";
 
 /**
  * <code>AnimatorState</code> 类用于创建动作状态。
  */
 export class AnimatorState implements IReferenceCounter, IClone {
-	/**@internal */
+	/** @internal */
 	private _referenceCount: number = 0;
 
-	/**@internal */
+	/** @internal */
 	_clip: AnimationClip = null;
-	/**@internal */
+	/** @internal */
 	_nodeOwners: KeyframeNodeOwner[] = [];//TODO:提出去
-	/**@internal */
+	/** @internal */
 	_currentFrameIndices: Int16Array = null;
-	/**@internal */
+	/**
+	 * @internal
+	 * to avoid data confused,must put realtime datas in animatorState,can't be in animationClip,
+	 * for example use crossFade() with different animatorState but the sample clip source.
+	 */
+	_realtimeDatas: Array<number | Vector3 | Quaternion | ConchVector3 | ConchQuaternion> = [];
+	/** @internal */
 	_scripts: AnimatorStateScript[] = null;
 
 	/**名称。*/
@@ -41,9 +53,29 @@ export class AnimatorState implements IReferenceCounter, IClone {
 			if (this._clip)
 				(this._referenceCount > 0) && (this._clip._removeReference(this._referenceCount));
 			if (value) {
-				this._currentFrameIndices = new Int16Array(value._nodes.count);
+				var realtimeDatas: Array<number | Vector3 | Quaternion | ConchVector3 | ConchQuaternion> = this._realtimeDatas;
+				var clipNodes: KeyframeNodeList = value._nodes;
+				var count: number = clipNodes.count;
+				this._currentFrameIndices = new Int16Array(count);
 				this._resetFrameIndices();
-				(this._referenceCount > 0) && (this._clip._addReference(this._referenceCount));
+				(this._referenceCount > 0) && (value._addReference(this._referenceCount));
+				this._realtimeDatas.length = count;
+				for (var i: number = 0; i < count; i++) {
+					switch (clipNodes.getNodeByIndex(i).type) {
+						case 0:
+							break;
+						case 1:
+						case 3:
+						case 4:
+							realtimeDatas[i] = Render.supportWebGLPlusAnimation ? new ConchVector3 : new Vector3();
+							break;
+						case 2:
+							realtimeDatas[i] = Render.supportWebGLPlusAnimation ? new ConchQuaternion : new Quaternion();
+							break;
+						default:
+							throw "AnimationClipParser04:unknown type.";
+					}
+				}
 			}
 			this._clip = value;
 		}
@@ -149,7 +181,7 @@ export class AnimatorState implements IReferenceCounter, IClone {
 	 * @param	destObject 克隆源。
 	 */
 	cloneTo(destObject: any): void {
-		var dest: AnimatorState = (<AnimatorState>destObject);
+		var dest: AnimatorState = <AnimatorState>destObject;
 		dest.name = this.name;
 		dest.speed = this.speed;
 		dest.clipStart = this.clipStart;

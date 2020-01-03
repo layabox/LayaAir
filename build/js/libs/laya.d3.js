@@ -1324,6 +1324,1529 @@
 	    Vector3Keyframe = window.qq.webglPlus.conchFloatArrayKeyframe;
 	}
 
+	class AnimationClipParser03 {
+	    static READ_DATA() {
+	        AnimationClipParser03._DATA.offset = AnimationClipParser03._reader.getUint32();
+	        AnimationClipParser03._DATA.size = AnimationClipParser03._reader.getUint32();
+	    }
+	    static READ_BLOCK() {
+	        var count = AnimationClipParser03._BLOCK.count = AnimationClipParser03._reader.getUint16();
+	        var blockStarts = AnimationClipParser03._BLOCK.blockStarts = [];
+	        var blockLengths = AnimationClipParser03._BLOCK.blockLengths = [];
+	        for (var i = 0; i < count; i++) {
+	            blockStarts.push(AnimationClipParser03._reader.getUint32());
+	            blockLengths.push(AnimationClipParser03._reader.getUint32());
+	        }
+	    }
+	    static READ_STRINGS() {
+	        var offset = AnimationClipParser03._reader.getUint32();
+	        var count = AnimationClipParser03._reader.getUint16();
+	        var prePos = AnimationClipParser03._reader.pos;
+	        AnimationClipParser03._reader.pos = offset + AnimationClipParser03._DATA.offset;
+	        for (var i = 0; i < count; i++)
+	            AnimationClipParser03._strings[i] = AnimationClipParser03._reader.readUTFString();
+	        AnimationClipParser03._reader.pos = prePos;
+	    }
+	    static parse(clip, reader) {
+	        AnimationClipParser03._animationClip = clip;
+	        AnimationClipParser03._reader = reader;
+	        var arrayBuffer = reader.__getBuffer();
+	        AnimationClipParser03.READ_DATA();
+	        AnimationClipParser03.READ_BLOCK();
+	        AnimationClipParser03.READ_STRINGS();
+	        for (var i = 0, n = AnimationClipParser03._BLOCK.count; i < n; i++) {
+	            var index = reader.getUint16();
+	            var blockName = AnimationClipParser03._strings[index];
+	            var fn = AnimationClipParser03["READ_" + blockName];
+	            if (fn == null)
+	                throw new Error("model file err,no this function:" + index + " " + blockName);
+	            else
+	                fn.call(null);
+	        }
+	    }
+	    static READ_ANIMATIONS() {
+	        var i, j;
+	        var node;
+	        var reader = AnimationClipParser03._reader;
+	        var buffer = reader.__getBuffer();
+	        var startTimeTypes = [];
+	        var startTimeTypeCount = reader.getUint16();
+	        startTimeTypes.length = startTimeTypeCount;
+	        for (i = 0; i < startTimeTypeCount; i++)
+	            startTimeTypes[i] = reader.getFloat32();
+	        var clip = AnimationClipParser03._animationClip;
+	        clip.name = AnimationClipParser03._strings[reader.getUint16()];
+	        var clipDur = clip._duration = reader.getFloat32();
+	        clip.islooping = !!reader.getByte();
+	        clip._frameRate = reader.getInt16();
+	        var nodeCount = reader.getInt16();
+	        var nodes = clip._nodes;
+	        nodes.count = nodeCount;
+	        var nodesMap = clip._nodesMap = {};
+	        var nodesDic = clip._nodesDic = {};
+	        for (i = 0; i < nodeCount; i++) {
+	            node = new KeyframeNode();
+	            nodes.setNodeByIndex(i, node);
+	            node._indexInList = i;
+	            var type = node.type = reader.getUint8();
+	            var pathLength = reader.getUint16();
+	            node._setOwnerPathCount(pathLength);
+	            for (j = 0; j < pathLength; j++)
+	                node._setOwnerPathByIndex(j, AnimationClipParser03._strings[reader.getUint16()]);
+	            var nodePath = node._joinOwnerPath("/");
+	            var mapArray = nodesMap[nodePath];
+	            (mapArray) || (nodesMap[nodePath] = mapArray = []);
+	            mapArray.push(node);
+	            node.propertyOwner = AnimationClipParser03._strings[reader.getUint16()];
+	            var propertyLength = reader.getUint16();
+	            node._setPropertyCount(propertyLength);
+	            for (j = 0; j < propertyLength; j++)
+	                node._setPropertyByIndex(j, AnimationClipParser03._strings[reader.getUint16()]);
+	            var fullPath = nodePath + "." + node.propertyOwner + "." + node._joinProperty(".");
+	            nodesDic[fullPath] = node;
+	            node.fullPath = fullPath;
+	            var keyframeCount = reader.getUint16();
+	            node._setKeyframeCount(keyframeCount);
+	            var startTime;
+	            for (j = 0; j < keyframeCount; j++) {
+	                switch (type) {
+	                    case 0:
+	                        var floatKeyframe = new FloatKeyframe();
+	                        node._setKeyframeByIndex(j, floatKeyframe);
+	                        startTime = floatKeyframe.time = startTimeTypes[reader.getUint16()];
+	                        floatKeyframe.inTangent = reader.getFloat32();
+	                        floatKeyframe.outTangent = reader.getFloat32();
+	                        floatKeyframe.value = reader.getFloat32();
+	                        break;
+	                    case 1:
+	                    case 3:
+	                    case 4:
+	                        var floatArrayKeyframe = new Vector3Keyframe();
+	                        node._setKeyframeByIndex(j, floatArrayKeyframe);
+	                        startTime = floatArrayKeyframe.time = startTimeTypes[reader.getUint16()];
+	                        if (Laya.Render.supportWebGLPlusAnimation) {
+	                            var data = floatArrayKeyframe.data = new Float32Array(3 * 3);
+	                            for (var k = 0; k < 3; k++)
+	                                data[k] = reader.getFloat32();
+	                            for (k = 0; k < 3; k++)
+	                                data[3 + k] = reader.getFloat32();
+	                            for (k = 0; k < 3; k++)
+	                                data[6 + k] = reader.getFloat32();
+	                        }
+	                        else {
+	                            var inTangent = floatArrayKeyframe.inTangent;
+	                            var outTangent = floatArrayKeyframe.outTangent;
+	                            var value = floatArrayKeyframe.value;
+	                            inTangent.x = reader.getFloat32();
+	                            inTangent.y = reader.getFloat32();
+	                            inTangent.z = reader.getFloat32();
+	                            outTangent.x = reader.getFloat32();
+	                            outTangent.y = reader.getFloat32();
+	                            outTangent.z = reader.getFloat32();
+	                            value.x = reader.getFloat32();
+	                            value.y = reader.getFloat32();
+	                            value.z = reader.getFloat32();
+	                        }
+	                        break;
+	                    case 2:
+	                        var quaArrayKeyframe = new QuaternionKeyframe();
+	                        node._setKeyframeByIndex(j, quaArrayKeyframe);
+	                        startTime = quaArrayKeyframe.time = startTimeTypes[reader.getUint16()];
+	                        if (Laya.Render.supportWebGLPlusAnimation) {
+	                            data = quaArrayKeyframe.data = new Float32Array(3 * 4);
+	                            for (k = 0; k < 4; k++)
+	                                data[k] = reader.getFloat32();
+	                            for (k = 0; k < 4; k++)
+	                                data[4 + k] = reader.getFloat32();
+	                            for (k = 0; k < 4; k++)
+	                                data[8 + k] = reader.getFloat32();
+	                        }
+	                        else {
+	                            var inTangentQua = quaArrayKeyframe.inTangent;
+	                            var outTangentQua = quaArrayKeyframe.outTangent;
+	                            var valueQua = quaArrayKeyframe.value;
+	                            inTangentQua.x = reader.getFloat32();
+	                            inTangentQua.y = reader.getFloat32();
+	                            inTangentQua.z = reader.getFloat32();
+	                            inTangentQua.w = reader.getFloat32();
+	                            outTangentQua.x = reader.getFloat32();
+	                            outTangentQua.y = reader.getFloat32();
+	                            outTangentQua.z = reader.getFloat32();
+	                            outTangentQua.w = reader.getFloat32();
+	                            valueQua.x = reader.getFloat32();
+	                            valueQua.y = reader.getFloat32();
+	                            valueQua.z = reader.getFloat32();
+	                            valueQua.w = reader.getFloat32();
+	                        }
+	                        break;
+	                    default:
+	                        throw "AnimationClipParser03:unknown type.";
+	                }
+	            }
+	        }
+	        var eventCount = reader.getUint16();
+	        for (i = 0; i < eventCount; i++) {
+	            var event = new AnimationEvent();
+	            event.time = Math.min(clipDur, reader.getFloat32());
+	            event.eventName = AnimationClipParser03._strings[reader.getUint16()];
+	            var params;
+	            var paramCount = reader.getUint16();
+	            (paramCount > 0) && (event.params = params = []);
+	            for (j = 0; j < paramCount; j++) {
+	                var eventType = reader.getByte();
+	                switch (eventType) {
+	                    case 0:
+	                        params.push(!!reader.getByte());
+	                        break;
+	                    case 1:
+	                        params.push(reader.getInt32());
+	                        break;
+	                    case 2:
+	                        params.push(reader.getFloat32());
+	                        break;
+	                    case 3:
+	                        params.push(AnimationClipParser03._strings[reader.getUint16()]);
+	                        break;
+	                    default:
+	                        throw new Error("unknown type.");
+	                }
+	            }
+	            clip.addEvent(event);
+	        }
+	    }
+	}
+	AnimationClipParser03._strings = [];
+	AnimationClipParser03._BLOCK = { count: 0 };
+	AnimationClipParser03._DATA = { offset: 0, size: 0 };
+
+	class HalfFloatUtils {
+	    static __init__() {
+	        for (var i = 0; i < 256; ++i) {
+	            var e = i - 127;
+	            if (e < -27) {
+	                HalfFloatUtils._baseTable[i | 0x000] = 0x0000;
+	                HalfFloatUtils._baseTable[i | 0x100] = 0x8000;
+	                HalfFloatUtils._shiftTable[i | 0x000] = 24;
+	                HalfFloatUtils._shiftTable[i | 0x100] = 24;
+	            }
+	            else if (e < -14) {
+	                HalfFloatUtils._baseTable[i | 0x000] = 0x0400 >> (-e - 14);
+	                HalfFloatUtils._baseTable[i | 0x100] = (0x0400 >> (-e - 14)) | 0x8000;
+	                HalfFloatUtils._shiftTable[i | 0x000] = -e - 1;
+	                HalfFloatUtils._shiftTable[i | 0x100] = -e - 1;
+	            }
+	            else if (e <= 15) {
+	                HalfFloatUtils._baseTable[i | 0x000] = (e + 15) << 10;
+	                HalfFloatUtils._baseTable[i | 0x100] = ((e + 15) << 10) | 0x8000;
+	                HalfFloatUtils._shiftTable[i | 0x000] = 13;
+	                HalfFloatUtils._shiftTable[i | 0x100] = 13;
+	            }
+	            else if (e < 128) {
+	                HalfFloatUtils._baseTable[i | 0x000] = 0x7c00;
+	                HalfFloatUtils._baseTable[i | 0x100] = 0xfc00;
+	                HalfFloatUtils._shiftTable[i | 0x000] = 24;
+	                HalfFloatUtils._shiftTable[i | 0x100] = 24;
+	            }
+	            else {
+	                HalfFloatUtils._baseTable[i | 0x000] = 0x7c00;
+	                HalfFloatUtils._baseTable[i | 0x100] = 0xfc00;
+	                HalfFloatUtils._shiftTable[i | 0x000] = 13;
+	                HalfFloatUtils._shiftTable[i | 0x100] = 13;
+	            }
+	        }
+	        HalfFloatUtils._mantissaTable[0] = 0;
+	        for (i = 1; i < 1024; ++i) {
+	            var m = i << 13;
+	            e = 0;
+	            while ((m & 0x00800000) === 0) {
+	                e -= 0x00800000;
+	                m <<= 1;
+	            }
+	            m &= ~0x00800000;
+	            e += 0x38800000;
+	            HalfFloatUtils._mantissaTable[i] = m | e;
+	        }
+	        for (i = 1024; i < 2048; ++i) {
+	            HalfFloatUtils._mantissaTable[i] = 0x38000000 + ((i - 1024) << 13);
+	        }
+	        HalfFloatUtils._exponentTable[0] = 0;
+	        for (i = 1; i < 31; ++i) {
+	            HalfFloatUtils._exponentTable[i] = i << 23;
+	        }
+	        HalfFloatUtils._exponentTable[31] = 0x47800000;
+	        HalfFloatUtils._exponentTable[32] = 0x80000000;
+	        for (i = 33; i < 63; ++i) {
+	            HalfFloatUtils._exponentTable[i] = 0x80000000 + ((i - 32) << 23);
+	        }
+	        HalfFloatUtils._exponentTable[63] = 0xc7800000;
+	        HalfFloatUtils._offsetTable[0] = 0;
+	        for (i = 1; i < 64; ++i) {
+	            if (i === 32) {
+	                HalfFloatUtils._offsetTable[i] = 0;
+	            }
+	            else {
+	                HalfFloatUtils._offsetTable[i] = 1024;
+	            }
+	        }
+	    }
+	    static roundToFloat16Bits(num) {
+	        HalfFloatUtils._floatView[0] = num;
+	        var f = HalfFloatUtils._uint32View[0];
+	        var e = (f >> 23) & 0x1ff;
+	        return HalfFloatUtils._baseTable[e] + ((f & 0x007fffff) >> HalfFloatUtils._shiftTable[e]);
+	    }
+	    static convertToNumber(float16bits) {
+	        var m = float16bits >> 10;
+	        HalfFloatUtils._uint32View[0] = HalfFloatUtils._mantissaTable[HalfFloatUtils._offsetTable[m] + (float16bits & 0x3ff)] + HalfFloatUtils._exponentTable[m];
+	        return HalfFloatUtils._floatView[0];
+	    }
+	}
+	HalfFloatUtils._buffer = new ArrayBuffer(4);
+	HalfFloatUtils._floatView = new Float32Array(HalfFloatUtils._buffer);
+	HalfFloatUtils._uint32View = new Uint32Array(HalfFloatUtils._buffer);
+	HalfFloatUtils._baseTable = new Uint32Array(512);
+	HalfFloatUtils._shiftTable = new Uint32Array(512);
+	HalfFloatUtils._mantissaTable = new Uint32Array(2048);
+	HalfFloatUtils._exponentTable = new Uint32Array(64);
+	HalfFloatUtils._offsetTable = new Uint32Array(64);
+
+	class AnimationClipParser04 {
+	    static READ_DATA() {
+	        AnimationClipParser04._DATA.offset = AnimationClipParser04._reader.getUint32();
+	        AnimationClipParser04._DATA.size = AnimationClipParser04._reader.getUint32();
+	    }
+	    static READ_BLOCK() {
+	        var count = AnimationClipParser04._BLOCK.count = AnimationClipParser04._reader.getUint16();
+	        var blockStarts = AnimationClipParser04._BLOCK.blockStarts = [];
+	        var blockLengths = AnimationClipParser04._BLOCK.blockLengths = [];
+	        for (var i = 0; i < count; i++) {
+	            blockStarts.push(AnimationClipParser04._reader.getUint32());
+	            blockLengths.push(AnimationClipParser04._reader.getUint32());
+	        }
+	    }
+	    static READ_STRINGS() {
+	        var offset = AnimationClipParser04._reader.getUint32();
+	        var count = AnimationClipParser04._reader.getUint16();
+	        var prePos = AnimationClipParser04._reader.pos;
+	        AnimationClipParser04._reader.pos = offset + AnimationClipParser04._DATA.offset;
+	        for (var i = 0; i < count; i++)
+	            AnimationClipParser04._strings[i] = AnimationClipParser04._reader.readUTFString();
+	        AnimationClipParser04._reader.pos = prePos;
+	    }
+	    static parse(clip, reader, version) {
+	        AnimationClipParser04._animationClip = clip;
+	        AnimationClipParser04._reader = reader;
+	        AnimationClipParser04._version = version;
+	        AnimationClipParser04.READ_DATA();
+	        AnimationClipParser04.READ_BLOCK();
+	        AnimationClipParser04.READ_STRINGS();
+	        for (var i = 0, n = AnimationClipParser04._BLOCK.count; i < n; i++) {
+	            var index = reader.getUint16();
+	            var blockName = AnimationClipParser04._strings[index];
+	            var fn = AnimationClipParser04["READ_" + blockName];
+	            if (fn == null)
+	                throw new Error("model file err,no this function:" + index + " " + blockName);
+	            else
+	                fn.call(null);
+	        }
+	        AnimationClipParser04._version = null;
+	        AnimationClipParser04._reader = null;
+	        AnimationClipParser04._animationClip = null;
+	    }
+	    static READ_ANIMATIONS() {
+	        var i, j;
+	        var node;
+	        var reader = AnimationClipParser04._reader;
+	        var buffer = reader.__getBuffer();
+	        var startTimeTypes = [];
+	        var startTimeTypeCount = reader.getUint16();
+	        startTimeTypes.length = startTimeTypeCount;
+	        for (i = 0; i < startTimeTypeCount; i++)
+	            startTimeTypes[i] = reader.getFloat32();
+	        var clip = AnimationClipParser04._animationClip;
+	        clip.name = AnimationClipParser04._strings[reader.getUint16()];
+	        var clipDur = clip._duration = reader.getFloat32();
+	        clip.islooping = !!reader.getByte();
+	        clip._frameRate = reader.getInt16();
+	        var nodeCount = reader.getInt16();
+	        var nodes = clip._nodes;
+	        nodes.count = nodeCount;
+	        var nodesMap = clip._nodesMap = {};
+	        var nodesDic = clip._nodesDic = {};
+	        for (i = 0; i < nodeCount; i++) {
+	            node = new KeyframeNode();
+	            nodes.setNodeByIndex(i, node);
+	            node._indexInList = i;
+	            var type = node.type = reader.getUint8();
+	            var pathLength = reader.getUint16();
+	            node._setOwnerPathCount(pathLength);
+	            for (j = 0; j < pathLength; j++)
+	                node._setOwnerPathByIndex(j, AnimationClipParser04._strings[reader.getUint16()]);
+	            var nodePath = node._joinOwnerPath("/");
+	            var mapArray = nodesMap[nodePath];
+	            (mapArray) || (nodesMap[nodePath] = mapArray = []);
+	            mapArray.push(node);
+	            node.propertyOwner = AnimationClipParser04._strings[reader.getUint16()];
+	            var propertyLength = reader.getUint16();
+	            node._setPropertyCount(propertyLength);
+	            for (j = 0; j < propertyLength; j++)
+	                node._setPropertyByIndex(j, AnimationClipParser04._strings[reader.getUint16()]);
+	            var fullPath = nodePath + "." + node.propertyOwner + "." + node._joinProperty(".");
+	            nodesDic[fullPath] = node;
+	            node.fullPath = fullPath;
+	            var keyframeCount = reader.getUint16();
+	            node._setKeyframeCount(keyframeCount);
+	            var startTime;
+	            switch (AnimationClipParser04._version) {
+	                case "LAYAANIMATION:04":
+	                    for (j = 0; j < keyframeCount; j++) {
+	                        switch (type) {
+	                            case 0:
+	                                var floatKeyframe = new FloatKeyframe();
+	                                node._setKeyframeByIndex(j, floatKeyframe);
+	                                startTime = floatKeyframe.time = startTimeTypes[reader.getUint16()];
+	                                floatKeyframe.inTangent = reader.getFloat32();
+	                                floatKeyframe.outTangent = reader.getFloat32();
+	                                floatKeyframe.value = reader.getFloat32();
+	                                break;
+	                            case 1:
+	                            case 3:
+	                            case 4:
+	                                var floatArrayKeyframe = new Vector3Keyframe();
+	                                node._setKeyframeByIndex(j, floatArrayKeyframe);
+	                                startTime = floatArrayKeyframe.time = startTimeTypes[reader.getUint16()];
+	                                if (Laya.Render.supportWebGLPlusAnimation) {
+	                                    var data = floatArrayKeyframe.data = new Float32Array(3 * 3);
+	                                    for (var k = 0; k < 3; k++)
+	                                        data[k] = reader.getFloat32();
+	                                    for (k = 0; k < 3; k++)
+	                                        data[3 + k] = reader.getFloat32();
+	                                    for (k = 0; k < 3; k++)
+	                                        data[6 + k] = reader.getFloat32();
+	                                }
+	                                else {
+	                                    var inTangent = floatArrayKeyframe.inTangent;
+	                                    var outTangent = floatArrayKeyframe.outTangent;
+	                                    var value = floatArrayKeyframe.value;
+	                                    inTangent.x = reader.getFloat32();
+	                                    inTangent.y = reader.getFloat32();
+	                                    inTangent.z = reader.getFloat32();
+	                                    outTangent.x = reader.getFloat32();
+	                                    outTangent.y = reader.getFloat32();
+	                                    outTangent.z = reader.getFloat32();
+	                                    value.x = reader.getFloat32();
+	                                    value.y = reader.getFloat32();
+	                                    value.z = reader.getFloat32();
+	                                }
+	                                break;
+	                            case 2:
+	                                var quaternionKeyframe = new QuaternionKeyframe();
+	                                node._setKeyframeByIndex(j, quaternionKeyframe);
+	                                startTime = quaternionKeyframe.time = startTimeTypes[reader.getUint16()];
+	                                if (Laya.Render.supportWebGLPlusAnimation) {
+	                                    data = quaternionKeyframe.data = new Float32Array(3 * 4);
+	                                    for (k = 0; k < 4; k++)
+	                                        data[k] = reader.getFloat32();
+	                                    for (k = 0; k < 4; k++)
+	                                        data[4 + k] = reader.getFloat32();
+	                                    for (k = 0; k < 4; k++)
+	                                        data[8 + k] = reader.getFloat32();
+	                                }
+	                                else {
+	                                    var inTangentQua = quaternionKeyframe.inTangent;
+	                                    var outTangentQua = quaternionKeyframe.outTangent;
+	                                    var valueQua = quaternionKeyframe.value;
+	                                    inTangentQua.x = reader.getFloat32();
+	                                    inTangentQua.y = reader.getFloat32();
+	                                    inTangentQua.z = reader.getFloat32();
+	                                    inTangentQua.w = reader.getFloat32();
+	                                    outTangentQua.x = reader.getFloat32();
+	                                    outTangentQua.y = reader.getFloat32();
+	                                    outTangentQua.z = reader.getFloat32();
+	                                    outTangentQua.w = reader.getFloat32();
+	                                    valueQua.x = reader.getFloat32();
+	                                    valueQua.y = reader.getFloat32();
+	                                    valueQua.z = reader.getFloat32();
+	                                    valueQua.w = reader.getFloat32();
+	                                }
+	                                break;
+	                            default:
+	                                throw "AnimationClipParser04:unknown type.";
+	                        }
+	                    }
+	                    break;
+	                case "LAYAANIMATION:COMPRESSION_04":
+	                    for (j = 0; j < keyframeCount; j++) {
+	                        switch (type) {
+	                            case 0:
+	                                floatKeyframe = new FloatKeyframe();
+	                                node._setKeyframeByIndex(j, floatKeyframe);
+	                                startTime = floatKeyframe.time = startTimeTypes[reader.getUint16()];
+	                                floatKeyframe.inTangent = HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                floatKeyframe.outTangent = HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                floatKeyframe.value = HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                break;
+	                            case 1:
+	                            case 3:
+	                            case 4:
+	                                floatArrayKeyframe = new Vector3Keyframe();
+	                                node._setKeyframeByIndex(j, floatArrayKeyframe);
+	                                startTime = floatArrayKeyframe.time = startTimeTypes[reader.getUint16()];
+	                                if (Laya.Render.supportWebGLPlusAnimation) {
+	                                    data = floatArrayKeyframe.data = new Float32Array(3 * 3);
+	                                    for (k = 0; k < 3; k++)
+	                                        data[k] = HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                    for (k = 0; k < 3; k++)
+	                                        data[3 + k] = HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                    for (k = 0; k < 3; k++)
+	                                        data[6 + k] = HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                }
+	                                else {
+	                                    inTangent = floatArrayKeyframe.inTangent;
+	                                    outTangent = floatArrayKeyframe.outTangent;
+	                                    value = floatArrayKeyframe.value;
+	                                    inTangent.x = HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                    inTangent.y = HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                    inTangent.z = HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                    outTangent.x = HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                    outTangent.y = HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                    outTangent.z = HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                    value.x = HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                    value.y = HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                    value.z = HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                }
+	                                break;
+	                            case 2:
+	                                quaternionKeyframe = new QuaternionKeyframe();
+	                                node._setKeyframeByIndex(j, quaternionKeyframe);
+	                                startTime = quaternionKeyframe.time = startTimeTypes[reader.getUint16()];
+	                                if (Laya.Render.supportWebGLPlusAnimation) {
+	                                    data = quaternionKeyframe.data = new Float32Array(3 * 4);
+	                                    for (k = 0; k < 4; k++)
+	                                        data[k] = HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                    for (k = 0; k < 4; k++)
+	                                        data[4 + k] = HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                    for (k = 0; k < 4; k++)
+	                                        data[8 + k] = HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                }
+	                                else {
+	                                    inTangentQua = quaternionKeyframe.inTangent;
+	                                    outTangentQua = quaternionKeyframe.outTangent;
+	                                    valueQua = quaternionKeyframe.value;
+	                                    inTangentQua.x = HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                    inTangentQua.y = HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                    inTangentQua.z = HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                    inTangentQua.w = HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                    outTangentQua.x = HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                    outTangentQua.y = HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                    outTangentQua.z = HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                    outTangentQua.w = HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                    valueQua.x = HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                    valueQua.y = HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                    valueQua.z = HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                    valueQua.w = HalfFloatUtils.convertToNumber(reader.getUint16());
+	                                }
+	                                break;
+	                            default:
+	                                throw "AnimationClipParser04:unknown type.";
+	                        }
+	                    }
+	                    break;
+	            }
+	        }
+	        var eventCount = reader.getUint16();
+	        for (i = 0; i < eventCount; i++) {
+	            var event = new AnimationEvent();
+	            event.time = Math.min(clipDur, reader.getFloat32());
+	            event.eventName = AnimationClipParser04._strings[reader.getUint16()];
+	            var params;
+	            var paramCount = reader.getUint16();
+	            (paramCount > 0) && (event.params = params = []);
+	            for (j = 0; j < paramCount; j++) {
+	                var eventType = reader.getByte();
+	                switch (eventType) {
+	                    case 0:
+	                        params.push(!!reader.getByte());
+	                        break;
+	                    case 1:
+	                        params.push(reader.getInt32());
+	                        break;
+	                    case 2:
+	                        params.push(reader.getFloat32());
+	                        break;
+	                    case 3:
+	                        params.push(AnimationClipParser04._strings[reader.getUint16()]);
+	                        break;
+	                    default:
+	                        throw new Error("unknown type.");
+	                }
+	            }
+	            clip.addEvent(event);
+	        }
+	    }
+	}
+	AnimationClipParser04._strings = [];
+	AnimationClipParser04._BLOCK = { count: 0 };
+	AnimationClipParser04._DATA = { offset: 0, size: 0 };
+
+	class KeyframeNodeList {
+	    constructor() {
+	        this._nodes = [];
+	    }
+	    get count() {
+	        return this._nodes.length;
+	    }
+	    set count(value) {
+	        this._nodes.length = value;
+	    }
+	    getNodeByIndex(index) {
+	        return this._nodes[index];
+	    }
+	    setNodeByIndex(index, node) {
+	        this._nodes[index] = node;
+	    }
+	}
+	if (window.conch && window.conchKeyframeNodeList) {
+	    KeyframeNodeList = window.conchKeyframeNodeList;
+	}
+	if (window.qq && window.qq.webglPlus) {
+	    KeyframeNodeList = window.qq.webglPlus.conchKeyframeNodeList;
+	}
+
+	class TextureGenerator {
+	    constructor() {
+	    }
+	    static lightAttenTexture(x, y, maxX, maxY, index, data) {
+	        var sqrRange = x / maxX;
+	        var atten = 1.0 / (1.0 + 25.0 * sqrRange);
+	        if (sqrRange >= 0.64) {
+	            if (sqrRange > 1.0) {
+	                atten = 0;
+	            }
+	            else {
+	                atten *= 1 - (sqrRange - 0.64) / (1 - 0.64);
+	            }
+	        }
+	        data[index] = Math.floor(atten * 255.0 + 0.5);
+	    }
+	    static haloTexture(x, y, maxX, maxY, index, data) {
+	        maxX >>= 1;
+	        maxY >>= 1;
+	        var xFac = (x - maxX) / maxX;
+	        var yFac = (y - maxY) / maxY;
+	        var sqrRange = xFac * xFac + yFac * yFac;
+	        if (sqrRange > 1.0) {
+	            sqrRange = 1.0;
+	        }
+	        data[index] = Math.floor((1.0 - sqrRange) * 255.0 + 0.5);
+	    }
+	    static _generateTexture2D(texture, textureWidth, textureHeight, func) {
+	        var index = 0;
+	        var size = 0;
+	        switch (texture.format) {
+	            case Laya.TextureFormat.R8G8B8:
+	                size = 3;
+	                break;
+	            case Laya.TextureFormat.R8G8B8A8:
+	                size = 4;
+	                break;
+	            case Laya.TextureFormat.Alpha8:
+	                size = 1;
+	                break;
+	            default:
+	                throw "GeneratedTexture._generateTexture: unkonw texture format.";
+	        }
+	        var data = new Uint8Array(textureWidth * textureHeight * size);
+	        for (var y = 0; y < textureHeight; y++) {
+	            for (var x = 0; x < textureWidth; x++) {
+	                func(x, y, textureWidth, textureHeight, index, data);
+	                index += size;
+	            }
+	        }
+	        texture.setPixels(data);
+	    }
+	}
+
+	class Physics3D {
+	}
+	Physics3D._bullet = null;
+	Physics3D._enablePhysics = false;
+
+	class Utils3D {
+	    static _createFloatTextureBuffer(width, height) {
+	        var floatTex = new Laya.Texture2D(width, height, Laya.TextureFormat.R32G32B32A32, false, false);
+	        floatTex.filterMode = Laya.BaseTexture.FILTERMODE_POINT;
+	        floatTex.wrapModeU = Laya.BaseTexture.WARPMODE_CLAMP;
+	        floatTex.wrapModeV = Laya.BaseTexture.WARPMODE_CLAMP;
+	        floatTex.anisoLevel = 0;
+	        return floatTex;
+	    }
+	    static _convertToLayaVec3(bVector, out, inverseX) {
+	        var bullet = Physics3D._bullet;
+	        out.x = inverseX ? -bullet.btVector3_x(bVector) : bullet.btVector3_x(bVector);
+	        out.y = bullet.btVector3_y(bVector);
+	        out.z = bullet.btVector3_z(bVector);
+	    }
+	    static _convertToBulletVec3(lVector, out, inverseX) {
+	        Physics3D._bullet.btVector3_setValue(out, inverseX ? -lVector.x : lVector.x, lVector.y, lVector.z);
+	    }
+	    static _rotationTransformScaleSkinAnimation(tx, ty, tz, qx, qy, qz, qw, sx, sy, sz, outArray, outOffset) {
+	        var re = Utils3D._tempArray16_0;
+	        var se = Utils3D._tempArray16_1;
+	        var tse = Utils3D._tempArray16_2;
+	        var x2 = qx + qx;
+	        var y2 = qy + qy;
+	        var z2 = qz + qz;
+	        var xx = qx * x2;
+	        var yx = qy * x2;
+	        var yy = qy * y2;
+	        var zx = qz * x2;
+	        var zy = qz * y2;
+	        var zz = qz * z2;
+	        var wx = qw * x2;
+	        var wy = qw * y2;
+	        var wz = qw * z2;
+	        re[15] = 1;
+	        re[0] = 1 - yy - zz;
+	        re[1] = yx + wz;
+	        re[2] = zx - wy;
+	        re[4] = yx - wz;
+	        re[5] = 1 - xx - zz;
+	        re[6] = zy + wx;
+	        re[8] = zx + wy;
+	        re[9] = zy - wx;
+	        re[10] = 1 - xx - yy;
+	        se[15] = 1;
+	        se[0] = sx;
+	        se[5] = sy;
+	        se[10] = sz;
+	        var i, ai0, ai1, ai2, ai3;
+	        for (i = 0; i < 4; i++) {
+	            ai0 = re[i];
+	            ai1 = re[i + 4];
+	            ai2 = re[i + 8];
+	            ai3 = re[i + 12];
+	            tse[i] = ai0;
+	            tse[i + 4] = ai1;
+	            tse[i + 8] = ai2;
+	            tse[i + 12] = ai0 * tx + ai1 * ty + ai2 * tz + ai3;
+	        }
+	        for (i = 0; i < 4; i++) {
+	            ai0 = tse[i];
+	            ai1 = tse[i + 4];
+	            ai2 = tse[i + 8];
+	            ai3 = tse[i + 12];
+	            outArray[i + outOffset] = ai0 * se[0] + ai1 * se[1] + ai2 * se[2] + ai3 * se[3];
+	            outArray[i + outOffset + 4] = ai0 * se[4] + ai1 * se[5] + ai2 * se[6] + ai3 * se[7];
+	            outArray[i + outOffset + 8] = ai0 * se[8] + ai1 * se[9] + ai2 * se[10] + ai3 * se[11];
+	            outArray[i + outOffset + 12] = ai0 * se[12] + ai1 * se[13] + ai2 * se[14] + ai3 * se[15];
+	        }
+	    }
+	    static _computeBoneAndAnimationDatasByBindPoseMatrxix(bones, curData, inverGlobalBindPose, outBonesDatas, outAnimationDatas, boneIndexToMesh) {
+	        var offset = 0;
+	        var matOffset = 0;
+	        var i;
+	        var parentOffset;
+	        var boneLength = bones.length;
+	        for (i = 0; i < boneLength; offset += bones[i].keyframeWidth, matOffset += 16, i++) {
+	            Utils3D._rotationTransformScaleSkinAnimation(curData[offset + 0], curData[offset + 1], curData[offset + 2], curData[offset + 3], curData[offset + 4], curData[offset + 5], curData[offset + 6], curData[offset + 7], curData[offset + 8], curData[offset + 9], outBonesDatas, matOffset);
+	            if (i != 0) {
+	                parentOffset = bones[i].parentIndex * 16;
+	                Utils3D.mulMatrixByArray(outBonesDatas, parentOffset, outBonesDatas, matOffset, outBonesDatas, matOffset);
+	            }
+	        }
+	        var n = inverGlobalBindPose.length;
+	        for (i = 0; i < n; i++) {
+	            Utils3D.mulMatrixByArrayAndMatrixFast(outBonesDatas, boneIndexToMesh[i] * 16, inverGlobalBindPose[i], outAnimationDatas, i * 16);
+	        }
+	    }
+	    static _computeAnimationDatasByArrayAndMatrixFast(inverGlobalBindPose, bonesDatas, outAnimationDatas, boneIndexToMesh) {
+	        for (var i = 0, n = inverGlobalBindPose.length; i < n; i++)
+	            Utils3D.mulMatrixByArrayAndMatrixFast(bonesDatas, boneIndexToMesh[i] * 16, inverGlobalBindPose[i], outAnimationDatas, i * 16);
+	    }
+	    static _computeBoneAndAnimationDatasByBindPoseMatrxixOld(bones, curData, inverGlobalBindPose, outBonesDatas, outAnimationDatas) {
+	        var offset = 0;
+	        var matOffset = 0;
+	        var i;
+	        var parentOffset;
+	        var boneLength = bones.length;
+	        for (i = 0; i < boneLength; offset += bones[i].keyframeWidth, matOffset += 16, i++) {
+	            Utils3D._rotationTransformScaleSkinAnimation(curData[offset + 7], curData[offset + 8], curData[offset + 9], curData[offset + 3], curData[offset + 4], curData[offset + 5], curData[offset + 6], curData[offset + 0], curData[offset + 1], curData[offset + 2], outBonesDatas, matOffset);
+	            if (i != 0) {
+	                parentOffset = bones[i].parentIndex * 16;
+	                Utils3D.mulMatrixByArray(outBonesDatas, parentOffset, outBonesDatas, matOffset, outBonesDatas, matOffset);
+	            }
+	        }
+	        var n = inverGlobalBindPose.length;
+	        for (i = 0; i < n; i++) {
+	            var arrayOffset = i * 16;
+	            Utils3D.mulMatrixByArrayAndMatrixFast(outBonesDatas, arrayOffset, inverGlobalBindPose[i], outAnimationDatas, arrayOffset);
+	        }
+	    }
+	    static _computeAnimationDatasByArrayAndMatrixFastOld(inverGlobalBindPose, bonesDatas, outAnimationDatas) {
+	        var n = inverGlobalBindPose.length;
+	        for (var i = 0; i < n; i++) {
+	            var arrayOffset = i * 16;
+	            Utils3D.mulMatrixByArrayAndMatrixFast(bonesDatas, arrayOffset, inverGlobalBindPose[i], outAnimationDatas, arrayOffset);
+	        }
+	    }
+	    static _computeRootAnimationData(bones, curData, animationDatas) {
+	        for (var i = 0, offset = 0, matOffset = 0, boneLength = bones.length; i < boneLength; offset += bones[i].keyframeWidth, matOffset += 16, i++)
+	            Utils3D.createAffineTransformationArray(curData[offset + 0], curData[offset + 1], curData[offset + 2], curData[offset + 3], curData[offset + 4], curData[offset + 5], curData[offset + 6], curData[offset + 7], curData[offset + 8], curData[offset + 9], animationDatas, matOffset);
+	    }
+	    static transformVector3ArrayByQuat(sourceArray, sourceOffset, rotation, outArray, outOffset) {
+	        var x = sourceArray[sourceOffset], y = sourceArray[sourceOffset + 1], z = sourceArray[sourceOffset + 2], qx = rotation.x, qy = rotation.y, qz = rotation.z, qw = rotation.w, ix = qw * x + qy * z - qz * y, iy = qw * y + qz * x - qx * z, iz = qw * z + qx * y - qy * x, iw = -qx * x - qy * y - qz * z;
+	        outArray[outOffset] = ix * qw + iw * -qx + iy * -qz - iz * -qy;
+	        outArray[outOffset + 1] = iy * qw + iw * -qy + iz * -qx - ix * -qz;
+	        outArray[outOffset + 2] = iz * qw + iw * -qz + ix * -qy - iy * -qx;
+	    }
+	    static mulMatrixByArray(leftArray, leftOffset, rightArray, rightOffset, outArray, outOffset) {
+	        var i, ai0, ai1, ai2, ai3;
+	        if (outArray === rightArray) {
+	            rightArray = Utils3D._tempArray16_3;
+	            for (i = 0; i < 16; ++i) {
+	                rightArray[i] = outArray[outOffset + i];
+	            }
+	            rightOffset = 0;
+	        }
+	        for (i = 0; i < 4; i++) {
+	            ai0 = leftArray[leftOffset + i];
+	            ai1 = leftArray[leftOffset + i + 4];
+	            ai2 = leftArray[leftOffset + i + 8];
+	            ai3 = leftArray[leftOffset + i + 12];
+	            outArray[outOffset + i] = ai0 * rightArray[rightOffset + 0] + ai1 * rightArray[rightOffset + 1] + ai2 * rightArray[rightOffset + 2] + ai3 * rightArray[rightOffset + 3];
+	            outArray[outOffset + i + 4] = ai0 * rightArray[rightOffset + 4] + ai1 * rightArray[rightOffset + 5] + ai2 * rightArray[rightOffset + 6] + ai3 * rightArray[rightOffset + 7];
+	            outArray[outOffset + i + 8] = ai0 * rightArray[rightOffset + 8] + ai1 * rightArray[rightOffset + 9] + ai2 * rightArray[rightOffset + 10] + ai3 * rightArray[rightOffset + 11];
+	            outArray[outOffset + i + 12] = ai0 * rightArray[rightOffset + 12] + ai1 * rightArray[rightOffset + 13] + ai2 * rightArray[rightOffset + 14] + ai3 * rightArray[rightOffset + 15];
+	        }
+	    }
+	    static mulMatrixByArrayFast(leftArray, leftOffset, rightArray, rightOffset, outArray, outOffset) {
+	        var i, ai0, ai1, ai2, ai3;
+	        for (i = 0; i < 4; i++) {
+	            ai0 = leftArray[leftOffset + i];
+	            ai1 = leftArray[leftOffset + i + 4];
+	            ai2 = leftArray[leftOffset + i + 8];
+	            ai3 = leftArray[leftOffset + i + 12];
+	            outArray[outOffset + i] = ai0 * rightArray[rightOffset + 0] + ai1 * rightArray[rightOffset + 1] + ai2 * rightArray[rightOffset + 2] + ai3 * rightArray[rightOffset + 3];
+	            outArray[outOffset + i + 4] = ai0 * rightArray[rightOffset + 4] + ai1 * rightArray[rightOffset + 5] + ai2 * rightArray[rightOffset + 6] + ai3 * rightArray[rightOffset + 7];
+	            outArray[outOffset + i + 8] = ai0 * rightArray[rightOffset + 8] + ai1 * rightArray[rightOffset + 9] + ai2 * rightArray[rightOffset + 10] + ai3 * rightArray[rightOffset + 11];
+	            outArray[outOffset + i + 12] = ai0 * rightArray[rightOffset + 12] + ai1 * rightArray[rightOffset + 13] + ai2 * rightArray[rightOffset + 14] + ai3 * rightArray[rightOffset + 15];
+	        }
+	    }
+	    static mulMatrixByArrayAndMatrixFast(leftArray, leftOffset, rightMatrix, outArray, outOffset) {
+	        var i, ai0, ai1, ai2, ai3;
+	        var rightMatrixE = rightMatrix.elements;
+	        var m11 = rightMatrixE[0], m12 = rightMatrixE[1], m13 = rightMatrixE[2], m14 = rightMatrixE[3];
+	        var m21 = rightMatrixE[4], m22 = rightMatrixE[5], m23 = rightMatrixE[6], m24 = rightMatrixE[7];
+	        var m31 = rightMatrixE[8], m32 = rightMatrixE[9], m33 = rightMatrixE[10], m34 = rightMatrixE[11];
+	        var m41 = rightMatrixE[12], m42 = rightMatrixE[13], m43 = rightMatrixE[14], m44 = rightMatrixE[15];
+	        var ai0LeftOffset = leftOffset;
+	        var ai1LeftOffset = leftOffset + 4;
+	        var ai2LeftOffset = leftOffset + 8;
+	        var ai3LeftOffset = leftOffset + 12;
+	        var ai0OutOffset = outOffset;
+	        var ai1OutOffset = outOffset + 4;
+	        var ai2OutOffset = outOffset + 8;
+	        var ai3OutOffset = outOffset + 12;
+	        for (i = 0; i < 4; i++) {
+	            ai0 = leftArray[ai0LeftOffset + i];
+	            ai1 = leftArray[ai1LeftOffset + i];
+	            ai2 = leftArray[ai2LeftOffset + i];
+	            ai3 = leftArray[ai3LeftOffset + i];
+	            outArray[ai0OutOffset + i] = ai0 * m11 + ai1 * m12 + ai2 * m13 + ai3 * m14;
+	            outArray[ai1OutOffset + i] = ai0 * m21 + ai1 * m22 + ai2 * m23 + ai3 * m24;
+	            outArray[ai2OutOffset + i] = ai0 * m31 + ai1 * m32 + ai2 * m33 + ai3 * m34;
+	            outArray[ai3OutOffset + i] = ai0 * m41 + ai1 * m42 + ai2 * m43 + ai3 * m44;
+	        }
+	    }
+	    static createAffineTransformationArray(tX, tY, tZ, rX, rY, rZ, rW, sX, sY, sZ, outArray, outOffset) {
+	        var x2 = rX + rX, y2 = rY + rY, z2 = rZ + rZ;
+	        var xx = rX * x2, xy = rX * y2, xz = rX * z2, yy = rY * y2, yz = rY * z2, zz = rZ * z2;
+	        var wx = rW * x2, wy = rW * y2, wz = rW * z2;
+	        outArray[outOffset + 0] = (1 - (yy + zz)) * sX;
+	        outArray[outOffset + 1] = (xy + wz) * sX;
+	        outArray[outOffset + 2] = (xz - wy) * sX;
+	        outArray[outOffset + 3] = 0;
+	        outArray[outOffset + 4] = (xy - wz) * sY;
+	        outArray[outOffset + 5] = (1 - (xx + zz)) * sY;
+	        outArray[outOffset + 6] = (yz + wx) * sY;
+	        outArray[outOffset + 7] = 0;
+	        outArray[outOffset + 8] = (xz + wy) * sZ;
+	        outArray[outOffset + 9] = (yz - wx) * sZ;
+	        outArray[outOffset + 10] = (1 - (xx + yy)) * sZ;
+	        outArray[outOffset + 11] = 0;
+	        outArray[outOffset + 12] = tX;
+	        outArray[outOffset + 13] = tY;
+	        outArray[outOffset + 14] = tZ;
+	        outArray[outOffset + 15] = 1;
+	    }
+	    static transformVector3ArrayToVector3ArrayCoordinate(source, sourceOffset, transform, result, resultOffset) {
+	        var coordinateX = source[sourceOffset + 0];
+	        var coordinateY = source[sourceOffset + 1];
+	        var coordinateZ = source[sourceOffset + 2];
+	        var transformElem = transform.elements;
+	        var w = ((coordinateX * transformElem[3]) + (coordinateY * transformElem[7]) + (coordinateZ * transformElem[11]) + transformElem[15]);
+	        result[resultOffset] = (coordinateX * transformElem[0]) + (coordinateY * transformElem[4]) + (coordinateZ * transformElem[8]) + transformElem[12] / w;
+	        result[resultOffset + 1] = (coordinateX * transformElem[1]) + (coordinateY * transformElem[5]) + (coordinateZ * transformElem[9]) + transformElem[13] / w;
+	        result[resultOffset + 2] = (coordinateX * transformElem[2]) + (coordinateY * transformElem[6]) + (coordinateZ * transformElem[10]) + transformElem[14] / w;
+	    }
+	    static transformVector3ArrayToVector3ArrayNormal(source, sourceOffset, transform, result, resultOffset) {
+	        var coordinateX = source[sourceOffset + 0];
+	        var coordinateY = source[sourceOffset + 1];
+	        var coordinateZ = source[sourceOffset + 2];
+	        var transformElem = transform.elements;
+	        result[resultOffset] = coordinateX * transformElem[0] + coordinateY * transformElem[4] + coordinateZ * transformElem[8];
+	        result[resultOffset + 1] = coordinateX * transformElem[1] + coordinateY * transformElem[5] + coordinateZ * transformElem[9];
+	        result[resultOffset + 2] = coordinateX * transformElem[2] + coordinateY * transformElem[6] + coordinateZ * transformElem[10];
+	    }
+	    static transformLightingMapTexcoordArray(source, sourceOffset, lightingMapScaleOffset, result, resultOffset) {
+	        result[resultOffset + 0] = source[sourceOffset + 0] * lightingMapScaleOffset.x + lightingMapScaleOffset.z;
+	        result[resultOffset + 1] = 1.0 - ((1.0 - source[sourceOffset + 1]) * lightingMapScaleOffset.y + lightingMapScaleOffset.w);
+	    }
+	    static getURLVerion(url) {
+	        var index = url.indexOf("?");
+	        return index >= 0 ? url.substr(index) : null;
+	    }
+	    static _createAffineTransformationArray(trans, rot, scale, outE) {
+	        var x = rot.x, y = rot.y, z = rot.z, w = rot.w, x2 = x + x, y2 = y + y, z2 = z + z;
+	        var xx = x * x2, xy = x * y2, xz = x * z2, yy = y * y2, yz = y * z2, zz = z * z2;
+	        var wx = w * x2, wy = w * y2, wz = w * z2, sx = scale.x, sy = scale.y, sz = scale.z;
+	        outE[0] = (1 - (yy + zz)) * sx;
+	        outE[1] = (xy + wz) * sx;
+	        outE[2] = (xz - wy) * sx;
+	        outE[3] = 0;
+	        outE[4] = (xy - wz) * sy;
+	        outE[5] = (1 - (xx + zz)) * sy;
+	        outE[6] = (yz + wx) * sy;
+	        outE[7] = 0;
+	        outE[8] = (xz + wy) * sz;
+	        outE[9] = (yz - wx) * sz;
+	        outE[10] = (1 - (xx + yy)) * sz;
+	        outE[11] = 0;
+	        outE[12] = trans.x;
+	        outE[13] = trans.y;
+	        outE[14] = trans.z;
+	        outE[15] = 1;
+	    }
+	    static _mulMatrixArray(leftMatrixE, rightMatrix, outArray, outOffset) {
+	        var i, ai0, ai1, ai2, ai3;
+	        var rightMatrixE = rightMatrix.elements;
+	        var m11 = rightMatrixE[0], m12 = rightMatrixE[1], m13 = rightMatrixE[2], m14 = rightMatrixE[3];
+	        var m21 = rightMatrixE[4], m22 = rightMatrixE[5], m23 = rightMatrixE[6], m24 = rightMatrixE[7];
+	        var m31 = rightMatrixE[8], m32 = rightMatrixE[9], m33 = rightMatrixE[10], m34 = rightMatrixE[11];
+	        var m41 = rightMatrixE[12], m42 = rightMatrixE[13], m43 = rightMatrixE[14], m44 = rightMatrixE[15];
+	        var ai0OutOffset = outOffset;
+	        var ai1OutOffset = outOffset + 4;
+	        var ai2OutOffset = outOffset + 8;
+	        var ai3OutOffset = outOffset + 12;
+	        for (i = 0; i < 4; i++) {
+	            ai0 = leftMatrixE[i];
+	            ai1 = leftMatrixE[i + 4];
+	            ai2 = leftMatrixE[i + 8];
+	            ai3 = leftMatrixE[i + 12];
+	            outArray[ai0OutOffset + i] = ai0 * m11 + ai1 * m12 + ai2 * m13 + ai3 * m14;
+	            outArray[ai1OutOffset + i] = ai0 * m21 + ai1 * m22 + ai2 * m23 + ai3 * m24;
+	            outArray[ai2OutOffset + i] = ai0 * m31 + ai1 * m32 + ai2 * m33 + ai3 * m34;
+	            outArray[ai3OutOffset + i] = ai0 * m41 + ai1 * m42 + ai2 * m43 + ai3 * m44;
+	        }
+	    }
+	    static arcTanAngle(x, y) {
+	        if (x == 0) {
+	            if (y == 1)
+	                return Math.PI / 2;
+	            return -Math.PI / 2;
+	        }
+	        if (x > 0)
+	            return Math.atan(y / x);
+	        if (x < 0) {
+	            if (y > 0)
+	                return Math.atan(y / x) + Math.PI;
+	            return Math.atan(y / x) - Math.PI;
+	        }
+	        return 0;
+	    }
+	    static angleTo(from, location, angle) {
+	        Vector3.subtract(location, from, Quaternion.TEMPVector30);
+	        Vector3.normalize(Quaternion.TEMPVector30, Quaternion.TEMPVector30);
+	        angle.x = Math.asin(Quaternion.TEMPVector30.y);
+	        angle.y = Utils3D.arcTanAngle(-Quaternion.TEMPVector30.z, -Quaternion.TEMPVector30.x);
+	    }
+	    static transformQuat(source, rotation, out) {
+	        var re = rotation;
+	        var x = source.x, y = source.y, z = source.z, qx = re[0], qy = re[1], qz = re[2], qw = re[3], ix = qw * x + qy * z - qz * y, iy = qw * y + qz * x - qx * z, iz = qw * z + qx * y - qy * x, iw = -qx * x - qy * y - qz * z;
+	        out.x = ix * qw + iw * -qx + iy * -qz - iz * -qy;
+	        out.y = iy * qw + iw * -qy + iz * -qx - ix * -qz;
+	        out.z = iz * qw + iw * -qz + ix * -qy - iy * -qx;
+	    }
+	    static quaternionWeight(f, weight, e) {
+	        e.x = f.x * weight;
+	        e.y = f.y * weight;
+	        e.z = f.z * weight;
+	        e.w = f.w;
+	    }
+	    static quaternionConjugate(value, result) {
+	        result.x = -value.x;
+	        result.y = -value.y;
+	        result.z = -value.z;
+	        result.w = value.w;
+	    }
+	    static scaleWeight(s, w, out) {
+	        var sX = s.x, sY = s.y, sZ = s.z;
+	        out.x = sX > 0 ? Math.pow(Math.abs(sX), w) : -Math.pow(Math.abs(sX), w);
+	        out.y = sY > 0 ? Math.pow(Math.abs(sY), w) : -Math.pow(Math.abs(sY), w);
+	        out.z = sZ > 0 ? Math.pow(Math.abs(sZ), w) : -Math.pow(Math.abs(sZ), w);
+	    }
+	    static scaleBlend(sa, sb, w, out) {
+	        var saw = Utils3D._tempVector3_0;
+	        var sbw = Utils3D._tempVector3_1;
+	        Utils3D.scaleWeight(sa, 1.0 - w, saw);
+	        Utils3D.scaleWeight(sb, w, sbw);
+	        var sng = w > 0.5 ? sb : sa;
+	        out.x = sng.x > 0 ? Math.abs(saw.x * sbw.x) : -Math.abs(saw.x * sbw.x);
+	        out.y = sng.y > 0 ? Math.abs(saw.y * sbw.y) : -Math.abs(saw.y * sbw.y);
+	        out.z = sng.z > 0 ? Math.abs(saw.z * sbw.z) : -Math.abs(saw.z * sbw.z);
+	    }
+	    static matrix4x4MultiplyFFF(a, b, e) {
+	        var i, ai0, ai1, ai2, ai3;
+	        if (e === b) {
+	            b = new Float32Array(16);
+	            for (i = 0; i < 16; ++i) {
+	                b[i] = e[i];
+	            }
+	        }
+	        var b0 = b[0], b1 = b[1], b2 = b[2], b3 = b[3];
+	        var b4 = b[4], b5 = b[5], b6 = b[6], b7 = b[7];
+	        var b8 = b[8], b9 = b[9], b10 = b[10], b11 = b[11];
+	        var b12 = b[12], b13 = b[13], b14 = b[14], b15 = b[15];
+	        for (i = 0; i < 4; i++) {
+	            ai0 = a[i];
+	            ai1 = a[i + 4];
+	            ai2 = a[i + 8];
+	            ai3 = a[i + 12];
+	            e[i] = ai0 * b0 + ai1 * b1 + ai2 * b2 + ai3 * b3;
+	            e[i + 4] = ai0 * b4 + ai1 * b5 + ai2 * b6 + ai3 * b7;
+	            e[i + 8] = ai0 * b8 + ai1 * b9 + ai2 * b10 + ai3 * b11;
+	            e[i + 12] = ai0 * b12 + ai1 * b13 + ai2 * b14 + ai3 * b15;
+	        }
+	    }
+	    static matrix4x4MultiplyFFFForNative(a, b, e) {
+	        Laya.LayaGL.instance.matrix4x4Multiply(a, b, e);
+	    }
+	    static matrix4x4MultiplyMFM(left, right, out) {
+	        Utils3D.matrix4x4MultiplyFFF(left.elements, right, out.elements);
+	    }
+	    static _buildTexture2D(width, height, format, colorFunc, mipmaps = false) {
+	        var texture = new Laya.Texture2D(width, height, format, mipmaps, true);
+	        texture.anisoLevel = 1;
+	        texture.filterMode = Laya.BaseTexture.FILTERMODE_POINT;
+	        TextureGenerator._generateTexture2D(texture, width, height, colorFunc);
+	        return texture;
+	    }
+	    static _drawBound(debugLine, boundBox, color) {
+	        if (debugLine.lineCount + 12 > debugLine.maxLineCount)
+	            debugLine.maxLineCount += 12;
+	        var start = Utils3D._tempVector3_0;
+	        var end = Utils3D._tempVector3_1;
+	        var min = boundBox.min;
+	        var max = boundBox.max;
+	        start.setValue(min.x, min.y, min.z);
+	        end.setValue(max.x, min.y, min.z);
+	        debugLine.addLine(start, end, color, color);
+	        start.setValue(min.x, min.y, min.z);
+	        end.setValue(min.x, min.y, max.z);
+	        debugLine.addLine(start, end, color, color);
+	        start.setValue(max.x, min.y, min.z);
+	        end.setValue(max.x, min.y, max.z);
+	        debugLine.addLine(start, end, color, color);
+	        start.setValue(min.x, min.y, max.z);
+	        end.setValue(max.x, min.y, max.z);
+	        debugLine.addLine(start, end, color, color);
+	        start.setValue(min.x, min.y, min.z);
+	        end.setValue(min.x, max.y, min.z);
+	        debugLine.addLine(start, end, color, color);
+	        start.setValue(min.x, min.y, max.z);
+	        end.setValue(min.x, max.y, max.z);
+	        debugLine.addLine(start, end, color, color);
+	        start.setValue(max.x, min.y, min.z);
+	        end.setValue(max.x, max.y, min.z);
+	        debugLine.addLine(start, end, color, color);
+	        start.setValue(max.x, min.y, max.z);
+	        end.setValue(max.x, max.y, max.z);
+	        debugLine.addLine(start, end, color, color);
+	        start.setValue(min.x, max.y, min.z);
+	        end.setValue(max.x, max.y, min.z);
+	        debugLine.addLine(start, end, color, color);
+	        start.setValue(min.x, max.y, min.z);
+	        end.setValue(min.x, max.y, max.z);
+	        debugLine.addLine(start, end, color, color);
+	        start.setValue(max.x, max.y, min.z);
+	        end.setValue(max.x, max.y, max.z);
+	        debugLine.addLine(start, end, color, color);
+	        start.setValue(min.x, max.y, max.z);
+	        end.setValue(max.x, max.y, max.z);
+	        debugLine.addLine(start, end, color, color);
+	    }
+	    static _getHierarchyPath(rootSprite, checkSprite, path) {
+	        path.length = 0;
+	        var sprite = checkSprite;
+	        while (sprite !== rootSprite) {
+	            var parent = sprite._parent;
+	            if (parent)
+	                path.push(parent.getChildIndex(sprite));
+	            else
+	                return null;
+	            sprite = parent;
+	        }
+	        return path;
+	    }
+	    static _getNodeByHierarchyPath(rootSprite, invPath) {
+	        var sprite = rootSprite;
+	        for (var i = invPath.length - 1; i >= 0; i--) {
+	            sprite = sprite.getChildAt(invPath[i]);
+	        }
+	        return sprite;
+	    }
+	}
+	Utils3D._tempVector3_0 = new Vector3();
+	Utils3D._tempVector3_1 = new Vector3();
+	Utils3D._tempArray16_0 = new Float32Array(16);
+	Utils3D._tempArray16_1 = new Float32Array(16);
+	Utils3D._tempArray16_2 = new Float32Array(16);
+	Utils3D._tempArray16_3 = new Float32Array(16);
+	Utils3D._compIdToNode = new Object();
+
+	class AnimationClip extends Laya.Resource {
+	    constructor() {
+	        super();
+	        this._nodes = new KeyframeNodeList();
+	        this._animationEvents = [];
+	    }
+	    static _parse(data, propertyParams = null, constructParams = null) {
+	        var clip = new AnimationClip();
+	        var reader = new Laya.Byte(data);
+	        var version = reader.readUTFString();
+	        switch (version) {
+	            case "LAYAANIMATION:03":
+	                AnimationClipParser03.parse(clip, reader);
+	                break;
+	            case "LAYAANIMATION:04":
+	            case "LAYAANIMATION:COMPRESSION_04":
+	                AnimationClipParser04.parse(clip, reader, version);
+	                break;
+	            default:
+	                throw "unknown animationClip version.";
+	        }
+	        return clip;
+	    }
+	    static load(url, complete) {
+	        Laya.ILaya.loader.create(url, complete, null, AnimationClip.ANIMATIONCLIP);
+	    }
+	    duration() {
+	        return this._duration;
+	    }
+	    _hermiteInterpolate(frame, nextFrame, t, dur) {
+	        var t0 = frame.outTangent, t1 = nextFrame.inTangent;
+	        if (Number.isFinite(t0) && Number.isFinite(t1)) {
+	            var t2 = t * t;
+	            var t3 = t2 * t;
+	            var a = 2.0 * t3 - 3.0 * t2 + 1.0;
+	            var b = t3 - 2.0 * t2 + t;
+	            var c = t3 - t2;
+	            var d = -2.0 * t3 + 3.0 * t2;
+	            return a * frame.value + b * t0 * dur + c * t1 * dur + d * nextFrame.value;
+	        }
+	        else
+	            return frame.value;
+	    }
+	    _hermiteInterpolateVector3(frame, nextFrame, t, dur, out) {
+	        var p0 = frame.value;
+	        var tan0 = frame.outTangent;
+	        var p1 = nextFrame.value;
+	        var tan1 = nextFrame.inTangent;
+	        var t2 = t * t;
+	        var t3 = t2 * t;
+	        var a = 2.0 * t3 - 3.0 * t2 + 1.0;
+	        var b = t3 - 2.0 * t2 + t;
+	        var c = t3 - t2;
+	        var d = -2.0 * t3 + 3.0 * t2;
+	        var t0 = tan0.x, t1 = tan1.x;
+	        if (Number.isFinite(t0) && Number.isFinite(t1))
+	            out.x = a * p0.x + b * t0 * dur + c * t1 * dur + d * p1.x;
+	        else
+	            out.x = p0.x;
+	        t0 = tan0.y, t1 = tan1.y;
+	        if (Number.isFinite(t0) && Number.isFinite(t1))
+	            out.y = a * p0.y + b * t0 * dur + c * t1 * dur + d * p1.y;
+	        else
+	            out.y = p0.y;
+	        t0 = tan0.z, t1 = tan1.z;
+	        if (Number.isFinite(t0) && Number.isFinite(t1))
+	            out.z = a * p0.z + b * t0 * dur + c * t1 * dur + d * p1.z;
+	        else
+	            out.z = p0.z;
+	    }
+	    _hermiteInterpolateQuaternion(frame, nextFrame, t, dur, out) {
+	        var p0 = frame.value;
+	        var tan0 = frame.outTangent;
+	        var p1 = nextFrame.value;
+	        var tan1 = nextFrame.inTangent;
+	        var t2 = t * t;
+	        var t3 = t2 * t;
+	        var a = 2.0 * t3 - 3.0 * t2 + 1.0;
+	        var b = t3 - 2.0 * t2 + t;
+	        var c = t3 - t2;
+	        var d = -2.0 * t3 + 3.0 * t2;
+	        var t0 = tan0.x, t1 = tan1.x;
+	        if (Number.isFinite(t0) && Number.isFinite(t1))
+	            out.x = a * p0.x + b * t0 * dur + c * t1 * dur + d * p1.x;
+	        else
+	            out.x = p0.x;
+	        t0 = tan0.y, t1 = tan1.y;
+	        if (Number.isFinite(t0) && Number.isFinite(t1))
+	            out.y = a * p0.y + b * t0 * dur + c * t1 * dur + d * p1.y;
+	        else
+	            out.y = p0.y;
+	        t0 = tan0.z, t1 = tan1.z;
+	        if (Number.isFinite(t0) && Number.isFinite(t1))
+	            out.z = a * p0.z + b * t0 * dur + c * t1 * dur + d * p1.z;
+	        else
+	            out.z = p0.z;
+	        t0 = tan0.w, t1 = tan1.w;
+	        if (Number.isFinite(t0) && Number.isFinite(t1))
+	            out.w = a * p0.w + b * t0 * dur + c * t1 * dur + d * p1.w;
+	        else
+	            out.w = p0.w;
+	    }
+	    _evaluateClipDatasRealTime(nodes, playCurTime, realTimeCurrentFrameIndexes, addtive, frontPlay, outDatas) {
+	        for (var i = 0, n = nodes.count; i < n; i++) {
+	            var node = nodes.getNodeByIndex(i);
+	            var type = node.type;
+	            var nextFrameIndex;
+	            var keyFrames = node._keyFrames;
+	            var keyFramesCount = keyFrames.length;
+	            var frameIndex = realTimeCurrentFrameIndexes[i];
+	            if (frontPlay) {
+	                if ((frameIndex !== -1) && (playCurTime < keyFrames[frameIndex].time)) {
+	                    frameIndex = -1;
+	                    realTimeCurrentFrameIndexes[i] = frameIndex;
+	                }
+	                nextFrameIndex = frameIndex + 1;
+	                while (nextFrameIndex < keyFramesCount) {
+	                    if (keyFrames[nextFrameIndex].time > playCurTime)
+	                        break;
+	                    frameIndex++;
+	                    nextFrameIndex++;
+	                    realTimeCurrentFrameIndexes[i] = frameIndex;
+	                }
+	            }
+	            else {
+	                nextFrameIndex = frameIndex + 1;
+	                if ((nextFrameIndex !== keyFramesCount) && (playCurTime > keyFrames[nextFrameIndex].time)) {
+	                    frameIndex = keyFramesCount - 1;
+	                    realTimeCurrentFrameIndexes[i] = frameIndex;
+	                }
+	                nextFrameIndex = frameIndex + 1;
+	                while (frameIndex > -1) {
+	                    if (keyFrames[frameIndex].time < playCurTime)
+	                        break;
+	                    frameIndex--;
+	                    nextFrameIndex--;
+	                    realTimeCurrentFrameIndexes[i] = frameIndex;
+	                }
+	            }
+	            var isEnd = nextFrameIndex === keyFramesCount;
+	            switch (type) {
+	                case 0:
+	                    if (frameIndex !== -1) {
+	                        var frame = keyFrames[frameIndex];
+	                        if (isEnd) {
+	                            outDatas[i] = frame.value;
+	                        }
+	                        else {
+	                            var nextFarme = keyFrames[nextFrameIndex];
+	                            var d = nextFarme.time - frame.time;
+	                            var t;
+	                            if (d !== 0)
+	                                t = (playCurTime - frame.time) / d;
+	                            else
+	                                t = 0;
+	                            outDatas[i] = this._hermiteInterpolate(frame, nextFarme, t, d);
+	                        }
+	                    }
+	                    else {
+	                        outDatas[i] = keyFrames[0].value;
+	                    }
+	                    if (addtive)
+	                        outDatas[i] = outDatas[i] - keyFrames[0].value;
+	                    break;
+	                case 1:
+	                case 4:
+	                    var clipData = outDatas[i];
+	                    this._evaluateFrameNodeVector3DatasRealTime(keyFrames, frameIndex, isEnd, playCurTime, clipData);
+	                    if (addtive) {
+	                        var firstFrameValue = keyFrames[0].value;
+	                        clipData.x -= firstFrameValue.x;
+	                        clipData.y -= firstFrameValue.y;
+	                        clipData.z -= firstFrameValue.z;
+	                    }
+	                    break;
+	                case 2:
+	                    var clipQuat = outDatas[i];
+	                    this._evaluateFrameNodeQuaternionDatasRealTime(keyFrames, frameIndex, isEnd, playCurTime, clipQuat);
+	                    if (addtive) {
+	                        var tempQuat = AnimationClip._tempQuaternion0;
+	                        var firstFrameValueQua = keyFrames[0].value;
+	                        Utils3D.quaternionConjugate(firstFrameValueQua, tempQuat);
+	                        Quaternion.multiply(tempQuat, clipQuat, clipQuat);
+	                    }
+	                    break;
+	                case 3:
+	                    clipData = outDatas[i];
+	                    this._evaluateFrameNodeVector3DatasRealTime(keyFrames, frameIndex, isEnd, playCurTime, clipData);
+	                    if (addtive) {
+	                        firstFrameValue = keyFrames[0].value;
+	                        clipData.x /= firstFrameValue.x;
+	                        clipData.y /= firstFrameValue.y;
+	                        clipData.z /= firstFrameValue.z;
+	                    }
+	                    break;
+	                default:
+	                    throw "AnimationClip:unknown node type.";
+	            }
+	        }
+	    }
+	    _evaluateClipDatasRealTimeForNative(nodes, playCurTime, realTimeCurrentFrameIndexes, addtive) {
+	        Laya.LayaGL.instance.evaluateClipDatasRealTime(nodes._nativeObj, playCurTime, realTimeCurrentFrameIndexes, addtive);
+	    }
+	    _evaluateFrameNodeVector3DatasRealTime(keyFrames, frameIndex, isEnd, playCurTime, outDatas) {
+	        if (frameIndex !== -1) {
+	            var frame = keyFrames[frameIndex];
+	            if (isEnd) {
+	                var frameData = frame.value;
+	                outDatas.x = frameData.x;
+	                outDatas.y = frameData.y;
+	                outDatas.z = frameData.z;
+	            }
+	            else {
+	                var nextKeyFrame = keyFrames[frameIndex + 1];
+	                var t;
+	                var startTime = frame.time;
+	                var d = nextKeyFrame.time - startTime;
+	                if (d !== 0)
+	                    t = (playCurTime - startTime) / d;
+	                else
+	                    t = 0;
+	                this._hermiteInterpolateVector3(frame, nextKeyFrame, t, d, outDatas);
+	            }
+	        }
+	        else {
+	            var firstFrameDatas = keyFrames[0].value;
+	            outDatas.x = firstFrameDatas.x;
+	            outDatas.y = firstFrameDatas.y;
+	            outDatas.z = firstFrameDatas.z;
+	        }
+	    }
+	    _evaluateFrameNodeQuaternionDatasRealTime(keyFrames, frameIndex, isEnd, playCurTime, outDatas) {
+	        if (frameIndex !== -1) {
+	            var frame = keyFrames[frameIndex];
+	            if (isEnd) {
+	                var frameData = frame.value;
+	                outDatas.x = frameData.x;
+	                outDatas.y = frameData.y;
+	                outDatas.z = frameData.z;
+	                outDatas.w = frameData.w;
+	            }
+	            else {
+	                var nextKeyFrame = keyFrames[frameIndex + 1];
+	                var t;
+	                var startTime = frame.time;
+	                var d = nextKeyFrame.time - startTime;
+	                if (d !== 0)
+	                    t = (playCurTime - startTime) / d;
+	                else
+	                    t = 0;
+	                this._hermiteInterpolateQuaternion(frame, nextKeyFrame, t, d, outDatas);
+	            }
+	        }
+	        else {
+	            var firstFrameDatas = keyFrames[0].value;
+	            outDatas.x = firstFrameDatas.x;
+	            outDatas.y = firstFrameDatas.y;
+	            outDatas.z = firstFrameDatas.z;
+	            outDatas.w = firstFrameDatas.w;
+	        }
+	    }
+	    _binarySearchEventIndex(time) {
+	        var start = 0;
+	        var end = this._animationEvents.length - 1;
+	        var mid;
+	        while (start <= end) {
+	            mid = Math.floor((start + end) / 2);
+	            var midValue = this._animationEvents[mid].time;
+	            if (midValue == time)
+	                return mid;
+	            else if (midValue > time)
+	                end = mid - 1;
+	            else
+	                start = mid + 1;
+	        }
+	        return start;
+	    }
+	    addEvent(event) {
+	        var index = this._binarySearchEventIndex(event.time);
+	        this._animationEvents.splice(index, 0, event);
+	    }
+	    _disposeResource() {
+	        this._nodes = null;
+	        this._nodesMap = null;
+	    }
+	}
+	AnimationClip.ANIMATIONCLIP = "ANIMATIONCLIP";
+	AnimationClip._tempQuaternion0 = new Quaternion();
+
+	class AnimatorPlayState {
+	    constructor() {
+	        this._currentState = null;
+	    }
+	    get normalizedTime() {
+	        return this._normalizedTime;
+	    }
+	    get duration() {
+	        return this._duration;
+	    }
+	    get animatorState() {
+	        return this._currentState;
+	    }
+	    _resetPlayState(startTime) {
+	        this._finish = false;
+	        this._startPlayTime = startTime;
+	        this._elapsedTime = startTime;
+	        this._playEventIndex = 0;
+	        this._lastIsFront = true;
+	    }
+	    _cloneTo(dest) {
+	        dest._finish = this._finish;
+	        dest._startPlayTime = this._startPlayTime;
+	        dest._elapsedTime = this._elapsedTime;
+	        dest._playEventIndex = this._playEventIndex;
+	        dest._lastIsFront = this._lastIsFront;
+	    }
+	}
+
+	class AnimatorControllerLayer {
+	    constructor(name) {
+	        this._defaultState = null;
+	        this._referenceCount = 0;
+	        this._playType = -1;
+	        this._crossDuration = -1;
+	        this._crossMark = 0;
+	        this._crossNodesOwnersCount = 0;
+	        this._crossNodesOwners = [];
+	        this._crossNodesOwnersIndicesMap = {};
+	        this._srcCrossClipNodeIndices = [];
+	        this._destCrossClipNodeIndices = [];
+	        this._statesMap = {};
+	        this._states = [];
+	        this._playStateInfo = new AnimatorPlayState();
+	        this._crossPlayStateInfo = new AnimatorPlayState();
+	        this.blendingMode = AnimatorControllerLayer.BLENDINGMODE_OVERRIDE;
+	        this.defaultWeight = 1.0;
+	        this.playOnWake = true;
+	        this.name = name;
+	    }
+	    get defaultState() {
+	        return this._defaultState;
+	    }
+	    set defaultState(value) {
+	        this._defaultState = value;
+	        this._statesMap[value.name] = value;
+	    }
+	    _removeClip(clipStateInfos, statesMap, index, state) {
+	        var clip = state._clip;
+	        var clipStateInfo = clipStateInfos[index];
+	        clipStateInfos.splice(index, 1);
+	        delete statesMap[state.name];
+	        if (this._animator) {
+	            var frameNodes = clip._nodes;
+	            var nodeOwners = clipStateInfo._nodeOwners;
+	            clip._removeReference();
+	            for (var i = 0, n = frameNodes.count; i < n; i++)
+	                this._animator._removeKeyframeNodeOwner(nodeOwners, frameNodes.getNodeByIndex(i));
+	        }
+	    }
+	    _getReferenceCount() {
+	        return this._referenceCount;
+	    }
+	    _addReference(count = 1) {
+	        for (var i = 0, n = this._states.length; i < n; i++)
+	            this._states[i]._addReference(count);
+	        this._referenceCount += count;
+	    }
+	    _removeReference(count = 1) {
+	        for (var i = 0, n = this._states.length; i < n; i++)
+	            this._states[i]._removeReference(count);
+	        this._referenceCount -= count;
+	    }
+	    _clearReference() {
+	        this._removeReference(-this._referenceCount);
+	    }
+	    getCurrentPlayState() {
+	        return this._playStateInfo;
+	    }
+	    getAnimatorState(name) {
+	        var state = this._statesMap[name];
+	        return state ? state : null;
+	    }
+	    addState(state) {
+	        var stateName = state.name;
+	        if (this._statesMap[stateName]) {
+	            throw "AnimatorControllerLayer:this stat's name has exist.";
+	        }
+	        else {
+	            this._statesMap[stateName] = state;
+	            this._states.push(state);
+	            if (this._animator) {
+	                state._clip._addReference();
+	                this._animator._getOwnersByClip(state);
+	            }
+	        }
+	    }
+	    removeState(state) {
+	        var states = this._states;
+	        var index = -1;
+	        for (var i = 0, n = states.length; i < n; i++) {
+	            if (states[i] === state) {
+	                index = i;
+	                break;
+	            }
+	        }
+	        if (index !== -1)
+	            this._removeClip(states, this._statesMap, index, state);
+	    }
+	    destroy() {
+	        this._clearReference();
+	        this._statesMap = null;
+	        this._states = null;
+	        this._playStateInfo = null;
+	        this._crossPlayStateInfo = null;
+	        this._defaultState = null;
+	    }
+	    cloneTo(destObject) {
+	        var dest = destObject;
+	        dest.name = this.name;
+	        dest.blendingMode = this.blendingMode;
+	        dest.defaultWeight = this.defaultWeight;
+	        dest.playOnWake = this.playOnWake;
+	    }
+	    clone() {
+	        var dest = new AnimatorControllerLayer(this.name);
+	        this.cloneTo(dest);
+	        return dest;
+	    }
+	}
+	AnimatorControllerLayer.BLENDINGMODE_OVERRIDE = 0;
+	AnimatorControllerLayer.BLENDINGMODE_ADDTIVE = 1;
+
 	class ConchVector4 {
 	    constructor(x = 0, y = 0, z = 0, w = 0) {
 	        var v = this.elements = new Float32Array(4);
@@ -2809,1563 +4332,13 @@
 	ConchQuaternion.DEFAULT = new ConchQuaternion();
 	ConchQuaternion.NAN = new ConchQuaternion(NaN, NaN, NaN, NaN);
 
-	class AnimationClipParser03 {
-	    static READ_DATA() {
-	        AnimationClipParser03._DATA.offset = AnimationClipParser03._reader.getUint32();
-	        AnimationClipParser03._DATA.size = AnimationClipParser03._reader.getUint32();
-	    }
-	    static READ_BLOCK() {
-	        var count = AnimationClipParser03._BLOCK.count = AnimationClipParser03._reader.getUint16();
-	        var blockStarts = AnimationClipParser03._BLOCK.blockStarts = [];
-	        var blockLengths = AnimationClipParser03._BLOCK.blockLengths = [];
-	        for (var i = 0; i < count; i++) {
-	            blockStarts.push(AnimationClipParser03._reader.getUint32());
-	            blockLengths.push(AnimationClipParser03._reader.getUint32());
-	        }
-	    }
-	    static READ_STRINGS() {
-	        var offset = AnimationClipParser03._reader.getUint32();
-	        var count = AnimationClipParser03._reader.getUint16();
-	        var prePos = AnimationClipParser03._reader.pos;
-	        AnimationClipParser03._reader.pos = offset + AnimationClipParser03._DATA.offset;
-	        for (var i = 0; i < count; i++)
-	            AnimationClipParser03._strings[i] = AnimationClipParser03._reader.readUTFString();
-	        AnimationClipParser03._reader.pos = prePos;
-	    }
-	    static parse(clip, reader) {
-	        AnimationClipParser03._animationClip = clip;
-	        AnimationClipParser03._reader = reader;
-	        var arrayBuffer = reader.__getBuffer();
-	        AnimationClipParser03.READ_DATA();
-	        AnimationClipParser03.READ_BLOCK();
-	        AnimationClipParser03.READ_STRINGS();
-	        for (var i = 0, n = AnimationClipParser03._BLOCK.count; i < n; i++) {
-	            var index = reader.getUint16();
-	            var blockName = AnimationClipParser03._strings[index];
-	            var fn = AnimationClipParser03["READ_" + blockName];
-	            if (fn == null)
-	                throw new Error("model file err,no this function:" + index + " " + blockName);
-	            else
-	                fn.call(null);
-	        }
-	    }
-	    static READ_ANIMATIONS() {
-	        var i, j;
-	        var node;
-	        var reader = AnimationClipParser03._reader;
-	        var buffer = reader.__getBuffer();
-	        var startTimeTypes = [];
-	        var startTimeTypeCount = reader.getUint16();
-	        startTimeTypes.length = startTimeTypeCount;
-	        for (i = 0; i < startTimeTypeCount; i++)
-	            startTimeTypes[i] = reader.getFloat32();
-	        var clip = AnimationClipParser03._animationClip;
-	        clip.name = AnimationClipParser03._strings[reader.getUint16()];
-	        var clipDur = clip._duration = reader.getFloat32();
-	        clip.islooping = !!reader.getByte();
-	        clip._frameRate = reader.getInt16();
-	        var nodeCount = reader.getInt16();
-	        var nodes = clip._nodes;
-	        nodes.count = nodeCount;
-	        var nodesMap = clip._nodesMap = {};
-	        var nodesDic = clip._nodesDic = {};
-	        for (i = 0; i < nodeCount; i++) {
-	            node = new KeyframeNode();
-	            nodes.setNodeByIndex(i, node);
-	            node._indexInList = i;
-	            var type = node.type = reader.getUint8();
-	            var pathLength = reader.getUint16();
-	            node._setOwnerPathCount(pathLength);
-	            for (j = 0; j < pathLength; j++)
-	                node._setOwnerPathByIndex(j, AnimationClipParser03._strings[reader.getUint16()]);
-	            var nodePath = node._joinOwnerPath("/");
-	            var mapArray = nodesMap[nodePath];
-	            (mapArray) || (nodesMap[nodePath] = mapArray = []);
-	            mapArray.push(node);
-	            node.propertyOwner = AnimationClipParser03._strings[reader.getUint16()];
-	            var propertyLength = reader.getUint16();
-	            node._setPropertyCount(propertyLength);
-	            for (j = 0; j < propertyLength; j++)
-	                node._setPropertyByIndex(j, AnimationClipParser03._strings[reader.getUint16()]);
-	            var fullPath = nodePath + "." + node.propertyOwner + "." + node._joinProperty(".");
-	            nodesDic[fullPath] = node;
-	            node.fullPath = fullPath;
-	            var keyframeCount = reader.getUint16();
-	            node._setKeyframeCount(keyframeCount);
-	            var startTime;
-	            switch (type) {
-	                case 0:
-	                    break;
-	                case 1:
-	                case 3:
-	                case 4:
-	                    node.data = Laya.Render.supportWebGLPlusAnimation ? new ConchVector3 : new Vector3();
-	                    break;
-	                case 2:
-	                    node.data = Laya.Render.supportWebGLPlusAnimation ? new ConchQuaternion : new Quaternion();
-	                    break;
-	                default:
-	                    throw "AnimationClipParser03:unknown type.";
-	            }
-	            for (j = 0; j < keyframeCount; j++) {
-	                switch (type) {
-	                    case 0:
-	                        var floatKeyframe = new FloatKeyframe();
-	                        node._setKeyframeByIndex(j, floatKeyframe);
-	                        startTime = floatKeyframe.time = startTimeTypes[reader.getUint16()];
-	                        floatKeyframe.inTangent = reader.getFloat32();
-	                        floatKeyframe.outTangent = reader.getFloat32();
-	                        floatKeyframe.value = reader.getFloat32();
-	                        break;
-	                    case 1:
-	                    case 3:
-	                    case 4:
-	                        var floatArrayKeyframe = new Vector3Keyframe();
-	                        node._setKeyframeByIndex(j, floatArrayKeyframe);
-	                        startTime = floatArrayKeyframe.time = startTimeTypes[reader.getUint16()];
-	                        if (Laya.Render.supportWebGLPlusAnimation) {
-	                            var data = floatArrayKeyframe.data = new Float32Array(3 * 3);
-	                            for (var k = 0; k < 3; k++)
-	                                data[k] = reader.getFloat32();
-	                            for (k = 0; k < 3; k++)
-	                                data[3 + k] = reader.getFloat32();
-	                            for (k = 0; k < 3; k++)
-	                                data[6 + k] = reader.getFloat32();
-	                        }
-	                        else {
-	                            var inTangent = floatArrayKeyframe.inTangent;
-	                            var outTangent = floatArrayKeyframe.outTangent;
-	                            var value = floatArrayKeyframe.value;
-	                            inTangent.x = reader.getFloat32();
-	                            inTangent.y = reader.getFloat32();
-	                            inTangent.z = reader.getFloat32();
-	                            outTangent.x = reader.getFloat32();
-	                            outTangent.y = reader.getFloat32();
-	                            outTangent.z = reader.getFloat32();
-	                            value.x = reader.getFloat32();
-	                            value.y = reader.getFloat32();
-	                            value.z = reader.getFloat32();
-	                        }
-	                        break;
-	                    case 2:
-	                        var quaArrayKeyframe = new QuaternionKeyframe();
-	                        node._setKeyframeByIndex(j, quaArrayKeyframe);
-	                        startTime = quaArrayKeyframe.time = startTimeTypes[reader.getUint16()];
-	                        if (Laya.Render.supportWebGLPlusAnimation) {
-	                            data = quaArrayKeyframe.data = new Float32Array(3 * 4);
-	                            for (k = 0; k < 4; k++)
-	                                data[k] = reader.getFloat32();
-	                            for (k = 0; k < 4; k++)
-	                                data[4 + k] = reader.getFloat32();
-	                            for (k = 0; k < 4; k++)
-	                                data[8 + k] = reader.getFloat32();
-	                        }
-	                        else {
-	                            var inTangentQua = quaArrayKeyframe.inTangent;
-	                            var outTangentQua = quaArrayKeyframe.outTangent;
-	                            var valueQua = quaArrayKeyframe.value;
-	                            inTangentQua.x = reader.getFloat32();
-	                            inTangentQua.y = reader.getFloat32();
-	                            inTangentQua.z = reader.getFloat32();
-	                            inTangentQua.w = reader.getFloat32();
-	                            outTangentQua.x = reader.getFloat32();
-	                            outTangentQua.y = reader.getFloat32();
-	                            outTangentQua.z = reader.getFloat32();
-	                            outTangentQua.w = reader.getFloat32();
-	                            valueQua.x = reader.getFloat32();
-	                            valueQua.y = reader.getFloat32();
-	                            valueQua.z = reader.getFloat32();
-	                            valueQua.w = reader.getFloat32();
-	                        }
-	                        break;
-	                    default:
-	                        throw "AnimationClipParser03:unknown type.";
-	                }
-	            }
-	        }
-	        var eventCount = reader.getUint16();
-	        for (i = 0; i < eventCount; i++) {
-	            var event = new AnimationEvent();
-	            event.time = Math.min(clipDur, reader.getFloat32());
-	            event.eventName = AnimationClipParser03._strings[reader.getUint16()];
-	            var params;
-	            var paramCount = reader.getUint16();
-	            (paramCount > 0) && (event.params = params = []);
-	            for (j = 0; j < paramCount; j++) {
-	                var eventType = reader.getByte();
-	                switch (eventType) {
-	                    case 0:
-	                        params.push(!!reader.getByte());
-	                        break;
-	                    case 1:
-	                        params.push(reader.getInt32());
-	                        break;
-	                    case 2:
-	                        params.push(reader.getFloat32());
-	                        break;
-	                    case 3:
-	                        params.push(AnimationClipParser03._strings[reader.getUint16()]);
-	                        break;
-	                    default:
-	                        throw new Error("unknown type.");
-	                }
-	            }
-	            clip.addEvent(event);
-	        }
-	    }
-	}
-	AnimationClipParser03._strings = [];
-	AnimationClipParser03._BLOCK = { count: 0 };
-	AnimationClipParser03._DATA = { offset: 0, size: 0 };
-
-	class HalfFloatUtils {
-	    static __init__() {
-	        for (var i = 0; i < 256; ++i) {
-	            var e = i - 127;
-	            if (e < -27) {
-	                HalfFloatUtils._baseTable[i | 0x000] = 0x0000;
-	                HalfFloatUtils._baseTable[i | 0x100] = 0x8000;
-	                HalfFloatUtils._shiftTable[i | 0x000] = 24;
-	                HalfFloatUtils._shiftTable[i | 0x100] = 24;
-	            }
-	            else if (e < -14) {
-	                HalfFloatUtils._baseTable[i | 0x000] = 0x0400 >> (-e - 14);
-	                HalfFloatUtils._baseTable[i | 0x100] = (0x0400 >> (-e - 14)) | 0x8000;
-	                HalfFloatUtils._shiftTable[i | 0x000] = -e - 1;
-	                HalfFloatUtils._shiftTable[i | 0x100] = -e - 1;
-	            }
-	            else if (e <= 15) {
-	                HalfFloatUtils._baseTable[i | 0x000] = (e + 15) << 10;
-	                HalfFloatUtils._baseTable[i | 0x100] = ((e + 15) << 10) | 0x8000;
-	                HalfFloatUtils._shiftTable[i | 0x000] = 13;
-	                HalfFloatUtils._shiftTable[i | 0x100] = 13;
-	            }
-	            else if (e < 128) {
-	                HalfFloatUtils._baseTable[i | 0x000] = 0x7c00;
-	                HalfFloatUtils._baseTable[i | 0x100] = 0xfc00;
-	                HalfFloatUtils._shiftTable[i | 0x000] = 24;
-	                HalfFloatUtils._shiftTable[i | 0x100] = 24;
-	            }
-	            else {
-	                HalfFloatUtils._baseTable[i | 0x000] = 0x7c00;
-	                HalfFloatUtils._baseTable[i | 0x100] = 0xfc00;
-	                HalfFloatUtils._shiftTable[i | 0x000] = 13;
-	                HalfFloatUtils._shiftTable[i | 0x100] = 13;
-	            }
-	        }
-	        HalfFloatUtils._mantissaTable[0] = 0;
-	        for (i = 1; i < 1024; ++i) {
-	            var m = i << 13;
-	            e = 0;
-	            while ((m & 0x00800000) === 0) {
-	                e -= 0x00800000;
-	                m <<= 1;
-	            }
-	            m &= ~0x00800000;
-	            e += 0x38800000;
-	            HalfFloatUtils._mantissaTable[i] = m | e;
-	        }
-	        for (i = 1024; i < 2048; ++i) {
-	            HalfFloatUtils._mantissaTable[i] = 0x38000000 + ((i - 1024) << 13);
-	        }
-	        HalfFloatUtils._exponentTable[0] = 0;
-	        for (i = 1; i < 31; ++i) {
-	            HalfFloatUtils._exponentTable[i] = i << 23;
-	        }
-	        HalfFloatUtils._exponentTable[31] = 0x47800000;
-	        HalfFloatUtils._exponentTable[32] = 0x80000000;
-	        for (i = 33; i < 63; ++i) {
-	            HalfFloatUtils._exponentTable[i] = 0x80000000 + ((i - 32) << 23);
-	        }
-	        HalfFloatUtils._exponentTable[63] = 0xc7800000;
-	        HalfFloatUtils._offsetTable[0] = 0;
-	        for (i = 1; i < 64; ++i) {
-	            if (i === 32) {
-	                HalfFloatUtils._offsetTable[i] = 0;
-	            }
-	            else {
-	                HalfFloatUtils._offsetTable[i] = 1024;
-	            }
-	        }
-	    }
-	    static roundToFloat16Bits(num) {
-	        HalfFloatUtils._floatView[0] = num;
-	        var f = HalfFloatUtils._uint32View[0];
-	        var e = (f >> 23) & 0x1ff;
-	        return HalfFloatUtils._baseTable[e] + ((f & 0x007fffff) >> HalfFloatUtils._shiftTable[e]);
-	    }
-	    static convertToNumber(float16bits) {
-	        var m = float16bits >> 10;
-	        HalfFloatUtils._uint32View[0] = HalfFloatUtils._mantissaTable[HalfFloatUtils._offsetTable[m] + (float16bits & 0x3ff)] + HalfFloatUtils._exponentTable[m];
-	        return HalfFloatUtils._floatView[0];
-	    }
-	}
-	HalfFloatUtils._buffer = new ArrayBuffer(4);
-	HalfFloatUtils._floatView = new Float32Array(HalfFloatUtils._buffer);
-	HalfFloatUtils._uint32View = new Uint32Array(HalfFloatUtils._buffer);
-	HalfFloatUtils._baseTable = new Uint32Array(512);
-	HalfFloatUtils._shiftTable = new Uint32Array(512);
-	HalfFloatUtils._mantissaTable = new Uint32Array(2048);
-	HalfFloatUtils._exponentTable = new Uint32Array(64);
-	HalfFloatUtils._offsetTable = new Uint32Array(64);
-
-	class AnimationClipParser04 {
-	    static READ_DATA() {
-	        AnimationClipParser04._DATA.offset = AnimationClipParser04._reader.getUint32();
-	        AnimationClipParser04._DATA.size = AnimationClipParser04._reader.getUint32();
-	    }
-	    static READ_BLOCK() {
-	        var count = AnimationClipParser04._BLOCK.count = AnimationClipParser04._reader.getUint16();
-	        var blockStarts = AnimationClipParser04._BLOCK.blockStarts = [];
-	        var blockLengths = AnimationClipParser04._BLOCK.blockLengths = [];
-	        for (var i = 0; i < count; i++) {
-	            blockStarts.push(AnimationClipParser04._reader.getUint32());
-	            blockLengths.push(AnimationClipParser04._reader.getUint32());
-	        }
-	    }
-	    static READ_STRINGS() {
-	        var offset = AnimationClipParser04._reader.getUint32();
-	        var count = AnimationClipParser04._reader.getUint16();
-	        var prePos = AnimationClipParser04._reader.pos;
-	        AnimationClipParser04._reader.pos = offset + AnimationClipParser04._DATA.offset;
-	        for (var i = 0; i < count; i++)
-	            AnimationClipParser04._strings[i] = AnimationClipParser04._reader.readUTFString();
-	        AnimationClipParser04._reader.pos = prePos;
-	    }
-	    static parse(clip, reader, version) {
-	        AnimationClipParser04._animationClip = clip;
-	        AnimationClipParser04._reader = reader;
-	        AnimationClipParser04._version = version;
-	        AnimationClipParser04.READ_DATA();
-	        AnimationClipParser04.READ_BLOCK();
-	        AnimationClipParser04.READ_STRINGS();
-	        for (var i = 0, n = AnimationClipParser04._BLOCK.count; i < n; i++) {
-	            var index = reader.getUint16();
-	            var blockName = AnimationClipParser04._strings[index];
-	            var fn = AnimationClipParser04["READ_" + blockName];
-	            if (fn == null)
-	                throw new Error("model file err,no this function:" + index + " " + blockName);
-	            else
-	                fn.call(null);
-	        }
-	        AnimationClipParser04._version = null;
-	        AnimationClipParser04._reader = null;
-	        AnimationClipParser04._animationClip = null;
-	    }
-	    static READ_ANIMATIONS() {
-	        var i, j;
-	        var node;
-	        var reader = AnimationClipParser04._reader;
-	        var buffer = reader.__getBuffer();
-	        var startTimeTypes = [];
-	        var startTimeTypeCount = reader.getUint16();
-	        startTimeTypes.length = startTimeTypeCount;
-	        for (i = 0; i < startTimeTypeCount; i++)
-	            startTimeTypes[i] = reader.getFloat32();
-	        var clip = AnimationClipParser04._animationClip;
-	        clip.name = AnimationClipParser04._strings[reader.getUint16()];
-	        var clipDur = clip._duration = reader.getFloat32();
-	        clip.islooping = !!reader.getByte();
-	        clip._frameRate = reader.getInt16();
-	        var nodeCount = reader.getInt16();
-	        var nodes = clip._nodes;
-	        nodes.count = nodeCount;
-	        var nodesMap = clip._nodesMap = {};
-	        var nodesDic = clip._nodesDic = {};
-	        for (i = 0; i < nodeCount; i++) {
-	            node = new KeyframeNode();
-	            nodes.setNodeByIndex(i, node);
-	            node._indexInList = i;
-	            var type = node.type = reader.getUint8();
-	            var pathLength = reader.getUint16();
-	            node._setOwnerPathCount(pathLength);
-	            for (j = 0; j < pathLength; j++)
-	                node._setOwnerPathByIndex(j, AnimationClipParser04._strings[reader.getUint16()]);
-	            var nodePath = node._joinOwnerPath("/");
-	            var mapArray = nodesMap[nodePath];
-	            (mapArray) || (nodesMap[nodePath] = mapArray = []);
-	            mapArray.push(node);
-	            node.propertyOwner = AnimationClipParser04._strings[reader.getUint16()];
-	            var propertyLength = reader.getUint16();
-	            node._setPropertyCount(propertyLength);
-	            for (j = 0; j < propertyLength; j++)
-	                node._setPropertyByIndex(j, AnimationClipParser04._strings[reader.getUint16()]);
-	            var fullPath = nodePath + "." + node.propertyOwner + "." + node._joinProperty(".");
-	            nodesDic[fullPath] = node;
-	            node.fullPath = fullPath;
-	            var keyframeCount = reader.getUint16();
-	            node._setKeyframeCount(keyframeCount);
-	            var startTime;
-	            switch (type) {
-	                case 0:
-	                    break;
-	                case 1:
-	                case 3:
-	                case 4:
-	                    node.data = Laya.Render.supportWebGLPlusAnimation ? new ConchVector3 : new Vector3();
-	                    break;
-	                case 2:
-	                    node.data = Laya.Render.supportWebGLPlusAnimation ? new ConchQuaternion : new Quaternion();
-	                    break;
-	                default:
-	                    throw "AnimationClipParser04:unknown type.";
-	            }
-	            switch (AnimationClipParser04._version) {
-	                case "LAYAANIMATION:04":
-	                    for (j = 0; j < keyframeCount; j++) {
-	                        switch (type) {
-	                            case 0:
-	                                var floatKeyframe = new FloatKeyframe();
-	                                node._setKeyframeByIndex(j, floatKeyframe);
-	                                startTime = floatKeyframe.time = startTimeTypes[reader.getUint16()];
-	                                floatKeyframe.inTangent = reader.getFloat32();
-	                                floatKeyframe.outTangent = reader.getFloat32();
-	                                floatKeyframe.value = reader.getFloat32();
-	                                break;
-	                            case 1:
-	                            case 3:
-	                            case 4:
-	                                var floatArrayKeyframe = new Vector3Keyframe();
-	                                node._setKeyframeByIndex(j, floatArrayKeyframe);
-	                                startTime = floatArrayKeyframe.time = startTimeTypes[reader.getUint16()];
-	                                if (Laya.Render.supportWebGLPlusAnimation) {
-	                                    var data = floatArrayKeyframe.data = new Float32Array(3 * 3);
-	                                    for (var k = 0; k < 3; k++)
-	                                        data[k] = reader.getFloat32();
-	                                    for (k = 0; k < 3; k++)
-	                                        data[3 + k] = reader.getFloat32();
-	                                    for (k = 0; k < 3; k++)
-	                                        data[6 + k] = reader.getFloat32();
-	                                }
-	                                else {
-	                                    var inTangent = floatArrayKeyframe.inTangent;
-	                                    var outTangent = floatArrayKeyframe.outTangent;
-	                                    var value = floatArrayKeyframe.value;
-	                                    inTangent.x = reader.getFloat32();
-	                                    inTangent.y = reader.getFloat32();
-	                                    inTangent.z = reader.getFloat32();
-	                                    outTangent.x = reader.getFloat32();
-	                                    outTangent.y = reader.getFloat32();
-	                                    outTangent.z = reader.getFloat32();
-	                                    value.x = reader.getFloat32();
-	                                    value.y = reader.getFloat32();
-	                                    value.z = reader.getFloat32();
-	                                }
-	                                break;
-	                            case 2:
-	                                var quaternionKeyframe = new QuaternionKeyframe();
-	                                node._setKeyframeByIndex(j, quaternionKeyframe);
-	                                startTime = quaternionKeyframe.time = startTimeTypes[reader.getUint16()];
-	                                if (Laya.Render.supportWebGLPlusAnimation) {
-	                                    data = quaternionKeyframe.data = new Float32Array(3 * 4);
-	                                    for (k = 0; k < 4; k++)
-	                                        data[k] = reader.getFloat32();
-	                                    for (k = 0; k < 4; k++)
-	                                        data[4 + k] = reader.getFloat32();
-	                                    for (k = 0; k < 4; k++)
-	                                        data[8 + k] = reader.getFloat32();
-	                                }
-	                                else {
-	                                    var inTangentQua = quaternionKeyframe.inTangent;
-	                                    var outTangentQua = quaternionKeyframe.outTangent;
-	                                    var valueQua = quaternionKeyframe.value;
-	                                    inTangentQua.x = reader.getFloat32();
-	                                    inTangentQua.y = reader.getFloat32();
-	                                    inTangentQua.z = reader.getFloat32();
-	                                    inTangentQua.w = reader.getFloat32();
-	                                    outTangentQua.x = reader.getFloat32();
-	                                    outTangentQua.y = reader.getFloat32();
-	                                    outTangentQua.z = reader.getFloat32();
-	                                    outTangentQua.w = reader.getFloat32();
-	                                    valueQua.x = reader.getFloat32();
-	                                    valueQua.y = reader.getFloat32();
-	                                    valueQua.z = reader.getFloat32();
-	                                    valueQua.w = reader.getFloat32();
-	                                }
-	                                break;
-	                            default:
-	                                throw "AnimationClipParser04:unknown type.";
-	                        }
-	                    }
-	                    break;
-	                case "LAYAANIMATION:COMPRESSION_04":
-	                    for (j = 0; j < keyframeCount; j++) {
-	                        switch (type) {
-	                            case 0:
-	                                floatKeyframe = new FloatKeyframe();
-	                                node._setKeyframeByIndex(j, floatKeyframe);
-	                                startTime = floatKeyframe.time = startTimeTypes[reader.getUint16()];
-	                                floatKeyframe.inTangent = HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                floatKeyframe.outTangent = HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                floatKeyframe.value = HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                break;
-	                            case 1:
-	                            case 3:
-	                            case 4:
-	                                floatArrayKeyframe = new Vector3Keyframe();
-	                                node._setKeyframeByIndex(j, floatArrayKeyframe);
-	                                startTime = floatArrayKeyframe.time = startTimeTypes[reader.getUint16()];
-	                                if (Laya.Render.supportWebGLPlusAnimation) {
-	                                    data = floatArrayKeyframe.data = new Float32Array(3 * 3);
-	                                    for (k = 0; k < 3; k++)
-	                                        data[k] = HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                    for (k = 0; k < 3; k++)
-	                                        data[3 + k] = HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                    for (k = 0; k < 3; k++)
-	                                        data[6 + k] = HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                }
-	                                else {
-	                                    inTangent = floatArrayKeyframe.inTangent;
-	                                    outTangent = floatArrayKeyframe.outTangent;
-	                                    value = floatArrayKeyframe.value;
-	                                    inTangent.x = HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                    inTangent.y = HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                    inTangent.z = HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                    outTangent.x = HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                    outTangent.y = HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                    outTangent.z = HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                    value.x = HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                    value.y = HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                    value.z = HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                }
-	                                break;
-	                            case 2:
-	                                quaternionKeyframe = new QuaternionKeyframe();
-	                                node._setKeyframeByIndex(j, quaternionKeyframe);
-	                                startTime = quaternionKeyframe.time = startTimeTypes[reader.getUint16()];
-	                                if (Laya.Render.supportWebGLPlusAnimation) {
-	                                    data = quaternionKeyframe.data = new Float32Array(3 * 4);
-	                                    for (k = 0; k < 4; k++)
-	                                        data[k] = HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                    for (k = 0; k < 4; k++)
-	                                        data[4 + k] = HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                    for (k = 0; k < 4; k++)
-	                                        data[8 + k] = HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                }
-	                                else {
-	                                    inTangentQua = quaternionKeyframe.inTangent;
-	                                    outTangentQua = quaternionKeyframe.outTangent;
-	                                    valueQua = quaternionKeyframe.value;
-	                                    inTangentQua.x = HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                    inTangentQua.y = HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                    inTangentQua.z = HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                    inTangentQua.w = HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                    outTangentQua.x = HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                    outTangentQua.y = HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                    outTangentQua.z = HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                    outTangentQua.w = HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                    valueQua.x = HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                    valueQua.y = HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                    valueQua.z = HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                    valueQua.w = HalfFloatUtils.convertToNumber(reader.getUint16());
-	                                }
-	                                break;
-	                            default:
-	                                throw "AnimationClipParser04:unknown type.";
-	                        }
-	                    }
-	                    break;
-	            }
-	        }
-	        var eventCount = reader.getUint16();
-	        for (i = 0; i < eventCount; i++) {
-	            var event = new AnimationEvent();
-	            event.time = Math.min(clipDur, reader.getFloat32());
-	            event.eventName = AnimationClipParser04._strings[reader.getUint16()];
-	            var params;
-	            var paramCount = reader.getUint16();
-	            (paramCount > 0) && (event.params = params = []);
-	            for (j = 0; j < paramCount; j++) {
-	                var eventType = reader.getByte();
-	                switch (eventType) {
-	                    case 0:
-	                        params.push(!!reader.getByte());
-	                        break;
-	                    case 1:
-	                        params.push(reader.getInt32());
-	                        break;
-	                    case 2:
-	                        params.push(reader.getFloat32());
-	                        break;
-	                    case 3:
-	                        params.push(AnimationClipParser04._strings[reader.getUint16()]);
-	                        break;
-	                    default:
-	                        throw new Error("unknown type.");
-	                }
-	            }
-	            clip.addEvent(event);
-	        }
-	    }
-	}
-	AnimationClipParser04._strings = [];
-	AnimationClipParser04._BLOCK = { count: 0 };
-	AnimationClipParser04._DATA = { offset: 0, size: 0 };
-
-	class KeyframeNodeList {
-	    constructor() {
-	        this._nodes = [];
-	    }
-	    get count() {
-	        return this._nodes.length;
-	    }
-	    set count(value) {
-	        this._nodes.length = value;
-	    }
-	    getNodeByIndex(index) {
-	        return this._nodes[index];
-	    }
-	    setNodeByIndex(index, node) {
-	        this._nodes[index] = node;
-	    }
-	}
-	if (window.conch && window.conchKeyframeNodeList) {
-	    KeyframeNodeList = window.conchKeyframeNodeList;
-	}
-	if (window.qq && window.qq.webglPlus) {
-	    KeyframeNodeList = window.qq.webglPlus.conchKeyframeNodeList;
-	}
-
-	class TextureGenerator {
-	    constructor() {
-	    }
-	    static lightAttenTexture(x, y, maxX, maxY, index, data) {
-	        var sqrRange = x / maxX;
-	        var atten = 1.0 / (1.0 + 25.0 * sqrRange);
-	        if (sqrRange >= 0.64) {
-	            if (sqrRange > 1.0) {
-	                atten = 0;
-	            }
-	            else {
-	                atten *= 1 - (sqrRange - 0.64) / (1 - 0.64);
-	            }
-	        }
-	        data[index] = Math.floor(atten * 255.0 + 0.5);
-	    }
-	    static haloTexture(x, y, maxX, maxY, index, data) {
-	        maxX >>= 1;
-	        maxY >>= 1;
-	        var xFac = (x - maxX) / maxX;
-	        var yFac = (y - maxY) / maxY;
-	        var sqrRange = xFac * xFac + yFac * yFac;
-	        if (sqrRange > 1.0) {
-	            sqrRange = 1.0;
-	        }
-	        data[index] = Math.floor((1.0 - sqrRange) * 255.0 + 0.5);
-	    }
-	    static _generateTexture2D(texture, textureWidth, textureHeight, func) {
-	        var index = 0;
-	        var size = 0;
-	        switch (texture.format) {
-	            case Laya.TextureFormat.R8G8B8:
-	                size = 3;
-	                break;
-	            case Laya.TextureFormat.R8G8B8A8:
-	                size = 4;
-	                break;
-	            case Laya.TextureFormat.Alpha8:
-	                size = 1;
-	                break;
-	            default:
-	                throw "GeneratedTexture._generateTexture: unkonw texture format.";
-	        }
-	        var data = new Uint8Array(textureWidth * textureHeight * size);
-	        for (var y = 0; y < textureHeight; y++) {
-	            for (var x = 0; x < textureWidth; x++) {
-	                func(x, y, textureWidth, textureHeight, index, data);
-	                index += size;
-	            }
-	        }
-	        texture.setPixels(data);
-	    }
-	}
-
-	class Physics3D {
-	}
-	Physics3D._bullet = null;
-	Physics3D._enablePhysics = false;
-
-	class Utils3D {
-	    static _createFloatTextureBuffer(width, height) {
-	        var floatTex = new Laya.Texture2D(width, height, Laya.TextureFormat.R32G32B32A32, false, false);
-	        floatTex.filterMode = Laya.BaseTexture.FILTERMODE_POINT;
-	        floatTex.wrapModeU = Laya.BaseTexture.WARPMODE_CLAMP;
-	        floatTex.wrapModeV = Laya.BaseTexture.WARPMODE_CLAMP;
-	        floatTex.anisoLevel = 0;
-	        return floatTex;
-	    }
-	    static _convertToLayaVec3(bVector, out, inverseX) {
-	        var bullet = Physics3D._bullet;
-	        out.x = inverseX ? -bullet.btVector3_z(bVector) : bullet.btVector3_x(bVector);
-	        out.y = bullet.btVector3_y(bVector);
-	        out.z = bullet.btVector3_z(bVector);
-	    }
-	    static _convertToBulletVec3(lVector, out, inverseX) {
-	        Physics3D._bullet.btVector3_setValue(out, inverseX ? -lVector.x : lVector.x, lVector.y, lVector.z);
-	    }
-	    static _rotationTransformScaleSkinAnimation(tx, ty, tz, qx, qy, qz, qw, sx, sy, sz, outArray, outOffset) {
-	        var re = Utils3D._tempArray16_0;
-	        var se = Utils3D._tempArray16_1;
-	        var tse = Utils3D._tempArray16_2;
-	        var x2 = qx + qx;
-	        var y2 = qy + qy;
-	        var z2 = qz + qz;
-	        var xx = qx * x2;
-	        var yx = qy * x2;
-	        var yy = qy * y2;
-	        var zx = qz * x2;
-	        var zy = qz * y2;
-	        var zz = qz * z2;
-	        var wx = qw * x2;
-	        var wy = qw * y2;
-	        var wz = qw * z2;
-	        re[15] = 1;
-	        re[0] = 1 - yy - zz;
-	        re[1] = yx + wz;
-	        re[2] = zx - wy;
-	        re[4] = yx - wz;
-	        re[5] = 1 - xx - zz;
-	        re[6] = zy + wx;
-	        re[8] = zx + wy;
-	        re[9] = zy - wx;
-	        re[10] = 1 - xx - yy;
-	        se[15] = 1;
-	        se[0] = sx;
-	        se[5] = sy;
-	        se[10] = sz;
-	        var i, ai0, ai1, ai2, ai3;
-	        for (i = 0; i < 4; i++) {
-	            ai0 = re[i];
-	            ai1 = re[i + 4];
-	            ai2 = re[i + 8];
-	            ai3 = re[i + 12];
-	            tse[i] = ai0;
-	            tse[i + 4] = ai1;
-	            tse[i + 8] = ai2;
-	            tse[i + 12] = ai0 * tx + ai1 * ty + ai2 * tz + ai3;
-	        }
-	        for (i = 0; i < 4; i++) {
-	            ai0 = tse[i];
-	            ai1 = tse[i + 4];
-	            ai2 = tse[i + 8];
-	            ai3 = tse[i + 12];
-	            outArray[i + outOffset] = ai0 * se[0] + ai1 * se[1] + ai2 * se[2] + ai3 * se[3];
-	            outArray[i + outOffset + 4] = ai0 * se[4] + ai1 * se[5] + ai2 * se[6] + ai3 * se[7];
-	            outArray[i + outOffset + 8] = ai0 * se[8] + ai1 * se[9] + ai2 * se[10] + ai3 * se[11];
-	            outArray[i + outOffset + 12] = ai0 * se[12] + ai1 * se[13] + ai2 * se[14] + ai3 * se[15];
-	        }
-	    }
-	    static _computeBoneAndAnimationDatasByBindPoseMatrxix(bones, curData, inverGlobalBindPose, outBonesDatas, outAnimationDatas, boneIndexToMesh) {
-	        var offset = 0;
-	        var matOffset = 0;
-	        var i;
-	        var parentOffset;
-	        var boneLength = bones.length;
-	        for (i = 0; i < boneLength; offset += bones[i].keyframeWidth, matOffset += 16, i++) {
-	            Utils3D._rotationTransformScaleSkinAnimation(curData[offset + 0], curData[offset + 1], curData[offset + 2], curData[offset + 3], curData[offset + 4], curData[offset + 5], curData[offset + 6], curData[offset + 7], curData[offset + 8], curData[offset + 9], outBonesDatas, matOffset);
-	            if (i != 0) {
-	                parentOffset = bones[i].parentIndex * 16;
-	                Utils3D.mulMatrixByArray(outBonesDatas, parentOffset, outBonesDatas, matOffset, outBonesDatas, matOffset);
-	            }
-	        }
-	        var n = inverGlobalBindPose.length;
-	        for (i = 0; i < n; i++) {
-	            Utils3D.mulMatrixByArrayAndMatrixFast(outBonesDatas, boneIndexToMesh[i] * 16, inverGlobalBindPose[i], outAnimationDatas, i * 16);
-	        }
-	    }
-	    static _computeAnimationDatasByArrayAndMatrixFast(inverGlobalBindPose, bonesDatas, outAnimationDatas, boneIndexToMesh) {
-	        for (var i = 0, n = inverGlobalBindPose.length; i < n; i++)
-	            Utils3D.mulMatrixByArrayAndMatrixFast(bonesDatas, boneIndexToMesh[i] * 16, inverGlobalBindPose[i], outAnimationDatas, i * 16);
-	    }
-	    static _computeBoneAndAnimationDatasByBindPoseMatrxixOld(bones, curData, inverGlobalBindPose, outBonesDatas, outAnimationDatas) {
-	        var offset = 0;
-	        var matOffset = 0;
-	        var i;
-	        var parentOffset;
-	        var boneLength = bones.length;
-	        for (i = 0; i < boneLength; offset += bones[i].keyframeWidth, matOffset += 16, i++) {
-	            Utils3D._rotationTransformScaleSkinAnimation(curData[offset + 7], curData[offset + 8], curData[offset + 9], curData[offset + 3], curData[offset + 4], curData[offset + 5], curData[offset + 6], curData[offset + 0], curData[offset + 1], curData[offset + 2], outBonesDatas, matOffset);
-	            if (i != 0) {
-	                parentOffset = bones[i].parentIndex * 16;
-	                Utils3D.mulMatrixByArray(outBonesDatas, parentOffset, outBonesDatas, matOffset, outBonesDatas, matOffset);
-	            }
-	        }
-	        var n = inverGlobalBindPose.length;
-	        for (i = 0; i < n; i++) {
-	            var arrayOffset = i * 16;
-	            Utils3D.mulMatrixByArrayAndMatrixFast(outBonesDatas, arrayOffset, inverGlobalBindPose[i], outAnimationDatas, arrayOffset);
-	        }
-	    }
-	    static _computeAnimationDatasByArrayAndMatrixFastOld(inverGlobalBindPose, bonesDatas, outAnimationDatas) {
-	        var n = inverGlobalBindPose.length;
-	        for (var i = 0; i < n; i++) {
-	            var arrayOffset = i * 16;
-	            Utils3D.mulMatrixByArrayAndMatrixFast(bonesDatas, arrayOffset, inverGlobalBindPose[i], outAnimationDatas, arrayOffset);
-	        }
-	    }
-	    static _computeRootAnimationData(bones, curData, animationDatas) {
-	        for (var i = 0, offset = 0, matOffset = 0, boneLength = bones.length; i < boneLength; offset += bones[i].keyframeWidth, matOffset += 16, i++)
-	            Utils3D.createAffineTransformationArray(curData[offset + 0], curData[offset + 1], curData[offset + 2], curData[offset + 3], curData[offset + 4], curData[offset + 5], curData[offset + 6], curData[offset + 7], curData[offset + 8], curData[offset + 9], animationDatas, matOffset);
-	    }
-	    static transformVector3ArrayByQuat(sourceArray, sourceOffset, rotation, outArray, outOffset) {
-	        var x = sourceArray[sourceOffset], y = sourceArray[sourceOffset + 1], z = sourceArray[sourceOffset + 2], qx = rotation.x, qy = rotation.y, qz = rotation.z, qw = rotation.w, ix = qw * x + qy * z - qz * y, iy = qw * y + qz * x - qx * z, iz = qw * z + qx * y - qy * x, iw = -qx * x - qy * y - qz * z;
-	        outArray[outOffset] = ix * qw + iw * -qx + iy * -qz - iz * -qy;
-	        outArray[outOffset + 1] = iy * qw + iw * -qy + iz * -qx - ix * -qz;
-	        outArray[outOffset + 2] = iz * qw + iw * -qz + ix * -qy - iy * -qx;
-	    }
-	    static mulMatrixByArray(leftArray, leftOffset, rightArray, rightOffset, outArray, outOffset) {
-	        var i, ai0, ai1, ai2, ai3;
-	        if (outArray === rightArray) {
-	            rightArray = Utils3D._tempArray16_3;
-	            for (i = 0; i < 16; ++i) {
-	                rightArray[i] = outArray[outOffset + i];
-	            }
-	            rightOffset = 0;
-	        }
-	        for (i = 0; i < 4; i++) {
-	            ai0 = leftArray[leftOffset + i];
-	            ai1 = leftArray[leftOffset + i + 4];
-	            ai2 = leftArray[leftOffset + i + 8];
-	            ai3 = leftArray[leftOffset + i + 12];
-	            outArray[outOffset + i] = ai0 * rightArray[rightOffset + 0] + ai1 * rightArray[rightOffset + 1] + ai2 * rightArray[rightOffset + 2] + ai3 * rightArray[rightOffset + 3];
-	            outArray[outOffset + i + 4] = ai0 * rightArray[rightOffset + 4] + ai1 * rightArray[rightOffset + 5] + ai2 * rightArray[rightOffset + 6] + ai3 * rightArray[rightOffset + 7];
-	            outArray[outOffset + i + 8] = ai0 * rightArray[rightOffset + 8] + ai1 * rightArray[rightOffset + 9] + ai2 * rightArray[rightOffset + 10] + ai3 * rightArray[rightOffset + 11];
-	            outArray[outOffset + i + 12] = ai0 * rightArray[rightOffset + 12] + ai1 * rightArray[rightOffset + 13] + ai2 * rightArray[rightOffset + 14] + ai3 * rightArray[rightOffset + 15];
-	        }
-	    }
-	    static mulMatrixByArrayFast(leftArray, leftOffset, rightArray, rightOffset, outArray, outOffset) {
-	        var i, ai0, ai1, ai2, ai3;
-	        for (i = 0; i < 4; i++) {
-	            ai0 = leftArray[leftOffset + i];
-	            ai1 = leftArray[leftOffset + i + 4];
-	            ai2 = leftArray[leftOffset + i + 8];
-	            ai3 = leftArray[leftOffset + i + 12];
-	            outArray[outOffset + i] = ai0 * rightArray[rightOffset + 0] + ai1 * rightArray[rightOffset + 1] + ai2 * rightArray[rightOffset + 2] + ai3 * rightArray[rightOffset + 3];
-	            outArray[outOffset + i + 4] = ai0 * rightArray[rightOffset + 4] + ai1 * rightArray[rightOffset + 5] + ai2 * rightArray[rightOffset + 6] + ai3 * rightArray[rightOffset + 7];
-	            outArray[outOffset + i + 8] = ai0 * rightArray[rightOffset + 8] + ai1 * rightArray[rightOffset + 9] + ai2 * rightArray[rightOffset + 10] + ai3 * rightArray[rightOffset + 11];
-	            outArray[outOffset + i + 12] = ai0 * rightArray[rightOffset + 12] + ai1 * rightArray[rightOffset + 13] + ai2 * rightArray[rightOffset + 14] + ai3 * rightArray[rightOffset + 15];
-	        }
-	    }
-	    static mulMatrixByArrayAndMatrixFast(leftArray, leftOffset, rightMatrix, outArray, outOffset) {
-	        var i, ai0, ai1, ai2, ai3;
-	        var rightMatrixE = rightMatrix.elements;
-	        var m11 = rightMatrixE[0], m12 = rightMatrixE[1], m13 = rightMatrixE[2], m14 = rightMatrixE[3];
-	        var m21 = rightMatrixE[4], m22 = rightMatrixE[5], m23 = rightMatrixE[6], m24 = rightMatrixE[7];
-	        var m31 = rightMatrixE[8], m32 = rightMatrixE[9], m33 = rightMatrixE[10], m34 = rightMatrixE[11];
-	        var m41 = rightMatrixE[12], m42 = rightMatrixE[13], m43 = rightMatrixE[14], m44 = rightMatrixE[15];
-	        var ai0LeftOffset = leftOffset;
-	        var ai1LeftOffset = leftOffset + 4;
-	        var ai2LeftOffset = leftOffset + 8;
-	        var ai3LeftOffset = leftOffset + 12;
-	        var ai0OutOffset = outOffset;
-	        var ai1OutOffset = outOffset + 4;
-	        var ai2OutOffset = outOffset + 8;
-	        var ai3OutOffset = outOffset + 12;
-	        for (i = 0; i < 4; i++) {
-	            ai0 = leftArray[ai0LeftOffset + i];
-	            ai1 = leftArray[ai1LeftOffset + i];
-	            ai2 = leftArray[ai2LeftOffset + i];
-	            ai3 = leftArray[ai3LeftOffset + i];
-	            outArray[ai0OutOffset + i] = ai0 * m11 + ai1 * m12 + ai2 * m13 + ai3 * m14;
-	            outArray[ai1OutOffset + i] = ai0 * m21 + ai1 * m22 + ai2 * m23 + ai3 * m24;
-	            outArray[ai2OutOffset + i] = ai0 * m31 + ai1 * m32 + ai2 * m33 + ai3 * m34;
-	            outArray[ai3OutOffset + i] = ai0 * m41 + ai1 * m42 + ai2 * m43 + ai3 * m44;
-	        }
-	    }
-	    static createAffineTransformationArray(tX, tY, tZ, rX, rY, rZ, rW, sX, sY, sZ, outArray, outOffset) {
-	        var x2 = rX + rX, y2 = rY + rY, z2 = rZ + rZ;
-	        var xx = rX * x2, xy = rX * y2, xz = rX * z2, yy = rY * y2, yz = rY * z2, zz = rZ * z2;
-	        var wx = rW * x2, wy = rW * y2, wz = rW * z2;
-	        outArray[outOffset + 0] = (1 - (yy + zz)) * sX;
-	        outArray[outOffset + 1] = (xy + wz) * sX;
-	        outArray[outOffset + 2] = (xz - wy) * sX;
-	        outArray[outOffset + 3] = 0;
-	        outArray[outOffset + 4] = (xy - wz) * sY;
-	        outArray[outOffset + 5] = (1 - (xx + zz)) * sY;
-	        outArray[outOffset + 6] = (yz + wx) * sY;
-	        outArray[outOffset + 7] = 0;
-	        outArray[outOffset + 8] = (xz + wy) * sZ;
-	        outArray[outOffset + 9] = (yz - wx) * sZ;
-	        outArray[outOffset + 10] = (1 - (xx + yy)) * sZ;
-	        outArray[outOffset + 11] = 0;
-	        outArray[outOffset + 12] = tX;
-	        outArray[outOffset + 13] = tY;
-	        outArray[outOffset + 14] = tZ;
-	        outArray[outOffset + 15] = 1;
-	    }
-	    static transformVector3ArrayToVector3ArrayCoordinate(source, sourceOffset, transform, result, resultOffset) {
-	        var coordinateX = source[sourceOffset + 0];
-	        var coordinateY = source[sourceOffset + 1];
-	        var coordinateZ = source[sourceOffset + 2];
-	        var transformElem = transform.elements;
-	        var w = ((coordinateX * transformElem[3]) + (coordinateY * transformElem[7]) + (coordinateZ * transformElem[11]) + transformElem[15]);
-	        result[resultOffset] = (coordinateX * transformElem[0]) + (coordinateY * transformElem[4]) + (coordinateZ * transformElem[8]) + transformElem[12] / w;
-	        result[resultOffset + 1] = (coordinateX * transformElem[1]) + (coordinateY * transformElem[5]) + (coordinateZ * transformElem[9]) + transformElem[13] / w;
-	        result[resultOffset + 2] = (coordinateX * transformElem[2]) + (coordinateY * transformElem[6]) + (coordinateZ * transformElem[10]) + transformElem[14] / w;
-	    }
-	    static transformVector3ArrayToVector3ArrayNormal(source, sourceOffset, transform, result, resultOffset) {
-	        var coordinateX = source[sourceOffset + 0];
-	        var coordinateY = source[sourceOffset + 1];
-	        var coordinateZ = source[sourceOffset + 2];
-	        var transformElem = transform.elements;
-	        result[resultOffset] = coordinateX * transformElem[0] + coordinateY * transformElem[4] + coordinateZ * transformElem[8];
-	        result[resultOffset + 1] = coordinateX * transformElem[1] + coordinateY * transformElem[5] + coordinateZ * transformElem[9];
-	        result[resultOffset + 2] = coordinateX * transformElem[2] + coordinateY * transformElem[6] + coordinateZ * transformElem[10];
-	    }
-	    static transformLightingMapTexcoordArray(source, sourceOffset, lightingMapScaleOffset, result, resultOffset) {
-	        result[resultOffset + 0] = source[sourceOffset + 0] * lightingMapScaleOffset.x + lightingMapScaleOffset.z;
-	        result[resultOffset + 1] = 1.0 - ((1.0 - source[sourceOffset + 1]) * lightingMapScaleOffset.y + lightingMapScaleOffset.w);
-	    }
-	    static getURLVerion(url) {
-	        var index = url.indexOf("?");
-	        return index >= 0 ? url.substr(index) : null;
-	    }
-	    static _createAffineTransformationArray(trans, rot, scale, outE) {
-	        var x = rot.x, y = rot.y, z = rot.z, w = rot.w, x2 = x + x, y2 = y + y, z2 = z + z;
-	        var xx = x * x2, xy = x * y2, xz = x * z2, yy = y * y2, yz = y * z2, zz = z * z2;
-	        var wx = w * x2, wy = w * y2, wz = w * z2, sx = scale.x, sy = scale.y, sz = scale.z;
-	        outE[0] = (1 - (yy + zz)) * sx;
-	        outE[1] = (xy + wz) * sx;
-	        outE[2] = (xz - wy) * sx;
-	        outE[3] = 0;
-	        outE[4] = (xy - wz) * sy;
-	        outE[5] = (1 - (xx + zz)) * sy;
-	        outE[6] = (yz + wx) * sy;
-	        outE[7] = 0;
-	        outE[8] = (xz + wy) * sz;
-	        outE[9] = (yz - wx) * sz;
-	        outE[10] = (1 - (xx + yy)) * sz;
-	        outE[11] = 0;
-	        outE[12] = trans.x;
-	        outE[13] = trans.y;
-	        outE[14] = trans.z;
-	        outE[15] = 1;
-	    }
-	    static _mulMatrixArray(leftMatrixE, rightMatrix, outArray, outOffset) {
-	        var i, ai0, ai1, ai2, ai3;
-	        var rightMatrixE = rightMatrix.elements;
-	        var m11 = rightMatrixE[0], m12 = rightMatrixE[1], m13 = rightMatrixE[2], m14 = rightMatrixE[3];
-	        var m21 = rightMatrixE[4], m22 = rightMatrixE[5], m23 = rightMatrixE[6], m24 = rightMatrixE[7];
-	        var m31 = rightMatrixE[8], m32 = rightMatrixE[9], m33 = rightMatrixE[10], m34 = rightMatrixE[11];
-	        var m41 = rightMatrixE[12], m42 = rightMatrixE[13], m43 = rightMatrixE[14], m44 = rightMatrixE[15];
-	        var ai0OutOffset = outOffset;
-	        var ai1OutOffset = outOffset + 4;
-	        var ai2OutOffset = outOffset + 8;
-	        var ai3OutOffset = outOffset + 12;
-	        for (i = 0; i < 4; i++) {
-	            ai0 = leftMatrixE[i];
-	            ai1 = leftMatrixE[i + 4];
-	            ai2 = leftMatrixE[i + 8];
-	            ai3 = leftMatrixE[i + 12];
-	            outArray[ai0OutOffset + i] = ai0 * m11 + ai1 * m12 + ai2 * m13 + ai3 * m14;
-	            outArray[ai1OutOffset + i] = ai0 * m21 + ai1 * m22 + ai2 * m23 + ai3 * m24;
-	            outArray[ai2OutOffset + i] = ai0 * m31 + ai1 * m32 + ai2 * m33 + ai3 * m34;
-	            outArray[ai3OutOffset + i] = ai0 * m41 + ai1 * m42 + ai2 * m43 + ai3 * m44;
-	        }
-	    }
-	    static arcTanAngle(x, y) {
-	        if (x == 0) {
-	            if (y == 1)
-	                return Math.PI / 2;
-	            return -Math.PI / 2;
-	        }
-	        if (x > 0)
-	            return Math.atan(y / x);
-	        if (x < 0) {
-	            if (y > 0)
-	                return Math.atan(y / x) + Math.PI;
-	            return Math.atan(y / x) - Math.PI;
-	        }
-	        return 0;
-	    }
-	    static angleTo(from, location, angle) {
-	        Vector3.subtract(location, from, Quaternion.TEMPVector30);
-	        Vector3.normalize(Quaternion.TEMPVector30, Quaternion.TEMPVector30);
-	        angle.x = Math.asin(Quaternion.TEMPVector30.y);
-	        angle.y = Utils3D.arcTanAngle(-Quaternion.TEMPVector30.z, -Quaternion.TEMPVector30.x);
-	    }
-	    static transformQuat(source, rotation, out) {
-	        var re = rotation;
-	        var x = source.x, y = source.y, z = source.z, qx = re[0], qy = re[1], qz = re[2], qw = re[3], ix = qw * x + qy * z - qz * y, iy = qw * y + qz * x - qx * z, iz = qw * z + qx * y - qy * x, iw = -qx * x - qy * y - qz * z;
-	        out.x = ix * qw + iw * -qx + iy * -qz - iz * -qy;
-	        out.y = iy * qw + iw * -qy + iz * -qx - ix * -qz;
-	        out.z = iz * qw + iw * -qz + ix * -qy - iy * -qx;
-	    }
-	    static quaternionWeight(f, weight, e) {
-	        e.x = f.x * weight;
-	        e.y = f.y * weight;
-	        e.z = f.z * weight;
-	        e.w = f.w;
-	    }
-	    static quaternionConjugate(value, result) {
-	        result.x = -value.x;
-	        result.y = -value.y;
-	        result.z = -value.z;
-	        result.w = value.w;
-	    }
-	    static scaleWeight(s, w, out) {
-	        var sX = s.x, sY = s.y, sZ = s.z;
-	        out.x = sX > 0 ? Math.pow(Math.abs(sX), w) : -Math.pow(Math.abs(sX), w);
-	        out.y = sY > 0 ? Math.pow(Math.abs(sY), w) : -Math.pow(Math.abs(sY), w);
-	        out.z = sZ > 0 ? Math.pow(Math.abs(sZ), w) : -Math.pow(Math.abs(sZ), w);
-	    }
-	    static scaleBlend(sa, sb, w, out) {
-	        var saw = Utils3D._tempVector3_0;
-	        var sbw = Utils3D._tempVector3_1;
-	        Utils3D.scaleWeight(sa, 1.0 - w, saw);
-	        Utils3D.scaleWeight(sb, w, sbw);
-	        var sng = w > 0.5 ? sb : sa;
-	        out.x = sng.x > 0 ? Math.abs(saw.x * sbw.x) : -Math.abs(saw.x * sbw.x);
-	        out.y = sng.y > 0 ? Math.abs(saw.y * sbw.y) : -Math.abs(saw.y * sbw.y);
-	        out.z = sng.z > 0 ? Math.abs(saw.z * sbw.z) : -Math.abs(saw.z * sbw.z);
-	    }
-	    static matrix4x4MultiplyFFF(a, b, e) {
-	        var i, ai0, ai1, ai2, ai3;
-	        if (e === b) {
-	            b = new Float32Array(16);
-	            for (i = 0; i < 16; ++i) {
-	                b[i] = e[i];
-	            }
-	        }
-	        var b0 = b[0], b1 = b[1], b2 = b[2], b3 = b[3];
-	        var b4 = b[4], b5 = b[5], b6 = b[6], b7 = b[7];
-	        var b8 = b[8], b9 = b[9], b10 = b[10], b11 = b[11];
-	        var b12 = b[12], b13 = b[13], b14 = b[14], b15 = b[15];
-	        for (i = 0; i < 4; i++) {
-	            ai0 = a[i];
-	            ai1 = a[i + 4];
-	            ai2 = a[i + 8];
-	            ai3 = a[i + 12];
-	            e[i] = ai0 * b0 + ai1 * b1 + ai2 * b2 + ai3 * b3;
-	            e[i + 4] = ai0 * b4 + ai1 * b5 + ai2 * b6 + ai3 * b7;
-	            e[i + 8] = ai0 * b8 + ai1 * b9 + ai2 * b10 + ai3 * b11;
-	            e[i + 12] = ai0 * b12 + ai1 * b13 + ai2 * b14 + ai3 * b15;
-	        }
-	    }
-	    static matrix4x4MultiplyFFFForNative(a, b, e) {
-	        Laya.LayaGL.instance.matrix4x4Multiply(a, b, e);
-	    }
-	    static matrix4x4MultiplyMFM(left, right, out) {
-	        Utils3D.matrix4x4MultiplyFFF(left.elements, right, out.elements);
-	    }
-	    static _buildTexture2D(width, height, format, colorFunc, mipmaps = false) {
-	        var texture = new Laya.Texture2D(width, height, format, mipmaps, true);
-	        texture.anisoLevel = 1;
-	        texture.filterMode = Laya.BaseTexture.FILTERMODE_POINT;
-	        TextureGenerator._generateTexture2D(texture, width, height, colorFunc);
-	        return texture;
-	    }
-	    static _drawBound(debugLine, boundBox, color) {
-	        if (debugLine.lineCount + 12 > debugLine.maxLineCount)
-	            debugLine.maxLineCount += 12;
-	        var start = Utils3D._tempVector3_0;
-	        var end = Utils3D._tempVector3_1;
-	        var min = boundBox.min;
-	        var max = boundBox.max;
-	        start.setValue(min.x, min.y, min.z);
-	        end.setValue(max.x, min.y, min.z);
-	        debugLine.addLine(start, end, color, color);
-	        start.setValue(min.x, min.y, min.z);
-	        end.setValue(min.x, min.y, max.z);
-	        debugLine.addLine(start, end, color, color);
-	        start.setValue(max.x, min.y, min.z);
-	        end.setValue(max.x, min.y, max.z);
-	        debugLine.addLine(start, end, color, color);
-	        start.setValue(min.x, min.y, max.z);
-	        end.setValue(max.x, min.y, max.z);
-	        debugLine.addLine(start, end, color, color);
-	        start.setValue(min.x, min.y, min.z);
-	        end.setValue(min.x, max.y, min.z);
-	        debugLine.addLine(start, end, color, color);
-	        start.setValue(min.x, min.y, max.z);
-	        end.setValue(min.x, max.y, max.z);
-	        debugLine.addLine(start, end, color, color);
-	        start.setValue(max.x, min.y, min.z);
-	        end.setValue(max.x, max.y, min.z);
-	        debugLine.addLine(start, end, color, color);
-	        start.setValue(max.x, min.y, max.z);
-	        end.setValue(max.x, max.y, max.z);
-	        debugLine.addLine(start, end, color, color);
-	        start.setValue(min.x, max.y, min.z);
-	        end.setValue(max.x, max.y, min.z);
-	        debugLine.addLine(start, end, color, color);
-	        start.setValue(min.x, max.y, min.z);
-	        end.setValue(min.x, max.y, max.z);
-	        debugLine.addLine(start, end, color, color);
-	        start.setValue(max.x, max.y, min.z);
-	        end.setValue(max.x, max.y, max.z);
-	        debugLine.addLine(start, end, color, color);
-	        start.setValue(min.x, max.y, max.z);
-	        end.setValue(max.x, max.y, max.z);
-	        debugLine.addLine(start, end, color, color);
-	    }
-	    static _getHierarchyPath(rootSprite, checkSprite, path) {
-	        path.length = 0;
-	        var sprite = checkSprite;
-	        while (sprite !== rootSprite) {
-	            var parent = sprite._parent;
-	            if (parent)
-	                path.push(parent.getChildIndex(sprite));
-	            else
-	                return null;
-	            sprite = parent;
-	        }
-	        return path;
-	    }
-	    static _getNodeByHierarchyPath(rootSprite, invPath) {
-	        var sprite = rootSprite;
-	        for (var i = invPath.length - 1; i >= 0; i--) {
-	            sprite = sprite.getChildAt(invPath[i]);
-	        }
-	        return sprite;
-	    }
-	}
-	Utils3D._tempVector3_0 = new Vector3();
-	Utils3D._tempVector3_1 = new Vector3();
-	Utils3D._tempArray16_0 = new Float32Array(16);
-	Utils3D._tempArray16_1 = new Float32Array(16);
-	Utils3D._tempArray16_2 = new Float32Array(16);
-	Utils3D._tempArray16_3 = new Float32Array(16);
-	Utils3D._compIdToNode = new Object();
-
-	class AnimationClip extends Laya.Resource {
-	    constructor() {
-	        super();
-	        this._nodes = new KeyframeNodeList();
-	        this._animationEvents = [];
-	    }
-	    static _parse(data, propertyParams = null, constructParams = null) {
-	        var clip = new AnimationClip();
-	        var reader = new Laya.Byte(data);
-	        var version = reader.readUTFString();
-	        switch (version) {
-	            case "LAYAANIMATION:03":
-	                AnimationClipParser03.parse(clip, reader);
-	                break;
-	            case "LAYAANIMATION:04":
-	            case "LAYAANIMATION:COMPRESSION_04":
-	                AnimationClipParser04.parse(clip, reader, version);
-	                break;
-	            default:
-	                throw "unknown animationClip version.";
-	        }
-	        return clip;
-	    }
-	    static load(url, complete) {
-	        Laya.ILaya.loader.create(url, complete, null, AnimationClip.ANIMATIONCLIP);
-	    }
-	    duration() {
-	        return this._duration;
-	    }
-	    _hermiteInterpolate(frame, nextFrame, t, dur) {
-	        var t0 = frame.outTangent, t1 = nextFrame.inTangent;
-	        if (Number.isFinite(t0) && Number.isFinite(t1)) {
-	            var t2 = t * t;
-	            var t3 = t2 * t;
-	            var a = 2.0 * t3 - 3.0 * t2 + 1.0;
-	            var b = t3 - 2.0 * t2 + t;
-	            var c = t3 - t2;
-	            var d = -2.0 * t3 + 3.0 * t2;
-	            return a * frame.value + b * t0 * dur + c * t1 * dur + d * nextFrame.value;
-	        }
-	        else
-	            return frame.value;
-	    }
-	    _hermiteInterpolateVector3(frame, nextFrame, t, dur, out) {
-	        var p0 = frame.value;
-	        var tan0 = frame.outTangent;
-	        var p1 = nextFrame.value;
-	        var tan1 = nextFrame.inTangent;
-	        var t2 = t * t;
-	        var t3 = t2 * t;
-	        var a = 2.0 * t3 - 3.0 * t2 + 1.0;
-	        var b = t3 - 2.0 * t2 + t;
-	        var c = t3 - t2;
-	        var d = -2.0 * t3 + 3.0 * t2;
-	        var t0 = tan0.x, t1 = tan1.x;
-	        if (Number.isFinite(t0) && Number.isFinite(t1))
-	            out.x = a * p0.x + b * t0 * dur + c * t1 * dur + d * p1.x;
-	        else
-	            out.x = p0.x;
-	        t0 = tan0.y, t1 = tan1.y;
-	        if (Number.isFinite(t0) && Number.isFinite(t1))
-	            out.y = a * p0.y + b * t0 * dur + c * t1 * dur + d * p1.y;
-	        else
-	            out.y = p0.y;
-	        t0 = tan0.z, t1 = tan1.z;
-	        if (Number.isFinite(t0) && Number.isFinite(t1))
-	            out.z = a * p0.z + b * t0 * dur + c * t1 * dur + d * p1.z;
-	        else
-	            out.z = p0.z;
-	    }
-	    _hermiteInterpolateQuaternion(frame, nextFrame, t, dur, out) {
-	        var p0 = frame.value;
-	        var tan0 = frame.outTangent;
-	        var p1 = nextFrame.value;
-	        var tan1 = nextFrame.inTangent;
-	        var t2 = t * t;
-	        var t3 = t2 * t;
-	        var a = 2.0 * t3 - 3.0 * t2 + 1.0;
-	        var b = t3 - 2.0 * t2 + t;
-	        var c = t3 - t2;
-	        var d = -2.0 * t3 + 3.0 * t2;
-	        var t0 = tan0.x, t1 = tan1.x;
-	        if (Number.isFinite(t0) && Number.isFinite(t1))
-	            out.x = a * p0.x + b * t0 * dur + c * t1 * dur + d * p1.x;
-	        else
-	            out.x = p0.x;
-	        t0 = tan0.y, t1 = tan1.y;
-	        if (Number.isFinite(t0) && Number.isFinite(t1))
-	            out.y = a * p0.y + b * t0 * dur + c * t1 * dur + d * p1.y;
-	        else
-	            out.y = p0.y;
-	        t0 = tan0.z, t1 = tan1.z;
-	        if (Number.isFinite(t0) && Number.isFinite(t1))
-	            out.z = a * p0.z + b * t0 * dur + c * t1 * dur + d * p1.z;
-	        else
-	            out.z = p0.z;
-	        t0 = tan0.w, t1 = tan1.w;
-	        if (Number.isFinite(t0) && Number.isFinite(t1))
-	            out.w = a * p0.w + b * t0 * dur + c * t1 * dur + d * p1.w;
-	        else
-	            out.w = p0.w;
-	    }
-	    _evaluateClipDatasRealTime(nodes, playCurTime, realTimeCurrentFrameIndexes, addtive, frontPlay) {
-	        for (var i = 0, n = nodes.count; i < n; i++) {
-	            var node = nodes.getNodeByIndex(i);
-	            var type = node.type;
-	            var nextFrameIndex;
-	            var keyFrames = node._keyFrames;
-	            var keyFramesCount = keyFrames.length;
-	            var frameIndex = realTimeCurrentFrameIndexes[i];
-	            if (frontPlay) {
-	                if ((frameIndex !== -1) && (playCurTime < keyFrames[frameIndex].time)) {
-	                    frameIndex = -1;
-	                    realTimeCurrentFrameIndexes[i] = frameIndex;
-	                }
-	                nextFrameIndex = frameIndex + 1;
-	                while (nextFrameIndex < keyFramesCount) {
-	                    if (keyFrames[nextFrameIndex].time > playCurTime)
-	                        break;
-	                    frameIndex++;
-	                    nextFrameIndex++;
-	                    realTimeCurrentFrameIndexes[i] = frameIndex;
-	                }
-	            }
-	            else {
-	                nextFrameIndex = frameIndex + 1;
-	                if ((nextFrameIndex !== keyFramesCount) && (playCurTime > keyFrames[nextFrameIndex].time)) {
-	                    frameIndex = keyFramesCount - 1;
-	                    realTimeCurrentFrameIndexes[i] = frameIndex;
-	                }
-	                nextFrameIndex = frameIndex + 1;
-	                while (frameIndex > -1) {
-	                    if (keyFrames[frameIndex].time < playCurTime)
-	                        break;
-	                    frameIndex--;
-	                    nextFrameIndex--;
-	                    realTimeCurrentFrameIndexes[i] = frameIndex;
-	                }
-	            }
-	            var isEnd = nextFrameIndex === keyFramesCount;
-	            switch (type) {
-	                case 0:
-	                    if (frameIndex !== -1) {
-	                        var frame = keyFrames[frameIndex];
-	                        if (isEnd) {
-	                            node.data = frame.value;
-	                        }
-	                        else {
-	                            var nextFarme = keyFrames[nextFrameIndex];
-	                            var d = nextFarme.time - frame.time;
-	                            var t;
-	                            if (d !== 0)
-	                                t = (playCurTime - frame.time) / d;
-	                            else
-	                                t = 0;
-	                            node.data = this._hermiteInterpolate(frame, nextFarme, t, d);
-	                        }
-	                    }
-	                    else {
-	                        node.data = keyFrames[0].value;
-	                    }
-	                    if (addtive)
-	                        node.data -= keyFrames[0].value;
-	                    break;
-	                case 1:
-	                case 4:
-	                    var clipData = node.data;
-	                    this._evaluateFrameNodeVector3DatasRealTime(keyFrames, frameIndex, isEnd, playCurTime, clipData);
-	                    if (addtive) {
-	                        var firstFrameValue = keyFrames[0].value;
-	                        clipData.x -= firstFrameValue.x;
-	                        clipData.y -= firstFrameValue.y;
-	                        clipData.z -= firstFrameValue.z;
-	                    }
-	                    break;
-	                case 2:
-	                    var clipQuat = node.data;
-	                    this._evaluateFrameNodeQuaternionDatasRealTime(keyFrames, frameIndex, isEnd, playCurTime, clipQuat);
-	                    if (addtive) {
-	                        var tempQuat = AnimationClip._tempQuaternion0;
-	                        var firstFrameValueQua = keyFrames[0].value;
-	                        Utils3D.quaternionConjugate(firstFrameValueQua, tempQuat);
-	                        Quaternion.multiply(tempQuat, clipQuat, clipQuat);
-	                    }
-	                    break;
-	                case 3:
-	                    clipData = node.data;
-	                    this._evaluateFrameNodeVector3DatasRealTime(keyFrames, frameIndex, isEnd, playCurTime, clipData);
-	                    if (addtive) {
-	                        firstFrameValue = keyFrames[0].value;
-	                        clipData.x /= firstFrameValue.x;
-	                        clipData.y /= firstFrameValue.y;
-	                        clipData.z /= firstFrameValue.z;
-	                    }
-	                    break;
-	                default:
-	                    throw "AnimationClip:unknown node type.";
-	            }
-	        }
-	    }
-	    _evaluateClipDatasRealTimeForNative(nodes, playCurTime, realTimeCurrentFrameIndexes, addtive) {
-	        Laya.LayaGL.instance.evaluateClipDatasRealTime(nodes._nativeObj, playCurTime, realTimeCurrentFrameIndexes, addtive);
-	    }
-	    _evaluateFrameNodeVector3DatasRealTime(keyFrames, frameIndex, isEnd, playCurTime, outDatas) {
-	        if (frameIndex !== -1) {
-	            var frame = keyFrames[frameIndex];
-	            if (isEnd) {
-	                var frameData = frame.value;
-	                outDatas.x = frameData.x;
-	                outDatas.y = frameData.y;
-	                outDatas.z = frameData.z;
-	            }
-	            else {
-	                var nextKeyFrame = keyFrames[frameIndex + 1];
-	                var t;
-	                var startTime = frame.time;
-	                var d = nextKeyFrame.time - startTime;
-	                if (d !== 0)
-	                    t = (playCurTime - startTime) / d;
-	                else
-	                    t = 0;
-	                this._hermiteInterpolateVector3(frame, nextKeyFrame, t, d, outDatas);
-	            }
-	        }
-	        else {
-	            var firstFrameDatas = keyFrames[0].value;
-	            outDatas.x = firstFrameDatas.x;
-	            outDatas.y = firstFrameDatas.y;
-	            outDatas.z = firstFrameDatas.z;
-	        }
-	    }
-	    _evaluateFrameNodeQuaternionDatasRealTime(keyFrames, frameIndex, isEnd, playCurTime, outDatas) {
-	        if (frameIndex !== -1) {
-	            var frame = keyFrames[frameIndex];
-	            if (isEnd) {
-	                var frameData = frame.value;
-	                outDatas.x = frameData.x;
-	                outDatas.y = frameData.y;
-	                outDatas.z = frameData.z;
-	                outDatas.w = frameData.w;
-	            }
-	            else {
-	                var nextKeyFrame = keyFrames[frameIndex + 1];
-	                var t;
-	                var startTime = frame.time;
-	                var d = nextKeyFrame.time - startTime;
-	                if (d !== 0)
-	                    t = (playCurTime - startTime) / d;
-	                else
-	                    t = 0;
-	                this._hermiteInterpolateQuaternion(frame, nextKeyFrame, t, d, outDatas);
-	            }
-	        }
-	        else {
-	            var firstFrameDatas = keyFrames[0].value;
-	            outDatas.x = firstFrameDatas.x;
-	            outDatas.y = firstFrameDatas.y;
-	            outDatas.z = firstFrameDatas.z;
-	            outDatas.w = firstFrameDatas.w;
-	        }
-	    }
-	    _binarySearchEventIndex(time) {
-	        var start = 0;
-	        var end = this._animationEvents.length - 1;
-	        var mid;
-	        while (start <= end) {
-	            mid = Math.floor((start + end) / 2);
-	            var midValue = this._animationEvents[mid].time;
-	            if (midValue == time)
-	                return mid;
-	            else if (midValue > time)
-	                end = mid - 1;
-	            else
-	                start = mid + 1;
-	        }
-	        return start;
-	    }
-	    addEvent(event) {
-	        var index = this._binarySearchEventIndex(event.time);
-	        this._animationEvents.splice(index, 0, event);
-	    }
-	    _disposeResource() {
-	        this._nodes = null;
-	        this._nodesMap = null;
-	    }
-	}
-	AnimationClip.ANIMATIONCLIP = "ANIMATIONCLIP";
-	AnimationClip._tempQuaternion0 = new Quaternion();
-
-	class AnimatorPlayState {
-	    constructor() {
-	        this._currentState = null;
-	    }
-	    get normalizedTime() {
-	        return this._normalizedTime;
-	    }
-	    get duration() {
-	        return this._duration;
-	    }
-	    get animatorState() {
-	        return this._currentState;
-	    }
-	    _resetPlayState(startTime) {
-	        this._finish = false;
-	        this._startPlayTime = startTime;
-	        this._elapsedTime = startTime;
-	        this._playEventIndex = 0;
-	        this._lastIsFront = true;
-	    }
-	    _cloneTo(dest) {
-	        dest._finish = this._finish;
-	        dest._startPlayTime = this._startPlayTime;
-	        dest._elapsedTime = this._elapsedTime;
-	        dest._playEventIndex = this._playEventIndex;
-	        dest._lastIsFront = this._lastIsFront;
-	    }
-	}
-
-	class AnimatorControllerLayer {
-	    constructor(name) {
-	        this._defaultState = null;
-	        this._referenceCount = 0;
-	        this._playType = -1;
-	        this._crossDuration = -1;
-	        this._crossMark = 0;
-	        this._crossNodesOwnersCount = 0;
-	        this._crossNodesOwners = [];
-	        this._crossNodesOwnersIndicesMap = {};
-	        this._srcCrossClipNodeIndices = [];
-	        this._destCrossClipNodeIndices = [];
-	        this._statesMap = {};
-	        this._states = [];
-	        this._playStateInfo = new AnimatorPlayState();
-	        this._crossPlayStateInfo = new AnimatorPlayState();
-	        this.blendingMode = AnimatorControllerLayer.BLENDINGMODE_OVERRIDE;
-	        this.defaultWeight = 1.0;
-	        this.playOnWake = true;
-	        this.name = name;
-	    }
-	    get defaultState() {
-	        return this._defaultState;
-	    }
-	    set defaultState(value) {
-	        this._defaultState = value;
-	        this._statesMap[value.name] = value;
-	    }
-	    _removeClip(clipStateInfos, statesMap, index, state) {
-	        var clip = state._clip;
-	        var clipStateInfo = clipStateInfos[index];
-	        clipStateInfos.splice(index, 1);
-	        delete statesMap[state.name];
-	        if (this._animator) {
-	            var frameNodes = clip._nodes;
-	            var nodeOwners = clipStateInfo._nodeOwners;
-	            clip._removeReference();
-	            for (var i = 0, n = frameNodes.count; i < n; i++)
-	                this._animator._removeKeyframeNodeOwner(nodeOwners, frameNodes.getNodeByIndex(i));
-	        }
-	    }
-	    _getReferenceCount() {
-	        return this._referenceCount;
-	    }
-	    _addReference(count = 1) {
-	        for (var i = 0, n = this._states.length; i < n; i++)
-	            this._states[i]._addReference(count);
-	        this._referenceCount += count;
-	    }
-	    _removeReference(count = 1) {
-	        for (var i = 0, n = this._states.length; i < n; i++)
-	            this._states[i]._removeReference(count);
-	        this._referenceCount -= count;
-	    }
-	    _clearReference() {
-	        this._removeReference(-this._referenceCount);
-	    }
-	    getCurrentPlayState() {
-	        return this._playStateInfo;
-	    }
-	    getAnimatorState(name) {
-	        var state = this._statesMap[name];
-	        return state ? state : null;
-	    }
-	    addState(state) {
-	        var stateName = state.name;
-	        if (this._statesMap[stateName]) {
-	            throw "AnimatorControllerLayer:this stat's name has exist.";
-	        }
-	        else {
-	            this._statesMap[stateName] = state;
-	            this._states.push(state);
-	            if (this._animator) {
-	                state._clip._addReference();
-	                this._animator._getOwnersByClip(state);
-	            }
-	        }
-	    }
-	    removeState(state) {
-	        var states = this._states;
-	        var index = -1;
-	        for (var i = 0, n = states.length; i < n; i++) {
-	            if (states[i] === state) {
-	                index = i;
-	                break;
-	            }
-	        }
-	        if (index !== -1)
-	            this._removeClip(states, this._statesMap, index, state);
-	    }
-	    destroy() {
-	        this._clearReference();
-	        this._statesMap = null;
-	        this._states = null;
-	        this._playStateInfo = null;
-	        this._crossPlayStateInfo = null;
-	        this._defaultState = null;
-	    }
-	    cloneTo(destObject) {
-	        var dest = destObject;
-	        dest.name = this.name;
-	        dest.blendingMode = this.blendingMode;
-	        dest.defaultWeight = this.defaultWeight;
-	        dest.playOnWake = this.playOnWake;
-	    }
-	    clone() {
-	        var dest = new AnimatorControllerLayer(this.name);
-	        this.cloneTo(dest);
-	        return dest;
-	    }
-	}
-	AnimatorControllerLayer.BLENDINGMODE_OVERRIDE = 0;
-	AnimatorControllerLayer.BLENDINGMODE_ADDTIVE = 1;
-
 	class AnimatorState {
 	    constructor() {
 	        this._referenceCount = 0;
 	        this._clip = null;
 	        this._nodeOwners = [];
 	        this._currentFrameIndices = null;
+	        this._realtimeDatas = [];
 	        this._scripts = null;
 	        this.speed = 1.0;
 	        this.clipStart = 0.0;
@@ -4379,9 +4352,29 @@
 	            if (this._clip)
 	                (this._referenceCount > 0) && (this._clip._removeReference(this._referenceCount));
 	            if (value) {
-	                this._currentFrameIndices = new Int16Array(value._nodes.count);
+	                var realtimeDatas = this._realtimeDatas;
+	                var clipNodes = value._nodes;
+	                var count = clipNodes.count;
+	                this._currentFrameIndices = new Int16Array(count);
 	                this._resetFrameIndices();
-	                (this._referenceCount > 0) && (this._clip._addReference(this._referenceCount));
+	                (this._referenceCount > 0) && (value._addReference(this._referenceCount));
+	                this._realtimeDatas.length = count;
+	                for (var i = 0; i < count; i++) {
+	                    switch (clipNodes.getNodeByIndex(i).type) {
+	                        case 0:
+	                            break;
+	                        case 1:
+	                        case 3:
+	                        case 4:
+	                            realtimeDatas[i] = Laya.Render.supportWebGLPlusAnimation ? new ConchVector3 : new Vector3();
+	                            break;
+	                        case 2:
+	                            realtimeDatas[i] = Laya.Render.supportWebGLPlusAnimation ? new ConchQuaternion : new Quaternion();
+	                            break;
+	                        default:
+	                            throw "AnimationClipParser04:unknown type.";
+	                    }
+	                }
 	            }
 	            this._clip = value;
 	        }
@@ -4711,23 +4704,18 @@
 	                    playStateInfo._playEventIndex--;
 	                playStateInfo._lastIsFront = frontPlay;
 	            }
-	            if (loopCount == 0) {
-	                playStateInfo._playEventIndex = this._eventScript(scripts, events, playStateInfo._playEventIndex, time, frontPlay);
+	            if (frontPlay) {
+	                playStateInfo._playEventIndex = this._eventScript(scripts, events, playStateInfo._playEventIndex, loopCount > 0 ? clipDuration : time, true);
+	                for (var i = 0, n = loopCount - 1; i < n; i++)
+	                    this._eventScript(scripts, events, 0, clipDuration, true);
+	                (loopCount > 0 && time > 0) && (playStateInfo._playEventIndex = this._eventScript(scripts, events, 0, time, true));
 	            }
 	            else {
-	                if (frontPlay) {
-	                    this._eventScript(scripts, events, playStateInfo._playEventIndex, clipDuration, true);
-	                    for (var i = 0, n = loopCount - 1; i < n; i++)
-	                        this._eventScript(scripts, events, 0, clipDuration, true);
-	                    playStateInfo._playEventIndex = this._eventScript(scripts, events, 0, time, true);
-	                }
-	                else {
-	                    this._eventScript(scripts, events, playStateInfo._playEventIndex, 0, false);
-	                    var eventIndex = events.length - 1;
-	                    for (i = 0, n = loopCount - 1; i < n; i++)
-	                        this._eventScript(scripts, events, eventIndex, 0, false);
-	                    playStateInfo._playEventIndex = this._eventScript(scripts, events, eventIndex, time, false);
-	                }
+	                playStateInfo._playEventIndex = this._eventScript(scripts, events, playStateInfo._playEventIndex, loopCount > 0 ? 0 : time, false);
+	                var eventIndex = events.length - 1;
+	                for (i = 0, n = loopCount - 1; i < n; i++)
+	                    this._eventScript(scripts, events, eventIndex, 0, false);
+	                (loopCount > 0 && time > 0) && (playStateInfo._playEventIndex = this._eventScript(scripts, events, eventIndex, time, false));
 	            }
 	        }
 	    }
@@ -4737,7 +4725,7 @@
 	        var curPlayTime = animatorState.clipStart * clipDuration + playStateInfo._normalizedPlayTime * playStateInfo._duration;
 	        var currentFrameIndices = animatorState._currentFrameIndices;
 	        var frontPlay = playStateInfo._elapsedTime > playStateInfo._lastElapsedTime;
-	        clip._evaluateClipDatasRealTime(clip._nodes, curPlayTime, currentFrameIndices, addtive, frontPlay);
+	        clip._evaluateClipDatasRealTime(clip._nodes, curPlayTime, currentFrameIndices, addtive, frontPlay, animatorState._realtimeDatas);
 	    }
 	    _applyFloat(pro, proName, nodeOwner, additive, weight, isFirstLayer, data) {
 	        if (nodeOwner.updateMark === this._updateMark) {
@@ -4950,6 +4938,7 @@
 	        }
 	    }
 	    _setClipDatasToNode(stateInfo, additive, weight, isFirstLayer) {
+	        var realtimeDatas = stateInfo._realtimeDatas;
 	        var nodes = stateInfo._clip._nodes;
 	        var nodeOwners = stateInfo._nodeOwners;
 	        for (var i = 0, n = nodes.count; i < n; i++) {
@@ -4966,26 +4955,26 @@
 	                                if (!pro)
 	                                    break;
 	                            }
-	                            this._applyFloat(pro, proPat[m], nodeOwner, additive, weight, isFirstLayer, nodes.getNodeByIndex(i).data);
+	                            this._applyFloat(pro, proPat[m], nodeOwner, additive, weight, isFirstLayer, realtimeDatas[i]);
 	                            break;
 	                        case 1:
 	                            var localPos = pro.localPosition;
-	                            this._applyPositionAndRotationEuler(nodeOwner, additive, weight, isFirstLayer, nodes.getNodeByIndex(i).data, localPos);
+	                            this._applyPositionAndRotationEuler(nodeOwner, additive, weight, isFirstLayer, realtimeDatas[i], localPos);
 	                            pro.localPosition = localPos;
 	                            break;
 	                        case 2:
 	                            var localRot = pro.localRotation;
-	                            this._applyRotation(nodeOwner, additive, weight, isFirstLayer, nodes.getNodeByIndex(i).data, localRot);
+	                            this._applyRotation(nodeOwner, additive, weight, isFirstLayer, realtimeDatas[i], localRot);
 	                            pro.localRotation = localRot;
 	                            break;
 	                        case 3:
 	                            var localSca = pro.localScale;
-	                            this._applyScale(nodeOwner, additive, weight, isFirstLayer, nodes.getNodeByIndex(i).data, localSca);
+	                            this._applyScale(nodeOwner, additive, weight, isFirstLayer, realtimeDatas[i], localSca);
 	                            pro.localScale = localSca;
 	                            break;
 	                        case 4:
 	                            var localEuler = pro.localRotationEuler;
-	                            this._applyPositionAndRotationEuler(nodeOwner, additive, weight, isFirstLayer, nodes.getNodeByIndex(i).data, localEuler);
+	                            this._applyPositionAndRotationEuler(nodeOwner, additive, weight, isFirstLayer, realtimeDatas[i], localEuler);
 	                            pro.localRotationEuler = localEuler;
 	                            break;
 	                    }
@@ -4999,19 +4988,19 @@
 	        var ownerCount = controllerLayer._crossNodesOwnersCount;
 	        var additive = controllerLayer.blendingMode !== AnimatorControllerLayer.BLENDINGMODE_OVERRIDE;
 	        var weight = controllerLayer.defaultWeight;
+	        var destRealtimeDatas = destState._realtimeDatas;
 	        var destDataIndices = controllerLayer._destCrossClipNodeIndices;
-	        var destNodes = destState._clip._nodes;
 	        var destNodeOwners = destState._nodeOwners;
+	        var srcRealtimeDatas = srcState._realtimeDatas;
 	        var srcDataIndices = controllerLayer._srcCrossClipNodeIndices;
 	        var srcNodeOwners = srcState._nodeOwners;
-	        var srcNodes = srcState._clip._nodes;
 	        for (var i = 0; i < ownerCount; i++) {
 	            var nodeOwner = nodeOwners[i];
 	            if (nodeOwner) {
 	                var srcIndex = srcDataIndices[i];
 	                var destIndex = destDataIndices[i];
-	                var srcValue = srcIndex !== -1 ? srcNodes.getNodeByIndex(srcIndex).data : destNodeOwners[destIndex].defaultValue;
-	                var desValue = destIndex !== -1 ? destNodes.getNodeByIndex(destIndex).data : srcNodeOwners[srcIndex].defaultValue;
+	                var srcValue = srcIndex !== -1 ? srcRealtimeDatas[srcIndex] : destNodeOwners[destIndex].defaultValue;
+	                var desValue = destIndex !== -1 ? destRealtimeDatas[destIndex] : srcNodeOwners[srcIndex].defaultValue;
 	                this._applyCrossData(nodeOwner, additive, weight, isFirstLayer, srcValue, desValue, crossWeight);
 	            }
 	        }
@@ -5021,14 +5010,14 @@
 	        var ownerCount = controllerLayer._crossNodesOwnersCount;
 	        var additive = controllerLayer.blendingMode !== AnimatorControllerLayer.BLENDINGMODE_OVERRIDE;
 	        var weight = controllerLayer.defaultWeight;
+	        var destRealtimeDatas = destState._realtimeDatas;
 	        var destDataIndices = controllerLayer._destCrossClipNodeIndices;
-	        var destNodes = destState._clip._nodes;
 	        for (var i = 0; i < ownerCount; i++) {
 	            var nodeOwner = nodeOwners[i];
 	            if (nodeOwner) {
 	                var destIndex = destDataIndices[i];
 	                var srcValue = nodeOwner.crossFixedValue;
-	                var desValue = destIndex !== -1 ? destNodes.getNodeByIndex(destIndex).data : nodeOwner.defaultValue;
+	                var desValue = destIndex !== -1 ? destRealtimeDatas[destIndex] : nodeOwner.defaultValue;
 	                this._applyCrossData(nodeOwner, additive, weight, isFirstLayer, srcValue, desValue, crossWeight);
 	            }
 	        }
@@ -5219,21 +5208,21 @@
 	                case 1:
 	                    animatorState = playStateInfo._currentState;
 	                    clip = animatorState._clip;
-	                    var crossClipState = controllerLayer._crossPlayState;
-	                    var crossClip = crossClipState._clip;
+	                    var crossState = controllerLayer._crossPlayState;
+	                    var crossClip = crossState._clip;
 	                    var crossDuratuion = controllerLayer._crossDuration;
 	                    var startPlayTime = crossPlayStateInfo._startPlayTime;
 	                    var crossClipDuration = crossClip._duration - startPlayTime;
 	                    var crossScale = crossDuratuion > crossClipDuration ? crossClipDuration / crossDuratuion : 1.0;
-	                    var crossSpeed = this._speed * crossClipState.speed;
-	                    this._updatePlayer(crossClipState, crossPlayStateInfo, delta * crossScale * crossSpeed, crossClip.islooping);
+	                    var crossSpeed = this._speed * crossState.speed;
+	                    this._updatePlayer(crossState, crossPlayStateInfo, delta * crossScale * crossSpeed, crossClip.islooping);
 	                    var crossWeight = ((crossPlayStateInfo._elapsedTime - startPlayTime) / crossScale) / crossDuratuion;
 	                    if (crossWeight >= 1.0) {
 	                        if (needRender) {
-	                            this._updateClipDatas(crossClipState, addtive, crossPlayStateInfo, timerScale * crossSpeed);
-	                            this._setClipDatasToNode(crossClipState, addtive, controllerLayer.defaultWeight, i === 0);
+	                            this._updateClipDatas(crossState, addtive, crossPlayStateInfo, timerScale * crossSpeed);
+	                            this._setClipDatasToNode(crossState, addtive, controllerLayer.defaultWeight, i === 0);
 	                            controllerLayer._playType = 0;
-	                            playStateInfo._currentState = crossClipState;
+	                            playStateInfo._currentState = crossState;
 	                            crossPlayStateInfo._cloneTo(playStateInfo);
 	                        }
 	                    }
@@ -5241,41 +5230,42 @@
 	                        if (!playStateInfo._finish) {
 	                            speed = this._speed * animatorState.speed;
 	                            this._updatePlayer(animatorState, playStateInfo, delta * speed, clip.islooping);
+	                            if (needRender)
+	                                this._updateClipDatas(animatorState, addtive, playStateInfo, timerScale * speed);
 	                        }
 	                        if (needRender) {
-	                            this._updateClipDatas(animatorState, addtive, playStateInfo, timerScale * speed);
-	                            this._updateClipDatas(crossClipState, addtive, crossPlayStateInfo, timerScale * crossScale * crossSpeed);
-	                            this._setCrossClipDatasToNode(controllerLayer, animatorState, crossClipState, crossWeight, i === 0);
+	                            this._updateClipDatas(crossState, addtive, crossPlayStateInfo, timerScale * crossScale * crossSpeed);
+	                            this._setCrossClipDatasToNode(controllerLayer, animatorState, crossState, crossWeight, i === 0);
 	                        }
 	                    }
 	                    if (needRender) {
 	                        this._updateEventScript(animatorState, playStateInfo);
-	                        this._updateEventScript(crossClipState, crossPlayStateInfo);
+	                        this._updateEventScript(crossState, crossPlayStateInfo);
 	                    }
 	                    break;
 	                case 2:
-	                    crossClipState = controllerLayer._crossPlayState;
-	                    crossClip = crossClipState._clip;
+	                    crossState = controllerLayer._crossPlayState;
+	                    crossClip = crossState._clip;
 	                    crossDuratuion = controllerLayer._crossDuration;
 	                    startPlayTime = crossPlayStateInfo._startPlayTime;
 	                    crossClipDuration = crossClip._duration - startPlayTime;
 	                    crossScale = crossDuratuion > crossClipDuration ? crossClipDuration / crossDuratuion : 1.0;
-	                    crossSpeed = this._speed * crossClipState.speed;
-	                    this._updatePlayer(crossClipState, crossPlayStateInfo, delta * crossScale * crossSpeed, crossClip.islooping);
+	                    crossSpeed = this._speed * crossState.speed;
+	                    this._updatePlayer(crossState, crossPlayStateInfo, delta * crossScale * crossSpeed, crossClip.islooping);
 	                    if (needRender) {
 	                        crossWeight = ((crossPlayStateInfo._elapsedTime - startPlayTime) / crossScale) / crossDuratuion;
 	                        if (crossWeight >= 1.0) {
-	                            this._updateClipDatas(crossClipState, addtive, crossPlayStateInfo, timerScale * crossSpeed);
-	                            this._setClipDatasToNode(crossClipState, addtive, 1.0, i === 0);
+	                            this._updateClipDatas(crossState, addtive, crossPlayStateInfo, timerScale * crossSpeed);
+	                            this._setClipDatasToNode(crossState, addtive, 1.0, i === 0);
 	                            controllerLayer._playType = 0;
-	                            playStateInfo._currentState = crossClipState;
+	                            playStateInfo._currentState = crossState;
 	                            crossPlayStateInfo._cloneTo(playStateInfo);
 	                        }
 	                        else {
-	                            this._updateClipDatas(crossClipState, addtive, crossPlayStateInfo, timerScale * crossScale * crossSpeed);
-	                            this._setFixedCrossClipDatasToNode(controllerLayer, crossClipState, crossWeight, i === 0);
+	                            this._updateClipDatas(crossState, addtive, crossPlayStateInfo, timerScale * crossScale * crossSpeed);
+	                            this._setFixedCrossClipDatasToNode(controllerLayer, crossState, crossWeight, i === 0);
 	                        }
-	                        this._updateEventScript(crossClipState, crossPlayStateInfo);
+	                        this._updateEventScript(crossState, crossPlayStateInfo);
 	                    }
 	                    break;
 	            }
@@ -22337,17 +22327,14 @@
 	    _innerDerivePhysicsTransformation(physicTransformOut, force) {
 	        var bt = Physics3D._bullet;
 	        var transform = this.owner._transform;
-	        var rotation = transform.rotation;
-	        var scale = transform.getWorldLossyScale();
 	        if (force || this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION)) {
 	            var shapeOffset = this._colliderShape.localOffset;
 	            var position = transform.position;
 	            var btPosition = PhysicsComponent._btVector30;
 	            if (shapeOffset.x !== 0 || shapeOffset.y !== 0 || shapeOffset.z !== 0) {
 	                var physicPosition = PhysicsComponent._tempVector30;
-	                Vector3.transformQuat(shapeOffset, rotation, physicPosition);
-	                Vector3.multiply(physicPosition, scale, physicPosition);
-	                Vector3.add(position, physicPosition, physicPosition);
+	                var worldMat = transform.worldMatrix;
+	                Vector3.transformCoordinate(shapeOffset, worldMat, physicPosition);
 	                bt.btVector3_setValue(btPosition, -physicPosition.x, physicPosition.y, physicPosition.z);
 	            }
 	            else {
@@ -22359,6 +22346,7 @@
 	        if (force || this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION)) {
 	            var shapeRotation = this._colliderShape.localRotation;
 	            var btRotation = PhysicsComponent._btQuaternion0;
+	            var rotation = transform.rotation;
 	            if (shapeRotation.x !== 0 || shapeRotation.y !== 0 || shapeRotation.z !== 0 || shapeRotation.w !== 1) {
 	                var physicRotation = PhysicsComponent._tempQuaternion0;
 	                PhysicsComponent.physicQuaternionMultiply(rotation.x, rotation.y, rotation.z, rotation.w, shapeRotation, physicRotation);

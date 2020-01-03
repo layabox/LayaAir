@@ -126,21 +126,6 @@ export class AnimationClipParser03 {
 			var keyframeCount: number = reader.getUint16();
 			node._setKeyframeCount(keyframeCount);
 			var startTime: number;
-
-			switch (type) {
-				case 0:
-					break;
-				case 1:
-				case 3:
-				case 4:
-					node.data = Render.supportWebGLPlusAnimation ? new ConchVector3 : new Vector3();
-					break;
-				case 2:
-					node.data = Render.supportWebGLPlusAnimation ? new ConchQuaternion : new Quaternion();
-					break;
-				default:
-					throw "AnimationClipParser03:unknown type.";
-			}
 			for (j = 0; j < keyframeCount; j++) {
 				switch (type) {
 					case 0:

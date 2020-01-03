@@ -249,7 +249,7 @@ window.vvMiniGame = function (exports, Laya) {
 	    }
 	    static writeFilesList(fileurlkey, filesListStr, isAdd) {
 	        var listFilesPath = MiniFileMgr.fileNativeDir + "/" + MiniFileMgr.fileListName;
-	        MiniFileMgr.fs.writeFile({ uri: listFilesPath, encoding: 'utf8', data: filesListStr, success: function (data) {
+	        MiniFileMgr.fs.writeFile({ uri: listFilesPath, encoding: 'utf8', data: filesListStr, text: filesListStr, success: function (data) {
 	            }, fail: function (data) {
 	            } });
 	        if (!VVMiniAdapter.isZiYu && VVMiniAdapter.isPosMsgYu && VVMiniAdapter.window.qg.postMessage) {
@@ -293,7 +293,7 @@ window.vvMiniGame = function (exports, Laya) {
 	        MiniFileMgr.fileNativeDir = VVMiniAdapter.window.qg.env.USER_DATA_PATH + value;
 	    }
 	}
-	MiniFileMgr.fs = window.qg;
+	MiniFileMgr.fs = window.qg.getFileSystemManager ? window.qg.getFileSystemManager() : window.qg;
 	MiniFileMgr.wxdown = window.qg.download;
 	MiniFileMgr.filesListObj = {};
 	MiniFileMgr.fakeObj = {};
@@ -413,6 +413,8 @@ window.vvMiniGame = function (exports, Laya) {
 	        return VVMiniAdapter.window.qg.createInnerAudioContext();
 	    }
 	    load(url) {
+	        if (!MiniSound._musicAudio)
+	            MiniSound._musicAudio = MiniSound._createSound();
 	        if (!MiniFileMgr.isLocalNativeFile(url)) {
 	            url = Laya.URL.formatURL(url);
 	        }
@@ -507,12 +509,24 @@ window.vvMiniGame = function (exports, Laya) {
 	                else {
 	                    fileNativeUrl = tempFilePath;
 	                }
-	                this._sound = MiniSound._createSound();
-	                this._sound.src = this.url = fileNativeUrl;
+	                if (this.url != Laya.SoundManager._bgMusic) {
+	                    this._sound = MiniSound._createSound();
+	                    this._sound.src = this.url = fileNativeUrl;
+	                }
+	                else {
+	                    this._sound = MiniSound._musicAudio;
+	                    this._sound.src = this.url = fileNativeUrl;
+	                }
 	            }
 	            else {
-	                this._sound = MiniSound._createSound();
-	                this._sound.src = sourceUrl;
+	                if (this.url != Laya.SoundManager._bgMusic) {
+	                    this._sound = MiniSound._createSound();
+	                    this._sound.src = sourceUrl;
+	                }
+	                else {
+	                    this._sound = MiniSound._musicAudio;
+	                    this._sound.src = sourceUrl;
+	                }
 	            }
 	            if (this._sound.onCanplay) {
 	                this._sound.onCanplay(MiniSound.bindToThis(this.onCanPlay, this));
@@ -886,7 +900,7 @@ window.vvMiniGame = function (exports, Laya) {
 	                thisLoader._loadImage(url, false);
 	        }
 	        else {
-	            thisLoader._loadImage(url);
+	            MiniLoader.onCreateImage(url, thisLoader);
 	        }
 	    }
 	    static onDownImgCallBack(sourceUrl, thisLoader, errorCode, tempFilePath = "") {
@@ -904,7 +918,7 @@ window.vvMiniGame = function (exports, Laya) {
 	                    fileNativeUrl = tempFilePath;
 	                }
 	                else {
-	                    var fileObj = MiniFileMgr.getFileInfo(sourceUrl);
+	                    var fileObj = MiniFileMgr.getFileInfo(Laya.URL.formatURL(sourceUrl));
 	                    var fileMd5Name = fileObj.md5;
 	                    fileNativeUrl = MiniFileMgr.getFileNativePath(fileMd5Name);
 	                }
