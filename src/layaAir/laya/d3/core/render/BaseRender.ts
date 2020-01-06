@@ -20,6 +20,7 @@ import { ISingletonElement } from "../../../resource/ISingletonElement"
 import { Texture2D } from "../../../resource/Texture2D"
 import { MeshRenderStaticBatchManager } from "../../graphics/MeshRenderStaticBatchManager";
 import { Stat } from "../../../utils/Stat";
+import { Lightmap } from "../scene/Lightmap";
 
 /**
  * <code>Render</code> 类用于渲染器的父类，抽象类不允许实例。
@@ -111,10 +112,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	}
 
 	set lightmapIndex(value: number) {
-		if (this._lightmapIndex !== value) {
-			this._lightmapIndex = value;
-			this._applyLightMapParams();
-		}
+		this._lightmapIndex = value;
 	}
 
 	/**
@@ -283,7 +281,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	 * 是否被渲染。
 	 */
 	get isRender(): boolean {
-		return this._renderMark == -1 || this._renderMark == (Stat.loopCount-1);
+		return this._renderMark == -1 || this._renderMark == (Stat.loopCount - 1);
 	}
 
 	/**
@@ -372,16 +370,23 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	 * @internal
 	 */
 	_applyLightMapParams(): void {
-		if (this._scene && this._lightmapIndex >= 0) {
-			var lightMaps: Texture2D[] = this._scene.getlightmaps();
-			if (this._lightmapIndex < lightMaps.length) {
-				this._shaderValues.addDefine(RenderableSprite3D.SAHDERDEFINE_LIGHTMAP);
-				this._shaderValues.setTexture(RenderableSprite3D.LIGHTMAP, lightMaps[this._lightmapIndex]);
-			} else {
-				this._shaderValues.removeDefine(RenderableSprite3D.SAHDERDEFINE_LIGHTMAP);
+		var lightMaps: Lightmap[] = this._scene.lightmaps;
+		var shaderValues: ShaderData = this._shaderValues;
+		var lightmapIndex: number = this._lightmapIndex;
+		if (lightmapIndex >= 0 && lightmapIndex < lightMaps.length) {
+			var lightMap: Lightmap = lightMaps[lightmapIndex];
+			shaderValues.setTexture(RenderableSprite3D.LIGHTMAP, lightMap.lightmapColor);
+			shaderValues.addDefine(RenderableSprite3D.SAHDERDEFINE_LIGHTMAP);
+			if (lightMap.lightmapDirection) {
+				shaderValues.setTexture(RenderableSprite3D.LIGHTMAP_DIRECTION, lightMap.lightmapDirection);
+				shaderValues.addDefine(RenderableSprite3D.SHADERDEFINE_LIGHTMAP_DIRECTIONAL);
+			}
+			else {
+				shaderValues.removeDefine(RenderableSprite3D.SHADERDEFINE_LIGHTMAP_DIRECTIONAL);
 			}
 		} else {
-			this._shaderValues.removeDefine(RenderableSprite3D.SAHDERDEFINE_LIGHTMAP);
+			shaderValues.removeDefine(RenderableSprite3D.SAHDERDEFINE_LIGHTMAP);
+			shaderValues.removeDefine(RenderableSprite3D.SHADERDEFINE_LIGHTMAP_DIRECTIONAL);
 		}
 	}
 
@@ -424,10 +429,7 @@ export class BaseRender extends EventDispatcher implements ISingletonElement, IO
 	 * @internal
 	 */
 	_setBelongScene(scene: Scene3D): void {
-		if (this._scene !== scene) {
-			this._scene = scene;
-			this._applyLightMapParams();
-		}
+		this._scene = scene;
 	}
 
 	/**

@@ -110,7 +110,8 @@ export class MeshRenderer extends BaseRender {
 	 * @internal
 	 */
 	_renderUpdate(context: RenderContext3D, transform: Transform3D): void {
-		var element: SubMeshRenderElement = (<SubMeshRenderElement>context.renderElement);
+		this._applyLightMapParams();
+		var element: SubMeshRenderElement = <SubMeshRenderElement>context.renderElement;
 		switch (element.renderType) {
 			case RenderElement.RENDERTYPE_NORMAL:
 				this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, transform.worldMatrix);
