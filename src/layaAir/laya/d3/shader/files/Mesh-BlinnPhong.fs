@@ -6,6 +6,8 @@
 	precision mediump int;
 #endif
 
+#include "Lighting.glsl";
+
 uniform vec4 u_DiffuseColor;
 
 #if defined(COLOR)&&defined(ENABLEVERTEXCOLOR)
@@ -77,8 +79,8 @@ varying vec3 v_Normal;
 	varying vec3 v_PositionWorld;
 #endif
 
-#include "Lighting.glsl";
-#include "GlobalIllumination.glsl";
+
+#include "GlobalIllumination.glsl";//"GlobalIllumination.glsl use uniform should at front of this
 
 #include "ShadowHelper.glsl"
 varying float v_posViewZ;
