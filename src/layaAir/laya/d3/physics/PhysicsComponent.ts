@@ -579,13 +579,14 @@ export class PhysicsComponent extends Component {
 
 		var btPosition: number = bt.btTransform_getOrigin(physicsTransform);
 		var btRotation: number = bt.btTransform_getRotation(physicsTransform);
-		var btScale: number = bt.btCollisionShape_getLocalScaling(colliderShape._btShape);
+
 		var btRotX: number = -bt.btQuaternion_x(btRotation);
 		var btRotY: number = bt.btQuaternion_y(btRotation);
 		var btRotZ: number = bt.btQuaternion_z(btRotation);
 		var btRotW: number = -bt.btQuaternion_w(btRotation);
 
 		if (localOffset.x !== 0 || localOffset.y !== 0 || localOffset.z !== 0) {
+			var btScale: number = bt.btCollisionShape_getLocalScaling(colliderShape._btShape);
 			var rotShapePosition: Vector3 = PhysicsComponent._tempVector30;
 			PhysicsComponent.physicVector3TransformQuat(localOffset, btRotX, btRotY, btRotZ, btRotW, rotShapePosition);
 			position.x = -bt.btVector3_x(btPosition) - rotShapePosition.x * bt.btVector3_x(btScale);
