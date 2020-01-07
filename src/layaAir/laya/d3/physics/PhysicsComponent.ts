@@ -567,6 +567,7 @@ export class PhysicsComponent extends Component {
 	 * 通过物理矩阵更新渲染矩阵。
 	 */
 	_updateTransformComponent(physicsTransform: number): void {
+		//TODO:Need Test!!! because _innerDerivePhysicsTransformation update position use worldMatrix,not(position rotation WorldLossyScale),maybe the center is no different.
 		var bt: any = Physics3D._bullet;
 		var colliderShape: ColliderShape = this._colliderShape;
 		var localOffset: Vector3 = colliderShape.localOffset;
