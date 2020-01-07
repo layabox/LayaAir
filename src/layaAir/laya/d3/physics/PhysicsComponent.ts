@@ -585,20 +585,6 @@ export class PhysicsComponent extends Component {
 		var btRotZ: number = bt.btQuaternion_z(btRotation);
 		var btRotW: number = -bt.btQuaternion_w(btRotation);
 
-		if (localOffset.x !== 0 || localOffset.y !== 0 || localOffset.z !== 0) {
-			var btScale: number = bt.btCollisionShape_getLocalScaling(colliderShape._btShape);
-			var rotShapePosition: Vector3 = PhysicsComponent._tempVector30;
-			PhysicsComponent.physicVector3TransformQuat(localOffset, btRotX, btRotY, btRotZ, btRotW, rotShapePosition);
-			position.x = -bt.btVector3_x(btPosition) - rotShapePosition.x * bt.btVector3_x(btScale);
-			position.y = bt.btVector3_y(btPosition) - rotShapePosition.y * bt.btVector3_y(btScale);
-			position.z = bt.btVector3_z(btPosition) - rotShapePosition.z * bt.btVector3_z(btScale);
-		} else {
-			position.x = -bt.btVector3_x(btPosition);
-			position.y = bt.btVector3_y(btPosition);
-			position.z = bt.btVector3_z(btPosition);
-		}
-		transform.position = position;
-
 		if (localRotation.x !== 0 || localRotation.y !== 0 || localRotation.z !== 0 || localRotation.w !== 1) {
 			var invertShapeRotaion: Quaternion = PhysicsComponent._tempQuaternion0;
 			localRotation.invert(invertShapeRotaion);
@@ -610,6 +596,23 @@ export class PhysicsComponent extends Component {
 			rotation.w = btRotW;
 		}
 		transform.rotation = rotation;
+
+		if (localOffset.x !== 0 || localOffset.y !== 0 || localOffset.z !== 0) {
+			var btScale: number = bt.btCollisionShape_getLocalScaling(colliderShape._btShape);
+			var rotShapePosition: Vector3 = PhysicsComponent._tempVector30;
+			rotShapePosition.x = localOffset.x * bt.btVector3_x(btScale);
+			rotShapePosition.y = localOffset.y * bt.btVector3_y(btScale);
+			rotShapePosition.z = localOffset.z * bt.btVector3_z(btScale);
+			Vector3.transformQuat(rotShapePosition, rotation, rotShapePosition);
+			position.x = -bt.btVector3_x(btPosition) - rotShapePosition.x;
+			position.y = bt.btVector3_y(btPosition) - rotShapePosition.y;
+			position.z = bt.btVector3_z(btPosition) - rotShapePosition.z;
+		} else {
+			position.x = -bt.btVector3_x(btPosition);
+			position.y = bt.btVector3_y(btPosition);
+			position.z = bt.btVector3_z(btPosition);
+		}
+		transform.position = position;
 	}
 
 
