@@ -190,6 +190,8 @@ export class PhysicsComponent extends Component {
 	protected _colliderShape: ColliderShape = null;
 	/** @internal */
 	protected _transformFlag: number = 2147483647 /*int.MAX_VALUE*/;
+	/** @internal */
+	protected _controlBySimulation: boolean = false;
 
 	/** @internal */
 	_btColliderObject: number;//TODO:不用声明,TODO:删除相关判断
@@ -522,7 +524,7 @@ export class PhysicsComponent extends Component {
 	_innerDerivePhysicsTransformation(physicTransformOut: number, force: boolean): void {
 		var bt: any = Physics3D._bullet;
 		var transform: Transform3D = ((<Sprite3D>this.owner))._transform;
-		
+
 		if (force || this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION)) {
 			var shapeOffset: Vector3 = this._colliderShape.localOffset;
 			var position: Vector3 = transform.position;
@@ -643,7 +645,7 @@ export class PhysicsComponent extends Component {
 	 * @internal
 	 */
 	_onTransformChanged(flag: number): void {
-		if (PhysicsComponent._addUpdateList) {
+		if (PhysicsComponent._addUpdateList || !this._controlBySimulation) {//PhysicsComponent._addUpdateList = false is the stage of physic simulation.
 			flag &= Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDSCALE;//过滤有用TRANSFORM标记
 			if (flag) {
 				this._transformFlag |= flag;

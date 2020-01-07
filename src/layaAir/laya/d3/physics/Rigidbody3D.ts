@@ -116,7 +116,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 
 	set isKinematic(value: boolean) {
 		this._isKinematic = value;
-
+		this._controlBySimulation = !value;//isKinematic not controll by Simulation
 		var bt: any = Physics3D._bullet;
 		var canInSimulation: boolean = !!(this._simulation && this._enabled && this._colliderShape);
 		canInSimulation && this._removeFromSimulation();
@@ -360,6 +360,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	constructor(collisionGroup: number = Physics3DUtils.COLLISIONFILTERGROUP_DEFAULTFILTER, canCollideWith: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER) {
 		//LinkedConstraints = new List<Constraint>();
 		super(collisionGroup, canCollideWith);
+		this._controlBySimulation = true;
 	}
 
 	/**

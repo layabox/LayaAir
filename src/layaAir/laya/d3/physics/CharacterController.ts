@@ -138,6 +138,7 @@ export class CharacterController extends PhysicsComponent {
 		super(collisionGroup, canCollideWith);
 		this._stepHeight = stepheight;
 		(upAxis) && (this._upAxis = upAxis);
+		this._controlBySimulation = true;
 	}
 
 	/**
