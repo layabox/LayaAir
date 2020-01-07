@@ -568,8 +568,9 @@ export class PhysicsComponent extends Component {
 	 */
 	_updateTransformComponent(physicsTransform: number): void {
 		var bt: any = Physics3D._bullet;
-		var localOffset: Vector3 = this._colliderShape.localOffset;
-		var localRotation: Quaternion = this._colliderShape.localRotation;
+		var colliderShape: ColliderShape = this._colliderShape;
+		var localOffset: Vector3 = colliderShape.localOffset;
+		var localRotation: Quaternion = colliderShape.localRotation;
 
 		var transform: Transform3D = (<Sprite3D>this.owner)._transform;
 		var position: Vector3 = transform.position;
@@ -577,6 +578,7 @@ export class PhysicsComponent extends Component {
 
 		var btPosition: number = bt.btTransform_getOrigin(physicsTransform);
 		var btRotation: number = bt.btTransform_getRotation(physicsTransform);
+		var btScale: number = bt.btCollisionShape_getLocalScaling(colliderShape._btShape);
 		var btRotX: number = -bt.btQuaternion_x(btRotation);
 		var btRotY: number = bt.btQuaternion_y(btRotation);
 		var btRotZ: number = bt.btQuaternion_z(btRotation);
@@ -585,9 +587,9 @@ export class PhysicsComponent extends Component {
 		if (localOffset.x !== 0 || localOffset.y !== 0 || localOffset.z !== 0) {
 			var rotShapePosition: Vector3 = PhysicsComponent._tempVector30;
 			PhysicsComponent.physicVector3TransformQuat(localOffset, btRotX, btRotY, btRotZ, btRotW, rotShapePosition);
-			position.x = -bt.btVector3_x(btPosition) - rotShapePosition.x;
-			position.y = bt.btVector3_y(btPosition) - rotShapePosition.y;
-			position.z = bt.btVector3_z(btPosition) - rotShapePosition.z;
+			position.x = -bt.btVector3_x(btPosition) - rotShapePosition.x * bt.btVector3_x(btScale);
+			position.y = bt.btVector3_y(btPosition) - rotShapePosition.y * bt.btVector3_y(btScale);
+			position.z = bt.btVector3_z(btPosition) - rotShapePosition.z * bt.btVector3_z(btScale);
 		} else {
 			position.x = -bt.btVector3_x(btPosition);
 			position.y = bt.btVector3_y(btPosition);
