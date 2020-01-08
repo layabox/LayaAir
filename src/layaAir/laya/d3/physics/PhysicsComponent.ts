@@ -519,7 +519,6 @@ export class PhysicsComponent extends Component {
 		var btTransform: number = bt.btCollisionObject_getWorldTransform(btColliderObject);
 		this._innerDerivePhysicsTransformation(btTransform, force);
 		bt.btCollisionObject_setWorldTransform(btColliderObject, btTransform);
-		this._controlBySimulation && bt.btCollisionObject_setInterpolationWorldTransform(btColliderObject, btTransform);//if control by simulation should update 'InterpolationWorldTransform',or stepSimulation may return old transform because interpolation.
 	}
 
 	/**
