@@ -514,7 +514,12 @@ export class PhysicsComponent extends Component {
 	 * 	@internal
 	 */
 	_derivePhysicsTransformation(force: boolean): void {
-		this._innerDerivePhysicsTransformation(Physics3D._bullet.btCollisionObject_getWorldTransform(this._btColliderObject), force);
+		var bt: any = Physics3D._bullet;
+		var btColliderObject: number = this._btColliderObject;
+		var btTransform: number = bt.btCollisionObject_getWorldTransform(btColliderObject);
+		this._innerDerivePhysicsTransformation(btTransform, force);
+		bt.btCollisionObject_setWorldTransform(btColliderObject, btTransform);
+		this._controlBySimulation && bt.btCollisionObject_setInterpolationWorldTransform(btColliderObject, btTransform);//if control by simulation should update 'InterpolationWorldTransform',or stepSimulation may return old transform because interpolation.
 	}
 
 	/**
