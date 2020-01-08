@@ -134,7 +134,7 @@ npm run build
 npm run buildDoc
 ```
 
-- ##### Compile test example
+- ##### Compile sample
 
 ```
 npm run compile
