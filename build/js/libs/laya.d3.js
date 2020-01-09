@@ -13732,7 +13732,7 @@
 	        super._prepareCameraToRender();
 	        var vp = this.viewport;
 	        this._viewportParams.setValue(vp.x, vp.y, vp.width, vp.height);
-	        this._projectionParams.setValue(this._nearPlane, this._farPlane, this._getRenderTexture() ? -1 : 1, 0);
+	        this._projectionParams.setValue(this._nearPlane, this._farPlane, RenderContext3D._instance.invertY ? -1 : 1, 0);
 	        this._shaderValues.setVector(BaseCamera.VIEWPORT, this._viewportParams);
 	        this._shaderValues.setVector(BaseCamera.PROJECTION_PARAMS, this._projectionParams);
 	    }
