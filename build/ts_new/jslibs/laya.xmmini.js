@@ -388,6 +388,8 @@ window.miMiniGame = function (exports, Laya) {
 	        return KGMiniAdapter.window.qg.createInnerAudioContext();
 	    }
 	    load(url) {
+	        if (!MiniSound._musicAudio)
+	            MiniSound._musicAudio = MiniSound._createSound();
 	        if (!MiniFileMgr.isLocalNativeFile(url)) {
 	            url = Laya.URL.formatURL(url);
 	        }
@@ -477,12 +479,24 @@ window.miMiniGame = function (exports, Laya) {
 	                        fileNativeUrl = sourceUrl;
 	                    }
 	                }
-	                this._sound = MiniSound._createSound();
-	                this._sound.src = this.url = fileNativeUrl;
+	                if (this.url != Laya.SoundManager._bgMusic) {
+	                    this._sound = MiniSound._createSound();
+	                    this._sound.src = this.url = fileNativeUrl;
+	                }
+	                else {
+	                    this._sound = MiniSound._musicAudio;
+	                    this._sound.src = this.url = fileNativeUrl;
+	                }
 	            }
 	            else {
-	                this._sound = MiniSound._createSound();
-	                this._sound.src = this.url = encodeURI(sourceUrl);
+	                if (this.url != Laya.SoundManager._bgMusic) {
+	                    this._sound = MiniSound._createSound();
+	                    this._sound.src = sourceUrl;
+	                }
+	                else {
+	                    this._sound = MiniSound._musicAudio;
+	                    this._sound.src = sourceUrl;
+	                }
 	            }
 	            this._sound.onCanplay(MiniSound.bindToThis(this.onCanPlay, this));
 	            this._sound.onError(MiniSound.bindToThis(this.onError, this));
@@ -896,53 +910,6 @@ window.miMiniGame = function (exports, Laya) {
 	    }
 	}
 
-	class MiniLocalStorage {
-	    constructor() {
-	    }
-	    static __init__() {
-	        MiniLocalStorage.items = MiniLocalStorage;
-	    }
-	    static setItem(key, value) {
-	        try {
-	            KGMiniAdapter.window.qg.setStorageSync(key, value);
-	        }
-	        catch (error) {
-	            KGMiniAdapter.window.qg.setStorage({
-	                key: key,
-	                data: value
-	            });
-	        }
-	    }
-	    static getItem(key) {
-	        return KGMiniAdapter.window.qg.getStorageSync(key);
-	    }
-	    static setJSON(key, value) {
-	        MiniLocalStorage.setItem(key, value);
-	    }
-	    static getJSON(key) {
-	        return MiniLocalStorage.getItem(key);
-	    }
-	    static removeItem(key) {
-	        KGMiniAdapter.window.qg.removeStorageSync(key);
-	    }
-	    static clear() {
-	        KGMiniAdapter.window.qg.clearStorageSync();
-	    }
-	    static getStorageInfoSync() {
-	        try {
-	            var res = KGMiniAdapter.window.qg.getStorageInfoSync();
-	            console.log(res.keys);
-	            console.log(res.currentSize);
-	            console.log(res.limitSize);
-	            return res;
-	        }
-	        catch (e) {
-	        }
-	        return null;
-	    }
-	}
-	MiniLocalStorage.support = true;
-
 	class KGMiniAdapter {
 	    static getJson(data) {
 	        return JSON.parse(data);
@@ -986,8 +953,6 @@ window.miMiniGame = function (exports, Laya) {
 	        Laya.Loader.prototype._loadResourceFilter = MiniLoader.prototype._loadResourceFilter;
 	        Laya.Loader.prototype._loadSound = MiniLoader.prototype._loadSound;
 	        Laya.Loader.prototype._loadHttpRequestWhat = MiniLoader.prototype._loadHttpRequestWhat;
-	        Laya.LocalStorage._baseClass = MiniLocalStorage;
-	        MiniLocalStorage.__init__();
 	        KGMiniAdapter.window.qg.onMessage && KGMiniAdapter.window.qg.onMessage(KGMiniAdapter._onMessage);
 	    }
 	    static _onMessage(data) {
@@ -1426,6 +1391,53 @@ window.miMiniGame = function (exports, Laya) {
 	        }
 	    }
 	}
+
+	class MiniLocalStorage {
+	    constructor() {
+	    }
+	    static __init__() {
+	        MiniLocalStorage.items = MiniLocalStorage;
+	    }
+	    static setItem(key, value) {
+	        try {
+	            KGMiniAdapter.window.qg.setStorageSync(key, value);
+	        }
+	        catch (error) {
+	            KGMiniAdapter.window.qg.setStorage({
+	                key: key,
+	                data: value
+	            });
+	        }
+	    }
+	    static getItem(key) {
+	        return KGMiniAdapter.window.qg.getStorageSync(key);
+	    }
+	    static setJSON(key, value) {
+	        MiniLocalStorage.setItem(key, value);
+	    }
+	    static getJSON(key) {
+	        return MiniLocalStorage.getItem(key);
+	    }
+	    static removeItem(key) {
+	        KGMiniAdapter.window.qg.removeStorageSync(key);
+	    }
+	    static clear() {
+	        KGMiniAdapter.window.qg.clearStorageSync();
+	    }
+	    static getStorageInfoSync() {
+	        try {
+	            var res = KGMiniAdapter.window.qg.getStorageInfoSync();
+	            console.log(res.keys);
+	            console.log(res.currentSize);
+	            console.log(res.limitSize);
+	            return res;
+	        }
+	        catch (e) {
+	        }
+	        return null;
+	    }
+	}
+	MiniLocalStorage.support = true;
 
 	class MiniLocation {
 	    constructor() {

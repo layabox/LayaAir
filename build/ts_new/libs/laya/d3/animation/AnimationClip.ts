@@ -16,6 +16,8 @@ import { Resource } from "../../resource/Resource"
 import { Byte } from "../../utils/Byte"
 import { Handler } from "../../utils/Handler"
 import { ILaya } from "../../../ILaya";
+import { ConchVector3 } from "../math/Native/ConchVector3";
+import { ConchQuaternion } from "../math/Native/ConchQuaternion";
 
 /**
  * <code>AnimationClip</code> 类用于动画片段资源。
@@ -88,6 +90,9 @@ export class AnimationClip extends Resource {
 		this._animationEvents = [];
 	}
 
+	/**
+	 * @internal
+	 */
 	private _hermiteInterpolate(frame: FloatKeyframe, nextFrame: FloatKeyframe, t: number, dur: number): number {
 		var t0: number = frame.outTangent, t1: number = nextFrame.inTangent;
 		if (Number.isFinite(t0) && Number.isFinite(t1)) {
@@ -102,6 +107,9 @@ export class AnimationClip extends Resource {
 			return frame.value;
 	}
 
+	/**
+	 * @internal
+	 */
 	private _hermiteInterpolateVector3(frame: Vector3Keyframe, nextFrame: Vector3Keyframe, t: number, dur: number, out: Vector3): void {
 		var p0: Vector3 = frame.value;
 		var tan0: Vector3 = frame.outTangent;
@@ -134,6 +142,9 @@ export class AnimationClip extends Resource {
 			out.z = p0.z;
 	}
 
+	/**
+	 * @internal
+	 */
 	private _hermiteInterpolateQuaternion(frame: QuaternionKeyframe, nextFrame: QuaternionKeyframe, t: number, dur: number, out: Quaternion): void {
 		var p0: Quaternion = frame.value;
 		var tan0: Vector4 = frame.outTangent;
@@ -175,7 +186,7 @@ export class AnimationClip extends Resource {
 	/**
 	 * @internal
 	 */
-	_evaluateClipDatasRealTime(nodes: KeyframeNodeList, playCurTime: number, realTimeCurrentFrameIndexes: Int16Array, addtive: boolean, frontPlay: boolean): void {
+	_evaluateClipDatasRealTime(nodes: KeyframeNodeList, playCurTime: number, realTimeCurrentFrameIndexes: Int16Array, addtive: boolean, frontPlay: boolean, outDatas: Array<number | Vector3 | Quaternion | ConchVector3 | ConchQuaternion>): void {
 		for (var i: number = 0, n: number = nodes.count; i < n; i++) {
 			var node: KeyframeNode = nodes.getNodeByIndex(i);
 			var type: number = node.type;
@@ -221,7 +232,7 @@ export class AnimationClip extends Resource {
 					if (frameIndex !== -1) {
 						var frame: FloatKeyframe = (<FloatKeyframe>keyFrames[frameIndex]);
 						if (isEnd) {//如果nextFarme为空，不修改数据，保持上一帧
-							node.data = frame.value;
+							outDatas[i] = frame.value;
 						} else {
 							var nextFarme: FloatKeyframe = (<FloatKeyframe>keyFrames[nextFrameIndex]);
 							var d: number = nextFarme.time - frame.time;
@@ -230,19 +241,19 @@ export class AnimationClip extends Resource {
 								t = (playCurTime - frame.time) / d;
 							else
 								t = 0;
-							node.data = this._hermiteInterpolate(frame, nextFarme, t, d);
+							outDatas[i] = this._hermiteInterpolate(frame, nextFarme, t, d);
 						}
 
 					} else {
-						node.data = ((<FloatKeyframe>keyFrames[0])).value;
+						outDatas[i] = (<FloatKeyframe>keyFrames[0]).value;
 					}
 
 					if (addtive)
-						node.data -= ((<FloatKeyframe>keyFrames[0])).value;
+						outDatas[i] = <number>outDatas[i] - (<FloatKeyframe>keyFrames[0]).value;
 					break;
 				case 1:
 				case 4:
-					var clipData: Vector3 = node.data;
+					var clipData: Vector3 = <Vector3>outDatas[i];
 					this._evaluateFrameNodeVector3DatasRealTime(keyFrames as Vector3Keyframe[], frameIndex, isEnd, playCurTime, clipData);
 					if (addtive) {
 						var firstFrameValue: Vector3 = ((<Vector3Keyframe>keyFrames[0])).value;
@@ -252,7 +263,7 @@ export class AnimationClip extends Resource {
 					}
 					break;
 				case 2:
-					var clipQuat: Quaternion = node.data;
+					var clipQuat: Quaternion = <Quaternion>outDatas[i];
 					this._evaluateFrameNodeQuaternionDatasRealTime(keyFrames as QuaternionKeyframe[], frameIndex, isEnd, playCurTime, clipQuat);
 					if (addtive) {
 						var tempQuat: Quaternion = AnimationClip._tempQuaternion0;
@@ -263,7 +274,7 @@ export class AnimationClip extends Resource {
 
 					break;
 				case 3:
-					clipData = node.data;
+					clipData = <Vector3>outDatas[i];
 					this._evaluateFrameNodeVector3DatasRealTime(keyFrames as Vector3Keyframe[], frameIndex, isEnd, playCurTime, clipData);
 					if (addtive) {
 						firstFrameValue = ((<Vector3Keyframe>keyFrames[0])).value;

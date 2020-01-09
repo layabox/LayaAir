@@ -44,9 +44,6 @@ package laya.d3.animation {
 		 */
 
 		public function AnimationClip(){}
-		private var _hermiteInterpolate:*;
-		private var _hermiteInterpolateVector3:*;
-		private var _hermiteInterpolateQuaternion:*;
 		public function _evaluateClipDatasRealTimeForNative(nodes:*,playCurTime:Number,realTimeCurrentFrameIndexes:Uint16Array,addtive:Boolean):void{}
 		private var _evaluateFrameNodeVector3DatasRealTime:*;
 		private var _evaluateFrameNodeQuaternionDatasRealTime:*;
