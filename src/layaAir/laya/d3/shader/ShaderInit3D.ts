@@ -111,6 +111,7 @@ export class ShaderInit3D {
 			'u_MvpMatrix': Shader3D.PERIOD_SPRITE,
 			'u_LightmapScaleOffset': Shader3D.PERIOD_SPRITE,
 			'u_LightMap': Shader3D.PERIOD_SPRITE,
+			'u_LightMapDirection': Shader3D.PERIOD_SPRITE,
 
 			'u_CameraPos': Shader3D.PERIOD_CAMERA,
 			'u_Viewport': Shader3D.PERIOD_CAMERA,

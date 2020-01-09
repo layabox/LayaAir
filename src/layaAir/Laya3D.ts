@@ -474,7 +474,16 @@ export class Laya3D {
 				var lightmaps: any[] = props.lightmaps;
 				for (i = 0, n = lightmaps.length; i < n; i++) {
 					var lightMap: any = lightmaps[i];
-					lightMap.path = Laya3D._addHierarchyInnerUrls(fourthLelUrls, subUrls, urlVersion, hierarchyBasePath, lightMap.path, Laya3D.TEXTURE2D, lightMap.constructParams, lightMap.propertyParams);
+					if (lightMap.path) {
+						lightMap.path = Laya3D._addHierarchyInnerUrls(fourthLelUrls, subUrls, urlVersion, hierarchyBasePath, lightMap.path, Laya3D.TEXTURE2D, lightMap.constructParams, lightMap.propertyParams);
+					}
+					else {
+						var lightmapColorData:any=lightMap.color;
+						lightmapColorData.path = Laya3D._addHierarchyInnerUrls(fourthLelUrls, subUrls, urlVersion, hierarchyBasePath, lightmapColorData.path, Laya3D.TEXTURE2D, lightmapColorData.constructParams, lightmapColorData.propertyParams);
+						var lightmapDirectionData:any=lightMap.direction;
+						if(lightmapDirectionData)
+							lightmapDirectionData.path = Laya3D._addHierarchyInnerUrls(fourthLelUrls, subUrls, urlVersion, hierarchyBasePath, lightmapDirectionData.path, Laya3D.TEXTURE2D, lightmapDirectionData.constructParams, lightmapDirectionData.propertyParams);
+					}
 				}
 
 				//兼容

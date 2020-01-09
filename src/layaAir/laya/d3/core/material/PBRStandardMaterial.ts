@@ -59,6 +59,7 @@ export class PBRStandardMaterial extends PBRMaterial {
 			'u_WorldMat': Shader3D.PERIOD_SPRITE,
 			'u_LightmapScaleOffset': Shader3D.PERIOD_SPRITE,
 			'u_LightMap': Shader3D.PERIOD_SPRITE,
+			'u_LightMapDirection': Shader3D.PERIOD_SPRITE,
 
 			'u_CameraPos': Shader3D.PERIOD_CAMERA,
 			'u_View': Shader3D.PERIOD_CAMERA,

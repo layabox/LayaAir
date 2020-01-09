@@ -1104,11 +1104,16 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			for (var i: number = 0; i < lightMapCount; i++) {
 				var lightMap: Lightmap = new Lightmap();
 				var lightMapData: any = lightMapsData[i];
-				lightMap.lightmapColor = Loader.getRes(lightMapData.color || lightMapData.path);
-				lightMap.lightmapDirection = Loader.getRes(lightMapData.direction);
+				if (lightMapData.path) {//兼容
+					lightMap.lightmapColor = Loader.getRes(lightMapData.path);
+				}
+				else {
+					lightMap.lightmapColor = Loader.getRes(lightMapData.color.path);
+					if (lightMapData.direction)
+						lightMap.lightmapDirection = Loader.getRes(lightMapData.direction.path);
+				}
 				lightmaps[i] = lightMap;
 			}
-
 			this.lightmaps = lightmaps;
 		}
 
