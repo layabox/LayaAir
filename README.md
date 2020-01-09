@@ -96,6 +96,50 @@ Our official Layabox Github with complete engine source version, free of charge,
 
 - http://ask.layabox.com/
 
+## Build
+
+LayaAir Engine is automatically built using [Gulp](https://gulpjs.com/).
+
+The following command execution directories are the root directory of the LayaAir engine project.
+
+### Environment Preparation
+
+##### Install Gulp globally
+
+```
+npm install -g gulp
+```
+
+##### Install dependencies
+
+```
+npm install
+```
+
+### Build the project
+
+#### windows:
+
+- ##### Publishing Engine
+
+
+```
+npm run build
+```
+
+- ##### Publishing API documentation
+
+
+```
+npm run buildDoc
+```
+
+- ##### Compile sample
+
+```
+npm run compile
+```
+
 ## Business Contact
 
 ![](wechatQRcode.jpg)

@@ -59,6 +59,7 @@ import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
 import { PBRMaterial } from "../material/PBRMaterial";
 import { PBRRenderQuality } from "../material/PBRRenderQuality";
 import { TextureDecodeFormat } from "../../../resource/TextureDecodeFormat";
+import { Lightmap } from "./Lightmap";
 
 /**
  * 环境光模式
@@ -200,7 +201,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	public _alternateLights: AlternateLightQueue = new AlternateLightQueue();
 
 	/** @internal */
-	private _lightmaps: Texture2D[] = [];
+	private _lightmaps: Lightmap[] = [];
 	/** @internal */
 	private _skyRenderer: SkyRenderer = new SkyRenderer();
 	/** @internal */
@@ -476,6 +477,36 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
+	 * 光照贴图数组,返回值为浅拷贝数组。
+	 */
+	get lightmaps(): Lightmap[] {
+		return this._lightmaps.slice();
+	}
+
+	set lightmaps(value: Lightmap[]) {
+		var maps: Lightmap[] = this._lightmaps;
+		if (maps) {
+			for (var i: number = 0, n: number = maps.length; i < n; i++) {
+				var map: Lightmap = maps[i];
+				map.lightmapColor._removeReference();
+				map.lightmapDirection._removeReference();
+			}
+		}
+		if (value) {
+			var count: number = value.length;
+			maps.length = count;
+			for (i = 0; i < count; i++) {
+				var map: Lightmap = value[i];
+				map.lightmapColor && map.lightmapColor._addReference();
+				map.lightmapDirection && map.lightmapDirection._addReference();
+				maps[i] = map;
+			}
+		} else {
+			maps.length = 0;
+		}
+	}
+
+	/**
 	 * 创建一个 <code>Scene3D</code> 实例。
 	 */
 	constructor() {
@@ -561,19 +592,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		shaderValues.setVector(Scene3D.AMBIENTSHBG, optSH[4]);
 		shaderValues.setVector(Scene3D.AMBIENTSHBB, optSH[5]);
 		shaderValues.setVector(Scene3D.AMBIENTSHC, optSH[6]);
-	}
-
-	/**
-	 * @internal
-	 */
-	private _setLightmapToChildNode(sprite: Sprite3D): void {
-		if (sprite instanceof RenderableSprite3D)
-			((<RenderableSprite3D>sprite))._render._applyLightMapParams();
-
-		var children: any[] = sprite._children;
-		for (var i: number = 0, n: number = children.length; i < n; i++)
-
-			this._setLightmapToChildNode(children[i]);
 	}
 
 	/**
@@ -1082,11 +1100,16 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		var lightMapsData: any[] = data.lightmaps;
 		if (lightMapsData) {
 			var lightMapCount: number = lightMapsData.length;
-			var lightmaps: Texture2D[] = [];
-			for (var i: number = 0; i < lightMapCount; i++)
-				lightmaps[i] = Loader.getRes(lightMapsData[i].path);
+			var lightmaps: Lightmap[] = new Array(lightMapCount);
+			for (var i: number = 0; i < lightMapCount; i++) {
+				var lightMap: Lightmap = new Lightmap();
+				var lightMapData: any = lightMapsData[i];
+				lightMap.lightmapColor = Loader.getRes(lightMapData.color || lightMapData.path);
+				lightMap.lightmapDirection = Loader.getRes(lightMapData.direction);
+				lightmaps[i] = lightMap;
+			}
 
-			this.setlightmaps(lightmaps);
+			this.lightmaps = lightmaps;
 		}
 
 		var ambientColorData: any[] = data.ambientColor;
@@ -1199,37 +1222,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	}
 
 	/**
-	 * 设置光照贴图。
-	 * @param value 光照贴图。
-	 */
-	setlightmaps(value: Texture2D[]): void {
-		var maps: Texture2D[] = this._lightmaps;
-		for (var i: number = 0, n: number = maps.length; i < n; i++)
-			maps[i]._removeReference();
-		if (value) {
-			var count: number = value.length;
-			maps.length = count;
-			for (i = 0; i < count; i++) {
-				var lightMap: Texture2D = value[i];
-				lightMap._addReference();
-				maps[i] = lightMap;
-			}
-		} else {
-			throw new Error("Scene3D: value value can't be null.");
-		}
-		for (i = 0, n = this._children.length; i < n; i++)
-			this._setLightmapToChildNode(this._children[i]);
-	}
-
-	/**
-	 * 获取光照贴图浅拷贝列表。
-	 * @return 获取光照贴图浅拷贝列表。
-	 */
-	getlightmaps(): Texture2D[] {
-		return this._lightmaps.slice();//slice()防止修改数组内容
-	}
-
-	/**
 	 * @inheritDoc
 	 * @override
 	 */
@@ -1330,6 +1322,42 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	set reflectionMode(value: number) {
 		this._reflectionMode = value;
 
+	}
+
+	/**
+	 * @deprecated
+	 * 设置光照贴图。
+	 * @param value 光照贴图。
+	 */
+	setlightmaps(value: Texture2D[]): void {
+		var maps: Lightmap[] = this._lightmaps;
+		for (var i: number = 0, n: number = maps.length; i < n; i++)
+			maps[i].lightmapColor._removeReference();
+		if (value) {
+			var count: number = value.length;
+			maps.length = count;
+			for (i = 0; i < count; i++) {
+				var lightMap: Texture2D = value[i];
+				lightMap._addReference();
+				(maps[i]) || (maps[i] = new Lightmap());
+				maps[i].lightmapColor = lightMap;
+			}
+		} else {
+			throw new Error("Scene3D: value value can't be null.");
+		}
+	}
+
+	/**
+	 * @deprecated
+	 * 获取光照贴图浅拷贝列表。
+	 * @return 获取光照贴图浅拷贝列表。
+	 */
+	getlightmaps(): Texture2D[] {
+		var lightmapColors: Texture2D[] = new Array(this._lightmaps.length);
+		for (var i: number = 0; i < this._lightmaps.length; i++) {
+			lightmapColors[i] = this._lightmaps[i].lightmapColor;
+		}
+		return lightmapColors;//slice()防止修改数组内容
 	}
 
 }

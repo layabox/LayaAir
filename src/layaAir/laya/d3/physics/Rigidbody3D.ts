@@ -6,6 +6,7 @@ import { PhysicsComponent } from "./PhysicsComponent";
 import { Physics3D } from "./Physics3D";
 import { PhysicsTriggerComponent } from "./PhysicsTriggerComponent";
 import { ColliderShape } from "./shape/ColliderShape";
+import { Stat } from "../../utils/Stat";
 
 /**
  * <code>Rigidbody3D</code> 类用于创建刚体碰撞器。
@@ -40,6 +41,8 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	private static _btTempVector31: number;
 	/** @internal */
 	private static _btVector3Zero: number;
+	/**@internal */
+	private static _btTransform0: number;
 	/** @internal */
 	private static _btInertia: number;
 	/** @internal */
@@ -62,6 +65,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 		Rigidbody3D._btImpulse = bt.btVector3_create(0, 0, 0);
 		Rigidbody3D._btImpulseOffset = bt.btVector3_create(0, 0, 0);
 		Rigidbody3D._btGravity = bt.btVector3_create(0, 0, 0);
+		Rigidbody3D._btTransform0 = bt.btTransform_create();
 	}
 
 	/** @internal */
@@ -116,7 +120,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 
 	set isKinematic(value: boolean) {
 		this._isKinematic = value;
-
+		this._controlBySimulation = !value;//isKinematic not controll by Simulation
 		var bt: any = Physics3D._bullet;
 		var canInSimulation: boolean = !!(this._simulation && this._enabled && this._colliderShape);
 		canInSimulation && this._removeFromSimulation();
@@ -360,6 +364,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	constructor(collisionGroup: number = Physics3DUtils.COLLISIONFILTERGROUP_DEFAULTFILTER, canCollideWith: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER) {
 		//LinkedConstraints = new List<Constraint>();
 		super(collisionGroup, canCollideWith);
+		this._controlBySimulation = true;
 	}
 
 	/**
@@ -382,6 +387,19 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
 	protected _onScaleChange(scale: Vector3): void {
 		super._onScaleChange(scale);
 		this._updateMass(this._isKinematic ? 0 : this._mass);//修改缩放需要更新惯性
+	}
+
+	/**
+	 * 	@internal
+	 */
+	_derivePhysicsTransformation(force: boolean): void {
+		var bt: any = Physics3D._bullet;
+		var btColliderObject: number = this._btColliderObject;
+		var oriTransform: number = bt.btCollisionObject_getWorldTransform(btColliderObject);
+		var transform: number =Rigidbody3D._btTransform0;//must use another transform
+		bt.btTransform_equal(transform,oriTransform);
+		this._innerDerivePhysicsTransformation(transform, force);
+		bt.btRigidBody_setCenterOfMassTransform(btColliderObject, transform);//RigidBody use 'setCenterOfMassTransform' instead(influence interpolationWorldTransform and so on) ,or stepSimulation may return old transform because interpolation.
 	}
 
 	/**

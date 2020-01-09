@@ -43,20 +43,6 @@ export class PhysicsCollider extends PhysicsTriggerComponent {
 	 * @override
 	 * @internal
 	 */
-	_onTransformChanged(flag: number): void {//需要移除父类_addUpdateList保护,否则刚体带着碰撞器移动无效 TODO:是否本帧再更新一次队列
-		flag &= Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDSCALE;//过滤有用TRANSFORM标记
-		if (flag) {
-			this._transformFlag |= flag;
-			if (this._isValid() && this._inPhysicUpdateListIndex === -1)//_isValid()表示可使用
-				this._simulation._physicsUpdateList.add(this);
-		}
-	}
-
-	/**
-	 * @inheritDoc
-	 * @override
-	 * @internal
-	 */
 	_parse(data: any): void {
 		(data.friction != null) && (this.friction = data.friction);
 		(data.rollingFriction != null) && (this.rollingFriction = data.rollingFriction);
