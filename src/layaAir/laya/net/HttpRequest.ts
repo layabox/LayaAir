@@ -46,7 +46,7 @@ export class HttpRequest extends EventDispatcher {
         this._responseType = responseType;
         this._data = null;
 
-        if (Browser.onVVMiniGame || Browser.onQGMiniGame || Browser.onQQMiniGame) {
+        if (Browser.onVVMiniGame || Browser.onQGMiniGame || Browser.onQQMiniGame || Browser.onAlipayMiniGame) {
             url = encodeURI(url);
         }
         this._url = url;
