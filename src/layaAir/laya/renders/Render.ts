@@ -132,13 +132,13 @@ export class Render {
     Render.isConchApp = ((window as any).conch != null);
     if (Render.isConchApp) {
         Render.supportWebGLPlusCulling = false;
-        Render.supportWebGLPlusAnimation = true;
+        Render.supportWebGLPlusAnimation = false;
         Render.supportWebGLPlusRendering = true;
     }
     else if((window as any).qq != null && (window as any).qq.webglPlus != null)
     {
         Render.supportWebGLPlusCulling = false;
-        Render.supportWebGLPlusAnimation = true;
+        Render.supportWebGLPlusAnimation = false;
         Render.supportWebGLPlusRendering = true;
     }
 }
