@@ -610,12 +610,6 @@
 	        return this._keyFrames[index];
 	    }
 	}
-	if (window.conch && window.conchKeyframeNode) {
-	    KeyframeNode = window.conchKeyframeNode;
-	}
-	if (window.qq && window.qq.webglPlus) {
-	    KeyframeNode = window.qq.webglPlus.conchKeyframeNode;
-	}
 
 	class AnimationEvent {
 	    constructor() {
@@ -647,12 +641,6 @@
 	        destKeyFrame.outTangent = this.outTangent;
 	        destKeyFrame.value = this.value;
 	    }
-	}
-	if (window.conch && window.conchFloatKeyframe) {
-	    FloatKeyframe = window.conchFloatKeyframe;
-	}
-	if (window.qq && window.qq.webglPlus) {
-	    FloatKeyframe = window.qq.webglPlus.conchFloatKeyframe;
 	}
 
 	class Matrix3x3 {
@@ -1302,12 +1290,6 @@
 	        this.value.cloneTo(destKeyFarme.value);
 	    }
 	}
-	if (window.conch && window.conchFloatArrayKeyframe) {
-	    QuaternionKeyframe = window.conchFloatArrayKeyframe;
-	}
-	if (window.qq && window.qq.webglPlus) {
-	    QuaternionKeyframe = window.qq.webglPlus.conchFloatArrayKeyframe;
-	}
 
 	class Vector3Keyframe extends Keyframe {
 	    constructor() {
@@ -1323,12 +1305,6 @@
 	        this.outTangent.cloneTo(destKeyFarme.outTangent);
 	        this.value.cloneTo(destKeyFarme.value);
 	    }
-	}
-	if (window.conch && window.conchFloatArrayKeyframe) {
-	    Vector3Keyframe = window.conchFloatArrayKeyframe;
-	}
-	if (window.qq && window.qq.webglPlus) {
-	    Vector3Keyframe = window.qq.webglPlus.conchFloatArrayKeyframe;
 	}
 
 	class AnimationClipParser03 {
@@ -1912,12 +1888,6 @@
 	    setNodeByIndex(index, node) {
 	        this._nodes[index] = node;
 	    }
-	}
-	if (window.conch && window.conchKeyframeNodeList) {
-	    KeyframeNodeList = window.conchKeyframeNodeList;
-	}
-	if (window.qq && window.qq.webglPlus) {
-	    KeyframeNodeList = window.qq.webglPlus.conchKeyframeNodeList;
 	}
 
 	class TextureGenerator {
