@@ -33,12 +33,12 @@ export class QuaternionKeyframe extends Keyframe {
 }
 
 // native
-if ((window as any).conch && (window as any).conchFloatArrayKeyframe) {
+/*if ((window as any).conch && (window as any).conchFloatArrayKeyframe) {
 	//@ts-ignore
 	QuaternionKeyframe = (window as any).conchFloatArrayKeyframe;
 }
 if ((window as any).qq && (window as any).qq.webglPlus) {
 	//@ts-ignore
 	QuaternionKeyframe = (window as any).qq.webglPlus.conchFloatArrayKeyframe;
-}
+}*/
 

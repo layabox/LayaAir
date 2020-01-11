@@ -10501,13 +10501,13 @@ window.Laya= (function (exports) {
         Render.isConchApp = (window.conch != null);
         if (Render.isConchApp) {
             Render.supportWebGLPlusCulling = false;
-            Render.supportWebGLPlusAnimation = true;
-            Render.supportWebGLPlusRendering = true;
+            Render.supportWebGLPlusAnimation = false;
+            Render.supportWebGLPlusRendering = false;
         }
         else if (window.qq != null && window.qq.webglPlus != null) {
             Render.supportWebGLPlusCulling = false;
-            Render.supportWebGLPlusAnimation = true;
-            Render.supportWebGLPlusRendering = true;
+            Render.supportWebGLPlusAnimation = false;
+            Render.supportWebGLPlusRendering = false;
         }
     }
 
@@ -22196,10 +22196,12 @@ window.Laya= (function (exports) {
             if (Laya.isNativeRender_enable)
                 return;
             Laya.isNativeRender_enable = true;
-            Shader.prototype.uploadTexture2D = function (value) {
-                var gl = LayaGL.instance;
-                gl.bindTexture(gl.TEXTURE_2D, value);
-            };
+            if (Render.supportWebGLPlusRendering) {
+                Shader.prototype.uploadTexture2D = function (value) {
+                    var gl = LayaGL.instance;
+                    gl.bindTexture(gl.TEXTURE_2D, value);
+                };
+            }
             RenderState2D.width = Browser.window.innerWidth;
             RenderState2D.height = Browser.window.innerHeight;
             Browser.measureText = function (txt, font) {
