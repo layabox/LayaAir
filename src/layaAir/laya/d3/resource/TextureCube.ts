@@ -295,14 +295,6 @@ export class TextureCube extends BaseTexture {
 		this._readyed = true;
 	}
 
-	/**
-	 * @inheritDoc
-	 * @override
-	 */
-	protected _recoverResource(): void {
-		//TODO:补充
-	}
-
 }
 
 
