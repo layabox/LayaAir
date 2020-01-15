@@ -39,6 +39,8 @@ export class TrailFilter {
 	private _textureMode: number;
 	/**@internal */
 	private _trialGeometry: GeometryElement;
+	/** @private */
+	private _isStop:Boolean = false;
 	/**@internal 拖尾总长度*/
 	_totalLength: number = 0;
 
@@ -49,6 +51,7 @@ export class TrailFilter {
 
 	/**轨迹准线。*/
 	alignment: number = TrailFilter.ALIGNMENT_VIEW;
+	
 
 	/**
 	 * 获取淡出时间。
@@ -190,10 +193,13 @@ export class TrailFilter {
 
 		var curPos: Vector3 = this._owner.transform.position;
 		var element: TrailGeometry = (<TrailGeometry>render._renderElements[0]._geometry);
-		element._updateDisappear();
-		element._updateTrail((<Camera>state.camera), this._lastPosition, curPos);
-		element._updateVertexBufferUV();
-		curPos.cloneTo(this._lastPosition);
+		if(!this._isStop){
+			element._updateDisappear();
+			element._updateTrail((<Camera>state.camera), this._lastPosition, curPos);
+			element._updateVertexBufferUV();
+			curPos.cloneTo(this._lastPosition);
+		}
+		
 	}
 
 	/**
@@ -237,6 +243,16 @@ export class TrailFilter {
 		this._trialGeometry = null;
 		this._widthCurve = null;
 		this._colorGradient = null;
+	}
+
+	clear():void{
+		(<TrailGeometry>this._trialGeometry).clear();
+		this._isStop = true;
+		this._lastPosition.setValue(0, 0, 0);
+		this._curtime = 0;
+	}
+	reStart():void{
+		this._isStop = false;
 	}
 
 	//--------------------------------------------------兼容---------------------------------------------------------------------
