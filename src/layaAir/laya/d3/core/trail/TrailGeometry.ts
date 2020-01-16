@@ -494,8 +494,6 @@ export class TrailGeometry extends GeometryElement {
 		this._activeIndex = 0;
 		this._endIndex = 0;
 		this._disappearBoundsMode = false;
-		this._owner._curtime = 0.0;
-		this._owner._totalLength = 0.0;
 		this._subBirthTime.fill(0);
 		this._subDistance.fill(0);
 		this._segementCount = 0;
