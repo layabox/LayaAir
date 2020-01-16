@@ -153,7 +153,7 @@ export class TrailSprite3D extends RenderableSprite3D {
 		this._geometryFilter = null;
 	}
 
-	clear():void{
+	clear(): void {
 		(<TrailFilter>this._geometryFilter).clear();
 	}
 

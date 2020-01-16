@@ -95,7 +95,7 @@ export class TrailGeometry extends GeometryElement {
 
 		this._resizeData(this._segementCount, this._bufferState);
 		var bounds: Bounds = this._owner._owner.trailRenderer.bounds;
-		var sprite3dPosition:Vector3 = this._owner._owner.transform.position;
+		var sprite3dPosition: Vector3 = this._owner._owner.transform.position;
 		bounds.setMin(sprite3dPosition);
 		bounds.setMax(sprite3dPosition);
 		Render.supportWebGLPlusCulling && this._calculateBoundingBoxForNative();//[NATIVE]
@@ -489,8 +489,8 @@ export class TrailGeometry extends GeometryElement {
 		buffer[trail._cullingBufferIndex + 5] = max.y;
 		buffer[trail._cullingBufferIndex + 6] = max.z;
 	}
-	
-	clear():void {
+
+	clear(): void {
 		this._activeIndex = 0;
 		this._endIndex = 0;
 		this._disappearBoundsMode = false;
@@ -499,7 +499,7 @@ export class TrailGeometry extends GeometryElement {
 		this._segementCount = 0;
 		this._isTempEndVertex = false;
 		this._needAddFirstVertex = false;
-		this._lastFixedVertexPosition.setValue(0,0,0);
+		this._lastFixedVertexPosition.setValue(0, 0, 0);
 	}
 }
 
