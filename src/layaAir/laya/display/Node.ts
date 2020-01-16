@@ -752,8 +752,10 @@ export class Node extends EventDispatcher {
         if (this._components) {
             for (var i: number = 0, n: number = this._components.length; i < n; i++) {
                 var comp: Component = this._components[i];
-                comp._setActive(true);
-                (comp._isScript() && comp._enabled) && (activeChangeScripts.push(comp));
+                if (comp._isScript())//TODO:maybe should combime the logic with script and unScript. 
+                    (comp._enabled) && (activeChangeScripts.push(comp));
+                else
+                    comp._setActive(true);
             }
         }
 
