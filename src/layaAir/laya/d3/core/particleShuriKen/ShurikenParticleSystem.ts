@@ -316,8 +316,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 	}
 
 	/**
-	 * 获取一次循环内的累计时间。
-	 * @return 一次循环内的累计时间。
+	 * 一次循环内的累计时间。
 	 */
 	get emissionTime(): number {
 		return this._emissionTime > this.duration ? this.duration : this._emissionTime;
@@ -1414,6 +1413,9 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 		if (this._vertexBuffer) {//修改了maxCount以及renderMode以及Mesh等需要清空
 			this._vertexBuffer.destroy();
 			this._indexBuffer.destroy();
+			var memorySize: number = this._vertexBuffer._byteLength + this._indexBuffer.indexCount * 2;
+			Resource._addMemory(-memorySize, -memorySize);
+			//TODO:some time use clone will cause this call twice(from 'maxParticleCount' and 'renderMode'),this should optimization rewrite with special clone fun.
 		}
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		var render: ShurikenParticleRenderer = this._ownerRender;
