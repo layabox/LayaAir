@@ -51,7 +51,7 @@ uniform float u_SmoothnessScale;
 #ifdef LIGHTMAP
 	varying vec2 v_LightMapUV;
 	uniform sampler2D u_LightMap;
-	#ifdef DIRECTIONAL_LIGHTMAP
+	#ifdef LIGHTMAP_DIRECTIONAL
 		uniform sampler2D u_LightMapDirection;
 	#endif
 #endif

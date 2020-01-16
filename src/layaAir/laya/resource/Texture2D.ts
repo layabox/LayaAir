@@ -518,18 +518,10 @@ export class Texture2D extends BaseTexture {
 	}
 
 	/**
-	 * @inheritDoc
-	 * @override
-	 */
-	protected _recoverResource(): void {
-		//TODO:补充
-	}
-
-	/**
 	 * 返回图片像素。
 	 * @return 图片像素。
 	 */
-	getPixels(): Uint8Array |Uint16Array| Float32Array {
+	getPixels(): Uint8Array | Uint16Array | Float32Array {
 		if (this._canRead)
 			return this._pixels;
 		else

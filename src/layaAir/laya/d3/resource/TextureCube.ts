@@ -6,14 +6,14 @@ import { LayaGL } from "../../layagl/LayaGL";
 import { ILaya } from "../../../ILaya";
 import { TextureFormat } from "../../resource/TextureFormat";
 
-// export enum TextureCubeFace {
-// 	PositiveX,
-// 	NegativeX,
-// 	PositiveY,
-// 	NegativeY,
-// 	PositiveZ,
-// 	NegativeZ
-// }
+export enum TextureCubeFace {
+	PositiveX,
+	NegativeX,
+	PositiveY,
+	NegativeY,
+	PositiveZ,
+	NegativeZ
+}
 
 /**
  * <code>TextureCube</code> 类用于生成立方体纹理。
@@ -242,11 +242,57 @@ export class TextureCube extends BaseTexture {
 	}
 
 	/**
-	 * @inheritDoc
-	 * @override
+	 * 通过图源设置一个面的颜色。
+	 * @param face 面。
+	 * @param imageSource 图源。 
+	 * @param miplevel 层级。
 	 */
-	protected _recoverResource(): void {
-		//TODO:补充
+	setImageSource(face: TextureCubeFace, imageSource: HTMLImageElement | HTMLCanvasElement, miplevel: number = 0): void {
+		var width: number = this._width;
+		var height: number = this._height;
+		if (imageSource) {//if is null will clear the face data
+			if (width !== imageSource.width || height !== imageSource.height) {
+				console.log("TextureCube: imageSource's width and height must same.");
+				return;
+			}
+		}
+
+		var gl: WebGLRenderingContext = LayaGL.instance;
+		WebGLContext.bindTexture(gl, this._glTextureType, this._glTexture);
+		var glFormat: number = this._getGLFormat();
+		switch (face) {
+			case TextureCubeFace.NegativeX:
+				gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_X, miplevel, glFormat, glFormat, gl.UNSIGNED_BYTE, imageSource);//left
+				break;
+			case TextureCubeFace.PositiveX:
+				gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X, miplevel, glFormat, glFormat, gl.UNSIGNED_BYTE, imageSource);//right
+				break;
+			case TextureCubeFace.NegativeY:
+				gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, miplevel, glFormat, glFormat, gl.UNSIGNED_BYTE, imageSource);//down
+				break;
+			case TextureCubeFace.PositiveY:
+				gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Y, miplevel, glFormat, glFormat, gl.UNSIGNED_BYTE, imageSource);//up
+				break;
+			case TextureCubeFace.NegativeZ:
+				gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, miplevel, glFormat, glFormat, gl.UNSIGNED_BYTE, imageSource);//front
+				break;
+			case TextureCubeFace.PositiveZ:
+				gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Z, miplevel, glFormat, glFormat, gl.UNSIGNED_BYTE, imageSource);//back
+				break;
+		}
+
+		//TODO:
+		if (this._mipmap && this._isPot(width) && this._isPot(height)) {
+			gl.generateMipmap(this._glTextureType);
+			this._setGPUMemory(width * height * 4 * (1 + 1 / 3) * 6);
+		} else {
+			this._setGPUMemory(width * height * 4 * 6);
+		}
+
+		this._setWarpMode(gl.TEXTURE_WRAP_S, this._wrapModeU);
+		this._setWarpMode(gl.TEXTURE_WRAP_T, this._wrapModeV);
+		this._setFilterMode(this._filterMode);
+		this._readyed = true;
 	}
 
 }
