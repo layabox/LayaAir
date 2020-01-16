@@ -50,7 +50,6 @@ export class TrailFilter {
 	/**轨迹准线。*/
 	alignment: number = TrailFilter.ALIGNMENT_VIEW;
 	
-
 	/**
 	 * 获取淡出时间。
 	 * @return  淡出时间。
@@ -194,8 +193,7 @@ export class TrailFilter {
 		element._updateDisappear();
 		element._updateTrail((<Camera>state.camera), this._lastPosition, curPos);
 		element._updateVertexBufferUV();
-		curPos.cloneTo(this._lastPosition);
-		
+		curPos.cloneTo(this._lastPosition);	
 	}
 
 	/**

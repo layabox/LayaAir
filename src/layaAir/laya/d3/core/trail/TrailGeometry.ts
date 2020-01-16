@@ -489,7 +489,7 @@ export class TrailGeometry extends GeometryElement {
 		buffer[trail._cullingBufferIndex + 5] = max.y;
 		buffer[trail._cullingBufferIndex + 6] = max.z;
 	}
-
+	
 	clear():void {
 		this._activeIndex = 0;
 		this._endIndex = 0;
