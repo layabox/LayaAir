@@ -1,4 +1,5 @@
 import { ObjectTools } from "./ObjectTools";
+import { Node } from "laya/display/Node";
 ///////////////////////////////////////////////////////////
 //  ClassTool.as
 //  Macromedia ActionScript Implementation of the Class ClassTool
@@ -74,18 +75,35 @@ import { ObjectTools } from "./ObjectTools";
 		static getObjectDisplayAbleKeys(obj:any,rst:any[]=null):any[]
 		{
 			if (!rst) rst = [];
-			var key:string;
-			var tValue:any;
-			var tType:string;
-			for (key in obj)
-			{
-				tValue = obj[key];
-				tType = typeof(tValue);
-				if (key.charAt(0) == "_") continue;
 
+			for (let key in obj) {
+				let tValue = obj[key];
+				let tType = typeof(tValue);
+				if (key.charAt(0) == "_" ||!this.displayTypes[tType]) continue;
 				rst.push(key);
-				
 			}
+			let temp = obj;
+			//获取所有的getset
+			while(temp){
+				let descript:any = Object.getOwnPropertyDescriptors(temp);
+				for (let element in descript) {
+					let tValue = descript[element];
+					if(!tValue.get)continue
+					rst.push(element);
+				}
+				
+				obj = Object.getPrototypeOf(obj);
+			}
+			
+		
+			// for (let index = 0; index < _objArr.length; index++) {
+			// 	let element = _objArr[index];
+			// 	let tValue = obj[element];
+			// 	let tType = typeof(tValue);
+			// 	if (element.charAt(0) == "_" ||!this.displayTypes[tType]) continue;
+			// 	rst.push(element);
+			// }
+				
 			ClassTool.getObjectGetSetKeys(obj, rst);
 			rst = ObjectTools.getNoSameArr(rst);
 			return rst;
