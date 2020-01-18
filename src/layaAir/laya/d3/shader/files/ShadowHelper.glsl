@@ -22,10 +22,10 @@ float tex2DPCF( sampler2D shadowMap,vec2 texcoord,vec2 invsize,float zRef )
 	vec2 texelpos =texcoord / invsize;
 	vec2 lerps = fract( texelpos );
 	float sourcevals[4];
-	sourcevals[0] = float( unpackDepth(texture2D(shadowMap,texcoord)) > zRef );
-	sourcevals[1] = float( unpackDepth(texture2D(shadowMap,texcoord + vec2(invsize.x,0))) > zRef );
-	sourcevals[2] = float( unpackDepth(texture2D(shadowMap,texcoord + vec2(0,invsize.y))) > zRef );
-	sourcevals[3] = float( unpackDepth(texture2D(shadowMap,texcoord + vec2(invsize.x, invsize.y) )) > zRef );
+	sourcevals[0] = float( texture2D(shadowMap,texcoord).r > zRef );
+	sourcevals[1] = float( texture2D(shadowMap,texcoord + vec2(invsize.x,0)).r > zRef );
+	sourcevals[2] = float( texture2D(shadowMap,texcoord + vec2(0,invsize.y)).r > zRef );
+	sourcevals[3] = float( texture2D(shadowMap,texcoord + vec2(invsize.x, invsize.y)).r > zRef );
 	return mix( mix(sourcevals[0],sourcevals[2],lerps.y),mix(sourcevals[1],sourcevals[3],lerps.y),lerps.x );
 }
 float getShadowPSSM3( sampler2D shadowMap1,sampler2D shadowMap2,sampler2D shadowMap3,mat4 lightShadowVP[4],vec4 pssmDistance,vec2 shadowPCFOffset,vec3 worldPos,float posViewZ,float zBias )
@@ -79,7 +79,7 @@ float getShadowPSSM3( sampler2D shadowMap1,sampler2D shadowMap2,sampler2D shadow
 		else if( nPSNum == 2 )
 		{
 			vec4 color = texture2D( shadowMap3,vText.xy );
-			zdepth = unpackDepth(color);
+			zdepth = color.r;
 			value = float(fMyZ < zdepth);
 		}
 #endif
@@ -95,7 +95,7 @@ float getShadowPSSM3( sampler2D shadowMap1,sampler2D shadowMap2,sampler2D shadow
 		else if( nPSNum == 2 )
 		{
 			vec4 color = texture2D( shadowMap3,vText.xy );
-			zdepth = unpackDepth(color);
+			zdepth = color.r;
 			value = float(fMyZ < zdepth);
 		}
 
@@ -108,13 +108,13 @@ float getShadowPSSM3( sampler2D shadowMap1,sampler2D shadowMap2,sampler2D shadow
 		else if( nPSNum == 1 )
 		{
 			vec4 color = texture2D( shadowMap2,vText.xy );
-			zdepth = unpackDepth(color);
+			zdepth = color.r;
 			value = float(fMyZ < zdepth);
 		}
 		else if( nPSNum == 2 )
 		{
 			vec4 color = texture2D( shadowMap3,vText.xy );
-			zdepth = unpackDepth(color);
+			zdepth = color.r;
 			value = float(fMyZ < zdepth);
 		}
 #endif
@@ -132,7 +132,7 @@ float getShadowPSSM3( sampler2D shadowMap1,sampler2D shadowMap2,sampler2D shadow
 		{
 			color = texture2D( shadowMap3,vText.xy );
 		}
-		zdepth = unpackDepth(color);
+		zdepth = color.r;
 		value = float(fMyZ < zdepth);
 #endif
 	}
@@ -200,7 +200,7 @@ float getShadowPSSM2( sampler2D shadowMap1,sampler2D shadowMap2,mat4 lightShadow
 		else if( nPSNum == 1 )
 		{
 			vec4 color = texture2D( shadowMap2,vText.xy );
-			zdepth = unpackDepth(color);
+			zdepth = color.r;
 			value = float(fMyZ < zdepth);
 		}
 #endif
@@ -214,7 +214,7 @@ float getShadowPSSM2( sampler2D shadowMap1,sampler2D shadowMap2,mat4 lightShadow
 		{
 			color = texture2D( shadowMap2,vText.xy );
 		}
-		zdepth = unpackDepth(color);
+		zdepth = color.r;
 		value = float(fMyZ < zdepth);
 #endif
 	}
@@ -251,7 +251,7 @@ float getShadowPSSM1( sampler2D shadowMap1,vec4 lightMVPPos,vec4 pssmDistance,ve
 #endif
 #ifdef SHADOWMAP_PCF_NO		
 			vec4 color = texture2D( shadowMap1,vText.xy );
-			zdepth = unpackDepth(color);
+			zdepth = color.r;
 			value = float(fMyZ < zdepth);
 #endif
 		}
