@@ -756,7 +756,7 @@ export class Animator extends Component {
 	 * @internal
 	 * @override
 	 */
-	protected _onEnable(): void {
+	_onEnable(): void {
 		((<Scene3D>this.owner._scene))._animatorPool.add(this);
 		for (var i: number = 0, n: number = this._controllerLayers.length; i < n; i++) {
 			if (this._controllerLayers[i].playOnWake) {
