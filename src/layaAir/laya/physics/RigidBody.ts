@@ -93,14 +93,14 @@ export class RigidBody extends Component {
      * @internal
      * @override
      */
-    protected _onAwake(): void {
+    _onAwake(): void {
         this._createBody();
     }
     /**
      * @internal
      * @override
      */
-    protected _onEnable(): void {
+    _onEnable(): void {
         var _$this = this;
         this._createBody();
         //实时同步物理到节点
