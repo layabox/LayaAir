@@ -91,19 +91,9 @@ import { Node } from "laya/display/Node";
 					if(!tValue.get)continue
 					rst.push(element);
 				}
-				
-				obj = Object.getPrototypeOf(obj);
+				temp = Object.getPrototypeOf(temp);
 			}
-			
-		
-			// for (let index = 0; index < _objArr.length; index++) {
-			// 	let element = _objArr[index];
-			// 	let tValue = obj[element];
-			// 	let tType = typeof(tValue);
-			// 	if (element.charAt(0) == "_" ||!this.displayTypes[tType]) continue;
-			// 	rst.push(element);
-			// }
-				
+
 			ClassTool.getObjectGetSetKeys(obj, rst);
 			rst = ObjectTools.getNoSameArr(rst);
 			return rst;
