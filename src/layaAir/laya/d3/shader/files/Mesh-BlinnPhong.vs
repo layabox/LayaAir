@@ -94,7 +94,6 @@ void main_castShadow()
 		v_Texcoord0=a_Texcoord0;
 	#endif
 	gl_Position=remapGLPositionZ(gl_Position);
-	v_posViewZ = gl_Position.z;
 }
 
 void main_normal()
