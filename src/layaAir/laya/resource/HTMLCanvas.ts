@@ -45,7 +45,13 @@ export class HTMLCanvas extends Bitmap {
      * 清空画布内容。
      */
     clear(): void {
-        this._ctx && this._ctx.clear && this._ctx.clear();
+        if (this._ctx){
+            if(this._ctx.clear){
+                this._ctx.clear();
+            }else{
+                this._ctx.clearRect(0,0,this._width,this._height);
+            }
+        }
         if (this._texture) {
             this._texture.destroy();
             this._texture = null;
