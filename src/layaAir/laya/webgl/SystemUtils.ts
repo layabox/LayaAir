@@ -63,6 +63,11 @@ export class SystemUtils {
                     return true;
                 else
                     return false;
+            case RenderTextureFormat.Depth:
+                if (LayaGL.layaGPUInstance._isWebGL2 || LayaGL.layaGPUInstance._webgl_depth_texture)
+                    return true;
+                else
+                    return false;
             default:
                 return true;
         }
