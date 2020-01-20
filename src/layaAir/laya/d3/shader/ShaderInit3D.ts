@@ -168,7 +168,7 @@ export class ShaderInit3D {
 		var shader: Shader3D = Shader3D.add("BLINNPHONG", null, null, true);
 		var subShader: SubShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
-		subShader.addShaderPass(MeshBlinnPhongVS, MeshBlinnPhongPS, stateMap);
+		subShader.addShaderPass(MeshBlinnPhongVS, MeshBlinnPhongPS, stateMap,"Forward");
 		var shaderPass: ShaderPass = subShader.addShaderPass(MeshBlinnPhongShadowCasterVS, MeshBlinnPhongShadowCasterPS, stateMap,"ShadowCaster");
 
 		//LineShader

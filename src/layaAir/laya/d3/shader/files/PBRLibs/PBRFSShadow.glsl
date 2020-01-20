@@ -1,5 +1,3 @@
-#include "PBRFSShadow.glsl";
-
 void fragmentShadowCaster()
 {
 	gl_FragColor=vec4(0.0);
