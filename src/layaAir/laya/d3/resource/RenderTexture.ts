@@ -176,7 +176,7 @@ export class RenderTexture extends BaseTexture {
 				gl.bindRenderbuffer(gl.RENDERBUFFER, null);
 			}
 		}
-		//Debug Info
+		//Debug Code:
 		//console.log("Depth Bits: " + gl.getParameter(gl.DEPTH_BITS));
 		//console.log("Stencil Bits: " + gl.getParameter(gl.STENCIL_BITS));
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
