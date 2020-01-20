@@ -176,6 +176,9 @@ export class RenderTexture extends BaseTexture {
 				gl.bindRenderbuffer(gl.RENDERBUFFER, null);
 			}
 		}
+		//Debug Info
+		//console.log("Depth Bits: " + gl.getParameter(gl.DEPTH_BITS));
+		//console.log("Stencil Bits: " + gl.getParameter(gl.STENCIL_BITS));
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
 		this._setWarpMode(gl.TEXTURE_WRAP_S, this._wrapModeU);
