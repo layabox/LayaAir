@@ -6,6 +6,7 @@ import { Texture2D } from "../../resource/Texture2D";
 import { WebGLContext } from "../../webgl/WebGLContext";
 import { RenderContext3D } from "../core/render/RenderContext3D";
 import { FilterMode } from "../../resource/FilterMode";
+import { LayaGPU } from "../../webgl/LayaGPU";
 
 /**
  * <code>RenderTexture</code> 类用于创建渲染目标。
@@ -101,6 +102,8 @@ export class RenderTexture extends BaseTexture {
 	private _create(width: number, height: number): void {
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		var glTextureType: number = this._glTextureType;
+		var layaGPU: LayaGPU = LayaGL.layaGPUInstance;
+		var isWebGL2: Boolean = layaGPU._isWebGL2;
 
 		this._frameBuffer = gl.createFramebuffer();
 		gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
@@ -119,10 +122,10 @@ export class RenderTexture extends BaseTexture {
 					gl.texImage2D(glTextureType, 0, gl.ALPHA, width, height, 0, gl.ALPHA, gl.UNSIGNED_BYTE, null);
 					break;
 				case RenderTextureFormat.R16G16B16A16:
-					if (LayaGL.layaGPUInstance._isWebGL2)
+					if (isWebGL2)
 						gl.texImage2D(glTextureType, 0, (<WebGL2RenderingContext>gl).RGBA16F, width, height, 0, gl.RGBA, (<WebGL2RenderingContext>gl).HALF_FLOAT, null);
 					else
-						gl.texImage2D(glTextureType, 0, gl.RGBA, width, height, 0, gl.RGBA, LayaGL.layaGPUInstance._oesTextureHalfFloat.HALF_FLOAT_OES, null);//内部格式仍为RGBA
+						gl.texImage2D(glTextureType, 0, gl.RGBA, width, height, 0, gl.RGBA, layaGPU._oesTextureHalfFloat.HALF_FLOAT_OES, null);//内部格式仍为RGBA
 					break;
 			}
 			gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this._glTexture, 0);
@@ -133,17 +136,17 @@ export class RenderTexture extends BaseTexture {
 			WebGLContext.bindTexture(gl, glTextureType, this._glTexture);
 			switch (this._depthStencilFormat) {
 				case RenderTextureDepthFormat.DEPTH_16:
-					if (LayaGL.layaGPUInstance._isWebGL2)
-						gl.texImage2D(glTextureType, 0, (<WebGL2RenderingContext>gl).DEPTH_COMPONENT24, width, height, 0, gl.DEPTH_COMPONENT, gl.UNSIGNED_INT, null);
+					if (isWebGL2)
+						gl.texImage2D(glTextureType, 0, (<WebGL2RenderingContext>gl).DEPTH_COMPONENT16, width, height, 0, gl.DEPTH_COMPONENT, gl.UNSIGNED_SHORT, null);
 					else
 						gl.texImage2D(glTextureType, 0, gl.DEPTH_COMPONENT, width, height, 0, gl.DEPTH_COMPONENT, gl.UNSIGNED_SHORT, null);
 					gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, this._glTexture, 0);
 					break;
-				case RenderTextureDepthFormat.DEPTHSTENCIL_16_8:
-					if (LayaGL.layaGPUInstance._isWebGL2)
+				case RenderTextureDepthFormat.DEPTHSTENCIL_24_8:
+					if (isWebGL2)
 						gl.texImage2D(glTextureType, 0, (<WebGL2RenderingContext>gl).DEPTH24_STENCIL8, width, height, 0, gl.DEPTH_STENCIL, gl.UNSIGNED_INT, null);
 					else
-						gl.texImage2D(glTextureType, 0, gl.DEPTH_STENCIL, width, height, 0, gl.DEPTH_STENCIL, gl.UNSIGNED_SHORT, null);
+						gl.texImage2D(glTextureType, 0, gl.DEPTH_STENCIL, width, height, 0, gl.DEPTH_STENCIL, layaGPU._webgl_depth_texture.UNSIGNED_INT_24_8_WEBGL, null);
 					gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT, gl.TEXTURE_2D, this._glTexture, 0);
 					break;
 				default:
@@ -163,7 +166,7 @@ export class RenderTexture extends BaseTexture {
 						gl.renderbufferStorage(gl.RENDERBUFFER, gl.STENCIL_INDEX8, width, height);
 						gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.STENCIL_ATTACHMENT, gl.RENDERBUFFER, this._depthStencilBuffer);
 						break;
-					case RenderTextureDepthFormat.DEPTHSTENCIL_16_8:
+					case RenderTextureDepthFormat.DEPTHSTENCIL_24_8:
 						gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_STENCIL, width, height);
 						gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_STENCIL_ATTACHMENT, gl.RENDERBUFFER, this._depthStencilBuffer);
 						break;

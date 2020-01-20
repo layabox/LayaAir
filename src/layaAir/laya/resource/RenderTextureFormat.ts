@@ -16,8 +16,11 @@ export enum RenderTextureDepthFormat {
     DEPTH_16 = 0,
     /**深度格式_STENCIL_8。*/
     STENCIL_8 = 1,
-    /**深度格式_DEPTHSTENCIL_16_8。*/
-    DEPTHSTENCIL_16_8 = 2,
+    /**深度格式_DEPTHSTENCIL_24_8。*/
+    DEPTHSTENCIL_24_8 = 2,
     /**深度格式_DEPTHSTENCIL_NONE。*/
-    DEPTHSTENCIL_NONE = 3
+    DEPTHSTENCIL_NONE = 3,
+
+    /** @deprecated*/
+    DEPTHSTENCIL_16_8 = 2,
 }

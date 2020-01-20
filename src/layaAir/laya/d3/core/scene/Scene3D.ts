@@ -1024,7 +1024,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 						case RenderTextureDepthFormat.STENCIL_8:
 							flag |= gl.STENCIL_BUFFER_BIT;
 							break;
-						case RenderTextureDepthFormat.DEPTHSTENCIL_16_8:
+						case RenderTextureDepthFormat.DEPTHSTENCIL_24_8:
 							flag |= gl.DEPTH_BUFFER_BIT;
 							flag |= gl.STENCIL_BUFFER_BIT;
 							break;
@@ -1048,7 +1048,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 						case RenderTextureDepthFormat.STENCIL_8:
 							flag = gl.STENCIL_BUFFER_BIT;
 							break;
-						case RenderTextureDepthFormat.DEPTHSTENCIL_16_8:
+						case RenderTextureDepthFormat.DEPTHSTENCIL_24_8:
 							flag = gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT;
 							break;
 					}
