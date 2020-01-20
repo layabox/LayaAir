@@ -28,7 +28,7 @@ export class SubShader {
 	}
 
 	/**
-	 *添加标记。
+	 * 添加标记。
 	 * @param key 标记键。
 	 * @param value 标记值。
 	 */
@@ -52,9 +52,11 @@ export class SubShader {
 	 * @param vs 
 	 * @param ps 
 	 * @param stateMap 
+	 * @param pipelineMode 渲染管线模式。 
 	 */
-	addShaderPass(vs: string, ps: string, stateMap: object = null): ShaderPass {
+	addShaderPass(vs: string, ps: string, stateMap: object = null, pipelineMode: string = "Forward"): ShaderPass {
 		var shaderPass: ShaderPass = new ShaderPass(this, vs, ps, stateMap);
+		shaderPass._pipelineMode = pipelineMode;
 		this._passes.push(shaderPass);
 		return shaderPass;
 	}

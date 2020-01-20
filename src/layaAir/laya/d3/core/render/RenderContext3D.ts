@@ -36,6 +36,8 @@ export class RenderContext3D {
 	shader: ShaderInstance;
 	/** @internal */
 	invertY: boolean = false;
+	/** @internal */
+	pipelineMode: string;
 
 	/**
 	 * 创建一个 <code>RenderContext3D</code> 实例。

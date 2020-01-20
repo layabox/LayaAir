@@ -549,16 +549,18 @@ export class Camera extends BaseCamera {
 		var gl: WebGLRenderingContext = LayaGL.instance;
 		var context: RenderContext3D = RenderContext3D._instance;
 		var scene: Scene3D = context.scene = <Scene3D>this._scene;
+		context.pipelineMode = "Forward";
 
 		if (needInternalRT)
 			this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), RenderTextureDepthFormat.DEPTH_16, FilterMode.Bilinear);
 		else
 			this._internalRenderTexture = null;
 		if (scene.parallelSplitShadowMaps[0]) {//TODO:SM
+			context.pipelineMode = "ShadowCaster";
 			ShaderData.setRuntimeValueMode(false);
 			var parallelSplitShadowMap: ParallelSplitShadowMap = scene.parallelSplitShadowMaps[0];
 			parallelSplitShadowMap._calcAllLightCameraInfo(this);
-			scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_CAST_SHADOW);//增加宏定义
+
 			for (var i: number = 0, n: number = parallelSplitShadowMap.shadowMapCount; i < n; i++) {
 				var smCamera: Camera = parallelSplitShadowMap.cameras[i];
 				context.camera = smCamera;
@@ -574,11 +576,13 @@ export class Camera extends BaseCamera {
 				smCamera._applyViewProject(context, smCamera.viewMatrix, smCamera.projectionMatrix);
 				scene._clear(gl, context);
 				var queue: RenderQueue = scene._opaqueQueue;//阴影均为非透明队列
+				// gl.colorMask(false,false,false,false);
 				queue._render(context);
+				// gl.colorMask(true,true,true,true);
 				shadowMap._end();
 			}
-			scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_CAST_SHADOW);//去掉宏定义
 			ShaderData.setRuntimeValueMode(true);
+			context.pipelineMode = "Forward";
 		}
 
 		context.camera = this;
