@@ -45,7 +45,7 @@ export class ColliderBase extends Component {
      * @internal
      * @override
      */
-    protected _onEnable(): void {
+    _onEnable(): void {
         if(this.rigidBody){
             this.refresh();
         }

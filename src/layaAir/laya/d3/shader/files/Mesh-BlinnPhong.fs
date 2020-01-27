@@ -93,20 +93,7 @@ varying float v_posViewZ;
 	#endif
 #endif
 
-
-void main_castShadow()
-{
-	//gl_FragColor=vec4(v_posViewZ,0.0,0.0,1.0);
-	gl_FragColor=packDepth(v_posViewZ);
-	#if defined(DIFFUSEMAP)&&defined(ALPHATEST)
-		float alpha = texture2D(u_DiffuseTexture,v_Texcoord0).w;
-		if( alpha < u_AlphaTestValue )
-		{
-			discard;
-		}
-	#endif
-}
-void main_normal()
+void main()
 {
 	vec3 normal;//light and SH maybe use normal
 	#if defined(NORMALMAP)
@@ -241,14 +228,5 @@ void main_normal()
 		float lerpFact=clamp((1.0/gl_FragCoord.w-u_FogStart)/u_FogRange,0.0,1.0);
 		gl_FragColor.rgb=mix(gl_FragColor.rgb,u_FogColor,lerpFact);
 	#endif
-}
-
-void main()
-{
-	#ifdef CASTSHADOW		
-		main_castShadow();
-	#else
-		main_normal();
-	#endif  
 }
 

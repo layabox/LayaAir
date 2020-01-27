@@ -28,7 +28,7 @@ export class EffectBase extends Component {
      * @internal
      * @override
      */
-    protected _onAwake(): void {
+    _onAwake(): void {
         this.target = this.target || (<Sprite>this.owner);
         if (this.autoDestroyAtComplete) this._comlete = Handler.create(this.target, this.target.destroy, null, false);
         if (this.eventName) this.owner.on(this.eventName, this, this._exeTween);

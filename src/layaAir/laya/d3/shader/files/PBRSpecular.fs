@@ -14,13 +14,8 @@
 #include "GlobalIllumination.glsl";
 #include "ShadowHelper.glsl"
 #include "PBRCore.glsl";
-#include "PBRFSShadow.glsl";
 
 void main()
 {
-	#ifdef CASTSHADOW		
-		main_castShadow();
-	#else
-		fragmentForward();
-	#endif  
+	fragmentForward();
 }

@@ -1,4 +1,26 @@
-void vertexShadowCaster()
+#include "Lighting.glsl";
+
+attribute vec4 a_Position;
+
+#ifdef BONE
+	const int c_MaxBoneCount = 24;
+	attribute vec4 a_BoneIndices;
+	attribute vec4 a_BoneWeights;
+	uniform mat4 u_Bones[c_MaxBoneCount];
+#endif
+
+#ifdef GPU_INSTANCE
+	attribute mat4 a_MvpMatrix;
+#else
+	uniform mat4 u_MvpMatrix;
+#endif
+
+#if defined(DIFFUSEMAP)||((defined(DIRECTIONLIGHT)||defined(POINTLIGHT)||defined(SPOTLIGHT))&&(defined(SPECULARMAP)||defined(NORMALMAP)))||(defined(LIGHTMAP)&&defined(UV))
+	attribute vec2 a_Texcoord0;
+	varying vec2 v_Texcoord0;
+#endif
+
+void main()
 {
 	vec4 position;
 	#ifdef BONE
@@ -17,9 +39,8 @@ void vertexShadowCaster()
 	#endif
 	
 	//TODO没考虑UV动画呢
-	#if defined(ALBEDOTEXTURE)&&defined(ALPHATEST)
+	#if defined(DIFFUSEMAP)&&defined(ALPHATEST)
 		v_Texcoord0=a_Texcoord0;
 	#endif
 	gl_Position=remapGLPositionZ(gl_Position);
-	v_posViewZ = gl_Position.z;
 }

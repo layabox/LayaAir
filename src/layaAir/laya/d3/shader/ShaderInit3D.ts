@@ -14,6 +14,8 @@ import linePS from "./files/line.fs";
 import lineVS from "./files/line.vs";
 import MeshBlinnPhongPS from "./files/Mesh-BlinnPhong.fs";
 import MeshBlinnPhongVS from "./files/Mesh-BlinnPhong.vs";
+import MeshBlinnPhongShadowCasterPS from "./files/Mesh-BlinnPhongShadowCaster.fs";
+import MeshBlinnPhongShadowCasterVS from "./files/Mesh-BlinnPhongShadowCaster.vs";
 import ParticleShuriKenPS from "./files/ParticleShuriKen.fs";
 import ParticleShuriKenVS from "./files/ParticleShuriKen.vs";
 import LayaPBRBRDF from "./files/PBRLibs/LayaPBRBRDF.glsl";
@@ -166,7 +168,8 @@ export class ShaderInit3D {
 		var shader: Shader3D = Shader3D.add("BLINNPHONG", null, null, true);
 		var subShader: SubShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
-		subShader.addShaderPass(MeshBlinnPhongVS, MeshBlinnPhongPS, stateMap);
+		subShader.addShaderPass(MeshBlinnPhongVS, MeshBlinnPhongPS, stateMap,"Forward");
+		var shaderPass: ShaderPass = subShader.addShaderPass(MeshBlinnPhongShadowCasterVS, MeshBlinnPhongShadowCasterPS, stateMap,"ShadowCaster");
 
 		//LineShader
 		attributeMap = {
@@ -189,7 +192,7 @@ export class ShaderInit3D {
 		subShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		subShader.addShaderPass(lineVS, linePS, stateMap);
-		
+
 		//unlit
 		attributeMap = {
 			'a_Position': VertexMesh.MESH_POSITION0,

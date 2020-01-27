@@ -13,7 +13,7 @@ var through = require('through2');
 var concat = require('gulp-concat'),pump = require('pump');
 
 
-//编译新的库文件只需要在packsDef或者packsDefPlatform中配置一下新的库就可以了
+//编译新的库文件只需要在packsDef中配置一下新的库就可以了
 var packsDef = [
     {
         'libName': "core",
@@ -93,74 +93,13 @@ var packsDef = [
         ],
         'out': '../build/js/libs/laya.ui.js'
     },
-
     {
         'libName': 'ani',
         'input': [
             './layaAir/laya/ani/**/*.*'
         ],
         'out': '../build/js/libs/laya.ani.js'
-    }
-];
-
-var packsDefPlatform = [
-    //weixin
-    {
-        'libName': 'wx',
-        'input': [
-            './platform/wx/**/*.*'
-        ],
-        'out': '../build/js/libs/laya.wxmini.js'
-    },
-    //baidu
-    {
-        'libName': 'bd',
-        'input': [
-            './platform/bd/**/*.*'
-        ],
-        'out': '../build/js/libs/laya.bdmini.js'
-    },
-    //xiaomi
-    {
-        'libName': 'mi',
-        'input': [
-            './platform/mi/**/*.*'
-        ],
-        'out': '../build/js/libs/laya.xmmini.js'
-    },
-    //oppo
-    {
-        'libName': 'qg',
-        'input': [
-            './platform/qg/**/*.*'
-        ],
-        'out': '../build/js/libs/laya.quickgamemini.js'
-    },
-    //vivo
-    {
-        'libName': 'vv',
-        'input': [
-            './platform/vv/**/*.*'
-        ],
-        'out': '../build/js/libs/laya.vvmini.js'
-    },
-    //qq
-    {
-        'libName': 'qq',
-        'input': [
-            './platform/qq/**/*.*'
-        ],
-        'out': '../build/js/libs/laya.qqmini.js'
-    },
-    //ali
-    {
-        'libName': 'ali',
-        'input': [
-            './platform/ali/**/*.*'
-        ],
-        'out': '../build/js/libs/laya.Alipaymini.js'
-    },
-    //debugtool
+    },//debugtool
     {
         'libName': 'debugtool',
         'input': [
@@ -250,10 +189,24 @@ function myMultiInput() {
     );
 }
 
-//修改引擎库和第三方适配库
+//修改引擎库
 gulp.task('ModifierJs', () => {
     for (let i = 0; i < packsDef.length; ++i) {
-        gulp.src([packsDef[i].out])
+        if (i !== packsDef.length - 1) {
+            gulp.src([packsDef[i].out])
+                .pipe(through.obj(function (file, encode, cb) {
+                    var srcContents = file.contents.toString();
+                    var destContents = srcContents.replace(/var Laya /, "window.Laya");
+                    destContents = destContents.replace(/\(this.Laya = this.Laya \|\| {}, Laya\)\);/, "(window.Laya = window.Laya || {}, Laya));");
+                    // 再次转为Buffer对象，并赋值给文件内容
+                    file.contents = Buffer.from(destContents);
+                    // 以下是例行公事
+                    this.push(file)
+                    cb()
+                }))
+                .pipe(gulp.dest('../build/js/libs/'));
+        }else{
+            return gulp.src([packsDef[i].out])
             .pipe(through.obj(function (file, encode, cb) {
                 var srcContents = file.contents.toString();
                 var destContents = srcContents.replace(/var Laya /, "window.Laya");
@@ -265,40 +218,7 @@ gulp.task('ModifierJs', () => {
                 cb()
             }))
             .pipe(gulp.dest('../build/js/libs/'));
-    }
-
-    for (let j = 0; j < packsDefPlatform.length; ++j) {
-        if (j !== packsDefPlatform.length - 1) {
-            gulp.src([packsDefPlatform[j].out])
-                .pipe(through.obj(function (file, encode, cb) {
-                    var srcContents = file.contents.toString();
-                    var srcString = "window." + packsDefPlatform[j].libName + "MiniGame = ";
-                    var tempContents = srcContents.replace(/\(/, srcString);
-                    var destContents = tempContents.replace(/\(this.Laya = this.Laya \|\| {}, Laya\)\);/, " ");
-                    // 再次转为Buffer对象，并赋值给文件内容
-                    file.contents = Buffer.from(destContents)
-                    // 以下是例行公事
-                    this.push(file)
-                    cb()
-                }))
-                .pipe(gulp.dest('../build/js/libs/'));
         }
-        else {
-            return gulp.src([packsDefPlatform[j].out])
-                .pipe(through.obj(function (file, encode, cb) {
-                    var srcContents = file.contents.toString();
-                    var srcString = "window." + packsDefPlatform[j].libName + "MiniGame = ";
-                    var tempContents = srcContents.replace(/\(/, "window.wxMiniGame = ");
-                    var destContents = tempContents.replace(/\(this.Laya = this.Laya \|\| {}, Laya\)\);/, " ");
-                    // 再次转为Buffer对象，并赋值给文件内容
-                    file.contents = Buffer.from(destContents)
-                    // 以下是例行公事
-                    this.push(file)
-                    cb()
-                }))
-                .pipe(gulp.dest('../build/js/libs/'));
-        }
-
     }
 });
 
@@ -341,20 +261,6 @@ gulp.task('CopyTSFileToTS', () => {
         .pipe(gulp.dest('../build/ts_new/libs'));
 });
 
-//拷贝第三方库至ts库(未来在数组中补充需要的其他第三方库)
-gulp.task('CopyTSJSLibsFileToTS', () => {
-    return gulp.src([
-        './layaAir/jsLibs/**/*.*',
-        '../build/js/libs/laya.wxmini.js',
-        '../build/js/libs/laya.bdmini.js',
-        '../build/js/libs/laya.xmmini.js',
-        '../build/js/libs/laya.quickgamemini.js',
-        '../build/js/libs/laya.vvmini.js',
-        '../build/js/libs/laya.Alipaymini.js',
-        '../build/js/libs/laya.qqmini.js'])
-        .pipe(gulp.dest('../build/ts_new/jslibs'));
-});
-
 gulp.task('CopyDTS', (cb) => {
     gulp.src(['../tslibs/ts/*.*'])
         .pipe(gulp.dest('../build/js/ts'))
@@ -364,7 +270,6 @@ gulp.task('CopyDTS', (cb) => {
         .pipe(gulp.dest('../build/ts_new/libs'))
     setTimeout(cb, 1000);
 });
-
 
 
 //在这个任务中由于机器的配置可能会出现堆栈溢出的情况，解决方案一可以将其中的某些库移送至buildJS2编译，若buildJS2也堆栈溢出，则可以再新建一个任务buildJS3
@@ -415,42 +320,4 @@ gulp.task('buildJS', async function () {
     }
 });
 
-
-
-//构建平台适配库
-gulp.task('buildJSPlatform', async function () {
-
-    for (let i = 0; i < packsDefPlatform.length; ++i) {
-        const subTask = await rollup.rollup({
-            input: packsDefPlatform[i].input,
-            output: {
-                extend: true,
-                globals: { 'Laya': 'Laya' }
-            },
-            external: ['Laya'],
-            plugins: [
-                myMultiInput(),
-                typescript({
-                    tsconfig: "./layaAir/tsconfig.json",
-                    check: false,
-                    tsconfigOverride: { compilerOptions: { removeComments: true } }
-                }),
-                glsl({
-                    include: /.*(.glsl|.vs|.fs)$/,
-                    sourceMap: false
-                })
-            ]
-        });
-
-        await subTask.write({
-            file: packsDefPlatform[i].out,
-            format: 'iife',
-            name: 'Laya',
-            sourcemap: false,
-            extend: true,
-            globals: { 'Laya': 'Laya' }
-        });
-    }
-});
-
-gulp.task('build', gulp.series('buildJS', 'buildJSPlatform', 'ModifierJs', 'ConcatBox2dPhysics', 'CopyJSLibsToJS', 'CopyTSFileToTS', 'CopyJSFileToAS', 'CopyTSJSLibsFileToTS', 'CopyJSFileToTSCompatible', 'CopyDTS'));
+gulp.task('build', gulp.series('buildJS', 'ModifierJs', 'ConcatBox2dPhysics', 'CopyJSLibsToJS', 'CopyTSFileToTS', 'CopyJSFileToAS', 'CopyJSFileToTSCompatible', 'CopyDTS'));

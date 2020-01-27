@@ -1,5 +1,6 @@
 import { ILaya3D } from "../../../ILaya3D";
-import { BaseTexture } from "../../resource/BaseTexture";
+import { FilterMode } from "../../resource/FilterMode";
+import { RenderTextureDepthFormat, RenderTextureFormat } from "../../resource/RenderTextureFormat";
 import { BaseCamera } from "../core/BaseCamera";
 import { Camera } from "../core/Camera";
 import { Scene3D } from "../core/scene/Scene3D";
@@ -13,8 +14,6 @@ import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
 import { RenderTexture } from "../resource/RenderTexture";
 import { ShaderData } from "../shader/ShaderData";
-import { RenderTextureFormat, RenderTextureDepthFormat } from "../../resource/RenderTextureFormat";
-import { FilterMode } from "../../resource/FilterMode";
 
 /**
  * ...
@@ -333,10 +332,10 @@ export class ParallelSplitShadowMap {
 			this._spiltDistance[i] = this._uniformDistance[i] * this._ratioOfDistance + this._logDistance[i] * (1.0 - this._ratioOfDistance);
 		}
 
-		this._shaderValueDistance.x = (this._spiltDistance[1]!=undefined) && (this._spiltDistance[1]);
-		this._shaderValueDistance.y = (this._spiltDistance[2]!=undefined) && (this._spiltDistance[2]);
-		this._shaderValueDistance.z = (this._spiltDistance[3]!=undefined) && (this._spiltDistance[3]);
-		this._shaderValueDistance.w = (this._spiltDistance[4]!=undefined) && (this._spiltDistance[4]);; //_spiltDistance[4]为undefine 微信小游戏
+		this._shaderValueDistance.x = (this._spiltDistance[1] != undefined) && (this._spiltDistance[1]);
+		this._shaderValueDistance.y = (this._spiltDistance[2] != undefined) && (this._spiltDistance[2]);
+		this._shaderValueDistance.z = (this._spiltDistance[3] != undefined) && (this._spiltDistance[3]);
+		this._shaderValueDistance.w = (this._spiltDistance[4] != undefined) && (this._spiltDistance[4]);; //_spiltDistance[4]为undefine 微信小游戏
 	}
 
 	/**
@@ -453,7 +452,7 @@ export class ParallelSplitShadowMap {
 			var shadowMap: RenderTexture = this.cameras[i].renderTarget;
 			if (shadowMap == null || shadowMap.width != this._shadowMapTextureSize || shadowMap.height != this._shadowMapTextureSize) {
 				(shadowMap) && (shadowMap.destroy());
-				shadowMap = new RenderTexture(this._shadowMapTextureSize, this._shadowMapTextureSize, RenderTextureFormat.R8G8B8A8, RenderTextureDepthFormat.DEPTH_16);
+				shadowMap = new RenderTexture(this._shadowMapTextureSize, this._shadowMapTextureSize, RenderTextureFormat.Depth, RenderTextureDepthFormat.DEPTH_16);
 				shadowMap.filterMode = FilterMode.Point;
 				this.cameras[i].renderTarget = shadowMap;
 			}

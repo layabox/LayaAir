@@ -2,6 +2,8 @@ import { BaseTexture } from "../../../resource/BaseTexture";
 import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
 import PBRPS from "../../shader/files/PBR.fs";
 import PBRVS from "../../shader/files/PBR.vs";
+import PBRShadowCasterPS from "../../shader/files/PBRShadowCaster.fs";
+import PBRShadowCasterVS from "../../shader/files/PBRShadowCaster.vs";
 import { Shader3D } from "../../shader/Shader3D";
 import { ShaderDefine } from "../../shader/ShaderDefine";
 import { SubShader } from "../../shader/SubShader";
@@ -135,7 +137,8 @@ export class PBRStandardMaterial extends PBRMaterial {
 		var shader: Shader3D = Shader3D.add("PBR");
 		var subShader: SubShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
-		subShader.addShaderPass(PBRVS, PBRPS, stateMap);
+		subShader.addShaderPass(PBRVS, PBRPS, stateMap, "Forward");
+		subShader.addShaderPass(PBRShadowCasterVS, PBRShadowCasterPS, stateMap, "ShadowCaster");
 	}
 
 	/** @internal */

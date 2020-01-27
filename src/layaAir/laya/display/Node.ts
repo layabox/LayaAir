@@ -748,12 +748,13 @@ export class Node extends EventDispatcher {
      */
     _activeHierarchy(activeChangeScripts: any[]): void {
         this._setBit(Const.ACTIVE_INHIERARCHY, true);
-
         if (this._components) {
             for (var i: number = 0, n: number = this._components.length; i < n; i++) {
                 var comp: Component = this._components[i];
-                comp._setActive(true);
-                (comp._isScript() && comp._enabled) && (activeChangeScripts.push(comp));
+                if (comp._isScript())//TODO:maybe should combime the logic with script and unScript. 
+                    (comp._enabled) && (activeChangeScripts.push(comp));
+                else
+                    comp._setActive(true);
             }
         }
 
@@ -773,8 +774,14 @@ export class Node extends EventDispatcher {
      * @private
      */
     private _activeScripts(): void {
-        for (var i: number = 0, n: number = this._activeChangeScripts.length; i < n; i++)
-            this._activeChangeScripts[i].onEnable();
+        for (var i: number = 0, n: number = this._activeChangeScripts.length; i < n; i++) {
+            var comp: Component = this._activeChangeScripts[i]
+            if (!comp._awaked) {
+                comp._awaked = true;
+                comp._onAwake();
+            }
+            comp._onEnable();
+        }
         this._activeChangeScripts.length = 0;
     }
 

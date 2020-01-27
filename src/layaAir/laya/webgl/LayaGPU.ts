@@ -37,6 +37,8 @@ export class LayaGPU {
     _compressedTexturePvrtc: any = null;
     /**@internal */
     _compressedTextureEtc1: any = null;
+    /**@internal */
+    _webgl_depth_texture: any = null;
 
     /**
      * @internal
@@ -61,6 +63,7 @@ export class LayaGPU {
             //this._getExtension("OES_texture_float_linear");
             this._oes_element_index_uint = this._getExtension("OES_element_index_uint");
             this._extShaderTextureLod = this._getExtension("EXT_shader_texture_lod");
+            this._webgl_depth_texture = this._getExtension("WEBGL_depth_texture");
 
             SystemUtils._shaderCapailityLevel = 30;
         } else {

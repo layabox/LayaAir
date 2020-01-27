@@ -10,6 +10,7 @@ import { SubShader } from "./SubShader";
  * <code>Shader3D</code> 类用于创建Shader3D。
  */
 export class Shader3D {
+
 	/**@internal */
 	private static _compileDefineDatas: DefineDatas = new DefineDatas();
 

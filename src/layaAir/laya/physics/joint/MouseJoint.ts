@@ -28,7 +28,7 @@ export class MouseJoint extends JointBase {
      * @override
      * @internal
      */
-    protected _onEnable(): void {
+    _onEnable(): void {
         //super._onEnable();
         (<Sprite>this.owner).on(Event.MOUSE_DOWN, this, this.onMouseDown);
     }
@@ -36,7 +36,7 @@ export class MouseJoint extends JointBase {
      * @override
      * @internal
      */
-    protected _onAwake(): void {
+    _onAwake(): void {
     }
 
     private onMouseDown(): void {

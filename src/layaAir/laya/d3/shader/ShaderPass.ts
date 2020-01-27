@@ -1,7 +1,9 @@
 import { Config3D } from "../../../Config3D";
+import { SystemUtils } from "../../webgl/SystemUtils";
 import { InlcudeFile } from "../../webgl/utils/InlcudeFile";
 import { ShaderCompile } from "../../webgl/utils/ShaderCompile";
 import { ShaderNode } from "../../webgl/utils/ShaderNode";
+import { WebGL } from "../../webgl/WebGL";
 import { RenderState } from "../core/material/RenderState";
 import { Vector3 } from "../math/Vector3";
 import { DefineDatas } from "./DefineDatas";
@@ -9,36 +11,36 @@ import { Shader3D } from "./Shader3D";
 import { ShaderInstance } from "./ShaderInstance";
 import { ShaderVariant } from "./ShaderVariantCollection";
 import { SubShader } from "./SubShader";
-import { SystemUtils } from "../../webgl/SystemUtils";
-import { WebGLContext } from "../../webgl/WebGLContext";
-import { WebGL } from "../../webgl/WebGL";
 
 /**
  * <code>ShaderPass</code> 类用于实现ShaderPass。
  */
 export class ShaderPass extends ShaderCompile {
-	/**@internal */
+	/** @internal */
 	private static _defineString: Array<string> = [];
-	/**@internal */
+	/** @internal */
 	private static _debugDefineString: Array<string> = [];
 
-	/**@internal */
+	/** @internal */
 	private _owner: SubShader;
-	/**@internal */
+	/** @internal */
 	_stateMap: object;
-	/**@internal */
+	/** @internal */
 	private _cacheSharders: object = {};
-	/**@internal */
+	/** @internal */
 	private _cacheShaderHierarchy: number = 1;
-	/**@internal */
+	/** @internal */
 	private _renderState: RenderState = new RenderState();
 
-	/**@internal */
+	/** @internal */
 	_validDefine: DefineDatas = new DefineDatas();
+	/** @internal */
+	_tags: any = {};
+	/** @internal */
+	_pipelineMode: string;
 
 	/**
-	 * 获取渲染状态。
-	 * @return 渲染状态。
+	 * 渲染状态。
 	 */
 	get renderState(): RenderState {
 		return this._renderState;
@@ -327,7 +329,25 @@ export class ShaderPass extends ShaderCompile {
 		return shader;
 	}
 
+	/**
+	 * 添加标记。
+	 * @param key 标记键。
+	 * @param value 标记值。
+	 */
+	setTag(key: string, value: string): void {
+		if (value)
+			this._tags[key] = value;
+		else
+			delete this._tags[key];
+	}
 
+	/**
+	 * 获取标记值。
+	 * @return key 标记键。
+	 */
+	getTag(key: string): string {
+		return this._tags[key];
+	}
 }
 
 

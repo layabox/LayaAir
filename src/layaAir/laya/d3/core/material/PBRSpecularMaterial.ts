@@ -2,6 +2,8 @@ import { BaseTexture } from "../../../resource/BaseTexture";
 import { Vector4 } from "../../math/Vector4";
 import PBRPS from "../../shader/files/PBRSpecular.fs";
 import PBRVS from "../../shader/files/PBRSpecular.vs";
+import PBRShadowCasterPS from "../../shader/files/PBRSpecularShadowCaster.fs";
+import PBRShadowCasterVS from "../../shader/files/PBRSpecularShadowCaster.vs";
 import { Shader3D } from "../../shader/Shader3D";
 import { ShaderDefine } from "../../shader/ShaderDefine";
 import { SubShader } from "../../shader/SubShader";
@@ -135,7 +137,8 @@ export class PBRSpecularMaterial extends PBRMaterial {
 		var shader: Shader3D = Shader3D.add("PBRSpecular");
 		var subShader: SubShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
-		subShader.addShaderPass(PBRVS, PBRPS, stateMap);
+		subShader.addShaderPass(PBRVS, PBRPS, stateMap, "Forward");
+		subShader.addShaderPass(PBRShadowCasterVS, PBRShadowCasterPS, stateMap, "ShadowCaster");
 	}
 
 	/**
