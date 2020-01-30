@@ -15,6 +15,7 @@ import { Vector4 } from "../math/Vector4";
 import { RenderTexture } from "../resource/RenderTexture";
 import { ShaderData } from "../shader/ShaderData";
 import { LayaGL } from "../../layagl/LayaGL";
+import { WarpMode } from "../../resource/WrapMode";
 
 /**
  * ...
@@ -464,6 +465,8 @@ export class ParallelSplitShadowMap {
 				}
 				shadowMap = new RenderTexture(this._shadowMapTextureSize, this._shadowMapTextureSize, format, RenderTextureDepthFormat.DEPTH_16);
 				shadowMap.filterMode = filterMode;
+				shadowMap.wrapModeU = WarpMode.Clamp;
+				shadowMap.wrapModeV = WarpMode.Clamp;
 				this.cameras[i].renderTarget = shadowMap;
 			}
 		}
