@@ -1,6 +1,17 @@
-uniform sampler2D u_shadowMap1;
-uniform sampler2D u_shadowMap2;
-uniform sampler2D u_shadowMap3;
+#ifndef GRAPHICS_API_GLES3
+	#define NO_NATIVE_SHADOWMAP
+#endif
+
+#ifdef NO_NATIVE_SHADOWMAP
+	uniform mediump sampler2D u_shadowMap1;
+	uniform mediump sampler2D u_shadowMap2;
+	uniform mediump sampler2D u_shadowMap3;
+#else
+	uniform mediump sampler2DShadow u_shadowMap1;
+	uniform mediump sampler2DShadow u_shadowMap2;
+	uniform mediump sampler2DShadow u_shadowMap3;
+#endif
+
 uniform vec2	  u_shadowPCFoffset;
 uniform vec4     u_shadowPSSMDistance;
 vec4 packDepth(const in float depth)
@@ -220,7 +231,7 @@ float getShadowPSSM2( sampler2D shadowMap1,sampler2D shadowMap2,mat4 lightShadow
 	}
 	return value;
 }
-float getShadowPSSM1( sampler2D shadowMap1,vec4 lightMVPPos,vec4 pssmDistance,vec2 shadowPCFOffset,float posViewZ,float zBias )
+float getShadowPSSM1(vec4 lightMVPPos,vec4 pssmDistance,vec2 shadowPCFOffset,float posViewZ,float zBias )
 {
 	float value = 1.0;
 	if( posViewZ < pssmDistance.x )
@@ -237,22 +248,27 @@ float getShadowPSSM1( sampler2D shadowMap1,vec4 lightMVPPos,vec4 pssmDistance,ve
 		{
 			float zdepth=0.0;
 #ifdef SHADOWMAP_PCF3
-			value =  tex2DPCF( shadowMap1, vText.xy,shadowPCFOffset,fMyZ );
-			value += tex2DPCF( shadowMap1, vText.xy+vec2(shadowPCFOffset.xy),shadowPCFOffset,fMyZ );
-			value += tex2DPCF( shadowMap1, vText.xy+vec2(shadowPCFOffset.x,0),shadowPCFOffset,fMyZ );
-			value += tex2DPCF( shadowMap1, vText.xy+vec2(0,shadowPCFOffset.y),shadowPCFOffset,fMyZ );
+			value =  tex2DPCF( u_shadowMap1, vText.xy,shadowPCFOffset,fMyZ );
+			value += tex2DPCF( u_shadowMap1, vText.xy+vec2(shadowPCFOffset.xy),shadowPCFOffset,fMyZ );
+			value += tex2DPCF( u_shadowMap1, vText.xy+vec2(shadowPCFOffset.x,0),shadowPCFOffset,fMyZ );
+			value += tex2DPCF( u_shadowMap1, vText.xy+vec2(0,shadowPCFOffset.y),shadowPCFOffset,fMyZ );
 			value = value/4.0;
 #endif
 #ifdef SHADOWMAP_PCF2		
-			value = tex2DPCF( shadowMap1,vText.xy,shadowPCFOffset,fMyZ);
+			value = tex2DPCF( u_shadowMap1,vText.xy,shadowPCFOffset,fMyZ);
 #endif
 #ifdef SHADOWMAP_PCF1
-			value = tex2DPCF( shadowMap1,vText.xy,shadowPCFOffset,fMyZ);
+			value = tex2DPCF( u_shadowMap1,vText.xy,shadowPCFOffset,fMyZ);
 #endif
-#ifdef SHADOWMAP_PCF_NO		
-			vec4 color = texture2D( shadowMap1,vText.xy );
-			zdepth = color.r;
-			value = float(fMyZ < zdepth);
+#ifdef SHADOWMAP_PCF_NO
+	#ifdef	NO_NATIVE_SHADOWMAP	
+		vec4 color = texture2D(u_shadowMap1,vText.xy );
+		zdepth = color.r;
+		value = float(fMyZ < zdepth);
+	#else
+		lowp float shadow = texture2D(u_shadowMap1,vText);
+		value = shadow;
+	#endif
 #endif
 		}
 	}

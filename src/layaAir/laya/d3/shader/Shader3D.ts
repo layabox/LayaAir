@@ -5,6 +5,7 @@ import { ShaderDefine } from "./ShaderDefine";
 import { ShaderPass } from "./ShaderPass";
 import { ShaderVariant, ShaderVariantCollection } from "./ShaderVariantCollection";
 import { SubShader } from "./SubShader";
+import { LayaGL } from "../../layagl/LayaGL";
 
 /**
  * <code>Shader3D</code> 类用于创建Shader3D。
@@ -56,6 +57,10 @@ export class Shader3D {
 
 	/**@internal */
 	static SHADERDEFINE_LEGACYSINGALLIGHTING: ShaderDefine;
+	/**@internal 图形API为WebGL1.0/OPENGLES2.0。*/
+	static SHADERDEFINE_GRAPHICS_API_GLES2: ShaderDefine;
+	/**@internal 图形API为WebGL2.0/OPENGLES3.0。*/
+	static SHADERDEFINE_GRAPHICS_API_GLES3: ShaderDefine;
 
 	/**@internal */
 	private static _propertyNameCounter: number = 0;
@@ -174,6 +179,10 @@ export class Shader3D {
 						compileDefineDatas.add(Shader3D.getDefineByName(defineNames[i]));
 
 					(Config3D._config._multiLighting) || (compileDefineDatas.add(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING));
+					if (LayaGL.layaGPUInstance._isWebGL2)
+						compileDefineDatas.add(Shader3D.SHADERDEFINE_GRAPHICS_API_GLES3);
+					else
+						compileDefineDatas.add(Shader3D.SHADERDEFINE_GRAPHICS_API_GLES2);
 					pass.withCompile(compileDefineDatas);
 				} else {
 					console.warn("Shader3D: unknown passIndex.");
@@ -269,6 +278,10 @@ export class Shader3D {
 					compileDefineDatas._length = defineMask.length;
 
 					(Config3D._config._multiLighting) || (compileDefineDatas.add(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING));
+					if (LayaGL.layaGPUInstance._isWebGL2)
+						compileDefineDatas.add(Shader3D.SHADERDEFINE_GRAPHICS_API_GLES3);
+					else
+						compileDefineDatas.add(Shader3D.SHADERDEFINE_GRAPHICS_API_GLES2);
 					pass.withCompile(compileDefineDatas);
 
 				} else {

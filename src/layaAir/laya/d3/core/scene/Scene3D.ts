@@ -527,6 +527,10 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			this._shCoefficients[i] = new Vector4();
 		var config: Config3D = Config3D._config;
 		(config._multiLighting) || (this._shaderValues.addDefine(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING));
+		if (LayaGL.layaGPUInstance._isWebGL2)
+			this._shaderValues.addDefine(Shader3D.SHADERDEFINE_GRAPHICS_API_GLES3);
+		else
+			this._shaderValues.addDefine(Shader3D.SHADERDEFINE_GRAPHICS_API_GLES2);
 		switch (config.pbrRenderQuality) {
 			case PBRRenderQuality.High:
 				this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_HIGH)

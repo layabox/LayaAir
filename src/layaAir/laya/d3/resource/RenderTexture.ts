@@ -104,14 +104,15 @@ export class RenderTexture extends BaseTexture {
 		var glTextureType: number = this._glTextureType;
 		var layaGPU: LayaGPU = LayaGL.layaGPUInstance;
 		var isWebGL2: Boolean = layaGPU._isWebGL2;
+		var format: number = this._format;
 
 		this._frameBuffer = gl.createFramebuffer();
 		gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
 
 		//color
-		if (this._format !== RenderTextureFormat.Depth) {
+		if (format !== RenderTextureFormat.Depth && format !== RenderTextureFormat.ShadowMap) {
 			WebGLContext.bindTexture(gl, glTextureType, this._glTexture);
-			switch (this._format) {
+			switch (format) {
 				case RenderTextureFormat.R8G8B8:
 					gl.texImage2D(glTextureType, 0, gl.RGB, width, height, 0, gl.RGB, gl.UNSIGNED_BYTE, null);
 					break;
@@ -132,7 +133,7 @@ export class RenderTexture extends BaseTexture {
 		}
 
 		//depth
-		if (this._format == RenderTextureFormat.Depth) {
+		if (format == RenderTextureFormat.Depth || format == RenderTextureFormat.ShadowMap) {
 			WebGLContext.bindTexture(gl, glTextureType, this._glTexture);
 			switch (this._depthStencilFormat) {
 				case RenderTextureDepthFormat.DEPTH_16:
@@ -152,6 +153,8 @@ export class RenderTexture extends BaseTexture {
 				default:
 					throw "RenderTexture: depth format RenderTexture must use depthFormat with DEPTH_16 and DEPTHSTENCIL_16_8.";
 			}
+			if (isWebGL2 && format == RenderTextureFormat.ShadowMap)
+				gl.texParameteri(glTextureType, (<WebGL2RenderingContext>gl).TEXTURE_COMPARE_MODE, (<WebGL2RenderingContext>gl).COMPARE_REF_TO_TEXTURE);
 		}
 		else {
 			if (this._depthStencilFormat !== RenderTextureDepthFormat.DEPTHSTENCIL_NONE) {

@@ -14,6 +14,7 @@ import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
 import { RenderTexture } from "../resource/RenderTexture";
 import { ShaderData } from "../shader/ShaderData";
+import { LayaGL } from "../../layagl/LayaGL";
 
 /**
  * ...
@@ -452,8 +453,17 @@ export class ParallelSplitShadowMap {
 			var shadowMap: RenderTexture = this.cameras[i].renderTarget;
 			if (shadowMap == null || shadowMap.width != this._shadowMapTextureSize || shadowMap.height != this._shadowMapTextureSize) {
 				(shadowMap) && (shadowMap.destroy());
-				shadowMap = new RenderTexture(this._shadowMapTextureSize, this._shadowMapTextureSize, RenderTextureFormat.Depth, RenderTextureDepthFormat.DEPTH_16);
-				shadowMap.filterMode = FilterMode.Point;
+				var format: RenderTextureFormat, filterMode: FilterMode;
+				if (LayaGL.layaGPUInstance._isWebGL2) {
+					format = RenderTextureFormat.ShadowMap;
+					filterMode = FilterMode.Bilinear;
+				}
+				else {
+					format = RenderTextureFormat.Depth;
+					filterMode = FilterMode.Point;
+				}
+				shadowMap = new RenderTexture(this._shadowMapTextureSize, this._shadowMapTextureSize, format, RenderTextureDepthFormat.DEPTH_16);
+				shadowMap.filterMode = filterMode;
 				this.cameras[i].renderTarget = shadowMap;
 			}
 		}
