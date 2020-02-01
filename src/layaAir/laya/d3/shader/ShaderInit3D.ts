@@ -121,6 +121,7 @@ export class ShaderInit3D {
 			'u_Viewport': Shader3D.PERIOD_CAMERA,
 			'u_ProjectionParams': Shader3D.PERIOD_CAMERA,
 			'u_View': Shader3D.PERIOD_CAMERA,
+			'u_ViewProjection': Shader3D.PERIOD_CAMERA,
 
 			'u_ReflectTexture': Shader3D.PERIOD_SCENE,
 			'u_ReflectIntensity': Shader3D.PERIOD_SCENE,

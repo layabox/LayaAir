@@ -12,8 +12,10 @@
 	uniform mediump sampler2DShadow u_shadowMap3;
 #endif
 
-uniform vec2	  u_shadowPCFoffset;
-uniform vec4     u_shadowPSSMDistance;
+uniform vec2 u_shadowPCFoffset;
+uniform vec4 u_shadowPSSMDistance;
+uniform vec4 u_ShadowBias; // x: depth bias, y: normal bias
+
 vec4 packDepth(const in float depth)
 {
 	const vec4 bitShift = vec4(256.0*256.0*256.0, 256.0*256.0, 256.0, 1.0);
@@ -39,7 +41,7 @@ float tex2DPCF( sampler2D shadowMap,vec2 texcoord,vec2 invsize,float zRef )
 	sourcevals[3] = float( texture2D(shadowMap,texcoord + vec2(invsize.x, invsize.y)).r > zRef );
 	return mix( mix(sourcevals[0],sourcevals[2],lerps.y),mix(sourcevals[1],sourcevals[3],lerps.y),lerps.x );
 }
-float getShadowPSSM3( sampler2D shadowMap1,sampler2D shadowMap2,sampler2D shadowMap3,mat4 lightShadowVP[4],vec4 pssmDistance,vec2 shadowPCFOffset,vec3 worldPos,float posViewZ,float zBias )
+float getShadowPSSM3( sampler2D shadowMap1,sampler2D shadowMap2,sampler2D shadowMap3,mat4 lightShadowVP[4],vec4 pssmDistance,vec2 shadowPCFOffset,vec3 worldPos,float posViewZ)
 {
 	float value = 1.0;
 	int nPSNum = int(posViewZ>pssmDistance.x);
@@ -63,7 +65,7 @@ float getShadowPSSM3( sampler2D shadowMap1,sampler2D shadowMap2,sampler2D shadow
 	//为了效率，在CPU计算/2.0 + 0.5
 	//vec3 vText = (vLightMVPPos.xyz / vLightMVPPos.w)/2.0 + 0.5;
 	vec3 vText = vLightMVPPos.xyz / vLightMVPPos.w;
-	float fMyZ = vText.z - zBias;
+	float fMyZ = vText.z;
 	/*
 	bvec4 bInFrustumVec = bvec4 ( vText.x >= 0.0, vText.x <= 1.0, vText.y >= 0.0, vText.y <= 1.0 );
 	bool bInFrustum = all( bInFrustumVec );
@@ -149,7 +151,7 @@ float getShadowPSSM3( sampler2D shadowMap1,sampler2D shadowMap2,sampler2D shadow
 	}
 	return value;
 }
-float getShadowPSSM2( sampler2D shadowMap1,sampler2D shadowMap2,mat4 lightShadowVP[4],vec4 pssmDistance,vec2 shadowPCFOffset,vec3 worldPos,float posViewZ,float zBias )
+float getShadowPSSM2( sampler2D shadowMap1,sampler2D shadowMap2,mat4 lightShadowVP[4],vec4 pssmDistance,vec2 shadowPCFOffset,vec3 worldPos,float posViewZ )
 {
 	float value = 1.0;
 	int nPSNum = int(posViewZ>pssmDistance.x);
@@ -168,7 +170,7 @@ float getShadowPSSM2( sampler2D shadowMap1,sampler2D shadowMap2,mat4 lightShadow
 	//为了效率，在CPU计算/2.0 + 0.5
 	//vec3 vText = (vLightMVPPos.xyz / vLightMVPPos.w)/2.0 + 0.5;
 	vec3 vText = vLightMVPPos.xyz / vLightMVPPos.w;
-	float fMyZ = vText.z - zBias;
+	float fMyZ = vText.z;
 	/*
 	bvec4 bInFrustumVec = bvec4 ( vText.x >= 0.0, vText.x <= 1.0, vText.y >= 0.0, vText.y <= 1.0 );
 	bool bInFrustum = all( bInFrustumVec );
@@ -231,13 +233,13 @@ float getShadowPSSM2( sampler2D shadowMap1,sampler2D shadowMap2,mat4 lightShadow
 	}
 	return value;
 }
-float getShadowPSSM1(vec4 lightMVPPos,vec4 pssmDistance,vec2 shadowPCFOffset,float posViewZ,float zBias )
+float getShadowPSSM1(vec4 lightMVPPos,vec4 pssmDistance,vec2 shadowPCFOffset,float posViewZ)
 {
 	float value = 1.0;
 	if( posViewZ < pssmDistance.x )
 	{
 		vec3 vText = lightMVPPos.xyz / lightMVPPos.w;
-		float fMyZ = vText.z - zBias;
+		float fMyZ = vText.z;
 		/*
 		bvec4 bInFrustumVec = bvec4 ( vText.x >= 0.0, vText.x <= 1.0, vText.y >= 0.0, vText.y <= 1.0 );
 		bool bInFrustum = all( bInFrustumVec );
@@ -273,4 +275,15 @@ float getShadowPSSM1(vec4 lightMVPPos,vec4 pssmDistance,vec2 shadowPCFOffset,flo
 		}
 	}
 	return value;
+}
+
+vec3 applyShadowBias(vec3 positionWS, vec3 normalWS, vec3 lightDirection)
+{
+    float invNdotL = 1.0 - clamp(dot(lightDirection, normalWS),0.0,1.0);
+    float scale = invNdotL * u_ShadowBias.y;
+
+    // normal bias is negative since we want to apply an inset normal offset
+    positionWS += lightDirection * vec3(u_ShadowBias);
+    positionWS += normalWS * vec3(scale);
+    return positionWS;
 }

@@ -4,8 +4,9 @@ import { Node } from "../../display/Node";
 import { Event } from "../../events/Event";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Render } from "../../renders/Render";
-import { BaseTexture } from "../../resource/BaseTexture";
+import { FilterMode } from "../../resource/FilterMode";
 import { RenderTextureDepthFormat, RenderTextureFormat } from "../../resource/RenderTextureFormat";
+import { SystemUtils } from "../../webgl/SystemUtils";
 import { WebGLContext } from "../../webgl/WebGLContext";
 import { PostProcess } from "../component/PostProcess";
 import { FrustumCulling } from "../graphics/FrustumCulling";
@@ -29,10 +30,7 @@ import { CommandBuffer } from "./render/command/CommandBuffer";
 import { RenderContext3D } from "./render/RenderContext3D";
 import { RenderQueue } from "./render/RenderQueue";
 import { Scene3D } from "./scene/Scene3D";
-import { Scene3DShaderDeclaration } from "./scene/Scene3DShaderDeclaration";
 import { Transform3D } from "./Transform3D";
-import { FilterMode } from "../../resource/FilterMode";
-import { SystemUtils } from "../../webgl/SystemUtils";
 
 /**
  * 相机清除标记。
