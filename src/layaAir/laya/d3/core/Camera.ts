@@ -22,7 +22,7 @@ import { Viewport } from "../math/Viewport";
 import { RenderTexture } from "../resource/RenderTexture";
 import { Shader3D } from "../shader/Shader3D";
 import { ShaderData } from "../shader/ShaderData";
-import { ParallelSplitShadowMap } from "../shadowMap/ParallelSplitShadowMap";
+import { ShadowMap } from "../shadowMap/ParallelSplitShadowMap";
 import { Picker } from "../utils/Picker";
 import { BaseCamera } from "./BaseCamera";
 import { BlitScreenQuadCMD } from "./render/command/BlitScreenQuadCMD";
@@ -31,6 +31,7 @@ import { RenderContext3D } from "./render/RenderContext3D";
 import { RenderQueue } from "./render/RenderQueue";
 import { Scene3D } from "./scene/Scene3D";
 import { Transform3D } from "./Transform3D";
+import { DirectionLight } from "./light/DirectionLight";
 
 /**
  * 相机清除标记。
@@ -553,10 +554,13 @@ export class Camera extends BaseCamera {
 			this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, this._getRenderTextureFormat(), RenderTextureDepthFormat.DEPTH_16, FilterMode.Bilinear);
 		else
 			this._internalRenderTexture = null;
-		if (scene.parallelSplitShadowMaps[0]) {//TODO:SM
+
+
+		var mainLight: DirectionLight = scene._mainLight;
+		if (mainLight && mainLight.shadow) {
 			context.pipelineMode = "ShadowCaster";
 			ShaderData.setRuntimeValueMode(false);
-			var parallelSplitShadowMap: ParallelSplitShadowMap = scene.parallelSplitShadowMaps[0];
+			var parallelSplitShadowMap: ShadowMap = mainLight._parallelSplitShadowMap;
 			parallelSplitShadowMap._calcAllLightCameraInfo(this);
 
 			for (var i: number = 0, n: number = parallelSplitShadowMap.shadowMapCount; i < n; i++) {

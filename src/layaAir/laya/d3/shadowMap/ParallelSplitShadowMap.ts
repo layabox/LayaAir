@@ -18,10 +18,9 @@ import { LayaGL } from "../../layagl/LayaGL";
 import { WarpMode } from "../../resource/WrapMode";
 
 /**
- * ...
- * @author ...
+ * @internal
  */
-export class ParallelSplitShadowMap {
+export class ShadowMap {
 	/**@internal */
 	static MAX_PSSM_COUNT: number = 3;
 
@@ -56,17 +55,17 @@ export class ParallelSplitShadowMap {
 	/**@internal */
 	private _scene: Scene3D = null;
 	/**@internal */
-	private _boundingSphere: BoundSphere[] = new Array<BoundSphere>(ParallelSplitShadowMap.MAX_PSSM_COUNT + 1);
+	private _boundingSphere: BoundSphere[] = new Array<BoundSphere>(ShadowMap.MAX_PSSM_COUNT + 1);
 	/**@internal */
-	_boundingBox: BoundBox[] = new Array<BoundBox>(ParallelSplitShadowMap.MAX_PSSM_COUNT + 1);
+	_boundingBox: BoundBox[] = new Array<BoundBox>(ShadowMap.MAX_PSSM_COUNT + 1);
 	/**@internal */
-	private _frustumPos: Vector3[] = new Array<Vector3>((ParallelSplitShadowMap.MAX_PSSM_COUNT + 1) * 4);
+	private _frustumPos: Vector3[] = new Array<Vector3>((ShadowMap.MAX_PSSM_COUNT + 1) * 4);
 	/**@internal */
-	private _uniformDistance: number[] = new Array<number>(ParallelSplitShadowMap.MAX_PSSM_COUNT + 1);
+	private _uniformDistance: number[] = new Array<number>(ShadowMap.MAX_PSSM_COUNT + 1);
 	/**@internal */
-	private _logDistance: number[] = new Array<number>(ParallelSplitShadowMap.MAX_PSSM_COUNT + 1);
+	private _logDistance: number[] = new Array<number>(ShadowMap.MAX_PSSM_COUNT + 1);
 	/**@internal */
-	private _dimension: Vector2[] = new Array<Vector2>(ParallelSplitShadowMap.MAX_PSSM_COUNT + 1);
+	private _dimension: Vector2[] = new Array<Vector2>(ShadowMap.MAX_PSSM_COUNT + 1);
 	/** @internal */
 	private _PCFType: number = 0;
 	/** @internal */
@@ -128,8 +127,8 @@ export class ParallelSplitShadowMap {
 	}
 
 	setInfo(scene: Scene3D, maxDistance: number, globalParallelDir: Vector3, shadowMapTextureSize: number, numberOfPSSM: number, PCFType: number): void {
-		if (numberOfPSSM > ParallelSplitShadowMap.MAX_PSSM_COUNT) {
-			this._shadowMapCount = ParallelSplitShadowMap.MAX_PSSM_COUNT;
+		if (numberOfPSSM > ShadowMap.MAX_PSSM_COUNT) {
+			this._shadowMapCount = ShadowMap.MAX_PSSM_COUNT;
 		}
 		this._scene = scene;
 		this._maxDistance = maxDistance;
@@ -194,7 +193,7 @@ export class ParallelSplitShadowMap {
 
 	set shadowMapCount(value: number) {
 		value = value > 0 ? value : 1;
-		value = value <= ParallelSplitShadowMap.MAX_PSSM_COUNT ? value : ParallelSplitShadowMap.MAX_PSSM_COUNT;
+		value = value <= ShadowMap.MAX_PSSM_COUNT ? value : ShadowMap.MAX_PSSM_COUNT;
 		if (this._shadowMapCount != value) {
 			this._shadowMapCount = value;
 			this._ratioOfDistance = 1.0 / this._shadowMapCount;
@@ -487,8 +486,8 @@ export class ParallelSplitShadowMap {
 		lookAt3Element.y = lookAt4Element.y;
 		lookAt3Element.z = lookAt4Element.z;
 		var lightUpElement: Vector3 = this._tempLightUp;
-		sceneCamera.transform.worldMatrix.getForward(ParallelSplitShadowMap._tempVector30);
-		var sceneCameraDir: Vector3 = ParallelSplitShadowMap._tempVector30;
+		sceneCamera.transform.worldMatrix.getForward(ShadowMap._tempVector30);
+		var sceneCameraDir: Vector3 = ShadowMap._tempVector30;
 		lightUpElement.x = sceneCameraDir.x;
 		lightUpElement.y = 1.0;
 		lightUpElement.z = sceneCameraDir.z;
@@ -573,7 +572,7 @@ export class ParallelSplitShadowMap {
 
 		//calc frustum
 		var projectView: Matrix4x4 = curLightCamera.projectionViewMatrix;
-		ParallelSplitShadowMap.multiplyMatrixOutFloat32Array(this._tempScaleMatrix44, projectView, this._shaderValueVPs[this._currentPSSM]);
+		ShadowMap.multiplyMatrixOutFloat32Array(this._tempScaleMatrix44, projectView, this._shaderValueVPs[this._currentPSSM]);
 		this._scene._shaderValues.setBuffer(ILaya3D.Scene3D.SHADOWLIGHTVIEWPROJECT, this._shaderValueLightVP);
 	}
 

@@ -1,9 +1,9 @@
 import { Vector3 } from "../../math/Vector3";
 import { ShaderData } from "../../shader/ShaderData";
-import { ParallelSplitShadowMap } from "../../shadowMap/ParallelSplitShadowMap";
+import { ShadowMap } from "../../shadowMap/ParallelSplitShadowMap";
 import { Scene3D } from "../scene/Scene3D";
 import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
-import { LightSprite } from "./LightSprite";
+import { LightSprite, LightType } from "./LightSprite";
 
 /**
  * <code>DirectionLight</code> 类用于创建平行光。
@@ -11,6 +11,14 @@ import { LightSprite } from "./LightSprite";
 export class DirectionLight extends LightSprite {
 	/**@iternal */
 	_direction: Vector3;
+
+	/**
+	* @inheritDoc
+	* @override
+	*/
+	get shadow(): boolean {
+		return this._shadow;
+	}
 
 	/**
 	 * @inheritDoc
@@ -29,6 +37,7 @@ export class DirectionLight extends LightSprite {
 	constructor() {
 		super();
 		this._direction = new Vector3();
+		this._lightType = LightType.Directional;
 	}
 
 
@@ -37,15 +46,12 @@ export class DirectionLight extends LightSprite {
 	 */
 	private _initShadow(): void {
 		if (this._shadow) {
-			this._parallelSplitShadowMap = new ParallelSplitShadowMap();
-			this.scene.parallelSplitShadowMaps.push(this._parallelSplitShadowMap);
+			this._parallelSplitShadowMap = new ShadowMap();
 			this.transform.worldMatrix.getForward(this._direction);
 			Vector3.normalize(this._direction, this._direction);
 			this._parallelSplitShadowMap.setInfo(this.scene, this._shadowFarPlane, this._direction, this._shadowMapSize, this._shadowMapCount, this._shadowMapPCFType);
 		} else {
-			var defineDatas: ShaderData = ((<Scene3D>this._scene))._shaderValues;
-			var parallelSplitShadowMaps: ParallelSplitShadowMap[] = this.scene.parallelSplitShadowMaps;
-			parallelSplitShadowMaps.splice(parallelSplitShadowMaps.indexOf(this._parallelSplitShadowMap), 1);
+			var defineDatas: ShaderData = (<Scene3D>this._scene)._shaderValues;
 			this._parallelSplitShadowMap.disposeAllRenderTarget();
 			this._parallelSplitShadowMap = null;
 			defineDatas.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_PSSM1);

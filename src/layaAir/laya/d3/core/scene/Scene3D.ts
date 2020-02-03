@@ -9,6 +9,7 @@ import { Context } from "../../../resource/Context";
 import { ICreateResource } from "../../../resource/ICreateResource";
 import { RenderTextureDepthFormat } from "../../../resource/RenderTextureFormat";
 import { Texture2D } from "../../../resource/Texture2D";
+import { TextureDecodeFormat } from "../../../resource/TextureDecodeFormat";
 import { Handler } from "../../../utils/Handler";
 import { Timer } from "../../../utils/Timer";
 import { ISubmit } from "../../../webgl/submit/ISubmit";
@@ -36,7 +37,6 @@ import { RenderTexture } from "../../resource/RenderTexture";
 import { TextureCube } from "../../resource/TextureCube";
 import { Shader3D } from "../../shader/Shader3D";
 import { ShaderData } from "../../shader/ShaderData";
-import { ParallelSplitShadowMap } from "../../shadowMap/ParallelSplitShadowMap";
 import { Utils3D } from "../../utils/Utils3D";
 import { BaseCamera } from "../BaseCamera";
 import { Camera, CameraClearFlags } from "../Camera";
@@ -45,6 +45,8 @@ import { AlternateLightQueue, DirectionLightQueue, LightQueue } from "../light/L
 import { PointLight } from "../light/PointLight";
 import { SpotLight } from "../light/SpotLight";
 import { Material } from "../material/Material";
+import { PBRMaterial } from "../material/PBRMaterial";
+import { PBRRenderQuality } from "../material/PBRRenderQuality";
 import { RenderState } from "../material/RenderState";
 import { PixelLineMaterial } from "../pixelLine/PixelLineMaterial";
 import { PixelLineSprite3D } from "../pixelLine/PixelLineSprite3D";
@@ -52,14 +54,9 @@ import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { RenderElement } from "../render/RenderElement";
 import { RenderQueue } from "../render/RenderQueue";
-import { RenderableSprite3D } from "../RenderableSprite3D";
-import { Sprite3D } from "../Sprite3D";
 import { BoundsOctree } from "./BoundsOctree";
-import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
-import { PBRMaterial } from "../material/PBRMaterial";
-import { PBRRenderQuality } from "../material/PBRRenderQuality";
-import { TextureDecodeFormat } from "../../../resource/TextureDecodeFormat";
 import { Lightmap } from "./Lightmap";
+import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
 
 /**
  * 环境光模式
@@ -227,6 +224,8 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	private _reflectionIntensity: number = 1.0;
 
 	/** @internal */
+	_mainLight: DirectionLight;
+	/** @internal */
 	_physicsSimulation: PhysicsSimulation;
 	/** @internal */
 	_octree: BoundsOctree;
@@ -259,8 +258,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/** 是否启用灯光。*/
 	enableLight: boolean = true;
 
-	//阴影相关变量
-	parallelSplitShadowMaps: ParallelSplitShadowMap[];
 	/** @internal */
 	_debugTool: PixelLineSprite3D;
 
@@ -514,7 +511,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			this._physicsSimulation = new PhysicsSimulation(Scene3D.physicsSettings);
 
 		this._shaderValues = new ShaderData(null);
-		this.parallelSplitShadowMaps = [];
 
 		this.enableFog = false;
 		this.fogStart = 300;
@@ -778,7 +774,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 	/**
 	 * @internal
 	 */
-	protected _prepareSceneToRender(): void {
+	private _prepareSceneToRender(): void {
 		var shaderValues: ShaderData = this._shaderValues;
 		var multiLighting: boolean = Config3D._config._multiLighting;
 		if (multiLighting) {
@@ -791,6 +787,7 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 			var dirElements: DirectionLight[] = this._directionLights._elements;
 			if (dirCount > 0) {
 				var sunLightIndex: number = this._directionLights.getSunLight();//get the brightest light as sun
+				this._mainLight = dirElements[sunLightIndex];
 				for (var i: number = 0; i < dirCount; i++ , curCount++) {
 					var dirLight: DirectionLight = dirElements[i];
 					var dir: Vector3 = dirLight._direction;
@@ -1248,7 +1245,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 		this._renders = null;
 		this._cameraPool = null;
 		this._octree = null;
-		this.parallelSplitShadowMaps = null;
 		this._physicsSimulation && this._physicsSimulation._destroy();
 		Loader.clearRes(this.url);
 	}

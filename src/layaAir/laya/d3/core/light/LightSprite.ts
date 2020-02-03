@@ -1,9 +1,19 @@
 import { Config3D } from "../../../../Config3D";
 import { Node } from "../../../display/Node";
 import { Vector3 } from "../../math/Vector3";
-import { ParallelSplitShadowMap } from "../../shadowMap/ParallelSplitShadowMap";
+import { ShadowMap } from "../../shadowMap/ParallelSplitShadowMap";
 import { Scene3D } from "../scene/Scene3D";
 import { Sprite3D } from "../Sprite3D";
+import { Vector4 } from "../../math/Vector4";
+
+/**
+ * @internal
+ */
+export enum LightType {
+	Directional,
+	Spot,
+	Point
+}
 
 /**
  * <code>LightSprite</code> 类用于创建灯光的父类。
@@ -34,9 +44,25 @@ export class LightSprite extends Sprite3D {
 	/** @internal */
 	protected _shadowMapPCFType: number;
 	/** @internal */
-	_parallelSplitShadowMap: ParallelSplitShadowMap;
+	protected _shadowBias: Vector4 = new Vector4();
+
+
+	/** @internal */
+	_shadowDepthBias: number = 1.0;
+	/** @internal */
+	_shadowNormalBias: number = 1.0;
+	/** @internal */
+	_shadowSoft: Boolean = false;
+	/** @internal */
+	_shadowNearPlane: number = 0.1;
+	/** @internal */
+	_shadowStrength: number = 1.0;
+	/** @internal */
+	_parallelSplitShadowMap: ShadowMap;
 	/** @internal */
 	_lightmapBakedType: number;
+	/** @internal */
+	_lightType: LightType;
 
 	/** 灯光颜色。 */
 	color: Vector3;
@@ -109,6 +135,30 @@ export class LightSprite extends Sprite3D {
 	set shadowPCFType(value: number) {
 		this._shadowMapPCFType = value;
 		(this._parallelSplitShadowMap) && (this._parallelSplitShadowMap.setPCFType(value));
+	}
+
+	/**
+	 * 阴影深度偏差。
+	 */
+	get shadowDepthBias(): number {
+		return this._shadowDepthBias;
+	}
+
+	set shadowDepthBias(value: number) {
+		this._shadowDepthBias = value;
+		//todo:
+	}
+
+	/**
+	 * 阴影法线偏差。
+	 */
+	get shadowNormalBias(): number {
+		return this._shadowNormalBias;
+	}
+
+	set shadowNormalBias(value: number) {
+		this._shadowNormalBias = value;
+		//todo:
 	}
 
 	/**
@@ -235,8 +285,8 @@ export class LightSprite extends Sprite3D {
 	}
 
 	/**
-	 * 灯光的漫反射颜色。
-	 * @return 灯光的漫反射颜色。
+	 * @deprecated
+	 * please use color property instead.
 	 */
 	get diffuseColor(): Vector3 {
 		console.log("LightSprite: discard property,please use color property instead.");
