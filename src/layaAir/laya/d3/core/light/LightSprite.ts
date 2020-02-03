@@ -37,14 +37,11 @@ export class LightSprite extends Sprite3D {
 	/** @internal */
 	protected _shadowMode: ShadowMode = ShadowMode.None;
 	/** @internal */
-	protected _shadowFarPlane: number;
+	protected _shadowDistance: number = 50;
 	/** @internal */
-	protected _shadowMapSize: number;
-	/** @internal */
-	protected _shadowMapCount: number;
+	protected _shadowResolution: number = 2048;
 	/** @internal */
 	protected _shadowBias: Vector4 = new Vector4();
-
 
 	/** @internal */
 	_shadowDepthBias: number = 1.0;
@@ -86,39 +83,27 @@ export class LightSprite extends Sprite3D {
 	}
 
 	/**
-	 * 阴影最远范围。
+	 * 最大阴影距离。
 	 */
 	get shadowDistance(): number {
-		return this._shadowFarPlane;
+		return this._shadowDistance;
 	}
 
 	set shadowDistance(value: number) {
-		this._shadowFarPlane = value;
+		this._shadowDistance = value;
 		(this._parallelSplitShadowMap) && (this._parallelSplitShadowMap.setFarDistance(value));
 	}
 
 	/**
-	 * 阴影贴图尺寸。
+	 * 阴影贴图分辨率。
 	 */
 	get shadowResolution(): number {
-		return this._shadowMapSize;
+		return this._shadowResolution;
 	}
 
 	set shadowResolution(value: number) {
-		this._shadowMapSize = value;
+		this._shadowResolution = value;
 		(this._parallelSplitShadowMap) && (this._parallelSplitShadowMap.setShadowMapTextureSize(value));
-	}
-
-	/**
-	 * 阴影分段数。
-	 */
-	get shadowPSSMCount(): number {
-		return this._shadowMapCount;
-	}
-
-	set shadowPSSMCount(value: number) {
-		this._shadowMapCount = value;
-		(this._parallelSplitShadowMap) && (this._parallelSplitShadowMap.shadowMapCount = value);
 	}
 
 	/**
@@ -143,6 +128,28 @@ export class LightSprite extends Sprite3D {
 	set shadowNormalBias(value: number) {
 		this._shadowNormalBias = value;
 		//todo:
+	}
+
+	/**
+	 * 阴影强度。
+	 */
+	get shadowStrength(): number {
+		return this._shadowStrength;
+	}
+
+	set shadowStrength(value: number) {
+		this._shadowStrength = value;
+	}
+
+	/**
+	 * 阴影视锥的近裁面。
+	 */
+	get shadowNearPlane(): number {
+		return this._shadowNearPlane;
+	}
+
+	set shadowNearPlane(value: number) {
+		this._shadowNearPlane = value;
 	}
 
 	/**
@@ -172,9 +179,6 @@ export class LightSprite extends Sprite3D {
 		this._intensity = 1.0;
 		this._intensityColor = new Vector3();
 		this.color = new Vector3(1.0, 1.0, 1.0);
-		this._shadowFarPlane = 8;
-		this._shadowMapSize = 512;
-		this._shadowMapCount = 1;
 		this._lightmapBakedType = LightSprite.LIGHTMAPBAKEDTYPE_REALTIME;
 	}
 

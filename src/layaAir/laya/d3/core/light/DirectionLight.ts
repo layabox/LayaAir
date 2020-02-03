@@ -5,6 +5,7 @@ import { Scene3D } from "../scene/Scene3D";
 import { Scene3DShaderDeclaration } from "../scene/Scene3DShaderDeclaration";
 import { LightSprite, LightType } from "./LightSprite";
 import { ShadowMode } from "./ShadowMode";
+import { ShadowCascadesMode } from "./ShadowCascadesMode";
 
 /**
  * <code>DirectionLight</code> 类用于创建平行光。
@@ -12,6 +13,8 @@ import { ShadowMode } from "./ShadowMode";
 export class DirectionLight extends LightSprite {
 	/**@iternal */
 	_direction: Vector3;
+	/** @internal */
+	_shadowCascadesMode: ShadowCascadesMode;
 
 	/**
 	* @inheritDoc
@@ -33,6 +36,18 @@ export class DirectionLight extends LightSprite {
 	}
 
 	/**
+	 * 阴影级联数量。
+	 */
+	get shadowCascadesMode(): ShadowCascadesMode {
+		return this._shadowCascadesMode;
+	}
+
+	set shadowCascadesMode(value: ShadowCascadesMode) {
+		this._shadowCascadesMode = value;
+		(this._parallelSplitShadowMap) && (this._parallelSplitShadowMap.shadowMapCount = value);
+	}
+
+	/**
 	 * 创建一个 <code>DirectionLight</code> 实例。
 	 */
 	constructor() {
@@ -50,7 +65,7 @@ export class DirectionLight extends LightSprite {
 			this._parallelSplitShadowMap = new ShadowMap();
 			this.transform.worldMatrix.getForward(this._direction);
 			Vector3.normalize(this._direction, this._direction);
-			this._parallelSplitShadowMap.setInfo(this.scene, this._shadowFarPlane, this._direction, this._shadowMapSize, this._shadowMapCount, 0);//TODO:
+			this._parallelSplitShadowMap.setInfo(this.scene, this._shadowDistance, this._direction, this._shadowResolution, this._shadowCascadesMode, 0);//TODO:
 		} else {
 			var defineDatas: ShaderData = (<Scene3D>this._scene)._shaderValues;
 			this._parallelSplitShadowMap.disposeAllRenderTarget();
