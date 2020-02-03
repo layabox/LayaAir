@@ -5,6 +5,7 @@ import { ShadowMap } from "../../shadowMap/ParallelSplitShadowMap";
 import { Scene3D } from "../scene/Scene3D";
 import { Sprite3D } from "../Sprite3D";
 import { Vector4 } from "../../math/Vector4";
+import { ShadowMode } from "./ShadowMode";
 
 /**
  * @internal
@@ -34,15 +35,13 @@ export class LightSprite extends Sprite3D {
 	/** @internal */
 	_intensity: number;
 	/** @internal */
-	protected _shadow: boolean;
+	protected _shadowMode: ShadowMode = ShadowMode.None;
 	/** @internal */
 	protected _shadowFarPlane: number;
 	/** @internal */
 	protected _shadowMapSize: number;
 	/** @internal */
 	protected _shadowMapCount: number;
-	/** @internal */
-	protected _shadowMapPCFType: number;
 	/** @internal */
 	protected _shadowBias: Vector4 = new Vector4();
 
@@ -51,8 +50,6 @@ export class LightSprite extends Sprite3D {
 	_shadowDepthBias: number = 1.0;
 	/** @internal */
 	_shadowNormalBias: number = 1.0;
-	/** @internal */
-	_shadowSoft: Boolean = false;
 	/** @internal */
 	_shadowNearPlane: number = 0.1;
 	/** @internal */
@@ -79,14 +76,13 @@ export class LightSprite extends Sprite3D {
 	}
 
 	/**
-	 * 是否产生阴影。
+	 * 阴影模式。
 	 */
-	get shadow(): boolean {
-		return this._shadow;
+	get shadowMode(): ShadowMode {
+		return this._shadowMode;
 	}
 
-	set shadow(value: boolean) {
-		throw new Error("LightSprite: must override it.");
+	set shadowMode(value: ShadowMode) {
 	}
 
 	/**
@@ -123,18 +119,6 @@ export class LightSprite extends Sprite3D {
 	set shadowPSSMCount(value: number) {
 		this._shadowMapCount = value;
 		(this._parallelSplitShadowMap) && (this._parallelSplitShadowMap.shadowMapCount = value);
-	}
-
-	/**
-	 * 阴影PCF类型。
-	 */
-	get shadowPCFType(): number {
-		return this._shadowMapPCFType;
-	}
-
-	set shadowPCFType(value: number) {
-		this._shadowMapPCFType = value;
-		(this._parallelSplitShadowMap) && (this._parallelSplitShadowMap.setPCFType(value));
 	}
 
 	/**
@@ -188,11 +172,9 @@ export class LightSprite extends Sprite3D {
 		this._intensity = 1.0;
 		this._intensityColor = new Vector3();
 		this.color = new Vector3(1.0, 1.0, 1.0);
-		this._shadow = false;
 		this._shadowFarPlane = 8;
 		this._shadowMapSize = 512;
 		this._shadowMapCount = 1;
-		this._shadowMapPCFType = 0;
 		this._lightmapBakedType = LightSprite.LIGHTMAPBAKEDTYPE_REALTIME;
 	}
 

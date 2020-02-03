@@ -176,19 +176,11 @@ export class ShadowMap {
 		}
 	}
 
-	getPCFType(): number {
-		return this._PCFType;
-	}
-
 	setFarDistance(value: number): void {
 		if (this._maxDistance != value) {
 			this._maxDistance = value;
 			this._statesDirty = true;
 		}
-	}
-
-	getFarDistance(): number {
-		return this._maxDistance;
 	}
 
 	set shadowMapCount(value: number) {

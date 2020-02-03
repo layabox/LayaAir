@@ -32,6 +32,7 @@ import { RenderQueue } from "./render/RenderQueue";
 import { Scene3D } from "./scene/Scene3D";
 import { Transform3D } from "./Transform3D";
 import { DirectionLight } from "./light/DirectionLight";
+import { ShadowMode } from "./light/ShadowMode";
 
 /**
  * 相机清除标记。
@@ -557,7 +558,7 @@ export class Camera extends BaseCamera {
 
 
 		var mainLight: DirectionLight = scene._mainLight;
-		if (mainLight && mainLight.shadow) {
+		if (mainLight && mainLight.shadowMode!==ShadowMode.None) {
 			context.pipelineMode = "ShadowCaster";
 			ShaderData.setRuntimeValueMode(false);
 			var parallelSplitShadowMap: ShadowMap = mainLight._parallelSplitShadowMap;
